@@ -587,8 +587,8 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   */
   int channel;
   unsigned int countpos;
-  if((chanpix < 0) && clipping) {		/* Below bottom channel */
-    channel =  -1;
+  if((chanpix < 0) && clipping) {		/* set at  bottom channel */
+    channel =   0;		// Clip to the axis.
     countpos=   0;
     loc->counts = 0;
   }
@@ -612,15 +612,19 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   */
   if(attributes->isflipped()) {
     loc->xpos = countpos;
-    if(clipping && ((loc->xpos > cntshi) || (loc->ypos < cntslow))) 
-      loc->xpos = -1;
+    if(clipping) {
+      if(loc->xpos > cntshi) loc->xpos = cntshi;
+      if(loc->xpos < cntslow)loc->xpos = cntslow;
+    }
     loc->ypos = channel;
   }
   else {
     loc->xpos = channel;
     loc->ypos = countpos;
-    if(clipping && ((loc->ypos > cntshi) || (loc->ypos < cntslow)))
-      loc->ypos = -1;
+    if(clipping) {  
+      if(loc->ypos > cntshi) loc->ypos = cntshi;
+      if((loc->ypos < cntslow)) loc->ypos = cntslow;
+    }
   }
 }
 
@@ -716,11 +720,14 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   *xpix -= orgx;
   *ypix = ny - (*ypix);
 
-  /* If this takes anything out of the display then return -1 for that value */
+  /* If this takes anything out of the display then clip to the edge. */
  
   if(clipping) {
-    if( (*xpix < 0) || (*xpix >= nxs)) *xpix  = -1;
-    if( (*ypix < 0) || (*ypix >= nys)) *ypix  = -1;
+    
+    if(*xpix < 0)     *xpix = 0;
+    if(*xpix >= nxs)  *xpix  = nxs;
+    if(*ypix < 0)     *ypix = 0;
+    if(*ypix >= nys)  *ypix  = nys;
   }
 }
 
@@ -835,10 +842,10 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   }
 
   if(clipping) {
-    if((xp < xl) || (xp > xh))
-      loc->xpos = -1;
-    if((yp < yl) || (yp > yh))
-      loc->ypos = -1;
+    if(xp < xl) loc->xpos = xl;
+    if(xp > xh) loc->xpos = xh;
+    if(yp < yl) loc->ypos = yl;
+    if(yp > yh) loc->ypos = yh;
   }
 }
 
@@ -917,9 +924,10 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
   *xpix -= orgx;
   *ypix = ny - (*ypix);
   if(clipping) {
-    if( (*xpix < orgx) || (*xpix > nxs))
-      *xpix = -1;
-    if( (*ypix < 0)    || (*ypix > ny))
-      *ypix = -1;
+    if(*xpix < orgx) *xpix = orgx;
+    if(*xpix > nxs)  *xpix = nxs;
+    if(*ypix < 0)    *ypix = 0;
+    if(*ypix > ny)   *ypix = ny;
+    
   } 
 }
