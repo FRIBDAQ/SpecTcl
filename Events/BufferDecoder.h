@@ -369,7 +369,7 @@ class CBufferDecoder {
     return m_pBuffer;
   }
 
-  BufferTranslator* getBufferTranslator() {
+  virtual BufferTranslator* getBufferTranslator() {
     return m_pTranslator;
   }
 
