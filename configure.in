@@ -35,6 +35,7 @@ AC_PROG_LIBTOOL
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
+AC_CHECK_HEADER(time.h)
 AC_CHECK_HEADERS([fcntl.h limits.h malloc.h memory.h stddef.h stdlib.h strings.h string.h sys/file.h sys/ioctl.h sys/socket.h sys/time.h unistd.h values.h windows.h machine/hal_sysinfo.h sys/proc.h sys/mtio.h sys/mman.h sys/ipc.h sys/shm.h machine/param.h sys/un.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -56,6 +57,7 @@ AC_REPLACE_FUNCS([malloc memcmp strftime alloca vfork strtok_r])
 AC_CHECK_FUNCS([select socket strspn fork drand48 seed48]) 
 AC_CHECK_FUNCS([pipe sbrk shm_open shmget fcntl])
 AC_CHECK_FUNCS([floor getcwd gethostname gettimeofday mbrlen])
+AC_CHECK_FUNCS(time)
 AC_CHECK_LIB(m, pow)
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(m, logb)
@@ -428,39 +430,24 @@ esac
 # and Ultrix specific calls. 
 
 LD_EXTRA_FLAGS=""
+X11EXTRA_LDFLAGS=""
 AC_MSG_CHECKING([for supported OS])
+OS="$host_os"
 case $host_os in
   *cygwin* ) 
 	AC_DEFINE(CYGWIN, 1, [Set to 1 if Cygwin environment])
 	AC_MSG_RESULT([Cygwin])
 
- 	AC_MSG_CHECKING(static libraries okay to build on Cygwin)
-	dirs=". Replace Scripts Utility Display Exception Xamine Tape EventSource TCL Events Gates Sorter SpectrumIO SpecTcl contrib doc Filter"
-	echo ""
-	for dir in $dirs ; do
-  	  echo -n "  **Entering directory $dir..."
-   	  sed 's/\.lo/.o/g' < $dir/Makefile.in > $dir/Makefile2.in
-   	  sed 's/_la_/_a_/g' < $dir/Makefile2.in > $dir/Makefile3.in
-   	  sed 's/LTLIBRARIES/LIBRARIES/g' < $dir/Makefile3.in > $dir/Makefile2.in
-   	  sed 's/\.la/.a/g' < $dir/Makefile2.in > $dir/Makefile3.in
-   	  sed 's/$(LIBTOOL)  --mode=install //g' < $dir/Makefile3.in > $dir/Makefile2.in
-   	  sed 's/$(LIBTOOL)  --mode=uninstall //g' < $dir/Makefile2.in > $dir/Makefile3.in
-   	  sed 's/$(LIBTOOL) --mode=compile //g' < $dir/Makefile3.in > $dir/Makefile2.in
-   	  sed 's/$(LTCXXCOMPILE)/$(CXXCOMPILE)/g' < $dir/Makefile2.in > $dir/Makefile3.in
-   	  sed 's/$(LTCOMPILE)/$(COMPILE)/g' < $dir/Makefile3.in > $dir/Makefile2.in
-   	  sed 's/$(LIBTOOL) --mode=link //g' < $dir/Makefile2.in > $dir/Makefile3.in
-	  sed 's/-rpath//g' < $dir/Makefile.in >$dir/Makefile2.in
-	  mv -f $dir/Makefile2.in $dir/Makefile.in
-	  rm -f $dir/Makefile2.in
+	# cygwin we have doesn't seem to get the object extension
+	# quite right:
 
-	  # If we don't do this, make will try to recreate the makefile
-	  touch $dir/Makefile
-  	echo " done!"
-	done
-	AC_MSG_RESULT([Done removing libtool-specific commands!])
+	OBJEXT="o"
+	AC_SUBST(OBJEXT)
 
 	# Windows doesn't allow undefined symbols at link time
-	LD_EXTRA_FLAGS="$LD_EXTRA_FLAGS -no-undefined"
+	#
+	LD_EXTRA_FLAGS="$LD_EXTRA_FLAGS -no-undefined -lrpc" 
+	X11EXTRA_LDFLAGS="-lSM -lICE"
 	;;
   *linux* )
 	AC_DEFINE(LINUX, 1, [Set to 1 if Linux environment])
@@ -528,7 +515,7 @@ fi
 if test $tcl_headers_found = "no" ; then
  for version in ${tcl_versions};  do
    if test $tcl_headers_found = "no" ; then   # stop at first match
-      testdir=/usr/include/tcl${versions}
+      testdir=/usr/include/tcl${version}
       AC_CHECK_FILE([${testdir}/tcl.h],
 	[tcl_header_dir=${testdir}
 	 tcl_headers_found="yes"])
@@ -560,7 +547,9 @@ else
 fi
 
 #  Tcl libraries:
-#     We look for the following:
+#     We look for the following
+#       /usr/lib/libtcl.so         -  link to a default shared library.
+#       /usr/lib/libtcl<version>.so - Link to a specific shared lib.
 #      /usr/lib/libtcl.a           - Usually a link to a default lib.
 #      /usr/lib/libtcl<version>.a  - version of tcl from tcl_versions
 #      /usr/local/lib/libtcl.a     - As above but installed from source.
@@ -582,7 +571,7 @@ AC_ARG_WITH(tcl-libdir,
 
 tcl_libsearchpath="$tcl_libsearchpath /usr/lib /usr/local/lib"
 
-tcl_libfiles="libtcl.a libtcl.so"
+tcl_libfiles="libtcl.so libtcl.a"
 for v in ${tcl_versions}
 do
    tcl_libfiles="$tcl_libfiles libtcl${v}.a libtcl${v}.so"
@@ -608,9 +597,17 @@ done
 if test $tcl_libfound = "yes" ; then
   # Find the lib basename:
 
+  
+
   tcl_libname=$(echo $tcl_libname|cut -c 4- )  # trim off lib 
-  tcl_libname=$(echo $tcl_libname|cut -c -$(expr length $tcl_libname - 2))
-  tcl_libname=$(echo $tcl_libname|tr "." " ")    # trim off "." in .so
+  
+  # The suffix now is either .so or .a and basename can get rid of that:
+
+  tcl_libname=$(basename $(basename $tcl_libname .a) .so)
+
+  # Rather than repeat this mess for tk, we require thesame version and
+  # just replace the tcl with tk.
+
   tk_libname=tk$(echo $tcl_libname|cut -c 4-)   # trim off tc...and use tk
   TCL_LDFLAGS="-L${tcl_libdir} -l${tk_libname} -l${tcl_libname}"
   AC_MSG_RESULT([Using directory $tcl_libdir])
@@ -690,7 +687,7 @@ else
    #
    cd Gri 
     rm -f Makefile          # Tru64 fails if Makefile already exists.
-    configure --prefix=$prefix                      
+    ./configure --prefix=$prefix                      
     make                                            
     make install
    cd ..
@@ -772,6 +769,9 @@ AC_SUBST(TCL_FLAGS)
 AC_SUBST(TCL_LDFLAGS)
 
 # X flags
+
+AC_SUBST(X11EXTRA_LDFLAGS)
+
 AC_SUBST(XINCLUDES)
 AC_SUBST(XLIBSW)
 AC_SUBST(CFLAGS)
@@ -794,12 +794,16 @@ AC_SUBST(ac_aux_dir)
 # LIBOBJS and LTLILBOBJS set
 AC_SUBST(LTLIBOBJS)
 
+# Operating system designator:
+
+AC_SUBST(OS)
 
 # create output files.
 
 
 AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
-	Display/Makefile Exception/Makefile  Xamine/Makefile Tape/Makefile \
+	Display/Makefile NSCLException/Makefile  \
+	Xamine/Makefile Tape/Makefile \
 	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	 SpecTcl/Makefile \
