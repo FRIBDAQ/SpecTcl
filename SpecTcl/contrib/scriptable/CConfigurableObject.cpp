@@ -273,392 +273,525 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS'
 */
 
-#include "CSeeAnalyzer.h"
-
-#include <Globals.h>
+#include <CConfigurableObject.h>
+#include <CConfigurationParameter.h>
 #include <TCLInterpreter.h>
-#include <TCLVariable.h>
-#include <BufferDecoder.h>
-#include <string>
-#include <Spectrum.h>
-#include <SnapshotSpectrum.h>
-#include <Histogrammer.h>
-#include <Spectrum1DL.h>
-#include <math.h>
-#include <SpectrumFactory.h>
-#include <vector>
-#include <unistd.h>
-#include <DeletedGate.h>
-#include <GateContainer.h>
+#include <TCLResult.h>
+#include <CIntConfigParam.h>
+#include <CIntArrayParam.h>
+#include <CBoolConfigParam.h>
+#include <CStringConfigParam.h>
+#include <CStringArrayparam.h>
 
-
-// Constant definitions:
-
-// Names of the scalers we want.
-
-const string scalers[4] = { string("see.scint.u"),
-			    string("see.scint.d"),
-			    string("see.scint.l"),
-			    string("see.scint.r") };
-
-const string spectrum("see.sci.counts");
-
-const string trendnames[4] = {  string("see.trend.u"),
-				string("see.trend.d"),
-				string("see.trend.l"),
-				string("see.trend.r")
-};
-
-static CDeletedGate False;
-static string FalseString("FALSE");
-static CGateContainer FalseGate(FalseString, 0, False);
 
 
 /*!
-   Constructor.. Just construct the base class and we are done.
+  Construct a Configurable object:
+  - The name is saved in m_sName.
+  - The base class is initialized to create a command that is the same as
+     the name.
+  - The command is registered with the interpreter.
+  \param rName    (const string&):
+      The string that identifies this object as well as the name of the
+      command that will be created.
+  \param rInterp   (CTCLInterpreter):
+      The TCL Interpreter on which this command will be registered.
 */
-CSeeAnalyzer::CSeeAnalyzer(CTCLInterpreter& rInterp, 
-			   UInt_t nP, UInt_t nBunch) :
-  CTclAnalyzer(rInterp, nP, nBunch),
-  m_nTrendChannels(4096),
-  m_nSecondsPerChannel(2),
-  m_nLastShift(0)
+CConfigurableObject::CConfigurableObject(const string&    rName,
+					CTCLInterpreter& rInterp) :
+  CTCLProcessor(rName.c_str(), &rInterp),
+  m_sName(rName)
 {
-  for (int i = 0; i < 4; i++) {
-    m_nTrendSums[i] = 0;
-    m_pTrends[i]    = (CSpectrum1DL*)kpNULL;
-  }
+  // Note that the list has a fully functional default construtor.
 
-}
-/*!
-   Called on a begin run buffer.
-   - Figure out the current value for m_nTrendChannels
-   - Figure out the current value for m_nSecondsPerChannel
-   - Destroy any existing trend spectra.
-   - Create new trend spectra.
-   - Initialize m_nTrendSums, m_nLastShift, m_nTrendChannel
-     appropriately so that the next scaler buffer can start
-     doing trendlines.
-
-     \param pDecoder (CBufferDecoder* [in]):
-         Pointer to current buffer decoder.
-*/
-void
-CSeeAnalyzer::OnBegin(CBufferDecoder* pDecoder)
-{
-  CTclAnalyzer::OnBegin(pDecoder); // Be sure title etc. get set.
-
-  // Figure out the correct values for m_nTrendChannels.
-  // and m_nSecondsPerChannel.
-
-  CTCLInterpreter* pInterp(getInterpreter());
-  CTCLVariable     channels(pInterp, "see.trend.Channels",
-			    kfFALSE);
-  CTCLVariable     seconds(pInterp, "see.trend.SecondsPerChannel",
-			   kfFALSE);
-  try {
-    const char*  chans = channels.Get(TCL_GLOBAL_ONLY);
-    const char*  secs  = seconds.Get(TCL_GLOBAL_ONLY);
-
-    if(chans)m_nTrendChannels     = pInterp->ExprLong(chans);
-    if(secs) m_nSecondsPerChannel = pInterp->ExprLong(secs);
-
-  }
-  catch (...) {
-  }
-  // Destroy any existing trend spectra.
-
-  CHistogrammer* pH(getHistogrammer());
-  for(int i = 0; i < 4; i++) {
-    m_pTrends[i] = 0;
-    CSpectrum* pSpectrum = pH->FindSpectrum(trendnames[i]);
-    if(pSpectrum) {
-      UnBind(pH, pSpectrum);
-      pH->RemoveSpectrum(trendnames[i]);
-      delete pSpectrum;
-    }
-  }
-  sleep(1);			// Let SpecTcl notice this.
-
-  // Create new trend spectra:
-  // Note that we may need to adjust m_nTrendChannels to 
-  // reflect the fact that SpecTcl1.1 can only have spectra
-  // with 2^n channels...
-  //
-  double chans    = m_nTrendChannels;
-  double logchans = log(chans)/log(2);
-  int    res      = (int)logchans;
-  if((logchans - (double)res) != 0.0) {
-    res++;			// This gives at least the 
-  }                             // requested channel count.
-  m_nTrendChannels = 1 << res;
-
-  vector<string>  names;
-  names.push_back("------------"); // No such parameter
-
-  vector <UInt_t> sizes;
-  sizes.push_back(res);
-  CSpectrumFactory Factory;
-  bool oldmode = Factory.ExceptionMode(kfFALSE);
-  for (int i =0; i < 4; i++) {
-    CSpectrum1DL* pSpectrum = 
-      (CSpectrum1DL*)Factory.CreateSpectrum(trendnames[i],
-					    ke1D,
-					    keLong,
-					    names,
-					    sizes);
-    pSpectrum->ApplyGate(&FalseGate);
-    m_pTrends[i] = pSpectrum;
-    pH->AddSpectrum(*pSpectrum);
-    pH->BindToDisplay(trendnames[i]);
-    pSpectrum->Clear();		// zero initially.
-  }
-  Factory.ExceptionMode(oldmode);
-  
-
-  // Now initialize the book-keeping members so that
-  // we can do the trendlining:
-
-  m_nLastShift    = 0;		// Elapsed run time = 0.
-  m_nTrendChannel = 0;          // Start with channel 0..
-  for(int i =0; i < 4; i++) {
-    m_nTrendSums[i] = 0;
-  }
+  Register();			// Register command on current interp.
 }
 
-   
 /*!
-  Called on end of run.  
-  The trend line spectra are written to file in:
-
-  $HOME/experiment/current/$spectrumname.spec
-
-  Errors from this write are ignored to support offline analysis
-  outside an experiment directory e.g.
-
- */
-void
-CSeeAnalyzer::OnEnd(CBufferDecoder* pDecoder)
+   Destructor:   The configuration parmaters pointed to by the elements of the list
+   are assumed to be dynamically allocated (as they will be if they are created with
+   our convenience functions.  They must be deleted.
+   The list elements themselves are assumed to be destroyed by the
+   list destructors.
+*/
+CConfigurableObject::~CConfigurableObject()
 {
-  CTCLInterpreter* pInterp = getInterpreter();
-  string commandbase("swrite -format ascii ");
-  string dirpath(getenv("HOME"));           // This is $HOME
-  dirpath += "/experiment/current/";
+  DeleteParameters();
+}
 
-  for(int i = 0; i < 4; i++) {
-    string file = dirpath + trendnames[i] + ".spec";
-    unlink(file.c_str());
-    string command = commandbase   + file + " " + trendnames[i];
-    try {
-      pInterp->Eval(command);
-    }
-    catch(...) {
-    }
+
+/*! 
     
-  }
-}
-/*!
-  Called when a scaler buffer is received.
-  For SEE, scaler buffers include some scalers that we create
-  a pseudo spectrum from.
-   The name of this spectrum is currently hard coded (see
-  the const "spectrum".  The channels of this spectrum are the
-  sums of the incremental scalers for 4 scalers with names given
-  in the const array scalers.
 
-  What we need to do therefore is:
-  - Locate the spectrum we maintain.
-  - Locate the array of scaler longs in the buffer body.
-  - Determine the offsets into that array that have the channels
-    we want.
-  - Add those channels to the spectrum channels.
+Processes the module's command.  The default
+implementation is to look for matches of the
+pArgs[1] with:
+- "config" calls the module's Configure member. member function.
+- "cget"    calls the module's ListConfiguration member function.
+- "help"    calls the module's Usage member function.
 
+\param rInterp CTCLInterpreter& [in] 
+            Interpreter running the command.
+\param rResult CTCLResult& [in]
+            The result string that will be returned to the
+            caller.
+\param nArgs int [in]  The number of parameters on the
+            command line.  Note that the first one should
+            be m_sName.
+\param pArgs char** [in] The command parameters.
 
-  Since scalers only come with a periodicity of seconds, we don't
-  bother to cache any translations.
-
-  \param rDecoder (CBuferDecoder& [in]):
-     The buffer decoder that's processing this buffer.
-
+\return  Either of:
+  - TCL_OK  if the command completed properly or
+  - TCL_ERROR if the command failed.  If the command fails,
+              rResult will be a descriptive error followed by
+              the usage information for what we know:
+  
+  \note
+      To extend functionaly to support additional keyword,
+      override this, check for your own keywords and if you 
+      don't find them, call the base class member with
+      the unaltered parameters.
 */
-void
-CSeeAnalyzer::OnScaler(CBufferDecoder& rDecoder)
-{
-  CTclAnalyzer::OnScaler(rDecoder); // Make sure base function is works.
-
-  // Locate our spectrum... if it is null, we just return doing
-  // nothing.
-
-  CHistogrammer& H(*getHistogrammer());
-  CSpectrum*     pSpectrum = H.FindSpectrum(spectrum);
-  if(!pSpectrum) return;
-
-  // Locate the array of scaler longs in the buffer:
-
-  ULong_t* pScalers = FirstScaler(rDecoder);
-
-  // For each scaler channel that's defined,
-  // add the corresponding channel to the histogram channel
-  //
-
-  int Channels[4] = {-1, -1, -1, -1}; // Save channel id for trends.
-
-  CTCLInterpreter* pInterpreter(getInterpreter());
-  for(UInt_t i =0; i < 4; i++) {
-    CTCLVariable vars(pInterpreter, "scaler_channels", kfFALSE);
-    try {     
-      const char* sChan = vars.Get(TCL_GLOBAL_ONLY, (char*)scalers[i].c_str());
-      if(sChan) {
-	int Channel = pInterpreter->ExprLong(sChan);
-	pSpectrum->set(&i, pScalers[Channel] + (*pSpectrum)[&i]);
-	Channels[i] = Channel;
-      }
+int 
+CConfigurableObject::operator()(CTCLInterpreter& rInterp, 
+                            CTCLResult& rResult, 
+                            int nArgs, char** pArgs)  
+{ 
+  int nStatus = TCL_OK;
+  assert(m_sName == string(*pArgs));
+  nArgs--;
+  pArgs++;
+  
+  if(nArgs) {
+    // Match the command keyword against the ones we understand:
+    // config, cget or help
+    //
+    string sCommand(*pArgs);
+    pArgs++; 
+    nArgs--;
+    if(sCommand == string("config")) {
+      nStatus = Configure(rInterp, rResult, nArgs, pArgs);
     }
-    catch(...) {}
+    else if(sCommand == string("cget")) {
+      nStatus = ListConfiguration(rInterp, rResult, nArgs, pArgs);
+    }
+    else if(sCommand == string("help")) {
+      rResult = Usage();
+    }
+    else {                    // NO command match.
+      rResult = m_sName;
+      rResult += " unrecognized subcommand \n";
+      rResult += Usage();
+      nStatus  = TCL_ERROR;
+      
+    }
+  }
+  else {
+    rResult  = " Insufficient parameters:\n";
+    rResult += Usage();
+    nStatus  = TCL_ERROR;
+  }
+
+  return nStatus;
+}  
+
+/*!  Function: 	
+   int Configure(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char** pArgs) 
+ Operation Type:
     
-  }
-  // Do the trendlines:
+Purpose: 	
 
-  ULong_t* pEndTime = (ULong_t*)rDecoder.getBody();
-  ULong_t  EndTime  = *pEndTime; // Current elapsed run time.
-  ULong_t  Deltat   = EndTime - m_nLastShift;
-  ULong_t  dt       = Deltat ? Deltat : 1; // Avoid div0.
-  // Keep the trendline sums.
-  // For each of the trend spectra, the current channel value
-  // will be the sum/deltat:
+Handles the "configure" command.  The default 
+implementation is to assume configuration is
+a set of keyword value pairs. e.g:
+- -threshold 5
+- -pedestals {1 2, 3 4 5 6 7 8 9}
+- -subtraction enable
 
+Each keyword is matched against the parameters in the
+following order.  Naturally duplicate command keys are not a
+good thing.
+- m_IntParameters keys that accept single integer parameters
+- m_ArrayParameters keys that accept a fixed size list of integers
+- m_BoolParameters keys that accept a boolean flag.
 
-  for(int i =0; i< 4; i++) {
-    if(Channels[i] >= 0) {
-      m_nTrendSums[i] += pScalers[Channels[i]];
-    }
-    if(m_pTrends[i]) {
-      m_pTrends[i]->set(&m_nTrendChannel, m_nTrendSums[i]/dt);
-    }
-  }
-  // If necessary shift:
+See CConfigurationParameter CIntConfigParam CIntArrayParam CBoolConfigParam
+As many configuration options as can be performed get done.
+Any failures are reported by returning TCL_ERROR and placing
+stuff in the results string.
 
-  if(Deltat >= m_nSecondsPerChannel) {
-    NextChannel();
-    m_nLastShift = EndTime;
-    for(int i =0; i < 4; i++) {
-      m_nTrendSums[i] = 0;
-    }
-  }
-
-  
-}
-/*!
-   Locate the first of the scalers in the buffer.
-   Scaler buffer bodies  have the following format:
-
-   \verbatim
-
-   +---------------------+ Word
-   | Interval end (low)  |   0
-   +---------------------+
-   | Intervael end (hi)  |   1
-   +---------------------+
-   |   Unused            |   2
-   +---------------------+
-   |   Unused            |   3
-   +---------------------+
-   |   Unused            |   4
-   +---------------------+
-   | Interval Start (low)|   5
-   +---------------------+
-   | Interval End (hi)   |   6
-   +---------------------+
-   |   Unused            |   7
-   +---------------------+
-   |   Unused            |   8
-   +---------------------+
-   |   Unused            |   9
-   +---------------------+
-   |   Scaler longs      |  10
-          ...
-
-   \endverbatim
-  
-   \param rDecoder (CBufferDecoder& [in]):
-         Buffer decoder that's processing this buffer.
-
-    \return ULong_t*
-        Pointer to the first longword of the data.
+\param rInterp CTCLInterpreter& [in] Interpreter running the
+            command.
+\param rResult CTCLResult [in] Result string that is filled in
+            either by us or by the configuration dudes.
+\param nArgs int [in] Count of remaining parameters. the first
+      one should be the first configuration keyword.
+\param pArgs char** [in] The text of the parameters.
 */
-ULong_t*
-CSeeAnalyzer::FirstScaler(CBufferDecoder& rDecoder)
+int 
+CConfigurableObject::Configure(CTCLInterpreter& rInterp, 
+                            CTCLResult& rResult, 
+                            int nArgs, char** pArgs)  
 {
-  UShort_t* pBody = (UShort_t*)rDecoder.getBody();
-  return (ULong_t*)(&(pBody[10]));
-}
-/*!
-   Simple utility to return a pointer to the histogrammer object:
-*/
-CHistogrammer*
-CSeeAnalyzer::getHistogrammer()
-{
-  return (CHistogrammer*)gpEventSink;
-}
-/*!
-  Simple utility to return the TCL interpreter.
-*/
-CTCLInterpreter*
-CSeeAnalyzer::getInterpreter()
-{
-  return (CTCLInterpreter*)gpInterpreter;
-}
-/*!
-   Does all the stuff needed to move to the next channel.
-*/
-void
-CSeeAnalyzer::NextChannel()
-{
-  m_nTrendChannel++;		// First try is just increment.
-  if(m_nTrendChannel >= m_nTrendChannels) { // If off the end...
-    m_nTrendChannel--;		// Keep using last channel..
-    for(int i =0; i < 4; i++) {	// Shift old channels left one.
-      ShiftChannels(m_pTrends[i]);
-      m_nTrendSums[i] = 0;	// Zero out the trend sums.
-    }
-  }
-}
-/*!
-   Shift all spectrum channels to the left
-*/
-void
-CSeeAnalyzer::ShiftChannels(CSpectrum1DL* pSpectrum)
-{
-  for(UInt_t i=0; i < m_nTrendChannels - 1; i++) {
-    UInt_t next(i+1);
-
-    pSpectrum->set(&i, pSpectrum->operator[](&next));
-  }
-}
-/*!
-   Unbind a spectrum from the displayer.  Note that the histogrammer's
-   unbind from display requires the binding id of the spectrum not
-   the spectrum id so we need to locate the display binding first.
-   \param pH (CHistogrammer* [modified]):
-      Pointer to the histogrammer which gets modified by this.
-   \param pS (CSpectrum* [in]):
-      Pointer to the spectrum to unbind.
-
-      \note  It is a no-op to unbind a spectrum not yet bound.
-
-*/
-void
-CSeeAnalyzer::UnBind(CHistogrammer* pH, CSpectrum* pS)
-{
-  for (UInt_t i = 0; i < pH->DisplayBindingsSize(); i++) {
-    CSpectrum* pBoundSpec = pH->DisplayBinding(i);
-    if(pBoundSpec) {
-      if(pS->getName() == pBoundSpec->getName()) {
-	pH->UnBindFromDisplay(i);
+  int nStatus = TCL_OK;
+  while (nArgs) {
+    if(nArgs < 2) {
+      if(nArgs) {
+	rResult += *pArgs;
       }
+      rResult += " : Keyword without parameters.";
+      rResult += Usage();
+      return TCL_ERROR;
     }
+    string   Keyword(pArgs[0]);     // Extract the command
+    string   Parameter(pArgs[1]);   // and its keywords.
+    nArgs -= 2;
+    pArgs += 2;
+    
+    ParameterIterator pParam = Find(Keyword);
+    if(pParam != m_Configuration.end()) {
+      CConfigurationParameter* p = *pParam;
+      (*p)(rInterp, rResult, Parameter.c_str());
+    }
+    else {
+      nStatus = TCL_ERROR;
+      rResult += "Unrecognized config keyword/param pair\n";
+      rResult += " Keyword: ";
+      rResult += Keyword;
+      rResult += " Parameter: ";
+      rResult += Parameter;
+      rResult += "\n";
+    }
+  }
+  return nStatus;
+}  
+
+
+/*! 
+
+Lists the current module configuration.  The default implementation
+iterates through the set of m_IntParameters, m_ArrayParameters and 
+m_BoolParameters producing pairs of {parametername values} such as:
+
+- {threshold 5}
+- {pedestals {1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 }}
+- {subtraction on}
+
+\note
+   In the list, no distinction is made between the types of
+    parameter values.  
+\note
+    The string representationi is used, so the value of the
+    bool will not be standardized, but will be whatever was
+    used (e.g. on, 1 are both possible values.
+    
+  \param rInterp CTCLInterpreter& [in] The interpreter that
+            is running the command.
+  \param rResult CTCLResult& [in] The result string that
+            will contain the configuration information.
+  \param nArgs int [in]  Number of parameters, should be 0.
+  \param pArgs char** [in] text of parameters.
+  
+  \note  There should be at most 1 parameter. If present it
+    is a glob pattern that will be used to filter the output.
+    (essentially no parameter results in a pattern of *).
+  
+  \return Any of:
+    -  TCL_OK the configuraton was listed 
+    -  TCL_ERROR the configuration could not be listed and
+            rResult is an error string.
+*/
+int 
+CConfigurableObject::ListConfiguration(CTCLInterpreter& rInterp,
+                                    CTCLResult& rResult, 
+                                    int nArgs, char** pArgs)  
+{ 
+  int nStatus = TCL_OK;
+  if(nArgs > 1) {
+    rResult += " Too many parameters in cget\n";
+    rResult += Usage();
+    nStatus = TCL_ERROR;
+  }
+  else {
+    string sPattern = "*";     // Assume no parameters.
+    if(nArgs) {
+      sPattern = *pArgs;
+    }
+    string listing = ListParameters( sPattern);
+    rResult        = listing;
+  }
+  return nStatus;
+} 
+
+/*!
+
+Adds an integer configuration parameter to the
+set recognized by the default configuration parser.
+
+ \param sParamName const string& [in]
+      Name of parameter to add.
+ \param nDefault int [in] = 0
+      The default value of the parameter.
+*/
+CConfigurableObject::ParameterIterator 
+CConfigurableObject::AddIntParam(const string& sParamName,
+                              int nDefault)  
+{ 
+  CIntConfigParam* pNewParam = new CIntConfigParam(sParamName,
+                                                   nDefault);
+  m_Configuration.push_back(pNewParam);
+  return Find(sParamName);
+}  
+
+/*! 
+
+Adds an array of parameters to the set of
+configuration parameter that are parsed by the default
+Configure function.
+
+  \param rParamName const string& [in]
+        Name of the parameter to add.
+  \param nArraySize int [in]
+        Size of the parameter array expected.
+  \param nDefault int [in] = 0
+        Default value of the array elements.
+*/
+CConfigurableObject::ParameterIterator 
+CConfigurableObject::AddIntArrayParam(const string& rParamName, 
+                                   int nArraySize,
+                                   int nDefault)  
+{ 
+  CIntArrayParam* pNew = new CIntArrayParam(rParamName,
+                                            nArraySize,
+                                            nDefault);
+  m_Configuration.push_back(pNew);
+  return Find(rParamName);
+
+}  
+
+/*!  Function: 	
+
+Adds a boolean parameter to the set of
+parameters that are recognized by the
+default Configure parser.
+
+  \param rName const string& [in]
+      Name of the parameter to create.
+  \param fDefault bool [in] = false
+      Defaults value of the parameter.
+*/
+CConfigurableObject::ParameterIterator
+CConfigurableObject::AddBoolParam(const string& rName, 
+                               bool fDefault)  
+{ 
+  CBoolConfigParam* pParam = new CBoolConfigParam(rName, 
+                                                  fDefault);
+  m_Configuration.push_back(pParam);
+  return Find(rName);
+
+}
+
+/*!
+   Adds a string parameter to the set of parameters
+   recognized by this module.  A string parameter
+   is a parameter with a single string valued value.
+  
+   \param rName (const string& [in]):
+      Name of the new parameter.
+*/
+CConfigurableObject::ParameterIterator
+CConfigurableObject::AddStringParam(const string& rName)
+{
+  CStringConfigParam *p = new CStringConfigParam(rName);
+  m_Configuration.push_back(p);
+  return Find(rName);
+
+
+}
+/*!
+  Adds a string array parameter to the set of parameters
+  recognized by this module. A string array parameter has
+  a parameter that is a tcl formatted list where each list element
+  is an arbitrary string.
+  \param rName (const string & [in]):
+     The name of the configuration parameter.
+  \param nArrayAzie (int [in]):
+     The number of elements in the array.
+*/
+CConfigurableObject::ParameterIterator
+CConfigurableObject::AddStringArrayParam(const string& rName,
+				     int nArraySize)
+{
+  CStringArrayparam* p = new CStringArrayparam(rName, nArraySize);
+  m_Configuration.push_back(p);
+  return Find(rName);
+
+}
+
+
+
+/*!
+
+Returns a string describing the command usage.  
+The defafult implementation produces a
+string of the form:
+\verbatim
+
+m_sName config Paramdescription
+m_sName cget
+m_sName help
+
+\endverbatim
+
+Paramdescription is produced by iterating through the set of
+configuration parameter descriptions and for each of them listing
+the name and the type expected e.g.:
+- theshold int
+- pedestal {int[16]}
+- subtraction on|off|enable|disable
+
+*/
+string 
+CConfigurableObject::Usage()  
+{
+  string help;
+  help  = m_sName;
+  help += " config ";
+  help += ListKeywords();
+  help += "\n";
+  help += m_sName;
+  help += " cget ?pattern?\n";
+  help += m_sName;
+  help += " help";
+  
+  return help;
+}  
+
+/*!
+
+   \return CConfigurableObject::ParameterIterator
+   Returns a begin of loop iterator that 'points' to the first configuration
+   parameter.
+*/
+CConfigurableObject::ParameterIterator
+CConfigurableObject::begin()
+{
+  return m_Configuration.begin();
+}
+
+/*!
+    \return CConfigurableObject::ParameterIterator
+    Returns an end of loop iterator that points just off the end of the
+    m_Configuration collection.
+*/
+CConfigurableObject::ParameterIterator
+CConfigurableObject::end()
+{
+  return m_Configuration.end();
+}
+
+/*!
+    \return int
+      Returns the number of configuration parameters that are in the 
+      m_Configuration collection.
+*/
+int
+CConfigurableObject::size()
+{
+  return m_Configuration.size();
+}
+
+/*!
+  Produces a list of the configuration parameters that match 
+the input pattern.  
+\param sPattern const string& [in]
+      The glob string pattern.
+*/
+
+string
+CConfigurableObject::ListParameters(const string& rPattern)
+{
+  CTCLString result;
+  ParameterIterator p = m_Configuration.begin();
+  while(p != m_Configuration.end()) {
+    if(Tcl_StringMatch( ((*p)->getSwitch().c_str()),
+                       rPattern.c_str())) {
+      result.StartSublist();
+      result.AppendElement((*p)->getSwitch());
+      result.AppendElement((*p)->getOptionString());
+      result.EndSublist();
+    }
+    p++;
+  }
+  return string((const char*)result);
+}
+/*!
+    List the allowed configuration keywords.  The words
+    are returned as  a string of pairs.  The pairs are 
+    \em not a bracketed list, but just a pair of words.
+    the first word of each pair is the command keyword. 
+    the second word is the parameter format as returned
+    from CConfigurationParameter::GetParameterFormat()
+
+  \return string - the results of the list.
+*/
+string
+CConfigurableObject::ListKeywords()
+{
+  string result;
+  ParameterIterator p = m_Configuration.begin();
+  while(p != m_Configuration.end()) {
+    result += (*p)->getSwitch();
+    result += " ";
+    result += (*p)->GetParameterFormat();
+    result += " ";
+    
+    p++;
+  }
+  return result;
+}
+
+
+/*!
+    Locate a parameter matching the configuration parameter
+  test string.
+  \param rKeyword The keyword to check.
+*/
+CConfigurableObject::ParameterIterator
+CConfigurableObject::Find(const string& rKeyword)
+{
+  ParameterIterator p = m_Configuration.begin();
+  while(p != m_Configuration.end()) {
+    CConfigurationParameter* pParam = *p;
+    if(pParam->Match(rKeyword)) { 
+      return p;
+    }
+    p++;
+  }
+  return m_Configuration.end();
+}
+
+
+
+/////////////////////// Utility functions.
+/*!
+   Delete the parameter arrays.
+*/
+void
+CConfigurableObject::DeleteParameters()
+{
+  // Kill off the bool parameters.
+  
+  ParameterIterator p = m_Configuration.begin();
+  while (p != m_Configuration.end()) {
+    CConfigurationParameter *pParam = *p;
+    delete pParam;
+    p++;
+  }
+  while(m_Configuration.size()) {
+    m_Configuration.erase(begin(), end());
   }
 }

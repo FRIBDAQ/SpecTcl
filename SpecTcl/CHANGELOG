@@ -1,0 +1,36 @@
+Modifications for SpecTcl 2.2
+January 30,2004  - Updated gri to gri-2.12.7
+March 23, 2004   - Issue 97b - Add hierarchical unpacking capability to scripted spectcl.
+                             - Also don't require begin run to pick up config.
+March 31, 2004   - Added -rpath to contrib/scripted Makefile so that
+                   LD_LIBRARY_PATH or ld.so.conf not needed.
+April  5, 2004   - Fix issue 118 - low level cutoff display bug.
+April 12, 2004   - Extract as many defs as possible from skeleton makefiles
+                   to centrally located include files in order to keep the
+ 	           user makefiles constant.
+                 - Use etc not Etc for etcetera stuff.
+                 - Add buildstamp
+April 13, 2004   - Fix memory leak on delete -all command: Spectrum
+                   storage itself is not getting deleted.
+                 - Fix lack of error checking on insufficient memory for
+                   binding 2d spectrum (can segfault).
+April 29, 2004   - Fix issue 95: parameter -list -byid fails.
+April 29, 2004   - Fix issue 105: sbind Usage level help calls itself the
+                   bind command which conflicts, of course, with the TCL
+                   bind command.
+April 29, 2004   - Fix issue 111 - swrite command creates a file even if no
+                    existing spectra have been specified.
+May 5, 2004      - Fix little diddly issues with printing and also
+                   Put right limit at the top of a channel rather than the
+                   left side of a channel.
+                 - Fix ISSUE 118 superpositions in window files are written
+	           as id's not as names.
+	         - Fix issue 123 superpositions don't print
+	         - Fix issue 124 FWHM is not translated to mapped coordinates
+	           when spectrum is in mapped mode.
+May 12, 2004     - Fix issue 49  
+	           Fetching values from ValidValues that are in the
+	           invalid state will now throw exceptions 
+                 - Fix issue with Display/Makefile that clean leaves behind
+                   detritus from flex and bison. (Added MOSTLYCLEANFILES 
+                   to Display/Makefile.am).

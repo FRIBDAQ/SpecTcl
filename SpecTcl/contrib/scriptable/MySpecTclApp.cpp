@@ -3,55 +3,12 @@
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
 #include "MySpecTclApp.h"    				
 #include "EventProcessor.h"
-#include "CCAENDigitizerCreator.h"
-#include "CModuleCommand.h"
-#include "CModuleDictionary.h"
-#include "CUnpackerCommand.h"
-#include "CCAENV830Creator.h"
 #include "TCLAnalyzer.h"
-#include "CUnpacker.h"
-#include "CPosition.h"
-#include "CProfile.h"
-#include "CSeeAnalyzer.h"
+#include "CScriptableUnpacker.h" 
+
 
 #include <Event.h>
 #include <Globals.h>
-
-#define SEE_PACKETID 0x8000	// Assigned by Daniel.
-
-
-//
-// These event processors produce ppac positions:
-//
-
-CPosition ppacx("see.ppac.x",
-		"see.ppac.l",
-		"see.ppac.r",
-		"ppac.x.scale1",
-		"ppac.x.offset1",
-		"ppac.x.scale2",
-		"ppac.x.offset2",
-		"ppac.x.minsum",
-		"ppac.x.slope",
-		"ppac.x.offset");
-
-CPosition ppacy("see.ppac.y",
-		"see.ppac.u",
-		"see.ppac.d",
-		"ppac.y.scale1",
-		"ppac.y.offset1",
-		"ppac.y.scale2",
-		"ppac.y.offset2",
-		"ppac.y.minsum",
-		"ppac.y.slope",
-		"ppac.y.offset");
-
-CProfile xProfile("see.ppac.x_profile",
-		  "see.ppac.x",
-		  "ppac.x.profilechans");
-CProfile yProfile("see.ppac.y_profile",
-		  "see.ppac.y",
-		  "ppac.y.profilechans");
 
 //  Function: 	
 //    void CreateAnalysisPipeline(CAnalyzer& rAnalyzer) 
@@ -77,22 +34,23 @@ elements 1 and 2 and putting the result into element 0.
 void 
 CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)  
 { 
-
-  RegisterEventProcessor(*m_pUnpacker);
-  RegisterEventProcessor(ppacx);
-  RegisterEventProcessor(ppacy);
-  RegisterEventProcessor(xProfile);
-  RegisterEventProcessor(yProfile);
+  RegisterEventProcessor(*(new CScriptableUnpacker));
+  //
+  // The stuff below is a trick to get the scaler commands also defined:
+  //
+  // Note that this allows people to put event modules or scalers in the
+  // scaler unpacker, but that's unimportant since the scaler unpacker
+  // is never really processed.
+  CScriptableUnpacker* pUnpacker = new CScriptableUnpacker("scaler",
+							   "scalerbank");
+  pUnpacker->OnAttach(rAnalyzer); // Attachment is when this s really built.
 
 }  
 
 // Constructors, destructors and other replacements for compiler cannonicals:
 
 CMySpecTclApp::CMySpecTclApp () :
-  m_pDictionary(0),
-  m_pUnpackerCommand(0),
-  m_pModuleCommand(0),
-  m_pUnpacker(0)
+  CTclGrammerApp()
 {   
 } 
 
@@ -242,12 +200,7 @@ This is an analyzer which maintains statistics about itself in Tcl Variables.
 void 
 CMySpecTclApp::CreateAnalyzer(CEventSink* pSink)  
 { 
-  gpAnalyzer = new CSeeAnalyzer(*gpInterpreter,
-				getParams(),
-				getListSize());
-  setAnalyzer(gpAnalyzer);
-  gpAnalyzer->AttachSink(*gpEventSink);
-
+  CTclGrammerApp::CreateAnalyzer(pSink);
 }  
 
 //  Function: 	
@@ -289,50 +242,6 @@ void
 CMySpecTclApp::AddCommands(CTCLInterpreter& rInterp)  
 { 
   CTclGrammerApp::AddCommands(rInterp);
-  
-  //  Create the low end objects referred to by the commands:
-
-  m_pDictionary = new CModuleDictionary;
-  m_pUnpacker   = new CUnpacker(SEE_PACKETID);
-
-  // Create the unpacker command object, linked to the
-  // dictionary and the unpacker created above.
-
-  m_pUnpackerCommand = new CUnpackerCommand(string("unpack"),
-  					    rInterp,
-  					    *m_pDictionary,
-					    *m_pUnpacker);
-  // Create the Module command and register creators:
-
-  m_pModuleCommand = new CModuleCommand(rInterp,
-					string("module"),
-					*m_pUnpacker,
-					*m_pDictionary);
-
-  // The aliased entries allow for compatibility between
-  // SpecTcl and the readout software.
-  //
-  m_pModuleCommand->RegisterCreator(string("caenvme"), 
-				    *(new CCAENDigitizerCreator));
-  m_pModuleCommand->RegisterCreator(string("caenv775"),
-				    *(new CCAENDigitizerCreator));
-  m_pModuleCommand->RegisterCreator(string("caenv785"),
-				    *(new CCAENDigitizerCreator));
-  m_pModuleCommand->RegisterCreator(string("caenv792"),
-				    *(new CCAENDigitizerCreator));
-
-  // The following setup enough of an infrastructure that
-  // scaler modules can be generated, configured and listed.
-  //
- 
-  CModuleDictionary* pScalers = new CModuleDictionary;
-  CUnpacker*         pDummy   = new CUnpacker(0);
-  CModuleCommand*    pScalercmd = new CModuleCommand(rInterp,
-						     string("scaler"),
-						     *pDummy,
-						     *pScalers);
-  pScalercmd->RegisterCreator(string("caenv830"),
-			      *(new CCAENV830Creator));
 }  
 
 //  Function: 	

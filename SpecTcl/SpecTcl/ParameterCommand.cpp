@@ -862,7 +862,8 @@ CParameterCommand::ListParametersById(CTCLResult& rResult)
     Int_t   nId;
     Char_t** pItems;		// the parameter description.
     
-    // break out the parameter description. It must be a list with 3 items.
+    // break out the parameter description. It must be a list with 
+    // At least a parameter and an id:
 
     if(Parameter.Split(nItems, &pItems) != TCL_OK) {
       rResult = "Unable to split parameter description: ";
@@ -871,7 +872,7 @@ CParameterCommand::ListParametersById(CTCLResult& rResult)
       Tcl_Free((char*)pParameters);
       return TCL_ERROR;
     }
-    if(nItems != 3) {
+    if(nItems < 2) {
       rResult = "Incorrectly formatted parameter description: ";
       rResult += pParameters[i];
       rResult += "\n";
