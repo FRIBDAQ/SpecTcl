@@ -93,7 +93,9 @@ class TranslatorPointer
    */
   inline T operator*() const
     {
-      return (m_rUnderlyingBuffer.template Get<T>(m_nOffset));
+      UChar_t Result[sizeof(T)];
+      m_rUnderlyingBuffer.GetBlock(&Result, m_nOffset*sizeof(T), sizeof(T));
+      return (T)(*Result);
     }
 
   /*!
@@ -105,7 +107,9 @@ class TranslatorPointer
    */
   inline T operator[](Int_t nOffset) const
     {
-      return (m_rUnderlyingBuffer.template Get<T>(nOffset));
+      UChar_t Result[sizeof(T)];
+      m_rUnderlyingBuffer.GetBlock(&Result, nOffset*sizeof(T), sizeof(T));
+      return (T)(*Result);
     }
 
   /*!
@@ -310,6 +314,7 @@ class TranslatorPointer
     {
       return m_rUnderlyingBuffer;
     }
+
 };
 
 #endif
