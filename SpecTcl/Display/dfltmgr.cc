@@ -13,9 +13,7 @@
 **   Michigan State Univeristy
 **   East Lansing, MI 48824-1321
 */
-static char *sccsinfo="@(#)dfltmgr.cc	8.1 6/23/95 ";
 
-
 /*
 ** External include files required:
 */
@@ -247,8 +245,9 @@ int Xamine_SaveDefaultProperties()
 
   time(&t);			/* Get the time in internal format.. */
 
-  fprintf(fp, "\n# Xamine default file saved by %s on %s\n",
-	  sccsinfo, ctime(&t));
+  fprintf(fp, "\n# Xamine default file saved by "
+	  "Xamine_SaveDefaultProperties on %s\n",
+	  ctime(&t));
 
   /* Write the win_attributed part of the defaults: */
 

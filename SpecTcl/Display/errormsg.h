@@ -13,9 +13,11 @@
 **   @(#)errormsg.h	8.1 6/23/95 
 */
 
-#ifndef _ERRORMSG_H
-#define _ERRORMSG_H
+#ifndef ERRORMSG_H
+#define ERRORMSG_H 1
+
 #include "XMWidget.h"
-void Xamine_error_msg(XMWidget *parent, char *msg);
+
+void Xamine_error_msg (XMWidget *parent, char *msg);
 
 #endif

@@ -21,10 +21,6 @@
 #ifndef XMPushbutton_H
 #define XMPushbutton_H
 
-#ifdef unix
-#pragma interface
-#endif
-
 #include <Xm/PushB.h>
 #include <Xm/CascadeB.h>
 #include <Xm/ToggleB.h>

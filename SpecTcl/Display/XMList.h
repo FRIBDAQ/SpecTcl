@@ -17,10 +17,6 @@
 #ifndef XMLIST_H_INSTALLED
 #define XMLIST_H_INSTALLED
 
-#ifdef unix
-#pragma interface
-#endif
-
 /*
 ** Include files:
 */

@@ -14,7 +14,7 @@
  */
 
 #ifndef HELPMENU_H
-#define HELPMENU_H
+#define HELPMENU_H 1
 
 #include "XMDialogs.h"		/* Old helpmenu stuff is in here. */
 

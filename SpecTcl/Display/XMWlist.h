@@ -15,10 +15,6 @@
 #ifndef _XMWLIST_H
 #define _XMWLIST_H
 
-#ifdef unix
-#pragma interface
-#endif
-
 #include <stdio.h>
 #include <errno.h>
 #include "XMWidget.h"

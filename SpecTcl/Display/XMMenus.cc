@@ -17,10 +17,6 @@
 **    @(#)XMMenus.cc	8.1 6/23/95 
 */
 
-#ifdef unix
-#pragma implementation "XMMenus.h"
-#endif
-
 /*
 ** Include files:
 */

@@ -28,9 +28,6 @@
 #endif
 #include <Xm/Xm.h>
 #include "XMDialogs.h"
-#include "helpmenu.h"
-
-
 
 /*
 ** Static local declarations of the help strings and associated dialogs. 

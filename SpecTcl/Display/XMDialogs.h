@@ -13,12 +13,8 @@
 **   @(#)XMDialogs.h	8.2 7/10/95 
 */
 
-#ifndef XMDialogs_h
-#define XMDialogs_h
-
-#ifdef unix
-#pragma interface
-#endif
+#ifndef XMDIALOGS_H
+#define XMDIALOGS_H 1
 
 #include <stdio.h>
 
@@ -74,11 +70,14 @@ class XMMessageBox : public XMManagedWidget
 			 delete cancelbutton;
 			 delete helpbutton;
 		       }
+
 		     XMMessageBox(char *n) : XMManagedWidget(n) {}
+
 		     XMMessageBox(Widget w) : XMManagedWidget(w)
 		       {
 			 GetButtons(); 
 		       }
+
 		     /* Get Button Widgets: */
 
 		     XMPushButton *GetOkButton()     { return okbutton; }
@@ -88,12 +87,13 @@ class XMMessageBox : public XMManagedWidget
 		     /* Modify the dialog text: */
 
 		     virtual void SetText(char *txt)
-	       {
+		       {
 			 XmString s = XmStringCreateLtoR(txt, 
 						     XmSTRING_DEFAULT_CHARSET);
 			 SetAttribute(XmNmessageString, s);
 			 XmStringFree(s);
 		       }
+
 		     /* Add Ok/Cancel callbacks: */
 
 		     Callback_data *AddOkCallback(void (*cb)(XMWidget *w,
@@ -103,6 +103,7 @@ class XMMessageBox : public XMManagedWidget
 		       {
 			 return AddCallback(XmNokCallback, cb, cd);
 		       }
+
 		     Callback_data *AddCancelCallback(void (*cb)(XMWidget *w,
 						       XtPointer,
 						       XtPointer),
@@ -110,6 +111,7 @@ class XMMessageBox : public XMManagedWidget
 		       {
 			 return AddCallback(XmNcancelCallback, cb, cd);
 		       }
+
 		     /* Label cancel/Help/OK buttons */
 
 		     void LabelCancelButton(char *txt) 
@@ -118,6 +120,7 @@ class XMMessageBox : public XMManagedWidget
 			 SetAttribute(XmNcancelLabelString, str);
 			 XmStringFree(str);
 		       }
+
 		     void LabelOkButton(char *txt)
 		       {
 			 XmString str = XmStringCreateLtoR(txt,
@@ -125,6 +128,7 @@ class XMMessageBox : public XMManagedWidget
 			 SetAttribute(XmNokLabelString, str);
 			 XmStringFree(str);
 		       }
+
 		     void LabelHelpButton(char *txt)
 		       { helpbutton->Label(txt); }
 
@@ -134,22 +138,27 @@ class XMMessageBox : public XMManagedWidget
 		       { SetAttribute(XmNdefaultButtonType,
 				      XmDIALOG_OK_BUTTON);
 		       }
+
 		     void DefaultToCancel()
 		       { SetAttribute(XmNdefaultButtonType,
 				      XmDIALOG_CANCEL_BUTTON);
 		       }
+
 		     void DefaultToHelp()
 		       {
 			 SetAttribute(XmNdefaultButtonType,
 				      XmDIALOG_HELP_BUTTON);
 		       }
+
 		     void Show() {
 		       Manage();
 		       XtPopup(XtParent(id), XtGrabNone);
 		     }
+
 		     void Hide() {
 		       UnManage();
 		     }
+
 		     void SetModal(unsigned char modality)
 		       { SetAttribute(XmNdialogStyle, modality); }
 		   };

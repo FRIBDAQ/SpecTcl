@@ -16,10 +16,6 @@
 #ifndef _XMMANAGERS_H
 #define _XMMANAGERS_H
 
-#ifdef unix
-#pragma interface
-#endif
-
 /*
 ** Include files required:
 */

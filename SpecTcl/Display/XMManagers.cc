@@ -11,11 +11,6 @@
 **   East Lansing, MI 48824-1321
 */
 
-#ifdef unix
-#pragma implementation "XMManagers.h"
-#endif
-
-
 /*
 ** Include files:
 */

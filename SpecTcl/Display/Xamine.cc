@@ -11,8 +11,7 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-static char *sccsinfo="@(#)Xamine.cc	8.3 7/23/98 \n";
-
+
 /*
 ** Include files:
 */
@@ -27,9 +26,11 @@ static char *sccsinfo="@(#)Xamine.cc	8.3 7/23/98 \n";
 #ifdef VMS
 #include <types.h>
 #endif
-#include <new.h>
 #include <Xm/DrawingA.h>
 #include <Xm/ScrolledW.h>
+#include <new>
+
+using namespace std;
 
 #include "XMWidget.h"
 #include "XMPushbutton.h"
