@@ -295,9 +295,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "NSCLBinarySpectrumFormatter.h"
 #include "nsclbin.h"
