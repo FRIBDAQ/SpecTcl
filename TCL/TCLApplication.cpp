@@ -302,9 +302,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "TCLApplication.h"
 #include "TCLInterpreter.h"
