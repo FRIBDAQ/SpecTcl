@@ -31,12 +31,9 @@ endif
 
 set instdir=`(cd $instdir;pwd)`      # this trick allows relative paths.
 
-echo building software...
+echo building and installing in $instdir 
 
 make clean
 make depend
 make -k OS=$OS INSTDIR=$instdir PROFILE=-g
 
-echo installing in $instdir ...
-
-make -k install OS=$OS INSTDIR=$instdir PROFILE=-g
