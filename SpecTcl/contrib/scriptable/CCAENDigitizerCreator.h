@@ -1,3 +1,14 @@
+/*!
+Creator for CAEN digitizers (common format).  For more information about
+the unpackig of CAEN 32 channel digitizers, see CCAENDigitizerModule.
+
+This module is registered in a module command object to allow it to recognize
+and create unpackers for the 785, 775, 792 and compatibles.
+Normally this module is registered to recognize several module types in order
+to be compatible with the readout software.
+
+*/
+
 
 #ifndef __CCAENDIGITIZERCREATOR_H  //Required for current class
 #define __CCAENDIGITIZERCREATOR_H
@@ -21,16 +32,15 @@
 class CModule;
 class CTCLInterpreter;
 class CTCLResult;
- 
-/*!
-Creator for CAEN digitizers (common format).
-*/
+class CModuleCommand;
+
+
 class CCAENDigitizerCreator  : public CModuleCreator        
 {
 
 public:
 	// Constructors and other cannonical operatios.
-    CCAENDigitizerCreator ();
+    CCAENDigitizerCreator (const string& name, CModuleCommand* pCreator);
     ~ CCAENDigitizerCreator ( );  
     CCAENDigitizerCreator (const CCAENDigitizerCreator& rhs );
     CCAENDigitizerCreator& operator= (const CCAENDigitizerCreator& rhs);
@@ -41,8 +51,8 @@ public:
 
 public:
 
-    CModule* Create (CTCLInterpreter& rInterp, const string& rName);
-    virtual string TypeInfo() const;
+    virtual  CSegmentUnpacker* Create  (CTCLInterpreter& rInterp, const string& rName);
+    virtual string   TypeInfo() const;
 };
 
 #endif

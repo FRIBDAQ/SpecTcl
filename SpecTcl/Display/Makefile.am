@@ -12,12 +12,13 @@ AM_CXXFLAGS = -g
 AM_CFLAGS   = -g
 
 install-exec-local:
-	$(mkinstalldirs) $(prefix)/Etc
-	$(INSTALL_PROGRAM) $(srcdir)/*.ctbl $(prefix)/Etc
-	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/Etc
+	$(mkinstalldirs) $(prefix)/etc
+	$(INSTALL_PROGRAM) $(srcdir)/*.ctbl $(prefix)/etc
+	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/etc
 	$(INSTALL_PROGRAM) $(srcdir)/Xamine $(prefix)/bin/Xamine2_0
 
 $(LEXOUT):
+	rm *_lex.{h,cc}
 	$(LEX) windfile.l
 
 windfile_lex.cc: $(LEXOUT)
@@ -184,4 +185,7 @@ Xamine_DEPENDENCIES = windfile_parse.o windfile_lex.o dispwind.o \
 
 Xaminetest_DEPENDENCIES = libXamine.la
 
-EXTRA_DIST = queue.cc colorset.ico Xamine-X.3.release_notes Xamine-X.4.release_notes Xamine-X.6.release_notes Xamine-X.7.feature_list Xamine.ico Xamine.doc Xamine2.ctbl Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc aedpublic.for aedshare.f aedshare.for aedxamine.for build.com dflt.tpu grobj.tpu win.tpu
+EXTRA_DIST = queue.cc colorset.ico \
+	Xamine.ico Xamine.doc Xamine2.ctbl \
+	Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc \
+	aedpublic.for aedshare.f aedshare.for aedxamine.for
