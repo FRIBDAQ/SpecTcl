@@ -416,6 +416,14 @@ set TKCON(WWW) [info exists embed_args]
 	email		{jeff.hobbs@acm.org}
 	root		.
     }
+    if {[info globals TKConsoleHistory] == "TKConsoleHistory"} {
+	global TKConsoleHistory
+	set TKCON(history) $TKConsoleHistory
+    }
+    if {[info globals TKConsoleBufferSize] == "TKConsoleBufferSize"} {
+	global TKConsoleBufferSize
+	set TKCON(buffer) $TKConsoleBufferSize
+    }
     ## NOTES FOR STAYING IN PRIMARY INTERPRETER:
     ## If you set TKCON(exec) to {}, then instead of a multiple interpreter
     ## model, you get TkCon operating in the main interp by default.
