@@ -42,11 +42,15 @@ class CSpectrum1DL  : public CSpectrum
   
 public:
 
-			//Constructor(s) with arguments
-
+  //Constructor(s) with arguments
   CSpectrum1DL(const std::string& rName, UInt_t nId,
 	       const CParameter& rParameter,
 	       UInt_t nScale);
+
+  // Constructor(s) for use by inherited spectra
+  CSpectrum1DL(const std::string& rName, UInt_t nId,
+	       const CParameter& rParameter);
+
   virtual  ~ CSpectrum1DL( ) { }       //Destructor	
 private:
 			//Copy constructor [illegal]

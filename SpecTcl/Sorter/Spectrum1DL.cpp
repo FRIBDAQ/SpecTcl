@@ -41,8 +41,8 @@ static const char* Copyright =
 //   Constructor
 //
 CSpectrum1DL::CSpectrum1DL(const std::string& rName, UInt_t nId,
-			    const CParameter& rParameter,
-			    UInt_t            nScale) :
+			   const CParameter& rParameter,
+			   UInt_t            nScale) :
   CSpectrum(rName, nId),
   m_nScale(nScale),
   m_nParameter(rParameter.getNumber()),
@@ -56,6 +56,29 @@ CSpectrum1DL::CSpectrum1DL(const std::string& rName, UInt_t nId,
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
 }
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//   CSpectrum1DL(const std::string& rname, UInt_t nId,
+//               const CParameter& rParameter)
+// Operation Type:
+//   Constructor
+// Comments:
+//   The nice thing about this constructor is that it doesn't 
+//   allocate any storage. Therefore, a derived spectrum type
+//   can call this constructor, but allocate its own storage.
+//
+CSpectrum1DL::CSpectrum1DL(const std::string& rName, UInt_t nId,
+			   const CParameter& rParameter) :
+  CSpectrum(rName, nId),
+  m_nScale(0),
+  m_nParameter(rParameter.getNumber()),
+  m_nScaleDifference(0)
+{
+  setStorageType(keWord);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

@@ -84,7 +84,7 @@ system:
 	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(umask 02; cd SpecTcl;  \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";\
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(umask 02; cd TestFiles; \
 	 make $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
