@@ -307,10 +307,9 @@ button .exit -text Exit -command "exit"
 button .startstop -textvariable StartButtonText -command StartStop
 button .clearall  -text "Clear Spectra" -command {clear -all}
 button .help      -text "Help"          -command {Help}
-label   .speclbl  -text "Defined Spectra"
 
 
-pack .startstop .clearall .exit .help .speclbl   -side top -fill x
+pack .startstop .clearall .exit .help    -side top -fill x
 
 trace variable RunState w  UpdateStartButton
 
