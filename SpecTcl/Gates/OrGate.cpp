@@ -42,7 +42,7 @@ COrGate::COrGate(list<CGateContainer*>& rGates) :
 //     Evaluation
 //
 Bool_t
-COrGate::inGate(CEvent& rEvent, vector<UInt_t>&)
+COrGate::inGate(CEvent& rEvent, const vector<UInt_t>&)
 // Evaluates the gate.  Short circuiting is done
 // 
 // Formal Parameters:

@@ -49,7 +49,7 @@ CFalseGate::operator()(CEvent& rEvent)
 }
 
 Bool_t
-CFalseGate::inGate(CEvent&, vector<UInt_t>&)
+CFalseGate::inGate(CEvent&, const vector<UInt_t>&)
 {
   return kfFALSE;
 }

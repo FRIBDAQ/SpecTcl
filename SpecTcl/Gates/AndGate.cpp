@@ -41,7 +41,7 @@ CAndGate::CAndGate(list<CGateContainer*>& rGates) :
 {}
 
 Bool_t
-CAndGate::inGate(CEvent& rEvent, vector<UInt_t>&)
+CAndGate::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 {
   std::list<CGateContainer*>& rGates(GetConstituents());
   std::list<CGateContainer*>::iterator i;

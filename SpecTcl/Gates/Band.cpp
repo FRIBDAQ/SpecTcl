@@ -90,8 +90,6 @@ CBand::operator()(CEvent& rEvent)
 {
   vector<UInt_t> Params;
   if(!wasChecked()) {
-    Params.push_back(getxId());
-    Params.push_back(getyId());
     Set(inGate(rEvent, Params));
   }
   
@@ -106,7 +104,7 @@ CBand::operator()(CEvent& rEvent)
 //     Evaulator
 //
 Bool_t
-CBand::inGate(CEvent& rEvent, vector<UInt_t>& Params)
+CBand::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
   // Determines if the parameter space point
   //  ( rEvent[m_nxId], rEvent[m_nyId])
   //  is under the gate defined by m_aLimits.
@@ -125,9 +123,8 @@ CBand::inGate(CEvent& rEvent, vector<UInt_t>& Params)
   //      vector<UInt_t>& Params
   //          Refers to the vector of parameters in the gate (empty)
 {
-
-  UInt_t xPar = Params[0];
-  UInt_t yPar = Params[1];
+  UInt_t xPar = getxId();
+  UInt_t yPar = getyId();
   if( (xPar >= rEvent.size()) || (yPar >= rEvent.size())) {
     return kfFALSE;
   }

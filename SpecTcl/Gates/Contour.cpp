@@ -326,8 +326,6 @@ CContour::operator()(CEvent& rEvent)
 {
   vector<UInt_t> Params;
   if(!wasChecked()) {
-    Params.push_back(getxId());
-    Params.push_back(getyId());
     Set(inGate(rEvent, Params));
   }
   return getCachedValue();
@@ -341,7 +339,7 @@ CContour::operator()(CEvent& rEvent)
 //     Evaulator
 //
 Bool_t
-CContour::inGate(CEvent& rEvent, vector<UInt_t>& Params)
+CContour::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 // Evaluates the gate.  This determines
 // if the parameter has made the gate.
 // Note that if there is a cached evaulation
@@ -356,9 +354,8 @@ CContour::inGate(CEvent& rEvent, vector<UInt_t>& Params)
 //
 // Exceptions:  
 {
-  UInt_t nx = Params[0];
-  UInt_t ny = Params[1];
-
+  UInt_t nx = getxId();
+  UInt_t ny = getyId();
   if((nx < rEvent.size()) && (ny < rEvent.size())) {
     if(rEvent[nx].isValid() && rEvent[ny].isValid()) {
       Int_t x = rEvent[nx] - getLowerLeft().X();

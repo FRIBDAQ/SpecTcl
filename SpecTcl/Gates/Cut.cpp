@@ -32,7 +32,6 @@ CCut::operator()(CEvent& rEvent)
 {
   vector<UInt_t> Params;
   if(!wasChecked()) {
-    Params.push_back(getId());
     Set(inGate(rEvent, Params));
   }
 
@@ -47,7 +46,7 @@ CCut::operator()(CEvent& rEvent)
 //     Evaluator
 //
 Bool_t
-CCut::inGate(CEvent& rEvent, vector<UInt_t>& Params)
+CCut::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 // Returns the evaluation of the gate on this
 // an event.
 //
@@ -57,12 +56,13 @@ CCut::inGate(CEvent& rEvent, vector<UInt_t>& Params)
 //    vector<UInt_t>& Params
 //      vector of parameters in the gate (empty)
 {
-  if(Params[0] >= rEvent.size()) {
+  UInt_t id = getId();
+  if(id >= rEvent.size()) {
     return kfFALSE;
   }
   else {
-    if(rEvent[Params[0]].isValid()) {
-      UInt_t nPoint = rEvent[Params[0]];
+    if(rEvent[id].isValid()) {
+      UInt_t nPoint = rEvent[id];
       return((nPoint >= getLow()) && (nPoint <= getHigh()));
     }
     else {
