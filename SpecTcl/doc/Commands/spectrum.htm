@@ -5,7 +5,7 @@
 <head>
 <meta http-equiv="Content-Type"
 content="text/html; charset=iso-8859-1">
-<meta name="GENERATOR" content="Microsoft FrontPage 2.0">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
 <title>spectrum - SpecTcl Command</title>
 </head>
 
@@ -15,8 +15,7 @@ content="text/html; charset=iso-8859-1">
     <tr>
         <th width="9%" nowrap><a href="http://www.nscl.msu.edu"><img
         src="../images/nscl_logo_small.gif"
-        alt="nscl_logo_small.gif (2463 bytes)" width="63"
-        height="52"></a></th>
+        alt="nscl_logo_small.gif (2463 bytes)" width="63" height="52"></a></th>
         <td width="79%"><h1>spectrum - SpecTcl Command</h1>
         </td>
         <td width="12%"><a href="../index.htm"><img
@@ -33,7 +32,7 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 
 <h2>Syntax</h2>
 
-<p>spectrum [-new] <em>name type parameter-list [resolution-list | {transformation-list}] </em> [<em>datatype</em>]<br>
+<p>spectrum [-new] <em>name type parameter-list axis-speclist </em>[<em>datatype</em>]<br>
 spectrum -list [-byid]<br>
 spectrum -list <em>name</em><br>
 spectrum -list -id <em>id<br>
@@ -195,17 +194,14 @@ the following properties:</p>
             </tr>
         </table>
         </div></li>
-    <li><em>transformation-list</em> The transformation information for
-	histogramming a mapped parameter. The first argument must be an
-	integer or floating point value representing the low limit of the
-	spectrum axis labeling. The second argument is an integer or floating
-	point value representing the high limit of the spectrum axis labeling.
-	The third argument is an integer representing a channel count for the
-	spectrum. There must be a transformation triplet for each parameter
-	defining the spectrun, and each transformation triplet must be
-	enclosed by curly braces (<em>e.g. {10 99 90}</em>). Finally, all of 
-	the enclosed triplets must be enclosed in a single curly brace.
-      </li>
+    <li><i>axis-speclist </i>is a list of axis specifications for each axis in
+      the histogram.&nbsp; Axis specifications can either an <i>axis resolution</i>
+      or an <i>axis specification</i>.&nbsp; An <i>axis resolution </i>is the
+      number of bits of resolution <i>n&nbsp;</i> in the axis.&nbsp; For an axis
+      resolution, the number or channels in the axis is 2**n, and the channels
+      are in the range [0, 2**n).&nbsp; An <i>axis specification,&nbsp;</i> is a
+      three element list {<i>low high n</i>}.&nbsp;&nbsp; The axis will contain <i>n</i>
+      channels that run in the range [<i>low, high</i>].</li>
     <li><em>datatype</em> represents the type of data for each
         channel of the histogram:<br>
         <div align="left"><table border="0" cellpadding="3"
@@ -231,7 +227,7 @@ manipulate, or query this parameter dictionary.</p>
 
 <p><a href="#Top">Top</a></p>
 
-<h3>spectrum [-new] <em>name ndim parameter-list [resolution-list | {transformation-list}] </em></h3>
+<h3>spectrum [-new] <em>name ndim parameter-list </em><i>axis-speclist</i></h3>
 
 <p>Creates a new spectrum. Note that the <strong>-new</strong>
 switch is optional. The spectrum attributes are assigned as
@@ -246,24 +242,32 @@ follows:</p>
         Thus to specify two parameters, par1 and par2 for a 2-d
         spectrum, use the syntax: {par1 par2}. For 1-d spectra,
         the brackes are not needed.</li>
-    <li><em>resolution-list</em> is taken from the single <em>resolution-list</em>
-        parameter. This must be a properly formatted TCL/Tk list.
-        Thus to specify two resolutions $res1 $res2 (the values
-        of two Tcl Variables), use the syntax: {$res1 $res2}.
-        Note that for a single resolution value, the braces are
-        not needed. The resolution is expressed as Log2(<em>axis-length</em>).
-        e.g. for a 1024 channel axis, specify 10.</li>
-    <li><em>transformation-list</em> is also a properly formatted TCL/Tk list.
-	The list specifies how the axes should be labeled, and how many
-	channels the histogram should contain. Note that this form of the
-	"spectrum" command only works for parameters which contains mapping
-	information. The form of the list is: <em>{ {real real int} ... }</em>.
+    <li><i>axis-speclist</i> is a list of axis specifications.&nbsp; Each axis
+      specification is either an <i>axis resolution</i> or an <i>axis
+      specification</i>.&nbsp; An <i>axis resolution </i>is the number of bits
+      of resolution <i>n&nbsp;</i> in the axis.&nbsp; For an axis resolution,
+      the number or channels in the axis is 2**n, and the channels are in the
+      range [0, 2**n).&nbsp; An <i>axis specification,&nbsp;</i> is a three
+      element list {<i>low high n</i>}.&nbsp;&nbsp; The axis will contain <i>n</i>
+      channels that run in the range [<i>low, high</i>].&nbsp; For example:
+</ul>
+
+<table>
 	<tr>
-	  <p><em>spectrum name 1d mapped_param { {10.0 20.0 100} }</em></p>
-	  <p><em>spectrum name 2d {mapped_param1 mapped_param2} { {10 20 100} 
-	    {-10 10 21} }</em></p>
+      <blockquote>
+        <p><em>spectrum name1&nbsp; 1&nbsp; res&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        ;# 4096 channels 0-4095<br>
+        spectrum name2&nbsp; 1&nbsp;
+        spec&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        {-10.0 10.0 200} ;# 200 channels in the range [-10.0,10.0]<br>
+        spectrum name3 2d {res spec}&nbsp;&nbsp;&nbsp;&nbsp; {12 {-10.0 10.0
+        200}} ; # X is res, y is spec.</em></p>
+      </blockquote>
 	</tr>
-      </li>
+</table>
+
+<ul>
     <li><em>datatype - </em>The type of data stored in the
         histogram. <strong>Note</strong> that each spectrum has
         restrictions on types which are allowed:<br>
@@ -328,22 +332,19 @@ format which allows them to be easily manipulated by other Tcl
 commands. The output is a list, where each spectrum is
 represented by a sublist containing in order: The Spectrum id,
 spectrum name, dimensionality, parameter list (a properly
-formatted sub-sublist) resolution list (a properly formatted
-sub-sublist), and datatype.. For example:</p>
+formatted sub-sublist) axis-definition list (a properly formatted sublist).&nbsp;
+In order to make processing these definitions easy, all axis definitions are
+rendered in specification form {low high nchans} regardless of how they were
+originally specified when the spectrum was created for example:</p>
 
-<pre>{0 d1 1 {Distribution1} {10}long}
-{10 d1-vs-d2 g1 {Distribution1 Distribution2} {10} word}
-{11 d1-vs-d2-vs-d3 g2 {Distribution1 Distribution2 Distribution3} {8 8} word}
-{7 d1-vs-sum 2 {Distribution1 dist1+dist2} {8 8} word}
-{1 d2 1 {Distribution2} {10} long}
-{2 d3 1 {Distribution3} {10} long}
-{6 d3-vs-sum 2 {Distribution3 dist1+dist2} {8 8} word}
-{3 d4 1 {Distribution4} {10} long}
-{4 d5 1 {Distribution5} {10} long}
-{5 sum 1 {dist1+dist2} {11} long}
-{8 xlist s {Six1 Six2 Six3 Six4 Six5 Six6 Six7 Six8} {10} word}
-{9 zbits b {Bitmask} {4} long} 
-</pre>
+<pre>{24 d1_0 1 {Distribution1} {{0.000000 1023.000000 1024}} long}
+{19 d1bl b {Distribution1} {{0.000000 15.000000 16}} long}
+{20 d1bw b {Distribution1} {{0.000000 31.000000 32}} word}
+{17 d1m 1 {Distribution1} {{100.000000 200.000000 50}} long}
+{22 d1sumb s {Distribution1 Distribution1 Distribution1 Distribution2 
+Distribution1 Distribution1 Distribution1 Distribution1} {{0.000000 1023.000000 1024}} byte}
+8 d1-vs-sum 2 {Distribution1 dist1+dist2} {
+{0.000000 1023.000000 256} {0.000000 2047.000000 256}} word}</pre>
 
 <pre><a href="#Top">Top</a></pre>
 
@@ -363,20 +364,7 @@ message if <em>id</em> could not be listed.</p>
 cannot be deleted, then a list is returned containing the set of
 spectra which could not be deleted and why e.g.</p>
 
-<pre> spectrum -list
-{0 d1 1 {Distribution1} {10}}
-{10 d1-vs-d2 g1 {Distribution1 Distribution2} {10} word}
-{11 d1-vs-d2-vs-d3 g2 {Distribution1 Distribution2 Distribution3} {8 8} word}
-{7 d1-vs-sum 2 {Distribution1 dist1+dist2} {8 8}}
-{1 d2 1 {Distribution2} {10}}
-{2 d3 1 {Distribution3} {10}}
-{6 d3-vs-sum 2 {Distribution3 dist1+dist2} {8 8}}
-{3 d4 1 {Distribution4} {10}}
-{4 d5 1 {Distribution5} {10}}
-{5 sum 1 {dist1+dist2} {11}}
-
-% spectrum -delete d1 d7 d9
-{d7 {No such Spectrum}} {d9 {No such Spectrum}}</pre>
+<pre>{d7 {No such Spectrum}} {d9 {No such Spectrum}}</pre>
 
 <p><a href="#Top">Top</a></p>
 
@@ -396,7 +384,7 @@ spectrum mapped 2 {Distribution1 Distribution2} {{10 99 90} {50 99 100}}   ;# Ma
 % foreach Spectrum [spectrum -list] {
    append result [lindex $Spectrum 1] &quot;\n&quot;
 }                                            ;# result contains the list.
-echo $result                                 ;# Show the list
+set $result                                 ;# Show the list
 d1
 d1-vs-sum
 d2
@@ -431,8 +419,7 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 <hr>
 
 <p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
-s-format="%B %d, %Y" startspan -->August 17, 2001<!--webbot
-bot="Timestamp" endspan i-checksum="21630" --> by: <a
+s-format="%B %d, %Y" startspan -->October 28, 2003<!--webbot bot="Timestamp" endspan i-checksum="30351" --> by: <a
 href="mailto:fox@nscl.msu.edu">fox@nscl.msu.edu</a><br>
 <font size="2">© Copyright NSCL 1999, All rights reserved</font></p>
 </body>

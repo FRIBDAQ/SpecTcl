@@ -5,7 +5,7 @@
 <head>
 <meta http-equiv="Content-Type"
 content="text/html; charset=iso-8859-1">
-<meta name="GENERATOR" content="Microsoft FrontPage 2.0">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
 <title>parameter - SpecTcl Command</title>
 </head>
 
@@ -33,12 +33,16 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 
 <h2>Syntax</h2>
 
-<p>parameter [-new] <em>name id resolution [{low high units}]</em><br>
+<p>parameter [-new] <em>name id resolution<br>
+</em>parameter [-new] <i>name id resolution {low high units}<br>
+</i>parameter [-new] <i>name id resolution [units]</i><br>
 parameter -list [-byid]<br>
 parameter -list <em>name<br>
 </em>parameter -list -id <em>id<br>
 </em>parameter -delete <em>name</em><br>
 parameter -delete -id <em>id</em></p>
+
+<p><a href="parameter.htm#Top">Top</a></p>
 
 <h2>Synopsis</h2>
 
@@ -55,7 +59,7 @@ parameter -delete -id <em>id</em></p>
         or the reason the parameter could not be deleted.</li>
 </ul>
 
-<p>&nbsp;</p>
+<p><a href="parameter.htm#Top">Top</a></p>
 
 <h2>Detailed Description</h2>
 
@@ -70,45 +74,66 @@ spectra. Each parameter has the following properties:</p>
     <li>An Id which represents the offset into the parameter
         array at which the parameter will be placed (offsets
         number from zero).</li>
-    <li>A resolution which is used to represent the number of
-        bits of significant data in the parameter. The resolution
-        is used to scale the parameter to the spectra it is used
-        in.</li>
-    <li>Optionally:
-	<ul>
-	  <li>A low limit for scaling to the spectrum coordinates</li>
-	  <li>A high limit for scaling to the spectrum coordinates</li>
-	  <li>A string to label the parameter's axis with (<em>e.g. "MeV"</em>)
-	    </li>
-	</ul>
-      </li>
+    <li>Optional scale information describing the parameter's valid range of
+      values and a mapping between that and a real world coordinate system.</li>
+    <li>&nbsp;</li>
 </ul>
+
+<p>While the internal representation of a parameter is a floating point value,
+SpecTcl recognizes that many parameters are integer values (e.g. raw ADC
+conversions).&nbsp; SpecTcl provides a rich set of parameter range definitions
+that cover the span of both real and integer valued parameters.</p>
 
 <p>The <a href="spectrum.htm"><strong>spectrum</strong></a>
 command is used to create spectra which histogram parameters.</p>
 
-<h3>parameter [-new] <em>name id resolution [{low high units}]</em></h3>
+<p><a href="parameter.htm#Top">Top</a></p>
+
+<h3>parameter [-new] <i>name id ...</i></h3>
 
 <p>Creates a new entry in the parameter dictionary. The <strong>-new</strong>
-flag is optional.</p>
+flag is optional.&nbsp; This comand has several forms, depending on whether the
+parameter is to be treated as an integer, a mapped integer or a real
+number.&nbsp; All parameters have a name and an Id.&nbsp; The name is an
+arbitrary text string (although since you are working within Tcl, using {}[]
+e.g.&nbsp; in parameter names is strongly discouraged).</p>
 
-<ul>
-    <li><em>name</em> will be the name used to enter the new
-        parameter in the parameter dictionary.</li>
-    <li><em>id</em> is the offset into the event dynamic array
-        where the parameter will be placed by the unpacker.</li>
-    <li><em>resolution</em> is the number of significant bits of
-        data written into the event dynamic array.</li>
-    <li><em>low</em> is the integer low limit of the parameter used to scale 
-	the parameter to the mapped spectrum coordinates.</li>
-    <li><em>high</em> is the integer high limit of the parameter used to scale
-	the parameter to the mapped spectrum coordinates.</li>
-    <li><em>units</em> is a string to label the parameter's axis with on
-	the histogram itself. Note that, in the case of a multi-parameter
-	axis (<em>e.g. a gamma spectrum</em>), the units of the first mapped
-	parameter are used (it is assumed that they will all be the same
-	units, anyway).
-</ul>
+<p>The name is the name you will use in future SpecTcl commands to refer to this
+parameter.&nbsp; The id represents the slot in the parameter array in which your
+unpacking software will place the parameter.</p>
+
+<h4>Defining Integer Parameters:</h4>
+
+<p>An integer parameter is assumed to have a value from 0 to (2**n)-1.&nbsp; n
+is said to be the scale of the parameter.&nbsp; Two types of integer parameter
+may be defined, depending on the form of the parameter command:</p>
+
+<pre>parameter [-new] <i>name id scale</i></pre>
+
+<p>Defines an integer parameter whose values represent the range [0,(2**<i>scale)
+- 1</i>].</p>
+
+<pre>parameter [-new] <i>name id scale {low high units}</i></pre>
+
+<p>Defines a parameter with range defined as in the first form of the command,
+but whose values are assumed to linearly map to some real coordinate line in the
+range [<i>low,high</i>].&nbsp; The command parameter <i>low</i> and <i>high</i>
+are floating point values.&nbsp; The parameter is also assumed to have units
+(e.g. cm or MeV) described by the string <i>unit.&nbsp;</i> Parameter of this
+sort are called <i>mapped</i> parameters and are useful when building histograms
+of simple calibrated parameters.</p>
+
+<h4>Defining Real Parameters:</h4>
+
+<p>A real parameter has an arbitrary range, and optional units.&nbsp; It is
+defined as follows:</p>
+
+<pre>parameter [new] <i>name id [units]</i></pre>
+
+<p>The <i>unit</i>s<i>&nbsp;</i> parameter is a string valued command line
+parameter that represents the units of the parameter (e.g. &quot;MeV&quot;).</p>
+
+<p><a href="parameter.htm#Top">Top</a></p>
 
 <h3>parameter -list [-byid]</h3>
 
@@ -117,9 +142,72 @@ switch is included, the parameters are sorted by Id number.
 Otherwise the list is alphabetical by parameter name. The output
 is in a form which makes processing by other Tcl commands and
 scripts easy (see e.g. <a href="parlist.htm"><strong>ParList</strong></a>).
-The output is a Tcl List of definitions. Each list element is,
-itself, a 3 element list containing in order, the name of the
-parameter, the parameter id, and the parameter resolution.</p>
+The output is a Tcl List of definitions.&nbsp;&nbsp; Each element of the list is
+itself a list that describes one parameter.&nbsp; In order to make the
+processing of this list simple, all parameter definitions have the following
+elements (in order):</p>
+
+<table border="1" width="100%">
+  <tr>
+    <td width="28%"><b>Element</b></td>
+    <td width="72%"><b>Meaning</b></td>
+  </tr>
+  <tr>
+    <td width="28%">name</td>
+    <td width="72%">Name of the parameter</td>
+  </tr>
+  <tr>
+    <td width="28%">id</td>
+    <td width="72%">Index into the parameter array of the parameter.</td>
+  </tr>
+  <tr>
+    <td width="28%">scale</td>
+    <td width="72%">Scale value of the parameter if it is an integer valued
+      parameter else empty.</td>
+  </tr>
+  <tr>
+    <td width="28%">info</td>
+    <td width="72%">This is a three element list containing in order
+      <table border="1" width="100%">
+        <tr>
+          <td width="25%"><b>subelement</b></td>
+          <td width="75%"><b>Contains</b></td>
+        </tr>
+        <tr>
+          <td width="25%">lowlim</td>
+          <td width="75%">For an integer mapped parameter, this is the low limit
+            of the range represented by the parameter.&nbsp;&nbsp; This is empty
+            for real parameters.</td>
+        </tr>
+        <tr>
+          <td width="25%">hilim</td>
+          <td width="75%">For an integer mapped parameter, this is the high
+            limit of the range represented by the parameter.&nbsp; This is empty
+            for real parameters.</td>
+        </tr>
+        <tr>
+          <td width="25%">units</td>
+          <td width="75%">The units for either an integer or real
+            parameter.&nbsp; If no units have been specified, this is empty.</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>Sample output:</p>
+
+<pre>{Distribution1 1 10 {{} {} {}}}
+{hasunits 12 {} {{} {} {cm}}}
+{real 7 {} {{} {} {}}}
+{scaled 6 10 {10.000000 20.000000 MeV}}
+</pre>
+
+<p>This sample shows in order the output for a simple integer parameter, a real
+parameter with units, a real parameter with no units and a scaled integer
+parameter.</p>
+
+<p><a href="parameter.htm#Top">Top</a></p>
 
 <h3>parameter -list <em>name</em></h3>
 
@@ -127,29 +215,38 @@ parameter, the parameter id, and the parameter resolution.</p>
 If the parameter cannot be listed, the return value is an error
 message string.</p>
 
+<p><a href="parameter.htm#Top">Top</a></p>
+
 <h3>parameter -list -id <em>id</em></h3>
 
 <p>Returns the parameter definition for the parameter with the id
 <em>id.</em> If the parameter cannot be listed, the return value
 is an error message string.</p>
 
+<p><a href="parameter.htm#Top">Top</a></p>
+
 <h3>parameter -delete <em>name</em></h3>
 
 <p>Removes the parameter named <em>name</em> from the parameter
 dictionary.</p>
+
+<p><a href="parameter.htm#Top">Top</a></p>
 
 <h3>parameter -delete -id <em>id</em></h3>
 
 <p>Removes the parameter with the id <em>id</em> from the
 parameter dictionary.</p>
 
+<p><a href="parameter.htm#Top">Top</a></p>
+
 <h2>Examples:</h2>
 
 <pre>parameter De1 0 12                     ;# Creates a 12 bit parameter named De1 in element 
 #                                         zero of the event array.
-parameter p1 1 10 {10 100 "MeV"}       ;# Creates a 10 bit parameter named p1 which will 
+parameter p1 1 10 {10 100 &quot;MeV&quot;}       ;# Creates a 10 bit parameter named p1 which will 
 #                                         scale channel data to between 10 and 100, and 
-#                                         will label its axis with "MeV".
+#                                         will label its axis with &quot;MeV&quot;.
+parameter position 2 mm                ;# Defines a real valued parameter with units mm
 parameter -list -byid                  ;# Creates a list sorted by Id of the defined 
 #                                         parameters.
 parameter -delete -id 0                ;# Deletes the parameter with the id 0.
@@ -173,8 +270,7 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 <hr>
 
 <p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
-s-format="%B %d, %Y" startspan -->April 18, 2001<!--webbot
-bot="Timestamp" endspan i-checksum="17669" --> by: <a
+s-format="%B %d, %Y" startspan -->October 28, 2003<!--webbot bot="Timestamp" endspan i-checksum="30351" --> by: <a
 href="mailto:fox@nscl.msu.edu">fox@nscl.msu.edu</a><br>
 <font size="2">© Copyright NSCL 1999, All rights reserved</font></p>
 </body>

@@ -5,7 +5,7 @@
 <head>
 <meta http-equiv="Content-Type"
 content="text/html; charset=iso-8859-1">
-<meta name="GENERATOR" content="Microsoft FrontPage 2.0">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
 <title>attach - SpecTcl Command</title>
 </head>
 
@@ -33,9 +33,20 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 
 <h2>Syntax</h2>
 
-<pre>attach -file <em>  filename</em>   [<em>blocksize</em>]
-attach -tape <em>  devicename
-</em>attach -pipe [-size nBytes] <em>command string</em></pre>
+<pre>attach {switches...} connection
+  Where:
+     Switches are taken from the following:
+     -format filter|nscl  - Choose buffer format
+     -size nBytes - Number of bytes per buffer.
+     {sourcetype} which can be only one of:
+        -file  when connection is the name of the file
+               from which data will be taken
+        -tape  When connection is the name of a tape device
+               special file and the tape command selects
+               files on the ansi labelled volume
+        -pipe  When connection is a command whose stdout is 
+               taken as the event source.
+</pre>
 
 <h2>Synopsis</h2>
 
@@ -53,8 +64,13 @@ events and attaches it to a new event source: </p>
         file:filename, or online:url, or tape:devicename</li>
 </ul>
 
-<p>The first switch is the event source type and determines the
-meaning of the remaining parameters:</p>
+<p>The -format switch selects the buffer decoder.&nbsp; Presently, nscl and
+filter buffer decoders are built into SpecTcl. Tailored SpecTcls also exist to
+decode Xsys and HIMAC data.&nbsp; In the future we plan to integrate these into
+an extensible buffer format list as is done for the sread/swrite commands.</p>
+
+<p>The -size switch selects the size of each read done on the data file in
+bytes.</p>
 
 <h3>attach -file <em>filename</em> [<em>blocksize</em>]</h3>
 
@@ -150,8 +166,7 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 <hr>
 
 <p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
-s-format="%B %d, %Y" startspan -->April 18, 2001<!--webbot
-bot="Timestamp" endspan i-checksum="17669" --> by: <a
+s-format="%B %d, %Y" startspan -->October 28, 2003<!--webbot bot="Timestamp" endspan i-checksum="30351" --> by: <a
 href="mailto:fox@nscl.msu.edu">fox@nscl.msu.edu</a><br>
 <font size="2">© Copyright NSCL 1999, All rights reserved</font></p>
 </body>
