@@ -310,7 +310,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "dispshare.h"
 #include "dispwind.h"
 
-#include "mapcoord.h"
 
 /*
 ** External data structures referenced:
@@ -498,9 +497,7 @@ static void PlotLin(Channel *d, Sampler *s, float xw, int nx, int ny,
     ** coordinates to fit the range.
     */
 
-    //    value = (unsigned long)((float)ny*((float)value)/((float)range));
-    value = (unsigned long)(Transform((float)base, (float)maximum,
-				      0.0, (float)(ny-1), (float)value));
+    value = (unsigned long)((float)ny*((float)value)/((float)range));
     d->drawchan((short)value);
 
     channels += xw;		/* Go on to the next channel position */
@@ -563,10 +560,7 @@ static void PlotLog(Channel *d, Sampler *s, float xw, int nx, int ny,
       value = log10(value) - logbase;	/* We're plotting logs though. */
     if(value < 0.0) value = 0.0;
     if(value > loginterval) value = loginterval;
-    // int y = (int)((float)ny*(value/loginterval));
-
-    int y = (int)Transform(0.0, (float)loginterval,
-			   0.0, (float)ny, value);
+    int y = (int)((float)ny*(value/loginterval));
 
     d->drawchan((short)y);
 
