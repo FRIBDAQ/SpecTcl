@@ -57,6 +57,11 @@ static struct limit { int low;
 
 extern spec_shared *xamine_shared;
 void windfileerror(char *c);
+#define YYTOKENTYPE
+#ifdef __GNUC_MINOR__
+#undef __GNUC_MINOR__
+#endif
+
 %}
 %union {
   int integer;

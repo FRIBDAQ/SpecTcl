@@ -36,6 +36,10 @@ extern YYSTYPE yylval;
 char* yytitle;
 static void rd_yytitle();
 int         yylex_line;
+#ifdef __GNUC_MINOR__
+#undef __GNUC_MINOR__
+#endif
+
 %}
 %%
 \"[^\"\n]*[\"\n]   {   if(yytext[strlen(yytext) - 1] != '"') {
