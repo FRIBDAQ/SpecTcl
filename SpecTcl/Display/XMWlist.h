@@ -19,11 +19,11 @@
 #include <errno.h>
 #include "XMWidget.h"
 #include "XMPushbutton.h"
-
+#ifndef Linux
 extern "C" {
   void exit(int code);
 }
-
+#endif
 /*
 ** Below is a generic list class which is used to construct the widget list
 ** class.

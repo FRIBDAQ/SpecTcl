@@ -27,11 +27,11 @@
 /*
 ** Declarations:
 */
-
+#ifndef Linux
 extern "C" {
              void exit(int);
 	   }
-
+#endif
 
 /*
 ** Method description:

@@ -30,12 +30,15 @@
 /*
 ** External definitions:
 */
+#ifndef Linux
+
 
 extern "C" {
   void exit(int);
 }
-
+#endif
 /*
+#ifndef Linux
 ** Local definitions:
 */
 

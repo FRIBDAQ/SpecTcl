@@ -30,12 +30,12 @@
 #include <errno.h>
 #include <stdio.h>
 #include "XMWidget.h"
-
+#ifndef Linux
 extern "C" {
              void exit(int);
 
 	   }
-
+#endif
 
 
 /*

@@ -270,7 +270,9 @@ XColor       white;
 ** External references.
 */
 extern "C" {
+#ifndef Linux
   void exit(int);
+#endif
 
 /*
 ** Forward references:

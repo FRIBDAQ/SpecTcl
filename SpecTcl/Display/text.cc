@@ -35,7 +35,9 @@
 /*
 ** External function definitions:
 */
+#ifndef Linux
 extern "C" {  void exit(int); }
+#endif
 
 /*
 **  Constant definitions:
