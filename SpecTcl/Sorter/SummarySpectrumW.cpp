@@ -296,6 +296,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log:
    $Log$
+   Revision 4.6  2003/11/07 21:48:30  ron-fox
+   Fix error in CSummarySpectrmB.cpp' s
+   increment.  It would sometimes not increment
+   when it should
+
    Revision 4.5  2003/10/24 14:43:29  ron-fox
    Bounds check parameter ids against the size of
    of the event.
@@ -357,7 +362,8 @@ CSummarySpectrumW::CSummarySpectrumW(const std::string& rName,
   // The assumption is that all parameters have the same units.
   AddAxis(rrParameters.size(), 0.0, 
 	  (Float_t)(rrParameters.size() - 1)); // Unit-less.
-  AddAxis(nYScale, 0.0, (Float_t)(nYScale - 1), rrParameters[0].getUnits());
+  AddAxis(nYScale, 0.0, (Float_t)(nYScale - 1), 
+	  rrParameters[0].getUnits());
   FillParameterArray(rrParameters);
   CreateStorage();
 
