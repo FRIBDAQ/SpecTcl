@@ -1,12 +1,12 @@
-# INCLUDES = -I. -I../Utility -I../EventSource -I../Tape -I../Exception
-INCLUDES= -I. -I../EventSource -I../TCL -I../Exception -I../Utility @TCL_FLAGS@ -I../Tape
+# INCLUDES = -I. -I../Utility -I../EventSource -I../Tape -I../NSCLException
+INCLUDES= -I. -I../EventSource -I../TCL -I../NSCLException -I../Utility @TCL_FLAGS@ -I../Tape
 # LDADD = -lTclGrammerCommands -lXamine -lGates -lSorting -lXplus -lAnalysis -lEventSource -ltclPlus -lException -lSpecio -lreplace -ltape -lm
 LDADD = -lFilter -lAnalysis   -lEventSource -ltclPlus -lException -ltape -lTclGrammerCommands
 
-LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../Exception -L../Tape \
+LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException -L../Tape \
 	-L../Filter 	-L../SpecTcl
 
-# LDFLAGS = -L. -L../SpecTcl -L../Display -L../Gates -L../Sorter -L../Xamine -L../Events -L../EventSource -L../TCL -L../Exception -L../SpectrumIO -L../Replace -L../Tape 
+# LDFLAGS = -L. -L../SpecTcl -L../Display -L../Gates -L../Sorter -L../Xamine -L../Events -L../EventSource -L../TCL -L../NSCLException -L../SpectrumIO -L../Replace -L../Tape 
 
 bin_PROGRAMS = testfile ltwrite
 
