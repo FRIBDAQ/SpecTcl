@@ -284,55 +284,478 @@
 # These save: procedures, spectra, gates, and applys
 # It also adds a clean function which deletes all parameters and spectra.
 # *************************************************************************
+#
+#  Massively rewritten to support the extended information required for
+#  real and scaled parameters.
+#
+
+#
+#   Change log:
+#    $Log$
+#    Revision 4.2  2003/06/19 18:57:29  ron-fox
+#    Make properly work with scaled parameters, real parameters and axis scales.
+#    The gate dependency computation was simplified from a treebuild/walk to a recursive
+#    descent of the dependencies.
+#
+#
+
 global SpecTclHome
-source $SpecTclHome/Script/dtree.tcl
+
+#   utility proc: returns input or "{}" if input is empty string:
+
+proc listify {value} {
+    if {$value == "" } {
+	return "\{\}"
+    } else {
+	return $value
+    }
+
+}
+
+#  utility proc: Return true if none of the parameters in a list 
+#  have the name:  --Deleted Parameter--
+#
+
+proc validparams {spectrumdesc} {
+    set paramlist [lindex $spectrumdesc 3]
+    foreach parameter $paramlist {
+	if {$parameter == "--Deleted Parameter--"} {
+	    return 0
+	}
+    }
+    return 1
+}
+
+#
+#  write parameter definitions out  to file
+#  All parameters in parameter -list have the same format:
+#    name id bits {low hi units}
+#  However some of these may be empty, for example a real parameter
+#  with units will be:
+#    name id {} {{} {} {units}}
+#  A real without units:
+#    name id {} {{} {} {}{}}
+
 proc getparms {{destination "stdout"}} {
     set parms [parameter -list]
-    set lparms [split $parms \n]
-    for {set i 0} {$i < [llength $lparms]} {incr i} {
-	set ele [string trim [lindex $lparms $i] \{]
-	set ele [string trim $ele \}]
-	if {$ele > ""} {
-	    puts $destination "handle \"parameter $ele\""
-	}    
+    foreach def $parms {
+	if {$def != "" } {
+	    set name     [lindex $def 0]
+	    set index    [lindex $def 1]
+	    set bits     [lindex $def 2]
+	    set RangeAndUnits [lindex $def 3]
+	    set low      [lindex $RangeAndUnits 0]
+	    set high     [lindex $RangeAndUnits 1]
+	    set units    [lindex $RangeAndUnits 2]
+#	    
+	    set command "handle \"parameter $name $index "
+	    append command [listify $bits]
+#
+	    # The axis definitions are inside of {}s and individual
+	    # missing items are replaced by {}'s.
+#
+	    append command " \{"
+	    append command " " [listify $low]
+	    append command " " [listify $high]
+	    append command " " [listify $units]
+	    append command "\}"
+	    append command "\""
+	    puts $destination $command
+
+	}
+    }
+}
+#---------------------------------------------------------------------
+#
+#  Writing spectra:
+#
+#
+#  Write a single spectrum to file:
+#     name   - Name of the spectrum.
+#     type   - Type of spectrum e.g. s for summary.
+#     params - List of parameters in the spectrum.
+#     axes   - List of axis definitions.
+#     datatype - Channel data type (e.g. word).
+#     dest   - Destination of the write.
+#
+
+proc WriteSpectrum {name type params axes datatype dest} {
+    set    command "handle \"spectrum "
+    append command "$name $type \{"
+    foreach param   $params {
+	append command "$param "
+    }
+    append command "\} \{"
+    foreach axis $axes {
+	append command  "\{$axis\} "
+    }
+    append command "\} $datatype \""
+    puts $dest $command
+}
+
+#
+#   Write spectrum definitions out to file.
+#   All spectra in the output from [spectrum -list] will have the same
+#   format:
+#     id name type {param1 ?param2? ...} {{axisdef1} ?{axisdef2}?} chansize
+#   We create a definition of the form:
+#
+# handle "spectrum name type {param1 ...} {{axisdef1} ...} chansize#
+#
+#  Note that if any of the spectrum's parameters are named
+#    --Deleted Parameter-- this indicates a parameter has been deleted
+#  and the spectrum will not be output as it can't be reconstituted
+#  on input.
+
+proc getspecs {{dest "stdout"}} {
+   set specs [spectrum -list]
+   foreach spectrum $specs {
+      set name     [lindex $spectrum 1]
+      set sptype   [lindex $spectrum 2]
+      set params   [lindex $spectrum 3]
+      set axes     [lindex $spectrum 4]
+      set datatype [lindex $spectrum 5]
+      
+      if {[validparams $spectrum]} {    ;# reject spectra with deleteds.
+	  WriteSpectrum $name $sptype $params $axes $datatype $dest
+      }
+   }   
+}
+
+#------------------------------------------------------------------------
+#
+#   Writing gates:
+#     This is a bit more challenging than what we've done so far.
+#     Gates depend on other gates.  In this section we take a recursive
+#     approach to writing gates basic idea:
+#     1. Enumerate all the gates.
+#     2. Mark all gates as not written.
+#     3. For each gate:  If it does not depend on a gate, write it and
+#        mark it written.
+#     4. If a gate depends on other gates, write out all dependent gates
+#        that have not yet been written.
+#   
+# Things are a bit more complex, however:  If a gate has parameters
+# that have been deleted, it will not be written.
+# If a gates depends on gates that have deleted parameters it won't be 
+# written either.
+# 
+#   To make all this work, we create an array named Gates that
+#   is indexed by gate name.  Each element of the gate contains
+#   a two element list of the form:
+#    {status def}
+#        status is the current status of the gate and can contain
+#               any of the values "unwritten", "written", "unwritable"
+#               with hopefully obvious meanings.
+#        def    is the gate definition string returned from gate -list.
+#
+#
+#   This array has global scope because it will also be used to 
+#   determine which binding can be written out.
+#
+
+#
+# Set the status of a gate.
+
+proc SetStatus {name status} {
+    global Gates
+    set element $Gates($name)
+    set desc [lindex $element 1]
+    set Gates($name) [list $status $desc]
+}
+
+#
+#  Returns TRUE if a gate depends on a deleted parameter.  this is done
+#  by looking for a match against the string "-Deleted Parameter-"
+#  in the gate dependent part of the gate definition string.
+#
+#   name -- The name of a gate to check
+# Return:
+#    TRUE - The gate depends on a deleted parameter.
+#    FALSE- The gate doesn't depend on a deleted parameter
+
+proc dependsOnDeleted {name} {
+    global Gates
+    set   gate [lindex $Gates($name) 1]
+    set   typedependent [lindex $gate 2]
+
+    if {[string first "-Deleted Parameter-" $typedependent] != -1} {
+	return 1
+    } else {
+	return 0
+    }
+   
+}
+
+# Mark primitive gates that cannot be written as unwritable.
+#
+proc MarkUnwritable { } {
+    global Gates
+    set    names [array names Gates]
+    foreach name $names {
+	    if {[dependsOnDeleted $name]} {
+		SetStatus $name "unwritable"
+	    }
+    }
+}
+#
+#   Given a gate definition, returns the set of top-level dependencies.
+#
+proc GetDependencies {def} {
+    # Primitive gates can't depend on anything:
+
+    set type [lindex $def 1]
+    if {[lsearch -exact "s c b gs gb gc T F" $type] != -1} {
+	return ""
+    } else {
+	return [lindex $def 2]
     }
 }
 
-proc getspects {{destination "stdout"}} {
-    foreach line [spectrum -list] {
-	set parms [lrange $line 1 4]
-	if {[string first "\{--Deleted Parameter--\}" $parms] == -1} {
-	    puts $destination "handle \"spectrum $parms\""
-	} else {
-	    missingparam spectrum $parms
+#
+#  Takes a specific gate type and returns a string that describes the
+#  type of gate description:
+#    compound:    Gate specific part of description is a list of gates.
+#    twod:        Gate specific part of description is a pair of parameters
+#                 followed by a list of coordinate pairs (3 elements).
+#    gamma2:      Gate specific part is a list of coordinate pairs followed
+#                 by a spectrum name.
+#    gamma1:      Gate specific part is a coordinate pair followed by
+#                 a spectrum name.
+#    slice:       Gate specific part is a parameter name followed by a 
+#                 coordinate pair.
+#
+proc GeneralGateType {type} {
+    switch --  $type {
+	+ - \* - "-"  - T - F - c2band {
+	    return "compound"
+	}
+	c - b {
+	    return "twod"
+	}
+	gb - gc {
+	    return "gamma2"
+	}
+	gs {
+	    return "gamma1"
+	}
+	s {
+	    return "slice"
+	}
+    }
+}
+#
+#  Formats a gate to file... at this point, the gate is assumed to
+#  have had all of its dependencies written..to do that WriteGate was
+#  used in theory.
+#
+proc FormatGateToFile {name {dest stdout}} {
+    global Gates
+    set description [lindex $Gates($name) 1]
+    set type        [lindex $description 1]
+    
+    # Everything but the gate dependent desription is format dependent:
+
+    append command handle  " "  \"gate " " [lindex $description 0]  " " \
+                                 $type  " "
+
+    #
+    #  The gate dependent parameter format depends on the uh... gate type.
+    #
+    set parameters [lindex $description 2]
+    set generaltype [GeneralGateType $type]
+
+    # Close off the command with the trailing quote and write it.
+
+    switch $generaltype  {
+	compound {
+	    append command "\{"
+	    foreach gate $parameters {
+		append command $gate " "
+	    }
+	    append command "\}"
+	}
+	twod {
+	    append command "\{"
+	    set params [lindex $parameters 0]
+	    set points  [lrange $parameters 1 end]
+	    append command [lindex $params 0] " " [lindex $params 1] " \{"
+	    foreach point $points {
+		append command \{ $point \} " "
+	    }
+	    append command "\}"
+	    append command "\}"
+	}
+	gamma2 {
+	    append command "\{"
+	    set points [lindex $parameters 0]
+	    set spectrum [lindex $parameters 1]
+	    append command "\{"
+	    foreach point $points {
+		append command \{  $point \} " " 
+	    }
+	    append command "\} "
+	    append command $spectrum
+	    append command "\}"
+	}
+	gamma1 {
+	    append command "\{"
+	    set point [lindex $parameters 0]
+	    set spectrum [lindex $parameters 1]
+	    append command "\{ " $point "\} "
+	    append command $spectrum
+	    append command "\}"
+
+	}
+	slice {
+	    append command "\{"
+	    set param [lindex $parameters 0]
+	    set point [lindex $parameters 1]
+	    append command $param " \{" $point "\}"
+	    append command "\}"
+	}
+    }
+
+    append command \"
+    puts $dest $command
+}
+
+#  Write a single gate.  If the gate has dependences, we selfcall 
+#  recursively to get the order right.
+#  Note that if any dependencies are unwritable, we get marked unwritable.
+#
+    proc WriteGate {name def {dest "stdout"}} {
+    global Gates
+    set  dependencies [GetDependencies $def] 
+    if {$dependencies != ""} {
+	foreach gate $dependencies {
+	    set dependentdef [lindex $Gates($gate) 1]
+	    set status       [lindex $Gates($gate) 0]
+	    if {$status == "unwritten"} {
+		WriteGate $gate $dependentdef $dest
+	    } elseif {$status == "unwritable"} {
+		SetStatus $name "unwritable"
+	    }
+	}
+    }
+    set status [lindex $Gates($name) 0]
+    if {$status == "unwritten"} {
+	FormatGateToFile $name $dest
+	SetStatus $name "written"
+    }
+    
+}
+
+#
+#   Iterate through the gates global array and write out the gate.
+#
+proc WriteGates { {dest "stdout"} } {
+    global Gates
+    set  names [lsort -ascii [array names Gates]]; # Won't be quite alpha.
+    foreach gate $names {
+	set status [lindex $Gates($gate) 0]
+	set def    [lindex $Gates($gate) 1]
+	if {$status == "unwritten"} {
+	    WriteGate $gate $def $dest
 	}
     }
 }
 
+#
+#  Enumerate the gates and write them out.
+#     dest - File descriptor on which to write the gates.
+proc getgates {{dest "stdout"}} {
+    global Gates
+    #  Kill off contents of old Gates array.
+    catch {
+	foreach gate [array names Gates] {
+	    catch "unset Gates($gate)"
+	}
+    }
+
+    set gates [gate -list]
+    
+    # put the gates into the array.
+    #  A gate descriptor has name id type gate dependent info
+    #
+    foreach gate $gates {
+	set name [lindex $gate 0]
+	set type [lindex $gate 2];	#  Skip the id since it's meaningless.
+	set info [lindex $gate 3]
+
+	#  Make a new list:
+
+	set desc    [list $name $type $info]
+	set element [list "unwritten" $desc]
+	set Gates($name) $element
+    }
+    MarkUnwritable;			# Set unwritable for appropriate gates.
+    WriteGates $dest;				# And write all the gates.
+}
+
+
+#
+#   Enumerate gate applications and write them out. 
+#   A couple of little quirks:
+#   - If the spectrum is based on parameters that don't exist, no apply
+#     will be written.
+#   - If the gate is named -TRUE-, that's the default gate so no apply will
+#     be written.
+#   - If the gate was marked by getgates as unwritable, the apply will
+#     not be written.
+#
+#  Applications are a list with elements of the form:
+#    {spectrumname {gatename gatetype gateparams}}
+
+proc getapply {{dest "stdout"}} {
+    global Gates
+    set applications [apply -list]
+
+    foreach application $applications {
+	set spectrum [lindex $application 0]
+	set gate     [lindex $application 1]
+	set gatename [lindex $gate 0]
+	
+	#  Was the spectrum written?
+
+	set spdesc [spectrum -list $spectrum]
+	if {[validparams $spdesc]} {
+	    
+	    #  Was the gate written?
+	    if {$gatename != "-TRUE-"} {
+		set state [lindex $Gates($gatename) 0]
+		if {$state != "unwritable"} {
+		    set command "handle \""
+		    append command "apply $gatename $spectrum\""
+		    puts $dest $command
+		}
+	    }
+	}
+    }
+}
+
+#
+#   Procedure to write all parameters, spectra, gates, and applications.
+#
 proc saveall {filename} {
     global SpecTclHome
     set headerpath "$SpecTclHome/Script/save.head"
     set path $filename
     if [catch {open $headerpath r 0600} header] {
-	puts stderr "Can't find header file: \n $header"
+	puts stderr "Can't find save header file: \n $header"
     } else {
-	
 	if [catch {open $path w 0600} file] {
-	    puts stderr "Can't open $path: $file"
+	    puts stderr "Can't open save file: $path : $file"
 	} else {
 	    puts $file [read $header]
-	    # this procedure only writes the header to the file.  it
-	    # passes the filename to the get_____ procedures which
-	    # do the formatting and output.
 	    getparms $file
-	    getspects $file
+	    getspecs $file
 	    getgates $file
+	    getapply $file
 	    close $file
 	}
-    close $header
     }
 }
-
 proc loadall {filename} {
 # yep, this is it.  everything else is done in the handle.tcl script.
     if [catch {source $filename} stuff] {
@@ -360,116 +783,4 @@ proc clean {} {
 	    puts stderr "Error deleting SpecTcl gate: \n $res2"
 	}
     }
-}
-
-proc getgates {{destination "stdout"}} {
-    set glist [gate -list]
-    foreach element $glist {
-	set gatestring [gateformat [lreplace $element 1 1]]
-	if {[string first {-Deleted Parameter-} [lindex $gatestring 2]] == -1} {
-	    set Gatename [lindex $element 0]
-	    additem gatetree $Gatename
-	    set direct($Gatename) $gatestring
-	} else {
-	    missingparam gate $gatestring
-	}
-    }
-    
-    setmissingevent gatetree {
-	# this sets the 'missing event' of the dependancy tree that is called when an
-	# item is dependent on a missing item.  Whatever is in these brackets
-	# will be executed for each item deleted because it its dependandcies are missing.
-	# In this case I am calling the missingparam procedure.  I kno this is a lot of work
-	# and I couldve called missingparam directly, but i wanted total separation of this script
-	# and the dependancy tree structure.
-	missingparam gate "[getval ptree] missing depended gate"
-    }
-    for {set i 0} {$i < 2} {incr i} {
-	foreach element $glist {
-	    set line [lreplace $element 1 1]
-	    set name [lindex $line 0]
-	    if {[expr {[lindex $line 1] == "+"}] || [expr {[lindex $line 1] == "*"}] || [expr {[lindex $line 1] == "-"}]} {
-		dependon gatetree $name [lindex $line 2]
-	    }
-	}
-    }
-    set herelist [outlist gatetree]
-    if {$herelist!="-1"} {
-	foreach name $herelist {
-	    puts $destination "handle \"gate $direct($name)\""
-	}
-	# I call getapply from here because the list of functional gates is handy ($herelist)
-	getapply $destination $herelist
-    }
-}
-
-proc gateformat {gatein} {
-    set a [lindex $gatein 1]
-    if {[expr {$a != "*"}] && [expr {$a != "+"}] && [expr {$a != "-"}]} {
-	set inf [lindex $gatein 2]
-	if {($a == "gs") || ($a == "gb") || ($a == "gc")}  {
-	    set ps $gatein
-	} elseif {[llength $inf] > 2} {
-	    set ps "[lrange $gatein 0 1] \{[lindex $inf 0] \{ [lrange $inf 1 end]\}\}"
-	} else {
-	    set ps "[lrange $gatein 0 1] \{[lindex $inf 0] [lrange $inf 1 end]\}"
-	}
-    } else {
-	set ps $gatein
-    }
-    return $ps
-}
-
-proc sepgates {gatelist} {
-    if {[llength $gatelist] > 1} {
-	foreach gate $gatelist {
-	    foreach single [sepgates $gate] {lappend glist $single}
-	}
-    } else {
-	return $gatelist
-    }
-    return $glist
-}	    
-
-proc getapply {{destination stdout} gatelist} {
-    set aplist [apply -list]
-    set doapply 1
-    foreach ap $aplist {
-	if {[lindex [lindex $ap 1] 0] != "-TRUE-"} {
-	    set flag "\{--Deleted Parameter--\}"
-	    set spec [lindex $ap 0]
-	    # this gets rid of applys related to spectrum with deleted parameters
-	    if {[string first $flag [lrange [spectrum -list $spec] 1 4]] == -1} {
-		set op [lindex [lindex $ap 1] 2]
-		if {[expr {$op == "+"}] || [expr {$op == "*"}] || [expr {$op == "-"}]} {
-		    set gates [lreplace [lindex $ap 1] 1 2]
-		    set glist [sepgates $gates]
-		    foreach gate $glist {
-			# this gets rid of applys with gates with missing parameters, or gates 
-			# depending on gates with missing parameters, or gates depending on
-			# gates depending on... well, you see what I mean.
-			if {[lsearch -exact $gatelist $gate] == "-1"} {
-			    set doapply 0
-			}
-		    }
-		} else {
-		    set gate [lindex [lindex $ap 1] 0]
-		    if {[lsearch -exact $gatelist $gate] == "-1"} {
-			set doapply 0
-		    }
-		}  
-		if $doapply {
-		    puts $destination "handle \"apply $gate $spec\""
-		} else {
-		    missingparam apply "either gate: $gate or spectrum: $spec is disabled"
-		}
-	    }
-	}
-    }   
-}
-
-proc missingparam {fromwhat reason} {
-# this procedure is called when a spectrum, gate, or apply is not saved
-# because a required parameter is missing somewhere along the line.
-# fromwhat is the structure calling the process, reason can be a declaration or explanation of problem
 }
