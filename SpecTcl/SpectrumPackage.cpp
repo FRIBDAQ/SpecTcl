@@ -295,8 +295,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
-//    Revision 4.7  2004/05/14 20:43:29  ron-fox
-//    Merge to 2.2 branch.
+//    Revision 5.1  2004/11/29 16:56:12  ron-fox
+//    Begin port to 3.x compilers calling this 3.0
 //
 //    Revision 4.6.2.1  2004/04/13 19:37:24  ron-fox
 //    Issue 120 and related bugs: Memory leak on spectrum -delet -all

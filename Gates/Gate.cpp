@@ -346,6 +346,14 @@ CGate::operator()(CEvent& rEvent)
   return getCachedValue();
 }
 
-
+//
+// Recursive reset for simple gates is just a cache
+// invalidation.  More complex gates  will override this.
+//
+void
+CGate::RecursiveReset()
+{
+	m_fChecked = kfFALSE;
+}
 
 

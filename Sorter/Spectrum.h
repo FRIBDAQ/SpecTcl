@@ -293,6 +293,15 @@ DAMAGES.
 //                     spectra can report their type.
 //
 //  $Log$
+//  Revision 5.1  2004/11/29 16:56:08  ron-fox
+//  Begin port to 3.x compilers calling this 3.0
+//
+//  Revision 4.2.4.1  2004/10/27 12:38:40  ron-fox
+//  optimize performance of Spectrum1DL histogram increments.  Total
+//  performance gain was a factor of 2.8.  The 'unusual' modifications
+//  are documented via comments that indicate they were suggested by profile
+//  data.
+//
 //  Revision 4.2  2003/04/01 19:53:46  ron-fox
 //  Support for Real valued parameters and spectra with arbitrary binnings.
 //
@@ -330,6 +339,10 @@ DAMAGES.
 #ifndef __STL_VECTOR
 #include <vector>
 #define __STL_VECTOR
+#endif
+
+#ifndef __CRANGEERROR_H
+#include <RangeError.h>
 #endif
 
 // Forward class definitions:
@@ -465,7 +478,17 @@ public:
   }
   DataType_t StorageType () const   {return m_DataType; }
 
-  Float_t  ParameterToAxis(UInt_t nAxis, Float_t fParameterValue);
+  // Profiling suggests ParameterToAxis should be inlined:
+
+  Float_t  ParameterToAxis(UInt_t nAxis, Float_t fParameterValue) {
+    if(nAxis < m_AxisMappings.size()) {
+      return m_AxisMappings[nAxis].ParameterToAxis(fParameterValue);
+    }
+    else {
+      throw CRangeError(0, m_AxisMappings.size() - 1, nAxis,
+			string("CSpectrumParameterToAxis"));
+    }
+  }
   Float_t AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue);
   Float_t  MappedToAxis(UInt_t nAxis, Float_t fParameterValue);
   Float_t AxisToMapped(UInt_t nAxis, UInt_t nAxisValue);

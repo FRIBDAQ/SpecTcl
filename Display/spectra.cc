@@ -304,6 +304,9 @@ static char *version="@(#)spectra.cc	8.1 6/23/95 ";
 #include <string.h>
 #include <stdlib.h>
 
+#include <string>
+#include <map>
+
 #include "dispshare.h"
 
 /*
@@ -332,6 +335,10 @@ int comp(const void *s1,const void *s2)
 {
   return strcmp((char *)s1, (char *)s2);
 }
+
+// Local type definitions.
+
+typedef pair<int, string> NumberAndName;
 
 
 /*
@@ -690,25 +697,34 @@ int Xamine_GetSpectrumId(char *name)
 */
 int Xamine_GetSpectrumList(char ***list)
 {
-  int nspec;
+
   spec_title aname;
+  map<string, NumberAndName> NameInfo;
 
   /* First a list of spectrum name pointers is generated for the defined 
   ** spectra:
   */
   int i;
-  nspec = 0;
   for(i = 0; i < DISPLAY_MAXSPEC; i++) {
     if(xamine_shared->gettype(i+1) != undefined) {
        xamine_shared->getname(aname, i+1);     /* Make nulll filled string */
-       if(strlen(aname) == 0) strcpy(aname, "<Untitled>");
-       sprintf(names[nspec], "[%03d]  %s",   i+1, aname);
-       nspec++;			              /* count a defined spectrum    */
+       if(strlen(aname) == 0) {	               // Spectra don't require names...
+	 strcpy(aname, "<Untitled>");
+       }
+
+       NameInfo[string(aname)] = NumberAndName(i+1, string(aname));
      }
   }
-  /*  Next we sort the names alphabetically */
+  // Pull the names out of the NumberAndNae map (they'll be sorted).
+  // and encode them into names:
 
-  qsort((char *)names, nspec, sizeof(chooser_name), comp);
+  int nspec =0;
+  for(map<string,NumberAndName>::iterator i = NameInfo.begin();
+      i != NameInfo.end(); i++) {
+
+    sprintf(names[nspec], "[%05d] %s", i->second.first, i->first.c_str());
+    nspec++;
+  }
 
   /* Build the pointer name list */
   

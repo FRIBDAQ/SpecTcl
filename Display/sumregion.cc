@@ -376,23 +376,28 @@ inline AcceptSummingRegion *mkobject(XtPointer ud) /* Create object pointer */
   return dialog;
 }
 
-void CancelRelay(XMWidget *w, XtPointer ud, XtPointer cd) /* Cancel relay: */
+void 
+AcceptSummingRegion::CancelRelay(XMWidget *w, XtPointer ud, XtPointer cd) /* Cancel relay: */
 {
   mkobject(ud)->CancelCallback(cd);
 }
-void ApplyRelay(XMWidget *w, XtPointer ud, XtPointer cd) /* Apply relay: */
+void 
+AcceptSummingRegion::ApplyRelay(XMWidget *w, XtPointer ud, XtPointer cd) /* Apply relay: */
 {
   mkobject(ud)->ApplyCallback(cd);
 }
-void OkRelay(XMWidget *w, XtPointer ud, XtPointer cd)  /* OK relay: */
+void 
+AcceptSummingRegion::OkRelay(XMWidget *w, XtPointer ud, XtPointer cd)  /* OK relay: */
 {
   mkobject(ud)->OkCallback(cd);
 }
-void TextPointRelay(XMWidget *w, XtPointer ud, XtPointer cd) /* Txt in relay */
+void 
+AcceptSummingRegion::TextPointRelay(XMWidget *w, XtPointer ud, XtPointer cd) /* Txt in relay */
 {
   mkobject(ud)->TextPoint();
 }
-void Delete_relay(XMWidget *w, XtPointer ud, XtPointer cd) /* Delete last pt */
+void 
+AcceptSummingRegion::Delete_relay(XMWidget *w, XtPointer ud, XtPointer cd) /* Delete last pt */
 {
   AcceptSummingRegion *o = mkobject(ud);
   
@@ -518,7 +523,8 @@ void AcceptSummingRegion::ClearState()
 **        that's in progress. Used to locate the appropriate
 **        drawing pixmap.
 */
-void AcceptSummingRegion::DrawPoints(XMWidget *pane,
+void 
+AcceptSummingRegion::DrawPoints(XMWidget *pane,
 			     Xamine_RefreshContext *ctx)
 {
   /* We need to get the display attributes of the spectrum associated with

@@ -292,6 +292,15 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1  2004/11/29 16:56:08  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
+  Revision 4.2.4.1  2004/10/27 12:38:40  ron-fox
+  optimize performance of Spectrum1DL histogram increments.  Total
+  performance gain was a factor of 2.8.  The 'unusual' modifications
+  are documented via comments that indicate they were suggested by profile
+  data.
+
   Revision 4.2  2003/04/01 19:53:46  ron-fox
   Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -312,6 +321,8 @@ DAMAGES.
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
 #endif
+
+
 
 //  Foward Class definitions:
 
@@ -392,8 +403,9 @@ protected:
   //
   //  Operations:
   //   
-public:                 
-  virtual   void Increment (const CEvent& rEvent)  ;
+public:
+
+  virtual   void Increment (const CEvent& rE);
   virtual   ULong_t operator[](const UInt_t* pIndices) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;

@@ -246,3 +246,14 @@ CLinearFit::GetParameters()
 
   return aParameters;
 }
+/*!
+   Clone ourselves.  Clone provides polymorphic copy construction.
+   \return CFit*
+   \retval A pointer to an exact duplicate of this dynamically allocated.
+   
+ */
+ CFit*
+ CLinearFit::clone()
+ {
+ 	return new CLinearFit(*this);
+ }

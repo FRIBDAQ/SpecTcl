@@ -293,11 +293,25 @@
 /*!
   Change Log:
   $Log$
+  Revision 5.1  2004/11/29 16:56:17  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
+  Revision 4.3.4.1  2004/09/24 11:44:00  ron-fox
+  Trust STL String constructors to do the right thing.. what we were doing
+  was giving Rational/Purify some fits.
+
   Revision 4.3  2003/08/25 16:11:56  ron-fox
   Merge with kanayo's code
 
   Revision 4.2  2003/03/25 12:03:17  ron-fox
   Added Change log comment generated from the CVS $Log$
+  Added Change log comment generated from the CVS Revision 5.1  2004/11/29 16:56:17  ron-fox
+  Added Change log comment generated from the CVS Begin port to 3.x compilers calling this 3.0
+  Added Change log comment generated from the CVS
+  Added Change log comment generated from the CVS Revision 4.3.4.1  2004/09/24 11:44:00  ron-fox
+  Added Change log comment generated from the CVS Trust STL String constructors to do the right thing.. what we were doing
+  Added Change log comment generated from the CVS was giving Rational/Purify some fits.
+  Added Change log comment generated from the CVS
   Added Change log comment generated from the CVS Revision 4.3  2003/08/25 16:11:56  ron-fox
   Added Change log comment generated from the CVS Merge with kanayo's code
   Added Change log comment generated from the CVS tag.
@@ -330,9 +344,10 @@ class CNamedItem
   CNamedItem() : m_nNumber(0) 
   {}
   CNamedItem (  std::string am_sName,  UInt_t am_nNumber  )
-    :   m_nNumber (am_nNumber) {                      // Some STL string imps 
-    m_sName.resize(strlen(am_sName.c_str()) + 2, 0); // Butcher construction.
-    m_sName = am_sName;
+    :
+    m_sName(am_sName),
+    m_nNumber (am_nNumber) {
+
   }
         
   virtual ~CNamedItem () {}       //Destructor

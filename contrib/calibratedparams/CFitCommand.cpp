@@ -115,6 +115,7 @@ CreateListResult::FormatFit(string sName, CFit* pFit)
 {
   CTCLString Info;
   Info.AppendElement(sName);
+  Info.AppendElement(pFit->Type());
   Info.AppendElement((pFit->GetState() == CFit::Accepting) ?
 		                   "accepting" : "performed");
   // The points.

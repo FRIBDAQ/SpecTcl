@@ -294,9 +294,8 @@ DAMAGES.
 
 Change Log:
    $Log$
-   Revision 4.9  2004/08/06 13:40:28  ron-fox
-   Merge with SpecTcl-2.2 prior to splitting off a linux-2.6/gcc-3.3 port
-   branch.
+   Revision 5.1  2004/11/29 16:55:56  ron-fox
+   Begin port to 3.x compilers calling this 3.0
 
    Revision 4.8.6.2  2004/07/08 15:25:52  ron-fox
    Fix some small issues with translator pointer arithmetic I didn't catch at first (operator+ and operator- were wrong).

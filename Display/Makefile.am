@@ -6,10 +6,10 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 
 INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS)
 LDFLAGS = -g @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @LD_EXTRA_FLAGS@
-XCCFLAGS = -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE
+XCCFLAGS =   -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE
 
-AM_CXXFLAGS = -g
-AM_CFLAGS   = -g
+AM_CXXFLAGS = -g -pedantic
+AM_CFLAGS   = -g -pedantic
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/etc

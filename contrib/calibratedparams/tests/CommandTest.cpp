@@ -284,12 +284,13 @@ void CommandTest::ListTest()
   CTCLList george(m_pInterp, elements[0]); // George's desription list
   StringArray georgelist;
   EQMSG("element list status", TCL_OK, george.Split(georgelist));
-  EQMSG("element list size",   (size_t)4,  georgelist.size());
+  EQMSG("element list size",   (size_t)5,  georgelist.size());
 
   EQMSG("name",   string("george"),    georgelist[0]);
-  EQMSG("state",  string("accepting"), georgelist[1]);
-  EQMSG("points", string(""),          georgelist[2]);
-  EQMSG("params", string(""),          georgelist[3]);
+  EQMSG("linear", string("linear"),    georgelist[1]);
+  EQMSG("state",  string("accepting"), georgelist[2]);
+  EQMSG("points", string(""),          georgelist[3]);
+  EQMSG("params", string(""),          georgelist[4]);
   
 
   // Delete the fits:

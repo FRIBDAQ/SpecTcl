@@ -306,6 +306,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 #include "TCLApplication.h"
 #include "TCLInterpreter.h"
+
+#include <string>
+
 #include <histotypes.h>
 #include <assert.h>
 #include <tcl.h>
@@ -354,8 +357,17 @@ main(int argc,char** argv)
     Tk_Main(argc, argv, Tcl_AppInit);
     return 0;			/* Needed only to prevent compiler warning. */
   }
+  catch (string msg) {
+    cerr << "An unhandled string exception was caught: " << msg << endl;
+    return -1;
+  }
+  catch (const char* msg) {
+    cerr << "An unhandled char* exception was caught: " << msg << endl;
+    return -1;
+  }
   catch(...) {
     cerr << "Unhandled exception\n";
+    return -1;
   }
 }
 

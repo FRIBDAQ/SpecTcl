@@ -341,7 +341,7 @@ extern "C" {
 /*
 ** Externally referenced global:
 */
-extern int errno;
+// extern int errno;
 extern volatile spec_shared *xamine_shared;
 extern win_db *database;
 
@@ -510,9 +510,9 @@ void Xamine_Print(XMWidget* w, XtPointer user, XtPointer call)
 void
 Xamine_PrintSpectrum(XMWidget* w, XtPointer User, 
 		     XtPointer Call, win_attributed* pAttributes, 
-		     string sTitle, int nRows=1, int nCols=1, 
-		     int nSpectrumCount=1, int nCurrSpec=1, int nPageNum=1,
-		     char* cmd_file = (char*) NULL)
+		     string sTitle, int nRows, int nCols, 
+		     int nSpectrumCount, int nCurrSpec, int nPageNum,
+		     char* cmd_file)
 {
   // First we get the spectrum number that we are dealing with...
   int nSpectrum = pAttributes->spectrum();
@@ -2299,7 +2299,7 @@ string Xamine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
     is the generated title.
 */
 string
-Xamine_GetSpectrumTitle(int r = -1, int c = -1)
+Xamine_GetSpectrumTitle(int r, int c)
 {
   // First we get the spectrum number that we are dealing with...
   if(r == -1) {

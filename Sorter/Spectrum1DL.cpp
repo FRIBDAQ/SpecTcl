@@ -298,6 +298,15 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1  2004/11/29 16:56:08  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
+  Revision 4.7.2.1  2004/10/27 12:38:40  ron-fox
+  optimize performance of Spectrum1DL histogram increments.  Total
+  performance gain was a factor of 2.8.  The 'unusual' modifications
+  are documented via comments that indicate they were suggested by profile
+  data.
+
   Revision 4.7  2004/02/03 21:32:58  ron-fox
   Make definitions of spectra from resolutions consistent with those that have ranges.
 
@@ -457,17 +466,17 @@ CSpectrum1DL::Increment(const CEvent& rE)
 
 
   CEvent& rEvent((CEvent&)rE);	// Ok since non const  operator[] on rhs only.
+  CParameterValue& rParam(rEvent[m_nParameter]);
 
-  if(m_nParameter < rEvent.size()) {
-    if(rEvent[m_nParameter].isValid()) {  // Only increment if param present.
-      Int_t nChannel = Randomize(ParameterToAxis(0, rEvent[m_nParameter]));
-      
-      if((nChannel < (m_nChannels)) &&
-	 (nChannel >= 0)) {  // 
-	UInt_t* p = (UInt_t*)getStorage();
-	assert(p != (UInt_t*)kpNULL);    // Spectrum storage must exist!!
+
+  if(rParam.isValid()) {  // Only increment if param present.
+    Int_t nChannel = (Int_t)ParameterToAxis(0, rParam);
+    
+    if((nChannel < (m_nChannels)) &&
+       (nChannel >= 0)) {  // 
+      UInt_t* p = (UInt_t*)getStorage();
+      assert(p != (UInt_t*)kpNULL);    // Spectrum storage must exist!!
       p[nChannel]++;		      // Increment the histogram.
-      }
     }
   }
 }

@@ -299,6 +299,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
    $Log$
+   Revision 5.1  2004/11/29 16:56:10  ron-fox
+   Begin port to 3.x compilers calling this 3.0
+
+   Revision 4.3.4.1  2004/10/22 19:19:40  ron-fox
+    Force gamma gate creation to throw gate factory exceptions when the gate
+    spectra don't have names of spectra that exist.
+
    Revision 4.3  2003/04/15 19:25:21  ron-fox
    To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
 
@@ -667,6 +674,14 @@ CGammaCut*
 CGateFactory::CreateGammaCut(Float_t nLow, Float_t nHigh, 
 			     const vector<string>& rSpectrum)
 {
+  // Need to validate the gate by getting it's descriptor (throws otherwise).
+
+  for(int i=0; i < rSpectrum.size(); i++) {
+    NameToSpec(rSpectrum[i], gammacut, "Creating a gamma slice");
+  }
+  
+  // Create the cut:
+  
   if(rSpectrum.size() > 0) {
     return new CGammaCut(nLow, nHigh, rSpectrum);
   }
@@ -683,13 +698,15 @@ CGateFactory::CreateGammaBand(const vector<FPoint>& rPoints,
 				gammaband,
 				"Creating gammaband in CreateGammaBand");
   }
+  // The spectra must exist:
   
+  for(UInt_t i = 0; i < rSpectrum.size(); i++) {
+    NameToSpec(rSpectrum[i], gammaband, "Translating spectrum");
+  }
+
+
+
   if(rSpectrum.size() > 0) {
-    //vector<CSpectrum*> Specs;
-    //for(UInt_t i = 0; i < rSpectrum.size(); i++) {
-    //Specs.push_back(NameToSpec(rSpectrum[i], gammaband,
-    //			 "Translating spectrum"));
-    //}
     return new CGammaBand(rPoints, rSpectrum);
   }
   else
@@ -706,12 +723,14 @@ CGateFactory::CreateGammaContour(const vector<FPoint>& rPoints,
 				"Creating gammacontour in CreateGammaContour");
   }
 
+  // The spectra must exist:
+
+  for(UInt_t i = 0; i < rSpectrum.size(); i++) {
+    NameToSpec(rSpectrum[i], gammacontour, "Translating spectrum");
+  }
+  
   if(rSpectrum.size() > 0) {
-    //vector<CSpectrum*> Specs;
-    //for(UInt_t i = 0; i < rSpectrum.size(); i++) {
-    //Specs.push_back(NameToSpec(rSpectrum[i], gammacontour,
-    //			 "Translating spectrum"));
-    //}
+    
     return new CGammaContour(rPoints, rSpectrum);
   }
   else
@@ -907,7 +926,24 @@ CGateFactory::ParameterToId(const string& rName, GateType eType,
     return p->getNumber();
   }
 }
+/*!
+  Look up the spectrum object associated with a spectrum name:
+  If not found, an GateFactoryException is thrown.
 
+  \param rName  [const string& in]:
+      Name of the spectrum object to look up.
+  \param eType [GateType]:
+     The type of gate being created (used to throw the exception).
+  \param pWhich [const char* in]:
+     Additional exception text.
+
+  \return CSpectrum
+  \retval Pointer to the spectrum description.
+
+  \exception CGateFactoryException in the event the name does not
+             correspond to a spectrum.
+
+ */
 CSpectrum*
 CGateFactory::NameToSpec(const string& rName, GateType eType,
 			 const char* pWhich) const

@@ -54,14 +54,20 @@ public:
     int operator== (const CLinearFit& rhs) const; //!< == comparison.
     int operator!= (const CLinearFit& rhs) const; //!< != comparison.
 
-  //
+  // class functions.
 
 public:
 
   virtual   void Perform ()   ; 
   virtual   double operator() (double x)   ; 
   virtual   CFit::FitParameterList GetParameters ()   ; 
+  virtual   string Type() const {
+    return string("linear");
+  }
+
+  // Overrides for virtual base class functions:
   
+  virtual CFit* clone();
 
 
 };

@@ -442,6 +442,9 @@ UInt_t CTclAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent) {
       cerr << "Event processor threw: '" << msg << "'" << endl;
       success = kfFALSE;
     }
+    catch (CException& r) {
+      throw;
+    }
     catch (...) {
       cerr << "Event processor threw an unanticipated exception " << endl;
       success = kfFALSE;

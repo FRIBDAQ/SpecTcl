@@ -295,6 +295,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 5.1  2004/11/29 16:56:07  ron-fox
+    Begin port to 3.x compilers calling this 3.0
+
     Revision 4.6  2004/02/03 21:32:58  ron-fox
     Make definitions of spectra from resolutions consistent with those that have ranges.
 

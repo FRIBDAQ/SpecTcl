@@ -1,0 +1,2 @@
+set DisplayMegabytes 32
+

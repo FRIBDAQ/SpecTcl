@@ -292,6 +292,9 @@ DAMAGES.
 /*
   Change log:
   $Log$
+  Revision 5.1  2004/11/29 16:56:06  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
   Revision 4.2  2003/04/01 19:53:12  ron-fox
   Support for Real valued parameters and spectra with arbitrary binnings.
 

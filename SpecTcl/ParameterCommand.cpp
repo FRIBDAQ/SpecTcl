@@ -488,6 +488,12 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
     }
 
     if(nArg > 2) {
+      if (string(pArg[2]) == "") {
+	rResult = "Units/resolution parameter cannot be blank: ";
+	rResult += pArg[2];
+	rResult += "\n";
+	throw rResult;
+      }
       
   
       if(ParseInt(pArg[2], &nResolution) != TCL_OK) { // pArg[2] are units.

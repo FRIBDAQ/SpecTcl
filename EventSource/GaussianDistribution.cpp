@@ -351,7 +351,7 @@ Bool_t CGaussianDistribution::m_fSeeded =kfFALSE;
 //  Operation Type:
 //     
 //
-UInt_t 
+Float_t 
 CGaussianDistribution::operator()() 
 {
 // Returns a channel by randomizing
@@ -387,10 +387,10 @@ CGaussianDistribution::operator()()
 
   // What we return is a clipped version of this:
 
-  if( Y < 0.0 ) Y = 0.0;
-  if( Y > (double)m_nScale) Y = (double)m_nScale;
+  if( Y < (double)(-m_nScale)) Y = -m_nScale;
+  if( Y > (double)m_nScale)  Y = (double)m_nScale;
 
-  return ((UInt_t)Y);
+  return (Y);
 }
 
 

@@ -298,6 +298,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
     $Log$
+    Revision 5.1  2004/11/29 16:56:08  ron-fox
+    Begin port to 3.x compilers calling this 3.0
+
+    Revision 4.5.4.1  2004/10/27 12:38:40  ron-fox
+    optimize performance of Spectrum1DL histogram increments.  Total
+    performance gain was a factor of 2.8.  The 'unusual' modifications
+    are documented via comments that indicate they were suggested by profile
+    data.
+
     Revision 4.5  2004/01/27 19:33:18  ron-fox
     Correct Bug 101 (for now) randomization was too agressive.  For now remove it
     completely.  Also discover and fix a channel allocation error.
@@ -406,7 +415,11 @@ CSpectrum::~CSpectrum()
 void
 CSpectrum::operator()(const CEvent& rEvent)
 {
-  if(CheckGate(rEvent)) {
+  // The logic below short circuits the entire gate check if
+  // The gate is the default gate. This unintuitive logic is suggested
+  // by the results of profiling.
+
+  if((m_pGate == pDefaultGate ) || CheckGate(rEvent)) {
     Increment(rEvent);		// Only increment if gate set.
   }
 }
@@ -628,25 +641,6 @@ CSpectrum::GammaGateIncrement(const CEvent& rEvent)
 */
 
 
-/*!
-   Converts a raw parameter value to an axis coordinate on the selected
-   axis.  
-   \param nAxis (UInt_t [in]) Selects the axis number  (0 x 1 y e.g.).
-   \param fParameterValue (Float_t [in]): The parameter value to convert.
-   \return UInt_t  The axis coordinate corresponding to fParamterValue.
-   \throw CRangeError if nAxis is out of range.
-*/
-Float_t  
-CSpectrum::ParameterToAxis(UInt_t nAxis, Float_t fParameterValue)
-{
-  if(nAxis < m_AxisMappings.size()) {
-    return m_AxisMappings[nAxis].ParameterToAxis(fParameterValue);
-  }
-  else {
-    throw CRangeError(0, m_AxisMappings.size() - 1, nAxis,
-		      string("CSpecrrumParameterToAxis"));
-  }
-}  
 
 /*!
    Converts an axis coordinate to a raw parameter value on the selected

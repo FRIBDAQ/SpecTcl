@@ -389,41 +389,6 @@ CEvent::operator==(const CEvent& anEvent)
   return (m_rvParameters == anEvent.m_rvParameters);
 };
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    Int_t& operator[](UInt_t nParam)
-//  Operation Type:
-//     Selector/mutator.
-//
-// Int_t& 
-// CEvent::operator[](UInt_t nParam) 
-// {
-// Returns a reference to the n'th parameter.
-//  n is numbered from zero.
-// 
-// Formal parameters:
-//      UInt_t  nParam:
-//         Number of the parameter to return a reference to. 
-//         Note that if the event is not yet big enough to
-//         hold that many parameters it is expanded.
-//         If parameter nParam doesn't exist, then
-//        an uninitialized one is generated and a reference
-//        returned to it.
-// Returns:
-//        Reference to the parameter value.
-//   Resize(nParam);
-//   return m_rvParameters[nParam];
-// 
-// }
-CParameterValue&
-CEvent::operator[](UInt_t nParam) 
-{
-  if(nParam >= m_nSize) {	// Only resize if necessary.
-    Resize(nParam+1);
-  }
-  return m_rvParameters[nParam];
-}
 
 //////////////////////////////////////////////////////////////////////////
 //

@@ -296,6 +296,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
   Change log:
   $Log$
+  Revision 5.1  2004/11/29 16:55:36  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
   Revision 4.10  2003/11/07 21:32:17  ron-fox
   Unconditionally include config.h
 

@@ -16,6 +16,9 @@
 /*
   Change log:
   $Log$
+  Revision 5.1  2004/11/29 16:56:13  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
   Revision 4.2  2003/04/19 00:11:50  ron-fox
   Move to format version 2.0:  Supply mapping information about the range covered by each axis of a spectrum.  Note that reads are backwards compatible with version 1.0 and will default the range to 0 - nchans-1.
 

@@ -17,19 +17,16 @@ proc CreateParameterManipulator {parent} {
 	set topp [tabnotebook_page $parent Parameters]
 
 	set modcolor lightblue
-	set parameter(select) 1
 	set mod $topp.modify
 	frame $mod -borderwidth 2 -relief groove -background $modcolor
 
-	menubutton $mod.parameter -width 8 -text Parameter -background $modcolor
-	GenerateTreeMenu $mod.parameter  SetSelectedParameter
 	label $mod.labelname -text Name -background $modcolor
 	label $mod.labelstart -text Low -background $modcolor
 	label $mod.labelstop -text High -background $modcolor
 #	label $mod.labelinc -text Increment -background $modcolor
 	label $mod.labelunit -text Unit -background $modcolor
 	checkbutton $mod.array -text "Array" -variable parameter(Array) -background $modcolor
-	grid $mod.parameter $mod.labelname $mod.labelstart $mod.labelstop $mod.labelunit x $mod.array - -sticky news
+	grid x $mod.labelname $mod.labelstart $mod.labelstop $mod.labelunit x $mod.array - -sticky news
 
 	for {set i 1} {$i <= 20} {incr i} {
 		InsertParameterManipulator $i
@@ -41,21 +38,14 @@ proc CreateParameterManipulator {parent} {
 	pack $topp -expand 1 -fill both
 }
 
-proc SetSelectedParameter {name} {
-	global parameter
-	set id $parameter(select)
-	set parameter(Name$id) $name
-}
-
 proc InsertParameterManipulator {id} {
 	global topp parameter
 	set modcolor lightblue
 	set mod $topp.modify
 
-#	menubutton $mod.parameter$id -width 8 -text Parameter -background $modcolor
+	menubutton $mod.parameter$id -width 8 -text Parameter -background $modcolor
 #	GenerateTreeMenu $mod.parameter$id "MenuLoadParameter $id"
-#	GenerateTreeMenu $mod.parameter$id "set parameter(Name$id)"
-	radiobutton $mod.select$id -width 8 -text "" -variable parameter(select) -value $id -bg $modcolor
+	GenerateTreeMenu $mod.parameter$id "set parameter(Name$id)"
 	entry $mod.labelparameter$id -textvariable parameter(Name$id) -background $modcolor
 	entry $mod.start$id -width 8 -textvariable parameter(Start$id) -background $modcolor
 	entry $mod.stop$id -width 8 -textvariable parameter(Stop$id) -background $modcolor
@@ -64,7 +54,7 @@ proc InsertParameterManipulator {id} {
 	button $mod.set$id -text Set -command "SetParameter $id" -background $modcolor
 	button $mod.load$id -text Load -command "LoadParameter $id" -background $modcolor
 	button $mod.change$id -text "Change Spectra" -background lightgreen -command "ChangeSpectra $id" -width 10
-	grid $mod.select$id $mod.labelparameter$id $mod.start$id $mod.stop$id $mod.unit$id \
+	grid $mod.parameter$id $mod.labelparameter$id $mod.start$id $mod.stop$id $mod.unit$id \
 	$mod.load$id $mod.set$id $mod.change$id -sticky news
 
 #	trace variable parameter(Start$id) w "SetParameterStopInc $id"
