@@ -52,6 +52,16 @@ public:
     m_fScaled(kfFALSE)
     { }
 
+  CParameter(const std::string& rName,
+	     UInt_t nId,
+	     const char* pUnits) :
+    CNamedItem(rName, nId),
+    m_nScale(0),
+    m_nLow(0.0),
+    m_nHigh(0.0),
+    m_sUnits(pUnits ? std::string(pUnits) : std::string("")),
+    m_fScaled(kfFALSE)
+    {}
   CParameter(UInt_t am_nScale, 
 	     const std::string& rName, UInt_t nNumber) :
     CNamedItem(rName, nNumber),
