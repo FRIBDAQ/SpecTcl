@@ -338,7 +338,7 @@ refresh_clause:   REFRESH INTEGER blankline
 
 
 rendition_clauses: RENDITION_1D rend1_attribute blankline RENDITION_2D 
-                   rend2_attribute blankline
+                   rend2_attribute blankline;
 
 rend1_attribute:  SMOOTHED 
                   { 
@@ -386,6 +386,7 @@ font_clauses: GROBJFONT INTEGER blankline
 		 d = XtDisplay(Xamine_Getpanemgr()->getid());
 		 Xamine_SetObjectLabelIndex(d, $2);
                }
+	;
 
 blankline:  ENDLINE | ENDLINE blankline
           ;

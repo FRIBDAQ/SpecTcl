@@ -199,7 +199,7 @@ spectrum:  INTEGER
 	       return -1;
 	     }
            }
-
+	;
 
 endwindow_clause: ENDWINDOW blankline
                    {
