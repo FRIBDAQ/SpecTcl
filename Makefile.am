@@ -14,8 +14,9 @@ AUX_DIST = $(ac_aux_dir)/config.guess \
 	$(ac_aux_dir)/ylwrap  \
 	fix_libtool
 
-EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl bootstrap Gri doc \
-	build.cygwin
+EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl 
+	bootstrap $(MYGRIDIR) \
+	 doc build.cygwin
 
 dist-hook:
 	(cd $(distdir) && mkdir $(ac_aux_dir))

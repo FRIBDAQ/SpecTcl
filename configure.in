@@ -16,6 +16,11 @@ AC_OBJEXT
 #  images.
 
 SOVERSION="2:2"
+#
+#  This symbol describes where the bundled Gri graphics package lives.
+#  Gri is used to help Xamine do printing.
+#
+MYGRIDIR="gri-2.12.7"
 
 # Checks for programs.
 # Fortran compiler only supported on Linux and Tru64
@@ -639,7 +644,7 @@ else
    # this so CXX etc. propagates at the risk we wind up stranded
    # in the Gri directory on failure or ^C
    #
-   cd Gri 
+   cd ${MYGRIDIR}
     rm -f Makefile          # Tru64 fails if Makefile already exists.
     ./configure --prefix=$prefix                      
     make                                            
@@ -648,74 +653,17 @@ else
    AC_MSG_NOTICE([Now that GRI is build I know where I put stuff])
    
    gri_dir=$prefix/bin
-   gri_cmd_dir=$prefix/share
    mygri="yes"
    gri_found="yes"
    GRI=""
 
 fi
 
-# We need one more file to print, the Gri command file gri.cmd
-# This check is only performed if the above test resulted in yes,
-# that is, if the Gri executable was found.
 
-if test $mygri = "no" ; then
-  AC_ARG_WITH(gri-cmd-dir,
-	[  --with-gri-cmd-dir=path Path to Gri command file],
-	[gri_cmd_dir=$withval ; gri_cmd_found="yes"],
-	[gri_cmd_found="no"])
 
-  # if the user supplied the dir, congratulate them
-  if test $gri_cmd_found = "yes" ; then
-    AC_MSG_CHECKING([for $gri_cmd_dir/gri.cmd])
-  fi
-
-  # $gir_dir (the same directory as the binary)?
-  if test $gri_cmd_found = "no" ; then
-    AC_CHECK_FILE([$gri_dir/gri.cmd],
-	[gri_cmd_dir="$gri_dir"
-	gri_cmd_found="yes"])
-  fi
-
-  # $gri_dir/share/gri (wherever else they may have put gri)
-  if test $gri_cmd_found = "no" ; then
-    AC_CHECK_FILE([$gri_dir/share/gri/gri.cmd],
-	[gri_cmd_dir="$gri_dir/share/gri"
-	gri_cmd_found="yes"])
-  fi
-
-  # /usr/share/gri
-  if test $gri_cmd_found = "no" ; then
-    AC_CHECK_FILE([/usr/share/gri/gri.cmd],
-	[gri_cmd_dir="/usr/share/gri"
-	gri_cmd_found="yes"])
-  fi
-
-  # /usr/local/share/gri (this is the default, I think)
-  if test $gri_cmd_found = "no" ; then
-    AC_CHECK_FILE([/usr/local/share/gri/gri.cmd],
-	[gri_cmd_dir="/usr/local/share/gri"
-	gri_cmd_found="yes"])
-  fi
-
-  # Packaged with a prior installation of our internal gri?
-  if test $gri_cmd_found = "no";
-  then
-    AC_CHECK_FILE([$prefix/share/gri.cmd],
-	[gri_cmd_dir="$prefix/share/gri"
-	gri_cmd_found="yes"])
-  fi
-
-  # I give up at this point
-  if test $gri_cmd_found = "no" ; then
-    AC_MSG_RESULT([can't find file gri.cmd: try using --with-gri-cmd-dir to help me out])
-    AC_MSG_WARN(Can't find gri.cmd. Printing will be disabled!)
-  else
-    AC_DEFINE(HAVE_GRI, 1, [True if Gri is present on system])
-  fi
-else
-   AC_DEFINE(HAVE_GRI, 1, [True since Gri was provided by us])
-	#  And it's already set above.
+if test $gri_found = "yes" 
+then
+	AC_DEFINE(HAVE_GRI, 1, [True if Gri is available])
 fi
 
 # tcl/tk
@@ -737,7 +685,7 @@ AC_SUBST(XTLIBSW)
 
 # Gri directories
 AC_SUBST(gri_dir)
-AC_SUBST(gri_cmd_dir)
+AC_SUBST(MYGRIDIR)
 
 # Tru64 specific
 AC_SUBST(WCHAR_T_DEF)
