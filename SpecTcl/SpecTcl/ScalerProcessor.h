@@ -82,6 +82,12 @@ public:
   int operator==(const CScalerProcessor& rhs) const;
   int operator!=(const CScalerProcessor& rhs) const;
 
+  // Selectors:
+
+  CBufferProcessor*  getProcessor() {
+    return m_pProcessor;
+  }
+
 
   // Overrides:
 
