@@ -255,7 +255,6 @@ void Xamine_Open_window_file(XMWidget *w, XtPointer client_data,
     (Xamine_winopen_client_data *)client_data; /* Convert client data struct */
 
   char *full;
-  int full_len;
 
 
   /* If necessary create the dialog otherwise just manage it: */
