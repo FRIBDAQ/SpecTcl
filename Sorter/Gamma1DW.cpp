@@ -291,6 +291,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.4  2003/06/19 18:56:13  ron-fox
+  Fix parameter order error so that Scales are properly defined in the constructor.
+
   Revision 4.3  2003/04/01 19:53:12  ron-fox
   Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -659,8 +662,7 @@ CGamma1DW::MakeAxesVector(vector<CParameter> Params,
 {
   Axes Scales;
   for(int i=0; i < Params.size(); i++) {
-    Scales.push_back(CAxis(nChannels,
-			   fLow, fHigh, 
+    Scales.push_back(CAxis( fLow, fHigh, nChannels,
 			   CParameterMapping(Params[i])));
   }
   return Scales;
