@@ -200,7 +200,6 @@ void Xamine_Open_grobj_file(XMWidget *w, XtPointer client_data,
     (Xamine_grobjopen_client_data *)client_data; /* Convert client data struct */
 
   char *full;
-  int full_len;
 
 
 
