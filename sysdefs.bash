@@ -4,7 +4,7 @@
 #
 # C compiler:
 
-export  LinuxCC="gcc -g"
+export  LinuxCC="gcc -g -I/usr/include/tcl"
 export  OSF1CC="gcc -g"
 export  HPUXCC="gcc -g"
 export  DarwinCC="cc -g -Dunix"
@@ -12,7 +12,7 @@ export  CYGWINCC="gcc -g"
 
 # C++ compiler
 
-export LinuxCPP="g++ -g"
+export LinuxCPP="g++ -g -I/usr/include/tcl"
 export OSF1CPP="g++ -g"
 export HPUXCPP="g++ -g"
 export DarwinCPP="c++ -g -Dunix"

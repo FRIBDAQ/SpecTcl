@@ -13,41 +13,51 @@ LinuxMAKESW=-j 4
 DarwinMAKESW=-j 4
 
 system:
+	mkdir -p $(INSTDIR)/Bin
+	mkdir -p $(INSTDIR)/Etc
+	mkdir -p $(INSTDIR)/Include
+	mkdir -p $(INSTDIR)/Lib
+	mkdir -p $(INSTDIR)/Script
+	mkdir -p $(INSTDIR)/Skel
+	mkdir -p $(INSTDIR)/contrib
+	mkdir -p $(INSTDIR)/doc
+	(cd Scripts; \
+		make install  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Utility;   \
-	 make system $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make system $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Display;  \
-	 make  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	make  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Exception; \
-	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Xamine;    make   INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	(cd Xamine;    make   INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Tape; \
-	 make  $($(OS)MAKESW) OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd EventSource; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd TCL; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Events; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Gates; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Sorter;   \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd SpectrumIO; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd SpecTcl;  \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
-	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd TestFiles; \
 	 make $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 

@@ -108,7 +108,7 @@ class SetupPrintDialog : public XMCustomDialog
 /*
 ** Module private static data:
 */
-static char printcmd[100] = DEFAULT_PRINTCMD;
+static char printcmd[1000] = DEFAULT_PRINTCMD;
 static PrinterType ptype   = INITIAL_PRINTER_TYPE;
 static SetupPrintDialog *dialog = NULL;
 
@@ -197,7 +197,7 @@ void SetupPrintDialog::printertype(PrinterType newtype)
   ** Enforce toggle behavior by unsetting all toggles and then setting
   ** the appropriate one:
   */
-  post->SetState(False);
+  post->SetState(True);
   cpost->SetState(False);
 
   /* Fan out on the input argument and set the state: */
@@ -246,7 +246,7 @@ PrinterType SetupPrintDialog::printertype()
 SetupPrintDialog::SetupPrintDialog(char *name, XMWidget *w, char *title) :
        XMCustomDialog(name, *w, title)
 {
-  Arg chars[10];
+  Arg chars[100];
 
   /*  Fill in the form:   */
 
@@ -325,7 +325,7 @@ void ActionCallback(XMWidget *w, XtPointer user, XtPointer call)
 
     newcmd  = dlg->printcmd();
     strcpy(printcmd, newcmd);
-    XtFree(newfile); XtFree(newcmd);
+    XtFree(newcmd);
    
     ptype = dlg->printertype();
   }
@@ -405,7 +405,7 @@ const char* FindImport()
 static void
 Print(const char* importcmd, const char* tofile)
 {
-  char printcommand[512];
+  char printcommand[1512];
   char backgroundcmd[1024];
 
   sprintf(backgroundcmd, 
@@ -443,7 +443,7 @@ PrintWindow(Window w)
     return;
   }
   
-  sprintf(importcmd, "%s -window %d -transparency black %s",
+  sprintf(importcmd, "%s -window %d -transparent black %s",
 	  importpath, w, filename);
   
   Print(importcmd, filename);
