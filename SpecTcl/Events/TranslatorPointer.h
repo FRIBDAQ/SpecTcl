@@ -17,6 +17,10 @@
 
 Change Log:
    $Log$
+   Revision 4.7  2002/08/08 13:16:57  venema
+   Fixed counter-intuitive indexing operator to index relative to the current offset, instead of the beginning of the buffer.
+   VS: ----------------------------------------------------------------------
+
    Revision 4.6  2002/08/08 11:48:27  ron-fox
    Add change log.
 
@@ -109,12 +113,13 @@ class TranslatorPointer
 
     Purpose:
        Indexing operator returns the value stored at position
-       nOffset*sizeof(T) in m_rUnderlyingBuffer.
+       (m_nOffset+nOffset)*sizeof(T) in m_rUnderlyingBuffer.
    */
   inline T operator[](Int_t nOffset) const
     {
       T Result;
-      m_rUnderlyingBuffer.GetBlock(&Result, sizeof(T), nOffset*sizeof(T));
+      m_rUnderlyingBuffer.GetBlock(&Result, sizeof(T), 
+				   (m_nOffset+nOffset)*sizeof(T));
       return (T)(Result);
     }
 
