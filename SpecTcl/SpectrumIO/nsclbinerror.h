@@ -2,10 +2,13 @@
   nsclbinerror.h
   by Chase Bolen
   2-25-00
-  
   These classes are error containers for nsclbin.  
   nsclfileerror and nscloperror are derived from nsclbinerror.
    
+  $Log$
+  Revision 4.1  2002/09/13 17:30:11  ron-fox
+  Add return values to functions that don't have but need
+
 */
 
 #ifndef NSCLBINERROR_
@@ -15,7 +18,7 @@ class nsclbinerror {
     virtual bool operator==(nsclbinerror& rhs) {return (reasoncode()==rhs.reasoncode());} 
     virtual bool operator<(nsclbinerror& rhs) {return (whatswrong<rhs.reasoncode());}
     virtual int reasoncode() {return whatswrong;}
-    virtual const char* reasontext() {}
+    virtual const char* reasontext() {return (const char*)0;}
  private:
     int whatswrong;
 };
