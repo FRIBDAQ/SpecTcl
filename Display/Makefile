@@ -114,7 +114,7 @@ XAMINE_FILES: menusetup.o exit.o helpmenu.o winiomenu.o grobjiomenu.o \
 	gateio.o acceptgates.o clirequests.o spccheck.o prccheck.o superpos.o \
 	superprompt.o objcopy.o lblfont.o checklist.o compatspec.o copyatr.o \
 	buttonreq.o buttondlg.o spcchoice.o spccompatchoice.o spclimchoice.o \
-	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o
+	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o Tab.o griprint.o
 	echo "Xamine objects built"
 	touch XAMINE_FILES
 
@@ -203,6 +203,9 @@ XMCallback.o: XMCallback.cc XMWidget.h
 XMMenus.o: XMMenus.cc XMWidget.h XMPushbutton.h XMMenus.h
 	$(CPP) $(XCCFLAGS) XMMenus.cc
 
+Tab.o: Tab.c Tab.h TabP.h
+	cc -g $(XCCFLAGS) Tab.c
+
 Xamine: Xamine.o \
 	 MOTIF_LIB \
 	 WINDOW_FILE \
@@ -227,7 +230,7 @@ Xamine: Xamine.o \
 	lblfont.o checklist.o compatspec.o copyatr.o \
 	defaultfile_lex.o buttonreq.o buttondlg.o spcchoice.o \
 	spccompatchoice.o spclimchoice.o ptlist.o lexsupport.o gc.o xaminegc.o\
-	gcmgr.o \
+	gcmgr.o Tab.o griprint.o \
 	 -lXm -lXt -lX11 -lm $($(OS)LIB)
 
 
@@ -245,7 +248,7 @@ menusetup.o: menusetup.cc XMMenus.h exit.h winiomenu.h grobjiomenu.h \
 	menusetup.h dispshare.h helpmenu.h winiomenu.h spcdisplay.h \
 	advprompt.h panemgr.h pkgmgr.h optionmenu.h printer.h refreshctl.h \
 	expand.h info.h XMWidget.h XMPushbutton.h XMManagers.h XMDialogs.h \
-	XMText.h XMLabel.h XMScale.h marker.h dispwind.h superpos.h sumregion.h \
+	XMText.h XMLabel.h XMScale.h XMTab.h marker.h dispwind.h superpos.h sumregion.h \
 	dispgrob.h convert.h guintegrate.h delgrob.h XMList.h grobjinput.h \
 	acceptgates.h XMSeparators.h grafinput.h errormsg.h trackcursor.h \
 	location.h superprompt.h
@@ -372,8 +375,11 @@ rend2default.o: rend2default.cc XMDialogs.h XMPushbutton.h XMManagers.h \
 	$(CPP) $(XCCFLAGS) rend2default.cc
 
 printer.o: printer.cc XMDialogs.h XMManagers.h XMPushbutton.h XMText.h  \
-	printer.h XMWidget.h
+	printer.h XMWidget.h XMTab.h
 	$(CPP) $(XCCFLAGS) printer.cc
+
+griprint.o: griprint.cc printer.h griprint.h
+	$(CPP) $(XCCFLAGS) -Wall griprint.cc
 
 refreshctl.o: refreshctl.cc refreshctl.h XMWidget.h panemgr.h axes.h titles.h \
 	chanplot.h dfltmgr.h scaling.h dispshare.h grobjdisplay.h XMWidget.h \
@@ -747,6 +753,11 @@ geometrymenu.o: dispwind.h superpos.h menusetup.h XMMenus.h exit.h
 grafinput.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
 grafinput.o: grafinput.h helpmenu.h refreshctl.h panemgr.h dispwind.h
 grafinput.o: superpos.h convert.h dispshare.h
+griprint.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
+griprint.o: XMText.h XMLabel.h XMTab.h TabP.h Tab.h XMList.h panemgr.h
+griprint.o: dispwind.h superpos.h helpmenu.h printer.h dispgrob.h XBatch.h
+griprint.o: convert.h dispshare.h axes.h refreshctl.h grobjmgr.h griprint.h
+griprint.o: colormgr.h
 grobfile.o: dispgrob.h XMWidget.h dispwind.h superpos.h XBatch.h convert.h
 grobfile.o: dispshare.h panemgr.h XMManagers.h errormsg.h
 grobjdb.o: dispgrob.h XMWidget.h dispwind.h superpos.h XBatch.h convert.h
@@ -796,11 +807,11 @@ menusetup.o: dispshare.h helpmenu.h XMDialogs.h XMManagers.h XMCallback.h
 menusetup.o: exit.h winiomenu.h grobjiomenu.h geometrymenu.h toggles.h
 menusetup.o: logging.h specchoose.h spcdisplay.h dispwind.h superpos.h
 menusetup.o: advprompt.h panemgr.h pkgmgr.h optionmenu.h XMText.h XMLabel.h
-menusetup.o: XMScale.h printer.h refreshctl.h expand.h info.h marker.h
-menusetup.o: sumregion.h XMList.h convert.h dispgrob.h XBatch.h grobjinput.h
+menusetup.o: XMScale.h printer.h dispgrob.h XBatch.h convert.h XMList.h
+menusetup.o: refreshctl.h expand.h info.h marker.h sumregion.h grobjinput.h
 menusetup.o: XMSeparators.h grafinput.h guintegrate.h delgrob.h acceptgates.h
 menusetup.o: trackcursor.h location.h errormsg.h superprompt.h objcopy.h
-menusetup.o: copier.h lblfont.h copyatr.h
+menusetup.o: copier.h lblfont.h copyatr.h Tab.h
 messages.o: messages.h dispgrob.h XMWidget.h dispwind.h superpos.h XBatch.h
 messages.o: convert.h dispshare.h clientops.h Xamine.h
 objcopy.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
@@ -817,8 +828,9 @@ plot1d.o: chanplot.h refreshctl.h panemgr.h XMManagers.h
 plot2d.o: XMWidget.h XBatch.h dispwind.h superpos.h dispshare.h chanplot.h
 plot2d.o: refreshctl.h panemgr.h XMManagers.h scaling.h colormgr.h
 printer.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-printer.o: XMText.h XMLabel.h panemgr.h dispwind.h superpos.h helpmenu.h
-printer.o: printer.h
+printer.o: XMText.h XMLabel.h XMTab.h TabP.h Tab.h XMList.h panemgr.h
+printer.o: dispwind.h superpos.h helpmenu.h printer.h dispgrob.h XBatch.h
+printer.o: convert.h dispshare.h axes.h refreshctl.h grobjmgr.h griprint.h
 procede.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
 properties.o: XMWidget.h XMDialogs.h XMPushbutton.h XMManagers.h XMCallback.h
 properties.o: helpmenu.h errormsg.h properties.h spcdisplay.h dispwind.h
@@ -896,7 +908,7 @@ trackcursor.o: convert.h spcdisplay.h
 winiomenu.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
 winiomenu.o: helpmenu.h winiomenu.h dispwind.h superpos.h panemgr.h exit.h
 winiomenu.o: refreshctl.h errormsg.h buttonsetup.h location.h XMLabel.h
-winiomenu.o: menusetup.h XMMenus.h
+winiomenu.o: menusetup.h XMMenus.h Tab.h
 wintest.o: dispshare.h dispwind.h superpos.h
 xaminegc.o: gc.h xaminegc.h dispwind.h superpos.h XMWidget.h text.h
 xaminegc.o: colormgr.h chanplot.h refreshctl.h panemgr.h XMManagers.h
