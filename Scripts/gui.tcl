@@ -308,18 +308,18 @@ button .startstop -textvariable StartButtonText -command StartStop
 button .clearall  -text "Clear Spectra" -command {clear -all}
 button .help      -text "Help"          -command {Help}
 label   .speclbl  -text "Defined Spectra"
-listbox .spectra
 
-pack .startstop .clearall .exit .help .speclbl .spectra  -side top -fill x
+
+pack .startstop .clearall .exit .help .speclbl   -side top -fill x
 
 trace variable RunState w  UpdateStartButton
 
-proc specupdate {} {
-    .spectra delete 0 [.spectra size]
-    foreach spec [spectrum -list] {
-      .spectra insert end [lindex $spec 1]
-    }
-    after 1000 specupdate
-    update idle
+#
+#   Ensure the gui updates when variables get modified in the background.
+#
+
+proc Idler {} {
+   update idle
+   after 1000 Idler
 }
-specupdate
+Idler
