@@ -294,6 +294,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
+/*
+   Change Log:
+   $Log$
+   Revision 4.5  2003/04/03 00:29:11  ron-fox
+   Fix intermittent disable of map toggle.  Define mapped spectrum one where it's axislow != axishigh for all axes.
+
+*/
 
 
 /*
@@ -1155,9 +1162,10 @@ void Xamine_SelectPane(int row, int col)
       /** If there is no mapping information for this spectrum, turn off
        ** the mapping button.
        **/
-      char xlabel[72];
-      xamine_shared->getxlabel_map(xlabel, att->spectrum());
-      if(strlen(xlabel) == 0) {
+
+      float xmin = xamine_shared->getxmin_map(att->spectrum());
+      float xmax = xamine_shared->getxmax_map(att->spectrum());
+      if(xmin == xmax) {
 	Xamine_SetApplyMapSensitivity(False);
       } else {
 	Xamine_SetApplyMapSensitivity(True);
@@ -1171,10 +1179,17 @@ void Xamine_SelectPane(int row, int col)
       /** If there is no mapping information for this spectrum, turn off
        ** the mapping button.
        **/
+
+      // BUGBUGBUG - This assumes that both axes are mapped or not!
+
       win_2d *att  = (win_2d *)Xamine_panedb->getdef(col,row);
-      char xlabel[72];
-      xamine_shared->getxlabel_map(xlabel, att->spectrum());
-      if(strlen(xlabel) == 0) {
+
+      float xmin = xamine_shared->getxmin_map(att->spectrum());
+      float xmax = xamine_shared->getxmax_map(att->spectrum());
+      float ymin = xamine_shared->getymin_map(att->spectrum());
+      float ymax = xamine_shared->getymax_map(att->spectrum());
+
+      if((xmin == xmax) || (ymin == ymax)) {
 	Xamine_SetApplyMapSensitivity(False);
       } else {
 	Xamine_SetApplyMapSensitivity(True);
