@@ -15,7 +15,8 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(srcdir)/setup.tcl $(prefix)/Skel
 	$(INSTALL_DATA)    $(srcdir)/Globals.o $(prefix)/lib
 	echo INSTDIR=$(prefix) >Makefile.user
-	echo OS=$(OS)        >>Makefile.user
+	echo OS=$(OS)|  cut -d- -f1      >>Makefile.user
+	echo >>                            Makefile.user
 	cat Makefile.skel >> Makefile.user
 	$(INSTALL_PROGRAM) $(srcdir)/Makefile.user $(prefix)/Skel/Makefile
 
