@@ -293,6 +293,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Versioning:
 **   @(#)helpmenu.cc	8.9 10/19/98 
 */
+/*
+   Change Log:
+   $Log$
+   Revision 4.6  2003/04/02 18:46:50  ron-fox
+   Update About Xamine ... text information with new version stuff.
+
+*/
 
 /*
 ** Include files:
@@ -318,9 +325,9 @@ static char *About[]
       "                       Michigan State University\n",
       "                       East Lansing, MI 48824-1321\n",
       "                       fox@foxsun.nscl.msu.edu\n",
-      "               Copyright (c) NSCL, 1995,1996,1997,1998 All rights reserved\n",
+      "               Copyright (c) NSCL, 1995-2003 All rights reserved\n",
       "\n",
-      "               Version: Xamine - X2.0-003\n",
+      "               Version: Xamine - X2.1-003\n",
       "               O/S support for:   VAX/VMS\n",
       "                                  AXP/VMS\n",
       "                                  Ultrix 4.x\n",
@@ -337,7 +344,11 @@ static char *About[]
       "                      Completed port to Linux with Lesstif\n",
       "                    October 19, 1998\n",
       "                      Fixed error in points prompter on client buttons\n",
-      "                    Looking at crashes on window reconfigs [2]\n",
+      "                       Looking at crashes on window reconfigs [2]\n",
+      "                    Jan-Mar 2002\n",
+      "                        add  Mapped spectra, units annotations\n",
+      "                    April 2, 2002\n",
+      "                        Provide central default config.\n",
 	NULL
 	};
 static char *aboutname = "About";   /* For VMS C++ compiler bug */
