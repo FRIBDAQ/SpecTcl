@@ -303,6 +303,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 4.10  2003/11/07 21:49:07  ron-fox
+  unconditionally include <config.h>
+
   Revision 4.9  2003/10/24 14:43:28  ron-fox
   Bounds check parameter ids against the size of
   of the event.
@@ -318,6 +321,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.  Modifications here map those real valued gates to spectrum coordinates using the axis transform objects stored with the spectra.
 
 */
+
+#include <config.h>
 
 // Header Files:
 #include "Histogrammer.h"                               
@@ -348,10 +353,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <stdio.h>
 
-#ifdef OSF          /* Can't find time() for some reason on OSF */
-extern "C" {
-  time_t time(time_t*);
-};
+#ifdef HAVE_TIME
+#include <time.h>
 #endif
 
 //
