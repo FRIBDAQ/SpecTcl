@@ -17,8 +17,6 @@
 #include <histotypes.h>
 #endif
 
-#include <iostream.h>
-
 /*-----------------------------------------------------------------------------
   Definition of class BufferTranslator
 -----------------------------------------------------------------------------*/
@@ -32,19 +30,9 @@ class BufferTranslator
   Long_t GetLongword( UInt_t );
 
   virtual Address_t getBuffer() = 0;
-  virtual void GetBlock( const Address_t, Int_t, Int_t ) = 0;
-
-  template <class T>
-    T Get( Int_t );
+  virtual void GetBlock( Address_t pResult, 
+			 Int_t nOffset, Int_t nSize ) = 0;
 };
-
-template <class T>
-T BufferTranslator::Get( Int_t iOffset ) {
-  iOffset *= sizeof(T);                 // Scale the offset
-  T Result;
-  GetBlock( &Result, sizeof(T), iOffset );
-  return Result;
-}
 
 /*-----------------------------------------------------------------------------
   Definition of class SwappingBufferTranslator
@@ -52,16 +40,17 @@ T BufferTranslator::Get( Int_t iOffset ) {
 
 class SwappingBufferTranslator: public BufferTranslator
 {
-  Address_t m_pBuffer;  /*! A pointer to the buffer this holds */
-  
  public:
-
-  // Default Constructor
+  
   SwappingBufferTranslator( Address_t pB = 0 ) {m_pBuffer = pB;}
+  
+  void GetBlock( Address_t pResult, Int_t nOffset, Int_t nSize );
+  Address_t getBuffer() { return m_pBuffer; }
 
-  // Accessor functions
-  void GetBlock( const Address_t, int, int );
-  Address_t getBuffer() { return m_pBuffer; } 
+ private:
+  
+  Address_t m_pBuffer;
+  
 };
 
 /*-----------------------------------------------------------------------------
@@ -70,16 +59,17 @@ class SwappingBufferTranslator: public BufferTranslator
 
 class NonSwappingBufferTranslator: public BufferTranslator
 {
-  Address_t m_pBuffer;   /*! A pointer to the buffer this holds */
-
  public:
 
-  // Default constrcutor
   NonSwappingBufferTranslator( Address_t pB = 0 ) {m_pBuffer = pB;}
 
-  // Accessor functions
-  void GetBlock( const Address_t, int, int );
+  void GetBlock( Address_t pResult, Int_t nOffset, Int_t nSize );
   Address_t getBuffer() { return m_pBuffer; }
+
+ private:
+
+  Address_t m_pBuffer;
+
 };
 
 /*-----------------------------------------------------------------------------
