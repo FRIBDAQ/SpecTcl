@@ -298,9 +298,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 // Header Files:
 //
 
-#ifdef HAVE_CONFIG_H
+
 #include <config.h>
-#endif
 
 #include "TCLFileHandler.h"                               
 #include <tcl.h>
