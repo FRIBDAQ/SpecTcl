@@ -616,9 +616,25 @@ void CTclAnalyzer::ClearCounter(Counter eSelect) {
   *(m_vStatisticsInts[(Int_t)eSelect]) = 0;
 }
 
-// Added for event filtering.
-void CTclAnalyzer::OnOther(CBufferDecoder& rDecoder) {
-  CAnalyzer::OnPhysics(rDecoder); // Analyze the buffer.
-  IncrementVariable(*m_pBuffersAnalyzed);
-  SetVariable(*m_pLastSequence,rDecoder.getSequenceNo());
+/*!
+   Called when an unrecognized buffer is received.
+   Iterate through the event pipeline calling event processor
+   OnOther member functions.
+   \param nType (UInt_t [in]):
+     A type identifier for the buffer type.
+   \param rDecoder (CBufferDecoder& [in]):
+      Decoder that called us.
+
+*/
+void CTclAnalyzer::OnOther(UInt_t nType, CBufferDecoder& rDecoder) {
+
+  EventProcessingPipeline::iterator p = m_lAnalysisPipeline.begin();
+
+  while(p != m_lAnalysisPipeline.end()) {
+    CEventProcessor* pProcessor(*p);
+    if(!pProcessor->OnOther(nType, *this, rDecoder)) {
+      break ;
+    }
+    p++;
+  }
 }
