@@ -15,7 +15,7 @@ License is intended to guarantee your freedom to share and change free
 software--to make sure the software is free for all its users.  This
 General Public License applies to most of the Free Software
 Foundation's software and to any other program whose authors commit to
-using it.  (Some other Free Software Foundation software is covered by
+using it.  (Some other Free Software n software is covered by
 the GNU Library General Public License instead.)  You can apply it to
 your programs, too.
 
@@ -290,6 +290,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+
+/*
+   Change log:
+   $Log$
+   Revision 4.2  2003/04/01 19:53:44  ron-fox
+   Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
+
 #include "SnapshotSpectrum.h"    				
 
 // Functions for class CSnapshotSpectrum
@@ -397,6 +406,48 @@ UInt_t CSnapshotSpectrum::Dimensionality() const
   //
   return m_rActualSpectrum.Dimensionality();
 }
+/*!
+   Get the low limit of an axis.  This just delegates to the
+   contained spectrum.
+   \param <TT> nDimension (UInt_t [in]) </TT>
+      Selects the dimension for which we want the high limit.
+      You can call Dimensionality to determine the number of
+      valid dimensions.  
+
+   \throw CRangeError
+      An invalid nDimension parameter will
+      cause the spectrum to throw a CRangeError exception.
+   \retval Float_t
+      The least parameter value that will cause the first channel
+      (channel 0) of the selected axis to be incremented.
+*/
+Float_t
+CSnapshotSpectrum::GetLow(UInt_t nDimension) const
+{
+  return m_rActualSpectrum.GetLow(nDimension);
+}
+
+/*!
+   Get the high limit of an axis.  This just delegates to the
+   contained spectrum.
+   \param <TT> nDimension (UInt_t [in]) </TT>
+      Selects the dimension for which we want the high limit.
+      You can call Dimensionality to determine the number of
+      valid dimensions.  
+
+   \throw CRangeError
+      An invalid nDimension parameter will
+      cause the spectrum to throw a CRangeError exception.
+   \retval Float_t
+      The largest parameter value that will cause the last channel
+       of the selected axis to be incremented.
+*/
+Float_t
+CSnapshotSpectrum::GetHigh(UInt_t nDimension) const
+{
+  return m_rActualSpectrum.GetHigh(nDimension);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
@@ -503,8 +554,4 @@ CSnapshotSpectrum::GetResolutions(vector<UInt_t>&  rvResolutions)
 }
 //////////////////////////////////////////////////////////////////////////
 
-Int_t
-CSnapshotSpectrum::getScale(UInt_t index)
-{
-  return m_rActualSpectrum.getScale(index);
-}
+

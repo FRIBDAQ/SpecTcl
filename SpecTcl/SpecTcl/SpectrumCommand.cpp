@@ -305,6 +305,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //   July 3, 1999        - Use CreateSpectrum, rather than
 //                         New1d, New2D etc.
 //
+// $Log$
+// Revision 4.2  2003/04/01 19:55:41  ron-fox
+// Support for Real valued parameters and spectra with arbitrary binnings.
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
@@ -320,6 +323,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLCommandPackage.h"
 #include "TCLList.h"
 #include "TCLString.h"
+#include <Exception.h>
 
 #include <tcl.h>
 #include <string.h>
@@ -436,34 +440,80 @@ CSpectrumCommand::operator()(CTCLInterpreter& rInterpreter,
     return TCL_ERROR;
   }
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    Int_t New ( TCLInterpreter& rInterpreter, TCLResult& rResult,
-//                int nArgs, char* pArgs[] )
-//  Operation Type:
-//     Utility
-//
+/*!
+  Parses the spectrum -new command.  This command attempts to 
+  create a new spectrum.   The command line is parsed and
+  passed to the spectrum package that actually interacts with
+  the histogramming kernel to create a spectrum.  The format of
+  the spectrum -new command is:
+  \verbatim
+     spectrum ?-new? name type {parameters...} {axes...}
+  \endverbatim
+ 
+  Where:
+  - name is the name of the spectrum.
+  - type is the type of the spectrum.
+  - {parameters...} is the list of parameters required to increment
+     the spectrum (the number of these depends on the type of spectrum
+     being created.
+  - {axes...} is a list of axis definitions.  The number of these required
+    depends on the type of spectrum.
+
+    An axis definition can one of the following two forms:
+
+    \verbatim
+    nbits
+    
+    {low high nchannels}
+    
+    \endverbatim
+
+    where all of these can be expressions and:
+    - nbits - evaulates to the number of bits of resolution in 
+              the spectrum, the  number of channels is 1 << nbits.
+    - nchannels - evaluates to an integer number of channels on 
+              this axis.
+    - low   - evaluates to a floating point that represents the
+              the parameter value that corresponds to channel 0
+              of this axis.
+    - high  - evaluates to a floating point that represents the
+              parameter value that corresponds to the last channel
+	      on this axis.
+
+    If the parameters have been specified as mapped parameters,
+    and the secon form of an axis definintion is used, the mapped
+    value of the parameter is them mapped to the range specified
+    by the axis. 
+
+    \param <tt> rInterpreter (CTCLInterpreter& [in])</tt>
+       The TCL interpreter that is running this command.
+    \param <tt> rResult      (CTCLResult& [out])    </tt>
+       The result string that will be filled with either an
+       error message if the creation failed, or the name of the
+       spectrum on success.
+    \param <tt> nArgs        </tt>
+       Number of parameter remaining on the command line.
+    \param <tt> pArgs        </tt>
+       Pointer to the number of parameters remaining on the command
+        line.
+
+    nArgs and pArgs have been setup so that the first remaining 
+parameter is the name of the spectrum.
+
+    \retval Int_t
+       Status of the command.  This can be one of:
+       - TCL_OK    - The command generated a spectrum.
+       - TCL_ERROR - The command was not able to generate a
+          spectrum.  In this case rResult will contain a textual
+	  errror message.
+
+
+*/
 Int_t 
-CSpectrumCommand::New(CTCLInterpreter& rInterpreter, CTCLResult& rResult,
+CSpectrumCommand::New(CTCLInterpreter& rInterpreter, 
+		      CTCLResult& rResult,
 		      int nArgs, char* pArgs[]) 
 {
-// Handles subparsing and dispatching
-// associated with the spectrum -new command.
-// 
-// Formal Parameters:
-//     CTCLInterpreter& rInterpreter:
-//             Refers to the interpreter running the
-//             command.
-//      CTCLResult&  rResult:
-//            Refers to the Result string.
-//      int   nArgs:
-//           # remaining command line arguments, should be 4
-//      char* pArgs[]
-//           pointers to the remaining command line arguments.
-// Returns:
-//      TCL_OK     - if the parameter was created.
-//      TCL_ERROR  - Otherwise.
 
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
   char* pName = pArgs[0];
@@ -492,67 +542,116 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter, CTCLResult& rResult,
 
   Tcl_Free((char*)ppListElements);
   
-  //  The Resolution list is split into a vector of resolution numbers,
-  //  or into a range and channel values if mapped.
-  std::vector<UInt_t>      vResolutions;
-  std::vector<Float_t>     vTransformCoords;
-  std::vector<UInt_t>      vChannels;
+  // The axis definitions are decoded into
+  // the vectors below:
+  //
+  std::vector<UInt_t>  vChannels;        //  # channels on axis.
+  std::vector<Float_t> vLows;	         // Low limit
+  std::vector<Float_t>  vHighs;           // Hi limit.
+
+
+  // Split the axis list....
 
   CTCLList lResolutionList(&rInterpreter, pArgs[3]);
   lResolutionList.Split(nListElements, &ppListElements);
 
-  int    nRangeElements1D;
-  int    nRangeElements2D;
-  char** ppRangeElements1D;
-  char** ppRangeElements2D;
-  CTCLList lRangeList1D(&rInterpreter, ppListElements[0]);
-  lRangeList1D.Split(nRangeElements1D, &ppRangeElements1D);
-  if(nRangeElements1D > 3) {
-    Usage(rResult);
-    return TCL_ERROR;
-  }
+  // Each list element has one of the following forms:
+  //    n   -  1 << is the channelcount and 
+  //                lowlim = 0, hilim = channelcount-1
+  //  {lo hi n} - n is the channel count and lo/hi are
+  //              given by the other list elements.
 
-  // If there are less than 3 elements here, then it must be an
-  // unmapped spectrum definition.
-  string spType = string(pType);
-  if(nRangeElements1D < 3) {
-    if(rPack.GetNumberList(rResult, vResolutions, 
-			   nListElements, ppListElements)) {
-      Tcl_Free((char*)ppListElements);
+  // Iterate over the list to fill the vectors above:
+  // This loop can bounce us out if:
+  //    - one of the axis definitions does not have the right number
+  //      of elements (1 or 3).
+  //    - one of the elements of an axis definition does
+  //      not decode to the proper data type.
+
+  for(int i =0; i < nListElements; i++) {
+    // Split the axis definition list into its subelements:
+    int     nAxisElements;
+    char**  ppAxisElements;
+    CTCLList AxisList(&rInterpreter, ppListElements[i]);
+    AxisList.Split(nAxisElements, &ppAxisElements);
+    if(nAxisElements == 1) {	   // Just size (in bits) given.
+      Int_t   nBits;		   // Axis element is bits. 
+      UInt_t  nChannels;	   // which are converted to chans.
+      try {
+	nBits = (Int_t)rInterpreter.ExprLong(ppAxisElements[0]);
+	nChannels = 1 << nBits;
+	
+	vChannels.push_back((UInt_t)nChannels);
+	vLows.push_back(0.0);	// Indicate there is no high/low for this axis.
+	vHighs.push_back(0.0);
+      }
+      catch (CException& rExcept) { // Spectrum size invalid.
+	rResult += "Spectrum size ";
+	rResult += ppAxisElements[0];
+	rResult += " must evaluate to an integer\n";
+	rResult += rExcept.ReasonText();
+	rResult += "\n";
+	Usage(rResult);
+	
+	Tcl_Free((char*)ppAxisElements);
+	Tcl_Free((char*)ppListElements);
+	return TCL_ERROR;		       
+	
+      }
+
+    }
+    else if (nAxisElements == 3) { // Full description given.
+      Int_t   nChannels;
+      Float_t fLow;
+      Float_t fHigh;
+      Int_t   element;		// Element of list being processed.
+      try {
+	element = 0;
+	fLow       = (Float_t)
+	                rInterpreter.ExprDouble(ppAxisElements[0]);
+	element++;
+	fHigh      = (Float_t)
+	                rInterpreter.ExprDouble(ppAxisElements[1]);
+	element++;
+	nChannels  = (Int_t)rInterpreter.ExprLong(ppAxisElements[2]);
+
+	vChannels.push_back((UInt_t)nChannels);
+	vLows.push_back(fLow);
+	vHighs.push_back(fHigh);
+	
+
+      }
+      catch (CException& rExcept) {
+	rResult += " Axis definition: ";
+	rResult += ppListElements[i];
+	rResult += " contains an invalid element: ";
+	rResult += ppAxisElements[element];
+	rResult += "\n";
+	Usage(rResult);
+
+	Tcl_Free((char*)ppAxisElements);
+	Tcl_Free((char*)ppListElements);
+	return TCL_ERROR;
+      }
+    }
+    else {			   // Invalid description. 
+      rResult += "Axis definition: ";
+      rResult += ppListElements[i];
+      rResult += " is not a valid axis definition\n";
+      Usage(rResult);
       return TCL_ERROR;
+	
     }
-    Tcl_Free((char*)ppListElements);
-  }
-  else {
-    vTransformCoords.push_back(atof(ppRangeElements1D[0]));
-    vTransformCoords.push_back(atof(ppRangeElements1D[1]));
-    vChannels.push_back(atoi(ppRangeElements1D[2]));
 
-    // See if we need to add mapping info for the second dimension...
-    if(spType == "2" || spType == "g2") {
-      if(nListElements != 2) {
-	Usage(rResult);
-	return TCL_ERROR;
-      }
-      CTCLList lRangeList2D(&rInterpreter, ppListElements[1]);
-      lRangeList2D.Split(nRangeElements2D, &ppRangeElements2D);
-
-      // There should be 3 elements here, too (low, hi, chans)...
-      if(nRangeElements2D != 3) {
-	Usage(rResult);
-	return TCL_ERROR;
-      }
-      vTransformCoords.push_back(atof(ppRangeElements2D[0]));
-      vTransformCoords.push_back(atof(ppRangeElements2D[1]));
-      vChannels.push_back(atoi(ppRangeElements2D[2]));
-      Tcl_Free((char*)ppRangeElements2D);
-    }
-    Tcl_Free((char*)ppRangeElements1D);
+    Tcl_Free((char*)ppAxisElements);
   }
+  Tcl_Free((char*)ppListElements);
+
+
   
   return rPack.CreateSpectrum(rResult,  pName, pType, vParameters, 
-			      vResolutions, vTransformCoords,
-			      vChannels, pDataType);
+			      vChannels, vLows, vHighs,
+			      pDataType);
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -720,14 +819,19 @@ CSpectrumCommand::Usage(CTCLResult& rResult)
   //
 
   rResult += "Usage: \n";
-  rResult += "  spectrum [-new] name type { parameters... } { resolutions ...} [datatype]y\n";
-  rResult += "  spectrum [-new] name type { parameters... } { { low high channels} ... } [datatype]y\n";
+  rResult += "  spectrum [-new] name type { parameters... } {axisdefs... [datatype]y\n";
   rResult += "  spectrum -list [-byid]\n";
   rResult += "  spectrum -list name\n";
   rResult += "  spectrum -list -id id\n";
   rResult += "  spectrum -delete name1 [name2...]\n";
   rResult += "  spectrum -delete -id id1 [id2...]\n";
   rResult += "  spectrum -delete -all\n";
+  rResult += "    In the above, an axsidef has one of the following formats:\n";
+  rResult += "         n           - n is the Log(2) the number of channels\n";
+  rResult += "         {low hi n}  - Full definition where:\n";
+  rResult += "                       low  - Parameter value represented by channel 0\n";
+  rResult += "                       hi   - Parameter value represented by channel n-1\n";
+  rResult += "                       n    - Number of channels on the axis.\n";
   rResult += "\n  The spectrum command creates and deletes spectra as well\n";
   rResult += "  as listing their properties.";
 

@@ -275,9 +275,9 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
-//  CSummarySpectrumB.h:
+//  CSummarySpectrumW.h:
 //
-//    This file defines the CSummarySpectrumB class.
+//    This file defines the CSummarySpectrumW class.
 //
 // Author:
 //    Ron Fox
@@ -289,6 +289,14 @@ DAMAGES.
 //  Copyright 1999 NSCL, All Rights Reserved.
 //
 /////////////////////////////////////////////////////////////
+
+/*
+  Change Log:
+  $Log$
+  Revision 4.2  2003/04/01 19:53:46  ron-fox
+  Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
 
 #ifndef __SUMMARYSPECTRUMB_H  //Required for current class
 #define __SUMMARYSPECTRUMB_H
@@ -315,26 +323,43 @@ DAMAGES.
 
 class CParameter;               
                 
+/*!
+   A summary spectrum is a special 2-d spectrum that allows you to 
+   view several parameters simultaneously.  Each x axis channel
+   represents a parameter and the Y axis the spectrum for that 
+   parameter.  The idea is that you can take the detectors for a large
+   detector array and histogram them all in a summary spectrum.  The
+   channels that are not working for some reason or are not gain matched
+   will stand out like sore thumbs against the relatively uniform
+   pattern of gainmatched, and working detectors.
 
+   Axis scaling is managed a bit differently than for 'ordinary' spectra.
+   - The X axis is always a unit-less axis that goes from [0, nParam).
+   - The Y axis can be an arbitrary fixed cut (same for all parameters), 
+     and will therefore have a separate CAxis item for each parameter
+     as the mapping between that cut and the parameter may be different
+     for each parameter (suppose for example, the user decides to use
+     scaled parameters with the scaling doing gain matching e.g.).
+
+*/
 class CSummarySpectrumB  : public CSpectrum
 {
-  struct ParameterDef {
-    UInt_t      nParameter;
-    Int_t       nScale;
-    int operator==(const ParameterDef& r) const {
-      return (nParameter == r.nParameter) && (nScale == r.nScale);
-    }
-  };
-  UInt_t              m_nYScale;		// Log(2) x axis.
-  UInt_t              m_nXChannels;
-  vector<ParameterDef> m_vParameters;
+  UInt_t              m_nYScale;     //!< Number of Y channels. 
+  UInt_t              m_nXChannels;  //!< Number of X chanels.  
+  vector<UInt_t>      m_vParameters; //!< Vector of parameter id's.
 public:
 
 			//Constructor(s) with arguments
 
   CSummarySpectrumB(const std::string& rName, UInt_t nId,
 		    vector<CParameter> rrParameters,
-		    UInt_t nYScale);
+		    UInt_t nYScale); //!< axis represents [0,nYScale-1]
+  CSummarySpectrumB(const std::string& rName, UInt_t nId,
+		    vector<CParameter> rrParameters,
+		    UInt_t nYScale,
+		    Float_t fYLow,
+		    Float_t fYHigh); //!< Axis represents [fYlow, fYHigh].
+
 
   virtual  ~ CSummarySpectrumB( ) { }       //Destructor	
 private:
@@ -369,11 +394,9 @@ public:
     return m_vParameters.size();
   }
   UInt_t getParameterId(UInt_t n) const {
-    return m_vParameters[n].nParameter;
+    return m_vParameters[n];
   }
-  Int_t getScaleDifference(UInt_t n) const {
-    return m_vParameters[n].nScale;
-  }
+
   virtual SpectrumType_t getSpectrumType() {
     return keSummary;
   }
@@ -396,15 +419,18 @@ public:
   virtual   ULong_t operator[](const UInt_t* pIndices) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;
-  virtual   UInt_t Dimension (UInt_t n) const;
 
-  virtual   UInt_t Dimensionality () const {
-    return 2;
-  }
   virtual void GetParameterIds(vector<UInt_t>& rvIds);
   virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
-  virtual Int_t getScale(UInt_t index);
- 
+  virtual CSpectrum::SpectrumDefinition& GetDefinition();
+  // Utility functions.
+protected:
+  void CreateStorage();
+  void FillParameterArray(vector<CParameter> Params);
+  CSpectrum::Axes CreateAxes(vector<CParameter> Parameters,
+			     UInt_t             nChannels,
+			     Float_t fyLow, Float_t fyHigh);
+  
 };
 
 #endif

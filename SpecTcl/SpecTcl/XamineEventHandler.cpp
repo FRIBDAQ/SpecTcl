@@ -301,12 +301,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <DisplayGate.h>
 #include <Spectrum.h>
 #include <XamineEvent.h>
-#include <MSpectrum1DL.h>
-#include <MSpectrum1DW.h>
-#include <MSpectrum2DB.h>
-#include <MSpectrum2DW.h>
-#include <MGamma1DL.h>
-#include <MGamma2DW.h>
 
 #include <vector>
 #include <string>
@@ -425,6 +419,9 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   //     CDisplayGate& rXamineGate:
   //           Refers to the gate created by Xamine.
   // 
+
+#ifdef __WITH_MAPPED_SPECTRA
+  BUGBUGBUGBUG
 
   CGateFactory Factory(m_pHistogrammer);; // We'll use this to create the 
 				          // Gate itself.
@@ -605,7 +602,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
 
   pSpec->GetParameterIds(pIds);
   vector<UInt_t>::iterator pid;
-  CGate* pSpecTclGate;
+  CGate* pSpecTclGate(0);
   vector<string> Names;  // vector to hold spectrum name which is passed to
                          // GateFactory on gamma gates
 
@@ -658,6 +655,8 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     cerr << "Gate not entered" << endl;
   }
   delete pSpecTclGate;
+#endif
+
 }
 //////////////////////////////////////////////////////////////////////////////
 //

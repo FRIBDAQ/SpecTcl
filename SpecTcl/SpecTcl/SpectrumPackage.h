@@ -293,6 +293,10 @@ DAMAGES.
 //                     advantage of spectrum factories:
 //                     Removed New1d, New2d replaced with CreateSpectrum.
 //
+//   $Log$
+//   Revision 4.2  2003/04/01 19:55:40  ron-fox
+//   Support for Real valued parameters and spectra with arbitrary binnings.
+//
 /////////////////////////////////////////////////////////////
 
 #ifndef __SPECTRUMPACKAGE_H  //Required for current class
@@ -420,9 +424,9 @@ public:
   int CreateSpectrum(CTCLResult& rResult, const char* pName, 
 		     const char* pSpecType,
 		     std::vector<std::string>& rvParameterNames,
-		     std::vector<UInt_t>&      rvResolutions,
-		     std::vector<Float_t>&     rvTransformCoords,
-		     std::vector<UInt_t>&      rvChannels,
+		     std::vector<UInt_t>&      nChannels,
+		     std::vector<Float_t>&     fLows,
+		     std::vector<Float_t>&     fHighs,
 		     const char*               pDataType);
 
   // List Spectra
@@ -444,7 +448,7 @@ public:
   Int_t BindList (CTCLResult& rResult, std::vector<std::string>& rvNames)  ;
   Int_t BindList (CTCLResult& rResult, std::vector<UInt_t>& rIds)  ;
 
-  // Remoe spectrum bindings:
+  // Remove spectrum bindings:
 
   Int_t UnbindList (CTCLResult& rResult, std::vector<std::string>& rvNames)  ;
   Int_t UnbindList (CTCLResult& rResult, std::vector<UInt_t>& rvIds)  ;

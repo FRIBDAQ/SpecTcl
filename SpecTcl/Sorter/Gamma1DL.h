@@ -317,27 +317,26 @@ class CParameter;
 
 class CGamma1DL : public CSpectrum
 {
-  struct ParameterDef {
-    UInt_t nParameter;
-    UInt_t nScale;
-    int operator==(const ParameterDef& r) const {
-      return (nParameter == r.nParameter) && (nScale == r.nScale);
-    }
-  };
-  UInt_t m_nScale;                          // Log(2) the spectrum size
-  vector<ParameterDef> m_vParameters;       // Vector of parameters
+  UInt_t         m_nScale;	// Spectrum channel count.
+  vector<UInt_t> m_vParameters;	// Vector of parameter ids.
 
  public:
 
-  //Constructor(s) with arguments
+  //Constructors
 
   CGamma1DL(const string& rName, UInt_t nId,
 	    vector<CParameter> rrParameters,
-	    UInt_t nScale);
+	    UInt_t nScale);	//!< Axis from [0,nScale)
+
+  CGamma1DL(const string& rName, UInt_t nId,
+	    vector<CParameter> rrParameters,
+	    UInt_t nChannels,
+	    Float_t fLow, Float_t fHigh); //!< axis is [fLow,fHigh]
+
 
   // Constructor for use by derived classes
-  CGamma1DL(const string& rName, UInt_t nId,
-	    vector<CParameter> rrParameters);
+  // CGamma1DL(const string& rName, UInt_t nId,
+  //	    vector<CParameter> rrParameters);
 
   virtual ~CGamma1DL( ) { }      //Destructor
 
@@ -365,17 +364,14 @@ class CGamma1DL : public CSpectrum
 
  public:
 
-  UInt_t getScale() const
-    {
-      return m_nScale;
-    }
+
   UInt_t getnParams() const
     {
       return m_vParameters.size();
     }
   UInt_t getParameterId (UInt_t n) const
     {
-      return m_vParameters[n].nParameter;
+      return m_vParameters[n];
     }
   virtual SpectrumType_t getSpectrumType()
     {
@@ -401,17 +397,18 @@ class CGamma1DL : public CSpectrum
   virtual void set (const UInt_t* pIndices, ULong_t nValue);
   virtual Bool_t UsesParameter (UInt_t nId) const;
   
-  virtual UInt_t Dimension (UInt_t n) const
-    {
-      return ((n == 0) ? (1 << m_nScale) : 0);
-    }
-  virtual UInt_t Dimensionality () const
-    {
-      return 1;
-    }
+
   virtual void GetParameterIds(vector<UInt_t>& rvIds);
   virtual void GetResolutions(vector<UInt_t>& rvResolutions);
-  virtual Int_t getScale(UInt_t nIndex);
+
+  // Utility functions:
+
+protected:
+  void   FillParameterArray(vector<CParameter> Params);
+  static Axes MakeAxesVector(vector<CParameter> Params,
+			      UInt_t             nChannels,
+			      Float_t fLow, Float_t fHigh);
+  void   CreateStorage();
 };
 
 #endif

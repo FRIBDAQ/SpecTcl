@@ -146,7 +146,7 @@ is converted to a mapped value and then MappedParameterToAxis is
 called since axes are a mapping between axis coordinates and
 the mapped parameter.
 */
-Int_t
+Float_t
 CAxis::ParameterToAxis(Float_t fParameter)  
 { 
   Float_t mP = m_ParameterSpecification.RawToMapped(fParameter);
@@ -197,11 +197,19 @@ Converts a mapped parameter value to an axis coordinate.
 If the parameter is not a mapped parameter, the input is treated
 as a raw parameter.
 
+
 */
-Int_t 
+Float_t 
 CAxis::MappedParameterToAxis(Float_t fParameterValue)  
 { 
   Float_t fsF = fParameterValue - m_fLow;
   fsF = fsF*((Float_t)(m_nChannels-1))/(m_fHigh - m_fLow);
-  return (Int_t)(fsF);
+
+  return (fsF);
 }
+
+
+
+
+
+

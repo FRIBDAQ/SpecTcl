@@ -288,6 +288,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 //    mailto:venemaja@msu.edu
+/*  
+   Change Log:
+   $Log$
+   Revision 4.3  2003/04/01 19:53:11  ron-fox
+   Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
 
 //
 //  Header files:
@@ -302,6 +309,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GammaCut.h"
 #include "GammaBand.h"
 #include "GammaContour.h"
+#include "CParameterMapping.h"
+#include "CAxis.h"
 
 // Functions for class CGamma1DL
 
@@ -315,52 +324,71 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //   Constructor
 //
 
+/*!
+  Construct a 1d gamma spectrum with channels that contain
+  longword values.  The axis is assumed to go from [0,nScale)
+  in mapped parameter space.
+  \param rName (const string& [in]) Name of the spectrum.
+  \param nId   (UInt_t [in])        Id of the spectrum (supposedly
+                                    unique).
+  \param rrParameters (vector<CParameter> [in]) Vector containing
+      descriptions of all the parameters that will be incremented
+      into this histogram.  Note that parameters can have
+      independent mappings between their raw values and spectrum
+      coordinates.  Some parameters can be mapped and others
+      umapped and others reals as well.
+  \param nScale (UInt_t nScale) number of channels on the x axis.
+      The X axis is assumed to cover the mapped coordinate space of
+      [0.0, nScale - 1.0).  To use an arbitrary mapping between
+      channels and mapped parameter space, see the next constructor.
+
+*/
 CGamma1DL::CGamma1DL(const std::string& rName, UInt_t nId,
 		     vector<CParameter> rrParameters,
 		     UInt_t nScale) :
-  CSpectrum(rName, nId),
+  CSpectrum(rName, nId,
+	    MakeAxesVector(rrParameters, nScale,
+			   0.0, (Float_t)(nScale -1))),
   m_nScale(nScale)
 {
-  setStorageType(keLong);
-  for(UInt_t i = 0; i < rrParameters.size(); i++) {
-    CParameter& rParam(rrParameters[i]);
-    ParameterDef def;
-    def.nParameter = rParam.getNumber();
-    def.nScale = rParam.getScale() - m_nScale;
-    m_vParameters.push_back(def);
-  }
-  Size_t nBytes = StorageNeeded();
-  UInt_t* pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
-  ReplaceStorage(pStorage);
-  Clear();
+  // The assumption is that all axes have the same units.
+
+  AddAxis(nScale, 0.0, (Float_t)(nScale - 1), rrParameters[0].getUnits());
+  FillParameterArray(rrParameters);
+  CreateStorage();
+
 }
+/*!
+   Construct a 1d Gamma spectrum with channels that contain 
+   longwordd values.  The axis represents the interval
+   [fLow,fHigh] in mapped parameter space.
 
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//   CGamma1DL(const std::string& rname, UInt_t nId,
-//             vector<CParameter> rrParameters,
-//             UInt_t nScale)
-// Operation Type:
-//   Constructor
-// Comments:
-//   This constructor exists for use by derived classes that
-//   want to allocate their own storage
-//
-CGamma1DL::CGamma1DL(const std::string& rName, UInt_t nId,
-		     vector<CParameter> rrParameters) :
-  CSpectrum(rName, nId),
-  m_nScale(0)
+  \param rName (const string& [in]) Name of the spectrum.
+  \param nId   (UInt_t [in])        Id of the spectrum (supposedly
+                                    unique).
+  \param rrParameters (vector<CParameter> [in]) Vector containing
+      descriptions of all the parameters that will be incremented
+      into this histogram.  Note that parameters can have
+      independent mappings between their raw values and spectrum
+      coordinates.  Some parameters can be mapped and others
+      umapped and others reals as well.
+  \param nChannels (UInt_t [in]) number of channels on the x axis.
+  \param fLow   (Float_t [in])  The mapped parameter space value
+      represented by channel 0 on the x axis.
+  \param fHigh  (Float_t [in]):  The mapped parameter space value
+      represented by channel nChannels-1 on the x axis
+*/
+CGamma1DL::CGamma1DL(const string& rName, UInt_t nId,
+		     vector<CParameter> rrParameters,
+		     UInt_t nChannels,
+		     Float_t fLow, Float_t fHigh) :
+  CSpectrum(rName, nId,
+	    MakeAxesVector(rrParameters, nChannels, fLow, fHigh)),
+  m_nScale(nChannels)
 {
-  setStorageType(keLong);
-  for(UInt_t i = 0; i < rrParameters.size(); i++) {
-    CParameter& rParam(rrParameters[i]);
-    ParameterDef def;
-    def.nParameter = rParam.getNumber();
-    def.nScale = rParam.getScale() - m_nScale;
-    m_vParameters.push_back(def);
-  }
+  AddAxis(nChannels, fLow, fHigh, rrParameters[0].getUnits());
+  FillParameterArray(rrParameters);
+  CreateStorage();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -386,11 +414,10 @@ void CGamma1DL::Increment(const CEvent& rE)
     UInt_t xChan;
     
     for (xChan = 0; xChan < m_vParameters.size(); xChan++) {
-      if(rEvent[m_vParameters[xChan].nParameter].isValid()) {
-	Int_t sd = m_vParameters[xChan].nScale;
-	UInt_t y = rEvent[m_vParameters[xChan].nParameter];
-	y = (sd > 0) ? y >> sd : y << -sd;
-	if (y < (1 << m_nScale)) {
+      if(rEvent[m_vParameters[xChan]].isValid()) {
+	UInt_t y = Randomize(ParameterToAxis(xChan, 
+				   rEvent[m_vParameters[xChan]]));
+	if ((y >= 0) && (y < m_nScale)) {
 	  pStorage[y]++;
 	}
       }
@@ -400,6 +427,9 @@ void CGamma1DL::Increment(const CEvent& rE)
   //otherwise pass control to GammaGateIncrement
   else if(sGateType == "gs" || sGateType == "gb" || sGateType == "gc") {
     GammaGateIncrement(rE, sGateType);
+  }
+  else {			// Should never get here!!!!
+    // Throw some suitable exception.
   }
 }
 
@@ -428,17 +458,16 @@ CGamma1DL::GammaGateIncrement (const CEvent& rE, std::string sGT)
     CGammaCut* pGate = (CGammaCut*)getGate()->getGate();
     for(xChan = 0; xChan < m_vParameters.size(); xChan++) {  // for all params
       vXP.clear();
-      vXP.push_back(m_vParameters[xChan].nParameter);
-      if(rEvent[m_vParameters[xChan].nParameter].isValid()) {  // if valid...
+      vXP.push_back(m_vParameters[xChan]);
+      if(rEvent[m_vParameters[xChan]].isValid()) {  // if valid...
 	if(pGate->inGate(rEvent, vXP)) {  // and parameter is in bounds...
 	  for(UInt_t Param = 0; Param < m_vParameters.size(); Param++) {
 	    if(Param != xChan) {  // Increment for all other parameters
-	      Int_t sd = m_vParameters[Param].nScale;
 	      // Make sure this parameter is valid too...
-	      if(rEvent[m_vParameters[Param].nParameter].isValid()) {
-		UInt_t y = rEvent[m_vParameters[Param].nParameter];
-		y = (sd > 0) ? y >> sd : y << -sd;
-		if (y < (1 << m_nScale)) {
+	      if(rEvent[m_vParameters[Param]].isValid()) {
+		UInt_t y = Randomize(ParameterToAxis(Param,
+				       rEvent[m_vParameters[Param]]));
+		if ((y >= 0) && (y <  m_nScale)) {
 		  pStorage[y]++;
 		}
 	      }
@@ -460,24 +489,25 @@ CGamma1DL::GammaGateIncrement (const CEvent& rE, std::string sGT)
     // For all possible pairs of parameters in the spectrum
     for(UInt_t XPar = 0; XPar < m_vParameters.size()-1; XPar++) {
       for(UInt_t YPar = XPar+1; YPar < m_vParameters.size(); YPar++) {
-	if(rEvent[m_vParameters[XPar].nParameter].isValid() &&
-	   rEvent[m_vParameters[YPar].nParameter].isValid()) {  // if valid...
-	  mvx = m_vParameters[XPar].nParameter;
-	  mvy = m_vParameters[YPar].nParameter;
+	if(rEvent[m_vParameters[XPar]].isValid() &&
+	   rEvent[m_vParameters[YPar]].isValid()) {  // if valid...
+	  mvx = m_vParameters[XPar];
+	  mvy = m_vParameters[YPar];
 	  vXP.clear(); vYP.clear();
-	  vXP.push_back(mvx); vXP.push_back(mvy);
-	  vYP.push_back(mvy); vYP.push_back(mvx);
+	  vXP.push_back(mvx); vXP.push_back(mvy); // Need to check
+	  vYP.push_back(mvy); vYP.push_back(mvx); // Either order.
 	  // and if (p1, p2) or (p2, p1) is in gate...
-	  if(pGate->inGate(rEvent, vXP) || pGate->inGate(rEvent, vYP)) {
-	    for(UInt_t Param = 0; Param < m_vParameters.size(); Param++) {
+	  if(pGate->inGate(rEvent, vXP) || 
+	     pGate->inGate(rEvent, vYP)) {
+	    for(UInt_t Param = 0; Param < m_vParameters.size(); 
+		Param++) {
 	      // Increment for all params not in (p1, p2) which are valid
 	      if(Param != XPar && Param != YPar) {
 		// Make sure this parameter is valid too...
-		if(rEvent[m_vParameters[Param].nParameter].isValid()) {
-		  Int_t sd = m_vParameters[Param].nScale;
-		  UInt_t y = rEvent[m_vParameters[Param].nParameter];
-		  y = (sd > 0) ? y >> sd : y << -sd;
-		  if (y < (1 << m_nScale)) {
+		if(rEvent[m_vParameters[Param]].isValid()) {
+		  UInt_t y = Randomize(ParameterToAxis(Param,
+				       rEvent[m_vParameters[Param]]));
+		  if ((y >= 0) && (y < m_nScale)) {
 		    pStorage[y]++;
 		  }
 		}
@@ -502,7 +532,7 @@ Bool_t
 CGamma1DL::UsesParameter(UInt_t nId) const
 {
   for (UInt_t I = 0; I < m_vParameters.size(); I++) {
-    if (m_vParameters[I].nParameter == nId)
+    if (m_vParameters[I] == nId)
       return kfTRUE;
   }
   return kfFALSE;
@@ -561,7 +591,7 @@ void
 CGamma1DL::GetParameterIds (vector<UInt_t>& rvIds)
 {
   for (UInt_t I = 0; I < m_vParameters.size(); I++)
-    rvIds.push_back(m_vParameters[I].nParameter);
+    rvIds.push_back(m_vParameters[I]);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -579,21 +609,61 @@ CGamma1DL::GetResolutions (vector<UInt_t>& rvResolutions)
   rvResolutions.push_back (m_nScale);
 }
 
-////////////////////////////////////////////////////////////////////////
-//  
-// Function:
-//    UInt_t getScale(UInt_t nIndex)
-// Operation Type:
-//    Selector.
-//
 
-Int_t
-CGamma1DL::getScale (UInt_t nIndex)
+/*!
+    Create the storage needed to hold the spectrum channels.
+    This utility is used by all of the constructors.
+*/
+void
+CGamma1DL::CreateStorage()
 {
-  if (nIndex < m_vParameters.size()) {
-    return m_vParameters[nIndex].nScale;
+  setStorageType(keLong);
+  Size_t nBytes = StorageNeeded();
+  UInt_t* pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
+  ReplaceStorage(pStorage);
+  Clear();
+
+}
+/*!
+    Fill the parameter m_vParameters with the parameter id's
+    of the parameters to use when incrementing the spectrum.
+    \param Params (vector<CParamteer> Params [in]):  The parameter
+        definitions to use when incrementing the spectrum.
+*/
+void
+CGamma1DL::FillParameterArray(vector<CParameter> Params)
+{
+  for(int i = 0; i < Params.size(); i++) {
+    m_vParameters.push_back(Params[i].getNumber());
   }
-  else {
-    return 0;
+}
+/*!
+   Creates a vector of axis definitions.  This is needed
+   because while the axis is a fixe cut in parameter space, if
+   the user chose to use mapped parameters, the mapping between
+   parameter and axis will be different from parameter to parameter.
+   \param Params (vector<CParameter>  [in]) A vector of parameter
+      descriptions.
+   \param nChannels (UInt_t [in]) The number of channels on the X
+      axis of the spectrum.
+   \param fLow (Float_t [in]) The coordinate in mapped parameter
+      space represented by channel 0 on the X axis.
+   \param fHigh (Float_t [in] The coordiante in mapped parameter
+      space represented by channel nChannels-1 on the X axis.
+
+   \return CAxes - a vector of axes that is suitable to be used
+     when constructing the CSpectrum base class.
+*/
+CSpectrum::Axes
+CGamma1DL::MakeAxesVector(vector<CParameter> Params,
+			  UInt_t             nChannels,
+			  Float_t fLow, Float_t fHigh)
+{
+  Axes Scales;
+  for(int i=0; i < Params.size(); i++) {
+    Scales.push_back(CAxis(nChannels,
+			   fLow, fHigh, 
+			   CParameterMapping(Params[i])));
   }
+  return Scales;
 }

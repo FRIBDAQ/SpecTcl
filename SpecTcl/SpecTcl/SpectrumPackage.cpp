@@ -294,6 +294,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   of CSpectrumFactory: removed New1d(), New2d() and 
 //                   replaced them with CreateSpectrum().
 //
+//    $Log$
+//    Revision 4.4  2003/04/01 19:55:40  ron-fox
+//    Support for Real valued parameters and spectra with arbitrary binnings.
+//
+//
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
 //
@@ -357,11 +362,8 @@ static const SpecTypes aSpecTypes[] = {
   {"s",    keSummary},
   {"summary", keSummary},
   {"b",    keBitmask},
-  {"bitmask", keBitmask},
-  {"1",     keM1D},
-  {"2",     keM2D},
-  {"g1",    keMG1D},
-  {"g2",    keMG2D}
+  {"bitmask", keBitmask}
+
 };
 static const UInt_t nSpecTypes = sizeof(aSpecTypes)/sizeof(SpecTypes);
 
@@ -425,48 +427,65 @@ CSpectrumPackage::~CSpectrumPackage ( )
   delete m_pWrite;
   delete m_pRead;
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//      int CreateSpectrum(CTCLResult& rResult, char* pName, char* pSpecType,
-//		     std::vector<std::string>& rvParameterNames,
-//		     std::vector<UInt_t>&      rvResolutions,
-//		     char*                     pDataType)
-//  Operation Type:
-//     Adaptor.
-//
+/*!
+   Creates a spectrum and enters it in the Sorter's spectrum dictionary.
+   The Spectrum factory is used to validate parameters and create the 
+   spectrum.  We:
+   -  translate the spectype and data type parameters into 
+       SpecType_t and DataType_t's
+   -  Use the factory to create the spectrum and 
+   - install the spectrum in the sorter. Translating exceptions into
+      appropriate rResult return strings.
+
+      \param <tt> rResult (CTCLResult& [out])            </tt>
+          The result string. This string will be available
+	  as the result of the command in Tcl. In standalone
+	  use, it is put out to stdout. in []'d use it is
+	  the text that is returned from the command substitution.
+      \param <tt> pName   (const char* [in])            </tt>
+          The name of the spectrum to create.
+      \param <tt> pSpectype (const char* [in])           </tt>
+          The type of spectrum being created.  This will be 
+	  translated to a SpectrumType_t enumerator by the
+	  SpectrumType helper function.
+      \param <tt> rvParameterNames (vector<string>& [in]) </tt>
+          A vector of the names of parameters required by
+	  a spectrum.  The parameter names are passed uninterpreted
+	  to the spectrum factory which will use them to lookup
+	  the associated parameter description objects.
+      \param <tt> nChannels (vector<UInt_t>& [in])       </tt>
+          Vector of number of channels for each axis.  The number
+	  of elements in this vector will depend on the spectrum
+	  type.
+      \param <tt> fLows (vector<Uint_t>& [in])          </tt>
+          Vector of low limits represented by channel 0's of the
+	  axes.
+      \param <tt> fHighs  (vector<UInt_t>& [in])          </tt>
+         Vector of high limits represented by the last channel
+	 of the axes.
+      \param <tt> pDataType (const char* [in])        </tt>
+         The type of each channel.  This will be translated to
+	 a DatatType_t by the Datatype helper function.
+
+    \return int
+       A status value that is one of:
+       - TCL_OK if the spectrum was created.  In this case,
+         rResult will contain the name of the spectrum.
+       - TCL_ERROR if the spectrum could not be created.  In this
+         case, rResult will contain a textual error message
+	 describing why the spectrum could not be created.
+
+*/
 int
 CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
 				 const char* pName, 
 				 const char* pSpecType,
 				 std::vector<std::string>& rvParameterNames,
-				 std::vector<UInt_t>&      rvResolutions,
-				 std::vector<Float_t>&     rvTransformCoords,
-				 std::vector<UInt_t>&      rvChannels,
+				 std::vector<UInt_t>&      nChannels,
+				 std::vector<Float_t>&     fLows,
+				 std::vector<Float_t>&     fHighs,
 				 const char*               pDataType)
 {
-  // Creates a spectrum and enters it in the Sorter's spectrum dictionary.
-  // The Spectrum factory is used to validate parameters and create the 
-  // spectrum.  We:
-  //   translate the spectype and data type parameters into 
-  //     SpecType_t and DataType_t's
-  //   Use the factory to create the spectrum and 
-  //   install the spectrum in the sorter. Translating exceptions into
-  //    appropriate failures.
-  //
-  //  Formal Paramters:
-  //     CTCLResult& rResult:
-  //        Result string of the interpreter command.
-  //     const char *pName:
-  //          Name of the spectrum.
-  //     const char* pType:
-  //         Type of spectrum.
-  //     std::vector<std::string>& rvParameterNames:
-  //         set of parameter names to histogram.
-  //     std::vector<UInt_t>& rvResolutions:
-  //         set of axis resolutions.
-  //     const char* pDataType:
-  //         Data type of the spectrum.
 
   CSpectrum* pSpec = 0;
   try {
@@ -476,11 +495,11 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
     CSpectrumFactory Factory;
     pSpec = Factory.CreateSpectrum(pName,
 				   sType,
-				   dType,
 				   rvParameterNames,
-				   rvResolutions,
-				   rvTransformCoords,
-				   rvChannels);
+				   dType,
+				   nChannels,
+				   &fLows, &fHighs);
+
     m_pHistogrammer->AddSpectrum(*pSpec);
   }
   catch (CException& rExcept) {
@@ -1711,14 +1730,35 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
 
 
 }
-/////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//   std::string DescribeSpectrum(CSpectrum& rSpectrum)
-//
-// Operation Type;
-//    Protected Utility:
-//
+/*!
+    Given a spectrum, this function describes it in 'standard' form.
+    Standard form is a Tcl formatted list.  The list elements are in
+    order:
+    - id    The id number of the spectrum.
+    - name  The name of the spectrum (used by the user to refer to
+            the spectrum.
+    - type  A string that describes the spectrum type.
+    - Parms A list of parameters that make up the spectrum.
+    - Axes  A list of axis definitions required by the spectrum.
+            The axis defintions are themselves unconditionally
+	    a list of the form {low hi channels}   The number
+	    of axis definitions will depend on the spectrum type,
+	    but the spectrum base class provides member functions
+	    that allow us to mechanically unravel how many there
+	    should be, and individually fetch them regardless of
+	    spectrum type.
+    - datatype - the type of each channel of the spectrum (e.g. word).
+    
+    Note from the above, that even if a spectrum was defined with 
+   one or more axis definitions in the simplified nbits format,
+   the axis will be described in the full low, hi, channels format.
+
+   \param <tt> rSpectrum (CSpectrum& [in]): </tt>
+      The spectrum to describe.
+
+   \retval std::string
+       A description of the spectrum (TCL list rendered as a string)
+*/
 std::string
 CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum)
 {
@@ -1726,23 +1766,22 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum)
 
   CTCLString Description;
   char       txtNum[100];
+  CSpectrum::SpectrumDefinition Def = rSpectrum.GetDefinition();
 
-  sprintf(txtNum, "%d", rSpectrum.getNumber());
+  sprintf(txtNum, "%d", Def.nId);
   Description.AppendElement(txtNum);
 
-  Description.AppendElement(rSpectrum.getName());
+  Description.AppendElement(Def.sName);
 
-  Description.AppendElement(SpecTypeToText(rSpectrum.getSpectrumType()));
+  Description.AppendElement(SpecTypeToText(Def.eType));
 
 
   //
   // List the parameters in the spectrum:
   //
-  std::vector<UInt_t> vPars;
-  rSpectrum.GetParameterIds(vPars);
-  std::vector<UInt_t>::iterator p = vPars.begin();
+  std::vector<UInt_t>::iterator p = Def.vParameters.begin();
   Description.StartSublist();
-  for(; p != vPars.end(); p++) {
+  for(; p != Def.vParameters.end(); p++) {
     CParameter* pPar = m_pHistogrammer->FindParameter(*p);
     Description.AppendElement(pPar ? pPar->getName() :
 			              std::string("--Deleted Parameter--"));
@@ -1751,20 +1790,28 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum)
 
   //
   // List the axis dimensions.
-  //
-  Description.StartSublist();
-  std::vector<UInt_t> vRes;
-  rSpectrum.GetResolutions(vRes);
-  p = vRes.begin();
-  for(; p != vRes.end(); p++) {
-    sprintf(txtNum, "%d",*p);
-    Description.AppendElement(txtNum);
+  //   The axis sublist is a list of axis definitions.  Each axis definition
+  //   is a triplet list of low high nchannels:
+  Description.StartSublist();	// List of axes.
+  for(int i = 0; i < Def.nChannels.size(); i++) {
+    Description.StartSublist();	// Axis definition
+
+    sprintf(txtNum, "%f", Def.fLows[i]);
+    Description.AppendElement(txtNum); // Low...
+
+    sprintf(txtNum, "%f", Def.fHighs[i]);
+    Description.AppendElement(txtNum); // High...
+
+    sprintf(txtNum, "%d", Def.nChannels[i]); 
+    Description.AppendElement(txtNum);   // Channel count.
+
+    Description.EndSublist();	// End axis definition.
   }
-  Description.EndSublist();
+  Description.EndSublist();	// end list of axes.
   
   // List the data type:
 
-  Description.AppendElement(DataTypeToText(rSpectrum.StorageType()));
+  Description.AppendElement(DataTypeToText(Def.eDataType));
 
   // Return the description string:
 

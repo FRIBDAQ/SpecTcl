@@ -300,7 +300,6 @@ CGateMediator::operator() ()
   // the gate can be displayed on it.
   switch(spType) {
   case ke1D:
-  case keM1D:
     {
       if(gType != "s") {
 	return kfFALSE;
@@ -315,7 +314,6 @@ CGateMediator::operator() ()
     }
 
   case ke2D:
-  case keM2D:
     {
       if(gType != "b" && gType != "c") {
 	return kfFALSE;
@@ -336,7 +334,6 @@ CGateMediator::operator() ()
     }
   
   case keG1D:
-  case keMG1D:
     {
       if(gType != "gs") {
 	return kfFALSE;
@@ -353,7 +350,6 @@ CGateMediator::operator() ()
     }
   
   case keG2D:
-  case keMG2D:
     {
       if(gType != "gb" && gType != "gc") {
 	return kfFALSE;

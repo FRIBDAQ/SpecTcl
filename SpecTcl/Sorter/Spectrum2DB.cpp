@@ -235,7 +235,10 @@ those countries, so that distribution is permitted only in or among
 countries not thus excluded.  In such case, this License incorporates
 the limitation as if written in the body of this License.
 
-  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
+  9. The Free Software Foundation may publish revised and/or new versions 
+of the General Public License from time to time.  Such new versions will 
+be similar in spirit to the present version, but may differ in detail to 
+address new problems or concerns.
 
 Each version is given a distinguishing version number.  If the Program
 specifies a version number of this License which applies to it and "any
@@ -293,6 +296,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
+/*
+  Change log:
+  $Log$
+  Revision 4.3  2003/04/01 19:53:46  ron-fox
+  Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
+
 //
 // Header Files:
 //
@@ -302,7 +313,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Parameter.h"
 #include "RangeError.h"
 #include "Event.h"
-
+#include "CAxis.h"
+#include "CParameterMapping.h"
 
 // Functions for class CSpectrum2DB
 
@@ -315,29 +327,92 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Operation Type:
 //   Constructor
 //
+
+/*!
+   Construct a spectrum.  This constructor creates a spectrum
+   with Axis mapping:
+   - Xaxis [0, nXScale),
+   - Yaxis [0, nYScale).
+   
+   \param rName (const string& [in]) Name of the spectrum being
+      created.
+   \param nId   (UInt_t [in]) Id of the spectrum being created.
+   \param rxParameter (const CParameter& [in]): Describes the
+        parameter on the Xaxis of the histogram.
+   \param ryParameter (const CParameter& [in]): Describes the
+        parameter no the Y axis of the histogram.
+   \param nXScale  (UInt_t [in]) Number of channels on the X axis.
+   \param nYScale  (UInt_t [in]) Number of channels on the Y axis.
+
+*/
 CSpectrum2DB::CSpectrum2DB(const std::string& rName, UInt_t nId,
 			   const CParameter& rXParameter, 
 			   const CParameter& rYParameter,
 			    UInt_t nXScale, UInt_t nYScale) :
-  CSpectrum(rName, nId),
+  CSpectrum(rName, nId,
+	    CreateAxisVector(rXParameter, 
+			     nXScale, 0.0, (Float_t)(nXScale-1),
+			     rYParameter, 
+			     nYScale, 0.0, (Float_t)(nYScale-1))),
   m_nXScale(nXScale),
   m_nYScale(nYScale),
   m_nXParameter(rXParameter.getNumber()),
-  m_nYParameter(rYParameter.getNumber()),
-  m_nXScaleDifference((Int_t)rXParameter.getScale() - (Int_t)nXScale),
-  m_nYScaleDifference((Int_t)rYParameter.getScale() - (Int_t)nYScale)
+  m_nYParameter(rYParameter.getNumber())
+
 {
-  // Just need to allocate storage and pass it to our base class for
-  // management:
-
-  setStorageType(keByte);
-
-  Size_t nBytes = StorageNeeded();
-  UChar_t*      pStorage = new UChar_t[nBytes/sizeof(UChar_t)];
-
-  ReplaceStorage(pStorage);	// Storage now owned by parent.
-  Clear();
+  AddAxis(nXScale, 0.0, (Float_t)(nXScale -1), rXParameter.getUnits());
+  AddAxis(nYScale, 0.0, (Float_t)(nYScale -1), rYParameter.getUnits());
+  CreateStorage();
 }
+
+/*!
+  Create a 2d spectrum with an arbitrary axis mapping.
+  - Xaxis contains nXChannels that represent the interval
+     [fxLow, fxHigh]
+  - Yaxis contain nYChannels that represent the interval
+     [fyLOw, fyHigh].
+
+   \param rName (const string& [in]) Name of the spectrum being
+      created.
+   \param nId   (UInt_t [in]) Id of the spectrum being created.
+   \param rxParameter (const CParameter& [in]): Describes the
+        parameter on the Xaxis of the histogram.
+   \param ryParameter (const CParameter& [in]): Describes the
+        parameter no the Y axis of the histogram.
+   \param nXChannels  (UInt_t [in]) Number of channels on the X axis.
+   \param fxLow (Float_t [in]) Low limit of the x axis.
+   \param fxHigh (Float_t [in]) High limit of the x axis.
+   \param nYChannels  (UInt_t [in]) Number of channels on the Y axis.
+   \param fyLow (Float_t [in]) Low limit of the y axis.
+   \param fyHigh (Float_t [in]) High limit of the y axis.
+
+
+
+*/
+CSpectrum2DB:: CSpectrum2DB(const std::string& rName, UInt_t nId,
+			    const CParameter& rXParameter,
+			    const CParameter& rYParameter,
+			    UInt_t nXChannels, 
+			    Float_t fxLow, Float_t fxHigh,
+			    UInt_t nYChannels, 
+			    Float_t fyLow, Float_t fyHigh) :
+  CSpectrum(rName, nId,
+	    CreateAxisVector(rXParameter, nXChannels,
+			     fxLow, fxHigh,
+			     rYParameter, nYChannels,
+			     fyLow, fyHigh)),
+  m_nXScale(nXChannels),
+  m_nYScale(nYChannels),
+  m_nXParameter(rXParameter.getNumber()),
+  m_nYParameter(rYParameter.getNumber())
+  
+{
+  AddAxis(nXChannels, fxLow, fxHigh, rXParameter.getUnits());
+  AddAxis(nYChannels, fyLow, fyHigh, rYParameter.getUnits());
+  CreateStorage();
+}
+  
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:
@@ -349,19 +424,19 @@ CSpectrum2DB::CSpectrum2DB(const std::string& rName, UInt_t nId,
 //   This constructor exists for use by derived classes that want
 //   to allocate their own storage.
 //
-CSpectrum2DB::CSpectrum2DB(const std::string& rName, UInt_t nId,
-			   const CParameter& rXParameter, 
-			   const CParameter& rYParameter) :
-  CSpectrum(rName, nId),
-  m_nXScale(0),
-  m_nYScale(0),
-  m_nXParameter(rXParameter.getNumber()),
-  m_nYParameter(rYParameter.getNumber()),
-  m_nXScaleDifference(0),
-  m_nYScaleDifference(0)
-{
-  setStorageType(keWord);
-}
+//CSpectrum2DB::CSpectrum2DB(const std::string& rName, UInt_t nId,
+//		   const CParameter& rXParameter, 
+//		   const CParameter& rYParameter) :
+//  CSpectrum(rName, nId),
+//  m_nXScale(0),
+//m_nYScale(0),
+//m_nXParameter(rXParameter.getNumber()),
+//m_nYParameter(rYParameter.getNumber()),
+//m_nXScaleDifference(0),
+//m_nYScaleDifference(0)
+//{
+//  setStorageType(keByte);
+//}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -382,15 +457,13 @@ CSpectrum2DB::Increment(const CEvent& rE)
   CEvent& rEvent((CEvent&)rE);
   if(rEvent[m_nXParameter].isValid()  && // Require the parameters be in event
      rEvent[m_nYParameter].isValid()) {
-    UInt_t nx = (m_nXScaleDifference >= 0) ? 
-		 (UInt_t)((Int_t)rEvent[m_nXParameter] >> m_nXScaleDifference) :
-		 (UInt_t)((Int_t)rEvent[m_nXParameter] << -(m_nXScaleDifference));
-    UInt_t ny = (m_nYScaleDifference >= 0) ?
-                   (UInt_t)((Int_t)rEvent[m_nYParameter] >> m_nYScaleDifference) :
-                   (UInt_t)((Int_t)rEvent[m_nYParameter] << (-m_nYScaleDifference));
-    if( (nx < (1 << m_nXScale))  && (ny < (1 << m_nYScale))) {
+    Int_t nx = Randomize(ParameterToAxis(0, rEvent[m_nXParameter]));
+    Int_t ny = Randomize(ParameterToAxis(1, rEvent[m_nYParameter]));
+    if( (nx >= 0)   && (nx < m_nXScale)     &&
+	(ny >= 0)   && (ny < m_nYScale)) {
+      
       UChar_t* pSpec = (UChar_t*)getStorage();
-      pSpec[nx + (ny << m_nXScale)]++;
+      pSpec[nx + (ny * m_nXScale)]++;
     }
   }
 
@@ -442,7 +515,7 @@ CSpectrum2DB::operator[](const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW spectrum y axis"));
   }
-  return (ULong_t)p[nx + (ny << m_nXScale)];
+  return (ULong_t)p[nx + (ny * m_nXScale)];
 		      
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -469,29 +542,11 @@ CSpectrum2DB::set(const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DB spectrum y axis"));
   }
-  p[nx + (ny << m_nXScale)] = (UInt_t)nValue;
+  p[nx + (ny * m_nXScale)] = (UInt_t)nValue;
 
   
 }
-//////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//     UInt_t Dimension (UInt_t n) const
-// Operation type:
-//     Selector.
-//
-UInt_t 
-CSpectrum2DB::Dimension (UInt_t n) const
-{
-  switch(n) {
-  case 0:
-    return 1 << m_nXScale;
-  case 1:
-    return 1 << m_nYScale;
-  default:
-    return 0;
-  }
-}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // Function
@@ -534,21 +589,87 @@ CSpectrum2DB::GetResolutions(vector<UInt_t>&  rvResolutions)
   rvResolutions.push_back(m_nXScale);
   rvResolutions.push_back(m_nYScale);
 }
-////////////////////////////////////////////////////////////////////////
-//  
-// Function:
-//    UInt_t getScale(UInt_t nIndex)
-// Operation Type:
-//    Selector.
-//
-Int_t
-CSpectrum2DB::getScale(UInt_t nIndex)
+
+/*!
+   Creates spectrum storage.  This is a common utility function used
+   by all constructors.
+*/
+void
+CSpectrum2DB::CreateStorage()
 {
-  switch(nIndex) {
+  // Just need to allocate storage and pass it to our base class for
+  // management:
+
+  setStorageType(keByte);
+
+  Size_t nBytes = StorageNeeded();
+  UChar_t*      pStorage = new UChar_t[nBytes/sizeof(UChar_t)];
+
+  ReplaceStorage(pStorage);	// Storage now owned by parent.
+  Clear();
+}
+/*!
+   Create an axis vector for the spectrum constructor.  
+   A 2 element axis vector is constructed and returned.
+   The X axis description is first, and the Y axis second.
+   \param xParam (const CParameter& [in]) Refers to the X axis
+     parameter
+     description (used to construct the ParameterMapping).
+   \param nxChannels (UInt_t [in]) Number of channels on the
+     X Axis.
+   \param fxLow (Float_t [in]) coordinate in mapped parameter space
+       represented by channel 0 on the X axis.
+   \param fxHigh (Float_t [in]) coordinate in mapped parameter space
+       represented by channel nxChannels-1 on the X axis.
+   \param yParam (const CParameter& [in]) Refers to the Y axis
+       parameter description.  Used to construct a Parameter Mapping
+   \param nyChannels (UInt_t [in]) Number of channels on the Y
+       axis.
+   \param fyLow (Float_t [in]) coordinate in mapped parameter space
+       represented by  channel 0 on the X axis.
+   \param fyHigh (Float_t [in]) coordinat in mapped parameter space
+       represented by channel nyChannels - 1 on the Y axis.
+
+   \return A CAxes array that has the X axis mappgin as element 0
+   and the Y axis mapping as element 1.
+*/
+CSpectrum::Axes
+CSpectrum2DB::CreateAxisVector(const CParameter& xParam,
+				UInt_t      nxChannels,
+				Float_t     fxLow, Float_t fxHigh,
+				const CParameter& yParam,
+				UInt_t      nyChannels,
+				Float_t     fyLow, Float_t fyHigh)
+{
+  CSpectrum::Axes aMappings;
+  CAxis xMap(fxLow, fxHigh, nxChannels, 
+	     CParameterMapping(xParam));
+  CAxis yMap(fyLow, fyHigh, nyChannels,
+	     CParameterMapping(yParam));
+
+  aMappings.push_back(xMap);
+  aMappings.push_back(yMap);
+
+  return aMappings;
+
+}
+/*!  
+    Returns the number of channels in a particular axis:
+   \param <TT>n (UInt_t [in]) </TT>
+   Axis number 0: x 1: y 
+
+   \retval UInt_t
+      Number of channels on the axis or 0 if the axis selector
+      was not valid.
+*/  
+UInt_t 
+CSpectrum2DB::Dimension(UInt_t n) const
+{
+  switch(n) {
   case 0:
-    return m_nXScaleDifference;
+    return m_nXScale;
   case 1:
-    return m_nYScaleDifference;
+    return m_nYScale;
   default:
     return 0;
   }
