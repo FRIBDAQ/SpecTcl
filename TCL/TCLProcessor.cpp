@@ -382,7 +382,12 @@ CTCLProcessor::ConcatenateParameters(int nArguments, char* pArguments[])
 int 
 CTCLProcessor::EvalRelay(ClientData pObject,
 			 Tcl_Interp* pInterpreter,
-			 int Argc, char* Argv[]) 
+			 int Argc, 
+#if (TCL_MAJOR_VERSION > 8) || ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
+			 const char* Argv[]) 
+#else
+                         char* Argv[])
+#endif
 {
 // This member:
 //     1. Establishes object context for the callback.
@@ -436,7 +441,7 @@ CTCLProcessor::EvalRelay(ClientData pObject,
   pThat->Bind(*pInt);
 
   try {
-    int nResult = pThat->operator()(*pInt, Result, Argc, Argv);
+    int nResult = pThat->operator()(*pInt, Result, Argc, (char**)Argv);
     pThat->Bind(*pPrior);
     return nResult;
   }

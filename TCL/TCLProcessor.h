@@ -389,7 +389,12 @@ public:
 					      char* pArguments[])  ;
   static  int EvalRelay (ClientData pData,
 			 Tcl_Interp* pInterp, 
-			 int Argc, char *Argv[])  ;
+			 int Argc, 
+#if (TCL_MAJOR_VERSION > 8) || ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
+			 const char *Argv[])  ;
+#else
+                         char *Argv[]);
+#endif
   virtual   void OnDelete ( )  ;
   static void DeleteRelay (ClientData pObject)   ;
 
