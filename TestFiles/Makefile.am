@@ -1,8 +1,7 @@
 INCLUDES= -I. -I../EventSource -I../TCL -I../NSCLException \
 	-I../Utility @TCL_FLAGS@ -I../Tape
 
-LDADD = -lFilter -lAnalysis   -lEventSource -ltclPlus -lException \
-	-ltape -lTclGrammerCommands
+LDADD = -lEventSource -lException -ltape
 
 LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
 	-L../Tape \

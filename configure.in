@@ -714,4 +714,4 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	 SpecTcl/Makefile \
-	 contrib/Makefile contrib/scriptable/Makefile)
+	 contrib/Makefile contrib/scriptable/Makefile TestFiles/Makefile)

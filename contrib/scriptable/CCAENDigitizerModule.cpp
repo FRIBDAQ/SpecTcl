@@ -107,6 +107,7 @@ CCAENDigitizerModule::CCAENDigitizerModule (CTCLInterpreter& rInterp,
     AddIntParam(string("base"), 0);
     AddBoolParam(string("multievent"), false);
     AddIntParam(string("fastclearwindow"), 0);
+    AddIntParam(string("waitloops"), 20); // Readout only.
 
     //  V775 specific parameters:
 

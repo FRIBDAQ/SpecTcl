@@ -294,6 +294,33 @@ DAMAGES.
 
 Change Log:
    $Log$
+   Revision 4.9  2004/08/06 13:40:28  ron-fox
+   Merge with SpecTcl-2.2 prior to splitting off a linux-2.6/gcc-3.3 port
+   branch.
+
+   Revision 4.8.6.2  2004/07/08 15:25:52  ron-fox
+   Fix some small issues with translator pointer arithmetic I didn't catch at first (operator+ and operator- were wrong).
+
+   Revision 4.8.6.1  2004/07/02 11:31:24  ron-fox
+   - Made the offset a byte offset and corrected the code in all members to deal
+   with that.
+
+   - Added a new constructor of the form:
+
+       template <class U>
+            TranslatorPointer<T>(TranslatorPointer<U>& rhs)
+
+   	 This supports code like:
+
+
+   	    TranslatorPointer<UShort_t> p1(.... );
+   	        ...
+   		    TranslatorPointer<ULong_t> pl(p1);
+
+   		    Where now pl will translate longs from the buffer starting at the same offset as
+   		    p1.  This simplifies the case where you must pull longword data from the event
+   		    buffer.
+
    Revision 4.8  2003/01/02 17:11:32  venema
    Major version upgrade to 2.0 includes support for arbitrary user coordinate mapping and sticky print options.
 
@@ -327,7 +354,7 @@ template <class T>
 class TranslatorPointer
 {
   BufferTranslator& m_rUnderlyingBuffer; /*! Reference to the BufferTrans. */
-  UInt_t            m_nOffset;           /*! Offset into the buffer*/
+  UInt_t            m_nOffset;           //!< Byte offset into the buffer.
   
  public:
 
@@ -340,14 +367,22 @@ class TranslatorPointer
   // Constructor which receives an offset
   TranslatorPointer<T>(BufferTranslator& Translator, const UInt_t& Offset) :
     m_rUnderlyingBuffer(Translator),
-    m_nOffset(Offset) { }
+    m_nOffset(Offset*sizeof(T)) { }
 
   // Constructor which receives a BufferTranslator and a address
   // from which to calculate m_nOffset
   TranslatorPointer<T>(BufferTranslator& Translator, Address_t const Addr) :
     m_rUnderlyingBuffer(Translator),
-    m_nOffset(((UInt_t)Addr - (UInt_t)Translator.getBuffer()) / sizeof(T))
+    m_nOffset(((UInt_t)Addr - (UInt_t)Translator.getBuffer()))
     { }
+
+  // Constructor from any other type of translator pointer:
+
+  template <class U>
+    TranslatorPointer<T>(const TranslatorPointer<U>&RHS) :
+    m_rUnderlyingBuffer(RHS.getBuffer()),
+    m_nOffset(RHS.getOffset())
+    {}
 
   // Copy constructor for this
   TranslatorPointer<T>(const TranslatorPointer<T>& RHS) :
@@ -367,7 +402,7 @@ class TranslatorPointer
     TranslatorPointer<T>& operator=(const TranslatorPointer<U>& rhs)
     {
       m_rUnderlyingBuffer = rhs.getBuffer();
-      m_nOffset = rhs.getOffset() * sizeof(U) / sizeof(T);
+      m_nOffset = rhs.getOffset();
       return *this;
     }
 
@@ -384,8 +419,8 @@ class TranslatorPointer
   inline T operator*() const
     {
       T Result;
-      m_rUnderlyingBuffer.GetBlock(&Result, sizeof(T), m_nOffset*sizeof(T));
-      return (T)(Result);
+      m_rUnderlyingBuffer.GetBlock(&Result, sizeof(T), m_nOffset);
+      return Result;
     }
 
   /*!
@@ -399,7 +434,7 @@ class TranslatorPointer
     {
       T Result;
       m_rUnderlyingBuffer.GetBlock(&Result, sizeof(T), 
-				   (m_nOffset+nOffset)*sizeof(T));
+				   m_nOffset + nOffset*sizeof(T));
       return (T)(Result);
     }
 
@@ -444,7 +479,7 @@ class TranslatorPointer
   */
   inline TranslatorPointer<T>& operator++()
     {
-      m_nOffset++;
+      m_nOffset+=sizeof(T);
       return *this;
     }
 
@@ -457,7 +492,7 @@ class TranslatorPointer
   */
   inline TranslatorPointer<T>& operator--()
     {
-      m_nOffset--;
+      m_nOffset -= sizeof(T);
       return *this;
     }
 
@@ -471,7 +506,9 @@ class TranslatorPointer
   */
   inline TranslatorPointer<T> operator+(Int_t Offset)
     {
-      return TranslatorPointer<T>(m_rUnderlyingBuffer, m_nOffset+Offset);
+      TranslatorPointer<T>  p(m_rUnderlyingBuffer);
+      p.m_nOffset  = m_nOffset + Offset*sizeof(T);
+      return p;
     }
 
   /*!
@@ -485,8 +522,10 @@ class TranslatorPointer
    */
   inline TranslatorPointer<T> operator-(Int_t Offset)
     {
-      if(Offset <= m_nOffset) {
-	return TranslatorPointer<T>(m_rUnderlyingBuffer, m_nOffset-Offset);
+      TranslatorPointer<T> p(m_rUnderlyingBuffer);
+      p.m_nOffset = m_nOffset - Offset*sizeof(T);
+      if(Offset >= 0) {
+	return p;
       }
       else {
 	CRangeError re(0, m_nOffset, Offset,
@@ -506,7 +545,7 @@ class TranslatorPointer
   */
   inline TranslatorPointer<T>& operator+=(Int_t Offset)
     {
-      m_nOffset += Offset;
+      m_nOffset += Offset*sizeof(T);
       return *this;
     }
 
@@ -522,6 +561,7 @@ class TranslatorPointer
   */
   inline TranslatorPointer<T>& operator-=(Int_t Offset)
     {
+      Offset *= sizeof(T);
       if(m_nOffset >= Offset) {
 	m_nOffset -= Offset;
       }
@@ -534,7 +574,7 @@ class TranslatorPointer
     }
 
   /*!
-    \fn bool operator<<(const TranslatorPointer<T>& RHS)
+    \fn bool operator<(const TranslatorPointer<T>& RHS)
 
     Purpose:
        Less than operator. Compare the m_nOffset value of this with the 
@@ -545,12 +585,8 @@ class TranslatorPointer
    */
   inline bool operator<(const TranslatorPointer<T>& RHS)
     {  
-      UInt_t size = sizeof(T);
-      T Result1;
-      T Result2;
-      m_rUnderlyingBuffer.GetBlock(&Result1, size, m_nOffset*size); 
-      RHS.m_rUnderlyingBuffer.GetBlock(&Result2, size, (RHS.m_nOffset)*size);
-      return ((T)(Result1) < (T)(Result2));
+      return m_nOffset < RHS.m_nOffset;
+
     }
  
   /*!
@@ -565,12 +601,8 @@ class TranslatorPointer
    */
   inline bool operator==(const TranslatorPointer<T>& RHS)
     {
-      UInt_t size = sizeof(T);
-      T Result1;
-      T Result2;
-      m_rUnderlyingBuffer.GetBlock(&Result1, size, m_nOffset*size);
-      RHS.m_rUnderlyingBuffer.GetBlock(&Result2, size, (RHS.m_nOffset)*size);
-      return ((T)(Result1) == (T)(Result2));
+      return m_nOffset == RHS.m_nOffset;
+
     }
 
   /*!

@@ -54,7 +54,8 @@ noinst_HEADERS =  CBoolConfigParam.h \
 	CStringArrayparam.h \
 	CStringConfigParam.h \
 	MySpecTclApp.h \
-	CConfigurableObject.h
+	CConfigurableObject.h \
+	CCAENV1x90Data.h
 
 
 ScriptedSpecTcl_LDFLAGS = -g -Wl,"-rpath=($prefix)/lib"
