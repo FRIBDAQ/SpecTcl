@@ -27,7 +27,7 @@ LIBDIRS= -L$(INSTDIR)/Lib -L/usr/local -L/usr/local/daq/lib -L/usr/X11/lib \
 LIBS=   -lTclGrammerCommands \
 	-lSorting -lXplus -lGates -lAnalysis -lEventSource -lSpecio \
 	-ltclPlus -lException \
-	-lXamine -ltape \
+	-lXamine -ltape -lFilter \
 	-ltk -ltcl -lXt -lX11 -lm $($(OS)LIBS)
 ECHO=echo
 
