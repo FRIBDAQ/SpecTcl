@@ -142,7 +142,6 @@ int Xamine_Select2Get2Values(XMTextField *t, int *x, int *y)
 {
   char *text_value;
   int  scanf_status;
-  int  value;
 
   /* Get the text value and convert it. */
 
