@@ -57,15 +57,16 @@ LimitedSpectrumChooser::LimitedSpectrumChooser(char *name, Widget parent,
                                                char *prompt, 
 					       SpectrumClass limitation,
 					       XtPointer cbd) :
-			limit(limitation),
-			SpectrumChooser(name, parent, prompt, cbd)
+			SpectrumChooser(name, parent, prompt, cbd),
+			limit(limitation)
 { SetupList(); }
 LimitedSpectrumChooser::LimitedSpectrumChooser(char *name, XMWidget &parent,
                                                char *prompt, 
 					       SpectrumClass limitation,
 					       XtPointer cbd) :
-			limit(limitation),
-			SpectrumChooser(name, parent, prompt, cbd)
+
+			SpectrumChooser(name, parent, prompt, cbd),
+			limit(limitation)
 { SetupList(); }
 
 LimitedSpectrumChooser::~LimitedSpectrumChooser()
