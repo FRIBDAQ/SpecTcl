@@ -1,6 +1,6 @@
 SUBDIRS =  Replace Scripts Utility Display Exception Xamine Tape EventSource \
 	TCL Events Gates Sorter SpectrumIO Filter SpecTcl \
- 	 contrib doc
+ 	 contrib
 
 # Gri TestFiles need to be figured out still..
 
@@ -12,7 +12,7 @@ AUX_DIST = $(ac_aux_dir)/config.guess \
 	$(ac_aux_dir)/mkinstalldirs \
 	$(ac_aux_dir)/ylwrap
 
-EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl bootstrap Gri
+EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl bootstrap Gri doc
 
 dist-hook:
 	(cd $(distdir) && mkdir $(ac_aux_dir))
@@ -21,9 +21,14 @@ dist-hook:
 	done
 
 install-exe-local:
+	install  -d   -m 0775 $(prefix) $(prefix)/bin $(prefix)/include
+	install  -d   -m 0775 $(prefix)/lib $(prefix)/Etc
+	install -d   -m 0775 $(prefix)/Script $(prefix)/Skel
+	install  -d   -m 0775 $(prefix)/contrib $(prefix)/doc $(prefix)/share
 	rm -f $(prefix)/Bin
 	rm -f $(prefix)/Lib
 	rm -f $(prefix)/Include
 	ln -s $(prefix)/bin $(prefix)/Bin
 	ln -s $(prefix)/lib $(prefix)/Lib
 	ln -s $(prefix)/include $(prefix)/Include
+	tar czf doc |(cd $(prefix); tar xzf -)

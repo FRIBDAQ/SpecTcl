@@ -684,11 +684,16 @@ else
    #  Configure GRI and build it into SpecTcl's directories:
    AC_MSG_NOTICE([Cannot find GRI so I'll build my copy of it])
    #
-   (cd Gri;                                          \
-    configure --prefix=$prefix;                      \
-    make;                                            \
-    make install)
 
+   # this so CXX etc. propagates at the risk we wind up stranded
+   # in the Gri directory on failure or ^C
+   #
+   cd Gri 
+    rm -f Makefile          # Tru64 fails if Makefile already exists.
+    configure --prefix=$prefix                      
+    make                                            
+    make install
+   cd ..
    AC_MSG_NOTICE([Now that GRI is build I know where I put stuff])
    
    gri_dir=$prefix/bin
@@ -798,4 +803,4 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	 SpecTcl/Makefile \
-	 contrib/Makefile doc/Makefile)
+	 contrib/Makefile)
