@@ -1,73 +1,27 @@
-
-#   Procedure to format a set of parameter definition lists
-#   into a nice output string which can be used as desired.
-#   Typical use might be:
-#       
-#     ParList { [parameter -list -byid] }
 #
-proc ParList { ParameterList } {
-    set output "Name\t\tId\t\tResolution\n"
-    set fmt    "%s \t %d  \t\t %d \n"
-    foreach Parameter $ParameterList {
-	set line [format $fmt [lindex $Parameter 0] [lindex $Parameter 1] [lindex $Parameter 2]]
-	append output $line
+#
+#  Setup the standard scripted commandsin SpecTcl.
+#
 
-    }
-    return $output
-}
-proc SaveParams { file ParameterList } {
-    set fmt "parameter %s %d %d\n"
-    foreach Parameter $ParameterList {
-	puts $file [format $fmt [lindex $Parameter 0] [lindex $Parameter 1] [lindex $Parameter 2]]
-    }	
-}
+tk appname SpecTcl
 
-set StartButtonText  "Start Analysis"
-proc StartStop {} {
-    global RunState
-    if { $RunState } {
-	stop
-    } else {
-	start
-    }
-}
+puts -nonewline "Loading SpecTcl gui..."
+source $SpecTclHome/Script/gui.tcl
+puts  "Done."
 
-proc UpdateStartButton {name element op} {
-    global RunState
-    global StartButtonText
-    if { $RunState } {
-	set StartButtonText "Stop Analysis"
-    } else {
-	set StartButtonText "Start Analysis"
-    }
-}
+puts -nonewline "Loading state I/O scripts..."
+source $SpecTclHome/Script/fileall.tcl
+puts "Done."
 
-proc Help {} {
-    global SpecTclHome
-    set URL [format "%s%s" $SpecTclHome /doc/index.htm]
-    exec netscape $URL &
-}
+puts -nonewline "Loading formatted listing scripts..."
+source $SpecTclHome/Script/listall.tcl
+puts "Done."
 
-button .exit -text Exit -command "exit"
-button .startstop -textvariable StartButtonText -command StartStop
-button .clearall  -text "Clear Spectra" -command {clear -all}
-button .help      -text "Help"          -command {Help}
-label   .speclbl  -text "Defined Spectra"
-listbox .spectra
+puts -nonewline "Loading gate copy script procs..."
+source $SpecTclHome/Script/CopyGates.tcl
+puts "Done."
 
-pack .startstop .clearall .exit .help .speclbl .spectra  -side top -fill x
-
-trace variable RunState w  UpdateStartButton
-
-proc specupdate {} {
-    .spectra delete 0 [.spectra size]
-    foreach spec [spectrum -list] {
-      .spectra insert end [lindex $spec 1]
-    }
-    after 1000 specupdate
-    update idle
-}
-specupdate
-
-
+puts -nonewline "Loading TKCon console..."
+source $SpecTclHome/Script/tkcon.tcl
+puts "Done."
 

@@ -281,6 +281,39 @@ Gamma2DW.o: /usr/include/features.h /usr/include/sys/cdefs.h
 Gamma2DW.o: /usr/include/gnu/stubs.h /usr/include/bits/posix1_lim.h
 Gamma2DW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
 Gamma2DW.o: /usr/include/bits/posix2_lim.h
+GateMediator.o: GateMediator.h Spectrum.h /usr/include/g++-3/vector
+GateMediator.o: /usr/include/g++-3/stl_algobase.h
+GateMediator.o: /usr/include/g++-3/stl_config.h /usr/include/_G_config.h
+GateMediator.o: /usr/include/bits/types.h /usr/include/features.h
+GateMediator.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+GateMediator.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+GateMediator.o: /usr/include/g++-3/stl_relops.h /usr/include/g++-3/stl_pair.h
+GateMediator.o: /usr/include/g++-3/type_traits.h /usr/include/string.h
+GateMediator.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+GateMediator.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+GateMediator.o: /usr/include/bits/posix2_lim.h /usr/include/stdlib.h
+GateMediator.o: /usr/include/sys/types.h /usr/include/time.h
+GateMediator.o: /usr/include/endian.h /usr/include/bits/endian.h
+GateMediator.o: /usr/include/sys/select.h /usr/include/bits/select.h
+GateMediator.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+GateMediator.o: /usr/include/alloca.h
+GateMediator.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+GateMediator.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+GateMediator.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+GateMediator.o: /usr/include/g++-3/iostream.h /usr/include/g++-3/streambuf.h
+GateMediator.o: /usr/include/libio.h
+GateMediator.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+GateMediator.o: /usr/include/g++-3/stl_iterator.h
+GateMediator.o: /usr/include/g++-3/stl_alloc.h /usr/include/assert.h
+GateMediator.o: /usr/include/g++-3/stl_construct.h
+GateMediator.o: /usr/include/g++-3/stl_uninitialized.h
+GateMediator.o: /usr/include/g++-3/stl_vector.h
+GateMediator.o: /usr/include/g++-3/stl_bvector.h /usr/include/g++-3/string
+GateMediator.o: /usr/include/g++-3/std/bastring.h /usr/include/g++-3/cstddef
+GateMediator.o: /usr/include/g++-3/std/straits.h /usr/include/g++-3/cctype
+GateMediator.o: /usr/include/ctype.h /usr/include/g++-3/cstring
+GateMediator.o: /usr/include/g++-3/alloc.h /usr/include/g++-3/iterator
+GateMediator.o: /usr/include/g++-3/cassert /usr/include/g++-3/std/bastring.cc
 Histogrammer.o: Histogrammer.h Dictionary.h /usr/include/g++-3/map
 Histogrammer.o: /usr/include/g++-3/stl_tree.h
 Histogrammer.o: /usr/include/g++-3/stl_algobase.h
@@ -322,6 +355,7 @@ Histogrammer.o: /usr/include/g++-3/iterator /usr/include/g++-3/cassert
 Histogrammer.o: /usr/include/g++-3/std/bastring.cc Parameter.h Spectrum.h
 Histogrammer.o: /usr/include/g++-3/vector /usr/include/g++-3/stl_vector.h
 Histogrammer.o: /usr/include/g++-3/stl_bvector.h DictionaryException.h
+Histogrammer.o: GateMediator.h
 SnapshotSpectrum.o: SnapshotSpectrum.h Spectrum.h /usr/include/g++-3/vector
 SnapshotSpectrum.o: /usr/include/g++-3/stl_algobase.h
 SnapshotSpectrum.o: /usr/include/g++-3/stl_config.h /usr/include/_G_config.h

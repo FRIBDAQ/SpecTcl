@@ -11,7 +11,12 @@
 #
 
 INCLUDEDIRS=-I/usr/local/daq/include -I$(INSTDIR)/Include -I.
-
+OBJECTS = DisplayGate.o Xamine1D.o Xamine2D.o XamineButton.o \
+	XamineButtonException.o XamineButtonPrompt.o XamineConfirmPrompt.o \
+	XamineEvent.o XamineFilePrompt.o XamineGateException.o XamineGates.o \
+	XamineNoPrompt.o XaminePointsPrompt.o XaminePushButton.o \
+	XamineSpectrum.o XamineSpectrumIterator.o \
+	XamineTextPrompt.o XamineToggleButton.o Xamineplus.o
 LIBDIRS=-L/usr/local/daq/lib -L. -L$(INSTDIR)/Lib
 
 LIBS=-lXplus -lXamine
