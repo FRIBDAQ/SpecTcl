@@ -136,6 +136,23 @@ arenaid alloc_init(caddr_t arena, int size)
 }
 
 /*
+  Return a mask that can be used to and off sizes < a longword # of bytes.
+*/
+static long
+longmask()
+{
+  int    i;
+  long  mask;
+
+  mask = 0;
+  for(i = 1; i < sizeof(long); i++) {
+    mask = mask << 1;
+    mask |= 1;
+  }
+  return  ~mask;
+}
+
+/*
 ** Functional Description:
 **   alloc_get:
 **     Gets a block from the free list of the arena.
@@ -148,11 +165,21 @@ arenaid alloc_init(caddr_t arena, int size)
 **    Number of bytes requested.
 ** Returns:
 **   Pointer to the region allocated or null if there was no memory left.
+**
+** NOTE: In order to ensure spectrum boundary alignment, all
+**      size requests get increased to the next longword unit.
 */
 caddr_t alloc_get(arenaid arena_id, int size)
 {
+  
+  //
   node *free = (node *)*arena_id;	/* Get the free list pointer. */
   node *largest = &empty;	/* Point to the largest free node. */
+
+  // ensure the size is a multiple of longwords:
+  
+
+  size = (size + (sizeof(long))) & longmask();
 
   do {				/* Look for exact match and largest blk. */
     if(free->size == size) {	/* Exact match */
@@ -236,7 +263,7 @@ void alloc_free(arenaid arena_id, caddr_t storage)
   /* with prior->next if possible.                                       */
   {
     char *p = (char *)prior;
-    p += sizeof(node);
+    p += prior->size + sizeof(node);
     if ((node *)p == st_node) {
       prior->size += st_node->size + sizeof(node); /* Coalesce and */
       st_node = prior;		/* Fake out the code to come. */
@@ -249,7 +276,7 @@ void alloc_free(arenaid arena_id, caddr_t storage)
     /* Now we attempt to coalesce st_node and st_node->next */
     
     p = (char *)st_node;
-    p += sizeof(node);
+    p += st_node->size + sizeof(node);
     if(p == (char *)st_node->next) {	/* If st_node is last then this is never true */
       st_node->size += st_node->next->size + sizeof(node);
       st_node->next  = st_node->next->next;

@@ -535,7 +535,7 @@ FILE *Xamine_OpenColorTable(unsigned int planes)
 #ifndef HOME
   sprintf(filename, fmtstring, XAMINE_DEFAULT_COLOR_DIR, planes);
 #else
-  fmtstring = "%s/Etc/Xamine%d.ctbl";
+  fmtstring = "%s/etc/Xamine%d.ctbl";
   sprintf(filename, fmtstring, HOME, planes);
   printf("Opening system colortable file %s\n", filename);
   fflush(stdout);
