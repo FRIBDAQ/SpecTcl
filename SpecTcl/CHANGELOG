@@ -223,3 +223,8 @@ January 27, 2005
       propagated to new versions.
 
 3.0-001
+February 11, 2005
+    - Added Analysis subdirectory to the build.  This directory will have stuff
+      that's used by buffer analysis it is NSCL specific.
+February 14, 2005
+    - Completed testing of Analysis library.

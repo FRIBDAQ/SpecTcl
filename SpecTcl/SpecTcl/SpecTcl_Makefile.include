@@ -36,6 +36,7 @@ LDFLAGS=-L$(SPECLIBS) -lTclGrammerCommands \
 	-lXamine      \
 	-ltape        \
 	-lFilter      \
+	-lBufferAnalysis \
 	$(TCLLIBS)    \
 	$(X11LIBS)    \
 	-Wl,"-rpath=$(SPECLIBS)"

@@ -780,6 +780,7 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	Xamine/Makefile Tape/Makefile \
 	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
+	Analysis/Makefile \
 	 SpecTcl/Makefile \
 	 contrib/Makefile contrib/scriptable/Makefile \
 	 contrib/calibratedparams/Makefile \

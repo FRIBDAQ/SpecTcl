@@ -368,12 +368,17 @@ struct	usrbufbody			/* Declares user buffer body. */
 
 struct sclbody				/* body of scaler buffers   */
     {					/* taped and snapshot	    */
-	INT32	etime;			/* Start time since SOR in ticks */
-	INT16	unused1[3];		/* Unused words.	    */
-	INT32	btime;			/* End time since SOR in ticks	*/
-	INT16	unused2[3];		/* Unused words.	    */
+	INT32	etime; /* Start time since SOR in ticks */
+	INT16	unused1[3]; /* Unused words.	    */
+	INT32	btime; /* End time since SOR in ticks	*/
+	INT16	unused2[3]; /* Unused words.	    */
+                  
 	INT32	scalers[1];		/* Array with scaler data   */
-    };
+    }
+#ifdef __GNUC__ 
+ __attribute__((packed))
+#endif
+;
 
 /*	    The types below define the structure of event packets put in    */
 /*	the circular buffer queue by the event acquisition processor.	    */
