@@ -84,8 +84,8 @@ install:
 	install -m 0664    client.h $(DESTDIR)/Include/Xamine.h
 	install -m 0664    clientops.h $(DESTDIR)/Include/clientops.h
 	install -m 0664    clientgates.h $(DESTDIR)/Include/clientgates.h
-	install -m 0665    Xamine $(DESTDIR)/Bin/Xamine2_0
-	install -m 0665     colorset $(DESTDIR)/Bin/colorset
+	install -m 0775    Xamine $(DESTDIR)/Bin/Xamine2_0
+	install -m 0775     colorset $(DESTDIR)/Bin/colorset
 	install -m 0664    libXamine.a $(DESTDIR)/Lib
 	install -m 0664    *.ctbl $(DESTDIR)/Etc
 	install -m 0664    *.ico  $(DESTDIR)/Etc
@@ -651,20 +651,6 @@ defaultfile_lex.o: windfile.l dispwind.h superpos.h defaultfile_lex.h windio.h
 	$(CPP) $(XCCFLAGS) -DDEFAULTFILE defaultfile_lex.cc
 # DO NOT DELETE
 
-XMCallback.o: XMWidget.h
-XMDialogs.o: helpmenu.h XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h
-XMDialogs.o: XMCallback.h errormsg.h
-XMManagers.o: XMManagers.h XMWidget.h
-XMMenus.o: XMMenus.h XMWidget.h XMPushbutton.h
-XMShell.o: XMShell.h XMWidget.h XMCallback.h
-XMWlist.o: XMWlist.h XMWidget.h XMPushbutton.h
-Xamine.o: XMWidget.h XMPushbutton.h XMMenus.h XMDialogs.h XMManagers.h
-Xamine.o: XMCallback.h dispshare.h dispwind.h superpos.h panemgr.h
-Xamine.o: menusetup.h buttonsetup.h location.h XMLabel.h pkgmgr.h colormgr.h
-Xamine.o: dfltmgr.h gateio.h dispgrob.h XBatch.h convert.h messages.h
-Xamine.o: clientops.h ./Xamine.h clirequests.h prccheck.h spccheck.h
-Xamine.o: trackcursor.h
-Xwarning.o: XMWidget.h XMManagers.h XMLabel.h XMPushbutton.h
 acceptgates.o: XMWidget.h XBatch.h convert.h dispwind.h superpos.h
 acceptgates.o: dispshare.h dispgrob.h acceptgates.h sumregion.h XMList.h
 acceptgates.o: XMPushbutton.h XMLabel.h XMText.h grobjinput.h XMManagers.h
@@ -910,5 +896,19 @@ winiomenu.o: helpmenu.h winiomenu.h dispwind.h superpos.h panemgr.h exit.h
 winiomenu.o: refreshctl.h errormsg.h buttonsetup.h location.h XMLabel.h
 winiomenu.o: menusetup.h XMMenus.h
 wintest.o: dispshare.h dispwind.h superpos.h
+Xamine.o: XMWidget.h XMPushbutton.h XMMenus.h XMDialogs.h XMManagers.h
+Xamine.o: XMCallback.h dispshare.h dispwind.h superpos.h panemgr.h
+Xamine.o: menusetup.h buttonsetup.h location.h XMLabel.h pkgmgr.h colormgr.h
+Xamine.o: dfltmgr.h gateio.h dispgrob.h XBatch.h convert.h messages.h
+Xamine.o: clientops.h ./Xamine.h clirequests.h prccheck.h spccheck.h
+Xamine.o: trackcursor.h
 xaminegc.o: gc.h xaminegc.h dispwind.h superpos.h XMWidget.h text.h
 xaminegc.o: colormgr.h chanplot.h refreshctl.h panemgr.h XMManagers.h
+XMCallback.o: XMWidget.h
+XMDialogs.o: helpmenu.h XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h
+XMDialogs.o: XMCallback.h errormsg.h
+XMManagers.o: XMManagers.h XMWidget.h
+XMMenus.o: XMMenus.h XMWidget.h XMPushbutton.h
+XMShell.o: XMShell.h XMWidget.h XMCallback.h
+XMWlist.o: XMWlist.h XMWidget.h XMPushbutton.h
+Xwarning.o: XMWidget.h XMManagers.h XMLabel.h XMPushbutton.h
