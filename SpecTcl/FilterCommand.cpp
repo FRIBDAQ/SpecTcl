@@ -280,6 +280,18 @@ DAMAGES.
   Change Log:
 
   $Log$
+  Revision 1.11  2003/09/16 12:06:13  ron-fox
+  1. Added doxygen comments.
+  2. Create: Parmeter list stored by filter should
+      be names not numbers.
+  3. Simplify the entire logic of creating a filter
+  4. Replace return TCL_OK with assert(0) in
+      branches of code that should not be
+      reachable.
+  5. Factored ListFilter into one by name and one
+      given a pointer to a filter to destroy
+      duplicate code.
+
   Revision 1.10  2003/08/28 18:32:33  ron-fox
   - Use rInterp.TildeSubst to do tilde substitution
     rather than home grown stuff.
@@ -516,7 +528,6 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   CTCLList ParameterList(&rInterp, pParameterList);
   StringArray Description; 
   vector<string> Parameters; 
-  vector<UInt_t> ParameterIds;
 
   if(ParameterList.Split(Description) != TCL_OK) { // Bust the list apart.
     rResult = Usage();
@@ -547,9 +558,7 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
       for(UInt_t i=0; i<Parameters.size(); i++) {
 	CParameter* pParameter = 
 	  ((CHistogrammer*)gpEventSink)->FindParameter(Parameters[i]);
-	if(pParameter != (CParameter*)kpNULL) { 
-	  ParameterIds.push_back(pParameter->getNumber());
-	} else {
+	if(pParameter == (CParameter*)kpNULL) { 
 	  rResult += "Error: Invalid parameter (" + Parameters[i] + ").";
 	  return TCL_ERROR; 
 	}
@@ -560,7 +569,6 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
       pGatedEventFilter = new CGatedEventFilter;
       pGatedEventFilter->setGateContainer(*pGateContainer);
       pGatedEventFilter->setParameterNames(Parameters); 
-      pGatedEventFilter->setParameterIds(ParameterIds); 
       pFilterDictionary->Enter(pFilterName, pGatedEventFilter);
 
       // Add the filter to the event sink.
