@@ -9,11 +9,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLString.h>
 #include <TCLResult.h>
 #include <Exception.h>
+#include <histotypes.h>
+#include <TclGrammerApp.h>
 
 #include "FilterCommand.h"
+#include "Globals.h"
 #include "Histogrammer.h"
-#include <histotypes.h>
-//#include "SpectrumPackage.h"
 #include "GateCommand.h"
 
 // Constructors.
@@ -143,15 +144,15 @@ Int_t CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
     Parameters.push_back(Description[nPar]);
   }
   // Put Gate in GatedEventFilter.
-  CGatePackage& Package((CGatePackage&)getMyPackage());
-  CHistogrammer* pHist = Package.getHistogrammer();
+  //CGatePackage& Package((CGatePackage&)getMyPackage());
+  //CHistogrammer* pHist = Package.getHistogrammer();
   //FilterDictionaryIterator p = pHist->GateBegin();
   /*
     These would be nice.
     CGateContainer* pGateContainer = CGateDictionary[pGateName]; // This would be nice. *********************
     CGateContainer* pGateContainer = CHistogrammer::FindGate(&(*pGateName));
   */
-  CGateContainer* pGateContainer = pHist->FindGate(&(*pGateName));
+  CGateContainer* pGateContainer = ((CHistogrammer*)gpEventSink)->FindGate(&(*pGateName));
   if(pGateContainer) { // There IS a Gate with this name in the Histogrammer's GateDictionary.
     CGatedEventFilter* pGatedEventFilter = new CGatedEventFilter;
     pGatedEventFilter->setGateContainer(*pGateContainer);
@@ -160,7 +161,7 @@ Int_t CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
     pFilterDictionary->Enter(pFilterName, &(*pGatedEventFilter)); // CHECK THIS! **********************
   } else {
     // ERROR. Gate not present.
-    rResult += "Error: Gate not present in dictionary.";
+    rResult += "Error: Gate (" + std::string(pGateName) + ") not present in dictionary.";
     return TCL_ERROR;
   }
 
@@ -258,9 +259,9 @@ Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nA
   CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
   if(pFilterDictionary->size() > 0) {
     CDictionary<CGatedEventFilter*>::DictionaryIterator i = (*pFilterDictionary).begin();
-    rResult = "Listing filters:\n";
+    rResult = "Listing filters:";
     while(i != (*pFilterDictionary).end()) {
-      rResult += " " + i->first + "\n";
+      rResult += "\n " + i->first;
       i++;
     }
   } else {
