@@ -68,6 +68,10 @@ testfile.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 testfile.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
 testfile.o: /usr/include/errno.h /usr/include/bits/errno.h
 testfile.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
+testfile.o: /Include/histotypes.h /usr/include/string.h /usr/include/math.h
+testfile.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
+testfile.o: /usr/include/bits/mathcalls.h
+testfile.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 testfile.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
 testfile.o: /usr/include/sys/stat.h /usr/include/bits/stat.h
 testfile.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h

@@ -692,7 +692,7 @@ dispgrob.o: XMSeparators.h grafinput.h helpmenu.h refreshctl.h panemgr.h
 dispgrob.o: acceptgates.h grobjdisplay.h marker.h gcmgr.h xaminegc.h gc.h
 dispgrob.o: chanplot.h
 dispwind.o: dispwind.h superpos.h errormsg.h XMWidget.h panemgr.h
-dispwind.o: XMManagers.h
+dispwind.o: XMManagers.h dispshare.h
 errormsg.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
 eventflags.o: eventflags.h
 exit.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h

@@ -125,6 +125,7 @@ CBand::inGate(CEvent& rEvent, vector<UInt_t>& Params)
   //      vector<UInt_t>& Params
   //          Refers to the vector of parameters in the gate (empty)
 {
+
   UInt_t xPar = Params[0];
   UInt_t yPar = Params[1];
   if( (xPar >= rEvent.size()) || (yPar >= rEvent.size())) {
@@ -134,12 +135,16 @@ CBand::inGate(CEvent& rEvent, vector<UInt_t>& Params)
     // The gate array is scaled to parameter space, however the user
     // may not have drawn the gate all the way to the end of the 
     // spectrum. So if we're outside the limits array, the gate is
-    // not made.
-    
-    UInt_t x = rEvent[xPar];
-    UInt_t y = rEvent[yPar];
-    if(x < (getLimits()).size()) {
-      return (y < (getLimits())[x]);
+    // not made
+    if(rEvent[xPar].isValid() && rEvent[yPar].isValid()) {
+      UInt_t x = rEvent[xPar];
+      UInt_t y = rEvent[yPar];
+      if(x < (getLimits()).size()) {
+	return (y < (getLimits())[x]);
+      }
+      else {
+	return kfFALSE;
+      }
     }
     else {
       return kfFALSE;

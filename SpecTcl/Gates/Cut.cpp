@@ -61,10 +61,14 @@ CCut::inGate(CEvent& rEvent, vector<UInt_t>& Params)
     return kfFALSE;
   }
   else {
-    UInt_t nPoint = rEvent[Params[0]];
-    return((nPoint >= getLow()) && (nPoint <= getHigh()));
+    if(rEvent[Params[0]].isValid()) {
+      UInt_t nPoint = rEvent[Params[0]];
+      return((nPoint >= getLow()) && (nPoint <= getHigh()));
+    }
+    else {
+      return kfFALSE;
+    }
   }
-  
   return kfFALSE;
 }
 //////////////////////////////////////////////////////////////////////////

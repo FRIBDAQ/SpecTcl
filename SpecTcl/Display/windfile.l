@@ -37,6 +37,15 @@ static void rd_yytitle();
 int         yylex_line;
 %}
 %%
+\"[^\"\n]*[\"\n]   {   if(yytext[strlen(yytext) - 1] != '"') {
+	                  fprintf(stderr,"warning: Unterminated string %s \n",
+		          yytext);
+                        } else {
+			  yytext[strlen(yytext)-1] = '\0'; /* remove last " */
+			}
+			strcpy(yylval.string,yytext+1);  /* Pass str unquoted */
+			return QSTRING;
+		      }
 [Tt][Ii][Tt][Ll][Ee]               { rd_yytitle(); dbgprintf("TITLE ");return TITLE; }
 [Gg][Ee][Oo][Mm][Ee][Tt][Rr][Yy]   { dbgprintf("GEOMETRY "); return GEOMETRY; }
 [Ww][Ii][Nn][Dd][Oo][Ww]           { dbgprintf("WINDOW "); return WINDOW; }
@@ -113,7 +122,7 @@ int         yylex_line;
                                         return GROBJFONT;
                                 }
 [+-]?[0-9]+                     { dbgprintf("INTEGER ");
-				  yylval = atoi(yytext);
+				  yylval.integer = atoi(yytext);
 #ifdef DEBUG
 				  printf("%d \n", yylval);
 #endif
@@ -129,6 +138,7 @@ int         yylex_line;
 [ \t]+                          ;
 .                              { return UNMATCHED; }
 %%
+
 /*
 ** win_startlex  - Restart the lexer:
 */
