@@ -1,6 +1,8 @@
-SUBDIRS = Gri Replace Scripts Utility Display Exception Xamine Tape EventSource \
+SUBDIRS =  Replace Scripts Utility Display Exception Xamine Tape EventSource \
 	TCL Events Gates Sorter SpectrumIO Filter SpecTcl \
-	TestFiles contrib doc
+ 	 contrib doc
+
+# Gri TestFiles need to be figured out still..
 
 AUX_DIST = $(ac_aux_dir)/config.guess \
 	$(ac_aux_dir)/config.sub \
