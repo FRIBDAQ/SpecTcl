@@ -1,4 +1,4 @@
-INCLUDES = -I. -I../Sorter -I../Events -I../Utility -I../Gates \
+INCLUDES = -g  -I. -I../Sorter -I../Events -I../Utility -I../Gates \
 	-I../SpecTcl -I../Xamine -I../Exception -I../TCL \
 	-I../EventSource -I../Display \
 	@TCL_FLAGS@
@@ -12,12 +12,12 @@ libFilter_la_SOURCES = EventFilter.cpp \
 	FilterBufferDecoder.cpp \
 	FilterEventProcessor.cpp \
 	GatedEventFilter.cpp \
-	OutputEventStream.cpp
+	CXdrOutputStream.cpp
 
 include_HEADERS = EventFilter.h \
 	          FilterDictionary.h  \
-	 	  OutputEventStream.h \
 		  EventSinkPipeline.h \
 	   	  FilterEventProcessor.h \
 		  FilterBufferDecoder.h \
-	 	  GatedEventFilter.h
+	 	  GatedEventFilter.h    \
+		  CXdrOutputStream.h
