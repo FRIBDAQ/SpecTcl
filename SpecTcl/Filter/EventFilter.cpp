@@ -56,6 +56,7 @@ void CEventFilter::Disable() {
     if(m_pOutputEventStream != (COutputEventStream*)kpNULL) {
       if(m_pOutputEventStream->Close()) { // Successfully closed.
 	delete m_pOutputEventStream;
+	m_pOutputEventStream = (COutputEventStream*)kpNULL; // OTHERWISE, DELETE WOULD CAUSE A SEGMENTATION FAULT.
 	m_fEnabled = false;
       }
     } else { // No outputeventstream.
@@ -78,7 +79,7 @@ void CEventFilter::FormatOutputEvent(CEvent& rEvent) {
 }
 
 COutputEventStream& CEventFilter::AttachOutputEventStream(COutputEventStream& rOutputEventStream) {
-  m_pOutputEventStream = &rOutputEventStream; // m_pOutputEventStream undeclared. **********************
+  m_pOutputEventStream = &rOutputEventStream;
   return rOutputEventStream; // Returns the original, which should be the same.
 }
 
