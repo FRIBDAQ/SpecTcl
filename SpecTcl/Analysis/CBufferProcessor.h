@@ -105,7 +105,7 @@ public:
 
   bool          scalersSeen() const;
   unsigned int  scalerCount() const;
-  unsigned long lastIncrement(unsigned int channel) const;
+  long          lastIncrement(unsigned int channel) const;
   float         Total(unsigned int channel) const;
   unsigned long lastIntervalStart() const;
   unsigned long lastIntervalEnd() const;
