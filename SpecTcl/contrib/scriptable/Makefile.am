@@ -12,6 +12,8 @@ lib_LTLIBRARIES=libScripted.la
 
 ScriptedSpecTcl_SOURCES = MySpecTclApp.cpp
 
+libScripted_la_LDFLAGS = -version-info $(SOVERSION):0
+
 libScripted_la_SOURCES =  CBoolConfigParam.cpp \
 	CCAENDigitizerCreator.cpp \
 	CCAENDigitizerModule.cpp \

@@ -4,6 +4,7 @@ LDADD = -lSorting -lXplus -lGates -lAnalysis -lEventSource -ltclPlus -lException
 LDFLAGS = -L. @TCL_LDFLAGS@ @XTLIBSW@ @XLIBSW@
 
 lib_LTLIBRARIES = libSorting.la
+libSorting_la_LDFLAGS = -version-info $(SOVERSION):0
 
 libSorting_la_SOURCES = DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	Spectrum1DL.cpp Spectrum2DW.cpp Spectrum1DW.cpp Spectrum2DB.cpp \
