@@ -67,22 +67,22 @@ struct ktbl {
               int keyval;
             };
 ktbl keywords[]  = {
-                     "object", 6, OBJECT,
-                     "endobject", 9, ENDOBJECT,
-                     "name", 4, OBJECTNAME,
-                     "beginpts", 8, BEGINPTS,
-                     "endpts", 6, ENDPTS,
-                     "title", 5, TITLE,
-                     "cut", 3, CUT1D,
-                     "sum-1d", 6, SUM1D,
-                     "mark-1d", 7, MARK1D,
-                     "contour", 7, CONTOUR,
-                     "band",    4, BAND,
-                     "sum-2d",  6, SUM2D,
-                     "mark-2d", 7, MARK2D,
-		     "spectrum", 8, SPECTRUM,
-		     "id", 2, ID,
-                     0,0,0};
+                     {"object", 6, OBJECT},
+                     {"endobject", 9, ENDOBJECT},
+                     {"name", 4, OBJECTNAME},
+                     {"beginpts", 8, BEGINPTS},
+                     {"endpts", 6, ENDPTS},
+                     {"title", 5, TITLE},
+                     {"cut", 3, CUT1D},
+                     {"sum-1d", 6, SUM1D},
+                     {"mark-1d", 7, MARK1D},
+                     {"contour", 7, CONTOUR},
+                     {"band",    4, BAND},
+                     {"sum-2d",  6, SUM2D},
+                     {"mark-2d", 7, MARK2D},
+		     {"spectrum", 8, SPECTRUM},
+		     {"id", 2, ID},
+                     {0,0,0}};
 
 /*
 ** Functional Description:
