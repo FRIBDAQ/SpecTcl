@@ -20,8 +20,8 @@
 #ifndef __TCLHASHTABLEITERATOR_H  //Required for current class
 #define __TCLHASHTABLEITERATOR_H
 
-#ifndef __TCLHASHTABLEENTRY_H
-#include "TCLHashTableEntry.h"
+#ifndef __TCLHASHTABLEITEM_H
+#include "TCLHashTableItem.h"
 #endif
 
                                //Required for 1:1 associated classes

@@ -131,6 +131,10 @@ static void Monitor(XtPointer app, XtIntervalId *id)
   */
 
   pid_t p = getppid();
+  if(p == 1) {			// We got inherited by init...parent also dead
+    fprintf(stderr, "Xamine - got inherited by init exiting\n");
+    exit(0);
+  }
   if(!ProcessAlive(p)) {
     fprintf(stderr, "Xamine -parent process exited\n");
     exit(0);
