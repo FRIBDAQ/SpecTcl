@@ -7,8 +7,9 @@ static const char* Copyright =
   "OutputEventStream.cpp: Copyright 2003 NSCL, All rights reserved\n";
 
 // Header Files.
+//#include <stdlib.h>
 #include <vector>
-#include <fstream.h>
+#include <fstream>
 
 #include "Event.h"
 #include "EventList.h"
@@ -16,17 +17,27 @@ static const char* Copyright =
 #include "OutputEventStream.h"
 
 // Constructors.
-COutputEventStream::COutputEventStream() :
+COutputEventStream::COutputEventStream() : // Should no longer be called due to the implementation and use of EventFilter::ParseFileName which sets the default file name.
   m_fActive(false),
+  m_sFileName(""),
   m_nMAXBUFFERSIZE(16) // Arbitrarily chosen.
 {
+  char* pHomeDir = getenv("HOME");
+  if(pHomeDir) {
+    m_sFileName = string(pHomeDir);
+  }
+  m_sFileName += "/filteroutput.txt";
+
+  Buffer.clear(); // I just hope to * that this is not a necessary action in C++.
   Open();
 }
 
-COutputEventStream::COutputEventStream(const CEvent& rEvent) :
+COutputEventStream::COutputEventStream(string& rFileName) :
   m_fActive(false),
+  m_sFileName(rFileName),
   m_nMAXBUFFERSIZE(16) // Arbitrarily chosen.
 {
+  Buffer.clear(); // I just hope to * that this is not a necessary action in C++.
   Open();
 }
 
@@ -35,8 +46,13 @@ COutputEventStream::~COutputEventStream() {
 }
 
 // Operators.
-Bool_t COutputEventStream::operator()() {
+Bool_t COutputEventStream::operator()(const string& rFileName) {
+  m_sFileName = rFileName;
   return kfTRUE;
+};
+
+Bool_t COutputEventStream::operator()(const CEvent& rEvent) {
+  return ReceiveEvent(rEvent);
 };
 
 COutputEventStream& COutputEventStream::operator=(const COutputEventStream& rRhs) {
@@ -44,29 +60,27 @@ COutputEventStream& COutputEventStream::operator=(const COutputEventStream& rRhs
 };
 
 // Additional functions.
+string COutputEventStream::getFileName() {
+  return m_sFileName;
+}
+
 Bool_t COutputEventStream::Open() { // Always means that the file has been opened and the stream is active.
+  Close(); // Clear everything.
+
   if(!m_fActive) {
-    if(!m_ofs.is_open()) {
-      m_ofs.open("/tmp/coutputeventstream.txt"); //, fstream::app);
-    }
-    if(m_ofs.good()) {
-      m_fActive = true;
-      return true;
-    } else {
-      return false;
-    }
+    m_ofs.open(m_sFileName.c_str(), ofstream:: out | ofstream::app); // open accepts only a char*.
+    m_fActive = m_ofs.is_open(); //m_ofs.good();
   }
+  return m_fActive;
 }
 
 Bool_t COutputEventStream::Close() {
-  if(m_fActive) { // Attempt to close only if not already so.
-    if(m_ofs.is_open()) {
-      SendBuffer(); // Send whatever is left.
-      m_ofs.close(); // No return value. No exceptions likely.
-    }
-    m_fActive = false;
+  if(m_ofs.is_open()) {
+    SendBuffer();
+    m_ofs.close();
   }
-  return !m_fActive; // true always means success with me, but this is arbitrary.
+  m_fActive = false;
+  return !m_fActive; // Always true which always means success with me, but this is arbitrary.
 }
 
 Bool_t COutputEventStream::ReceiveEvent(const CEvent& rEvent) {
@@ -81,7 +95,7 @@ Bool_t COutputEventStream::ReceiveEvent(const CEvent& rEvent) {
     return true;
   } else {
     // ERROR! Trying to output an event to an inactive stream.
-    cerr << "Error! Trying to output to inactive stream.\n";
+    cerr << "Error: Trying to output to inactive stream.\n";
     return false;
   }
 }
@@ -91,11 +105,11 @@ Bool_t COutputEventStream::SendBuffer() {
     // Send buffer.
     //for(int i=0; i<Buffer.size(); i++) { // For each and every CEvent in Buffer,
     for(vector<CEvent>::iterator i=Buffer.begin(); i!=Buffer.end(); i++) { // Just trying.
-      //for(int j=0; j<((CEvent)(Buffer[i])).size(); j++) { // For each and every Parameter in CEvent,
-      for(CEventIterator j=(*i).begin(); j!=(*i).end(); j++) { // Just tryin'
+      //for(int j=0; j<((CEvent)Buffer[i]).size(); j++) { // For each and every Parameter in CEvent,
+      for(CEventIterator j=i->begin(); j!=i->end(); j++) { // Just tryin'
 	// Output the parameter in the event in the buffer.
 	//m_ofs << ((CEvent)(Buffer[i]))[j] << " "; // Done with parameter.
-	m_ofs << (*j) << " "; // Done with parameter.
+	//m_ofs << (*j) << " "; // Done with parameter.
       }
       // Done with event.
       m_ofs << "EOE" << endl;

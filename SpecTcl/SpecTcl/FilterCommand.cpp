@@ -72,6 +72,11 @@ int CFilterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, in
     pArgs++;
     return Regate(rInterp, rResult, nArgs, pArgs);
 
+  case keFile:
+    nArgs--;
+    pArgs++;
+    return File(rInterp, rResult, nArgs, pArgs); // Allowable???*****************************
+
   case keList:
     nArgs--;
     pArgs++;
@@ -97,6 +102,7 @@ static const SwitchTableEntry Switches[] = {
   {"-enable", CFilterCommand::keEnable},
   {"-disable", CFilterCommand::keDisable},
   {"-regate", CFilterCommand::keRegate},
+  {"-file", CFilterCommand::keFile},
   {"-list", CFilterCommand::keList}
 };
 
@@ -115,13 +121,14 @@ CFilterCommand::MatchSwitch(const char* pSwitch) {
 std::string CFilterCommand::Usage() {
   std::string Use;
   Use  = "Usage:\n";
-  Use += "   filter [-new] name gate {par1 par2 ...}\n";
-  Use += "   filter -delete name\n"; 
-  Use += "   filter -enable name\n";
-  Use += "   filter -disable name\n";
-  Use += "   filter -regate name gate\n";
-  Use += "   filter -list ?glob-pattern?\n";
-  Use += "\n filter allows the gating upon a parameter in an event.\n";
+  Use += " filter [-new] filtername gatename {par1 par2 ...}\n";
+  Use += " filter -delete filtername\n"; 
+  Use += " filter -enable filtername\n";
+  Use += " filter -disable filtername\n";
+  Use += " filter -regate filtername gatename\n";
+  Use += " filter -file filename filtername\n";
+  Use += " filter -list ?glob-pattern?\n\n";
+  Use += " filter allows the gating upon a parameter in an event.";
   return Use;
 }
 
@@ -181,7 +188,7 @@ Int_t CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
       // We now have the ParameterIds, and all is well. Make the Filter.
       CGatedEventFilter* pGatedEventFilter = new CGatedEventFilter;
       pGatedEventFilter->setGateContainer(*pGateContainer); // Set the Filter's Gate.
-      pFilterDictionary->Enter(pFilterName, &(*pGatedEventFilter)); // Put GatedEventFilter in FilterDictionary.
+      pFilterDictionary->Enter(pFilterName, pGatedEventFilter); // Put GatedEventFilter in FilterDictionary.
       gpEventSinkPipeline->AddEventSink((CGatedEventFilter&)*pGatedEventFilter); // Put GatedEventFilter in EventSinkPipeline.
     } else {
       rResult += "Error: Invalid gate (" + std::string(pGateName) + ").";
@@ -192,18 +199,27 @@ Int_t CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
     return TCL_ERROR;
   }
 
-  // Output result.
+  // Output result. (Differs from ListFile() only in the use of Lookup() and the fact that it only lists the first found.)
   std::ostringstream oss;
   CTCLString List, ParameterIdList;
   List.StartSublist();
-  List.AppendElement(pFilterName);
-  List.AppendElement(pGateName);
+  List.AppendElement(pFilterName); // Filter Name.
+  List.AppendElement(pGateName); // Gate Name.
+  // Parameters.
   for(UInt_t i=0; i<ParameterIds.size(); i++) {
     oss << ParameterIds[i];
     ParameterIdList.AppendElement(oss.str());
     oss.str(""); // Clear the output string stream.
   }
   List.AppendElement(ParameterIdList); // List of Parameters becomes an element too.
+  // Enabled/Disabled.
+  FilterDictionaryIterator = pFilterDictionary->Lookup(pFilterName); // Filter should be defined and present in dictionary by now, so lookup should pass.
+  List.AppendElement(FilterDictionaryIterator->second->getFileName()); // File name.
+  if(FilterDictionaryIterator->second->CheckEnabled()) {
+    List.AppendElement("enabled");
+  } else {
+    List.AppendElement("disabled");
+  }
   List.EndSublist();
   rResult += (const char*)List;
   return TCL_OK;
@@ -219,7 +235,7 @@ Int_t CFilterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
 
   CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
   if(pFilterDictionary->Lookup(pFilterName) != pFilterDictionary->end()) {
-    (*pFilterDictionary).Remove(pFilterName);
+    pFilterDictionary->Remove(pFilterName);
     rResult = "Filter (" + std::string(pFilterName) + ") deleted.";
   } else {
     rResult = "Error: Invalid filter (" + std::string(pFilterName) + ").";
@@ -243,7 +259,8 @@ Int_t CFilterCommand::Enable(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
     //(&(*((*pFilterDictionary).Lookup(&(*pFilterName))))).Enable();
     pEventFilter->Enable();
     if(pEventFilter->CheckEnabled()) {
-      rResult = "Filter (" + std::string(pFilterName) + ") enabled.";
+      //rResult = "Filter (" + std::string(pFilterName) + ") enabled.";
+      rResult += ListFilter(pFilterName);
       return TCL_OK;
     } else {
       rResult = "Error: Filter (" + std::string(pFilterName) + ") could not be enabled.";
@@ -272,7 +289,8 @@ Int_t CFilterCommand::Disable(CTCLInterpreter& rInterp, CTCLResult& rResult, int
     //(&(*((*pFilterDictionary).Lookup(&(*pFilterName))))).Disable();
     pEventFilter->Disable();
     if(!(pEventFilter->CheckEnabled())) {
-      rResult = "Filter (" + std::string(pFilterName) + ") disabled.";
+      //rResult = "Filter (" + std::string(pFilterName) + ") disabled.";
+      rResult += ListFilter(pFilterName);
       return TCL_OK;
     } else {
       rResult = "Error: Filter (" + std::string(pFilterName) + ") could not be disabled.";
@@ -301,8 +319,9 @@ Int_t CFilterCommand::Regate(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
     CGateContainer* pGateContainer = ((CHistogrammer*)gpEventSink)->FindGate(pGateName); // Find the Gate in the Histogrammer's GateDictionary.
     if(pGateContainer) { // Gate present in Histogrammer's GateDictionary.
       CGatedEventFilter* pGatedEventFilter = FilterDictionaryIterator->second; // Get the Filter. //(pFilterDictionary->Lookup(pFilterName))->second;
-      pGatedEventFilter->setGateContainer(*pGateContainer); // Set the Filter's Gate.
-      rResult = "Filter (" + std::string(pFilterName) + ") regated (" + std::string(pGateName) + ").";
+      pGatedEventFilter->setGateContainer(*pGateContainer); // Set the Filter's Gate (Re-gate).
+      //rResult = "Filter (" + std::string(pFilterName) + ") regated (" + std::string(pGateName) + ").";
+      rResult += ListFilter(pFilterName);
       return TCL_OK;
     } else {
       rResult += "Error: Invalid gate (" + std::string(pGateName) + ").";
@@ -314,7 +333,32 @@ Int_t CFilterCommand::Regate(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
   }
 }
 
-Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]) {
+Int_t CFilterCommand::File(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]) {
+  if(nArgs != 2) {
+    rResult = Usage();
+    return TCL_ERROR;
+  }
+  // Parse the filter description.
+  const char* pFileName = *pArgs;
+  pArgs++;
+  const char* pFilterName = *pArgs;
+
+  CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
+  CFilterDictionaryIterator FilterDictionaryIterator = pFilterDictionary->Lookup(pFilterName);
+  if(FilterDictionaryIterator != pFilterDictionary->end()) { // Filter present in FilterDictionary.
+    CGatedEventFilter* pGatedEventFilter = FilterDictionaryIterator->second; // Get the Filter. //(pFilterDictionary->Lookup(pFilterName))->second;
+    string sFileName = string(pFileName); // Just to get a string& for setFileName(string&).
+    pGatedEventFilter->setFileName(sFileName); // Automatically calls for a file name reset by disabling and enabling so...
+    pGatedEventFilter->Disable(); // ... Prevent any funky stuff.
+    rResult += ListFilter(pFilterName);
+    return TCL_OK;
+  } else {
+    rResult += "Error: Invalid filter (" + std::string(pFilterName) + ").";
+    return TCL_ERROR;
+  }
+}
+
+Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]) { // List all filters.
   CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
   if(pFilterDictionary->size() > 0) {
     CFilterDictionaryIterator FilterDictionaryIterator = pFilterDictionary->begin();
@@ -325,6 +369,7 @@ Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nA
       List.StartSublist();
       List.AppendElement(FilterDictionaryIterator->first); // Filter name.
       List.AppendElement(FilterDictionaryIterator->second->getGateName()); // GateContainer has Gate name.
+      List.AppendElement(FilterDictionaryIterator->second->getFileName()); // File name.
       /* Parameters not done yet.
 	 for(UInt_t i=0; i<ParameterIds.size(); i++) {
 	 oss << ParameterIds[i];
@@ -345,4 +390,45 @@ Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nA
     rResult += (const char*)List;
   }
   return TCL_OK;
+}
+
+string CFilterCommand::ListFilter(const char* pFilterName) { // List a single filter.
+  string FilterName = string(pFilterName);
+  string result;
+  CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
+  if(pFilterDictionary->size() > 0) {
+    CFilterDictionaryIterator FilterDictionaryIterator = pFilterDictionary->begin();
+    // Output result.
+    //std::ostringstream oss;
+    CTCLString List, FilterList;
+    while(FilterDictionaryIterator != pFilterDictionary->end()) {
+      if(pFilterName == FilterDictionaryIterator->first) {
+	List.StartSublist();
+	List.AppendElement(FilterDictionaryIterator->first); // Filter name.
+	List.AppendElement(FilterDictionaryIterator->second->getGateName()); // GateContainer has Gate name.
+	List.AppendElement(FilterDictionaryIterator->second->getFileName()); // File name.
+	/* Parameters not done yet.
+	   for(UInt_t i=0; i<ParameterIds.size(); i++) {
+	   oss << ParameterIds[i];
+	   ParameterIdList.AppendElement(oss.str());
+	   oss.str(""); // Clear the output string stream.
+	   }
+	   List.AppendElement(ParameterIdList); // List of Parameters becomes an element too.
+	*/
+	if(FilterDictionaryIterator->second->CheckEnabled()) {
+	  List.AppendElement(std::string("enabled"));
+	} else {
+	  List.AppendElement(std::string("disabled"));
+	}
+	List.EndSublist();
+	List.Append("\n");
+      }
+      FilterDictionaryIterator++;
+    } // End while.
+    result = string((const char*)List);
+    return result;
+  } else {
+    return "";
+  }
+  return "";
 }

@@ -284,6 +284,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.10  2003/04/16 19:01:44  kanayo
+  Modification for home directory (~) expansion using $HOME.
+
   Revision 4.9  2003/04/02 18:50:09  ron-fox
   Uncomment registration of filter command
 
@@ -725,22 +728,22 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp)
   m_pGatePackage->Register();
   cerr << m_pGatePackage->getSignon() << endl;
 
-  //  For Filter command.
-   CFilterCommand* pfiltercommand = new CFilterCommand(rInterp);
-   pfiltercommand->Bind(rInterp);
-   pfiltercommand->Register();
+  // For Filter command.
+  CFilterCommand* pfiltercommand = new CFilterCommand(rInterp);
+  pfiltercommand->Bind(rInterp);
+  pfiltercommand->Register();
 
   cerr.flush();
-}  
+}
 
-//  Function: 	
-//    void SetupRunControl() 
+//  Function:
+//    void SetupRunControl()
 //  Operation Type:
-//     
+//
 /*
   Purpose:
 */
-void CTclGrammerApp::SetupRunControl()  
+void CTclGrammerApp::SetupRunControl()
 {
   // We use a Tk run control.  That's able to make use of the Tk
   // event loop processing software:

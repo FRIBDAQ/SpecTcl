@@ -296,7 +296,6 @@
 #ifndef __TCLGRAMMERAPP_H  //Required for current class
 #define __TCLGRAMMERAPP_H
 
-
 #ifndef __TCLAPPLICATION_H
 #include <TCLApplication.h>
 #endif

@@ -20,7 +20,9 @@ static const char* Copyright =
 // Constructors.
 CGatedEventFilter::CGatedEventFilter() {}
 
-CGatedEventFilter::CGatedEventFilter(COutputEventStream& rOutputEventStream) {}
+CGatedEventFilter::CGatedEventFilter(string& rFileName) {}
+
+//CGatedEventFilter::CGatedEventFilter(COutputEventStream& rOutputEventStream) {}
 
 /*
 CGatedEventFilter::CGatedEventFilter(const CGatedEventFilter& rRhs) {
@@ -33,8 +35,8 @@ CGatedEventFilter::CGatedEventFilter(const CGatedEventFilter& rRhs) {
 CGatedEventFilter::~CGatedEventFilter() {}
 
 // Operators.
-// NOTE: There is a !BUG! in CEventList::end(). There may be null events before the end.
 void CGatedEventFilter::operator()(CEventList& rEventList) {
+  // NOTE: There is a !BUG! in CEventList::end(). There may be null events before the end.
   for(CEventListIterator i = rEventList.begin(); i != rEventList.end(); i++) {
     if((*i) != (CEvent*)kpNULL) { // Check to ensure that the event is valid.
       operator()(**i);

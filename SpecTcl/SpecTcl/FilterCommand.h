@@ -40,6 +40,7 @@ class CFilterCommand : public CTCLProcessor {
     keEnable,
     keDisable,
     keRegate,
+    keFile,
     keList,
     keNotSwitch
   };
@@ -68,7 +69,9 @@ class CFilterCommand : public CTCLProcessor {
   Int_t Enable(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
   Int_t Disable(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
   Int_t Regate(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
+  Int_t File(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
   Int_t List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
+  string ListFilter(const char*);
  protected:
   static eSwitches MatchSwitch(const char* pSwitch);
   static std::string Usage();
