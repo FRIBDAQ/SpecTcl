@@ -15,10 +15,12 @@ lib_LTLIBRARIES=libCalibrations.la
 libCalibrations_la_LDFLAGS = -version-info $(SOVERSION):0 \
 	-Wl,"-rpath-link=$(libdir)"
 
-libCalibrations_la_SOURCES = CFit.cpp  CFitCommand.cpp  CFitCreator.cpp  \
+MainSources=CFit.cpp  CFitCommand.cpp  CFitCreator.cpp  \
 	CFitFactory.cpp  CLinearFit.cpp  CLinearFitCreator.cpp  \
-	CCalibratedParameter.cpp CCalibratedParameterCommand.cpp \
-	CCalibratedParameterManager.cpp 
+	CCalibratedParameter.cpp CCalibratedParameterManager.cpp
+
+libCalibrations_la_SOURCES = $(MainSources) CCalibratedParameterCommand.cpp 
+
 
 include_HEADERS = CFit.h  CFitCommand.h  CFitCreator.h  CFitFactory.h  \
 	CLinearFit.h  CLinearFitCreator.h CCalibratedParameter.h \
@@ -68,3 +70,23 @@ install-exec-local:
 	#
 	chmod a+x ./installpkg
 	./installpkg $(prefix)/contrib/calibratedparams/Scripts
+
+if CPPUNIT
+
+noinst_PROGRAMS = unittests 
+
+unittests_SOURCES = CommandTest.cpp FitTest.cpp CreatorTest.cpp FactoryTest.cpp \
+	CalibParamTest.cpp CalibManagerTest.cpp TestRunner.cpp \
+	$(MainSources) 
+
+
+TestObjects=@top_srcdir@/Events/Event.o @top_srcdir@/SpecTcl/EventProcessor.o
+
+unittests_LDFLAGS = $(TestObjects) $(CPPUNIT_LDFLAGS) -L@top_srcdir@/TCL -ltclPlus  \
+	-L@top_srcdir@/NSCLException -lException -lgsl -lgslcblas -lm $(TCL_LDFLAGS)
+
+
+
+TESTS=./unittests
+
+endif

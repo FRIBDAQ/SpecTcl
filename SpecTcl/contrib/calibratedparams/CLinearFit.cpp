@@ -9,10 +9,16 @@
 
 // Include files required:
 
+#include <config.h>
+
 #include "CLinearFit.h"    				
 #include <DesignByContract.h>
 
 #include <gsl/gsl_fit.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 using namespace DesignByContract;
 

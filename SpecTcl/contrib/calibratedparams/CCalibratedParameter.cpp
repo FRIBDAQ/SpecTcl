@@ -9,10 +9,15 @@
 
 // Include files required:
 
+#include <config.h>
 #include "CCalibratedParameter.h"    				
 #include "CFit.h"
 
 #include <Event.h>                 // Required to set/get event values.
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Design by contract provides support for precondition, postcondition,
 // and invariance assertsions.
