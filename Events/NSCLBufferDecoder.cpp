@@ -355,10 +355,11 @@ CNSCLBufferDecoder::getBodySize()
   BHEADER* pHeader = (BHEADER*)getBuffer();
   assert(pHeader != (BHEADER*)kpNULL);
 
-  TranslatorPointer<INT16> TP(*(getBufferTranslator()), &(pHeader->nwds));
+  TranslatorPointer<UINT16> TP(*(getBufferTranslator()), &(pHeader->nwds));
 
-  Int_t nSize = (*TP) * sizeof(INT16);          //  Total buffer size in bytes
-  nSize       -= sizeof(BHEADER);               //  less header size is...
+  Int_t nSize = (*TP);
+  nSize      *=  sizeof(UINT16);          //  Total buffer size in bytes
+  nSize      -= sizeof(BHEADER);               //  less header size is...
   assert(nSize >= 0);		                // positive and ... 
   return (UInt_t)nSize;		                // Buffer size.
 }
