@@ -174,6 +174,12 @@ CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp)
   
   char Win32Path[PATH_MAX+1];
   cygwin_conv_to_full_win32_path(kpInstalledBase, Win32Path);
+  //
+  // Convert the \'s to /'s.
+  //
+  for(int i = 0; i < strlen(Win32Path); i++) {
+    if(Win32Path[i] == '\\') Win32Path[i] = '/';
+  }
   HomeDir.Set(Win32Path);
   
 #else

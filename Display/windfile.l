@@ -18,7 +18,7 @@ static char *lexrevlevel = "@(#)windfile.l	8.1 6/23/95  - windows file lexical a
 #include <stdlib.h>
 #include "windio.h"
 #include "dispwind.h"
-#ifdef Linux
+#if  defined(Linux) || defined(CYGWIN)
 #include "windfile_lex.h"
 #else
 #include "windlex.h"
