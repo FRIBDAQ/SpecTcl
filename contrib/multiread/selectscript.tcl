@@ -40,9 +40,9 @@ proc MultiRead { {mask *.evt} } {
 
     toplevel .dialog
 
-    listbox  .dialog.l -selectmode extended -listvariable FileList \
+    listbox  .dialog.l -width 50 -selectmode extended -listvariable FileList \
                        -yscrollcommand ".dialog.s set" \
-		       -yscrollcommand ".dialog.sx set"
+                       -xscrollcommand ".dialog.sx set"
     scrollbar .dialog.s -command ".dialog.l yview" -orient vertical
     scrollbar .dialog.sx -command ".dialog.l xview" -orient horizontal
 
@@ -52,9 +52,7 @@ proc MultiRead { {mask *.evt} } {
     button   .dialog.cancel -text Cancel -command CancelMultipleReadDialog
     button   .dialog.filter -text Filter -command MultipleReadFill
 
-    MultipleReadFill 
+    MultipleReadFill
 
     MultipleReadLayout
 }
-    
-
