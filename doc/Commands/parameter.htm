@@ -33,7 +33,7 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 
 <h2>Syntax</h2>
 
-<p>parameter [-new] <em>name id resolution</em><br>
+<p>parameter [-new] <em>name id resolution [{low high units}]</em><br>
 parameter -list [-byid]<br>
 parameter -list <em>name<br>
 </em>parameter -list -id <em>id<br>
@@ -74,12 +74,20 @@ spectra. Each parameter has the following properties:</p>
         bits of significant data in the parameter. The resolution
         is used to scale the parameter to the spectra it is used
         in.</li>
+    <li>Optionally:
+	<ul>
+	  <li>A low limit for scaling to the spectrum coordinates</li>
+	  <li>A high limit for scaling to the spectrum coordinates</li>
+	  <li>A string to label the parameter's axis with (<em>e.g. "MeV"</em>)
+	    </li>
+	</ul>
+      </li>
 </ul>
 
 <p>The <a href="spectrum.htm"><strong>spectrum</strong></a>
 command is used to create spectra which histogram parameters.</p>
 
-<h3>parameter [-new] <em>name id resolution</em></h3>
+<h3>parameter [-new] <em>name id resolution [{low high units}]</em></h3>
 
 <p>Creates a new entry in the parameter dictionary. The <strong>-new</strong>
 flag is optional.</p>
@@ -91,6 +99,15 @@ flag is optional.</p>
         where the parameter will be placed by the unpacker.</li>
     <li><em>resolution</em> is the number of significant bits of
         data written into the event dynamic array.</li>
+    <li><em>low</em> is the integer low limit of the parameter used to scale 
+	the parameter to the mapped spectrum coordinates.</li>
+    <li><em>high</em> is the integer high limit of the parameter used to scale
+	the parameter to the mapped spectrum coordinates.</li>
+    <li><em>units</em> is a string to label the parameter's axis with on
+	the histogram itself. Note that, in the case of a multi-parameter
+	axis (<em>e.g. a gamma spectrum</em>), the units of the first mapped
+	parameter are used (it is assumed that they will all be the same
+	units, anyway).
 </ul>
 
 <h3>parameter -list [-byid]</h3>
@@ -130,6 +147,9 @@ parameter dictionary.</p>
 
 <pre>parameter De1 0 12                     ;# Creates a 12 bit parameter named De1 in element 
 #                                         zero of the event array.
+parameter p1 1 10 {10 100 "MeV"}       ;# Creates a 10 bit parameter named p1 which will 
+#                                         scale channel data to between 10 and 100, and 
+#                                         will label its axis with "MeV".
 parameter -list -byid                  ;# Creates a list sorted by Id of the defined 
 #                                         parameters.
 parameter -delete -id 0                ;# Deletes the parameter with the id 0.

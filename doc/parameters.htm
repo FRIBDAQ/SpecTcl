@@ -32,7 +32,10 @@ called a Parameter.&nbsp; There are two types of parameters:</p>
     command.&nbsp; These are pseudo parameters which can be created on the fly
     as bits of Tcl code.</li>
 </ul>
-<p>All parameters have a name, a resolution,&nbsp; as well as an Id.&nbsp; A
+<p>All parameters have a name, a resolution,&nbsp; as well as an Id.&nbsp; 
+Additionally, a parameter can contain information for performing arbitrary 
+coordinate mapping of the spectrum coordinates. This information would consist
+of a lower and upper value for scaling a mapped spectra, and an axis label. A
 parameter's ID is just the index (from 0) into the parameter array at which it
 is stored.&nbsp; The parameter name is used to refer to the parameter when
 creating <a href="spectra.htm">spectra</a>, <a href="gates.htm">gates</a> or

@@ -33,8 +33,7 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 
 <h2>Syntax</h2>
 
-<p>spectrum [-new] <em>name type parameter-list resolution-list</em>
-[<em>datatype</em>]<br>
+<p>spectrum [-new] <em>name type parameter-list [resolution-list | {transformation-list}] </em> [<em>datatype</em>]<br>
 spectrum -list [-byid]<br>
 spectrum -list <em>name</em><br>
 spectrum -list -id <em>id<br>
@@ -196,6 +195,17 @@ the following properties:</p>
             </tr>
         </table>
         </div></li>
+    <li><em>transformation-list</em> The transformation information for
+	histogramming a mapped parameter. The first argument must be an
+	integer or floating point value representing the low limit of the
+	spectrum axis labeling. The second argument is an integer or floating
+	point value representing the high limit of the spectrum axis labeling.
+	The third argument is an integer representing a channel count for the
+	spectrum. There must be a transformation triplet for each parameter
+	defining the spectrun, and each transformation triplet must be
+	enclosed by curly braces (<em>e.g. {10 99 90}</em>). Finally, all of 
+	the enclosed triplets must be enclosed in a single curly brace.
+      </li>
     <li><em>datatype</em> represents the type of data for each
         channel of the histogram:<br>
         <div align="left"><table border="0" cellpadding="3"
@@ -221,7 +231,7 @@ manipulate, or query this parameter dictionary.</p>
 
 <p><a href="#Top">Top</a></p>
 
-<h3>spectrum [-new] <em>name ndim parameter-list resolution-list</em></h3>
+<h3>spectrum [-new] <em>name ndim parameter-list [resolution-list | {transformation-list}] </em></h3>
 
 <p>Creates a new spectrum. Note that the <strong>-new</strong>
 switch is optional. The spectrum attributes are assigned as
@@ -243,6 +253,17 @@ follows:</p>
         Note that for a single resolution value, the braces are
         not needed. The resolution is expressed as Log2(<em>axis-length</em>).
         e.g. for a 1024 channel axis, specify 10.</li>
+    <li><em>transformation-list</em> is also a properly formatted TCL/Tk list.
+	The list specifies how the axes should be labeled, and how many
+	channels the histogram should contain. Note that this form of the
+	"spectrum" command only works for parameters which contains mapping
+	information. The form of the list is: <em>{ {real real int} ... }</em>.
+	<tr>
+	  <p><em>spectrum name 1d mapped_param { {10.0 20.0 100} }</em></p>
+	  <p><em>spectrum name 2d {mapped_param1 mapped_param2} { {10 20 100} 
+	    {-10 10 21} }</em></p>
+	</tr>
+      </li>
     <li><em>datatype - </em>The type of data stored in the
         histogram. <strong>Note</strong> that each spectrum has
         restrictions on types which are allowed:<br>
@@ -367,6 +388,7 @@ spectra which could not be deleted and why e.g.</p>
 
 <pre>spectrum d3-vs-d5 2 {Distribution2 Distribution5} {8 8}   ;# Make a new 2-d spectrum.
 spectrum -list -byid                                      ;# List spectra sorted by id.
+spectrum mapped 2 {Distribution1 Distribution2} {{10 99 90} {50 99 100}}   ;# Make a 2d spectrum with 90*100 bins.
 #
 #  The following multiline example just lists only the names of spectra:
 #
