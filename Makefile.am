@@ -23,8 +23,9 @@ dist-hook:
 	  cp $$file $(distdir)/$$file; \
 	done
 
-install-exe-local:
+install-exec-local:
 	install  -d   -m 0775 $(prefix) $(prefix)/bin $(prefix)/include
+	install  -m 0664 config.h $(prefix)/include
 	install  -d   -m 0775 $(prefix)/lib $(prefix)/Etc
 	install -d   -m 0775 $(prefix)/Script $(prefix)/Skel
 	install  -d   -m 0775 $(prefix)/contrib $(prefix)/doc $(prefix)/share
@@ -35,4 +36,4 @@ install-exe-local:
 	ln -s $(prefix)/bin $(prefix)/Bin
 	ln -s $(prefix)/lib $(prefix)/Lib
 	ln -s $(prefix)/include $(prefix)/Include
-	tar czf doc |(cd $(prefix); tar xzf -)
+	tar czf - doc |(cd $(prefix); tar xzf -)
