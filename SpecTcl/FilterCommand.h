@@ -30,13 +30,12 @@
 // Forward declarations.
 class CTCLCommandPackage;
 class CTCLInterpreter;
-//class CGatedEventFilter;
-//class CFilterDictionary : CDictionary<CGatedEventFilter*>;
 
 class CFilterCommand : public CTCLProcessor {
   // Internal class definitions:
  public:
   enum eSwitches {
+    keNew,
     keDelete,
     keEnable,
     keDisable,

@@ -55,14 +55,12 @@
 class CGatedEventFilter : public CEventFilter {
   // Attributes.
   CGateContainer* m_pGateContainer;
-  vector<Int_t> m_vParameterIds;
-  COutputEventStream* m_pOutputEventStream;
+  vector<UInt_t> m_vParameterIds;
 
  public:
   // Constructors.
   CGatedEventFilter();
   CGatedEventFilter(COutputEventStream&);
-  CGatedEventFilter(const CGatedEventFilter&);
   ~CGatedEventFilter(); // Virtual.
 
   // Operators.
@@ -73,10 +71,13 @@ class CGatedEventFilter : public CEventFilter {
 
   // Additional functions.
   void setGateContainer(CGateContainer&);
+  void setParameterIds(const vector<UInt_t>&);
+  std::string getGateName();
+  UInt_t getGateID();
  protected:
-  Bool_t CheckCondition(const CEvent& rEvent);
+  Bool_t CheckCondition(CEvent&, const vector<UInt_t>&);
  public:
-  void FormatOutputEvent(const CEvent& rEvent); // Virtual.
+  void FormatOutputEvent(CEvent&, const vector<UInt_t>&); // Virtual.
 }; // CGatedEventFilter.
 
 #endif

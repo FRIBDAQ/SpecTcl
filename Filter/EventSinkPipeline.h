@@ -43,7 +43,6 @@ class CEventSinkPipeline : public CEventSink {
   list<CEventSink> m_lSinks;
 
  public:
-  // CONSTRUCTORS??? *****************
   // Constructor.
   CEventSinkPipeline();
 
