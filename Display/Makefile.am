@@ -12,6 +12,7 @@ install-exec-local:
 	$(mkinstalldirs) $(prefix)/Etc
 	$(INSTALL_PROGRAM) $(srcdir)/*.ctbl $(prefix)/Etc
 	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/Etc
+	$(INSTALL_PROGRAM) $(srcdir)/Xamine $(prefix)/bin/Xamine2_0
 
 $(LEXOUT):
 	$(LEX) windfile.l
