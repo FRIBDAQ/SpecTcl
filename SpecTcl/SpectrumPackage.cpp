@@ -1407,11 +1407,14 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
     m_pHistogrammer->AddSpectrum(*pSpectrum);
 
     if(fFlags & fBind) {	// Bind it if requested.
-      m_pHistogrammer->BindToDisplay(pSpectrum->getName());
+	m_pHistogrammer->BindToDisplay(pSpectrum->getName());
     }
   }
   catch (CException& rExcept) {	// All exceptions drop here.
-    delete pSpectrum;		// If necessary, delete the spectrum.
+    if(pSpectrum) {		// It may have been entered in the hgrammer.
+      m_pHistogrammer->RemoveSpectrum(pSpectrum->getName());
+      delete pSpectrum;
+    }
     string Reason(rExcept.ReasonText()); // Haul out the reason code.
     rResult = Reason + string(" ") +
       string(rExcept.WasDoing()); // return it to the caller 
