@@ -298,11 +298,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <histotypes.h>
 
 
-#define UNDEFINED -1
+#define UNDEFINED 0.0
 static const Size_t knExpandSize = 256;      // Vector expansion granularity.
 
 static void 
-fill(vector<Int_t>& rv, UInt_t n, Int_t value)
+fill(CParameterVector& rv, UInt_t n, ParamType value)
 {
   for(UInt_t i = 0; i < n; i++) {
     rv.push_back(value);
@@ -513,7 +513,7 @@ CEvent::ExpandGranule()
 {
   // Expands the size of an array by knExpandSize
   //
-  int undefined = UNDEFINED;
+  ParamType undefined = UNDEFINED;
   for(UInt_t i = 0; i < knExpandSize; i++) {
     m_rvParameters.push_back(undefined);
   }
