@@ -289,6 +289,13 @@ DAMAGES.
 //  Copyright 1999 NSCL, All Rights Reserved.
 //
 /////////////////////////////////////////////////////////////
+/*!
+   Change Log:
+   $Log$
+   Revision 4.2  2003/03/25 12:21:36  ron-fox
+   Added Change log comment generated from the CVS $Log$ tag.
+
+*/
 
 #ifndef __EXCEPTION_H  //Required for current class
 #define __EXCEPTION_H
