@@ -186,7 +186,6 @@ window_clause: WINDOW INTEGER COMMA INTEGER COMMA spectrum blankline
 		    }
 		;
 
-
 spectrum:  INTEGER 
            {
 	     specnum = $1;	/* Just return the number as specnum. */
@@ -545,23 +544,23 @@ rend2_attribute:  SCATTER
 		;
 
 
-superposition_clause:   SUPERIMPOSE INTEGER blankline
+superposition_clause:   SUPERIMPOSE spectrum blankline
                    {
 		     assert(current);
 		     win_1d *at1 = (win_1d *)current;
 		     if(!current->is1d()) {
 		       windfileerror("Superimpose on 2-d spectrum ignored");
 		     }
-		     else if(!superimposable(current->spectrum(), $2)) {
+		     else if(!superimposable(current->spectrum(), specnum)) {
 		       windfileerror("Incompatible superimpose ignored");
 		     }
-		     else if(superimposed(at1, $2)) {
+		     else if(superimposed(at1, specnum)) {
 		       windfileerror("Redundant superimpose ignored");
 		     }
 		     else {
 		       SuperpositionList &sl = at1->GetSuperpositions();
 		       if(sl.Count() < MAX_SUPERPOSITIONS) {
-			 sl.Add($2);
+			 sl.Add(specnum);
 		       }
 		       else {
 			 windfileerror("Too many superimposes, extra ignored");

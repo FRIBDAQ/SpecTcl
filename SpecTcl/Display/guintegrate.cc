@@ -473,11 +473,12 @@ static void Format1d(IntegrationDisplay *d, grobj_generic *g,
 
   if(att->ismapped()) {
     float f_centroid = Xamine_XChanToMapped(att->spectrum(), (int)centroid);
+    float f_fwhm     = Xamine_XChanToMapped(att->spectrum(), fwhm);
     win_1d* a1 = NULL;
     if(att->is1d()) {
       a1 = (win_1d*)att;
       sprintf(txt, "%4d %27s  %8.2f       %8.2f         %f\n",
-	      g->getid(), g->getname(n), f_centroid, fwhm, area);
+	      g->getid(), g->getname(n), f_centroid, f_fwhm, area);
     }
   } else {
     sprintf(txt, "%4d %27s  %8.2f     %8.2f         %f\n",
@@ -524,8 +525,10 @@ static void Format2d(IntegrationDisplay *d, grobj_generic *g,
   if(att->ismapped()) {
     float fcx = Xamine_XChanToMapped(att->spectrum(), (int)cx);
     float fcy = Xamine_YChanToMapped(att->spectrum(), (int)cy);
+    float ffx = Xamine_XChanToMapped(att->spectrum(), fx);
+    float ffy = Xamine_YChanToMapped(att->spectrum(), fy);
     sprintf(txt, "%4d %27s  (%6.1f,%6.1f) (%6.1f,%6.1f) %f\n",
-	    g->getid(), g->getname(n), fcx, fcy, fx, fy, a);
+	    g->getid(), g->getname(n), fcx, fcy, ffx, ffy, a);
   } else {
     sprintf(txt, "%4d %27s  (%6.1f,%6.1f) (%6.1f,%6.1f) %f\n",
 	    g->getid(), g->getname(n),

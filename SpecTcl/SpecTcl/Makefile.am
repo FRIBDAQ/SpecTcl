@@ -28,6 +28,8 @@ install-exec-local:
 	echo LIBDIRS="@TCL_LDFLAGS@ @XLIBSW@ " >> Makefile.user
 	echo LIBFLAGS="@X_PRE_LIBS@"           >> Makefile.user
 	echo                                   >> Makefile.user
+	echo TCL_FLAGS="@TCL_FLAGS@"            >> Makefile.user
+	echo TCL_LDFLAGS="@TCL_LDFLAGS@"        >> Makefile.user
 	#
 	#   Now the compiler commands:
 	#
