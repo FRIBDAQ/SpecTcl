@@ -306,6 +306,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
+// Revision 4.3  2003/11/13 19:28:48  ron-fox
+// Ensure portable regardlesss of whether
+// malloc() is defined in stdlib.h or malloc.h
+// or memory.h
+//
 // Revision 4.2  2003/04/01 19:55:41  ron-fox
 // Support for Real valued parameters and spectra with arbitrary binnings.
 //
@@ -314,7 +319,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 // Header Files:
 //
-
+#include <config.h>
 
 #include "SpectrumCommand.h"
 #include "SpectrumPackage.h"
@@ -327,7 +332,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <tcl.h>
 #include <string.h>
+
+#ifdef HAVE_MALLOC_H
 #include <malloc.h>
+#endif
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
 #include <algorithm>
 #include <vector>
 
