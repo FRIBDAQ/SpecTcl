@@ -746,27 +746,25 @@ CParameterPackage::getParameterInfoListString(CParameter& rParameter)
   //
   //  Undefined values have their places held by {}  (an empty string).
 
-  if(rParameter.hasScale()) {	// Parameter has scale information.
+  if(rParameter.hasScale()) {	// Parameter has used bits info:
     sprintf(Text, "%d", rParameter.getScale());
     List.AppendElement(Text);
-    if(rParameter.getLow() != rParameter.getHigh()) { // Parameter has range:
-      sprintf(Text, "%f %f %s", rParameter.getLow(),
-	                        rParameter.getHigh(),
-	                        rParameter.getUnits().c_str());
-      List.AppendElement(Text);
-    }
-    else {			// No range info:
-      List.AppendElement("{} {} {}");
-    }
-  } else {			// No scaling or range info:
-    List.AppendElement(Empty);	// bits
-    string RangeUnits("{} {} ");	// No low/high
-    RangeUnits += rParameter.getUnits(); // append units to that.
-    List.AppendElement(RangeUnits);	// range/units
-    
-
+  } else {
+    List.AppendElement(Empty);
   }
-
+  
+  if(rParameter.getLow() != rParameter.getHigh()) { // Parameter has range:
+    sprintf(Text, "%f %f %s", rParameter.getLow(),
+	    rParameter.getHigh(),
+	    rParameter.getUnits().c_str());
+    List.AppendElement(Text);
+  }
+  else {			// No scaling or range info:
+    string RangeUnits("{} {} {");	// No low/high
+    RangeUnits += rParameter.getUnits(); // append units to that.
+    RangeUnits += '}';		// as the guts of a list.
+    List.AppendElement(RangeUnits);	// range/units 
+  }
 
 
   return List;
