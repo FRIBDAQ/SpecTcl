@@ -107,7 +107,7 @@ public:
     return Eval(rScript.c_str()); 
   }
   //
-  // Evaluate a script stored in a file.
+  // Evaluate a scripts tored in a file.
   //
   std::string EvalFile (const char* pFilename)   ;
   std::string EvalFile(const CTCLString& rFilename)  {
