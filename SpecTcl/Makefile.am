@@ -1,7 +1,7 @@
 SUBDIRS =  Replace Scripts Utility Display \
 	NSCLException Xamine Tape EventSource \
 	TCL Events Gates Sorter SpectrumIO Filter SpecTcl \
- 	 contrib
+	contrib
 
 # Gri TestFiles need to be figured out still..
 
@@ -22,6 +22,7 @@ dist-hook:
 	for file in $(AUX_DIST) $(AUX_DIST_EXTRA); do \
 	  cp $$file $(distdir)/$$file; \
 	done
+	(cd $(distdir)/Gri; make clean)
 
 install-exec-local:
 	install  -d   -m 0775 $(prefix) $(prefix)/bin $(prefix)/include
@@ -37,3 +38,4 @@ install-exec-local:
 	ln -s $(prefix)/lib $(prefix)/Lib
 	ln -s $(prefix)/include $(prefix)/Include
 	tar czf - doc |(cd $(prefix); tar xzf -)
+	echo "Version: " $(VERSION) build on `hostname` `date` > $(prefix)/VERSION
