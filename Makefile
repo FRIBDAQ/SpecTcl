@@ -3,6 +3,10 @@
 #        prevents Xamine profiling output from going into SpecTcl's profile
 #        output file.  At present to profile Xamine one must manually
 #        and temporarily edit the makefile.
+# Imported macros:
+#    INSTDIR - Installation destination directory.
+#    OS      - output of system's uname command with '-' characters removed.
+#    PROFILE - If profiling is desired, switches to add to compilation/link.
 #
 
 LinuxMAKESW=-j 4
