@@ -10,7 +10,7 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-static char *sccinfo="@(#)specchoose.cc	8.3 7/23/98 \n";
+static char *sccsinfo="@(#)specchoose.cc	8.3 7/23/98 \n";
 
 
 /*
@@ -108,7 +108,7 @@ static void StripName(char **s, char **e, spec_title t)
   */
   char *p = t;
   *s      = NULL;
-  for(int i = 0; i < sizeof(spec_title); i++) {
+  for(unsigned int i = 0; i < sizeof(spec_title); i++) {
     if(*p == '\0') 
       break;	                           /* Hit the end. */
     if(!isspace(*p) && *s == NULL) *s = p; /* Hit first non space. */
