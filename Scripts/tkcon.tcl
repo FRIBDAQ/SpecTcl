@@ -145,7 +145,7 @@ set TKCON(WWW) [info exists embed_args]
     ## You can set this from the command line with -exec ""
     ## A side effect is that all tkcon command line args will be used
     ## by the first console only.
-    #set TKCON(exec) {}
+    set TKCON(exec) {}
 
     if {$TKCON(WWW)} {
 	lappend TKCON(slavealias) history
@@ -4563,3 +4563,9 @@ if {!$TKCON(WWW) && [string compare $TKCON(SCRIPT) {}]} {
 ##
 # tk appname SpecTcl
 if {[catch {winfo exists $TKCON(root)}]} tkConInit
+if {$tcl_platform(platform) == "windows"} {
+    after 1000 {
+	tkConAttach main $TKCON(apptype)
+	tkConInitUI SpecTcl
+    }
+}
