@@ -325,9 +325,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GaussianDistribution.h"
 #include "TestFile.h"
 
-// Forward class declarations:
-class CBufferDecoder;
-class CFilterBufferDecoder;
+
 
 // Static data declarations:
 struct SwitchDef {
