@@ -49,7 +49,9 @@ OBJECTS=DictionaryException.o  Histogrammer.o Spectrum.o Spectrum1DL.o \
 	Spectrum2DW.o Spectrum1DW.o Spectrum2DB.o \
 	BitSpectrumW.o BitSpectrumL.o SummarySpectrumW.o SummarySpectrumB.o \
 	SpectrumFactory.o SpectrumFactoryException.o SnapshotSpectrum.o \
-	Gamma1DW.o Gamma1DL.o Gamma2DW.o Gamma2DB.o GateMediator.o
+	Gamma1DW.o Gamma1DL.o Gamma2DW.o Gamma2DB.o GateMediator.o \
+	MSpectrum1DW.o MSpectrum1DL.o MSpectrum2DB.o MSpectrum2DW.o \
+	MGamma1DW.o MGamma1DL.o MGamma2DB.o MGamma2DW.o
 
 system: libSorting.a
 	$(ECHO) Library rebuild complete.
@@ -131,3 +133,26 @@ Gamma2DB.o: Gamma2DB.cpp
 GateMediator.o: GateMediator.cpp
 	$(COMPILE) GateMediator.cpp
 
+MSpectrum1DW.o: MSpectrum1DW.cpp
+	$(COMPILE) MSpectrum1DW.cpp
+
+MSpectrum1DL.o: MSpectrum1DL.cpp
+	$(COMPILE) MSpectrum1DL.cpp
+
+MSpectrum2DB.o: MSpectrum2DB.cpp
+	$(COMPILE) MSpectrum2DB.cpp
+
+MSpectrum2DW.o: MSpectrum2DW.cpp
+	$(COMPILE) MSpectrum2DW.cpp
+
+MGamma1DL.o: MGamma1DL.cpp
+	$(COMPILE) MGamma1DL.cpp
+
+MGamma1DW.o: MGamma1DW.cpp
+	$(COMPILE) MGamma1DW.cpp
+
+MGamma2DB.o: MGamma2DB.cpp
+	$(COMPILE) MGamma2DB.cpp
+
+MGamma2DW.o: MGamma2DW.cpp
+	$(COMPILE) MGamma2DW.cpp
