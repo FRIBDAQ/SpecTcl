@@ -5,8 +5,10 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
 
 INCLUDES = @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS)
-LDFLAGS = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @LD_EXTRA_FLAGS@
-XCCFLAGS = -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE
+LDFLAGS = -g @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @LD_EXTRA_FLAGS@
+XCCFLAGS = -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE
+
+AM_CXXFLAGS = -g
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/Etc
@@ -138,9 +140,9 @@ Xaminetest_SOURCES = Xaminetest.c
 EXTRA_Xamine_SOURCES = defaultfile.y grobfile.y windfile.y defaultfile.l \
 grobfile.l windfile.l
 
-Xamine_LDADD = -lXm -lXt -lX11 -lm -lfl
+Xamine_LDADD = -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
-colorset_LDADD = -lXm -lXt -lX11 -lfl
+colorset_LDADD = -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
 Xaminetest_LDADD = -lXamine -lm
 
