@@ -30,7 +30,7 @@ COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS)
 LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS)
 RM=rm -f
 DEPEND=makedepend
-INSTALL=cp
+INSTALL=install -m 0664
 ARCHIVE=ar cr
 
 OBJECTS=Analyzer.o BufferDecoder.o BufferTranslator.o Event.o \

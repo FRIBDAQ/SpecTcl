@@ -10,7 +10,7 @@ COMPILE=g++ -c $(PROFILE) $(INCLUDEDIRS)
 LINK=g++ $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS)
 RM=rm -f
 DEPEND=makedepend
-INSTALL=cp
+INSTALL=install -m 0664
 ARCHIVE=ar cr
 
 install: system

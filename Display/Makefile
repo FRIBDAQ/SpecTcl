@@ -79,17 +79,16 @@ clean:
 	rm -rf *.o *.a Xamine *_lex.cc *_parse.cc *_lex.h
 
 install:
-	cp aedpublic.for $(DESTDIR)/Include/aedpublic.for
-	cp aedshare.for xamineshare.for $(DESTDIR)/Include
-	cp client.h $(DESTDIR)/Include/Xamine.h
-	cp clientops.h $(DESTDIR)/Include/clientops.h
-	cp clientgates.h $(DESTDIR)/Include/clientgates.h
-	cp Xamine $(DESTDIR)/Bin/Xamine2_0
-	cp colorset $(DESTDIR)/Bin/colorset
-	chmod a+x $(DESTDIR)/Bin/Xamine2_0* $(DESTDIR)/Bin/colorset*
-	cp libXamine.a $(DESTDIR)/Lib
-	cp *.ctbl $(DESTDIR)/Etc
-	cp *.ico  $(DESTDIR)/Etc
+	install -m 0664    aedpublic.for $(DESTDIR)/Include/aedpublic.for
+	install -m 0664    aedshare.for xamineshare.for $(DESTDIR)/Include
+	install -m 0664    client.h $(DESTDIR)/Include/Xamine.h
+	install -m 0664    clientops.h $(DESTDIR)/Include/clientops.h
+	install -m 0664    clientgates.h $(DESTDIR)/Include/clientgates.h
+	install -m 0665    Xamine $(DESTDIR)/Bin/Xamine2_0
+	install -m 0665     colorset $(DESTDIR)/Bin/colorset
+	install -m 0664    libXamine.a $(DESTDIR)/Lib
+	install -m 0664    *.ctbl $(DESTDIR)/Etc
+	install -m 0664    *.ico  $(DESTDIR)/Etc
 	echo "Xamine installation complete"
 
 WINDOW_FILE: windfile_parse.o windfile_lex.o dispwind.o defaultfile_lex.o

@@ -20,7 +20,7 @@ COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) -DINSTALLED_IN='"$(INST
 LINK=$($(OS)LD) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS)
 RM=rm -f
 DEPEND=makedepend
-INSTALL=cp
+INSTALL=install -m 0664
 ARCHIVE=ar cr
 CONCAT=cat
 OBJECTS =  ActualIterator.o AndGate.o Band.o CompoundGate.o \

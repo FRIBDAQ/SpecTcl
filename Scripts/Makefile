@@ -9,5 +9,5 @@ FILES = CopyGates.tcl \
 	tree.tcl
 
 install: $(FILES)
-	cp $(FILES) $(INSTDIR)/Script
+	install -m 0775 $(FILES) $(INSTDIR)/Script
 

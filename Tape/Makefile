@@ -7,13 +7,11 @@ system: libtape.a
 	echo "System completely built."
 
 install: libtape.a mtshare.h mtaccess.f mtaccess.h
-	chmod -R u+w $(DESTDIR)/Include
-	chmod -R g+w $(DESTDIR)/Include
-	cp libtape.a $(DESTDIR)/Lib
-	cp mtshare.h $(DESTDIR)/Include
-	cp mtaccess.f $(DESTDIR)/Include
-	cp mtaccess.h $(DESTDIR)/Include
-	cp mtinternl.h $(DESTDIR)/Include
+	install -m 0664 libtape.a $(DESTDIR)/Lib
+	install -m 0664 mtshare.h $(DESTDIR)/Include
+	install -m 0664 mtaccess.f $(DESTDIR)/Include
+	install -m 0664 mtaccess.h $(DESTDIR)/Include
+	install -m 0664  mtinternl.h $(DESTDIR)/Include
 
 
 clean:
