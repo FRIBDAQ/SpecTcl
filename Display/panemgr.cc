@@ -238,7 +238,6 @@ void pane_db::setgeometry(int nrow, int ncol)
   Widget f;
   Widget p;
   Widget shell;
-  Dimension shell_height, shell_width;
 
   /* Some window managers will go and change some shell sizes for the
   ** hell of it when we do what we're about to do.  Therefore, we will
@@ -382,8 +381,6 @@ void pane_db::settitle(char *title)
 */
 void pane_db::zoom()
 {
-  Dimension width; 
-  Dimension height;
   Widget f,p;
   Widget shell;
 
@@ -456,7 +453,6 @@ void pane_db::unzoom()
    int row, column;
    Widget shell;
    
-   XMWidget *p = panes[selected_column][selected_row];
    XMFrame  *f = frames[selected_column][selected_row];
    
    win_db::unzoom();		/* Un zoom the database too. */
@@ -973,9 +969,6 @@ XMFrame *Xamine_GetSelectedFrame()
 */
 void Xamine_ToggleZoom(XMWidget *toggle, XtPointer cd, XtPointer cbd)
 {
-  XmToggleButtonCallbackStruct *call_data = (XmToggleButtonCallbackStruct *)cbd;
-
-
   if(!Xamine_panedb->iszoomed()) {		/* Swap states. */ 
     
     Xamine_panedb->zoom();
@@ -1278,8 +1271,6 @@ void Xamine_SetDisplayAttributes(int row, int col, win_attributed *attribs)
 */
 void Xamine_SetSelectedDisplayAttributes(win_attributed *attribs)
 {
-  win_attributed *def;
-  int is1d;
   int col = Xamine_panedb->current_col();
   int row = Xamine_panedb->current_row();
   
