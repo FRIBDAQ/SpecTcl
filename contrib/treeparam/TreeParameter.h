@@ -7,6 +7,8 @@
 #ifndef __TREEPARAMETER_H
 #define __TREEPARAMETER_H
 
+#define TreeParameterVersion "1.1"
+
 #include <stdio.h>
 #include <math.h>
 #include <string>
@@ -23,7 +25,7 @@ class CTreeParameter
 private:
 	string			name;
 	double			value;
-	bool				valid;
+	bool			valid, haschanged;
 	UInt_t			id, bits, max;
 	double			start, stop, inc;
 	string			unit;
@@ -40,6 +42,7 @@ public:
 	CTreeParameter(string parameterName, UInt_t parameterBits) :
 		name(parameterName), bits(parameterBits) {
 		valid = true;
+		haschanged = false;
 		start = 0;
 		inc = 1;
 		max = (UInt_t) (pow(2, bits) - 1);
@@ -55,6 +58,7 @@ public:
 	double parameterOther, string parameterUnit, bool slopeOrStop) :
 	name(parameterName), bits(parameterBits), start(parameterStart), unit(parameterUnit) {
 		valid = true;
+		haschanged = false;
 		max = (UInt_t) (pow(2, bits) - 1);
 		if (slopeOrStop)	{		// Slope
 			inc = parameterOther;
@@ -75,6 +79,7 @@ public:
 	CTreeParameter(const CTreeParameter& aCTreeParameter) {
 		name = aCTreeParameter.name;
 		valid = aCTreeParameter.valid;
+		haschanged = aCTreeParameter.haschanged;
 		id = aCTreeParameter.id;
 		bits = aCTreeParameter.bits;
 		start = aCTreeParameter.start;
@@ -97,10 +102,10 @@ public:
 // this painful and repetitive conversion from real units to channels, once I have provided the slope
 // and offset on the parameter.
 	double operator=(const double& rhs) {
-		Int_t data;
+		UInt_t data;
 		value = rhs;
-		data = (Int_t)((rhs - start) / inc);
-		if (data < 0) data = 0;
+		data = (UInt_t)((rhs - start) / inc);
+//		if (data < 0) data = 0;
 		if (data > max) data = max;
 		(*pEvent)[id] = data;
 		return (double)rhs;
@@ -179,6 +184,13 @@ public:
 	void			setInc(double theInc) {inc = theInc;}
 	string		getUnit() {return unit;}
 	void			setUnit(char* theUnit) {unit = theUnit;}
+	bool			isValid() {return valid;}
+	void			setValid() {valid = true;}
+	void			setInvalid() {valid = false; (*pEvent)[id].clear();}
+	void			Reset() {(*pEvent)[id].clear();}
+	bool			hasChanged() {return haschanged;}
+	void			setChanged() {haschanged = true;}
+	void			resetChanged() {haschanged = false;}
 	
 // Binding of histogrammer parameters
 	static void BindParameters(CAnalyzer& rAnalyzer) {
@@ -215,7 +227,52 @@ public:
 	static void setEvent(CEvent& rEvent) {
 		pEvent = (CEvent*)(&rEvent);
 	}
+
+//Initialize functions
+void
+Initialize(string parameterName, UInt_t parameterBits)
+{
+	name = parameterName;
+	bits = parameterBits;
+	valid = true;
+	start = 0;
+	inc = 1;
+	max = (UInt_t) (pow(2, bits) - 1);
+	stop = start + inc * (pow(2, bits) - 1);
+	unit = "ch";
+	pSelf.push_back(this);
+}
+
+void
+Initialize(string parameterName, UInt_t parameterBits, double parameterStart,
+  double parameterOther, string parameterUnit, bool slopeOrStop)
+{
+	name = parameterName;
+	bits = parameterBits;
+	start = parameterStart;
+	unit = parameterUnit;
+	valid = true;
+	max = (UInt_t) (pow(2, bits) - 1);
+	if (slopeOrStop)  {   // Slope
+		inc = parameterOther;
+		stop = start + inc * (pow(2, bits) - 1);
+	} else {            // Stop
+		stop = parameterOther;
+		inc = (stop - start) / (pow(2, bits) - 1);
+	}
+	pSelf.push_back(this);
 	
+}
+
+void
+ResetAll()
+{
+	vector<CTreeParameter*>::iterator s;
+	for (s = pSelf.begin(); s != pSelf.end(); s++)
+		(*s)->Reset();
+}
+
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -283,6 +340,61 @@ public:
 	CTreeParameter& operator[](int i) {
 		return (CTreeParameter&)(*array[i-start]);
 	}
+
+// Reset function
+void
+Reset()
+{
+	vector<CTreeParameter*>::iterator s;
+	for (s = array.begin(); s != array.end(); s++)
+		(*s)->Reset();
+}
+
+// Initialize functions
+void
+Initialize(string rootName, UInt_t rootBits, UInt_t theSize, UInt_t theStart)
+{
+		int	i, ndigits;
+		string	theName;
+		char		str[10], form[20];
+		CTreeParameter* pCTreeParameter;
+
+		size = theSize;
+		start = theStart;
+		ndigits = int(log10((double)(size+start))+1);
+		
+		for (int i=0; i < size; i++) {
+			sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+			sprintf(str, form, i+start);
+			theName = rootName + str;
+			pCTreeParameter = new CTreeParameter(theName, rootBits);
+			array.push_back(pCTreeParameter);
+		}
+	}
+
+void
+Initialize(string rootName, UInt_t rootBits, double rootStart,
+				double rootOther, string rootUnit, bool slopeOrStop, UInt_t theSize,
+				UInt_t theStart)
+{
+		int	i, ndigits;
+		string	theName;
+		char		str[10], form[20];
+		CTreeParameter* pCTreeParameter;
+
+		size = theSize;
+		start = theStart;
+		ndigits = int(log10((double)(size+start))+1);
+		
+		for (int i=0; i < size; i++) {
+			sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+			sprintf(str, form, i+start);
+			theName = rootName + str;
+			pCTreeParameter = new CTreeParameter(theName, rootBits, rootStart, rootOther, rootUnit, slopeOrStop);
+			array.push_back(pCTreeParameter);
+		}
+}
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -308,6 +420,18 @@ public:
 				rResult += str;
 			}
 		}
+
+		else if (argc == 3 && strcmp(argv[1], "-list") == 0) {
+			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
+				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
+					sprintf(str, "{%s %d %g %g %g %s}\n", ((*s)->getName()).c_str(), (*s)->getBits(),
+					(*s)->getStart(), (*s)->getStop(), (*s)->getInc(), ((*s)->getUnit()).c_str());
+					rResult += str;
+					break;
+				}
+			}
+		}
+
 		else if (argc == 7 && strcmp(argv[1], "-set") == 0) {
 			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
 				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
@@ -315,11 +439,43 @@ public:
 					(*s)->setStop(atof(argv[4]));
 					(*s)->setInc(atof(argv[5]));
 					(*s)->setUnit(argv[6]);
+					(*s)->setChanged();
+					break;
 				}
 			}
 		}
+
+		else if (argc == 3 && strcmp(argv[1], "-check") == 0) {
+			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
+				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
+					if ((*s)->hasChanged()) rResult = "1";
+					else rResult = "0";
+					break;
+				}
+			}
+		}
+
+		else if (argc == 3 && strcmp(argv[1], "-uncheck") == 0) {
+			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
+				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
+					(*s)->resetChanged();
+				}
+			}
+		}
+		else if (argc == 2 && strcmp(argv[1], "-version") == 0) {
+			rResult = TreeParameterVersion;
+		}
+
 		else {
-			rResult = "Usage:\n  treeparameter -list\n  treeparameter -set name start stop inc unit\n";
+			rResult = "\
+Usage:\n\
+   treeparameter -list\n\
+   treeparameter -list name\n\
+   treeparameter -set name start stop inc unit\n\
+   treeparameter -check name\n\
+   treeparameter -uncheck name\n\
+   treeparameter -version\n\
+";
 		}
 		return TCL_OK;
 	}
