@@ -44,3 +44,11 @@ GatedEventFilter.o: GatedEventFilter.cpp
 
 OutputEventStream.o: OutputEventStream.cpp
 	$(COMPILE) OutputEventStream.cpp
+# DO NOT DELETE
+
+EventFilter.o: EventFilter.h ./OutputEventStream.h
+EventSinkPipeline.o: EventSinkPipeline.h
+FilterDictionary.o: FilterDictionary.h ./GatedEventFilter.h EventFilter.h
+FilterDictionary.o: ./OutputEventStream.h
+GatedEventFilter.o: ./GatedEventFilter.h EventFilter.h ./OutputEventStream.h
+OutputEventStream.o: ./OutputEventStream.h

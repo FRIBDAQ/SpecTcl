@@ -35,5 +35,3 @@ echo building and installing in $instdir
 make clean
 make depend
 make -k OS=$OS INSTDIR=$instdir PROFILE=-g
-
-

@@ -110,3 +110,27 @@ TCLIdleProcess.o: TCLIdleProcess.cpp
 TCLObject.o: TCLObject.cpp
 	$(COMPILE) TCLObject.cpp
 
+# DO NOT DELETE
+
+TCLApplication.o: TCLApplication.h TCLInterpreterObject.h TCLInterpreter.h
+TCLApplication.o: TCLString.h
+TCLCommandPackage.o: TCLCommandPackage.h TCLInterpreterObject.h
+TCLCommandPackage.o: TCLInterpreter.h TCLString.h TCLProcessor.h TCLResult.h
+TCLException.o: TCLException.h TCLInterpreterObject.h TCLResult.h
+TCLException.o: TCLInterpreter.h TCLString.h
+TCLFileHandler.o: TCLFileHandler.h TCLInterpreterObject.h
+TCLIdleProcess.o: TCLIdleProcess.h TCLTimer.h TCLInterpreterObject.h
+TCLInterpreter.o: TCLInterpreter.h TCLString.h TCLException.h
+TCLInterpreter.o: TCLInterpreterObject.h TCLResult.h
+TCLInterpreterObject.o: TCLInterpreterObject.h
+TCLList.o: TCLList.h TCLInterpreterObject.h TCLInterpreter.h TCLString.h
+TCLObject.o: TCLObject.h TCLInterpreterObject.h TCLList.h TCLInterpreter.h
+TCLObject.o: TCLString.h TCLException.h TCLResult.h
+TCLProcessor.o: TCLProcessor.h TCLInterpreter.h TCLString.h TCLResult.h
+TCLProcessor.o: TCLException.h TCLInterpreterObject.h
+TCLResult.o: TCLResult.h TCLString.h TCLInterpreter.h
+TCLString.o: TCLString.h
+TCLTest.o: TCLApplication.h TCLInterpreterObject.h TCLVariable.h
+TCLTest.o: TCLProcessor.h TCLInterpreter.h TCLString.h TCLResult.h
+TCLTimer.o: TCLTimer.h TCLInterpreterObject.h
+TCLVariable.o: TCLVariable.h TCLInterpreter.h TCLString.h

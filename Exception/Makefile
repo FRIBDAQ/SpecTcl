@@ -65,3 +65,9 @@ StreamIOError.o: StreamIOError.cpp
 	$(COMPILE) StreamIOError.cpp
 
 
+# DO NOT DELETE
+
+ErrnoException.o: ErrnoException.h Exception.h
+Exception.o: Exception.h
+RangeError.o: RangeError.h Exception.h
+StreamIOError.o: StreamIOError.h Exception.h
