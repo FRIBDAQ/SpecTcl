@@ -296,6 +296,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.5  2003/11/07 21:48:30  ron-fox
+  Fix error in CSummarySpectrmB.cpp' s
+  increment.  It would sometimes not increment
+  when it should
+
   Revision 4.4  2003/10/24 14:43:29  ron-fox
   Bounds check parameter ids against the size of
   of the event.
@@ -422,7 +427,7 @@ CSummarySpectrumB::Increment(const CEvent& rEv)
   int      nParams  = rEvent.size();
 
   for(UInt_t xChan = 0; xChan < m_vParameters.size(); xChan++) {
-    if(nParams < rEvent.size()) {
+    if(m_vParameters[xChan] < nParams) {
       if(rEvent[m_vParameters[xChan]].isValid()) {
 	Float_t rawParam = rEvent[m_vParameters[xChan]];
 	UInt_t y = Randomize(ParameterToAxis(xChan,
