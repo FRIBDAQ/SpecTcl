@@ -8,7 +8,7 @@
 proc SetupSpectrumGenerator {parent} {
 	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY
 	global treeParameterRoot treeParameterName treeParameterBins treeParameterStart treeParameterStop treeParameterInc treeParameterUnit
-	global definitionFile tops definitionDirectory
+	global definitionFile tops definitionDirectory enableFailsafe spectrumMask
 	UpdateTreeParameters
 	CreateSpectrumGenerator $parent
 	set spectrumType 1
@@ -22,6 +22,8 @@ proc SetupSpectrumGenerator {parent} {
 	GenerateGateMenu $wname SpectrumGateCommand
 	set definitionFile Unknown
 	set definitionDirectory [pwd]
+	set enableFailsafe 1
+	set spectrumMask *
 	UpdateSpectrumList
 }
 
@@ -31,7 +33,7 @@ proc CreateSpectrumGenerator {parent} {
 	global spectrumInfoX spectrumInfoY ActivityMonitor
 	global spectrumLowX spectrumHighX spectrumBinsX spectrumUnitX
 	global spectrumLowY spectrumHighY spectrumBinsY spectrumUnitY
-	global definitionFile tops deleteAll clearAll
+	global definitionFile tops deleteAll clearAll enableFailsafe spectrumMask
 	set tops [tabnotebook_page $parent Spectra]
 	
 	set options $tops.options
@@ -66,19 +68,20 @@ proc CreateSpectrumGenerator {parent} {
 			grid $datatype.n.word -sticky w
 			grid $datatype.n.long -sticky w
 			pack $datatype.label $datatype.n
-#			pack $datatype.byte $datatype.word $datatype.long -anchor w
 		pack $datatype -expand 1 -fill both -side left
 		
 		set control $options.control
 		frame $control -borderwidth 2 -relief groove -background $optionscolor
 			label $control.label -text "Definition file"  -background $optionscolor
-			frame $control.buttons
-				button $control.buttons.load -text "Load" -command Load -background $optionscolor
-				button $control.buttons.save -text "Save" -command Save -background $optionscolor
-				pack $control.buttons.load $control.buttons.save -side left
-			label $control.file -textvariable definitionFile  -background $optionscolor
+			button $control.load -text "Load" -command Load -width 5 -background $optionscolor
+			button $control.save -text "Save" -command Save -width 5 -background $optionscolor
 			checkbutton $control.delete -text "Cumulate" -variable deleteAll -background $optionscolor
-			pack $control.label $control.file $control.buttons $control.delete
+			checkbutton $control.failsafe -text "Failsafe" -variable enableFailsafe -background $optionscolor
+			label $control.file -textvariable definitionFile  -background $optionscolor
+			grid $control.label - -sticky news
+			grid $control.file - -sticky news
+			grid $control.load $control.save -sticky w
+			grid $control.delete $control.failsafe -sticky w
 		pack $control -expand 1 -fill both -side right
 
 	pack $options -expand 1 -fill both
@@ -199,8 +202,12 @@ proc CreateSpectrumGenerator {parent} {
 	set display $tops.display
 	set displaycolor lightblue
 	frame $display -borderwidth 2 -background $displaycolor -relief groove
-		button $display.update -text "Update Spectrum List" -command UpdateSpectrumList -width 10
-		pack $display.update -side left -expand 1 -fill x
+		button $display.update -text "Update Spectrum List" -command UpdateSpectrumList -width 40
+		label $display.label -text "Spectrum mask"
+		entry $display.mask -textvariable spectrumMask -width 30
+		button $display.clear -text Clear -width 5 -command {set spectrumMask *}
+		grid $display.update $display.label $display.mask $display.clear -sticky news
+#		pack $display.update -side left -expand 1 -fill x
 	pack $display -expand 1 -fill x
 	pack $tops -expand 1 -fill both
 }
@@ -572,8 +579,12 @@ proc GetSpectrumPrefix {} {
 	return $prefix
 }
 
+proc DynamicSpectrumList {name1 name2 op} {
+	UpdateSpectrumList
+}
+
 proc UpdateSpectrumList {} {
-	global tops
+	global tops spectrumMask
 	set fraction [lindex [$tops.slist.listbox yview] 0]
 	$tops.slist.listbox delete 0 end
 	set theList [spectrum -list]
@@ -582,6 +593,9 @@ proc UpdateSpectrumList {} {
 	foreach spectrum $theList {
 		set id [lindex $spectrum 0]
 		set name [lindex $spectrum 1]
+		if {[string match $spectrumMask $name] == 0} {
+			continue
+		}
 		set type [lindex $spectrum 2]
 		set parameters [lindex $spectrum 3]
 		set resolutions [lindex $spectrum 4]
@@ -867,11 +881,13 @@ proc UngateSpectra {} {
 }
 
 proc Modified {} {
-	global definitionFile
+	global definitionFile enableFailsafe
 	if {[string compare [lindex $definitionFile 1] (modified)] != 0} {
 		set definitionFile "$definitionFile (modified)"
 	}
-	SaveDefinitionFile failsafe.tcl
+	if {$enableFailsafe} {
+		SaveDefinitionFile failsafe.tcl
+	}
 }
 
 proc Save {} {

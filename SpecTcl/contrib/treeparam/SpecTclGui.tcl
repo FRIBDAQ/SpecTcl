@@ -87,6 +87,9 @@ foreach v [treevariable -list] {
 	set vName [lindex [lindex $v 0] 0]
 	trace variable $vName w SetChanged
 }
+global spectrumMask gateMask
+trace variable spectrumMask w DynamicSpectrumList
+trace variable gateMask w DynamicGateList
 puts "SpecTcl GUI loaded."
 
 
