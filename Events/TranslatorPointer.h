@@ -37,10 +37,10 @@ template <class T>
 class TranslatorPointer
 {
   BufferTranslator& m_rUnderlyingBuffer; /*! Reference to the BufferTrans. */
-  ULong_t            m_nOffset;           /*! Offset into the buffer*/
+  UInt_t            m_nOffset;           /*! Offset into the buffer*/
   
  public:
-  
+
   // Basic constructor for this receives a reference to a BufferTranslator
   // and defaults m_nOffset to 0
   TranslatorPointer<T>(BufferTranslator& Translator) :
@@ -56,7 +56,7 @@ class TranslatorPointer
   // from which to calculate m_nOffset
   TranslatorPointer<T>(BufferTranslator& Translator, Address_t const Addr) :
     m_rUnderlyingBuffer(Translator),
-    m_nOffset(((ULong_t)Addr - (ULong_t)Translator.getBuffer()) / sizeof(T))
+    m_nOffset(((UInt_t)Addr - (UInt_t)Translator.getBuffer()) / sizeof(T))
     { }
 
   // Copy constructor for this
@@ -69,6 +69,15 @@ class TranslatorPointer
     {
       m_rUnderlyingBuffer = RHS.m_rUnderlyingBuffer;
       m_nOffset = RHS.m_nOffset;
+      return *this;
+    }
+
+  // Operator= type conversion operator
+  template<class U>
+    TranslatorPointer<T>& operator=(const TranslatorPointer<U>& rhs)
+    {
+      m_rUnderlyingBuffer = rhs.getBuffer();
+      m_nOffset = rhs.getOffset() * sizeof(U) / sizeof(T);
       return *this;
     }
 
@@ -296,6 +305,10 @@ class TranslatorPointer
   UInt_t getOffset() const
     {
       return m_nOffset;
+    }
+  BufferTranslator& getBuffer() const
+    {
+      return m_rUnderlyingBuffer;
     }
 };
 
