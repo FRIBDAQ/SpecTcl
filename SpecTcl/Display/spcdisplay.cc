@@ -102,6 +102,10 @@ void Xamine_DisplayPane (int row, int col, int specid)
   case twodbyte:
     Xamine_Construct2dDefaultProperties(&attr2);
     attribs = (win_attributed *)&attr2;
+    break;
+  case undefined:
+    /* Should we raise an error? */
+    break;
   }
 
 #define TF(log) ((log) ? "True" : "False")
