@@ -334,7 +334,7 @@ public:
     m_sVariable (am_sVariable),  
     m_fTracing (am_fTracing)  
   { }        
-  ~CTCLVariable();
+  virtual ~CTCLVariable();
 			//Copy constructor
  
   CTCLVariable (const CTCLVariable& aCTCLVariable )   : 
