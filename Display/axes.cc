@@ -814,8 +814,8 @@ static void DrawLinearYTicks(Display *disp, Window win, GC gc,
   value_interval = (float)ComputeLinearTickInterval(hi - low +1, (ybase+1));
 
 
-  interval       = ((float)((ybase + 1) * value_interval))/ 
-                   ((float)( hi-low + 1));
+  interval       = ((float)((ybase ) * value_interval))/ 
+                   ((float)( hi-low));
 
 
   height   = (int)((nx-xbase)*XAMINE_TICK_FRACTION);
@@ -1153,14 +1153,16 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
       int specno = att->spectrum();
       if(att->isexpanded()) {
 	low = att->lowlimit();
-	hi  = att->highlimit();
+	hi  = att->highlimit() +1;
       }
     }
     else {
       win_2d *att = (win_2d *)attribs;
+
+      // The + 1 on high makes the expansion [low,hi].
       if(att->isexpanded()) {
 	low = (att->isexpandedfirst() ? att->xlowlim() : att->ylowlim());
-	hi  = (att->isexpandedfirst() ? att->xhilim()  : att->yhilim());
+	hi  = (att->isexpandedfirst() ? att->xhilim()  : att->yhilim()) +1;
       }
     }
 
@@ -1227,13 +1229,15 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
       win_2d *att = (win_2d *)attribs;
       low = 0;
       hi  = xamine_shared->getydim(att->spectrum());
+      // The + 1 on high makes the expansion [low,hi].
       if(att->isexpanded() && att->isflipped()) {
 	low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
-	hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim());
+	hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim()) +1;
       }
+      // The + 1 on high makes the expansion [low,hi].
       else if(att->isexpanded()) {
 	low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
-	hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim());
+	hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim()) +1;
       }
       else if(att->isflipped()) {
 	low = 0;
