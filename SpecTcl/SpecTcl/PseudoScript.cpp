@@ -477,7 +477,7 @@ void CPseudoScript::operator()(CEvent& rEvent)
     CTCLObject Result;
     Result = m_pInterpreter->GlobalEval(Pseudo).c_str();
     Result.Bind(m_pInterpreter);
-    rEvent[getNumber()] = Result;	// Set the result.
+    rEvent[getNumber()] = Result.operator double();	// Set the result.
   }
   catch (CTCLException& rException) {
     string Result;
