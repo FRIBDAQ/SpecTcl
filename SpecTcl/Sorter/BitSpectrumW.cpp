@@ -291,6 +291,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change Log:
   $Log$
+  Revision 4.3  2003/04/03 02:20:14  ron-fox
+  Fix mis description of bitmap spectrum channel counts.
+
   Revision 4.2  2003/04/01 19:52:40  ron-fox
   Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -378,7 +381,7 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName, UInt_t nId,
   m_nParameter(rParameter.getNumber()),
   m_PDescription(rParameter)
 {
-  AddAxis((nHigh - nLow), (Float_t)nLow, (Float_t)nHigh);
+  AddAxis((nHigh - nLow) + 1, (Float_t)nLow, (Float_t)nHigh);
   CreateStorage();
 }
 
