@@ -2,6 +2,14 @@
   Interface for class BufferTranslator
 ******************************************************************************/
 
+/*
+  Change log:
+   $Log$
+   Revision 4.4  2002/08/08 11:50:34  ron-fox
+   Add Change logs.
+
+*/
+
 #ifndef __BUFFERTRANSLATOR_H
 #define __BUFFERTRANSLATOR_H
 

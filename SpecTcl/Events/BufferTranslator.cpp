@@ -2,6 +2,14 @@
   Implementation of class BufferTranslator
 ******************************************************************************/
 
+/*
+  Change Log:
+   $Log$
+   Revision 4.4  2002/08/08 11:50:34  ron-fox
+   Add Change logs.
+
+*/
+
 #include "BufferTranslator.h"
 #include <stdio.h>
 
