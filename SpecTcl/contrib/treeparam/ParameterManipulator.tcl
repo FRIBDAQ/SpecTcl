@@ -44,7 +44,8 @@ proc InsertParameterManipulator {id} {
 	set mod $topp.modify
 
 	menubutton $mod.parameter$id -width 8 -text Parameter -background $modcolor
-	GenerateTreeMenu $mod.parameter$id "MenuLoadParameter $id"
+#	GenerateTreeMenu $mod.parameter$id "MenuLoadParameter $id"
+	GenerateTreeMenu $mod.parameter$id "set parameter(Name$id)"
 	entry $mod.labelparameter$id -textvariable parameter(Name$id) -background $modcolor
 	entry $mod.start$id -width 8 -textvariable parameter(Start$id) -background $modcolor
 	entry $mod.stop$id -width 8 -textvariable parameter(Stop$id) -background $modcolor
@@ -184,23 +185,33 @@ proc LoadParameter {id} {
 	global parameter
 	set par $parameter(Name$id)
 	set p [lindex [treeparameter -list $par] 0]
-#	set parameter(Bins$id) [lindex $p 1]
 	set parameter(Start$id) [lindex $p 2]
 	set parameter(Stop$id) [lindex $p 3]
-#	set parameter(Inc$id) [lindex $p 4]
 	set parameter(Unit$id) [lindex $p 5]
 }
 
-proc MenuLoadParameter {id par} {
+proc MenuLoadParameter {id p1 p2 p3} {
 	global parameter
-	set p [lindex [treeparameter -list $par] 0]
-	set parameter(Name$id) [lindex $p 0]
-#	set parameter(Bins$id) [lindex $p 1]
+	set p [lindex [treeparameter -list $parameter(Name$id)] 0]
+	if {[llength $p] == 0} {
+		set parameter(Start$id) ???
+		set parameter(Stop$id) ???
+		set parameter(Unit$id) ???
+		return
+	}
 	set parameter(Start$id) [lindex $p 2]
 	set parameter(Stop$id) [lindex $p 3]
-#	set parameter(Inc$id) [lindex $p 4]
 	set parameter(Unit$id) [lindex $p 5]
 }
+
+#proc MenuLoadParameter {id par} {
+#	global parameter
+#	set p [lindex [treeparameter -list $par] 0]
+#	set parameter(Name$id) [lindex $p 0]
+#	set parameter(Start$id) [lindex $p 2]
+#	set parameter(Stop$id) [lindex $p 3]
+#	set parameter(Unit$id) [lindex $p 5]
+#}
 
 #proc GeneratePseudoParameter {parameter} {
 #	puts $parameter

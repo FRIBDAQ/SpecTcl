@@ -15,9 +15,11 @@ proc SetupSpectrumGenerator {parent} {
 	SpectrumType1D
 	set spectrumDatatype long
 	set wname $tops.bottom.varx.varmenu
-	GenerateTreeMenu $wname SpectrumParameterXCommand
+#	GenerateTreeMenu $wname SpectrumParameterXCommand
+	GenerateTreeMenu $wname "set spectrumParameterX"
 	set wname $tops.bottom.vary.varmenu
-	GenerateTreeMenu $wname SpectrumParameterYCommand
+#	GenerateTreeMenu $wname SpectrumParameterYCommand
+	GenerateTreeMenu $wname "set spectrumParameterY"
 	set wname $tops.middle.gate.menu
 	GenerateGateMenu $wname SpectrumGateCommand
 	set definitionFile Unknown
@@ -123,7 +125,7 @@ proc CreateSpectrumGenerator {parent} {
 	
 		set varx $bottom.varx
 		frame $varx -borderwidth 2 -relief groove -background $bottomcolor
-			label $varx.varlabel -textvariable spectrumParameterX -background $bottomcolor
+			entry $varx.varlabel -textvariable spectrumParameterX -background $bottomcolor
 			menubutton $varx.varmenu -text "X Parameter" -background $bottomcolor
 			label $varx.lowlabel -text Low -background $bottomcolor
 			entry $varx.low -textvariable spectrumLowX -background $bottomcolor -width 6
@@ -139,7 +141,7 @@ proc CreateSpectrumGenerator {parent} {
 		
 		set vary $bottom.vary
 		frame $vary -borderwidth 2 -relief groove -background $bottomcolor
-			label $vary.varlabel -textvariable spectrumParameterY -background $bottomcolor
+			entry $vary.varlabel -textvariable spectrumParameterY -background $bottomcolor
 			menubutton $vary.varmenu -text "Y Parameter" -background $bottomcolor
 			label $vary.lowlabel -text Low -background $bottomcolor
 			entry $vary.low -textvariable spectrumLowY -background $bottomcolor -width 6
@@ -221,6 +223,7 @@ proc SpectrumType1D {} {
 	set spectrumDatatype long
 	$tops.bottom.varx.varmenu configure -text Parameter
 	set wname $tops.bottom.vary
+	$wname.varlabel configure -state disabled
 	$wname.varmenu configure -state disabled
 	$wname.low configure -state disabled
 	$wname.high configure -state disabled
@@ -238,6 +241,7 @@ proc SpectrumType2D {} {
 	set spectrumDatatype word
 	$tops.bottom.varx.varmenu configure -text "X Parameter"
 	set wname $tops.bottom.vary
+	$wname.varlabel configure -state normal
 	$wname.varmenu configure -state normal -text "Y Parameter"
 	$wname.low configure -state normal
 	$wname.high configure -state normal
@@ -255,6 +259,7 @@ proc SpectrumTypeSummary {} {
 	set spectrumDatatype word
 	set wname $tops.bottom.vary
 	$tops.bottom.varx.varmenu configure -text Parameters
+	$wname.varlabel configure -state disabled
 	$wname.varmenu configure -state disabled
 	$wname.low configure -state disabled
 	$wname.high configure -state disabled
@@ -272,6 +277,7 @@ proc SpectrumTypeBitmask {} {
 	set spectrumDatatype long
 	$tops.bottom.varx.varmenu configure -text Parameter
 	set wname $tops.bottom.vary
+	$wname.varlabel configure -state disabled
 	$wname.varmenu configure -state disabled
 	$wname.low configure -state disabled
 	$wname.high configure -state disabled
@@ -289,6 +295,7 @@ proc SpectrumType1G {} {
 	set spectrumDatatype long
 	$tops.bottom.varx.varmenu configure -text Parameters
 	set wname $tops.bottom.vary
+	$wname.varlabel configure -state disabled
 	$wname.varmenu configure -state disabled
 	$wname.low configure -state disabled
 	$wname.high configure -state disabled
@@ -306,6 +313,7 @@ proc SpectrumType2G {} {
 	set spectrumDatatype word
 	$tops.bottom.varx.varmenu configure -text Parameters
 	set wname $tops.bottom.vary
+	$wname.varlabel configure -state disabled
 	$wname.varmenu configure -state disabled
 	$wname.low configure -state disabled
 	$wname.high configure -state disabled
@@ -323,6 +331,7 @@ proc SpectrumTypeGP {} {
 	set spectrumDatatype word
 	$tops.bottom.varx.varmenu configure -text "X Parameter"
 	set wname $tops.bottom.vary
+	$wname.varlabel configure -state normal
 	$wname.varmenu configure -state normal -text "Y Parameters"
 	$wname.low configure -state normal
 	$wname.high configure -state normal
@@ -331,13 +340,20 @@ proc SpectrumTypeGP {} {
 	$wname configure -state disabled
 }
 
-proc SpectrumParameterXCommand {parameter} {
+proc SpectrumParameterXCommand {p1 p2 p3} {
 	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY
 	global spectrumInfoX spectrumInfoY
 	global spectrumLowX spectrumHighX spectrumBinsX spectrumUnitX
 	global spectrumLowY spectrumHighY spectrumBinsY spectrumUnitY
 	global tops
-	set spectrumParameterX $parameter
+	set parameter $spectrumParameterX
+	if {[GetParameterIndex $parameter] == -1} {
+		set spectrumLowX ???
+		set spectrumHighX ???
+		set spectrumBinsX ???
+		set spectrumUnitX ???
+		return
+	}
 	set wname $tops.bottom.varx
 	set spectrumLowX [GetParameterLow $parameter]
 	set spectrumHighX [GetParameterHigh $parameter]
@@ -346,13 +362,20 @@ proc SpectrumParameterXCommand {parameter} {
 	CreateBinsMenu $wname $spectrumBinsX spectrumBinsX
 }
 
-proc SpectrumParameterYCommand {parameter} {
+proc SpectrumParameterYCommand {p1 p2 p3} {
 	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY
 	global spectrumInfoX spectrumInfoY
 	global spectrumLowX spectrumHighX spectrumBinsX spectrumUnitX
 	global spectrumLowY spectrumHighY spectrumBinsY spectrumUnitY
 	global tops
-	set spectrumParameterY $parameter
+	set parameter $spectrumParameterY
+	if {[GetParameterIndex $parameter] == -1} {
+		set spectrumLowY ???
+		set spectrumHighY ???
+		set spectrumBinsY ???
+		set spectrumUnitY ???
+		return
+	}
 	set wname $tops.bottom.vary
 	set spectrumLowY [GetParameterLow $parameter]
 	set spectrumHighY [GetParameterHigh $parameter]
@@ -365,6 +388,7 @@ proc GetParameterIndex {parameter} {
 	if {[string match $parameter ""]} {return}
 	global treeParameterRoot treeParameterName treeParameterBins treeParameterStart treeParameterStop treeParameterInc treeParameterUnit
 	set arrayname [string range $parameter 0 [expr [string last . $parameter] - 1]]
+	if {![info exist treeParameterName($arrayname)]} {return -1}
 	set elementname [string range $parameter [expr [string last . $parameter] + 1] end]
 	set index [lsearch $treeParameterName($arrayname) $elementname]
 }
@@ -827,18 +851,81 @@ proc DuplicateSpectra {} {
 
 proc GenerateGateMenu {parent command} {
 # Generate a menu containing all available gates and attaches it to the parent widget
-	
 	destroy $parent.menu
-	menu "$parent.menu" -tearoff 0
+	set wymax [winfo vrootheight .]
+	menu $parent.menu -tearoff 0
 	set theList [gate -list]
 	foreach e $theList {
+# If the menu has become too tall to fit on the root window we make a scrollable menu
+		if {[$parent.menu yposition last] > $wymax-100} {
+			$parent.menu insert 0 command -image uparrow -activebackground green
+			$parent.menu add command -image downarrow -activebackground green
+			bind $parent.menu <Enter> "ScrollGateMenu $parent.menu {$command}"
+			bind $parent.menu <ButtonRelease-1> CancelScrollMenu
+			bind $parent.menu <Leave> CancelScrollMenu
+			break
+		}
 		set theName [lindex $e 0]
 		set theType [lindex $e 2]
 		if {[string compare $theType F] != 0} {
-			"$parent.menu" add command -label $theName -command "$command {$theName}"
+			$parent.menu add command -label $theName -command "$command {$theName}" \
+			-activebackground yellow
 		}
 	}
-	$parent configure -menu "$parent.menu"
+	$parent configure -menu $parent.menu
+}
+
+proc ScrollGateMenu {wmenu command} {
+	global afterScrollMenu
+	set afterScrollMenu [after 20 "ScrollGateMenu $wmenu {$command}"]
+	set activeItem [$wmenu index active]
+	if {$activeItem != 0 && $activeItem != [$wmenu index last]} {
+		update
+		return
+	}
+
+# find indexes of first and last
+	set i 0
+	set lastItem [expr [$wmenu index last]-1]
+	set gateList [gate -list]
+	foreach e $gateList {
+		lappend theList [lindex $e 0]
+	}
+	foreach entry $theList {
+		if {[string equal [$wmenu entrycget 1 -label] $entry]} {set indexFirst $i}
+		if {[string equal [$wmenu entrycget $lastItem -label] $entry]} {set indexLast $i}
+		incr i
+	}
+
+# Process Down arrow
+	if {$activeItem == [$wmenu index last]} {
+# if the last menu item is on the last entry we do nothing and return
+		if {$indexLast+1 == [llength $theList]} {return}
+# For the main body of the menu, shift all items up
+		for {set i 1} {$i < $lastItem} {incr i} {
+			$wmenu entryconfigure $i -label [$wmenu entrycget [expr $i+1] -label]
+			$wmenu entryconfigure $i -command [$wmenu entrycget [expr $i+1] -command]
+		}
+# The last item gets the new entry
+		set newEntry [lindex $theList [expr $indexLast+1]]
+		$wmenu entryconfigure $lastItem -label $newEntry -command "$command $newEntry" \
+		-activebackground yellow
+	}
+
+# Process Up arrow
+	if {$activeItem == 0} {
+# if the first menu item is on the first entry we do nothing and return
+		if {$indexFirst == 0} {return}
+# For the main body of the menu, shift all items down
+		for {set i $lastItem} {$i > 1} {incr i -1} {
+			$wmenu entryconfigure $i -label [$wmenu entrycget [expr $i-1] -label]
+			$wmenu entryconfigure $i -command [$wmenu entrycget [expr $i-1] -command]
+		}
+# The first item gets the new entry
+		set newEntry [lindex $theList [expr $indexFirst-1]]
+		$wmenu entryconfigure 1 -label $newEntry -command "$command $newEntry" \
+		-activebackground yellow
+	}
 }
 
 proc SpectrumGateCommand {theGate} {
