@@ -923,3 +923,7 @@ void Xamine_ToggleUserMapping(XMWidget* wid, XtPointer cd, XtPointer ud)
     Xamine_RedrawSelectedPane();
   }
 }
+
+
+
+
