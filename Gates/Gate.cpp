@@ -342,3 +342,7 @@ CGate::operator()(CEvent& rEvent)
   
   return getCachedValue();
 }
+
+
+
+

@@ -360,7 +360,7 @@ CPointListGate::Begin()
 
   CPointListIterator p(m_aConstituents.begin());
   return CConstituentIterator(p);
-}
+ }
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
