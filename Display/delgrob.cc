@@ -238,8 +238,6 @@ static Boolean DeleteObject(XmString name, int specid)
   ** Expected from a double click on a name:
   */
   int id;
-  grobj_name n;
-  char       junk[80];
 
   if(!GetGrobjId(cname, &id)) {	/* Try to get id from string itself. */
 

@@ -397,7 +397,6 @@ void SuperPrompt::SetList()
     Hide();
     return;
   }
-  int tgtchans        = xamine_shared->getchannels(target);
 
   /* Now we count the number of spectra that are 1-d's of conforming size 
   */
