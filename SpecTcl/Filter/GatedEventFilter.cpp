@@ -101,9 +101,9 @@ Bool_t CGatedEventFilter::CheckCondition(CEvent& rEvent) { //, const vector<UInt
 
 void CGatedEventFilter::FormatOutputEvent(CEvent& rEvent) { //, const vector<UInt_t>& vParameterIds) {
   // Check to see if event passes all parameters upon which it is being filtered.
-  if((m_pOutputEventStream!=(COutputEventStream*)kpNULL) && CheckEnabled() && CheckCondition(rEvent)) { //, m_vParameterIds)) { // If all set up and the event passes the filter ...
+  if((m_pOutputEventStream != (COutputEventStream*)kpNULL) && CheckEnabled() && CheckCondition(rEvent)) { //, m_vParameterIds)) { // If all set up and the event passes the filter ...
     // Write to COutputEventStream,
-    m_pOutputEventStream->ReceiveEvent(rEvent);
+    (*m_pOutputEventStream)(rEvent); // Should we return a flag to say if successful?*******************
   } else {
     // or toss.
   }

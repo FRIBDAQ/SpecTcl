@@ -79,9 +79,9 @@ class CGatedEventFilter : public CEventFilter {
   std::string getGateName();
   UInt_t getGateID();
  protected:
-  Bool_t CheckCondition(CEvent&); //, const vector<UInt_t>&);
+  Bool_t CheckCondition(CEvent&);
  public:
-  void FormatOutputEvent(CEvent&); //, const vector<UInt_t>&);
+  void FormatOutputEvent(CEvent&);
 }; // CGatedEventFilter.
 
 #endif

@@ -27,7 +27,7 @@ static const char* Copyright =
   Hence, I hold onto the input file name until the output event stream is created and I am able to use its parser to set the file name.
 */
 CEventFilter::CEventFilter() :
-  m_fEnabled(false),
+  m_fEnabled(kfFALSE),
   m_sFileName(""), // Initialized to default.
   m_pOutputEventStream((COutputEventStream*)kpNULL)
 {
@@ -35,7 +35,7 @@ CEventFilter::CEventFilter() :
 }
 
 CEventFilter::CEventFilter(string& rFileName) :
-  m_fEnabled(false),
+  m_fEnabled(kfFALSE),
   m_sFileName(rFileName),
   m_pOutputEventStream((COutputEventStream*)kpNULL)
 {
@@ -69,9 +69,10 @@ void CEventFilter::Enable() {
   // Actually does a re-enable to reset the configuration with any new parameters and be on the safe side.
   Disable(); // Clear everything. May be redundant, especially when the file name is reset, but prevents a potential problem.
 
-  m_pOutputEventStream = new COutputEventStream(m_sFileName, m_vParameterNames);
+  m_pOutputEventStream = new COutputEventStream(m_sFileName, m_vParameterNames); // Constructor will call COutputEventStream::Open().
   m_sFileName = m_pOutputEventStream->getFileName(); // Read back the parsed file name.
-  m_fEnabled = m_pOutputEventStream->Open(); // Can also set with m_pOutputEventStream->isActive().
+  //m_fEnabled = m_pOutputEventStream->Open(); // Can also set with m_pOutputEventStream->isActive(). // Open() will be done on creation.
+  m_fEnabled = kfTRUE;
 }
 
 void CEventFilter::Disable() { // Must be consecutively callable.
@@ -80,7 +81,7 @@ void CEventFilter::Disable() { // Must be consecutively callable.
     delete m_pOutputEventStream; // Deconstructor will call COutputEventStream::Close().
   }
   m_pOutputEventStream = (COutputEventStream*)kpNULL; // Otherwise, delete would cause a SegFault later.
-  m_fEnabled = false;
+  m_fEnabled = kfFALSE;
 }
 
 void CEventFilter::setFileName(string& rFileName) {
