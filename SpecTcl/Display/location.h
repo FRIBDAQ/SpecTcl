@@ -27,7 +27,7 @@ class Xamine_Location : public XMForm {
    int specid;			/* Last value displayed in specid label. */
    int xpos;			/* Last value displayed in X label. */
    int ypos;			/* Last value displayed in Y label  */
-   int counts;			/* Last value displayed in Counts label. */
+   unsigned int counts;		/* Last value displayed in Counts label. */
 
    XMLabel *speclabel;		/* Fixed label and */
    XMLabel *specnumber;		/* value of spectrum number. */
