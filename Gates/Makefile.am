@@ -1,6 +1,6 @@
 INCLUDES = -I. -I../Utility -I../Events -I../Xamine 
 LDADD = -lTclGrammerCommands -lSorting -lXplus -lAnalysis -lEventSource \
-	-ltclPlus -lException -lXamine -ltape -ltk -ltcl -lXt -lX11 -lm
+	-ltclPlus -lNSCLException -lXamine -ltape -ltk -ltcl -lXt -lX11 -lm
 LDFLAGS = -L. @TCL_LDFLAGS@
 
 lib_LTLIBRARIES = libGates.la
