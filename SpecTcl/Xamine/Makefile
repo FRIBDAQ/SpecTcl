@@ -121,8 +121,7 @@ XamineSpectrumPrompt.o: XamineSpectrumPrompt.cpp
 
 DisplayGate.o: DisplayGate.h Point.h /usr/include/string.h
 DisplayGate.o: /usr/include/features.h /usr/include/sys/cdefs.h
-DisplayGate.o: /usr/include/gnu/stubs.h
-DisplayGate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+DisplayGate.o: /usr/include/gnu/stubs.h /usr/include/stddef.h
 DisplayGate.o: /usr/include/assert.h
 Xamine1D.o: Xamine1D.h XamineSpectrum.h
 Xamine2D.o: Xamine2D.h XamineSpectrum.h /usr/include/assert.h
@@ -131,8 +130,7 @@ Xamine2D.o: /usr/include/gnu/stubs.h
 XamineButton.o: XamineButton.h XamineButtonPrompt.h XaminePushButton.h
 XamineButton.o: XamineToggleButton.h /usr/include/string.h
 XamineButton.o: /usr/include/features.h /usr/include/sys/cdefs.h
-XamineButton.o: /usr/include/gnu/stubs.h
-XamineButton.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+XamineButton.o: /usr/include/gnu/stubs.h /usr/include/stddef.h
 XamineButtonException.o: XamineButtonException.h XamineButton.h
 XamineButtonException.o: XaminePushButton.h XamineToggleButton.h
 XamineButtonException.o: /usr/include/assert.h /usr/include/features.h
@@ -141,8 +139,7 @@ XamineButtonPrompt.o: XamineButtonPrompt.h
 XamineConfirmPrompt.o: XamineConfirmPrompt.h XamineButtonPrompt.h
 XamineConfirmPrompt.o: /usr/include/string.h /usr/include/features.h
 XamineConfirmPrompt.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-XamineConfirmPrompt.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-XamineConfirmPrompt.o: /usr/include/assert.h
+XamineConfirmPrompt.o: /usr/include/stddef.h /usr/include/assert.h
 XamineEvent.o: XamineEvent.h DisplayGate.h Point.h ButtonEvent.h
 XamineFilePrompt.o: XamineFilePrompt.h XamineButtonPrompt.h
 XamineGateException.o: XamineGateException.h DisplayGate.h Point.h
@@ -156,8 +153,7 @@ XaminePointsPrompt.o: XaminePointsPrompt.h XamineButtonPrompt.h
 XaminePushButton.o: XaminePushButton.h
 XamineSpectrum.o: XamineSpectrum.h /usr/include/string.h
 XamineSpectrum.o: /usr/include/features.h /usr/include/sys/cdefs.h
-XamineSpectrum.o: /usr/include/gnu/stubs.h
-XamineSpectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+XamineSpectrum.o: /usr/include/gnu/stubs.h /usr/include/stddef.h
 XamineSpectrum.o: /usr/include/assert.h
 XamineSpectrumIterator.o: XamineSpectrumIterator.h XamineSpectrum.h
 XamineSpectrumIterator.o: Xamine1D.h Xamine2D.h
@@ -182,7 +178,6 @@ Xaminetest.o: XamineEvent.h XamineGates.h DisplayGate.h Point.h ButtonEvent.h
 Xaminetest.o: Xamine1D.h XamineSpectrum.h Xamine2D.h /usr/include/sys/wait.h
 Xaminetest.o: /usr/include/features.h /usr/include/sys/cdefs.h
 Xaminetest.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-Xaminetest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-Xaminetest.o: /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h
-Xaminetest.o: /usr/include/endian.h /usr/include/bits/endian.h
-Xaminetest.o: /usr/include/bits/siginfo.h
+Xaminetest.o: /usr/include/stddef.h /usr/include/bits/waitflags.h
+Xaminetest.o: /usr/include/bits/waitstatus.h /usr/include/endian.h
+Xaminetest.o: /usr/include/bits/endian.h /usr/include/bits/siginfo.h

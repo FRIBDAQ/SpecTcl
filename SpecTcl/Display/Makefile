@@ -605,8 +605,7 @@ XMCallback.o: /usr/include/errno.h /usr/include/features.h
 XMCallback.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 XMCallback.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
 XMCallback.o: /usr/include/asm/errno.h /usr/include/stdio.h
-XMCallback.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-XMCallback.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+XMCallback.o: /usr/include/stddef.h /usr/include/stdarg.h
 XMCallback.o: /usr/include/bits/types.h /usr/include/libio.h
 XMCallback.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 XMCallback.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
@@ -628,22 +627,20 @@ XMCallback.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
 XMCallback.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/Xm/VendorS.h
 XMDialogs.o: helpmenu.h XMDialogs.h /usr/include/stdio.h
 XMDialogs.o: /usr/include/features.h /usr/include/sys/cdefs.h
-XMDialogs.o: /usr/include/gnu/stubs.h
-XMDialogs.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-XMDialogs.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-XMDialogs.o: /usr/include/bits/types.h /usr/include/libio.h
-XMDialogs.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-XMDialogs.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/MessageB.h
-XMDialogs.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
-XMDialogs.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
-XMDialogs.o: /usr/include/time.h /usr/include/endian.h
-XMDialogs.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-XMDialogs.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-XMDialogs.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
-XMDialogs.o: /usr/X11/include/X11/Xfuncproto.h /usr/X11/include/X11/Xosdefs.h
-XMDialogs.o: /usr/X11/include/X11/Xutil.h /usr/X11/include/X11/Xresource.h
-XMDialogs.o: /usr/include/string.h /usr/X11/include/X11/Core.h
-XMDialogs.o: /usr/X11/include/X11/Composite.h
+XMDialogs.o: /usr/include/gnu/stubs.h /usr/include/stddef.h
+XMDialogs.o: /usr/include/stdarg.h /usr/include/bits/types.h
+XMDialogs.o: /usr/include/libio.h /usr/include/_G_config.h
+XMDialogs.o: /usr/include/bits/stdio_lim.h /usr/X11/include/X11/StringDefs.h
+XMDialogs.o: /usr/X11/include/Xm/MessageB.h /usr/X11/include/Xm/Xm.h
+XMDialogs.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
+XMDialogs.o: /usr/include/sys/types.h /usr/include/time.h
+XMDialogs.o: /usr/include/endian.h /usr/include/bits/endian.h
+XMDialogs.o: /usr/include/sys/select.h /usr/include/bits/select.h
+XMDialogs.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+XMDialogs.o: /usr/X11/include/X11/X.h /usr/X11/include/X11/Xfuncproto.h
+XMDialogs.o: /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xutil.h
+XMDialogs.o: /usr/X11/include/X11/Xresource.h /usr/include/string.h
+XMDialogs.o: /usr/X11/include/X11/Core.h /usr/X11/include/X11/Composite.h
 XMDialogs.o: /usr/X11/include/X11/Constraint.h /usr/X11/include/X11/Object.h
 XMDialogs.o: /usr/X11/include/X11/RectObj.h /usr/X11/include/X11/Shell.h
 XMDialogs.o: /usr/X11/include/X11/SM/SMlib.h /usr/X11/include/X11/SM/SM.h
@@ -665,8 +662,7 @@ XMManagers.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
 XMManagers.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 XMManagers.o: /usr/include/features.h /usr/include/sys/cdefs.h
 XMManagers.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-XMManagers.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-XMManagers.o: /usr/include/time.h /usr/include/endian.h
+XMManagers.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 XMManagers.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 XMManagers.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 XMManagers.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -686,8 +682,7 @@ XMManagers.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
 XMManagers.o: /usr/X11/include/Xm/Frame.h XMWidget.h
 XMMenus.o: /usr/include/stdio.h /usr/include/features.h
 XMMenus.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-XMMenus.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-XMMenus.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+XMMenus.o: /usr/include/stddef.h /usr/include/stdarg.h
 XMMenus.o: /usr/include/bits/types.h /usr/include/libio.h
 XMMenus.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 XMMenus.o: /usr/X11/include/Xm/Separator.h /usr/X11/include/Xm/Xm.h
@@ -713,8 +708,7 @@ XMShell.o: XMShell.h /usr/X11/include/Xm/Xm.h
 XMShell.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
 XMShell.o: /usr/include/sys/types.h /usr/include/features.h
 XMShell.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-XMShell.o: /usr/include/bits/types.h
-XMShell.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+XMShell.o: /usr/include/bits/types.h /usr/include/stddef.h
 XMShell.o: /usr/include/time.h /usr/include/endian.h
 XMShell.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 XMShell.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
@@ -729,14 +723,11 @@ XMShell.o: /usr/X11/include/X11/SM/SM.h /usr/X11/include/X11/ICE/ICElib.h
 XMShell.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
 XMShell.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/X11/StringDefs.h
 XMShell.o: /usr/X11/include/Xm/VendorS.h XMWidget.h XMCallback.h
-XMShell.o: /usr/include/stdio.h
-XMShell.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-XMShell.o: /usr/include/libio.h /usr/include/_G_config.h
-XMShell.o: /usr/include/bits/stdio_lim.h
+XMShell.o: /usr/include/stdio.h /usr/include/stdarg.h /usr/include/libio.h
+XMShell.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 XMWlist.o: /usr/include/stdio.h /usr/include/features.h
 XMWlist.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-XMWlist.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-XMWlist.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+XMWlist.o: /usr/include/stddef.h /usr/include/stdarg.h
 XMWlist.o: /usr/include/bits/types.h /usr/include/libio.h
 XMWlist.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h XMWlist.h
 XMWlist.o: /usr/include/errno.h /usr/include/bits/errno.h
@@ -763,8 +754,7 @@ XMcallback.o: /usr/include/errno.h /usr/include/features.h
 XMcallback.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 XMcallback.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
 XMcallback.o: /usr/include/asm/errno.h /usr/include/stdio.h
-XMcallback.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-XMcallback.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+XMcallback.o: /usr/include/stddef.h /usr/include/stdarg.h
 XMcallback.o: /usr/include/bits/types.h /usr/include/libio.h
 XMcallback.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 XMcallback.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
@@ -786,17 +776,13 @@ XMcallback.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
 XMcallback.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/Xm/VendorS.h
 Xamine.o: /usr/include/stdio.h /usr/include/features.h
 Xamine.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-Xamine.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-Xamine.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+Xamine.o: /usr/include/stddef.h /usr/include/stdarg.h
 Xamine.o: /usr/include/bits/types.h /usr/include/libio.h
 Xamine.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-Xamine.o: /usr/include/string.h
-Xamine.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
-Xamine.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
-Xamine.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
-Xamine.o: /usr/X11/include/Xm/DrawingA.h /usr/X11/include/Xm/Xm.h
-Xamine.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
-Xamine.o: /usr/include/sys/types.h /usr/include/time.h /usr/include/endian.h
+Xamine.o: /usr/include/string.h /usr/X11/include/Xm/DrawingA.h
+Xamine.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
+Xamine.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
+Xamine.o: /usr/include/time.h /usr/include/endian.h
 Xamine.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 Xamine.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 Xamine.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -825,12 +811,12 @@ Xamine.o: dispgrob.h XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 Xamine.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 Xamine.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 Xamine.o: /usr/include/getopt.h /usr/include/sys/time.h
-Xamine.o: /usr/include/bits/time.h convert.h messages.h clientops.h
-Xamine.o: ./Xamine.h clirequests.h prccheck.h spccheck.h trackcursor.h
+Xamine.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+Xamine.o: messages.h clientops.h ./Xamine.h clirequests.h prccheck.h
+Xamine.o: spccheck.h trackcursor.h
 Xwarning.o: /usr/include/stdio.h /usr/include/features.h
 Xwarning.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-Xwarning.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-Xwarning.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+Xwarning.o: /usr/include/stddef.h /usr/include/stdarg.h
 Xwarning.o: /usr/include/bits/types.h /usr/include/libio.h
 Xwarning.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h XMWidget.h
 Xwarning.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
@@ -859,12 +845,11 @@ acceptgates.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
 acceptgates.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 acceptgates.o: /usr/include/features.h /usr/include/sys/cdefs.h
 acceptgates.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-acceptgates.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-acceptgates.o: /usr/include/time.h /usr/include/endian.h
-acceptgates.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-acceptgates.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-acceptgates.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
-acceptgates.o: /usr/X11/include/X11/Xfuncproto.h
+acceptgates.o: /usr/include/stddef.h /usr/include/time.h
+acceptgates.o: /usr/include/endian.h /usr/include/bits/endian.h
+acceptgates.o: /usr/include/sys/select.h /usr/include/bits/select.h
+acceptgates.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+acceptgates.o: /usr/X11/include/X11/X.h /usr/X11/include/X11/Xfuncproto.h
 acceptgates.o: /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xutil.h
 acceptgates.o: /usr/X11/include/X11/Xresource.h /usr/include/string.h
 acceptgates.o: /usr/X11/include/X11/Core.h /usr/X11/include/X11/Composite.h
@@ -879,8 +864,8 @@ acceptgates.o: XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 acceptgates.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 acceptgates.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 acceptgates.o: /usr/include/getopt.h /usr/include/sys/time.h
-acceptgates.o: /usr/include/bits/time.h /usr/include/stdio.h
-acceptgates.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+acceptgates.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h
+acceptgates.o: /usr/include/stdio.h /usr/include/stdarg.h
 acceptgates.o: /usr/include/libio.h /usr/include/_G_config.h
 acceptgates.o: /usr/include/bits/stdio_lim.h convert.h dispwind.h
 acceptgates.o: /usr/include/stdlib.h /usr/include/alloca.h
@@ -903,22 +888,21 @@ acceptgates.o: grobjmgr.h errormsg.h gateio.h messages.h clientops.h
 acceptgates.o: ./Xamine.h
 advprompt.o: /usr/include/stdlib.h /usr/include/features.h
 advprompt.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-advprompt.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-advprompt.o: /usr/include/sys/types.h /usr/include/bits/types.h
-advprompt.o: /usr/include/time.h /usr/include/endian.h
-advprompt.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-advprompt.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-advprompt.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h XMDialogs.h
-advprompt.o: /usr/include/stdio.h
-advprompt.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-advprompt.o: /usr/include/libio.h /usr/include/_G_config.h
-advprompt.o: /usr/include/bits/stdio_lim.h /usr/X11/include/X11/StringDefs.h
-advprompt.o: /usr/X11/include/Xm/MessageB.h /usr/X11/include/Xm/Xm.h
-advprompt.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
-advprompt.o: /usr/X11/include/X11/X.h /usr/X11/include/X11/Xfuncproto.h
-advprompt.o: /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xutil.h
-advprompt.o: /usr/X11/include/X11/Xresource.h /usr/include/string.h
-advprompt.o: /usr/X11/include/X11/Core.h /usr/X11/include/X11/Composite.h
+advprompt.o: /usr/include/stddef.h /usr/include/sys/types.h
+advprompt.o: /usr/include/bits/types.h /usr/include/time.h
+advprompt.o: /usr/include/endian.h /usr/include/bits/endian.h
+advprompt.o: /usr/include/sys/select.h /usr/include/bits/select.h
+advprompt.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+advprompt.o: /usr/include/alloca.h XMDialogs.h /usr/include/stdio.h
+advprompt.o: /usr/include/stdarg.h /usr/include/libio.h
+advprompt.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+advprompt.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/MessageB.h
+advprompt.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
+advprompt.o: /usr/X11/include/X11/Xlib.h /usr/X11/include/X11/X.h
+advprompt.o: /usr/X11/include/X11/Xfuncproto.h /usr/X11/include/X11/Xosdefs.h
+advprompt.o: /usr/X11/include/X11/Xutil.h /usr/X11/include/X11/Xresource.h
+advprompt.o: /usr/include/string.h /usr/X11/include/X11/Core.h
+advprompt.o: /usr/X11/include/X11/Composite.h
 advprompt.o: /usr/X11/include/X11/Constraint.h /usr/X11/include/X11/Object.h
 advprompt.o: /usr/X11/include/X11/RectObj.h /usr/X11/include/X11/Shell.h
 advprompt.o: /usr/X11/include/X11/SM/SMlib.h /usr/X11/include/X11/SM/SM.h
@@ -936,15 +920,13 @@ advprompt.o: spcdisplay.h dispwind.h /usr/include/assert.h superpos.h
 advprompt.o: errormsg.h
 attribdefault.o: /usr/include/ctype.h /usr/include/features.h
 attribdefault.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-attribdefault.o: /usr/include/bits/types.h
-attribdefault.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+attribdefault.o: /usr/include/bits/types.h /usr/include/stddef.h
 attribdefault.o: /usr/include/endian.h /usr/include/bits/endian.h
 attribdefault.o: /usr/include/stdlib.h /usr/include/sys/types.h
 attribdefault.o: /usr/include/time.h /usr/include/sys/select.h
 attribdefault.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 attribdefault.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
-attribdefault.o: /usr/include/stdio.h
-attribdefault.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+attribdefault.o: /usr/include/stdio.h /usr/include/stdarg.h
 attribdefault.o: /usr/include/libio.h /usr/include/_G_config.h
 attribdefault.o: /usr/include/bits/stdio_lim.h XMDialogs.h
 attribdefault.o: /usr/X11/include/X11/StringDefs.h
@@ -977,12 +959,10 @@ attribdefault.o: panemgr.h refreshctl.h
 axes.o: /usr/include/math.h /usr/include/features.h /usr/include/sys/cdefs.h
 axes.o: /usr/include/gnu/stubs.h /usr/include/bits/huge_val.h
 axes.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-axes.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 axes.o: /usr/include/assert.h XMWidget.h /usr/X11/include/X11/Intrinsic.h
 axes.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
-axes.o: /usr/include/bits/types.h
-axes.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-axes.o: /usr/include/time.h /usr/include/endian.h /usr/include/bits/endian.h
+axes.o: /usr/include/bits/types.h /usr/include/stddef.h /usr/include/time.h
+axes.o: /usr/include/endian.h /usr/include/bits/endian.h
 axes.o: /usr/include/sys/select.h /usr/include/bits/select.h
 axes.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 axes.o: /usr/X11/include/X11/X.h /usr/X11/include/X11/Xfuncproto.h
@@ -999,26 +979,25 @@ axes.o: /usr/X11/include/Xm/VendorS.h XBatch.h /usr/X11/include/X11/Xos.h
 axes.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h /usr/include/unistd.h
 axes.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 axes.o: /usr/include/getopt.h /usr/include/sys/time.h
-axes.o: /usr/include/bits/time.h /usr/include/stdio.h
-axes.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-axes.o: /usr/include/libio.h /usr/include/_G_config.h
-axes.o: /usr/include/bits/stdio_lim.h axes.h dispwind.h /usr/include/stdlib.h
-axes.o: /usr/include/alloca.h superpos.h refreshctl.h panemgr.h XMManagers.h
-axes.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
-axes.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
-axes.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h dispshare.h
-axes.o: text.h gcmgr.h xaminegc.h gc.h
+axes.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h
+axes.o: /usr/include/stdio.h /usr/include/stdarg.h /usr/include/libio.h
+axes.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h axes.h
+axes.o: dispwind.h /usr/include/stdlib.h /usr/include/alloca.h superpos.h
+axes.o: refreshctl.h panemgr.h XMManagers.h /usr/X11/include/Xm/BulletinB.h
+axes.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
+axes.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
+axes.o: /usr/X11/include/Xm/Frame.h dispshare.h text.h gcmgr.h xaminegc.h
+axes.o: gc.h
 axisdefault.o: XMPushbutton.h /usr/X11/include/Xm/PushB.h
 axisdefault.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
 axisdefault.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 axisdefault.o: /usr/include/features.h /usr/include/sys/cdefs.h
 axisdefault.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-axisdefault.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-axisdefault.o: /usr/include/time.h /usr/include/endian.h
-axisdefault.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-axisdefault.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-axisdefault.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
-axisdefault.o: /usr/X11/include/X11/Xfuncproto.h
+axisdefault.o: /usr/include/stddef.h /usr/include/time.h
+axisdefault.o: /usr/include/endian.h /usr/include/bits/endian.h
+axisdefault.o: /usr/include/sys/select.h /usr/include/bits/select.h
+axisdefault.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+axisdefault.o: /usr/X11/include/X11/X.h /usr/X11/include/X11/Xfuncproto.h
 axisdefault.o: /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xutil.h
 axisdefault.o: /usr/X11/include/X11/Xresource.h /usr/include/string.h
 axisdefault.o: /usr/X11/include/X11/Core.h /usr/X11/include/X11/Composite.h
@@ -1032,23 +1011,22 @@ axisdefault.o: /usr/X11/include/X11/StringDefs.h
 axisdefault.o: /usr/X11/include/Xm/VendorS.h /usr/X11/include/Xm/CascadeB.h
 axisdefault.o: /usr/X11/include/Xm/ToggleB.h /usr/X11/include/Xm/ArrowB.h
 axisdefault.o: XMWidget.h XMDialogs.h /usr/include/stdio.h
-axisdefault.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-axisdefault.o: /usr/include/libio.h /usr/include/_G_config.h
-axisdefault.o: /usr/include/bits/stdio_lim.h /usr/X11/include/Xm/MessageB.h
-axisdefault.o: /usr/X11/include/Xm/SelectioB.h /usr/X11/include/Xm/FileSB.h
-axisdefault.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
-axisdefault.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
-axisdefault.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
-axisdefault.o: /usr/X11/include/Xm/Frame.h XMCallback.h helpmenu.h dispwind.h
-axisdefault.o: /usr/include/stdlib.h /usr/include/alloca.h
-axisdefault.o: /usr/include/assert.h superpos.h dfltmgr.h optionmenu.h
-axisdefault.o: XMText.h /usr/X11/include/Xm/Text.h
+axisdefault.o: /usr/include/stdarg.h /usr/include/libio.h
+axisdefault.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+axisdefault.o: /usr/X11/include/Xm/MessageB.h /usr/X11/include/Xm/SelectioB.h
+axisdefault.o: /usr/X11/include/Xm/FileSB.h XMManagers.h
+axisdefault.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
+axisdefault.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
+axisdefault.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
+axisdefault.o: XMCallback.h helpmenu.h dispwind.h /usr/include/stdlib.h
+axisdefault.o: /usr/include/alloca.h /usr/include/assert.h superpos.h
+axisdefault.o: dfltmgr.h optionmenu.h XMText.h /usr/X11/include/Xm/Text.h
 axisdefault.o: /usr/X11/include/Xm/TextF.h XMLabel.h
 axisdefault.o: /usr/X11/include/Xm/Label.h XMScale.h
 axisdefault.o: /usr/X11/include/Xm/Scale.h panemgr.h refreshctl.h
 buttondlg.o: /usr/include/string.h /usr/include/features.h
 buttondlg.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-buttondlg.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h XMManagers.h
+buttondlg.o: /usr/include/stddef.h XMManagers.h
 buttondlg.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Xm.h
 buttondlg.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
 buttondlg.o: /usr/include/sys/types.h /usr/include/bits/types.h
@@ -1071,17 +1049,16 @@ buttondlg.o: /usr/X11/include/Xm/Frame.h XMWidget.h XMPushbutton.h
 buttondlg.o: /usr/X11/include/Xm/PushB.h /usr/X11/include/Xm/CascadeB.h
 buttondlg.o: /usr/X11/include/Xm/ToggleB.h /usr/X11/include/Xm/ArrowB.h
 buttondlg.o: XMShell.h XMCallback.h /usr/include/stdio.h
-buttondlg.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-buttondlg.o: /usr/include/libio.h /usr/include/_G_config.h
-buttondlg.o: /usr/include/bits/stdio_lim.h buttondlg.h clientops.h ./Xamine.h
+buttondlg.o: /usr/include/stdarg.h /usr/include/libio.h
+buttondlg.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+buttondlg.o: buttondlg.h clientops.h ./Xamine.h
 buttondlg.o: /usr/X11/include/Xm/ScrolledW.h /usr/X11/include/Xm/MwmUtil.h
 buttondlg.o: /usr/X11/include/X11/Xmd.h
 buttonreq.o: XMCallback.h XMWidget.h /usr/X11/include/X11/Intrinsic.h
 buttonreq.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 buttonreq.o: /usr/include/features.h /usr/include/sys/cdefs.h
 buttonreq.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-buttonreq.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-buttonreq.o: /usr/include/time.h /usr/include/endian.h
+buttonreq.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 buttonreq.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 buttonreq.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 buttonreq.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -1096,24 +1073,24 @@ buttonreq.o: /usr/X11/include/X11/SM/SMlib.h /usr/X11/include/X11/SM/SM.h
 buttonreq.o: /usr/X11/include/X11/ICE/ICElib.h /usr/X11/include/X11/ICE/ICE.h
 buttonreq.o: /usr/X11/include/X11/Xatom.h /usr/X11/include/Xm/XmStrDefs.h
 buttonreq.o: /usr/X11/include/Xm/VendorS.h /usr/include/stdio.h
-buttonreq.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-buttonreq.o: /usr/include/libio.h /usr/include/_G_config.h
-buttonreq.o: /usr/include/bits/stdio_lim.h XMShell.h XMPushbutton.h
-buttonreq.o: /usr/X11/include/Xm/PushB.h /usr/X11/include/Xm/CascadeB.h
-buttonreq.o: /usr/X11/include/Xm/ToggleB.h /usr/X11/include/Xm/ArrowB.h
-buttonreq.o: XMDialogs.h /usr/X11/include/Xm/MessageB.h
-buttonreq.o: /usr/X11/include/Xm/SelectioB.h /usr/X11/include/Xm/FileSB.h
-buttonreq.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
-buttonreq.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
-buttonreq.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
-buttonreq.o: /usr/X11/include/Xm/Frame.h dispshare.h errormsg.h dispwind.h
-buttonreq.o: /usr/include/stdlib.h /usr/include/alloca.h
-buttonreq.o: /usr/include/assert.h superpos.h gateio.h dispgrob.h XBatch.h
-buttonreq.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
-buttonreq.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
-buttonreq.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
-buttonreq.o: /usr/include/getopt.h /usr/include/sys/time.h
-buttonreq.o: /usr/include/bits/time.h convert.h messages.h clientops.h
+buttonreq.o: /usr/include/stdarg.h /usr/include/libio.h
+buttonreq.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h XMShell.h
+buttonreq.o: XMPushbutton.h /usr/X11/include/Xm/PushB.h
+buttonreq.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
+buttonreq.o: /usr/X11/include/Xm/ArrowB.h XMDialogs.h
+buttonreq.o: /usr/X11/include/Xm/MessageB.h /usr/X11/include/Xm/SelectioB.h
+buttonreq.o: /usr/X11/include/Xm/FileSB.h XMManagers.h
+buttonreq.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
+buttonreq.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
+buttonreq.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
+buttonreq.o: dispshare.h errormsg.h dispwind.h /usr/include/stdlib.h
+buttonreq.o: /usr/include/alloca.h /usr/include/assert.h superpos.h gateio.h
+buttonreq.o: dispgrob.h XBatch.h /usr/X11/include/X11/Xos.h
+buttonreq.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
+buttonreq.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+buttonreq.o: /usr/include/bits/confname.h /usr/include/getopt.h
+buttonreq.o: /usr/include/sys/time.h /usr/include/bits/time.h
+buttonreq.o: /usr/X11/include/X11/Xarch.h convert.h messages.h clientops.h
 buttonreq.o: ./Xamine.h buttonreq.h buttondlg.h panemgr.h spcchoice.h
 buttonreq.o: ptlist.h sumregion.h XMList.h /usr/X11/include/Xm/List.h
 buttonreq.o: /usr/X11/include/Xm/ScrolledW.h XMLabel.h
@@ -1126,12 +1103,11 @@ buttonsetup.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
 buttonsetup.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 buttonsetup.o: /usr/include/features.h /usr/include/sys/cdefs.h
 buttonsetup.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-buttonsetup.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-buttonsetup.o: /usr/include/time.h /usr/include/endian.h
-buttonsetup.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-buttonsetup.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-buttonsetup.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
-buttonsetup.o: /usr/X11/include/X11/Xfuncproto.h
+buttonsetup.o: /usr/include/stddef.h /usr/include/time.h
+buttonsetup.o: /usr/include/endian.h /usr/include/bits/endian.h
+buttonsetup.o: /usr/include/sys/select.h /usr/include/bits/select.h
+buttonsetup.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+buttonsetup.o: /usr/X11/include/X11/X.h /usr/X11/include/X11/Xfuncproto.h
 buttonsetup.o: /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xutil.h
 buttonsetup.o: /usr/X11/include/X11/Xresource.h /usr/include/string.h
 buttonsetup.o: /usr/X11/include/X11/Core.h /usr/X11/include/X11/Composite.h
@@ -1148,8 +1124,7 @@ buttonsetup.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
 buttonsetup.o: XMWidget.h XMPushbutton.h /usr/X11/include/Xm/PushB.h
 buttonsetup.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
 buttonsetup.o: /usr/X11/include/Xm/ArrowB.h buttonsetup.h location.h
-buttonsetup.o: /usr/include/stdio.h
-buttonsetup.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+buttonsetup.o: /usr/include/stdio.h /usr/include/stdarg.h
 buttonsetup.o: /usr/include/libio.h /usr/include/_G_config.h
 buttonsetup.o: /usr/include/bits/stdio_lim.h XMLabel.h
 buttonsetup.o: /usr/X11/include/Xm/Label.h geometrymenu.h panemgr.h
@@ -1166,15 +1141,15 @@ buttonsetup.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 buttonsetup.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 buttonsetup.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 buttonsetup.o: /usr/include/getopt.h /usr/include/sys/time.h
-buttonsetup.o: /usr/include/bits/time.h grobjinput.h XMSeparators.h
-buttonsetup.o: /usr/X11/include/Xm/Separator.h grafinput.h helpmenu.h
-buttonsetup.o: guintegrate.h acceptgates.h trackcursor.h properties.h
+buttonsetup.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h
+buttonsetup.o: grobjinput.h XMSeparators.h /usr/X11/include/Xm/Separator.h
+buttonsetup.o: grafinput.h helpmenu.h guintegrate.h acceptgates.h
+buttonsetup.o: trackcursor.h properties.h
 chanplot.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
 chanplot.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 chanplot.o: /usr/include/features.h /usr/include/sys/cdefs.h
 chanplot.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-chanplot.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-chanplot.o: /usr/include/time.h /usr/include/endian.h
+chanplot.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 chanplot.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 chanplot.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 chanplot.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -1192,8 +1167,7 @@ chanplot.o: /usr/X11/include/Xm/VendorS.h refreshctl.h panemgr.h XMManagers.h
 chanplot.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
 chanplot.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
 chanplot.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
-chanplot.o: dispwind.h /usr/include/stdio.h
-chanplot.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+chanplot.o: dispwind.h /usr/include/stdio.h /usr/include/stdarg.h
 chanplot.o: /usr/include/libio.h /usr/include/_G_config.h
 chanplot.o: /usr/include/bits/stdio_lim.h /usr/include/stdlib.h
 chanplot.o: /usr/include/alloca.h /usr/include/assert.h superpos.h axes.h
@@ -1201,8 +1175,7 @@ chanplot.o: scaling.h dispshare.h chanplot.h colormgr.h gc.h xaminegc.h
 chanplot.o: gcmgr.h
 checklist.o: /usr/include/stdio.h /usr/include/features.h
 checklist.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-checklist.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-checklist.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+checklist.o: /usr/include/stddef.h /usr/include/stdarg.h
 checklist.o: /usr/include/bits/types.h /usr/include/libio.h
 checklist.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 checklist.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
@@ -1232,8 +1205,7 @@ clirequests.o: /usr/include/assert.h /usr/include/features.h
 clirequests.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 clirequests.o: acceptgates.h XMWidget.h /usr/X11/include/X11/Intrinsic.h
 clirequests.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
-clirequests.o: /usr/include/bits/types.h
-clirequests.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+clirequests.o: /usr/include/bits/types.h /usr/include/stddef.h
 clirequests.o: /usr/include/time.h /usr/include/endian.h
 clirequests.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 clirequests.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
@@ -1250,24 +1222,23 @@ clirequests.o: /usr/X11/include/X11/SM/SM.h /usr/X11/include/X11/ICE/ICElib.h
 clirequests.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
 clirequests.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/Xm/VendorS.h
 clirequests.o: convert.h dispwind.h /usr/include/stdio.h
-clirequests.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-clirequests.o: /usr/include/libio.h /usr/include/_G_config.h
-clirequests.o: /usr/include/bits/stdio_lim.h /usr/include/stdlib.h
-clirequests.o: /usr/include/alloca.h superpos.h dispshare.h dispgrob.h
-clirequests.o: XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
-clirequests.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
-clirequests.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
-clirequests.o: /usr/include/getopt.h /usr/include/sys/time.h
-clirequests.o: /usr/include/bits/time.h grobjdisplay.h refreshctl.h panemgr.h
-clirequests.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
+clirequests.o: /usr/include/stdarg.h /usr/include/libio.h
+clirequests.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+clirequests.o: /usr/include/stdlib.h /usr/include/alloca.h superpos.h
+clirequests.o: dispshare.h dispgrob.h XBatch.h /usr/X11/include/X11/Xos.h
+clirequests.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
+clirequests.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+clirequests.o: /usr/include/bits/confname.h /usr/include/getopt.h
+clirequests.o: /usr/include/sys/time.h /usr/include/bits/time.h
+clirequests.o: /usr/X11/include/X11/Xarch.h grobjdisplay.h refreshctl.h
+clirequests.o: panemgr.h XMManagers.h /usr/X11/include/Xm/BulletinB.h
 clirequests.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
 clirequests.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
 clirequests.o: /usr/X11/include/Xm/Frame.h errormsg.h clirequests.h gateio.h
 clirequests.o: messages.h clientops.h ./Xamine.h grobjmgr.h buttonreq.h
 colormgr.o: /usr/include/stdio.h /usr/include/features.h
 colormgr.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-colormgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-colormgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+colormgr.o: /usr/include/stddef.h /usr/include/stdarg.h
 colormgr.o: /usr/include/bits/types.h /usr/include/libio.h
 colormgr.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 colormgr.o: /usr/include/errno.h /usr/include/bits/errno.h
@@ -1292,8 +1263,7 @@ colormgr.o: /usr/X11/include/X11/Xatom.h /usr/X11/include/Xm/XmStrDefs.h
 colormgr.o: /usr/X11/include/Xm/VendorS.h colormgr.h
 colorset.o: /usr/include/stdio.h /usr/include/features.h
 colorset.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-colorset.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-colorset.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+colorset.o: /usr/include/stddef.h /usr/include/stdarg.h
 colorset.o: /usr/include/bits/types.h /usr/include/libio.h
 colorset.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 colorset.o: /usr/include/stdlib.h /usr/include/sys/types.h
@@ -1328,8 +1298,7 @@ colorset.o: /usr/X11/include/Xm/Frame.h XMCallback.h XMMenus.h helpmenu.h
 colorset.o: errormsg.h procede.h colormgr.h
 compatspec.o: /usr/include/stdio.h /usr/include/features.h
 compatspec.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-compatspec.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-compatspec.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+compatspec.o: /usr/include/stddef.h /usr/include/stdarg.h
 compatspec.o: /usr/include/bits/types.h /usr/include/libio.h
 compatspec.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 compatspec.o: compatspec.h /usr/include/stdlib.h /usr/include/sys/types.h
@@ -1362,13 +1331,10 @@ compatspec.o: /usr/include/assert.h superpos.h
 convert.o: /usr/include/math.h /usr/include/features.h
 convert.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 convert.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
-convert.o: /usr/include/bits/mathcalls.h
-convert.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h convert.h
-convert.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
-convert.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
-convert.o: /usr/include/bits/types.h
-convert.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-convert.o: /usr/include/time.h /usr/include/endian.h
+convert.o: /usr/include/bits/mathcalls.h convert.h XMWidget.h
+convert.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
+convert.o: /usr/include/sys/types.h /usr/include/bits/types.h
+convert.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 convert.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 convert.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 convert.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -1382,8 +1348,7 @@ convert.o: /usr/X11/include/X11/Shell.h /usr/X11/include/X11/SM/SMlib.h
 convert.o: /usr/X11/include/X11/SM/SM.h /usr/X11/include/X11/ICE/ICElib.h
 convert.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
 convert.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/Xm/VendorS.h
-convert.o: dispwind.h /usr/include/stdio.h
-convert.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+convert.o: dispwind.h /usr/include/stdio.h /usr/include/stdarg.h
 convert.o: /usr/include/libio.h /usr/include/_G_config.h
 convert.o: /usr/include/bits/stdio_lim.h /usr/include/stdlib.h
 convert.o: /usr/include/alloca.h /usr/include/assert.h superpos.h dispshare.h
@@ -1393,8 +1358,7 @@ convert.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
 convert.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
 copier.o: /usr/include/stdio.h /usr/include/features.h
 copier.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-copier.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-copier.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+copier.o: /usr/include/stddef.h /usr/include/stdarg.h
 copier.o: /usr/include/bits/types.h /usr/include/libio.h
 copier.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h copier.h
 copier.o: XMPushbutton.h /usr/X11/include/Xm/PushB.h /usr/X11/include/Xm/Xm.h
@@ -1422,8 +1386,7 @@ copier.o: /usr/X11/include/Xm/ScrolledW.h XMLabel.h
 copier.o: /usr/X11/include/Xm/Label.h
 copyatr.o: /usr/include/stdio.h /usr/include/features.h
 copyatr.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-copyatr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-copyatr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+copyatr.o: /usr/include/stddef.h /usr/include/stdarg.h
 copyatr.o: /usr/include/bits/types.h /usr/include/libio.h
 copyatr.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 copyatr.o: /usr/include/string.h dispwind.h /usr/include/stdlib.h
@@ -1456,8 +1419,7 @@ copyatr.o: /usr/X11/include/Xm/FileSB.h XMCallback.h errormsg.h helpmenu.h
 copyatr.o: refreshctl.h
 delgrob.o: /usr/include/stdio.h /usr/include/features.h
 delgrob.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-delgrob.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-delgrob.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+delgrob.o: /usr/include/stddef.h /usr/include/stdarg.h
 delgrob.o: /usr/include/bits/types.h /usr/include/libio.h
 delgrob.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 delgrob.o: /usr/include/string.h /usr/include/ctype.h /usr/include/endian.h
@@ -1489,12 +1451,12 @@ delgrob.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 delgrob.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 delgrob.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 delgrob.o: /usr/include/getopt.h /usr/include/sys/time.h
-delgrob.o: /usr/include/bits/time.h convert.h dispshare.h helpmenu.h
-delgrob.o: delgrob.h grobjmgr.h panemgr.h errormsg.h refreshctl.h
+delgrob.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+delgrob.o: dispshare.h helpmenu.h delgrob.h grobjmgr.h panemgr.h errormsg.h
+delgrob.o: refreshctl.h
 dfltmgr.o: /usr/include/stdio.h /usr/include/features.h
 dfltmgr.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-dfltmgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-dfltmgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+dfltmgr.o: /usr/include/stddef.h /usr/include/stdarg.h
 dfltmgr.o: /usr/include/bits/types.h /usr/include/libio.h
 dfltmgr.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 dfltmgr.o: /usr/include/stdlib.h /usr/include/sys/types.h /usr/include/time.h
@@ -1522,12 +1484,11 @@ dfltmgr.o: /usr/X11/include/Xm/Frame.h XMWidget.h dispwind.h
 dfltmgr.o: /usr/include/assert.h superpos.h grobjdisplay.h convert.h
 dfltmgr.o: dispshare.h dispgrob.h XBatch.h /usr/X11/include/X11/Xos.h
 dfltmgr.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
-dfltmgr.o: /usr/include/sys/time.h /usr/include/bits/time.h refreshctl.h
-dfltmgr.o: dfltmgr.h
+dfltmgr.o: /usr/include/sys/time.h /usr/include/bits/time.h
+dfltmgr.o: /usr/X11/include/X11/Xarch.h refreshctl.h dfltmgr.h
 dispgrob.o: /usr/include/stdio.h /usr/include/features.h
 dispgrob.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-dispgrob.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-dispgrob.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+dispgrob.o: /usr/include/stddef.h /usr/include/stdarg.h
 dispgrob.o: /usr/include/bits/types.h /usr/include/libio.h
 dispgrob.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h dispgrob.h
 dispgrob.o: /usr/include/assert.h /usr/include/string.h XMWidget.h
@@ -1552,8 +1513,8 @@ dispgrob.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 dispgrob.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 dispgrob.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 dispgrob.o: /usr/include/getopt.h /usr/include/sys/time.h
-dispgrob.o: /usr/include/bits/time.h convert.h dispshare.h sumregion.h
-dispgrob.o: XMList.h /usr/X11/include/Xm/List.h
+dispgrob.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+dispgrob.o: dispshare.h sumregion.h XMList.h /usr/X11/include/Xm/List.h
 dispgrob.o: /usr/X11/include/Xm/ScrolledW.h XMPushbutton.h
 dispgrob.o: /usr/X11/include/Xm/PushB.h /usr/X11/include/Xm/CascadeB.h
 dispgrob.o: /usr/X11/include/Xm/ToggleB.h /usr/X11/include/Xm/ArrowB.h
@@ -1570,8 +1531,7 @@ dispgrob.o: refreshctl.h panemgr.h acceptgates.h grobjdisplay.h marker.h
 dispgrob.o: gcmgr.h xaminegc.h gc.h chanplot.h
 dispwind.o: /usr/include/stdio.h /usr/include/features.h
 dispwind.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-dispwind.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-dispwind.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+dispwind.o: /usr/include/stddef.h /usr/include/stdarg.h
 dispwind.o: /usr/include/bits/types.h /usr/include/libio.h
 dispwind.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 dispwind.o: /usr/include/stdlib.h /usr/include/sys/types.h
@@ -1597,8 +1557,7 @@ dispwind.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
 dispwind.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
 errormsg.o: XMDialogs.h /usr/include/stdio.h /usr/include/features.h
 errormsg.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-errormsg.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-errormsg.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+errormsg.o: /usr/include/stddef.h /usr/include/stdarg.h
 errormsg.o: /usr/include/bits/types.h /usr/include/libio.h
 errormsg.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 errormsg.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/MessageB.h
@@ -1629,15 +1588,13 @@ eventflags.o: /usr/include/assert.h /usr/include/features.h
 eventflags.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h eventflags.h
 exit.o: /usr/include/stdlib.h /usr/include/features.h
 exit.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-exit.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-exit.o: /usr/include/sys/types.h /usr/include/bits/types.h
-exit.o: /usr/include/time.h /usr/include/endian.h /usr/include/bits/endian.h
-exit.o: /usr/include/sys/select.h /usr/include/bits/select.h
-exit.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
-exit.o: /usr/include/alloca.h /usr/include/stdio.h
-exit.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-exit.o: /usr/include/libio.h /usr/include/_G_config.h
-exit.o: /usr/include/bits/stdio_lim.h XMDialogs.h
+exit.o: /usr/include/stddef.h /usr/include/sys/types.h
+exit.o: /usr/include/bits/types.h /usr/include/time.h /usr/include/endian.h
+exit.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+exit.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+exit.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+exit.o: /usr/include/stdio.h /usr/include/stdarg.h /usr/include/libio.h
+exit.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h XMDialogs.h
 exit.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/MessageB.h
 exit.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
 exit.o: /usr/X11/include/X11/Xlib.h /usr/X11/include/X11/X.h
@@ -1663,8 +1620,7 @@ expand.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
 expand.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 expand.o: /usr/include/features.h /usr/include/sys/cdefs.h
 expand.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-expand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-expand.o: /usr/include/time.h /usr/include/endian.h
+expand.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 expand.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 expand.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 expand.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -1678,8 +1634,7 @@ expand.o: /usr/X11/include/X11/Shell.h /usr/X11/include/X11/SM/SMlib.h
 expand.o: /usr/X11/include/X11/SM/SM.h /usr/X11/include/X11/ICE/ICElib.h
 expand.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
 expand.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/Xm/VendorS.h
-expand.o: XMDialogs.h /usr/include/stdio.h
-expand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+expand.o: XMDialogs.h /usr/include/stdio.h /usr/include/stdarg.h
 expand.o: /usr/include/libio.h /usr/include/_G_config.h
 expand.o: /usr/include/bits/stdio_lim.h /usr/X11/include/Xm/MessageB.h
 expand.o: /usr/X11/include/Xm/SelectioB.h /usr/X11/include/Xm/FileSB.h
@@ -1697,8 +1652,7 @@ expand.o: /usr/X11/include/Xm/TextF.h grafinput.h dispshare.h convert.h
 expand.o: colormgr.h gcmgr.h xaminegc.h gc.h
 gateio.o: /usr/include/stdio.h /usr/include/features.h
 gateio.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-gateio.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-gateio.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+gateio.o: /usr/include/stddef.h /usr/include/stdarg.h
 gateio.o: /usr/include/bits/types.h /usr/include/libio.h
 gateio.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 gateio.o: /usr/include/string.h /usr/include/stdlib.h
@@ -1722,12 +1676,11 @@ gateio.o: dispwind.h superpos.h XBatch.h /usr/X11/include/X11/Xos.h
 gateio.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
 gateio.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
 gateio.o: /usr/include/bits/confname.h /usr/include/getopt.h
-gateio.o: /usr/include/sys/time.h /usr/include/bits/time.h convert.h
-gateio.o: dispshare.h messages.h clientops.h ./Xamine.h
+gateio.o: /usr/include/sys/time.h /usr/include/bits/time.h
+gateio.o: /usr/X11/include/X11/Xarch.h convert.h dispshare.h messages.h
+gateio.o: clientops.h ./Xamine.h
 gc.o: /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h
-gc.o: /usr/include/gnu/stubs.h
-gc.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-gc.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+gc.o: /usr/include/gnu/stubs.h /usr/include/stddef.h /usr/include/stdarg.h
 gc.o: /usr/include/bits/types.h /usr/include/libio.h /usr/include/_G_config.h
 gc.o: /usr/include/bits/stdio_lim.h gc.h /usr/X11/include/X11/Xlib.h
 gc.o: /usr/include/sys/types.h /usr/include/time.h /usr/include/endian.h
@@ -1737,10 +1690,8 @@ gc.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
 gc.o: /usr/X11/include/X11/Xfuncproto.h /usr/X11/include/X11/Xosdefs.h
 gcmgr.o: /usr/include/assert.h /usr/include/features.h
 gcmgr.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h xaminegc.h
-gcmgr.o: dispwind.h /usr/include/stdio.h
-gcmgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-gcmgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-gcmgr.o: /usr/include/bits/types.h /usr/include/libio.h
+gcmgr.o: dispwind.h /usr/include/stdio.h /usr/include/stddef.h
+gcmgr.o: /usr/include/stdarg.h /usr/include/bits/types.h /usr/include/libio.h
 gcmgr.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 gcmgr.o: /usr/include/stdlib.h /usr/include/sys/types.h /usr/include/time.h
 gcmgr.o: /usr/include/endian.h /usr/include/bits/endian.h
@@ -1763,14 +1714,14 @@ gcmgr.o: dispgrob.h XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 gcmgr.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 gcmgr.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 gcmgr.o: /usr/include/getopt.h /usr/include/sys/time.h
-gcmgr.o: /usr/include/bits/time.h refreshctl.h panemgr.h XMManagers.h
-gcmgr.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
-gcmgr.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
-gcmgr.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
+gcmgr.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h refreshctl.h
+gcmgr.o: panemgr.h XMManagers.h /usr/X11/include/Xm/BulletinB.h
+gcmgr.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
+gcmgr.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
+gcmgr.o: /usr/X11/include/Xm/Frame.h
 geometrymenu.o: /usr/include/stdio.h /usr/include/features.h
 geometrymenu.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-geometrymenu.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-geometrymenu.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+geometrymenu.o: /usr/include/stddef.h /usr/include/stdarg.h
 geometrymenu.o: /usr/include/bits/types.h /usr/include/libio.h
 geometrymenu.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 geometrymenu.o: /usr/include/errno.h /usr/include/bits/errno.h
@@ -1809,8 +1760,7 @@ geometrymenu.o: /usr/include/assert.h superpos.h menusetup.h XMMenus.h exit.h
 grafinput.o: /usr/X11/include/X11/keysym.h /usr/X11/include/X11/keysymdef.h
 grafinput.o: XMDialogs.h /usr/include/stdio.h /usr/include/features.h
 grafinput.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-grafinput.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-grafinput.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+grafinput.o: /usr/include/stddef.h /usr/include/stdarg.h
 grafinput.o: /usr/include/bits/types.h /usr/include/libio.h
 grafinput.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 grafinput.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/MessageB.h
@@ -1842,8 +1792,7 @@ grafinput.o: /usr/include/alloca.h /usr/include/assert.h superpos.h convert.h
 grafinput.o: dispshare.h
 grobfile.o: /usr/include/stdio.h /usr/include/features.h
 grobfile.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-grobfile.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-grobfile.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+grobfile.o: /usr/include/stddef.h /usr/include/stdarg.h
 grobfile.o: /usr/include/bits/types.h /usr/include/libio.h
 grobfile.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 grobfile.o: /usr/include/time.h dispgrob.h /usr/include/assert.h
@@ -1868,15 +1817,15 @@ grobfile.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 grobfile.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 grobfile.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 grobfile.o: /usr/include/getopt.h /usr/include/sys/time.h
-grobfile.o: /usr/include/bits/time.h convert.h dispshare.h panemgr.h
-grobfile.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
-grobfile.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
-grobfile.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
-grobfile.o: /usr/X11/include/Xm/Frame.h errormsg.h
+grobfile.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+grobfile.o: dispshare.h panemgr.h XMManagers.h
+grobfile.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
+grobfile.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
+grobfile.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
+grobfile.o: errormsg.h
 grobjdb.o: /usr/include/stdio.h /usr/include/features.h
 grobjdb.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-grobjdb.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-grobjdb.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+grobjdb.o: /usr/include/stddef.h /usr/include/stdarg.h
 grobjdb.o: /usr/include/bits/types.h /usr/include/libio.h
 grobjdb.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 grobjdb.o: /usr/include/errno.h /usr/include/bits/errno.h
@@ -1902,11 +1851,11 @@ grobjdb.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 grobjdb.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 grobjdb.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 grobjdb.o: /usr/include/getopt.h /usr/include/sys/time.h
-grobjdb.o: /usr/include/bits/time.h convert.h dispshare.h
+grobjdb.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+grobjdb.o: dispshare.h
 grobjdisplay.o: /usr/include/stdio.h /usr/include/features.h
 grobjdisplay.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-grobjdisplay.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-grobjdisplay.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+grobjdisplay.o: /usr/include/stddef.h /usr/include/stdarg.h
 grobjdisplay.o: /usr/include/bits/types.h /usr/include/libio.h
 grobjdisplay.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 grobjdisplay.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
@@ -1931,14 +1880,14 @@ grobjdisplay.o: XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 grobjdisplay.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 grobjdisplay.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 grobjdisplay.o: /usr/include/getopt.h /usr/include/sys/time.h
-grobjdisplay.o: /usr/include/bits/time.h panemgr.h XMManagers.h
-grobjdisplay.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
-grobjdisplay.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
-grobjdisplay.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
-grobjdisplay.o: dispwind.h /usr/include/stdlib.h /usr/include/alloca.h
-grobjdisplay.o: /usr/include/assert.h superpos.h grobjdisplay.h convert.h
-grobjdisplay.o: dispshare.h dispgrob.h refreshctl.h text.h errormsg.h
-grobjdisplay.o: colormgr.h grobjmgr.h sumregion.h XMList.h
+grobjdisplay.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h
+grobjdisplay.o: panemgr.h XMManagers.h /usr/X11/include/Xm/BulletinB.h
+grobjdisplay.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
+grobjdisplay.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
+grobjdisplay.o: /usr/X11/include/Xm/Frame.h dispwind.h /usr/include/stdlib.h
+grobjdisplay.o: /usr/include/alloca.h /usr/include/assert.h superpos.h
+grobjdisplay.o: grobjdisplay.h convert.h dispshare.h dispgrob.h refreshctl.h
+grobjdisplay.o: text.h errormsg.h colormgr.h grobjmgr.h sumregion.h XMList.h
 grobjdisplay.o: /usr/X11/include/Xm/List.h /usr/X11/include/Xm/ScrolledW.h
 grobjdisplay.o: XMPushbutton.h /usr/X11/include/Xm/PushB.h
 grobjdisplay.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
@@ -1955,8 +1904,7 @@ grobjinput.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
 grobjinput.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 grobjinput.o: /usr/include/features.h /usr/include/sys/cdefs.h
 grobjinput.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-grobjinput.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-grobjinput.o: /usr/include/time.h /usr/include/endian.h
+grobjinput.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 grobjinput.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 grobjinput.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 grobjinput.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -1974,23 +1922,21 @@ grobjinput.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/VendorS.h
 grobjinput.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
 grobjinput.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
 grobjinput.o: /usr/X11/include/Xm/Frame.h XMWidget.h XMDialogs.h
-grobjinput.o: /usr/include/stdio.h
-grobjinput.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-grobjinput.o: /usr/include/libio.h /usr/include/_G_config.h
-grobjinput.o: /usr/include/bits/stdio_lim.h /usr/X11/include/Xm/MessageB.h
-grobjinput.o: /usr/X11/include/Xm/SelectioB.h /usr/X11/include/Xm/FileSB.h
-grobjinput.o: XMPushbutton.h /usr/X11/include/Xm/PushB.h
-grobjinput.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
-grobjinput.o: /usr/X11/include/Xm/ArrowB.h XMCallback.h XMSeparators.h
-grobjinput.o: /usr/X11/include/Xm/Separator.h grobjinput.h XMText.h
-grobjinput.o: /usr/X11/include/Xm/Text.h /usr/X11/include/Xm/TextF.h
-grobjinput.o: XMLabel.h /usr/X11/include/Xm/Label.h grafinput.h helpmenu.h
-grobjinput.o: refreshctl.h panemgr.h dispwind.h /usr/include/stdlib.h
+grobjinput.o: /usr/include/stdio.h /usr/include/stdarg.h /usr/include/libio.h
+grobjinput.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+grobjinput.o: /usr/X11/include/Xm/MessageB.h /usr/X11/include/Xm/SelectioB.h
+grobjinput.o: /usr/X11/include/Xm/FileSB.h XMPushbutton.h
+grobjinput.o: /usr/X11/include/Xm/PushB.h /usr/X11/include/Xm/CascadeB.h
+grobjinput.o: /usr/X11/include/Xm/ToggleB.h /usr/X11/include/Xm/ArrowB.h
+grobjinput.o: XMCallback.h XMSeparators.h /usr/X11/include/Xm/Separator.h
+grobjinput.o: grobjinput.h XMText.h /usr/X11/include/Xm/Text.h
+grobjinput.o: /usr/X11/include/Xm/TextF.h XMLabel.h
+grobjinput.o: /usr/X11/include/Xm/Label.h grafinput.h helpmenu.h refreshctl.h
+grobjinput.o: panemgr.h dispwind.h /usr/include/stdlib.h
 grobjinput.o: /usr/include/alloca.h /usr/include/assert.h superpos.h
 grobjiomenu.o: /usr/include/stdio.h /usr/include/features.h
 grobjiomenu.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-grobjiomenu.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-grobjiomenu.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+grobjiomenu.o: /usr/include/stddef.h /usr/include/stdarg.h
 grobjiomenu.o: /usr/include/bits/types.h /usr/include/libio.h
 grobjiomenu.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 grobjiomenu.o: /usr/include/errno.h /usr/include/bits/errno.h
@@ -2026,12 +1972,11 @@ grobjiomenu.o: XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 grobjiomenu.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 grobjiomenu.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 grobjiomenu.o: /usr/include/getopt.h /usr/include/sys/time.h
-grobjiomenu.o: /usr/include/bits/time.h convert.h dispshare.h refreshctl.h
-grobjiomenu.o: errormsg.h winiomenu.h
+grobjiomenu.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h
+grobjiomenu.o: convert.h dispshare.h refreshctl.h errormsg.h winiomenu.h
 grobjmgr.o: /usr/include/stdio.h /usr/include/features.h
 grobjmgr.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-grobjmgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-grobjmgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+grobjmgr.o: /usr/include/stddef.h /usr/include/stdarg.h
 grobjmgr.o: /usr/include/bits/types.h /usr/include/libio.h
 grobjmgr.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 grobjmgr.o: /usr/include/errno.h /usr/include/bits/errno.h
@@ -2058,11 +2003,11 @@ grobjmgr.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 grobjmgr.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 grobjmgr.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 grobjmgr.o: /usr/include/getopt.h /usr/include/sys/time.h
-grobjmgr.o: /usr/include/bits/time.h convert.h dispshare.h grobjmgr.h
+grobjmgr.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+grobjmgr.o: dispshare.h grobjmgr.h
 grobjtest.o: /usr/include/stdio.h /usr/include/features.h
 grobjtest.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-grobjtest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-grobjtest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+grobjtest.o: /usr/include/stddef.h /usr/include/stdarg.h
 grobjtest.o: /usr/include/bits/types.h /usr/include/libio.h
 grobjtest.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 grobjtest.o: /usr/include/stdlib.h /usr/include/sys/types.h
@@ -2087,11 +2032,11 @@ grobjtest.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 grobjtest.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 grobjtest.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 grobjtest.o: /usr/include/getopt.h /usr/include/sys/time.h
-grobjtest.o: /usr/include/bits/time.h convert.h dispshare.h
+grobjtest.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+grobjtest.o: dispshare.h
 guintegrate.o: /usr/include/stdio.h /usr/include/features.h
 guintegrate.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-guintegrate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-guintegrate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+guintegrate.o: /usr/include/stddef.h /usr/include/stdarg.h
 guintegrate.o: /usr/include/bits/types.h /usr/include/libio.h
 guintegrate.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 guintegrate.o: /usr/include/string.h XMDialogs.h
@@ -2127,12 +2072,11 @@ guintegrate.o: XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 guintegrate.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 guintegrate.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 guintegrate.o: /usr/include/getopt.h /usr/include/sys/time.h
-guintegrate.o: /usr/include/bits/time.h convert.h dispshare.h logging.h
-guintegrate.o: grobjmgr.h panemgr.h
+guintegrate.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h
+guintegrate.o: convert.h dispshare.h logging.h grobjmgr.h panemgr.h
 helpmenu.o: /usr/include/stdio.h /usr/include/features.h
 helpmenu.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-helpmenu.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-helpmenu.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+helpmenu.o: /usr/include/stddef.h /usr/include/stdarg.h
 helpmenu.o: /usr/include/bits/types.h /usr/include/libio.h
 helpmenu.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 helpmenu.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
@@ -2161,9 +2105,7 @@ helpmenu.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
 helpmenu.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
 helpmenu.o: XMCallback.h helpmenu.h
 info.o: /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h
-info.o: /usr/include/gnu/stubs.h
-info.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-info.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+info.o: /usr/include/gnu/stubs.h /usr/include/stddef.h /usr/include/stdarg.h
 info.o: /usr/include/bits/types.h /usr/include/libio.h
 info.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 info.o: /usr/include/stdlib.h /usr/include/sys/types.h /usr/include/time.h
@@ -2197,17 +2139,14 @@ info.o: XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 info.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 info.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 info.o: /usr/include/getopt.h /usr/include/sys/time.h
-info.o: /usr/include/bits/time.h convert.h dispshare.h grobjmgr.h
-info.o: spcdisplay.h
+info.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+info.o: dispshare.h grobjmgr.h spcdisplay.h
 integrate.o: /usr/include/math.h /usr/include/features.h
 integrate.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 integrate.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
-integrate.o: /usr/include/bits/mathcalls.h
-integrate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-integrate.o: /usr/include/string.h
-integrate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h integrate.h
-integrate.o: dispgrob.h /usr/include/stdio.h
-integrate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+integrate.o: /usr/include/bits/mathcalls.h /usr/include/string.h
+integrate.o: /usr/include/stddef.h integrate.h dispgrob.h
+integrate.o: /usr/include/stdio.h /usr/include/stdarg.h
 integrate.o: /usr/include/bits/types.h /usr/include/libio.h
 integrate.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 integrate.o: /usr/include/assert.h XMWidget.h
@@ -2232,11 +2171,11 @@ integrate.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 integrate.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 integrate.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 integrate.o: /usr/include/getopt.h /usr/include/sys/time.h
-integrate.o: /usr/include/bits/time.h convert.h dispshare.h
+integrate.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+integrate.o: dispshare.h
 lblfont.o: /usr/include/stdio.h /usr/include/features.h
 lblfont.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-lblfont.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-lblfont.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+lblfont.o: /usr/include/stddef.h /usr/include/stdarg.h
 lblfont.o: /usr/include/bits/types.h /usr/include/libio.h
 lblfont.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h XMDialogs.h
 lblfont.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/MessageB.h
@@ -2269,15 +2208,14 @@ lblfont.o: dispshare.h dispgrob.h XBatch.h /usr/X11/include/X11/Xos.h
 lblfont.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
 lblfont.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
 lblfont.o: /usr/include/bits/confname.h /usr/include/getopt.h
-lblfont.o: /usr/include/sys/time.h /usr/include/bits/time.h helpmenu.h
-lblfont.o: lblfont.h dfltmgr.h text.h
+lblfont.o: /usr/include/sys/time.h /usr/include/bits/time.h
+lblfont.o: /usr/X11/include/X11/Xarch.h helpmenu.h lblfont.h dfltmgr.h text.h
 location.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
 location.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
 location.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 location.o: /usr/include/features.h /usr/include/sys/cdefs.h
 location.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-location.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-location.o: /usr/include/time.h /usr/include/endian.h
+location.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 location.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 location.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 location.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -2295,14 +2233,12 @@ location.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
 location.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
 location.o: /usr/X11/include/Xm/Frame.h XMWidget.h XMLabel.h
 location.o: /usr/X11/include/Xm/Label.h location.h /usr/include/stdio.h
-location.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-location.o: /usr/include/libio.h /usr/include/_G_config.h
-location.o: /usr/include/bits/stdio_lim.h
+location.o: /usr/include/stdarg.h /usr/include/libio.h
+location.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 logging.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
 logging.o: /usr/include/sys/types.h /usr/include/features.h
 logging.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-logging.o: /usr/include/bits/types.h
-logging.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+logging.o: /usr/include/bits/types.h /usr/include/stddef.h
 logging.o: /usr/include/time.h /usr/include/endian.h
 logging.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 logging.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
@@ -2312,34 +2248,32 @@ logging.o: /usr/X11/include/X11/Xutil.h /usr/X11/include/X11/Xresource.h
 logging.o: /usr/include/string.h /usr/X11/include/X11/Core.h
 logging.o: /usr/X11/include/X11/Composite.h /usr/X11/include/X11/Constraint.h
 logging.o: /usr/X11/include/X11/Object.h /usr/X11/include/X11/RectObj.h
-logging.o: /usr/include/stdio.h
-logging.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-logging.o: /usr/include/libio.h /usr/include/_G_config.h
-logging.o: /usr/include/bits/stdio_lim.h /usr/include/errno.h
-logging.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
-logging.o: /usr/include/asm/errno.h errormsg.h XMWidget.h
-logging.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/Xm.h
-logging.o: /usr/X11/include/X11/Shell.h /usr/X11/include/X11/SM/SMlib.h
-logging.o: /usr/X11/include/X11/SM/SM.h /usr/X11/include/X11/ICE/ICElib.h
-logging.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
-logging.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/Xm/VendorS.h
-logging.o: XMDialogs.h /usr/X11/include/Xm/MessageB.h
-logging.o: /usr/X11/include/Xm/SelectioB.h /usr/X11/include/Xm/FileSB.h
-logging.o: XMPushbutton.h /usr/X11/include/Xm/PushB.h
-logging.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
-logging.o: /usr/X11/include/Xm/ArrowB.h XMManagers.h
-logging.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
-logging.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
-logging.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
-logging.o: XMCallback.h helpmenu.h logging.h
+logging.o: /usr/include/stdio.h /usr/include/stdarg.h /usr/include/libio.h
+logging.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+logging.o: /usr/include/errno.h /usr/include/bits/errno.h
+logging.o: /usr/include/linux/errno.h /usr/include/asm/errno.h errormsg.h
+logging.o: XMWidget.h /usr/X11/include/X11/StringDefs.h
+logging.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Shell.h
+logging.o: /usr/X11/include/X11/SM/SMlib.h /usr/X11/include/X11/SM/SM.h
+logging.o: /usr/X11/include/X11/ICE/ICElib.h /usr/X11/include/X11/ICE/ICE.h
+logging.o: /usr/X11/include/X11/Xatom.h /usr/X11/include/Xm/XmStrDefs.h
+logging.o: /usr/X11/include/Xm/VendorS.h XMDialogs.h
+logging.o: /usr/X11/include/Xm/MessageB.h /usr/X11/include/Xm/SelectioB.h
+logging.o: /usr/X11/include/Xm/FileSB.h XMPushbutton.h
+logging.o: /usr/X11/include/Xm/PushB.h /usr/X11/include/Xm/CascadeB.h
+logging.o: /usr/X11/include/Xm/ToggleB.h /usr/X11/include/Xm/ArrowB.h
+logging.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
+logging.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
+logging.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
+logging.o: /usr/X11/include/Xm/Frame.h XMCallback.h helpmenu.h logging.h
 marker.o: /usr/include/errno.h /usr/include/features.h
 marker.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 marker.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
 marker.o: /usr/include/asm/errno.h /usr/include/string.h
-marker.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h XMText.h
-marker.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
-marker.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
-marker.o: /usr/include/bits/types.h /usr/include/time.h /usr/include/endian.h
+marker.o: /usr/include/stddef.h XMText.h XMWidget.h
+marker.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
+marker.o: /usr/include/sys/types.h /usr/include/bits/types.h
+marker.o: /usr/include/time.h /usr/include/endian.h
 marker.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 marker.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 marker.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -2353,18 +2287,17 @@ marker.o: /usr/X11/include/X11/SM/SMlib.h /usr/X11/include/X11/SM/SM.h
 marker.o: /usr/X11/include/X11/ICE/ICElib.h /usr/X11/include/X11/ICE/ICE.h
 marker.o: /usr/X11/include/X11/Xatom.h /usr/X11/include/Xm/XmStrDefs.h
 marker.o: /usr/X11/include/Xm/VendorS.h /usr/X11/include/Xm/Text.h
-marker.o: /usr/include/stdio.h
-marker.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-marker.o: /usr/include/libio.h /usr/include/_G_config.h
-marker.o: /usr/include/bits/stdio_lim.h /usr/X11/include/Xm/TextF.h XMLabel.h
-marker.o: /usr/X11/include/Xm/Label.h XMPushbutton.h
-marker.o: /usr/X11/include/Xm/PushB.h /usr/X11/include/Xm/CascadeB.h
-marker.o: /usr/X11/include/Xm/ToggleB.h /usr/X11/include/Xm/ArrowB.h XBatch.h
-marker.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
-marker.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
-marker.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
-marker.o: /usr/include/getopt.h /usr/include/sys/time.h
-marker.o: /usr/include/bits/time.h errormsg.h marker.h grafinput.h
+marker.o: /usr/include/stdio.h /usr/include/stdarg.h /usr/include/libio.h
+marker.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+marker.o: /usr/X11/include/Xm/TextF.h XMLabel.h /usr/X11/include/Xm/Label.h
+marker.o: XMPushbutton.h /usr/X11/include/Xm/PushB.h
+marker.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
+marker.o: /usr/X11/include/Xm/ArrowB.h XBatch.h /usr/X11/include/X11/Xos.h
+marker.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
+marker.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+marker.o: /usr/include/bits/confname.h /usr/include/getopt.h
+marker.o: /usr/include/sys/time.h /usr/include/bits/time.h
+marker.o: /usr/X11/include/X11/Xarch.h errormsg.h marker.h grafinput.h
 marker.o: XMDialogs.h /usr/X11/include/Xm/MessageB.h
 marker.o: /usr/X11/include/Xm/SelectioB.h /usr/X11/include/Xm/FileSB.h
 marker.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
@@ -2377,8 +2310,7 @@ marker.o: /usr/X11/include/Xm/Separator.h dispgrob.h convert.h dispshare.h
 marker.o: colormgr.h grobjmgr.h grobjdisplay.h
 menusetup.o: /usr/include/stdio.h /usr/include/features.h
 menusetup.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-menusetup.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-menusetup.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+menusetup.o: /usr/include/stddef.h /usr/include/stdarg.h
 menusetup.o: /usr/include/bits/types.h /usr/include/libio.h
 menusetup.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 menusetup.o: /usr/include/stdlib.h /usr/include/sys/types.h
@@ -2420,14 +2352,14 @@ menusetup.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 menusetup.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 menusetup.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 menusetup.o: /usr/include/getopt.h /usr/include/sys/time.h
-menusetup.o: /usr/include/bits/time.h grobjinput.h XMSeparators.h
-menusetup.o: /usr/X11/include/Xm/Separator.h grafinput.h guintegrate.h
-menusetup.o: delgrob.h acceptgates.h trackcursor.h location.h errormsg.h
-menusetup.o: superprompt.h objcopy.h copier.h lblfont.h copyatr.h
+menusetup.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h
+menusetup.o: grobjinput.h XMSeparators.h /usr/X11/include/Xm/Separator.h
+menusetup.o: grafinput.h guintegrate.h delgrob.h acceptgates.h trackcursor.h
+menusetup.o: location.h errormsg.h superprompt.h objcopy.h copier.h lblfont.h
+menusetup.o: copyatr.h
 messages.o: /usr/include/stdio.h /usr/include/features.h
 messages.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-messages.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-messages.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+messages.o: /usr/include/stddef.h /usr/include/stdarg.h
 messages.o: /usr/include/bits/types.h /usr/include/libio.h
 messages.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 messages.o: /usr/include/assert.h /usr/include/string.h /usr/include/errno.h
@@ -2454,12 +2386,11 @@ messages.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 messages.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 messages.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 messages.o: /usr/include/getopt.h /usr/include/sys/time.h
-messages.o: /usr/include/bits/time.h convert.h dispshare.h clientops.h
-messages.o: ./Xamine.h
+messages.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+messages.o: dispshare.h clientops.h ./Xamine.h
 objcopy.o: /usr/include/stdio.h /usr/include/features.h
 objcopy.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-objcopy.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-objcopy.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+objcopy.o: /usr/include/stddef.h /usr/include/stdarg.h
 objcopy.o: /usr/include/bits/types.h /usr/include/libio.h
 objcopy.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 objcopy.o: /usr/include/string.h XMDialogs.h
@@ -2494,16 +2425,15 @@ objcopy.o: /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 objcopy.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 objcopy.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 objcopy.o: /usr/include/getopt.h /usr/include/sys/time.h
-objcopy.o: /usr/include/bits/time.h convert.h grobjmgr.h gateio.h messages.h
-objcopy.o: clientops.h ./Xamine.h helpmenu.h errormsg.h grobjdisplay.h
-objcopy.o: refreshctl.h compatspec.h
+objcopy.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+objcopy.o: grobjmgr.h gateio.h messages.h clientops.h ./Xamine.h helpmenu.h
+objcopy.o: errormsg.h grobjdisplay.h refreshctl.h compatspec.h
 panemgr.o: /usr/X11/include/X11/cursorfont.h /usr/X11/include/Xm/DrawingA.h
 panemgr.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
 panemgr.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 panemgr.o: /usr/include/features.h /usr/include/sys/cdefs.h
 panemgr.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-panemgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-panemgr.o: /usr/include/time.h /usr/include/endian.h
+panemgr.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 panemgr.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 panemgr.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 panemgr.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -2517,13 +2447,13 @@ panemgr.o: /usr/X11/include/X11/SM/SM.h /usr/X11/include/X11/ICE/ICElib.h
 panemgr.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
 panemgr.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/X11/StringDefs.h
 panemgr.o: /usr/X11/include/Xm/VendorS.h /usr/include/stdio.h
-panemgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-panemgr.o: /usr/include/libio.h /usr/include/_G_config.h
-panemgr.o: /usr/include/bits/stdio_lim.h XMManagers.h
-panemgr.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
-panemgr.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
-panemgr.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h XMWidget.h
-panemgr.o: menusetup.h XMMenus.h XMPushbutton.h /usr/X11/include/Xm/PushB.h
+panemgr.o: /usr/include/stdarg.h /usr/include/libio.h
+panemgr.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+panemgr.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
+panemgr.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
+panemgr.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
+panemgr.o: /usr/X11/include/Xm/Frame.h XMWidget.h menusetup.h XMMenus.h
+panemgr.o: XMPushbutton.h /usr/X11/include/Xm/PushB.h
 panemgr.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
 panemgr.o: /usr/X11/include/Xm/ArrowB.h panemgr.h dispwind.h
 panemgr.o: /usr/include/stdlib.h /usr/include/alloca.h /usr/include/assert.h
@@ -2532,8 +2462,7 @@ panemgr.o: /usr/X11/include/Xm/Label.h pkgmgr.h dispshare.h refreshctl.h
 panemgr.o: trackcursor.h colormgr.h
 pkgmgr.o: XMWlist.h /usr/include/stdio.h /usr/include/features.h
 pkgmgr.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-pkgmgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-pkgmgr.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+pkgmgr.o: /usr/include/stddef.h /usr/include/stdarg.h
 pkgmgr.o: /usr/include/bits/types.h /usr/include/libio.h
 pkgmgr.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 pkgmgr.o: /usr/include/errno.h /usr/include/bits/errno.h
@@ -2558,15 +2487,14 @@ pkgmgr.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
 pkgmgr.o: /usr/X11/include/Xm/ArrowB.h pkgmgr.h
 plot1d.o: /usr/include/stdio.h /usr/include/features.h
 plot1d.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-plot1d.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-plot1d.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+plot1d.o: /usr/include/stddef.h /usr/include/stdarg.h
 plot1d.o: /usr/include/bits/types.h /usr/include/libio.h
 plot1d.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 plot1d.o: /usr/include/math.h /usr/include/bits/huge_val.h
 plot1d.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-plot1d.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h XMWidget.h
-plot1d.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
-plot1d.o: /usr/include/sys/types.h /usr/include/time.h /usr/include/endian.h
+plot1d.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
+plot1d.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
+plot1d.o: /usr/include/time.h /usr/include/endian.h
 plot1d.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 plot1d.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 plot1d.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -2584,16 +2512,16 @@ plot1d.o: XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 plot1d.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 plot1d.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 plot1d.o: /usr/include/getopt.h /usr/include/sys/time.h
-plot1d.o: /usr/include/bits/time.h scaling.h dispwind.h /usr/include/stdlib.h
-plot1d.o: /usr/include/alloca.h /usr/include/assert.h superpos.h dispshare.h
-plot1d.o: chanplot.h refreshctl.h panemgr.h XMManagers.h
-plot1d.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
-plot1d.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
-plot1d.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
+plot1d.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h scaling.h
+plot1d.o: dispwind.h /usr/include/stdlib.h /usr/include/alloca.h
+plot1d.o: /usr/include/assert.h superpos.h dispshare.h chanplot.h
+plot1d.o: refreshctl.h panemgr.h XMManagers.h /usr/X11/include/Xm/BulletinB.h
+plot1d.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
+plot1d.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
+plot1d.o: /usr/X11/include/Xm/Frame.h
 plot2d.o: /usr/include/stdio.h /usr/include/features.h
 plot2d.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-plot2d.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-plot2d.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+plot2d.o: /usr/include/stddef.h /usr/include/stdarg.h
 plot2d.o: /usr/include/bits/types.h /usr/include/libio.h
 plot2d.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 plot2d.o: /usr/include/stdlib.h /usr/include/sys/types.h /usr/include/time.h
@@ -2602,8 +2530,7 @@ plot2d.o: /usr/include/sys/select.h /usr/include/bits/select.h
 plot2d.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 plot2d.o: /usr/include/alloca.h /usr/include/math.h
 plot2d.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
-plot2d.o: /usr/include/bits/mathcalls.h
-plot2d.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h XMWidget.h
+plot2d.o: /usr/include/bits/mathcalls.h XMWidget.h
 plot2d.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
 plot2d.o: /usr/X11/include/X11/X.h /usr/X11/include/X11/Xfuncproto.h
 plot2d.o: /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xutil.h
@@ -2619,17 +2546,16 @@ plot2d.o: /usr/X11/include/Xm/VendorS.h XBatch.h /usr/X11/include/X11/Xos.h
 plot2d.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
 plot2d.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
 plot2d.o: /usr/include/bits/confname.h /usr/include/getopt.h
-plot2d.o: /usr/include/sys/time.h /usr/include/bits/time.h dispwind.h
-plot2d.o: /usr/include/assert.h superpos.h dispshare.h chanplot.h
-plot2d.o: refreshctl.h panemgr.h XMManagers.h /usr/X11/include/Xm/BulletinB.h
+plot2d.o: /usr/include/sys/time.h /usr/include/bits/time.h
+plot2d.o: /usr/X11/include/X11/Xarch.h dispwind.h /usr/include/assert.h
+plot2d.o: superpos.h dispshare.h chanplot.h refreshctl.h panemgr.h
+plot2d.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
 plot2d.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
 plot2d.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
 plot2d.o: /usr/X11/include/Xm/Frame.h scaling.h colormgr.h
 printer.o: /usr/include/string.h /usr/include/features.h
 printer.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-printer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-printer.o: /usr/include/stdio.h
-printer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+printer.o: /usr/include/stddef.h /usr/include/stdio.h /usr/include/stdarg.h
 printer.o: /usr/include/bits/types.h /usr/include/libio.h
 printer.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h XMDialogs.h
 printer.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/MessageB.h
@@ -2659,8 +2585,7 @@ printer.o: /usr/X11/include/Xm/Text.h /usr/X11/include/Xm/TextF.h XMLabel.h
 printer.o: /usr/X11/include/Xm/Label.h helpmenu.h printer.h
 procede.o: XMDialogs.h /usr/include/stdio.h /usr/include/features.h
 procede.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-procede.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-procede.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+procede.o: /usr/include/stddef.h /usr/include/stdarg.h
 procede.o: /usr/include/bits/types.h /usr/include/libio.h
 procede.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 procede.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/MessageB.h
@@ -2689,8 +2614,7 @@ procede.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
 procede.o: XMCallback.h
 properties.o: /usr/include/stdio.h /usr/include/features.h
 properties.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-properties.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-properties.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+properties.o: /usr/include/stddef.h /usr/include/stdarg.h
 properties.o: /usr/include/bits/types.h /usr/include/libio.h
 properties.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 properties.o: /usr/include/stdlib.h /usr/include/sys/types.h
@@ -2729,8 +2653,7 @@ ptlist.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
 ptlist.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 ptlist.o: /usr/include/features.h /usr/include/sys/cdefs.h
 ptlist.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-ptlist.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-ptlist.o: /usr/include/time.h /usr/include/endian.h
+ptlist.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 ptlist.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 ptlist.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 ptlist.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -2746,8 +2669,7 @@ ptlist.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/X11/StringDefs.h
 ptlist.o: /usr/X11/include/Xm/VendorS.h /usr/X11/include/Xm/Form.h
 ptlist.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
 ptlist.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h XMWidget.h
-ptlist.o: dispwind.h /usr/include/stdio.h
-ptlist.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+ptlist.o: dispwind.h /usr/include/stdio.h /usr/include/stdarg.h
 ptlist.o: /usr/include/libio.h /usr/include/_G_config.h
 ptlist.o: /usr/include/bits/stdio_lim.h /usr/include/stdlib.h
 ptlist.o: /usr/include/alloca.h /usr/include/assert.h superpos.h errormsg.h
@@ -2755,8 +2677,9 @@ ptlist.o: dispgrob.h XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 ptlist.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 ptlist.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 ptlist.o: /usr/include/getopt.h /usr/include/sys/time.h
-ptlist.o: /usr/include/bits/time.h convert.h dispshare.h ptlist.h sumregion.h
-ptlist.o: XMList.h /usr/X11/include/Xm/List.h /usr/X11/include/Xm/ScrolledW.h
+ptlist.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h convert.h
+ptlist.o: dispshare.h ptlist.h sumregion.h XMList.h
+ptlist.o: /usr/X11/include/Xm/List.h /usr/X11/include/Xm/ScrolledW.h
 ptlist.o: XMPushbutton.h /usr/X11/include/Xm/PushB.h
 ptlist.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
 ptlist.o: /usr/X11/include/Xm/ArrowB.h XMLabel.h /usr/X11/include/Xm/Label.h
@@ -2769,8 +2692,7 @@ queue.o: queue.h /usr/include/assert.h /usr/include/features.h
 queue.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 reducedefault.o: /usr/include/stdio.h /usr/include/features.h
 reducedefault.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-reducedefault.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-reducedefault.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+reducedefault.o: /usr/include/stddef.h /usr/include/stdarg.h
 reducedefault.o: /usr/include/bits/types.h /usr/include/libio.h
 reducedefault.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 reducedefault.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
@@ -2808,8 +2730,7 @@ reducedefault.o: /usr/X11/include/Xm/Scale.h dfltmgr.h helpmenu.h panemgr.h
 reducedefault.o: refreshctl.h
 refreshctl.o: /usr/include/stdio.h /usr/include/features.h
 refreshctl.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-refreshctl.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-refreshctl.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+refreshctl.o: /usr/include/stddef.h /usr/include/stdarg.h
 refreshctl.o: /usr/include/bits/types.h /usr/include/libio.h
 refreshctl.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 refreshctl.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
@@ -2840,21 +2761,20 @@ refreshctl.o: dispgrob.h XBatch.h /usr/X11/include/X11/Xos.h
 refreshctl.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
 refreshctl.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
 refreshctl.o: /usr/include/bits/confname.h /usr/include/getopt.h
-refreshctl.o: /usr/include/sys/time.h /usr/include/bits/time.h pkgmgr.h
-refreshctl.o: XMPushbutton.h /usr/X11/include/Xm/PushB.h
-refreshctl.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
-refreshctl.o: /usr/X11/include/Xm/ArrowB.h queue.h queue.cc gc.h xaminegc.h
-refreshctl.o: gcmgr.h
+refreshctl.o: /usr/include/sys/time.h /usr/include/bits/time.h
+refreshctl.o: /usr/X11/include/X11/Xarch.h pkgmgr.h XMPushbutton.h
+refreshctl.o: /usr/X11/include/Xm/PushB.h /usr/X11/include/Xm/CascadeB.h
+refreshctl.o: /usr/X11/include/Xm/ToggleB.h /usr/X11/include/Xm/ArrowB.h
+refreshctl.o: queue.h queue.cc gc.h xaminegc.h gcmgr.h
 refreshdefault.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
 refreshdefault.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 refreshdefault.o: /usr/include/features.h /usr/include/sys/cdefs.h
 refreshdefault.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-refreshdefault.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-refreshdefault.o: /usr/include/time.h /usr/include/endian.h
-refreshdefault.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-refreshdefault.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-refreshdefault.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
-refreshdefault.o: /usr/X11/include/X11/Xfuncproto.h
+refreshdefault.o: /usr/include/stddef.h /usr/include/time.h
+refreshdefault.o: /usr/include/endian.h /usr/include/bits/endian.h
+refreshdefault.o: /usr/include/sys/select.h /usr/include/bits/select.h
+refreshdefault.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+refreshdefault.o: /usr/X11/include/X11/X.h /usr/X11/include/X11/Xfuncproto.h
 refreshdefault.o: /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xutil.h
 refreshdefault.o: /usr/X11/include/X11/Xresource.h /usr/include/string.h
 refreshdefault.o: /usr/X11/include/X11/Core.h
@@ -2869,8 +2789,7 @@ refreshdefault.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
 refreshdefault.o: /usr/X11/include/Xm/XmStrDefs.h
 refreshdefault.o: /usr/X11/include/X11/StringDefs.h
 refreshdefault.o: /usr/X11/include/Xm/VendorS.h helpmenu.h XMDialogs.h
-refreshdefault.o: /usr/include/stdio.h
-refreshdefault.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+refreshdefault.o: /usr/include/stdio.h /usr/include/stdarg.h
 refreshdefault.o: /usr/include/libio.h /usr/include/_G_config.h
 refreshdefault.o: /usr/include/bits/stdio_lim.h
 refreshdefault.o: /usr/X11/include/Xm/MessageB.h
@@ -2890,8 +2809,7 @@ refreshdefault.o: XMLabel.h /usr/X11/include/Xm/Label.h panemgr.h
 refreshdefault.o: refreshctl.h
 rend1default.o: XMDialogs.h /usr/include/stdio.h /usr/include/features.h
 rend1default.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-rend1default.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-rend1default.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+rend1default.o: /usr/include/stddef.h /usr/include/stdarg.h
 rend1default.o: /usr/include/bits/types.h /usr/include/libio.h
 rend1default.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 rend1default.o: /usr/X11/include/X11/StringDefs.h
@@ -2927,8 +2845,7 @@ rend1default.o: /usr/include/alloca.h /usr/include/assert.h superpos.h
 rend1default.o: dfltmgr.h helpmenu.h refreshctl.h panemgr.h
 rend2default.o: XMDialogs.h /usr/include/stdio.h /usr/include/features.h
 rend2default.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-rend2default.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-rend2default.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+rend2default.o: /usr/include/stddef.h /usr/include/stdarg.h
 rend2default.o: /usr/include/bits/types.h /usr/include/libio.h
 rend2default.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 rend2default.o: /usr/X11/include/X11/StringDefs.h
@@ -2966,8 +2883,7 @@ scaling.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
 scaling.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 scaling.o: /usr/include/features.h /usr/include/sys/cdefs.h
 scaling.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-scaling.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-scaling.o: /usr/include/time.h /usr/include/endian.h
+scaling.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 scaling.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 scaling.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 scaling.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -2981,8 +2897,7 @@ scaling.o: /usr/X11/include/X11/Shell.h /usr/X11/include/X11/SM/SMlib.h
 scaling.o: /usr/X11/include/X11/SM/SM.h /usr/X11/include/X11/ICE/ICElib.h
 scaling.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
 scaling.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/Xm/VendorS.h
-scaling.o: dispwind.h /usr/include/stdio.h
-scaling.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+scaling.o: dispwind.h /usr/include/stdio.h /usr/include/stdarg.h
 scaling.o: /usr/include/libio.h /usr/include/_G_config.h
 scaling.o: /usr/include/bits/stdio_lim.h /usr/include/stdlib.h
 scaling.o: /usr/include/alloca.h /usr/include/assert.h superpos.h scaling.h
@@ -2992,8 +2907,7 @@ scaling.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
 scaling.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
 select2.o: /usr/include/stdio.h /usr/include/features.h
 select2.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-select2.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-select2.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+select2.o: /usr/include/stddef.h /usr/include/stdarg.h
 select2.o: /usr/include/bits/types.h /usr/include/libio.h
 select2.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h XMWidget.h
 select2.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
@@ -3024,16 +2938,14 @@ select2.o: /usr/X11/include/Xm/Text.h /usr/X11/include/Xm/TextF.h helpmenu.h
 select2.o: select2.h
 shared.o: /usr/include/stdlib.h /usr/include/features.h
 shared.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-shared.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-shared.o: /usr/include/sys/types.h /usr/include/bits/types.h
-shared.o: /usr/include/time.h /usr/include/endian.h
+shared.o: /usr/include/stddef.h /usr/include/sys/types.h
+shared.o: /usr/include/bits/types.h /usr/include/time.h /usr/include/endian.h
 shared.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 shared.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 shared.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
 shared.o: /usr/include/errno.h /usr/include/bits/errno.h
 shared.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
-shared.o: /usr/include/string.h /usr/include/stdio.h
-shared.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+shared.o: /usr/include/string.h /usr/include/stdio.h /usr/include/stdarg.h
 shared.o: /usr/include/libio.h /usr/include/_G_config.h
 shared.o: /usr/include/bits/stdio_lim.h /usr/include/signal.h
 shared.o: /usr/include/bits/signum.h /usr/include/bits/siginfo.h
@@ -3045,8 +2957,7 @@ spccheck.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
 spccheck.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 spccheck.o: /usr/include/features.h /usr/include/sys/cdefs.h
 spccheck.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-spccheck.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-spccheck.o: /usr/include/time.h /usr/include/endian.h
+spccheck.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 spccheck.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 spccheck.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 spccheck.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
@@ -3063,16 +2974,13 @@ spccheck.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/VendorS.h
 spccheck.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
 spccheck.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
 spccheck.o: /usr/X11/include/Xm/Frame.h XMWidget.h dispwind.h
-spccheck.o: /usr/include/stdio.h
-spccheck.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-spccheck.o: /usr/include/libio.h /usr/include/_G_config.h
-spccheck.o: /usr/include/bits/stdio_lim.h /usr/include/stdlib.h
-spccheck.o: /usr/include/alloca.h /usr/include/assert.h superpos.h
-spccheck.o: refreshctl.h dispshare.h
+spccheck.o: /usr/include/stdio.h /usr/include/stdarg.h /usr/include/libio.h
+spccheck.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+spccheck.o: /usr/include/stdlib.h /usr/include/alloca.h /usr/include/assert.h
+spccheck.o: superpos.h refreshctl.h dispshare.h
 spcchoice.o: /usr/include/stdio.h /usr/include/features.h
 spcchoice.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-spcchoice.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-spcchoice.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+spcchoice.o: /usr/include/stddef.h /usr/include/stdarg.h
 spcchoice.o: /usr/include/bits/types.h /usr/include/libio.h
 spcchoice.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 spcchoice.o: /usr/include/string.h /usr/X11/include/Xm/Xm.h
@@ -3103,11 +3011,10 @@ spcchoice.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
 spcchoice.o: XMCallback.h
 spccompatchoice.o: dispshare.h spcchoice.h XMDialogs.h /usr/include/stdio.h
 spccompatchoice.o: /usr/include/features.h /usr/include/sys/cdefs.h
-spccompatchoice.o: /usr/include/gnu/stubs.h
-spccompatchoice.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-spccompatchoice.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-spccompatchoice.o: /usr/include/bits/types.h /usr/include/libio.h
-spccompatchoice.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+spccompatchoice.o: /usr/include/gnu/stubs.h /usr/include/stddef.h
+spccompatchoice.o: /usr/include/stdarg.h /usr/include/bits/types.h
+spccompatchoice.o: /usr/include/libio.h /usr/include/_G_config.h
+spccompatchoice.o: /usr/include/bits/stdio_lim.h
 spccompatchoice.o: /usr/X11/include/X11/StringDefs.h
 spccompatchoice.o: /usr/X11/include/Xm/MessageB.h /usr/X11/include/Xm/Xm.h
 spccompatchoice.o: /usr/X11/include/X11/Intrinsic.h
@@ -3145,8 +3052,7 @@ spccompatchoice.o: /usr/include/stdlib.h /usr/include/alloca.h
 spccompatchoice.o: /usr/include/assert.h superpos.h panemgr.h
 spcdisplay.o: /usr/include/stdio.h /usr/include/features.h
 spcdisplay.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-spcdisplay.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-spcdisplay.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+spcdisplay.o: /usr/include/stddef.h /usr/include/stdarg.h
 spcdisplay.o: /usr/include/bits/types.h /usr/include/libio.h
 spcdisplay.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 spcdisplay.o: errormsg.h XMWidget.h /usr/X11/include/X11/Intrinsic.h
@@ -3177,11 +3083,10 @@ spcdisplay.o: /usr/X11/include/Xm/CascadeB.h /usr/X11/include/Xm/ToggleB.h
 spcdisplay.o: /usr/X11/include/Xm/ArrowB.h
 spclimchoice.o: dispshare.h spcchoice.h XMDialogs.h /usr/include/stdio.h
 spclimchoice.o: /usr/include/features.h /usr/include/sys/cdefs.h
-spclimchoice.o: /usr/include/gnu/stubs.h
-spclimchoice.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-spclimchoice.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-spclimchoice.o: /usr/include/bits/types.h /usr/include/libio.h
-spclimchoice.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+spclimchoice.o: /usr/include/gnu/stubs.h /usr/include/stddef.h
+spclimchoice.o: /usr/include/stdarg.h /usr/include/bits/types.h
+spclimchoice.o: /usr/include/libio.h /usr/include/_G_config.h
+spclimchoice.o: /usr/include/bits/stdio_lim.h
 spclimchoice.o: /usr/X11/include/X11/StringDefs.h
 spclimchoice.o: /usr/X11/include/Xm/MessageB.h /usr/X11/include/Xm/Xm.h
 spclimchoice.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
@@ -3210,8 +3115,7 @@ spclimchoice.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
 spclimchoice.o: XMCallback.h
 specchoose.o: /usr/include/stdio.h /usr/include/features.h
 specchoose.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-specchoose.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-specchoose.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+specchoose.o: /usr/include/stddef.h /usr/include/stdarg.h
 specchoose.o: /usr/include/bits/types.h /usr/include/libio.h
 specchoose.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 specchoose.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
@@ -3245,8 +3149,7 @@ specchoose.o: specchoose.h helpmenu.h errormsg.h spcdisplay.h dispwind.h
 specchoose.o: /usr/include/assert.h superpos.h
 spectra.o: /usr/include/stdio.h /usr/include/features.h
 spectra.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-spectra.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-spectra.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+spectra.o: /usr/include/stddef.h /usr/include/stdarg.h
 spectra.o: /usr/include/bits/types.h /usr/include/libio.h
 spectra.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 spectra.o: /usr/include/ctype.h /usr/include/endian.h
@@ -3257,8 +3160,7 @@ spectra.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 spectra.o: /usr/include/alloca.h dispshare.h
 sumregion.o: /usr/include/stdio.h /usr/include/features.h
 sumregion.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-sumregion.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-sumregion.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+sumregion.o: /usr/include/stddef.h /usr/include/stdarg.h
 sumregion.o: /usr/include/bits/types.h /usr/include/libio.h
 sumregion.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 sumregion.o: /usr/include/string.h /usr/include/errno.h
@@ -3289,10 +3191,10 @@ sumregion.o: XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
 sumregion.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 sumregion.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 sumregion.o: /usr/include/getopt.h /usr/include/sys/time.h
-sumregion.o: /usr/include/bits/time.h dispgrob.h /usr/include/assert.h
-sumregion.o: dispwind.h /usr/include/stdlib.h /usr/include/alloca.h
-sumregion.o: superpos.h convert.h dispshare.h grobjmgr.h grobjdisplay.h
-sumregion.o: refreshctl.h panemgr.h XMManagers.h
+sumregion.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h dispgrob.h
+sumregion.o: /usr/include/assert.h dispwind.h /usr/include/stdlib.h
+sumregion.o: /usr/include/alloca.h superpos.h convert.h dispshare.h
+sumregion.o: grobjmgr.h grobjdisplay.h refreshctl.h panemgr.h XMManagers.h
 sumregion.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
 sumregion.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
 sumregion.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
@@ -3305,8 +3207,7 @@ superpos.o: /usr/include/assert.h /usr/include/features.h
 superpos.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h superpos.h
 superprompt.o: /usr/include/stdio.h /usr/include/features.h
 superprompt.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-superprompt.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-superprompt.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+superprompt.o: /usr/include/stddef.h /usr/include/stdarg.h
 superprompt.o: /usr/include/bits/types.h /usr/include/libio.h
 superprompt.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 superprompt.o: XMDialogs.h /usr/X11/include/X11/StringDefs.h
@@ -3341,9 +3242,7 @@ superprompt.o: /usr/X11/include/Xm/ScrolledW.h XMLabel.h
 superprompt.o: /usr/X11/include/Xm/Label.h refreshctl.h menusetup.h XMMenus.h
 superprompt.o: exit.h
 text.o: /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h
-text.o: /usr/include/gnu/stubs.h
-text.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-text.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+text.o: /usr/include/gnu/stubs.h /usr/include/stddef.h /usr/include/stdarg.h
 text.o: /usr/include/bits/types.h /usr/include/libio.h
 text.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 text.o: /usr/include/string.h /usr/X11/include/X11/Xlib.h
@@ -3356,19 +3255,19 @@ text.o: /usr/X11/include/X11/Xutil.h /usr/X11/include/X11/Xos.h
 text.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h /usr/include/unistd.h
 text.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 text.o: /usr/include/getopt.h /usr/include/sys/time.h
-text.o: /usr/include/bits/time.h /usr/X11/include/X11/Xatom.h text.h
-text.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Intrinsic.h
-text.o: /usr/X11/include/X11/Xresource.h /usr/X11/include/X11/Core.h
-text.o: /usr/X11/include/X11/Composite.h /usr/X11/include/X11/Constraint.h
-text.o: /usr/X11/include/X11/Object.h /usr/X11/include/X11/RectObj.h
-text.o: /usr/X11/include/X11/Shell.h /usr/X11/include/X11/SM/SMlib.h
-text.o: /usr/X11/include/X11/SM/SM.h /usr/X11/include/X11/ICE/ICElib.h
-text.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/Xm/XmStrDefs.h
-text.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/VendorS.h
+text.o: /usr/include/bits/time.h /usr/X11/include/X11/Xarch.h
+text.o: /usr/X11/include/X11/Xatom.h text.h /usr/X11/include/Xm/Xm.h
+text.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xresource.h
+text.o: /usr/X11/include/X11/Core.h /usr/X11/include/X11/Composite.h
+text.o: /usr/X11/include/X11/Constraint.h /usr/X11/include/X11/Object.h
+text.o: /usr/X11/include/X11/RectObj.h /usr/X11/include/X11/Shell.h
+text.o: /usr/X11/include/X11/SM/SMlib.h /usr/X11/include/X11/SM/SM.h
+text.o: /usr/X11/include/X11/ICE/ICElib.h /usr/X11/include/X11/ICE/ICE.h
+text.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/X11/StringDefs.h
+text.o: /usr/X11/include/Xm/VendorS.h
 titledefault.o: XMDialogs.h /usr/include/stdio.h /usr/include/features.h
 titledefault.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-titledefault.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-titledefault.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+titledefault.o: /usr/include/stddef.h /usr/include/stdarg.h
 titledefault.o: /usr/include/bits/types.h /usr/include/libio.h
 titledefault.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 titledefault.o: /usr/X11/include/X11/StringDefs.h
@@ -3404,8 +3303,7 @@ titledefault.o: XMLabel.h /usr/X11/include/Xm/Label.h XMScale.h
 titledefault.o: /usr/X11/include/Xm/Scale.h panemgr.h refreshctl.h
 titles.o: /usr/include/stdio.h /usr/include/features.h
 titles.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-titles.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-titles.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+titles.o: /usr/include/stddef.h /usr/include/stdarg.h
 titles.o: /usr/include/bits/types.h /usr/include/libio.h
 titles.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 titles.o: /usr/include/string.h /usr/X11/include/X11/Xlib.h
@@ -3419,18 +3317,18 @@ titles.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
 titles.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
 titles.o: /usr/include/bits/confname.h /usr/include/getopt.h
 titles.o: /usr/include/sys/time.h /usr/include/bits/time.h
-titles.o: /usr/X11/include/X11/Xatom.h dispshare.h titles.h XMWidget.h
-titles.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xresource.h
-titles.o: /usr/X11/include/X11/Core.h /usr/X11/include/X11/Composite.h
-titles.o: /usr/X11/include/X11/Constraint.h /usr/X11/include/X11/Object.h
-titles.o: /usr/X11/include/X11/RectObj.h /usr/X11/include/X11/StringDefs.h
-titles.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Shell.h
-titles.o: /usr/X11/include/X11/SM/SMlib.h /usr/X11/include/X11/SM/SM.h
-titles.o: /usr/X11/include/X11/ICE/ICElib.h /usr/X11/include/X11/ICE/ICE.h
-titles.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/Xm/VendorS.h
-titles.o: dispwind.h /usr/include/stdlib.h /usr/include/alloca.h
-titles.o: /usr/include/assert.h superpos.h refreshctl.h panemgr.h
-titles.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
+titles.o: /usr/X11/include/X11/Xarch.h /usr/X11/include/X11/Xatom.h
+titles.o: dispshare.h titles.h XMWidget.h /usr/X11/include/X11/Intrinsic.h
+titles.o: /usr/X11/include/X11/Xresource.h /usr/X11/include/X11/Core.h
+titles.o: /usr/X11/include/X11/Composite.h /usr/X11/include/X11/Constraint.h
+titles.o: /usr/X11/include/X11/Object.h /usr/X11/include/X11/RectObj.h
+titles.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/Xm.h
+titles.o: /usr/X11/include/X11/Shell.h /usr/X11/include/X11/SM/SMlib.h
+titles.o: /usr/X11/include/X11/SM/SM.h /usr/X11/include/X11/ICE/ICElib.h
+titles.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/Xm/XmStrDefs.h
+titles.o: /usr/X11/include/Xm/VendorS.h dispwind.h /usr/include/stdlib.h
+titles.o: /usr/include/alloca.h /usr/include/assert.h superpos.h refreshctl.h
+titles.o: panemgr.h XMManagers.h /usr/X11/include/Xm/BulletinB.h
 titles.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
 titles.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
 titles.o: /usr/X11/include/Xm/Frame.h axes.h text.h chanplot.h
@@ -3438,8 +3336,7 @@ toggles.o: /usr/X11/include/Xm/ToggleB.h /usr/X11/include/Xm/Xm.h
 toggles.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
 toggles.o: /usr/include/sys/types.h /usr/include/features.h
 toggles.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-toggles.o: /usr/include/bits/types.h
-toggles.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+toggles.o: /usr/include/bits/types.h /usr/include/stddef.h
 toggles.o: /usr/include/time.h /usr/include/endian.h
 toggles.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 toggles.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
@@ -3458,12 +3355,11 @@ trackcursor.o: XMWidget.h /usr/X11/include/X11/Intrinsic.h
 trackcursor.o: /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 trackcursor.o: /usr/include/features.h /usr/include/sys/cdefs.h
 trackcursor.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-trackcursor.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-trackcursor.o: /usr/include/time.h /usr/include/endian.h
-trackcursor.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-trackcursor.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-trackcursor.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
-trackcursor.o: /usr/X11/include/X11/Xfuncproto.h
+trackcursor.o: /usr/include/stddef.h /usr/include/time.h
+trackcursor.o: /usr/include/endian.h /usr/include/bits/endian.h
+trackcursor.o: /usr/include/sys/select.h /usr/include/bits/select.h
+trackcursor.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+trackcursor.o: /usr/X11/include/X11/X.h /usr/X11/include/X11/Xfuncproto.h
 trackcursor.o: /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xutil.h
 trackcursor.o: /usr/X11/include/X11/Xresource.h /usr/include/string.h
 trackcursor.o: /usr/X11/include/X11/Core.h /usr/X11/include/X11/Composite.h
@@ -3478,8 +3374,7 @@ trackcursor.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
 trackcursor.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
 trackcursor.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
 trackcursor.o: /usr/X11/include/Xm/Frame.h trackcursor.h location.h
-trackcursor.o: /usr/include/stdio.h
-trackcursor.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+trackcursor.o: /usr/include/stdio.h /usr/include/stdarg.h
 trackcursor.o: /usr/include/libio.h /usr/include/_G_config.h
 trackcursor.o: /usr/include/bits/stdio_lim.h XMLabel.h
 trackcursor.o: /usr/X11/include/Xm/Label.h buttonsetup.h panemgr.h dispwind.h
@@ -3488,8 +3383,7 @@ trackcursor.o: /usr/include/assert.h superpos.h dispshare.h convert.h
 trackcursor.o: spcdisplay.h
 winiomenu.o: /usr/include/stdio.h /usr/include/features.h
 winiomenu.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-winiomenu.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-winiomenu.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+winiomenu.o: /usr/include/stddef.h /usr/include/stdarg.h
 winiomenu.o: /usr/include/bits/types.h /usr/include/libio.h
 winiomenu.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 winiomenu.o: /usr/include/errno.h /usr/include/bits/errno.h
@@ -3524,27 +3418,24 @@ winiomenu.o: errormsg.h buttonsetup.h location.h XMLabel.h
 winiomenu.o: /usr/X11/include/Xm/Label.h menusetup.h XMMenus.h
 wintest.o: dispshare.h dispwind.h /usr/include/stdio.h
 wintest.o: /usr/include/features.h /usr/include/sys/cdefs.h
-wintest.o: /usr/include/gnu/stubs.h
-wintest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-wintest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-wintest.o: /usr/include/bits/types.h /usr/include/libio.h
-wintest.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-wintest.o: /usr/include/stdlib.h /usr/include/sys/types.h /usr/include/time.h
-wintest.o: /usr/include/endian.h /usr/include/bits/endian.h
-wintest.o: /usr/include/sys/select.h /usr/include/bits/select.h
-wintest.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
-wintest.o: /usr/include/alloca.h /usr/include/assert.h superpos.h
+wintest.o: /usr/include/gnu/stubs.h /usr/include/stddef.h
+wintest.o: /usr/include/stdarg.h /usr/include/bits/types.h
+wintest.o: /usr/include/libio.h /usr/include/_G_config.h
+wintest.o: /usr/include/bits/stdio_lim.h /usr/include/stdlib.h
+wintest.o: /usr/include/sys/types.h /usr/include/time.h /usr/include/endian.h
+wintest.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+wintest.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+wintest.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+wintest.o: /usr/include/assert.h superpos.h
 xaminegc.o: gc.h /usr/X11/include/X11/Xlib.h /usr/include/sys/types.h
 xaminegc.o: /usr/include/features.h /usr/include/sys/cdefs.h
 xaminegc.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-xaminegc.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-xaminegc.o: /usr/include/time.h /usr/include/endian.h
+xaminegc.o: /usr/include/stddef.h /usr/include/time.h /usr/include/endian.h
 xaminegc.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 xaminegc.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
 xaminegc.o: /usr/include/sys/sysmacros.h /usr/X11/include/X11/X.h
 xaminegc.o: /usr/X11/include/X11/Xfuncproto.h /usr/X11/include/X11/Xosdefs.h
-xaminegc.o: xaminegc.h dispwind.h /usr/include/stdio.h
-xaminegc.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+xaminegc.o: xaminegc.h dispwind.h /usr/include/stdio.h /usr/include/stdarg.h
 xaminegc.o: /usr/include/libio.h /usr/include/_G_config.h
 xaminegc.o: /usr/include/bits/stdio_lim.h /usr/include/stdlib.h
 xaminegc.o: /usr/include/alloca.h /usr/include/assert.h superpos.h XMWidget.h
@@ -3561,8 +3452,9 @@ xaminegc.o: /usr/X11/include/Xm/VendorS.h text.h /usr/X11/include/X11/Xos.h
 xaminegc.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
 xaminegc.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
 xaminegc.o: /usr/include/bits/confname.h /usr/include/getopt.h
-xaminegc.o: /usr/include/sys/time.h /usr/include/bits/time.h colormgr.h
-xaminegc.o: chanplot.h refreshctl.h panemgr.h XMManagers.h
-xaminegc.o: /usr/X11/include/Xm/BulletinB.h /usr/X11/include/Xm/Form.h
-xaminegc.o: /usr/X11/include/Xm/RowColumn.h /usr/X11/include/Xm/PanedW.h
-xaminegc.o: /usr/X11/include/Xm/MainW.h /usr/X11/include/Xm/Frame.h
+xaminegc.o: /usr/include/sys/time.h /usr/include/bits/time.h
+xaminegc.o: /usr/X11/include/X11/Xarch.h colormgr.h chanplot.h refreshctl.h
+xaminegc.o: panemgr.h XMManagers.h /usr/X11/include/Xm/BulletinB.h
+xaminegc.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
+xaminegc.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
+xaminegc.o: /usr/X11/include/Xm/Frame.h
