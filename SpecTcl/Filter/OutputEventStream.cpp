@@ -62,7 +62,7 @@ Bool_t COutputEventStream::operator()(const string& rFileName) {
   return kfTRUE;
 };
 
-Bool_t COutputEventStream::operator()(CEvent& rEvent) {
+Bool_t COutputEventStream::operator()(CEvent& rEvent) { // This is what is typically called.
   return ReceiveEvent(rEvent);
 };
 
@@ -123,24 +123,16 @@ Bool_t COutputEventStream::Open() { // Always means that the file has been opene
     // Send header information. (Only valid parameters.)
     m_pFile = fopen(m_sFileName.c_str(), "w"); // Over-write any previously existing file.
     xdrstdio_create(&m_xdrs, m_pFile, XDR_ENCODE); // Create the XDR stream for encoding and WRITING TO the file stream.
-    if(!xdr_u_int(&m_xdrs, &m_nValidParameters)) { // Send the number of valid parameters. (Should equal m_vParameterNames.size().)
-      cerr << "Error: xdr_u_int unsuccessful.\n";
-    }
-    char *pParameterName;
+    XDRuint(m_nValidParameters); // Send the number of valid parameters. (Should equal m_vParameterNames.size().)
+    string sParameterName = "";
     UInt_t nParameterId = 0;
     for(UInt_t i=0; i<m_vParameterNames.size(); i++) {
-      if(!xdr_u_int(&m_xdrs, &i)) { // Send the parameter index.
-	cerr << "Error: xdr_u_int unsuccessful.\n";
-      }
-      pParameterName = (char *)((m_vParameterNames[i]).c_str()); // Transform the parameter name string to a character string.
-      if(!xdr_string(&m_xdrs, &pParameterName, 1024)) { // Send the parameter name.
-	cerr << "Error: xdr_string unsuccessful.\n";
-      }
+      XDRuint(i); // Send the parameter index.
+      sParameterName = m_vParameterNames[i];
+      XDRstring(sParameterName); // Send the parameter name.
       pParameter = ((CHistogrammer*)gpEventSink)->FindParameter(m_vParameterNames[i]); // Find the parameter.
       nParameterId = pParameter->getNumber(); // Obtain the parameter ID.
-      if(!xdr_u_int(&m_xdrs, &nParameterId)) { // Send the parameter ID.
-	cerr << "Error: xdr_u_int unsuccessful.\n";
-      }
+      XDRuint(nParameterId); // Send the parameter ID.
     }
 
     m_fActive = kfTRUE;
@@ -251,9 +243,7 @@ Bool_t COutputEventStream::SendBuffer() {
 	    pParameter = ((CHistogrammer*)gpEventSink)->FindParameter(*iParameterName); // Find the parameter.
 	    nParameterId = pParameter->getNumber(); // Obtain the parameter ID.
 	    nParameterValue = (**ipEvent)[nParameterId];
-	    if(!xdr_float(&m_xdrs, &nParameterValue)) { // Send the parameter.
-	      cerr << "Error: xdr_float unsuccessful.\n";
-	    }
+	    XDRfloat(nParameterValue); // Send the parameter.
 	  }
 	  i++;
 	} // Done with event.

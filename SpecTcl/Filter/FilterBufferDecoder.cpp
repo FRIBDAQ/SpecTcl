@@ -35,78 +35,81 @@ CFilterBufferDecoder::CFilterBufferDecoder() :
   m_fActive(kfFALSE),
   m_fXDRError(kfFALSE),
 
+  m_sTag(""),
   m_nParameters(0),
   m_fEventData(kfFALSE),
   m_nEvents(0),
-  m_nBodyOffset(0),
   m_nOffset(0),
-  m_nBufferSize(8192) // 8KB.
+  m_nOutputBufferOffset(0),
+  m_nBUFFERSIZE(8192) // 8KB. Default.
 {
-  m_vParInfo.clear();
-  m_vBuffer.clear();
+  if(m_pOutputBuffer) {
+    delete m_pOutputBuffer;
+  }
+  char CharArray[m_nBUFFERSIZE];
+  m_pOutputBuffer = (char**)(&CharArray);
 };
 
-CFilterBufferDecoder::~CFilterBufferDecoder() {};
+CFilterBufferDecoder::~CFilterBufferDecoder() {
+  if(m_pOutputBuffer) {
+    delete m_pOutputBuffer;
+  }
+};
 
 // Operators:
 void CFilterBufferDecoder::operator()(UInt_t nBytes,
 				      Address_t pBuffer,
 				      CAnalyzer& rAnalyzer)
 {
-  if(!m_fEventData) {
-    // Beginning. Start reading documentation data.
-    // NOTE: Block size MUST be sufficiently large to read entire header on first pass.
-    xdrmem_create(&m_xdrs, (char*)pBuffer, m_nSize, XDR_DECODE); // Read from memory buffer.
+  m_sTag = "";
+  m_fXDRError = kfFALSE;
+  m_nParameters = 0;
+  m_nEvents = 0;
+  m_nOffset = 0;
+  m_nOutputBufferOffset = 0;
 
-    if(XDRstring(m_sSection)) {
-      if(m_sSection == "header") {
-	// Start reading header data.
+  xdrmem_create(&m_xdrs, (char*)pBuffer, m_nSize, XDR_DECODE); // Read from memory buffer.
+  // Neither headers nor events should span buffer boundaries, so the very first thing we read should be a string specifying the format of data immediately following.
+  while(!m_fXDRError) {
+    if(XDRstring(m_sTag)) { // Read the tag.
+      if(m_sTag == "header") {
+	// Start processing header data.
+	// NOTE: Block size MUST be sufficiently large to read entire header on first pass.
 	XDRuint(m_nParameters);
+
+	UInt_t *(ValidParameterArray[m_nParameters]); // Expensive in a loop. Rewrite. (On second thought, header occurrence is very infrequent.)
+	m_pValidParameterArray = (UInt_t***)(&ValidParameterArray);
+	UInt_t nParIndex = 0;
 	string sParName = "";
 	UInt_t nParId = 0;
-	CParInfo* pParInfo = (CParInfo*)kpNULL;
-	CParameter* pParameter = (CParameter*)kpNULL;
 	for(UInt_t i = 0; i < m_nParameters; i++) {
+	  XDRuint(nParIndex); // Simply an index (starting from 0) for the parameter.
+	  // Error checking:
+	  if(i != nParIndex) {
+	    m_fXDRError = kfTRUE;
+	    cerr << "Error: Inconsistent parameter indices.\n";
+	  }
 	  XDRstring(sParName);
 	  XDRuint(nParId);
-	  pParInfo = new CParInfo;
-	  pParInfo->setParName(sParName);
-	  pParInfo->setParId(nParId);
-	  // CHECK VALIDITY. SET (IN)ACTIVE. *************************
-	  pParameter = ((CHistogrammer*)gpEventSink)->FindParameter(sParName);
-	  if(pParameter != (CParameter*)kpNULL) { // If parameter is present in dictionary...
-	    pParInfo->setActive(kfTRUE);
-	  } else {
-	    cerr << "Error: Invalid parameter (" + sParName + ").\n"; // Should (more ideally) throw an exception.
-	    pParInfo->setActive(kfFALSE);
-	  }
-	  m_vParInfo.push_back(pParInfo);
 	}
+      } else if(m_sTag == "event") {
+	// Start processing event data. *******************************************************
 
-	m_fEventData = kfTRUE; // Now ready for event data.
-	return;
+      } else if(m_sTag == "endofrecord") {
+	m_fXDRError = kfFALSE; // Reset error flag, but still ...
+	break; // break out of the loop.
       } else {
-	cerr << "Error: No header. Invalid file format.\n";
 	m_fXDRError = kfTRUE;
-	return;
+	cerr << "Error: Invalid tag type.\n";
+	break;
       }
-    } // End XDRstring. Errors already checked.
-  }
-
-  // Now start reading event data.
-  UInt_t True(1), False(0);
-  Float_t nParameter = 0;
-  while(1) { // Do forever.
-    XDRarray(); // Read the bit-mask array into member array.
-    // It may be advisable to check here that the number of elements in m_vParInfo matches that of the bit-mask array.********************
-    for(UInt_t i = 0; i < m_vParInfo.size(); i++) {
-      if((m_vParInfo[i])->isActive()) {
-	if(*(ValidParameterArray[i]) == True) {
-	  XDRfloat(nParameter);
-	}
-      }
+    } else {
+      m_fXDRError = kfTRUE;
+      cerr << "Error: Invalid data format. Tag type must first be specified.\n";
     }
   }
+
+  return; // Exit.
 }
 
 // Additional functions.
@@ -120,18 +123,14 @@ const Address_t CFilterBufferDecoder::getBody() {
 }
 
 UInt_t CFilterBufferDecoder::getBodySize() {
-  return (m_nBufferSize - m_nBodyOffset);
+  return (m_nBUFFERSIZE - m_nOffset);
 }
 
 UInt_t CFilterBufferDecoder::getRun() { // Just a stub.
   return 0;
 }
 
-UInt_t CFilterBufferDecoder::getEntityCount() {
-  // *******************************************************************
-  if(m_fEventData) {
-
-  }
+UInt_t CFilterBufferDecoder::getEntityCount() { // Just a stub.
   return 0;
 }
 
@@ -164,12 +163,12 @@ Bool_t CFilterBufferDecoder::isActive() {
 }
 
 // The following XDR functions are intended to eliminate the need to repeat semantics.
-// They can be used for either output (XDR_ENCODE) and input (XDR_DECODE) depending on the specified create operation.
+// With slight modification, they can be used for either output (XDR_ENCODE) and input (XDR_DECODE) depending on the specified create operation.
 Bool_t CFilterBufferDecoder::XDRstring(string& rString) {
   char* pString = (char*)(rString.c_str());
   if(xdr_string(&m_xdrs, &pString, (sizeof(pString)))) {
-    memcpy((m_pOutputBuffer + m_nOffset), &rString, sizeof(rString));
-    m_nOffset += sizeof(rString);
+    memcpy((m_pOutputBuffer + m_nOutputBufferOffset), &pString, sizeof(pString));
+    incr_offset(sizeof(rString));
     return kfTRUE;
   } else {
     m_fXDRError = kfTRUE;
@@ -180,8 +179,8 @@ Bool_t CFilterBufferDecoder::XDRstring(string& rString) {
 
 Bool_t CFilterBufferDecoder::XDRuint(UInt_t& rUInt) {
   if(xdr_u_int(&m_xdrs, &rUInt)) {
-    memcpy((m_pOutputBuffer + m_nOffset), &rUInt, sizeof(rUInt));
-    m_nOffset += sizeof(rUInt);
+    memcpy((m_pOutputBuffer + m_nOutputBufferOffset), &rUInt, sizeof(rUInt));
+    incr_offset(sizeof(rUInt));
     return kfTRUE;
   } else {
     m_fXDRError = kfTRUE;
@@ -191,10 +190,17 @@ Bool_t CFilterBufferDecoder::XDRuint(UInt_t& rUInt) {
 }
 
 Bool_t CFilterBufferDecoder::XDRarray() {
-  if(xdr_array(&m_xdrs, (char**)(&ValidParameterArray), &m_nValidParameters, 100, (UInt_t)sizeof(UInt_t), (xdrproc_t)xdr_u_int)) {
+  if(xdr_array(&m_xdrs, (char**)(*m_pValidParameterArray), &m_nValidParameters, 100, (UInt_t)sizeof(UInt_t), (xdrproc_t)xdr_u_int)) {
     m_nEvents++;
-    memcpy((m_pOutputBuffer + m_nOffset), &ValidParameterArray, sizeof(ValidParameterArray));
-    m_nOffset += sizeof(ValidParameterArray);
+    //memcpy((m_pOutputBuffer + m_nOutputBufferOffset), &ValidParameterArray, sizeof(ValidParameterArray));
+    // Send the array size first, then send the elements.
+    memcpy((m_pOutputBuffer + m_nOutputBufferOffset), &m_nValidParameters, sizeof(m_nValidParameters));
+    incr_offset(sizeof(m_nValidParameters));
+    UInt_t nElement = 0;
+    for(UInt_t i = 0; i < m_nParameters; i++) {
+      memcpy((m_pOutputBuffer + m_nOutputBufferOffset), &nElement, sizeof(nElement));
+      incr_offset(sizeof(nElement));
+    }
     return kfTRUE;
   } else {
     m_fXDRError = kfTRUE;
@@ -205,8 +211,8 @@ Bool_t CFilterBufferDecoder::XDRarray() {
 
 Bool_t CFilterBufferDecoder::XDRfloat(Float_t& rFloat) {
   if(xdr_float(&m_xdrs, &rFloat)) {
-    memcpy((m_pOutputBuffer + m_nOffset), &rFloat, sizeof(rFloat));
-    m_nOffset += sizeof(rFloat);
+    memcpy((m_pOutputBuffer + m_nOutputBufferOffset), &rFloat, sizeof(rFloat));
+    incr_offset(sizeof(rFloat));
     return kfTRUE;
   } else {
     m_fXDRError = kfTRUE;
@@ -225,8 +231,8 @@ Bool_t CFilterBufferDecoder::XDRfill(UInt_t nBytes) { // Pad with nBytes zeroes.
   pString = (char*)(String.c_str());
 
   if(xdr_string(&m_xdrs, &pString, (sizeof(pString)))) {
-    memcpy((m_pOutputBuffer + m_nOffset), &String, sizeof(String));
-    m_nOffset = 0;
+    memcpy((m_pOutputBuffer + m_nOutputBufferOffset), &pString, sizeof(pString));
+    m_nOutputBufferOffset = 0;
     return kfTRUE;
   } else {
     m_fXDRError = kfTRUE;
@@ -234,4 +240,13 @@ Bool_t CFilterBufferDecoder::XDRfill(UInt_t nBytes) { // Pad with nBytes zeroes.
     return kfFALSE;
   }
 
+}
+
+void CFilterBufferDecoder::incr_offset(UInt_t nIncrement) {
+  // Increment the offset, checking that it is within bounds.
+  m_nOutputBufferOffset += nIncrement;
+  if(m_nOutputBufferOffset >= m_nBUFFERSIZE) {
+    cerr << "Error: Illegal offset value.\n";
+    m_nOffset = 0;
+  }
 }

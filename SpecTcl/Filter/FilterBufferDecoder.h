@@ -9,61 +9,26 @@
 // Forward class declarations:
 class CBufferDecoder;
 
-// CParInfo.
-class CParInfo {
-  // Member data:
-  string m_sParName;
-  UInt_t m_nParId;
-  Bool_t m_fActive;
-
- public:
-  // Constructors:
-  CParInfo() {
-    setParName("");
-    setParId(-1);
-    setActive(kfFALSE);
-  };
-
-  CParInfo(string sParName, UInt_t nParId, Bool_t fActive) {
-    setParName(sParName);
-    setParId(nParId);
-    setActive(fActive);
-  };
-
-  ~CParInfo() {};
-
-  // Functions:
-  string getParName() {return m_sParName;};
-  void setParName(string sParName) {m_sParName = sParName;};
-  UInt_t getParId() {return m_nParId;};
-  void setParId(UInt_t nParId) {m_nParId = nParId;};
-  Bool_t isActive() {return m_fActive;};
-  void setActive(Bool_t fActive) {m_fActive = fActive;};
-}; // CParInfo.
-
 // CFilterBufferDecoder.
 class CFilterBufferDecoder : public CBufferDecoder {
   // Member data:
   Bool_t m_fActive;
   XDR m_xdrs;
   UInt_t m_nSize;
-  string m_sSection;
+  string m_sTag; // Documentation buffer, event data, or end-of-record.
   Bool_t m_fXDRError;
 
   UInt_t m_nParameters;
   Bool_t m_fEventData;
   UInt_t m_nValidParameters;
   //UInt_t *(ValidParameterArray[m_nValidParameters]);
-  UInt_t *(ValidParameterArray[10]); // Temporary fix to give the compiler something to work with. *****************************************
+  //UInt_t *m_pValidParameterArray;
+  UInt_t*** m_pValidParameterArray;
   UInt_t m_nEvents; // EntityCount.
-  UInt_t m_nBodyOffset;
-  UInt_t m_nOffset;
-  UInt_t m_nBufferSize;
-  //char m_pOutputBuffer[m_nBufferSize];
-  char m_pOutputBuffer[8192]; // 8K. // Temporary fix to give the compiler something to work with. *****************************************
-
-  vector<CParInfo*> m_vParInfo;
-  vector<CEvent*> m_vBuffer;
+  UInt_t m_nOffset; // Offset of XDR-formatted buffer.
+  UInt_t m_nOutputBufferOffset; // Offset of the output char[] buffer.
+  UInt_t m_nBUFFERSIZE; // Initialize to 8K.
+  char** m_pOutputBuffer;
 
  public:
   // Constructors:
@@ -79,11 +44,14 @@ class CFilterBufferDecoder : public CBufferDecoder {
   // Functions:
   Bool_t isActive();
 
+  // The following read from the XDR file and put into the buffer.
   Bool_t XDRstring(string&);
   Bool_t XDRuint(UInt_t&);
   Bool_t XDRarray();
   Bool_t XDRfloat(Float_t&);
-  Bool_t XDRfill(UInt_t);
+  Bool_t XDRfill(UInt_t); // Fills up the rest of the buffer.
+
+  void incr_offset(UInt_t);
 
   virtual const Address_t getBody();
   virtual UInt_t getBodySize();
