@@ -277,7 +277,7 @@
 # */
 
 # (C) Copyright Michigan State University 2014, All rights reserved 
-set DisplayMegabytes 60
+set DisplayMegabytes 20
 set ParameterCount   256
 set EventListSize    1024
 set ParameterOverwriteAction query
