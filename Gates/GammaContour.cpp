@@ -399,7 +399,7 @@ CGammaContour::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
       if((x < 0) || (y < 0))
 	return kfFALSE;
       else
-	return (getInterior().Inside(x, y));
+	return (Inside(x, y));
     }
     else 
       return kfFALSE;
