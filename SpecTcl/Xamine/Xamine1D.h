@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamine1D.h:
 //
@@ -311,6 +311,14 @@ DAMAGES.
 #endif
 
 
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
+
 class CXamine2d;		// Forward class definition.
                                
 class CXamine1D  : public CXamineSpectrum        
@@ -324,21 +332,21 @@ public:
   // Constructor:
 
   CXamine1D(volatile Xamine_shared*     pXamine,
-	    const std::string& rName,
+	    const STD(string)& rName,
 	    UInt_t             nChannels,
 	    Bool_t             fWord = kfFALSE) :
     CXamineSpectrum(pXamine, rName),
     m_fWord(fWord),
     m_nChannels(nChannels),
-    m_XamineMap(0.0,0.0,string(""))
+    m_XamineMap(0.0,0.0,STD(string)(""))
   { }
 
   CXamine1D(volatile Xamine_shared* pXamine,
-	    const std::string& rName,
+	    const STD(string)& rName,
 	    UInt_t             nChannels,
 	    Float_t            nLow,
 	    Float_t            nHigh,
-	    const std::string& rUnits,
+	    const STD(string)& rUnits,
 	    Bool_t             fWord = kfFALSE) :
     CXamineSpectrum(pXamine, rName),
     m_fWord(fWord),

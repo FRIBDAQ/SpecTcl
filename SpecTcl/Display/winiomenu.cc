@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -295,6 +295,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** External include files required:
 **/
+#include <config.h>
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -316,6 +317,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "buttonsetup.h"
 #include "menusetup.h"
 #include <string>		// STL String so I get around length problems.
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 /*
 ** #Define constants:
 */
@@ -328,7 +334,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Local declarations:
 **/
 static Callback_data *okcb = NULL, *nomatch = NULL;
-static std::string   LastFilename;
+static string   LastFilename;
 
 static XMFileListDialog *openbox = NULL;
 static XMInformationDialog *help = NULL;
@@ -709,7 +715,7 @@ void Xamine_Read_window_file(XMWidget *w, XtPointer client_data,
   /* Read in the window file.  */
 
   if(read_windows(filename)) {
-    std::string title("Xamine -- ");
+    string title("Xamine -- ");
     title += filename;
 
     LastFilename = filename;
@@ -783,7 +789,7 @@ void write_windows(XMWidget *w, XtPointer client_data,
     new XMErrorDialog("Write_failed", *Xamine_Getpanemgr(), msg, kill_widget);
   }
   else {
-    std::string title("Xamine -- ");
+    string title("Xamine -- ");
     LastFilename = filename;
     title += filename;
 

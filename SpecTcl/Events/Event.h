@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 //  CEvent.h:
 //
@@ -302,7 +302,9 @@
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __VALIDVALUE_H
@@ -310,7 +312,7 @@
 #endif
 
 typedef Float_t ParamType;
-typedef std::vector<CValidValue<ParamType> > CParameterVector;
+typedef STD(vector)<CValidValue<ParamType> > CParameterVector;
 typedef CValidValue<ParamType>               CParameterValue;
 typedef CParameterVector::iterator           CEventIterator;
 

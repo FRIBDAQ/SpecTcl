@@ -291,7 +291,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-
+#include <config.h>
 #include <errno.h>
 #include <string.h>
 #include "XMText.h"

@@ -12,6 +12,7 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 **/
+#include <config.h>
 #include <stdio.h>		/* Include standard I/O functions too. */
 #include <strings.h>
 #include <ctype.h>		/* typeconversion functions./macros. */

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamineButtonPrompt.h:
 //
@@ -305,14 +305,14 @@ DAMAGES.
                                
 class CXamineButtonPrompt      
 {
-  std::string m_sPromptString;  // Text associated with the prompter.
+  STD(string) m_sPromptString;  // Text associated with the prompter.
   
 public:
 
 
 			//Constructor with arguments
 
-  CXamineButtonPrompt (const std::string& am_sPromptString  )       
+  CXamineButtonPrompt (const STD(string)& am_sPromptString  )       
   :   m_sPromptString (am_sPromptString)  
   { }
   CXamineButtonPrompt(const char* pPrompt) :
@@ -352,14 +352,14 @@ public:
 
 public:
 
-  std::string getPromptString() const
+  STD(string) getPromptString() const
   {
     return m_sPromptString;
   }
   // Mutators - available only to derived classes:
 
 protected:
-  void setPromptString (std::string am_sPromptString)
+  void setPromptString (STD(string) am_sPromptString)
   { 
     m_sPromptString = am_sPromptString;
   }

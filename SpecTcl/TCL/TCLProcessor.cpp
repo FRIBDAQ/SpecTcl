@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 //  CTCLProcessor.cpp
@@ -303,7 +303,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 //
 // Header Files:
 //
-
+#include <config.h>
+#include "TCLVersionHacks.h"
 
 #include "TCLProcessor.h"                               
 #include "TCLException.h"
@@ -313,6 +314,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <vector>
 #include <string>
 #include <string.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions for class CTCLProcessor
 
@@ -383,11 +388,7 @@ int
 CTCLProcessor::EvalRelay(ClientData pObject,
 			 Tcl_Interp* pInterpreter,
 			 int Argc, 
-#if (TCL_MAJOR_VERSION > 8) || ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
-			 const char* Argv[]) 
-#else
-                         char* Argv[])
-#endif
+			 tclConstCharPtr Argv[])
 {
 // This member:
 //     1. Establishes object context for the callback.

@@ -25,7 +25,9 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
  
 // Forward class defintions.
@@ -43,7 +45,7 @@ class CStringConfigParam  : public CConfigurationParameter
 public:
 	// Constructors and other cannnonical member functions.
 	
-    CStringConfigParam (const string& keyword);
+    CStringConfigParam (const STD(string)& keyword);
     virtual  ~CStringConfigParam ( );  //Destructor - Delete any pointer data members that used new in constructors 
   
   CStringConfigParam (const CStringConfigParam& aCStringConfigParam );
@@ -55,10 +57,10 @@ public:
 
   // Class functions:
  public:
-    string getOptionValue ()   ; // 
+    STD(string) getOptionValue ()   ; // 
     virtual   int SetValue (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 				    const char* value)   ; // 
-    virtual string GetParameterFormat();
+    virtual STD(string) GetParameterFormat();
 
 };
 

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 // Class: CNSCLBinarySpectrumFormatter                     //ANSI C++
 //
@@ -313,7 +313,23 @@ DAMAGES.
 #include <nsclbinerror.h>
 #define __NSCLBINOBJ
 #endif
+
+#ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VETOR
+#endif
+#endif
+
+#ifndef __ISTREAM_DAQH
+#include <Istream.h>
+#endif
+
+#ifndef __OSTREAM_DAQH
+#include <Ostream.h>
+#endif
+
+
 class CNSCLBinarySpectrumFormatter  : public CSpectrumFormatter        
 {                       
 			
@@ -324,8 +340,8 @@ public:
    // Constructors and other cannonical operations:
 
   CNSCLBinarySpectrumFormatter ()  :
-    CSpectrumFormatter(string("NSCL Binary file format (formerly SMAUG)"),
-		       string(".spc"))
+    CSpectrumFormatter(STD(string)("NSCL Binary file format (formerly SMAUG)"),
+		       STD(string)(".spc"))
   { 
   } 
   ~CNSCLBinarySpectrumFormatter ( )  // Destructor 
@@ -359,17 +375,17 @@ public:
 
 public:
 
- virtual   CSpectrum* Read (istream& rStream,
+ virtual   CSpectrum* Read (STD(istream)& rStream,
 			    ParameterDictionary& rDict);
- virtual   void Write (ostream& rStream, CSpectrum& rSpectrum,
+ virtual   void Write (STD(ostream)& rStream, CSpectrum& rSpectrum,
 		       ParameterDictionary& rDict);
  private:
- void readhead(istream&, string&, string&, string&, vector<UInt_t>&, SpectrumType_t&, DataType_t&, nsclbin&);
- void readdata(nsclbin&, vector<long>&);
- void getresolutions(const vector<UInt_t>&,vector<UInt_t>&);
- void getindices(UInt_t, const vector<UInt_t>&, UInt_t*);
- void insertdata(CSpectrum*, vector<long>&, const vector<UInt_t>&, const vector<UInt_t>&);
- bool parameterexist(string&);
+ void readhead(STD(istream)&, STD(string)&, STD(string)&, STD(string)&, STD(vector)<UInt_t>&, SpectrumType_t&, DataType_t&, nsclbin&);
+ void readdata(nsclbin&, STD(vector)<long>&);
+ void getresolutions(const STD(vector)<UInt_t>&,STD(vector)<UInt_t>&);
+ void getindices(UInt_t, const STD(vector)<UInt_t>&, UInt_t*);
+ void insertdata(CSpectrum*, STD(vector)<long>&, const STD(vector)<UInt_t>&, const STD(vector)<UInt_t>&);
+ bool parameterexist(STD(string)&);
  void setdimensions(nsclbin&, const CSpectrum&);
  void setdata(nsclbin&, const CSpectrum&);
  Bool_t NextIndex(UInt_t, UInt_t*, UInt_t*,UInt_t*);
@@ -377,8 +393,8 @@ public:
  void AssurePossibleSpectrum(SpectrumType_t&,DataType_t&);
  void testdata(nsclbin&);
  void testdata(CSpectrum*);
- Bool_t goodchannel(UInt_t*,  const vector<UInt_t>&, const vector<UInt_t>&);
- void padstream(ostream&);
+ Bool_t goodchannel(UInt_t*,  const STD(vector)<UInt_t>&, const STD(vector)<UInt_t>&);
+ void padstream(STD(ostream)&);
  UInt_t f2n(UInt_t);
  //data members:
 

@@ -276,7 +276,7 @@ DAMAGES.
 		     END OF TERMS AND CONDITIONS '
 */
 
-
+#include <config.h>
 #include "CCAENV830Creator.h"    				
 #include "CModule.h"
 #include "CCAENV830Module.h"
@@ -284,6 +284,11 @@ DAMAGES.
 #include <TCLResult.h>
 
 #include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 /*!
   Constructor.

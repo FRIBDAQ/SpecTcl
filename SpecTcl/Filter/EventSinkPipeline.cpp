@@ -7,10 +7,16 @@ static const char* Copyright =
   "OutputEventStream.cpp: Copyright 2003 NSCL, All rights reserved\n";
 
 // Header Files.
+#include <config.h>
 #include "Event.h"
 #include "EventList.h"
 
 #include "EventSinkPipeline.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Constructors.
 CEventSinkPipeline::CEventSinkPipeline() {}

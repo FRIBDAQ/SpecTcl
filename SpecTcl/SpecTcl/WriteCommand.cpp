@@ -420,6 +420,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
   else {
     pOut = new ofstream(pArgs[0]);
+    rResult="";
   }
   // If the file could not be created/mapped then pOut is false:
   // kill it off, and return the error:

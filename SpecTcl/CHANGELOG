@@ -119,4 +119,21 @@ November 4,2004 - Fixed defect 60 in Xamine: Spectrum choosers should come out
 November 102004 - Repaired defect 147: Xamine copy object copies to wrong
                   spectrum if slot # > 999
 
-Edit level 2.2-001
+SpecTcl 3.0: 
+      Port to gcc/g++ 3.x:
+         o Lots of gruntwork with config.h etc. in all sources.
+         o Added Tcl Channel inquiry functions to CTCLInterpreter to
+	   allow the location of Tcl_Channel given it's name.
+	    GetChannel
+	    GetChannelNames
+         o Added CTCLChannel object that can do simple channel operations.
+            Read
+	    Write
+	    atEof
+	    Flush
+            Close
+         o In {Write,Read}Command.cpp  use tcl[io]streams to connect
+           swrite/sread to Tcl channel parameters rather than decoding the
+	   filename.
+      Propagate fix for defect 151 from 2.1 -> 2.2-> 3.0
+      

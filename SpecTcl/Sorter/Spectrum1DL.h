@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
  */
 //  CSpectrum1D.h:
 //
@@ -292,6 +292,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:08  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -315,7 +318,16 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
+#endif
+
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif 
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -343,20 +355,18 @@ class CSpectrum1DL  : public CSpectrum
   
 public:
 
-  CSpectrum1DL(const std::string&   rName, 
+  CSpectrum1DL(const STD(string)&   rName, 
 	       UInt_t               nId,
 	       const CParameter&    rParameter,
 	       UInt_t               nChannels);
 
-  CSpectrum1DL(const std::string&   rName,
+  CSpectrum1DL(const STD(string)&   rName,
 	       UInt_t               nId,
 	       const   CParameter&  rParameter,
 	       UInt_t               nChannels,
 	       Float_t              fLow, 
 	       Float_t              fHigh);
 
-  //  CSpectrum1DL(const std::string& rName, UInt_t nId,
-  //	       const CParameter& rParameter);
 
   virtual  ~ CSpectrum1DL( ) { }       //Destructor	
 private:
@@ -410,8 +420,8 @@ public:
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;
 
-  virtual void GetParameterIds(vector<UInt_t>& rvIds);
-  virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
+  virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
+  virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
 
   // Utility functions:
 protected:

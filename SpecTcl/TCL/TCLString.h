@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTCLString.h:
 //
@@ -300,7 +300,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __CRT_STRING_H
@@ -332,7 +334,7 @@ public:
      Tcl_DStringInit(&m_String);
      Tcl_DStringAppend(&m_String, pString, -1);
    }
-  CTCLString(const std::string& rString) {
+  CTCLString(const STD(string)& rString) {
     Tcl_DStringInit(&m_String);
     Tcl_DStringAppend(&m_String, rString.c_str(), -1);
   }
@@ -404,7 +406,7 @@ public:
 public:
   // Append subchunk of strings:
   //
-  CTCLString& Append (const std::string& rString, Int_t nLength=-1) {
+  CTCLString& Append (const STD(string)& rString, Int_t nLength=-1) {
     return Append(rString.c_str(), nLength);
   }
   CTCLString& Append (const CTCLString&  rString, Int_t nLength=-1) {
@@ -423,7 +425,7 @@ public:
   CTCLString& AppendElement (const CTCLString&       rRhs) {
     return AppendElement(Tcl_DStringValue(&rRhs.m_String));
   }
-  CTCLString& AppendElement (const std::string&      rRhs) {
+  CTCLString& AppendElement (const STD(string)&      rRhs) {
     return AppendElement(rRhs.c_str());
   }
   CTCLString& AppendElement (const char*             pRhs);
@@ -439,7 +441,7 @@ public:
   //   Match a substring in the string - using glob rules
   //
   Bool_t Match (const char*       pPattern) const;
-  Bool_t Match (std::string&      rPattern) const {
+  Bool_t Match (STD(string)&      rPattern) const {
     return Match(rPattern.c_str());
   }
   Bool_t Match (const CTCLString& rPattern) const {
@@ -449,8 +451,8 @@ public:
   operator const char* () const {
     return Tcl_DStringValue(&m_String);
   }
-  operator std::string () const {
-    return std::string(Tcl_DStringValue(&m_String));
+  operator STD(string) () const {
+    return STD(string)(Tcl_DStringValue(&m_String));
   }
   operator Tcl_DString* () {
     return &m_String;

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
 ** Facility:
@@ -289,17 +289,17 @@ DAMAGES.
 ** History:
 **   @(#)XMSeparators.cc
 */
-
+#include <config.h>
 #include "XMSeparators.h"
 
 XMSeparator::XMSeparator(char *n) : XMWidget(n) {}
 
 XMSeparator::XMSeparator(char *n, Widget parent,
-			 ArgList l = NULL, Cardinal num_args=0) :
+			 ArgList l, Cardinal num_args) :
   XMWidget(n, xmSeparatorWidgetClass, parent, l, num_args) {}
 
 XMSeparator::XMSeparator(char *n, XMWidget &parent,
-			 ArgList l = NULL, Cardinal num_args = 0) :
+			 ArgList l, Cardinal num_args) :
   XMWidget(n, xmSeparatorWidgetClass,
 	   parent, l, num_args) {}
 
@@ -323,8 +323,8 @@ XMHorizontalSeparator::XMHorizontalSeparator(char *n) :
   XMSeparator(n) { Manage(); }
 
 XMHorizontalSeparator::XMHorizontalSeparator(char *n, Widget parent,
-					     ArgList l = NULL, 
-					     Cardinal num_args = 0) :
+					     ArgList l, 
+					     Cardinal num_args) :
   XMSeparator(n, parent, l, num_args) 
 {
   SetOrientation(XmHORIZONTAL);
@@ -332,8 +332,8 @@ XMHorizontalSeparator::XMHorizontalSeparator(char *n, Widget parent,
 }
 
 XMHorizontalSeparator::XMHorizontalSeparator(char *n, XMWidget &parent,
-					     ArgList l = NULL, 
-					     Cardinal num_args = 0) :
+					     ArgList l , 
+					     Cardinal num_args) :
   XMSeparator(n, parent, l, num_args) 
 {
   SetOrientation(XmHORIZONTAL);
@@ -350,8 +350,8 @@ XMVerticalSeparator::XMVerticalSeparator(char *n) :
 { Manage(); }
 
 XMVerticalSeparator::XMVerticalSeparator(char *n, Widget parent,
-					 ArgList l = NULL, 
-					 Cardinal num_args = 0) :
+					 ArgList l, 
+					 Cardinal num_args ) :
   XMSeparator(n, parent, l, num_args) 
 {
   SetOrientation(XmVERTICAL);
@@ -359,8 +359,8 @@ XMVerticalSeparator::XMVerticalSeparator(char *n, Widget parent,
 }
 
 XMVerticalSeparator::XMVerticalSeparator(char *n, XMWidget &parent,
-					 ArgList l = NULL, 
-					 Cardinal num_args = 0) :
+					 ArgList l, 
+					 Cardinal num_args) :
   XMSeparator(n, parent, l, num_args) 
 {
   SetOrientation(XmVERTICAL);

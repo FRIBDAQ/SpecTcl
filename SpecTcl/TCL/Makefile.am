@@ -13,12 +13,13 @@ libtclPlus_la_SOURCES = TCLInterpreter.cpp TCLProcessor.cpp  \
 	TCLResult.cpp TCLTimer.cpp TCLFileHandler.cpp \
 	TCLList.cpp TCLException.cpp TCLInterpreterObject.cpp \
 	TCLApplication.cpp TCLCommandPackage.cpp TCLIdleProcess.cpp \
-	TCLObject.cpp
+	TCLObject.cpp TCLChannel.cpp
 
 include_HEADERS = TCLApplication.h TCLCommandPackage.h TCLException.h \
 	TCLFileHandler.h TCLHashTable.h TCLHashTableItem.h \
 	TCLHashTableIterator.h TCLIdleProcess.h	TCLInterpreter.h \
 	TCLInterpreterObject.h TCLList.h TCLObject.h TCLPackagedCommand.h \
-	TCLProcessor.h TCLResult.h TCLString.h TCLTimer.h TCLVariable.h
+	TCLProcessor.h TCLResult.h TCLString.h TCLTimer.h TCLVariable.h \
+	TCLChannel.h TCLVersionHacks.h
 
 EXTRA_DIST = TCL.WC TCL.omt tkAppInit.c

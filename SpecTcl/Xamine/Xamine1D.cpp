@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2011, All rights reserved";
 //  CXamine1D.cpp
@@ -293,8 +293,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2011, Al
 //
 // Header Files:
 //
-
+#include <config.h>
 #include "Xamine1D.h"                               
+#include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions for class CXamine1D
 

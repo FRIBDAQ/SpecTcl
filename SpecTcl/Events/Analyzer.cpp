@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 
 static const char* Copyright = "(C) Copyright Michigan State University 2006, All rights reserved";
@@ -298,7 +298,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 //
 // Header Files:
 //
-#include <iostream.h>
+
+#include <config.h>
+#include <Iostream.h>
 
 #include "Exception.h"
 #include "EventFormatError.h"
@@ -307,6 +309,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include "FilterEventProcessor.h"
 
 #include "Analyzer.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Static class member initializations:
 UInt_t CAnalyzer::m_nDefaultEventThreshold = 128;
@@ -432,7 +438,7 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	  }
 	  if (nEventSize == 0) { // If we didn't throw now we'd hang here.
 	    throw CEventFormatError((int)CEventFormatError::knSizeMismatch,
-				    string("Packer returned event size = 0"),
+				    STD(string)("Packer returned event size = 0"),
 				    (UInt_t*)pData, 16, 0,0);
 	  }
 	}
@@ -482,6 +488,10 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
       cerr << "Attempting to continue processing with next buffer\n";
       cerr << "---------------------------------------------------------\n";
     }
+    // BUGBUGBUG - check that we are really at the end of the buffer
+    //             otherwise either the entity count or the event size has
+    //             lied to us.
+
   }
 }
 

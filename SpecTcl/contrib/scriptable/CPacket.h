@@ -44,12 +44,16 @@
 
 #ifndef __STL_STRING
 #include <string>        //Required for include files  
-#include __STL_STRING
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_LIST
 #include <list>
+#ifndef __STL_LSIT
 #define __STL_LIST
+#endif
 #endif
 
 // Forward class definitions.
@@ -65,7 +69,7 @@ class CPacket  : public CSegmentUnpacker
   // Publicly available types:
 
 public:
-  typedef  list<CSegmentUnpacker*>    SegmentList;
+  typedef  STD(list)<CSegmentUnpacker*>    SegmentList;
   typedef  SegmentList::iterator      ModuleIterator;
 private:
   
@@ -88,7 +92,7 @@ public:
     //  and the visibility esp. if you cannot
     // implement assignment/copy construction.
     // safely.
-    CPacket (const string&      rName,
+    CPacket (const STD(string)&      rName,
 	     CTCLInterpreter&   rInterp,
 	     CModuleDictionary* pDictionary);		//!< Constructor.
     virtual  ~ CPacket ( ); //!< Destructor.
@@ -126,7 +130,7 @@ public:
 					       CEvent& rEvent, 
 					       CAnalyzer& rAnalyzer, 
 					       CBufferDecoder& rDecoder)   ; 
-  virtual string getType() const; //!<    Return the 'unpacker type'.
+  virtual STD(string) getType() const; //!<    Return the 'unpacker type'.
 
   // Non-virtual functions:
 
@@ -150,9 +154,9 @@ public:
   // Utility member functions.
 
 protected:
-  virtual   string Usage ()   ;                       //!< print usage. 
+  virtual   STD(string) Usage ()   ;                       //!< print usage. 
 
-  ModuleIterator FindDecoder(const string& name); 
+  ModuleIterator FindDecoder(const STD(string)& name); 
   int            NumDecoders() const;
   ModuleIterator BeginDecoders();
   ModuleIterator EndDecoders();

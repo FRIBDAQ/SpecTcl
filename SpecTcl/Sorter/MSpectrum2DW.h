@@ -22,7 +22,9 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -39,7 +41,7 @@ class CMSpectrum2DW  : public CSpectrum2DW
     UInt_t  nScale;
     Float_t nLow;
     Float_t nHigh;
-    std::string sUnits;
+    STD(string) sUnits;
     int operator== (const MParameterDef& r) const {
       return ((nLow == r.nLow) && (nHigh == r.nHigh) && 
 	      (nScale == r.nScale) && (sUnits == r.sUnits));
@@ -57,7 +59,7 @@ class CMSpectrum2DW  : public CSpectrum2DW
 public:
 
   //Constructor(s) with arguments
-  CMSpectrum2DW(const std::string& rName, UInt_t nId,
+  CMSpectrum2DW(const STD(string)& rName, UInt_t nId,
 		const CParameter& rXParameter,
 		const CParameter& rYParameter,
 		Float_t nXLow, Float_t nYLow, Float_t nXHigh, Float_t nYHigh,
@@ -117,10 +119,10 @@ private:
   MParameterDef getYParameterDef() const {
     return m_YParameter;
   }
-  std::string getXUnits() const {
+  STD(string) getXUnits() const {
     return m_XParameter.sUnits;
   }
-  std::string getYUnits() const {
+  STD(string) getYUnits() const {
     return m_YParameter.sUnits;
   }
   virtual SpectrumType_t getSpectrumType() {

@@ -1,10 +1,14 @@
 // Test suite for CAxis scaling object.
 
+#include <config.h>
 #include "CAxisTests.h"
 #include "CParameterMapping.h"
 #include <string>
-#include <iostream.h>
+#include <Iostream.h>
 #include <stdlib.h>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 /*!
   Constructor.  Create:
   - m_Identity that is an identity transform from axis to an unmapped parameter

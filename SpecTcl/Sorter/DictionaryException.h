@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CDictionaryException.h:
 //
@@ -303,17 +303,20 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
 #endif
                          
 class CDictionaryException  : public CException        
 {
 private:
   Int_t      m_nReason;		// Code describing reason for exception
-  std::string m_sName;		// Name of item being looked up.
+  STD(string) m_sName;		// Name of item being looked up.
   UInt_t      m_nId;		// Id of item being looked up.
   Bool_t      m_fIdValid;	// kfTRUE if m_nId is valid.
   Bool_t      m_fNameValid;	// kfTRUE if m_sName is valid.
-  std::string m_sReasonText;	// Most recent reason text.
+  STD(string) m_sReasonText;	// Most recent reason text.
 public:
   enum {			// Possible values for m_nReason:
     knDuplicateKey,		// Insert to dictionary was duplicate key.
@@ -337,7 +340,7 @@ public:
     m_fNameValid(kfTRUE)
   { UpdateReasonText(); }
   CDictionaryException(Int_t nReason, const char* pDoing, 
-		       const string& rName) :
+		       const STD(string)& rName) :
     CException(pDoing),
     m_nReason(nReason),
     m_sName(rName),
@@ -346,7 +349,7 @@ public:
     m_fNameValid(kfTRUE)
   { UpdateReasonText(); }
 
-  CDictionaryException(Int_t nReason, const string& rDoing,
+  CDictionaryException(Int_t nReason, const STD(string)& rDoing,
 		       const char* pName) :
     CException(rDoing),
     m_nReason(nReason),
@@ -356,8 +359,8 @@ public:
     m_fNameValid(kfTRUE)
   { UpdateReasonText(); }
 
-  CDictionaryException(Int_t nReason, const string& rDoing,
-		       const string& rName) :
+  CDictionaryException(Int_t nReason, const STD(string)& rDoing,
+		       const STD(string)& rName) :
     CException(rDoing),
     m_nReason(nReason),
     m_sName(rName),
@@ -377,7 +380,7 @@ public:
     m_fIdValid(kfTRUE),
     m_fNameValid(kfFALSE)
   { UpdateReasonText(); }
-  CDictionaryException(Int_t nReason, const string& rDoing,
+  CDictionaryException(Int_t nReason, const STD(string)& rDoing,
 		       UInt_t nId) :
     CException(rDoing),
     m_nReason(nReason),
@@ -440,7 +443,7 @@ public:
   {
     return m_nReason;
   }
-  std::string getm_sName() const
+  STD(string) getm_sName() const
   {
     return m_sName;
   }
@@ -479,7 +482,7 @@ protected:
   // Mutators: Others are available to the public:
   //
 public:
-  void setName (std::string am_sName)
+  void setName (STD(string) am_sName)
   { 
     m_sName = am_sName;
     m_fNameValid = kfTRUE;

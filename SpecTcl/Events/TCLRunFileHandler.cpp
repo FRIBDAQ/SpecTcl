@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2006, All rights reserved";
 //  CTCLRunFileHandler.cpp
@@ -292,12 +292,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 // Header Files:
 //
 
-
+#include <config.h>
 #include "TCLRunFileHandler.h"                               
 #include "TCLInterpreter.h"
 #include "TKRunControl.h"
 #include <tcl.h>
 #include <tk.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 static const UInt_t knWaitTime = 500; // Ms to wait for file to be readable.
 

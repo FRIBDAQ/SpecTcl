@@ -274,7 +274,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2009, All rights reserved";
 // Class: CNSCLAsciiSpectrumFormatter
@@ -307,6 +307,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.1  2004/12/21 17:51:26  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:13  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -342,8 +345,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 #include <time.h>
 #include <string.h>
 #include <vector>
-#include <strstream.h>
+#include <Sstream.h>
 #include <ctype.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 static char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved NSCLAsciiSpectrumFormatter.cpp \n";
@@ -370,7 +377,7 @@ class FindById {
   UInt_t m_nId;
 public:
   FindById(UInt_t nId) : m_nId(nId) {}
-  int operator()(pair<const std::string, CNamedItem> i) {
+  int operator()(pair<const string, CNamedItem> i) {
     return (i.second.getNumber() == m_nId);
   }
 };
@@ -884,7 +891,7 @@ CNSCLAsciiSpectrumFormatter::ReadHeader(istream&  rStream,
   // on that stream are indicative of a format error in the file header
   // and result in a CSpectrumFormatError 
   //
-  istrstream strString(idanddims.c_str());
+  istringstream strString(idanddims.c_str());
   ReadDelimited(strString, rName, '"', '"');
   ThrowStreamError(strString,
 		   " Getting name from id and dimensions header line");
@@ -907,14 +914,14 @@ CNSCLAsciiSpectrumFormatter::ReadHeader(istream&  rStream,
   //
   //  Decode the revlevel into a float:
   //
-  istrstream strRev(revlevel.c_str());
+  istringstream strRev(revlevel.c_str());
   strRev >> rRevisionLevel;
   ThrowStreamError(strRev,
 		   "Decoding revision level from Spectrum header", kfTRUE);
 
   // Next decode the spectrum and data types.
   //
-  istrstream strTypes(type.c_str());
+  istringstream strTypes(type.c_str());
   skipwhite(strTypes);
   strTypes >> rSpecType;
   ThrowStreamError(strRev,
@@ -933,7 +940,7 @@ CNSCLAsciiSpectrumFormatter::ReadHeader(istream&  rStream,
   }
   // Decode the parameter names:
 
-  istrstream ParameterStream(parameters.c_str());
+  istringstream ParameterStream(parameters.c_str());
   DecodeParenList(ParameterStream, rParameters);
 
   // Each parameter name is surrounded by quotes to allow for spaces.  These
@@ -952,7 +959,7 @@ CNSCLAsciiSpectrumFormatter::ReadHeader(istream&  rStream,
     string LimitString = ReadLine(rStream);
     ThrowStreamError(rStream, "Reading limit line (rev. 2.0)");
 
-    istrstream strLimits(LimitString.c_str());
+    istringstream strLimits(LimitString.c_str());
     vector<string> Limits;
     DecodeListOfParenLists(strLimits, Limits);
 
@@ -964,7 +971,7 @@ CNSCLAsciiSpectrumFormatter::ReadHeader(istream&  rStream,
     }
     for(int i = 0; i < rDimensions.size(); i++ ) { // process limits.
       vector<string> LimitPair;
-      istrstream strPair(Limits[i].c_str());
+      istringstream strPair(Limits[i].c_str());
       DecodeParenList(strPair, LimitPair);
       if(LimitPair.size() != 2) {
 	throw
@@ -1136,7 +1143,7 @@ CNSCLAsciiSpectrumFormatter::ReadBody(istream&   rfStream,
 
   while(!rfStream.eof()) {
     string Line = ReadLine(rfStream);
-    istrstream rStream(Line.c_str());
+    istringstream rStream(Line.c_str());
 
     // Pull index texts from parenlist:
 

@@ -27,11 +27,16 @@ The command has the following switches
 
 #ifndef __STL_MAP
 #include <map>
+#ifndef __STL_MAP
 #define __STL_MAP
+#endif
 #endif
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
 #endif
 
 // Forward classes:
@@ -46,7 +51,7 @@ class CTCLResult;
 class CModuleCommand : public CTCLProcessor     
 {
 public:
-  typedef map<string,CModuleCreator*> CreatorCollection;
+  typedef STD(map)<STD(string),CModuleCreator*> CreatorCollection;
   typedef CreatorCollection::iterator CreatorIterator;
 private:
     CreatorCollection 	m_Creators;     //!< Creator objects
@@ -57,7 +62,7 @@ public:
     // Constructor and other canonical functions:
     
     CModuleCommand (CTCLInterpreter&   rInterp, 
-		    const string&      rCommand,
+		    const STD(string)&      rCommand,
 		    CModuleDictionary& rDictionary);
     virtual  ~ CModuleCommand ( ); 
 
@@ -99,12 +104,12 @@ public:
     int List (CTCLInterpreter& rInterp, 
 	      CTCLResult& rResult, 
 	      int argc, char** pArgv)   ; 
-    string Usage ()   ; 
+    STD(string) Usage ()   ; 
     virtual   int
            ListTypes (CTCLInterpreter& rInterp, 
 		      CTCLResult& rResult, 
 		      int argc, char** argv)   ; 
-    void RegisterCreator(const string& rType, 
+    void RegisterCreator(const STD(string)& rType, 
 			 CModuleCreator& rCreator);
 
 };

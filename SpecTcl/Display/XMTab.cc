@@ -273,9 +273,9 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
-
+#include <config.h>
 #include "XMTab.h"
 
 /*
@@ -291,13 +291,14 @@ DAMAGES.
     mailto:venema@nscl.msu.edu
 */
 
+
 XMTab::XMTab(char *n, XMWidget &parent, 
-	     ArgList args = NULL, Cardinal arg_count = 0) :
+	     ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmTabWidgetClass, parent, args, arg_count) 
 { }
 
 XMTab::XMTab(char *n, Widget parent, char *text,
-	     ArgList args = NULL, Cardinal arg_count = 0) :
+	     ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmLabelWidgetClass, parent, args, arg_count) 
 { }
 
@@ -308,8 +309,8 @@ XMTab::XMTab(Widget w) : XMManagedWidget(w)
 { }
 
 Callback_data*
-XMTab::AddCallback(void (*cb)(XMWidget *, XtPointer, XtPointer) = NULL, 
-		   XtPointer cd = NULL)
+XMTab::AddCallback(void (*cb)(XMWidget *, XtPointer, XtPointer), 
+		   XtPointer cd)
 { 
   return XMWidget::AddCallback(XmNactivateCallback, cb, cd);
 }

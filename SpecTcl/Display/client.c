@@ -223,13 +223,14 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
 			  (DWORD)size);
   if(!pMemory) return FALSE;
 
-  // BUGBUG - Note: this is only half of the story.
-  //          To prevent resource leaks, we also must ensure that 
-  //          UnmapViewOfFile is called prior to program exit.
-  //          For this version we put that on the todo list.
-  //
-  //  CloseHandle(hMapFile);
+  /*
+   BUGBUG - Note: this is only half of the story.
+            To prevent resource leaks, we also must ensure that 
+            UnmapViewOfFile is called prior to program exit.
+            For this version we put that on the todo list.
   
+    CloseHandle(hMapFile);
+  */
   atexit(killmem);
 
   *ptr = pMemory;
@@ -651,11 +652,12 @@ int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
 			  (DWORD)memsize);
   if(!pMemory) return FALSE;
 
-  // BUGBUG - Note: this is only half of the story.
-  //          To prevent resource leaks, we also must ensure that 
-  //          UnmapViewOfFile is called prior to program exit.
-  //          For this version we put that on the todo list.
-  //
+  /*
+   BUGBUG - Note: this is only half of the story.
+            To prevent resource leaks, we also must ensure that 
+            UnmapViewOfFile is called prior to program exit.
+            For this version we put that on the todo list.
+  */
   CloseHandle(hMapFile);
   
   atexit(killmem);
