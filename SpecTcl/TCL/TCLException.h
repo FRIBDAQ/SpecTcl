@@ -35,7 +35,7 @@
 #endif
 
 #ifndef __HISTOTYPES_H
-#include <histotypes.h
+#include <histotypes.h>
 #endif
 
                                
