@@ -285,6 +285,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.16  2003/11/07 22:10:34  ron-fox
+  Remove attempts to include sysinfo.h
+
   Revision 4.15  2003/08/27 15:45:31  ron-fox
   - Converted comments to Doxygen
   - Create the sink pipeline in TclGrammerApp.cpp rather than relying on
@@ -314,9 +317,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "TclGrammerApp.h"    				
 #include <limits.h>
@@ -359,13 +360,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
-#elif defined(CYGWIN)
+#endif
+#if defined(CYGWIN)
 extern "C" 
 void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
-#elif defined(OSF1)
-#else
-#include <sys/sysinfo.h>
 #endif
+
 
 #include "TCLAnalyzer.h"
 
@@ -483,7 +483,6 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
     if(Win32Path[i] == '\\') Win32Path[i] = '/';
   }
   HomeDir.Set(Win32Path);
-  
 #else
   HomeDir.Set((char*)kpInstalledBase);
 #endif
