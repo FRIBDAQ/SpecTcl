@@ -1,0 +1,1449 @@
+// BUGBUG - Must handle gate displays when:
+//
+//  CHistogrammer.cpp
+// Encapsulates a histogrammer application object. 
+// the histogrammer applications links spectra, displayers
+// and events.
+//  It provides an interface for creating spectra, and manipulating them
+// as well as binding them into displayable entities.
+//
+// 
+//
+//   Author:
+//      Ron Fox
+//      NSCL
+//      Michigan State University
+//      East Lansing, MI 48824-1321
+//      mailto:fox@nscl.msu.edu
+//
+//////////////////////////.cpp file/////////////////////////////////////////////////////
+static const char* Copyright = 
+"CHistogrammer.cpp: Copyright 1999 NSCL, All rights reserved\n";
+
+//
+// Header Files:
+//
+
+
+#include "Histogrammer.h"                               
+#include "DictionaryException.h"
+#include "EventList.h"
+
+#include <Xamineplus.h>
+#include <Xamine1D.h>
+#include <Xamine2D.h>
+#include <XamineGates.h>
+#include <DisplayGate.h>
+#include <TrueGate.h>
+#include <FalseGate.h>
+#include <DeletedGate.h>
+#include <Cut.h>
+#include <Band.h>
+#include <Contour.h>
+#include <Point.h>
+#include <PointlistGate.h>
+#include <GammaCut.h>
+#include <GammaBand.h>
+#include <GammaContour.h>
+#include <assert.h>
+#include <GateMediator.h>
+
+//
+//   Local variables:
+// 
+static string U("-Ungated-");
+static string D("-Deleted-");
+static CTrueGate   AlwaysTrue;
+static CDeletedGate  AlwaysFalse;
+static CGateContainer NoGate(U, 0,      AlwaysTrue);
+static CGateContainer Deleted(D, 0, AlwaysFalse);
+
+//
+// Very stupid local function to do parameter scaling: 
+//
+static inline UInt_t scale(UInt_t nValue, Int_t nScale)
+{
+  return ((nScale > 0) ? (nValue >> nScale) :
+                        (nValue << (-nScale)));
+}
+
+// Helper classes: These are predicates which are used
+// to match partial spectrum and parameter names.
+//
+class SpectrumPartialMatchPredicate {
+  std::string m_Name;
+public:
+  SpectrumPartialMatchPredicate(const std::string& rName) :
+    m_Name(rName) {}
+  Bool_t operator()(pair<const std::string, CSpectrum*> i) {
+    CSpectrum* pSpectrum = i.second;
+    return ( (pSpectrum->getName().find(m_Name.c_str())) == 0);
+  }
+};
+
+class ParameterPartialMatchPredicate {
+  std::string m_Name;
+public:
+  ParameterPartialMatchPredicate(const std::string& rName) :
+    m_Name(rName) {}
+  Bool_t operator()(pair<const std::string, CParameter> i){
+    CParameter p = i.second;
+    std::string name = p.getName();
+    return (name.find(m_Name.c_str()) == 0);
+  }
+};
+
+class IdMatchPredicate {
+  UInt_t m_nId;
+public:
+  IdMatchPredicate(UInt_t nId) : m_nId(nId) {}
+  Bool_t operator()(pair<const std::string, CNamedItem> i) {
+    return (i.second.getNumber() == m_nId);
+  }
+};
+class PointerIdMatchPredicate {
+  UInt_t m_nId;
+public:
+  PointerIdMatchPredicate(UInt_t nId) : m_nId(nId) {}
+  Bool_t operator()(pair<const std::string, CNamedItem*> i) {
+    return ((i.second)->getNumber() == m_nId);
+  }
+};
+
+// Functions for class CHistogrammer
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//     CHistogrammer(UInt_t nSpecbytes)
+//  Operation Type:
+//     Constructor.
+//
+CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
+  m_pDisplayer(0)
+{
+  m_pDisplayer = new CXamine(nSpecbytes);
+  m_pDisplayer->Start();
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//    CHistogrammer(const CXamine&  rDisplayer)
+//  Operation Type:
+//    Construtor
+//
+CHistogrammer::CHistogrammer(const CXamine& rDisplayer) :
+  m_pDisplayer(new CXamine(rDisplayer))
+{
+  if(!m_pDisplayer->isAlive())
+    m_pDisplayer->Start();
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//    ~CHistogrammer()
+//  Operation Type:
+//     Destructor.
+//
+CHistogrammer::~CHistogrammer()
+{
+  if(m_pDisplayer->isAlive())
+    m_pDisplayer->Stop();
+
+  delete m_pDisplayer;
+
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//    CHistogrammer(const CHistogrammer& rRhs)
+// Operation Type:
+//    Copy constructor
+//
+CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
+  m_pDisplayer(new CXamine(*rRhs.m_pDisplayer))
+{
+  m_DisplayBindings     = rRhs.m_DisplayBindings;
+  m_ParameterDictionary = rRhs.m_ParameterDictionary;
+  m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
+  m_GateDictionary      = rRhs.m_GateDictionary;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//    CHistogrammer& operator=(const CHistogrammer& rRhs)
+//
+// Operation Type:
+//    Assignment operator.
+// 
+CHistogrammer&
+CHistogrammer::operator=(const CHistogrammer& rRhs)
+{
+  m_pDisplayer          = new CXamine(*(rRhs.m_pDisplayer));
+  m_DisplayBindings     = rRhs.m_DisplayBindings;
+  m_ParameterDictionary = rRhs.m_ParameterDictionary;
+  m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
+  m_GateDictionary      = rRhs.m_GateDictionary;
+}
+//////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//   int operator==(const CHistogrammer& rRhs)
+// Operation Type:
+//   Equality comparison.
+//
+int
+CHistogrammer::operator==(const CHistogrammer& rRhs)
+{
+  return (
+	  (*m_pDisplayer          == *(rRhs.m_pDisplayer))         &&
+	  ( m_DisplayBindings     ==   rRhs.m_DisplayBindings)     &&
+	  ( m_ParameterDictionary ==   rRhs.m_ParameterDictionary) &&
+	  ( m_SpectrumDictionary  ==   rRhs.m_SpectrumDictionary)  &&
+	  ( m_GateDictionary      ==   rRhs.m_GateDictionary)
+	  );
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//    void operator() (const CEvent& rEvent)
+// Operation Type:
+//    Analyzer function
+//
+void
+CHistogrammer::operator()(const CEvent& rEvent)
+{
+  // Histograms a single event by passig it to all the histograms.
+  // the histograms take the parameters they need from the event and
+  // histogram themselves.
+  // 
+  // Formal Parameters:
+  //    const CEvent& rEvent:
+  //        References the event to histogram.
+  //
+
+  // Reset the gates:
+
+  CGateDictionaryIterator p = GateBegin();
+  CGateDictionaryIterator e = GateEnd();
+  for(; p != e; p++) {
+    (*p).second->Reset();
+  }
+
+  // Increment the histograms.:
+
+  SpectrumDictionaryIterator i  = SpectrumBegin();
+  SpectrumDictionaryIterator se = SpectrumEnd();
+  for(; i != se; i++) {
+    (*((*i).second))(rEvent);
+  }
+}
+//////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//     void operator()(CEventList& rEvents)
+// Operation Type:
+//     Functionalizer.
+//
+void
+CHistogrammer::operator()(CEventList& rEvents)
+{
+  CEventListIterator i;
+  CEventListIterator e = rEvents.end();
+  for(i = rEvents.begin(); i != e; i++) {
+    CEvent* pEvent = *i;
+    if(pEvent) 
+      operator()(*pEvent);
+    else
+      return;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    CParameter* AddParameter ( const std::string& sName, 
+//                               UInt_t nId, UInt_t  nScale )
+//  Operation Type:
+//    Mutator
+//
+CParameter* 
+CHistogrammer::AddParameter(const std::string& sName, UInt_t nId,
+			    UInt_t  nScale) 
+{
+// Adds a parameter to the parameter dictionary.
+// Parameters have names, numbers and ranges.
+// The name and number must be unique, and this 
+// uniqueness is enforced by the dictionary.
+//
+// Formal Parameters:
+//          const std::string&  sName:
+//                  Name of the parameter to add
+//          UInt_t nId:
+//                   Number of the parameter to add.
+//          UInt_t nScale:
+//                   Log[2] of the parameter full scale.
+//
+// Throws:
+//     CDictionaryException if parameter with same name or ID already
+//     exists.
+// Returns:
+//     Pointer to the parameter created, kpNULL If unable to enter.
+
+  // Avoid Duplication:
+
+  CParameter* pPar = FindParameter(sName);
+  if(pPar) 
+    if(pPar->getName() == sName) { // Duplicate parameter name.
+      throw CDictionaryException(CDictionaryException::knDuplicateKey,
+	 "CHistogrammer::AddParameter Checking for duplicate parameter name",
+	  sName);
+    }
+  pPar = FindParameter(nId);
+  if(pPar) {			// Duplicate parameter id.
+    throw CDictionaryException(CDictionaryException::knDuplicateId,
+	    "CHistogrammer::AddParameter Checking for duplicate parameter id",
+	    nId);
+  }
+
+  // Now add the new parameter to the dictionary:
+
+  m_ParameterDictionary.Enter(sName, 
+			      CParameter(nScale, sName, nId));
+  return FindParameter(sName);
+  
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    void AddSpectrum ( CSpectrum& rSpectrum )
+//  Operation Type:
+//     mutator.
+//
+void 
+CHistogrammer::AddSpectrum(CSpectrum& rSpectrum) 
+{
+// Adds a spectrum to the parameter histogrammer's spectrum dictionary.
+// Since in theory a whole variety of histogram types will be definable
+// in the future, the histogram must be created externally and passed in.
+// Histogram names must be unique and their numbers must also
+// be unique.  This uniqueness will be enforced by the histogram
+// dictionary.
+//  
+// Formal Parameters:
+//      CSpectrum& rSpec:
+//          Refers to a spectrum to add to the system.
+//          The spectrum should be dynamically allocated.
+//          Ownership of the spectrum object passes to the
+//          CHistogrammer, which will delete it at destruction.
+//          On Removal, the histogrammer will pass control
+//          of the histogram back to the caller.
+//  
+// Exceptions: 
+//   CDictionaryException If a spectrum with that name and that
+//   id already exist.
+// 
+
+  // Prevent duplicate spectrum at cost of a CDictionaryException.
+
+  CSpectrum* pSpec = FindSpectrum(rSpectrum.getName());
+  if(pSpec) {
+    if(pSpec->getName() == rSpectrum.getName()) { // If exact match freak.
+      throw CDictionaryException(CDictionaryException::knDuplicateKey,
+	    "CHistogrammer::AddHistogram Checking for duplicate spectrum name",
+			       rSpectrum.getName());
+    }
+  }
+  pSpec = FindSpectrum(rSpectrum.getNumber());
+  if(pSpec) {
+    throw CDictionaryException(CDictionaryException::knDuplicateKey,
+	    "CHistogrammer::AddHistogram Checking for duplicate spectrum id",
+	    rSpectrum.getNumber());
+  }
+  //
+  // Now enter the item:
+  //
+  m_SpectrumDictionary.Enter(rSpectrum.getName(), &rSpectrum);
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    CParameter* RemoveParameter ( const std::string& sName )
+//  Operation Type:
+//     Mutator
+//
+CParameter* 
+CHistogrammer::RemoveParameter(const std::string& sName) 
+{
+// Removes the named parameter from the histogrammer.
+// Ownership of the parameter passes to the remover.
+// Note that the returned parameter is dynamically allocated.
+// Therefore the caller should delete the object at some
+//  point.
+//
+// Formal Parameters:
+//     const std::string& sName:
+//              Name of the parameter to remove (must match exactly).
+// Returns:
+//    CParameter* - pointer to the parameter to remove or
+//    kpNULL if there isn't any such parameter.
+
+  ParameterDictionaryIterator iPar = m_ParameterDictionary.Lookup(sName);
+  CParameter*                  pPar((CParameter*)kpNULL);
+  if(iPar != m_ParameterDictionary.end()) {
+    pPar = new CParameter((*iPar).second); // Duplicate  dynamically.
+    m_ParameterDictionary.Remove(sName);
+  }
+  return pPar;
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    CSpectrum* RemoveSpectrum ( const std::string sName )
+//  Operation Type:
+//     Mutator
+//
+CSpectrum* 
+CHistogrammer::RemoveSpectrum(const std::string sName) 
+{
+// Removes a spectrum from the histogrammer's spectrum
+// dictionary.  Ownership of the spectrum is transferred to 
+// the caller. The returned  spectrum
+// should be deleted at some point by the caller.
+//
+// Formal Parameters:
+//     const std::string& sName:
+//         Name of the spectrum.
+//
+//  Returns:
+//     CSpectrum*  - pointer to the spectrum removed or
+//                            kpNULL if there wasn't one by that name.
+
+  // Ensure the spectrum exists and get a pointer to it:
+
+  SpectrumDictionaryIterator iSpectrum = m_SpectrumDictionary.Lookup(sName);
+  CSpectrum*                 pSpectrum((CSpectrum*)kpNULL);
+  if(iSpectrum != m_SpectrumDictionary.end()) {
+    pSpectrum = (*iSpectrum).second;
+    m_SpectrumDictionary.Remove(sName);
+  }
+  
+ 
+  return pSpectrum;
+
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    UInt_t BindToDisplay ( const std::string& rsName, UInt_t nSpecId=0 )
+//  Operation Type:
+//     mutator
+//
+UInt_t 
+CHistogrammer::BindToDisplay(const std::string& rsName) 
+{
+//  Binds a spectrum to the display.
+//  The first free spectrum will be allocated.
+//
+//  Formal Parameter:
+//       const std::string sName
+//           Name of the spectrum to bind.
+
+//  Returns:
+//      UInt_t  - Actual spectrum number chosen.
+//
+// Throws:
+//    CDictionaryException - if spectrum of given name does not exist.
+//    CErrnoException      - may be thrown by routines we call.
+
+  // If the spectrum is already bound, then we short circuit and
+  // just return the current binding number:
+  // This is not an error, just a user mistake we can handle.
+  //
+  for(int i = 0; i < m_DisplayBindings.size(); i++) {
+    if(rsName == m_DisplayBindings[i])
+      return i;
+  }
+  // The spectrum must exist or a dictionary exception is thrown.
+  //
+
+  SpectrumDictionaryIterator iSpectrum = m_SpectrumDictionary.Lookup(rsName);
+  if(iSpectrum == m_SpectrumDictionary.end()) {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey,
+			     "CHistogrammer::BindToDisplay Locating spectrum",
+			       rsName);
+  }
+
+  
+
+  // From the spectrum we must construct an Xamine spectrum which desribes
+  // what we're trying to create.  There are two variables to worry about
+  //  Dimensionality (determines the kind of Xamine spectrum to be created)
+  //  and StorageType (determines how to construct it among other things).
+  //  asserts are used to enforce restrictions on the types of spectra
+  //  supported by Xamine.
+
+  UInt_t nSpectrum;       
+  CSpectrum*       pSpectrum = (*iSpectrum).second;
+  CXamineSpectrum* pXSpectrum;
+  
+  try {
+    switch(pSpectrum->Dimensionality()) {
+    case 1:			// 1-d spectrum.
+      switch(pSpectrum->StorageType()) {
+      case keWord:
+	pXSpectrum = new CXamine1D(m_pDisplayer->getXamineMemory(),
+				   rsName,
+				   pSpectrum->Dimension(0),
+				   kfTRUE);
+	break;
+      case keLong:
+	pXSpectrum = new CXamine1D(m_pDisplayer->getXamineMemory(),
+				   rsName,
+				   pSpectrum->Dimension(0),
+				   kfFALSE);
+	break;
+      default:
+	assert(kfFALSE);
+      }
+      break;
+    case 2:			// 2-d spectrum.
+      {
+	switch(pSpectrum->StorageType()) {
+	case keWord:
+	  pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(),
+				     rsName,
+				     pSpectrum->Dimension(0),
+				     pSpectrum->Dimension(1),
+				     kfFALSE);
+	  break;
+	case keByte:
+	  pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(),
+				     rsName,
+				     pSpectrum->Dimension(0),
+				     pSpectrum->Dimension(1),
+				     kfTRUE);
+	  break;
+	default:
+	  assert(kfFALSE);
+	}
+	break;
+      default:
+	assert(kfFALSE);
+      }
+    }
+    // pXSpectrum points to a spectrum which can be 'defined' in Xamine:
+    // pSpectrum  points to a spectrum dictionary entry.
+    // What's left to do is:
+    //   Define the spectrum to Xamine (allocating slot and storage).
+    //   Replace the spectrum's storage with Xamine's.
+    //   Enter the slot/name correspondence in the m_DisplayBindings table.
+    //
+    Address_t pStorage           = m_pDisplayer->DefineSpectrum(*pXSpectrum);
+    nSpectrum                    = pXSpectrum->getSlot();
+
+    pSpectrum->ReplaceStorage(pStorage, kfFALSE);
+    while(m_DisplayBindings.size() <= nSpectrum) 
+      m_DisplayBindings.push_back("");
+    m_DisplayBindings[nSpectrum] = pSpectrum->getName();
+    delete pXSpectrum;		// Destroy the XamineSpectrum.
+  }
+  catch (...) {		// In case DefineSpectrum throws e.g.
+    delete pXSpectrum;
+    throw;
+  }
+  // We must locate all of the gates which are relevant to this spectrum
+  // and enter them as well:
+  //
+
+  vector<CGateContainer> DisplayGates = GatesToDisplay(rsName);
+  UInt_t Size = DisplayGates.size();
+  for(UInt_t i = 0; i < DisplayGates.size(); i++) {
+    CDisplayGate* pXgate = GateToXamineGate(nSpectrum, DisplayGates[i]);
+    if(pXgate) m_pDisplayer->EnterGate(*pXgate);
+    delete pXgate;
+  }
+  return nSpectrum;
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    void UnBindFromDisplay ( UInt_t nSpec )
+//  Operation Type:
+//     mutator
+//
+void 
+CHistogrammer::UnBindFromDisplay(UInt_t nSpec) 
+{
+// Unbinds the spectrum which is 
+// attached to the specified Displayer spectrum number.
+// 
+// Formal Parameters:
+//    UInt_t nSpec:
+//       Display spectrum id to unbind.
+
+  CXamineSpectrum  Spec(m_pDisplayer->getXamineMemory(), nSpec);
+  if(Spec.getSpectrumType() != undefined) { // No-op if spectrum not defined
+    
+    assert(Spec.getTitle() == m_DisplayBindings[nSpec]);
+    SpectrumDictionaryIterator iSpectrum = 
+                                m_SpectrumDictionary.Lookup(Spec.getTitle());
+    assert(iSpectrum != m_SpectrumDictionary.end());
+    CSpectrum*       pSpectrum = (*iSpectrum).second;
+    //
+    //  What we need to do is:
+    //    0. Remove the gates which are being displayed.
+    //    1. Provide local storage for the spectrum data.
+    //    2. Remove the spectrum from the bindings table.
+    //    3. Tell Xamine to free the slot and spectrum.
+    //
+    
+    // Deal with the gates:
+    
+    CXamineGates* pGates = m_pDisplayer->GetGates(nSpec);
+    CDisplayGateVectorIterator pGateIterator = pGates->begin();
+    while(pGateIterator != pGates->end()) {
+      UInt_t   nGateId   = pGateIterator->getId();
+      GateType_t eGateType = pGateIterator->getGateType();
+      m_pDisplayer->RemoveGate(nSpec, nGateId, eGateType);
+      pGateIterator++;
+    }
+
+    delete pGates;
+
+    // Deal with the spectrum:
+
+    pSpectrum->ReplaceStorage(new char[pSpectrum->StorageNeeded()],
+			      kfTRUE);
+    m_DisplayBindings[nSpec] = "";
+    m_pDisplayer->FreeSpectrum(nSpec);
+
+  }
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    void ClearSpectrum ( const std::string& rsName )
+//  Operation Type:
+//     mutator
+//
+void 
+CHistogrammer::ClearSpectrum(const std::string& rsName) 
+{
+// Clears the selected spectrum.
+//
+//  Formal Parameters:
+//        const std::string& rsName:
+//               Name of the spectrum to clear.
+
+
+  SpectrumDictionaryIterator i = m_SpectrumDictionary.Lookup(rsName);
+  if(i == m_SpectrumDictionary.end()) {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey,
+	       "CHistogrammer::ClearSpectrum - Looking up spectrum to clear",
+	       rsName);
+  }
+  ((*i).second)->Clear();
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    void ClearAllSpectra (  )
+//  Operation Type:
+//     mutator.
+//
+void 
+CHistogrammer::ClearAllSpectra() 
+{
+// Clears all spectra in the histogrammer's spectrum
+// dictionary.
+
+  for(SpectrumDictionaryIterator i = m_SpectrumDictionary.begin();
+      i != m_SpectrumDictionary.end(); i++) {
+    ((*i).second)->Clear();
+  }
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    DisplayBindingsIterator DisplayBindingsBegin (  )
+//  Operation Type:
+//     Selector
+//
+DisplayBindingsIterator 
+CHistogrammer::DisplayBindingsBegin() 
+{
+// Returns a begining iterator to support iterating through the set of
+// display bindings.
+
+  return m_DisplayBindings.begin();
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    DisplayBindingsIterator DisplayBindingsEnd (  )
+//  Operation Type:
+//     
+//
+DisplayBindingsIterator 
+CHistogrammer::DisplayBindingsEnd() 
+{
+// Returns an iterator which can be used to determin
+// if the end of the display bindings set has been iterated through.
+//
+
+  return m_DisplayBindings.end();
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    UInt_t DisplayBindingsSize (  )
+//  Operation Type:
+//     
+//
+UInt_t 
+CHistogrammer::DisplayBindingsSize() 
+{
+// Returns the number of spectra bound to the display.
+
+  return m_DisplayBindings.size();
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    CSpectrum* FindSpectrum ( const std::string& rName )
+//  Operation Type:
+//     Selector
+//
+CSpectrum* 
+CHistogrammer::FindSpectrum(const std::string& rName) 
+{
+// Locates a particular spectrum.
+// There are two forms of this function:
+//
+// Formal Parameters:
+//     const std::string& rName:
+//        Specifies the name of the spectrum to locate.
+//        Only exact matches are allowed.
+//
+//  UInt_t   nID:
+//       A match is attempted by id. 
+//
+// Returns:
+//    A pointer to the found spectrum else kpNULL if there
+//  wasn't a match.
+
+  SpectrumDictionaryIterator iSpec = m_SpectrumDictionary.Lookup(rName);
+  if(iSpec != m_SpectrumDictionary.end()) {
+    return (*iSpec).second;
+  }
+  else {
+    return (CSpectrum*)kpNULL;
+  }
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//     CSpectrum* FindSpectrum(UInt_t nSpec)
+//  Operation Type:
+//     Selector
+//
+CSpectrum*
+CHistogrammer::FindSpectrum(UInt_t nSpec)
+{
+  SpectrumDictionaryIterator 
+    i(m_SpectrumDictionary.FindMatch(PointerIdMatchPredicate(nSpec)));
+
+  if(i != m_SpectrumDictionary.end()) {
+    return (*i).second;
+  }
+  else {
+    return (CSpectrum*)kpNULL;
+  }
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    SpectrumDictionaryIterator SpectrumBegin (  )
+//  Operation Type:
+//     Selector.
+//
+SpectrumDictionaryIterator 
+CHistogrammer::SpectrumBegin() 
+{
+// Returns an iterator which corresponds to the 'first' entry in the spectrum dictionary.
+// This iterator can be used to visit all dictionary entries.
+//
+
+  return m_SpectrumDictionary.begin();
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    SpectrumDictionaryIterator Spectrum End (  )
+//  Operation Type:
+//     Selector
+//
+SpectrumDictionaryIterator 
+CHistogrammer::SpectrumEnd() 
+{
+// Returns an iterator which refers to 'off the end' of the
+// spectrum dictionary.  This can be used to determine when
+// all dictionary entries have been visited by an incrementing 
+// iterator.
+//
+
+  return m_SpectrumDictionary.end();
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    UInt_t SpectrumCount (  )
+//  Operation Type:
+//     selector
+//
+UInt_t 
+CHistogrammer::SpectrumCount() 
+{
+// Returns the number of spectra in the spectrum dictionary.
+
+  return m_SpectrumDictionary.size();
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    CParameter* FindParameter ( const std::string& rName )
+//  Operation Type:
+//     Selector.
+//
+CParameter* 
+CHistogrammer::FindParameter(const std::string& rName) 
+{
+// Locates a specified parameter searching
+// either by name or id (overloaded).
+//
+// Formal Parameters:
+//    const std::string& rName:
+//       Name of the parameter to look for.
+//       Only an exact match is attempted. 
+//
+//  Uint_t nID:
+//       Number of the parameter.
+//
+// Returns:
+//   A pointer to the found object or kpNULL if there is no match.
+// 
+
+
+
+  ParameterDictionaryIterator iParam = m_ParameterDictionary.Lookup(rName);
+  if(iParam != m_ParameterDictionary.end()) {
+    return &((*iParam).second);
+  }
+  else 
+    return (CParameter*)kpNULL;
+
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//     CParameter*  FindParameter(UInt_t nPar)
+//
+// Operation Type:
+//     Selector.
+
+CParameter*
+CHistogrammer::FindParameter(UInt_t nPar)
+{
+  ParameterDictionaryIterator 
+     i(m_ParameterDictionary.FindMatch(IdMatchPredicate(nPar)));
+
+  if(i != m_ParameterDictionary.end()) {
+    return &((*i).second);
+  }
+  else {
+    return (CParameter*)kpNULL;
+  }
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    ParameterDictionaryIterator ParameterBegin (  )
+//  Operation Type:
+//     Selector
+//
+ParameterDictionaryIterator 
+CHistogrammer::ParameterBegin() 
+{
+// Returns an iterator corresponding to the 
+// first entry of the parameter dictionary.  This
+// iterator can be used to visit all nodes of the
+// dictionary.
+
+  return m_ParameterDictionary.begin();
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    ParameterDictionaryIterator ParameterEnd (  )
+//  Operation Type:
+//     Selector
+//
+ParameterDictionaryIterator 
+CHistogrammer::ParameterEnd() 
+{
+// Returns an iterator which corresponds to just
+// off the end of the parameter dictionary. This can
+// be used to determine if an iterator has visited all
+// nodes in the dictionary.
+
+  return m_ParameterDictionary.end();
+
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    UInt_t ParameterCount (  )
+//  Operation Type:
+//     Selector
+//
+UInt_t 
+CHistogrammer::ParameterCount() 
+{
+// Returns the number of entries in the parameter dictionary.
+
+  return m_ParameterDictionary.size();
+
+}
+//
+//////////////////////////////////////////////////////////////////////
+//
+// Function:
+//      CSpectrum*  DisplayBinding(UInt_t xid)
+// Operation type:
+//      Selector.
+//
+CSpectrum*
+CHistogrammer::DisplayBinding(UInt_t xid)
+{
+  // Returns  a pointer to a spectrum which is bound on a particular
+  // xid.
+  // Formal Parameters:
+  //    UInt_t xid:
+  //       The xid.
+  // Returns:
+  //     POinter to the spectrum or kpNULL Iff:
+  //     xid is out of range.
+  //     xid does not map to a spectrum.
+  //
+  if(xid >= DisplayBindingsSize()) 
+    return (CSpectrum*)kpNULL;
+
+  return FindSpectrum(m_DisplayBindings[xid]);
+}
+///////////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//     void UnGate(const std::string& rSpectrum);
+// Operation Type:
+//     Mutator.
+void
+CHistogrammer::UnGate(const std::string& rSpectrum)
+{
+  // Removes a gate from the indicated spectrum.
+  // Note that the gate is really replaced with a
+  // pointer to the noGate container.  That container holds a pointer to
+  // a CTrueGate which will always allow the spectrum to be incremented.
+  //
+  // Formal Parameters:
+  //     const std::string& rSpectrum:
+  //        Reference to the spectrum to ungate.
+  // Exceptions:
+  //     CDictionaryException  if the spectrum does not exist.
+  //
+
+  CSpectrum *pSpectrum = FindSpectrum(rSpectrum);
+  if(!pSpectrum) {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey,
+			       "Looking up spectrum in CHistogrammer::UnGate",
+			       rSpectrum);
+  }
+  else {
+    pSpectrum->ApplyGate(&NoGate);
+  }
+}
+/////////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//       void Addgate(const std::string& rName, UInt_t nId, CGate& rGate)  
+// Operation Type:
+//     Mutators.
+//
+void
+CHistogrammer::AddGate(const std::string& rName, UInt_t nId, CGate& rGate)
+{
+  // Adds a gate to the gate dictionary.  The gate must have a unique name and
+  // a unique ID, or else a DictinoaryException is thrown.  The gate is 
+  // cloned into a gate container and added to the gate dictinoary.
+  //
+  // Formal Parameters:
+  //     const std::string& rName
+  //        Name of new gate.
+  //     UInt_t nId:
+  //        Number of the gate to insert in the dictionary.
+  //     CGate& rGate:
+  //        refers to the gate to add.
+  //
+  // Exceptions:
+  //    CDictionaryException if:
+  //         Gate by this name already exists.
+  //         Gate with this Id already exists.
+  //
+  CGateContainer* pGate = FindGate(rName);
+  if(pGate) {			// Duplicate name...
+    throw CDictionaryException(CDictionaryException::knDuplicateKey,
+		       "Looking up gate name in CHistogrammer::AddGate",
+			       rName);
+  }
+  pGate = FindGate(nId);
+  if(pGate) {			// Duplicate Gate Id.
+    throw CDictionaryException(CDictionaryException::knDuplicateKey,
+			       "Looking up gate id. in CHistogrammer::AddGate",
+			       rName);
+  }
+
+  // Now add the gate:
+
+  CGateContainer aGate((string&)rName, nId, rGate);
+  m_GateDictionary.Enter(rName, aGate);
+  AddGateToBoundSpectra(aGate);
+
+}
+/////////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//     void DeleteGate(const std::string& rGateName)
+// Operation Type:
+//     Mutator
+//
+void
+CHistogrammer::DeleteGate(const std::string& rGateName)
+{
+  // Deletes an existing gate from the gate dictionary... This really
+  // just replaces the gate in the gate container with a 
+  // pointer to an always false gate.
+  //
+  // Formal Parameters:
+  //   const std::string& rGate:
+  //      The Gate to 'delete'.
+  //
+  
+  ReplaceGate(rGateName, AlwaysFalse);
+}
+/////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//     void ReplaceGate(const std::string& rGateName, CGate& rGate)
+// Operation Type:
+//     Mutator.
+// 
+void
+CHistogrammer::ReplaceGate(const std::string& rGateName, CGate& rGate)
+{
+  // Replaces an existing gate with a new gate.
+  // 
+  // Formal Parameters:
+  //     const std::string& rGateName:
+  //       Name of the gate to be replaced.
+  //     CGate& rGate:
+  //       New gate to replace existing gate with.
+  // Throws:
+  //    CDictionaryException if:
+  //      named Gate does not exist.
+  //
+  // NOTE:
+  //    The gate is cloned and attached to the existing gate container.
+  //
+  CGateContainer* pContainer = FindGate(rGateName);
+  if(!pContainer) {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey,
+	       "Searching for existing gate in CHistogrammer::ReplaceGate",
+			       rGateName);
+  }
+  // We must remove the old gate from the displays, replace with the
+  // new gate and Add back.
+
+  RemoveGateFromBoundSpectra(*pContainer);
+  pContainer->setGate(&rGate);
+  AddGateToBoundSpectra(*pContainer);
+
+}
+/////////////////////////////////////////////////////////////////////
+//
+// Function:
+//    void ApplyGate(const std::string& rGateName,  
+//                   const std::string& rSpectrum)
+// Operation Type:
+//    Mutator.
+void
+CHistogrammer::ApplyGate(const std::string& rGateName, 
+			      const std::string& rSpectrum)
+{
+  // Applies a gate to a spectrum.  After applying the gate to the
+  // spectrum, the spectrum will only be histogrammed for events where
+  // the gate is 'made.'
+  //
+  //  Formal Parameters:
+  //     const std::string& rGateName:
+  //         Name of the gate to apply.
+  //     const std::string& rSpectrum:
+  //         Name of spectrum to which gate is applied.
+  // 
+
+  CSpectrum*      pSpectrum;
+  CGateContainer* pGateContainer;
+
+  pSpectrum = FindSpectrum(rSpectrum);
+  if(!pSpectrum) {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey,
+		       "No Such Spectrum in CHistogrammer::ApplyGate()",
+			       rSpectrum);
+  }
+
+  pGateContainer = FindGate(rGateName);
+  if(!pGateContainer) {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey,
+			       "No Such Gate in CHistogrammer::ApplyGate()",
+			       rGateName);
+  }
+
+  SpectrumType_t spType = pSpectrum->getSpectrumType();
+  string gType = pGateContainer->getGate()->Type();
+  switch(spType) {
+  case ke1D:
+  case ke2D:
+    if(gType == "gs" || gType == "gb" || gType == "gc") {
+      throw CDictionaryException(CDictionaryException::knWrongGateType,
+	   "Cannot apply gamma gate to spectrum in CHistogrammer::ApplyGate()",
+				 rGateName);
+    }
+    break;
+  }
+
+  //  Now Apply the gate:
+
+  pSpectrum->ApplyGate(pGateContainer);
+}
+/////////////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//    std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum)
+// Operation Type:
+//    Protected utility.
+//
+std::vector<CGateContainer>
+CHistogrammer::GatesToDisplay(const std::string& rSpectrum)
+{
+  // Returns a vector of gates which can be displayed on the spectrum.
+  // Gates are considered displayable on a spectrum iff the gate parameter set
+  // is the same as the spectrum parameter set. If the spectrum is a gamma 
+  // spectrum, then the gate is only displayed on one spectrum. Note that 
+  // displayable gates at present are one of the following types only:
+  //   Contour (type = 'c')
+  //   Band    (type = 'b')
+  //   Cut     (type = 's')
+  //   GammaContour   (type = 'gc')
+  //   GammaBand      (type = 'gb')
+  //   GammaCut       (type = 'gs')
+  // All other gates are not displayable.
+  //
+
+  std::vector<CGateContainer> vGates;
+  CSpectrum *pSpec = FindSpectrum(rSpectrum);
+  if(!pSpec) {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey,
+			      "No such spectrum CHistogrammer::GatesToDisplay",
+			      rSpectrum);
+  }
+  //
+  // The mediator tells us whether the spectrum can display the gate:
+  //
+  CGateDictionaryIterator pGate = GateBegin();
+  while(pGate != GateEnd()) {
+    CGateMediator DisplayableGate(((*pGate).second), pSpec);
+    if(DisplayableGate()) {
+      vGates.push_back((*pGate).second);
+    }
+    pGate++;
+  }
+  
+  return vGates;
+}
+/////////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//    CGateContainer* FindGate(const std::string& rGate)
+// Operation Type:
+//    Selector.
+//
+CGateContainer*
+CHistogrammer::FindGate(const std::string& rGate)
+{
+  CGateDictionaryIterator p = m_GateDictionary.Lookup(rGate);
+  return p != m_GateDictionary.end() ? &((*p).second) : 
+                                       (CGateContainer*)kpNULL;
+}
+///////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//   CGateContainer* FindGate(UInt_t nId)
+// Opeation Type:
+//    Selector.
+//
+CGateContainer*
+CHistogrammer::FindGate(UInt_t nId)
+{
+  // Find a gate given the Id rather than the name.
+  
+  IdMatchPredicate Match(nId);
+  CGateDictionaryIterator p(m_GateDictionary.FindMatch(Match));
+
+  return p != m_GateDictionary.end() ? &((*p).second) : 
+                                        (CGateContainer*)kpNULL;
+}
+/////////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//   CGateDictionaryIterator GateBegin()
+// Operation Type:
+//   Selector.
+//
+CGateDictionaryIterator
+CHistogrammer::GateBegin()
+{
+  return m_GateDictionary.begin();
+}
+/////////////////////////////////////////////////////////////////////////////
+// 
+// Function:
+//    CGateDictionaryIterator GateEnd()
+// Operation Type:
+//    Selector.
+//
+CGateDictionaryIterator
+CHistogrammer::GateEnd()
+{
+  return m_GateDictionary.end();
+}
+////////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//    UInt_t GateCount()
+// Operation Type:
+//    Selector.
+//
+UInt_t
+CHistogrammer::GateCount()
+{
+  return m_GateDictionary.size();
+}
+////////////////////////////////////////////////////////////////////////
+//
+// :Function:
+//    CDisplayGate* GateToXamineGate(UInt_t nBindingId, CGateContainer& rGate)
+//  Operation Type:
+//    Protected Utility
+//
+CDisplayGate*
+CHistogrammer::GateToXamineGate(UInt_t nBindingId, 
+ 			        CGateContainer& rGate)
+{
+  // Takes a gate container and turns it into a gate suitable for
+  // entry in the Xamine display program.
+  // 
+  // Formal Parameters:
+  //    UInt_t nBindingId:
+  //      The Xamine binding identifier of the spectrum (xamine spectrum
+  //      slot number.
+  //    CGateContainer& rGate:
+  //      The container which holds the gate to convert.  Note that
+  //      gate containers can be treated as if they were pointers to
+  //      gates.
+  // Returns:
+  //     CDisplayGate*  kpNULL -- if the gate is not convertable,
+  //                              e.g. it is not a gate directly suported
+  //                              by Xamine.
+  //                    other  -- Pointer to the gate which was created.
+  // NOTE:
+  //    The gate is dynamically allocated and therefore must be deleted by
+  //    the client.
+  //
+
+  CDisplayGate* pXGate;
+  CSpectrum*    pSpectrum = FindSpectrum(m_DisplayBindings[nBindingId]);
+  assert(pSpectrum != (CSpectrum*)kpNULL);
+
+  if((rGate->Type() == std::string("s")) ||
+     (rGate->Type() == std::string("gs"))) {	// Slice gate
+    CDisplayCut* pCut = new CDisplayCut(nBindingId, 
+					rGate.getNumber(),
+					rGate.getName());
+    // There are two points, , (low,0), (high,0)
+
+    CCut& rCut = (CCut&)(*rGate);
+
+    
+    pCut->AddPoint(scale(rCut.getLow(),  pSpectrum->getScale(0)),  0);
+    pCut->AddPoint(scale(rCut.getHigh(), pSpectrum->getScale(0)), 0);
+    return pCut;
+      
+  }
+  else if ((rGate->Type() == std::string("b")) ||
+	   (rGate->Type() == std::string("gb"))) { // Band gate.
+    pXGate = new CDisplayBand(nBindingId,
+				    rGate.getNumber(),
+				    rGate.getName());
+  }
+  else if ((rGate->Type() == std::string("c")) ||
+	   (rGate->Type() == std::string("gc"))) { // Contour gate
+    pXGate = new CDisplayContour(nBindingId,
+				 rGate.getNumber(),
+				 rGate.getName());
+  }
+  else {			// Other.
+    return (CDisplayGate*)kpNULL;
+  }
+  // Control falls through here if 2-d and we just need
+  // to insert the points.  We know this is a point list gate:
+
+  assert((rGate->Type() == "b") || (rGate->Type() == "c") ||
+	 (rGate->Type() == "gb") || (rGate->Type() == "gc"));
+
+  CPointListGate& rSpecTclGate = (CPointListGate&)rGate.operator*();
+  vector<CPoint> pts = rSpecTclGate.getPoints();
+  vector<UInt_t> Params;
+  pSpectrum->GetParameterIds(Params);
+  if(pSpectrum->getSpectrumType() == keSummary) { // Summary spectrum.
+    delete pXGate;
+    return (CDisplayGate*)(kpNULL);
+  }
+  if((rSpecTclGate.getxId() != Params[0]) &&
+     ((rSpecTclGate.Type())[0] != 'g')) {
+    for(UInt_t i = 0; i < pts.size(); i++) {	// Flip pts to match spectrum.
+      UInt_t x = pts[i].X();
+      UInt_t y = pts[i].Y();
+      pts[i] = CPoint(y,x);
+    }
+  }
+  
+  for(UInt_t i = 0; i < pts.size(); i++) {
+    CPoint pt(scale(pts[i].X(), pSpectrum->getScale(0)),
+		    scale(pts[i].Y(), pSpectrum->getScale(1)));
+    
+    pXGate->AddPoint(pt);
+  }
+  return pXGate;
+
+}
+////////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//   void AddGateToBoundSpectra(CGateContainer& rGate)
+// Operation Type:
+//   protected utility
+//
+void 
+CHistogrammer::AddGateToBoundSpectra(CGateContainer& rGate)
+{
+  // Takes a (presumably) newly created gate, and enters it into the
+  // appropriate set of spectra bound to Xamine.
+  //
+  // Formal Parameters:
+  //    CGateContainer& rGate:
+  //       Container which holds the gate.  Note that gate containers can
+  //       be treated as if they were pointers to gates.
+  //
+
+  // The mediator tells us whether the spectrum can display the gate
+  for(UInt_t nId = 0; nId < m_DisplayBindings.size(); nId++) {
+    if(m_DisplayBindings[nId] != "") { // Spectrum bound.
+      CSpectrum* pSpec = FindSpectrum(m_DisplayBindings[nId]);
+      assert(pSpec != (CSpectrum*)kpNULL); // Bound spectra must exist!!.
+      CGateMediator DisplayableGate(rGate, pSpec);
+      if(DisplayableGate()) {
+	CDisplayGate* pDisplayed = GateToXamineGate(nId, rGate);
+	if(pDisplayed)
+	  m_pDisplayer->EnterGate(*pDisplayed);
+	delete pDisplayed;
+      }
+    }
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+// 
+// Function:
+//    void RemoveGateFromBoundSpectra(CGateContainer& rGate)
+// Operation Type:
+//    Protected Utility
+//
+void
+CHistogrammer::RemoveGateFromBoundSpectra(CGateContainer& rGate)
+{
+  // Removes a gate which is just about to be destroyed from
+  // the appropriate set of Xamine bound spectra.
+  //
+  // Formal Paramters:
+  //    CGateContainer& rGate:
+  //       Reference to the container which holds the gate about to be
+  //       destroyed.  Note that for most purposes, a gate container
+  //       can be treated as if it was a pointer to a gate.
+  // 
+  UInt_t nGateId = rGate.getNumber();
+  enum GateType_t eType;
+  if(rGate->Type() == "c" || rGate->Type() == "gc") {
+    eType = kgContour2d;
+  }
+  else if(rGate->Type() == "b" || rGate->Type() == "gb") {
+    eType = kgBand2d;
+  }
+  else if (rGate->Type() == "s" || rGate->Type() == "gs") {
+    eType = kgCut1d;
+  }
+  else {
+    return;			// Non -primitive gates won't be displayed.
+  }
+
+  // This function is quite simple since gates entered in Xamine on our
+  // behalf will have this id and name.   Therefore we just need
+  // to remove gates with id == nGateId from all spectra bound.
+  //
+  // Note that CXamine::RemoveGate throws on error, and therefore
+  // we must catch and ignore exceptions at the removal.
+
+  for(UInt_t nId = 0; nId < m_DisplayBindings.size(); nId++) {
+    if(m_DisplayBindings[nId] != "") {
+      try {
+	m_pDisplayer->RemoveGate(nId, nGateId, eType);
+      }
+      catch(...) {		// Ignore exceptions.
+      }
+    }
+  }
+}
