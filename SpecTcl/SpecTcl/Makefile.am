@@ -1,8 +1,9 @@
 DEFS = @WCHAR_T_DEF@
-INCLUDES = -I. -I../TCL -I../Events -I../Utility -I../Sorter -I../Exception \
-	   -I../EventSource -I../Gates -I../SpectrumIO -I../Xamine \
-	   -I../Display -I../Tape -I../Filter \
-	    @TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+INCLUDES = -I.. -I. -I../TCL -I../Events -I../Utility -I../Sorter  \
+	-I../NSCLException \
+	-I../EventSource -I../Gates -I../SpectrumIO -I../Xamine \
+	-I../Display -I../Tape -I../Filter \
+	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/Etc
@@ -14,7 +15,7 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(srcdir)/setup.tcl $(prefix)/Skel
 	$(INSTALL_DATA)    $(srcdir)/Globals.o $(prefix)/lib
 	echo INSTDIR=$(prefix) >Makefile.user
-	echo OS=`uname|sed s/-//`        >>Makefile.user
+	echo OS=$(OS)        >>Makefile.user
 	cat Makefile.skel >> Makefile.user
 	$(INSTALL_PROGRAM) $(srcdir)/Makefile.user $(prefix)/Skel/Makefile
 
@@ -56,8 +57,13 @@ SpecTcl_SOURCES = MySpecTclApp.cpp \
 	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h \
 	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h
 
+
+SpecTcl_LDFLAGS = -g
+
+AM_CXXFLAGS = -g
+
 SpecTcl_LDADD = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis \
-	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lXamine  -ltape -lXt -lX11
-SpecTcl_LDFLAGS = -L. @TCL_LDFLAGS@ @XLIBSW@ -L../SpectrumIO -L../Tape -L../Sorter -L../Xamine -L../Display -L../Gates -L../EventSource -L../Events -L../TCL -L../Exception -L../Filter
+	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lXamine  -ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)
+SpecTcl_LDFLAGS = -L. @TCL_LDFLAGS@ @XLIBSW@ -L../SpectrumIO -L../Tape -L../Sorter -L../Xamine -L../Display -L../Gates -L../EventSource -L../Events -L../TCL -L../NSCLException -L../Filter
 
 EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl classbreakdown.WC classbreakdown.omt mapped.tcl paramtest.tcl setup.tcl
