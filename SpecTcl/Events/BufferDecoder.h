@@ -146,9 +146,9 @@ public:
 protected:
   void ThrowIfNoBuffer(const char* pszWhatImDoing);
   
-  template <class T>
-    TranslatorPointer<T> getTranslatorPointer(const BufferTranslator&,
-					      const Int_t nOffset);
+  //template <class T>
+  // TranslatorPointer<T> getTranslatorPointer(const BufferTranslator&,
+  //				      const Int_t nOffset);
 };
 
 #endif
