@@ -48,6 +48,13 @@ static char* pCopyrightNotice =
 
 // Functions for class CGateFactory
 
+static inline int max(int i, int j) {
+  return (i > j ) ? i : j;
+}
+static inline int min(int i, int j) {
+  return (i < j) ? i : j ;
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 //  Function:       CreateGate(GateType nGateType, 
 //                             const vector<string>& rGates)
@@ -153,8 +160,9 @@ CGateFactory::CreateGate(GateType eType,
 				  eType,
 				  "Creating cut in CreateGate");
     }
-    return CreateCut(rParameters[0], 
-		     rPoints[0].X(), rPoints[1].X());
+      return CreateCut(rParameters[0], 
+		       min(rPoints[0].X(), rPoints[1].X()), 
+		       max(rPoints[0].X(), rPoints[1].X()));
   case contour:
     return CreateContour(rParameters, rPoints);
   default:
@@ -175,7 +183,8 @@ CGateFactory::CreateGate(GateType eType,
 				  eType,
 				  "Creating gamma cut in CreateGate");
     }
-    return CreateGammaCut(rPoints[0].X(), rPoints[1].X(), rSpectrum);
+    return CreateGammaCut(min(rPoints[0].X(), rPoints[1].X()), 
+			  max(rPoints[0].X(), rPoints[1].X()), rSpectrum);
   case gammaband:
     return CreateGammaBand(rPoints, rSpectrum);
   case gammacontour:
