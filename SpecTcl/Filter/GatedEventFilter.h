@@ -8,22 +8,27 @@
 
 #ifndef __DICTIONARY_H
 #include "Dictionary.h"
+#define __DICTIONARY_H
 #endif
 
 #ifndef __PARAMETER_H
 #include "Parameter.h"
+#define __PARAMETER_H
 #endif
 
 #ifndef __EVENTSINK_H
 #include "EventSink.h"
+#define __EVENTSINK_H
 #endif
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
+#define __HISTOTYPES_H
 #endif
 
 #ifndef __GATECONTAINER_H
 #include <GateContainer.h>
+#define __GATECONTAINTER_H
 #endif
 
 #ifndef __STL_STRING
@@ -55,11 +60,13 @@ class CGatedEventFilter : public CEventFilter {
 
  public:
   // Constructors.
-  //CGatedEventFilter(const CGatedEventFilter&);
-  virtual ~CGatedEventFilter();
+  CGatedEventFilter();
+  CGatedEventFilter(COutputEventStream&);
+  CGatedEventFilter(const CGatedEventFilter&);
+  ~CGatedEventFilter(); // Virtual.
 
   // Operators.
-  virtual Bool_t operator()();
+  Bool_t operator()(); // Virtual.
   CGatedEventFilter& operator=(const CGatedEventFilter&);
   Bool_t operator==(const CGatedEventFilter&);
   Bool_t operator!=(const CGatedEventFilter&);
@@ -69,7 +76,7 @@ class CGatedEventFilter : public CEventFilter {
  protected:
   Bool_t CheckCondition(const CEvent& rEvent);
  public:
-  virtual void FormatOutputEvent(const CEvent& rEvent);
+  void FormatOutputEvent(const CEvent& rEvent); // Virtual.
 }; // CGatedEventFilter.
 
 #endif

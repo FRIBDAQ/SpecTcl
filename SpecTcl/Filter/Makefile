@@ -1,4 +1,4 @@
-OBJECTS=EventFilter.o GatedEventFilter.o OutputEventStream.o
+OBJECTS=EventFilter.o FilterDictionary.o GatedEventFilter.o OutputEventStream.o
 INCLUDEDIRS= -I. -I$(INSTDIR)/Include -I/usr/local/include
 LIBDIRS=-L/usr/local -L. -L$(INSTDIR)/Lib
 ECHO=echo
@@ -9,16 +9,16 @@ DEPEND=makedepend
 INSTALL=install -m 0664
 ARCHIVE=ar cr
 
-system: libEventFilter.a
+system: libFilter.a
 	$(ECHO) Library rebuild completed.
 
 install:
 	$(INSTALL) *.h              $(INSTDIR)/Include
-	$(INSTALL) libEventFilter.a $(INSTDIR)/Lib
+	$(INSTALL) libFilter.a $(INSTDIR)/Lib
 
 clean:
 	$(RM) $(OBJECTS)
-	$(RM) libEventFilter.a
+	$(RM) libFilter.a
 
 depend:
 	$(DEPEND) -Y. *.cpp
@@ -26,12 +26,15 @@ depend:
 test:
 	$(ECHO) No tests.
 
-libEventFilter.a: $(OBJECTS)
-	$(ARCHIVE) libEventFilter.a $(OBJECTS)
-	ranlib libEventFilter.a
+libFilter.a: $(OBJECTS)
+	$(ARCHIVE) libFilter.a $(OBJECTS)
+	ranlib libFilter.a
 
 EventFilter.o: EventFilter.cpp
 	$(COMPILE) EventFilter.cpp
+
+FilterDictionary.o: FilterDictionary.cpp
+	$(COMPILE) FilterDictionary.cpp
 
 GatedEventFilter.o: GatedEventFilter.cpp
 	$(COMPILE) GatedEventFilter.cpp

@@ -8,10 +8,12 @@
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
+#define __HISTOTYPES_H
 #endif
 
 #ifndef __DICTIONARY_H
 #include "Dictionary.h"
+#define __DICTIONARY_H
 #endif
 
 #ifndef __PARAMETER_H
@@ -20,14 +22,17 @@
 
 #ifndef __EVENTSINK_H
 #include "EventSink.h"
+#define __EVENTSINK_H
 #endif
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
+#define __HISTOTYPES_H
 #endif
 
 #ifndef __GATECONTAINER_H
 #include <GateContainer.h>
+#define __GATECONTAINER_H
 #endif
 
 #ifndef __STL_STRING
@@ -59,10 +64,10 @@ class CEventFilter : public CEventSink {
 
  public:
   // Constructors.
-  //CEventFilter();
+  CEventFilter();
   CEventFilter(COutputEventStream&);
   CEventFilter(const CEventFilter&);
-  virtual ~CEventFilter();
+  /*virtual*/ ~CEventFilter();
 
   // Operators.
   virtual void operator()(CEventList&); // If flag is set, call event formatter.
@@ -73,15 +78,17 @@ class CEventFilter : public CEventSink {
   // Additional functions.
   void Enable();
   void Disable();
-  virtual void FormatOutputEvent(CEvent&) = 0;
+  /*virtual*/ void FormatOutputEvent(CEvent&); // = 0;
   COutputEventStream& AttachOutputEventStream(COutputEventStream&);
   COutputEventStream& DetachOutputEventStream();
   //protected: // Commented out for now.
-  virtual Bool_t CheckCondition(CEvent&) = 0;
+  /*virtual*/ Bool_t CheckCondition(CEvent&); // = 0;
 }; // CEventFilter.
 
 // Dictionary types:
-typedef CDictionary<CEventFilter>		FilterDictionary;
-typedef FilterDictionary::DictionaryIterator	FilterDictionaryIterator;
+/*
+typedef CDictionary<CEventFilter>		CFilterDictionary;
+typedef CFilterDictionary::DictionaryIterator	CFilterDictionaryIterator;
+*/
 
 #endif
