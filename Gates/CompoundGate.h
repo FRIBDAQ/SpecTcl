@@ -92,7 +92,7 @@ public:
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
   virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
-  virtual   Bool_t inGate(CEvent& rEvent, vector<UInt_t>& Params) { }
+  virtual   Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params) { }
 
   // Support for incrementally built up compound gates.
 

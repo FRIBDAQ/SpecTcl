@@ -33,7 +33,7 @@ static const char* Copyright =
 //     Evaluator.
 //
 Bool_t
-CNot::inGate(CEvent& rEvent, vector<UInt_t>&)
+CNot::inGate(CEvent& rEvent, const vector<UInt_t>&)
 // Evaluates the gate.  Returns the inverse
 // of the value of the gate which is contained.
 // 

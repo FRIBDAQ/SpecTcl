@@ -51,7 +51,7 @@ CTrueGate::operator()(CEvent& rEvent)
 }
 
 Bool_t
-CTrueGate::inGate(CEvent& rEvent, vector<UInt_t>&)
+CTrueGate::inGate(CEvent& rEvent, const vector<UInt_t>&)
 {
   return kfTRUE;
 }
