@@ -684,15 +684,15 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   cntshi = attributes->getfsval();
 
   chanlo = 0;
-  chanhi = spectra->getxdim(specno)-1;
+  chanhi = spectra->getxdim(specno); // Goes to the end of the last chan.
   if(att->isexpanded()) {
     chanlo = att->lowlimit();
-    chanhi = att->highlimit();
+    chanhi = att->highlimit() +1; // Goes to end of last channel.
   }
 
   /* The channel axis is always linear so:  */
   int chpix;
-  chpix = LinearPosition(chan - chanlo, 1, chanpix, (chanhi-chanlo + 1));
+  chpix = LinearPosition(chan - chanlo, 1, chanpix-1, (chanhi-chanlo));
 
   /* The counts axis could be log though:  */
   int cpix;
@@ -700,7 +700,7 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
     cpix = LogPixel(counts, cntslo, cntshi, cntspix);
   }
   else {
-    cpix = LinearPosition(counts - cntslo, 1, cntspix, (cntshi-cntslo + 1));
+    cpix = LinearPosition(counts - cntslo, 1, cntspix-1, (cntshi-cntslo));
   }
 
   /* Figure the cartesian pixels relative to the axis origin based on the

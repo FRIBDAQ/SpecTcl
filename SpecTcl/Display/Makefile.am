@@ -108,6 +108,7 @@ advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h
 
 lib_LTLIBRARIES = libXamine.la
 
+
 libXamine_la_SOURCES = client.c clientgates.c prccheck.c allocator.c \
 specalloc.c clientbuttons.c
 
@@ -182,4 +183,15 @@ Xamine_DEPENDENCIES = windfile_parse.o windfile_lex.o dispwind.o \
 
 Xaminetest_DEPENDENCIES = libXamine.la
 
-EXTRA_DIST = queue.cc colorset.ico Xamine-X.3.release_notes Xamine-X.4.release_notes Xamine-X.6.release_notes Xamine-X.7.feature_list Xamine.ico Xamine.doc Xamine2.ctbl Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc aedpublic.for aedshare.f aedshare.for aedxamine.for build.com dflt.tpu grobj.tpu win.tpu
+EXTRA_DIST = queue.cc colorset.ico \
+	Xamine.ico Xamine.doc Xamine2.ctbl \
+	Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc \
+	aedpublic.for aedshare.f aedshare.for aedxamine.for
+
+
+#  These files can cause problems on rebuilds.
+
+MOSTLYCLEANFILES = defaultfile_lex.cc defaultfile_lex.h grobfile_lex.cc \
+	grobfile_lex.h windfile_lex.cc windfile_lex.h              \
+	defaultfile_parse.cc grobfile_parse.cc windfile_parse.cc
+

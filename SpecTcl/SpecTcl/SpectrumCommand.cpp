@@ -306,6 +306,18 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
+// Revision 4.3.2.2  2004/02/04 14:53:18  ron-fox
+// Fix Bug 99 - bad spectrum definition crashes spectcl.
+//
+// Revision 4.5  2004/02/04 14:52:04  ron-fox
+// Correct bug 99: Bad spectrum definitions crash spectcl
+//
+// Revision 4.4  2004/02/03 21:13:17  ron-fox
+// Correct comment describing spectrum channel ranges for spectra with resolutions.
+//
+// Revision 4.3.2.1  2004/02/02 21:47:08  ron-fox
+// *** empty log message ***
+//
 // Revision 4.3  2003/11/13 19:28:48  ron-fox
 // Ensure portable regardlesss of whether
 // malloc() is defined in stdlib.h or malloc.h
@@ -328,6 +340,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLCommandPackage.h"
 #include "TCLList.h"
 #include "TCLString.h"
+#include <RangeError.h>
 #include <Exception.h>
 
 #include <tcl.h>
@@ -343,6 +356,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <algorithm>
 #include <vector>
 
+static const int MAXRESBITS(16); // Maximum resolution value.
 
 typedef std::vector<std::string>::iterator StrVectorIterator;
 
@@ -568,7 +582,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
   lResolutionList.Split(nListElements, &ppListElements);
 
   // Each list element has one of the following forms:
-  //    n   -  1 << is the channelcount and 
+  //   2^( n   -  1) << is the channelcount and 
   //                lowlim = 0, hilim = channelcount-1
   //  {lo hi n} - n is the channel count and lo/hi are
   //              given by the other list elements.
@@ -591,6 +605,15 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
       UInt_t  nChannels;	   // which are converted to chans.
       try {
 	nBits = (Int_t)rInterpreter.ExprLong(ppAxisElements[0]);
+	//
+	// Just because the bits are an integer doesn't mean they are a good
+	// integer.  Let's limit spectra to MAXRESBITS channels and positive
+	// resolutions!!
+	//
+	if((nBits < 0) || (nBits > MAXRESBITS)) {
+	  throw CRangeError(0, MAXRESBITS, nBits, 
+			    "Selecting channel resolution");
+	}
 	nChannels = 1 << nBits;
 	
 	vChannels.push_back((UInt_t)nChannels);
@@ -598,7 +621,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 	vHighs.push_back(0.0);
       }
       catch (CException& rExcept) { // Spectrum size invalid.
-	rResult += "Spectrum size ";
+	rResult = "Spectrum size "; // Note that TCL Exceptions set Reason!!
 	rResult += ppAxisElements[0];
 	rResult += " must evaluate to an integer\n";
 	rResult += rExcept.ReasonText();
