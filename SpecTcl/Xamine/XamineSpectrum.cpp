@@ -51,11 +51,11 @@ CXamineSpectrum::is1d()
 ///////////////////////////////////////////////////////////////////////////
 // 
 // Function:
-//    CXamineSpectrum(Xamine_shared* pXamine, UInt_t nSlot)
+//    CXamineSpectrum(volatile Xamine_shared* pXamine, UInt_t nSlot)
 // Operation Type:
 //    Parameterized constructor.
 //
-CXamineSpectrum::CXamineSpectrum(Xamine_shared* pXamine, UInt_t nSlot) :
+CXamineSpectrum::CXamineSpectrum(volatile Xamine_shared* pXamine, UInt_t nSlot) :
   m_pStorage(0),
   m_nSlot(nSlot),
   m_pXamineMemory(pXamine)
@@ -84,7 +84,7 @@ CXamineSpectrum::CXamineSpectrum(Xamine_shared* pXamine, UInt_t nSlot) :
   char szTitle[sizeof(spec_title) + 1];
   memset(szTitle, 0, sizeof(spec_title)+1);
   strncpy(szTitle, 
-	  m_pXamineMemory->dsp_titles[m_nSlot],
+	  (char*)m_pXamineMemory->dsp_titles[m_nSlot],
 	  sizeof(spec_title));	// Ensured Null terminated string...
   m_sTitle = szTitle;		// Which can be set to m_sTitle.
 

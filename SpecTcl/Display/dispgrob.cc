@@ -44,7 +44,7 @@ static char dashes[2] = { 2,2 };
 /*
 ** External references:
 */
-extern spec_shared *xamine_shared;
+extern volatile spec_shared *xamine_shared;
 
 /*
 ** Functional Description:

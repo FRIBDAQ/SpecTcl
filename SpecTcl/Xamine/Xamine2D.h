@@ -40,7 +40,7 @@ class CXamine2D  : public CXamineSpectrum
 public:
   // Constructor:
 
-  CXamine2D(Xamine_shared* pXamine, const std::string& rName,
+  CXamine2D(volatile Xamine_shared* pXamine, const std::string& rName,
 	    UInt_t nXchans, UInt_t nYchans, Bool_t fBytes = kfTRUE) :
     CXamineSpectrum(pXamine, rName),
     m_fByte(fBytes),
@@ -48,7 +48,7 @@ public:
     m_nYchannels(nYchans)
   {}
 
-  CXamine2D(Xamine_shared* pXamine, UInt_t  nSlot);
+  CXamine2D(volatile Xamine_shared* pXamine, UInt_t  nSlot);
   virtual ~ CXamine2D ( ) { }       //Destructor
 	
 			//Copy constructor

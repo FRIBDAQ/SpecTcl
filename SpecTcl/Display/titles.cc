@@ -76,7 +76,8 @@ extern spec_shared *xamine_shared;
 **   unsigned int *maxx:
 **     Location of the maximum X channel.
 */
-static void maxpeak1dl(unsigned int *c, int xl, int xh, unsigned int *maxval,
+static void maxpeak1dl(volatile unsigned int *c, int xl, int xh, 
+		       unsigned int *maxval,
 		       unsigned int *maxx)
 {
   *maxx  = xl;
@@ -217,7 +218,8 @@ static void getpeakinfo(char *text, win_attributed *def)
   ** the region displayed.
   */
   int spno = def->spectrum();	/* The spectrum number of this spectrum. */
-  unsigned int *chans  = xamine_shared->getbase(spno); /* Spectrum channel. */
+  volatile unsigned int *chans  = 
+    xamine_shared->getbase(spno); /* Spectrum channel. */
   unsigned int xdim    = xamine_shared->getxdim(spno); /* X dimension */
   unsigned int ydim    = xamine_shared->getydim(spno); /* Y dimension */
   unsigned int xl = 1, xh = xdim-2;	/* default X range. */

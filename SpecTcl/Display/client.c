@@ -27,8 +27,12 @@ static char *sccsinfo = "@(#)client.c	2.3 1/28/94 \n";
 #ifdef unix
 #include <sys/types.h>
 #include <unistd.h>
+#ifdef CYGWIN
+#include <windows.h>
+#else
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#endif
 #include <sys/stat.h>
 #include <fcntl.h>
 #endif
@@ -146,7 +150,7 @@ int lib$spawn(struct dsc$descriptor *command,
 ** Exported variables;
 */
 
-Xamine_shared *Xamine_memory;
+volatile Xamine_shared *Xamine_memory;
 int            Xamine_memsize;
 arenaid        Xamine_memory_arena;
 /*
@@ -243,11 +247,17 @@ static int putenv(char *name)
 **   NONE:
 */
 void killmem()
+#ifdef CYGWIN
+{
+  UnmapViewOfFile(Xamine_memory);
+}
+#else
 {
   if(Xamine_Memid > 0) {
     shmctl(Xamine_Memid, IPC_RMID, 0);	/* Give it our best shot. */
   }
 }
+#endif
 #endif
 
 /*
@@ -289,8 +299,39 @@ static int genname(char *name)
 **  NOTE: In the Unix case, the **ptr value is modified to indicate where
 **        the shared memory was allocated.
 */
-static int genmem(char *name, void **ptr, unsigned int size)
+static int genmem(char *name, volatile void **ptr, unsigned int size)
 #ifdef unix
+#ifdef CYGWIN
+{
+  HANDLE hMapFile;
+  void*  pMemory;
+  size += getpagesize()*64;
+  hMapFile = CreateFileMapping((HANDLE)0xffffffff,
+			       (LPSECURITY_ATTRIBUTES)NULL,
+			       (DWORD)PAGE_READWRITE,
+			       (DWORD)0,
+			       (DWORD)size,
+			       (LPCTSTR)name);
+  if(!hMapFile) return FALSE;
+  pMemory = MapViewOfFile(hMapFile,
+			  FILE_MAP_ALL_ACCESS,
+			  (DWORD)0, (DWORD)0,
+			  (DWORD)size);
+  if(!pMemory) return FALSE;
+
+  // BUGBUG - Note: this is only half of the story.
+  //          To prevent resource leaks, we also must ensure that 
+  //          UnmapViewOfFile is called prior to program exit.
+  //          For this version we put that on the todo list.
+  //
+  //  CloseHandle(hMapFile);
+  
+  atexit(killmem);
+
+  *ptr = pMemory;
+  return TRUE;
+}
+#else
 {				/* UNIX implementation. */
   key_t key;
   int   memid;
@@ -315,9 +356,9 @@ static int genmem(char *name, void **ptr, unsigned int size)
   atexit(killmem);
 #endif
   *ptr = (void *)base;
-
   return -1;			/* Indicate successful finish. */
 }				/* Unix implementation. */
+#endif
 #endif
 #ifdef VMS
 {				/* VMS Implementation. */
@@ -449,7 +490,7 @@ int f77xamine_createsharedmemory
 #ifdef unix
 int f77xamine_createsharedmemory_
 #endif
-                                  (int *specbytes, Xamine_shared **ptr)
+                                  (int *specbytes,volatile Xamine_shared **ptr)
 {
   int stat;
   stat = Xamine_CreateSharedMemory(*specbytes, ptr);
@@ -466,7 +507,7 @@ int f77xamine_createsharedmemory_
 
 /* C call: */
 
-int Xamine_CreateSharedMemory(int specbytes, Xamine_shared **ptr)
+int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
 {
   char name[33];
 
@@ -487,7 +528,11 @@ int Xamine_CreateSharedMemory(int specbytes, Xamine_shared **ptr)
 }
 int Xamine_DetachSharedMemory()
 {
+#ifdef CYGWIN
+  UnmapViewOfFile(Xamine_memory);
+#else
   return shmdt(Xamine_memory);
+#endif
 }
 
 /*
@@ -566,6 +611,14 @@ int Xamine_Start()
     fcntl(0, F_SETFD, 0);
     fcntl(1, F_SETFD, 0);
     fcntl(2, F_SETFD, 0);
+    /*
+      Unix sockets require an open and accept phase for the ipc pipes.
+      here we open the pipes, after xamine starts we accept the
+      connections from Xamine
+    */
+    if(!Xamine_OpenPipes()) {
+      return 0;
+    }
     vfstat = vfork();
     if(vfstat == 0) {		/* Subprocess context */
       execv(filename, argv);
@@ -577,7 +630,7 @@ int Xamine_Start()
       fcntl(2, F_SETFD, errflg);
       if(vfstat != -1) {
 	Xamine_Pid = vfstat;
-	return Xamine_OpenPipes();
+	return Xamine_AcceptPipeConnections();
       }
       else {
 	return 0;
@@ -796,7 +849,7 @@ void f77xamine_getmemoryname(struct dsc$descriptor *namedesc)
 
 #ifdef VMS
 int f77xamine_mapmemory(struct dsc$descriptor *namedesc, int *specbytes, 
-			  Xamine_shared **ptr)
+			  volatile Xamine_shared **ptr)
 {
   char name[80];		/* Holds the name text. */
   char *p;
@@ -829,7 +882,8 @@ int f77xamine_mapmemory(struct dsc$descriptor *namedesc, int *specbytes,
 	  
 }
 #else
-int f77xamine_mapmemory_(char *name, int *specbytes, Xamine_shared **ptr,
+int f77xamine_mapmemory_(char *name, int *specbytes,
+			 volatile Xamine_shared **ptr,
 			 int namesize)
 {
   char n[80];			/* Local copy of name. */
@@ -859,8 +913,42 @@ int f77xamine_mapmemory_(char *name, int *specbytes, Xamine_shared **ptr,
 **  Xamine_MapMemory which is described by the comment header way up there
 ** It's completely system dependent.
 */
-int Xamine_MapMemory(char *name, int specbytes, Xamine_shared **ptr)
+int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
 #ifdef unix
+#ifdef CYGWIN
+{
+  HANDLE hMapFile;
+  void*  pMemory;
+  unsigned int memsize;
+ 
+  memsize =  sizeof(Xamine_shared) - XAMINE_SPECBYTES + specbytes;
+  hMapFile = CreateFileMapping((HANDLE)NULL,
+			       (LPSECURITY_ATTRIBUTES)NULL,
+			       (DWORD)PAGE_READWRITE,
+			       (DWORD)0,
+			       (DWORD)memsize,
+			       (LPCTSTR)name);
+  if(!hMapFile) return FALSE;
+  pMemory = MapViewOfFile(hMapFile,
+			  FILE_MAP_ALL_ACCESS,
+			  (DWORD)0, (DWORD)0,
+			  (DWORD)memsize);
+  if(!pMemory) return FALSE;
+
+  // BUGBUG - Note: this is only half of the story.
+  //          To prevent resource leaks, we also must ensure that 
+  //          UnmapViewOfFile is called prior to program exit.
+  //          For this version we put that on the todo list.
+  //
+  CloseHandle(hMapFile);
+  
+  atexit(killmem);
+
+  *ptr = pMemory;
+  Xamine_memory = pMemory;
+  return TRUE;
+}
+#else
 {
   int memsize;
   key_t key;
@@ -886,6 +974,7 @@ int Xamine_MapMemory(char *name, int specbytes, Xamine_shared **ptr)
   return (*ptr ? 1 :
 	         0);
 }
+#endif
 #endif
 #ifdef VMS
 {

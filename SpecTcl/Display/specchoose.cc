@@ -207,7 +207,7 @@ int Xamine_MatchSpecName(char *name)
     if(xamine_shared->gettype(i) != undefined) {
       spec_title spname;
       char *s1, *s2;
-      StripName(&s1, &s2, xamine_shared->getname(spname, i));
+      StripName(&s1, &s2, (char*)xamine_shared->getname(spname, i));
       if(CaseBlindMatch(n1,n2, s1,s2)) 
 	return i;
     }

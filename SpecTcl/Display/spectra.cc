@@ -60,7 +60,7 @@ int comp(const void *s1,const void *s2)
 ** Returns:
 **   Pointer to the version string filled in by SCCS.
 */
-char *spec_shared::getversion()
+char *spec_shared::getversion() volatile
 {
   return version;
 }
@@ -101,11 +101,11 @@ char *upcase(char *s)
 ** Returns:
 **    Pointer to dest.
 */
-static char *cvttitle(char *dest, char *src)
+static char *cvttitle(char *dest, volatile char *src)
 {
   char *p;
 
-  memcpy(dest,src, sizeof(spec_title));  /* Grab the whole string */
+  memcpy(dest,(char*)src, sizeof(spec_title));  /* Grab the whole string */
   dest[sizeof(spec_title)-1] = '\0';     /* Ensure null termination */
   if(strlen(dest) > 0) {
 	  p = dest + strlen(dest)-1;	/* Point to last character of string */
@@ -141,7 +141,7 @@ static char *cvttitle(char *dest, char *src)
 **     Note that the ID of the spectrum is the FORTRAN index number of the
 **     spectrum, not the C index number.
 **/
-int spec_shared::getspecid(char *name)
+int spec_shared::getspecid(char *name) volatile
 {
   spec_title search;
   spec_title current;
@@ -172,7 +172,7 @@ int spec_shared::getspecid(char *name)
 ** Returns: 
 **   Pointer to dest.
 */
-char *spec_shared::getname(spec_title name, int id)
+volatile char *spec_shared::getname(spec_title name, int id) volatile
 {
   cvttitle(name, dsp_titles[id-1]);
   return name;
@@ -193,7 +193,7 @@ char *spec_shared::getname(spec_title name, int id)
 **    if wrong type of spectrum... in that case returns 0 to allow execution
 **    to continue with 'reasonable' results.
 **/
-unsigned int spec_shared::getchannel(int id, int ix)	/* 1-d version */
+unsigned int spec_shared::getchannel(int id, int ix) volatile
 {
   unsigned int *lptr;
   unsigned short *sptr;
@@ -244,7 +244,7 @@ unsigned int spec_shared::getchannel(int id, int ix)	/* 1-d version */
     return 0;
   }
 }
-unsigned int spec_shared::getchannel(int id, int ix, int iy) /* 2-d version */
+unsigned int spec_shared::getchannel(int id, int ix, int iy) volatile
 {
   unsigned short *sptr;
   unsigned char  *bptr;
@@ -311,9 +311,9 @@ unsigned int spec_shared::getchannel(int id, int ix, int iy) /* 2-d version */
 **   int id:
 **    Id of the spectrum in question.
 **/
-unsigned int *spec_shared::getbase(int id)
+volatile unsigned int *spec_shared::getbase(int id) volatile
 {
-  unsigned int *base;
+  volatile unsigned int *base;
   switch(gettype(id)) {
   case onedlong:
     base =  &(dsp_spectra.display_l[dsp_offsets[id-1]]);
@@ -346,7 +346,7 @@ unsigned int *spec_shared::getbase(int id)
 /*       I.D of the spectrum being examined.				    */
 /* Returns:								    */
 /*    The type of the spectrum.						    */
-spec_type spec_shared::gettype(int id)
+spec_type spec_shared::gettype(int id) volatile
 {
     if( (id < 0) || (id > DISPLAY_MAXSPEC))
 	return undefined;

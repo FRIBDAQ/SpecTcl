@@ -61,7 +61,7 @@ CXamine1D::Twod()
 // Operation Type:
 //    Parameterized constructor.
 //
-CXamine1D::CXamine1D(Xamine_shared* pXamine, UInt_t nSlot) :
+CXamine1D::CXamine1D(volatile Xamine_shared* pXamine, UInt_t nSlot) :
   CXamineSpectrum(pXamine, nSlot),
   m_fWord(kfFALSE),
   m_nChannels(0)

@@ -23,6 +23,10 @@ extern "C" {
 
 int Xamine_OpenPipes();		/* Open message IPC's to Xamine. */
 
+#ifdef unix
+  int Xamine_AcceptPipeConnections();
+#endif
+
 void Xamine_Closepipes();
 
 #if defined(__cplusplus) || defined(c_plusplus)

@@ -50,7 +50,7 @@ class CXamineButton;
                                
 class CXamine      
 {
-   Xamine_shared* m_pDisplay;  //  Pointer to Xamine shared memory region.
+   volatile Xamine_shared* m_pDisplay;  //  Pointer to Xamine shared memory region.
    Bool_t         m_fManaged;  //  Set TRUE if memory management started. 
    UInt_t         m_nBytes;    //  Size of shared memory region.
   
@@ -96,7 +96,7 @@ public:
   // Selectors:
 
 public:
-  Xamine_shared* getXamineMemory() const
+  volatile Xamine_shared* getXamineMemory() const
   {
     return m_pDisplay;
   }

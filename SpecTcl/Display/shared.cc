@@ -19,11 +19,21 @@ static char *sccsinfo = "@(#)shared.cc	2.3 5/27/94 \n";
 /*
 **  Include files:
 */
+
+//
+// Note: CYGWIN does not yet support shmat etc. we must therefore use
+//       native MSWin32 calls: CreateFileMapping and MapViewOfFile to
+//       manage the shared memory regions used by Xamine.
+//
 #ifdef unix
 #include <sys/types.h>
 #include <unistd.h>
+#ifdef CYGWIN
+#include <windows.h>
+#else                         // CYGWIN
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#endif                        // CYGWIN
 #include <sys/stat.h>
 #endif
 
@@ -39,7 +49,7 @@ static char *sccsinfo = "@(#)shared.cc	2.3 5/27/94 \n";
 #include <string.h>
 #include <stdio.h>
 #include <signal.h>
-
+#include <assert.h>
 #include "dispshare.h"
 /*
 ** Definitions:
@@ -55,8 +65,8 @@ static char *sccsinfo = "@(#)shared.cc	2.3 5/27/94 \n";
 ** External references:
 */
 
-extern spec_shared *xamine_shared;
-extern spec_shared *spectra;
+extern volatile  spec_shared *xamine_shared;
+extern volatile  spec_shared *spectra;
 
 /*
 ** Static defs:
@@ -102,6 +112,33 @@ int sys$adjwsl(int pagecnt, unsigned int *wsetlm);
 */
 static spec_shared *mapmemory(char *name, unsigned int size)
 #ifdef unix
+#ifdef CYGWIN                   // Use MSWindows functions. 
+{
+  HANDLE hMapFile;
+  size += getpagesize()*64;
+  hMapFile = CreateFileMapping((HANDLE)NULL,
+			       (LPSECURITY_ATTRIBUTES)NULL,
+			       (DWORD)PAGE_READWRITE,
+			       (DWORD)0,
+			       (DWORD)size,
+			       (LPCTSTR)name);
+  assert(hMapFile);		// Require that we get a handle back...
+  void *pMemory = MapViewOfFile(hMapFile,
+				FILE_MAP_ALL_ACCESS,
+				(DWORD)0, (DWORD)0,
+				(DWORD)size);
+  assert(pMemory);		// Require that we got a map...
+
+  // BUGBUG - Note: this is only half of the story.
+  //          To prevent resource leaks, we also must ensure that 
+  //          UnmapViewOfFile is called prior to program exit.
+  //          For this version we put that on the todo list.
+  //
+  //  CloseHandle(hMapFile);
+	
+  return (spec_shared*)pMemory;
+}
+#else
 {
   key_t key;			/* Shared memory key. */
   int   id;			/* Shared memory size. */
@@ -127,7 +164,8 @@ static spec_shared *mapmemory(char *name, unsigned int size)
   return (spec_shared *)memory;
   
 }
-#endif
+#endif // CYGWIN or not
+#endif // UNIX
 #ifdef VMS
 {
   struct dsc$descriptor name_desc;

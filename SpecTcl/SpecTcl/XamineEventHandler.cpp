@@ -369,3 +369,39 @@ CXamineEventHandler::FindDisplayBinding(const std::string& rName)
 			     "Spectrum with this name is not bound",
 			     rName);
 }
+//
+// Functional Description:
+//   void Set(int mask)
+//     Registers the CallbackRelay static member as a socket callback
+//     handler as per the mask.
+//
+void
+CXamineEventHandler::Set(int mask)
+{
+  Tcl_CreateChannelHandler(m_SocketChannel, mask,
+			   CallbackRelay, this);
+}
+//
+// Functional Description:
+//   void Clear()
+//     Disable callbacks.
+//
+void 
+CXamineEventHandler::Clear()
+{
+  Tcl_DeleteChannelHandler(m_SocketChannel, CallbackRelay, this);
+}
+//
+// Functional Description:
+//    void CallbackRelay(ClientData pObject, int mask)
+// Called as a channel handler as specified by Set().  
+// pObject is assumed to be this in disguise.
+// We get into object context and call operator().
+//
+void
+CXamineEventHandler::CallbackRelay(ClientData pObject, int mask)
+{
+  CXamineEventHandler* pThis = (CXamineEventHandler*)pObject;
+
+  pThis->operator()(mask);
+}

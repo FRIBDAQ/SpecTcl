@@ -43,11 +43,12 @@ class CButtonEvent;
 
 // XamineEventHandler class declaration:
                                                                
-class CXamineEventHandler : public CTCLFileHandler      
+class CXamineEventHandler
 {                       
-			
+  CTCLInterpreter* m_pInterp;
   CHistogrammer* m_pHistogrammer; //1:1 association object data member      
-			
+  int            m_nFd;
+  Tcl_Channel    m_SocketChannel; // Channel open on the gates socket.
 
 public:
 
@@ -55,8 +56,10 @@ public:
 
   CXamineEventHandler (CTCLInterpreter* pInterp,
 		       CHistogrammer*   pHistogrammer) :
-    CTCLFileHandler(pInterp, pHistogrammer->getDisplayer()->GetEventFd()),
-    m_pHistogrammer(pHistogrammer)
+    m_pInterp(pInterp),
+    m_pHistogrammer(pHistogrammer),
+    m_nFd(pHistogrammer->getDisplayer()->GetEventFd()),
+    m_SocketChannel(Tcl_MakeTcpClientChannel((ClientData)m_nFd))
   { 
     Set(TK_READABLE);		// Starts out enabled.
   } 
@@ -65,11 +68,14 @@ public:
   
    //Copy constructor 
 
-  CXamineEventHandler (const CXamineEventHandler& aCXamineEventHandler ) :
-    CTCLFileHandler(aCXamineEventHandler)
+  CXamineEventHandler (const CXamineEventHandler& rhs ) :
+    m_pInterp(rhs.m_pInterp),
+    m_pHistogrammer(rhs.m_pHistogrammer),
+    m_nFd(rhs.m_nFd),
+    m_SocketChannel(rhs.m_SocketChannel)
   { 
    
-    setHistogrammer(aCXamineEventHandler.m_pHistogrammer);
+
 
   }                                     
 
@@ -85,9 +91,11 @@ public:
  
    //Operator== Equality Operator 
 
-  int operator== (const CXamineEventHandler& aCXamineEventHandler) const {
-    return ( CTCLFileHandler::operator==(aCXamineEventHandler)      &&
-	     (m_pHistogrammer == aCXamineEventHandler.m_pHistogrammer));
+  int operator== (const CXamineEventHandler& rhs) const {
+    return ( (m_pInterp == rhs.m_pInterp)      &&
+	     (m_pHistogrammer == rhs.m_pHistogrammer) &&
+	     (m_nFd == rhs.m_nFd)                     &&
+	     (m_SocketChannel == rhs.m_SocketChannel));
   }
 	
 // Selectors:
@@ -107,18 +115,22 @@ protected:
   { 
     Clear();			// Disable callback on current fid.
     m_pHistogrammer = m_pHistogrammer;
-    setFid(m_pHistogrammer->getDisplayer()->GetEventFd()); // Update file id.
+    m_nFd = (m_pHistogrammer->getDisplayer()->GetEventFd()); // Update file id.
     Set(TK_READABLE);		// Set callback on next fid.
   }
 
 public:
 
  virtual   void operator() (int mask)    ;
+ virtual   void Set(int mask);
+ virtual   void Clear();
+
 protected:
  virtual   void OnGate (CDisplayGate& rXamineGate)    ;
  virtual   void OnButton (CButtonEvent& rButton)    ;
  virtual   UInt_t FindDisplayBinding (const std::string& rName);
 
+  static void CallbackRelay(ClientData pObject, int mask);
 
 };
 

@@ -40,19 +40,19 @@ class CXamineSpectrum
   Address_t m_pStorage;  // Points to spectrum storage.
   UInt_t m_nSlot;  // Xamine spectrum slot number.
   std::string m_sTitle;  // Name of the spectrum.
-  Xamine_shared* m_pXamineMemory;  // Xamine shared memory region.
+  volatile Xamine_shared* m_pXamineMemory;  // Xamine shared memory region.
   
 public:
 
                         // Constructor with parameters:
 
-  CXamineSpectrum(Xamine_shared* pXamine, const std::string& rName) :
+  CXamineSpectrum(volatile Xamine_shared* pXamine, const std::string& rName) :
     m_pStorage(kpNULL),
     m_nSlot(0),
     m_sTitle(rName),
     m_pXamineMemory(pXamine) {}
 
-  CXamineSpectrum(Xamine_shared* pXamine, UInt_t nSlot);
+  CXamineSpectrum(volatile Xamine_shared* pXamine, UInt_t nSlot);
   virtual  ~CXamineSpectrum ( ) { }       //Destructor
 	
 			//Copy constructor
@@ -108,7 +108,7 @@ public:
   {
     return m_sTitle;
   }
-  const Xamine_shared* getXamineMemory() const //  Descriptions are const.
+  volatile Xamine_shared* getXamineMemory() const //  Descriptions are const.
   {
     return m_pXamineMemory;
   }
@@ -128,7 +128,7 @@ protected:
   { 
     m_sTitle = am_sTitle;
   }
-  void setXamineMemory (Xamine_shared* am_pXamineMemory)
+  void setXamineMemory (volatile Xamine_shared* am_pXamineMemory)
   { 
     m_pXamineMemory = am_pXamineMemory;
   }

@@ -698,7 +698,7 @@ Boolean UnSuperPrompt::Perform(XMWidget *wid, XtPointer cd, int reason,
       Superposition s = iter.Next();
       spno = s.Spectrum();
 
-      XmStitle = XmStringCreate(xamine_shared->getname(title, spno),
+      XmStitle = XmStringCreate((char*)xamine_shared->getname(title, spno),
 				XmSTRING_DEFAULT_CHARSET);
       if(XmStringCompare(XmStitle, value)) { // Bingo, a match.
 	XmStringFree(XmStitle);		     // Free string storage.

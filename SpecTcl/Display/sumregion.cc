@@ -44,7 +44,7 @@ static char *sccsinfo = "@(#)sumregion.cc	8.1 6/23/95 ";
 #include "chanplot.h"
 
 #ifdef unix
-#ifndef ultrix
+#if !defined(ultrix) && !defined(CYGWIN)
 #define strerror(err) (sys_errlist[(err)])
 #endif
 #endif

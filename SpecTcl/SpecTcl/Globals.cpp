@@ -103,3 +103,5 @@ CAnalyzer* gpAnalyzer   = (CAnalyzer*)kpNULL;
 //
 //
 const char* gpVersion = "0.4"; 
+
+

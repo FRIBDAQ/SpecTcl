@@ -129,7 +129,7 @@ CTCLList::Split(StringArray& rElements)
     for(int i = 0; i < nElements; i++) {
       rElements.push_back(pElements[i]);
     }
-    free(pElements);
+    Tcl_Free((char*)pElements);
   }
   return result;
 

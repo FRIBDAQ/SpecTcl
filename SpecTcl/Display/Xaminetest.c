@@ -61,6 +61,7 @@ static void setupspectra(Xamine_shared *sp)
   spec_l = (unsigned int *)spec;
 
   for(i = 0; i < 64; i++) {
+
     *spec_l++ = 96 - i/2;
   }
   printf("Spectrum %d filled in\n", spn);

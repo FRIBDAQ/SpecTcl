@@ -212,7 +212,10 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter, CTCLResult& rResult,
   CTCLList lParameters(&rInterpreter, pArgs[2]);
   lParameters.Split(nListElements, &ppListElements);
   rPack.GetNameList(vParameters, nListElements, ppListElements);
-  free(ppListElements);
+
+
+  Tcl_Free((char*)ppListElements);
+
 
   //  The Resolution list is split into a vector of resolution numbers.
   //
@@ -222,10 +225,10 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter, CTCLResult& rResult,
   lResolutionList.Split(nListElements, &ppListElements);
   if(rPack.GetNumberList(rResult, vResolutions, 
 			  nListElements, ppListElements)) {
-     delete []ppListElements;
+    Tcl_Free((char*)ppListElements);
      return TCL_ERROR;
    }
-   delete []ppListElements;
+   Tcl_Free((char*)ppListElements);
    return rPack.CreateSpectrum(rResult,  pName, pType, vParameters, vResolutions,
                                pDataType);
    
@@ -504,7 +507,7 @@ CSpectrumCommand::ExtractId(const std::string& rProperties)
 
   Int_t nId;
   ParseInt(pElements[0], &nId);
-  free((char*)pElements);
+  Tcl_Free((char*)pElements);
   return (UInt_t)nId;
 }
 /////////////////////////////////////////////////////////////////////////
@@ -529,7 +532,7 @@ CSpectrumCommand::ExtractName(const std::string& rProperties)
   PropertyList.Split(nElements, &pElements);
   
   std::string Result(pElements[1]);
-  free((char*)pElements);
+  Tcl_Free((char*)pElements);
   return Result;
 
 }

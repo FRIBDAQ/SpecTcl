@@ -79,8 +79,11 @@ CTCLFileHandler::Set(int mask)
 //           callback database.  This is supposed to be more efficient
 //           than a call to Clear().
 
+#ifdef CYGWIN
+  assert(0);			// CYGWIN's does not implement this.
+#else
   Tk_CreateFileHandler(m_nFid, mask, CallbackRelay, (ClientData)this);
-
+#endif
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -98,7 +101,10 @@ CTCLFileHandler::Clear()
 // Note:  That the only one file handler can be
 //             associated with a file descriptor.
 // 
-
+#ifdef CYGWIN
+  assert(0);			// CYGWIn's tcl does not implement this.
+#else
   Tk_DeleteFileHandler(m_nFid);
+#endif
 
 }

@@ -870,7 +870,7 @@ CXamine::begin()
 // other iterators to indicate the end of a traversal.
 //
 
-  return CXamineSpectrumIterator(m_pDisplay);
+  return CXamineSpectrumIterator((Xamine_shared*)m_pDisplay);
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -886,7 +886,7 @@ CXamine::end()
 // Returns a spectrum iterator which indicates the end of 
 // the set of spectrum slots maintained by Xamine.
 
-  CXamineSpectrumIterator last(m_pDisplay, XAMINE_MAXSPEC-1);
+  CXamineSpectrumIterator last((Xamine_shared*)m_pDisplay, XAMINE_MAXSPEC-1);
   last++;
   return last;
 

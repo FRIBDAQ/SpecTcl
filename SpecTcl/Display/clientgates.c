@@ -36,6 +36,10 @@ static char *sccsinfo = "@(#)clientgates.c	1.1 1/28/94 ";
 #include <fcntl.h>
 #include <string.h>
 #include <memory.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/un.h>
+
 #endif
 #ifdef VMS
 #include <types.h>
@@ -206,13 +210,45 @@ static void CancelAst(int id)
   sys$cancel((short)id);
 }
 #endif
+#ifdef unix
+/*
+** Functional Description:
+**  AcceptConnection
+**    Internal function to accept a connection on a pipe.
+**  Unix dependent.
+** Parameters:
+**   char* pName - Name of the pipe.
+**   int   fd    - File descriptor of the listening socket.
+** Returns:
+**   The result of the accept service.
+*/
+int AcceptConnection(char* pName, int fd)
+{
+  struct sockaddr_un peer;
+  int                nbytes;
+  int                comfid;
+
+  nbytes = sizeof(struct sockaddr_un);
+  comfid = accept(fd, (struct sockaddr*) &peer, &nbytes);
+  if(comfid < 0) return -1;
+  /*  It turns out that on a fast system, closing and unlinking is a bad
+  **  move since the accept wont' complete always on the client side.
+  */
+
+  return comfid;
+}
+#endif
 
 /*
 ** Functional Description:
 **   MakePipe:                   - SYSTEM DEPENDENT -
 **    Static function to create a named pipe-like IPC primitive.
-**    On UNIX this is done via a fifo special file.  On VMS a mailbox
-**    is used.
+**    On UNIX this is done via a named AF_UNIX socket. Originally,
+**    this was a fifo, due to issues with CYGWin's implementation (or rather
+**    non-implementation of mkfifo), we have shifted to sockets instead.
+**    We play the server, and each pipe made accepts a single connection.
+**    that connection is returned.
+**    On VMS a mailbox is used.
 ** Formal Parameters:
 **   char *name:
 **      Name of the mailbox.
@@ -230,21 +266,35 @@ static int
 MakePipe(char *name, int flags)
 #ifdef unix
 {
-  int status;
-  int fid;
+  int                lisnfid;
+  int                comfid;
+  struct sockaddr_un addr;
+  struct sockaddr_un peer;
+  int                nbytes;
+  
+  /* Create the socket in the unix domain... */
 
-  /* First we create the fifo.  If it already exists then this is considered
-  ** a success.
+  lisnfid = socket(AF_UNIX, SOCK_STREAM, 0);
+  if(lisnfid < 0) return -1;
+
+  /* Bind the socket:  First unlink any existing instance of the socket,
+  ** then bind(2) to create a new one.
   */
-  status = mkfifo(name, S_IRUSR | S_IWUSR);
-  if( (status < 0) && (errno != EEXIST)) {
+  unlink(name);
+  addr.sun_family = AF_UNIX;
+  strcpy(addr.sun_path, name);
+  if(bind(lisnfid, (struct sockaddr*)&addr, sizeof(struct sockaddr_un)) < 0) {
     return -1;
   }
 
-  /* Now that the fifo exists, we open a file */
+  /* Listen for connections. Accept is done after Xamine is started up
+   */
 
-  fid = open(name, flags);
-  return fid;
+  if(listen(lisnfid, 1) < 0) {
+    return -1;
+  }
+
+  return lisnfid;
 
 }
 #endif				/* unix implementation */
@@ -738,6 +788,11 @@ static void DeletePipes()
 **      This function is called by the Xamine client initialization
 **      software.  It opens/creates pipes for the gates 
 **      notification pipes, and the request/acknowledget pipes.
+**      Unix requires the pipes be open, and listening, 
+**      when Xamine starts up in order to prevent race conditions.
+**      once Xamine is started, its connections can be accepted
+**     with Xamine_AcceptPipeConnections.
+**
 ** Returns:
 **    1 - Successful operation.
 **    0 - Failed with error in errno etc.
@@ -782,6 +837,36 @@ Xamine_OpenPipes()
   return 1;
   
 }
+#ifdef unix
+/*
+**  Accept Xamine's connections on all the pipes:
+**  The pipe fds' are now the listening fds..  they'll be replaced by
+**  the accepted connection fds.
+*/
+int Xamine_AcceptPipeConnections()
+{
+  requests = AcceptConnection(reqname, requests);
+  if(requests < 0) {
+    perror("Accept failed");
+    return 0;
+  }
+
+  acks    = AcceptConnection(ackname, acks);
+  if(acks < 0) {
+    perror("Accept failed");
+    return 0;
+  }
+
+  newgates = AcceptConnection(outname, newgates);
+  if(newgates < 0) {
+    perror("Accept failed");
+    return 0;
+  }
+  return 1;
+ 
+}
+
+#endif
 void Xamine_Closepipes()
 {
   close(requests);

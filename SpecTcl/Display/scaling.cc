@@ -79,7 +79,7 @@ int twodpixtable[] = { SCATT2D_PIXELS,
 ** Returns:
 **   Pointer to a sampler object of the appropriate type.
 */
-Sampler *Xamine_GenerateSampler(unsigned int *b, 
+Sampler *Xamine_GenerateSampler(volatile unsigned int *b, 
 				spec_type st, rendition_1d rend,
 				reduction_mode sr, int xl, int xh, int nx,
 				float *chanw)

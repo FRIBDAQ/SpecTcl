@@ -50,7 +50,7 @@ extern "C" {
 /*
 ** External refs and defs:
 */
-extern spec_shared *xamine_shared;
+extern volatile  spec_shared *xamine_shared;
 
 /*
 ** Functional Description:
@@ -330,8 +330,8 @@ Xamine_ProcessClientRequests(XtPointer client_data,
       }
       break;
     default:
-      Xamine_error_msg(Xamine_Getpanemgr(),
-		       "Xamine_ProcessClientRequests - invalid req ignored");
+      printf("Invalid client request..\n");
+      exit(0);
       break;
     }
   }

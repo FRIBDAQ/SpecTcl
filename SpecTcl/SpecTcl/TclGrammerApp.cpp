@@ -2,7 +2,7 @@
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
 #include "TclGrammerApp.h"    				
-
+#include <limits.h>
 #include <assert.h>
 #include "TCLHistogrammer.h"
 #include "TestFile.h"
@@ -38,14 +38,20 @@
 #include <iostream.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#ifndef CYGWIN
 #include <sys/sysinfo.h>
+#endif
 #ifdef OSF1
 #include <machine/hal_sysinfo.h>
 #include <sys/proc.h>
 #endif
 
 
+#ifdef CYGWIN
+extern "C" 
+void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
+
+#endif
 
 #include "TCLAnalyzer.h"
 
@@ -164,8 +170,17 @@ CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp)
 
   CTCLVariable HomeDir(string("SpecTclHome"), kfFALSE);
   HomeDir.Bind(rInterp);
+#ifdef CYGWIN
+  // For CYGWIN, we need to modify the name so that it is the NT path
+  // since our Tcl/Tk is unaware that Cygwin exists.
+  
+  char Win32Path[PATH_MAX+1];
+  cygwin_conv_to_full_win32_path(kpInstalledBase, Win32Path);
+  HomeDir.Set(Win32Path);
+  
+#else
   HomeDir.Set((char*)kpInstalledBase);
-
+#endif
   m_RCFile.Bind(rInterp);
   m_TclDisplaySize.Bind(rInterp);
   m_TclParameterCount.Bind(rInterp);

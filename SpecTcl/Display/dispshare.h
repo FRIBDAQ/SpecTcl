@@ -24,8 +24,10 @@
 
 #ifdef unix
 #include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
+//    Maybe the two below are not really needed?
+//
+// #include <sys/ipc.h>
+// #include <sys/shm.h>
 #endif 
 #ifdef ultrix
 #include <machine/param.h>
@@ -77,57 +79,70 @@ typedef enum {
 	     } spec_type;
 
 struct spec_shared {
-                 spec_dimension  dsp_xy[DISPLAY_MAXSPEC];
-		 spec_title      dsp_titles[DISPLAY_MAXSPEC];
-		 unsigned int    dsp_offsets[DISPLAY_MAXSPEC];
-                 spec_type       dsp_types[DISPLAY_MAXSPEC];
-		 spec_spectra    dsp_spectra;
-		 char            page_pad[PAGESIZE];
-		 void setdim(int id, int xd) {
-		   dsp_xy[id-1].xchans = xd;
-		   dsp_xy[id-1].ychans = 0;
-		 }
-		 void setdim(int id, int xd, int yd) {
-		   dsp_xy[id-1].xchans = xd;
-		   dsp_xy[id-1].ychans = yd;
-		 }
-		 int getspecid(char *name);
-		 int getspectrumcount() {return DISPLAY_MAXSPEC; }
-		 int getmaxchannels()   {return DISPLAY_SPECBYTES; }
-		 spec_type gettype(int id);
-		 void settype(int id, spec_type tp) {
-		   dsp_types[id-1] = tp;
-		 }
-		 spec_type gettype(char *name) { int id;
-					   id = getspecid(name);
-					   return ((id < 0)? undefined :
-						             gettype(id)); 
-					 }
-		 int getchannels(int id)  
-		   { return (((dsp_types[id-1] == onedlong) ||
-			     (dsp_types[id-1] == onedword))? 
-			        dsp_xy[id-1].xchans :
-				dsp_xy[id-1].xchans * dsp_xy[id-1].ychans); }
-		 int getchannels(char *name) {int id;
-					      id = getspecid(name);
-					      return ((id < 0)? -1:
-						      getchannels(id)); }
-		 int getxdim(int id) { return dsp_xy[id-1].xchans; }
-		 int getxdim(char *name) { int id;
-					   id = getspecid(name);
-					   return ((id < 0) ? -1:
-						   getxdim(id)); }
-		 int getydim(int id) { return dsp_xy[id-1].ychans; }
-		 int getydim(char *name) { int id;
-					   id = getspecid(name);
-					   return ((id < 0) ? -1:
-						   getydim(id)); }
-		 char *getname(spec_title name, int id);
-		 unsigned int getchannel(int id, int ix);
-		 unsigned int getchannel(int id, int ix, int iy);
-		 unsigned int *getbase(int id);
-		 char *getversion();
-	       };
+  spec_dimension  dsp_xy[DISPLAY_MAXSPEC];
+  spec_title      dsp_titles[DISPLAY_MAXSPEC];
+  unsigned int    dsp_offsets[DISPLAY_MAXSPEC];
+  spec_type       dsp_types[DISPLAY_MAXSPEC];
+  spec_spectra    dsp_spectra;
+  char            page_pad[PAGESIZE];
+  void setdim(int id, int xd) volatile {
+    dsp_xy[id-1].xchans = xd;
+    dsp_xy[id-1].ychans = 0;
+  }
+  void setdim(int id, int xd, int yd) volatile {
+    dsp_xy[id-1].xchans = xd;
+    dsp_xy[id-1].ychans = yd;
+  }
+  int getspecid(char *name) volatile;
+  int getspectrumcount() volatile  {return DISPLAY_MAXSPEC; }
+  int getmaxchannels() volatile    {return DISPLAY_SPECBYTES; }
+  spec_type gettype(int id) volatile;
+  void settype(int id, spec_type tp) volatile {
+    dsp_types[id-1] = tp;
+  }
+  spec_type gettype(char *name) volatile
+  { 
+    int id;
+    id = getspecid(name);
+    return ((id < 0)? undefined :
+	    gettype(id)); 
+  }
+  int getchannels(int id)  volatile
+  { 
+    return (((dsp_types[id-1] == onedlong) ||
+	     (dsp_types[id-1] == onedword))? 
+	    dsp_xy[id-1].xchans :
+	    dsp_xy[id-1].xchans * dsp_xy[id-1].ychans); 
+  }
+  int getchannels(char *name) volatile 
+  {
+    int id;
+    id = getspecid(name);
+    return ((id < 0)? -1:
+	    getchannels(id)); 
+  }
+  int getxdim(int id) volatile  { return dsp_xy[id-1].xchans; }
+  int getxdim(char *name) volatile 
+  { 
+    int id;
+    id = getspecid(name);
+    return ((id < 0) ? -1:
+	    getxdim(id)); 
+  }
+  int getydim(int id) volatile  { return dsp_xy[id-1].ychans; }
+  int getydim(char *name) volatile 
+  { 
+    int id;
+    id = getspecid(name);
+    return ((id < 0) ? -1:
+	    getydim(id)); 
+  }
+  volatile char *getname(spec_title name, int id) volatile;
+  unsigned int getchannel(int id, int ix) volatile;
+  unsigned int getchannel(int id, int ix, int iy) volatile;
+  volatile unsigned int *getbase(int id) volatile;
+  char *getversion() volatile;
+};
 
 #ifdef __ALPHA
 #pragma member_alignment __restore
