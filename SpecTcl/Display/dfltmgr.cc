@@ -293,6 +293,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 
 /*
+   Change Log:
+   $Log$
+   Revision 4.4  2003/04/02 18:35:24  ron-fox
+   Added support for central Xamine.Default files that live in any of:
+   $SpecTclHome/Etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
+
+*/
+
+/*
 ** External include files required:
 */
 #include <stdio.h>
@@ -437,32 +446,27 @@ void Xamine_Construct2dDefaultProperties(win_2d *properties)
 **     that with the filename.  The result is a dynamically allocated
 **     string which must be delete'd.
 */
-static char *ConstructFilename() 
+static char *ConstructFilename(const char* dir) 
 {
-  char *dir;
   char *name;
 
-  dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
-  if(dir == NULL) dir = "";	/* Point to an empty string if no dir. */
   name = new char[strlen(dir)+strlen(XAMINE_DEFAULTS_FILE) + 1];
   strcpy(name, dir);
   strcat(name, XAMINE_DEFAULTS_FILE);
   return name;
 }
-
-/*
-** Functional Description:
-**   Xamine_ReadDefaultProperties:
-**     This function reads the default set of properties from file.
-**     The defaults filename is given by XAMINE_DEFAULTS_FILE,
-**     it will be written to XAMINE_DEFAULTS_DIRECTORY.
-** Returns:
-**    True   - Success
-**    False  - Failure
+/*!
+   Read a default file given its filename:
+   \param filename (const char* [in])
+     Name of the default file to read.
+
+   \retval int
+    - True - success.
+    - False- Failure.
 */
-int Xamine_ReadDefaultProperties()
+int
+Xamine_ReadDefaultFile(const char* filename)
 {
-  char *filename = ConstructFilename();
   FILE *config;
   int status;
   static int FirstTime = TRUE;
@@ -470,7 +474,6 @@ int Xamine_ReadDefaultProperties()
   /* Open the file.. if we can.. */
 
   config = fopen(filename, "r");
-  delete filename;
   if(config == NULL) return FALSE;
 
   if(!FirstTime)
@@ -482,6 +485,64 @@ int Xamine_ReadDefaultProperties()
   fclose(config);
 
   return (status != 0);			/* BUGBUGBUG - Stub for now. */
+}
+
+/*!
+     This function reads the default set of properties from file.
+     We first attempt to read in a defaults file in HOME/Etc,
+     then HOME/etc.  Then we superimpose on that the user's default file:
+
+     The defaults filename is given by XAMINE_DEFAULTS_FILE,
+     it will be written to XAMINE_DEFAULTS_DIRECTORY.
+
+    the purpose of this two step default scheme is to allow for system
+    wide as well as user specific defaults. While this may be less important
+    for Spectrum windows, it is very important for the printer defaults.
+ 
+ \retval int
+    - True   - Success
+    - False  - Failure
+*/
+int Xamine_ReadDefaultProperties()
+{
+  // Try the system wide defaults files:
+
+  char* dir = new char[strlen(HOME)+strlen("/etc") + 1];
+  
+  // Try in INSTDIR/Etc...
+
+
+  strcpy(dir, HOME);
+  strcat(dir, "/Etc");		// Old style home dir...
+  char* pFilename = ConstructFilename(dir);
+
+  Xamine_ReadDefaultFile(pFilename); // No penalty for failure.
+
+  delete []pFilename;
+  
+  // Try in INSTDIR/etc:
+
+  strcpy(dir, HOME);
+  strcat(dir, "/etc");
+  pFilename = ConstructFilename(dir);
+
+  Xamine_ReadDefaultFile(pFilename); // No penalty for failure.
+
+  delete []pFilename;
+  delete []dir;
+ 
+  // Read the user's filename
+
+
+  dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
+  if(!dir) dir = "";		// If no env var, use current dir.
+
+  char *filename = ConstructFilename(dir);
+  int stat =  Xamine_ReadDefaultFile(filename);
+
+  delete []filename;
+  return stat;
+
 }
 #ifdef FLEXV2
 void defaultfilerestart(FILE *config)
@@ -507,8 +568,9 @@ int Xamine_SaveDefaultProperties()
   FILE *fp;
 
   /* Construct the filename and open the file for write: */
-
-  filename = ConstructFilename(); /* Glue together the filename. */
+  char* dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
+  if(!dir) dir = "";		// If no env var, use current dir.
+  filename = ConstructFilename(dir); /* Glue together the filename. */
   fp = fopen(filename, "r+");     /* Try to open existing for read/write */
   if(fp) {			  // Deal with filesystems which support
     fclose(fp);			  // File versioning by deleting the

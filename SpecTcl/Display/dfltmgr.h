@@ -291,14 +291,25 @@ DAMAGES.
 **      @(#)dfltmgr.h	8.1 6/23/95 
 */
 
+/* 
+   Change log:
+   $Log$
+   Revision 4.2  2003/04/02 18:35:25  ron-fox
+   Added support for central Xamine.Default files that live in any of:
+   $SpecTclHome/Etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
+
+*/
+
 #ifndef _DFLTMGR_H
 #define _DFLTMGR_H
 
 #include "dispwind.h"
 
+
 /*
 ** Constant definitions:
 */
+
 
 #define XAMINE_DEFAULTS_DIRECTORY     "HOME" /* Env. var where defaults go. */
 #ifdef unix
@@ -313,11 +324,28 @@ DAMAGES.
 */
 
 win_attributed *Xamine_GetDefaultGenericAttributes();
+win_attributed *Xamine_GetCurrentGenericAttributes();
+void            Xamine_SetGenericAttributes(win_attributed* attr);
 void            Xamine_SetDefault1DRendition(rendition_1d rendition);
 void            Xamine_SetDefault2DRendition(rendition_2d rendition);
 void            Xamine_Construct1dDefaultProperties(win_1d *properties);
 void            Xamine_Construct2dDefaultProperties(win_2d *properties);
 int             Xamine_SaveDefaultProperties();
 int             Xamine_ReadDefaultProperties();
+int             Xamine_ReadDefaultFile(const char* filename);
 void            Xamine_ApplyDefaultsEverywhere();
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
