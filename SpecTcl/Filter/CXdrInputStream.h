@@ -276,8 +276,15 @@ DAMAGES.
 		     END OF TERMS AND CONDITIONS
 */
 
+
+
 #ifndef __CXDRINPUTSTREAM_H
 #define __CXDRINPUTSTREAM_H
+
+#ifndef __CONFIG_H
+#include <config.h>
+#define __CONFIG_H
+#endif
 
 #ifndef __STL_STRING
 #include <string>
@@ -286,7 +293,11 @@ DAMAGES.
 
 #ifndef __RPC_XDR_H
 #include <rpc/types.h>		/* Some systems (e.g. CYGWIN) need this. */
+#ifdef BROKEN_XDR_H
+#include "../Replace/xdr.h"
+#else
 #include <rpc/xdr.h>
+#endif
 #define __RPC_XDR_H
 #endif
 

@@ -26,16 +26,8 @@ void CEventSinkPipeline::operator()(CEventList& rEventList) {
   }
 };
 
-/*
-operator() NOT IMPLEMENTED FOR CEvent. ONLY IMPLEMENTED FOR CEventList&
-void CEventSinkPipeline::operator()(CEvent& rEvent) {
-  for(EventSinkIterator i = CEventSinkPipeline::begin(); i != CEventSinkPipeline::end(); i++) {
-    // Clear the gates.
 
-    (**i)(rEvent); // Run the sink.
-  }
-};
-*/
+
 
 // Additional functions.
 void CEventSinkPipeline::AddEventSink(CEventSink& rEventSink) {

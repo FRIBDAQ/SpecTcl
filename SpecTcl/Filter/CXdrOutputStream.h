@@ -277,6 +277,12 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
+
+#ifndef __CONFIG_H
+#include <config.h>
+#define __CONFIG_H
+#endif
+
 #ifndef __STL_STRING
 #include <string>
 #define __STL_STRING
@@ -284,7 +290,11 @@ DAMAGES.
 
 #ifndef __RPC_XDR_H
 #include <rpc/types.h>		/* Cygwin e.g. needs this. */
+#ifdef BROKEN_XDR_H
+#include "../Replace/xdr.h"
+#else
 #include <rpc/xdr.h>
+#endif
 #ifndef __RPC_XDR_H
 #define __RPC_XDR_H
 #endif

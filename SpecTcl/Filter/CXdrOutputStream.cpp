@@ -284,7 +284,12 @@ DAMAGES.
 #include <string.h>
 #include <unistd.h>
 #include <rpc/types.h>		// CYGWIN e.g. does not include in xdr.h!!
+#ifdef BROKEN_XDR_H
+#include "../Replace/xdr.h"
+#else
 #include <rpc/xdr.h>
+#endif
+#include <iostream.h>
 
 /*!
    Construct a closed CXdrOutputStream.  This function does
@@ -458,6 +463,7 @@ CXdrOutputStream::Flush()
   xdr_int(&m_Xdr, &pos);		// Space for the count.
   
 
+
 }
 /*!
    Require a specific amount of free space else flush:
@@ -468,7 +474,7 @@ void
 CXdrOutputStream::Require(int nBytes)
 {
   int pos = xdr_getpos(&m_Xdr);
-  if ((pos + nBytes) >= m_nBuffersize) {
+  if ((pos + nBytes)*2 >= m_nBuffersize) { // Seems to be a factor of 2.
     Flush();
   }
 }

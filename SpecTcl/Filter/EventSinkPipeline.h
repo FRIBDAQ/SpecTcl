@@ -40,8 +40,7 @@ class CEventSinkPipeline : public CEventSink {
   virtual ~CEventSinkPipeline();
 
   // Operators.
-  void operator()(CEventList&);
-  void operator()(CEvent&);
+  virtual void operator()(CEventList&);
 
   // Additional functions.
   void AddEventSink(CEventSink&);
