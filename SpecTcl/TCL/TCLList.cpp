@@ -296,11 +296,19 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 //
 
 
+#include <config.h>
 #include "TCLList.h"                               
 #include "TCLInterpreter.h"
 #include <string.h>
 #include <assert.h>
+
+#if HAVE_MALLOC_H
 #include <malloc.h>		// Since Tcl uses malloc/free
+#endif
+
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
 
 // Functions for class CTCLList
 
@@ -424,8 +432,12 @@ CTCLList::Split(int& n, char***p)
   if(m_pList == (char*)kpNULL)
     return TCL_OK;		// Treat null ptr as empty list.
   
-  
-  int result = Tcl_SplitList(pInterp->getInterpreter(), m_pList, &n, p);
+  int result = Tcl_SplitList(pInterp->getInterpreter(), m_pList, &n, 
+#if (TCL_MAJOR_VERSION > 8) || ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
+			     (const char***)p);  
+#else
+                              p);
+#endif
 }
 //////////////////////////////////////////////////////////////////////////
 //
