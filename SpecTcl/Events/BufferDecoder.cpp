@@ -65,6 +65,8 @@ CBufferDecoder::operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAnalyze
 //
 // 
 
+  if(m_pTranslator)
+    delete m_pTranslator;       // delete the old BufferTranslator
   m_pBuffer = pBuffer;		// First set the buffer context...
   m_nSize   = nBytes;
 
