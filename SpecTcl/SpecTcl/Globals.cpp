@@ -292,6 +292,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //     July 12, 1999 Ron FOx
 //        Added gpVersion and set it to be 0.2
 //   $Log$
+//   Revision 5.1.2.2  2005/03/04 19:05:41  ron-fox
+//   Set the version string to 3.0pre1
+//
 //   Revision 5.1.2.1  2004/12/15 17:24:05  ron-fox
 //   - Port to gcc/g++ 3.x
 //   - Recast swrite/sread in terms of tcl[io]stream rather than
@@ -380,4 +383,4 @@ CRunControl* gpRunControl = (CRunControl*)kpNULL;
 CAnalyzer* gpAnalyzer   = (CAnalyzer*)kpNULL;
 
 // SpecTcl also retains a version text string.
-const char* gpVersion = "1.0"; 
+const char* gpVersion = "3.0pre1"; 
