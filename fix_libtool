@@ -8,3 +8,6 @@ mv -f libtool_fixed libtool
 
 sed -e 's/lib \/OUT:\\$oldlib\\$oldobjs\\$old_deplibs/ar cru \\$oldlib \\$oldobjs \\$old_deplibs/' < libtool > libtool_fixed
 mv -f libtool_fixed libtool
+
+sed -e 's/libext="lib"/libext="a"/' <libtool >libtool_fixed
+mv -f libtool_fixed libtool
