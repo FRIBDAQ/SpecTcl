@@ -15,10 +15,11 @@
 ** Versioning:
 **   @(#)helpmenu.cc	8.9 10/19/98 
 */
+#if 0
 #ifdef unix
 #pragma implementation "XMCallback.h"
 #endif
-static char *sccsinfo="@(#)helpmenu.cc	8.9 10/19/98 \n";
+#endif
 
 /*
 ** Include files:

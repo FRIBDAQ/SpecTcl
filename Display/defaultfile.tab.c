@@ -67,6 +67,7 @@
 # define	DEFAULTFILE	310
 # define	QSTRING	311
 
+#line 1 "defaultfile.y"
 
 /*
 **  Facility:
@@ -128,6 +129,7 @@ extern int windfilelex_line;
 static win_attributed *current = Xamine_GetDefaultGenericAttributes();
 
 
+#line 62 "defaultfile.y"
 typedef union {
    int integer;
    char string[80];
@@ -363,6 +365,7 @@ static const short yycheck[] =
       -1,    -1,    -1,    -1,   105
 };
 /* -*-C-*-  Note some compilers choke on comments on `#line' lines.  */
+#line 3 "/soft/alpha/bison/share/bison/bison.simple"
 
 /* Skeleton output parser for bison,
    Copyright 1984, 1989, 1990, 2000, 2001 Free Software Foundation, Inc.
@@ -576,6 +579,7 @@ __yy_memcpy (char *to, const char *from, unsigned int count)
 
 #endif
 
+#line 216 "/soft/alpha/bison/share/bison/bison.simple"
 
 
 /* The user can define YYPARSE_PARAM as the name of an argument to be passed
@@ -973,6 +977,7 @@ yyreduce:
   switch (yyn) {
 
 case 21:
+#line 156 "defaultfile.y"
 {
 		    assert(current != NULL);
 		    if(ticks)  current->tickson();
@@ -982,6 +987,7 @@ case 21:
 		  ;
     break;}
 case 22:
+#line 164 "defaultfile.y"
 {
 		    if(ticks) current->ticksoff();
 		    if(labels)current->axis_labelsoff();
@@ -990,39 +996,46 @@ case 22:
 		  ;
     break;}
 case 23:
+#line 171 "defaultfile.y"
 {
 		   assert(current != NULL);
 		   current->set_axes(TRUE, TRUE, TRUE);
 		 ;
     break;}
 case 24:
+#line 176 "defaultfile.y"
 {
 		   assert(current != NULL);
 		   current->set_axes(FALSE,FALSE,FALSE);
 		 ;
     break;}
 case 27:
+#line 188 "defaultfile.y"
 {
 		     ticks = TRUE;
 		   ;
     break;}
 case 28:
+#line 192 "defaultfile.y"
 {
 		     labels = TRUE;
 		   ;
     break;}
 case 29:
+#line 196 "defaultfile.y"
 {
 		     axes = TRUE;
 		   ;
     break;}
 case 30:
+#line 202 "defaultfile.y"
 {
 		   assert(current != NULL);
 		   current->set_titles(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
 		 ;
     break;}
 case 31:
+#line 207 "defaultfile.y"
 {
 		   assert(current != NULL);
 		   current->set_titles(FALSE, FALSE, FALSE,
@@ -1030,6 +1043,7 @@ case 31:
 		 ;
     break;}
 case 32:
+#line 213 "defaultfile.y"
 {
 		    assert(current != NULL);
 		    if(name)        current->dispname();
@@ -1042,6 +1056,7 @@ case 32:
 		  ;
     break;}
 case 33:
+#line 224 "defaultfile.y"
 {
 		    assert(current != NULL);
 		    if(name)        current->hidename();
@@ -1054,153 +1069,181 @@ case 33:
 		  ;
     break;}
 case 36:
+#line 240 "defaultfile.y"
 {
 		     name = TRUE;
 		   ;
     break;}
 case 37:
+#line 244 "defaultfile.y"
 {
 		     number = TRUE;
 		   ;
     break;}
 case 38:
+#line 247 "defaultfile.y"
 {
 		  description = TRUE;
 		;
     break;}
 case 39:
+#line 250 "defaultfile.y"
 {
 		  peak  = TRUE;
 		;
     break;}
 case 40:
+#line 253 "defaultfile.y"
 {
 		  update = TRUE;
 		;
     break;}
 case 41:
+#line 256 "defaultfile.y"
 {
 		  objects = TRUE;
 		;
     break;}
 case 42:
+#line 262 "defaultfile.y"
 { 
 		  assert(current != NULL);
 		  current->sideways();
 		;
     break;}
 case 43:
+#line 268 "defaultfile.y"
 {
 		  assert(current != NULL);
 		  current->normal();
 		;
     break;}
 case 45:
+#line 277 "defaultfile.y"
 {
                         assert(current != NULL);
 			current->sample();
 		      ;
     break;}
 case 46:
+#line 281 "defaultfile.y"
 {
 		      assert(current != NULL);
 		      current->sum();
 		    ;
     break;}
 case 47:
+#line 285 "defaultfile.y"
 {
 		      assert(current != NULL);
 		      current->average();
 		    ;
     break;}
 case 49:
+#line 294 "defaultfile.y"
 {
                        assert(current != NULL);
 		       current->autoscale();
 		     ;
     break;}
 case 50:
+#line 299 "defaultfile.y"
 {
 		   assert(current != NULL);
 		   current->setfs(yyvsp[0].integer);
 		 ;
     break;}
 case 52:
+#line 308 "defaultfile.y"
 {
 			     assert(current != NULL);
 			     current->log();
 			   ;
     break;}
 case 53:
+#line 312 "defaultfile.y"
 {
 			 assert(current != NULL);
 			 current->linear();
 		       ;
     break;}
 case 54:
+#line 319 "defaultfile.y"
 {
 		   assert(current != NULL);
 		   current->setfloor(yyvsp[-1].integer);
 		 ;
     break;}
 case 55:
+#line 326 "defaultfile.y"
 {
 		  assert(current != NULL);
 		  current->setceiling(yyvsp[-1].integer);
 		;
     break;}
 case 56:
+#line 333 "defaultfile.y"
 {
 		  assert(current != NULL);
 		  current->update_interval(yyvsp[-1].integer);	/* Set the update interval. */
                 ;
     break;}
 case 58:
+#line 344 "defaultfile.y"
 { 
 		    Xamine_SetDefault1DRendition(smoothed);
 		  ;
     break;}
 case 59:
+#line 348 "defaultfile.y"
 {
 		    Xamine_SetDefault1DRendition(histogram);
 		  ;
     break;}
 case 60:
+#line 352 "defaultfile.y"
 { 
 		    Xamine_SetDefault1DRendition(points);
 		  ;
     break;}
 case 61:
+#line 356 "defaultfile.y"
 {
 		    Xamine_SetDefault1DRendition(lines);
 		  ;
     break;}
 case 62:
+#line 362 "defaultfile.y"
 { 
 		    Xamine_SetDefault2DRendition(scatter);
 		  ;
     break;}
 case 63:
+#line 366 "defaultfile.y"
 { 
 		    Xamine_SetDefault2DRendition(boxes);
 		  ;
     break;}
 case 64:
+#line 370 "defaultfile.y"
 { 
 		    Xamine_SetDefault2DRendition(color);
 		  ;
     break;}
 case 65:
+#line 374 "defaultfile.y"
 {
 		    Xamine_SetDefault2DRendition(contour);
 		  ;
     break;}
 case 66:
+#line 378 "defaultfile.y"
 {
 		    Xamine_SetDefault2DRendition(lego);
 		  ;
     break;}
 case 67:
+#line 384 "defaultfile.y"
 {
 		 Display *d;
 		 d = XtDisplay(Xamine_Getpanemgr()->getid());
@@ -1209,6 +1252,7 @@ case 67:
     break;}
 }
 
+#line 610 "/soft/alpha/bison/share/bison/bison.simple"
 
 
   yyvsp -= yylen;
@@ -1438,4 +1482,5 @@ yyabortlab:
     }
   return 1;
 }
+#line 393 "defaultfile.y"
 

@@ -12,11 +12,11 @@
 **    Michigan State University
 **    East Lansing, MI 48824-1321
 */
+#if 0
 #ifdef unix
 #pragma implementation "XMCallback.h"
 #endif
-static char *sccsinfo="@(#)superprompt.cc	1.1 4/14/94 ";
-
+#endif
 
 
 /*
@@ -43,7 +43,9 @@ static char *sccsinfo="@(#)superprompt.cc	1.1 4/14/94 ";
 /*
 ** Local storage:
 */
+#if 0
 static Arg SuperPromptArgs[1];
+#endif
 
 static char *help_text[] = {
   "  You are being prompted for a spectrum to superimpose on the currently\n",

@@ -15,7 +15,6 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-static char *sccsinfo = "@(#)client.c	2.3 1/28/94 \n";
 
 
 /*
@@ -547,7 +546,7 @@ int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
     return 0;
 
   if(!genmem(name, 
-	     (void **)ptr,	/* Gen shared memory region. */
+	     (volatile void **)ptr,	/* Gen shared memory region. */
 	     sizeof(Xamine_shared) - XAMINE_SPECBYTES + specbytes))
     return 0;
 
@@ -937,7 +936,7 @@ int f77xamine_mapmemory_(char *name, int *specbytes,
 
   /* call the native C function: */
 
-  Xamine_MapMemory(n, *specbytes, ptr);
+  return Xamine_MapMemory(n, *specbytes, ptr);
 }
 #endif
 /*
@@ -1441,7 +1440,7 @@ long f77xamine_allocate2d(int *spno, int *xdim, int *ydim,
 
   /* Compute the offset from the pointer: */
   
-  offset = (long)spec - (int)Xamine_memory->dsp_spectra.XAMINE_b;
+  offset = (long)spec - (long)Xamine_memory->dsp_spectra.XAMINE_b;
   if(!*byte) offset = offset / sizeof(short); /* Word offset. */
 
   return offset;

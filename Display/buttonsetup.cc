@@ -16,7 +16,6 @@
 #ifdef unix
 #pragma implementation "XMCallback.h"
 #endif
-static char *sccsinfo = "@(#)buttonsetup.cc	8.2 10/3/95 ";
 
 
 /*

@@ -13,10 +13,12 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
+#if 0
 #ifndef VMS
 #pragma implementation "XMCallback.h"
 #endif
-static char *sccsinfo="@(#)acceptgates.cc	8.2 10/3/95 ";
+#endif
+
 
 /*
 ** Include files:

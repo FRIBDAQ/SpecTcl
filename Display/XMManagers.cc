@@ -10,7 +10,10 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-static char *sscsinfo = "@(#)XMManagers.cc	8.1 6/23/95 \n";
+
+#ifdef unix
+#pragma implementation "XMManagers.h"
+#endif
 
 
 /*

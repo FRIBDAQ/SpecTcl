@@ -26,7 +26,7 @@ LD     =  $($(OS)LD) -L/usr/lesstif/lib/Xm-2.0/.libs
 YACC   = bison
 LEX    = flex
 LEXOUT = lex.yy.c
-F77    = echo
+F77    = f77
 
 
 .DEFAULT:
@@ -65,7 +65,8 @@ WINDOW_TEST: wintest
 	echo "Windows file test suite finished"
 	touch WINDOW_TEST
 
-XAMINE_FILES: menusetup.o exit.o helpmenu.o winiomenu.o grobjiomenu.o geometrymenu.o \
+XAMINE_FILES: menusetup.o exit.o helpmenu.o winiomenu.o grobjiomenu.o \
+	geometrymenu.o \
 	errormsg.o procede.o logging.o toggles.o specchoose.o spectra.o \
 	spcdisplay.o advprompt.o properties.o buttonsetup.o panemgr.o \
 	pkgmgr.o dfltmgr.o axisdefault.o titledefault.o attribdefault.o \
@@ -78,7 +79,7 @@ XAMINE_FILES: menusetup.o exit.o helpmenu.o winiomenu.o grobjiomenu.o geometryme
 	gateio.o acceptgates.o clirequests.o spccheck.o prccheck.o superpos.o \
 	superprompt.o objcopy.o lblfont.o checklist.o compatspec.o copyatr.o \
 	buttonreq.o buttondlg.o spcchoice.o spccompatchoice.o spclimchoice.o \
-  	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o 
+	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o
 	echo "Xamine objects built"
 	touch XAMINE_FILES
 
@@ -191,7 +192,7 @@ Xamine: Xamine.o \
 	lblfont.o checklist.o compatspec.o copyatr.o \
 	defaultfile_lex.o buttonreq.o buttondlg.o spcchoice.o \
 	spccompatchoice.o spclimchoice.o ptlist.o lexsupport.o gc.o xaminegc.o\
- 	gcmgr.o \
+	gcmgr.o \
 	 -lXm -lXt -lX11 -lm $($(OS)LIB)
 
 
@@ -276,7 +277,7 @@ spcdisplay.o: spcdisplay.cc spcdisplay.h dispwind.h superpos.h panemgr.h dfltmgr
 
 advprompt.o: advprompt.cc XMDialogs.h helpmenu.h advprompt.h spcdisplay.h \
 	errormsg.h XMWidget.h
-	$(CPP) $(XCCFLAGS)  advprompt.cc
+	$(CPP) $(XCCFLAGS) advprompt.cc
 
 properties.o: properties.cc XMWidget.h XMDialogs.h XMManagers.h helpmenu.h \
 	errormsg.h properties.h spcdisplay.h dispwind.h superpos.h optionmenu.h \
@@ -368,45 +369,45 @@ plot1d.o: plot1d.cc XMWidget.h XBatch.h chanplot.h panemgr.h  \
 
 plot2d.o: plot2d.cc XMWidget.h XBatch.h dispwind.h superpos.h dispshare.h chanplot.h \
 	scaling.h colormgr.h refreshctl.h
-	$(CPP) $(XCCFLAGS)  plot2d.cc
+	$(CPP) $(XCCFLAGS) plot2d.cc
 
 colormgr.o: colormgr.cc XMWidget.h colormgr.h
 	$(CPP) $(XCCFLAGS) colormgr.cc
 
-CLIENT: libXamine.a Xaminetest demo
+CLIENT: libXamine.a Xaminetest
 	echo "Client software and tests built"
 	touch CLIENT
 
 libXamine.a: client.o  clientgates.o prccheck.o allocator.o \
-	specalloc.o clientbuttons.o
+	specalloc.o clientbuttons.o aedxamine.o
 	rm -f libXamine.a 
-	ar cq libXamine.a client.o  clientgates.o prccheck.o \
+	ar cq libXamine.a aedxamine.o client.o  clientgates.o prccheck.o \
 	allocator.o specalloc.o clientbuttons.o
 	ranlib libXamine.a
 
 Xaminetest: Xaminetest.o libXamine.a
-	$(LD) -g -L. -o Xaminetest Xaminetest.o client.o -lXamine  -lm \
+	$(LD) -L. -o Xaminetest Xaminetest.o client.o -lXamine  -lm \
 	$($(OS)LIB)
 
 Xaminetest.o: Xaminetest.c client.h
 	$(CC) $(CCFLAGS) Xaminetest.c
 
 client.o: client.c client.h clientgates.h allocator.h
-	$(CC) -g $(CCFLAGS) client.c
+	$(CC) $(CCFLAGS) client.c
 
 shared.o: shared.cc dispshare.h
 	$(CPP) $(CCFLAGS) shared.cc
 
 aedxamine.o: aedxamine.for aedshare.for xamineshare.for
-	$(F77) -c -g aedxamine.for
+	$(F77) -c aedxamine.for
 
 demo: demo.o libXamine.a
-#	$(F77) -g -L. -L/daq/lib -o demo demo.o -lXamine -lc -lqtree -lfile -lcvt
-	$(F77) -g  -L. -L/daq/lib -o demo demo.o \
-	 -lXamine  -lqtree -lfile -lcvt
+#	$(F77) -L. -L/daq/lib -o demo demo.o -lXamine -lc -lqtree -lfile -lcvt
+	$(F77) -L. -L$(INSTDIR)/Lib -o demo demo.o -lXamine
+#	 -lXamine  -lqtree -lfile -lcvt
 
 demo.o: demo.for aedshare.for aedpublic.for
-	$(F77) -g -c demo.for
+	$(F77) -c demo.for
 
 
 location.o: location.cc XMManagers.h XMLabel.h location.h XMWidget.h
@@ -495,7 +496,7 @@ clirequests.o: clirequests.cc dispshare.h XMWidget.h errormsg.h panemgr.h \
 	$(CPP) $(XCCFLAGS) clirequests.cc
 
 clientgates.o: clientgates.c clientgates.h client.h messages.h
-	$(CC) -g $(CCFLAGS) clientgates.c
+	$(CC) $(CCFLAGS) clientgates.c
 
 
 spccheck.o: spccheck.cc spccheck.h panemgr.h dispwind.h superpos.h refreshctl.h \

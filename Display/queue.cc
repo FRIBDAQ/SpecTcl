@@ -12,7 +12,6 @@
 **  Michigan State University
 **  East Lansing, MI 48824-1321
 */
-static char *qsccsinfo="@(#)queue.cc	1.1 5/26/94 ";
 
 
 /*

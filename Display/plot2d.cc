@@ -12,7 +12,7 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-static char *sccsinfo = "@(#)plot2d.cc	2.4 4/25/94 \n";
+
 
 /*
 ** Include files:

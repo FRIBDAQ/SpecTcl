@@ -22,10 +22,11 @@
 **    East Lansing, MI 48824-1321
 **
 */
+#if 0
 #ifdef unix
 #pragma implementation "XMCallback.h"
 #endif
-static char *sccsinfo = "6/23/95 @(#)colorset.cc	8.1 \n";
+#endif
 
 
 /*

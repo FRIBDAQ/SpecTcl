@@ -23,7 +23,6 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 **/
-static char *sccsversion="@(#)XMCallback.cc	8.2 1/26/98 ";
 
 /*
 ** Includes:

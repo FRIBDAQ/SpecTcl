@@ -14,6 +14,11 @@
 
 #ifndef XMMenus_H
 #define XMMenus_H
+
+#ifdef unix
+#pragma interface
+#endif
+
 #include "XMWidget.h"
 #include "XMPushbutton.h"
 #include <Xm/RowColumn.h>

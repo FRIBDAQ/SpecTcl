@@ -15,10 +15,11 @@
 ** SCCS history:
 **   @(#)spcchoice.cc	8.1 6/23/95 
 */
+#if 0
 #ifdef unix
 #pragma implementation "XMCallback.h"
 #endif
-static char *sccsinfo = "@(#)spcchoice.cc	8.1 6/23/95 ";
+#endif
 
 /*
 ** Include files:

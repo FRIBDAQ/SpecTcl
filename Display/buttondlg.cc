@@ -13,10 +13,12 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
+#if 0
 #ifdef unix
 #pragma implementation "XMCallback.h"
 #endif
-static char *sccsinfo="@(#)buttondlg.cc	8.1 6/23/95 ";
+#endif
+
 
 /*
 ** Include files:

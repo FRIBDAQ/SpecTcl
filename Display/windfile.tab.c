@@ -66,6 +66,7 @@
 # define	UNMATCHED	309
 # define	QSTRING	310
 
+#line 1 "windfile.y"
 
 /*
 **  Facility:
@@ -125,6 +126,7 @@ static struct limit { int low;
 extern spec_shared *xamine_shared;
 void windfileerror(char *c);
 
+#line 60 "windfile.y"
 typedef union {
   int integer;
   char string[80];
@@ -396,6 +398,7 @@ static const short yycheck[] =
       -1,    -1,    -1,    -1,    -1,    -1,    -1,   139
 };
 /* -*-C-*-  Note some compilers choke on comments on `#line' lines.  */
+#line 3 "/soft/alpha/bison/share/bison/bison.simple"
 
 /* Skeleton output parser for bison,
    Copyright 1984, 1989, 1990, 2000, 2001 Free Software Foundation, Inc.
@@ -609,6 +612,7 @@ __yy_memcpy (char *to, const char *from, unsigned int count)
 
 #endif
 
+#line 216 "/soft/alpha/bison/share/bison/bison.simple"
 
 
 /* The user can define YYPARSE_PARAM as the name of an argument to be passed
@@ -1006,27 +1010,32 @@ yyreduce:
   switch (yyn) {
 
 case 9:
+#line 132 "windfile.y"
 { 
                   database->settitle(get_windfiletitle()); ;
     break;}
 case 11:
+#line 140 "windfile.y"
 { database->cleardb();
 		     int a = yyvsp[-3].integer, b= yyvsp[-1].integer;
 		     database->setx(yyvsp[-3].integer); database->sety(yyvsp[-1].integer);
                    ;
     break;}
 case 12:
+#line 145 "windfile.y"
 { database->cleardb();
                      database->setx(yyvsp[-4].integer); database->sety(yyvsp[-2].integer);
 		     database->zoom(x,y);
                    ;
     break;}
 case 13:
+#line 152 "windfile.y"
 { x = yyvsp[-2].integer;
                    y = yyvsp[0].integer;
 		 ;
     break;}
 case 18:
+#line 167 "windfile.y"
 {
 		    if(specisundefined(specnum)) {
 		       yyerror("Spectrum is not defined\n");
@@ -1049,11 +1058,13 @@ case 18:
 		    ;
     break;}
 case 19:
+#line 191 "windfile.y"
 {
 	     specnum = yyvsp[0].integer;	/* Just return the number as specnum. */
 	   ;
     break;}
 case 20:
+#line 195 "windfile.y"
 {
 	     specnum = xamine_shared->getspecid(yylval.string); /* translate name->id */
 	     if(specnum == -1){
@@ -1063,12 +1074,14 @@ case 20:
            ;
     break;}
 case 21:
+#line 205 "windfile.y"
 {
 		     x = -1; y = -1;
 		     current = NULL;
 		   ;
     break;}
 case 36:
+#line 221 "windfile.y"
 {
 		    assert(current != NULL);
 		    if(ticks)  current->tickson();
@@ -1078,6 +1091,7 @@ case 36:
 		  ;
     break;}
 case 37:
+#line 229 "windfile.y"
 {
 		    if(ticks) current->ticksoff();
 		    if(labels)current->axis_labelsoff();
@@ -1086,39 +1100,46 @@ case 37:
 		  ;
     break;}
 case 38:
+#line 236 "windfile.y"
 {
 		   assert(current != NULL);
 		   current->set_axes(TRUE, TRUE, TRUE);
 		 ;
     break;}
 case 39:
+#line 241 "windfile.y"
 {
 		   assert(current != NULL);
 		   current->set_axes(FALSE,FALSE,FALSE);
 		 ;
     break;}
 case 42:
+#line 253 "windfile.y"
 {
 		     ticks = TRUE;
 		   ;
     break;}
 case 43:
+#line 257 "windfile.y"
 {
 		     labels = TRUE;
 		   ;
     break;}
 case 44:
+#line 261 "windfile.y"
 {
 		     axes = TRUE;
 		   ;
     break;}
 case 45:
+#line 267 "windfile.y"
 {
 		   assert(current != NULL);
 		   current->set_titles(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
 		 ;
     break;}
 case 46:
+#line 272 "windfile.y"
 {
 		   assert(current != NULL);
 		   current->set_titles(FALSE, FALSE, FALSE,
@@ -1126,6 +1147,7 @@ case 46:
 		 ;
     break;}
 case 47:
+#line 278 "windfile.y"
 {
 		    assert(current != NULL);
 		    if(name)        current->dispname();
@@ -1138,6 +1160,7 @@ case 47:
 		  ;
     break;}
 case 48:
+#line 289 "windfile.y"
 {
 		    assert(current != NULL);
 		    if(name)        current->hidename();
@@ -1150,108 +1173,127 @@ case 48:
 		  ;
     break;}
 case 51:
+#line 305 "windfile.y"
 {
 		     name = TRUE;
 		   ;
     break;}
 case 52:
+#line 309 "windfile.y"
 {
 		     number = TRUE;
 		   ;
     break;}
 case 53:
+#line 312 "windfile.y"
 {
 		  description = TRUE;
 		;
     break;}
 case 54:
+#line 315 "windfile.y"
 {
 		  peak  = TRUE;
 		;
     break;}
 case 55:
+#line 318 "windfile.y"
 {
 		  update = TRUE;
 		;
     break;}
 case 56:
+#line 321 "windfile.y"
 {
 		  objects = TRUE;
 		;
     break;}
 case 57:
+#line 327 "windfile.y"
 { 
 		  assert(current != NULL);
 		  current->sideways();
 		;
     break;}
 case 58:
+#line 333 "windfile.y"
 {
 		  assert(current != NULL);
 		  current->normal();
 		;
     break;}
 case 60:
+#line 342 "windfile.y"
 {
                         assert(current != NULL);
 			current->sample();
 		      ;
     break;}
 case 61:
+#line 346 "windfile.y"
 {
 		      assert(current != NULL);
 		      current->sum();
 		    ;
     break;}
 case 62:
+#line 350 "windfile.y"
 {
 		      assert(current != NULL);
 		      current->average();
 		    ;
     break;}
 case 64:
+#line 359 "windfile.y"
 {
                        assert(current != NULL);
 		       current->autoscale();
 		     ;
     break;}
 case 65:
+#line 364 "windfile.y"
 {
 		   assert(current != NULL);
 		   current->setfs(yyvsp[0].integer);
 		 ;
     break;}
 case 67:
+#line 373 "windfile.y"
 {
 			     assert(current != NULL);
 			     current->log();
 			   ;
     break;}
 case 68:
+#line 377 "windfile.y"
 {
 			 assert(current != NULL);
 			 current->linear();
 		       ;
     break;}
 case 69:
+#line 384 "windfile.y"
 {
 		   assert(current != NULL);
 		   current->setfloor(yyvsp[-1].integer);
 		 ;
     break;}
 case 70:
+#line 391 "windfile.y"
 {
 		  assert(current != NULL);
 		  current->setceiling(yyvsp[-1].integer);
 		;
     break;}
 case 71:
+#line 398 "windfile.y"
 {
 		  assert(current != NULL);
 		  current->update_interval(yyvsp[-1].integer);	/* Set the update interval. */
                 ;
     break;}
 case 72:
+#line 405 "windfile.y"
 { assert(current);
 		    if(current->is1d()) {
 		      windfilelex_line--; /* Compensate for blankline. */
@@ -1275,6 +1317,7 @@ case 72:
 		  ;
     break;}
 case 73:
+#line 428 "windfile.y"
 { assert(current);
 		    if(!current->is1d()) {
 		      windfilelex_line--; /* compensate for blankline. */
@@ -1295,17 +1338,21 @@ case 73:
 		  ;
     break;}
 case 74:
+#line 449 "windfile.y"
 { memcpy(&xlim, &limits, sizeof(struct limit)); ;
     break;}
 case 75:
+#line 453 "windfile.y"
 { memcpy(&ylim, &limits, sizeof(struct limit)); ;
     break;}
 case 76:
+#line 457 "windfile.y"
 { limits.low = yyvsp[-2].integer;
 		  limits.high= yyvsp[0].integer;
 		;
     break;}
 case 79:
+#line 466 "windfile.y"
 { assert(current);
 		    if(!current->is1d()) {
 		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
@@ -1315,6 +1362,7 @@ case 79:
 		  ;
     break;}
 case 80:
+#line 474 "windfile.y"
 { assert(current);
 		    if(!current->is1d()) {
 		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
@@ -1324,6 +1372,7 @@ case 80:
 		  ;
     break;}
 case 81:
+#line 482 "windfile.y"
 { assert(current);
                     if(!current->is1d()) {
 		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
@@ -1333,6 +1382,7 @@ case 81:
 		  ;
     break;}
 case 82:
+#line 490 "windfile.y"
 { assert(current);
 		    if(!current->is1d()) {
 		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
@@ -1342,6 +1392,7 @@ case 82:
 		  ;
     break;}
 case 83:
+#line 500 "windfile.y"
 { assert(current);
 		    if(current->is1d()) {
 		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
@@ -1351,6 +1402,7 @@ case 83:
 		  ;
     break;}
 case 84:
+#line 508 "windfile.y"
 { assert(current);
 		    if(current->is1d()) {
 		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
@@ -1360,6 +1412,7 @@ case 84:
 		  ;
     break;}
 case 85:
+#line 516 "windfile.y"
 { assert(current);
 		    if(current->is1d()) {
 		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
@@ -1369,6 +1422,7 @@ case 85:
 		  ;
     break;}
 case 86:
+#line 524 "windfile.y"
 { assert(current);
 		    if(current->is1d()) {
 		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
@@ -1378,6 +1432,7 @@ case 86:
 		  ;
     break;}
 case 87:
+#line 532 "windfile.y"
 { assert(current);
 		    if(current->is1d()) {
 		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
@@ -1387,6 +1442,7 @@ case 87:
 		  ;
     break;}
 case 88:
+#line 543 "windfile.y"
 {
 		     assert(current);
 		     win_1d *at1 = (win_1d *)current;
@@ -1412,6 +1468,7 @@ case 88:
     break;}
 }
 
+#line 610 "/soft/alpha/bison/share/bison/bison.simple"
 
 
   yyvsp -= yylen;
@@ -1641,6 +1698,7 @@ yyabortlab:
     }
   return 1;
 }
+#line 568 "windfile.y"
 
 int specis1d(int spec)
 {

@@ -13,7 +13,6 @@
 //    East Lansing, MI 48824-1321
 //    @(#)xaminegc.cc	1.2 10/23/95 
 //
-static char *sccsinfo = "@(#)xaminegc.cc	1.2 10/23/95 ";
 
 #include "gc.h"
 #include "xaminegc.h"

@@ -14,14 +14,16 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-static char *sccsinfo = "@(#)buttonreq.cc	8.1 6/23/95 ";
 
 
 /*
 ** Include files:
 */
 
+#if 0
 #include "XMCallback.h"
+#endif
+
 #include "XMShell.h"
 #include "XMPushbutton.h"
 #include "XMDialogs.h"
