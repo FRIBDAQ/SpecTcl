@@ -83,12 +83,7 @@ static void Swap(T& item1, T& item2)
 static void SetClipRegion(XamineGrobjGC *gc, XMWidget *wid, 
 		     win_attributed *attributes)
 {
-  XRectangle rect;
-  int       orgx, orgy;
-  Dimension nx, ny;
-
   gc->ClipToSpectrum(*wid, *attributes);
-
 }
 /*
 ** Method Description:
@@ -550,9 +545,6 @@ void grobj_mark1d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   ** These are flipped, labelit, and the graphical context.  labelit
   ** and the graphical context depend on the final argument
   */
-
-  Boolean flipped = 
-    at->isflipped();	/* Flipped however is just a spectrum attrib */
 
   Boolean labelit = False;
   if(final && at->showlbl()) 
