@@ -328,7 +328,7 @@ public:
 CBand::CBand(UInt_t nXid, UInt_t nYid,const vector<CPoint>& points)   :
   CPointListGate(nXid, nYid, points)
 {
-  CreateLimits();
+  GetLRLimits();
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -342,7 +342,7 @@ CBand::CBand(UInt_t nXid, UInt_t nYid,
 	     UInt_t nPts, CPoint* pPoints) :
   CPointListGate(nXid, nYid, nPts, pPoints)
 {
-  CreateLimits();
+  GetLRLimits();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -357,7 +357,7 @@ CBand::CBand(UInt_t nXid, UInt_t nYid,
 	     UInt_t nPts, UInt_t* pX, UInt_t* pY) :
   CPointListGate(nXid, nYid, nPts, pX, pY)
 {
-  CreateLimits();
+  GetLRLimits();
 }
 
 Bool_t
@@ -400,7 +400,19 @@ CBand::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 
   return inGate(rEvent);
 }
-//  inGate without parameters:
+
+/*!
+   Determines if an event is within the gate.  A band gate is treated like a
+   contour as follows:
+    The first and last limit points produce a vertical line that is dropped
+    to negative infinity. Inisdedness is handled essentially the same way
+    as it is for contours other than that, however we don't do the bounding
+    box check since in  most cases bands span
+    much of the vertical/horizontal extent of the data.
+
+    \param rEvent - the event to check against the gate.
+    \return kfTRUE if the event falls in the band, kfFALSE if not.
+*/
 Bool_t
 CBand::inGate(CEvent& rEvent)
 {
@@ -410,23 +422,29 @@ CBand::inGate(CEvent& rEvent)
     return kfFALSE;
   }
   else {
-    // The gate array is scaled to parameter space, however the user
-    // may not have drawn the gate all the way to the end of the 
-    // spectrum. So if we're outside the limits array, the gate is
-    // not made
-    if(rEvent[xPar].isValid() && rEvent[yPar].isValid()) {
-      UInt_t x = rEvent[xPar];
-      UInt_t y = rEvent[yPar];
-      if(x < (getLimits()).size()) {
-	return (y < (getLimits())[x]);
-      }
-      else {
-	return kfFALSE;
-      }
+    int x = rEvent[xPar];	// Pull the point out of the event array.
+    int y = rEvent[yPar];
+
+    // Now count edges.  
+    // First handle the vertical edges separately.
+
+    int nCrosses(0);
+    if(y < (m_LeftLimit.Y()) && (x >= m_LeftLimit.X())) nCrosses++;
+    if(y < (m_RightLimit.Y()) && (x >= m_RightLimit.X())) nCrosses++;
+
+    // Now tally any additional crossings with the border of the band.
+
+    int nSegments = Size() - 1;
+    assert(nSegments >= 1);	// Need at least one segment to make a band.
+    vector<CPoint>::iterator first = getBegin();
+    vector<CPoint>::iterator second= first; second++;
+
+    for(int seg = 0; seg < nSegments; seg++) {
+      nCrosses += Crosses(x,y, first, second);
+      first = second;
+      second++;
     }
-    else {
-      return kfFALSE;
-    }
+    return ((nCrosses & 1) == 1);
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -462,71 +480,28 @@ CBand::Type() const
 
   return std::string("b");
 }
-//////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//   void CreateLimits()
-// Operation Type:
-//   Utilities:
-//
+/*!
+   Get the left and right most limit points of the band.
+
+   - I have tried to find the x-left/right most and that gives counter 
+     intuitive results for pathological bands
+   - I am trying the first and last points now.
+
+
+*/
 void
-CBand::CreateLimits()
+CBand::GetLRLimits()
 {
-  //  Takes the gate points and turns them into a limit array.
-  //  The gate points have been extended by the client as required
-  //  (e.g. either horizontally to the ends of the spectrum or at the
-  //  zero level or whatever.
+  vector<CPoint>::iterator f = getBegin();
+  vector<CPoint>::iterator l = getEnd(); l--;
 
-  //  The gate points may be out of order, so first they are sorted in
-  //  order of ascending X.
-  //
-
-  vector<CPoint>::iterator b = getBegin();
-  vector<CPoint>::iterator e = getEnd();
-  Xorder c;
-  sort(b,e, c);
-
-  // There should be at least two points in a band.
-
-  b = getBegin();
-  assert(Size() > 1);
-
-  // Now construct the limits array by interpolating pairwise.  There are
-  // special cases to consider, in particular vertical  leaps of the band.
-  //
-
-  // Run from chan zero to first channel on the
-  // x axis.
-
-  CPoint p1((*b).X(),0);
-  for(UInt_t i = 0; i <= p1.X(); i++) {
-    m_aLimits.push_back(0);
+  if(f->X() < l->X()) {
+    m_LeftLimit  = *f;
+    m_RightLimit = *l;
   }
-
-
-  CPoint p2;
-  for(; b != getEnd(); b++) {
-    p2 = *b;
-    if(p1.X() == p2.X()) { // Vertical leap:
-      m_aLimits[Size() - 1] = p2.Y();
-    }
-    else {			// Draw the line.
-      float y = (float)p1.Y();
-      int   x = p1.X();
-      float m = ((float)p2.Y() - y)/((float)p2.X() - (float)x);
-      while(x < p2.X()) {
-	m_aLimits.push_back((UInt_t)y);
-	y += m;
-	x++;
-      }
-    }
-      p1 = p2;
-  } 
-  
-  // The only point we have not filled in is the last one and it is 
-  // given by the Y coordinate of the last point:
-
-  m_aLimits.push_back(p2.Y());
-
+  else {
+    m_LeftLimit  = *l;
+    m_RightLimit = *f;
+  }
+ 
 }
-  
