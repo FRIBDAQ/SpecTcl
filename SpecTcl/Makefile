@@ -29,6 +29,9 @@ system:
 	(cd Display;  \
 	make  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	(cd Gri;   \
+	./configure; make)
+
 	(cd Exception; \
 	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
@@ -61,9 +64,9 @@ system:
 	(cd TestFiles; \
 	 make $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 
-
 clean: 
 	(cd Display;   make clean)
+	(cd Gri;       make clean)
 	(cd Xamine;    make clean)
 	(cd Exception; make clean)
 	(cd Events;    make clean)
