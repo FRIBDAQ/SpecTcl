@@ -63,3 +63,5 @@ SpecTcl: $(OBJECTS)
 
 MySpecTclApp.o: MySpecTclApp.cpp MySpecTclApp.h
 	$(COMPILE) MySpecTclApp.cpp
+
+

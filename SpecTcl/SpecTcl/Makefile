@@ -47,7 +47,7 @@ LIBOBJS=StopRun.o StartRun.o RunControlPackage.o \
 	GateFactory.o GateFactoryException.o XamineEventHandler.o \
 	TCLHistogrammer.o PseudoCommand.o PseudoScript.o ChanCommand.o \
 	WriteCommand.o ReadCommand.o TCLAnalyzer.o EventProcessor.o \
-	TclGrammerApp.o Globals.o FilterCommand.o	
+	TclGrammerApp.o Globals.o	
 
 
 OBJECTS=MySpecTclApp.o  
@@ -185,11 +185,10 @@ TCLAnalyzer.o: TCLAnalyzer.cpp
 EventProcessor.o: EventProcessor.cpp
 	$(COMPILE) EventProcessor.cpp
 
-FilterCommand.o: FilterCommand.cpp
-	$(COMPILE) FilterCommand.cpp
-
 MySpecTclApp.o: MySpecTclApp.cpp
 	$(COMPILE) MySpecTclApp.cpp
 
 TclGrammerApp.o: TclGrammerApp.cpp
 	$(COMPILE) TclGrammerApp.cpp
+
+

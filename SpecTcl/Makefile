@@ -88,9 +88,6 @@ system:
 	(umask 02; cd SpecTcl;  \
 	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION);\
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
-	(umask 02; cd Filter; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION);\
-	 make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd TestFiles; \
 	 make $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 
@@ -108,7 +105,7 @@ clean:
 	(cd Gates;   make clean)
 	(cd TestFiles; make clean)
 	(cd SpectrumIO; make clean)
-	(cd Filter; make clean)
+
 
 depend:
 	(cd Display;   make depend)
@@ -124,4 +121,3 @@ depend:
 	(cd SpecTcl; make depend)
 	(cd Gates; make depend)
 	(cd TestFiles; make depend)
-	(cd Filter; make depend)
