@@ -30,6 +30,27 @@
 // Forward declarations.
 class CTCLCommandPackage;
 class CTCLInterpreter;
+/*!
+   Implements the SpecTcl \em filter command. This command has the
+   following format:
+   \verbatim
+
+   filter [-new] filtername gatename {par1 par2 ...}
+   filter -delete filtername
+   filter -enable filtername
+   filter -disable filtername
+   filter -regate filtername gatename
+   filter -file filename filtername
+   filter -list ?glob-pattern?
+
+   \endverbatim
+
+    and is used to manipulate pre-sort filter sets.   A filter is a gate,
+    a set of parameters and an output file.  Events which make the filter's
+    gate true have the specified parameters written to the output file.
+    filters can also be disabled if desired.
+
+*/
 
 class CFilterCommand : public CTCLProcessor {
   // Internal class definitions:
