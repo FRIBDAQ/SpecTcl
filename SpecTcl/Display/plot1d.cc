@@ -671,8 +671,6 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
   if(at1->isexpanded()) {	/* If expanded, then we must use the exp. */
     xl = at1->lowlimit();	/* limits in the window attributes object */
     xh = at1->highlimit();
-    if(at1->ismapped())
-      xh++;
   }				/* xl,xh now define the area of interest. */
 
   /* Determine the reduction parameters and method and instantiate a sampler */
