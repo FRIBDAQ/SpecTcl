@@ -821,11 +821,6 @@ void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, char *title,
   offset = spec - base;
   offset = offset/bpc;
 
-  printf("---------- describe spectrum\n");
-  printf("  specid = %d\n", spno);
-  printf("  xdim   = %d\n", xdim);
-  printf("  ydim   = %d\n", ydim);
-  printf("  offset = %d\n", offset);
 
   /* Fill in everything but the title... that needs some fancy footwork */
 
