@@ -585,25 +585,21 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
     }
     else {
       win_2d *att = (win_2d *)attribs;
-      if(att->isexpanded()) {
-	if(att->isflipped()) {
-	  low = att->ylowlim();
-	  hi  = att->yhilim();
-	}
-	else {
-	  low = att->xlowlim();
-	  hi  = att->xhilim();
-	}
+      if(att->isexpanded() && att->isflipped()) {
+	low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
+	hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim());
+      }
+      else if(att->isexpanded()) {
+	low = (att->isexpandedfirst() ? att->xlowlim() : att->ylowlim());
+	hi  = (att->isexpandedfirst() ? att->xhilim()  : att->yhilim());
+      }
+      else if(att->isflipped()) {
+	low = 0;
+	hi  = xamine_shared->getydim(att->spectrum())-1;
       }
     }
-    if(attribs->isflipped()) {	/* Linear Y axis for X channels: */
-      DrawLinearYTicks(disp, win, gc, xbase, ybase, nx,ny, low, hi,
-		       attribs->labelaxes());
-    }
-    else {
-      DrawLinearXTicks(disp, win, gc, xbase, ybase, nx,ny, low, hi,
-		       attribs->labelaxes());
-    }
+    DrawLinearXTicks(disp, win, gc, xbase, ybase, nx,ny, low, hi,
+		     attribs->labelaxes());
 
   /* For 1-d spectra, the other axis is the counts axis and it may be linear
   ** or log.  The low limit is the maximum of 0 and floor, and the upper
@@ -643,23 +639,21 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
       win_2d *att = (win_2d *)attribs;
       low = 0;
       hi  = xamine_shared->getydim(att->spectrum())-1;
-      if(att->isflipped()) {
-	if(att->isexpanded()) {
-	  low = att->xlowlim();
-	  hi  = att->xhilim();
-	}
-	DrawLinearXTicks(disp,win,gc, xbase,ybase, nx,ny, low,hi,
-			 att->labelaxes());
+      if(att->isexpanded() && att->isflipped()) {
+	low = (att->isexpandedfirst() ? att->xlowlim() : att->ylowlim());
+	hi  = (att->isexpandedfirst() ? att->xhilim()  : att->yhilim());
       }
-      else {
-	if(att->isexpanded()) {
-	  low = att->ylowlim();
-	  hi  = att->yhilim();
-	}
-	DrawLinearYTicks(disp,win,gc, xbase,ybase, nx,ny, low,hi,
-			 att->labelaxes());
+      else if(att->isexpanded()) {
+	low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
+	hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim());
       }
-    }    
-  /* End of tick drawing */
+      else if(att->isflipped()) {
+	low = 0;
+	hi  = xamine_shared->getxdim(att->spectrum())-1;
+      }
+      DrawLinearYTicks(disp,win,gc, xbase,ybase, nx,ny, low,hi,
+		       att->labelaxes());
+    }
   }
-}
+}    
+  /* End of tick drawing */

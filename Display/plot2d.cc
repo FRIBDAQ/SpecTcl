@@ -881,38 +881,31 @@ Boolean Xamine_Plot2d(Screen *s, Display *d,
     /*   Generate the sampler : */
 
     if(at2->isflipped()) {
-
       if(at2->isexpanded()) {
-	yl = at2->xlowlim();
-	yh = at2->xhilim();
-	xl = at2->ylowlim();
-	xh = at2->yhilim();
+	xl = (at2->isexpandedfirst() ? at2->xlowlim() : at2->ylowlim());
+	xh = (at2->isexpandedfirst() ? at2->xhilim()  : at2->yhilim());
+	yl = (at2->isexpandedfirst() ? at2->ylowlim() : at2->xlowlim());
+	yh = (at2->isexpandedfirst() ? at2->yhilim()  : at2->xhilim());
       }
-      
-      ctx->sampler = Xamine_GenerateSampler2(spno,
-					     xamine_shared->gettype(spno),
-					     at2->getrend(),
-					     at2->getreduction(),
-					     xl,xh, yl,yh,
-					     ny,nx,
-					     &ctx->ystep, &ctx->xstep);
+      ctx->sampler = 
+	Xamine_GenerateSampler2(spno, xamine_shared->gettype(spno),
+				at2->getrend(), at2->getreduction(),
+				xl, xh, yl, yh, ny, nx,
+				&ctx->ystep, &ctx->xstep);
     }
-      else {
-
-	if(at2->isexpanded()) {
-	  xl = at2->xlowlim();
-	  xh = at2->xhilim();
-	  yl = at2->ylowlim();
-	  yh = at2->yhilim();
-	}
-	ctx->sampler = Xamine_GenerateSampler2(spno,
-					       xamine_shared->gettype(spno),
-					       at2->getrend(),
-					       at2->getreduction(),
-					       xl,xh, yl,yh,
-					       nx,ny,
-					       &ctx->xstep, &ctx->ystep);
+    else {
+      if(at2->isexpanded()) {
+	xl = (at2->isexpandedfirst() ? at2->xlowlim() : at2->ylowlim());
+	xh = (at2->isexpandedfirst() ? at2->xhilim()  : at2->yhilim());
+	yl = (at2->isexpandedfirst() ? at2->ylowlim() : at2->xlowlim());
+	yh = (at2->isexpandedfirst() ? at2->yhilim()  : at2->xhilim());
       }
+      ctx->sampler = 
+	Xamine_GenerateSampler2(spno, xamine_shared->gettype(spno),
+				at2->getrend(), at2->getreduction(),
+				xl, xh, yl, yh, nx, ny,
+				&ctx->xstep, &ctx->ystep);
+    }
     /* Choose the drawer */
 
     ctx->drawer = ChooseDrawer(d, win,
