@@ -595,14 +595,14 @@ static void DrawMappedXTicks(Display *disp, Window win, GC gc,
   float rem;
   float mant = low - (int)low;
 
-  last_value        = -1;	/* Make sure the first tick is drawn. */
+  last_value        = -1.1111111111;	/* (not a nice value) */
   value_represented = low;
 
   XSegmentBatch ticks(disp, win, gc);
 
   // Compute the mapped tick interval between tick marks
   if((low < 0) && (hi > 0))
-    value_interval = (float)ComputeMappedTickInterval((hi-low)+1,(nx-xbase+1));
+    value_interval = (float)ComputeMappedTickInterval((hi-low),(nx-xbase+1));
   else
     value_interval = (float)ComputeMappedTickInterval(hi-low, (nx-xbase+1));
 
