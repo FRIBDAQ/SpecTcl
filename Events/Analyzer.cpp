@@ -423,9 +423,10 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	try {
 	  m_fAbort = kfFALSE;
 	  nEventSize = OnEvent(pData, *pEvent);
-	  if(!m_fAbort)
-	    //m_EventList[nEventNo++] = pEvent;
-	    nEventNo++; m_EventList.assign_back(pEvent);
+	  if(!m_fAbort) {
+	    m_EventList[nEventNo] = pEvent;
+	    nEventNo++; 
+	  }
 	  if (nEventSize == 0) { // If we didn't throw now we'd hang here.
 	    throw CEventFormatError((int)CEventFormatError::knSizeMismatch,
 				    string("Packer returned event size = 0"),
@@ -453,10 +454,14 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	}
       }
       // Dump any partial event list:
-      if(nEventNo && m_pSink) {
-	(*m_pSink)(m_EventList);
+      if(nEventNo) {
+	if(m_pSink) {
+	  (*m_pSink)(m_EventList);
+	}
+	ClearEventList();
+	nEventNo = 0;
       }
-      ClearEventList();
+
     }
     catch(CEventFormatError& rError) {
       delete pEvent;		// Kill hanging event.
@@ -517,21 +522,7 @@ void CAnalyzer::OnOther(UInt_t nType, CBufferDecoder& rDecoder) {
   // Exceptions:
   // Clean up.
 
-  // For event filtering:
-  Address_t pData = rDecoder.getBody();
-  // Make sure that a filter event processor exists, but don't make one unnecessarily.
-  if(m_pFilterEventProcessor == (CFilterEventProcessor*)kpNULL) {
-    m_pFilterEventProcessor = new CFilterEventProcessor;
-  }
-  if(m_pFilterEventProcessor->operator()(pData, (*this), rDecoder)) {
-    vector<CEvent*> Events = *(m_pFilterEventProcessor->getEvents());
-    for(vector<CEvent*>::iterator ipEvent = Events.begin(); ipEvent != Events.end(); ipEvent++) {
-      m_EventList.assign_back(*ipEvent);
-    }
-    (*m_pSink)(m_EventList);
-  } else {
-    cerr << "Error: CFilterEventProcessor::operator()." << endl;
-  }
+  
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -308,7 +308,9 @@ static const UInt_t    knExpandSize = 512;      // Events in an expansion.
 // Operation Type:
 //    Default Constructor.
 //
-CEventList::CEventList() {}
+CEventList::CEventList()  
+{
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -322,10 +324,8 @@ CEventList::CEventList(UInt_t nEvents)
 #ifdef OSF1
 	       (unsigned long int)
 #endif
-	       nEvents, (CEvent*)kpNULL),
-    m_nSize(m_rvEvents.size())
+	       nEvents, (CEvent*)kpNULL)
 {
-  find_end();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -340,8 +340,7 @@ CEventList::CEventList(const CEventList& anEventList)
 #ifdef OSF1
 	       (unsigned long int)
 #endif
-	       knExpandSize, (CEvent*)kpNULL),
-    m_nSize(m_rvEvents.size())
+	       knExpandSize, (CEvent*)kpNULL)
 {
   DoAssign(anEventList);
 }
@@ -355,7 +354,6 @@ CEventList::CEventList(const CEventList& anEventList)
 //
 CEventList::~CEventList() {
   clear();			// Delete the events.
-  delete &m_rvEvents;		// and the array too.
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -390,7 +388,8 @@ pCEvent& CEventList::operator[](UInt_t nEvent) {
   //      If nEvent does not yet exist, then one will be
   //     generated and inserted in the clear state, and
   //     a reference returned.
-  while(m_nSize < nEvent) Expand();   // Expand vector as needed.
+  while(m_rvEvents.size() < nEvent) 
+    Expand();   // Expand vector as needed.
   return m_rvEvents[nEvent];
 };
 
@@ -420,27 +419,8 @@ CEventListIterator CEventList::begin() {
 //     Selector
 //
 CEventListIterator CEventList::end() {
-  // Returns an event list iterator which can
-  // be compared against to determine when an
-  // event list iterator has hit the end of the EventList
-  //  e.g.:
-  //    for(CEventListIterator i = eventlist.begin(); 
-  //         i != eventlist.end(); i++) { ... }
-  //  processes all of the events in the event list.
-  //
 
-  /*
-  return m_rvEvents.end(); // Former procedure.
-  */
-
-  // Re-written to return an iterator to just past the last non-NULL value.
-  /*
-  vector<CEvent*>::iterator iEvent = m_rvEvents.begin();
-  while((iEvent != m_rvEvents.end()) && (*iEvent != (CEvent*)kpNULL)) {
-    iEvent++;
-  }
-  return iEvent;
-  */
+  
   return m_rvEvents.end();
 }
 
@@ -453,7 +433,7 @@ CEventListIterator CEventList::end() {
 //
 UInt_t CEventList::size() const {
   // Returns the number of events in the event list.
-  return m_nSize;
+  return m_rvEvents.size();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -490,13 +470,13 @@ void CEventList::DoAssign(const CEventList& Evt) {
   while(m_rvEvents.size() < anEvent.size()) 
     Expand(); // Make dest. size big enough.
 
-  m_pEnd = begin();
+  int i = 0;
   for(CEventListIterator pSrc = anEvent.begin(); 
       pSrc != anEvent.end(); pSrc++) {
-    *m_pEnd = new CEvent(*(*pSrc)); // we get copies of the events in the rhs.
-    m_pEnd++;
+    m_rvEvents[i] = new CEvent(*(*pSrc)); // we get copies of the events in the rhs.
+    i++;
   } // Copies are needed for now to deal with deletions.
-  m_nSize = m_rvEvents.size();
+
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -507,10 +487,11 @@ void CEventList::DoAssign(const CEventList& Evt) {
 //    Utility available to derived classes
 //
 void CEventList::Expand() {
-  // BUG! Do not run on construction, or else CAnalyzer::CreateEvent will fail.
-  m_rvEvents.insert(m_rvEvents.end(), (long int)knExpandSize, (CEvent*)kpNULL);
-  m_nSize = m_rvEvents.size();
-  find_end();
+  // BUG! Do not run on construction, or else 
+  // CAnalyzer::CreateEvent will fail.
+  m_rvEvents.insert(m_rvEvents.end(), 
+		    (long int)knExpandSize, (CEvent*)kpNULL);
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -533,23 +514,5 @@ int CEventList::operator==(const CEventList& EvtList) {
   return -1;
 };
 
-vector<CEvent*>::iterator CEventList::assign_back(CEvent* pEvent) {
-  if(pEvent != (CEvent*)kpNULL) {
-    if(m_pEnd == m_rvEvents.end()) {
-      Expand();
-    }
 
-    *m_pEnd = pEvent;
-    m_pEnd++;
-  }
-  return m_pEnd;
-}
 
-vector<CEvent*>::iterator CEventList::find_end() {
-  // NOTE: There should be no nulls in-between data.
-  m_pEnd = m_rvEvents.begin();
-  while((*m_pEnd != (CEvent*)kpNULL) && (m_pEnd != m_rvEvents.end())) {
-    m_pEnd++;
-  }
-  return m_pEnd;
-}
