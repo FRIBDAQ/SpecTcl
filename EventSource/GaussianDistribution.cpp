@@ -89,7 +89,11 @@ CGaussianDistribution::operator()()
   DFloat_t R = 0.0;
   
   for(Int_t i = 0; i < 12; i++) {
+#ifdef Darwin
+    R += (DFloat_t)rand();
+#else
     R += drand48();
+#endif
   }
   R = (R-6.0)/4.0;
   DFloat_t D;
@@ -142,6 +146,10 @@ CGaussianDistribution::Seed()
   seed[1] = nowstruct.tm_min;
   seed[2] = nowstruct.tm_mday;
 
+#ifdef Darwin
+  srand(seed[0]);
+#else
   seed48(seed);
+#endif
   m_fSeeded = kfTRUE;
 }

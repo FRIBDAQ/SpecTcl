@@ -333,6 +333,7 @@ int f77volmksafe
 volume **vol;
 #endif
 {
+	int volmksafe(volume*);
     return volmksafe(*vol);
 }
 /*
@@ -455,7 +456,7 @@ int f77volinit(int *fileid, vmsstring *label)
 {
 #ifdef unix
   char lbl[100];
-   char *f77tocstring_();
+   char *f77tocstring_(char* , int);
   memset(lbl, 0, 100);
   strncpy(lbl, label, lbllen < 100 ? lbllen : 100);
    return volinit(*fileid, f77tocstring_(label,lbllen));

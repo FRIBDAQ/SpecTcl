@@ -23,6 +23,11 @@ static char *sccsinfo = "@(#)client.c	2.3 1/28/94 \n";
 */
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdio.h>
+
+#ifdef Darwin
+#include <sys/mman.h>
+#endif
 
 #ifdef unix
 #include <sys/types.h>
@@ -48,7 +53,6 @@ static char *sccsinfo = "@(#)client.c	2.3 1/28/94 \n";
 #endif
 #include <errno.h>
 #include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 
@@ -301,7 +305,35 @@ static int genname(char *name)
 */
 static int genmem(char *name, volatile void **ptr, unsigned int size)
 #ifdef unix
-#ifdef CYGWIN
+#if defined(Darwin)
+{
+  int fd;
+  void* pMem;
+  fd = shm_open(name,O_RDWR | O_CREAT  ,S_IRUSR | S_IWUSR);
+  if(fd < 0) {
+    perror("shm_open failed");
+    *ptr = NULL;
+    return FALSE;
+  }
+
+  if(ftruncate(fd, size) < 0) {
+    perror("frtrunate failed");
+    *ptr = NULL;
+    return FALSE;
+  }
+
+  pMem = mmap(NULL, size, PROT_READ |PROT_WRITE, MAP_SHARED, fd, 0);
+  if(pMem == (char*)-1) {
+    perror("mmap failed");
+    *ptr = NULL;
+    return FALSE;
+  }
+  *ptr = pMem;
+  close(fd);
+  return TRUE;
+}
+
+#elif defined(CYGWIN)
 {
   HANDLE hMapFile;
   void*  pMemory;

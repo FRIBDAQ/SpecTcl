@@ -71,7 +71,7 @@ CGateFactory::CreateGate(GateType nGateType,
   //  caller to delete the gate when done with it.
   
   switch(nGateType) {
-  case and:
+  case And:
     return CreateAndGate(rGates);
   case bandcontour:
     return CreateBandContour(rGates);
@@ -89,14 +89,14 @@ CGateFactory::CreateGate(GateType nGateType,
 				  "Creating a False gate in CreateGate");
     }
     return CreateFalseGate();
-  case not:
+  case Not:
     if(rGates.size() != 1) {
       throw CGateFactoryException(CGateFactoryException::WrongGateCount,
 				  nGateType,
 				  "Creating a Not gate in CreateGate");
     }
     return CreateNotGate(rGates[0]);
-  case or:
+  case Or:
     return CreateOrGate(rGates);
   case trueg:
     if(rGates.size() != 0) {
@@ -449,7 +449,7 @@ CGateFactory::CreateNotGate(const string& rBandName)
   //         Name of the band to 'not'.
   //
 
-  return new CNot(NameToGate(rBandName, not,
+  return new CNot(NameToGate(rBandName, Not,
 			     "Creating inverse gate"));
 }
 ///////////////////////////////////////////////////////////////////////
@@ -469,7 +469,7 @@ CGateFactory::CreateAndGate(const vector<string>& rB)
 
   vector<string>& rBandNames((vector<string>&)rB);
   list<CGateContainer*> Gates;
-  CreateGateList(Gates, rBandNames, and, "Constructing and gate list");
+  CreateGateList(Gates, rBandNames, And, "Constructing and gate list");
   return new CAndGate(Gates);
   
 }
@@ -487,7 +487,7 @@ COrGate* CGateFactory::CreateOrGate(const vector<string>& rG)
   //         Names of gates to contain in this gate.
   vector<string>& rGateNames((vector<string>&)rG);
   list<CGateContainer*> Gates;
-  CreateGateList(Gates, rGateNames, or , "Constructing or gate list");
+  CreateGateList(Gates, rGateNames, Or , "Constructing or gate list");
   return new COrGate(Gates);
 
 }

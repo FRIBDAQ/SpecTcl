@@ -33,10 +33,14 @@ static char *version = "@(#)volume.c	2.14 4/5/96 Library_File\n";
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
-#include "mtinternl.h"
+//#include "mtinternl.h"
+#include "mtaccess.h"
 #include <ctype.h>
 #include <errno.h>
+void panic(char* string);
+
 #ifdef unix
 #include <strings.h>
 #endif
@@ -100,8 +104,7 @@ static int month_lengths[12]
 **
 **--
 */
-static int isachar (c)
-char c;
+static int isachar (char c)
 {
 
 	if (islower(c))
@@ -150,8 +153,7 @@ char c;
 **
 **--
 */
-static int allachars (src)
-char *src;
+static int allachars (char* src)
 {
     register char c;
 
@@ -190,9 +192,7 @@ char *src;
 **
 **--
 */
-static char *nametoansi (out, in)
-char *out, 
-     *in;
+static char *nametoansi (char* out, char* in)
 {
     char *dest;
     char c;
@@ -242,10 +242,7 @@ char *out,
 **
 **--
 */
-static encnum (fld, value, length)
-char *fld;
-int value, 
-    length;
+static void encnum (char* fld, int value, int length)
 {
     char *d;
     int digit;
@@ -288,9 +285,7 @@ int value,
 **
 **--
 */
-static encdate (field, date)
-char	    *field;
-tm_t    *date;
+static void encdate (char* field, tm_t* date)
 {
     int yrlow,			/* Low order 2 digits of year. */
 	i, 
@@ -346,10 +341,7 @@ tm_t    *date;
 **
 **--
 */
-static encstring(dest, src, length)
-char *dest, 
-     *src;
-int length;
+static void encstring(char* dest, char* src, int length)
 {
 
 	/* Copy the string, stopping at end, or length overflow. */
@@ -386,9 +378,7 @@ int length;
 **
 **--
 */
-static int decnum (field, len)
-char *field;
-int len;
+static int decnum (char* field, int len)
 {
     int sum;
 
@@ -443,10 +433,7 @@ int len;
 **
 **--
 */
-static char *decstring (str, field, len)
-char *field, 
-     *str;
-int len;
+static char *decstring (char* str, char* field, int len)
 {
     char *d;
 
@@ -483,9 +470,7 @@ int len;
 **
 **--
 */
-static decdate (date, field)
-tm_t    *date;
-char *field;
+static void decdate (tm_t* date, char* field)
 {
     int daysinmonth, 
 	day,
@@ -505,8 +490,7 @@ char *field;
     date->tm_year += decnum(field, 2);
     field += 2;
      
-    /* Next decode the month/day from the day of the year. */
-     
+    /* Next decode the month/day from the day of the year. */     
     day = decnum(field,3);
     date->tm_mon = 1;
     for (month = 1;  month < 12;  month++)
@@ -569,16 +553,13 @@ char *field;
 **
 **--
 */
-static int lbl1write (vol, hdrname, seqnum)
-volume *vol;
-char *hdrname;
-int seqnum;
+static int lbl1write (volume* vol, char* hdrname, int seqnum)
 {
     FLBL1   label;
 
     /* First step is to format the label. */
 
-    encstring(&label, " ", sizeof(FLBL1));	/* Blank fill the label. */
+    encstring((char*)&label, " ", sizeof(FLBL1));	/* Blank fill the label. */
     encstring(label.hdrid, hdrname, IDSIZE);	    /* Encode label name. */
     encstring(label.filename, vol->filename, FILEIDENT); /* file id. */
     encstring(label.fsetid, vol->volname, FSIDSIZE);	/* File set id. */
@@ -597,7 +578,7 @@ int seqnum;
     /* At this time, the header label is all formated so we can		    */
     /* procede to attempt to write it to the tape. */
      
-    return mtwrite(vol->fd, &label, sizeof(FLBL1));
+    return mtwrite(vol->fd, (void*)&label, sizeof(FLBL1));
 }
 
 
@@ -627,15 +608,13 @@ int seqnum;
 **
 **--
 */
-static int lbl2write (vol, lblname)
-volume *vol;
-char *lblname;
+static int lbl2write (volume* vol, char* lblname)
 {
     FLBL2   label;
 
 	/* First it's necessary to fill in the header. */
 
-    encstring(&label, " ", sizeof(FLBL2));	/* First blankf fill. */
+    encstring((char*)&label, " ", sizeof(FLBL2));	/* First blankf fill. */
     encstring(label.hdrid, lblname, IDSIZE);	/* Label name. */
     label.recordfmt = 'F';			/* Only support fixed records. */
     encnum(label.blocklen, vol->reclen + vol->offlen, BLKSIZE);
@@ -644,7 +623,7 @@ char *lblname;
      
 	/* Now we write the formatted lable. */
      
-    return mtwrite(vol->fd, &label, sizeof(FLBL2));
+    return mtwrite(vol->fd, (void*)&label, sizeof(FLBL2));
 }
 
 
@@ -673,11 +652,9 @@ char *lblname;
 **
 **--
 */
-static int writetrailers (vcb)
-volume *vcb;
+static int writetrailers (volume* vcb)
 {
-    int status, 
-	leotencountered;
+    int status, leotencountered;
 
     leotencountered = 0;
      
@@ -759,11 +736,7 @@ volume *vcb;
 **
 **--
 */
-static getitem(code, list, item, term)
-int code;
-volume_item *list;
-char **item;
-int term;
+static int getitem(int code, volume_item* list, char** item, int term)
 {
 
     while (list->code != term)
@@ -806,11 +779,8 @@ int term;
 **
 **--
 */
-static volume *initvcb (handle, unit)
-int handle;
-int unit;
+static volume *initvcb (int handle, int unit)
 {
-    char *malloc();
     volume *vol;
 
     vol = (volume *)malloc (sizeof(volume));
@@ -863,13 +833,11 @@ int unit;
 **
 **--
 */
-static seekleov (vcb)
-volume	*vcb;
+static void seekleov (volume *vcb)
 {
     int status, 
 	readsize;
     FLBL1 label;
-    
 
     /* There are some conditions where we should not actually move the */
     /* tape around.  These are when we're already at the LEOV, and    */
@@ -897,7 +865,7 @@ volume	*vcb;
 	    panic("Fatal Magtape I/O error skipping filemarks in seekeov()\n");
 	}
 	status = mtread(vcb->fd,  
-			&label, sizeof(FLBL1), &readsize);
+			(char*)&label, sizeof(FLBL1), (unsigned int*)&readsize);
 	if (status == MTEOF)		/* If truly BOT should be an EOF. */
 	{
 	    mtrewind(vcb->fd);  /* Rewind the tape. */
@@ -916,7 +884,7 @@ volume	*vcb;
     while (1)
     {
 	status = mtread(vcb->fd,
-			&label, sizeof(FLBL1), &readsize);
+			(char*)&label, sizeof(FLBL1), (unsigned int*)&readsize);
 	if (status == MTIO)
 	{
 	    panic("Unclosed tape found in drive in seekleov()\n");
@@ -928,7 +896,7 @@ volume	*vcb;
 	{				    /* EOF label encountered. */
 
 	    status = mtread(vcb->fd,
-			  &label, sizeof(FLBL1), &readsize);
+			  (char*)&label, sizeof(FLBL1), (unsigned int*)&readsize);
 	    if(status == MTEOF) {
 	      mtspacef(vcb->fd, -1);
 	      vcb->volloc = LEOV;
@@ -956,10 +924,9 @@ volume	*vcb;
 **
 **--
 */
-static reclose (vcb)
-volume	*vcb;
+static void reclose (volume* vcb)
 {
-
+	
     mtspacef(vcb->fd, -1);
     mtweof(vcb->fd, 2);
     mtspacef(vcb->fd, 1);
@@ -990,10 +957,7 @@ volume	*vcb;
 **
 **--
 */
-static int nxtfileinfo (vcb, hdr1, hdr2)
-volume	*vcb;
-FLBL1   *hdr1;		/* 'HDR1' buffer. */
-FLBL2   *hdr2;		/* 'HDR2' buffer. */
+static int nxtfileinfo (volume* vcb, FLBL1* hdr1, FLBL2* hdr2)
 {
     int status, 
 	bytesread,
@@ -1009,8 +973,8 @@ FLBL2   *hdr2;		/* 'HDR2' buffer. */
     while(1)
     {
 	status = mtread(vcb->fd,	/* Read the trial label */
-			hdr1, sizeof(FLBL1),	/* If it's a tape mark  */
-			&bytesread);		/* then we don't want to */
+			(char*)hdr1, sizeof(FLBL1),	/* If it's a tape mark  */
+			(unsigned int *)&bytesread);		/* then we don't want to */
 	if ((status == MTEOF)  && (!first))    	/* look any further, we  */
 	{					/* Just back up in front */
 	    mtspacef(vcb->fd, -2); 	       /* Of both (it's the last one */
@@ -1019,8 +983,8 @@ FLBL2   *hdr2;		/* 'HDR2' buffer. */
 	if((status == MTEOF) && first)		/* Could be sitting at */
 	{					/* mark before data   */
 	   status = mtread(vcb->fd,		/* So try read...     */
-			   hdr1, sizeof(FLBL1),
-			   &bytesread);
+			   (char*)hdr1, sizeof(FLBL1),
+			   (unsigned int*)&bytesread);
            if(status == MTEOF)			/* 2 EOF's in a row... */
 	   {
 	     mtspacef(vcb->fd, -2);		/* Backup over both    */
@@ -1038,8 +1002,8 @@ FLBL2   *hdr2;		/* 'HDR2' buffer. */
             && (status == MTSUCCESS) )
 	{					/* It's an EOF1 label. */
 	    status = mtread(vcb->fd,
-			    hdr2, sizeof(FLBL2),
-			   &bytesread);
+			    (char*)hdr2, sizeof(FLBL2),
+			   (unsigned int*)&bytesread);
 	    if ((status != MTSUCCESS)	||
 		(bytesread != sizeof(FLBL2)) ||
 		(strncmp ("HDR2", hdr2->hdrid, IDSIZE != 0)))
@@ -1077,9 +1041,7 @@ FLBL2   *hdr2;		/* 'HDR2' buffer. */
 **
 **--
 */
-int volinit (handle, label)
-int handle;
-char *label;
+int volinit (int handle, char* label)
 {
     VOL1 header;
     int mtstat;
@@ -1110,7 +1072,7 @@ char *label;
 	 
     mtload(handle);		/* Load the drive. */
      
-    mtstat = mtwrite(handle, &header,	/* Write the VOL1 label. */
+    mtstat = mtwrite(handle, (char*)&header,	/* Write the VOL1 label. */
 		     sizeof(VOL1));
     if(mtstat != MTSUCCESS) return mtstat;
 
@@ -1142,9 +1104,7 @@ char *label;
 **	errno holds the reason.
 **--
 */
-volume *volmount (handle,  itemlist)
-int handle;
-volume_item *itemlist;
+volume *volmount (int handle,  volume_item* itemlist)
 {
     char *reqlbl,	/* Pointer to requested label if VOL_REQLBL */
 	 *label,	/* Pointer to actual label buffer if VOL_LABEL */
@@ -1160,7 +1120,7 @@ volume_item *itemlist;
     /* First we process the item list: */
      
     getitem(VOL_REQLBL,  itemlist, &reqlbl,  VOL_ENDLIST);
-    getitem(VOL_PROTECT, itemlist, &protect, VOL_ENDLIST);
+    getitem(VOL_PROTECT, itemlist, (char**)&protect, VOL_ENDLIST);
     getitem(VOL_LABEL,   itemlist, &label,   VOL_ENDLIST);
     getitem(VOL_ACCESS,  itemlist, &access,  VOL_ENDLIST);
     getitem(VOL_OWNER,   itemlist, &owner,   VOL_ENDLIST);
@@ -1180,18 +1140,18 @@ volume_item *itemlist;
 	/* The volume is considered ANSII if the first record is the */
 	/* correct size and has the text "VOL1" in the volid position. */
 
-    status = mtread(handle, &vollabel, sizeof(VOL1), &actual);
+    status = mtread(handle, (char*)&vollabel, sizeof(VOL1), (unsigned int*)&actual);
     if ((status != MTSUCCESS) ||
 	(actual != sizeof(VOL1)))
     {
 	errno = MTNOTANSI;
-	free (vol);
+	free ((void*)vol);
 	return 0;
     }
     if (strncmp ("VOL1", vollabel.volid, IDSIZE) != 0)
     {
 	errno = MTNOTANSI;
-	free (vol);
+	free ((void*)vol);
 	return 0;
     }
      
@@ -1305,8 +1265,7 @@ volume_item *itemlist;
 **
 **--
 */
-int voldmount (vcb)
-volume *vcb;
+int voldmount (volume* vcb)
 {
     int status;
 
@@ -1348,7 +1307,7 @@ volume *vcb;
     vcb->magic = 0;
     vcb->fd   = -1;
     vcb->unit  = 0;
-    free (vcb);
+    free ((void*)vcb);
 
     return MTSUCCESS;
 }
@@ -1381,9 +1340,7 @@ volume *vcb;
 **
 **--
 */
-int volcreate (vcb, items)
-volume	    *vcb;
-file_item   *items;
+int volcreate (volume* vcb, file_item* items)
 {
     char *userfilename;
     int *anint, 
@@ -1421,7 +1378,7 @@ file_item   *items;
     /* and at most FILEIDENT characters. The result is stuck in the	*/
     /* VCB file identification section. */
      
-    if ( !getitem(FILE_NAMEREQ, items, &userfilename, FILE_ENDLIST) )
+    if ( !getitem(FILE_NAMEREQ, (volume_item*)items, &userfilename, FILE_ENDLIST) )
     {
 	return MTFNAMEREQ;
     }
@@ -1437,7 +1394,7 @@ file_item   *items;
     
     ticks = time(0); 
     memcpy (&vcb->creation,localtime(&ticks),sizeof(tm_t));
-    if (getitem(FILE_REQPREFIX, items, &anint, FILE_ENDLIST))
+    if (getitem(FILE_REQPREFIX, (volume_item*)items, (char**)&anint, FILE_ENDLIST))
     {
 	vcb->offlen = *anint;
     }
@@ -1445,7 +1402,7 @@ file_item   *items;
     {
 	vcb->offlen = 0;
     }
-    if (getitem(FILE_REQRECLEN, items, &anint, FILE_ENDLIST))
+    if (getitem(FILE_REQRECLEN, (volume_item*)items, (char**)&anint, FILE_ENDLIST))
     {
 	vcb->reclen = *anint;
     }
@@ -1511,33 +1468,33 @@ file_item   *items;
     /* Satisfy any item list entries which request final actual file 	    */
     /* information from the user. */
 
-    if (getitem(FILE_NAME, items, &userfilename, FILE_ENDLIST))
+    if (getitem(FILE_NAME, (volume_item*)items, &userfilename, FILE_ENDLIST))
     {					    /* Wanted actual filename. */
 	strcpy (userfilename, vcb->filename);
     }
-    if (getitem(FILE_CREDATE, items, &lcltime, FILE_ENDLIST))
+    if (getitem(FILE_CREDATE, (volume_item*)items, (char**)&lcltime, FILE_ENDLIST))
     {					/* Wanted actual creation date. */
 
 	memcpy (&lcltime,&(vcb->creation),sizeof(tm_t));
     }
-    if (getitem(FILE_EXPDATE, items, &lcltime, FILE_ENDLIST))
+    if (getitem(FILE_EXPDATE, (volume_item*)items, (char**)&lcltime, FILE_ENDLIST))
     {					/* Wanted actual expiration date. */
 
 	memset (&lcltime,0, sizeof(tm_t));
     }
-    if (getitem(FILE_ACCESS, items, &anint, FILE_ENDLIST))
+    if (getitem(FILE_ACCESS, (volume_item*)items, (char**)&anint, FILE_ENDLIST))
     {
 	*((char *)anint) = ' ';		/* No accessibility field written. */
     }
-    if (getitem(FILE_RECLEN, items, &anint, FILE_ENDLIST))
+    if (getitem(FILE_RECLEN, (volume_item*)items, (char**)&anint, FILE_ENDLIST))
     {					/* Requested actual record length. */
 	*anint = vcb->reclen;
     }
-    if (getitem(FILE_BLOCK, items, &anint, FILE_ENDLIST))
+    if (getitem(FILE_BLOCK, (volume_item*)items, (char**)&anint, FILE_ENDLIST))
     {					/* Requested actual block size. */
 	*anint = vcb->reclen + vcb->offlen;
     }
-    if (getitem(FILE_PREFIX, items, &anint, FILE_ENDLIST))
+    if (getitem(FILE_PREFIX, (volume_item*)items, (char**)&anint, FILE_ENDLIST))
     {					/* Requested actual offset len. */
 	*anint = vcb->offlen;
     }
@@ -1562,8 +1519,7 @@ file_item   *items;
 **	Status of the operations.
 **--
 */
-int volclose (vcb)
-volume *vcb;
+int volclose (volume* vcb)
 {
     int status, 
 	actualsize;
@@ -1637,8 +1593,7 @@ volume *vcb;
 **
 **--
 */
-int volmksafe (vcb)
-volume *vcb;
+int volmksafe (volume* vcb)
 {
     int status;
 
@@ -1678,10 +1633,7 @@ volume *vcb;
 **
 **--
 */
-int volwrite (vcb, data, count)
-volume *vcb;
-char   *data;
-int    count;
+int volwrite (volume* vcb, char* data, int count)
 {
     int status;
 
@@ -1777,9 +1729,7 @@ int    count;
 **
 **--
 */
-int volopen (vcb, itemlist)
-volume *vcb;
-file_item *itemlist;
+int volopen (volume* vcb, file_item* itemlist)
 {
     FLBL1   header1;
     FLBL2   header2;
@@ -1811,7 +1761,7 @@ file_item *itemlist;
     /* Then we search for the file on tape. */
      
     requestedname = (char *)0;
-    getitem(FILE_NAMEREQ, itemlist,		/* Get desired filename. */
+    getitem(FILE_NAMEREQ, (volume_item*)itemlist,		/* Get desired filename. */
 	    &requestedname, FILE_ENDLIST);
     if(requestedname != NULL) {			/* Convert to A chars for */
        memset(mappedname, ' ', sizeof(mappedname)); /* the match.	*/
@@ -1875,31 +1825,31 @@ file_item *itemlist;
     /* Now satisfy the callers requests for file information that are in */
     /* the item list. */
      
-    if (getitem(FILE_NAME, itemlist, &string, FILE_ENDLIST))
+    if (getitem(FILE_NAME, (volume_item*)itemlist, &string, FILE_ENDLIST))
     {
 	strcpy (string, vcb->filename);
     }
-    if (getitem(FILE_CREDATE, itemlist, &value, FILE_ENDLIST))
+    if (getitem(FILE_CREDATE, (volume_item*)itemlist, (char**)&value, FILE_ENDLIST))
     {
 	memcpy (value,&(vcb->creation),sizeof(tm_t));
     }
-    if (getitem(FILE_EXPDATE, itemlist, &value, FILE_ENDLIST))
+    if (getitem(FILE_EXPDATE, (volume_item*)itemlist, (char**)&value, FILE_ENDLIST))
     {
-	decdate(value, header1.expdate);
+	decdate((tm_t*)value, header1.expdate);
     }
-    if (getitem(FILE_ACCESS, itemlist, &string, FILE_ENDLIST))
+    if (getitem(FILE_ACCESS, (volume_item*)itemlist, (char**)&string, FILE_ENDLIST))
     {
 	*string = header1.access;
     }
-    if (getitem(FILE_RECLEN, itemlist, &value, FILE_ENDLIST))
+    if (getitem(FILE_RECLEN, (volume_item*)itemlist, (char**)&value, FILE_ENDLIST))
     {
 	*value = vcb->reclen;
     }
-    if (getitem(FILE_BLOCK, itemlist, &value, FILE_ENDLIST))
+    if (getitem(FILE_BLOCK, (volume_item*)itemlist, (char**)&value, FILE_ENDLIST))
     {
 	*value = vcb->reclen + vcb->offlen;
     }
-    if (getitem(FILE_PREFIX, itemlist, &value, FILE_ENDLIST))
+    if (getitem(FILE_PREFIX, (volume_item*)itemlist, (char**)&value, FILE_ENDLIST))
     {
 	*value = vcb->offlen;
     }
@@ -1927,11 +1877,7 @@ file_item *itemlist;
 **
 **--
 */
-int volread (vcb, data, count, actual)
-volume *vcb;
-char *data;
-int count, 
-    *actual;
+int volread (volume* vcb, char* data, int count, int* actual)
 {
     int status;
 
@@ -1962,7 +1908,7 @@ int count,
 	return MTEOF;
     }
     status = mtread(vcb->fd,
-		    data, count, actual);
+		    data, count, (unsigned int*)actual);
     if (status == MTEOF)
     {
 	mtspacef(vcb->fd, -1);

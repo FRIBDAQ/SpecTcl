@@ -16,8 +16,8 @@ LIBS=   -lTclGrammerCommands \
 	-ltk -ltcl -lXt -lX11 -lm $($(OS)LIBS)
 
 ECHO=echo
-COMPILE=g++ -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) -DINSTALLED_IN='"$(INSTDIR)"'
-LINK=g++ $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS)
+COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) -DINSTALLED_IN='"$(INSTDIR)"'
+LINK=$($(OS)LD) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=cp
@@ -124,11 +124,13 @@ GammaContour.o: GammaContour.cpp
 # DO NOT DELETE
 
 ActualIterator.o: ActualIterator.h /usr/include/assert.h
-ActualIterator.o: /usr/include/standards.h
+ActualIterator.o: /usr/include/features.h /usr/include/sys/cdefs.h
+ActualIterator.o: /usr/include/gnu/stubs.h
 AndGate.o: AndGate.h CompoundGate.h Gate.h ConstituentIterator.h
 AndGate.o: ActualIterator.h GateContainer.h
 Band.o: Band.h PointlistGate.h Gate.h ConstituentIterator.h ActualIterator.h
-Band.o: /usr/include/assert.h /usr/include/standards.h
+Band.o: /usr/include/assert.h /usr/include/features.h
+Band.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 C2Bands.o: C2Bands.h Contour.h PointlistGate.h Gate.h ConstituentIterator.h
 C2Bands.o: ActualIterator.h Interior.h InteriorRow.h Band.h
 CompoundGate.o: CompoundGate.h Gate.h ConstituentIterator.h ActualIterator.h
@@ -137,42 +139,39 @@ ConstituentIterator.o: ConstituentIterator.h ActualIterator.h
 Contour.o: Contour.h PointlistGate.h Gate.h ConstituentIterator.h
 Contour.o: ActualIterator.h Interior.h InteriorRow.h
 Cut.o: Cut.h Gate.h ConstituentIterator.h ActualIterator.h
-Cut.o: SingleItemIterator.h /usr/include/stdio.h /usr/include/standards.h
-Cut.o: /usr/include/sys/seek.h /usr/include/va_list.h
-Cut.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-Cut.o: /usr/include/sys/select.h /usr/include/getopt.h
-Cut.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
-Cut.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
-Cut.o: /usr/include/sys/rt_limits.h
+Cut.o: SingleItemIterator.h /usr/include/stdio.h /usr/include/features.h
+Cut.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+Cut.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Cut.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+Cut.o: /usr/include/bits/types.h /usr/include/libio.h
+Cut.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 DeletedGate.o: DeletedGate.h FalseGate.h Gate.h ConstituentIterator.h
 DeletedGate.o: ActualIterator.h
 FalseGate.o: FalseGate.h Gate.h ConstituentIterator.h ActualIterator.h
 FalseGate.o: SingleItemIterator.h
 GammaBand.o: GammaBand.h Band.h PointlistGate.h Gate.h ConstituentIterator.h
-GammaBand.o: ActualIterator.h /usr/include/assert.h /usr/include/standards.h
+GammaBand.o: ActualIterator.h /usr/include/assert.h /usr/include/features.h
+GammaBand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 GammaContour.o: GammaContour.h Contour.h PointlistGate.h Gate.h
 GammaContour.o: ConstituentIterator.h ActualIterator.h Interior.h
 GammaContour.o: InteriorRow.h
 GammaCut.o: GammaCut.h Cut.h Gate.h ConstituentIterator.h ActualIterator.h
-GammaCut.o: SingleItemIterator.h /usr/include/stdio.h
-GammaCut.o: /usr/include/standards.h /usr/include/sys/seek.h
-GammaCut.o: /usr/include/va_list.h /usr/include/sys/types.h
-GammaCut.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
-GammaCut.o: /usr/include/getopt.h /usr/include/sys/limits.h
-GammaCut.o: /usr/include/sys/machine/machlimits.h
-GammaCut.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
-GammaCut.o: /usr/include/sys/rt_limits.h
+GammaCut.o: SingleItemIterator.h /usr/include/stdio.h /usr/include/features.h
+GammaCut.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+GammaCut.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+GammaCut.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+GammaCut.o: /usr/include/bits/types.h /usr/include/libio.h
+GammaCut.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 Gate.o: Gate.h ConstituentIterator.h ActualIterator.h
 GateContainer.o: GateContainer.h
 GateListIterator.o: GateListIterator.h
 Interior.o: Interior.h InteriorRow.h /usr/include/assert.h
-Interior.o: /usr/include/standards.h /usr/include/stdio.h
-Interior.o: /usr/include/sys/seek.h /usr/include/va_list.h
-Interior.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-Interior.o: /usr/include/sys/select.h /usr/include/getopt.h
-Interior.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
-Interior.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
-Interior.o: /usr/include/sys/rt_limits.h
+Interior.o: /usr/include/features.h /usr/include/sys/cdefs.h
+Interior.o: /usr/include/gnu/stubs.h /usr/include/stdio.h
+Interior.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Interior.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+Interior.o: /usr/include/bits/types.h /usr/include/libio.h
+Interior.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 InteriorRow.o: InteriorRow.h
 Not.o: Not.h GateContainer.h Gate.h ConstituentIterator.h ActualIterator.h
 Not.o: SingleItemIterator.h
@@ -180,15 +179,12 @@ OrGate.o: OrGate.h CompoundGate.h Gate.h ConstituentIterator.h
 OrGate.o: ActualIterator.h GateContainer.h
 PointlistGate.o: PointlistGate.h Gate.h ConstituentIterator.h
 PointlistGate.o: ActualIterator.h PointlistIterator.h /usr/include/stdio.h
-PointlistGate.o: /usr/include/standards.h /usr/include/sys/seek.h
-PointlistGate.o: /usr/include/va_list.h /usr/include/sys/types.h
-PointlistGate.o: /usr/include/mach/machine/vm_types.h
-PointlistGate.o: /usr/include/sys/select.h /usr/include/getopt.h
-PointlistGate.o: /usr/include/sys/limits.h
-PointlistGate.o: /usr/include/sys/machine/machlimits.h
-PointlistGate.o: /usr/include/sys/syslimits.h
-PointlistGate.o: /usr/include/sys/machine/machtime.h
-PointlistGate.o: /usr/include/sys/rt_limits.h
+PointlistGate.o: /usr/include/features.h /usr/include/sys/cdefs.h
+PointlistGate.o: /usr/include/gnu/stubs.h
+PointlistGate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+PointlistGate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+PointlistGate.o: /usr/include/bits/types.h /usr/include/libio.h
+PointlistGate.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 PointlistIterator.o: PointlistIterator.h
 SingleItemIterator.o: SingleItemIterator.h
 TrueGate.o: TrueGate.h Gate.h ConstituentIterator.h ActualIterator.h

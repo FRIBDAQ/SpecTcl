@@ -190,12 +190,12 @@ CXamineSpectrumIterator::DoAssign(const CXamineSpectrumIterator& rhs)
 ///////////////////////////////////////////////////////////////////////
 //
 // Function:
-//    CXamineSpectrumIterator(Xamine_shared* pXamine,
+//    CXamineSpectrumIterator(volatile Xamine_shared* pXamine,
 //                            UInt_t nSLot = 0)
 // Operation type:
 //    Constructor
 //
-CXamineSpectrumIterator::CXamineSpectrumIterator(Xamine_shared* pXamine,
+CXamineSpectrumIterator::CXamineSpectrumIterator(volatile Xamine_shared* pXamine,
 						 UInt_t nSlot) :
   m_pXamineMemory(pXamine),
   m_nSlot(nSlot),

@@ -39,7 +39,6 @@
 #define __CXX_FSTREAM_H
 #endif
 
-                          
 class CTCLFileHandler  : public CTCLInterpreterObject        
 {
   UInt_t m_nFid;  // File descriptor associated with the object.
@@ -63,7 +62,7 @@ public:
     m_nFid(rFile.rdbuf()->fd())
   { }
   CTCLFileHandler(CTCLInterpreter* pInterp,
-		  UInt_t am_nFid = STDIN_FILENO) :
+		   UInt_t am_nFid = STDIN_FILENO) :       
     CTCLInterpreterObject(pInterp),
     m_nFid(am_nFid)
   { }

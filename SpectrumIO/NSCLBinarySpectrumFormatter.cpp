@@ -452,7 +452,11 @@ insertdata(CSpectrum *spectrum, vector<long>& Channels, const vector<UInt_t>& vD
 void CNSCLBinarySpectrumFormatter::
 getresolutions(const vector<UInt_t>& vDimensions, vector<UInt_t>& vResolutions) {
   for (int dims = 0; dims<vDimensions.size();dims++) {
+#ifdef Darwin
+    vResolutions.push_back((UInt_t)logb((float)vDimensions[dims]));
+#else
     vResolutions.push_back((UInt_t)log2f((float)vDimensions[dims]));
+#endif
   }
 }
 

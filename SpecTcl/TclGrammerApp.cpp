@@ -38,7 +38,13 @@
 #include <iostream.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef Darwin
+#include <sys/syslimits.h>
+#endif
+
 #ifndef CYGWIN
+
 #include <sys/sysinfo.h>
 #endif
 #ifdef OSF1

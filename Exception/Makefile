@@ -10,21 +10,21 @@
 #
 #
 
-INCLUDEDIRS=-I/usr/local/daq/include -I$(INSTDIR)/Include -I.
+INCLUDEDIRS=-I$(INSTDIR)/Include -I.
 OBJECTS = DisplayGate.o Xamine1D.o Xamine2D.o XamineButton.o \
 	XamineButtonException.o XamineButtonPrompt.o XamineConfirmPrompt.o \
 	XamineEvent.o XamineFilePrompt.o XamineGateException.o XamineGates.o \
 	XamineNoPrompt.o XaminePointsPrompt.o XaminePushButton.o \
 	XamineSpectrum.o XamineSpectrumIterator.o \
 	XamineTextPrompt.o XamineToggleButton.o Xamineplus.o
-LIBDIRS=-L/usr/local/daq/lib -L. -L$(INSTDIR)/Lib
+LIBDIRS=-L. -L$(INSTDIR)/Lib
 
 LIBS=-lXplus -lXamine
 
 
 ECHO=echo
-COMPILE=g++ -c $(PROFILE) $(INCLUDEDIRS)
-LINK=g++ $(NOPROFILE) $(INCLUDEDIRS) $(LIBDIRS)
+COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS)
+LINK=$($(OS)CPP) $(NOPROFILE) $(INCLUDEDIRS) $(LIBDIRS)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=cp
@@ -67,20 +67,20 @@ StreamIOError.o: StreamIOError.cpp
 # DO NOT DELETE
 
 ErrnoException.o: ErrnoException.h Exception.h /usr/include/errno.h
-ErrnoException.o: /usr/include/standards.h
-Exception.o: Exception.h /usr/include/string.h /usr/include/standards.h
-Exception.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-Exception.o: /usr/include/sys/select.h /usr/include/strings.h
+ErrnoException.o: /usr/include/features.h /usr/include/sys/cdefs.h
+ErrnoException.o: /usr/include/gnu/stubs.h /usr/include/bits/errno.h
+ErrnoException.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
+Exception.o: Exception.h /usr/include/string.h /usr/include/features.h
+Exception.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+Exception.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 RangeError.o: RangeError.h Exception.h /usr/include/stdio.h
-RangeError.o: /usr/include/standards.h /usr/include/sys/seek.h
-RangeError.o: /usr/include/va_list.h /usr/include/sys/types.h
-RangeError.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
-RangeError.o: /usr/include/getopt.h /usr/include/sys/limits.h
-RangeError.o: /usr/include/sys/machine/machlimits.h
-RangeError.o: /usr/include/sys/syslimits.h
-RangeError.o: /usr/include/sys/machine/machtime.h
-RangeError.o: /usr/include/sys/rt_limits.h
+RangeError.o: /usr/include/features.h /usr/include/sys/cdefs.h
+RangeError.o: /usr/include/gnu/stubs.h
+RangeError.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+RangeError.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+RangeError.o: /usr/include/bits/types.h /usr/include/libio.h
+RangeError.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 StreamIOError.o: StreamIOError.h Exception.h /usr/include/string.h
-StreamIOError.o: /usr/include/standards.h /usr/include/sys/types.h
-StreamIOError.o: /usr/include/mach/machine/vm_types.h
-StreamIOError.o: /usr/include/sys/select.h /usr/include/strings.h
+StreamIOError.o: /usr/include/features.h /usr/include/sys/cdefs.h
+StreamIOError.o: /usr/include/gnu/stubs.h
+StreamIOError.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h

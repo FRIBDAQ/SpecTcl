@@ -185,8 +185,7 @@ static char *noerror="Invalid status value passed to strerror\n";
 extern int sys_nerr;
 extern char *sys_errlist[];
 
-char *strerror(status)
-int status;
+char *strerror(int status)
 {
   if( (status < 0) || (status >= sys_nerr))
     return noerror;
@@ -213,10 +212,9 @@ int status;
 **
 **--
 */
-char *mtgetmsg (status)
-int status;
+char *mtgetmsg (int status)
 {
-    char *strerror();
+    char *strerror(int);
     union {
 		int input;
 		vmsstatus output;

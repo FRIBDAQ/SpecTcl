@@ -81,15 +81,15 @@ public:
   // can be created:
 
   enum GateType {
-    and,			// And of multiple gates.
+    And,			// And of multiple gates.
     band,			// 2-d band.
     bandcontour,		// Contour from band pair.
     contour,			// contour
     cut,			// Cut on 1-d spectrum.
     deleted,			// Deleted gate placeholder.
     falseg,			// Always false gate.
-    not,			// Inverse of contained gate.
-    or,				// OR of multiple gates.
+    Not,			// Inverse of contained gate.
+    Or,				// OR of multiple gates.
     trueg,			// Alwayw made gate.
     gammacut,                   // Gamma cut
     gammaband,                  // Gamma band
