@@ -281,6 +281,14 @@
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 // Class: CTclGrammerApp
 
+/*
+  Change Log:
+  $Log$
+  Revision 4.9  2003/04/02 18:50:09  ron-fox
+  Uncomment registration of filter command
+
+*/
+
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
 #include "TclGrammerApp.h"    				
 #include <limits.h>
@@ -717,10 +725,10 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp)
   m_pGatePackage->Register();
   cerr << m_pGatePackage->getSignon() << endl;
 
-  // For Filter command.
-  ///  CFilterCommand* pfiltercommand = new CFilterCommand(rInterp);
-  // pfiltercommand->Bind(rInterp);
-  //pfiltercommand->Register();
+  //  For Filter command.
+   CFilterCommand* pfiltercommand = new CFilterCommand(rInterp);
+   pfiltercommand->Bind(rInterp);
+   pfiltercommand->Register();
 
   cerr.flush();
 }  
