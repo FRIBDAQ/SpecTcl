@@ -1,17 +1,14 @@
 # SpectrumGenerator.tcl
 # Tcl/Tk script to generate a menu driven spectrum creation
 # Author: D. Bazin
-# Date: Dec 2000
+# Date: Dec 2000 - Sept 2002
 
-source /usr/TruCluster/users/bazin/daq/parameter/TreeParameter.tcl
-source /usr/TruCluster/users/bazin/tcltk/mclistbox/mclistbox.tcl
-
-proc SetupSpectrumGenerator {} {
+proc SetupSpectrumGenerator {parent} {
 	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY
 	global treeParameterRoot treeParameterName treeParameterBits treeParameterStart treeParameterStop treeParameterInc treeParameterUnit
 	global definitionFile tops definitionDirectory
 	UpdateTreeParameters
-	CreateSpectrumGenerator
+	CreateSpectrumGenerator $parent
 	set spectrumType 1
 	SpectrumType1D
 	set spectrumDatatype long
@@ -26,37 +23,38 @@ proc SetupSpectrumGenerator {} {
 	UpdateSpectrumList
 }
 
-proc CreateSpectrumGenerator {} {
+proc CreateSpectrumGenerator {parent} {
 	global treeParameterRoot treeParameterName treeParameterBits treeParameterStart treeParameterStop treeParameterInc treeParameterUnit
 	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY spectrumArray
-	global spectrumInfoX spectrumInfoY
-	global definitionFile tops
-	if {[winfo exists .theTop]} {
-		set tops .theTop.spectrumgenerator
-		frame $tops -borderwidth 8 -relief groove
-	} else {
-		set tops .spectrumgenerator
-		toplevel $tops
-		wm title $tops "Spectrum Generator"
-	}
+	global spectrumInfoX spectrumInfoY ActivityMonitor
+	global definitionFile tops deleteAll clearAll
+	set tops [tabnotebook_page $parent Spectra]
 	
 	set options $tops.options
 	set optionscolor lightblue
 	frame $options
 
 		set type $options.type
-		frame $type -borderwidth 4 -relief groove -background $optionscolor
+		frame $type -borderwidth 2 -relief groove -background $optionscolor
 			label $type.label -text "Spectrum type" -background $optionscolor
-			radiobutton $type.1d -text "1D" -variable spectrumType -value 1 -command SpectrumType1D -background $optionscolor
-			radiobutton $type.2d -text "2D" -variable spectrumType -value 2 -command SpectrumType2D -background $optionscolor
-			radiobutton $type.sum -text "Summary" -variable spectrumType -value s -command SpectrumTypeSummary -background $optionscolor
-			radiobutton $type.bit -text "Bitmask" -variable spectrumType -value b -command SpectrumTypeBitmask -background $optionscolor
+			frame $type.n -background $optionscolor
+			radiobutton $type.n.1d -text "1D" -variable spectrumType -value 1 -command SpectrumType1D -background $optionscolor
+			radiobutton $type.n.2d -text "2D" -variable spectrumType -value 2 -command SpectrumType2D -background $optionscolor
+			radiobutton $type.n.sum -text "Summary" -variable spectrumType -value s -command SpectrumTypeSummary -background $optionscolor
+			radiobutton $type.n.bit -text "Bitmask" -variable spectrumType -value b -command SpectrumTypeBitmask -background $optionscolor
+			frame $type.g -background $optionscolor
+			radiobutton $type.g.1g -text "Gamma1D" -variable spectrumType -value g1 -command SpectrumType1G -background $optionscolor
+			radiobutton $type.g.2g -text "Gamma2D" -variable spectrumType -value g2 -command SpectrumType2G -background $optionscolor
+			radiobutton $type.g.gp -text "GammaP" -variable spectrumType -value gp -command SpectrumTypeGP -background $optionscolor
 			pack $type.label
-			pack $type.1d $type.2d $type.sum $type.bit -anchor w
+			pack $type.n.1d $type.n.2d $type.n.sum $type.n.bit -anchor w
+			pack $type.n -side left
+			pack $type.g.1g $type.g.2g $type.g.gp -anchor w
+			pack $type.g -side left
 		pack $type -expand 1 -fill both -side left
 	
 		set datatype $options.datatype
-		frame $datatype -borderwidth 4 -relief groove -background $optionscolor
+		frame $datatype -borderwidth 2 -relief groove -background $optionscolor
 			label $datatype.label -text "Data type" -background $optionscolor
 			radiobutton $datatype.byte -text "Byte (8 bits)" -variable spectrumDatatype -value byte -background $optionscolor
 			radiobutton $datatype.word -text "Word (16 bits)" -variable spectrumDatatype -value word -background $optionscolor
@@ -66,12 +64,15 @@ proc CreateSpectrumGenerator {} {
 		pack $datatype -expand 1 -fill both -side left
 		
 		set control $options.control
-		frame $control -borderwidth 4 -relief groove -background $optionscolor
+		frame $control -borderwidth 2 -relief groove -background $optionscolor
 			label $control.label -text "Definition file"  -background $optionscolor
-			button $control.load -text "Load" -command LoadSpectrumDefinition  -background $optionscolor
-			button $control.save -text "Save" -command SaveSpectrumDefinition  -background $optionscolor
+			frame $control.buttons
+				button $control.buttons.load -text "Load" -command LoadSpectrumDefinition  -background $optionscolor
+				button $control.buttons.save -text "Save" -command SaveSpectrumDefinition  -background $optionscolor
+				pack $control.buttons.load $control.buttons.save -side left
 			label $control.file -textvariable definitionFile  -background $optionscolor
-			pack $control.label $control.file $control.load $control.save
+			checkbutton $control.delete -text "Cumulate" -variable deleteAll -background $optionscolor
+			pack $control.label $control.file $control.buttons $control.delete
 		pack $control -expand 1 -fill both -side right
 
 	pack $options -expand 1 -fill both
@@ -81,25 +82,27 @@ proc CreateSpectrumGenerator {} {
 	frame $middle -background $middlecolor
 
 		set command $middle.command
-		frame $command -borderwidth 4 -relief groove -background $middlecolor
+		frame $command -borderwidth 2 -relief groove -background $middlecolor
 			label $command.label -text "Spectrum name" -background $middlecolor
 			entry $command.entry -width 20 -textvariable spectrumName -background $middlecolor
-			button $command.generate -text "Generate" -command GenerateSpectrum -background $middlecolor
+			button $command.generate -text "Create" -command GenerateSpectrum -background $middlecolor
+			button $command.clear -text "Clear" -command ClearSpectra -background $middlecolor
 			checkbutton $command.generatearray -text "Array" -variable spectrumArray -background $middlecolor
+			checkbutton $command.clearall -text "All" -variable clearAll -background $middlecolor
 			button $command.delete -text "Delete" -command DeleteSpectra -background $middlecolor
 			button $command.duplicate -text "Duplicate" -command DuplicateSpectra -background $middlecolor
-			grid $command.label $command.generate $command.delete -sticky news
-			grid $command.entry $command.generatearray $command.duplicate -sticky news
+			grid $command.label $command.generate $command.clear $command.delete -sticky news
+			grid $command.entry $command.generatearray $command.clearall $command.duplicate -sticky news
 		pack $command -expand 1 -fill both -side left
 
 		set gate $middle.gate
-		frame $gate -borderwidth 4 -relief groove -background $middlecolor
-			label $gate.label -width 10 -textvariable spectrumGate -background $middlecolor
+		frame $gate -borderwidth 2 -relief groove -background $middlecolor
+			entry $gate.label -width 10 -textvariable spectrumGate -background $middlecolor
 			menubutton $gate.menu -text "Gate" -background $middlecolor
 			button $gate.apply -text "Apply" -command ApplyGate -background $middlecolor
 			button $gate.ungate -text "Ungate" -command UngateSpectra -background $middlecolor
-			grid $gate.label $gate.apply -sticky news
-			grid $gate.menu $gate.ungate -sticky news
+			grid $gate.menu $gate.apply -sticky news
+			grid $gate.label $gate.ungate -sticky news
 		pack $gate -expand 1 -fill both -side right
 		bind $gate.menu <ButtonPress-1> "GenerateGateMenu $gate.menu SpectrumGateCommand"
 
@@ -110,32 +113,32 @@ proc CreateSpectrumGenerator {} {
 	frame $bottom -background $bottomcolor
 	
 		set varx $bottom.varx
-		frame $varx -borderwidth 4 -relief groove -background $bottomcolor
+		frame $varx -borderwidth 2 -relief groove -background $bottomcolor
 			label $varx.varlabel -textvariable spectrumParameterX -background $bottomcolor
-			menubutton $varx.varmenu -text "Parameter X" -background $bottomcolor
+			menubutton $varx.varmenu -text "X Parameter" -background $bottomcolor
 			label $varx.infolabel -textvariable spectrumInfoX -background $bottomcolor
 			label $varx.reslabel -textvariable spectrumResolutionX -background $bottomcolor
 			menubutton $varx.resmenu -text "Resolution" -background $bottomcolor
+			grid $varx.varmenu $varx.resmenu  $varx.reslabel -sticky news
 			grid $varx.varlabel $varx.infolabel x -sticky news
-			grid $varx.varmenu $varx.resmenu $varx.reslabel -sticky news
 		pack $varx -expand 1 -fill both -side left
 		
 		set vary $bottom.vary
-		frame $vary -borderwidth 4 -relief groove -background $bottomcolor
+		frame $vary -borderwidth 2 -relief groove -background $bottomcolor
 			label $vary.varlabel -textvariable spectrumParameterY -background $bottomcolor
-			menubutton $vary.varmenu -text "Parameter Y" -background $bottomcolor
+			menubutton $vary.varmenu -text "Y Parameter" -background $bottomcolor
 			label $vary.infolabel -textvariable spectrumInfoY -background $bottomcolor
 			label $vary.reslabel -textvariable spectrumResolutionY -background $bottomcolor
 			menubutton $vary.resmenu -text "Resolution" -background $bottomcolor
-			grid $vary.varlabel $vary.infolabel  x -sticky news
-			grid $vary.varmenu $vary.resmenu $vary.reslabel -sticky news
+			grid $vary.varmenu $vary.resmenu  $vary.reslabel -sticky news
+			grid $vary.varlabel $vary.infolabel x -sticky news
 		pack $vary -expand 1 -fill both -side right
 	
 	pack $bottom -expand 1 -fill both
 	
 	set slist $tops.slist
 	set slistcolor lightgreen
-	frame $slist -borderwidth 4 -relief sunken -background $slistcolor
+	frame $slist -borderwidth 2 -relief sunken -background $slistcolor
 	scrollbar $slist.vsb -orient vertical -command [list $slist.listbox yview] -background $slistcolor
 	scrollbar $slist.hsb -orient horizontal -command [list $slist.listbox xview] -background $slistcolor
 	
@@ -172,11 +175,21 @@ proc CreateSpectrumGenerator {} {
 	grid columnconfigure $slist 1 -weight 0
 	grid rowconfigure $slist 0 -weight 1
 	grid rowconfigure $slist 1 -weight 0
-	pack $slist -fill both -expand 1		
+	pack $slist -fill both -expand 1
+	
+	set display $tops.display
+	set displaycolor lightblue
+	frame $display -borderwidth 2 -background $displaycolor -relief groove
+#		radiobutton $display.activity -text Activity -variable ActivityMonitor -state disable \
+		-width 8
+#		label $display.text -text "Command: " -background $displaycolor -width 8
+#		label $display.command -textvariable CommandText -background $displaycolor -width 20
+		button $display.update -text "Update Spectrum List" -command UpdateSpectrumList -width 10
+#		pack $display.activity -side left
+		pack $display.update -side left -expand 1 -fill x
+	pack $display -expand 1 -fill x
 
-	if {[winfo exists .theTop]} {
-		pack $tops -expand 1 -fill both
-	}
+	pack $tops -expand 1 -fill both
 }
 
 proc SpectrumType1D {} {
@@ -185,15 +198,11 @@ proc SpectrumType1D {} {
 	set wname $tops.options.datatype
 	$wname.byte configure -state disabled
 	$wname.long configure -state normal
-#	if {[string match $spectrumDatatype byte]} {
-		set spectrumDatatype long
-#	}
+	set spectrumDatatype long
+	$tops.bottom.varx.varmenu configure -text Parameter
 	set wname $tops.bottom.vary
 	$wname.varmenu configure -state disabled
-#	$wname.varlabel configure -state disabled
 	$wname.resmenu configure -state disabled
-#	$wname.reslabel configure -state disabled
-#	$wname.infolabel configure -state disabled
 	set wname $tops.middle.command.generatearray
 	$wname configure -state normal
 }
@@ -204,15 +213,11 @@ proc SpectrumType2D {} {
 	set wname $tops.options.datatype
 	$wname.byte configure -state normal
 	$wname.long configure -state disabled
-#	if {[string match $spectrumDatatype long]} {
-		set spectrumDatatype word
-#	}
+	set spectrumDatatype word
+	$tops.bottom.varx.varmenu configure -text "X Parameter"
 	set wname $tops.bottom.vary
-	$wname.varmenu configure -state normal
-#	$wname.varlabel configure -state normal
+	$wname.varmenu configure -state normal -text "Y Parameter"
 	$wname.resmenu configure -state normal
-#	$wname.reslabel configure -state normal
-#	$wname.infolabel configure -state normal
 	set wname $tops.middle.command.generatearray
 	$wname configure -state disabled
 }
@@ -223,10 +228,9 @@ proc SpectrumTypeSummary {} {
 	set wname $tops.options.datatype
 	$wname.byte configure -state normal
 	$wname.long configure -state disabled
-#	if {[string match $spectrumDatatype long]} {
-		set spectrumDatatype word
-#	}
+	set spectrumDatatype word
 	set wname $tops.bottom.vary
+	$tops.bottom.varx.varmenu configure -text Parameters
 	$wname.varmenu configure -state disabled
 	$wname.resmenu configure -state disabled
 	set wname $tops.middle.command.generatearray
@@ -239,12 +243,56 @@ proc SpectrumTypeBitmask {} {
 	set wname $tops.options.datatype
 	$wname.byte configure -state disabled
 	$wname.long configure -state normal
-#	if {[string match $spectrumDatatype byte]} {
-		set spectrumDatatype long
-#	}
+	set spectrumDatatype long
+	$tops.bottom.varx.varmenu configure -text Parameter
 	set wname $tops.bottom.vary
 	$wname.varmenu configure -state disabled
 	$wname.resmenu configure -state disabled
+	set wname $tops.middle.command.generatearray
+	$wname configure -state disabled
+}
+
+proc SpectrumType1G {} {
+	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY
+	global tops
+	set wname $tops.options.datatype
+	$wname.byte configure -state disabled
+	$wname.long configure -state normal
+	set spectrumDatatype long
+	$tops.bottom.varx.varmenu configure -text Parameters
+	set wname $tops.bottom.vary
+	$wname.varmenu configure -state disabled
+	$wname.resmenu configure -state disabled
+	set wname $tops.middle.command.generatearray
+	$wname configure -state disabled
+}
+
+proc SpectrumType2G {} {
+	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY
+	global tops
+	set wname $tops.options.datatype
+	$wname.byte configure -state normal
+	$wname.long configure -state disabled
+	set spectrumDatatype word
+	$tops.bottom.varx.varmenu configure -text Parameters
+	set wname $tops.bottom.vary
+	$wname.varmenu configure -state disabled
+	$wname.resmenu configure -state disabled
+	set wname $tops.middle.command.generatearray
+	$wname configure -state disabled
+}
+
+proc SpectrumTypeGP {} {
+	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY
+	global tops
+	set wname $tops.options.datatype
+	$wname.byte configure -state normal
+	$wname.long configure -state disabled
+	set spectrumDatatype word
+	$tops.bottom.varx.varmenu configure -text "X Parameter"
+	set wname $tops.bottom.vary
+	$wname.varmenu configure -state normal -text "Y Parameters"
+	$wname.resmenu configure -state normal
 	set wname $tops.middle.command.generatearray
 	$wname configure -state disabled
 }
@@ -301,6 +349,7 @@ proc CreateResolutionMenu {wname resolution parameter} {
 proc GenerateSpectrum {} {
 	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY spectrumArray
 	global treeParameterRoot treeParameterName treeParameterBits treeParameterStart treeParameterStop treeParameterInc treeParameterUnit
+	
 	if {[string match $spectrumName ""]} {
 		tk_messageBox -icon error -message "Please provide a name for the spectrum" -title Error
 		return
@@ -310,7 +359,8 @@ proc GenerateSpectrum {} {
 		return
 	}
 	set spectrumList ""
-	set theList [spectrum -list]
+	SendMessage "spectrum -list"
+	set theList [GetResponse]
 	foreach e $theList {
 		append spectrumList [lindex $e 1] " "
 	}
@@ -348,30 +398,157 @@ proc GenerateSpectrum {} {
 		b {
 			CreateSpectrum $spectrumList $spectrumName $spectrumParameterX $spectrumResolutionX
 		}
+		g1 {
+			set arrayname [string range $spectrumParameterX 0 [expr [string last . $spectrumParameterX] - 1]]
+			foreach e $treeParameterName($arrayname) {
+				if {[info exist treeParameterName($arrayname.$e)] == 0} {
+					append spectrumParameterList "$arrayname.$e "
+				}
+			}
+			CreateSpectrum $spectrumList $spectrumName $spectrumParameterList $spectrumResolutionX
+		}
+		g2 {
+			set arrayname [string range $spectrumParameterX 0 [expr [string last . $spectrumParameterX] - 1]]
+			foreach e $treeParameterName($arrayname) {
+				if {[info exist treeParameterName($arrayname.$e)] == 0} {
+					append spectrumParameterList "$arrayname.$e "
+				}
+			}
+			append spectrumResolutionList $spectrumResolutionX " " $spectrumResolutionX
+			CreateSpectrum $spectrumList $spectrumName $spectrumParameterList $spectrumResolutionList
+		}
+		gp {
+			if {[string match $spectrumParameterY ""] && $spectrumType == gp} {
+				tk_messageBox -icon error -message "Please select the Y parameters" -title Error
+				return
+			}
+			append spectrumParameterList $spectrumParameterX " "
+			set arrayname [string range $spectrumParameterY 0 [expr [string last . $spectrumParameterY] - 1]]
+			foreach e $treeParameterName($arrayname) {
+				if {[info exist treeParameterName($arrayname.$e)] == 0} {
+					append spectrumParameterList "$arrayname.$e "
+				}
+			}
+			append spectrumResolutionList $spectrumResolutionX " " $spectrumResolutionY
+			CreateSpectrum $spectrumList $spectrumName $spectrumParameterList $spectrumResolutionList
+		}
 	}
-	UpdateSpectrumList
-	sbind -all
+	UpdateSpectrumDisplay $spectrumName
+	SendMessage "sbind -all"
+	GetResponse
 }
 
 proc CreateSpectrum {SpectrumList Name ParameterList ResolutionList} {
 	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY spectrumArray
+	
+	puts "spectrum $Name $spectrumType {$ParameterList} {$ResolutionList} $spectrumDatatype"
 	if {[lsearch $SpectrumList $Name] == -1} {
-		spectrum $Name $spectrumType $ParameterList $ResolutionList $spectrumDatatype
-		puts "Spectrum $Name created"
+		SendMessage \
+		"spectrum $Name $spectrumType {$ParameterList} {$ResolutionList} $spectrumDatatype"
+		GetResponse
+		SendMessage "puts \"Spectrum $Name created\""
+		GetResponse
 	} else {
 		if {[string match [tk_messageBox -icon warning -message "The spectrum $Name already exists.  Do you want to overwrite it?" \
 		-title Warning -type yesno] yes]} {
-			spectrum -delete $Name
-			spectrum $Name $spectrumType $ParameterList $ResolutionList $spectrumDatatype
-			puts "Spectrum $Name replaced"
+			SendMessage "spectrum -delete $Name"
+			GetResponse
+			SendMessage \
+			"spectrum $Name $spectrumType {$ParameterList} {$ResolutionList} $spectrumDatatype"
+			GetResponse
+			SendMessage "puts \"Spectrum $Name replaced\""
+			GetResponse
 		}
 	}
+	ModifiedSpectrumDefinition
+}
+
+proc UpdateSpectrumDisplay {spectrum} {
+	global tops
+	SendMessage "spectrum -list $spectrum"
+	set theSpectrum [GetResponse]
+	if {[string compare $theSpectrum "Spectrum does not exist"] == 0} {return}
+	SendMessage "apply -list $spectrum"
+	set theApply [GetResponse]
+	set id [lindex $theSpectrum 0]
+	set name [lindex $theSpectrum 1]
+	set type [lindex $theSpectrum 2]
+	set parameters [lindex $theSpectrum 3]
+	set resolutions [lindex $theSpectrum 4]
+	set data [lindex $theSpectrum 5]
+	set gate [lindex [lindex [lindex $theApply 0] 1] 0]
+	if {[string match $gate -TRUE-]} {set gate ""}
+	if {[string match $gate -Ungated-]} {set gate ""}
+	switch -- $type {
+		1 {
+			set ltype "1D"
+			set varx $parameters
+			set resx $resolutions
+			set vary ""
+			set resy ""
+		}
+		2 {
+			set ltype "2D"
+			set varx [lindex $parameters 0]
+			set resx [lindex $resolutions 0]
+			set vary [lindex $parameters 1]
+			set resy [lindex $resolutions 1]
+		}
+		s {
+			set ltype "Sum"
+			set varx [lindex $parameters 0]
+			set resx $resolutions
+			set vary ""
+			set resy ""
+		}
+		b {
+			set ltype "Bit"
+			set varx $parameters
+			set resx $resolutions
+			set vary ""
+			set resy ""
+		}
+		g1 {
+			set ltype "G1"
+			set varx [lindex $parameters 0]
+			set resx $resolutions
+			set vary ""
+			set resy ""
+		}
+		g2 {
+			set ltype "G2"
+			set varx [lindex $parameters 0]
+			set resx [lindex $resolutions 0]
+			set vary ""
+			set resy ""
+		}
+		gp {
+			set ltype "GP"
+			set varx [lindex $parameters 0]
+			set resx [lindex $resolutions 0]
+			set vary [lindex $parameters 1]
+			set resy [lindex $resolutions 1]
+		}
+		default {
+		}
+	}
+	set index [lsearch [$tops.slist.listbox.framename.listbox get 0 end] $spectrum]
+	$tops.slist.listbox delete $index $index
+	$tops.slist.listbox insert $index [list $name $ltype $data $varx $resx $vary $resy $gate]
+	sort $tops.slist.listbox name
+	set index [lsearch [$tops.slist.listbox.framename.listbox get 0 end] $spectrum]
+	$tops.slist.listbox see $index
 }
 
 proc UpdateSpectrumList {} {
 	global tops
+	set fraction [lindex [$tops.slist.listbox yview] 0]
 	$tops.slist.listbox delete 0 end
-	set theList [spectrum -list]
+	SendMessage "spectrum -list"
+	set theList [GetResponse]
+	SendMessage "apply -list"
+	set theApplyList [GetResponse]
+	set i 0
 	foreach spectrum $theList {
 		set id [lindex $spectrum 0]
 		set name [lindex $spectrum 1]
@@ -379,9 +556,11 @@ proc UpdateSpectrumList {} {
 		set parameters [lindex $spectrum 3]
 		set resolutions [lindex $spectrum 4]
 		set data [lindex $spectrum 5]
-		set gate [lindex [lindex [lindex [apply -list $name] 0] 1] 0]
+		set appliedGate [lindex $theApplyList $i]
+		set gate [lindex [lindex $appliedGate 1] 0]
 		if {[string match $gate -TRUE-]} {set gate ""}
 		if {[string match $gate -Ungated-]} {set gate ""}
+		incr i
 		switch -- $type {
 			1 {
 				set ltype "1D"
@@ -411,10 +590,33 @@ proc UpdateSpectrumList {} {
 				set vary ""
 				set resy ""
 			}
+			g1 {
+				set ltype "G1"
+				set varx [lindex $parameters 0]
+				set resx $resolutions
+				set vary ""
+				set resy ""
+			}
+			g2 {
+				set ltype "G2"
+				set varx [lindex $parameters 0]
+				set resx [lindex $resolutions 0]
+				set vary ""
+				set resy ""
+			}
+			gp {
+				set ltype "GP"
+				set varx [lindex $parameters 0]
+				set resx [lindex $resolutions 0]
+				set vary [lindex $parameters 1]
+				set resy [lindex $resolutions 1]
+			}
+		    default {
+		    }
 		}
-#		$tops.slist.listbox insert end [list $name $id $ltype $data $varx $resx $vary $resy]
 		$tops.slist.listbox insert end [list $name $ltype $data $varx $resx $vary $resy $gate]
 	}
+	$tops.slist.listbox yview moveto $fraction
 }
 
 # sort the list based on a particular column
@@ -450,6 +652,9 @@ proc FillEntries {} {
 		2D {set type 2; SpectrumType2D}
 		Sum {set type s; SpectrumTypeSummary}
 		Bit {set type b; SpectrumTypeBitmask}
+		G1 {set type g1; SpectrumType1G}
+		G2 {set type g2; SpectrumType2G}
+		GP {set type gp; SpectrumTypeGP}
 	}
 	set spectrumType $type
 	set spectrumDatatype [lindex $spectrum 2]
@@ -457,7 +662,7 @@ proc FillEntries {} {
 	set spectrumResolutionX [lindex $spectrum 4]
 	CreateResolutionMenu $tops.bottom.varx [GetParameterResolution $spectrumParameterX] spectrumResolutionX
 	set spectrumInfoX [GetParameterInfo $spectrumParameterX]
-	if {$type == 2} {
+	if {[string compare $type 2] == 0 || [string compare $type gp] == 0} {
 		set spectrumParameterY [lindex $spectrum 5]
 		set spectrumResolutionY [lindex $spectrum 6]
 		CreateResolutionMenu $tops.bottom.vary [GetParameterResolution $spectrumParameterY] spectrumResolutionY
@@ -467,23 +672,53 @@ proc FillEntries {} {
 }
 
 proc DeleteSpectra {} {
-	global tops
+	global tops clearAll
+	
+	if {$clearAll} {
+		if {[string compare no [tk_messageBox -message \
+		"Are you sure you want to delete all spectra?" -type yesno]] == 0} {return}
+		SendMessage "spectrum -delete -all"
+		GetResponse
+		return
+	}
 	set lbox $tops.slist.listbox
 	set selectedlist [$lbox curselection]
 	if {[string match $selectedlist ""]} {return}
 	foreach index $selectedlist {
 		set spectrum [$lbox get $index]
-		spectrum -delete [lindex $spectrum 0]
+		SendMessage "spectrum -delete [lindex $spectrum 0]"
+		GetResponse
+		$lbox delete $index $index
 	}
-	UpdateSpectrumList
+	ModifiedSpectrumDefinition
+}
+
+proc ClearSpectra {} {
+	global tops clearAll
+	
+	if {$clearAll} {
+		SendMessage "clear -all"
+		GetResponse
+		return
+	}
+	set lbox $tops.slist.listbox
+	set selectedlist [$lbox curselection]
+	if {[string match $selectedlist ""]} {return}
+	foreach index $selectedlist {
+		set spectrum [$lbox get $index]
+		SendMessage "clear [lindex $spectrum 0]"
+		GetResponse
+	}
 }
 
 proc DuplicateSpectra {} {
 	global tops
+	
 	set lbox $tops.slist.listbox
 	set selectedlist [$lbox curselection]
 	if {[string match $selectedlist ""]} {return}
-	set spectrumList [spectrum -list]
+        SendMessage "spectrum -list"
+	set spectrumList [GetResponse]
 	foreach index $selectedlist {
 		set copyNumber 0
 		set spectrum [$lbox get $index]
@@ -500,117 +735,82 @@ proc DuplicateSpectra {} {
 				}
 			}
 		}
-		set newSpectrum [spectrum -list $spectrumName]
+	        SendMessage "spectrum -list $spectrumName"
+		set newSpectrum [GetResponse]
 		set type [lindex $newSpectrum 2]
 		set parameters [lindex $newSpectrum 3]
 		set resolutions [lindex $newSpectrum 4]
 		set datatype [lindex $newSpectrum 5]
-		spectrum $try $type $parameters $resolutions $datatype
+	       SendMessage "spectrum $try $type {$parameters} {$resolutions} $datatype"
+	       GetResponse
+	       $lbox insert [expr $index+1] [list $try "" "" "" "" "" "" ""]
+	       UpdateSpectrumDisplay $try
 	}
-	UpdateSpectrumList
+#	UpdateSpectrumList
+	SendMessage "sbind -all"
+	GetResponse
+	ModifiedSpectrumDefinition
 }
-	
+
+proc ModifiedSpectrumDefinition {} {
+	global definitionFile
+	if {[string compare [lindex $definitionFile 1] (modified)] != 0} {
+		set definitionFile "$definitionFile (modified)"
+	}
+}
+
 proc SaveSpectrumDefinition {} {
 	global definitionFile fullDefinitionFile definitionDirectory
+	
 	if {[string compare $definitionDirectory ""] == 0} {set definitionDirectory [pwd]}
-	set fullDefinitionFile [tk_getSaveFile -filetypes {{"Spectrum definition file" {.sdef .def}}} \
-	-initialdir $definitionDirectory -initialfile $definitionFile -defaultextension .sdef \
+	set fullDefinitionFile [tk_getSaveFile -filetypes {\
+	{"Tcl script file" {.tcl}}\
+	{"Definition file" {.sdef}}\
+	}\
+	-initialdir $definitionDirectory -initialfile [lindex $definitionFile 0] \
+	-defaultextension .tcl \
 	-title "Save Spectrum Definition file"]
 	if {[string match $fullDefinitionFile ""]} {return}
 	set definitionFile [lindex [split $fullDefinitionFile /] end]
-	set definitionDirectory [string trimright $fullDefinitionFile "/$definitionFile"]
-	set handle [open $fullDefinitionFile w]
-	set theList ""
-	lappend theList [spectrum -list]
-	lappend theList [treeparameter -list]
-	lappend theList [gate -list]
-	lappend theList [apply -list]
-	puts $handle $theList
-	close $handle
+	set definitionDirectory [string trimright $fullDefinitionFile $definitionFile]
+
+	SendMessage "SaveSpectrumDefinition $fullDefinitionFile"
+	GetResponse
 }
 
 proc LoadSpectrumDefinition {} {
 	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY
 	global spectrumInfoX spectrumInfoY
-	global definitionFile fullDefinitionFile definitionDirectory
-	set fullDefinitionFile [tk_getOpenFile -filetypes {{"Spectrum definition file" {.sdef .def}}} \
+	global definitionFile fullDefinitionFile definitionDirectory deleteAll
+	
+	set fullDefinitionFile [tk_getOpenFile -filetypes {\
+	{"Tcl Script file" {.tcl}}\
+	{"Definition file" {.sdef}}\
+	}\
 	-initialdir $definitionDirectory -title "Load Spectrum Definition file"]
 	if {[string match $fullDefinitionFile ""]} {return}
 	set definitionFile [lindex [split $fullDefinitionFile /] end]
-	set handle [open $fullDefinitionFile r]
-	set theList [read $handle]
-	close $handle
-	set theSpectrumList [lindex $theList 0]
-	set theTreeParameterList [lindex $theList 1]
-	set theGateList [lindex $theList 2]
-	set theApplyList [lindex $theList 3]
-	set currentSpectra [spectrum -list]
-	foreach e $currentSpectra {
-		append spectrumList [lindex $e 1] " "
+	set definitionDirectory [string trimright $fullDefinitionFile $definitionFile]
+	if {$deleteAll == 0} {
+		SendMessage "spectrum -delete -all"
+		GetResponse
 	}
-#	spectrum -delete -all
-	foreach spectrum $theSpectrumList {
-		set id [lindex $spectrum 0]
-		set name [lindex $spectrum 1]
-		set type [lindex $spectrum 2]
-		set parameters [lindex $spectrum 3]
-		set resolutions [lindex $spectrum 4]
-		set data [lindex $spectrum 5]
-		if {[info exist spectrumList] == 1 && [lsearch $spectrumList $name] != -1} {spectrum -delete $name}
-		spectrum $name $type $parameters $resolutions $data
-	}
-	sbind -all
-	foreach treeparameter $theTreeParameterList {
-		set name [lindex $treeparameter 0]
-		set start [lindex $treeparameter 2]
-		set stop [lindex $treeparameter 3]
-		set increment [lindex $treeparameter 4]
-		set unit [lindex $treeparameter 5]
-		treeparameter -set $name $start $stop $increment $unit
-	}
+	SendMessage "LoadSpectrumDefinition $fullDefinitionFile"
+	GetResponse
 	UpdateTreeParameters
 	set spectrumInfoX [GetParameterInfo $spectrumParameterX]
 	set spectrumInfoY [GetParameterInfo $spectrumParameterY]
-	foreach gate $theGateList {
-		set name [lindex $gate 0]
-		set type [lindex $gate 2]
-		set description [lindex $gate 3]
-		set parameters [lindex $description 0]
-		set data [lreplace $description 0 0]
-		set gatecmd "gate $name"
-		switch -- $type {
-			c -
-			b {
-				set des "[lindex $parameters 0] [lindex $parameters 1] \{$data\}"
-				lappend gatecmd $type $des
-			}
-			s {
-				set des "[lindex $parameters 0] $data"
-				lappend gatecmd $type $des
-			}
-			default {
-				lappend gatecmd $type $description
-			}
-		}
-		eval $gatecmd
-	}
-	foreach apply $theApplyList {
-		set spectrum [lindex $apply 0]
-		set gate [lindex $apply 1]
-		set gatename [lindex $gate 0]
-		set gatetype [lindex $gate 2]
-		if {[string compare $gatetype T] != 0} {
-		    apply $gatename $spectrum
-		}
-	}
+	UpdateGateList
 	UpdateSpectrumList
 }
 
 proc GenerateGateMenu {parent command} {
 # Generate a menu containing all available gates and attaches it to the parent widget
+	
 	destroy $parent.menu
 	menu "$parent.menu" -tearoff 0
-	set theList [gate -list]
+	SendMessage "gate -list"
+	set theList [GetResponse]
 	foreach e $theList {
 		set theName [lindex $e 0]
 		set theType [lindex $e 2]
@@ -630,6 +830,7 @@ proc SpectrumGateCommand {theGate} {
 proc ApplyGate {} {
 	global spectrumGate
 	global tops
+	
 	set lbox $tops.slist.listbox
 	set selectedlist [$lbox curselection]
 	if {[string match $selectedlist ""]} {return}
@@ -637,13 +838,16 @@ proc ApplyGate {} {
 	foreach index $selectedlist {
 		set spectrum [$lbox get $index]
 		set name [lindex $spectrum 0]
-		apply $spectrumGate $name
+		SendMessage "apply $spectrumGate $name"
+		GetResponse
+		UpdateSpectrumDisplay $name
 	}
-	UpdateSpectrumList
+	ModifiedSpectrumDefinition
 }
 
 proc UngateSpectra {} {
 	global tops
+	
 	set lbox $tops.slist.listbox
 	set selectedlist [$lbox curselection]
 	if {[string match $selectedlist ""]} {return}
@@ -651,7 +855,9 @@ proc UngateSpectra {} {
 		set spectrum [$lbox get $index]
 		set name [lindex $spectrum 0]
 # The catch command is used because the ungate command was returning an error for no reason
-		catch {ungate $name}
+		SendMessage "catch {ungate $name}"
+		GetResponse
+		UpdateSpectrumDisplay $name
 	}
-	UpdateSpectrumList
+	ModifiedSpectrumDefinition
 }

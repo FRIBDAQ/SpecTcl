@@ -1,9 +1,32 @@
 # TreeParameter.tcl
+# Author: D. Bazin
+# Date: July 2001 - Modified September 2002
+
+proc UpdateTreeParameter {parameter} {
+	global treeParameterRoot treeParameterName treeParameterBits treeParameterStart treeParameterStop treeParameterInc treeParameterUnit
+	SendMessage "treeparameter -list $parameter"
+	set p [lindex [GetResponse] 0]
+	set theName [lindex $p 0]
+	set thePath [split $theName .]
+	set theLength [llength $thePath]
+	set Name ""
+	for {set j 0} {$j < [expr $theLength-1]} {incr j} {
+		append Name [lindex $thePath $j] .
+	}
+	set Name [string trimright $Name .]
+	set theIndex [lsearch $treeParameterName($Name) [lindex $thePath end]]
+	set treeParameterBits($Name) [lreplace $treeParameterBits($Name) $theIndex $theIndex [lindex $p 1]]
+	set treeParameterStart($Name) [lreplace $treeParameterStart($Name) $theIndex $theIndex [lindex $p 2]]
+	set treeParameterStop($Name) [lreplace $treeParameterStop($Name) $theIndex $theIndex [lindex $p 3]]
+	set treeParameterInc($Name) [lreplace $treeParameterInc($Name) $theIndex $theIndex [lindex $p 4]]
+	set treeParameterUnit($Name) [lreplace $treeParameterUnit($Name) $theIndex $theIndex [lindex $p 5]]
+}
 
 proc UpdateTreeParameters {} {
 # This procedure stuffs the various array variables from the parameter names
 	global treeParameterRoot treeParameterName treeParameterBits treeParameterStart treeParameterStop treeParameterInc treeParameterUnit
-	set theList [treeparameter -list]
+	SendMessage "treeparameter -list"
+	set theList [GetResponse]
 	foreach e $theList {
 		set theName [lindex $e 0]
 #		set theId [lindex $e 1] (was used with the command parameter -list)
