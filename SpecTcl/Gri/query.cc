@@ -197,7 +197,7 @@ find_hint_and_def(char *hint, char *def)
 #ifdef DEBUG
 	printf("CMDLINE [%s]\n",_cmdLine);
 #endif
-	int ii;
+	int ii(0);
 	for (i = 0; i < len; i++) {
 		if (*(_cmdLine + i) == '\"') {
 			bool valid = false;
