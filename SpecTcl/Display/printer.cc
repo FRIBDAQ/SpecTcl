@@ -315,7 +315,7 @@ void ActionCallback(XMWidget *w, XtPointer user, XtPointer call)
   XMPushButton *button    = (XMPushButton *)w;
   SetupPrintDialog *dlg   = (SetupPrintDialog *)user;
 
-  char *newfile, *newcmd;
+  char *newcmd;
 
   /*  If the Ok button was hit then process it: */
 
@@ -405,7 +405,6 @@ const char* FindImport()
 static void
 Print(const char* importcmd, const char* tofile)
 {
-  char printcommand[1512];
   char backgroundcmd[1024];
 
   sprintf(backgroundcmd, 
