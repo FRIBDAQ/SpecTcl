@@ -107,7 +107,7 @@ CSpectrum* CNSCLBinarySpectrumFormatter::Read(istream& rStream,
   vector <UInt_t> vResolutions;
   vector <long> Channels;
   vector<string> vParameters;
-  nsclbin SpecObject(rStream);
+  nsclbin SpecObject(&rStream);
   try {
     readhead(rStream, Name, Time, Date, vDimensions, eSpecType,eDataType, SpecObject);
     readdata(SpecObject,Channels);
@@ -219,7 +219,7 @@ void CNSCLBinarySpectrumFormatter::Write(ostream& rStream,
   //       Refers to the spectrum to write.
   //
     
-  nsclbin Binaryobj(rStream);
+  nsclbin Binaryobj(&rStream);
   char name[120];
   strcpy(name, (rSpectrum.getName()).c_str());
   

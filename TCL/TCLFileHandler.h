@@ -56,11 +56,11 @@ public:
     CTCLInterpreterObject(pInterp->getInterpreter()),
     m_nFid(fileno(pFile))
   { }
-  CTCLFileHandler(CTCLInterpreterObject* pInterp,
-		  fstream& rFile) :
-    CTCLInterpreterObject(*pInterp),
-    m_nFid(rFile.rdbuf()->fd())
-  { }
+//  CTCLFileHandler(CTCLInterpreterObject* pInterp,
+//		  fstream& rFile) :
+//    CTCLInterpreterObject(*pInterp),
+//    m_nFid(rFile.rdbuf()->fd())
+//  { }
   CTCLFileHandler(CTCLInterpreter* pInterp,
 		   UInt_t am_nFid = STDIN_FILENO) :       
     CTCLInterpreterObject(pInterp),
@@ -71,11 +71,11 @@ public:
     CTCLInterpreterObject(pInterp),
     m_nFid(fileno(pFile))
   { }
-  CTCLFileHandler(CTCLInterpreter* pInterp,
-		  fstream& rFile) :
-    CTCLInterpreterObject(pInterp),
-    m_nFid(rFile.rdbuf()->fd())
-  { }
+//  CTCLFileHandler(CTCLInterpreter* pInterp,
+//		  fstream& rFile) :
+//    CTCLInterpreterObject(pInterp),
+//    m_nFid(rFile.rdbuf()->fd())
+//  { }
   ~CTCLFileHandler ( ) {Clear(); }       //Destructor	
 			//Copy constructor
 

@@ -59,7 +59,7 @@ public:
     m_pInterp(pInterp),
     m_pHistogrammer(pHistogrammer),
     m_nFd(pHistogrammer->getDisplayer()->GetEventFd()),
-    m_SocketChannel(Tcl_MakeTcpClientChannel((ClientData)m_nFd))
+    m_SocketChannel(Tcl_MakeTcpClientChannel((ClientData)(long)m_nFd))
   { 
     Set(TK_READABLE);		// Starts out enabled.
   } 

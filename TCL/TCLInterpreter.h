@@ -180,7 +180,7 @@ public:
   std::string TildeSubst (const CTCLString& rName) const {
     return TildeSubst((const char*)(rName));
   }
-  std::string TildeSubst (const std::string& rName) {
+  std::string TildeSubst (const std::string& rName) const {
     return TildeSubst(rName.c_str());
   }
   

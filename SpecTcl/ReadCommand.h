@@ -94,13 +94,14 @@ public:
 protected:
   static void     Usage(CTCLResult& rResult);
   static Switch_t NextSwitch(const char* pText);
- private:
+public:
   struct StreamEntry {
     fstream *pstreamloc;
     off_t pos;
     dev_t device;
     ino_t inode;
   };
+private:
   void CheckIn(fstream *,int);
   fstream *CheckOut(int);
   bool InMap(int);

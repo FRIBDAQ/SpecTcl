@@ -28,7 +28,7 @@ class CTCLApplication  : public CTCLInterpreterObject
 public:
 			//Default constructor
 
-  CTCLApplication ()   {m_pInit = Tcl_AppInit; } // Ensure TCLApplication.o
+  CTCLApplication ()   {m_pInit = (void*)Tcl_AppInit; } // Ensure TCLApplication.o
 				                  // is linked.
   ~CTCLApplication ( ) { }       //Destructor
 

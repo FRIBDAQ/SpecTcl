@@ -622,7 +622,7 @@ Xamine.o: XMWidget.h XMPushbutton.h XMMenus.h XMDialogs.h XMManagers.h
 Xamine.o: XMCallback.h dispshare.h dispwind.h superpos.h panemgr.h
 Xamine.o: menusetup.h buttonsetup.h location.h XMLabel.h pkgmgr.h colormgr.h
 Xamine.o: dfltmgr.h gateio.h dispgrob.h XBatch.h convert.h messages.h
-Xamine.o: clientops.h ./Xamine.h clirequests.h prccheck.h spccheck.h
+Xamine.o: clientops.h Xamine.h clirequests.h prccheck.h spccheck.h
 Xamine.o: trackcursor.h
 Xwarning.o: XMWidget.h XMManagers.h XMLabel.h XMPushbutton.h
 acceptgates.o: XMWidget.h XBatch.h convert.h dispwind.h superpos.h
@@ -630,8 +630,7 @@ acceptgates.o: dispshare.h dispgrob.h acceptgates.h sumregion.h XMList.h
 acceptgates.o: XMPushbutton.h XMLabel.h XMText.h grobjinput.h XMManagers.h
 acceptgates.o: XMDialogs.h XMCallback.h XMSeparators.h grafinput.h helpmenu.h
 acceptgates.o: refreshctl.h panemgr.h grobjdisplay.h colormgr.h chanplot.h
-acceptgates.o: grobjmgr.h errormsg.h gateio.h messages.h clientops.h
-acceptgates.o: ./Xamine.h
+acceptgates.o: grobjmgr.h errormsg.h gateio.h messages.h clientops.h Xamine.h
 advprompt.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
 advprompt.o: helpmenu.h advprompt.h spcdisplay.h dispwind.h superpos.h
 advprompt.o: errormsg.h
@@ -646,12 +645,12 @@ axisdefault.o: XMCallback.h helpmenu.h dispwind.h superpos.h dfltmgr.h
 axisdefault.o: optionmenu.h XMText.h XMLabel.h XMScale.h panemgr.h
 axisdefault.o: refreshctl.h
 buttondlg.o: XMManagers.h XMWidget.h XMPushbutton.h XMShell.h XMCallback.h
-buttondlg.o: buttondlg.h clientops.h ./Xamine.h
+buttondlg.o: buttondlg.h clientops.h Xamine.h
 buttonreq.o: XMCallback.h XMWidget.h XMShell.h XMPushbutton.h XMDialogs.h
 buttonreq.o: XMManagers.h dispshare.h errormsg.h dispwind.h superpos.h
 buttonreq.o: gateio.h dispgrob.h XBatch.h convert.h messages.h clientops.h
-buttonreq.o: ./Xamine.h buttonreq.h buttondlg.h panemgr.h spcchoice.h
-buttonreq.o: ptlist.h sumregion.h XMList.h XMLabel.h XMText.h grobjinput.h
+buttonreq.o: Xamine.h buttonreq.h buttondlg.h panemgr.h spcchoice.h ptlist.h
+buttonreq.o: sumregion.h XMList.h XMLabel.h XMText.h grobjinput.h
 buttonreq.o: XMSeparators.h grafinput.h helpmenu.h refreshctl.h
 buttonsetup.o: XMManagers.h XMWidget.h XMPushbutton.h buttonsetup.h
 buttonsetup.o: location.h XMLabel.h geometrymenu.h panemgr.h dispwind.h
@@ -667,7 +666,7 @@ checklist.o: XMManagers.h XMWidget.h XMPushbutton.h XMLabel.h checklist.h
 clirequests.o: acceptgates.h XMWidget.h convert.h dispwind.h superpos.h
 clirequests.o: dispshare.h dispgrob.h XBatch.h grobjdisplay.h refreshctl.h
 clirequests.o: panemgr.h XMManagers.h errormsg.h clirequests.h gateio.h
-clirequests.o: messages.h clientops.h ./Xamine.h grobjmgr.h buttonreq.h
+clirequests.o: messages.h clientops.h Xamine.h grobjmgr.h buttonreq.h
 colormgr.o: XMWidget.h colormgr.h
 colorset.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
 colorset.o: XMMenus.h helpmenu.h errormsg.h procede.h colormgr.h
@@ -702,7 +701,7 @@ expand.o: errormsg.h panemgr.h dispwind.h superpos.h helpmenu.h expand.h
 expand.o: refreshctl.h exit.h select2.h XMLabel.h XMText.h grafinput.h
 expand.o: dispshare.h convert.h colormgr.h gcmgr.h xaminegc.h gc.h
 gateio.o: gateio.h XMWidget.h dispgrob.h dispwind.h superpos.h XBatch.h
-gateio.o: convert.h dispshare.h messages.h clientops.h ./Xamine.h
+gateio.o: convert.h dispshare.h messages.h clientops.h Xamine.h
 gc.o: gc.h
 gcmgr.o: xaminegc.h dispwind.h superpos.h gc.h XMWidget.h grobjdisplay.h
 gcmgr.o: convert.h dispshare.h dispgrob.h XBatch.h refreshctl.h panemgr.h
@@ -769,11 +768,11 @@ menusetup.o: XMSeparators.h grafinput.h guintegrate.h delgrob.h acceptgates.h
 menusetup.o: trackcursor.h location.h errormsg.h superprompt.h objcopy.h
 menusetup.o: copier.h lblfont.h copyatr.h
 messages.o: messages.h dispgrob.h XMWidget.h dispwind.h superpos.h XBatch.h
-messages.o: convert.h dispshare.h clientops.h ./Xamine.h
+messages.o: convert.h dispshare.h clientops.h Xamine.h
 objcopy.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
 objcopy.o: panemgr.h dispwind.h superpos.h dispshare.h objcopy.h copier.h
 objcopy.o: XMList.h XMLabel.h dispgrob.h XBatch.h convert.h grobjmgr.h
-objcopy.o: gateio.h messages.h clientops.h ./Xamine.h helpmenu.h errormsg.h
+objcopy.o: gateio.h messages.h clientops.h Xamine.h helpmenu.h errormsg.h
 objcopy.o: grobjdisplay.h refreshctl.h compatspec.h
 panemgr.o: XMManagers.h XMWidget.h menusetup.h XMMenus.h XMPushbutton.h
 panemgr.o: panemgr.h dispwind.h superpos.h buttonsetup.h location.h XMLabel.h

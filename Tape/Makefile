@@ -51,28 +51,46 @@ tpvolwrite: tpvolwrite.f libtape.a mtaccess.f MTACCESS.FOR
 
 # DO NOT DELETE
 
-mtblock.o: /usr/include/stdio.h /usr/include/_ansi.h
-mtblock.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-mtblock.o: /usr/include/sys/_types.h /usr/include/limits.h
-mtblock.o: /usr/include/errno.h /usr/include/sys/errno.h mtinternl.h
-mtblock.o: /usr/include/time.h /usr/include/machine/time.h
-mtblock.o: /usr/include/sys/types.h /usr/include/machine/types.h
-mtblock.o: /usr/include/sys/features.h mtshare.h
-mtforbind.o: mtaccess.h mtinternl.h /usr/include/time.h /usr/include/_ansi.h
-mtforbind.o: /usr/include/sys/config.h /usr/include/machine/time.h
-mtforbind.o: /usr/include/sys/types.h /usr/include/machine/types.h
-mtforbind.o: /usr/include/sys/features.h mtshare.h /usr/include/ctype.h
-mtforbind.o: /usr/include/errno.h /usr/include/sys/errno.h
-mtforbind.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
-mtmessage.o: /usr/include/stdio.h /usr/include/_ansi.h
-mtmessage.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-mtmessage.o: /usr/include/sys/_types.h /usr/include/errno.h
-mtmessage.o: /usr/include/sys/errno.h mtshare.h rmf_msg.h
+mtblock.o: /usr/include/stdio.h /usr/include/standards.h
+mtblock.o: /usr/include/sys/seek.h /usr/include/va_list.h
+mtblock.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+mtblock.o: /usr/include/sys/select.h /usr/include/getopt.h
+mtblock.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+mtblock.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+mtblock.o: /usr/include/sys/rt_limits.h /usr/include/limits.h
+mtblock.o: /usr/include/errno.h mtinternl.h /usr/include/time.h
+mtblock.o: /usr/include/sys/timers.h /usr/include/sys/sysmisc.h mtshare.h
+mtforbind.o: mtaccess.h mtinternl.h /usr/include/time.h
+mtforbind.o: /usr/include/standards.h /usr/include/sys/machine/machtime.h
+mtforbind.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+mtforbind.o: /usr/include/sys/select.h /usr/include/sys/timers.h
+mtforbind.o: /usr/include/sys/sysmisc.h mtshare.h /usr/include/ctype.h
+mtforbind.o: /usr/include/sys/localedef.h /usr/include/sys/lc_core.h
+mtforbind.o: /usr/include/locale.h /usr/include/nl_types.h
+mtforbind.o: /usr/include/mesg.h /usr/include/stdio.h /usr/include/sys/seek.h
+mtforbind.o: /usr/include/va_list.h /usr/include/getopt.h
+mtforbind.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+mtforbind.o: /usr/include/sys/syslimits.h /usr/include/sys/rt_limits.h
+mtforbind.o: /usr/include/limits.h /usr/include/errno.h
+mtmessage.o: /usr/include/stdio.h /usr/include/standards.h
+mtmessage.o: /usr/include/sys/seek.h /usr/include/va_list.h
+mtmessage.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+mtmessage.o: /usr/include/sys/select.h /usr/include/getopt.h
+mtmessage.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+mtmessage.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+mtmessage.o: /usr/include/sys/rt_limits.h /usr/include/errno.h mtshare.h
+mtmessage.o: rmf_msg.h
 vmsstring.o: vmsstring.h
-volume.o: /usr/include/stdio.h /usr/include/_ansi.h /usr/include/sys/config.h
-volume.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
-volume.o: /usr/include/stdlib.h /usr/include/time.h
-volume.o: /usr/include/machine/time.h /usr/include/sys/types.h
-volume.o: /usr/include/machine/types.h /usr/include/sys/features.h mtaccess.h
-volume.o: mtinternl.h mtshare.h /usr/include/ctype.h /usr/include/errno.h
-volume.o: /usr/include/sys/errno.h
+volume.o: /usr/include/stdio.h /usr/include/standards.h
+volume.o: /usr/include/sys/seek.h /usr/include/va_list.h
+volume.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+volume.o: /usr/include/sys/select.h /usr/include/getopt.h
+volume.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+volume.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+volume.o: /usr/include/sys/rt_limits.h /usr/include/stdlib.h
+volume.o: /usr/include/time.h /usr/include/sys/timers.h
+volume.o: /usr/include/sys/sysmisc.h mtaccess.h mtinternl.h mtshare.h
+volume.o: /usr/include/ctype.h /usr/include/sys/localedef.h
+volume.o: /usr/include/sys/lc_core.h /usr/include/locale.h
+volume.o: /usr/include/nl_types.h /usr/include/mesg.h /usr/include/limits.h
+volume.o: /usr/include/errno.h

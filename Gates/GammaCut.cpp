@@ -49,7 +49,8 @@ CGammaCut::clone()
 std::string
 CGammaCut::GetConstituent (CConstituentIterator& rIterator)
 {
-  if (rIterator != End()) {
+  CConstituentIterator e = End();
+  if (rIterator != e) {
     char Text[100];
     sprintf(Text, "%d %d", m_nLow, m_nHigh);
     return std::string(Text);

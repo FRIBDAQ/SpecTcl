@@ -37,7 +37,7 @@ template <class T>
 class TranslatorPointer
 {
   BufferTranslator& m_rUnderlyingBuffer; /*! Reference to the BufferTrans. */
-  UInt_t            m_nOffset;           /*! Offset into the buffer*/
+  ULong_t            m_nOffset;           /*! Offset into the buffer*/
   
  public:
   
@@ -56,7 +56,7 @@ class TranslatorPointer
   // from which to calculate m_nOffset
   TranslatorPointer<T>(BufferTranslator& Translator, Address_t const Addr) :
     m_rUnderlyingBuffer(Translator),
-    m_nOffset(((UInt_t)Addr - (UInt_t)Translator.getBuffer()) / sizeof(T))
+    m_nOffset(((ULong_t)Addr - (ULong_t)Translator.getBuffer()) / sizeof(T))
     { }
 
   // Copy constructor for this

@@ -542,7 +542,8 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   if(type == "gb" || type == "gc") {
     Result.StartSublist();
     CConstituentIterator Constituent = rGate->Begin();
-    while(Constituent != rGate->End()) {
+    CConstituentIterator end = rGate->End();
+    while(Constituent != end) {
       Result.AppendElement(rGate->GetConstituent(Constituent));
       Constituent++;
     }
@@ -550,7 +551,8 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   }
   else if(type != "s") {
     CConstituentIterator Constituent = rGate->Begin();
-    while(Constituent != rGate->End()) {
+    CConstituentIterator End = rGate->End();
+    while(Constituent != End) {
       Result.AppendElement(rGate->GetConstituent(Constituent));
       Constituent++;
     }

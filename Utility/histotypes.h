@@ -30,7 +30,12 @@
 #include <string>
 #define __STL_STRING
 #endif
+
+using namespace std;
+
 #include <math.h>
+
+
 
 typedef int Int_t;
 typedef unsigned int UInt_t;
