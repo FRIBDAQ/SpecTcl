@@ -44,17 +44,21 @@
 class COutputEventStream {
   Bool_t m_fActive;
   string m_sFileName;
-  vector<string> m_vParameterNames;
-  UInt_t m_nValidParameters; // Number of parameters declared in the filter dictionary. (Does not necessarily coincide with the isValid check done later.)
-  char *m_pBitMask;
-  UInt_t m_nEvents;
   FILE *m_pFile;
   XDR m_xdrs;
   Bool_t m_fXDRError;
-  UInt_t m_nOffset; // Number of bytes sent for this block/buffer.
+
+  vector<string> m_vParameterNames;
+  UInt_t m_nValidParameters; // Number of parameters declared in the filter dictionary. (Does not necessarily coincide with the isValid check done later.)
+  char *m_pBitMask;
+
   UInt_t m_nBUFFERSIZE;
-  UInt_t m_nMAXEVENTBUFFERSIZE;
-  vector<CEvent*> m_vEventBuffer;
+  char *m_pBuffer;
+  UInt_t m_nOffset; // Number of bytes sent for this block/buffer.
+
+  UInt_t m_nEvents;
+  UInt_t m_nEventSize; // Estimated size of each event.
+  UInt_t m_nBytesSent;
 
  public:
   // Constructors.
@@ -73,14 +77,12 @@ class COutputEventStream {
   string getFileName();
   Bool_t Open();
   Bool_t Close();
-  Bool_t ReceiveEvent(CEvent&);
-  Bool_t SendEventBuffer();
+
   Bool_t XDRstring(string&);
   Bool_t XDRuint(UInt_t&);
   Bool_t XDRarray(char**);
   Bool_t XDRfloat(Float_t&);
-  Bool_t XDRfill(UInt_t);
-  void incr_offset(UInt_t);
+  Bool_t WriteBuffer();
 }; // COutputEventStream.
 
 #endif

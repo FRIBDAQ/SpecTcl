@@ -18,17 +18,16 @@ class CBufferDecoder;
 class CFilterBufferDecoder : public CBufferDecoder {
   // Member data:
   Bool_t m_fActive;
+
   XDR m_xdrs;
   //UInt_t m_nSize;
   string m_sTag; // Documentation buffer, event data, or end-of-record.
   Bool_t m_fXDRError;
 
   UInt_t m_nValidParameters;
-  //UInt_t *(ValidParameterArray[m_nValidParameters]);
-  //UInt_t *m_pValidParameterArray;
-  //UInt_t*** m_pValidParameterArray;
   char *m_pBitMask;
   UInt_t m_nEvents; // EntityCount.
+  UInt_t m_nEventSize; // Estimate of the size of each event.
   UInt_t m_nOffset; // Offset of XDR-formatted buffer.
   UInt_t m_nOutputBufferOffset; // Offset of the output char[] buffer.
   UInt_t m_nBUFFERSIZE; // Initialize to 8K.
