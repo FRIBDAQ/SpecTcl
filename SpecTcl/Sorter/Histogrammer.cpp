@@ -188,6 +188,7 @@ CHistogrammer::operator=(const CHistogrammer& rRhs)
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
+  return *this;
 }
 //////////////////////////////////////////////////////////////////////////
 //
