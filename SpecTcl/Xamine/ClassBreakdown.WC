@@ -5,7 +5,7 @@ X:\SpecTcl\Xamine\ClassBreakdown.omtUnified Method
 General Info
 Internal Version #, NextClassID, NextClassShapeID, NextRelationShapeID, NextStateID, NextStateShapeID, NextTransitionID, NextTransitionShapeID, NextObjectID, NextObjectShapeID, NextInteractionID, NextInteractionShapeID, NextOperationID, NextAttributeID
 ***BEGIN_TABLE***
-4.715815989111111112199348
+4.718318497111111112441348
 ***END_TABLE***
 
 Classes
@@ -42,31 +42,31 @@ ClassID, Name, Description, Multiplicity, Concurrency, Visibility, Persistence, 
 Class Shape
 ShapeID, PosX, PosY, TopText, MiddleText, BottomText, ClassDataID, ClassType, Abstract, Template, Interface, Final
 ***BEGIN_TABLE***
-1372719667CDisplayBandCDisplayBand:CDisplayBand$136000000
-1342020CButtonEventm_nId:m_nCurrentSpectrum:m_fToggleState:m_nPromptedSpectrum:m_sPromptedString:m_vPointsCButtonEvent:~CButtonEvent:CButtonEvent$:operator=:operator==:getId:getCurrentSpectrum:getToggleState:getPromptedSpectrum:getm_sPromptedString:getPoints:setId:setCurrentSpectrum:setToggleState:setPromptedSpectrum:setPromptedString:setPoints:begin:end:size:operator[]133000000
-13920280CPointm_x:m_yCPoint:~CPoint:CPoint$:operator=:operator==:operator!=:X:Y:setX:setY138000000
-146100280CXamineEventm_EventDataCXamineEvent:~CXamineEvent:CXamineEvent$:CXamineEvent$$:operator=:operator==:operator!=:getm_EventData:setm_EventData:GateCast:ButtonCast145000000
-14915020CXamineGatesm_vGatesCXamineGates:~CXamineGates:CXamineGates$:operator=:operator==:begin:end:operator[]:size148000000
+1372708715CDisplayBandCDisplayBand:CDisplayBand$136000000
 15125020CXaminem_fManaged:m_nBytes:m_pDisplayCXamine:CXamine$:~CXamine:CXamine$$:operator=:operator==150000000
-142118010CXamineButtonm_nReturnCode:m_sLabel:m_fEnabled:m_eWhenSensitive:m_pPrompterCXamineButton:CXamineButton$:~CXamineButton:CXamineButton$$:operator=:operator==:getReturnCode:getLabel:getEnabled:getWhenSensitive:getPrompter:setReturnCode:setLabel:setEnabled:setWhenSensitive:setPrompter:FormatMessageBlock:PushButton:ToggleButton141000000
-153800290CXaminePushButtonCXaminePushButton:CXaminePushButton$:~CXaminePushButton:CXaminePushButton$$:operator=:operator==:FormatMessageBlock:PushButton:ToggleButton152000000
-158920280CXamineToggleButtonm_fInitialStateCXamineToggleButton:CXamineToggleButton$:~CXamineToggleButton:CXamineToggleButton$$:operator=:operator==:getInitialState:setInitialState:FormatMessageBlock:PushButton:ToggleButton157000000
-1441200290CXamineButtonPromptm_sPromptStringCXamineButtonPrompt:CXamineButtonPrompt$:~CXamineButtonPrompt:CXamineButtonPrompt$$:operator=:operator==:getPromptString:setPromptString:FormatPrompterBlock:SetPromptString143100000
-145790470CXamineConfirmPromptCXamineConfirmPrompt:CXamineConfirmPrompt$:~CXamineConfirmPrompt:CXamineConfirmPrompt$$:operator=:operator==:FormatPrompterBlock144000000
-147900610CXamineFilePromptCXamineFilePrompt:CXamineFilePrompt$:~CXamineFilePrompt:CXamineFilePrompt$$:operator=:operator==:FormatPrompterBlock146000000
-150930470CXamineNoPromptCXamineNoPrompt:~CXamineNoPrompt:CXamineNoPrompt$:operator=:operator==:FormatPrompterBlock149000000
-1521030600CXaminePointsPromptm_nMinPoints:m_nMaxPointsCXaminePointsPrompt:CXaminePointsPrompt$:~CXaminePointsPrompt:CXaminePointsPrompt$$:operator=:operator==:getMinPoints:getMaxPoints:setMinPoints:setMaxPoints:FormatPrompterBlock151000000
-1561060460CXamineSpectrumPromptm_eSpectrumTypeCXamineSpectrumPrompt:CXamineSpectrumPrompt$:~CXamineSpectrumPrompt:CXamineSpectrumPrompt$$:operator=:operator==:getSpectrumType:setSpectrumType:FormatPrompterBlock155000000
-1571180600CXamineTextPromptCXamineTextPrompt:CXamineTextPrompt$:~CXamineTextPrompt:CXamineTextPrompt$$:operator=:operator==:FormatPrompterBlock156000000
-1431380180CXamineButtonExceptionm_nError:m_pButton:m_fFormatted:m_ReasonTextCXamineButtonException:~CXamineButtonException:CXamineButtonException$:operator=:operator==:getError:getButton:setError:setButton:ReasonText:ReasonCode:SetButton142000000
 155185030CXamineSpectrumIteratorm_nSlot:m_pSpectrum:m_pXamineMemory~CXamineSpectrumIterator:CXamineSpectrumIterator:operator=:operator==154000000
 1541860240CXamineSpectrumm_pStorage:m_nSlot:m_sTitle:m_pXamineMemory~CXamineSpectrum:CXamineSpectrum:operator=:operator==:getStorage:getSlot:getTitle153000000
 1412060390CXamine2Dm_fByte:m_nXchannels:m_nYchannels:nXchans:nYchans~CXamine2D:CXamine2D:operator=:operator==:getByte:getXchannels:getYchannels:setByte:setXchannels:setYchannels:Oned:Twod140000000
 1401740410CXamine1Dm_fWord:m_nChannels:rName:nChannels~CXamine1D:CXamine1D:operator=:operator==:getWord:getChannels:setWord:setChannels:Oned:Twod139000000
 148271010CXamineGateExceptionm_nError:m_Gate:m_ReasonStream:m_fReasonProducedCXamineGateException:~CXamineGateException:CXamineGateException$:operator=:operator==:getError:getGate:setError:setGate:ReasonText:ReasonCode147000000
-1362599667CDisplayCutCDisplayCut:CDisplayCut$135000000
-1352710210CDisplayGatem_nSpectrum:m_nId:m_sName:m_eGateType:m_vPointsCDisplayGate:CDisplayGate$:~CDisplayGate:CDisplayGate$$:operator=:operator==:getSpectrum:getId:getName:getGateType:getPoints:setSpectrum:setGateType:setPoints:setId:setName:begin:end:size:operator[]:AddPoint:AddPoint$:RemovePoints:Cut:Band:Contour:FormatMessageBlock134000000
-1382844667CDisplayContourCDisplayContour:CDisplayContour$137000000
+1362588715CDisplayCutCDisplayCut:CDisplayCut$135000000
+13938030CPointm_x:m_yCPoint:~CPoint:CPoint$:operator=:operator==:operator!=:X:Y:setX:setY138000000
+14652040CXamineEventm_EventDataCXamineEvent:~CXamineEvent:CXamineEvent$:CXamineEvent$$:operator=:operator==:operator!=:getm_EventData:setm_EventData:GateCast:ButtonCast145000000
+14980320CXamineGatesm_vGatesCXamineGates:~CXamineGates:CXamineGates$:operator=:operator==:begin:end:operator[]:size148000000
+134270230CButtonEventm_nId:m_nCurrentSpectrum:m_fToggleState:m_nPromptedSpectrum:m_sPromptedString:m_vPointsCButtonEvent:~CButtonEvent:CButtonEvent$:operator=:operator==:getId:getCurrentSpectrum:getToggleState:getPromptedSpectrum:getm_sPromptedString:getPoints:setId:setCurrentSpectrum:setToggleState:setPromptedSpectrum:setPromptedString:setPoints:begin:end:size:operator[]133000000
+142103010CXamineButtonm_nReturnCode:m_sLabel:m_fEnabled:m_eWhenSensitive:m_pPrompterCXamineButton:CXamineButton$:~CXamineButton:CXamineButton$$:operator=:operator==:getReturnCode:getLabel:getEnabled:getWhenSensitive:getPrompter:setReturnCode:setLabel:setEnabled:setWhenSensitive:setPrompter:FormatMessageBlock:PushButton:ToggleButton141000000
+145881634CXamineConfirmPromptCXamineConfirmPrompt:CXamineConfirmPrompt$:~CXamineConfirmPrompt:CXamineConfirmPrompt$$:operator=:operator==:FormatPrompterBlock144000000
+1471041774CXamineFilePromptCXamineFilePrompt:CXamineFilePrompt$:~CXamineFilePrompt:CXamineFilePrompt$$:operator=:operator==:FormatPrompterBlock146000000
+1501111634CXamineNoPromptCXamineNoPrompt:~CXamineNoPrompt:CXamineNoPrompt$:operator=:operator==:FormatPrompterBlock149000000
+1521211764CXaminePointsPromptm_nMinPoints:m_nMaxPointsCXaminePointsPrompt:CXaminePointsPrompt$:~CXaminePointsPrompt:CXaminePointsPrompt$$:operator=:operator==:getMinPoints:getMaxPoints:setMinPoints:setMaxPoints:FormatPrompterBlock151000000
+1561261624CXamineSpectrumPromptm_eSpectrumTypeCXamineSpectrumPrompt:CXamineSpectrumPrompt$:~CXamineSpectrumPrompt:CXamineSpectrumPrompt$$:operator=:operator==:getSpectrumType:setSpectrumType:FormatPrompterBlock155000000
+1571401764CXamineTextPromptCXamineTextPrompt:CXamineTextPrompt$:~CXamineTextPrompt:CXamineTextPrompt$$:operator=:operator==:FormatPrompterBlock156000000
+1352713270CDisplayGatem_nSpectrum:m_nId:m_sName:m_eGateType:m_vPointsCDisplayGate:CDisplayGate$:~CDisplayGate:CDisplayGate$$:operator=:operator==:getSpectrum:getId:getName:getGateType:getPoints:setSpectrum:setGateType:setPoints:setId:setName:begin:end:size:operator[]:AddPoint:AddPoint$:RemovePoints:Cut:Band:Contour:FormatMessageBlock134000000
+1382838715CDisplayContourCDisplayContour:CDisplayContour$137000000
+158900310CXamineToggleButtonm_fInitialStateCXamineToggleButton:CXamineToggleButton$:~CXamineToggleButton:CXamineToggleButton$$:operator=:operator==:getInitialState:setInitialState:FormatMessageBlock:PushButton:ToggleButton157000000
+1441050390CXamineButtonPromptm_sPromptStringCXamineButtonPrompt:CXamineButtonPrompt$:~CXamineButtonPrompt:CXamineButtonPrompt$$:operator=:operator==:getPromptString:setPromptString:FormatPrompterBlock:SetPromptString143100000
+143140070CXamineButtonExceptionm_nError:m_pButton:m_fFormatted:m_ReasonTextCXamineButtonException:~CXamineButtonException:CXamineButtonException$:operator=:operator==:getError:getButton:setError:setButton:ReasonText:ReasonCode:SetButton142000000
+1531420330CXaminePushButtonCXaminePushButton:CXaminePushButton$:~CXaminePushButton:CXaminePushButton$$:operator=:operator==:FormatMessageBlock:PushButton:ToggleButton152000000
 ***END_TABLE***
 
 Attributes
@@ -129,7 +129,7 @@ ClassID, ClassName, AttrID, Name, Type, Length, IsStatic, Description, Visibilit
 Operations
 ClassID, ClassName, OperID, OperName, Return Type, Post Condition, PreCondition, Invariant, Stereotype, Classification, Exception, Transformation, Concurrency, Visibility,  Comment1, Comment2, Comment3, IsStatic, IsConstant, IsPureVirtual, IsVirtual, IsProcedure, IsInline, IsEvent, IsOverride, Message, IsFinal, IsSynchronized, IsNative, IsFriend
 ***BEGIN_TABLE***
-133CButtonEvent1957CButtonEventpublic000010000000
+133CButtonEvent2199CButtonEventpublic000010000000
 BEGIN_CODE
 
     m_vPoints.clear();
@@ -139,11 +139,11 @@ BEGIN_CODE
     }
   
 END_CODE
-133CButtonEvent1958~CButtonEventpublic000110000000
+133CButtonEvent2200~CButtonEventpublic000110000000
 BEGIN_CODE
  
 END_CODE
-133CButtonEvent1959CButtonEvent$public000010000000
+133CButtonEvent2201CButtonEvent$public000010000000
 BEGIN_CODE
    
     m_nId               = aCButtonEvent.m_nId;
@@ -155,7 +155,7 @@ BEGIN_CODE
                 
   
 END_CODE
-133CButtonEvent1960operator=CButtonEvent&public000010000000
+133CButtonEvent2202operator=CButtonEvent&public000010000000
 BEGIN_CODE
  
     if (this == &aCButtonEvent) return *this;          
@@ -168,7 +168,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-133CButtonEvent1961operator==intpublic000010000000
+133CButtonEvent2203operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -182,115 +182,115 @@ BEGIN_CODE
 	    );
   
 END_CODE
-133CButtonEvent1962getIdInt_tpublic010010000000
+133CButtonEvent2204getIdInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nId;
   
 END_CODE
-133CButtonEvent1963getCurrentSpectrumInt_tpublic010010000000
+133CButtonEvent2205getCurrentSpectrumInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nCurrentSpectrum;
   
 END_CODE
-133CButtonEvent1964getToggleStateBool_tpublic010010000000
+133CButtonEvent2206getToggleStateBool_tpublic010010000000
 BEGIN_CODE
 
     return m_fToggleState;
   
 END_CODE
-133CButtonEvent1965getPromptedSpectrumInt_tpublic010010000000
+133CButtonEvent2207getPromptedSpectrumInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nPromptedSpectrum;
   
 END_CODE
-133CButtonEvent1966getm_sPromptedStringstd::stringpublic010010000000
+133CButtonEvent2208getm_sPromptedStringstd::stringpublic010010000000
 BEGIN_CODE
 
     return m_sPromptedString;
   
 END_CODE
-133CButtonEvent1967getPointsPointArray&public010010000000
+133CButtonEvent2209getPointsPointArray&public010010000000
 BEGIN_CODE
 
     return m_vPoints;
   
 END_CODE
-133CButtonEvent1968setIdvoidprotected000010000000
+133CButtonEvent2210setIdvoidprotected000010000000
 BEGIN_CODE
  
     m_nId = am_nId;
   
 END_CODE
-133CButtonEvent1969setCurrentSpectrumvoidprotected000010000000
+133CButtonEvent2211setCurrentSpectrumvoidprotected000010000000
 BEGIN_CODE
  
     m_nCurrentSpectrum = am_nCurrentSpectrum;
   
 END_CODE
-133CButtonEvent1970setToggleStatevoidprotected000010000000
+133CButtonEvent2212setToggleStatevoidprotected000010000000
 BEGIN_CODE
  
     m_fToggleState = am_fToggleState;
   
 END_CODE
-133CButtonEvent1971setPromptedSpectrumvoidprotected000010000000
+133CButtonEvent2213setPromptedSpectrumvoidprotected000010000000
 BEGIN_CODE
  
     m_nPromptedSpectrum = am_nPromptedSpectrum;
   
 END_CODE
-133CButtonEvent1972setPromptedStringvoidprotected000010000000
+133CButtonEvent2214setPromptedStringvoidprotected000010000000
 BEGIN_CODE
  
     m_sPromptedString = am_sPromptedString;
   
 END_CODE
-133CButtonEvent1973setPointsvoidprotected000010000000
+133CButtonEvent2215setPointsvoidprotected000010000000
 BEGIN_CODE
 
     m_vPoints = rPoints;
   
 END_CODE
-133CButtonEvent1974beginPointIteratorpublic000010000000
+133CButtonEvent2216beginPointIteratorpublic000010000000
 BEGIN_CODE
 
     return m_vPoints.begin();
   
 END_CODE
-133CButtonEvent1975endPointIteratorpublic000010000000
+133CButtonEvent2217endPointIteratorpublic000010000000
 BEGIN_CODE
 
     return m_vPoints.end();
   
 END_CODE
-133CButtonEvent1976sizeUInt_tpublic010010000000
+133CButtonEvent2218sizeUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_vPoints.size();
   
 END_CODE
-133CButtonEvent1977operator[]CPoint&public010010000000
+133CButtonEvent2219operator[]CPoint&public010010000000
 BEGIN_CODE
 
     return m_vPoints[nI];
   
 END_CODE
-134CDisplayGate1978CDisplayGatepublic000010000000
+134CDisplayGate2220CDisplayGatepublic000010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate1979CDisplayGate$public000010000000
+134CDisplayGate2221CDisplayGate$public000010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate1980~CDisplayGatepublic000110000000
+134CDisplayGate2222~CDisplayGatepublic000110000000
 BEGIN_CODE
  
 END_CODE
-134CDisplayGate1981CDisplayGate$$public000010000000
+134CDisplayGate2223CDisplayGate$$public000010000000
 BEGIN_CODE
    
     m_nSpectrum = aCDisplayGate.m_nSpectrum;
@@ -301,7 +301,7 @@ BEGIN_CODE
 
   
 END_CODE
-134CDisplayGate1982operator=CDisplayGate&public000010000000
+134CDisplayGate2224operator=CDisplayGate&public000010000000
 BEGIN_CODE
  
     if (this == &aCDisplayGate) return *this;          
@@ -314,7 +314,7 @@ BEGIN_CODE
     return *this; 
   
 END_CODE
-134CDisplayGate1983operator==intpublic010010000000
+134CDisplayGate2225operator==intpublic010010000000
 BEGIN_CODE
  
     return (
@@ -327,151 +327,151 @@ BEGIN_CODE
 	    );
   
 END_CODE
-134CDisplayGate1984getSpectrumUInt_tpublic010010000000
+134CDisplayGate2226getSpectrumUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nSpectrum;
   
 END_CODE
-134CDisplayGate1985getIdUInt_tpublic010010000000
+134CDisplayGate2227getIdUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nId;
   
 END_CODE
-134CDisplayGate1986getNamestd::stringpublic010010000000
+134CDisplayGate2228getNamestd::stringpublic010010000000
 BEGIN_CODE
 
     return m_sName;
   
 END_CODE
-134CDisplayGate1987getGateTypeGateType_tpublic010010000000
+134CDisplayGate2229getGateTypeGateType_tpublic010010000000
 BEGIN_CODE
 
     return m_eGateType;
   
 END_CODE
-134CDisplayGate1988getPointsPointArraypublic010010000000
+134CDisplayGate2230getPointsPointArraypublic010010000000
 BEGIN_CODE
 
     return m_vPoints;
   
 END_CODE
-134CDisplayGate1989setSpectrumvoidprotected000010000000
+134CDisplayGate2231setSpectrumvoidprotected000010000000
 BEGIN_CODE
  
     m_nSpectrum = am_nSpectrum;
   
 END_CODE
-134CDisplayGate1990setGateTypevoidprotected000010000000
+134CDisplayGate2232setGateTypevoidprotected000010000000
 BEGIN_CODE
  
     m_eGateType = am_eGateType;
   
 END_CODE
-134CDisplayGate1991setPointsvoidprotected000010000000
+134CDisplayGate2233setPointsvoidprotected000010000000
 BEGIN_CODE
 
     m_vPoints = rPts;
   
 END_CODE
-134CDisplayGate1992setIdvoidpublic000010000000
+134CDisplayGate2234setIdvoidpublic000010000000
 BEGIN_CODE
  
     m_nId = am_nId;
   
 END_CODE
-134CDisplayGate1993setNamevoidpublic000010000000
+134CDisplayGate2235setNamevoidpublic000010000000
 BEGIN_CODE
  
     m_sName = am_sName;
   
 END_CODE
-134CDisplayGate1994beginPointIteratorpublic000010000000
+134CDisplayGate2236beginPointIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate1995endPointIteratorpublic000010000000
+134CDisplayGate2237endPointIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate1996sizeUInt_tpublic010010000000
+134CDisplayGate2238sizeUInt_tpublic010010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate1997operator[]CPoint&public000010000000
+134CDisplayGate2239operator[]CPoint&public000010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate1998AddPointvoidpublic000010000000
+134CDisplayGate2240AddPointvoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate1999AddPoint$voidpublic000010000000
+134CDisplayGate2241AddPoint$voidpublic000010000000
 BEGIN_CODE
 
     AddPoint(CPoint(x,y));
   
 END_CODE
-134CDisplayGate2000RemovePointsvoidpublic000010000000
+134CDisplayGate2242RemovePointsvoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate2001CutCDisplayCut*public000010000000
+134CDisplayGate2243CutCDisplayCut*public000010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate2002BandCDisplayBand*public000010000000
+134CDisplayGate2244BandCDisplayBand*public000010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate2003ContourCDisplayContour*public000010000000
+134CDisplayGate2245ContourCDisplayContour*public000010000000
 BEGIN_CODE
 
 END_CODE
-134CDisplayGate2004FormatMessageBlockvoidpublic010010000000
+134CDisplayGate2246FormatMessageBlockvoidpublic010010000000
 BEGIN_CODE
 
 END_CODE
-135CDisplayCut2005CDisplayCutpublic000010000000
+135CDisplayCut2247CDisplayCutpublic000010000000
 BEGIN_CODE
  
 END_CODE
-135CDisplayCut2006CDisplayCut$public000010000000
+135CDisplayCut2248CDisplayCut$public000010000000
 BEGIN_CODE
 
       setGateType(kgCut1d);
     
 END_CODE
-136CDisplayBand2007CDisplayBandpublic000010000000
+136CDisplayBand2249CDisplayBandpublic000010000000
 BEGIN_CODE
 }
 END_CODE
-136CDisplayBand2008CDisplayBand$public000010000000
+136CDisplayBand2250CDisplayBand$public000010000000
 BEGIN_CODE
 
       setGateType(kgBand2d);
     
 END_CODE
-137CDisplayContour2009CDisplayContourpublic000010000000
+137CDisplayContour2251CDisplayContourpublic000010000000
 BEGIN_CODE
 }
 END_CODE
-137CDisplayContour2010CDisplayContour$public000010000000
+137CDisplayContour2252CDisplayContour$public000010000000
 BEGIN_CODE
 
       setGateType(kgContour2d);
     
 END_CODE
-138CPoint2011CPointpublic000010000000
+138CPoint2253CPointpublic000010000000
 BEGIN_CODE
  
 END_CODE
-138CPoint2012~CPointpublic000110000000
+138CPoint2254~CPointpublic000110000000
 BEGIN_CODE
  
 END_CODE
-138CPoint2013CPoint$public000010000000
+138CPoint2255CPoint$public000010000000
 BEGIN_CODE
    
     m_x = aCPoint.m_x;
@@ -479,7 +479,7 @@ BEGIN_CODE
                 
   
 END_CODE
-138CPoint2014operator=CPoint&public000010000000
+138CPoint2256operator=CPoint&public000010000000
 BEGIN_CODE
  
     if (this == &aCPoint) return *this;          
@@ -490,7 +490,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-138CPoint2015operator==intpublic010010000000
+138CPoint2257operator==intpublic010010000000
 BEGIN_CODE
  return (
 	    (m_x == aCPoint.m_x) &&
@@ -498,41 +498,41 @@ BEGIN_CODE
 	    );
   
 END_CODE
-138CPoint2016operator!=intpublic010010000000
+138CPoint2258operator!=intpublic010010000000
 BEGIN_CODE
 
     return !(operator==(aCPoint));
   
 END_CODE
-138CPoint2017XInt_tpublic010010000000
+138CPoint2259XInt_tpublic010010000000
 BEGIN_CODE
 
     return m_x;
   
 END_CODE
-138CPoint2018YInt_tpublic010010000000
+138CPoint2260YInt_tpublic010010000000
 BEGIN_CODE
 
     return m_y;
   
 END_CODE
-138CPoint2019setXvoidprotected000010000000
+138CPoint2261setXvoidprotected000010000000
 BEGIN_CODE
  
     m_x = am_x;
   
 END_CODE
-138CPoint2020setYvoidprotected000010000000
+138CPoint2262setYvoidprotected000010000000
 BEGIN_CODE
  
     m_y = am_y;
   
 END_CODE
-139CXamine1D2021~CXamine1Dpublic000110000000
+139CXamine1D2263~CXamine1Dpublic000110000000
 BEGIN_CODE
  
 END_CODE
-139CXamine1D2022CXamine1Dpublic000010000000
+139CXamine1D2264CXamine1Dpublic000010000000
 BEGIN_CODE
    
     m_fWord     = aCXamine1D.m_fWord;
@@ -540,7 +540,7 @@ BEGIN_CODE
                 
   
 END_CODE
-139CXamine1D2023operator=CXamine1D&public000010000000
+139CXamine1D2265operator=CXamine1D&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamine1D) return *this;          
@@ -551,7 +551,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-139CXamine1D2024operator==intpublic000010000000
+139CXamine1D2266operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -561,43 +561,43 @@ BEGIN_CODE
 	    );
   
 END_CODE
-139CXamine1D2025getWordBool_tpublic010010000000
+139CXamine1D2267getWordBool_tpublic010010000000
 BEGIN_CODE
 
     return m_fWord;
   
 END_CODE
-139CXamine1D2026getChannelsUInt_tpublic010010000000
+139CXamine1D2268getChannelsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nChannels;
   
 END_CODE
-139CXamine1D2027setWordvoidprotected000010000000
+139CXamine1D2269setWordvoidprotected000010000000
 BEGIN_CODE
  
     m_fWord = am_fWord;
   
 END_CODE
-139CXamine1D2028setChannelsvoidprotected000010000000
+139CXamine1D2270setChannelsvoidprotected000010000000
 BEGIN_CODE
  
     m_nChannels = am_nChannels;
   
 END_CODE
-139CXamine1D2029OnedCXamine1D*public000110000000
+139CXamine1D2271OnedCXamine1D*public000110000000
 BEGIN_CODE
 
 END_CODE
-139CXamine1D2030TwodCXamine2D*public000110000000
+139CXamine1D2272TwodCXamine2D*public000110000000
 BEGIN_CODE
 
 END_CODE
-140CXamine2D2031~CXamine2Dpublic000110000000
+140CXamine2D2273~CXamine2Dpublic000110000000
 BEGIN_CODE
  
 END_CODE
-140CXamine2D2032CXamine2Dpublic000010000000
+140CXamine2D2274CXamine2Dpublic000010000000
 BEGIN_CODE
    
     m_fByte      = aCXamine2D.m_fByte;
@@ -606,7 +606,7 @@ BEGIN_CODE
     
   
 END_CODE
-140CXamine2D2033operator=CXamine2D&public000010000000
+140CXamine2D2275operator=CXamine2D&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamine2D) return *this;          
@@ -618,7 +618,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-140CXamine2D2034operator==intpublic000010000000
+140CXamine2D2276operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -630,63 +630,63 @@ BEGIN_CODE
 	    );
   
 END_CODE
-140CXamine2D2035getByteBool_tpublic010010000000
+140CXamine2D2277getByteBool_tpublic010010000000
 BEGIN_CODE
 
     return m_fByte;
   
 END_CODE
-140CXamine2D2036getXchannelsUInt_tpublic010010000000
+140CXamine2D2278getXchannelsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXchannels;
   
 END_CODE
-140CXamine2D2037getYchannelsUInt_tpublic010010000000
+140CXamine2D2279getYchannelsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYchannels;
   
 END_CODE
-140CXamine2D2038setBytevoidprotected000010000000
+140CXamine2D2280setBytevoidprotected000010000000
 BEGIN_CODE
  
     m_fByte = am_fByte;
   
 END_CODE
-140CXamine2D2039setXchannelsvoidprotected000010000000
+140CXamine2D2281setXchannelsvoidprotected000010000000
 BEGIN_CODE
  
     m_nXchannels = am_nXchannels;
   
 END_CODE
-140CXamine2D2040setYchannelsvoidprotected000010000000
+140CXamine2D2282setYchannelsvoidprotected000010000000
 BEGIN_CODE
  
     m_nYchannels = am_nYchannels;
   
 END_CODE
-140CXamine2D2041OnedCXamine1D*public000110000000
+140CXamine2D2283OnedCXamine1D*public000110000000
 BEGIN_CODE
 
 END_CODE
-140CXamine2D2042TwodCXamine2D*public000110000000
+140CXamine2D2284TwodCXamine2D*public000110000000
 BEGIN_CODE
 
 END_CODE
-141CXamineButton2043CXamineButtonpublic000010000000
+141CXamineButton2285CXamineButtonpublic000010000000
 BEGIN_CODE
  
 END_CODE
-141CXamineButton2044CXamineButton$public000010000000
+141CXamineButton2286CXamineButton$public000010000000
 BEGIN_CODE
  
 END_CODE
-141CXamineButton2045~CXamineButtonpublic000110000000
+141CXamineButton2287~CXamineButtonpublic000110000000
 BEGIN_CODE
  
 END_CODE
-141CXamineButton2046CXamineButton$$public000010000000
+141CXamineButton2288CXamineButton$$public000010000000
 BEGIN_CODE
    
     m_nReturnCode = aCXamineButton.m_nReturnCode;
@@ -695,7 +695,7 @@ BEGIN_CODE
     m_eWhenSensitive = aCXamineButton.m_eWhenSensitive;
   
 END_CODE
-141CXamineButton2047operator=CXamineButton&public000010000000
+141CXamineButton2289operator=CXamineButton&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineButton) return *this;          
@@ -708,7 +708,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-141CXamineButton2048operator==intpublic000010000000
+141CXamineButton2290operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -720,95 +720,95 @@ BEGIN_CODE
 	    );
   
 END_CODE
-141CXamineButton2049getReturnCodeintpublic010010000000
+141CXamineButton2291getReturnCodeintpublic010010000000
 BEGIN_CODE
 
     return m_nReturnCode;
   
 END_CODE
-141CXamineButton2050getLabelstd::string&public010010000000
+141CXamineButton2292getLabelstd::string&public010010000000
 BEGIN_CODE
 
     return m_sLabel;
   
 END_CODE
-141CXamineButton2051getEnabledBool_tpublic010010000000
+141CXamineButton2293getEnabledBool_tpublic010010000000
 BEGIN_CODE
 
     return m_fEnabled;
   
 END_CODE
-141CXamineButton2052getWhenSensitiveButtonSensitivitypublic010010000000
+141CXamineButton2294getWhenSensitiveButtonSensitivitypublic010010000000
 BEGIN_CODE
 
     return m_eWhenSensitive;
   
 END_CODE
-141CXamineButton2053getPrompterCXamineButtonPrompt*public010010000000
+141CXamineButton2295getPrompterCXamineButtonPrompt*public010010000000
 BEGIN_CODE
 
     return m_pPrompter;
   
 END_CODE
-141CXamineButton2054setReturnCodevoidprotected000010000000
+141CXamineButton2296setReturnCodevoidprotected000010000000
 BEGIN_CODE
  
     m_nReturnCode = am_nReturnCode;
   
 END_CODE
-141CXamineButton2055setLabelvoidprotected000010000000
+141CXamineButton2297setLabelvoidprotected000010000000
 BEGIN_CODE
  
     m_sLabel = am_sLabel;
   
 END_CODE
-141CXamineButton2056setEnabledvoidprotected000010000000
+141CXamineButton2298setEnabledvoidprotected000010000000
 BEGIN_CODE
  
     m_fEnabled = am_fEnabled;
   
 END_CODE
-141CXamineButton2057setWhenSensitivevoidprotected000010000000
+141CXamineButton2299setWhenSensitivevoidprotected000010000000
 BEGIN_CODE
  
     m_eWhenSensitive = am_eWhenSensitive;
   
 END_CODE
-141CXamineButton2058setPromptervoidprotected000010000000
+141CXamineButton2300setPromptervoidprotected000010000000
 BEGIN_CODE
  
     m_pPrompter = am_pPrompter;
   
 END_CODE
-141CXamineButton2059FormatMessageBlockvoidpublic010110000000
+141CXamineButton2301FormatMessageBlockvoidpublic010110000000
 BEGIN_CODE
 
 END_CODE
-141CXamineButton2060PushButtonCXaminePushButton*public000110000000
+141CXamineButton2302PushButtonCXaminePushButton*public000110000000
 BEGIN_CODE
 
 END_CODE
-141CXamineButton2061ToggleButtonCXamineToggleButton*public000110000000
+141CXamineButton2303ToggleButtonCXamineToggleButton*public000110000000
 BEGIN_CODE
 
 END_CODE
-142CXamineButtonException2062CXamineButtonExceptionpublic000010000000
+142CXamineButtonException2304CXamineButtonExceptionpublic000010000000
 BEGIN_CODE
 
 END_CODE
-142CXamineButtonException2063~CXamineButtonExceptionpublic000110000000
+142CXamineButtonException2305~CXamineButtonExceptionpublic000110000000
 BEGIN_CODE
  delete m_pButton; 
 END_CODE
-142CXamineButtonException2064CXamineButtonException$public000010000000
+142CXamineButtonException2306CXamineButtonException$public000010000000
 BEGIN_CODE
 
 END_CODE
-142CXamineButtonException2065operator=CXamineButtonException&public000010000000
+142CXamineButtonException2307operator=CXamineButtonException&public000010000000
 BEGIN_CODE
 
 END_CODE
-142CXamineButtonException2066operator==intpublic000010000000
+142CXamineButtonException2308operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -818,62 +818,62 @@ BEGIN_CODE
 	    );
   
 END_CODE
-142CXamineButtonException2067getErrorInt_tpublic010010000000
+142CXamineButtonException2309getErrorInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nError;
   
 END_CODE
-142CXamineButtonException2068getButtonCXamineButton*public010010000000
+142CXamineButtonException2310getButtonCXamineButton*public010010000000
 BEGIN_CODE
 
     return m_pButton;
   
 END_CODE
-142CXamineButtonException2069setErrorvoidprotected000010000000
+142CXamineButtonException2311setErrorvoidprotected000010000000
 BEGIN_CODE
  
     m_nError = am_nError;
   
 END_CODE
-142CXamineButtonException2070setButtonvoidprotected000010000000
+142CXamineButtonException2312setButtonvoidprotected000010000000
 BEGIN_CODE
  
     m_pButton = am_pButton;
   
 END_CODE
-142CXamineButtonException2071ReasonTextchar*public010110000000
+142CXamineButtonException2313ReasonTextchar*public010110000000
 BEGIN_CODE
 
 END_CODE
-142CXamineButtonException2072ReasonCodeInt_tpublic000110000000
+142CXamineButtonException2314ReasonCodeInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-142CXamineButtonException2073SetButtonvoidprotected000010000000
+142CXamineButtonException2315SetButtonvoidprotected000010000000
 BEGIN_CODE
 
 END_CODE
-143CXamineButtonPrompt2074CXamineButtonPromptpublic000010000000
+143CXamineButtonPrompt2316CXamineButtonPromptpublic000010000000
 BEGIN_CODE
  
 END_CODE
-143CXamineButtonPrompt2075CXamineButtonPrompt$public000010000000
+143CXamineButtonPrompt2317CXamineButtonPrompt$public000010000000
 BEGIN_CODE
 }
 END_CODE
-143CXamineButtonPrompt2076~CXamineButtonPromptpublic000110000000
+143CXamineButtonPrompt2318~CXamineButtonPromptpublic000110000000
 BEGIN_CODE
  
 END_CODE
-143CXamineButtonPrompt2077CXamineButtonPrompt$$public000010000000
+143CXamineButtonPrompt2319CXamineButtonPrompt$$public000010000000
 BEGIN_CODE
    
     m_sPromptString = aCXamineButtonPrompt.m_sPromptString;
                 
   
 END_CODE
-143CXamineButtonPrompt2078operator=CXamineButtonPrompt&public000010000000
+143CXamineButtonPrompt2320operator=CXamineButtonPrompt&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineButtonPrompt) return *this;          
@@ -883,7 +883,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-143CXamineButtonPrompt2079operator==intpublic000010000000
+143CXamineButtonPrompt2321operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -891,45 +891,45 @@ BEGIN_CODE
 	    );
   
 END_CODE
-143CXamineButtonPrompt2080getPromptStringstd::stringpublic010010000000
+143CXamineButtonPrompt2322getPromptStringstd::stringpublic010010000000
 BEGIN_CODE
 
     return m_sPromptString;
   
 END_CODE
-143CXamineButtonPrompt2081setPromptStringvoidprotected000010000000
+143CXamineButtonPrompt2323setPromptStringvoidprotected000010000000
 BEGIN_CODE
  
     m_sPromptString = am_sPromptString;
   
 END_CODE
-143CXamineButtonPrompt2082FormatPrompterBlockvoidpublic011110000000
+143CXamineButtonPrompt2324FormatPrompterBlockvoidpublic011110000000
 BEGIN_CODE
 
 END_CODE
-143CXamineButtonPrompt2083SetPromptStringvoidprotected010010000000
+143CXamineButtonPrompt2325SetPromptStringvoidprotected010010000000
 BEGIN_CODE
 
 END_CODE
-144CXamineConfirmPrompt2084CXamineConfirmPromptpublic000010000000
+144CXamineConfirmPrompt2326CXamineConfirmPromptpublic000010000000
 BEGIN_CODE
  
 END_CODE
-144CXamineConfirmPrompt2085CXamineConfirmPrompt$public000010000000
+144CXamineConfirmPrompt2327CXamineConfirmPrompt$public000010000000
 BEGIN_CODE
  
 END_CODE
-144CXamineConfirmPrompt2086~CXamineConfirmPromptpublic000110000000
+144CXamineConfirmPrompt2328~CXamineConfirmPromptpublic000110000000
 BEGIN_CODE
  
 END_CODE
-144CXamineConfirmPrompt2087CXamineConfirmPrompt$$public000010000000
+144CXamineConfirmPrompt2329CXamineConfirmPrompt$$public000010000000
 BEGIN_CODE
  
                 
   
 END_CODE
-144CXamineConfirmPrompt2088operator=CXamineConfirmPrompt&public000010000000
+144CXamineConfirmPrompt2330operator=CXamineConfirmPrompt&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineConfirmPrompt) return *this;          
@@ -938,7 +938,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-144CXamineConfirmPrompt2089operator==intpublic000010000000
+144CXamineConfirmPrompt2331operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -946,29 +946,29 @@ BEGIN_CODE
 	    );
   
 END_CODE
-144CXamineConfirmPrompt2090FormatPrompterBlockvoidpublic010110000000
+144CXamineConfirmPrompt2332FormatPrompterBlockvoidpublic010110000000
 BEGIN_CODE
 
 END_CODE
-145CXamineEvent2091CXamineEventpublic000010000000
+145CXamineEvent2333CXamineEventpublic000010000000
 BEGIN_CODE
 }
 END_CODE
-145CXamineEvent2092~CXamineEventpublic000110000000
+145CXamineEvent2334~CXamineEventpublic000110000000
 BEGIN_CODE
  
 END_CODE
-145CXamineEvent2093CXamineEvent$public000010000000
+145CXamineEvent2335CXamineEvent$public000010000000
 BEGIN_CODE
  
 END_CODE
-145CXamineEvent2094CXamineEvent$$public000010000000
+145CXamineEvent2336CXamineEvent$$public000010000000
 BEGIN_CODE
    
     m_EventData = aCXamineEvent.m_EventData;
   
 END_CODE
-145CXamineEvent2095operator=CXamineEvent&public000010000000
+145CXamineEvent2337operator=CXamineEvent&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineEvent) return *this;          
@@ -977,55 +977,55 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-145CXamineEvent2096operator==intpublic000010000000
+145CXamineEvent2338operator==intpublic000010000000
 BEGIN_CODE
 
 END_CODE
-145CXamineEvent2097operator!=intpublic000010000000
+145CXamineEvent2339operator!=intpublic000010000000
 BEGIN_CODE
 
     return !(operator==(aCXamineEvent));
   
 END_CODE
-145CXamineEvent2098getm_EventDatamsg_XamineEvent&public010010000000
+145CXamineEvent2340getm_EventDatamsg_XamineEvent&public010010000000
 BEGIN_CODE
 
     return m_EventData;
   
 END_CODE
-145CXamineEvent2099setm_EventDatavoidprotected000010000000
+145CXamineEvent2341setm_EventDatavoidprotected000010000000
 BEGIN_CODE
  
     m_EventData = am_EventData;
   
 END_CODE
-145CXamineEvent2100GateCastCDisplayGate*public000010000000
+145CXamineEvent2342GateCastCDisplayGate*public000010000000
 BEGIN_CODE
 
 END_CODE
-145CXamineEvent2101ButtonCastCButtonEvent*public000010000000
+145CXamineEvent2343ButtonCastCButtonEvent*public000010000000
 BEGIN_CODE
 
 END_CODE
-146CXamineFilePrompt2102CXamineFilePromptpublic000010000000
+146CXamineFilePrompt2344CXamineFilePromptpublic000010000000
 BEGIN_CODE
  
 END_CODE
-146CXamineFilePrompt2103CXamineFilePrompt$public000010000000
+146CXamineFilePrompt2345CXamineFilePrompt$public000010000000
 BEGIN_CODE
  
 END_CODE
-146CXamineFilePrompt2104~CXamineFilePromptpublic000110000000
+146CXamineFilePrompt2346~CXamineFilePromptpublic000110000000
 BEGIN_CODE
  
 END_CODE
-146CXamineFilePrompt2105CXamineFilePrompt$$public000010000000
+146CXamineFilePrompt2347CXamineFilePrompt$$public000010000000
 BEGIN_CODE
  
                 
   
 END_CODE
-146CXamineFilePrompt2106operator=CXamineFilePrompt&public000010000000
+146CXamineFilePrompt2348operator=CXamineFilePrompt&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineFilePrompt) return *this;          
@@ -1034,7 +1034,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-146CXamineFilePrompt2107operator==intpublic000010000000
+146CXamineFilePrompt2349operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1042,26 +1042,26 @@ BEGIN_CODE
 	    );
   
 END_CODE
-146CXamineFilePrompt2108FormatPrompterBlockvoidpublic010110000000
+146CXamineFilePrompt2350FormatPrompterBlockvoidpublic010110000000
 BEGIN_CODE
 
 END_CODE
-147CXamineGateException2109CXamineGateExceptionpublic000010000000
+147CXamineGateException2351CXamineGateExceptionpublic000010000000
 BEGIN_CODE
  
 END_CODE
-147CXamineGateException2110~CXamineGateExceptionpublic000010000000
+147CXamineGateException2352~CXamineGateExceptionpublic000010000000
 BEGIN_CODE
  
 END_CODE
-147CXamineGateException2111CXamineGateException$public000010000000
+147CXamineGateException2353CXamineGateException$public000010000000
 BEGIN_CODE
    
 
                 
   
 END_CODE
-147CXamineGateException2112operator=CXamineGateException&public000010000000
+147CXamineGateException2354operator=CXamineGateException&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineGateException) return *this;          
@@ -1072,7 +1072,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-147CXamineGateException2113operator==intpublic000010000000
+147CXamineGateException2355operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1082,53 +1082,53 @@ BEGIN_CODE
 	    );
   
 END_CODE
-147CXamineGateException2114getErrorInt_tpublic010010000000
+147CXamineGateException2356getErrorInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nError;
   
 END_CODE
-147CXamineGateException2115getGateCDisplayGate&public010010000000
+147CXamineGateException2357getGateCDisplayGate&public010010000000
 BEGIN_CODE
 
     return m_Gate;
   
 END_CODE
-147CXamineGateException2116setErrorvoidprotected000010000000
+147CXamineGateException2358setErrorvoidprotected000010000000
 BEGIN_CODE
  
     m_nError = am_nError;
   
 END_CODE
-147CXamineGateException2117setGatevoidprotected000010000000
+147CXamineGateException2359setGatevoidprotected000010000000
 BEGIN_CODE
  
     m_Gate = am_Gate;
   
 END_CODE
-147CXamineGateException2118ReasonTextchar*public010110000000
+147CXamineGateException2360ReasonTextchar*public010110000000
 BEGIN_CODE
 
 END_CODE
-147CXamineGateException2119ReasonCodeInt_tpublic000110000000
+147CXamineGateException2361ReasonCodeInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-148CXamineGates2120CXamineGatespublic000010000000
+148CXamineGates2362CXamineGatespublic000010000000
 BEGIN_CODE
 
 END_CODE
-148CXamineGates2121~CXamineGatespublic000110000000
+148CXamineGates2363~CXamineGatespublic000110000000
 BEGIN_CODE
  
 END_CODE
-148CXamineGates2122CXamineGates$public000010000000
+148CXamineGates2364CXamineGates$public000010000000
 BEGIN_CODE
  
     m_vGates = aCXamineGates.m_vGates;
   
 END_CODE
-148CXamineGates2123operator=CXamineGates&public000010000000
+148CXamineGates2365operator=CXamineGates&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineGates) return *this;          
@@ -1137,43 +1137,43 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-148CXamineGates2124operator==intpublic010010000000
+148CXamineGates2366operator==intpublic010010000000
 BEGIN_CODE
  
     return (m_vGates == aCXamineGates.m_vGates);
   
 END_CODE
-148CXamineGates2125beginCDisplayGateVectorIteratorpublic000010000000
+148CXamineGates2367beginCDisplayGateVectorIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-148CXamineGates2126endCDisplayGateVectorIteratorpublic000010000000
+148CXamineGates2368endCDisplayGateVectorIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-148CXamineGates2127operator[]CDisplayGate&public000010000000
+148CXamineGates2369operator[]CDisplayGate&public000010000000
 BEGIN_CODE
 
 END_CODE
-148CXamineGates2128sizeUInt_tpublic000010000000
+148CXamineGates2370sizeUInt_tpublic000010000000
 BEGIN_CODE
 
 END_CODE
-149CXamineNoPrompt2129CXamineNoPromptpublic000010000000
+149CXamineNoPrompt2371CXamineNoPromptpublic000010000000
 BEGIN_CODE
 }
 END_CODE
-149CXamineNoPrompt2130~CXamineNoPromptpublic000110000000
+149CXamineNoPrompt2372~CXamineNoPromptpublic000110000000
 BEGIN_CODE
  
 END_CODE
-149CXamineNoPrompt2131CXamineNoPrompt$public000010000000
+149CXamineNoPrompt2373CXamineNoPrompt$public000010000000
 BEGIN_CODE
  
                 
   
 END_CODE
-149CXamineNoPrompt2132operator=CXamineNoPrompt&public000010000000
+149CXamineNoPrompt2374operator=CXamineNoPrompt&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineNoPrompt) return *this;          
@@ -1182,7 +1182,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-149CXamineNoPrompt2133operator==intpublic000010000000
+149CXamineNoPrompt2375operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1190,29 +1190,29 @@ BEGIN_CODE
 	    );
   
 END_CODE
-149CXamineNoPrompt2134FormatPrompterBlockvoidpublic010110000000
+149CXamineNoPrompt2376FormatPrompterBlockvoidpublic010110000000
 BEGIN_CODE
 
 END_CODE
-150CXamine2135CXaminepublic000010000000
+150CXamine2377CXaminepublic000010000000
 BEGIN_CODE
 
 END_CODE
-150CXamine2136CXamine$public000010000000
+150CXamine2378CXamine$public000010000000
 BEGIN_CODE
 
 END_CODE
-150CXamine2137~CXaminepublic000010000000
+150CXamine2379~CXaminepublic000010000000
 BEGIN_CODE
  
 END_CODE
-150CXamine2138CXamine$$public000010000000
+150CXamine2380CXamine$$public000010000000
 BEGIN_CODE
    
                 
   
 END_CODE
-150CXamine2139operator=CXamine&public000010000000
+150CXamine2381operator=CXamine&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamine) return *this;          
@@ -1223,7 +1223,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-150CXamine2140operator==intpublic000010000000
+150CXamine2382operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1231,26 +1231,26 @@ BEGIN_CODE
 	    );
   
 END_CODE
-151CXaminePointsPrompt2141CXaminePointsPromptpublic000010000000
+151CXaminePointsPrompt2383CXaminePointsPromptpublic000010000000
 BEGIN_CODE
  
 END_CODE
-151CXaminePointsPrompt2142CXaminePointsPrompt$public000010000000
+151CXaminePointsPrompt2384CXaminePointsPrompt$public000010000000
 BEGIN_CODE
  
 END_CODE
-151CXaminePointsPrompt2143~CXaminePointsPromptpublic000110000000
+151CXaminePointsPrompt2385~CXaminePointsPromptpublic000110000000
 BEGIN_CODE
  
 END_CODE
-151CXaminePointsPrompt2144CXaminePointsPrompt$$public000010000000
+151CXaminePointsPrompt2386CXaminePointsPrompt$$public000010000000
 BEGIN_CODE
    
     m_nMinPoints = aCXaminePointsPrompt.m_nMinPoints;
     m_nMaxPoints = aCXaminePointsPrompt.m_nMaxPoints;           
   
 END_CODE
-151CXaminePointsPrompt2145operator=CXaminePointsPrompt&public000010000000
+151CXaminePointsPrompt2387operator=CXaminePointsPrompt&public000010000000
 BEGIN_CODE
  
     if (this == &aCXaminePointsPrompt) return *this;          
@@ -1261,7 +1261,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-151CXaminePointsPrompt2146operator==intpublic000010000000
+151CXaminePointsPrompt2388operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1271,53 +1271,53 @@ BEGIN_CODE
 	    );
   
 END_CODE
-151CXaminePointsPrompt2147getMinPointsintpublic010010000000
+151CXaminePointsPrompt2389getMinPointsintpublic010010000000
 BEGIN_CODE
 
     return m_nMinPoints;
   
 END_CODE
-151CXaminePointsPrompt2148getMaxPointsintpublic010010000000
+151CXaminePointsPrompt2390getMaxPointsintpublic010010000000
 BEGIN_CODE
 
     return m_nMaxPoints;
   
 END_CODE
-151CXaminePointsPrompt2149setMinPointsvoidprotected000010000000
+151CXaminePointsPrompt2391setMinPointsvoidprotected000010000000
 BEGIN_CODE
  
     m_nMinPoints = am_nMinPoints;
   
 END_CODE
-151CXaminePointsPrompt2150setMaxPointsvoidprotected000010000000
+151CXaminePointsPrompt2392setMaxPointsvoidprotected000010000000
 BEGIN_CODE
  
     m_nMaxPoints = am_nMaxPoints;
   
 END_CODE
-151CXaminePointsPrompt2151FormatPrompterBlockvoidprotected010110000000
+151CXaminePointsPrompt2393FormatPrompterBlockvoidprotected010110000000
 BEGIN_CODE
 
 END_CODE
-152CXaminePushButton2152CXaminePushButtonpublic000010000000
+152CXaminePushButton2394CXaminePushButtonpublic000010000000
 BEGIN_CODE
  
 END_CODE
-152CXaminePushButton2153CXaminePushButton$public000010000000
+152CXaminePushButton2395CXaminePushButton$public000010000000
 BEGIN_CODE
  
 END_CODE
-152CXaminePushButton2154~CXaminePushButtonpublic000110000000
+152CXaminePushButton2396~CXaminePushButtonpublic000110000000
 BEGIN_CODE
  
 END_CODE
-152CXaminePushButton2155CXaminePushButton$$public000010000000
+152CXaminePushButton2397CXaminePushButton$$public000010000000
 BEGIN_CODE
  
                 
   
 END_CODE
-152CXaminePushButton2156operator=CXaminePushButton&public000010000000
+152CXaminePushButton2398operator=CXaminePushButton&public000010000000
 BEGIN_CODE
  
     if (this == &aCXaminePushButton) return *this;          
@@ -1326,7 +1326,7 @@ BEGIN_CODE
   return *this;
   
 END_CODE
-152CXaminePushButton2157operator==intpublic000010000000
+152CXaminePushButton2399operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1334,23 +1334,23 @@ BEGIN_CODE
 	    );
   
 END_CODE
-152CXaminePushButton2158FormatMessageBlockvoidpublic010110000000
+152CXaminePushButton2400FormatMessageBlockvoidpublic010110000000
 BEGIN_CODE
 
 END_CODE
-152CXaminePushButton2159PushButtonCXaminePushButton*public000110000000
+152CXaminePushButton2401PushButtonCXaminePushButton*public000110000000
 BEGIN_CODE
 
 END_CODE
-152CXaminePushButton2160ToggleButtonCXamineToggleButton*public000110000000
+152CXaminePushButton2402ToggleButtonCXamineToggleButton*public000110000000
 BEGIN_CODE
 
 END_CODE
-153CXamineSpectrum2161~CXamineSpectrumpublic000110000000
+153CXamineSpectrum2403~CXamineSpectrumpublic000110000000
 BEGIN_CODE
  
 END_CODE
-153CXamineSpectrum2162CXamineSpectrumpublic000010000000
+153CXamineSpectrum2404CXamineSpectrumpublic000010000000
 BEGIN_CODE
    
     m_pStorage      = aCXamineSpectrum.m_pStorage;
@@ -1360,7 +1360,7 @@ BEGIN_CODE
     
   
 END_CODE
-153CXamineSpectrum2163operator=CXamineSpectrum&public000010000000
+153CXamineSpectrum2405operator=CXamineSpectrum&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineSpectrum) return *this;          
@@ -1373,7 +1373,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-153CXamineSpectrum2164operator==intpublic000010000000
+153CXamineSpectrum2406operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1384,37 +1384,37 @@ BEGIN_CODE
 	    );
   
 END_CODE
-153CXamineSpectrum2165getStorageAddress_tpublic010010000000
+153CXamineSpectrum2407getStorageAddress_tpublic010010000000
 BEGIN_CODE
 
     return m_pStorage;
   
 END_CODE
-153CXamineSpectrum2166getSlotUInt_tpublic010010000000
+153CXamineSpectrum2408getSlotUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nSlot;
   
 END_CODE
-153CXamineSpectrum2167getTitlestd::string&public010010000000
+153CXamineSpectrum2409getTitlestd::string&public010010000000
 BEGIN_CODE
 
     return m_sTitle;
   
 END_CODE
-154CXamineSpectrumIterator2168~CXamineSpectrumIteratorpublic000110000000
+154CXamineSpectrumIterator2410~CXamineSpectrumIteratorpublic000110000000
 BEGIN_CODE
  
     unbind();
   
 END_CODE
-154CXamineSpectrumIterator2169CXamineSpectrumIteratorpublic000010000000
+154CXamineSpectrumIterator2411CXamineSpectrumIteratorpublic000010000000
 BEGIN_CODE
 
     DoAssign(aCXamineSpectrumIterator);
   
 END_CODE
-154CXamineSpectrumIterator2170operator=CXamineSpectrumIterator&public000010000000
+154CXamineSpectrumIterator2412operator=CXamineSpectrumIterator&public000010000000
 BEGIN_CODE
  
     if(this != &aCXamineSpectrumIterator)
@@ -1423,7 +1423,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-154CXamineSpectrumIterator2171operator==intpublic000010000000
+154CXamineSpectrumIterator2413operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1432,26 +1432,26 @@ BEGIN_CODE
 	    );
   
 END_CODE
-155CXamineSpectrumPrompt2172CXamineSpectrumPromptpublic000010000000
+155CXamineSpectrumPrompt2414CXamineSpectrumPromptpublic000010000000
 BEGIN_CODE
  
 END_CODE
-155CXamineSpectrumPrompt2173CXamineSpectrumPrompt$public000010000000
+155CXamineSpectrumPrompt2415CXamineSpectrumPrompt$public000010000000
 BEGIN_CODE
  
 END_CODE
-155CXamineSpectrumPrompt2174~CXamineSpectrumPromptpublic000110000000
+155CXamineSpectrumPrompt2416~CXamineSpectrumPromptpublic000110000000
 BEGIN_CODE
  
 END_CODE
-155CXamineSpectrumPrompt2175CXamineSpectrumPrompt$$public000010000000
+155CXamineSpectrumPrompt2417CXamineSpectrumPrompt$$public000010000000
 BEGIN_CODE
 
     m_eSpectrumType = aCXamineSpectrumPrompt.m_eSpectrumType;
                 
   
 END_CODE
-155CXamineSpectrumPrompt2176operator=CXamineSpectrumPrompt&public000010000000
+155CXamineSpectrumPrompt2418operator=CXamineSpectrumPrompt&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineSpectrumPrompt) return *this;          
@@ -1461,7 +1461,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-155CXamineSpectrumPrompt2177operator==intpublic000010000000
+155CXamineSpectrumPrompt2419operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1470,41 +1470,41 @@ BEGIN_CODE
 	    );
   
 END_CODE
-155CXamineSpectrumPrompt2178getSpectrumTypeintpublic010010000000
+155CXamineSpectrumPrompt2420getSpectrumTypeintpublic010010000000
 BEGIN_CODE
 
     return m_eSpectrumType;
   
 END_CODE
-155CXamineSpectrumPrompt2179setSpectrumTypevoidprotected000010000000
+155CXamineSpectrumPrompt2421setSpectrumTypevoidprotected000010000000
 BEGIN_CODE
  
     m_eSpectrumType = am_eSpectrumType;
   
 END_CODE
-155CXamineSpectrumPrompt2180FormatPrompterBlockvoidpublic010110000000
+155CXamineSpectrumPrompt2422FormatPrompterBlockvoidpublic010110000000
 BEGIN_CODE
 
 END_CODE
-156CXamineTextPrompt2181CXamineTextPromptpublic000010000000
+156CXamineTextPrompt2423CXamineTextPromptpublic000010000000
 BEGIN_CODE
  
 END_CODE
-156CXamineTextPrompt2182CXamineTextPrompt$public000010000000
+156CXamineTextPrompt2424CXamineTextPrompt$public000010000000
 BEGIN_CODE
  
 END_CODE
-156CXamineTextPrompt2183~CXamineTextPromptpublic000110000000
+156CXamineTextPrompt2425~CXamineTextPromptpublic000110000000
 BEGIN_CODE
  
 END_CODE
-156CXamineTextPrompt2184CXamineTextPrompt$$public000010000000
+156CXamineTextPrompt2426CXamineTextPrompt$$public000010000000
 BEGIN_CODE
  
                 
   
 END_CODE
-156CXamineTextPrompt2185operator=CXamineTextPrompt&public000010000000
+156CXamineTextPrompt2427operator=CXamineTextPrompt&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineTextPrompt) return *this;          
@@ -1513,7 +1513,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-156CXamineTextPrompt2186operator==intpublic000010000000
+156CXamineTextPrompt2428operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1522,30 +1522,30 @@ BEGIN_CODE
 	    );
   
 END_CODE
-156CXamineTextPrompt2187FormatPrompterBlockvoidpublic010110000000
+156CXamineTextPrompt2429FormatPrompterBlockvoidpublic010110000000
 BEGIN_CODE
 
 END_CODE
-157CXamineToggleButton2188CXamineToggleButtonpublic000010000000
+157CXamineToggleButton2430CXamineToggleButtonpublic000010000000
 BEGIN_CODE
  
 END_CODE
-157CXamineToggleButton2189CXamineToggleButton$public000010000000
+157CXamineToggleButton2431CXamineToggleButton$public000010000000
 BEGIN_CODE
  
 END_CODE
-157CXamineToggleButton2190~CXamineToggleButtonpublic000110000000
+157CXamineToggleButton2432~CXamineToggleButtonpublic000110000000
 BEGIN_CODE
  
 END_CODE
-157CXamineToggleButton2191CXamineToggleButton$$public000010000000
+157CXamineToggleButton2433CXamineToggleButton$$public000010000000
 BEGIN_CODE
    
     m_fInitialState = aCXamineToggleButton.m_fInitialState;
                 
   
 END_CODE
-157CXamineToggleButton2192operator=CXamineToggleButton&public000010000000
+157CXamineToggleButton2434operator=CXamineToggleButton&public000010000000
 BEGIN_CODE
  
     if (this == &aCXamineToggleButton) return *this;          
@@ -1555,7 +1555,7 @@ BEGIN_CODE
   return *this;
   
 END_CODE
-157CXamineToggleButton2193operator==intpublic000010000000
+157CXamineToggleButton2435operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -1564,27 +1564,27 @@ BEGIN_CODE
 	    );
   
 END_CODE
-157CXamineToggleButton2194getInitialStateBool_tpublic010010000000
+157CXamineToggleButton2436getInitialStateBool_tpublic010010000000
 BEGIN_CODE
 
     return m_fInitialState;
   
 END_CODE
-157CXamineToggleButton2195setInitialStatevoidprotected000010000000
+157CXamineToggleButton2437setInitialStatevoidprotected000010000000
 BEGIN_CODE
  
     m_fInitialState = am_fInitialState;
   
 END_CODE
-157CXamineToggleButton2196FormatMessageBlockvoidpublic010110000000
+157CXamineToggleButton2438FormatMessageBlockvoidpublic010110000000
 BEGIN_CODE
 
 END_CODE
-157CXamineToggleButton2197PushButtonCXaminePushButton*public000110000000
+157CXamineToggleButton2439PushButtonCXaminePushButton*public000110000000
 BEGIN_CODE
 
 END_CODE
-157CXamineToggleButton2198ToggleButtonCXamineToggleButton*public000110000000
+157CXamineToggleButton2440ToggleButtonCXamineToggleButton*public000110000000
 BEGIN_CODE
 
 END_CODE
@@ -1593,205 +1593,205 @@ END_CODE
 Parameters
 OperID, Parameter Text
 ***BEGIN_TABLE***
-1957 const  msg_ButtonPress&/rButtonInfo//
-1959 const  CButtonEvent&/aCButtonEvent//
-1960 const  CButtonEvent&/aCButtonEvent//
-1961 const  CButtonEvent&/aCButtonEvent//
-1968 Int_t/am_nId//
-1969 Int_t/am_nCurrentSpectrum//
-1970 Bool_t/am_fToggleState//
-1971 Int_t/am_nPromptedSpectrum//
-1972 std::string/am_sPromptedString//
-1973 const  PointArray&/rPoints//
-1977 UInt_t/nI//
-1978 const  msg_object&/rGateInfo//
-1979 UInt_t/nSpectrum//
-1979 UInt_t/nId//
-1979 const  std::string&/rName//
-1981 const  CDisplayGate&/aCDisplayGate//
-1982 const  CDisplayGate&/aCDisplayGate//
-1983 const  CDisplayGate&/aCDisplayGate//
-1989 UInt_t/am_nSpectrum//
-1990 GateType_t/am_eGateType//
-1991 const  PointArray&/rPts//
-1992 UInt_t/am_nId//
-1993 std::string/am_sName//
-1997 UInt_t/n//
-1998 const  CPoint&/rPoint//
-1999 int/x//
-1999 int/y//
-2000 UInt_t/n/1/
-2004 msg_object&/rMsg//
-2005 const  msg_object&/rGate//
-2006 UInt_t/nSpectrum//
-2006 UInt_t/nId//
-2006 const  std::string&/rName//
-2007 const  msg_object&/rgate//
-2008 UInt_t/nSpectrum//
-2008 UInt_t/nId//
-2008 const  std::string&/rName//
-2009 const  msg_object&/rgate//
-2010 UInt_t/nSpectrum//
-2010 UInt_t/nId//
-2010 const  std::string&/rName//
-2011 Int_t/x/0/
-2011 Int_t/y/0/
-2013 const  CPoint&/aCPoint//
-2014 const  CPoint&/aCPoint//
-2015 const  CPoint&/aCPoint//
-2016 const  CPoint&/aCPoint//
-2019 Int_t/am_x//
-2020 Int_t/am_y//
-2022 volatile volatile const  CXamine1D&/aCXamine1D//
-2023 const  CXamine1D&/aCXamine1D//
-2024 const  CXamine1D&/aCXamine1D//
-2027 Bool_t/am_fWord//
-2028 UInt_t/am_nChannels//
-2032 volatile volatile const  CXamine2D&/aCXamine2D//
-2033 const  CXamine2D&/aCXamine2D//
-2034 const  CXamine2D&/aCXamine2D//
-2038 Bool_t/am_fByte//
-2039 UInt_t/am_nXchannels//
-2040 UInt_t/am_nYchannels//
-2043 int/am_nReturnCode//
-2043 const  std::string&/am_sLabel//
-2043 Bool_t/am_fEnabled//
-2043 ButtonSensitivity/am_eWhenSensitive//
-2043 CXamineButtonPrompt&/rPrompter//
-2044 int/am_nReturnCode//
-2044 const  char*/pLabel//
-2044 Bool_t/am_fEnabled//
-2044 ButtonSensitivity/am_eWhenSensitive//
-2044 CXamineButtonPrompt&/rPrompter//
-2046 const  CXamineButton&/aCXamineButton//
-2047 const  CXamineButton&/aCXamineButton//
-2048 const  CXamineButton&/aCXamineButton//
-2054 int/am_nReturnCode//
-2055 const  std::string&/am_sLabel//
-2056 Bool_t/am_fEnabled//
-2057 ButtonSensitivity/am_eWhenSensitive//
-2058 CXamineButtonPrompt*/am_pPrompter//
-2059 ButtonDescription&/rButton//
-2062 Int_t/nStatus//
-2062 const  CXamineButton&/rButton//
-2062 const  std::string&/rDoing//
-2064 const  CXamineButtonException&/aCXamineButtonException//
-2065 const  CXamineButtonException&/aCXamineButtonException//
-2066 const  CXamineButtonException&/aCXamineButtonException//
-2069 Int_t/am_nError//
-2070 CXamineButton*/am_pButton//
-2073 const  CXamineButton&/rButton//
-2074 const  std::string&/am_sPromptString//
-2075 const  char*/pPrompt//
-2077 const  CXamineButtonPrompt&/aCXamineButtonPrompt//
-2078 const  CXamineButtonPrompt&/aCXamineButtonPrompt//
-2079 const  CXamineButtonPrompt&/aCXamineButtonPrompt//
-2081 std::string/am_sPromptString//
-2082 ButtonDescription&/rButton//
-2083 ButtonDescription&/rButton//
-2084 const  std::string&/rPrompt//
-2085 const  char*/pPrompt//
-2087 const  CXamineConfirmPrompt&/aCXamineConfirmPrompt//
-2088 const  CXamineConfirmPrompt&/aCXamineConfirmPrompt//
-2089 const  CXamineConfirmPrompt&/aCXamineConfirmPrompt//
-2090 ButtonDescription&/rButton//
-2093 msg_XamineEvent/am_EventData//
-2094 const  CXamineEvent&/aCXamineEvent//
-2095 const  CXamineEvent&/aCXamineEvent//
-2096 const  CXamineEvent&/aCXamineEvent//
-2097 const  CXamineEvent&/aCXamineEvent//
-2099 msg_XamineEvent/am_EventData//
-2102 const  std::string&/rPrompt//
-2103 const  char*/pPrompt//
-2105 const  CXamineFilePrompt&/aCXamineFilePrompt//
-2106 const  CXamineFilePrompt&/aCXamineFilePrompt//
-2107 const  CXamineFilePrompt&/aCXamineFilePrompt//
-2108 ButtonDescription&/rButton//
-2109 Int_t/am_nError//
-2109 const  CDisplayGate&/am_Gate//
-2109 const  std::string&/rDoing//
-2111 const  CXamineGateException&/aCXamineGateException//
-2112 const  CXamineGateException&/aCXamineGateException//
-2113 const  CXamineGateException&/aCXamineGateException//
-2116 Int_t/am_nError//
-2117 CDisplayGate/am_Gate//
-2120 UInt_t/spec//
-2122 const  CXamineGates&/aCXamineGates//
-2123 const  CXamineGates&/aCXamineGates//
-2124 const  CXamineGates&/aCXamineGates//
-2127 UInt_t/n//
-2131 const  CXamineNoPrompt&/aCXamineNoPrompt//
-2132 const  CXamineNoPrompt&/aCXamineNoPrompt//
-2133 const  CXamineNoPrompt&/aCXamineNoPrompt//
-2134 ButtonDescription&/rPrompt//
-2136 UInt_t/nBytes//
-2138 const  CXamine&/aCXamine//
-2139 const  CXamine&/aCXamine//
-2140 const  CXamine&/aCXamine//
-2141 const  std::string&/rPrompt//
-2141 UInt_t/nMinPoints/1/
-2141 UInt_t/nMaxPoints/GROBJ_MAXPTS/
-2142 const  char*/pPrompt//
-2142 UInt_t/nMinPoints/1/
-2142 UInt_t/nMaxPoints/GROBJ_MAXPTS/
-2144 const  CXaminePointsPrompt&/aCXaminePointsPrompt//
-2145 const  CXaminePointsPrompt&/aCXaminePointsPrompt//
-2146 const  CXaminePointsPrompt&/aCXaminePointsPrompt//
-2149 int/am_nMinPoints//
-2150 int/am_nMaxPoints//
-2151 ButtonDescription&/rButton//
-2152 int/am_nReturnCode//
-2152 const  std::string&/am_sLabel//
-2152 Bool_t/am_fEnabled//
-2152 ButtonSensitivity/am_eWhenSensitive//
-2152 CXamineButtonPrompt&/rPrompter//
-2153 int/am_nReturnCode//
-2153 const  char*/pLabel//
-2153 Bool_t/am_fEnabled//
-2153 ButtonSensitivity/am_eWhenSensitive//
-2153 CXamineButtonPrompt&/rPrompter//
-2155 const  CXaminePushButton&/aCXaminePushButton//
-2156 const  CXaminePushButton&/aCXaminePushButton//
-2157 const  CXaminePushButton&/aCXaminePushButton//
-2158 ButtonDescription&/rButton//
-2162 volatile volatile const  CXamineSpectrum&/aCXamineSpectrum//
-2163 const  CXamineSpectrum&/aCXamineSpectrum//
-2164 const  CXamineSpectrum&/aCXamineSpectrum//
-2169 volatile const  CXamineSpectrumIterator&/aCXamineSpectrumIterator//
-2170 const  CXamineSpectrumIterator&/aCXamineSpectrumIterator//
-2171 const  CXamineSpectrumIterator&/aCXamineSpectrumIterator//
-2172 const  std::string&/rPrompt//
-2172 DialogSpectrumType_t/am_eSpectrumType/keAny/
-2173 const  char*/pPrompt//
-2173 DialogSpectrumType_t/eSpectrumType/keAny/
-2175 const  CXamineSpectrumPrompt&/aCXamineSpectrumPrompt//
-2176 const  CXamineSpectrumPrompt&/aCXamineSpectrumPrompt//
-2177 const  CXamineSpectrumPrompt&/aCXamineSpectrumPrompt//
-2179 DialogSpectrumType_t/am_eSpectrumType//
-2180 ButtonDescription&/rButton//
-2181 const  std::string&/rPrompt//
-2182 const  char*/pPrompt//
-2184 const  CXamineTextPrompt&/aCXamineTextPrompt//
-2185 const  CXamineTextPrompt&/aCXamineTextPrompt//
-2186 const  CXamineTextPrompt&/aCXamineTextPrompt//
-2187 ButtonDescription&/rButton//
-2188 int/am_nReturnCode//
-2188 const  std::string&/am_sLabel//
-2188 Bool_t/am_fEnabled//
-2188 ButtonSensitivity/am_eWhenSensitive//
-2188 CXamineButtonPrompt&/rPrompter//
-2188 Bool_t/am_fInitialState/kfFALSE/
-2189 int/am_nReturnCode//
-2189 const  char*/pLabel//
-2189 Bool_t/am_fEnabled//
-2189 ButtonSensitivity/am_eWhenSensitive//
-2189 CXamineButtonPrompt&/rPrompter//
-2189 Bool_t/am_fInitialState/kfFALSE/
-2191 const  CXamineToggleButton&/aCXamineToggleButton//
-2192 const  CXamineToggleButton&/aCXamineToggleButton//
-2193 const  CXamineToggleButton&/aCXamineToggleButton//
-2195 Bool_t/am_fInitialState//
-2196 ButtonDescription&/rButton//
+2199 const  msg_ButtonPress&/rButtonInfo//
+2201 const  CButtonEvent&/aCButtonEvent//
+2202 const  CButtonEvent&/aCButtonEvent//
+2203 const  CButtonEvent&/aCButtonEvent//
+2210 Int_t/am_nId//
+2211 Int_t/am_nCurrentSpectrum//
+2212 Bool_t/am_fToggleState//
+2213 Int_t/am_nPromptedSpectrum//
+2214 std::string/am_sPromptedString//
+2215 const  PointArray&/rPoints//
+2219 UInt_t/nI//
+2220 const  msg_object&/rGateInfo//
+2221 UInt_t/nSpectrum//
+2221 UInt_t/nId//
+2221 const  std::string&/rName//
+2223 const  CDisplayGate&/aCDisplayGate//
+2224 const  CDisplayGate&/aCDisplayGate//
+2225 const  CDisplayGate&/aCDisplayGate//
+2231 UInt_t/am_nSpectrum//
+2232 GateType_t/am_eGateType//
+2233 const  PointArray&/rPts//
+2234 UInt_t/am_nId//
+2235 std::string/am_sName//
+2239 UInt_t/n//
+2240 const  CPoint&/rPoint//
+2241 int/x//
+2241 int/y//
+2242 UInt_t/n/1/
+2246 msg_object&/rMsg//
+2247 const  msg_object&/rGate//
+2248 UInt_t/nSpectrum//
+2248 UInt_t/nId//
+2248 const  std::string&/rName//
+2249 const  msg_object&/rgate//
+2250 UInt_t/nSpectrum//
+2250 UInt_t/nId//
+2250 const  std::string&/rName//
+2251 const  msg_object&/rgate//
+2252 UInt_t/nSpectrum//
+2252 UInt_t/nId//
+2252 const  std::string&/rName//
+2253 Int_t/x/0/
+2253 Int_t/y/0/
+2255 const  CPoint&/aCPoint//
+2256 const  CPoint&/aCPoint//
+2257 const  CPoint&/aCPoint//
+2258 const  CPoint&/aCPoint//
+2261 Int_t/am_x//
+2262 Int_t/am_y//
+2264 volatile volatile const  CXamine1D&/aCXamine1D//
+2265 const  CXamine1D&/aCXamine1D//
+2266 const  CXamine1D&/aCXamine1D//
+2269 Bool_t/am_fWord//
+2270 UInt_t/am_nChannels//
+2274 volatile volatile const  CXamine2D&/aCXamine2D//
+2275 const  CXamine2D&/aCXamine2D//
+2276 const  CXamine2D&/aCXamine2D//
+2280 Bool_t/am_fByte//
+2281 UInt_t/am_nXchannels//
+2282 UInt_t/am_nYchannels//
+2285 int/am_nReturnCode//
+2285 const  std::string&/am_sLabel//
+2285 Bool_t/am_fEnabled//
+2285 ButtonSensitivity/am_eWhenSensitive//
+2285 CXamineButtonPrompt&/rPrompter//
+2286 int/am_nReturnCode//
+2286 const  char*/pLabel//
+2286 Bool_t/am_fEnabled//
+2286 ButtonSensitivity/am_eWhenSensitive//
+2286 CXamineButtonPrompt&/rPrompter//
+2288 const  CXamineButton&/aCXamineButton//
+2289 const  CXamineButton&/aCXamineButton//
+2290 const  CXamineButton&/aCXamineButton//
+2296 int/am_nReturnCode//
+2297 const  std::string&/am_sLabel//
+2298 Bool_t/am_fEnabled//
+2299 ButtonSensitivity/am_eWhenSensitive//
+2300 CXamineButtonPrompt*/am_pPrompter//
+2301 ButtonDescription&/rButton//
+2304 Int_t/nStatus//
+2304 const  CXamineButton&/rButton//
+2304 const  std::string&/rDoing//
+2306 const  CXamineButtonException&/aCXamineButtonException//
+2307 const  CXamineButtonException&/aCXamineButtonException//
+2308 const  CXamineButtonException&/aCXamineButtonException//
+2311 Int_t/am_nError//
+2312 CXamineButton*/am_pButton//
+2315 const  CXamineButton&/rButton//
+2316 const  std::string&/am_sPromptString//
+2317 const  char*/pPrompt//
+2319 const  CXamineButtonPrompt&/aCXamineButtonPrompt//
+2320 const  CXamineButtonPrompt&/aCXamineButtonPrompt//
+2321 const  CXamineButtonPrompt&/aCXamineButtonPrompt//
+2323 std::string/am_sPromptString//
+2324 ButtonDescription&/rButton//
+2325 ButtonDescription&/rButton//
+2326 const  std::string&/rPrompt//
+2327 const  char*/pPrompt//
+2329 const  CXamineConfirmPrompt&/aCXamineConfirmPrompt//
+2330 const  CXamineConfirmPrompt&/aCXamineConfirmPrompt//
+2331 const  CXamineConfirmPrompt&/aCXamineConfirmPrompt//
+2332 ButtonDescription&/rButton//
+2335 msg_XamineEvent/am_EventData//
+2336 const  CXamineEvent&/aCXamineEvent//
+2337 const  CXamineEvent&/aCXamineEvent//
+2338 const  CXamineEvent&/aCXamineEvent//
+2339 const  CXamineEvent&/aCXamineEvent//
+2341 msg_XamineEvent/am_EventData//
+2344 const  std::string&/rPrompt//
+2345 const  char*/pPrompt//
+2347 const  CXamineFilePrompt&/aCXamineFilePrompt//
+2348 const  CXamineFilePrompt&/aCXamineFilePrompt//
+2349 const  CXamineFilePrompt&/aCXamineFilePrompt//
+2350 ButtonDescription&/rButton//
+2351 Int_t/am_nError//
+2351 const  CDisplayGate&/am_Gate//
+2351 const  std::string&/rDoing//
+2353 const  CXamineGateException&/aCXamineGateException//
+2354 const  CXamineGateException&/aCXamineGateException//
+2355 const  CXamineGateException&/aCXamineGateException//
+2358 Int_t/am_nError//
+2359 CDisplayGate/am_Gate//
+2362 UInt_t/spec//
+2364 const  CXamineGates&/aCXamineGates//
+2365 const  CXamineGates&/aCXamineGates//
+2366 const  CXamineGates&/aCXamineGates//
+2369 UInt_t/n//
+2373 const  CXamineNoPrompt&/aCXamineNoPrompt//
+2374 const  CXamineNoPrompt&/aCXamineNoPrompt//
+2375 const  CXamineNoPrompt&/aCXamineNoPrompt//
+2376 ButtonDescription&/rPrompt//
+2378 UInt_t/nBytes//
+2380 const  CXamine&/aCXamine//
+2381 const  CXamine&/aCXamine//
+2382 const  CXamine&/aCXamine//
+2383 const  std::string&/rPrompt//
+2383 UInt_t/nMinPoints/1/
+2383 UInt_t/nMaxPoints/GROBJ_MAXPTS/
+2384 const  char*/pPrompt//
+2384 UInt_t/nMinPoints/1/
+2384 UInt_t/nMaxPoints/GROBJ_MAXPTS/
+2386 const  CXaminePointsPrompt&/aCXaminePointsPrompt//
+2387 const  CXaminePointsPrompt&/aCXaminePointsPrompt//
+2388 const  CXaminePointsPrompt&/aCXaminePointsPrompt//
+2391 int/am_nMinPoints//
+2392 int/am_nMaxPoints//
+2393 ButtonDescription&/rButton//
+2394 int/am_nReturnCode//
+2394 const  std::string&/am_sLabel//
+2394 Bool_t/am_fEnabled//
+2394 ButtonSensitivity/am_eWhenSensitive//
+2394 CXamineButtonPrompt&/rPrompter//
+2395 int/am_nReturnCode//
+2395 const  char*/pLabel//
+2395 Bool_t/am_fEnabled//
+2395 ButtonSensitivity/am_eWhenSensitive//
+2395 CXamineButtonPrompt&/rPrompter//
+2397 const  CXaminePushButton&/aCXaminePushButton//
+2398 const  CXaminePushButton&/aCXaminePushButton//
+2399 const  CXaminePushButton&/aCXaminePushButton//
+2400 ButtonDescription&/rButton//
+2404 volatile volatile const  CXamineSpectrum&/aCXamineSpectrum//
+2405 const  CXamineSpectrum&/aCXamineSpectrum//
+2406 const  CXamineSpectrum&/aCXamineSpectrum//
+2411 volatile const  CXamineSpectrumIterator&/aCXamineSpectrumIterator//
+2412 const  CXamineSpectrumIterator&/aCXamineSpectrumIterator//
+2413 const  CXamineSpectrumIterator&/aCXamineSpectrumIterator//
+2414 const  std::string&/rPrompt//
+2414 DialogSpectrumType_t/am_eSpectrumType/keAny/
+2415 const  char*/pPrompt//
+2415 DialogSpectrumType_t/eSpectrumType/keAny/
+2417 const  CXamineSpectrumPrompt&/aCXamineSpectrumPrompt//
+2418 const  CXamineSpectrumPrompt&/aCXamineSpectrumPrompt//
+2419 const  CXamineSpectrumPrompt&/aCXamineSpectrumPrompt//
+2421 DialogSpectrumType_t/am_eSpectrumType//
+2422 ButtonDescription&/rButton//
+2423 const  std::string&/rPrompt//
+2424 const  char*/pPrompt//
+2426 const  CXamineTextPrompt&/aCXamineTextPrompt//
+2427 const  CXamineTextPrompt&/aCXamineTextPrompt//
+2428 const  CXamineTextPrompt&/aCXamineTextPrompt//
+2429 ButtonDescription&/rButton//
+2430 int/am_nReturnCode//
+2430 const  std::string&/am_sLabel//
+2430 Bool_t/am_fEnabled//
+2430 ButtonSensitivity/am_eWhenSensitive//
+2430 CXamineButtonPrompt&/rPrompter//
+2430 Bool_t/am_fInitialState/kfFALSE/
+2431 int/am_nReturnCode//
+2431 const  char*/pLabel//
+2431 Bool_t/am_fEnabled//
+2431 ButtonSensitivity/am_eWhenSensitive//
+2431 CXamineButtonPrompt&/rPrompter//
+2431 Bool_t/am_fInitialState/kfFALSE/
+2433 const  CXamineToggleButton&/aCXamineToggleButton//
+2434 const  CXamineToggleButton&/aCXamineToggleButton//
+2435 const  CXamineToggleButton&/aCXamineToggleButton//
+2437 Bool_t/am_fInitialState//
+2438 ButtonDescription&/rButton//
 ***END_TABLE***
 
 Includes
@@ -1870,7 +1870,7 @@ ShapeID, Type, Text, Multiplicity, Source Node ID, Source Index, LineTexture, Is
 842NoText014210011
 851NoText014810011
 860NoText014230011
-870NoText014320011
+870NoText0143100011
 880NoText015510011
 ***END_TABLE***
 

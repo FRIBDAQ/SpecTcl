@@ -1,11 +1,11 @@
 With Class Chart Export File
-I:\linux\caennet\SpecTcl\Exception\Exception.omtUnified Method
+X:\SpecTcl\Exception\Exception.omtUnified Method
 
 
 General Info
 Internal Version #, NextClassID, NextClassShapeID, NextRelationShapeID, NextStateID, NextStateShapeID, NextTransitionID, NextTransitionShapeID, NextObjectID, NextObjectShapeID, NextInteractionID, NextInteractionShapeID, NextOperationID, NextAttributeID
 ***BEGIN_TABLE***
-4.7552111111115211
+4.79931111111110311
 ***END_TABLE***
 
 Classes
@@ -21,10 +21,10 @@ ClassID, Name, Description, Multiplicity, Concurrency, Visibility, Persistence, 
 Class Shape
 ShapeID, PosX, PosY, TopText, MiddleText, BottomText, ClassDataID, ClassType, Abstract, Template, Interface, Final
 ***BEGIN_TABLE***
-3213200CRangeErrorm_nLow:m_nHigh:m_nRequested:m_ReasonTextCRangeError:CRangeError$:~CRangeError:CRangeError$$:operator=:operator==:getLow:getHigh:getRequested:setLow:setHigh:setRequested:ReasonText:ReasonCode:UpdateReason3000000
-4390200CStreamIOErrorm_eReason:m_rStream:m_sReasonText:m_svErrorMessagesCStreamIOError:CStreamIOError$:~CStreamIOError:CStreamIOError$$:operator=:operator==:getReason:getStream:getErrorMessage:setReason:ReasonText:ReasonCode4000000
+3308258CRangeErrorm_nLow:m_nHigh:m_nRequested:m_ReasonTextCRangeError:CRangeError$:~CRangeError:CRangeError$$:operator=:operator==:getLow:getHigh:getRequested:setLow:setHigh:setRequested:ReasonText:ReasonCode:UpdateReason3000000
+4488258CStreamIOErrorm_eReason:m_rStream:m_sReasonText:m_svErrorMessagesCStreamIOError:CStreamIOError$:~CStreamIOError:CStreamIOError$$:operator=:operator==:getReason:getStream:getErrorMessage:setReason:ReasonText:ReasonCode4000000
 22200CExceptionm_szAction~CException:CException:CException$:CException$$:operator=:operator==:operator!=:getAction:setAction:setAction$:ReasonText:ReasonCode:WasDoing:DoAssign2000000
-10200CErrnoExceptionm_nErrnoCErrnoException:CErrnoException$:~CErrnoException:CErrnoException$$:operator=:operator==:getErrno:setErrno:ReasonText:ReasonCode1000000
+198258CErrnoExceptionm_nErrnoCErrnoException:CErrnoException$:~CErrnoException:CErrnoException$$:operator=:operator==:getErrno:setErrno:ReasonText:ReasonCode1000000
 ***END_TABLE***
 
 Attributes
@@ -45,25 +45,25 @@ ClassID, ClassName, AttrID, Name, Type, Length, IsStatic, Description, Visibilit
 Operations
 ClassID, ClassName, OperID, OperName, Return Type, Post Condition, PreCondition, Invariant, Stereotype, Classification, Exception, Transformation, Concurrency, Visibility,  Comment1, Comment2, Comment3, IsStatic, IsConstant, IsPureVirtual, IsVirtual, IsProcedure, IsInline, IsEvent, IsOverride, Message, IsFinal, IsSynchronized, IsNative, IsFriend
 ***BEGIN_TABLE***
-1CErrnoException1CErrnoExceptionpublic000010000000
+1CErrnoException52CErrnoExceptionpublic000010000000
 BEGIN_CODE
 }
 END_CODE
-1CErrnoException2CErrnoException$public000010000000
+1CErrnoException53CErrnoException$public000010000000
 BEGIN_CODE
 }
 END_CODE
-1CErrnoException3~CErrnoExceptionpublic000010000000
+1CErrnoException54~CErrnoExceptionpublic000010000000
 BEGIN_CODE
  
 END_CODE
-1CErrnoException4CErrnoException$$public000010000000
+1CErrnoException55CErrnoException$$public000010000000
 BEGIN_CODE
    
     m_nErrno = aCErrnoException.m_nErrno;             
   
 END_CODE
-1CErrnoException5operator=CErrnoException&public000010000000
+1CErrnoException56operator=CErrnoException&public000010000000
 BEGIN_CODE
  
     if (this == &aCErrnoException) return *this;          
@@ -72,7 +72,7 @@ BEGIN_CODE
     return *this;                                                                                                 
   
 END_CODE
-1CErrnoException6operator==intpublic000010000000
+1CErrnoException57operator==intpublic000010000000
 BEGIN_CODE
  
     return ((CException::operator== (aCErrnoException)) &&
@@ -80,99 +80,99 @@ BEGIN_CODE
 	    );
   
 END_CODE
-1CErrnoException7getErrnoInt_tpublic010010000000
+1CErrnoException58getErrnoInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nErrno;
   
 END_CODE
-1CErrnoException8setErrnovoidprotected000010000000
+1CErrnoException59setErrnovoidprotected000010000000
 BEGIN_CODE
  
     m_nErrno = am_nErrno;
   
 END_CODE
-1CErrnoException9ReasonTextchar*public010110000000
+1CErrnoException60ReasonTextchar*public010110000000
 BEGIN_CODE
 
 END_CODE
-1CErrnoException10ReasonCodeInt_tpublic010110000000
+1CErrnoException61ReasonCodeInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-2CException11~CExceptionpublic000110000000
+2CException62~CExceptionpublic000110000000
 BEGIN_CODE
  
 END_CODE
-2CException12CExceptionpublic000010000000
+2CException63CExceptionpublic000010000000
 BEGIN_CODE
 
 END_CODE
-2CException13CException$public000010000000
+2CException64CException$public000010000000
 BEGIN_CODE
 
 END_CODE
-2CException14CException$$public000010000000
+2CException65CException$$public000010000000
 BEGIN_CODE
 
 END_CODE
-2CException15operator=CException&public000010000000
+2CException66operator=CException&public000010000000
 BEGIN_CODE
 
 END_CODE
-2CException16operator==intpublic000010000000
+2CException67operator==intpublic000010000000
 BEGIN_CODE
 
 END_CODE
-2CException17operator!=intpublic000010000000
+2CException68operator!=intpublic000010000000
 BEGIN_CODE
 
     return !(operator==(rException));
   
 END_CODE
-2CException18getActionchar*public010010000000
+2CException69getActionchar*public010010000000
 BEGIN_CODE
 
 	  return m_szAction;
   
 END_CODE
-2CException19setActionvoidprotected000010000000
+2CException70setActionvoidprotected000010000000
 BEGIN_CODE
 
 END_CODE
-2CException20setAction$voidprotected000010000000
+2CException71setAction$voidprotected000010000000
 BEGIN_CODE
 
 END_CODE
-2CException21ReasonTextchar*public010110000000
+2CException72ReasonTextchar*public010110000000
 BEGIN_CODE
 
 END_CODE
-2CException22ReasonCodeInt_tpublic010110000000
+2CException73ReasonCodeInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-2CException23WasDoingchar*public010010000000
+2CException74WasDoingchar*public010010000000
 BEGIN_CODE
 
 END_CODE
-2CException24DoAssignvoidprotected000110000000
+2CException75DoAssignvoidprotected000110000000
 BEGIN_CODE
 
 END_CODE
-3CRangeError25CRangeErrorpublic000010000000
+3CRangeError76CRangeErrorpublic000010000000
 BEGIN_CODE
  UpdateReason(); 
 END_CODE
-3CRangeError26CRangeError$public000010000000
+3CRangeError77CRangeError$public000010000000
 BEGIN_CODE
  UpdateReason(); 
 END_CODE
-3CRangeError27~CRangeErrorpublic000110000000
+3CRangeError78~CRangeErrorpublic000110000000
 BEGIN_CODE
  
 END_CODE
-3CRangeError28CRangeError$$public000010000000
+3CRangeError79CRangeError$$public000010000000
 BEGIN_CODE
 
     m_nLow = aCRangeError.m_nLow;
@@ -181,7 +181,7 @@ BEGIN_CODE
     UpdateReason();
   
 END_CODE
-3CRangeError29operator=CRangeErrorpublic000010000000
+3CRangeError80operator=CRangeErrorpublic000010000000
 BEGIN_CODE
  
     if (this != &aCRangeError) {
@@ -195,7 +195,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-3CRangeError30operator==intpublic000010000000
+3CRangeError81operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -206,79 +206,79 @@ BEGIN_CODE
 	    );
   
 END_CODE
-3CRangeError31getLowInt_tpublic010010000000
+3CRangeError82getLowInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nLow;
   
 END_CODE
-3CRangeError32getHighInt_tpublic010010000000
+3CRangeError83getHighInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nHigh;
   
 END_CODE
-3CRangeError33getRequestedInt_tpublic010010000000
+3CRangeError84getRequestedInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nRequested;
   
 END_CODE
-3CRangeError34setLowvoidprotected000010000000
+3CRangeError85setLowvoidprotected000010000000
 BEGIN_CODE
  
     m_nLow = am_nLow;
     UpdateReason();
   
 END_CODE
-3CRangeError35setHighvoidprotected000010000000
+3CRangeError86setHighvoidprotected000010000000
 BEGIN_CODE
  
     m_nHigh = am_nHigh;
     UpdateReason();
   
 END_CODE
-3CRangeError36setRequestedvoidprotected000010000000
+3CRangeError87setRequestedvoidprotected000010000000
 BEGIN_CODE
  
     m_nRequested = am_nRequested;
     UpdateReason();
   
 END_CODE
-3CRangeError37ReasonTextchar*public010110000000
+3CRangeError88ReasonTextchar*public010110000000
 BEGIN_CODE
 
 END_CODE
-3CRangeError38ReasonCodeInt_tpublic010110000000
+3CRangeError89ReasonCodeInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-3CRangeError39UpdateReasonvoidprotected000010000000
+3CRangeError90UpdateReasonvoidprotected000010000000
 BEGIN_CODE
 
 END_CODE
-4CStreamIOError40CStreamIOErrorpublic000010000000
+4CStreamIOError91CStreamIOErrorpublic000010000000
 BEGIN_CODE
 }
 END_CODE
-4CStreamIOError41CStreamIOError$public000010000000
+4CStreamIOError92CStreamIOError$public000010000000
 BEGIN_CODE
 }
 END_CODE
-4CStreamIOError42~CStreamIOErrorpublic000010000000
+4CStreamIOError93~CStreamIOErrorpublic000010000000
 BEGIN_CODE
  
 END_CODE
-4CStreamIOError43CStreamIOError$$public000010000000
+4CStreamIOError94CStreamIOError$$public000010000000
 BEGIN_CODE
  
   
 END_CODE
-4CStreamIOError44operator=CStreamIOError&private000010000000
+4CStreamIOError95operator=CStreamIOError&private000010000000
 BEGIN_CODE
 
 END_CODE
-4CStreamIOError45operator==intpublic000010000000
+4CStreamIOError96operator==intpublic000010000000
 BEGIN_CODE
 
     return ( CException::operator==(aCStreamIOError)              &&
@@ -287,33 +287,33 @@ BEGIN_CODE
 	     );
   
 END_CODE
-4CStreamIOError46getReasonIoStreamConditionspublic010010000000
+4CStreamIOError97getReasonIoStreamConditionspublic010010000000
 BEGIN_CODE
  
     return m_eReason;
   
 END_CODE
-4CStreamIOError47getStreamios&public000010000000
+4CStreamIOError98getStreamios&public000010000000
 BEGIN_CODE
  
     return m_rStream;
   
 END_CODE
-4CStreamIOError48getErrorMessagechar*public010010000000
+4CStreamIOError99getErrorMessagechar*public010010000000
 BEGIN_CODE
 
 END_CODE
-4CStreamIOError49setReasonvoidprotected000010000000
+4CStreamIOError100setReasonvoidprotected000010000000
 BEGIN_CODE
  
     m_eReason = am_eReason;
   
 END_CODE
-4CStreamIOError50ReasonTextchar*public010110000000
+4CStreamIOError101ReasonTextchar*public010110000000
 BEGIN_CODE
 
 END_CODE
-4CStreamIOError51ReasonCodeInt_tpublic010110000000
+4CStreamIOError102ReasonCodeInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
@@ -322,45 +322,45 @@ END_CODE
 Parameters
 OperID, Parameter Text
 ***BEGIN_TABLE***
-1 const  char*/pszAction//
-2 const  std::string&/rsAction//
-4 const  CErrnoException&/aCErrnoException//
-5 const  CErrnoException&/aCErrnoException//
-6 const  CErrnoException&/aCErrnoException//
-8 Int_t/am_nErrno//
-12 const  char*/pszAction//
-13 const  std::string&/rsAction//
-14 const  CException&/aCException//
-15 const  CException&/aCException//
-16 const  CException&/aCException//
-17 const  CException&/rException//
-19 const  char*/pszAction//
-20 const  std::string&/rsAction//
-24 const  CException&/rhs//
-25 Int_t/nLow//
-25 Int_t/nHigh//
-25 Int_t/nRequested//
-25 const  char*/pDoing//
-26 Int_t/nLow//
-26 Int_t/nHigh//
-26 Int_t/nRequested//
-26 const  string&/rDoing//
-28 const  CRangeError&/aCRangeError//
-29 const  CRangeError&/aCRangeError//
-30 const  CRangeError&/aCRangeError//
-34 Int_t/am_nLow//
-35 Int_t/am_nHigh//
-36 Int_t/am_nRequested//
-40 IoStreamConditions/eReason//
-40 const  char*/pDoing//
-40 ios&/rStream//
-41 IoStreamConditions/eReason//
-41 const  string&/rDoing//
-41 ios&/rStream//
-43 const  CStreamIOError&/aCStreamIOError//
-44 const  CStreamIOError&/aCStreamIOError//
-45 const  CStreamIOError&/aCStreamIOError//
-49 const  IoStreamConditions/am_eReason//
+52 const  char*/pszAction//
+53 const  std::string&/rsAction//
+55 const  CErrnoException&/aCErrnoException//
+56 const  CErrnoException&/aCErrnoException//
+57 const  CErrnoException&/aCErrnoException//
+59 Int_t/am_nErrno//
+63 const  char*/pszAction//
+64 const  std::string&/rsAction//
+65 const  CException&/aCException//
+66 const  CException&/aCException//
+67 const  CException&/aCException//
+68 const  CException&/rException//
+70 const  char*/pszAction//
+71 const  std::string&/rsAction//
+75 const  CException&/rhs//
+76 Int_t/nLow//
+76 Int_t/nHigh//
+76 Int_t/nRequested//
+76 const  char*/pDoing//
+77 Int_t/nLow//
+77 Int_t/nHigh//
+77 Int_t/nRequested//
+77 const  string&/rDoing//
+79 const  CRangeError&/aCRangeError//
+80 const  CRangeError&/aCRangeError//
+81 const  CRangeError&/aCRangeError//
+85 Int_t/am_nLow//
+86 Int_t/am_nHigh//
+87 Int_t/am_nRequested//
+91 IoStreamConditions/eReason//
+91 const  char*/pDoing//
+91 ios&/rStream//
+92 IoStreamConditions/eReason//
+92 const  string&/rDoing//
+92 ios&/rStream//
+94 const  CStreamIOError&/aCStreamIOError//
+95 const  CStreamIOError&/aCStreamIOError//
+96 const  CStreamIOError&/aCStreamIOError//
+100 const  IoStreamConditions/am_eReason//
 ***END_TABLE***
 
 Includes

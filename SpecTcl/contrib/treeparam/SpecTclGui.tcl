@@ -1,24 +1,34 @@
-proc StartSpecTclGUI {} {
+proc StartSpecTclGUI {port} {
 	global SpecTclHome guishell
-	set guishell [open "|wish" "r+"]
+        global ClientState
+        puts "Starting gui connecting to port $port"
+	set guishell [open "|wish" "w+"]
+        puts "puts $guishell set serverport $port"
+        puts $guishell "set serverport $port" 
+        flush $guishell
 	puts $guishell "set SpecTclHome $SpecTclHome"
 	flush $guishell
 	puts $guishell "source $SpecTclHome/contrib/treeparam/TopGui.tcl"
 	flush $guishell
+        set ClientState "Up"
 }
 
 proc StopSpecTclGUI {} {
 	global guishell
+        global ClientState
 	puts $guishell exit
 	flush $guishell
+        set ClientState Down
+    
 }
 
 proc StartStopSpecTclGUI {} {
 	global ClientState
+        global serverport
     if {[string compare $ClientState Up] == 0} {
         StopSpecTclGUI
     } else {
-        StartSpecTclGUI
+        StartSpecTclGUI $serverport
     }
 }
 
@@ -291,9 +301,22 @@ proc lswap {list index1 index2} {
 }
 
 source $SpecTclHome/contrib/treeparam/server.tcl
-set spectclserver [socket -server ServerAccept 9111]
-StartSpecTclGUI
 
+set serverport 9111
+set notok         1
+
+while {$notok} {
+    if {[catch "set spectclserver [socket -server ServerAccept $serverport]"] == 0} {
+	set notok 0
+    } else {
+	incr serverport
+    }
+}
+
+trace variable ClientState w UpdateStartStopGUI
 button .startstopgui -text "Start SpecTcl GUI" -command StartStopSpecTclGUI
 pack .startstopgui -expand 1 -fill both -side bottom
-trace variable ClientState w UpdateStartStopGUI
+
+StartSpecTclGUI $serverport
+
+
