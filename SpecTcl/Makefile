@@ -53,7 +53,9 @@ system:
 	fi; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(umask 02; cd Gri; ./configure; make; make install INSTDIR=$(INSTDIR) \
-	GRI_DIRECTORY_LIBRARY=$(INSTDIR)/Etc)
+	GRI_DIRECTORY_LIBRARY=$(INSTDIR)/Etc; \
+	chmod a+r $(INSTDIR)/Etc/gri.cmd \
+	)
 	(umask 02; cd Exception; \
 	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
