@@ -78,7 +78,7 @@ defaultfile_lex.o: windfile.l defaultfile.l dispwind.h superpos.h \
 	$(LEX) defaultfile.l
 	sed s/yy/defaultfile/g $(LEXOUT) >defaultfile_lex.cc
 	cp defaultfile_lex.h windlex.h
-	$(CC) $(XCCFLAGS) -DDEFAULTFILE defaultfile_lex.cc
+	$(CC) $(XCCFLAGS)  defaultfile_lex.cc
 
 bin_PROGRAMS = Xamine colorset
 
@@ -133,10 +133,15 @@ acceptgates.cc clirequests.cc prccheck.c spccheck.cc superpos.cc \
 superprompt.cc objcopy.cc copier.cc lblfont.cc checklist.cc \
 compatspec.cc copyatr.cc  buttonreq.cc buttondlg.cc \
 spcchoice.cc spccompatchoice.cc spclimchoice.cc ptlist.cc \
-lexsupport.c gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc \
-windfile_parse.cc windfile_lex.cc \
- grobfile_lex.cc grobfile_parse.cc \
- defaultfile_lex.cc defaultfile_parse.cc
+lexsupport.c gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc 
+
+# windfile_parse.cc windfile_lex.cc \
+#  grobfile_lex.cc grobfile_parse.cc \
+#  defaultfile_lex.cc defaultfile_parse.cc
+
+PARSEOBJECTS=windfile_parse.o windfile_lex.o grobfile_lex.o grobfile_parse.o \
+	defaultfile_lex.o defaultfile_parse.o
+
 
 
 colorset_SOURCES = colorset.cc $(MOTIF_SOURCES) errormsg.cc helpmenu.cc \
@@ -147,7 +152,7 @@ Xaminetest_SOURCES = Xaminetest.c
 EXTRA_Xamine_SOURCES = defaultfile.y grobfile.y windfile.y defaultfile.l \
 grobfile.l windfile.l
 
-Xamine_LDADD = -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
+Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
 colorset_LDADD = -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
