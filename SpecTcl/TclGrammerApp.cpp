@@ -285,6 +285,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.15  2003/08/27 15:45:31  ron-fox
+  - Converted comments to Doxygen
+  - Create the sink pipeline in TclGrammerApp.cpp rather than relying on
+    global construction /initialization to get it done when we want it.
+    (removed frmo Globals.cpp).
+
   Revision 4.14  2003/08/25 16:25:32  ron-fox
   Initial starting point for merge with filtering -- this probably does not
   generate a goo spectcl build.
@@ -376,9 +382,10 @@ static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 // Static attribute storage and initialization for CTclGrammerApp
 
 // Constructors, destructors and other replacements for compiler cannonicals:
-
-// Default constructor alternative to compiler provided default constructor.
-// Association object data member pointers initialized to null association object.
+/*!
+   Constructing a CTclGrammerApp is what glues the library called SpecTcl
+   into the program called SpecTcl.
+*/
 CTclGrammerApp::CTclGrammerApp() :
   CTCLApplication(),
   m_nDisplaySize(knDisplaySize),
@@ -410,25 +417,28 @@ CTclGrammerApp::CTclGrammerApp() :
 }
 
 // Destructor:
+/*!
+   Since exit singals exit from the application (SpecTcl), and since
+   I've now got some order issues which result in core dumps on cleanup,
+   We'll try not deleting any of the members.
+*/
 CTclGrammerApp::~CTclGrammerApp() {
-  // Since exit singals exit from the application (SpecTcl), and since
-  // I've now got some order issues which result in core dumps on cleanup,
-  // We'll try not deleting any of the members.
+
 }
 
 // Functions for class CTclGrammerApp
 
-//  Function:
-//    void RegisterEventProcessor(CEventProcessor& rEventProcessor)
-//  Operation Type:
-//     Mutator
-/*
-  Purpose:
+/*!
+
   Add an event processor to the list of event processors 
   maintained by SpecTcl's analyzer.  This can only be 
   safely called at the time or after the time that 
   CreateAnalysisPipeline is called, since prior to that 
   there's no assurance that the analyzer has been instantiated.
+
+  \param rEventProcessor (in):
+     Reference  to the event processor to add to the pipeline
+
 */
 void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor) {
   // The global pointer is used in case the analyzer build was overridden.
@@ -487,8 +497,8 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
 //    void SourceLimitScripts(CTCLInterpreter& rInterpreter)
 //  Operation Type:
 //     Behavior
-/*
-  Purpose:
+/*!
+
   Sources initialization scripts.  The scripts
   sourced at this point in time are intended to
   allow additional variables to be defined and set
@@ -500,7 +510,10 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   sources scripts which set various limit variables and
   therefore an override should include the code:
 
-  CTclGrammerApp::operator()(rInterpreter);
+  \param rInterpreter (in):
+      Reference to the interpreter that will be used to 
+      source the scripts.
+
 */
 void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter) {
   // The script being run is intended to set initial values
@@ -542,15 +555,15 @@ void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter) {
 //    void SetLimits()
 //  Operation Type:
 //     Behavior
-/*
-  Purpose:
+/*!
+
   Based on script variables etc. set limits and other statically defined variables.
   The default implementation uses this to set the final values for the size of
   the display subsystem shared memory, the parameter array size and the
   size of the event list.  If this method is overridden, you should call the
   base class functionality to ensure that SpecTcl is properly started:
 
-  CTclGrammerApp::SetLimits();
+
 */
 void CTclGrammerApp::SetLimits() {
   UInt_t nResult;
@@ -571,43 +584,53 @@ void CTclGrammerApp::SetLimits() {
 //    void CreateHistogrammer()
 //  Operation Type:
 //     Behavior
-/*
-  Purpose:
-  Create the Histogrammer object and link it in as
-  SpecTcl's data sink.  This behavior can be overidden.
-  If a different data sink object is created, the global
-  variable:  gpEventSink must be set to point to it.
+/*!
+
+  Sets up the initial data sink configuration of spectcl.  SpecTcl
+  supports an ordered set of processors that take unpacked event lists
+  and operate on them to produce the desired analysis.  By default, Spectcl
+  always an initial default entry in this <em> event sink pipeline, </em>
+  a histogrammer.  This function creates the pipeline, hooks it into the 
+  program superstructure, creates the histogrammer and inserts it in the
+  pipeline.
 */
 void CTclGrammerApp::CreateHistogrammer() {
-  // Make the histogrammer, and immediately point to it and put in the EventSinkPipeline.
-  m_pHistogrammer = new CTCLHistogrammer(gpInterpreter, m_nDisplaySize*kn1M);
-  gpEventSinkPipeline->AddEventSink(*m_pHistogrammer);
+  gpEventSinkPipeline = new CEventSinkPipeline;
+  m_pHistogrammer     = new CTCLHistogrammer(gpInterpreter, 
+					     m_nDisplaySize*kn1M);
   gpEventSink = m_pHistogrammer;
+  gpEventSinkPipeline->AddEventSink(*m_pHistogrammer);
 }
 
 //  Function:
 //    void SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogrammer)
 //  Operation Type:
 //     Behavior
-/*
-  Purpose:
+/*!
+
   Selects the displayer and hooks it into the histogrammer.
-  Note:  In the current architecture, this is a No-Op, however,
+  Note:  In the current architecture, this selection is hardwired, however
   in the future, we will support turning on and off displayers, null
   displayers and so on and this member function will be useful
   at that time.
+  \param nDisplaySize (in)
+     The size of the display shared memory in mbytes.
+  \param rHistogrammer (in)
+     A reference to the histogrammer object.
 */
-void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogrammer) {
+void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, 
+				     CHistogrammer& rHistogrammer) 
+{
   // We need to set up the Xamine event handler however:
-  m_pXamineEvents = new CXamineEventHandler(gpInterpreter, (CHistogrammer*)gpEventSink);
+  m_pXamineEvents = new CXamineEventHandler(gpInterpreter, 
+					    (CHistogrammer*)gpEventSink);
 }
 
 //  Function:
 //    void SetupTestDataSource()
 //  Operation Type:
 //     Behavior
-/*
-  Purpose:
+/*!
   Sets up a test (internal) data source.  The default
   behavior is to create  fixed length event with some
   gaussian distributions for parameters.  This source is
@@ -616,8 +639,10 @@ void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistog
   necessary to create and setup the run control object.
 */
 void CTclGrammerApp::SetupTestDataSource() {
-  // Uses a singleton map with at least the default test, but also possibly named user-defined test distributions.
-  CMultiTestSource* m_pMultiTestSource = CMultiTestSource::GetInstance(); // Makes the singleton if it doesn't exist, or gets it if it does.
+  // Uses a singleton map with at least the default test, 
+  // but also possibly named user-defined test distributions.
+
+  CMultiTestSource* m_pMultiTestSource = CMultiTestSource::GetInstance(); 
   m_pMultiTestSource->useDefaultTestSource();
 }
 
@@ -625,14 +650,16 @@ void CTclGrammerApp::SetupTestDataSource() {
 //    void CreateAnalyzer(CEventSink* pSink)
 //  Operation Type:
 //     Behavioral
-/*
-  Purpose:
+/*!
   Creates a data analyzer.  The histogrammer
   in gpEventSink is set as the analyzer's event sink.
   Note that by default a CTclAnalyzer is created.
+  \param pSink (in)
+     The event sink to which unpacked event lists are sent.
 */
 void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink) {
   // A TCLAnalyzer is created as the analyzer
+
   m_pAnalyzer = new CTclAnalyzer(*gpInterpreter,
 				 m_nParams,
 				 m_nListSize);
@@ -640,6 +667,8 @@ void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink) {
 
   // The histogrammer is hooked to the analyzer as an event sink:
   //m_pAnalyzer->AttachSink(*gpEventSink);
+
+
   m_pAnalyzer->AttachSink(*gpEventSinkPipeline);
 }  
 
@@ -647,12 +676,18 @@ void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink) {
 //    void SelectDecoder(CAnalyzer& rAnalyzer)
 //  Operation Type:
 //     Behavioral
-/*
-  Purpose:
-  Selects the Buffer decoder to be associated with the
+/*!
+
+  Selects the initial Buffer decoder to be associated with the
   data stream.  The default is to instantiate an NSCLBufferDecoder,
   connect it to the global pointer: gpBufferDecoder  and in turn
-  to the analyzer.
+  to the analyzer.  Now switches on the attach command can select a buffer
+  decoder.
+
+  \param rAnalyzer [modified]
+     The analyzer object that is being fed raw data.
+
+
 */
 void CTclGrammerApp::SelectDecoder(CAnalyzer& rAnalyzer) {
   // An NSCL Buffer decoder is produced, saved and hooked to the analyzer:
@@ -665,8 +700,8 @@ void CTclGrammerApp::SelectDecoder(CAnalyzer& rAnalyzer) {
 //    void CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
 //  Operation Type:
 //     Behavioral
-/*
-  Purpose:
+/*!
+
   This must be provided by the subclass.  The experimenter
   must set up the analysis pipeline which manages the
   data received from the data source.  This pipeline
@@ -674,6 +709,15 @@ void CTclGrammerApp::SelectDecoder(CAnalyzer& rAnalyzer) {
   derived objects.
 
   Therefore this member function is abstract.
+
+  \param rAnalyzer[modified]
+     The analyzer in which the pipeline is being created.
+
+  (NOTE: g++ allows us to 'implement' an abstract member, however the
+  member is still treated as abstract externally. We may  need to yank
+  this function definition with later compiler versions.
+
+
 */
 void CTclGrammerApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer) {}
 
@@ -681,15 +725,16 @@ void CTclGrammerApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer) {}
 //    void AddCommands(CTCLInterpreter& rInterp)
 //  Operation Type:
 //     Behavioral
-/*
-  Purpose:
+/*!
+
   Registers the commands and command packages
   which make up SpecTcl.  Note that the default
   method registers the standard SpecTcl commands.
   If an override is supplied to add user commands, you
   must invoke the base class function at some point:
 
-  CTclGrammerApp::AddCommands(rInterp);
+  \param rInterp [modified]
+     The interpreter on which the commands are being registered.
 */
 void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   // All of the 'standard' SpecTcl commands are organized as packages
@@ -725,6 +770,7 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   CFilterCommand* pFilterCommand = new CFilterCommand(rInterp);
   pFilterCommand->Bind(rInterp);
   pFilterCommand->Register();
+  cerr << "Filter command (c) 2003 NSCL written by  Kanayo Orji\n";
 
   cerr.flush();
 }
@@ -733,15 +779,20 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
 //    void SetupRunControl()
 //  Operation Type:
 //
-/*
-  Purpose:
+/*!
+   Setup the run control management.  Run control in this case means
+   managing the events that can indicate data readiness, enabling and 
+   disabling this.
+
 */
 void CTclGrammerApp::SetupRunControl() {
   // We use a Tk run control.  That's able to make use of the Tk
   // event loop processing software:
 
   // We use the globals in case some functions have been overridden.
-  m_pRunControl = new CTKRunControl(gpInterpreter, *gpAnalyzer, *gpEventSource);
+
+  m_pRunControl = new CTKRunControl(gpInterpreter, *gpAnalyzer, 
+				    *gpEventSource);
   gpRunControl = m_pRunControl;
 }
 
@@ -749,16 +800,20 @@ void CTclGrammerApp::SetupRunControl() {
 //    void SourceFunctionalScripts(CTCLInterpreter& rInterp)
 //  Operation Type:
 //     Behavioral
-/*
-  Purpose:
+/*!
+
   This function provides an opportunity to
   source scripts which perform functional
   operations either in spectcl or in other (e.g. Tk, Blt)
   packages which are now all hooked together properly.
-  We'll try to locate SpecTclRC.tcl firt in ~ and then in .
-  >> Changed behavior... used to only look in ~
-  >> Both will be run.
-  >>
+  We'll try to locate SpecTclRC.tcl first in ~ and then in .
+
+  \note Changed behavior... used to only look in ~
+  All found ones will be run in the order found.
+
+  \param rInterp [in]:
+    The interpreter that will execute these scripts.
+  
 */
 void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
   try {				// First run the ~ script:
@@ -784,8 +839,8 @@ void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
 //    int operator()()
 //  Operation Type:
 //     Entry point
-/*
-  Purpose:
+/*!
+  
   Called when the tcl interpreter starts up.  The base
   functionality is to call the action member functions
   (e.g. CreateAnalyzer) in the appropriate order.  This
