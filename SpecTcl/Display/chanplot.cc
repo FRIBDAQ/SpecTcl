@@ -115,7 +115,6 @@ void Xamine_getsubwindow(XMWidget *pane, win_attributed *att,
      att->showdescrip() ||  att->showpeak() ||
      att->showupdt()    ||  att->showlbl()) {
     int newny;
-    float ym;			/*  Titles only use up y space. */
 
     newny = (int)((float)*ny * (1.0 - XAMINE_MARGINSIZE/2.0));
     *ny   = newny;
@@ -146,9 +145,7 @@ GC Xamine_MakeDrawingGc(Display *disp, XMWidget *win, int selector)
 {
   XGCValues modifiers;
   XamineSpectrumGC *gc = Xamine_GetSpectrumGC(*win);
-  unsigned long modmask;
 
-  GC context = gc->gc;
   win->GetAttribute(XmNbackground, &modifiers.background);
   win->GetAttribute(XmNforeground, &modifiers.foreground);
   modifiers.line_style = LineSolid;
@@ -203,7 +200,6 @@ int Xamine_DrawChannels(Xamine_RefreshContext *ctx, win_attributed *def)
   ** everyone else needs:
   */
 
-  pane_db  *pdb  = Xamine_GetPaneDb();
   XMWidget *pane = ctx->pane;
   Screen   *scr  = XtScreen(pane->getid());
   Display  *disp = XtDisplay(pane->getid());
