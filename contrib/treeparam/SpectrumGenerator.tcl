@@ -52,10 +52,10 @@ proc CreateSpectrumGenerator {parent} {
 			radiobutton $type.n.bit -text "Bitmask" -variable spectrumType -value b -command SpectrumTypeBitmask -background $optionscolor
 			radiobutton $type.n.1g -text "Gamma1D" -variable spectrumType -value g1 -command SpectrumType1G -background $optionscolor
 			radiobutton $type.n.2g -text "Gamma2D" -variable spectrumType -value g2 -command SpectrumType2G -background $optionscolor
-			radiobutton $type.n.gp -text "GammaP" -variable spectrumType -value gp -command SpectrumTypeGP -background $optionscolor
-			grid $type.n.1d $type.n.bit $type.n.gp -sticky w
-			grid $type.n.2d $type.n.1g x -sticky w
-			grid $type.n.sum $type.n.2g x -sticky w
+#			radiobutton $type.n.gp -text "GammaP" -variable spectrumType -value gp -command SpectrumTypeGP -background $optionscolor
+			grid $type.n.1d $type.n.bit -sticky w
+			grid $type.n.2d $type.n.1g -sticky w
+			grid $type.n.sum $type.n.2g -sticky w
 			pack $type.label $type.n
 		pack $type -expand 1 -fill both -side left
 	
@@ -567,8 +567,12 @@ proc CreateSpectrum {SpectrumList Name ParameterList ResolutionList} {
 	} else {
 #		if {[string match [tk_messageBox -icon warning -message "The spectrum $Name already exists.  Do you want to overwrite it?" \
 		-title Warning -type yesno -parent .gui] yes]} {
+			set gate [lindex [lindex [lindex [apply -list $Name] 0] 1] 0]
 			spectrum -delete $Name
 			spectrum $Name $spectrumType $ParameterList $ResolutionList $spectrumDatatype
+			if {![string equal $gate -TRUE-]} {
+				apply $gate $Name
+			}
 			puts "Spectrum $Name replaced"
 #		}
 	}
