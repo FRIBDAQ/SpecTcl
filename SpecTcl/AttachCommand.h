@@ -352,16 +352,21 @@ class CAttachCommand : public CTCLPackagedCommand {
   virtual int operator()(CTCLInterpreter& rInterp,
 			 CTCLResult& rResult,
 			 int nArgs, char* pArgs[]);
-  int AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[]);
-  int AttachTape(CTCLResult& rResult, int nArgs, char* pArgs[]);
-  int AttachPipe(CTCLResult& rResult, int nArgs, char* pArgs[]);
-  int AttachTest(CTCLResult& rResult, int nArgs, char* pArgs[]); // Random test data.
-  int AttachNull(CTCLResult& rResult, int nArgs, char* pArgs[]); // No data!
+  int AttachFile(CTCLResult& rResult, const string& Connection,
+		 long nBytes);
+  int AttachTape(CTCLResult& rResult,  const string& Connection,
+		 long nBytes);
+  int AttachPipe(CTCLResult& rResult,  const string& Connection,
+		 long nBytes);
+  int AttachTest(CTCLResult& rResult,  const string& Connection,
+		 long nBytes);
+  int AttachNull(CTCLResult& rResult,  const string& Connection,
+		 long nBytes);
 
  protected:
   static void Usage(CTCLResult& rResult);
   static Switch_t ParseSwitch(char* pSwitch);
-  string ParseFileName(string&);
+
 };
 
 #endif

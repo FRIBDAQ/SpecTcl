@@ -319,6 +319,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "DataSourcePackage.h"
 #include "TCLAnalyzer.h"
 #include "FilterBufferDecoder.h"
+#include "NSCLBufferDecoder.h"
 #include "FilterEventProcessor.h"
 // For test data:
 #include "GaussianDistribution.h"
@@ -344,6 +345,27 @@ static const SwitchDef SwitchTable[] = {
   {"-null", CAttachCommand::keNull}
 };
 
+typedef enum {
+  eUnspecified,
+  eFile,
+  eTape,
+  ePipe,
+  eTest,
+  eNull} SourceType;		// Possible source types:
+
+struct OptionInfo {
+  SourceType eSource;		// Source type.
+  string     Format;		// Format selector string.
+  long        nBytes;		// Blocksize.
+  string     Connection;	// Connection string.
+  OptionInfo() {		// Construct with default parameters.
+    eSource = eUnspecified;
+    Format  = "nscl";
+    nBytes  = knDefaultBufferSize;
+    Connection = "";
+  }
+};
+
 static const UInt_t nSwitches = sizeof(SwitchTable)/sizeof(SwitchDef);
 
 // Functions for class CAttachCommand
@@ -356,160 +378,202 @@ static const UInt_t nSwitches = sizeof(SwitchTable)/sizeof(SwitchDef);
 //  Operation Type:
 //     Function operator.
 //
+/*!
+   Parses and implements the attach TCL Command.
+   
+   Formal Parameters:
+      \param  rInterp (in)
+          Refers to the interpreter which is running this command.
+      \param rResult (out)
+          Refers to the result string associated with the interpreter.
+      \param nArgs (in)
+          Number of parameters on the command line.
+      \param pArgs[] (in)
+          Argument list for the command parameters.
+       
+   \return int one of:
+   - TCL_OK  - If the function worked correctly.
+   - TCL_ERROR - If not.
+*/
 int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			       int nArgs, char* pArgs[])
 {
-  // Parses and implements the attach TCL Command.
-  // 
-  // Formal Parameters:
-  //    CTCLInterpreter& rInterp:
-  //        Refers to the interpreter which is running this command.
-  //    CTCLResult& rResult:
-  //        Refers to the result string associated with the interpreter.
-  //    int nArgs, char* pArgs[]:
-  //        Argument list for the command parameters.
+
   nArgs--;
   pArgs++;
+  OptionInfo options;
+  int        numSourceTypes(0);
 
-  // Require at least 1 (no longer 2) additional parameters.
-  if(nArgs < 1) { // Can have only 1 additional parameter due to -test and -null.
-    Usage(rResult);
-    return TCL_ERROR;
-  }
+  while(nArgs > 0) {
+    Switch_t nextSw = ParseSwitch(*pArgs);
+    switch (nextSw) {
 
-  // Determine what the first switch is:
-  char* pSwitch = pArgs[0];
-  nArgs--;
-  pArgs++;
+      // Types of data sources... there must only be one so we
+      // count and check this later:
 
-  switch(ParseSwitch(pSwitch)) {
-  case keFile:
-    return AttachFile(rResult, nArgs, pArgs);
+    case keFile:
+      numSourceTypes++;
+      options.eSource = eFile;
+      break;
+    case keTape:
+      numSourceTypes++;
+      options.eSource = eTape;
+      break;
+    case kePipe:
+      numSourceTypes++;
+      options.eSource = ePipe;
+      break;
+    case keTest:
+      numSourceTypes++;
+      options.eSource = eTest;
+      break;
+    case keNull:
+      numSourceTypes++;
+      options.eSource = eNull;
+      break;
 
-  case keTape:
-    return AttachTape(rResult, nArgs, pArgs);
+      // -size nBytes.
 
-  case kePipe:
-    return AttachPipe(rResult, nArgs, pArgs);
-
-  case keTest:
-    return AttachTest(rResult, nArgs, pArgs);
-
-  case keNull:
-    return AttachNull(rResult, nArgs, pArgs);
-
-  case keNotSwitch:
-    rResult  = "Invalid command Switch: ";
-    rResult += pSwitch;
-    rResult += "\n";
-    Usage(rResult);
-    return TCL_ERROR;
-  }
-  assert(0); // Should not get here.
-};
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    int AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[])
-//  Operation Type:
-//     sub function
-//
-int CAttachCommand::AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[]) {
-  // Attaches a file as SpecTcl's data source.
-  //
-  // Formal Parameters:
-  //
-  //    CTCLResult& rResult
-  //        Refers to the command interpreter result string.
-  //    int nArgs:
-  //        Number of command line parameters.
-  //    char* pArgs[]:
-  //       Array of pointers to the command line parameters
-  char *pFileName, *pSwitch;
-  string sFileName = "", sFormat = "";
-  UInt_t nTmpSize = 0, nBlockSize = knDefaultBufferSize;
-
-  if(nArgs < 1) { // We should have a file name, at least.
-    Usage(rResult);
-    return TCL_ERROR;
-  }
-  pFileName = pArgs[0];
-  sFileName = string(pFileName);
-  sFileName = ParseFileName(sFileName);
-  pFileName = (char*)(sFileName.c_str());
-  nArgs--; pArgs++; // Adjust remaining parameter count.
-
-  if(nArgs > 0) {
-    if(nArgs == 1) { // Only block size remaining.
-      nTmpSize = atoi(pArgs[0]);
-      nArgs--; pArgs++; // Adjust remaining parameter count.
-      if(0 < nTmpSize && nTmpSize <= 1048576) { // 0 to 1M.
-	nBlockSize = (UInt_t)nTmpSize;
-      } else {
-	rResult = "Error: Invalid block size.\n";
+    case keBufferSize:
+      nArgs--; pArgs++;
+      if(nArgs <= 0) {
+	rResult = "Not enough parameters: need a size for -size\n";
 	Usage(rResult);
 	return TCL_ERROR;
       }
-    } else if(nArgs >= 2) { // Read format first, then attempt to read block size.
-      pSwitch = pArgs[0];
-      switch(ParseSwitch(pSwitch)) {
-      case keFormat:
-	sFormat = string(pArgs[1]);
-	transform(sFormat.begin(), sFormat.end(), sFormat.begin(), tolower); // To make case a non-issue.
-
-	if(sFormat == "filter") { // Filtered events.
-	  cerr << "Filtered event format specified." << endl;
-	  rResult += "Filtered event format specified.\n";
-
-	  if(gpBufferDecoder != (CBufferDecoder*)kpNULL) {
-	    delete gpBufferDecoder;
-	  }
-	  gpBufferDecoder = new CFilterBufferDecoder;
-
-	  if(gpAnalyzer) {
-	    gpAnalyzer->AttachDecoder(*gpBufferDecoder);
-#if 0 // Commented-out.
-	    CFilterEventProcessor* pFilterEventProcessor = new CFilterEventProcessor;
-	    ((CTclAnalyzer*)gpAnalyzer)->AddEventProcessor((CEventProcessor&)(*pFilterEventProcessor));
-#endif
-	  } else {
-	    rResult = "Error: Analyzer not present.\n";
-	    return TCL_ERROR;
-	  }
-
-	} else { // Normal NSCL events, buffer decoder, and event formatter assumed. Do nothing.
-	  cerr << "Normal event data assumed." << endl;
-	}
-	nArgs -= 2; pArgs += 2; // Adjust remaining parameter count.
-
-	if(nArgs > 0) { // Anything left? Assume the next element is the block size, and get it.
-	  nTmpSize = atoi(pArgs[0]);
-	  if(0 < nTmpSize && nTmpSize <= 1048576) { // 0 to 1M.
-	    nBlockSize = (UInt_t)nTmpSize;
-	  } else {
-	    rResult = "Error: Invalid block size.\n";
-	    Usage(rResult);
-	    return TCL_ERROR;
-	  }
-	  nArgs--; pArgs++;
-	}
-	break;
-      keNotSwitch:
-      default:
+      try {
+	options.nBytes = rInterp.ExprLong(*pArgs);
+	if(options.nBytes <= 0) throw string("nBytes < 0");
+      }
+      catch (...) {		// Invalid long expr.
+	rResult = "Block size must be an unsigned nonzero integer\n";
 	Usage(rResult);
 	return TCL_ERROR;
-      } // end switch.
-    } else {
-      Usage(rResult);
-      return TCL_ERROR;
+      }
+      break;
+
+      // -format {formatname}
+
+    case keFormat:
+      nArgs--; pArgs++;
+      if(nArgs <= 0) {
+	rResult = "Not enough parameters: need a format type\n";
+	Usage(rResult);
+	return TCL_ERROR;
+      }
+      options.Format = *pArgs;
+      break;
+
+      // This must be the connection string.  Eat up all the
+      // remaining parameters in to the connection string which is
+      // blank separated.
+      // 
+    case keNotSwitch:
+      options.Connection = ConcatenateParameters(nArgs, pArgs);
+      nArgs = 0;
+      break;
+    default:			// Should not go here.
+      assert(0);
+      
     }
+    nArgs--; pArgs++;
   }
 
-  // This generates an attach and an open of the disk file.
-  // the first additional parameter is the filename, and the second,
-  // the blocksize.  If the blocksize is missing, then knDefaultBuffersize
-  // is used.
+
+  // Now the parameters are parsed correctly and the options struct,
+  // together with numSourceTypes summarizes what we found.
+
+  if(numSourceTypes != 1) {	// Require exactly one src type:
+    rResult = "You must have exactly one data source type\n";
+    Usage(rResult);
+    return TCL_ERROR;
+  }
+
+  // Select the buffer decoder... for now we just have 2 hardwired
+  // buffer formats.. .later we'll build an extensible set of buffer
+  // decoders like the -format switch on the sread/swrite commands.
+
+  
+  if (options.Format == string("nscl")) {
+ 
+   delete gpBufferDecoder;	// Deletes of null is no-op.
+    gpBufferDecoder = new CNSCLBufferDecoder;
+
+  } else 
+    if (options.Format == string("filter")) {
+
+    delete gpBufferDecoder;
+    gpBufferDecoder = new CFilterBufferDecoder;
+
+  } else {			// Bad format.
+
+    rResult  = "Unrecognized format type: ";
+    rResult += options.Format;
+    rResult += "\n";
+    Usage(rResult);
+    return TCL_ERROR;
+
+  }
+  if(gpAnalyzer) {
+    gpAnalyzer->AttachDecoder(*gpBufferDecoder);
+  }
+
+  // It's now up to the individual attachers to figure out what's
+  // going on.  I don't want to expose the structure of the
+  // OptionInfo struct so I'm only passing pieces of it into the
+  // various attachers:
+
+
+  switch(options.eSource) {
+  case eFile:
+    options.Connection = rInterp.TildeSubst(options.Connection);
+    return AttachFile(rResult, options.Connection,
+		      options.nBytes);
+    break;
+  case eTape:
+    return AttachTape(rResult, options.Connection,
+		      options.nBytes);
+    break;
+  case ePipe:
+    return AttachPipe(rResult, options.Connection,
+		      options.nBytes);
+    break;
+  case eTest:
+    return AttachTest(rResult, options.Connection,
+		      options.nBytes);
+    break;
+  case eNull:
+    return AttachNull(rResult, options.Connection,
+		      options.nBytes);
+    break;
+  case eUnspecified:		// Prior tests should have
+  default:			// prevented these cases...
+    assert(0);			// Let me know noisily if I'm wrong.
+  }
+
+  assert(0);			// Should not return here.
+
+};
+
+
+/*!
+   Attaches a file as SpecTcl's data source.
+  
+  
+  
+      \param rResult (out):
+          Refers to the command interpreter result string.
+      \param name (in):
+          The filename after it has undergone a tilde expansion.
+      \param nSize (in):
+          Number of bytes per block in the file.
+   \return int status (see operator()).
+*/
+int CAttachCommand::AttachFile(CTCLResult& rResult, 
+			       const string& rName,
+			       long  nBytes)
+{
+
 
   // Now pFilename and nBlockSize are all set up for the open.
   // Try the attach, and if it works, then do the open:
@@ -518,117 +582,88 @@ int CAttachCommand::AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[]) {
   if(stat != TCL_OK)
     return stat;
 
-  return rPack.OpenSource(rResult, pFileName, nBlockSize);
+  return rPack.OpenSource(rResult, rName.c_str(), nBytes);
 };
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    int AttachTape ( CTCLResult& rResult, int nArgs, char* pArgs[] )
-//  Operation Type:
-//     subfunction
-//
-int CAttachCommand::AttachTape(CTCLResult& rResult, int nArgs, char* pArgs[]) {
-  //  Attaches a tape data source to SpecTcl.
-  //  Note that the attachment of tape data sources
-  //  enables the tape commands.
-  //
-  // Formal Parameters:
-  //     CTCLResult& rResult:
-  //        Tcl interpreter result string.
-  //     int nArgs, char* pArgs[]:
-  //        command line parameters.
 
-  if(nArgs != 1) {
-    Usage(rResult);
-    return TCL_ERROR;
-  }
+
+
+/*!
+    Attaches a tape data source to SpecTcl.
+    Note that the attachment of tape data sources
+    enables the tape commands.
+      \param rResult (out):
+          Refers to the command interpreter result string.
+      \param name (in):
+          The name of the device special file.
+      \param nSize (in):
+          Number of bytes per block in the file.
+   \return int status (see operator()). 
+
+
+*/
+int CAttachCommand::AttachTape(CTCLResult& rResult, 
+			       const string& rName,
+			       long nSize)
+{
+
   // This one is just an attach.  Opens are done using the tape -open 
   // command.
 
   CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
-  return rPack.AttachTapeSource(rResult, pArgs[0]);
+  return rPack.AttachTapeSource(rResult, rName.c_str());
 };
+/*!
+    Attaches a data source which comes through a pipe file.
+    These are programs which generate data on the fly and pipe
+    it to us.  For example, an online data source.
+    SpecTcl histogrammer.  
+      \param rResult (out):
+          Refers to the command interpreter result string.
+      \param name (in):
+          The command to run on the other end of the pipe. This
+	  command's stdout is used as the input to the pipe data
+	  source.
+      \param nSize (in):
+          Number of bytes per block of data.
+   \return int status (see operator()).   
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    int AttachPipe ( CTCLResult& rResult, int nArgs, char* pArgs[] )
-//  Operation Type:
-//     Subfunction
-//
-int CAttachCommand::AttachPipe(CTCLResult& rResult, int nArgs, char* pArgs[]) {
-  //  Attaches a data source which comes through a pipe file.
-  //  These are programs which generate data on the fly and pipe
-  //  it to us.  For example, an online data source.
-  //  SpecTcl histogrammer.  
-  //
-  //   Formal Parameters:
-  //         CTCLResult& rResult:
-  //              Results of the attempts.
-  //         int nArgs, char* pArgs[]
-  //              Parameter list.
-  // Returns:
-  //     TCL_OK        - If success.
-  //     TCL_ERROR     - If Failure.
+
+*/
+int CAttachCommand::AttachPipe(CTCLResult& rResult, 
+			       const string& rName,
+			       long          nBytes)
+{
   std::string Command;
 
-  if(nArgs < 1) {
-    Usage(rResult);
-    return TCL_ERROR;
-  }
-
-  // This maps into an attach and an open.   Information for the open
-  // is taken as follows:
-  //   If pArgs[0] is the switch -size then pArgs[1] is the blocksize, 
-  //   and all remaining arguments are the command string.
-  //   If not,all remaining parameters are the command string.
-  UInt_t nBlockSize = knDefaultBufferSize;
-
-  char* pSwitch = pArgs[0];
-  switch(ParseSwitch(pSwitch)) {
-  case keBufferSize:			// Size is provided.
-    if(nArgs < 3) {		// Need at least 3 total parameters.
-      Usage(rResult);
-      return TCL_ERROR;
-    }
-    nBlockSize  = atoi(pArgs[1]);
-    if(nBlockSize == 0) {	// illegal and atoi failed.
-      Usage(rResult);
-      return TCL_ERROR;
-    }
-    nArgs -= 2;			// Adjust remaining parameter count.
-    pArgs += 2;
-  
-  case keNotSwitch:		// Remainder is command line.
-    if(nArgs < 1) {
-      Usage(rResult);
-      return TCL_ERROR;
-    }
-    Command = ConcatenateParameters(nArgs, pArgs);
-    break;
-  default:			// Unexpected switch.
-    Usage(rResult);
-    return TCL_ERROR;
-  }
-
-  // Now we're ready to try the attach, and if that is successful, the open.
+ 
   CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
   int stat                  = rPack.AttachPipeSource(rResult);
   if(stat != TCL_OK) 
     return stat;
 
-  return rPack.OpenSource(rResult, Command.c_str(), nBlockSize);
+  return rPack.OpenSource(rResult, rName.c_str(), nBytes);
 };
 
-int CAttachCommand::AttachTest(CTCLResult& rResult, int nArgs, char* pArgs[]) {
-  UInt_t nBlockSize = knDefaultBufferSize;
-  string sTestName = "";
-
-  if((nArgs > 0) && (pArgs[0])) {
-    sTestName = string(pArgs[0]);
-  }
-
+/*!
+   Attaches a test data source.  The connection identifier is the
+   name of a test data source that has been stored in the
+   multi-event source.
+      \param rResult (out):
+          Refers to the command interpreter result string.
+      \param name (in):
+          The name of the test source to run.
+      \param nSize (in):
+          Number of bytes per block of data.
+   \return int status (see operator()).   
+*/
+int CAttachCommand::AttachTest(CTCLResult& rResult,
+			       const string& rName,
+			       long  nBytes)
+{
+  UInt_t nBlockSize = nBytes;
+  string sTestName = rName;
+  
   CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
   int stat = rPack.AttachTestSource(rResult);
   if(stat != TCL_OK) {
@@ -636,8 +671,21 @@ int CAttachCommand::AttachTest(CTCLResult& rResult, int nArgs, char* pArgs[]) {
   }
   return rPack.OpenSource(rResult, sTestName.c_str(), nBlockSize);
 };
-
-int CAttachCommand::AttachNull(CTCLResult& rResult, int nArgs, char* pArgs[]) {
+/*!
+   Attach the null data source.  The null data source is a data
+   source that is always at end of file (no data source).
+     \param rResult (out):
+          Refers to the command interpreter result string.
+      \param name (in):
+          The name of the source (ignored).
+      \param nSize (in):
+          Number of bytes per block of data.
+   \return int status (see operator()).      
+*/
+int CAttachCommand::AttachNull(CTCLResult& rResult,
+			       const string& rName,
+			       long nBytes)
+{
   if(gpEventSource != (CFile*)kpNULL) {
     if(gpEventSource->getState() == kfsOpen) {
       gpEventSource->Close();
@@ -657,13 +705,25 @@ int CAttachCommand::AttachNull(CTCLResult& rResult, int nArgs, char* pArgs[]) {
 //
 void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "Usage:\n";
-  rResult += "   attach -file filename [-format filter] [blocksize]\n";
-  rResult += "   attach -tape devicename\n";
-  rResult += "   attach -pipe [-size nBytes] command string\n";
-  rResult += "   attach -test\n";
-  rResult += "   attach -null\n";
-  rResult += "\nattach attaches various data sources to SpecTcl\n";
+  rResult += "  attach {switches...} connection\n";
+  rResult += "  Where:\n";
+  rResult += "     Switches are taken from the following:\n";
+  rResult += "     -format filter|nscl  - Choose buffer format\n";
+  rResult += "     -size nBytes - Number of bytes per buffer.\n";
+  rResult += "     {sourcetype} which can be only one of:\n";
+  rResult += "        -file  when connection is the name of the file\n";
+  rResult += "               from which data will be taken\n";
+  rResult += "        -tape  When connection is the name of a tape device\n";
+  rResult += "               special file and the tape command selects\n";
+  rResult += "               files on the ansi labelled volume\n";
+  rResult += "        -pipe  When connection is a command whose stdout is \n";
+  rResult += "               taken as the event source.\n";
+  rResult += "        -test  When connection selects one of the test data";
+  rResult += "               sources\n";
+  rResult += "        -null  No events will be made available.\n";
+
 };
+
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -681,26 +741,4 @@ CAttachCommand::ParseSwitch(char* pSwitch) {
   return keNotSwitch;
 };
 
-string CAttachCommand::ParseFileName(string& rFileName) {
-  // Implemented here, as opposed to EventFilter, so as to use a uniform default setting.
-  /*
-    Not currently implemented in OutputEventStream due to potential conflict with respect to setting the default file name when none is specified.
-    This should not pose any problems as the user only sets file names with respect to the filter (which then calls the output event stream), and this is taken care of right here.
-  */
-  char* pHomeDir = getenv("HOME");
-  string sHomeDir = "", sFileName = "";
 
-  if(pHomeDir) {
-    sHomeDir = string(pHomeDir);
-  }
-
-  if(rFileName == "") { // If empty,
-    sFileName = sHomeDir + "/filteroutput.ftr"; // use this as the default (for both EventFilter and OutputEventStream).
-  } else if(rFileName[0] == '~') { // Else if it begins with a ~,
-    sFileName = sHomeDir + rFileName.substr(1, (rFileName.length()-1)); // interpret the ~ as the home directory.
-  } else { // Else,
-    sFileName = rFileName; // Use what was given originally.
-  }
-
-  return sFileName;
-};
