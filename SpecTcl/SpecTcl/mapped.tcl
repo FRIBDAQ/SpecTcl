@@ -3,6 +3,8 @@ parameter mp2 2 10 {20 200 MeV}
 parameter mp3 3 10 {-20 20 cm}
 parameter mp4 4 10 {200 800 KeV}
 
+spectrum spec1.1 1 mp1 8 long
+
 spectrum mspec1.1 1 mp1 {{50 99 100}} long
 spectrum mspec1.2 1 mp2 {{100 199 200}} long
 spectrum mspec1.3 1 mp3 {{-10 14 250}} long
@@ -19,7 +21,6 @@ spectrum mspec4.1 g2 {mp1 mp2 mp3} {{50 99 512} {80 179 512}} word
 spectrum mspec4.2 g2 {mp4 mp1 mp2 mp3} {{210 799 1024} {75 119 1024}} word
 spectrum mspec4.3 g2 {mp2 mp3 mp4} {{50 174 1024} {-10 10 1024}} word
 
-spectrum spec1.1 1 mp1 8 long
 spectrum spec1.2 1 mp2 10 long
 spectrum spec1.3 1 mp3 12 long
 

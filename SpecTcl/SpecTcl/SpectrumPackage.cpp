@@ -357,7 +357,11 @@ static const SpecTypes aSpecTypes[] = {
   {"s",    keSummary},
   {"summary", keSummary},
   {"b",    keBitmask},
-  {"bitmask", keBitmask}
+  {"bitmask", keBitmask},
+  {"1",     keM1D},
+  {"2",     keM2D},
+  {"g1",    keMG1D},
+  {"g2",    keMG2D}
 };
 static const UInt_t nSpecTypes = sizeof(aSpecTypes)/sizeof(SpecTypes);
 

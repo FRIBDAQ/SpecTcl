@@ -750,27 +750,23 @@ CParameterPackage::getParameterInfoListString(CParameter& rParameter)
     sprintf(Text, "%d", rParameter.getScale());
     List.AppendElement(Text);
     if(rParameter.getLow() != rParameter.getHigh()) { // Parameter has range:
-      sprintf(Text, "%f", rParameter.getLow());	// Low level.
-      List.AppendElement(Text);
-      sprintf(Text, "%f", rParameter.getHigh()); // High level.
+      sprintf(Text, "%f %f %s", rParameter.getLow(),
+	                        rParameter.getHigh(),
+	                        rParameter.getUnits().c_str());
       List.AppendElement(Text);
     }
     else {			// No range info:
-      List.AppendElement(Empty); // Low
-      List.AppendElement(Empty); // High
+      List.AppendElement("{} {} {}");
     }
   } else {			// No scaling or range info:
     List.AppendElement(Empty);	// bits
-    List.AppendElement(Empty);	// low
-    List.AppendElement(Empty);	// high.
+    string RangeUnits("{} {} ");	// No low/high
+    RangeUnits += rParameter.getUnits(); // append units to that.
+    List.AppendElement(RangeUnits);	// range/units
+    
 
   }
-  // Units:
-  if(rParameter.getUnits() == string("")) { // No units.
-    List.AppendElement(Empty);
-  } else {
-    List.AppendElement(rParameter.getUnits());
-  }
+
 
 
   return List;
@@ -929,39 +925,3 @@ CParameterPackage::GetPseudoNames(list<string>& rNames)
     p++;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
