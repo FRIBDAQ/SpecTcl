@@ -5,7 +5,7 @@
 <head>
 <meta http-equiv="Content-Type"
 content="text/html; charset=iso-8859-1">
-<meta name="GENERATOR" content="Microsoft FrontPage 2.0">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
 <title>Obtaining and Installing</title>
 </head>
 
@@ -34,25 +34,14 @@ href="obtaining_and_installing.htm">Obtaining and Installing</a></p>
 <h2>Obtaining SpecTcl</h2>
 
 <p>To build SpecTcl you will need gnu flex, gnu bison and the gnu
-g++ compiler and libraries. You will also need either Motif or
-the lesstif Motif emulation libraries.</p>
+g++ compiler and libraries. You will also need either OpenMotif, and the Tcl/Tk
+development software.</p>
 
-<p>SpecTcl is freely available from the NSCL ftp server. The
-dialog below shows how to get it:</p>
+<p>SpecTcl is now hosted at Sourceforge.&nbsp; Sourceforge is an open source
+project hosting service.&nbsp; To obtain and install SpecTcl, point a web
+browser at:</p>
 
-<pre>$ ftp <a href="ftp://ftp.nscl.msu.edu">ftp.nscl.msu.edu</a>
-Name: anonymous
-Password: TypeanythingHere
-ftp&gt; cd /pub/daq
-250 CWD command successful.
-ftp&gt;binary
-200 Type set to I.
-ftp&gt;get SpecTcl.tar.gz
-226 Transfer complete.
-4752348 bytes received in 5.14 secs (9e+02 Kbytes/sec)
-ftp&gt; exit
-221 Goodbye.
-$</pre>
+<p><a href="http://www.sourceforge.net/projects/nsclspectcl">http://www.sourceforge.net/projects/nsclspectcl</a></p>
 
 <p><a href="#Top">Top</a></p>
 
@@ -76,7 +65,7 @@ extract it into the build directory as follows:</p>
 $ tar xf SpecTcl.tar
 $ rm SpecTcl.tar</pre>
 
-<p>This will create a directory named SpecTcl-<em>v</em>.<em>r</em>
+<p>This will create a directory named SpecTcl
 where v is the current SpecTcl version and r the revision. This
 directory will be called the <em>build directory</em> and will be
 referred to as $BUILDIR.</p>
@@ -105,7 +94,12 @@ components in to the installation directory. To build SpecTcl:</p>
 $ build.sh
 </pre>
 
-<p>&nbsp;</p>
+<h3>Recommendations:</h3>
+
+<p>At the NSCL, we install Spectcl in /usr/opt/spectcl/&lt;version&gt;&nbsp;
+where &lt;version&gt; is the SpecTcl version number. We also maintain a link /usr/opt/spetctl/current
+that points to the version of SpecTcl we want most people to use.&nbsp; This
+allows several versions of SpecTcl to coexist simultaneously.</p>
 
 <p>&nbsp;</p>
 
@@ -118,8 +112,7 @@ href="obtaining_and_installing.htm">Obtaining and Installing</a></p>
 <hr>
 
 <p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
-s-format="%B %d, %Y" startspan -->June 23, 1999<!--webbot
-bot="Timestamp" endspan i-checksum="14290" --> by: <a
+s-format="%B %d, %Y" startspan -->April 23, 2003<!--webbot bot="Timestamp" endspan i-checksum="17157" --> by: <a
 href="mailto:fox@nscl.msu.edu">fox@nscl.msu.edu</a><br>
 <font size="2">© Copyright NSCL 1999, All rights reserved</font></p>
 </body>
