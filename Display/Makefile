@@ -6,6 +6,12 @@
 #   the INSTALL Target.  It can be overriden on the command line using
 #   DESTDIR="someotherdir"
 #
+# Change Log:
+#   $Log$
+#   Revision 4.25  2003/03/25 12:20:37  ron-fox
+#   Added Change log comment generated from the CVS $Log$ tag.
+#
+
 DESTDIR = $(INSTDIR)
 SPECTCL_VERSION = -DVERSION=$(VERSION)
 HOMEDEF = -DHOME='"$(DESTDIR)"'
