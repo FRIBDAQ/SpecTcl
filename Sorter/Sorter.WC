@@ -5,7 +5,7 @@ X:\SpecTcl\Sorter\Sorter.omtUnified Method
 General Info
 Internal Version #, NextClassID, NextClassShapeID, NextRelationShapeID, NextStateID, NextStateShapeID, NextTransitionID, NextTransitionShapeID, NextObjectID, NextObjectShapeID, NextInteractionID, NextInteractionShapeID, NextOperationID, NextAttributeID
 ***BEGIN_TABLE***
-4.756573911111111900151
+4.79810456111111111764151
 ***END_TABLE***
 
 Classes
@@ -38,27 +38,30 @@ ClassID, Name, Description, Multiplicity, Concurrency, Visibility, Persistence, 
 Class Shape
 ShapeID, PosX, PosY, TopText, MiddleText, BottomText, ClassDataID, ClassType, Abstract, Template, Interface, Final
 ***BEGIN_TABLE***
-444180500CHistogrammerm_pDisplayer:m_DisplayBindings:m_ParameterDictionary:m_SpectrumDictionary:m_GateDictionary:nSpectra:nGatesCHistogrammer:CHistogrammer$:~CHistogrammer:CHistogrammer$$:operator=:operator==:operator!=:getDisplayBindings:getDisplayer:getParameterDictionary:getSpectrumDictionary:setDisplayBindings:setDisplayer:setParameterDictionary:setSpectrumDictionary:AddParameter:RemoveParameter:FindParameter:FindParameter$:ParameterBegin:ParameterEnd:ParameterCount:AddSpectrum:RemoveSpectrum:ClearSpectrum:ClearAllSpectra:FindSpectrum:FindSpectrum$:SpectrumBegin:SpectrumEnd:SpectrumCount:UnGate:BindToDisplay:UnBindFromDisplay:DisplayBindingsBegin:DisplayBindingsEnd:DisplayBindingsSize:DisplayBinding:AddGate:DeleteGate:ReplaceGate:ApplyGate:FindGate:FindGate$:GateBegin:GateEnd:GateCount:GateToXamineGate:GatesToDisplay:AddGateToBoundSpectra:RemoveGateFromBoundSpectra43000000
 5320280CSpectrumFactoryExceptionm_eType:m_eSpectrumType:m_sName:m_eReason:m_pMessageCSpectrumFactoryException:~CSpectrumFactoryException:CSpectrumFactoryException$:operator=:operator==:getType:getSpectrumType:getName:getReason:setType:setSpectrumType:setName:setReason:ReasonText:ReasonCode:DataType:SpectrumType:MessageText:UpdateMessage:CopyToMe52000000
-5629132CException55000000
-36210280CDictionaryDictionary:DictionaryIterator:m_MapCDictionary:~CDictionary:CDictionary$:operator=:operator==:Lookup:FindMatch:Enter:Remove:begin:end:size35010000
+5629030CException55000000
 37360280CDictionaryExceptionm_nReason:m_sName:m_nId:m_fIdValid:m_fNameValid:m_sReasonTextCDictionaryException:CDictionaryException$:CDictionaryException$$:CDictionaryException$$$:CDictionaryException$$$$:CDictionaryException$$$$$:~CDictionaryException:CDictionaryException$$$$$$:operator=:operator==:getReason:getm_sName:getID:getIdValid:getNameValid:setReason:setIdValid:setNameValid:setName:setID:ReasonText:ReasonCode:UpdateReasonText36000000
 52570280CSpectrumFactorym_nNextId:m_fExceptionsCSpectrumFactory:~CSpectrumFactory:CSpectrumFactory$:operator=:operator==:getnNextId:setNextId:CreateSpectrum:CreateSpectrum$:Create1D:Create2D:CreateG1D:CreateG2D:CreateBit:CreateSummary:NextId:ExceptionMode:ExceptionMode$:ParameterArray:Require51000000
-4387020CGateMediatorm_rGate:m_pSpecCGateMediator:CGateMediator$:operator=:~CGateMediator42000000
-51790360CSpectrum2DWm_nXScale:m_nYScale:m_nXParameter:m_nYParameter:m_nXScaleDifference:m_nYScaleDifferenceCSpectrum2DW:~CSpectrum2DW:CSpectrum2DW$:operator=:operator==:getXScale:getYScale:getXParameter:getYParameter:getXScaleDifference:getYScaleDifference:getSpectrumType:setXScale:setYScale:setXParameter:setYParameter:setXScaleDifference:setYScaleDifference:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale50000000
-50860660CSpectrum2DBm_nXScale:m_nYScale:m_nXParameter:m_nYParameter:m_nXScaleDifference:m_nYScaleDifferenceCSpectrum2DB:~CSpectrum2DB:CSpectrum2DB$:operator=:operator==:getXScale:getYScale:getXParameter:getYParameter:getXScaleDifference:getYScaleDifference:getSpectrumType:setXScale:setYScale:setXParameter:setYParameter:setXScaleDifference:setYScaleDifference:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale49000000
-54910370CSummarySpectrumBm_nYScale:m_nXChannels:m_vParameters:rrParameters~ParameterDef:operator=:operator==:getYScale:getXChannels:getnParams:getParameterId:getScaleDifference:getSpectrumType:setYScale:setXChannels:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale53000000
-41970660CGamma2DBm_nXScale:m_nYScale:m_vParameters:rParameters:nXScale~ParameterDef:operator=:operator==:getXScale:getYScale:getnParams:getSpectrumType:setXScale:setYScale:Increment:GammaGateIncrement:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale40000000
-351060370CBitSpectrumWm_nChannels:m_nParameterCBitSpectrumW:~CBitSpectrumW:CBitSpectrumW$:operator=:operator==:getChannels:getParameter:getSpectrumType:setChannels:setParameter:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale34000000
-341130610CBitSpectrumLm_nChannels:m_nParameterCBitSpectrumL:~CBitSpectrumL:CBitSpectrumL$:operator=:operator==:getChannels:getParameter:getSpectrumType:setChannels:setParameter:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale33000000
-491160370CSpectrum1DWm_nScale:m_nParameter:m_nScaleDifferenceCSpectrum1DW:~CSpectrum1DW:CSpectrum1DW$:operator=:operator==:getScale:getParameter:getScaleDifference:getSpectrumType:setScale:setParameter:setScaleDifference:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale$48000000
-481250600CSpectrum1DLm_nScale:m_nParameter:m_nScaleDifferenceCSpectrum1DL:~CSpectrum1DL:CSpectrum1DL$:operator=:operator==:getScale:getParameter:getScaleDifference:getSpectrumType:setScale:setParameter:setScaleDifference:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale$47000000
-551280360CSummarySpectrumWm_nYScale:m_nXChannels:m_vParameters:rrParameters~ParameterDef:operator=:operator==:getYScale:getXChannels:getnParams:getParameterId:getScaleDifference:getSpectrumType:setYScale:setXChannels:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale54000000
-391360600CGamma1DLm_nScale:m_vParameters:rrParameters~ParameterDef:operator=:operator==:getScale:getnParams:getParameterId:getSpectrumType:setScale:Increment:GammaGateIncrement:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale$38000000
-401410370CGamma1DWm_nScale:m_vParameters:rrParameters~ParameterDef:operator=:operator==:getScale:getnParams:getParameterId:getSpectrumType:setScale:Increment:GammaGateIncrement:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale$39000000
-4279090CGamma2DWm_nXScale:m_nYScale:m_vParameters:rParameters:nXScale~ParameterDef:operator=:operator==:getXScale:getYScale:getnParams:getSpectrumType:setXScale:setYScale:Increment:GammaGateIncrement:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale41000000
-4694090CSnapshotSpectrumm_rActualSpectrum:m_fOwnSpectrumCSnapshotSpectrum:~CSnapshotSpectrum:CSnapshotSpectrum$:operator=:operator==:getCSpectrum:UsesParameter:ReplaceStorage:Clear:Dimension:Dimensionality:operator[]:StorageNeeded:Increment:getSpectrumType:UsesParameter$:set:GetParameterIds:GetResolutions:getScale:SetOwnership45000000
-4711800CSpectrumm_pStorage:m_fOwnStorage:m_pGate:m_DataTypeCSpectrum:~CSpectrum:CSpectrum$:CSpectrum$$:operator=:operator==:getStorage:getOwnStorage:getGate:getSpectrumType:setStorage:setOwnStorage:setStorageType:ApplyGate:Ungate:UsesParameter:StorageType:UsesParameter$:Dimension:Dimensionality:operator[]:set:GetParameterIds:GetResolutions:Increment:getScale:Copy:Clear:StorageNeeded:ReplaceStorage:CheckGate:GammaGateIncrement:ReleaseStorage46100000
+4389010CGateMediatorm_rGate:m_pSpecCGateMediator:CGateMediator$:operator=:~CGateMediator42000000
+461070540CSnapshotSpectrumm_rActualSpectrum:m_fOwnSpectrumCSnapshotSpectrum:~CSnapshotSpectrum:CSnapshotSpectrum$:operator=:operator==:getCSpectrum:UsesParameter:ReplaceStorage:Clear:Dimension:Dimensionality:operator[]:StorageNeeded:Increment:getSpectrumType:UsesParameter$:set:GetParameterIds:GetResolutions:getScale:SetOwnership45000000
+4710900CSpectrumm_pStorage:m_fOwnStorage:m_pGate:m_DataTypeCSpectrum:~CSpectrum:CSpectrum$:CSpectrum$$:operator=:operator==:getStorage:getOwnStorage:getGate:getSpectrumType:setStorage:setOwnStorage:setStorageType:ApplyGate:Ungate:UsesParameter:StorageType:UsesParameter$:Dimension:Dimensionality:operator[]:set:GetParameterIds:GetResolutions:Increment:getScale:Copy:Clear:StorageNeeded:ReplaceStorage:CheckGate:GammaGateIncrement:ReleaseStorage46100000
+341600570CBitSpectrumLm_nChannels:m_nParameterCBitSpectrumL:~CBitSpectrumL:CBitSpectrumL$:operator=:operator==:getChannels:getParameter:getSpectrumType:setChannels:setParameter:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale33000000
+351700570CBitSpectrumWm_nChannels:m_nParameterCBitSpectrumW:~CBitSpectrumW:CBitSpectrumW$:operator=:operator==:getChannels:getParameter:getSpectrumType:setChannels:setParameter:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale34000000
+401800570CGamma1DWm_nScale:m_vParameters:rrParameters~ParameterDef:operator=:operator==:getScale:getnParams:getParameterId:getSpectrumType:setScale:Increment:GammaGateIncrement:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale$39000000
+391920570CGamma1DLm_nScale:m_vParameters:rrParameters~ParameterDef:operator=:operator==:getScale:getnParams:getParameterId:getSpectrumType:setScale:Increment:GammaGateIncrement:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale$38000000
+482060570CSpectrum1DLm_nScale:m_nParameter:m_nScaleDifferenceCSpectrum1DL:~CSpectrum1DL:CSpectrum1DL$:operator=:operator==:getScale:getParameter:getScaleDifference:getSpectrumType:setScale:setParameter:setScaleDifference:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale$47000000
+492180570CSpectrum1DWm_nScale:m_nParameter:m_nScaleDifferenceCSpectrum1DW:~CSpectrum1DW:CSpectrum1DW$:operator=:operator==:getScale:getParameter:getScaleDifference:getSpectrumType:setScale:setParameter:setScaleDifference:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale$48000000
+7818800CSpectrumm_pStorage:m_fOwnStorage:m_pGate:m_DataTypeCSpectrum:~CSpectrum:CSpectrum$:CSpectrum$$:operator=:operator==:getStorage:getOwnStorage:getGate:getSpectrumType:setStorage:setOwnStorage:setStorageType:ApplyGate:Ungate:UsesParameter:StorageType:UsesParameter$:Dimension:Dimensionality:operator[]:set:GetParameterIds:GetResolutions:Increment:getScale:Copy:Clear:StorageNeeded:ReplaceStorage:CheckGate:GammaGateIncrement:ReleaseStorage461000125965
+79266090CSpectrumm_pStorage:m_fOwnStorage:m_pGate:m_DataTypeCSpectrum:~CSpectrum:CSpectrum$:CSpectrum$$:operator=:operator==:getStorage:getOwnStorage:getGate:getSpectrumType:setStorage:setOwnStorage:setStorageType:ApplyGate:Ungate:UsesParameter:StorageType:UsesParameter$:Dimension:Dimensionality:operator[]:set:GetParameterIds:GetResolutions:Increment:getScale:Copy:Clear:StorageNeeded:ReplaceStorage:CheckGate:GammaGateIncrement:ReleaseStorage461000125965
+552360670CSummarySpectrumWm_nYScale:m_nXChannels:m_vParameters:rrParameters~ParameterDef:operator=:operator==:getYScale:getXChannels:getnParams:getParameterId:getScaleDifference:getSpectrumType:setYScale:setXChannels:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale54000000
+542480670CSummarySpectrumBm_nYScale:m_nXChannels:m_vParameters:rrParameters~ParameterDef:operator=:operator==:getYScale:getXChannels:getnParams:getParameterId:getScaleDifference:getSpectrumType:setYScale:setXChannels:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale53000000
+422600670CGamma2DWm_nXScale:m_nYScale:m_vParameters:rParameters:nXScale~ParameterDef:operator=:operator==:getXScale:getYScale:getnParams:getSpectrumType:setXScale:setYScale:Increment:GammaGateIncrement:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale41000000
+412720670CGamma2DBm_nXScale:m_nYScale:m_vParameters:rParameters:nXScale~ParameterDef:operator=:operator==:getXScale:getYScale:getnParams:getSpectrumType:setXScale:setYScale:Increment:GammaGateIncrement:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale40000000
+50296010CSpectrum2DBm_nXScale:m_nYScale:m_nXParameter:m_nYParameter:m_nXScaleDifference:m_nYScaleDifferenceCSpectrum2DB:~CSpectrum2DB:CSpectrum2DB$:operator=:operator==:getXScale:getYScale:getXParameter:getYParameter:getXScaleDifference:getYScaleDifference:getSpectrumType:setXScale:setYScale:setXParameter:setYParameter:setXScaleDifference:setYScaleDifference:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale49000000
+51240030CSpectrum2DWm_nXScale:m_nYScale:m_nXParameter:m_nYParameter:m_nXScaleDifference:m_nYScaleDifferenceCSpectrum2DW:~CSpectrum2DW:CSpectrum2DW$:operator=:operator==:getXScale:getYScale:getXParameter:getYParameter:getXScaleDifference:getYScaleDifference:getSpectrumType:setXScale:setYScale:setXParameter:setYParameter:setXScaleDifference:setYScaleDifference:Increment:operator[]:set:UsesParameter:Dimension:Dimensionality:GetParameterIds:GetResolutions:getScale50000000
+36200640CDictionaryDictionary:DictionaryIterator:m_MapCDictionary:~CDictionary:CDictionary$:operator=:operator==:Lookup:FindMatch:Enter:Remove:begin:end:size35010000
+44324030CHistogrammerm_pDisplayer:m_DisplayBindings:m_ParameterDictionary:m_SpectrumDictionary:m_GateDictionary:nSpectra:nGatesCHistogrammer:CHistogrammer$:~CHistogrammer:CHistogrammer$$:operator=:operator==:operator!=:getDisplayBindings:getDisplayer:getParameterDictionary:getSpectrumDictionary:setDisplayBindings:setDisplayer:setParameterDictionary:setSpectrumDictionary:AddParameter:RemoveParameter:FindParameter:FindParameter$:ParameterBegin:ParameterEnd:ParameterCount:AddSpectrum:RemoveSpectrum:ClearSpectrum:ClearAllSpectra:FindSpectrum:FindSpectrum$:SpectrumBegin:SpectrumEnd:SpectrumCount:UnGate:BindToDisplay:UnBindFromDisplay:DisplayBindingsBegin:DisplayBindingsEnd:DisplayBindingsSize:DisplayBinding:AddGate:DeleteGate:ReplaceGate:ApplyGate:FindGate:FindGate$:GateBegin:GateEnd:GateCount:GateToXamineGate:GatesToDisplay:AddGateToBoundSpectra:RemoveGateFromBoundSpectra43000000
+1033580120CDictionaryDictionary:DictionaryIterator:m_MapCDictionary:~CDictionary:CDictionary$:operator=:operator==:Lookup:FindMatch:Enter:Remove:begin:end:size350100129793
 ***END_TABLE***
 
 Attributes
@@ -146,23 +149,23 @@ ClassID, ClassName, AttrID, Name, Type, Length, IsStatic, Description, Visibilit
 Operations
 ClassID, ClassName, OperID, OperName, Return Type, Post Condition, PreCondition, Invariant, Stereotype, Classification, Exception, Transformation, Concurrency, Visibility,  Comment1, Comment2, Comment3, IsStatic, IsConstant, IsPureVirtual, IsVirtual, IsProcedure, IsInline, IsEvent, IsOverride, Message, IsFinal, IsSynchronized, IsNative, IsFriend
 ***BEGIN_TABLE***
-33CBitSpectrumL444CBitSpectrumLpublic000010000000
+33CBitSpectrumL1332CBitSpectrumLpublic000010000000
 BEGIN_CODE
 
 END_CODE
-33CBitSpectrumL445~CBitSpectrumLpublic000110000000
+33CBitSpectrumL1333~CBitSpectrumLpublic000110000000
 BEGIN_CODE
  
 END_CODE
-33CBitSpectrumL446CBitSpectrumL$private000010000000
+33CBitSpectrumL1334CBitSpectrumL$private000010000000
 BEGIN_CODE
 
 END_CODE
-33CBitSpectrumL447operator=CBitSpectrumLprivate000010000000
+33CBitSpectrumL1335operator=CBitSpectrumLprivate000010000000
 BEGIN_CODE
 
 END_CODE
-33CBitSpectrumL448operator==intpublic000010000000
+33CBitSpectrumL1336operator==intpublic000010000000
 BEGIN_CODE
  return (
 	    (CSpectrum::operator== (aCSpectrum1D)) &&
@@ -171,93 +174,93 @@ BEGIN_CODE
 	    );
   
 END_CODE
-33CBitSpectrumL449getChannelsUInt_tpublic010010000000
+33CBitSpectrumL1337getChannelsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nChannels;
   
 END_CODE
-33CBitSpectrumL450getParameterUInt_tpublic010010000000
+33CBitSpectrumL1338getParameterUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nParameter;
   
 END_CODE
-33CBitSpectrumL451getSpectrumTypeSpectrumType_tpublic000110000000
+33CBitSpectrumL1339getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
     return keBitmask;
   
 END_CODE
-33CBitSpectrumL452setChannelsvoidprotected000010000000
+33CBitSpectrumL1340setChannelsvoidprotected000010000000
 BEGIN_CODE
  
     m_nChannels = am_nChans;
   
 END_CODE
-33CBitSpectrumL453setParametervoidprotected000010000000
+33CBitSpectrumL1341setParametervoidprotected000010000000
 BEGIN_CODE
  
     m_nParameter = am_nParameter;
   
 END_CODE
-33CBitSpectrumL454Incrementvoidpublic000110000000
+33CBitSpectrumL1342Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-33CBitSpectrumL455operator[]ULong_tpublic010110000000
+33CBitSpectrumL1343operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-33CBitSpectrumL456setvoidpublic000110000000
+33CBitSpectrumL1344setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-33CBitSpectrumL457UsesParameterBool_tpublic010110000000
+33CBitSpectrumL1345UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-33CBitSpectrumL458DimensionUInt_tpublic010110000000
+33CBitSpectrumL1346DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
     return ((n == 0) ? (m_nChannels) : 0);
   
 END_CODE
-33CBitSpectrumL459DimensionalityUInt_tpublic010110000000
+33CBitSpectrumL1347DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
     return 1;
   
 END_CODE
-33CBitSpectrumL460GetParameterIdsvoidpublic000110000000
+33CBitSpectrumL1348GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-33CBitSpectrumL461GetResolutionsvoidpublic000110000000
+33CBitSpectrumL1349GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-33CBitSpectrumL462getScaleInt_tpublic000110000000
+33CBitSpectrumL1350getScaleInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-34CBitSpectrumW463CBitSpectrumWpublic000010000000
+34CBitSpectrumW1351CBitSpectrumWpublic000010000000
 BEGIN_CODE
 
 END_CODE
-34CBitSpectrumW464~CBitSpectrumWpublic000110000000
+34CBitSpectrumW1352~CBitSpectrumWpublic000110000000
 BEGIN_CODE
  
 END_CODE
-34CBitSpectrumW465CBitSpectrumW$private000010000000
+34CBitSpectrumW1353CBitSpectrumW$private000010000000
 BEGIN_CODE
 
 END_CODE
-34CBitSpectrumW466operator=CBitSpectrumWprivate000010000000
+34CBitSpectrumW1354operator=CBitSpectrumWprivate000010000000
 BEGIN_CODE
 
 END_CODE
-34CBitSpectrumW467operator==intpublic000010000000
+34CBitSpectrumW1355operator==intpublic000010000000
 BEGIN_CODE
  return (
 	    (CSpectrum::operator== (aCSpectrum1D)) &&
@@ -266,89 +269,89 @@ BEGIN_CODE
 	    );
   
 END_CODE
-34CBitSpectrumW468getChannelsUInt_tpublic010010000000
+34CBitSpectrumW1356getChannelsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nChannels;
   
 END_CODE
-34CBitSpectrumW469getParameterUInt_tpublic010010000000
+34CBitSpectrumW1357getParameterUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nParameter;
   
 END_CODE
-34CBitSpectrumW470getSpectrumTypeSpectrumType_tpublic000110000000
+34CBitSpectrumW1358getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
     return keBitmask;
   
 END_CODE
-34CBitSpectrumW471setChannelsvoidprotected000010000000
+34CBitSpectrumW1359setChannelsvoidprotected000010000000
 BEGIN_CODE
  
     m_nChannels = am_nChans;
   
 END_CODE
-34CBitSpectrumW472setParametervoidprotected000010000000
+34CBitSpectrumW1360setParametervoidprotected000010000000
 BEGIN_CODE
  
     m_nParameter = am_nParameter;
   
 END_CODE
-34CBitSpectrumW473Incrementvoidpublic000110000000
+34CBitSpectrumW1361Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-34CBitSpectrumW474operator[]ULong_tpublic010110000000
+34CBitSpectrumW1362operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-34CBitSpectrumW475setvoidpublic000110000000
+34CBitSpectrumW1363setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-34CBitSpectrumW476UsesParameterBool_tpublic010110000000
+34CBitSpectrumW1364UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-34CBitSpectrumW477DimensionUInt_tpublic010110000000
+34CBitSpectrumW1365DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
     return ((n == 0) ? (m_nChannels) : 0);
   
 END_CODE
-34CBitSpectrumW478DimensionalityUInt_tpublic010110000000
+34CBitSpectrumW1366DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
     return 1;
   
 END_CODE
-34CBitSpectrumW479GetParameterIdsvoidpublic000110000000
+34CBitSpectrumW1367GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-34CBitSpectrumW480GetResolutionsvoidpublic000110000000
+34CBitSpectrumW1368GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-34CBitSpectrumW481getScaleInt_tpublic000110000000
+34CBitSpectrumW1369getScaleInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-35CDictionary482CDictionarypublic000010000000
+35CDictionary1370CDictionarypublic000010000000
 BEGIN_CODE
 }
 END_CODE
-35CDictionary483~CDictionarypublic000110000000
+35CDictionary1371~CDictionarypublic000110000000
 BEGIN_CODE
  
 END_CODE
-35CDictionary484CDictionary$public000010000000
+35CDictionary1372CDictionary$public000010000000
 BEGIN_CODE
   
 END_CODE
-35CDictionary485operator=CDictionarypublic000010000000
+35CDictionary1373operator=CDictionarypublic000010000000
 BEGIN_CODE
  
     if (this == &aCDictionary) return *this;          
@@ -356,31 +359,31 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-35CDictionary486operator==intpublic010010000000
+35CDictionary1374operator==intpublic010010000000
 BEGIN_CODE
  
     return (m_Map == aCDictionary.m_Map);
   
 END_CODE
-35CDictionary487LookupDictionaryIteratorpublic000010000000
+35CDictionary1375LookupDictionaryIteratorpublic000010000000
 BEGIN_CODE
 
     return m_Map.find(sName);
   
 END_CODE
-35CDictionary488FindMatchDictionaryIteratorpublic000010000000
+35CDictionary1376FindMatchDictionaryIteratorpublic000010000000
 BEGIN_CODE
 
     return find_if(begin(), end(), p);
   
 END_CODE
-35CDictionary489Entervoidpublic000010000000
+35CDictionary1377Entervoidpublic000010000000
 BEGIN_CODE
 
     m_Map[sName] = Item;
   
 END_CODE
-35CDictionary490Removevoidpublic000010000000
+35CDictionary1378Removevoidpublic000010000000
 BEGIN_CODE
 
     DictionaryIterator i = m_Map.find(rsName);
@@ -389,53 +392,53 @@ BEGIN_CODE
 //    m_Map.erase(rsName);       // Erase by name kills my g++ compiler!!!
   
 END_CODE
-35CDictionary491beginDictionaryIteratorpublic000010000000
+35CDictionary1379beginDictionaryIteratorpublic000010000000
 BEGIN_CODE
 
     return m_Map.begin();
   
 END_CODE
-35CDictionary492endDictionaryIteratorpublic000010000000
+35CDictionary1380endDictionaryIteratorpublic000010000000
 BEGIN_CODE
 
     return m_Map.end();
   
 END_CODE
-35CDictionary493sizeUInt_tpublic000010000000
+35CDictionary1381sizeUInt_tpublic000010000000
 BEGIN_CODE
 
     return m_Map.size();
   
 END_CODE
-36CDictionaryException494CDictionaryExceptionpublic000010000000
+36CDictionaryException1382CDictionaryExceptionpublic000010000000
 BEGIN_CODE
  UpdateReasonText(); 
 END_CODE
-36CDictionaryException495CDictionaryException$public000010000000
+36CDictionaryException1383CDictionaryException$public000010000000
 BEGIN_CODE
  UpdateReasonText(); 
 END_CODE
-36CDictionaryException496CDictionaryException$$public000010000000
+36CDictionaryException1384CDictionaryException$$public000010000000
 BEGIN_CODE
  UpdateReasonText(); 
 END_CODE
-36CDictionaryException497CDictionaryException$$$public000010000000
+36CDictionaryException1385CDictionaryException$$$public000010000000
 BEGIN_CODE
  UpdateReasonText(); 
 END_CODE
-36CDictionaryException498CDictionaryException$$$$public000010000000
+36CDictionaryException1386CDictionaryException$$$$public000010000000
 BEGIN_CODE
  UpdateReasonText(); 
 END_CODE
-36CDictionaryException499CDictionaryException$$$$$public000010000000
+36CDictionaryException1387CDictionaryException$$$$$public000010000000
 BEGIN_CODE
  UpdateReasonText(); 
 END_CODE
-36CDictionaryException500~CDictionaryExceptionpublic000110000000
+36CDictionaryException1388~CDictionaryExceptionpublic000110000000
 BEGIN_CODE
  
 END_CODE
-36CDictionaryException501CDictionaryException$$$$$$public000010000000
+36CDictionaryException1389CDictionaryException$$$$$$public000010000000
 BEGIN_CODE
    
     m_nReason = aCDictionaryException.m_nReason;
@@ -446,7 +449,7 @@ BEGIN_CODE
     UpdateReasonText();
   
 END_CODE
-36CDictionaryException502operator=CDictionaryExceptionpublic000010000000
+36CDictionaryException1390operator=CDictionaryExceptionpublic000010000000
 BEGIN_CODE
  
     if (this != &aCDictionaryException) {
@@ -461,7 +464,7 @@ BEGIN_CODE
     return *this;
   
 END_CODE
-36CDictionaryException503operator==intpublic000010000000
+36CDictionaryException1391operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -474,58 +477,58 @@ BEGIN_CODE
 	    );
   
 END_CODE
-36CDictionaryException504getReasonInt_tpublic010010000000
+36CDictionaryException1392getReasonInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nReason;
   
 END_CODE
-36CDictionaryException505getm_sNamestd::stringpublic010010000000
+36CDictionaryException1393getm_sNamestd::stringpublic010010000000
 BEGIN_CODE
 
     return m_sName;
   
 END_CODE
-36CDictionaryException506getIDUInt_tpublic010010000000
+36CDictionaryException1394getIDUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nId;
   
 END_CODE
-36CDictionaryException507getIdValidBool_tpublic010010000000
+36CDictionaryException1395getIdValidBool_tpublic010010000000
 BEGIN_CODE
 
     return m_fIdValid;
   
 END_CODE
-36CDictionaryException508getNameValidBool_tpublic010010000000
+36CDictionaryException1396getNameValidBool_tpublic010010000000
 BEGIN_CODE
 
     return m_fNameValid;
   
 END_CODE
-36CDictionaryException509setReasonvoidprotected000010000000
+36CDictionaryException1397setReasonvoidprotected000010000000
 BEGIN_CODE
  
     m_nReason = am_nReason;
     UpdateReasonText();
   
 END_CODE
-36CDictionaryException510setIdValidvoidprotected000010000000
+36CDictionaryException1398setIdValidvoidprotected000010000000
 BEGIN_CODE
  
     m_fIdValid = am_fIdValid;
     UpdateReasonText();
   
 END_CODE
-36CDictionaryException511setNameValidvoidprotected000010000000
+36CDictionaryException1399setNameValidvoidprotected000010000000
 BEGIN_CODE
  
     m_fNameValid = am_fNameValid;
     UpdateReasonText();
   
 END_CODE
-36CDictionaryException512setNamevoidpublic000010000000
+36CDictionaryException1400setNamevoidpublic000010000000
 BEGIN_CODE
  
     m_sName = am_sName;
@@ -533,7 +536,7 @@ BEGIN_CODE
     UpdateReasonText();
   
 END_CODE
-36CDictionaryException513setIDvoidpublic000010000000
+36CDictionaryException1401setIDvoidpublic000010000000
 BEGIN_CODE
  
     m_nId      = am_nId;
@@ -541,27 +544,27 @@ BEGIN_CODE
     UpdateReasonText();
   
 END_CODE
-36CDictionaryException514ReasonTextchar*public010110000000
+36CDictionaryException1402ReasonTextchar*public010110000000
 BEGIN_CODE
 
 END_CODE
-36CDictionaryException515ReasonCodeInt_tpublic010110000000
+36CDictionaryException1403ReasonCodeInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-36CDictionaryException516UpdateReasonTextvoidprotected000010000000
+36CDictionaryException1404UpdateReasonTextvoidprotected000010000000
 BEGIN_CODE
 
 END_CODE
-38CGamma1DL518~ParameterDefpublic000110000000
+38CGamma1DL1405~ParameterDefpublic000110000000
 BEGIN_CODE
  
 END_CODE
-38CGamma1DL519operator=CGamma1DLprivate000010000000
+38CGamma1DL1406operator=CGamma1DLprivate000010000000
 BEGIN_CODE
 
 END_CODE
-38CGamma1DL520operator==intpublic000010000000
+38CGamma1DL1407operator==intpublic000010000000
 BEGIN_CODE
 
       return (
@@ -571,89 +574,89 @@ BEGIN_CODE
 	      );
     
 END_CODE
-38CGamma1DL521getScaleUInt_tpublic010010000000
+38CGamma1DL1408getScaleUInt_tpublic010010000000
 BEGIN_CODE
 
       return m_nScale;
     
 END_CODE
-38CGamma1DL522getnParamsUInt_tpublic010010000000
+38CGamma1DL1409getnParamsUInt_tpublic010010000000
 BEGIN_CODE
 
       return m_vParameters.size();
     
 END_CODE
-38CGamma1DL523getParameterIdUInt_tpublic010010000000
+38CGamma1DL1410getParameterIdUInt_tpublic010010000000
 BEGIN_CODE
 
       return m_vParameters[n].nParameter;
     
 END_CODE
-38CGamma1DL524getSpectrumTypeSpectrumType_tpublic000110000000
+38CGamma1DL1411getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
       return keG1D;
     
 END_CODE
-38CGamma1DL525setScalevoidprotected000010000000
+38CGamma1DL1412setScalevoidprotected000010000000
 BEGIN_CODE
 
       m_nScale = am_nScale;
     
 END_CODE
-38CGamma1DL526Incrementvoidpublic000110000000
+38CGamma1DL1413Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-38CGamma1DL527GammaGateIncrementvoidpublic000110000000
+38CGamma1DL1414GammaGateIncrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-38CGamma1DL528operator[]ULong_tpublic010110000000
+38CGamma1DL1415operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-38CGamma1DL529setvoidpublic000110000000
+38CGamma1DL1416setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-38CGamma1DL530UsesParameterBool_tpublic010110000000
+38CGamma1DL1417UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-38CGamma1DL531DimensionUInt_tpublic010110000000
+38CGamma1DL1418DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
       return ((n == 0) ? (1 << m_nScale) : 0);
     
 END_CODE
-38CGamma1DL532DimensionalityUInt_tpublic010110000000
+38CGamma1DL1419DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
       return 1;
     
 END_CODE
-38CGamma1DL533GetParameterIdsvoidpublic000110000000
+38CGamma1DL1420GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-38CGamma1DL534GetResolutionsvoidpublic000110000000
+38CGamma1DL1421GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-38CGamma1DL535getScale$Int_tpublic000110000000
+38CGamma1DL1422getScale$Int_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-39CGamma1DW539~ParameterDefpublic000110000000
+39CGamma1DW1423~ParameterDefpublic000110000000
 BEGIN_CODE
  
 END_CODE
-39CGamma1DW540operator=CGamma1DWprivate000010000000
+39CGamma1DW1424operator=CGamma1DWprivate000010000000
 BEGIN_CODE
 
 END_CODE
-39CGamma1DW541operator==intpublic000010000000
+39CGamma1DW1425operator==intpublic000010000000
 BEGIN_CODE
 
       return (
@@ -663,89 +666,89 @@ BEGIN_CODE
 	      );
     
 END_CODE
-39CGamma1DW542getScaleUInt_tpublic010010000000
+39CGamma1DW1426getScaleUInt_tpublic010010000000
 BEGIN_CODE
 
       return m_nScale;
     
 END_CODE
-39CGamma1DW543getnParamsUInt_tpublic010010000000
+39CGamma1DW1427getnParamsUInt_tpublic010010000000
 BEGIN_CODE
 
       return m_vParameters.size();
     
 END_CODE
-39CGamma1DW544getParameterIdUInt_tpublic010010000000
+39CGamma1DW1428getParameterIdUInt_tpublic010010000000
 BEGIN_CODE
 
       return m_vParameters[n].nParameter;
     
 END_CODE
-39CGamma1DW545getSpectrumTypeSpectrumType_tpublic000110000000
+39CGamma1DW1429getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
       return keG1D;
     
 END_CODE
-39CGamma1DW546setScalevoidprotected000010000000
+39CGamma1DW1430setScalevoidprotected000010000000
 BEGIN_CODE
 
       m_nScale = am_nScale;
     
 END_CODE
-39CGamma1DW547Incrementvoidpublic000110000000
+39CGamma1DW1431Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-39CGamma1DW548GammaGateIncrementvoidpublic000110000000
+39CGamma1DW1432GammaGateIncrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-39CGamma1DW549operator[]ULong_tpublic010110000000
+39CGamma1DW1433operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-39CGamma1DW550setvoidpublic000110000000
+39CGamma1DW1434setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-39CGamma1DW551UsesParameterBool_tpublic010110000000
+39CGamma1DW1435UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-39CGamma1DW552DimensionUInt_tpublic010110000000
+39CGamma1DW1436DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
       return ((n == 0) ? (1 << m_nScale) : 0);
     
 END_CODE
-39CGamma1DW553DimensionalityUInt_tpublic010110000000
+39CGamma1DW1437DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
       return 1;
     
 END_CODE
-39CGamma1DW554GetParameterIdsvoidpublic000110000000
+39CGamma1DW1438GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-39CGamma1DW555GetResolutionsvoidpublic000110000000
+39CGamma1DW1439GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-39CGamma1DW556getScale$Int_tpublic000110000000
+39CGamma1DW1440getScale$Int_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-40CGamma2DB560~ParameterDefpublic000110000000
+40CGamma2DB1441~ParameterDefpublic000110000000
 BEGIN_CODE
  
 END_CODE
-40CGamma2DB561operator=CGamma2DBprivate000010000000
+40CGamma2DB1442operator=CGamma2DBprivate000010000000
 BEGIN_CODE
 
 END_CODE
-40CGamma2DB562operator==intpublic000010000000
+40CGamma2DB1443operator==intpublic000010000000
 BEGIN_CODE
  return (
 	    (CGamma2DB::operator== (aCGamma)) &&
@@ -755,93 +758,93 @@ BEGIN_CODE
 	    );
   
 END_CODE
-40CGamma2DB563getXScaleUInt_tpublic010010000000
+40CGamma2DB1444getXScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXScale;
   
 END_CODE
-40CGamma2DB564getYScaleUInt_tpublic010010000000
+40CGamma2DB1445getYScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYScale;
   
 END_CODE
-40CGamma2DB565getnParamsUInt_tpublic010010000000
+40CGamma2DB1446getnParamsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_vParameters.size();
   
 END_CODE
-40CGamma2DB566getSpectrumTypeSpectrumType_tpublic000110000000
+40CGamma2DB1447getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
     return keG2D;
   
 END_CODE
-40CGamma2DB567setXScalevoidprotected000010000000
+40CGamma2DB1448setXScalevoidprotected000010000000
 BEGIN_CODE
  
     m_nXScale = am_nScale;
   
 END_CODE
-40CGamma2DB568setYScalevoidprotected000010000000
+40CGamma2DB1449setYScalevoidprotected000010000000
 BEGIN_CODE
 
     m_nYScale = nScale;
   
 END_CODE
-40CGamma2DB569Incrementvoidpublic000110000000
+40CGamma2DB1450Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-40CGamma2DB570GammaGateIncrementvoidpublic000110000000
+40CGamma2DB1451GammaGateIncrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-40CGamma2DB571operator[]ULong_tpublic010110000000
+40CGamma2DB1452operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-40CGamma2DB572setvoidpublic000110000000
+40CGamma2DB1453setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-40CGamma2DB573UsesParameterBool_tpublic010110000000
+40CGamma2DB1454UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-40CGamma2DB574DimensionUInt_tpublic010110000000
+40CGamma2DB1455DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-40CGamma2DB575DimensionalityUInt_tpublic010110000000
+40CGamma2DB1456DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
     return 2;
   
 END_CODE
-40CGamma2DB576GetParameterIdsvoidpublic000110000000
+40CGamma2DB1457GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-40CGamma2DB577GetResolutionsvoidpublic000110000000
+40CGamma2DB1458GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-40CGamma2DB578getScaleInt_tpublic000110000000
+40CGamma2DB1459getScaleInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-41CGamma2DW582~ParameterDefpublic000110000000
+41CGamma2DW1460~ParameterDefpublic000110000000
 BEGIN_CODE
  
 END_CODE
-41CGamma2DW583operator=CGamma2DWprivate000010000000
+41CGamma2DW1461operator=CGamma2DWprivate000010000000
 BEGIN_CODE
 
 END_CODE
-41CGamma2DW584operator==intpublic000010000000
+41CGamma2DW1462operator==intpublic000010000000
 BEGIN_CODE
  return (
 	    (CGamma2DW::operator== (aCGamma)) &&
@@ -851,332 +854,332 @@ BEGIN_CODE
 	    );
   
 END_CODE
-41CGamma2DW585getXScaleUInt_tpublic010010000000
+41CGamma2DW1463getXScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXScale;
   
 END_CODE
-41CGamma2DW586getYScaleUInt_tpublic010010000000
+41CGamma2DW1464getYScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYScale;
   
 END_CODE
-41CGamma2DW587getnParamsUInt_tpublic010010000000
+41CGamma2DW1465getnParamsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_vParameters.size();
   
 END_CODE
-41CGamma2DW588getSpectrumTypeSpectrumType_tpublic000110000000
+41CGamma2DW1466getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
     return keG2D;
   
 END_CODE
-41CGamma2DW589setXScalevoidprotected000010000000
+41CGamma2DW1467setXScalevoidprotected000010000000
 BEGIN_CODE
  
     m_nXScale = am_nScale;
   
 END_CODE
-41CGamma2DW590setYScalevoidprotected000010000000
+41CGamma2DW1468setYScalevoidprotected000010000000
 BEGIN_CODE
 
     m_nYScale = nScale;
   
 END_CODE
-41CGamma2DW591Incrementvoidpublic000110000000
+41CGamma2DW1469Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-41CGamma2DW592GammaGateIncrementvoidpublic000110000000
+41CGamma2DW1470GammaGateIncrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-41CGamma2DW593operator[]ULong_tpublic010110000000
+41CGamma2DW1471operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-41CGamma2DW594setvoidpublic000110000000
+41CGamma2DW1472setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-41CGamma2DW595UsesParameterBool_tpublic010110000000
+41CGamma2DW1473UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-41CGamma2DW596DimensionUInt_tpublic010110000000
+41CGamma2DW1474DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-41CGamma2DW597DimensionalityUInt_tpublic010110000000
+41CGamma2DW1475DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
     return 2;
   
 END_CODE
-41CGamma2DW598GetParameterIdsvoidpublic000110000000
+41CGamma2DW1476GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-41CGamma2DW599GetResolutionsvoidpublic000110000000
+41CGamma2DW1477GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-41CGamma2DW600getScaleInt_tpublic000110000000
+41CGamma2DW1478getScaleInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-42CGateMediator601CGateMediatorpublic000010000000
+42CGateMediator1479CGateMediatorpublic000010000000
 BEGIN_CODE
  
 END_CODE
-42CGateMediator602CGateMediator$public000010000000
+42CGateMediator1480CGateMediator$public000010000000
 BEGIN_CODE
  
 END_CODE
-42CGateMediator603operator=CGateMediatorpublic000010000000
+42CGateMediator1481operator=CGateMediatorpublic000010000000
 BEGIN_CODE
 
       m_rGate = aCGateMediator.m_rGate;
       m_pSpec = aCGateMediator.m_pSpec;
     
 END_CODE
-42CGateMediator604~CGateMediatorpublic000010000000
+42CGateMediator1482~CGateMediatorpublic000010000000
 BEGIN_CODE
  
 END_CODE
-43CHistogrammer605CHistogrammerpublic000010000000
+43CHistogrammer1483CHistogrammerpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer606CHistogrammer$public000010000000
+43CHistogrammer1484CHistogrammer$public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer607~CHistogrammerpublic000110000000
+43CHistogrammer1485~CHistogrammerpublic000110000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer608CHistogrammer$$public000010000000
+43CHistogrammer1486CHistogrammer$$public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer609operator=CHistogrammer&public000010000000
+43CHistogrammer1487operator=CHistogrammer&public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer610operator==intpublic000010000000
+43CHistogrammer1488operator==intpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer611operator!=intpublic000010000000
+43CHistogrammer1489operator!=intpublic000010000000
 BEGIN_CODE
 
     return !(operator==(aCHistogrammer)); 
   
 END_CODE
-43CHistogrammer612getDisplayBindingsDisplayBindings&public010010000000
+43CHistogrammer1490getDisplayBindingsDisplayBindings&public010010000000
 BEGIN_CODE
 
     return m_DisplayBindings;
   
 END_CODE
-43CHistogrammer613getDisplayerCXamine*public010010000000
+43CHistogrammer1491getDisplayerCXamine*public010010000000
 BEGIN_CODE
 
     return m_pDisplayer;
   
 END_CODE
-43CHistogrammer614getParameterDictionaryParameterDictionary&public010010000000
+43CHistogrammer1492getParameterDictionaryParameterDictionary&public010010000000
 BEGIN_CODE
 
     return m_ParameterDictionary;
   
 END_CODE
-43CHistogrammer615getSpectrumDictionarySpectrumDictionary&public010010000000
+43CHistogrammer1493getSpectrumDictionarySpectrumDictionary&public010010000000
 BEGIN_CODE
 
     return m_SpectrumDictionary;
   
 END_CODE
-43CHistogrammer616setDisplayBindingsvoidprotected000010000000
+43CHistogrammer1494setDisplayBindingsvoidprotected000010000000
 BEGIN_CODE
  
     m_DisplayBindings = am_DisplayBindings;
   
 END_CODE
-43CHistogrammer617setDisplayervoidprotected000010000000
+43CHistogrammer1495setDisplayervoidprotected000010000000
 BEGIN_CODE
  
     m_pDisplayer = am_Displayer;
   
 END_CODE
-43CHistogrammer618setParameterDictionaryvoidprotected000010000000
+43CHistogrammer1496setParameterDictionaryvoidprotected000010000000
 BEGIN_CODE
  
     m_ParameterDictionary = am_ParameterDictionary;
   
 END_CODE
-43CHistogrammer619setSpectrumDictionaryvoidprotected000010000000
+43CHistogrammer1497setSpectrumDictionaryvoidprotected000010000000
 BEGIN_CODE
  
     m_SpectrumDictionary = am_SpectrumDictionary;
   
 END_CODE
-43CHistogrammer620AddParameterCParameter*public000110000000
+43CHistogrammer1498AddParameterCParameter*public000110000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer621RemoveParameterCParameter*public000010000000
+43CHistogrammer1499RemoveParameterCParameter*public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer622FindParameterCParameter*public000010000000
+43CHistogrammer1500FindParameterCParameter*public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer623FindParameter$CParameter*public000010000000
+43CHistogrammer1501FindParameter$CParameter*public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer624ParameterBeginParameterDictionaryIteratorpublic000010000000
+43CHistogrammer1502ParameterBeginParameterDictionaryIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer625ParameterEndParameterDictionaryIteratorpublic000010000000
+43CHistogrammer1503ParameterEndParameterDictionaryIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer626ParameterCountUInt_tpublic000010000000
+43CHistogrammer1504ParameterCountUInt_tpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer627AddSpectrumvoidpublic000010000000
+43CHistogrammer1505AddSpectrumvoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer628RemoveSpectrumCSpectrum*public000010000000
+43CHistogrammer1506RemoveSpectrumCSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer629ClearSpectrumvoidpublic000010000000
+43CHistogrammer1507ClearSpectrumvoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer630ClearAllSpectravoidpublic000010000000
+43CHistogrammer1508ClearAllSpectravoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer631FindSpectrumCSpectrum*public000010000000
+43CHistogrammer1509FindSpectrumCSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer632FindSpectrum$CSpectrum*public000010000000
+43CHistogrammer1510FindSpectrum$CSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer633SpectrumBeginSpectrumDictionaryIteratorpublic000010000000
+43CHistogrammer1511SpectrumBeginSpectrumDictionaryIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer634SpectrumEndSpectrumDictionaryIteratorpublic000010000000
+43CHistogrammer1512SpectrumEndSpectrumDictionaryIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer635SpectrumCountUInt_tpublic000010000000
+43CHistogrammer1513SpectrumCountUInt_tpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer636UnGatevoidpublic000010000000
+43CHistogrammer1514UnGatevoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer637BindToDisplayUInt_tpublic000010000000
+43CHistogrammer1515BindToDisplayUInt_tpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer638UnBindFromDisplayvoidpublic000010000000
+43CHistogrammer1516UnBindFromDisplayvoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer639DisplayBindingsBeginDisplayBindingsIteratorpublic000010000000
+43CHistogrammer1517DisplayBindingsBeginDisplayBindingsIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer640DisplayBindingsEndDisplayBindingsIteratorpublic000010000000
+43CHistogrammer1518DisplayBindingsEndDisplayBindingsIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer641DisplayBindingsSizeUInt_tpublic000010000000
+43CHistogrammer1519DisplayBindingsSizeUInt_tpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer642DisplayBindingCSpectrum*public000010000000
+43CHistogrammer1520DisplayBindingCSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer643AddGatevoidpublic000010000000
+43CHistogrammer1521AddGatevoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer644DeleteGatevoidpublic000010000000
+43CHistogrammer1522DeleteGatevoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer645ReplaceGatevoidpublic000010000000
+43CHistogrammer1523ReplaceGatevoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer646ApplyGatevoidpublic000010000000
+43CHistogrammer1524ApplyGatevoidpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer647FindGateCGateContainer*public000010000000
+43CHistogrammer1525FindGateCGateContainer*public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer648FindGate$CGateContainer*public000010000000
+43CHistogrammer1526FindGate$CGateContainer*public000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer649GateBeginCGateDictionaryIteratorpublic000010000000
+43CHistogrammer1527GateBeginCGateDictionaryIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer650GateEndCGateDictionaryIteratorpublic000010000000
+43CHistogrammer1528GateEndCGateDictionaryIteratorpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer651GateCountUInt_tpublic000010000000
+43CHistogrammer1529GateCountUInt_tpublic000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer652GateToXamineGateCDisplayGate*protected000010000000
+43CHistogrammer1530GateToXamineGateCDisplayGate*protected000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer653GatesToDisplayCGateContainerprotected000010000000
+43CHistogrammer1531GatesToDisplayCGateContainerprotected000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer654AddGateToBoundSpectravoidprotected000010000000
+43CHistogrammer1532AddGateToBoundSpectravoidprotected000010000000
 BEGIN_CODE
 
 END_CODE
-43CHistogrammer655RemoveGateFromBoundSpectravoidprotected000010000000
+43CHistogrammer1533RemoveGateFromBoundSpectravoidprotected000010000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum664CSnapshotSpectrumpublic000010000000
+45CSnapshotSpectrum1534CSnapshotSpectrumpublic000010000000
 BEGIN_CODE
  
     setStorageType(m_rActualSpectrum.StorageType());
   
 END_CODE
-45CSnapshotSpectrum665~CSnapshotSpectrumpublic000110000000
+45CSnapshotSpectrum1535~CSnapshotSpectrumpublic000110000000
 BEGIN_CODE
 
     if(m_fOwnSpectrum) delete &m_rActualSpectrum;
@@ -1184,83 +1187,83 @@ BEGIN_CODE
     setOwnStorage(kfFALSE);	// In case this was modified.
   
 END_CODE
-45CSnapshotSpectrum666CSnapshotSpectrum$private000010000000
+45CSnapshotSpectrum1536CSnapshotSpectrum$private000010000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum667operator=CSnapshotSpectrum&private000010000000
+45CSnapshotSpectrum1537operator=CSnapshotSpectrum&private000010000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum668operator==intpublic000010000000
+45CSnapshotSpectrum1538operator==intpublic000010000000
 BEGIN_CODE
 
     return (m_rActualSpectrum == aCSnapshotSpectrum.m_rActualSpectrum);
   
 END_CODE
-45CSnapshotSpectrum669getCSpectrumCSpectrum&public010010000000
+45CSnapshotSpectrum1539getCSpectrumCSpectrum&public010010000000
 BEGIN_CODE
  
     return m_rActualSpectrum;
   
 END_CODE
-45CSnapshotSpectrum670UsesParameterBool_tpublic010110000000
+45CSnapshotSpectrum1540UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum671ReplaceStoragevoidpublic000110000000
+45CSnapshotSpectrum1541ReplaceStoragevoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum672Clearvoidpublic000110000000
+45CSnapshotSpectrum1542Clearvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum673DimensionSize_tpublic010110000000
+45CSnapshotSpectrum1543DimensionSize_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum674DimensionalityUInt_tpublic010110000000
+45CSnapshotSpectrum1544DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum675operator[]ULong_tpublic010110000000
+45CSnapshotSpectrum1545operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum676StorageNeededSize_tpublic010110000000
+45CSnapshotSpectrum1546StorageNeededSize_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum677Incrementvoidpublic000110000000
+45CSnapshotSpectrum1547Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum678getSpectrumTypeSpectrumType_tpublic000110000000
+45CSnapshotSpectrum1548getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum679UsesParameter$Bool_tpublic010110000000
+45CSnapshotSpectrum1549UsesParameter$Bool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum680setvoidpublic000110000000
+45CSnapshotSpectrum1550setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum681GetParameterIdsvoidpublic000110000000
+45CSnapshotSpectrum1551GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum682GetResolutionsvoidpublic000110000000
+45CSnapshotSpectrum1552GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum683getScaleInt_tpublic000110000000
+45CSnapshotSpectrum1553getScaleInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-45CSnapshotSpectrum684SetOwnershipBool_tpublic000010000000
+45CSnapshotSpectrum1554SetOwnershipBool_tpublic000010000000
 BEGIN_CODE
 
     Bool_t fOwn    = m_fOwnSpectrum;
@@ -1268,194 +1271,273 @@ BEGIN_CODE
     return fOwn;
   
 END_CODE
-46CSpectrum685CSpectrumpublic000010000000
+46CSpectrum1555CSpectrumpublic000010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1556~CSpectrumpublic000110000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1557CSpectrum$public000010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1558CSpectrum$$private000010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1559operator=CSpectrumprivate000010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1560operator==intpublic000010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1561getStorageAddress_tpublic010010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1562getOwnStorageBool_tpublic010010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1563getGateCGateContainer*public010010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1564getSpectrumTypeSpectrumType_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1565setStoragevoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1566setOwnStoragevoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1567setStorageTypevoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+46CSpectrum1568ApplyGateCGateContainer*public000010000000
+BEGIN_CODE
+
+  // Applies  a new gate to the spectrum, returning the prior gate.
+
+  CGateContainer* pOldGate(m_pGate);
+  m_pGate = pNewGate;
+  return pOldGate;
+
+END_CODE
+46CSpectrum1569UngateCGateContainer*public000010000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1570UsesParameterBool_tpublic010010000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1571StorageTypeDataType_tpublic010010000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1572UsesParameter$Bool_tpublic011110000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1573DimensionSize_tpublic011110000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1574DimensionalityUInt_tpublic011110000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1575operator[]ULong_tpublic011110000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1576setvoidpublic001110000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1577GetParameterIdsvoidpublic001110000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1578GetResolutionsvoidpublic001110000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1579Incrementvoidpublic001110000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1580getScaleInt_tpublic001110000000
+BEGIN_CODE
+
+  return ApplyGate(&TrueContainer);
+
+END_CODE
+46CSpectrum1581Copyvoidpublic010110000000
+BEGIN_CODE
+
+  // Copy the spectrum to external storage:
+  //
+  memcpy(pStorage, m_pStorage, StorageNeeded());
+
+END_CODE
+46CSpectrum1582Clearvoidpublic000110000000
+BEGIN_CODE
+
+// Clears the channesl assocaited with the
+// spectrum.  By default, this is done via:
+//   memset(m_pStorage, 0, StorageRequried());
+//
+// 
+
+  memset(m_pStorage, 0, StorageNeeded());
+
+
+END_CODE
+46CSpectrum1583StorageNeededSize_tpublic010110000000
+BEGIN_CODE
+
+// Returns the number of storage units required
+// to store the data in the histogram.
+//
+//   E.g. new UChar_t[StorageNeeded()]]
+//   could allocate space for the spectrum if it was
+//   stored uncompressed.,
+//
+// Default implementation assumes that the storage is 
+// a simple n dimensional array of items.  The only nasty
+// bit is figuring out the size of each item, done via a long
+// case statement on storage type.
+//  
+
+  UInt_t nDims         = Dimensionality(); // total # of dimensions.
+  Size_t nStorageUnits = 1;	           // Accumulate storage units here.
+
+  for(UInt_t i = 0; i < nDims; i++) {
+    nStorageUnits *= Dimension(i);
+  }
+  // nStorageUnits must be scaled by the no. of bytes per unit:
+
+  Size_t nBytesPerUnit;
+  switch(StorageType()) {
+  case keByte:
+    nBytesPerUnit = sizeof(Char_t);
+    break;
+  case keWord:
+    nBytesPerUnit = sizeof(Short_t);
+    break;
+  case keLong:
+    nBytesPerUnit = sizeof(Int_t);
+    break;
+  case keFloat:
+    nBytesPerUnit = sizeof(Float_t);
+    break;
+  case keDouble:
+    nBytesPerUnit = sizeof(DFloat_t);
+    break;
+  }
+  return nStorageUnits * nBytesPerUnit;
+
+END_CODE
+46CSpectrum1584ReplaceStoragevoidpublic000110000000
+BEGIN_CODE
+
+// Instructs the spectrum to move the storage associated
+// with its channels into the storage pointed to by the
+// parameter.  It is up to the caller to ensure that there
+// is sufficient storage in the destination.
+// Default action is to:
+//     memcpy(pNewLoc, m_pStorage, StorageNeeded());
+// If the current storage was owned by the spectrum, it is deleted.
+// The m_pStorageg and m_fOwnStorage are updated from the parameters.
+//
+// Formal Parameters:
+//       Address_t pNewLoc:
+//          Pointer to the new spectrum storage.
+//
+//       Bool_t fTransferOwnership = kfTRUE:
+//           Indicates if the storage should be owned
+//           by the spectrum after transfer. 
+//
+
+  if(m_pStorage)
+    Copy(pNewLoc);
+  else {
+    memset(pNewLoc, 0, StorageNeeded());
+  }
+  if(m_fOwnStorage) ReleaseStorage();
+  m_pStorage    = pNewLoc;
+  m_fOwnStorage = fTransferOwnership;
+
+
+END_CODE
+46CSpectrum1585CheckGateBool_tpublic000110000000
+BEGIN_CODE
+
+  return (*m_pGate)((CEvent&)rEvent);
+
+END_CODE
+46CSpectrum1586GammaGateIncrementvoidpublic000110000000
+BEGIN_CODE
+
+  operator()(rEvent);
+
+END_CODE
+46CSpectrum1587ReleaseStoragevoidprotected000010000000
+BEGIN_CODE
+
+  operator()(rEvent);
+
+END_CODE
+47CSpectrum1DL1588CSpectrum1DLpublic000010000000
+BEGIN_CODE
+
+END_CODE
+47CSpectrum1DL1589~CSpectrum1DLpublic000110000000
 BEGIN_CODE
  
 END_CODE
-46CSpectrum686~CSpectrumpublic000110000000
-BEGIN_CODE
- 
-    if(m_fOwnStorage) {
-      ReleaseStorage();
-    }
-  
-END_CODE
-46CSpectrum687CSpectrum$public000010000000
-BEGIN_CODE
- 
-END_CODE
-46CSpectrum688CSpectrum$$private000010000000
+47CSpectrum1DL1590CSpectrum1DL$private000010000000
 BEGIN_CODE
 
 END_CODE
-46CSpectrum689operator=CSpectrumprivate000010000000
+47CSpectrum1DL1591operator=CSpectrum1DLprivate000010000000
 BEGIN_CODE
 
 END_CODE
-46CSpectrum690operator==intpublic000010000000
-BEGIN_CODE
- 
-    return ((CNamedItem::operator== (aCSpectrum)) &&
-	    (m_pStorage == aCSpectrum.m_pStorage) &&
-	    (m_fOwnStorage == aCSpectrum.m_fOwnStorage) 
-	    );
-  
-END_CODE
-46CSpectrum691getStorageAddress_tpublic010010000000
-BEGIN_CODE
-
-    return m_pStorage;
-  
-END_CODE
-46CSpectrum692getOwnStorageBool_tpublic010010000000
-BEGIN_CODE
-
-    return m_fOwnStorage;
-  
-END_CODE
-46CSpectrum693getGateCGateContainer*public010010000000
-BEGIN_CODE
-
-    return m_pGate;
-  
-END_CODE
-46CSpectrum694getSpectrumTypeSpectrumType_tpublic001110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum695setStoragevoidprotected000010000000
-BEGIN_CODE
- 
-    m_pStorage = am_pStorage;
-  
-END_CODE
-46CSpectrum696setOwnStoragevoidprotected000010000000
-BEGIN_CODE
- 
-    m_fOwnStorage = am_fOwnStorage;
-  
-END_CODE
-46CSpectrum697setStorageTypevoidprotected000010000000
-BEGIN_CODE
-
-    m_DataType = dt;
-  
-END_CODE
-46CSpectrum698ApplyGateCGateContainer*public000010000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum699UngateCGateContainer*public000010000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum700UsesParameterBool_tpublic010010000000
-BEGIN_CODE
-
-    return UsesParameter(rParameter.getNumber());
-  
-END_CODE
-46CSpectrum701StorageTypeDataType_tpublic010010000000
-BEGIN_CODE
-return m_DataType; 
-END_CODE
-46CSpectrum702UsesParameter$Bool_tpublic011110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum703DimensionSize_tpublic011110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum704DimensionalityUInt_tpublic011110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum705operator[]ULong_tpublic011110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum706setvoidpublic001110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum707GetParameterIdsvoidpublic001110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum708GetResolutionsvoidpublic001110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum709Incrementvoidpublic001110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum710getScaleInt_tpublic001110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum711Copyvoidpublic010110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum712Clearvoidpublic000110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum713StorageNeededSize_tpublic010110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum714ReplaceStoragevoidpublic000110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum715CheckGateBool_tpublic000110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum716GammaGateIncrementvoidpublic000110000000
-BEGIN_CODE
-
-END_CODE
-46CSpectrum717ReleaseStoragevoidprotected000010000000
-BEGIN_CODE
-
-    switch(StorageType()) {
-    case keByte:
-      delete [] (char*)m_pStorage;
-      break;
-    case keWord:
-      delete [] (Short_t*)m_pStorage;
-      break;
-    case keLong:
-      delete [] (Long_t*)m_pStorage;
-      break;
-    case keDouble:
-      delete [] (DFloat_t*)m_pStorage;
-      break;
-    }
-    
-  
-END_CODE
-47CSpectrum1DL718CSpectrum1DLpublic000010000000
-BEGIN_CODE
-
-END_CODE
-47CSpectrum1DL719~CSpectrum1DLpublic000110000000
-BEGIN_CODE
- 
-END_CODE
-47CSpectrum1DL720CSpectrum1DL$private000010000000
-BEGIN_CODE
-
-END_CODE
-47CSpectrum1DL721operator=CSpectrum1DLprivate000010000000
-BEGIN_CODE
-
-END_CODE
-47CSpectrum1DL722operator==intpublic000010000000
+47CSpectrum1DL1592operator==intpublic000010000000
 BEGIN_CODE
  return (
 	    (CSpectrum::operator== (aCSpectrum1D)) &&
@@ -1465,105 +1547,105 @@ BEGIN_CODE
 	    );
   
 END_CODE
-47CSpectrum1DL723getScaleUInt_tpublic010010000000
+47CSpectrum1DL1593getScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nScale;
   
 END_CODE
-47CSpectrum1DL724getParameterUInt_tpublic010010000000
+47CSpectrum1DL1594getParameterUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nParameter;
   
 END_CODE
-47CSpectrum1DL725getScaleDifferenceInt_tpublic010010000000
+47CSpectrum1DL1595getScaleDifferenceInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nScaleDifference;
   
 END_CODE
-47CSpectrum1DL726getSpectrumTypeSpectrumType_tpublic000110000000
+47CSpectrum1DL1596getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
     return ke1D;
   
 END_CODE
-47CSpectrum1DL727setScalevoidprotected000010000000
+47CSpectrum1DL1597setScalevoidprotected000010000000
 BEGIN_CODE
  
     m_nScale = am_nScale;
   
 END_CODE
-47CSpectrum1DL728setParametervoidprotected000010000000
+47CSpectrum1DL1598setParametervoidprotected000010000000
 BEGIN_CODE
  
     m_nParameter = am_nParameter;
   
 END_CODE
-47CSpectrum1DL729setScaleDifferencevoidprotected000010000000
+47CSpectrum1DL1599setScaleDifferencevoidprotected000010000000
 BEGIN_CODE
  
     m_nScaleDifference = am_nScaleDifference;
   
 END_CODE
-47CSpectrum1DL730Incrementvoidpublic000110000000
+47CSpectrum1DL1600Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-47CSpectrum1DL731operator[]ULong_tpublic010110000000
+47CSpectrum1DL1601operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-47CSpectrum1DL732setvoidpublic000110000000
+47CSpectrum1DL1602setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-47CSpectrum1DL733UsesParameterBool_tpublic010110000000
+47CSpectrum1DL1603UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-47CSpectrum1DL734DimensionUInt_tpublic010110000000
+47CSpectrum1DL1604DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
     return ((n == 0) ? (1 << m_nScale) : 0);
   
 END_CODE
-47CSpectrum1DL735DimensionalityUInt_tpublic010110000000
+47CSpectrum1DL1605DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
     return 1;
   
 END_CODE
-47CSpectrum1DL736GetParameterIdsvoidpublic000110000000
+47CSpectrum1DL1606GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-47CSpectrum1DL737GetResolutionsvoidpublic000110000000
+47CSpectrum1DL1607GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-47CSpectrum1DL738getScale$Int_tpublic000110000000
+47CSpectrum1DL1608getScale$Int_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-48CSpectrum1DW739CSpectrum1DWpublic000010000000
+48CSpectrum1DW1609CSpectrum1DWpublic000010000000
 BEGIN_CODE
 
 END_CODE
-48CSpectrum1DW740~CSpectrum1DWpublic000110000000
+48CSpectrum1DW1610~CSpectrum1DWpublic000110000000
 BEGIN_CODE
  
 END_CODE
-48CSpectrum1DW741CSpectrum1DW$private000010000000
+48CSpectrum1DW1611CSpectrum1DW$private000010000000
 BEGIN_CODE
 
 END_CODE
-48CSpectrum1DW742operator=CSpectrum1DWprivate000010000000
+48CSpectrum1DW1612operator=CSpectrum1DWprivate000010000000
 BEGIN_CODE
 
 END_CODE
-48CSpectrum1DW743operator==intpublic000010000000
+48CSpectrum1DW1613operator==intpublic000010000000
 BEGIN_CODE
  return (
 	    (CSpectrum::operator== (aCSpectrum1D)) &&
@@ -1573,105 +1655,105 @@ BEGIN_CODE
 	    );
   
 END_CODE
-48CSpectrum1DW744getScaleUInt_tpublic010010000000
+48CSpectrum1DW1614getScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nScale;
   
 END_CODE
-48CSpectrum1DW745getParameterUInt_tpublic010010000000
+48CSpectrum1DW1615getParameterUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nParameter;
   
 END_CODE
-48CSpectrum1DW746getScaleDifferenceInt_tpublic010010000000
+48CSpectrum1DW1616getScaleDifferenceInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nScaleDifference;
   
 END_CODE
-48CSpectrum1DW747getSpectrumTypeSpectrumType_tpublic000110000000
+48CSpectrum1DW1617getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
     return ke1D;
   
 END_CODE
-48CSpectrum1DW748setScalevoidprotected000010000000
+48CSpectrum1DW1618setScalevoidprotected000010000000
 BEGIN_CODE
  
     m_nScale = am_nScale;
   
 END_CODE
-48CSpectrum1DW749setParametervoidprotected000010000000
+48CSpectrum1DW1619setParametervoidprotected000010000000
 BEGIN_CODE
  
     m_nParameter = am_nParameter;
   
 END_CODE
-48CSpectrum1DW750setScaleDifferencevoidprotected000010000000
+48CSpectrum1DW1620setScaleDifferencevoidprotected000010000000
 BEGIN_CODE
  
     m_nScaleDifference = am_nScaleDifference;
   
 END_CODE
-48CSpectrum1DW751Incrementvoidpublic000110000000
+48CSpectrum1DW1621Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-48CSpectrum1DW752operator[]ULong_tpublic010110000000
+48CSpectrum1DW1622operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-48CSpectrum1DW753setvoidpublic000110000000
+48CSpectrum1DW1623setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-48CSpectrum1DW754UsesParameterBool_tpublic010110000000
+48CSpectrum1DW1624UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-48CSpectrum1DW755DimensionUInt_tpublic010110000000
+48CSpectrum1DW1625DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
     return ((n == 0) ? (1 << m_nScale) : 0);
   
 END_CODE
-48CSpectrum1DW756DimensionalityUInt_tpublic010110000000
+48CSpectrum1DW1626DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
     return 1;
   
 END_CODE
-48CSpectrum1DW757GetParameterIdsvoidpublic000110000000
+48CSpectrum1DW1627GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-48CSpectrum1DW758GetResolutionsvoidpublic000110000000
+48CSpectrum1DW1628GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-48CSpectrum1DW759getScale$Int_tpublic000110000000
+48CSpectrum1DW1629getScale$Int_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB760CSpectrum2DBpublic000010000000
+49CSpectrum2DB1630CSpectrum2DBpublic000010000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB761~CSpectrum2DBpublic000110000000
+49CSpectrum2DB1631~CSpectrum2DBpublic000110000000
 BEGIN_CODE
  
 END_CODE
-49CSpectrum2DB762CSpectrum2DB$private000010000000
+49CSpectrum2DB1632CSpectrum2DB$private000010000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB763operator=CSpectrum2DBprivate000010000000
+49CSpectrum2DB1633operator=CSpectrum2DBprivate000010000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB764operator==intpublic000010000000
+49CSpectrum2DB1634operator==intpublic000010000000
 BEGIN_CODE
  return (
 	    (CSpectrum::operator== (aCSpectrum)) &&
@@ -1684,139 +1766,139 @@ BEGIN_CODE
 	    );
   
 END_CODE
-49CSpectrum2DB765getXScaleUInt_tpublic010010000000
+49CSpectrum2DB1635getXScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXScale;
   
 END_CODE
-49CSpectrum2DB766getYScaleUInt_tpublic010010000000
+49CSpectrum2DB1636getYScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYScale;
   
 END_CODE
-49CSpectrum2DB767getXParameterUInt_tpublic010010000000
+49CSpectrum2DB1637getXParameterUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXParameter;
   
 END_CODE
-49CSpectrum2DB768getYParameterUInt_tpublic010010000000
+49CSpectrum2DB1638getYParameterUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYParameter;
   
 END_CODE
-49CSpectrum2DB769getXScaleDifferenceInt_tpublic010010000000
+49CSpectrum2DB1639getXScaleDifferenceInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXScaleDifference;
   
 END_CODE
-49CSpectrum2DB770getYScaleDifferenceInt_tpublic010010000000
+49CSpectrum2DB1640getYScaleDifferenceInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYScaleDifference;
   
 END_CODE
-49CSpectrum2DB771getSpectrumTypeSpectrumType_tpublic000110000000
+49CSpectrum2DB1641getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
     return ke2D;
   
 END_CODE
-49CSpectrum2DB772setXScalevoidprotected000010000000
+49CSpectrum2DB1642setXScalevoidprotected000010000000
 BEGIN_CODE
  
     m_nXScale = am_nScale;
   
 END_CODE
-49CSpectrum2DB773setYScalevoidprotected000010000000
+49CSpectrum2DB1643setYScalevoidprotected000010000000
 BEGIN_CODE
 
     m_nYScale = nScale;
   
 END_CODE
-49CSpectrum2DB774setXParametervoidprotected000010000000
+49CSpectrum2DB1644setXParametervoidprotected000010000000
 BEGIN_CODE
  
     m_nXParameter = am_nParameter;
   
 END_CODE
-49CSpectrum2DB775setYParametervoidprotected000010000000
+49CSpectrum2DB1645setYParametervoidprotected000010000000
 BEGIN_CODE
 
     m_nYParameter = nParameter;
   
 END_CODE
-49CSpectrum2DB776setXScaleDifferencevoidprotected000010000000
+49CSpectrum2DB1646setXScaleDifferencevoidprotected000010000000
 BEGIN_CODE
  
     m_nXScaleDifference = am_nScaleDifference;
   
 END_CODE
-49CSpectrum2DB777setYScaleDifferencevoidprotected000010000000
+49CSpectrum2DB1647setYScaleDifferencevoidprotected000010000000
 BEGIN_CODE
 
     m_nYScaleDifference = nScaleDiff;
   
 END_CODE
-49CSpectrum2DB778Incrementvoidpublic000110000000
+49CSpectrum2DB1648Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB779operator[]ULong_tpublic010110000000
+49CSpectrum2DB1649operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB780setvoidpublic000110000000
+49CSpectrum2DB1650setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB781UsesParameterBool_tpublic010110000000
+49CSpectrum2DB1651UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB782DimensionUInt_tpublic010110000000
+49CSpectrum2DB1652DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB783DimensionalityUInt_tpublic010110000000
+49CSpectrum2DB1653DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
     return 2;
   
 END_CODE
-49CSpectrum2DB784GetParameterIdsvoidpublic000110000000
+49CSpectrum2DB1654GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB785GetResolutionsvoidpublic000110000000
+49CSpectrum2DB1655GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-49CSpectrum2DB786getScaleInt_tpublic000110000000
+49CSpectrum2DB1656getScaleInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW787CSpectrum2DWpublic000010000000
+50CSpectrum2DW1657CSpectrum2DWpublic000010000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW788~CSpectrum2DWpublic000110000000
+50CSpectrum2DW1658~CSpectrum2DWpublic000110000000
 BEGIN_CODE
  
 END_CODE
-50CSpectrum2DW789CSpectrum2DW$private000010000000
+50CSpectrum2DW1659CSpectrum2DW$private000010000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW790operator=CSpectrum2DWprivate000010000000
+50CSpectrum2DW1660operator=CSpectrum2DWprivate000010000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW791operator==intpublic000010000000
+50CSpectrum2DW1661operator==intpublic000010000000
 BEGIN_CODE
  return (
 	    (CSpectrum::operator== (aCSpectrum)) &&
@@ -1829,205 +1911,205 @@ BEGIN_CODE
 	    );
   
 END_CODE
-50CSpectrum2DW792getXScaleUInt_tpublic010010000000
+50CSpectrum2DW1662getXScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXScale;
   
 END_CODE
-50CSpectrum2DW793getYScaleUInt_tpublic010010000000
+50CSpectrum2DW1663getYScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYScale;
   
 END_CODE
-50CSpectrum2DW794getXParameterUInt_tpublic010010000000
+50CSpectrum2DW1664getXParameterUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXParameter;
   
 END_CODE
-50CSpectrum2DW795getYParameterUInt_tpublic010010000000
+50CSpectrum2DW1665getYParameterUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYParameter;
   
 END_CODE
-50CSpectrum2DW796getXScaleDifferenceInt_tpublic010010000000
+50CSpectrum2DW1666getXScaleDifferenceInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXScaleDifference;
   
 END_CODE
-50CSpectrum2DW797getYScaleDifferenceInt_tpublic010010000000
+50CSpectrum2DW1667getYScaleDifferenceInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYScaleDifference;
   
 END_CODE
-50CSpectrum2DW798getSpectrumTypeSpectrumType_tpublic000110000000
+50CSpectrum2DW1668getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
     return ke2D;
   
 END_CODE
-50CSpectrum2DW799setXScalevoidprotected000010000000
+50CSpectrum2DW1669setXScalevoidprotected000010000000
 BEGIN_CODE
  
     m_nXScale = am_nScale;
   
 END_CODE
-50CSpectrum2DW800setYScalevoidprotected000010000000
+50CSpectrum2DW1670setYScalevoidprotected000010000000
 BEGIN_CODE
 
     m_nYScale = nScale;
   
 END_CODE
-50CSpectrum2DW801setXParametervoidprotected000010000000
+50CSpectrum2DW1671setXParametervoidprotected000010000000
 BEGIN_CODE
  
     m_nXParameter = am_nParameter;
   
 END_CODE
-50CSpectrum2DW802setYParametervoidprotected000010000000
+50CSpectrum2DW1672setYParametervoidprotected000010000000
 BEGIN_CODE
 
     m_nYParameter = nParameter;
   
 END_CODE
-50CSpectrum2DW803setXScaleDifferencevoidprotected000010000000
+50CSpectrum2DW1673setXScaleDifferencevoidprotected000010000000
 BEGIN_CODE
  
     m_nXScaleDifference = am_nScaleDifference;
   
 END_CODE
-50CSpectrum2DW804setYScaleDifferencevoidprotected000010000000
+50CSpectrum2DW1674setYScaleDifferencevoidprotected000010000000
 BEGIN_CODE
 
     m_nYScaleDifference = nScaleDiff;
   
 END_CODE
-50CSpectrum2DW805Incrementvoidpublic000110000000
+50CSpectrum2DW1675Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW806operator[]ULong_tpublic010110000000
+50CSpectrum2DW1676operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW807setvoidpublic000110000000
+50CSpectrum2DW1677setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW808UsesParameterBool_tpublic010110000000
+50CSpectrum2DW1678UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW809DimensionUInt_tpublic010110000000
+50CSpectrum2DW1679DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW810DimensionalityUInt_tpublic010110000000
+50CSpectrum2DW1680DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
     return 2;
   
 END_CODE
-50CSpectrum2DW811GetParameterIdsvoidpublic000110000000
+50CSpectrum2DW1681GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW812GetResolutionsvoidpublic000110000000
+50CSpectrum2DW1682GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-50CSpectrum2DW813getScaleInt_tpublic000110000000
+50CSpectrum2DW1683getScaleInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-51CSpectrumFactory814CSpectrumFactorypublic000010000000
+51CSpectrumFactory1684CSpectrumFactorypublic000010000000
 BEGIN_CODE
  
 END_CODE
-51CSpectrumFactory815~CSpectrumFactorypublic000010000000
+51CSpectrumFactory1685~CSpectrumFactorypublic000010000000
 BEGIN_CODE
  
 END_CODE
-51CSpectrumFactory816CSpectrumFactory$public000010000000
+51CSpectrumFactory1686CSpectrumFactory$public000010000000
 BEGIN_CODE
              
   
 END_CODE
-51CSpectrumFactory817operator=CSpectrumFactory&public000010000000
+51CSpectrumFactory1687operator=CSpectrumFactory&public000010000000
 BEGIN_CODE
  
     m_fExceptions = aCSpectrumFactory.m_fExceptions;
     return *this;                                                           
   
 END_CODE
-51CSpectrumFactory818operator==intpublic000010000000
+51CSpectrumFactory1688operator==intpublic000010000000
 BEGIN_CODE
  
     return (1);
 
   
 END_CODE
-51CSpectrumFactory819getnNextIdUInt_tpublic010010000000
+51CSpectrumFactory1689getnNextIdUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nNextId;
   
 END_CODE
-51CSpectrumFactory820setNextIdvoidprotected000010000000
+51CSpectrumFactory1690setNextIdvoidprotected000010000000
 BEGIN_CODE
  
     m_nNextId = am_nNextId;
   
 END_CODE
-51CSpectrumFactory821CreateSpectrumCSpectrum*public000010000000
+51CSpectrumFactory1691CreateSpectrumCSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-51CSpectrumFactory822CreateSpectrum$CSpectrum*public000010000000
+51CSpectrumFactory1692CreateSpectrum$CSpectrum*public000010000000
 BEGIN_CODE
 
     return CreateSpectrum(std::string(pName),
 			  eSpecType, eDataType, rParameters, rResolutions);
   
 END_CODE
-51CSpectrumFactory823Create1DCSpectrum*public000010000000
+51CSpectrumFactory1693Create1DCSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-51CSpectrumFactory824Create2DCSpectrum*public000010000000
+51CSpectrumFactory1694Create2DCSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-51CSpectrumFactory825CreateG1DCSpectrum*public000010000000
+51CSpectrumFactory1695CreateG1DCSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-51CSpectrumFactory826CreateG2DCSpectrum*public000010000000
+51CSpectrumFactory1696CreateG2DCSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-51CSpectrumFactory827CreateBitCSpectrum*public000010000000
+51CSpectrumFactory1697CreateBitCSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-51CSpectrumFactory828CreateSummaryCSpectrum*public000010000000
+51CSpectrumFactory1698CreateSummaryCSpectrum*public000010000000
 BEGIN_CODE
 
 END_CODE
-51CSpectrumFactory829NextIdUInt_tpublic000010000000
+51CSpectrumFactory1699NextIdUInt_tpublic000010000000
 BEGIN_CODE
 
 END_CODE
-51CSpectrumFactory830ExceptionModeBool_tpublic010010000000
+51CSpectrumFactory1700ExceptionModeBool_tpublic010010000000
 BEGIN_CODE
  return m_fExceptions; 
 END_CODE
-51CSpectrumFactory831ExceptionMode$Bool_tpublic000010000000
+51CSpectrumFactory1701ExceptionMode$Bool_tpublic000010000000
 BEGIN_CODE
 
     Bool_t fOldMode = m_fExceptions;
@@ -2035,29 +2117,29 @@ BEGIN_CODE
     return fOldMode;
   
 END_CODE
-51CSpectrumFactory832ParameterArrayCParameterprotected000010000000
+51CSpectrumFactory1702ParameterArrayCParameterprotected000010000000
 BEGIN_CODE
 
 END_CODE
-51CSpectrumFactory833Requirevoidprotected100010000000
+51CSpectrumFactory1703Requirevoidprotected100010000000
 BEGIN_CODE
 
 END_CODE
-52CSpectrumFactoryException834CSpectrumFactoryExceptionpublic000010000000
+52CSpectrumFactoryException1704CSpectrumFactoryExceptionpublic000010000000
 BEGIN_CODE
 
 END_CODE
-52CSpectrumFactoryException835~CSpectrumFactoryExceptionpublic000010000000
+52CSpectrumFactoryException1705~CSpectrumFactoryExceptionpublic000010000000
 BEGIN_CODE
  delete []m_pMessage; 
 END_CODE
-52CSpectrumFactoryException836CSpectrumFactoryException$public000010000000
+52CSpectrumFactoryException1706CSpectrumFactoryException$public000010000000
 BEGIN_CODE
 
     CopyToMe(aCSpectrumFactoryException);
   
 END_CODE
-52CSpectrumFactoryException837operator=CSpectrumFactoryException&public000010000000
+52CSpectrumFactoryException1707operator=CSpectrumFactoryException&public000010000000
 BEGIN_CODE
  
     if (this == &aCSpectrumFactoryException) return *this;          
@@ -2067,7 +2149,7 @@ BEGIN_CODE
     return *this;                                                                                                 
   
 END_CODE
-52CSpectrumFactoryException838operator==intpublic000010000000
+52CSpectrumFactoryException1708operator==intpublic000010000000
 BEGIN_CODE
  
     return (
@@ -2080,79 +2162,79 @@ BEGIN_CODE
 	    );
   
 END_CODE
-52CSpectrumFactoryException839getTypeDataType_tpublic010010000000
+52CSpectrumFactoryException1709getTypeDataType_tpublic010010000000
 BEGIN_CODE
 return m_eType;
   
 END_CODE
-52CSpectrumFactoryException840getSpectrumTypeSpectrumType_tpublic010010000000
+52CSpectrumFactoryException1710getSpectrumTypeSpectrumType_tpublic010010000000
 BEGIN_CODE
 return m_eSpectrumType;
   
 END_CODE
-52CSpectrumFactoryException841getNamestd::stringpublic010010000000
+52CSpectrumFactoryException1711getNamestd::stringpublic010010000000
 BEGIN_CODE
 return m_sName;
   
 END_CODE
-52CSpectrumFactoryException842getReasonSpectrumErrorReason_tpublic010010000000
+52CSpectrumFactoryException1712getReasonSpectrumErrorReason_tpublic010010000000
 BEGIN_CODE
 return m_eReason;
   
 END_CODE
-52CSpectrumFactoryException843setTypevoidprotected000010000000
+52CSpectrumFactoryException1713setTypevoidprotected000010000000
 BEGIN_CODE
  
     m_eType = am_eType;
     UpdateMessage();
   
 END_CODE
-52CSpectrumFactoryException844setSpectrumTypevoidprotected000010000000
+52CSpectrumFactoryException1714setSpectrumTypevoidprotected000010000000
 BEGIN_CODE
  
     m_eSpectrumType = am_eSpectrumType;
     UpdateMessage();
   
 END_CODE
-52CSpectrumFactoryException845setNamevoidprotected000010000000
+52CSpectrumFactoryException1715setNamevoidprotected000010000000
 BEGIN_CODE
  
     m_sName = am_sName;
     UpdateMessage();
   
 END_CODE
-52CSpectrumFactoryException846setReasonvoidprotected000010000000
+52CSpectrumFactoryException1716setReasonvoidprotected000010000000
 BEGIN_CODE
  
     m_eReason = am_eReason;
     UpdateMessage();
   
 END_CODE
-52CSpectrumFactoryException847ReasonTextchar*public010110000000
+52CSpectrumFactoryException1717ReasonTextchar*public010110000000
 BEGIN_CODE
 
 END_CODE
-52CSpectrumFactoryException848ReasonCodeInt_tpublic010110000000
+52CSpectrumFactoryException1718ReasonCodeInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-52CSpectrumFactoryException849DataTypechar*protected100010000000
+52CSpectrumFactoryException1719DataTypechar*protected100010000000
 BEGIN_CODE
 
 END_CODE
-52CSpectrumFactoryException850SpectrumTypechar*protected100010000000
+52CSpectrumFactoryException1720SpectrumTypechar*protected100010000000
 BEGIN_CODE
 
 END_CODE
-52CSpectrumFactoryException851MessageTextchar*protected110010000000
+52CSpectrumFactoryException1721MessageTextchar*protected110010000000
 BEGIN_CODE
 
 END_CODE
-52CSpectrumFactoryException852UpdateMessagevoidprotected000010000000
+52CSpectrumFactoryException1722UpdateMessagevoidprotected000010000000
 BEGIN_CODE
 
 END_CODE
-52CSpectrumFactoryException853CopyToMevoidprotected000010000000
+52CSpectrumFactoryException1723CopyToMevoidprotected000010000000
 BEGIN_CODE
 
     m_eType = aCSpectrumFactoryException.m_eType;
@@ -2163,15 +2245,15 @@ BEGIN_CODE
     strcpy(m_pMessage, aCSpectrumFactoryException.m_pMessage);
   
 END_CODE
-53CSummarySpectrumB857~ParameterDefpublic000110000000
+53CSummarySpectrumB1724~ParameterDefpublic000110000000
 BEGIN_CODE
  
 END_CODE
-53CSummarySpectrumB858operator=CSummarySpectrumBprivate000010000000
+53CSummarySpectrumB1725operator=CSummarySpectrumBprivate000010000000
 BEGIN_CODE
 
 END_CODE
-53CSummarySpectrumB859operator==intpublic000010000000
+53CSummarySpectrumB1726operator==intpublic000010000000
 BEGIN_CODE
  return (
 	    (CSpectrum::operator== (aCSpectrum))         &&
@@ -2181,101 +2263,101 @@ BEGIN_CODE
 	    );
   
 END_CODE
-53CSummarySpectrumB860getYScaleUInt_tpublic010010000000
+53CSummarySpectrumB1727getYScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYScale;
   
 END_CODE
-53CSummarySpectrumB861getXChannelsUInt_tpublic010010000000
+53CSummarySpectrumB1728getXChannelsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXChannels;
   
 END_CODE
-53CSummarySpectrumB862getnParamsUInt_tpublic010010000000
+53CSummarySpectrumB1729getnParamsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_vParameters.size();
   
 END_CODE
-53CSummarySpectrumB863getParameterIdUInt_tpublic010010000000
+53CSummarySpectrumB1730getParameterIdUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_vParameters[n].nParameter;
   
 END_CODE
-53CSummarySpectrumB864getScaleDifferenceInt_tpublic010010000000
+53CSummarySpectrumB1731getScaleDifferenceInt_tpublic010010000000
 BEGIN_CODE
 
     return m_vParameters[n].nScale;
   
 END_CODE
-53CSummarySpectrumB865getSpectrumTypeSpectrumType_tpublic000110000000
+53CSummarySpectrumB1732getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
     return keSummary;
   
 END_CODE
-53CSummarySpectrumB866setYScalevoidprotected000010000000
+53CSummarySpectrumB1733setYScalevoidprotected000010000000
 BEGIN_CODE
 
     m_nYScale = Scale;
   
 END_CODE
-53CSummarySpectrumB867setXChannelsvoidprotected000010000000
+53CSummarySpectrumB1734setXChannelsvoidprotected000010000000
 BEGIN_CODE
 
     m_nXChannels = Chans;
   
 END_CODE
-53CSummarySpectrumB868Incrementvoidpublic000110000000
+53CSummarySpectrumB1735Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-53CSummarySpectrumB869operator[]ULong_tpublic010110000000
+53CSummarySpectrumB1736operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-53CSummarySpectrumB870setvoidpublic000110000000
+53CSummarySpectrumB1737setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-53CSummarySpectrumB871UsesParameterBool_tpublic010110000000
+53CSummarySpectrumB1738UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-53CSummarySpectrumB872DimensionUInt_tpublic010110000000
+53CSummarySpectrumB1739DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-53CSummarySpectrumB873DimensionalityUInt_tpublic010110000000
+53CSummarySpectrumB1740DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
     return 2;
   
 END_CODE
-53CSummarySpectrumB874GetParameterIdsvoidpublic000110000000
+53CSummarySpectrumB1741GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-53CSummarySpectrumB875GetResolutionsvoidpublic000110000000
+53CSummarySpectrumB1742GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-53CSummarySpectrumB876getScaleInt_tpublic000110000000
+53CSummarySpectrumB1743getScaleInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
-54CSummarySpectrumW880~ParameterDefpublic000110000000
+54CSummarySpectrumW1744~ParameterDefpublic000110000000
 BEGIN_CODE
  
 END_CODE
-54CSummarySpectrumW881operator=CSummarySpectrumWprivate000010000000
+54CSummarySpectrumW1745operator=CSummarySpectrumWprivate000010000000
 BEGIN_CODE
 
 END_CODE
-54CSummarySpectrumW882operator==intpublic000010000000
+54CSummarySpectrumW1746operator==intpublic000010000000
 BEGIN_CODE
  return (
 	    (CSpectrum::operator== (aCSpectrum))         &&
@@ -2285,89 +2367,89 @@ BEGIN_CODE
 	    );
   
 END_CODE
-54CSummarySpectrumW883getYScaleUInt_tpublic010010000000
+54CSummarySpectrumW1747getYScaleUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nYScale;
   
 END_CODE
-54CSummarySpectrumW884getXChannelsUInt_tpublic010010000000
+54CSummarySpectrumW1748getXChannelsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_nXChannels;
   
 END_CODE
-54CSummarySpectrumW885getnParamsUInt_tpublic010010000000
+54CSummarySpectrumW1749getnParamsUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_vParameters.size();
   
 END_CODE
-54CSummarySpectrumW886getParameterIdUInt_tpublic010010000000
+54CSummarySpectrumW1750getParameterIdUInt_tpublic010010000000
 BEGIN_CODE
 
     return m_vParameters[n].nParameter;
   
 END_CODE
-54CSummarySpectrumW887getScaleDifferenceInt_tpublic010010000000
+54CSummarySpectrumW1751getScaleDifferenceInt_tpublic010010000000
 BEGIN_CODE
 
     return m_vParameters[n].nScale;
   
 END_CODE
-54CSummarySpectrumW888getSpectrumTypeSpectrumType_tpublic000110000000
+54CSummarySpectrumW1752getSpectrumTypeSpectrumType_tpublic000110000000
 BEGIN_CODE
 
     return keSummary;
   
 END_CODE
-54CSummarySpectrumW889setYScalevoidprotected000010000000
+54CSummarySpectrumW1753setYScalevoidprotected000010000000
 BEGIN_CODE
 
     m_nYScale = Scale;
   
 END_CODE
-54CSummarySpectrumW890setXChannelsvoidprotected000010000000
+54CSummarySpectrumW1754setXChannelsvoidprotected000010000000
 BEGIN_CODE
 
     m_nXChannels = Chans;
   
 END_CODE
-54CSummarySpectrumW891Incrementvoidpublic000110000000
+54CSummarySpectrumW1755Incrementvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-54CSummarySpectrumW892operator[]ULong_tpublic010110000000
+54CSummarySpectrumW1756operator[]ULong_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-54CSummarySpectrumW893setvoidpublic000110000000
+54CSummarySpectrumW1757setvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-54CSummarySpectrumW894UsesParameterBool_tpublic010110000000
+54CSummarySpectrumW1758UsesParameterBool_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-54CSummarySpectrumW895DimensionUInt_tpublic010110000000
+54CSummarySpectrumW1759DimensionUInt_tpublic010110000000
 BEGIN_CODE
 
 END_CODE
-54CSummarySpectrumW896DimensionalityUInt_tpublic010110000000
+54CSummarySpectrumW1760DimensionalityUInt_tpublic010110000000
 BEGIN_CODE
 
     return 2;
   
 END_CODE
-54CSummarySpectrumW897GetParameterIdsvoidpublic000110000000
+54CSummarySpectrumW1761GetParameterIdsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-54CSummarySpectrumW898GetResolutionsvoidpublic000110000000
+54CSummarySpectrumW1762GetResolutionsvoidpublic000110000000
 BEGIN_CODE
 
 END_CODE
-54CSummarySpectrumW899getScaleInt_tpublic000110000000
+54CSummarySpectrumW1763getScaleInt_tpublic000110000000
 BEGIN_CODE
 
 END_CODE
@@ -2376,409 +2458,409 @@ END_CODE
 Parameters
 OperID, Parameter Text
 ***BEGIN_TABLE***
-444 const  std::string&/rName//
-444 UInt_t/nId//
-444 const  CParameter&/rParameter//
-444 UInt_t/nScale//
-446 const  CBitSpectrumL&/acspectrum1dl//
-447 const  CBitSpectrumL&/aCSpectrum1D//
-448 const  CBitSpectrumL&/aCSpectrum1D//
-452 UInt_t/am_nChans//
-453 UInt_t/am_nParameter//
-454 const  CEvent&/rEvent//
-455 const  UInt_t*/pIndices//
-456 const  UInt_t*/pIndices//
-456 ULong_t/nValue//
-457 UInt_t/nId//
-458 UInt_t/n//
-460 vector<UInt_t>&/rvIds//
-461 vector<UInt_t>&/rvResolutions//
-462 UInt_t/index//
-463 const  std::string&/rName//
-463 UInt_t/nId//
-463 const  CParameter&/rParameter//
-463 UInt_t/nScale//
-465 const  CBitSpectrumW&/acspectrum1dl//
-466 const  CBitSpectrumW&/aCSpectrum1D//
-467 const  CBitSpectrumW&/aCSpectrum1D//
-471 UInt_t/am_nChans//
-472 UInt_t/am_nParameter//
-473 const  CEvent&/rEvent//
-474 const  UInt_t*/pIndices//
-475 const  UInt_t*/pIndices//
-475 ULong_t/nValue//
-476 UInt_t/nId//
-477 UInt_t/n//
-479 vector<UInt_t>&/rvIds//
-480 vector<UInt_t>&/rvResolutions//
-481 UInt_t/index//
-484 const  CDictionary&/r//
-485 const  CDictionary&/aCDictionary//
-486 const  CDictionary&/aCDictionary//
-487 const  std::string&/sName//
-488 Predicate/p//
-489 const  std::string&/sName//
-489 const  T&/Item//
-490 const  std::string&/rsName//
-494 Int_t/nReason//
-494 const  char*/pDoing//
-494 const  char*/pName//
-495 Int_t/nReason//
-495 const  char*/pDoing//
-495 const  string&/rName//
-496 Int_t/nReason//
-496 const  string&/rDoing//
-496 const  char*/pName//
-497 Int_t/nReason//
-497 const  string&/rDoing//
-497 const  string&/rName//
-498 Int_t/nReason//
-498 const  char*/pDoing//
-498 UInt_t/nId//
-499 Int_t/nReason//
-499 const  string&/rDoing//
-499 UInt_t/nId//
-501 const  CDictionaryException&/aCDictionaryException//
-502 const  CDictionaryException&/aCDictionaryException//
-503 const  CDictionaryException&/aCDictionaryException//
-509 Int_t/am_nReason//
-510 Bool_t/am_fIdValid//
-511 Bool_t/am_fNameValid//
-512 std::string/am_sName//
-513 UInt_t/am_nId//
-519 const  CGamma1DL&/aCGamma1DL//
-520 const  CGamma1DL&/aCGamma1D//
-523 UInt_t/n//
-525 UInt_t/am_nScale//
-526 const  CEvent&/rEvent//
-527 const  CEvent&/rEvent//
-527 std::string/sGateType//
-528 const  UInt_t*/pIndices//
-529 const  UInt_t*/pIndices//
-529 ULong_t/nValue//
-530 UInt_t/nId//
-531 UInt_t/n//
-533 vector<UInt_t>&/rvIds//
-534 vector<UInt_t>&/rvResolutions//
-535 UInt_t/nIndex//
-540 const  CGamma1DW&/aCGamma1DW//
-541 const  CGamma1DW&/aCGamma1D//
-544 UInt_t/n//
-546 UInt_t/am_nScale//
-547 const  CEvent&/rEvent//
-548 const  CEvent&/rEvent//
-548 std::string/sGateType//
-549 const  UInt_t*/pIndices//
-550 const  UInt_t*/pIndices//
-550 ULong_t/nValue//
-551 UInt_t/nId//
-552 UInt_t/n//
-554 vector<UInt_t>&/rvIds//
-555 vector<UInt_t>&/rvResolutions//
-556 UInt_t/nIndex//
-561 const  CGamma2DB&/aCGamma1DB//
-562 const  CGamma2DB&/aCGamma//
-567 UInt_t/am_nScale//
-568 UInt_t/nScale//
-569 const  CEvent&/rEvent//
-570 const  CEvent&/rEvent//
-570 std::string/sGateType//
-571 const  UInt_t*/pIndices//
-572 const  UInt_t*/pIndices//
-572 ULong_t/nValue//
-573 UInt_t/nId//
-574 UInt_t/n//
-576 vector<UInt_t>&/rvIds//
-577 vector<UInt_t>&/rvResolutions//
-578 UInt_t/nIndex//
-583 const  CGamma2DW&/aCGamma1D//
-584 const  CGamma2DW&/aCGamma//
-589 UInt_t/am_nScale//
-590 UInt_t/nScale//
-591 const  CEvent&/rEvent//
-592 const  CEvent&/Event//
-592 std::string/sGateType//
-593 const  UInt_t*/pIndices//
-594 const  UInt_t*/pIndices//
-594 ULong_t/nValue//
-595 UInt_t/nId//
-596 UInt_t/n//
-598 vector<UInt_t>&/rvIds//
-599 vector<UInt_t>&/rvResolutions//
-600 UInt_t/nIndex//
-601 CGateContainer&/rGate//
-601 CSpectrum*/pSpec//
-602 const  CGateMediator&/aCGateMediator//
-603 const  CGateMediator&/aCGateMediator//
-605 UInt_t/nSpecbytes/knDefaultSpectrumSize/
-606 const  CXamine&/rDisplayer//
-608 const  CHistogrammer&/aCHistogrammer//
-609 const  CHistogrammer&/aCHistogrammer//
-610 const  CHistogrammer&/aCHistogrammer//
-611 const  CHistogrammer&/aCHistogrammer//
-616 const  DisplayBindings&/am_DisplayBindings//
-617 CXamine*/am_Displayer//
-618 const  ParameterDictionary&/am_ParameterDictionary//
-619 const  SpectrumDictionary/am_SpectrumDictionary//
-620 const  std::string&/sName//
-620 UInt_t/nId//
-620 UInt_t/nScale//
-621 const  std::string&/sName//
-622 const  std::string&/rName//
-623 UInt_t/nPar//
-627 CSpectrum&/rSpectrum//
-628 const  std::string/sName//
-629 const  std::string&/rsName//
-631 const  std::string&/rName//
-632 UInt_t/id//
-636 const  std::string&/rSpectrum//
-637 const  std::string&/rsName//
-638 UInt_t/nSpec//
-642 UInt_t/xid//
-643 const  std::string&/rName//
-643 UInt_t/nId//
-643 CGate&/rGate//
-644 const  std::string&/rGateName//
-645 const  std::string&/rGateName//
-645 CGate&/rGate//
-646 const  std::string&/rGateName//
-646 const  std::string&/rSpectrum//
-647 const  std::string&/rGate//
-648 UInt_t/nId//
-652 UInt_t/nBindingId//
-652 CGateContainer&/rGate//
-653 const  std::string&/rSpectrum//
-654 CGateContainer&/rGate//
-655 CGateContainer&/rGate//
-664 CSpectrum&/rSpectrum//
-664 Bool_t/fOwner/kfTRUE/
-666 const  CSnapshotSpectrum&/aCSnapshotSpectrum//
-667 const  CSnapshotSpectrum&/aCSnapshotSpectrum//
-668 const  CSnapshotSpectrum&/aCSnapshotSpectrum//
-670 const  CParameter&/rParameter//
-671 Address_t/pNewLoc//
-671 Bool_t/fTransferOwnership/kfTRUE/
-673 UInt_t/nDimension//
-675 const  UInt_t*/pIndices//
-677 const  CEvent&/rEvent//
-679 UInt_t/nId//
-680 const  UInt_t*/pIndices//
-680 ULong_t/nValue//
-681 vector<UInt_t>&/rvIds//
-682 vector<UInt_t>&/rvResolutions//
-683 UInt_t/index//
-684 Bool_t/fNewOwnership//
-685 const  std::string&/rName//
-685 UInt_t/nId//
-685 CGateContainer*/pGate/pDefaultGate/
-687 Address_t/am_pStorage//
-687 Bool_t/am_fOwnStorage//
-687 const  std::string&/rName//
-687 UInt_t/nId//
-688 const  CSpectrum&/aCSpectrum//
-689 const  CSpectrum&/aCSpectrum//
-690 const  CSpectrum&/aCSpectrum//
-695 Address_t/am_pStorage//
-696 Bool_t/am_fOwnStorage//
-697 DataType_t/dt//
-698 CGateContainer*/pNewGate//
-700 const  CParameter&/rParameter//
-702 UInt_t/nId//
-703 UInt_t/nDimension//
-705 const  UInt_t*/pIndices//
-706 const  UInt_t*/pIndices//
-706 ULong_t/nValue//
-707 vector<UInt_t>&/rvIds//
-708 vector<UInt_t>&/rvResolutions//
-709 const  CEvent&/rEvent//
-710 UInt_t/index//
-711 void*/pStorage//
-714 Address_t/pNewLoc//
-714 Bool_t/fTransferOwnership/kfTRUE/
-715 const  CEvent&/rEvent//
-716 const  CEvent&/rEvent//
-718 const  std::string&/rName//
-718 UInt_t/nId//
-718 const  CParameter&/rParameter//
-718 UInt_t/nScale//
-720 const  CSpectrum1DL&/acspectrum1dl//
-721 const  CSpectrum1DL&/aCSpectrum1D//
-722 const  CSpectrum1DL&/aCSpectrum1D//
-727 UInt_t/am_nScale//
-728 UInt_t/am_nParameter//
-729 Int_t/am_nScaleDifference//
-730 const  CEvent&/rEvent//
-731 const  UInt_t*/pIndices//
-732 const  UInt_t*/pIndices//
-732 ULong_t/nValue//
-733 UInt_t/nId//
-734 UInt_t/n//
-736 vector<UInt_t>&/rvIds//
-737 vector<UInt_t>&/rvResolutions//
-738 UInt_t/nIndex//
-739 const  std::string&/rName//
-739 UInt_t/nId//
-739 const  CParameter&/rParameter//
-739 UInt_t/nScale//
-741 const  CSpectrum1DW&/acspectrum1dl//
-742 const  CSpectrum1DW&/aCSpectrum1D//
-743 const  CSpectrum1DW&/aCSpectrum1D//
-748 UInt_t/am_nScale//
-749 UInt_t/am_nParameter//
-750 Int_t/am_nScaleDifference//
-751 const  CEvent&/rEvent//
-752 const  UInt_t*/pIndices//
-753 const  UInt_t*/pIndices//
-753 ULong_t/nValue//
-754 UInt_t/nId//
-755 UInt_t/n//
-757 vector<UInt_t>&/rvIds//
-758 vector<UInt_t>&/rvResolutions//
-759 UInt_t/nIndex//
-760 const  std::string&/rName//
-760 UInt_t/nId//
-760 const  CParameter&/rXParameter//
-760 const  CParameter&/rYParameter//
-760 UInt_t/nXScale//
-760 UInt_t/nYScale//
-762 const  CSpectrum2DB&/acspectrum1dl//
-763 const  CSpectrum2DB&/aCSpectrum1D//
-764 const  CSpectrum2DB&/aCSpectrum//
-772 UInt_t/am_nScale//
-773 UInt_t/nScale//
-774 UInt_t/am_nParameter//
-775 UInt_t/nParameter//
-776 Int_t/am_nScaleDifference//
-777 Int_t/nScaleDiff//
-778 const  CEvent&/rEvent//
-779 const  UInt_t*/pIndices//
-780 const  UInt_t*/pIndices//
-780 ULong_t/nValue//
-781 UInt_t/nId//
-782 UInt_t/n//
-784 vector<UInt_t>&/rvIds//
-785 vector<UInt_t>&/rvResolutions//
-786 UInt_t/index//
-787 const  std::string&/rName//
-787 UInt_t/nId//
-787 const  CParameter&/rXParameter//
-787 const  CParameter&/rYParameter//
-787 UInt_t/nXScale//
-787 UInt_t/nYScale//
-789 const  CSpectrum2DW&/acspectrum1dl//
-790 const  CSpectrum2DW&/aCSpectrum1D//
-791 const  CSpectrum2DW&/aCSpectrum//
-799 UInt_t/am_nScale//
-800 UInt_t/nScale//
-801 UInt_t/am_nParameter//
-802 UInt_t/nParameter//
-803 Int_t/am_nScaleDifference//
-804 Int_t/nScaleDiff//
-805 const  CEvent&/rEvent//
-806 const  UInt_t*/pIndices//
-807 const  UInt_t*/pIndices//
-807 ULong_t/nValue//
-808 UInt_t/nId//
-809 UInt_t/n//
-811 vector<UInt_t>&/rvIds//
-812 vector<UInt_t>&/rvResolutions//
-813 UInt_t/nIndex//
-816 const  CSpectrumFactory&/aCSpectrumFactory//
-817 const  CSpectrumFactory&/aCSpectrumFactory//
-818 const  CSpectrumFactory&/aCSpectrumFactory//
-820 UInt_t/am_nNextId//
-821 const  std::string&/rName//
-821 SpectrumType_t/eSpecType//
-821 DataType_t/eDataType//
-821 vector<std::string>&/rParameters//
-821 vector<UInt_t>&/rResolutions//
-822 const  char*/pName//
-822 SpectrumType_t/eSpecType//
-822 DataType_t/eDataType//
-822 vector<std::string>&/rParameters//
-822 vector<UInt_t>&/rResolutions//
-823 const  std::string&/rName//
-823 DataType_t/eType//
-823 CParameter/Param//
-823 UInt_t/nResolution//
-824 const  std::string&/rName//
-824 DataType_t/eType//
-824 CParameter/xParam//
-824 CParameter/yParam//
-824 UInt_t/nXRes//
-824 UInt_t/nYRes//
-825 const  std::string&/rName//
-825 DataType_t/eType//
-825 vector<CParameter>&/rvParameters//
-825 UInt_t/nResolution//
-826 const  std::string&/rName//
-826 DataType_t/eType//
-826 vector<CParameter>&/rvParameters//
-826 UInt_t/nXRes//
-826 UInt_t/nYRes//
-827 const  std::string&/rName//
-827 DataType_t/eType//
-827 CParameter/Param//
-827 UInt_t/nResolution//
-828 const  std::string&/rName//
-828 DataType_t/eType//
-828 vector<CParameter>&/rParameters//
-828 UInt_t/nYRes//
-831 Bool_t/fNewMode//
-832 vector<std::string>&/rParameters//
-833 DataType_t/dType//
-833 SpectrumType_t/sType//
-833 const  std::string&/rName//
-833 vector<CParameter>&/rparams//
-833 vector<UInt_t>&/rResolutions//
-833 UInt_t/nParams//
-833 UInt_t/nResolutions//
-834 DataType_t/am_eType//
-834 SpectrumType_t/am_eSpectrumType//
-834 const  std::string/am_sName//
-834 SpectrumErrorReason_t/am_eReason//
-834 const  std::string&/rDoing//
-836 const  CSpectrumFactoryException&/aCSpectrumFactoryException//
-837 const  CSpectrumFactoryException&/aCSpectrumFactoryException//
-838 const  CSpectrumFactoryException&/aCSpectrumFactoryException//
-843 DataType_t/am_eType//
-844 SpectrumType_t/am_eSpectrumType//
-845 std::string/am_sName//
-846 SpectrumErrorReason_t/am_eReason//
-849 DataType_t/eType//
-850 SpectrumType_t/eType//
-851 SpectrumErrorReason_t/eReason//
-853 const  CSpectrumFactoryException&/aCSpectrumFactoryException//
-858 const  CSummarySpectrumB&/aCSpectrum1D//
-859 const  CSummarySpectrumB&/aCSpectrum//
-863 UInt_t/n//
-864 UInt_t/n//
-866 UInt_t/Scale//
-867 UInt_t/Chans//
-868 const  CEvent&/rEvent//
-869 const  UInt_t*/pIndices//
-870 const  UInt_t*/pIndices//
-870 ULong_t/nValue//
-871 UInt_t/nId//
-872 UInt_t/n//
-874 vector<UInt_t>&/rvIds//
-875 vector<UInt_t>&/rvResolutions//
-876 UInt_t/index//
-881 const  CSummarySpectrumW&/aCSpectrum1D//
-882 const  CSummarySpectrumW&/aCSpectrum//
-886 UInt_t/n//
-887 UInt_t/n//
-889 UInt_t/Scale//
-890 UInt_t/Chans//
-891 const  CEvent&/rEvent//
-892 const  UInt_t*/pIndices//
-893 const  UInt_t*/pIndices//
-893 ULong_t/nValue//
-894 UInt_t/nId//
-895 UInt_t/n//
-897 vector<UInt_t>&/rvIds//
-898 vector<UInt_t>&/rvResolutions//
-899 UInt_t/index//
+1332 const  std::string&/rName//
+1332 UInt_t/nId//
+1332 const  CParameter&/rParameter//
+1332 UInt_t/nScale//
+1334 const  CBitSpectrumL&/acspectrum1dl//
+1335 const  CBitSpectrumL&/aCSpectrum1D//
+1336 const  CBitSpectrumL&/aCSpectrum1D//
+1340 UInt_t/am_nChans//
+1341 UInt_t/am_nParameter//
+1342 const  CEvent&/rEvent//
+1343 const  UInt_t*/pIndices//
+1344 const  UInt_t*/pIndices//
+1344 ULong_t/nValue//
+1345 UInt_t/nId//
+1346 UInt_t/n//
+1348 vector<UInt_t>&/rvIds//
+1349 vector<UInt_t>&/rvResolutions//
+1350 UInt_t/index//
+1351 const  std::string&/rName//
+1351 UInt_t/nId//
+1351 const  CParameter&/rParameter//
+1351 UInt_t/nScale//
+1353 const  CBitSpectrumW&/acspectrum1dl//
+1354 const  CBitSpectrumW&/aCSpectrum1D//
+1355 const  CBitSpectrumW&/aCSpectrum1D//
+1359 UInt_t/am_nChans//
+1360 UInt_t/am_nParameter//
+1361 const  CEvent&/rEvent//
+1362 const  UInt_t*/pIndices//
+1363 const  UInt_t*/pIndices//
+1363 ULong_t/nValue//
+1364 UInt_t/nId//
+1365 UInt_t/n//
+1367 vector<UInt_t>&/rvIds//
+1368 vector<UInt_t>&/rvResolutions//
+1369 UInt_t/index//
+1372 const  CDictionary&/r//
+1373 const  CDictionary&/aCDictionary//
+1374 const  CDictionary&/aCDictionary//
+1375 const  std::string&/sName//
+1376 Predicate/p//
+1377 const  std::string&/sName//
+1377 const  T&/Item//
+1378 const  std::string&/rsName//
+1382 Int_t/nReason//
+1382 const  char*/pDoing//
+1382 const  char*/pName//
+1383 Int_t/nReason//
+1383 const  char*/pDoing//
+1383 const  string&/rName//
+1384 Int_t/nReason//
+1384 const  string&/rDoing//
+1384 const  char*/pName//
+1385 Int_t/nReason//
+1385 const  string&/rDoing//
+1385 const  string&/rName//
+1386 Int_t/nReason//
+1386 const  char*/pDoing//
+1386 UInt_t/nId//
+1387 Int_t/nReason//
+1387 const  string&/rDoing//
+1387 UInt_t/nId//
+1389 const  CDictionaryException&/aCDictionaryException//
+1390 const  CDictionaryException&/aCDictionaryException//
+1391 const  CDictionaryException&/aCDictionaryException//
+1397 Int_t/am_nReason//
+1398 Bool_t/am_fIdValid//
+1399 Bool_t/am_fNameValid//
+1400 std::string/am_sName//
+1401 UInt_t/am_nId//
+1406 const  CGamma1DL&/aCGamma1DL//
+1407 const  CGamma1DL&/aCGamma1D//
+1410 UInt_t/n//
+1412 UInt_t/am_nScale//
+1413 const  CEvent&/rEvent//
+1414 const  CEvent&/rEvent//
+1414 std::string/sGateType//
+1415 const  UInt_t*/pIndices//
+1416 const  UInt_t*/pIndices//
+1416 ULong_t/nValue//
+1417 UInt_t/nId//
+1418 UInt_t/n//
+1420 vector<UInt_t>&/rvIds//
+1421 vector<UInt_t>&/rvResolutions//
+1422 UInt_t/nIndex//
+1424 const  CGamma1DW&/aCGamma1DW//
+1425 const  CGamma1DW&/aCGamma1D//
+1428 UInt_t/n//
+1430 UInt_t/am_nScale//
+1431 const  CEvent&/rEvent//
+1432 const  CEvent&/rEvent//
+1432 std::string/sGateType//
+1433 const  UInt_t*/pIndices//
+1434 const  UInt_t*/pIndices//
+1434 ULong_t/nValue//
+1435 UInt_t/nId//
+1436 UInt_t/n//
+1438 vector<UInt_t>&/rvIds//
+1439 vector<UInt_t>&/rvResolutions//
+1440 UInt_t/nIndex//
+1442 const  CGamma2DB&/aCGamma1DB//
+1443 const  CGamma2DB&/aCGamma//
+1448 UInt_t/am_nScale//
+1449 UInt_t/nScale//
+1450 const  CEvent&/rEvent//
+1451 const  CEvent&/rEvent//
+1451 std::string/sGateType//
+1452 const  UInt_t*/pIndices//
+1453 const  UInt_t*/pIndices//
+1453 ULong_t/nValue//
+1454 UInt_t/nId//
+1455 UInt_t/n//
+1457 vector<UInt_t>&/rvIds//
+1458 vector<UInt_t>&/rvResolutions//
+1459 UInt_t/nIndex//
+1461 const  CGamma2DW&/aCGamma1D//
+1462 const  CGamma2DW&/aCGamma//
+1467 UInt_t/am_nScale//
+1468 UInt_t/nScale//
+1469 const  CEvent&/rEvent//
+1470 const  CEvent&/Event//
+1470 std::string/sGateType//
+1471 const  UInt_t*/pIndices//
+1472 const  UInt_t*/pIndices//
+1472 ULong_t/nValue//
+1473 UInt_t/nId//
+1474 UInt_t/n//
+1476 vector<UInt_t>&/rvIds//
+1477 vector<UInt_t>&/rvResolutions//
+1478 UInt_t/nIndex//
+1479 CGateContainer&/rGate//
+1479 CSpectrum*/pSpec//
+1480 const  CGateMediator&/aCGateMediator//
+1481 const  CGateMediator&/aCGateMediator//
+1483 UInt_t/nSpecbytes/knDefaultSpectrumSize/
+1484 const  CXamine&/rDisplayer//
+1486 const  CHistogrammer&/aCHistogrammer//
+1487 const  CHistogrammer&/aCHistogrammer//
+1488 const  CHistogrammer&/aCHistogrammer//
+1489 const  CHistogrammer&/aCHistogrammer//
+1494 const  DisplayBindings&/am_DisplayBindings//
+1495 CXamine*/am_Displayer//
+1496 const  ParameterDictionary&/am_ParameterDictionary//
+1497 const  SpectrumDictionary/am_SpectrumDictionary//
+1498 const  std::string&/sName//
+1498 UInt_t/nId//
+1498 UInt_t/nScale//
+1499 const  std::string&/sName//
+1500 const  std::string&/rName//
+1501 UInt_t/nPar//
+1505 CSpectrum&/rSpectrum//
+1506 const  std::string/sName//
+1507 const  std::string&/rsName//
+1509 const  std::string&/rName//
+1510 UInt_t/id//
+1514 const  std::string&/rSpectrum//
+1515 const  std::string&/rsName//
+1516 UInt_t/nSpec//
+1520 UInt_t/xid//
+1521 const  std::string&/rName//
+1521 UInt_t/nId//
+1521 CGate&/rGate//
+1522 const  std::string&/rGateName//
+1523 const  std::string&/rGateName//
+1523 CGate&/rGate//
+1524 const  std::string&/rGateName//
+1524 const  std::string&/rSpectrum//
+1525 const  std::string&/rGate//
+1526 UInt_t/nId//
+1530 UInt_t/nBindingId//
+1530 CGateContainer&/rGate//
+1531 const  std::string&/rSpectrum//
+1532 CGateContainer&/rGate//
+1533 CGateContainer&/rGate//
+1534 CSpectrum&/rSpectrum//
+1534 Bool_t/fOwner/kfTRUE/
+1536 const  CSnapshotSpectrum&/aCSnapshotSpectrum//
+1537 const  CSnapshotSpectrum&/aCSnapshotSpectrum//
+1538 const  CSnapshotSpectrum&/aCSnapshotSpectrum//
+1540 const  CParameter&/rParameter//
+1541 Address_t/pNewLoc//
+1541 Bool_t/fTransferOwnership/kfTRUE/
+1543 UInt_t/nDimension//
+1545 const  UInt_t*/pIndices//
+1547 const  CEvent&/rEvent//
+1549 UInt_t/nId//
+1550 const  UInt_t*/pIndices//
+1550 ULong_t/nValue//
+1551 vector<UInt_t>&/rvIds//
+1552 vector<UInt_t>&/rvResolutions//
+1553 UInt_t/index//
+1554 Bool_t/fNewOwnership//
+1555 const  std::string&/rName//
+1555 UInt_t/nId//
+1555 CGateContainer*/pGate/pDefaultGate/
+1557 Address_t/am_pStorage//
+1557 Bool_t/am_fOwnStorage//
+1557 const  std::string&/rName//
+1557 UInt_t/nId//
+1558 const  CSpectrum&/aCSpectrum//
+1559 const  CSpectrum&/aCSpectrum//
+1560 const  CSpectrum&/aCSpectrum//
+1565 Address_t/am_pStorage//
+1566 Bool_t/am_fOwnStorage//
+1567 DataType_t/dt//
+1568 CGateContainer*/pNewGate//
+1570 const  CParameter&/rParameter//
+1572 UInt_t/nId//
+1573 UInt_t/nDimension//
+1575 const  UInt_t*/pIndices//
+1576 const  UInt_t*/pIndices//
+1576 ULong_t/nValue//
+1577 vector<UInt_t>&/rvIds//
+1578 vector<UInt_t>&/rvResolutions//
+1579 const  CEvent&/rEvent//
+1580 UInt_t/index//
+1581 void*/pStorage//
+1584 Address_t/pNewLoc//
+1584 Bool_t/fTransferOwnership/kfTRUE/
+1585 const  CEvent&/rEvent//
+1586 const  CEvent&/rEvent//
+1588 const  std::string&/rName//
+1588 UInt_t/nId//
+1588 const  CParameter&/rParameter//
+1588 UInt_t/nScale//
+1590 const  CSpectrum1DL&/acspectrum1dl//
+1591 const  CSpectrum1DL&/aCSpectrum1D//
+1592 const  CSpectrum1DL&/aCSpectrum1D//
+1597 UInt_t/am_nScale//
+1598 UInt_t/am_nParameter//
+1599 Int_t/am_nScaleDifference//
+1600 const  CEvent&/rEvent//
+1601 const  UInt_t*/pIndices//
+1602 const  UInt_t*/pIndices//
+1602 ULong_t/nValue//
+1603 UInt_t/nId//
+1604 UInt_t/n//
+1606 vector<UInt_t>&/rvIds//
+1607 vector<UInt_t>&/rvResolutions//
+1608 UInt_t/nIndex//
+1609 const  std::string&/rName//
+1609 UInt_t/nId//
+1609 const  CParameter&/rParameter//
+1609 UInt_t/nScale//
+1611 const  CSpectrum1DW&/acspectrum1dl//
+1612 const  CSpectrum1DW&/aCSpectrum1D//
+1613 const  CSpectrum1DW&/aCSpectrum1D//
+1618 UInt_t/am_nScale//
+1619 UInt_t/am_nParameter//
+1620 Int_t/am_nScaleDifference//
+1621 const  CEvent&/rEvent//
+1622 const  UInt_t*/pIndices//
+1623 const  UInt_t*/pIndices//
+1623 ULong_t/nValue//
+1624 UInt_t/nId//
+1625 UInt_t/n//
+1627 vector<UInt_t>&/rvIds//
+1628 vector<UInt_t>&/rvResolutions//
+1629 UInt_t/nIndex//
+1630 const  std::string&/rName//
+1630 UInt_t/nId//
+1630 const  CParameter&/rXParameter//
+1630 const  CParameter&/rYParameter//
+1630 UInt_t/nXScale//
+1630 UInt_t/nYScale//
+1632 const  CSpectrum2DB&/acspectrum1dl//
+1633 const  CSpectrum2DB&/aCSpectrum1D//
+1634 const  CSpectrum2DB&/aCSpectrum//
+1642 UInt_t/am_nScale//
+1643 UInt_t/nScale//
+1644 UInt_t/am_nParameter//
+1645 UInt_t/nParameter//
+1646 Int_t/am_nScaleDifference//
+1647 Int_t/nScaleDiff//
+1648 const  CEvent&/rEvent//
+1649 const  UInt_t*/pIndices//
+1650 const  UInt_t*/pIndices//
+1650 ULong_t/nValue//
+1651 UInt_t/nId//
+1652 UInt_t/n//
+1654 vector<UInt_t>&/rvIds//
+1655 vector<UInt_t>&/rvResolutions//
+1656 UInt_t/index//
+1657 const  std::string&/rName//
+1657 UInt_t/nId//
+1657 const  CParameter&/rXParameter//
+1657 const  CParameter&/rYParameter//
+1657 UInt_t/nXScale//
+1657 UInt_t/nYScale//
+1659 const  CSpectrum2DW&/acspectrum1dl//
+1660 const  CSpectrum2DW&/aCSpectrum1D//
+1661 const  CSpectrum2DW&/aCSpectrum//
+1669 UInt_t/am_nScale//
+1670 UInt_t/nScale//
+1671 UInt_t/am_nParameter//
+1672 UInt_t/nParameter//
+1673 Int_t/am_nScaleDifference//
+1674 Int_t/nScaleDiff//
+1675 const  CEvent&/rEvent//
+1676 const  UInt_t*/pIndices//
+1677 const  UInt_t*/pIndices//
+1677 ULong_t/nValue//
+1678 UInt_t/nId//
+1679 UInt_t/n//
+1681 vector<UInt_t>&/rvIds//
+1682 vector<UInt_t>&/rvResolutions//
+1683 UInt_t/nIndex//
+1686 const  CSpectrumFactory&/aCSpectrumFactory//
+1687 const  CSpectrumFactory&/aCSpectrumFactory//
+1688 const  CSpectrumFactory&/aCSpectrumFactory//
+1690 UInt_t/am_nNextId//
+1691 const  std::string&/rName//
+1691 SpectrumType_t/eSpecType//
+1691 DataType_t/eDataType//
+1691 vector<std::string>&/rParameters//
+1691 vector<UInt_t>&/rResolutions//
+1692 const  char*/pName//
+1692 SpectrumType_t/eSpecType//
+1692 DataType_t/eDataType//
+1692 vector<std::string>&/rParameters//
+1692 vector<UInt_t>&/rResolutions//
+1693 const  std::string&/rName//
+1693 DataType_t/eType//
+1693 CParameter/Param//
+1693 UInt_t/nResolution//
+1694 const  std::string&/rName//
+1694 DataType_t/eType//
+1694 CParameter/xParam//
+1694 CParameter/yParam//
+1694 UInt_t/nXRes//
+1694 UInt_t/nYRes//
+1695 const  std::string&/rName//
+1695 DataType_t/eType//
+1695 vector<CParameter>&/rvParameters//
+1695 UInt_t/nResolution//
+1696 const  std::string&/rName//
+1696 DataType_t/eType//
+1696 vector<CParameter>&/rvParameters//
+1696 UInt_t/nXRes//
+1696 UInt_t/nYRes//
+1697 const  std::string&/rName//
+1697 DataType_t/eType//
+1697 CParameter/Param//
+1697 UInt_t/nResolution//
+1698 const  std::string&/rName//
+1698 DataType_t/eType//
+1698 vector<CParameter>&/rParameters//
+1698 UInt_t/nYRes//
+1701 Bool_t/fNewMode//
+1702 vector<std::string>&/rParameters//
+1703 DataType_t/dType//
+1703 SpectrumType_t/sType//
+1703 const  std::string&/rName//
+1703 vector<CParameter>&/rparams//
+1703 vector<UInt_t>&/rResolutions//
+1703 UInt_t/nParams//
+1703 UInt_t/nResolutions//
+1704 DataType_t/am_eType//
+1704 SpectrumType_t/am_eSpectrumType//
+1704 const  std::string/am_sName//
+1704 SpectrumErrorReason_t/am_eReason//
+1704 const  std::string&/rDoing//
+1706 const  CSpectrumFactoryException&/aCSpectrumFactoryException//
+1707 const  CSpectrumFactoryException&/aCSpectrumFactoryException//
+1708 const  CSpectrumFactoryException&/aCSpectrumFactoryException//
+1713 DataType_t/am_eType//
+1714 SpectrumType_t/am_eSpectrumType//
+1715 std::string/am_sName//
+1716 SpectrumErrorReason_t/am_eReason//
+1719 DataType_t/eType//
+1720 SpectrumType_t/eType//
+1721 SpectrumErrorReason_t/eReason//
+1723 const  CSpectrumFactoryException&/aCSpectrumFactoryException//
+1725 const  CSummarySpectrumB&/aCSpectrum1D//
+1726 const  CSummarySpectrumB&/aCSpectrum//
+1730 UInt_t/n//
+1731 UInt_t/n//
+1733 UInt_t/Scale//
+1734 UInt_t/Chans//
+1735 const  CEvent&/rEvent//
+1736 const  UInt_t*/pIndices//
+1737 const  UInt_t*/pIndices//
+1737 ULong_t/nValue//
+1738 UInt_t/nId//
+1739 UInt_t/n//
+1741 vector<UInt_t>&/rvIds//
+1742 vector<UInt_t>&/rvResolutions//
+1743 UInt_t/index//
+1745 const  CSummarySpectrumW&/aCSpectrum1D//
+1746 const  CSummarySpectrumW&/aCSpectrum//
+1750 UInt_t/n//
+1751 UInt_t/n//
+1753 UInt_t/Scale//
+1754 UInt_t/Chans//
+1755 const  CEvent&/rEvent//
+1756 const  UInt_t*/pIndices//
+1757 const  UInt_t*/pIndices//
+1757 ULong_t/nValue//
+1758 UInt_t/nId//
+1759 UInt_t/n//
+1761 vector<UInt_t>&/rvIds//
+1762 vector<UInt_t>&/rvResolutions//
+1763 UInt_t/index//
 ***END_TABLE***
 
 Includes
@@ -2864,34 +2946,41 @@ ClassID, ClassName, Include Text
 Relation Shape
 ShapeID, Type, Text, Multiplicity, Source Node ID, Source Index, LineTexture, IsDisplayByVal, IsDisplayByRef, QualifierSrc
 ***BEGIN_TABLE***
-172NoText04750011
 360NoText043150011
-370NoText046130011
+370NoText04660011
 382NoText05630001
+442NoText04730001
+452NoText07830001
+462NoText07930001
+530NoText04490011
+540NoText044110011
+550NoText044130011
 ***END_TABLE***
 
 Branches
 Relation Shape ID, Multiplicity, Destination Node ID, Destination Index, Text, Relation Type, Branch Id,  IsDisplayStatic, IsDisplayFriend, IsDisplayPlus, QualifierDest, Offset x, Offset y
 ***BEGIN_TABLE***
-17034023100000
-17035023200000
-17039223300000
-17040223400000
-17041623500000
-17042323600000
-17046323700000
-17048023800000
-17049223900000
-17050224000000
-17051224100000
-17054424200000
-17055424300000
 360478m_pSpec06200000
-3704714m_rActualSpectrum06300000
+370477m_rActualSpectrum06300000
 38053226400000
-38036226500000
 38037226600000
 38052226700000
+440464210600000
+450342210700000
+450352210800000
+450402210900000
+450392211000000
+450482211100000
+450492211200000
+460554211300000
+460544211400000
+460422211500000
+460414211600000
+460515211700000
+460505211800000
+53010310m_ParameterDictionary017000000
+54010312m_SpectrumDictionary017100000
+55010314m_pGateDictionary017200000
 ***END_TABLE***
 
 Relations
@@ -2935,6 +3024,23 @@ DestVisibility,DestMultiplicity,DestLength,DestByRef,IsDestByVal,IsDestFriend,Is
 65382private00000055private00000035
 66382private00000055private00000036
 67382private00000055private00000051
+105432private00000046private00000046
+106442private00000046private00000045
+107452private00000046private00000033
+108452private00000046private00000034
+109452private00000046private00000039
+110452private00000046private00000038
+111452private00000046private00000047
+112452private00000046private00000048
+113462private00000046private00000054
+114462private00000046private00000053
+115462private00000046private00000041
+116462private00000046private00000040
+117462private00000046private00000050
+118462private00000046private00000049
+17053m_ParameterDictionary0private00000043private00000035
+17154m_SpectrumDictionary0private00000043private00000035
+17255m_pGateDictionary0private00000043private00000035
 ***END_TABLE***
 
 General Shape

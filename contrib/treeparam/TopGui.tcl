@@ -80,7 +80,9 @@ File $f is missing in directory $SpecTclHome/contrib/treeparam"
 	}
 }
 
-set server [socket $env(HOST) 9111]
+
+
+set server [socket $env(HOST) $serverport]
 fconfigure $server -buffering line -blocking 0 -buffersize 65536
 fileevent $server readable ServerRead
 
