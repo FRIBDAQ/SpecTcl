@@ -31,6 +31,7 @@ static char *sccsinfo="@(#)griprint.cc	2.1 12/22/93 ";
 #include <signal.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <vector>
 #ifdef unix
 #include <sys/time.h>
 #include <sys/types.h>
@@ -75,6 +76,8 @@ extern grobj_database Xamine_DefaultGateDatabase;
 */
 
 #define INITIAL_PRINTER_TYPE  postscript
+
+#define INCH 2.54
 
 #ifdef unix
 #define DEFAULT_TEMPFILE "./Xamine_tempprint.out"
@@ -139,6 +142,7 @@ void Xamine_Print(XMWidget* w, XtPointer user, XtPointer call)
   // multiple times.
   switch(dlg->getnum()) {
   case printsel:
+    printf("Printing selected spectrum...\n");
     Xamine_PrintSpectrum(w, user, call, 
 			 Xamine_GetSelectedDisplayAttributes(), "");
     break;
@@ -156,19 +160,26 @@ void Xamine_Print(XMWidget* w, XtPointer user, XtPointer call)
       }
     }
 
+    // Inform the user of how many pages will be printed...
+    float nPages = (float)((float)nCount / (nRows*nCols));
+    if(nPages != (int)nPages) nPages++;
+    printf("Printing %d spectra on %d page(s)...\n", nCount, (int)nPages);
+    float nPerPage = (nCount / nPages);
+    if(nPerPage != (int)nPerPage) nPerPage++;
+
+    int nPageNum  = 0;    // the page number we are currently printing
     int nCurrSpec = 0;    // the current spectrum number (beginning with 0)
     for(int r = 0; r < nr; r++) {
       for(int c = 0; c < nc; c++) {
 	nCurrSpec++;
+	if(nCurrSpec % (int)nPerPage == 0) nPageNum++;
 	win_attributed *at = Xamine_GetDisplayAttributes(r, c);
 	if(at != NULL) {
 	  Xamine_PrintSpectrum(w, user, call,
 			       at, Xamine_GetSpectrumTitle(r, c), nRows, nCols,
-			       nCount, nCurrSpec);
+			       nCount, nCurrSpec, nPageNum);
 	}
-	if(nRows*nCols == nCurrSpec) break;
       }
-      if(nRows*nCols == nCurrSpec) break;
     }
     break;
   }
@@ -199,7 +210,7 @@ void
 Xamine_PrintSpectrum(XMWidget* w, XtPointer User, 
 		     XtPointer Call, win_attributed* pAttributes, 
 		     string sTitle, int nRows=1, int nCols=1, 
-		     int nSpectrumCount=1, int nCurrSpec=1)
+		     int nSpectrumCount=1, int nCurrSpec=1, int nPageNum=1)
 {
   // First we get the spectrum number that we are dealing with...
   int nSpectrum = pAttributes->spectrum();
@@ -219,11 +230,19 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 
   ofstream fStr;   // the output file stream to the Gri command file...
 
+  // Get the title from the user...
+  string Title;
+  if(nSpectrumCount == 1)
+    Title = string(Options->gettitle());
+  else
+    Title = sTitle;
+
   int nCounts;                             // # of counts in a channel
   int nFullScale;                          // fullscale value
   int nFloor = ((pAttributes->hasfloor()) ? pAttributes->getfloor() : 0);
   int nCeiling = ((pAttributes->hasceiling()) ? pAttributes->getceiling() : 0);
   int nIncr;                               // color scale increments
+  int nFontSize = 12;                      // the font size to draw in
   int fCropped = 0;                        // true if image needs to be cropped
   int nXTickInterval,                      // interval between ticks on x-axis
     nYTickInterval;                        // interval between ticks on y-axis
@@ -264,57 +283,88 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
   YMajor = Options->getymajor();
   YMinor = Options->getyminor();
 
-  // Determine the margins of the page and the length of the spectra...
-  XPageSize = ((Options->getlayout() == portrait) ? 21.59 : 27.94);
-  YPageSize = ((Options->getlayout() == portrait) ? 27.94 : 21.59);
+  // Determine the margins of the page and the length of the spectra. This
+  // needs to be in centimeters for Gri. Thus, 8.5" x 11" = 21cm x 27cm approx.
+  // for letter sized page.
+  XPageSize = ((Options->getlayout() == portrait) ? 8.5*INCH : 11.0*INCH);
+  YPageSize = ((Options->getlayout() == portrait) ? 11.0*INCH : 8.5*INCH);
   XLength = Options->getxlen();
   YLength = Options->getylen();
   
   // If there is only one spectrum, center it on the page...
-  if(nSpectrumCount == 1) {
+  if(nSpectrumCount == 1 || (nRows*nCols) == 1) {
     xm = (float)((XPageSize - XLength) / 2.0);
     ym = (float)((YPageSize - YLength) / 2.0);
   }
 
   // Otherwise, tile the spectra appropriately...
   else {
-    int nCurrCol = nCurrSpec % nCols;
+
+    // Figure out the current column and row number..
+    float nPages = (float)((float)nSpectrumCount / (nRows*nCols));
+    if(nPages != (int)nPages) nPages++;
+    int nPerPage  = nRows * nCols;    // spectra per page...
+    int nCS = nCurrSpec % nPerPage;
+    if(nCS == 0) nCS = nPerPage;
+
+    int nCurrCol = nCS % nCols;
     if(nCurrCol == 0) nCurrCol = nCols;
     int nCurrRow = 1;
     int ncc = nCurrCol;
-    while(ncc / nCurrSpec == 0) {
+    while(ncc / nCS == 0) {
       nCurrRow++;
       ncc += nCols; 
     }
-      
+
     // Here, we make sure that the lengths of the axes are as big as
-    // possible, while still maintaining a square aspect ratio. Otherwise,
+    // possible, while still maintaining an aspect ratio of 2:3. Otherwise,
     // you can easily end up with squished spectrum!
-    XLength = (float)(XPageSize - ((nCols+1)*2.54)) / (float)nCols;
-    YLength = (float)(YPageSize - ((nRows+1)*2.54)) / (float)nRows;
-    
-    // If the length is less than an inch, then a new geometry
-    // must be selected to fit on a single page...
-    if(XLength < 2.54) {
-      fCropped = 1;
+    XLength = (float)(XPageSize - ((nCols+2)*INCH)) / (float)nCols;
+    YLength = (float)(YPageSize - ((nRows+2)*INCH)) / (float)nRows;
+
+    // If the length is less than an inch, then border boxes will not
+    // be drawn. This is done by setting the flag fCropped to TRUE.
+    if((XLength < INCH) || (YLength < INCH)) fCropped = 1;
+
+    // If the maximum size of a spectrum is more than an inch, then we
+    // display border boxes around individual spectra...
+    if(!fCropped) {
+      if(XLength > YLength) {
+	float ratio = XLength / YLength;
+	if(ratio > 1.5) XLength = YLength * 1.5;
+      }
+      else {
+	float ratio = YLength / XLength;
+	if(ratio > 1.5) YLength = XLength * 1.5;
+      }
+      float xgrid_size = (INCH*(nCols+1) + XLength*nCols);
+      float ygrid_size = (INCH*(nRows+1) + YLength*nRows);
+      xm  = (XPageSize - xgrid_size) / 2.0;
+      xm += (INCH*(nCurrCol) + (XLength*(nCurrCol-1)));
+      ym  = (YPageSize - ygrid_size) / 2.0;
+      ym += ((INCH*(nRows-nCurrRow+1)) + (nRows-nCurrRow)*YLength);
     }
-    if(YLength < 2.54) {
-      fCropped = 1;
-    }
-    if(XLength > YLength) XLength = YLength;
-    else YLength = XLength;
-    xm      = (float)(2.54*nCurrCol + (XLength*(nCurrCol-1)));
-    ym      = (float)((2.54*(nRows-nCurrRow+1)) + (nRows-nCurrRow)*YLength);
 
     // If the maximum size of a spectrum is less than an inch, then we
     // don't display border boxes around individual spectra.
-    if(fCropped) {
-      XLength = (float)(XPageSize / (nCols*2));
-      YLength = (float)(YPageSize / (nRows*2));
-      if(XLength > YLength) XLength = YLength;
-      else YLength = XLength;
-      xm      = (float)(nCurrCol + (XLength*(nCurrCol-1)));
-      ym      = (float)((nRows-nCurrRow+1) + (nRows-nCurrRow)*YLength);
+    else if(fCropped) {
+      // Reduce the space between spectra from INCHcm (1") to 1cm...
+      XLength = (float)((XPageSize - (nCols+2)) / (float)nCols);
+      YLength = (float)((YPageSize - (nRows+2)) / (float)nRows);
+      if(XLength > YLength) {
+	float ratio = XLength / YLength;
+	if(ratio > 1.5) XLength = YLength * 1.5;
+      }
+      else {
+	float ratio = YLength / XLength;
+	if(ratio > 1.5) YLength = XLength * 1.5;
+      }
+      float xgrid_size = (nCols+1) + XLength*nCols;
+      float ygrid_size = (nRows+1) + YLength*nRows;
+      xm  = (XPageSize - xgrid_size) / 2.0;
+      xm += nCurrCol + (XLength*(nCurrCol-1));
+      ym  = (YPageSize - ygrid_size) / 2.0;
+      ym += (nRows-nCurrRow+1) + (nRows-nCurrRow)*YLength;
     }
   }
 
@@ -330,6 +380,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     int nYLowLimit  = 0;
     int nYHighLimit = ydim;
     nFullScale = pAttrib->getfsval();
+    float red_max, green_max, blue_max;  // the color to draw sing. chan. peaks
 
     // If spectrum is expanded, we need to adjust the high and low limits
     if(pAttrib->isexpanded()) {
@@ -355,15 +406,20 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     int isFlipped  = pAttrib->isflipped();
 
     // If the spectrum is not expanded, then its low limit is zero and we
-    // must therefore subtract on from the high limits to avoid reading
+    // must therefore subtract one from the high limits to avoid reading
     // a channel that is too high.
-    //if(!(pAttrib->isexpanded())) {
-    //nXHighLimit--;
-    // nYHighLimit--;
-    //}
+    nXRange = (nXHighLimit-nXLowLimit);
+    nYRange = (nYHighLimit-nYLowLimit);
+    if(pAttrib->isexpanded()) {
+      nXRange++;
+      nYRange++;
+    }
 
     // Start writing the Gri command file...
     fStr.open("temp.gri", fstream::out | fstream::app);
+    fStr << "# Commands for spectrum " << nCurrSpec << endl;
+    fStr << "set page size letter\n";
+    fStr << "set tics in\n";
 
     // Make sure that the scales are linear and the grid size is reset...
     fStr << "delete x scale\n";
@@ -371,42 +427,155 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     fStr << "delete y scale\n";
     fStr << "set y type linear\n";
     fStr << "delete grid\n";
-    
+
     // Read the grid data...
-    fStr << "read grid data " << (nYHighLimit-nYLowLimit) << " " 
-	 << (nXHighLimit-nXLowLimit) << endl;
+    int reso;
+    switch(Options->getres()) {
+    case one:
+      reso = 1;
+      break;
+    case two:
+      reso = 2;
+      break;
+    case four:
+      reso = 4;
+      break;
+    case eight:
+      reso = 8;
+    }
+
+    // Adjust the range to fit the data if reduction is to be done
+    int nXRemainder = (nXRange % reso);
+    int nYRemainder = (nYRange % reso);
+    if((reso > 1) && (nXRange % reso != 0 || nYRange % reso != 0)) {
+      nXRange -= (nXRange % reso);
+      nYRange -= (nYRange % reso);
+    }
+
+    // If the spectrum is expanded, then the limits are inclusive...
+    fStr << "read grid data " << nYRange/reso << " " << nXRange/reso << endl;
+
+    int x_index = nXLowLimit;      // The x-value to start at (low)
+    int y_index = nYHighLimit-1;   // The y-value to start at (high)
+    if(pAttrib->isexpanded()) y_index++;
+    int hival = 0;
+    int sum   = 0;
+    reduction_mode sr = pAttrib->getreduction();
 
     // Here is where we get the points and store them. The format is that of
     // an n x m matrix, where each column is separated by a space and each row
-    // is separated by a newline.
-    for(int i = nYHighLimit-1; i >= nYLowLimit; i--) {
-      for(int j = nXLowLimit; j < nXHighLimit; j++) {
-	if(isFlipped) nCounts = xamine_shared->getchannel(nSpectrum, i, j);
-	else nCounts = xamine_shared->getchannel(nSpectrum, j, i);
-	// If there is a problem, we inform the user and give up...
-	if(nCounts == -1) {
-	  fprintf(stderr, "Xamine was unable to print this spectrum:\n");
-	  fprintf(stderr, "There is an invalid index on 2d getchannel %d, %d\n"
-		  , j, i);
+    // is separated by a newline. Note that the first line will be the top
+    // row of the spectrum, i.e. the highest y-value and lowest x-value.
+    // 
+    // The reduction is performed by us to avoid losing any single channel
+    // peaks that may be of importance.
+    //
+    for(int i = 0; i < nYRange/reso; i++) {
+      for(int j = 0; j < nXRange*reso; j++) {
+	if(!(pAttrib->isexpanded()) &&
+	   (x_index >= nXHighLimit || y_index >= nYHighLimit)) 
+	  break;
+
+	// Perform the spectrum reduction by hand. If the resolution is 1:1
+	// then no further reduction has to be done. Otherwise, the method
+	// of reduction used is the same as that use by Xamine.
+	switch(reso) {
+	case 1: {
+	  if(isFlipped) 
+	    nCounts = xamine_shared->getchannel(nSpectrum, y_index, x_index);
+	  else 
+	    nCounts = xamine_shared->getchannel(nSpectrum, x_index, y_index);
+	  
+	  // If the axis is a log scale, we can't have any zeros...
+	  if(nCounts == 0 && pAttrib->islog()) nCounts = 1;
+	  if(nCounts > nMaxCounts) {
+	    nMaxCounts = nCounts;  // the highest count
+	    nXMaxChan  = j;        // the x channel of the highest count
+	    nYMaxChan  = i;        // the y channel of the highest count
+	  }
+	  if(nFloor)
+	    if(nCounts < nFloor) nCounts = 0;
+	  if(nCeiling)
+	    if(nCounts > nCeiling) nCounts = 0;
+	  fStr << nCounts << " ";
+	  x_index++;
 	  break;
 	}
-	// If the axis is a log scale, we can't have any zeros...
-	if(nCounts == 0 && pAttrib->islog()) nCounts = 1;
-	if(nCounts > nMaxCounts) {
-	  nMaxCounts = nCounts;  // the highest count
-	  nXMaxChan  = j;        // the x channel of the highest count
-	  nYMaxChan  = i;        // the y channel of the highest count
+
+	  // For reduced resolution spectrum, we need to employ some sort
+	  // of spectrum reduction to make things fit in a smaller number of
+	  // pixels. Currently, this consists of sampling, summing and 
+	  // averaging of the data values.
+	case 2:
+	case 4:
+	case 8: {
+	  int cnt = isFlipped ? 
+	    xamine_shared->getchannel(nSpectrum, y_index, x_index) :
+	    xamine_shared->getchannel(nSpectrum, x_index, y_index);
+
+	  // If the axis is a log scale, we can't have any zeros...
+	  if(cnt == 0 && pAttrib->islog()) cnt = 1;
+	  if(cnt > nMaxCounts) {
+	    nMaxCounts = cnt;      // the highest count
+	    nXMaxChan  = x_index;  // the x channel of the highest count
+	    nYMaxChan  = y_index;  // the y channel of the highest count
+	  }
+	  if(nFloor)
+	    if(cnt < nFloor) cnt = 0;
+	  if(nCeiling)
+	    if(cnt > nCeiling) cnt = 0;
+	  sum += cnt;
+	  
+	  // Maintain the hi value for sampled reduction method
+	  if(cnt > hival) hival = cnt;
+	  x_index++;
+	  if((j+1) % (reso*reso) == 0) {
+	    switch(sr) {
+	      // Summing means adding all values within this box
+	    case summed:
+	      fStr << sum << " ";
+	      break;
+	      // Averaging is the same as summing, but we divide by the
+	      // number of pixels in this box
+	    case averaged:
+	      fStr << (sum/(reso*reso)) << " ";
+	      break;
+	      // Sampling means taking the maximum value in this box
+	    case sampled:
+	      fStr << hival << " ";
+	    }
+	    sum = 0;
+	    hival = 0;
+	    y_index += (reso-1);
+	  }
+	  else if((j+1) % (reso) == 0) {
+	    y_index--;
+	    x_index -= reso;
+	  }
 	}
-	if(nFloor)
-	  if(nCounts < nFloor) nCounts = 0;
-	if(nCeiling)
-	  if(nCounts > nCeiling) nCounts = 0;
-	fStr << nCounts << " ";
+	}
       }
+      x_index  = nXLowLimit;
+      y_index -= reso;
       fStr << endl;
-      if(nCounts == -1) break;
     }
     fStr << endl;
+    
+    // Set the font size based on the number of spectra we're displaying,
+    // and the size of the title and fullscale values...
+    if((nSpectrumCount > 1) && (nRows*nCols > 1))
+      nFontSize = 8;
+    if(fCropped) {
+      nFontSize = 5;
+      string temp_title;
+      int max_title_length = 32 - nCols;
+      while(Title.size() > max_title_length) {
+	temp_title = Title.substr(0, (Title.size()-5));
+	temp_title.append("...");
+	Title = temp_title;
+      }
+    }
+    fStr << "set font size " << nFontSize << endl;
 
     // If the log scale is set, then take the log of the data. The operator
     // _= is the log10 operator in Gri.
@@ -419,20 +588,33 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Show ticks. If the axes are flipped, we need to set the low and
     // high limits on the y-axis. Otherwise, set them on the x-axis...
     if(pAttrib->showticks()) {
-      fStr << "set x grid " << nXLowLimit << " " << nXHighLimit-1 << " 1.0\n";
+      //int nXAxisMax = (reso > 1 ? 
+      //	       nXLowLimit+nXRange-reso+(reso/2) : nXHighLimit-1);
+      //int nYAxisMax = (reso > 1 ?
+      //	       nYLowLimit+nYRange-reso+(reso/2) : nYHighLimit-1);
+
+      // BUGBUGBUG -- Printing at reduced resolution yields empty channels.
+      // This is because, when the resolution is reduced, the range of values
+      // read in must be a multiple of the new resolution (2, 4 or 8) to work
+      // cleanly.
+      int nXAxisMax = nXHighLimit-1;
+      int nYAxisMax = nYHighLimit-1;
+
+      fStr << "set x grid " << nXLowLimit << " " 
+	   << nXLowLimit+nXRange-reso << " " << reso << endl;
 
       // The tic marks are user-specifiable, so we need to check if they
       // have been specified. If not, we use the default Xamine tic marks.
       switch(Options->gettics()) {
       case deflt:
-	if(nXTickInterval >= (nXHighLimit - nXLowLimit)) nXTickInterval = 0;
-	fStr << "set x axis " << nXLowLimit << " " << nXHighLimit-1 << " ";
+	if(nXTickInterval >= (nXHighLimit - nXLowLimit-1)) nXTickInterval = 0;
+	fStr << "set x axis " << nXLowLimit << " " << nXAxisMax << " ";
 	if(nXTickInterval) fStr << nXTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
-	if(XMajor >= (nXHighLimit - nXLowLimit)) XMajor = 0;
-	fStr << "set x axis " << nXLowLimit << " " << nXHighLimit-1 << " ";
+	if(XMajor >= (nXHighLimit - nXLowLimit-1)) XMajor = 0;
+	fStr << "set x axis " << nXLowLimit << " " << nXAxisMax << " ";
 	if(XMajor) {
 	  fStr << XMajor << " ";
 	  if(XMinor) fStr << XMinor << endl;
@@ -443,17 +625,19 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       }
 
       // Do this for both dimensions...
-      fStr << "set y grid " << nYLowLimit << " " << nYHighLimit-1 << " 1.0\n";
+      fStr << "set y grid " << nYLowLimit << " " 
+	   << nYLowLimit+nYRange-reso << " " << reso << endl;
+      
       switch(Options->gettics()) {
       case deflt:
-	if(nYTickInterval >= (nYHighLimit - nYLowLimit)) nYTickInterval = 0;
-	fStr << "set y axis " << nYLowLimit << " " << nYHighLimit-1 << " ";
+	if(nYTickInterval >= (nYHighLimit - nYLowLimit-1)) nYTickInterval = 0;
+	fStr << "set y axis " << nYLowLimit << " " << nYAxisMax << " ";
 	if(nYTickInterval) fStr << nYTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
-	if(YMajor >= (nYHighLimit - nYLowLimit)) YMajor = 0;
-	fStr << "set y axis " << nYLowLimit << " " << nYHighLimit-1 << " ";
+	if(YMajor >= (nYHighLimit - nYLowLimit-1)) YMajor = 0;
+	fStr << "set y axis " << nYLowLimit << " " << nYAxisMax << " ";
 	if(YMajor) {
 	  fStr << YMajor << " ";
 	  if(YMinor) fStr << YMinor << endl;
@@ -462,6 +646,14 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	else fStr << endl;
 	break;
       }
+    }
+    
+    // Set the axis labels (values) to 2 decimal places...
+    if(nYHighLimit >= 100000) {
+      fStr << "set y format %.1e\n";
+    }
+    else {
+      fStr << "set y format default\n";
     }
 
     // Set the axes names...
@@ -484,29 +676,13 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       break;
     }
 
-    // Get the title from the user. If there are multiple spectra, use the
-    // value is sTitle which was passed to us from Xamine_Print.
-    string Title;
-    if(nSpectrumCount == 1)
-      Title = string(Options->gettitle());
-    else
-      Title = sTitle;
-
-    // Draw the title...
-    if(nSpectrumCount > 1) fStr << "set font size 8\n";
+     // Draw the title...
     if(!fCropped) {
-      if((Title.size() > (120 / nCols)) && (Title.size() < (150 / nCols))) 
-	fStr << "set font size 6\n";
-      else if(Title.size() >= (150 / nCols)) fStr << "set font size 4\n";
       fStr << "draw title \"" << Title << "\"\n";
-      fStr << "set font size 8\n";
     }
     else {
-      fStr << "set font size 6\n";
-      if(Title.size() > 40) fStr << "set font size 4\n";
       fStr << "draw label \"" << Title << "\" centered at " 
 	   << ((XLength+(2*xm))/2.0) << " " << (YLength+ym+.2) << " cm\n";
-      fStr << "set font size 8\n";
     }
 
     // Set rendition type...
@@ -516,9 +692,10 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     case color:
       // Draw a box around the image if there is more than one
       if(nSpectrumCount > 1) {
-	if(!fCropped)
-	  fStr << "draw border box " << (xm-1.27) << " " << (ym-1.07) << " " 
-	       << (xm+XLength+1.27) << " " << (ym+YLength+1.47) << " 0.01 0\n";
+	if(!fCropped && ((nRows*nCols) != 1))
+	  fStr << "draw border box " << (xm-(INCH/2)) << " " << (ym-1.07) 
+	       << " " << (xm+XLength+(INCH/2)) << " " << (ym+YLength+1.47) 
+	       << " 0.01 0\n";
       }
 
       // Determine the range of tick marks for the color palette...
@@ -546,14 +723,15 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	xres /= 2;
 	yres /= 2;
 	break;
-      case four:
+      case four: {
 	xres /= 4;
 	yres /= 4;
 	break;
-      case eight:
+      }
+      case eight: {
 	xres /= 8;
 	yres /= 8;
-	break;
+      }
       }
 
       // The fullscale value for a log plot. This is done by taking the log
@@ -598,6 +776,9 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	fStr << ((double)red / 256) << " " << ((double)green / 256)
 	     << " " << ((double)blue / 256) << endl;
       }
+      red_max   = (double)red / 256;
+      green_max = (double)green / 256;
+      blue_max  = (double)blue / 256;
 
       // Convert the grid to an image with the appropriate size, based on
       // the user specified resolution
@@ -639,14 +820,14 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	else {
 	  // Only draw the image palette if it will fit...
 	  if(!fCropped) {
-	    fStr << "set font size 6\n";
+	    if(PalScale >= 1000) fStr << "set font size 5\n";
 	    fStr << "set tics out\n";
 	    fStr << "draw image palette axisright left " << nFloor << " right "
  		 << PalScale << " increment " << nIncr << " box " 
 		 << (xm+XLength+.2) << " " << ym << " " << (xm+XLength+.4) 
 		 << " " << (ym+YLength) << endl;
-	    fStr << "set font size 8\n";
 	    fStr << "set tics in\n";
+	    fStr << "set font size " << nFontSize << endl;
 	  }
 	}
       }
@@ -661,21 +842,18 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	// of the fullscale value.
 	int nCurrContour = 1;
 	int nContours = (int)(nFullScale / nContInc) + 1;
-	fStr << "set font size 6\n";
 	fStr << "set graylevel 0.7\n";
 	while((nCurrContour*nContInc) < nFullScale) {
 	  fStr << "draw contour " << (nContInc*nCurrContour) 
 	       << " unlabelled\n";
 	  nCurrContour++;
 	}
-	fStr << "set font size default\n";
 	fStr << "set graylevel 0.0\n";
       }
       break;
     }
     
     // Draw ticks, axes, and tick labels...
-    if(fCropped) fStr << "set font size 6\n";
     if(!(pAttrib->showaxes())) {
       fStr << "draw axes none\n";
     }
@@ -698,7 +876,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       string sDrawString;
       for(int i = 0; i < nObjects; i++) {
 	sDrawString.erase();
-	if(fCropped) fStr << "set font size 6\n";
 	sDrawString = 
 	  Xamine_DrawGraphicalObj2d(nXLowLimit, nXHighLimit, 
 				    nYLowLimit, nYHighLimit, 
@@ -719,7 +896,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       string sDrawString;
       for(int i = 0; i < nGates; i++) {
 	sDrawString.erase();
-	if(fCropped) fStr << "set font size 6\n";
 	sDrawString = 
 	  Xamine_DrawGraphicalObj2d(nXLowLimit, nXHighLimit, 
 				    nYLowLimit, nYHighLimit, 
@@ -749,7 +925,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Get the pixel limits so we can get the tick mark intervals...
     int    nXRange = (nHighLimit-nLowLimit+1);
     int    nYRange = (nFullScale+1);
-    if(nFloor && nCeiling) nYRange = nCeiling - nFloor;
+    if(nFloor && nCeiling) nYRange = (nCeiling - nFloor);
     else if(nFloor) nYRange = nFullScale - nFloor;
     else if(nCeiling) nYRange = nCeiling;
     nXTickInterval = Xamine_getTickInterval(nXRange, (nx-xbase+1));
@@ -806,6 +982,25 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 
     // Open a temporary gri file...
     fStr.open("temp.gri", fstream::out | fstream::app);
+    fStr << "\n# Commands for spectrum " << nCurrSpec << endl;
+    fStr << "set page size letter\n";
+    fStr << "set tics in\n";
+
+    // Set the font size based on the number of spectra we're displaying,
+    // and the size of the title and fullscale values...
+    if((nSpectrumCount > 1)  && (nRows*nCols > 1))
+      nFontSize = 8;
+    if(fCropped) {
+      nFontSize = 5;
+      string temp_title;
+      int max_title_length = 35 - nCols;
+      while(Title.size() > max_title_length) {
+	temp_title = Title.substr(0, (Title.size()-5));
+	temp_title.append("...");
+	Title = temp_title;
+      }
+    }
+    fStr << "set font size " << nFontSize << endl;
 
     // We set the axis type to log first, so that Gri
     // can autoscale the axes appropriately.
@@ -826,10 +1021,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       fStr << "set y type linear\n";
     }
 
-    // Set the font size appropriately. If there are multiple spectra on
-    // a page, we set the font size to be smaller.
-    if(nSpectrumCount > 1)
-      fStr << "set font size 8\n";
 
     // Determine if the axes are flipped, and if there are superpositions...
     int nLegendPos = (int)((float)nFullScale * 0.8);
@@ -918,6 +1109,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       else
 	fStr << "  draw curve\n";          // draw the curve using lines...
       fStr << "  set clip off\n";
+      fStr << "  set font size " << nFontSize << endl;
 
       // Position the symbol legend (i.e. spectrum name and symbol) in an
       // appropriate position.
@@ -940,7 +1132,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       }
 
       if(nSuperposCount)
-	fStr << "  set font size 8\n";
+	fStr << "  set font size " << nFontSize << endl;
 
       fStr << "  .col. += 1\n";               // increment the column number...
       fStr << "  .r. += 0.5\n";               // choose a different color...
@@ -989,17 +1181,18 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       // If the axes are log scaled, then we don't allow the user to adjust
       // the tic intervals. We just use the Xamine default tics...
       int low = ((nFloor) ? nFloor : 0);
-      int hi  = ((nCeiling) ? nCeiling : nFullScale);
+      int hi  = ((nCeiling && (nCeiling<nFullScale)) ? nCeiling : nFullScale);
       if(!pAttrib->islog()) {
 	switch(Options->gettics()) {
 	case deflt:
-	  if(nYTickInterval >= nFullScale) nYTickInterval = 0;
+	  if(nYTickInterval >= (hi-low)) nYTickInterval = 0;
 	  fStr << "set " << second << " axis " << low << " " << hi << " "; 
-	  if(nYTickInterval) fStr << nYTickInterval << endl;
+	  if(nYTickInterval) 
+	    fStr << nYTickInterval << endl;
 	  else fStr << endl;
 	  break;
 	case user:
-	  if(YMajor >= nFullScale) YMajor = 0;
+	  if(YMajor >= (hi-low)) YMajor = 0;
 	  fStr << "set " << second << " axis " << low << " " << hi << " ";
 	  if(YMajor) {
 	    fStr << YMajor << " ";
@@ -1022,9 +1215,19 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	  nPower = (int)log10(nFloor);
 	  nLogMin = (int)pow(10, nPower);
 	}
-	fStr << "set " << second << " axis " << nLogMin << " " << nLogMax 
-	     << " " << nYTickInterval << endl;
+	fStr << "set " << second << " axis " << nLogMin 
+	     << " " << nLogMax << " ";
+	if(nLogMax - nLogMin > nYTickInterval) fStr << nYTickInterval << endl;
+	else fStr << endl;
       }
+    }
+
+    // Set the axis labels (values) to 1 decimal place...
+    if(nCeiling >= 100000 || nFullScale >= 100000) {
+      fStr << "set y format %.1e\n";
+    }
+    else {
+      fStr << "set y format default\n";
     }
 
     // Set the tics to be inside the box...
@@ -1063,7 +1266,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       string sDrawString;
       for(int i = 0; i < nObjects; i++) {
 	sDrawString.erase();
-	if(fCropped) fStr << "set font size 6\n";
 	sDrawString = 
 	  Xamine_DrawGraphicalObj1d(nLowLimit, nHighLimit, nFloor, nCeiling, 
 				    pAttrib, pObjects[i]);
@@ -1083,7 +1285,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       string sDrawString;
       for(int i = 0; i < nGates; i++) {
 	sDrawString.erase();
-	if(fCropped) fStr << "set font size 6\n";
 	sDrawString = 
 	  Xamine_DrawGraphicalObj1d(nLowLimit, nHighLimit, nFloor, nCeiling,
 				    pAttrib, pObjects[i]);
@@ -1098,15 +1299,14 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     case histogram:
     case lines:
       if(nSpectrumCount > 1) {
-	if(!fCropped)
-	  fStr << "draw border box " << (xm-1.27) << " " << (ym-1.07) << " " 
-	       << (xm+XLength+1.27) << " " << (ym+YLength+1.47) << " 0.01 0\n";
+	if(!fCropped && ((nRows*nCols) != 1))
+	  fStr << "draw border box " << (xm-(INCH/2)) << " " << (ym-1.07) << " " 
+	       << (xm+XLength+(INCH/2)) << " " << (ym+YLength+1.47) << " 0.01 0\n";
       }
 
       // If there are superpositions, we instruct Gri to invoke the
       // 'draw curves' procedure defined earlier for each spectrum...
       if(nSuperposCount) {
-	if(fCropped) fStr << "set font size 6\n";
 	fStr << "draw curves" << nCurrSpec << " channel ";
 	for(int n = 0; n <= nSuperposCount; n++) {
 	  char name[40];
@@ -1121,16 +1321,11 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	  fStr << "draw border box " << (xLegPos*.98) << " " << (yLegPos+.20)
 	       << " " << (xLegPos + 0.6 + (0.15*nLongestTitle)) << " " 
 	       << (yLegPos-(nSuperposCount*0.4)) << " 0.04 0\n";
-	  fStr << "set font size 12\n";
 	}
-	else
-	  fStr << "set font size 8\n";
       }
       // Otherwise, we just draw the curve.
-      else {
-	if(fCropped) fStr << "set font size 6\n";
+      else
 	fStr << "draw curve\n";
-      }
       break;
     case points: {
       // If the rendition is points, then use small bullets instead of
@@ -1143,7 +1338,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       }
       else {
 	int nLongestTitle = 0;
-	if(fCropped) fStr << "set font size 6\n";
 	fStr << "draw curves" << nCurrSpec << " channel ";
 	for(int n = 0; n <= nSuperposCount; n++) {
 	  char name[40];
@@ -1157,33 +1351,17 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	  fStr << "draw border box " << (xLegPos*.98) << " " << (yLegPos+.20)
 	       << " " << (xLegPos + 0.6 + (0.15*nLongestTitle)) << " " 
 	       << (yLegPos-(nSuperposCount*0.4)) << " 0.04 0\n";
-	  fStr << "set font size 12\n";
 	}
-	else
-	  fStr << "set font size 8\n";
       }
       break;
     }
     }
-      
-    // Get the title from the user...
-    string Title;
-    if(nSpectrumCount == 1)
-      Title = string(Options->gettitle());
-    else
-      Title = sTitle;
     
     // Draw the title...
-    if(nSpectrumCount > 1) fStr << "set font size 8\n";
     if(!fCropped) {
-      if((Title.size() > (120 / nCols)) && (Title.size() < (150 / nCols))) 
-	fStr << "set font size 6\n";
-      else if(Title.size() >= (150 / nCols)) fStr << "set font size 4\n";
       fStr << "draw title \"" << Title << "\"\n";
     }
     else {
-      fStr << "set font size 6\n";
-      if(Title.size() > 40) fStr << "set font size 4\n";
       fStr << "draw label \"" << Title << "\" centered at " 
 	   << ((XLength+(2*xm))/2.0) << " " << (YLength+ym+.2) << " cm\n";
     }
@@ -1193,7 +1371,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     fStr << "set y name \"" << Options->getyname() << "\"\n";
 
     // Draw ticks, axes, and tick labels...
-    if(fCropped) fStr << "set font size 6\n";
     if(!(pAttrib->showaxes())) {
       fStr << "set axes style none\n";
     }
@@ -1224,7 +1401,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 
   // If there are more spectra to add to the Gri command file, don't
   // do any printing yet...
-  if((nCurrSpec == nSpectrumCount) || (nRows*nCols == nCurrSpec)) {
+  if(nCurrSpec == nSpectrumCount) {
     // Draw timestamp if necessary...
     if(Options->getdraw_time()) {
       time_t tim = time(NULL);
@@ -1241,39 +1418,22 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	fStr << "set font size 6\n";
 	if(nSpectrumCount == 1)
 	  fStr << "draw label \"" << time_string << "\" at " 
-	       << (xm) << " " << (ym+YLength+2.0) << " cm\n";
+	       << (xm) << " " << (ym+YLength+1.8) << " cm\n";
 	else
 	  fStr << "draw label \"" << time_string << "\" at 1.27 "
-	       << ((YLength*nRows) + (ym*nRows) + 2.0) << " cm\n";
+	       << ym - 1.5 << " cm\n";
       }
     }
+
+    // Draw the page number now...
+    if(nSpectrumCount > 1)
+      fStr << "draw label \"page " << nPageNum << "\" at "
+	   << (XPageSize-2.0) << " " << (ym-1.5) << " cm\n";
 
     // Now figure out what to name the file if printing to a file is 
     // requested. If no name is supplied by the user, use a default.
     string sFilename = string(Options->getfile());
-    string sDest = "";
-    if(!sFilename.size()) {
-      char filename[20];
-      char ps_filename[20];
-      for(int i = 0; i < 99; i++) {
-	int trial;
-	sprintf(filename, "spectcl-%02d", i);
-	sprintf(ps_filename, "spectcl-%02d.ps", i);
-	trial = open(ps_filename, O_RDONLY);
-	if(trial < 0) {  // if no such file exists, then use this filename
-	  sprintf(ps_filename, "spectcl-%02d.jpg", i);
-	  trial = open(ps_filename, O_RDONLY);
-	  if(trial < 0) {
-	    sprintf(ps_filename, "spectcl-%02d.png", i);
-	    trial = open(ps_filename, O_RDONLY);
-	    if(trial < 0)
-	      break;
-	  }
-	}
-	close(trial);
-      }
-      sFilename = string(filename);
-    }
+    string sDest;
     
     // Now determine what to do with the command file and the resulting
     // postscript. The idea is to create a system command and let the shell
@@ -1288,11 +1448,19 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     char etcdir[80];
     sprintf(bindir, "%s/Bin/gri", instdir);
     sprintf(etcdir, "%s/Etc", instdir);
+    
+    // Send to either the printer, or to file...
     switch(Options->getdest()) {
     case toprinter: {
       sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps temp; ", 
 	      bindir, etcdir);
-      sprintf(buf, "%s temp.ps; rm -f temp.ps; rm -f temp.gri", printcmd);
+      string s(printcmd);
+      int pos = s.find("%s", 0);
+      while(pos != -1) {
+	s.replace(pos, 2, "temp.ps");
+	pos = s.find("%s", 0);
+      }
+      sprintf(buf, "%s temp.ps; rm -f temp.ps; rm -f temp.gri", s.c_str());
       strcat(GriCmd, buf);
       break;
     }
@@ -1318,7 +1486,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       }
       else
 	sFilename.append(".ps");
-
+      
       sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps temp.gri; ", 
 	      bindir, etcdir);
       
@@ -1327,7 +1495,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       if(sType != "Postscript (*.ps)") {
 	char convert_path[50];
 	strcpy(convert_path, FindConvert());
-	sprintf(buf, "%s %s %s; rm -f temp.ps; ", convert_path,
+	sprintf(buf, "%s -page letter %s %s; rm -f temp.ps; ", convert_path,
 		sDest.c_str(), sFilename.c_str());
       }
       else {
@@ -1337,7 +1505,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       strcat(GriCmd, "rm -f temp.gri");
     }
     }
-
+    
     // Here's where we fork a new process to handle the printing. As long
     // as the spectrum is less than 1k by 1k, printing doesn't take long.
     // As the spectrum gets bigger, it starts to take a very long time to
@@ -1348,7 +1516,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       fprintf(stderr, "Cancelled print!\n");
     }
     else if(child_pid > 0) {
-      printf("Printing: This may take a while...\n");
       int x;
       waitpid(-1, &x, WNOHANG);
     }
@@ -1358,8 +1525,37 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       exit(0);
     }
   }
-  else
-    fStr.close();
+  else if(nCurrSpec % (nRows*nCols) == 0) {
+    // Draw timestamp if necessary...
+    if(Options->getdraw_time()) {
+      time_t tim = time(NULL);
+      if(tim != (time_t)-1) {
+	struct tm* t = localtime(&tim);
+	char time_string[30];
+	sprintf(time_string, "SpecTcl: %04d/%02d/%02d %02d:%02d:%02d", 
+		(t->tm_year+1900), (t->tm_mon+1), t->tm_mday, 
+		t->tm_hour, t->tm_min, t->tm_sec);
+	if(t->tm_isdst)
+	  strcat(time_string, " DST");
+	else
+	  strcat(time_string, " EST");
+	fStr << "set font size 6\n";
+	if(nSpectrumCount == 1)
+	  fStr << "draw label \"" << time_string << "\" at " 
+	       << (xm) << " " << (ym+YLength+1.8) << " cm\n";
+	else
+	  fStr << "draw label \"" << time_string << "\" at 1.27 "
+	       << ym - 1.5 << " cm\n";
+      }
+    }
+    // Draw the page number now...
+    if(nSpectrumCount > 1)
+      fStr << "draw label \"page " << nPageNum << "\" at "
+	   << (XPageSize-2.0) << " " << (ym-1.5) << " cm\n";
+    fStr << "new page\n";
+  }
+
+  fStr.close();
 }
 
 /*
@@ -1421,7 +1617,7 @@ string Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int nFloor,
   int x, y;
   int nFullScale = pAttrib->getfsval();
   int lo_line = ((nFloor) ? nFloor : fLog);
-  int hi_line = ((nCeiling) ? nCeiling : nFullScale);
+  int hi_line = ((nCeiling && (nCeiling<nFullScale)) ? nCeiling : nFullScale);
 
   // If the plot is a log plot, set the full scale value to be the next highest
   // power of ten.
