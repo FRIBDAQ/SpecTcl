@@ -285,6 +285,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.16.4.1  2004/04/12 16:37:32  ron-fox
+  - Use etc for etc stuff with link named Etc rather than the other way around.
+  - Extract all Makefile definitions into separate include files so the user makefile
+    becomes less variable with time.
+
   Revision 4.16  2003/11/07 22:10:34  ron-fox
   Remove attempts to include sysinfo.h
 
@@ -375,7 +380,7 @@ static const UInt_t knEventListSize  = 256;
 static const UInt_t knDisplaySize    = 8;
 
 static const char* kpInstalledBase = INSTALLED_IN; // Preprocessor def.
-static const char* kpAppInitSubDir = "/Etc";
+static const char* kpAppInitSubDir = "/etc";
 static const char* kpAppInitFile   = "/SpecTclInit.tcl";
 static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 

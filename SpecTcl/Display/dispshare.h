@@ -341,8 +341,8 @@ typedef union {
 	      } spec_spectra; /* Spectrum storage type. */
 
 typedef struct {
-                 unsigned short xchans;
-		 unsigned short ychans;
+                 unsigned int xchans;
+		 unsigned int ychans;
 	       } spec_dimension;   /* Describes the channels in a spectrum. */
 
 typedef char spec_title[72];

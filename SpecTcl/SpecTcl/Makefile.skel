@@ -1,76 +1,18 @@
-#
-#   Makefile to build user tailored SpecTcl.
-#
+include $(INSTDIR)/etc/SpecTcl_Makefile.include
 
-linuxLIBS=-ldl
-HPUXLIBS=-L/opt/tcltk/lib
-cygwinLIBS=-lrpc
+#  If you have any switches that need to be added to the default c++ compilation
+# rules, add them to the definition below:
 
-HPUXINCS=-I/opt/tcltk/include
-cygwinINCS=
-cygwinLIBDIR=
+USERCXXFLAGS=
 
+#  If you have any switches you need to add to the default c compilation rules,
+#  add them to the defintion below:
 
-#
-#  Comment the next line and uncomment the following to enable profiling.
-PROFILE=-g
-# PROFILE=-g3 -pg
+USERCCFLAGS=$(USERCXXFLAGS)
 
+#  If you have any switches you need to add to the link add them below:
 
-#  Add the instdir directories to include and lib paths.
-
-INCLUDES+= -I$(INSTDIR)/include
-LIBDIRS+=-L$(INSTDIR)/lib
-
-
-
-#
-#   These are the SpecTcl libraries required.
-#
-LIBS=   $(LIBDIRS) \
-	-lTclGrammerCommands \
-	-lSorting -lXplus -lGates -lAnalysis -lEventSource -lSpecio \
-	-ltclPlus -lException \
-	-lXamine -ltape -lFilter \
-	-ltk -ltcl -lXt -lX11 -lm $(LIBFLAGS)
-
-ECHO=echo
-
-
-
-CXXCOMPILE=$(CXX) $(INCLUDES) -c 
-CCCOMPILE=$(CC)   $(INCLUDES) -c
-LINK=$(LD)
-
-RM=rm -f
-DEPEND=makedepend
-INSTALL=cp
-ARCHIVE=ar cr
-CONCAT=cat
-
-
-#
-#   Default build rules (so user doesn't have to specify
-#   dependencies):
-#
-
-#  C++ compilations.. Files with .cpp, .cc, .cxx are C++.
-
-
-.cpp.o:
-	$(CXXCOMPILE) $(PROFILE) $<
-
-.cc.o:
-	$(CXXCOMPILE) $(PROFILE) $<
-
-.cxx.o:
-	$(CXXCOMPILE) $(PROFILE) $<
-
-#   C compilations... files with .c are C.
-#
-
-.c.o:
-	$(CCCOMPILE) $(PROFILE) $<
+USERLDFLAGS=
 
 #
 #   Append your objects to the definitions below:
@@ -84,16 +26,17 @@ OBJECTS=MySpecTclApp.o
 
 
 SpecTcl: $(OBJECTS)
-	$(LINK)  -o SpecTcl $(LIBDIRS)       \
-	$(INSTDIR)/lib/Globals.o  $(OBJECTS) \
-	$(LIBFLAGS)  $(LIBS) $($(OS)LIBS)
-	echo Be sure that $(INSTDIR)/lib is part of LD_LIBRARY_PATH!!
+	$(CXXLD)  -o SpecTcl $(OBJECTS) $(USERLDFLAGS) \
+	$(LDFLAGS) 
 
 
 clean:
 	rm -f $(OBJECTS) SpecTcl
 
 depend:
-	makedepend -Y. *.cpp *.c
+	makedepend $(USERCXXFLAGS) *.cpp *.c
 
-
+help:
+	echo "make                 - Build customized SpecTcl"
+	echo "make clean           - Remove objects from previous builds"
+	echo "make depend          - Add dependencies to the Makefile.

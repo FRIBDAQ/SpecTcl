@@ -5,7 +5,8 @@ LDFLAGS=-L. @TCL_LDFLAGS@
 
 
 lib_LTLIBRARIES = libEventSource.la
-libEventSource_la_LDFLAGS = -version-info $(SOVERSION):0
+libEventSource_la_LDFLAGS = -version-info $(SOVERSION):0 \
+	-Wl,"-rpath-link=$(libdir)"
 
 libEventSource_la_SOURCES = File.cpp GaussianDistribution.cpp \
 	TapeException.cpp TapeFile.cpp TestFile.cpp PipeFile.cpp  \

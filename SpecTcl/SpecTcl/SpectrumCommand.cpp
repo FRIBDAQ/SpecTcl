@@ -306,6 +306,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
+// Revision 4.5.2.1  2004/07/01 13:55:29  ron-fox
+// Allow spectra that have 2^31 channels
+//
 // Revision 4.5  2004/02/04 14:52:04  ron-fox
 // Correct bug 99: Bad spectrum definitions crash spectcl
 //
@@ -353,7 +356,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <algorithm>
 #include <vector>
 
-static const int MAXRESBITS(16); // Maximum resolution value.
+static const int MAXRESBITS(32); // Maximum resolution value.
 
 typedef std::vector<std::string>::iterator StrVectorIterator;
 
