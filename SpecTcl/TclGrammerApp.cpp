@@ -45,9 +45,6 @@
 extern "C" 
 void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
 #elif defined(OSF1)
-#include <machine/hal_sysinfo.h>
-#include <sys/proc.h>
-#include <sys/sysinfo.h>
 #else
 #include <sys/sysinfo.h>
 #endif
@@ -91,18 +88,7 @@ CTclGrammerApp::CTclGrammerApp ()
      m_TclParameterCount(string("ParameterCount"), kfFALSE),   
      m_TclEventListSize(string("EventListSize"),   kfFALSE) 
 {   
-  // In OSF1, we turn of printed warnings of unaligned access fixups.
-  // as well as instruction emulation messages.  These indicate performance
-  // issues, however most of the time they can't be easily fixed in any event.
 
-#ifdef OSF1
-    int buf[4];
-    buf[0] = SSIN_UACPROC;
-    buf[1] = UAC_NOPRINT;
-    buf[2] = SSIN_IECPROC;
-    buf[3] = IEC_NOPRINT;
-    setsysinfo(SSI_NVPAIRS, buf, 2, 0, 0);
-#endif  
     
 } 
 

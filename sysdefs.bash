@@ -45,4 +45,4 @@ export CYGWINMOTIFINCLUDES="-I/usr/X11R6/include"
 #          to build the fortran bindings.
 
 export LinuxF77="ifc -w90 -w95"
-export OSFF77="f77 -check bounds"
+export OSF1F77="f77 -check bounds"

@@ -59,6 +59,11 @@
 #include <sys/time.h>
 #include <string.h>
 
+#ifdef OSF1			// Coulnd't find pipe for some reason!!
+extern "C" {
+  int pipe(int*);
+};
+#endif
 
 static const char* Copyright = 
 "CPipeFile.cpp: Copyright 1999 NSCL, All rights reserved\n";

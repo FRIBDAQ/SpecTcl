@@ -37,7 +37,7 @@ system:	libException.a
 
 
 depend: 
-	$(DEPEND) $(INCLUDEDIRS) *.cpp
+	$(DEPEND) -Y.  *.cpp
 
 clean:
 	$(RM) $(OBJECTS)
@@ -64,25 +64,3 @@ StreamIOError.o: StreamIOError.cpp
 	$(COMPILE) StreamIOError.cpp
 
 
-# DO NOT DELETE
-
-ErrnoException.o: ErrnoException.h Exception.h /usr/include/errno.h
-ErrnoException.o: /usr/include/features.h /usr/include/sys/cdefs.h
-ErrnoException.o: /usr/include/gnu/stubs.h /usr/include/bits/errno.h
-ErrnoException.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
-Exception.o: Exception.h /usr/include/string.h /usr/include/features.h
-Exception.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-Exception.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-RangeError.o: RangeError.h Exception.h /usr/include/stdio.h
-RangeError.o: /usr/include/features.h /usr/include/sys/cdefs.h
-RangeError.o: /usr/include/gnu/stubs.h
-RangeError.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-RangeError.o: /usr/include/bits/types.h /usr/include/libio.h
-RangeError.o: /usr/include/_G_config.h /usr/include/wchar.h
-RangeError.o: /usr/include/bits/wchar.h /usr/include/gconv.h
-RangeError.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stdarg.h
-RangeError.o: /usr/include/bits/stdio_lim.h
-StreamIOError.o: StreamIOError.h Exception.h /usr/include/string.h
-StreamIOError.o: /usr/include/features.h /usr/include/sys/cdefs.h
-StreamIOError.o: /usr/include/gnu/stubs.h
-StreamIOError.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h

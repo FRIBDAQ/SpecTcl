@@ -52,7 +52,7 @@ tests: AnalysisTest
 	$(ECHO) Test rebuilt.
 
 depend: 
-	$(DEPEND) $(INCLUDEDIRS) *.cpp
+	$(DEPEND) -Y. *.cpp
 
 libAnalysis.a: $(OBJECTS)
 	$(ARCHIVE) libAnalysis.a $(OBJECTS)
@@ -95,36 +95,3 @@ TCLRunFileHandler.o: TCLRunFileHandler.cpp
 TKRunControl.o: TKRunControl.cpp
 	$(COMPILE) TKRunControl.cpp
 
-# DO NOT DELETE
-
-AnalysisTest.o: Event.h ./ValidValue.h EventList.h EventSink.h Analyzer.h
-AnalysisTest.o: BufferDecoder.h ./BufferTranslator.h TranslatorPointer.h
-AnalysisTest.o: NSCLBufferDecoder.h EventUnpacker.h RunControl.h
-Analyzer.o: Analyzer.h BufferDecoder.h ./BufferTranslator.h
-Analyzer.o: TranslatorPointer.h EventFormatError.h
-BufferDecoder.o: BufferDecoder.h ./BufferTranslator.h TranslatorPointer.h
-BufferDecoder.o: EventFormatError.h Analyzer.h
-BufferTranslator.o: ./BufferTranslator.h TranslatorPointer.h
-BufferTranslator.o: /usr/include/stdio.h /usr/include/features.h
-BufferTranslator.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-BufferTranslator.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-BufferTranslator.o: /usr/include/bits/types.h /usr/include/libio.h
-BufferTranslator.o: /usr/include/_G_config.h /usr/include/wchar.h
-BufferTranslator.o: /usr/include/bits/wchar.h /usr/include/gconv.h
-BufferTranslator.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stdarg.h
-BufferTranslator.o: /usr/include/bits/stdio_lim.h
-Event.o: Event.h ./ValidValue.h
-EventFormatError.o: EventFormatError.h
-EventList.o: EventList.h
-EventSink.o: EventSink.h
-NSCLBufferDecoder.o: NSCLBufferDecoder.h Analyzer.h BufferDecoder.h
-NSCLBufferDecoder.o: ./BufferTranslator.h TranslatorPointer.h
-NSCLBufferDecoder.o: EventFormatError.h /usr/include/assert.h
-NSCLBufferDecoder.o: /usr/include/features.h /usr/include/sys/cdefs.h
-NSCLBufferDecoder.o: /usr/include/gnu/stubs.h /usr/include/stdlib.h
-NSCLBufferDecoder.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-NSCLBufferDecoder.o: /usr/include/string.h
-RunControl.o: RunControl.h /usr/include/assert.h /usr/include/features.h
-RunControl.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-TCLRunFileHandler.o: TCLRunFileHandler.h RunControl.h TKRunControl.h
-TKRunControl.o: TKRunControl.h

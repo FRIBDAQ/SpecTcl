@@ -51,15 +51,6 @@ using namespace std;
 #include "spccheck.h"
 #include "trackcursor.h"
 
-//
-//   For OSF, we need to turn off the UAC warnings:
-//   We'll do this for both parent and us:
-//
-#ifdef OSF1
-#include <sys/sysinfo.h>
-#include <sys/proc.h>
-#include <machine/hal_sysinfo.h>
-#endif
 
 /*
 ** Definitions:
@@ -190,22 +181,7 @@ void SetIcon(Widget w, char *filename)
 
 int main(Cardinal argc, char **argv)
 {
-#ifdef OSF1
-  {
-    int buf[4];			// Buffer to contain sysinfo requests.
-    buf[0] = SSIN_UACPARNT;	// This and next turn off UAC print for parent
-    buf[1] = UAC_NOPRINT;
-    buf[2] = SSIN_UACPROC;	// This and the next turn off our UAC print.
-    buf[3] = UAC_NOPRINT;
 
-    if(setsysinfo(SSI_NVPAIRS, buf, 2, 0, 0) < 0) { // Not fatal.. just noisy
-      perror("-OSF Specific- Failed to turn off UAC printing");
-    }
-
-  }
-#endif
-
-  //  setsid();			// Form new session.
   XMApplication top("Xamine", &argc, argv); /* Top level/init ap. */
   XMMainWindow main_win("MainWindow", top, NULL, 0); /* Main window widget. */
   XMForm       work_area("WorkArea", main_win);

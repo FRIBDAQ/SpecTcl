@@ -344,16 +344,14 @@ double lapse_rate(double S, double t, double p);
 #define STRING_NPOS std::string::npos
 #endif
 
-// Time type (time_t, int, or long) varies per machine (ug).
-#if defined(VMS) || defined(MSDOS) || defined(IS_DEC_ALPHA) || defined(AIX)
+// Time type is now pretty uniformly time_t for our supported systems.
+// since it looks like configure doesn't figure out IS_DEC_ALPHA correctly.
+
 #define SECOND_TYPE time_t
-#else
-#if defined(__DECCXX)
-#define SECOND_TYPE int
-#else
-#define SECOND_TYPE long
-#endif
-#endif
+
+// Time type (time_t, int, or long) varies per machine (ug).
+
+
 
 
 #endif				// not _gr_

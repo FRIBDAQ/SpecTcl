@@ -42,7 +42,7 @@ get_normal_number(const char *s, double *d)
 #if defined(HAVE_ISNAN) && defined(HAVE_ISINF)
 #if !defined(__MACHTEN__)
 		extern double _grMissingValue;
-		if (isinf(*d) || isnan(*d))
+		if ((!finite(*d)) || isnan(*d))
 			*d = (double) _grMissingValue;
 #endif
 #endif
