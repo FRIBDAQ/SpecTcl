@@ -13,7 +13,7 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __CTCLEXCEPTION_H  //Required for current class
+#ifndef __TCLEXCEPTION_H  //Required for current class
 #define __TCLEXCEPTION_H
                                //Required for base classes
 #ifndef __TCLINTERPRETEROBJECT_H

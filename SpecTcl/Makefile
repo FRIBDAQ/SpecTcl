@@ -197,237 +197,362 @@ TclGrammerApp.o: TclGrammerApp.cpp
 
 # DO NOT DELETE
 
-AppInit.o: TCLHistogrammer.h PseudoScript.h Globals.h RunControlPackage.h
-AppInit.o: ParameterPackage.h SpectrumPackage.h DataSourcePackage.h
-AppInit.o: GatePackage.h GateCommand.h GateFactory.h ApplyCommand.h
-AppInit.o: UngateCommand.h TCLAnalyzer.h XamineEventHandler.h
-AppInit.o: /usr/local/include/tk.h /usr/local/include/tcl.h
-AppInit.o: /usr/include/stdio.h /usr/include/standards.h
-AppInit.o: /usr/include/sys/seek.h /usr/include/va_list.h
-AppInit.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-AppInit.o: /usr/include/sys/select.h /usr/include/getopt.h
-AppInit.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
-AppInit.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
-AppInit.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
-AppInit.o: /usr/local/include/tclDecls.h /usr/include/X11/Xlib.h
-AppInit.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
-AppInit.o: /usr/include/X11/Xosdefs.h /usr/include/stddef.h
-AppInit.o: /usr/local/include/tkDecls.h /usr/include/stdlib.h
+AppInit.o: TCLHistogrammer.h ./PseudoScript.h /Include/NamedItem.h
+AppInit.o: /Include/histotypes.h /usr/include/string.h
+AppInit.o: /usr/include/features.h /usr/include/sys/cdefs.h
+AppInit.o: /usr/include/gnu/stubs.h
+AppInit.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+AppInit.o: /usr/include/math.h /usr/include/bits/huge_val.h
+AppInit.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+AppInit.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h Globals.h
+AppInit.o: RunControlPackage.h ParameterPackage.h SpectrumPackage.h
+AppInit.o: DataSourcePackage.h GatePackage.h GateCommand.h GateFactory.h
+AppInit.o: ApplyCommand.h UngateCommand.h TCLAnalyzer.h XamineEventHandler.h
+AppInit.o: /usr/include/tk.h /usr/include/tcl.h /usr/include/stdio.h
+AppInit.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+AppInit.o: /usr/include/bits/types.h /usr/include/libio.h
+AppInit.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+AppInit.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
+AppInit.o: /usr/include/time.h /usr/include/endian.h
+AppInit.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+AppInit.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+AppInit.o: /usr/include/sys/sysmacros.h /usr/include/X11/X.h
+AppInit.o: /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h
+AppInit.o: /Include/buftypes.h /usr/include/stdlib.h /usr/include/alloca.h
 AppInit.o: /usr/include/assert.h /usr/include/sys/sysinfo.h
+AppInit.o: /usr/include/linux/kernel.h
 ApplyCommand.o: ApplyCommand.h GatePackage.h GateCommand.h GateFactory.h
-ApplyCommand.o: UngateCommand.h /usr/include/assert.h
-ApplyCommand.o: /usr/include/standards.h /usr/include/string.h
-ApplyCommand.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-ApplyCommand.o: /usr/include/sys/select.h /usr/include/strings.h
-AttachCommand.o: AttachCommand.h DataSourcePackage.h /usr/include/stdlib.h
-AttachCommand.o: /usr/include/standards.h /usr/include/getopt.h
-AttachCommand.o: /usr/include/sys/types.h
-AttachCommand.o: /usr/include/mach/machine/vm_types.h
-AttachCommand.o: /usr/include/sys/select.h /usr/include/assert.h
-AttachCommand.o: /usr/include/string.h /usr/include/strings.h
-BindCommand.o: BindCommand.h SpectrumPackage.h /usr/include/string.h
-BindCommand.o: /usr/include/standards.h /usr/include/sys/types.h
-BindCommand.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
-BindCommand.o: /usr/include/strings.h
-ChanCommand.o: ChanCommand.h SpectrumPackage.h /usr/local/include/tcl.h
-ChanCommand.o: /usr/include/stdio.h /usr/include/standards.h
-ChanCommand.o: /usr/include/sys/seek.h /usr/include/va_list.h
-ChanCommand.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-ChanCommand.o: /usr/include/sys/select.h /usr/include/getopt.h
-ChanCommand.o: /usr/include/sys/limits.h
-ChanCommand.o: /usr/include/sys/machine/machlimits.h
-ChanCommand.o: /usr/include/sys/syslimits.h
-ChanCommand.o: /usr/include/sys/machine/machtime.h
-ChanCommand.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
-ChanCommand.o: /usr/local/include/tclDecls.h /usr/include/string.h
-ChanCommand.o: /usr/include/strings.h
+ApplyCommand.o: UngateCommand.h /usr/include/assert.h /usr/include/features.h
+ApplyCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+ApplyCommand.o: /usr/include/string.h
+ApplyCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+AttachCommand.o: AttachCommand.h DataSourcePackage.h /Include/histotypes.h
+AttachCommand.o: /usr/include/string.h /usr/include/features.h
+AttachCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+AttachCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+AttachCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
+AttachCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+AttachCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+AttachCommand.o: /usr/include/stdlib.h /usr/include/sys/types.h
+AttachCommand.o: /usr/include/bits/types.h /usr/include/time.h
+AttachCommand.o: /usr/include/endian.h /usr/include/bits/endian.h
+AttachCommand.o: /usr/include/sys/select.h /usr/include/bits/select.h
+AttachCommand.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+AttachCommand.o: /usr/include/alloca.h /usr/include/assert.h
+BindCommand.o: BindCommand.h SpectrumPackage.h /Include/histotypes.h
+BindCommand.o: /usr/include/string.h /usr/include/features.h
+BindCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+BindCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+BindCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
+BindCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+BindCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+ChanCommand.o: ChanCommand.h SpectrumPackage.h /Include/Exception.h
+ChanCommand.o: /Include/histotypes.h /usr/include/string.h
+ChanCommand.o: /usr/include/features.h /usr/include/sys/cdefs.h
+ChanCommand.o: /usr/include/gnu/stubs.h
+ChanCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+ChanCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
+ChanCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+ChanCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+ChanCommand.o: /usr/include/tcl.h /usr/include/stdio.h
+ChanCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+ChanCommand.o: /usr/include/bits/types.h /usr/include/libio.h
+ChanCommand.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
 ClearCommand.o: ClearCommand.h SpectrumPackage.h /usr/include/string.h
-ClearCommand.o: /usr/include/standards.h /usr/include/sys/types.h
-ClearCommand.o: /usr/include/mach/machine/vm_types.h
-ClearCommand.o: /usr/include/sys/select.h /usr/include/strings.h
+ClearCommand.o: /usr/include/features.h /usr/include/sys/cdefs.h
+ClearCommand.o: /usr/include/gnu/stubs.h
+ClearCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 DataSourcePackage.o: DataSourcePackage.h AttachCommand.h TapeCommand.h
-DataSourcePackage.o: Globals.h /usr/local/include/tcl.h /usr/include/stdio.h
-DataSourcePackage.o: /usr/include/standards.h /usr/include/sys/seek.h
-DataSourcePackage.o: /usr/include/va_list.h /usr/include/sys/types.h
-DataSourcePackage.o: /usr/include/mach/machine/vm_types.h
-DataSourcePackage.o: /usr/include/sys/select.h /usr/include/getopt.h
-DataSourcePackage.o: /usr/include/sys/limits.h
-DataSourcePackage.o: /usr/include/sys/machine/machlimits.h
-DataSourcePackage.o: /usr/include/sys/syslimits.h
-DataSourcePackage.o: /usr/include/sys/machine/machtime.h
-DataSourcePackage.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
-DataSourcePackage.o: /usr/local/include/tclDecls.h
-EventProcessor.o: EventProcessor.h
+DataSourcePackage.o: Globals.h /Include/Exception.h /Include/histotypes.h
+DataSourcePackage.o: /usr/include/string.h /usr/include/features.h
+DataSourcePackage.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+DataSourcePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+DataSourcePackage.o: /usr/include/math.h /usr/include/bits/huge_val.h
+DataSourcePackage.o: /usr/include/bits/mathdef.h
+DataSourcePackage.o: /usr/include/bits/mathcalls.h
+DataSourcePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+DataSourcePackage.o: /usr/include/tcl.h /usr/include/stdio.h
+DataSourcePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+DataSourcePackage.o: /usr/include/bits/types.h /usr/include/libio.h
+DataSourcePackage.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+EventProcessor.o: EventProcessor.h /Include/histotypes.h
+EventProcessor.o: /usr/include/string.h /usr/include/features.h
+EventProcessor.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+EventProcessor.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+EventProcessor.o: /usr/include/math.h /usr/include/bits/huge_val.h
+EventProcessor.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+EventProcessor.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 GateCommand.o: GateCommand.h GateFactory.h GatePackage.h ApplyCommand.h
-GateCommand.o: UngateCommand.h /usr/include/stdio.h /usr/include/standards.h
-GateCommand.o: /usr/include/sys/seek.h /usr/include/va_list.h
-GateCommand.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-GateCommand.o: /usr/include/sys/select.h /usr/include/getopt.h
-GateCommand.o: /usr/include/sys/limits.h
-GateCommand.o: /usr/include/sys/machine/machlimits.h
-GateCommand.o: /usr/include/sys/syslimits.h
-GateCommand.o: /usr/include/sys/machine/machtime.h
-GateCommand.o: /usr/include/sys/rt_limits.h /usr/include/assert.h
-GateCommand.o: /usr/include/string.h /usr/include/strings.h
-GateFactory.o: GateFactory.h GateFactoryException.h /usr/include/assert.h
-GateFactory.o: /usr/include/standards.h
-GateFactoryException.o: GateFactoryException.h
+GateCommand.o: UngateCommand.h /Include/Exception.h /Include/histotypes.h
+GateCommand.o: /usr/include/string.h /usr/include/features.h
+GateCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+GateCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+GateCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
+GateCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+GateCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+GateCommand.o: /usr/include/stdio.h
+GateCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+GateCommand.o: /usr/include/bits/types.h /usr/include/libio.h
+GateCommand.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+GateCommand.o: /usr/include/assert.h
+GateFactory.o: GateFactory.h GateFactoryException.h /Include/Exception.h
+GateFactory.o: /Include/histotypes.h /usr/include/string.h
+GateFactory.o: /usr/include/features.h /usr/include/sys/cdefs.h
+GateFactory.o: /usr/include/gnu/stubs.h
+GateFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+GateFactory.o: /usr/include/math.h /usr/include/bits/huge_val.h
+GateFactory.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+GateFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+GateFactory.o: /usr/include/assert.h
+GateFactoryException.o: GateFactoryException.h /Include/Exception.h
+GateFactoryException.o: /Include/histotypes.h /usr/include/string.h
+GateFactoryException.o: /usr/include/features.h /usr/include/sys/cdefs.h
+GateFactoryException.o: /usr/include/gnu/stubs.h
+GateFactoryException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+GateFactoryException.o: /usr/include/math.h /usr/include/bits/huge_val.h
+GateFactoryException.o: /usr/include/bits/mathdef.h
+GateFactoryException.o: /usr/include/bits/mathcalls.h
+GateFactoryException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 GatePackage.o: GatePackage.h GateCommand.h GateFactory.h ApplyCommand.h
-GatePackage.o: UngateCommand.h /usr/include/stdio.h /usr/include/standards.h
-GatePackage.o: /usr/include/sys/seek.h /usr/include/va_list.h
-GatePackage.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-GatePackage.o: /usr/include/sys/select.h /usr/include/getopt.h
-GatePackage.o: /usr/include/sys/limits.h
-GatePackage.o: /usr/include/sys/machine/machlimits.h
-GatePackage.o: /usr/include/sys/syslimits.h
-GatePackage.o: /usr/include/sys/machine/machtime.h
-GatePackage.o: /usr/include/sys/rt_limits.h
-MySpecTclApp.o: MySpecTclApp.h TclGrammerApp.h EventProcessor.h TCLAnalyzer.h
-ParameterCommand.o: ParameterCommand.h ParameterPackage.h
-ParameterCommand.o: /usr/local/include/tcl.h /usr/include/stdio.h
-ParameterCommand.o: /usr/include/standards.h /usr/include/sys/seek.h
-ParameterCommand.o: /usr/include/va_list.h /usr/include/sys/types.h
-ParameterCommand.o: /usr/include/mach/machine/vm_types.h
-ParameterCommand.o: /usr/include/sys/select.h /usr/include/getopt.h
-ParameterCommand.o: /usr/include/sys/limits.h
-ParameterCommand.o: /usr/include/sys/machine/machlimits.h
-ParameterCommand.o: /usr/include/sys/syslimits.h
-ParameterCommand.o: /usr/include/sys/machine/machtime.h
-ParameterCommand.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
-ParameterCommand.o: /usr/local/include/tclDecls.h /usr/include/string.h
-ParameterCommand.o: /usr/include/strings.h /usr/include/malloc.h
-ParameterPackage.o: ParameterPackage.h TCLHistogrammer.h PseudoScript.h
-ParameterPackage.o: ParameterCommand.h PseudoCommand.h /usr/include/assert.h
-ParameterPackage.o: /usr/include/standards.h /usr/include/stdio.h
-ParameterPackage.o: /usr/include/sys/seek.h /usr/include/va_list.h
-ParameterPackage.o: /usr/include/sys/types.h
-ParameterPackage.o: /usr/include/mach/machine/vm_types.h
-ParameterPackage.o: /usr/include/sys/select.h /usr/include/getopt.h
-ParameterPackage.o: /usr/include/sys/limits.h
-ParameterPackage.o: /usr/include/sys/machine/machlimits.h
-ParameterPackage.o: /usr/include/sys/syslimits.h
-ParameterPackage.o: /usr/include/sys/machine/machtime.h
-ParameterPackage.o: /usr/include/sys/rt_limits.h
-PseudoCommand.o: PseudoCommand.h ParameterPackage.h /usr/include/string.h
-PseudoCommand.o: /usr/include/standards.h /usr/include/sys/types.h
-PseudoCommand.o: /usr/include/mach/machine/vm_types.h
-PseudoCommand.o: /usr/include/sys/select.h /usr/include/strings.h
-PseudoScript.o: PseudoScript.h /usr/include/stdio.h /usr/include/standards.h
-PseudoScript.o: /usr/include/sys/seek.h /usr/include/va_list.h
-PseudoScript.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-PseudoScript.o: /usr/include/sys/select.h /usr/include/getopt.h
-PseudoScript.o: /usr/include/sys/limits.h
-PseudoScript.o: /usr/include/sys/machine/machlimits.h
-PseudoScript.o: /usr/include/sys/syslimits.h
-PseudoScript.o: /usr/include/sys/machine/machtime.h
-PseudoScript.o: /usr/include/sys/rt_limits.h
-ReadCommand.o: ReadCommand.h /usr/include/sys/stat.h /usr/include/standards.h
-ReadCommand.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-ReadCommand.o: /usr/include/sys/select.h /usr/include/sys/mode.h
-ReadCommand.o: WriteCommand.h SpectrumPackage.h /usr/include/fcntl.h
-ReadCommand.o: /usr/include/sys/fcntl.h /usr/include/sys/seek.h
-ReadCommand.o: /usr/include/unistd.h /usr/include/sys/access.h
-ReadCommand.o: /usr/include/getopt.h /usr/include/string.h
-ReadCommand.o: /usr/include/strings.h /usr/include/errno.h
+GatePackage.o: UngateCommand.h /Include/Exception.h /Include/histotypes.h
+GatePackage.o: /usr/include/string.h /usr/include/features.h
+GatePackage.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+GatePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+GatePackage.o: /usr/include/math.h /usr/include/bits/huge_val.h
+GatePackage.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+GatePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+GatePackage.o: /usr/include/stdio.h
+GatePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+GatePackage.o: /usr/include/bits/types.h /usr/include/libio.h
+GatePackage.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+Globals.o: /Include/histotypes.h /usr/include/string.h
+Globals.o: /usr/include/features.h /usr/include/sys/cdefs.h
+Globals.o: /usr/include/gnu/stubs.h
+Globals.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Globals.o: /usr/include/math.h /usr/include/bits/huge_val.h
+Globals.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+Globals.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+MySpecTclApp.o: MySpecTclApp.h TclGrammerApp.h EventProcessor.h
+MySpecTclApp.o: /Include/histotypes.h /usr/include/string.h
+MySpecTclApp.o: /usr/include/features.h /usr/include/sys/cdefs.h
+MySpecTclApp.o: /usr/include/gnu/stubs.h
+MySpecTclApp.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+MySpecTclApp.o: /usr/include/math.h /usr/include/bits/huge_val.h
+MySpecTclApp.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+MySpecTclApp.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+MySpecTclApp.o: TCLAnalyzer.h
+ParameterCommand.o: ParameterCommand.h ParameterPackage.h /usr/include/tcl.h
+ParameterCommand.o: /usr/include/stdio.h /usr/include/features.h
+ParameterCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+ParameterCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+ParameterCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+ParameterCommand.o: /usr/include/bits/types.h /usr/include/libio.h
+ParameterCommand.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+ParameterCommand.o: /usr/include/string.h /usr/include/malloc.h
+ParameterPackage.o: ParameterPackage.h TCLHistogrammer.h ./PseudoScript.h
+ParameterPackage.o: /Include/NamedItem.h /Include/histotypes.h
+ParameterPackage.o: /usr/include/string.h /usr/include/features.h
+ParameterPackage.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+ParameterPackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+ParameterPackage.o: /usr/include/math.h /usr/include/bits/huge_val.h
+ParameterPackage.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+ParameterPackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+ParameterPackage.o: /Include/Exception.h ParameterCommand.h PseudoCommand.h
+ParameterPackage.o: /usr/include/assert.h /usr/include/stdio.h
+ParameterPackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+ParameterPackage.o: /usr/include/bits/types.h /usr/include/libio.h
+ParameterPackage.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+PseudoCommand.o: PseudoCommand.h ParameterPackage.h /Include/histotypes.h
+PseudoCommand.o: /usr/include/string.h /usr/include/features.h
+PseudoCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+PseudoCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+PseudoCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
+PseudoCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+PseudoCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+PseudoScript.o: ./PseudoScript.h /Include/NamedItem.h /Include/histotypes.h
+PseudoScript.o: /usr/include/string.h /usr/include/features.h
+PseudoScript.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+PseudoScript.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+PseudoScript.o: /usr/include/math.h /usr/include/bits/huge_val.h
+PseudoScript.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+PseudoScript.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+PseudoScript.o: /Include/Exception.h /usr/include/stdio.h
+PseudoScript.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+PseudoScript.o: /usr/include/bits/types.h /usr/include/libio.h
+PseudoScript.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+ReadCommand.o: ReadCommand.h /usr/include/sys/stat.h /usr/include/features.h
+ReadCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+ReadCommand.o: /usr/include/bits/types.h
+ReadCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+ReadCommand.o: /usr/include/bits/stat.h /usr/include/sys/types.h
+ReadCommand.o: /usr/include/time.h /usr/include/endian.h
+ReadCommand.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+ReadCommand.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+ReadCommand.o: /usr/include/sys/sysmacros.h WriteCommand.h
+ReadCommand.o: /Include/histotypes.h /usr/include/string.h
+ReadCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
+ReadCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+ReadCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+ReadCommand.o: SpectrumPackage.h /usr/include/fcntl.h
+ReadCommand.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
+ReadCommand.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
+ReadCommand.o: /usr/include/getopt.h /usr/include/errno.h
+ReadCommand.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
+ReadCommand.o: /usr/include/asm/errno.h /Include/ErrnoException.h
+ReadCommand.o: /Include/Exception.h
 RunControlPackage.o: RunControlPackage.h StartRun.h StopRun.h Globals.h
-SpectrumCommand.o: SpectrumCommand.h SpectrumPackage.h
-SpectrumCommand.o: /usr/local/include/tcl.h /usr/include/stdio.h
-SpectrumCommand.o: /usr/include/standards.h /usr/include/sys/seek.h
-SpectrumCommand.o: /usr/include/va_list.h /usr/include/sys/types.h
-SpectrumCommand.o: /usr/include/mach/machine/vm_types.h
-SpectrumCommand.o: /usr/include/sys/select.h /usr/include/getopt.h
-SpectrumCommand.o: /usr/include/sys/limits.h
-SpectrumCommand.o: /usr/include/sys/machine/machlimits.h
-SpectrumCommand.o: /usr/include/sys/syslimits.h
-SpectrumCommand.o: /usr/include/sys/machine/machtime.h
-SpectrumCommand.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
-SpectrumCommand.o: /usr/local/include/tclDecls.h /usr/include/string.h
-SpectrumCommand.o: /usr/include/strings.h /usr/include/malloc.h
+SpectrumCommand.o: SpectrumCommand.h /Include/histotypes.h
+SpectrumCommand.o: /usr/include/string.h /usr/include/features.h
+SpectrumCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+SpectrumCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+SpectrumCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
+SpectrumCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+SpectrumCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+SpectrumCommand.o: SpectrumPackage.h /usr/include/tcl.h /usr/include/stdio.h
+SpectrumCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+SpectrumCommand.o: /usr/include/bits/types.h /usr/include/libio.h
+SpectrumCommand.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+SpectrumCommand.o: /usr/include/malloc.h
 SpectrumPackage.o: SpectrumPackage.h ClearCommand.h BindCommand.h
-SpectrumPackage.o: UnbindCommand.h SpectrumCommand.h ChanCommand.h Globals.h
-SpectrumPackage.o: WriteCommand.h ReadCommand.h /usr/include/sys/stat.h
-SpectrumPackage.o: /usr/include/standards.h /usr/include/sys/types.h
-SpectrumPackage.o: /usr/include/mach/machine/vm_types.h
-SpectrumPackage.o: /usr/include/sys/select.h /usr/include/sys/mode.h
-SpectrumPackage.o: /usr/local/include/tcl.h /usr/include/stdio.h
-SpectrumPackage.o: /usr/include/sys/seek.h /usr/include/va_list.h
-SpectrumPackage.o: /usr/include/getopt.h /usr/include/sys/limits.h
-SpectrumPackage.o: /usr/include/sys/machine/machlimits.h
-SpectrumPackage.o: /usr/include/sys/syslimits.h
-SpectrumPackage.o: /usr/include/sys/machine/machtime.h
-SpectrumPackage.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
-SpectrumPackage.o: /usr/local/include/tclDecls.h /usr/include/assert.h
-SpectrumPackage.o: /usr/include/math.h /usr/include/stdlib.h
-SpectrumPackage.o: /usr/include/string.h /usr/include/strings.h
-SpectrumPackage.o: /usr/include/errno.h /usr/include/limits.h
+SpectrumPackage.o: UnbindCommand.h SpectrumCommand.h /Include/histotypes.h
+SpectrumPackage.o: /usr/include/string.h /usr/include/features.h
+SpectrumPackage.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+SpectrumPackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+SpectrumPackage.o: /usr/include/math.h /usr/include/bits/huge_val.h
+SpectrumPackage.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+SpectrumPackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+SpectrumPackage.o: ChanCommand.h Globals.h WriteCommand.h ReadCommand.h
+SpectrumPackage.o: /usr/include/sys/stat.h /usr/include/bits/types.h
+SpectrumPackage.o: /usr/include/bits/stat.h /usr/include/sys/types.h
+SpectrumPackage.o: /usr/include/time.h /usr/include/endian.h
+SpectrumPackage.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+SpectrumPackage.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+SpectrumPackage.o: /usr/include/sys/sysmacros.h /Include/Exception.h
+SpectrumPackage.o: /Include/RangeError.h /Include/ErrnoException.h
+SpectrumPackage.o: /usr/include/errno.h /usr/include/bits/errno.h
+SpectrumPackage.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
+SpectrumPackage.o: /usr/include/tcl.h /usr/include/stdio.h
+SpectrumPackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+SpectrumPackage.o: /usr/include/libio.h /usr/include/_G_config.h
+SpectrumPackage.o: /usr/include/bits/stdio_lim.h /usr/include/assert.h
+SpectrumPackage.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+SpectrumPackage.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+SpectrumPackage.o: /usr/include/bits/posix2_lim.h
 StartRun.o: StartRun.h RunControlPackage.h
 StopRun.o: StopRun.h RunControlPackage.h
-TCLAnalyzer.o: TCLAnalyzer.h EventProcessor.h
-TCLHistogrammer.o: TCLHistogrammer.h PseudoScript.h /usr/include/assert.h
-TCLHistogrammer.o: /usr/include/standards.h
-TapeCommand.o: TapeCommand.h DataSourcePackage.h /usr/include/string.h
-TapeCommand.o: /usr/include/standards.h /usr/include/sys/types.h
-TapeCommand.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
-TapeCommand.o: /usr/include/strings.h
-TclGrammerApp.o: TclGrammerApp.h /usr/include/limits.h /usr/include/assert.h
-TclGrammerApp.o: /usr/include/standards.h TCLHistogrammer.h PseudoScript.h
-TclGrammerApp.o: Globals.h RunControlPackage.h ParameterPackage.h
-TclGrammerApp.o: SpectrumPackage.h DataSourcePackage.h GatePackage.h
-TclGrammerApp.o: GateCommand.h GateFactory.h ApplyCommand.h UngateCommand.h
-TclGrammerApp.o: TCLAnalyzer.h XamineEventHandler.h /usr/local/include/tk.h
-TclGrammerApp.o: /usr/local/include/tcl.h /usr/include/stdio.h
-TclGrammerApp.o: /usr/include/sys/seek.h /usr/include/va_list.h
-TclGrammerApp.o: /usr/include/sys/types.h
-TclGrammerApp.o: /usr/include/mach/machine/vm_types.h
-TclGrammerApp.o: /usr/include/sys/select.h /usr/include/getopt.h
-TclGrammerApp.o: /usr/include/sys/limits.h
-TclGrammerApp.o: /usr/include/sys/machine/machlimits.h
-TclGrammerApp.o: /usr/include/sys/syslimits.h
-TclGrammerApp.o: /usr/include/sys/machine/machtime.h
-TclGrammerApp.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
-TclGrammerApp.o: /usr/local/include/tclDecls.h /usr/include/X11/Xlib.h
-TclGrammerApp.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
-TclGrammerApp.o: /usr/include/X11/Xosdefs.h /usr/include/stddef.h
-TclGrammerApp.o: /usr/local/include/tkDecls.h /usr/include/stdlib.h
-TclGrammerApp.o: /usr/include/sys/sysinfo.h
-UnbindCommand.o: UnbindCommand.h SpectrumPackage.h /usr/include/string.h
-UnbindCommand.o: /usr/include/standards.h /usr/include/sys/types.h
-UnbindCommand.o: /usr/include/mach/machine/vm_types.h
-UnbindCommand.o: /usr/include/sys/select.h /usr/include/strings.h
+TCLAnalyzer.o: TCLAnalyzer.h EventProcessor.h /Include/histotypes.h
+TCLAnalyzer.o: /usr/include/string.h /usr/include/features.h
+TCLAnalyzer.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+TCLAnalyzer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+TCLAnalyzer.o: /usr/include/math.h /usr/include/bits/huge_val.h
+TCLAnalyzer.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+TCLAnalyzer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+TCLAnalyzer.o: /Include/buftypes.h
+TCLHistogrammer.o: TCLHistogrammer.h ./PseudoScript.h /Include/NamedItem.h
+TCLHistogrammer.o: /Include/histotypes.h /usr/include/string.h
+TCLHistogrammer.o: /usr/include/features.h /usr/include/sys/cdefs.h
+TCLHistogrammer.o: /usr/include/gnu/stubs.h
+TCLHistogrammer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+TCLHistogrammer.o: /usr/include/math.h /usr/include/bits/huge_val.h
+TCLHistogrammer.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+TCLHistogrammer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+TCLHistogrammer.o: /Include/Exception.h /usr/include/assert.h
+TapeCommand.o: TapeCommand.h DataSourcePackage.h /Include/histotypes.h
+TapeCommand.o: /usr/include/string.h /usr/include/features.h
+TapeCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+TapeCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+TapeCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
+TapeCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+TapeCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+TclGrammerApp.o: TclGrammerApp.h /usr/include/limits.h
+TclGrammerApp.o: /usr/include/features.h /usr/include/sys/cdefs.h
+TclGrammerApp.o: /usr/include/gnu/stubs.h /usr/include/bits/posix1_lim.h
+TclGrammerApp.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+TclGrammerApp.o: /usr/include/bits/posix2_lim.h /usr/include/assert.h
+TclGrammerApp.o: TCLHistogrammer.h ./PseudoScript.h /Include/NamedItem.h
+TclGrammerApp.o: /Include/histotypes.h /usr/include/string.h
+TclGrammerApp.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+TclGrammerApp.o: /usr/include/math.h /usr/include/bits/huge_val.h
+TclGrammerApp.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+TclGrammerApp.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h Globals.h
+TclGrammerApp.o: RunControlPackage.h ParameterPackage.h SpectrumPackage.h
+TclGrammerApp.o: DataSourcePackage.h GatePackage.h GateCommand.h
+TclGrammerApp.o: GateFactory.h ApplyCommand.h UngateCommand.h TCLAnalyzer.h
+TclGrammerApp.o: XamineEventHandler.h /usr/include/tk.h /usr/include/tcl.h
+TclGrammerApp.o: /usr/include/stdio.h
+TclGrammerApp.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+TclGrammerApp.o: /usr/include/bits/types.h /usr/include/libio.h
+TclGrammerApp.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+TclGrammerApp.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
+TclGrammerApp.o: /usr/include/time.h /usr/include/endian.h
+TclGrammerApp.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+TclGrammerApp.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+TclGrammerApp.o: /usr/include/sys/sysmacros.h /usr/include/X11/X.h
+TclGrammerApp.o: /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h
+TclGrammerApp.o: /Include/buftypes.h /usr/include/stdlib.h
+TclGrammerApp.o: /usr/include/alloca.h /usr/include/sys/sysinfo.h
+TclGrammerApp.o: /usr/include/linux/kernel.h
+UnbindCommand.o: UnbindCommand.h SpectrumPackage.h /Include/histotypes.h
+UnbindCommand.o: /usr/include/string.h /usr/include/features.h
+UnbindCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+UnbindCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+UnbindCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
+UnbindCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+UnbindCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 UngateCommand.o: UngateCommand.h GatePackage.h GateCommand.h GateFactory.h
-UngateCommand.o: ApplyCommand.h /usr/include/assert.h
-UngateCommand.o: /usr/include/standards.h /usr/include/string.h
-UngateCommand.o: /usr/include/sys/types.h
-UngateCommand.o: /usr/include/mach/machine/vm_types.h
-UngateCommand.o: /usr/include/sys/select.h /usr/include/strings.h
-WriteCommand.o: WriteCommand.h SpectrumPackage.h /usr/include/errno.h
-WriteCommand.o: /usr/include/standards.h /usr/include/string.h
-WriteCommand.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-WriteCommand.o: /usr/include/sys/select.h /usr/include/strings.h
-WriteCommand.o: /usr/include/fcntl.h /usr/include/sys/fcntl.h
-WriteCommand.o: /usr/include/sys/seek.h /usr/include/sys/mode.h
-WriteCommand.o: /usr/include/sys/stat.h /usr/include/stdio.h
-WriteCommand.o: /usr/include/va_list.h /usr/include/getopt.h
-WriteCommand.o: /usr/include/sys/limits.h
-WriteCommand.o: /usr/include/sys/machine/machlimits.h
-WriteCommand.o: /usr/include/sys/syslimits.h
-WriteCommand.o: /usr/include/sys/machine/machtime.h
-WriteCommand.o: /usr/include/sys/rt_limits.h /usr/include/unistd.h
-WriteCommand.o: /usr/include/sys/access.h
-XamineEventHandler.o: XamineEventHandler.h /usr/local/include/tk.h
-XamineEventHandler.o: /usr/local/include/tcl.h /usr/include/stdio.h
-XamineEventHandler.o: /usr/include/standards.h /usr/include/sys/seek.h
-XamineEventHandler.o: /usr/include/va_list.h /usr/include/sys/types.h
-XamineEventHandler.o: /usr/include/mach/machine/vm_types.h
-XamineEventHandler.o: /usr/include/sys/select.h /usr/include/getopt.h
-XamineEventHandler.o: /usr/include/sys/limits.h
-XamineEventHandler.o: /usr/include/sys/machine/machlimits.h
-XamineEventHandler.o: /usr/include/sys/syslimits.h
-XamineEventHandler.o: /usr/include/sys/machine/machtime.h
-XamineEventHandler.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
-XamineEventHandler.o: /usr/local/include/tclDecls.h /usr/include/X11/Xlib.h
-XamineEventHandler.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
-XamineEventHandler.o: /usr/include/X11/Xosdefs.h /usr/include/stddef.h
-XamineEventHandler.o: /usr/local/include/tkDecls.h GateFactory.h
-XamineEventHandler.o: GatePackage.h GateCommand.h ApplyCommand.h
-XamineEventHandler.o: UngateCommand.h /usr/include/assert.h
+UngateCommand.o: ApplyCommand.h /usr/include/assert.h /usr/include/features.h
+UngateCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+UngateCommand.o: /usr/include/string.h
+UngateCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+UserCode.o: /Include/histotypes.h /usr/include/string.h
+UserCode.o: /usr/include/features.h /usr/include/sys/cdefs.h
+UserCode.o: /usr/include/gnu/stubs.h
+UserCode.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+UserCode.o: /usr/include/math.h /usr/include/bits/huge_val.h
+UserCode.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+UserCode.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+WriteCommand.o: WriteCommand.h SpectrumPackage.h /Include/ErrnoException.h
+WriteCommand.o: /Include/Exception.h /Include/histotypes.h
+WriteCommand.o: /usr/include/string.h /usr/include/features.h
+WriteCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+WriteCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+WriteCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
+WriteCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+WriteCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+WriteCommand.o: /usr/include/errno.h /usr/include/bits/errno.h
+WriteCommand.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
+WriteCommand.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
+WriteCommand.o: /usr/include/sys/types.h /usr/include/bits/types.h
+WriteCommand.o: /usr/include/time.h /usr/include/endian.h
+WriteCommand.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+WriteCommand.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+WriteCommand.o: /usr/include/sys/sysmacros.h /usr/include/sys/stat.h
+WriteCommand.o: /usr/include/bits/stat.h /usr/include/stdio.h
+WriteCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+WriteCommand.o: /usr/include/libio.h /usr/include/_G_config.h
+WriteCommand.o: /usr/include/bits/stdio_lim.h /usr/include/unistd.h
+WriteCommand.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
+WriteCommand.o: /usr/include/getopt.h
+XamineEventHandler.o: XamineEventHandler.h /usr/include/tk.h
+XamineEventHandler.o: /usr/include/tcl.h /usr/include/stdio.h
+XamineEventHandler.o: /usr/include/features.h /usr/include/sys/cdefs.h
+XamineEventHandler.o: /usr/include/gnu/stubs.h
+XamineEventHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+XamineEventHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+XamineEventHandler.o: /usr/include/bits/types.h /usr/include/libio.h
+XamineEventHandler.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+XamineEventHandler.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
+XamineEventHandler.o: /usr/include/time.h /usr/include/endian.h
+XamineEventHandler.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+XamineEventHandler.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+XamineEventHandler.o: /usr/include/sys/sysmacros.h /usr/include/X11/X.h
+XamineEventHandler.o: /usr/include/X11/Xfuncproto.h
+XamineEventHandler.o: /usr/include/X11/Xosdefs.h GateFactory.h GatePackage.h
+XamineEventHandler.o: GateCommand.h ApplyCommand.h UngateCommand.h
+XamineEventHandler.o: /Include/Exception.h /Include/histotypes.h
+XamineEventHandler.o: /usr/include/string.h /usr/include/math.h
+XamineEventHandler.o: /usr/include/bits/huge_val.h
+XamineEventHandler.o: /usr/include/bits/mathdef.h
+XamineEventHandler.o: /usr/include/bits/mathcalls.h
+XamineEventHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+XamineEventHandler.o: /usr/include/assert.h

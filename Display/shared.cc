@@ -138,6 +138,9 @@ static spec_shared *mapmemory(char *name, unsigned int size)
 #elif defined(CYGWIN)
 {
   HANDLE hMapFile;
+  LPVOID lpErrorMessage;
+
+  /*   Works on NT but not 95/98 ???
   size += getpagesize()*64;
   hMapFile = CreateFileMapping((HANDLE)NULL,
 			       (LPSECURITY_ATTRIBUTES)NULL,
@@ -145,7 +148,23 @@ static spec_shared *mapmemory(char *name, unsigned int size)
 			       (DWORD)0,
 			       (DWORD)size,
 			       (LPCTSTR)name);
-  assert(hMapFile);		// Require that we get a handle back...
+  */
+  hMapFile = OpenFileMapping(FILE_MAP_READ | FILE_MAP_WRITE,
+			     FALSE, (LPCTSTR)name);
+  if(! hMapFile ){
+    FormatMessage(
+		  FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		  FORMAT_MESSAGE_FROM_SYSTEM      |
+		  FORMAT_MESSAGE_IGNORE_INSERTS,
+		  NULL, GetLastError(),
+		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		  (LPSTR) &lpErrorMessage, 0, NULL);
+    fprintf(stderr, "OpenFileMapping Failed:\n%s", lpErrorMessage);
+    fflush(stderr);
+    LocalFree(lpErrorMessage);
+    exit(-1);
+  }
+
   void *pMemory = MapViewOfFile(hMapFile,
 				FILE_MAP_ALL_ACCESS,
 				(DWORD)0, (DWORD)0,
