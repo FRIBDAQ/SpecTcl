@@ -423,17 +423,38 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //        Array of pointers to the parameters in the tail of the command.
 //
 
-  // The tail of the command must contain a parameter and two integers:
-  // the two integers are the parameter Id and the Parameter resolution in
-  // bits.
+  // The tail of the command can be any of the folowing:
+  // The parameter name
+  // A parameter id that defines the index within the event array that
+  //    contains the parameter data.
+  // An optional full scale value that represents the number of bits the
+  //    raw parameter has (leave this off for 'real units' parameters).
+  // An optional full scale value  as above and a three element list containing
+  //    information about the meaningful range of values the parameter takes:
+  //    low value in real units, high value in real units and units.
+  //    (intended for automatically calibrating integer parameters).
+  // A single optional units value: for real parameters describing the units
+  //    of the parameter.
+  // No additional parameters for a unitless real parameter.
+  //  Examples:
+  //       name id bits       ;# Integer parameter with bits resolution.
+  //       name id bits {low hi units} ;# Integer scalable parameter with units
+  //       name id units      ;# Real parameter with units.
+  //       name id            ;# Real parameter without units.
 
-  if((nArg != 3) && (nArg != 4)) {
+  if((nArg != 2) && (nArg != 3) && (nArg != 4)) {
     Usage(rInterp, rResult);
     return TCL_ERROR;
   }
   char* pName = pArg[0];
   Int_t nId;
   Int_t nResolution;
+
+  Int_t  nListElements;
+  char**  ppListElements;
+  Float_t nLow;
+  Float_t nHi;
+  char*   pUnits = (char*)kpNULL;
   
   //  To simplify error handling, the parsing of the id and resolution
   //  values is done within a try catch block with the CTCLResult reference
@@ -455,17 +476,22 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
       rResult += "\n";
       throw rResult;
     }
-    if(ParseInt(pArg[2], &nResolution) != TCL_OK) {
-      rResult = "Unable to parse parameter resolution as integer from ";
-      rResult += pArg[2];
-      rResult += "\n";
-      throw rResult;
-    }
-    if(nResolution <= 0) {	// Note that resolution > 0
-      rResult = "Parameter resolution must be greater than zero but is: ";
-      rResult += pArg[2];
-      rResult += "\n";
-      throw rResult;
+
+    if(nArg > 2) {
+      
+  
+      if(ParseInt(pArg[2], &nResolution) != TCL_OK) { // pArg[2] are units.
+	pUnits = pArg[2];
+
+      }
+      else {
+	if(nResolution <= 0) {	// Note that resolution > 0
+	  rResult = "Parameter resolution must be greater than zero but is: ";
+	  rResult += pArg[2];
+	  rResult += "\n";
+	  throw rResult;
+	}
+      }
     }
   }
   catch (CTCLResult& rExcept) {
@@ -475,11 +501,6 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   // If there is range information, then the parameter has some sort
   // of transformation mapping applied to it.
-  Int_t  nListElements;
-  char**  ppListElements;
-  Float_t nLow;
-  Float_t nHi;
-  char*   pUnits;
 
   if(nArg == 4) {
     CTCLList lRangeList(&rInterp, pArg[3]);
@@ -489,6 +510,8 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
     pUnits = ppListElements[2];
   }
 
+
+
   // At this point, the command parameters are all checked and we
   // can call back to our package manager to attemp the creation.
   // The Package manager will return the appropriate result string and
@@ -496,14 +519,33 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //
   CParameterPackage& rPackage = (CParameterPackage&)getMyPackage();
 
+  // What we do now depends on how we parsed the parameter.
+  // nArg == 2 : Real unitless parameter.
+  // nArg == 3 &&  pUnits == kpNULL Integer parameter with bit resolution.
+  // nArg == 3 &&  pUnits != kpNULL Real parameter with units.
+  // nArg == 4 : Integer parameter with scaling information.
   Int_t added;
-  if(nArg == 3) {
+
+  if(nArg == 2) {		// Unitless real.
+    added = rPackage.AddParameter(rResult, pName, nId);
+  }
+  else if ( (nArg == 3) && (pUnits == kpNULL)) { // Integer with resolution.
     added = rPackage.AddParameter(rResult, 
 				  pName, nId, nResolution);
+    
   }
-  else {
+  else if ( (nArg == 3) && (pUnits != kpNULL )) { // Real with units.
+    added = rPackage.AddParameter(rResult,
+				  pName, nId, pUnits);
+  }
+  else if (( nArg == 4)) {	                  // Integer with scale/units
     added = rPackage.AddParameter(rResult, pName, nId, nResolution,
 				  nLow, nHi, pUnits);
+  }
+  else {			// Error bugcheck error message and continue.
+    rResult  = "BUG detected in CParameterCommand::Create - can't figure out";
+    rResult += " how to create the parameter";
+    added = TCL_ERROR;
   }
   
   return added;
