@@ -92,6 +92,7 @@ class CFilterEventProcessor : public CEventProcessor {
   void incr_offset(UInt_t);
 
   vector<CEvent*>* getEvents();
+
 }; // CFilterEventProcessor.
 
 #endif

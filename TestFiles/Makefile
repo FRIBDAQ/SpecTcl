@@ -99,10 +99,12 @@ have_convert = yes
 
 INCLUDES = -I. -I../EventSource -I../TCL -I../Exception -I../Utility -I/usr/include/tcl -I../Tape
 # LDADD = -lTclGrammerCommands -lXamine -lGates -lSorting -lXplus -lAnalysis -lEventSource -ltclPlus -lException -lSpecio -lreplace -ltape -lm
-LDADD = -lAnalysis -lEventSource -ltclPlus -lException -ltape
+LDADD = -lFilter -lAnalysis   -lEventSource -ltclPlus -lException -ltape -lTclGrammerCommands
 
-LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../Exception -L../Tape
-# LDFLAGS = -L. -L../SpecTcl -L../Display -L../Gates -L../Sorter -L../Xamine -L../Events -L../EventSource -L../TCL -L../Exception -L../SpectrumIO -L../Replace -L../Tape
+LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../Exception -L../Tape 	-L../Filter 	-L../SpecTcl
+
+
+# LDFLAGS = -L. -L../SpecTcl -L../Display -L../Gates -L../Sorter -L../Xamine -L../Events -L../EventSource -L../TCL -L../Exception -L../SpectrumIO -L../Replace -L../Tape 
 
 bin_PROGRAMS = testfile ltwrite
 

@@ -114,7 +114,8 @@ SpecTcl_DEPENDENCIES = libTclGrammerCommands.la
 SpecTcl_SOURCES = MySpecTclApp.cpp 	AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h 	GateCommand.h GateFactory.h GateFactoryException.h GatePackage.h 	Globals.h MySpecTclApp.h ParameterCommand.h ParameterPackage.h 	PseudoCommand.h PseudoScript.h ReadCommand.h RunControlPackage.h 	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h 	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h 	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h
 
 
-SpecTcl_LDADD = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis -lEventSource -lSpecio -ltclPlus -lException -lXamine -lFilter -ltape -lXt -lX11
+SpecTcl_LDADD = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis 	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lXamine  -ltape -lXt -lX11
+
 SpecTcl_LDFLAGS = -L. @TCL_LDFLAGS@ @XLIBSW@ -L../SpectrumIO -L../Tape -L../Sorter -L../Xamine -L../Display -L../Gates -L../EventSource -L../Events -L../TCL -L../Exception -L../Filter
 
 EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl classbreakdown.WC classbreakdown.omt mapped.tcl paramtest.tcl setup.tcl
