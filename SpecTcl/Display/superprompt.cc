@@ -519,7 +519,7 @@ int SuperPrompt::Match(XtPointer cd)
   */
 
   if(sscanf(text, "%d", &specid) != 1) {      /* It was not a  number.  */
-    if(sscanf(text, "[%3d]", &specid) != 1) { /* Not bracket enclosed.   */
+    if(sscanf(text, "[%05d]", &specid) != 1) { /* Not bracket enclosed.   */
       if((specid = Xamine_MatchSpecName(text)) < 0) {
 	XtFree(text);
 	return 0;

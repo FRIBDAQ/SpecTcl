@@ -210,3 +210,5 @@ January 11, 2005
 January 12, 2005
     - swrite file creation needs an ios::trunc else existing files will 
       leave postpended data if they were larger.
+January 13, 2005
+    - Xamine superposition fix for id's > 999
