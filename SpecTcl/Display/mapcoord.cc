@@ -372,7 +372,7 @@ float Xamine_XChanToMapped(int specno, int chan)
   if(xdim == 0)
     return -1.0;
 
-  float step_size = (xhi - xlo + 1) / xdim;
+  float step_size = (xhi - xlo) / xdim;
   return (step_size * chan + xlo);
 }
 
@@ -399,6 +399,6 @@ float Xamine_YChanToMapped(int specno, int chan)
   if(ydim == 0)
     return -1.0;
 
-  float step_size = (yhi - ylo + 1) / ydim;
+  float step_size = (yhi - ylo) / ydim;
   return (step_size * chan + ylo);
 }
