@@ -175,7 +175,6 @@ void CFilterBufferDecoder::operator()(UInt_t nBytes,
     }
   }
 
-  cerr << "*** Leaving CFilterBufferDecoder::operator(). Now running CBufferDecoder::operator()." << endl;
   CBufferDecoder::operator()(nBytes, pBuffer, rAnalyzer);
   return; // Exit.
 };
@@ -218,7 +217,7 @@ UInt_t CFilterBufferDecoder::getPatternCount() { // Just a stub.
 };
 
 UInt_t CFilterBufferDecoder::getBufferType() { // Just a stub.
-  return 0; // 0 in order to trigger OnOther().
+  return 0; // 0 in order to trigger CAnalyzer::OnOther().
 };
 
 void CFilterBufferDecoder::getByteOrder(Short_t& Signature16, Int_t& Signature32) { // Just a stub.

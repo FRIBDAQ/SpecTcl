@@ -51,7 +51,7 @@ Bool_t CFilterEventProcessor::operator()(const Address_t pData,
   m_pBuffer = (char*)kpNULL;
   m_nOffset = 0;
   m_sTag = "";
-  m_nValidParameters = 0;
+  //m_nValidParameters = 0; // NO! The buffer need NOT have header information at the beginning so we will use what is already specified.
   m_pBitMask = (char*)kpNULL;
 
   Float_t nParameter = 0;
@@ -115,7 +115,6 @@ Bool_t CFilterEventProcessor::operator()(const Address_t pData,
       continue;
     } else if(m_sTag == "endofrecord") {
       m_sTag = "";
-      m_nValidParameters = 0;
       break; // Break out of loop.
     } else {
       cerr << "Error: Invalid tag type. (" << m_sTag << ")" << endl;

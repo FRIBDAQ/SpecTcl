@@ -458,9 +458,10 @@ int CAttachCommand::AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[]) {
 
 	  if(gpAnalyzer) {
 	    gpAnalyzer->AttachDecoder(*gpBufferDecoder);
-
+#if 0 // Commented-out.
 	    CFilterEventProcessor* pFilterEventProcessor = new CFilterEventProcessor;
 	    ((CTclAnalyzer*)gpAnalyzer)->AddEventProcessor((CEventProcessor&)(*pFilterEventProcessor));
+#endif
 	  } else {
 	    rResult = "Error: Analyzer not present.\n";
 	    return TCL_ERROR;
