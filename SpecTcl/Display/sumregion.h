@@ -295,6 +295,12 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1  2004/11/29 16:55:37  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
+  Revision 4.3.4.1  2004/10/20 15:47:42  ron-fox
+  Misc changes resulting from update merges and pedantic finds.
+
   Revision 4.3  2003/08/25 16:25:31  ron-fox
   Initial starting point for merge with filtering -- this probably does not
   generate a goo spectcl build.
@@ -413,6 +419,14 @@ class AcceptSummingRegion : public ObjectInput {
     NextPoint->UnManage();
     ObjectInput::UnManage();
   }
+  // Callback relay functionsl
+
+private:
+  static void CancelRelay(XMWidget *w, XtPointer ud, XtPointer cd);
+  static void ApplyRelay(XMWidget *w, XtPointer ud, XtPointer cd);
+  static void OkRelay(XMWidget *w, XtPointer ud, XtPointer cd);
+  static void TextPointRelay(XMWidget *w, XtPointer ud, XtPointer cd);
+  static void Delete_relay(XMWidget *w, XtPointer ud, XtPointer cd);
 
 };
 

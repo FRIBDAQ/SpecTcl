@@ -5,6 +5,9 @@
 #   on stdout.
 #
 #   $Log$
+#   Revision 5.1  2004/11/29 16:56:21  ron-fox
+#   Begin port to 3.x compilers calling this 3.0
+#
 #   Revision 1.1  2003/09/03 17:35:05  ron-fox
 #   Added new contributed item:  $SpecTclHome/contrib/grace.tcl exports 1-d spectra to xmgrace Makefile.am updated to install this.
 #   grace.tcl - script to setup the interface:

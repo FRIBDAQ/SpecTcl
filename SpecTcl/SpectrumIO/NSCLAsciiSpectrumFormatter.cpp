@@ -307,9 +307,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 /*
   Change Log:
   $Log$
-  Revision 4.7  2004/08/06 13:40:29  ron-fox
-  Merge with SpecTcl-2.2 prior to splitting off a linux-2.6/gcc-3.3 port
-  branch.
+  Revision 5.1  2004/11/29 16:56:13  ron-fox
+  Begin port to 3.x compilers calling this 3.0
 
   Revision 4.6.4.1  2004/07/01 13:54:42  ron-fox
   Defect 135: swrite does not properly preserve channel -> spectrum mappings.

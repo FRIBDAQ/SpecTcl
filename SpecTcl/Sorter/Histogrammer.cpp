@@ -303,6 +303,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 5.1  2004/11/29 16:56:07  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
+  Revision 4.10.4.1  2004/10/27 12:38:40  ron-fox
+  optimize performance of Spectrum1DL histogram increments.  Total
+  performance gain was a factor of 2.8.  The 'unusual' modifications
+  are documented via comments that indicate they were suggested by profile
+  data.
+
   Revision 4.10  2003/11/07 21:49:07  ron-fox
   unconditionally include <config.h>
 
@@ -1694,9 +1703,9 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     case ke1D:
     case keG1D: 
       {
-	pCut->AddPoint(pSpectrum->ParameterToAxis(0, rCut.getLow()),  
+	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getLow()),  
 		       0);
-	pCut->AddPoint(pSpectrum->ParameterToAxis(0, rCut.getHigh()), 
+	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getHigh()), 
 		       0);
 	return pCut;
 	break;
@@ -1760,8 +1769,8 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     
     for(UInt_t i = 0; i < pts.size(); i++) {
       
-      CPoint pt(pSpectrum->ParameterToAxis(0, pts[i].X()),
-		pSpectrum->ParameterToAxis(nYIndex, pts[i].Y()));
+      CPoint pt((int)pSpectrum->ParameterToAxis(0, pts[i].X()),
+		(int)pSpectrum->ParameterToAxis(nYIndex, pts[i].Y()));
       pXGate->AddPoint(pt);
       
     }

@@ -298,8 +298,14 @@ DAMAGES.
 /* 
    Change Log:
    $Log$
+   Revision 5.1  2004/11/29 16:56:14  ron-fox
+   Begin port to 3.x compilers calling this 3.0
+
    Revision 4.4  2003/03/25 12:00:45  ron-fox
-   Added Change log comment generated from the CVS $Log$ tag.
+   Added Change log comment generated from the CVS $Log$
+   Added Change log comment generated from the CVS Revision 5.1  2004/11/29 16:56:14  ron-fox
+   Added Change log comment generated from the CVS Begin port to 3.x compilers calling this 3.0
+   Added Change log comment generated from the CVS tag.
 
 
 */

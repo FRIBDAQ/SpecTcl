@@ -292,6 +292,16 @@
 #
 #   Change log:
 #    $Log$
+#    Revision 5.1  2004/11/29 16:56:05  ron-fox
+#    Begin port to 3.x compilers calling this 3.0
+#
+#    Revision 4.2.4.3  2004/10/22 18:22:10  ron-fox
+#    Get quoting right in clean proc.
+#
+#    Revision 4.2.4.2  2004/10/22 18:09:36  ron-fox
+#    Ensure that parameters, spectra and gates get written to file correctly,
+#    and read back, even with all kinds of weird characters in names.
+#
 #    Revision 4.2  2003/06/19 18:57:29  ron-fox
 #    Make properly work with scaled parameters, real parameters and axis scales.
 #    The gate dependency computation was simplified from a treebuild/walk to a recursive
@@ -300,6 +310,18 @@
 #
 
 global SpecTclHome
+
+
+# Utility proc:  wraps a SpecTcl name (parameter, spectrum gate}
+#   in a way that all sorts of special characters are allowed.
+#   The ', ", { } \ $ characters are prepended with \.
+#   The entire string is wrapped with a {} pair.
+#
+proc Wrap {input} {
+    regsub -all {[\"" "'{}\\\[\]$]} $input {\\&} output
+
+    return "{$output}"
+}
 
 #   utility proc: returns input or "{}" if input is empty string:
 
@@ -326,6 +348,29 @@ proc validparams {spectrumdesc} {
     return 1
 }
 
+# utility proc:  Return the number of parameters in a gate.
+#     This can be: 
+#        0  - If the gate does not depend directly on parameters.
+#        1  - If the gate is a slice.
+#        2  - If the gate is an ordinary 2-d gate.
+#
+# Parameters:
+#    type   - The actual type of the gate.
+# Returns:
+#     0,1,2 as described above.
+#
+proc GateParameterCount {type} {
+    set GeneralType [GeneralGateType $type]
+
+    if {$GeneralType == "slice"} {
+	return 1
+    } elseif {$GeneralType == "twod"} {
+	return 2
+    } else {
+	return 0
+    }
+}
+
 #
 #  write parameter definitions out  to file
 #  All parameters in parameter -list have the same format:
@@ -340,6 +385,7 @@ proc getparms {{destination "stdout"}} {
     set parms [parameter -list]
     foreach def $parms {
 	if {$def != "" } {
+
 	    set name     [lindex $def 0]
 	    set index    [lindex $def 1]
 	    set bits     [lindex $def 2]
@@ -347,18 +393,40 @@ proc getparms {{destination "stdout"}} {
 	    set low      [lindex $RangeAndUnits 0]
 	    set high     [lindex $RangeAndUnits 1]
 	    set units    [lindex $RangeAndUnits 2]
-#	    
-	    set command "handle \"parameter $name $index "
-	    append command [listify $bits]
-#
-	    # The axis definitions are inside of {}s and individual
-	    # missing items are replaced by {}'s.
-#
-	    append command " \{"
-	    append command " " [listify $low]
-	    append command " " [listify $high]
-	    append command " " [listify $units]
-	    append command "\}"
+	    set command "handle \"parameter [Wrap $name] $index "
+
+	    # That's all we are gaurenteed, the name and index.
+	    # If the bits are {} then that's all we got.
+
+
+	    if {$bits == ""} {
+
+		#  This is a real parameter, but may have units:
+		
+		if {$units != ""} {
+		    append command " " [Wrap $units]
+		}
+
+	    } else {
+
+		#  This is an integer def:
+
+		append command " " $bits;# Here's the resolution in bits.
+
+		#  Only put in scale factors etc. if there's low/hi:
+
+		if {($low != "") && ($high != "")} {
+		    append command " \{"
+		    append command " " [listify $low]
+		    append command " " [listify $high]
+		    append command " " [Wrap $units]
+		    append command "\}"
+		}
+	    }
+
+	     # Finish off the command and write it.
+
+
 	    append command "\""
 	    puts $destination $command
 
@@ -381,9 +449,9 @@ proc getparms {{destination "stdout"}} {
 
 proc WriteSpectrum {name type params axes datatype dest} {
     set    command "handle \"spectrum "
-    append command "$name $type \{"
+    append command "[Wrap $name] $type \{"
     foreach param   $params {
-	append command "$param "
+	append command "[Wrap $param] "
     }
     append command "\} \{"
     foreach axis $axes {
@@ -453,15 +521,22 @@ proc getspecs {{dest "stdout"}} {
 #   This array has global scope because it will also be used to 
 #   determine which binding can be written out.
 #
-
 #
-# Set the status of a gate.
-
+#
+#  Set the status of a gate.
+# Parameters:
+#    name   [in]      - The name of the gate to ste thestatus of.
+#    status [in]      - The new status value.  
+# Returns:
+#    2 element list containing status and gate description.
+# Notes:
+#   Any status type is acceptable at this stage.
 proc SetStatus {name status} {
     global Gates
     set element $Gates($name)
     set desc [lindex $element 1]
     set Gates($name) [list $status $desc]
+    return $Gates($name);
 }
 
 #
@@ -476,14 +551,22 @@ proc SetStatus {name status} {
 
 proc dependsOnDeleted {name} {
     global Gates
-    set   gate [lindex $Gates($name) 1]
+    set   gate          [lindex $Gates($name) 1]
+    set   type          [lindex $gate 1]
     set   typedependent [lindex $gate 2]
 
-    if {[string first "-Deleted Parameter-" $typedependent] != -1} {
-	return 1
-    } else {
-	return 0
+    set paramcount [GateParameterCount $type]
+
+    #  We rely on the fact that parameters are the first
+    #  items in the typedependent list:
+
+    for {set i 0} {$i < $paramcount} {incr i} {
+	if {[lindex $typedependent $i] == "-Deleted Parameter-"} {
+	    return 1
+	}
     }
+    return 0
+
    
 }
 
@@ -526,37 +609,46 @@ proc GetDependencies {def} {
 #                 coordinate pair.
 #
 proc GeneralGateType {type} {
-    switch --  $type {
-	+ - \* - "-"  - T - F - c2band {
+    switch -regexp --  $type {
+	^c2band$ -
+	^[\*\+TF-]$ {
 	    return "compound"
 	}
-	c - b {
+	^[cb]$ {
 	    return "twod"
 	}
-	gb - gc {
+	^gb$|^gc$ {
 	    return "gamma2"
 	}
-	gs {
+	^gs$ {
 	    return "gamma1"
 	}
-	s {
+	^s$ {
 	    return "slice"
 	}
     }
 }
 #
-#  Formats a gate to file... at this point, the gate is assumed to
+#  Formats a gate for output to a file.... at this point, the gate is assumed to
 #  have had all of its dependencies written..to do that WriteGate was
-#  used in theory.
+#  used in theory.  This is broken out into a separate function for  testability.
 #
-proc FormatGateToFile {name {dest stdout}} {
+# Parameters:
+#     name   [in]    - The name of the gate to format.
+# Returns:
+#     A string that can be written to the output file, that will restore the
+#     gate definition when processed by e.g. loadall.
+#
+
+proc FormatGate {name} {
     global Gates
     set description [lindex $Gates($name) 1]
     set type        [lindex $description 1]
+    set gatename    [lindex $description 0]
     
     # Everything but the gate dependent desription is format dependent:
 
-    append command handle  " "  \"gate " " [lindex $description 0]  " " \
+    append command handle  " "  \"gate " " [Wrap $gatename]  " " \
                                  $type  " "
 
     #
@@ -571,15 +663,15 @@ proc FormatGateToFile {name {dest stdout}} {
 	compound {
 	    append command "\{"
 	    foreach gate $parameters {
-		append command $gate " "
+		append command [Wrap $gate] " "
 	    }
 	    append command "\}"
 	}
 	twod {
 	    append command "\{"
-	    set params [lindex $parameters 0]
+	    set params  [lindex $parameters 0]
 	    set points  [lrange $parameters 1 end]
-	    append command [lindex $params 0] " " [lindex $params 1] " \{"
+	    append command [Wrap [lindex $params 0]] " " [Wrap [lindex $params 1]] " \{"
 	    foreach point $points {
 		append command \{ $point \} " "
 	    }
@@ -595,7 +687,7 @@ proc FormatGateToFile {name {dest stdout}} {
 		append command \{  $point \} " " 
 	    }
 	    append command "\} "
-	    append command $spectrum
+	    append command [Wrap $spectrum]
 	    append command "\}"
 	}
 	gamma1 {
@@ -603,7 +695,7 @@ proc FormatGateToFile {name {dest stdout}} {
 	    set point [lindex $parameters 0]
 	    set spectrum [lindex $parameters 1]
 	    append command "\{ " $point "\} "
-	    append command $spectrum
+	    append command [Wrap $spectrum]
 	    append command "\}"
 
 	}
@@ -611,13 +703,25 @@ proc FormatGateToFile {name {dest stdout}} {
 	    append command "\{"
 	    set param [lindex $parameters 0]
 	    set point [lindex $parameters 1]
-	    append command $param " \{" $point "\}"
+	    append command [Wrap $param] " \{" $point "\}"
 	    append command "\}"
 	}
     }
 
     append command \"
-    puts $dest $command
+
+    return $command
+}
+#
+#    Format a gate for output and write it to a file.
+# parameters:
+#    name  [in]  - Name of the gate.
+#    dest  [in]  - File descriptor open on the file (defaults to stdout if not
+#                  supplied.  Otherwise this is the return value of an [open].
+#
+#
+proc FormatGateToFile {name {dest stdout}} {
+    puts $dest [FormatGate $name]
 }
 
 #  Write a single gate.  If the gate has dependences, we selfcall 
@@ -726,7 +830,7 @@ proc getapply {{dest "stdout"}} {
 		set state [lindex $Gates($gatename) 0]
 		if {$state != "unwritable"} {
 		    set command "handle \""
-		    append command "apply $gatename $spectrum\""
+		    append command "apply [Wrap $gatename]  [Wrap $spectrum]\""
 		    puts $dest $command
 		}
 	    }
@@ -767,19 +871,22 @@ proc loadall {filename} {
 proc clean {} {
     set parlist [parameter -list]
     foreach line $parlist {
-	if [catch "parameter -delete [lindex $line 0]" res2] {
-	    puts stderr "Error deleting SpecTcl parameters: \n $res2"
+	set paramName [lindex $line 0]
+	if [catch [list parameter -delete $paramName] res2] {
+	    puts stderr "Error deleting SpecTcl parameter: $paramName \n $res2"
 	}
     }
     set speclist [spectrum -list]
     foreach line $speclist {
-	if [catch "spectrum -delete [lindex $line 1]" res2] {
-	    puts stderr "Error deleting SpecTcl spectrum: \n $res2"
+	set specName [lindex $line 1]
+	if [catch [list spectrum -delete  $specName] res2] {
+	    puts stderr "Error deleting SpecTcl spectrum  $specName: \n $res2"
 	}
     }
     set gatelist [gate -list]
     foreach line $gatelist {
-	if [catch "gate -delete [lindex $line 0]" res2] {
+	set gateName [lindex $line 0]
+	if [catch [list gate -delete  $gateName] res2] {
 	    puts stderr "Error deleting SpecTcl gate: \n $res2"
 	}
     }

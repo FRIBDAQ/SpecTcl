@@ -18,16 +18,13 @@ proc CreateVariableManipulator {parent} {
 	
 	set mod $topv.modify
 	set modcolor lightgreen
-	set variable(select) 1
 	frame $mod -borderwidth 2 -relief groove -background $modcolor
 
-	menubutton $mod.variable -width 5 -text Variable -bg $modcolor
-	GenerateTreeVariableMenu $mod.variable SetSelectedVariable
 	label $mod.labelname -text Name -background $modcolor
 	label $mod.labelvalue -text Value -background $modcolor
 	label $mod.labelunit -text Unit -background $modcolor
 	checkbutton $mod.array -text "Array" -variable variable(Array) -background $modcolor
-	grid $mod.variable $mod.labelname $mod.labelvalue $mod.labelunit x $mod.array -sticky news
+	grid x $mod.labelname $mod.labelvalue $mod.labelunit x $mod.array -sticky news
 
 	for {set i 1} {$i <= 20} {incr i} {
 		VariableManipulator $i
@@ -52,27 +49,20 @@ proc CreateVariableManipulator {parent} {
 	pack $topv -expand 1 -fill both
 }
 
-proc SetSelectedVariable {name} {
-	global variable
-	set id $variable(select)
-	set variable(Name$id) $name
-}
-
 proc VariableManipulator {id} {
 	global topv variable
 	set mod $topv.modify
 	set modcolor lightgreen
 
-#	menubutton $mod.variable$id -width 8 -text Variable -background $modcolor
+	menubutton $mod.variable$id -width 8 -text Variable -background $modcolor
 #	GenerateTreeVariableMenu $mod.variable$id "MenuLoadVariable $id"
-#	GenerateTreeVariableMenu $mod.variable$id "set variable(Name$id)"
-	radiobutton $mod.select$id -text "" -variable variable(select) -value $id -width 5 -bg $modcolor
+	GenerateTreeVariableMenu $mod.variable$id "set variable(Name$id)"
 	entry $mod.labelvariable$id -width 25 -textvariable variable(Name$id) -background $modcolor
 	entry $mod.value$id -width 8 -textvariable variable(Value$id) -background $modcolor
 	entry $mod.unit$id -width 6 -textvariable variable(Unit$id) -background $modcolor
 	button $mod.load$id -width 4 -text Load -command "LoadVariable $id" -background $modcolor
 	button $mod.set$id -width 4 -text Set -command "SetVariable $id" -background $modcolor
-	grid $mod.select$id $mod.labelvariable$id $mod.value$id $mod.unit$id $mod.load$id $mod.set$id -sticky news
+	grid $mod.variable$id $mod.labelvariable$id $mod.value$id $mod.unit$id $mod.load$id $mod.set$id -sticky news
 }
 
 proc SetVariable {id} {

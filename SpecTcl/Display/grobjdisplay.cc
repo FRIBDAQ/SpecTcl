@@ -666,7 +666,7 @@ void Xamine_DrawObjects(Xamine_RefreshContext *ctx, win_attributed *attributes)
 	objects[i]->draw(wid, attributes, True);
       }
     }
-    delete objects;		/* Free the object list. */
+    delete []objects;		/* Free the object list. */
   }
 
   /* Now repeat the effort for stuff in the gates database  */
@@ -688,7 +688,7 @@ void Xamine_DrawObjects(Xamine_RefreshContext *ctx, win_attributed *attributes)
 	objects[i]->draw(wid, attributes, True);
       }
     }
-    delete objects;
+    delete []objects;
   }
 
 }

@@ -280,6 +280,9 @@ DAMAGES.
   Change Log:
 
   $Log$
+  Revision 5.1  2004/11/29 16:56:10  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
   Revision 1.12  2003/10/28 21:33:14  ron-fox
   Remove obsolete #include <sstream> which barfs on Tru64 anyway.
 

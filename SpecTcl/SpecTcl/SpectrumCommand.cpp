@@ -306,9 +306,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
-// Revision 4.6  2004/08/06 13:40:29  ron-fox
-// Merge with SpecTcl-2.2 prior to splitting off a linux-2.6/gcc-3.3 port
-// branch.
+// Revision 5.1  2004/11/29 16:56:12  ron-fox
+// Begin port to 3.x compilers calling this 3.0
+//
+// Revision 4.5.2.2  2004/10/20 19:53:01  ron-fox
+// Fix a defect discovered in TCLList::operator= attempt to allow variables
+// as axis specs (failed).
 //
 // Revision 4.5.2.1  2004/07/01 13:55:29  ron-fox
 // Allow spectra that have 2^31 channels
@@ -602,6 +605,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
     // Split the axis definition list into its subelements:
     int     nAxisElements;
     char**  ppAxisElements;
+
     CTCLList AxisList(&rInterpreter, ppListElements[i]);
     AxisList.Split(nAxisElements, &ppAxisElements);
     if(nAxisElements == 1) {	   // Just size (in bits) given.

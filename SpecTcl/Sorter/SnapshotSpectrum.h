@@ -287,6 +287,9 @@ DAMAGES.
 
  Change Log:
  $Log$
+ Revision 5.1  2004/11/29 16:56:07  ron-fox
+ Begin port to 3.x compilers calling this 3.0
+
  Revision 4.3  2003/04/19 00:11:13  ron-fox
  Fix a nasty issue with GetDefinition() that was causing death due to a number of problems with the static output struct.  For later: change the struct to a class so that it can be returned by value rather than by reference.. then it wouldn't have to be static.
 

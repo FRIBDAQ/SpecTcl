@@ -295,8 +295,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
-   Revision 4.7  2004/05/14 20:43:24  ron-fox
-   Merge to 2.2 branch.
+   Revision 5.1  2004/11/29 16:55:35  ron-fox
+   Begin port to 3.x compilers calling this 3.0
 
    Revision 4.6.4.1  2004/04/12 16:37:31  ron-fox
    - Use etc for etc stuff with link named Etc rather than the other way around.

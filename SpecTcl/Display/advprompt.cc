@@ -292,6 +292,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1  2004/11/29 16:55:33  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
   Revision 4.3  2003/04/04 17:45:12  ron-fox
   Catch dialog destruction for cached widgets so that the destroyed dialog is re-created when it's needed.  Prior behavior would usually crash Xamine because deleted widgets would be referenced.
 

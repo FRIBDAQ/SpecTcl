@@ -283,6 +283,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 /*
   Change Log:
    $Log$
+   Revision 5.1  2004/11/29 16:55:40  ron-fox
+   Begin port to 3.x compilers calling this 3.0
+
    Revision 4.5  2003/01/02 17:11:31  venema
    Major version upgrade to 2.0 includes support for arbitrary user coordinate mapping and sticky print options.
 

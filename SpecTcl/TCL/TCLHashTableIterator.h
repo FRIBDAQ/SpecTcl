@@ -296,6 +296,9 @@ DAMAGES.
 /*
  *   Change Log:
  *     $Log$
+ *     Revision 5.1  2004/11/29 16:56:14  ron-fox
+ *     Begin port to 3.x compilers calling this 3.0
+ *
  *     Revision 4.3  2003/01/02 17:11:34  venema
  *     Major version upgrade to 2.0 includes support for arbitrary user coordinate mapping and sticky print options.
  *

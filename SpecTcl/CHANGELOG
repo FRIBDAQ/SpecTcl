@@ -57,3 +57,66 @@ July 27, 2004    - Added contrib/calibratedparams  (TUNL) for linear
                    calibrations for parameters first the fit functions.
 July 30, 2004    - Added CCAENV1x90Data.h to contrib/scriptable in order
                    to support unpacking of this module.
+August 9, 2004   - Modified colormgr.cc to better deal with systems that
+                   have visuals that are not in decent order nor good:
+                   Look through all the visuals and choose the true/direct
+                   color visual with the most bits, if none exist, then
+                   Choose the Pseudo color visual with the most bits.
+	           If none of those exist drop back to bitonal.
+August 16, 2004 - Fix broken link  to apply.htm in categories.htm documentation
+August 17, 2004  - Added the calbrated parameters sources to the mix
+                   (need to get them to compile!).
+                   Debugged as of August 20.
+August 25, 2004  - Fixed defect 144 - memory leak if user rejects events.
+September 2, 2004 - Made pseudo parameters pass validity flags too.
+September 7, 2004 - Fix error in CEventFilter::setBit... which did not
+                    count on there being 8 bits per byte.
+September 8, 2004 - Removed in-linedness of CGate::RecursiveReest I had
+                    thought this was triggering a compiler error but
+                    it was not in fact.  Since this is a virt. there's no
+                    gain to inlining it anyway.
+September 23,2004 - NamedItem.h - decided to finally trust stl's string
+                    constructors.. the way I was doing named item
+ 	            constructors was giving Purify fits.
+September 24,2004 - Added CalibrationDistribution to produce evenly spaced
+                    identical peaks.
+                  - Added mechanism to fetch the applicatino's test data
+                    source so that it can be modified etc.
+                  - Fixed defect in CTclGrammerApp::SetupTestDatsSource
+                    there was a local declaration of a m_pMultiTestSource
+                    that masked the member data.:
+
+September 30,2004 - Happy Birthday Ron!! 
+                  - Fixed issue 133 Centroids and
+	            FWHM not correct for mapped parameters (still).
+                  - Made test distributions produce floating point params
+                    to make the more flexible.. Gaussian is a symmetric
+                    cutoff now.
+October   4, 2004 - Added a bit of defensive programming in view of defect
+                    149.
+October  19, 2004 - Changed default gate names in Xamine to be better in line
+	            with well behaved TCL Strings.
+October 18-20  2004 - Factor all coordinate transformations into common spots 
+                     part of trying to fix defect 133.
+October 20,    2004 - Additional code reorganization of Xamine stuff that
+                    I just could not stand to look at in fixing defect 133.
+October 20,    2004 - Factor acceptgates.cc DrawPoints functions back into
+                     the base class where it belongs.  Could not stand to look
+	             at it duplicated in 3 different places.
+October 20-22    2004 - Fix defect 145: Spaces and special characters in names
+                      can make saveall loadall fail miserably...and other misc.
+                      things uncovered while repairing the defect.
+October 25,26    2004 - Optimize 1d long histogram increments.  Note that many
+                      but not all changes will help 2d word increments too, but
+                     these (less often used) histograms won't get full benefit
+                     as there are modifications to the Spectrum1DL file that
+		     are deliberately not propagated back to Spectrum1DW
+October 27,      2004 -Optimize2d short histogram increments
+
+November 3,2004 - Fixed position computations on expanded spectra.
+November 4,2004 - Fixed defect 60 in Xamine: Spectrum choosers should come out
+                 sorted by name.
+November 102004 - Repaired defect 147: Xamine copy object copies to wrong
+                  spectrum if slot # > 999
+
+Edit level 2.2-001

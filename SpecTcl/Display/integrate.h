@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
 ** Facility:
@@ -299,6 +299,7 @@ DAMAGES.
 
 #include "dispgrob.h"
 #include "dispshare.h"
+#include "mapcoord.h"
 
 class Integrate_1d {
  protected:
@@ -306,17 +307,32 @@ class Integrate_1d {
   float          centroid;
   float          deviance;
   float          volume;
+  bool           m_fMapped;	/* True if mapped spectrum. */
  public:
-  Integrate_1d(grobj_sum1d *sr) {
-    sumregion  = sr;
-    centroid   = 0;
-    deviance   = 0;
-    volume     = 0;
+  Integrate_1d(grobj_sum1d *sr, bool mapped = false) :
+    sumregion(sr),
+    centroid(0.0),
+    deviance(0.0),
+    volume(0.0),
+    m_fMapped(mapped)
+  {
+
   }
   virtual void Perform() = 0;
   float GetCentroid() { return centroid; }
   float GetStdDev()   { return deviance; }
   float GetVolume()   { return volume;   }
+  double Channel(int n) {
+    if(m_fMapped) {
+      // Return the middle of the channel.
+
+      return (Xamine_XChanToMapped(sumregion->getspectrum(),(float)n) +
+	      Xamine_XChanToMapped(sumregion->getspectrum(),(float)(n+1)))/2.0;
+    }
+    else {
+      return (double)n;
+    }
+  }
 };
 
 class Integrate_2d {
@@ -328,15 +344,19 @@ class Integrate_2d {
   float          xdeviance;
   float          ydeviance;
   float          volume;
+  bool           m_fMapped;	// True if mapped spectrum.
  public:
-  Integrate_2d(int xd, grobj_sum2d *sr) {
-    xchans     = xd;
-    sumregion  = sr;
-    xcentroid  = 0;
-    ycentroid  = 0;
-    xdeviance  = 0;
-    ydeviance  = 0;
-    volume     = 0;
+  Integrate_2d(int xd, grobj_sum2d *sr, bool mapped=false) :
+    sumregion(sr),
+    xchans(xd),
+    xcentroid(0.0),
+    ycentroid(0.0),
+    xdeviance(0.0),
+    ydeviance(0.0),
+    volume(0.0),
+    m_fMapped(mapped)
+    
+  {
   }
   virtual void Perform() = 0;
   float   GetVolume()    { return volume;   }
@@ -344,6 +364,29 @@ class Integrate_2d {
   float   GetYCentroid() { return ycentroid; }
   float   GetXStdDev()   { return xdeviance; }
   float   GetYStdDev()   { return ydeviance; }
+  double   XChannel(int n) {
+    if(m_fMapped) {
+      // Return the middle of the channel just like the ticker.
+
+      return (Xamine_XChanToMapped(sumregion->getspectrum(), (float)n) +
+	      Xamine_XChanToMapped(sumregion->getspectrum(), (float)(n+1)))/2.0;
+    }
+    else {
+      return (double)n;
+    }
+  }
+  double   YChannel(int n) {
+    if(m_fMapped) {
+      // Return the middle of the channel just like the ticker.
+
+      return (Xamine_YChanToMapped(sumregion->getspectrum(), (float)n) +
+	      Xamine_YChanToMapped(sumregion->getspectrum(), (float)(n+1)))/2.0;
+    }
+    else {
+      return (double)n;
+    }
+  }
+  
 };
 
 /*
@@ -356,8 +399,8 @@ class Integrate_1dw : public Integrate_1d {
  protected:
   unsigned short  *spectrum;		/* Points to spectrum base. */
  public:
-  Integrate_1dw(unsigned short  *spc, grobj_sum1d *sr) :
-    Integrate_1d(sr) {
+  Integrate_1dw(unsigned short  *spc, grobj_sum1d *sr, bool mapped=false) :
+    Integrate_1d(sr, mapped) {
       spectrum = spc;
     }
   virtual void Perform();
@@ -367,8 +410,8 @@ class Integrate_1dl : public Integrate_1d {
  protected:
   unsigned int *spectrum;
  public:
-  Integrate_1dl(unsigned int *spc, grobj_sum1d *sr) : 
-    Integrate_1d(sr) {
+  Integrate_1dl(unsigned int *spc, grobj_sum1d *sr, bool mapped=false) : 
+    Integrate_1d(sr, mapped) {
       spectrum = spc;
     }
   virtual void Perform();
@@ -379,8 +422,8 @@ class Integrate_2db : public Integrate_2d {
  protected:
   unsigned char *spectrum;
  public:
-  Integrate_2db(unsigned char *spc, int xd, grobj_sum2d *sr) :
-    Integrate_2d(xd, sr) {
+  Integrate_2db(unsigned char *spc, int xd, grobj_sum2d *sr, bool mapped=false) :
+    Integrate_2d(xd, sr, mapped) {
       spectrum = spc;
     }
   virtual void Perform();
@@ -390,8 +433,8 @@ class Integrate_2dw : public Integrate_2d {
  protected:
   unsigned short *spectrum;
  public:
-  Integrate_2dw(unsigned short *spc, int xd, grobj_sum2d *sr) :
-    Integrate_2d(xd, sr) {
+  Integrate_2dw(unsigned short *spc, int xd, grobj_sum2d *sr, bool mapped=false) :
+    Integrate_2d(xd, sr, mapped) {
       spectrum = spc;
     }
   virtual void Perform();

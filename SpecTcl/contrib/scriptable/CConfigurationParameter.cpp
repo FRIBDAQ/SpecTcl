@@ -289,6 +289,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1977, Al
             (c) 2002, All rights reserved.
     Revision History:
       $Log$
+      Revision 5.1  2004/11/29 16:56:40  ron-fox
+      Begin port to 3.x compilers calling this 3.0
+
       Revision 1.1  2003/12/12 17:55:15  ron-fox
       Incorporate scripted unpacker in contrib subdirs.
 

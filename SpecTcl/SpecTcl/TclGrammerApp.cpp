@@ -285,8 +285,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
-  Revision 4.17  2004/05/14 20:43:29  ron-fox
-  Merge to 2.2 branch.
+  Revision 5.1  2004/11/29 16:56:12  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
+  Revision 4.16.4.2  2004/09/24 11:43:18  ron-fox
+  - Add member function to get the multitestsource so the user program
+    can add other sources, select different sources than the default etc.
+  - Correct a defect in SetupTestDataSource.. it had created a local
+    m_pMultiTestSource that hid the member data and therefore prevented
+    it from being fetched or used.
 
   Revision 4.16.4.1  2004/04/12 16:37:32  ron-fox
   - Use etc for etc stuff with link named Etc rather than the other way around.
@@ -649,7 +656,7 @@ void CTclGrammerApp::SetupTestDataSource() {
   // Uses a singleton map with at least the default test, 
   // but also possibly named user-defined test distributions.
 
-  CMultiTestSource* m_pMultiTestSource = CMultiTestSource::GetInstance(); 
+  m_pMultiTestSource = CMultiTestSource::GetInstance(); 
   m_pMultiTestSource->useDefaultTestSource();
 }
 

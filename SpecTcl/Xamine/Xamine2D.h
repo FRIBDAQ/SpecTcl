@@ -293,6 +293,9 @@ DAMAGES.
 /*
    Change log:
    $Log$
+   Revision 5.1  2004/11/29 16:56:19  ron-fox
+   Begin port to 3.x compilers calling this 3.0
+
    Revision 4.3  2003/04/03 00:04:19  ron-fox
    These files are produced during Make and therefore are not needed.
 

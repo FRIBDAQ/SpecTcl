@@ -288,6 +288,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CFitFactory.h>
 #include <CLinearFitCreator.h>
 #include <CFitCommand.h>
+#include <CCalibratedParameterCommand.h>
+#include <CCalibratedParameterManager.h>
+#include <MultiTestSource.h>
+#include <CalibrationDistribution.h>
 
 // Local Class definitions:
 
@@ -477,7 +481,9 @@ CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
 #endif
   
     RegisterEventProcessor(Stage1);
-    RegisterEventProcessor(Stage2);
+    RegisterEventProcessor(*(new CCalibratedParameterManager));
+
+
 }  
 
 // Constructors, destructors and other replacements for compiler cannonicals:
@@ -611,7 +617,31 @@ start analysis, the default one is harmless.
 */
 void 
 CMySpecTclApp::SetupTestDataSource()  
-{ CTclGrammerApp::SetupTestDataSource();
+{ 
+  CTclGrammerApp::SetupTestDataSource();
+
+  CMultiTestSource* pSource = getTestDataSource();
+  
+  // starting with the default test source, add another test source
+  // that produces multiple evenly spaced narrow peaks.
+  //
+  
+
+  CTestFile *pmyTestFile = new CTestFile(*(pSource->getDefaultTestSource()));
+  // Calibration distributions construct with 
+  // First peak position, number of peaks, peak spacing
+  // and peak widths. This will produce a spectrrum that looks like
+  // a pulsr was run across the spectrum at regular intervals.. good for my testing.
+  // 
+  CCalibrationDistribution* pCalibrationParameter  =
+    new CCalibrationDistribution(50.0, 10, 100.0, 5.0, 1024.0);
+  pmyTestFile->AddDistribution(*pCalibrationParameter);
+  pSource->addTestSource("calibrationSource", pmyTestFile);
+
+  // Select it.
+
+  pSource->useTestSource("calibrationSource");
+ 
 }  
 
 //  Function: 	
@@ -674,6 +704,10 @@ CMySpecTclApp::AddCommands(CTCLInterpreter& rInterp)
 { CTclGrammerApp::AddCommands(rInterp);
   CFitCommand* pFit =  new CFitCommand(&rInterp);
   pFit->Register();
+
+  CCalibratedParameterCommand* pCalib = new CCalibratedParameterCommand(&rInterp);
+  pCalib->Register();
+
 }  
 
 //  Function: 	

@@ -292,6 +292,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //     July 12, 1999 Ron FOx
 //        Added gpVersion and set it to be 0.2
 //   $Log$
+//   Revision 5.1  2004/11/29 16:56:10  ron-fox
+//   Begin port to 3.x compilers calling this 3.0
+//
 //   Revision 4.5  2003/08/27 13:37:52  ron-fox
 //   Create the event sink pipeline in the TclGrammerApp so that we have explicit
 //   control over when it gets created and don't get any compiler dependencies on

@@ -303,6 +303,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 /*
    Change Log:
    $Log$
+   Revision 5.1  2004/11/29 16:56:02  ron-fox
+   Begin port to 3.x compilers calling this 3.0
+
    Revision 4.5  2003/08/25 16:25:31  ron-fox
    Initial starting point for merge with filtering -- this probably does not
    generate a goo spectcl build.

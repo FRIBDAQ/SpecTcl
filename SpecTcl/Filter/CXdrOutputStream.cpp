@@ -474,7 +474,7 @@ void
 CXdrOutputStream::Require(int nBytes)
 {
   int pos = xdr_getpos(&m_Xdr);
-  if ((pos + nBytes)*2 >= m_nBuffersize) { // Seems to be a factor of 2.
+  if (pos + (nBytes*2) >= m_nBuffersize) { // Seems to be a factor of 2.
     Flush();
   }
 }

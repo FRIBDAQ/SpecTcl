@@ -51,7 +51,7 @@ class CTreeParameter
 private:
 	string				name;
 	double			value;
-	bool				haschanged;
+	bool				valid, haschanged;
 	UInt_t			id, bins;
 	double			start, stop, inc;
 	string				unit;
@@ -66,7 +66,7 @@ public:
 
 // Constructor with only name specification (version 1.2)
 	CTreeParameter(string parameterName) : name(parameterName) {
-//		valid = true;
+		valid = true;
 		haschanged = false;
 		start = 1;
 		inc = 1;
@@ -81,7 +81,7 @@ public:
 // Constructor with name and unit specifications (version 1.2)
 	CTreeParameter(string parameterName, string parameterUnit) :
 	name(parameterName), unit(parameterUnit) {
-//		valid = true;
+		valid = true;
 		haschanged = false;
 		start = 1;
 		inc = 1;
@@ -96,7 +96,7 @@ public:
 	CTreeParameter(string parameterName, double parameterStart, double parameterStop,
 	string parameterUnit) :
 	name(parameterName), start(parameterStart), stop(parameterStop), unit(parameterUnit) {
-//		valid = true;
+		valid = true;
 		haschanged = false;
 		bins = 100;
 		inc = (stop - start) / (double)bins;
@@ -110,7 +110,7 @@ public:
 	double parameterStop, string parameterUnit) :
 	name(parameterName), bins(parameterBins), start(parameterStart), stop(parameterStop),
 	unit(parameterUnit) {
-//		valid = true;
+		valid = true;
 		haschanged = false;
 		inc = (stop - start) / (double)bins;
 
@@ -121,7 +121,7 @@ public:
 // Constructor with no scale specification (slope=1; offset=0) (version 1.1)
 	CTreeParameter(string parameterName, UInt_t parameterBits) :
 		name(parameterName) {
-//		valid = true;
+		valid = true;
 		haschanged = false;
 		start = 0;
 		inc = 1;
@@ -137,7 +137,7 @@ public:
 	CTreeParameter(string parameterName, UInt_t parameterBits, double parameterStart,
 	double parameterOther, string parameterUnit, bool slopeOrStop) :
 	name(parameterName), start(parameterStart), unit(parameterUnit) {
-//		valid = true;
+		valid = true;
 		haschanged = false;
 		bins = (UInt_t) pow(2, parameterBits);
 		if (slopeOrStop)	{		// Slope
@@ -158,7 +158,7 @@ public:
 // Copy constructor
 	CTreeParameter(const CTreeParameter& aCTreeParameter) {
 		name = aCTreeParameter.name;
-//		valid = aCTreeParameter.valid;
+		valid = aCTreeParameter.valid;
 		value = aCTreeParameter.value;
 		haschanged = aCTreeParameter.haschanged;
 		id = aCTreeParameter.id;
@@ -172,8 +172,8 @@ public:
 
 // Operator double() to cast our parameters to doubles in expressions
 	operator double() {
-		if (isValid()) return value;
-		else return sqrt(-1);
+		return value;
+//		return (double)(start + inc * (*pEvent)[id]);
 	}
 	
 // Operator= assignement operator to a double: this actually stuffs the rEvent array
@@ -184,27 +184,13 @@ public:
 // and offset on the parameter.
 // Version 1.2: this operation is no longer necessary since parameters are now real valued
 	double operator=(const double& rhs) {
-		if (isnan(rhs)) {
-			Reset();
-			return (double)rhs;
-		}
+//		UInt_t data;
 		value = rhs;
+//		data = (UInt_t)((rhs - start) / inc);
+//		if (data < 0) data = 0;
+//		if (data > max) data = max;
 		(*pEvent)[id] = value;
 		return (double)rhs;
-	}
-	
-// Operator = assignment operator to another CTreeParameter
-// This operator is used when equaling two TreeParameters such as in
-// tree.branch.leaf1 = tree.branch.leaf2; or 
-// tree.branch.leaf1 = tree.branch.leaf2 = mydouble ;
-	CTreeParameter operator=(CTreeParameter& aCTreeParameter) {
-		if (!aCTreeParameter.isValid()) {
-			Reset();
-		} else {
-			value = aCTreeParameter.value;
-			(*pEvent)[id] = value;
-		}
-		return (CTreeParameter)aCTreeParameter;
 	}
 	
 // Operator+=
@@ -281,10 +267,10 @@ public:
 	void			setInc(double theInc) {inc = theInc; stop = start + inc * bins;}
 	string			getUnit() {return unit;}
 	void			setUnit(char* theUnit) {unit = theUnit;}
-	bool			isValid() {return (*pEvent)[id].isValid();}
-//	void			setValid() {(*pEvent)[id].setValid(true);}
-	void			setInvalid() {(*pEvent)[id].clear();}
-	void			Reset() {value = 0.0; (*pEvent)[id].clear();}
+	bool			isValid() {return valid;}
+	void			setValid() {valid = true;}
+	void			setInvalid() {valid = false; (*pEvent)[id].clear();}
+	void			Reset() {(*pEvent)[id].clear();}
 	bool			hasChanged() {return haschanged;}
 	void			setChanged() {haschanged = true;}
 	void			resetChanged() {haschanged = false;}
@@ -339,7 +325,7 @@ void
 Initialize(string parameterName, UInt_t parameterBits)
 {
 	name = parameterName;
-//	valid = true;
+	valid = true;
 	haschanged = false;
 	start = 0;
 	inc = 1;
@@ -356,7 +342,7 @@ double parameterOther, string parameterUnit, bool slopeOrStop)
 	name = parameterName;
 	start = parameterStart;
 	unit = parameterUnit;
-//	valid = true;
+	valid = true;
 	haschanged = false;
 	bins = (UInt_t) pow(2, parameterBits);
 	if (slopeOrStop)  {   // Slope
@@ -374,7 +360,7 @@ void
 Initialize(string parameterName)
 {
 	name = parameterName;
-//	valid = true;
+	valid = true;
 	haschanged = false;
 	start = 1;
 	inc = 1;
@@ -389,7 +375,7 @@ Initialize(string parameterName, string parameterUnit)
 {
 	name = parameterName;
 	unit = parameterUnit;
-//	valid = true;
+	valid = true;
 	haschanged = false;
 	start = 1;
 	inc = 1;
@@ -405,7 +391,7 @@ Initialize(string parameterName, double parameterStart, double parameterStop, st
 	start = parameterStart;
 	stop = parameterStop;
 	unit = parameterUnit;
-//	valid = true;
+	valid = true;
 	haschanged = false;
 	bins = 100;
 	inc = (stop - start) / (double)bins;
@@ -421,7 +407,7 @@ double parameterStop, string parameterUnit)
 	start = parameterStart;
 	stop = parameterStop;
 	unit = parameterUnit;
-//	valid = true;
+	valid = true;
 	haschanged = false;
 	inc = (stop - start) / (double)bins;
 	pSelf.push_back(this);

@@ -278,6 +278,12 @@ DAMAGES.
 
 /* Change log:
    $Log$
+   Revision 5.1  2004/11/29 16:55:35  ron-fox
+   Begin port to 3.x compilers calling this 3.0
+
+   Revision 4.4.4.1  2004/10/20 15:47:42  ron-fox
+   Misc changes resulting from update merges and pedantic finds.
+
    Revision 4.4  2003/08/28 18:04:37  ron-fox
    Fix Bug68: point acceptors can provide invalid channel coordinates.  Fixed by changing clipping so that it clips to the edges of the displayed part of the spectrum.  Clips used return -1 as an indicator that the clip had happened.  This is no good because with mapped spectra, -1 is valid, so just clip to the edges.
 
@@ -406,8 +412,9 @@ void GraphicalInput::ClearStandardCallbacks()
 /*
 **  Selection changed:
 */
-static void SelectCallback_Relay(int oldc, int oldr, int newc, int newr,
-				 XtPointer user_d)
+void 
+GraphicalInput::SelectCallback_Relay(int oldc, int oldr, int newc, int newr,
+				     XtPointer user_d)
 {
   GraphicalInput *object = (GraphicalInput *)user_d;
   object->SelectChanged(oldc, oldr, newc, newr);
@@ -415,7 +422,8 @@ static void SelectCallback_Relay(int oldc, int oldr, int newc, int newr,
 /*
 ** Mouse or keyboard input:
 */
-static void PaneInput_Relay(XMWidget *w, XtPointer user_d, XtPointer call_d)
+void 
+GraphicalInput::PaneInput_Relay(XMWidget *w, XtPointer user_d, XtPointer call_d)
 {
   GraphicalInput *object = (GraphicalInput *)user_d;
   XmDrawingAreaCallbackStruct *cbs  = (XmDrawingAreaCallbackStruct *)call_d;
@@ -435,7 +443,8 @@ static void PaneInput_Relay(XMWidget *w, XtPointer user_d, XtPointer call_d)
   }
 }
 
-static void Refresh_Relay(Xamine_RefreshContext *ctx, XtPointer user_d)
+void
+GraphicalInput::Refresh_Relay(Xamine_RefreshContext *ctx, XtPointer user_d)
 {
   GraphicalInput *object = (GraphicalInput *)user_d;
   object->Refresh(ctx);

@@ -375,9 +375,9 @@ Sampler *Xamine_GenerateSampler(volatile unsigned int *b,
     case onedword:
       return (Sampler *)new Samplew((unsigned short *)b);
     default:
-      fprintf(stderr, "*BUG* in Plot1d/GenerateSampler.  Invalid spectrum type %d\n",
+      fprintf(stderr, " Plot1d/GenerateSampler.  Invalid spectrum type %d\n",
 	      st);
-      exit(-1);
+      return (Sampler*) NULL;
     }
   }
   /* IF reduction is required, then the width becomes the minimum allowed
@@ -395,9 +395,9 @@ Sampler *Xamine_GenerateSampler(volatile unsigned int *b,
       case onedword:
 	return (Sampler *)new Samplew((unsigned short *)b, step);
       default:	
-	fprintf(stderr, "*BUG* in Plot1d/GenerateSampler invalid spectype %d\n",
+	fprintf(stderr,"* in Plot1d/GenerateSampler invalid spectype %d\n",
 		st);
-	exit(-1);
+	return (Sampler*) NULL;
       }
     case summed:		/* Reduce by summing */
       switch(st) {		/* Chose spectrum type: */
@@ -407,9 +407,9 @@ Sampler *Xamine_GenerateSampler(volatile unsigned int *b,
 	return (Sampler *)new Sumw((unsigned short *)b, step);
       default:
 	fprintf(stderr,
-		"*BUG* in Plot1d/GenerateSampler invalid spectrum type %d\n",
+		"Plot1d/GenerateSampler invalid spectrum type %d\n",
 		st);
-	exit(-1);
+	return (Sampler*)NULL;
       }
     case averaged:		/* Reduce by averaging */
       switch(st) {		/* Chose spectrum type: */
@@ -419,15 +419,15 @@ Sampler *Xamine_GenerateSampler(volatile unsigned int *b,
 	return (Sampler *)new Avgw((unsigned short *)b, step);
       default:
 	fprintf(stderr,
-		"*BUG* in Plot1d/GenerateSampler invalid spectrum type %d\n",
+		"Plot1d/GenerateSampler invalid spectrum type %d\n",
 		st);
-	exit(-1);
+	return (Sampler*) NULL;
       }
     default:			/* Error. */
       fprintf(stderr,
-	      "*BUG* in Plot1d/GenerateSampler invalid sampler type %d\n",
+	      "Plot1d/GenerateSampler invalid sampler type %d\n",
 	      sr);
-      exit(-1);
+      return (Sampler*)NULL;
     }
   }
   return (Sampler *)NULL;
@@ -483,6 +483,9 @@ int Scale1d(int specid, win_1d *att, int resolution)
 			   att->getreduction(),
 			   chanl, chanh, resolution,
 			   &channel_width);
+  if(!channels) {
+    return -1;			// Indicate could not get a sampler.
+  }
 
   /*  Using the sampler, we iterate over the area of interest to get
   **  the maximum value into the scale variable.
@@ -589,9 +592,9 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
 					 xamine_shared->getxdim(specno));
       break;
     default:
-      fprintf(stderr, "*BUG* -- Invalid spectrum type in GenerateSampler2 %d\n",
+      fprintf(stderr, "Invalid spectrum type in GenerateSampler2 %d\n",
 	      st);
-      exit(-1);
+      return (Sampler2*)NULL;
     }
     sampler->setsample(xl, xh, yl); /* Set the region of interest params. */
   }
@@ -623,9 +626,9 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
 	break;
       default:
 	fprintf(stderr,
-		"*BUG* detected in GenerateSampler2 invalid spectype %d\n",
+		"GenerateSampler2 invalid spectype %d\n",
 		st);
-	exit(-1);
+	return (Sampler2*)NULL;
       }
       break;
     case summed:
@@ -644,9 +647,9 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
 	break;
       default:
 	fprintf(stderr,
-		"*BUG* detected in GenerateSampler2 invalid spectype %d\n",
+		"GenerateSampler2 invalid spectype %d\n",
 		st);
-	exit(-1);
+	return (Sampler2*)NULL;
       }
       break;
     case averaged:
@@ -665,16 +668,16 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
 	break;
       default:
 	fprintf(stderr,
-		"*BUG* detected in GenerateSampler2 invalid spectype %d\n",
+		"GenerateSampler2 invalid spectype %d\n",
 		st);
-	exit(-1);
+	return (Sampler2*)NULL;
       }
       break;
     default:
       fprintf(stderr,
-	      "*BUG* GenerateSampler2 detected invalid spectrum rendition %d\n",
+	      "GenerateSampler2 detected invalid spectrum rendition %d\n",
 	      sr);
-      exit(-1);
+      return (Sampler2*)NULL;
     }
     sampler->setsample(xl,xh,yl);
   }
@@ -699,7 +702,7 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
 **      These must also be converted into channels using the twodpixtable
 **      lookup table.
 */
-unsigned int Scale2d(int specid, win_2d *att, int resx, int resy)
+int Scale2d(int specid, win_2d *att, int resx, int resy)
 {
   /* Figure out the channel limits for the scaling (including any expansion) */
 
@@ -728,6 +731,14 @@ unsigned int Scale2d(int specid, win_2d *att, int resx, int resy)
 					      chanyl, chanyh,
 					      resx,resy,
 					      &wx, &wy);
+
+  // If the sampler is null, return -1 as an indicator that the spectrum
+  // definition broke out from underneath us:
+
+  if(!sampler) {
+    return -1;
+  }
+
   /* Now sum over the pixel map: */
 
   float x,y;
@@ -785,7 +796,7 @@ unsigned int Xamine_ComputeScaling(win_attributed *att, XMWidget *pane)
 		resolution = (int)((float)resolution*(1.0 - XAMINE_MARGINSIZE));
 	 fs = Scale1d(specid, (win_1d *)att,
 			  resolution);
-	 if(fs <= 0) fs = 1;
+	 //	 if(fs <= 0) fs = 1;
 	 fs = (int)((float)fs*1.1); /* Give some margin for the top. */
 	 return fs;
   }
@@ -806,7 +817,7 @@ unsigned int Xamine_ComputeScaling(win_attributed *att, XMWidget *pane)
       resy = (int)((float)resy*(1.0 - XAMINE_MARGINSIZE/2.0));
     }
     fs = Scale2d(specid, (win_2d *)att, resx, resy);
-    if(fs <= 0) fs = 1;
+    //    if(fs <= 0) fs = 1;
     return fs;
   }
 }

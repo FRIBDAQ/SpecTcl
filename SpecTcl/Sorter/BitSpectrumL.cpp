@@ -291,6 +291,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log
    $Log$
+   Revision 5.1  2004/11/29 16:56:06  ron-fox
+   Begin port to 3.x compilers calling this 3.0
+
+   Revision 4.5.2.1  2004/10/27 12:38:40  ron-fox
+   optimize performance of Spectrum1DL histogram increments.  Total
+   performance gain was a factor of 2.8.  The 'unusual' modifications
+   are documented via comments that indicate they were suggested by profile
+   data.
+
    Revision 4.5  2004/02/03 21:32:57  ron-fox
    Make definitions of spectra from resolutions consistent with those that have ranges.
 
@@ -422,7 +431,7 @@ CBitSpectrumL::Increment(const CEvent& rE)
       UInt_t nParam = 
 	(UInt_t)m_PDescription.RawToMapped(rEvent[m_nParameter]);
       
-      UInt_t nBit   = 1 << (UInt_t)AxisToMapped(0, 0.0);
+      UInt_t nBit   = 1 << (UInt_t)AxisToMapped(0, 0);
       
       
       //

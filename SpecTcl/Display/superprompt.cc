@@ -708,7 +708,7 @@ void SuperPrompt::SetList()
       name_list[slots_filled] = (spec_title *)new spec_title;
       xamine_shared->getname(name, i);
       name[sizeof(name)-10] = '\0';                  /* Force truncation */
-      sprintf((char *)name_list[slots_filled], "[%03d]  %s", i, name);
+      sprintf((char *)name_list[slots_filled], "[%05d]  %s", i, name);
       slots_filled++;
     }
   }

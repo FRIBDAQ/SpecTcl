@@ -292,6 +292,9 @@ DAMAGES.
 /*
    Change Log:
    $Log$
+   Revision 5.1  2004/11/29 16:56:01  ron-fox
+   Begin port to 3.x compilers calling this 3.0
+
    Revision 4.7  2003/08/25 16:25:31  ron-fox
    Initial starting point for merge with filtering -- this probably does not
    generate a goo spectcl build.

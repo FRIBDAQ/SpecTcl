@@ -278,6 +278,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1  2004/11/29 16:56:10  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
   Revision 4.2  2003/04/15 19:25:20  ron-fox
   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
 

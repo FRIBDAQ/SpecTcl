@@ -295,6 +295,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change log:
   $Log$
+  Revision 5.1  2004/11/29 16:56:09  ron-fox
+  Begin port to 3.x compilers calling this 3.0
+
+  Revision 4.6.2.1  2004/10/27 15:38:31  ron-fox
+  Optimize 2d spectrum increments (well the word increments).
+
   Revision 4.6  2004/02/03 21:32:58  ron-fox
   Make definitions of spectra from resolutions consistent with those that have ranges.
 
@@ -466,17 +472,18 @@ CSpectrum2DW::Increment(const CEvent& rE)
 //               Event which drives the histogramming
 //
   CEvent& rEvent((CEvent&)rE);
-  int nParameters = rEvent.size();
-  if((m_nXParameter < nParameters) && (m_nYParameter < nParameters)) {
-    if(rEvent[m_nXParameter].isValid()  && // Require the parameters be in event
-       rEvent[m_nYParameter].isValid()) {
-      Int_t nx = Randomize(ParameterToAxis(0, rEvent[m_nXParameter]));
-      Int_t ny = Randomize(ParameterToAxis(1, rEvent[m_nYParameter]));
-      if( (nx >= 0)   && (nx < m_nXScale)     &&
-	  (ny >= 0)   && (ny < m_nYScale)) {
-	UShort_t* pSpec = (UShort_t*)getStorage();
-	pSpec[nx + (ny * m_nXScale)]++;
-      }
+  CParameterValue& xParam(rEvent[m_nXParameter]);
+  CParameterValue& yParam(rEvent[m_nYParameter]);
+
+
+  if(xParam.isValid()  && // Require the parameters be in event
+     yParam.isValid()) {
+    Int_t nx = (Int_t)ParameterToAxis(0, xParam);
+    Int_t ny = (Int_t)ParameterToAxis(1, yParam);
+    if( (nx >= 0)   && (nx < m_nXScale)     &&
+	(ny >= 0)   && (ny < m_nYScale)) {
+      UShort_t* pSpec = (UShort_t*)getStorage();
+      pSpec[nx + (ny * m_nXScale)]++;
     }
   }
 }

@@ -118,12 +118,18 @@ public:
   size_t size ()   ; 
   FitState GetState ()  const ; 
 
+ 
+  
+ 
   // Pure virtual functions must be implemented by
   // subclasses.
 
+  virtual CFit* clone() = 0;
   virtual   void Perform ()   = 0 ; 
   virtual  double operator() (double x)  =0 ; 
   virtual  FitParameterList GetParameters () =0  ; 
+  virtual  string Type() const  = 0;
+ 
 
 private:
   void CopyIn(const CFit& rhs);	//!< Isolate copy in operation.
