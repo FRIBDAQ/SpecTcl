@@ -15,11 +15,6 @@
 ** Versioning:
 **   @(#)helpmenu.cc	8.9 10/19/98 
 */
-#if 0
-#ifdef unix
-#pragma implementation "XMCallback.h"
-#endif
-#endif
 
 /*
 ** Include files:

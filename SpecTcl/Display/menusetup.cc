@@ -15,12 +15,6 @@
 **    @(#)menusetup.cc	2.6 4/14/94 
 */
 
-#if 0
-#ifdef unix
-#pragma implementation "XMCallback.h"
-#endif
-#endif
-
 /*
 ** Include files required:
 */

@@ -13,11 +13,6 @@
 ** Version:
 **    @(#)dispgrob.cc	2.1 12/22/93 
 */
-#if 0
-#ifdef unix
-#pragma implementation "XMCallback.h"
-#endif
-#endif
 
 /*
 ** Include files required:

@@ -13,13 +13,7 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-#if 0
-#ifdef unix
-#pragma implementation "XMCallback.h"
-#endif
-#endif
 
-
 #include <errno.h>
 #include <string.h>
 #include "XMText.h"
@@ -37,7 +31,7 @@
 #include "convert.h"
 #include "grobjmgr.h"
 #include "refreshctl.h"
-#include  "grobjdisplay.h"
+#include "grobjdisplay.h"
 
 /*
 ** Constant definitions:

@@ -16,13 +16,7 @@
 ** Version:
 **  @(#)geometrymenu.cc	8.1 6/23/95 
 */
-#if 0
-#ifdef unix
-#pragma implementation "XMCallback.h"
-#endif
-#endif
 
-
 /*
 ** Include files:
 */
