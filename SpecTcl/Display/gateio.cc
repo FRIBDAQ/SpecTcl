@@ -460,7 +460,6 @@ int Xamine_ReadInqData(int *spec)
 */
 int Xamine_ReadButtonGeometry(Cardinal *cols, Cardinal *rows)
 {
-  msg_CreateButtons   buttoninfo;
   MakeObjects();		// Make sure we can communicate
   
   int stat = requests->ReadButtonBoxGeometry(cols, rows);
