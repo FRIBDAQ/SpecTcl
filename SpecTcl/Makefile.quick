@@ -26,6 +26,8 @@ system:
 			make install INSTDIR=$(INSTDIR) OS=$(OS))
 	(cd SpecTcl;   make INSTDIR=$(INSTDIR) OS=$(OS); \
 		       make install INSTDIR=$(INSTDIR) OS=$(OS))
+	(cd Filter;    make INSTDIR=$(INSTDIR) OS=$(OS); \
+	    	       make install INSTDIR=$(INSTDIR) OS=$(OS))
 	(cd TestFiles; make INSTDIR=$(INSTDIR) OS=$(OS))
 	(chmod u+w $(INSTDIR)/Script/*; cp Scripts/* $(INSTDIR)/Script)
 
@@ -40,10 +42,10 @@ clean:
 	(cd Sorter;    make clean)
 	(cd SpectrumIO; make clean)
 	(cd EventSource; make clean)
-	(cd SpecTcl; make clean)
-	(cd Gates;   make clean)
+	(cd SpecTcl;   make clean)
+	(cd Gates;     make clean)
 	(cd TestFiles; make clean)
-
+	(cd Filter;    make clean)
 
 depend:
 	(cd Display;   make depend)
@@ -59,3 +61,4 @@ depend:
 	(cd SpecTcl; make depend)
 	(cd TestFiles; make depend)
 	(cd Gates;     make depend)
+	(cd Filter;    make depend)
