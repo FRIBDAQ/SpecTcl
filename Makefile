@@ -13,6 +13,8 @@
 LinuxMAKESW=-j 4
 DarwinMAKESW=-j 4
 
+SPECTCL_VERSION="2.0.1"
+
 system:
 	g++ --version
 	install -d -m 02775  $(INSTDIR)/Bin
@@ -28,12 +30,12 @@ system:
 	    chmod -R 0775 $(INSTDIR)/contrib \
 	)
 	(umask 02; cd Scripts; \
-		make install  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+		make install  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd Utility;   \
-	 make system $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make system $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd Display;  \
-	make  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	make  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
 	if [ -e /opt/intelfortran/bin/ifc -a `uname` = "Linux" ]; \
 	then \
 	  echo Building aedxamine with intel fortran compiler.; \
@@ -41,53 +43,53 @@ system:
 	  PATH=$$PATH:/opt/intelfortran/bin; \
 	  LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/opt/intelfortran/lib; \
 	  export PATH LD_LIBRARY_PATH; \
-	  make aedxamine.o OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)"; \
+	  make aedxamine.o OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
 	  ar r libXamine.a aedxamine.o; \
 	  ranlib libXamine.a; \
 	fi; \
 	if [ -e /lib/cmplrs/fort/fort -a `uname` = "OSF1" ]; \
 	then \
 	  echo Building aedxamine with digital fortran compiler.; \
-	  make aedxamine.o OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)"; \
+	  make aedxamine.o OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
 	  ar r libXamine.a aedxamine.o; \
 	  ranlib libXamine.a; \
 	fi; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd Gri; ./configure; make; make install INSTDIR=$(INSTDIR) \
 	GRI_DIRECTORY_LIBRARY=$(INSTDIR)/Etc; \
 	chmod a+r $(INSTDIR)/Etc/gri.cmd \
 	)
 	(umask 02; cd Exception; \
-	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(umask 02; cd Xamine;    make   INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
+	(umask 02; cd Xamine;    make   INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd Tape; \
-	 make  $($(OS)MAKESW) OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)"; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd EventSource; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd TCL; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)"; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd Events; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)"; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd Gates; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd Sorter;   \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd SpectrumIO; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd SpecTcl;  \
-	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";\
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION);\
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd TestFiles; \
-	 make $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 
 clean: 
 	(cd Display;   make clean)

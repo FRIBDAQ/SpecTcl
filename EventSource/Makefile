@@ -13,7 +13,7 @@
 #
 
 
-
+SPECTCL_VERSION = -DVERSION=$(VERSION)
 OBJECTS=File.o GaussianDistribution.o TapeException.o TapeFile.o TestFile.o \
 	PipeFile.o
 
@@ -21,8 +21,8 @@ INCLUDEDIRS= -I. -I$(INSTDIR)/Include -I/usr/local/include
 
 LIBDIRS=-L/usr/local -L. -L$(INSTDIR)/Lib
 ECHO=echo
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS)
-LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS)
+COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) $(SPECTCL_VERSION)
+LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS) $(SPECTCL_VERSION)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=install -m 0664

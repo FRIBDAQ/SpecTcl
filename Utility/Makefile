@@ -4,10 +4,10 @@
 #   it is difficult to isolate them and package them in a single subsystem.
 #
 
-
+SPECTCL_VERSION= -DVERSION=$(VERSION)
 ECHO=echo
-COMPILE=g++ -c $(PROFILE) $(INCLUDEDIRS)
-LINK=g++ $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS)
+COMPILE=g++ -c $(PROFILE) $(INCLUDEDIRS) $(SPECTCL_VERSION)
+LINK=g++ $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) $(SPECTCL_VERSION)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=install -m 0664

@@ -22,6 +22,7 @@
 #                    Gamma2DB.o         - 2 d gamma byte spectra
 #                    Gamma2DW.o         - 2 d gamma word spectra
 
+SPECTCL_VERSION = -DVERSION=$(VERSION)
 CYGWININCS=-I/usr/local/tcl/include
 CYGWINLIBDIR=-L/usr/local/tcl/lib
 
@@ -38,8 +39,8 @@ LIBS=   -lSorting -lXplus -lGates -lAnalysis -lEventSource \
 	-ltk -ltcl -lXt -lX11
 
 ECHO=echo
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS)
-LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS)
+COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) $(SPECTCL_VERSION)
+LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) $(SPECTCL_VERSION)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=install -m 0664

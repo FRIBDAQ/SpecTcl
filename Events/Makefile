@@ -18,7 +18,7 @@ DarwinINCS=-I/usr/X11R6/include -I/usr/X11R6/include/X11
 DarwinLIBS=-L/usr/local/lib
 
 INCLUDEDIRS= $($(OS)INCS) -I. -I$(INSTDIR)/Include -I/usr/local/include
-
+SPECTCL_VERSION = -DVERSION=$(VERSION)
 
 
 LIBDIRS=-L/usr/local -L. -L$(INSTDIR)/Lib
@@ -26,8 +26,8 @@ LIBS=   $($(OS)LIBDIR) -lAnalysis -lEventSource -ltclPlus -lException \
 	-ltk -ltcl -lXt -lX11 $($(OS)LIBS)
 
 ECHO=echo
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS)
-LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS)
+COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) $(SPECTCL_VERSION)
+LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS) $(SPECTCL_VERSION)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=install -m 0664

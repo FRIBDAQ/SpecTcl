@@ -7,14 +7,15 @@
 #                                   in current directory.
 #
 #
+SPECTCL_VERSION = -DVERSION=$(VERSION)
 INCLUDEDIRS= -I. -I$(INSTDIR)/Include -I/usr/local/include
 LIBDIRS= -L. -L$(INSTDIR)/Lib -L/usr/local
 LIBS=   -lSorting -lXplus -lAnalysis -lEventSource -ltclPlus -lException \
 	 -ltape -lm
 
 ECHO=echo
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS)
-LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS)
+COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) $(SPECTCL_VERSION)
+LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) $(SPECTCL_VERSION)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=cp

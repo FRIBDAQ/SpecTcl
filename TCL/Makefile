@@ -7,6 +7,8 @@
 #      tests                   - Build any test programs against local version
 #                                of the library.
 
+SPECTCL_VERSION = -DVERSION=$(VERSION)
+
 LinuxLIBS=-ldl
 
 HPUXLIBDIR=-L/opt/tcltk/lib
@@ -33,8 +35,8 @@ LIBS=   -ltclPlus -lException -ltk -ltcl -lXt -lX11 $($(OS)LIBS)
 
 
 ECHO=echo
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS)
-LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS)
+COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) $(SPECTCL_VERSION)
+LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) $(SPECTCL_VERSION)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=install -m 0664

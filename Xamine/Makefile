@@ -16,6 +16,7 @@
 
 DarwinINCS=-I/usr/include/gcc/darwin/2.95.2/g++
 
+SPECTCL_VERSION= -DVERSION=$(VERSION)
 INCLUDEDIRS=-I$(INSTDIR)/Include -I. $($(OS)INCS)
 OBJECTS = DisplayGate.o Xamine1D.o Xamine2D.o XamineButton.o \
 	XamineButtonException.o XamineButtonPrompt.o XamineConfirmPrompt.o \
@@ -30,8 +31,8 @@ LIBS= -lXplus -lXamine -lException
 
 
 ECHO=echo
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS)
-LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS)
+COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) $(SPECTCL_VERSION)
+LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) $(SPECTCL_VERSION)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=install -m 0664
