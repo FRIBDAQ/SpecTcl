@@ -358,7 +358,7 @@ struct OptionInfo {
   string     Connection;	// Connection string.
   OptionInfo() {		// Construct with default parameters.
     eSource = eUnspecified;
-    Format  = "nscl";
+    Format  = "unchanged";
     nBytes  = knDefaultBufferSize;
     Connection = "";
   }
@@ -497,12 +497,14 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
    delete gpBufferDecoder;	// Deletes of null is no-op.
     gpBufferDecoder = new CNSCLBufferDecoder;
 
-  } else 
-    if (options.Format == string("filter")) {
+  } else  if (options.Format == string("filter")) {
 
     delete gpBufferDecoder;
     gpBufferDecoder = new CFilterBufferDecoder;
-
+  } else if (options.Format == string("unchanged")) {
+    ;				// Leave everything well enough alone!!!
+                                // This is necessary to support 
+                                // external formatters and is the default. 
   } else {			// Bad format.
 
     rResult  = "Unrecognized format type: ";
