@@ -280,15 +280,11 @@ DAMAGES.
   Change Log:
 
   $Log$
-  Revision 1.9  2003/08/27 12:38:27  ron-fox
-  - Add doxygen comments.
-  - In listing outputs output parameter names rather than ids.
-  - Simplify the logic of most of the functions.
-  - Replace can't get here locations with assert(0).
-  - Factored list out of all executor functions and did it at two levels:
-    List(name), List(Name Object).
-    The first looks up the name and calls the second.  Most executors call
-    the second form.
+  Revision 1.10  2003/08/28 18:32:33  ron-fox
+  - Use rInterp.TildeSubst to do tilde substitution
+    rather than home grown stuff.
+  - Add \n to the end of each element of the filter
+     output list in the list functions.
 
 */
 
@@ -809,9 +805,12 @@ Int_t CFilterCommand::File(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
 
   // Parse the filter description.
-  const char* pFileName = *pArgs;
+  string Filename(*pArgs);
+  Filename = rInterp.TildeSubst(Filename);
+  const char* pFileName = Filename.c_str();
   pArgs++;
   const char* pFilterName = *pArgs;
+
 
   // Find the filter and gate in the dictionary.  We can only procede
   // if all of these are found.
@@ -881,6 +880,7 @@ Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
     if(FilterName.Match(pPattern)) {
       OutputList.AppendElement(ListFilter(i->first, pFilter));
+      OutputList.Append("\n");
     }
     i++;
   }
