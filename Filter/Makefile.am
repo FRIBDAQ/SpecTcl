@@ -1,5 +1,5 @@
 INCLUDES = -g  -I. -I../Sorter -I../Events -I../Utility -I../Gates \
-	-I../SpecTcl -I../Xamine -I../Exception -I../TCL \
+	-I../SpecTcl -I../Xamine -I../NSCLException -I../TCL \
 	-I../EventSource -I../Display \
 	@TCL_FLAGS@
 LDFLAGS  = -L.

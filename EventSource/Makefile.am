@@ -1,4 +1,4 @@
-INCLUDES = -I. -I../Utility -I../Exception  -I../Tape -I../SpecTcl \
+INCLUDES = -I. -I../Utility -I../NSCLException  -I../Tape -I../SpecTcl \
 	-I../Events -I../TCL -I../Filter @TCL_FLAGS@
 
 LDFLAGS=-L. @TCL_LDFLAGS@
