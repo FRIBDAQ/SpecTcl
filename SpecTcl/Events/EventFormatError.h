@@ -328,7 +328,7 @@ public:
     knPacketIdMismatch,
     knInvalidPacketID,
     knBadPacketContents,	// For future expansion...
-    knUnused4,
+    knEmptyParameterMap,
     knUnused5,
     knUnused6,
     knUnused7,
