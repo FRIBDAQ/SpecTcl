@@ -85,12 +85,13 @@ system:
 	(umask 02; cd SpectrumIO; \
 	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION); \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
-	(umask 02; cd SpecTcl;  \
-	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION);\
-	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
+# Filter is needed by SpecTcl, so do first.
 	(umask 02; cd Filter; \
 	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION);\
 	 make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
+	(umask 02; cd SpecTcl;  \
+	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION);\
+	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 	(umask 02; cd TestFiles; \
 	 make $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" VERSION=$(SPECTCL_VERSION))
 
@@ -121,7 +122,7 @@ depend:
 	(cd Sorter;    make depend)
 	(cd SpectrumIO; make depend)
 	(cd EventSource; make depend)
+	(cd Filter; make depend)
 	(cd SpecTcl; make depend)
 	(cd Gates; make depend)
 	(cd TestFiles; make depend)
-	(cd Filter; make depend)
