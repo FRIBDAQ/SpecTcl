@@ -324,7 +324,7 @@ static const int Columns = 80;		/* 80 column text scroller. */
 static const int Rows    = 24;		/* 24 lines of text showing. */
 static const char *gtype[] = {
                                 "Undf.",
-				"Cut",
+				"Slice",
 				"Sum",
 				"Band",
 				"Cont.",

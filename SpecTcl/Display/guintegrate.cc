@@ -732,7 +732,7 @@ static void FormatIntegrationText(IntegrationDisplay *d)
     }
   }
   else {
-    sprintf(buffer, "Cuts: \n");
+    sprintf(buffer, "Slicess: \n");
     if(Xamine_logging)
       Xamine_log.LogMessage(buffer);
     d->AddText(buffer);
