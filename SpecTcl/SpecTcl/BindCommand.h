@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 
@@ -304,15 +304,6 @@ DAMAGES.
 #include "TCLPackagedCommand.h"
 #endif                               
 
-#ifndef __STL_VECTOR_H
-#include <vector>
-#define __STL_VECTOR_H
-#endif
-
-#ifndef __STL_STRING_H
-#include <string>
-#define __STL_STRING_H
-#endif
 
 // Forward class definitions:
 

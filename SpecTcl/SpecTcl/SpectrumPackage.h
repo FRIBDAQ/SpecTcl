@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CSpectrumPackage.h:
 //
@@ -294,6 +294,13 @@ DAMAGES.
 //                     Removed New1d, New2d replaced with CreateSpectrum.
 //
 //   $Log$
+//   Revision 5.1.2.1  2004/12/15 17:24:06  ron-fox
+//   - Port to gcc/g++ 3.x
+//   - Recast swrite/sread in terms of tcl[io]stream rather than
+//     the kludgy thing I had done of decoding the channel fd.
+//     This is both necessary due to g++ 3.x's runtime and
+//     nicer too!.
+//
 //   Revision 5.1  2004/11/29 16:56:12  ron-fox
 //   Begin port to 3.x compilers calling this 3.0
 //
@@ -320,14 +327,18 @@ DAMAGES.
 #endif
 
 
-#ifndef __STL_STRING_H
+#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING_H
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
 #endif
 
-#ifndef __STL_VECTOR_H
+#ifndef __STL_VECTOR
 #include <vector>
-#define __STL_VECTOR_H
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif
 #endif
 
 
@@ -426,15 +437,15 @@ public:
   
   int CreateSpectrum(CTCLResult& rResult, const char* pName, 
 		     const char* pSpecType,
-		     std::vector<std::string>& rvParameterNames,
-		     std::vector<UInt_t>&      nChannels,
-		     std::vector<Float_t>&     fLows,
-		     std::vector<Float_t>&     fHighs,
+		     STD(vector)<STD(string)>& rvParameterNames,
+		     STD(vector)<UInt_t>&      nChannels,
+		     STD(vector)<Float_t>&     fLows,
+		     STD(vector)<Float_t>&     fHighs,
 		     const char*               pDataType);
 
   // List Spectra
 
-  void ListSpectra (std::vector<std::string>& rvProperties)  ;
+  void ListSpectra (STD(vector)<STD(string)>& rvProperties)  ;
   Int_t ListSpectrum (CTCLResult& rResult, const char* pName)  ;
   Int_t ListSpectrum (CTCLResult& rResult, UInt_t nId)  ;
 
@@ -442,64 +453,64 @@ public:
 
   void ClearAll ()  ;
   Int_t ClearSubset (CTCLResult& rResult, 
-		     std::vector<std::string>& rvSpectra) ;
-  Int_t ClearSubset (CTCLResult& rResult, std::vector<UInt_t>& rvIds)  ;
+		     STD(vector)<STD(string)>& rvSpectra) ;
+  Int_t ClearSubset (CTCLResult& rResult, STD(vector)<UInt_t>& rvIds)  ;
 
   // Bind spectra to display:
 
   Int_t BindAll (CTCLResult& rResult)  ;
-  Int_t BindList (CTCLResult& rResult, std::vector<std::string>& rvNames)  ;
-  Int_t BindList (CTCLResult& rResult, std::vector<UInt_t>& rIds)  ;
+  Int_t BindList (CTCLResult& rResult, STD(vector)<STD(string)>& rvNames)  ;
+  Int_t BindList (CTCLResult& rResult, STD(vector)<UInt_t>& rIds)  ;
 
   // Remove spectrum bindings:
 
-  Int_t UnbindList (CTCLResult& rResult, std::vector<std::string>& rvNames)  ;
-  Int_t UnbindList (CTCLResult& rResult, std::vector<UInt_t>& rvIds)  ;
-  Int_t UnbindXidList (CTCLResult& rResult, std::vector<UInt_t>& rvXids)  ;
+  Int_t UnbindList (CTCLResult& rResult, STD(vector)<STD(string)>& rvNames)  ;
+  Int_t UnbindList (CTCLResult& rResult, STD(vector)<UInt_t>& rvIds)  ;
+  Int_t UnbindXidList (CTCLResult& rResult, STD(vector)<UInt_t>& rvXids)  ;
   void UnbindAll ()  ;
 
   // Spectrum deletion:
 
-  Int_t DeleteList (CTCLResult& rResult, std::vector<std::string>& rvNames)  ;
-  Int_t DeleteList (CTCLResult& rResult, std::vector<UInt_t>& rvnIds)  ;
+  Int_t DeleteList (CTCLResult& rResult, STD(vector)<STD(string)>& rvNames)  ;
+  Int_t DeleteList (CTCLResult& rResult, STD(vector)<UInt_t>& rvnIds)  ;
   void DeleteAll ()  ;
 
   // Inquire about spectrum bindings.
   //
 
   Int_t ListBindings (CTCLResult& rResult, 
-		      std::vector<std::string>& rvNames)  ;
-  Int_t ListBindings (CTCLResult& rResult, std::vector<UInt_t>& rvIds)  ;
-  Int_t ListXidBindings (CTCLResult& rResult, std::vector<UInt_t>& rvXIds)  ;
+		      STD(vector)<STD(string)>& rvNames)  ;
+  Int_t ListBindings (CTCLResult& rResult, STD(vector)<UInt_t>& rvIds)  ;
+  Int_t ListXidBindings (CTCLResult& rResult, STD(vector)<UInt_t>& rvXIds)  ;
   void ListAllBindings (CTCLResult& rResult)  ;
-  Bool_t GetChannel (CTCLResult& rResult, const string& rName, 
-		     const vector<UInt_t>& pIndices)    ;
-  Bool_t SetChannel (CTCLResult& rResult, const string& rName, 
-		     const vector<UInt_t>& rIndices, ULong_t nValue)    ;
-  Int_t  Write(string& rResult, const string& rSpectrum, ostream& rOut,
+  Bool_t GetChannel (CTCLResult& rResult, const STD(string)& rName, 
+		     const STD(vector)<UInt_t>& pIndices)    ;
+  Bool_t SetChannel (CTCLResult& rResult, const STD(string)& rName, 
+		     const STD(vector)<UInt_t>& rIndices, ULong_t nValue)    ;
+  Int_t  Write(STD(string)& rResult, const STD(string)& rSpectrum, STD(ostream)& rOut,
 	       CSpectrumFormatter* pFormat);
-  Int_t  Read(string& rResult, istream& rIn,
+  Int_t  Read(STD(string)& rResult, STD(istream)& rIn,
 	      CSpectrumFormatter* pFormat, UInt_t fFlags);
   // Utility functions:
 
 protected:
-  std::string DescribeSpectrum(CSpectrum& rSpectrum);
-  UInt_t      FindDisplayBinding(const std::string& rName);
+  STD(string) DescribeSpectrum(CSpectrum& rSpectrum);
+  UInt_t      FindDisplayBinding(const STD(string)& rName);
   UInt_t      FindDisplayBinding(UInt_t             nId);
   void        FormatBinding(CTCLString& rString, UInt_t nXId, 
 			    CSpectrum*  pSpectrum);
 public:
   Bool_t      GetNumberList(CTCLResult& rResult, 
-			    std::vector<UInt_t>& rvIds,
+			    STD(vector)<UInt_t>& rvIds,
 			    int nArgs, char* pArgs[]);
-  static void      GetNameList(std::vector<std::string>& rvNames,
+  static void      GetNameList(STD(vector)<STD(string)>& rvNames,
 			       int nArgs, char* pArgs[]);
   static const char*     SpecTypeToText(SpectrumType_t sType);
   static const char*     DataTypeToText(DataType_t dType);
   static SpectrumType_t  SpectrumType(const char* pType);
   static DataType_t      Datatype(SpectrumType_t st, const char* pType);
   static UInt_t*         ValidateIndices(CSpectrum* pSpec,
-					 const vector<UInt_t>& rIndices);
+					 const STD(vector)<UInt_t>& rIndices);
   void                   UniquifyName(CSpectrum* pSpectrum); // >>NEW<<
   Bool_t                 AllParamsExist(CSpectrum* pSpectrum); // >>NEW<<
 

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 // Class: CGateFactory                     //ANSI C++
 //
@@ -300,6 +300,13 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
+  - Port to gcc/g++ 3.x
+  - Recast swrite/sread in terms of tcl[io]stream rather than
+    the kludgy thing I had done of decoding the channel fd.
+    This is both necessary due to g++ 3.x's runtime and
+    nicer too!.
+
   Revision 5.1  2004/11/29 16:56:10  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -325,17 +332,24 @@ DAMAGES.
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
 #endif
+#endif
+
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_LIST
 #include <list>
+#ifndef __STL_LIST
 #define __STL_LIST
+#endif
 #endif
 
 //
@@ -438,43 +452,43 @@ protected:
 public:
 
    CGate* CreateGate (GateType nGateType, 
-		      const vector<string>& rGates);
+		      const STD(vector)<STD(string)>& rGates);
    CGate* CreateGate (GateType eType, 
-		      const vector<string>& rParameters, 
-		      const vector<FPoint>& rPoints);
+		      const STD(vector)<STD(string)>& rParameters, 
+		      const STD(vector)<FPoint>& rPoints);
    CGate* CreateGate (GateType eType, 
-		      const vector<FPoint>& rPoints, 
-		      const vector<string>& Ids);
+		      const STD(vector)<FPoint>& rPoints, 
+		      const STD(vector)<STD(string)>& Ids);
 
    CTrueGate* CreateTrueGate ();
    CFalseGate* CreateFalseGate ();
    CDeletedGate* CreateDeletedGate ();
-   CBand* CreateBand (const vector<string>& rParameters, 
-		     const vector<FPoint>& rPoints);
-   CContour* CreateContour (const vector<string>& rParameters, 
-			    const vector<FPoint>& rPoints);
-   C2Bands* CreateBandContour (const vector<string>& rBands);
-   CNot* CreateNotGate (const string& rGateNames);
-   CAndGate* CreateAndGate (const vector<string>& rGateNames);
-   COrGate* CreateOrGate (const vector<string>& rGateNames)    ;
-   CCut* CreateCut (const string& rParameterName, 
+   CBand* CreateBand (const STD(vector)<STD(string)>& rParameters, 
+		     const STD(vector)<FPoint>& rPoints);
+   CContour* CreateContour (const STD(vector)<STD(string)>& rParameters, 
+			    const STD(vector)<FPoint>& rPoints);
+   C2Bands* CreateBandContour (const STD(vector)<STD(string)>& rBands);
+   CNot* CreateNotGate (const STD(string)& rGateNames);
+   CAndGate* CreateAndGate (const STD(vector)<STD(string)>& rGateNames);
+   COrGate* CreateOrGate (const STD(vector)<STD(string)>& rGateNames)    ;
+   CCut* CreateCut (const STD(string)& rParameterName, 
 		    Float_t nLow, Float_t nHigh);
    CGammaCut* CreateGammaCut (Float_t nLow, Float_t nHigh,
-			      const vector<string>& Specs);
-   CGammaBand* CreateGammaBand (const vector<FPoint>& rPoints,
-				const vector<string>& Specs);
-   CGammaContour* CreateGammaContour (const vector<FPoint>& rPoints,
-				      const vector<string>& Specs);
+			      const STD(vector)<STD(string)>& Specs);
+   CGammaBand* CreateGammaBand (const STD(vector)<FPoint>& rPoints,
+				const STD(vector)<STD(string)>& Specs);
+   CGammaContour* CreateGammaContour (const STD(vector)<FPoint>& rPoints,
+				      const STD(vector)<STD(string)>& Specs);
  
 protected:
-  UInt_t ParameterToId(const string& rName, GateType eType, 
+  UInt_t ParameterToId(const STD(string)& rName, GateType eType, 
 		       const char* pWhich) const;
-  CSpectrum* NameToSpec(const string& rName, GateType eType,
+  CSpectrum* NameToSpec(const STD(string)& rName, GateType eType,
 			const char* pWhich) const;
-  CGateContainer& NameToGate(const string& rName, GateType eType,
+  CGateContainer& NameToGate(const STD(string)& rName, GateType eType,
 			     const char* pWhich)const;
-  void CreateGateList(list<CGateContainer*>& Gates,
-		      const vector<string>& rNames,
+  void CreateGateList(STD(list)<CGateContainer*>& Gates,
+		      const STD(vector)<STD(string)>& rNames,
 		      GateType eType, const char* pWhich) const;
 };
 

@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 // Class: CTclGrammerApp            //ANSI C++
 // File: TclGrammerApp
@@ -302,7 +302,9 @@
 
 #ifndef __STL_LIST
 #include <list>
+#ifndef __STL_LIST
 #define __STL_LIST
+#endif
 #endif
 
 #ifndef __TCLVARIABLE_H
@@ -356,7 +358,7 @@ class CTclGrammerApp : public CTCLApplication {
  public:
   //Default constructor alternative to compiler provided default constructor
   //Ensure correct initial values
-  //Initialization list has members in the order declared
+  //Initialization STD(list) has members in the order declared
   //Association object data member pointers initialized to null association object
   CTclGrammerApp();
   virtual ~CTclGrammerApp();

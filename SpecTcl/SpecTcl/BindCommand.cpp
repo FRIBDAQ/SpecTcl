@@ -314,7 +314,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Header Files:
 //
 
-
+#include <config.h>
 #include "BindCommand.h"
 #include "TCLString.h"
 #include "SpectrumPackage.h"
@@ -324,7 +324,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <vector>
 #include <string.h>
 
-
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Static Data:
 
@@ -468,7 +470,7 @@ CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //
 
 
-  std::vector<std::string> vNames;
+  vector<string> vNames;
   CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
 
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
@@ -503,7 +505,7 @@ CBindCommand::BindByIdent(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //    TCL_OK      if bound.
   //    TCL_ERROR   if some could not be bound.
 
-  std::vector<UInt_t>  vIdents;
+  vector<UInt_t>  vIdents;
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
   if(rPack.GetNumberList(rResult, vIdents, nArgs, pArgs)) {
     return TCL_ERROR;
@@ -620,7 +622,7 @@ CBindCommand::ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //   TCL_OK    - if all spectrum bindings fetched.
   //
 
-  std::vector<std::string> vNames;
+  vector<string> vNames;
   CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
 
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
@@ -653,7 +655,7 @@ CBindCommand::ListById(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //   TCL_ERROR - if error.
   //   TCL_OK    - if all spectrum bindings fetched.
   //
-  std::vector<UInt_t> vIds;
+  vector<UInt_t> vIds;
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
 
   if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) { 
@@ -692,7 +694,7 @@ CBindCommand::ListByXid(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //   TCL_OK    - if all spectrum bindings fetched.
   //
  
-  std::vector<UInt_t> vIds;
+  vector<UInt_t> vIds;
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
 
   if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) {
