@@ -1,4 +1,4 @@
-# /*
+#/*
 # 		    GNU GENERAL PUBLIC LICENSE
 # 		       Version 2, June 1991
 # 
@@ -286,9 +286,9 @@ parameter Distribution3 3 10
 parameter Distribution4 4 10
 parameter Distribution5 5 10
 parameter dist1+dist2   0 11
-parameter scaled        6 {10.0 20.0 MeV}
+parameter scaled        6 10 {10.0 20.0 MeV}
 parameter real          7
-parameter realunits     8 in
+
 #
 #  Ordinary spectra:
 #
@@ -297,17 +297,24 @@ spectrum d2 1 Distribution2 10
 spectrum d3 1 Distribution3 10
 spectrum d4 1 Distribution4 10
 spectrum d5 1 Distribution5 10
-spectrum gam1 g1 {Distribution1 Distribution2 Distribution3} 10 word
-spectrum gam2 g1 {Distribution1 Distribution2 Distribution4} 10 word
 spectrum sum 1 dist1+dist2  11
 spectrum sumw 1 dist1+dist2 11 word       ;# Word 1-d spectrum.
 spectrum d3-vs-sum 2 {Distribution3 dist1+dist2} {8 8}
 spectrum d1-vs-sum 2 {Distribution1 dist1+dist2} {8 8}
 spectrum d2-vs-d3  2 {Distribution1 Distribution3} {8 8} byte ;# byte 2d spec.
 spectrum ad1vsd2    2 {Distribution1 Distribution2} {8 8}
+spectrum gam1 g1 {Distribution1 Distribution2 Distribution3} 10 word
+spectrum gam2 g1 {Distribution1 Distribution2 Distribution4} 10 word
+
 spectrum gam3 g2 {Distribution1 Distribution2 Distribution3 Distribution4} {8 8} word
+
+spectrum gam3m g2 {Distribution1 Distribution2 Distribution3 Distribution4} \
+	{{1000 2000 100} {500 1500 200}}
 spectrum gam4 g2 {Distribution1 Distribution2 Distribution3 Distribution4 Distribution5} {8 8} word
 spectrum gam5 g2 {Distribution1 Distribution3 dist1+dist2} {8 8} word
+spectrum d1m 1 Distribution1 {{100 200 50}}
+spectrum d2-vs-d3m 2 {Distribution1 Distribution2} {{100 200 50} {200 300 100}}
+
 
 #
 #  Bit Spectra:
@@ -334,11 +341,9 @@ spectrum d1sumb s {Distribution1
 #
 #   Give spectra a slot in the display
 #
-sbind -all         ;# bind all spectra.
 #
 #   Put in some gates:
 #
-
 gate Band1  b {Distribution1 Distribution2 { {128 10} {512 64}}}
 gate Band2  b {Distribution1 Distribution2 { {128 64} {512 255}}}
 gate NotBand1 - Band1
@@ -361,3 +366,6 @@ gate REyeBrow gb { { {148 752} {240 784} {272 760}} gam3}
 gate LEyeBrow gb { { {568 752} {604 764} {716 736}} gam3}
 gate GSlice gs { {400 500} gam1}
 apply GSlice gam1
+
+
+sbind -all
