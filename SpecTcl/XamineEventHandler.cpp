@@ -383,14 +383,13 @@ void CXamineEventHandler::operator()(int mask)
 
 
       cerr << "\n Restarting Xamine...";
+      Tcl_Close(m_pInterp->getInterpreter(), m_SocketChannel);
       pDisplay->Restart();
       
       // Re-associate ourselves with the input channel:
 
       cerr << "\n Reconnecting with Xamine gate inputs..";
-
       m_nFd = m_pHistogrammer->getDisplayer()->GetEventFd();
-      Tcl_Close(m_pInterp->getInterpreter(), m_SocketChannel);
       m_SocketChannel = Tcl_MakeTcpClientChannel((ClientData)(long)m_nFd);
       Set(TK_READABLE);
       cerr << "\n";
