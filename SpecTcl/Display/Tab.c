@@ -95,7 +95,7 @@ static XtResource resources[]={
 	sizeof(Dimension),
 	offset(manager.shadow_thickness),
 	XmRString,
-	"2"
+	(XtPointer)"2"
 	},
 	{
 	XmNmarginWidth,
@@ -104,7 +104,7 @@ static XtResource resources[]={
 	sizeof(Dimension),
 	offset(tab.margin_width),
 	XmRString,
-	"3"
+	(XtPointer)"3"
 	},
 	{
 	XmNmarginHeight,
@@ -113,7 +113,7 @@ static XtResource resources[]={
 	sizeof(Dimension),
 	offset(tab.margin_height),
 	XmRString,
-	"3"
+	(XtPointer)"3"
 	}
 };
 
@@ -281,12 +281,12 @@ static void Destroy(Widget w)
 XmTabWidget wid = (XmTabWidget)w;
 }
 
-static Boolean SetValues(Widget current, Widget request, Widget new,
+static Boolean SetValues(Widget current, Widget request, Widget New,
 			 ArgList args, Cardinal *nargs)
 {
 XmTabWidget curw = (XmTabWidget) current;
 XmTabWidget reqw = (XmTabWidget) request;
-XmTabWidget neww = (XmTabWidget) new;
+XmTabWidget neww = (XmTabWidget) New;
 int tab_indx;
 Boolean redraw = False;
 
@@ -542,19 +542,19 @@ Widget child;
 		XmStringFree(tab_const->tab.tab_label);
 }
 
-static Boolean Constraint_SetValues(Widget current, Widget request, Widget new,
+static Boolean Constraint_SetValues(Widget current, Widget request, Widget New,
 				    ArgList args, Cardinal *nargs)
 {
 Boolean redraw = False; 
 XmTabConstraintRec *tab_con_cur;
 XmTabConstraintRec *tab_con_new;
 XmString temp_str;
-XmTabWidget tab_wid = (XmTabWidget)(new->core.parent);
+XmTabWidget tab_wid = (XmTabWidget)(New->core.parent);
 
  	tab_con_cur = 
 		(XmTabConstraintRec *) current->core.constraints;
  	tab_con_new = 
-		(XmTabConstraintRec *) new->core.constraints;
+		(XmTabConstraintRec *) New->core.constraints;
 
 	if( !XmStringCompare(tab_con_cur->tab.tab_label,
 				tab_con_new->tab.tab_label))

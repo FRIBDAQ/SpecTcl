@@ -204,7 +204,7 @@ XMMenus.o: XMMenus.cc XMWidget.h XMPushbutton.h XMMenus.h
 	$(CPP) $(XCCFLAGS) XMMenus.cc
 
 Tab.o: Tab.c Tab.h TabP.h
-	cc -g $(XCCFLAGS) Tab.c
+	$(CPP) -g $(XCCFLAGS) Tab.c
 
 Xamine: Xamine.o \
 	 MOTIF_LIB \
