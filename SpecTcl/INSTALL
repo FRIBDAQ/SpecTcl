@@ -180,3 +180,14 @@ operates.
      script, and exit.
 
 `configure' also accepts some other, not widely useful, options.
+
+=========================================================
+
+System notes:
+
+Tru64:  The only compiler supported for SpecTcl at this instant in time 
+(SpecTcl-2.1) is g++ version 2.95.1
+
+When configuring for Tru64 it is necessary to work around a bug in exception 
+propagation.  do configure with the --disable-shared switch.
+
