@@ -10,7 +10,7 @@
 //   For OSF, we need to turn off the UAC warnings:
 //   We'll do this for both parent and us:
 //
-#ifdef OSF
+#ifdef OSF1
 #include <sys/sysinfo.h>
 #include <sys/proc.h>
 #include <machine/hal_sysinfo.h>
@@ -200,7 +200,7 @@ main(int argc, char* argv[])
   ButtonDescription button;
   struct msg_InquireButtonAck binfo;
   int stat;
-#ifdef OSF
+#ifdef OSF1
   {
     int buf[2];			// Buffer to contain sysinfo requests.
     buf[0] = SSIN_UACPROC;	// This and the next turn off our UAC print.
@@ -209,7 +209,6 @@ main(int argc, char* argv[])
     if(setsysinfo(SSI_NVPAIRS, buf, 1, 0, 0) < 0) { // Not fatal.. just noisy
       perror("-OSF Specific- Failed to turn off UAC printing");
     }
-
   }
 #endif
 
