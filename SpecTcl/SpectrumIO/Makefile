@@ -51,7 +51,7 @@ clean:
 	$(RM) $(LIBRARY)
 
 depend:
-	makedepend $(INCLUDEDIRS) *.cpp
+	makedepend -Y. *.cpp
 
 install:
 	$(INSTALL) $(LIBRARY)   $(INSTDIR)/Lib
@@ -90,72 +90,3 @@ nsclbinerror.o: nsclbinerror.cpp
 nscldata.o: nscldata.cpp
 	$(COMPILE) nscldata.cpp
 
-# DO NOT DELETE
-
-NSCLAsciiSpectrumFormatter.o: NSCLAsciiSpectrumFormatter.h
-NSCLAsciiSpectrumFormatter.o: SpectrumFormatter.h
-NSCLAsciiSpectrumFormatter.o: ../SpecTcl/SpectrumPackage.h
-NSCLAsciiSpectrumFormatter.o: ./SpectrumFormatError.h /usr/include/math.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/features.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/sys/cdefs.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/gnu/stubs.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/bits/huge_val.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/bits/mathdef.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/bits/mathcalls.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/limits.h
-NSCLAsciiSpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/limits.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/time.h
-NSCLAsciiSpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/bits/time.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/bits/types.h /usr/include/string.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/ctype.h /usr/include/endian.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/bits/endian.h
-NSCLBinarySpectrumFormatter.o: NSCLBinarySpectrumFormatter.h
-NSCLBinarySpectrumFormatter.o: SpectrumFormatter.h ./nsclbin.h
-NSCLBinarySpectrumFormatter.o: /usr/include/string.h /usr/include/features.h
-NSCLBinarySpectrumFormatter.o: /usr/include/sys/cdefs.h
-NSCLBinarySpectrumFormatter.o: /usr/include/gnu/stubs.h
-NSCLBinarySpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-NSCLBinarySpectrumFormatter.o: /usr/include/errno.h /usr/include/bits/errno.h
-NSCLBinarySpectrumFormatter.o: /usr/include/linux/errno.h
-NSCLBinarySpectrumFormatter.o: /usr/include/asm/errno.h ./nscldata.h
-NSCLBinarySpectrumFormatter.o: ./nsclbinerror.h ../SpecTcl/SpectrumPackage.h
-NSCLBinarySpectrumFormatter.o: ./SpectrumFormatError.h /usr/include/math.h
-NSCLBinarySpectrumFormatter.o: /usr/include/bits/huge_val.h
-NSCLBinarySpectrumFormatter.o: /usr/include/bits/mathdef.h
-NSCLBinarySpectrumFormatter.o: /usr/include/bits/mathcalls.h
-NSCLBinarySpectrumFormatter.o: /usr/include/limits.h
-NSCLBinarySpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/limits.h
-NSCLBinarySpectrumFormatter.o: /usr/include/ctype.h /usr/include/bits/types.h
-NSCLBinarySpectrumFormatter.o: /usr/include/endian.h
-NSCLBinarySpectrumFormatter.o: /usr/include/bits/endian.h
-SpectrumFormatError.o: ./SpectrumFormatError.h
-SpectrumFormatter.o: SpectrumFormatter.h
-SpectrumFormatterFactory.o: SpectrumFormatterFactory.h SpectrumFormatter.h
-SpectrumStandardFormatters.o: SpectrumFormatterFactory.h SpectrumFormatter.h
-SpectrumStandardFormatters.o: NSCLAsciiSpectrumFormatter.h
-SpectrumStandardFormatters.o: NSCLBinarySpectrumFormatter.h ./nsclbin.h
-SpectrumStandardFormatters.o: /usr/include/string.h /usr/include/features.h
-SpectrumStandardFormatters.o: /usr/include/sys/cdefs.h
-SpectrumStandardFormatters.o: /usr/include/gnu/stubs.h
-SpectrumStandardFormatters.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-SpectrumStandardFormatters.o: /usr/include/errno.h /usr/include/bits/errno.h
-SpectrumStandardFormatters.o: /usr/include/linux/errno.h
-SpectrumStandardFormatters.o: /usr/include/asm/errno.h ./nscldata.h
-SpectrumStandardFormatters.o: ./nsclbinerror.h
-nsclbin.o: /usr/include/string.h /usr/include/features.h
-nsclbin.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-nsclbin.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-nsclbin.o: /usr/include/errno.h /usr/include/bits/errno.h
-nsclbin.o: /usr/include/linux/errno.h /usr/include/asm/errno.h ./nscldata.h
-nsclbin.o: ./nsclbinerror.h ./nscltime.h /usr/include/time.h
-nsclbin.o: /usr/include/bits/time.h /usr/include/bits/types.h ./nsclbin.h
-nsclbin.o: /usr/include/math.h /usr/include/bits/huge_val.h
-nsclbin.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-nsclbinerror.o: ./nsclbinerror.h
-nscldata.o: /usr/include/errno.h /usr/include/features.h
-nscldata.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-nscldata.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
-nscldata.o: /usr/include/asm/errno.h /usr/include/string.h
-nscldata.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h ./nscldata.h
-nscldata.o: ./nsclbinerror.h

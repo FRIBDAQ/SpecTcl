@@ -13,6 +13,7 @@ LinuxMAKESW=-j 4
 DarwinMAKESW=-j 4
 
 system:
+	g++ --version
 	mkdir -p $(INSTDIR)/Bin
 	mkdir -p $(INSTDIR)/Etc
 	mkdir -p $(INSTDIR)/Include
@@ -40,6 +41,14 @@ system:
 	  export PATH LD_LIBRARY_PATH; \
 	  make aedxamine.o OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)"; \
 	  ar r libXamine.a aedxamine.o; \
+	  ranlib libXamine.a; \
+	fi; \
+	if [ -e /lib/cmplrs/fort/fort -a `uname` = "OSF1" ]; \
+	then \
+	  echo Building aedxamine with digital fortran compiler.; \
+	  make aedxamine.o OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)"; \
+	  ar r libXamine.a aedxamine.o; \
+	  ranlib libXamine.a; \
 	fi; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Gri; ./configure; make; make install INSTDIR=$(INSTDIR) \

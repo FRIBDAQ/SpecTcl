@@ -23,7 +23,7 @@ configure:1050: c++ -E  conftest.C >/dev/null 2>conftest.out
 configure:1083: checking for old C++ subroutine called string::remove
 configure:1102: c++ -c -g -O2  conftest.C 1>&5
 configure: In function `int main()':
-configure:1097: no matching function for call to `basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> >::remove (int, int)'
+configure:1097: no matching function for call to `basic_string<char,string_char_traits<char>,__default_alloc_template<false,0> >::remove (int, int)'
 configure: failed program was:
 #line 1089 "configure"
 #include "confdefs.h"
@@ -41,79 +41,3 @@ configure:1125: checking for gcc compiler
 configure:1156: checking for DEC cxx compiler
 configure:1189: checking for for apple computer
 configure:1225: checking for DEC alpha computer
-configure:1260: checking for BeOS environment
-configure:1296: checking for HPUX environment
-configure:1333: checking for for Sun Microsystems computer
-configure:1368: checking for for IBM AIX computer with IBM compiler
-configure:1404: checking for for mingw32 system
-configure:1439: checking to see whether this machine is big endian or little endian
-configure:1468: gcc -o conftest -g -O2   conftest.c  1>&5
-configure:1508: checking for unistd.h
-configure:1518: c++ -E  conftest.C >/dev/null 2>conftest.out
-configure:1547: checking for netcdf library
-configure:1617: checking for convert
-configure:1653: checking for ANSI C header files
-configure:1666: c++ -E  conftest.C >/dev/null 2>conftest.out
-configure:1733: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1758: checking for pid_t
-configure:1792: checking for POSIX times() subroutine
-configure:1817: c++ -c -g -O2  conftest.C 1>&5
-configure:1842: checking for isnan
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for isinf
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for acosh
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for getcwd
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for getenv
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for popen
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for drand48
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for mkstemp
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for tmpnam
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-/tmp/ccxRL9dc.o: In function `main':
-/user/fox/SpecTcl/Gri/configure:1867: the use of `tmpnam' is dangerous, better use `mkstemp'
-configure:1842: checking for tempname
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-/tmp/ccFKcPLa.o: In function `main':
-/user/fox/SpecTcl/Gri/configure:1867: undefined reference to `tempname'
-collect2: ld returned 1 exit status
-configure: failed program was:
-#line 1847 "configure"
-#include "confdefs.h"
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char tempname(); below.  */
-#include <assert.h>
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-    builtin and then its argument prototype would still apply.  */
-char tempname();
-
-int main() {
-
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_tempname) || defined (__stub___tempname)
-choke me
-#else
-tempname();
-#endif
-
-; return 0; }
-configure:1842: checking for gethostname
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for access
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for lstat
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5
-configure:1842: checking for strerror
-configure:1873: c++ -o conftest -g -O2   conftest.C  1>&5

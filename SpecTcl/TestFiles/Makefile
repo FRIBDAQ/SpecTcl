@@ -30,41 +30,10 @@ install: system
 
 
 depend:
-	$(DEPEND) $(INCLUDEDIRS) *.cpp
+	$(DEPEND) -Y.  *.cpp
 
 testfile: testfile.cpp
 	$(LINK)  -o testfile   testfile.cpp  $(LIBS)
 
 ltwrite: ltwrite.cpp
 	$(LINK)  -o ltwrite ltwrite.cpp $(LIBS)
-# DO NOT DELETE
-
-ltwrite.o: /usr/include/errno.h /usr/include/features.h
-ltwrite.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-ltwrite.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
-ltwrite.o: /usr/include/asm/errno.h /usr/include/stdio.h
-ltwrite.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-ltwrite.o: /usr/include/bits/types.h /usr/include/libio.h
-ltwrite.o: /usr/include/_G_config.h /usr/include/wchar.h
-ltwrite.o: /usr/include/bits/wchar.h /usr/include/gconv.h
-ltwrite.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stdarg.h
-ltwrite.o: /usr/include/bits/stdio_lim.h /usr/include/sys/types.h
-ltwrite.o: /usr/include/time.h /usr/include/sys/stat.h
-ltwrite.o: /usr/include/bits/stat.h /usr/include/fcntl.h
-ltwrite.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
-ltwrite.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
-testfile.o: /usr/include/stdio.h /usr/include/features.h
-testfile.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-testfile.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-testfile.o: /usr/include/bits/types.h /usr/include/libio.h
-testfile.o: /usr/include/_G_config.h /usr/include/wchar.h
-testfile.o: /usr/include/bits/wchar.h /usr/include/gconv.h
-testfile.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stdarg.h
-testfile.o: /usr/include/bits/stdio_lim.h /usr/include/stdlib.h
-testfile.o: /usr/include/errno.h /usr/include/bits/errno.h
-testfile.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
-testfile.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
-testfile.o: /usr/include/sys/types.h /usr/include/time.h
-testfile.o: /usr/include/sys/stat.h /usr/include/bits/stat.h
-testfile.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
-testfile.o: /usr/include/bits/confname.h

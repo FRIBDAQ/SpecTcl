@@ -3,7 +3,7 @@
 
 VERSION = 2.10.1
 srcdir = .
-DESTDIR=
+DESTDIR=$(INSTDIR)
 INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_DATA = ${INSTALL} -m 644
@@ -113,9 +113,12 @@ startup.o: version.cc startup.cc Makefile.in
 
 # Install all relevant files, creating directories, destroying old
 # links and creating new links as necessary.
-install: all install-bin
-	@echo "Installing into '$(prefix)' directory"
-	cd doc; prefix=$(prefix) make install INSTALL='$(INSTALL)' 
+install:
+	@echo "Installing into '$(DESTDIR)' directory"
+	cp gri $(DESTDIR)/Bin/gri
+	cp gri.cmd $(DESTDIR)/Etc/gri.cmd
+	echo "Gri installation complete"
+#	cd doc; prefix=$(DESTDIR) make install INSTALL='$(INSTALL)' 
 
 install-bin:
 	cat startup.msg | sed -e s,VSN,${VERSION}, -e s,PREFIX,$(prefix), > tmp
