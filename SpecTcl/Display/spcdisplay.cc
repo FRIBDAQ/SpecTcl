@@ -389,13 +389,30 @@ void Xamine_DisplayPane (int row, int col, int specid)
 
 #define TF(log) ((log) ? "True" : "False")
 
+
+  // Figure out state of mapping button:\
+
   float xmax = xamine_shared->getxmax_map(specid);
   float xmin = xamine_shared->getxmin_map(specid);
+
+  if((xmax == 0) && (xmin == 0)) { // Unmappable..
+    Xamine_SetApplyMapSensitivity(False);
+  }
+  else {			// mappable
+    Xamine_SetApplyMapSensitivity(True);
+    Xamine_SetButtonBarApplyMap(attribs->ismapped());
+  }
+
+  
+
+  // Stetup the update:
 
   Xamine_SetDisplayAttributes(row, col, attribs);
   Xamine_RedrawPane(col, row);
   Xamine_ChangedWindows();	/* Mark windows changed. */
-  Xamine_SetApplyMapSensitivity(((xmax == 0) && (xmin == 0)) ? False : True);
+  
+
+  
 }
 
 
