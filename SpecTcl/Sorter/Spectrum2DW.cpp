@@ -385,11 +385,11 @@ CSpectrum2DW::Increment(const CEvent& rE)
   if(rEvent[m_nXParameter].isValid()  && // Require the parameters be in event
      rEvent[m_nYParameter].isValid()) { // size range.
     UInt_t nx = (m_nXScaleDifference >= 0) ? 
-		 (UInt_t)(rEvent[m_nXParameter] >> m_nXScaleDifference) :
-		 (UInt_t)(rEvent[m_nXParameter] << -(m_nXScaleDifference));
+		 (UInt_t)((Int_t)rEvent[m_nXParameter] >> m_nXScaleDifference) :
+		 (UInt_t)((Int_t)rEvent[m_nXParameter] << -(m_nXScaleDifference));
     UInt_t ny = (m_nYScaleDifference >= 0) ?
-                   (UInt_t)(rEvent[m_nYParameter] >> m_nYScaleDifference) :
-                   (UInt_t)(rEvent[m_nYParameter] << (-m_nYScaleDifference));
+                   (UInt_t)((Int_t)rEvent[m_nYParameter] >> m_nYScaleDifference) :
+                   (UInt_t)((Int_t)rEvent[m_nYParameter] << (-m_nYScaleDifference));
     if( (nx < (1 << m_nXScale))  && (ny < (1 << m_nYScale))) {
       UShort_t* pSpec = (UShort_t*)getStorage();
       pSpec[nx + (ny << m_nXScale)]++;
