@@ -228,3 +228,6 @@ February 11, 2005
       that's used by buffer analysis it is NSCL specific.
 February 14, 2005
     - Completed testing of Analysis library.
+February 15, 2005
+    - Added C interface to Analysis library and unit tests for those.
+    - Added check for paths for the 'check' c unit test framework.
