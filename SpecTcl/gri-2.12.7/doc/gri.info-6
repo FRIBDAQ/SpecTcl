@@ -1,0 +1,1354 @@
+This is gri.info, produced by makeinfo version 4.3 from gri.texi.
+
+INFO-DIR-SECTION Scientific Applications
+START-INFO-DIR-ENTRY
+* Gri: (gri).  Programming language for scientific illustration
+END-INFO-DIR-ENTRY
+
+
+File: gri.info,  Node: Set Contour Format,  Next: Set Contour Label For,  Prev: Set Colorname,  Up: Set
+
+`set contour format'
+....................
+
+     `set contour format \style|default'
+
+Normally, Gri draws the numeric labels of contours using a format code
+called `%g' in the "C" language.  You may specify any other "long"
+format using this command.  For example, `set contour format %.1f'
+tells Gri to use one decimal place in the numbers, and also to prefer
+the "float" notation to the exponential notation.  `set contour format
+default' resets to the default `%f' format.  You may use quotes around
+the format if you need to, to make the item be a single word (e.g. `set
+contour format "%.1f m/s"').
+
+
+File: gri.info,  Node: Set Contour Label For,  Next: Set Contour Label Position,  Prev: Set Contour Format,  Up: Set
+
+`set contour label for'
+.......................
+
+     `set contour label for lines exceeding .x. cm'
+
+Make it so contour lines shorter than `.x.' centimeters will not be
+labelled.
+
+
+File: gri.info,  Node: Set Contour Label Position,  Next: Set Contour Labels,  Prev: Set Contour Label For,  Up: Set
+
+`set contour label position'
+............................
+
+     `set contour label position \
+       {.start_cm. .between_cm.} \
+       | centered \
+       | default'
+
+By default, contour labels are drawn at the location 1 cm into the
+contour curve, measured from the startpoint of the contour (e.g., for
+contours crossing the axes frames, the label will be 1 cm from the
+frame), and then at a uniform distance along the contour.  By default,
+this uniform distance is the average dimension of the plotting area
+inside the axes.  If `.start_cm.' and `.between_cm.' are specified, the
+first label is drawn at a distance `.start_cm.' from the start of the
+contour, and thereafter at a separation of `.between_cm.'.
+
+   If the `centered' option is used, then the contour labels are
+centered along the length of the line.
+
+
+File: gri.info,  Node: Set Contour Labels,  Next: Set Dash,  Prev: Set Contour Label Position,  Up: Set
+
+`set contour labels'
+....................
+
+     set contour labels rotated \
+       | horizontal \
+       | whiteunder \
+       | nowhiteunder
+
+The first two options control whether contour labels are rotated to line
+up with the contour lines, or whether they are horizontal (the default).
+
+   The second two options control whether the region under contour
+labels is whited out before drawing the label.  The default is
+`whiteunder', which has the visual effect of the label having been
+drawn on a piece of paper and then pasted on.  This can look jarring
+when the material under the contour is an image.  When `nowhiteunder'
+is specified, the contour line is broken to make space for the text,
+but no whiting out is done.
+
+
+File: gri.info,  Node: Set Dash,  Next: Set Environment,  Prev: Set Contour Labels,  Up: Set
+
+`set dash'
+..........
+
+     `set dash [.n.|{.dash_cm. .blank_cm. ...}|off]'
+
+Control dash-style for following `draw curve' and `draw line' commands.
+
+   * `set dash' Set to dashed line (0.4cm dashes, 0.1cm blanks).
+
+   * `set dash .n.' Set to indicated pre-defined dashed line, according
+     to table:
+
+          .n. dash/cm blank/cm
+           0        -        -   ... (Solid line)
+           1      0.2      0.1
+           2      0.4      0.1
+           3      0.6      0.1
+           4      0.8      0.1
+           5      1.0      0.1
+          10      w        w
+          11      w        2w
+          12      w        3w
+          13      w        4w
+          14      w        5w
+          15      w        6w
+
+     Where `w' is written, it indicates the current linewidth.  Thus,
+     types 10 through 15 give square-dotted lines.
+
+   * `set dash .dash_cm. .blank_cm. .dash_cm. .blank_cm. ...' Set to
+     indicated dashed line.  The series of lengths `.dash_cm.' and
+     `.blank_cm.' give the lengths of dash and blank portions (measured
+     in centimeters).  Any number of dash/blank lengths may be given.
+     For example, `set dash 0.5 0.1 0.1 0.1' looks good.
+
+   * `set dash off' Turn dashing off, setting to a solid line.
+
+
+File: gri.info,  Node: Set Environment,  Next: Set Error Action,  Prev: Set Dash,  Up: Set
+
+`set environment'
+.................
+
+     `set environment'
+
+Set environment (graylevel, axis length, etc) so that following plotting
+commands will make use of anything set by either a `set' command or by
+direct manipulation of builtin variables like `..xsize..', etc.  NOTE:
+this should *only* be done by developers.
+
+
+File: gri.info,  Node: Set Error Action,  Next: Set Flag,  Prev: Set Environment,  Up: Set
+
+`set error'
+...........
+
+     `set error action to core dump'
+
+Make Gri dump core when any error is found, to facilitate debugging.
+
+
+File: gri.info,  Node: Set Flag,  Next: Set Font Color,  Prev: Set Error Action,  Up: Set
+
+`set flag'
+..........
+
+     `set flag \name [off]'
+
+Set the indicated flag to YES.  The name of the flag is contained in a
+single word, e.g. `set flag dan_28sep_test'.  The action of the flags
+may change with time and is undocumented.  This command is provided to
+enable selected users (e.g., the developer himself) to use test
+features of Gri before they are frozen into a fixed syntax and action.
+The keyword `off' turns the indicated flag off.  NOTE: this should
+*only* be done by developers.
+
+     FLAG         DATE     ACTION
+     
+     jinyu1       29sep94  'convert columns to grid'
+                            outputs (x,y,z,z_predicted)
+     
+     emulate_gre   9jun97  'E' format on axes yields
+                           scientific notation
+     
+     kelley1      17jun97  for kelley only - quit contour
+                           trace if hit nonlegit
+     
+     kelley2      17jun97  for kelley only: print
+                           info while contour tracing
+
+
+File: gri.info,  Node: Set Font Color,  Next: Set Font Encoding,  Prev: Set Flag,  Up: Set
+
+`set font color'
+................
+
+     set font color \name           | \
+         {rgb .red. .green. .blue.} | \
+     {hsb .hue. .saturation. .brightness.}
+
+The syntax is the same as `set color', except that this applies to text
+only.  By default, text is drawn in the same color as lines, so text
+color is changed as line color is changed (e.g. by using the `set
+color' or `set graylevel' commands)).  However, once `set font color'
+is used in a Gri program, the font thereafter maintains a separate
+color from the lines.
+
+
+File: gri.info,  Node: Set Font Encoding,  Next: Set Font Size,  Prev: Set Font Color,  Up: Set
+
+`set font encoding'
+...................
+
+     set font encoding PostscriptStandard | isolatin1
+
+Permits one to control the so-called "font encoding" used in text.  The
+default font encoding is ISO-Latin-1, which is best for English and
+other European languages.  To learn how to enter accents in a text
+editor, and for a brief overview of font encodings, (*Note Non-English
+Text::).
+
+   If the so-called "Postscript Standard" font encoding is required,
+this command permits changing the encoding.
+
+   Note: few users will ever need this command.  If you don't even know
+what "font encoding" is about, ignore this command!
+
+
+File: gri.info,  Node: Set Font Size,  Next: Set Font To,  Prev: Set Font Encoding,  Up: Set
+
+`set font size'
+...............
+
+     `set font size {.size. [cm]}|default'
+
+Set the size of the font for drawing of text.
+
+   * `set font size .size.' Set font size to `.size.' points.  (A point
+     is 1/72 of an inch, or 1/28 of a centimetre.)
+
+   * `set font size .size. cm' Set font size to `.size.' centimetres.
+
+   * `set font size default' Set font size to default = 12 pts.
+
+   If your figure is to be reproduced by a journal, you should check
+with them about the range of font size they need.  This will, of course,
+depend on whether your figure is reduced or enlarged during
+reproduction.  For example, American Geophysical Union (publishers of
+J. Geophysical Res.) recommends that one use fonts no smaller than 8
+points.  They also recommend that the range in fontsize in a given
+figure not exceed 2.
+
+
+File: gri.info,  Node: Set Font To,  Next: Set Graylevel,  Prev: Set Font Size,  Up: Set
+
+`set font to'
+.............
+
+     `set font to \fontname'
+
+Set font to named style.  Note that the backslash is *not* to be
+written, but here merely means that this word has several alternatives.
+For example, one might say `set font to Courier'.  The allowed
+fontnames are: `Courier', a typewriter font (and the only monospaced
+font in Gri); `Helvetica' (the default), a sans-serif font commonly
+used in drafting scientific graphs; `HelveticaBold', a bold version of
+Helvetica; `Times' (also called `TimesRoman'), a font used in most
+newspapers; `TimesBold', a bold version of Times; `Palatino' (also
+called `PalatinoRoman'), similar to Times; `Symbol', included for
+completeness, is a mathematical font in which "a" becomes $\alpha$ of
+the math mode, etc.  For reference on these fonts see any book on
+PostScript.  The default font is `Helvetica'.
+
+
+File: gri.info,  Node: Set Graylevel,  Next: Set Grid Missing,  Prev: Set Font To,  Up: Set
+
+`set graylevel'
+...............
+
+     `set graylevel .brightness.|white|black'
+
+Set graylevel for lines to indicated numerical value between 0=black and
+1=white, or to the named color.
+
+   Note: if your diagram is to be reproduced by a journal, it is
+unlikely that the reproduction will be able to distinguish between any
+two graylevels which differ by less than 0.2.  Also, graylevels less
+than 0.2 may appear as pure black, while those of 0.8 or more may
+appear as pure white.  These guidelines are as specified by American
+Geophysical Union (publishers of J. Geophysical Res.), as of 1998.
+
+
+File: gri.info,  Node: Set Grid Missing,  Next: Set Ignore Initial Newline,  Prev: Set Graylevel,  Up: Set
+
+`set grid missing'
+..................
+
+   General format is
+
+     `set grid missing \
+       {above|below .intercept. .slope} \
+       | {inside curve}'
+
+The style
+
+     `set grid missing above|below .intercept. .slope'
+
+sets grid to missing value for all points above/below the line defined
+by y = .intercept. + .slope. * x
+
+   The style
+
+     `set grid missing inside curve'
+
+sets the grid to the missing value throughout an area described by the
+curve last read in with `read columns'.  This is useful for e.g.
+excluding land areas while contouring ocean properties.  The curve may
+contain several "islands," each tracing (clockwise) a region inside of
+which the grid is to considered missing.  If the first point in an
+island doesn't match the last, then an imaginary line is assumed which
+connects them.  Multiple islands may be separated by missing-value
+codes.
+
+   *See also* `Set Z Missing'.
+
+
+File: gri.info,  Node: Set Ignore Initial Newline,  Next: Set Ignore Error Eof,  Prev: Set Grid Missing,  Up: Set
+
+`set ignore initial newline'
+............................
+
+     `set ignore initial newline [off]'
+
+Make Gri ignore a newline if it occurs as the first character of the
+next data file.  This is used for files made by FORTRAN programs on
+VAX/VMS computers.
+
+
+File: gri.info,  Node: Set Ignore Error Eof,  Next: Set Image Colorscale,  Prev: Set Ignore Initial Newline,  Up: Set
+
+`set ignore error eof'
+......................
+
+     `set ignore error eof'
+
+Stop Gri from considering that to encounter an end of file in future
+`read' commands consitutes an error; Gri will simply warn about future
+EOFs.
+
+
+File: gri.info,  Node: Set Image Colorscale,  Next: Set Image Grayscale,  Prev: Set Ignore Error Eof,  Up: Set
+
+`set image colorscale'
+......................
+
+     set image colorscale hsb .h. .s. .b. .im_value. \
+         hsb .h. .s. .b. .im_value. [increment .im_value.]
+     set image colorscale rgb .r. .g. .b. .im_value. \
+         rgb .r. .g. .b. .im_value. [increment .im_value.]
+     set image colorscale \
+       \name .im_value. \
+       \name .im_value. \
+       [increment .im_value.]
+
+Set colorscale mapping for image, using HSB (hue, saturation,
+brightness) specification, RGB (red, green, blue) color specification,
+or named colors.  The image range must previously have been set by `set
+image range', so that the `.im_value.' values will have meaning.  Two
+pairs of (color, image-value) are given, and possibly an increment.
+Normally the colors are smoothly blended between the endpoints, but if
+an increment is supplied, the colors are quantized.  The HSB method
+allows creation of spectral palettes, while the other two methods
+create simple blending between the two endpoints.
+
+   EG: To get a spectrum ranging between pure red (H=0) for image value
+of -10.0, and pure blue (H=2/3) for image value of 10.0, do this:
+
+     set image colorscale hsb 0 1 1 -10 hsb .666 1 1 10
+
+   EG: To get a scale running from pure red (at image-value 10.0) into
+pure blue (at image-value 25.1), but with the colors blending
+intuitively in between (i.e., blending as paint might), use `rgb' color
+specification, as follows:
+
+     set image colorscale rgb 1 0 0 10 rgb  0 0 1 25.1
+
+   EG: To get a quantized blend between the X11 colors `skyblue' at
+image value of 0 and `tan' at image value of 20, and with steps at
+image values incrementing by 5, do this:
+
+     set image colorscale skyblue 0 tan 20 increment 5
+
+Note that the traversal is through RGB space, so it is intuitive, not
+spectral.  See `set color' for a list of X11 colors known to Gri.
+
+   See also `read image colorscale' (*Note Read Image Colorscale::).
+
+
+File: gri.info,  Node: Set Image Grayscale,  Next: Set Image Missing Value Color,  Prev: Set Image Colorscale,  Up: Set
+
+`set image grayscale'
+.....................
+
+     `set image grayscale using histogram \
+       [black .bl. white .wh.]'
+     
+     `set image grayscale \
+       [black .bl. white .wh. [increment .inc.]]'
+
+Set up a grayscale mapping for images.  The image range must have
+previously have been set by `set image range'.
+
+     `set image grayscale using histogram [black .bl. white .wh.]'
+
+Create a grayscale mapping using linearized cumulative histogram
+enhancement.  The image range must have previously have been set by
+`set image range'.
+
+   This creates maximal contrast in each range of graylevels, and is
+useful for tracing subtle features between different images (for
+example, it makes it easier to trace fronts between successive satellite
+images).  The entire histogram is expanded, from the smallest value in
+the image to the largest.
+
+   With no options specified, the histogram is done from 0 in the image
+to 255 in the image.  If the black/white options are specified, the
+histogram is done between these values.
+
+     `set image grayscale \
+       [black .bl. white .wh. [increment .inc.]]'
+
+With no optional parameters, create a grayscale mapping for the current
+image, scaling it from black for the mininum value in the image to white
+for the maximum value.  The image range must have previously have been
+set by `set image range'.
+
+   The optional parameters `.wh.' and `.bl.' specify the values to be
+drawn in white and black in the image, with smooth linear blending in
+between.
+
+   Normally the blending from white to black is smooth (linear), but if
+the additional optional parameter `.inc.' is specified, the blending is
+quantized, jumping to darker values at (`.wh.' + `.inc.'), (`.wh.' + 2*
+`.inc.'), etc.  (The sign of `.inc.' will be altered, if necessary, to
+ensure that (`.wh.' + `.inc.') is between `.wh.' and `.inc.'.)  The
+colour switches to pure white at the value `.wh.', and remains pure
+white everywhere on the "white" side of this value.  Similarly, the
+transition to pure black occurs at the value `.bl.'.  In other words,
+neither pure white nor pure black is present inside the interval from
+`.wh.' to `.bl.'.  Therefore, when using the `draw image palette'
+command, you might want to extend the range by one increment so as to
+get an example of both pure white and pure black.
+
+     .w. = 0
+     .b. = 1
+     .i. = 0.2
+     set image grayscale white .w. black .b. increment .i.
+     draw image palette left \
+       {rpn .w. .i. -} \
+       right {rpn .b. .i. +} \
+       increment .i.
+
+
+File: gri.info,  Node: Set Image Missing Value Color,  Next: Set Image Range,  Prev: Set Image Grayscale,  Up: Set
+
+`set image missing value color'
+...............................
+
+     set image missing value color to white|black|\
+         {graylevel .brightness.}|{rgb .r. .g. .b.}
+
+Set the color of "missing" pixels (white by default).  The image range
+must have previously have been set by `set image range'.  Pixels with
+missing values can result from creating images from grids which have
+missing values; see the `convert grid to image' command.  The
+`.brightness.' parameter in the `graylevel' style ranges from 0 for
+black to 1 for white.  The `rgb' parameters allow setting to full color.
+
+
+File: gri.info,  Node: Set Image Range,  Next: Set Input Data Window,  Prev: Set Image Missing Value Color,  Up: Set
+
+`set image range'
+.................
+
+     set image range .0value. .255value.
+
+Specify maximum possible range of values that images can hold, in user
+units.  Gri needs to know this because it stores images in a limited
+format capable of holding only 256 distinct values.  Unlike some other
+programs, Gri encourages (forces) the user to specify things in terms of
+user-units, not image-units.  This has the advantage of working
+regardless of the number of bits per pixel.  Thus, for example, `set
+image grayscale', `set image colorscale', `draw image grayscale', etc,
+all use *user* units.
+
+   When an image is created by `convert grid to image', values outside
+the range spanned by `.0value.' and `.255value.' are clipped.  (There
+is no need, however, for `.0value.' to be less than `.255value.'.)
+This clipping discards information, so make sure the range you give is
+larger than the range of data in the grid.
+
+   EXAMPLE: consider a satellite image in which an internal value of 0
+is meant to correspond to 0 degrees Celsius, and an internal value of
+255 corresponds to 25.5 degrees.  (This is a common scale.)  Then the
+Gri command `set image range 0 25.5' would establish the required
+range.  If this range were combined with a linear grayscale mapping (see
+`set image grayscale'), the resultant granularity in the internal
+representation of the user values would be (25.5-0)/255 or 0.1 degrees
+Celsius; temperature variations from pixel to pixel which were less than
+0.1 degrees would be lost.
+
+   All other image commands *require* that the range has been set.
+Thus, all these commands fail unless `set image range' has been done:
+`draw image', `draw image palette', `read image', `convert grid to
+image', `set image grayscale', and `set image colorscale'.
+
+   NOTE: If a range already exists when `set image range' is used, then
+the settings are altered.  Thoughtless usage can therefore lead to
+confusing results.  (The situation is like setting an axis scale,
+plotting a curve with no axes, then altering the scale and plotting the
+new axes.  It is legal but not necessarily smart.)
+
+
+File: gri.info,  Node: Set Input Data Window,  Next: Set Input Data Separator,  Prev: Set Image Range,  Up: Set
+
+`set input data window'
+.......................
+
+     `set input data window x|y {.min. .max.}|off'
+
+Create a data window for following `read' statements.
+
+   * `set input data window x .min. .max.' For future reading commands,
+     ignore all data with x less than `.min.' or x greater than `.max.'
+     The data not in the interval will not be read in at all.  This
+     will hold until `set data window x off' is done, in which case all
+     data will be read in.
+
+   * `set input data window x off' Return to normal conditions, in
+     which all data are read in.
+
+   * `set input data window y .min. .max.' Analgous to command for x.
+
+   * `set input data window y off' Analagous to command for x.
+
+   EXAMPLE: To set the input data window as the current x axis plus a
+border of 5 centimetres to left and right, do the following:
+
+     set input data window x \
+       {rpn ..xleft..  xusertocm 5 - xcmtouser} \
+       {rpn ..xright.. xusertocm 5 + xcmtouser}
+
+   *See also* `set clip'
+
+
+File: gri.info,  Node: Set Input Data Separator,  Next: Set Line Cap,  Prev: Set Input Data Window,  Up: Set
+
+`set input data separator'
+..........................
+
+     `set input data separator TAB|default'
+
+Set the separator between data items.  The `default' method is to
+assume that data items are separated by one or more spaces or tabs, and
+also to ignore any spaces or tabs at the start of a data line.
+
+   In the `TAB' method the data are assumed to be separated by a SINGLE
+tab character.  (Multiple tabs will result in null values being
+assigned to items - almost certainly not what you want!)  Also, initial
+spaces and tabs on lines are NOT skipped.
+
+   Use the `TAB' method only after thinking carefully about the above,
+since the assignment of null values is problematic.
+
+
+File: gri.info,  Node: Set Line Cap,  Next: Set Line Join,  Prev: Set Input Data Separator,  Up: Set
+
+`set line cap'
+..............
+
+     `set line cap .type.'
+
+Set the type of ends (caps) of lines.  Use `.type.' of value 0 for
+square ends, cut off precisely at the end of line, or 1 for round ends
+which overhang half the line width, or 2 for square ends which overhang
+half the line width.  The selected style is used for the ends of line
+segments, as well as at corners.  In PostScript parlance, therefore,
+this command sets both the linecap and the linejoin parameters.
+
+   This command only applies to lines drawn with `draw curve', `draw
+line' and `draw polygon'.  Axes are always drawn with a line cap of 0.
+
+
+File: gri.info,  Node: Set Line Join,  Next: Set Line Width,  Prev: Set Line Cap,  Up: Set
+
+`set line join'
+...............
+
+     `set line join .type.'
+
+Set the type of intersection of lines.  Use `.type.' of value 0 for
+mitered joins (pointy ends that may extend beyond the data points), a
+value of 1 for rounded ends (the default), or a value of 2 for bevelled
+(squared-off) ends.  See the `setlinejoin' command in any text on the
+PostScript language for more information.
+
+   This command only applies to lines drawn with `draw curve', `draw
+line' and `draw polygon'.  Axes are always drawn with a line join of 0.
+
+
+File: gri.info,  Node: Set Line Width,  Next: Set Missing Value,  Prev: Set Line Join,  Up: Set
+
+`set line width'
+................
+
+     `set line width \
+       [axis|symbol|all] \
+       .width_pt. \
+       | {rapidograph \name} \
+       | default'
+
+Set the width of lines used to draw curves (default), axes, symbols, or
+all of the above.  The width may be set to a value specified in points
+(conversion: 72 pt = 1 inch), to a named rapidograph width, or to the
+default value.  The initial default values are: 0.709pt (or rapidograph
+3x0) for curves; 0.369pt (or rapidograph 6x0) for axes; 0.369pt (or
+rapidograph 6x0) for symbols.
+
+   If your figure is to be reproduced by a journal, you should check
+with them about the range of line thicknesses they recommend.  This
+will, of course, depend on whether your figure is reduced or enlarged
+during reproduction.  For example, American Geophysical Union
+(publishers of J. Geophysical Res.) recommends that one use line
+thicknesses no less than 0.5 points and no more than 4 points.
+
+   The rapidograph settings match the standard set of widths used in
+technical fountain pens.  The table below gives width names along with
+the width in points and centimetres, as given in the specifications
+supplied with Rapidograph technical fountain pens.  Names marked by the
+symbol `*' are in sequence increasing by the factor root(2).  Texts on
+technical drawing often suggest using linewidths in the ratio of 2 or
+root(2).  On many printers, the variation in width from root(2) increase
+is too subtle to see, so the factor-of-2 rule may be preferable.  To get
+sizes in a sequence doubling in width, pick from the list (`6x0',
+`3x0', `1', `3.5' `7').  To get a sequence increasing in width by
+root(2), pick from the list (`6x0', `4x0', `3x0', `0', `1', `2.5',
+`3.5', `6', `7').  The eye can distinguish curves with linewidths
+differing by a factor of root(2) if the image is of high quality, but a
+factor of 2 is usually better.  Similarly, for overhead projections and
+projected slides, one would do well to use linewidths differing by a
+factor of 4.
+
+   This is the list of `rapidograph' linewidths:
+
+       Name      pt    cm
+       ====    =====  =====
+     *  6x0    0.369  0.013
+     *  4x0    0.510  0.018
+     *  3x0    0.709  0.025
+         00    0.850  0.03
+     *    0    0.992  0.035
+     *    1    1.417  0.05
+          2    1.701  0.06
+     *    2.5  1.984  0.07
+          3    2.268  0.08
+     *    3.5  2.835  0.1
+          4    3.402  0.12
+     *    6    3.969  0.14
+     *    7    5.669  0.2
+
+
+File: gri.info,  Node: Set Missing Value,  Next: Set Page Size,  Prev: Set Line Width,  Up: Set
+
+`set missing value'
+...................
+
+     `set missing value .value.'
+
+Set missing-value code (stored in the builtin variable
+`..missingvalue..' and builtin synonym `\.missingvalue..') to
+`.value.', which mean that data within 0.1 percent of this value are
+ignored.  The initial default is 1.0e22.
+
+
+File: gri.info,  Node: Set Page Size,  Next: Set Page,  Prev: Set Missing Value,  Up: Set
+
+`set page size'
+...............
+
+     `set page size letter|legal|folio|tabloid|A0|A1|A2|A3|A4|A5'
+
+Set the page dimension, as indicated below.
+_letter_
+     American "letter" size: 8.5 x 11 inches
+
+_legal_
+     American "legal" size: 8.5 x 14 inches
+
+_folio_
+     American "folio" size: 8.5 x 13 inches
+
+_tabloid_
+     American "tabloid" size: 11 x 17 inches
+
+_A5_
+     Metric size: 14.8 x 21.0 cm
+
+_A4_
+     Metric size: 21.0 x 29.7 cm
+
+_A3_
+     Metric size: 29.7 x 42.0 cm
+
+_A2_
+     Metric size: 42.0 x 59.4 cm
+
+_A1_
+     Metric size: 59.4 x 84.1 cm
+
+_A0_
+     Metric size: 84.1 x 118.9 cm
+
+   The effect is to possibly alter the PostScript "bounding box."  If
+all the drawn material fits within the indicated page, then the bounding
+box is not altered.  (In other words, Gri will still keep the bounding
+box tight on the drawn items.)
+
+   However, if any drawn item extends beyond the indicated size, it will
+be clipped to the boundary.
+
+
+File: gri.info,  Node: Set Page,  Next: Set Panel,  Prev: Set Page Size,  Up: Set
+
+`set page'
+..........
+
+     `set page portrait \
+       | landscape \
+       | {factor .mag.} \
+       | {translate .xcm. .ycm.}'
+
+Control orientation or scaling of what is drawn on the paper.
+
+   * `set page portrait' Print graph normally (default).
+
+   * `set page landscape' Print graph sideways.
+
+   * `set page factor .mag.' Scale everything to be drawn on the paper
+     by the indicated magnification factor.  This *must* be called
+     before any drawing commands.
+
+   * `set page translate .xcm. .ycm.' Translate everything to be drawn
+     on the paper by the indicated x/y distances.  This *must* be
+     called before any drawing commands.
+
+   *Note*: The order of the factor/translate commands matters, so you
+may need to experiment.  For example,
+
+     set page translate 2 1
+     set page factor 0.5
+
+moves anything that would have been drawn at the lower-left corner of
+the paper onto the point 2cm from the left side and 1cm from the bottom
+side of the paper, and then applies the multiplication factor.
+Reversing the order gives quite different results.  PostScript gurus
+should note that the following two commands are inserted into the
+PostScript file:
+
+     56.900000 28.450000 translate
+     0.500000 0.500000 scale
+
+
+File: gri.info,  Node: Set Panel,  Next: Set Panels,  Prev: Set Page,  Up: Set
+
+`set panel'
+...........
+
+     set panel .row. .col.
+
+Establish the geometry for the panel in the indicated row and column;
+that is, select which defined panel to draw into.  The bottom row has
+`.row.' = 1, and the leftmost column has `.col.' = 1.  This must be
+used only after defining the panel layout using `Panels .row. .col.
+.dx_cm. .dy_cm.'.
+
+
+File: gri.info,  Node: Set Panels,  Next: Set Path To,  Prev: Set Panel,  Up: Set
+
+`set panels'
+............
+
+     set panels .rows. .cols. [.dx_cm. .dy_cm.]
+
+Set up for multipanel plots, with spacing `.dx_cm.' between the columns
+and `.dy_cm.' between the rows.  If the spacings are not supplied, 2cm
+is used.  The panels fill the rectangle which would otherwise contain
+the single axis frame, as set by `set x size' and `set x margin', etc.
+
+   The global variables `.panel_dx.', `.panel_dy.', `.panel_xmargin.',
+`.panel_ymargin.', `.panel_xsize.', and `.panel_ysize' are created, to
+be used by later calls to `set panel'.
+
+   EXAMPLE
+
+     # Draw 2 panels across, 3 up the page.
+     
+     # The Panel interiors will be in region cornered
+     # by (2,2), (12,22) cm
+     set x margin 2
+     set y margin 2
+     set x size 10
+     set y size 20
+     set panels 2 3
+     
+     # Create dummy scale
+     set x axis 0 1
+     set y axis 0 1
+     
+     # Draw blank axes
+     et panel 1 1
+     raw axes
+     set panel 1 2
+     draw axes
+     set panel 1 3
+     draw axes
+     set panel 2 1
+     draw axes
+     set panel 2 2
+     draw axes
+     set panel 2 3
+     draw axes
+
+   *See also* `set panel .row. .col.'
+
+
+File: gri.info,  Node: Set Path To,  Next: Set Postscript Filename,  Prev: Set Panels,  Up: Set
+
+`set path'
+..........
+
+     set path to "\path"|default for data|commands
+
+Set the directory path that `open' will search for data files, or that
+`insert' will search for command files.  This search will _not_ be done
+if the filename starts with a `/', `~', or `.' character.
+
+   The path is formatted in a colon-separated manner, following the
+normal Unix convention, and searching is from left to right.  For
+example, the path `".:/usr/lib/gri"' tells Gri to search for the file
+first in the local directory (named `.'), and if it is not found there,
+to look next in the directory named `/usr/lib/gri'.
+
+   The indicated path is stored in either `\.path_data.' or
+`\.path_commands.', as appropriate.  At startup time, each of these
+paths is set to `"."', the current directory, and this value is reset
+if the `default' keyword is provided to this command.
+
+   If you need to know where the file was eventually found, save the
+`\.return_value.' just after the `open' command was executed.  For
+example, the following defines the synonym `\uk', which is the full
+pathname of the file containing some sort of data about Great Britain.
+
+     set path to "/atlases/world:/atlases/northern_hemisphere"
+     open britain.dat        # we don't know where file is ...
+     \gb = "\.return_value." # ... until now!
+     
+     # Can later do command such as
+     #    read from \gb
+     # or
+     #    rewind \gb
+     # to work with this particular file, even if
+     # there is another file open that also is
+     # named "britain.dat".
+
+
+File: gri.info,  Node: Set Postscript Filename,  Next: Set Symbol Size,  Prev: Set Path To,  Up: Set
+
+`set postscript filename'
+.........................
+
+     `set postscript filename "\name"'
+
+Set name of PostScript file, over-riding the present name.
+
+
+File: gri.info,  Node: Set Symbol Size,  Next: Set Tic Size,  Prev: Set Postscript Filename,  Up: Set
+
+`set symbol size'
+.................
+
+     `set symbol size .diameter_cm.|default'
+
+Control the diameter of symbols drawn by `draw symbol' command.
+
+   * `set symbol size .diameter_cm.' Make symbol size be
+     `.diameter_cm.' centimeters in diameter.
+
+   * `set symbol size default' Set to default diameter of 0.1 cm.
+
+
+File: gri.info,  Node: Set Tic Size,  Next: Set Trace,  Prev: Set Symbol Size,  Up: Set
+
+`set tic size'
+..............
+
+     `set tic size .size.|default'
+
+Control size of tics on axes.
+   * `set tic size .size.' Set tic size to `.size.' centimetres.
+
+   * `set tic size default' Set tic size to default of 0.2 cm.
+
+   * `set tics in|out' Make axis tics point inward or outward.  The
+     default is outward.
+
+
+File: gri.info,  Node: Set Trace,  Next: Set U Scale,  Prev: Set Tic Size,  Up: Set
+
+`set trace'
+...........
+
+     `set trace [on|off]'
+
+Control printing of command lines as they are processed.
+
+   * `set trace' Make Gri print command lines as they are processed.
+
+   * `set trace on' Same as `set trace'.
+
+   * `set trace off' Prevent printing command lines (default).
+
+
+File: gri.info,  Node: Set U Scale,  Next: Set V Scale,  Prev: Set Trace,  Up: Set
+
+`set u scale'
+.............
+
+     `set u scale .cm_per_unit.|{as x}'
+
+Set scale for x-component of arrows.
+
+   * `set u scale .cm_per_unit.' Set scale for `u' component of arrows.
+
+   * `set u scale as x' Set scale for u component of arrows to be the
+     same as the x-scale.  Equivalent to `set u scale as {rpn ..xsize..
+     ..xright.. ..xleft.. - /}'.
+
+   NOTE: this only works if the x-scale is LINEAR (see `set x type').
+
+
+File: gri.info,  Node: Set V Scale,  Next: Set X Axis,  Prev: Set U Scale,  Up: Set
+
+`set v scale'
+.............
+
+     `set v scale .cm_per_unit.|{as y}'
+
+Set scale for y-component of arrows.
+
+   * `set v scale .cm_per_unit.' Set scale for `v' component of arrows.
+
+   * `set v scale as y' Set scale for v component of arrows to be the
+     same as the y-scale.  Equivalent to `set v scale as {rpn ..ysize..
+     ..ytop.. ..ybottom.. - /}'.
+
+   NOTE: this only works if the y-scale is LINEAR (see `set y type').
+
+
+File: gri.info,  Node: Set X Axis,  Next: Set X Format,  Prev: Set V Scale,  Up: Set
+
+`set x axis'
+............
+
+     `set x axis top'
+     `set x axis bottom'
+     `set x axis increasing'
+     `set x axis decreasing'
+     `set x axis unknown'
+     `set x axis .left. .right. [.incBig. [.incSml.]]'
+     `set x axis labels [add] .position_1. "label_1" [.position_2. "label_2" [...]]'
+     `set x axis labels automatic'
+
+Control various things about the x axis.
+
+   * `set x axis top' Make next x-axis to be drawn have labels above
+     the axis.
+
+   * `set x axis bottom' Make next x-axis to be drawn have labels below
+     the axis.
+
+   * `set x axis increasing' Make next x-axis to be drawn have numeric
+     labels increasing to the right.  This applies only if autoscaling
+     is done; otherwise, the supplied values (`.left. .right. [.incBig.
+     [.incSml.]]') are used.
+
+   * `set x axis decreasing' Make next x-axis to be drawn have numeric
+     labels decreasing to the right.  This applies only if autoscaling
+     is done; otherwise, the supplied values (`.left. .right. [.incBig.
+     [.incSml.]]') are used.
+
+   * `set x axis unknown' Make Gri forget any existing scale for the x
+     axis, whether set by another `set x axis' command or
+     automatically, during reading of data.  This is essentially a
+     synonym for `delete x scale'.
+
+   * `set x axis .left. .right.' Make x-axis range from `.left.' to
+     `.right.'
+
+   * `set x axis .left. .right. .incBig.' Make x-axis range from
+     `.left.' to `.right.', with labelled increments at `.incBig.'
+     Note: In the case of log axes, and provided that `set x type log'
+     has been called previously, the `.incBig.' parameter has a
+     different meaning: it is the interval, in decades, between
+     numbered labels; the default is 1.
+
+   * `set x axis .left .right. .incBig. .incSml.' Make x-axis range
+     from `.left.' to `.right.', with labelled increments at
+     `.incBig.', and small tics at `.incSml.'  NOTE: if the axis is
+     logarithmic, the value of `.incSml.' takes on a special meaning:
+     if it is positive then small tics are put at values 2, 3, 4, etc.
+     between the decades, but if `.incSml.' is negative then no such
+     small tics are used.
+
+   * `set x axis labels .position. "label" [.position. "label" [...]]'
+     Override the automatic labelling at axis tics, and instead put the
+     indicated labels at the indicated x values.  For example, a
+     day-of-week axis can be created by the code:
+
+          set x axis 0 7 1
+          set x axis labels 0.5 "Mon" 1.5 "Tue" 2.5 "Wed" \
+                            3.5 "Thu" 4.5 "Fri" 5.5 "Sat" \
+                            6.5 "Sun"
+
+     The command replaces any existing labels, unless the `add' keyword
+     is present, in which case the new label information is appended to
+     any existing information.
+
+   * `set x axis labels automatic' Return to automatically-generated
+     axis labels, undoing the command of the previous item.
+
+
+
+File: gri.info,  Node: Set X Format,  Next: Set X Grid,  Prev: Set X Axis,  Up: Set
+
+`set x format'
+..............
+
+     `set x format \format|default|off
+
+Set format for numbers on x axis.  The format is specified in the manner
+of the "C" programming language.  The C formats (i.e., `%f', `%e' and
+`%g') are permitted.  For example, `set x format %.1f' tells Gri to use
+1 decimal place, and to prefer the "float" notation to the exponential
+notation.  The form `set x format off' tells Gri not to write numbers
+on the axis.  To get spaces in your format, enclose the format string in
+double-quotes, e.g., you might use `set x format "%.0f$\circ$ W"' for a
+map, or `set x format "%f "' to make the numbers appear to the left of
+their normal location.
+
+   The default format is `%lg'.
+
+
+File: gri.info,  Node: Set X Grid,  Next: Set X Margin,  Prev: Set X Format,  Up: Set
+
+`set x grid'
+............
+
+     `set x grid .left. .right. .inc.|{/.cols.}'
+
+Create x-grid for contour or image.  If a grid already exists, an error
+will be declared; the way to interpolate from an existing grid to a new
+one is with the `interpolate x grid' command.
+
+   * `set x grid .left. .right. .inc.' Create x-grid ranging from the
+     value `.left.' at the left to `.right.' at the right, stepping by
+     an increment of `.inc.'.
+
+   * `set x grid .left. .right. /.cols.' Create x-grid with `.cols.'
+     points, ranging from the value `.left.' at the left to `.right.'
+     at the right.
+
+
+File: gri.info,  Node: Set X Margin,  Next: Set X Name,  Prev: Set X Grid,  Up: Set
+
+`set x margin'
+..............
+
+     `set x margin {[bigger|smaller] .size.}|default'
+
+Control x margin, that is, the space between the left-hand side of the
+page and the left-hand side of the plotting area.  (Note that axis
+labels are drawn inside the margin; the margin extends to the axis line,
+not to the labels.)
+
+   * `set x margin .size.' Set left margin to `.size.' cm.  It is
+     permissible to have negative margins, with the expected effect.
+
+   * `set x margin bigger .size.' Increases left margin by `.size.' cm.
+
+   * `set x margin smaller .size.' Decreases left margin by `.size.' cm.
+
+   * `set x margin default' Set left margin to default = 6 cm.
+
+
+File: gri.info,  Node: Set X Name,  Next: Set X Size,  Prev: Set X Margin,  Up: Set
+
+`set x name'
+............
+
+     `set x name "\name"|default'
+
+Set name of x-axis to the indicated string.  An empty string (`set x
+name ""') causes the x axis to be unlabelled.  The `default' is `"x"'.
+
+
+File: gri.info,  Node: Set X Size,  Next: Set X Type,  Prev: Set X Name,  Up: Set
+
+`set x size'
+............
+
+     `set x size .width_cm.|default'
+
+Set the width of the plotting area.  This does not include axis labels,
+only the interior part of the plot.
+
+   * `set x size .width_cm.' Set width of x-axis in centimeters.
+
+   * `set x size default' Set width of x-axis to default = 10 cm.
+
+
+File: gri.info,  Node: Set X Type,  Next: Set Y Axis,  Prev: Set X Size,  Up: Set
+
+`set x type'
+............
+
+     set x type linear|log|{map E|W|N|S}
+
+Control transformation function mapping user units to centimetres on the
+page.
+
+   * `set x type linear' Set to linear axis.
+
+   * `set x type log' Set to log axis.  To avoid clashes in the linear
+     to log transform, this command should precede the creation of an
+     axis scale, either explicitly through the `set x axis .left.
+     .right. ...' command or implicitly through the `read columns'
+     command.
+
+   * `set x type map E|W|N|S' Set to be a map.  This means that whole
+     numbers on the axis will have a degree sign written after them
+     (and then the letter `E', etc) and that numbers which are
+     multiples of 1/60 will be written in degree-minute format, and
+     that similarly numbers which are divisible by 1/3600 will be in
+     degree-minute-second format.  If none of these things apply, the
+     axis labels will be written in decimal degrees.  Note that this
+     command overrides any format set by `set x format'.
+
+     BUG: this only has an effect if the axis is not already of type
+     `log'.
+
+
+File: gri.info,  Node: Set Y Axis,  Next: Set Y Format,  Prev: Set X Type,  Up: Set
+
+`set y axis'
+............
+
+     `set y axis left'
+     `set y axis right'
+     `set y axis increasing'
+     `set y axis decreasing'
+     `set y axis .bottom. .top. [.incBig. [.incSml.]]'
+     `set y axis labels [add] .position_1. "label_1" [.position_2. "label_2" [...]]'
+     `set y axis labels automatic'
+
+Control various things about the y axis.
+
+   * `set y axis name horizontal' Make y-axis name be horizontal.
+
+   * `set y axis name vertical' Make y-axis name be vertical (default).
+
+   * `set y axis left' Make next y-axis to be drawn have labels to the
+     left of the axis.
+
+   * `set y axis right' Make next y-axis to be drawn have labels to the
+     right of the axis.
+
+   * `set y axis increasing' Make next y-axis to be drawn have numeric
+     labels increasing up the page.  This applies only if autoscaling
+     is done; otherwise, the supplied values (`.left. .right. [.incBig.
+     [.incSml.]]') are used.
+
+   * `set y axis decreasing' Make next y-axis to be drawn have numeric
+     labels decreasing up the page.  This applies only if autoscaling
+     is done; otherwise, the supplied values (`.left. .right. [.incBig.
+     [.incSml.]]') are used.
+
+   * `set y axis unknown' Make Gri forget any existing scale for the y
+     axis, whether set by another `set y axis' command or
+     automatically, during reading of data.  This is essentially a
+     synonym for `delete y scale'.
+
+   * `set y axis .bottom. .top.' Make y-axis range from `.bottom.' to
+     `.top.'
+
+   * `set y axis .bottom. .top. .incBig.' Make y-axis range from
+     `.bottom.' to `.top.', with labelled increments at `.incBig.'
+
+   * `set y axis .bottom. .top. .incBig. .incSml.' Make y-axis range
+     from `.bottom.' to `.top.', with labelled increments at
+     `.incBig.', and small tics at `.incSml.'  NOTE: if the axis is
+     logarithmic, the value of `.incSml.' takes on a special meaning:
+     if it is positive then small tics are put at values 2, 3, 4, etc.
+     between the decades, but if `.incSml.' is negative then no such
+     small tics are used.
+
+   * `set y axis labels .position. "label" [.position. "label" [...]]'
+     Override the automatic labelling at axis tics, and instead put the
+     indicated labels at the indicated y values.  For example, a
+     physical-condition axis can be created by the code:
+
+          set y axis 0 1 0.5
+          set y axis labels 0.25 "Weak" 0.75 "Strong"
+
+     The command replaces any existing labels, unless the `add' keyword
+     is present, in which case the new label information is appended to
+     any existing information.
+
+   * `set y axis labels automatic' Return to automatically-generated
+     axis labels, undoing the command of the previous item.
+
+   * `set y axis name vertical' Cause future y axes to be drawn with
+     the name aligned vertically (the default).
+
+   * `set y axis name horizontal' Cause future y axes to be drawn with
+     the name aligned horizontally.
+
+
+
+File: gri.info,  Node: Set Y Format,  Next: Set Y Grid,  Prev: Set Y Axis,  Up: Set
+
+`set y format'
+..............
+
+     `set y format \format|default|off'
+
+Set format for numbers on y axis.  The format is specified in the manner
+of the "C" programming language.  The C formats (i.e., `%f', `%e' and
+`%lg') are permitted.  For example, `set y format %.1f' tells Gri to
+use 1 decimal place, and to prefer the "float" notation to the
+exponential notation.  The form `set y format off' tells Gri not to
+write numbers on the axis.  To get spaces in your format, enclose the
+format string in double-quotes, e.g., you might use `set y format
+"%.0f$\circ$ N"' for a map, or `set y format "%f"' to make the numbers
+appear to the right of their normal location.
+
+   The default format is `%lg'.
+
+
+File: gri.info,  Node: Set Y Grid,  Next: Set Y Margin,  Prev: Set Y Format,  Up: Set
+
+`set y grid'
+............
+
+     `set y grid .bottom. .top. .inc.|{/.rows.}'
+
+Create y-grid for contour or image.  If a grid already exists, an error
+will be declared; the way to interpolate from an existing grid to a new
+one is with the `interpolate x grid' command.
+
+   * `set y grid .bottom. .top. .inc.' Create y-grid ranging from the
+     value `.bottom.' at the bottom to `.top.' at the top, stepping by
+     an increment of `.inc.'.
+
+   * `set y grid .bottom. .top. /.rows.' Create y-grid with `.rows.'
+     points, ranging from the value `.bottom.' at the bottom to `.top.'
+     at the top.
+
+
+File: gri.info,  Node: Set Y Margin,  Next: Set Y Name,  Prev: Set Y Grid,  Up: Set
+
+`set y margin'
+..............
+
+     `set y margin {[bigger|smaller] .size.}|default'
+
+Control y margin, that is, the space between the bottom side of the page
+and the bottom of the plotting area.  (Note that axis labels are drawn
+inside the margin; the margin extends to the axis line, not to the
+labels.)
+
+   * `set y margin .size.' Set bottom margin to `.size.' centimeters.
+     It is permissible to have negative margins, with the expected
+     effect.
+
+   * `set y margin bigger .size.' Increases bottom margin by `.size.'
+     centimeters.
+
+   * `set y margin smaller .size.' Decreases bottom margin by `.size.'
+     centimeters.
+
+   * `set y margin default' Set bottom margin to default = 6 cm.
+
+
+File: gri.info,  Node: Set Y Name,  Next: Set Y Size,  Prev: Set Y Margin,  Up: Set
+
+`set y name'
+............
+
+     `set y name "\name"|default'
+
+Set name of y-axis to the indicated string.  An empty string (`set y
+name ""') causes the x axis to be unlabelled.  The `default' is `"y"'.
+
+
+File: gri.info,  Node: Set Y Size,  Next: Set Y Type,  Prev: Set Y Name,  Up: Set
+
+`set y size'
+............
+
+     `set y size .height_cm.|default'
+
+Set the width of the plotting area.  This does not include axis labels,
+only the interior part of the plot.
+
+   * `set y size .height_cm.' Set height of y-axis in centimeters.
+
+   * `set y size default' Set width of y-axis to default = 10 cm.
+
+
+File: gri.info,  Node: Set Y Type,  Next: Set Z Missing,  Prev: Set Y Size,  Up: Set
+
+`set y type'
+............
+
+     set y type linear|log|{map N|S|E|W}
+
+Control transformation function mapping user units to centimetres on the
+page.
+
+   * `set y type linear' Set to linear axis.
+
+   * `set y type log' Set to log axis.  To avoid clashes in the linear
+     to log transform, this command should precede the creation of an
+     axis scale, either explicitly through the `set y axis .left.
+     .right. ...' command or implicitly through the `read columns'
+     command.
+
+   * `set y type map N|S|E|W' Set to be a map.  This means that whole
+     numbers on the axis will have a degree sign written after them
+     (and then the letter `N', etc), and that numbers which are
+     multiples of 1/60 will be written in degree-minute format, and
+     that similarly numbers which are divisible by 1/3600 will be in
+     degree-minute-second format.  If none of these things apply, the
+     axis labels will be written in decimal degrees.  Note that this
+     command overrides any format set by `set y format'.
+
+     BUG: this only has an effect if the axis is not already of type
+     `log'.
+
+
+File: gri.info,  Node: Set Z Missing,  Next: Show,  Prev: Set Y Type,  Up: Set
+
+`set z missing'
+...............
+
+     set z missing above|below .intercept. .slope.
+
+Set `z' column to be missing whenever the associated `y' and `x'
+columns are above/below the line defined by y = .intercept. + .slope. *
+x
+

@@ -1,0 +1,123 @@
+DEFS = @WCHAR_T_DEF@
+INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
+	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
+	-I@top_srcdir@/NSCLException \
+	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
+	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
+	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
+	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+
+bin_PROGRAMS=ScriptedSpecTcl
+lib_LTLIBRARIES=libScripted.la
+
+ScriptedSpecTcl_SOURCES = MySpecTclApp.cpp
+
+libScripted_la_LDFLAGS = -version-info $(SOVERSION):0
+
+libScripted_la_SOURCES =  CBoolConfigParam.cpp \
+	CCAENDigitizerCreator.cpp \
+	CCAENDigitizerModule.cpp \
+	CCAENV830Creator.cpp \
+	CCAENV830Module.cpp \
+	CConfigurableObject.cpp \
+	CConfigurationParameter.cpp \
+	CIntArrayParam.cpp \
+	CIntConfigParam.cpp \
+	CModule.cpp \
+	CModuleCommand.cpp \
+	CModuleCreator.cpp \
+	CModuleDictionary.cpp \
+	CPacket.cpp CPacketCreator.cpp \
+	CScriptableUnpacker.cpp \
+	CSegmentUnpacker.cpp \
+	CStringArrayparam.cpp \
+	CStringConfigParam.cpp 
+
+
+
+noinst_HEADERS =  CBoolConfigParam.h \
+	CCAENDigitizerCreator.h \
+	CCAENDigitizerModule.h \
+	CCAENV830Creator.h \
+	CCAENV830Module.h \
+	CConfigurableObject.h \
+	CConfigurationParameter.h \
+	CIntArrayParam.h \
+	CIntConfigParam.h \
+	CModule.h \
+	CModuleCommand.h \
+	CModuleCreator.h \
+	CModuleDictionary.h \
+	CPacket.h CPacketCreator.h \
+	CScriptableUnpacker.h \
+	CSegmentUnpacker.h \
+	CStringArrayparam.h \
+	CStringConfigParam.h \
+	MySpecTclApp.h \
+	CConfigurableObject.h \
+	CCAENV1x90Data.h
+
+
+ScriptedSpecTcl_LDFLAGS = -g -Wl,"-rpath=($prefix)/lib"
+
+ScriptedSpecTcl_DEPENDENCIES = libScripted.la
+
+ScriptedSpecTcl_LDADD =  -lScripted -lTclGrammerCommands \
+	-lSorting -lXplus \
+	-lGates -lAnalysis \
+	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lXamine  \
+	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) 
+
+ScriptedSpecTcl_LDFLAGS = -L.  \
+	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
+	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
+	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \
+	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl
+
+#
+#  At install time, in order to make this open ended we:
+#   Create $(prefix)/contrib/scripted
+#          $(prefix)/contrib/scripted/src
+#          $(prefix)/contrib/scripted/include
+#          $(prefix)/contrib/scripted/skel
+#
+#    The headers all go in ...include.
+#    The .cpp    all go in ...src
+#    skel gets:
+#                 MySpecTclApp.cpp
+#                 MySpecTclApp.h
+#        and an extensible  Makefile that's built from Makefile.skel
+#        that will, given MySpecTclApp.cpp build the 
+#        Scripted SpecTcl.  Extensible means that the user can
+#        easily add additional modules to the build.
+#
+
+install-exec-local:
+	# Make my directory hierarchy:
+	#
+	$(mkinstalldirs) $(prefix)/contrib
+	$(mkinstalldirs) $(prefix)/contrib/scripted
+	$(mkinstalldirs) $(prefix)/contrib/scripted/src
+	$(mkinstalldirs) $(prefix)/contrib/scripted/include
+	$(mkinstalldirs) $(prefix)/contrib/scripted/skel
+	#
+	#  Put the raw files where they belong.
+	#
+	$(INSTALL_DATA) *.cpp $(prefix)/contrib/scripted/src
+	$(INSTALL_DATA) *.h   $(prefix)/contrib/scripted/include
+	$(INSTALL_DATA) MySpecTclApp.cpp MySpecTclApp.h \
+			      $(prefix)/contrib/scripted/skel
+	#
+	#   Build the Makefile from Makefile.skel and stuff
+	#   figured out by autoconf.
+	#
+	echo "#-------- Begin auto generated stuff " \
+	                                  > Makefile.user
+	echo INSTDIR=$(prefix)           >> Makefile.user
+	cat Makefile.skel                >> Makefile.user
+	$(INSTALL_DATA) Makefile.user $(prefix)/contrib/scripted/skel/Makefile
+	$(INSTALL_DATA) scriptable_Makefile.include $(sysconfdir)
+
+
+EXTRA_DIST=Makefile.skel scriptable_Makefile.include 

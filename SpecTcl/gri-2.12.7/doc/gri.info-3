@@ -1,0 +1,1228 @@
+This is gri.info, produced by makeinfo version 4.3 from gri.texi.
+
+INFO-DIR-SECTION Scientific Applications
+START-INFO-DIR-ENTRY
+* Gri: (gri).  Programming language for scientific illustration
+END-INFO-DIR-ENTRY
+
+
+File: gri.info,  Node: Handling Headers,  Next: Ignoring Columns,  Prev: Handling Data,  Up: Handling Data
+
+Handling headers
+----------------
+
+   Case 1 - known number of header lines.  This is easy.  If you know
+that the file has, say, 10 header lines, you can just do this:
+
+     open file
+     skip 10
+     read columns x y
+     ...
+
+   Case 2 - header itself indicates number of header lines.  Quite
+often the first line of a file will indicate the number of header
+lines.  For example, suppose the first line contains a single number,
+indicating the number of header lines to follow:
+
+     open file
+     read .skip.
+     skip .skip.
+     read columns x y
+     ...
+
+   Case 3 - header lines marked by a textual key.  Sometimes header
+lines are indicated by a textual key, for example, the characters
+`HEADER' at the start of the line in the file.  The easy way to skip
+such a header is to use a system command.  Depending on your
+familiarity with the operating system (here presumed to be Unix), you
+might choose to use Grep, Awk, or Perl.  Here are examples:
+
+     open "grep -v '^HEADER' file |"
+
+   For more on the `|' mechanism, see *Note Open::.  The Grep command
+prints lines which do not match the indicated string (because of the
+`-v' switch), and the `^' character stands for the start of the line
+(*Note Grep::).  Thus all lines with the key word at the *start* of the
+line are skiped.
+
+   Case 4 - reading and using information in header.  Consider a
+dataset in which the first line gives the time of observation, followed
+by a list of observations.  This might be, for example, an indication
+of the data taken from a weather balloon released at a particular time
+from a fixed location, with the main data being air temperature as a
+function of elevation of the balloon.  The time indication might be,
+for instance, the hour number.  One might need to know the time to
+print a label on the diagram.  You could do that by:
+
+     open file
+     read .time.
+     read columns x y
+     draw curve
+     sprintf \label "Time of observation is %f hour" .time.
+     draw title "\label"
+
+where the `sprintf' command has been used to change the numerical time
+indication into a synonym that can be inserted into a quoted string for
+drawing the title of the diagram (*Note Sprintf::).  Here the time has
+been assumed to be a decimal hour.  You might also have three numbers on
+the line, perhaps a day, an hour and a minute.  Then you could do
+something like
+
+     open file
+     read .d. .h. .m.
+     read columns x y
+     draw curve
+     sprintf \label "Obs. %.0f:%.0f, day %.0f" .h. .m. .d.
+     draw title "\label"
+
+Here the `%.0f' code is used to ensure no numbers will be written after
+the decimal point.  Naturally, you could convert this to a decimal day,
+by e.g.
+
+     ...
+     .dday. = {rpn .day. .hour. 24 / .min. 24 / 60 /}
+     sprintf \label "Decimal day is %.4f" .dday.
+     ...
+
+(Some of you might know how many minutes in a day, but I'm silly so I
+kept the extra mathematical step - nothing is lost by being
+straightforward!)
+
+
+File: gri.info,  Node: Ignoring Columns,  Next: Column Algebra,  Prev: Handling Headers,  Up: Handling Data
+
+Ignoring columns that are not of interest
+-----------------------------------------
+
+   Quite often a dataset will have many columns, of which only a couple
+are of interest to you.  Consider for example oceanographic data which
+has columns storing, in order, these variables: (1) depth in water
+column, (2) "in situ" temperature, (3) "potential" temperature, (4)
+salinity, (5) conductivity, (6) density, (7) sigma-theta, (8) sound
+speed, and (9) oxygen concentration.  But you might only be interested
+in plotting a graph of salinity on the x-axis and depth on the y-axis.
+Here are several ways to do this:
+
+     open file
+     read columns y * * x
+     draw curve
+
+where the `*' is a place-keeper to indicate to skip that column.  For a
+large number of columns, or as an aesthetic choice, you might prefer to
+write this a
+
+     open file
+     read columns y=1 x=4
+     draw curve
+
+   Many users would just as soon not bother with this syntax, preferring
+instead to use system tools with which they are more familiar.  So a
+Gawk user might write
+
+     open "gawk '{print($1, $4)}' file |"
+     read columns y x
+     draw curve
+
+For more on the Gawk command see *Note Awk::.
+
+
+File: gri.info,  Node: Column Algebra,  Next: Combining Columns,  Prev: Ignoring Columns,  Up: Handling Data
+
+Algebra on column data
+----------------------
+
+   Suppose the file contains (x,y), but you wish to plot 2y times x.
+You could do the doubling of y within Gri, as
+
+     open file
+     read columns x y
+     y *= 2
+     draw curve
+
+or you could use a system tool, e.g. gawk, as in this example (*Note
+Awk::).
+
+     open "gawk '{print($1,2*$2)}' file|"
+     read columns x y
+     draw curve
+
+   The latter is preferable in the sense that it is more powerful.  The
+reason for this is that Gri allows you to manipulate the x and y
+columns, using so-called RPN mathematics (*Note rpn Mathematics::), but
+you cannot blend the columns.  For example, you cannot easily form the
+ratio y/x in Gri.  (Actually, you can, by looping through your data and
+doing the calculation index by index, but if you knew that already you
+wouldn't need to be reading this section!)  Such blending is trivial in
+the operating system, though, as in the following Gawk example (*Note
+Awk::).
+
+     open "gawk 'print {($1, $2/$1)}' file |"
+     read columns x y
+     draw curve
+
+
+File: gri.info,  Node: Combining Columns,  Next: Plotting Several Columns,  Prev: Column Algebra,  Up: Handling Data
+
+Combining columns from different files
+--------------------------------------
+
+   Suppose you want to plot a column (`y', say) from one file versus a
+second column (`x') from a second data file.  The easy way is to use a
+system command to create a new file, for example the Unix command
+`paste' - but of course you don't want to clutter your filesystem with
+such files, so you should do this withing Gri:
+
+     open "paste file1 file2 |"
+     read columns x y
+     draw curve
+
+
+File: gri.info,  Node: Plotting Several Columns,  Next: Commands,  Prev: Combining Columns,  Up: Handling Data
+
+Plotting several y-columns versus on x-column
+---------------------------------------------
+
+   Sometimes you'll have a datafile with the first column being x, and
+the other columns being various things to plot versus x.  For example,
+you might have the data
+
+     1  8 11  9
+     2 22 21 20
+     3 11 10  9
+     4 20 15 10
+
+in a file called `test.dat'.  Let's say the x-column is time, and the
+y-columns are the readings from three temperature sensors.  The
+following illustrates how you might plot these data.  If you think the
+new-command which starts this script is useful, just insert it in your
+`~/.grirc' file and you can just use it without re-defining it each
+time.  This will give Gri a command called `draw curves'.
+
+     `draw curves \xname \y1name ...'
+     Draw multiple y columns versus an x column.  Assumes
+     that the datafile is open, and that x is in the first
+     column, with the y values in one or more following
+     columns.
+     
+     The number of columns is figured out from the options,
+     as is the name of the x-axis, and the labels to be
+     used on each of the y curves.
+     {
+       # NB. the 3 below lets us skip the words 'draw'
+       # and 'curves', and the name of the x-column.
+       .num_of_y_columns. = {rpn wordc 3 -}
+       if {rpn .num_of_y_columns. 1 >}
+         show "ERROR: `draw curves' needs at least 1 y column!"
+         quit
+       end if
+     
+       set x name {rpn 2 wordv}
+       set y name ""
+     
+       # Loop through the columns.
+       .col. = 0
+       while {rpn .num_of_y_columns. .col. <}
+         # The x-values will be in column 1, with y-values
+         # in columns 2, 3, ..., of the file.
+         .ycol. = {rpn .col. 2 +}
+         rewind
+         read columns x=1 y=.ycol.
+         # At this point, you may want to change line thickness,
+         # thickness, color, dash-type, etc.  For illustration,
+         # let's set dash type to the column number.
+         set dash .col.
+         draw curve
+         draw label for last curve {rpn .col. 3 + wordv}
+         .col. += 1
+       end while
+     }
+     
+     open test.dat
+     draw curves time y1 y2 y3
+
+
+File: gri.info,  Node: Commands,  Next: Overview Of Gri Commands,  Prev: Plotting Several Columns,  Up: Top
+
+List of Commands in the Gri Language
+************************************
+
+* Menu:
+
+* Overview Of Gri Commands::    General classification of commands
+* Command Syntax::              Syntax of the commands
+* List Of Gri Commands::
+
+
+File: gri.info,  Node: Overview Of Gri Commands,  Next: Command Syntax,  Prev: Commands,  Up: Commands
+
+Overview of Gri Commands
+========================
+
+   The Gri commands may be divided roughly into a few categories, as
+indicated in the following list.
+
+   * *Working with files*: Commands are `open', `close', `skip',
+     `read', and `rewind'.
+
+   * *Controlling parameters of the drawn material*: Various `set'
+     commands control values of parameters, like size of plot,
+     linewidth, font, etc.
+
+   * *Drawing things*: Various `draw' commands let you draw data, axes,
+     etc.
+
+   * *Interacting with the user*: The `query' command gets instructions
+     from the user.  The `show' command displays messages to user.
+
+   * *Controlling program flow*: The `if' statement controls optional
+     execution of commands (*Note If Statements::).  The `while'
+     statement allows loops.
+
+   * *Moving around in directories*: The `pwd', `cd' and `ls' commands
+     do the usual unix things.
+
+   * *Using the operating system* The `system' command passes
+     instructions to the operating system; the output may be saved into
+     a synonym by using `\syn = system ...'.  The `get env' command
+     determines the value of any unix environment variables the system
+     has defined.  For more discussion (*Note Operating System::).
+
+   * *Statistical operations*: Some very limited capabilities exist;
+     for example, `regress' does linear regression.
+
+   * *Mathematical operations*: Simple mathematical manipulation of
+     column, grid, and image data is provided.  Also, wherever Gri
+     expects a number, it will accept a reverse-polish expression; for
+     example, `set x size 10' could also be written `set x size {rpn 20
+     2 /}'.  For details (*Note Mathematics::).
+
+
+File: gri.info,  Node: Command Syntax,  Next: List Of Gri Commands,  Prev: Overview Of Gri Commands,  Up: Commands
+
+Command syntax
+==============
+
+   The syntax description is enclosed within angled single quotes,
+optional items are enclosed in square brackets, multiword items are
+enclosed in curly braces, and vertical bars separate different
+legitimate choices.  For example, the documentation item for the
+command for drawing contours
+
+     `draw contour \
+         [.value. |  \
+           {.min. .max. .inc. [.inc_unlabelled.]}] \
+         [unlabelled]'
+
+indicates that following are legal:
+
+     draw contour                   # gri selects levels
+     draw contour unlabelled        # " but unlabelled
+     draw contour 10                # single contour line
+     draw contour 10 unlabelled     # " but unlabelled
+     draw contour 0 100 10          # contours at z=0,1,
+     draw contour 0 10 1 unlabelled # " but unlabelled
+     # contours at 0, 0.1, ... labelled at 0, 1
+     draw contour 0 10 1 0.1
+
+Note that items enclosed in braces must appear in their entirety; for
+example,
+
+     draw contour 0 10              # WRONG; missing .inc.
+
+which might look similar `draw contour .min. .max. .inc.' to you, looks
+like garbage to Gri.  Gri will recognize it as an attempt at the `draw
+contour' command (because the first 2 words match the syntax) but it
+will then get confused, spit out an error message, and quit.
+
+
+File: gri.info,  Node: List Of Gri Commands,  Next: Assert,  Prev: Command Syntax,  Up: Commands
+
+List of all Gri commands
+========================
+
+   Commands are listed below in the order in which they are defined in
+the `gri.cmd' file (*Note Invoking Gri::).  What you see here is
+similar to, but not identical to, the text of the online help.  Gri
+usually accepts both American and English spellings (As an example of
+spelling latitude, Gri accepts `grey' anywhere the manual says `gray',
+and `colour' for `color'.)
+
+* Menu:
+
+* Assert::                      Assert something to be true (for debugging)
+* Cd::                          Change directory
+* Close::                       Close a file
+* Convert::                     Convert various data types
+* Create::                      Create columns from specified function
+* Debug::                       Set to debugging mode
+* Delete::                      Delete various data structures
+* Differentiate::               Differentiate things
+* Draw::                        Draw various things
+* End Group::                   End a group
+* Expecting::                   Make Gri warn of incompatibilites
+* Filter::                      Filter (smooth) various data structures
+* Flip::                        Flip or transpose grid or image
+* Get Env::                     Get a unix environment variable
+* Group::                       Start a group of drawn objects
+* Heal::                        Interpolate across missing values
+* Help::                        Give on-line help
+* If::                          If and if/else statements
+* Ignore::                      Ignore some of data recently read in
+* Input::                       Input PostScript file into output file
+* Insert::                      Run another command file
+* Interpolate::                 Interpolate grid data to new x/y grid
+* List::                        List source of a gri command
+* Ls::                          List files in current directory
+* Mask::                        Mask the image
+* New::                         Get space for new variable or synonym
+* Newpage::                     Start a new page
+* New Postscript File::         Start a new PostScript file
+* Open::                        Open a data file
+* Postscript::                  Insert a line into the PostScript file
+* Pwd::                         Print working directory
+* Query::                       Get user input
+* Quit::                        Exit from gri
+* Read::                        Read something
+* Regress::                     Do linear regressions on columnar data
+* Reorder::                     Reorder columns
+* Rescale::                     Re-determine scales for x/y axes
+* Resize::                      Resize plot width/height for maps
+* Return::                      Return early from command or insert file
+* Rewind::                      Rewind data file to beginning
+* Rpnfunction::                 Define an rpn function
+* Set::                         Set various preference flags, etc
+* Show::                        Show values of various things
+* Skip::                        Skip some lines in data file
+* Sleep::                       Sleep for a while
+* Smooth::                      Smooth data
+* Source::                      Run another command file
+* Sprintf::                     Print variable values into a synonym
+* State::                       Save or restore the graphics state
+* Superuser::                   Enable some programmers debugging commands
+* System::                      Performing system commands within gri
+* Unlink::                      Delete file
+* While::                       Loop over some code while a condition is true
+* Write::                       Write data to a file
+
+
+File: gri.info,  Node: Assert,  Next: Cd,  Prev: List Of Gri Commands,  Up: List Of Gri Commands
+
+`assert'
+--------
+
+     `assert .condition. ["message"]
+
+The condition may be a variable, a synonym, or an RPN expression.  If
+this condition is true (i.e. evaluates to a non-zero number), do
+nothing.  If the condition is false, the program will terminate with an
+error condition (in unix, it will terminate with a non-zero exit code).
+
+   Before termination, a message will be printed, the form of which
+depends on the optional `"message"' string.
+
+   If no `"message"' string is given, the the printed message will
+indicate the name of the command-file and the line at which the assert
+command was encountered.
+
+   If a `"message"' string is given, and if it ends in a newline
+(`"\\n"'), then this string is printed.
+
+   If a `"message"' string is given, and if it does not end in `"\\n"',
+then the string is printed along with an indication of the location in
+the command-file.
+
+   (Perl users will recognize this as being patterned on the `"die"'
+command.)
+
+
+File: gri.info,  Node: Cd,  Next: Close,  Prev: Assert,  Up: List Of Gri Commands
+
+`cd'
+----
+
+     `cd [\pathname]'
+
+If a pathname specified, change to that directory.  Normal unix
+filenames are used, as in the C-shell convention.  For example, the
+commands `cd ~/src' and `cd $HOME/src' are equivalent.  You may specify
+relative pathnames as in `cd ../sister_directory'.
+
+   If no \pathname directory path is specified, go to the home
+directory, exactly as `cd ~' and `cd $HOME' do.
+
+
+File: gri.info,  Node: Close,  Next: Convert,  Prev: Cd,  Up: List Of Gri Commands
+
+`close'
+-------
+
+     `close [\filename]'
+
+If no filename is specified, close the most recently opened data-file;
+otherwise close the indicated file.
+
+
+File: gri.info,  Node: Convert,  Next: Convert Columns To Grid,  Prev: Close,  Up: List Of Gri Commands
+
+The `convert' commands
+----------------------
+
+* Menu:
+
+* Convert Columns To Grid::      Create grid from (x,y,f) data
+* Convert Columns To Spline::    Create spline (x',y') from (x,y) data
+* Convert Grid To Columns::      Create (x,y,f) data from grid
+* Convert Grid To Image::        Create an image from grid data
+* Convert Image To Grid::        Create a grid from image data
+
+
+File: gri.info,  Node: Convert Columns To Grid,  Next: Convert Columns To Spline,  Prev: Convert,  Up: Convert
+
+`convert columns to grid'
+.........................
+
+   Various forms exist:
+
+     `convert columns to grid OPTIONS'
+
+where the `OPTIONS' may be omitted or selected from this list:
+
+     `neighbor'
+     `boxcar    [.xr. .yr. [.n. .e.]]'
+     `objective [.xr. .yr. [.n. .e.]]'
+     `barnes    [.xr. .yr. .gamma. .iter.]'
+
+For more discussion on the methods see *Note Ungridded Data::.
+
+   All these commands "grid" columnar (x,y,z) data.  That is, they fill
+up a grid based on some form of interpolation of the possibly
+randomly-spaced columnar data.  There are many methods in existence for
+doing this, and Gri implements several of them as alternatives.
+
+   The grid will have been defined by commands such as `set x grid',
+`set y grid', `read grid x' and `read grid y'.  As of version 2.1.9,
+Gri does not require a grid to have been pre-defined; it will create a
+regular 20 by 20 grid, spanning the range of x and y data, as a
+default.  This is a good starting point in many cases.
+
+_`neighbor' method_
+     Very fast but very limited.
+
+_`boxcar' method_
+     Slower but a lot better.  Still, this can produce noisy contours
+     if the data are not densely and uniformly ditributed through
+     domain.
+
+_`objective' method_
+     Somewhat slower than `boxcar', but produces better fields since the
+     averaging function is smooth.
+
+_`barnes' method_
+     Somewhat slower than `objective', but only by a constant factor
+     (that is, independent of number of data).  This produces by far
+     the best results, since the smoothing function has variable
+     spatial scale.  This is the default method if no method is
+     supplied.
+
+   All except the `neighbor' method may take optional arguments to
+define the x and y scales of the smoothing function (called `.xr.' and
+`.yr.').  (The barnes method has two other optional arguments - see
+below.)  If you do not supply these arguments, Gri will make a
+reasonable choice and inform you of its decision.  Many users find that
+it is best to `convert columns to grid' with no additional parameters
+as a first step, to get advice on values to use for the optional
+parameters.
+
+   The default `.xr.' and `.yr.' are calculated by determining the span
+in x and in y directions, and dividing each by the square root of the
+number of data points.  These numbers are then multiplied by the square
+root of 2.  The method is as proposed by S. E. Koch and M.  DesJardins
+and P. J. Kocin, 1983.  "An interactive Barnes objective map anlaysis
+scheme for use with satellite and conventional data,", J. Climate Appl.
+Met., vol 22, p. 1487-1503.
+
+   If `.xr.' and `.yr.' were supplied but negative, then Gri interprets
+this as an instruction to modify the default values, described in last
+paragraph, by multiplying by the absolute values of the negative
+numbers given, instead of muliplying by square root of 2.
+
+   If the `chatty' option is turned on then Gri will print out the
+values of (dx,dy) that it has calculated; this gives you some guidance
+for supplying your own values of `(.xr.,.yr.)' if you choose to supply
+them yourself.  It is also a good idea to let these parameters be a
+guide for your grid spacing; for example, Koch et al., 1983, suggest
+using grid spacing of 0.3 to 0.5 times (dx,dy).
+
+   And now, the details ...
+
+   * *"Neighbor" method* The `convert columns to grid neighbor' method
+     is useful for (x,y,z) data which are already gridded (i.e., for
+     which x and y take only values which lie on the grid), or nearly
+     gridded.  The (x,y,z) data are scanned from start to finish. For
+     each data point, the nearest grid point is found.  Nearness is
+     measured as Cartesian distance, with scale factor given by the
+     distance between the first and second grid points.  In other
+     words, distance is given by D=sqrt(dx*dx+dy*dy) where dx is ratio
+     of distance from data point to nearest grid point, in x-units,
+     divided by the difference between the first two elements of the
+     x-grid, and dy is similarly defined.  Once the grid point nearest
+     the data point is determined, Gri adds the z-value to a list of
+     possible values to store in the grid.  Once the entire data set
+     has been scanned, Gri then goes back to each grid point, and
+     chooses the z-value of the data point that was nearest to the grid
+     point - that is, it stores the z value of the (x,y,z) data triplet
+     which has minimal D value.  Note that this scheme is independent
+     of the order of the data within the columns.
+
+     The `neighbor' method is useful when the data are already
+     pre-gridded, meaning that the (x,y,z) triplets have x and y values
+     which are already aligned with the grid.  *Computational cost:* For
+     `P' data points, `X' x-grid points, and `Y' y-grid points, the
+     method calculation cost is proportional to `P*[log2(X)+log2(Y)]'
+     where `log2' is logarithm base 2.  As discussed below, this is
+     often several orders of magnitude lower than the other methods of
+     gridding.
+
+   * *"Objective" method* In the `objective' method, a smoothing
+     technique known as objective mapping is applied.  It is
+     essentially a variable-size smoothing filter of approximately
+     Gaussian shape (it is method "two" of Levy and Brown [1986 J.
+     Geophysical Res. vol 91, p 5153-5158]) The parameters `.xr.' and
+     `.yr.' give the width of the filter.
+
+     With the optional additional parameters `.n.' and `.e.' are
+     specified, then grid values will be assigned the missing value if
+     there are fewer than `.n.' (x,y,f) data in the neighborhood of the
+     gridpoint, even after enlarging the neighborhood by widening and
+     heightening by root(2) up to `.e.' times.  (The enlargement is only
+     done if fewer than `.n.' points are found.)  If these parameters
+     are not specified in the command, then values `.n.'=5 and `.e.'=1
+     are assumed.  The special case where `.e.' is negative tells Gri
+     to *always* fill in each grid point, by extending the neighborhood
+     to enclose the entire dataset if necessary.
+
+     *Computational cost:* For `P' data points, `X' x-grid points, and
+     `Y' y-grid points, the method calculation cost is proportional to
+     `P*X*Y'.  Given that `X' and `Y' are determined by the requirement
+     for smoothness of contours and the size of the graph, they are
+     more or less fixed for all applications.  They are often in the
+     range of 20 or so - on 10 cm wide graph, this yields a contour
+     footprint of 1/2 cm, which is often small enough to yield smooth
+     contours.  Therefore, the computational cost scales linearly with
+     the number of data points.  Compared to the "neighborhood" method,
+     this is more costly by a factor of `X*Y/log_2(X)/log_2(Y)' which is
+     normally in the range from 20 to 50.
+
+   * *"Boxcar" method* In the `boxcar' method, the grid points are
+     derived from simple averages calculated in rectangles `.xr.' wide
+     and `.yr.' tall, centred on the gridpoints.  The `.n.' and `.e.'
+     parameters have similar meanings as in the "objective" method.
+
+     *Computational cost:* Roughly same as `objective' method described
+     above.
+
+   * *"Barnes" method* This is the default scheme.
+
+     The Barnes algorithm is applied.  If no parameters are specified,
+     `.xr.' and `.yr.' are determined as above, with `.gamma.' set to
+     0.5, and `.iter.' set to 2 so that two iterations are done.  On
+     successive iterations, the smoothing lengthscales `.xr' and `.yr'
+     are each reduced by multiplying by the square root of `.gamma.'.
+     Smaller `.gamma.' values yield better resolution of small-scale
+     features on successive iterations.  Koch et al., 1983, recommend
+     using a `.gamma.' value in the range 0.2 to 1, with two iterations.
+
+     Provided that all the grid points are close enough to at least some
+     column data, the entire grid is filled.  But if `.xr.' and `.yr.'
+     are too small, the weighting function can fall to zero, since it
+     is exponential in the sum of the squares of the x-distance/`.xr.'
+     and the y-distance/`.yr.'; in that case missing values result at
+     those grid points.  On a 32 bit computer, the weighting function
+     will fall to zero when x-distance/`.xr.'  and y-distance/`.yr.'
+     are less than about 15 to 20.
+
+     If weights have been read in (*Note Read Columns::), then these
+     values are applied in addition to the distance-based weighting.
+     (The normalization means that weights for two data points of e.g.
+     1 and 2 will yield the same result as if the weights had been
+     given as 10 and 20.)
+
+     The computational cost at each iteration scales as `P*X*Y)'.  This
+     is comparable to that of the "objective" and "boxcar" methods.
+     Since normally two iterations are done, "barnes" is about double
+     the cost of these methods.  (Note: versions prior to 2.1.8 were
+     much slower for large datasets, being proportional to `P*P'.)
+
+     References: (1) Section 3.6 in Roger Daley, 1991, "Atmospheric data
+     analysis," Cambridge Press, New York. (2) S. E. Koch and M.
+     DesJardins and P. J. Kocin, 1983.  "An interactive Barnes
+     objective map anlaysis scheme for use with satellite and
+     conventional data,", J. Climate Appl.  Met., vol 22, p. 1487-1503.
+
+   The Barnes algorithm is as follows:
+
+   The gridded field is estimated iteratively.  Successive iterations
+retain largescale features from previous iterations, while adding
+details at smaller scales.
+
+   The first estimate of the gridded field, here denoted `G_(ij)^0'
+(the superscript indicating the order of the iteration) is given by a
+weighted sum of the input data, with `z_k' denoting the k-th `z' value.
+
+                  sum_1^n W_(ijk)^0 z_k
+     G_(ij)^(0) = ----------------------
+                    sum_1^n W_(ijk)0
+
+where the notation `sum_1^n' means to sum the elements for the `k'
+index ranging from 1 to `n'.
+
+   The weights `W_(ijk)^0' are defined in terms of a Guassian function
+decaying with distance from observation point to grid point:
+
+                    (   (x_k - X_i)^2       (y_k - Y_j)^2  )
+     W_(ijk)^0 = exp(-  --------------  -  --------------- )
+                    (      L_x^2                L_y^2      )
+
+Here `L_x' and `L_y' are lengths which define the smallest `(x,y)'
+scales over which the gridded field will have significant variations
+(for details of the spectral response see Koch et al. 1983).
+
+   Note: if the user has supplied weights then these are applied in
+addition to the distance-based weights.  That is, `w_i W_(ijk)' is used
+instead of `W_(ijk)'.
+
+   The second iteration derives a grid `G_(ij)^1' in terms of the first
+grid `G_(ij)^0' and "analysis values" `f_k^0' calculated at the
+`(x_k,y_k)' using a formula analogous to that above.  (Interpolation
+based on the first estimate of the grid `G_(ij)^0' can also be used to
+calculate `f_k^0', with equivalent results for a grid of sufficiently
+fine mesh.)  In this iteration, however, the weighted average is based
+on the difference between the data and the gridded field, so that no
+further adjustment of the gridded field is done in regions where it is
+already close to through the observed values.  The second estimate of
+the gridded field is given by
+
+                            sum_1^n W_(ijk)^1 (f_k - f_k^0)
+     G_(ij)^1 = G_(ij)^0 +  -------------------------------
+                                   sum_1^n W_(ijk)^1
+
+where the weights `w_{ik,1}' are defined by analogy with `W_{ik}^0'
+except that `L_x' and `L_y' are replaced by `gamma^{1/2}L_x' and
+`gamma^{1/2}L_y'.  The nondimensional parameter `gamma' (`0<gamma<1')
+controls the degree to which the focus is improved on the second
+iteration.  Just as the weighting function forced the gridded field to
+be smooth over scales smaller than `L_x' and `L_y' on the first
+iteration, so it forces the second estimate of the gridded field to be
+smooth over the smaller scales `gamma^{1/2}L_x' and `gamma^{1/2}L_y'.
+
+   The first iteration yields a gridded field which represents the
+observations over scales larger than `(L_x,L_y)', while successive
+iterations fill in details at smaller scales, without greatly modifying
+the larger scale field.
+
+   In principle, the iterative process may be continued an arbitrary
+number of times, each time reducing the scale of variation in the
+gridded field by the factor `gamma^{1/2}'.  Koch et al. 1983 suggest
+that there is little utility in performing more than two iterations,
+providing an appropriate choice of the focussing parameter `gamma' has
+been made.  Thus the gridding procedure defines a gridded field based
+on three tunable parameters: `(L_x,L_y,gamma)'.
+
+
+File: gri.info,  Node: Convert Columns To Spline,  Next: Convert Grid To Columns,  Prev: Convert Columns To Grid,  Up: Convert
+
+`convert columns to spline'
+...........................
+
+     `convert columns to spline \
+         [.gamma.] \
+         [.xmin. .xmax. .xinc.]'
+
+   Fit a normal or taut interpolating spline, y=y(x), through the (x,y)
+data.  Then subsample this spline to get a new set of (x,y) data.  If
+the spline x-values, `.xmin.', etc, are not specified, the spline
+ranges from the smallest x-value with legitimate data to the largest
+one, with 200 steps in between.
+
+   The parameter `.gamma.' determines the type of spline used.  If
+`.gamma.' is not specified, or is given as zero, a standard
+interpolating spline is used.  A knot appears at each x location, with
+cubic polynomials spanning the space between the knots.  If `.gamma.'
+lies between 0 and 6, a taut spline is used; this tends to have fewer
+wiggles than a normal spline.  If `.gamma.'  lies in the range 0 to 3,
+a taut spline is used, with the possible insertion of knots between
+interior x pairs.  The value 2.5 is used commonly.  If `.gamma.' lies
+in the range 3 to 6, extra knots are permitted in the x pairs at the
+ends of the domain.  A value of 5.5 is used commonly.
+
+   *Reference* Chapter 16 of Carl de Boar, 1987. "A Practical Guide to
+Splines" Springer-Verlag.
+
+     read columns x y  # function is y=x^2
+     0 0
+     1 1
+     2 4
+     3 9
+     4 16
+     
+     set symbol size 0.2
+     draw symbol bullet
+     convert columns to spline
+     draw curve
+
+
+File: gri.info,  Node: Convert Grid To Columns,  Next: Convert Grid To Image,  Prev: Convert Columns To Spline,  Up: Convert
+
+`convert grid to columns'
+.........................
+
+     `convert grid to columns'
+
+Create column data from grid data.  Each non-missing gridpoint is
+translated into a single (x,y,z) triplet.  If column data already exist,
+then they are first erased.  This command is useful in changing the grid
+configuration, perhaps from a non-uniform grid to a uniform grid.  In
+the following example, a new grid with x=(0, 0.05, 0.1, ..., 0.1) and
+y=(10, 11, ..., 20) is created.  The default gridding method (`convert
+columns to grid') is used here, but of course one is free to adjust the
+method as usual.
+
+     # ... read/create grid
+     convert grid to columns
+     delete grid
+     set x grid  0  1 0.05
+     set y grid 10 20 1
+     convert columns to grid
+
+
+File: gri.info,  Node: Convert Grid To Image,  Next: Convert Image To Grid,  Prev: Convert Grid To Columns,  Up: Convert
+
+`convert grid to image'
+.......................
+
+     `convert grid to image [size .width. .height.] \
+         [box .xleft. .ybottom. .xright. .ytop.]'
+
+With no options specified, convert grid to a 128x128 image, using an
+image range as previously set by `set image range'.
+
+   Interpolation method: The interpolation scheme is the same used for
+contouring.  Image points that lie outside the grid domain are
+considered missing.  For points within the grid, the first step is to
+locate the patch of the grid upon which the pixel lies.  Then the 4
+neighboring grid points are examined, and one of the following cases
+holds.
+  1. If 3 or more of them are missing, the pixel is considered missing.
+
+  2. If just one of the neighboring grid points is missing, then the
+     image pixel value is determined by bilinear interpolation on the
+     remaining 3 non-missing grid points.  (This amounts to fitting a
+     plane to three measurements of height.)
+
+  3. If all 4 of the grid points are non-missing, then the rectangle
+     defined by the grid patch is subdivided into four triangles.  The
+     triangles are defined by the two diagonal lines joining opposite
+     corners of the rectangle.  An "image point" is constructed at the
+     center of the grid patch, with f(x,y) value taken to be the
+     average of the values of the four neighbors.  This value is taken
+     to be the value at the common vertex of the four triangles, and
+     then bilinear interpolation is used to calculate the image pixel
+     value.
+
+   With the `size' options `.width.' and `.height.' specified, they set
+the number of rectanglular patches in the image.
+
+   With the `box' options specified, they set the bounding box for the
+image.  If `box' is not given, the image spans the same bounding box as
+the grid as set by `set x grid' and `set y grid'.
+
+   Normally, missing values in the grid become white in the image, but
+this can be changed using the `set image missing value color to'...
+command.
+
+
+File: gri.info,  Node: Convert Image To Grid,  Next: Create,  Prev: Convert Grid To Image,  Up: Convert
+
+`convert image to grid'
+.......................
+
+     `convert image to grid'
+
+Convert image to grid, using current graylevel/colorlevel mapping.  For
+example, if one had a linear mapping of pixel values 0->255 into the
+user values 10->20, as in
+
+     set image range 10 20
+     set image grayscale black 10 white 20
+
+then the output grid will be of value 10 where the pixel value is 0,
+etc.  If the image is in color, the grid values will represent the
+result of mapping the colors to grayscale in the standard way (Foley and
+VanDam, 1984). [BUG: as of 1.063, the colorscale is ignored completely,
+and I'm not sure what happens.] The image data are interpolated onto the
+grid using a nearest-neighbor substitution.  This command insists that
+the image x/y grids have already been defined.
+
+
+File: gri.info,  Node: Create,  Next: Create Columns From Function,  Prev: Convert Image To Grid,  Up: List Of Gri Commands
+
+The `create' commands
+---------------------
+
+* Menu:
+
+* Create Columns From Function:: prepare to draw a function
+* Create Image Grayscale::       prepare to draw banded image
+
+
+File: gri.info,  Node: Create Columns From Function,  Next: Create Image Grayscale,  Prev: Create,  Up: Create
+
+`create columns from function'
+..............................
+
+     `create columns from function'
+
+Plot a function of x which is defined in synonym \function.
+
+     ENVIRONMENT
+     \function = function to plot.
+     \xmin     = minimum x value
+     \xmax     = maximum x value
+     \xinc     = increment in x values
+     
+     EXAMPLE
+     \function = "cos(x)"
+     \xmin     = "0"
+     \xmax     = "2 * 3.14"
+     \xinc     = "0.1"
+     create columns from function
+     draw curve
+
+NOTE: This only works on machines which have the `awk' command
+available at the commandline.  This means most unix machines and some
+vax machines.
+
+
+File: gri.info,  Node: Create Image Grayscale,  Next: Debug,  Prev: Create Columns From Function,  Up: Create
+
+`create image grayscale'
+........................
+
+     `create image grayscale banded .band.'
+
+Make a banded grayscale with in units of .band. pixel values each.
+Thus, pixel values 0 to (.band. - 1) on the image will map to 0, while
+values from .band. to (2 * .band. - 1) will map to .band., etc.  For
+example, .band. = 2 gives grayscale = (0 0 2 2 4 4 6 6 ... 252 252 254
+254).
+
+
+File: gri.info,  Node: Debug,  Next: Delete,  Prev: Create Image Grayscale,  Up: List Of Gri Commands
+
+`debug'
+-------
+
+     `debug [.n.]|[clipped values in draw commands]|off'
+
+With no optional parameters, sets the value of `..debug..' to 1.
+(Normally, `..debug..' is 0.)  You may use `..debug..' in `if'
+statements, etc.  Note that `..debug..' is also set to 1 when gri is
+invoked with the commandline switch `-d'.
+
+   With `.n.' specified, `..debug..' is set to `.n.'; a value of zero
+for `.n.' turns debugging off, while 1 turns it on.  Higher values may
+be used for deeper debugging, if you choose:
+
+     if {rpn ..debug.. 2 <}
+       # Code to do if ..debug.. is greater than 2.
+     end if
+
+Note that you can assign to `..debug..' as you can to any other
+variable; `debug .n.' is equivalent to `..debug.. = .n.'.
+
+   With the `clipped' option, Gri prints any clipped data encountered
+during any `draw ...' commands, EXCEPT in the case of `postscript'
+clipping, where no check is possible.  (Note that `..debug..' is not
+affected.)
+
+   All these forms of debugging are cancelled by `debug off'.
+
+
+File: gri.info,  Node: Delete,  Next: Differentiate,  Prev: Debug,  Up: List Of Gri Commands
+
+`delete'
+--------
+
+     `delete .variable.|\synonym [.variable.|\synonym [...]]'
+     `delete columns [where missing]'
+     `delete columns [randomly .fraction.]'
+     `delete grid'
+     `delete [x|y] scale'
+
+Delete some item or characteristic.
+
+   * `delete .variable.' Delete definition of variable `.variable.',
+     making it undefined.  Any number of variables or synonyms may be
+     specified on one line.
+
+   * `delete \synonym' Delete definition of synonym `\synonym', making
+     it undefined.  Any number of variables or synonyms may be
+     specified on one line.
+
+   * `delete \@alias' Delete the item named by the alias (*Note Alias
+     Synonyms::).
+
+   * `delete' with an `&' item Delete the item in the calling program.
+
+   * `delete columns' Delete column data.
+
+   * `delete columns where missing' Completely delete all column data
+     for which any one of x, y, etc is missing.
+
+   * `delete columns randomly .fraction.' Randomly select fraction
+     `.fraction.'  of the non-missing column data, and designate them
+     as being missing.
+
+   * `delete grid' Delete grid data.
+
+   * `delete scale' Delete scales for both x and y, so next `read
+     columns' will set it.
+
+   * `delete x scale' Delete scales for x, so next `read columns' will
+     set it.
+
+   * `delete y scale' Delete scales for y, so next `read columns' will
+     set it.
+
+
+File: gri.info,  Node: Differentiate,  Next: Draw,  Prev: Delete,  Up: List Of Gri Commands
+
+`differentiate'
+---------------
+
+     `differentiate {x|y wrt index|y|x} | {grid wrt x|y}'
+
+Differentiate column data or grid data.  Only the `x' and `y' columns
+may be differentiated.  They may be differentiated either with respect
+to ("wrt") the index (forming a first difference) or with respect to
+the other column.  The derivative is done with the backwards-difference
+algorithm.  Grid data may differentiated with respect to `x' direction
+or `y' direction.  Grid differentiation is done with a centred
+difference, with endpoints being assigned the derivative of the
+neighboring interior point (so that the second derivative is zero at
+the edges of the grid).
+
+
+File: gri.info,  Node: Draw,  Next: Draw Arc,  Prev: Differentiate,  Up: List Of Gri Commands
+
+The `draw' commands
+-------------------
+
+   Draw commands do actual drawing on the page.  You can draw axes,
+lineplots, symbols, contours, images, and text.
+
+   *NOTE* Gri likes drawings to have axes, so if a `draw' command is
+executed before any axes have been drawn, Gri will draw axes after it
+draws the item.  (You can get drawings without axes by preceding any
+other `draw' commands with the command `draw axes none'.)  Many users
+have been surprised by the results of this rule.  For example, if you
+do `set graylevel 0.5' before `draw curve', you'll find that the axes
+are drawn in gray also.  To avoid this, make sure to do `draw axes'
+before you modify the graylevel.)
+
+* Menu:
+
+* Draw Arc::                    Draw an arc segment
+* Draw Arrow::                  Draw single arrow
+* Draw Arrows::                 Draw many arrows (using columns)
+* Draw Axes If Needed::         Draw axes if haven't done so yet
+* Draw Axes::                   Draw axes
+* Draw Border Box::             Draw border around plot
+* Draw Box::                    Draw a box, possibly filled
+* Draw Circle::                 Draw a circle
+* Draw Contour::                Draw contour(s)
+* Draw Curve::                  Draw a curve of y(x) column data
+* Draw Essay::                  Draw text, adjusting position for each line
+* Draw Gri Logo::               Draw a Gri logo
+* Draw Grid::                   Draw the location of grid points
+* Draw Image Histogram::        Draw histogram of values in image
+* Draw Image Palette::          Draw palette used in image plots
+* Draw Image::                  Draw image
+* Draw Isopycnal::              Draw isopycnal line on TS plot
+* Draw Isospice::               Draw iso-spice line on TS plot
+* Draw Label Boxed::            Draw a label in a box
+* Draw Label Whiteunder::       Draw a label with white ink under it
+* Draw Label For Last Curve::   What it says
+* Draw Label::                  Draw text somewhere
+* Draw Line From::              Draw line segment
+* Draw Line Legend::            Draw legend displaying line types
+* Draw Lines::                  Draw sequence of parallel lines
+* Draw Patches::                Draw grayscale patches showing z(x,y)
+* Draw Polygon::                Draw a polygon
+* Draw Regression Line::        Draw line from regression between x and y
+* Draw Symbol At::              Draw a symbol at a point
+* Draw Symbol Legend::          Draw a symbol and a string describing it
+* Draw Symbol::                 Draw symbols at (x,y), or at a point
+* Draw Time Stamp::             Draw a timestamp at top of plot
+* Draw Title::                  Draw a title for plot
+* Draw Values::                 Draw numbers beside z(x,y)
+* Draw X Axis::                 Draw the x axis
+* Draw X Box Plot::             Draw box plots showing x spread
+* Draw Y Axis::                 Draw the y axis
+* Draw Y Box Plot::             Draw box plots showing y spread
+* Draw Zero Line::              Draw y=0 or x=0
+
+
+File: gri.info,  Node: Draw Arc,  Next: Draw Arrow,  Prev: Draw,  Up: Draw
+
+The `draw arc' command
+......................
+
+     `draw arc [filled] .xc_cm. .yc_cm. .r_cm. .angle_1. .angle_2.'
+
+   Draw an "arc", that is, a portion of a circle.  The center of the
+circle is at the coordinate (`.xc_cm.', `.yc_cm.'), and the circle
+radius is `.r_cm.', all three quantities being in cm on the page, _not_
+in user-units.  The arc starts at angle `.angle_1.', measured in
+degrees counterclockwise from a horizontal line, and extends to angle
+`.angle_2.', in the same units.
+
+   If the keyword `filled' is present, the arc is filled with the
+current color.  Otherwise it is drawn with the current "curve"
+linewidth *Note Set Line Width::.
+
+
+File: gri.info,  Node: Draw Arrow,  Next: Draw Arrows,  Prev: Draw Arc,  Up: Draw
+
+`draw arrow'
+............
+
+     draw arrow from .x0. .y0. to .x1. .y1. [cm]
+
+   With no optional parameters, draw an arrow from (`.x0.', `.y0.') to
+(`.x1.', `.y1.'), where coordinates are in user units.  The arrow head
+will be at (`.x1.', `.y1.'), and its size is as set by most recent call
+to `set arrow size'.  With the `cm' keyword present, the coordinates
+are in centimetres on the page.  NOTE: This will not cause auto-drawing
+of axes.
+
+
+File: gri.info,  Node: Draw Arrows,  Next: Draw Axes If Needed,  Prev: Draw Arrow,  Up: Draw
+
+`draw arrows'
+.............
+
+     `draw arrows'
+
+Draw a vector field consisting of arrows emanating from the coordinates
+stored in the (x, y) columns.  The lengths and orientations of the
+arrows are stored in the (u, v) columns, and the scale for the (u,v)
+columns is set by `set u scale' and `set v scale'.  *See also* (1) To
+set arrow size, use `set arrow size'.  (2) To get a single arrow, use
+`draw arrow'.
+
+
+File: gri.info,  Node: Draw Axes If Needed,  Next: Draw Axes,  Prev: Draw Arrows,  Up: Draw
+
+`draw axes if needed'
+.....................
+
+     `draw axes if needed'
+
+Draw axes frame if required.  Used within gri commands that auto-draw
+axes.  NOTE: this should only be done by developers.
+
+
+File: gri.info,  Node: Draw Axes,  Next: Draw Border Box,  Prev: Draw Axes If Needed,  Up: Draw
+
+`draw axes'
+...........
+
+     `draw axes [.style.|frame|none]'
+
+With no style (`.style.') specified, draw x-y axes frame labelled at
+left and bottom. The value of `.style.' determines the style of axes:
+   * `.style. = 0' Draw x-y axes frame labelled at left and bottom.
+     Since this is the default, it's best to leave it out altogether to
+     make your code easier to understand.
+
+   * `.style. = 1' Draw axes without tics at top and right
+
+   * `.style. = 2' Draw axes frame with no tics or labels; same as
+     `draw axes frame'
+
+   With the keyword `frame' specified, draw axes frame with no tics or
+labels (just like `.style.' = 2, but preferable because it makes for
+code that is easier to read and understand).
+
+   With the keyword `none' specified, prevent Gri from automatically
+drawing axes when drawing curves.
+
+   Note: `set axes style' can also be used to set axes properties, and
+then simply using `draw axes', or letting axes be auto-drawn, will
+result in the desired effect (*Note Set Axes Style::).  However, if the
+`draw axes' command explicitly asks for a particular style, then it
+over-rides the style set by `Set Axes Style'.
+
+
+File: gri.info,  Node: Draw Border Box,  Next: Draw Box,  Prev: Draw Axes,  Up: Draw
+
+`draw border box'
+.................
+
+     `draw border box .xleft. .ybottom. .xright. .ytop. \
+         .width_cm. .brightness.'
+
+Draw gray box, as decoration or alignment key for pastup. The box, with
+outer lower left corner at (`.xleft.', `.ybottom.') and outer upper
+right corner at (`.xright'., `.ytop.') - both coordinates being in
+centimetres on the page - is drawn with thickness `.width_cm.' and with
+graylevel `.brightness.' (0 for black; 1 for white).  The gray line is
+drawn inside the box.  After drawing the gray line, a thin black line
+is drawn along the outside edge.
+
+   If the geometry is not specified with `.xleft.' and the other
+parameters, then a reasonable margin is used around the present axes
+area, and the defaults (`.border.' = 0.2, `.brightness.' = 0.75) are
+used.
+
+   NOTE: This command does not cause auto-drawing of axes.
+
+
+File: gri.info,  Node: Draw Box,  Next: Draw Circle,  Prev: Draw Border Box,  Up: Draw
+
+`draw box'
+..........
+
+     `draw box filled .xleft. .ybottom. .xright. .ytop. [cm|pt]'
+
+Draw filled box spanning indicated range, with lower-left corner at
+(`.xleft.', `.ybottom.') and upper-right corner at (`.xright.',
+`.ytop.').  The corners are specified in user coordinates, unless the
+optional `cm' or `pt' keyword is present, in which case they are in
+centimetres or points on the page.  An error will result if you specify
+user coordinates but they aren't defined yet.
+
+   No checking is done on the rectangle; for example, there is no
+requirement that `.xleft.' be to the left of `.xright.' in your
+coordinate system.
+
+   NOTE: if the box is specified in user units, this command will cause
+auto-drawing of axes, but not if the box is specified in `cm' or `pt'
+units
+
+     `draw box .xleft. .ybottom. .xright. .ytop. [cm|pt]'
+
+Draw box spanning indicated range, with lower-left corner at
+(`.xleft.', `.ybottom.)' and upper-right corner at (`.xright.',
+`.ytop.').
+
+   The corners are specified in user coordinates, unless the optional
+`cm' or `pt' keyword is present, in which case they are in centimetres
+or points on the page.  An error will result if you specify user
+coordinates but they aren't defined yet.
+
+   No checking is done on the rectangle; for example, there is no
+requirement that `.xleft.' be to the left of `.xright.' in your
+coordinate system.
+

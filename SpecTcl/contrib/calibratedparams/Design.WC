@@ -1,0 +1,624 @@
+With Class Chart Export File
+\\homedir\home2\fox\My Documents\Personal\TUNL\Calibrations\Design.omtUnified Method
+
+
+General Info
+Internal Version #, NextClassID, NextClassShapeID, NextRelationShapeID, NextStateID, NextStateShapeID, NextTransitionID, NextTransitionShapeID, NextObjectID, NextObjectShapeID, NextInteractionID, NextInteractionShapeID, NextOperationID, NextAttributeID
+***BEGIN_TABLE***
+4.7292924111111111786
+***END_TABLE***
+
+Classes
+ClassID, Name, Description, Multiplicity, Concurrency, Visibility, Persistence, FileName, Package, Import File, Author, LibraryBaseClass, Invariant, User1, User2, User3, Stereotype, 
+***BEGIN_TABLE***
+6
+1CCalibratedParameterManagerThis EventProcessor manages a set of calibrated parameters.
+In addition to the normal evaluation operation, the class supports
+member functions for manipulating the list of parameters it manage:
+- AddParameter to add a new calibrated parameter.
+- DeleteParameter to remove an existing parameter.
+- FindParameter to locate a parameter.
+- begin, end, size to support iteration.publicCEventProcessor0010
+2CCalibratedParameterA calibrated parameter is a parameter that is 
+related to a raw parameter via  a fit.  For each
+event, the calibrated parameter is computed by
+evaluating the calibrated parameter's fit with respect 
+to a raw parameter. public0010
+6CFitpublic0000
+7CFitFactorypublic0000
+9CHistogrammerpublic0000
+15CCalibratedParameterCommandThis file provides a command set for manipulating calibrated
+parameters.  A summary of the syntax supported is:
+
+calibparam name number raw fitname ?units?  - Creates a calibration
+calibparam -list ?pattern?   - Lists the patterns
+calibparam -delete name    - Destroys a calibration.
+calibparam -refresh ?pattern? - refreshes the fits of a parameter.
+
+publicCTCLProcessor0010
+***END_TABLE***
+
+Class Shape
+ShapeID, PosX, PosY, TopText, MiddleText, BottomText, ClassDataID, ClassType, Abstract, Template, Interface, Final
+***BEGIN_TABLE***
+639010CFit6000000
+752010CFitFactory7000000
+961010CHistogrammer9000000
+16010CCalibratedParameterManageroperator():AddParameter:DeleteParameter:begin:end:size:FindParameter1000100
+2360200CCalibratedParameterm_nParameterId:m_nTargetParameterId:m_sFitNameoperator():ReplaceFit2000100
+15630360CCalibratedParameterCommandoperator():Create_parse:List_parse:Delete_parse:Update_parse:Create:List:Delete:Update:FindCalibratedParameter:FindFit:Usage:FormatFit15000100
+***END_TABLE***
+
+Attributes
+ClassID, ClassName, AttrID, Name, Type, Length, IsStatic, Description, Visibility, MaxVal, MinVal, InitVal, Stereotype, Constraint, IsConstant, IsIndexed, IsUnique, IsNotNull, IsPrimaryKey, IsForeignKey, User1, User2, User3, IsArray, IsFinal, IsWriteProperty, IsReadProperty
+***BEGIN_TABLE***
+2CCalibratedParameter1m_nParameterIdint0Id of parameter we correspond to.private00000000000
+2CCalibratedParameter3m_nTargetParameterIdint0Id of resulting parameter.private00000000000
+2CCalibratedParameter2m_sFitNamestring0Name of fit that's set on us.private00000000000
+***END_TABLE***
+
+Operations
+ClassID, ClassName, OperID, OperName, Return Type, Post Condition, PreCondition, Invariant, Stereotype, Classification, Exception, Transformation, Concurrency, Visibility,  Comment1, Comment2, Comment3, IsStatic, IsConstant, IsPureVirtual, IsVirtual, IsProcedure, IsInline, IsEvent, IsOverride, Message, IsFinal, IsSynchronized, IsNative, IsFriend
+***BEGIN_TABLE***
+1CCalibratedParameterManager321operator()Bool_tpublicCalculates all of the calibrated parameters 
+by iterating through the m_CalibratedParameters 
+container.\param pEvent (Address_t)
+    Pointer to the raw event.
+\param rEvent   (CEvent&)
+    Reference to the unpacked event.
+\param rAnalyzer (CAnalyzer&)
+    Reference to the calling analyze (unused)
+\param rDecoder (CBufferDecoder&)
+    Reference to the decoder that's working on the buffer. 
+   (unused).
+
+   \return Bool_t
+  \retval kfTRUE - if everything worked (and it must).
+  \retval kfFALSE - if there were any failures000110010000
+BEGIN_CODE
+Foreach fit in m_CalibratedParameters
+   Parameter(rEvent)
+end foreach
+
+END_CODE
+1CCalibratedParameterManager322AddParametervoidFindParameter(rName) != end()FindParameter(rName) == end()publicAdds a new calibrated parameter to the m_CalibratedParameters container
+Once added operator() will immedately start evaluating this parameter.
+A calibrated parameter of this name must not yet exist.\param rName (string)
+   Name of the calibrated parameter.  This name can be 
+used to look up the paramter later (FindParameter) and
+must be unique.  Note as well that by convention the name
+corresponds to the actual SpecTcl parameter that is being computed
+by this calibration.
+\param pParam (CCalibratedParameter*)
+  A pointer to the parameter to add.  The caller
+is assumed to own this parameter.000010001000
+BEGIN_CODE
+m_CalibratedParameter.push_back(Pair(rName, pParam))
+
+END_CODE
+1CCalibratedParameterManager323DeleteParameterCCalibratedParameter*FindParameter(rName) == end()FindParameter(rName) != end()publicRemoves the calibrated parameter from the
+m_CalibratedParameters container.  \param rName (string)
+   Name of the parameter to remove.\return CCalibratedParameter*
+   \retval a pointer to the calibrated parameter that was
+    removed.  The caller will normally need this to delete it.
+   \retval NULL - the parameter was not found .. null is only
+      possible with debugging disabled.000010001000
+BEGIN_CODE
+iterator <- FindParameter(rName)
+if(iterator != end()) THEN
+  pParameter = *iterator
+  m_CalibratedParameters.erase(iterator)
+  return pParameter
+ELSE
+  return NIL
+ENDIF
+END_CODE
+1CCalibratedParameterManager324beginCalibratedParameterIteratorpublicReturns a start of iteration iterator to the m_CalibratedParameters
+container.\return CalibratedParameterIterator
+000010001000
+BEGIN_CODE
+return m_CalibratedParameters.begin()
+
+END_CODE
+1CCalibratedParameterManager325endCalibratedParameterIteratorpublicReturn an end of iteration iterator to the
+m_CalibratedParameters container.\return CalibratedParameterIterator
+000010000000
+BEGIN_CODE
+return m_CalibratedParameters.end()
+END_CODE
+1CCalibratedParameterManager326sizesize_tpublicReturn the number of calibrated parameters
+currentl in m_CalibratedParameters\return size_t
+\retval number of elements in the list.000010001000
+BEGIN_CODE
+return m_CalibratedParameters.size()
+
+END_CODE
+1CCalibratedParameterManager327FindParameterCalibratedParameterIteratorpublicLocate the parameter requested.\param Name (string)
+   Name of the parameter to find.
+\return CalibratedParameterIterator
+ \retval end() - not found
+ \retval anything else: An iterator that 'points' to the 
+  parameter000010000000
+BEGIN_CODE
+return std::find(begin, end, Matchname)
+END_CODE
+2CCalibratedParameter328operator()voidm_pFit != (CFit*)NULLpublicCalcluates the resulting parameter 
+from the corresponding raw parameter
+\param rEvent (CEvent&)
+   The event which is being operated on.010010000000
+BEGIN_CODE
+If Raw parameter is valid THEN
+  Calibrated paramter = m_pFit(raw parameter value)
+ENDIF
+END_CODE
+2CCalibratedParameter329ReplaceFitCFit*publicReplaces the current fit with a new fit.
+The fit passed in is cloned to create a local
+copy.  In this way, if the actual fit is deleted, we still
+compute the parameter.\param rNewFit (const CFit&)
+   Reference to the new fit.000010001000
+BEGIN_CODE
+temp <- m_pFit
+m_pFit = new CFit(rNewFit)
+return temp
+END_CODE
+15CCalibratedParameterCommand330operator()voidpublicDoes a top level parse and dispatch of 
+commands.  The command is parsed
+ito its function and dispatched.
+\param rInterp (CTCLInterpreter&)
+   Reference to the interpreter that's executing
+   this command.
+\param rResult (CTCLResult&)
+   Reference to the interpreter result.
+\param argc (int)
+   Number of command line parameters.
+   Note that the command itself is
+   included in this.
+\param argv (char**)
+  The command line parameter.\return int
+\retval TCL_OK
+   Function completed successfully.
+   The contents of rResult will depend on the 
+   function.
+\retval TCL_ERROR
+   Function failed. rResult will be an error message.000110011000
+BEGIN_CODE
+Operation = argv[1]
+Opcode    = MatchKeyword(Operation)
+
+if (Opcode == Create) {
+    return Create_Parse(rInterp, rResult, remaining argc, remaining argv)
+}
+if (Opcode == List) {
+    return List_Parse(rInterp, rResult, remainng argc, remaining argv)
+}
+if(Opcode == Delete) {
+    return List_Parse(rInterp, rResult, remaining argc, remaining argv)
+}
+if(Opcode == Update) {
+    return Update_Parse(rInterp, RResult, remaining argc, remaining argv)
+}
+if(Opcode == Create) {
+    return Create_Parse(rInterp, rResult, remaining argc, remaining argv)
+}
+if(OpCode == unrecognized)
+   return Create_Parse(rInterp, rResult, argc, argv)
+}
+FAIL
+END_CODE
+15CCalibratedParameterCommand331Create_parseintpublicParses the Create command and reports any
+parsing errors to the caller.  If the parse is
+successful, Create is called to do the actual
+creation of a new calibrated parameter.\param rInterp (CTCLInterpreter&)
+   Reference to the interpreter that's executing
+   this command.
+\param rResult (CTCLResult&)
+   Reference to the interpreter result.
+\param argc (int)
+   Number of command line parameters.
+   Note that the command itself is
+   included in this.
+\param argv (char**)
+  The command line parameter.\return int
+\retval TCL_OK
+    - Parse was correct.
+    - Create returned TCL_OK.
+\retval TCL_ERROR
+    - Parse failed OR
+    - Create returned an error.000010000000
+BEGIN_CODE
+targetname = argv[0]
+targetid   = argv[1]
+rawname    = argv[2]
+fitname    = argv[3]
+
+If (argc == 5) {
+   units = argv[4]
+} else
+   units = ""
+}
+
+status = Create(message, targetname, targetid, rawname, fitname, units)
+rResult = message
+return status
+END_CODE
+15CCalibratedParameterCommand332List_parseintpublicParses the list command.  If the parse is succesful,
+invokes List to do the listing.  Parse failures
+will result in an error return and will also leave
+an error message and usage in the rResult parameter\param rInterp (CTCLInterpreter&)
+   Reference to the interpreter that's executing
+   this command.
+\param rResult (CTCLResult&)
+   Reference to the interpreter result.
+\param argc (int)
+   Number of command line parameters.
+   Note that the command itself is
+   included in this.
+\param argv (char**)
+  The command line parameter.\return int
+\retval   TCL_OK
+     The function and parse succeeded 
+\retval TCL_ERROR
+    The function or the parse failed.000010000000
+BEGIN_CODE
+pattern = "*"
+if(argc) pattern = argv[0]
+
+rResult = List(pattern)
+return TCL_OK
+
+END_CODE
+15CCalibratedParameterCommand333Delete_parseintpublicParses the delete subcommand.  If the parse is successful,
+control is passed to Delete to do the actual delete.\param rInterp (CTCLInterpreter&)
+   Reference to the interpreter that's executing
+   this command.
+\param rResult (CTCLResult&)
+   Reference to the interpreter result.
+\param argc (int)
+   Number of command line parameters.
+   Note that the command itself is
+   included in this.
+\param argv (char**)
+  The command line parameter.\return int
+\retval TCL_OK
+  The parse and the command succeeded.
+\retval TCL_ERROR
+    The function or parse failed.000110011000
+BEGIN_CODE
+name = argv[0]
+status = Delete(msg, name)
+rResult = msg
+return status
+
+
+
+END_CODE
+15CCalibratedParameterCommand334Update_parseintpublicParses the update command.  The update 
+command parse will then invoke the update member if
+the parse is successful.\param rInterp (CTCLInterpreter&)
+   Reference to the interpreter that's executing
+   this command.
+\param rResult (CTCLResult&)
+   Reference to the interpreter result.
+\param argc (int)
+   Number of command line parameters.
+   Note that the command itself is
+   included in this.
+\param argv (char**)
+  The command line parameter.\return int
+\retval TCL_OK
+   The parse and call of Update succeeded.
+\retval TCL_ERROR
+   The parse or call of Update failed.
+000010000000
+BEGIN_CODE
+pattern = "*"
+if (argc) pattern = argv[0]
+Update(pattern)
+return TCL_OK
+END_CODE
+15CCalibratedParameterCommand335CreateintpublicCreates a new calibrated parameter.
+The parameter is instantiated here and entered
+in the CCalibratedParameterManager via a call
+to CCalibratedParameterManager::AddParameter
+
+\param Result (string)
+    A status string from the creation.
+\param name (string)
+  Name of the parameter being created.
+\param id (int)
+  Number of the parameter being created.
+  This number must not correspond to an existing
+   parameter.
+\param raw (string)
+   Name of the raw parameter being calibrated.
+\param fitname (string)
+   Name of the fit that is invoked to calibrate the parameter
+\param units (string)
+   Parameter units (blank means no units).\return int
+\retval TCL_OK
+   The calibrated parameter was made and successfully
+   inserted into the calibration manager.\
+  Result will be a string containing the parameter description
+  list
+\retval TCL_ERROR
+   The calibrated parameter specified could not be
+   created.
+   the Result will be a string that contains an error
+   message.000010000000
+BEGIN_CODE
+if exists name  {
+   Result = "$name exists"
+   return TCL_ERROR
+}
+
+if exists number  {
+   Result = "Parameter $number already is defined"
+   return TCL_ERROR
+}
+
+if !exists raw {
+   Result = "Raw parameter $raw does not exist"
+   return TCL_ERROR
+}
+
+if !exists fit {
+    Result = "Fit $fit does not exist"
+    return TCL_ERROR
+}
+
+pParameter = CreateParameter(name, number, units)
+pCalibParam = new CCalibratedParameter(number, pRaw->getNumber(),
+                                       pFit, fit)
+CCalibratedParameterManager::AddParameter(name, pCalibParam)
+return TCL_OK
+
+END_CODE
+15CCalibratedParameterCommand336ListstringpublicProduces a listing of the parameters that match the
+pattern.  The pattern can contain wild card characters
+from the glob set.\param pattern (string)
+   Pattern to match when doing the list.\return string
+\retval a list, containing one entry per matched parameter
+  each element of the list is of the form:
+   {name, number, rawname, fitname, units}
+000010000000
+BEGIN_CODE
+result = <empty>
+for_each CalibratedParameter {
+   if  CalibratedParameter Name matches pattern {
+       result.AddElement(FormatFit(name, CalibratedParameter)
+}
+return $result
+
+END_CODE
+15CCalibratedParameterCommand337DeleteintpublicDeletes a parameter given a name.
+\param Result string
+   On success empty on failure an error message
+\param name string
+   Name of the parameter to destroy.\return int
+\retval TCL_OK
+   The named parameter was deleted.
+\retval TCL_ERROR
+   The named parameter could not be
+   deleted and the reason is textually given by
+   Result.000010000000
+BEGIN_CODE
+pParameter = CCalibratedParameterManager::DeleteParmeter(name)
+if ! pParameter{
+ 
+   Result = "No such parameter $name"
+    return TCL_ERROR
+} 
+else {
+    delete pParameter
+    return TCL_OK
+}
+END_CODE
+15CCalibratedParameterCommand338UpdatevoidpublicUpdates the fit for all parameters that correspond
+to the pattern.  The pattern may contain
+glob based wild card characters.\param pattern (string)
+   Only the parameters that match this pattern
+  will be calibrated.000010000000
+BEGIN_CODE
+for_each name,pParameter {
+   if name matches pattern {
+       pFit = CFitFactory::FindFit(pParameter.getFitname())
+       if pFit = CFitFactory::end()  {
+             // Last known fit is used.
+       }
+       else {
+          if pFit.State() is Performed then
+             pParameter.ReplaceFit(pFit)   // Update with new fit.
+          else {
+               // fit unchanged, exists but is accepting.
+          }
+       }
+   }
+}
+END_CODE
+15CCalibratedParameterCommand340FindCalibratedParameterCalibratedParameterIteratorpublicLocates a calibrated parameter by name and returns an iterator
+that 'points' to it.  The iterator 'points' to a pair of the form:
+
+  pair<string, CCalibratedParameter*>
+
+The string is the calibrated parameter
+name, and the pointer points to the found 
+parameter, from which all other information 
+about the calibrated paramter can be gotten.\param sName (string)
+   Name of the parameter to search for.\return CalibratedParameterIterator
+  \retval end   Not found.
+  \retval other Found and the iterator 'points' to the name/parameter pair.000010000000
+BEGIN_CODE
+return CCalibratedParameterManager::FindParameter(name)
+END_CODE
+15CCalibratedParameterCommand341FindFitCFitFactory::FitIteratorpublicLocal function to locate a fit in the CFitFactory.
+\param sName (string)
+    The name of the fit to look for.
+\return CFitFactory::FitIterator
+  \retval CFitFactory::end()  - Fit not found.
+  \retval other                      - Fit found and this an iterator that 'points' to the 
+                                             name, CFit* pair.
+000010000000
+BEGIN_CODE
+
+END_CODE
+15CCalibratedParameterCommand342UsagestringpublicReturns a string that describes the command usage.
+000010000000
+BEGIN_CODE
+message = "Usage:
+              calibparam ?-create? name number raw fitname ?units?
+              calibparam -list ?pattern?
+              calibparam -delete name
+              calibparam -refresh ?pattern?
+           Where:
+               name   - the name of a calibrated parameter.
+               number - The parameter id of a calibrated parameter.
+               raw    - The name of a raw parameter
+               fitname- the name of a fit.
+               units  - Units of measure  of the parameter.
+               pattern- A match pattern that canuse glob wild card
+                        characters"
+return message
+END_CODE
+15CCalibratedParameterCommand177FormatFitstringprotectedFormats a listing of parameter.
+The listing is of the form:
+{name number rawname fitname units}
+
+- If the parameter has been deleted, the name will be -deleted-
+  and units will be blank.
+- If the raw parameter has been deleted, its name will be -deleted-
+- If the fit has been deleted its name will be "orignal name (deleted)"
+- If the parameter has no units assigned to it, the units field will be ""\param sName (string)
+    Name of the parameter.
+\param pParameter (CCalibratedParameter* pParam)
+    Pointer to the calibrated Parameter.
+\return string
+   \retval the listing of the parameter as described above.000010000000
+BEGIN_CODE
+pCalibrated = FindParameter(sName)
+pFit        = FindFit(pParam->getFitName())
+pRaw        = FindParameter(pParam->getParameterId())
+number      = pParam->getTargetParameterId()
+
+if(!pCalibrated) {
+   name = -deleted-
+   units= "" 
+} else
+   name = pCalibrated->getName()
+   units= pCalibrated->getUnits()
+}
+if(pRaw) {
+   rawname = pRaw->GetName()
+} 
+else {
+   rawname = -deleted-
+}
+if (pFit) {
+   fitname = pParam->getFitName()
+}
+else {
+   fitname = pParam->getFitName() + "(deleted)"
+}
+return List(name, number,rawname, fitname, units)
+
+END_CODE
+***END_TABLE***
+
+Parameters
+OperID, Parameter Text
+***BEGIN_TABLE***
+321Address_t/pEvent//
+321CEvent&/rEvent//
+321CAnalyzer&/rAnalyzer//
+321CBufferDecoder&/rDecoder//
+322string/rName//
+322CCalibratedParameter/pParam//
+323string/rName//
+327string/rName//
+328CEvent&/rEvent//
+329CFit&/rFit//
+330CTCLInterpreter&/rInterp//
+330CTCLResult&/rResult//
+330int/argc//
+330char**/argv//
+331CTCLInterpreter&/rInterp//
+331CTCLResult&/rResult//
+331int/argc//
+331char**/argv//
+332CTCLInterpreter&/rInterp//
+332CTCLResult&/rResult//
+332int /argc//
+332char**/argv//
+333CTCLInterpreter&/rInterp//
+333CTCLResult&/rResult//
+333int/argc//
+333char**/argv//
+334CTCLInterpreter&/rInterp//
+334CTCLResult&/rResult//
+334int/argc//
+334char**/argv//
+335string/Result//
+335string/name//
+335int/id//
+335string/raw//
+335string/fitname//
+335string/units//
+336string/pattern//
+337string/Result//
+337string/parameter//
+338string/pattern//
+340string/sName//
+341string/sName//
+177string /name//
+177CCalibratedParameter/pParam//
+***END_TABLE***
+
+Includes
+ClassID, ClassName, Include Text
+***BEGIN_TABLE***
+1CCalibratedParameterManagerhistotypes.h
+1CCalibratedParameterManagerstring
+2CCalibratedParameterstring
+2CCalibratedParameterhistotypes.h
+15CCalibratedParameterCommandCCalibratedParameter.h
+15CCalibratedParameterCommandCCalibratedParameterManager.h
+15CCalibratedParameterCommandCFitFactory.h
+***END_TABLE***
+
+Relation Shape
+ShapeID, Type, Text, Multiplicity, Source Node ID, Source Index, LineTexture, IsDisplayByVal, IsDisplayByRef, QualifierSrc
+***BEGIN_TABLE***
+20NoText0170001
+30NoText0220001
+44NoText01520012
+84NoText01560011
+94NoText015120012
+***END_TABLE***
+
+Branches
+Relation Shape ID, Multiplicity, Destination Node ID, Destination Index, Text, Relation Type, Branch Id,  IsDisplayStatic, IsDisplayFriend, IsDisplayPlus, QualifierDest, Offset x, Offset y
+***BEGIN_TABLE***
+21212m_CalibratedParameters03000309
+3067m_pFit0400000
+4073invokes methos4500000
+8093m_pHistogrammer41000000
+9015invokes members41100000
+***END_TABLE***
+
+Relations
+Id,ParentId,Name,Type,Description,SrcVisibility,SrcMultiplicity,SrcLength,IsSrcByRef,IsSrcByVal,IsSrcFriend,IsSrcStatic,SrcRole,SourceClassId,
+DestVisibility,DestMultiplicity,DestLength,DestByRef,IsDestByVal,IsDestFriend,IsDestStatic,IsDestRole,DestClassId
+***BEGIN_TABLE***
+112private0000003private0000002
+32m_CalibratedParameters0list<pair<string, CCalibratedParameter*> >private0000001private1000002
+43m_pFit0The fit that calibrates the raw.private0000002private0000006
+54invokes methos4private00000015private0000007
+108m_pHistogrammer4invokesprivate00000015private0000009
+119invokes members4 private00000015private0000001
+***END_TABLE***
+
+General Shape
+ ShapeId, Type,Positionx, Position.y, # ConnectPoints metafileName, TextOffset, ShapeSize, Width, Height, Texture, FileName,  Class, Text
+
+***BEGIN_TABLE***
+***END_TABLE***
+

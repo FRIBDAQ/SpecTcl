@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -x
+find . -name .deps -exec rm -rf {} \;
+aclocal -I config
+libtoolize --force --copy
+autoheader
+automake --add-missing --copy
+autoconf --warnings=none
