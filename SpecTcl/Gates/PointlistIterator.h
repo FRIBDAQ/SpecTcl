@@ -363,7 +363,8 @@ public:
   virtual   CAConstituentIterator& operator++ ()  ;
   virtual   int operator== (const CAConstituentIterator& rRhs)  const;
   virtual   CAConstituentIterator* clone ()  ;
- 
+
+
 };
 
 #endif
