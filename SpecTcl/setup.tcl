@@ -286,6 +286,9 @@ parameter Distribution3 3 10
 parameter Distribution4 4 10
 parameter Distribution5 5 10
 parameter dist1+dist2   0 11
+parameter scaled        6 {10.0 20.0 MeV}
+parameter real          7
+parameter realunits     8 in
 #
 #  Ordinary spectra:
 #

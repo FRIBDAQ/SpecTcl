@@ -304,3 +304,4 @@ puts -nonewline "Loading TKCon console..."
 source $SpecTclHome/Script/tkcon.tcl
 puts "Done."
 
+tk appname SpecTcl-[exec hostname]-[pid]
