@@ -1,5 +1,5 @@
 #!/bin/csh
-
+umask 02
 setenv OS `uname | sed s/-//`       # the sed is needed for HP*-*UX
 
 source sysdefs.sh
@@ -15,7 +15,7 @@ else
    exit
 endif
 
-set instdir=`(cd $instdir;pwd)`      # this trick allows relative paths.
+
 
 echo "Installing in" $instdir
 
