@@ -175,10 +175,7 @@ except as expressly provided under this License.  Any attempt
 otherwise to copy, modify, sublicense or distribute the Program is
 void, and will automatically terminate your rights under this License.
 However, parties who have received copies, or rights, from you under
-this License will not have their licenses terminated so long as such
-parties remain in full compliance.
-
-  5. You are not required to accept this License, since you have not
+this License will not have their licenses terminat this License, since you have not
 signed it.  However, nothing else grants you permission to modify or
 distribute the Program or its derivative works.  These actions are
 prohibited by law if you do not accept this License.  Therefore, by
@@ -293,6 +290,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
+ Revision 4.12  2003/04/02 18:36:12  ron-fox
+ Connect the options->Setup Printer... dialog appropriately with the defaults file and the default information used by Jason's printer dialogs.
+
  Revision 4.11  2003/01/02 16:13:00  venema
  Major version upgrade to SpecTcl 2.0. This version adds arbitrary user-coordinate mapping to Xamine using, and a special mapping button on the Xamine GUI. Also, print options are now sticky and are maintained in the Xamine.Defaults file.
 
@@ -547,7 +547,11 @@ PrinterType Xamine_GetPrinterType()
 */
 char *Xamine_GetPrintCommand()
 {
-  return printcmd;
+  if(!dflt_print_opts) {
+    dflt_print_opts = new struct DefaultPrintOptions;
+    strcpy(dflt_print_opts->print_cmd,printcmd);
+  }
+  return dflt_print_opts->print_cmd;
 }
 
 
@@ -1579,9 +1583,14 @@ void ActionCallback(XMWidget *w, XtPointer user, XtPointer call)
 
     newcmd  = dlg->printcmd();
     strcpy(printcmd, newcmd);
+    strcpy(dflt_print_opts->print_cmd, printcmd);
     XtFree(newcmd);
    
     ptype = dlg->printertype();
+
+    // Save the defaults file:
+
+    Xamine_SaveDefaultProperties();
   }
 
   /* Pop down the dialog */
@@ -1845,8 +1854,9 @@ void Xamine_SetupPrinter(XMWidget *w, XtPointer user, XtPointer call)
   
   /* Make the dialog contents match the current defaults. */
 
-  dialog->printcmd(printcmd);
-  dialog->printertype(ptype);
+  
+  dialog->printcmd(Xamine_GetPrintCommand());
+  dialog->printertype(Xamine_GetPrinterType());
 
   /* Manage the dialog to pop it up */
 
