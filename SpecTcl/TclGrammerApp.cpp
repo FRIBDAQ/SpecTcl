@@ -285,6 +285,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.12  2003/07/18 15:05:33  kanayo
+  Continuing modifications for event filtering.
+
   Revision 4.11  2003/07/03 21:24:05  kanayo
   Continuing modifications for event filtering.
 
@@ -365,25 +368,25 @@ static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 
 //Default constructor alternative to compiler provided default constructor
 //Association object data member pointers initialized to null association object 
-CTclGrammerApp::CTclGrammerApp()
-  : CTCLApplication(),
-    m_nDisplaySize(knDisplaySize),
-    m_nParams(knParameterCount),
-    m_nListSize(knEventListSize),
-    m_pAnalyzer(0),
-    m_pHistogrammer(0),
-    m_pDecoder(0),
-    m_pRunControl(0),
-    m_pXamineEvents(0),
-    m_pRunControlPackage(0),
-    m_pParameterPackage(0),
-    m_pSpectrumPackage(0),
-    m_pDataSourcePackage(0),
-    m_pGatePackage(0),
-    m_RCFile(string("tcl_rcFielname"),            kfFALSE),
-    m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
-    m_TclParameterCount(string("ParameterCount"), kfFALSE),
-    m_TclEventListSize(string("EventListSize"),   kfFALSE)
+CTclGrammerApp::CTclGrammerApp() :
+  CTCLApplication(),
+  m_nDisplaySize(knDisplaySize),
+  m_nParams(knParameterCount),
+  m_nListSize(knEventListSize),
+  m_pAnalyzer(0),
+  m_pHistogrammer(0),
+  m_pDecoder(0),
+  m_pRunControl(0),
+  m_pXamineEvents(0),
+  m_pRunControlPackage(0),
+  m_pParameterPackage(0),
+  m_pSpectrumPackage(0),
+  m_pDataSourcePackage(0),
+  m_pGatePackage(0),
+  m_RCFile(string("tcl_rcFielname"),            kfFALSE),
+  m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
+  m_TclParameterCount(string("ParameterCount"), kfFALSE),
+  m_TclEventListSize(string("EventListSize"),   kfFALSE)
 {}
 
 // Destructor:

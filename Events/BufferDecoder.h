@@ -324,6 +324,7 @@ class CAnalyzer;
 class CBufferDecoder {
   Address_t m_pBuffer;  // Pointer to the buffer itself
   BufferTranslator* m_pTranslator;  // Pointer to the buffer translator
+ protected:
   UInt_t    m_nSize;    // Number of bytes in buffer.
 
  public:

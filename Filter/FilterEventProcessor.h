@@ -53,11 +53,11 @@ class CFilterEventProcessor : public CEventProcessor {
   char* m_pBuffer;
   UInt_t m_nOffset;
   string m_sTag;
-  UInt_t m_nParameters;
+  UInt_t m_nValidParameters;
   UInt_t** m_pValidParameterArray;
 
   vector<CParInfo*> m_vParInfo;
-  vector<CEvent*> m_vBuffer;
+  vector<CEvent*> m_vBuffer; // Still deciding whether to use this instead. ****************************************
 
  public:
   // Constructors:

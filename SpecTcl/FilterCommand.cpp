@@ -127,8 +127,8 @@ std::string CFilterCommand::Usage() {
   Use += " filter -disable filtername\n";
   Use += " filter -regate filtername gatename\n";
   Use += " filter -file filename filtername\n";
-  Use += " filter -list ?glob-pattern?\n\n";
-  Use += " filter allows the gating upon a parameter in an event.";
+  Use += " filter -list ?glob-pattern?\n";
+  Use += "\nfilter allows the gating upon a parameter in an event.";
   return Use;
 }
 

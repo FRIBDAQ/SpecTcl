@@ -303,18 +303,22 @@
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
+#define __HISTOTYPES_H
 #endif
 
 #ifndef __ANALYZER_H
 #include <Analyzer.h>
+#define __ANALYZER_H
 #endif
 
 #ifndef __TCLINTERPRETER_H
 #include <TCLInterpreter.h>
+#define __TCLINTERPRETER_H
 #endif
 
 #ifndef __TCLVARIABLE_H
 #include <TCLVariable.h>
+#define __TCLVARIABLE_H
 #endif
 
 #ifndef __STL_LIST

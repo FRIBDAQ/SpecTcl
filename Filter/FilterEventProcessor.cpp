@@ -22,9 +22,11 @@ CFilterEventProcessor::CFilterEventProcessor() :
   m_nBUFFERSIZE(8192), // 8K. Default.
   m_nOffset(0),
   m_sTag(""),
-  m_nParameters(0)
+  m_nValidParameters(0)
 {
   m_pBuffer = new char[m_nBUFFERSIZE];
+  m_vParInfo.clear();
+  m_vBuffer.clear();
 
   if(m_pValidParameterArray) {
     delete m_pValidParameterArray; // Just in case.
@@ -33,6 +35,8 @@ CFilterEventProcessor::CFilterEventProcessor() :
 };
 
 CFilterEventProcessor::~CFilterEventProcessor() {
+  delete m_pBuffer;
+
   if(m_pValidParameterArray) {
     delete m_pValidParameterArray; // Just in case.
   }
@@ -52,12 +56,12 @@ Bool_t CFilterEventProcessor::operator()(const Address_t pEvent,
     if(m_sTag == "header") {
       m_vParInfo.clear(); // Clear out old parameter data.
       // Start reading header data.
-      read_uint(m_nParameters);
+      read_uint(m_nValidParameters);
       string sParName = "";
       UInt_t nParId = 0;
       CParInfo* pParInfo = (CParInfo*)kpNULL;
       CParameter* pParameter = (CParameter*)kpNULL;
-      for(UInt_t i = 0; i < m_nParameters; i++) {
+      for(UInt_t i = 0; i < m_nValidParameters; i++) {
 	read_string(sParName);
 	read_uint(nParId);
 	pParInfo = new CParInfo;
@@ -76,7 +80,7 @@ Bool_t CFilterEventProcessor::operator()(const Address_t pEvent,
       continue; // Go to next loop iteration.
     } else if(m_sTag == "event") {
       read_array();
-      for(UInt_t i = 0; i < m_nParameters; i++) {
+      for(UInt_t i = 0; i < m_nValidParameters; i++) {
 	if((m_vParInfo[i])->isActive()) {
 	  if((*m_pValidParameterArray)[i] == True) {
 	    read_float(nParameter);
@@ -107,7 +111,8 @@ Bool_t CFilterEventProcessor::read_string(string& rString) {
   char* pString = (char*)(m_pBuffer[m_nOffset]);
   rString = string(pString);
 
-  incr_offset(rString.length() + 1); // The 1 being for the \0 null terminator.
+  //incr_offset(rString.length() + 1); // The 1 being for the \0 null terminator.
+  incr_offset(sizeof(pString)); // No need to add 1 for the null terminator. It is already counted by sizeof.
 }
 
 Bool_t CFilterEventProcessor::read_uint(UInt_t& rUint) {
@@ -133,10 +138,10 @@ Bool_t CFilterEventProcessor::read_array() {
     delete m_pValidParameterArray;
   }
   //m_pValidParameterArray = ((Float_t[])*)kpNULL;
-  UInt_t UIntArray[m_nParameters];
+  UInt_t UIntArray[m_nValidParameters];
   m_pValidParameterArray = (UInt_t**)(&UIntArray);
   UInt_t nUInt = 0;
-  for(UInt_t i = 0; i < m_nParameters; i++) {
+  for(UInt_t i = 0; i < m_nValidParameters; i++) {
     read_uint(nUInt);
     ((UInt_t[])(*m_pValidParameterArray))[i] = nUInt;
   }
@@ -167,7 +172,7 @@ void CFilterEventProcessor::incr_offset(UInt_t nIncrement) {
   // Increment the offset, checking that it is within bounds.
   m_nOffset += nIncrement;
   if(m_nOffset >= m_nBUFFERSIZE) {
-    cerr << "Error: Illegal offset value.\n";
+    cerr << "Error: CFilterEventProcessor::incr_offset given illegal offset value.\n";
     m_nOffset = 0;
   }
 }
