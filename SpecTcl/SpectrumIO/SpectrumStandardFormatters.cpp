@@ -42,8 +42,10 @@ static RegistrationEntry RegistrationTable[] =
   { string("binary"),     &g_NSCLBinary } 
 };
 
-static unsigned int nStandard = 
-                   sizeof(RegistrationTable)/sizeof(RegistrationEntry);
+static unsigned int nStandard = 4;
+//  If there is pad between elements of the table, the below may not
+//  work.
+//                   sizeof(RegistrationTable)/sizeof(RegistrationEntry);
 
 
 CSpectrumFormatterFactory  FirstFactory;
