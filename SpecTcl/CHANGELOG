@@ -221,3 +221,5 @@ January 26, 2005
 January 27, 2005
     - Fix low level cutoff in 1-ds that had been fixed in 2.1 but not 
       propagated to new versions.
+
+3.0-001
