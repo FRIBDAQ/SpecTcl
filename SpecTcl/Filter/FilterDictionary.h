@@ -67,15 +67,15 @@ class CFilterDictionary : public CDictionary<CGatedEventFilter*> {
  private:
   static CFilterDictionary* m_pInstance;
 
-  // Constructors.
+  // Constructors. (Destructor is never called.)
  protected:
   CFilterDictionary();
-  //CFilterDictionary(const CFilterDictionary&);
-  //CFilterDictionary& operator=(const CFilterDictionary&);
 
   // Additional functions.
  public: //protected:
   static CFilterDictionary* GetInstance();
 }; // CFilterDictionary.
+
+typedef CFilterDictionary::DictionaryIterator CFilterDictionaryIterator;
 
 #endif

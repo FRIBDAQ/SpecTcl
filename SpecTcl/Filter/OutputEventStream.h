@@ -1,22 +1,19 @@
 #ifndef __OUTPUTEVENTSTREAM_H //Required for current class
 #define __OUTPUTEVENTSTREAM_H
 
-/*
-#ifndef __DICTIONARY_H
-#include "Dictionary.h"
-#endif
-*/
-
 #ifndef __PARAMETER_H
 #include "Parameter.h"
+#define __PARAMETER_H
 #endif
 
 #ifndef __EVENTSINK_H
 #include "EventSink.h"
+#define __EVENTSINK_H
 #endif
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
+#define __HISTOTYPES_H
 #endif
 
 #ifndef __STL_STRING
@@ -40,6 +37,7 @@
 #endif
 
 class COutputEventStream {
+  Bool_t m_fActive;
   UInt_t m_nMAXBUFFERSIZE; // Arbitrarily initialized to 16.
   vector<CEvent> Buffer;
   ofstream m_nFd; // Alternatively, place this in CEventFilter.

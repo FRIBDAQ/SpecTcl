@@ -16,18 +16,17 @@ static const char* Copyright =
 #include "EventList.h"
 
 // Constructors.
-//CEventFilter::CEventFilter(){
-//}
+CEventFilter::CEventFilter() :
+  m_fEnabled(false),
+  m_pOutputEventStream((COutputEventStream*)kpNULL)
+{}
 
-CEventFilter::CEventFilter(COutputEventStream& rOutputEventStream) {
-}
+CEventFilter::CEventFilter(COutputEventStream& rOutputEventStream) :
+  m_fEnabled(false),
+  m_pOutputEventStream(&rOutputEventStream)
+{}
 
-CEventFilter::CEventFilter(const CEventFilter& rRhs) {
-}
-
-CEventFilter::~CEventFilter() {
-  //delete rOutputEventStream; // Is this needed?
-}
+CEventFilter::~CEventFilter() {}
 
 // Operators.
 void CEventFilter::operator()(CEventList& rEvents) {
@@ -42,27 +41,36 @@ CEventFilter& CEventFilter::operator=(const CEventFilter& rRhs) {
   return *this;
 }
 
-Bool_t CEventFilter::operator==(const CEventFilter& rRhs) {
-  return (m_Name == rRhs.m_Name &&
-	  m_fEnabled == rRhs.m_fEnabled);
-}
-
-Bool_t CEventFilter::operator!=(const CEventFilter& aCEventFilter) {
-  return !(operator==(aCEventFilter));
-}
-
 // Additional functions.
 void CEventFilter::Enable() {
-  m_fEnabled = kfTRUE;
+  if(!m_fEnabled) {
+    if(m_pOutputEventStream == (COutputEventStream*)kpNULL) {
+      m_pOutputEventStream = new COutputEventStream;
+    }
+    m_fEnabled = m_pOutputEventStream->Open();
+  }
 }
 
 void CEventFilter::Disable() {
-  m_fEnabled = kfFALSE;
+  if(m_fEnabled) {
+    if(m_pOutputEventStream != (COutputEventStream*)kpNULL) {
+      if(m_pOutputEventStream->Close()) { // Successfully closed.
+	delete m_pOutputEventStream;
+	m_fEnabled = false;
+      }
+    } else { // No outputeventstream.
+      m_fEnabled = false;
+    }
+  }
+}
+
+Bool_t CEventFilter::CheckEnabled() {
+  return m_fEnabled;
 }
 
 Bool_t CEventFilter::CheckCondition(CEvent& rEvent) {
-  // Overridden by sub-class.
-  return kfTRUE; // Umm! *******************************************
+  // OVERRIDDEN BY SUB-CLASS.
+  return kfTRUE;
 }
 
 void CEventFilter::FormatOutputEvent(CEvent& rEvent) {

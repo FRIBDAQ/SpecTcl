@@ -58,7 +58,7 @@
 // Class.
 class CEventFilter : public CEventSink {
   // Attributes.
-  std::string m_Name;
+ protected:
   Bool_t m_fEnabled;
   COutputEventStream* m_pOutputEventStream;
 
@@ -66,29 +66,22 @@ class CEventFilter : public CEventSink {
   // Constructors.
   CEventFilter();
   CEventFilter(COutputEventStream&);
-  CEventFilter(const CEventFilter&);
+  //  CEventFilter(const CEventFilter&);
   /*virtual*/ ~CEventFilter();
 
   // Operators.
   virtual void operator()(CEventList&); // If flag is set, call event formatter.
   CEventFilter& operator=(const CEventFilter&);
-  Bool_t operator==(const CEventFilter&);
-  Bool_t operator!=(const CEventFilter&);
 
   // Additional functions.
   void Enable();
   void Disable();
-  /*virtual*/ void FormatOutputEvent(CEvent&); // = 0;
+  /*virtual*/ void FormatOutputEvent(CEvent&);
   COutputEventStream& AttachOutputEventStream(COutputEventStream&);
   COutputEventStream& DetachOutputEventStream();
   //protected: // Commented out for now.
-  /*virtual*/ Bool_t CheckCondition(CEvent&); // = 0;
+  /*virtual*/ Bool_t CheckEnabled();
+  /*virtual*/ Bool_t CheckCondition(CEvent&);
 }; // CEventFilter.
-
-// Dictionary types:
-/*
-typedef CDictionary<CEventFilter>		CFilterDictionary;
-typedef CFilterDictionary::DictionaryIterator	CFilterDictionaryIterator;
-*/
 
 #endif
