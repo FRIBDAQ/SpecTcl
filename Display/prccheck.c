@@ -107,6 +107,7 @@ int ProcessAlive (pid_t pid)
         kill 0 does not work with children since zombie processes can
 	recieve signals in e.g. Linux.
 	*/
+
     return (kill(pid, 0) == 0);
 
 }

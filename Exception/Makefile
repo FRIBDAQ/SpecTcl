@@ -66,21 +66,38 @@ StreamIOError.o: StreamIOError.cpp
 
 # DO NOT DELETE
 
-ErrnoException.o: ErrnoException.h Exception.h /usr/include/errno.h
-ErrnoException.o: /usr/include/standards.h
-Exception.o: Exception.h /usr/include/string.h /usr/include/standards.h
-Exception.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-Exception.o: /usr/include/sys/select.h /usr/include/strings.h
-RangeError.o: RangeError.h Exception.h /usr/include/stdio.h
-RangeError.o: /usr/include/standards.h /usr/include/sys/seek.h
-RangeError.o: /usr/include/va_list.h /usr/include/sys/types.h
-RangeError.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
-RangeError.o: /usr/include/getopt.h /usr/include/sys/limits.h
-RangeError.o: /usr/include/sys/machine/machlimits.h
-RangeError.o: /usr/include/sys/syslimits.h
-RangeError.o: /usr/include/sys/machine/machtime.h
-RangeError.o: /usr/include/sys/rt_limits.h
-StreamIOError.o: StreamIOError.h Exception.h /usr/include/string.h
-StreamIOError.o: /usr/include/standards.h /usr/include/sys/types.h
-StreamIOError.o: /usr/include/mach/machine/vm_types.h
-StreamIOError.o: /usr/include/sys/select.h /usr/include/strings.h
+ErrnoException.o: ErrnoException.h Exception.h /Include/histotypes.h
+ErrnoException.o: /usr/include/string.h /usr/include/features.h
+ErrnoException.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+ErrnoException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+ErrnoException.o: /usr/include/math.h /usr/include/bits/huge_val.h
+ErrnoException.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+ErrnoException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+ErrnoException.o: /usr/include/errno.h /usr/include/bits/errno.h
+ErrnoException.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
+Exception.o: Exception.h /Include/histotypes.h /usr/include/string.h
+Exception.o: /usr/include/features.h /usr/include/sys/cdefs.h
+Exception.o: /usr/include/gnu/stubs.h
+Exception.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Exception.o: /usr/include/math.h /usr/include/bits/huge_val.h
+Exception.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+Exception.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+RangeError.o: RangeError.h Exception.h /Include/histotypes.h
+RangeError.o: /usr/include/string.h /usr/include/features.h
+RangeError.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+RangeError.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+RangeError.o: /usr/include/math.h /usr/include/bits/huge_val.h
+RangeError.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+RangeError.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+RangeError.o: /usr/include/stdio.h
+RangeError.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+RangeError.o: /usr/include/bits/types.h /usr/include/libio.h
+RangeError.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+StreamIOError.o: StreamIOError.h /Include/histotypes.h /usr/include/string.h
+StreamIOError.o: /usr/include/features.h /usr/include/sys/cdefs.h
+StreamIOError.o: /usr/include/gnu/stubs.h
+StreamIOError.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+StreamIOError.o: /usr/include/math.h /usr/include/bits/huge_val.h
+StreamIOError.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+StreamIOError.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+StreamIOError.o: Exception.h
