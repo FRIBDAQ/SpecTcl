@@ -310,9 +310,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Include files:
 */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <stdio.h>
 #include <assert.h>
@@ -320,9 +318,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <errno.h>
 #include <sys/socket.h>
 
-#ifdef HAVE_SYS_UN_H
+
+
 #include <sys/un.h>
-#endif
 
 #ifndef HAVE_FCNTL
 #include <sys/file.h>
