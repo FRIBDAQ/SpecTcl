@@ -329,7 +329,8 @@ public:
 	    Bool_t             fWord = kfFALSE) :
     CXamineSpectrum(pXamine, rName),
     m_fWord(fWord),
-    m_nChannels(nChannels)
+    m_nChannels(nChannels),
+    m_XamineMap(0.0,0.0,string(""))
   { }
 
   CXamine1D(volatile Xamine_shared* pXamine,
