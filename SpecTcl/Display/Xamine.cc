@@ -165,6 +165,8 @@ static void Monitor(XtPointer app, XtIntervalId *id)
 */
 void SetIcon(Widget w, char *filename)
 {
+  
+
   Pixmap icon;
 
   /* Load the pixmap */
@@ -186,6 +188,8 @@ void SetIcon(Widget w, char *filename)
 
 int main(Cardinal argc, char **argv)
 {
+  fprintf(stderr, "Xamine has started with: pid = %d ppid = %d\n",
+	  getpid(), getppid());
 #ifdef OSF1
   {
     int buf[4];			// Buffer to contain sysinfo requests.
