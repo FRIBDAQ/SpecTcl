@@ -102,6 +102,6 @@ CAnalyzer* gpAnalyzer   = (CAnalyzer*)kpNULL;
 // SpecTcl also retains a version text string.
 //
 //
-const char* gpVersion = "0.4"; 
+const char* gpVersion = "1.0"; 
 
 

@@ -57,6 +57,7 @@ inline int remove(const char *path) { /* VMS compatibility.  */
 #include "errormsg.h"
 #include "buttonsetup.h"
 #include "menusetup.h"
+#include <string>		// STL String so I get around length problems.
 /*
 ** #Define constants:
 */
@@ -69,7 +70,7 @@ inline int remove(const char *path) { /* VMS compatibility.  */
 ** Local declarations:
 **/
 static Callback_data *okcb = NULL, *nomatch = NULL;
-static char   LastFilename[256] = " ";
+static string   LastFilename;
 
 static XMFileListDialog *openbox = NULL;
 static XMInformationDialog *help = NULL;
@@ -453,10 +454,11 @@ void Xamine_Read_window_file(XMWidget *w, XtPointer client_data,
   /* Read in the window file.  */
 
   if(read_windows(filename)) {
-    char title[100];
-    sprintf(title, "Xamine -- %s", filename);
-    strcpy(LastFilename, filename);
-    SetWindowLabel(w->getid(), title);
+    string title("Xamine -- ");
+    title += filename;
+
+    LastFilename = filename;
+    SetWindowLabel(w->getid(), (char*)title.c_str());
     Xamine_SavedWindows();	/* Reading is like saving */
   }
   XtFree(filename);
@@ -526,10 +528,11 @@ void write_windows(XMWidget *w, XtPointer client_data,
     new XMErrorDialog("Write_failed", *Xamine_Getpanemgr(), msg, kill_widget);
   }
   else {
-    char title[100];
-    strcpy(LastFilename, filename);
-    sprintf(title, "Xamine -- %s", filename);
-    SetWindowLabel(openbox->getid(), title);  /* Set the shell title banner. */
+    string title("Xamine -- ");
+    LastFilename = filename;
+    title += filename;
+
+    SetWindowLabel(openbox->getid(), (char*)title.c_str());  /* Set the shell title banner. */
     Xamine_SavedWindows();
   }
 
@@ -659,6 +662,6 @@ Xamine_winopen_client_data Xamine_Open_win_write =
  */
 char *Xamine_GetLastWindowFile()
 {
-  return LastFilename;
+  return (char*)LastFilename.c_str();
 }
 
