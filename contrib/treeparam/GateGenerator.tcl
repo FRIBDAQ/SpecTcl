@@ -4,13 +4,14 @@
 # Version 1.2: November 2003
 
 proc SetupGateGenerator {parent} {
-	global topg
+	global topg gateMask
 	CreateGateGenerator $parent
+	set gateMask *
 	UpdateGateList
 }
 
 proc CreateGateGenerator {parent} {
-	global topg GateName GateDependency
+	global topg GateName GateDependency gateMask
 	set topg [tabnotebook_page $parent Gates]
 	
 	set wname $topg.create
@@ -74,8 +75,12 @@ proc CreateGateGenerator {parent} {
 	set display $topg.display
 	set displaycolor lightblue
 	frame $display -borderwidth 2 -background $displaycolor -relief groove
-		button $display.update -text "Update Gate List" -command UpdateGateList
-		pack $display.update -side left -expand 1 -fill x
+		button $display.update -text "Update Gate List" -command UpdateGateList -width 40
+		label $display.label -text "Gate mask"
+		entry $display.mask -textvariable gateMask -width 30
+		button $display.clear -text Clear -width 5 -command {set gateMask *}
+		grid $display.update $display.label $display.mask $display.clear -sticky news
+#		pack $display.update -side left -expand 1 -fill x
 	pack $display -expand 1 -fill x
 
 	pack $topg -expand 1 -fill both -anchor n
@@ -89,12 +94,19 @@ proc GateGateCommand {theGate} {
 	$topg.create.r.b.depend insert end "$theGate "
 }
 
+proc DynamicGateList {name1 name2 op} {
+	UpdateGateList
+}
+
 proc UpdateGateList {} {
-	global topg
+	global topg gateMask
 	$topg.glist.listbox delete 0 end
 	set theList [gate -list]
 	foreach gate $theList {
 		set name [lindex $gate 0]
+		if {[string match $gateMask $name] == 0} {
+			continue
+		}
 		set id [lindex $gate 1]
 		set type [lindex $gate 2]
 		switch -- $type {
