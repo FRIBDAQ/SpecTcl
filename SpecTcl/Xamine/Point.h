@@ -301,60 +301,61 @@ DAMAGES.
 #include <vector>
 #define __STL_VECTOR
 #endif
-                               
-class CPoint      
+      
+template <class T>                         
+class Point      
 {
 private:
-  Int_t m_x;  // X Coordinate of the point.
-  Int_t m_y;  // Y coordinate of the point.
+  T m_x;  // X Coordinate of the point.
+  T m_y;  // Y coordinate of the point.
   
 public:
 			// Default constructor
-  CPoint (Int_t x = 0, Int_t y = 0) :  m_x(x),  m_y(y)   { } 
-  virtual ~ CPoint ( ) { }       //Destructor
+  Point (T x = 0, T y = 0) :  m_x(x),  m_y(y)   { } 
+  virtual ~ Point ( ) { }       //Destructor
 	
                         // Copy constructor:
-  CPoint (const CPoint& aCPoint ) 
+  Point (const Point& aPoint ) 
   {   
-    m_x = aCPoint.m_x;
-    m_y = aCPoint.m_y;
+    m_x = aPoint.m_x;
+    m_y = aPoint.m_y;
                 
   }                                     
 
 			//Operator= Assignment Operator
 
-  CPoint& operator= (const CPoint& aCPoint)
+  Point& operator= (const Point& aPoint)
   { 
-    if (this == &aCPoint) return *this;          
+    if (this == &aPoint) return *this;          
   
-    m_x = aCPoint.m_x;
-    m_y = aCPoint.m_y;
+    m_x = aPoint.m_x;
+    m_y = aPoint.m_y;
         
     return *this;
   }                                     
 
 			//Operator== Equality Operator
 
-  int operator== (const CPoint& aCPoint) const
+  int operator== (const Point& aPoint) const
   { return (
-	    (m_x == aCPoint.m_x) &&
-	    (m_y == aCPoint.m_y) 
+	    (m_x == aPoint.m_x) &&
+	    (m_y == aPoint.m_y) 
 	    );
   }                             
-  int operator!=(const CPoint& aCPoint) const
+  int operator!=(const Point& aPoint) const
   {
-    return !(operator==(aCPoint));
+    return !(operator==(aPoint));
   }
   // selectors:
 
 public:
-  Int_t X() const
+  T X() const
   {
     return m_x;
   }
 
                        //Get accessor function for attribute
-  Int_t Y() const
+  T Y() const
   {
     return m_y;
   }
@@ -362,17 +363,20 @@ public:
   //            these are only exposed to derived classes:
 protected:
                        //Set accessor function for attribute
-  void setX(Int_t am_x)
+  void setX(T am_x)
   { 
     m_x = am_x;
   }
-  void setY (Int_t am_y)
+  void setY (T am_y)
   { 
     m_y = am_y;
   }
                        
 };
 // Useful typedefs which some clients may need:
+
+typedef Point<Int_t> CPoint;
+typedef Point<Float_t> FPoint;
 
 typedef vector<CPoint> PointArray;
 typedef PointArray::iterator PointIterator;
