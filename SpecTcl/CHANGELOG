@@ -239,3 +239,5 @@ February 22, 2005
       is currently useful to reconstruct control system data and other stuff
       that may be in statevariable and runvariable buffers which look like
       a bunch of set varname value commands.
+    - Fix 1/0 month counting problem with run control timestamps in 
+      Analysis library.
