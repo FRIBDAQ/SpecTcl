@@ -12,6 +12,12 @@
 //      East Lansing, MI 48824-1321
 //      mailto:fox@nscl.msu.edu
 //
+// BUGBUGBUG - 
+//   Cygwin seems to have problems with network accessed files:
+//   Every now and then we get a partial read and corrupted buffer.
+//   The workaround for now is to throttle the read to something smaller
+//   than a typical buffer.
+//
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
 //
@@ -26,9 +32,18 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>                           
+#include <iostream.h>
+#include <stdio.h>
+#ifdef CYGWIN
+#include <windows.h>
+#endif
 
 static const char* Copyright = 
 "CFile.cpp: Copyright 1999 NSCL, All rights reserved\n";
+
+
+static UInt_t nBuffers(0);
+static UInt_t nReads(0);
 
 // Functions for class CFile
 
@@ -62,12 +77,12 @@ CFile::operator=(const CFile& rFile)
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    int Read ( Address_t pBuffer, UInt_t nSize )
+//    int Read ( Address_t pBuffer, UInt_t nBytes )
 //  Operation Type:
 //     I/O transfer
 //
 Int_t
-CFile::Read(Address_t pBuffer, UInt_t nSize) 
+CFile::Read(Address_t pBuffer, UInt_t nBytes) 
 {
 //  Reads from the file descriptor.
 //  The default action is to use the read()
@@ -88,16 +103,30 @@ CFile::Read(Address_t pBuffer, UInt_t nSize)
 //       CErrnoException with errno = EBADF.
 //       (Bad file descriptor).
 
-  AssertOpen();
-  // Now try the read:
-  
-  ssize_t nRead = read(m_nFd, pBuffer, nSize);
-  if(nRead < 0) {
-    CErrnoException except("CFile::Read - read() system call failed");
-    throw except;
+
+  // The I/O system buffering etc. may not let us do the read in one full gulp:
+
+  UInt_t nTotalRead(0);
+  errno = 0;
+  while(nTotalRead != nBytes) {
+    UInt_t n     = (nBytes - nTotalRead);
+    UInt_t nRead = read(getFd(), pBuffer, n);
+    nReads++;
+    if(nRead > 0) {
+      nTotalRead += nRead;
+      char* p     = (char*)pBuffer;
+      p          += nRead;
+      pBuffer     = (Address_t)p;
+    }
+    else if (nRead == 0) {
+      break;			// Next read gives the end file cond.
+    }
+    else {			// Note in theory this is not possible.
+      throw CErrnoException("CPipeFile::Read - failed CFile::Read");
+    }
   }
-  return nRead;
-  
+  nBuffers++;
+  return nTotalRead;
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -210,7 +239,9 @@ CFile::Open(const std::string& rsFilename, UInt_t nAccess)
   // Figure out the Access bits.
   
   int oflags = 0;
-  
+#ifdef CYGWIN
+  oflags |= O_BINARY;
+#endif
   oflags |= (nAccess & kacCreate) ? O_CREAT   : 0;
   oflags |= (nAccess & kacAppend) ? O_APPEND  : 0;
   if( (nAccess & nReadWrite) == nReadWrite) {
