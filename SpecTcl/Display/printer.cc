@@ -13,7 +13,14 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
+/*
+ $Log$
+ Revision 4.6  2002/07/11 13:50:03  ron-fox
+ - Ignore prior log entry.
+ - Change -transparency switch on import invocation to -transparent to bring it
+   in line with newer versions of image magick.
 
+ */
 
 /*
 ** Include files required:
