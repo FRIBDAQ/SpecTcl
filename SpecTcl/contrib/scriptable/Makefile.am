@@ -19,6 +19,7 @@ libScripted_la_SOURCES =  CBoolConfigParam.cpp \
 	CCAENDigitizerModule.cpp \
 	CCAENV830Creator.cpp \
 	CCAENV830Module.cpp \
+	CConfigurableObject.cpp \
 	CConfigurationParameter.cpp \
 	CIntArrayParam.cpp \
 	CIntConfigParam.cpp \
@@ -26,13 +27,12 @@ libScripted_la_SOURCES =  CBoolConfigParam.cpp \
 	CModuleCommand.cpp \
 	CModuleCreator.cpp \
 	CModuleDictionary.cpp \
-	CPosition.cpp \
-	CProfile.cpp \
-	CSeeAnalyzer.cpp \
+	CPacket.cpp CPacketCreator.cpp \
+	CScriptableUnpacker.cpp \
+	CSegmentUnpacker.cpp \
 	CStringArrayparam.cpp \
-	CStringConfigParam.cpp \
-	CUnpacker.cpp \
-	CUnpackerCommand.cpp 
+	CStringConfigParam.cpp 
+
 
 
 noinst_HEADERS =  CBoolConfigParam.h \
@@ -40,6 +40,7 @@ noinst_HEADERS =  CBoolConfigParam.h \
 	CCAENDigitizerModule.h \
 	CCAENV830Creator.h \
 	CCAENV830Module.h \
+	CConfigurableObject.h \
 	CConfigurationParameter.h \
 	CIntArrayParam.h \
 	CIntConfigParam.h \
@@ -47,17 +48,16 @@ noinst_HEADERS =  CBoolConfigParam.h \
 	CModuleCommand.h \
 	CModuleCreator.h \
 	CModuleDictionary.h \
-	CPosition.h \
-	CProfile.h \
-	CSeeAnalyzer.h \
+	CPacket.h CPacketCreator.h \
+	CScriptableUnpacker.h \
+	CSegmentUnpacker.h \
 	CStringArrayparam.h \
 	CStringConfigParam.h \
-	CUnpacker.h \
-	CUnpackerCommand.h \
-	MySpecTclApp.h 
+	MySpecTclApp.h \
+	CConfigurableObject.h
 
 
-ScriptedSpecTcl_LDFLAGS = -g
+ScriptedSpecTcl_LDFLAGS = -g -Wl,"-rpath=($prefix)/lib"
 
 ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 

@@ -1,7 +1,7 @@
 SUBDIRS =  Replace Scripts Utility Display \
 	NSCLException Xamine Tape EventSource \
 	TCL Events Gates Sorter SpectrumIO Filter SpecTcl \
- 	 contrib
+	contrib
 
 # Gri TestFiles need to be figured out still..
 
@@ -14,8 +14,8 @@ AUX_DIST = $(ac_aux_dir)/config.guess \
 	$(ac_aux_dir)/ylwrap  \
 	fix_libtool
 
-EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl 
-	bootstrap $(MYGRIDIR) \
+EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl \
+	bootstrap $(MYGRIDIR)  \
 	 doc build.cygwin
 
 dist-hook:

@@ -60,7 +60,7 @@ LIBS= $(LIBDIRS) -lScripted \
 	-ltclPlus -lException \
 	-lXamine -ltape -lFilter \
 	$(LIBFLAGS)              \
-	 -lXt -lX11 -lm
+	 -lXt -lX11 -lm -Wl,"-rpath=$(INSTDIR)/lib"
 
 #  The final form of the various compilation commands:
 
