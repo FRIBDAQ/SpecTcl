@@ -140,14 +140,18 @@ CGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
 	    for(UInt_t p2 = p1+1; p2 < m_vParameters.size(); p2++) {
 	      // Increment for all params not in the pair
 	      if(p1 != xChan && p2 != xChan) {
-		Int_t xsd = m_vParameters[p1].nScale;
-		Int_t ysd = m_vParameters[p2].nScale;
-		UInt_t px = rEvent[m_vParameters[p1].nParameter];
-		UInt_t py = rEvent[m_vParameters[p2].nParameter];
-		px = (xsd > 0) ? px >> xsd : px << -xsd;
-		py = (ysd > 0) ? py >> ysd : py << -ysd;
-		if (px < (1 << m_nXScale) && py < (1 << m_nYScale )) {
-		  pStorage[px + py*Dimension(0)]++;
+		// Make sure these params are valid too...
+		if(rEvent[m_vParameters[p1].nParameter].isValid() &&
+		   rEvent[m_vParameters[p2].nParameter].isValid()) {
+		  Int_t xsd = m_vParameters[p1].nScale;
+		  Int_t ysd = m_vParameters[p2].nScale;
+		  UInt_t px = rEvent[m_vParameters[p1].nParameter];
+		  UInt_t py = rEvent[m_vParameters[p2].nParameter];
+		  px = (xsd > 0) ? px >> xsd : px << -xsd;
+		  py = (ysd > 0) ? py >> ysd : py << -ysd;
+		  if (px < (1 << m_nXScale) && py < (1 << m_nYScale )) {
+		    pStorage[px + py*Dimension(0)]++;
+		  }
 		}
 	      }
 	    }
@@ -184,14 +188,18 @@ CGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
 		// with (xChan, yChan)
 		if((xChan != xParam && xChan != yParam) &&
 		   (yChan != xParam && yChan != yParam)) {
-		  Int_t xsd = m_vParameters[xParam].nScale;
-		  Int_t ysd = m_vParameters[yParam].nScale;
-		  UInt_t px = rEvent[m_vParameters[xParam].nParameter];
-		  UInt_t py = rEvent[m_vParameters[yParam].nParameter];
-		  px = (xsd > 0) ? px >> xsd : px << -xsd;
-		  py = (ysd > 0) ? py >> ysd : py << -ysd;
-		  if (px < (1 << m_nXScale) && py < (1 << m_nYScale )) {
-		    pStorage[px + py*Dimension(0)]++;
+		  // Make sure that these params are valid too...
+		  if(rEvent[m_vParameters[xParam].nParameter].isValid() &&
+		     rEvent[m_vParameters[yParam].nParameter].isValid()) {
+		    Int_t xsd = m_vParameters[xParam].nScale;
+		    Int_t ysd = m_vParameters[yParam].nScale;
+		    UInt_t px = rEvent[m_vParameters[xParam].nParameter];
+		    UInt_t py = rEvent[m_vParameters[yParam].nParameter];
+		    px = (xsd > 0) ? px >> xsd : px << -xsd;
+		    py = (ysd > 0) ? py >> ysd : py << -ysd;
+		    if (px < (1 << m_nXScale) && py < (1 << m_nYScale )) {
+		      pStorage[px + py*Dimension(0)]++;
+		    }
 		  }
 		}
 	      }

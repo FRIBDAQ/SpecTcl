@@ -128,10 +128,13 @@ CGamma1DW::GammaGateIncrement (const CEvent& rE, std::string sGT)
 	  for(UInt_t Param = 0; Param < m_vParameters.size(); Param++) {
 	    if(Param != xChan) {  // Increment for all other params
 	      Int_t sd = m_vParameters[Param].nScale;
-	      UInt_t y = rEvent[m_vParameters[Param].nParameter];
-	      y = (sd > 0) ? y >> sd : y << -sd;
-	      if (y < (1 << m_nScale)) {
-		pStorage[y]++;
+	      // Make sure this parameter is valid too...
+	      if(rEvent[m_vParameters[Param].nParameter].isValid()) {
+		UInt_t y = rEvent[m_vParameters[Param].nParameter];
+		y = (sd > 0) ? y >> sd : y << -sd;
+		if (y < (1 << m_nScale)) {
+		  pStorage[y]++;
+		}
 	      }
 	    }
 	  }
@@ -160,13 +163,16 @@ CGamma1DW::GammaGateIncrement (const CEvent& rE, std::string sGT)
 	  // and if (p1, p2) or (p2, p1) is in gate... 
 	  if(pGate->inGate(rEvent, vXP) || pGate->inGate(rEvent, vYP)) {
 	    for(UInt_t Param = 0; Param < m_vParameters.size(); Param++) {
-	      // Increment for all params not in (p1, p2)
+	      // Increment for all params not in (p1, p2) which are valid
 	      if(Param != XPar && Param != YPar) {
-		Int_t sd = m_vParameters[Param].nScale;
-		UInt_t y = rEvent[m_vParameters[Param].nParameter];
-		y = (sd > 0) ? y >> sd : y << -sd;
-		if (y < (1 << m_nScale)) {
-		  pStorage[y]++;
+		// Make sure this parameter is valid too...
+		if(rEvent[m_vParameters[Param].nParameter].isValid()) {
+		  Int_t sd = m_vParameters[Param].nScale;
+		  UInt_t y = rEvent[m_vParameters[Param].nParameter];
+		  y = (sd > 0) ? y >> sd : y << -sd;
+		  if (y < (1 << m_nScale)) {
+		    pStorage[y]++;
+		  }
 		}
 	      }
 	    }
