@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <errno.h>
 #include <math.h>
+#include <unistd.h>
+#include <string.h>
 //
 //   For OSF, we need to turn off the UAC warnings:
 //   We'll do this for both parent and us:
@@ -188,7 +190,8 @@ static void AnalyzeButton(struct msg_InquireButtonAck *ack)
 }
 
 
-main()
+int
+main(int argc, char* argv[])
 {
   Xamine_shared *spectra;
   char junk[100];
@@ -490,6 +493,8 @@ main()
       }
     }
   }
+
+  return 0;
 }
 
 
