@@ -70,95 +70,57 @@ PipeFile.o: PipeFile.cpp
 
 # DO NOT DELETE
 
-File.o: File.h /Include/histotypes.h /usr/include/string.h
-File.o: /usr/include/features.h /usr/include/sys/cdefs.h
-File.o: /usr/include/gnu/stubs.h
-File.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-File.o: /usr/include/math.h /usr/include/bits/huge_val.h
-File.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-File.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-File.o: /Include/ErrnoException.h /Include/Exception.h /usr/include/errno.h
+File.o: File.h /usr/include/errno.h /usr/include/features.h
+File.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 File.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
 File.o: /usr/include/asm/errno.h /usr/include/fcntl.h
 File.o: /usr/include/bits/fcntl.h /usr/include/sys/types.h
-File.o: /usr/include/bits/types.h /usr/include/time.h /usr/include/endian.h
-File.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-File.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-File.o: /usr/include/sys/sysmacros.h /usr/include/sys/stat.h
-File.o: /usr/include/bits/stat.h /usr/include/unistd.h
-File.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
-File.o: /usr/include/getopt.h
+File.o: /usr/include/bits/types.h
+File.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
+File.o: /usr/include/time.h /usr/include/sys/stat.h /usr/include/bits/stat.h
+File.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+File.o: /usr/include/bits/confname.h
 GaussianDistribution.o: GaussianDistribution.h Distribution.h
-GaussianDistribution.o: /Include/histotypes.h /usr/include/string.h
-GaussianDistribution.o: /usr/include/features.h /usr/include/sys/cdefs.h
-GaussianDistribution.o: /usr/include/gnu/stubs.h
-GaussianDistribution.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+GaussianDistribution.o: /usr/include/stdlib.h /usr/include/features.h
+GaussianDistribution.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+GaussianDistribution.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
 GaussianDistribution.o: /usr/include/math.h /usr/include/bits/huge_val.h
 GaussianDistribution.o: /usr/include/bits/mathdef.h
-GaussianDistribution.o: /usr/include/bits/mathcalls.h
-GaussianDistribution.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-GaussianDistribution.o: /usr/include/stdlib.h /usr/include/sys/types.h
-GaussianDistribution.o: /usr/include/bits/types.h /usr/include/time.h
-GaussianDistribution.o: /usr/include/endian.h /usr/include/bits/endian.h
-GaussianDistribution.o: /usr/include/sys/select.h /usr/include/bits/select.h
-GaussianDistribution.o: /usr/include/bits/sigset.h
-GaussianDistribution.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
-PipeFile.o: PipeFile.h File.h /Include/histotypes.h /usr/include/string.h
-PipeFile.o: /usr/include/features.h /usr/include/sys/cdefs.h
-PipeFile.o: /usr/include/gnu/stubs.h
-PipeFile.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-PipeFile.o: /usr/include/math.h /usr/include/bits/huge_val.h
-PipeFile.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-PipeFile.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-PipeFile.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
-PipeFile.o: /usr/include/bits/types.h /usr/include/bits/confname.h
-PipeFile.o: /usr/include/getopt.h /Include/ErrnoException.h
-PipeFile.o: /Include/Exception.h /usr/include/errno.h
-PipeFile.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
-PipeFile.o: /usr/include/asm/errno.h /usr/include/stdio.h
-PipeFile.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+GaussianDistribution.o: /usr/include/bits/mathcalls.h /usr/include/time.h
+GaussianDistribution.o: /usr/include/bits/types.h /usr/include/string.h
+PipeFile.o: PipeFile.h File.h /usr/include/unistd.h /usr/include/features.h
+PipeFile.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+PipeFile.o: /usr/include/bits/posix_opt.h /usr/include/bits/types.h
+PipeFile.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
+PipeFile.o: /usr/include/bits/confname.h /usr/include/stdio.h
 PipeFile.o: /usr/include/libio.h /usr/include/_G_config.h
+PipeFile.o: /usr/include/wchar.h /usr/include/bits/wchar.h
+PipeFile.o: /usr/include/gconv.h
+PipeFile.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stdarg.h
 PipeFile.o: /usr/include/bits/stdio_lim.h /usr/include/signal.h
 PipeFile.o: /usr/include/bits/sigset.h /usr/include/bits/signum.h
-PipeFile.o: /usr/include/time.h /usr/include/bits/siginfo.h
-PipeFile.o: /usr/include/bits/sigaction.h /usr/include/bits/sigcontext.h
-PipeFile.o: /usr/include/asm/sigcontext.h /usr/include/bits/sigstack.h
+PipeFile.o: /usr/include/errno.h /usr/include/bits/errno.h
+PipeFile.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
 PipeFile.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
-PipeFile.o: /usr/include/sys/types.h /usr/include/endian.h
-PipeFile.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-PipeFile.o: /usr/include/bits/select.h /usr/include/sys/sysmacros.h
-PipeFile.o: /usr/include/sys/wait.h /usr/include/bits/waitflags.h
-PipeFile.o: /usr/include/bits/waitstatus.h /usr/include/sys/time.h
-PipeFile.o: /usr/include/bits/time.h
-TapeException.o: TapeException.h /Include/Exception.h
-TapeFile.o: TapeFile.h File.h /Include/histotypes.h /usr/include/string.h
-TapeFile.o: /usr/include/features.h /usr/include/sys/cdefs.h
-TapeFile.o: /usr/include/gnu/stubs.h
-TapeFile.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-TapeFile.o: /usr/include/math.h /usr/include/bits/huge_val.h
-TapeFile.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-TapeFile.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-TapeFile.o: /Include/Refptr.h /usr/include/errno.h /usr/include/bits/errno.h
-TapeFile.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
-TapeFile.o: /Include/ErrnoException.h /Include/Exception.h TapeException.h
-TapeFile.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
-TapeFile.o: /usr/include/bits/types.h /usr/include/bits/confname.h
-TapeFile.o: /usr/include/getopt.h /usr/include/fcntl.h
+PipeFile.o: /usr/include/sys/types.h /usr/include/time.h
+PipeFile.o: /usr/include/sys/wait.h /usr/include/sys/resource.h
+PipeFile.o: /usr/include/bits/resource.h /usr/include/bits/time.h
+PipeFile.o: /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h
+PipeFile.o: /usr/include/sys/time.h /usr/include/sys/select.h
+PipeFile.o: /usr/include/bits/select.h /usr/include/string.h
+TapeException.o: TapeException.h
+TapeFile.o: TapeFile.h File.h /usr/include/errno.h /usr/include/features.h
+TapeFile.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+TapeFile.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
+TapeFile.o: /usr/include/asm/errno.h TapeException.h /usr/include/unistd.h
+TapeFile.o: /usr/include/bits/posix_opt.h /usr/include/bits/types.h
+TapeFile.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
+TapeFile.o: /usr/include/bits/confname.h /usr/include/fcntl.h
 TapeFile.o: /usr/include/bits/fcntl.h /usr/include/sys/types.h
-TapeFile.o: /usr/include/time.h /usr/include/endian.h
-TapeFile.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-TapeFile.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-TapeFile.o: /usr/include/sys/sysmacros.h /usr/include/sys/stat.h
+TapeFile.o: /usr/include/time.h /usr/include/sys/stat.h
 TapeFile.o: /usr/include/bits/stat.h /usr/include/assert.h
-TestFile.o: TestFile.h File.h /Include/histotypes.h /usr/include/string.h
+TapeFile.o: /usr/include/string.h
+TestFile.o: TestFile.h File.h Distribution.h /usr/include/errno.h
 TestFile.o: /usr/include/features.h /usr/include/sys/cdefs.h
-TestFile.o: /usr/include/gnu/stubs.h
-TestFile.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-TestFile.o: /usr/include/math.h /usr/include/bits/huge_val.h
-TestFile.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-TestFile.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h Distribution.h
-TestFile.o: /Include/ErrnoException.h /Include/Exception.h
-TestFile.o: /usr/include/errno.h /usr/include/bits/errno.h
+TestFile.o: /usr/include/gnu/stubs.h /usr/include/bits/errno.h
 TestFile.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
-TestFile.o: /Include/RangeError.h /Include/buffer.h /Include/daqtypes.h
-TestFile.o: /Include/buftypes.h

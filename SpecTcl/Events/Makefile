@@ -97,122 +97,51 @@ TKRunControl.o: TKRunControl.cpp
 
 # DO NOT DELETE
 
-AnalysisTest.o: /Include/histotypes.h /usr/include/string.h
-AnalysisTest.o: /usr/include/features.h /usr/include/sys/cdefs.h
-AnalysisTest.o: /usr/include/gnu/stubs.h
-AnalysisTest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-AnalysisTest.o: /usr/include/math.h /usr/include/bits/huge_val.h
-AnalysisTest.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-AnalysisTest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h Event.h
-AnalysisTest.o: ./ValidValue.h EventList.h EventSink.h Analyzer.h
-AnalysisTest.o: BufferDecoder.h ./BufferTranslator.h /Include/buffer.h
-AnalysisTest.o: /Include/daqtypes.h TranslatorPointer.h /Include/RangeError.h
-AnalysisTest.o: /Include/Exception.h NSCLBufferDecoder.h EventUnpacker.h
-AnalysisTest.o: RunControl.h
-Analyzer.o: Analyzer.h BufferDecoder.h ./BufferTranslator.h /Include/buffer.h
-Analyzer.o: /Include/daqtypes.h TranslatorPointer.h /Include/RangeError.h
-Analyzer.o: /Include/Exception.h EventFormatError.h /Include/histotypes.h
-Analyzer.o: /usr/include/string.h /usr/include/features.h
-Analyzer.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-Analyzer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-Analyzer.o: /usr/include/math.h /usr/include/bits/huge_val.h
-Analyzer.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-Analyzer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-BufferDecoder.o: BufferDecoder.h ./BufferTranslator.h /Include/buffer.h
-BufferDecoder.o: /Include/daqtypes.h TranslatorPointer.h
-BufferDecoder.o: /Include/RangeError.h /Include/Exception.h
-BufferDecoder.o: EventFormatError.h /Include/histotypes.h
-BufferDecoder.o: /usr/include/string.h /usr/include/features.h
-BufferDecoder.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-BufferDecoder.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-BufferDecoder.o: /usr/include/math.h /usr/include/bits/huge_val.h
-BufferDecoder.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-BufferDecoder.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-BufferDecoder.o: Analyzer.h /Include/buftypes.h
-BufferTranslator.o: ./BufferTranslator.h /Include/buffer.h
-BufferTranslator.o: /Include/daqtypes.h TranslatorPointer.h
-BufferTranslator.o: /Include/RangeError.h /Include/Exception.h
-Event.o: Event.h ./ValidValue.h /Include/histotypes.h /usr/include/string.h
-Event.o: /usr/include/features.h /usr/include/sys/cdefs.h
-Event.o: /usr/include/gnu/stubs.h
-Event.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-Event.o: /usr/include/math.h /usr/include/bits/huge_val.h
-Event.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-Event.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-EventFormatError.o: EventFormatError.h /Include/histotypes.h
-EventFormatError.o: /usr/include/string.h /usr/include/features.h
-EventFormatError.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-EventFormatError.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-EventFormatError.o: /usr/include/math.h /usr/include/bits/huge_val.h
-EventFormatError.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-EventFormatError.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-EventList.o: EventList.h /Include/histotypes.h /usr/include/string.h
-EventList.o: /usr/include/features.h /usr/include/sys/cdefs.h
-EventList.o: /usr/include/gnu/stubs.h
-EventList.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-EventList.o: /usr/include/math.h /usr/include/bits/huge_val.h
-EventList.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-EventList.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+AnalysisTest.o: Event.h ./ValidValue.h EventList.h EventSink.h Analyzer.h
+AnalysisTest.o: BufferDecoder.h ./BufferTranslator.h TranslatorPointer.h
+AnalysisTest.o: NSCLBufferDecoder.h EventUnpacker.h RunControl.h
+Analyzer.o: Analyzer.h BufferDecoder.h ./BufferTranslator.h
+Analyzer.o: TranslatorPointer.h EventFormatError.h
+BufferDecoder.o: BufferDecoder.h ./BufferTranslator.h TranslatorPointer.h
+BufferDecoder.o: EventFormatError.h Analyzer.h
+BufferTranslator.o: ./BufferTranslator.h TranslatorPointer.h
+Event.o: Event.h ./ValidValue.h
+EventFormatError.o: EventFormatError.h
+EventList.o: EventList.h
 EventSink.o: EventSink.h
 NSCLBufferDecoder.o: NSCLBufferDecoder.h Analyzer.h BufferDecoder.h
-NSCLBufferDecoder.o: ./BufferTranslator.h /Include/buffer.h
-NSCLBufferDecoder.o: /Include/daqtypes.h TranslatorPointer.h
-NSCLBufferDecoder.o: /Include/RangeError.h /Include/Exception.h
-NSCLBufferDecoder.o: EventFormatError.h /Include/histotypes.h
-NSCLBufferDecoder.o: /usr/include/string.h /usr/include/features.h
-NSCLBufferDecoder.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-NSCLBufferDecoder.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-NSCLBufferDecoder.o: /usr/include/math.h /usr/include/bits/huge_val.h
-NSCLBufferDecoder.o: /usr/include/bits/mathdef.h
-NSCLBufferDecoder.o: /usr/include/bits/mathcalls.h
-NSCLBufferDecoder.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-NSCLBufferDecoder.o: /Include/buftypes.h /usr/include/assert.h
-NSCLBufferDecoder.o: /usr/include/stdlib.h /usr/include/sys/types.h
-NSCLBufferDecoder.o: /usr/include/bits/types.h /usr/include/time.h
-NSCLBufferDecoder.o: /usr/include/endian.h /usr/include/bits/endian.h
-NSCLBufferDecoder.o: /usr/include/sys/select.h /usr/include/bits/select.h
-NSCLBufferDecoder.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
-NSCLBufferDecoder.o: /usr/include/alloca.h
+NSCLBufferDecoder.o: ./BufferTranslator.h TranslatorPointer.h
+NSCLBufferDecoder.o: EventFormatError.h /usr/include/assert.h
+NSCLBufferDecoder.o: /usr/include/features.h /usr/include/sys/cdefs.h
+NSCLBufferDecoder.o: /usr/include/gnu/stubs.h /usr/include/stdlib.h
+NSCLBufferDecoder.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
+NSCLBufferDecoder.o: /usr/include/string.h
 RunControl.o: RunControl.h /usr/include/assert.h /usr/include/features.h
 RunControl.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-TCLRunFileHandler.o: TCLRunFileHandler.h /Include/TCLIdleProcess.h
-TCLRunFileHandler.o: /Include/TCLTimer.h /Include/TCLInterpreterObject.h
+TCLRunFileHandler.o: TCLRunFileHandler.h RunControl.h TKRunControl.h
 TCLRunFileHandler.o: /usr/include/tcl.h /usr/include/stdio.h
 TCLRunFileHandler.o: /usr/include/features.h /usr/include/sys/cdefs.h
 TCLRunFileHandler.o: /usr/include/gnu/stubs.h
-TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
 TCLRunFileHandler.o: /usr/include/bits/types.h /usr/include/libio.h
-TCLRunFileHandler.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-TCLRunFileHandler.o: /Include/histotypes.h /usr/include/string.h
-TCLRunFileHandler.o: /usr/include/math.h /usr/include/bits/huge_val.h
-TCLRunFileHandler.o: /usr/include/bits/mathdef.h
-TCLRunFileHandler.o: /usr/include/bits/mathcalls.h
-TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-TCLRunFileHandler.o: /usr/include/assert.h /usr/include/tk.h
-TCLRunFileHandler.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
-TCLRunFileHandler.o: /usr/include/time.h /usr/include/endian.h
-TCLRunFileHandler.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-TCLRunFileHandler.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-TCLRunFileHandler.o: /usr/include/sys/sysmacros.h /usr/include/X11/X.h
-TCLRunFileHandler.o: /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h
-TCLRunFileHandler.o: RunControl.h TKRunControl.h
-TKRunControl.o: TKRunControl.h /Include/TCLInterpreter.h /usr/include/tcl.h
-TKRunControl.o: /usr/include/stdio.h /usr/include/features.h
-TKRunControl.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+TCLRunFileHandler.o: /usr/include/_G_config.h /usr/include/wchar.h
+TCLRunFileHandler.o: /usr/include/bits/wchar.h /usr/include/gconv.h
+TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stdarg.h
+TCLRunFileHandler.o: /usr/include/bits/stdio_lim.h /usr/include/tclDecls.h
+TCLRunFileHandler.o: /usr/include/tk.h /usr/include/X11/Xlib.h
+TCLRunFileHandler.o: /usr/include/sys/types.h /usr/include/time.h
+TCLRunFileHandler.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
+TCLRunFileHandler.o: /usr/include/X11/Xosdefs.h /usr/include/tkDecls.h
+TKRunControl.o: TKRunControl.h /usr/include/tcl.h /usr/include/stdio.h
+TKRunControl.o: /usr/include/features.h /usr/include/sys/cdefs.h
+TKRunControl.o: /usr/include/gnu/stubs.h
+TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
 TKRunControl.o: /usr/include/bits/types.h /usr/include/libio.h
-TKRunControl.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-TKRunControl.o: /Include/TCLString.h /usr/include/string.h
-TKRunControl.o: /Include/histotypes.h /usr/include/math.h
-TKRunControl.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
-TKRunControl.o: /usr/include/bits/mathcalls.h
-TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+TKRunControl.o: /usr/include/_G_config.h /usr/include/wchar.h
+TKRunControl.o: /usr/include/bits/wchar.h /usr/include/gconv.h
+TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stdarg.h
+TKRunControl.o: /usr/include/bits/stdio_lim.h /usr/include/tclDecls.h
 TKRunControl.o: /usr/include/tk.h /usr/include/X11/Xlib.h
 TKRunControl.o: /usr/include/sys/types.h /usr/include/time.h
-TKRunControl.o: /usr/include/endian.h /usr/include/bits/endian.h
-TKRunControl.o: /usr/include/sys/select.h /usr/include/bits/select.h
-TKRunControl.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 TKRunControl.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
-TKRunControl.o: /usr/include/X11/Xosdefs.h
+TKRunControl.o: /usr/include/X11/Xosdefs.h /usr/include/tkDecls.h
