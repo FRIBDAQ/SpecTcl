@@ -6,6 +6,11 @@
 #define __RPC_XDR_H
 #endif
 
+#ifndef __BUFFERDECODER_H
+#include "BufferDecoder.h"
+#define __BUFFERDECODER_H
+#endif
+
 // Forward class declarations:
 class CBufferDecoder;
 
@@ -14,21 +19,20 @@ class CFilterBufferDecoder : public CBufferDecoder {
   // Member data:
   Bool_t m_fActive;
   XDR m_xdrs;
-  UInt_t m_nSize;
+  //UInt_t m_nSize;
   string m_sTag; // Documentation buffer, event data, or end-of-record.
   Bool_t m_fXDRError;
 
-  UInt_t m_nParameters;
-  Bool_t m_fEventData;
   UInt_t m_nValidParameters;
   //UInt_t *(ValidParameterArray[m_nValidParameters]);
   //UInt_t *m_pValidParameterArray;
-  UInt_t*** m_pValidParameterArray;
+  //UInt_t*** m_pValidParameterArray;
+  char *m_pBitMask;
   UInt_t m_nEvents; // EntityCount.
   UInt_t m_nOffset; // Offset of XDR-formatted buffer.
   UInt_t m_nOutputBufferOffset; // Offset of the output char[] buffer.
   UInt_t m_nBUFFERSIZE; // Initialize to 8K.
-  char** m_pOutputBuffer;
+  char *m_pOutputBuffer;
 
  public:
   // Constructors:
@@ -47,9 +51,9 @@ class CFilterBufferDecoder : public CBufferDecoder {
   // The following read from the XDR file and put into the buffer.
   Bool_t XDRstring(string&);
   Bool_t XDRuint(UInt_t&);
-  Bool_t XDRarray();
+  //Bool_t XDRarray();
   Bool_t XDRfloat(Float_t&);
-  Bool_t XDRfill(UInt_t); // Fills up the rest of the buffer.
+  //Bool_t XDRfill(UInt_t); // Fills up the rest of the buffer.
 
   void incr_offset(UInt_t);
 

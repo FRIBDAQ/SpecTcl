@@ -338,7 +338,7 @@ class CTclGrammerApp : public CTCLApplication {
   UInt_t m_nListSize;
   CAnalyzer* m_pAnalyzer;
   CTCLHistogrammer* m_pHistogrammer;
-  CNSCLBufferDecoder* m_pDecoder;
+  CBufferDecoder* m_pDecoder; // Formerly declared as only an NSCL Buffer Decoder.
   CTKRunControl* m_pRunControl;
   CXamineEventHandler* m_pXamineEvents;
   CRunControlPackage* m_pRunControlPackage;
