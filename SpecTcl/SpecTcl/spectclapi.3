@@ -517,20 +517,20 @@ coordinates or with channels labelled in this real coordinate space.
 Returns an unsed parameter id.  This function can be used to provide the
 \fIId\fR parameter of many of the functions in this section.
 .TP
-\fBCParameter* AddParameter(STD(string) \fIname\fB, UInt_t \fIId\fB, STD(string) \fIUnits\fB);
+\fBCParameter* AddParameter(STD(string) \fIname\fB, UInt_t \fIId\fB, STD(string) \fIUnits\fB);\fR
 Adds a floating point parameter to the parameter dictionary.  Floating point
 parameters are never scaled when they are histogrammed. Instead, the histogram
 must be defined to cover a specific range of the parameter space.
 \fIname\fR and \fIid\fR must be unique or the function will throw a
 \fBCDictionaryException\fR.
 .TP
-\fBCParameter* AddParameter(STD(string) \fIname\fB, UInt_t \fIId\fB, UInt_t \fIscale\fB);
+\fBCParameter* AddParameter(STD(string) \fIname\fB, UInt_t \fIId\fB, UInt_t \fIscale\fB);\fR
 Creates an integer parameter.  The parameter is assumed to have a range of
 values from [0..2**\fIscale\fR).
 \fIname\fR and \fIid\fR must be unique or the function will throw a
 \fBCDictionaryException\fR.
 .TP
-CParameter* AddParameter(STD(string) \fIname\fB, UInt_t \fIId\fB, UInt_t \fIscale\fB, Float_t \fIlow\fB, Float_t \fIhigh\fB, STD(string) \fIUnits\fB);
+CParameter* AddParameter(STD(string) \fIname\fB, UInt_t \fIId\fB, UInt_t \fIscale\fB, Float_t \fIlow\fB, Float_t \fIhigh\fB, STD(string) \fIUnits\fB);\fR
 Creates a new integer parameter.  The integer parameter also defines ``mapped''
 parameter space.  The mapped parameter space runs from
 [\fIlow\fR..\fIhigh\fR).  Thhe mapped parameter space also can have physical
@@ -539,7 +539,7 @@ are created on this parameter.
 \fIname\fR and \fIid\fR must be unique or the function will throw a
 \fBCDictionaryException\fR.
 .TP
-\fBCParameter* RemoveParameter(STD(string) \fIname\fB);
+\fBCParameter* RemoveParameter(STD(string) \fIname\fB);\fR
 Removes the parameter named \fIname\fR from the parameter dictionary.
 A dynamically allocated pointer to the removed parameter is returned. It is the
 caller's responsibility to \fBdelete\fR this parameter.  If there is no
@@ -551,7 +551,7 @@ delete on a \fBNULL\fR is a no-op, the following is legal and safe:
      delete api.RemoveParameter("NoIdeaIfThisExists");
 .CE
 .TP
-\fBCParameter* FindParameter(STD(string) \fIname\fB);
+\fBCParameter* FindParameter(STD(string) \fIname\fB);\fR
 Locates the parameter named \fIname\fR in the parameter dictionary and returns
 a pointer to it.  Note that the pointer returned is a pointer to the object in
 the parameter dictionary, not a copy.  Any  modifications you make to the
@@ -570,7 +570,7 @@ below determines the units associated with a parameter:
         cerr << "No such parameter\\n";
      }
 .TP
-\fBCParameter* FindParameter(UInt_t \fIId\fB);
+\fBCParameter* FindParameter(UInt_t \fIId\fB);\fR
 Given a parameter \fIid\fR, this function locates the parameter in the parameter
 dictionary and returns a pointer to it.  If there is no parameter in the
 dictionary with this \fIi\fR, this function returns a \fBNULL\fR.
@@ -665,7 +665,7 @@ support the creation of the desired spectrum or else a
 \fBCSpectrumFactoryException\fR will be thrown.  A pointer to the new spectrum
 (dynamically created) will be returned.  
 .TP
-\fBCSpectrum* Create1D(STD(string) \fIname\fB, DataType_t \fIdataType\fB, CParameter& \fIparameter\fB, UInt_t \fIchannels\fB);
+\fBCSpectrum* Create1D(STD(string) \fIname\fB, DataType_t \fIdataType\fB, CParameter& \fIparameter\fB, UInt_t \fIchannels\fB);\fR
 Creates a 1D spectrum. A pointer to the new spectrum is returned.  The
 \fIchannels\fR parameter not only determines the number of channels on the X
 axis, but the range of values of \fIparameter\fR covered by this spectrum is
@@ -701,7 +701,7 @@ will cover the range [0..\fIxChannels\fR-1] in parameter space.
 \fBCSpectrum* Create2D(STD(string) \fIname\fB, DataType_t \fIdataType\fB, 
 \fBCParameter& \fIxParameter\fB0, CParameter& \fIyParameter\fB, 
 UInt_t \fIxChannels\fB, Float_t \fIxLow\fB, Float_t \fIxHigh\fB, 
-UInt_t \fIyChannels\fB, Float_t \fIyLow, Float_t \fByHigh);
+UInt_t \fIyChannels\fB, Float_t \fIyLow, Float_t \fByHigh);\fR
 
 Creates a 2-d spectrum. A pointer to the new spectrum is returned.  The number
 of channels on each axis is determined by \fIxChannels\fR and
@@ -710,7 +710,7 @@ of channels on each axis is determined by \fIxChannels\fR and
 is [\fIyLow\fR..\fIyHigh\fR].
 .TP
 \fBCSpectrum* CreateG1D(STD(string) \fIname\fB, DataType_t \fIdataType\fB,
-STD(vector)<CParameter> \fIparameters\fB, UInt_t \fIchannels\fB);
+STD(vector)<CParameter> \fIparameters\fB, UInt_t \fIchannels\fB);\fR
 Creates a 1-d Gamma spectrum.   Gamma spectra are multiply incremented
 spectra.  For each valid parameter specified by \fIparameters\fR, the spectrum
 is incremented as described by the value of that parameter.  Note that
@@ -745,7 +745,7 @@ parameters in \fIparameters\fR.  The X axis is has \fIxChannels\fR channels
 that cover the range [\fIxLow\fR, \fIxHigh\fR] in parameter space, and
 similarly for the Y axis using \fIyChannels\fR, \fIyLow\fR, and \fIyHigh\fR.
 .TP
-\fBCSpectrum* CreateBit(STD(string) \fIname\fB, DataType_t \fIdataType\fB, CParameter& \fIparameter\fB, UInt_t \fIchannels\fB);
+\fBCSpectrum* CreateBit(STD(string) \fIname\fB, DataType_t \fIdataType\fB, CParameter& \fIparameter\fB, UInt_t \fIchannels\fB);\fR
 Creates a  bit mask spectrum  For each bit set in the parameter for each event,
 the corresponding channel is incremented for example, if the integerized
 parameter value is 10 (decimal), channels 1 and 3 will be incremented.
@@ -758,7 +758,7 @@ channel 0.  If, for example, \fIchannels\fR is 16, and \fIlowBit\fR is 4, the
 spectrum will display the increments in bits 4 through 19 of the integerized
 parameter value.
 .TP
-\fBCSpectrum* CreateSummary(STD(string) \fIname\fB, DataType_t \fIdataType\fB, STD(vector)<CParameter> \fIparameters\fB, UInt_t \fIchannels\fB);
+\fBCSpectrum* CreateSummary(STD(string) \fIname\fB, DataType_t \fIdataType\fB, STD(vector)<CParameter> \fIparameters\fB, UInt_t \fIchannels\fB);\fR
 Creates a summary spectrum.  Summary spectra allow you to look at several
 supposedly identical detector channels in a detector array for anomalies such
 as gain mis-matches or dead channels.  A summary spectrum is essentially an
@@ -794,7 +794,7 @@ objects. As such they can be dereferenced, incremented and compared.  The
 SpectrumDictionaryIterator ``points'' to an STL pair<string, CSpectrum*>
 .PP
 .TP
- \fBvoid AddSpectrum(CSpectrum& \fIspectrum\fB);
+ \fBvoid AddSpectrum(CSpectrum& \fIspectrum\fB);\fR
 Adds a spectrum to the spectrum dictionary.  When a spectrum is in the Spectrum
 Dictionary, SpecTcl will increment it as required for each event.  In addition,
 SpecTcl's commands will become aware of the spectrum.
@@ -802,7 +802,7 @@ These commands include \fBspectrum\fR, \fBchannel\fR, \fBsbind\fR, \fBsread\fR,
 and \fBswrite\fR among others.  Adding a spectrum to the Spectrum dictionary
 does not imply that the dictionary will manage its storage, however.
 .TP
-\fBCSpectrum* RemoveSpectrum(STD(string) \fIname\fB);
+\fBCSpectrum* RemoveSpectrum(STD(string) \fIname\fB);\fR
 Removes the spectrum named \fIname\fR from the spectrum dictionary.  The
 function returns a pointer to the spectrum that was removed or \fBNULL\fR if
 the spectrum does not exist.  Since the API's spectrum creation interface
@@ -818,7 +818,7 @@ destroy the spectrum:
 
 .CE
 .TP
-\fBCSpectrum* FindSpectrum(STD(string) \fIname\fB);
+\fBCSpectrum* FindSpectrum(STD(string) \fIname\fB);\fR
 Locates a spectrum in the spectrum dictionary and returns a pointer to it.  If
 the spectrum does not exist, then \fBNULL\fR is returned.
 Note that since the spectrum lives in the spectrum dictionary, you must not use
@@ -839,10 +839,10 @@ type is set to keUnknown.
 
 .CE
 .TP
-\fBCSpectrum* FindSpectrum(UInt_t \fIid\fB);
+\fBCSpectrum* FindSpectrum(UInt_t \fIid\fB);\fR
 Locates a spectrum given it's id.
 .TP
-\fBSpectrumDictionaryIterator SpectrumBegin();
+\fBSpectrumDictionaryIterator SpectrumBegin();\fR
 Returns a start of iteration iterator into the spectrum dictionary.  The sample
 code below shows how to print out the names of each spectrum in the
 dictionary.  Recall that a SpectrumDictionaryIterator is a pointer like object
@@ -859,12 +859,12 @@ and the CSpectrum* is a pointer to the spectrum itself.
 
 .CE
 .TP
-\fBSpectrumDictionaryIterator SpectrumEnd();
+\fBSpectrumDictionaryIterator SpectrumEnd();\fR
 Returns a spectrum dictionary end of iteration iterator.  This iterator should
 never be dereferenced.  It should only be used as an in the code sample above
 to determine when to stop iterating.
 .TP
-\fBUInt_t SpectrumCount();
+\fBUInt_t SpectrumCount();\fR
 Returns the number of spectra that are currently in the spectrum dictionary.
 .SH "SPECTRUM CLEAR FUNCTIONS"
 .PP
@@ -874,11 +874,11 @@ convenience functions.  For these:
 is the name of the spectrum to clear.
 .PP
 .TP
-\fBvoid ClearSpectrum(STD(string) \fIname\fB);
+\fBvoid ClearSpectrum(STD(string) \fIname\fB);\fR
 If the spectrum \fIname\fR exists in the spectrum dictionary it is cleared.
 If the spectrum does not exist, then a CDictionaryException is thrown.
 .TP
- \fBvoid ClearAllSpectra();
+ \fBvoid ClearAllSpectra();\fR
 Clears all of the spectra in the spectrum dictionary.
 .SH "GATE CREATION"
 .PP
@@ -922,13 +922,13 @@ The lower and upper limits of a cut.
 The names of the two bands that will be used to create a contour.
 .PP
 .TP
-\fBCGate* CreateGate(CGateFactory::GateType \fIgateType\fB, STD(vector)<STD(string)> \fIgateNames\fB);
+\fBCGate* CreateGate(CGateFactory::GateType \fIgateType\fB, STD(vector)<STD(string)> \fIgateNames\fB);\fR
 Creates a compound gate of the type selected by \fIgateType\fR.  The gate will
 be composed of the gates named by the vector \fIgateNames\fR all of the gates
 in \fIgateNames\fB must have been entered in the gate dictionary either by
 SpecTcl or application software.
 .TP
- \fBCGate* CreateGate(CGateFactory::GateType
+ \fBCGate* CreateGate(CGateFactory::GateType\fR
 \fIgateType\fB,STD(vector)<STD(string)> \fIparameters\fB, 
 \fBSTD(vector)<FPoint>\fIpoints\fB);\fR
 Creates a primitive gate of the type described by \fIgateType\fR.  The gate
@@ -944,13 +944,13 @@ gamma gates work that may invalidate this interface in the near future.  We
 apologize for this instability in the API, but believe that this change in gate
 semantics is necessary to meet the analysis needs of SpecTcl's user community.
 .TP
-\fBCGate* CreateTrueGate();
+\fBCGate* CreateTrueGate();\fR
 Creates a gate that is always true when checked.
 .TP
-\fBCGate* CreateFalseGate();
+\fBCGate* CreateFalseGate();\fR
 Creates a gate that is always false when checked.
 .TP
-\fBCGate* CreateBand(STD(string) \fIxParameter\fB, STD(string) \fIyParameter\fB, STD(vector)<FPoint> \fIpoints\fB);
+\fBCGate* CreateBand(STD(string) \fIxParameter\fB, STD(string) \fIyParameter\fB, STD(vector)<FPoint> \fIpoints\fB);\fR
 Creates a band gate defined on \fIxParameter\fR and \fIyParameter\fR.   The
 points of the band are in \fIpoints\fR.  A band gate is an open polyline that
 connects the gate points.  The gate is \fBtrue\fR if the \fIxParameter\fR, and
@@ -961,7 +961,7 @@ these gates, imagine that vertical lines extend downward from the end points of
 the gate and are joined at infinity to form a contour.  Insidedness as defined
 for contour gates makes the band true.
 .TP
-\fBCGate* CreateContour(STD(string) \fIxParameter\fB, STD(string) \fIyParameter\fB, STD(vector)<FPoint> \fIpoints\fB);
+\fBCGate* CreateContour(STD(string) \fIxParameter\fB, STD(string) \fIyParameter\fB, STD(vector)<FPoint> \fIpoints\fB);\fR
 Creates a contour.  Parameters have identical meanings as for
 \fBCreateBand\fR, however the points define a closed polygon.  Events whose
 \fIxParameter\fR and \fIyParameter\fR are inside the polygon make the gate
@@ -973,7 +973,7 @@ odd number of polygon boundaries.  Note that for practical purposes, the gate
 is checked by extending a horizontal line segment from the point to the left end of the
 polygon's bounding box and counting the boundary crossings of that line segment.
 .TP
-\fBCGate* CreateBandContour(STD(string) \fIfirstBand\fB, STD(string) \fIsecondBand\fB);
+\fBCGate* CreateBandContour(STD(string) \fIfirstBand\fB, STD(string) \fIsecondBand\fB);\fR
 Creates a band contour.  A band contour is a contour that is formed by joining
 the leftmost and right most points of the bands \fIfirstBand\fR and
 \fIsecondBand\fR.  While the resulting gate is something very much like the AND
@@ -985,23 +985,22 @@ bands, produce contours around the individual particle species.  Note that this
 implies that if one of the constituent bands is modified, the bandcontour is
 \fInot\fR modified.
 .TP
-\fBCGate* CreateNotGate(STD(string) \fIname\fB);
+\fBCGate* CreateNotGate(STD(string) \fIname\fB);\fR
 Creates a gate that is true whenever the gate \fIname\fR is not true, and vica-versa.
 .TP
-\fBCGate* CreateAndGate(STD(vector)<STD(string)> \fIgateNames\fB);
+\fBCGate* CreateAndGate(STD(vector)<STD(string)> \fIgateNames\fB);\fR
 Creates a gate that is true only when all of the gates in the list
 \fIgateNames\fR are true.
 .TP
-\fBCGate* CreateOrGate(STD(vector)<STD(string)> \fIgateNames\fB);
+\fBCGate* CreateOrGate(STD(vector)<STD(string)> \fIgateNames\fB);\fR
 Creates a gate that is true whenever at least one gate in the list
 \fIgateNames\fR is true.
 .TP
-\fBCGate* CreateCut(STD(string) \fIparameter\fB, Float_t \fIlow\fB, Float_t
-\fIhigh\fB);
+\fBCGate* CreateCut(STD(string) \fIparameter\fB, Float_t \fIlow\fB, Float_t \fIhigh\fB);\fR
 Creates a gate that is a cut on \fIparameter\fB.  The gate is true for every
 event where \fIparameter\fB is in the range [\fIlow\fR..\fIhigh\fR].
 .TP
-\fBCGate* CreateGammaCut(Float_t \fIlow\fB, Float_t \fIhigh\fB,STD(vector)<STD(string)> \fIspectra\fB);
+\fBCGate* CreateGammaCut(Float_t \fIlow\fB, Float_t \fIhigh\fB,STD(vector)<STD(string)> \fIspectra\fB);\fR
 Creates a gamma cut.  Gamma cuts are applied to gamma spectra.  They act as
 folds.  For each parameter that is in the gate, the spectrum is incremented for
 all other parameters.  
@@ -1012,7 +1011,7 @@ API, however we feel that the changes anticipated will better serve the needs
 of the SpecTcl user community.  For now \fIspectra\fR is a list of spectra on
 which to display this cut.
 .TP
-\fBGate* CreateGammaBand(STD(vector)<FPoint> \fIpoints\fB, STD(vector)<STD(string)> \fIspectra\fB);
+\fBGate* CreateGammaBand(STD(vector)<FPoint> \fIpoints\fB, STD(vector)<STD(string)> \fIspectra\fB);\fR
 Creates a gamma band gate.  The points that define the band are in
 \fIpoints\fR.   The spectra that this band should display on are in
 \fIspectra\fB.  Gamma bands can only be applied to gamma spectra.  If any pair
@@ -1025,7 +1024,7 @@ API, however we feel that the changes anticipated will better serve the needs
 of the SpecTcl user community.  For now \fIspectra\fR is a list of spectra on
 which to display this cut.
 .TP
-\fBCGate* CreateGammaContour(STD(vector)<FPoint> \fIpoints\fB, STD(vector)<STD(string)> \fIspectra\fB);
+\fBCGate* CreateGammaContour(STD(vector)<FPoint> \fIpoints\fB, STD(vector)<STD(string)> \fIspectra\fB);\fR
 Creates a gamma contour.  Gamma contours are handled identically to gamma
 bands (see above.. including the warning about gate semantics), however the
 spectra gated is incremented when parameters are inside the contour.
@@ -1063,7 +1062,7 @@ iterator `points' to the dictionary entry for a gate which is a pair<string,
 CGateContainer*>.
 .PP
 .TP
-\fBvoid AddGate(STD(string) \fIname\fB, CGate* \fIgate\fB);
+\fBvoid AddGate(STD(string) \fIname\fB, CGate* \fIgate\fB);\fR
 Adds a gate to the gate dictionary.  The \fIgate\fR will be given the \fIname\fR as
 its name.  Gate names must be unique,  therefore a CDictionaryException is
 thrown if you attempt to create a gate with a name that is already in the
@@ -1074,17 +1073,17 @@ needed.  In addition, gates in the gate dictionary will be visible to SpecTcl's
 gate commands such as \fBgate\fR, and \fBapply\fR.  SpecTcl will ensure that
 gates that are in the dictionary are displayed on ``appropriate'' spectra.
 .TP
-\fBvoid DeleteGate(STD(string) \fIgateName\fB);
+\fBvoid DeleteGate(STD(string) \fIgateName\fB);\fR
 Deletes the gate named \fIgateName\fR.  If the gate does not exist, a
 CDictionaryException is thrown.
 .TP
-\fBvoid ReplaceGate(STD(string) \fIgateName\fB, CGate& \fInewGate\fB);
+\fBvoid ReplaceGate(STD(string) \fIgateName\fB, CGate& \fInewGate\fB);\fR
 The definition of the gate \fIgateName\fR is replaced by that of
 \fInewGate\fR.  Since internally all SpecTcl gate references are through gate
 containers, this change is immediately visible.  If the gate \fIgateName\fR
 does not exist, a CDictionaryException is thrown.
 .TP
-CGateContainer* FindGate(STD(string) \fIgateName\fB);
+CGateContainer* FindGate(STD(string) \fIgateName\fB);\fR
 Locates the gate container that is the invariant pointer to the gate
 \fIgateName\fR. A pointer to the gate container is returned.  Note that if the
 gate does not exist, a CDictionaryException is thrown.  The following
@@ -1103,7 +1102,7 @@ named \fIgeorge\fR.
 
 .CE
 .TP
-\fBCGateDictionaryIterator GateBegin();
+\fBCGateDictionaryIterator GateBegin();\fR
 Returns a start of iteration iterator.  This can be used to loop over the set
 of gates in the gate dictionary.  The sample code below shows how to list out
 the names of all the gates:
@@ -1117,13 +1116,13 @@ the names of all the gates:
 
 .CE
 .TP
-\fBCGateDictionaryIterator GateEnd();
+\fBCGateDictionaryIterator GateEnd();\fR
 Returns an end of iteration iterator to the gate dictionary.
 .TP
-\fBUInt_t GateCount();
+\fBUInt_t GateCount();\fR
 Returns the number of gates in the gate dictionary.
 .TP
-\fBvoid ApplyGate(STD(string) \fIgateName\fB, STD(string) \fIspectrumName\fB);
+\fBvoid ApplyGate(STD(string) \fIgateName\fB, STD(string) \fIspectrumName\fB);\fR
 Applies a the gate \fIgateName\fR to the spectrum \fIspectrumName\fB  if either
 the gate or the spectrum don't exist, a CDictionaryException will be thrown.
 The effect of applying the gate is immediate. Note as well that the gate is
@@ -1178,13 +1177,13 @@ a pointer to the event processor itself.
 .AP 
 .PP
 .TP
-\fBvoid AddEventProcessor(CEventProcessor& \fIeventProcessor\fB, const char* \fIname\fB = 0);
+\fBvoid AddEventProcessor(CEventProcessor& \fIeventProcessor\fB, const char* \fIname\fB = 0);\fR
 Appends an event processor to the end of the event processor pipeline.  This
 will cause the event processor's \fIOnAttach\fR member to be called, notifying
 it of the addition to the event pipeline.   If the \fIname\fR parameter is
 omitted, a unique non-obvious name is assigned.
 .TP
-\fBCTclAnalyzer::EventProcessorIterator FindEventProcessor(STD(string) \fIsname\fB);
+\fBCTclAnalyzer::EventProcessorIterator FindEventProcessor(STD(string) \fIsname\fB);\fR
 Returns an iterator to the event processor named \fIsname\fR.  If the event
 processor does not exist, the iterator returned is an end of iteration iterator
 (compares as equal to \fBProcessingPipelineEnd()\fR).  Recall that the iterator
@@ -1214,7 +1213,7 @@ you can located \fIgeorge\fR and call \fBprod\fR as follows:
 
 .CE
 .TP
-\fBCTclAnalyzer::EventProcessorIterator FindEventProcessor(CEventProcessor& \fIeventProcessor\fB);
+\fBCTclAnalyzer::EventProcessorIterator FindEventProcessor(CEventProcessor& \fIeventProcessor\fB);\fR
 Given a reference to an event processor (\fIeventProcessor\fR)  you have entered into the event
 processing pipeline, this function returns an iterator that points to the
 pair<string, CEventProcessor*> such that the event processor pointer points to
@@ -1254,21 +1253,21 @@ event processor indicated by the iterator.  The following code is equivalent to
 
 .CE
 .TP
-\fBvoid RemoveEventProcessor(STD(string) \fIsname\fB);
+\fBvoid RemoveEventProcessor(STD(string) \fIsname\fB);\fR
 Removes the event  processor named \fIsname\fR.  If the event processor does
 not exist, this is a no-op at this time.  In the future, we reserve the right
 to throw a CDictionaryException.
 .TP
-\fBvoid RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator \fIhere\fB);
+\fBvoid RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator \fIhere\fB);\fR
 Removes the event processor `pointed' to by the iterator \fIhere\fR.
 .TP
-\fBUInt_t ProcessingPipelineSize();
+\fBUInt_t ProcessingPipelineSize();\fR
 Returns the number of elements in the event processing pipeline.
 .TP
-\fBCTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();
+\fBCTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();\fR
 Returns a start of iteration iterator to the event processing pipeline.
 .TP
-\fBCTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd();
+\fBCTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd();\fR
 Returns an end of iteration iterator to the event processing pipeline.
 .SH "EVENT SINK PIPELINE API"
 .PP
@@ -1303,15 +1302,15 @@ is a pointer to the event sink at that stage of the pipeline.
 A pointer to an event sink.
 .PP
 .TP
-\fBvoid AddEventSink(CEventSink& \fIsink\fB, const char* \fIname\fB = 0);
+\fBvoid AddEventSink(CEventSink& \fIsink\fB, const char* \fIname\fB = 0);\fR
 Appends an event sink to the event sink pipeline.  Once appended, the event
 sink's \fBOnAttach\fR member is called.
 .TP
-\fBCEventSinkPipeline::EventSinkIterator FindEventSink(STD(string) \fIsinkName\fB);
+\fBCEventSinkPipeline::EventSinkIterator FindEventSink(STD(string) \fIsinkName\fB);\fR
 Locates the iterator that corresponds to the event sink \fIsinkName\fR.  If the
 sink is not found, an end of iteration iterator is returned.
 .TP
-\fBCEventSinkPipeline::EventSinkIterator FindEventSink(CEventSink& \fIsink\fB);
+\fBCEventSinkPipeline::EventSinkIterator FindEventSink(CEventSink& \fIsink\fB);\fR
 Locates and returns the event sink specified in the event sink pipeline and
 returns an iterator to it.  If the sink is not in the event sink pipeline, an
 end of iteration iterator is returned.  The code example below shows how to let
@@ -1338,25 +1337,25 @@ below is equivalent to call to \fBAddEventSink\fR.
 
 .CE
 .TP
- \fBCEventSink* RemoveEventSink(STD(string) \fIname\fB);
+ \fBCEventSink* RemoveEventSink(STD(string) \fIname\fB);\fR
 Removes the sink \fIname\ from the event sink pipeline and returns a pointer to
 it.  If the sink does not exist, a \fBNULL\fR pointer is returned.  The
 \fBOnDetach\fR member of the sink is called to notify it that it is being
 detached from the pipeline.
 .TP
-\fBCEventSink* RemoveEventSink(CEventSinkPipeline::EventSinkIterator \fIhere\fR);
+\fBCEventSink* RemoveEventSink(CEventSinkPipeline::EventSinkIterator \fIhere\fB);\fR
 Removes the event sink `pointed' to by the iterator \fIhere\fR from the event
 sink pipeline and returns a pointer to the sink itself.  The \fBOnDetach\fR
 member function of the sink is called to notify it that it is being detached
 from the pipeline
 .TP
- \fBUInt_t EventSinkPipelineSize();
+ \fBUInt_t EventSinkPipelineSize();\fR
 Returns the number of elements int he event sink pipeline.
 .TP
-\fBCEventSinkPipeline::EventSinkIterator EventSinkPipelineBegin();
+\fBCEventSinkPipeline::EventSinkIterator EventSinkPipelineBegin();\fR
 Returns a beginning of iteration iterator for the event sink pipeline.
 .TP
-\fBCEventSinkPipeline::EventSinkIterator EventSinkPiplineEnd();
+\fBCEventSinkPipeline::EventSinkIterator EventSinkPiplineEnd();\fR
 Returns an end of iteration iterator for the event sink pipelne.  The sample
 below shows how to use this function to list the names of the event sinks in
 the pipeline:
@@ -1374,7 +1373,7 @@ the pipeline:
   This section describes API member functions that don't fit nicely into any of
 the function groups described above.
 .TP
-\fBvoid AddSpectrumFormatter(STD(string) \fIname\fB, CSpectrumFormatter& \fIformatter\fB);
+\fBvoid AddSpectrumFormatter(STD(string) \fIname\fB, CSpectrumFormatter& \fIformatter\fB);\fR
 SpecTcl's \fBsread\fR and \fBswrite\fR commands accept a swtich
 (\fB-format\fR) that specifies the format of the spectrum file that is being
 read or written.  The set of formats recognized by these commands is
@@ -1387,7 +1386,7 @@ own spectrum formatters with SpecTcl.  Once registered, the \fBsread\fR and
 \fBswrite\fR commands will understand the formatter and add it to the usage
 string for their commands.
 .TP
-\fBCTCLInterpreter*  getInterpreter();
+\fBCTCLInterpreter*  getInterpreter();\fR
 Returns the object encapsualted Tcl/Tk interpreter being used to process
 SpecTcl commands.
 
