@@ -181,10 +181,10 @@ CTCLList::Merge(const StringArray& rElements)
   for(int i = 0; i < n; i ++) {
     pElements[i] = (char*)rElements[i].c_str();
   }
-  Merge(n, pElements);
+  const char* pResult = (const char*)Merge(n, pElements);
 
   delete []pElements;
-  
+  return pResult;
 }
 /////////////////////////////////////////////////////////////////////////
 //
@@ -199,6 +199,7 @@ CTCLList::Merge(int n, char** pElements)
   char* pList = Tcl_Merge(n, pElements);
   setList(pList);
   free(pList);
+  return (const char*)m_pList;
 }
 /////////////////////////////////////////////////////////////////////////
 //
