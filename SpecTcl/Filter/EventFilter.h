@@ -26,12 +26,16 @@
 #define __STL_STRING
 #endif
 
+#ifndef __DICTIONARYEXCEPTION_H
+#include <DictionaryException.h>
+#endif
+
 // forward definitions:
 
 class CEvent;
 class CEventList;
 class CXdrOutputStream;
-class CDictionaryException;
+// class CDictionaryException;
    
 // Class.
 /*! 
