@@ -680,8 +680,21 @@ if test $gri_found = "yes" ; then
    mygri="no"
    GRI=""
 else
-   AC_MSG_RESULT([Can't find gri. help me out with --with-gri-dir=path])
-   mygri="no"
+   #
+   #  Configure GRI and build it into SpecTcl's directories:
+   AC_MSG_NOTICE([Cannot find GRI so I'll build my copy of it])
+   #
+   (cd Gri;                                          \
+    configure --prefix=$prefix;                      \
+    make;                                            \
+    make install)
+
+   AC_MSG_NOTICE([Now that GRI is build I know where I put stuff])
+   
+   gri_dir=$prefix/bin
+   gri_cmd_dir=$prefix/share
+   mygri="yes"
+   gri_found="yes"
    GRI=""
 
 fi
@@ -745,7 +758,8 @@ if test $mygri = "no" ; then
     AC_DEFINE(HAVE_GRI, 1, [True if Gri is present on system])
   fi
 else
-   gri_cmd_dir=${prefix}/share/gri
+   AC_DEFINE(HAVE_GRI, 1, [True since Gri was provided by us])
+   gri_cmd_dir=$prefix/share/gri
 fi
 
 # tcl/tk
@@ -784,4 +798,4 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	 SpecTcl/Makefile \
-	TestFiles/Makefile contrib/Makefile doc/Makefile)
+	 contrib/Makefile doc/Makefile)
