@@ -296,6 +296,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log:
    $Log$
+   Revision 4.7  2004/02/03 21:32:58  ron-fox
+   Make definitions of spectra from resolutions consistent with those that have ranges.
+
+   Revision 4.6.2.1  2004/02/02 21:47:08  ron-fox
+   *** empty log message ***
+
    Revision 4.6  2003/11/07 21:48:30  ron-fox
    Fix error in CSummarySpectrmB.cpp' s
    increment.  It would sometimes not increment
@@ -361,8 +367,8 @@ CSummarySpectrumW::CSummarySpectrumW(const std::string& rName,
 {
   // The assumption is that all parameters have the same units.
   AddAxis(rrParameters.size(), 0.0, 
-	  (Float_t)(rrParameters.size() - 1)); // Unit-less.
-  AddAxis(nYScale, 0.0, (Float_t)(nYScale - 1), 
+	  (Float_t)(rrParameters.size())); // Unit-less.
+  AddAxis(nYScale, 0.0, (Float_t)(nYScale), 
 	  rrParameters[0].getUnits());
   FillParameterArray(rrParameters);
   CreateStorage();

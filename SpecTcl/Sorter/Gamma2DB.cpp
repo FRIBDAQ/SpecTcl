@@ -295,6 +295,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 4.6  2004/02/03 21:32:58  ron-fox
+    Make definitions of spectra from resolutions consistent with those that have ranges.
+
+    Revision 4.5.2.1  2004/02/02 21:47:08  ron-fox
+    *** empty log message ***
+
     Revision 4.5  2003/10/24 14:43:29  ron-fox
     Bounds check parameter ids against the size of
     of the event.
@@ -343,8 +349,8 @@ CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
   m_nYScale(nYScale)
 {
   // The assumption is that all axes have the same units.
-  AddAxis(nXScale, 0.0, (Float_t)(nXScale - 1), rParameters[0].getUnits());
-  AddAxis(nYScale, 0.0, (Float_t)(nYScale - 1), rParameters[0].getUnits());
+  AddAxis(nXScale, 0.0, (Float_t)(nXScale), rParameters[0].getUnits());
+  AddAxis(nYScale, 0.0, (Float_t)(nYScale), rParameters[0].getUnits());
 
   SetParameterVector(rParameters);
   CreateStorage();
