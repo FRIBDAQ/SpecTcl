@@ -278,12 +278,16 @@
 
   END OF TERMS AND CONDITIONS
 */
+
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 // Class: CTclGrammerApp
 
 /*
   Change Log:
   $Log$
+  Revision 4.11  2003/07/03 21:24:05  kanayo
+  Continuing modifications for event filtering.
+
   Revision 4.10  2003/04/16 19:01:44  kanayo
   Modification for home directory (~) expansion using $HOME.
 
@@ -346,7 +350,6 @@ void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
 #include "TCLAnalyzer.h"
 
 // File scoped unbound variables:
-
 static const UInt_t knParameterCount = 256;
 static const UInt_t knEventListSize  = 256;
 static const UInt_t knDisplaySize    = 8;
@@ -404,8 +407,7 @@ CTclGrammerApp::~CTclGrammerApp() {
   CreateAnalysisPipeline is called, since prior to that 
   there's no assurance that the analyzer has been instantiated.
 */
-void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor)
-{
+void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor) {
   // The global pointer is used in case the analyzer build was overridden.
   assert(gpAnalyzer);
   ((CTclAnalyzer*)gpAnalyzer)->AddEventProcessor(rEventProcessor);
@@ -424,8 +426,7 @@ void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor)
 
   CTclGrammerApp::BindTCLVariables
 */
-void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp)  
-{
+void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   // The following variables are bound to the interpreter passed as a 
   // parameter:
   //
@@ -457,11 +458,10 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp)
   m_TclDisplaySize.Bind(rInterp);
   m_TclParameterCount.Bind(rInterp);
   m_TclEventListSize.Bind(rInterp);
-  
-}  
+}
 
-//  Function: 	
-//    void SourceLimitScripts(CTCLInterpreter& rInterpreter) 
+//  Function:
+//    void SourceLimitScripts(CTCLInterpreter& rInterpreter)
 //  Operation Type:
 //     Behavior
 /*
@@ -479,8 +479,7 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp)
 
   CTclGrammerApp::operator()(rInterpreter);
 */
-void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter)  
-{ 
+void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter) {
   // The script being run is intended to set initial values
   // for all of the variables which are required by later stages
   // of initialization e.g. DisplayMegabytes. The scripts are searched for
@@ -514,11 +513,10 @@ void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter)
   }
   catch(...) {
   }
-
 }  
 
-//  Function: 	
-//    void SetLimits() 
+//  Function:
+//    void SetLimits()
 //  Operation Type:
 //     Behavior
 /*
@@ -531,8 +529,7 @@ void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter)
 
   CTclGrammerApp::SetLimits();
 */
-void CTclGrammerApp::SetLimits()  
-{
+void CTclGrammerApp::SetLimits() {
   UInt_t nResult;
 
   // The following members can be updated if the corresponding variables
@@ -545,10 +542,10 @@ void CTclGrammerApp::SetLimits()
   UpdateUInt(m_TclDisplaySize,   m_nDisplaySize);
   UpdateUInt(m_TclParameterCount, m_nParams);
   UpdateUInt(m_TclEventListSize, m_nListSize);
-}  
+}
 
-//  Function: 	
-//    void CreateHistogrammer() 
+//  Function:
+//    void CreateHistogrammer()
 //  Operation Type:
 //     Behavior
 /*
@@ -565,27 +562,25 @@ void CTclGrammerApp::CreateHistogrammer() {
   gpEventSink = m_pHistogrammer;
 }
 
-//  Function: 	
-//    void SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogrammer) 
+//  Function:
+//    void SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogrammer)
 //  Operation Type:
 //     Behavior
 /*
   Purpose:
-  Selects the displayer and hooks it into the histogrammer.  
+  Selects the displayer and hooks it into the histogrammer.
   Note:  In the current architecture, this is a No-Op, however,
   in the future, we will support turning on and off displayers, null
   displayers and so on and this member function will be useful
   at that time.
 */
-void 
-CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogrammer)  
-{
+void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogrammer) {
   // We need to set up the Xamine event handler however:
   m_pXamineEvents = new CXamineEventHandler(gpInterpreter, (CHistogrammer*)gpEventSink);
-}  
+}
 
-//  Function: 	
-//    void SetupTestDataSource() 
+//  Function:
+//    void SetupTestDataSource()
 //  Operation Type:
 //     Behavior
 /*
@@ -594,8 +589,8 @@ CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogramme
   behavior is to create  fixed length event with some
   gaussian distributions for parameters.  This source is
   used by SpecTcl developers to test functionality without
-  referring to real data.  Note that an eventsource is currently 
-  necessary to create and setup the run control object. 
+  referring to real data.  Note that an eventsource is currently
+  necessary to create and setup the run control object.
 */
 
 // The internal test data source is a set of 5 gaussian distributions which
@@ -608,8 +603,7 @@ static CGaussianDistribution d3(128.0,  32.0, 1024.0);
 static CGaussianDistribution d4( 64.0,  16.0, 1024.0);
 static CGaussianDistribution d5( 32.0,   8.0, 1024.0);
 
-void CTclGrammerApp::SetupTestDataSource()  
-{
+void CTclGrammerApp::SetupTestDataSource() {
   CTestFile* pTestSource = new CTestFile;
   pTestSource->AddDistribution(d1);
   pTestSource->AddDistribution(d2);
@@ -622,8 +616,8 @@ void CTclGrammerApp::SetupTestDataSource()
   gpEventSource = pTestSource;
 }  
 
-//  Function: 	
-//    void CreateAnalyzer(CEventSink* pSink) 
+//  Function:
+//    void CreateAnalyzer(CEventSink* pSink)
 //  Operation Type:
 //     Behavioral
 /*
@@ -632,8 +626,7 @@ void CTclGrammerApp::SetupTestDataSource()
   in gpEventSink is set as the analyzer's event sink.
   Note that by default a CTclAnalyzer is created.
 */
-void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink)
-{
+void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink) {
   // A TCLAnalyzer is created as the analyzer
   m_pAnalyzer = new CTclAnalyzer(*gpInterpreter,
 				 m_nParams,
@@ -645,8 +638,8 @@ void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink)
   m_pAnalyzer->AttachSink(*gpEventSinkPipeline);
 }  
 
-//  Function: 	
-//    void SelectDecoder(CAnalyzer& rAnalyzer) 
+//  Function:
+//    void SelectDecoder(CAnalyzer& rAnalyzer)
 //  Operation Type:
 //     Behavioral
 /*
@@ -656,16 +649,15 @@ void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink)
   connect it to the global pointer: gpBufferDecoder  and in turn
   to the analyzer.
 */
-void CTclGrammerApp::SelectDecoder(CAnalyzer& rAnalyzer)  
-{
+void CTclGrammerApp::SelectDecoder(CAnalyzer& rAnalyzer) {
   // An NSCL Buffer decoder is produced, saved and hooked to the analyzer:
   m_pDecoder      = new CNSCLBufferDecoder;
   gpBufferDecoder = m_pDecoder;
   rAnalyzer.AttachDecoder(*m_pDecoder);
-}  
+}
 
-//  Function: 	
-//    void CreateAnalysisPipeline(CAnalyzer& rAnalyzer) 
+//  Function:
+//    void CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
 //  Operation Type:
 //     Behavioral
 /*
@@ -673,17 +665,15 @@ void CTclGrammerApp::SelectDecoder(CAnalyzer& rAnalyzer)
   This must be provided by the subclass.  The experimenter
   must set up the analysis pipeline which manages the
   data received from the data source.  This pipeline
-  consists of an ordered set of CEventProcessor 
+  consists of an ordered set of CEventProcessor
   derived objects.
 
   Therefore this member function is abstract.
 */
-void CTclGrammerApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)  
-{ 
-}  
+void CTclGrammerApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer) {}
 
-//  Function: 	
-//    void AddCommands(CTCLInterpreter& rInterp) 
+//  Function:
+//    void AddCommands(CTCLInterpreter& rInterp)
 //  Operation Type:
 //     Behavioral
 /*
@@ -691,18 +681,16 @@ void CTclGrammerApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
   Registers the commands and command packages
   which make up SpecTcl.  Note that the default
   method registers the standard SpecTcl commands.
-  If an override is supplied to add user commands, you 
+  If an override is supplied to add user commands, you
   must invoke the base class function at some point:
 
   CTclGrammerApp::AddCommands(rInterp);
 */
-void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp)  
-{
+void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   // All of the 'standard' SpecTcl commands are organized as packages
   // of related commands.  These packages are not Tcl packages but are just
   // groups of commands which share a common set of services provided
   // by a containing class.
-
   m_pRunControlPackage = new CRunControlPackage(&rInterp);
   m_pRunControlPackage->Register();
   m_pRunControlPackage->InitializeRunState();
@@ -729,9 +717,9 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp)
   cerr << m_pGatePackage->getSignon() << endl;
 
   // For Filter command.
-  CFilterCommand* pfiltercommand = new CFilterCommand(rInterp);
-  pfiltercommand->Bind(rInterp);
-  pfiltercommand->Register();
+  CFilterCommand* pFilterCommand = new CFilterCommand(rInterp);
+  pFilterCommand->Bind(rInterp);
+  pFilterCommand->Register();
 
   cerr.flush();
 }
@@ -743,24 +731,23 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp)
 /*
   Purpose:
 */
-void CTclGrammerApp::SetupRunControl()
-{
+void CTclGrammerApp::SetupRunControl() {
   // We use a Tk run control.  That's able to make use of the Tk
   // event loop processing software:
 
   // We use the globals in case some functions have been overridden.
   m_pRunControl = new CTKRunControl(gpInterpreter, *gpAnalyzer, *gpEventSource);
   gpRunControl = m_pRunControl;
-}  
+}
 
-//  Function: 	
-//    void SourceFunctionalScripts(CTCLInterpreter& rInterp) 
+//  Function:
+//    void SourceFunctionalScripts(CTCLInterpreter& rInterp)
 //  Operation Type:
 //     Behavioral
 /*
   Purpose:
-  This function provides an opportunity to 
-  source scripts which perform functional 
+  This function provides an opportunity to
+  source scripts which perform functional
   operations either in spectcl or in other (e.g. Tk, Blt)
   packages which are now all hooked together properly.
   We'll try to locate SpecTclRC.tcl firt in ~ and then in .
@@ -768,8 +755,7 @@ void CTclGrammerApp::SetupRunControl()
   >> Both will be run.
   >>
 */
-void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp)  
-{ 
+void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
   try {				// First run the ~ script:
     if(getenv("HOME")) {
       string RCFilename(getenv("HOME"));
@@ -787,23 +773,22 @@ void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp)
   }
   catch (...) {
   }
-}  
+}
 
-//  Function: 	
-//    int operator()() 
+//  Function:
+//    int operator()()
 //  Operation Type:
 //     Entry point
 /*
   Purpose:
-  Called when the tcl interpreter starts up.  The base 
+  Called when the tcl interpreter starts up.  The base
   functionality is to call the action member functions
   (e.g. CreateAnalyzer) in the appropriate order.  This
-  can be extended by overriding and delegating the 
+  can be extended by overriding and delegating the
   operation to the base class or by writing an entirely
   new startup scheme as desired.
 */
-int CTclGrammerApp::operator()()  
-{ 
+int CTclGrammerApp::operator()() {
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
 
@@ -853,8 +838,7 @@ int CTclGrammerApp::operator()()
 //   static void UpdateUInt(CTCLVariable& rVar, UInt_t& rValue)
 // Operation Type:
 //   Utility.
-void CTclGrammerApp::UpdateUInt(CTCLVariable& rVar, UInt_t& rValue)
-{
+void CTclGrammerApp::UpdateUInt(CTCLVariable& rVar, UInt_t& rValue) {
   int nResult;
 
   const char* pValue(rVar.Get(TCL_LEAVE_ERR_MSG|TCL_GLOBAL_ONLY));

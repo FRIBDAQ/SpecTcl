@@ -153,7 +153,7 @@ Int_t CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
   }
 
   // Pull out the parameters.
-  vector<string> Parameters;
+  vector<string> Parameters; // Referred to as ParameterNames within GatedEventFilter.
   vector<UInt_t> ParameterIds;
   for(UInt_t nPar = 0; nPar < Description.size(); nPar++) {
     Parameters.push_back(Description[nPar]);
@@ -188,6 +188,8 @@ Int_t CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
       // We now have the ParameterIds, and all is well. Make the Filter.
       CGatedEventFilter* pGatedEventFilter = new CGatedEventFilter;
       pGatedEventFilter->setGateContainer(*pGateContainer); // Set the Filter's Gate.
+      pGatedEventFilter->setParameterNames(Parameters); // Set the Filter's Parameter(Name)s.
+      pGatedEventFilter->setParameterIds(ParameterIds); // Set the Filter's Parameter IDs.
       pFilterDictionary->Enter(pFilterName, pGatedEventFilter); // Put GatedEventFilter in FilterDictionary.
       gpEventSinkPipeline->AddEventSink((CGatedEventFilter&)*pGatedEventFilter); // Put GatedEventFilter in EventSinkPipeline.
     } else {
