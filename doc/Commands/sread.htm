@@ -87,21 +87,23 @@ switches:</p>
 <pre>swrite -format ascii /usr/users/TruCluster/users/fox/test.asc spec1 spec2 spec3</pre>
 <p>The spectra specified by spec1, spec2, spec3 are written in that order to the
 file /usr/users/TruCluster/users/fox/test.asc in NSCL ascii format.</p>
-<h3>Writing to a file opened with Tcl's open command</h3>
-<pre>set file [open ~/test.asc w]
-puts   $file &quot;2 in ascii&quot;
-swrite -format ascii $file spec1 spec2
-puts   $file &quot;1 in binary&quot;
-swrite -format binary $file spec3
+<h3>Reading from a file opened with Tcl's open command</h3>
+<p>This example reads the file created by the first example in the <a href="swrite.htm#firstexample">swrite
+command</a> page.</p>
+<pre>set file [open ~/test.asc r]
+gets   $file var
+sread -format ascii $file
+sread -format ascii $file
+gets   $file var
+sread -format binary $file
 close $file</pre>
-<p>The file test.asc is created in the home directory.&nbsp; First text is
-written to the file indicating that 2 spectra follow in ascii format.&nbsp; Next
-spec1 and spec2 are written in ascii format.&nbsp; Then text indicating that a
-single spectrum follows in binary format is written, followed by spec3 in binary
-notation.</p>
-<h3>Writing to a pipe open on a process</h3>
-<pre>set file [open {|gzip /usr/users/TruCluster/users/fox/test.asc} w]
-swrite -format $file ascii spec1 spec2 spec3
+<h3>Reading from a pipe open on a process</h3>
+<p>This example reads the gzipped spectra created by the second example in the <a href="swrite.htm#secondexample">swrite
+command</a> page</p>
+<pre>set file [open {|gzcat /usr/users/TruCluster/users/fox/test.asc} r]
+sread -format ascii  $file
+sread -format ascii  $file
+sread -format ascii  $file
 close $file</pre>
 <p>Writes the spectra spec1, spec2 and spec3 to a pipe into gzip in ascii form.&nbsp;
 The gzip pipe compresses this file producing /usr/users/Trucluster/users/fox/test.asc</p>
@@ -109,7 +111,7 @@ The gzip pipe compresses this file producing /usr/users/Trucluster/users/fox/tes
 <p>&nbsp;</p>
 <hr>
 <p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
-s-format="%B %d, %Y" startspan -->April 18, 2001<!--webbot bot="Timestamp" endspan i-checksum="17669" -->
+s-format="%B %d, %Y" startspan -->October 28, 2003<!--webbot bot="Timestamp" endspan i-checksum="30351" -->
  by: <a href="mailto:fox@nscl.msu.edu">fox@nscl.msu.edu</a><br>
 <font size="2">© Copyright NSCL 1999, All rights reserved</font></p>
 

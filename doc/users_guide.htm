@@ -21,8 +21,7 @@
       <h1>SpecTcl - User's Guide</h1>
          </td>
          <td width="12%"><a href="index.htm"><img
- src="images/HH00706_.jpg" alt="HH00706_.wmf (6530 bytes)" width="192"
- height="84">
+ src="images/HH00706_.jpg" alt="HH00706_.wmf (6530 bytes)" width="192" height="84">
       </a></td>
      </tr>
  
@@ -63,6 +62,8 @@ to Tcl/Tk, click <a href="Commands/categories.htm">here</a>.</p>
    <li><a href="spectra.htm">Spectra</a></li>
    <li><a href="gates.htm">Gates</a></li>
    <li><a href="scripts.htm">Scripts</a></li>
+ 
+   <li><a href="filters.htm">Filters</a></li>
  
 </ul>
  
@@ -194,7 +195,8 @@ back buffer.<br>
 segment from a user's SpecTclInit.tcl script sets&nbsp; the display storage
 to 20 megabytes and the initial parameter set to 1024:</p>
   
-<pre>set DisplayMegabytes 20		;# 20 Megabytes of display memory<br>set ParameterCount   1024       ;# 1K parametrers for this run.</pre>
+<pre>set DisplayMegabytes 20		;# 20 Megabytes of display memory
+set ParameterCount   1024       ;# 1K parametrers for this run.</pre>
   
 <p>&nbsp;</p>
   
@@ -211,14 +213,22 @@ support for many applications. &nbsp; Since Tcl/Tk is actually a library,
 programs like SpecTcl can add the power of Tcl/Tk to their user interface.&nbsp;
 For example, the following Tcl/Tk script analyzes a 10 second shot of data:</p>
   
-<pre>start		    	;# Start analyzing data.<br>after 10000 stop 	;# After 10000milliseconds issue the stop command.</pre>
+<pre>start		    	;# Start analyzing data.
+after 10000 stop 	;# After 10000milliseconds issue the stop command.</pre>
   
 <p>To give a more interesting example of Tcl/Tk in action: The following
 Tcl Script, adds a command named Help which brings up Netscape displaying
 the home page of the SpecTcl documentation, it then creates a button labelled
 Help which will trigger this command and adds it to the GUI:</p>
   
-<pre>proc Help {} {                      ;#Help command<br>    global SpecTclHome              ;# This variable "knows" where SpecTcl was installed <br>    set URL [format "%s%s" $SpecTclHome /doc/index.htm]  ;# Constructs the Doc. URL.<br>    exec netscape $URL &amp;            ;# Spins off Netscape as a background process.<br>}<br>button .help      -text "Help"  -command Help   ;# Creates the Help button and<br>pack   .help                                    ;# Packs it into the main window.<br></pre>
+<pre>proc Help {} {                      ;#Help command
+    global SpecTclHome              ;# This variable &quot;knows&quot; where SpecTcl was installed 
+    set URL [format &quot;%s%s&quot; $SpecTclHome /doc/index.htm]  ;# Constructs the Doc. URL.
+    exec netscape $URL &amp;            ;# Spins off Netscape as a background process.
+}
+button .help      -text &quot;Help&quot;  -command Help   ;# Creates the Help button and
+pack   .help                                    ;# Packs it into the main window.
+</pre>
   
 <p>It is beyond the scope of this page to provide a complete description
 of the Tcl/TK command language, The following two books are useful resources:</p>
@@ -274,7 +284,7 @@ Guide</a> <a href="obtaining_and_installing.htm">Obtaining and Installing</a></p
   
 <hr>  
 <p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
-s-format="%B %d, %Y" startspan -->January 16, 2003<!--webbot bot="Timestamp" endspan i-checksum="31209" --> by: <a
+s-format="%B %d, %Y" startspan -->October 28, 2003<!--webbot bot="Timestamp" endspan i-checksum="30351" --> by: <a
  href="mailto:fox@nscl.msu.edu">fox@nscl.msu.edu</a><br>
  <font size="2">&copy; Copyright NSCL 1999, All rights reserved</font></p>
  <br>

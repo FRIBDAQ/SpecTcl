@@ -1,0 +1,146 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>New Page 1</title>
+</head>
+
+<body>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <th width="9%" nowrap><a href="http://www.nscl.msu.edu"><img src="../images/nscl_logo_small.gif" alt="nscl_logo_small.gif (2463 bytes)" width="63" height="52"></a></th>
+    <td width="79%">
+      <h1>&nbsp;Reading Filtered Data</h1>
+    </td>
+    <td width="12%"><a href="index.htm"><img src="../images/HH00706_.jpg" alt="HH00706_.jpg (6530 bytes)" width="192" height="84"></a></td>
+  </tr>
+</table>
+<p><a href="index.htm" name="Top">SpecTcl Home</a>&nbsp; <a href="general_information.htm">General
+Information</a> <a href="users_guide.htm">User Guide</a> <a href="programmers_guide.htm">Programmer's
+Guide</a> <a href="obtaining_and_installing.htm">Obtaining and Installing</a></p>
+<p>Filtered data files are stored in a self-describing, system independent
+manner.&nbsp; This page describes:</p>
+<ul>
+  <li>How to recover the raw parameters recorded in a filtered data file.</li>
+  <li>In general terms the structure of a filtered data file.</li>
+  <li>How the filtered event decode software works.</li>
+</ul>
+<h2><a name="reading"></a>Recovering raw parameters in a filtered data file</h2>
+<p>Filtered data are not stored in NSCL event buffer format.&nbsp; Instead a
+self describing, system independent representation is used based on the eXternal
+Data Representation (XDR) standard.&nbsp; XDR is a mature specification for
+representing binary data in a system independent manner.</p>
+<p>To read back event data from a filter file you must:</p>
+<table border="0" width="100%">
+  <tr>
+    <td width="5%" valign="top"><img border="0" src="../images/BD21301_.GIF" width="13" height="13"></td>
+    <td width="95%">Create a tailored version of SpecTcl which uses a
+      CFilterEventProcessor as the first element of the analysis pipeline.</td>
+  </tr>
+  <tr>
+    <td width="5%"><img border="0" src="../images/BD21301_.GIF" width="13" height="13"></td>
+    <td width="95%">When attaching to the event file specify that the event file
+      is in filter format.</td>
+  </tr>
+</table>
+<p><a href="#Top">Top</a></p>
+<h3>Tailoring MySpecTclApp.cpp:</h3>
+<p><a href="../tailoring/tailoring.htm">Follow the instructions for tailoring
+SpecTcl</a>, however when you edit MySpecTclApp.cpp, you must specify that the
+first element of the event processing pipeline is an object of type
+CFilterEventProcessor.&nbsp; To do this:</p>
+<ul>
+  <li>Add an include for the filter event processor type:</li>
+</ul>
+<pre>#include &lt;FilterEventProcessor.h&gt;</pre>
+<ul>
+  <li>Create an instance of the filter event processor:</li>
+</ul>
+<pre>static CFilterEventProcessor FilterProcessor;</pre>
+<ul>
+  <li>Register this filter processor as the first element of the event
+    processing pipeline:</li>
+</ul>
+<pre>void 
+CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer&amp; rAnalyzer)  
+{ 
+
+  RegisterEventProcessor(FilterProcessor);
+   </pre>
+<pre> // Register any additional event processors here.
+ </pre>
+<pre>   ...</pre>
+<pre>}</pre>
+<p>Use the <b>make<i> </i></b>command to build your tailored SpecTcl.&nbsp; This
+SpecTcl will only be able to read filtered event data.</p>
+<p><a href="#Top">Top</a></p>
+<h3>Attaching filtered event data</h3>
+<p>When attaching a filtered data source, you must specify that it is in filter
+format.&nbsp; For example:</p>
+<pre>attach -file -format filter  myfilteredfile.flt</pre>
+<pre><a href="#Top">Top</a></pre>
+<h2><a name="structure"></a>Structure of a Filtered event file.</h2>
+<p>Filtered event files contain XDR encoded binary data.&nbsp; Each event file
+is written in fixed length blocks.&nbsp; All data described below have been XDR
+encoded.&nbsp; Each buffer is a self-contained XDR input stream.&nbsp; Buffers
+have a single long header that is the value of the offset into the stream past
+the last data item inserted.</p>
+<p>Filtered files contain a single event description record followed by an
+arbitrary number of event records.&nbsp;&nbsp; The event description record
+describes the set of parameters that have been recorded in the filtered data
+set.&nbsp; Since it is possible and perhaps usual to combine the filtering of
+several runs of data into a single event output file, filtered data sets do not
+have any concept of a run number or title.&nbsp;&nbsp; The event description
+record contains a string header, an integer and a set of strings. The string
+header contains the text &quot;header&quot; and distinguishes this data record
+from event data.&nbsp; The integer is the number of parameters in the filtered
+data set, the strings are the names of the parameters as they were specified to
+the filter command.</p>
+<p>Event data consists of a string header, an array of integer bit masks and a
+set of floating point parameter values.&nbsp; The header contains the string
+&quot;event&quot;&nbsp; to distinguish this record as an event record.&nbsp; The
+bit masks are an array of long words containing one bit for each parameter in
+the list of parameters in the filtered data set.&nbsp; Bits are packed from low
+order bit to high order bit.&nbsp; Each bit the bit mask will have the
+corresponding parameter present in the event.&nbsp;&nbsp;&nbsp; The bit masks
+should be processed from first long word to last long word from bottom set bit
+to top set bit.</p>
+<h2><a name="theory">How the filter event decode software works</a></h2>
+<p>The filtered event decode software consists of two components.&nbsp; A
+specialized buffer decoder, selected by the -format filter qualifier on the
+attach command, and a filter event decoder attached by the programmer in
+CMySpecTclApp::CreateAnalysisPipeline().</p>
+<p>The buffer decoder decodes the top level XDR buffers into internal
+representation. When it encounters a header record, it invokes the analyzer's
+OnOther callback.&nbsp; It groups physics events into contiguous runs which are
+passed to the analyzer's OnPhysics callback.</p>
+<p>The event decoder implements both the OnOther and operator() entry points of
+a CEventProcessor class.&nbsp; For OnOther, the parameter names are matched
+against currently defined SpecTcl parameter names&nbsp; and a mapping is made
+between parameters in the filtered event streams and the parameters that have
+been defined to SpecTcl. Null&nbsp; mappings (cases where there is no SpecTcl
+parameter corresponding to a Filter parameter) are allowed.</p>
+<p>For each event, the bit mask is decoded to determine the set of filtered
+parameters that are actually present in the event.&nbsp; Each parameter present
+is then pulled out of the event.&nbsp; Two cases then apply:</p>
+<ul>
+  <li>If there is a non-null mapping between the parameter and a SpecTcl
+    parameter (there exists a SpecTcl parameter with the same name as the filter
+    parameter), SpecTcl will copy the value in the raw event to the appropriate
+    rEvent element.</li>
+  <li>If there is a null mapping between the parameter and SpecTcl parameters
+    (SpecTcl does not have a parameter with the same name as the filter
+    parameter), SpecTcl will ignore that parameter.</li>
+</ul>
+<hr>
+<p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
+s-format="%B %d, %Y" startspan -->October 28, 2003<!--webbot bot="Timestamp" endspan i-checksum="30351" -->
+ by: <a href="mailto:fox@nscl.msu.edu">fox@nscl.msu.edu</a><br>
+<font size="2">© Copyright NSCL 1999, All rights reserved</font></p>
+
+</body>
+
+</html>
