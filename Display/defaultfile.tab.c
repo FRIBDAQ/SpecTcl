@@ -65,6 +65,7 @@
 #define	GROBJFONT	308
 #define	UNMATCHED	309
 #define	DEFAULTFILE	310
+#define	QSTRING	311
 
 
 /*
@@ -126,9 +127,11 @@ static struct limit { int low;
 extern int windfilelex_line;
 static win_attributed *current = Xamine_GetDefaultGenericAttributes();
 
-#ifndef YYSTYPE
-#define YYSTYPE int
-#endif
+
+typedef union {
+   int integer;
+   char string[80];
+ } YYSTYPE;
 #include <stdio.h>
 
 #ifndef __cplusplus
@@ -141,9 +144,9 @@ static win_attributed *current = Xamine_GetDefaultGenericAttributes();
 
 #define	YYFINAL		109
 #define	YYFLAG		-32768
-#define	YYNTBASE	57
+#define	YYNTBASE	58
 
-#define YYTRANSLATE(x) ((unsigned)(x) <= 310 ? yytranslate[x] : 85)
+#define YYTRANSLATE(x) ((unsigned)(x) <= 311 ? yytranslate[x] : 86)
 
 static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -176,7 +179,8 @@ static const char yytranslate[] = {     0,
     17,    18,    19,    20,    21,    22,    23,    24,    25,    26,
     27,    28,    29,    30,    31,    32,    33,    34,    35,    36,
     37,    38,    39,    40,    41,    42,    43,    44,    45,    46,
-    47,    48,    49,    50,    51,    52,    53,    54,    55,    56
+    47,    48,    49,    50,    51,    52,    53,    54,    55,    56,
+    57
 };
 
 #if YYDEBUG != 0
@@ -190,39 +194,39 @@ static const short yyprhs[] = {     0,
    170,   172,   174,   176,   178,   180,   182,   186,   188
 };
 
-static const short yyrhs[] = {    58,
-     0,    84,    58,     0,    59,     0,    60,    61,    80,     0,
-    60,    62,    61,    80,     0,    60,    61,    80,    83,     0,
-    60,    62,    61,    80,    83,     0,    49,    84,     0,    50,
-    84,     0,    63,     0,    62,    63,     0,    64,     0,    67,
-     0,    70,     0,    71,     0,    73,     0,    75,     0,    77,
-     0,    78,     0,    79,     0,    15,    65,    84,     0,    16,
-    65,    84,     0,    15,    84,     0,    16,    84,     0,    66,
-     0,    65,    66,     0,    17,     0,    18,     0,    15,     0,
-    19,    84,     0,    20,    84,     0,    19,    68,    84,     0,
-    20,    68,    84,     0,    69,     0,    68,    69,     0,     3,
+static const short yyrhs[] = {    59,
+     0,    85,    59,     0,    60,     0,    61,    62,    81,     0,
+    61,    63,    62,    81,     0,    61,    62,    81,    84,     0,
+    61,    63,    62,    81,    84,     0,    49,    85,     0,    50,
+    85,     0,    64,     0,    63,    64,     0,    65,     0,    68,
+     0,    71,     0,    72,     0,    74,     0,    76,     0,    78,
+     0,    79,     0,    80,     0,    15,    66,    85,     0,    16,
+    66,    85,     0,    15,    85,     0,    16,    85,     0,    67,
+     0,    66,    67,     0,    17,     0,    18,     0,    15,     0,
+    19,    85,     0,    20,    85,     0,    19,    69,    85,     0,
+    20,    69,    85,     0,    70,     0,    69,    70,     0,     3,
      0,     4,     0,     5,     0,     6,     0,     7,     0,     8,
-     0,     9,    84,     0,    10,    84,     0,    21,    72,    84,
-     0,    22,     0,    23,     0,    24,     0,    25,    74,    84,
-     0,    26,     0,    27,    45,     0,    28,    76,    84,     0,
-    29,     0,    30,     0,    31,    45,    84,     0,    32,    45,
-    84,     0,    44,    45,    84,     0,    51,    81,    84,    52,
-    82,    84,     0,    35,     0,    36,     0,    37,     0,    38,
+     0,     9,    85,     0,    10,    85,     0,    21,    73,    85,
+     0,    22,     0,    23,     0,    24,     0,    25,    75,    85,
+     0,    26,     0,    27,    45,     0,    28,    77,    85,     0,
+    29,     0,    30,     0,    31,    45,    85,     0,    32,    45,
+    85,     0,    44,    45,    85,     0,    51,    82,    85,    52,
+    83,    85,     0,    35,     0,    36,     0,    37,     0,    38,
      0,    39,     0,    40,     0,    41,     0,    42,     0,    43,
-     0,    54,    45,    84,     0,    48,     0,    48,    84,     0
+     0,    54,    45,    85,     0,    48,     0,    48,    85,     0
 };
 
 #endif
 
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
-   121,   121,   124,   127,   128,   130,   131,   136,   139,   142,
-   142,   145,   145,   145,   146,   146,   146,   147,   147,   148,
-   151,   159,   166,   171,   179,   180,   183,   187,   191,   197,
-   202,   208,   219,   232,   232,   235,   239,   243,   246,   249,
-   252,   257,   263,   270,   273,   277,   281,   287,   290,   294,
-   301,   304,   308,   314,   321,   328,   336,   339,   343,   347,
-   351,   357,   361,   365,   369,   373,   379,   386,   386
+   125,   125,   128,   131,   132,   134,   135,   140,   143,   146,
+   146,   149,   149,   149,   150,   150,   150,   151,   151,   152,
+   155,   163,   170,   175,   183,   184,   187,   191,   195,   201,
+   206,   212,   223,   236,   236,   239,   243,   247,   250,   253,
+   256,   261,   267,   274,   277,   281,   285,   291,   294,   298,
+   305,   308,   312,   318,   325,   332,   340,   343,   347,   351,
+   355,   361,   365,   369,   373,   377,   383,   390,   390
 };
 #endif
 
@@ -236,7 +240,7 @@ static const char * const yytname[] = {   "$","error","$undefined.","NAME","NUMB
 "FLOOR","CEILING","EXPANDED","RENDITION","SMOOTHED","HISTOGRAM","POINTS","LINE",
 "SCATTER","BOX","COLOR","CONTOUR","LEGO","REFRESH","INTEGER","COMMA","ENDWINDOW",
 "ENDLINE","ATTRIBUTES","ENDATTRIBUTES","RENDITION_1D","RENDITION_2D","SUPERIMPOSE",
-"GROBJFONT","UNMATCHED","DEFAULTFILE","setup_file","setup_filel","description",
+"GROBJFONT","UNMATCHED","DEFAULTFILE","QSTRING","setup_file","setup_filel","description",
 "window_clause","endwindow_clause","attribute_clauses","attribute_clause","axes_clause",
 "axis_attributes","axis_attribute","labels_clause","label_attributes","label_attribute",
 "flipped_clause","reduction_clause","reduction_attribute","scale_clause","scale_attribute",
@@ -247,13 +251,13 @@ static const char * const yytname[] = {   "$","error","$undefined.","NAME","NUMB
 #endif
 
 static const short yyr1[] = {     0,
-    57,    57,    58,    59,    59,    59,    59,    60,    61,    62,
-    62,    63,    63,    63,    63,    63,    63,    63,    63,    63,
-    64,    64,    64,    64,    65,    65,    66,    66,    66,    67,
-    67,    67,    67,    68,    68,    69,    69,    69,    69,    69,
-    69,    70,    70,    71,    72,    72,    72,    73,    74,    74,
-    75,    76,    76,    77,    78,    79,    80,    81,    81,    81,
-    81,    82,    82,    82,    82,    82,    83,    84,    84
+    58,    58,    59,    60,    60,    60,    60,    61,    62,    63,
+    63,    64,    64,    64,    64,    64,    64,    64,    64,    64,
+    65,    65,    65,    65,    66,    66,    67,    67,    67,    68,
+    68,    68,    68,    69,    69,    70,    70,    70,    70,    70,
+    70,    71,    71,    72,    73,    73,    73,    74,    75,    75,
+    76,    77,    77,    78,    79,    80,    81,    82,    82,    82,
+    82,    83,    83,    83,    83,    83,    84,    85,    85
 };
 
 static const short yyr2[] = {     0,
@@ -1030,7 +1034,7 @@ case 49:
 case 50:
 {
 		   assert(current != NULL);
-		   current->setfs(yyvsp[0]);
+		   current->setfs(yyvsp[0].integer);
 		 ;
     break;}
 case 52:
@@ -1048,19 +1052,19 @@ case 53:
 case 54:
 {
 		   assert(current != NULL);
-		   current->setfloor(yyvsp[-1]);
+		   current->setfloor(yyvsp[-1].integer);
 		 ;
     break;}
 case 55:
 {
 		  assert(current != NULL);
-		  current->setceiling(yyvsp[-1]);
+		  current->setceiling(yyvsp[-1].integer);
 		;
     break;}
 case 56:
 {
 		  assert(current != NULL);
-		  current->update_interval(yyvsp[-1]);	/* Set the update interval. */
+		  current->update_interval(yyvsp[-1].integer);	/* Set the update interval. */
                 ;
     break;}
 case 58:
@@ -1112,7 +1116,7 @@ case 67:
 {
 		 Display *d;
 		 d = XtDisplay(Xamine_Getpanemgr()->getid());
-		 Xamine_SetObjectLabelIndex(d, yyvsp[-1]);
+		 Xamine_SetObjectLabelIndex(d, yyvsp[-1].integer);
                ;
     break;}
 }

@@ -204,6 +204,15 @@ CTclAnalyzer::OnBegin(CBufferDecoder* pDecoder)
       ClearCounter(CounterTable[i].eCounterType);
     }
   }
+  // Iterate through the pipeline's OnBegin() members.
+  // The loop is broken on the first false return from a processor.
+  //
+  EventProcessingPipeline::iterator p = m_lAnalysisPipeline.begin();
+  while(p != m_lAnalysisPipeline.end()) {
+    CEventProcessor *pProcessor(*p);
+    if(!(pProcessor->OnBegin(*this, *pDecoder))) break;
+    p++;
+  }
 }
 ////////////////////////////////////////////////////////////////
 //
@@ -221,11 +230,22 @@ void
 CTclAnalyzer::OnEnd(CBufferDecoder*   rDecoder)
 {
   m_pRunState->Set("Halted");
+
+  // Iterate through the pipeline's OnEnd() members.
+  // The loop is broken on the first false return from a processor.
+  //
+  EventProcessingPipeline::iterator p = m_lAnalysisPipeline.begin();
+  while(p != m_lAnalysisPipeline.end()) {
+    CEventProcessor *pProcessor(*p);
+    if(!(pProcessor->OnEnd(*this, *rDecoder))) break;
+    p++;
+  }
+
 }
 /////////////////////////////////////////////////////////////////
 //
 // Function:
-//   virtual void OnEnd(CBufferDecoder*   rDecoder)
+//   virtual void OnPause(CBufferDecoder*   rDecoder)
 // Operation Type:
 //   Default behavior.
 /*
@@ -236,6 +256,17 @@ void
 CTclAnalyzer::OnPause(CBufferDecoder* rDecoder)
 {
   m_pRunState->Set("Paused");
+
+  // Iterate through the pipeline's OnPause() members.
+  // The loop is broken on the first false return from a processor.
+  //
+  EventProcessingPipeline::iterator p = m_lAnalysisPipeline.begin();
+  while(p != m_lAnalysisPipeline.end()) {
+    CEventProcessor *pProcessor(*p);
+    if(!(pProcessor->OnPause(*this, *rDecoder))) break;
+    p++;
+  }
+
 }
 ///////////////////////////////////////////////////////////////////
 //
@@ -252,6 +283,16 @@ void
 CTclAnalyzer::OnResume(CBufferDecoder* rDecoder)
 {
   m_pRunState->Set("Active");
+  // Iterate through the pipeline's OnResume() members.
+  // The loop is broken on the first false return from a processor.
+  //
+  EventProcessingPipeline::iterator p = m_lAnalysisPipeline.begin();
+  while(p != m_lAnalysisPipeline.end()) {
+    CEventProcessor *pProcessor(*p);
+    if(!(pProcessor->OnResume(*this, *rDecoder))) break;
+    p++;
+  }
+
 }
 /////////////////////////////////////////////////////////////////////
 //

@@ -1,7 +1,7 @@
 typedef union {
-  int integer;
-  char string[80];
-} YYSTYPE;
+   int integer;
+   char string[80];
+ } YYSTYPE;
 #define	NAME	257
 #define	NUMBER	258
 #define	DESCRIPTION	259
@@ -55,7 +55,8 @@ typedef union {
 #define	SUPERIMPOSE	307
 #define	GROBJFONT	308
 #define	UNMATCHED	309
-#define	QSTRING	310
+#define	DEFAULTFILE	310
+#define	QSTRING	311
 
 
-extern YYSTYPE windfilelval;
+extern YYSTYPE defaultfilelval;

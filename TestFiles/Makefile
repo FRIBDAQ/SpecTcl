@@ -39,22 +39,24 @@ ltwrite: ltwrite.cpp
 	$(LINK)  -o ltwrite ltwrite.cpp $(LIBS)
 # DO NOT DELETE
 
-ltwrite.o: /usr/include/errno.h /usr/include/sys/errno.h
-ltwrite.o: /usr/include/sys/reent.h /usr/include/_ansi.h
-ltwrite.o: /usr/include/sys/config.h /usr/include/sys/_types.h
-ltwrite.o: /usr/include/stdio.h /usr/include/sys/types.h
-ltwrite.o: /usr/include/machine/types.h /usr/include/sys/stat.h
-ltwrite.o: /usr/include/time.h /usr/include/machine/time.h
-ltwrite.o: /usr/include/sys/features.h /usr/include/fcntl.h
+ltwrite.o: /usr/include/errno.h /usr/include/standards.h /usr/include/stdio.h
+ltwrite.o: /usr/include/sys/seek.h /usr/include/va_list.h
+ltwrite.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+ltwrite.o: /usr/include/sys/select.h /usr/include/getopt.h
+ltwrite.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+ltwrite.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+ltwrite.o: /usr/include/sys/rt_limits.h /usr/include/sys/stat.h
+ltwrite.o: /usr/include/sys/mode.h /usr/include/fcntl.h
 ltwrite.o: /usr/include/sys/fcntl.h /usr/include/unistd.h
-ltwrite.o: /usr/include/sys/unistd.h /usr/include/getopt.h
-testfile.o: /usr/include/stdio.h /usr/include/_ansi.h
-testfile.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-testfile.o: /usr/include/sys/_types.h /usr/include/stdlib.h
-testfile.o: /usr/include/errno.h /usr/include/sys/errno.h
-testfile.o: /usr/include/fcntl.h /usr/include/sys/fcntl.h
-testfile.o: /usr/include/sys/types.h /usr/include/machine/types.h
-testfile.o: /usr/include/sys/stat.h /usr/include/time.h
-testfile.o: /usr/include/machine/time.h /usr/include/sys/features.h
-testfile.o: /usr/include/unistd.h /usr/include/sys/unistd.h
-testfile.o: /usr/include/getopt.h
+ltwrite.o: /usr/include/sys/access.h
+testfile.o: /usr/include/stdio.h /usr/include/standards.h
+testfile.o: /usr/include/sys/seek.h /usr/include/va_list.h
+testfile.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+testfile.o: /usr/include/sys/select.h /usr/include/getopt.h
+testfile.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+testfile.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+testfile.o: /usr/include/sys/rt_limits.h /usr/include/stdlib.h
+testfile.o: /usr/include/errno.h /usr/include/fcntl.h
+testfile.o: /usr/include/sys/fcntl.h /usr/include/sys/mode.h
+testfile.o: /usr/include/sys/stat.h /usr/include/unistd.h
+testfile.o: /usr/include/sys/access.h

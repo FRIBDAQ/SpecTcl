@@ -59,7 +59,10 @@ extern int windfilelex_line;
 static win_attributed *current = Xamine_GetDefaultGenericAttributes();
 
 %}
-
+%union {
+   int integer;
+   char string[80];
+ }
 
 %token  NAME
 %token  NUMBER
@@ -104,7 +107,7 @@ static win_attributed *current = Xamine_GetDefaultGenericAttributes();
 %token  CONTOUR
 %token  LEGO
 %token  REFRESH
-%token INTEGER
+%token <integer> INTEGER
 %token COMMA
 %token ENDWINDOW
 %token ENDLINE
@@ -117,6 +120,7 @@ static win_attributed *current = Xamine_GetDefaultGenericAttributes();
 %token UNMATCHED
 %token DEFAULTFILE
 
+%token <string> QSTRING
 %%
 setup_file:    setup_filel | blankline setup_filel
                ;
