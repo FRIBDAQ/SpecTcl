@@ -14,6 +14,12 @@
     Michigan State University
     East Lansing, MI 48824-1321
     mailto:venemaja@msu.edu
+
+Change Log:
+   $Log$
+   Revision 4.6  2002/08/08 11:48:27  ron-fox
+   Add change log.
+
 */
 
 #ifndef __TRANSLATORPOINTER_H
