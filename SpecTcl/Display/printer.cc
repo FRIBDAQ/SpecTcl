@@ -406,12 +406,14 @@ static void
 Print(const char* importcmd, const char* tofile)
 {
   char printcommand[512];
+  char backgroundcmd[1024];
 
+  sprintf(backgroundcmd, 
+	  "(sleep 2;%s;%s %s;rm %s)&",
+	  importcmd, printcmd, tofile, tofile);
+  system(backgroundcmd);
   
-  system(importcmd);
-  sprintf(printcommand, "%s %s", printcmd, tofile);
-  system(printcommand);
-  unlink(tofile);
+
 }
 /*
   PrintWindow:

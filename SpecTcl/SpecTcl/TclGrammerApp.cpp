@@ -39,24 +39,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef Darwin
+#if defined(Darwin)
 #include <sys/syslimits.h>
-#endif
-
-#ifndef CYGWIN
-
-#include <sys/sysinfo.h>
-#endif
-#ifdef OSF1
-#include <machine/hal_sysinfo.h>
-#include <sys/proc.h>
-#endif
-
-
-#ifdef CYGWIN
+#elif defined(CYGWIN)
 extern "C" 
 void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
-
+#elif defined(OSF1)
+#include <machine/hal_sysinfo.h>
+#include <sys/proc.h>
+#else
+#include <sys/sysinfo.h>
 #endif
 
 #include "TCLAnalyzer.h"
