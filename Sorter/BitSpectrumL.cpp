@@ -291,6 +291,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log
    $Log$
+   Revision 4.3  2003/04/03 02:20:15  ron-fox
+   Fix mis description of bitmap spectrum channel counts.
+
    Revision 4.2  2003/04/01 19:52:40  ron-fox
    Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -403,8 +406,8 @@ CBitSpectrumL::Increment(const CEvent& rE)
   //
   CEvent& rEvent((CEvent&)rE);
   if(rEvent[m_nParameter].isValid()) {
-    UInt_t* p = (UInt_t*)getStorage();
-    assert(p != (UInt_t*)kpNULL);
+    ULong_t* p = (ULong_t*)getStorage();
+    assert(p != (ULong_t*)kpNULL);
     UInt_t nParam = 
       (UInt_t)m_PDescription.RawToMapped(rEvent[m_nParameter]);
 
