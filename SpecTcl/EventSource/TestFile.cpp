@@ -111,15 +111,13 @@ CTestFile::Read(Address_t pBuffer, UInt_t nSize)
   p      += n; 
   nBytes += n;  
 
-  // If there are distributions, put them in too:
+  // Fill the buffer with events (generic).
 
-  if(GetDistributionCount()) {
-    while((nBytes + EventSize()) < nSize) { // Another event fits:
-      n       = FormatEvent(p);
-      p      += n;
-      nBytes += n;  
-      nEvents++;
-    }
+  while((nBytes + EventSize()) < nSize) { // Another event fits:
+    n       = FormatEvent(p);
+    p      += n;
+    nBytes += n;  
+    nEvents++;
   }
 
   SetEventCount(pBuffer, nEvents);
