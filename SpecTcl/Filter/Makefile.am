@@ -1,7 +1,10 @@
-INCLUDES = -g  -I. -I../Sorter -I../Events -I../Utility -I../Gates \
-	-I../SpecTcl -I../Xamine -I../NSCLException -I../TCL \
-	-I../EventSource -I../Display \
+INCLUDES = -g  -I. -I@top_srcdir@/Sorter -I@top_srcdir@/Events \
+	 -I@top_srcdir@/Utility -I@top_srcdir@/Gates \
+	-I@top_srcdir@/SpecTcl -I@top_srcdir@/Xamine \
+	-I@top_srcdir@/NSCLException -I@top_srcdir@/TCL \
+	-I@top_srcdir@/EventSource -I@top_srcdir@/Display \
 	@TCL_FLAGS@
+
 LDFLAGS  = -L.
 
 lib_LTLIBRARIES = libFilter.la
