@@ -1762,8 +1762,8 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Send to either the printer, or to file...
     switch(Options->getdest()) {
     case toprinter: {
-      sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps %s; ", 
-	      gri_exec, gri_cmd_dir, cmd_file);
+      sprintf(GriCmd, "%s  -c 0 -no_cmd_in_ps %s; ", 
+	      gri_exec,  cmd_file);
       char pcmd[50];
       sprintf(pcmd, "%s.ps", cmd_root.c_str());
       sprintf(buf1, printcmd, pcmd);
@@ -1806,8 +1806,8 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       else
 	sFilename.append(".ps");
       
-      sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps %s; ", 
-	      gri_exec, gri_cmd_dir, cmd_file);
+      sprintf(GriCmd, "%s  -c 0 -no_cmd_in_ps %s; ", 
+	      gri_exec,  cmd_file);
       
       // If postscript requested, don't add the following:
       char buf[100];
