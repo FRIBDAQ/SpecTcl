@@ -342,6 +342,7 @@ f77xamine_deletebutton_
 ** Returns:
 **   Status of the attempt.
 */
+int
 Xamine_DeleteButtonBox()
 {
   struct msg_command      cmd;
