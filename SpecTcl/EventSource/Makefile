@@ -95,14 +95,17 @@ gri_cmd_dir = /home/fox/spectest/share/gri
 gri_dir = /home/fox/spectest/bin
 have_convert = yes
 
-INCLUDES = -I. -I../Utility -I../Exception  -I../Tape
+INCLUDES = -I. -I../Utility -I../Exception  -I../Tape -I../SpecTcl 	-I../Events -I../TCL -I../Filter -I/usr/include/tcl
+
+
+LDFLAGS = -L. -L/usr/lib -ltk -ltcl
 
 lib_LTLIBRARIES = libEventSource.la
 
-libEventSource_la_SOURCES = File.cpp GaussianDistribution.cpp 	TapeException.cpp TapeFile.cpp TestFile.cpp PipeFile.cpp
+libEventSource_la_SOURCES = File.cpp GaussianDistribution.cpp 	TapeException.cpp TapeFile.cpp TestFile.cpp PipeFile.cpp 	MultiTestSource.cpp
 
 
-include_HEADERS = DiskFile.h Distribution.h File.h GaussianDistribution.h 	PipeFile.h TapeException.h TapeFile.h TestFile.h
+include_HEADERS = DiskFile.h Distribution.h File.h GaussianDistribution.h 	PipeFile.h TapeException.h TapeFile.h TestFile.h MultiTestSource.h
 
 
 EXTRA_DIST = classbreakdown.WC classbreakdown.omt
@@ -114,12 +117,11 @@ LTLIBRARIES =  $(lib_LTLIBRARIES)
 
 DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I..
 CPPFLAGS = 
-LDFLAGS = 
 LIBS = -lm -lm -lm 
 libEventSource_la_LDFLAGS = 
 libEventSource_la_LIBADD = 
 libEventSource_la_OBJECTS =  File.lo GaussianDistribution.lo \
-TapeException.lo TapeFile.lo TestFile.lo PipeFile.lo
+TapeException.lo TapeFile.lo TestFile.lo PipeFile.lo MultiTestSource.lo
 CXXFLAGS = -g -O2
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -134,8 +136,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/File.P .deps/GaussianDistribution.P .deps/PipeFile.P \
-.deps/TapeException.P .deps/TapeFile.P .deps/TestFile.P
+DEP_FILES =  .deps/File.P .deps/GaussianDistribution.P \
+.deps/MultiTestSource.P .deps/PipeFile.P .deps/TapeException.P \
+.deps/TapeFile.P .deps/TestFile.P
 SOURCES = $(libEventSource_la_SOURCES)
 OBJECTS = $(libEventSource_la_OBJECTS)
 

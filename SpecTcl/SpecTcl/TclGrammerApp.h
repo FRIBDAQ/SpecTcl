@@ -330,6 +330,7 @@ class CDataSourcePackage;
 class CGatePackage;
 class CEventProcessor;
 class CNSCLBufferDecoder;
+class CMultiTestSource;
 
 class CTclGrammerApp : public CTCLApplication {
   // Private Member data:
@@ -350,6 +351,7 @@ class CTclGrammerApp : public CTCLApplication {
   CTCLVariable m_TclDisplaySize;
   CTCLVariable m_TclParameterCount;
   CTCLVariable m_TclEventListSize;
+  CMultiTestSource* m_pMultiTestSource;
 
  public:
   //Default constructor alternative to compiler provided default constructor
