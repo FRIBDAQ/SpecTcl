@@ -488,7 +488,7 @@ static void PlotLin(Channel *d, Sampler *s, float xw, int nx, int ny,
   int   range    = maximum - base + 1;
 
   while(channels < fnx) {
-    int value = s->sample() - base; /* Get a channel value. */
+    unsigned long value = s->sample() - base; /* Get a channel value. */
     if(value < 0) {
       value = 0;	/* Apply any lower level cut. */
     }
@@ -498,7 +498,7 @@ static void PlotLin(Channel *d, Sampler *s, float xw, int nx, int ny,
     ** coordinates to fit the range.
     */
 
-    value = (ny*value/range);
+    value = (unsigned long)((float)ny*((float)value)/((float)range));
     d->drawchan((short)value);
 
     channels += xw;		/* Go on to the next channel position */
