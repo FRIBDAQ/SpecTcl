@@ -7,6 +7,8 @@ LDFLAGS = -L. @TCL_LDFLAGS@
 
 lib_LTLIBRARIES = libSpecio.la
 
+libSpecio_la_LDFLAGS = $(SOVERSION):0
+
 libSpecio_la_SOURCES = SpectrumFormatter.cpp \
 	SpectrumFormatterFactory.cpp \
 	SpectrumStandardFormatters.cpp \

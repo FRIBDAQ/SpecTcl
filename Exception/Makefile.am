@@ -4,6 +4,8 @@ LDFLAGS = -L.
 
 lib_LTLIBRARIES = libException.la
 
+libException_la_LDFLAGS = -version-info $(SOVERSION):0
+
 libException_la_SOURCES = ErrnoException.cpp Exception.cpp RangeError.cpp \
 	StreamIOError.cpp
 

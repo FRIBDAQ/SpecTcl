@@ -6,6 +6,7 @@ INCLUDES = -I. -I../Utility -I../NSCLException -I../EventSource -I../TCL \
 LDFLAGS = @TCL_LDFLAGS@
 
 lib_LTLIBRARIES = libAnalysis.la
+libAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0
 
 libAnalysis_la_SOURCES = Analyzer.cpp BufferDecoder.cpp BufferTranslator.cpp \
 	Event.cpp EventFormatError.cpp EventList.cpp NSCLBufferDecoder.cpp \

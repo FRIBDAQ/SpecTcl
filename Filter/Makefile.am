@@ -8,6 +8,7 @@ INCLUDES = -g  -I. -I@top_srcdir@/Sorter -I@top_srcdir@/Events \
 LDFLAGS  = -L.
 
 lib_LTLIBRARIES = libFilter.la
+libFilter_la_LDFLAGS = -version-info $(SOVERSION):0
 
 libFilter_la_SOURCES = EventFilter.cpp \
 	EventSinkPipeline.cpp \

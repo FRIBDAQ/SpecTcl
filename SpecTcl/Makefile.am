@@ -45,6 +45,8 @@ install-exec-local:
 
 lib_LTLIBRARIES = libTclGrammerCommands.la
 
+libTclGrammerCommands_la_LDFLAGS = -version-info $(SOVERSION):0
+
 libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	RunControlPackage.cpp ParameterPackage.cpp ParameterCommand.cpp \
 	SpectrumPackage.cpp ClearCommand.cpp BindCommand.cpp \

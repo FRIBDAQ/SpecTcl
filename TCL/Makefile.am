@@ -5,6 +5,8 @@ LDFLAGS = -L. @TCL_LDFLAGS@
 
 lib_LTLIBRARIES = libtclPlus.la
 
+libtclPlus_la_LDFLAGS = -version-info $(SOVERSION):0
+
 libtclPlus_la_SOURCES = TCLInterpreter.cpp TCLProcessor.cpp  \
 	TCLVariable.cpp TCLString.cpp  \
 	TCLResult.cpp TCLTimer.cpp TCLFileHandler.cpp \
