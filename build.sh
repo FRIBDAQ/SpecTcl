@@ -29,7 +29,7 @@ else
    exit
 endif
 
-
+set instdir = `(cd $instdir;pwd)`
 echo building and installing in $instdir 
 
 make clean
