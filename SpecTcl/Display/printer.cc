@@ -15,6 +15,9 @@
 */
 /*
  $Log$
+ Revision 4.8  2002/08/14 20:22:25  venema
+ Added support for Cygwin to print using its own print syntax.
+
  Revision 4.7  2002/07/29 18:59:53  venema
  Removed printing functions and placed them in griprint.cc. Implemented new tabs widget used for selecting print options for Xamine using the Gri plotting package.
 
@@ -90,6 +93,10 @@ extern grobj_database Xamine_DefaultGateDatabase;
 #ifdef VMS
 #define DEFAULT_TEMPFILE "SYS$SCRATCH:XAMINE_TEMPPRINT.OUT"
 #define DEFAULT_PRINTCMD "PRINT/DELETE/QUEUE=EXP_HP %f"
+#endif
+
+#ifdef CYGWIN
+#define DEFAULT_PRINTCMD "cp %s \\win-cluster\west_print1";
 #endif
 
 
@@ -250,6 +257,40 @@ char *Xamine_GetPrintCommand()
   return printcmd;
 }
 
+
+string Xamine_GetOutputFilename()
+{
+  string sFilename;
+  char filename[20];
+  char ps_filename[20];
+  for(int i = 0; i < 99; i++) {
+    FILE* trial;
+    sprintf(filename, "spectcl-%02d", i);
+    sprintf(ps_filename, "spectcl-%02d.ps", i);
+    trial = fopen(ps_filename, "r");
+    if(trial == NULL) {  // if no such file exists, then use this filename
+      sprintf(ps_filename, "spectcl-%02d.jpg", i);
+      trial = fopen(ps_filename, "r");
+      if(trial == NULL) {
+	sprintf(ps_filename, "spectcl-%02d.png", i);
+	trial = fopen(ps_filename, "r");
+	if(trial == NULL) {
+	  sprintf(ps_filename, "spectcl-%02d.jpg.0", i);
+	  trial = fopen(ps_filename, "r");
+	  if(trial == NULL) {
+	    sprintf(ps_filename, "spectcl-%02d.png.0", i);
+	    trial = fopen(ps_filename, "r");
+	    if(trial == NULL)
+	      break;
+	  }
+	}
+      }
+    }
+    fclose(trial);
+  }
+  sFilename = string(filename);
+  return sFilename;
+}
 
 
 /*
@@ -1579,6 +1620,7 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
   ps_dialog->setcmd(Xamine_GetPrintCommand());
   ps_dialog->setdest(toprinter);
   ps_dialog->setres(one);
+  ps_dialog->setfile(const_cast<char*>(Xamine_GetOutputFilename().c_str()));
 
   /* Manage the dialog to pop it up */
 

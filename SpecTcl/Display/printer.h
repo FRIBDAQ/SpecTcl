@@ -93,7 +93,8 @@ void SpecifyTicsCallback(XMWidget* w, XtPointer user, XtPointer call);
 void Xamine_PrintSpectrum(XMWidget* w, XtPointer user, 
 			  XtPointer call, win_attributed* pAttributes,
 			  string sTitle, int nRows=1, int nCols=1, 
-			  int nSpectrumCount=1, int nCurrSpec=1);
+			  int nSpectrumCount=1, int nCurrSpec=1, 
+			  int nPageNum=1);
 void Xamine_Print(XMWidget* w, XtPointer user, XtPointer call);
 int  Xamine_getTickInterval(int nRange, int nPixels);
 string Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int floor,
@@ -102,7 +103,7 @@ string Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int floor,
 string Xamine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
 				 int nYLowLimit, int nYHighLimit, 
 				 win_2d* pAttrib, grobj_generic* pObj);
-void Xamine_printAll(XMWidget* w, XtPointer user, XtPointer call);
 string Xamine_GetSpectrumTitle(int r = -1, int c = -1);
+string Xamine_GetOutputFilename();
 
 #endif
