@@ -13,8 +13,8 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __TCLEXCEPTION_H  //Required for current class
-#define __TCLEXCEPTION_H
+#ifndef __CTCLEXCEPTION_H  //Required for current class
+#define __CTCLEXCEPTION_H
                                //Required for base classes
 #ifndef __TCLINTERPRETEROBJECT_H
 #include "TCLInterpreterObject.h"
@@ -35,7 +35,7 @@
 #endif
 
 #ifndef __HISTOTYPES_H
-#include <histotypes.h>
+#include <histotypes.h
 #endif
 
                                
