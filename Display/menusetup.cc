@@ -209,14 +209,14 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   sub = pd->AddSubmenu("Print",5);
   b = sub->AddMenuButton("PRSelected");
   b->SetAccelerator("Meta<Key>P", "Alt+P");
-  b->AddCallback(UnImplemented);
+  b->AddCallback(Xamine_printSelected, (XtPointer)NULL);
   Xamine_AddtoSpectrumSelectedPackage(b);
   b->Label("Print Selected Spectrum");
 
   b = sub->AddMenuButton("PRAll");
   b->Label("Print Visible Spectra");
   b->SetAccelerator("Ctrl<Key>P", "Ctrl+P");
-  b->AddCallback(UnImplemented);
+  b->AddCallback(Xamine_printAll, (XtPointer)NULL);
   Xamine_AddtoSpectrumPresentPackage(b);
 
   /* Exit */
