@@ -172,9 +172,7 @@ static void ApplyDefaultsEverywhere(int axes, int ticks, int labels)
 */
 void Xamine_ShowAxisCallback(XMWidget *w, XtPointer user_d, XtPointer call_d)
 {
-  XMToggleButton *tog = (XMToggleButton *)w;
   AxisForm     *dlg = (AxisForm *)user_d;
-  XmToggleButtonCallbackStruct *cbd = (XmToggleButtonCallbackStruct *)call_d;
 
   /*
   ** Action is just to adjust the ghosting, we assume the state has been
