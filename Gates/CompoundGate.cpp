@@ -300,6 +300,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 
 #include "CompoundGate.h"                               
 #include "GateListIterator.h"
+#include <algorithm>
 
 // Functions for class CCompoundGate
 //////////////////////////////////////////////////////////////////////////
@@ -476,5 +477,22 @@ CCompoundGate::ConvertIterator(CConstituentIterator& rIterator)
 }
 
 
+/*!
+   Reset the gate cache recusively. the base class reset is called in order to 
+   reset our cache, and the Reset for each of our constituents is called
+   in order to recursively reset their caches.
+*/
 
+static void ResetGate(CGateContainer* pGate) {
+  CGateContainer& rGate(*pGate);
+  rGate->RecursiveReset();
+}
 
+void
+CCompoundGate::RecursiveReset()
+{
+  CGate::RecursiveReset();	// Clear our cache flag.
+  
+  for_each(m_vConstituents.begin(), m_vConstituents.end(),
+	  ResetGate);
+}

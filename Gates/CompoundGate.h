@@ -364,7 +364,7 @@ protected:
   // Class operations:
 
 public:
-
+  virtual void RecursiveReset(); //!< Recursively reset the cache.
   virtual   CConstituentIterator Begin ()  ;
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
