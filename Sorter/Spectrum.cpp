@@ -298,6 +298,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
     $Log$
+    Revision 4.3  2003/04/19 00:11:13  ron-fox
+    Fix a nasty issue with GetDefinition() that was causing death due to a number of problems with the static output struct.  For later: change the struct to a class so that it can be returned by value rather than by reference.. then it wouldn't have to be static.
+
     Revision 4.2  2003/04/01 19:53:46  ron-fox
     Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -784,15 +787,33 @@ CSpectrum::GetHigh(UInt_t nDimension) const
 struct CSpectrum::SpectrumDefinition&
 CSpectrum::GetDefinition()
 {
+  
   static SpectrumDefinition Def;
+  // Clear the arrays:
+
+  Def.vParameters.erase(Def.vParameters.begin(),
+			Def.vParameters.end());
+  Def.nChannels.erase(Def.nChannels.begin(),
+		      Def.nChannels.end());
+  Def.fLows.erase(Def.fLows.begin(),
+		  Def.fLows.end());
+  Def.fHighs.erase(Def.fHighs.begin(),
+		   Def.fHighs.end());
+
   Def.sName     = getName();
   Def.nId       = getNumber();
   Def.eType     = getSpectrumType();
   Def.eDataType = StorageType();
+
   GetParameterIds(Def.vParameters);
-  Def.nChannels = m_nChannels;
-  Def.fLows     = m_fLows;
-  Def.fHighs    = m_fHighs;
+  for(int i =0; i < Dimensionality(); i ++) {
+    Def.nChannels.push_back(Dimension(i));
+    Def.fLows.push_back(GetLow(i));
+    Def.fHighs.push_back(GetHigh(i));
+  }
+  //  Def.nChannels = m_nChannels;
+  //  Def.fLows     = m_fLows;
+  //  Def.fHighs    = m_fHighs;
 
   return Def;
 }
