@@ -303,6 +303,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 5.1.2.3  2005/01/26 14:41:11  ron-fox
+  Fix silly typo in backport of spectrum name length defect.
+
   Revision 5.1.2.2  2005/01/26 14:27:44  ron-fox
   Fix a problem with long spectrum names:
             o Truncation to Xamine fixed size names caused assertion failures in
@@ -1046,6 +1049,10 @@ void CHistogrammer::UnBindFromDisplay(UInt_t nSpec) {
   //    UInt_t nSpec:
   //       Display spectrum id to unbind.
 
+  CXamineSpectrum  Spec(m_pDisplayer->getXamineMemory(), nSpec);
+  if(Spec.getSpectrumType() != undefined) { // No-op if spectrum not defined
+    // The Xamine title must match the first n characters of
+ 
     // The Xamine title must match the first n characters of
     // the bindings  name since the display bindings names are
     // truncated to some fixed size.
