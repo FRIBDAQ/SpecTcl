@@ -278,6 +278,9 @@ DAMAGES.
 
 /* Change log:
    $Log$
+   Revision 4.4  2003/08/28 18:04:37  ron-fox
+   Fix Bug68: point acceptors can provide invalid channel coordinates.  Fixed by changing clipping so that it clips to the edges of the displayed part of the spectrum.  Clips used return -1 as an indicator that the clip had happened.  This is no good because with mapped spectra, -1 is valid, so just clip to the edges.
+
    Revision 4.3  2003/04/04 17:44:21  ron-fox
    Catch dialog destruction for cached widgets so that the destroyed dialog is re-created when it's needed.  Prior behavior would usually crash Xamine because deleted widgets would be referenced.
 
@@ -513,12 +516,18 @@ void GraphicalInput::MouseHit(XMWidget *wid, XtPointer call_d)
     case twodbyte:
       cvt2 = new Xamine_Convert2d(wid, attrib, xamine_shared);
       cvt2->ScreenToSpec(&loc, xpix, ypix);
+
+      // Clip the coordinate to the displayable spectrum:
+
+      
       delete cvt2;
       break;
     case onedlong:
     case onedword:
       cvt1 = new Xamine_Convert1d(wid, attrib, xamine_shared);
       cvt1->ScreenToSpec(&loc, xpix, ypix);
+
+      // Clip the coordinate to the displayable spectrum.
       delete cvt1;
       break;
     default:			/* No such spectrum... pop down etc. */
