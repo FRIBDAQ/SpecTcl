@@ -101,6 +101,7 @@ extern void windfileerror(char *text);
 #include "dfltmgr.h"
 #include "grobjdisplay.h"
 #include "panemgr.h"
+#include "printer.h"
 #define defaultfileerror(text) windfileerror((text))
 #define yylex         defaultfilelex
 #define windfilelex() defaultfilelex
@@ -125,11 +126,13 @@ static struct limit { int low;
 
 
 extern int windfilelex_line;
+static struct DefaultPrintOptions *printops = Xamine_GetDefaultPrintOptions();
 static win_attributed *current = Xamine_GetDefaultGenericAttributes();
-
+ 
 
 typedef union {
    int integer;
+  double real;
    char string[80];
  } YYSTYPE;
 #include <stdio.h>
@@ -142,9 +145,9 @@ typedef union {
 
 
 
-#define	YYFINAL		109
+#define	YYFINAL		166
 #define	YYFLAG		-32768
-#define	YYNTBASE	58
+#define	YYNTBASE	79
 
 #define YYTRANSLATE(x) ((unsigned)(x) <= 311 ? yytranslate[x] : 86)
 
@@ -311,7 +314,7 @@ static const short yypgoto[] = {-32768,
 };
 
 
-#define	YYLAST		104
+#define	YYLAST		161
 
 
 static const short yytable[] = {     7,
@@ -884,7 +887,7 @@ yyreduce:
 
   switch (yyn) {
 
-case 21:
+case 23:
 {
 		    assert(current != NULL);
 		    if(ticks)  current->tickson();
@@ -893,7 +896,7 @@ case 21:
 		    ticks = labels = axes = 0;
 		  ;
     break;}
-case 22:
+case 24:
 {
 		    if(ticks) current->ticksoff();
 		    if(labels)current->axis_labelsoff();
@@ -901,47 +904,47 @@ case 22:
 		    ticks = labels = axes = 0;
 		  ;
     break;}
-case 23:
+case 25:
 {
 		   assert(current != NULL);
 		   current->set_axes(TRUE, TRUE, TRUE);
 		 ;
     break;}
-case 24:
+case 26:
 {
 		   assert(current != NULL);
 		   current->set_axes(FALSE,FALSE,FALSE);
 		 ;
     break;}
-case 27:
+case 29:
 {
 		     ticks = TRUE;
 		   ;
     break;}
-case 28:
+case 30:
 {
 		     labels = TRUE;
 		   ;
     break;}
-case 29:
+case 31:
 {
 		     axes = TRUE;
 		   ;
     break;}
-case 30:
+case 32:
 {
 		   assert(current != NULL);
 		   current->set_titles(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
 		 ;
     break;}
-case 31:
+case 33:
 {
 		   assert(current != NULL);
 		   current->set_titles(FALSE, FALSE, FALSE,
 					 FALSE, FALSE, FALSE);
 		 ;
     break;}
-case 32:
+case 34:
 {
 		    assert(current != NULL);
 		    if(name)        current->dispname();
@@ -953,7 +956,7 @@ case 32:
 		    name = number = description = peak = update = objects = 0;
 		  ;
     break;}
-case 33:
+case 35:
 {
 		    assert(current != NULL);
 		    if(name)        current->hidename();
@@ -965,159 +968,234 @@ case 33:
 		    name = number = description = peak = update = objects = 0;
 		  ;
     break;}
-case 36:
+case 38:
 {
 		     name = TRUE;
 		   ;
     break;}
-case 37:
+case 39:
 {
 		     number = TRUE;
 		   ;
     break;}
-case 38:
+case 40:
 {
 		  description = TRUE;
 		;
     break;}
-case 39:
+case 41:
 {
 		  peak  = TRUE;
 		;
     break;}
-case 40:
+case 42:
 {
 		  update = TRUE;
 		;
     break;}
-case 41:
+case 43:
 {
 		  objects = TRUE;
 		;
     break;}
-case 42:
+case 44:
 { 
 		  assert(current != NULL);
 		  current->sideways();
 		;
     break;}
-case 43:
+case 45:
 {
 		  assert(current != NULL);
 		  current->normal();
 		;
     break;}
-case 45:
+case 47:
 {
                         assert(current != NULL);
 			current->sample();
 		      ;
     break;}
-case 46:
+case 48:
 {
 		      assert(current != NULL);
 		      current->sum();
 		    ;
     break;}
-case 47:
+case 49:
 {
 		      assert(current != NULL);
 		      current->average();
 		    ;
     break;}
-case 49:
+case 51:
 {
                        assert(current != NULL);
 		       current->autoscale();
 		     ;
     break;}
-case 50:
+case 52:
 {
 		   assert(current != NULL);
 		   current->setfs(yyvsp[0].integer);
 		 ;
     break;}
-case 52:
+case 54:
 {
 			     assert(current != NULL);
 			     current->log();
 			   ;
     break;}
-case 53:
+case 55:
 {
 			 assert(current != NULL);
 			 current->linear();
 		       ;
     break;}
-case 54:
+case 56:
 {
 		   assert(current != NULL);
 		   current->setfloor(yyvsp[-1].integer);
 		 ;
     break;}
-case 55:
+case 57:
 {
 		  assert(current != NULL);
 		  current->setceiling(yyvsp[-1].integer);
 		;
     break;}
-case 56:
+case 58:
 {
 		  assert(current != NULL);
 		  current->update_interval(yyvsp[-1].integer);	/* Set the update interval. */
                 ;
     break;}
-case 58:
+case 59:
+{
+  /* don't do anything */
+;
+    break;}
+case 61:
 { 
 		    Xamine_SetDefault1DRendition(smoothed);
 		  ;
     break;}
-case 59:
+case 62:
 {
 		    Xamine_SetDefault1DRendition(histogram);
 		  ;
     break;}
-case 60:
+case 63:
 { 
 		    Xamine_SetDefault1DRendition(points);
 		  ;
     break;}
-case 61:
+case 64:
 {
 		    Xamine_SetDefault1DRendition(lines);
 		  ;
     break;}
-case 62:
+case 65:
 { 
 		    Xamine_SetDefault2DRendition(scatter);
 		  ;
     break;}
-case 63:
+case 66:
 { 
 		    Xamine_SetDefault2DRendition(boxes);
 		  ;
     break;}
-case 64:
+case 67:
 { 
 		    Xamine_SetDefault2DRendition(color);
 		  ;
     break;}
-case 65:
+case 68:
 {
 		    Xamine_SetDefault2DRendition(contour);
 		  ;
     break;}
-case 66:
+case 69:
 {
 		    Xamine_SetDefault2DRendition(lego);
 		  ;
     break;}
-case 67:
+case 70:
 {
 		 Display *d;
 		 d = XtDisplay(Xamine_Getpanemgr()->getid());
 		 Xamine_SetObjectLabelIndex(d, yyvsp[-1].integer);
                ;
+    break;}
+case 74:
+{
+  printops = Xamine_GetDefaultPrintOptions();
+  if(printops == NULL) {
+    printops = new struct DefaultPrintOptions;
+    Xamine_SetDefaultPrintOptions(printops);
+  }
+;
+    break;}
+case 76:
+{
+  assert(printops);
+  printops->layout = (PrintLayout)yyvsp[-1].integer;
+;
+    break;}
+case 77:
+{
+  assert(printops);
+  printops->num = (PrintNum)yyvsp[-1].integer;
+;
+    break;}
+case 78:
+{
+  assert(printops);
+  printops->dest = (PrintDest)yyvsp[-1].integer;
+;
+    break;}
+case 79:
+{
+  assert(printops);
+  printops->res = (Resolution)yyvsp[-1].integer;
+;
+    break;}
+case 80:
+{
+  assert(printops);
+  printops->file_type = yyvsp[-1].integer;
+;
+    break;}
+case 81:
+{
+  assert(printops);
+  printops->xlen = yyvsp[-3].real;
+  printops->ylen = yyvsp[-1].real;
+;
+    break;}
+case 82:
+{
+  assert(printops);
+  printops->time_stamp = yyvsp[-7].integer;
+  printops->color_pal  = yyvsp[-5].integer;
+  printops->contours   = yyvsp[-3].integer;
+  printops->symbols    = yyvsp[-1].integer;
+;
+    break;}
+case 83:
+{
+  strcpy(printops->print_cmd, yylval.string);
+;
+    break;}
+case 84:
+{
+  char r[10];
+  char c[10];
+  sprintf(r, "%d", yyvsp[-3].integer);
+  sprintf(c, "%d", yyvsp[-1].integer);
+  strcpy(printops->rows, r);
+  strcpy(printops->cols, c);
+;
     break;}
 }
    /* the action file gets copied in in place of this dollarsign */

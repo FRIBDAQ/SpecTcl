@@ -22,6 +22,7 @@
 #include <stddef.h>
 
 #include "allocator.h"
+#include "client.h"
 #define remove  al_remove
 /*
 ** data structures used:
@@ -189,7 +190,6 @@ caddr_t alloc_get(arenaid arena_id, int size)
     largest->size -= size + sizeof(node);
     return (caddr_t)block;
   }
- 
 }
 
 /*

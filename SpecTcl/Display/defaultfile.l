@@ -3,26 +3,22 @@
 **  Facility:
 **    NSCL display system, window file I/O subsystem.
 **  Abstract:
-**    windfile.l  - This file contains a lex/flex description
-**                 of the tokens which make up the context free language
-**                 that is used to describe window files.
+**    defaultfile.l  - This file contains a lex/flex description
+**                     of the tokens which make up the context free language
+**                     that is as a default file.
 **  Author:
-**    Ron Fox
+**    Jason Venema
 **    NSCL
 **    Michigan State University
 **    East Lansing, MI 48824-1321
 ** Revision level:
 **    @(#)windfile.l	8.1 6/23/95 
 */
-static char *lexrevlevel = "@(#)windfile.l	8.1 6/23/95  - windows file lexical analyzer";
+static char *lexrevlevel = "@(#)defaultfile.l	8.1 6/23/95  - windows file lexical analyzer";
 #include <stdlib.h>
-#include "windio.h"
-#include "dispwind.h"
 #include "printer.h"
 #if  defined(Linux) || defined(CYGWIN)
-#include "windfile_lex.h"
-#else
-#include "windlex.h"
+#include "defaultfile_lex.h"
 #endif
 #undef lex_output
 #define lex_output(c) 
@@ -47,6 +43,48 @@ int         yylex_line;
 			strcpy(yylval.string,yytext+1);  /* Pass str unquoted */
 			return QSTRING;
 		      }
+[+-]?[0-9]+                     { dbgprintf("INTEGER ");
+				  yylval.integer = atoi(yytext);
+#ifdef DEBUG
+				  printf("%d \n", yylval);
+#endif
+                                  return INTEGER; }
+[+-]?[0-9]*\.[0-9]+ {
+                                  dbgprintf("REAL ");
+                                  yylval.real = atof(yytext);
+#ifdef DEBUG
+                                  printf("%f \n", yylval);
+#endif
+                                  return REAL;
+}
+\,                                {dbgprintf("COMMA ");  return COMMA; }
+^\n                             {dbgprintf("EMPTYLINE\n "); yylex_line++; 
+                                 return ENDLINE; }
+\n                               { dbgprintf("ENDLINE \n"); yylex_line++;
+                                   return ENDLINE; }
+#.*\n                           {dbgprintf("COMMENT\n"); yylex_line++;
+                                  return ENDLINE; }
+[Ee][nN][dD]                       { dbgprintf("END "); return 0; }
+[ \t]+                          ;
+.                              { return UNMATCHED; }
+[Pp][Rr][Ii][Nn][Tt][Oo][Pp][Tt][Ii][Oo][Nn][Ss] {
+                                        dbgprintf("PRINTOPTIONS ");
+                                        return PRINTOPTIONS;
+                                }
+[Ll][Aa][Yy][Oo][Uu][Tt] { dbgprintf("LAYOUT "); return LAYOUT; }
+[Pp][Rr][Ii][Nn][Tt][Nn][Uu][Mm] { dbgprintf("PRINTNUM "); return PRINTNUM; }
+[Dd][Ee][Ss][Tt][Ii][Nn][Aa][Tt][Ii][Oo][Nn] { dbgprintf("DESTINATION "); 
+                                               return DESTINATION; } 
+[Rr][Ee][Ss][Oo][Ll][Uu][Tt][Ii][Oo][Nn] { dbgprintf("RESOLUTION "); 
+                                           return RESOLUTION; }
+[Ff][Ii][Ll][Ee][Tt][Yy][Pp][Ee] { dbgprintf("FILETYPE "); return FILETYPE; }
+[Pp][Rr][Ii][Nn][Tt][Ss][Ii][Zz][Ee] { dbgprintf("PRINTSIZE "); 
+                                       return PRINTSIZE; }
+[Ss][Pp][Ee][Cc][Tt][Rr][Uu][Mm][Oo][Pp][Tt][Ii][Oo][Nn][Ss] { dbgprintf("SPECTRUMOPTIONS "); return SPECTRUMOPTIONS; }
+[Pp][Rr][Ii][Nn][Tt][Cc][Oo][Mm][Mm][Aa][Nn][Dd] { dbgprintf("PRINTCMD "); return PRINTCMD; }
+[Pp][Rr][Ii][Nn][Tt][Gg][Ee][Oo][Mm][Ee][Tt][Rr][Yy] { dbgprintf("PRINTGEOMETRY "); return PRINTGEOMETRY; }
+[Ee][Nn][Dd][Pp][Rr][Ii][Nn][Tt][Oo][Pp][Tt][Ii][Oo][Nn][Ss] { dbgprintf("ENDPRINTOPTIONS "); return ENDPRINTOPTIONS; }
+
 [Tt][Ii][Tt][Ll][Ee]               { rd_yytitle(); dbgprintf("TITLE ");return TITLE; }
 [Gg][Ee][Oo][Mm][Ee][Tt][Rr][Yy]   { dbgprintf("GEOMETRY "); return GEOMETRY; }
 [Ww][Ii][Nn][Dd][Oo][Ww]           { dbgprintf("WINDOW "); return WINDOW; }
@@ -80,7 +118,6 @@ int         yylex_line;
 [aA][vV][eE][rR][aA][gG][eE][dD]  { dbgprintf("AVERAGED "); return AVERAGED; }
 [sS][cC][aA][lL][eE]              { dbgprintf("SCALE "); return SCALE; }
 [aA][uU][tT][oO]                  { dbgprintf("AUTO "); return AUTO; }
-[Mm][Aa][Pp][Pp][Ee][Dd]          { dbgprintf("MAPPED "); return MAPPED; }
 [mM][aA][nN][uU][aA][lL]	  { dbgprintf("MANUAL "); return MANUAL; }
 [cC][oO][uU][nN][tT][sS][aA][xX][iI][sS] {dbgprintf("COUNTSAXIS "); return COUNTSAXIS; }
 [lL][oO][gG]                      { dbgprintf("LOG "); return LOG; }
@@ -123,31 +160,8 @@ int         yylex_line;
                                         dbgprintf("GROBJFONT");
                                         return GROBJFONT;
                                 }
-[+-]?[0-9]+                     { dbgprintf("INTEGER ");
-				  yylval.integer = atoi(yytext);
-#ifdef DEBUG
-				  printf("%d \n", yylval);
-#endif
-                                  return INTEGER; }
-[+-]?[0-9]*"."[0-9]+ {
-                                  dbgprintf("REAL ");
-                                  yylval.real = atof(yytext);
-#ifdef DEBUG
-                                  printf("%f \n", yylval);
-#endif
-                                  return REAL;
-}
-\,                                {dbgprintf("COMMA ");  return COMMA; }
-^\n                             {dbgprintf("EMPTYLINE\n "); yylex_line++; 
-                                 return ENDLINE; }
-\n                               { dbgprintf("ENDLINE \n"); yylex_line++;
-                                   return ENDLINE; }
-#.*\n                           {dbgprintf("COMMENT\n"); yylex_line++;
-                                  return ENDLINE; }
-[Ee][nN][dD]                       { dbgprintf("END "); return 0; }
-[ \t]+                          ;
-.                              { return UNMATCHED; }
-
+[Mm][Aa][Pp][Pp][Ee][Dd]        { dbgprintf("MAPPED ");
+                                  return MAPPED; }
 %%
 
 /*

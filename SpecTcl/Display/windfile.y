@@ -28,6 +28,7 @@ char *get_windfiletitle();
 #include "windio.h"
 #include "dispwind.h"
 #include "dispshare.h"
+#include "printer.h"
 #ifndef DEBUG
 extern win_db *database;	/* Setup by the caller. */
 #else
@@ -59,6 +60,7 @@ void windfileerror(char *c);
 %}
 %union {
   int integer;
+  double real;
   char string[80];
 }
 %token  NAME
@@ -105,6 +107,7 @@ void windfileerror(char *c);
 %token  LEGO
 %token  REFRESH
 %token <integer> INTEGER
+%token <real>    REAL
 %token COMMA
 %token ENDWINDOW
 %token ENDLINE
@@ -115,10 +118,12 @@ void windfileerror(char *c);
 %token SUPERIMPOSE
 %token GROBJFONT
 %token UNMATCHED
+%token MAPPED
+
 %token <string> QSTRING
 %%
 setup_file:    setup_filel | blankline setup_filel
-               ;
+                ;
 
 setup_filel:	 geometry | geometry ident
                  | geometry descriptions  | geometry ident descriptions 
@@ -215,6 +220,7 @@ attribute_clause: axes_clause      | labels_clause  | flipped_clause
 		| reduction_clause | scale_clause   | countsaxis_clause
 		| floor_clause     | ceiling_clause | expanded_clause
 		| rendition_clause | refresh_clause | superposition_clause
+                | mapped_clause
 		;
 
 axes_clause:      AXES axis_attributes blankline
@@ -366,6 +372,11 @@ scale_attribute: AUTO {
 		   current->setfs($2);
 		 }
 		;
+
+mapped_clause: MAPPED INTEGER blankline {
+  assert(current != NULL);
+  current->setmapped($2);
+};
 
 countsaxis_clause:  COUNTSAXIS countsaxis_attributes blankline
 		;
@@ -563,8 +574,11 @@ superposition_clause:   SUPERIMPOSE INTEGER blankline
 		     }
 		   }
                    ;
- blankline:  ENDLINE | ENDLINE blankline
-		     ;
+
+blankline:  ENDLINE | ENDLINE blankline 
+;
+
+
 %%
 int specis1d(int spec)
 {
