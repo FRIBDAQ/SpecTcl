@@ -307,6 +307,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 /*
   Change Log:
   $Log$
+  Revision 4.6  2003/11/13 19:48:49  ron-fox
+  Unconditionally  include config.h
+
   Revision 4.5  2003/08/25 16:25:33  ron-fox
   Initial starting point for merge with filtering -- this probably does not
   generate a goo spectcl build.
@@ -317,9 +320,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 */
 
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "NSCLAsciiSpectrumFormatter.h"    				
 #include <Spectrum.h>
