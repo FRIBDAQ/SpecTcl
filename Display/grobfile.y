@@ -22,11 +22,6 @@ static char *typenames[] = { " Invalid ",
 			     "2-d Summing region",
 			     "2-d Marker"
                            };
-#define YYTOKENTYPE
-#ifdef __GNUC_MINOR__
-#undef __GNUC_MINOR__
-#endif
-
 %}
 %union {
         int integer;

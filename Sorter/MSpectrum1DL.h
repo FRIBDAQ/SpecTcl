@@ -133,6 +133,7 @@ class CMSpectrum1DL  : public CSpectrum1DL
   UInt_t       Randomize(Float_t nChannel);
   UInt_t       SpecToParamPoint(UInt_t nSpecPoint);
   UInt_t       ParamToSpecPoint(UInt_t nParamPoint);
+  UInt_t       RandomizeToMultipleBins(Float_t nChannel, Float_t nRatio);
 };
 
 #endif

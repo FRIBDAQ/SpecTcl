@@ -296,6 +296,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 
 #include "TKRunControl.h"                               
 #include <TCLInterpreter.h>
+#include <TCLException.h>
 #include <tcl.h>
 #include <tk.h>
 #include <iostream.h>
@@ -355,7 +356,11 @@ CTKRunControl::OnEnd()
   CRunControl::OnEnd();
 
   cerr << "End file encountered on Data Source\n";
-  m_pInterp->Eval(m_sEndScript);
+  try {				// May need this later when user scripts allowed
+    m_pInterp->Eval(m_sEndScript);
+  }
+  catch(CTCLException& except) {
+  }
 }
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -366,10 +371,8 @@ CTKRunControl::OnEnd()
 //
 void
 CTKRunControl::OnBuffer(UInt_t nBytes)
-{				// 
-  if(getRunning()) {		// Needed because we may have stopped.
-    m_FileHandler.Set();		// Re-enable file handler.
-  }
+{
+  if(getRunning())m_FileHandler.Set();		// Re-enable file handler.
   CRunControl::OnBuffer(nBytes); // Note on end of file this will clear().
 
 }

@@ -303,6 +303,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 4.8  2003/08/25 16:25:32  ron-fox
+  Initial starting point for merge with filtering -- this probably does not
+  generate a goo spectcl build.
+
   Revision 4.7  2003/07/03 21:28:54  kanayo
   Continuing modifications for event filtering.
 
@@ -340,7 +344,16 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <stdio.h>
 
-// Local variables:
+#ifdef OSF          /* Can't find time() for some reason on OSF */
+extern "C" {
+  time_t time(time_t*);
+};
+#endif
+
+//
+//   Local variables:
+// 
+
 static string U("-Ungated-");
 static string D("-Deleted-");
 static CTrueGate   AlwaysTrue;

@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -305,8 +305,8 @@ DAMAGES.
 #include "XMList.h"
 #include "XMLabel.h"
 enum Copier_Arrow_Direction {
-                              left, 
-			      right 
+                              cpy_left, 
+			      cpy_right 
 			      };
 
 class Copier_Form {
@@ -352,11 +352,11 @@ class Copier_Form {
   void SetButtonDirection(Copier_Arrow_Direction dir)
     {
       switch(dir) {
-      case left:
+      case cpy_left:
 	button->PointLeft();
 	break;
       default:			/* Default bad value to right. */
-      case right:
+      case cpy_right:
 	button->PointRight();
 	break;
       }

@@ -285,6 +285,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.14  2003/08/25 16:25:32  ron-fox
+  Initial starting point for merge with filtering -- this probably does not
+  generate a goo spectcl build.
+
   Revision 4.13  2003/08/25 16:11:01  ron-fox
   Get consistent merge with kanayo's development stuff
 
@@ -303,6 +307,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 */
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "TclGrammerApp.h"    				
 #include <limits.h>
 #include <assert.h>
@@ -451,7 +460,7 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
 
   CTCLVariable HomeDir(string("SpecTclHome"), kfFALSE);
   HomeDir.Bind(rInterp);
-#ifdef CYGWIN
+#ifdef HAVE_WINDOWS_H
   // For CYGWIN, we need to modify the name so that it is the NT path
   // since our Tcl/Tk is unaware that Cygwin exists.
   

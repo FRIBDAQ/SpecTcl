@@ -1,221 +1,432 @@
+# Makefile.in generated automatically by automake 1.4-p4 from Makefile.am
 
-#  Makefile for the sorting part of the Histogramming program.
-#  targets include:
-#     system(default)             - Builds the software.
-#     clean                       - Kills off .o, .a files.
-#     depend                      - Rebuilds the dependencies with makedepend.
-#     install                     - Install the software under $(INSTDIR)
-#     tests                       - Rebuilds test program(s) against sofware
-#                                   in current directory.
-#
-# Change Log:
-#   June 29, 1999 - Added the following Objects:
-#                    Spectrum1DW.o      - 1 d word spectra.
-#                    Spectrum2DB.o      - 2 d byte spectra.
-#                    BitSpectrumW.o     - Word spectrum of bit masks.
-#                    BitSpectrumL.o     - Byte spectrum of bitmasks.
-#                    SummarySpectrumW.o - Word summary spectrum.
-#                    SummarySpectrumB.o - Byte summary spectrum.
-#   June 29, 2001 - Added the following Objects:
-#                    Gamma1DW.o         - 1 d gamma word spectra
-#                    Gamma1DL.o         - 1 d gamma longword spectra
-#                    Gamma2DB.o         - 2 d gamma byte spectra
-#                    Gamma2DW.o         - 2 d gamma word spectra
-# $Log$
-# Revision 4.26  2003/06/19 19:03:09  ron-fox
-# Usual inconsequential changes as a result of make depend.
-#
-# Revision 4.25  2003/04/01 19:53:43  ron-fox
-# Support for Real valued parameters and spectra with arbitrary binnings.
-#
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
 
-SPECTCL_VERSION = -DVERSION=$(VERSION)
-CYGWININCS=-I/usr/local/tcl/include
-CYGWINLIBDIR=-L/usr/local/tcl/lib
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
 
-INCLUDEDIRS= $($(OS)INCS) -I. -I$(INSTDIR)/Include -I/usr/local/include \
-	-I/usr/local/daq/include -I/usr/include/g++-3
 
-LIBDIRS= $($(OS)LIBDIRS) -L. -L../Lib -L/usr/local \
-	-L/usr/local/daq/lib -L/usr/X11/lib \
-	-L$(INSTDIR)/Lib
+SHELL = /bin/sh
 
-LIBS=   -lSorting -lXplus -lGates -lAnalysis -lEventSource \
-	-ltclPlus -lException \
-	-lXamine \
-	-ltk -ltcl -lXt -lX11
+srcdir = .
+top_srcdir = ..
 
-ECHO=echo
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) $(SPECTCL_VERSION)
-LINK=$($(OS)CPP) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) $(SPECTCL_VERSION)
-RM=rm -f
-DEPEND=makedepend
-INSTALL=install -m 0664
-ARCHIVE=ar cr
+prefix = /home/fox/spectest
+exec_prefix = ${prefix}
 
-OBJECTS=DictionaryException.o  Histogrammer.o Spectrum.o Spectrum1DL.o \
-	Spectrum2DW.o Spectrum1DW.o Spectrum2DB.o \
-	BitSpectrumW.o BitSpectrumL.o SummarySpectrumW.o SummarySpectrumB.o \
-	SpectrumFactory.o SpectrumFactoryException.o SnapshotSpectrum.o \
-	Gamma1DW.o Gamma1DL.o Gamma2DW.o Gamma2DB.o GateMediator.o \
-	CAxis.o  \
-	CParameterMapping.o Parameter.o
+bindir = ${exec_prefix}/bin
+sbindir = ${exec_prefix}/sbin
+libexecdir = ${exec_prefix}/libexec
+datadir = ${prefix}/share
+sysconfdir = ${prefix}/etc
+sharedstatedir = ${prefix}/com
+localstatedir = ${prefix}/var
+libdir = ${exec_prefix}/lib
+infodir = ${prefix}/info
+mandir = ${prefix}/man
+includedir = ${prefix}/include
+oldincludedir = /usr/include
 
-#	MSpectrum1DW.o MSpectrum1DL.o MSpectrum2DB.o MSpectrum2DW.o \
-#	MGamma1DW.o MGamma1DL.o MGamma2DB.o MGamma2DW.o 
+DESTDIR =
 
+pkgdatadir = $(datadir)/SpecTcl
+pkglibdir = $(libdir)/SpecTcl
+pkgincludedir = $(includedir)/SpecTcl
+
+top_builddir = ..
+
+ACLOCAL = aclocal
+AUTOCONF = autoconf
+AUTOMAKE = automake
+AUTOHEADER = autoheader
+
+INSTALL = /usr/bin/install -c
+INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = ${INSTALL} -m 644
+INSTALL_SCRIPT = ${INSTALL}
+transform = s,x,x,
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = 
+host_triplet = i686-pc-linux-gnu
+AS = @AS@
+AWK = mawk
+CC = gcc
+CFLAGS = -g -O2
+CPP = gcc -E
+CXX = g++
+DLLTOOL = @DLLTOOL@
+ECHO = echo
+EXEEXT = 
+F77 = g77
+LD_EXTRA_FLAGS = 
+LEX = flex
+LIBTOOL = $(SHELL) $(top_builddir)/libtool
+LN_S = ln -s
+LTLIBOBJS = 
+MAKEINFO = makeinfo
+MOTIF_INCLUDES =  -I/usr/X11R6/include
+MOTIF_LIBSW = 
+OBJDUMP = @OBJDUMP@
+OBJEXT = o
+PACKAGE = SpecTcl
+RANLIB = ranlib
+STRIP = strip
+TCL_FLAGS = -I/usr/include/tcl
+TCL_LDFLAGS = -L/usr/lib -ltk -ltcl
+VERSION = 2.1-pre
+WCHAR_T_DEF = 
+XINCLUDES = -I/usr/X11R6/include
+XLIBSW = -L/usr/X11R6/lib
+XTLIBSW = 
+YACC = bison -y
+ac_aux_dir = config
+gri_cmd_dir = /home/fox/spectest/share/gri
+gri_dir = /home/fox/spectest/bin
+have_convert = yes
+
+INCLUDES = -I. -I../Utility -I../Exception -I../Xamine -I../Gates -I../Events -I../Display -I/usr/include/tcl
+LDADD = -lSorting -lXplus -lGates -lAnalysis -lEventSource -ltclPlus -lException -lXamine -lXt -lX11
+LDFLAGS = -L. -L/usr/lib -ltk -ltcl  -L/usr/X11R6/lib
+
+lib_LTLIBRARIES = libSorting.la
+
+libSorting_la_SOURCES = DictionaryException.cpp Histogrammer.cpp Spectrum.cpp 	Spectrum1DL.cpp Spectrum2DW.cpp Spectrum1DW.cpp Spectrum2DB.cpp 	BitSpectrumW.cpp BitSpectrumL.cpp SummarySpectrumW.cpp 	SummarySpectrumB.cpp SpectrumFactory.cpp SpectrumFactoryException.cpp 	SnapshotSpectrum.cpp Gamma1DW.cpp Gamma1DL.cpp Gamma2DW.cpp 	Gamma2DB.cpp GateMediator.cpp CAxis.cpp CParameterMapping.cpp  Parameter.cpp
+
+
+include_HEADERS = BitSpectrumL.h BitSpectrumW.h Dictionary.h 	DictionaryException.h Gamma1DL.h Gamma1DW.h Gamma2DB.h Gamma2DW.h 	GateMediator.h Histogrammer.h 	Parameter.h SnapshotSpectrum.h Spectrum.h 	Spectrum1DL.h Spectrum1DW.h Spectrum2DB.h Spectrum2DW.h 	SpectrumFactory.h SpectrumFactoryException.h SummarySpectrumB.h 	SummarySpectrumW.h CAxis.h CParameterMapping.h
+
+
+EXTRA_DIST = Sorter.WC Sorter.omt
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+CONFIG_HEADER = ../config.h
+CONFIG_CLEAN_FILES = 
+LTLIBRARIES =  $(lib_LTLIBRARIES)
+
+
+DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I..
+CPPFLAGS = 
+LIBS = -lm -lm -lm 
+libSorting_la_LDFLAGS = 
+libSorting_la_LIBADD = 
+libSorting_la_OBJECTS =  DictionaryException.lo Histogrammer.lo \
+Spectrum.lo Spectrum1DL.lo Spectrum2DW.lo Spectrum1DW.lo Spectrum2DB.lo \
+BitSpectrumW.lo BitSpectrumL.lo SummarySpectrumW.lo SummarySpectrumB.lo \
+SpectrumFactory.lo SpectrumFactoryException.lo SnapshotSpectrum.lo \
+Gamma1DW.lo Gamma1DL.lo Gamma2DW.lo Gamma2DB.lo GateMediator.lo \
+CAxis.lo CParameterMapping.lo Parameter.lo
+CXXFLAGS = -g -O2
+CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
+HEADERS =  $(include_HEADERS)
+
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP_ENV = --best
+DEP_FILES =  .deps/BitSpectrumL.P .deps/BitSpectrumW.P .deps/CAxis.P \
+.deps/CParameterMapping.P .deps/DictionaryException.P .deps/Gamma1DL.P \
+.deps/Gamma1DW.P .deps/Gamma2DB.P .deps/Gamma2DW.P .deps/GateMediator.P \
+.deps/Histogrammer.P .deps/Parameter.P .deps/SnapshotSpectrum.P \
+.deps/Spectrum.P .deps/Spectrum1DL.P .deps/Spectrum1DW.P \
+.deps/Spectrum2DB.P .deps/Spectrum2DW.P .deps/SpectrumFactory.P \
+.deps/SpectrumFactoryException.P .deps/SummarySpectrumB.P \
+.deps/SummarySpectrumW.P
+SOURCES = $(libSorting_la_SOURCES)
+OBJECTS = $(libSorting_la_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .cpp .lo .o .obj .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu Sorter/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-libLTLIBRARIES:
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+
+distclean-libLTLIBRARIES:
+
+maintainer-clean-libLTLIBRARIES:
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+.c.obj:
+	$(COMPILE) -c `cygpath -w $<`
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libSorting.la: $(libSorting_la_OBJECTS) $(libSorting_la_DEPENDENCIES)
+	$(CXXLINK) -rpath $(libdir) $(libSorting_la_LDFLAGS) $(libSorting_la_OBJECTS) $(libSorting_la_LIBADD) $(LIBS)
 .cpp.o:
-	$(COMPILE) $<
+	$(CXXCOMPILE) -c $<
+.cpp.obj:
+	$(CXXCOMPILE) -c `cygpath -w $<`
+.cpp.lo:
+	$(LTCXXCOMPILE) -c $<
 
-system: libSorting.a
-	$(ECHO) Library rebuild complete.
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(includedir)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(includedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(includedir)/$$p; \
+	done
 
-clean: 
-	$(RM) $(OBJECTS)
-	$(RM) libSorting.a
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(include_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(includedir)/$$p; \
+	done
 
-install:
-	$(INSTALL) libSorting.a $(INSTDIR)/Lib
-	$(INSTALL) *.h          $(INSTDIR)/Include
+tags: TAGS
 
-depend:
-	$(DEPEND) -Y.  *.cpp
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
 
-tests: AnalysisTest
-	$(ECHO) Test 'program(s)' are rebuilt.
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
 
-libSorting.a: $(OBJECTS)
-	$(ARCHIVE) libSorting.a $(OBJECTS)
+mostlyclean-tags:
 
-DictionaryException.o:  DictionaryException.cpp
-	$(COMPILE) DictionaryException.cpp
+clean-tags:
 
-AnalysisTest: AnalysisTest.cpp system
-	$(LINK) -o AnalysisTest AnalysisTest.cpp $(LIBS)
+distclean-tags:
+	-rm -f TAGS ID
 
-Histogrammer.o: Histogrammer.cpp
-	$(COMPILE)  Histogrammer.cpp
+maintainer-clean-tags:
 
-Spectrum.o: Spectrum.cpp
-	$(COMPILE) Spectrum.cpp
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 
-Spectrum1DL.o: Spectrum1DL.cpp
-	$(COMPILE) Spectrum1DL.cpp
+subdir = Sorter
 
-Spectrum2DW.o: Spectrum2DW.cpp
-	$(COMPILE) Spectrum2DW.cpp
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu Sorter/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
 
-Spectrum1DW.o: Spectrum1DW.cpp
-	$(COMPILE) Spectrum1DW.cpp
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
 
-Spectrum2DB.o: Spectrum2DB.cpp
-	$(COMPILE) Spectrum2DB.cpp
+-include $(DEP_FILES)
 
-BitSpectrumW.o: BitSpectrumW.cpp
-	$(COMPILE) BitSpectrumW.cpp
+mostlyclean-depend:
 
-BitSpectrumL.o: BitSpectrumL.cpp
-	$(COMPILE) BitSpectrumL.cpp
+clean-depend:
 
-SummarySpectrumW.o: SummarySpectrumW.cpp
-	$(COMPILE) SummarySpectrumW.cpp
+distclean-depend:
+	-rm -rf .deps
 
-SummarySpectrumB.o: SummarySpectrumB.cpp
-	$(COMPILE) SummarySpectrumB.cpp
+maintainer-clean-depend:
 
-SpectrumFactory.o: SpectrumFactory.cpp
-	$(COMPILE) SpectrumFactory.cpp
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
 
-SpectrumFactoryException.o: SpectrumFactoryException.cpp
-	$(COMPILE) SpectrumFactoryException.cpp
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
 
-SnapshotSpectrum.o: SnapshotSpectrum.cpp
-	$(COMPILE) SnapshotSpectrum.cpp
+%.o: %.cpp
+	@echo '$(CXXCOMPILE) -c $<'; \
+	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
 
-Gamma1DW.o: Gamma1DW.cpp
-	$(COMPILE) Gamma1DW.cpp
+%.lo: %.cpp
+	@echo '$(LTCXXCOMPILE) -c $<'; \
+	$(LTCXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-libLTLIBRARIES
+install-exec: install-exec-am
 
-Gamma1DL.o: Gamma1DL.cpp
-	$(COMPILE) Gamma1DL.cpp
+install-data-am: install-includeHEADERS
+install-data: install-data-am
 
-Gamma2DW.o: Gamma2DW.cpp
-	$(COMPILE) Gamma2DW.cpp
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-libLTLIBRARIES uninstall-includeHEADERS
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(includedir)
 
-Gamma2DB.o: Gamma2DB.cpp
-	$(COMPILE) Gamma2DB.cpp
 
-GateMediator.o: GateMediator.cpp
-	$(COMPILE) GateMediator.cpp
+mostlyclean-generic:
 
-#MSpectrum1DW.o: MSpectrum1DW.cpp
-#	$(COMPILE) MSpectrum1DW.cpp
+clean-generic:
 
-#MSpectrum1DL.o: MSpectrum1DL.cpp
-#	$(COMPILE) MSpectrum1DL.cpp
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
-#MSpectrum2DB.o: MSpectrum2DB.cpp
-#	$(COMPILE) MSpectrum2DB.cpp
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-tags mostlyclean-depend \
+		mostlyclean-generic
 
-#MSpectrum2DW.o: MSpectrum2DW.cpp
-#	$(COMPILE) MSpectrum2DW.cpp
+mostlyclean: mostlyclean-am
 
-#MGamma1DL.o: MGamma1DL.cpp
-#	$(COMPILE) MGamma1DL.cpp
+clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool clean-tags \
+		clean-depend clean-generic mostlyclean-am
 
-#MGamma1DW.o: MGamma1DW.cpp
-#	$(COMPILE) MGamma1DW.cpp
+clean: clean-am
 
-#MGamma2DB.o: MGamma2DB.cpp
-#	$(COMPILE) MGamma2DB.cpp
+distclean-am:  distclean-libLTLIBRARIES distclean-compile \
+		distclean-libtool distclean-tags distclean-depend \
+		distclean-generic clean-am
+	-rm -f libtool
 
-#MGamma2DW.o: MGamma2DW.cpp
-#	$(COMPILE) MGamma2DW.cpp
-# DO NOT DELETE
+distclean: distclean-am
 
-AnalysisTest.o: Histogrammer.h Dictionary.h Parameter.h Spectrum.h CAxis.h
-AnalysisTest.o: CParameterMapping.h Spectrum1DL.h Spectrum2DW.h Spectrum2DB.h
-AnalysisTest.o: Spectrum1DW.h Gamma1DW.h Gamma1DL.h Gamma2DW.h Gamma2DB.h
-BitSpectrumL.o: BitSpectrumL.h Spectrum.h CAxis.h CParameterMapping.h
-BitSpectrumL.o: Parameter.h
-BitSpectrumW.o: BitSpectrumW.h Spectrum.h CAxis.h CParameterMapping.h
-BitSpectrumW.o: Parameter.h
-CAxis.o: CAxis.h CParameterMapping.h
-CAxisTests.o: CAxisTests.h CAxis.h CParameterMapping.h
-CParameterMapping.o: CParameterMapping.h Parameter.h
-CParameterMappingTest.o: CParameterMappingTest.h CParameterMapping.h
-DictionaryException.o: DictionaryException.h
-Gamma1DL.o: Gamma1DL.h Parameter.h CParameterMapping.h CAxis.h
-Gamma1DW.o: Gamma1DW.h Parameter.h CParameterMapping.h CAxis.h
-Gamma2DB.o: Gamma2DB.h Parameter.h
-Gamma2DW.o: Gamma2DW.h Parameter.h
-GateMediator.o: GateMediator.h Spectrum.h CAxis.h CParameterMapping.h
-Histogrammer.o: Histogrammer.h Dictionary.h Parameter.h Spectrum.h CAxis.h
-Histogrammer.o: CParameterMapping.h DictionaryException.h GateMediator.h
-Histogrammer.o: Gamma2DW.h
-MGamma1DL.o: MGamma1DL.h Gamma1DL.h Parameter.h
-MGamma1DW.o: MGamma1DW.h Gamma1DW.h Parameter.h
-MGamma2DB.o: MGamma2DB.h Gamma2DB.h Parameter.h
-MGamma2DW.o: MGamma2DW.h Gamma2DW.h Parameter.h
-MSpectrum1DL.o: MSpectrum1DL.h Spectrum1DL.h Parameter.h
-MSpectrum1DW.o: MSpectrum1DW.h Spectrum1DW.h Parameter.h
-MSpectrum2DB.o: MSpectrum2DB.h Spectrum2DB.h Parameter.h
-MSpectrum2DW.o: MSpectrum2DW.h Spectrum2DW.h Parameter.h
-Parameter.o: Parameter.h
-ScalingTests.o: CParameterMappingTest.h CParameterMapping.h CAxisTests.h
-ScalingTests.o: CAxis.h
-SnapshotSpectrum.o: SnapshotSpectrum.h Spectrum.h CAxis.h CParameterMapping.h
-Spectrum.o: Spectrum.h CAxis.h CParameterMapping.h
-Spectrum1DL.o: Spectrum1DL.h Parameter.h CAxis.h CParameterMapping.h
-Spectrum1DW.o: Spectrum1DW.h Parameter.h CAxis.h CParameterMapping.h
-Spectrum2DB.o: Spectrum2DB.h Parameter.h CAxis.h CParameterMapping.h
-Spectrum2DW.o: Spectrum2DW.h Parameter.h CAxis.h CParameterMapping.h
-SpectrumFactory.o: SpectrumFactory.h Parameter.h SpectrumFactoryException.h
-SpectrumFactory.o: DictionaryException.h Spectrum.h CAxis.h
-SpectrumFactory.o: CParameterMapping.h Spectrum1DL.h Spectrum1DW.h
-SpectrumFactory.o: Spectrum2DW.h Spectrum2DB.h BitSpectrumL.h BitSpectrumW.h
-SpectrumFactory.o: SummarySpectrumW.h SummarySpectrumB.h Gamma1DW.h
-SpectrumFactory.o: Gamma1DL.h Gamma2DB.h Gamma2DW.h Histogrammer.h
-SpectrumFactory.o: Dictionary.h
-SpectrumFactoryException.o: SpectrumFactoryException.h
-SummarySpectrumB.o: SummarySpectrumB.h Parameter.h
-SummarySpectrumW.o: SummarySpectrumW.h Parameter.h
+maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-tags maintainer-clean-depend \
+		maintainer-clean-generic distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool uninstall-includeHEADERS \
+install-includeHEADERS tags mostlyclean-tags distclean-tags clean-tags \
+maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
+clean-depend maintainer-clean-depend info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

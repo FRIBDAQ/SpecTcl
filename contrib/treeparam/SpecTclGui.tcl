@@ -520,6 +520,7 @@ proc SaveSpectrumDefinition {file} {
 proc SortGates {theList} {
 	if {[string compare $theList ""] == 0} {return ""}
 	# first sort primitive and composite gates
+	set composites ""
 	foreach g $theList {
 		set type [lindex $g 2]
 		if {[string compare $type *] == 0} {

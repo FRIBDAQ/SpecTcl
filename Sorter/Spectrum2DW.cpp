@@ -295,6 +295,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change log:
   $Log$
+  Revision 4.4  2003/08/25 16:25:32  ron-fox
+  Initial starting point for merge with filtering -- this probably does not
+  generate a goo spectcl build.
+
   Revision 4.3  2003/04/01 19:53:46  ron-fox
   Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -458,7 +462,6 @@ CSpectrum2DW::Increment(const CEvent& rE)
     Int_t ny = Randomize(ParameterToAxis(1, rEvent[m_nYParameter]));
     if( (nx >= 0)   && (nx < m_nXScale)     &&
 	(ny >= 0)   && (ny < m_nYScale)) {
-      
       UShort_t* pSpec = (UShort_t*)getStorage();
       pSpec[nx + (ny * m_nXScale)]++;
     }

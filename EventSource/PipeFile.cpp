@@ -317,10 +317,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 // Header Files:
 //
 
-#ifdef HPUX
 #ifndef _REENTRANT
 #define _REENTRANT		// This is needed to get strtok_r defined.
 #endif
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
 
 #include "PipeFile.h" 
@@ -337,46 +339,18 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include <sys/time.h>
 #include <string.h>
 
-#ifdef OSF1			// Coulnd't find pipe for some reason!!
+#ifndef HAVE_PIPE               // Coulnd't find pipe for some reason!!
 extern "C" {
   int pipe(int*);
 };
 #endif
 
-
-// Static functions
-
-#ifdef __NEED_STRTOKR		// Need to implement strtok_r
-// This is posix.1C so it seems the best of the bunch of strtok-ish ones
-// to standardize on.
-//
-static inline char* strtok_r(char *s1, const char* s2, char** savept)
-{
-  if(s1) {
-    *savept = s1;
-  }
-  return strsep(savept, s2);
-
-}
+#ifdef OSF
+extern "C" {
+  int pipe(int*);
+};
 #endif
-#ifdef Darwin			// Need to implement strtok_r
-// This is posix.1C so it seems the best of the bunch of strtok-ish ones
-// to standardize on.
-//
-static inline char* strtok_r(char *s1, const char* s2, char** savept)
-{
-  if(s1) {
-    *savept = s1;
-  }
-  return strsep(savept, s2);
 
-}
-#endif
-#ifdef OSF1
-extern "C" {			// Missing from string.h
-  char* strtok_r(char* s1, const char* s2, char** savept);
-}
-#endif
 
 // Functions for class CPipeFile
 /////////////////////////////////////////////////////////////////////////

@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -290,9 +290,13 @@ DAMAGES.
 **   @(#)XMText.h	8.1 6/23/95 
 */
 
-#ifndef _XMTEXT_H
-#define _XMTEXT_H
+#ifndef XMTEXT_H
+#define XMTEXT_H
+
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
 #include <Xm/Text.h>
 #include <Xm/TextF.h>
 #include <string.h>
@@ -303,47 +307,24 @@ class XMText : public XMManagedWidget
      /* Constructors: */
 
      XMText(char *n, XMWidget &parent, int rows = 1, int columns = 30,
-	    ArgList args = NULL, Cardinal arg_count = 0) :
-	      XMManagedWidget(n, xmTextWidgetClass, parent, args, arg_count) {
-		SetColumns(columns);
-		SetRows(rows);
-	      }
-
+	    ArgList args = NULL, Cardinal arg_count = 0);
      XMText(char *n, Widget parent, int rows = 1, int columns = 30,
-	    ArgList args = NULL, Cardinal arg_count = 0) : 
-	      XMManagedWidget(n, xmTextWidgetClass, parent) {
-		SetColumns(columns);
-		SetRows(rows);
-	      }
+	    ArgList args = NULL, Cardinal arg_count = 0);
 
-     XMText(char *n) : XMManagedWidget(n) { }
-     XMText(Widget w): XMManagedWidget(w) { }
+     XMText(char *n);
+     XMText(Widget w);
 
      /* Set attributes: */
 
-     void SetColumns(int columns) {
-       SetAttribute(XmNcolumns, columns);
-     }
-     void SetRows(int rows) {
-       SetAttribute(XmNrows, rows);
-     }
-     void SetMaxLength(int len) {
-       SetAttribute(XmNmaxLength, len);
-     }
-     void EnableWordWrap() {
-       SetAttribute(XmNwordWrap, True);
-     }
-     void DisableWordWrap() {
-       SetAttribute(XmNwordWrap, (XtArgVal)False);
-     }
-     char *GetText() { return XmTextGetString(id); }
+     void SetColumns(int columns);
+     void SetRows(int rows);
+     void SetMaxLength(int len);
+     void EnableWordWrap();
+     void DisableWordWrap();
+     char *GetText();
 
-     void SetText(char *txt) {
-       XmTextSetString(id, txt);
-     }
-     void SetEditing(Boolean enable) {
-       SetAttribute(XmNeditable, enable);
-     }
+     void SetText(char *txt);
+     void SetEditing(Boolean enable);
    };
 
 
@@ -354,42 +335,25 @@ class XMTextField : public XMManagedWidget
      /* Constructors: */
 
      XMTextField(char *n, XMWidget &parent, int columns = 30,
-	    ArgList args = NULL, Cardinal arg_count = 0) :
-	      XMManagedWidget(n, xmTextFieldWidgetClass, 
-			      parent, args, arg_count) {
-		SetColumns(columns);
-	      }
-
+	    ArgList args = NULL, Cardinal arg_count = 0);
      XMTextField(char *n, Widget parent,  int columns = 30,
-	    ArgList args = NULL, Cardinal arg_count = 0) : 
-	      XMManagedWidget(n, xmTextFieldWidgetClass, parent) {
-		SetColumns(columns);
-	      }
+	    ArgList args = NULL, Cardinal arg_count = 0);
 
-     XMTextField(char *n) : XMManagedWidget(n) { }
-     XMTextField(Widget w): XMManagedWidget(w) { }
+     XMTextField(char *n);
+     XMTextField(Widget w);
 
      /* Set attributes: */
 
-     void SetColumns(int columns) {
-       SetAttribute(XmNcolumns, columns);
-     }
-     void SetMaxLength(int len) {
-       SetAttribute(XmNmaxLength, len);
-     }
-     void EnableWordWrap() {
-       SetAttribute(XmNwordWrap, True);
-     }
-     char *GetText() { return XmTextFieldGetString(id); }
+     void SetColumns(int columns);
+     void SetMaxLength(int len);
+     void EnableWordWrap();
+     char *GetText();
 
-     void SetText(char *txt) {
-       XmTextFieldSetString(id, txt);
-     }
+     void SetText(char *txt);
      Callback_data *AddActivateCallback(void (*callback)(XMWidget *, 
-					       XtPointer, XtPointer), 
-			      XtPointer user_data=NULL) {
-       return AddCallback(XmNactivateCallback, callback, user_data);
-     }
+							 XtPointer, 
+							 XtPointer), 
+					XtPointer user_data=NULL);
    };
 
 class XMScrolledText : public XMText {
@@ -402,49 +366,16 @@ class XMScrolledText : public XMText {
   /* Constructors: */
 
   XMScrolledText(char *n, XMWidget &parent, int rows = 20, int columns = 40,
-		 ArgList args = NULL, Cardinal arg_count = 0) :
-     XMText(n) {		/* Use no-op constructor for base class */
-       id       = XmCreateScrolledText(parent.getid(), n, args, arg_count);
-       scroller = XtParent(id);
-       SetColumns(columns);
-       SetRows(rows);
-       text_length = 0;
-       max_text_length = 0;     /* No max length. */
-     }
-
+		 ArgList args = NULL, Cardinal arg_count = 0);
   XMScrolledText(char *n, Widget parent, int rows = 20, int columns = 40,
-		 ArgList args = NULL, Cardinal arg_count = 0) :
-     XMText(n) {		/* Use no-op constructor for base class */
-       id       = XmCreateScrolledText(parent, n, args, arg_count);
-       scroller = XtParent(id);
-       SetColumns(columns);
-       SetRows(rows);
-       text_length = 0;
-       max_text_length = 0;     /* No max length. */
-     }
-
+		 ArgList args = NULL, Cardinal arg_count = 0);
 
   /* Manipulators:  */
 
-  void SetMaxLength(int maxlen) { max_text_length = maxlen; }
-  void ClearText() {
-    text_length = 0;
-    XmTextSetString(id, "");	/* Set text value to empty string. */
-  }
-  void AddText(char *string) {
-    XmTextInsert(id, text_length, string);
-    text_length += strlen(string);
-    if( (max_text_length > 0) && (text_length > max_text_length)) {
-      int rmlen;
-      rmlen = text_length - max_text_length;
-      char *st = XmTextGetString(id);
-      XmTextSetString(id, &st[rmlen]);
-      text_length -= rmlen;
-      XtFree(st);
-    }
-    XmTextSetInsertionPosition(id, text_length);
-  }
-  Widget Scroller() { return scroller; }
+  void SetMaxLength(int maxlen);
+  void ClearText();
+  void AddText(char *string);
+  Widget Scroller();
 };
 #endif
 

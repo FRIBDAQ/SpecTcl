@@ -293,6 +293,10 @@ DAMAGES.
 /*
    Change log:
    $Log$
+   Revision 4.5  2003/08/25 16:25:33  ron-fox
+   Initial starting point for merge with filtering -- this probably does not
+   generate a goo spectcl build.
+
    Revision 4.4  2003/04/01 19:59:49  ron-fox
    Removed Mapped Spectrum types... Added changelog tag to header comments.
 
@@ -300,6 +304,10 @@ DAMAGES.
 
 #ifndef __HISTOTYPES_H
 #define __HISTOTYPES_H
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #ifndef __CPP_IOSTREAM_H
 #include <iostream.h>
@@ -319,8 +327,6 @@ DAMAGES.
 using namespace std;
 
 #include <math.h>
-
-
 
 typedef int Int_t;
 typedef unsigned int UInt_t;
@@ -541,15 +547,6 @@ static const UInt_t knDefaultBufferSize   = kn1K*8;
 // Default histogram storage size
 
 static const UInt_t knDefaultSpectrumSize = 16*kn1M;
-
-
-// stands in for log2f function which is not included with linux c++
-#ifdef Linux
-inline float log2f(float a) {
-  return (float)(log(a)/log(2));
-}
-#endif
-
 
 #endif
 

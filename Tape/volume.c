@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -310,26 +310,23 @@ static char *version = "@(#)volume.c	2.14 4/5/96 Library_File\n";
 **
 */
 
-#include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdlib.h>
+#include <unistd.h>
+#include <strings.h>
 #include <time.h>
-//#include "mtinternl.h"
+
 #include "mtaccess.h"
 #include <ctype.h>
 #include <errno.h>
 void panic(char* string);
 
-#ifdef unix
-#include <strings.h>
-#endif
-#ifdef sparc
 #include <sys/types.h>
-#include <unistd.h>
-#endif
+#include <stdio.h>
 
-#ifdef VMS
-#include <string.h>
-#endif
 /*
 **
 **  MACRO definitions
@@ -2195,7 +2192,7 @@ int volread (volume* vcb, char* data, int count, int* actual)
 	return MTEOF;
     }
    vcb->blockswritten++;
-#ifdef sparc			/* Try to avoid the 2gbyte limit... */
+#ifdef SPARC			/* Try to avoid the 2gbyte limit... */
     if(vcb->blockswritten > 1000) { /* Don't lseek all the time. */
       lseek(vcb->fd, 0, SEEK_SET);
       vcb->blockswritten = 0;
@@ -2203,4 +2200,3 @@ int volread (volume* vcb, char* data, int count, int* actual)
 #endif
     return status;
 }
-

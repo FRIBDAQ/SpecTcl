@@ -18,12 +18,7 @@ static char *yaccrevlevel = "@(#)defaultfile.y	2.1 12/22/93  - windows file pars
 extern void windfileerror(char *text);
 /* #define SHARED extern */
 #include <assert.h>
-#ifdef unix
 #include <memory.h>
-#endif
-#ifdef VMS
-#include <stdlib.h>
-#endif
 #include <stdio.h>
 
 #include "windio.h"
@@ -59,10 +54,6 @@ static struct limit { int low;
 extern int windfilelex_line;
 static struct DefaultPrintOptions *printops = Xamine_GetDefaultPrintOptions();
 static win_attributed *current = Xamine_GetDefaultGenericAttributes();
-#define YYTOKENTYPE
-#ifdef __GNUC_MINOR__
-#undef __GNUC_MINOR__
-#endif
  
 %}
 %union {

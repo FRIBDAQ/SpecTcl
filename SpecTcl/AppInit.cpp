@@ -575,6 +575,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
    static char* pProgramCopyright =
    "SpecTcl NSCL Data Analyzer (c) Copyright 1999 NSCL, All rights reserved";
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "TCLHistogrammer.h"
 #include "TestFile.h"
 #include "TCLApplication.h"
@@ -603,8 +607,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <assert.h>
 
 #include <sys/sysinfo.h>
-#ifdef OSF1
+#ifdef HAVE_MACHINE_HAL_SYSINFO_H
 #include <machine/hal_sysinfo.h>
+#endif
+#ifdef HAVE_SYS_PROC_H
 #include <sys/proc.h>
 #endif
 
@@ -672,14 +678,16 @@ extern "C" {
       
       {
       // Turn off UAC printing.
-      #ifdef OSF1
+#ifdef HAVE_SYS_PROC_H
+#ifdef HAVE_MACHINE_HAL_SYSINFO_H
       int buf[4];
       buf[0] = SSIN_UACPROC;
       buf[1] = UAC_NOPRINT;
       buf[2] = SSIN_IECPROC;
       buf[3] = IEC_NOPRINT;
       setsysinfo(SSI_NVPAIRS, buf, 2, 0, 0);
-      #endif
+#endif
+#endif
       }
       ~CTclGrammerApp() {
          delete m_pAnalyzer;

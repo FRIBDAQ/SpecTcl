@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -294,16 +294,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Include files:
 */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
-#ifdef unix
+
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
-#endif
-#ifdef VMS
-#include <types.h>
-#endif
+
 #include <Xm/DrawingA.h>
 #include <Xm/ScrolledW.h>
 #include <new>
@@ -338,20 +339,11 @@ static caddr_t usage;
 ** Define where to find Xamine's catchy icon file.
 */
 
-#ifdef VMS
-#define ICON_FILENAME "DAQ_LIB:XAMINE.ICO"
-typedef int pid_t;
-extern "C" {
-pid_t getppid();
-}
-#endif
-#ifdef unix
 #ifndef HOME
 #define ICON_FILENAME "/daq/etc/Xamine.ico"
 #endif
-#endif
 
-#ifdef ultrix
+#ifdef ULTRIX
 extern "C" {
   char *sbrk(int);
 }
@@ -362,21 +354,13 @@ extern "C" {
 **   MemGone:
 **     Called when memory is exhausted
 */
-#ifdef VMS
-extern "C" {
-void __NEW_HANDLER()
-#else
 static void MemGone()
-#endif
 {
   int a;
   fprintf(stderr, "Xamine -- Memory allocation failed... coredumping\n");
   fflush(stderr);		// Ensure we see the output.
   a = *(int *)(NULL);
 }
-#ifdef VMS
-}
-#endif
 
 /*
 ** Functional Description:
@@ -567,7 +551,7 @@ int main(Cardinal argc, char **argv)
 
   /* Start the application */
 
-  usage = (caddr_t)sbrk(0);		/* Get current stack/heap break point. */
+  usage = (caddr_t)sbrk(0);	    /* Get current stack/heap break point. */
   XtAppAddTimeOut(top.GetContext(),
 		  1000,
 		  Monitor,

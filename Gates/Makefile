@@ -1,166 +1,432 @@
-#
-#  Makefile for the gates object library (SpecTcl facility).
-#
+# Makefile.in generated automatically by automake 1.4-p4 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
 
 
-SPECTCL_VERSION = -DVERSION=$(VERSION)
+SHELL = /bin/sh
 
-LinuxLIBS=-ldl
-CYGWININCS=-I/usr/local/tcl/include
-CYGWINLIBDIR=-L/usr/local/tcl/lib
+srcdir = .
+top_srcdir = ..
 
-INCLUDEDIRS= $($(OS)INCS) -I. -I$(INSTDIR)/Include -I/usr/local/include -I/usr/local/daq/include
-LIBDIRS= $($(OS)LIBDIR) \
-	-L. -L$(INSTDIR)/Lib -L/usr/local -L/usr/local/daq/lib -L/usr/X11/lib
-LIBS=   -lTclGrammerCommands \
-	-lSorting -lXplus -lAnalysis -lEventSource -ltclPlus -lException \
-	-lXamine -ltape \
-	-ltk -ltcl -lXt -lX11 -lm $($(OS)LIBS)
+prefix = /home/fox/spectest
+exec_prefix = ${prefix}
 
-ECHO=echo
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) -DINSTALLED_IN='"$(INSTDIR)"' $(SPECTCL_VERSION)
-LINK=$($(OS)LD) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS) $(SPECTCL_VERSION)
-RM=rm -f
-DEPEND=makedepend
-INSTALL=install -m 0664
-ARCHIVE=ar cr
-CONCAT=cat
-OBJECTS =  ActualIterator.o AndGate.o Band.o CompoundGate.o \
-	ConstituentIterator.o Contour.o Cut.o DeletedGate.o \
-	FalseGate.o Gate.o GateContainer.o GateListIterator.o \
-	Interior.o InteriorRow.o Not.o OrGate.o PointlistGate.o \
-	PointlistIterator.o SingleItemIterator.o TrueGate.o C2Bands.o \
-	GammaCut.o GammaBand.o GammaContour.o
+bindir = ${exec_prefix}/bin
+sbindir = ${exec_prefix}/sbin
+libexecdir = ${exec_prefix}/libexec
+datadir = ${prefix}/share
+sysconfdir = ${prefix}/etc
+sharedstatedir = ${prefix}/com
+localstatedir = ${prefix}/var
+libdir = ${exec_prefix}/lib
+infodir = ${prefix}/info
+mandir = ${prefix}/man
+includedir = ${prefix}/include
+oldincludedir = /usr/include
 
+DESTDIR =
 
-system: libGates.a
+pkgdatadir = $(datadir)/SpecTcl
+pkglibdir = $(libdir)/SpecTcl
+pkgincludedir = $(includedir)/SpecTcl
 
-clean: 
-	$(RM) $(OBJECTS)
-	$(RM) libGates.a
+top_builddir = ..
 
+ACLOCAL = aclocal
+AUTOCONF = autoconf
+AUTOMAKE = automake
+AUTOHEADER = autoheader
 
-install: system
-	$(INSTALL) libGates.a $(INSTDIR)/Lib
-	$(INSTALL) *.h        $(INSTDIR)/Include
+INSTALL = /usr/bin/install -c
+INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = ${INSTALL} -m 644
+INSTALL_SCRIPT = ${INSTALL}
+transform = s,x,x,
 
-depend:
-	$(DEPEND) -Y. *.cpp
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = 
+host_triplet = i686-pc-linux-gnu
+AS = @AS@
+AWK = mawk
+CC = gcc
+CFLAGS = -g -O2
+CPP = gcc -E
+CXX = g++
+DLLTOOL = @DLLTOOL@
+ECHO = echo
+EXEEXT = 
+F77 = g77
+LD_EXTRA_FLAGS = 
+LEX = flex
+LIBTOOL = $(SHELL) $(top_builddir)/libtool
+LN_S = ln -s
+LTLIBOBJS = 
+MAKEINFO = makeinfo
+MOTIF_INCLUDES =  -I/usr/X11R6/include
+MOTIF_LIBSW = 
+OBJDUMP = @OBJDUMP@
+OBJEXT = o
+PACKAGE = SpecTcl
+RANLIB = ranlib
+STRIP = strip
+TCL_FLAGS = -I/usr/include/tcl
+TCL_LDFLAGS = -L/usr/lib -ltk -ltcl
+VERSION = 2.1-pre
+WCHAR_T_DEF = 
+XINCLUDES = -I/usr/X11R6/include
+XLIBSW = -L/usr/X11R6/lib
+XTLIBSW = 
+YACC = bison -y
+ac_aux_dir = config
+gri_cmd_dir = /home/fox/spectest/share/gri
+gri_dir = /home/fox/spectest/bin
+have_convert = yes
 
-libGates.a: $(OBJECTS)
-	$(ARCHIVE) libGates.a $(OBJECTS) 
-	ranlib     libGates.a
+INCLUDES = -I. -I../Utility -I../Events -I../Xamine 
+LDADD = -lTclGrammerCommands -lSorting -lXplus -lAnalysis -lEventSource 	-ltclPlus -lException -lXamine -ltape -ltk -ltcl -lXt -lX11 -lm
 
-ActualIterator.o: ActualIterator.cpp
-	$(COMPILE) ActualIterator.cpp
+LDFLAGS = -L. -L/usr/lib -ltk -ltcl
 
-AndGate.o: AndGate.cpp
-	$(COMPILE) AndGate.cpp
+lib_LTLIBRARIES = libGates.la
 
-Band.o: Band.cpp
-	$(COMPILE) Band.cpp
-
-CompoundGate.o: CompoundGate.cpp
-	$(COMPILE) CompoundGate.cpp
-
-ConstituentIterator.o: ConstituentIterator.cpp
-	$(COMPILE) ConstituentIterator.cpp
-
-Contour.o: Contour.cpp
-	$(COMPILE) Contour.cpp
-
-Cut.o: Cut.cpp
-	$(COMPILE) Cut.cpp
-
-DeletedGate.o: DeletedGate.cpp
-	$(COMPILE) DeletedGate.cpp
-
-FalseGate.o: FalseGate.cpp
-	$(COMPILE) FalseGate.cpp
-
-Gate.o: Gate.cpp
-	$(COMPILE) Gate.cpp
-
-GateContainer.o: GateContainer.cpp
-	$(COMPILE) GateContainer.cpp
-
-GateListIterator.o: GateListIterator.cpp
-	$(COMPILE) GateListIterator.cpp
-
-Interior.o: Interior.cpp
-	$(COMPILE) Interior.cpp
-
-InteriorRow.o: InteriorRow.cpp
-	$(COMPILE) InteriorRow.cpp
-
-Not.o: Not.cpp
-	$(COMPILE) Not.cpp
-
-OrGate.o: OrGate.cpp
-	$(COMPILE) OrGate.cpp
-
-PointlistGate.o: PointlistGate.cpp
-	$(COMPILE) PointlistGate.cpp
-
-PointlistIterator.o: PointlistIterator.cpp
-	$(COMPILE) PointlistIterator.cpp
-
-SingleItemIterator.o: SingleItemIterator.cpp
-	$(COMPILE) SingleItemIterator.cpp
-
-TrueGate.o: TrueGate.cpp
-	$(COMPILE) TrueGate.cpp
+libGates_la_SOURCES = ActualIterator.cpp AndGate.cpp Band.cpp 	CompoundGate.cpp ConstituentIterator.cpp Contour.cpp Cut.cpp 	DeletedGate.cpp FalseGate.cpp Gate.cpp GateContainer.cpp 	GateListIterator.cpp Interior.cpp InteriorRow.cpp Not.cpp OrGate.cpp 	PointlistGate.cpp PointlistIterator.cpp SingleItemIterator.cpp 	TrueGate.cpp C2Bands.cpp GammaCut.cpp GammaBand.cpp GammaContour.cpp
 
 
-C2Bands.o: C2Bands.cpp
-	$(COMPILE) C2Bands.cpp
+include_HEADERS = ActualIterator.h AndGate.h Band.h C2Bands.h CompoundGate.h 	ConstituentIterator.h Contour.h Cut.h DeletedGate.h FalseGate.h 	GammaBand.h GammaContour.h GammaCut.h Gate.h GateContainer.h 	GateListIterator.h Interior.h InteriorRow.h Not.h OrGate.h 	PointlistGate.h PointlistIterator.h SingleItemIterator.h TrueGate.h
 
-GammaCut.o: GammaCut.cpp
-	$(COMPILE) GammaCut.cpp
 
-GammaBand.o: GammaBand.cpp
-	$(COMPILE) GammaBand.cpp
+EXTRA_DIST = classbreakdown.WC classbreakdown.omt
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+CONFIG_HEADER = ../config.h
+CONFIG_CLEAN_FILES = 
+LTLIBRARIES =  $(lib_LTLIBRARIES)
 
-GammaContour.o: GammaContour.cpp
-	$(COMPILE) GammaContour.cpp
-# DO NOT DELETE
 
-ActualIterator.o: ActualIterator.h
-AndGate.o: AndGate.h CompoundGate.h Gate.h ConstituentIterator.h
-AndGate.o: ActualIterator.h GateContainer.h
-Band.o: Band.h PointlistGate.h Gate.h ConstituentIterator.h ActualIterator.h
-C2Bands.o: C2Bands.h Contour.h PointlistGate.h Gate.h ConstituentIterator.h
-C2Bands.o: ActualIterator.h Interior.h InteriorRow.h Band.h
-CompoundGate.o: CompoundGate.h Gate.h ConstituentIterator.h ActualIterator.h
-CompoundGate.o: GateContainer.h GateListIterator.h
-ConstituentIterator.o: ConstituentIterator.h ActualIterator.h
-Contour.o: Contour.h PointlistGate.h Gate.h ConstituentIterator.h
-Contour.o: ActualIterator.h Interior.h InteriorRow.h
-Cut.o: Cut.h Gate.h ConstituentIterator.h ActualIterator.h
-Cut.o: SingleItemIterator.h
-DeletedGate.o: DeletedGate.h FalseGate.h Gate.h ConstituentIterator.h
-DeletedGate.o: ActualIterator.h
-FalseGate.o: FalseGate.h Gate.h ConstituentIterator.h ActualIterator.h
-FalseGate.o: SingleItemIterator.h
-GammaBand.o: GammaBand.h Band.h PointlistGate.h Gate.h ConstituentIterator.h
-GammaBand.o: ActualIterator.h
-GammaContour.o: GammaContour.h Contour.h PointlistGate.h Gate.h
-GammaContour.o: ConstituentIterator.h ActualIterator.h Interior.h
-GammaContour.o: InteriorRow.h
-GammaCut.o: GammaCut.h Cut.h Gate.h ConstituentIterator.h ActualIterator.h
-GammaCut.o: SingleItemIterator.h
-Gate.o: Gate.h ConstituentIterator.h ActualIterator.h
-GateContainer.o: GateContainer.h
-GateListIterator.o: GateListIterator.h
-Interior.o: Interior.h InteriorRow.h
-InteriorRow.o: InteriorRow.h
-Not.o: Not.h GateContainer.h Gate.h ConstituentIterator.h ActualIterator.h
-Not.o: SingleItemIterator.h
-OrGate.o: OrGate.h CompoundGate.h Gate.h ConstituentIterator.h
-OrGate.o: ActualIterator.h GateContainer.h
-PointlistGate.o: PointlistGate.h Gate.h ConstituentIterator.h
-PointlistGate.o: ActualIterator.h PointlistIterator.h
-PointlistIterator.o: PointlistIterator.h
-SingleItemIterator.o: SingleItemIterator.h
-TrueGate.o: TrueGate.h Gate.h ConstituentIterator.h ActualIterator.h
-TrueGate.o: SingleItemIterator.h
+DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I..
+CPPFLAGS = 
+LIBS = -lm -lm -lm 
+libGates_la_LDFLAGS = 
+libGates_la_LIBADD = 
+libGates_la_OBJECTS =  ActualIterator.lo AndGate.lo Band.lo \
+CompoundGate.lo ConstituentIterator.lo Contour.lo Cut.lo DeletedGate.lo \
+FalseGate.lo Gate.lo GateContainer.lo GateListIterator.lo Interior.lo \
+InteriorRow.lo Not.lo OrGate.lo PointlistGate.lo PointlistIterator.lo \
+SingleItemIterator.lo TrueGate.lo C2Bands.lo GammaCut.lo GammaBand.lo \
+GammaContour.lo
+CXXFLAGS = -g -O2
+CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
+HEADERS =  $(include_HEADERS)
+
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP_ENV = --best
+DEP_FILES =  .deps/ActualIterator.P .deps/AndGate.P .deps/Band.P \
+.deps/C2Bands.P .deps/CompoundGate.P .deps/ConstituentIterator.P \
+.deps/Contour.P .deps/Cut.P .deps/DeletedGate.P .deps/FalseGate.P \
+.deps/GammaBand.P .deps/GammaContour.P .deps/GammaCut.P .deps/Gate.P \
+.deps/GateContainer.P .deps/GateListIterator.P .deps/Interior.P \
+.deps/InteriorRow.P .deps/Not.P .deps/OrGate.P .deps/PointlistGate.P \
+.deps/PointlistIterator.P .deps/SingleItemIterator.P .deps/TrueGate.P
+SOURCES = $(libGates_la_SOURCES)
+OBJECTS = $(libGates_la_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .cpp .lo .o .obj .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu Gates/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-libLTLIBRARIES:
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+
+distclean-libLTLIBRARIES:
+
+maintainer-clean-libLTLIBRARIES:
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+.c.obj:
+	$(COMPILE) -c `cygpath -w $<`
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libGates.la: $(libGates_la_OBJECTS) $(libGates_la_DEPENDENCIES)
+	$(CXXLINK) -rpath $(libdir) $(libGates_la_LDFLAGS) $(libGates_la_OBJECTS) $(libGates_la_LIBADD) $(LIBS)
+.cpp.o:
+	$(CXXCOMPILE) -c $<
+.cpp.obj:
+	$(CXXCOMPILE) -c `cygpath -w $<`
+.cpp.lo:
+	$(LTCXXCOMPILE) -c $<
+
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(includedir)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(includedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(includedir)/$$p; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(include_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(includedir)/$$p; \
+	done
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = Gates
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu Gates/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+
+%.o: %.cpp
+	@echo '$(CXXCOMPILE) -c $<'; \
+	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.cpp
+	@echo '$(LTCXXCOMPILE) -c $<'; \
+	$(LTCXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-libLTLIBRARIES
+install-exec: install-exec-am
+
+install-data-am: install-includeHEADERS
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-libLTLIBRARIES uninstall-includeHEADERS
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(includedir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-tags mostlyclean-depend \
+		mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool clean-tags \
+		clean-depend clean-generic mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-libLTLIBRARIES distclean-compile \
+		distclean-libtool distclean-tags distclean-depend \
+		distclean-generic clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-tags maintainer-clean-depend \
+		maintainer-clean-generic distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool uninstall-includeHEADERS \
+install-includeHEADERS tags mostlyclean-tags distclean-tags clean-tags \
+maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
+clean-depend maintainer-clean-depend info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

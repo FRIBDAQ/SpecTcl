@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -292,17 +292,12 @@ DAMAGES.
 */
 
 #ifndef XMWIDGET_H
-#define XMWIDGET_H 1
+#define XMWIDGET_H
 
 /*
 ** Include files:
 */
-#ifdef unix
 #include <strings.h>
-#endif
-#ifdef VMS
-#include <string.h>
-#endif
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <Xm/Xm.h>
@@ -310,8 +305,6 @@ DAMAGES.
 typedef char XMWidgetName[32];
 
 struct Callback_data;
-
-
 
 class XMApplication 
 {
@@ -325,51 +318,21 @@ class XMApplication
 		XrmOptionDescList options = NULL, 
 		Cardinal noptions = 0,
 		const char **fallback_resources = NULL,
-		ArgList args = NULL, Cardinal num_args=0)
-    {
-      strcpy(app_class, cl);
-      toplevel_shell = XtAppInitialize(&application,
-				       app_class, options,
-				       noptions,
-				       (int *)
-				       argc, argv,
-				       (String *)
-				       fallback_resources,
-				       args, num_args);
-    }
+		ArgList args = NULL, Cardinal num_args=0);
 
-  void Begin()	/* Instantiant everything and do main loop */
-    {
-      if(!XtIsRealized(toplevel_shell))
-	XtRealizeWidget(toplevel_shell); 
-      XtAppMainLoop(application); 
-    }
+  void Begin();	/* Instantiant everything and do main loop */
 
-  XtAppContext GetContext() { return application; }
+  XtAppContext GetContext();
+  Widget getid();
+  void Manage();
+  void UnManage();
+  void Realize();
+  void UnRealize();
 
-  Widget getid() { return toplevel_shell; }
-
-  void Manage()   {XtManageChild(toplevel_shell); }
-
-  void UnManage() {XtUnmanageChild(toplevel_shell); }
-
-  void Realize()  {XtRealizeWidget(toplevel_shell); }
-
-  void UnRealize() {XtUnrealizeWidget(toplevel_shell); }
-
-
-  void SetAttribute(String attribute, XtArgVal value) 
-    { XtVaSetValues(toplevel_shell, attribute, value, NULL); }
-
-  void SetAttribute(String attribute, void *value)
-    { XtVaSetValues(toplevel_shell, attribute, value, NULL); }
-
-		  
-  void GetAttribute(String attribute, void *value)
-    { XtVaGetValues(toplevel_shell, attribute, value, NULL); }
-
-  void GetAttribute(String attribute, XtArgVal value)
-    { XtVaGetValues(toplevel_shell, attribute, value, NULL); }
+  void SetAttribute(String attribute, XtArgVal value);
+  void SetAttribute(String attribute, void *value);
+  void GetAttribute(String attribute, void *value);
+  void GetAttribute(String attribute, XtArgVal value);
 };
 
 
@@ -379,77 +342,45 @@ class XMWidget
   Widget id;
   XMWidgetName name;
   void Create(char *n, WidgetClass cl, Widget parent,
-	      ArgList l, Cardinal num_args)
-    { 
-      strcpy(name,n);
-      id = XtCreateWidget(name, cl, parent, l, num_args);
-    }
+	      ArgList l, Cardinal num_args);
+
  public:
 
   /* Constructors and Destructors */
-  XMWidget(char *n)
-    {
-      strcpy(name, n);
-      /* Null constructor to allow full override. */
-    }
-  XMWidget(Widget w) 
-    {
-      id = w;
-      strcpy(name, XtName(id));
-    }
+  XMWidget(char *n);
+  XMWidget(Widget w); 
   XMWidget(char *n, WidgetClass cl, XMApplication &parent,
-	   ArgList l=NULL, Cardinal num_args=0)
-    {
-      Create(n, cl, parent.getid(), l, num_args);
-    }		      
+	   ArgList l=NULL, Cardinal num_args=0);
   XMWidget(char *n, WidgetClass cl, Widget parent,
-	   ArgList l=NULL, Cardinal num_args=0)
-    {
-      Create(n, cl, parent, l, num_args);
-    }
+	   ArgList l=NULL, Cardinal num_args=0);
   XMWidget(char *n, WidgetClass cl, XMWidget &parent,
-	   ArgList l=NULL, Cardinal num_args=0)
-    {
-      Create(n, cl, parent.getid(), l, num_args);
-    }
-  virtual ~XMWidget() { XtDestroyWidget(id); }
+	   ArgList l=NULL, Cardinal num_args=0);
+  virtual ~XMWidget();
 		  
   /* Get basic attributes: */
 		  
-  Widget getid()         { return id; }
-
-  Widget getparent()     { return XtParent(id); }
-  char *getname() { return name; }
+  Widget getid();
+  Widget getparent();
+  char *getname();
 		  
   /* Get/Modify X resources: */
-  void SetAttribute(String attribute, XtArgVal value) 
-    { XtVaSetValues(id, attribute, value, NULL); }
-  void SetAttribute(String attribute, void *value)
-    { XtVaSetValues(id, attribute, value, NULL); }
-		  
-  void GetAttribute(String attribute, void *value)
-    { XtVaGetValues(id, attribute, value, NULL); }
-  void GetAttribute(String attribute, XtArgVal value)
-    { XtVaGetValues(id, attribute, value, NULL); }
+  void SetAttribute(String attribute, XtArgVal value);
+  void SetAttribute(String attribute, void *value);
+  void GetAttribute(String attribute, void *value);
+  void GetAttribute(String attribute, XtArgVal value);
 		  
   Callback_data *AddCallback(String reason, 
 			     void (*proc)(XMWidget *, XtPointer, XtPointer),
-			     XtPointer data = NULL)
-    { 
-      extern Callback_data *XMAddCallback(XMWidget *, String, 
-					  void (*)(XMWidget *,
-						   XtPointer, XtPointer),
-					  XtPointer);
-      return XMAddCallback(this, reason, proc, data); }
+			     XtPointer data = NULL);
 		  
   /* Management: */
 		  
-  void Map()    { XtMapWidget(id);   }
-  void UnMap()  { XtUnmapWidget(id); }
-  void Manage() { XtManageChild(id); }
-  void UnManage() { XtUnmanageChild(id); }
-  void Realize() { XtRealizeWidget(id); }
-  void UnRealize() { XtUnrealizeWidget(id); }
+  void Map();
+  void UnMap();
+  void Manage();
+  void UnManage();
+  void Realize();
+  void UnRealize();
 		  
 };
 
@@ -457,23 +388,13 @@ class XMWidget
 class XMManagedWidget : public XMWidget
 {
  public:
-  XMManagedWidget(char *n) : XMWidget(n)
-    {
-      /* Null default constructor to allow full override */
-    }
-
+  XMManagedWidget(char *n);
   XMManagedWidget(char *n, WidgetClass cl, Widget parent,
-		  ArgList l=NULL, Cardinal num_args=0) :
-    XMWidget(n, cl, parent, l, num_args)
-    { Manage(); }
-
+		  ArgList l=NULL, Cardinal num_args=0);
   XMManagedWidget(char *n, WidgetClass cl, XMWidget &parent,
-		  ArgList l=NULL, Cardinal num_args=0) :
-    XMWidget(n, cl, parent, l, num_args)
-    { Manage(); }
-
-  XMManagedWidget(Widget w) : XMWidget(w)
-    {}
+		  ArgList l=NULL, Cardinal num_args=0);
+  XMManagedWidget(Widget w);
+  virtual ~XMManagedWidget();
 };
 
 

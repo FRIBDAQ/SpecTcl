@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -307,12 +307,17 @@ extern volatile spec_shared *xamine_shared;
 **     The mapped coordinate to convert
 ** Returns:
 **     The integer value of the channel which this mapped coordinate
-**     corresponds to.
+**     corresponds to or -1.0 on failure
 */
 int Xamine_XMappedToChan(int specno, float value)
 {
   float xlo = xamine_shared->getxmin_map(specno);
   float xhi = xamine_shared->getxmax_map(specno);
+
+  // Don't divide by zero!
+  if(xhi - xlo == 0)
+    return -1;
+
   float step_size = xamine_shared->getxdim(specno) / (xhi - xlo);
   return (int)((value - xlo + 1) * step_size);
 }
@@ -329,12 +334,17 @@ int Xamine_XMappedToChan(int specno, float value)
 **     The mapped coordinate to convert
 ** Returns:
 **     The integer value of the channel which this mapped coordinate
-**     corresponds to.
+**     corresponds to, or -1.0 if failure.
 */
 int Xamine_YMappedToChan(int specno, float value)
 {
   float ylo = xamine_shared->getymin_map(specno);
   float yhi = xamine_shared->getymax_map(specno);
+
+  // Don't divide by zero!
+  if(yhi - ylo == 0)
+    return -1;
+
   float step_size = xamine_shared->getydim(specno) / (yhi - ylo);
   return (int)((value - ylo + 1) * step_size);
 }
@@ -350,13 +360,19 @@ int Xamine_YMappedToChan(int specno, float value)
 **     The channel number to convert
 ** Returns:
 **     The floating point value of the mapped coordinate which this channel
-**     corresponds to.
+**     corresponds to or -1.0 on failure
 */
 float Xamine_XChanToMapped(int specno, int chan)
 {
   float xlo = xamine_shared->getxmin_map(specno);
   float xhi = xamine_shared->getxmax_map(specno);
-  float step_size = (xhi - xlo + 1) / xamine_shared->getxdim(specno);
+
+  // Don't divide by zero!
+  int xdim  = xamine_shared->getxdim(specno);
+  if(xdim == 0)
+    return -1.0;
+
+  float step_size = (xhi - xlo + 1) / xdim;
   return (step_size * chan + xlo);
 }
 
@@ -371,12 +387,18 @@ float Xamine_XChanToMapped(int specno, int chan)
 **     The channel number to convert
 ** Returns:
 **     The floating point value of the mapped coordinate which this channel
-**     corresponds to.
+**     corresponds to or -1.0 on failure
 */
 float Xamine_YChanToMapped(int specno, int chan)
 {
   float ylo = xamine_shared->getymin_map(specno);
   float yhi = xamine_shared->getymax_map(specno);
-  float step_size = (yhi - ylo + 1) / xamine_shared->getydim(specno);
+
+  // Don't divide by zero!
+  int ydim  = xamine_shared->getydim(specno);
+  if(ydim == 0)
+    return -1.0;
+
+  float step_size = (yhi - ylo + 1) / ydim;
   return (step_size * chan + ylo);
 }

@@ -72,12 +72,8 @@ int Xamine_DefineButtonBox(int ncol, int nrow)
   return ack.status;
  
 }
-#ifdef VMS
-int f77xamine_definebuttonbox
-#else
-int f77xamine_definebuttonbox_
-#endif
-   (int *ncol, int *nrow)
+
+int f77xamine_definebuttonbox_(int *ncol, int *nrow)
 {
   return Xamine_DefineButtonBox(*ncol, *nrow);
 }
@@ -137,12 +133,7 @@ int Xamine_DefineButton(int nrow, int ncol, void *b)
   return ack.status;
 }
 
-#ifdef VMS
-int f77xamine_definebutton
-#else
-int f77xamine_definebutton_
-#endif
-                            (int *nrow, int *ncol, void *button)
+int f77xamine_definebutton_(int *nrow, int *ncol, void *button)
 {
   return Xamine_DefineButton(*nrow, *ncol, button);
 }
@@ -197,13 +188,7 @@ int Xamine_EnableButton(int r, int c)
 }   
 
 /* Fortran binding is trivial:  */
-int
-#ifdef VMS
-f77xamine_enablebutton
-#else
-f77xamine_enablebutton_
-#endif
-                         (int *r, int *c)
+int f77xamine_enablebutton_(int *r, int *c)
 
 {
   return Xamine_EnableButton(*r, *c);
@@ -260,14 +245,7 @@ int Xamine_DisableButton(int r, int c)
 }   
 
 /* Fortran binding is trivial:  */
-int
-#ifdef VMS
-f77xamine_disablebutton
-#else
-f77xamine_disablebutton_
-#endif
-                         (int *r, int *c)
-
+int f77xamine_disablebutton_(int *r, int *c)
 {
   return Xamine_DisableButton(*r, *c);
 }
@@ -322,13 +300,7 @@ int Xamine_DeleteButton(int r, int c)
 }   
 
 /* Fortran binding is trivial:  */
-int
-#ifdef VMS
-f77xamine_deletebutton
-#else
-f77xamine_deletebutton_
-#endif
-                         (int *r, int *c)
+int f77xamine_deletebutton_(int *r, int *c)
 
 {
   return Xamine_DeleteButton(*r, *c);
@@ -370,11 +342,8 @@ Xamine_DeleteButtonBox()
   return ack.status;
 
 }   
-#ifdef VMS
-int f77xamine_deletebuttonbox()
-#else
+
 int f77xamine_deletebuttonbox_()
-#endif
 {
   return Xamine_DeleteButtonBox();
 }
@@ -437,13 +406,7 @@ int Xamine_InquireButton(int r, int c, void *info)
 ** The following is the trivial Fortran binding:
 */
 
-int 
-#ifdef VMS
-f77xamine_inquirebutton
-#else
-f77xamine_inquirebutton_
-#endif
-                        (int *r, int *c, void *info)
+int f77xamine_inquirebutton_(int *r, int *c, void *info)
 {
   return Xamine_InquireButton(*r, *c, info);
 }

@@ -295,6 +295,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 4.5  2003/08/25 16:25:30  ron-fox
+   Initial starting point for merge with filtering -- this probably does not
+   generate a goo spectcl build.
+
    Revision 4.4  2003/04/02 18:35:24  ron-fox
    Added support for central Xamine.Default files that live in any of:
    $SpecTclHome/Etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
@@ -304,39 +308,37 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** External include files required:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#ifdef unix
 #include <memory.h>
 #include <strings.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#endif
-#ifdef VMS
-#include <string.h>
-#include <time.h>
-#include <types.h>
-#define unlink remove
-#endif
 
 #include "panemgr.h"
 #include "grobjdisplay.h"
 #include "refreshctl.h"
 #include "printer.h"
 
-#ifdef ultrix
+#ifndef HAVE_SYS_TIME_H    /* Ultrix */
 #include <time.h>
 extern "C" {
   time_t time(time_t *tloc);
 }
 #endif
-#ifndef Linux
+#ifndef LINUX
 extern "C" {
-  void exit(int); 
+  void exit(int);
 }
 #endif
+
 /*
 ** External functions used in the default file parse.
 */

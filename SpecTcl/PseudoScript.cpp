@@ -322,6 +322,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <Exception.h>
 #include <TCLException.h>
 
+#include <stdlib.h>
 #include <list>
 
 #include <iostream.h>
@@ -477,7 +478,7 @@ void CPseudoScript::operator()(CEvent& rEvent)
     CTCLObject Result;
     Result = m_pInterpreter->GlobalEval(Pseudo).c_str();
     Result.Bind(m_pInterpreter);
-    rEvent[getNumber()] = Result.operator double();	// Set the result.
+    rEvent[getNumber()] = (double)(Result);	// Set the result.
   }
   catch (CTCLException& rException) {
     string Result;

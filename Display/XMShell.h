@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -296,8 +296,14 @@ DAMAGES.
 #include <Xm/Xm.h>
 #include <X11/Shell.h>
 
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
+#ifndef XMCALLBACK_H
 #include "XMCallback.h"
+#endif
+
 /*
 ** Shell provide basic Window manager interaction functionality
 */
@@ -309,36 +315,19 @@ class Shell : public XMWidget {
 		ArgList args = NULL, Cardinal num_args = 0);
   ~Shell();
 
-  void AllowResize(Boolean allow) 
-    { SetAttribute(XmNallowShellResize, allow); }
-  Boolean IsResizeAllowed() 
-    { 
-      Boolean yes;
-      GetAttribute(XmNallowShellResize, &yes);
-      return yes;
-    }
+  void AllowResize(Boolean allow);
+  Boolean IsResizeAllowed(); 
   
-  void SetGeometry(String newg)
-    { SetAttribute(XmNgeometry, newg); }
-  void GetGeometry(String geom) 
-    { GetAttribute(XmNgeometry, geom); }
+  void SetGeometry(String newg);
+  void GetGeometry(String geom);
 
-  void SetSaveUnder(Boolean newstate) 
-    { SetAttribute(XmNsaveUnder, newstate); }
-  Boolean GetSaveUnder() 
-    { 
-      Boolean state;
-      GetAttribute(XmNsaveUnder, &state);
-      return state;
-    }
+  void SetSaveUnder(Boolean newstate);
+  Boolean GetSaveUnder();
 
-  void Realize() 
-    { XtRealizeWidget(id); 
-      Manage();
-    }
+  void Realize();
 
-  void Manage()   { XtPopup(id, XtGrabNone); }
-  void UnManage() { XtPopdown(id); }
+  void Manage();
+  void UnManage();
  protected:
   XMCallback<Shell> Popdown;
   XMCallback<Shell> Popup;
@@ -356,22 +345,12 @@ class Shell : public XMWidget {
 class TopLevelShell : public Shell {
  public:
   TopLevelShell(String shellname, XMWidget *parent);
-  ~TopLevelShell() {}
+  ~TopLevelShell();
 
-  void RealizeIconic(Boolean val)
-    { SetAttribute(XmNiconic, val); }
-  Boolean GetIconic()
-    { 
-      Boolean val;
-      GetAttribute(XmNiconic, &val);
-      return val;
-    }
+  void RealizeIconic(Boolean val);
+  Boolean GetIconic();
 
-  void SetIconName(String name)
-    { SetAttribute(XmNiconName, name); }
-  void GetIconName(String name)
-    { GetAttribute(XmNiconName, name); }
-
-
+  void SetIconName(String name);
+  void GetIconName(String name);
 };
 #endif

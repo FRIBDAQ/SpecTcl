@@ -293,6 +293,10 @@ DAMAGES.
 /* 
   Change Log:
   $Log$
+  Revision 4.4  2003/08/25 16:25:32  ron-fox
+  Initial starting point for merge with filtering -- this probably does not
+  generate a goo spectcl build.
+
   Revision 4.3  2003/04/15 19:15:41  ron-fox
   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
 
@@ -374,8 +378,7 @@ public:
   virtual   CAConstituentIterator& operator++ ()  ;
   virtual   int operator== (const CAConstituentIterator& rRhs)  const;
   virtual   CAConstituentIterator* clone ()  ;
-
-
+ 
 };
 
 #endif

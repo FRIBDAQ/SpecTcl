@@ -9,6 +9,21 @@ INSTALL_DATA = @INSTALL_DATA@
 LIBS = @LIBS@
 EXTRA_OBJS = @EXTRA_OBJS@
 EXTRA_LIBS = @EXTRA_LIBS@
+PACKAGE = @PACKAGE@
+
+ACLOCAL = aclocal
+AUTOCONF = autoconf
+AUTOMAKE = automake
+AUTOHEADER = autoheader
+
+srcdir = @srcdir@
+top_srcdir = ..
+top_builddir = ..
+
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
 # ************************************************************
 # *  If you have the 'electric fence' library installed, you *
 # *  can debug memory faults and other problems by adding    *
@@ -37,6 +52,50 @@ rescale.o rewind.o rpn.o rpncalc.o scales.o set.o show.o skip.o \
 sleep.o smooth.o source.o startup.o state.o stats.o storage.o \
 synonyms.o template.o timer.o unlink.o utility.o variable.o version.o \
 while.o write.o
+
+SOURCES = G_string.cc GriColor.cc GriPath.cc GriState.cc assert.cc \
+	chopword.cc \
+close.cc command.cc convert.cc debug.cc delete.cc differ.cc doline.cc draw.cc \
+endup.cc expect.cc file.cc filter.cc flip.cc gr.cc gr_coll.cc graxes.cc \
+grcntour.cc gri.cc grimage.cc grinterp.cc grsmooth.cc grstring.cc group.cc \
+ heal.cc \
+help.cc if.cc ignore.cc image.cc input.cc insert.cc interp.cc mask.cc math.cc \
+new.cc open.cc popen.cc query.cc quit.cc read.cc regress.cc reorder.cc \
+rescale.cc rewind.cc rpn.cc rpncalc.cc scales.cc set.cc show.cc skip.cc \
+sleep.cc smooth.cc source.cc startup.cc state.cc stats.cc storage.cc \
+synonyms.cc template.cc timer.cc unlink.cc utility.cc variable.cc version.cc \
+while.cc write.cc
+
+INCLUDES = CmdFile.hh   GriColor.hh  Variable.hh  extern.hh \
+	macro.hh	 types.hh \
+	DataFile.hh  GriPath.hh   command.hh   files.hh     postscpt.hh \
+	GCounter.hh  GriState.hh  debug.hh     gr.hh	    private.hh \
+	GMatrix.hh   GriTimer.hh  defaults.hh  gr_coll.hh   superus.hh \
+	G_string.hh  Synonym.hh   errors.hh    image_ex.hh  tags.hh \
+
+
+EXTRA_DIST = AUTHOR ChangeLog Makefile.dj2 Makefile.in check.pl \
+	configure configure.in copyright.txt gri-mode.el gri.cmd \
+	gri.spec gri_merge gri_unpage grilogo.gif install-SunOS5 install-sh \
+	license.txt logo.dat startup.debian startup.msg startup.redhat
+
+POPT_DIST = popt/findme.h popt/popt.h popt/poptint.h \
+	popt/findme.c popt/popt.c popt/poptconfig.c popt/popthelp.c \
+	popt/poptparse.c
+
+DEBIAN_DIST = debian/00Porters.readme debian/control.unofficial \
+	debian/gri.emacsen-install \
+	debian/copyright.template debian/gri.emacsen-remove \
+	debian/README.Debian.template \
+	debian/gri-html-doc.doc-base debian/gri.emacsen-startup  \
+	debian/README.Debian.unofficial debian/gri-html-doc.emacsen-startup \
+	debian/gri.man \
+	debian/changelog debian/gri-html-doc.preinst debian/gri.postinst \
+	debian/changelog-KEEP \
+	debian/gri-ps-doc.doc-base debian/rules debian/control \
+	debian/gri.doc-base
+	
+DISTFILES = Makefile.in $(SOURCES) $(INCLUDES) $(EXTRA_DIST) $(POPT_DIST) $(DEBIAN_DIST)
 
 gri: $(OBJS) $(EXTRA_OBJS)
 	$(CXX) -o gri $(LDFLAGS) $(OBJS) $(EXTRA_OBJS) $(LIBS) $(EXTRA_LIBS)
@@ -112,14 +171,15 @@ startup.o: version.cc startup.cc Makefile.in
 
 # Install all relevant files, creating directories, destroying old
 # links and creating new links as necessary.
-install:
-	@echo "Installing into '$(DESTDIR)' directory"
-	cp gri $(DESTDIR)/Bin/gri
-	cp gri.cmd $(DESTDIR)/Etc/gri.cmd
-	echo "Gri installation complete"
+install: install-bin
+
+###	@echo "Installing into '$(DESTDIR)' directory"
+#	cp gri $(DESTDIR)/Bin/gri
+#	cp gri.cmd $(DESTDIR)/Etc/gri.cmd
+#	echo "Gri installation complete"
 #	cd doc; prefix=$(DESTDIR) make install INSTALL='$(INSTALL)' 
 
-install-bin:
+install-bin: gri
 	cat startup.msg | sed -e s,VSN,${VERSION}, -e s,PREFIX,$(prefix), > tmp
 	$(INSTALL_PROGRAM) -d $(libdir)
 	$(INSTALL_DATA) tmp $(libdir)/startup.msg
@@ -130,10 +190,11 @@ install-bin:
 	$(INSTALL_PROGRAM) -d                   $(prefix)/bin
 	$(INSTALL_PROGRAM)      gri             $(prefix)/bin/gri-$(VERSION)
 	(cd $(prefix)/bin/ ; rm -f gri ; ln -sf gri-$(VERSION) gri)
+	(cd $(prefix)/share; rm -f gri.cmd; ln -sf $(libdir)/gri.cmd gri.cmd)
 	$(INSTALL_PROGRAM)      gri_merge       $(prefix)/bin/gri_merge
 	$(INSTALL_PROGRAM)      gri_unpage      $(prefix)/bin/gri_unpage
 
-debian-lib = $(debian)/usr/share/gri/$(VERSION)
+debian-lib = $(debian)/usr/share/gri
 install_linux_debian: gri
 	@echo "Installing into '$(debian)' directory"
 	install -d $(debian-lib)
@@ -217,6 +278,29 @@ distclean:
 	make clean
 	cd doc ; make clean
 	rm -f Makefile
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = Gri
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd` ;\
+	cd $(top_srcdir) 
+	mkdir -p $(distdir)/popt
+	mkdir -p $(distdir)/debian
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file   \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
 
 # Source distribution
         SOURCE_NAME = gri-$(VERSION)

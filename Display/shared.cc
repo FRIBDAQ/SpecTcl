@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -303,29 +303,33 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 //       native MSWin32 calls: CreateFileMapping and MapViewOfFile to
 //       manage the shared memory regions used by Xamine.
 //
-#ifdef unix
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <unistd.h>
-#ifdef CYGWIN
+
+#ifdef HAVE_WINDOWS_H
 #include <windows.h>
-#else                         // CYGWIN
+#endif                         // CYGWIN
+
+#ifdef HAVE_SYS_IPC_H
 #include <sys/ipc.h>
+#endif
+
+#ifdef HAVE_SYS_SHM_H
 #include <sys/shm.h>
 #endif                        // CYGWIN
+
 #include <sys/stat.h>
-#endif
-#ifdef Darwin
+
+#ifdef HAVE_SHM_OPEN          // Darwin
 #include <sys/fcntl.h>
 #include <sys/mman.h>
 #endif
 
-#ifdef VMS
-#include <ssdef.h>
-#include <descrip.h>
-#include <psldef.h>
-#include <secdef.h>
-#include <lnmdef.h>
-#endif
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
@@ -340,9 +344,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #define XAMINE_ENVNAME "XAMINE_SHMEM"
 #define XAMINE_ENVSIZ  "XAMINE_SHMEM_SIZE"
 
-#ifdef VMS
-#define PAGESIZE 512		/* Bytes per VMS page(let). */
-#endif
 /*
 ** External references:
 */
@@ -359,33 +360,12 @@ extern volatile  spec_shared *spectra;
 static int memsize;
 
 
-#ifdef VMS
-#ifdef __ALPHA
-#pragma member_alignment __save
-#pragma nomember_alignment 
-#endif
-struct gsmatch {
-                int criterion;
-		short minor;	/* Not quite accurate def, but ok for now. */
-		short major;
-	      };
-#ifdef __ALPHA
-#pragma member_alignment __restore
-#endif
-extern "C" {
-int sys$mgblsc(int *inadr, int *retadr, int acmode,
-		int flags, struct dsc$descriptor *gsdnam,
-		struct gsmatch *ident, int relpag);
-int sys$adjwsl(int pagecnt, unsigned int *wsetlm);
-}
-#endif
 
 /*
 ** Functional Description:
 **   mapmemory:
 **     This local function is actually responsible for performing the
-**     map.  There is a distinct unix an VMS implementation of this
-**     function body.
+**     map.  
 ** Formal Parameters:
 **   char *name:
 **      Name of the shared memory region.
@@ -395,8 +375,7 @@ int sys$adjwsl(int pagecnt, unsigned int *wsetlm);
 **   Pointer to the shared memory or NULL on failure.
 */
 static spec_shared *mapmemory(char *name, unsigned int size)
-#ifdef unix
-#if defined(Darwin)
+#ifdef HAVE_SHM_OPEN
 {
   int fd = shm_open(name, O_RDWR, S_IRUSR | S_IWUSR);
   if(fd < 0) {
@@ -404,7 +383,13 @@ static spec_shared *mapmemory(char *name, unsigned int size)
     return NULL;
   }
 
-  void* pMem = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+  void* pMem;
+#ifdef HAVE_MMAP
+  pMem = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+#else
+  read(fd, pMem, size);
+#endif
+
   if(pMem == (char*)-1) {
     perror("mmap failed in Xamine");
     return NULL;
@@ -413,7 +398,7 @@ static spec_shared *mapmemory(char *name, unsigned int size)
   shm_unlink(name);
   return (spec_shared*)pMem;
 }
-#elif defined(CYGWIN)
+#elif defined(HAVE_WINDOWS_H)    // Cygwin
 {
   HANDLE hMapFile;
   LPVOID lpErrorMessage;
@@ -483,54 +468,8 @@ static spec_shared *mapmemory(char *name, unsigned int size)
   return (spec_shared *)memory;
   
 }
-
 #endif // CYGWIN or not
-#endif // UNIX
-#ifdef VMS
-{
-  struct dsc$descriptor name_desc;
-  struct gsmatch ident;
-  int    inaddr[2], outaddr[2];
-  int    status;
 
-  /* First build the name descriptor for the global section name: */
-
-  name_desc.dsc$a_pointer  = name;
-  name_desc.dsc$w_length   = strlen(name);
-  name_desc.dsc$b_dtype    = DSC$K_DTYPE_T;
-  name_desc.dsc$b_class    = DSC$K_CLASS_S;
-
-  /* Then build the match criteria */
-
-  ident.criterion = SEC$K_MATALL; /* For now all can match. */
-  ident.major     = 0;
-  ident.minor     = 0;
-
-  /* Build the inaddr and outaddr array: */
- 
-  inaddr[0]  = 0;
-  inaddr[1]  = 0;
-
-  /* now try the map: */
-
-  status = sys$mgblsc(inaddr, outaddr,
-		      PSL$C_USER,
-		      SEC$M_EXPREG,
-		      &name_desc,
-		      &ident,
-		      0);
-  if((status & 1) != 1) {
-    errno = EVMSERR;
-    vaxc$errno = status;
-    return (spec_shared *)NULL;
-  }
-  else {
-    int pagecnt = (outaddr[1] - outaddr[0])/PAGESIZE;
-    sys$adjwsl(pagecnt, 0);	/* Attempt to put shmem in wsl. */
-    return (spec_shared *)outaddr[0];
-  }
-}
-#endif
 
 /*
 ** Functional Description:

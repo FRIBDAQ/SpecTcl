@@ -296,20 +296,10 @@ DAMAGES.
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#ifdef unix
 #include <memory.h>
-#ifndef linux
 #include <strings.h>
-#endif
 #include <sys/time.h>
 #include <sys/types.h>
-#endif
-#ifdef VMS
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <types.h>
-#endif
 #include <assert.h>
 #ifndef FALSE
 #define TRUE  (1)
@@ -319,10 +309,8 @@ DAMAGES.
 #include "dispshare.h"
 
 extern "C" {
-#ifdef VMS
-  void exit(int code);
-#endif
-#ifdef ultrix
+
+#ifndef HAVE_SYS_TIME_H
   time_t time(time_t *tloc);
 #endif
 }

@@ -305,7 +305,7 @@ static char* pCopyright=
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <TCLApplication.h>
 
 static const UInt_t nProgressCounter=100; // progress counter rollover.
 static const UInt_t nRecordSize     = 8192; // Size of each record in the file.
@@ -361,3 +361,4 @@ int main(Int_t argc, Char_t** pArgs)
   }
   close(fd);
 }
+CTCLApplication* gpTCLApplication(0);

@@ -300,11 +300,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include "Event.h"
 #include <histotypes.h>
 
+
 #define UNDEFINED 0.0
 static const Size_t knExpandSize = 256;      // Vector expansion granularity.
 
 static void 
-fill(CParameterVector& rv, UInt_t n, ParamType value)
+fill(vector<Int_t>& rv, UInt_t n, Int_t value)
 {
   for(UInt_t i = 0; i < n; i++) {
     rv.push_back(value);

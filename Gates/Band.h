@@ -292,6 +292,10 @@ DAMAGES.
 /*
    Change Log:
    $Log$
+   Revision 4.7  2003/08/25 16:25:31  ron-fox
+   Initial starting point for merge with filtering -- this probably does not
+   generate a goo spectcl build.
+
    Revision 4.6  2003/04/15 19:15:46  ron-fox
    To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
 
@@ -340,6 +344,7 @@ class CBand  : public CPointListGate
 private:
   FPoint   m_LeftLimit;		//!< Point at left most limit.
   FPoint   m_RightLimit;	//!< Point at right most limit.
+
 public:
 			//Default constructor
 
@@ -356,10 +361,11 @@ public:
 			//Copy constructor
 
   CBand (const CBand& aCBand )   : 
-    CPointListGate (aCBand) 
+    CPointListGate (aCBand) ,
+    m_LeftLimit(aCBand.m_LeftLimit),
+    m_RightLimit(aCBand.m_RightLimit)
   {   
-    m_LeftLimit  = aCBand.m_LeftLimit;
-    m_RightLimit = aCBand.m_RightLimit; 
+                
   }                                     
 
 			//Operator= Assignment Operator
@@ -378,7 +384,8 @@ public:
                         // Gates have no equality operator.
 
   int operator== (const CBand& aCBand) const;
-
+public:
+  // Selectors
 
   //  Operations.
   //
@@ -394,6 +401,7 @@ public:
 protected:
   void GetLRLimits();
   Bool_t Interior(Float_t x, Float_t y);
+
 };
 
 #endif

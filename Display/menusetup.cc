@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -296,6 +296,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files required:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "properties.h"
@@ -332,7 +337,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "copyatr.h"
 #include "Tab.h"
 
-#ifndef Linux
+#ifndef LINUX
 /*
 ** External functions:
 */
@@ -479,7 +484,11 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   /* Print spectra: */
 
   pd->AddSeparator();
+#ifdef HAVE_GRI
   b = pd->AddMenuButton("Print...",Xamine_PrintSpectrumDialog);
+#else
+  b = pd->AddMenuButton("Print...",Xamine_NoGriDialog);
+#endif
   b->SetAccelerator("Meta<Key>P", "Alt+P");
   Xamine_AddtoSpectrumSelectedPackage(b);
 
@@ -768,7 +777,7 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   b->AddCallback(Xamine_AddMarker);
   Xamine_AddtoSpectrumSelectedPackage(b);
 
-  b = sub->AddMenuButton("Slice");
+  b = sub->AddMenuButton("Cut");
   b->SetAccelerator("Ctrl<Key>G", "Ctrl+G");
   b->AddCallback(Xamine_AcceptGate, (XtPointer)cut_1d);
   Xamine_Addto1dSelectedPackage(b);

@@ -470,21 +470,16 @@ static void Format1d(IntegrationDisplay *d, grobj_generic *g,
   win_attributed *att = Xamine_GetSelectedDisplayAttributes();
   char txt[1024];		/* A nice big formatting buffer. */
   grobj_name n;
-  int specno = att->spectrum();
-  int xdim   = xamine_shared->getxdim(specno);
 
   if(att->ismapped()) {
-    float f_centroid = Xamine_XChanToMapped(att->spectrum(), centroid);
-    float f_fwhm     = (fwhm * (xamine_shared->getxmax_map(specno) - 
-				xamine_shared->getxmin_map(specno))) / xdim;
+    float f_centroid = Xamine_XChanToMapped(att->spectrum(), (int)centroid);
     win_1d* a1 = NULL;
     if(att->is1d()) {
       a1 = (win_1d*)att;
       sprintf(txt, "%4d %27s  %8.2f       %8.2f         %f\n",
-	      g->getid(), g->getname(n), f_centroid, f_fwhm, area);
+	      g->getid(), g->getname(n), f_centroid, fwhm, area);
     }
-  } 
-  else {
+  } else {
     sprintf(txt, "%4d %27s  %8.2f     %8.2f         %f\n",
 	    g->getid(),
 	    g->getname(n),
@@ -494,7 +489,6 @@ static void Format1d(IntegrationDisplay *d, grobj_generic *g,
   if(Xamine_logging) {
     Xamine_log.ContinueMessage(txt);
   }
-  
 }
 
 /*
@@ -528,8 +522,8 @@ static void Format2d(IntegrationDisplay *d, grobj_generic *g,
   /* Format the output line: */
   
   if(att->ismapped()) {
-    float fcx = Xamine_XChanToMapped(att->spectrum(), cx);
-    float fcy = Xamine_YChanToMapped(att->spectrum(), cy);
+    float fcx = Xamine_XChanToMapped(att->spectrum(), (int)cx);
+    float fcy = Xamine_YChanToMapped(att->spectrum(), (int)cy);
     sprintf(txt, "%4d %27s  (%6.1f,%6.1f) (%6.1f,%6.1f) %f\n",
 	    g->getid(), g->getname(n), fcx, fcy, fx, fy, a);
   } else {
@@ -724,7 +718,7 @@ static void FormatIntegrationText(IntegrationDisplay *d)
     }
   }
   else {
-    sprintf(buffer, "Slicess: \n");
+    sprintf(buffer, "Cuts: \n");
     if(Xamine_logging)
       Xamine_log.LogMessage(buffer);
     d->AddText(buffer);

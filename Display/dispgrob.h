@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -295,12 +295,13 @@ DAMAGES.
 #define _DISPGROB_H_INSTALLED
 #include <stdio.h>
 #include <assert.h>
-#ifdef unix
 #include <memory.h>
-#endif
 #include <string.h>
 
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
 #include "dispwind.h"
 #include "XBatch.h"
 #include "convert.h"

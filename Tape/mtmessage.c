@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -317,13 +317,15 @@ static char *version = "Library_Source 1/27/92 @(#)mtmessage.c	2.1 Ron Fox NSCL"
 **  INCLUDE FILES
 **
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <errno.h>
 #include "mtshare.h"
 #include "rmf_msg.h"
-#ifdef VMS
-#include "vmsstring"
-#endif
 
 typedef struct {
 		    unsigned control : 4;
@@ -444,33 +446,6 @@ static char *catchall =
 static char nomsg[80];
 
 
-#ifdef VMS
-static    vmsstring vmsmsg;
-static    char      vmsmsgtxt[80];
-#endif
-
-#ifdef sparc
-/*
-** Functional Description:
-**  strerror - return a pointer to a string describing the error code
-** Formal Parameters:
-**   int stat   - Status we want text for.
-** Returns:
-**  Pointer to an entry in the system error list.
-*/
-
-static char *noerror="Invalid status value passed to strerror\n";
-extern int sys_nerr;
-extern char *sys_errlist[];
-
-char *strerror(int status)
-{
-  if( (status < 0) || (status >= sys_nerr))
-    return noerror;
-  else
-    return sys_errlist[status];
-}
-#endif
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:
@@ -513,24 +488,6 @@ char *mtgetmsg (int status)
 	else
 	    return msg;
     }
-
-#ifdef VMS
-    if (status == EVMSERR)
-    {
-	vmsmsg.dsc$a_pointer = vmsmsgtxt;
-	vmsmsg.dsc$b_class   = DSC$K_CLASS_S;
-	vmsmsg.dsc$b_dtype   = DSC$K_DTYPE_T;
-	vmsmsg.dsc$w_length  = 80;
-	lib$sys_getmsg (
-	    &vaxc$errno, 
-	    0, 
-	    &vmsmsg, 
-	    0, 
-	    0);
-	vmsmsgtxt[vmsmsg.dsc$w_length] = '\0';
-	return vmsmsgtxt;
-    }
-#endif
 
     /* then we try to match MT status codes. */
      

@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -290,10 +290,13 @@ DAMAGES.
 **   @(#)XMSeparators.h	8.1 6/23/95 
 */
 
-#ifndef _XMSEPARATORS_H
-#define _XMSEPARATORS_H
+#ifndef XMSEPARATORS_H
+#define XMSEPARATORS_H
 #include <Xm/Separator.h>
+
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
 
 /*
 ** The base class XMSeparator is used to derive the classes 
@@ -302,26 +305,17 @@ DAMAGES.
 class XMSeparator : public XMWidget {
  public:
   /* Constructors */
-  XMSeparator(char *n) : XMWidget(n) {}
+  XMSeparator(char *n);
   XMSeparator(char *n, Widget parent,
-	      ArgList l = NULL, Cardinal num_args=0) :
-		XMWidget(n, xmSeparatorWidgetClass,
-				parent, l, num_args) {}
+	      ArgList l = NULL, Cardinal num_args=0);
   XMSeparator(char *n, XMWidget &parent,
-	      ArgList l = NULL, Cardinal num_args = 0) :
-		XMWidget(n, xmSeparatorWidgetClass,
-				parent, l, num_args) {}
-  XMSeparator(Widget w) : XMWidget(w) {}
+	      ArgList l = NULL, Cardinal num_args = 0);
+  XMSeparator(Widget w);
 
   /* Manipulators: */
 
-  void SetShadowType(unsigned char newtype) {
-    SetAttribute(XmNseparatorType, newtype);
-  }
-  void SetOrientation(unsigned char orientation) {
-    SetAttribute(XmNorientation, orientation);
-  }
-
+  void SetShadowType(unsigned char newtype);
+  void SetOrientation(unsigned char orientation);
 };
 /*
 ** The horizontal Separator is just a widget with initial orientation set
@@ -330,18 +324,11 @@ class XMSeparator : public XMWidget {
 class XMHorizontalSeparator : public XMSeparator {
  public:
   /* Constructors: */
-  XMHorizontalSeparator(char *n) : XMSeparator(n) { Manage(); }
+  XMHorizontalSeparator(char *n);
   XMHorizontalSeparator(char *n, Widget parent,
-			ArgList l = NULL, Cardinal num_args = 0) :
-			  XMSeparator(n, parent, l, num_args) {
-			    SetOrientation(XmHORIZONTAL);
-			    Manage(); }
+			ArgList l = NULL, Cardinal num_args = 0);
   XMHorizontalSeparator(char *n, XMWidget &parent,
-			ArgList l = NULL, Cardinal num_args = 0) :
-			  XMSeparator(n, parent, l, num_args) {
-			    SetOrientation(XmHORIZONTAL);
-			    Manage();
-			  }
+			ArgList l = NULL, Cardinal num_args = 0);
 };
 /*
 ** The Vertical separator is just a widget with an initial orientation set
@@ -350,18 +337,11 @@ class XMHorizontalSeparator : public XMSeparator {
 class XMVerticalSeparator : public XMSeparator {
  public:
   /* Constructors: */
-  XMVerticalSeparator(char *n) : XMSeparator(n) { Manage(); }
+  XMVerticalSeparator(char *n);
   XMVerticalSeparator(char *n, Widget parent,
-			ArgList l = NULL, Cardinal num_args = 0) :
-			  XMSeparator(n, parent, l, num_args) {
-			    SetOrientation(XmVERTICAL);
-			    Manage(); }
+		      ArgList l = NULL, Cardinal num_args = 0);
   XMVerticalSeparator(char *n, XMWidget &parent,
-			ArgList l = NULL, Cardinal num_args = 0) :
-			  XMSeparator(n, parent, l, num_args) {
-			    SetOrientation(XmVERTICAL);
-			    Manage();
-			  }
+		      ArgList l = NULL, Cardinal num_args = 0);
 };
 
 #endif

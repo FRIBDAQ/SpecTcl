@@ -422,3 +422,79 @@ TopLevelShell::TopLevelShell(String shellname, XMWidget *parent) :
 }
 
 
+
+/*
+** The following functions are implemented here, rather than inlined, to
+** avoid linking errors pertaining to weak symbols being multiply defined
+*/
+
+void
+Shell::AllowResize(Boolean allow) 
+{ SetAttribute(XmNallowShellResize, allow); }
+
+Boolean
+Shell::IsResizeAllowed() 
+{ 
+  Boolean yes;
+  GetAttribute(XmNallowShellResize, &yes);
+  return yes;
+}
+
+void
+Shell::SetGeometry(String newg)
+{ SetAttribute(XmNgeometry, newg); }
+
+void
+Shell::GetGeometry(String geom) 
+{ GetAttribute(XmNgeometry, geom); }
+
+void
+Shell::SetSaveUnder(Boolean newstate) 
+{ SetAttribute(XmNsaveUnder, newstate); }
+
+Boolean
+Shell::GetSaveUnder() 
+{ 
+  Boolean state;
+  GetAttribute(XmNsaveUnder, &state);
+  return state;
+}
+
+void
+Shell::Realize() 
+{ 
+  XtRealizeWidget(id); 
+  Manage();
+}
+
+void
+Shell::Manage()   { XtPopup(id, XtGrabNone); }
+
+void
+Shell::UnManage() { XtPopdown(id); }
+
+/*
+** These functions are for class TopLevelShell
+*/
+
+TopLevelShell::~TopLevelShell() {}
+
+void
+TopLevelShell::RealizeIconic(Boolean val)
+{ SetAttribute(XmNiconic, val); }
+
+Boolean
+TopLevelShell::GetIconic()
+{ 
+  Boolean val;
+  GetAttribute(XmNiconic, &val);
+  return val;
+}
+
+void
+TopLevelShell::SetIconName(String name)
+{ SetAttribute(XmNiconName, name); }
+
+void
+TopLevelShell::GetIconName(String name)
+{ GetAttribute(XmNiconName, name); }

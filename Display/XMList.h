@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -291,13 +291,16 @@ DAMAGES.
 ** SCCS info:
 **    @(#)XMList.h	8.1 6/23/95 
 */
-#ifndef XMLIST_H_INSTALLED
-#define XMLIST_H_INSTALLED
+#ifndef XMLIST_H
+#define XMLIST_H
 
 /*
 ** Include files:
 */
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
 #include <Xm/List.h>
 #include <Xm/ScrolledW.h>
 
@@ -310,132 +313,58 @@ class XMListBaseClass : public XMWidget {
   /* Constructors: */
 
   XMListBaseClass(char *n, WidgetClass cl, XMWidget &parent, 
-		  ArgList l = NULL, Cardinal num_args = 0) :
-		    XMWidget(n, cl, parent, l, num_args) {}
+		  ArgList l = NULL, Cardinal num_args = 0);
   XMListBaseClass(char *n, WidgetClass cl, Widget parent, 
-		  ArgList l = NULL, Cardinal num_args = 0) :
-		    XMWidget(n, cl, parent, l, num_args) {}
-
-  XMListBaseClass(char *n)  : XMWidget(n) {}
-  XMListBaseClass(Widget w) : XMWidget(w) {}
+		  ArgList l = NULL, Cardinal num_args = 0);
+  XMListBaseClass(char *n);
+  XMListBaseClass(Widget w);
 
   /* Manage the attributes: */
+  void AutoSelect(Boolean enable=True);
+  void SetDoubleClickTime(int ms = 100);
+  void SetRows(int rows);
+  void SetScrollPolicy(int policy = XmAS_NEEDED);
+  void SetSelectionPolicy(int policy = XmSINGLE_SELECT);
 
-  void AutoSelect(Boolean enable=True) {
-    SetAttribute(XmNautomaticSelection, enable);
-  }
-  void SetDoubleClickTime(int ms = 100) {
-    SetAttribute(XmNdoubleClickInterval, ms);
-  }
-  
-  void SetRows(int rows) {
-    SetAttribute(XmNvisibleItemCount, rows);
-  }
-  void SetScrollPolicy(int policy = XmAS_NEEDED) {
-    SetAttribute(XmNscrollBarDisplayPolicy, policy);
-  }
-  void SetSelectionPolicy(int policy = XmSINGLE_SELECT) {
-    SetAttribute(XmNselectionPolicy, policy);
-  }
+  int GetListCount();
+  XmStringTable GetListValues();
+  int GetSelectedListCount();
+  XmStringTable GetSelectedItems();
 
-  int GetListCount() {
-    int cnt;
-    GetAttribute(XmNitemCount, &cnt);
-    return cnt;
-  }
-  XmStringTable GetListValues() {
-    XmStringTable list;
-    GetAttribute(XmNitems, &list);
-    return list;
-  }
-
-  int GetSelectedListCount() {
-    int cnt;
-    GetAttribute(XmNselectedItemCount, &cnt);
-    return cnt;
-  }
-
-  XmStringTable GetSelectedItems() {
-    XmStringTable list;
-    GetAttribute(XmNselectedItems, &list);
-    return list;
-  }
-  /* Callbacks: */
-  
+  /* Callbacks: */  
   Callback_data *AddbrowseSelectionCallback(void (*callback)(XMWidget *,
 							     XtPointer,
 							     XtPointer),
-					    XtPointer user_data = NULL) {
-    return AddCallback(XmNbrowseSelectionCallback, callback, user_data);
-  }
+					    XtPointer user_data = NULL);
   Callback_data *AddDefaultActionCallback(void (*callback)(XMWidget *,
 							   XtPointer,
 							   XtPointer),
-					  XtPointer user_data =NULL)
-    {
-      return AddCallback(XmNdefaultActionCallback, callback, user_data);
-    }
+					  XtPointer user_data =NULL);
   Callback_data *AddExtendedSelectionCallback(void (*callback)(XMWidget *,
 							       XtPointer,
 							       XtPointer),
-					      XtPointer user_data = NULL)
-    {
-      return AddCallback(XmNextendedSelectionCallback, callback, user_data);
-    }
+					      XtPointer user_data = NULL);
   Callback_data *AddMultipleSelectionCallback(void (*callback)(XMWidget *,
 							       XtPointer,
 							       XtPointer),
-					      XtPointer user_data = NULL)
-    {
-      return AddCallback(XmNmultipleSelectionCallback, callback, user_data);
-    }
+					      XtPointer user_data = NULL);
   Callback_data *AddSingleSelectionCallback(void (*callback)(XMWidget *,
 							     XtPointer ,
 							     XtPointer),
-					    XtPointer user_data = NULL)
-    {
-      return AddCallback(XmNsingleSelectionCallback, callback, user_data);
-    }
+					    XtPointer user_data = NULL);
 
   /*  Behavior that is actually convenience functions for list widget: */
 
-  void AddItem(char *item, int position = 0) {
-    XmString s = XmStringCreateLtoR(item, XmSTRING_DEFAULT_CHARSET);
-    XmListAddItem(id, s, position);
-    XmStringFree(s);
-  }
-  void ClearItems() { XmListDeleteAllItems(id); }
-  void DeleteItem(char *item) {
-    XmString s = XmStringCreateLtoR(item, XmSTRING_DEFAULT_CHARSET);
-    XmListDeleteItem(id, s);
-    XmStringFree(s);
-  }
-  void DeleteItem(int loc = 0) {
-    XmListDeletePos(id, loc);
-  }
-  void DeleteItems(int loc, int count = 1) {
-    XmListDeleteItemsPos(id, count, loc);
-  }
-  void DeselectAll() {
-    XmListDeselectAllItems(id);
-  }
-  void DeselectItem(char *item) {
-    XmString s = XmStringCreateLtoR(item, XmSTRING_DEFAULT_CHARSET);
-    XmListDeselectItem(id, s);
-    XmStringFree(s);
-
-  }
-  void DeselectItem(int pos = 0) {
-    XmListDeselectPos(id, pos); 
-  }
-  void SetBottomItem(int position = 0) {
-    XmListSetBottomPos(id, position);
-  }
-
-  void SelectItem(int pos = 0) {
-    XmListSelectPos(id, pos, False);
-  }
-
+  void AddItem(char *item, int position = 0);
+  void ClearItems();
+  void DeleteItem(char *item);
+  void DeleteItem(int loc = 0);
+  void DeleteItems(int loc, int count = 1);
+  void DeselectAll();
+  void DeselectItem(char *item);
+  void DeselectItem(int pos = 0);
+  void SetBottomItem(int position = 0);
+  void SelectItem(int pos = 0);
 };
 /*
 **  XMList is an unscrolled list.
@@ -446,20 +375,11 @@ class XMList : public XMListBaseClass {
   /* Constructors and Destructors: */
 
   XMList(char *n, XMWidget &parent, int rows = 10,
-	 ArgList args = NULL, Cardinal arg_count = 0) :
-	   XMListBaseClass(n, xmListWidgetClass, parent, args, arg_count) {
-	     SetRows(rows);
-	     Manage();
-	   }
+	 ArgList args = NULL, Cardinal arg_count = 0);
   XMList(char *n, Widget parent, int rows = 10,
-	 ArgList args =NULL, Cardinal arg_count = 0) :
-	   XMListBaseClass(n, xmListWidgetClass, parent, args, arg_count) {
-	     SetRows(rows);
-	     Manage();
-	   }
-  XMList(char *n) : XMListBaseClass(n) { Manage(); }
-  XMList(Widget w) : XMListBaseClass(w) { Manage(); }
-  
+	 ArgList args =NULL, Cardinal arg_count = 0);
+  XMList(char *n);
+  XMList(Widget w);
 };
 /*
 ** XMScrolledList  - A scrolled list widget.  This constructs a scrolled
@@ -473,38 +393,17 @@ class XMScrolledList : public XMListBaseClass {
 
  public:
   XMScrolledList(char *n, XMWidget &parent, int rows = 10,
-		 ArgList args = NULL, Cardinal arg_count = 0) :
-		   XMListBaseClass(n) {	/* Cheat. */
-		     id = XmCreateScrolledList(parent.getid(), 
-					       n, args, arg_count);
-		     scrolled_widget = XtParent(id);
-		     SetRows(rows);
-		     Manage();
-		     XtManageChild(scrolled_widget);
-		   }
+		 ArgList args = NULL, Cardinal arg_count = 0);
   XMScrolledList(char *n, Widget parent, int rows = 10,
-		 ArgList args = NULL, Cardinal arg_count = 0) :
-		   XMListBaseClass(n)  { /* Cheat. */
-		     id = XmCreateScrolledList(parent, n, args, arg_count);
-		     scrolled_widget = XtParent(id);
-		     SetRows(rows);
-		     Manage();
-		     }
-  /* Get the scrolled widget id:  */
+		 ArgList args = NULL, Cardinal arg_count = 0);
 
-  Widget GetScrolledWindow() { return scrolled_widget; }
+  /* Get the scrolled widget id:  */
+  Widget GetScrolledWindow();
 
   /* Manage from scrolled_widget: */
 
-  void Manage()   { 
-                     XtManageChild(id);
-                     XtManageChild(scrolled_widget);
-		  }
-  void UnManage() { 
-                    XtManageChild(id);
-                    XtUnmanageChild(scrolled_widget); 
-		  }
-
+  void Manage();
+  void UnManage(); 
 };    
 
 #endif
