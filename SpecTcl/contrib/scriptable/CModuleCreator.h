@@ -8,7 +8,9 @@ forms a recognizer/creator pattern.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 // Forward definitions:
@@ -23,13 +25,13 @@ class CSegmentUnpacker;
 class CModuleCreator      
 {
 private:
-    string          m_sType;            //!  Type of module created  
+    STD(string)          m_sType;            //!  Type of module created  
     CModuleCommand* m_pCreatorCommand;  //!<  The creator command.
 
 public:
 	// Constructors and other cannonical functions.
 	
-    CModuleCreator (const string& rType,
+    CModuleCreator (const STD(string)& rType,
 		    CModuleCommand* pCreatorCommand);
     virtual  ~CModuleCreator ( );
     CModuleCreator (const CModuleCreator& aCModuleCreator );
@@ -44,7 +46,7 @@ public:
 public:
 
           //Get accessor function for non-static attribute data member
-  string getType() const
+  STD(string) getType() const
   { 
     return m_sType;
   }   
@@ -54,10 +56,10 @@ public:
 
 public:
 
-   virtual   bool Match (const string& sModuletype)   ; // 
+   virtual   bool Match (const STD(string)& sModuletype)   ; // 
    virtual   CSegmentUnpacker* Create (CTCLInterpreter& rInterp, 
-			      const string& rName) = 0;
-   virtual string    TypeInfo() const= 0;
+			      const STD(string)& rName) = 0;
+   virtual STD(string)    TypeInfo() const= 0;
 };
 
 #endif

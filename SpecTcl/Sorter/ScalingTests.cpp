@@ -1,10 +1,14 @@
+#include <config.h>
 #include <cppunit/TextTestResult.h>
 #include <cppunit/TestSuite.h>
 
-#include <iostream.h>
+#include <Iostream.h>
 #include "CParameterMappingTest.h"
 #include "CAxisTests.h"
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 int
 main(int argc, char** argv)
 {

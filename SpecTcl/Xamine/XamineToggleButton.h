@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamineToggleButton.h:
 //
@@ -303,7 +303,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 class CXamineToggleButton  : public CXamineButton        
 {
@@ -312,7 +314,7 @@ class CXamineToggleButton  : public CXamineButton
 public:
 
   CXamineToggleButton (int am_nReturnCode,  
-		       const std::string& am_sLabel,  
+		       const STD(string)& am_sLabel,  
 		       Bool_t am_fEnabled,  
 		       ButtonSensitivity am_eWhenSensitive,
 		       CXamineButtonPrompt& rPrompter,

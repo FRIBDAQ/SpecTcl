@@ -317,6 +317,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <map>
 #include <stdio.h>
 
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+
 // Local Data types:
 
 struct LookupTableEntry {

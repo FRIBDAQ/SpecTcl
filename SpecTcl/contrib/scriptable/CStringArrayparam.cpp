@@ -1,4 +1,5 @@
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
+#include <config.h>
 #include "CStringArrayparam.h"    				
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
@@ -6,6 +7,11 @@
 #include <vector>
 #include <RangeError.h>
 #include <stdio.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 /*!
 	Construct a string array parameter. 

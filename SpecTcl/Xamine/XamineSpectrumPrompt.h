@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamineSpectrumPrompt.h:
 //
@@ -303,7 +303,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
                            
@@ -314,7 +316,7 @@ class CXamineSpectrumPrompt  : public CXamineButtonPrompt
   
 public:
 
-  CXamineSpectrumPrompt (const std::string& rPrompt,
+  CXamineSpectrumPrompt (const STD(string)& rPrompt,
 			 DialogSpectrumType_t am_eSpectrumType = keAny)   :
     CXamineButtonPrompt(rPrompt),
     m_eSpectrumType (am_eSpectrumType)  { } 

@@ -303,6 +303,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 5.1.2.1  2004/12/21 17:51:24  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:07  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -361,6 +364,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <Gamma2DW.h>
 
 #include <stdio.h>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 #ifdef HAVE_TIME
 #include <time.h>

@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 //  CNSCLBufferDecoder.h:
 //
@@ -300,8 +300,15 @@
 #include "BufferDecoder.h"
 #endif                               
                                
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
 class CNSCLBufferDecoder : public CBufferDecoder {
-  string m_sTitle;
+  STD(string) m_sTitle;
  public:
   // Constructors:
   CNSCLBufferDecoder() : CBufferDecoder() {} // Default Constructor.
@@ -331,7 +338,7 @@ class CNSCLBufferDecoder : public CBufferDecoder {
   virtual UInt_t getPatternCount();
   virtual UInt_t getBufferType();
   virtual void getByteOrder(Short_t& Signature16, Int_t& Signature32);
-  virtual string getTitle();
+  virtual STD(string) getTitle();
 
   virtual void operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAnalyzer);
 };

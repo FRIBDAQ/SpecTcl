@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CPipeFile.h:
 //
@@ -356,7 +356,7 @@ protected:
 public:
   // Class operations:
   //                   
-  virtual   void   Open (const std::string& rsConnection, UInt_t nAccess)  ;
+  virtual   void   Open (const STD(string)& rsConnection, UInt_t nAccess)  ;
   virtual   Int_t  Read (Address_t pBuffer, UInt_t nBytes)  ;
   virtual   void   Close ()  ;
   virtual   Bool_t IsReadable (UInt_t nMs) const  ;
@@ -365,7 +365,7 @@ public:
   //
 protected:
   void          DoAssign(const CPipeFile& rRhs);
-  static char** MakeArgv(const std::string& rConnection);
+  static char** MakeArgv(const STD(string)& rConnection);
   //
   // Private utilities:
   //

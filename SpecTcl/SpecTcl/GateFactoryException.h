@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 // Class: CGateFactoryException                     //ANSI C++
 //
@@ -305,7 +305,9 @@ DAMAGES.
          
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 class CGateFactoryException  : public CException        
@@ -326,14 +328,14 @@ private:
   GateFactoryExceptionReason m_eReason; //Enum containing reason of exception.
   CGateFactory::GateType m_eGateType; //Type of gate being constructed        
   static char**  m_svReasonTexts; //Pointer to mappings between reason 
-				// enumerator and textual strings.
+				// enumerator and textual STD(string)s.
   static char**  m_svGateTypeStrings;
 
 
 public:
   CGateFactoryException(GateFactoryExceptionReason eReason,
 			CGateFactory::GateType     eType,
-			const string&              rDoing) :
+			const STD(string)&              rDoing) :
     CException(rDoing),
     m_eReason(eReason),
     m_eGateType(eType)

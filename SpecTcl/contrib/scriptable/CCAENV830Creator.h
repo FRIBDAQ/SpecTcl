@@ -294,7 +294,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 
@@ -308,7 +310,7 @@ class CModuleCommand;
 class CCAENV830Creator : public CModuleCreator 
 {
 public:
-  CCAENV830Creator(const string& rName, CModuleCommand* pCommand);
+  CCAENV830Creator(const STD(string)& rName, CModuleCommand* pCommand);
   ~CCAENV830Creator();
   CCAENV830Creator (const CCAENV830Creator& rhs );
   CCAENV830Creator& operator= (const CCAENV830Creator& rhs);
@@ -319,8 +321,8 @@ public:
   
  public:
   
-  CSegmentUnpacker* Create (CTCLInterpreter& rInterp, const string& rName);
-  virtual string TypeInfo() const;
+  CSegmentUnpacker* Create (CTCLInterpreter& rInterp, const STD(string)& rName);
+  virtual STD(string) TypeInfo() const;
 };
 
 #endif

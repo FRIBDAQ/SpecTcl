@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CButtonEvent.h:
 //
@@ -302,11 +302,6 @@ DAMAGES.
 #include <histotypes.h>
 #endif                                                           
 
-#ifndef __STL_VECTOR
-#include <vector>
-#define __STL_VECTOR
-#endif
-
 #ifndef __STL_STRING
 #include <string>
 #define __STL_STRING
@@ -329,7 +324,7 @@ private:
   Int_t       m_nCurrentSpectrum;  // Xamine's selected spectrum.
   Bool_t      m_fToggleState;	   // State of toggle if button is toggle.
   Int_t       m_nPromptedSpectrum; // Spectrum ID chosen from prompter
-  std::string m_sPromptedString;   // Text from filename or Text prompter.
+  STD(string) m_sPromptedString;   // Text from filename or Text prompter.
   PointArray  m_vPoints;	   // Array of accepted points.
   
 public:
@@ -411,7 +406,7 @@ public:
   {
     return m_nPromptedSpectrum;
   }
-  std::string getm_sPromptedString() const
+  STD(string) getm_sPromptedString() const
   {
     return m_sPromptedString;
   }
@@ -439,7 +434,7 @@ protected:
   { 
     m_nPromptedSpectrum = am_nPromptedSpectrum;
   }
-  void setPromptedString (std::string am_sPromptedString)
+  void setPromptedString (STD(string) am_sPromptedString)
   { 
     m_sPromptedString = am_sPromptedString;
   }

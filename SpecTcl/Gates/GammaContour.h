@@ -273,8 +273,8 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
-*/
+		     END OF TERMS AND CONDITIONS '
+*/ 
 //  CGammaContour.h:
 //
 //   This file defines the CGammaContour class.
@@ -312,14 +312,14 @@ DAMAGES.
 
 class CGammaContour : public CContour
 {
-  vector<string> m_vSpecs;  // Ids of the spectra to display the gate on 
+  STD(vector)<STD(string)> m_vSpecs;  // Ids of the spectra to display the gate on 
 
  public:
 
   // Default constructor
-  CGammaContour (const vector<FPoint>& rPoints);
-  CGammaContour (const vector<FPoint>& rPoints,
-		 const vector<string>& rSpecs);
+  CGammaContour (const STD(vector)<FPoint>& rPoints);
+  CGammaContour (const STD(vector)<FPoint>& rPoints,
+		 const STD(vector)<STD(string)>& rSpecs);
 
   // Destructor
   ~CGammaContour () { }
@@ -354,14 +354,14 @@ class CGammaContour : public CContour
 
  public:  // Get accessor function
   
-  virtual vector<string> getSpecs () const
+  virtual STD(vector)<STD(string)> getSpecs () const
     {
       return m_vSpecs;
     }
 
  protected:  // Set mutator function
 
-  void setm_vSpecs (vector<string>& rSpecs)
+  void setm_vSpecs (STD(vector)<STD(string)>& rSpecs)
     {
       m_vSpecs = rSpecs;
     }
@@ -370,8 +370,8 @@ class CGammaContour : public CContour
 
   virtual Bool_t operator() (CEvent& rEvent) { return kfTRUE; }
   virtual CGate* clone ();
-  virtual std::string Type () const;
-  virtual Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params);
+  virtual STD(string) Type () const;
+  virtual Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
 };
 
 #endif

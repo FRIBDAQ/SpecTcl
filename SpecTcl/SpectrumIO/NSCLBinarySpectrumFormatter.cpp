@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2009, All rights reserved";
 // Class: CNSCLBinarySpectrumFormatter
@@ -297,6 +297,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 
 #include <config.h>
 
+#include <histotypes.h>
 #include "NSCLBinarySpectrumFormatter.h"
 #include "nsclbin.h"
 #include "nsclbinerror.h"
@@ -310,9 +311,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 #include <limits.h>
 #include <string.h>
 #include <vector>
-#include <strstream.h>
+#include <Sstream.h>
 #include <ctype.h>
 #include <Histogrammer.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 
 extern CEventSink* gpEventSink;	// Current event sink which must really be a

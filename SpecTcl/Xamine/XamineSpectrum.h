@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamineSpectrum.h:
 //
@@ -299,7 +299,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __XAMINE_XAMINE_H
@@ -318,14 +320,14 @@ class CXamineSpectrum
 {
   Address_t m_pStorage;  // Points to spectrum storage.
   UInt_t m_nSlot;  // Xamine spectrum slot number.
-  std::string m_sTitle;  // Name of the spectrum.
+  STD(string) m_sTitle;  // Name of the spectrum.
   volatile Xamine_shared* m_pXamineMemory;  // Xamine shared memory region.
   
 public:
 
                         // Constructor with parameters:
 
-  CXamineSpectrum(volatile Xamine_shared* pXamine, const std::string& rName) :
+  CXamineSpectrum(volatile Xamine_shared* pXamine, const STD(string)& rName) :
     m_pStorage(kpNULL),
     m_nSlot(0),
     m_sTitle(rName),
@@ -383,7 +385,7 @@ public:
   {
     return m_nSlot;
   }
-  const std::string& getTitle() const
+  const STD(string)& getTitle() const
   {
     return m_sTitle;
   }
@@ -403,7 +405,7 @@ protected:
   { 
     m_nSlot = am_nSlot;
   }
-  void setTitle (const std::string& am_sTitle)
+  void setTitle (const STD(string)& am_sTitle)
   { 
     m_sTitle = am_sTitle;
   }

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamine.h:
 //
@@ -304,7 +304,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -389,8 +391,8 @@ protected:
   //  Bindings to the Xamine API
   //
 public:                       
-  std::string GetMemoryName ()  ;  
-  void MapMemory (const std::string& rsName, 
+  STD(string) GetMemoryName ()  ;  
+  void MapMemory (const STD(string)& rsName, 
 		  UInt_t nBytes=knDefaultSpectrumSize)  ;
   Bool_t isAlive ()  ;  
   void Start ()  ;
@@ -400,7 +402,7 @@ public:
   void RemoveGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType)  ;
   void EnterPeakMarker (UInt_t nSpectrum, 
 			UInt_t nId, 
-			const std::string& rsName, 
+			const STD(string)& rsName, 
 			Float_t fCentroid, Float_t fWidth)  ;
   CXamineGates* GetGates (UInt_t nSpectrum)  ;
   UInt_t GetEventFd ()  ;
@@ -426,9 +428,9 @@ public:
 
 protected:
   void ThrowGateStatus(Int_t nStatus, const CDisplayGate& rGate, 
-			      const std::string& doing);
+			      const STD(string)& doing);
   void ThrowButtonStatus(Int_t nStatus, const CXamineButton& rButton,
-				const std::string& doing);
+				const STD(string)& doing);
   DialogSpectrumType_t MaptoSpec_t(ButtonDialogSpectrumType t);
   Xamine_gatetype      MapFromGate_t(GateType_t type);
 };

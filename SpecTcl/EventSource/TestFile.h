@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 //  CTestFile.h:
 //
@@ -327,10 +327,20 @@
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
 #endif
+#endif
 
-typedef vector<CDistribution*> CDistributionList;
+
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
+typedef STD(vector)<CDistribution*> CDistributionList;
 typedef CDistributionList::iterator CDistributionIterator;
 
 class CTestFile : public CFile {
@@ -369,7 +379,7 @@ class CTestFile : public CFile {
  public:
   virtual Int_t Read(Address_t pBuffer, UInt_t nSize);
   virtual Int_t Write(const Address_t pBuffer, UInt_t nBytes);
-  virtual void Open(const std::string& rsFilename, UInt_t nAccess);
+  virtual void Open(const STD(string)& rsFilename, UInt_t nAccess);
   virtual void Close();
 
   // operations which are specific to test files:

@@ -336,8 +336,8 @@ static const char* BufferCountVar    = "BuffersAnalyzed";
 static const char* LastSequenceVar   = "LastSeqeunce";
 
 class CEventProcessor;
-typedef list<CEventProcessor*> EventProcessingPipeline;
-typedef vector<CTCLVariable*>  VariableArray;
+typedef STD(list)<CEventProcessor*> EventProcessingPipeline;
+typedef STD(vector)<CTCLVariable*>  VariableArray;
 
 // Counter is an enumerated type which describes the sorts of
 // statistics counters maintained.
@@ -362,7 +362,7 @@ class CTclAnalyzer : public CAnalyzer {
 
   EventProcessingPipeline m_lAnalysisPipeline;
   VariableArray           m_vStatistics;
-  vector<Int_t*>          m_vStatisticsInts;
+  STD(vector)<Int_t*>          m_vStatisticsInts;
 
  public:
   CTclAnalyzer(CTCLInterpreter& rInterp, UInt_t nP, UInt_t nBunch);

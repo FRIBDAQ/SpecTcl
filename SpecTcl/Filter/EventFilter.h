@@ -17,13 +17,17 @@
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __DICTIONARYEXCEPTION_H
@@ -54,16 +58,16 @@ class CEventFilter : public CEventSink {
  
 protected:
    Bool_t m_fEnabled;                 //!< Filter only works when enabled.
-   string m_sFileName;                //!< Name of output file.
-   vector<string> m_vParameterNames;  //!< Names of parameters in output.
-   vector<UInt_t> m_vParameterIds;    //!< Ids of params in output stream.
+   STD(string) m_sFileName;                //!< Name of output file.
+   STD(vector)<STD(string)> m_vParameterNames;  //!< Names of parameters in output.
+   STD(vector)<UInt_t> m_vParameterIds;    //!< Ids of params in output stream.
    CXdrOutputStream* m_pOutputEventStream; //!< Output file.
 
  public:
       // Constructors and other canonical operations.
  
   CEventFilter();
-  CEventFilter(string& rFileName);
+  CEventFilter(STD(string)& rFileName);
   virtual ~CEventFilter();
 
  // Copies etc. are not allowed:
@@ -78,16 +82,16 @@ protected:
   // Selectors.
 public:
    
-  vector<string> getParameterNames() const {
+  STD(vector)<STD(string)> getParameterNames() const {
     return m_vParameterNames;
   }
-  vector<UInt_t> getParameterIds() const {
+  STD(vector)<UInt_t> getParameterIds() const {
       return m_vParameterIds;
    }
   Bool_t CheckEnabled() const {
       return m_fEnabled;
   }
-  string getFileName() const {
+  STD(string) getFileName() const {
       return m_sFileName;
   }
    CXdrOutputStream* getOutputStream() {      // not const.
@@ -98,12 +102,12 @@ protected:
   // Operations on the class.
 public:
 
-   void setParameterNames(const vector<string>& names);
+   void setParameterNames(const STD(vector)<STD(string)>& names);
    void setOutputStream(CXdrOutputStream* str);
 
    void Enable();                        //!< Enable the filter.
    void Disable();                       //!< Disable the filter.
-   void setFileName(string&);            //!< Choose a new filename.
+   void setFileName(STD(string)&);            //!< Choose a new filename.
 
   
    virtual void operator()(CEventList& rEvents);  //!< Process list of events.
@@ -118,9 +122,9 @@ protected:
 
 // utilities:
 
-   static string DefaultFilterFilename();    //!< Return default filter filename.
+   static STD(string) DefaultFilterFilename();    //!< Return default filter filename.
    void NamesToIds();                       //!< Translate param names -> ids.
-   vector<string> IdsToNames() 
+   STD(vector)<STD(string)> IdsToNames() 
               throw (CDictionaryException); //!< and back again.
    static void setBit(unsigned* bits, unsigned offset); //!< set a bit.
 };

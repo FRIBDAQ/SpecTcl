@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CInterior.h:
 //
@@ -295,11 +295,13 @@ DAMAGES.
           
 #ifndef __STL_VECTOR                     
 #include <vector>   //Required for include files, eg <CList.h>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __CPP__IOSTREAM_H
-#include <iostream.h>
+#include <Iostream.h>
 #define __CPP__IOSTREAM_H
 #endif
 
@@ -312,7 +314,7 @@ DAMAGES.
 class CInterior      
 {
   
-  vector<CInteriorRow> m_aRows;
+  STD(vector)<CInteriorRow> m_aRows;
   
 public:
 			// Constructors
@@ -338,7 +340,7 @@ public:
                        
   // Selectors.
 
-  vector<CInteriorRow> getRows() const
+  STD(vector)<CInteriorRow> getRows() const
   {
     return m_aRows;
   }
@@ -346,7 +348,7 @@ public:
   // Mutators:
 
 protected:
-  void setRows (vector<CInteriorRow> am_aRows)
+  void setRows (STD(vector)<CInteriorRow> am_aRows)
   { 
     m_aRows = am_aRows;
   }
@@ -362,10 +364,10 @@ public:
     Bool_t Inside (UInt_t  nX, UInt_t nY)  ;
     UInt_t getRowSize (UInt_t  nRow)  ;
     UInt_t getRowCount ()  ;
-    vector<CInteriorRow>::iterator RowBegin ()  ;
-    vector<CInteriorRow>::iterator RowEnd ()  ;
+    STD(vector)<CInteriorRow>::iterator RowBegin ()  ;
+    STD(vector)<CInteriorRow>::iterator RowEnd ()  ;
 
 };
 
-ostream& operator<<(ostream& of, CInterior& rInt);
+STD(ostream)& operator<<(STD(ostream)& of, CInterior& rInt);
 #endif

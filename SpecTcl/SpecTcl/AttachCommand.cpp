@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -303,6 +303,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
 // Header Files:
+
+#include <config.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string>
@@ -325,6 +327,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GaussianDistribution.h"
 #include "TestFile.h"
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 
 // Static data declarations:

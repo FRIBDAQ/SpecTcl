@@ -1,8 +1,14 @@
+#include <config.h>
 #include "TestFile.h"
 #include "GaussianDistribution.h"
 #include "Globals.h"
 
 #include "MultiTestSource.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Initializations.
 CMultiTestSource* CMultiTestSource::m_pInstance = (CMultiTestSource*)kpNULL;

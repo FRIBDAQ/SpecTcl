@@ -7,11 +7,17 @@ static const char* Copyright =
   "FilterDictionary.cpp: Copyright 2002 NSCL, All rights reserved\n";
 
 // Header Files.
+
+#include <config.h>
 #include <vector>
 
 #include "Dictionary.h"
 
 #include "FilterDictionary.h"
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Initializations.
 CFilterDictionary* CFilterDictionary::m_pInstance = (CFilterDictionary*)kpNULL;

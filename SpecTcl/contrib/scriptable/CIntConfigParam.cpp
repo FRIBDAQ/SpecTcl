@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Ron Fox 2002, All rights reserved";
 /*! \class CIntConfigParam   
@@ -289,10 +289,16 @@ static const char* Copyright = "(C) Copyright Ron Fox 2002, All rights reserved"
 */
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
+#include <config.h>
 #include "CIntConfigParam.h"    
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
 #include <stdio.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 /*!
    Constructor.  Creates an integer configuration parameter.
    This version of the constructor creates a parameter that

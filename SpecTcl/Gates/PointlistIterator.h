@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CPointListIterator.h:
 //
@@ -293,6 +293,9 @@ DAMAGES.
 /* 
   Change Log:
   $Log$
+  Revision 5.1.2.1  2004/12/21 17:51:22  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:03  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -320,19 +323,21 @@ DAMAGES.
 
 #ifndef __STL_VECTOR
 #include <vector>   
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif  
 /*!
    Class to support iteration in point lists.
 */                        
 class CPointListIterator  : public CAConstituentIterator        
 {
-  std::vector<FPoint>::iterator m_iPoints;  // Point array iterator.
+  STD(vector)<FPoint>::iterator m_iPoints;  // Point array iterator.
   
 public:
 			// Constructors.
 
-  CPointListIterator (std::vector<FPoint>::iterator rStart) : 
+  CPointListIterator (STD(vector)<FPoint>::iterator rStart) : 
     m_iPoints(rStart)   
   { } 
   virtual  ~ CPointListIterator ( ) { }       //Destructor
@@ -361,7 +366,7 @@ public:
 
 public:
 
-  std::vector<FPoint>::iterator getPointIterator() const
+  STD(vector)<FPoint>::iterator getPointIterator() const
   {
     return m_iPoints;
   }
@@ -371,7 +376,7 @@ public:
 protected:
                        //Set accessor function for attribute
 
-  void setPointIterator (std::vector<FPoint>::iterator am_iPoints)
+  void setPointIterator (STD(vector)<FPoint>::iterator am_iPoints)
   { 
     m_iPoints = am_iPoints;
   }

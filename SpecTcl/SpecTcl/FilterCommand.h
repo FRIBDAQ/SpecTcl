@@ -7,14 +7,11 @@
 #define __TCLPACKAGEDCOMMAND_H
 #endif
 
-#ifndef __STL_VECTOR_H
-#include <vector>
-#define __STL_VECTOR_H
-#endif
-
 #ifndef __STL_STRING_H
 #include <string>
+#ifndef __STL_STRING_H
 #define __STL_STRING_H
+#endif
 #endif
 
 #ifdef  __NEEDINCLUDES__
@@ -97,12 +94,12 @@ class CFilterCommand : public CTCLProcessor {
   Int_t Regate(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
   Int_t File(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
   Int_t List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
-  string ListFilter(const string& rName,
+  STD(string) ListFilter(const STD(string)& rName,
 		    CGatedEventFilter* pFilter);
-  string ListFilter(const string& rName);
+  STD(string) ListFilter(const STD(string)& rName);
  protected:
   static eSwitches MatchSwitch(const char* pSwitch);
-  static std::string Usage();
+  static STD(string) Usage();
 };
 
 #endif

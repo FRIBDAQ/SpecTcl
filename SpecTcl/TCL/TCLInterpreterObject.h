@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTCLInterpreterObject.h:
 //
@@ -358,6 +358,7 @@ public:
     return m_pInterpreter;
   }
 
+
   CTCLInterpreter* Bind (CTCLInterpreter& rBinding){
     return Bind(&rBinding);
   }
@@ -371,6 +372,7 @@ protected:
     assert(pInterp != kpNULL);
     return pInterp;
   }
+
 };
 
 #endif

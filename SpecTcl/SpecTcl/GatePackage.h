@@ -273,11 +273,18 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.1  2004/12/15 17:24:05  ron-fox
+  - Port to gcc/g++ 3.x
+  - Recast swrite/sread in terms of tcl[io]stream rather than
+    the kludgy thing I had done of decoding the channel fd.
+    This is both necessary due to g++ 3.x's runtime and
+    nicer too!.
+
   Revision 5.1  2004/11/29 16:56:10  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -343,12 +350,16 @@ DAMAGES.
 
 #ifndef __STL_VECTOR
 #include <vector>        //Required for include files
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __STL_STRING
 #include <string>        //Required for include files
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif                               
                                //Required for 1:1 association classes
                                                              
@@ -455,24 +466,24 @@ protected:
 public:
 
    Bool_t AddGate (CTCLResult& rResult,
-                   const std::string& rGateName, 
+                   const STD(string)& rGateName, 
 		   const CGate* pGate);
    CTCLString ListGates();
    CTCLString ListGatesById();
    Bool_t DeleteGates (CTCLResult& rResult, 
-		       const vector<string>& rGateNames);
+		       const STD(vector)<STD(string)>& rGateNames);
    Bool_t DeleteGates (CTCLResult& rResult, 
-                       const vector<UInt_t>& rIds)    ;
-   Bool_t ApplyGate (CTCLString& rResult, const string& rGateName, 
-		     const string& rSpectrumName);
+                       const STD(vector)<UInt_t>& rIds)    ;
+   Bool_t ApplyGate (CTCLString& rResult, const STD(string)& rGateName, 
+		     const STD(string)& rSpectrumName);
    Bool_t ListAppliedGate (CTCLString& rApplication, 
-                           const string& rName)    ;
-   Bool_t  Ungate(CTCLString& rResult, const string & rName);
+                           const STD(string)& rName)    ;
+   Bool_t  Ungate(CTCLString& rResult, const STD(string) & rName);
 
-   std::string GateToString (CGateContainer* pGate);
+   STD(string) GateToString (CGateContainer* pGate);
    static  UInt_t AssignId();
 protected:
-   static  void SortGateListById (vector<CGateContainer*>& rpGates);
+   static  void SortGateListById (STD(vector)<CGateContainer*>& rpGates);
 private:
 
 };

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamineGateException.h:
 //
@@ -312,7 +312,7 @@ DAMAGES.
 #endif
 
 #ifndef __CXX_STSSTREAM_H
-#include <strstream.h>
+#include <Sstream.h>
 #define __CXX_STRSTREAM_H
 #endif
 
@@ -324,14 +324,14 @@ class CXamineGateException  : public CException
 {
   Int_t        m_nError;	// Xamine gate manipulation error code
   CDisplayGate m_Gate;		// Gate which caused the problem.
-  strstream    m_ReasonStream;	// Reason for error.
+  STD(stringstream)    m_ReasonStream;	// Reason for error.
   Bool_t       m_fReasonProduced; // kfTRUE if m_ReasonStream accurate.
   
 public:
 
   CXamineGateException (Int_t am_nError,  
 			const CDisplayGate& am_Gate,
-			const std::string& rDoing)  :
+			const STD(string)& rDoing)  :
     CException(rDoing),
     m_nError(am_nError),
     m_Gate(am_Gate),

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -292,7 +292,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Header Files:
 //
 
-
+#include <config.h>
 #include "ParameterPackage.h"                               
 #include "TCLHistogrammer.h"
 #include "Exception.h"
@@ -308,6 +308,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <list>
 #include <assert.h>
 #include <stdio.h>
+
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions for class CParameterPackage
 
@@ -406,8 +411,8 @@ CParameterPackage::operator==(const CParameterPackage& aCParameterPackage)
 Int_t 
 CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName, 
 				UInt_t nId, UInt_t nBits,
-				Float_t nLow=0, Float_t nHi=0, 
-				const char* pUnits=0) 
+				Float_t nLow, Float_t nHi, 
+				const char* pUnits) 
 {
 // Interacts with the Histogrammer to create a new
 // parameter.  Catches common exceptions and

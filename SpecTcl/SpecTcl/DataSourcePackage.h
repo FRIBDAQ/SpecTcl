@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 //  DataSourcePackage.h:
 //
@@ -324,7 +324,6 @@ class CDataSourcePackage : public CTCLCommandPackage {
     kFileSource,
     kTapeSource,
     kPipeSource,
-    //kTestSource, // Already declared previously.
     kNullSource
   };
  private:

@@ -95,17 +95,17 @@ public:
 							    int argc, char** argv)   ; 
      int Update_parse (CTCLInterpreter& rInterp, CTCLResult& rResult, 
      				   int argc, char** argv)   ; 
-     int Create (string& Result, string name, int id, string raw, 
-     		     string fitname, string units)   ; 
-     string List (string pattern)   ; 
-     int Delete (string& Result, string parameter)   ; 
-     void Update (string pattern)   ; 
-     CFit* FindFit (string sName)   ; 
-     string Usage ()   ; 
+     int Create (STD(string)& Result, STD(string) name, int id, STD(string) raw, 
+     		     STD(string) fitname, STD(string) units)   ; 
+     STD(string) List (STD(string) pattern)   ; 
+     int Delete (STD(string)& Result, STD(string) parameter)   ; 
+     void Update (STD(string) pattern)   ; 
+     CFit* FindFit (STD(string) sName)   ; 
+     STD(string) Usage ()   ; 
 
 	// Utilities available to derived and helper classes:
 
-    static string FormatParameter (string  name, CCalibratedParameter& rParam); 
+    static STD(string) FormatParameter (STD(string)  name, CCalibratedParameter& rParam); 
 
 
 };
