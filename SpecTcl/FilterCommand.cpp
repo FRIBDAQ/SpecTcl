@@ -280,6 +280,9 @@ DAMAGES.
   Change Log:
 
   $Log$
+  Revision 1.12  2003/10/28 21:33:14  ron-fox
+  Remove obsolete #include <sstream> which barfs on Tru64 anyway.
+
   Revision 1.11  2003/09/16 12:06:13  ron-fox
   1. Added doxygen comments.
   2. Create: Parmeter list stored by filter should
@@ -307,7 +310,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <FilterDictionary.h>
 
 #include <string>
-#include <sstream> // Solely for converting from integers to strings.
 #include <vector>
 #include <map>
 
