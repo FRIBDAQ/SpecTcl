@@ -155,8 +155,8 @@ TCLException.o: /Include/histotypes.h /usr/include/string.h
 TCLException.o: /usr/include/math.h /usr/include/bits/huge_val.h
 TCLException.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 TCLException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-TCLException.o: /usr/include/assert.h TCLResult.h /Include/Exception.h
-TCLException.o: TCLInterpreter.h TCLString.h
+TCLException.o: /usr/include/assert.h TCLResult.h TCLInterpreter.h
+TCLException.o: TCLString.h
 TCLFileHandler.o: TCLFileHandler.h TCLInterpreterObject.h /usr/include/tcl.h
 TCLFileHandler.o: /usr/include/stdio.h /usr/include/features.h
 TCLFileHandler.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
@@ -208,7 +208,7 @@ TCLInterpreter.o: /Include/histotypes.h /usr/include/math.h
 TCLInterpreter.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
 TCLInterpreter.o: /usr/include/bits/mathcalls.h
 TCLInterpreter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-TCLInterpreter.o: /usr/include/assert.h TCLResult.h /Include/Exception.h
+TCLInterpreter.o: /usr/include/assert.h TCLResult.h
 TCLInterpreterObject.o: TCLInterpreterObject.h /usr/include/tcl.h
 TCLInterpreterObject.o: /usr/include/stdio.h /usr/include/features.h
 TCLInterpreterObject.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
@@ -248,7 +248,7 @@ TCLObject.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
 TCLObject.o: /usr/include/bits/mathcalls.h
 TCLObject.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 TCLObject.o: /usr/include/assert.h TCLList.h TCLInterpreter.h TCLString.h
-TCLObject.o: TCLException.h TCLResult.h /Include/Exception.h
+TCLObject.o: TCLException.h TCLResult.h
 TCLProcessor.o: TCLProcessor.h TCLInterpreter.h TCLString.h
 TCLProcessor.o: /usr/include/tcl.h /usr/include/stdio.h
 TCLProcessor.o: /usr/include/features.h /usr/include/sys/cdefs.h
@@ -262,7 +262,7 @@ TCLProcessor.o: TCLInterpreterObject.h /Include/histotypes.h
 TCLProcessor.o: /usr/include/math.h /usr/include/bits/huge_val.h
 TCLProcessor.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 TCLProcessor.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-TCLProcessor.o: /usr/include/assert.h /Include/Exception.h
+TCLProcessor.o: /usr/include/assert.h
 TCLResult.o: TCLResult.h TCLString.h /usr/include/tcl.h /usr/include/stdio.h
 TCLResult.o: /usr/include/features.h /usr/include/sys/cdefs.h
 TCLResult.o: /usr/include/gnu/stubs.h

@@ -39,16 +39,11 @@ ltwrite: ltwrite.cpp
 	$(LINK)  -o ltwrite ltwrite.cpp $(LIBS)
 # DO NOT DELETE
 
-ltwrite.o: /Include/Exception.h /Include/histotypes.h /usr/include/string.h
-ltwrite.o: /usr/include/features.h /usr/include/sys/cdefs.h
-ltwrite.o: /usr/include/gnu/stubs.h
+ltwrite.o: /usr/include/errno.h /usr/include/features.h
+ltwrite.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+ltwrite.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
+ltwrite.o: /usr/include/asm/errno.h /usr/include/stdio.h
 ltwrite.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-ltwrite.o: /usr/include/math.h /usr/include/bits/huge_val.h
-ltwrite.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-ltwrite.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-ltwrite.o: /usr/include/errno.h /usr/include/bits/errno.h
-ltwrite.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
-ltwrite.o: /usr/include/stdio.h
 ltwrite.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
 ltwrite.o: /usr/include/bits/types.h /usr/include/libio.h
 ltwrite.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
