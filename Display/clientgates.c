@@ -268,11 +268,8 @@ MakePipe(char *name, int flags)
 #ifdef unix
 {
   int                lisnfid;
-  int                comfid;
   struct sockaddr_un addr;
-  struct sockaddr_un peer;
-  int                nbytes;
-  
+
   /* Create the socket in the unix domain... */
 
   lisnfid = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -1556,7 +1553,6 @@ int Xamine_EnterPeakMarker(int nSpectrum, int nId,
   struct msg_command cmd = { EnterPeakPosition };
   msg_peakentry      pk;
   struct             msg_enterack eack;
-  int i;
 
   /* First format the requst:  */
 
