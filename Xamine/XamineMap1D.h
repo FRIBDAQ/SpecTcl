@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -275,73 +275,111 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
-//  CXamineFilePrompt.h:
+//  CXamineMap1D.h:
 //
-//    This file defines the CXamineFilePrompt class.
+//    This file defines the CXamineMap1D class.
 //
 // Author:
-//    Ron Fox
+//    Jason Venema
 //    NSCL
 //    Michigan State University
 //    East Lansing, MI 48824-1321
-//    mailto:fox@nscl.msu.edu
+//    mailto:venema@nscl.msu.edu
 //
-//  Copyright 1999 NSCL, All Rights Reserved.
+//  Copyright 2002 NSCL, All Rights Reserved.
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEFILEPROMPT_H  //Required for current class
-#define __XAMINEFILEPROMPT_H
+#ifndef __XAMINEMAP1D_H  //Required for current class
+#define __XAMINEMAP1D_H
                                //Required for base classes
-#ifndef __XAMINEBUTTONPROMPT_H
-#include "XamineButtonPrompt.h"
-#endif               
+#ifndef __XAMINE1D_H
+#include "Xamine1D.h"
+#endif                               
+
+#ifndef __XAMINE2D_H
+#include "Xamine2D.h"
+#endif
+
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif                
-                               
-class CXamineFilePrompt  : public CXamineButtonPrompt        
+#endif
+
+#ifndef __XAMINE_XAMINE_H
+#include <Xamine.h>
+#define __XAMINE_XAMINE_H
+#endif
+
+
+class CXamineMap1D        
 {
+  Float_t m_nLow;        // The low limit of the transformation
+  Float_t m_nHigh;       // The high limit of the transformation
+  std::string m_sUnits;  // The units to label the mapped axis with
   
 public:
-
-  CXamineFilePrompt (const std::string& rPrompt) :
-    CXamineButtonPrompt(rPrompt)
-  { }        
-  CXamineFilePrompt(const char* pPrompt) :
-    CXamineButtonPrompt(pPrompt)
-  { }
-  virtual ~ CXamineFilePrompt ( ) { }       //Destructor
   
-			//Copy constructor
+  // Constructor:
 
-  CXamineFilePrompt (const CXamineFilePrompt& aCXamineFilePrompt )   : 
-    CXamineButtonPrompt (aCXamineFilePrompt) 
-  { 
-                
-  }                                     
+  CXamineMap1D() :              // empty ctor for non-mapped spectrum
+    m_nLow(0),
+    m_nHigh(0),
+    m_sUnits("")
+    { }
 
-			//Operator= Assignment Operator
-
-  CXamineFilePrompt& operator= (const CXamineFilePrompt& aCXamineFilePrompt)
-  { 
-    if (this == &aCXamineFilePrompt) return *this;          
-    CXamineButtonPrompt::operator= (aCXamineFilePrompt);
+  CXamineMap1D(Float_t am_nLow, Float_t am_nHigh,
+	       const std::string& am_sUnits) :
+    m_nLow(am_nLow),
+    m_nHigh(am_nHigh),
+    m_sUnits(am_sUnits)
+    { }
   
+  ~CXamineMap1D ( ) { }       //Destructor
+
+  //Copy constructor
+  CXamineMap1D(const CXamineMap1D& aCXamineMap1D )
+    {   
+      m_nLow = aCXamineMap1D.m_nLow;
+      m_nHigh = aCXamineMap1D.m_nHigh;
+      m_sUnits = aCXamineMap1D.m_sUnits;
+    }                                     
+
+  //Operator= Assignment Operator
+  CXamineMap1D& operator= (const CXamineMap1D& aCXamineMap1D)
+  { 
+    if (this == &aCXamineMap1D) return *this;          
+    m_nLow = aCXamineMap1D.m_nLow;
+    m_nHigh = aCXamineMap1D.m_nHigh;
+    m_sUnits = aCXamineMap1D.m_sUnits;
+    
     return *this;
   }                                     
 
-			//Operator== Equality Operator
-
-  int operator== (const CXamineFilePrompt& aCXamineFilePrompt)
+  //Operator== Equality Operator
+  int operator== (const CXamineMap1D& aCXamineMap1D)
   { 
     return (
-	    (CXamineButtonPrompt::operator== (aCXamineFilePrompt))
+	    (m_nLow == aCXamineMap1D.m_nLow) &&
+	    (m_nHigh == aCXamineMap1D.m_nHigh) &&
+	    (m_sUnits == aCXamineMap1D.m_sUnits)
 	    );
   }                             
-                       
-  virtual   void FormatPrompterBlock (ButtonDescription& rButton) const  ;
- 
+  // Selectors:
+
+public:
+
+  Float_t getLow() const
+    {
+      return m_nLow;
+    }
+  Float_t getHigh() const
+    {
+      return m_nHigh;
+    }
+  std::string getUnits() const
+    {
+      return m_sUnits;
+    } 
 };
 
 #endif
