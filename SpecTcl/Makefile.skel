@@ -2,14 +2,15 @@
 #   Makefile to build user tailored SpecTcl.
 #
 
-LinuxLIBS=-ldl
+linuxLIBS=-ldl
 HPUXLIBS=-L/opt/tcltk/lib
+cygwinLIBS=-lrpc
 HPUXINCS=-I/opt/tcltk/include
-DarwinINCS = -I/usr/include -I/usr/X11R6/include \
+darwinINCS = -I/usr/include -I/usr/X11R6/include \
 	-I/usr/include/sys -I/usr/X11R6/include/X11
 
-CYGWININCS=-I/usr/local/tcl/include
-CYGWINLIBDIR=-L/usr/local/tcl/lib
+cygwinINCS=-I/usr/local/tcl/include
+cygwinLIBDIR=-L/usr/local/tcl/lib
 
 INCLUDEDIRS= $($(OS)INCS) -I. -I$(INSTDIR)/include -I/usr/local/include \
 	-I/usr/local/daq/include 
@@ -35,19 +36,19 @@ ECHO=echo
 
 # C++ compiler
 
-LinuxCPP=g++ -g -I/usr/include/tcl
-OSF1CPP=g++ -g
+linuxCPP=g++ -g -I/usr/include/tcl
+osfCPP=g++ -g
 HPUXCPP=g++ -g
-DarwinCPP=c++ -g -Dunix
-CYGWINCPP=g++ -g -Dunix
+darwinCPP=c++ -g -Dunix
+cygwinCPP=g++ -g -Dunix
 
 # Who does the LD?
 
-LinuxLD=g++ -L/usr/X11/lib
-OSF1LD=g++ -L/usr/X11/lib
+linuxLD=g++ -L/usr/X11/lib
+osfLD=g++ -L/usr/X11/lib
 HPUXLD=g++ -L/usr/X11/lib
-DarwinLD=c++ -undefined warning -L/usr/X11R6/lib
-CYGWINLD=g++ -L/usr/X11/lib -L/usr/local/tcl/lib
+darwinLD=c++ -undefined warning -L/usr/X11R6/lib
+cygwinLD=g++ -L/usr/X11/lib -L/usr/local/tcl/lib
 
 COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) -DINSTALLED_IN='"$(INSTDIR)"'
 LINK=$($(OS)LD) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS) -DINSTALLED_IN='"$(INSTDIR)"'
