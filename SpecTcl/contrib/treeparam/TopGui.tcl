@@ -3,6 +3,11 @@
 # Author: D. Bazin
 # Date: Aug 2001 - Sept 2002
 
+wm title . "Top Gui $SpecTclHome"
+
+
+
+
 proc ServerRead {} {
 	global server serverWait serverResponse
 	set line [gets $server]
@@ -82,24 +87,36 @@ File $f is missing in directory $SpecTclHome/contrib/treeparam"
 
 
 
-set server [socket $env(HOST) $serverport]
+
+set server [socket [exec hostname] $serverport]
 fconfigure $server -buffering line -blocking 0 -buffersize 65536
 fileevent $server readable ServerRead
+
 
 source $SpecTclHome/contrib/treeparam/mclistbox.tcl
 source $SpecTclHome/contrib/treeparam/notebook.tcl
 source $SpecTclHome/contrib/treeparam/tabnbook.tcl
 
+
 source $SpecTclHome/contrib/treeparam/TreeParameter.tcl
+
 source $SpecTclHome/contrib/treeparam/SpectrumGenerator.tcl
+
 source $SpecTclHome/contrib/treeparam/ParameterGenerator.tcl
+
 source $SpecTclHome/contrib/treeparam/TreeVariable.tcl
+
 source $SpecTclHome/contrib/treeparam/VariableManipulator.tcl
+
 source $SpecTclHome/contrib/treeparam/GateGenerator.tcl
+
 #source $SpecTclHome/contrib/treeparam/Interface.tcl
 
+
 CheckVersion
+
 CheckFiles
+
 wm title . "SpecTcl Graphical User Interface"
 tabnotebook_create .main
 pack .main -expand 1 -fill both
@@ -113,3 +130,5 @@ tabnotebook_display .main Gates
 tabnotebook_display .main Variables
 tabnotebook_display .main Parameters
 tabnotebook_display .main Spectra
+
+
