@@ -275,6 +275,7 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
+
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 // BUGBUG - Must handle gate displays when:
 //
@@ -295,6 +296,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //      mailto:fox@nscl.msu.edu
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+
+/*
+  Change Log
+  $Log$
+  Revision 4.6  2003/04/15 19:16:52  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.  Modifications here map those real valued gates to spectrum coordinates using the axis transform objects stored with the spectra.
+
+*/
+
 //
 // Header Files:
 //
@@ -324,7 +334,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <GammaContour.h>
 #include <assert.h>
 #include <GateMediator.h>
-
+#include <Gamma2DW.h>
 
 #include <stdio.h>
 
@@ -361,6 +371,10 @@ public:
   }
 };
 
+
+// Predicate to doa partial (first part) match of a stored string
+// with a candidate string.
+
 class ParameterPartialMatchPredicate {
   std::string m_Name;
 public:
@@ -373,6 +387,9 @@ public:
   }
 };
 
+// Predicate to match a stored Id against a candidate Id (in traversing
+// the bind list by id e.g.).
+
 class IdMatchPredicate {
   UInt_t m_nId;
 public:
@@ -381,6 +398,10 @@ public:
     return (i.second.getNumber() == m_nId);
   }
 };
+
+// Same as above, but instead of the id we get a pointer to a named object
+// as the parameter.
+
 class PointerIdMatchPredicate {
   UInt_t m_nId;
 public:
@@ -399,6 +420,17 @@ public:
 //  Operation Type:
 //     Constructor.
 //
+/*!
+  Constructor:
+
+   Set the numer of bytes of spectrum memory to request.
+   In addition, the randomizer is seeded here (it's a convenient place),
+   and the displayer is started.
+
+   \param <TT>nSpecBytes (UInt_t [in]):</TT>
+       Number of bytes of displayer memory to reserve.
+
+*/
 CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
   m_pDisplayer(0)
 {
@@ -414,6 +446,7 @@ CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
 //  Operation Type:
 //    Construtor
 //
+
 CHistogrammer::CHistogrammer(const CXamine& rDisplayer) :
   m_pDisplayer(new CXamine(rDisplayer))
 {
@@ -498,19 +531,34 @@ CHistogrammer::operator==(const CHistogrammer& rRhs)
 // Operation Type:
 //    Analyzer function
 //
+/*! 
+  Histograms a single event by passig it to all the histograms.
+   the histograms take the parameters they need from the event and
+   histogram themselves.
+
+   In order to avoid the need to traverse maps, flattened versions of the
+   spectrum and gate dictionaroes are made.  The nSpectra,ppSpectra and
+   nGates,ppGates parameters specify these traversal optimized structures
+   (simple arrays).
+   
+   \par Formal Parameters:
+   \param  </TT>rEvent (const CEvent& [in]): </TT>
+     References the event to histogram.
+   \param  </TT>nSpectra (UInt_t [in]):</TT>
+     Number of spectra defined.
+   \param  </TT>ppSpectra (CSpectrum** ppSpectra)</TT>
+     Array of pointers to defined spectra.
+   \param <TT> nGates (UInt_t [in]):</TT>
+     Number of gates to chekc...
+   \param <TT>ppGates (Uint_t [in]):</TT>
+      Array of pointers to defined gates.
+*/
 void
 CHistogrammer::operator()(const CEvent& rEvent,
 			  UInt_t nSpectra, CSpectrum** ppSpectra,
 			  UInt_t nGates,   CGateContainer** ppGates)
 {
-  // Histograms a single event by passig it to all the histograms.
-  // the histograms take the parameters they need from the event and
-  // histogram themselves.
-  // 
-  // Formal Parameters:
-  //    const CEvent& rEvent:
-  //        References the event to histogram.
-  //
+
 
   // Reset the gates:
 
@@ -1537,8 +1585,6 @@ CHistogrammer::ApplyGate(const std::string& rGateName,
   switch(spType) {
   case ke1D:
   case ke2D:
-    //  case keM1D:
-    //  case keM2D:
     if(gType == "gs" || gType == "gb" || gType == "gc") {
       throw CDictionaryException(CDictionaryException::knWrongGateType,
 	   "Cannot apply gamma gate to spectrum in CHistogrammer::ApplyGate()",
@@ -1702,6 +1748,12 @@ CHistogrammer::GateToXamineGate(UInt_t nBindingId,
   CSpectrum*    pSpectrum = FindSpectrum(m_DisplayBindings[nBindingId]);
   assert(pSpectrum != (CSpectrum*)kpNULL);
 
+  // Summary spectra don't have gates displayed.
+
+  if(pSpectrum->getSpectrumType() == keSummary) { // Summary spectrum.
+    return (CDisplayGate*)(kpNULL);
+  }
+
   if((rGate->Type() == std::string("s")) ||
      (rGate->Type() == std::string("gs"))) {	// Slice gate
     CDisplayCut* pCut = new CDisplayCut(nBindingId, 
@@ -1715,30 +1767,14 @@ CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     case ke1D:
     case keG1D: 
       {
-	pCut->AddPoint(pSpectrum->ParameterToAxis(0, (Float_t)rCut.getLow()),  
+	pCut->AddPoint(pSpectrum->ParameterToAxis(0, rCut.getLow()),  
 		       0);
-	pCut->AddPoint(pSpectrum->ParameterToAxis(0, (Float_t)rCut.getHigh()), 
+	pCut->AddPoint(pSpectrum->ParameterToAxis(0, rCut.getHigh()), 
 						  0);
 	return pCut;
 	break;
       }
-#ifdef GATESFIXED
-    case keM1D:
-      {
-	CMSpectrum1DL* pSpec = (CMSpectrum1DL*)pSpectrum;
-	pCut->AddPoint(pSpec->ParamToSpecPoint(rCut.(Float_t)getLow()), 0);
-	pCut->AddPoint(pSpec->ParamToSpecPoint(rCut.(Float_t)getHigh()), 0);
-	return pCut;
-	break;
-      }
-    case keMG1D:
-      {
-	CMGamma1DL* pSpec = (CMGamma1DL*)pSpectrum;
-	pCut->AddPoint(pSpec->GatePointToSpec(rCut.getLow()), 0);
-	pCut->AddPoint(pSpec->GatePointToSpec(rCut.getHigh()), 0);
-	return pCut;
-      }
-#endif
+
     }
   }
   else if ((rGate->Type() == std::string("b")) ||
@@ -1762,53 +1798,50 @@ CHistogrammer::GateToXamineGate(UInt_t nBindingId,
   assert((rGate->Type() == "b") || (rGate->Type() == "c") ||
 	 (rGate->Type() == "gb") || (rGate->Type() == "gc"));
 
-  CPointListGate& rSpecTclGate = (CPointListGate&)rGate.operator*();
-  vector<CPoint> pts = rSpecTclGate.getPoints();
-  vector<UInt_t> Params;
-  pSpectrum->GetParameterIds(Params);
-  if(pSpectrum->getSpectrumType() == keSummary) { // Summary spectrum.
-    delete pXGate;
-    return (CDisplayGate*)(kpNULL);
-  }
-  if((rSpecTclGate.getxId() != Params[0]) &&
-     ((rSpecTclGate.Type())[0] != 'g')) {
-    for(UInt_t i = 0; i < pts.size(); i++) {	// Flip pts to match spectrum.
-      UInt_t x = pts[i].X();
-      UInt_t y = pts[i].Y();
-      pts[i] = CPoint(y,x);
+  // If the spectrum is not 2-d the gate can't be displayed:
+  //
+
+  if((pSpectrum->getSpectrumType() == ke2D)   ||
+     (pSpectrum->getSpectrumType() == keG2D)) {
+    
+
+    CPointListGate& rSpecTclGate = (CPointListGate&)rGate.operator*();
+    vector<FPoint> pts = rSpecTclGate.getPoints();
+    vector<UInt_t> Params;
+    pSpectrum->GetParameterIds(Params);
+    
+    
+    if((rSpecTclGate.getxId() != Params[0]) &&
+       ((rSpecTclGate.Type())[0] != 'g')) {
+      for(UInt_t i = 0; i < pts.size(); i++) {	// Flip pts to match spectrum.
+	Float_t x = pts[i].X();
+	Float_t y = pts[i].Y();
+	pts[i] = FPoint(y,x);
+      }
     }
-  }
-  
-  for(UInt_t i = 0; i < pts.size(); i++) {
-    switch(pSpectrum->getSpectrumType()) {
-    case ke2D:
-    case keG2D:
-      {
-	CPoint pt(pSpectrum->ParameterToAxis(0, (Float_t)pts[i].X()),
-		  pSpectrum->ParameterToAxis(1, (Float_t)pts[i].Y()));
-	pXGate->AddPoint(pt);
-	break;
-      }
-#ifdef GATESFIXED
-    case keM2D:
-      {
-	CMSpectrum2DW* pSpec = (CMSpectrum2DW*)pSpectrum;
-	CPoint pt(pSpec->XParamToSpecPoint(pts[i].X()),
-		  pSpec->YParamToSpecPoint(pts[i].Y()));
-	pXGate->AddPoint(pt);
-	break;
-      }
+    // The index of the X axis transform is easy.. it's 0, but the
+    // y axis transform index depends on spectrum type sincd gammas
+    // have all x transforms first then y and so on:
+    int nYIndex;
+    if(pSpectrum->getSpectrumType() == ke2D) {
+      nYIndex = 1;
+    }
+    else {
+      CGamma2DW* pGSpectrum = (CGamma2DW*)pSpectrum;
+      nYIndex               = pGSpectrum->getnParams();
+    }
+    
+    for(UInt_t i = 0; i < pts.size(); i++) {
       
-    case keMG2D:
-      {
-	CMGamma2DW* pSpec = (CMGamma2DW*)pSpectrum;
-	CPoint pt(pSpec->GatePointToSpec(pts[i].X(), 0), 
-		  pSpec->GatePointToSpec(pts[i].Y(), 1));
-	pXGate->AddPoint(pt);
-      }
-#endif
+      CPoint pt(pSpectrum->ParameterToAxis(0, pts[i].X()),
+		pSpectrum->ParameterToAxis(nYIndex, pts[i].Y()));
+      pXGate->AddPoint(pt);
+      
     }
+  } else {
+    return (CDisplayGate*)kpNULL;
   }
+
   return pXGate;
 
 }
