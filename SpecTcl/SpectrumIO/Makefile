@@ -105,8 +105,7 @@ NSCLAsciiSpectrumFormatter.o: /usr/include/bits/mathcalls.h
 NSCLAsciiSpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 NSCLAsciiSpectrumFormatter.o: SpectrumFormatter.h
 NSCLAsciiSpectrumFormatter.o: ../SpecTcl/SpectrumPackage.h
-NSCLAsciiSpectrumFormatter.o: ./SpectrumFormatError.h /Include/Exception.h
-NSCLAsciiSpectrumFormatter.o: /Include/StreamIOError.h /usr/include/limits.h
+NSCLAsciiSpectrumFormatter.o: ./SpectrumFormatError.h /usr/include/limits.h
 NSCLAsciiSpectrumFormatter.o: /usr/include/bits/posix1_lim.h
 NSCLAsciiSpectrumFormatter.o: /usr/include/bits/local_lim.h
 NSCLAsciiSpectrumFormatter.o: /usr/include/linux/limits.h
@@ -124,10 +123,8 @@ NSCLBinarySpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef
 NSCLBinarySpectrumFormatter.o: /usr/include/errno.h /usr/include/bits/errno.h
 NSCLBinarySpectrumFormatter.o: /usr/include/linux/errno.h
 NSCLBinarySpectrumFormatter.o: /usr/include/asm/errno.h ./nscldata.h
-NSCLBinarySpectrumFormatter.o: ./nsclbinerror.h /Include/Exception.h
-NSCLBinarySpectrumFormatter.o: ../SpecTcl/SpectrumPackage.h
-NSCLBinarySpectrumFormatter.o: ./SpectrumFormatError.h
-NSCLBinarySpectrumFormatter.o: /Include/StreamIOError.h /usr/include/math.h
+NSCLBinarySpectrumFormatter.o: ./nsclbinerror.h ../SpecTcl/SpectrumPackage.h
+NSCLBinarySpectrumFormatter.o: ./SpectrumFormatError.h /usr/include/math.h
 NSCLBinarySpectrumFormatter.o: /usr/include/bits/huge_val.h
 NSCLBinarySpectrumFormatter.o: /usr/include/bits/mathdef.h
 NSCLBinarySpectrumFormatter.o: /usr/include/bits/mathcalls.h
@@ -140,7 +137,7 @@ NSCLBinarySpectrumFormatter.o: /usr/include/bits/posix2_lim.h
 NSCLBinarySpectrumFormatter.o: /usr/include/ctype.h /usr/include/bits/types.h
 NSCLBinarySpectrumFormatter.o: /usr/include/endian.h
 NSCLBinarySpectrumFormatter.o: /usr/include/bits/endian.h
-SpectrumFormatError.o: ./SpectrumFormatError.h /Include/Exception.h
+SpectrumFormatError.o: ./SpectrumFormatError.h
 SpectrumFormatter.o: SpectrumFormatter.h
 SpectrumFormatterFactory.o: SpectrumFormatterFactory.h SpectrumFormatter.h
 SpectrumFormatterFactory.o: /Include/histotypes.h /usr/include/string.h

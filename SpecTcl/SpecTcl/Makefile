@@ -246,32 +246,23 @@ BindCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 BindCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
 BindCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 BindCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-ChanCommand.o: ChanCommand.h SpectrumPackage.h /Include/Exception.h
-ChanCommand.o: /Include/histotypes.h /usr/include/string.h
-ChanCommand.o: /usr/include/features.h /usr/include/sys/cdefs.h
-ChanCommand.o: /usr/include/gnu/stubs.h
+ChanCommand.o: ChanCommand.h SpectrumPackage.h /usr/include/tcl.h
+ChanCommand.o: /usr/include/stdio.h /usr/include/features.h
+ChanCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 ChanCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-ChanCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
-ChanCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-ChanCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-ChanCommand.o: /usr/include/tcl.h /usr/include/stdio.h
 ChanCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
 ChanCommand.o: /usr/include/bits/types.h /usr/include/libio.h
 ChanCommand.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+ChanCommand.o: /usr/include/string.h
 ClearCommand.o: ClearCommand.h SpectrumPackage.h /usr/include/string.h
 ClearCommand.o: /usr/include/features.h /usr/include/sys/cdefs.h
 ClearCommand.o: /usr/include/gnu/stubs.h
 ClearCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 DataSourcePackage.o: DataSourcePackage.h AttachCommand.h TapeCommand.h
-DataSourcePackage.o: Globals.h /Include/Exception.h /Include/histotypes.h
-DataSourcePackage.o: /usr/include/string.h /usr/include/features.h
-DataSourcePackage.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+DataSourcePackage.o: Globals.h /usr/include/tcl.h /usr/include/stdio.h
+DataSourcePackage.o: /usr/include/features.h /usr/include/sys/cdefs.h
+DataSourcePackage.o: /usr/include/gnu/stubs.h
 DataSourcePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-DataSourcePackage.o: /usr/include/math.h /usr/include/bits/huge_val.h
-DataSourcePackage.o: /usr/include/bits/mathdef.h
-DataSourcePackage.o: /usr/include/bits/mathcalls.h
-DataSourcePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-DataSourcePackage.o: /usr/include/tcl.h /usr/include/stdio.h
 DataSourcePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
 DataSourcePackage.o: /usr/include/bits/types.h /usr/include/libio.h
 DataSourcePackage.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
@@ -283,45 +274,26 @@ EventProcessor.o: /usr/include/math.h /usr/include/bits/huge_val.h
 EventProcessor.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 EventProcessor.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 GateCommand.o: GateCommand.h GateFactory.h GatePackage.h ApplyCommand.h
-GateCommand.o: UngateCommand.h /Include/Exception.h /Include/histotypes.h
-GateCommand.o: /usr/include/string.h /usr/include/features.h
+GateCommand.o: UngateCommand.h /usr/include/stdio.h /usr/include/features.h
 GateCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 GateCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-GateCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
-GateCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-GateCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-GateCommand.o: /usr/include/stdio.h
 GateCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
 GateCommand.o: /usr/include/bits/types.h /usr/include/libio.h
 GateCommand.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-GateCommand.o: /usr/include/assert.h
-GateFactory.o: GateFactory.h GateFactoryException.h /Include/Exception.h
-GateFactory.o: /Include/histotypes.h /usr/include/string.h
-GateFactory.o: /usr/include/features.h /usr/include/sys/cdefs.h
-GateFactory.o: /usr/include/gnu/stubs.h
+GateCommand.o: /usr/include/assert.h /usr/include/string.h
+GateFactory.o: GateFactory.h GateFactoryException.h /Include/histotypes.h
+GateFactory.o: /usr/include/string.h /usr/include/features.h
+GateFactory.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 GateFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 GateFactory.o: /usr/include/math.h /usr/include/bits/huge_val.h
 GateFactory.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 GateFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 GateFactory.o: /usr/include/assert.h
-GateFactoryException.o: GateFactoryException.h /Include/Exception.h
-GateFactoryException.o: /Include/histotypes.h /usr/include/string.h
-GateFactoryException.o: /usr/include/features.h /usr/include/sys/cdefs.h
-GateFactoryException.o: /usr/include/gnu/stubs.h
-GateFactoryException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-GateFactoryException.o: /usr/include/math.h /usr/include/bits/huge_val.h
-GateFactoryException.o: /usr/include/bits/mathdef.h
-GateFactoryException.o: /usr/include/bits/mathcalls.h
-GateFactoryException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+GateFactoryException.o: GateFactoryException.h
 GatePackage.o: GatePackage.h GateCommand.h GateFactory.h ApplyCommand.h
-GatePackage.o: UngateCommand.h /Include/Exception.h /Include/histotypes.h
-GatePackage.o: /usr/include/string.h /usr/include/features.h
+GatePackage.o: UngateCommand.h /usr/include/stdio.h /usr/include/features.h
 GatePackage.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 GatePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-GatePackage.o: /usr/include/math.h /usr/include/bits/huge_val.h
-GatePackage.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-GatePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-GatePackage.o: /usr/include/stdio.h
 GatePackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
 GatePackage.o: /usr/include/bits/types.h /usr/include/libio.h
 GatePackage.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
@@ -357,8 +329,8 @@ ParameterPackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 ParameterPackage.o: /usr/include/math.h /usr/include/bits/huge_val.h
 ParameterPackage.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 ParameterPackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-ParameterPackage.o: /Include/Exception.h ParameterCommand.h PseudoCommand.h
-ParameterPackage.o: /usr/include/assert.h /usr/include/stdio.h
+ParameterPackage.o: ParameterCommand.h PseudoCommand.h /usr/include/assert.h
+ParameterPackage.o: /usr/include/stdio.h
 ParameterPackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
 ParameterPackage.o: /usr/include/bits/types.h /usr/include/libio.h
 ParameterPackage.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
@@ -376,7 +348,7 @@ PseudoScript.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 PseudoScript.o: /usr/include/math.h /usr/include/bits/huge_val.h
 PseudoScript.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 PseudoScript.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-PseudoScript.o: /Include/Exception.h /usr/include/stdio.h
+PseudoScript.o: /usr/include/stdio.h
 PseudoScript.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
 PseudoScript.o: /usr/include/bits/types.h /usr/include/libio.h
 PseudoScript.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
@@ -398,8 +370,7 @@ ReadCommand.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
 ReadCommand.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
 ReadCommand.o: /usr/include/getopt.h /usr/include/errno.h
 ReadCommand.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
-ReadCommand.o: /usr/include/asm/errno.h /Include/ErrnoException.h
-ReadCommand.o: /Include/Exception.h
+ReadCommand.o: /usr/include/asm/errno.h
 RunControlPackage.o: RunControlPackage.h StartRun.h StopRun.h Globals.h
 SpectrumCommand.o: SpectrumCommand.h /Include/histotypes.h
 SpectrumCommand.o: /usr/include/string.h /usr/include/features.h
@@ -427,14 +398,13 @@ SpectrumPackage.o: /usr/include/bits/stat.h /usr/include/sys/types.h
 SpectrumPackage.o: /usr/include/time.h /usr/include/endian.h
 SpectrumPackage.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 SpectrumPackage.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-SpectrumPackage.o: /usr/include/sys/sysmacros.h /Include/Exception.h
-SpectrumPackage.o: /Include/RangeError.h /Include/ErrnoException.h
-SpectrumPackage.o: /usr/include/errno.h /usr/include/bits/errno.h
-SpectrumPackage.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
-SpectrumPackage.o: /usr/include/tcl.h /usr/include/stdio.h
+SpectrumPackage.o: /usr/include/sys/sysmacros.h /usr/include/tcl.h
+SpectrumPackage.o: /usr/include/stdio.h
 SpectrumPackage.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
 SpectrumPackage.o: /usr/include/libio.h /usr/include/_G_config.h
 SpectrumPackage.o: /usr/include/bits/stdio_lim.h /usr/include/assert.h
+SpectrumPackage.o: /usr/include/errno.h /usr/include/bits/errno.h
+SpectrumPackage.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
 SpectrumPackage.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 SpectrumPackage.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
 SpectrumPackage.o: /usr/include/bits/posix2_lim.h
@@ -456,7 +426,7 @@ TCLHistogrammer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 TCLHistogrammer.o: /usr/include/math.h /usr/include/bits/huge_val.h
 TCLHistogrammer.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 TCLHistogrammer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-TCLHistogrammer.o: /Include/Exception.h /usr/include/assert.h
+TCLHistogrammer.o: /usr/include/assert.h
 TapeCommand.o: TapeCommand.h DataSourcePackage.h /Include/histotypes.h
 TapeCommand.o: /usr/include/string.h /usr/include/features.h
 TapeCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
@@ -511,16 +481,12 @@ UserCode.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 UserCode.o: /usr/include/math.h /usr/include/bits/huge_val.h
 UserCode.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 UserCode.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-WriteCommand.o: WriteCommand.h SpectrumPackage.h /Include/ErrnoException.h
-WriteCommand.o: /Include/Exception.h /Include/histotypes.h
-WriteCommand.o: /usr/include/string.h /usr/include/features.h
-WriteCommand.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-WriteCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-WriteCommand.o: /usr/include/math.h /usr/include/bits/huge_val.h
-WriteCommand.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
-WriteCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-WriteCommand.o: /usr/include/errno.h /usr/include/bits/errno.h
+WriteCommand.o: WriteCommand.h SpectrumPackage.h /usr/include/errno.h
+WriteCommand.o: /usr/include/features.h /usr/include/sys/cdefs.h
+WriteCommand.o: /usr/include/gnu/stubs.h /usr/include/bits/errno.h
 WriteCommand.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
+WriteCommand.o: /usr/include/string.h
+WriteCommand.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 WriteCommand.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
 WriteCommand.o: /usr/include/sys/types.h /usr/include/bits/types.h
 WriteCommand.o: /usr/include/time.h /usr/include/endian.h
@@ -549,10 +515,4 @@ XamineEventHandler.o: /usr/include/sys/sysmacros.h /usr/include/X11/X.h
 XamineEventHandler.o: /usr/include/X11/Xfuncproto.h
 XamineEventHandler.o: /usr/include/X11/Xosdefs.h GateFactory.h GatePackage.h
 XamineEventHandler.o: GateCommand.h ApplyCommand.h UngateCommand.h
-XamineEventHandler.o: /Include/Exception.h /Include/histotypes.h
-XamineEventHandler.o: /usr/include/string.h /usr/include/math.h
-XamineEventHandler.o: /usr/include/bits/huge_val.h
-XamineEventHandler.o: /usr/include/bits/mathdef.h
-XamineEventHandler.o: /usr/include/bits/mathcalls.h
-XamineEventHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 XamineEventHandler.o: /usr/include/assert.h

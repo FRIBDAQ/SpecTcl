@@ -155,8 +155,8 @@ AnalysisTest.o: /usr/include/g++-3/std/bastring.cc /usr/include/math.h
 AnalysisTest.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
 AnalysisTest.o: /usr/include/bits/mathcalls.h
 AnalysisTest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-AnalysisTest.o: /Include/Exception.h Histogrammer.h Dictionary.h
-AnalysisTest.o: /usr/include/g++-3/map /usr/include/g++-3/stl_tree.h
+AnalysisTest.o: Histogrammer.h Dictionary.h /usr/include/g++-3/map
+AnalysisTest.o: /usr/include/g++-3/stl_tree.h
 AnalysisTest.o: /usr/include/g++-3/stl_algobase.h
 AnalysisTest.o: /usr/include/g++-3/stl_pair.h
 AnalysisTest.o: /usr/include/g++-3/type_traits.h /usr/include/limits.h
@@ -214,8 +214,7 @@ BitSpectrumL.o: /usr/include/g++-3/std/bastring.cc /Include/histotypes.h
 BitSpectrumL.o: /usr/include/math.h /usr/include/bits/huge_val.h
 BitSpectrumL.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 BitSpectrumL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-BitSpectrumL.o: Parameter.h /Include/NamedItem.h /Include/RangeError.h
-BitSpectrumL.o: /Include/Exception.h
+BitSpectrumL.o: Parameter.h /Include/NamedItem.h
 BitSpectrumW.o: BitSpectrumW.h Spectrum.h /usr/include/g++-3/vector
 BitSpectrumW.o: /usr/include/g++-3/stl_algobase.h
 BitSpectrumW.o: /usr/include/g++-3/stl_pair.h
@@ -252,10 +251,9 @@ BitSpectrumW.o: /usr/include/g++-3/std/bastring.cc /Include/histotypes.h
 BitSpectrumW.o: /usr/include/math.h /usr/include/bits/huge_val.h
 BitSpectrumW.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 BitSpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-BitSpectrumW.o: Parameter.h /Include/NamedItem.h /Include/RangeError.h
-BitSpectrumW.o: /Include/Exception.h
-DictionaryException.o: DictionaryException.h /Include/Exception.h
-DictionaryException.o: /Include/histotypes.h /usr/include/g++-3/iostream.h
+BitSpectrumW.o: Parameter.h /Include/NamedItem.h
+DictionaryException.o: DictionaryException.h /Include/histotypes.h
+DictionaryException.o: /usr/include/g++-3/iostream.h
 DictionaryException.o: /usr/include/g++-3/streambuf.h /usr/include/libio.h
 DictionaryException.o: /usr/include/_G_config.h /usr/include/bits/types.h
 DictionaryException.o: /usr/include/features.h /usr/include/sys/cdefs.h
@@ -291,32 +289,28 @@ Gamma1DL.o: /usr/include/gnu/stubs.h
 Gamma1DL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 Gamma1DL.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 Gamma1DL.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-Gamma1DL.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
-Gamma1DL.o: /Include/Exception.h
+Gamma1DL.o: /usr/include/bits/posix2_lim.h
 Gamma1DW.o: Gamma1DW.h Parameter.h /Include/NamedItem.h /usr/include/string.h
 Gamma1DW.o: /usr/include/features.h /usr/include/sys/cdefs.h
 Gamma1DW.o: /usr/include/gnu/stubs.h
 Gamma1DW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 Gamma1DW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 Gamma1DW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-Gamma1DW.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
-Gamma1DW.o: /Include/Exception.h
+Gamma1DW.o: /usr/include/bits/posix2_lim.h
 Gamma2DB.o: Gamma2DB.h Parameter.h /Include/NamedItem.h /usr/include/string.h
 Gamma2DB.o: /usr/include/features.h /usr/include/sys/cdefs.h
 Gamma2DB.o: /usr/include/gnu/stubs.h
 Gamma2DB.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 Gamma2DB.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 Gamma2DB.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-Gamma2DB.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
-Gamma2DB.o: /Include/Exception.h
+Gamma2DB.o: /usr/include/bits/posix2_lim.h
 Gamma2DW.o: Gamma2DW.h Parameter.h /Include/NamedItem.h /usr/include/string.h
 Gamma2DW.o: /usr/include/features.h /usr/include/sys/cdefs.h
 Gamma2DW.o: /usr/include/gnu/stubs.h
 Gamma2DW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 Gamma2DW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 Gamma2DW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-Gamma2DW.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
-Gamma2DW.o: /Include/Exception.h
+Gamma2DW.o: /usr/include/bits/posix2_lim.h
 GateMediator.o: GateMediator.h Spectrum.h /usr/include/g++-3/vector
 GateMediator.o: /usr/include/g++-3/stl_algobase.h
 GateMediator.o: /usr/include/g++-3/stl_pair.h
@@ -384,13 +378,12 @@ Histogrammer.o: /usr/include/g++-3/stl_algo.h /usr/include/g++-3/stl_heap.h
 Histogrammer.o: Parameter.h /Include/NamedItem.h Spectrum.h
 Histogrammer.o: /usr/include/g++-3/vector /usr/include/g++-3/stl_vector.h
 Histogrammer.o: /usr/include/g++-3/stl_bvector.h DictionaryException.h
-Histogrammer.o: /Include/Exception.h /Include/histotypes.h
-Histogrammer.o: /usr/include/g++-3/string /usr/include/g++-3/std/bastring.h
-Histogrammer.o: /usr/include/g++-3/cstddef /usr/include/g++-3/std/straits.h
-Histogrammer.o: /usr/include/g++-3/cctype /usr/include/ctype.h
-Histogrammer.o: /usr/include/g++-3/cstring /usr/include/g++-3/alloc.h
-Histogrammer.o: /usr/include/g++-3/stl_config.h /usr/include/g++-3/iterator
-Histogrammer.o: /usr/include/g++-3/stl_relops.h
+Histogrammer.o: /Include/histotypes.h /usr/include/g++-3/string
+Histogrammer.o: /usr/include/g++-3/std/bastring.h /usr/include/g++-3/cstddef
+Histogrammer.o: /usr/include/g++-3/std/straits.h /usr/include/g++-3/cctype
+Histogrammer.o: /usr/include/ctype.h /usr/include/g++-3/cstring
+Histogrammer.o: /usr/include/g++-3/alloc.h /usr/include/g++-3/stl_config.h
+Histogrammer.o: /usr/include/g++-3/iterator /usr/include/g++-3/stl_relops.h
 Histogrammer.o: /usr/include/g++-3/stl_iterator.h /usr/include/g++-3/cassert
 Histogrammer.o: /usr/include/g++-3/std/bastring.cc /usr/include/math.h
 Histogrammer.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
@@ -454,32 +447,28 @@ Spectrum1DL.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 Spectrum1DL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 Spectrum1DL.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 Spectrum1DL.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-Spectrum1DL.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
-Spectrum1DL.o: /Include/Exception.h
+Spectrum1DL.o: /usr/include/bits/posix2_lim.h
 Spectrum1DW.o: Spectrum1DW.h Parameter.h /Include/NamedItem.h
 Spectrum1DW.o: /usr/include/string.h /usr/include/features.h
 Spectrum1DW.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 Spectrum1DW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 Spectrum1DW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 Spectrum1DW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-Spectrum1DW.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
-Spectrum1DW.o: /Include/Exception.h
+Spectrum1DW.o: /usr/include/bits/posix2_lim.h
 Spectrum2DB.o: Spectrum2DB.h Parameter.h /Include/NamedItem.h
 Spectrum2DB.o: /usr/include/string.h /usr/include/features.h
 Spectrum2DB.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 Spectrum2DB.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 Spectrum2DB.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 Spectrum2DB.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-Spectrum2DB.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
-Spectrum2DB.o: /Include/Exception.h
+Spectrum2DB.o: /usr/include/bits/posix2_lim.h
 Spectrum2DW.o: Spectrum2DW.h Parameter.h /Include/NamedItem.h
 Spectrum2DW.o: /usr/include/string.h /usr/include/features.h
 Spectrum2DW.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 Spectrum2DW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 Spectrum2DW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 Spectrum2DW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-Spectrum2DW.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
-Spectrum2DW.o: /Include/Exception.h
+Spectrum2DW.o: /usr/include/bits/posix2_lim.h
 SpectrumFactory.o: SpectrumFactory.h /Include/histotypes.h
 SpectrumFactory.o: /usr/include/g++-3/iostream.h
 SpectrumFactory.o: /usr/include/g++-3/streambuf.h /usr/include/libio.h
@@ -523,10 +512,10 @@ SpectrumFactory.o: /usr/include/g++-3/stl_uninitialized.h
 SpectrumFactory.o: /usr/include/g++-3/stl_vector.h
 SpectrumFactory.o: /usr/include/g++-3/stl_bvector.h
 SpectrumFactory.o: SpectrumFactoryException.h DictionaryException.h
-SpectrumFactory.o: /Include/Exception.h Spectrum.h Spectrum1DL.h
-SpectrumFactory.o: Spectrum1DW.h Spectrum2DW.h Spectrum2DB.h BitSpectrumL.h
-SpectrumFactory.o: BitSpectrumW.h SummarySpectrumW.h SummarySpectrumB.h
-SpectrumFactory.o: Gamma1DW.h Gamma1DL.h Gamma2DB.h Gamma2DW.h Histogrammer.h
+SpectrumFactory.o: Spectrum.h Spectrum1DL.h Spectrum1DW.h Spectrum2DW.h
+SpectrumFactory.o: Spectrum2DB.h BitSpectrumL.h BitSpectrumW.h
+SpectrumFactory.o: SummarySpectrumW.h SummarySpectrumB.h Gamma1DW.h
+SpectrumFactory.o: Gamma1DL.h Gamma2DB.h Gamma2DW.h Histogrammer.h
 SpectrumFactory.o: Dictionary.h /usr/include/g++-3/map
 SpectrumFactory.o: /usr/include/g++-3/stl_tree.h
 SpectrumFactory.o: /usr/include/g++-3/stl_function.h
@@ -550,8 +539,8 @@ SummarySpectrumB.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 SummarySpectrumB.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 SummarySpectrumB.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 SummarySpectrumB.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-SummarySpectrumB.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
-SummarySpectrumB.o: /Include/Exception.h /usr/include/g++-3/algorithm
+SummarySpectrumB.o: /usr/include/bits/posix2_lim.h
+SummarySpectrumB.o: /usr/include/g++-3/algorithm
 SummarySpectrumB.o: /usr/include/g++-3/stl_algobase.h
 SummarySpectrumB.o: /usr/include/g++-3/stl_pair.h
 SummarySpectrumB.o: /usr/include/g++-3/type_traits.h /usr/include/stdlib.h
@@ -578,8 +567,8 @@ SummarySpectrumW.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 SummarySpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 SummarySpectrumW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 SummarySpectrumW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
-SummarySpectrumW.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
-SummarySpectrumW.o: /Include/Exception.h /usr/include/g++-3/algorithm
+SummarySpectrumW.o: /usr/include/bits/posix2_lim.h
+SummarySpectrumW.o: /usr/include/g++-3/algorithm
 SummarySpectrumW.o: /usr/include/g++-3/stl_algobase.h
 SummarySpectrumW.o: /usr/include/g++-3/stl_pair.h
 SummarySpectrumW.o: /usr/include/g++-3/type_traits.h /usr/include/stdlib.h

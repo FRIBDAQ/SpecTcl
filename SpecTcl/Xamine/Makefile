@@ -128,7 +128,6 @@ DisplayGate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 DisplayGate.o: /usr/include/math.h /usr/include/bits/huge_val.h
 DisplayGate.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 DisplayGate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-DisplayGate.o: /Include/RangeError.h /Include/Exception.h
 DisplayGate.o: /usr/include/assert.h
 Xamine1D.o: Xamine1D.h XamineSpectrum.h /Include/histotypes.h
 Xamine1D.o: /usr/include/string.h /usr/include/features.h
@@ -152,12 +151,10 @@ XamineButton.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 XamineButton.o: /usr/include/math.h /usr/include/bits/huge_val.h
 XamineButton.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 XamineButton.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-XamineButton.o: XamineButtonPrompt.h /Include/RangeError.h
-XamineButton.o: /Include/Exception.h XaminePushButton.h XamineToggleButton.h
-XamineButtonException.o: XamineButtonException.h /Include/Exception.h
-XamineButtonException.o: /Include/histotypes.h /usr/include/string.h
-XamineButtonException.o: /usr/include/features.h /usr/include/sys/cdefs.h
-XamineButtonException.o: /usr/include/gnu/stubs.h
+XamineButton.o: XamineButtonPrompt.h XaminePushButton.h XamineToggleButton.h
+XamineButtonException.o: XamineButtonException.h /Include/histotypes.h
+XamineButtonException.o: /usr/include/string.h /usr/include/features.h
+XamineButtonException.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 XamineButtonException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 XamineButtonException.o: /usr/include/math.h /usr/include/bits/huge_val.h
 XamineButtonException.o: /usr/include/bits/mathdef.h
@@ -165,10 +162,8 @@ XamineButtonException.o: /usr/include/bits/mathcalls.h
 XamineButtonException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 XamineButtonException.o: XamineButton.h XaminePushButton.h
 XamineButtonException.o: XamineToggleButton.h /usr/include/assert.h
-XamineButtonPrompt.o: XamineButtonPrompt.h /Include/RangeError.h
-XamineButtonPrompt.o: /Include/Exception.h
+XamineButtonPrompt.o: XamineButtonPrompt.h
 XamineConfirmPrompt.o: XamineConfirmPrompt.h XamineButtonPrompt.h
-XamineConfirmPrompt.o: /Include/RangeError.h /Include/Exception.h
 XamineConfirmPrompt.o: /usr/include/string.h /usr/include/features.h
 XamineConfirmPrompt.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 XamineConfirmPrompt.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
@@ -189,10 +184,10 @@ XamineFilePrompt.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 XamineFilePrompt.o: /usr/include/math.h /usr/include/bits/huge_val.h
 XamineFilePrompt.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 XamineFilePrompt.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-XamineGateException.o: XamineGateException.h /Include/Exception.h
-XamineGateException.o: DisplayGate.h Point.h /Include/histotypes.h
-XamineGateException.o: /usr/include/string.h /usr/include/features.h
-XamineGateException.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+XamineGateException.o: XamineGateException.h DisplayGate.h Point.h
+XamineGateException.o: /Include/histotypes.h /usr/include/string.h
+XamineGateException.o: /usr/include/features.h /usr/include/sys/cdefs.h
+XamineGateException.o: /usr/include/gnu/stubs.h
 XamineGateException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 XamineGateException.o: /usr/include/math.h /usr/include/bits/huge_val.h
 XamineGateException.o: /usr/include/bits/mathdef.h
@@ -206,7 +201,6 @@ XamineGates.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 XamineGates.o: /usr/include/math.h /usr/include/bits/huge_val.h
 XamineGates.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 XamineGates.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-XamineGates.o: /Include/RangeError.h /Include/Exception.h
 XamineGates.o: /usr/include/assert.h
 XamineNoPrompt.o: XamineNoPrompt.h XamineButtonPrompt.h
 XaminePointsPrompt.o: XaminePointsPrompt.h XamineButtonPrompt.h
@@ -256,15 +250,13 @@ Xamineplus.o: /usr/include/math.h /usr/include/bits/huge_val.h
 Xamineplus.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 Xamineplus.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 Xamineplus.o: XamineSpectrumIterator.h XamineGates.h DisplayGate.h Point.h
-Xamineplus.o: /Include/ErrnoException.h /Include/Exception.h
-Xamineplus.o: /usr/include/errno.h /usr/include/bits/errno.h
-Xamineplus.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
-Xamineplus.o: /Include/RangeError.h XamineGateException.h
-Xamineplus.o: XamineButtonException.h XamineButton.h XamineEvent.h
-Xamineplus.o: XamineSpectrum.h Xamine1D.h Xamine2D.h XamineNoPrompt.h
-Xamineplus.o: XamineButtonPrompt.h XamineConfirmPrompt.h XamineFilePrompt.h
-Xamineplus.o: XaminePointsPrompt.h XamineTextPrompt.h XamineSpectrumPrompt.h
-Xamineplus.o: /usr/include/assert.h
+Xamineplus.o: XamineGateException.h XamineButtonException.h XamineButton.h
+Xamineplus.o: XamineEvent.h XamineSpectrum.h Xamine1D.h Xamine2D.h
+Xamineplus.o: XamineNoPrompt.h XamineButtonPrompt.h XamineConfirmPrompt.h
+Xamineplus.o: XamineFilePrompt.h XaminePointsPrompt.h XamineTextPrompt.h
+Xamineplus.o: XamineSpectrumPrompt.h /usr/include/errno.h
+Xamineplus.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
+Xamineplus.o: /usr/include/asm/errno.h /usr/include/assert.h
 Xaminetest.o: /Include/histotypes.h /usr/include/string.h
 Xaminetest.o: /usr/include/features.h /usr/include/sys/cdefs.h
 Xaminetest.o: /usr/include/gnu/stubs.h
