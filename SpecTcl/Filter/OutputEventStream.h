@@ -11,9 +11,14 @@
 #define __STL_VECTOR
 #endif
 
-#ifndef __STL_FSTREAM
-#include <fstream>
-#define __STL_FSTREAM
+#ifndef __STDIO_H
+#include <stdio.h>
+#define __STDIO_H
+#endif
+
+#ifndef __RPC_XDR_H
+#include <rpc/xdr.h>
+#define __RPC_XDR_H
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -22,7 +27,7 @@
 #endif
 
 #ifndef __PARAMETER_H
-#include "Parameter.h"
+#include <Parameter.h>
 #define __PARAMETER_H
 #endif
 
@@ -32,34 +37,48 @@
 #endif
 
 #ifndef __EVENTSINK_H
-#include "EventSink.h"
+#include <EventSink.h>
 #define __EVENTSINK_H
 #endif
 
 class COutputEventStream {
   Bool_t m_fActive;
   string m_sFileName;
+  vector<string> m_vParameterNames;
+  UInt_t m_nValidParameters;
+  UInt_t m_nEvents;
+  FILE *m_pFile;
+  XDR m_xdrs;
+  Bool_t m_fXDRError;
+  UInt_t m_nOffset; // Number of bytes sent for this block/buffer.
+  UInt_t m_nBLOCKSIZE;
   UInt_t m_nMAXBUFFERSIZE;
-  vector<CEvent> Buffer;
-  ofstream m_ofs;
+  vector<CEvent*> m_vBuffer;
 
  public:
   // Constructors.
   COutputEventStream();
-  COutputEventStream(string&);
+  COutputEventStream(string&, vector<string>&);
   virtual ~COutputEventStream();
 
   // Operators.
   Bool_t operator()(const string&); // To set file name. DO NOT ABUSE BY SENDING AN EVENT OR SOMETHING ELSE!
-  Bool_t operator()(const CEvent&); // To receive and subsequently send an event.
+  Bool_t operator()(CEvent&); // To receive and subsequently send an event.
   COutputEventStream& operator=(const COutputEventStream&);
 
   // Additional functions.
-  string COutputEventStream::getFileName();
-  Bool_t COutputEventStream::Open();
-  Bool_t COutputEventStream::Close();
-  Bool_t COutputEventStream::ReceiveEvent(const CEvent&);
-  Bool_t COutputEventStream::SendBuffer();
+  Bool_t isActive();
+  string ParseFileName(string&);
+  string getFileName();
+  Bool_t Open();
+  Bool_t Close();
+  Bool_t ReceiveEvent(CEvent&);
+  Bool_t SendBuffer();
+  Bool_t XDRstring(string&);
+  Bool_t XDRuint(UInt_t&);
+  Bool_t XDRarray(char**);
+  Bool_t XDRfloat(Float_t&);
+  Bool_t XDRfill(UInt_t);
 }; // COutputEventStream.
 
 #endif

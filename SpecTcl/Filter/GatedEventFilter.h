@@ -55,6 +55,7 @@
 class CGatedEventFilter : public CEventFilter {
   // Attributes.
   CGateContainer* m_pGateContainer;
+  //vector<string> m_vParameterNames;
   vector<UInt_t> m_vParameterIds;
 
  public:
@@ -73,6 +74,7 @@ class CGatedEventFilter : public CEventFilter {
 
   // Additional functions.
   void setGateContainer(CGateContainer&);
+  void setParameterNames(const vector<string>&);
   void setParameterIds(const vector<UInt_t>&);
   std::string getGateName();
   UInt_t getGateID();
