@@ -26,12 +26,12 @@ LD     =  $($(OS)LD) -L/usr/lesstif/lib/Xm-2.0/.libs
 YACC   = bison
 LEX    = flex
 LEXOUT = lex.yy.c
-F77    = f77
+F77    = echo
 
 #
 #  Fortran interface.  Define to be nothing or aedxamine.o.
 #
-AEDOBJS = aedxamine.o
+AEDOBJS = 
 
 .DEFAULT:
 	echo Would sccs get $<
