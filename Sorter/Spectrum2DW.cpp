@@ -295,6 +295,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change log:
   $Log$
+  Revision 4.5  2003/10/24 14:43:28  ron-fox
+  Bounds check parameter ids against the size of
+  of the event.
+
   Revision 4.4  2003/08/25 16:25:32  ron-fox
   Initial starting point for merge with filtering -- this probably does not
   generate a goo spectcl build.
@@ -456,17 +460,19 @@ CSpectrum2DW::Increment(const CEvent& rE)
 //               Event which drives the histogramming
 //
   CEvent& rEvent((CEvent&)rE);
-  if(rEvent[m_nXParameter].isValid()  && // Require the parameters be in event
-     rEvent[m_nYParameter].isValid()) {
-    Int_t nx = Randomize(ParameterToAxis(0, rEvent[m_nXParameter]));
-    Int_t ny = Randomize(ParameterToAxis(1, rEvent[m_nYParameter]));
-    if( (nx >= 0)   && (nx < m_nXScale)     &&
-	(ny >= 0)   && (ny < m_nYScale)) {
-      UShort_t* pSpec = (UShort_t*)getStorage();
-      pSpec[nx + (ny * m_nXScale)]++;
+  int nParameters = rEvent.size();
+  if((m_nXParameter < nParameters) && (m_nYParameter < nParameters)) {
+    if(rEvent[m_nXParameter].isValid()  && // Require the parameters be in event
+       rEvent[m_nYParameter].isValid()) {
+      Int_t nx = Randomize(ParameterToAxis(0, rEvent[m_nXParameter]));
+      Int_t ny = Randomize(ParameterToAxis(1, rEvent[m_nYParameter]));
+      if( (nx >= 0)   && (nx < m_nXScale)     &&
+	  (ny >= 0)   && (ny < m_nYScale)) {
+	UShort_t* pSpec = (UShort_t*)getStorage();
+	pSpec[nx + (ny * m_nXScale)]++;
+      }
     }
   }
-
 }
 //////////////////////////////////////////////////////////////////////////
 //

@@ -303,6 +303,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 4.9  2003/10/24 14:43:28  ron-fox
+  Bounds check parameter ids against the size of
+  of the event.
+
   Revision 4.8  2003/08/25 16:25:32  ron-fox
   Initial starting point for merge with filtering -- this probably does not
   generate a goo spectcl build.
@@ -575,11 +579,15 @@ void CHistogrammer::operator()(const CEvent& rEvent,
 // Operation Type:
 //     Functionalizer.
 //
+static  int nEvents = 0;
+
 void CHistogrammer::operator()(CEventList& rEvents) {
   //  Profiling demonstrates that it's inefficient to
   //  traverse the CSpectrum and CGateContainer maps for each event.
   //  Therefore these are traversed once now and placed in tables.
   //  This is redone on each batch of events in case the maps get modified.
+
+  nEvents = 0;
 
   //  Flatten the gates map into pGates:
 
@@ -605,16 +613,22 @@ void CHistogrammer::operator()(CEventList& rEvents) {
   }
 
   //  Now analyze the events.
+  //  the assumption is that the first null
+  //  event or the end of the vector terminates.
+  //
   CEventListIterator i;
   CEventListIterator e = rEvents.end();
   for(i = rEvents.begin(); i != e; i++) {
     CEvent* pEvent = *i;
-    if(pEvent) 
+    if(pEvent) {
+      nEvents++;
       operator()(*pEvent,
 		 nSpectra, pSpectra,
 		 nGates, pGates);
-    else
+    }
+    else {
       return;
+    }
   }
 };
 

@@ -291,6 +291,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*  
    Change Log:
    $Log$
+   Revision 4.5  2003/10/24 14:43:29  ron-fox
+   Bounds check parameter ids against the size of
+   of the event.
+
    Revision 4.4  2003/06/19 18:56:13  ron-fox
    Fix parameter order error so that Scales are properly defined in the constructor.
 
@@ -414,19 +418,22 @@ void CGamma1DL::Increment(const CEvent& rE)
     UInt_t* pStorage = (UInt_t*)getStorage();
     assert(pStorage != (UInt_t*)kpNULL);
     CEvent& rEvent((CEvent&)rE);
+    int     nPars = rEvent.size();
     UInt_t xChan;
     
     for (xChan = 0; xChan < m_vParameters.size(); xChan++) {
-      if(rEvent[m_vParameters[xChan]].isValid()) {
-	UInt_t y = Randomize(ParameterToAxis(xChan, 
-				   rEvent[m_vParameters[xChan]]));
-	if ((y >= 0) && (y < m_nScale)) {
-	  pStorage[y]++;
+      if(m_vParameters[xChan] < nPars) {
+	if(rEvent[m_vParameters[xChan]].isValid()) {
+	  UInt_t y = 
+	    Randomize(ParameterToAxis(xChan, 
+				      rEvent[m_vParameters[xChan]]));
+	  if ((y >= 0) && (y < m_nScale)) {
+	    pStorage[y]++;
+	  }
 	}
       }
     }
   }
-  
   //otherwise pass control to GammaGateIncrement
   else if(sGateType == "gs" || sGateType == "gb" || sGateType == "gc") {
     GammaGateIncrement(rE, sGateType);
@@ -454,6 +461,7 @@ CGamma1DL::GammaGateIncrement (const CEvent& rE, std::string sGT)
   UInt_t* pStorage = (UInt_t*)getStorage();
   assert(pStorage != (UInt_t*)kpNULL);
   CEvent& rEvent((CEvent&)rE);
+  int     nParams = rEvent.size();
   UInt_t xChan, mvx, mvy;
   vector<UInt_t> vXP, vYP;
   
@@ -462,16 +470,21 @@ CGamma1DL::GammaGateIncrement (const CEvent& rE, std::string sGT)
     for(xChan = 0; xChan < m_vParameters.size(); xChan++) {  // for all params
       vXP.clear();
       vXP.push_back(m_vParameters[xChan]);
-      if(rEvent[m_vParameters[xChan]].isValid()) {  // if valid...
-	if(pGate->inGate(rEvent, vXP)) {  // and parameter is in bounds...
-	  for(UInt_t Param = 0; Param < m_vParameters.size(); Param++) {
-	    if(Param != xChan) {  // Increment for all other parameters
-	      // Make sure this parameter is valid too...
-	      if(rEvent[m_vParameters[Param]].isValid()) {
-		UInt_t y = Randomize(ParameterToAxis(Param,
-				       rEvent[m_vParameters[Param]]));
-		if ((y >= 0) && (y <  m_nScale)) {
-		  pStorage[y]++;
+      if (m_vParameters[xChan] < nParams) {
+	if(rEvent[m_vParameters[xChan]].isValid()) {  // if valid...
+	  if(pGate->inGate(rEvent, vXP)) {  // and parameter is in bounds...
+	    for(UInt_t Param = 0; Param < m_vParameters.size(); Param++) {
+	      if(Param != xChan) {  // Increment for all other parameters
+		// Make sure this parameter is valid too...
+		if(m_vParameters[Param] < nParams) {
+		  if(rEvent[m_vParameters[Param]].isValid()) {
+		    UInt_t y = 
+		      Randomize(ParameterToAxis(Param,
+						rEvent[m_vParameters[Param]]));
+		    if ((y >= 0) && (y <  m_nScale)) {
+		      pStorage[y]++;
+		    }
+		  }
 		}
 	      }
 	    }
@@ -480,7 +493,6 @@ CGamma1DL::GammaGateIncrement (const CEvent& rE, std::string sGT)
       }
     }
   }
-  
   else if(sGT == "gb" || sGT == "gc") {  // Gate is a gamma band or contour
     CPointListGate* pGate((CPointListGate*)(getGate()->getGate()));
     if(pGate->Type() == "gb") {
@@ -492,26 +504,32 @@ CGamma1DL::GammaGateIncrement (const CEvent& rE, std::string sGT)
     // For all possible pairs of parameters in the spectrum
     for(UInt_t XPar = 0; XPar < m_vParameters.size()-1; XPar++) {
       for(UInt_t YPar = XPar+1; YPar < m_vParameters.size(); YPar++) {
-	if(rEvent[m_vParameters[XPar]].isValid() &&
-	   rEvent[m_vParameters[YPar]].isValid()) {  // if valid...
-	  mvx = m_vParameters[XPar];
-	  mvy = m_vParameters[YPar];
-	  vXP.clear(); vYP.clear();
-	  vXP.push_back(mvx); vXP.push_back(mvy); // Need to check
-	  vYP.push_back(mvy); vYP.push_back(mvx); // Either order.
-	  // and if (p1, p2) or (p2, p1) is in gate...
-	  if(pGate->inGate(rEvent, vXP) || 
-	     pGate->inGate(rEvent, vYP)) {
-	    for(UInt_t Param = 0; Param < m_vParameters.size(); 
-		Param++) {
-	      // Increment for all params not in (p1, p2) which are valid
-	      if(Param != XPar && Param != YPar) {
-		// Make sure this parameter is valid too...
-		if(rEvent[m_vParameters[Param]].isValid()) {
-		  UInt_t y = Randomize(ParameterToAxis(Param,
-				       rEvent[m_vParameters[Param]]));
-		  if ((y >= 0) && (y < m_nScale)) {
-		    pStorage[y]++;
+	if((m_vParameters[XPar] < nParams) &&
+	   (m_vParameters[YPar] < nParams)) {
+	  if(rEvent[m_vParameters[XPar]].isValid() &&
+	     rEvent[m_vParameters[YPar]].isValid()) {  // if valid...
+	    mvx = m_vParameters[XPar];
+	    mvy = m_vParameters[YPar];
+	    vXP.clear(); vYP.clear();
+	    vXP.push_back(mvx); vXP.push_back(mvy); // Need to check
+	    vYP.push_back(mvy); vYP.push_back(mvx); // Either order.
+	    // and if (p1, p2) or (p2, p1) is in gate...
+	    if(pGate->inGate(rEvent, vXP) || 
+	       pGate->inGate(rEvent, vYP)) {
+	      for(UInt_t Param = 0; Param < m_vParameters.size(); 
+		  Param++) {
+		// Increment for all params not in (p1, p2) which are valid
+		if(Param != XPar && Param != YPar) {
+		  // Make sure this parameter is valid too...
+		  if(m_vParameters[Param] < nParams) {
+		    if(rEvent[m_vParameters[Param]].isValid()) {
+		      UInt_t y = 
+			Randomize(ParameterToAxis(Param,
+						  rEvent[m_vParameters[Param]]));
+		      if ((y >= 0) && (y < m_nScale)) {
+			pStorage[y]++;
+		      }
+		    }
 		  }
 		}
 	      }

@@ -295,6 +295,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 4.5  2003/10/24 14:43:29  ron-fox
+    Bounds check parameter ids against the size of
+    of the event.
+
     Revision 4.4  2003/04/01 19:53:12  ron-fox
     Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -443,29 +447,32 @@ CGamma2DB::Increment(const CEvent& rE)
   // Increment normally if gate is a 'normal' gate
   if(sGateType[0] != 'g') {
     CEvent& rEvent((CEvent&)rE);
+    int     nParams = rEvent.size();
     UChar_t* pStorage = (UChar_t*)getStorage();
     assert(pStorage != (UChar_t*) kpNULL);
     UInt_t xChan, yChan;
     
     for (xChan = 0; xChan < m_vParameters.size()-1; xChan++) {
       for( yChan = xChan+1; yChan < m_vParameters.size(); yChan++) {
-	if (rEvent[m_vParameters[xChan]].isValid() && 
-	    rEvent[m_vParameters[yChan]].isValid()) {
-
-	  Int_t px = Randomize(ParameterToAxis(xChan, 
-					       rEvent[m_vParameters[xChan]]));
-	  Int_t py = Randomize(ParameterToAxis(yChan + m_vParameters.size(), 
-					       rEvent[m_vParameters[yChan]]));
-
-	  if ( (px >= 0) && (px < (m_nXScale))    && 
-	       (py >= 0) && (py < (m_nYScale))  ) {
-	    pStorage[px + py*Dimension(0)]++;
+	if((m_vParameters[xChan] < nParams) &&
+	   (m_vParameters[yChan] < nParams)) {
+	  if (rEvent[m_vParameters[xChan]].isValid() && 
+	      rEvent[m_vParameters[yChan]].isValid()) {
+	    
+	    Int_t px = Randomize(ParameterToAxis(xChan, 
+						 rEvent[m_vParameters[xChan]]));
+	    Int_t py = Randomize(ParameterToAxis(yChan + m_vParameters.size(), 
+						 rEvent[m_vParameters[yChan]]));
+	    
+	    if ( (px >= 0) && (px < (m_nXScale))    && 
+		 (py >= 0) && (py < (m_nYScale))  ) {
+	      pStorage[px + py*Dimension(0)]++;
+	    }
 	  }
 	}
       }
     }
   }
-
   // Otherwise control is passed to GammaGateIncrement
   // Where the increment is a bit more interesting.
   else if(sGateType[0] == 'g') {
@@ -496,6 +503,7 @@ CGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
   UChar_t* pStorage = (UChar_t*)getStorage();
   assert(pStorage != (UChar_t*)kpNULL);
   CEvent& rEvent((CEvent&)rE);
+  int     nParams = rEvent.size();
   UInt_t xChan, yChan;
   vector<UInt_t> vXP, vYP;
 
@@ -503,26 +511,31 @@ CGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
     CGammaCut* pGate = (CGammaCut*)getGate()->getGate();
     // For all parameters in the spectrum
     for(UInt_t xChan = 0; xChan < m_vParameters.size(); xChan++) {
-      if(rEvent[m_vParameters[xChan]].isValid()) { // if valid...
-	vXP.clear();
-	vXP.push_back(m_vParameters[xChan]);
-	if(pGate->inGate(rEvent, vXP)) {  // and X-param is in gate...
-	  for(UInt_t p1 = 0; p1 < m_vParameters.size()-1; p1++) {
-	    for(UInt_t p2 = p1+1; p2 < m_vParameters.size(); p2++) {
-	      // Increment for all pairs not containing the param
-	      if(p1 != xChan && p2 != xChan) {
-		// Make sure these params are valid too...
-		if(rEvent[m_vParameters[p1]].isValid() &&
-		   rEvent[m_vParameters[p2]].isValid()) {
-		  Int_t px = Randomize(ParameterToAxis(p1, 
-						 rEvent[m_vParameters[p1]]));
-		  Int_t py = Randomize(
-                                 ParameterToAxis(p2 + m_vParameters.size(), 
-						 rEvent[m_vParameters[p2]]));
-
-		  if ( (px >= 0) && (px < (m_nXScale))    && 
-		       (py >= 0) && (py < (m_nYScale))  ) {
-		    pStorage[px + py*Dimension(0)]++;
+      if(m_vParameters[xChan] < nParams) {
+	if(rEvent[m_vParameters[xChan]].isValid()) { // if valid...
+	  vXP.clear();
+	  vXP.push_back(m_vParameters[xChan]);
+	  if(pGate->inGate(rEvent, vXP)) {  // and X-param is in gate...
+	    for(UInt_t p1 = 0; p1 < m_vParameters.size()-1; p1++) {
+	      for(UInt_t p2 = p1+1; p2 < m_vParameters.size(); p2++) {
+		// Increment for all pairs not containing the param
+		if(p1 != xChan && p2 != xChan) {
+		  // Make sure these params are valid too...
+		  if((m_vParameters[p1] < nParams) &&
+		     (m_vParameters[p1] < nParams)) {
+		    if(rEvent[m_vParameters[p1]].isValid() &&
+		       rEvent[m_vParameters[p2]].isValid()) {
+		      Int_t px = Randomize(ParameterToAxis(p1, 
+							   rEvent[m_vParameters[p1]]));
+		      Int_t py = Randomize(
+					   ParameterToAxis(p2 + m_vParameters.size(), 
+							   rEvent[m_vParameters[p2]]));
+		      
+		      if ( (px >= 0) && (px < (m_nXScale))    && 
+			   (py >= 0) && (py < (m_nYScale))  ) {
+			pStorage[px + py*Dimension(0)]++;
+		      }
+		    }
 		  }
 		}
 	      }
@@ -532,7 +545,6 @@ CGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
       }
     }
   }
-  
   else if(sGT == "gb" || sGT == "gc") {  // Gate is a gamma band or contour
     CPointListGate* pGate((CPointListGate*)(getGate()->getGate()));
 
@@ -542,34 +554,38 @@ CGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
       for(yChan = xChan+1; yChan < m_vParameters.size(); yChan++) {
 	mvx = m_vParameters[xChan];
 	mvy = m_vParameters[yChan];
-	if(rEvent[mvx].isValid() && rEvent[mvy].isValid()) {  // if valid...
-	  vXP.clear(); vYP.clear();
-	  vXP.push_back(mvx); vXP.push_back(mvy);
-	  vYP.push_back(mvy); vYP.push_back(mvx);
-	  // and (p1, p2) or (p2, p1) is in the gate...
-	  if(pGate->inGate(rEvent, vXP) || pGate->inGate(rEvent, vYP)) {
-	    for(UInt_t xParam = 0; xParam < m_vParameters.size()-1; xParam++) {
-	      for(UInt_t yParam = xParam+1; yParam < m_vParameters.size(); 
-		  yParam++) {
-		if(((xChan != xParam && xChan != yParam)) &&
-		   (yChan != xParam && yChan != yParam)) {
-		  // Increment for all pairs which do not intersect
-		  // with (xChan, yChan) as long as they are valid...
-		  if(rEvent[m_vParameters[xParam]].isValid() &&
-		     rEvent[m_vParameters[yParam]].isValid()) {
-
-	
-		    Int_t px = Randomize(ParameterToAxis(xParam, 
-					       rEvent[m_vParameters[xParam]]));
-		    Int_t py = Randomize(
-                                ParameterToAxis(yParam + m_vParameters.size(), 
-					rEvent[m_vParameters[yParam]]));
-		    
-		    if ( (px >= 0) && (px < (m_nXScale))    && 
-			 (py >= 0) && (py < (m_nYScale))  ) {
-		      pStorage[px + py*Dimension(0)]++;
+	if((mvx < nParams) && (mvy < nParams)) {
+	  if(rEvent[mvx].isValid() && rEvent[mvy].isValid()) {  // if valid...
+	    vXP.clear(); vYP.clear();
+	    vXP.push_back(mvx); vXP.push_back(mvy);
+	    vYP.push_back(mvy); vYP.push_back(mvx);
+	    // and (p1, p2) or (p2, p1) is in the gate...
+	    if(pGate->inGate(rEvent, vXP) || pGate->inGate(rEvent, vYP)) {
+	      for(UInt_t xParam = 0; xParam < m_vParameters.size()-1; xParam++) {
+		for(UInt_t yParam = xParam+1; yParam < m_vParameters.size(); 
+		    yParam++) {
+		  if(((xChan != xParam && xChan != yParam)) &&
+		     (yChan != xParam && yChan != yParam)) {
+		    // Increment for all pairs which do not intersect
+		    // with (xChan, yChan) as long as they are valid...
+		    if((xParam < nParams) && (yParam < nParams)) {
+		      if(rEvent[m_vParameters[xParam]].isValid() &&
+			 rEvent[m_vParameters[yParam]].isValid()) {
+			
+			
+			Int_t px = Randomize(ParameterToAxis(xParam, 
+							     rEvent[m_vParameters[xParam]]));
+			Int_t py = Randomize(
+					     ParameterToAxis(yParam + m_vParameters.size(), 
+							     rEvent[m_vParameters[yParam]]));
+			
+			if ( (px >= 0) && (px < (m_nXScale))    && 
+			     (py >= 0) && (py < (m_nYScale))  ) {
+			  pStorage[px + py*Dimension(0)]++;
+			}
+			
+		      }
 		    }
-		    
 		  }
 		}
 	      }

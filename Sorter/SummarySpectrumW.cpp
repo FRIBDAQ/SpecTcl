@@ -296,6 +296,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log:
    $Log$
+   Revision 4.5  2003/10/24 14:43:29  ron-fox
+   Bounds check parameter ids against the size of
+   of the event.
+
    Revision 4.4  2003/04/19 00:11:13  ron-fox
    Fix a nasty issue with GetDefinition() that was causing death due to a number of problems with the static output struct.  For later: change the struct to a class so that it can be returned by value rather than by reference.. then it wouldn't have to be static.
 
@@ -411,18 +415,20 @@ CSummarySpectrumW::Increment(const CEvent& rE)
 //          const CEvent& rEvent:
 //               Event which drives the histogramming
 //
-  CEvent& rEvent((CEvent&)rE);
-  UInt_t   nYChans  = m_nYScale;
+  CEvent&   rEvent((CEvent&)rE);
+  UInt_t    nYChans  = m_nYScale;
   UShort_t* pStorage = (UShort_t*)getStorage();
-
+  int       nParams  = rEvent.size();
   for(UInt_t xChan = 0; xChan < m_vParameters.size(); xChan++) {
-    if(rEvent[m_vParameters[xChan]].isValid()) {
-      Float_t rawParam = rEvent[m_vParameters[xChan]];
-      UInt_t y = Randomize(ParameterToAxis(xChan,
-					   rawParam));
-
-      if((y >= 0)   && (y < m_nYScale)) {
-	pStorage[xChan + y*m_nXChannels]++;
+    if(m_vParameters[xChan] < nParams) {
+      if(rEvent[m_vParameters[xChan]].isValid()) {
+	Float_t rawParam = rEvent[m_vParameters[xChan]];
+	UInt_t y = Randomize(ParameterToAxis(xChan,
+					     rawParam));
+	
+	if((y >= 0)   && (y < m_nYScale)) {
+	  pStorage[xChan + y*m_nXChannels]++;
+	}
       }
     }
   }
