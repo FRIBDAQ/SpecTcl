@@ -409,7 +409,7 @@ CPipeFile::MakeArgv(const std::string& rConnection)
 
   // First count the number of items:
 
-  char* pString = new char[strlen(rConnection.c_str() + 1)];
+  char* pString = new char[strlen(rConnection.c_str())+ 1];
   strcpy(pString, rConnection.c_str());
 
   const char* pDelims  = " \t";
