@@ -487,6 +487,7 @@ void Xamine_SetDefaultRefresh(XMWidget *wid, XtPointer ud, XtPointer cd)
     dialog->AddApplyCallback(SetRefresh);
     dialog->AddCancelCallback(SetRefresh);
     dialog->AddHelpCallback(Xamine_display_help, &help);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
   /* Set the current slider value to the current default value: */
 

@@ -440,3 +440,26 @@ void XMDestroyWidget(XMWidget *w, XtPointer cd, XtPointer cb)
 {
   delete w;
 }
+
+/*!
+   The function below can be set as a destroy callback to set the
+   associated widget cache pointer to null.  This is useful if the
+   user decides to click the [x] decoration to dismiss a widget,
+   in that case, the widget will be destroyed rather than unmanaged.
+
+   \param pWidget (XMWidget* [in]): Pointer to thye widget that triggered the
+               call (is being destoryed).
+   \param pEventData  (XtPointer [in]): Unused pointer to event data from 
+               X11
+   \param pClientData (XtPointer [in]): Client data which in our case is
+       expected to be a pointer to the pointer to be nulled out.
+
+*/
+void NullPointer(XMWidget* pWidget, 
+		 XtPointer pClientData, XtPointer pEvent)
+{
+  XMWidget** ppWidget = (XMWidget**)(pClientData);
+  *ppWidget     = (XMWidget*)NULL;
+  delete pWidget;		/* Object may as well be destroyed too. */
+
+}

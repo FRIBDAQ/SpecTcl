@@ -290,6 +290,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
+ Revision 4.13  2003/04/04 17:44:21  ron-fox
+ Catch dialog destruction for cached widgets so that the destroyed dialog is re-created when it's needed.  Prior behavior would usually crash Xamine because deleted widgets would be referenced.
+
  Revision 4.12  2003/04/02 18:36:12  ron-fox
  Connect the options->Setup Printer... dialog appropriately with the defaults file and the default information used by Jason's printer dialogs.
 
@@ -1118,7 +1121,15 @@ void PrintSpectrumDialog::allow_setsize(bool b)
 **     Title put at top of the dialog.
 */
 SetupPrintDialog::SetupPrintDialog(char *name, XMWidget *w, char *title) :
-       XMCustomDialog(name, *w, title)
+  XMCustomDialog(name, *w, title),
+    type_label(0),
+    type_manager(0),
+    post(0),
+    cpost(0),
+    tempfname_label(0),
+    tempfname(0),
+    prtcmd_label(0),
+    prtcmd(0)
 {
 
   Arg chars[100];
@@ -1850,6 +1861,7 @@ void Xamine_SetupPrinter(XMWidget *w, XtPointer user, XtPointer call)
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);
     dialog->AddHelpCallback(Xamine_display_help, &help);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
   
   /* Make the dialog contents match the current defaults. */

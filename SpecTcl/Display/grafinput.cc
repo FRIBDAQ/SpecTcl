@@ -275,6 +275,14 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
+
+/* Change log:
+   $Log$
+   Revision 4.3  2003/04/04 17:44:21  ron-fox
+   Catch dialog destruction for cached widgets so that the destroyed dialog is re-created when it's needed.  Prior behavior would usually crash Xamine because deleted widgets would be referenced.
+
+*/
+
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
 ** Facility:
@@ -358,9 +366,11 @@ extern spec_shared *xamine_shared;
 **      This function is only present to ensure that the dialog destructor
 **      is also called.
 */
+
 GraphicalInput::~GraphicalInput()
 {
-  
+
+
 }
 
 /*
@@ -688,3 +698,22 @@ void GraphicalInput::OkCallback(XtPointer call_d)
   }
   
 }
+/*!
+   Destroy a graphical input object.. This requires emulating a cancel
+   and then nulling the pointer that caches this object:
+   The only thing we care about is pClientData which is a pointer
+   to an object derived from GraphicalInput
+   We chain to NullPointer to complete the job.
+*/
+void
+Xamine_DestroyGraphicalInput(XMWidget* pWidget,
+			     XtPointer pClientData,
+			     XtPointer pEvent)
+{
+  GraphicalInput** ppInput = (GraphicalInput**)pClientData;
+  GraphicalInput*   pInput = *ppInput;
+  pInput->CancelCallback(NULL);
+  NullPointer(pWidget, pClientData, pEvent);
+
+}
+			     

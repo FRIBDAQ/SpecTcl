@@ -1554,6 +1554,7 @@ void Xamine_CopyPaneAttributes(XMWidget *parent, XtPointer ud, XtPointer cd)
   if(!dialog) {
     dialog = new AttributeCopyDialog("Copy_ATR", parent, "Copy Attributes",
 				     atr);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
   dialog->Update(atr);
   dialog->Manage();

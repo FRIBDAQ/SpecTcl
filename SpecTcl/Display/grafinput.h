@@ -369,6 +369,10 @@ class GraphicalInput : public XMCustomDialog
   void setrow(int r) { row = r; }
   void setcol(int c) { col = c; }
 };
+
+extern void Xamine_DestroyGraphicalInput(XMWidget* pWidget,
+					 XtPointer pClientData,
+					 XtPointer pEvent);
 #endif
 
 

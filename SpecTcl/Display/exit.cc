@@ -414,6 +414,7 @@ void Xamine_confirm_exit(XMWidget *w, XtPointer client_data, XtPointer cbs)
     dlg->AddCancelCallback(killdlg);
     dlg->GetHelpButton()->AddCallback(exit_display_help, (XtPointer)NULL);
     dlg->GetHelpButton()->Enable();
+    dlg->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dlg);
   }
   else {
     dlg->Show();

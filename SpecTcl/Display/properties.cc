@@ -802,6 +802,8 @@ void Xamine_SetSelectedProperties(XMWidget *w, XtPointer cli, XtPointer call)
     dialog->AddDoCallback(ActionCallback, (XtPointer)dialog);
     dialog->AddCancelCallback(ActionCallback, (XtPointer)dialog);
     dialog->AddHelpCallback(Xamine_display_help, &help);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
+
 
     /* BUGBUGBUG   */
     /* It would be really nice if the below worked. but evidently it doesn't

@@ -914,6 +914,8 @@ void Xamine_AcceptSummingRegion(XMWidget *w, XtPointer ud, XtPointer cd)
   if(dialog == NULL) {
     dialog = new AcceptSummingRegion("Summing region",
 				     w, help_text);
+    dialog->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
+			(XtPointer)&dialog);
   }
   /* Set the current row/column: */
 
@@ -1150,3 +1152,17 @@ Xamine_DrawSumRegion(Display *d, Drawable win, GC ctx, XMWidget *wid,
   }
   cvt->Clip();
 }
+/*
+  Destroy the summing region... requires clean up much like a cancel
+  since this is only called when a destroy was done and that can only
+  be done on an active widget:
+*/
+
+AcceptSummingRegion::~AcceptSummingRegion() {
+    if(object != NULL)
+      delete object;
+    delete NextPoint;
+    delete NextLabel;
+    delete DeleteLast;
+    delete Points;
+  }

@@ -437,6 +437,7 @@ static
     help = Xamine_help("Open_Grobj_file_help",
 		       help_parent,
 		       open_help_text);
+    help->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&help);
   }
   else {
     help->Manage();
@@ -490,6 +491,7 @@ void Xamine_Open_grobj_file(XMWidget *w, XtPointer client_data,
     full = Xamine_GetSearchMask(XAMINE_GROBJ_ENV, XMFILE_DEFAULT_DIR,
 			      GROBJ_MASK);
     openbox->DoSearch(full);
+    openbox->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&openbox);
   }
   else {
     openbox->Manage();

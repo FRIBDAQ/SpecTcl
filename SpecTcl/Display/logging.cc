@@ -526,6 +526,7 @@ void Xamine_SetupLogFile(XMWidget *w, XtPointer Userd, XtPointer clientd)
     dialog->AddCancelCallback(ActionCallback);
     dialog->GetHelpButton()->Enable();
     dialog->GetHelpButton()->AddCallback(Xamine_display_help, &help);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 
   /* Load the text string with the value of the current filename */

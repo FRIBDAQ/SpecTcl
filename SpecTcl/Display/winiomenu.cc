@@ -493,6 +493,7 @@ static
     help = Xamine_help("Open_window_file_help",
 		       help_parent,
 		       open_help_text);
+    help->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&help);
   }
   else {
     help->Manage();
@@ -540,7 +541,8 @@ void Xamine_Open_window_file(XMWidget *w, XtPointer client_data,
     openbox->GetHelpButton()->AddCallback(open_help, (XtPointer)openbox);
     openbox->GetHelpButton()->Enable();
     openbox->AddCancelCallback(XMUnmanageChild);
-
+    openbox->AddCallback(XtNdestroyCallback, NullPointer, 
+			   (XtPointer)&openbox);
     /* Build the directory search string */
     
     full = Xamine_GetSearchMask(XAMINE_WINDOW_ENV, XMFILE_DEFAULT_DIR, 
