@@ -106,3 +106,34 @@ CGammaBand::Type() const
 {
   return std::string("gb");
 }
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    Bool_t inGate ( CEvent& rEvent, vector<UInt_t>& Params )
+//  Operation Type:
+//     Evaluator
+//
+Bool_t
+CGammaBand::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
+{
+  // We may assume that the parameter has been validated already
+  UInt_t xPar = Params[0];
+  UInt_t yPar = Params[1];
+  if(xPar >= rEvent.size() || yPar >= rEvent.size())
+    return kfFALSE;
+  else {
+    if(rEvent[xPar].isValid() && rEvent[yPar].isValid()) {
+      UInt_t x = rEvent[xPar];
+      UInt_t y = rEvent[yPar];
+      if(x < (getLimits()).size()) {
+	return (y < (getLimits())[x]);
+      }
+      else {
+	return kfFALSE;
+      }
+    }
+    else
+      return kfFALSE;
+  }
+}

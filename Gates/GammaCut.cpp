@@ -76,3 +76,27 @@ CGammaCut::Type() const
 {
   return std::string("gs");
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    Bool_t inGate ( CEvent& rEvent, vector<UInt_t>& Params )
+//  Operation Type:
+//     Evaluator
+//
+Bool_t
+CGammaCut::inGate(CEvent& rEvent, const vector<UInt_t>& Param)
+{
+  UInt_t Par = Param[0];
+  if(Param[0] >= rEvent.size())
+    return kfFALSE;
+  else {
+    if(rEvent[Par].isValid()) {
+      UInt_t nPoint = rEvent[Par];
+      return((nPoint >= getLow()) && (nPoint <= getHigh()));
+    }
+    else 
+      return kfFALSE;
+  }
+}
