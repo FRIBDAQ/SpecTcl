@@ -40,7 +40,7 @@ class COutputEventStream {
   Bool_t m_fActive;
   UInt_t m_nMAXBUFFERSIZE; // Arbitrarily initialized to 16.
   vector<CEvent> Buffer;
-  ofstream m_nFd; // Alternatively, place this in CEventFilter.
+  ofstream m_ofs; // Alternatively, place this in CEventFilter.
 
  public:
   // Constructors.

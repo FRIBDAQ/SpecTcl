@@ -46,10 +46,10 @@ COutputEventStream& COutputEventStream::operator=(const COutputEventStream& rRhs
 // Additional functions.
 Bool_t COutputEventStream::Open() { // Open for APPEND *************************
   if(!m_fActive) {
-    if(!m_nFd.is_open()) {
-      m_nFd.open("/tmp/coutputeventstream.txt");
+    if(!m_ofs.is_open()) {
+      m_ofs.open("/tmp/coutputeventstream.txt", fstream::app);
     }
-    if(m_nFd.good()) {
+    if(m_ofs.good()) {
       m_fActive = true;
       return true;
     } else {
@@ -60,9 +60,9 @@ Bool_t COutputEventStream::Open() { // Open for APPEND *************************
 
 Bool_t COutputEventStream::Close() {
   if(m_fActive) { // Attempt to close only if not already so.
-    if(m_nFd.is_open()) {
+    if(m_ofs.is_open()) {
       SendBuffer(); // Send whatever is left.
-      m_nFd.close(); // No return value. No exceptions likely.
+      m_ofs.close(); // No return value. No exceptions likely.
     }
     m_fActive = false;
   }
@@ -79,19 +79,19 @@ Bool_t COutputEventStream::ReceiveEvent(const CEvent& rEvent) {
 }
 
 Bool_t COutputEventStream::SendBuffer() {
-  if(m_nFd.is_open() && m_nFd.good() && Buffer.size()>0) {
+  if(m_ofs.is_open() && m_ofs.good() && Buffer.size()>0) {
     // Send buffer.
     for(int i=0; i<Buffer.size(); i++) { // For each and every CEvent in Buffer,
       for(int j=0; j<((CEvent)(Buffer[i])).size(); j++) { // For each and every Parameter in CEvent,
 	// Output the parameter in the event in the buffer.
-	m_nFd << ((CEvent)(Buffer[i]))[j] << " "; // Done with parameter.
+	m_ofs << ((CEvent)(Buffer[i]))[j] << " "; // Done with parameter.
       }
       // Done with event.
-      m_nFd << endl;
+      m_ofs << endl;
     }
     // Done with buffer.
-    m_nFd << endl;
-    m_nFd << flush;
+    m_ofs << endl;
+    m_ofs << flush;
     Buffer.clear();
     return kfTRUE;
   } else {

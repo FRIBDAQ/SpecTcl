@@ -233,10 +233,12 @@ Int_t CFilterCommand::Enable(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
   const char* pFilterName = *pArgs;
 
   CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
-  if((*pFilterDictionary).Lookup(pFilterName)!=(*pFilterDictionary).end()) {
+  //if((*pFilterDictionary).Lookup(pFilterName)!=(*pFilterDictionary).end()) {
+  if(pFilterDictionary->Lookup(pFilterName)!=pFilterDictionary->end()) {
     CEventFilter* pEventFilter = (pFilterDictionary->Lookup(pFilterName))->second;
-    (*pEventFilter).Enable();
+    //(*pEventFilter).Enable();
     //(&(*((*pFilterDictionary).Lookup(&(*pFilterName))))).Enable();
+    pEventFilter->Enable();
     if(pEventFilter->CheckEnabled()) {
       rResult = "Filter (" + std::string(pFilterName) + ") enabled.";
       return TCL_OK;
@@ -260,10 +262,12 @@ Int_t CFilterCommand::Disable(CTCLInterpreter& rInterp, CTCLResult& rResult, int
   const char* pFilterName = *pArgs;
 
   CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
-  if((*pFilterDictionary).Lookup(pFilterName)!=(*pFilterDictionary).end()) {
+  //if((*pFilterDictionary).Lookup(pFilterName)!=(*pFilterDictionary).end()) {
+  if(pFilterDictionary->Lookup(pFilterName)!=pFilterDictionary->end()) {
     CEventFilter* pEventFilter = (pFilterDictionary->Lookup(pFilterName))->second;
-    (*pEventFilter).Disable();
+    //(*pEventFilter).Disable();
     //(&(*((*pFilterDictionary).Lookup(&(*pFilterName))))).Disable();
+    pEventFilter->Disable();
     if(!(pEventFilter->CheckEnabled())) {
       rResult = "Filter (" + std::string(pFilterName) + ") disabled.";
       return TCL_OK;
