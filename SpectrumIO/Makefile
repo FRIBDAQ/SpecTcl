@@ -105,15 +105,24 @@ NSCLAsciiSpectrumFormatter.o: /usr/include/bits/mathcalls.h
 NSCLAsciiSpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 NSCLAsciiSpectrumFormatter.o: SpectrumFormatter.h
 NSCLAsciiSpectrumFormatter.o: ../SpecTcl/SpectrumPackage.h
-NSCLAsciiSpectrumFormatter.o: ./SpectrumFormatError.h /Include/Exception.h
-NSCLAsciiSpectrumFormatter.o: /Include/StreamIOError.h /usr/include/limits.h
+NSCLAsciiSpectrumFormatter.o: /Include/TCLCommandPackage.h
+NSCLAsciiSpectrumFormatter.o: /Include/TCLInterpreterObject.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/tcl.h /usr/include/stdio.h
+NSCLAsciiSpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/types.h /usr/include/libio.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/_G_config.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/stdio_lim.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/assert.h /Include/TCLInterpreter.h
+NSCLAsciiSpectrumFormatter.o: /Include/TCLString.h /Include/TCLProcessor.h
+NSCLAsciiSpectrumFormatter.o: /Include/TCLResult.h ./SpectrumFormatError.h
+NSCLAsciiSpectrumFormatter.o: /Include/Exception.h /Include/StreamIOError.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/limits.h
 NSCLAsciiSpectrumFormatter.o: /usr/include/bits/posix1_lim.h
 NSCLAsciiSpectrumFormatter.o: /usr/include/bits/local_lim.h
 NSCLAsciiSpectrumFormatter.o: /usr/include/linux/limits.h
 NSCLAsciiSpectrumFormatter.o: /usr/include/bits/posix2_lim.h
 NSCLAsciiSpectrumFormatter.o: /usr/include/time.h /usr/include/bits/time.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/bits/types.h /usr/include/ctype.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/endian.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/ctype.h /usr/include/endian.h
 NSCLAsciiSpectrumFormatter.o: /usr/include/bits/endian.h
 NSCLBinarySpectrumFormatter.o: NSCLBinarySpectrumFormatter.h
 NSCLBinarySpectrumFormatter.o: SpectrumFormatter.h ./nsclbin.h
@@ -126,6 +135,16 @@ NSCLBinarySpectrumFormatter.o: /usr/include/linux/errno.h
 NSCLBinarySpectrumFormatter.o: /usr/include/asm/errno.h ./nscldata.h
 NSCLBinarySpectrumFormatter.o: ./nsclbinerror.h /Include/Exception.h
 NSCLBinarySpectrumFormatter.o: ../SpecTcl/SpectrumPackage.h
+NSCLBinarySpectrumFormatter.o: /Include/TCLCommandPackage.h
+NSCLBinarySpectrumFormatter.o: /Include/TCLInterpreterObject.h
+NSCLBinarySpectrumFormatter.o: /usr/include/tcl.h /usr/include/stdio.h
+NSCLBinarySpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/types.h /usr/include/libio.h
+NSCLBinarySpectrumFormatter.o: /usr/include/_G_config.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/stdio_lim.h
+NSCLBinarySpectrumFormatter.o: /usr/include/assert.h
+NSCLBinarySpectrumFormatter.o: /Include/TCLInterpreter.h /Include/TCLString.h
+NSCLBinarySpectrumFormatter.o: /Include/TCLProcessor.h /Include/TCLResult.h
 NSCLBinarySpectrumFormatter.o: ./SpectrumFormatError.h
 NSCLBinarySpectrumFormatter.o: /Include/StreamIOError.h /usr/include/math.h
 NSCLBinarySpectrumFormatter.o: /usr/include/bits/huge_val.h
@@ -137,8 +156,7 @@ NSCLBinarySpectrumFormatter.o: /usr/include/bits/posix1_lim.h
 NSCLBinarySpectrumFormatter.o: /usr/include/bits/local_lim.h
 NSCLBinarySpectrumFormatter.o: /usr/include/linux/limits.h
 NSCLBinarySpectrumFormatter.o: /usr/include/bits/posix2_lim.h
-NSCLBinarySpectrumFormatter.o: /usr/include/ctype.h /usr/include/bits/types.h
-NSCLBinarySpectrumFormatter.o: /usr/include/endian.h
+NSCLBinarySpectrumFormatter.o: /usr/include/ctype.h /usr/include/endian.h
 NSCLBinarySpectrumFormatter.o: /usr/include/bits/endian.h
 SpectrumFormatError.o: ./SpectrumFormatError.h /Include/Exception.h
 SpectrumFormatter.o: SpectrumFormatter.h

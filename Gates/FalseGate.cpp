@@ -53,6 +53,12 @@ CFalseGate::inGate(CEvent&, const vector<UInt_t>&)
 {
   return kfFALSE;
 }
+
+Bool_t
+CFalseGate::inGate(CEvent& rEvent)
+{
+  return kfFALSE;
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

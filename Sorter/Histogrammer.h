@@ -156,7 +156,9 @@ protected:
 public:
   // Analysis evaluation operators:
 
-  virtual void operator() (const CEvent&     rEvent) ;
+  virtual void operator() (const CEvent&     rEvent,
+			   UInt_t nSpectra, CSpectrum** ppSpectra,
+			   UInt_t nGates,   CGateContainer** ppGates) ;
   virtual void operator() (CEventList& rEventList);
   
   // Parameter dictionary manipulation:

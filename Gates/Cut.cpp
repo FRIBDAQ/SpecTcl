@@ -30,9 +30,8 @@ static const char* Copyright =
 Bool_t
 CCut::operator()(CEvent& rEvent)
 {
-  vector<UInt_t> Params;
   if(!wasChecked()) {
-    Set(inGate(rEvent, Params));
+    Set(inGate(rEvent));
   }
 
   return getCachedValue();
@@ -55,6 +54,16 @@ CCut::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 //      Event on which the gate will be evaluated.
 //    vector<UInt_t>& Params
 //      vector of parameters in the gate (empty)
+{
+  return inGate(rEvent);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+// inGate: check if the event makes the gate.
+//
+Bool_t
+CCut::inGate(CEvent& rEvent)
 {
   UInt_t id = getId();
   if(id >= rEvent.size()) {

@@ -81,8 +81,8 @@ public:
   virtual   std::string GetConstituent (CConstituentIterator& rp)  ;
   virtual   CGate* clone ()  ;
   virtual   std::string Type ()  const;
-  virtual   Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params
-			  = (const vector<UInt_t>&) 0 );
+  virtual   Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params);
+  virtual   Bool_t inGate(CEvent& rEvent);
 };
 
 #endif

@@ -88,9 +88,8 @@ CBand::CBand(UInt_t nXid, UInt_t nYid,
 Bool_t
 CBand::operator()(CEvent& rEvent)
 {
-  vector<UInt_t> Params;
   if(!wasChecked()) {
-    Set(inGate(rEvent, Params));
+    Set(inGate(rEvent));
   }
   
   return getCachedValue();
@@ -122,6 +121,13 @@ CBand::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
   //          Refers to the event to check.
   //      vector<UInt_t>& Params
   //          Refers to the vector of parameters in the gate (empty)
+{
+
+  return inGate(rEvent);
+}
+//  inGate without parameters:
+Bool_t
+CBand::inGate(CEvent& rEvent)
 {
   UInt_t xPar = getxId();
   UInt_t yPar = getyId();
