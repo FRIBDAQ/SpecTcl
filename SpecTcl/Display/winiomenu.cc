@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
+#endif
 
 #ifdef VMS
 inline int remove(const char *path) { /* VMS compatibility.  */
