@@ -28,6 +28,7 @@ install-exe-local:
 	install  -d   -m 0775 $(prefix)/lib $(prefix)/Etc
 	install -d   -m 0775 $(prefix)/Script $(prefix)/Skel
 	install  -d   -m 0775 $(prefix)/contrib $(prefix)/doc $(prefix)/share
+	install -m 0664 config.h $(prefix)/include
 	rm -f $(prefix)/Bin
 	rm -f $(prefix)/Lib
 	rm -f $(prefix)/Include
