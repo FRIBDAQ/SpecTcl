@@ -207,3 +207,6 @@ January 06, 2005
     - Fixed up some missing quotes on makefile.skel's.
 January 11, 2005
     - Roll in another treeparmaeter update from D. Bazin
+January 12, 2005
+    - swrite file creation needs an ios::trunc else existing files will 
+      leave postpended data if they were larger.

@@ -419,7 +419,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     pOut = new tclostream(pChannel);
   }
   else {
-    pOut = new ofstream(pArgs[0]);
+    pOut = new ofstream(pArgs[0], ios::trunc | ios::out);
     rResult="";
   }
   // If the file could not be created/mapped then pOut is false:
