@@ -108,6 +108,8 @@ advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h
 
 lib_LTLIBRARIES = libXamine.la
 
+libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
+
 libXamine_la_SOURCES = client.c clientgates.c prccheck.c allocator.c \
 specalloc.c clientbuttons.c
 
