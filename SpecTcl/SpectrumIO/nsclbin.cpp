@@ -271,7 +271,7 @@ bool nsclbin::testinit() {
   return 1;
 }
 bool nsclbin::setup() {
-  char finfo[131]= "CANPS FORMAT 1.0.1986 NSCL-MSU; SPCLIB; VAX/VMN; MAX REC LENGTH=1KB  FOLLOWING RECORDS ARE OF TYPE";
+  char finfo[131]= "CANPS FORMAT 1.0.1986 NSCL-MSU; SPCLIB; SPECTCL; MAX REC LENGTH=1KB  FOLLOWING RECORDS ARE OF TYPE";
   int sizeofbitmask(int x, int y);
   if (testinit()) {
     truey = (ylength==0);
@@ -280,24 +280,26 @@ bool nsclbin::setup() {
     if (date[0]==0) chardate(date);
     int s = sizeofbitmask(xlength,ylength);
     char ustr[9*s];
-    memset(ustr,0,9*s);
     for(int i=0; i<s;i++) {
-      strcat(ustr, " U1");
+      if(strlen(finfo) < (sizeof(finfo) - sizeof(" U1") - 1)) {
+	strcat(finfo, " U1");
+      }
     }
-     switch (format) {
-    case LONGWORD:
-      strcat(ustr, " H4");
-      break;
-    case WORD:
-      strcat(ustr, " H2");
-      break;
-    case BYTE:
-      strcat(ustr, " H1");
-      break;
-    default:
-      error((nscloperror*)new nscloperror(nscloperror::InvalidFormat) );
+    if(strlen(finfo) < (sizeof(finfo) - sizeof(" U1") -1)) {
+      switch (format) {
+      case LONGWORD:
+	strcat(finfo, " H4");
+	break;
+      case WORD:
+	strcat(finfo, " H2");
+	break;
+      case BYTE:
+	strcat(finfo, " H1");
+	break;
+      default:
+	error((nscloperror*)new nscloperror(nscloperror::InvalidFormat) );
+      }
     }
-    strcat(finfo,ustr);
     
     memset(formatinfo,ASCSPACE,sizeof(formatinfo)-1);
     strcpy(formatinfo, finfo);
