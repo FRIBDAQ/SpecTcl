@@ -72,8 +72,18 @@ AC_CHECK_FUNCS([strdup strstr strtol tzset mktime strtod timezone])
 AC_PATH_X
 AC_PATH_XTRA
 
-XINCLUDES="-I$x_includes"
-XLIBSW="-L$x_libraries"
+if test "$x_includes" != ""
+then
+  XINCLUDES="-I$x_includes"
+else
+  XINCLUDES=""
+fi
+if test "$x_libraries" != ""
+then
+  XLIBSW="-L$x_libraries"
+else
+  XLIBSW=""
+fi
 
 
 #
@@ -93,12 +103,17 @@ if test $motif_h_found = no
 then
 	# Special case:  if it's in x_includes, no extra sws.
 	
-	AC_CHECK_FILE([$x_includes/Xm/Xm.h],
-	               [motif_h_found="yes"])
+	mdir="$x_includes"
+	if test "$mdir" = ""
+        then
+          mdir="/usr/include"
+        fi
+	AC_CHECK_FILE([${mdir}/Xm/Xm.h],
+	               [motif_h_found="yes"],
+	               [motif_h_found="no"])
 fi
 
 #  Next search:
-#      /usr/include
 #      /usr/include/X11
 #      /usr/include/X11R6
 #      /usr/X11/include
@@ -107,9 +122,12 @@ fi
 #      /usr/local/include      (default lesstif installation).
 #
 
+#  If in /usr/include we don't need anything:
+
+
 if test $motif_h_found = no
 then
-   motif_header_dirs="/usr/include /usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include"
+   motif_header_dirs="/usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include"
    for d in ${motif_header_dirs}
    do
 	AC_CHECK_FILE([${d}/Xm/Xm.h],
@@ -145,12 +163,13 @@ fi
 #   Our search order is:
 #   --with-motif-lib=path    (user always can override).
 #   $x_libraries             (Pretty  normal place e.g. openmotif).
+#   /usr/lib                 (e.g. OSF1).
 #   /sw/lib                  (Darwin lesstif installation).
 #   /usr/local/lesstif/lib   (normal lesstif install wo links?).
 #   
 
 libexts=".so .dylib .a"        # prefer shared libs to static.
-motiflibdirs="/sw/lib /usr/local/lesstif/lib"
+motiflibdirs="/usr/X11/lib /usr/X11R6/lib  /sw/lib /usr/local/lesstif/lib"
 motif_libdir=""
 motif_lib_found="no"
 
@@ -167,8 +186,14 @@ for ext in $libexts
 do
    if test $motif_lib_found = "no"
    then
-      AC_CHECK_FILE([$x_libraries/libXm${ext}],
-	            [motif_lib_found="yes"])
+      if "$x_libraries" != ""
+      then
+         AC_CHECK_FILE([$x_libraries/libXm${ext}],
+	               [motif_lib_found="yes"])
+      else
+	AC_CHECK_FILE([/usr/lib/libXm${ext}],
+	               [motif_lib_found="yes"])
+      fi
    fi
 done
 
@@ -207,32 +232,7 @@ fi
 
 # Checks for include declarations
 
-#   Some sytems have a broken rpc.h - no prototypes  For these
-#   we will produce our own minimal prototypes.
-#
-AC_MSG_CHECKING([For broken rpc/xdr.h])
-AC_LANG_PUSH(C++)
 
-AC_TRY_COMPILE([
-#include <rpc/types.h>
-#include <rpc/xdr.h>
-],[
-
-   XDR dummy;
-   xdr_getpos(&dummy);    /* Should be ok!! */
-],   [xdr_h_broken="no"], [xdr_h_broken="yes"])
-
-
-if test $xdr_h_broken = "yes"
-then
-	AC_MSG_RESULT([.. broken])
-	AC_DEFINE(BROKEN_XDR_H, 1, [True if xdr.h unusable for c++ compiles])
-else
-	AC_MSG_RESULT([.. not broken])
-fi
-
-
-AC_LANG_POP
 # These checks are for declarations within specific system headers. For
 # instance, MTSETBLK is not declared in sys/mtio.h on all platforms, but
 # is needed on Linux.
@@ -364,13 +364,16 @@ OS="$host_os"                          # Default guess.
 case $host_os in
   *cygwin* ) 
 	AC_DEFINE(CYGWIN, 1, [Set to 1 if Cygwin environment])
-	AC_MSG_RESULT([Cygwin])
+	AC_MSG_RESULT([Cygwin...  xdr.h broken for c++])
 
 	# cygwin we have doesn't seem to get the object extension
 	# quite right:
 
 	OBJEXT="o"
 	AC_SUBST(OBJEXT)
+	AC_DEFINE(BROKEN_XDR_H, 1,
+	         [defined if xdr.h unusuable for c++])
+
 
 	# Windows doesn't allow undefined symbols at link time
 	#
@@ -401,7 +404,9 @@ case $host_os in
 	OBJEXT="o"
 	AC_SUBST(OBJEXT)
 	AC_DEFINE(DARWIN, 1, [Set to 1 if Darwin environment])
-	AC_MSG_RESULT([Darwin])
+	AC_DEFINE(BROKEN_XDR_H, 1,
+		  [defined if xdr.h is unusable for c++])
+	AC_MSG_RESULT([Darwin .. xdr.h broken for c++])
 	OS="darwin"              # It's crapped up with versions otherwise.
 	;;
   * )
