@@ -718,9 +718,9 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp)
   cerr << m_pGatePackage->getSignon() << endl;
 
   // For Filter command.
-  CFilterCommand* pfiltercommand = new CFilterCommand(rInterp);
-  pfiltercommand->Bind(rInterp);
-  pfiltercommand->Register();
+  ///  CFilterCommand* pfiltercommand = new CFilterCommand(rInterp);
+  // pfiltercommand->Bind(rInterp);
+  //pfiltercommand->Register();
 
   cerr.flush();
 }  
