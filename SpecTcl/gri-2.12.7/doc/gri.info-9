@@ -1,0 +1,1291 @@
+This is gri.info, produced by makeinfo version 4.3 from gri.texi.
+
+INFO-DIR-SECTION Scientific Applications
+START-INFO-DIR-ENTRY
+* Gri: (gri).  Programming language for scientific illustration
+END-INFO-DIR-ENTRY
+
+
+File: gri.info,  Node: Parsing,  Next: Simple New Command,  Prev: Purpose,  Up: Adding New Commands
+
+How Gri parses commands
+-----------------------
+
+   Whenever Gri reads a command line, it compares it with its list of
+commands.  This list is searched in this order: (1) the universal
+`gri.cmd' file (*Note Invoking Gri::), (2) your resource file (*Note
+Resource File::), if it exists, and then (3) your command file itself.
+Gri stops searching when it finds a Gri command that matches the
+command line.  "Matching" means that the command line is identical in
+all words in a Gri command, scanning from the left, until it encounters
+a word containing
+   * A quote (e.g. `"string"')
+
+   * A synonym name (e.g. `\file')
+
+   * A variable name (e.g. `.number.')
+
+   * An opening square bracket (e.g. `[option]')
+
+   * An opening brace (e.g.  `{a|b}')
+
+   * A choice between two items (e.g.  `first|second')
+
+   * A variable-name with a `&' character immediately to the left (e.g.
+     `&.var.').  This is a signal that the variable may be changed
+     inside the newcommand (*Note The Ampersand Syntax::).
+
+   * A synonym-name with a `&' character immediately to the left (e.g.
+     `&\syn').  This is a signal that the synonym may be changed inside
+     the newcommand (*Note The Ampersand Syntax::).
+
+   When Gri finds a command that matches your command line, it assumes
+that this is the intended command, and searches no further.  This means
+that you must be careful not to have your command hidden by other
+commands.  For example, if your resource file contained these lines,
+Gri would *never* execute the second new command, because calls to it
+match the first command.  To avoid this, you may either reverse the
+order of the definitions, so that Gri will find the proper routine, or
+rename one of the routines.
+
+     `Draw foo'
+     Draw a foo.
+     {
+       show "drawing a foo"
+     }
+     `Draw foo bar'
+     Draw a foo bar.
+     {
+       show "drawing a foo bar"
+     }
+
+   Gri searches the `gri.cmd' file first, so any new command that you
+create that clashes with built-in commands will be ignored by Gri
+(*Note Invoking Gri::).  Gri will warn you of this, and proceed,
+ignoring your newer definition.  To get around this, you can use
+capital letters to begin the words of your new command.  By convention,
+Gri never uses capital letters in this way, so a clash is impossible
+(except with any similar command you might have defined previously,
+such as in your `~/.grirc' file).
+
+
+File: gri.info,  Node: Simple New Command,  Next: Complicated New Command,  Prev: Parsing,  Up: Adding New Commands
+
+Simple example of a new command
+-------------------------------
+
+   To make a new command called `Show The Time' insert the following
+into your `~/.grirc' resource file or into your command-file somewhere
+near the top, or at least before you use the command.
+
+     `Show The Time'
+     New command to show the time of day.
+     {
+       show "\.time."
+     }
+
+EXPLANATION:
+   * The name of the new command is enclosed in angled single-quote
+     marks.  The words of the new command should begin with upper-case
+     letters to prevent a name clash with a present or future built-in
+     Gri command.  *Formatting convention:* Make sure that the entire
+     definition string, from the opening angled quote to the ending
+     angled quote, appears on one line.  Otherwise Gri will give an
+     error like
+
+          ERROR: Can't extract syntax for new command
+
+   * Following the name line, you may optionally insert any number of
+     lines which will become the `help' information for the new
+     command.  See the file `gri.cmd' for the recommended stylistic
+     conventions in writing help information (*Note Invoking Gri::). If
+     your `help' text includes an example that uses an opening brace
+     (`{') you must escape the brace with a backslash, e.g. (`\{').
+
+   * Following the help lines, if they exist, the body of the new
+     command is given, sandwiched between a starting line containing an
+     opening brace (`{') as the *only* nonwhite character, and an
+     ending line containing a closing brace (`}') as the only nonwhite
+     character.  Any valid Gri commands may be used in the body of the
+     new command.  It is acceptable to use other new commands in the
+     body. Recursion is also allowed - a new command is allowed to call
+     itself (although there is a limit on nesting, of perhaps a
+     thousand or so; this varies with the version of Gri).  *Formatting
+     convention:* It is usual, but not necessary, to use an indentation
+     level of 2 spaces in the body of the new command.
+
+The new command is invoked by `Show The Time'.  Help for the command is
+found by `help Show The Time' or `help Show'.
+
+
+File: gri.info,  Node: Complicated New Command,  Next: Changeable Command Arguments,  Prev: Simple New Command,  Up: Adding New Commands
+
+Complicated example of a new command
+------------------------------------
+
+   The following example from the global `gri.cmd' file illustrates how
+to parse/check the commandline (*Note Local Synonyms::), which is a
+good practice in any code you expect to re-use.  The first `if'
+statement checks that the word `at' is in the right place (this would
+not have been checked by the syntax matcher, the word having followed a
+string).  The presence of the keyword `cm' is checked for, and user
+units or cm units are used accordingly.  Local variables are created
+(`new') and then destroyed (`delete') so that this new command cannot
+affect outside code.
+
+     `draw label whiteunder "\string" at .xleft. .ybottom. [cm]'
+     Draw label for plot, located with lower-left corner
+     at indicated (x,y) position (specified in user
+     units or in cm on the page).  Whiteout is used
+     to clean up the area under the label.  BUGS:
+     Cannot handle angled text; doesn't check for
+     super/subscripts.
+     {
+         if {rpn "\.word4." "at" !=}
+           show "ERROR: 5th word must be `at', not `\.word4.'"
+           show traceback
+           quit
+         end if
+         new .x. .y. .oldgray. .space.
+         if {rpn \.words. 7 ==}
+           .x. = {rpn \.word5. xusertocm}
+           .y. = {rpn \.word6. yusertocm}
+         else if {rpn \.words. 8 ==}
+           if {rpn "\.word7." "cm" !=}
+             show "ERROR: Require 8th word to be `cm'"
+             show traceback
+             quit
+           end if
+           .x. = \.word5.
+           .y. = \.word6.
+         else
+           show "ERROR: Require 7 or 8 words, not \.words."
+           show traceback
+           quit
+         end if
+         # Coordinates now in cm.  Next, white out a box
+         # under the text (and .space. centimetres
+         # beyond text), then draw label.
+         .space. = 0.1               # Space of 1mm
+         .oldgray. = ..graylevel..
+         set graylevel white
+         draw box filled                          \
+           {rpn .x. .space. -}                    \
+           {rpn .y. .space. -}                    \
+           {rpn .x. "\.word3." width + .space. +} \
+           {rpn .y. "M" ascent + .space. + } cm
+         set graylevel .oldgray.
+         draw label "\.word3." at .x. .y. cm
+         delete .x. .y. .oldgray. .space.
+     }
+
+
+File: gri.info,  Node: Changeable Command Arguments,  Next: The Ampersand Syntax,  Prev: Complicated New Command,  Up: Adding New Commands
+
+Altering command arguments - the `&' syntax
+-------------------------------------------
+
+   The Gri language permits a newcommand to change variables and
+synonyms passed as arguments, using a syntax that is quite similar to
+that employed by the C++ language.
+
+* Menu:
+
+* The Ampersand Syntax::                Denoting changeable arguments
+* Doubling A Variable::                 Variables (e.g. `&.variable.')
+* Manipulating A Synonym::              Synonyms (e.g. `&\synonym')
+* Nesting::                             Newcommands called by newcommands
+* Using New And Delete::                Isolating local variables and synonyms
+* Determining Calling Information::     The `\&.word?.' and `\&&.word?.' syntax
+* Implementation of Ampersand Syntax::  Algorithm Gri uses
+
+
+File: gri.info,  Node: The Ampersand Syntax,  Next: Doubling A Variable,  Prev: Changeable Command Arguments,  Up: Changeable Command Arguments
+
+Overview of the `&' syntax
+..........................
+
+   Normally the arguments to a newcommand are parsed into either
+numerical values or strings, before execution is passed into the
+newcommand.  This is a akin to the scheme called "call by value" in
+some programming languages.  Gri also provides a syntax, borrowed from
+C++, that permits a newcommand to alter the contents of variable or
+synonym arguments.
+
+   The technique is simple.  To permit a newcommand to modify an
+argument that is a variable or a synonym, just put a `&' to the left of
+the item on the calling line.  Then, within the newcommand, the
+corresponding local synonym (i.e. `\.word1.', etc.) will behave as
+though it were the instance of the original variable or synonym.
+
+   The `&' is placed to the left of the variable-name or synonym-name
+without intervening space.  For example `foo &.var. &\syn' tells the
+parser that the newcommand named `foo' may possibly alter the values of
+the variable `.var.' and the synonym `\syn', as they exist in the
+calling context.
+
+   It is important to note that Gri pays very little attention to the
+`&' in a syntax-declaration line.  All it does is to note that the item
+to the right of the `&' is not a fixed word in the newcommand being
+defined; this follows the usual rules for parsing newcommand syntax
+(*Note Parsing::).
+
+
+File: gri.info,  Node: Doubling A Variable,  Next: Manipulating A Synonym,  Prev: The Ampersand Syntax,  Up: Changeable Command Arguments
+
+Example: doubling a variable
+............................
+
+   Consider the task of adding a fixed amount to a variable.  If the
+variable we wish to double is `.x.', we might write
+
+     `double_a_particular_variable'
+     {
+         .x. = {rpn .x. 2 *}
+     }
+     .x. = 10
+     double_a_particular_variable
+
+Code such as that presented above occurs in many applications.  (Turn
+the multiplication into an addition, and change `.x.' to `..ymargin..',
+and you'll start to see the core of an application that draws multiple
+graph panels, one above another.)  However, the code is too specific to
+be of much general use!
+
+   What if we want to double some other variable instead?  The code
+below shows how to do that.
+
+     `double &.value.'
+     {
+         \.word1. = {rpn \.word1. 2 *}      # line 3
+     }
+     .x. = 10                               # line 5
+     double &.x.
+     .y. = 3.14
+     double &.y.
+
+At line 3 Gri interprets the `\.word1.' to the *left* of the equals
+sign as a reference to the variable that is set to the value 10 in line
+5.  Similarly, the `\.word1.' to the *right* of the equals sign
+evaluates to 10, the value in the calling program.
+
+   Gri automatically determines whether an item is a variable or a
+synonym, and does the correct thing.  Thus, for example, if line 3
+above were written as
+
+     \.word1. = "hello"                 # ERROR
+
+an error would be reported, since `double' was called with a variable
+as an argument, and variables cannot hold strings.
+
+
+File: gri.info,  Node: Manipulating A Synonym,  Next: Nesting,  Prev: Doubling A Variable,  Up: Changeable Command Arguments
+
+Example: manipulating a synonym
+...............................
+
+   Synonyms are treated in the same way, as is illustrated in the
+following example.
+
+Q: what does the following print?
+
+     `add_a_dat &\filename'
+     {
+         \.word1. = {rpn "\.word1." ".dat" strcat}
+     }
+     \filename = "test"
+     add_a_dat &\filename
+     show "\filename"
+
+A: it prints `test.dat'.
+
+
+File: gri.info,  Node: Nesting,  Next: Using New And Delete,  Prev: Manipulating A Synonym,  Up: Changeable Command Arguments
+
+Nesting
+.......
+
+   One newcommand may call another, letting a deeply-nested newcommand
+alter values of synonyms and variables that may otherwise be hidden
+behind `new' items of the same name.  This is done by using the `&'
+notation at each step.  The following provides an example of passing a
+variable through two levels of newcommands.
+
+Q: what does the following print?
+
+     `food critic &food'
+     {
+         \.word2. = "\.word2.s"
+         yummy &\.word2.
+     }
+     `yummy &foods'
+     {
+         \.word1. = "\.word1. are tasty"
+     }
+     \a = "apple"
+     food critic &\a
+     show "\a"
+
+A: it prints `apples are tasty'.
+
+
+File: gri.info,  Node: Using New And Delete,  Next: Determining Calling Information,  Prev: Nesting,  Up: Changeable Command Arguments
+
+About `new' and `delete'
+........................
+
+   If `new' and `delete' are executed on local synonyms inside
+newcommands (e.g.  `new \.word1.')  they create and destroy variables
+and synonyms in the context of the *calling program*.
+
+   For example, consider the following.
+
+Q: what does the following print?
+
+     `poetry &\s'
+     {
+         new \s                             # line 3
+         \s = "rose"
+         \.word1. = "\.word1. is a \s"      # line 5
+         delete \s                          # line 6
+     }
+     \s = "A rose "                         # line 8
+     poetry &\s
+     show "\s"
+
+A: it prints `A rose is a rose'.
+
+   The key point here is that the instance of the synonym named `\s' in
+the calling program, set in line 8, is modified by the `poetry'
+newcommand, in line 6.  This modification involves the use of a synonym,
+*also named* `\s', that "lives" wholly within the newcommand, being
+created in line 3 and destroyed in line 6.
+
+
+File: gri.info,  Node: Determining Calling Information,  Next: Implementation of Ampersand Syntax,  Prev: Using New And Delete,  Up: Changeable Command Arguments
+
+Determining calling information
+...............................
+
+   Newcommands may determine the name and the nesting level of
+changeable calling arguments.  To get the name, put a single ampersand
+after the backslash of the local synonym of interest.  To get the
+nesting level (0 for main program, etc.) put two ampersands after the
+backslash.
+     `NC &.var.'
+     {
+         show "\&.word1. (expect '.a.')"
+         show "\&&.word1. (expect 0)"
+     }
+     .a. = 1
+     NC &.a.
+
+   *Note*: neither of these items may be used an lvalue.  That is, they
+may not be used to the left of an equals sign.  But you can always get
+around that by clever use of alias synonyms (*Note Alias Synonyms::).
+
+
+File: gri.info,  Node: Implementation of Ampersand Syntax,  Next: Hints,  Prev: Determining Calling Information,  Up: Changeable Command Arguments
+
+How Gri implements the `&' syntax
+.................................
+
+   When the parser encounters an unquoted `&' followed immediately by
+the name of a variable or a synonym, it converts the whole token (`&'
+plus name) into a specially-encoded string that can be recognized
+inside newcommands.  (This is *only* done if the `&' and the variable
+name are *not* enclosed in double quotes.)
+
+   This specially-encoded string contains not just the name of the
+variable or synonym, but also the current level of nesting of
+newcommands.  In this way a newcommand can have its own private
+versions of variables, created by `new', that won't be misinterpreted
+for the identically-named variables in the calling program.
+
+   The format of these specially-encoded strings is
+`#\bn\ba\bm\be\b:\bN \b_ \bl\be\bv\be\bl\b:\bL#\b', where `N' stands for
+the name of the variable/synonym, `L' stands for the current level, and
+`\b' is the backspace character (hexadecimal 08 in the ascii table).
+This string is designed to be strange enough that users are unlikely to
+use it themselves.  The coding scheme is not entirely arbitrary,
+however; note that if the backspace characters are ignored the result
+has the form `name:N_level:L'.  It's also worth noting that if this
+string were printed on a terminal that erased characters when typing
+backspaces the result would be of the form `N_L'.
+
+   Examples: `.a.' in the main program (i.e. at level 0) encodes to
+`#\bn\ba\bm\be\b:\b.a. \b_ \bl\be\bv\be\bl\b:\b0#\b' and `&\my_syn'
+inside a newcommand called by the main program (i.e. at level 1)
+encodes to `#\bn\ba\bm\be\b:\b\my_syn \b_ \bl\be\bv\be\bl\b:\b1#\b'.
+
+   Inside a newcommand, Gri checks to see if builtin synonyms (e.g.
+`\.word1.') hold such specially-encoded strings.  If so, then the
+appropriate versions of the variables are used in preference to any
+variables that may have been newly created by `new' inside the
+newcommand.
+
+
+File: gri.info,  Node: Hints,  Next: Debugging,  Prev: Implementation of Ampersand Syntax,  Up: Programming
+
+Hints for Gri Programming
+=========================
+
+   Here are some hints for good Gri programs:
+
+   * Whenever working with grids (for contouring) or images, make use
+     of the `show grid' or `show image' commands.  They will give you
+     useful information about the statistics (min/max/histogram) of the
+     items.
+
+   * Use the operating system, not Gri, to manipulate your data.  For
+     example, if you have a file whose first column is x times 100, and
+     third is the arcsin of y, you could do:
+
+          open "gawk '{print $1/100, sin($3)}' |"
+          read columns x y
+
+     If you have x and y in a non-decimal geographical format (e.g.
+     hour.minute-second format), use the operating system to convert
+     for you (*Note Open::).
+
+   * Use the `pstack' operator liberally in your rpn expressions to see
+     what is going on (*Note rpn Mathematics::).
+
+   * While developing programs, put a `show columns statistics' command
+     after every `read column' command, to check that the data have been
+     read correctly.
+
+   * Development time can be minimized by limiting the number of data
+     being processed.  For example, in a multi-panel plot, it is often
+     necessary to try various alternatives before aesthetic scales and
+     page layout is achieved.  The process can be speeded up by
+     limiting the number of data being processed, as shown below.  (If
+     Gri finds fewer data in the file than specified, it will simply
+     use the data that it found; so when the program works, just change
+     `.n.' into something large.)
+
+          .n. = 100 # 10000 for later
+          ...
+          # Panel 1
+          read columns .n. x y
+          ...
+          # Panel 2
+          read columns .n. x y
+          ...
+
+   * Create new commands to do repetitive work.
+
+   * Use `draw time stamp' on all plots except for publication versions:
+
+          if !..publication..
+            draw time stamp
+          end if
+
+   * For multiple panels on one page, do `delete x scale' or `delete y
+     scale' before each new panel, so you will start afresh.  Clearly
+     identify code for particular panels with comments.  This reduces
+     errors you might get if you shuffle things later.
+
+   * Use the `..num_col_data..' built-in variable to see how many data
+     have passed the `set input data window' data window in the last
+     `read columns' command.  The following example shows how to avoid
+     drawing an unwanted curve:
+
+          open \f
+          read columns x y
+          close
+          if ..num_col_data..
+            draw curve
+            draw label "\f" at \
+                {rpn ..xlast.. xusertocm 0.5} \
+                {rpn ..ylast.. yusertocm 0.2} cm
+          end if
+
+   * Use synonyms and `query' for filenames.  This makes programs much
+     more flexible.  Note that you can string synonyms together:
+
+          \dir = "~/EOS/iso0/"
+          query \file "Give file in directory \dir" ("1.dat")
+          open \dir/\file
+
+     It is also a good idea to give a restrictive list of possibilities
+     in your `query' command, to avoid complicated `if' commands later
+     (*Note Query::).
+
+   * Use multiple `draw title' commands:
+
+          draw title "Atlantic water entering Arctic Ocean"
+          draw title "\.command_file. \.time."
+
+   * Use the `query' command to interact with the user (*Note Query::).
+     The results can be stored in variables and synonyms.
+
+
+
+File: gri.info,  Node: Debugging,  Next: Error Messages,  Prev: Hints,  Up: Programming
+
+Debugging Gri Programs
+======================
+
+   Here are some hints for debugging Gri programs:
+   * If no data appear on an xy plot, insert `show columns statistics'
+     or `show columns' after the `read columns' command.  It may be
+     that you have fixed your axes, and that the axes frame does not
+     include the data.
+
+   * If you get an error message, rerun your Gri program using the
+     `-trace' command-line option, to see which line is causing the
+     problem.  This often reveals logic errors (e.g. in (`if'
+     statements).  You may also turn tracing on or off at any point in
+     your Gri program by setting the built-in variable `..trace..' to 1
+     or 0.  Many Gri users have the Gri command aliased to be in trace
+     mode by default.
+
+   * If Gri complains of a syntax error, consult the printed manual,
+     one of the online manuals, or the online help facility (*Note
+     Online Help::).
+
+   * Check the version number (printed at startup) to see if a new
+     version of Gri has been installed, and check the manual for known
+     incompatabilities.
+
+   * Sprinkle `show' commands throughout your program, to see what's
+     happening.  Even when you are sure your program works, it is a
+     good idea to embed `show' statements so are they executed if the
+     `-debug' flag is set:
+
+          if ..debug..
+            show "X=" .x. "and label is `\label'"
+          end if
+
+   * If your `draw' commands don't draw anything, check to see whether
+     you've fooled yourself by enforcing an improper scaling; remove
+     explict scaling (`set x axis ...'), clipping (`set clip'), data
+     selection windows (`set input data window x|y') and missing values
+     (`set missing value').  Another trick is to read only a portion of
+     the data set (`read columns 10 x y') and then print out all the
+     values (`show columns').
+
+   If you determine that the bug is in Gri, not in your program, please
+report the bug, so that other users will not have the same hassle;
+(*Note Bugs::).
+
+
+File: gri.info,  Node: Error Messages,  Next: Missing Values,  Prev: Debugging,  Up: Programming
+
+Error Messages
+==============
+
+   Gri error messages are in three types:
+  1. Operating system error messages, such as `segmentation fault'.
+     These should never appear, and indicate a bug in Gri.  Please
+     report these to the author (*Note Reporting Bugs::).
+
+  2. Internal Gri error messages.  The message starts with the words
+     `FATAL error', and quotes a file number and a line number, e.g.
+
+          FATAL error: startup.c:199: ...
+
+     Such errors indicate either a deficiency in your computer (e.g.
+     insufficient storage space) or an internal bug in Gri.  If the
+     message does not indicate running out of storage, please report
+     the error to the author (*Note Reporting Bugs::).
+
+     For fatal error messages on a unix system, Gri dumps core, unless
+     you have turned that feature off, with the `ulimit -c 0' unix
+     command in a startup file.  This creates a file called `core',
+     which can help you in diagnosing the Gri bug.  If you have the
+     `gdb' debugger, just type `gdb gri core' and then type `where' to
+     get a traceback stack.  Please email this with your other
+     information about the Gri bug.
+
+  3. An indication that your commandfile is flawed, either in syntax or
+     in meaning.  These messages end with a line indicating the
+     offending line in your commandfile, e.g. the command `set x axis 0
+     1 -1' yields:
+
+          ERROR: `set x axis .left. .right. .incBig.'
+                  has .incBig. of wrong sign
+           Bad command:  `set x axis 0 1 -1 '
+
+     Normally, such error messages do not indicate a flaw in Gri, but
+     rather in your reasoning, so report them to the author only if you
+     are very sure that a Gri bug must underly them.
+
+
+File: gri.info,  Node: Missing Values,  Next: Operating System,  Prev: Error Messages,  Up: Programming
+
+Missing data
+============
+
+   Most Gri commands will ignore data points equal to a "missing value."
+For example, `draw curve' connects only points which are not equal (to
+within 0.01 percent) of the missing value.  The curve has holes at
+missing data.  Initially the missing-value is set to 1.0e22.  You may
+alter this value with `set missing value .value.'.  The built-in
+variable `..missingvalue..' stores the current value of the
+missing-value.
+
+   Additionally, Gri will ignore anything it reads that is equal to the
+string `NaN' or `Inf'.  These are produced by matlab, C, and other
+programs when dividing by zero, etc.
+
+   Gri also ignores mathematical operations on data items which are
+equal to the missing value.  Thus, for example, if your missing value
+is -99 then the command `x += 1' will not change the values equal to
+-99 to -98, since this would have the side-effect of making the datum
+no longer be considered missing.
+
+
+File: gri.info,  Node: Operating System,  Next: Using OS Inside Gri,  Prev: Missing Values,  Up: Programming
+
+Interaction Between Gri and Operating System
+============================================
+
+* Menu:
+
+* Using OS Inside Gri::         Accessing the OS from inside Gri
+* Using Gri Inside OS::         Tricks for using Gri in unix
+
+
+File: gri.info,  Node: Using OS Inside Gri,  Next: Using Gri Inside OS,  Prev: Operating System,  Up: Operating System
+
+Using the OS from within Gri
+----------------------------
+
+   Gri uses the operating system internally for things like paging
+through help information.
+
+   The operating system may be called *within* Gri commands, using a
+syntax borrowed from the `Bash' unix shell.  After substituting
+synonyms in the commandline, Gri scans for dollar-parenthesis blocks
+(e.g. `\$(system-command)', replacing them with the textual result of
+sending the indicated system-command to the OS.  The replacements are
+done from left to right in the commandline, starting at the deepest
+nesting level.
+
+   Often the dollar-parentheis syntax is used in title commands, to
+indicate the full pathname of the Gri commandfile, e.g.
+
+     draw title "\$(pwd)/\.command_file."
+
+   In assignment to synonyms, expansion of dollar-parenthesis is not
+done.  Thus the operating system is called twice on the second line
+below, and not at all on the first line; to see this, run it as `gri
+-s8 -t'.
+
+     \dir = "\$(echo $MY_DIR)"
+     show "\$(head -1 \dir/MY_FILE)"
+
+   *Syntax Note* Dollar-parenthesis blocks must be prefixed with
+backslash to avoid confusion with math expressions within strings, for
+example to avoid breaking `draw label "$(x,y)$" at 3 3 cm'.  This is an
+example of how TeX notation and unix shell notation collide.
+
+   *Example* It is a good idea to employ unix environment variables to
+name directories containing data, so that Gri scripts will work
+unchanged even if the data are moved (so long as the environment
+variables are altered), e.g.
+
+     # Figure how many lines in a file
+     \dir ="$(echo DIRECTORY_WHERE_I_STORE_SOLAR_DATA)"
+     open "\dir/solar_data_file_name`
+     ...
+     open "\$(echo DIR_ANOTHER)/another_data_set"
+
+Another method is to pass instructions to the operating system with the
+`system' command.  This discards output.  Whatever follows the word
+`system' is first scanned for synonyms (but not rpn expressions or
+variables); after replacement of any existing synonyms, the line is
+passed directly to the operating system.  Any results are printed on the
+terminal.
+
+   Frequently used system commands are `awk', `head', `grep' and `sed'.
+Examples:
+
+   * Here's how to paste several files together to form a temporary
+     file for plotting.  (Notice that a temporary file incorporating
+     the PID of the job is created and later removed.)
+
+          system paste -d" " 1.dat 2.dat 3.dat > tmp.\.pid.
+          open tmp.\.pid.
+          read columns x y
+          close
+          system rm tmp.\.pid.
+
+   * Here's how to plot each line in a file called `inp' which has the
+     string `;' at the start of the line.
+
+          system cat inp | grep -v "^;" | cat > tmp.\.pid.
+          open tmp.\.pid.
+          read columns x y
+          system rm tmp.\.pid.
+
+   * Here's how to use the `awk' system command to create a tabulated
+     function for plotting.
+
+          system awk                             \
+              'BEGIN {                           \
+                 for (x=0; x<1; x+=0.1) {        \
+                   printf ("%f %f\n", x, sin(x)) \
+                 }                               \
+               }'                                \
+              > tmp.\.pid.
+          open tmp.\.pid.
+          read columns x y
+          close
+          system rm tmp.\.pid.
+          draw curve
+
+     This example is more cleanly written using the piping facility of
+     the `open' command (which automatically creates a temporary file,
+     and destroys it when `close' is done)
+
+          open "awk 'BEGIN {       \
+            for(x=0;x<1;x+=0.1) {  \
+              print(x,sin(x))      \
+            }                      \
+          }'|"
+          read columns x y
+          close
+          draw curve
+
+   * Sometimes you need just a single output item from the operating
+     system.  In this case, you can store the results from the operating
+     system in a synonym by using the `\synonym = system ...'
+     assignment command.
+
+   * subroutine A related command is `\synonym = tmpname', which stores
+     in the synonym the name of a temporary file created by the system.
+     The file is created with the `tmpname' system call, so it is
+     guaranteed not to clash with any existing files.  Typically, the
+     filename is something like `/usr/tmp/griAAAa1233'.  In many cases
+     you'll want to remove the file within Gri, once you're done, and
+     that can be done with `unlink' (*Note Unlink::) or with a `system
+     rm -f' command.  A useful bit of code is as follows
+          \file = tmpname
+          system ... SOME_SYSTEM_COMMANDS ... > \file
+          ... use this new file for something ...
+          unlink \file
+
+
+
+File: gri.info,  Node: Using Gri Inside OS,  Next: Resource File,  Prev: Using OS Inside Gri,  Up: Operating System
+
+Using Gri from within the OS
+----------------------------
+
+   *This section only applies to unix systems.*
+
+   Save the following into a file called `p' and then make it
+executable using `chmod'.  It runs Gri on a named file, with the `-yes'
+flag set so that any `query' commands are automatically answered in the
+affirmative, and then displays the results in a Ghostscript window.
+(USAGE: `p cmdfile.gri')
+
+     #!/usr/bin/sh
+     # Run Gri, then plot in gs window
+     case $# in
+     1)
+             base=`basename $1 .gri | sed -e s/.*,#`
+             gri -yes $base.gri && ghostview $base.ps
+             ;;
+     *)
+             echo "Proper usage: $0 cmdfile.gri"
+             ;;
+     esac
+
+
+File: gri.info,  Node: Resource File,  Next: Environment,  Prev: Using Gri Inside OS,  Up: Programming
+
+Sample Resource File
+====================
+
+   The following shows a sample `~/.grirc' resource file.  Much of the
+code here is adding new commands (*Note Adding New Commands::.)
+
+     # Some folks like tics to point inwards ...
+     set tics in
+     
+     # Hey, I'm bored with Helvetica font, and
+     # Palatino is a bit prettier than Times
+     set font to PalatinoRoman
+     
+     # Now for something a bit less trivial.
+     # This lets me draw a set of y-values
+     # against a single x-value, by e.g.
+     #    open xyyy.dat
+     #    draw curves time T1 T2 T3
+     # where the first column of the file is
+     # time, and the others are temperatures
+     # at various sensors.
+     `draw curves \xname \y1name ...'
+     Draw multiple y columns versus an x column.  Assumes
+     that the datafile is open, and that x is in the first
+     column, with the y values in one or more following
+     columns.
+     
+     The number of columns is figured out from the options,
+     as is the name of the x-axis, and the labels to be
+     used on each of the y curves.
+     {
+       # NB. the 3 below lets us skip the words 'draw'
+       # and 'curves', and the name of the x-column.
+       .num_of_y_columns. = {rpn wordc 3 -}
+       if {rpn .num_of_y_columns. 1 >}
+         show "ERROR: `draw curves' needs at least 1 y column!"
+         quit
+       end if
+     
+       set x name {rpn 2 wordv}
+       set y name ""
+     
+       # Loop through the columns.
+       .col. = 0
+       while {rpn .num_of_y_columns. .col. <}
+         # The x-values will be in column 1, with y-values
+         # in columns 2, 3, ..., of the file.
+         .ycol. = {rpn .col. 2 +}
+         rewind
+         read columns x=1 y=.ycol.
+         # At this point, you may want to change line thickness,
+         # thickness, color, dash-type, etc.  For illustration,
+         # let's set dash type to the column number.
+         set dash .col.
+         draw curve
+         draw label for last curve {rpn .col. 3 + wordv}
+         .col. += 1
+       end while
+     }
+
+
+File: gri.info,  Node: Environment,  Next: Extras,  Prev: Resource File,  Up: Top
+
+Environment
+***********
+
+   Gri comes with a few ancillary programs that may be useful.  Gri also
+provides a simple scheme to use other system tools (e.g. `awk').  These
+are discussed here.  And speaking of discussing, this chapter ends with
+a note about a mail-list Gri discussion group.
+
+* Menu:
+
+* Extras::                      Extra things provided with Gri
+* Using System Tools::          Using Gri with other tools
+* Discussion Group::            Gri email list
+
+
+File: gri.info,  Node: Extras,  Next: gri_merge,  Prev: Environment,  Up: Environment
+
+Extra things provided with Gri
+==============================
+
+* Menu:
+
+* gri_merge::                   Merge files to one page
+* gri_unpage::                  Separate multipage doc into separate files
+
+
+File: gri.info,  Node: gri_merge,  Next: gri_unpage,  Prev: Extras,  Up: Extras
+
+`gri_merge' - combine PostScript files
+--------------------------------------
+
+   Merge separate PostScript files, created by Gri, into one page.  To
+learn how it works, type `gri_merge -h' at the system prompt, to see:
+
+     PURPOSE: Strings Gri PostScript files together.
+     
+     BUGS:    With old versions, of gri, make sure to match each `set clip
+      postscript on' with a `set clip postscript off'.
+     
+     USAGE (style 1):
+         gri_merge [OPTIONS] CxR a.ps b.ps ... > merged_file.ps
+      Merges the files onto one page, in 'C' columns and 'R' rows.  The C*R
+      files are given in the order of words on a page.  The page is
+      presumed to be 8.5x11 in size, as are all the input files, and the
+      input files are sized to fit, and kept in natural scale.
+     
+     USAGE (style 2):
+         gri_merge [OPTIONS] xcm ycm enlarge a.ps [b.ps ...] > merged_file.ps
+      Where `enlarge' is a scale factor applied after offsetting `xcm' to
+      the right and `ycm' upward.
+     
+     EXAMPLE (style 2):
+      The following
+        gri_merge  2 12 .5 a.ps \
+                 12 12 .5 b.ps \
+                  2  2 .5 c.ps \
+                 12  2 .5 d.ps > all.ps
+      produces 4 panels from gri plots done using margins and sizes
+      as specified in the following lines in a gri commandfile
+        set x margin 2
+        set x size 15
+        set y margin 2
+        set y size 15
+      The OPTIONS, available if your 'perl' has 'getopts' library, are:
+        -u graylevel -- set graylevel for underlay beneath panels, by default 0.75.
+                        Values range from 0 (black) to 1 (white), although a value
+                        of precisely 1 means do NOT draw underlay.
+        -b graylevel -- Set value for background under individual panels, again 0
+                        for black to 1 for white, with 1 meaning no drawing.
+        -h           -- Print this help message and quit.
+
+
+File: gri.info,  Node: gri_unpage,  Next: Using System Tools,  Prev: gri_merge,  Up: Extras
+
+`gri_unpage' - split pages into files
+-------------------------------------
+
+   Given a multipage PostScript file, `gri_unpage' creates several new
+PostScript files, one for each page.  To learn how it works, type
+`gri_unpage -h' at the system prompt, to see:
+
+     PURPOSE: Chop multipage Gri PostScript file into one file per page.
+     USAGE:   gri_unpage name.ps -- create files name-1.ps, name-2.ps, etc, one
+                                    for each page of name.ps.
+              gri_unpage -h      -- print this help message
+     
+     BUGS:    1. Bounding box is always 8.5x11 inches.
+              2. Assumes that all Gri fonts are used even if they aren't.
+
+
+File: gri.info,  Node: Using System Tools,  Next: Why Use The Environment,  Prev: gri_unpage,  Up: Environment
+
+Using System Tools With Gri
+===========================
+
+   Using system tools to manipulate your data makes sense for several
+reasons.  First, you may be familiar with those tools already.  Second,
+learning these tools will help you in all your work.
+
+* Menu:
+
+* Why Use The Environment::     Introduction
+* Grep::                        Search files for patterns
+* Sed::                         Serial editor
+* Awk::                         Search and manipulate data
+* Perl::                        Search and manipulate data
+
+
+File: gri.info,  Node: Why Use The Environment,  Next: Grep,  Prev: Using System Tools,  Up: Using System Tools
+
+Introduction
+------------
+
+   Each of the programs listed in the sections below is available for
+Unix.  Some (e.g. Perl and the Awk variant called Gawk) are available
+on other operating systems as well.  Each of these tools is fully
+documented in Unix manpages, so here I'll just give an indication of a
+couple of useful techniques you might want to use.
+
+   Bear in mind that these tools can do very similar jobs.  For example,
+Awk can do much of what Sed and Grep can do, but also a whole lot more.
+If you don't know Sed or Grep, I suggest you learn Awk instead.  Then
+again, Perl can also do anything Gawk can do, and a whole lot more!
+(For one thing, it is easier to work with multiple files in Perl.)  In
+fact, Perl is the most powerful of this list.  If you know none of these
+tools, you might want to learn Perl instead of the others.  But Perl is
+more complicated for simple work than Awk is, so the most reasonable
+path might be to learn both Awk and Perl.
+
+   For simple applications, you will probably want to use these tools
+in a piped open command, e.g.
+
+     open "awk '{print $1, $3/$2}' MyFile |"
+
+which creates a temporary file (automatically erased when Gri finishes)
+which contains the output from running the system command that preceeds
+the pipe symbol (`|') (*Note Open::).
+
+   (Here and in all the examples of this chapter, it is assumed that the
+user's input file is named `MyFile'.)
+
+   For more complicated appplications, you may use the Gri `system'
+command as follows.
+
+     system perl   >tmp  <<"EOF"
+     open(IN, "MyFile");
+     while(<IN>) {
+         ($x, $y) = split;
+         print "$x", " ", cos($y), "\n";
+     }
+     EOF
+     open tmp
+     read columns x y
+     draw curve
+     system rm -f tmp
+
+Here a temporary file, named `tmp', has been used to store the results
+of the calculation.  Note that this file was specifically cleaned up by
+the second `system' command.  (Many folks, including the author, would
+prefer to take the perl script out of the above and make it a
+standalone executable script, calling it from Gri with the one-line
+form.  But it is just a matter of style.)
+
+
+File: gri.info,  Node: Grep,  Next: Sed,  Prev: Why Use The Environment,  Up: Using System Tools
+
+Grep
+----
+
+   The most common application of Grep is to select lines matching a
+pattern, or not matching a pattern.  Here is how to skip all lines with
+the word "HEADER" in them:
+
+     open "grep -v 'HEADER' MyFile |"
+     ...
+
+Note that Gawk and Perl do this just as easily.
+
+
+File: gri.info,  Node: Sed,  Next: Awk,  Prev: Grep,  Up: Using System Tools
+
+Sed
+---
+
+   Sed is normally used for simple changes to files.  For example, if
+you have columnar data which are separated with comma characters
+instead of whitespace, you could make it Gri compatible by
+
+     open "sed -e 's/,/ /g' MyFile |"
+
+Where the `-e' flag indicates that the next item is a command to Sed,
+in this case a command to switch ("s") the comma character with the
+blank character, globally ("g") across each line of the file.  See also
+the overview of Perl.
+
+
+File: gri.info,  Node: Awk,  Next: Perl,  Prev: Sed,  Up: Using System Tools
+
+Awk
+---
+
+   Awk is great for one-liners.  If your system lacks Awk, you can
+procure the GNU version, called Gawk, from the web for free.  For
+better or worse, Gawk is not fully compatible with Awk.  The good thing
+is that Gawk is pretty much the same on all operating systems, whereas
+the installed Awk may not be.  I use Gawk instead of Awk, for this
+reason and because it is normally faster.
+
+   The main concept in Awk is of "patterns" and "actions."  In the Awk
+syntax, actions are written in braces following patterns written with no
+braces.  (This will become clear presently.)
+
+   Whenever a line in the data file matches the pattern, the action is
+done.
+
+   The default pattern is to match to every line in the file.  This is
+done if no pattern is supplied.
+
+   The default action is to print the line, and this is done if no
+action is supplied.
+
+   Here are a few examples.  To skip first 10 lines of a file:
+
+     open "awk 'NR>10' MyFile |"
+     read ...
+
+Here the pattern was that `NR' (a special Awk variable for the number
+of the record, starting with 1 for the first line of the file) exceeded
+10.  And the action was taken by default since nothing was supplied
+between braces, to print this line.
+
+To plot the cosine of the second column against the first column:
+
+     open "awk '{print ($1, cos($2))}' MyFile |"
+     read columns x y
+     draw curve
+
+Here no pattern was supplied, so the action was done for every line.
+
+   Combining these two forms, then, and supplying both a pattern and an
+action, here is how one might print the first and eighth columns of the
+file `MyFile', but only for the first 10 lines of the file:
+
+     open "awk NR<=10 {print ($1, $8)} MyFile |"
+
+
+File: gri.info,  Node: Perl,  Next: Discussion Group,  Prev: Awk,  Up: Using System Tools
+
+Perl
+----
+
+   Perl can do almost *anything* with your data, since it is a full
+programming language designed to also emulate several Unix utilities.
+
+   In perl, as in other commands, the commandline switch `-e' indicates
+that a Perl command is given in the next word of the command line.  The
+commandline switch `-p' indicates to print the line, after any
+indicated Perl actions have been done on it.  Here, for example, is how
+one would emulate a Sed replacement of comma by blank:
+
+     open "perl -pe 's/,/ /g' MyFile |"
+
+   Perl also has a commandline switch `-a' indicating that lines should
+be "autosplit" into an array called `$F'.  The first element of this
+array is `$F[0]'.  Splitting is normally done on white-space
+character(s), although this may be changed if desired.  Here, for
+example, is how to take the cosine of the second column of a file, and
+print this after the first column:
+
+     open "perl -pea 'print($F[0], cos($F[1]))' MyFile |"
+
+
+File: gri.info,  Node: Discussion Group,  Next: Emacs Mode,  Prev: Perl,  Up: Environment
+
+Gri Discussion Group
+====================
+
+   Before emailing to the Gri newsgroup, it is a good idea to consult
+the list of answers to Frequently Asked Questions.
+
+   As of summer 2000, Gri traffic has been moved to the web-based
+discussion groups at the SourceForge website
+<http://gri.sourceforge.net> about which little need be said here,
+because the website is very easy to use.
+
+
+File: gri.info,  Node: Emacs Mode,  Next: About Gri Mode,  Prev: Discussion Group,  Up: Top
+
+Editing Gri Files in GNU Emacs
+******************************
+
+   If you use the GNU Emacs (or XEmacs) text editor, writing Gri command
+files is made easier with the Gri editing mode (gri-mode.el), written
+by Peter S. Galbraith `<psg@debian.org>'.
+
+* Menu:
+
+* About Gri Mode::
+* Gri-mode screenshots::                  What it looks like.
+* Installing gri-mode.el::                The nuts and bolts.
+* Major Gri-mode commands::               It knows about Gri commands.
+* Other features::                        IMenu, Toolbar, etc.
+* Dealing with many Gri versions::        gri-mode handles it.
+* Filename arguments when running gri::   gri-set-command-postarguments.
+
+
+File: gri.info,  Node: About Gri Mode,  Next: Gri-mode screenshots,  Prev: Emacs Mode,  Up: Emacs Mode
+
+About Gri Mode
+==============
+
+   Gri mode has all the wonderful things you've come to expect from
+Emacs modes.  Here's a brief overview of the features:
+   * It can *complete* partially typed commands, builtin variables and
+     synonyms (`gri-complete', <M-Tab>) and help you edit the syntax
+     that was thus inserted for you (`gri-option-select', `C-c C-o';
+     `gri-option-kill', `C-c C-k').
+
+   * It can provide a short help synopsis concerning the command on the
+     current line (`gri-help-this-command', `C-c C-h'), or load the
+     info manual for that command (`gri-info-this-command', `C-c C-i').
+     It knows the list of all Gri commands, and can provide help or
+     info regarding any of them (`gri-help', `C-c M-h'; `gri-info',
+     `C-c M-i') using command name completion at the prompt (<Tab>).
+
+   * All Gri commands are listed in a pull-down menu from the menubar,
+     which you can use to either enter the text of the selected
+     command, or obtain help or info about it.
+
+   * It can help you find an unknown command by listing all containing
+     a given word (`gri-apropos', `C-c C-a').
+
+   * It fontifies your Gri code using colour coding.
+
+   * It indents if statements, loops, and so on (`gri-indent-line',
+     <Tab>).
+
+   * It can let you run Gri and view its output without leaving the
+     editor (`gri-run', `C-c C-r').  If an error is encountered, Emacs
+     will rearrange the buffer so the cursor is on the bad line of the
+     Gri command-file.
+
+   * If you've already run Gri, and therefore have a PostScript output
+     file, the mode will let you view that file (`gri-view', `C-c C-v')
+     even if that file is compressed.
+
+Thus one never has to leave Emacs; type `C-c C-r' to run Gri, and if
+there is no error, the graph comes up automatically.  If there was an
+error, gri-mode will move editing point to the line with the error and
+display the error message. Given that the mode can complete partially
+typed commands, this means a substantial saving in development time.
+
+   Inside gri-mode, type `C-h m' for help on the mode, including a list
+of all commands and key definitions.
+
+
+File: gri.info,  Node: Gri-mode screenshots,  Next: Screenshot 1,  Prev: About Gri Mode,  Up: Emacs Mode
+
+Gri-mode screenshots, what it looks like.
+=========================================
+
+* Menu:
+
+* Screenshot 1::
+* Screenshot 2::
+* Screenshot 3::
+* Screenshot 4::
+
+
+File: gri.info,  Node: Screenshot 1,  Next: Screenshot 2,  Prev: Gri-mode screenshots,  Up: Gri-mode screenshots
+
+Screenshot 1
+------------
+
+   Screenshots are not visible in the info node; see the online HTML
+documents.
+
+   In the first screenshot, the user has entered the text `set font'
+and has pressed <M-Tab> twice to see the list of possible completions.
+The `*Completions*' buffer is displayed in a separate frame because the
+user is using the `framepop.el' add-on package.  A similar effect can
+be obtained using `special buffers' in Emacs.
+
+
+File: gri.info,  Node: Screenshot 2,  Next: Screenshot 3,  Prev: Screenshot 1,  Up: Gri-mode screenshots
+
+Screenshot 2
+------------
+
+   Screenshots are not visible in the info node; see the online HTML
+documents.
+
+   Here, the user has selected the command `set font to' and,
+forgetting what valid font name could be used, then invoked `C-c C-h'
+to get help about that command. The user found the needed information
+and finished typing in `Courier'.  Meanwhile, an idle timer displays
+the default setting for this command in the minibuffer after a few
+seconds of inactivity.
+
+
+File: gri.info,  Node: Screenshot 3,  Next: Screenshot 4,  Prev: Screenshot 2,  Up: Gri-mode screenshots
+
+Screenshot 3
+------------
+
+   Screenshots are not visible in the info node; see the online HTML
+documents.
+
+   Here we see the user cascading through the Gri commands pull-down
+menu until `draw axes' is reached.  This menu can be used to display
+Info (or help) about a given command, or to insert the selection.  The
+default is Info.  This menu is a good way to browse for a command when
+you don't exactly remember its name.
+
+
+File: gri.info,  Node: Screenshot 4,  Next: Installing gri-mode.el,  Prev: Screenshot 3,  Up: Gri-mode screenshots
+
+Screenshot 4
+------------
+
+   Screenshots are not visible in the info node; see the online HTML
+documents.
+
+   With the output previewed in a `gv' window after pressing `C-c C-v'
+(or pressing the `gv' icon in the toolbar, or selecting it from the
+`Perform' pull-down menu), the user is ready to print the file, here
+using the `Perform' pull-down menu.
+

@@ -1,0 +1,1339 @@
+This is gri.info, produced by makeinfo version 4.3 from gri.texi.
+
+INFO-DIR-SECTION Scientific Applications
+START-INFO-DIR-ENTRY
+* Gri: (gri).  Programming language for scientific illustration
+END-INFO-DIR-ENTRY
+
+
+File: gri.info,  Node: Show,  Next: Skip,  Prev: Set Z Missing,  Up: List Of Gri Commands
+
+`show'
+------
+
+     `show ...'
+
+Show some information by printing it to standard output.
+
+   * `show all' Show lots of information about plot.
+
+   * `show axes' Show information about axes.
+
+   * `show color' Show the current pen color used for lines and text.
+     This is not to be confused with image color, which is independent.
+
+   * `show colornames' Show all colors known by name, as defined by
+     `read colornames' command and also the builtin colors defined
+     automatically (e.g. `white', `black', `red', etc), (*Note Read
+     Colornames::).
+
+   * `show columns' Show x, y, z, u, v column data.
+
+   * `show columns statistics' Show means, std devs, etc for columns.
+
+   * `show flags' Show values of all flags. (Developers only.)
+
+   * `show grid' Show an indication of the grid data (used for
+     contouring).
+
+   * `show grid mask' Show 1 if grid data are valid or 0 if contours
+     will not extend into this region.
+
+   * `show image' Show information about image, such as a histogram of
+     values, and, if the image is small enough, the actual data.
+
+   * `show license' Show the license for Gri, which outlines how users
+     are allowed to share it freely.
+
+   * `show misc' Show miscellaneous information about the plot, the
+     data, etc.
+
+   * `show next line' Show next line of data-file.
+
+   * `show synonyms' Show values of all synonyms, whether built-in or
+     user-defined.
+
+   * `show stopwatch' Show elapsed time since first call to this
+     command in the given Gri program.
+
+   * `show time' Show the current time.
+
+   * `show traceback' Show traceback (i.e., the tree of commands being
+     done at this instant).
+
+   * `show variables' Show values of all variables, whether built-in or
+     user-defined.
+
+   * `show .value.' Show value of indicated variable.
+
+   * `show {rpn ...}' Show result of computing indicated expression.
+
+   * `show "some text"' Print the indicated string.  You may use a
+     double-slash to prevent Gri from substituting synonym values; thus
+     it is common to do e.g.
+
+          \var = "Temperature"
+          show "Plotting \\var = 'var'"
+
+     which will produce the output line
+
+          Plotting \\var = 'Temperature'
+
+   * `show "time=" .time. "; depth=" .depth.' Print strings and values
+     as indicated.  If the last item is ellipses (three dots with no
+     spaces between them), then no newline is printed; this makes the
+     next `show' statement print on the same line.
+
+     To get a newline in a printed string, use the three-character glyph
+     `\<<', and to get a horizontal tab, use `\>>', as in the examples
+     below
+
+          \a = "HI"
+          show "\\a=\a"
+          system echo -e "a\\nb"
+          show "first line\<<second line"
+          show "first line\<<\>>(tabbed) second line"
+          show "first line\<<\>>(tabbed) second line"
+
+
+
+File: gri.info,  Node: Skip,  Next: Sleep,  Prev: Show,  Up: List Of Gri Commands
+
+`skip'
+------
+
+     `skip [forward|backward] [.n.]'
+
+   * `skip' For ascii files, skip next line in the data file.  For
+     binary files, skip forward 1 byte.
+
+   * `skip backward' For ascii files, skip backward 1 line in the data
+     file.  For binary files, skip backward 1 byte.
+
+   * `skip .n.' or `forward .n.' For ascii files, skip forward `.n.'
+     lines in the data file.  For binary files, skip forward `.n.'
+     bytes.
+
+   * `skip backward .n.' For ascii files, skip backward `.n.' lines in
+     the data file.  For binary files, skip backward `.n.' bytes.
+
+
+File: gri.info,  Node: Sleep,  Next: Smooth,  Prev: Skip,  Up: List Of Gri Commands
+
+`sleep'
+-------
+
+     `sleep .sec.'
+
+   Cause Gri to sleep for the indicated number of seconds, which should
+be a positive integer.  This command is ignored if `.sec.' is zero or
+negative, and the value of `.sec.' is first rounded to the nearest
+integer.
+
+   Normally, this command is used only by the developer, as a way to
+slow down Gri execution, to allow easier monitoring for debugging
+purposes.  Beware: it is tricky to kill a sleeping job!
+
+
+File: gri.info,  Node: Smooth,  Next: Source,  Prev: Sleep,  Up: List Of Gri Commands
+
+`smooth'
+--------
+
+   All these smoothing commands ignore the *location* of the data.  For
+equispaced data these algorithms have the standard interpretation in
+terms of digital filters.  For non-equispaced data, the interpretation
+is up to the user.
+
+     `smooth {x [.n.]} \
+       | {y [.n.]} \
+       | {grid data [.f.|{along x|y}]}'
+
+   The `smooth x' command does smoothing by the following formula
+
+     x[i-1]   x[i]   x[i+1]
+     ------ + ---- + ------
+       4       2       4
+
+   The `smooth x .n.' command does boxcar smoothing with centred
+boxcars `.n.' points wide.  The `smooth y' command does the same as
+`smooth x', but on the `y' column.
+
+   There are several methods of smoothing grid data.  Note that isolated
+missing values are filled in by each method.  (Let the author know if
+you'd like that `feature' to be an option.)
+
+   The `smooth grid data' command smooths gridded data, by weighted
+average in a plus-shaped window about each gridpoint.  The smoothing
+algorithm replaces each interior gridpoint value `z[i][j]' by
+
+     z[i][j]   z[i-1][j] + z[i+1][j] + z[i][j-1] + z[i][j+1]
+     ------- + ---------------------------------------------
+        2                          8
+
+Points along the edges are smoothed by the same formula, after
+inventing image points outside the domain by planar extrapolation.
+
+   The `smooth grid data .f.' command performs partial smoothing.  A
+temporary fully-smoothed grid `zSMOOTH[i][h]' is constructed as above,
+and a linear combination of this grid and the original grid is used as
+the replacement grid:
+
+     z[i][j] = (1-f) * z[i][j] + f * zSMOOTH[i][j]
+
+where `f' is the value indicated on the command line.  Thus, `smooth
+grid data 0' performs no smoothing at all, while `smooth grid data 1'
+is equivalent to `smooth grid data'.
+
+   The `smooth grid data along x' command smooths the grid data across
+`x' (i.e., horizontally), by replacing each value `z[i][j]' with the
+value
+
+     z[i][j]   z[i-1][j] + z[i+1][j]
+     ------- + ---------------------
+        2                4
+
+Points along the edges are smoothed by the same formula, after
+inventing image points outside the domain by linear extrapolation.
+
+   The `smooth grid data along y' command does the same thing as
+`smooth grid data along x', but the smoothing is along `y'.
+
+   *See also* *Note Filter::, a generalization of `smooth x|y' which
+allows for more sophisticated filters.
+
+
+File: gri.info,  Node: Source,  Next: Sprintf,  Prev: Smooth,  Up: List Of Gri Commands
+
+`source'
+--------
+
+     `source \filename'
+
+Perform the commands in the indicated file.
+
+   If the file cannot be found, an error results.  Contrast this with
+the `insert' command (*Note Insert::), which has the ability to search
+for the file through a user-specified path (*Note Set Path To::).
+
+
+File: gri.info,  Node: Sprintf,  Next: State,  Prev: Source,  Up: List Of Gri Commands
+
+`sprintf'
+---------
+
+     `sprintf \synonym "format" .variable. [.variable. [...]]'
+
+Write numbers into a synonym (text string).  This is useful for
+labelling plots.
+
+`sprintf \out "a = %lf b = %.2f" .a. .b.' - Create a synonym called
+`\out', and print the values of the variables `.a.' and `.b.' into it.
+If `.a.' = 1 and `.b.' = 0.112, then `\out' will be `"a = 1 b = 0.11"'
+
+   Formatting codes are as in the C programming language, eg:
+
+     %.2f  -- Use floating point with 2 decimal places.
+     %9.2f -- As above, but number takes 9 characters.
+     %e    -- Use exponential notation.
+
+*CAUTION*: Variables are stored in the *floating point* in Gri, so you
+must use a format like `"%f"', *not* an integer code like `"%d"'.  If
+you want an integer, use `"%.0f"'.
+
+
+File: gri.info,  Node: State,  Next: Superuser,  Prev: Sprintf,  Up: List Of Gri Commands
+
+`state'
+-------
+
+     `state save|restore|display'
+
+The `save' operation pushes a record of the graphics state (pen and
+font characteristics, margins, axis lengths, min/max/inc values on axes,
+etc) onto a stack.  The `restore' operation replaces the present state
+with whatever is on top of the stack, and then pops the stack.  Use
+`display' to see some of the state properties.
+
+   The `state' command is useful for temporary changes of axis
+properties, etc.
+
+   BUG: only line characteristics (width, color) and font
+characteristics (font, size, color) are saved so far.  In fact, the
+full list of what should be saved has not yet been finalized by the
+author.
+
+
+File: gri.info,  Node: Superuser,  Next: System,  Prev: State,  Up: List Of Gri Commands
+
+`superuser'
+-----------
+
+     `superuser [value]'
+
+Allow extra debugging information and commands.  Normally, this command
+and the corresponding commandline flag `-superuser' are only used by
+programmers altering the Gri source.
+
+   These are the flags and their meanings:
+   * *1* Print cmdline before/after substituting synonyms.
+
+   * *2* Print cmdline before/after substituting rpn expressions.
+
+   * *4* Print all new commands as they are being defined
+
+   * *8* Print the system commands that are used with `open "...|"' and
+     in other instances.
+
+   * *128* Changeable; only author should use this.
+
+   * *256* Changeable; only author should use this.
+   Note that all flags are equal to 2 raised to an integer power.  Since
+the flag values are detected by a bitwise OR, you can combine flags by
+adding; thus specifying a flag of 5 yields flags 1 and 4 together;
+specifying 15 yields flags 1, 2, 4 and 8.
+
+
+File: gri.info,  Node: System,  Next: Unlink,  Prev: Superuser,  Up: List Of Gri Commands
+
+`system'
+--------
+
+     `system \system-command'
+
+Tell the operating system to perform the indicated action.  Whatever
+string follows the word `system' is passed directly to the operating
+system, *after* substitution of synonyms if any exist.
+
+   If your system command contains double-slashes, you must protect them
+from Gri (which will interpret them as comments) by enclosing in
+double-quotes, e.g. `system cat A | sed -e "s/foo//g" | cat > B'.  (In
+the particular case of the `sed' command you could also do `system cat
+A | sed -e "s:foo::g" | cat > B'.
+
+   Note that `rpn' expressions are not evaluated, and variable values
+are not substituted before passing the string to the operating system.
+The exit status is stored in the builtin variable `..exit_status..'.
+
+   There are two ways to use the system:
+   * *Assign output to synonym*: The form `\synonym = system ...' does
+     the system command and then inserts the output from that command
+     into the indicated synonym.)
+
+   * *Just run a command*: The command `system ls' will list the files
+     in the current directory.
+
+   For long commands, there are two approaches, the second preferred:
+   * *Use continuation lines*: String a lot of information onto one
+     effective system line, using the `\' line-continuation character
+     at the ends of lines.  The problem is that it is very easy to lose
+     one of these backslashes.  The next method is better.
+
+   * *Here-is syntax* The here-is syntax of many unix shells is also
+     provided.  If the system command contains the characters `<<'
+     followed by a word (with no space between!) then Gri will issue a
+     system command which includes not only this line but also all
+     succeeding lines, until a line is found which matches the
+     indicated word precisely (with no leading space allowed).  The `<<
+     "WORD"' syntax is also supported, meaning that the operating
+     system is being told not to mess with the dollar-signs - needed in
+     perl.
+
+     *Note:* Be careful using this inside a new-command.  Gri
+     Recognizes the end of the body of a new-command by a line with `}'
+     in the *first column*, and no non-white characters thereafter.  If
+     you system command happens to use a line with a curly brace (as in
+     a loop in perl, for example), you must put whitespace before the
+     brace.  This won't affect the system command, but it will let Gri
+     correctly realize that this is *not* the end of the new-command.
+     For more information on new-commands (*Note Parsing::).
+
+     *Caution:* Before sending the string to the system, Gri first
+     translates any synonyms present.  Be careful with this, since
+     system commands calling awk, etc, very often use backslashes for
+     the newline character `\n' within strings.  If you have a synonym
+     whose name starts with `\n', you can get a conflict.  For example,
+     the awk command `print "foo\nbar";' should print a line with `foo'
+     on it, followed by a line with `bar' on it, but it will instead
+     print a single line with `fooMISTAKE', if you had previously
+     defined a synonym as `\nbar = "MISTAKE"'.  One way to avoid this
+     mistake is to make sure any `\n' characters appear at the end of
+     strings, and then simply avoid having a synonym named `\n'.
+
+     Here is a Perl example.
+
+          \m = "Foo bar"
+          system perl <<"EOF"
+          $a = 100;
+          print "foo bar is \m, and a is $a\n";
+          print "BETTER: foo bar is \m, and a is $a\n";
+          print "Q: was a 100?\n";
+          EOF
+
+
+   *Some more examples*:
+   * To get the first 15 lines of a file called `foo.dat' inserted into
+     another file called `bar.dat', you might do the following.  Only
+     the first method works; the second will fail because `.n.' will not
+     be translated before passing to the operating system.
+
+          \num = "-15"
+          system head \num foo.dat > bar.dat
+          # Following will not work correctly because .num.
+          # will not be translated
+          .num. = -15
+          system head .num. foo.dat > bar.dat
+
+   * Issue a unix command to get a listing of files in the current
+     working directory, and pipe them into the `more' system command.
+
+          system ls -l *c | more
+
+   * Store the date and time into a synonym, and use it in a title:
+
+          \time = system date
+          ...
+          draw title "Plotted at time \time"
+
+   * Use `awk' to prepare a two-column table of x, ranging from 0 to 1
+     in steps of 0.1, and sin(x).  The table is stored in a file whose
+     suffix is the process ID of the Gri job.  This file is then
+     opened, and the data plotted.  Finally, a system command is issued
+     to remove the temporary file.
+
+          system awk 'BEGIN { \
+              for (x=0; x<1; x+=0.1) { \
+                printf("%f %f\n", x, sin(x)) \
+              } \
+            }'  > tmp.\.pid.
+          open tmp.\.pid.
+          read columns x y
+          close
+          system rm tmp.\.pid.
+          draw curve
+
+     *Note*: in unix, this command calls the Bourne shell, not the
+     C-shell that is often used interactively.  For many simple uses,
+     the only difference from normal interactive use will be that `~'
+     is not expanded to the home directory.  For example, you should
+     write
+
+          system awk -f $HOME/foo/bar/cmd.gawk
+
+     instead of the
+
+          system awk -f ~/foo/bar/cmd.gawk
+
+     that you might expect from interactive C-shell use.
+
+     RETURN VALUE: Sets `\.return_value' to system status `N status'
+
+
+File: gri.info,  Node: Unlink,  Next: While,  Prev: System,  Up: List Of Gri Commands
+
+`unlink'
+--------
+
+     `unlink \filename'
+
+Delete a filename and possibly the file to which it refers.  On
+non-unix machines, this simply means to delete the file.  On unix
+machines, the action is more subtle.  The unix OS permits several
+processes to use a given file at once.  Therefore, `unlink' doesn't
+immediately remove the file, but instead waits until other processes
+are done with it.  Most users will never realize the difference,
+however, and it is safe to think of `unlink' as simply removing the
+file.  To learn more, type `man unlink' in a unix shell.
+
+   A common use of `unlink' is to remove files that were created with
+the `tmpname' facility (*Note Using OS Inside Gri::), e.g.
+     \tmp = tmpname
+     # do some system commands to put data into this file
+     open \tmp
+     read columns x y
+     draw curve
+     unlink \tmp
+
+
+File: gri.info,  Node: While,  Next: Write,  Prev: Unlink,  Up: List Of Gri Commands
+
+`while'
+-------
+
+     `while .test.|{rpn ...}'
+
+Perform statements in loop while the value of `.test.' or the RPN
+expression is nonzero.  The end of the loop designated by a line
+containing the words `end while'.  The value `.test.' may be an rpn
+expression.  To leave the loop prematurely, use a `break' statement.
+Upon encountering a `break' statement, Gri jumps to the line
+immediately following the loop.  If the `-chatty' option is nonzero, a
+notification is printed every 1000 passes through the loop, as a
+debugging measure to catch unintended infinite loops.
+
+*Examples*:
+
+   * Loop forever, printing a message over and over.
+
+          while 1
+            show "This loops forever. Need to 'break'"
+          end while
+
+   * Repeatedly read two numbers, and plot a bullet at the indicated
+     location.  If (or, hopefully, "when") the end of the file is
+     encountered, break out of the loop; otherwise continue plotting
+     forever.
+
+          while 1
+            read .x. .y.
+            if ..eof..
+              break
+            end if
+            draw symbol bullet at .x. .y.
+          end while
+
+   * Loop 10 times, printing the values of `.i.' as they range 0, 1,
+     ..., 9.  After exiting from the loop, `.i.' will equal 10.  Be
+     *careful* to use the correct rpn greater-than test to avoid an
+     infinite loop.
+
+          .i. = 0
+          while {rpn .i. 10 >}
+            show .i.
+            .i. += 1
+          end while
+
+
+
+File: gri.info,  Node: Write,  Next: Write Columns,  Prev: While,  Up: List Of Gri Commands
+
+The `write' commands
+--------------------
+
+   The `write' commands write various things.
+
+   If the filename is `stdout', the information is written to the
+standard output device (ie, the screen); if it is `stderr', the
+information is written to the standard error device (ie, the screen).
+
+   *IMPORTANT NOTE*: The `write' commands *append* to the output file,
+as opposed to overwriting the contents of the file.  Therefore if
+you've run the Gri script before, and want fresh output, make sure to
+do something like the following
+
+     system rm -f the_grid.dat
+     write grid to grid.dat
+
+* Menu:
+
+* Write Columns::               Write columns to a file
+* Write Contour::               Write contour (x,y) data to a file
+* Write Grid::                  Write grid data to a file
+* Write Image::                 Write various properties of image to a file
+
+
+File: gri.info,  Node: Write Columns,  Next: Write Contour,  Prev: Write,  Up: Write
+
+`write columns'
+...............
+
+     `write columns to \filename'
+
+Append data columns to the end of the indicated file.
+
+
+File: gri.info,  Node: Write Contour,  Next: Write Grid,  Prev: Write Columns,  Up: Write
+
+`write contour'
+...............
+
+     `write contour .value. to \filename'
+
+Append to the named file the (x,y) pairs defining the contour of the
+indicated value.
+
+   The first line of output is a header line, containing two numbers:
+the contour value and the missing value.  Then the (x,y) pairs are
+written a line at a time, with missing values being used to indicate
+ends of segments.  A blank line is written after the last data pair.
+For example, if the contour contained two closed regions, Gri would
+output a pair of missing values as one of the xy pairs, to denote the
+separation of the two curves.  You could read and plot the output as in
+this example
+
+     write contour 10 to contour.out
+     write contour 20 to contour.out
+     open contour.out
+     read .contour_value. .missing.
+     set missing value .missing.
+     read columns x y
+     draw curve
+
+
+File: gri.info,  Node: Write Grid,  Next: Write Image,  Prev: Write Contour,  Up: Write
+
+`write grid'
+............
+
+     `write grid to \filename [bycolumns]'
+
+Append grid to the end of the named file.  Storage is in `%f' format,
+and is in normal image order.  If the keyword `bycolumns' is present,
+then the grid is transposed first, in such a way that `read grid data
+bycolumns' performed on that file will read back the original grid data.
+
+
+File: gri.info,  Node: Write Image,  Next: Programming,  Prev: Write Grid,  Up: Write
+
+`write image'
+.............
+
+     `write image ... to \filename'
+
+The variants of this command write various things about the image to the
+named file, as illustrated in the following table.
+
+   * `write image to image.dat' Append image to the end of the named
+     file.  Storage is by unsigned-char, and is in normal image order.
+     There is no header.
+
+   * `write image rasterfile to image.dat' Append image to the end of
+     the named file, in Sun Rasterfile format.
+
+   * `write image pgm to mask.dat' Append image mask to the end of the
+     named file, in PGM 'rawbits' format.
+
+   * `write image mask to mask.dat' Append image mask to the end of the
+     named file. Storage is by unsigned-char, and is in normal image
+     order.
+
+   * `write image mask rasterfile to mask.dat' Append image mask to the
+     end of the named file, in Sun Rasterfile format.
+
+   * `write image mask pgm to mask.dat' Append image mask to the end of
+     the named file, in PGM 'rawbits' format.
+
+   * `write image colorscale to colorscale.dat' Append image colorscale
+     transform to the end of the named file.  Storage is a series of
+     256 lines, each containing 3 numbers (for Red, Green and Blue) in
+     the range 0 to 1.  The file is suitable for reading with the `read
+     image colorscale' command.
+
+   * `write image grayscale to grayscale.dat' Append image grayscale
+     transform to the end of the named file.  Storage is a series of
+     256 lines, each containing a number in the range 0 to 1.  The file
+     is suitable for reading with the `read image grayscale' command.
+
+   
+
+
+File: gri.info,  Node: Programming,  Next: Defaults,  Prev: Write Image,  Up: Top
+
+Programming in the Gri Language
+*******************************
+
+   The Gri programming language has `if' statements to control program
+flow, and a `while' statement to repeat commands.  There are two data
+types in Gri: "variables" (to store numbers) and "synonyms" (to store
+character strings).  Gri recognizes commands by matching statements
+against its list of known commands.  This list is extensible; it is
+easy to add new commands as extensions to Gri.
+
+* Menu:
+
+* Defaults::                    How Gri normally acts
+* Online Help::                 Getting help from gri itself
+* Long Command Lines::          Continued lines
+* Variables::                   Variables (for storing numbers)
+* Synonyms::                    Synonyms (for storing character strings)
+* If Statements::               If statements
+* Loops::                       Repeating command lines
+* Mathematics::                 Doing mathematics on columns, grids etc
+* rpn Mathematics::             Doing mathematics on variables
+* Text::                        Doing things with characters strings
+* Adding New Commands::         How to customize Gri by adding new commands
+* Missing Values::              How to specify missing data
+* Hints::                       Hints for good Gri programming
+* Debugging::                   Debugging Gri programs
+* Error Messages::              What to do about Gri error messages
+* Missing Values::              Missing value code
+* Operating System::            Using Gri in OS and OS in Gri
+* Resource File::               Personalizing Gri
+
+
+File: gri.info,  Node: Defaults,  Next: Online Help,  Prev: Programming,  Up: Programming
+
+Defaults
+========
+
+   At startup time, Gri sets the values of some things, like font size.
+Since Gri is still under development, some of these defaults might
+change, so you should not rely on them remaining the same.    Presently,
+the defaults are equivalent to:
+
+     set arrow size 0.2         # (cm)
+     set axes style 0
+     set beep off
+     set clip off
+     set clip postscript off
+     set contour format %lg
+     set contour label position ? ?
+     set contour labels horizontal
+     set contour labels whiteunder
+     set dash off
+     set font size 12           # (pt)
+     set font to helvetica
+     set graylevel 0            # Black ink
+     set ignore initial newline off
+     set input data window x off
+     set input data window y off
+     # Following set (curve, axes, symbol) widths to width
+     # of rapidograph pens called (6x0, 3x0,  6x0)
+     set line width 0.709        # (pt) for curves
+     set line width axis 0.369   # (pt) for axes
+     set line width symbol 0.369 # (pt) for symbols
+     set missing value 1.0e22
+     set page portrait
+     set page factor 1
+     set symbol size 0.1        # (cm)
+     set tic size 0.2           # (cm)
+     set tics out
+     set trace off
+     set x format %lg
+     set x margin 6.0           # (cm)
+     set x name "x"
+     set x size 10              # (cm)
+     set x type linear
+     set y axis name vertical
+     set y format %lg
+     set y margin 6.0           # (cm)
+     set y name "y"
+     set y size 10              # (cm)
+     set y type linear
+
+(NOTE: Programmers may alter the gri source file `defaults.h' and then
+recompile Gri, if they feel the need to change these things.  Also, see
+the file `startup.c' and the function `gr_begin()' in `gr.c'.)
+
+
+File: gri.info,  Node: Online Help,  Next: Long Command Lines,  Prev: Defaults,  Up: Programming
+
+Online Help
+===========
+
+   Type `help' to get a list of available commands and other topics of
+interest. Here's how Gri responds
+
+     Type `help' followed by a command-name:
+      assert      cd            close         convert
+      create      debug         delete        differentiate
+      draw        expecting     filter        flip
+      get         help          if            ignore
+      input       insert        interpolate   list
+      ls          mask          move          new
+      open        pwd           query         quit
+      read        regress       reorder       rescale
+      resize      return        rewind        set
+      show        skip          sleep         smooth
+      source      sprintf       state         superuser
+      system      write
+     Or type `help -' followed by a topic from this list:
+      example     extending     files         math
+      strings     synonyms      variables     manual
+
+   Some commands have more words than shown.  You can type these
+additional words to narrow the help down; otherwise Gri will give you
+help on all commands that begin with the indicated words.  For example,
+try `help set' and `help set x'.  When you ask for help on a multi-word
+command, Gri tells you about all commands which begin with the words
+you've typed.  Thus,
+
+     help
+     help draw
+     help draw zero
+     help draw zero line
+
+narrow in on the command `draw zero line'.  The response to the most
+complete request is
+
+     `draw zero line [horizontally|vertically]'
+       draw zero line
+         Draw line y=0 if it is within axes
+       draw zero line horizontally
+         Draw line y=0 if it is within axes
+       draw zero line vertically
+         Draw line x=0 if it is within axes
+
+   The part enclosed in angled quotes is the syntactical description of
+the command.  (NOTE: The square brackets indicate an optional word (in
+this case) or words.  The vertical bar indicates that either the item
+on the left or the item on the right may appear; it is a logical OR
+operator.  The only other special characters in syntax descriptions are
+the braces `{}', which are used to enclose multiple words which act as
+one unit; they are used to clarify the choices presented to the OR
+operator.)  Following the syntactical description are examples.  Each
+example is indented 2 spaces, and a description of it (which always
+starts with an upper-case character and ends with a period, to indicate
+that it is an English description) follows that, indented by an
+additional 2 spaces.
+
+
+File: gri.info,  Node: Long Command Lines,  Next: Variables,  Prev: Online Help,  Up: Programming
+
+Long Command Lines
+==================
+
+   To extend a command across several lines, use a backslash `\' at the
+*very* end of all lines but the last:
+
+     draw line from \
+       10 20 \
+       to \
+       10 30
+
+
+File: gri.info,  Node: Variables,  Next: About Variables,  Prev: Long Command Lines,  Up: Programming
+
+Variables
+=========
+
+* Menu:
+
+* About Variables::             What variables are used for, and how
+* User Variables::              Defining your own variables
+* Built-in Variables::          Variables pre-defined by Gri
+
+
+File: gri.info,  Node: About Variables,  Next: User Variables,  Prev: Variables,  Up: Variables
+
+About variables
+---------------
+
+   Variables store numbers.  As it reads your program, Gri substitutes
+variable values any place a variable appears where a number normally
+would.  For example, in the code below `.number.' is a variable storing
+the value 10, so the two `read' statements have the same effect:
+
+     .number. = 10
+     read columns .number. x y
+     read columns 10 x y
+
+   Variable names begin and end with a single period (example:
+`.num.').  (Gri uses this odd notation to distinguish variable names
+from "normal" words, which is necessary because Gri does not have a
+limited list of keywords as other languages do.  Thus, the C
+programming language is happy to let you use a variable name like
+`latitude', since it is not a keyword, but Gri is not, since it might
+like to use that word itself in a new command.)
+
+   You should not use names beginning and ending with double periods,
+because Gri uses names like that to store built-in variables for its own
+use (e.g., `..xsize..' saves the width of the plot).
+
+   To store a number into a variable, use a command like
+
+     .time. = 10
+
+or
+
+     .time. = {rpn 10 sin}
+
+   Storage is automatically set aside when you assign into a nonexistent
+variable; no "declaration" statements are required as in the C language.
+
+   The Gri command, `new' (*Note New::), allows you to have several
+"versions" of a variable.  This is useful for local storage in new
+commands, inside `if' statements, etc, since it lets you use temporary
+variables without worrying about overwriting values outside the local
+block of code.  The syntax is `new .variable. = value' (where, as
+usual, `value' may be an rpn expression (*Note rpn Mathematics::).
+Here is an example:
+
+     `foo bar'
+     {
+       new .a.         # Get storage
+       .a. = 10        # Store a local value
+       show "Locally, .a.=" .a. " (expect 10)"
+       delete .a.      # Delete this local one
+     }
+     .a. = 1
+     show "Global version has .a.=" .a. " (expect 1)"
+     foo bar
+
+   To see if a given named variable (or synonym) exists, use the RPN
+operator `defined' (*Note rpn Mathematics::).
+
+
+File: gri.info,  Node: User Variables,  Next: Built-in Variables,  Prev: About Variables,  Up: Variables
+
+User variables
+--------------
+
+   You can get Gri to read values for variables from your file.  Here's
+how to read a number from a header line and then read that many lines of
+columnar data:
+
+     open file.dat
+     read .num.
+     read columns .num. x y
+
+   You can define variables within the Gri program:
+
+     .num. = 10
+     read columns .num. x y
+
+   You can get variables interactively from the user, using the `query'
+command.  (If the user types carriage-return, or if the command-line
+flag `-y' was specified when invoking Gri, the value 100 will be
+assigned to `.num.').  For example,
+
+     query .num. "Number of rows to read?" (100)
+     read columns .num. x y
+
+   Gri allows you to use a previous value of the variable in the default
+string, as in this example:
+
+     .start. = 8                             # default
+     .stop. = 2                              # default
+     query .start. "Start time? " (.start.)
+     query .stop.  "Stop time?  " (.stop.)
+
+   Variables can be manipulated using reverse polish notation (RPN)
+mathematical operations (*Note rpn Mathematics::).
+
+   Variables are often useful in `if' statements.  Here are some
+examples:
+
+     read .num_pts.
+     if .num_pts.
+       show "There are some data"
+       read columns .num_pts. x y
+     else
+       show "There are no data"
+     end if
+     # ...
+     read .latitude.
+     if {rpn .latitude. 10 <}
+       read .num.
+       read .num. x y
+       draw curve
+     else
+       show "Skipping data North of 10deg N"
+       read .num.
+       skip .num.
+     end if
+
+
+File: gri.info,  Node: Built-in Variables,  Next: Synonyms,  Prev: User Variables,  Up: Variables
+
+Built-in variables
+------------------
+
+   Built-in variables (*Note Index of Builtins::) have names which
+begin and end with *two* periods.  For example, `..xsize..' is the width
+of the x-axis in centimetres.  You may use these variables as you wish
+(example: `..xsize.. = 4' is an alternative to `set x size 4'), but you
+must be aware that these are not "free" variables for you to use for
+arbitrary purposes.  You can find out what the built-in variables are
+by the command `show variables'.
+
+   There are two types of variables
+   * *Startup* variables, which are created by Gri at startup time.
+     These variables can be relied upon to exist (barring changes in Gri
+     itself), unless you `delete' them.
+
+   * *Spontaneous* variables (which are created by certain Gri commands,
+     and only exist if these commands have been executed).  For
+     example, the `regress' command defines `..coeff0..' (the intercept
+     of the fitted line), `..coeff1..' (the slope of the fitted line),
+     `..R2..' (the correlation coefficient).
+
+   To see the values of the built-in variables (along with the user
+variables), use `show variables'.  Here are some useful builtin
+variables:
+
+   * `..arrowsize..' Stores either a positive number representing the
+     halfwidth of arrowheads measured in centimetres, or a negative
+     number giving the negative of the ratio of arrowhead halfwidth to
+     arrow length (*Note Set Arrow Size::).
+
+   * `..batch..' Flag used for batch mode.
+
+   * `..debug..' Equal to 1 if the `-debug' command-line flag was set.
+     Flag used for debugging (*Note Invoking Gri::).  The `..debug..'
+     built-in variable is useful in isolating code to use only in test
+     runs.  For example, you might use
+
+          if ..debug..
+            show "Following are the column data"
+            show columns
+          end if
+
+     When you run the program with command-line `gri -debug file.gri'
+     the code in the `if' block will print out the columnar data, but
+     when you run it with `gri file.gri' these lines are not printed.
+
+   * `..eof..' Flag indicating whether an end-of-file was encountered
+     on the last `read columns'.
+
+   * `..words_in_dataline..' Number of words on last dataline.  This is
+     useful in constructs like
+
+          open tmp.dat
+          .num. = 0
+          while 1
+            read .a. .b.
+            if !..words_in_dataline..
+              show "Got empty line or EOF, so break loop"
+              break
+            end if
+            show "a=" .a. "b=" .b.
+            show "; words in line=" ..words_in_dataline..
+            .num. += 1
+          end while
+          show "Got " .num. "data lines."
+
+   * `..fontsize..' Size of letters, measured in points; there are
+     72.27 points in an inch and 28.45 points in a centimetre.  The
+     mathematical operators `pttocm' and `cmtopt', which do conversion
+     between points and centimetres, are often useful in labelling data
+     curves (*Note rpn Mathematics::).
+
+   * `..graylevel..' Graylevel to use in drawing lines, text, etc.
+     Black ink is 0; white paper is 1.  *See also* `..red..' etc.
+
+   * `..image_height..' Height of image, or 0 if no image defined yet.
+
+   * `..image_width..' Width of image, or 0 if no image defined yet.
+
+   * `..length_dash..' Length in cm of dashes in dashed lines.
+
+   * `..length_blank..' Length in cm of blanks in dashed lines.
+
+   * `..linewidth..' Width of lines for data curves (*Note Set Line
+     Width::).
+
+   * `..linewidthaxis..' Width of lines on axes (*Note Set Line
+     Width::).
+
+   * `..linewidthsymbol..' Width of lines in symbols (*Note Set Line
+     Width::).
+
+   * `..missingvalue..' Missing value code, also stored in the synonym
+     `\.missingvalue.'; (*Note Set Missing Value::).
+
+   * `..num_col_data..' Number of column data that exist.  You might
+     want to use this after `read columns' to see if a data file
+     actually had any data in it, or use it in accessing individual
+     elements of columns (*Note rpn Mathematics::).
+
+   * `..publication..' Flag for final copy of plot.  The command-line
+     option `-p' sets the value of `..publication..' to 1.  A typical,
+     and highly recommended, code fragment is
+
+          if !..publication..
+            draw time stamp
+          end if
+
+   * `..red..', `..green..', `..blue..' Description of present color.
+     The values are between 0 and 1, with (0,0,0) being black and
+     (1,1,1) being white.  If color is gray, all these will be equal.
+     You may assign to these, but it will *not* change the color.
+
+   * `..symbolsize..' Size of symbols in centimetres.
+
+   * `..superuser..' Equal to 0 if the flag was not set, or equal to
+     the flag if it was.
+
+   * `..tic_direction..' Direction of axis tics, 1 for inside or 0 for
+     outside.
+
+   * `..tic_size..' Size of axis tics in centimetres.
+
+   * `..trace..' Equal to 1 if the `-trace' command-line flag was set.
+     Used for tracing program execution.
+
+   * `..xinc..' x increment on axes.
+
+   * `..xleft..' x value at left of plot.
+
+   * `..xmargin..' Left margin, in centimetres.
+
+   * `..xright..' x value at right of plot.
+
+   * `..xsize..' x-axis length in centimetres.
+
+   * `..ybottom..' y value at bottom of plot.
+
+   * `..yinc..' y increment on axes.
+
+   * `..ymargin..' Bottom margin in centimetres.
+
+   * `..ysize..' y-axis length in centimetres.
+
+   * `..ytop..' y value at top of plot
+
+   * `..exit_status..' The exit status from the most recent `system'
+     call (or 0 if no system calls have been done yet).
+
+   You may use any of these built-in variables anywhere.  For example,
+here's how to stack 3 graphs vertically on the page:
+
+     .offset. = {rpn ..ysize.. 3 + }
+     open file1
+     read columns x y
+     close
+     draw axes
+     draw curve
+     
+     ..ymargin.. += .offset.
+     open file2
+     read columns x y
+     draw axes
+     draw curve
+     close
+     
+     ..ymargin.. += .offset.
+     open file3
+     read columns x y
+     draw axes
+     draw curve
+     close
+
+   The first line needs a bit of explanation. It is a reverse-polish
+expression.  The format is `{' followed by `rpn' followed by an
+expression followed by `}'.  Within the expression, spaces must
+separate operands.  This makes `.offset.' equal to the height of y-axis
+plus 3 cm, so plots are separated by 3 cm.  To learn more about `{rpn
+... }' (*Note rpn Mathematics::).
+
+   Another possibly unfamiliar thing is the code `+='.  It means take
+the thing on the left hand side, and add to it the thing on the right
+hand side.  (In this case, it is used to increase the y margin by the
+value of `.offset.'.)
+
+
+File: gri.info,  Node: Synonyms,  Next: Naming Convention,  Prev: Built-in Variables,  Up: Programming
+
+Synonyms
+========
+
+   Synonyms are used by Gri to store character strings.  Gri denotes
+synonyms with words beginning with backslash (e.g., `\syn'), following
+the TeX convention.
+
+* Menu:
+
+* Naming Convention::             Their names with a backslash, e.g. `\syn'
+* Using Synonyms::                Some usage examples
+* Important Builtin Synonyms::    e.g. `\.command_file.'
+* Alias Synonyms::                e.g. `\@alias'
+* Local Synonyms::                Working with the arguments of newcommands
+
+
+File: gri.info,  Node: Naming Convention,  Next: Using Synonyms,  Prev: Synonyms,  Up: Synonyms
+
+Naming convention for synonyms
+------------------------------
+
+   Synonym names begin with a backslash (e.g., `\filename').  After the
+backslash, Gri expects a letter (upper or lower case) or one or more
+periods.  Following this is an arbitrary string of letters, numbers, or
+underscores.  If there are periods at the start, then the same number of
+periods must be used at the end.  The following are some examples
+     \simple = "Howdie"
+     \.longer_example. = "Dots and underscores are ok too"
+     \a2 = "OK for number at end ..."
+     \a3bb = "... and inside"
+
+   Gri defines several synonyms for its own use, so that if you modify
+these, you may get strange results.  Each of these starts and ends with
+a single period.
+
+   There is an exception to the above rule, one which mostly comes up
+when using netCDF files which may have variable names that may contain
+punctuation.  Gri permits synonym names to have punctuation characters
+(but not blanks or tabs) in synonym names, provided that the second
+character in the name is an opening brace and that the last character is
+a closing brace, e.g.
+
+     \{foo.bar} = "Foo bar"
+
+This is used particularly for files in the netCDF format, for reading
+variable attributes, which by netCDF convention use a colon (`:') to
+separate variable name and attribute name (*Note Read Synonym or
+Variable::).  For more information on netCDF format, see
+
+   `http://www.unidata.ucar.edu/packages/netcdf/index.html'
+
+   Synonyms may be freely embedded in strings (a common example is
+`draw title "Data from file `\datafile'"'.  They may also appear
+anywhere in commands (e.g., `open \filename').  The exception to this
+rule is that Gri ignores your synonyms within math mode, in order to
+prevent clashes (e.g. you might define `\alpha' as a synonym storing
+the value `"foo bar"', but Gri will ignore this within math-mode, so
+that `$\alpha$' will still mean the Greek letter alpha).
+
+   To get a backslash in a string without Gri thinking it is part of a
+synonym, use two backslashes (e.g., `show "The backslash character \\
+is used for synonyms."').  This may sometimes be required in `system'
+commands (*Note System::), to prevent Gri from converting substrings
+like `\n' (which many system commands use to represent the newline
+character).  For example, the command `system perl -e 'print
+"foo\nbar";'' will be mangled if Gri has already been told that `\nbar'
+is a synonym.  (There will be no problem if `\nbar' is not an existing
+synonym, since Gri will then just leave it in place.)  To be sure that
+no mangling can occur, replace each backslash with two backslashes.
+This tells Gri not to try to substitute a synonym at that location.  In
+the example below, the first system call prints `fooled you!' on one
+line line, because Gri substituted for what it thought was a synonym
+called `\nbar'; the second (correctly) prints `foo' on one line and
+`bar' on the next.
+
+     \nbar = "led you!"
+     system perl -e 'print "foo\nbar\n";'
+     system perl -e 'print "foo\\nbar\\n";'
+
+   Similarly, if your system command is expecting to see `\t' (for a
+tab character), then you must write `\\t' to prevent Gri from trying to
+substitute a synonym named `\t'.
+
+   The `show' command has a special syntax for permitting newlines and
+tabs in strings (*Note Show::).
+
+
+File: gri.info,  Node: Using Synonyms,  Next: Generalizing Code,  Prev: Naming Convention,  Up: Synonyms
+
+Some uses for synonyms
+----------------------
+
+   Synonyms store strings and are useful for anything strings are useful
+for, e.g. filenames, plot labels, names of variables, etc.
+
+* Menu:
+
+* Generalizing Code::
+* Storing OS Output::
+* Storing User Responses::
+* Storing File Contents::
+* Extracting Words From Strings::
+
+
+File: gri.info,  Node: Generalizing Code,  Next: Storing OS Output,  Prev: Using Synonyms,  Up: Using Synonyms
+
+Using synonyms to generalize code
+.................................
+
+   Synonyms are often used to store filenames, since then only a single
+line of a file may need to be altered, in order to work with another
+file, e.g.
+
+     \filename = "columns.dat"
+     open \filename
+     # a lot more code using the file name
+
+
+File: gri.info,  Node: Storing OS Output,  Next: Storing User Responses,  Prev: Generalizing Code,  Up: Using Synonyms
+
+Using synonyms to store OS output
+.................................
+
+   Synonyms provided a convenient way to store information from the OS.
+
+     # Show the date.
+     \date = system date
+     show "Time is \date"
+     
+     # Show the command file name, then use the system
+     # to construct a filename with the same beginning
+     # but ".dat" as the ending instead of ".gri".
+     show "The commandfile name is \.command_file."
+     \fn = system echo `basename \.command_file. .gri`.dat
+     show "A filename constructed from this is \fn"
+
+   This example uses the Unix system commands `echo' and `basename' to
+construct a filename ending in `.dat', from the command file name
+(stored in the builtin string `\.command_file.'), assuming that the
+command file name ends in `.gri'.
+
+   NOTE: As usual, if the system command contains the Gri comment
+designator (the string `#'), protect it with double-quotes (*Note
+System::).
+
+
+File: gri.info,  Node: Storing User Responses,  Next: Storing File Contents,  Prev: Storing OS Output,  Up: Using Synonyms
+
+Storing user responses via `query'
+..................................
+
+   You can ask the user for the contents of strings:
+
+     query \filename "What's the data file?" ("file.dat")
+
+The prompt `What's the name of the data file?' is typed to the
+terminal, and whatever string the user types is inserted into the
+synonym `\filename'. If the user types nothing, but simply presses
+carriage return, the (optional) default string (which must be enclosed
+in parentheses as shown) is put into `\filename'. Note that the default
+is ignored if it is not written properly: it must be enclosed in double
+quotes enclosed in parentheses, with no intervening spaces.
+
+
+File: gri.info,  Node: Storing File Contents,  Next: Extracting Words From Strings,  Prev: Storing User Responses,  Up: Using Synonyms
+
+Storing File Contents
+.....................
+
+   You can read the contents of synonyms from a file:
+
+     open \directory_file
+     read \file_name
+     close
+     open \file_name
+     read columns x y
+
+The first (space-separated) word is read into the the first synonym
+after the `read' command, the second word into the second synonym, and
+so on.  If the word you want is not near the front of the line, you can
+use the command `read line' to get the whole line, then use the method
+described above to extract the word you want.  Indexing begins with 0,
+remember.
+
+
+File: gri.info,  Node: Extracting Words From Strings,  Next: Important Builtin Synonyms,  Prev: Storing File Contents,  Up: Using Synonyms
+
+Working with words within strings
+.................................
+
+   Sometimes a synonym will contain several words that you need to work
+with indidually (e.g. it might contain a list of files that should be
+processed).  There are two ways to do this.
+
+_The `word of' syntax._
+          \sentence = "This sentence has five words"
+          \first_word = word 0 of "\sentence"
+          \last_word = word 4 of "This sentence has five words"
+
+_The `[]' syntax_
+     Individual words of synonyms may be accessed by prefixing the
+     synonym name with the index number of the word (starting at 0)
+     enclosed in square brackets.
+
+     The number in the square brackets may be a constant, a variable,
+     or a synonym, but not a more complicated expression.  If the index
+     value is a floating-point number, it is first rounded to the
+     nearest integer.  If the index value is negative or exceeds the
+     number of words minus 1, then an empty string is retrieved.
+
+     If *no number* appears in the square brackets, the result is the
+     number of words in a synonym.
+
+          \syn = "This has 4 words in it"
+          show "\[0]syn   ... gives 'This'"
+          show "\[1]syn   ... gives 'has'"
+          .i. = 3
+          show \[.i.]syn  ... gives 'words'"
+          \i = "3"
+          show \[\i]syn   ... gives 'words'"
+          show "\[]syn    ... gives '6', i.e. number of words"
+

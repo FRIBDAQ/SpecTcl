@@ -1,0 +1,269 @@
+This is gri.info, produced by makeinfo version 4.3 from gri.texi.
+
+INFO-DIR-SECTION Scientific Applications
+START-INFO-DIR-ENTRY
+* Gri: (gri).  Programming language for scientific illustration
+END-INFO-DIR-ENTRY
+
+
+File: gri.info,  Node: Index of Commands,  Next: Index of Builtins,  Prev: Concept Index,  Up: Top
+
+Index of Commands
+*****************
+
+* Menu:
+
+* assert:                                Assert.
+* cd:                                    Cd.
+* close:                                 Close.
+* convert columns to grid:               Convert Columns To Grid.
+* convert columns to spline:             Convert Columns To Spline.
+* convert grid to columns:               Convert Grid To Columns.
+* convert grid to image:                 Convert Grid To Image.
+* convert image to grid:                 Convert Image To Grid.
+* create:                                Create Columns From Function.
+* create image grayscale:                Create Image Grayscale.
+* debug:                                 Debug.
+* delete:                                Delete.
+* differentiate:                         Differentiate.
+* draw:                                  Draw.
+* draw arc:                              Draw Arc.
+* draw arrows:                           Draw Arrows.
+* draw axes:                             Draw Axes.
+* draw axes if needed:                   Draw Axes If Needed.
+* draw border box:                       Draw Border Box.
+* draw box:                              Draw Box.
+* draw circle:                           Draw Circle.
+* draw contour:                          Draw Contour.
+* draw curve:                            Draw Curve.
+* draw essay:                            Draw Essay.
+* draw gri logo:                         Draw Gri Logo.
+* draw grid:                             Draw Grid.
+* draw image:                            Draw Image.
+* draw image histogram:                  Draw Image Histogram.
+* draw image palette:                    Draw Image Palette.
+* draw isopycnal:                        Draw Isopycnal.
+* draw isospice:                         Draw Isospice.
+* draw label:                            Draw Label.
+* draw label boxed:                      Draw Label Boxed.
+* draw label for last curve:             Draw Label For Last Curve.
+* draw label whiteunder:                 Draw Label Whiteunder.
+* draw line:                             Draw Line From.
+* draw line legend:                      Draw Line Legend.
+* draw lines:                            Draw Lines.
+* draw patches:                          Draw Patches.
+* draw polygon:                          Draw Polygon.
+* draw regression line:                  Draw Regression Line.
+* draw symbol:                           Draw Symbol.
+* draw symbol at:                        Draw Symbol At.
+* draw symbol legend:                    Draw Symbol Legend.
+* draw times stamp:                      Draw Time Stamp.
+* draw title:                            Draw Title.
+* draw values:                           Draw Values.
+* draw x axis:                           Draw X Axis.
+* draw x box plot:                       Draw X Box Plot.
+* draw y axis:                           Draw Y Axis.
+* draw y box plot:                       Draw Y Box Plot.
+* draw zero line:                        Draw Zero Line.
+* end group:                             End Group.
+* expecting:                             Expecting.
+* filter:                                Filter.
+* flip:                                  Flip.
+* get env:                               Get Env.
+* group:                                 Group.
+* heal:                                  Heal.
+* help:                                  Help.
+* if:                                    If.
+* ignore:                                Ignore.
+* input:                                 Input.
+* insert:                                Insert.
+* interpolate:                           Interpolate.
+* list:                                  List.
+* ls:                                    Ls.
+* mask:                                  Mask.
+* new:                                   New.
+* new page:                              Newpage.
+* new postscript file:                   New Postscript File.
+* open:                                  Open.
+* postscript:                            Postscript.
+* pwd:                                   Pwd.
+* query:                                 Query.
+* quit:                                  Quit.
+* read:                                  Read Synonym or Variable.
+* read colornames:                       Read Colornames.
+* read columns:                          Read Columns.
+* read from:                             Read From.
+* read grid:                             Read Grid.
+* read image:                            Read Image.
+* read image colorscale:                 Read Image Colorscale.
+* read image grayscale:                  Read Image Grayscale.
+* read image mask:                       Read Image Mask.
+* read line:                             Read Line.
+* regress:                               Regress.
+* reorder:                               Reorder.
+* rescale:                               Rescale.
+* resize x:                              Resize.
+* return:                                Return.
+* rewind:                                Rewind.
+* rpnfunction:                           Rpnfunction.
+* set:                                   Set.
+* set arrow size:                        Set Arrow Size.
+* set arrow type:                        Set Arrow Type.
+* set axes style:                        Set Axes Style.
+* set beep:                              Set Beep.
+* set bounding box:                      Set Bounding Box.
+* set clip:                              Set Clip.
+* set color:                             Set Color.
+* set colorname:                         Set Colorname.
+* set colour:                            Set Color.
+* set contour format:                    Set Contour Format.
+* set contour label for:                 Set Contour Label For.
+* set contour label position:            Set Contour Label Position.
+* set contour labels:                    Set Contour Labels.
+* set dash:                              Set Dash.
+* set environment:                       Set Environment.
+* set error:                             Set Error Action.
+* set flag:                              Set Flag.
+* set font color:                        Set Font Color.
+* set font colour:                       Set Font Color.
+* set font encoding:                     Set Font Encoding.
+* set font size:                         Set Font Size.
+* set font to:                           Set Font To.
+* set graylevel:                         Set Graylevel.
+* set greylevel:                         Set Graylevel.
+* set grid missing:                      Set Grid Missing.
+* set ignore error eof:                  Set Ignore Error Eof.
+* set ignore initial newline:            Set Ignore Initial Newline.
+* set image colorscale:                  Set Image Colorscale.
+* set image colourscale:                 Set Image Colorscale.
+* set image grayscale:                   Set Image Grayscale.
+* set image grayscale using histogram:   Set Image Grayscale.
+* set image greyscale:                   Set Image Grayscale.
+* set image greyscale using histogram:   Set Image Grayscale.
+* set image missing value color:         Set Image Missing Value Color.
+* set image missing value colour:        Set Image Missing Value Color.
+* set image range:                       Set Image Range.
+* set input data separator:              Set Input Data Separator.
+* set input data window:                 Set Input Data Window.
+* set line cap:                          Set Line Cap.
+* set line join:                         Set Line Join.
+* set line width:                        Set Line Width.
+* set missing value:                     Set Missing Value.
+* set page <1>:                          Set Page.
+* set page:                              Set Page Size.
+* set panel:                             Set Panel.
+* set panels:                            Set Panels.
+* set path:                              Set Path To.
+* set postscript filename:               Set Postscript Filename.
+* set symbol size:                       Set Symbol Size.
+* set tic size:                          Set Tic Size.
+* set trace:                             Set Trace.
+* set u scale:                           Set U Scale.
+* set v scale:                           Set V Scale.
+* set x axis:                            Set X Axis.
+* set x format:                          Set X Format.
+* set x grid:                            Set X Grid.
+* set x margin:                          Set X Margin.
+* set x name:                            Set X Name.
+* set x size:                            Set X Size.
+* set x type:                            Set X Type.
+* set y axis:                            Set Y Axis.
+* set y format:                          Set Y Format.
+* set y grid:                            Set Y Grid.
+* set y margin:                          Set Y Margin.
+* set y name:                            Set Y Name.
+* set y size:                            Set Y Size.
+* set y type:                            Set Y Type.
+* set z missing:                         Set Z Missing.
+* show:                                  Show.
+* skip:                                  Skip.
+* smooth:                                Smooth.
+* smooth grid data:                      Smooth.
+* source:                                Source.
+* sprintf:                               Sprintf.
+* state command:                         State.
+* superuser:                             Superuser.
+* system:                                System.
+* unlink:                                Unlink.
+* while:                                 While.
+* write:                                 Write.
+
+
+File: gri.info,  Node: Index of Builtins,  Prev: Index of Commands,  Up: Top
+
+Index of Built-in Variables and Synonyms
+****************************************
+
+* Menu:
+
+* ..arrowsize.., size of arrows:         Built-in Variables.
+* ..batch.., flag used for batch mode:   Built-in Variables.
+* ..blue..:                              Built-in Variables.
+* ..debug.., flag used for debugging:    Built-in Variables.
+* ..debug.., for debugging (by normal users): Invoking Gri.
+* ..eof.., flag indicating end-of-file:  Built-in Variables.
+* ..exit_status.., exit status from system call: Built-in Variables.
+* ..fontsize.., size of letters:         Built-in Variables.
+* ..graylevel.., graylevel (0=black):    Built-in Variables.
+* ..image_height.., height of image:     Built-in Variables.
+* ..image_width.., width of image:       Built-in Variables.
+* ..length_blank.., length/cm of blanks <1>: Built-in Variables.
+* ..length_blank.., length/cm of blanks: Set Dash.
+* ..length_dash.., length/cm of dashes <1>: Built-in Variables.
+* ..length_dash.., length/cm of dashes:  Set Dash.
+* ..linewidth.., width of lines:         Built-in Variables.
+* ..linewidthaxis.., width of lines on axis: Built-in Variables.
+* ..linewidthsymbol.., width of lines in symbols: Built-in Variables.
+* ..missingvalue.., missing value code:  Built-in Variables.
+* ..missingvalue.., value for missing data: Missing Values.
+* ..num_col_data.., number column data <1>: Manipulation of Columns etc.
+* ..num_col_data.., number column data:  Built-in Variables.
+* ..publication.., flag for final copy of plot: Built-in Variables.
+* ..superuser.., for debugging (by developers): Invoking Gri.
+* ..superuser.., was -superuser flag set?: Built-in Variables.
+* ..symbolsize.., size of symbols:       Built-in Variables.
+* ..tic_direction.., direction of axis tics: Built-in Variables.
+* ..tic_size.., size/cm of axis tics:    Built-in Variables.
+* ..trace.., for tracing program execution: Built-in Variables.
+* ..use_default_for_query.., simulate -yes commandline flag: Invoking Gri.
+* ..words_in_dataline..:                 Built-in Variables.
+* ..xinc.., x increment on axes <1>:     Built-in Variables.
+* ..xinc.., x increment on axes:         Axis Scaling.
+* ..xlast.., last drawn x value:         Axis Scaling.
+* ..xleft.., x value at left of plot <1>: Built-in Variables.
+* ..xleft.., x value at left of plot:    Axis Scaling.
+* ..xmargin.., left margin <1>:          Built-in Variables.
+* ..xmargin.., left margin:              Axis Scaling.
+* ..xright.., x value at right of plot <1>: Built-in Variables.
+* ..xright.., x value at right of plot:  Axis Scaling.
+* ..xsize.., x-axis length <1>:          Built-in Variables.
+* ..xsize.., x-axis length:              Axis Scaling.
+* ..ybottom.., y value at bottom of plot <1>: Built-in Variables.
+* ..ybottom.., y value at bottom of plot: Axis Scaling.
+* ..yinc.., y increment on axes <1>:     Built-in Variables.
+* ..yinc.., y increment on axes:         Axis Scaling.
+* ..ylast.., last drawn y value:         Axis Scaling.
+* ..ymargin.., bottom margin <1>:        Built-in Variables.
+* ..ymargin.., bottom margin:            Axis Scaling.
+* ..ysize.., y-axis length <1>:          Built-in Variables.
+* ..ysize.., y-axis length:              Axis Scaling.
+* ..ytop.., y value at top of plot <1>:  Built-in Variables.
+* ..ytop.., y value at top of plot:      Axis Scaling.
+* \.command_file., command-file name:    Important Builtin Synonyms.
+* \.home., home directory:               Important Builtin Synonyms.
+* \.missingvalue., command-file name:    Important Builtin Synonyms.
+* \.pid., process ID of job:             Important Builtin Synonyms.
+* \.proper_usage.:                       Local Synonyms.
+* \.ps_file., PostScript file name:      Important Builtin Synonyms.
+* \.readfrom_file., data file name:      Important Builtin Synonyms.
+* \.return_value., Return value:         Important Builtin Synonyms.
+* \.system., operating system name:      Important Builtin Synonyms.
+* \.time., time and date:                Important Builtin Synonyms.
+* \.user., user's login name:            Important Builtin Synonyms.
+* \.version., version of Gri:            Important Builtin Synonyms.
+* \.wd., working directory:              Important Builtin Synonyms.
+* \.word0.:                              Local Synonyms.
+* \.word1.:                              Local Synonyms.
+* \.words.:                              Local Synonyms.
+
+
