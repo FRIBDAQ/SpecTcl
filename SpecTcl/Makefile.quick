@@ -4,7 +4,8 @@ system:
 			make install INSTDIR=$(INSTDIR) OS=$(OS) )
 	(cd Display;   make INSTDIR=$(INSTDIR) OS=$(OS); \
 	               make install INSTDIR=$(INSTDIR)  OS=$(OS))
-	(cd Gri;       ./configure; make)
+	(cd Gri;       ./configure; make; make install INSTDIR=$(INSTDIR) \
+		       GRI_DIRECTORY_LIBRARY=$(INSTDIR)/Etc)
 	(cd Exception; make INSTDIR=$(INSTDIR) OS=$(OS); \
 		       make INSTDIR=$(INSTDIR) install OS=$(OS))
 	(cd Xamine;    make INSTDIR=$(INSTDIR) OS=$(OS); \
@@ -30,6 +31,7 @@ system:
 
 clean: 
 	(cd Display;   make clean)
+	(cd Gri;       make clean)
 	(cd Xamine;    make clean)
 	(cd Exception; make clean)
 	(cd Events;    make clean)
@@ -45,6 +47,7 @@ clean:
 
 depend:
 	(cd Display;   make depend)
+	(cd Gri;       make depend)
 	(cd Xamine;    make depend)
 	(cd Exception; make depend)
 	(cd Events;    make depend)
