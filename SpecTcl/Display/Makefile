@@ -26,12 +26,43 @@ LD     =  $($(OS)LD) -L/usr/lesstif/lib/Xm-2.0/.libs
 YACC   = bison
 LEX    = flex
 LEXOUT = lex.yy.c
+
+#
+#  The F77 compiler variable is not part of the sysdefs.sh nor sysdefs.bash
+#  shell scripts because most people will not want to build the Fortran
+#  interface, and most people will not have neither the Intel Fortran
+#  Compiler, nor the Compaq Fortran Compiler.  Thus, F77 is ``echo'' by
+#  default, which causes nothing to be built.  Uncomment the appropriate
+#  line for your operating system below and the AEDOBJS definition, if you
+#  wish to build the Fortran interface.
+#
 F77    = echo
 
 #
-#  Fortran interface.  Define to be nothing or aedxamine.o.
+#  For OSF1:
+#
+#F77    = f77 -check bounds
+
+#
+#  For Linux:
+#  Using the Intel Fortran Compiler.  You must source in the IFC shell
+#  variables script, which can be done for the 5.0 compiler by running:
+#  . /opt/intel/compiler50/ia32/bin/ifcvars.sh
+#
+#  For the 6.0 compiler:
+#  . /opt/intel/compiler60/ia32/bin/ifcvars.sh
+#
+#F77    = ifc -w90 -w95
+
+#
+#  Fortran interface objects.  By default this is nothing.
 #
 AEDOBJS = 
+
+#
+#  Uncommenting the following line causes the Fortran inferface to be built.
+#
+#AEDOBJS = aedxamine.o
 
 .DEFAULT:
 	echo Would sccs get $<
@@ -83,8 +114,7 @@ XAMINE_FILES: menusetup.o exit.o helpmenu.o winiomenu.o grobjiomenu.o \
 	gateio.o acceptgates.o clirequests.o spccheck.o prccheck.o superpos.o \
 	superprompt.o objcopy.o lblfont.o checklist.o compatspec.o copyatr.o \
 	buttonreq.o buttondlg.o spcchoice.o spccompatchoice.o spclimchoice.o \
-	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o \
-	$(AEDOBJS)
+	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o
 	echo "Xamine objects built"
 	touch XAMINE_FILES
 
