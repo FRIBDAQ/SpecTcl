@@ -17,6 +17,8 @@
 #include <histotypes.h>
 #endif
 
+#include <iostream.h>
+
 /*-----------------------------------------------------------------------------
   Definition of class BufferTranslator
 -----------------------------------------------------------------------------*/
@@ -30,8 +32,7 @@ class BufferTranslator
   Long_t GetLongword( UInt_t );
 
   virtual Address_t getBuffer() = 0;
-  virtual void GetBlock( Address_t pResult, 
-			 Int_t nOffset, Int_t nSize ) = 0;
+  virtual void GetBlock( const Address_t, Int_t, Int_t ) = 0;
 };
 
 /*-----------------------------------------------------------------------------
@@ -40,17 +41,16 @@ class BufferTranslator
 
 class SwappingBufferTranslator: public BufferTranslator
 {
+  Address_t m_pBuffer;  /*! A pointer to the buffer this holds */
+  
  public:
-  
-  SwappingBufferTranslator( Address_t pB = 0 ) {m_pBuffer = pB;}
-  
-  void GetBlock( Address_t pResult, Int_t nOffset, Int_t nSize );
-  Address_t getBuffer() { return m_pBuffer; }
 
- private:
-  
-  Address_t m_pBuffer;
-  
+  // Default Constructor
+  SwappingBufferTranslator( Address_t pB = 0 ) {m_pBuffer = pB;}
+
+  // Accessor functions
+  virtual void GetBlock( const Address_t, int, int );
+  Address_t getBuffer() { return m_pBuffer; } 
 };
 
 /*-----------------------------------------------------------------------------
@@ -59,17 +59,16 @@ class SwappingBufferTranslator: public BufferTranslator
 
 class NonSwappingBufferTranslator: public BufferTranslator
 {
+  Address_t m_pBuffer;   /*! A pointer to the buffer this holds */
+
  public:
 
+  // Default constrcutor
   NonSwappingBufferTranslator( Address_t pB = 0 ) {m_pBuffer = pB;}
 
-  void GetBlock( Address_t pResult, Int_t nOffset, Int_t nSize );
+  // Accessor functions
+  virtual void GetBlock( const Address_t, int, int );
   Address_t getBuffer() { return m_pBuffer; }
-
- private:
-
-  Address_t m_pBuffer;
-
 };
 
 /*-----------------------------------------------------------------------------
