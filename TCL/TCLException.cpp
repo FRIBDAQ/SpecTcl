@@ -373,7 +373,7 @@ CTCLException::ReasonText() const
 // Returns  a pointer to the reason for the
 // failure.  This is currently the Result string.
 
-  return (const char*)(GetResult());
+  return m_ResultText.c_str();
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -401,7 +401,7 @@ CTCLException::ReasonCode() const
 //     Selector.
 //
 CTCLResult 
-CTCLException::GetResult() const
+CTCLException::GetResult()
 {
 // Returns the result string object.
 // associated with this interpreter.
