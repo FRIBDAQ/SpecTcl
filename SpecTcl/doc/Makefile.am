@@ -111,5 +111,8 @@ EXTRA_DIST = parameters.htm HH00706_.jpg programmers_guide.htm gates.htm \
 	tailoring/images/spectc1.jpg tailoring/images/spectc2.jpg \
 	tailoring/images/_vti_cnf/spectc1.jpg tailoring/images/_vti_cnf/spectc2.jpg \
 	Programming/BufferAnalysis.htm Programming/CBufferCallback.htm \
-	Programming/CBufferProcessor.htm Programming/filterread.htm \
-	Programming/scalerinfo.htm
+	Programming/CBufferProcessor.htm Programming/CLanguageTraceback.htm \
+	Programming/CTracedVariable.htm Programming/CVarialbeTraceCallback.htm \
+	Programming/TracingIntro.htm   Programming/filterread.htm \
+	Programming/scalerinfo.htm Programming/manindex.htm \
+	Programming/spectclapi.htm Programming/varrecovery.htm
