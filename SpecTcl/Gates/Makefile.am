@@ -5,7 +5,8 @@ LDFLAGS = -L. @TCL_LDFLAGS@
 
 lib_LTLIBRARIES = libGates.la
 
-libGates_la_LDFLAGS = -version-info  $(SOVERSION):0
+libGates_la_LDFLAGS = -version-info  $(SOVERSION):0 \
+	-Wl,"-rpath-link=$(libdir)"
 
 libGates_la_SOURCES = ActualIterator.cpp AndGate.cpp Band.cpp \
 	CompoundGate.cpp ConstituentIterator.cpp Contour.cpp Cut.cpp \

@@ -333,7 +333,15 @@ class CEvent {
   int operator!=(const CEvent& anEvent) {
     return !(operator==(anEvent));
   }
-  CParameterValue& operator[](UInt_t nParam);
+  // Profiling suggests this indexing operator should be
+  // inlined.
+  //
+  CParameterValue& operator[](UInt_t nParam) {
+    if(nParam >= m_nSize) {	// Only resize if necessary.
+      Resize(nParam+1);
+    }
+    return m_rvParameters[nParam];
+  }
 
   // Exported operations:
   CEventIterator begin();

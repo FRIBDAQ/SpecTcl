@@ -126,7 +126,14 @@ protected:
 
 public:
 
-  Float_t RawToMapped (Float_t m_fRaw)   ; //!< Convert raw to mapped.
+  // Profiling suggests this hsould be inlined.
+
+  Float_t RawToMapped (Float_t fRaw) {
+    if(!m_fMapped) return fRaw;	// Unmapped parameters don't change
+    Float_t RawMax = (Float_t)((1 << m_nBits) - 1);
+    return m_fLow + (m_fHigh - m_fLow)*fRaw/RawMax; 
+    
+  } 
   Float_t MappedToRaw (Float_t fMapped)   ; //!< Convert Mapped to raw
 
 };

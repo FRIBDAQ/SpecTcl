@@ -1069,8 +1069,16 @@ Boolean Xamine_Refresh(XtPointer client_data)
     pdb->refresh_state(ctx->row, ctx->column, rfsh_titles);
     /* If necessary set the scaling: */
     {
-      if(!def->manuallyscaled())
-	def->setfsval(Xamine_ComputeScaling(def, ctx->pane));
+      if(!def->manuallyscaled()) {
+	int fs = (Xamine_ComputeScaling(def, ctx->pane));
+	if (fs <= 0) {		// Something bad happened...
+	  // Treat this like the spectrum disappeared:
+	  XClearWindow(display,window);
+	  pdb->refresh_state(ctx->row, ctx->column, rfsh_idle);
+	  goto display_done;
+	}
+	def->setfsval(fs);
+      }
     }
     /*
     **  Ensure that if there's a floor, the full scale value never goes

@@ -632,7 +632,7 @@ void Copy_Object::UpdateLeft()
   grobj_name name;
   for(i = 0; i < nobj; i++) {
     char tname[100];		/* Presented name. */
-    sprintf(tname, "[%03d] %s", objects[i]->getid(), objects[i]->getname(name));
+    sprintf(tname, "[%05d] %s", objects[i]->getid(), objects[i]->getname(name));
     left_l->AddItem(tname, pos);
     if(IsSelected(name, selection_list, nsels))
       XmListSelectPos(left_l->getid(), pos, False);
@@ -642,7 +642,7 @@ void Copy_Object::UpdateLeft()
   for(i = 0; i < ngate; i++) {
     grobj_name name;
     char       tname[100];	/* presented name. */
-    sprintf(tname, "[%03d] %s", gates[i]->getid(), gates[i]->getname(name));
+    sprintf(tname, "[%05d] %s", gates[i]->getid(), gates[i]->getname(name));
     left_l->AddItem(tname, pos);
     if(IsSelected(tname, selection_list, nsels))
       XmListSelectPos(left_l->getid(), pos, False);
@@ -713,7 +713,7 @@ void Copy_Object::UpdateRight()
     if(Xamine_IsCompatible(specid, i)) {
       spec_title name;
       char      tname[100];
-      sprintf(tname, "[%03d] %s", i, xamine_shared->getname(name, i));
+      sprintf(tname, "[%05d] %s", i, xamine_shared->getname(name, i));
       right_l->AddItem(tname, pos);
       if(IsSelected(tname, sellist, nselected))
 	XmListSelectPos(right_l->getid(), pos, False);
@@ -757,7 +757,7 @@ int Copy_Object::CopyItem(char *from, char *to, Copier_Arrow_Direction dir)
   */
 
   int dst_spec;			/* Destination spectrum. */
-  sscanf(to, "[%03d]", &dst_spec);
+  sscanf(to, "[%d]", &dst_spec);
   if(xamine_shared->gettype(dst_spec) == undefined) {
     sprintf(msg, "Destination spectrum '%s' is no longer defined",
 	    to);
@@ -805,13 +805,13 @@ int Copy_Object::CopyItem(char *from, char *to, Copier_Arrow_Direction dir)
   
   int objid;
   Boolean isgate = False;
-  sscanf(from, "[%03d]", &objid);
+  sscanf(from, "[%d]", &objid);
   grobj_database *odb = Xamine_GetObjectDatabase(); /* Hunt first in grobj db. */
   grobj_generic *obj = odb->find(objid, src_spec);
   if(obj != NULL) {		/* Verify that it's the same as src... */
     char tname[100];		/* Object title string. */
     grobj_name name;
-    sprintf(tname, "[%03d] %s", obj->getid(), obj->getname(name));
+    sprintf(tname, "[%05d] %s", obj->getid(), obj->getname(name));
     if(strcmp(from, tname) != 0)
       obj = (grobj_generic *)NULL; /* Wrong object. */
   }
@@ -840,7 +840,7 @@ int Copy_Object::CopyItem(char *from, char *to, Copier_Arrow_Direction dir)
 
     object->setid(Xamine_GetNextGateId()); /* Fake up a new gate. */
     object->setspectrum(dst_spec); /* Set spectrum as destination spectrum */
-    sprintf(newname, "%s%03d Copy of %03d from spectrum %03d",
+    sprintf(newname, "%s%05d Copy of %05d from spectrum %05d",
 	    objtype[object->type()], object->getid(), 
 	     obj->getid(), obj->getspectrum());
     object->setname(newname);
@@ -877,7 +877,7 @@ int Copy_Object::CopyItem(char *from, char *to, Copier_Arrow_Direction dir)
 
     object->setid(Xamine_GetNextObjectId()); /* Fake up a new object. */
     object->setspectrum(dst_spec); /* Set spectrum as destination spectrum */
-    sprintf(newname, "%s%03d Copy of %03d from spectrum %03d",
+    sprintf(newname, "%s%05d Copy of %05d from spectrum %05d",
 	    objtype[object->type()], object->getid(), 
 	    obj->getid(), obj->getspectrum());
     object->setname(newname);

@@ -285,6 +285,18 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.16.4.2  2004/09/24 11:43:18  ron-fox
+  - Add member function to get the multitestsource so the user program
+    can add other sources, select different sources than the default etc.
+  - Correct a defect in SetupTestDataSource.. it had created a local
+    m_pMultiTestSource that hid the member data and therefore prevented
+    it from being fetched or used.
+
+  Revision 4.16.4.1  2004/04/12 16:37:32  ron-fox
+  - Use etc for etc stuff with link named Etc rather than the other way around.
+  - Extract all Makefile definitions into separate include files so the user makefile
+    becomes less variable with time.
+
   Revision 4.16  2003/11/07 22:10:34  ron-fox
   Remove attempts to include sysinfo.h
 
@@ -375,7 +387,7 @@ static const UInt_t knEventListSize  = 256;
 static const UInt_t knDisplaySize    = 8;
 
 static const char* kpInstalledBase = INSTALLED_IN; // Preprocessor def.
-static const char* kpAppInitSubDir = "/Etc";
+static const char* kpAppInitSubDir = "/etc";
 static const char* kpAppInitFile   = "/SpecTclInit.tcl";
 static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 
@@ -641,7 +653,7 @@ void CTclGrammerApp::SetupTestDataSource() {
   // Uses a singleton map with at least the default test, 
   // but also possibly named user-defined test distributions.
 
-  CMultiTestSource* m_pMultiTestSource = CMultiTestSource::GetInstance(); 
+  m_pMultiTestSource = CMultiTestSource::GetInstance(); 
   m_pMultiTestSource->useDefaultTestSource();
 }
 

@@ -334,7 +334,7 @@ public:
   }                             
   // Operations:
                    
-  virtual   UInt_t operator() ()   = 0;
+  virtual   Float_t operator() ()   = 0;
  
 };
 

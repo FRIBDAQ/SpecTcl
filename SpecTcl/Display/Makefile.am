@@ -6,18 +6,19 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 
 INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS)
 LDFLAGS = -g @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @LD_EXTRA_FLAGS@
-XCCFLAGS = -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE
+XCCFLAGS =   -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE
 
-AM_CXXFLAGS = -g
-AM_CFLAGS   = -g
+AM_CXXFLAGS = -g -pedantic
+AM_CFLAGS   = -g -pedantic
 
 install-exec-local:
-	$(mkinstalldirs) $(prefix)/Etc
-	$(INSTALL_PROGRAM) $(srcdir)/*.ctbl $(prefix)/Etc
-	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/Etc
+	$(mkinstalldirs) $(prefix)/etc
+	$(INSTALL_PROGRAM) $(srcdir)/*.ctbl $(prefix)/etc
+	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/etc
 	$(INSTALL_PROGRAM) $(srcdir)/Xamine $(prefix)/bin/Xamine2_0
 
 $(LEXOUT):
+	rm *_lex.{h,cc}
 	$(LEX) windfile.l
 
 windfile_lex.cc: $(LEXOUT)
@@ -184,4 +185,13 @@ Xamine_DEPENDENCIES = windfile_parse.o windfile_lex.o dispwind.o \
 
 Xaminetest_DEPENDENCIES = libXamine.la
 
-EXTRA_DIST = queue.cc colorset.ico Xamine-X.3.release_notes Xamine-X.4.release_notes Xamine-X.6.release_notes Xamine-X.7.feature_list Xamine.ico Xamine.doc Xamine2.ctbl Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc aedpublic.for aedshare.f aedshare.for aedxamine.for build.com dflt.tpu grobj.tpu win.tpu
+EXTRA_DIST = queue.cc colorset.ico \
+	Xamine.ico Xamine.doc Xamine2.ctbl \
+	Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc \
+	aedpublic.for aedshare.f aedshare.for aedxamine.for
+
+#  These files can cause problems on rebuilds.
+
+MOSTLYCLEANFILES = defaultfile_lex.cc defaultfile_lex.h grobfile_lex.cc \
+	grobfile_lex.h windfile_lex.cc windfile_lex.h              \
+	defaultfile_parse.cc grobfile_parse.cc windfile_parse.cc

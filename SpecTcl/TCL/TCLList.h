@@ -292,8 +292,16 @@ DAMAGES.
 /*!
     Change Log:
     $Log$
+    Revision 4.2.4.1  2004/10/20 19:53:02  ron-fox
+    Fix a defect discovered in TCLList::operator= attempt to allow variables
+    as axis specs (failed).
+
     Revision 4.2  2003/03/25 12:01:28  ron-fox
-    Added Change log comment generated from the CVS $Log$ tag.
+    Added Change log comment generated from the CVS $Log$
+    Added Change log comment generated from the CVS Revision 4.2.4.1  2004/10/20 19:53:02  ron-fox
+    Added Change log comment generated from the CVS Fix a defect discovered in TCLList::operator= attempt to allow variables
+    Added Change log comment generated from the CVS as axis specs (failed).
+    Added Change log comment generated from the CVS tag.
 
 */
 #ifndef __TCLLIST_H  //Required for current class
@@ -347,7 +355,7 @@ public:
 			//Update to access 1:M associated class attributes      
   CTCLList& operator= (const CTCLList& aCTCLList) {
     if(this != &aCTCLList) {
-      CTCLList::operator=(aCTCLList);
+      //      CTCLList::operator=(aCTCLList);
       DoAssign(aCTCLList);
     }
     return *this;
