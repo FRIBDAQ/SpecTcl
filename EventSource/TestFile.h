@@ -113,8 +113,8 @@ public:
   UInt_t NSCLHeaderSize() const  { // # bytes in a header.
     return 32;
   }
-  UInt_t FormatEvent(Address_t pBuffer);
-  UInt_t EventSize() const;
+  virtual UInt_t FormatEvent(Address_t pBuffer);
+  virtual UInt_t EventSize() const;
   void   SetEventCount(Address_t pBuffer, UInt_t nEvents);
   void   SetBufferSize(Address_t pBuffer, UInt_t nBytes); 
 };
