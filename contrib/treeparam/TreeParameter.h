@@ -125,7 +125,7 @@ public:
 		haschanged = false;
 		start = 0;
 		inc = 1;
-		bins = (UInt_t) pow(2, parameterBits);
+		bins = (UInt_t) pow(2.0, (double)parameterBits);
 		stop = start + inc * (double)bins;
 		unit = "channels";
 		
@@ -139,7 +139,7 @@ public:
 	name(parameterName), start(parameterStart), unit(parameterUnit) {
 //		valid = true;
 		haschanged = false;
-		bins = (UInt_t) pow(2, parameterBits);
+		bins = (UInt_t) pow(2.0, (double)parameterBits);
 		if (slopeOrStop)	{		// Slope
 			inc = parameterOther;
 			stop = start + inc * (double)bins;
@@ -343,7 +343,7 @@ Initialize(string parameterName, UInt_t parameterBits)
 	haschanged = false;
 	start = 0;
 	inc = 1;
-	bins = (UInt_t) pow(2, parameterBits);
+	bins = (UInt_t) pow(2.0, (double)parameterBits);
 	stop = start + inc * (double)bins;
 	unit = "channels";
 	pSelf.push_back(this);
@@ -358,7 +358,7 @@ double parameterOther, string parameterUnit, bool slopeOrStop)
 	unit = parameterUnit;
 //	valid = true;
 	haschanged = false;
-	bins = (UInt_t) pow(2, parameterBits);
+	bins = (UInt_t) pow(2.0, (double)parameterBits);
 	if (slopeOrStop)  {   // Slope
 		inc = parameterOther;
 		stop = start + inc * (double)bins;
