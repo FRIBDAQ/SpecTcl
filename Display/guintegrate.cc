@@ -478,20 +478,25 @@ static void Format1d(IntegrationDisplay *d, grobj_generic *g,
   win_attributed *att = Xamine_GetSelectedDisplayAttributes();
   char txt[1024];		/* A nice big formatting buffer. */
   grobj_name n;
+  int specno = att->spectrum();
+  int xdim   = xamine_shared->getxdim(specno);
 
   if(att->ismapped()) {
     float f_centroid = Xamine_XChanToMapped(att->spectrum(), centroid);
+    float f_fwhm     = (fwhm * (xamine_shared->getxmax_map(specno) - 
+				xamine_shared->getxmin_map(specno))) / xdim;
     win_1d* a1 = NULL;
     if(att->is1d()) {
       a1 = (win_1d*)att;
       sprintf(txt, "%4d %27s  %8.2f       %8.2f         %f\n",
-	      g->getid(), g->getname(n), f_centroid, fwhm, area);
-    } else {
-      sprintf(txt, "%4d %27s  %8.2f     %8.2f         %f\n",
-	      g->getid(),
-	      g->getname(n),
-	      centroid, fwhm, area);
+	      g->getid(), g->getname(n), f_centroid, f_fwhm, area);
     }
+  } 
+  else {
+    sprintf(txt, "%4d %27s  %8.2f     %8.2f         %f\n",
+	    g->getid(),
+	    g->getname(n),
+	    centroid, fwhm, area);
   }
   d->AddText(txt);		/* Add to the dialog. */
   if(Xamine_logging) {
