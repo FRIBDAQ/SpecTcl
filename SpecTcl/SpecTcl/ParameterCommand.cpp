@@ -293,6 +293,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Header Files:
 //
 
+#include <config.h>
+
 #include "ParameterCommand.h"                               
 #include "ParameterPackage.h"
 #include "TCLInterpreter.h"
@@ -303,7 +305,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <tcl.h>
 #include <string.h>
+
+#ifdef HAVE_MALLOC_H
 #include <malloc.h>
+#endif
+
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
 #include <map>
 #include <stdio.h>
 
