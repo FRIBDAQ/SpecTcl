@@ -303,21 +303,23 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
 // Header Files:
-#include "AttachCommand.h"                               
-#include "TCLInterpreter.h"
-#include "TCLCommandPackage.h"
-#include "TCLResult.h"
-#include "DataSourcePackage.h"
-#include "FilterBufferDecoder.h"
-
-#include <histotypes.h>
-#include <Globals.h>
-
 #include <stdlib.h>
 #include <assert.h>
 #include <string>
 #include <algorithm> // For case-insensitive string comparison.
 #include <ctype.h>
+
+#include <histotypes.h>
+#include <Globals.h>
+
+#include "AttachCommand.h"                               
+#include "TCLInterpreter.h"
+#include "TCLCommandPackage.h"
+#include "TCLResult.h"
+#include "DataSourcePackage.h"
+#include "TCLAnalyzer.h"
+#include "FilterBufferDecoder.h"
+#include "FilterEventProcessor.h"
 
 // Forward class declarations:
 class CBufferDecoder;
@@ -393,7 +395,7 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_ERROR;
   }
   assert(0); // Should not get here.
-}
+};
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -414,7 +416,7 @@ int CAttachCommand::AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[]) {
   //    char* pArgs[]:
   //       Array of pointers to the command line parameters
   char *pFileName, *pSwitch;
-  string sFormat = "";
+  string sFileName = "", sFormat = "";
   UInt_t nTmpSize = 0, nBlockSize = knDefaultBufferSize;
 
   if(nArgs < 1) { // We should have a file name, at least.
@@ -422,6 +424,9 @@ int CAttachCommand::AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[]) {
     return TCL_ERROR;
   }
   pFileName = pArgs[0];
+  sFileName = string(pFileName);
+  sFileName = ParseFileName(sFileName);
+  pFileName = (char*)(sFileName.c_str());
   nArgs--; pArgs++; // Adjust remaining parameter count.
 
   if(nArgs > 0) {
@@ -441,25 +446,27 @@ int CAttachCommand::AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[]) {
       case keFormat:
 	sFormat = string(pArgs[1]);
 	transform(sFormat.begin(), sFormat.end(), sFormat.begin(), tolower); // To make case a non-issue.
-	if(sFormat == "filter") {
+
+	if(sFormat == "filter") { // Filtered events.
 	  cerr << "Filtered event format specified." << endl;
 	  rResult += "Filtered event format specified.\n";
+
 	  if(gpBufferDecoder != (CBufferDecoder*)kpNULL) {
 	    delete gpBufferDecoder;
 	  }
 	  gpBufferDecoder = new CFilterBufferDecoder;
 
 	  if(gpAnalyzer) {
-	    //gpAnalyzer->setDecoder(gpBufferDecoder);
-	    //(*gpAnalyzer).setDecoder(gpBufferDecoder);
 	    gpAnalyzer->AttachDecoder(*gpBufferDecoder);
+
+	    CFilterEventProcessor* pFilterEventProcessor = new CFilterEventProcessor;
+	    ((CTclAnalyzer*)gpAnalyzer)->AddEventProcessor((CEventProcessor&)(*pFilterEventProcessor));
 	  } else {
 	    rResult = "Error: Analyzer not present.\n";
 	    return TCL_ERROR;
 	  }
-	} else {
-	  // Normal NSCL events, buffer decoder, and event formatter assumed.
-	  // Do nothing.
+
+	} else { // Normal NSCL events, buffer decoder, and event formatter assumed. Do nothing.
 	  cerr << "Normal event data assumed." << endl;
 	}
 	nArgs -= 2; pArgs += 2; // Adjust remaining parameter count.
@@ -503,7 +510,7 @@ int CAttachCommand::AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[]) {
     return stat;
 
   return rPack.OpenSource(rResult, pFileName, nBlockSize);
-}
+};
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -532,7 +539,7 @@ int CAttachCommand::AttachTape(CTCLResult& rResult, int nArgs, char* pArgs[]) {
 
   CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
   return rPack.AttachTapeSource(rResult, pArgs[0]);
-}
+};
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -604,7 +611,7 @@ int CAttachCommand::AttachPipe(CTCLResult& rResult, int nArgs, char* pArgs[]) {
     return stat;
 
   return rPack.OpenSource(rResult,Command.c_str() , nBlockSize);
-}
+};
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -619,7 +626,7 @@ void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "   attach -tape devicename\n";
   rResult += "   attach -pipe [-size nBytes] command string\n";
   rResult += "\nattach attaches various data sources to SpecTcl\n";
-}
+};
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -635,4 +642,28 @@ CAttachCommand::ParseSwitch(char* pSwitch) {
       return SwitchTable[i].Value;
   }
   return keNotSwitch;
-}
+};
+
+string CAttachCommand::ParseFileName(string& rFileName) {
+  // Implemented here, as opposed to EventFilter, so as to use a uniform default setting.
+  /*
+    Not currently implemented in OutputEventStream due to potential conflict with respect to setting the default file name when none is specified.
+    This should not pose any problems as the user only sets file names with respect to the filter (which then calls the output event stream), and this is taken care of right here.
+  */
+  char* pHomeDir = getenv("HOME");
+  string sHomeDir = "", sFileName = "";
+
+  if(pHomeDir) {
+    sHomeDir = string(pHomeDir);
+  }
+
+  if(rFileName == "") { // If empty,
+    sFileName = sHomeDir + "/filteroutput.ftr"; // use this as the default (for both EventFilter and OutputEventStream).
+  } else if(rFileName[0] == '~') { // Else if it begins with a ~,
+    sFileName = sHomeDir + rFileName.substr(1, (rFileName.length()-1)); // interpret the ~ as the home directory.
+  } else { // Else,
+    sFileName = rFileName; // Use what was given originally.
+  }
+
+  return sFileName;
+};

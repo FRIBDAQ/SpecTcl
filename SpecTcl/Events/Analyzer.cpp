@@ -298,12 +298,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 //
 // Header Files:
 //
-#include "Analyzer.h"
+#include <iostream.h>
+
 #include "Exception.h"
 #include "EventFormatError.h"
-#include <iostream.h>
 #include "Globals.h"
 #include "FilterBufferDecoder.h"
+#include "FilterEventProcessor.h"
+
+#include "Analyzer.h"
 
 // Static class member initializations:
 UInt_t CAnalyzer::m_nDefaultEventThreshold = 128;
@@ -513,15 +516,19 @@ void CAnalyzer::OnOther(UInt_t nType, CBufferDecoder& rDecoder) {
   //           about the global buffer structure.
   // Exceptions:
   // Clean up.
-  if(gpBufferDecoder != (CBufferDecoder*)kpNULL) {
-    delete gpBufferDecoder;
-  }
-  if(m_pDecoder != (CBufferDecoder*)kpNULL) {
-    delete m_pDecoder;
-  }
 
-  m_pDecoder = new CFilterBufferDecoder;
-  gpBufferDecoder = m_pDecoder;
+  // For event filtering:
+  Address_t pData = m_pDecoder->getBody();
+  CFilterEventProcessor* pFilterEventProcessor = new CFilterEventProcessor;
+  if(pFilterEventProcessor->operator()(pData, (*this), rDecoder)) {
+    vector<CEvent*> Events = *(pFilterEventProcessor->getEvents());
+    for(vector<CEvent*>::iterator ipEvent = Events.begin(); ipEvent != Events.end(); ipEvent++) {
+      m_EventList.assign_back(*ipEvent);
+    }
+    (*m_pSink)(m_EventList);
+  } else {
+    cerr << "Error: CFilterEventProcessor::operator()." << endl;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
