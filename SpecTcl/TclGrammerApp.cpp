@@ -285,6 +285,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.13  2003/08/25 16:11:01  ron-fox
+  Get consistent merge with kanayo's development stuff
+
   Revision 4.12  2003/07/18 15:05:33  kanayo
   Continuing modifications for event filtering.
 
@@ -305,13 +308,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <assert.h>
 #include "TCLHistogrammer.h"
 #include "TestFile.h"
+#include "MultiTestSource.h"
 #include "TCLApplication.h"
 #include "TCLVariable.h"
 #include "TCLProcessor.h"
 #include "TKRunControl.h"
-#include "GaussianDistribution.h"
 #include "NSCLBufferDecoder.h"
-
 
 #include "Globals.h"
 #include "RunControlPackage.h"
@@ -366,8 +368,8 @@ static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 
 // Constructors, destructors and other replacements for compiler cannonicals:
 
-//Default constructor alternative to compiler provided default constructor
-//Association object data member pointers initialized to null association object 
+// Default constructor alternative to compiler provided default constructor.
+// Association object data member pointers initialized to null association object.
 CTclGrammerApp::CTclGrammerApp() :
   CTCLApplication(),
   m_nDisplaySize(knDisplaySize),
@@ -386,8 +388,17 @@ CTclGrammerApp::CTclGrammerApp() :
   m_RCFile(string("tcl_rcFielname"),            kfFALSE),
   m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
   m_TclParameterCount(string("ParameterCount"), kfFALSE),
-  m_TclEventListSize(string("EventListSize"),   kfFALSE)
-{}
+  m_TclEventListSize(string("EventListSize"),   kfFALSE),
+  m_pMultiTestSource((CMultiTestSource*)kpNULL)
+{
+  if(gpEventSource != (CFile*)kpNULL) {
+    if(gpEventSource->getState() == kfsOpen) {
+      gpEventSource->Close();
+    }
+    delete gpEventSource;
+    gpEventSource = (CFile*)kpNULL;
+  }
+}
 
 // Destructor:
 CTclGrammerApp::~CTclGrammerApp() {
@@ -595,29 +606,11 @@ void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistog
   referring to real data.  Note that an eventsource is currently
   necessary to create and setup the run control object.
 */
-
-// The internal test data source is a set of 5 gaussian distributions which
-// produce a fixed size event.
-// The distributions are defined below:
-//                       Cent.  Sigma  Largest allowed value.
-static CGaussianDistribution d1(512.0, 128.0, 1024.0);
-static CGaussianDistribution d2(256.0,  64.0, 1024.0);
-static CGaussianDistribution d3(128.0,  32.0, 1024.0);
-static CGaussianDistribution d4( 64.0,  16.0, 1024.0);
-static CGaussianDistribution d5( 32.0,   8.0, 1024.0);
-
 void CTclGrammerApp::SetupTestDataSource() {
-  CTestFile* pTestSource = new CTestFile;
-  pTestSource->AddDistribution(d1);
-  pTestSource->AddDistribution(d2);
-  pTestSource->AddDistribution(d3);
-  pTestSource->AddDistribution(d4);
-  pTestSource->AddDistribution(d5);
-
-  pTestSource->Open("Testing", kacRead);
-
-  gpEventSource = pTestSource;
-}  
+  // Uses a singleton map with at least the default test, but also possibly named user-defined test distributions.
+  CMultiTestSource* m_pMultiTestSource = CMultiTestSource::GetInstance(); // Makes the singleton if it doesn't exist, or gets it if it does.
+  m_pMultiTestSource->useDefaultTestSource();
+}
 
 //  Function:
 //    void CreateAnalyzer(CEventSink* pSink)
@@ -811,7 +804,7 @@ int CTclGrammerApp::operator()() {
   SelectDisplayer(m_nDisplaySize, *((CHistogrammer*)gpEventSink));
 
   // Setup the test data source:
-  SetupTestDataSource();
+  SetupTestDataSource(); // No longer done. By default, no source is to be set so that users aren't mistakenly fooled by test data.
 
   // Create an analyzer and hook the histogrammer to it.
   //CreateAnalyzer(gpEventSink);
