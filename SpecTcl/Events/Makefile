@@ -175,32 +175,40 @@ NSCLBufferDecoder.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
 NSCLBufferDecoder.o: /usr/include/alloca.h
 RunControl.o: RunControl.h /usr/include/assert.h /usr/include/features.h
 RunControl.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-TCLRunFileHandler.o: TCLRunFileHandler.h RunControl.h /Include/histotypes.h
-TCLRunFileHandler.o: /usr/include/string.h /usr/include/features.h
-TCLRunFileHandler.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+TCLRunFileHandler.o: TCLRunFileHandler.h /Include/TCLIdleProcess.h
+TCLRunFileHandler.o: /Include/TCLTimer.h /Include/TCLInterpreterObject.h
+TCLRunFileHandler.o: /usr/include/tcl.h /usr/include/stdio.h
+TCLRunFileHandler.o: /usr/include/features.h /usr/include/sys/cdefs.h
+TCLRunFileHandler.o: /usr/include/gnu/stubs.h
 TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+TCLRunFileHandler.o: /usr/include/bits/types.h /usr/include/libio.h
+TCLRunFileHandler.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+TCLRunFileHandler.o: /Include/histotypes.h /usr/include/string.h
 TCLRunFileHandler.o: /usr/include/math.h /usr/include/bits/huge_val.h
 TCLRunFileHandler.o: /usr/include/bits/mathdef.h
 TCLRunFileHandler.o: /usr/include/bits/mathcalls.h
 TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-TCLRunFileHandler.o: TKRunControl.h /usr/include/tcl.h /usr/include/stdio.h
-TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-TCLRunFileHandler.o: /usr/include/bits/types.h /usr/include/libio.h
-TCLRunFileHandler.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-TCLRunFileHandler.o: /usr/include/tk.h /usr/include/X11/Xlib.h
-TCLRunFileHandler.o: /usr/include/sys/types.h /usr/include/time.h
-TCLRunFileHandler.o: /usr/include/endian.h /usr/include/bits/endian.h
-TCLRunFileHandler.o: /usr/include/sys/select.h /usr/include/bits/select.h
-TCLRunFileHandler.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
-TCLRunFileHandler.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
-TCLRunFileHandler.o: /usr/include/X11/Xosdefs.h
-TKRunControl.o: TKRunControl.h /usr/include/tcl.h /usr/include/stdio.h
-TKRunControl.o: /usr/include/features.h /usr/include/sys/cdefs.h
-TKRunControl.o: /usr/include/gnu/stubs.h
+TCLRunFileHandler.o: /usr/include/assert.h /usr/include/tk.h
+TCLRunFileHandler.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
+TCLRunFileHandler.o: /usr/include/time.h /usr/include/endian.h
+TCLRunFileHandler.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+TCLRunFileHandler.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+TCLRunFileHandler.o: /usr/include/sys/sysmacros.h /usr/include/X11/X.h
+TCLRunFileHandler.o: /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h
+TCLRunFileHandler.o: RunControl.h TKRunControl.h
+TKRunControl.o: TKRunControl.h /Include/TCLInterpreter.h /usr/include/tcl.h
+TKRunControl.o: /usr/include/stdio.h /usr/include/features.h
+TKRunControl.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
 TKRunControl.o: /usr/include/bits/types.h /usr/include/libio.h
 TKRunControl.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
+TKRunControl.o: /Include/TCLString.h /usr/include/string.h
+TKRunControl.o: /Include/histotypes.h /usr/include/math.h
+TKRunControl.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
+TKRunControl.o: /usr/include/bits/mathcalls.h
+TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 TKRunControl.o: /usr/include/tk.h /usr/include/X11/Xlib.h
 TKRunControl.o: /usr/include/sys/types.h /usr/include/time.h
 TKRunControl.o: /usr/include/endian.h /usr/include/bits/endian.h

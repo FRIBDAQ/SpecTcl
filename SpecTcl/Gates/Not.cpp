@@ -45,6 +45,11 @@ CNot::inGate(CEvent& rEvent, const vector<UInt_t>&)
 //
 // Exceptions: 
 {
+  return inGate(rEvent);
+}
+Bool_t
+CNot::inGate(CEvent& rEvent)
+{
   return (!(m_pConstituent->operator()(rEvent)));
 }
 //////////////////////////////////////////////////////////////////////////

@@ -55,6 +55,11 @@ CTrueGate::inGate(CEvent& rEvent, const vector<UInt_t>&)
 {
   return kfTRUE;
 }
+Bool_t
+CTrueGate::inGate(CEvent& rEvent)
+{ 
+  return kfTRUE;
+}
 
 //////////////////////////////////////////////////////////////////////////
 //

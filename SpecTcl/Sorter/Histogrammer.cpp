@@ -216,7 +216,9 @@ CHistogrammer::operator==(const CHistogrammer& rRhs)
 //    Analyzer function
 //
 void
-CHistogrammer::operator()(const CEvent& rEvent)
+CHistogrammer::operator()(const CEvent& rEvent,
+			  UInt_t nSpectra, CSpectrum** ppSpectra,
+			  UInt_t nGates,   CGateContainer** ppGates)
 {
   // Histograms a single event by passig it to all the histograms.
   // the histograms take the parameters they need from the event and
@@ -229,19 +231,17 @@ CHistogrammer::operator()(const CEvent& rEvent)
 
   // Reset the gates:
 
-  CGateDictionaryIterator p = GateBegin();
-  CGateDictionaryIterator e = GateEnd();
-  for(; p != e; p++) {
-    (*p).second->Reset();
+  for(int i = 0; i < nGates; i++) {
+    (*ppGates[i])->Reset();	// Invalidate the gate value cache.
   }
+
 
   // Increment the histograms.:
 
-  SpectrumDictionaryIterator i  = SpectrumBegin();
-  SpectrumDictionaryIterator se = SpectrumEnd();
-  for(; i != se; i++) {
-    (*((*i).second))(rEvent);
+  for(int i = 0; i < nSpectra; i++) {
+    (*ppSpectra[i])(rEvent);
   }
+
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -253,12 +253,43 @@ CHistogrammer::operator()(const CEvent& rEvent)
 void
 CHistogrammer::operator()(CEventList& rEvents)
 {
+  //  Profiling demonstrates that it's inefficient to
+  //  traverse the CSpectrum and CGateContainer maps for each event.
+  //  Therefore these are traversed once now and placed in tables.
+  //  This is redone on each batch of events in case the maps get modified.
+
+  //  Flatten the gates map into pGates:
+
+  UInt_t nGates = GateCount();
+  CGateContainer* pGates[nGates]; // Holds pointer to gate containers.
+  CGateDictionaryIterator pg = GateBegin();
+  CGateDictionaryIterator pge= GateEnd();
+  CGateContainer** ppGate = pGates;
+  while(pg != pge) {
+    *ppGate++ = &((*pg).second); 
+    pg++;
+  }
+  // Flatten the Spectra into pSpectra:
+
+  UInt_t nSpectra = SpectrumCount();
+  CSpectrum*      pSpectra[nSpectra]; // Pointers to spectra.
+  CSpectrum**     ppSpectra = pSpectra;
+  SpectrumDictionaryIterator ps = SpectrumBegin();
+  SpectrumDictionaryIterator pse= SpectrumEnd();
+  while(ps != pse) {
+    *ppSpectra++ = (*ps).second;
+    ps++;
+  }
+
+  //  Now analyze the events.
   CEventListIterator i;
   CEventListIterator e = rEvents.end();
   for(i = rEvents.begin(); i != e; i++) {
     CEvent* pEvent = *i;
     if(pEvent) 
-      operator()(*pEvent);
+      operator()(*pEvent,
+		 nSpectra, pSpectra,
+		 nGates, pGates);
     else
       return;
   }

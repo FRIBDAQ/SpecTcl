@@ -53,6 +53,11 @@ COrGate::inGate(CEvent& rEvent, const vector<UInt_t>&)
 //        The vector of parameters in the gate (empty)
 // Exceptions:  
 {
+  return inGate(rEvent);
+}
+Bool_t
+COrGate::inGate(CEvent& rEvent)
+{
   std::list<CGateContainer*>& rGates(GetConstituents());
   std::list<CGateContainer*>::iterator  i;
   for(i = rGates.begin(); i != rGates.end(); i++) {

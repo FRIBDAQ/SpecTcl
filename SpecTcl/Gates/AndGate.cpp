@@ -43,6 +43,12 @@ CAndGate::CAndGate(list<CGateContainer*>& rGates) :
 Bool_t
 CAndGate::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 {
+  return inGate(rEvent);
+}
+// inGate without needing parameters:
+Bool_t
+CAndGate::inGate(CEvent& rEvent)
+{
   std::list<CGateContainer*>& rGates(GetConstituents());
   std::list<CGateContainer*>::iterator i;
   for(i = rGates.begin(); i != rGates.end(); i++) {
@@ -52,6 +58,7 @@ CAndGate::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
   }
   return kfTRUE;
 }
+
 
 //////////////////////////////////////////////////////////////////////////
 //

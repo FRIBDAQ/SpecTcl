@@ -224,15 +224,17 @@ protected:
   void DetachAll();
   CEvent* CreateEvent() {
     CEventVector& rVec(m_EventPool.getVector());
+    CEvent* pEvent;
     if(rVec.empty()) {
-      return new CEvent(m_nParametersInEvent);
+      pEvent =  new CEvent(m_nParametersInEvent);
     }
     else {
-      CEvent* pEvent = rVec.back();
+      pEvent = rVec.back();
       rVec.pop_back();
-      pEvent->clear();
-      return pEvent;
     }
+    pEvent->clear();
+    return pEvent;
+
   }
   void ClearEventList() {
     CEventVector& evlist(m_EventList.getVector());

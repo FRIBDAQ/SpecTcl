@@ -62,8 +62,7 @@ CGate::operator()(CEvent& rEvent)
   // Exceptions:  
 
   if(!wasChecked()) {
-    vector<UInt_t> Params;
-    Set(inGate(rEvent, Params));
+    Set(inGate(rEvent));
   }
   
   return getCachedValue();

@@ -324,9 +324,8 @@ CContour::CContour (UInt_t nXId, UInt_t nYId, UInt_t nPts,
 Bool_t
 CContour::operator()(CEvent& rEvent)
 {
-  vector<UInt_t> Params;
   if(!wasChecked()) {
-    Set(inGate(rEvent, Params));
+    Set(inGate(rEvent));
   }
   return getCachedValue();
 }
@@ -354,6 +353,12 @@ CContour::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 //
 // Exceptions:  
 {
+  return inGate(rEvent);
+}
+// Parameterless inGate:
+Bool_t
+CContour::inGate(CEvent& rEvent)
+{
   UInt_t nx = getxId();
   UInt_t ny = getyId();
   if((nx < rEvent.size()) && (ny < rEvent.size())) {
@@ -373,6 +378,7 @@ CContour::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
   }
   return kfFALSE;
 }
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
