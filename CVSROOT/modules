@@ -1,11 +1,9 @@
 SpecTcl 	SpecTcl
 Display 	SpecTcl/Display
-EventSource 	SpecTcl/EventSource
 Events		SpecTcl/Events
 Exception	SpecTcl/Exception
 Filter		SpecTcl/Filter
 Gates		SpecTcl/Gates
-Exception	SpecTcl/NSCLException
 Scripts		SpecTcl/Scripts
 Sorter		SpecTcl/Sorter
 Commands	SpecTcl/SpecTcl
