@@ -8,6 +8,7 @@
 #    OS      - output of system's uname command with '-' characters removed.
 #    PROFILE - If profiling is desired, switches to add to compilation/link.
 #
+##
 
 LinuxMAKESW=-j 4
 DarwinMAKESW=-j 4
