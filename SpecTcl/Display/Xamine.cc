@@ -131,6 +131,7 @@ static void Monitor(XtPointer app, XtIntervalId *id)
   */
 
   pid_t p = getppid();
+
   if(p == 1) {			// We got inherited by init...parent also dead
     fprintf(stderr, "Xamine - got inherited by init exiting\n");
     exit(0);
@@ -188,8 +189,6 @@ void SetIcon(Widget w, char *filename)
 
 int main(Cardinal argc, char **argv)
 {
-  fprintf(stderr, "Xamine has started with: pid = %d ppid = %d\n",
-	  getpid(), getppid());
 #ifdef OSF1
   {
     int buf[4];			// Buffer to contain sysinfo requests.
