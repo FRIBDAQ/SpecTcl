@@ -67,7 +67,7 @@ prior to attempting to add.
 
 */
 void 
-CModuleDictionary::Add(CModule* pModule)  
+CModuleDictionary::Add(CSegmentUnpacker* pModule)  
 { 
     string name = pModule->getName();
     if(Find(name) == end()) {

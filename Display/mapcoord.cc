@@ -362,7 +362,7 @@ int Xamine_YMappedToChan(int specno, float value)
 **     The floating point value of the mapped coordinate which this channel
 **     corresponds to or -1.0 on failure
 */
-float Xamine_XChanToMapped(int specno, int chan)
+float Xamine_XChanToMapped(int specno, float chan)
 {
   float xlo = xamine_shared->getxmin_map(specno);
   float xhi = xamine_shared->getxmax_map(specno);
@@ -389,7 +389,7 @@ float Xamine_XChanToMapped(int specno, int chan)
 **     The floating point value of the mapped coordinate which this channel
 **     corresponds to or -1.0 on failure
 */
-float Xamine_YChanToMapped(int specno, int chan)
+float Xamine_YChanToMapped(int specno, float chan)
 {
   float ylo = xamine_shared->getymin_map(specno);
   float yhi = xamine_shared->getymax_map(specno);

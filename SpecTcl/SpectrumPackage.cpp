@@ -295,6 +295,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
+//    Revision 4.7  2004/05/14 20:43:29  ron-fox
+//    Merge to 2.2 branch.
+//
+//    Revision 4.6.2.1  2004/04/13 19:37:24  ron-fox
+//    Issue 120 and related bugs: Memory leak on spectrum -delet -all
+//    - Also fix up the way iteration works.
+//    - Fix Issues in Xamine interface library: check for allocation failure was too late.
+//    - Fix issues in Xamine allocator/free.. correct compaction algorithms.
+//
 //    Revision 4.6  2004/01/31 03:48:18  ron-fox
 //    Fix double deletion error on sread -replace.
 //
@@ -1238,7 +1247,8 @@ CSpectrumPackage::DeleteAll()
     }
     catch (CException& rExcept) { // Exceptions in the find are ignored.
     }
-    m_pHistogrammer->RemoveSpectrum(pSpec->getName());
+    CSpectrum* pSpectrum = m_pHistogrammer->RemoveSpectrum(pSpec->getName());
+    delete pSpectrum;		// Destroy spectrum storage.
   }
 
 }

@@ -361,6 +361,29 @@ extern grobj_database Xamine_DefaultGateDatabase;
 #define DEFAULT_TEMPFILE "./Xamine_tempprint.out"
 #define DEFAULT_PRINTCMD "lpr -Pu1_color_print";
 
+// Limit:
+//   Enforce hi/lo/min limits.
+//   Channels with counts above or below hi/lo respectively are forced to
+//   0, nonzero counts are foreced tob e at least min (so they will be visible).
+//
+static int Limit(int value,int  hi,int  lo,int min)
+{
+
+  // Enforce the cutoffs.
+
+  if(lo && (value < lo)) {
+    value = 0;
+  }
+  if(hi && (value > hi)) {
+    value = 0;
+  }
+
+  if(value && (value < min)) {
+    value = min;
+  }
+  return value;
+}
+
 /*
   FindConvert
     Locates the convert command in the file system. This is for converting
@@ -674,9 +697,9 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     int nXRange = (nXHighLimit - nXLowLimit + 1);
     int nYRange = (nYHighLimit - nYLowLimit + 1);
     if(pAttrib->ismapped()) {
-      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nXHighLimit-1) -
+      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nXHighLimit - 1) - 
 	Xamine_XChanToMapped(nSpectrum, nXLowLimit);
-      float fp_YRange = Xamine_YChanToMapped(nSpectrum, nYHighLimit-1) -
+      float fp_YRange = Xamine_YChanToMapped(nSpectrum, nYHighLimit - 1) - 
 	Xamine_YChanToMapped(nSpectrum, nYLowLimit);
       nXTickInterval = Xamine_getMappedTickInterval(fp_XRange, (nx-xbase+1));
       nYTickInterval = Xamine_getMappedTickInterval(fp_YRange, (ybase+1));
@@ -1169,7 +1192,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Set the low and high limits based on the expansion characteristics...
     if(pAttrib->isexpanded()) {
       nLowLimit  = pAttrib->lowlimit();
-      nHighLimit = pAttrib->highlimit();
+      nHighLimit = pAttrib->highlimit() +1;
     }
 
     // Get the pixel limits so we can get the tick mark intervals...
@@ -1181,7 +1204,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 
     // Get the tick interval for the hardcopy...
     if(pAttrib->ismapped()) {
-      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nHighLimit-1) -
+      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nHighLimit) - // used to have: -1)
 	Xamine_XChanToMapped(nSpectrum, nLowLimit);
       nXTickInterval = Xamine_getMappedTickInterval(fp_XRange, (nx-xbase+1));
       if((nSpectrumCount > 1) && ((fp_XRange / nXTickInterval) >= 7)) {
@@ -1224,7 +1247,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // If expanded, decrement the high limit to avoid trying to get a channel
     // that isn't there (since we're starting at channel zero).
     if(!(pAttrib->isexpanded())) {
-      nHighLimit--;
+      nHighLimit;		// was --.
     }
 
     // Now get the superpositions...
@@ -1318,8 +1341,9 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	fStr << "read columns x y\n";
       }
 
-      // Get the points and store them in the command file
-      nMaxCounts = GrabPoints1d(nLowLimit, nHighLimit, &nMaxChan, nHighCnt,
+      // Get the points and store them in the command file nHighLimit-1 because
+      // the axis goes through nHighLimit to display channels 0-nHighLimit-1.
+      nMaxCounts = GrabPoints1d(nLowLimit, nHighLimit-1, &nMaxChan, nHighCnt,
 				nFloor, nCeiling, pAttrib, fStr);
     }
 
@@ -1351,11 +1375,15 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       // For each superposed spectrum, get the points and store them in the
       // command file, each in it's own column.
       for(int i = nLowLimit; i <= nHighLimit; i++) {
-	if(pAttrib->ismapped())
+	if(pAttrib->ismapped()) {
 	  fStr << Xamine_XChanToMapped(specID, i) << " ";
-	else
+	}
+	else {
 	  fStr << i << " ";
+	}
+	int Counts[nSuperposCount+1];
 	for(int n = 0; n <= nSuperposCount; n++) {
+	  specID  = aSpecIds[n];
 	  nCounts = xamine_shared->getchannel(specID, i);
 	  if((nCounts > nMaxCounts) && (specID == nSpectrum)) {
 	    nMaxCounts = nCounts;
@@ -1367,23 +1395,27 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	    if(nCounts < nFloor) nCounts = nFloor;
 	  if(nCeiling)
 	    if(nCounts > nCeiling) nCounts = nCeiling;
-	  
+	  Counts[n] = nCounts;
 	  fStr << nCounts << " ";
-	  if(pAttrib->getrend() == histogram) { 
-	    if(pAttrib->ismapped()) {
-	      fStr << Xamine_XChanToMapped(nSpectrum, (i+1)) << " " 
-		   << nCounts << endl;
-	    }
-	    else {
-	      fStr << i+1 << " " << nCounts << endl;
-	    }
-	  }
-	  if(p > nSuperposCount)
-	    p = 0;
-	  specID = aSpecIds[++p];
+
 	}
+
 	fStr << endl;
-	specID = nSpectrum;
+	if(pAttrib->getrend() == histogram) { 
+	  if(pAttrib->ismapped()) {
+	    fStr << Xamine_XChanToMapped(nSpectrum, (i+1)) << " " ;
+
+	  }
+	  else {
+	    fStr << i+1 <<  " ";
+	  }
+	  for (int j = 0; j <= nSuperposCount; j++) {
+	    fStr << Counts[j] << " ";
+	  }
+	  fStr << endl;
+	
+	}
+
       }
       fStr << endl;
       
@@ -1768,9 +1800,9 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       sprintf(pcmd, "%s.ps", cmd_root.c_str());
       sprintf(buf1, printcmd, pcmd);
       string s(buf1);
-      sprintf(buf, "%s; rm -f %s.ps; rm -f %s; rm -f %s", 
-	      s.c_str(), cmd_root.c_str(), cmd_file, cmd_root.c_str());
-      strcat(GriCmd, buf);
+      //      sprintf(buf, "%s; rm -f %s.ps; rm -f %s; rm -f %s", 
+      //	      s.c_str(), cmd_root.c_str(), cmd_file, cmd_root.c_str());
+      strcat(GriCmd, buf1);
       break;
     }
     case tofile: {
@@ -1828,8 +1860,8 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       }
       strcat(GriCmd, buf);
       char tbuf[25];
-      sprintf(tbuf, "rm -f %s; rm -f %s", cmd_file, cmd_root.c_str());
-      strcat(GriCmd, tbuf);
+      // for now don't delete sprintf(tbuf, "rm -f %s; rm -f %s", cmd_file, cmd_root.c_str());
+      // strcat(GriCmd, tbuf);
     }
     }
     
@@ -2411,6 +2443,8 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
   int hival = 0;
   int sum   = 0;
   int nMaxCounts;
+  int nCountRange = (nCeiling - nFloor) + 1;
+  int n1Percent   = 100/nCountRange+1;
   reduction_mode sr = pAttrib->getreduction();
 
   // Here is where we get the points and store them. The format is that of
@@ -2421,6 +2455,7 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
   // The reduction is performed by us to avoid losing any single channel
   // peaks that may be of importance.
   //
+  
   for(int i = 0; i < nYRange/reso; i++) {
     for(int j = 0; j < nXRange*reso; j++) {
       
@@ -2450,10 +2485,8 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
 	  *nXMaxChan  = j;        // the x channel of the highest count
 	  *nYMaxChan  = i;        // the y channel of the highest count
 	}
-	if(nFloor)
-	  if(nCounts < nFloor) nCounts = 0;
-	if(nCeiling)
-	  if(nCounts > nCeiling) nCounts = 0;
+	nCounts = Limit(nCounts, nFloor, nCeiling, n1Percent);
+
 	fStr << nCounts << " ";
 	x_index++;
 	break;
@@ -2477,10 +2510,10 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
 	  *nXMaxChan  = x_index;  // the x channel of the highest count
 	  *nYMaxChan  = y_index;  // the y channel of the highest count
 	}
-	if(nFloor)
-	  if(cnt < nFloor) cnt = 0;
-	if(nCeiling)
-	  if(cnt > nCeiling) cnt = 0;
+	//	if(nFloor)
+	//        if(cnt < nFloor) cnt = 0;
+	//   if(nCeiling)
+	//      if(cnt > nCeiling) cnt = 0;
 	sum += cnt;
 	  
 	// Maintain the hi value for sampled reduction method
@@ -2490,16 +2523,17 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
 	  switch(sr) {
 	    // Summing means adding all values within this box
 	  case summed:
+	    sum = Limit(sum, nFloor, nCeiling, n1Percent);
 	    fStr << sum << " ";
 	    break;
 	    // Averaging is the same as summing, but we divide by the
 	    // number of pixels in this box
 	  case averaged:
-	    fStr << (sum/(reso*reso)) << " ";
+	    fStr << Limit((sum/(reso*reso)), nFloor, nCeiling, n1Percent) << " ";
 	    break;
 	    // Sampling means taking the maximum value in this box
 	  case sampled:
-	    fStr << hival << " ";
+	    fStr << Limit(hival, nFloor, nCeiling, n1Percent)  << " ";
 	  }
 	  sum = 0;
 	  hival = 0;

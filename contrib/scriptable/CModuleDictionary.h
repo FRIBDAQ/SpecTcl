@@ -15,6 +15,7 @@
 // Forward class definitions:
 
 class CModule;
+class CSegmentUnpacker;
  
 /*!
 	CModule dictionary is a wrapper class around  a dictionary
@@ -24,7 +25,7 @@ class CModule;
 class CModuleDictionary      
 {
 public:
-    typedef map<string, CModule*> ModuleMap;
+    typedef map<string, CSegmentUnpacker*> ModuleMap;
     typedef ModuleMap::iterator       ModuleIterator;
 	
 private:
@@ -54,7 +55,7 @@ public:
 
 public:
 
-    void Add (CModule* pModule)   ; 
+    void Add (CSegmentUnpacker* pModule)   ; 
     ModuleIterator Find (const string& rName)   ; 
     void Delete (ModuleIterator iModule)   ; 
     ModuleIterator begin ()   ; 

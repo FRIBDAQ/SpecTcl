@@ -295,6 +295,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 4.7  2004/05/14 20:43:24  ron-fox
+   Merge to 2.2 branch.
+
+   Revision 4.6.4.1  2004/04/12 16:37:31  ron-fox
+   - Use etc for etc stuff with link named Etc rather than the other way around.
+   - Extract all Makefile definitions into separate include files so the user makefile
+     becomes less variable with time.
+
    Revision 4.6  2003/11/07 21:32:17  ron-fox
    Unconditionally include config.h
 
@@ -304,7 +312,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
    Revision 4.4  2003/04/02 18:35:24  ron-fox
    Added support for central Xamine.Default files that live in any of:
-   $SpecTclHome/Etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
+   $SpecTclHome/etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
 
 */
 
@@ -492,7 +500,7 @@ Xamine_ReadDefaultFile(const char* filename)
 
 /*!
      This function reads the default set of properties from file.
-     We first attempt to read in a defaults file in HOME/Etc,
+     We first attempt to read in a defaults file in HOME/etc,
      then HOME/etc.  Then we superimpose on that the user's default file:
 
      The defaults filename is given by XAMINE_DEFAULTS_FILE,
@@ -512,11 +520,11 @@ int Xamine_ReadDefaultProperties()
 
   char* dir = new char[strlen(HOME)+strlen("/etc") + 1];
   
-  // Try in INSTDIR/Etc...
+  // Try in INSTDIR/etc...
 
 
   strcpy(dir, HOME);
-  strcat(dir, "/Etc");		// Old style home dir...
+  strcat(dir, "/etc");		// Old style home dir...
   char* pFilename = ConstructFilename(dir);
 
   Xamine_ReadDefaultFile(pFilename); // No penalty for failure.

@@ -273,75 +273,142 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS'
 */
 
 
-#ifndef __CSEEANALYZER_H
-#define __CSEEANALYZER_H
 
+/*!
 
-// Header files.
+Base class of all objects that have a TCL configurable
+ configuration. The configuration object autonomously processes the
+config an cget subcommands to maintain a configuration parameter 
+database.  Configuration consists of a set of configuration parameter 
+objects.
 
-#ifndef __TCLANALYZER_H
-#include <TCLAnalyzer.h>
+Each of these represents a keyword/value pair. 
+
+*/
+
+// Author:
+//   Ron Fox
+//   NSCL
+//   Michigan State University
+//   East Lansing, MI 48824-1321
+//   mailto:fox@nscl.msu.edu
+//
+// Copyright 
+
+#ifndef __CCONFIGURABLEOBJECT_H  //Required for current class
+#define __CCONFIGURABLEOBJECT_H
+
+//
+// Include files:
+//
+
+#ifndef __TCLPROCESSOR_H
+#include <TCLProcessor.h>
+#endif
+
+#ifndef __TCLRESULT_H
+#include <TCLResult.h>        //Required for include files  
 #endif
 
 
-// Forward class definitions.
+#ifndef _STL_LIST
+#include <list>
+#define _STL_LIST
+#endif
 
+#ifndef _STL_STRING
+#include <string>
+#define _STL_STRING
+#endif
+
+
+// forward definitions. 
+
+class CConfigurationParameter;
 class CTCLInterpreter;
-class CBufferDecoder;
-class CSpectrum1DL;
-class CHistogrammer;
-class CSpectrum;
+class CTCLResult;
+class CBoolConfigParam;
+class CIntConfigParam;
+class CIntArrayParam;
+class CStringConfigParam;
+class CStringArrayparam;
 
-// The class declaration.
-
-class CSeeAnalyzer : public CTclAnalyzer
+class CConfigurableObject : public  CTCLProcessor     
 {
+  // Public data types.
+public:
+  typedef list<CConfigurationParameter*> ConfigArray;
+  typedef ConfigArray::iterator          ParameterIterator;
 private:
-  // Member data:
-
-  unsigned int m_nTrendChannels; //!< Channels in trend spectra.
-  int m_nSecondsPerChannel;	//!< Seconds per trend channel.
   
-  int m_nTrendSums[4];		//!< Array for running sums.
-  int m_nLastShift;		//!< Start time of currnet trend chan.
-  UInt_t m_nTrendChannel;		//!< Current trend spectrum channel.
+  string          m_sName;	//!< Name of the command associated with the object.
+  ConfigArray     m_Configuration; //!< The configuration.
 
-  CSpectrum1DL* m_pTrends[4];	//!< Trend spectra.
 
   // Constructors and other canonical operations.
 public:
-  CSeeAnalyzer(CTCLInterpreter& rInterp, UInt_t nP, UInt_t nBunch);
-  virtual ~CSeeAnalyzer() {}
+  CConfigurableObject (const string& rName,
+		       CTCLInterpreter& rInterp);
+  virtual  ~ CConfigurableObject ( );  
 
+  // The copy like operations are not supported on tcl command processing
+  // objects:
 private:
-  CSeeAnalyzer(const CSeeAnalyzer& rhs);
-  CSeeAnalyzer& operator=(const CSeeAnalyzer& rhs);
-
-  // Class operations:
+  CConfigurableObject (const CConfigurableObject& aCConfigurableObject );
+  CConfigurableObject& operator= (const CConfigurableObject& aCConfigurableObject);
+  int operator== (const CConfigurableObject& aCConfigurableObject) const;
 public:
-  virtual void OnScaler(CBufferDecoder& rDecoder);
-  virtual void OnBegin(CBufferDecoder* pDecoder); // 
-  virtual void OnEnd(CBufferDecoder*   pDecoder);  // 
 
-  
-  // Utilities:
+  // Selectors:
 
+  //!  Retrieve a copy of the name:
+
+  string getName() const
+  { 
+    return m_sName;
+  }   
+
+
+
+  // Member functions:
+
+public:
+
+  virtual  int      operator() (CTCLInterpreter& rInterp, 
+				CTCLResult& rResult, 
+				int nArgs, char** pArgs)   ; //!< Process commands.
+  virtual  int      Configure (CTCLInterpreter& rInterp, 
+			       CTCLResult& rResult, 
+			       int nArgs, char** pArgs)   ; //!< config subcommand 
+  virtual  int      ListConfiguration (CTCLInterpreter& rInterp, 
+				       CTCLResult& rResult, 
+				       int nArgs, char** pArgs); //!< list subcommand 
+  ParameterIterator AddIntParam (const string& sParamName, 
+				 int nDefault=0)   ; //!< Create an int.
+  ParameterIterator AddBoolParam (const string& rName,
+				  bool          fDefault)   ; //!< Create a boolean. 
+  ParameterIterator AddStringParam (const string& rName)   ; //!< Create string param. 
+  ParameterIterator AddIntArrayParam (const string&  rParameterName, 
+				      int nArraySize, 
+				      int nDefault=0)   ; //!< Create array of ints.
+  ParameterIterator AddStringArrayParam (const string& rName, 
+					 int nArraySize)   ; //!< Create array of strings.
+  ParameterIterator Find (const string& rKeyword)   ; //!< Find a param 
+  ParameterIterator begin ()   ; //!< Config param start iterator.
+  ParameterIterator end ()   ;   //!< Config param end iterator.
+  int size ()   ;                //!< Config param number of items.
+  string ListParameters (const string& rPattern)   ; //!< List configuration 
+  string ListKeywords ()   ;     //!< List keyword/type pairs.
+
+protected:
+  virtual string Usage();
 private:
-  CHistogrammer*    getHistogrammer();
-  CTCLInterpreter*  getInterpreter();
-  ULong_t* FirstScaler(CBufferDecoder& rDecoder);
-  void NextChannel();
-  void ShiftChannels(CSpectrum1DL* pSpectrum);
-  void UnBind(CHistogrammer* pH, CSpectrum* pS);
+  void              DeleteParameters ()   ; //!< Delete all parameters. 
+  
 };
 
-
 #endif
-
-
-
-
