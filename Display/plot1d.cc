@@ -78,7 +78,7 @@ class HChannel : public Channel, public XLineBatch {
   short   yorg;
  public:
   HChannel(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-    XLineBatch(d, w, c), Channel(wi) {
+    Channel(wi), XLineBatch(d, w, c) {
       xpos = (float)x0;
       yorg = y0;
       draw(x0, y0);
@@ -97,7 +97,7 @@ class HChannelF : public Channel, public XLineBatch {
   short   xorg;
  public:
   HChannelF(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-    XLineBatch(d, w, c), Channel(wi) {
+    Channel(wi), XLineBatch(d, w, c) {
       ypos = (float)y0;
       draw(x0, y0);
       xorg = x0;
@@ -120,7 +120,7 @@ class LChannel : public Channel, public XLineBatch {
   short yorg;
  public:
   LChannel(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-    XLineBatch(d, w, c) , Channel(wi) {
+     Channel(wi), XLineBatch(d, w, c) {
       xpos = (float)x0 - width/2; /* Set up for first channel. */
       yorg = y0;
     }
@@ -136,7 +136,7 @@ class LChannelF : public Channel, public XLineBatch {
   short xorg;
  public:
   LChannelF(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-    XLineBatch(d, w, c) , Channel(wi) {
+     Channel(wi), XLineBatch(d, w, c) {
       ypos = (float)y0 + width/2; /* Set up for first channel. */
       xorg = x0; 
     }
@@ -155,7 +155,7 @@ class PChannel : public Channel, public XPointBatch {
   short yorg;
  public:
   PChannel(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-    XPointBatch(d, w, c) , Channel(wi) {
+     Channel(wi), XPointBatch(d, w, c) {
       xpos = (float)x0 - width/2; /* Set up for first channel. */
       yorg = y0;
     }
@@ -171,7 +171,7 @@ class PChannelF : public Channel, public XPointBatch {
   short xorg;
  public:
   PChannelF(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
-    XPointBatch(d, w, c) , Channel(wi) {
+     Channel(wi), XPointBatch(d, w, c) {
       ypos = (float)y0 + width/2; /* Set up for first channel. */
       xorg = x0;
     }
