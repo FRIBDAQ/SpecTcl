@@ -298,6 +298,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
     $Log$
+    Revision 4.5  2004/01/27 19:33:18  ron-fox
+    Correct Bug 101 (for now) randomization was too agressive.  For now remove it
+    completely.  Also discover and fix a channel allocation error.
+
     Revision 4.4  2003/10/28 21:35:53  ron-fox
     #include <time.h> for randomizer... apparently
     this comes in from stdlib.h on linux but should
@@ -860,6 +864,20 @@ CSpectrum::GetUnits(UInt_t nDimension) const
 Int_t
 CSpectrum::Randomize(Float_t channel)
 {
+  /// FUTURE WORK:  See bug101.
+  //    This function needs a lot of future work:
+  //    What we really need todo is figure out the range
+  //    of channels the parameter can go into and 
+  //    then randomize amongst them.. the parameterization
+  ///   should have something like:
+  //       (value, low,hi) and we randomly place the
+  //    value in the interval low,hi.
+  //    First pass.. disable all randomization.
+  //    Leave real fix as a work item for later.
+  //
+
+  return (Int_t)(channel);
+
   // If necessary seed the randomizer:
   if(m_Seedrandom) {
     time_t seed  = time(NULL);	      // Seed with time of day.

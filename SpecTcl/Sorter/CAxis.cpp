@@ -183,7 +183,7 @@ CAxis::AxisToMappedParameter(Int_t nAxisValue)
 { 
   Float_t fsF;
   fsF = ((Float_t)(nAxisValue))*(m_fHigh - m_fLow)/
-                                           ((Float_t)(m_nChannels-1));
+                                           ((Float_t)(m_nChannels));
   return fsF + m_fLow;
 }  
 
@@ -203,7 +203,7 @@ Float_t
 CAxis::MappedParameterToAxis(Float_t fParameterValue)  
 { 
   Float_t fsF = fParameterValue - m_fLow;
-  fsF = fsF*((Float_t)(m_nChannels-1))/(m_fHigh - m_fLow);
+  fsF = fsF*((Float_t)(m_nChannels))/(m_fHigh - m_fLow);
 
   return (fsF);
 }
