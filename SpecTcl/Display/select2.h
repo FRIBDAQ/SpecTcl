@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -324,7 +324,7 @@ class Xamine_Select2 {
   Select2_CallbackStruct Delete1;
   Select2_CallbackStruct Delete2;
 
-
+  
   void Create(XMForm &form);
  public:
   /* Constructors and destructors: */

@@ -11,7 +11,7 @@ DarwinINCS = -I/usr/include -I/usr/X11R6/include \
 CYGWININCS=-I/usr/local/tcl/include
 CYGWINLIBDIR=-L/usr/local/tcl/lib
 
-INCLUDEDIRS= $($(OS)INCS) -I. -I$(INSTDIR)/Include -I/usr/local/include \
+INCLUDEDIRS= $($(OS)INCS) -I. -I$(INSTDIR)/include -I/usr/local/include \
 	-I/usr/local/daq/include 
 
 #
@@ -20,9 +20,9 @@ PROFILE=-g
 # PROFILE=-g3 -pg
 
 OBJECTS=MySpecTclApp.o
-INCLUDEDIRS= -I. -I$(INSTDIR)/Include -I/usr/local/include \
+INCLUDEDIRS= -I. -I$(INSTDIR)/include -I/usr/local/include \
 	-I/usr/local/daq/include $($(OS)INCS)
-LIBDIRS= -L$(INSTDIR)/Lib -L/usr/local -L/usr/local/daq/lib -L/usr/X11/lib \
+LIBDIRS= -L$(INSTDIR)/lib -L/usr/local -L/usr/local/daq/lib -L/usr/X11/lib \
 	-L/usr/X11R6/lib
 LIBS=   -lTclGrammerCommands \
 	-lSorting -lXplus -lGates -lAnalysis -lEventSource -lSpecio \
@@ -58,7 +58,7 @@ ARCHIVE=ar cr
 CONCAT=cat
 
 SpecTcl: $(OBJECTS)
-	$(LINK) $(LIBDIRS) -o SpecTcl $(INSTDIR)/Lib/Globals.o $(OBJECTS) \
+	$(LINK) $(LIBDIRS) -o SpecTcl $(INSTDIR)/lib/Globals.o $(OBJECTS) \
 	 $(LIBS)
 
 MySpecTclApp.o: MySpecTclApp.cpp MySpecTclApp.h

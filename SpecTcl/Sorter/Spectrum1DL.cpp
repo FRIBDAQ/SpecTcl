@@ -298,6 +298,10 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 4.5  2003/08/25 16:25:32  ron-fox
+  Initial starting point for merge with filtering -- this probably does not
+  generate a goo spectcl build.
+
   Revision 4.4  2003/04/03 02:21:12  ron-fox
   *** empty log message ***
 
@@ -445,7 +449,6 @@ CSpectrum1DL::Increment(const CEvent& rE)
   CEvent& rEvent((CEvent&)rE);	// Ok since non const  operator[] on rhs only.
 
   if(rEvent[m_nParameter].isValid()) {  // Only increment if param present.
-    
     Int_t nChannel = Randomize(ParameterToAxis(0, rEvent[m_nParameter]));
     
     if((nChannel < (m_nChannels)) &&

@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -333,14 +333,6 @@ class Q_element {
   }
   Q_element<T> *Next() { return next; }
   T &Entry()   { return entry; }
-#if defined(VMS)
-  friend class Queue;
-  friend class QIterator;
-#elif defined(unix)
-#else
-  friend class Queue<T>;
-  friend class QIterator<T>;
-#endif
  private:
   Q_element<T> *next;		/* Pointer to next element in queue. */
   T         entry;		/* An entry in the queue.            */
@@ -356,22 +348,15 @@ class Q_element {
 ** removing arbitrary queue entries.
 */
 
-#ifndef VMS
 template <class T> 
-#endif
 class Queue {
  public:
 
   /* Constructors: */
 
   Queue() {
-#ifdef VMS
-    first = (Q_element<Xamine_RefreshContext> *)0;
-    last  = (Q_element<Xamine_RefreshContext> *)0;
-#else
     first = (Q_element<T> *)0;
     last  = (Q_element<T> *)0;
-#endif
   }
   ~Queue() { Clear(); }		/* Destructor releases storage.     */
   /* Manipulators: */
@@ -379,55 +364,26 @@ class Queue {
   int IsEmpty() {		/* TRUE if queue is empty.          */
     return (first == 0); 
   }
-#ifdef VMS
-  void Append(Xamine_RefreshContext &entry);
-#else
   void Append(T &entry);		/* Append new entry to queue tail. */
-#endif
   void Clear();			/* Clear queue of all elements.    */
   void Remove();		/* Remove an entry from the queue  */
-#ifdef VMS
-  Xamine_RefreshContext &Peek();
-#else
   T    &Peek();
-#endif
   
-#if defined(VMS)
-  friend class QIterator;
-#elif defined(unix)
-#else
-  friend class QIterator<T>;
-#endif
-#ifdef unix
 public:
-#else
-private:
-#endif
-#ifdef VMS
-  Q_element<Xamine_RefreshContext> *first;
-  Q_element<Xamine_RefreshContext> *last;
-#else
   Q_element<T> *first;
   Q_element<T> *last;
-#endif
 };
 
 /*
 ** The QIterator class allows the client to iterate through a queue and
 ** remove individual objects from the queue.
 */
-#ifndef VMS
 template <class T>
-#endif
 class QIterator {
  public:
 
   /* Constructors: */
-#ifdef VMS
-  QIterator(Queue &queue) {
-#else
   QIterator(Queue<T> &queue) {
-#endif
     q = &queue;
     here = 0;
   }
@@ -437,21 +393,12 @@ class QIterator {
   int Last() {			/* TRUE if looked at all entriess.  */
     return (here == q->last);
   }
-#ifdef VMS
-  Xamine_RefreshContext &Next();
-#else
   T   &Next();			/* Get next entry.                  */
-#endif
   void RemoveThis();		/* Remove previously gotten entry.  */
 
  private:
-#ifdef VMS
-  Queue *q;
-  Q_element<Xamine_RefreshContext> *here;
-#else
   Queue<T> *q;			/* The queue that we'll be manipulating */
   Q_element<T> *here;		/* Current location in queue.           */
-#endif
 };
 
 #include "queue.cc"

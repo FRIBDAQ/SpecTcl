@@ -22,9 +22,6 @@
 
 /* #include "clientops.h" */
 
-#ifdef VMS
-Xamine_shared _align(page) shared;
-#endif
 
 
 /*
@@ -189,10 +186,6 @@ main(int argc, char* argv[])
   ButtonDescription button;
   struct msg_InquireButtonAck binfo;
   int stat;
-
-#ifdef VMS
-  spectra = &shared;
-#endif
 
   if(!Xamine_CreateSharedMemory(10*MEG, &spectra)) {
     perror("Failed to make shared memory region");

@@ -294,6 +294,10 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 4.5  2003/08/25 16:25:32  ron-fox
+  Initial starting point for merge with filtering -- this probably does not
+  generate a goo spectcl build.
+
   Revision 4.4  2003/04/15 19:15:42  ron-fox
   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
 
@@ -444,6 +448,7 @@ protected:
   int       Crosses(Float_t x, Float_t y, 
 		    vector<FPoint>::iterator f,
 		    vector<FPoint>::iterator s); 
+
 };
 
 #endif

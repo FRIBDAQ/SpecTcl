@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -289,11 +289,17 @@ DAMAGES.
 **   @(#)XMMenus.h	8.1 6/23/95 
 */
 
-#ifndef XMMenus_H
-#define XMMenus_H
+#ifndef XMMENUS_H
+#define XMMENUS_H
 
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
+#ifndef XMPUSHBUTTON_H
 #include "XMPushbutton.h"
+#endif
+
 #include <Xm/RowColumn.h>
 #include <stdlib.h>
 /*
@@ -328,37 +334,20 @@ class XMPulldown : public XMManagedWidget
 		  /* Constructors and destructor: */
 
 		  XMPulldown(char *n, Widget &parent, Cardinal max_items,
-			     ArgList l=NULL, Cardinal num_args=0) :
-			       XMManagedWidget(n)
-		    {
-		      BuildMenu(max_items, parent, l, num_args);
-		    }
+			     ArgList l=NULL, Cardinal num_args=0);
 		  XMPulldown(char *n, XMWidget &parent, Cardinal max_items,
-			     ArgList l = NULL, Cardinal num_args = 0) :
-			       XMManagedWidget(n)
-			       {
-				 BuildMenu(max_items, parent.getid(), 
-					   l, num_args);
-			       }
+			     ArgList l = NULL, Cardinal num_args = 0);
 		  ~XMPulldown();
 		  /* Label the pulldown button */
 
-		  void Label(char *label) { pd_button->Label(label); }
+		  void Label(char *label);
 
 		  /* Set the toggle button policy */
 
-		  void RadioMenu() /* Request toggles be radio buttons */
-		    { SetAttribute(XmNradioBehavior, (XtArgVal)True); }
-		  void RadioForceOne() /* Request one toggle always be set */
-		    { SetAttribute(XmNradioAlwaysOne,
-				   (XtArgVal)True);
-		    }
-		  void NoRadioMenu()
-		    { SetAttribute(XmNradioBehavior, (XtArgVal)False); }
-		  void RadioNoForceOne()
-		    { SetAttribute(XmNradioAlwaysOne,
-				   (XtArgVal)False);
-		    }	      
+		  void RadioMenu(); /* Request toggles be radio buttons */
+		  void RadioForceOne(); /* Request one toggle always be set */
+		  void NoRadioMenu();
+		  void RadioNoForceOne();
 		  /* Add entries to the menu: */
 		  
 		  XMPushButton *AddMenuButton(char *n, 
@@ -386,22 +375,17 @@ class XMPulldown : public XMManagedWidget
 		  
 		  /* Information functions: */
 		  
-		  int MenuSize() { return menu_count; }
-		  int MaxMenuSize() { return max_menu_items; }
-		  XMMenuItem *GetMenuItem(Cardinal index) 
-		    { return ( (index < menu_count) ?
-			      &(menu_items[index]) : (XMMenuItem *)NULL); }
+		  int MenuSize();
+		  int MaxMenuSize();
+		  XMMenuItem *GetMenuItem(Cardinal index); 
 		  XMMenuItem *FindMenuItem(char *n);
-		  XMWidget *GetCascadeButton() { return pd_button; }
+		  XMWidget *GetCascadeButton();
 		  /*
 		  ** The methods below allow one to traverse the menu list.
                   */
 
 		  XMMenuItem *GetNextMenuItem();	   
-		  XMMenuItem *GetFirstMenuItem()
-		    { menu_cursor = 0;
-		      return GetNextMenuItem();
-		    }
+		  XMMenuItem *GetFirstMenuItem();
 		};
 
 /*
@@ -422,17 +406,9 @@ class XMMenuBar : public XMManagedWidget
                   /* Constructors and destructors: */
 
 		  XMMenuBar(char *n, Widget parent, Cardinal num_menus,
-			    ArgList l = NULL, Cardinal num_args = 0) :
-                   XMManagedWidget(n)
-		    {
-		      mbCreate(parent, num_menus, l, num_args);
-		    }
+			    ArgList l = NULL, Cardinal num_args = 0);
 		  XMMenuBar(char *n, XMWidget &parent, Cardinal num_menus,
-			    ArgList l = NULL, Cardinal num_args = 0) :
-                     XMManagedWidget(n)
-		    {
-		      mbCreate(parent.getid(), num_menus, l, num_args);
-		    }
+			    ArgList l = NULL, Cardinal num_args = 0);
                   ~XMMenuBar();
 
                   /* Methods to add pulldowns: */
@@ -446,22 +422,16 @@ class XMMenuBar : public XMManagedWidget
 
                   /* Information methods: */
 
-                  int NumMenus() { return menu_count; }
+                  int NumMenus();
                   XMPulldown *GetPulldown(char *n);
-                  XMPulldown *GetPulldown(Cardinal index)
-		    { return ( (index < menu_count) ?
-			        menu_items[index] : (XMPulldown *)NULL); }
-                  XMPulldown *GetHelpPulldown()
-		    { return help_pulldown; }
+                  XMPulldown *GetPulldown(Cardinal index);
+                  XMPulldown *GetHelpPulldown();
                   XMMenuItem *GetMenuItem(char *n);
                   /*
                   ** Methods to allow an iterative walk of the menubars:
 		  */
 		  XMPulldown *GetNextPulldown();
-		  XMPulldown *GetFirstPulldown()
-		    {  menu_cursor = 0; 
-		       return GetNextPulldown(); 
-		     }
+		  XMPulldown *GetFirstPulldown();
 		};
 
 

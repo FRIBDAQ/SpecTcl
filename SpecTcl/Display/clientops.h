@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -367,7 +367,6 @@ typedef enum _operation {
 #ifdef Success			/* Defined by motif I think */
 #undef Success
 #endif
-#ifndef __ALPHA
 typedef enum _msg_status {
                   Success               =  0,
 		  NoSuchSpectrum        = -1,
@@ -382,21 +381,6 @@ typedef enum _msg_status {
 		  BadPrompter           = -10,
 		  ButtonCreated         =  1
 		} msg_status;
-#else
-typedef int msg_status;
-#define       Success                 0
-#define       NoSuchSpectrum         -1
-#define	      InappropriateGate      -2
-#define       ObjectTableFull        -3
-#define	      DuplicateId            -4
-#define	      NoSuchObject           -5
-#define	      NoProcess              -6
-#define       CheckErrno             -7
-#define       BadCoordinates         -8
-#define       BadType                -9
-#define       BadPrompter           -10
-#define       ButtonCreated           1
-#endif		  
 
 /* Button type definitions. */
 
@@ -583,25 +567,16 @@ struct msg_InquireButton {	/* Ask for a button's description. */
        ** Button management requests.
        */
 
-#ifdef __ALPHA
-#pragma member_alignment __save
-#pragma nomember_alignment
-#endif
 struct msg_InquireButtonAck {	/* Button information... */
   ButtonCoordinate  size;	/* Size of the button grid... */
   Logical           valid;	/* Indicates if button queried was valid. */
   ButtonDescription button;	/* Info about the requested button */
 };
-#ifdef __ALPHA
-#pragma member_alignment __restore
 
-#endif
-
-       /* This is the data sent to the 'gates' mailbox by Xamine when a
-       ** user button is hit and all prompt data has been accepted.
-       */
-typedef
-struct _msg_ButtonPress {
+/* This is the data sent to the 'gates' mailbox by Xamine when a
+** user button is hit and all prompt data has been accepted.
+*/
+typedef struct _msg_ButtonPress {
 
   /* These fields should always be present and valid  */
 

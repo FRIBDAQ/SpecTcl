@@ -294,6 +294,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 4.6  2003/08/25 16:25:30  ron-fox
+   Initial starting point for merge with filtering -- this probably does not
+   generate a goo spectcl build.
+
    Revision 4.5  2003/04/04 17:45:12  ron-fox
    Catch dialog destruction for cached widgets so that the destroyed dialog is re-created when it's needed.  Prior behavior would usually crash Xamine because deleted widgets would be referenced.
 
@@ -719,7 +723,7 @@ Boolean AcceptCut::DoAccept()
 
   if((object->pointcount() != 2)) {
     Xamine_error_msg(Xamine_Getpanemgr(),
-		     "Slices require 2 points to be accepted");
+		     "Cuts require 2 points to be accepted");
     return False;
   }
 
@@ -982,7 +986,7 @@ void
 AcceptCut::ChooseDefaultName()
 {
   char namestr[80];
-  sprintf(namestr, "Slice %03d", Xamine_GetNextGateId());
+  sprintf(namestr, "Cut %03d", Xamine_GetNextGateId());
   ObjectInput::SetText(namestr);
 }
 /*
@@ -1113,6 +1117,7 @@ void Xamine_AcceptGate(XMWidget *w, XtPointer clientd, XtPointer calld)
       cutin = new AcceptCut("Slice_Prompt", w, help_text);
       cutin->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			 (XtPointer)&cutin);
+
     }
     prompter = (AcceptSummingRegion *)cutin;
     break;

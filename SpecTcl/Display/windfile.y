@@ -17,12 +17,7 @@
 static char *yaccrevlevel = "@(#)windfile.y	8.1 6/23/95  - windows file parser\n";
 char *get_windfiletitle();
 #include <assert.h>
-#ifdef unix
 #include <memory.h>
-#endif
-#ifdef VMS
-#include <stdlib.h>
-#endif
 #include <stdio.h>
 
 #include "windio.h"
@@ -57,11 +52,6 @@ static struct limit { int low;
 
 extern spec_shared *xamine_shared;
 void windfileerror(char *c);
-#define YYTOKENTYPE
-#ifdef __GNUC_MINOR__
-#undef __GNUC_MINOR__
-#endif
-
 %}
 %union {
   int integer;

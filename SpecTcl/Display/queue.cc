@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -306,30 +306,17 @@ DAMAGES.
 **  T entry:
 **     The entry to append.
 */
-#ifdef VMS
-void Queue::Append(Xamine_RefreshContext &entry)
-#else
 template <class T>
 void Queue<T>::Append(T &entry)
-#endif
 {
-#ifdef VMS
-  Q_element<Xamine_RefreshContext> *qe = 
-          new Q_element<Xamine_RefreshContext>(entry);
-#else
   Q_element<T> *qe = new Q_element<T>(entry);
-#endif
 
   if (first == 0) {		/* queue empty. */
     last = qe;
     first= qe;
   }
   else {			/* Queue not empty: */
-#ifdef VMS
-    Q_element<Xamine_RefreshContext> *ol = last;
-#else
     Q_element<T> *ol = last;
-#endif
     qe->Link(*ol);
     last = qe;
   }
@@ -341,19 +328,11 @@ void Queue<T>::Append(T &entry)
 **    Queue::Clear:
 **      Clears the queue of all elements.
 */
-#ifdef VMS
-void Queue::Clear()
-#else
 template <class T>
 void Queue<T>::Clear()
-#endif
 {
   while(first != 0) {
-#ifdef VMS
-    Q_element<Xamine_RefreshContext> *q = first;
-#else
     Q_element<T> *q = first;
-#endif
     first           = q->Next();
     delete q;
   }
@@ -368,19 +347,11 @@ void Queue<T>::Clear()
 ** Returns:
 **   Nothing.
 */
-#ifdef VMS
-void Queue::Remove()
-#else
 template <class T>
 void Queue<T>::Remove()
-#endif
 {
   assert(first != 0);
-#ifdef VMS
-  Q_element<Xamine_RefreshContext> *q;
-#else
   Q_element<T> *q;
-#endif
   q = first;
   first = q->Next();
   delete q;
@@ -392,19 +363,11 @@ void Queue<T>::Remove()
 **   Queue::Peek:
 **     Returns the contents of the first entry in the queue.
 */
-#ifdef VMS
-Xamine_RefreshContext &Queue::Peek()
-#else
 template <class T>
 T &Queue<T>::Peek()
-#endif
 {
   assert(first != 0);
-#ifdef VMS
-  Q_element<Xamine_RefreshContext> *q = first;
-#else
   Q_element<T> *q = first;
-#endif
   return q->Entry();
 }
 
@@ -413,12 +376,8 @@ T &Queue<T>::Peek()
 **   QIterator::Next:
 **      Returns a reference to the contents of the next entry in the queue.
 */
-#ifdef VMS
-Xamine_RefreshContext &QIterator::Next()
-#else
 template <class T>
 T &QIterator<T>::Next()
-#endif
 {
   assert(!Last());
 
@@ -438,12 +397,8 @@ T &QIterator<T>::Next()
 **   QIterator::RemoveThis:
 **     This function removes the element that was last looked at via Next.
 */
-#ifdef VMS
-void QIterator::RemoveThis()
-#else
 template <class T>
 void QIterator<T>::RemoveThis()
-#endif
 {
   
   assert(here != 0);
@@ -453,11 +408,7 @@ void QIterator<T>::RemoveThis()
     here = 0;
   }
   else {			/* Locate the element just prior to here. */
-#ifdef VMS
-    Q_element<Xamine_RefreshContext> *p = q->first;
-#else
     Q_element<T> *p = q->first;
-#endif
 
     while(p->Next() != here)
       p = p->Next();

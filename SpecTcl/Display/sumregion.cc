@@ -317,11 +317,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "chanplot.h"
 #include "mapcoord.h"
 
-#ifdef unix
-#if !defined(ultrix) && !defined(CYGWIN) && !defined(Linux)
-#define strerror(err) (sys_errlist[(err)])
-#endif
-#endif
+
 /*
 ** Constant definitions:
 */

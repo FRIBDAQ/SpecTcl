@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -298,6 +298,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 // Header Files:
 //
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include "TCLFileHandler.h"                               
 #include <tcl.h>
@@ -354,7 +357,7 @@ CTCLFileHandler::Set(int mask)
 //           callback database.  This is supposed to be more efficient
 //           than a call to Clear().
 
-#ifdef CYGWIN
+#ifdef HAVE_WINDOWS_H
   assert(0);			// CYGWIN's does not implement this.
 #else
   Tk_CreateFileHandler(m_nFid, mask, CallbackRelay, (ClientData)this);
@@ -376,7 +379,7 @@ CTCLFileHandler::Clear()
 // Note:  That the only one file handler can be
 //             associated with a file descriptor.
 // 
-#ifdef CYGWIN
+#ifdef HAVE_WINDOWS_H
   assert(0);			// CYGWIn's tcl does not implement this.
 #else
   Tk_DeleteFileHandler(m_nFid);

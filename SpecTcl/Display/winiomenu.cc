@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -297,29 +297,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **/
 
 #include <stdio.h>
-#ifdef unix
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
-#endif
 
-#ifdef VMS
-inline int remove(const char *path) { /* VMS compatibility.  */
-  return unlink(path); 
-}
-
-#include <types.h>
-#include <stat.h>
-#include <unixio.h>
-#include <string.h>
-#ifndef S_ISREG
-#define S_ISREG(mode) ( (S_IFREG & (mode)) != 0)
-#endif
-#ifndef S_ISDIR
-#define S_ISDIR(mode) ( (S_IFDIR & (mode)) != 0)
-#endif
-#endif
 #include <errno.h>
 #include <X11/StringDefs.h>
 #include "XMDialogs.h"
@@ -427,7 +409,6 @@ char *Xamine_GetSearchMask(char *envstr, char *fallbackdir, char *mask)
     dstring = getenv(envstr);
     if(dstring) {
       struct stat statinfo;
-#ifdef unix
       if(stat(dstring, &statinfo)) {	/* STAT failed. */
 	dstring = NULL;		/* Let the fallback take over. */
       }
@@ -436,7 +417,6 @@ char *Xamine_GetSearchMask(char *envstr, char *fallbackdir, char *mask)
 	  dstring = NULL;
 	} 
       }
-#endif
     }
   }
   if(!dstring) dstring = fallbackdir;
@@ -444,9 +424,7 @@ char *Xamine_GetSearchMask(char *envstr, char *fallbackdir, char *mask)
   /* String together the pieces: */
 
   strncpy(searchmask, dstring, MAX_SEARCHMASK);
-#ifdef unix
   strncat(searchmask, "/", MAX_SEARCHMASK);
-#endif
   strncat(searchmask, mask, MAX_SEARCHMASK);
   return searchmask;
 }
@@ -787,8 +765,8 @@ void write_windows(XMWidget *w, XtPointer client_data,
       return;
     }
   }
-  if(config != NULL) fclose(config); /* Allow for VMS open failure here. */
-  if(remove(filename)) {	/* Remove the file prior to writing for VMS */
+  if(config != NULL) fclose(config);
+  if(remove(filename)) {
     sprintf(msg, "Failed to remove temp file %s\n%s", filename,
     strerror(errno));
     new XMErrorDialog("Remove_Failed", *Xamine_Getpanemgr(), msg, kill_widget);

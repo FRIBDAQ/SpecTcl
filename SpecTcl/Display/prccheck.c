@@ -17,49 +17,16 @@
 /*
 ** Include files:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
-#ifdef unix
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <errno.h>
-#endif
-
-#ifdef VMS
-#include <descrip.h>
-#include <ssdef.h>
-#include <unixlib.h>
-#include <jpidef.h>
-#ifdef __ALPHA
-#include <string.h>
-#endif
-#endif
-
-
-/*
-** External references:
-*/
-
-#ifdef VMS
-#ifdef __ALPHA
-#pragma member_alignment __save
-#pragma nomember_alignment
-#endif
-struct itemlist3   {
-                    short buflen;
-		    short code;
-		    char *bufadr;
-		    char *retlenadr;
-		  };
-
-#ifdef __ALPHA
-#pragma member_alignment __restore
-#endif
-int sys$getjpiw(int efn, pid_t *pid, struct dsc$descriptor *name,
-	       struct itemlist3 *items, int *iosb, int *astadr, int astprm);
-
-#endif
-
 
 
 /*
@@ -83,8 +50,7 @@ int sys$getjpiw(int efn, pid_t *pid, struct dsc$descriptor *name,
 **--
 */
 int ProcessAlive (pid_t pid)
-#ifdef unix
-#ifdef CYGWIN
+#ifdef HAVE_WINDOWS_H    /* Cygwin */
 {
   return -1;			/* Let shutdown of pipe kill me off. */
 }
@@ -105,32 +71,9 @@ int ProcessAlive (pid_t pid)
         caller and we can only deteyrmine liveness by doing a kill 0 on it.
         kill 0 does not work with children since zombie processes can
 	recieve signals in e.g. Linux.
-	*/
+    */
 
     return (kill(pid, 0) == 0);
 
-}
-#endif
-#endif
-#ifdef VMS
-{
-    struct itemlist3 request[2];
-    int Lpid;
-    int stat;
-    int siz;
-
-    /* build the item list. */
-
-    request[0].buflen = sizeof(int);
-    request[0].code   = JPI$_PID;
-    request[0].bufadr = (char *)&Lpid;
-    request[0].retlenadr = (char *)&siz;
-
-    memset(&request[1], 0, sizeof(struct itemlist3));
-
-    stat = sys$getjpiw(0, &pid, 0, request, 0, 0, 0);
-
-    return (stat == SS$_NORMAL);
-    
 }
 #endif

@@ -1,149 +1,662 @@
-#
-#   Make file for the display program.
-#
-#
-#   The definition below is the default destination directory tree root for
-#   the INSTALL Target.  It can be overriden on the command line using
-#   DESTDIR="someotherdir"
-#
-# Change Log:
-#   $Log$
-#   Revision 4.25  2003/03/25 12:20:37  ron-fox
-#   Added Change log comment generated from the CVS $Log$ tag.
-#
+# Makefile.in generated automatically by automake 1.4-p4 from Makefile.am
 
-DESTDIR = $(INSTDIR)
-SPECTCL_VERSION = -DVERSION=$(VERSION)
-HOMEDEF = -DHOME='"$(DESTDIR)"'
-CYGWINLIB=-L/usr/local/LessTif/Motif2.0/lib -lSM -lICE -lfl
-LinuxLIB = -lfl
-OSF1Lib  = -lfl
-HPUXLIB  = -lfl
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
 
-#
-#  MOTIFINCLUDES may need to be overridden. This is correct for Linux.
-#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
 
 
-CCFLAGS= -c -w -I. -DXTFUNCPROTO $($(OS)MOTIFINCLUDES) $(HOMEDEF) -D$(OS) $(SPECTCL_VERSION)
-XCCFLAGS=-c -w -I. -DXTFUNCPROTO -DXAMINE $($(OS)MOTIFINCLUDES) $(HOMEDEF) -D$(OS) $(SPECTCL_VERSION)
-CC      = $($(OS)CC)
-CPP     = $($(OS)CPP)
-LD     =  $($(OS)LD) -L/usr/lesstif/lib/Xm-2.0/.libs
-YACC   = bison
-LEX    = flex
+SHELL = /bin/sh
+
+srcdir = .
+top_srcdir = ..
+
+prefix = /home/fox/spectest
+exec_prefix = ${prefix}
+
+bindir = ${exec_prefix}/bin
+sbindir = ${exec_prefix}/sbin
+libexecdir = ${exec_prefix}/libexec
+datadir = ${prefix}/share
+sysconfdir = ${prefix}/etc
+sharedstatedir = ${prefix}/com
+localstatedir = ${prefix}/var
+libdir = ${exec_prefix}/lib
+infodir = ${prefix}/info
+mandir = ${prefix}/man
+includedir = ${prefix}/include
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/SpecTcl
+pkglibdir = $(libdir)/SpecTcl
+pkgincludedir = $(includedir)/SpecTcl
+
+top_builddir = ..
+
+ACLOCAL = aclocal
+AUTOCONF = autoconf
+AUTOMAKE = automake
+AUTOHEADER = autoheader
+
+INSTALL = /usr/bin/install -c
+INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = ${INSTALL} -m 644
+INSTALL_SCRIPT = ${INSTALL}
+transform = s,x,x,
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = 
+host_triplet = i686-pc-linux-gnu
+AS = @AS@
+AWK = mawk
+CC = gcc
+CFLAGS = -g -O2
+CPP = gcc -E
+CXX = g++
+DLLTOOL = @DLLTOOL@
+ECHO = echo
+EXEEXT = 
+F77 = g77
+LD_EXTRA_FLAGS = 
+LEX = flex
+LIBTOOL = $(SHELL) $(top_builddir)/libtool
+LN_S = ln -s
+LTLIBOBJS = 
+MAKEINFO = makeinfo
+MOTIF_INCLUDES =  -I/usr/X11R6/include
+MOTIF_LIBSW = 
+OBJDUMP = @OBJDUMP@
+OBJEXT = o
+PACKAGE = SpecTcl
+RANLIB = ranlib
+STRIP = strip
+TCL_FLAGS = -I/usr/include/tcl
+TCL_LDFLAGS = -L/usr/lib -ltk -ltcl
+VERSION = 2.1-pre
+WCHAR_T_DEF = 
+XINCLUDES = -I/usr/X11R6/include
+XLIBSW = -L/usr/X11R6/lib
+XTLIBSW = 
+YACC = bison -y
+ac_aux_dir = config
+gri_cmd_dir = /home/fox/spectest/share/gri
+gri_dir = /home/fox/spectest/bin
+have_convert = yes
+
+HOMEDEF = -DHOME='"$(prefix)"'
+GRIFLAGS = -DGRI_DIR='"/home/fox/spectest/bin"' -DGRI_CMD_DIR='"/home/fox/spectest/share/gri"'
 LEXOUT = lex.yy.c
-
-#
-#  The F77 compiler variable is not part of the sysdefs.sh nor sysdefs.bash
-#  shell scripts because most people will not want to build the Fortran
-#  interface, and most people will not have neither the Intel Fortran
-#  Compiler, nor the Compaq Fortran Compiler.  Thus, F77 is ``echo'' by
-#  default, which causes nothing to be built.  Uncomment the appropriate
-#  line for your operating system below and the AEDOBJS definition, if you
-#  wish to build the Fortran interface.
-#
-F77    = echo
-
-#
-#  For OSF1:
-#
-#F77    = f77 -check bounds
-
-#
-#  For Linux:
-#  Using the Intel Fortran Compiler.  You must source in the IFC shell
-#  variables script, which can be done for the 5.0 compiler by running:
-#  . /opt/intel/compiler50/ia32/bin/ifcvars.sh
-#
-#  For the 6.0 compiler:
-#  . /opt/intel/compiler60/ia32/bin/ifcvars.sh
-#
-#F77    = ifc -w90 -w95
-
-#
-#  Fortran interface objects.  By default this is nothing.
-#
-AEDOBJS = 
-
-#
-#  Uncommenting the following line causes the Fortran inferface to be built.
-#
-#AEDOBJS = aedxamine.o
-
-.DEFAULT:
-	echo Would sccs get $<
-
-system: XAMINE_FILES WINDOW_FILE  GROBJ_FILE  DISP_SHARED \
-	MOTIF_LIB COLORSET Xamine CLIENT
-	echo "System rebuild complete"
-
-depend:
-	makedepend  -Y. *.cc
+MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc 	XMPushbutton.cc XMManagers.cc XMText.cc
 
 
-clean:
-	rm -rf *.o *.a Xamine *_lex.cc *_parse.cc *_lex.h
+INCLUDES = -I/usr/X11R6/include  -I/usr/X11R6/include $(HOMEDEF) $(GRIFLAGS)
+LDFLAGS = -L/usr/X11R6/lib   
+XCCFLAGS = -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE
 
-install:
-	install -m 0664    aedpublic.for $(DESTDIR)/Include/aedpublic.for
-	install -m 0664    aedshare.for xamineshare.for $(DESTDIR)/Include
-	install -m 0664    client.h $(DESTDIR)/Include/Xamine.h
-	install -m 0664    clientops.h $(DESTDIR)/Include/clientops.h
-	install -m 0664    clientgates.h $(DESTDIR)/Include/clientgates.h
-	install -m 0775    Xamine $(DESTDIR)/Bin/Xamine2_0
-	install -m 0775     colorset $(DESTDIR)/Bin/colorset
-	install -m 0764    libXamine.a $(DESTDIR)/Lib
-	install -m 0664    *.ctbl $(DESTDIR)/Etc
-	install -m 0664    *.ico  $(DESTDIR)/Etc
-	echo "Xamine installation complete"
+bin_PROGRAMS = Xamine colorset
 
-WINDOW_FILE: windfile_parse.o windfile_lex.o dispwind.o defaultfile_lex.o
-	touch WINDOW_FILE
-	echo "Window file I/O subsystem built"
+check_PROGRAMS = Xaminetest
+TESTS = $(check_PROGRAMS)
 
-WINDOW_TEST: wintest
-	echo "Windows file test suite finished"
-	touch WINDOW_TEST
-
-XAMINE_FILES: menusetup.o exit.o helpmenu.o winiomenu.o grobjiomenu.o \
-	geometrymenu.o \
-	errormsg.o procede.o logging.o toggles.o specchoose.o spectra.o \
-	spcdisplay.o advprompt.o properties.o buttonsetup.o panemgr.o \
-	pkgmgr.o dfltmgr.o axisdefault.o titledefault.o attribdefault.o \
-	reducedefault.o rend1default.o rend2default.o printer.o refreshctl.o \
-	axes.o scaling.o text.o titles.o chanplot.o plot1d.o plot2d.o \
-	colormgr.o shared.o location.o convert.o trackcursor.o expand.o \
-	select2.o info.o refreshdefault.o defaultfile_parse.o marker.o \
-	grafinput.o grobjinput.o grobjmgr.o grobjdisplay.o  sumregion.o \
-	integrate.o guintegrate.o delgrob.o messages.o eventflags.o \
-	gateio.o acceptgates.o clirequests.o spccheck.o prccheck.o superpos.o \
-	superprompt.o objcopy.o lblfont.o checklist.o compatspec.o copyatr.o \
-	buttonreq.o buttondlg.o spcchoice.o spccompatchoice.o spclimchoice.o \
-	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o Tab.o \
-	griprint.o mapcoord.o
-	echo "Xamine objects built"
-	touch XAMINE_FILES
-
-wintest: wintest.cc WINDOW_FILE spectra.o
-	$(CPP) $(XCCFLAGS) wintest.cc
-	$(LD) -o wintest wintest.o dispwind.o windfile_parse.o windfile_lex.o \
-	spectra.o \
-	-y  $($(OS)LIB) 
+include_HEADERS = Tab.h allocator.h dispshare.h    helpmenu.h    refreshctl.h TabP.h          axes.h             dispwind.h      info.h        scaling.h XBatch.h        buttondlg.h        errormsg.h      integrate.h   select2.h XMCallback.h    buttonreq.h        eventflags.h    lblfont.h     spccheck.h XMDialogs.h     buttonsetup.h      exit.h          location.h    spcchoice.h XMLabel.h       chanplot.h         expand.h        logging.h     spcdisplay.h XMList.h        checklist.h        gateio.h        mapcoord.h    specchoose.h XMManagers.h    client.h           gc.h            marker.h      sumregion.h XMMenus.h       clientgates.h      gcmgr.h         menusetup.h   superpos.h XMPushbutton.h  clientops.h        geometrymenu.h  messages.h    superprompt.h XMScale.h       clirequests.h      grafinput.h     objcopy.h     text.h XMSeparators.h  colormgr.h         griprint.h      optionmenu.h  titles.h XMShell.h       compatspec.h       grobfile.tab.h  panemgr.h     toggles.h XMTab.h         convert.h          grobfile_lex.h  pkgmgr.h      trackcursor.h XMText.h        copier.h           grobjdisplay.h  prccheck.h   windfile_lex.h XMWidget.h      copyatr.h          grobjinput.h    printer.h    windfile_tab.h XMWlist.h       defaultfile_lex.h  grobjio.h       procede.h     windio.h Xamine.h        delgrob.h          grobjiomenu.h   properties.h  windlex.h acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h
 
 
-dispwind.o: dispwind.cc dispwind.h superpos.h errormsg.h panemgr.h
-	$(CPP) $(XCCFLAGS) dispwind.cc
+lib_LTLIBRARIES = libXamine.la
 
-windfile_parse.o: windfile.y  dispwind.h superpos.h dispshare.h windio.h
+libXamine_la_SOURCES = client.c clientgates.c prccheck.c allocator.c specalloc.c clientbuttons.c
+
+
+Xamine_SOURCES = Xamine.cc XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc XMDialogs.cc XMManagers.cc XMWlist.cc XMShell.cc XMPushbutton.cc XMTab.cc windfile_parse.cc windfile_lex.cc XMLabel.cc XMList.cc XMScale.cc XMSeparators.cc dispwind.cc menusetup.cc exit.cc helpmenu.cc winiomenu.cc grobjiomenu.cc geometrymenu.cc errormsg.cc logging.cc toggles.cc spectra.cc specchoose.cc spcdisplay.cc advprompt.cc properties.cc panemgr.cc buttonsetup.cc pkgmgr.cc dfltmgr.cc axisdefault.cc titledefault.cc attribdefault.cc reducedefault.cc rend1default.cc rend2default.cc printer.cc refreshctl.cc axes.cc scaling.cc text.cc titles.cc chanplot.cc plot1d.cc  plot2d.cc colormgr.cc shared.cc location.cc convert.cc trackcursor.cc expand.cc select2.cc info.cc dispgrob.cc grobfile_lex.cc grobfile_parse.cc grobjdb.cc grobfile.cc refreshdefault.cc defaultfile_parse.cc marker.cc grafinput.cc grobjinput.cc grobjmgr.cc grobjdisplay.cc sumregion.cc integrate.cc guintegrate.cc delgrob.cc messages.cc eventflags.cc gateio.cc acceptgates.cc clirequests.cc prccheck.c spccheck.cc superpos.cc superprompt.cc objcopy.cc copier.cc lblfont.cc checklist.cc compatspec.cc copyatr.cc defaultfile_lex.cc buttonreq.cc buttondlg.cc spcchoice.cc spccompatchoice.cc spclimchoice.cc ptlist.cc lexsupport.c gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc
+
+
+colorset_SOURCES = colorset.cc $(MOTIF_SOURCES) errormsg.cc helpmenu.cc procede.cc colormgr.cc
+
+
+Xaminetest_SOURCES = Xaminetest.c
+
+EXTRA_Xamine_SOURCES = defaultfile.y grobfile.y windfile.y defaultfile.l grobfile.l windfile.l
+
+
+Xamine_LDADD = -lXm -lXt -lX11 -lm -lfl
+
+colorset_LDADD = -lXm -lXt -lX11 -lfl
+
+Xaminetest_LDADD = -lXamine -lm
+
+Xaminetest_LDFLAGS = -L.
+
+Xamine_DEPENDENCIES = windfile_parse.o windfile_lex.o dispwind.o 	defaultfile_lex.o menusetup.o exit.o helpmenu.o winiomenu.o 	grobjiomenu.o geometrymenu.o 	errormsg.o procede.o logging.o toggles.o specchoose.o spectra.o 	spcdisplay.o advprompt.o properties.o buttonsetup.o panemgr.o 	pkgmgr.o dfltmgr.o axisdefault.o titledefault.o attribdefault.o 	reducedefault.o rend1default.o rend2default.o printer.o refreshctl.o 	axes.o scaling.o text.o titles.o chanplot.o plot1d.o plot2d.o 	colormgr.o shared.o location.o convert.o trackcursor.o expand.o 	select2.o info.o refreshdefault.o defaultfile_parse.o marker.o 	grafinput.o grobjinput.o grobjmgr.o grobjdisplay.o  sumregion.o 	integrate.o guintegrate.o delgrob.o messages.o eventflags.o 	gateio.o acceptgates.o clirequests.o spccheck.o prccheck.o superpos.o 	superprompt.o objcopy.o lblfont.o checklist.o compatspec.o copyatr.o 	buttonreq.o buttondlg.o spcchoice.o spccompatchoice.o spclimchoice.o 	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o Tab.o 	griprint.o mapcoord.o dispgrob.o grobfile_lex.o grobfile_parse.o 	grobjdb.o grobfile.o XMCallback.o XMMenus.o XMDialogs.o XMManagers.o 	XMWlist.o XMShell.o XMTab.o XMText.o colorset colorset.ico libXamine.la
+
+
+Xaminetest_DEPENDENCIES = libXamine.la
+
+EXTRA_DIST = queue.cc colorset.ico Xamine-X.3.release_notes Xamine-X.4.release_notes Xamine-X.6.release_notes Xamine-X.7.feature_list Xamine.ico Xamine.doc Xamine2.ctbl Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc aedpublic.for aedshare.f aedshare.for aedxamine.for build.com dflt.tpu grobj.tpu win.tpu
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+CONFIG_HEADER = ../config.h
+CONFIG_CLEAN_FILES = 
+LTLIBRARIES =  $(lib_LTLIBRARIES)
+
+
+DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I..
+CPPFLAGS = 
+LIBS = -lm -lm -lm 
+libXamine_la_LDFLAGS = 
+libXamine_la_LIBADD = 
+libXamine_la_OBJECTS =  client.lo clientgates.lo prccheck.lo \
+allocator.lo specalloc.lo clientbuttons.lo
+bin_PROGRAMS =  Xamine$(EXEEXT) colorset$(EXEEXT)
+check_PROGRAMS =  Xaminetest$(EXEEXT)
+PROGRAMS =  $(bin_PROGRAMS)
+
+Xamine_OBJECTS =  Xamine.$(OBJEXT) XMWidget.$(OBJEXT) \
+XMCallback.$(OBJEXT) XMMenus.$(OBJEXT) XMText.$(OBJEXT) \
+XMDialogs.$(OBJEXT) XMManagers.$(OBJEXT) XMWlist.$(OBJEXT) \
+XMShell.$(OBJEXT) XMPushbutton.$(OBJEXT) XMTab.$(OBJEXT) \
+windfile_parse.$(OBJEXT) windfile_lex.$(OBJEXT) XMLabel.$(OBJEXT) \
+XMList.$(OBJEXT) XMScale.$(OBJEXT) XMSeparators.$(OBJEXT) \
+dispwind.$(OBJEXT) menusetup.$(OBJEXT) exit.$(OBJEXT) \
+helpmenu.$(OBJEXT) winiomenu.$(OBJEXT) grobjiomenu.$(OBJEXT) \
+geometrymenu.$(OBJEXT) errormsg.$(OBJEXT) logging.$(OBJEXT) \
+toggles.$(OBJEXT) spectra.$(OBJEXT) specchoose.$(OBJEXT) \
+spcdisplay.$(OBJEXT) advprompt.$(OBJEXT) properties.$(OBJEXT) \
+panemgr.$(OBJEXT) buttonsetup.$(OBJEXT) pkgmgr.$(OBJEXT) \
+dfltmgr.$(OBJEXT) axisdefault.$(OBJEXT) titledefault.$(OBJEXT) \
+attribdefault.$(OBJEXT) reducedefault.$(OBJEXT) rend1default.$(OBJEXT) \
+rend2default.$(OBJEXT) printer.$(OBJEXT) refreshctl.$(OBJEXT) \
+axes.$(OBJEXT) scaling.$(OBJEXT) text.$(OBJEXT) titles.$(OBJEXT) \
+chanplot.$(OBJEXT) plot1d.$(OBJEXT) plot2d.$(OBJEXT) colormgr.$(OBJEXT) \
+shared.$(OBJEXT) location.$(OBJEXT) convert.$(OBJEXT) \
+trackcursor.$(OBJEXT) expand.$(OBJEXT) select2.$(OBJEXT) info.$(OBJEXT) \
+dispgrob.$(OBJEXT) grobfile_lex.$(OBJEXT) grobfile_parse.$(OBJEXT) \
+grobjdb.$(OBJEXT) grobfile.$(OBJEXT) refreshdefault.$(OBJEXT) \
+defaultfile_parse.$(OBJEXT) marker.$(OBJEXT) grafinput.$(OBJEXT) \
+grobjinput.$(OBJEXT) grobjmgr.$(OBJEXT) grobjdisplay.$(OBJEXT) \
+sumregion.$(OBJEXT) integrate.$(OBJEXT) guintegrate.$(OBJEXT) \
+delgrob.$(OBJEXT) messages.$(OBJEXT) eventflags.$(OBJEXT) \
+gateio.$(OBJEXT) acceptgates.$(OBJEXT) clirequests.$(OBJEXT) \
+prccheck.$(OBJEXT) spccheck.$(OBJEXT) superpos.$(OBJEXT) \
+superprompt.$(OBJEXT) objcopy.$(OBJEXT) copier.$(OBJEXT) \
+lblfont.$(OBJEXT) checklist.$(OBJEXT) compatspec.$(OBJEXT) \
+copyatr.$(OBJEXT) defaultfile_lex.$(OBJEXT) buttonreq.$(OBJEXT) \
+buttondlg.$(OBJEXT) spcchoice.$(OBJEXT) spccompatchoice.$(OBJEXT) \
+spclimchoice.$(OBJEXT) ptlist.$(OBJEXT) lexsupport.$(OBJEXT) \
+gc.$(OBJEXT) xaminegc.$(OBJEXT) gcmgr.$(OBJEXT) Tab.$(OBJEXT) \
+griprint.$(OBJEXT) mapcoord.$(OBJEXT)
+Xamine_LDFLAGS = 
+colorset_OBJECTS =  colorset.$(OBJEXT) XMCallback.$(OBJEXT) \
+XMMenus.$(OBJEXT) XMDialogs.$(OBJEXT) XMWidget.$(OBJEXT) \
+XMPushbutton.$(OBJEXT) XMManagers.$(OBJEXT) XMText.$(OBJEXT) \
+errormsg.$(OBJEXT) helpmenu.$(OBJEXT) procede.$(OBJEXT) \
+colormgr.$(OBJEXT)
+colorset_DEPENDENCIES = 
+colorset_LDFLAGS = 
+Xaminetest_OBJECTS =  Xaminetest.$(OBJEXT)
+CXXFLAGS = -g -O2
+CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
+LEX_OUTPUT_ROOT = lex.yy
+LEXLIB = -lfl
+YLWRAP = $(top_srcdir)/config/ylwrap
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+HEADERS =  $(include_HEADERS)
+
+DIST_COMMON =  Makefile.am Makefile.in defaultfile.c grobfile.c \
+windfile.c
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP_ENV = --best
+DEP_FILES =  .deps/Tab.P .deps/XMCallback.P .deps/XMDialogs.P \
+.deps/XMLabel.P .deps/XMList.P .deps/XMManagers.P .deps/XMMenus.P \
+.deps/XMPushbutton.P .deps/XMScale.P .deps/XMSeparators.P \
+.deps/XMShell.P .deps/XMTab.P .deps/XMText.P .deps/XMWidget.P \
+.deps/XMWlist.P .deps/Xamine.P .deps/Xaminetest.P .deps/acceptgates.P \
+.deps/advprompt.P .deps/allocator.P .deps/attribdefault.P .deps/axes.P \
+.deps/axisdefault.P .deps/buttondlg.P .deps/buttonreq.P \
+.deps/buttonsetup.P .deps/chanplot.P .deps/checklist.P .deps/client.P \
+.deps/clientbuttons.P .deps/clientgates.P .deps/clirequests.P \
+.deps/colormgr.P .deps/colorset.P .deps/compatspec.P .deps/convert.P \
+.deps/copier.P .deps/copyatr.P .deps/defaultfile.P \
+.deps/defaultfile_lex.P .deps/defaultfile_parse.P .deps/delgrob.P \
+.deps/dfltmgr.P .deps/dispgrob.P .deps/dispwind.P .deps/errormsg.P \
+.deps/eventflags.P .deps/exit.P .deps/expand.P .deps/gateio.P \
+.deps/gc.P .deps/gcmgr.P .deps/geometrymenu.P .deps/grafinput.P \
+.deps/griprint.P .deps/grobfile.P .deps/grobfile_lex.P \
+.deps/grobfile_parse.P .deps/grobjdb.P .deps/grobjdisplay.P \
+.deps/grobjinput.P .deps/grobjiomenu.P .deps/grobjmgr.P \
+.deps/guintegrate.P .deps/helpmenu.P .deps/info.P .deps/integrate.P \
+.deps/lblfont.P .deps/lexsupport.P .deps/location.P .deps/logging.P \
+.deps/mapcoord.P .deps/marker.P .deps/menusetup.P .deps/messages.P \
+.deps/objcopy.P .deps/panemgr.P .deps/pkgmgr.P .deps/plot1d.P \
+.deps/plot2d.P .deps/prccheck.P .deps/printer.P .deps/procede.P \
+.deps/properties.P .deps/ptlist.P .deps/reducedefault.P \
+.deps/refreshctl.P .deps/refreshdefault.P .deps/rend1default.P \
+.deps/rend2default.P .deps/scaling.P .deps/select2.P .deps/shared.P \
+.deps/spccheck.P .deps/spcchoice.P .deps/spccompatchoice.P \
+.deps/spcdisplay.P .deps/spclimchoice.P .deps/specalloc.P \
+.deps/specchoose.P .deps/spectra.P .deps/sumregion.P .deps/superpos.P \
+.deps/superprompt.P .deps/text.P .deps/titledefault.P .deps/titles.P \
+.deps/toggles.P .deps/trackcursor.P .deps/windfile.P \
+.deps/windfile_lex.P .deps/windfile_parse.P .deps/winiomenu.P \
+.deps/xaminegc.P
+SOURCES = $(libXamine_la_SOURCES) $(Xamine_SOURCES) $(EXTRA_Xamine_SOURCES) $(colorset_SOURCES) $(Xaminetest_SOURCES)
+OBJECTS = $(libXamine_la_OBJECTS) $(Xamine_OBJECTS) $(colorset_OBJECTS) $(Xaminetest_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .cc .l .lo .o .obj .s .y
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu Display/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-libLTLIBRARIES:
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+
+distclean-libLTLIBRARIES:
+
+maintainer-clean-libLTLIBRARIES:
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+.c.obj:
+	$(COMPILE) -c `cygpath -w $<`
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libXamine.la: $(libXamine_la_OBJECTS) $(libXamine_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libXamine_la_LDFLAGS) $(libXamine_la_OBJECTS) $(libXamine_la_LIBADD) $(LIBS)
+
+mostlyclean-binPROGRAMS:
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+
+distclean-binPROGRAMS:
+
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	done
+
+mostlyclean-checkPROGRAMS:
+
+clean-checkPROGRAMS:
+	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
+
+distclean-checkPROGRAMS:
+
+maintainer-clean-checkPROGRAMS:
+
+Xamine$(EXEEXT): $(Xamine_OBJECTS) $(Xamine_DEPENDENCIES)
+	@rm -f Xamine$(EXEEXT)
+	$(CXXLINK) $(Xamine_LDFLAGS) $(Xamine_OBJECTS) $(Xamine_LDADD) $(LIBS)
+
+colorset$(EXEEXT): $(colorset_OBJECTS) $(colorset_DEPENDENCIES)
+	@rm -f colorset$(EXEEXT)
+	$(CXXLINK) $(colorset_LDFLAGS) $(colorset_OBJECTS) $(colorset_LDADD) $(LIBS)
+
+Xaminetest$(EXEEXT): $(Xaminetest_OBJECTS) $(Xaminetest_DEPENDENCIES)
+	@rm -f Xaminetest$(EXEEXT)
+	$(LINK) $(Xaminetest_LDFLAGS) $(Xaminetest_OBJECTS) $(Xaminetest_LDADD) $(LIBS)
+.cc.o:
+	$(CXXCOMPILE) -c $<
+.cc.obj:
+	$(CXXCOMPILE) -c `cygpath -w $<`
+.cc.lo:
+	$(LTCXXCOMPILE) -c $<
+.l.c:
+	$(SHELL) $(YLWRAP) "$(LEX)" $< $(LEX_OUTPUT_ROOT).c $@ -- $(AM_LFLAGS) $(LFLAGS)
+.y.c:
+	$(SHELL) $(YLWRAP) "$(YACC)" $< y.tab.c $*.c y.tab.h $*.h -- $(AM_YFLAGS) $(YFLAGS)
+defaultfile.h: defaultfile.c
+grobfile.h: grobfile.c
+windfile.h: windfile.c
+
+
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(includedir)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(includedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(includedir)/$$p; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(include_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(includedir)/$$p; \
+	done
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = Display
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu Display/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+
+%.o: %.cc
+	@echo '$(CXXCOMPILE) -c $<'; \
+	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.cc
+	@echo '$(LTCXXCOMPILE) -c $<'; \
+	$(LTCXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+check-TESTS: $(TESTS)
+	@failed=0; all=0; \
+	srcdir=$(srcdir); export srcdir; \
+	for tst in $(TESTS); do \
+	  if test -f $$tst; then dir=.; \
+	  else dir="$(srcdir)"; fi; \
+	  if $(TESTS_ENVIRONMENT) $$dir/$$tst; then \
+	    all=`expr $$all + 1`; \
+	    echo "PASS: $$tst"; \
+	  elif test $$? -ne 77; then \
+	    all=`expr $$all + 1`; \
+	    failed=`expr $$failed + 1`; \
+	    echo "FAIL: $$tst"; \
+	  fi; \
+	done; \
+	if test "$$failed" -eq 0; then \
+	  banner="All $$all tests passed"; \
+	else \
+	  banner="$$failed of $$all tests failed"; \
+	fi; \
+	dashes=`echo "$$banner" | sed s/./=/g`; \
+	echo "$$dashes"; \
+	echo "$$banner"; \
+	echo "$$dashes"; \
+	test "$$failed" -eq 0
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
+	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-libLTLIBRARIES install-binPROGRAMS \
+		install-exec-local
+install-exec: install-exec-am
+
+install-data-am: install-includeHEADERS
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-libLTLIBRARIES uninstall-binPROGRAMS \
+		uninstall-includeHEADERS
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(bindir) \
+		$(DESTDIR)$(includedir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+	-test -z "defaultfilelgrobfilelwindfileldefaultfilehdefaultfilecgrobfilehgrobfilecwindfilehwindfilec" || rm -f defaultfilel grobfilel windfilel defaultfileh defaultfilec grobfileh grobfilec windfileh windfilec
+mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-binPROGRAMS \
+		mostlyclean-checkPROGRAMS mostlyclean-tags \
+		mostlyclean-depend mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool \
+		clean-binPROGRAMS clean-checkPROGRAMS clean-tags \
+		clean-depend clean-generic mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-libLTLIBRARIES distclean-compile \
+		distclean-libtool distclean-binPROGRAMS \
+		distclean-checkPROGRAMS distclean-tags distclean-depend \
+		distclean-generic clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-binPROGRAMS \
+		maintainer-clean-checkPROGRAMS maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool mostlyclean-binPROGRAMS distclean-binPROGRAMS \
+clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
+install-binPROGRAMS mostlyclean-checkPROGRAMS distclean-checkPROGRAMS \
+clean-checkPROGRAMS maintainer-clean-checkPROGRAMS \
+uninstall-includeHEADERS install-includeHEADERS tags mostlyclean-tags \
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend check-TESTS info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-local \
+install-exec-am install-exec install-data-am install-data install-am \
+install uninstall-am uninstall all-redirect all-am all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
+
+install-exec-local:
+	$(mkinstalldirs) $(prefix)/Etc
+	$(INSTALL_PROGRAM) $(srcdir)/*.ctbl $(prefix)/Etc
+	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/Etc
+
+$(LEXOUT):
+	$(LEX) windfile.l
+
+windfile_lex.cc: $(LEXOUT)
+	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
+	cp windfile_lex.h windlex.h
+
+windfile_parse.cc: windfile.y windio.h dispwind.h dispshare.h printer.h
 	$(YACC) -p windfile -b windfile windfile.y
 	mv windfile.tab.c windfile_parse.cc
-	$(CPP) $(XCCFLAGS)  windfile_parse.cc
 
-defaultfile_parse.o: defaultfile.y dispwind.h superpos.h dispshare.h dfltmgr.h windio.h
+windfile_parse.o: windfile_parse.cc windfile.y  dispwind.h superpos.h dispshare.h windio.h
+	$(CC) $(XCCFLAGS) windfile_parse.cc
+
+defaultfile_parse.cc: defaultfile.y dispwind.h windio.h dispshare.h dfltmgr.h grobjdisplay.h panemgr.h printer.h
 	$(YACC) -p defaultfile -b defaultfile defaultfile.y
 	mv defaultfile.tab.c defaultfile_parse.cc
-	$(CPP) $(XCCFLAGS) defaultfile_parse.cc
+
+defaultfile_parse.o: defaultfile_parse.cc defaultfile.y dispwind.h superpos.h dispshare.h dfltmgr.h windio.h
+	$(CC) $(XCCFLAGS) defaultfile_parse.cc
 
 windfile_lex.h: windfile.y windio.h
 	$(YACC) -p windfile -b windfile -dl  windfile.y
@@ -153,503 +666,27 @@ windfile_lex.o: windfile.l dispwind.h superpos.h windfile_lex.h windio.h
 	$(LEX) windfile.l
 	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
 	cp windfile_lex.h windlex.h
-	$(CPP) $(XCCFLAGS) windfile_lex.cc
-
-GROBJ_FILE: dispgrob.o grobfile_lex.o grobfile_parse.o grobjdb.o grobfile.o
-	echo "GROBJ_FILE rebuilt"
-	touch GROBJ_FILE
-
-dispgrob.o: dispgrob.cc dispgrob.h
-	$(CPP) $(XCCFLAGS) dispgrob.cc
-
-grobjdb.o: grobjdb.cc dispgrob.h
-	$(CPP) $(XCCFLAGS) grobjdb.cc
+	$(CC) $(XCCFLAGS) windfile_lex.cc
 
 grobfile_lex.o: grobfile.l dispgrob.h grobjio.h grobfile_lex.h 
 	$(LEX) grobfile.l
 	sed s/yy/grobjfile/g $(LEXOUT) >grobfile_lex.cc
-	$(CPP) $(XCCFLAGS) grobfile_lex.cc
+	$(CC) $(XCCFLAGS) grobfile_lex.cc
 
-grobfile_parse.o: grobfile.y dispgrob.h grobjio.h
+grobfile_parse.cc: grobfile.y dispgrob.h grobjio.h
 	$(YACC) -p grobjfile -b grobfile grobfile.y
-	mv grobfile.tab.c  grobfile_parse.cc
-	$(CPP) $(XCCFLAGS) grobfile_parse.cc
+	mv grobfile.tab.c grobfile_parse.cc
 
-grobfile_lex.h: grobfile.y grobjio.h
+grobfile_parse.o: grobfile_parse.cc
+	$(CC) $(XCCFLAGS) grobfile_parse.cc
+
+grobfile_lex.h: grobfile.y grobjio.h grobfile_parse.cc
 	$(YACC) -p grobjfile -d grobfile.y
-	mv grobfile.tab.h  grobfile_lex.h
+	mv y.tab.h grobfile_lex.h
+	rm -f y.tab.c
 
 grobfile.o: grobfile.cc dispgrob.h grobjio.h panemgr.h errormsg.h
-	$(CPP) $(XCCFLAGS) grobfile.cc
-
-GROBJ_TEST: grobjtest
-	echo "Graphical object tests built"
-	touch GROBJ_TEST
-
-grobjtest: grobjtest.cc GROBJ_FILE
-	$(CPP) $(XCCFLAGS) grobjtest.cc
-	$(LD) -o grobjtest grobjtest.o dispgrob.o grobfile_lex.o \
-		grobfile_parse.o grobjdb.o grobfile.o -ly $($(OS)LIB)
-
-
-DISP_SHARED: spectra.o
-	echo "Spectrum access package rebuilt"
-	touch DISP_SHARED
-
-spectra.o: spectra.cc dispshare.h
-	$(CPP) $(XCCFLAGS) spectra.cc
-
-MOTIF_LIB: XMCallback.o XMMenus.o XMDialogs.o XMManagers.o XMWlist.o \
-	XMShell.o copier.o
-	touch MOTIF_LIB
-	echo "MOTIF Library built"
-
-XMCallback.o: XMCallback.cc XMWidget.h
-	$(CPP) $(XCCFLAGS) XMCallback.cc
-
-XMMenus.o: XMMenus.cc XMWidget.h XMPushbutton.h XMMenus.h
-	$(CPP) $(XCCFLAGS) XMMenus.cc
-
-Tab.o: Tab.c Tab.h TabP.h
-	$(CPP) -g $(XCCFLAGS) Tab.c
-
-Xamine: Xamine.o \
-	 MOTIF_LIB \
-	 WINDOW_FILE \
-	 XAMINE_FILES \
-	GROBJ_FILE
-	$(LD) -o Xamine Xamine.o XMCallback.o XMMenus.o XMDialogs.o \
-	XMManagers.o XMWlist.o XMShell.o \
-	windfile_parse.o windfile_lex.o dispwind.o \
-	menusetup.o exit.o helpmenu.o winiomenu.o grobjiomenu.o \
-	geometrymenu.o errormsg.o logging.o toggles.o spectra.o specchoose.o \
-	spcdisplay.o advprompt.o properties.o panemgr.o buttonsetup.o pkgmgr.o \
-	dfltmgr.o axisdefault.o titledefault.o attribdefault.o reducedefault.o \
-	rend1default.o rend2default.o printer.o refreshctl.o axes.o scaling.o \
-	text.o titles.o chanplot.o plot1d.o  plot2d.o colormgr.o shared.o \
-	location.o convert.o trackcursor.o expand.o select2.o info.o \
-	dispgrob.o grobfile_lex.o grobfile_parse.o grobjdb.o grobfile.o \
-	refreshdefault.o defaultfile_parse.o marker.o grafinput.o \
-	grobjinput.o grobjmgr.o grobjdisplay.o sumregion.o integrate.o \
-	guintegrate.o delgrob.o messages.o eventflags.o \
-	gateio.o acceptgates.o clirequests.o \
-	prccheck.o spccheck.o superpos.o superprompt.o objcopy.o copier.o \
-	lblfont.o checklist.o compatspec.o copyatr.o \
-	defaultfile_lex.o buttonreq.o buttondlg.o spcchoice.o \
-	spccompatchoice.o spclimchoice.o ptlist.o lexsupport.o gc.o xaminegc.o\
-	gcmgr.o Tab.o griprint.o mapcoord.o \
-	 -lXm -lXt -lX11 -lm $($(OS)LIB)
-
-
-Xamine.o: Xamine.cc XMPushbutton.h XMWidget.h  dispshare.h XMManagers.h \
-	panemgr.h pkgmgr.h optionmenu.h colormgr.h \
-	menusetup.h dfltmgr.h clirequests.h prccheck.h spccheck.h
-	$(CPP) $(XCCFLAGS) Xamine.cc
-
-XMDialogs.o: XMDialogs.cc XMDialogs.h XMWidget.h
-	$(CPP) $(XCCFLAGS) XMDialogs.cc
-
-
-menusetup.o: menusetup.cc XMMenus.h exit.h winiomenu.h grobjiomenu.h \
-	geometrymenu.h toggles.h logging.h specchoose.h properties.h \
-	menusetup.h dispshare.h helpmenu.h winiomenu.h spcdisplay.h \
-	advprompt.h panemgr.h pkgmgr.h optionmenu.h printer.h refreshctl.h \
-	expand.h info.h XMWidget.h XMPushbutton.h XMManagers.h XMDialogs.h \
-	XMText.h XMLabel.h XMScale.h XMTab.h marker.h dispwind.h superpos.h sumregion.h \
-	dispgrob.h convert.h guintegrate.h delgrob.h XMList.h grobjinput.h \
-	acceptgates.h XMSeparators.h grafinput.h errormsg.h trackcursor.h \
-	location.h superprompt.h
-	$(CPP) $(XCCFLAGS) menusetup.cc
-
-exit.o: exit.cc XMDialogs.h panemgr.h helpmenu.h exit.h winiomenu.h \
-	XMWidget.h dispwind.h
-	$(CPP) $(XCCFLAGS) exit.cc
-
-helpmenu.o: helpmenu.cc helpmenu.h XMDialogs.h XMWidget.h XMPushbutton.h \
-	XMManagers.h
-	$(CPP) $(XCCFLAGS) helpmenu.cc
-
-
-winiomenu.o: winiomenu.cc XMDialogs.h helpmenu.h winiomenu.h panemgr.h \
-	dispwind.h superpos.h exit.h refreshctl.h XMWidget.h XMPushbutton.h XMManagers.h \
-	errormsg.h 
-	$(CPP) $(XCCFLAGS) winiomenu.cc
-
-
-grobjiomenu.o: grobjiomenu.cc grobjiomenu.h XMDialogs.h helpmenu.h \
-	XMWidget.h XMPushbutton.h XMManagers.h panemgr.h grobjmgr.h \
-	dispgrob.h errormsg.h winiomenu.h
-	$(CPP) $(XCCFLAGS) grobjiomenu.cc
-
-
-geometrymenu.o: geometrymenu.cc XMLabel.h XMDialogs.h helpmenu.h \
-	errormsg.h geometrymenu.h menusetup.h XMPushbutton.h XMManagers.h \
-	XMSeparators.h exit.h XMWidget.h
-	$(CPP) $(XCCFLAGS) geometrymenu.cc
-
-errormsg.o: errormsg.cc XMDialogs.h XMWidget.h
-	$(CPP) $(XCCFLAGS) errormsg.cc
-
-COLORSET: colorset colorset.ico
-	touch COLORSET
-	echo "colorset - color map generation tool rebuilt."
-
-colorset: colorset.o MOTIF_LIB errormsg.o helpmenu.o procede.o colormgr.o
-	$(LD)  -o colorset colorset.o errormsg.o helpmenu.o procede.o \
-	XMDialogs.o XMMenus.o XMCallback.o colormgr.o -lXm -lXt -lX11 \
-	$($(OS)LIB)
-
-colorset.o: colorset.cc XMDialogs.h XMWidget.h XMPushbutton.h XMMenus.h \
-	helpmenu.h errormsg.h procede.h colormgr.h
-	$(CPP) $(XCCFLAGS) colorset.cc
-
-procede.o: procede.cc procede.h XMDialogs.h XMWidget.h
-	$(CPP) $(XCCFLAGS) procede.cc
-
-logging.o: logging.cc logging.h XMDialogs.h helpmenu.h errormsg.h XMWidget.h
-	$(CPP) $(XCCFLAGS) logging.cc
-
-toggles.o: toggles.cc toggles.h XMWidget.h
-	$(CPP) $(XCCFLAGS) toggles.cc
-
-specchoose.o: specchoose.cc specchoose.h XMDialogs.h helpmenu.h errormsg.h \
-	spcdisplay.h XMWidget.h
-	$(CPP) $(XCCFLAGS) specchoose.cc
-
-spcdisplay.o: spcdisplay.cc spcdisplay.h dispwind.h superpos.h panemgr.h dfltmgr.h \
-	      refreshctl.h dfltmgr.h exit.h pkgmgr.h superpos.h errormsg.h
-	$(CPP) $(XCCFLAGS) spcdisplay.cc
-
-advprompt.o: advprompt.cc XMDialogs.h helpmenu.h advprompt.h spcdisplay.h \
-	errormsg.h XMWidget.h
-	$(CPP) $(XCCFLAGS) advprompt.cc
-
-properties.o: properties.cc XMWidget.h XMDialogs.h XMManagers.h helpmenu.h \
-	errormsg.h properties.h spcdisplay.h dispwind.h superpos.h optionmenu.h \
-	panemgr.h refreshctl.h colormgr.h exit.h XMText.h XMScale.h
-	$(CPP) $(XCCFLAGS) properties.cc
-
-XMManagers.o: XMManagers.cc XMManagers.h XMWidget.h
-	$(CPP) $(XCCFLAGS) XMManagers.cc
-
-panemgr.o: panemgr.cc XMManagers.h XMWidget.h panemgr.h menusetup.h \
-	buttonsetup.h pkgmgr.h dispshare.h trackcursor.h colormgr.h
-	$(CPP) $(XCCFLAGS) panemgr.cc
-
-buttonsetup.o: buttonsetup.cc XMManagers.h XMPushbutton.h buttonsetup.h \
-	geometrymenu.h panemgr.h specchoose.h spcdisplay.h pkgmgr.h \
-	refreshctl.h location.h expand.h info.h marker.h sumregion.h \
-	dispgrob.h convert.h XMWidget.h guintegrate.h XMList.h grafinput.h \
-	trackcursor.h
-	$(CPP) $(XCCFLAGS) buttonsetup.cc
-
-XMWlist.o: XMWlist.cc XMWlist.h XMWidget.h XMPushbutton.h
-	$(CPP) $(XCCFLAGS) XMWlist.cc
-
-pkgmgr.o: pkgmgr.cc XMWlist.h pkgmgr.h XMWidget.h
-	$(CPP) $(XCCFLAGS) pkgmgr.cc
-
-dfltmgr.o: dfltmgr.cc dfltmgr.h dispwind.h superpos.h XMWidget.h panemgr.h refreshctl.h
-	$(CPP) $(XCCFLAGS) dfltmgr.cc
-
-axisdefault.o: axisdefault.cc  XMPushbutton.h XMDialogs.h XMWidget.h \
-	helpmenu.h dispwind.h superpos.h dfltmgr.h optionmenu.h XMText.h XMScale.h \
-	panemgr.h refreshctl.h	
-	$(CPP) $(XCCFLAGS) axisdefault.cc
-
-titledefault.o: titledefault.cc XMPushbutton.h  XMDialogs.h XMWidget.h \
-	helpmenu.h dispwind.h superpos.h dfltmgr.h optionmenu.h XMText.h XMScale.h \
-	refreshctl.h panemgr.h
-	$(CPP) $(XCCFLAGS) titledefault.cc
-
-attribdefault.o: attribdefault.cc XMDialogs.h XMPushbutton.h XMLabel.h \
-	XMText.h dispwind.h superpos.h dfltmgr.h optionmenu.h helpmenu.h XMScale.h \
-	XMWidget.h
-	$(CPP) $(XCCFLAGS) attribdefault.cc
-
-reducedefault.o: reducedefault.cc XMDialogs.h XMPushbutton.h XMManagers.h \
-	dispwind.h superpos.h dfltmgr.h optionmenu.h helpmenu.h XMScale.h XMWidget.h \
-	refreshctl.h panemgr.h
-	$(CPP) $(XCCFLAGS) reducedefault.cc
-rend1default.o: rend1default.cc XMDialogs.h XMPushbutton.h XMManagers.h \
-	optionmenu.h dfltmgr.h dispwind.h superpos.h helpmenu.h XMScale.h \
-	refreshctl.h panemgr.h
-	$(CPP) $(XCCFLAGS) rend1default.cc
-
-rend2default.o: rend2default.cc XMDialogs.h XMPushbutton.h XMManagers.h \
-	optionmenu.h dfltmgr.h dispwind.h superpos.h helpmenu.h colormgr.h XMScale.h \
-	XMWidget.h refreshctl.h panemgr.h
-	$(CPP) $(XCCFLAGS) rend2default.cc
-
-printer.o: printer.cc XMDialogs.h XMManagers.h XMPushbutton.h XMText.h  \
-	printer.h XMWidget.h XMTab.h
-	$(CPP) $(XCCFLAGS) printer.cc
-
-griprint.o: griprint.cc printer.h griprint.h
-	$(CPP) $(XCCFLAGS) griprint.cc
-
-mapcoord.o: mapcoord.cc mapcoord.h
-	$(CPP) $(XCCFLAGS) mapcoord.cc
-
-refreshctl.o: refreshctl.cc refreshctl.h XMWidget.h panemgr.h axes.h titles.h \
-	chanplot.h dfltmgr.h scaling.h dispshare.h grobjdisplay.h XMWidget.h \
-	queue.h queue.cc
-	$(CPP) $(XCCFLAGS) refreshctl.cc
-
-axes.o: axes.cc axes.h XMWidget.h dispwind.h superpos.h dispshare.h \
-	XBatch.h text.h refreshctl.h
-	$(CPP) $(XCCFLAGS) axes.cc
-
-scaling.o: scaling.cc scaling.h XMWidget.h dispwind.h superpos.h scaling.h dispshare.h \
-	axes.h
-	$(CPP) $(XCCFLAGS) scaling.cc
-
-text.o: text.cc text.h
-	$(CPP) $(XCCFLAGS) text.cc
-
-titles.o: titles.cc dispshare.h titles.h axes.h panemgr.h text.h refreshctl.h
-	$(CPP) $(XCCFLAGS) titles.cc
-
-chanplot.o: chanplot.cc refreshctl.h dispwind.h superpos.h axes.h scaling.h chanplot.h \
-	panemgr.h XMWidget.h colormgr.h superpos.h
-	$(CPP) $(XCCFLAGS) chanplot.cc
-
-plot1d.o: plot1d.cc XMWidget.h XBatch.h chanplot.h panemgr.h  \
-	dispshare.h dispwind.h
-	$(CPP) $(XCCFLAGS) plot1d.cc
-
-plot2d.o: plot2d.cc XMWidget.h XBatch.h dispwind.h superpos.h dispshare.h chanplot.h \
-	scaling.h colormgr.h refreshctl.h
-	$(CPP) $(XCCFLAGS) plot2d.cc
-
-colormgr.o: colormgr.cc XMWidget.h colormgr.h
-	$(CPP) $(XCCFLAGS) colormgr.cc
-
-CLIENT: libXamine.a Xaminetest
-	echo "Client software and tests built"
-	touch CLIENT
-
-libXamine.a: client.o  clientgates.o prccheck.o allocator.o \
-	specalloc.o clientbuttons.o $(AEDOBJS)
-	rm -f libXamine.a 
-	ar cq libXamine.a $(AEDOBJS) client.o  clientgates.o prccheck.o \
-	allocator.o specalloc.o clientbuttons.o
-	ranlib libXamine.a
-
-Xaminetest: Xaminetest.o libXamine.a
-	$(LD) -L. -o Xaminetest Xaminetest.o client.o -lXamine  -lm \
-	$($(OS)LIB)
-
-Xaminetest.o: Xaminetest.c client.h
-	$(CC) $(CCFLAGS) Xaminetest.c
-
-client.o: client.c client.h clientgates.h allocator.h
-	$(CC) $(CCFLAGS) client.c
-
-shared.o: shared.cc dispshare.h
-	$(CPP) $(CCFLAGS) shared.cc
-
-aedxamine.o: aedxamine.for aedshare.for xamineshare.for
-	$($(OS)F77) -c aedxamine.for
-
-demo: demo.o libXamine.a
-#	$(F77) -L. -L/daq/lib -o demo demo.o -lXamine -lc -lqtree -lfile -lcvt
-	$(F77) -L. -L$(INSTDIR)/Lib -o demo demo.o -lXamine
-#	 -lXamine  -lqtree -lfile -lcvt
-
-demo.o: demo.for aedshare.for aedpublic.for
-	$(F77) -c demo.for
-
-
-location.o: location.cc XMManagers.h XMLabel.h location.h XMWidget.h
-	$(CPP) $(XCCFLAGS) location.cc
-
-convert.o: convert.cc convert.h XMWidget.h dispwind.h superpos.h axes.h
-	$(CPP) $(XCCFLAGS) convert.cc
-
-trackcursor.o: trackcursor.cc XMWidget.h trackcursor.h buttonsetup.h \
-	location.h panemgr.h dispwind.h superpos.h dispshare.h convert.h
-	$(CPP) $(XCCFLAGS) trackcursor.cc
-
-expand.o: expand.cc XMWidget.h XMDialogs.h panemgr.h helpmenu.h expand.h \
-	refreshctl.h exit.h errormsg.h select2.h dispshare.h panemgr.h \
-	convert.h colormgr.h grafinput.h
-	$(CPP) $(XCCFLAGS) expand.cc
-
-select2.o: select2.cc XMDialogs.h XMLabel.h XMText.h XMPushbutton.h \
-	helpmenu.h select2.h XMWidget.h 
-	$(CPP) $(XCCFLAGS) select2.cc
-
-info.o: info.cc XMWidget.h XMDialogs.h XMText.h \
-	info.h logging.h dispshare.h panemgr.h errormsg.h dispwind.h superpos.h \
-	dispgrob.h grobjmgr.h
-	$(CPP) $(XCCFLAGS) info.cc
-
-refreshdefault.o: refreshdefault.cc XMScale.h dfltmgr.h optionmenu.h  \
-	helpmenu.h dispwind.h superpos.h XMWidget.h panemgr.h refreshctl.h
-	$(CPP) $(XCCFLAGS) refreshdefault.cc
-
-marker.o: marker.cc marker.h XMWidget.h XMText.h XMLabel.h XMPushbutton.h \
-	XBatch.h errormsg.h grafinput.h grobjinput.h dispgrob.h panemgr.h \
-	dispshare.h colormgr.h convert.h grobjmgr.h
-	$(CPP) $(XCCFLAGS) marker.cc
-
-grafinput.o: grafinput.cc XMDialogs.h grafinput.h helpmenu.h panemgr.h \
-	refreshctl.h convert.h dispshare.h XMWidget.h
-	$(CPP) $(XCCFLAGS) grafinput.cc
-
-grobjinput.o: grobjinput.cc XMManagers.h XMDialogs.h XMSeparators.h \
-	grobjinput.h XMWidget.h
-	$(CPP) $(XCCFLAGS) grobjinput.cc
-
-grobjmgr.o: grobjmgr.cc dispgrob.h grobjmgr.h
-	$(CPP) $(XCCFLAGS) grobjmgr.cc
-
-grobjdisplay.o: grobjdisplay.cc XMWidget.h panemgr.h grobjdisplay.h \
-	dispwind.h superpos.h text.h dispgrob.h dispshare.h errormsg.h convert.h \
-	colormgr.h grobjmgr.h XBatch.h sumregion.h chanplot.h acceptgates.h \
-	XMList.h
-	$(CPP) $(XCCFLAGS) grobjdisplay.cc
-
-sumregion.o: sumregion.cc XMWidget.h XMPushbutton.h XMLabel.h XMText.h \
-	XMList.h dispgrob.h dispwind.h superpos.h dispshare.h grobjmgr.h sumregion.h \
-	panemgr.h convert.h errormsg.h grobjinput.h colormgr.h chanplot.h \
-	grobjdisplay.h XBatch.h
-	$(CPP) $(XCCFLAGS) sumregion.cc
-
-integrate.o: integrate.cc integrate.h dispshare.h dispgrob.h
-	$(CPP) $(XCCFLAGS) integrate.cc
-
-guintegrate.o: guintegrate.cc XMDialogs.h XMText.h guintegrate.h integrate.h \
-	logging.h dispshare.h dispgrob.h grobjmgr.h XMWidget.h panemgr.h \
-	errormsg.h
-	$(CPP) $(XCCFLAGS) guintegrate.cc
-
-delgrob.o: delgrob.cc XMWidget.h XMDialogs.h dispgrob.h dispwind.h superpos.h \
-	helpmenu.h delgrob.h grobjmgr.h panemgr.h errormsg.h
-	$(CPP) $(XCCFLAGS) delgrob.cc
-
-messages.o: messages.cc eventflags.h XMWidget.h messages.h
-	$(CPP) $(XCCFLAGS) messages.cc
-
-eventflags.o: eventflags.cc eventflags.h
-	$(CPP) $(XCCFLAGS) eventflags.cc
-
-gateio.o: gateio.cc XMWidget.h messages.h gateio.h
-	$(CPP) $(XCCFLAGS) gateio.cc
-
-acceptgates.o: acceptgates.cc XMWidget.h XBatch.h convert.h dispgrob.h \
-	acceptgates.h sumregion.h
-	$(CPP) $(XCCFLAGS) acceptgates.cc
-
-clirequests.o: clirequests.cc dispshare.h XMWidget.h errormsg.h panemgr.h \
-	dispgrob.h clirequests.h gateio.h grobjmgr.h
-	$(CPP) $(XCCFLAGS) clirequests.cc
-
-clientgates.o: clientgates.c clientgates.h client.h messages.h
-	$(CC) $(CCFLAGS) clientgates.c
-
-
-spccheck.o: spccheck.cc spccheck.h panemgr.h dispwind.h superpos.h refreshctl.h \
-	dispshare.h
-	$(CPP) $(XCCFLAGS) spccheck.cc
-
-prccheck.o: prccheck.c prccheck.h
-	$(CC) $(XCCFLAGS) prccheck.c
-
-superpos.o: superpos.cc superpos.h
-	$(CPP) $(XCCFLAGS) superpos.cc
-
-superprompt.o: superprompt.cc XMDialogs.h superprompt.h dispwind.h superpos.h \
-	spcdisplay.h dispshare.h helpmenu.h panemgr.h errormsg.h specchoose.h
-	$(CPP) $(XCCFLAGS) superprompt.cc
-
-allocator.o: allocator.c allocator.h
-	$(CC) $(XCCFLAGS) allocator.c
-
-specalloc.o: specalloc.c client.h
-	$(CC) $(XCCFLAGS) specalloc.c
-
-
-copier.o: copier.cc copier.h XMPushbutton.h XMManagers.h XMList.h XMLabel.h
-	$(CPP) $(XCCFLAGS) copier.cc
-
-objcopy.o: objcopy.cc XMDialogs.h panemgr.h dispshare.h objcopy.h dispgrob.h \
-	   grobjmgr.h gateio.h helpmenu.h compatspec.h copier.h clirequests.h
-	$(CPP) $(XCCFLAGS) objcopy.cc
-
-lblfont.o: lblfont.cc XMDialogs.h XMPushbutton.h XMLabel.h refreshctl.h \
-	grobjdisplay.h helpmenu.h lblfont.h dfltmgr.h text.h
-	$(CPP) $(XCCFLAGS) lblfont.cc
-
-checklist.o: checklist.cc XMManagers.h XMPushbutton.h XMLabel.h checklist.h
-	$(CPP) $(XCCFLAGS) checklist.cc
-
-compatspec.o: compatspec.cc compatspec.h dispshare.h XMManagers.h XMList.h \
-	XMPushbutton.h panemgr.h
-	$(CPP) $(XCCFLAGS) compatspec.cc
-
-copyatr.o: copyatr.cc dispwind.h panemgr.h checklist.h compatspec.h \
-	superpos.h XMDialogs.h XMManagers.h XMCallback.h compatspec.h \
-	errormsg.h helpmenu.h refreshctl.h XMCallback.cc
-	$(CPP) $(XCCFLAGS) copyatr.cc
-
-clientbuttons.o: clientbuttons.c client.h clientops.h XMWidget.h
-	$(CC) $(XCCFLAGS) clientbuttons.c 
-
-buttondlg.o: buttondlg.cc XMManagers.h XMPushbutton.h XMShell.h buttondlg.h \
-	XMCallback.h
-	$(CPP) $(XCCFLAGS) buttondlg.cc
-
-buttonreq.o: buttonreq.cc XMCallback.h XMShell.h XMPushbutton.h errormsg.h \
-	clientops.h buttonreq.h messages.h gateio.h buttondlg.h panemgr.h \
-	spcchoice.h client.h ptlist.h XMCallback.cc
-	$(CPP) $(XCCFLAGS) buttonreq.cc
-
-XMShell.o: XMShell.cc XMShell.h
-	$(CPP) $(XCCFLAGS) XMShell.cc
-
-spcchoice.o: spcchoice.cc errormsg.h dispshare.h spcchoice.h
-	$(CPP) $(XCCFLAGS) spcchoice.cc
-
-spccompatchoice.o:  spccompatchoice.cc dispshare.h spcchoice.h dispwind.h \
-	panemgr.h
-	$(CPP) $(XCCFLAGS) spccompatchoice.cc
-
-spclimchoice.o: spclimchoice.cc dispshare.h spcchoice.h
-	$(CPP) $(XCCFLAGS) spclimchoice.cc
-
-ptlist.o: ptlist.cc errormsg.h dispgrob.h ptlist.h panemgr.h XMWidget.h \
-	sumregion.h
-	$(CPP) $(XCCFLAGS) ptlist.cc
-
-Xwarning:	Xwarning.o MOTIF_LIB
-	$(LD) $(LDFLAGS) -o Xwarning Xwarning.o  XMMenus.o \
-	XMDialogs.o XMManagers.o XMWlist.o copier.o XMShell.o \
-	errormsg.o helpmenu.o XMCallback.o \
-	-lXm -lXt -lX11 $($(OS)LIB)
-
-Xwarning.o:	Xwarning.cc XMWidget.h XMManagers.h XMLabel.h XMPushbutton.h
-	$(CPP) $(XCCFLAGS) Xwarning.cc
-
-lexsupport.o:	lexsupport.c
-	$(CC) $(CCFLAGS) lexsupport.c
-
-f77test: f77test.f xamineshare_unix.for
-	rm -f xamineshare.for
-	cp xamineshare_unix.for xamineshare.for
-	f77 -o f77test f77test.f -L. -lXamine
-
-
-gc.o: gc.cc gc.h
-	$(CPP) $(XCCFLAGS) gc.cc
-
-xaminegc.o: xaminegc.cc gc.h xaminegc.h text.h colormgr.h chanplot.h
-	$(CPP) $(XCCFLAGS) xaminegc.cc
-
-gcmgr.o: gcmgr.cc xaminegc.h gc.h gcmgr.h grobjdisplay.h XMWidget.h convert.h \
-	dispgrob.h dispwind.h refreshctl.h
-	$(CPP) $(XCCFLAGS) gcmgr.cc
+	$(CC) $(XCCFLAGS) grobfile.cc
 
 defaultfile_lex.h: defaultfile.y windio.h
 	$(YACC) -p defaultfile -b defaultfile -dl defaultfile.y
@@ -661,276 +698,8 @@ defaultfile_lex.o: windfile.l defaultfile.l dispwind.h superpos.h \
 	$(LEX) defaultfile.l
 	sed s/yy/defaultfile/g $(LEXOUT) >defaultfile_lex.cc
 	cp defaultfile_lex.h windlex.h
-	$(CPP) $(XCCFLAGS) -DDEFAULTFILE defaultfile_lex.cc
-# DO NOT DELETE
+	$(CC) $(XCCFLAGS) -DDEFAULTFILE defaultfile_lex.cc
 
-XMCallback.o: XMWidget.h
-XMDialogs.o: helpmenu.h XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h
-XMDialogs.o: XMCallback.h errormsg.h
-XMManagers.o: XMManagers.h XMWidget.h
-XMMenus.o: XMMenus.h XMWidget.h XMPushbutton.h
-XMShell.o: XMShell.h XMWidget.h XMCallback.h
-XMWlist.o: XMWlist.h XMWidget.h XMPushbutton.h
-Xamine.o: XMWidget.h XMPushbutton.h XMMenus.h XMDialogs.h XMManagers.h
-Xamine.o: XMCallback.h dispshare.h dispwind.h superpos.h panemgr.h
-Xamine.o: menusetup.h buttonsetup.h location.h XMLabel.h pkgmgr.h colormgr.h
-Xamine.o: dfltmgr.h gateio.h dispgrob.h XBatch.h convert.h messages.h
-Xamine.o: clientops.h ./Xamine.h clirequests.h prccheck.h spccheck.h
-Xamine.o: trackcursor.h
-Xwarning.o: XMWidget.h XMManagers.h XMLabel.h XMPushbutton.h
-acceptgates.o: XMWidget.h XBatch.h convert.h dispwind.h superpos.h
-acceptgates.o: dispshare.h dispgrob.h acceptgates.h sumregion.h XMList.h
-acceptgates.o: XMPushbutton.h XMLabel.h XMText.h grobjinput.h XMManagers.h
-acceptgates.o: XMDialogs.h XMCallback.h XMSeparators.h grafinput.h helpmenu.h
-acceptgates.o: refreshctl.h panemgr.h grobjdisplay.h colormgr.h chanplot.h
-acceptgates.o: grobjmgr.h errormsg.h gateio.h messages.h clientops.h
-acceptgates.o: ./Xamine.h
-advprompt.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-advprompt.o: helpmenu.h advprompt.h spcdisplay.h dispwind.h superpos.h
-advprompt.o: dispshare.h errormsg.h
-attribdefault.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h
-attribdefault.o: XMCallback.h XMLabel.h XMText.h helpmenu.h dispwind.h
-attribdefault.o: superpos.h dispshare.h dfltmgr.h optionmenu.h XMScale.h
-attribdefault.o: panemgr.h refreshctl.h
-axes.o: XMWidget.h XBatch.h axes.h dispwind.h superpos.h dispshare.h
-axes.o: refreshctl.h panemgr.h XMManagers.h text.h gcmgr.h xaminegc.h gc.h
-axes.o: mapcoord.h
-axisdefault.o: XMPushbutton.h XMWidget.h XMDialogs.h XMManagers.h
-axisdefault.o: XMCallback.h helpmenu.h dispwind.h superpos.h dispshare.h
-axisdefault.o: dfltmgr.h optionmenu.h XMText.h XMLabel.h XMScale.h panemgr.h
-axisdefault.o: refreshctl.h
-buttondlg.o: XMManagers.h XMWidget.h XMPushbutton.h XMShell.h XMCallback.h
-buttondlg.o: buttondlg.h clientops.h ./Xamine.h
-buttonreq.o: XMShell.h XMWidget.h XMCallback.h XMPushbutton.h XMDialogs.h
-buttonreq.o: XMManagers.h dispshare.h errormsg.h dispwind.h superpos.h
-buttonreq.o: gateio.h dispgrob.h XBatch.h convert.h messages.h clientops.h
-buttonreq.o: ./Xamine.h buttonreq.h buttondlg.h panemgr.h spcchoice.h
-buttonreq.o: ptlist.h sumregion.h XMList.h XMLabel.h XMText.h grobjinput.h
-buttonreq.o: XMSeparators.h grafinput.h helpmenu.h refreshctl.h
-buttonsetup.o: XMManagers.h XMWidget.h XMPushbutton.h buttonsetup.h
-buttonsetup.o: location.h XMLabel.h geometrymenu.h panemgr.h dispwind.h
-buttonsetup.o: superpos.h dispshare.h specchoose.h XMDialogs.h XMCallback.h
-buttonsetup.o: spcdisplay.h pkgmgr.h refreshctl.h expand.h info.h marker.h
-buttonsetup.o: sumregion.h XMList.h XMText.h convert.h dispgrob.h XBatch.h
-buttonsetup.o: grobjinput.h XMSeparators.h grafinput.h helpmenu.h
-buttonsetup.o: guintegrate.h acceptgates.h trackcursor.h properties.h
-chanplot.o: XMWidget.h refreshctl.h panemgr.h XMManagers.h dispwind.h
-chanplot.o: superpos.h dispshare.h axes.h scaling.h chanplot.h colormgr.h
-chanplot.o: gc.h xaminegc.h gcmgr.h
-checklist.o: XMManagers.h XMWidget.h XMPushbutton.h XMLabel.h checklist.h
-clirequests.o: acceptgates.h XMWidget.h convert.h dispwind.h superpos.h
-clirequests.o: dispshare.h dispgrob.h XBatch.h grobjdisplay.h refreshctl.h
-clirequests.o: panemgr.h XMManagers.h errormsg.h clirequests.h gateio.h
-clirequests.o: messages.h clientops.h ./Xamine.h grobjmgr.h buttonreq.h
-colormgr.o: XMWidget.h colormgr.h
-colorset.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-colorset.o: XMMenus.h helpmenu.h errormsg.h procede.h colormgr.h
-compatspec.o: compatspec.h XMManagers.h XMWidget.h XMList.h XMPushbutton.h
-compatspec.o: XMLabel.h dispshare.h panemgr.h dispwind.h superpos.h
-convert.o: convert.h XMWidget.h dispwind.h superpos.h dispshare.h axes.h
-convert.o: refreshctl.h panemgr.h XMManagers.h mapcoord.h
-copier.o: copier.h XMPushbutton.h XMWidget.h XMManagers.h XMList.h XMLabel.h
-copyatr.o: dispwind.h superpos.h dispshare.h panemgr.h XMManagers.h
-copyatr.o: XMWidget.h checklist.h XMPushbutton.h XMLabel.h compatspec.h
-copyatr.o: XMList.h XMDialogs.h XMCallback.h errormsg.h helpmenu.h
-copyatr.o: refreshctl.h
-delgrob.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-delgrob.o: dispgrob.h dispwind.h superpos.h dispshare.h XBatch.h convert.h
-delgrob.o: helpmenu.h delgrob.h grobjmgr.h panemgr.h errormsg.h refreshctl.h
-dfltmgr.o: panemgr.h XMManagers.h XMWidget.h dispwind.h superpos.h
-dfltmgr.o: dispshare.h grobjdisplay.h convert.h dispgrob.h XBatch.h
-dfltmgr.o: refreshctl.h printer.h XMList.h XMText.h XMPushbutton.h dfltmgr.h
-dispgrob.o: dispgrob.h XMWidget.h dispwind.h superpos.h dispshare.h XBatch.h
-dispgrob.o: convert.h sumregion.h XMList.h XMPushbutton.h XMLabel.h XMText.h
-dispgrob.o: grobjinput.h XMManagers.h XMDialogs.h XMCallback.h XMSeparators.h
-dispgrob.o: grafinput.h helpmenu.h refreshctl.h panemgr.h acceptgates.h
-dispgrob.o: grobjdisplay.h marker.h gcmgr.h xaminegc.h gc.h chanplot.h
-dispwind.o: dispwind.h superpos.h dispshare.h errormsg.h XMWidget.h panemgr.h
-dispwind.o: XMManagers.h
-errormsg.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-eventflags.o: eventflags.h
-exit.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-exit.o: panemgr.h dispwind.h superpos.h dispshare.h helpmenu.h exit.h
-exit.o: winiomenu.h
-expand.o: XMWidget.h XMDialogs.h XMPushbutton.h XMManagers.h XMCallback.h
-expand.o: errormsg.h panemgr.h dispwind.h superpos.h dispshare.h helpmenu.h
-expand.o: expand.h refreshctl.h exit.h select2.h XMLabel.h XMText.h
-expand.o: grafinput.h convert.h colormgr.h gcmgr.h xaminegc.h gc.h mapcoord.h
-gateio.o: gateio.h XMWidget.h dispgrob.h dispwind.h superpos.h dispshare.h
-gateio.o: XBatch.h convert.h messages.h clientops.h ./Xamine.h mapcoord.h
-gateio.o: panemgr.h XMManagers.h
-gc.o: gc.h
-gcmgr.o: xaminegc.h dispwind.h superpos.h dispshare.h gc.h XMWidget.h
-gcmgr.o: grobjdisplay.h convert.h dispgrob.h XBatch.h refreshctl.h panemgr.h
-gcmgr.o: XMManagers.h
-geometrymenu.o: XMLabel.h XMWidget.h XMDialogs.h XMPushbutton.h XMManagers.h
-geometrymenu.o: XMCallback.h XMSeparators.h helpmenu.h errormsg.h panemgr.h
-geometrymenu.o: dispwind.h superpos.h dispshare.h menusetup.h XMMenus.h
-geometrymenu.o: exit.h
-grafinput.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-grafinput.o: grafinput.h helpmenu.h refreshctl.h panemgr.h dispwind.h
-grafinput.o: superpos.h dispshare.h convert.h
-griprint.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-griprint.o: XMText.h XMLabel.h XMTab.h TabP.h Tab.h XMList.h panemgr.h
-griprint.o: dispwind.h superpos.h dispshare.h helpmenu.h printer.h dispgrob.h
-griprint.o: XBatch.h convert.h axes.h refreshctl.h grobjmgr.h griprint.h
-griprint.o: colormgr.h mapcoord.h
-grobfile.o: dispgrob.h XMWidget.h dispwind.h superpos.h dispshare.h XBatch.h
-grobfile.o: convert.h panemgr.h XMManagers.h errormsg.h
-grobjdb.o: dispgrob.h XMWidget.h dispwind.h superpos.h dispshare.h XBatch.h
-grobjdb.o: convert.h
-grobjdisplay.o: XMWidget.h XBatch.h panemgr.h XMManagers.h dispwind.h
-grobjdisplay.o: superpos.h dispshare.h grobjdisplay.h convert.h dispgrob.h
-grobjdisplay.o: refreshctl.h text.h errormsg.h colormgr.h grobjmgr.h
-grobjdisplay.o: sumregion.h XMList.h XMPushbutton.h XMLabel.h XMText.h
-grobjdisplay.o: grobjinput.h XMDialogs.h XMCallback.h XMSeparators.h
-grobjdisplay.o: grafinput.h helpmenu.h chanplot.h acceptgates.h gc.h
-grobjdisplay.o: xaminegc.h gcmgr.h
-grobjinput.o: XMManagers.h XMWidget.h XMDialogs.h XMPushbutton.h XMCallback.h
-grobjinput.o: XMSeparators.h grobjinput.h XMText.h XMLabel.h grafinput.h
-grobjinput.o: helpmenu.h refreshctl.h panemgr.h dispwind.h superpos.h
-grobjinput.o: dispshare.h
-grobjiomenu.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h
-grobjiomenu.o: XMCallback.h helpmenu.h grobjiomenu.h panemgr.h dispwind.h
-grobjiomenu.o: superpos.h dispshare.h grobjmgr.h dispgrob.h XBatch.h
-grobjiomenu.o: convert.h refreshctl.h errormsg.h winiomenu.h
-grobjmgr.o: dispgrob.h XMWidget.h dispwind.h superpos.h dispshare.h XBatch.h
-grobjmgr.o: convert.h grobjmgr.h
-grobjtest.o: dispgrob.h XMWidget.h dispwind.h superpos.h dispshare.h XBatch.h
-grobjtest.o: convert.h
-guintegrate.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h
-guintegrate.o: XMCallback.h XMText.h errormsg.h guintegrate.h integrate.h
-guintegrate.o: dispgrob.h dispwind.h superpos.h dispshare.h XBatch.h
-guintegrate.o: convert.h logging.h grobjmgr.h panemgr.h mapcoord.h
-helpmenu.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-info.o: XMWidget.h XMDialogs.h XMPushbutton.h XMManagers.h XMCallback.h
-info.o: XMText.h info.h logging.h panemgr.h dispwind.h superpos.h dispshare.h
-info.o: errormsg.h dispgrob.h XBatch.h convert.h grobjmgr.h spcdisplay.h
-integrate.o: integrate.h dispgrob.h XMWidget.h dispwind.h superpos.h
-integrate.o: dispshare.h XBatch.h convert.h
-lblfont.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-lblfont.o: XMLabel.h refreshctl.h panemgr.h dispwind.h superpos.h dispshare.h
-lblfont.o: grobjdisplay.h convert.h dispgrob.h XBatch.h helpmenu.h lblfont.h
-lblfont.o: dfltmgr.h text.h
-location.o: XMManagers.h XMWidget.h XMLabel.h location.h
-logging.o: errormsg.h XMWidget.h XMDialogs.h XMPushbutton.h XMManagers.h
-logging.o: XMCallback.h helpmenu.h logging.h
-mapcoord.o: mapcoord.h dispshare.h
-marker.o: XMText.h XMWidget.h XMLabel.h XMPushbutton.h XBatch.h errormsg.h
-marker.o: marker.h grafinput.h XMDialogs.h XMManagers.h XMCallback.h
-marker.o: helpmenu.h refreshctl.h panemgr.h dispwind.h superpos.h dispshare.h
-marker.o: grobjinput.h XMSeparators.h dispgrob.h convert.h colormgr.h
-marker.o: grobjmgr.h grobjdisplay.h mapcoord.h
-menusetup.o: properties.h dispwind.h superpos.h dispshare.h XMWidget.h
-menusetup.o: XMPushbutton.h menusetup.h XMMenus.h helpmenu.h XMDialogs.h
-menusetup.o: XMManagers.h XMCallback.h exit.h winiomenu.h grobjiomenu.h
-menusetup.o: geometrymenu.h toggles.h logging.h specchoose.h spcdisplay.h
-menusetup.o: advprompt.h panemgr.h pkgmgr.h optionmenu.h XMText.h XMLabel.h
-menusetup.o: XMScale.h printer.h dispgrob.h XBatch.h convert.h XMList.h
-menusetup.o: refreshctl.h expand.h info.h marker.h sumregion.h grobjinput.h
-menusetup.o: XMSeparators.h grafinput.h guintegrate.h delgrob.h acceptgates.h
-menusetup.o: trackcursor.h location.h errormsg.h superprompt.h objcopy.h
-menusetup.o: copier.h lblfont.h copyatr.h Tab.h
-messages.o: messages.h dispgrob.h XMWidget.h dispwind.h superpos.h
-messages.o: dispshare.h XBatch.h convert.h clientops.h ./Xamine.h
-objcopy.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-objcopy.o: panemgr.h dispwind.h superpos.h dispshare.h objcopy.h copier.h
-objcopy.o: XMList.h XMLabel.h dispgrob.h XBatch.h convert.h grobjmgr.h
-objcopy.o: gateio.h messages.h clientops.h ./Xamine.h helpmenu.h errormsg.h
-objcopy.o: grobjdisplay.h refreshctl.h compatspec.h
-panemgr.o: XMManagers.h XMWidget.h menusetup.h XMMenus.h XMPushbutton.h
-panemgr.o: panemgr.h dispwind.h superpos.h dispshare.h buttonsetup.h
-panemgr.o: location.h XMLabel.h pkgmgr.h refreshctl.h trackcursor.h
-panemgr.o: colormgr.h
-pkgmgr.o: XMWlist.h XMWidget.h XMPushbutton.h pkgmgr.h
-plot1d.o: XMWidget.h XBatch.h scaling.h dispwind.h superpos.h dispshare.h
-plot1d.o: chanplot.h refreshctl.h panemgr.h XMManagers.h
-plot2d.o: XMWidget.h XBatch.h dispwind.h superpos.h dispshare.h chanplot.h
-plot2d.o: refreshctl.h panemgr.h XMManagers.h scaling.h colormgr.h
-printer.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-printer.o: XMText.h XMLabel.h XMTab.h TabP.h Tab.h XMList.h panemgr.h
-printer.o: dispwind.h superpos.h dispshare.h helpmenu.h printer.h dispgrob.h
-printer.o: XBatch.h convert.h axes.h refreshctl.h grobjmgr.h griprint.h
-printer.o: dfltmgr.h
-procede.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-properties.o: XMWidget.h XMDialogs.h XMPushbutton.h XMManagers.h XMCallback.h
-properties.o: helpmenu.h errormsg.h properties.h dispwind.h superpos.h
-properties.o: dispshare.h spcdisplay.h optionmenu.h XMText.h XMLabel.h
-properties.o: XMScale.h panemgr.h refreshctl.h colormgr.h exit.h
-ptlist.o: panemgr.h XMManagers.h XMWidget.h dispwind.h superpos.h dispshare.h
-ptlist.o: errormsg.h dispgrob.h XBatch.h convert.h ptlist.h sumregion.h
-ptlist.o: XMList.h XMPushbutton.h XMLabel.h XMText.h grobjinput.h XMDialogs.h
-ptlist.o: XMCallback.h XMSeparators.h grafinput.h helpmenu.h refreshctl.h
-queue.o: queue.h
-reducedefault.o: XMManagers.h XMWidget.h XMDialogs.h XMPushbutton.h
-reducedefault.o: XMCallback.h dispwind.h superpos.h dispshare.h optionmenu.h
-reducedefault.o: XMText.h XMLabel.h XMScale.h dfltmgr.h helpmenu.h panemgr.h
-reducedefault.o: refreshctl.h
-refreshctl.o: XMWidget.h panemgr.h XMManagers.h dispwind.h superpos.h
-refreshctl.o: dispshare.h refreshctl.h axes.h scaling.h titles.h chanplot.h
-refreshctl.o: dfltmgr.h colormgr.h spcdisplay.h grobjdisplay.h convert.h
-refreshctl.o: dispgrob.h XBatch.h pkgmgr.h XMPushbutton.h queue.h queue.cc
-refreshctl.o: gc.h xaminegc.h gcmgr.h
-refreshdefault.o: helpmenu.h XMDialogs.h XMWidget.h XMPushbutton.h
-refreshdefault.o: XMManagers.h XMCallback.h XMScale.h dfltmgr.h dispwind.h
-refreshdefault.o: superpos.h dispshare.h optionmenu.h XMText.h XMLabel.h
-refreshdefault.o: panemgr.h refreshctl.h
-rend1default.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h
-rend1default.o: XMCallback.h optionmenu.h XMText.h XMLabel.h XMScale.h
-rend1default.o: dispwind.h superpos.h dispshare.h dfltmgr.h helpmenu.h
-rend1default.o: refreshctl.h panemgr.h
-rend2default.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h
-rend2default.o: XMCallback.h optionmenu.h XMText.h XMLabel.h XMScale.h
-rend2default.o: dispwind.h superpos.h dispshare.h dfltmgr.h helpmenu.h
-rend2default.o: colormgr.h refreshctl.h panemgr.h
-scaling.o: XMWidget.h dispwind.h superpos.h dispshare.h scaling.h axes.h
-scaling.o: refreshctl.h panemgr.h XMManagers.h mapcoord.h
-select2.o: XMWidget.h XMDialogs.h XMPushbutton.h XMManagers.h XMCallback.h
-select2.o: XMLabel.h XMText.h helpmenu.h select2.h
-shared.o: dispshare.h
-spccheck.o: spccheck.h panemgr.h XMManagers.h XMWidget.h dispwind.h
-spccheck.o: superpos.h dispshare.h refreshctl.h
-spcchoice.o: errormsg.h XMWidget.h dispshare.h spcchoice.h XMDialogs.h
-spcchoice.o: XMPushbutton.h XMManagers.h XMCallback.h
-spccompatchoice.o: dispshare.h spcchoice.h XMDialogs.h XMWidget.h
-spccompatchoice.o: XMPushbutton.h XMManagers.h XMCallback.h dispwind.h
-spccompatchoice.o: superpos.h panemgr.h
-spcdisplay.o: errormsg.h XMWidget.h dispshare.h spcdisplay.h dispwind.h
-spcdisplay.o: superpos.h panemgr.h XMManagers.h refreshctl.h dfltmgr.h exit.h
-spcdisplay.o: pkgmgr.h XMPushbutton.h buttonsetup.h location.h XMLabel.h
-spclimchoice.o: dispshare.h spcchoice.h XMDialogs.h XMWidget.h XMPushbutton.h
-spclimchoice.o: XMManagers.h XMCallback.h
-specchoose.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-specchoose.o: dispshare.h specchoose.h helpmenu.h errormsg.h spcdisplay.h
-specchoose.o: dispwind.h superpos.h
-spectra.o: dispshare.h
-sumregion.o: XMWidget.h XMPushbutton.h XMLabel.h XMText.h XMList.h XBatch.h
-sumregion.o: dispgrob.h dispwind.h superpos.h dispshare.h convert.h
-sumregion.o: grobjmgr.h grobjdisplay.h refreshctl.h panemgr.h XMManagers.h
-sumregion.o: sumregion.h grobjinput.h XMDialogs.h XMCallback.h XMSeparators.h
-sumregion.o: grafinput.h helpmenu.h errormsg.h colormgr.h chanplot.h
-sumregion.o: mapcoord.h
-superpos.o: superpos.h
-superprompt.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h
-superprompt.o: XMCallback.h superprompt.h dispwind.h superpos.h dispshare.h
-superprompt.o: spcdisplay.h helpmenu.h panemgr.h errormsg.h specchoose.h
-superprompt.o: compatspec.h XMList.h XMLabel.h refreshctl.h menusetup.h
-superprompt.o: XMMenus.h exit.h
-text.o: text.h
-titledefault.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h
-titledefault.o: XMCallback.h dispwind.h superpos.h dispshare.h dfltmgr.h
-titledefault.o: helpmenu.h optionmenu.h XMText.h XMLabel.h XMScale.h
-titledefault.o: panemgr.h refreshctl.h
-titles.o: dispshare.h titles.h XMWidget.h dispwind.h superpos.h refreshctl.h
-titles.o: panemgr.h XMManagers.h axes.h text.h chanplot.h mapcoord.h
-toggles.o: XMWidget.h toggles.h
-trackcursor.o: XMWidget.h XMManagers.h trackcursor.h location.h XMLabel.h
-trackcursor.o: buttonsetup.h panemgr.h dispwind.h superpos.h dispshare.h
-trackcursor.o: convert.h spcdisplay.h mapcoord.h
-winiomenu.o: XMDialogs.h XMWidget.h XMPushbutton.h XMManagers.h XMCallback.h
-winiomenu.o: helpmenu.h winiomenu.h dispwind.h superpos.h dispshare.h
-winiomenu.o: panemgr.h exit.h refreshctl.h errormsg.h buttonsetup.h
-winiomenu.o: location.h XMLabel.h menusetup.h XMMenus.h
-wintest.o: dispshare.h dispwind.h superpos.h
-xaminegc.o: gc.h xaminegc.h dispwind.h superpos.h dispshare.h XMWidget.h
-xaminegc.o: text.h colormgr.h chanplot.h refreshctl.h panemgr.h XMManagers.h
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

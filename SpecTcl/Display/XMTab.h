@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -275,8 +275,8 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
-#ifndef XMTab_h
-#define XMTab_h
+#ifndef XMTAB_H
+#define XMTAB_H
 #include <stdio.h>
 
 #include <X11/StringDefs.h>
@@ -290,21 +290,21 @@ DAMAGES.
 #include <Xm/ToggleB.h>
 #include <Xm/DrawingA.h>
 #include <Xm/XmP.h>
+
+#ifndef XMWIDGET_H
+#include "XMWidget.h"
+#endif
+
+#ifndef __TABP_H__
 #include "TabP.h"
+#endif
 
 /*
 ** #Defines:
 **
 */
-#ifdef unix
 #define XMFILE_DEFAULT_DIR     "./"
 #define XMFILE_DEFAULT_DIRMASK "./*"
-#endif
-
-#ifdef VMS
-#define XMFILE_DEFAULT_DIR     "SYS$DISK:[]"
-#define XMFILE_DEFAULT_DIRMASK "SYS$DISK:[]*.*;0"
-#endif
 
 class XMTab : public XMManagedWidget
 {
@@ -313,21 +313,14 @@ class XMTab : public XMManagedWidget
 
  public:
   XMTab(char *n, XMWidget &parent, 
-	ArgList args = NULL, Cardinal arg_count = 0) :
-    XMManagedWidget(n, xmTabWidgetClass, parent, args, arg_count) 
-    { }
+	ArgList args = NULL, Cardinal arg_count = 0);
   XMTab(char *n, Widget parent, char *text,
-	ArgList args = NULL, Cardinal arg_count = 0) :
-    XMManagedWidget(n, xmLabelWidgetClass, parent, args, arg_count) 
-    { }
-  XMTab(char *n) : XMManagedWidget(n)
-    { }
-  XMTab(Widget w) : XMManagedWidget(w) 
-    { }
+	ArgList args = NULL, Cardinal arg_count = 0);
+  XMTab(char *n);
+  XMTab(Widget w);
 
-  Callback_data *AddCallback
-    (void (*cb)(XMWidget *, XtPointer, XtPointer) = NULL, XtPointer cd = NULL)
-    { return XMWidget::AddCallback(XmNactivateCallback, cb, cd); }
+  Callback_data *AddCallback(void (*cb)(XMWidget *, XtPointer, XtPointer) 
+			     = NULL, XtPointer cd = NULL);
 };
 
 #endif

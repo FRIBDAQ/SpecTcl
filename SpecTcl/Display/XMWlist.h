@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -289,15 +289,20 @@ DAMAGES.
 **
 **    @(#)XMWlist.h	8.1 6/23/95 
 */
-#ifndef _XMWLIST_H
-#define _XMWLIST_H
+#ifndef XMWLIST_H
+#define XMWLIST_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "XMWidget.h"
-#include "XMPushbutton.h"
 
+#ifndef XMWIDGET_H
+#include "XMWidget.h"
+#endif
+
+#ifndef XMPUSHBUTTON_H
+#include "XMPushbutton.h"
+#endif
 
 /*
 ** Below is a generic list class which is used to construct the widget list
@@ -369,7 +374,7 @@ template<class T> class Generic_List {
 class XMWidgetList : public Generic_List<XMWidget>
 {
  public:
-  XMWidgetList(int num = LIST_DEFAULT_SIZE) : Generic_List<XMWidget>(num) {}
+  XMWidgetList(int num = LIST_DEFAULT_SIZE);
   void SetAttribute(String attribute, XtArgVal value);
   void SetAttribute(String attribute, void *value);
 };
@@ -377,12 +382,8 @@ class XMWidgetList : public Generic_List<XMWidget>
 class XMButtonList : public XMWidgetList 
 {
  public:
-  void Enable() {
-    SetAttribute(XmNsensitive, (XtArgVal)True);
-  }
-  void Disable() {
-    SetAttribute(XmNsensitive, (XtArgVal)False);
-  }
+  void Enable();
+  void Disable();
 };
 
 

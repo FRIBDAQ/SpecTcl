@@ -305,14 +305,19 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Includes:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "XMWidget.h"
-#ifndef Linux
+#include "XMCallback.h"
+
+#ifndef LINUX
 extern "C" {
              void exit(int);
-
 	   }
 #endif
 

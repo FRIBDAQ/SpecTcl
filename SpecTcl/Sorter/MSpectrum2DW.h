@@ -159,6 +159,7 @@ private:
   UInt_t       SpecToYParamPoint(UInt_t nSpecPoint);
   UInt_t       XParamToSpecPoint(UInt_t nParamPoint);
   UInt_t       YParamToSpecPoint(UInt_t nParamPoint);
+  UInt_t       RandomizeToMultipleBins(Float_t nChannel, Float_t nRatio);
 };
 
 #endif

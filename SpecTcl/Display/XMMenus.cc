@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -298,6 +298,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <Xm/Separator.h>
 #include "XMMenus.h"
@@ -305,7 +310,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Declarations:
 */
-#ifndef Linux
+#ifndef LINUX
 extern "C" {
              void exit(int);
 	   }
@@ -916,3 +921,132 @@ XMPulldown *XMMenuBar::GetNextPulldown()
     here = NULL;
   return here;
 }
+
+
+/*
+** Implementation of functions that used to be inlined in an attempt to
+** make Xamine build on Tru64.
+*/
+
+XMPulldown::XMPulldown(char *n, Widget &parent, Cardinal max_items,
+		       ArgList l=NULL, Cardinal num_args=0) :
+  XMManagedWidget(n)
+{
+  BuildMenu(max_items, parent, l, num_args);
+}
+
+XMPulldown::XMPulldown(char *n, XMWidget &parent, Cardinal max_items,
+		       ArgList l = NULL, Cardinal num_args = 0) :
+  XMManagedWidget(n)
+{
+  BuildMenu(max_items, parent.getid(), 
+	    l, num_args);
+}
+
+void
+XMPulldown::Label(char *label) 
+{
+  pd_button->Label(label); 
+}
+
+void
+XMPulldown::RadioMenu()
+{
+  SetAttribute(XmNradioBehavior, (XtArgVal)True); 
+}
+
+void
+XMPulldown::RadioForceOne()
+{ 
+  SetAttribute(XmNradioAlwaysOne,
+	       (XtArgVal)True);
+}
+
+void
+XMPulldown::NoRadioMenu()
+{
+  SetAttribute(XmNradioBehavior, (XtArgVal)False);
+}
+
+void
+XMPulldown::RadioNoForceOne()
+{
+  SetAttribute(XmNradioAlwaysOne, (XtArgVal)False);
+}
+
+int
+XMPulldown::MenuSize()
+{
+  return menu_count;
+}
+
+int
+XMPulldown::MaxMenuSize()
+{
+  return max_menu_items;
+}
+
+XMMenuItem*
+XMPulldown::GetMenuItem(Cardinal index) 
+{ 
+  return ((index < menu_count) ? &(menu_items[index]) : (XMMenuItem *)NULL);
+}
+
+XMWidget*
+XMPulldown::GetCascadeButton()
+{
+  return pd_button;
+}
+
+XMMenuItem*
+XMPulldown::GetFirstMenuItem()
+{
+  menu_cursor = 0;
+  return GetNextMenuItem();
+}
+
+
+/*
+** Implementation of XMMenuBar functions not previously implemented
+*/
+
+XMMenuBar::XMMenuBar(char *n, Widget parent, Cardinal num_menus,
+		     ArgList l = NULL, Cardinal num_args = 0) :
+  XMManagedWidget(n)
+{
+  mbCreate(parent, num_menus, l, num_args);
+}
+
+XMMenuBar::XMMenuBar(char *n, XMWidget &parent, Cardinal num_menus,
+		     ArgList l = NULL, Cardinal num_args = 0) :
+  XMManagedWidget(n)
+{
+  mbCreate(parent.getid(), num_menus, l, num_args);
+}
+
+int
+XMMenuBar::NumMenus() 
+{
+  return menu_count;
+}
+
+XMPulldown*
+XMMenuBar::GetPulldown(Cardinal index)
+{ 
+  return ( (index < menu_count) ?
+	   menu_items[index] : (XMPulldown *)NULL);
+}
+
+XMPulldown*
+XMMenuBar::GetHelpPulldown()
+{
+  return help_pulldown;
+}
+
+XMPulldown*
+XMMenuBar::GetFirstPulldown()
+{  
+  menu_cursor = 0; 
+  return GetNextPulldown(); 
+}
+

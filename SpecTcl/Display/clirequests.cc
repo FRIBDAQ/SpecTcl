@@ -297,10 +297,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 #include <assert.h>
 
-#ifdef VMS
-#include <ssdef.h>
-#endif
-
 #include "acceptgates.h"
 #include "grobjdisplay.h"
 #include "convert.h"
@@ -317,13 +313,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Function prototypes:
 */
-
-#ifdef VMS
-extern "C" {
-   int sys$setef(int efn);
-   int sys$clref(int efn);
-}
-#endif
 
 /*
 ** External refs and defs:
@@ -560,12 +549,6 @@ Xamine_ProcessClientRequests(XtPointer client_data,
 			     int       *source_fd,
 			     XtInputId *input_id)
 {
-  /* If the implementation is for VMS clear the trigger event flag */
-
-#ifdef VMS
-  assert((sys$clref(*source_fd) & 1));
-#endif
-
   /* Process the events:  */
 
   msg_command cmd;
@@ -613,7 +596,4 @@ Xamine_ProcessClientRequests(XtPointer client_data,
       break;
     }
   }
-#ifdef VMS
-  Xamine_ResetGatesAttnAst();
-#endif
 }

@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -295,6 +295,10 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 4.3  2003/08/25 16:25:31  ron-fox
+  Initial starting point for merge with filtering -- this probably does not
+  generate a goo spectcl build.
+
   Revision 4.2  2003/04/04 17:44:21  ron-fox
   Catch dialog destruction for cached widgets so that the destroyed dialog is re-created when it's needed.  Prior behavior would usually crash Xamine because deleted widgets would be referenced.
 
@@ -303,11 +307,26 @@ DAMAGES.
 #ifndef SUMREGION_H_INSTALLED
 #define SUMREGION_H_INSTALLED
 
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
+#ifndef XMLIST_H_INSTALLED
 #include "XMList.h"
+#endif
+
+#ifndef XMPushbutton_H
 #include "XMPushbutton.h"
+#endif
+
+#ifndef _XMLABEL_H
 #include "XMLabel.h"
+#endif
+
+#ifndef _XMTEXT_H
 #include "XMText.h"
+#endif
+
 #include "convert.h"
 #include "dispgrob.h"
 #include "grobjinput.h"

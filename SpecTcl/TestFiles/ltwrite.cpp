@@ -286,6 +286,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2010, Al
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <TCLApplication.h>
 
 void Usage()
 {
@@ -340,3 +341,4 @@ main(int nArgs, char** pArgs)
     cerr << rExcept.ReasonText() << endl;
   }
 }
+CTCLApplication* gpTCLApplication(0);

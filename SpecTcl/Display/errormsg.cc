@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -290,8 +290,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **   East Lansing, MI 48824-1321
 **/
 
-#include "XMDialogs.h"
-#include "XMWidget.h"
+#include "errormsg.h"
 
 /*
 ** Functional Description:

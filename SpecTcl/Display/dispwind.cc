@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -291,23 +291,23 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **    @(#)dispwind.cc	2.2 1/28/94 
 */
 static char *revision="@(#)dispwind.cc	2.2 1/28/94 ";
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef unix
 #include <sys/types.h>
-#endif
-#ifdef VMS
-#include <types.h>
-#endif
 #include <time.h>
 #include "dispwind.h"
 #include "errormsg.h"
 #include "panemgr.h"		/* Need to get parent for error dialogs. */
-#ifdef unix
+
 #define SEEK_SET 0
 #define SEEK_CUR 1
 #define SEEK_END 2
-#endif
+
 #include "dispshare.h"
 
 volatile extern spec_shared *xamine_shared;
@@ -838,13 +838,7 @@ win_db *database;
 int windfileparse();
 void windfileerror(char *c);
 void win_startlex();
-#ifdef FLEXV2
-void windfilerestart(FILE *f)
-{
-  windfilein = f;
-  win_startlex();
-}
-#endif
+
 int win_db::read(const char *filename)
 {
   FILE *config;

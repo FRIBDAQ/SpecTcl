@@ -354,7 +354,16 @@ class ObjectInput : public GraphicalInput {
     XMCustomDialog::UnManage();  
   }
 
-  
+  /* We need to give implementations to these pure virtual ABC functions */
+  virtual void ClearState() {}
+  virtual void DrawPoints(XMWidget *pane, Xamine_RefreshContext *ctx = NULL)
+    {}
+  virtual void ClearPoints(XMWidget *pane, 
+			   Xamine_RefreshContext *ctx = NULL) {}
+  virtual void ClearDialog() {}
+  virtual void AddPoint(point &pt) {}
+  virtual void DelPoint() {}
+  virtual Boolean DoAccept() {}
 };
 
 

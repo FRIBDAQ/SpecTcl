@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -300,11 +300,9 @@ DAMAGES.
 #include <Xm/Xm.h>
 #include "dispgrob.h"
 
-#ifdef unix
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#endif
 #include "clientops.h"
 
 #ifdef OLD_VERSION
@@ -408,38 +406,14 @@ class MessageQueue {
   void AddXtCallback(XtAppContext ctx,
 		     XtInputCallbackProc proc);      /* Add input avail cb. */
   void CancelXtCallback();
-  int  getid() {
-#ifdef unix
-                  return fid;
-#endif
-#ifdef VMS
-		  return chan;
-#endif
-               }
+  int  getid() { return fid; }
   int  WaitForInputData(int timeout, 
 			void *buf, int bytes);   /* Read with timeout */
   int unblockedread(void *buf, unsigned int bytes);
-#ifdef VMS
 
-  void setef(int ef) { efn = ef; }
-  int getef()        { return efn; }
-  void getiosb(short *ios) { ios[0] = iosb[0]; 
-			     ios[1] = iosb[1];
-			     ios[2] = iosb[2];
-			     ios[3] = iosb[3]; 
-			   }
-  void ResetNotificationAst();
-#endif
  private:
   int   XtInputHandlerId;  /* Input id from XtAppAddInput */
-#ifdef unix
   int fid;	               /* File id open on the FIFO. */
-#endif
-#ifdef VMS
-  short chan;              /* Channel open on MBX.      */
-  int   efn;               /* event flag number for rds */
-  short   iosb[4];           /* Final I/O status block    */
-#endif
 };
 
 

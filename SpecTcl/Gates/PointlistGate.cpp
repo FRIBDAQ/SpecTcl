@@ -299,6 +299,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 /*
   Change log:
   $Log$
+  Revision 4.5  2003/08/25 16:25:32  ron-fox
+  Initial starting point for merge with filtering -- this probably does not
+  generate a goo spectcl build.
+
   Revision 4.4  2003/04/15 19:15:42  ron-fox
   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
 
@@ -505,4 +509,3 @@ CPointListGate::Crosses(Float_t x, Float_t y,
   return (xp <= float(x));
 
 }
-

@@ -309,19 +309,25 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include <errno.h>
-
-#ifdef unix
 #include <sys/socket.h>
-#ifndef CYGWIN
+
+#ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
 #endif
-#ifdef ultrix
+
+#ifndef HAVE_FCNTL
 #include <sys/file.h>
 #endif
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -330,157 +336,23 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #ifndef O_NONBLOCK
 #define O_NONBLOCK O_NDELAY	/* This is the 'posix' draft name. */
 #endif
-#endif
-#include <Xm/Xm.h>
-#ifdef VMS
-#include <unixio.h>
-#include <ssdef.h>
-#include <iodef.h>
-#include <descrip.h>
-#include "eventflags.h"
-#endif
 
+#include <Xm/Xm.h>
 #include "messages.h"
 
-/*
-** VMS function prototypes:
-*/
-#ifdef VMS
-extern "C" {
-  int sys$crembx(int prmflg, short *chan, int maxmsg, int bufquo,
-		 int promask, int acmode, dsc$descriptor *logname);
-  int sys$dassgn(short channel);
-  int sys$qio(int efn, short chan, short function,
-	      short *iosb, void *astrtn, void *astprm, 
-	      int p1, int p2, int p3, int p4, int p5, int p6);
-  int sys$qiow(int efn, short chan, short function,
-	       short *iosb, void *astrtn, void *astprm, 
-	       int p1, int p2, int p3, int p4, int p5, int p6);
-  int sys$setef(int efn);
-  int sys$clref(int efn);
-  int sys$waitfr(int efn);
-  int sys$setimr(int efn, int *daytim, void *astadr, int *reqidt);
-  int sys$bintim(struct dsc$descriptor *timbuf, int *timadr);
-  int sys$cantim(int reqidt, int acmode);
-  int sys$cancel(short chan);
-  int sys$synch(int ef, short *iosb);
-  void lib$signal(int status);
-  void exit(int stat);
-}
-
-#ifndef NODEBUG
-#define vmsassert(state) assertvms(state, __FILE__, __LINE__)
-#else
-#define vmsassert(state)
-#endif
-inline void assertvms(int state, char *module, int line)
-{
-  if(! (state & 1)) {
-     fprintf(stderr, "Unsuccessful VMS status code in %s line %d\n",
-	     module, line);
-     lib$signal(state);
-     exit(state);
-  }
-}
-#endif
-#ifdef unix
 extern "C" {
 #ifdef __NEED_OWN_SELECT
   int select(int width, fd_set *readfds, 
 	     fd_set *writefds, fd_set *exceptfds, 
 	     timeval *timeout);
 #endif
-#ifdef ultrix
+#ifdef ULTRIX
   int open(char *path, int flags, int mode);
   int fcntl(int fd, int request, int arg);
   void bzero(void *b1, int length);
 #endif
 }
-#endif
-
-#ifdef VMS
-/*
-**  The functions on this page are needed only for VMS systems:
-*/
-/* Functional Description:
-**   timerast:
-**     Set a timer AST to fire after a given number of seconds.
-** Formal Parameters:
-**   int seconds:
-**       Number of seconds after which to notch the timeout.
-**   void *rtn:
-**       AST completion routine.
-**   int astarg:
-**       AST argument.
-** Returns:
-**   The ID associated with the timer.  assert fails on failure.
-*/
-int timerast(int seconds, void *rtn, int astarg)
-{
-  char time[80];		/* ASCII time */
-  int  tq[2];			/* Time quadword. */
-  int d,h,m,s;			/* components of time. */
-  struct dsc$descriptor tdesc;
 
-  s       = seconds % 60;
-  m       = seconds / 60;
-  h       = m / 60;
-  d       = h / 24;
-
-  m       = m % 60;
-  h       = h % 24;
-
-  /* Build the delta time string and its descriptor:   */
-
-  sprintf(time, "%d %d:%02d:%02d.0", d,h,m,s);
-  tdesc.dsc$a_pointer = time;
-  tdesc.dsc$w_length  = strlen(time);
-  tdesc.dsc$b_dtype   = DSC$K_DTYPE_T;
-  tdesc.dsc$b_class   = DSC$K_CLASS_S;
-  vmsassert(sys$bintim(&tdesc, tq));
-
-  /* Set the timer AST and return the id (which is just astarg):   */
-
-  vmsassert(sys$setimr(0, tq, rtn, (int *)astarg));
-  return astarg;
-  
-}
-/*
-** Functional Description:
-**   canceltimerast:
-**    Cancels a timer given the id:
-** Formal Parameters:
-**   int id:
-**     Ident of the timer.
-**  assert fails if $cantim fails.
-*/
-void canceltimerast(int id)
-{
-  vmsassert(sys$cantim(id, 0));
-}
-#endif
-
-/*
-** Functional Description:
-**    TriggerXEvent:
-**      This function is an AST callback function used only by the VMS
-**      implementation.  It transforms the attention AST into an event flag
-**      set followed by setting another attention AST.
-** Formal Parameters:
-**   MessageQueue *object:
-**     Points to the object for which this ast fired.
-*/
-#ifdef VMS
-void
-TriggerXEvent(MessageQueue *object)
-{
-
-  if(object->XtNotificationOn) {	/* Just ignore if he turned it off. */
-    vmsassert(sys$setef(object->getef())); /* Causes the XtInputEvent to fire. */
-  }
-}
-#endif
-
 /*
 ** The pages below implement the MessageQueue.  On Unix systems this is
 ** implemented using named pipes (POSIX FIFO's if you will).
@@ -497,7 +369,6 @@ TriggerXEvent(MessageQueue *object)
 **       Name of the message queue.
 */
 MessageQueue::MessageQueue(char *name, int flags)
-#ifdef unix
 {
   /* A message queue is an AF_UNIX socket.  We are a client for each of the
   ** sockets
@@ -518,31 +389,7 @@ MessageQueue::MessageQueue(char *name, int flags)
   XtNotificationOn = 0;
 
 }
-#endif
-#ifdef VMS
-{
-  dsc$descriptor mbxname;
 
-  /* construct the logical name descriptor: */
-
-  mbxname.dsc$a_pointer = name;
-  mbxname.dsc$w_length  = strlen(name);
-  mbxname.dsc$b_dtype   = DSC$K_DTYPE_T;
-  mbxname.dsc$b_class   = DSC$K_CLASS_S;
-
-  /* Create the mailbox: */
-
-  int status = sys$crembx(0, &chan, 
-			sizeof(msg_object)*2, sizeof(msg_object)*2,
-			0xff00, 0, &mbxname);
-  vmsassert(status);
-
-  /* X Notification starts off.  */
-
-  XtNotificationOn = 0;
-}
-#endif
-
 /*
 ** Functional Description:
 **   MessageQueue::~MessageQueue:
@@ -552,23 +399,11 @@ MessageQueue::MessageQueue(char *name, int flags)
 **      SYSTEM SPECIFIC CODE
 */
 MessageQueue::~MessageQueue()
-#ifdef unix
 {
   if(XtNotificationOn) XtRemoveInput(XtInputHandlerId);
   
   close(fid);
 }
-#endif
-#ifdef VMS
-{
-  if(XtNotificationOn) {
-    XtRemoveInput(XtInputHandlerId);
-    freeef(efn);
-  }
-  
-  vmsassert(sys$dassgn(chan));
-}
-#endif
 
 /*
 ** Functional Description:
@@ -586,32 +421,10 @@ MessageQueue::~MessageQueue()
 **    # bytes written or -1 if failed.
 **      Failure with the error info in errno.
 */
-int
- MessageQueue::write(void *buffer, unsigned int bytes)
-#ifdef unix
+int MessageQueue::write(void *buffer, unsigned int bytes)
 {
   return ::write(fid, buffer, bytes);
 }
-#endif
-#ifdef VMS
-{
-  int istat = sys$qiow(0, chan, IO$_WRITEVBLK, iosb, 
-		       0, 0, (int)buffer, bytes,0,0,0,0);
-  assert(istat);
-  assert(iosb[0]);
-  if(istat != SS$_NORMAL) {
-    errno = EVMSERR;
-    vaxc$errno = istat;
-    return -1;
-  }
-  if(iosb[0] != SS$_NORMAL) {
-    errno = EVMSERR;
-    vaxc$errno = istat;
-    return -1;
-  }
-  return iosb[1];
-}
-#endif
 
 /*
 ** Functional Description:
@@ -627,33 +440,10 @@ int
 ** Returns:
 **    Number of bytes read or -1 if failed.
 */
-int 
- MessageQueue::read(void *buf, unsigned int bytes)
-#ifdef unix
+int MessageQueue::read(void *buf, unsigned int bytes)
 {
   return ::read(fid, buf, bytes);
 }
-#endif
-#ifdef VMS
-{
-  int istat = sys$qiow(0, chan, IO$_READVBLK,iosb,
-		       0,0,(int)buf,bytes,0,0,0,0);
-  if(istat != SS$_NORMAL) {
-    errno =EVMSERR;
-    vaxc$errno = istat;
-    return -1;
-  }
-  if(iosb[0] != SS$_NORMAL) {
-    errno = EVMSERR;
-    vaxc$errno = iosb[0];
-    return -1;
-  }
-  if(XtNotificationOn) {
-    vmsassert(sys$clref(efn) ); /* Clear the event flag.  */
-  }
-  return iosb[1];
-}
-#endif
 
 /*
 ** Functional Description:
@@ -679,7 +469,6 @@ int
 */
 void 
 MessageQueue::AddXtCallback(XtAppContext ctx, XtInputCallbackProc proc)
-#ifdef unix
 {
 
   if(XtNotificationOn) {
@@ -689,43 +478,6 @@ MessageQueue::AddXtCallback(XtAppContext ctx, XtInputCallbackProc proc)
   XtInputHandlerId = XtAppAddInput(ctx, fid, 
 				   (XtPointer)XtInputReadMask, proc, this);
 }
-#endif
-#ifdef VMS
-{
-  if(XtNotificationOn) {
-    CancelXtCallback();
-  }
-  XtNotificationOn = True;
-  efn = ::getef();			/* Get an unused event flag */
-
-  XtInputHandlerId = XtAppAddInput(ctx, efn,
-				(void *)NULL, proc, this);
-
-  /* Now setup the input attention AST which will actually set the event flg */
-
-  int istat = sys$qiow(0, chan, IO$_SETMODE | IO$M_WRTATTN, iosb,
-		       0,0,(int)TriggerXEvent, (int)this, 0,0,0,0);
-  vmsassert(istat);
-  vmsassert(iosb[0]);
-
-}
-/*
-** Functional Description:
-**   MessageQueue::ResetNotificationAst:
-**     Needed because of the way that VMS mailbox Attention Ast's work.
-**     The function re-sets the AST for write attentions. It should be called
-**     when the user leaves the processing function.
-*/
-void MessageQueue::ResetNotificationAst()
-{
-  assert(XtNotificationOn);
-
-  int istat = sys$qiow(0, chan, IO$_SETMODE | IO$M_WRTATTN, iosb,
-		       0,0,(int)TriggerXEvent, (int)this, 0,0,0,0);
-  vmsassert(istat);
-  vmsassert(iosb[0]);
-}
-#endif
 
 
 /*
@@ -741,9 +493,6 @@ MessageQueue::CancelXtCallback()
 {
   if(XtNotificationOn) {
     XtRemoveInput(XtInputHandlerId);
-#ifdef VMS
-    freeef(efn);		/* VMS needs to free the event flag. */
-#endif
     XtNotificationOn = False;
   }
 }
@@ -774,7 +523,6 @@ MessageQueue::CancelXtCallback()
 */
 int 
 MessageQueue::WaitForInputData(int timeout, void *buf, int bytes)
-#ifdef unix
 {
   fd_set readfds, writefds, exceptfds;
   struct timeval to;
@@ -804,58 +552,7 @@ MessageQueue::WaitForInputData(int timeout, void *buf, int bytes)
   */
   return read(buf, bytes);
 }
-#endif
-#ifdef VMS
-{
-  int iofn = IO$_READVBLK;	/* Base I/O function code. */
-  int ef   = getef();
-  int id = 0;
-  int istat;
-  
-  if(timeout == -1)
-    iofn |= IO$M_NOW;		/* Poll so don't wait. */
-  if(timeout > 0)		/* Set the timeout ast. */
-    id = timerast(timeout, (void *)sys$setef, ef);
-  istat = sys$qio(ef, chan, iofn, iosb,
-		  0,0,
-		  (int)buf, bytes, 0,0,0,0);
-  if(istat != SS$_NORMAL) {
-    errno = EVMSERR;
-    vaxc$errno = istat;
-    return -1;
-  }
-  sys$waitfr(ef);		/* Wait for the Event flag to fire. */
-  if(iosb[0] == 0) {		/* timed out... */
-    if(id) {
-      canceltimerast(id);
-    }
-    sys$cancel(chan);		/* Cancel the read. */
-    sys$synch(ef,iosb);	/* Wait for the cancel to signal done. */
-  }
-  freeef(ef);
 
-  /* If the read was cancelled or the IO$M_NOW produced an end file indication
-  ** then we had a timeout:
-  */
-  if( (iosb[0] == SS$_ABORT)  ||
-      (iosb[0] == SS$_CANCEL) ||
-      (iosb[0] == SS$_ENDOFFILE)) {
-    return 0;			/* No bytes transferred. */
-  }
-  /* If there was an error in I/O completion, return that too: */
-
-  if(iosb[0] != SS$_NORMAL) {
-    errno = EVMSERR;
-    vaxc$errno = iosb[0];
-    return -1;
-  }
-  /* If we got here, then the read completed and iosb[1] has the transfer 
-  ** count
-  */
-  return iosb[1];
-
-}
-#endif
 
 /*
 ** Functional Description:
@@ -874,9 +571,7 @@ MessageQueue::WaitForInputData(int timeout, void *buf, int bytes)
 **      0   - No data to transfer.
 **    > 0   - Number of bytes to transfer.
 */
-int 
-MessageQueue::unblockedread(void *buf,unsigned int bytes)
-#ifdef unix
+int MessageQueue::unblockedread(void *buf,unsigned int bytes)
 {
   int fdflags;
   int noblockflags;
@@ -904,29 +599,6 @@ MessageQueue::unblockedread(void *buf,unsigned int bytes)
   return -1;
   
 }
-#endif
-
-#ifdef VMS
-{
-  short iosb[4];
-  int istat = sys$qiow(0, chan, IO$_READVBLK | IO$M_NOW, iosb,
-		       0,0,
-		       (int)buf, bytes, 0,0,0,0);
-  if(istat != SS$_NORMAL) {
-    errno = EVMSERR;
-    vaxc$errno = istat;
-    return -1;
-  }
-  if(iosb[0] == SS$_ENDOFFILE) 
-    return 0;
-  if(iosb[0] != SS$_NORMAL) {
-    errno = EVMSERR;
-    vaxc$errno = iosb[0];
-    return -1;
-  }
-  return iosb[1];
-}
-#endif
 
 /*
 ** The code on the pages that follow is all system indpendent in that

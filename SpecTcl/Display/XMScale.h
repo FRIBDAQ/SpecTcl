@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -289,11 +289,14 @@ DAMAGES.
 **   East Lansing, MI 48824-1321
 **   @(#)XMScale.h	8.1 6/23/95 
 */
-#ifndef _XMSCALE_H_INSTALLED
-#define _XMSCALE_H_INSTALLED
+#ifndef XMSCALE_H
+#define XMSCALE_H
 
 #include <Xm/Scale.h>
+
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
 
 class XMScale : public XMManagedWidget {
  public:
@@ -301,48 +304,26 @@ class XMScale : public XMManagedWidget {
   /* Constructors: */
 
   XMScale(char *n, XMWidget &parent, 
-	  ArgList args = NULL, Cardinal arg_count = 0) :
-	    XMManagedWidget(n, xmScaleWidgetClass, parent, args, arg_count) {
-	    }
-  
+	  ArgList args = NULL, Cardinal arg_count = 0);
   XMScale(char *n, Widget parent,
-	  ArgList args = NULL, Cardinal arg_count = 0) : 
-	    XMManagedWidget(n, xmScaleWidgetClass, parent, args, arg_count) {
-	    }
+	  ArgList args = NULL, Cardinal arg_count = 0);
   
-  XMScale(char *n) : XMManagedWidget(n) { }
-  XMScale(Widget w): XMManagedWidget(w) { }
+  XMScale(char *n);
+  XMScale(Widget w);
   
   /* manipulators:  */
   
-  void SetRange(int hi, int lo = 0) {
-    XtVaSetValues(id, 
-		  XmNmaximum, hi,
-		  XmNminimum, lo,
-		  NULL);
-  }
-  int Value() {
-    int i;
-    XmScaleGetValue(id, &i);
-    return i;
-  }
-  void Value(int value) {
-    XmScaleSetValue(id, value);
-  }
+  void SetRange(int hi, int lo = 0);
+  int Value();
+  void Value(int value);
   
   /* Routines to add callbacks:  */
   
   Callback_data *AddDragCallback(void (*callback)(XMWidget *, 
 						  XtPointer, XtPointer),
-				 XtPointer user_data = NULL) {
-    return AddCallback(XmNdragCallback, callback, user_data);
-  }
+				 XtPointer user_data = NULL);
   Callback_data *AddChangedCallback(void (*callback)(XMWidget *,
 						     XtPointer, XtPointer),
-				    XtPointer user_data = NULL) {
-    return AddCallback(XmNvalueChangedCallback, callback, user_data);
-  }
-  
+				    XtPointer user_data = NULL);
 };
 #endif
-

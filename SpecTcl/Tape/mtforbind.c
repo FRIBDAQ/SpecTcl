@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -293,18 +293,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 2010, Al
 **
 */
 static char *version="Library_Source 1/27/92 @(#)mtforbind.c	2.1 Library_Source Ron Fox NSCL";
-#ifdef VMS
-#include <descrip.h>
-#include "vmsstring.h"
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
-#ifdef unix
+
 #include <string.h>
 #include <memory.h>
-#endif
 #include "mtaccess.h"
 #include <ctype.h>
 #include <errno.h>
-
+
 /*-----------------------------------------------------------------
 **
 **	The pages that follow contain the f77 bindings to the
@@ -315,11 +314,7 @@ static char *version="Library_Source 1/27/92 @(#)mtforbind.c	2.1 Library_Source 
 /*
 **  INTEGER f77mtopen_(INTEGER unit INTEGER willwrite)
 **/
-#ifdef unix
 int f77mtopen_
-#else
-int f77mtopen
-#endif
 #ifdef __STDC__
              (int *unit, int *willwrite)
 #else
@@ -327,16 +322,12 @@ int f77mtopen
 int *unit, *willwrite;
 #endif
 {
-	return mtopen(*unit, *willwrite);
+  return mtopen(*unit, *willwrite);
 }
 /*
 **  INTEGER f77mtclose_(INTEGER channel)
 */
-#ifdef unix
 int f77mtclose_
-#else
-int f77mtclose
-#endif
 #ifdef __STDC__
               (int *channel)
 #else
@@ -349,11 +340,7 @@ int *channel;
 /*
 **	INTEGER f77wtdrive_(INTEGER channel)
 */
-#ifdef unix
 int f77wtdrive_
-#else
-int f77wtdrive
-#endif
 #ifdef __STDC__
               (int *channel)
 #else
@@ -366,11 +353,7 @@ int *channel;
 /*
 **	SUBROUTINE f77mtclearerr_(INTEGER channel)
 */
-#ifdef unix
 void f77mtclearerr_
-#else
-void f77mtclearerr
-#endif
 #ifdef __STDC__
     (int *channel)
 #else
@@ -385,11 +368,7 @@ int *channel;
 /*
 **	integer f77mtwrite_(integer unit, byte block(), integer count)
 */
-#ifdef unix
 int f77mtwrite_
-#else
-int f77mtwrite
-#endif
 #ifdef __STDC__
     (int *unit, char *block, int *count)
 #else
@@ -404,11 +383,7 @@ int *count;
 /*
 **	integer f77mtload_(integer unit)
 */
-#ifdef unix
 int f77mtload_
-#else
-int f77mtload
-#endif
 #ifdef __STDC__
     (int *unit)
 #else
@@ -421,11 +396,7 @@ int *unit;
 /*
 **	f77mtunload_(integer unit)
 */
-#ifdef unix
 int f77mtunload_
-#else
-int f77mtunload
-#endif
 #ifdef __STDC__
     (int *unit)
 #else
@@ -438,11 +409,7 @@ int *unit;
 /*
 **	integer f77mtrewind(integer unit)
 */
-#ifdef unix
 int f77mtrewind_
-#else
-int f77mtrewind
-#endif
 #ifdef __STDC__
 	(int *unit)
 #else
@@ -456,11 +423,7 @@ int *unit;
 **	integer f77mtread_(integer unit, byte block(), integer count,
 **			integer actgual)
 */
-#ifdef unix
 int f77mtread_
-#else
-int f77mtread
-#endif
 #ifdef __STDC__
 	(int *unit, char *block, unsigned *count, unsigned *actual)
 #else
@@ -477,11 +440,7 @@ unsigned *actual;
 /*
 ** INTEGER f77mtweof_(integer unit, integer count)
 */
-#ifdef unix
 int f77mtweof_
-#else
-int f77mtweof
-#endif
 #ifdef __STDC__
     (int *unit, unsigned *count)
 #else
@@ -495,11 +454,7 @@ unsigned *count;
 /*
 ** INTEGER f77mtspacef_(integer unit, integer count)
 */
-#ifdef unix
 int f77mtspacef_
-#else
-int f77mtspacef
-#endif
 #ifdef __STDC__
 	(int *unit, int *count)
 #else
@@ -513,11 +468,7 @@ int *count;
 /*
 ** INTEGER f77mtspacer_(integer unit, integer count)
 */
-#ifdef unix
 int f77mtspacer_
-#else
-int f77mtspacer
-#endif
 #ifdef __STDC__
 	(int *unit, int *count)
 #else
@@ -539,11 +490,7 @@ int *count;
 **
 **	Read a block of data from a volume.
 */
-#ifdef unix
 int f77volread_
-#else
-int f77volread
-#endif
 #ifdef __STDC__
 	(volume **vol, char *data, unsigned *count, unsigned *actual)
 #else
@@ -560,11 +507,7 @@ unsigned *actual;
 **  INTEGER f77volopen_(INTEGER VOLUME, ITEMLIST ITEMS[])
 **
 */
-#ifdef unix
 int f77volopen_
-#else
-int f77volopen
-#endif
 #ifdef __STDC__
 	(volume **vol, file_item *items)
 #else
@@ -579,11 +522,7 @@ file_item *items;
 **  INTEGER f77VOLWRITE(INTEGER VOLUME, BYTE DATA[], INTEGER COUNT)
 **
 */
-#ifdef unix
 int f77volwrite_
-#else
-int f77volwrite
-#endif
 #ifdef __STDC__
 	(volume **vol, char *data, int *count)
 #else
@@ -599,11 +538,7 @@ int *count;
 **  INTEGER f77VOLMKSAFE(INTEGER VOLUME)
 **
 */
-#ifdef unix
 int f77volmksafe_
-#else
-int f77volmksafe
-#endif
 #ifdef __STDC__
 	    (volume **vol)
 #else
@@ -617,11 +552,7 @@ volume **vol;
 /*
 **  INTEGER f77VOLCLOSE(INTEGER VOLUME)
 */
-#ifdef unix
 int f77volclose_
-#else
-int f77volclose
-#endif
 #ifdef __STDC__
 	    (volume **vol)
 #else
@@ -635,11 +566,7 @@ volume **vol;
 **  INTEGER f77VOLCREATE(INTEGER VOLUME, ITEMLIST ITEMS)
 **
 */
-#ifdef unix
 int f77volcreate_
-#else
-int f77volcreate
-#endif
 #ifdef __STDC__
 	    (volume **vol, file_item *items)
 #else
@@ -654,11 +581,7 @@ file_item *items;
 **  INTEGER f77VOLDMOUNT(INTEGER VOLUME)
 **
 */
-#ifdef unix
 int f77voldmount_
-#else
-int f77voldmount
-#endif
 #ifdef __STDC__
 	(volume **vol)
 #else
@@ -674,11 +597,7 @@ volume **vol;
 **  -- Returns a volume handle to be used in other volume level operations
 **
 */
-#ifdef unix
 int f77volmount_
-#else
-int f77volmount
-#endif
 #ifdef __STDC__
 	(int *fileid, volume_item *items)
 #else
@@ -689,7 +608,7 @@ volume_item *items;
 {
     return (long)volmount(*fileid, items);
 }
-#ifdef unix
+
 /*
 **  SUBROUTINE f77tocstring(CHARACTER*(*) string)
 **  -- NOTE for c internal use, this is actually a function
@@ -713,12 +632,11 @@ int len;
    }
    return string;
 }
-#endif
+
 /*
 **  INTEGER v77VOLINIT(INTEGER FILEID, CHARACTER*(*) label)
 **
 */
-#ifdef unix
 #ifdef __STDC__
 int f77volinit_(int *fileid, char *label,int lbllen)
 #else
@@ -727,37 +645,12 @@ int *fileid;
 char *label;
 int lbllen;
 #endif
-#endif
-#ifdef VMS
-int f77volinit(int *fileid, vmsstring *label)
-#endif
 {
-#ifdef unix
   char lbl[100];
-   char *f77tocstring_(char* , int);
+  char *f77tocstring_(char* , int);
   memset(lbl, 0, 100);
   strncpy(lbl, label, lbllen < 100 ? lbllen : 100);
-   return volinit(*fileid, f77tocstring_(label,lbllen));
-#endif
-#ifdef vms
-    char lbl[100];
-    int i;
-
-    vmstostr(lbl, label);	    /* Convert string to vms format */
-    for (i = strlen(lbl);  i >= 0;  i--) /* Trim trailing F77 whitespace */
-    {
-	if (isspace (lbl[i]))
-	{
-	    lbl[i] = '\0';
-	}
-	else
-	{
-	    break;
-	}
-    }    
-    return volinit(*fileid, lbl);
- 
-#endif
+  return volinit(*fileid, f77tocstring_(label,lbllen));
 }
 
 
@@ -767,7 +660,6 @@ int f77volinit(int *fileid, vmsstring *label)
 ** CHARACTER*80 FUNCTION f77MTGETMSG(CODE)
 **
 */
-#ifdef unix
 #ifdef __STDC__
 void f77mtgetmsg_(char *buf, int maxsiz, int *code)
 #else
@@ -776,21 +668,11 @@ char *buf;
 int maxsiz;
 int *code;
 #endif
-#endif
-#ifdef VMS
-void f77mtgetmsg(vmsstring *buf, int *code)
-#endif
 {
-#ifdef unix
-   char *msgdata;
+  char *msgdata;
 
-   msgdata = mtgetmsg(*code);
-   strncpy(buf, msgdata, maxsiz);
-#endif
-#ifdef VMS
-    strncpy (buf->dsc$a_pointer, mtgetmsg(*code), buf->dsc$w_length);
-    return;
-#endif
+  msgdata = mtgetmsg(*code);
+  strncpy(buf, msgdata, maxsiz);
 }
 /*
 **  geterrno - get system error number value.
@@ -798,15 +680,11 @@ void f77mtgetmsg(vmsstring *buf, int *code)
 ** INTEGER FUNCTION GETERRNO()
 **
 */
-#ifdef unix
 #ifdef __STDC__
 int geterrno_(void)
 #else
 int geterrno_()
 #endif
-#else
-int geterrno(void)
-#endif
 {
-   return errno;
+  return errno;
 }

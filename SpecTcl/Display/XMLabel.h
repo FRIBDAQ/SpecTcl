@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -292,37 +292,25 @@ DAMAGES.
 **   @(#)XMLabel.h	8.1 6/23/95 
 */
 
-#ifndef _XMLABEL_H
-#define _XMLABEL_H
+#ifndef XMLABEL_H
+#define XMLABEL_H
+
 #include <Xm/Label.h>
+
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
 
 class XMLabel :public  XMManagedWidget
    {
    public:
      XMLabel(char *n, XMWidget &parent, char *text,
-	     ArgList args = NULL, Cardinal arg_count = 0) :
-	       XMManagedWidget(n, xmLabelWidgetClass, parent,
-			       args, arg_count) {
-		 SetLabel(text);
-	       }
+	     ArgList args = NULL, Cardinal arg_count = 0);
      XMLabel(char *n, Widget parent, char *text,
-	     ArgList args = NULL, Cardinal arg_count = 0) :
-	       XMManagedWidget(n, xmLabelWidgetClass, parent,
-			       args, arg_count) {
-		 SetLabel(text);
-	       }
-     XMLabel(char *n) : XMManagedWidget(n) 
-       { }
-     XMLabel(Widget w) : XMManagedWidget(w)
-       { }
-     void SetLabel(char *text) {
-       XmString label = XmStringCreateSimple(text);
-       SetAttribute(XmNlabelString, label);
-       XmStringFree(label);
-     }
-     void SetLabel(XmString lbl) { /* Set from compound string. */
-       SetAttribute(XmNlabelString, lbl);
-     }
+	     ArgList args = NULL, Cardinal arg_count = 0);
+     XMLabel(char *n);
+     XMLabel(Widget w);
+     void SetLabel(char *text);
+     void SetLabel(XmString lbl);
    };
 #endif

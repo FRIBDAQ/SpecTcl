@@ -418,8 +418,8 @@ static float ComputeMappedTickInterval(float paramrange, int pixels)
   if((int)tickint == tickint) {
     int tempint = (int)tickint;
     while((10 % tempint != 0) && (tempint % 10 != 0)) {
-      int power = log10(tempint);
-      int exp   = pow(10.0, power);
+      int power = (int)log10(tempint);
+      int exp   = (int)pow(10.0, power);
       int ones_digit = tempint % exp;
       if(ones_digit == 0)
 	break;
@@ -898,7 +898,7 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
 
   int labelheight = (int)((float)(2*interval)/
 			  XAMINE_TICK_LABEL_INTERVALDIVISOR);
-  int labelwidth  = (xbase / 2.0);
+  int labelwidth  = (int)(xbase / 2.0);
   XFontStruct *font = NULL;
   if(label_ticks) {
     if((rem != 0.0) || (mant != 0.0))
@@ -934,12 +934,14 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
   int length = strlen(ylabel);
   char c[2];
   float fontsize_percent = (1 - (2*((float)length/100.0)));
-  lh *= fontsize_percent;
+  lh = (int)(lh*fontsize_percent);
   for(int i = 0; i < length; i++) {
     sprintf(c, "%1c\0", ylabel[i]);
     Xamine_DrawCenteredString(disp, win, font, gc,
-			      0, ((float)ny / (length*2)) + ((lh/2)*i), lw,
-			      ((float)ny / (length*2)) + ((lh/2)*(i+1)), c);
+			      0, (int)((float)ny / (length*2)) + ((lh/2)*i), 
+			      lw,
+			      (int)((float)ny / (length*2)) + ((lh/2)*(i+1)), 
+			      c);
   }
   ticks.flush();
 }

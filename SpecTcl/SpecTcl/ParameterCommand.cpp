@@ -525,11 +525,11 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // nArg == 3 &&  pUnits != kpNULL Real parameter with units.
   // nArg == 4 : Integer parameter with scaling information.
   Int_t added;
-
   if(nArg == 2) {		// Unitless real.
     added = rPackage.AddParameter(rResult, pName, nId);
   }
   else if ( (nArg == 3) && (pUnits == kpNULL)) { // Integer with resolution.
+
     added = rPackage.AddParameter(rResult, 
 				  pName, nId, nResolution);
     

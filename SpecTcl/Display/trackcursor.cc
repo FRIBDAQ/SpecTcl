@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -417,14 +417,21 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   l->Spectrum(atts->spectrum());
 
   /* Display the center of the bin as the cursor location */
-  float fx = (Xamine_XChanToMapped(sid, locdata.xpos+1) + 
-	      Xamine_XChanToMapped(sid, locdata.xpos)) / 2.0;
-  float fy = (Xamine_YChanToMapped(sid, locdata.ypos+1) + 
-	      Xamine_YChanToMapped(sid, locdata.ypos)) / 2.0;
-  float ffy = (Xamine_XChanToMapped(sid, locdata.ypos+1) +
-	       Xamine_XChanToMapped(sid, locdata.ypos)) / 2.0;
-  float ffx = (Xamine_YChanToMapped(sid, locdata.xpos+1) +
-	       Xamine_YChanToMapped(sid, locdata.xpos)) / 2.0;
+  float fx, ffy;
+  float fy = 0, ffx = 0;
+  fx = (Xamine_XChanToMapped(sid, locdata.xpos+1) + 
+	Xamine_XChanToMapped(sid, locdata.xpos)) / 2.0;
+  ffy = (Xamine_XChanToMapped(sid, locdata.ypos+1) +
+	 Xamine_XChanToMapped(sid, locdata.ypos)) / 2.0;
+
+  // These only make sense if we are 2-d, or flipped
+  if((atts->is1d()) || (atts->isflipped())) {
+    fy = (Xamine_YChanToMapped(sid, locdata.ypos+1) + 
+	  Xamine_YChanToMapped(sid, locdata.ypos)) / 2.0;
+    ffx = (Xamine_YChanToMapped(sid, locdata.xpos+1) +
+	   Xamine_YChanToMapped(sid, locdata.xpos)) / 2.0;
+  }
+
   if(atts->ismapped()) {
     if(atts->is1d()) {
       if(atts->isflipped()) {

@@ -303,6 +303,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 /*
    Change Log:
    $Log$
+   Revision 4.5  2003/08/25 16:25:31  ron-fox
+   Initial starting point for merge with filtering -- this probably does not
+   generate a goo spectcl build.
+
    Revision 4.4  2003/04/15 19:15:45  ron-fox
    To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
 
@@ -335,7 +339,7 @@ CGammaBand::CGammaBand(const vector<FPoint>& rPoints) :
 {
   vector<string> empty;
   m_vSpecs = empty;
-  //  CreateLimits();
+
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -364,6 +368,9 @@ CGammaBand::CGammaBand(const vector<FPoint>& rPoints,
 CGammaBand::CGammaBand(UInt_t nPts, FPoint* pPoints) :
   CBand(0, 0, nPts, pPoints)
 {
+
+  vector<string> empty;
+  m_vSpecs = empty;
 
 }
 

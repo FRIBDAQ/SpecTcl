@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -304,7 +304,15 @@ DAMAGES.
 **
 */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h> 
+#endif
+
+#ifdef TM_IN_SYS_TIME
+#include <sys/time.h>
+#else
 #include <time.h>
+#endif
 #include "mtshare.h"
 
 /*
@@ -340,13 +348,7 @@ DAMAGES.
 #define FILLCHAR	((char)(0x20))
 #define STDOWNER	"NSCL"		/* Standard owner of volumes. */
 
-#ifdef unix
 #define STDIMP		"UNXDAQ-1.0"
-#endif
-
-#ifdef vms
-#define STDIMP		"VMSDAQ-1.0"
-#endif
 
 #define DEFAULTRECSIZE	16384		/* Default record size. */
 
@@ -368,12 +370,7 @@ DAMAGES.
 typedef struct {
 	          int magic;		/* Corruption indicator (magic #) */
 		  char *device;		/* Device ucb is attached to.	*/
-#ifdef unix
 		  int fd;		/* UNIX file descriptor */
-#endif
-#ifdef vms
-		  int chan;		/* VMS channel		*/
-#endif
 	       } tape_ucb;
 
 
@@ -390,9 +387,8 @@ typedef enum {
 typedef enum {
 		BOF, EOF, FILEMIDDLE, HEADERS, TRAILERS
 	      }   FileLocation;
-#ifdef unix
+
 typedef struct tm tm_t;
-#endif
 typedef struct {
 		 unsigned readable : 1, 
 			  writeable: 1, 

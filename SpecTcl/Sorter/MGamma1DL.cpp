@@ -368,14 +368,7 @@ void CMGamma1DL::Increment(const CEvent& rE)
     for (xChan = 0; xChan < m_vParameters.size(); xChan++) {
       if(rEvent[m_vParameters[xChan].nParameter].isValid()) {
 	UInt_t nRealChan   = rEvent[m_vParameters[xChan].nParameter];
-	Float_t nParamStep = (m_vParameters[xChan].nHigh - 
-			      m_vParameters[xChan].nLow) / 
-	  (1 << m_vParameters[xChan].nScale);
-	Float_t nParamCoord = nRealChan * nParamStep;
-	Float_t nParamToSpecScale = ((m_nChannels) /
-				     (m_vParameters[xChan].nHigh - 
-				      m_vParameters[xChan].nLow));
-	UInt_t nChannel = Randomize(nParamCoord * nParamToSpecScale);
+	UInt_t nChannel = ParamToSpecPoint(nRealChan, xChan);
 	if (nChannel < m_nChannels) {
 	  pStorage[nChannel]++;
 	}
@@ -421,14 +414,7 @@ CMGamma1DL::GammaGateIncrement (const CEvent& rE, std::string sGT)
 	    if((rEvent[m_vParameters[Param].nParameter].isValid()) &&
 	       (Param != xChan)) {
 	      UInt_t nRealChan = rEvent[m_vParameters[Param].nParameter];
-	      Float_t nParamStep = (m_vParameters[Param].nHigh - 
-				    m_vParameters[Param].nLow) / 
-		(1 << m_vParameters[Param].nScale);
-	      Float_t nParamCoord = nRealChan * nParamStep;
-	      Float_t nParamToSpecScale = ((m_nChannels) /
-					   (m_vParameters[Param].nHigh - 
-					    m_vParameters[Param].nLow));
-	      UInt_t nChannel = Randomize(nParamCoord * nParamToSpecScale);
+	      UInt_t nChannel = ParamToSpecPoint(nRealChan, Param);
 	      if (nChannel < m_nChannels) {
 		pStorage[nChannel]++;
 	      }
@@ -465,14 +451,7 @@ CMGamma1DL::GammaGateIncrement (const CEvent& rE, std::string sGT)
 		// Make sure this parameter is valid too...
 		if(rEvent[m_vParameters[Param].nParameter].isValid()) {
 		  UInt_t nRealChan = rEvent[m_vParameters[Param].nParameter];
-		  Float_t nParamStep = (m_vParameters[Param].nHigh - 
-					m_vParameters[Param].nLow) / 
-		    (1 << m_vParameters[Param].nScale);
-		  Float_t nParamCoord = nRealChan * nParamStep;
-		  Float_t nParamToSpecScale = ((m_nChannels) /
-					       (m_vParameters[Param].nHigh - 
-						m_vParameters[Param].nLow));
-		  UInt_t nChannel = Randomize(nParamCoord * nParamToSpecScale);
+		  UInt_t nChannel = ParamToSpecPoint(nRealChan, Param);
 		  if (nChannel < m_nChannels) {
 		    pStorage[nChannel]++;
 		  }
@@ -502,8 +481,11 @@ CMGamma1DL::GammaGateIncrement (const CEvent& rE, std::string sGT)
 UInt_t
 CMGamma1DL::Randomize(Float_t nChannel)
 {
-  Float_t nWeight = (1 - (nChannel - (UInt_t)nChannel)) * 100;
-  UInt_t nRandNum = rand() % 100;
+  Float_t nWeight = (1 - (nChannel - (UInt_t)nChannel));
+  if(nWeight == 0.)
+    return (UInt_t)nChannel;
+  
+  Float_t nRandNum = ((Float_t)rand() / (RAND_MAX+1.0));
 
   if(nWeight <= nRandNum)
     return ((UInt_t)nChannel+1);
@@ -547,4 +529,110 @@ CMGamma1DL::SpecPointToGate(UInt_t nPoint)
 {
   Float_t scale = (Float_t)(1 << m_vParameters[0].nScale) / m_nChannels;
   return (UInt_t)(scale * nPoint);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    UInt_t ParamToSpecPoint(UInt_t nParamPoint, UInt_t nChan)
+//  Operation Type:
+//    conversion
+//  Purpose:
+//
+//    Scales a parameter point to its appropriate value in 
+//    spectrum space.
+//
+UInt_t
+CMGamma1DL::ParamToSpecPoint(UInt_t nParamPoint, UInt_t nChan)
+{
+  // The parameter space step size
+  Float_t nParamRange = m_vParameters[nChan].nHigh - m_vParameters[nChan].nLow;
+  Float_t nParamStep = (nParamRange) / (1 << m_vParameters[nChan].nScale);
+
+  // The parameter coordinate in mapped parameter space
+  Float_t nParamCoord = m_vParameters[nChan].nLow + (nParamPoint * nParamStep);
+
+  // If this is outside of mapped spectrum range, return m_nChannels+1
+  // which will cause no increments
+  if((nParamCoord < m_nLow) || (nParamCoord > m_nHigh)) {
+    return m_nChannels+1;
+  }
+  
+  // Otherwise, scale this to real spectrum space (i.e. a channel value)
+  Float_t nDist = nParamCoord - m_nLow;           // the distance from the edge
+  Float_t nSpecScale = nDist / (m_nHigh-m_nLow);  // the scale from mapped... 
+  if(nSpecScale < 0) nSpecScale *= -1;            // to unmapped spec. space
+
+  // Get the parameter channels to spectrum channels ratio
+  Float_t nChannelRatio = (nParamRange / (1 << m_vParameters[nChan].nScale)) /
+    ((m_nHigh-m_nLow) / m_nChannels);
+
+  // If the mapped spectrum channel contains one, or more, mapped parameter 
+  // channels, randomize based on the mantissa of the floating point channel
+  if(nChannelRatio <= 1)
+    return Randomize(nSpecScale * m_nChannels);
+
+  // Otherwise, randomize based on the size of the ratio of parameter channels
+  // to spectrum channels.
+  else
+    return RandomizeToMultipleBins(nSpecScale * m_nChannels, nChannelRatio);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    UInt_t RandomizeToMultipleBins(Float_t nChannel, Float_t nRatio)
+//  Operation Type:
+//    operation
+//  Purpose:
+//
+//    Receives a floating point channel in mapped spectrum space which
+//    can fall into one of (UInt_t)(nChannel+nRatio) bins. The way to
+//    determine which bin it actually DOES fall into is to weight each
+//    bin according to its "in-ness", generate a random number and see
+//    into which bin it falls.
+//
+UInt_t
+CMGamma1DL::RandomizeToMultipleBins(Float_t nChannel, Float_t nRatio)
+{
+  // First we generate our random number between 0 and 1, being sure
+  // to look at the high-end bits rather than the low end.
+  Float_t nRandNum  = ((Float_t)rand() / (RAND_MAX+1.0));
+
+  // We need to determine the number of bins this channel has the possibility
+  // of falling into. Then we weight each bin, according to the amount that it
+  // is in the range. To do this, we use the following variables:
+  //    nHighLim - the upper limit channel number that this count could incr.
+  //    nLowLim  - the lower limit channel number that this count could incr.
+  //    nLowMantissa - The fractional part of nChannel
+  UInt_t nHighLim = (UInt_t)(nChannel + nRatio);
+  UInt_t nLowLim  = (UInt_t)nChannel;
+  Float_t nLowMantissa  = nChannel - nLowLim;
+
+  // Determine the weight given to the lowest possible bin, (UInt_t)nChannel.
+  // We do this by dividing the fractional part of the channel passed to us
+  // by the ratio of spectrum channels to parameter channels (nRatio).
+  // If our random number falls in the range from 0 to this number, then
+  // increment this channel.
+  Float_t nLowChanProb = (1-nLowMantissa) / nRatio;
+  if(nLowChanProb >= nRandNum)
+    return nLowLim;
+
+  // Otherwise, there are a number of "whole" spectrum channels covered by
+  // this parameter channel that we need to examine. Weight each "whole"
+  // spectrum channel the same, and see if the random number falls within
+  // the specified range.
+  else {
+    for(int i = 1; i < (nHighLim - nLowLim); i++) {
+      if((1 / nRatio)+nLowChanProb >= nRandNum)
+	return nLowLim + i;
+      else 
+	nLowChanProb += (1 / nRatio);
+    }
+  }
+
+  // If it didn't fall into any of the "whole" spectrum channels fully covered
+  // by this parameter channel, then it has to fall into the highest possible
+  // channel that this parameter channel only partially covers.
+  return nHighLim;
 }

@@ -294,6 +294,8 @@ DAMAGES.
 #include "XMText.h"
 #include "XMPushbutton.h"
 
+using namespace std;
+
 #define XAMINE_PRINT_DEFAULTS_FILE "Xamine.PrintDefaults"
 
 typedef enum {
@@ -389,6 +391,7 @@ struct DefaultPrintOptions {
 
 void Xamine_SetupPrinter(XMWidget *w, XtPointer user, XtPointer call);
 void Xamine_PrintSpectrumDialog(XMWidget *w, XtPointer user, XtPointer call);
+void Xamine_NoGriDialog(XMWidget *w, XtPointer user, XtPointer call);
 char *Xamine_GetPrintCommand();
 PrinterType Xamine_GetPrinterType();
 void PrintAllCallback(XMWidget* w, XtPointer user, XtPointer call);

@@ -297,20 +297,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#ifdef unix
 #include <memory.h>
 #include <unistd.h>
-#endif
-#ifdef VMS
-#define noshare
-extern "C" {			/* Stupid DEC has not C++ conditionals */
-#include <unixlib.h>
-}
-#ifdef __ALPHA
-#include <unixio.h>
-#include <file.h>
-#endif
-#endif
 
 #include "gateio.h"
 #include "XMWidget.h"
@@ -323,18 +311,10 @@ extern "C" {			/* Stupid DEC has not C++ conditionals */
 ** queues used by this module:
 */
 #define NAMELEN  128
-#ifdef unix
 #define PREFIX   "/tmp"
 #define REQ_NAME "/.Xamine_%x_GatesIn"      /* %x replaced by parent pid. */
 #define ACK_NAME "/.Xamine_%x_GatesAck"
 #define OUT_NAME "/.Xamine_%x_GatesOut"
-#endif
-#ifdef VMS
-#define PREFIX ""
-#define REQ_NAME "Xamine_%x_GatesIn"
-#define ACK_NAME "Xamine_%x_GatesAck"
-#define OUT_NAME "Xamine_%x_GatesOut"
-#endif
 
 /*
 ** Below we define some externs which are declared in clientops.h, but not
@@ -886,17 +866,3 @@ int Xamine_ReadBModifyBlock(msg_ModifyButton *mblock)
 
   return requests->RequestMsgQueue::read(mblock, sizeof(msg_ModifyButton));
 }      
-
-#ifdef VMS
-/*
-** Functional Description:
-**   Xamine_ResetGatesAttnAst:
-**     This function resets a gates attention AST on the requests pipe.
-** Formal Parameters:
-**   NONE
-*/
-void Xamine_ResetGatesAttnAst()
-{
-   requests->RequestMsgQueue::ResetNotificationAst();
-}
-#endif

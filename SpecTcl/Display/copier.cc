@@ -352,14 +352,14 @@ static void Copy_Relay(XMWidget *button, XtPointer userd, XtPointer calld)
   default:
     fprintf(stderr, ">>>Copier has invalid direction, defaulting to ->\n");
   case XmARROW_RIGHT:
-    dir = right;
+    dir = cpy_right;
     from = left_list;
     to   = right_list;
     from_count = left_count;
     to_count   = right_count;
     break;
   case XmARROW_LEFT:
-    dir = left;
+    dir = cpy_left;
     from = right_list;
     to   = left_list;
     from_count = left_count;

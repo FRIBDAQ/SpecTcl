@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -294,6 +294,10 @@ DAMAGES.
 /* 
    Change log:
    $Log$
+   Revision 4.3  2003/08/25 16:25:30  ron-fox
+   Initial starting point for merge with filtering -- this probably does not
+   generate a goo spectcl build.
+
    Revision 4.2  2003/04/02 18:35:25  ron-fox
    Added support for central Xamine.Default files that live in any of:
    $SpecTclHome/Etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
@@ -312,12 +316,7 @@ DAMAGES.
 
 
 #define XAMINE_DEFAULTS_DIRECTORY     "HOME" /* Env. var where defaults go. */
-#ifdef unix
 #define XAMINE_DEFAULTS_FILE "/Xamine.Defaults" /* Filename part of path. */
-#endif
-#ifdef VMS
-#define XAMINE_DEFAULTS_FILE "XAMINE.DEFAULTS"  /* Filename part of path */
-#endif
 
 /*
 ** Exported functions.

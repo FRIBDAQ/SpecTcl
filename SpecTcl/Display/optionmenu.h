@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -291,12 +291,31 @@ DAMAGES.
 */
 #ifndef _OPTIONMENU_H
 #define _OPTIONMENU_H
+
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
+#ifndef _XMTEXT_H
 #include "XMText.h"
+#endif
+
+#ifndef XMPushbutton_H
 #include "XMPushbutton.h"
+#endif
+
+#ifndef _XMLABEL_H
 #include "XMLabel.h"
+#endif
+
+#ifndef _XMSCALE_H_INSTALLED
 #include "XMScale.h"
+#endif
+
+#ifndef _XMMANAGERS_H
 #include "XMManagers.h"
+#endif
+
 #include "dispwind.h"
 
 void Xamine_SetDefaultAxis(XMWidget *w, XtPointer user, XtPointer call);
