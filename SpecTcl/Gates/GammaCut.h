@@ -113,6 +113,7 @@ class CGammaCut : public CCut
   virtual CGate* clone ();
   virtual std::string GetConstituent (CConstituentIterator& rIterator);
   virtual std::string Type () const;
+  virtual Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Param);
 };
 
 #endif

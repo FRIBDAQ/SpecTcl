@@ -88,6 +88,7 @@ class CGammaBand : public CBand
   virtual Bool_t operator() (CEvent& rEvent) { return kfTRUE; }
   virtual CGate* clone ();
   virtual std::string Type () const;
+  virtual Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params);
 };
 
 #endif

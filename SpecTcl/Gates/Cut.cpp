@@ -70,7 +70,7 @@ CCut::inGate(CEvent& rEvent)
     return kfFALSE;
   }
   else {
-    if(rEvent[id].isValid()) {
+    if(rEvent[id].isValid()) {;
       UInt_t nPoint = rEvent[id];
       return((nPoint >= getLow()) && (nPoint <= getHigh()));
     }
