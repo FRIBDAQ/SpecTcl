@@ -25,7 +25,9 @@ system:
 	mkdir -p $(INSTDIR)/Skel
 	mkdir -p $(INSTDIR)/doc
 	mkdir -p $(INSTDIR)/Script
+	mkdir -p $(INSTDIR)/Contrib
 	(cd doc; tar cf - . | (cd $(INSTDIR)/doc; tar xf -))
+	(cd contrib; tar cf - .|(cd $(INSTDIR)/contrib; tar xf -))
 	cp Scripts/*.tcl $(INSTDIR)/Script
 	cp Scripts/save.head $(INSTDIR)/Script
 	(cd Utility;   \
