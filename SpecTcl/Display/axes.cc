@@ -316,7 +316,8 @@ extern volatile spec_shared *xamine_shared;
 /*
 ** Functional Description:
 **  ComputeLinearTickInterval:
-**    Computes the number of pixels between tick marks on a linear axis.
+**    Computes the number of spectrum units between 
+**    tick marks on a linear axis.
 ** Formal Parameters:
 **   int paramrange:
 **     Range of parameters represented by the axis.
@@ -516,8 +517,8 @@ static void DrawLinearXTicks(Display *disp, Window win, GC gc,
 
   value_interval = (float)ComputeLinearTickInterval(hi-low + 1, (nx-xbase+1));
 
-  interval       = ((float)(nx-xbase+1) * (float)value_interval)/
-                    ((float)(hi - low + 1));
+  interval       = ((float)(nx-xbase) * (float)value_interval)/
+                    ((float)(hi - low ));
   height   = (int)(ybase * XAMINE_TICK_FRACTION);
 
   
@@ -601,16 +602,16 @@ static void DrawMappedXTicks(Display *disp, Window win, GC gc,
 
   // Compute the mapped tick interval between tick marks
   if((low < 0) && (hi > 0))
-    value_interval = (float)ComputeMappedTickInterval((hi-low),(nx-xbase+1));
+    value_interval = (float)ComputeMappedTickInterval((hi-low),(nx-xbase));
   else
-    value_interval = (float)ComputeMappedTickInterval(hi-low, (nx-xbase+1));
+    value_interval = (float)ComputeMappedTickInterval(hi-low, (nx-xbase));
 
   if(value_interval == 0)
     value_interval = 0.2;
 
-  // See if there is a mantissa in our tick spacing interval
+
   rem = value_interval - (int)value_interval;  
-  interval = ((float)(nx-xbase+1) * value_interval) / (hi-low);
+  interval = ((float)(nx-xbase) * value_interval) / (hi-low);
   height   = (int)(ybase * XAMINE_TICK_FRACTION);
 
   // Now get the size of the biggest string we can represent given our
@@ -1145,7 +1146,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
     char xlabel[72];
     char ylabel[72];
     low = 0;
-    hi  = xamine_shared->getxdim(attribs->spectrum())-1;/* Assume unexpanded.*/
+    hi  = xamine_shared->getxdim(attribs->spectrum());/* Assume unexpanded.*/
     
     if(attribs->is1d()) {
       win_1d *att = (win_1d *)attribs;
@@ -1225,7 +1226,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
     else {			/* 2-d spectrum. Figure out hi/low like X */
       win_2d *att = (win_2d *)attribs;
       low = 0;
-      hi  = xamine_shared->getydim(att->spectrum())-1;
+      hi  = xamine_shared->getydim(att->spectrum());
       if(att->isexpanded() && att->isflipped()) {
 	low = (att->isexpandedfirst() ? att->ylowlim() : att->xlowlim());
 	hi  = (att->isexpandedfirst() ? att->yhilim()  : att->xhilim());
@@ -1236,7 +1237,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
       }
       else if(att->isflipped()) {
 	low = 0;
-	hi  = xamine_shared->getxdim(att->spectrum())-1;
+	hi  = xamine_shared->getxdim(att->spectrum());
       }
       
       /* If not mapped, just draw like normal */
