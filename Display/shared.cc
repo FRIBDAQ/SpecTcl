@@ -140,8 +140,9 @@ static spec_shared *mapmemory(char *name, unsigned int size)
   HANDLE hMapFile;
   LPVOID lpErrorMessage;
 
-  /*   Works on NT but not 95/98 ???
   size += getpagesize()*64;
+
+  /*   Works on NT but not 95/98 ???
   hMapFile = CreateFileMapping((HANDLE)NULL,
 			       (LPSECURITY_ATTRIBUTES)NULL,
 			       (DWORD)PAGE_READWRITE,
