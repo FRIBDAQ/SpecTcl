@@ -59,6 +59,10 @@ static struct limit { int low;
 extern int windfilelex_line;
 static struct DefaultPrintOptions *printops = Xamine_GetDefaultPrintOptions();
 static win_attributed *current = Xamine_GetDefaultGenericAttributes();
+#define YYTOKENTYPE
+#ifdef __GNUC_MINOR__
+#undef __GNUC_MINOR__
+#endif
  
 %}
 %union {

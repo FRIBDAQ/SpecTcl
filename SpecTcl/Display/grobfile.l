@@ -31,6 +31,10 @@ static void spaces();
 static void comment();
 static void eoline();
 extern YYSTYPE        yylval;
+#ifdef __GNUC_MINOR__
+#undef __GNUC_MINOR__
+#endif
+
 %}
 
 qstring \"[^\"\n]*[\"\n"]
