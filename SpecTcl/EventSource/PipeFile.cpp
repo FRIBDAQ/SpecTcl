@@ -321,9 +321,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #define _REENTRANT		// This is needed to get strtok_r defined.
 #endif
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "PipeFile.h" 
 #include "ErrnoException.h"

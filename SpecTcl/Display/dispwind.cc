@@ -292,9 +292,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 static char *revision="@(#)dispwind.cc	2.2 1/28/94 ";
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -295,6 +295,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 4.6  2003/11/07 21:32:17  ron-fox
+   Unconditionally include config.h
+
    Revision 4.5  2003/08/25 16:25:30  ron-fox
    Initial starting point for merge with filtering -- this probably does not
    generate a goo spectcl build.
@@ -309,9 +312,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** External include files required:
 */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>

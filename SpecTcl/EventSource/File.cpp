@@ -302,9 +302,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 // Header Files:
 //
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "File.h" 
 #include "ErrnoException.h"
