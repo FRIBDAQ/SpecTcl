@@ -290,6 +290,13 @@ DAMAGES.
 //
 /////////////////////////////////////////////////////////////
 
+/*!
+  Change Log:
+  $Log$
+  Revision 4.2  2003/03/25 12:03:17  ron-fox
+  Added Change log comment generated from the CVS $Log$ tag.
+
+*/
 #ifndef __NAMEDITEM_H  //Required for current class
 #define __NAMEDITEM_H
 
