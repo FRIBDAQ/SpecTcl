@@ -573,6 +573,8 @@ void Callback_handler(XMWidget *w, XtPointer userd, XtPointer calld)
       }
 #endif
     }
+    sprintf(error_msg,"No Such Spectrum '%s'. Please choose one on the list",
+	    spectrum_name);
     XtFree(spectrum_name);
     choice->Show();
     Xamine_error_msg(choice,
