@@ -294,6 +294,16 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **/
 
 /*
+  Change log:
+  $Log$
+  Revision 4.8  2003/04/23 13:33:58  ron-fox
+  Fix double delete of filename in code path where graphical object file
+  is not being ovewritten.
+
+*/
+
+
+/*
 ** External include files required:
 **/
 
@@ -696,7 +706,6 @@ void write_grobjs(XMWidget *w, XtPointer client_data,
 
   fclose(config);
   XtFree(filename);
-
 }
 
 /**
@@ -821,7 +830,6 @@ void Xamine_Write_grobj_file(XMWidget *w, XtPointer client_data,
   else { 
     write_grobjs(w, filename, NULL);
     w->UnManage();
-    XtFree(filename);
     return;
   }
 
