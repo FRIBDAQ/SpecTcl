@@ -469,10 +469,12 @@ CSpectrum* CNSCLBinarySpectrumFormatter::Read(istream& rStream,
   vector<Float_t> vTransform;
   vector<UInt_t>  vChannels;
 
+  ///// BUGBUGBUG  - CreateSpectrum needs to be fixed still
+
   AssurePossibleSpectrum(eSpecType,eDataType);
   CSpectrum* pSpectrum;
   pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType, vParameters, 
-				     vResolutions, vTransform, vChannels);
+				     vChannels);
   pSpectrum->Clear();
   //fill in the spectrum
   //testdata(SpecObject);

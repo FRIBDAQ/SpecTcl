@@ -493,9 +493,11 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
 
   CSpectrumFactory Factory;
   Factory.ExceptionMode(kfFALSE);
+  ///
+  ///  BUGBUGBUG  - creation needs to be figured out and fixed!!
+  //
   CSpectrum* pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType,
-						vParameters, vResolutions,
-						vTransform, vChannels);
+						vParameters, vChannels);
   // Fill in the spectrum:
   //
   pSpectrum->Clear();
