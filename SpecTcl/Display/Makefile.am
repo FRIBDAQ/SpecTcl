@@ -9,6 +9,7 @@ LDFLAGS = -g @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @LD_EXTRA_FLAGS@
 XCCFLAGS = -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE
 
 AM_CXXFLAGS = -g
+AM_CFLAGS   = -g
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/Etc

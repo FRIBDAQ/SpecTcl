@@ -27,13 +27,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
 #ifdef HAVE_SHM_OPEN
-#ifdef HAVE_MMAN_H
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #else
-  error No shm_open needed to open shared memory region
+#  error No shm_open needed to open shared memory region
 #endif
 #endif
+
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -66,6 +68,13 @@
 /*
 ** Definitions.
 */
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
 
 #define NAME_FORMAT "XA%02x"
 #define SHARENV_FORMAT "XAMINE_SHMEM=%s" /* Environment names/logical names. */
@@ -162,9 +171,8 @@ static int genname(char *name)
 **        the shared memory was allocated.
 */
 static int genmem(char *name, volatile void **ptr, unsigned int size)
-#if HAVE_SHM_OPEN     /* Defined on Darwin */
+#if HAVE_SHM_OPEN    /* Defined on Darwin but not there */
 {
-  sleep(2);			
   int fd;
   void* pMem;
   fd = shm_open(name,O_RDWR | O_CREAT  ,S_IRUSR | S_IWUSR);
