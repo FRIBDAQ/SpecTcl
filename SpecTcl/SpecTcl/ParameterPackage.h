@@ -356,10 +356,15 @@ protected:
   //   Operations on the class:
   //
 
-public:                    
+public:             
+  Int_t AddParameter (CTCLResult& rResult, const char* pName,
+		      UInt_t nId, 
+		      const char* pUnits = (const char*)kpNULL); // Add a real param.
+
   Int_t AddParameter (CTCLResult& rResult, const char* pName, 
 		      UInt_t nId, UInt_t nBits, Float_t nLow=0,
-		      Float_t nHi=0, const char* pUnits=0)  ;
+		      Float_t nHi=0, 
+		      const char* pUnits=0)  ; // Add int parameters.
   CTCLList CreateTclParameterList (CTCLInterpreter& rInterp)  ;
   Int_t DeleteParameter (CTCLResult& rResult, const char* pName)  ;
   Int_t DeleteParameter (CTCLResult& rResult, UInt_t nId)  ;
