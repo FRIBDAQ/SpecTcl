@@ -323,6 +323,13 @@ DAMAGES.
 #endif				/* Too big is better than too small.     */
 #endif
 
+#ifndef PAGESIZE		/* Still didn't find a pagesize... */
+#define PAGESIZE 512
+#endif
+
+
+
+
 #define XAMINE_MAXSPEC 5000	/* Maximum spectrum count. */
 #ifndef XAMINE_SPECBYTES
 #define XAMINE_SPECBYTES 8*MEG	/* Maximum number of bytes in spectra. */
@@ -332,7 +339,7 @@ DAMAGES.
 #define XAMINE_LONGS     (XAMINE_SPECBYTES)/sizeof(long)
 
 #ifndef _DISPSHARE_H_INSTALLED_
-#pragma pack(1)
+/* #pragma pack(1) */
 typedef union {
                 unsigned char  XAMINE_b[XAMINE_SPECBYTES];
 		unsigned short XAMINE_w[XAMINE_WORDS];
@@ -376,7 +383,7 @@ typedef struct _Xamine_shared {
   char            page_pad[PAGESIZE];
 } Xamine_shared;
 
-#pragma pack(0)
+/* #pragma pack(0) */
 
 #if defined(__cplusplus) || defined(c_plusplus)
 extern "C" {

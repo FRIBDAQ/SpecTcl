@@ -323,6 +323,11 @@ DAMAGES.
 #endif
 #endif
 
+#ifndef PAGESIZE
+#define PAGESIZE 512
+#endif
+
+
 #define DISPLAY_MAXSPEC 5000	/* Maximum spectrum count. */
 #define DISPLAY_SPECBYTES 8*MEG	/* Maximum number of bytes in spectra. */
 
