@@ -498,39 +498,39 @@ CParameterCommand::ListParametersById(CTCLResult& rResult)
       rResult = "Unable to split parameter description: ";
       rResult += pParameters[i];
       rResult += "\n";
-      free(pParameters);
+      Tcl_Free((char*)pParameters);
       return TCL_ERROR;
     }
     if(nItems != 3) {
       rResult = "Incorrectly formatted parameter description: ";
       rResult += pParameters[i];
       rResult += "\n";
-      free(pParameters);
+      Tcl_Free((char*)pParameters);
       return TCL_ERROR;
     }
 
     // Parse the id...
     
     if(ParseInt(pItems[1], &nId) != TCL_OK) {
-      free(pParameters);
+      Tcl_Free((char*)pParameters);
       rResult = "Could not parse parameter id from description ";
       rResult += pItems[1];
       rResult += "\n";
-      free(pItems);
+      Tcl_Free((char*)pItems);
       return TCL_ERROR;
     }
     if(nId < 0) {
       rResult = "Parameter id in description was less than zero ";
       rResult += pItems[1];
       rResult += "\n";
-      free(pItems);
-      free(pParameters);
+      Tcl_Free((char*)pItems);
+      Tcl_Free((char*)pParameters);
       return TCL_ERROR;
     }
     aMap[(UInt_t)nId] = Parameter.getList();
-    free(pItems);
+    Tcl_Free((char*)pItems);
   }
-  free(pParameters);		// Done with that storage.
+  Tcl_Free((char*)pParameters);		// Done with that storage.
 
   // Now we just need to reconstruct a list out of the
   // lists stored in the map.

@@ -33,7 +33,7 @@ static char *sccsinfo="@(#)axes.cc	8.2 10/3/95 \n";
 ** Externally referenced globals:
 */
 
-extern spec_shared *xamine_shared;
+extern volatile spec_shared *xamine_shared;
 
 /*
 ** Functional Description:

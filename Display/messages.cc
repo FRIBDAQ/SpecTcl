@@ -39,6 +39,8 @@ static char *sccsinfo="@(#)messages.cc	1.1 1/28/94 ";
 #include <errno.h>
 
 #ifdef unix
+#include <sys/socket.h>
+// #include <sys/un.h>
 #ifdef ultrix
 #include <sys/file.h>
 #endif
@@ -217,16 +219,21 @@ TriggerXEvent(MessageQueue *object)
 MessageQueue::MessageQueue(char *name, int flags)
 #ifdef unix
 {
-  int status;
-  status = mkfifo(name,
-	       S_IRUSR | S_IWUSR); /* Only allow user access. */
-  assert( (status == 0) || (errno == EEXIST)); /* Fifo made or exists. */
-
-
-  /* Open a channel to the fifo:  */
-
-  fid = open(name, flags,0);
+  /* A message queue is an AF_UNIX socket.  We are a client for each of the
+  ** sockets
+  */
+  struct sockaddr_un peer;
+  fid = socket(AF_UNIX, SOCK_STREAM,  0);
   assert(fid >= 0);
+  peer.sun_family = AF_UNIX;
+  strcpy(peer.sun_path, name);
+  if(connect(fid, (struct sockaddr*)&peer, sizeof(struct sockaddr_un)) < 0) {
+    char msg[100];
+    sprintf(msg, "Failed to connect to %s", name);
+    perror(msg);
+    exit(-1);
+  }
+
 
   XtNotificationOn = 0;
 

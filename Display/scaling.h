@@ -52,11 +52,11 @@ class Sampler {
 
 class Samplel : public Sampler {	    /* Sample longword */
  protected:
-  unsigned int *base;
+  volatile unsigned int *base;
   float         offset;
   float         step;
  public:
-  Samplel(unsigned int *b, float s = 1.0) {
+  Samplel(volatile unsigned int *b, float s = 1.0) {
     base  = b; 
     step  = s;
     offset= 0;
@@ -83,11 +83,11 @@ class Samplel : public Sampler {	    /* Sample longword */
 
 class Samplew : public Sampler { /* Sample shortword */
  protected:
-  unsigned short *base;
+  volatile unsigned short *base;
   float         offset;
   float         step;
  public:
-  Samplew(unsigned short *b, float s = 1.0) {
+  Samplew(volatile unsigned short *b, float s = 1.0) {
     base  = b; 
     step  = s;
     offset= 0;
@@ -112,11 +112,11 @@ class Samplew : public Sampler { /* Sample shortword */
 
 class Suml : public Sampler {	/* Sample via summing (long) */
  protected:
-  unsigned int *base;
+  volatile unsigned int *base;
   float         offset;
   float         step;
  public:
-  Suml(unsigned int *b, float s) {
+  Suml(volatile unsigned int *b, float s) {
     base  = b; 
     step  = s;
     offset= 0.0;
@@ -139,11 +139,11 @@ class Suml : public Sampler {	/* Sample via summing (long) */
 
 class Sumw : public Sampler {	/* Sample via summing (word) */
  protected:
-  unsigned short *base;
+  volatile unsigned short *base;
   float         offset;
   float         step;
  public:
-  Sumw(unsigned short *b, float s) {
+  Sumw(volatile unsigned short *b, float s) {
     base  = b; 
     step  = s;
     offset= 0.0;
@@ -169,11 +169,11 @@ class Sumw : public Sampler {	/* Sample via summing (word) */
 
 class Avgl : public Sampler {	/* Sample via summing (long) */
  protected:
-  unsigned int *base;
+  volatile unsigned int *base;
   float         offset;
   float         step;
  public:
-  Avgl(unsigned int *b, float s) {
+  Avgl(volatile unsigned int *b, float s) {
     base  = b; 
     step  = s;
     offset= 0.0;
@@ -199,11 +199,11 @@ class Avgl : public Sampler {	/* Sample via summing (long) */
 
 class Avgw : public Sampler {	/* Sample via summing (word) */
  protected:
-  unsigned short *base;
+  volatile unsigned short *base;
   float         offset;
   float         step;
  public:
-  Avgw(unsigned short *b, float s) {
+  Avgw(volatile unsigned short *b, float s) {
     base  = b; 
     step  = s;
     offset= 0.0;
@@ -231,7 +231,7 @@ class Avgw : public Sampler {	/* Sample via summing (word) */
  ** Generate a sampler from appropriate input:
  */
 
-Sampler *Xamine_GenerateSampler(unsigned int *b,
+Sampler *Xamine_GenerateSampler(volatile unsigned int *b,
 				spec_type   st,
 				rendition_1d rend,
 				reduction_mode sr, int xl, int xh, int nx, 
@@ -322,9 +322,9 @@ class Sampler2 {
 
 class Sample2w : public Sampler2 {
  protected:
-  unsigned short *base;		/* Spectrum base. */
+  volatile unsigned short *base;		/* Spectrum base. */
  public:
-  Sample2w(unsigned short *b, float xs, float ys, int xsiz) :
+  Sample2w(volatile unsigned short *b, float xs, float ys, int xsiz) :
     Sampler2(xs, ys, xsiz) {
     base   = b;
   }
@@ -358,9 +358,9 @@ class Sample2w : public Sampler2 {
 class Sample2b : public Sampler2 {
 
  protected:
-  unsigned char *base;		/* Spectrum base. */
+  volatile unsigned char *base;		/* Spectrum base. */
  public:
-  Sample2b(unsigned char *b, float xs, float ys, int xsiz) :
+  Sample2b(volatile unsigned char *b, float xs, float ys, int xsiz) :
     Sampler2(xs, ys, xsiz) {
     base   = b;
   }
@@ -396,9 +396,9 @@ class Sample2b : public Sampler2 {
 */
 class Sum2w : public Sampler2 {
  protected:
-  unsigned short *base;		/* Spectrum base. */
+  volatile unsigned short *base;		/* Spectrum base. */
  public:
-  Sum2w(unsigned short *b, float xs, float ys, int xsiz) :
+  Sum2w(volatile unsigned short *b, float xs, float ys, int xsiz) :
     Sampler2(xs,ys, xsiz) {
 
       base = b;
@@ -456,9 +456,9 @@ class Sum2w : public Sampler2 {
 };
 class Sum2b : public Sampler2 {
  protected:
-  unsigned char *base;		/* Spectrum base. */
+  volatile unsigned char *base;		/* Spectrum base. */
  public:
-  Sum2b(unsigned char *b, float xs, float ys, int xsiz) :
+  Sum2b(volatile unsigned char *b, float xs, float ys, int xsiz) :
     Sampler2(xs,ys, xsiz) {
 
       base = b;
@@ -521,9 +521,9 @@ class Sum2b : public Sampler2 {
 */
 class Average2w : public Sampler2 {
  protected:
-  unsigned short *base;		/* Spectrum base. */
+  volatile unsigned short *base;		/* Spectrum base. */
  public:
-  Average2w(unsigned short *b, float xs, float ys, int xsiz) :
+  Average2w(volatile unsigned short *b, float xs, float ys, int xsiz) :
     Sampler2(xs, ys, xsiz)
     {
     base   = b;
@@ -586,9 +586,9 @@ class Average2w : public Sampler2 {
 
 class Average2b : public Sampler2 {
  protected:
-  unsigned char *base;		/* Spectrum base. */
+  volatile unsigned char *base;		/* Spectrum base. */
  public:
-  Average2b(unsigned char *b, float xs, float ys, int xsiz) :
+  Average2b(volatile unsigned char *b, float xs, float ys, int xsiz) :
     Sampler2(xs, ys, xsiz)
     {
     base   = b;

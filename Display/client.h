@@ -36,8 +36,6 @@ typedef char *caddr_t;
 #endif
 #ifdef unix
 #include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 #endif 
 #ifdef __ALPHA
 #define PADSIZE  65536
@@ -108,7 +106,7 @@ extern "C" {
 
 /* Create Shared Memory -- Creates the shared memory region for Xamine */
 
-int Xamine_CreateSharedMemory(int specbytes, Xamine_shared **ptr);
+int Xamine_CreateSharedMemory(int specbytes, volatile Xamine_shared **ptr);
 int
 #ifdef VMS
     f77xamine_createsharedmemory
@@ -116,7 +114,7 @@ int
 #ifdef unix
     f77xamine_createsharedmemory_
 #endif
-                                 (int *specbytes, Xamine_shared **ptr);
+                                 (int *specbytes,volatile Xamine_shared **ptr);
 int Xamine_DetachSharedMemory();
 
 /* Start -- Starts up the Xamine process  */
@@ -157,14 +155,14 @@ void f77xamine_getmemoryname(struct dsc$descriptor  *namedesc);
 void f77xamine_getmemoryname_(char *namebuffer, int maxlen);
 #endif
 
-int Xamine_MapMemory(char *name, int specbytes, Xamine_shared **ptr);
+int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr);
 #ifdef VMS
 int f77xamine_mapmemory(struct dsc$descriptor *namedesc,
 			 int    *specbytes,
-			 Xamine_shared **ptr);
+			 volatile Xamine_shared **ptr);
 #endif
 #ifdef unix
-int f77xamine_mapmemory_(char *name, int *specbytes, Xamine_shared **ptr,
+int f77xamine_mapmemory_(char *name, int *specbytes,volatile Xamine_shared **ptr,
 			 int namesize);
 #endif
 

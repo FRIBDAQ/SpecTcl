@@ -41,7 +41,7 @@ public:
   
   // Constructor:
 
-  CXamine1D(Xamine_shared*     pXamine,
+  CXamine1D(volatile Xamine_shared*     pXamine,
 	    const std::string& rName,
 	    UInt_t             nChannels,
 	    Bool_t             fWord = kfFALSE) :
@@ -49,7 +49,7 @@ public:
     m_fWord(fWord),
     m_nChannels(nChannels) 
   { }
-  CXamine1D(Xamine_shared* pXamine,
+  CXamine1D(volatile Xamine_shared* pXamine,
 	    UInt_t nSlot);
   virtual  ~CXamine1D ( ) { }       //Destructor
 

@@ -14,6 +14,19 @@ case $OS in
 esac
 
 rm -rf SpecTcl/SpecTcl              # Due to bungled initial CVS load.
+rm -rf SpecTcl/Exception
+rm -rf SpecTcl/doc
+rm -rf SpecTcl/Display
+rm -rf SpecTcl/EventSource
+rm -rf SpecTcl/Events
+rm -rf SpecTcl/Gates
+rm -rf SpecTcl/Scripts
+rm -rf SpecTcl/SpectrumIO
+rm -rf SpecTcl/TCL
+rm -rf SpecTcl/Tape
+rm -rf SpecTcl/TestFiles
+rm -rf SpecTcl/Utility
+rm -rf SpecTcl/Xamine
 
 case $# in
    0)

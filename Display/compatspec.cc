@@ -32,7 +32,7 @@ typedef char *cstring;
 /*
 ** External references: 
 */
-extern spec_shared *xamine_shared;
+extern volatile spec_shared *xamine_shared;
 
 
 /*

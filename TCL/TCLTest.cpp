@@ -39,7 +39,7 @@ class MyApp : public CTCLApplication
 public:
   virtual int operator()();
 protected:
-  RegisterCommands();
+  void RegisterCommands();
 };
 
 MyApp app;
@@ -50,7 +50,7 @@ CTCLVariable Rcfile(std::string("tcl_rcFileName"),
 
 MyEcho echocmd;
 
-MyApp::operator()()
+int MyApp::operator()()
 {
   Rcfile.Bind(getInterpreter());
   Rcfile.Set("~/.wishrc", TCL_GLOBAL_ONLY);

@@ -46,7 +46,7 @@ static char *sccsinfo="@(#)acceptgates.cc	8.2 10/3/95 ";
 /*
 ** We reference the shared memory region:
 */
-extern spec_shared *xamine_shared;
+extern volatile spec_shared *xamine_shared;
 /*
 ** The text below is the help text for the dialog that accepts summing
 ** regions:

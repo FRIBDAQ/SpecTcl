@@ -43,10 +43,10 @@ class Xamine_Converter {
  protected:
   XMWidget       *pane;
   win_attributed *attributes;
-  spec_shared    *spectra;
+  volatile spec_shared    *spectra;
   Boolean         clipping;
  public:
-  Xamine_Converter(XMWidget *p, win_attributed *a, spec_shared *s) {
+  Xamine_Converter(XMWidget *p, win_attributed *a,volatile spec_shared *s) {
     pane       = p;
     attributes = a;
     spectra    = s;
@@ -64,14 +64,14 @@ class Xamine_Converter {
 */
 class Xamine_Convert1d  : public Xamine_Converter {
  public:
-  Xamine_Convert1d(XMWidget *p, win_attributed *a, spec_shared *s) :
+  Xamine_Convert1d(XMWidget *p, win_attributed *a,volatile spec_shared *s) :
      Xamine_Converter(p, a, s) {}
   virtual void ScreenToSpec(spec_location *loc, int xpix, int ypix = 0);
   virtual void SpecToScreen(int *xpix, int *ypix, int chan, int counts = 0);
 };
 class Xamine_Convert2d  : public Xamine_Converter {
  public:
-  Xamine_Convert2d(XMWidget *p, win_attributed *a, spec_shared *s) :
+  Xamine_Convert2d(XMWidget *p, win_attributed *a,volatile spec_shared *s) :
      Xamine_Converter(p, a, s) {}
   virtual void ScreenToSpec(spec_location *loc, int xpix, int ypix = 0);
   virtual void SpecToScreen(int *xpix, int *ypix, int xval, int yval = 0);

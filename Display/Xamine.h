@@ -36,8 +36,6 @@ typedef char *caddr_t;
 #endif
 #ifdef unix
 #include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 #endif 
 #ifdef __ALPHA
 #define PADSIZE  65536

@@ -194,12 +194,14 @@ CPipeFile::Open(const std::string& rsConnection, UInt_t nAccess)
     throw CErrnoException("CPipeFile::Open() - Unable to fork()");
   }
 
+  char** argv = MakeArgv(rsConnection); // Create program and param list.
+
   if(m_nPid != 0) {		// Parent process.
     setFd(fds[0]);
     close(fds[1]);		// Close write side of pipe.
     setState(kfsOpen);
   }
-  // Child process must create the argv/argc and exec the child.
+  // Child process must redirect the pipe output to stdout and exec the child.
   //
   else {			// Child process.
 
@@ -216,7 +218,6 @@ CPipeFile::Open(const std::string& rsConnection, UInt_t nAccess)
     //  'words' which are separated by whitespace, and stored in an
     //  argument list.
 
-    char** argv = MakeArgv(rsConnection); // Create program and param list.
     execvp(argv[0], argv);
 
     // Control can only pass here if the execv failed:
@@ -230,6 +231,10 @@ CPipeFile::Open(const std::string& rsConnection, UInt_t nAccess)
     exit(errno);
     
   }
+  for(char** p = argv; *p != (char*)NULL; p++) {
+    delete []*p;		// Delete an argument.
+  }
+  delete []argv;		// Delete the pointer list.
 }
 //////////////////////////////////////////////////////////////////////////
 //

@@ -33,8 +33,13 @@ BufferTranslator* TranslatorFactory::CreateTranslator
 
 TranslatorFactory::Endian MyEndianess()
 {
-  Int_t x = 1;
-  if ( *(Char_t *)&x == x ) {
+  union {
+    Int_t  asInt;
+    Char_t asArray[sizeof(Int_t)];
+  } x;
+  x.asInt =1;
+
+  if (x.asArray[0] == 1 ) {
     return TranslatorFactory::little;
   }
   
@@ -46,7 +51,7 @@ TranslatorFactory::Endian MyEndianess()
 /*-----------------------------------------------------------------------------
   Name:  BufferFactory::CreateBuffer
 
-  Purpose:  Examine the lsignature of a buffer header and return a reference
+  Purpose:  Examine the lsignature of a buffer header and return a pointer
             to the appropriate BufferTranslator.
 -----------------------------------------------------------------------------*/
 
@@ -56,12 +61,10 @@ BufferTranslator* BufferFactory::CreateBuffer( Address_t pBuffer,
   BufferTranslator* pTranslator;
 
   if( Signature32 == 0x01020304 ) {
-    pTranslator = TranslatorFactory::CreateTranslator
-      ( pBuffer, TranslatorFactory::little );
-  }
+    return new NonSwappingBufferTranslator(pBuffer);
+  } 
   else {
-    pTranslator = TranslatorFactory::CreateTranslator
-      ( pBuffer, TranslatorFactory::big );
+    return new SwappingBufferTranslator(pBuffer);
   }
   return pTranslator;
 }
