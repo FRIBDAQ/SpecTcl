@@ -461,6 +461,46 @@ CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
   }
   assert(0);
 }
+/*!
+   Add a real parameter.  Real parameters are never scaled.  Spectra select
+   from a range within the real parameter. 
+   \param rResult (CTCLResult& [out]) Result string of the creation.  If
+                 the parameter was created, the result string contains the
+		 new parameter's name. Otherwise and error message.
+   \param pName   (const char* [in]) Name to assign the new parameter.
+                 Note the histogrammer's parameter creationals will throw
+		 an exception if this is a duplicate.  We catch the exception
+		 and map it to a TCL_ERROR return with the exception reason
+		 text in rResult.
+   \param nId     (int [in]) The parameter id (slot in the event array).
+                 This must be unique or else the histogrammer's creational
+		 function will throw an exception.  We catch the exception
+		 and map it to a TCL_ERROR return with the exception reason
+		 text in rResult.
+   \param pUnits (const char* [in] defaults to kpNULL) : If not null units
+                 to assign to the real parameter. If null the parameter will
+		 not be considered unit-less.
+   \return Any of:
+   - TCL_OK   - The parameter was successfully added to the histogrammer's 
+                dictionary.
+   - TCL_ERROR- The parameter was not successfully added to the histogrammer's
+                dictionary.
+*/
+Int_t
+CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
+				UInt_t nId, const char* pUnits)
+{
+  try {
+    m_pHistogrammer->AddParameter(std::string(pName), nId, 
+				  pUnits);
+  }
+  catch (CException& rException) {
+    rResult = rException.ReasonText();
+    return TCL_ERROR;
+  }
+  rResult = pName;
+  return TCL_OK;
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -691,14 +731,46 @@ CParameterPackage::getParameterInfoListString(CParameter& rParameter)
 
   char       Text[100];
   CTCLString List;
+  string     Empty("");	// Tcl empty string.
 
   List.AppendElement(rParameter.getName()); // Parameter name
 
   sprintf(Text, "%d", rParameter.getNumber()); // Text version of id.
   List.AppendElement(Text);
 
-  sprintf(Text, "%d", rParameter.getScale()); // Resolution in bits.
-  List.AppendElement(Text);
+  //  We produce the following elements:
+  //     nBits     - only defined if hasScale().
+  //     Lowlimit  - Only defined if hasScale() && getLow() != getHigh()
+  //     Highlimit - Only defined if hasScale() && getLow() != getHigh()
+  //     Units     - Only defined if nonempty string.
+  //
+  //  Undefined values have their places held by {}  (an empty string).
+
+  if(rParameter.hasScale()) {	// Parameter has scale information.
+    sprintf(Text, "%d", rParameter.getScale());
+    List.AppendElement(Text);
+    if(rParameter.getLow() != rParameter.getHigh()) { // Parameter has range:
+      sprintf(Text, "%f", rParameter.getLow());	// Low level.
+      List.AppendElement(Text);
+      sprintf(Text, "%f", rParameter.getHigh()); // High level.
+      List.AppendElement(Text);
+    }
+    else {			// No range info:
+      List.AppendElement(Empty); // Low
+      List.AppendElement(Empty); // High
+    }
+  } else {			// No scaling or range info:
+    List.AppendElement(Empty);	// bits
+    List.AppendElement(Empty);	// low
+    List.AppendElement(Empty);	// high.
+
+  }
+  // Units:
+  if(rParameter.getUnits() == string("")) { // No units.
+    List.AppendElement(Empty);
+  } else {
+    List.AppendElement(rParameter.getUnits());
+  }
 
 
   return List;
