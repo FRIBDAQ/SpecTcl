@@ -93,78 +93,112 @@ nscldata.o: nscldata.cpp
 # DO NOT DELETE
 
 NSCLAsciiSpectrumFormatter.o: NSCLAsciiSpectrumFormatter.h
+NSCLAsciiSpectrumFormatter.o: /Include/histotypes.h /usr/include/string.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/features.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/sys/cdefs.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/gnu/stubs.h
+NSCLAsciiSpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/math.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/huge_val.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/mathdef.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/mathcalls.h
+NSCLAsciiSpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 NSCLAsciiSpectrumFormatter.o: SpectrumFormatter.h
 NSCLAsciiSpectrumFormatter.o: ../SpecTcl/SpectrumPackage.h
-NSCLAsciiSpectrumFormatter.o: ./SpectrumFormatError.h /usr/include/math.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/standards.h /usr/include/stdlib.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/getopt.h /usr/include/sys/types.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/time_t.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/mach/machine/vm_types.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/sys/select.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/sys/common_protos.h
+NSCLAsciiSpectrumFormatter.o: /Include/TCLCommandPackage.h
+NSCLAsciiSpectrumFormatter.o: /Include/TCLInterpreterObject.h
+NSCLAsciiSpectrumFormatter.o: /usr/local/include/tcl.h /usr/include/stdio.h
+NSCLAsciiSpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/types.h /usr/include/libio.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/_G_config.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/stdio_lim.h
+NSCLAsciiSpectrumFormatter.o: /usr/local/include/tclDecls.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/assert.h /Include/TCLInterpreter.h
+NSCLAsciiSpectrumFormatter.o: /Include/TCLString.h /Include/TCLProcessor.h
+NSCLAsciiSpectrumFormatter.o: /Include/TCLResult.h ./SpectrumFormatError.h
 NSCLAsciiSpectrumFormatter.o: /usr/include/limits.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/machine/machlimits.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/sys/syslimits.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/machine/machtime.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/sys/rt_limits.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/time.h /usr/include/sys/timers.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/sys/sysmisc.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/string.h /usr/include/strings.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/ctype.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/sys/localedef.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/sys/lc_core.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/locale.h /usr/include/nl_types.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/mesg.h /usr/include/stdio.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/sys/seek.h /usr/include/va_list.h
-NSCLAsciiSpectrumFormatter.o: /usr/include/sys/limits.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/posix1_lim.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/local_lim.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/linux/limits.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/posix2_lim.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/time.h /usr/include/bits/time.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/ctype.h /usr/include/endian.h
+NSCLAsciiSpectrumFormatter.o: /usr/include/bits/endian.h
 NSCLBinarySpectrumFormatter.o: NSCLBinarySpectrumFormatter.h
 NSCLBinarySpectrumFormatter.o: SpectrumFormatter.h ./nsclbin.h
-NSCLBinarySpectrumFormatter.o: /usr/include/string.h /usr/include/standards.h
-NSCLBinarySpectrumFormatter.o: /usr/include/sys/types.h /usr/include/time_t.h
-NSCLBinarySpectrumFormatter.o: /usr/include/mach/machine/vm_types.h
-NSCLBinarySpectrumFormatter.o: /usr/include/sys/select.h
-NSCLBinarySpectrumFormatter.o: /usr/include/sys/common_protos.h
-NSCLBinarySpectrumFormatter.o: /usr/include/strings.h /usr/include/errno.h
-NSCLBinarySpectrumFormatter.o: ./nscldata.h ./nsclbinerror.h
-NSCLBinarySpectrumFormatter.o: ../SpecTcl/SpectrumPackage.h
+NSCLBinarySpectrumFormatter.o: /usr/include/string.h /usr/include/features.h
+NSCLBinarySpectrumFormatter.o: /usr/include/sys/cdefs.h
+NSCLBinarySpectrumFormatter.o: /usr/include/gnu/stubs.h
+NSCLBinarySpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+NSCLBinarySpectrumFormatter.o: /usr/include/errno.h /usr/include/bits/errno.h
+NSCLBinarySpectrumFormatter.o: /usr/include/linux/errno.h
+NSCLBinarySpectrumFormatter.o: /usr/include/asm/errno.h ./nscldata.h
+NSCLBinarySpectrumFormatter.o: ./nsclbinerror.h ../SpecTcl/SpectrumPackage.h
+NSCLBinarySpectrumFormatter.o: /Include/TCLCommandPackage.h
+NSCLBinarySpectrumFormatter.o: /Include/TCLInterpreterObject.h
+NSCLBinarySpectrumFormatter.o: /usr/local/include/tcl.h /usr/include/stdio.h
+NSCLBinarySpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/types.h /usr/include/libio.h
+NSCLBinarySpectrumFormatter.o: /usr/include/_G_config.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/stdio_lim.h
+NSCLBinarySpectrumFormatter.o: /usr/local/include/tclDecls.h
+NSCLBinarySpectrumFormatter.o: /usr/include/assert.h
+NSCLBinarySpectrumFormatter.o: /Include/TCLInterpreter.h /Include/TCLString.h
+NSCLBinarySpectrumFormatter.o: /Include/TCLProcessor.h /Include/TCLResult.h
 NSCLBinarySpectrumFormatter.o: ./SpectrumFormatError.h /usr/include/math.h
-NSCLBinarySpectrumFormatter.o: /usr/include/stdlib.h /usr/include/getopt.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/huge_val.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/mathdef.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/mathcalls.h
+NSCLBinarySpectrumFormatter.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 NSCLBinarySpectrumFormatter.o: /usr/include/limits.h
-NSCLBinarySpectrumFormatter.o: /usr/include/machine/machlimits.h
-NSCLBinarySpectrumFormatter.o: /usr/include/sys/syslimits.h
-NSCLBinarySpectrumFormatter.o: /usr/include/machine/machtime.h
-NSCLBinarySpectrumFormatter.o: /usr/include/sys/rt_limits.h
-NSCLBinarySpectrumFormatter.o: /usr/include/ctype.h
-NSCLBinarySpectrumFormatter.o: /usr/include/sys/localedef.h
-NSCLBinarySpectrumFormatter.o: /usr/include/sys/lc_core.h
-NSCLBinarySpectrumFormatter.o: /usr/include/locale.h /usr/include/nl_types.h
-NSCLBinarySpectrumFormatter.o: /usr/include/mesg.h /usr/include/stdio.h
-NSCLBinarySpectrumFormatter.o: /usr/include/sys/seek.h /usr/include/va_list.h
-NSCLBinarySpectrumFormatter.o: /usr/include/sys/limits.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/posix1_lim.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/local_lim.h
+NSCLBinarySpectrumFormatter.o: /usr/include/linux/limits.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/posix2_lim.h
+NSCLBinarySpectrumFormatter.o: /usr/include/ctype.h /usr/include/endian.h
+NSCLBinarySpectrumFormatter.o: /usr/include/bits/endian.h
 SpectrumFormatError.o: ./SpectrumFormatError.h
 SpectrumFormatter.o: SpectrumFormatter.h
 SpectrumFormatterFactory.o: SpectrumFormatterFactory.h SpectrumFormatter.h
+SpectrumFormatterFactory.o: /Include/histotypes.h /usr/include/string.h
+SpectrumFormatterFactory.o: /usr/include/features.h /usr/include/sys/cdefs.h
+SpectrumFormatterFactory.o: /usr/include/gnu/stubs.h
+SpectrumFormatterFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+SpectrumFormatterFactory.o: /usr/include/math.h /usr/include/bits/huge_val.h
+SpectrumFormatterFactory.o: /usr/include/bits/mathdef.h
+SpectrumFormatterFactory.o: /usr/include/bits/mathcalls.h
+SpectrumFormatterFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 SpectrumStandardFormatters.o: SpectrumFormatterFactory.h SpectrumFormatter.h
+SpectrumStandardFormatters.o: /Include/histotypes.h /usr/include/string.h
+SpectrumStandardFormatters.o: /usr/include/features.h
+SpectrumStandardFormatters.o: /usr/include/sys/cdefs.h
+SpectrumStandardFormatters.o: /usr/include/gnu/stubs.h
+SpectrumStandardFormatters.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+SpectrumStandardFormatters.o: /usr/include/math.h
+SpectrumStandardFormatters.o: /usr/include/bits/huge_val.h
+SpectrumStandardFormatters.o: /usr/include/bits/mathdef.h
+SpectrumStandardFormatters.o: /usr/include/bits/mathcalls.h
+SpectrumStandardFormatters.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 SpectrumStandardFormatters.o: NSCLAsciiSpectrumFormatter.h
 SpectrumStandardFormatters.o: NSCLBinarySpectrumFormatter.h ./nsclbin.h
-SpectrumStandardFormatters.o: /usr/include/string.h /usr/include/standards.h
-SpectrumStandardFormatters.o: /usr/include/sys/types.h /usr/include/time_t.h
-SpectrumStandardFormatters.o: /usr/include/mach/machine/vm_types.h
-SpectrumStandardFormatters.o: /usr/include/sys/select.h
-SpectrumStandardFormatters.o: /usr/include/sys/common_protos.h
-SpectrumStandardFormatters.o: /usr/include/strings.h /usr/include/errno.h
-SpectrumStandardFormatters.o: ./nscldata.h ./nsclbinerror.h
-nsclbin.o: /usr/include/string.h /usr/include/standards.h
-nsclbin.o: /usr/include/sys/types.h /usr/include/time_t.h
-nsclbin.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
-nsclbin.o: /usr/include/sys/common_protos.h /usr/include/strings.h
-nsclbin.o: /usr/include/errno.h ./nscldata.h ./nsclbinerror.h ./nscltime.h
-nsclbin.o: /usr/include/time.h /usr/include/machine/machtime.h
-nsclbin.o: /usr/include/sys/timers.h /usr/include/sys/sysmisc.h ./nsclbin.h
-nsclbin.o: /usr/include/math.h /usr/include/stdlib.h /usr/include/getopt.h
+SpectrumStandardFormatters.o: /usr/include/errno.h /usr/include/bits/errno.h
+SpectrumStandardFormatters.o: /usr/include/linux/errno.h
+SpectrumStandardFormatters.o: /usr/include/asm/errno.h ./nscldata.h
+SpectrumStandardFormatters.o: ./nsclbinerror.h
+nsclbin.o: /usr/include/string.h /usr/include/features.h
+nsclbin.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+nsclbin.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+nsclbin.o: /usr/include/errno.h /usr/include/bits/errno.h
+nsclbin.o: /usr/include/linux/errno.h /usr/include/asm/errno.h ./nscldata.h
+nsclbin.o: ./nsclbinerror.h ./nscltime.h /usr/include/time.h
+nsclbin.o: /usr/include/bits/time.h /usr/include/bits/types.h ./nsclbin.h
+nsclbin.o: /usr/include/math.h /usr/include/bits/huge_val.h
+nsclbin.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+nsclbin.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
 nsclbinerror.o: ./nsclbinerror.h
-nscldata.o: /usr/include/errno.h /usr/include/standards.h
-nscldata.o: /usr/include/string.h /usr/include/sys/types.h
-nscldata.o: /usr/include/time_t.h /usr/include/mach/machine/vm_types.h
-nscldata.o: /usr/include/sys/select.h /usr/include/sys/common_protos.h
-nscldata.o: /usr/include/strings.h ./nscldata.h ./nsclbinerror.h
+nscldata.o: /usr/include/errno.h /usr/include/features.h
+nscldata.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+nscldata.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
+nscldata.o: /usr/include/asm/errno.h /usr/include/string.h
+nscldata.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h ./nscldata.h
+nscldata.o: ./nsclbinerror.h

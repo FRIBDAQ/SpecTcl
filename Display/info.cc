@@ -470,12 +470,14 @@ FormatGateInfo(int specno)
   for(i = 0; i < object_count; i++) {
     grobj_name name;
     int        id = objects[i]->getid();;
-    objects[i]->getname(name);
-    sprintf(element, "\n%5s  %04d  ",
-	    gtype[objects[i]->type()],
-	    id);
-    strcat(result, element);
-    strcat(result, name);
+    if(objects[i]->type() < sizeof(gtype)/sizeof(char*)) {
+      objects[i]->getname(name);
+      sprintf(element, "\n%5s  %04d  ",
+	      gtype[objects[i]->type()],
+	      id);
+      strcat(result, element);
+      strcat(result, name);
+    }
   }
   strcat(result, "\n");
 
