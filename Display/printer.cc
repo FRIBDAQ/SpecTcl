@@ -469,7 +469,7 @@ PrintArea(int x1, int y1, int x2, int y2)
 
   
   sprintf(importcmd, 
-	  "%s -window root -transparency black -crop %dx%d+%d+%d %s",
+	  "%s -window root -transparent black -crop %dx%d+%d+%d %s",
 	  importpath, wid,ht,x1,y1, filename);
   
   Print(importcmd, filename);
