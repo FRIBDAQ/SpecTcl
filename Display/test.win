@@ -1,0 +1,24 @@
+Geometry 2,3
+# /usr/users/fox/Xamine/test.win Written by @(#)dispwind.cc	2.2 1/28/94  at Thu Jul 23 11:49:05 1998
+
+Window  0,0,1
+   SCALE Manual 256
+Endwindow
+Window  1,0,2
+   SCALE Manual 256
+Endwindow
+Window  0,1,3
+   SCALE Manual 256
+Endwindow
+Window  1,1,4
+   SCALE Manual 256
+   Rendition Color
+Endwindow
+Window  0,2,5
+   SCALE Manual 256
+   Rendition Color
+Endwindow
+Window  1,2,6
+   SCALE Manual 256
+   Rendition Color
+Endwindow
