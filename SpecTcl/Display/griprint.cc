@@ -1440,6 +1440,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // interpret it for us.
     char GriCmd[200];
     char printcmd[1000];
+    char buf1[200];
     char buf[200];        // temporary buffer for concatenating to GriCmd
     strcpy(printcmd, Xamine_GetPrintCommand());
     char instdir[75];
@@ -1454,13 +1455,9 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     case toprinter: {
       sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps temp; ", 
 	      bindir, etcdir);
-      string s(printcmd);
-      int pos = s.find("%s", 0);
-      while(pos != -1) {
-	s.replace(pos, 2, "temp.ps");
-	pos = s.find("%s", 0);
-      }
-      sprintf(buf, "%s temp.ps; rm -f temp.ps; rm -f temp.gri", s.c_str());
+      sprintf(buf1, printcmd, "temp.ps");
+      string s(buf1);
+      sprintf(buf, "%s; rm -f temp.ps; rm -f temp.gri", s.c_str());
       strcat(GriCmd, buf);
       break;
     }
