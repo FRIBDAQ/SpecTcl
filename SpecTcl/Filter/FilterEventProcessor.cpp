@@ -29,7 +29,7 @@ CFilterEventProcessor::CFilterEventProcessor() :
   if(m_pValidParameterArray) {
     delete m_pValidParameterArray; // Just in case.
   }
-  m_pValidParameterArray = (UInt_t**)kpNULL; // ((Float_t[])*)kpNULL; ******************************************
+  m_pValidParameterArray = (UInt_t**)kpNULL;
 };
 
 CFilterEventProcessor::~CFilterEventProcessor() {
@@ -159,8 +159,8 @@ Bool_t CFilterEventProcessor::read_float(Float_t& rFloat) {
   incr_offset(4);
 }
 
-void CFilterEventProcessor::read_char(char& rChar) {
-
+Bool_t CFilterEventProcessor::read_char(char& rChar) { // ************************************************************
+  return true;
 }
 
 void CFilterEventProcessor::incr_offset(UInt_t nIncrement) {

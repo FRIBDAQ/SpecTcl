@@ -54,7 +54,7 @@ class CFilterEventProcessor : public CEventProcessor {
   UInt_t m_nOffset;
   string m_sTag;
   UInt_t m_nParameters;
-  UInt_t** m_pValidParameterArray; // ****************************************************
+  UInt_t** m_pValidParameterArray;
 
   vector<CParInfo*> m_vParInfo;
   vector<CEvent*> m_vBuffer;
@@ -77,7 +77,7 @@ class CFilterEventProcessor : public CEventProcessor {
   Bool_t read_uint(UInt_t&);
   Bool_t read_array();
   Bool_t read_float(Float_t&);
-  void read_char(char&);
+  Bool_t read_char(char&);
 
   void incr_offset(UInt_t);
 }; // CFilterEventProcessor.

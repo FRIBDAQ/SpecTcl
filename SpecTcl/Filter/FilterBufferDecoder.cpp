@@ -1,5 +1,5 @@
 /*
-  FilterEventUnpacker.cpp
+  FilterBufferDecoder.cpp
 */
 
 // Copyright Notice:
@@ -75,6 +75,7 @@ void CFilterBufferDecoder::operator()(UInt_t nBytes,
       if(m_sTag == "header") {
 	// Start processing header data.
 	// NOTE: Block size MUST be sufficiently large to read entire header on first pass.
+	//       Also, arrays sizes will always be equal to the number of parameters defined in the header/documentation buffer.
 	XDRuint(m_nParameters);
 
 	UInt_t *(ValidParameterArray[m_nParameters]); // Expensive in a loop. Rewrite. (On second thought, header occurrence is very infrequent.)
@@ -93,8 +94,17 @@ void CFilterBufferDecoder::operator()(UInt_t nBytes,
 	  XDRuint(nParId);
 	}
       } else if(m_sTag == "event") {
-	// Start processing event data. *******************************************************
-
+	// Start processing event data.
+	if(XDRarray()) {
+	  Float_t nFloat = 0;
+	  for(UInt_t i = 0; i < m_nParameters; i++) {
+	    if((*m_pValidParameterArray)[i] != 0) {
+	      XDRfloat(nFloat);
+	    }
+	  }
+	} else {
+	  break;
+	}
       } else if(m_sTag == "endofrecord") {
 	m_fXDRError = kfFALSE; // Reset error flag, but still ...
 	break; // break out of the loop.
