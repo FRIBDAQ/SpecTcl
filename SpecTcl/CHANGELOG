@@ -203,3 +203,5 @@ December 28, 2004
 December 31, 2004
     - D. Bazin removed the treeparam Makefiles.  Adjust the
       contrib/Makefile.am accordingly.
+January 06, 2005
+    - Fixed up some missing quotes on makefile.skel's.
