@@ -1,0 +1,1644 @@
+With Class Chart Export File
+X:\SpecTcl\Events\ClassBreakdown.omtUnified Method
+
+
+General Info
+Internal Version #, NextClassID, NextClassShapeID, NextRelationShapeID, NextStateID, NextStateShapeID, NextTransitionID, NextTransitionShapeID, NextObjectID, NextObjectShapeID, NextInteractionID, NextInteractionShapeID, NextOperationID, NextAttributeID
+***BEGIN_TABLE***
+4.7991048511111111128849
+***END_TABLE***
+
+Classes
+ClassID, Name, Description, Multiplicity, Concurrency, Visibility, Persistence, FileName, Package, Import File, Author, LibraryBaseClass, Invariant, User1, User2, User3, Stereotype, 
+***BEGIN_TABLE***
+19
+1CAnalyzerI:\spectcl\events\Analyzer.cpp0000
+2CBufferDecoderI:\spectcl\events\BufferDecoder.cpp1000
+3CEventI:\spectcl\events\Event.cpp0000
+4CEventFormatErrorI:\spectcl\events\EventFormatError.cppCException0000
+5CEventListI:\spectcl\events\EventList.cpp0000
+6CEventSinkI:\spectcl\events\EventSink.cpp0000
+7CEventUnpackerI:\spectcl\events\EventUnpacker.cpp0000
+8CNSCLBufferDecoderI:\spectcl\events\NSCLBufferDecoder.cpp0000
+9CRunControlI:\spectcl\events\RunControl.cpp0000
+10CTCLRunFileHandlerI:\spectcl\events\TCLRunFileHandler.cppCTCLIdleProcess0000
+11CTKRunControlI:\spectcl\events\TKRunControl.cpp0000
+12CValidValueI:\spectcl\events\ValidValue.cpp0001
+25CEventProcessorpublic0000
+39CHistogrammer\\TruCluster\fox\SpecTcl\Sorter\Histogrammer.cppCEventSink0000
+41CEventSinkPipelinepublic0000
+57CEventFilterpublic0000
+58CGatedEventFilterpublic0000
+59CGateContainerpublic0000
+79COutputEventStreampublic0000
+***END_TABLE***
+
+Class Shape
+ShapeID, PosX, PosY, TopText, MiddleText, BottomText, ClassDataID, ClassType, Abstract, Template, Interface, Final
+***BEGIN_TABLE***
+121500CValidValuem_Value:m_ValidCValidValue:CValidValue$:CValidValue$$:operator=:operator==:operator!=:getValue:isValid:setValue:setValid:clear:operator=$12010000
+400CEventFormatErrorm_nReason:m_vEventData:m_nDetectedOffset:m_nEventSize:m_fSizeAccurate:m_sReason:knUnused1:knUnused2CEventFormatError:CEventFormatError$:CEventFormatError$$:~CEventFormatError:CEventFormatError$$$:operator=:operator==:getReason:getEventData:getDetectedOffset:getEventSize:getSizeAccurate:setReason:setEventData:setEventData$:setDetectedOffset:setEventSize:setSizeAccurate:ReasonText:ReasonCode:EventData:Where:EventSize:EventSizeOk:UpdateReasonText4000000
+91124112CRunControlm_fRunning:m_pAnalyzer:m_pEventSourceCRunControl:~CRunControl:CRunControl$:operator=:operator==:getRunning:getAnalyzer:getEventSource:setRunning:setAnalyzer:setEventSource:Start:Stop:Attach:OnBuffer:OnEnd9000000
+789422CEventUnpackerrEventCEventUnpacker:~CEventUnpacker:CEventUnpacker$:operator=:operator==:OnAttach:OnDetach7000000
+3894352CEventm_rvParameters:m_nSizeCEvent:~CEvent:CEvent$:CEvent$$:operator=:operator==:operator!=:operator[]:begin:end:size:clear:DoAssign:Resize:ExpandGranule3000000
+4019442CEventSinkCEventSink:~CEventSink:CEventSink$:operator=:operator==:OnAttach:OnDetach:operator()6000010
+411714232CHistogrammerm_pDisplayer:m_DisplayBindings:m_ParameterDictionary:m_SpectrumDictionary:m_GateDictionary:nSpectra:nGatesCHistogrammer:CHistogrammer$:~CHistogrammer:CHistogrammer$$:operator=:operator==:operator!=:getDisplayBindings:getDisplayer:getParameterDictionary:getSpectrumDictionary:setDisplayBindings:setDisplayer:setParameterDictionary:setSpectrumDictionary:AddParameter:RemoveParameter:FindParameter:FindParameter$:ParameterBegin:ParameterEnd:ParameterCount:AddSpectrum:RemoveSpectrum:ClearSpectrum:ClearAllSpectra:FindSpectrum:FindSpectrum$:SpectrumBegin:SpectrumEnd:SpectrumCount:UnGate:BindToDisplay:UnBindFromDisplay:DisplayBindingsBegin:DisplayBindingsEnd:DisplayBindingsSize:DisplayBinding:AddGate:DeleteGate:ReplaceGate:ApplyGate:FindGate:FindGate$:GateBegin:GateEnd:GateCount:GateToXamineGate:GatesToDisplay:AddGateToBoundSpectra:RemoveGateFromBoundSpectra39000000
+601934232CEventFilterm_Name:m_fEnabled:m_nFdEnable:Disable:CheckCondition:FormatOutputEvent:operator()57000000
+611924502CGatedEventFilterm_pGateContainer:m_vParameterIdssetGate:CheckCondition:FormatOutputEvent58000000
+622164542CGateContainer59000000
+432214242CEventSinkPipelineAddSink:RemoveSink:begin:end:size:operator()41000000
+832214402COutputEventStream79000000
+25990360CEventProcessor25000000
+51290620CEventListm_rvEvents:m_nSizeCEventList:CEventList$:CEventList$$:~CEventList:operator=:operator==:operator!=:getVector:operator[]:begin:end:size:clear:DoAssign:Expand5000000
+21390590CBufferDecoderm_pBuffer:m_nSizeCBufferDecoder:~CBufferDecoder:CBufferDecoder$:operator=:operator==:getBuffer:setBuffer:getBody:getBodySize:getRun:getEntityCount:getSequenceNo:getLamCount:getPatternCount:getBufferType:getByteOrder:getTitle:OnAttach:OnDetach:ThrowIfNoBuffer2100000
+8930750CNSCLBufferDecoderm_sTitleCNSCLBufferDecoder:~CNSCLBufferDecoder:CNSCLBufferDecoder$:operator=:operator==:getBody:getBodySize:getRun:getEntityCount:getSequenceNo:getLamCount:getPatternCount:getBufferType:getByteOrder:getTitle8000000
+112900CAnalyzerm_nEventThreshold:m_nParametersInEvent:m_EventList:m_EventPool:m_pDecoder:m_pSink:m_fAbort:m_nDefaultEventThreshold:m_nDefaultParameterCountCAnalyzer:~CAnalyzer:CAnalyzer$:operator=:operator==:getEventThreshold:getParametersInEvent:getEventList:getDecoder:getSink:setEventThreshold:setParametersInEvent:setEventList:setDecoder:setEventSink:OnBuffer:OnStateChange:OnPhysics:OnScaler:OnOther:OnEndFile:AttachDecoder:DetachDecoder:AttachSink:DetachSink:OnEvent:AbortEvent:CopyEventList:CopyEventPool:DetachAll:CreateEvent:ClearEventList1000000
+61470180CEventSinkCEventSink:~CEventSink:CEventSink$:operator=:operator==:OnAttach:OnDetach:operator()6000000
+111170440CTKRunControlm_pInterp:m_FileHandler:m_sEndScript:m_nDefaultBufferSize11000000
+101070630CTCLRunFileHandlerm_pRun:m_nBufferSizeCTCLRunFileHandler:~CTCLRunFileHandler:CTCLRunFileHandler$:operator=:operator==:getRun:getBufferSize:setRun:setBufferSize10000000
+***END_TABLE***
+
+Attributes
+ClassID, ClassName, AttrID, Name, Type, Length, IsStatic, Description, Visibility, MaxVal, MinVal, InitVal, Stereotype, Constraint, IsConstant, IsIndexed, IsUnique, IsNotNull, IsPrimaryKey, IsForeignKey, User1, User2, User3, IsArray, IsFinal, IsWriteProperty, IsReadProperty
+***BEGIN_TABLE***
+1CAnalyzer1m_nEventThresholdUInt_t0private0000000000
+1CAnalyzer2m_nParametersInEventUInt_t0private0000000000
+1CAnalyzer3m_EventListCEventList0private0000000000
+1CAnalyzer4m_EventPoolCEventList0private0000000000
+1CAnalyzer5m_pDecoderCBufferDecoder*0private0000000000
+1CAnalyzer6m_pSinkCEventSink*0private0000000000
+1CAnalyzer7m_fAbortBool_t0private0000000000
+1CAnalyzer8m_nDefaultEventThresholdUInt_t1public0000000000
+1CAnalyzer9m_nDefaultParameterCountUInt_t1public0000000000
+2CBufferDecoder10m_pBufferAddress_t0private0000000000
+2CBufferDecoder11m_nSizeUInt_t0private0000000000
+3CEvent12m_rvParametersCIntegerVector0private0000000000
+3CEvent13m_nSizeInt_t0private0000000000
+4CEventFormatError14m_nReasonInt_t0private0000000000
+4CEventFormatError15m_vEventDataUShort_t0private0000000000
+4CEventFormatError16m_nDetectedOffsetUInt_t0private0000000000
+4CEventFormatError17m_nEventSizeUInt_t0private0000000000
+4CEventFormatError18m_fSizeAccurateBool_t0private0000000000
+4CEventFormatError19m_sReasonstd::string0private0000000000
+4CEventFormatError20knUnused1int0public1000000000
+4CEventFormatError21knUnused2int0public0000000000
+5CEventList22m_rvEventsCEventVector0private0000000000
+5CEventList23m_nSizeUInt_t0private0000000000
+7CEventUnpacker24rEventCEvent&0public0000000000
+8CNSCLBufferDecoder25m_sTitlestring0private0000000000
+9CRunControl26m_fRunningBool_t0private0000000000
+9CRunControl27m_pAnalyzerCAnalyzer*0private0000000000
+9CRunControl28m_pEventSourceCFile*0private0000000000
+10CTCLRunFileHandler29m_pRunCRunControl*0private0000000000
+10CTCLRunFileHandler30m_nBufferSizeUInt_t0private0000000000
+11CTKRunControl31m_pInterpCTCLInterpreter*0private0000000000
+11CTKRunControl32m_FileHandlerCTCLRunFileHandler0private0000000000
+11CTKRunControl33m_sEndScriptstd::string0private0000000000
+11CTKRunControl34m_nDefaultBufferSizeUInt_t1public0000000000
+12CValidValue35m_ValueT0private0000000000
+12CValidValue36m_ValidBool_t0private0000000000
+39CHistogrammer37m_pDisplayerCXamine*0private0000000000
+39CHistogrammer38m_DisplayBindingsDisplayBindings0private0000000000
+39CHistogrammer39m_ParameterDictionaryParameterDictionary0private0000000000
+39CHistogrammer40m_SpectrumDictionarySpectrumDictionary0private0000000000
+39CHistogrammer41m_GateDictionaryCGateDictionary0private0000000000
+39CHistogrammer42nSpectraUInt_t0public0000000000
+39CHistogrammer43nGatesUInt_t0public0000000000
+57CEventFilter44m_Nameint0private00000000000
+57CEventFilter45m_fEnabledint0private00000000000
+57CEventFilter46m_nFdint0private00000000000
+58CGatedEventFilter47m_pGateContainerint0private00000000000
+58CGatedEventFilter48m_vParameterIdsint0private00000000000
+***END_TABLE***
+
+Operations
+ClassID, ClassName, OperID, OperName, Return Type, Post Condition, PreCondition, Invariant, Stereotype, Classification, Exception, Transformation, Concurrency, Visibility,  Comment1, Comment2, Comment3, IsStatic, IsConstant, IsPureVirtual, IsVirtual, IsProcedure, IsInline, IsEvent, IsOverride, Message, IsFinal, IsSynchronized, IsNative, IsFriend
+***BEGIN_TABLE***
+1CAnalyzer1049CAnalyzerpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+1CAnalyzer1050~CAnalyzerpublic000110000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1051CAnalyzer$public000010000000
+BEGIN_CODE
+   
+    m_nEventThreshold    = aCAnalyzer.m_nEventThreshold;
+    m_nParametersInEvent = aCAnalyzer.m_nParametersInEvent;
+    CopyEventList(aCAnalyzer.m_EventList);
+    CopyEventPool(aCAnalyzer.m_EventPool);
+    m_pDecoder           = aCAnalyzer.m_pDecoder;
+    if(m_pDecoder)
+      m_pDecoder->OnAttach(*this);
+    m_pSink              = aCAnalyzer.m_pSink;
+    if(m_pSink)
+      m_pSink->OnAttach(*this);
+
+  
+END_CODE
+1CAnalyzer1052operator=CAnalyzer&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCAnalyzer) return *this;          
+  
+    m_nEventThreshold    = aCAnalyzer.m_nEventThreshold;
+    m_nParametersInEvent = aCAnalyzer.m_nParametersInEvent;
+    CopyEventList(aCAnalyzer.m_EventList);
+    CopyEventPool(aCAnalyzer.m_EventPool);
+
+    //
+    //  The various attached objects must be detached before assigned:
+    //
+    DetachAll();
+    m_pDecoder           = aCAnalyzer.m_pDecoder;
+    if(m_pDecoder)
+      m_pDecoder->OnAttach(*this);
+    m_pSink              = aCAnalyzer.m_pSink;
+    if(m_pSink)
+      m_pSink->OnAttach(*this);
+
+    return *this;
+  
+END_CODE
+1CAnalyzer1053operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (
+
+	    (m_nEventThreshold    == aCAnalyzer.m_nEventThreshold)    &&
+	    (m_nParametersInEvent == aCAnalyzer.m_nParametersInEvent) &&
+	    (m_EventList          == aCAnalyzer.m_EventList)          &&
+	    (m_pDecoder           == aCAnalyzer.m_pDecoder)           &&
+	    (m_pSink              == aCAnalyzer.m_pSink)
+	    );
+  
+END_CODE
+1CAnalyzer1054getEventThresholdUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nEventThreshold;
+  
+END_CODE
+1CAnalyzer1055getParametersInEventUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nParametersInEvent;
+  
+END_CODE
+1CAnalyzer1056getEventListCEventList&public010010000000
+BEGIN_CODE
+
+    return m_EventList;
+  
+END_CODE
+1CAnalyzer1057getDecoderCBufferDecoder*public010010000000
+BEGIN_CODE
+
+    return m_pDecoder;
+  
+END_CODE
+1CAnalyzer1058getSinkCEventSink*public010010000000
+BEGIN_CODE
+
+    return m_pSink;
+  
+END_CODE
+1CAnalyzer1059setEventThresholdvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_nEventThreshold = am_nEventThreshold;
+  
+END_CODE
+1CAnalyzer1060setParametersInEventvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_nParametersInEvent = am_nParametersInEvent;
+  
+END_CODE
+1CAnalyzer1061setEventListvoidprotected000010000000
+BEGIN_CODE
+ 
+    CopyEventList(*am_EventList);
+
+  
+END_CODE
+1CAnalyzer1062setDecodervoidprotected000010000000
+BEGIN_CODE
+ 
+    if(m_pDecoder)
+      m_pDecoder->OnDetach(*this);
+    m_pDecoder = am_pDecoder;
+    if(m_pDecoder)
+      m_pDecoder->OnAttach(*this);
+  
+END_CODE
+1CAnalyzer1063setEventSinkvoidprotected000010000000
+BEGIN_CODE
+ 
+    if(m_pSink)
+      m_pSink->OnDetach(*this);
+    m_pSink = aSink;
+    if(m_pSink)
+      m_pSink->OnAttach(*this);
+  
+END_CODE
+1CAnalyzer1064OnBuffervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1065OnStateChangevoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1066OnPhysicsvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1067OnScalervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1068OnOthervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1069OnEndFilevoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1070AttachDecoderCBufferDecoder*public000010000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1071DetachDecoderCBufferDecoder*public000010000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1072AttachSinkCEventSink*public000010000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1073DetachSinkCEventSink*public000010000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1074OnEventUInt_tprotected000110000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1075AbortEventvoidprotected000010000000
+BEGIN_CODE
+
+    m_fAbort = kfTRUE;
+  
+END_CODE
+1CAnalyzer1076CopyEventListvoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1077CopyEventPoolvoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1078DetachAllvoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+1CAnalyzer1079CreateEventCEvent*protected000010000000
+BEGIN_CODE
+
+    CEventVector& rVec(m_EventPool.getVector());
+    if(rVec.empty()) {
+      return new CEvent(m_nParametersInEvent);
+    }
+    else {
+      CEvent* pEvent = rVec.back();
+      rVec.pop_back();
+      pEvent->clear();
+      return pEvent;
+    }
+  
+END_CODE
+1CAnalyzer1080ClearEventListvoidprotected000010000000
+BEGIN_CODE
+
+    CEventVector& evlist(m_EventList.getVector());
+    CEventVector& evpool(m_EventPool.getVector());
+    CEventListIterator p = evlist.begin();
+    for(; p != evlist.end(); p++) {
+      if(*p) {
+	CEvent* pEvent = *p;
+	evpool.push_back(pEvent);
+	*p = (CEvent*)kpNULL;
+      }
+    }
+    // evlist.erase(m_EventList.begin(), m_EventList.end());
+  
+END_CODE
+2CBufferDecoder1081CBufferDecoderpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+2CBufferDecoder1082~CBufferDecoderpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+2CBufferDecoder1083CBufferDecoder$public000010000000
+BEGIN_CODE
+   
+    m_pBuffer = aCBufferDecoder.m_pBuffer;                
+  
+END_CODE
+2CBufferDecoder1084operator=CBufferDecoder&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCBufferDecoder) return *this;          
+    m_pBuffer = aCBufferDecoder.m_pBuffer;        
+    return *this;
+  
+END_CODE
+2CBufferDecoder1085operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (
+	    (m_pBuffer == aCBufferDecoder.m_pBuffer) 
+	    );
+  
+END_CODE
+2CBufferDecoder1086getBufferAddress_tpublic010010000000
+BEGIN_CODE
+
+    return m_pBuffer;
+  
+END_CODE
+2CBufferDecoder1087setBuffervoidprotected000010000000
+BEGIN_CODE
+ 
+    m_pBuffer = am_pBuffer;
+  
+END_CODE
+2CBufferDecoder1088getBodyAddress_tpublic011110000000
+BEGIN_CODE
+
+END_CODE
+2CBufferDecoder1089getBodySizeUInt_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+2CBufferDecoder1090getRunUInt_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+2CBufferDecoder1091getEntityCountUInt_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+2CBufferDecoder1092getSequenceNoUInt_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+2CBufferDecoder1093getLamCountUInt_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+2CBufferDecoder1094getPatternCountUInt_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+2CBufferDecoder1095getBufferTypeUInt_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+2CBufferDecoder1096getByteOrdervoidpublic001110000000
+BEGIN_CODE
+
+END_CODE
+2CBufferDecoder1097getTitlestringpublic001110000000
+BEGIN_CODE
+
+END_CODE
+2CBufferDecoder1098OnAttachvoidpublic000110000000
+BEGIN_CODE
+}
+END_CODE
+2CBufferDecoder1099OnDetachvoidpublic000110000000
+BEGIN_CODE
+}
+END_CODE
+2CBufferDecoder1100ThrowIfNoBuffervoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1101CEventpublic000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1102~CEventpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+3CEvent1103CEvent$public000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1104CEvent$$public000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1105operator=CEvent&public000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1106operator==intpublic000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1107operator!=intpublic000010000000
+BEGIN_CODE
+
+	return !(operator==(anEvent));
+  
+END_CODE
+3CEvent1108operator[]CParameterValue&public000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1109beginCEventIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1110endCEventIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1111sizeUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nSize;
+  
+END_CODE
+3CEvent1112clearvoidpublic000010000000
+BEGIN_CODE
+
+    CEventIterator e = end();
+    for(CEventIterator i = begin(); i != e; i++) {
+      i->clear();
+    }
+    
+  
+END_CODE
+3CEvent1113DoAssignvoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1114Resizevoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+3CEvent1115ExpandGranulevoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+4CEventFormatError1116CEventFormatErrorpublic000010000000
+BEGIN_CODE
+
+    UpdateReasonText();
+  
+END_CODE
+4CEventFormatError1117CEventFormatError$public000010000000
+BEGIN_CODE
+
+    UpdateReasonText();
+  
+END_CODE
+4CEventFormatError1118CEventFormatError$$public000010000000
+BEGIN_CODE
+
+    UpdateReasonText();
+  
+END_CODE
+4CEventFormatError1119~CEventFormatErrorpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+4CEventFormatError1120CEventFormatError$$$public000010000000
+BEGIN_CODE
+
+    m_nReason = aCEventFormatError.m_nReason;
+    m_vEventData = aCEventFormatError.m_vEventData;
+    m_nDetectedOffset = aCEventFormatError.m_nDetectedOffset;
+    m_nEventSize = aCEventFormatError.m_nEventSize;
+    m_fSizeAccurate = aCEventFormatError.m_fSizeAccurate;
+    UpdateReasonText();
+  
+END_CODE
+4CEventFormatError1121operator=CEventFormatErrorpublic000010000000
+BEGIN_CODE
+
+    if (this != &aCEventFormatError) {
+      CException::operator= (aCEventFormatError);
+      m_nReason = aCEventFormatError.m_nReason;
+      m_vEventData = aCEventFormatError.m_vEventData;
+      m_nDetectedOffset = aCEventFormatError.m_nDetectedOffset;
+      m_nEventSize = aCEventFormatError.m_nEventSize;
+      m_fSizeAccurate = aCEventFormatError.m_fSizeAccurate;
+      UpdateReasonText();
+    }
+
+    return *this;
+  
+END_CODE
+4CEventFormatError1122operator==intpublic000010000000
+BEGIN_CODE
+ return (
+	    (CException::operator== (aCEventFormatError)) &&
+	    (m_nReason == aCEventFormatError.m_nReason) &&
+	    (m_vEventData == aCEventFormatError.m_vEventData) &&
+	    (m_nDetectedOffset == aCEventFormatError.m_nDetectedOffset) &&
+	    (m_nEventSize == aCEventFormatError.m_nEventSize) &&
+	    (m_fSizeAccurate == aCEventFormatError.m_fSizeAccurate) 
+	    );
+  
+END_CODE
+4CEventFormatError1123getReasonInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nReason;
+  
+END_CODE
+4CEventFormatError1124getEventDataUShort_tpublic010010000000
+BEGIN_CODE
+
+    return m_vEventData;
+  
+END_CODE
+4CEventFormatError1125getDetectedOffsetUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nDetectedOffset;
+  
+END_CODE
+4CEventFormatError1126getEventSizeUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nEventSize;
+  
+END_CODE
+4CEventFormatError1127getSizeAccurateBool_tpublic010010000000
+BEGIN_CODE
+
+    return m_fSizeAccurate;
+  
+END_CODE
+4CEventFormatError1128setReasonvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_nReason = am_nReason;    
+    UpdateReasonText();
+  
+END_CODE
+4CEventFormatError1129setEventDatavoidprotected000010000000
+BEGIN_CODE
+ 
+    m_vEventData = am_vEventData;
+    UpdateReasonText();
+  
+END_CODE
+4CEventFormatError1130setEventData$voidprotected000010000000
+BEGIN_CODE
+
+    vector<UShort_t> v(pStart, pStart + (nWords -1));
+    setEventData(v);
+  
+END_CODE
+4CEventFormatError1131setDetectedOffsetvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_nDetectedOffset = am_nDetectedOffset;
+    UpdateReasonText();
+  
+END_CODE
+4CEventFormatError1132setEventSizevoidprotected000010000000
+BEGIN_CODE
+ 
+    m_nEventSize = am_nEventSize;
+    m_fSizeAccurate = kfTRUE;	// Wouldn't set if not true.
+    UpdateReasonText();
+  
+END_CODE
+4CEventFormatError1133setSizeAccuratevoidprotected000010000000
+BEGIN_CODE
+ 
+    m_fSizeAccurate = am_fSizeAccurate;
+    UpdateReasonText();
+  
+END_CODE
+4CEventFormatError1134ReasonTextchar*public010110000000
+BEGIN_CODE
+
+END_CODE
+4CEventFormatError1135ReasonCodeInt_tpublic010110000000
+BEGIN_CODE
+
+END_CODE
+4CEventFormatError1136EventDataUShort_t&public000010000000
+BEGIN_CODE
+
+END_CODE
+4CEventFormatError1137WhereUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+4CEventFormatError1138EventSizeUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+4CEventFormatError1139EventSizeOkBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+4CEventFormatError1140UpdateReasonTextvoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1141CEventListpublic000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1142CEventList$public000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1143CEventList$$public000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1144~CEventListpublic000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1145operator=CEventList&public000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1146operator==intpublic000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1147operator!=intpublic000010000000
+BEGIN_CODE
+
+	 return !(operator==(anEventList));
+ 
+END_CODE
+5CEventList1148getVectorCEventVector&public000010000000
+BEGIN_CODE
+ return m_rvEvents; 
+END_CODE
+5CEventList1149operator[]pCEvent&public000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1150beginCEventListIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1151endCEventListIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1152sizeUInt_tpublic010010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1153clearvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1154DoAssignvoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+5CEventList1155Expandvoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+6CEventSink1156CEventSinkpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+6CEventSink1157~CEventSinkpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+6CEventSink1158CEventSink$public000010000000
+BEGIN_CODE
+ 
+                
+  
+END_CODE
+6CEventSink1159operator=CEventSink&public000010000000
+BEGIN_CODE
+
+    return *this; 
+  
+END_CODE
+6CEventSink1160operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (1==1);
+  
+END_CODE
+6CEventSink1161OnAttachvoidpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+6CEventSink1162OnDetachvoidpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+6CEventSink1163operator()voidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+7CEventUnpacker1164CEventUnpackerpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+7CEventUnpacker1165~CEventUnpackerpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+7CEventUnpacker1166CEventUnpacker$public000010000000
+BEGIN_CODE
+ 
+                
+  
+END_CODE
+7CEventUnpacker1167operator=CEventUnpacker&public000010000000
+BEGIN_CODE
+ 
+    return *this;
+  
+END_CODE
+7CEventUnpacker1168operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (1==1);		// TRUE regardless of how it's defined.
+  
+END_CODE
+7CEventUnpacker1169OnAttachvoidpublic000110000000
+BEGIN_CODE
+}
+END_CODE
+7CEventUnpacker1170OnDetachvoidpublic000110000000
+BEGIN_CODE
+}
+END_CODE
+8CNSCLBufferDecoder1171CNSCLBufferDecoderpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+8CNSCLBufferDecoder1172~CNSCLBufferDecoderpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+8CNSCLBufferDecoder1173CNSCLBufferDecoder$public000010000000
+BEGIN_CODE
+ 
+                
+  
+END_CODE
+8CNSCLBufferDecoder1174operator=CNSCLBufferDecoder&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCNSCLBufferDecoder) return *this;          
+    CBufferDecoder::operator= (aCNSCLBufferDecoder);
+    return *this;
+  
+END_CODE
+8CNSCLBufferDecoder1175operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return ( (CBufferDecoder::operator== (aCNSCLBufferDecoder)));
+  
+END_CODE
+8CNSCLBufferDecoder1176getBodyAddress_tpublic010110000000
+BEGIN_CODE
+
+END_CODE
+8CNSCLBufferDecoder1177getBodySizeUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+8CNSCLBufferDecoder1178getRunUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+8CNSCLBufferDecoder1179getEntityCountUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+8CNSCLBufferDecoder1180getSequenceNoUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+8CNSCLBufferDecoder1181getLamCountUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+8CNSCLBufferDecoder1182getPatternCountUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+8CNSCLBufferDecoder1183getBufferTypeUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+8CNSCLBufferDecoder1184getByteOrdervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+8CNSCLBufferDecoder1185getTitlestringpublic000110000000
+BEGIN_CODE
+
+END_CODE
+9CRunControl1186CRunControlpublic000010000000
+BEGIN_CODE
+
+  
+END_CODE
+9CRunControl1187~CRunControlpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+9CRunControl1188CRunControl$public000010000000
+BEGIN_CODE
+   
+    m_fRunning    = aCRunControl.m_fRunning;
+    m_pAnalyzer   = aCRunControl.m_pAnalyzer;
+    m_pEventSource= aCRunControl.m_pEventSource;
+  
+END_CODE
+9CRunControl1189operator=CRunControl&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCRunControl) return *this;          
+  
+    m_fRunning    = aCRunControl.m_fRunning;
+    m_pAnalyzer   = aCRunControl.m_pAnalyzer;
+    m_pEventSource= aCRunControl.m_pEventSource;
+
+    return *this;
+  
+END_CODE
+9CRunControl1190operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (
+	    (m_fRunning    == aCRunControl.m_fRunning)         &&
+	    (m_pAnalyzer   == aCRunControl.m_pAnalyzer)        &&
+	    (m_pEventSource== aCRunControl.m_pEventSource)
+	    );
+  
+END_CODE
+9CRunControl1191getRunningBool_tpublic010010000000
+BEGIN_CODE
+
+    return m_fRunning;
+  
+END_CODE
+9CRunControl1192getAnalyzerCAnalyzer*public010010000000
+BEGIN_CODE
+
+    return m_pAnalyzer;
+  
+END_CODE
+9CRunControl1193getEventSourceCFile*public010010000000
+BEGIN_CODE
+
+    return m_pEventSource;
+  
+END_CODE
+9CRunControl1194setRunningvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_fRunning = am_fRunning;
+  
+END_CODE
+9CRunControl1195setAnalyzervoidpublic000010000000
+BEGIN_CODE
+
+    m_pAnalyzer = pAnalyzer;
+  
+END_CODE
+9CRunControl1196setEventSourcevoidpublic000010000000
+BEGIN_CODE
+
+    m_pEventSource = pEventSource;
+  
+END_CODE
+9CRunControl1197Startvoidpublic000110000000
+BEGIN_CODE
+
+    m_fRunning = kfTRUE;
+  
+END_CODE
+9CRunControl1198Stopvoidpublic000110000000
+BEGIN_CODE
+
+    m_fRunning = kfFALSE;
+  
+END_CODE
+9CRunControl1199AttachCFile*public000010000000
+BEGIN_CODE
+
+END_CODE
+9CRunControl1200OnBuffervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+9CRunControl1201OnEndvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+10CTCLRunFileHandler1202CTCLRunFileHandlerpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+10CTCLRunFileHandler1203~CTCLRunFileHandlerpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+10CTCLRunFileHandler1204CTCLRunFileHandler$private000010000000
+BEGIN_CODE
+
+END_CODE
+10CTCLRunFileHandler1205operator=CTCLRunFileHandler&private000010000000
+BEGIN_CODE
+
+END_CODE
+10CTCLRunFileHandler1206operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (
+	    (CTCLIdleProcess::operator== (aCTCLRunFileHandler)) &&
+	    (m_pRun == aCTCLRunFileHandler.m_pRun) &&
+	    (m_nBufferSize == aCTCLRunFileHandler.m_nBufferSize)
+	    );
+  
+END_CODE
+10CTCLRunFileHandler1207getRunCRunControl*public010010000000
+BEGIN_CODE
+
+    return m_pRun;
+  
+END_CODE
+10CTCLRunFileHandler1208getBufferSizeUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nBufferSize;
+  
+END_CODE
+10CTCLRunFileHandler1209setRunvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_pRun = am_pRun;
+  
+END_CODE
+10CTCLRunFileHandler1210setBufferSizevoidpublic000010000000
+BEGIN_CODE
+
+    m_nBufferSize = nBuffersize;
+  
+END_CODE
+12CValidValue1211CValidValuepublic000010000000
+BEGIN_CODE
+
+  
+END_CODE
+12CValidValue1212CValidValue$public000010000000
+BEGIN_CODE
+
+  
+END_CODE
+12CValidValue1213CValidValue$$public000010000000
+BEGIN_CODE
+
+  
+END_CODE
+12CValidValue1214operator=CValidValue&public000010000000
+BEGIN_CODE
+
+    if(this != &rRHS) {
+      m_Value = rRHS.m_Value;
+      m_Valid = rRHS.m_Valid;
+    }
+    return *this;
+  
+END_CODE
+12CValidValue1215operator==intpublic010010000000
+BEGIN_CODE
+
+    if((!m_Valid) || (!rRhs.m_Valid)) return 0;	// Both must be valid.
+    return (m_Value == rRhs.m_Value);           // and equal.
+  
+END_CODE
+12CValidValue1216operator!=intpublic010010000000
+BEGIN_CODE
+
+    return !operator==(rRhs);
+  
+END_CODE
+12CValidValue1217getValueT&public000010000000
+BEGIN_CODE
+
+    return m_Value;
+  
+END_CODE
+12CValidValue1218isValidBool_tpublic010010000000
+BEGIN_CODE
+
+    return m_Valid;
+  
+END_CODE
+12CValidValue1219setValuevoidprotected000010000000
+BEGIN_CODE
+
+    m_Value = rNew;
+  
+END_CODE
+12CValidValue1220setValidvoidprotected000010000000
+BEGIN_CODE
+
+    m_Valid = Valid;
+  
+END_CODE
+12CValidValue1221clearvoidpublic000010000000
+BEGIN_CODE
+ m_Valid = kfFALSE; 
+END_CODE
+12CValidValue1222operator=$CValidValue&public000010000000
+BEGIN_CODE
+
+    m_Value = rRhs;
+    m_Valid = kfTRUE;
+  
+END_CODE
+39CHistogrammer1223CHistogrammerpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1224CHistogrammer$public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1225~CHistogrammerpublic000110000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1226CHistogrammer$$public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1227operator=CHistogrammer&public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1228operator==intpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1229operator!=intpublic000010000000
+BEGIN_CODE
+
+    return !(operator==(aCHistogrammer)); 
+  
+END_CODE
+39CHistogrammer1230getDisplayBindingsDisplayBindings&public010010000000
+BEGIN_CODE
+
+    return m_DisplayBindings;
+  
+END_CODE
+39CHistogrammer1231getDisplayerCXamine*public010010000000
+BEGIN_CODE
+
+    return m_pDisplayer;
+  
+END_CODE
+39CHistogrammer1232getParameterDictionaryParameterDictionary&public010010000000
+BEGIN_CODE
+
+    return m_ParameterDictionary;
+  
+END_CODE
+39CHistogrammer1233getSpectrumDictionarySpectrumDictionary&public010010000000
+BEGIN_CODE
+
+    return m_SpectrumDictionary;
+  
+END_CODE
+39CHistogrammer1234setDisplayBindingsvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_DisplayBindings = am_DisplayBindings;
+  
+END_CODE
+39CHistogrammer1235setDisplayervoidprotected000010000000
+BEGIN_CODE
+ 
+    m_pDisplayer = am_Displayer;
+  
+END_CODE
+39CHistogrammer1236setParameterDictionaryvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_ParameterDictionary = am_ParameterDictionary;
+  
+END_CODE
+39CHistogrammer1237setSpectrumDictionaryvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_SpectrumDictionary = am_SpectrumDictionary;
+  
+END_CODE
+39CHistogrammer1238AddParameterCParameter*public000110000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1239RemoveParameterCParameter*public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1240FindParameterCParameter*public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1241FindParameter$CParameter*public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1242ParameterBeginParameterDictionaryIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1243ParameterEndParameterDictionaryIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1244ParameterCountUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1245AddSpectrumvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1246RemoveSpectrumCSpectrum*public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1247ClearSpectrumvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1248ClearAllSpectravoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1249FindSpectrumCSpectrum*public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1250FindSpectrum$CSpectrum*public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1251SpectrumBeginSpectrumDictionaryIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1252SpectrumEndSpectrumDictionaryIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1253SpectrumCountUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1254UnGatevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1255BindToDisplayUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1256UnBindFromDisplayvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1257DisplayBindingsBeginDisplayBindingsIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1258DisplayBindingsEndDisplayBindingsIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1259DisplayBindingsSizeUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1260DisplayBindingCSpectrum*public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1261AddGatevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1262DeleteGatevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1263ReplaceGatevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1264ApplyGatevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1265FindGateCGateContainer*public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1266FindGate$CGateContainer*public000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1267GateBeginCGateDictionaryIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1268GateEndCGateDictionaryIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1269GateCountUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1270GateToXamineGateCDisplayGate*protected000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1271GatesToDisplayCGateContainerprotected000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1272AddGateToBoundSpectravoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+39CHistogrammer1273RemoveGateFromBoundSpectravoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+41CEventSinkPipeline1274AddSinkvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+41CEventSinkPipeline1275RemoveSinkvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+41CEventSinkPipeline1276beginvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+41CEventSinkPipeline1277endvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+41CEventSinkPipeline1278sizevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+41CEventSinkPipeline1279operator()voidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+57CEventFilter1280Enablevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+57CEventFilter1281Disablevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+57CEventFilter1282CheckConditionvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+57CEventFilter1283FormatOutputEventvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+57CEventFilter1284operator()voidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+58CGatedEventFilter1285setGatevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+58CGatedEventFilter1286CheckConditionvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+58CGatedEventFilter1287FormatOutputEventvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+***END_TABLE***
+
+Parameters
+OperID, Parameter Text
+***BEGIN_TABLE***
+1051 UInt_t const  CAnalyzer&/aCAnalyzer/CAnalyzer/
+1052 const  CAnalyzer&/aCAnalyzer//
+1053 const  CAnalyzer&/aCAnalyzer//
+1059 UInt_t/am_nEventThreshold//
+1060 UInt_t/am_nParametersInEvent//
+1061 CEventList*/am_EventList//
+1062 CBufferDecoder*/am_pDecoder//
+1063 CEventSink*/aSink//
+1064 UInt_t/nBytes//
+1064 Address_t/pData//
+1065 UInt_t/nType//
+1065 CBufferDecoder&/rDecoder//
+1066 CBufferDecoder&/rDecoder//
+1067 CBufferDecoder&/rDecoder//
+1068 UInt_t/nType//
+1068 CBufferDecoder&/rDecoder//
+1070 CBufferDecoder&/rDecoder//
+1072 CEventSink&/rSink//
+1074 Address_t/pRawData//
+1074 CEvent&/anEvent//
+1076 const  CEventList&/rhs//
+1077 const  CEventList&/rhs//
+1083 const  CBufferDecoder&/aCBufferDecoder//
+1084 const  CBufferDecoder&/aCBufferDecoder//
+1085 const  CBufferDecoder&/aCBufferDecoder//
+1087 Address_t/am_pBuffer//
+1096 Short_t&/Signature16//
+1096 Int_t&/Signature32//
+1098 CAnalyzer&/rAnalyzer//
+1099 CAnalyzer&/rAnalyzer//
+1100 const  char*/pszWhatImDoing//
+1103 UInt_t/nInitialSize//
+1104 const  CEvent&/aEvent//
+1105 const  CEvent&/aEvent//
+1106 const  CEvent&/aEvent//
+1107 const  CEvent&/anEvent//
+1108 UInt_t/nParam//
+1113 const  CEvent&/anEvent//
+1114 UInt_t/nElements//
+1116 Int_t/nReason//
+1116 const  char*/pWasDoing//
+1117 Int_t/nReason//
+1117 const  char*/pWasDoing//
+1117 UInt_t*/pFirstWord//
+1117 UInt_t/nWords//
+1117 UInt_t/nOffset//
+1117 UInt_t/nEventSize/0/
+1118 Int_t/nReason//
+1118 const  std::string&/rWasDoing//
+1118 UInt_t*/pFirstWord//
+1118 UInt_t/nWords//
+1118 UInt_t/nOffset//
+1118 UInt_t/nEventSize/0/
+1120 const  CEventFormatError&/aCEventFormatError//
+1121 const  CEventFormatError&/aCEventFormatError//
+1122 const  CEventFormatError&/aCEventFormatError//
+1128 Int_t/am_nReason//
+1129 std::vector<UShort_t>/am_vEventData//
+1130 UShort_t/pStart//
+1130 UInt_t/nWords//
+1131 UInt_t/am_nDetectedOffset//
+1132 UInt_t/am_nEventSize//
+1133 Bool_t/am_fSizeAccurate/kfFALSE/
+1142 UInt_t/nEvents//
+1143 const  CEventList&/aEventList//
+1145 const  CEventList&/aEventList//
+1146 const  CEventList&/aEventList//
+1147 const  CEventList&/anEventList//
+1149 UInt_t/nEvent//
+1154 const  CEventList&/anEventList//
+1158 const  CEventSink&/aCEventSink//
+1159 const  CEventSink&/aCEventSink//
+1160 const  CEventSink&/aCEventSink//
+1161 CAnalyzer&/rAnalyzer//
+1162 CAnalyzer&/rAnalyzer//
+1166 const  CEventUnpacker&/aCEventUnpacker//
+1167 const  CEventUnpacker&/aCEventUnpacker//
+1168 const  CEventUnpacker&/aCEventUnpacker//
+1169 CAnalyzer&/rAnalyzer//
+1170 CAnalyzer&/rAnalyzer//
+1173 const  CNSCLBufferDecoder&/aCNSCLBufferDecoder//
+1174 const  CNSCLBufferDecoder&/aCNSCLBufferDecoder//
+1175 const  CNSCLBufferDecoder&/aCNSCLBufferDecoder//
+1184 Short_t&/Signature16//
+1184 Int_t&/Signature32//
+1186 CAnalyzer&/rAnalyzer//
+1186 CFile&/rEventSource//
+1188 const  CRunControl&/aCRunControl//
+1189 const  CRunControl&/aCRunControl//
+1190 const  CRunControl&/aCRunControl//
+1194 Bool_t/am_fRunning//
+1195 CAnalyzer*/pAnalyzer//
+1196 CFile*/pEventSource//
+1199 CFile*/pNewfile//
+1200 UInt_t/nBytes//
+1202 CTCLInterpreter*/pInterp//
+1202 CRunControl&/rRun//
+1204 const  CTCLRunFileHandler&/aCTCLRunFileHandler//
+1205 const  CTCLRunFileHandler&/aCTCLRunFileHa//
+1206 const  CTCLRunFileHandler&/aCTCLRunFileHandler//
+1209 CRunControl*/am_pRun//
+1210 UInt_t/nBuffersize//
+1212 UInt_t T&/initValue/CTKRunControl/
+1212 Bool_t/isValid/kfFALSE/
+1213 const  CValidValue&/rRHS//
+1214 const  CValidValue&/rRHS//
+1215 const  CValidValue&/rRhs//
+1216 const  CValidValue&/rRhs//
+1219 const  T&/rNew//
+1220 const  Bool_t/Valid//
+1222 const  T&/rRhs//
+1223 UInt_t/nSpecbytes/knDefaultSpectrumSize/
+1224 const  CXamine&/rDisplayer//
+1226 const  CHistogrammer&/aCHistogrammer//
+1227 const  CHistogrammer&/aCHistogrammer//
+1228 const  CHistogrammer&/aCHistogrammer//
+1229 const  CHistogrammer&/aCHistogrammer//
+1234 const  DisplayBindings&/am_DisplayBindings//
+1235 CXamine*/am_Displayer//
+1236 const  ParameterDictionary&/am_ParameterDictionary//
+1237 const  SpectrumDictionary/am_SpectrumDictionary//
+1238 const  std::string&/sName//
+1238 UInt_t/nId//
+1238 UInt_t/nScale//
+1239 const  std::string&/sName//
+1240 const  std::string&/rName//
+1241 UInt_t/nPar//
+1245 CSpectrum&/rSpectrum//
+1246 const  std::string/sName//
+1247 const  std::string&/rsName//
+1249 const  std::string&/rName//
+1250 UInt_t/id//
+1254 const  std::string&/rSpectrum//
+1255 const  std::string&/rsName//
+1256 UInt_t/nSpec//
+1260 UInt_t/xid//
+1261 const  std::string&/rName//
+1261 UInt_t/nId//
+1261 CGate&/rGate//
+1262 const  std::string&/rGateName//
+1263 const  std::string&/rGateName//
+1263 CGate&/rGate//
+1264 const  std::string&/rGateName//
+1264 const  std::string&/rSpectrum//
+1265 const  std::string&/rGate//
+1266 UInt_t/nId//
+1270 UInt_t/nBindingId//
+1270 CGateContainer&/rGate//
+1271 const  std::string&/rSpectrum//
+1272 CGateContainer&/rGate//
+1273 CGateContainer&/rGate//
+***END_TABLE***
+
+Includes
+ClassID, ClassName, Include Text
+***BEGIN_TABLE***
+1CAnalyzerEventList.h
+1CAnalyzerBufferDecoder.h
+1CAnalyzerEventSink.h
+1CAnalyzerhistotypes.h
+2CBufferDecoderhistotypes.h
+2CBufferDecoderstring
+3CEventhistotypes.h
+3CEventvector
+3CEventValidValue.h
+4CEventFormatErrorException.h
+4CEventFormatErrorvector
+4CEventFormatErrorstring
+4CEventFormatErrorhistotypes.h
+5CEventListhistotypes.h
+5CEventListEvent.h
+5CEventListvector
+7CEventUnpackerhistotypes.h
+8CNSCLBufferDecoderBufferDecoder.h
+9CRunControlAnalyzer.h
+9CRunControlFile.h
+9CRunControlhistotypes.h
+10CTCLRunFileHandlerTCLIdleProcess.h
+10CTCLRunFileHandlerRunControl.h
+10CTCLRunFileHandlerhistotypes.h
+11CTKRunControlRunControl.h
+11CTKRunControlTCLRunFileHandler.h
+11CTKRunControlstring
+12CValidValuehistotypes.h
+39CHistogrammerXamineplus.h
+39CHistogrammerDictionary.h
+39CHistogrammerParameter.h
+39CHistogrammerSpectrum.h
+39CHistogrammerEventSink.h
+39CHistogrammerhistotypes.h
+39CHistogrammerGateContainer.h
+39CHistogrammerstring
+39CHistogrammervector
+***END_TABLE***
+
+Relation Shape
+ShapeID, Type, Text, Multiplicity, Source Node ID, Source Index, LineTexture, IsDisplayByVal, IsDisplayByRef, QualifierSrc
+***BEGIN_TABLE***
+12NoText02140011
+22NoText0970011
+31NoText0110011
+41NoText0130011
+51NoText01110011
+60NoText0150011
+70NoText0190011
+80NoText0710011
+90NoText09130011
+100NoText01020011
+210NoText0730011
+220NoText0180011
+352NoText04050001
+490NoText04360001
+502NoText06030001
+660NoText061110001
+670NoText06050001
+***END_TABLE***
+
+Branches
+Relation Shape ID, Multiplicity, Destination Node ID, Destination Index, Text, Relation Type, Branch Id,  IsDisplayStatic, IsDisplayFriend, IsDisplayPlus, QualifierDest, Offset x, Offset y
+***BEGIN_TABLE***
+108132100000
+201102200000
+3050m_EventList1300000
+4052m_EventPool1400000
+50106m_FileHandler1500000
+6020m_pDecoder0600000
+7068m_pSink0700000
+8030rEvent0800000
+90110m_pAnalyzer0900022
+10091m_pRun01000000
+211252m_lProcessors02100000
+2207902200000
+35041223500000
+35043423600000
+35060225300000
+491401105100000
+50061225200000
+660621007100000
+670831007200000
+***END_TABLE***
+
+Relations
+Id,ParentId,Name,Type,Description,SrcVisibility,SrcMultiplicity,SrcLength,IsSrcByRef,IsSrcByVal,IsSrcFriend,IsSrcStatic,SrcRole,SourceClassId,
+DestVisibility,DestMultiplicity,DestLength,DestByRef,IsDestByVal,IsDestFriend,IsDestStatic,IsDestRole,DestClassId
+***BEGIN_TABLE***
+112private0000002private0000008
+222private0000009private00000011
+33m_EventList1private0000001private0000005
+44m_EventPool1private0000001private0000005
+55m_FileHandler1private00000011private00000010
+66m_pDecoder0private0000001private0000002
+77m_pSink0private0000001private0000006
+88rEvent0private0000007private0000003
+99m_pAnalyzer0private0000009private0000001
+1010m_pRun0private00000010private0000009
+2121m_lProcessors0private0000007private10000025
+22220private0000001private0000007
+35352private0000006private00000039
+36352private0000006private00000041
+51490private00000041private1000006
+52502private00000057private00000058
+53352private0000006private00000057
+71660private00000058private00000059
+72670private00000057private00000079
+***END_TABLE***
+
+General Shape
+ ShapeId, Type,Positionx, Position.y, # ConnectPoints metafileName, TextOffset, ShapeSize, Width, Height, Texture, FileName,  Class, Text
+
+***BEGIN_TABLE***
+***END_TABLE***
+
