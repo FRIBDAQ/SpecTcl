@@ -14,6 +14,7 @@
 ** Revision level:
 **    @(#)windfile.l	8.1 6/23/95 
 */
+#define YYTOKENTYPE
 static char *lexrevlevel = "@(#)defaultfile.l	8.1 6/23/95  - windows file lexical analyzer";
 #include <stdlib.h>
 #include "printer.h"
