@@ -284,57 +284,72 @@
 # to SpecTcl
 # *************************************************************************
 
-proc SpecList {{slist ""} {parformat down}} {
-    if {$slist == ""} {
+#
+#   Produce a human readable list of the spectra.
+#   Parameters:
+#      slist  - a set of spectrum descriptions as spetrum -list would produce
+#               them.  If not used, [spectrum -list] will be used.
+#      parformat - Ignored but there for compatibility purposes.
+#
+
+proc Speclist {{slist ""} {parformat down}} {
+    if {$slist == "" } {
 	set slist [spectrum -list]
     }
-    set output "Name\t\tId\tRes\tType\tData\tParameter List\n"
-    foreach spec $slist {
-	set name [lindex $spec 1]
-	if {[string length $name] <8} {
-	    set name "$name\t\t"
-	} else {
-	    set name "$name\t"
-	}
-	set line  "$name[lindex $spec 0]\t[lindex $spec 4]\t[lindex $spec 2]\t[lindex $spec 5]\t"
-	set i 1
-	switch -glob $parformat {
-	    l* {append line "[lindex $spec 3]\n"}
-	    d* {
-		foreach par [lindex $spec 3] { 
-		    if {$i > 1} {
-			append line "\t\t\t\t\t\t$par\n"
-		    } else {
-			append line "$par\n"
-		    }
-		    incr i
-		}
+#                   name    id   type dty pars   lows his  chans
+    set titleformat  "%-16s %-5s %-5s %-5s %-16s %-5s %-5s %-5s\n"
+    set formatstring "%-16s %-5s %-5s %-5s %-16s %-5s %-5s %-5s\n"
+    set titleline \
+	    [format $titleformat Name Id Type Dtype Parameters Low Hi Chans]
+    append output $titleline
+    
+    # Iterate over the spectra:
+
+    foreach spectrum $slist {
+	set id     [lindex $spectrum 0]
+	set name   [lindex $spectrum 1]
+	set type   [lindex $spectrum 2]
+	set params [lindex $spectrum 3]
+	set axes   [lindex $spectrum 4]
+	set dtype  [lindex $spectrum 5]
+	
+	set npars  [llength $params]
+	set naxes  [llength $axes]
+	set nlines [expr ($npars > $naxes) ? $npars : $naxes]
+
+	# Now format the lines:
+
+	for {set i 0} {$i < $nlines} {incr i} {
+	    if {$i < $npars} {
+		set par [lindex $params $i]
 	    }
-	    w* {
-		foreach par [lindex $spec 3] {
-		    if {[llength [lindex $spec 3]] >2} {
-			if ![expr {$i%2}] {
-			    append line "$par\n"
-			} else {
-			    if {$i>1} {
-				append line "\t\t\t\t\t\t$par "
-			    } else {
-				append line "$par "
-			    }	
-			    
-			}
-		    } else {
-			append line "[lindex $spec 3]\n"
-			break
-		    }
-		    incr i
-		}
+	    if {$i < $naxes} {
+		set axis [lindex $axes $i]
+		set low  [lindex $axis 0]
+		set hi   [lindex $axis 1]
+		set num  [lindex $axis 2]
 	    }
+	    set line \
+	      [format $formatstring $name $id $type $dtype $par $low $hi $num]
+	    append output $line
+
+	     # After the first line these are empty.
+	    set id ""
+	    set name ""
+	    set type ""
+	    set dtype ""
+
+	    set par ""          ;# In case we've run out of them.
+	    set low ""
+	    set hi  ""
+	    set num ""
 	}
-	append output "$line\n"
     }
+
     return $output
+
 }
+
 proc GateList {{glist ""} {option cdown}} {
     if {$glist == ""} {
 	set glist [gate -list]
@@ -435,9 +450,9 @@ proc ParList { {ParameterList ""} } {
 	set line [format $fmt [lindex $Parameter 0] \
 		              [lindex $Parameter 1] \
 			      [lindex $Parameter 2] \
-			      [lindex $Parameter 3] \
-			      [lindex $Parameter 4] \
-			      [lindex $Parameter 5] \
+			      [lindex [lindex $Parameter 3] 0] \
+			      [lindex [lindex $Parameter 3] 1] \
+			      [lindex [lindex $Parameter 3] 2] \
 	         ]
 	append output $line
 
