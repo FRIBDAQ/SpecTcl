@@ -60,7 +60,7 @@ class CTCLHashTable
 public:
 			//Default constructor
 
-  CTCLHashTable () : 
+  CTCLHashTable () 
   {
     Tcl_InitHashTable(&m_HashTable, TCL_STRING_KEYS);
   } 
@@ -143,16 +143,16 @@ public:
       return pItem;
     }
     else {
-      return (pCTCLTHashTableEntry) kpNULL;
+      return (pCTCLTHashTableItem) kpNULL;
     }
   }
   CTCLTHashTableIterator begin () {
-    CTCLHashTableIterator i(&m_Table);
+    CTCLTHashTableIterator i(&m_Table);
     return i;
   }
   
   CTCLTHashTableIterator end () {
-    CTCLHashTableIterator i(&m_Table);
+    CTCLTHashTableIterator i(&m_Table);
     i.SetCurrentEntry((pCTCLTHashTableItem)kpNULL);
 
     return i;
