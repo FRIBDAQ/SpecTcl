@@ -86,7 +86,7 @@ void controltests::initBuffer()
 
   // The time will be February 11, 2005 17:01:02.
 
-  buffer->Body.tod.month = 1;
+  buffer->Body.tod.month = 2;
   buffer->Body.tod.day   = 11;
   buffer->Body.tod.year  = 2005;
   buffer->Body.tod.hours  = 17;

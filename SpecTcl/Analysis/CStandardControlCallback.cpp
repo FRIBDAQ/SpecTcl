@@ -30,6 +30,7 @@ using namespace std;
 // Static tables:
 
 static const char* monthnames[] = {
+  "NOSUCHMONTH",
   "January",
   "February",
   "March",
