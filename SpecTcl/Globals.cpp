@@ -291,6 +291,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Change Log:
 //     July 12, 1999 Ron FOx
 //        Added gpVersion and set it to be 0.2
+//   $Log$
+//   Revision 4.5  2003/08/27 13:37:52  ron-fox
+//   Create the event sink pipeline in the TclGrammerApp so that we have explicit
+//   control over when it gets created and don't get any compiler dependencies on
+//   when globals are constructed.
+//
+
+
 static char* pCopyright=
   "Globals.cpp (c) Copyright 1999 NSCL, All rights reserved.";
 
@@ -331,7 +339,7 @@ CBufferDecoder*    gpBufferDecoder = 0; //gNSCLDecoder;
 //  If it is desired to modify the sink (e.g. to hook a different sink in,
 //  the application initialization must be copied and initialized.  This 
 //  initialization is in the file:  AppInit.cpp
-CEventSinkPipeline* gpEventSinkPipeline = new CEventSinkPipeline; // (CEventSink*)kpNULL; // Must be set externally.
+CEventSinkPipeline* gpEventSinkPipeline = (CEventSinkPipeline*)kpNULL;
 CEventSink* gpEventSink = (CEventSink*)kpNULL;
 
 //   The entire system is 'command driven' using a CTCLInterpreterObject
