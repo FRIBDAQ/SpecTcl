@@ -771,7 +771,6 @@ void PromptReadFile(XMWidget *w, XtPointer cd, XtPointer cbd)
 void WriteFile(XMWidget *w, XtPointer cd, XtPointer calldata)
 {
   XMApplication *top_level  = (XMApplication *)cd;
-  static XMWarningDialog *warn = NULL;
   FILE *outfile;
   char *filename;
   char window_label[1024];
@@ -1089,7 +1088,6 @@ void UpdateColors(XMWidget *w, XtPointer client, XtPointer callback)
 */
 void ChangeColor(XMWidget *w, XtPointer client, XtPointer cbd)
 {
-  ColorDialog *sliders = (ColorDialog *)w;
   color_entry *entry   = *(color_entry **)client;
 
   XColor centry;
@@ -1372,7 +1370,6 @@ int main(Cardinal argc, char **argv)
 
   XMPulldown    *pd;
   XMPushButton *pb;
-  XMWidget     *entry;
 
 
   /* File menu */
