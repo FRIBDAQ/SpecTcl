@@ -236,8 +236,9 @@ class win_attributed :
                                                      manual     = TRUE;
                                                    }
                                 int manuallyscaled() { return manual; }
-                                int getfs() { return (manual ? full_scale :
-                                                              -1); }
+                                int getfs() { return (manual 
+						      ? (int) full_scale
+						      : -1); }
                                 unsigned int getfsval() { return full_scale; }
                                 void setfsval(unsigned int fs) { full_scale = fs; }
                                 // Get/set counts axis attribute
