@@ -99,7 +99,7 @@ public:
 		valid = true;
 		haschanged = false;
 		bins = 100;
-		inc = (stop - start) / (double)(bins - 1);
+		inc = (stop - start) / (double)bins;
 
 		// For now we just copy the pointer to a vector so we can later bind to the histogrammer
 		pSelf.push_back(this);
@@ -112,7 +112,7 @@ public:
 	unit(parameterUnit) {
 		valid = true;
 		haschanged = false;
-		inc = (stop - start) / (double)(bins - 1);
+		inc = (stop - start) / (double)bins;
 
 		// For now we just copy the pointer to a vector so we can later bind to the histogrammer
 		pSelf.push_back(this);
@@ -126,7 +126,7 @@ public:
 		start = 0;
 		inc = 1;
 		bins = (UInt_t) pow(2, parameterBits);
-		stop = start + inc * (double)(bins - 1);
+		stop = start + inc * (double)bins;
 		unit = "channels";
 		
 		// For now we just copy the pointer to a vector so we can later bind to the histogrammer
@@ -142,10 +142,10 @@ public:
 		bins = (UInt_t) pow(2, parameterBits);
 		if (slopeOrStop)	{		// Slope
 			inc = parameterOther;
-			stop = start + inc * (double)(bins - 1);
+			stop = start + inc * (double)bins;
 		} else {						// Stop
 			stop = parameterOther;
-			inc = (stop - start) / (double)(bins - 1);
+			inc = (stop - start) / (double)bins;
 		}
 
 		// For now we just copy the pointer to a vector so we can later bind to the histogrammer
@@ -258,13 +258,13 @@ public:
 	UInt_t		getId() {return id;}
 	void			setId(UInt_t theId) {id = theId;}
 	UInt_t		getBins() {return bins;}
-	void			setBins(UInt_t theBins) {bins = theBins; inc = (stop - start) / (double)(bins - 1);}
+	void			setBins(UInt_t theBins) {bins = theBins; inc = (stop - start) / (double)bins;}
 	double		getStart() {return start;}
-	void			setStart(double theStart) {start = theStart; inc = (stop - start) / (double)(bins - 1);}
+	void			setStart(double theStart) {start = theStart; inc = (stop - start) / (double)bins;}
 	double		getStop() {return stop;}
-	void			setStop(double theStop) {stop = theStop; inc = (stop - start) / (double)(bins - 1);}
+	void			setStop(double theStop) {stop = theStop; inc = (stop - start) / (double)bins;}
 	double		getInc()	{return inc;}
-	void			setInc(double theInc) {inc = theInc; stop = start + inc * (bins - 1);}
+	void			setInc(double theInc) {inc = theInc; stop = start + inc * bins;}
 	string			getUnit() {return unit;}
 	void			setUnit(char* theUnit) {unit = theUnit;}
 	bool			isValid() {return valid;}
@@ -274,6 +274,7 @@ public:
 	bool			hasChanged() {return haschanged;}
 	void			setChanged() {haschanged = true;}
 	void			resetChanged() {haschanged = false;}
+	void			clear() {value = 0.0;}
 	
 // Binding of histogrammer parameters
 	static void BindParameters(CAnalyzer& rAnalyzer) {
@@ -329,7 +330,7 @@ Initialize(string parameterName, UInt_t parameterBits)
 	start = 0;
 	inc = 1;
 	bins = (UInt_t) pow(2, parameterBits);
-	stop = start + inc * (double)(bins - 1);
+	stop = start + inc * (double)bins;
 	unit = "channels";
 	pSelf.push_back(this);
 }
@@ -346,10 +347,10 @@ double parameterOther, string parameterUnit, bool slopeOrStop)
 	bins = (UInt_t) pow(2, parameterBits);
 	if (slopeOrStop)  {   // Slope
 		inc = parameterOther;
-		stop = start + inc * (double)(bins - 1);
+		stop = start + inc * (double)bins;
 	} else {            // Stop
 		stop = parameterOther;
-		inc = (stop - start) / (double)(bins - 1);
+		inc = (stop - start) / (double)bins;
 	}
 	pSelf.push_back(this);
 }
@@ -393,7 +394,7 @@ Initialize(string parameterName, double parameterStart, double parameterStop, st
 	valid = true;
 	haschanged = false;
 	bins = 100;
-	inc = (stop - start) / (double)(bins - 1);
+	inc = (stop - start) / (double)bins;
 	pSelf.push_back(this);
 	}
 
@@ -408,7 +409,7 @@ double parameterStop, string parameterUnit)
 	unit = parameterUnit;
 	valid = true;
 	haschanged = false;
-	inc = (stop - start) / (double)(bins - 1);
+	inc = (stop - start) / (double)bins;
 	pSelf.push_back(this);
 }
 
