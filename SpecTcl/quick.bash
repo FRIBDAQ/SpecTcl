@@ -45,7 +45,7 @@ export LinuxCPP="g++ -g"
 export OSF1CPP="g++ -g"
 export HPUXCPP="g++ -g"
 export DarwinCPP="c++ -g -Dunix"
-export "CYGWINCPP="g++ -g -Dunix"
+export CYGWINCPP="g++ -g -Dunix"
 
 # Who does the LD?
 
