@@ -304,9 +304,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 //       manage the shared memory regions used by Xamine.
 //
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -404,7 +402,6 @@ static spec_shared *mapmemory(char *name, unsigned int size)
   LPVOID lpErrorMessage;
 
   size += getpagesize()*64;
-
   /*   Works on NT but not 95/98 ???
   hMapFile = CreateFileMapping((HANDLE)NULL,
 			       (LPSECURITY_ATTRIBUTES)NULL,
@@ -470,6 +467,19 @@ static spec_shared *mapmemory(char *name, unsigned int size)
 }
 #endif // CYGWIN or not
 
+static void 
+PrintOffsets()
+{
+  spec_shared *pShape(0);
+  printf("(Xamine) offsets into shared mem: \n");
+  printf("  dsp_xy      = %x\n", pShape->dsp_xy);
+  printf("  dsp_titles  = %x\n", pShape->dsp_titles);
+  printf("  dsp_types   = %x\n", pShape->dsp_types);
+  printf("  dsp_map     = %x\n", pShape->dsp_map);
+  printf("  dsp_spectra = %x\n", &(pShape->dsp_spectra));
+  printf("  Total size  = %d\n", sizeof(spec_shared));
+}
+
 
 /*
 ** Functional Description:
@@ -490,6 +500,7 @@ void Xamine_initspectra()
   char *name;
   char *size_string;
   unsigned int size;
+
 
 
   /* First fetch the name and size string from the environment */
@@ -515,7 +526,9 @@ void Xamine_initspectra()
   /* Now map to the memory: */
 
   memsize = sizeof(spec_shared) - DISPLAY_SPECBYTES + size;
-  xamine_shared = mapmemory(name, size);
+
+
+  xamine_shared = mapmemory(name, memsize);
   spectra       = xamine_shared;
   if(spectra == (spec_shared *)NULL) {
     perror("Xamine -- map to shared memory failed");
