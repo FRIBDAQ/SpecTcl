@@ -29,23 +29,16 @@ Bool_t CSpectrumStandardFormatters::m_fFirstTime = kfTRUE; //Static data member 
 CNSCLAsciiSpectrumFormatter   g_NSCLAscii;
 CNSCLBinarySpectrumFormatter  g_NSCLBinary;
 
-struct RegistrationEntry {
-  string               Keyword;
-  CSpectrumFormatter*  Formatter;
-};
 
-static RegistrationEntry RegistrationTable[] =
+
+CSpectrumStandardFormatters::RegistrationEntry
+CSpectrumStandardFormatters::RegistrationTable[] =
 {
   { string("nsclascii"),  &g_NSCLAscii }, // Standard items...
   { string("nsclbinary"), &g_NSCLBinary },
   { string("ascii"),      &g_NSCLAscii },  // Convenience items
   { string("binary"),     &g_NSCLBinary } 
 };
-
-static unsigned int nStandard = 4;
-//  If there is pad between elements of the table, the below may not
-//  work.
-//                   sizeof(RegistrationTable)/sizeof(RegistrationEntry);
 
 
 CSpectrumFormatterFactory  FirstFactory;
@@ -62,6 +55,7 @@ CSpectrumStandardFormatters::CSpectrumStandardFormatters()
   // Register the standard formatters if not yet done.
 
   if(m_fFirstTime) {
+    int nStandard = sizeof(RegistrationTable)/sizeof(RegistrationEntry);
     m_fFirstTime = 0;
     for(unsigned i = 0; i < nStandard; i++) {
       CSpectrumFormatterFactory::AddFormatter(RegistrationTable[i].Keyword,

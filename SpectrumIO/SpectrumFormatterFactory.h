@@ -116,8 +116,14 @@ public:
 };
 class CSpectrumStandardFormatters
 {
+public:
+  struct RegistrationEntry {
+    string               Keyword;
+    CSpectrumFormatter*  Formatter;
+  };
+private:
   static Bool_t  m_fFirstTime;
-
+  static RegistrationEntry RegistrationTable[]; 
 public:
   CSpectrumStandardFormatters();
 

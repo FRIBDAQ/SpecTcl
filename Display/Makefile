@@ -1454,64 +1454,6 @@ copyatr.o: /usr/X11/include/Xm/ScrolledW.h XMDialogs.h
 copyatr.o: /usr/X11/include/Xm/MessageB.h /usr/X11/include/Xm/SelectioB.h
 copyatr.o: /usr/X11/include/Xm/FileSB.h XMCallback.h errormsg.h helpmenu.h
 copyatr.o: refreshctl.h
-defaultfile_lex.o: /usr/include/stdio.h /usr/include/features.h
-defaultfile_lex.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-defaultfile_lex.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-defaultfile_lex.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-defaultfile_lex.o: /usr/include/bits/types.h /usr/include/libio.h
-defaultfile_lex.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-defaultfile_lex.o: /usr/include/stdlib.h /usr/include/sys/types.h
-defaultfile_lex.o: /usr/include/time.h /usr/include/endian.h
-defaultfile_lex.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-defaultfile_lex.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-defaultfile_lex.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
-defaultfile_lex.o: windio.h dispwind.h /usr/include/assert.h superpos.h
-defaultfile_lex.o: windlex.h
-defaultfile_parse.o: /usr/include/assert.h /usr/include/features.h
-defaultfile_parse.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-defaultfile_parse.o: /usr/include/stdio.h
-defaultfile_parse.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-defaultfile_parse.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-defaultfile_parse.o: /usr/include/bits/types.h /usr/include/libio.h
-defaultfile_parse.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-defaultfile_parse.o: windio.h dispwind.h /usr/include/stdlib.h
-defaultfile_parse.o: /usr/include/sys/types.h /usr/include/time.h
-defaultfile_parse.o: /usr/include/endian.h /usr/include/bits/endian.h
-defaultfile_parse.o: /usr/include/sys/select.h /usr/include/bits/select.h
-defaultfile_parse.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
-defaultfile_parse.o: /usr/include/alloca.h superpos.h dispshare.h dfltmgr.h
-defaultfile_parse.o: grobjdisplay.h XMWidget.h
-defaultfile_parse.o: /usr/X11/include/X11/Intrinsic.h
-defaultfile_parse.o: /usr/X11/include/X11/Xlib.h /usr/X11/include/X11/X.h
-defaultfile_parse.o: /usr/X11/include/X11/Xfuncproto.h
-defaultfile_parse.o: /usr/X11/include/X11/Xosdefs.h
-defaultfile_parse.o: /usr/X11/include/X11/Xutil.h
-defaultfile_parse.o: /usr/X11/include/X11/Xresource.h /usr/include/string.h
-defaultfile_parse.o: /usr/X11/include/X11/Core.h
-defaultfile_parse.o: /usr/X11/include/X11/Composite.h
-defaultfile_parse.o: /usr/X11/include/X11/Constraint.h
-defaultfile_parse.o: /usr/X11/include/X11/Object.h
-defaultfile_parse.o: /usr/X11/include/X11/RectObj.h
-defaultfile_parse.o: /usr/X11/include/X11/StringDefs.h
-defaultfile_parse.o: /usr/X11/include/Xm/Xm.h /usr/X11/include/X11/Shell.h
-defaultfile_parse.o: /usr/X11/include/X11/SM/SMlib.h
-defaultfile_parse.o: /usr/X11/include/X11/SM/SM.h
-defaultfile_parse.o: /usr/X11/include/X11/ICE/ICElib.h
-defaultfile_parse.o: /usr/X11/include/X11/ICE/ICE.h
-defaultfile_parse.o: /usr/X11/include/X11/Xatom.h
-defaultfile_parse.o: /usr/X11/include/Xm/XmStrDefs.h
-defaultfile_parse.o: /usr/X11/include/Xm/VendorS.h convert.h dispgrob.h
-defaultfile_parse.o: XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
-defaultfile_parse.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
-defaultfile_parse.o: /usr/include/bits/posix_opt.h
-defaultfile_parse.o: /usr/include/bits/confname.h /usr/include/getopt.h
-defaultfile_parse.o: /usr/include/sys/time.h /usr/include/bits/time.h
-defaultfile_parse.o: refreshctl.h panemgr.h XMManagers.h
-defaultfile_parse.o: /usr/X11/include/Xm/BulletinB.h
-defaultfile_parse.o: /usr/X11/include/Xm/Form.h
-defaultfile_parse.o: /usr/X11/include/Xm/RowColumn.h
-defaultfile_parse.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
-defaultfile_parse.o: /usr/X11/include/Xm/Frame.h
 delgrob.o: /usr/include/stdio.h /usr/include/features.h
 delgrob.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 delgrob.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
@@ -1931,74 +1873,6 @@ grobfile.o: XMManagers.h /usr/X11/include/Xm/BulletinB.h
 grobfile.o: /usr/X11/include/Xm/Form.h /usr/X11/include/Xm/RowColumn.h
 grobfile.o: /usr/X11/include/Xm/PanedW.h /usr/X11/include/Xm/MainW.h
 grobfile.o: /usr/X11/include/Xm/Frame.h errormsg.h
-grobfile_lex.o: /usr/include/stdio.h /usr/include/features.h
-grobfile_lex.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-grobfile_lex.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-grobfile_lex.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-grobfile_lex.o: /usr/include/bits/types.h /usr/include/libio.h
-grobfile_lex.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-grobfile_lex.o: /usr/include/ctype.h /usr/include/endian.h
-grobfile_lex.o: /usr/include/bits/endian.h grobjio.h dispgrob.h
-grobfile_lex.o: /usr/include/assert.h /usr/include/string.h XMWidget.h
-grobfile_lex.o: /usr/X11/include/X11/Intrinsic.h /usr/X11/include/X11/Xlib.h
-grobfile_lex.o: /usr/include/sys/types.h /usr/include/time.h
-grobfile_lex.o: /usr/include/sys/select.h /usr/include/bits/select.h
-grobfile_lex.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
-grobfile_lex.o: /usr/X11/include/X11/X.h /usr/X11/include/X11/Xfuncproto.h
-grobfile_lex.o: /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xutil.h
-grobfile_lex.o: /usr/X11/include/X11/Xresource.h /usr/X11/include/X11/Core.h
-grobfile_lex.o: /usr/X11/include/X11/Composite.h
-grobfile_lex.o: /usr/X11/include/X11/Constraint.h
-grobfile_lex.o: /usr/X11/include/X11/Object.h /usr/X11/include/X11/RectObj.h
-grobfile_lex.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/Xm.h
-grobfile_lex.o: /usr/X11/include/X11/Shell.h /usr/X11/include/X11/SM/SMlib.h
-grobfile_lex.o: /usr/X11/include/X11/SM/SM.h
-grobfile_lex.o: /usr/X11/include/X11/ICE/ICElib.h
-grobfile_lex.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
-grobfile_lex.o: /usr/X11/include/Xm/XmStrDefs.h /usr/X11/include/Xm/VendorS.h
-grobfile_lex.o: dispwind.h /usr/include/stdlib.h /usr/include/alloca.h
-grobfile_lex.o: superpos.h XBatch.h /usr/X11/include/X11/Xos.h
-grobfile_lex.o: /usr/include/fcntl.h /usr/include/bits/fcntl.h
-grobfile_lex.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
-grobfile_lex.o: /usr/include/bits/confname.h /usr/include/getopt.h
-grobfile_lex.o: /usr/include/sys/time.h /usr/include/bits/time.h convert.h
-grobfile_lex.o: dispshare.h grobfile_lex.h
-grobfile_parse.o: /usr/include/stdio.h /usr/include/features.h
-grobfile_parse.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-grobfile_parse.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-grobfile_parse.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-grobfile_parse.o: /usr/include/bits/types.h /usr/include/libio.h
-grobfile_parse.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-grobfile_parse.o: /usr/include/stdlib.h /usr/include/sys/types.h
-grobfile_parse.o: /usr/include/time.h /usr/include/endian.h
-grobfile_parse.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-grobfile_parse.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-grobfile_parse.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
-grobfile_parse.o: /usr/include/assert.h grobjio.h dispgrob.h
-grobfile_parse.o: /usr/include/string.h XMWidget.h
-grobfile_parse.o: /usr/X11/include/X11/Intrinsic.h
-grobfile_parse.o: /usr/X11/include/X11/Xlib.h /usr/X11/include/X11/X.h
-grobfile_parse.o: /usr/X11/include/X11/Xfuncproto.h
-grobfile_parse.o: /usr/X11/include/X11/Xosdefs.h /usr/X11/include/X11/Xutil.h
-grobfile_parse.o: /usr/X11/include/X11/Xresource.h
-grobfile_parse.o: /usr/X11/include/X11/Core.h
-grobfile_parse.o: /usr/X11/include/X11/Composite.h
-grobfile_parse.o: /usr/X11/include/X11/Constraint.h
-grobfile_parse.o: /usr/X11/include/X11/Object.h
-grobfile_parse.o: /usr/X11/include/X11/RectObj.h
-grobfile_parse.o: /usr/X11/include/X11/StringDefs.h /usr/X11/include/Xm/Xm.h
-grobfile_parse.o: /usr/X11/include/X11/Shell.h
-grobfile_parse.o: /usr/X11/include/X11/SM/SMlib.h
-grobfile_parse.o: /usr/X11/include/X11/SM/SM.h
-grobfile_parse.o: /usr/X11/include/X11/ICE/ICElib.h
-grobfile_parse.o: /usr/X11/include/X11/ICE/ICE.h /usr/X11/include/X11/Xatom.h
-grobfile_parse.o: /usr/X11/include/Xm/XmStrDefs.h
-grobfile_parse.o: /usr/X11/include/Xm/VendorS.h dispwind.h superpos.h
-grobfile_parse.o: XBatch.h /usr/X11/include/X11/Xos.h /usr/include/fcntl.h
-grobfile_parse.o: /usr/include/bits/fcntl.h /usr/include/unistd.h
-grobfile_parse.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
-grobfile_parse.o: /usr/include/getopt.h /usr/include/sys/time.h
-grobfile_parse.o: /usr/include/bits/time.h convert.h dispshare.h
 grobjdb.o: /usr/include/stdio.h /usr/include/features.h
 grobjdb.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 grobjdb.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
@@ -3612,31 +3486,6 @@ trackcursor.o: /usr/X11/include/Xm/Label.h buttonsetup.h panemgr.h dispwind.h
 trackcursor.o: /usr/include/stdlib.h /usr/include/alloca.h
 trackcursor.o: /usr/include/assert.h superpos.h dispshare.h convert.h
 trackcursor.o: spcdisplay.h
-windfile_lex.o: /usr/include/stdio.h /usr/include/features.h
-windfile_lex.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-windfile_lex.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-windfile_lex.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-windfile_lex.o: /usr/include/bits/types.h /usr/include/libio.h
-windfile_lex.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-windfile_lex.o: /usr/include/stdlib.h /usr/include/sys/types.h
-windfile_lex.o: /usr/include/time.h /usr/include/endian.h
-windfile_lex.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-windfile_lex.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-windfile_lex.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h windio.h
-windfile_lex.o: dispwind.h /usr/include/assert.h superpos.h windlex.h
-windfile_parse.o: /usr/include/assert.h /usr/include/features.h
-windfile_parse.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-windfile_parse.o: /usr/include/stdio.h
-windfile_parse.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-windfile_parse.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-windfile_parse.o: /usr/include/bits/types.h /usr/include/libio.h
-windfile_parse.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-windfile_parse.o: windio.h dispwind.h /usr/include/stdlib.h
-windfile_parse.o: /usr/include/sys/types.h /usr/include/time.h
-windfile_parse.o: /usr/include/endian.h /usr/include/bits/endian.h
-windfile_parse.o: /usr/include/sys/select.h /usr/include/bits/select.h
-windfile_parse.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
-windfile_parse.o: /usr/include/alloca.h superpos.h dispshare.h
 winiomenu.o: /usr/include/stdio.h /usr/include/features.h
 winiomenu.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 winiomenu.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
