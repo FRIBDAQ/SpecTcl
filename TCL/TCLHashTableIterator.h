@@ -16,7 +16,16 @@
 //  Copyright 1999 NSCL, All Rights Reserved.
 //
 /////////////////////////////////////////////////////////////
-
+/*
+ *   Change Log:
+ *     $Log$
+ *     Revision 4.2  2002/08/08 15:20:16  ron-fox
+ *     Fix typo for Tcl_Hashtable -> Tcl_HashTable
+ *
+ * Revision 1.3  2002/08/08  15:17:15  fox
+ * Fix type on Tcl_Hashtable -> Tcl_HashTable
+ *
+ */
 #ifndef __TCLHASHTABLEITERATOR_H  //Required for current class
 #define __TCLHASHTABLEITERATOR_H
 
@@ -37,7 +46,7 @@ class CTCLHashTableIterator
   
   Tcl_HashSearch      m_Context; // Search context used by Tcl_NextHashEntry
   pCTCLTHashTableItem m_pCurrentEntry; // Pointer to current entry.
-  Tcl_Hashtable*      m_pHashTable;
+  Tcl_HashTable*      m_pHashTable;
   
 public:
 
@@ -135,10 +144,10 @@ public:
     return copy;
   }
 
-  CTCLHashTableEntry<T>& operator* () {
+  CTCLHashTableItem<T>& operator* () {
     return *m_pCurrentEntry;
   }
-  CTCLHashTableEntry<T>* operator->() {
+  CTCLHashTableItem<T>* operator->() {
     return m_pCurrentEntry;
   }
   
