@@ -252,3 +252,7 @@ March 8, 2005
    - Add SpecTcl API (tested) to the build and cvs.
 March 17, 2005
    - Add documentation for the SpecTcl api as a spectcl man page.
+March 21, 2005
+   - Added -fno-elide-constructors to user's makefile to ensure that 
+     TreeParameter construction is handled correctly.
+   - Support settable I/O poll dwell time.

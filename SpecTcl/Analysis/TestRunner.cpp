@@ -29,3 +29,4 @@ int main(int argc, char** argv)
   return wasSucessful ? 0 : -1;
 }
 void* gpTCLApplication;
+void* gpAnalyzer;

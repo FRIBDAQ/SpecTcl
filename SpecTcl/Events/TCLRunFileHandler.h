@@ -316,12 +316,7 @@ class CTCLRunFileHandler  : public CTCLIdleProcess
   CTCLInterpreter* m_pInterp;
 
 public:
-  CTCLRunFileHandler (CTCLInterpreter* pInterp, CRunControl& rRun) :
-    CTCLIdleProcess(pInterp),
-    m_pRun(&rRun),
-    m_nBufferSize(0),
-    m_pInterp(pInterp)
-  { }        
+  CTCLRunFileHandler (CTCLInterpreter* pInterp, CRunControl& rRun);
    ~ CTCLRunFileHandler ( ) { }       //Destructor
 	
 			//Copy constructor [illegal]
