@@ -14,24 +14,28 @@ ScriptedSpecTcl_SOURCES = MySpecTclApp.cpp
 
 libScripted_la_LDFLAGS = -version-info $(SOVERSION):0
 
-libScripted_la_SOURCES =  CBoolConfigParam.cpp \
-	CCAENDigitizerCreator.cpp \
-	CCAENDigitizerModule.cpp \
-	CCAENV830Creator.cpp \
-	CCAENV830Module.cpp \
-	CConfigurableObject.cpp \
+MainSources=CConfigurableObject.cpp \
+	CSegmentUnpacker.cpp \
 	CConfigurationParameter.cpp \
-	CIntArrayParam.cpp \
 	CIntConfigParam.cpp \
+	CBoolConfigParam.cpp \
+	CStringConfigParam.cpp \
+	CPacket.cpp \
+	CModuleDictionary.cpp \
 	CModule.cpp \
 	CModuleCommand.cpp \
+	CPacketCreator.cpp \
 	CModuleCreator.cpp \
-	CModuleDictionary.cpp \
-	CPacket.cpp CPacketCreator.cpp \
 	CScriptableUnpacker.cpp \
-	CSegmentUnpacker.cpp \
-	CStringArrayparam.cpp \
-	CStringConfigParam.cpp 
+	CCAENDigitizerCreator.cpp \
+	CCAENV830Creator.cpp \
+	CCAENDigitizerModule.cpp \
+	CCAENV830Module.cpp CIntArrayParam.cpp \
+	CStringArrayparam.cpp 
+
+libScripted_la_SOURCES =  $(MainSources)
+
+
 
 
 
@@ -121,3 +125,30 @@ install-exec-local:
 
 
 EXTRA_DIST=Makefile.skel scriptable_Makefile.include 
+
+
+if CPPUNIT
+
+noinst_PROGRAMS = unittest
+
+unittest_SOURCES = SegUnpackerTest.cpp ModuleTest.cpp PacketTest.cpp CreatorTest.cpp \
+	UnpackerTest.cpp TestRunner.cpp $(MainSources)
+
+unittest_LDFLAGS = $(CPPUNIT_LDFLAGS) \
+	-L@top_srcdir@/SpecTcl -lTclGrammerCommands \
+	-L@top_srcdir@/Sorter -lSorting \
+	-L@top_srcdir@/Xamine -lXplus  \
+	-L@top_srcdir@/Gates -lGates   \
+	-L@top_srcdir@/Events -lAnalysis \
+	-L@top_srcdir@/EventSource -lEventSource \
+	-L@top_srcdir@/SpectrumIO -lSpecio \
+	-L@top_srcdir@/TCL -ltclPlus   \
+	-L@top_srcdir@/NSCLException -lException \
+	-L@top_srcdir@/Display -lXamine  \
+	-L@top_srcdir@/Tape -ltape       \
+	-L@top_srcdir@/Filter -lFilter \
+	-ltk -ltcl $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
+
+
+TESTS = ./unittest
+endif

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 
@@ -301,7 +301,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __CRT_STRING_H
@@ -330,16 +332,16 @@ public:
 private:
   DataType_t            m_eType;          // Type of data held in spectrum 
   SpectrumType_t        m_eSpectrumType;  // Type of spectrum being created.
-  std::string           m_sName;          // Name of the spectrum.
+  STD(string)           m_sName;          // Name of the spectrum.
   SpectrumErrorReason_t m_eReason;        // Reason for the exception
   char*                 m_pMessage;
 public:
 			//Constructor with arguments
   CSpectrumFactoryException (  DataType_t            am_eType,  
 			       SpectrumType_t        am_eSpectrumType,  
-			       const std::string           am_sName,  
+			       const STD(string)           am_sName,  
 			       SpectrumErrorReason_t am_eReason,  
-			       const std::string&          rDoing);
+			       const STD(string)&          rDoing);
   ~ CSpectrumFactoryException ( ) { delete []m_pMessage; }       //Destructor
 	
 			//Copy constructor
@@ -389,7 +391,7 @@ public:
   }
 
                        //Get accessor function for attribute
-  std::string getName() const
+  STD(string) getName() const
   {return m_sName;
   }
 
@@ -416,7 +418,7 @@ protected:
   }
 
                        //Set accessor function for attribute
-  void setName (std::string am_sName)
+  void setName (STD(string) am_sName)
   { 
     m_sName = am_sName;
     UpdateMessage();

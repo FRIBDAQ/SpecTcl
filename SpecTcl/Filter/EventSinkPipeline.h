@@ -9,7 +9,9 @@
 
 #ifndef __STL_LIST
 #include <list>
+#ifndef __STL_LIST
 #define __STL_LIST
+#endif
 #endif
 
 #ifndef __EVENT_H
@@ -27,12 +29,12 @@
 #define __HISTOTYPES_H
 #endif
 
-typedef list<CEventSink*>::iterator EventSinkIterator;
+typedef STD(list)<CEventSink*>::iterator EventSinkIterator;
 
 // Class.
 class CEventSinkPipeline : public CEventSink {
-  list<CEventSink*> m_lSinks;
-  //typedef list<CEventSink*>::iterator EventSinkIterator;
+  STD(list)<CEventSink*> m_lSinks;
+  //typedef STD(list)<CEventSink*>::iterator EventSinkIterator;
 
  public:
   // Constructors.

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //
 //     NSCL
@@ -307,11 +307,13 @@ DAMAGES.
 
 #ifndef __STL_LIST
 #include <list>
+#ifndef __STL_LIST
 #define __STL_LIST
 #endif
+#endif
   
-typedef list<CPseudoScript>                   PseudoParameters;
-typedef list<CPseudoScript>::iterator         PseudoParameterIterator;
+typedef STD(list)<CPseudoScript>                   PseudoParameters;
+typedef STD(list)<CPseudoScript>::iterator         PseudoParameterIterator;
                                                            
 class CTCLHistogrammer  : public CHistogrammer        
 {                       
@@ -376,8 +378,8 @@ public:
 			     UInt_t nSpectra, CSpectrum** ppSpectra,
 			     UInt_t nGates,   CGateContainer** ppGates)    ;  
   void AddPseudo (CPseudoScript& rScript)    ;
-  void RemovePseudo (const string& rPseudoName)    ;
-  CPseudoScript& FindPseudo (const string& rPsuedoName)    ;
+  void RemovePseudo (const STD(string)& rPseudoName)    ;
+  CPseudoScript& FindPseudo (const STD(string)& rPsuedoName)    ;
   PseudoParameterIterator PseudoBegin ()    ;
   PseudoParameterIterator PseudoEnd ()    ;
   UInt_t PseudoSize ()    ;

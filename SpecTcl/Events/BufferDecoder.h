@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 
 //  CBufferDecoder.h:
@@ -303,7 +303,9 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __BUFFERTRANSLATOR
@@ -394,7 +396,7 @@ class CBufferDecoder {
   virtual UInt_t getBufferType() = 0;
   virtual void getByteOrder(Short_t& Signature16,
 			    Int_t& Signature32) = 0;
-  virtual string getTitle() = 0;
+  virtual STD(string) getTitle() = 0;
   //
   // Default behavior for this operation can be supplied in terms of
   // the virtual selectors.

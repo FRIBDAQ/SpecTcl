@@ -87,7 +87,7 @@ int Xamine_newgates;		/* New gates are sent here. */
 int AcceptConnection(char* pName, int fd)
 {
   struct sockaddr_un peer;
-  int                nbytes;
+  socklen_t          nbytes;
   int                comfid;
 
   nbytes = sizeof(struct sockaddr_un);

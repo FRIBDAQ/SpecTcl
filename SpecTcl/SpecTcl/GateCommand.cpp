@@ -273,12 +273,19 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS'
 */
 
 /* 
    Change log:
    $Log$
+   Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
+   - Port to gcc/g++ 3.x
+   - Recast swrite/sread in terms of tcl[io]stream rather than
+     the kludgy thing I had done of decoding the channel fd.
+     This is both necessary due to g++ 3.x's runtime and
+     nicer too!.
+
    Revision 5.1  2004/11/29 16:56:10  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -330,6 +337,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
+  - Port to gcc/g++ 3.x
+  - Recast swrite/sread in terms of tcl[io]stream rather than
+    the kludgy thing I had done of decoding the channel fd.
+    This is both necessary due to g++ 3.x's runtime and
+    nicer too!.
+
   Revision 5.1  2004/11/29 16:56:10  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -348,6 +362,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 */
 
+#include <config.h>
 #include "GateCommand.h"    				
 #include "GatePackage.h"
 #include "GateFactory.h"
@@ -365,6 +380,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <string.h>
 #include <vector>
 #include <string>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 static char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved GateCommand.cpp \\n";

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTCLVariable.h:
 //
@@ -292,7 +292,11 @@ DAMAGES.
 
 #ifndef __TCLVARIABLE_H  //Required for current class
 #define __TCLVARIABLE_H
-                               //Required for base classes
+
+#ifndef __TCLVERSIONHACKS_H
+#include "TCLVersionHacks.h"
+#endif 
+                              //Required for base classes
 #ifndef __TCLINTERPRETEROBJECT_H
 #include "TCLInterpreterObject.h"
 #endif                               
@@ -304,26 +308,28 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
                                
 class CTCLVariable  : public CTCLInterpreterObject        
 {
-  std::string m_sVariable;	// Name of the variable represented.
+  STD(string) m_sVariable;	// Name of the variable represented.
   Bool_t m_fTracing;		// kfTRUE if tracing is enabled.
   Int_t  m_nTraceFlags;		// Set of trace flags for variable.
-  std::string m_sTraceIndex;
+  STD(string) m_sTraceIndex;
 public:
 
 			//Constructor with arguments
 
-  CTCLVariable (std::string am_sVariable,  Bool_t am_fTracing  )  :   
+  CTCLVariable (STD(string) am_sVariable,  Bool_t am_fTracing  )  :   
     CTCLInterpreterObject(),
     m_sVariable (am_sVariable),  
     m_fTracing (am_fTracing)  
   { }         
   CTCLVariable (CTCLInterpreter* pInterp, 
-		std::string am_sVariable,  Bool_t am_fTracing  )  :   
+		STD(string) am_sVariable,  Bool_t am_fTracing  )  :   
     CTCLInterpreterObject(pInterp),
     m_sVariable (am_sVariable),  
     m_fTracing (am_fTracing)  
@@ -364,7 +370,7 @@ public:
 
 public:
 
-  std::string getVariableName() const
+  STD(string) getVariableName() const
   {
     return m_sVariable;
   }
@@ -376,7 +382,7 @@ public:
 
 public:
 
-  void setVariableName (const std::string am_sVariable)
+  void setVariableName (const STD(string) am_sVariable)
   { 
     if(IsTracing()) UnTrace();
     m_sVariable = am_sVariable;
@@ -394,13 +400,8 @@ public:
 			       int Flags)  ;
 
    static  char* TraceRelay (ClientData pObject, Tcl_Interp* pInterpreter, 
-#if (TCL_MAJOR_VERSION > 8) || ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
-			     const char*      pName,   
-			     const char*      pIndex, 
-#else
-			     char*           pName,
-			     char*           pIndex,
-#endif
+			     tclConstCharPtr  pName,
+			     tclConstCharPtr pIndex,
 			     int flags)  ;
 
   const char* Set (const char* pValue, int flags=TCL_LEAVE_ERR_MSG | 

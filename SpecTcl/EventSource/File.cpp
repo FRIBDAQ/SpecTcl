@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2005, All rights reserved";
 
@@ -311,11 +311,16 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>                           
-#include <iostream.h>
+#include <Iostream.h>
 #include <stdio.h>
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #endif
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 static UInt_t nBuffers(0);
 static UInt_t nReads(0);

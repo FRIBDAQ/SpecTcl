@@ -21,6 +21,9 @@
 /* True if ImageMagick's convert is present */
 #undef HAVE_CONVERT
 
+/* Define to 1 if you have the <cppunit/Test.h> header file. */
+#undef HAVE_CPPUNIT_TEST_H
+
 /* True if INT_MAX defined in limits.h */
 #undef HAVE_DECL_INT_MAX
 
@@ -80,6 +83,30 @@
 
 /* True if Gri is available */
 #undef HAVE_GRI
+
+/* <fstream> exists */
+#undef HAVE_HLESS_FSTREAM
+
+/* <iomanip> exists */
+#undef HAVE_HLESS_IOMANIP
+
+/* <iostream> exists */
+#undef HAVE_HLESS_IOSTREAM
+
+/* <istream> exists */
+#undef HAVE_HLESS_ISTREAM
+
+/* <ostream> exists */
+#undef HAVE_HLESS_OSTREAM
+
+/* <sstream> exists */
+#undef HAVE_HLESS_SSTREAM
+
+/* <streambuf> exists */
+#undef HAVE_HLESS_STREAMBUF
+
+/* <typeinfo> exists */
+#undef HAVE_HLESS_TYPEINFO
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -158,6 +185,9 @@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
+
+/* 1 if std namespace defined */
+#undef HAVE_STD_NAMESPACE
 
 /* Define to 1 if you have the `strchr' function. */
 #undef HAVE_STRCHR
@@ -309,6 +339,14 @@
 /* Version number of package */
 #undef VERSION
 
+
+/* Define STD macro according to HAVE_STD_NAMESPACE value */
+#ifdef HAVE_STD_NAMESPACE
+#define STD(name)  std::name
+#else
+#define STD(name) name
+#endif
+
 /* Define to 1 if the X Window System is missing or not being used. */
 #undef X_DISPLAY_MISSING
 
@@ -319,9 +357,11 @@
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 
-/* Define as `__inline' if that's what the C compiler calls it, or to nothing
-   if it is not supported. */
+/* Define to `__inline__' or `__inline' if that's what the C compiler
+   calls it, or to nothing if 'inline' is not supported under any name.  */
+#ifndef __cplusplus
 #undef inline
+#endif
 
 /* Define to `long' if <sys/types.h> does not define. */
 #undef off_t

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CSpectrum1DL.cpp
 // Encapsulates the prototypical 1-d Spectrum.  
@@ -298,6 +298,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:08  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -328,12 +331,17 @@ DAMAGES.
   Support for Real valued parameters and spectra with arbitrary binnings.
 
 */
-
+#include <config.h>
 #include "Spectrum1DL.h"                               
 #include "Parameter.h"
 #include "RangeError.h"
 #include "Event.h"
 #include "CAxis.h"
+#include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 static const char* Copyright = 
 "CSpectrum1DL.cpp: Copyright 1999 NSCL, All rights reserved\n";

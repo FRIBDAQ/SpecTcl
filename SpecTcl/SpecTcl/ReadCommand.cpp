@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 // Class: CReadCommand
@@ -295,6 +295,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //    Chase Bolen (added stream map functions CheckIn, CheckOut, etc.) 4/14/2000 
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
+#include <config.h>
 #include "ReadCommand.h"    				
 #include "WriteCommand.h"
 
@@ -305,8 +306,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLInterpreter.h>
 #include <TCLString.h>
 #include <TCLResult.h>
-#include <iostream.h>
-#include <fstream.h>
+#include <Iostream.h>
+#include <Fstream.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -315,6 +316,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <errno.h>
 #include <string>
 #include <ErrnoException.h>
+#include <tclstreams.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 
 // Static data.
@@ -324,13 +330,7 @@ struct SwitchEntry {
   CReadCommand::Switch_t Switch;
 };
 
-struct StreamEntry {
-  fstream *pstreamloc;
-  off_t pos;
-  dev_t device;
-  ino_t inode;
-};
-static map<int,CReadCommand::StreamEntry> StreamMap;
+
 static
 SwitchEntry Switches[] = {
   {"-format",     CReadCommand::keFormat},
@@ -439,7 +439,8 @@ Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
   }
   // We need to:
   // 1. Translate the format specifier into a CSpectrumFormatter*
-  // 2. get the file specifier and translate it into an ifstream.
+  // 2. get the file specifier and translate it into an istream derived
+  //    object.
   //
 
   file = string(*pArgs);
@@ -448,40 +449,40 @@ Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
     Usage(rResult);
     return TCL_ERROR;
   }
-  // The file could be either a file id or a file name.
 
-  Bool_t MustClose = kfFALSE;	// Assume it's a TCL file id.
-  Int_t fid;
+  // The file parameter can either be a file name or a TCL channel name.
+  // we give priority to the channel name.  The block of code 
+  // below will result in pIn being filled in with a pointer to
+  // either a tclistream or an ifstream depending on which is which.
+  // This change was forced a bit by  the port to g++ 3.x where fid's can no longer
+  // construct fstreams. In any event, this is better because:
+  //   - We're no longer tied to the internals assumption that the tcl channel
+  //     name is of the form file%d  where the number is the fid.
+  //   - Since we're well synchronized with the Tcl_Channel, and since
+  //     tcl[io]stream  does not close the underlying channel on destruction,
+  //     we no longer have to play the games where we cache the file ids.
+  //
+  // 
+  istream*     pIn;
+  Tcl_Channel  pChannel(rInterp.GetChannel(pArgs[0]));
 
-  if(CWriteCommand::IsFileId(file.c_str())) { // Tcl file id...
-    fid = CWriteCommand::GetFileId(file.c_str());
-    
+  if(pChannel) {
+    pIn = new tclistream(pChannel);
   }
   else {
-    fid = open(file.c_str(), O_RDONLY );
-    if(fid < 0) {
-      rResult += strerror(errno);
-      return TCL_ERROR;
-    }
-    MustClose = kfTRUE;
+    pIn = new ifstream(pArgs[0]);
   }
-  // if it is new dont do anything yet.
-  // if its already in use check to see if its a differant spectrum.
-  // if its the same spectrum continue with the cache of the old one.
-  // if its a differant spectrum delete the old one and remove from map.
-  // Now we can put it all together to call the package Read member.
-  ifstream *in;
-  if (InMap(fid)) {
-    in = (ifstream*)CheckOut(fid);
-  } else {
-    in = new ifstream;
-    if (in == NULL) {
-      errno = ENOMEM;
-      throw(CErrnoException("Creating input file stream."));
-    }
-    in->attach(fid);		// Attach to the requested fd.
+  // If the open failed, *pIn is false:
 
+  if(!(*pIn)) {
+    rResult = "Unable to open a stream on ";
+    rResult = pArgs[0];
+    delete pIn;
+    return TCL_ERROR;
   }
+
+  // Now we can read the spectrum from file/channel.
+
   CSpectrumPackage& rPack((CSpectrumPackage&)getMyPackage());
   UInt_t ReadFlags = 0;
   if(!fSnapshot) ReadFlags |= CSpectrumPackage::fLive;
@@ -489,17 +490,8 @@ Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
   if(fBind)      ReadFlags |= CSpectrumPackage::fBind;
 
   string Result;
-  Int_t  status = rPack.Read(Result, *in,pFormatter, ReadFlags);
-  if(MustClose) {
-    close(fid);
-    delete in;
-  } else if(!(in->eof())) {
-    // if the stream isnt at end of file put it in the map.
-    bool end = in->eof();
-    CheckIn((fstream*)in,fid);
-  } else {
-    delete in;
-  }
+  Int_t  status = rPack.Read(Result, *pIn, pFormatter, ReadFlags);
+
   rResult = Result;
   return status;
 }
@@ -553,75 +545,4 @@ CReadCommand::NextSwitch(const char* pText)
     }
   }
   return keNotSwitch;
-}
-
-//CReadCommand::GetEntry(StreamEntry& temp, int fid)
-//
-//    fills in the StreamEntry struct temp with information
-//    from the fstat command
-
-void CReadCommand::GetEntry(StreamEntry& temp, int fid) {
-  struct stat buffer;
-  fstat(fid,&buffer);
-  temp.pstreamloc = NULL;
-  temp.pos = lseek(fid,0,SEEK_CUR);
-  temp.device = buffer.st_dev;
-  temp.inode = buffer.st_ino;
-}
-//CReadCommand::CheckOut(int fid)
-//
-//     called with the file id of a file in the stream map
-//     CheckOut will return a pointer to a stream.  the streams 
-//     are uniquely identified with the file position, the device, 
-//     and the inode.  if the files are the same file then the stored
-//     stream pointer is returned.  if they're differant files, the
-//     stored stream is deleted, and the function returns a newed 
-//     stream pointer.  in both cases the entry is removed from the map.
-
-fstream *CReadCommand::CheckOut(int fid) {
-  StreamEntry newfile, cachedfile;
-  GetEntry(newfile,fid);
-  cachedfile = StreamMap[fid];
-  if ((newfile.pos == cachedfile.pos) &&
-      (newfile.device == cachedfile.device) &&
-      (newfile.inode == cachedfile.inode)) {
-    // cached file is the same file
-    newfile.pstreamloc = cachedfile.pstreamloc;
-  } else {
-    //cached file is differant but with same fid
-    delete cachedfile.pstreamloc;
-    newfile.pstreamloc = new fstream(fid);
-    if (newfile.pstreamloc == NULL) {
-      errno = ENOMEM;
-      throw(CErrnoException("Creating input file stream."));
-    }
-  }
-  StreamMap.erase(fid);
-  return newfile.pstreamloc;
-}
-
-// CReadCommand::InMap(int fid)
-//
-//     returns a boolean value signifying
-//     whether the file with id fid is in the map
-//
-
-bool CReadCommand::InMap(int fid) {
-  bool res = false;
-  if (StreamMap.find(fid) != StreamMap.end()) res = true;
-  return res;
-					  
-}
-
-// CReadCommand::CheckIn(fstream *in, int fid)
-//
-//     inserts the StreamEntry, made from the pointer
-//     to the stream, the file position, the device, and the
-//     inode, into the map keyed by the fid.
-
-void CReadCommand::CheckIn(fstream *in, int fid) {
-  StreamEntry newfile;
-  GetEntry(newfile,fid);
-  newfile.pstreamloc = in;
-  StreamMap[fid]=newfile;
 }

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CBand.h:
 //
@@ -292,6 +292,9 @@ DAMAGES.
 /*
    Change Log:
    $Log$
+   Revision 5.1.2.1  2004/12/21 17:51:21  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:56:01  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -322,7 +325,16 @@ DAMAGES.
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
+#endif
+
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
 #endif
 
 /*!
@@ -352,7 +364,7 @@ public:
 			//Default constructor
 
   CBand (UInt_t nXid, UInt_t nYid,
-	 const vector<FPoint>& points);
+	 const STD(vector)<FPoint>& points);
   CBand (UInt_t nXid, UInt_t nYid,
 	 UInt_t nPts, FPoint* pPoints);
   CBand (UInt_t nXid, UInt_t nYid,
@@ -395,8 +407,8 @@ public:
 public:                   
   virtual   Bool_t operator()(CEvent& rEvent);
   virtual   CGate* clone ()  ;
-  virtual   std::string Type ()  const;
-  virtual   Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params);
+  virtual   STD(string) Type ()  const;
+  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
   virtual   Bool_t inGate(CEvent& rEvent);
   //
   // Utilities:

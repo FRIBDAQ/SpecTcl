@@ -4,9 +4,10 @@ LEXOUT = lex.yy.c
 MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
 
-INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS)
+INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
+	-I@top_srcdir@/Utility
 LDFLAGS = -g @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @LD_EXTRA_FLAGS@
-XCCFLAGS =   -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE
+XCCFLAGS =   -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE 
 
 AM_CXXFLAGS = -g -pedantic
 AM_CFLAGS   = -g -pedantic

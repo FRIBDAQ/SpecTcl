@@ -2,9 +2,13 @@
    Implementation of the CCalibrationDistribtuion class.
    See CalibrationDistribution.h for more details.
 */
-
+#include <config.h>
 #include "CalibrationDistribution.h"
 #include "GaussianDistribution.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 /*!
     Constructor Create a new calibration distribution. A calibration distribution

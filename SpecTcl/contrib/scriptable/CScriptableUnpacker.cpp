@@ -7,6 +7,7 @@
 
 // Include files required:
 
+#include <config.h>
 #include "CScriptableUnpacker.h"    				
 #include "CPacket.h"
 #include "CModuleCommand.h"
@@ -26,9 +27,13 @@
 #include <Histogrammer.h>
 
 
-#include <iostream>
+#include <Iostream.h>
 
 #include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 /*!
     Create an object of type CScriptableUnpacker

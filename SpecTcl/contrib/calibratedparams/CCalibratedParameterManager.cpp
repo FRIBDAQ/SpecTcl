@@ -7,12 +7,17 @@
 
 // Include files required:
 
+#include <config.h>
 #include "CCalibratedParameterManager.h"    				
 #include "CCalibratedParameter.h"
 #include <DesignByContract.h>
 #include <Exception.h>
 #include <string>
-#include <iostream>
+#include <Iostream.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 using namespace DesignByContract;
 

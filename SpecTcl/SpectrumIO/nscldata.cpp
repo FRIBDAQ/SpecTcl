@@ -273,15 +273,22 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2009, All rights reserved";
-#include <iomanip.h>
-#include <iostream.h>
+#include <config.h>
+#include <Iomanip.h>
+#include <Iostream.h>
 #include <errno.h>
 #include <string.h>
 #include <nscldata.h>
 #include <nsclbinerror.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+
 /*
       nscldata.cc
       by Chase Bolen
@@ -331,7 +338,7 @@ int muintemplate<T>::readin(istream& Binary) {
 }
 
 template <class T>
-long muintemplate<T>::get(int xloc, int yloc = 0) {
+long muintemplate<T>::get(int xloc, int yloc) {
   
   if ((xloc >=0) && (yloc >=0)) {
 
@@ -341,7 +348,7 @@ long muintemplate<T>::get(int xloc, int yloc = 0) {
   }
 }
 
-mushort::mushort(int x, int y = 1){
+mushort::mushort(int x, int y){
   templateobj = new muintemplate<short>(x,y);
 }
 
@@ -353,7 +360,7 @@ int mushort::readin(istream& Binary) {
   return templateobj->readin(Binary);
 }
 
-long mushort::get(int xloc, int yloc = 0) {
+long mushort::get(int xloc, int yloc) {
   return templateobj->get(xloc,yloc);
 }
 
@@ -369,12 +376,12 @@ int muint::readin(istream& Binary) {
   return templateobj->readin(Binary);
 }
 
-long muint::get(int xloc, int yloc = 0) {
+long muint::get(int xloc, int yloc) {
   return templateobj->get(xloc,yloc);
 }
 
 template <class T>
-smaugintemplate<T>::smaugintemplate(int x, int y = 1): xlength(x), ylength(y) {
+smaugintemplate<T>::smaugintemplate(int x, int y): xlength(x), ylength(y) {
   if (ylength == 0) ylength = 1;
   if ((xlength>0) && (ylength >0)) {
     data = new T[xlength * ylength];
@@ -426,7 +433,7 @@ int smaugintemplate<T>::readin(istream& Binary) {
 }
 
 template <class T>
-long smaugintemplate<T>::get(int xloc, int yloc = 0) {
+long smaugintemplate<T>::get(int xloc, int yloc) {
   if ((xloc >=0) && (yloc >=0)) {
     return data[yloc * xlength + xloc];
   } else {
@@ -434,7 +441,7 @@ long smaugintemplate<T>::get(int xloc, int yloc = 0) {
   }
 }
 
-smaugshort::smaugshort(int x, int y = 1) {
+smaugshort::smaugshort(int x, int y) {
   templateobj=new smaugintemplate<short>(x, y);
 }
 
@@ -446,7 +453,7 @@ int smaugshort::readin(istream& Binary) {
   return templateobj->readin(Binary);
 }
 
-long smaugshort::get(int xloc, int yloc = 0) {
+long smaugshort::get(int xloc, int yloc) {
   return templateobj->get(xloc, yloc);
 }
 
@@ -461,11 +468,11 @@ int smaugint::readin(istream& Binary) {
   return templateobj->readin(Binary);
 }
 
-long smaugint::get(int xloc, int yloc = 0) {
+long smaugint::get(int xloc, int yloc) {
   return templateobj->get(xloc,yloc);
 }
 
-smaugbyte::smaugbyte(int x, int y = 1) {
+smaugbyte::smaugbyte(int x, int y) {
   templateobj=new smaugintemplate<char>(x,y);
 }
 
@@ -477,12 +484,12 @@ int smaugbyte::readin(istream& Binary) {
   return templateobj->readin(Binary);
 }
 
-long smaugbyte::get(int xloc, int yloc = 0) {
+long smaugbyte::get(int xloc, int yloc) {
   return templateobj->get(xloc, yloc);
 }
 
 template <class T>
-writetemplate<T>::writetemplate(int x, int y = 1): xlength(x), ylength(y) {
+writetemplate<T>::writetemplate(int x, int y): xlength(x), ylength(y) {
   if (ylength == 0) {
     ylength = 1;
   }

@@ -1,5 +1,5 @@
 DEFS = @WCHAR_T_DEF@
-INCLUDES = -I. -I../Utility -I../NSCLException -I../EventSource -I../TCL \
+INCLUDES = -I@top_srcdir@ -I. -I../Utility -I../NSCLException -I../EventSource -I../TCL \
 	-I../SpecTcl -I../Filter \
 	@TCL_FLAGS@ @XINCLUDES@
 

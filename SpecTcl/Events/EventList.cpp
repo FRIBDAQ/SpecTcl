@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 
 static const char* Copyright = "(C) Copyright Michigan State University 2006, All rights reserved";
@@ -296,7 +296,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 //
 // Header Files:
 //
+#include <config.h>
 #include "EventList.h"                               
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Constants:
 static const UInt_t    knExpandSize = 512;      // Events in an expansion.

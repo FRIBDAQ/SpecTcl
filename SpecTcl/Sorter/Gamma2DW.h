@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CGamma2DW.h:
 //
@@ -292,6 +292,9 @@ DAMAGES.
 /*
    Change Log:
    $Log$
+   Revision 5.1.2.1  2004/12/21 17:51:24  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:56:07  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -314,12 +317,16 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -335,26 +342,26 @@ class CGamma2DW : public CSpectrum
 {
   UInt_t m_nXScale;		//!< X channel count.
   UInt_t m_nYScale;		//!< Y Channel count.
-  vector<UInt_t> m_vParameters; //!< Vector of parameter ids.
+  STD(vector)<UInt_t> m_vParameters; //!< STD(Vector) of parameter ids.
   
 public:
 
 			//Constructor(s) with arguments
 
-  CGamma2DW(const std::string& rName, UInt_t nId,
-	       vector<CParameter>& rParameters,
+  CGamma2DW(const STD(string)& rName, UInt_t nId,
+	       STD(vector)<CParameter>& rParameters,
 	       UInt_t nXScale, UInt_t nYScale);
 
-  CGamma2DW(const std::string& rName, UInt_t nId,
-	    vector<CParameter>& rParameters,
+  CGamma2DW(const STD(string)& rName, UInt_t nId,
+	    STD(vector)<CParameter>& rParameters,
 	    UInt_t nXScale, UInt_t nYScale,
 	    Float_t xLow, Float_t xHigh,
 	    Float_t yLow, Float_t yHigh);
 
 
   // Constuctor for use by derived classes
-  //  CGamma2DW(const std::string& rName, UInt_t nId,
-  //    vector<CParameter>& rParameter);
+  //  CGamma2DW(const STD(string)& rName, UInt_t nId,
+  //    STD(vector)<CParameter>& rParameter);
 
   virtual  ~ CGamma2DW( ) { }       //Destructor	
 private:
@@ -411,25 +418,25 @@ protected:
   //   
 public:                 
   virtual   void Increment(const CEvent& rEvent)  ;
-  virtual void GammaGateIncrement(const CEvent& Event, std::string sGateType);
+  virtual void GammaGateIncrement(const CEvent& Event, STD(string) sGateType);
   virtual   ULong_t operator[](const UInt_t* pIndices) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;
 
-  virtual void GetParameterIds(vector<UInt_t>& rvIds);
-  virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
+  virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
+  virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
   virtual   UInt_t Dimension (UInt_t n) const;
 
   virtual   UInt_t Dimensionality () const {
     return 2;
   }
  private:
-  static CSpectrum::Axes CreateAxisVector(vector<CParameter>& rParams,
+  static CSpectrum::Axes CreateAxisVector(STD(vector)<CParameter>& rParams,
 					  UInt_t nXchan, UInt_t nYchan,
 					  Float_t xLow, Float_t xHigh,
 					  Float_t yLow, Float_t yHigh);
   void CreateStorage();
-  void SetParameterVector(vector<CParameter>& rParameters);
+  void SetParameterVector(STD(vector)<CParameter>& rParameters);
 };
 
 #endif

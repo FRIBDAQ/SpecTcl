@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 //  CTCLInterpreter.cpp
@@ -302,10 +302,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 //
 // Header Files:
 //
-
+#include <config.h>
+#include "TCLVersionHacks.h"
 #include "TCLInterpreter.h"                               
 #include "TCLException.h"
-
+#include "TCLList.h"
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 // Functions for class CTCLInterpreter
 
 //////////////////////////////////////////////////////////////////////////
@@ -798,3 +802,70 @@ CTCLInterpreter::GetResultString() const
 
 }
 
+////////////////////////////////////////////////////////////////////////
+//  The functions below handle inquiry about Tcl Channels.
+//  Tcl Channels are abtractions of the system's I/O subsystem
+//  that are extensible and operating system independent.
+//
+
+/*!
+    GetChannel - Given the name of a Tcl Channel registered with 
+    this interpreter, returns a Tcl channel handle.  This is a pointer
+    to an opaque structure. It can be used to construct a CTCLChannel
+    object.
+
+    \param rName   (const string&)
+        The name of the channel to lookup.
+    \param pMode   (Int_t* [out] == kpNULL
+        If non null, the integer pointed to by this will be filed in with
+	a mask defining the access mode the channel supports.  This will 
+	be the logical or of:
+	- TCL_READABLE  you may read the channel.
+	- TCL_WRITABLE  you may write the channel.
+    \return Tcl_Channel
+    \retval NULL   - There is no channel by this name.
+    \retval nonnull- Opaque pointer to the channel.
+*/
+Tcl_Channel
+CTCLInterpreter::GetChannel(const string& rName, Int_t* pMode)
+{
+  return Tcl_GetChannel(m_pInterpreter, (tclConstCharPtr)rName.c_str(), pMode);
+}
+/*!
+   GetChannelNames Given a pattern returns all the names
+   of TCL channels that match the pattern.  Note that "*" will
+   return the names of all channels. 
+  
+   \param rPattern (const string&):
+      The glob pattern to match.
+
+   \return vector<string>
+   \retval Empty vector: no matches.
+   \retval Each element of the vector is a channel name.
+
+*/
+vector<string>
+CTCLInterpreter::GetChannelNames(const string& rPattern)
+{
+  vector<string> result;
+
+  int status = Tcl_GetChannelNamesEx(m_pInterpreter, (tclConstCharPtr)rPattern.c_str());
+  
+  // The result contains a TCL list if everything was ok.
+  // otherwise it's an error which for now just results in an
+  // emtpy channel name list:
+  //
+  if(status == TCL_OK) {
+    Tcl_Obj* pResult = Tcl_GetObjResult(m_pInterpreter);
+    if(pResult) {
+      char* pList = Tcl_GetStringFromObj(pResult, (Int_t*)kpNULL);
+      if(pList) {
+	CTCLList ResultList(this, pList);
+	ResultList.Split(result);
+      }
+    }
+    
+  }
+
+  return result;
+}

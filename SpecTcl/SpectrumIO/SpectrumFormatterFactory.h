@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 // Class: CSpectrumFormatterFactory                     //ANSI C++
@@ -325,8 +325,8 @@ DAMAGES.
                                
 
 
-typedef map<string, CSpectrumFormatter*>            FormatterMap;
-typedef map<string, CSpectrumFormatter*>::iterator  FormatterIterator;
+typedef STD(map)<STD(string), CSpectrumFormatter*>            FormatterMap;
+typedef STD(map)<STD(string), CSpectrumFormatter*>::iterator  FormatterIterator;
 
 class CSpectrumFormatterFactory      
 {                       
@@ -383,10 +383,10 @@ protected:
   }
 public:
 
-  static  void AddFormatter (const string& rKeyword, 
+  static  void AddFormatter (const STD(string)& rKeyword, 
 			     CSpectrumFormatter* pFormatter)    ;
-  static  CSpectrumFormatter* DeleteFormatter (const string& rKeyword)    ;
-  static  CSpectrumFormatter* MatchFormatter (const string& rKeyword)    ;
+  static  CSpectrumFormatter* DeleteFormatter (const STD(string)& rKeyword)    ;
+  static  CSpectrumFormatter* MatchFormatter (const STD(string)& rKeyword)    ;
   static  FormatterIterator FormatterBegin ()    ;
   static  FormatterIterator FormatterEnd ()    ;
  
@@ -396,7 +396,7 @@ class CSpectrumStandardFormatters
 {
 public:
   struct RegistrationEntry {
-    string               Keyword;
+    STD(string)               Keyword;
     CSpectrumFormatter*  Formatter;
   };
 private:

@@ -1,3 +1,54 @@
+]
+2.1-006 - Incorporate fix 113 - low level cutoffs lead to corrupted
+          1-d displays.
+        - Have build procedures clean any pre-built Gri prior to 
+          tarring up the distribution.
+2.1-007 - Incorporate fix 120 - memory leak on spectrum -delete -all
+        - Date/time/version stamp installation.
+2.1-008 
+	- Incorporate fix for issue 95: parameter -list -byid fails to parse
+          the output list for sorting.
+        - Incorporate fix for issue 105: sbind usage level help refers to
+          itself as the bind command not sbind.
+        - Incorporate fix for issue 111: swrite creates a file even if
+          no valid spectra are included on the command line.
+2.1-009 
+	- Incorporate printing fixes for last channel of 1-d.
+	- Incorporate printinf fix ensure that 2-d spectrum channels display
+      	  all non zeroes even if they are below the threshold for the lowest
+	  color range.
+        - Place upper limits on 1-d graphical entries at the top  of the
+	  channel rather than at the bottom.  This more realistically
+	  describes what's going on
+        - Fix issue 118 Superpositions in window files are by id not name.
+        - Fix issue 122 Speclist with a single spectrum gives blank output.
+	- Fix issue 123 Print with superpositions crashes gri (gives it a
+  	  bad command file).
+	- Fix issue 124 FWHM not transformed to mapped coordinates.
+2.1-010 - Fix Display/Makefile issues with lingering bison/flex output
+          Add missing return value in ValidValue::operator=.
+2.1-011 - Fix issue 135  swrite -format ascii does not retain the axis
+             mapping information correctly.
+        - Fallout from issue 133; fixed a defect in Display/axes.cc where
+          computation of mapped channel tick mark intervals could cause
+          DIV0 crashes in Xamine when the axis decreases from left to right. 
+        - Backport colormanager intelligent visual choices from 2.2
+2.1-012 - Backport fix for defect 144 from 2.2: Memory leak when user
+          rejects events.
+        - Backport repair for defect 149: Some cases where spectrum
+          deletion from Xamine can kill both Xamine and SpecTcl
+        - Backport repair for defect 145 Names with special characters
+	  cause saveall to produce bad files.
+2.1-013 - Backport filter generation fix from 2.2
+          Repair defect 157: Graphical object copies fail if target
+          is spectrum slot > 999
+2.1-014
+	- Fixed defect 151: printing 2-d's the channels have incorrect
+          values, and log prints are just plain flat lined.
+2.1-015 
+        - Fix un-numbered defect channel command gets/sets wrong channel
+          on Gamma 2-d's.  This was broken with the introduction of 
+ 	  arbitrary binning in 2.1.
 Modifications for SpecTcl 2.2
 January 30,2004  - Updated gri to gri-2.12.7
 March 23, 2004   - Issue 97b - Add hierarchical unpacking capability to scripted spectcl.
@@ -120,3 +171,55 @@ November 102004 - Repaired defect 147: Xamine copy object copies to wrong
                   spectrum if slot # > 999
 
 Edit level 2.2-001
+November 30, 2004 
+	- Forward port fix to defect 151 from 2.1:
+             colorscales on griprint were way off for 2-d prints.
+        - Fix unnumbered defect: channel get/set broke for 2-d gamma 
+          spectra starting with SpecTcl 2.2
+                  spectrum if slot # > 999
+
+SpecTcl 3.0: 
+      Port to gcc/g++ 3.x:
+         o Lots of gruntwork with config.h etc. in all sources.
+         o Added Tcl Channel inquiry functions to CTCLInterpreter to
+	   allow the location of Tcl_Channel given it's name.
+	    GetChannel
+	    GetChannelNames
+         o Added CTCLChannel object that can do simple channel operations.
+            Read
+	    Write
+	    atEof
+	    Flush
+            Close
+         o In {Write,Read}Command.cpp  use tcl[io]streams to connect
+           swrite/sread to Tcl channel parameters rather than decoding the
+	   filename.
+      Propagate fix for defect 151 from 2.1 -> 2.2-> 3.0
+      
+December 28, 2004
+    - Switch ExprLong -> strtol in contrib/scriptable CIntConfigParam.cpp
+      and CIntArrayParam.cpp since ExprLong, as of Tcl 8.4 does not work
+      with large unsigned values.
+December 31, 2004
+    - D. Bazin removed the treeparam Makefiles.  Adjust the
+      contrib/Makefile.am accordingly.
+January 06, 2005
+    - Fixed up some missing quotes on makefile.skel's.
+January 11, 2005
+    - Roll in another treeparmaeter update from D. Bazin
+January 12, 2005
+    - swrite file creation needs an ios::trunc else existing files will 
+      leave postpended data if they were larger.
+January 13, 2005
+    - Xamine superposition fix for id's > 999
+January 26, 2005
+    - Fix problem with long spectrum names:
+      o Xamine's truncation was making CHistogrammer::UnbindFromDisplay
+        assert fail.
+      o Xamine was not putting up the correct spectrum list due to a buffer
+        overflow problem in spectra.cc
+January 27, 2005
+    - Fix low level cutoff in 1-ds that had been fixed in 2.1 but not 
+      propagated to new versions.
+
+3.0-001

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 // Class: CReadCommand                     //ANSI C++
 //
@@ -306,7 +306,7 @@ DAMAGES.
 #include "TCLPackagedCommand.h"
 #endif
 
-#include <fstream.h>
+#include <Fstream.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <map>
@@ -371,18 +371,7 @@ public:
 protected:
   static void     Usage(CTCLResult& rResult);
   static Switch_t NextSwitch(const char* pText);
-public:
-  struct StreamEntry {
-    fstream *pstreamloc;
-    off_t pos;
-    dev_t device;
-    ino_t inode;
-  };
-private:
-  void CheckIn(fstream *,int);
-  fstream *CheckOut(int);
-  bool InMap(int);
-  void GetEntry(StreamEntry&, int);
+
 
 };
 

@@ -1,3 +1,4 @@
+#include <config.h>
 #include "XMPushbutton.h"
 
 XMButton::XMButton(char *n, WidgetClass c, Widget parent)
@@ -58,9 +59,8 @@ XMButton::SetAccelerator(char *translation, char *prompt)
 
 
 XMPushButton::XMPushButton(char *n, Widget parent, 
-			   void (*cb)(XMWidget *, XtPointer, XtPointer)
-			   = NULL,
-			   XtPointer cd = NULL):
+			   void (*cb)(XMWidget *, XtPointer, XtPointer),
+			   XtPointer cd ):
   XMButton(n, xmPushButtonWidgetClass, parent)
 {
   Enable();
@@ -69,9 +69,8 @@ XMPushButton::XMPushButton(char *n, Widget parent,
 }
 
 XMPushButton::XMPushButton(char *n, XMWidget &parent, 
-			   void (*cb)(XMWidget *, XtPointer, XtPointer)
-			   = NULL,
-			   XtPointer cd=NULL):
+			   void (*cb)(XMWidget *, XtPointer, XtPointer),
+			   XtPointer cd):
   XMButton(n, xmPushButtonWidgetClass, parent)
 {
   Enable();
@@ -84,17 +83,16 @@ XMPushButton::XMPushButton(Widget w) : XMButton(w) {}
 Callback_data*
 XMPushButton::AddCallback(void (*cb)(XMWidget *, 
 				     XtPointer, 
-				     XtPointer) = NULL,
-			  XtPointer cd = NULL)
+				     XtPointer),
+			  XtPointer cd)
 {
   return XMWidget::AddCallback(XmNactivateCallback, cb, cd);
 }
 
 
 XMCascadeButton::XMCascadeButton(char *n, Widget parent, 
-				 void (*cb)(XMWidget *, XtPointer, XtPointer)
-				 = NULL,
-				 XtPointer cd = NULL):
+				 void (*cb)(XMWidget *, XtPointer, XtPointer),
+				 XtPointer cd):
   XMButton(n, xmCascadeButtonWidgetClass, parent)
 {
   Enable();
@@ -103,9 +101,8 @@ XMCascadeButton::XMCascadeButton(char *n, Widget parent,
 }
 
 XMCascadeButton::XMCascadeButton(char *n, XMWidget &parent, 
-				 void (*cb)(XMWidget *, XtPointer, XtPointer)
-				 = NULL,
-				 XtPointer cd=NULL):
+				 void (*cb)(XMWidget *, XtPointer, XtPointer),
+				 XtPointer cd):
   XMButton(n, xmCascadeButtonWidgetClass, parent)
 {
   Enable();
@@ -130,17 +127,16 @@ XMCascadeButton::SetAssociatedMenu(Widget w)
 Callback_data*
 XMCascadeButton::AddCallback(void (*cb)(XMWidget *, 
 					XtPointer, 
-					XtPointer) = NULL,
-			     XtPointer cd = NULL)
+					XtPointer) ,
+			     XtPointer cd)
 { 
   return XMWidget::AddCallback(XmNactivateCallback, cb, cd); 
 }
 
 
 XMToggleButton::XMToggleButton(char *n, Widget parent,
-			       void (*cb)(XMWidget *, XtPointer, XtPointer) 
-			       = NULL,
-			       XtPointer cd = NULL) :
+			       void (*cb)(XMWidget *, XtPointer, XtPointer) ,
+			       XtPointer cd) :
   XMButton(n, xmToggleButtonWidgetClass, parent)
 {
   Enable();
@@ -150,9 +146,8 @@ XMToggleButton::XMToggleButton(char *n, Widget parent,
 }
 
 XMToggleButton::XMToggleButton(char *n, XMWidget &parent,
-			       void (*cb)(XMWidget *, XtPointer, XtPointer) 
-			       = NULL,
-			       XtPointer cd = NULL) :
+			       void (*cb)(XMWidget *, XtPointer, XtPointer) ,
+			       XtPointer cd) :
   XMButton(n, xmToggleButtonWidgetClass, parent)
 {
   Enable();
@@ -217,17 +212,16 @@ XMToggleButton::GetState()
 Callback_data*
 XMToggleButton::AddCallback(void (*cb)(XMWidget *, 
 				       XtPointer, 
-				       XtPointer) = NULL,
-			    XtPointer cd = NULL)
+				       XtPointer) ,
+			    XtPointer cd )
 { 
   return XMWidget::AddCallback(XmNvalueChangedCallback, cb, cd);
 }
 
 
 XMArrowButton::XMArrowButton(char *n, Widget parent, 
-			     void (*cb)(XMWidget *, XtPointer, XtPointer) 
-			     = NULL,
-			     XtPointer cd = NULL) :
+			     void (*cb)(XMWidget *, XtPointer, XtPointer) ,
+			     XtPointer cd ) :
   XMButton(n, xmArrowButtonWidgetClass, parent)
 {
   Enable();
@@ -236,9 +230,8 @@ XMArrowButton::XMArrowButton(char *n, Widget parent,
 }
 
 XMArrowButton::XMArrowButton(char *n, XMWidget &parent,
-			     void (*cb)(XMWidget *, XtPointer, XtPointer) 
-			     = NULL,
-			     XtPointer cd = NULL) :
+			     void (*cb)(XMWidget *, XtPointer, XtPointer) ,
+			     XtPointer cd ) :
   XMButton(n, xmArrowButtonWidgetClass, parent)
 {
   Enable();
@@ -248,8 +241,8 @@ XMArrowButton::XMArrowButton(char *n, XMWidget &parent,
 }
 
 Callback_data*
-XMArrowButton::AddCallback(void (*cb)(XMWidget *, XtPointer, XtPointer)=NULL,
-			   XtPointer cd = NULL)
+XMArrowButton::AddCallback(void (*cb)(XMWidget *, XtPointer, XtPointer),
+			   XtPointer cd)
 {
   return XMWidget::AddCallback(XmNactivateCallback, cb, cd);
 }

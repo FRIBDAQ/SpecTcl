@@ -276,7 +276,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CSpectrumFactory.h:
 //
@@ -296,6 +296,9 @@ DAMAGES.
 
 /* Change log:
    $Log$
+   Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:56:09  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -315,8 +318,22 @@ DAMAGES.
 #include "Parameter.h"
 #endif
 
+#ifndef __STL_VECTOR
 #include <vector>   //Required for include files, eg <CList.h>
-#include <string>   //Required for include files, eg <CList.h>                               
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif
+#endif
+
+#ifndef __STL_STRING
+#include <string>   
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
+
+//Required for include files, eg <CList.h>                               
 
 // Forward class definitions:
 
@@ -380,41 +397,41 @@ protected:
   // Actions provided by the class:
 
 public:                   
-  CSpectrum* CreateSpectrum (const std::string& rName,
+  CSpectrum* CreateSpectrum (const STD(string)& rName,
 			     SpectrumType_t eSpecType, 
 			     DataType_t eDataType, 
-			     vector<std::string>& rParameters, 
-			     vector<UInt_t>&  rChannels,
-			     vector<Float_t>* pLows  = (vector<Float_t>*)kpNULL,
-			     vector<Float_t>* pHighs = (vector<Float_t>*)kpNULL);
+			     STD(vector)<STD(string)>& rParameters, 
+			     STD(vector)<UInt_t>&  rChannels,
+			     STD(vector)<Float_t>* pLows  = (STD(vector)<Float_t>*)kpNULL,
+			     STD(vector)<Float_t>* pHighs = (STD(vector)<Float_t>*)kpNULL);
 
   CSpectrum* CreateSpectrum (const char* pName,
 			     SpectrumType_t eSpecType, 
-			     vector<string>& rParameters,
+			     STD(vector)<STD(string)>& rParameters,
 			     DataType_t eDataType, 
-			     vector<UInt_t>&  rChannels,
-			     vector<Float_t>* pLows = (vector<Float_t>*)kpNULL,
-			     vector<Float_t>* pHighs= (vector<Float_t>*)kpNULL)
+			     STD(vector)<UInt_t>&  rChannels,
+			     STD(vector)<Float_t>* pLows = (STD(vector)<Float_t>*)kpNULL,
+			     STD(vector)<Float_t>* pHighs= (STD(vector)<Float_t>*)kpNULL)
     {
-      return CreateSpectrum(std::string(pName),
+      return CreateSpectrum(STD(string)(pName),
 			    eSpecType, eDataType, rParameters, rChannels,
 			    pLows, pHighs);
     }
 
   // Create 1d spectrum:
 
-  CSpectrum* Create1D (const std::string& rName, DataType_t eType, 
+  CSpectrum* Create1D (const STD(string)& rName, DataType_t eType, 
 		       CParameter Param, UInt_t  nChannels)  ;
-  CSpectrum* Create1D (const std::string& rName, DataType_t eType,
+  CSpectrum* Create1D (const STD(string)& rName, DataType_t eType,
 		       CParameter Param, UInt_t  nChannels,
 		       Float_t fxLow, Float_t fxHigh);
   
   // Create 2d Spectra:
 
-  CSpectrum* Create2D (const std::string& rName, DataType_t eType,
+  CSpectrum* Create2D (const STD(string)& rName, DataType_t eType,
 		       CParameter xParam, CParameter yParam,
 		       UInt_t nXChannels, UInt_t nYChannels);
-  CSpectrum* Create2D (const std::string& rName, DataType_t eType, 
+  CSpectrum* Create2D (const STD(string)& rName, DataType_t eType, 
 		       CParameter xParam, CParameter yParam, 
 		       UInt_t nXChannels, 
 		       Float_t fXLow, Float_t fXHigh,
@@ -422,40 +439,40 @@ public:
 		       Float_t fYLow, Float_t fYHigh)  ;
 
 
-  CSpectrum* CreateG1D (const std::string& rName, DataType_t eType,
-			vector<CParameter>& rvParameters, UInt_t nResolution);
-  CSpectrum* CreateG1D(const std::string& rName, DataType_t eType,
-		       vector<CParameter>& rvParameters, UInt_t nChannels,
+  CSpectrum* CreateG1D (const STD(string)& rName, DataType_t eType,
+			STD(vector)<CParameter>& rvParameters, UInt_t nResolution);
+  CSpectrum* CreateG1D(const STD(string)& rName, DataType_t eType,
+		       STD(vector)<CParameter>& rvParameters, UInt_t nChannels,
 		       Float_t fxLow, Float_t fxHigh);
 
-  CSpectrum* CreateG2D (const std::string& rName, DataType_t eType,
-			vector<CParameter>& rvParameters, UInt_t nXRes, 
+  CSpectrum* CreateG2D (const STD(string)& rName, DataType_t eType,
+			STD(vector)<CParameter>& rvParameters, UInt_t nXRes, 
 			UInt_t nYRes);
-  CSpectrum* CreateG2D(const std::string& rName, DataType_t eType,
-		       vector<CParameter>& rvParameters, 
+  CSpectrum* CreateG2D(const STD(string)& rName, DataType_t eType,
+		       STD(vector)<CParameter>& rvParameters, 
 		       UInt_t nXChannels, 
 		       Float_t fxLow, Float_t fxHigh,
 		       UInt_t nYChannels,
 		       Float_t fyLow, Float_t fyHigh);
 
 #ifdef _USE_MAPPED_SPECTRA
-  CSpectrum* CreateMG1D(const std::string& rName, DataType_t eType,
-			vector<CParameter>& rvParameters, Float_t nLow,
+  CSpectrum* CreateMG1D(const STD(string)& rName, DataType_t eType,
+			STD(vector)<CParameter>& rvParameters, Float_t nLow,
 			Float_t nHigh, UInt_t nChans);
-  CSpectrum* CreateMG2D(const std::string& rName, DataType_t eType,
-			vector<CParameter>& rvParameters, 
+  CSpectrum* CreateMG2D(const STD(string)& rName, DataType_t eType,
+			STD(vector)<CParameter>& rvParameters, 
 			Float_t nXLow, Float_t nYLow, Float_t nXHigh,
 			Float_t nYHigh, UInt_t nXChans, UInt_t nYChans);
 #endif
-  CSpectrum* CreateBit (const std::string& rName, DataType_t eType, 
+  CSpectrum* CreateBit (const STD(string)& rName, DataType_t eType, 
 			CParameter Param, UInt_t nResolution)  ;
-  CSpectrum* CreateBit(const std::string& rName, DataType_t eType, 
+  CSpectrum* CreateBit(const STD(string)& rName, DataType_t eType, 
 		       CParameter Param, UInt_t nLow, UInt_t nHigh);
 
-  CSpectrum* CreateSummary (const std::string& rName, DataType_t eType, 
-			    vector<CParameter>& rParameters, UInt_t nYRes)  ;
-  CSpectrum* CreateSummary(const std::string& rName, DataType_t eType, 
-			   vector<CParameter>& rParameters, UInt_t nyChannels,
+  CSpectrum* CreateSummary (const STD(string)& rName, DataType_t eType, 
+			    STD(vector)<CParameter>& rParameters, UInt_t nYRes)  ;
+  CSpectrum* CreateSummary(const STD(string)& rName, DataType_t eType, 
+			   STD(vector)<CParameter>& rParameters, UInt_t nyChannels,
 			   Float_t fyLow, Float_t fyHigh);
   UInt_t NextId ()  ;
   Bool_t ExceptionMode() const { return m_fExceptions; }
@@ -466,20 +483,20 @@ public:
   }
 
 protected:
-  vector<CParameter> ParameterArray(vector<std::string>& rParameters) ;
+  STD(vector)<CParameter> ParameterArray(STD(vector)<STD(string)>& rParameters) ;
   static void Require(DataType_t          dType,
 		      SpectrumType_t      sType,
-		      const std::string&  rName,
-		      vector<CParameter>& rparams, // Needs all this extra
-		      vector<UInt_t>&     rResolutions,	// junk to throw.
+		      const STD(string)&  rName,
+		      STD(vector)<CParameter>& rparams, // Needs all this extra
+		      STD(vector)<UInt_t>&     rResolutions,	// junk to throw.
 		      UInt_t              nParams, 
 		      UInt_t              nResolutions);
   static void MappedRequire(DataType_t         dType,
 			    SpectrumType_t     sType,
-			    const std::string& rName,
-			    vector<Float_t>&   rTransform,
-			    vector<UInt_t>&    rChannels,
-			    vector<CParameter>& ParameterList,
+			    const STD(string)& rName,
+			    STD(vector)<Float_t>&   rTransform,
+			    STD(vector)<UInt_t>&    rChannels,
+			    STD(vector)<CParameter>& ParameterList,
 			    UInt_t             nCoords,
 			    UInt_t             nChans);
   static Float_t  DefaultAxisLength(UInt_t nChannels, 

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 //
@@ -291,7 +291,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 //    East Lansing, MI 48824-1321
 //    @(#)xaminegc.cc	1.2 10/23/95 
 //
-
+#include <config.h>
 #include "gc.h"
 #include "xaminegc.h"
 #include "text.h"

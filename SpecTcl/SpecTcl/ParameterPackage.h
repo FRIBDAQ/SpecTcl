@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  Cparameterpackage.h:
 //
@@ -303,7 +303,9 @@ DAMAGES.
 
 #ifndef __STL_LIST
 #include <list>
+#ifndef __STL_LIST
 #define __STL_LIST
+#endif
 #endif
 
 // Forward class references:
@@ -373,10 +375,10 @@ public:
   CTCLString getParameterInfoListString (CParameter& rParameter)  ;
 
   Int_t AddPseudo(CTCLResult& rResult, const char* pPseudoName,
-		  vector<string>& rDependents, const char* pBody);
-  Int_t DescribePseudo(const string& rName, string& rDescription);
-  Int_t DeletePseudo(const string& rName, string& rResult);
-  void  GetPseudoNames(list<string>& rNames);
+		  STD(vector)<STD(string)>& rDependents, const char* pBody);
+  Int_t DescribePseudo(const STD(string)& rName, STD(string)& rDescription);
+  Int_t DeletePseudo(const STD(string)& rName, STD(string)& rResult);
+  void  GetPseudoNames(STD(list)<STD(string)>& rNames);
   
 };
 

@@ -1,7 +1,13 @@
+#include <config.h>
 #include "CModuleCreator.h"    
 #include "CModule.h"
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 /*!
 	Construct a module creator.
 	\param rType (const string& [in]):  Type of module being constructed.
