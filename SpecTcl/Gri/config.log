@@ -1,0 +1,50 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:557: checking for a BSD compatible install
+configure:618: checking for gcc
+configure:731: checking whether the C compiler (gcc  ) works
+configure:747: gcc -o conftest    conftest.c  1>&5
+configure:773: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:778: checking whether we are using GNU C
+configure:806: checking whether gcc accepts -g
+configure:842: checking for c++
+configure:874: checking whether the C++ compiler (c++  ) works
+configure:890: c++ -o conftest    conftest.C  1>&5
+configure:916: checking whether the C++ compiler (c++  ) is a cross-compiler
+configure:921: checking whether we are using GNU C++
+configure:949: checking whether c++ accepts -g
+configure:998: gcc -c -g -O2  conftest.c 1>&5
+configure:1015: gcc -c -g -O2  conftest.c 1>&5
+configure:1032: checking how to run the C++ preprocessor
+configure:1083: checking for old C++ subroutine called string::remove
+configure:1125: checking for gcc compiler
+configure:1156: checking for DEC cxx compiler
+configure:1189: checking for for apple computer
+configure:1225: checking for DEC alpha computer
+configure:1260: checking for BeOS environment
+configure:1296: checking for HPUX environment
+configure:1333: checking for for Sun Microsystems computer
+configure:1368: checking for for IBM AIX computer with IBM compiler
+configure:1404: checking for for mingw32 system
+configure:1439: checking to see whether this machine is big endian or little endian
+configure:1508: checking for unistd.h
+configure:1547: checking for netcdf library
+configure:1617: checking for convert
+configure:1653: checking for ANSI C header files
+configure:1758: checking for pid_t
+configure:1792: checking for POSIX times() subroutine
+configure:1842: checking for isnan
+configure:1842: checking for isinf
+configure:1842: checking for acosh
+configure:1842: checking for getcwd
+configure:1842: checking for getenv
+configure:1842: checking for popen
+configure:1842: checking for drand48
+configure:1842: checking for mkstemp
+configure:1842: checking for tmpnam
+configure:1842: checking for tempname
+configure:1842: checking for gethostname
+configure:1842: checking for access
+configure:1842: checking for lstat
+configure:1842: checking for strerror
