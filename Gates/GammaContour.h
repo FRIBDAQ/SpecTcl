@@ -317,8 +317,8 @@ class CGammaContour : public CContour
  public:
 
   // Default constructor
-  CGammaContour (const vector<CPoint>& rPoints);
-  CGammaContour (const vector<CPoint>& rPoints,
+  CGammaContour (const vector<FPoint>& rPoints);
+  CGammaContour (const vector<FPoint>& rPoints,
 		 const vector<string>& rSpecs);
 
   // Destructor

@@ -300,18 +300,37 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 #include <algorithm>
 #include <iostream.h>
 
+/*
+   Change Log:
+   $Log$
+   Revision 4.4  2003/04/15 19:15:45  ron-fox
+   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
 // Functions for class CGammaBand
+/*!
+   Equality comparison.  Two gamma bands are equal if their underlying
+   bands are equal and their spectrum list are equal:
+ 
+*/
+int
+CGammaBand::operator==(const CGammaBand& rhs) const
+{
+  return (CBand::operator==(rhs)                  &&
+	  (m_vSpecs   == rhs.m_vSpecs));
+}
 
 ////////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//    CGammaBand (const vector<CPoint>& rPoints)
+//    CGammaBand (const vector<FPoint>& rPoints)
 //  Operation Type:
 //    Constructor
 //  Note:
 //    Function CreateLimits() is defined in the base class
 //
-CGammaBand::CGammaBand(const vector<CPoint>& rPoints) :
+CGammaBand::CGammaBand(const vector<FPoint>& rPoints) :
   CBand(0, 0, rPoints)
 {
   vector<string> empty;
@@ -322,31 +341,30 @@ CGammaBand::CGammaBand(const vector<CPoint>& rPoints) :
 ////////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//    CGammaBand (const vector<CPoint>& rPoints,
+//    CGammaBand (const vector<FPoint>& rPoints,
 //                const vector<UInt_t> rIds)
 //  Operation Type:
 //    Constructor
 //
-CGammaBand::CGammaBand(const vector<CPoint>& rPoints,
+CGammaBand::CGammaBand(const vector<FPoint>& rPoints,
 		       const vector<string> rSpecs) :
   CBand(0, 0, rPoints)
 {
   m_vSpecs = rSpecs;
-  //  CreateLimits();
+
 }
 
 ////////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//    CGammaBand (UInt_t nPts, CPoint* pPoints)
+//    CGammaBand (UInt_t nPts, FPoint* pPoints)
 //  Operation Type:
 //    Constructor
 //
-CGammaBand::CGammaBand(UInt_t nPts, CPoint* pPoints) :
+CGammaBand::CGammaBand(UInt_t nPts, FPoint* pPoints) :
   CBand(0, 0, nPts, pPoints)
 {
-  vector<string> empty;
-  m_vSpecs = empty;
+
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -394,15 +412,15 @@ CGammaBand::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
   // We may assume that the parameter has been validated already
   UInt_t xPar = Params[0];
   UInt_t yPar = Params[1];
-  if(xPar >= rEvent.size() || yPar >= rEvent.size())
+  if(xPar >= rEvent.size() || yPar >= rEvent.size()) {
     return kfFALSE;
+  }
+  if(rEvent[xPar].isValid() && rEvent[yPar].isValid()) {
+    Float_t x = rEvent[xPar];
+    Float_t y = rEvent[yPar];
+    return Interior(x,y);
+  }
   else {
-    if(rEvent[xPar].isValid() && rEvent[yPar].isValid()) {
-      UInt_t x = rEvent[xPar];
-      UInt_t y = rEvent[yPar];
-      return Interior(x,y);
-    }
-    else
-      return kfFALSE;
+    return kfFALSE;
   }
 }

@@ -123,3 +123,44 @@ GammaBand.o: GammaBand.cpp
 
 GammaContour.o: GammaContour.cpp
 	$(COMPILE) GammaContour.cpp
+# DO NOT DELETE
+
+ActualIterator.o: ActualIterator.h
+AndGate.o: AndGate.h CompoundGate.h Gate.h ConstituentIterator.h
+AndGate.o: ActualIterator.h GateContainer.h
+Band.o: Band.h PointlistGate.h Gate.h ConstituentIterator.h ActualIterator.h
+C2Bands.o: C2Bands.h Contour.h PointlistGate.h Gate.h ConstituentIterator.h
+C2Bands.o: ActualIterator.h Interior.h InteriorRow.h Band.h
+CompoundGate.o: CompoundGate.h Gate.h ConstituentIterator.h ActualIterator.h
+CompoundGate.o: GateContainer.h GateListIterator.h
+ConstituentIterator.o: ConstituentIterator.h ActualIterator.h
+Contour.o: Contour.h PointlistGate.h Gate.h ConstituentIterator.h
+Contour.o: ActualIterator.h Interior.h InteriorRow.h
+Cut.o: Cut.h Gate.h ConstituentIterator.h ActualIterator.h
+Cut.o: SingleItemIterator.h
+DeletedGate.o: DeletedGate.h FalseGate.h Gate.h ConstituentIterator.h
+DeletedGate.o: ActualIterator.h
+FalseGate.o: FalseGate.h Gate.h ConstituentIterator.h ActualIterator.h
+FalseGate.o: SingleItemIterator.h
+GammaBand.o: GammaBand.h Band.h PointlistGate.h Gate.h ConstituentIterator.h
+GammaBand.o: ActualIterator.h
+GammaContour.o: GammaContour.h Contour.h PointlistGate.h Gate.h
+GammaContour.o: ConstituentIterator.h ActualIterator.h Interior.h
+GammaContour.o: InteriorRow.h
+GammaCut.o: GammaCut.h Cut.h Gate.h ConstituentIterator.h ActualIterator.h
+GammaCut.o: SingleItemIterator.h
+Gate.o: Gate.h ConstituentIterator.h ActualIterator.h
+GateContainer.o: GateContainer.h
+GateListIterator.o: GateListIterator.h
+Interior.o: Interior.h InteriorRow.h
+InteriorRow.o: InteriorRow.h
+Not.o: Not.h GateContainer.h Gate.h ConstituentIterator.h ActualIterator.h
+Not.o: SingleItemIterator.h
+OrGate.o: OrGate.h CompoundGate.h Gate.h ConstituentIterator.h
+OrGate.o: ActualIterator.h GateContainer.h
+PointlistGate.o: PointlistGate.h Gate.h ConstituentIterator.h
+PointlistGate.o: ActualIterator.h PointlistIterator.h
+PointlistIterator.o: PointlistIterator.h
+SingleItemIterator.o: SingleItemIterator.h
+TrueGate.o: TrueGate.h Gate.h ConstituentIterator.h ActualIterator.h
+TrueGate.o: SingleItemIterator.h

@@ -289,6 +289,13 @@ DAMAGES.
 //  Copyright 1999 NSCL, All Rights Reserved.
 //
 /////////////////////////////////////////////////////////////
+/*
+   Change Log:
+   $Log$
+   Revision 4.6  2003/04/15 19:15:46  ron-fox
+   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
 
 #ifndef __BAND_H  //Required for current class
 #define __BAND_H
@@ -310,21 +317,38 @@ DAMAGES.
 #include <vector>
 #define __STL_VECTOR
 #endif
-              
+
+/*!
+  \par
+  Defines a band gate.  A band is a polyline in parameter space.
+  All points \em below the polyline are considered to be in the gate
+  The left most endpoint of the gate is assumed to represent a
+  line extending to negative infinity as  is the right most point.
+  
+  \par 
+  The algorithm used to check the gates is to extend a horizontal
+  line from the point to check to x = negative infinity and to 
+  count the number of boundaries crossed by that line.  An
+  even number indicates outsidedness, an odd number insidedness.
+  This algorithm works with bands that have sawtooths and other
+  pathological shapes... including loops in a consistent and
+  intuitive way.  Note that 0 is even.
+
+ */              
 class CBand  : public CPointListGate        
 {
 private:
-  CPoint   m_LeftLimit;		// Point at left most limit.
-  CPoint   m_RightLimit;	// Point at right most limit.o
+  FPoint   m_LeftLimit;		//!< Point at left most limit.
+  FPoint   m_RightLimit;	//!< Point at right most limit.
 public:
 			//Default constructor
 
   CBand (UInt_t nXid, UInt_t nYid,
-	 const vector<CPoint>& points);
+	 const vector<FPoint>& points);
   CBand (UInt_t nXid, UInt_t nYid,
-	 UInt_t nPts, CPoint* pPoints);
+	 UInt_t nPts, FPoint* pPoints);
   CBand (UInt_t nXid, UInt_t nYid,
-	 UInt_t nPts, UInt_t* pX, UInt_t* pY);
+	 UInt_t nPts, Float_t* pX, Float_t* pY);
   virtual ~CBand ( ) 
   { }
  
@@ -352,9 +376,8 @@ public:
 
 			// Operator== Equality Operator
                         // Gates have no equality operator.
-private:
-  int operator== (const CBand& aCBand);
-public:
+
+  int operator== (const CBand& aCBand) const;
 
 
   //  Operations.
@@ -370,7 +393,7 @@ public:
   //
 protected:
   void GetLRLimits();
-  Bool_t Interior(int x, int y);
+  Bool_t Interior(Float_t x, Float_t y);
 };
 
 #endif

@@ -290,6 +290,15 @@ DAMAGES.
 //
 /////////////////////////////////////////////////////////////////
 
+/*
+  Change Log:
+  $Log$
+  Revision 4.4  2003/04/15 19:15:45  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
+
 #ifndef __GAMMABAND_H  // Required for the current class
 #define __GAMMABAND_H
 
@@ -312,24 +321,24 @@ class CGammaBand : public CBand
 
  public:
 
-  // Default Constructor
-  CGammaBand (const vector<CPoint>& rPoints);
-  CGammaBand (const vector<CPoint>& rPoints, 
+  //! Default Constructor
+  CGammaBand (const vector<FPoint>& rPoints);
+  CGammaBand (const vector<FPoint>& rPoints, 
 	      const vector<string> rSpecs);
 
-  CGammaBand (UInt_t nPts, CPoint* pPoints);
-  CGammaBand (UInt_t nPts, UInt_t* pX, UInt_t* pY);
+  CGammaBand (UInt_t nPts, FPoint* pPoints);
+  CGammaBand (UInt_t nPts, Float_t* pX, Float_t* pY);
 
-  // Destructor
+  //! Destructor
   ~CGammaBand () { }
 
-  // Copy constructor
+  //! Copy constructor
   CGammaBand (const CGammaBand& aCGammaBand) : CBand (aCGammaBand)
     {
       m_vSpecs = aCGammaBand.m_vSpecs;
     }
 
-  // Assignment operator
+  //! Assignment operator
   CGammaBand& operator= (const CGammaBand& aCGammaBand)
     {
       if (this == &aCGammaBand) return *this;
@@ -339,10 +348,8 @@ class CGammaBand : public CBand
       return *this;
     }
 
- private:
-  
-  // Equality operator
-  int operator== (const CGammaBand& aCGammaBand);
+  //! Equality comparison.
+  int operator== (const CGammaBand& aCGammaBand) const;
 
  public:  // Get accessor functions
 

@@ -290,29 +290,45 @@ DAMAGES.
 //
 ///////////////////////////////////////////////////////////////////
 
+/*
+  Change log:
+  $Log$
+  Revision 4.3  2003/04/15 19:15:44  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
 #ifndef __GAMMACUT_H  // Required for current class
 #define __GAMMACUT_H
 
 #ifndef __CUT_H       // Required for base class 
 #include "Cut.h"
 #endif
-
+/*!
+   This class defines a cut or slice on gamma spectra. 
+   Gamma gates are rather
+   weird spectcl entities.  They are defined on a set of parameters 
+   and only have meaning when evaluated on gamma spectra.  When
+   evaluated on a gamma spectrum, a gamma cut is checked against all
+   parameters on that spectrum.  If a parameter makes  the cut,
+   the spectrum is incremented for all other parameters the
+   spectrum is defined on.
+*/
 class CGammaCut : public CCut
 {
-  UInt_t m_nLow;          // Low level of cut (inclusive)
-  UInt_t m_nHigh;         // High level of cut (inclusive)
-  vector<string> m_vSpecs;  // Vector of spectrum names to display gate on
+  Float_t m_nLow;          //!< Low level of cut (inclusive)
+  Float_t m_nHigh;         //!< High level of cut (inclusive)
+  vector<string> m_vSpecs;  //!< Vector of spectrum names to display gate on
 
  public:
   
-  // Default Constructor
-  CGammaCut (UInt_t am_nLow, UInt_t am_nHigh) :
+  //! Constructor
+  CGammaCut (Float_t am_nLow, Float_t am_nHigh) :
     m_nLow (am_nLow),
     m_nHigh (am_nHigh),
     CCut(am_nLow, am_nHigh, 0)
     {
-      vector<string> empty;
-      m_vSpecs = empty;
+      // The default constructor of a vector yields an empty vector.
     }
 
   CGammaCut (UInt_t am_nLow, UInt_t am_nHigh, 
@@ -322,10 +338,10 @@ class CGammaCut : public CCut
     m_vSpecs (am_vSpecs),
     CCut(am_nLow, am_nHigh, 0) { }
 
-  // Destructor
+  //! Destructor
   ~CGammaCut () { }
 
-  // Copy constructor
+  //! Copy constructor
   CGammaCut (const CGammaCut& aCGammaCut) : CCut (aCGammaCut)
     {
       m_vSpecs = aCGammaCut.m_vSpecs;
@@ -333,7 +349,7 @@ class CGammaCut : public CCut
       m_nHigh = aCGammaCut.m_nHigh;
     }
 
-  // Assignment operator
+  //! Assignment operator
   CGammaCut& operator= (const CGammaCut& aCGammaCut)
     {
       if (this == &aCGammaCut) return *this;
@@ -345,19 +361,17 @@ class CGammaCut : public CCut
       return *this;
     }
 
- private:
-  
-  // Equality operator
-  int operator== (const CGammaCut& aCGammaCut);
+  //! Equality operator
+  int operator== (const CGammaCut& aCGammaCut) const;
 
  public:     // Get accessor functions
 
-  UInt_t getLow() const
+  Float_t getLow() const
     {
       return m_nLow;
     }
 
-  UInt_t getHigh() const
+  Float_t getHigh() const
     {
       return m_nHigh;
     }
@@ -369,12 +383,12 @@ class CGammaCut : public CCut
 
  protected:             // Set mutator functions
 
-  void setm_nLow (UInt_t am_nLow)
+  void setLow (Float_t am_nLow)
     {
       m_nLow = am_nLow;
     }
 
-  void setm_nHigh (UInt_t am_nHigh)
+  void setHigh (Float_t am_nHigh)
     {
       m_nHigh = am_nHigh;
     }
@@ -394,3 +408,7 @@ class CGammaCut : public CCut
 };
 
 #endif
+
+
+
+

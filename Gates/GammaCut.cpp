@@ -293,7 +293,34 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 #include "SingleItemIterator.h"
 #include <stdio.h>
 
+/*
+  Change log:
+  $Log$
+  Revision 4.4  2003/04/15 19:15:44  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
 // Functions for class CGammaCut
+
+/*!
+   Equality comparison operator.   Gamma gates compare equal if the
+   base class comparison gives true and all constituents are the same
+   on both sides of the ==.
+   \param <TT>rhs (const CGammaCut& [in])</TT>
+       The gate to which this will be compared.
+   \retval
+   - kfTRUE if the gates are equal.
+   - kfFALSE if the gates are unequal.
+*/
+int
+CGammaCut::operator==(const CGammaCut& rhs) const
+{
+  return (CGate::operator==(rhs)              &&
+	  (m_nLow  == rhs.m_nLow)            &&
+	  (m_nHigh == rhs.m_nHigh)           &&
+	  (m_vSpecs== rhs.m_vSpecs));
+}
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -301,7 +328,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 //    CGate* clone ()
 //  Operation Type:
 //    Construction
-//  Purpose:
+//  Purpose
 //    Returns a pointer to a gate which is a 
 //    copy of the current gate.
 //
@@ -327,7 +354,7 @@ CGammaCut::GetConstituent (CConstituentIterator& rIterator)
   CConstituentIterator e = End();
   if (rIterator != e) {
     char Text[100];
-    sprintf(Text, "%d %d", m_nLow, m_nHigh);
+    sprintf(Text, "%f %f", m_nLow, m_nHigh);
     return std::string(Text);
   }
   else {
@@ -368,7 +395,7 @@ CGammaCut::inGate(CEvent& rEvent, const vector<UInt_t>& Param)
     return kfFALSE;
   else {
     if(rEvent[Par].isValid()) {
-      UInt_t nPoint = rEvent[Par];
+      Float_t nPoint = rEvent[Par];
       return((nPoint >= getLow()) && (nPoint <= getHigh()));
     }
     else 

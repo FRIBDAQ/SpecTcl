@@ -290,6 +290,15 @@ DAMAGES.
 //
 /////////////////////////////////////////////////////////////
 
+/* 
+  Change Log:
+  $Log$
+  Revision 4.3  2003/04/15 19:15:41  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
+
 #ifndef __POINTLISTITERATOR_H  //Required for current class
 #define __POINTLISTITERATOR_H
                                //Required for base classes
@@ -306,15 +315,17 @@ DAMAGES.
 #include <vector>   
 #define __STL_VECTOR
 #endif  
-                          
+/*!
+   Class to support iteration in point lists.
+*/                        
 class CPointListIterator  : public CAConstituentIterator        
 {
-  std::vector<CPoint>::iterator m_iPoints;  // Point array iterator.
+  std::vector<FPoint>::iterator m_iPoints;  // Point array iterator.
   
 public:
 			// Constructors.
 
-  CPointListIterator (std::vector<CPoint>::iterator rStart) : 
+  CPointListIterator (std::vector<FPoint>::iterator rStart) : 
     m_iPoints(rStart)   
   { } 
   virtual  ~ CPointListIterator ( ) { }       //Destructor
@@ -343,7 +354,7 @@ public:
 
 public:
 
-  std::vector<CPoint>::iterator getPointIterator() const
+  std::vector<FPoint>::iterator getPointIterator() const
   {
     return m_iPoints;
   }
@@ -353,7 +364,7 @@ public:
 protected:
                        //Set accessor function for attribute
 
-  void setPointIterator (std::vector<CPoint>::iterator am_iPoints)
+  void setPointIterator (std::vector<FPoint>::iterator am_iPoints)
   { 
     m_iPoints = am_iPoints;
   }

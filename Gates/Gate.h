@@ -343,7 +343,7 @@ public:
 
 			//Operator== Equality Operator
 
-  int operator== (const CGate& aCGate)
+  int operator== (const CGate& aCGate) const
   { 
     return (
 

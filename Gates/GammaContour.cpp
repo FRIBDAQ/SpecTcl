@@ -317,13 +317,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 ////////////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//    CGammaContour(const vector<CPoint>& rPoints)
+//    CGammaContour(const vector<FPoint>& rPoints)
 //  Operation Type:
 //    construction
 //  Note:
 //    GenerateInterior() is part of the base class
 //
-CGammaContour::CGammaContour(const vector<CPoint>& rPoints) :
+CGammaContour::CGammaContour(const vector<FPoint>& rPoints) :
   CContour(0,0, rPoints)
 {
   vector<string> empty;
@@ -334,13 +334,13 @@ CGammaContour::CGammaContour(const vector<CPoint>& rPoints) :
 ////////////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//    CGammaContour(const vector<CPoint>& rPoints)
+//    CGammaContour(const vector<FPoint>& rPoints)
 //  Operation Type:
 //    construction
 //  Note:
 //    GenerateInterior() is part of the base class
 //
-CGammaContour::CGammaContour(const vector<CPoint>& rPoints,
+CGammaContour::CGammaContour(const vector<FPoint>& rPoints,
 			     const vector<string>& rSpecs) :
   CContour(0,0, rPoints)
 {
@@ -389,13 +389,13 @@ CGammaContour::Type() const
 Bool_t
 CGammaContour::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 {
-  // The parameters should have been validated by this point
-  UInt_t nx = Params[0];
-  UInt_t ny = Params[1];
+
+  Float_t nx = Params[0];
+  Float_t ny = Params[1];
   if((nx < rEvent.size()) && (ny < rEvent.size())) {
     if(rEvent[nx].isValid() && rEvent[ny].isValid()) {
-      Int_t x = (Int_t)rEvent[nx] - getLowerLeft().X();
-      Int_t y = (Int_t)rEvent[ny] - getLowerLeft().Y();
+      Float_t x = (Int_t)rEvent[nx] - getLowerLeft().X();
+      Float_t y = (Int_t)rEvent[ny] - getLowerLeft().Y();
       if((x < 0) || (y < 0))
 	return kfFALSE;
       else
