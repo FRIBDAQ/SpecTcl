@@ -364,9 +364,14 @@ CTCLVariable::operator()(char* pName, char* pSubscript, int Flags)
 //
 char* 
 CTCLVariable::TraceRelay(ClientData pObject, Tcl_Interp* pInterpreter, 
+#if (TCL_MAJOR_VERSION > 8) || ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
+			     const char*      pName,   
+			     const char*      pIndex, 
+#else
 			 char* pName, 
 			 char* pIndex, 
-			 int flags) 
+#endif
+			 int flags)
 {
 // This is the actual trace function set by the Trace() method.
 //  We use the ClientData to establish object context and
@@ -395,7 +400,7 @@ CTCLVariable::TraceRelay(ClientData pObject, Tcl_Interp* pInterpreter,
 
   assert(pInterp->getInterpreter() == pInterpreter);
 
-  return pVariable->operator()(pName, pIndex, flags);
+  return pVariable->operator()((char*)pName, (char*)pIndex, flags);
 
 }
 //////////////////////////////////////////////////////////////////////////
