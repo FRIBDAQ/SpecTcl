@@ -93,9 +93,9 @@ class TranslatorPointer
    */
   inline T operator*() const
     {
-      UChar_t Result[sizeof(T)];
-      m_rUnderlyingBuffer.GetBlock(&Result, m_nOffset*sizeof(T), sizeof(T));
-      return (T)(*Result);
+      T Result;
+      m_rUnderlyingBuffer.GetBlock(&Result, sizeof(T), m_nOffset*sizeof(T));
+      return (T)(Result);
     }
 
   /*!
@@ -107,9 +107,9 @@ class TranslatorPointer
    */
   inline T operator[](Int_t nOffset) const
     {
-      UChar_t Result[sizeof(T)];
-      m_rUnderlyingBuffer.GetBlock(&Result, nOffset*sizeof(T), sizeof(T));
-      return (T)(*Result);
+      T Result;
+      m_rUnderlyingBuffer.GetBlock(&Result, sizeof(T), nOffset*sizeof(T));
+      return (T)(Result);
     }
 
   /*!
@@ -254,9 +254,13 @@ class TranslatorPointer
    */
   inline bool operator<(const TranslatorPointer<T>& RHS)
     {  
-      return (m_rUnderlyingBuffer.template Get<T>(m_nOffset) < 
-	      RHS.m_rUnderlyingBuffer.template Get<T>(RHS.m_nOffset));
-    } 
+      UInt_t size = sizeof(T);
+      T Result1;
+      T Result2;
+      m_rUnderlyingBuffer.GetBlock(&Result1, size, m_nOffset*size); 
+      RHS.m_rUnderlyingBuffer.GetBlock(&Result2, size, (RHS.m_nOffset)*size);
+      return ((T)(Result1) < (T)(Result2));
+    }
  
   /*!
     \fn bool operator==(const TranslatorPointer<T>& RHS)
@@ -270,8 +274,12 @@ class TranslatorPointer
    */
   inline bool operator==(const TranslatorPointer<T>& RHS)
     {
-      return (m_rUnderlyingBuffer.template Get<T>(m_nOffset) == 
-	      RHS.m_rUnderlyingBuffer.template Get<T>(RHS.m_nOffset));
+      UInt_t size = sizeof(T);
+      T Result1;
+      T Result2;
+      m_rUnderlyingBuffer.GetBlock(&Result1, size, m_nOffset*size);
+      RHS.m_rUnderlyingBuffer.GetBlock(&Result2, size, (RHS.m_nOffset)*size);
+      return ((T)(Result1) == (T)(Result2));
     }
 
   /*!
