@@ -13,7 +13,7 @@
 LinuxMAKESW=-j 4
 DarwinMAKESW=-j 4
 
-SPECTCL_VERSION="2.0.1"
+SPECTCL_VERSION="2.1"
 
 system:
 	g++ --version
@@ -117,7 +117,6 @@ clean:
 
 depend:
 	(cd Display;   make depend)
-	(cd Gri;       make depend)
 	(cd Xamine;    make depend)
 	(cd Exception; make depend)
 	(cd Events;    make depend)
