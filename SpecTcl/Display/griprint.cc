@@ -62,7 +62,10 @@ extern "C" {
 /*
 ** Externally referenced global:
 */
+#ifdef __NEED_OWN_ERRNO
 extern int errno;
+#endif
+
 extern volatile spec_shared *xamine_shared;
 extern win_db *database;
 

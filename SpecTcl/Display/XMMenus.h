@@ -18,7 +18,7 @@
 #include "XMWidget.h"
 #include "XMPushbutton.h"
 #include <Xm/RowColumn.h>
-
+#include <stdlib.h>
 /*
 **  This is a pulldown menu... it contains a puldown menu widget
 **  (The inherited widget), a cascade button which activates the pulldown,

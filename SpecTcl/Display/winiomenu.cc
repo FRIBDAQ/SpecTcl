@@ -24,11 +24,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
+
+#ifdef VMS
 inline int remove(const char *path) { /* VMS compatibility.  */
   return unlink(path); 
 }
-#endif
-#ifdef VMS
+
 #include <types.h>
 #include <stat.h>
 #include <unixio.h>

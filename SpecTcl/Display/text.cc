@@ -20,6 +20,7 @@
 */
 #include <stdio.h>
 #include <string.h>
+#iclude <stdlib.h>
 
     /* X include files */
 

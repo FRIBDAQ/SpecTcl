@@ -15,6 +15,10 @@
 */
 /*
  $Log$
+ Revision 4.10  2002/11/05 18:40:27  ron-fox
+ Fix issues with library updates and prototypes, so that this compiles
+ on g++ 2.96.
+
  Revision 4.9  2002/08/15 18:23:17  ron-fox
  griprint.cc - Remove extra temp.ps on print command since it's
                put in to replace %s. Also simplify logic to put filename in
@@ -78,7 +82,10 @@ extern "C" {
 /*
 ** Externally referenced global:
 */
+#ifdef __NEED_OWN_ERRNO
 extern int errno;
+#endif
+
 extern volatile spec_shared *xamine_shared;
 extern win_db *database;
 
