@@ -468,20 +468,22 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
     
     /* If there are more spectra then do them too: */
  
-    if(supers.Last()) break;	/* Break out of loop after last one... */
+    int last = supers.Last();
+    if(last) break;	/* Break out of loop after last one... */
     Superposition &s = supers.Next(); /* Get next superposition */
-    while(!supers.Last()) {
+    while(!last) {
       spno = s.Spectrum();
       if((xamine_shared->gettype(spno) == undefined) || !(
 	 (xamine_shared->gettype(spno) == onedword)  ||
 	 (xamine_shared->gettype(spno) == onedlong) ) )  {
 	supers.DeleteCurrent();      // The superposed spectrum vanished.
+	last = supers.Last();
       }
       else {
 	break;
       }
     }
-    if(supers.Last()) break;
+    if(last) break;
     gc = Xamine_MakeDrawingGc(d, pane, s.Representation());
 
   }
