@@ -352,7 +352,7 @@ CAddFirst2::operator()(const Address_t pEvent,
 		       CAnalyzer&      rAnalyzer,
 		       CBufferDecoder& rDecoder)
 {
-  rEvent[0] = rEvent[1] + rEvent[2];
+  rEvent[0] = (rEvent[1] + rEvent[2])/2.0;
   return kfTRUE;
 }
 
