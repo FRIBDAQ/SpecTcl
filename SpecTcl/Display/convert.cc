@@ -487,21 +487,8 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
 
   /* Get channel values: */
 
-  if((att->isflipped() && att->isexpanded() && att->isexpandedfirst()) ||
-     (!att->isflipped() && att->isexpanded() && !att->isexpandedfirst())) {
-    loc->ypos = LinearPosition(ypix, xl, xh, ny);
-    loc->xpos = LinearPosition(xpix, yl, yh, nx);
-    int temp = xl;
-    xl = yl;
-    yl = temp;
-    temp = xh;
-    xh = yh;
-    yh = temp;
-  }
-  else {
-    loc->xpos = LinearPosition(xpix, xl, xh, nx);
-    loc->ypos = LinearPosition(ypix, yl, yh, ny);
-  }
+  loc->xpos = LinearPosition(xpix, xl, xh, nx);
+  loc->ypos = LinearPosition(ypix, yl, yh, ny);
   if( ((loc->xpos >= xl) && (loc->ypos >= yl) &&
       (loc->xpos <= xh) && (loc->ypos <= yh))) {
     if(attributes->isflipped()) {

@@ -15,13 +15,6 @@
 */
 /*
  $Log$
- Revision 4.9  2002/08/15 18:23:17  ron-fox
- griprint.cc - Remove extra temp.ps on print command since it's
-               put in to replace %s. Also simplify logic to put filename in
-               print command.
- print.cc    - Put %s in unix print command, change Cygwin print command to use
-               /'s not \'s.
-
  Revision 4.8  2002/08/14 20:22:25  venema
  Added support for Cygwin to print using its own print syntax.
 
@@ -94,12 +87,16 @@ extern grobj_database Xamine_DefaultGateDatabase;
 
 #ifdef unix
 #define DEFAULT_TEMPFILE "./Xamine_tempprint.out"
-#define DEFAULT_PRINTCMD "lpr -Pu1_color_print %s";
+#define DEFAULT_PRINTCMD "lpr -Pu1_color_print";
 #endif
 
+#ifdef VMS
+#define DEFAULT_TEMPFILE "SYS$SCRATCH:XAMINE_TEMPPRINT.OUT"
+#define DEFAULT_PRINTCMD "PRINT/DELETE/QUEUE=EXP_HP %f"
+#endif
 
 #ifdef CYGWIN
-#define DEFAULT_PRINTCMD "cp %s //win-cluster/west_print1";
+#define DEFAULT_PRINTCMD "cp %s \\win-cluster\west_print1";
 #endif
 
 

@@ -375,20 +375,19 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     win_2d* pAttrib = (win_2d*)pAttributes;   // the spectrum attributes
     
     // Get the x- and y-axis high and low limits, and the fullscale value...
-    int isFlipped  = pAttrib->isflipped();
     int nXLowLimit  = 0;
-    int nXHighLimit = (isFlipped ? ydim : xdim);
+    int nXHighLimit = xdim;
     int nYLowLimit  = 0;
-    int nYHighLimit = (isFlipped ? xdim : ydim);
+    int nYHighLimit = ydim;
     nFullScale = pAttrib->getfsval();
     float red_max, green_max, blue_max;  // the color to draw sing. chan. peaks
 
     // If spectrum is expanded, we need to adjust the high and low limits
     if(pAttrib->isexpanded()) {
-      nXLowLimit  = (isFlipped ? pAttrib->ylowlim() : pAttrib->xlowlim());
-      nXHighLimit = (isFlipped ? pAttrib->yhilim()  : pAttrib->xhilim());
-      nYLowLimit  = (isFlipped ? pAttrib->xlowlim() : pAttrib->ylowlim());
-      nYHighLimit = (isFlipped ? pAttrib->xhilim()  : pAttrib->yhilim());
+      nXLowLimit  = pAttrib->xlowlim();
+      nXHighLimit = pAttrib->xhilim();
+      nYLowLimit  = pAttrib->ylowlim();
+      nYHighLimit = pAttrib->yhilim();
     }
 
     // Get the pixel limits so we can get the tick mark intervals...
@@ -404,6 +403,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     int nMaxCounts = 0;
     int nXMaxChan  = 0,
       nYMaxChan    = 0;
+    int isFlipped  = pAttrib->isflipped();
 
     // If the spectrum is not expanded, then its low limit is zero and we
     // must therefore subtract one from the high limits to avoid reading
@@ -1440,7 +1440,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // interpret it for us.
     char GriCmd[200];
     char printcmd[1000];
-    char buf1[200];
     char buf[200];        // temporary buffer for concatenating to GriCmd
     strcpy(printcmd, Xamine_GetPrintCommand());
     char instdir[75];
@@ -1455,9 +1454,13 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     case toprinter: {
       sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps temp; ", 
 	      bindir, etcdir);
-      sprintf(buf1, printcmd, "temp.ps");
-      string s(buf1);
-      sprintf(buf, "%s; rm -f temp.ps; rm -f temp.gri", s.c_str());
+      string s(printcmd);
+      int pos = s.find("%s", 0);
+      while(pos != -1) {
+	s.replace(pos, 2, "temp.ps");
+	pos = s.find("%s", 0);
+      }
+      sprintf(buf, "%s temp.ps; rm -f temp.ps; rm -f temp.gri", s.c_str());
       strcat(GriCmd, buf);
       break;
     }
