@@ -294,6 +294,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 
 
 #include "TCLRunFileHandler.h"                               
+#include "TCLInterpreter.h"
 #include "TKRunControl.h"
 #include <tcl.h>
 #include <tk.h>
@@ -324,6 +325,14 @@ CTCLRunFileHandler::operator()()
 //       TK_WRITABLE    - fd is writeable.
 //       TK_EXCEPTION  - Some exceptional condition occured on the fd.
 //
+
+  // Drain the Tcl events:
+
+  Tcl_Interp* pInterp = m_pInterp->getInterpreter();
+  while(Tcl_DoOneEvent(TCL_DONT_WAIT))
+    ;
+
+  // Process data from the file.
 
   const CFile* pSource = m_pRun->getEventSource();
   if(pSource->IsReadable(knWaitTime)) {
