@@ -28,6 +28,18 @@ system:
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Display;  \
 	make  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	if [ -e /opt/intelfortran/bin/ifc -a `uname` = "Linux" ]; \
+	then \
+	  echo Building aedxamine with intel fortran compiler.; \
+	  . /opt/intelfortran/bin/ifcvars.sh; \
+	  PATH=$$PATH:/opt/intelfortran/bin; \
+	  LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/opt/intelfortran/lib; \
+	  export PATH LD_LIBRARY_PATH; \
+	  echo Starting make with: "PATH           =" $PATH ;\
+	  echo "                   LD_LIBRARY_PATH =" $LD_LIBRARY_PATH ;\
+	  make aedxamine.o OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)"; \
+	  ar r libXamine.a aedxamine.o; \
+	fi; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Gri;   \
 	./configure; make)

@@ -35,3 +35,14 @@ export DarwinMOTIFINCLUDES="-I/usr/X11R6/include"
 export CYGWINMOTIFINCLUDES="-I/usr/X11R6/include"
 
 
+#  Fortran compiler for Xamine Fortran Bindings:
+#  This is supported for now on:
+#   Linux: Intel fortran compiler which universities
+#          can get for free from intel.
+#   Tru64: Digital Fortran which in general needs to be
+#          bought Makefile will check the existence of these
+#          and on the basis of that decide whether or not
+#          to build the fortran bindings.
+
+export LinuxF77="ifc -w90 -w95"
+export OSFF77="f77 -check bounds"

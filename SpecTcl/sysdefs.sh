@@ -33,3 +33,16 @@ setenv OSF1MOTIFINCLUDES "-I/usr/X11/include"
 setenv HPUXMOTIFINCLUDES "-I/usr/X11/include"
 setenv DarwinMOTIFINCLUDES "-I/usr/X11R6/include"
 setenv CYGWINMOTIFINCLUDES "-I/usr/X11/include"
+
+
+#  Fortran compiler for Xamine Fortran Bindings:
+#  This is supported for now on:
+#   Linux: Intel fortran compiler which universities
+#          can get for free from intel.
+#   Tru64: Digital Fortran which in general needs to be
+#          bought Makefile will check the existence of these
+#          and on the basis of that decide whether or not
+#          to build the fortran bindings.
+
+setenv LinuxF77 "ifc -w90 -w95"
+setenv OSFF77   "f77 -check bounds"
