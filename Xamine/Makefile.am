@@ -1,4 +1,4 @@
-INCLUDES = -I. -I../Utility -I../Display -I../Exception
+INCLUDES = -g -I. -I../Utility -I../Display -I../NSCLException
 LDADD = -lXplus	-lException -lXamine
 LDFLAGS = -L.
 
