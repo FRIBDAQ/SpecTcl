@@ -14,17 +14,12 @@
 **    East Lansing, MI 48824-1321
 */
 
-#ifdef unix
-#pragma implementation "XMShell.h"
-#endif
-
 /*
 ** Include files:
 */
 #include "XMShell.h"
 
 
-
 /*
 ** Functional Description:
 **    Shell::Shell

@@ -11,18 +11,12 @@
 **    East Lansing, MI 48824-1321
 */
 
-#ifdef unix
-#pragma implementation "XMWlist.h"
-#endif
-
-
 /*
 ** Include files required:
 */
 #include <stdio.h>
 #include "XMWlist.h"
 
-
 /*
 ** Method description:
 **    XMWidgetList::SetAttribute

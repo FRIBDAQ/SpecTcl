@@ -24,13 +24,15 @@
 **   char *msg:
 **    The text message to display in the error dialog.
 */
-void Xamine_error_msg(XMWidget *parent, char *msg)
+
+void
+Xamine_error_msg (XMWidget *parent, char *msg)
 {
   /* 
    * This object deletes itself when dismissed by the user, so no need
    * to hold a pointer to it.
    */
-  new XMErrorDialog("Xamine_Error_Message", 
-		    *parent, msg,
-		    XMDestroyWidget);
+  new XMErrorDialog ("Xamine_Error_Message", 
+		     *parent, msg,
+		     XMDestroyWidget);
 }

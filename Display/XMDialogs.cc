@@ -13,9 +13,6 @@
 ** Version:
 **   @(#)XMDialogs.cc	8.2 9/10/96 
 */
-#ifdef unix
-#pragma implementation "XMDialogs.h"
-#endif
 
 /*
 ** Include files:

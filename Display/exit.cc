@@ -26,6 +26,7 @@
 #include "exit.h"
 #include "winiomenu.h"
 #include <string>
+
 /*
 ** External definitions:
 */
