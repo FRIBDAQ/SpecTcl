@@ -70,7 +70,7 @@ static const char* Copyright =
 
 // Static functions
 
-#ifdef Linux			// Need to implement strtok_r
+#ifdef __NEED_STRTOKR		// Need to implement strtok_r
 // This is posix.1C so it seems the best of the bunch of strtok-ish ones
 // to standardize on.
 //
