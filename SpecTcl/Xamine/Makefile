@@ -122,50 +122,43 @@ XamineSpectrumPrompt.o: XamineSpectrumPrompt.cpp
 # DO NOT DELETE
 
 DisplayGate.o: DisplayGate.h Point.h /usr/include/string.h
-DisplayGate.o: /usr/include/features.h /usr/include/sys/cdefs.h
-DisplayGate.o: /usr/include/gnu/stubs.h
-DisplayGate.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+DisplayGate.o: /usr/include/_ansi.h /usr/include/sys/config.h
+DisplayGate.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
 DisplayGate.o: /usr/include/assert.h
 Xamine1D.o: Xamine1D.h XamineSpectrum.h
 Xamine2D.o: Xamine2D.h XamineSpectrum.h /usr/include/assert.h
-Xamine2D.o: /usr/include/features.h /usr/include/sys/cdefs.h
-Xamine2D.o: /usr/include/gnu/stubs.h
+Xamine2D.o: /usr/include/_ansi.h /usr/include/sys/config.h
 XamineButton.o: XamineButton.h XamineButtonPrompt.h XaminePushButton.h
 XamineButton.o: XamineToggleButton.h /usr/include/string.h
-XamineButton.o: /usr/include/features.h /usr/include/sys/cdefs.h
-XamineButton.o: /usr/include/gnu/stubs.h
-XamineButton.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+XamineButton.o: /usr/include/_ansi.h /usr/include/sys/config.h
+XamineButton.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
 XamineButtonException.o: XamineButtonException.h XamineButton.h
 XamineButtonException.o: XaminePushButton.h XamineToggleButton.h
-XamineButtonException.o: /usr/include/assert.h /usr/include/features.h
-XamineButtonException.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+XamineButtonException.o: /usr/include/assert.h /usr/include/_ansi.h
+XamineButtonException.o: /usr/include/sys/config.h
 XamineButtonPrompt.o: XamineButtonPrompt.h
 XamineConfirmPrompt.o: XamineConfirmPrompt.h XamineButtonPrompt.h
-XamineConfirmPrompt.o: /usr/include/string.h /usr/include/features.h
-XamineConfirmPrompt.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-XamineConfirmPrompt.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-XamineConfirmPrompt.o: /usr/include/assert.h
+XamineConfirmPrompt.o: /usr/include/string.h /usr/include/_ansi.h
+XamineConfirmPrompt.o: /usr/include/sys/config.h /usr/include/sys/reent.h
+XamineConfirmPrompt.o: /usr/include/sys/_types.h /usr/include/assert.h
 XamineEvent.o: XamineEvent.h DisplayGate.h Point.h ButtonEvent.h
 XamineFilePrompt.o: XamineFilePrompt.h XamineButtonPrompt.h
 XamineGateException.o: XamineGateException.h DisplayGate.h Point.h
-XamineGateException.o: /usr/include/assert.h /usr/include/features.h
-XamineGateException.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+XamineGateException.o: /usr/include/assert.h /usr/include/_ansi.h
+XamineGateException.o: /usr/include/sys/config.h
 XamineGates.o: XamineGates.h DisplayGate.h Point.h /usr/include/assert.h
-XamineGates.o: /usr/include/features.h /usr/include/sys/cdefs.h
-XamineGates.o: /usr/include/gnu/stubs.h
+XamineGates.o: /usr/include/_ansi.h /usr/include/sys/config.h
 XamineNoPrompt.o: XamineNoPrompt.h XamineButtonPrompt.h
 XaminePointsPrompt.o: XaminePointsPrompt.h XamineButtonPrompt.h
 XaminePushButton.o: XaminePushButton.h
-XamineSpectrum.o: XamineSpectrum.h /usr/include/string.h
-XamineSpectrum.o: /usr/include/features.h /usr/include/sys/cdefs.h
-XamineSpectrum.o: /usr/include/gnu/stubs.h
-XamineSpectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-XamineSpectrum.o: /usr/include/assert.h
+XamineSpectrum.o: XamineSpectrum.h /usr/include/string.h /usr/include/_ansi.h
+XamineSpectrum.o: /usr/include/sys/config.h /usr/include/sys/reent.h
+XamineSpectrum.o: /usr/include/sys/_types.h /usr/include/assert.h
 XamineSpectrumIterator.o: XamineSpectrumIterator.h XamineSpectrum.h
 XamineSpectrumIterator.o: Xamine1D.h Xamine2D.h
 XamineSpectrumPrompt.o: XamineSpectrumPrompt.h XamineButtonPrompt.h
-XamineSpectrumPrompt.o: /usr/include/assert.h /usr/include/features.h
-XamineSpectrumPrompt.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+XamineSpectrumPrompt.o: /usr/include/assert.h /usr/include/_ansi.h
+XamineSpectrumPrompt.o: /usr/include/sys/config.h
 XamineTextPrompt.o: XamineTextPrompt.h XamineButtonPrompt.h
 XamineToggleButton.o: XamineToggleButton.h
 Xamineplus.o: Xamineplus.h XamineSpectrumIterator.h XamineGates.h
@@ -174,17 +167,14 @@ Xamineplus.o: XamineButtonException.h XamineButton.h XamineEvent.h
 Xamineplus.o: XamineSpectrum.h Xamine1D.h Xamine2D.h XamineNoPrompt.h
 Xamineplus.o: XamineButtonPrompt.h XamineConfirmPrompt.h XamineFilePrompt.h
 Xamineplus.o: XaminePointsPrompt.h XamineTextPrompt.h XamineSpectrumPrompt.h
-Xamineplus.o: /usr/include/errno.h /usr/include/features.h
-Xamineplus.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
-Xamineplus.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
-Xamineplus.o: /usr/include/asm/errno.h /usr/include/assert.h
+Xamineplus.o: /usr/include/errno.h /usr/include/sys/errno.h
+Xamineplus.o: /usr/include/sys/reent.h /usr/include/_ansi.h
+Xamineplus.o: /usr/include/sys/config.h /usr/include/sys/_types.h
+Xamineplus.o: /usr/include/assert.h
 Xaminetest.o: Xamineplus.h XamineSpectrumIterator.h XamineSpectrumPrompt.h
 Xaminetest.o: XamineButtonPrompt.h XaminePushButton.h XamineNoPrompt.h
 Xaminetest.o: XamineEvent.h XamineGates.h DisplayGate.h Point.h ButtonEvent.h
 Xaminetest.o: Xamine1D.h XamineSpectrum.h Xamine2D.h /usr/include/sys/wait.h
-Xaminetest.o: /usr/include/features.h /usr/include/sys/cdefs.h
-Xaminetest.o: /usr/include/gnu/stubs.h /usr/include/bits/types.h
-Xaminetest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-Xaminetest.o: /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h
-Xaminetest.o: /usr/include/endian.h /usr/include/bits/endian.h
-Xaminetest.o: /usr/include/bits/siginfo.h
+Xaminetest.o: /usr/include/sys/types.h /usr/include/machine/types.h
+Xaminetest.o: /usr/include/sys/resource.h /usr/include/sys/time.h
+Xaminetest.o: /usr/include/_ansi.h /usr/include/sys/config.h
