@@ -63,6 +63,13 @@ class TranslatorPointer
   bool operator==( const TranslatorPointer<T>& RHS );
   bool operator>( const TranslatorPointer<T>& RHS );
   bool operator!=( const TranslatorPointer<T>& RHS );
+
+  // Informational functions:
+
+   UInt_t getOffset() const
+    {
+      return m_nOffset;
+    }
 };
 
 /*-----------------------------------------------------------------------------

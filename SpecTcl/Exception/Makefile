@@ -65,3 +65,22 @@ StreamIOError.o: StreamIOError.cpp
 
 
 # DO NOT DELETE
+
+ErrnoException.o: ErrnoException.h Exception.h /usr/include/errno.h
+ErrnoException.o: /usr/include/standards.h
+Exception.o: Exception.h /usr/include/string.h /usr/include/standards.h
+Exception.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+Exception.o: /usr/include/sys/select.h /usr/include/strings.h
+RangeError.o: RangeError.h Exception.h /usr/include/stdio.h
+RangeError.o: /usr/include/standards.h /usr/include/sys/seek.h
+RangeError.o: /usr/include/va_list.h /usr/include/sys/types.h
+RangeError.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
+RangeError.o: /usr/include/getopt.h /usr/include/sys/limits.h
+RangeError.o: /usr/include/sys/machine/machlimits.h
+RangeError.o: /usr/include/sys/syslimits.h
+RangeError.o: /usr/include/sys/machine/machtime.h
+RangeError.o: /usr/include/sys/rt_limits.h
+StreamIOError.o: StreamIOError.h Exception.h /usr/include/string.h
+StreamIOError.o: /usr/include/standards.h /usr/include/sys/types.h
+StreamIOError.o: /usr/include/mach/machine/vm_types.h
+StreamIOError.o: /usr/include/sys/select.h /usr/include/strings.h
