@@ -311,9 +311,11 @@ DAMAGES.
 #define PAGESIZE NBPG
 #endif
 
+
 #ifndef HAVE_DECL_PADSIZE
-#define PADSIZE  512
+#define PADSIZE 512
 #endif
+
 
 #ifndef HAVE_DECL_PAGESIZE
 #ifndef PAGESIZE

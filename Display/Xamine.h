@@ -293,8 +293,10 @@ DAMAGES.
 #ifndef XAMINE_CLIENT_H
 #define XAMINE_CLIENT_H
 
-#ifdef HAVE_CONFIG_H
+
+#ifndef __CONFIG_H
 #include <config.h>
+#define __CONFIG_H
 #endif
 
 /* Define a megabyte if someone else hasn't done it */
@@ -306,6 +308,11 @@ DAMAGES.
 #include <sys/types.h>
 #ifndef HAVE_DECL_PADSIZE
 #define PADSIZE 512
+#endif
+
+#ifdef HAVE_MACHINE_PARAM_H
+#include <machine/param.h>
+#define PAGESIZE NBPG
 #endif
 
 #ifndef PAGESIZE
@@ -325,6 +332,7 @@ DAMAGES.
 #define XAMINE_LONGS     (XAMINE_SPECBYTES)/sizeof(long)
 
 #ifndef _DISPSHARE_H_INSTALLED_
+#pragma pack(1)
 typedef union {
                 unsigned char  XAMINE_b[XAMINE_SPECBYTES];
 		unsigned short XAMINE_w[XAMINE_WORDS];
@@ -365,8 +373,10 @@ typedef struct _Xamine_shared {
   spec_type       dsp_types[XAMINE_MAXSPEC];
   spec_map        dsp_map[XAMINE_MAXSPEC];
   spec_spectra    dsp_spectra;
-  char            page_pad[PADSIZE];
+  char            page_pad[PAGESIZE];
 } Xamine_shared;
+
+#pragma pack(0)
 
 #if defined(__cplusplus) || defined(c_plusplus)
 extern "C" {
