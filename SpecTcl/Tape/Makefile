@@ -1,5 +1,6 @@
+SPECTCL_VERSION=-DVERSION=$(VERSION)
 DESTDIR=$(INSTDIR)
-CC = $($(OS)CC) -D__STDC__ -O -c   $(PROFILE) -Dunix -D$(OS)
+CC = $($(OS)CC) -D__STDC__ -O -c   $(PROFILE) -Dunix -D$(OS) $(SPECTCL_VERSION)
 F77 = echo "Need vms-like compiler"  f77 -w -O -L. -o
 
 

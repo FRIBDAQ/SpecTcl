@@ -10,6 +10,7 @@
 #
 #
 
+SPECTCL_VERSION = -DVERSION=$(VERSION)
 INCLUDEDIRS=-I$(INSTDIR)/Include -I.
 OBJECTS = DisplayGate.o Xamine1D.o Xamine2D.o XamineButton.o \
 	XamineButtonException.o XamineButtonPrompt.o XamineConfirmPrompt.o \
@@ -23,8 +24,8 @@ LIBS=-lXplus -lXamine
 
 
 ECHO=echo
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS)
-LINK=$($(OS)CPP) $(NOPROFILE) $(INCLUDEDIRS) $(LIBDIRS)
+COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) $(SPECTCL_VERSION)
+LINK=$($(OS)CPP) $(NOPROFILE) $(INCLUDEDIRS) $(LIBDIRS) $(SPECTCL_VERSION)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=install -m 0664 

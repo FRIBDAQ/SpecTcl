@@ -3,6 +3,8 @@
 #
 
 
+SPECTCL_VERSION = -DVERSION=$(VERSION)
+
 LinuxLIBS=-ldl
 CYGWININCS=-I/usr/local/tcl/include
 CYGWINLIBDIR=-L/usr/local/tcl/lib
@@ -16,8 +18,8 @@ LIBS=   -lTclGrammerCommands \
 	-ltk -ltcl -lXt -lX11 -lm $($(OS)LIBS)
 
 ECHO=echo
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) -DINSTALLED_IN='"$(INSTDIR)"'
-LINK=$($(OS)LD) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS)
+COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) -DINSTALLED_IN='"$(INSTDIR)"' $(SPECTCL_VERSION)
+LINK=$($(OS)LD) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS) $(SPECTCL_VERSION)
 RM=rm -f
 DEPEND=makedepend
 INSTALL=install -m 0664

@@ -7,6 +7,7 @@
 #   DESTDIR="someotherdir"
 #
 DESTDIR = $(INSTDIR)
+SPECTCL_VERSION = -DVERSION=$(VERSION)
 HOMEDEF = -DHOME='"$(DESTDIR)"'
 CYGWINLIB=-L/usr/local/LessTif/Motif2.0/lib -lSM -lICE -lfl
 LinuxLIB = -lfl
@@ -18,8 +19,8 @@ HPUXLIB  = -lfl
 #
 
 
-CCFLAGS= -c -w -I. -DXTFUNCPROTO $($(OS)MOTIFINCLUDES) $(HOMEDEF) -D$(OS)
-XCCFLAGS=-c -w -I. -DXTFUNCPROTO -DXAMINE $($(OS)MOTIFINCLUDES) $(HOMEDEF) -D$(OS)
+CCFLAGS= -c -w -I. -DXTFUNCPROTO $($(OS)MOTIFINCLUDES) $(HOMEDEF) -D$(OS) $(SPECTCL_VERSION)
+XCCFLAGS=-c -w -I. -DXTFUNCPROTO -DXAMINE $($(OS)MOTIFINCLUDES) $(HOMEDEF) -D$(OS) $(SPECTCL_VERSION)
 CC      = $($(OS)CC)
 CPP     = $($(OS)CPP)
 LD     =  $($(OS)LD) -L/usr/lesstif/lib/Xm-2.0/.libs
