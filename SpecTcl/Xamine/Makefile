@@ -120,3 +120,40 @@ Xamineplus.o: Xamineplus.cpp
 
 XamineSpectrumPrompt.o: XamineSpectrumPrompt.cpp
 	$(COMPILE) XamineSpectrumPrompt.cpp
+# DO NOT DELETE
+
+DisplayGate.o: DisplayGate.h Point.h
+Xamine1D.o: Xamine1D.h XamineSpectrum.h XamineMap1D.h Xamine2D.h
+Xamine1D.o: XamineMap2D.h
+Xamine2D.o: Xamine2D.h XamineMap2D.h
+XamineButton.o: XamineButton.h XamineButtonPrompt.h XaminePushButton.h
+XamineButton.o: XamineToggleButton.h
+XamineButtonException.o: XamineButtonException.h XamineButton.h
+XamineButtonException.o: XaminePushButton.h XamineToggleButton.h
+XamineButtonPrompt.o: XamineButtonPrompt.h
+XamineConfirmPrompt.o: XamineConfirmPrompt.h XamineButtonPrompt.h
+XamineEvent.o: XamineEvent.h DisplayGate.h Point.h ButtonEvent.h
+XamineFilePrompt.o: XamineFilePrompt.h XamineButtonPrompt.h
+XamineGateException.o: XamineGateException.h DisplayGate.h Point.h
+XamineGates.o: XamineGates.h DisplayGate.h Point.h
+XamineNoPrompt.o: XamineNoPrompt.h XamineButtonPrompt.h
+XaminePointsPrompt.o: XaminePointsPrompt.h XamineButtonPrompt.h
+XaminePushButton.o: XaminePushButton.h
+XamineSpectrum.o: XamineSpectrum.h
+XamineSpectrumIterator.o: XamineSpectrumIterator.h XamineSpectrum.h
+XamineSpectrumIterator.o: Xamine1D.h XamineMap1D.h Xamine2D.h XamineMap2D.h
+XamineSpectrumPrompt.o: XamineSpectrumPrompt.h XamineButtonPrompt.h
+XamineTextPrompt.o: XamineTextPrompt.h XamineButtonPrompt.h
+XamineToggleButton.o: XamineToggleButton.h
+Xamineplus.o: Xamineplus.h XamineSpectrumIterator.h XamineGates.h
+Xamineplus.o: DisplayGate.h Point.h XamineGateException.h
+Xamineplus.o: XamineButtonException.h XamineButton.h XamineEvent.h
+Xamineplus.o: XamineSpectrum.h Xamine1D.h XamineMap1D.h Xamine2D.h
+Xamineplus.o: XamineMap2D.h XamineNoPrompt.h XamineButtonPrompt.h
+Xamineplus.o: XamineConfirmPrompt.h XamineFilePrompt.h XaminePointsPrompt.h
+Xamineplus.o: XamineTextPrompt.h XamineSpectrumPrompt.h
+Xaminetest.o: Xamineplus.h XamineSpectrumIterator.h XamineSpectrumPrompt.h
+Xaminetest.o: XamineButtonPrompt.h XaminePushButton.h XamineNoPrompt.h
+Xaminetest.o: XamineEvent.h XamineGates.h DisplayGate.h Point.h ButtonEvent.h
+Xaminetest.o: Xamine1D.h XamineSpectrum.h XamineMap1D.h Xamine2D.h
+Xaminetest.o: XamineMap2D.h

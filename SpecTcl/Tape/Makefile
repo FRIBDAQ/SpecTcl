@@ -48,3 +48,10 @@ tpvolwrite: tpvolwrite.f libtape.a mtaccess.f MTACCESS.FOR
 	echo "Fortran not installed"
 
 
+# DO NOT DELETE
+
+mtblock.o: mtinternl.h mtshare.h
+mtforbind.o: mtaccess.h mtinternl.h mtshare.h
+mtmessage.o: mtshare.h rmf_msg.h
+vmsstring.o: vmsstring.h
+volume.o: mtaccess.h mtinternl.h mtshare.h

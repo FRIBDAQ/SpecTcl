@@ -68,3 +68,11 @@ TestFile.o: TestFile.cpp
 PipeFile.o: PipeFile.cpp
 	$(COMPILE) PipeFile.cpp
 
+# DO NOT DELETE
+
+File.o: File.h
+GaussianDistribution.o: GaussianDistribution.h Distribution.h
+PipeFile.o: PipeFile.h File.h
+TapeException.o: TapeException.h
+TapeFile.o: TapeFile.h File.h TapeException.h
+TestFile.o: TestFile.h File.h Distribution.h

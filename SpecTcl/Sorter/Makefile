@@ -22,6 +22,9 @@
 #                    Gamma2DB.o         - 2 d gamma byte spectra
 #                    Gamma2DW.o         - 2 d gamma word spectra
 # $Log$
+# Revision 4.26  2003/06/19 19:03:09  ron-fox
+# Usual inconsequential changes as a result of make depend.
+#
 # Revision 4.25  2003/04/01 19:53:43  ron-fox
 # Support for Real valued parameters and spectra with arbitrary binnings.
 #
@@ -167,3 +170,52 @@ GateMediator.o: GateMediator.cpp
 
 #MGamma2DW.o: MGamma2DW.cpp
 #	$(COMPILE) MGamma2DW.cpp
+# DO NOT DELETE
+
+AnalysisTest.o: Histogrammer.h Dictionary.h Parameter.h Spectrum.h CAxis.h
+AnalysisTest.o: CParameterMapping.h Spectrum1DL.h Spectrum2DW.h Spectrum2DB.h
+AnalysisTest.o: Spectrum1DW.h Gamma1DW.h Gamma1DL.h Gamma2DW.h Gamma2DB.h
+BitSpectrumL.o: BitSpectrumL.h Spectrum.h CAxis.h CParameterMapping.h
+BitSpectrumL.o: Parameter.h
+BitSpectrumW.o: BitSpectrumW.h Spectrum.h CAxis.h CParameterMapping.h
+BitSpectrumW.o: Parameter.h
+CAxis.o: CAxis.h CParameterMapping.h
+CAxisTests.o: CAxisTests.h CAxis.h CParameterMapping.h
+CParameterMapping.o: CParameterMapping.h Parameter.h
+CParameterMappingTest.o: CParameterMappingTest.h CParameterMapping.h
+DictionaryException.o: DictionaryException.h
+Gamma1DL.o: Gamma1DL.h Parameter.h CParameterMapping.h CAxis.h
+Gamma1DW.o: Gamma1DW.h Parameter.h CParameterMapping.h CAxis.h
+Gamma2DB.o: Gamma2DB.h Parameter.h
+Gamma2DW.o: Gamma2DW.h Parameter.h
+GateMediator.o: GateMediator.h Spectrum.h CAxis.h CParameterMapping.h
+Histogrammer.o: Histogrammer.h Dictionary.h Parameter.h Spectrum.h CAxis.h
+Histogrammer.o: CParameterMapping.h DictionaryException.h GateMediator.h
+Histogrammer.o: Gamma2DW.h
+MGamma1DL.o: MGamma1DL.h Gamma1DL.h Parameter.h
+MGamma1DW.o: MGamma1DW.h Gamma1DW.h Parameter.h
+MGamma2DB.o: MGamma2DB.h Gamma2DB.h Parameter.h
+MGamma2DW.o: MGamma2DW.h Gamma2DW.h Parameter.h
+MSpectrum1DL.o: MSpectrum1DL.h Spectrum1DL.h Parameter.h
+MSpectrum1DW.o: MSpectrum1DW.h Spectrum1DW.h Parameter.h
+MSpectrum2DB.o: MSpectrum2DB.h Spectrum2DB.h Parameter.h
+MSpectrum2DW.o: MSpectrum2DW.h Spectrum2DW.h Parameter.h
+Parameter.o: Parameter.h
+ScalingTests.o: CParameterMappingTest.h CParameterMapping.h CAxisTests.h
+ScalingTests.o: CAxis.h
+SnapshotSpectrum.o: SnapshotSpectrum.h Spectrum.h CAxis.h CParameterMapping.h
+Spectrum.o: Spectrum.h CAxis.h CParameterMapping.h
+Spectrum1DL.o: Spectrum1DL.h Parameter.h CAxis.h CParameterMapping.h
+Spectrum1DW.o: Spectrum1DW.h Parameter.h CAxis.h CParameterMapping.h
+Spectrum2DB.o: Spectrum2DB.h Parameter.h CAxis.h CParameterMapping.h
+Spectrum2DW.o: Spectrum2DW.h Parameter.h CAxis.h CParameterMapping.h
+SpectrumFactory.o: SpectrumFactory.h Parameter.h SpectrumFactoryException.h
+SpectrumFactory.o: DictionaryException.h Spectrum.h CAxis.h
+SpectrumFactory.o: CParameterMapping.h Spectrum1DL.h Spectrum1DW.h
+SpectrumFactory.o: Spectrum2DW.h Spectrum2DB.h BitSpectrumL.h BitSpectrumW.h
+SpectrumFactory.o: SummarySpectrumW.h SummarySpectrumB.h Gamma1DW.h
+SpectrumFactory.o: Gamma1DL.h Gamma2DB.h Gamma2DW.h Histogrammer.h
+SpectrumFactory.o: Dictionary.h
+SpectrumFactoryException.o: SpectrumFactoryException.h
+SummarySpectrumB.o: SummarySpectrumB.h Parameter.h
+SummarySpectrumW.o: SummarySpectrumW.h Parameter.h

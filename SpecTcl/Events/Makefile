@@ -95,3 +95,23 @@ TCLRunFileHandler.o: TCLRunFileHandler.cpp
 TKRunControl.o: TKRunControl.cpp
 	$(COMPILE) TKRunControl.cpp
 
+# DO NOT DELETE
+
+AnalysisTest.o: Event.h ./ValidValue.h EventList.h EventSink.h Analyzer.h
+AnalysisTest.o: BufferDecoder.h ./BufferTranslator.h TranslatorPointer.h
+AnalysisTest.o: NSCLBufferDecoder.h EventUnpacker.h RunControl.h
+Analyzer.o: Analyzer.h BufferDecoder.h ./BufferTranslator.h
+Analyzer.o: TranslatorPointer.h EventFormatError.h
+BufferDecoder.o: BufferDecoder.h ./BufferTranslator.h TranslatorPointer.h
+BufferDecoder.o: EventFormatError.h Analyzer.h
+BufferTranslator.o: ./BufferTranslator.h TranslatorPointer.h
+Event.o: Event.h ./ValidValue.h
+EventFormatError.o: EventFormatError.h
+EventList.o: EventList.h
+EventSink.o: EventSink.h
+NSCLBufferDecoder.o: NSCLBufferDecoder.h Analyzer.h BufferDecoder.h
+NSCLBufferDecoder.o: ./BufferTranslator.h TranslatorPointer.h
+NSCLBufferDecoder.o: EventFormatError.h
+RunControl.o: RunControl.h
+TCLRunFileHandler.o: TCLRunFileHandler.h RunControl.h TKRunControl.h
+TKRunControl.o: TKRunControl.h

@@ -91,3 +91,20 @@ nsclbinerror.o: nsclbinerror.cpp
 nscldata.o: nscldata.cpp
 	$(COMPILE) nscldata.cpp
 
+# DO NOT DELETE
+
+NSCLAsciiSpectrumFormatter.o: NSCLAsciiSpectrumFormatter.h
+NSCLAsciiSpectrumFormatter.o: SpectrumFormatter.h ./SpectrumFormatError.h
+NSCLBinarySpectrumFormatter.o: NSCLBinarySpectrumFormatter.h
+NSCLBinarySpectrumFormatter.o: SpectrumFormatter.h ./nsclbin.h ./nscldata.h
+NSCLBinarySpectrumFormatter.o: ./nsclbinerror.h ./SpectrumFormatError.h
+SpectrumFormatError.o: ./SpectrumFormatError.h
+SpectrumFormatter.o: SpectrumFormatter.h
+SpectrumFormatterFactory.o: SpectrumFormatterFactory.h SpectrumFormatter.h
+SpectrumStandardFormatters.o: SpectrumFormatterFactory.h SpectrumFormatter.h
+SpectrumStandardFormatters.o: NSCLAsciiSpectrumFormatter.h
+SpectrumStandardFormatters.o: NSCLBinarySpectrumFormatter.h ./nsclbin.h
+SpectrumStandardFormatters.o: ./nscldata.h ./nsclbinerror.h
+nsclbin.o: ./nscldata.h ./nsclbinerror.h ./nscltime.h ./nsclbin.h
+nsclbinerror.o: ./nsclbinerror.h
+nscldata.o: ./nscldata.h ./nsclbinerror.h
