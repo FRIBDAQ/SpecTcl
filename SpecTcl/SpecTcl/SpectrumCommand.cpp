@@ -306,6 +306,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
+// Revision 4.4  2004/02/03 21:13:17  ron-fox
+// Correct comment describing spectrum channel ranges for spectra with resolutions.
+//
+// Revision 4.3.2.1  2004/02/02 21:47:08  ron-fox
+// *** empty log message ***
+//
 // Revision 4.3  2003/11/13 19:28:48  ron-fox
 // Ensure portable regardlesss of whether
 // malloc() is defined in stdlib.h or malloc.h
@@ -568,7 +574,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
   lResolutionList.Split(nListElements, &ppListElements);
 
   // Each list element has one of the following forms:
-  //    n   -  1 << is the channelcount and 
+  //   2^( n   -  1) << is the channelcount and 
   //                lowlim = 0, hilim = channelcount-1
   //  {lo hi n} - n is the channel count and lo/hi are
   //              given by the other list elements.
