@@ -296,6 +296,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log:
    $Log$
+   Revision 4.3  2003/04/03 02:21:12  ron-fox
+   *** empty log message ***
+
    Revision 4.2  2003/04/01 19:53:46  ron-fox
    Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -569,7 +572,7 @@ CSummarySpectrumW::CreateStorage()
   setStorageType(keWord);
 
   Size_t        nBytes   = StorageNeeded();
-  UShort_t*      pStorage = new UShort_t[nBytes/sizeof(UChar_t)];
+  UShort_t*      pStorage = new UShort_t[nBytes/sizeof(UShort_t)];
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();

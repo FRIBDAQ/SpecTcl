@@ -298,6 +298,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 4.4  2003/04/03 02:21:12  ron-fox
+  *** empty log message ***
+
   Revision 4.3  2003/04/01 19:53:46  ron-fox
   Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -570,7 +573,7 @@ CSpectrum1DL::CreateChannels()
   // management:
 
   setStorageType(keLong);
-  UInt_t* pStorage = new UInt_t[m_nChannels];
+  ULong_t* pStorage = new ULong_t[m_nChannels];
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
 }
