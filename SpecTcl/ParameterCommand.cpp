@@ -743,7 +743,10 @@ CParameterCommand::Usage(CTCLInterpreter& rInterp, CTCLResult& rResult)
 // Exceptions:  
 
   rResult += "Usage:\n";
-  rResult += "   parameter [-new] name id resolution\n";
+  rResult += "   parameter [-new] name id bits\n";
+  rResult += "   parameter [-new] name id bits {low hi units}\n";
+  rResult += "   parameter [-new] name id units\n";
+  rResult += "   parameter [-new] name id\n";
   rResult += "   parameter -list [-byid]\n";
   rResult += "   parameter -list  name\n";
   rResult += "   parameter -list  -id nId\n";
