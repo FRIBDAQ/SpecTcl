@@ -298,6 +298,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
     $Log$
+    Revision 4.4  2003/10/28 21:35:53  ron-fox
+    #include <time.h> for randomizer... apparently
+    this comes in from stdlib.h on linux but should
+    come from time.h according to all man pages.
+
     Revision 4.3  2003/04/19 00:11:13  ron-fox
     Fix a nasty issue with GetDefinition() that was causing death due to a number of problems with the static output struct.  For later: change the struct to a class so that it can be returned by value rather than by reference.. then it wouldn't have to be static.
 
@@ -319,6 +324,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CAxis.h>
 #include <RangeError.h>
 #include <stdlib.h>
+#include <time.h>
 
 static string T("-TRUE-");
 
