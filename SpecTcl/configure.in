@@ -63,248 +63,176 @@ AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(m, logb)
 AC_CHECK_FUNCS([strdup strstr strtol tzset mktime strtod timezone])
 
-# Locate the X11 headers files and libraries
+# -------------------- X11 tests
 
 # Locate the X11 header files and the X11 library archive. Try the
 # ac_path_x macro first, but if it doesn't find the X stuff then check
 # a list of possible directories.
 
 AC_PATH_X
-AC_ARG_WITH(x-dir,
-	[  --with-x-header-dir=path Path to X],
-	[x_includes=$withval ; x_found="yes"], 
-	[x_found="no"])
+AC_PATH_XTRA
 
-if test "$x_found" = "no" ; then
-not_really_there=""
-if test "$no_x" = "" ; then
-   if test "$x_includes" = "" ; then
-	AC_TRY_CPP([#include <X11/XIntrinsic.h>], , not_really_there="yes")
-   else
-	if test ! -r $x_includes/X11/Intrinsic.h ; then
-	   not_really_there="yes"
-	fi
-   fi
-fi
-if test "$no_x" = "yes" -o "$not_really_there" = "yes" ; then
-   echo "  **Couldn't find X in usual places. Trying some more places..."
-   AC_MSG_CHECKING(for X11 header files)
-   XINCLUDES="# no special path needed"
-   AC_TRY_CPP([#include <X11/Instrinsic.h>], , XINCLUDES="nope")
-   if test "$XINCLUDES" = nope ; then
-	dirs="/usr/include /usr/unsupported/include /usr/local/include /usr/X386/include /usr/include/X11R4 /usr/X11R5/include /usr/include/X11R5 /usr/openwin/include /usr/X11/include /usr/sww/include"
-	for i in $dirs ; do
-	   if test -r $i/X11/Intrinsic.h ; then
-		AC_MSG_RESULT($i)
-		if test $i = "/usr/include" ; then
-		   XINCLUDES=""  # should not need -I/usr/include
-		else
-		   XINCLUDES=" -I$i"
-		fi
-		break;
-	   fi
-	done
-   fi
-else
-   if test "$x_includes" != "" ; then
-	XINCLUDES=-I$x_includes
-   else
-	XINCLUDES="# no special path needed"
-   fi
+XINCLUDES="-I$x_includes"
+XLIBSW="-L$x_libraries"
+
+
+#
+#   Locate motif headers and libraries.  (Xm.h and libXm.{so,dylib,a}).
+#
+motif_headerdir=""
+motif_h_found="no"
+AC_MSG_CHECKING([for Xm/Xm.h])
+
+AC_ARG_WITH(motif-header-dir,
+	[  --with-motif-header-dir=path Path to Xm header directory],
+	[motif_headerdir="$withval"; motif_h_found="yes"])
+
+# first try is for the headers in the same dir as the X headers:
+
+if test $motif_h_found = no
+then
+	# Special case:  if it's in x_includes, no extra sws.
+	
+	AC_CHECK_FILE([$x_includes/Xm/Xm.h],
+	               [motif_h_found="yes"])
 fi
 
-if test "$XINCLUDES" = nope; then
-   AC_MSG_ERROR(couldn't find X headers! Try using --with-x-header-dir to help me out.)
-fi
+#  Next search:
+#      /usr/include
+#      /usr/include/X11
+#      /usr/include/X11R6
+#      /usr/X11/include
+#      /usr/X11R6/include
+#      /sw/include             (Darwin lesstif).
+#      /usr/local/include      (default lesstif installation).
+#
 
-# if x not found from --with
-else
-   AC_MSG_ERROR(couldn't find X headers! Try using --with-x-header-dir to hel me out.)
-fi
-
-# Find the libraries
-AC_ARG_WITH(x-lib,
-	[  --with-x-lib-dir=path Path to X libs],
-	[x_libraries=$withval ; x_libs_found="yes"], 
-	[x_libs_found="no"])
-
-if test "$x_libs_found" = "no" ; then
-if test "$no_x" = "" ; then
-   if test "$x_libraries" = "" ; then
-	AC_MSG_CHECKING(for X11 libraries)
-   	XLIBSW=nope
-   	dirs="/usr/lib /usr/unsupported/lib /usr/local/lib /usr/X386/lib /usr/lib/X11R4 /usr/X11R5/lib /usr/lib/X11R5 /usr/openwin/lib /usr/X11/lib /usr/sww/X11/lib"
-   	for i in $dirs ; do
-	   if test -r $i/libX11.a -o -r $i/libX11.so -o -r $i/libX11.sl ; then
-	      AC_MSG_RESULT($i)
-	      XLIBSW="-L$i"
-	      x_libraries="$i"
-	      break;
-	   fi
-   	done
-   else
-	XLIBSW="-L$x_libraries"
-   fi
-else
-   if test "$x_libraries" = "" ; then
-	XLIBSW=-lX11
-   else
-	XLIBSW="-L$x_libraries"
-   fi
-fi
-
-if test "$XLIBSW" = nope ; then
-   AC_CHECK_LIB(Xwindow, XCreateWindow, XLIBSW=-lXwindow)
-fi
-if test "$XLIBSW" = nope ; then
-   AC_MSG_ERROR(couldn't find X libraries! Try using --with-x-lib-dir to help me out.)
-fi
-
-# Not found using --with
-else
-   AC_MSG_ERROR(couldn't find X libraries! Try using --with-x-lib-dir to help me out.)
-fi
-
-# One more thing. On some versions of Ultrix, the "xauth" mechanism is not
-# supported, so send won't work. However, therre are usually copies of the
-# MIT X server availble as well, which do support xauth. Check for the
-# MIT stuff and use it if it's there.
-if test -d /usr/include/mit ; then
-   AC_MSG_CHECKING([MIT X libraries])
-   tk_oldCFlags=$CFLAGS
-   CFLAGS="$CFLAGS -I/usr/include/mit"
-   tk_oldLibs=$LIBS
-   LIBS="$LIBS -lX11-mit"
-   AC_TRY_LINK([
-	#include <X11/Xlib.h>
-   ], [
-	XOpenDisplay(0);
-   ], [
-	AC_MSG_RESULT(yes)
-	XLIBSW="-lX11-mit"
-	XINCLUDES="-I/usr/include/mit"
-   ], AC_MSG_RESULT(no))
-   CFLAGS=$tk_oldCFlags
-   LIBS=$tk_oldLibs
-fi
-
-#-------------------------- Begin Motif checks --------------------
-# Locate the Motif header files and the Motif library archive
-
-# We know where X is, but not Motif. We check for the headers and libraries
-# in the same places that we looked for X headers and libs. We will also check
-# if Xt is in the same path.
-
-cv_motif_path=""
-cv_xt_path=""
-AC_ARG_WITH(motif-dir,
-	[  --with-motif-headers=path Path to motif headers],
-	[cv_motif_path=$withval ; motif_found="yes"], 
-	[motif_found="no"])
-
-if test "$motif_found" = "no" ; then
-AC_TRY_CPP([#include <Xm/Xm.h>], , cv_motif_path="no")
-if test "$cv_motif_path" = "no" ; then
-   AC_MSG_CHECKING(for Motif header files)
-   MOTIF_INCLUDES="# no special path needed"
-   AC_TRY_CPP([#include <Xm/Xm.h>], , MOTIF_INCLUDES="nope")
-   if test "$MOTIF_INCLUDES" = nope ; then
-	dirs="/usr/X11R6/include /usr/include /usr/unsupported/include /usr/local/include /usr/X386/include /usr/include/X11R4 /usr/X11R5/include /usr/include/X11R5 /usr/openwin/include /usr/X11/include /usr/sww/include"
-	for i in $dirs ; do
-	   if test -r $i/Xm/Xm.h ; then
-		AC_MSG_RESULT($i)
-		cv_motif_path=$i
-		if test $i = "/usr/include" ; then
-		   MOTIF_INCLUDES=""  # shouldn't need -I/usr/include
-		else
-		   MOTIF_INCLUDES=" -I$i"
-		fi
-		break;
-	   fi
-	done
-   fi
-else
-   MOTIF_INCLUDES=""
-fi
-
-if test "$MOTIF_INCLUDES" = nope; then
-   AC_MSG_ERROR(couldn't find Motif headers! Try using --with-motif-headers to help me out.)
-else
-   if test "$MOTIF_INCLUDES" = "$XINCLUDES" ; then
-	MOTIF_INCLUDES=""
-   fi
-fi
-
-# Find the motif libraries
-AC_MSG_CHECKING(for Motif libraries)
-AC_ARG_WITH(motif-lib-dir,
-	[  --with-motif-lib-dir=path Path to motif headers],
-	[cv_motif_lib_path=$withval ; motif_lib_found="yes"], 
-	[motif_lib_found="no"])
-
-if test $motif_lib_found = yes ; then
-  MOTIF_LIBSW="-L$motif-lib-dir"
-else
-MOTIF_LIBSW=nope
-dirs="/usr/X11R6/lib /usr/lib /usr/unsupported/lib /usr/local/lib /usr/X386/lib /usr/lib/X11R4 /usr/X11R5/lib /usr/lib/X11R5 /usr/openwin/lib /usr/X11/lib /usr/sww/X11/lib"
-for i in $dirs ; do
-   if test -r $i/libXm.a -o -r $i/libXm.so -o -r $i/libXm.sl ; then
-	AC_MSG_RESULT($i)
-	MOTIF_LIBSW="-L$i"
-	if test -r $i/libXt.a -o -r $i/libXt.so -o -r $i/libXt.sl ; then
-	   cv_xt_path=$i
-	fi
-	break;
-   fi
-done
-
-if test "MOTIF_LIBSW" = "nope" ; then
-	AC_MSG_ERROR([Couldn't find Motif libraries! Try using --with-motif-lib-dir to help me out.])
-else
-   if test "$MOTIF_LIBSW" = "$XLIBSW" ; then
-	MOTIF_LIBSW=""
-   fi
-fi
-
-AC_ARG_WITH(motif-dir,
-	[  --with-xt-lib=path Path to libXt.a],
-	[cv_xt_path=$withval ; xt_found="yes"],
-	[xt_found="no"])
-fi
-
-# Make sure we found libXt.a also. Usually, this is in the same place
-# as libXm, but not always!
-
-if test cv_xt_path="" ; then
-   AC_MSG_CHECKING(for Xt libraries)
-   XTLIBSW=nope
-   dirs="/usr/X11R6/lib /usr/lib /usr/unsupported/lib /usr/local/lib /usr/X386/lib /usr/lib/X11R4 /usr/X11R5/lib /usr/lib/X11R5 /usr/openwin/lib /usr/X11/lib /usr/sww/X11/lib"
-   for i in $dirs ; do
-      if test -r $i/libXt.a -o -r $i/libXt.so -o -r $i/libXt.sl ; then
-	   AC_MSG_RESULT($i)
-	   XTLIBSW="-L$i"
-	   break;
-      fi
+if test $motif_h_found = no
+then
+   motif_header_dirs="/usr/include /usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include"
+   for d in ${motif_header_dirs}
+   do
+	AC_CHECK_FILE([${d}/Xm/Xm.h],
+	              [motif_h_found="yes"; \
+	               motif_headerdir="$d"])
+       if test $motif_h_found = yes
+       then
+	break
+       fi
    done
 fi
 
-if test "$XTLIBSW" = "nope" ; then
-	AC_MSG_ERROR([Couln't find Xt libraries! Try using --with-xt-lib to help me out.])
+#
+#  If motif_h_found and nonblank motif_headerdir prepend
+#  with -I to make MOTIF_INCLUDES (blank means XINCLUDES has it
+#  covered.  If not motif_h_found error and ask for help.
+#
+if test $motif_h_found = yes
+then
+   if test "$motif_headerdir" = ""
+   then
+	AC_MSG_RESULT([Xm/Xm.h is relative to $x_includes])
+   else
+        AC_MSG_RESULT([Xm/Xm.h is relative to $motif_headerdir])
+	MOTIF_INCLUDES="-I$motif_headerdir"
+   fi
 else
-	if test "$XTLIBSW" = "$XLIBSW" ; then
-	   XTLIBSW=""
-	fi
+   AC_MSG_ERROR([ Can't find Xm/Xm.h try using --with-motif-header-dir=path])
 fi
 
-# Not found using --with
+#
+#   Look for libXm.{so,dylib,a}
+#   Our search order is:
+#   --with-motif-lib=path    (user always can override).
+#   $x_libraries             (Pretty  normal place e.g. openmotif).
+#   /sw/lib                  (Darwin lesstif installation).
+#   /usr/local/lesstif/lib   (normal lesstif install wo links?).
+#   
+
+libexts=".so .dylib .a"        # prefer shared libs to static.
+motiflibdirs="/sw/lib /usr/local/lesstif/lib"
+motif_libdir=""
+motif_lib_found="no"
+
+AC_MSG_CHECKING([for libXm])
+AC_ARG_WITH(motif-lib,
+	   [  --with-motif-lib=path Path to libXm],
+	   [motif_libdir=""
+	    motif_lib_found="yes"]
+	   )
+
+#  If necessary, try in $x_libraries:
+
+for ext in $libexts
+do
+   if test $motif_lib_found = "no"
+   then
+      AC_CHECK_FILE([$x_libraries/libXm${ext}],
+	            [motif_lib_found="yes"])
+   fi
+done
+
+#  If necessary  try in the list of good directories:
+
+for lib in $motiflibdirs
+do
+  for ext in $libexts
+  do
+     if test $motif_lib_found = "no"
+     then
+	AC_CHECK_FILE([$lib/libXm${ext}],
+	             [motif_lib_found="yes"
+	              motif_libdir="$lib"])
+     fi
+  done
+done
+
+#  If found  set MOTIF_LIBSW accordingly.  Note this will be
+#  empty if found in with the x libraries.
+#
+
+if test $motif_lib_found = "yes"
+then
+    if test "$motif_libdir" = ""
+    then
+	AC_MSG_RESULT([Found libXm in $x_libraries])
+    else
+        AC_MSG_RESULT([Found libXm in $motif_libdir])
+	MOTIF_LIBSW="-L$motif_libdir"
+    fi
 else
-   AC_MSG_ERROR(Couldn't find Xt libraries! Try using --with-xt-lib to help me out.)
+   AC_MSG_ERROR([Can't fine libXm give me a hand with --with-motif-lib])
 fi
 
-#----------------------------- End of Motif checks ---------------
 
 # Checks for include declarations
 
+#   Some sytems have a broken rpc.h - no prototypes  For these
+#   we will produce our own minimal prototypes.
+#
+AC_MSG_CHECKING([For broken rpc/xdr.h])
+AC_LANG_PUSH(C++)
+
+AC_TRY_COMPILE([
+#include <rpc/types.h>
+#include <rpc/xdr.h>
+],[
+
+   XDR dummy;
+   xdr_getpos(&dummy);    /* Should be ok!! */
+],   [xdr_h_broken="no"], [xdr_h_broken="yes"])
+
+
+if test $xdr_h_broken = "yes"
+then
+	AC_MSG_RESULT([.. broken])
+	AC_DEFINE(BROKEN_XDR_H, 1, [True if xdr.h unusable for c++ compiles])
+else
+	AC_MSG_RESULT([.. not broken])
+fi
+
+
+AC_LANG_POP
 # These checks are for declarations within specific system headers. For
 # instance, MTSETBLK is not declared in sys/mtio.h on all platforms, but
 # is needed on Linux.
@@ -314,7 +242,7 @@ AC_MSG_CHECKING([for MTSETBLK in sys/mtio.h])
     AC_TRY_COMPILE([
 #include <sys/mtio.h>
 #ifndef MTSETBLK
- error mtsetblk not defined
+#  error mtsetblk not defined
 #endif
 ], , my_cv_have_mtsetblk=yes, my_cv_have_mtsetblk=no)
     if test $my_cv_have_mtsetblk = yes ; then
@@ -327,7 +255,7 @@ AC_MSG_CHECKING([for MTOVERRUN in sys/mtio.h])
     AC_TRY_COMPILE([
 #include <sys/mtio.h>
 #ifndef MTOVERRUN
- error overrun not defined
+# error overrun not defined
 #endif
 ], , my_cv_have_mtoverrun=yes, my_cv_have_mtoverrun=no)
     if test $my_cv_have_mtoverrun = yes ; then
@@ -341,7 +269,7 @@ AC_MSG_CHECKING([for MTCSE in sys/mtio.h])
     AC_TRY_COMPILE([
 #include <sys/mtio.h>
 #ifndef MTCSE
- error mtcse not defined
+# error mtcse not defined
 #endif
 ], , my_cv_have_mtcse=yes, my_cv_have_mtcse=no)
     if test $my_cv_have_mtcse = yes ; then
@@ -354,7 +282,7 @@ AC_MSG_CHECKING([for PAGESIZE in limits.h])
     AC_TRY_COMPILE([
 #include <limits.h>
 #ifndef PAGESIZE
- error pagesize not defined
+# error pagesize not defined
 #endif
 ], , my_cv_have_pagesize=yes, my_cv_have_pagesize=no)
     if test $my_cv_have_pagesize = yes ; then
@@ -367,7 +295,7 @@ AC_MSG_CHECKING([for PADSIZE in limits.h])
     AC_TRY_COMPILE([
 #include <limits.h>
 #ifndef PADSIZE
- error padsize not defined
+# error padsize not defined
 #endif
 ], , my_cv_have_padsize=yes, my_cv_have_padsize=no)
     if test $my_cv_have_padsize = yes ; then
@@ -380,7 +308,7 @@ AC_MSG_CHECKING([for INT_MAX in limits.h])
     AC_TRY_COMPILE([
 #include <limits.h>
 #ifndef INT_MAX
- error intmax not defined
+# error intmax not defined
 #endif
 ], , my_cv_have_int_max=yes, my_cv_have_int_max=no)
     if test $my_cv_have_int_max = yes ; then
@@ -393,7 +321,7 @@ AC_MSG_CHECKING([for MAXINT in values.h])
     AC_TRY_COMPILE([
 #include <values.h>
 #ifndef MAXINT
- error maxint not defined
+# error maxint not defined
 #endif
 ], , my_cv_have_maxint=yes, my_cv_have_maxint=no)
     if test $my_cv_have_maxint = yes ; then
@@ -432,7 +360,7 @@ esac
 LD_EXTRA_FLAGS=""
 X11EXTRA_LDFLAGS=""
 AC_MSG_CHECKING([for supported OS])
-OS="$host_os"
+OS="$host_os"                          # Default guess.
 case $host_os in
   *cygwin* ) 
 	AC_DEFINE(CYGWIN, 1, [Set to 1 if Cygwin environment])
@@ -470,8 +398,11 @@ case $host_os in
 	LD_EXTRA_FLAGS="$LD_EXTRA_FLAGS -Wl,\"-S\""
 	;;
   *darwin* )
+	OBJEXT="o"
+	AC_SUBST(OBJEXT)
 	AC_DEFINE(DARWIN, 1, [Set to 1 if Darwin environment])
 	AC_MSG_RESULT([Darwin])
+	OS="darwin"              # It's crapped up with versions otherwise.
 	;;
   * )
 	AC_MSG_RESULT([ok])
@@ -492,7 +423,7 @@ esac
 #        number specifiers.
 #
 
-tcl_versions="8.4 8.3 8.2 8.1 8.0"     # First match;  so order new -> old.
+tcl_versions="8.5 8.4 8.3 8.2 8.1 8.0"   # First match;  so order new -> old.
 tcl_header_dir=""
 AC_MSG_CHECKING([for tcl header directory])
 
@@ -502,41 +433,52 @@ AC_ARG_WITH(tcl-header-dir,
 	tcl_headers_found="yes"],[tcl_headers_found="no"])
 
 
-	# /usr/include/tcl
+#
+#  Look for tcl.h in the following places:
+#  Note that the order is important for Darwin and OSF1.
+	#
+	# /sw/include             (Best for darwin).
+	# /usr/local/tcl/include  (Best for NSCL Cygwin).
+	# /usr/local/include      (Best for NSCL OSF1)
+	# /usr/include            (Best for e.g. Linux).
+	#  
+	# For all of these directories,	
+	#  look for tcl.h in:
+	#    - the directory itself.
+	#    - a tcl subdirectory to the directory.
+	#    - subdirectories of the form tcl${version} where
+	#      version is chosein from tcl_versions.
+	#
 
-if test $tcl_headers_found = "no"; then
-   AC_CHECK_FILE([/usr/include/tcl/tcl.h],
-	[tcl_header_dir="/usr/include/tcl"
-	tcl_headers_found="yes"])
-fi
+tcl_h_testdirs="/sw/include /usr/local/tcl/include /usr/local/include \
+	/usr/include"
 
-	# /usr/include/tcl<version>
-
-if test $tcl_headers_found = "no" ; then
- for version in ${tcl_versions};  do
-   if test $tcl_headers_found = "no" ; then   # stop at first match
-      testdir=/usr/include/tcl${version}
-      AC_CHECK_FILE([${testdir}/tcl.h],
-	[tcl_header_dir=${testdir}
-	 tcl_headers_found="yes"])
-   fi
- done
-fi
-
-      # /usr/local/include
-
-if test $tcl_headers_found = "no"; then
-   AC_CHECK_FILE([/usr/local/include/tcl.h],
-	[tcl_header_dir="/usr/local/include/tcl"
-	tcl_headers_found="yes"])
-fi
-
-	# /usr/include
-
-if test $tcl_headers_found = "no"; then
-   AC_CHECK_FILE([/usr/include/tcl.h],
-	[tcl_header_dir="/usr/include"
-	tcl_headers_found="yes"])
+if test $tcl_headers_found = "no"
+then
+   for d in $tcl_h_testdirs
+   do
+	for v in ${tcl_versions};
+        do
+	   if test $tcl_headers_found = "no"
+           then
+	      AC_CHECK_FILE([${d}/tcl${v}/tcl.h],
+	                    [tcl_header_dir=${d}/tcl${v}
+	                     tcl_headers_found="yes"])
+           fi
+        done
+	if test $tcl_headers_found = "no"
+	then
+	   AC_CHECK_FILE([${d}/tcl.h],
+	                 [tcl_header_dir=$d
+	                  tcl_headers_found="yes"])
+        fi
+	if test $tcl_headers_found = "no"
+	then
+	   AC_CHECK_FILE([${d}/tcl/tcl.h],
+	                 [tcl_header_dir=${d}/tcl
+	                  tcl_headers_found="yes"])
+	fi
+   done
 fi
 
 if test $tcl_headers_found = "yes"; then
@@ -548,12 +490,9 @@ fi
 
 #  Tcl libraries:
 #     We look for the following
-#       /usr/lib/libtcl.so         -  link to a default shared library.
-#       /usr/lib/libtcl<version>.so - Link to a specific shared lib.
-#      /usr/lib/libtcl.a           - Usually a link to a default lib.
-#      /usr/lib/libtcl<version>.a  - version of tcl from tcl_versions
-#      /usr/local/lib/libtcl.a     - As above but installed from source.
-#      /usr/local/lib<version>.a   - As Above but installed from source.
+#        /sw/lib
+#       /usr/lib/libtcl.{so,dylib,a}      -  link to a default  lib.
+#       /usr/lib/libtcl<version>.{so,dylib,a} -  link to a specific lib.
 #      If --with-tcl-libdir=dir      is supplied, that directory is 
 #                                    searched first.
 # ASSUMPTIONS:  libtcl and libtk will have the same naming conventions.
@@ -569,13 +508,14 @@ AC_ARG_WITH(tcl-libdir,
 	[  --with-tcl-libdir=dir Specify where the tcl libraries live.],
 	[tcl_libsearchpath=$withval])
 
-tcl_libsearchpath="$tcl_libsearchpath /usr/lib /usr/local/lib"
+tcl_libsearchpath="$tcl_libsearchpath /sw/lib /usr/lib /usr/local/lib"
 
-tcl_libfiles="libtcl.so libtcl.a"
+tcl_libfiles=""
 for v in ${tcl_versions}
 do
-   tcl_libfiles="$tcl_libfiles libtcl${v}.a libtcl${v}.so"
+   tcl_libfiles="$tcl_libfiles  libtcl${v}.so libtcl${v}.dylib libtcl${v}.a"
 done
+tcl_libfiles="$tcl_libfiles libtcl.so libtcl.dylib libtcl.a"
 
 
 for dir in ${tcl_libsearchpath} 
@@ -601,11 +541,11 @@ if test $tcl_libfound = "yes" ; then
 
   tcl_libname=$(echo $tcl_libname|cut -c 4- )  # trim off lib 
   
-  # The suffix now is either .so or .a and basename can get rid of that:
+  # The suffix now is either .so, .dylib or .a; basename can get rid of that:
 
-  tcl_libname=$(basename $(basename $tcl_libname .a) .so)
+  tcl_libname=$(basename $(basename $(basename $tcl_libname .a) .so) .dylib)
 
-  # Rather than repeat this mess for tk, we require thesame version and
+  # Rather than repeat this mess for tk, we require the same version and
   # just replace the tcl with tk.
 
   tk_libname=tk$(echo $tcl_libname|cut -c 4-)   # trim off tc...and use tk
