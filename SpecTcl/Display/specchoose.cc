@@ -263,24 +263,25 @@ void Callback_handler(XMWidget *w, XtPointer userd, XtPointer calld)
 
    check_numeric:
     if(isdigit(spectrum_name[0])) {   /* Numeric type-in */
-       specid = atoi(spectrum_name);
-     numeric_spectrum:
-       XtFree(spectrum_name);
-       if((specid <= 0) || (specid > DISPLAY_MAXSPEC)) {
-	 Xamine_error_msg(choice,
-		       "Invalid spectrum number\nPlease choose one from the list");
-	 choice->Show();
-	 return;
-       }
-       XtFree(spectrum_name);
-       if(Xamine_SpectrumType(specid) == undefined) {
-          Xamine_error_msg(choice,
-	                   error_msg);
-	  choice->Show();
-          return;
-       }
-       (*usercallback)(specid);
-       return;
+      specid = atoi(spectrum_name);
+    numeric_spectrum:
+      if((specid <= 0) || (specid > DISPLAY_MAXSPEC)) {
+	Xamine_error_msg(choice,
+			 "Invalid spectrum number\nPlease choose one from the list");
+	choice->Show();
+	XtFree(spectrum_name);
+	return;
+      }
+      if(Xamine_SpectrumType(specid) == undefined) {
+	Xamine_error_msg(choice,
+			 error_msg);
+	choice->Show();
+	XtFree(spectrum_name);
+	return;
+      }
+      (*usercallback)(specid);
+      XtFree(spectrum_name);
+      return;
     }
     else {
       specid = Xamine_MatchSpecName(spectrum_name); /* Match the spectrum name. */
