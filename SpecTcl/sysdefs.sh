@@ -4,7 +4,7 @@
 
 # C compiler:
 
-setenv  LinuxCC "gcc -g"
+setenv  LinuxCC "gcc -g -I/usr/include/tcl"
 setenv  OSF1CC  "gcc -g"
 setenv  HPUXCC  "gcc -g"
 setenv  DarwinCC "cc -g -Dunix"
@@ -12,7 +12,7 @@ setenv  CYGWINCC "gcc -g"
 
 # C++ compiler
 
-setenv LinuxCPP "g++ -g"
+setenv LinuxCPP "g++ -g -I/usr/include/tcl"
 setenv OSF1CPP  "g++ -g"
 setenv HPUXCPP   "g++ -g"
 setenv DarwinCPP "c++ -g -Dunix"

@@ -22,7 +22,8 @@ PROFILE=-g
 OBJECTS=MySpecTclApp.o
 INCLUDEDIRS= -I. -I$(INSTDIR)/Include -I/usr/local/include \
 	-I/usr/local/daq/include $($(OS)INCS)
-LIBDIRS= -L$(INSTDIR)/Lib -L/usr/local -L/usr/local/daq/lib -L/usr/X11/lib
+LIBDIRS= -L$(INSTDIR)/Lib -L/usr/local -L/usr/local/daq/lib -L/usr/X11/lib \
+	-L/usr/X11R6/lib
 LIBS=   -lTclGrammerCommands \
 	-lSorting -lXplus -lGates -lAnalysis -lEventSource -lSpecio \
 	-ltclPlus -lException \
@@ -34,7 +35,7 @@ ECHO=echo
 
 # C++ compiler
 
-LinuxCPP=g++ -g
+LinuxCPP=g++ -g -I/usr/include/tcl
 OSF1CPP=g++ -g
 HPUXCPP=g++ -g
 DarwinCPP=c++ -g -Dunix
