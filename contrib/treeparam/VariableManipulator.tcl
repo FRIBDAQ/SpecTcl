@@ -55,7 +55,8 @@ proc VariableManipulator {id} {
 	set modcolor lightgreen
 
 	menubutton $mod.variable$id -width 8 -text Variable -background $modcolor
-	GenerateTreeVariableMenu $mod.variable$id "MenuLoadVariable $id"
+#	GenerateTreeVariableMenu $mod.variable$id "MenuLoadVariable $id"
+	GenerateTreeVariableMenu $mod.variable$id "set variable(Name$id)"
 	entry $mod.labelvariable$id -width 25 -textvariable variable(Name$id) -background $modcolor
 	entry $mod.value$id -width 8 -textvariable variable(Value$id) -background $modcolor
 	entry $mod.unit$id -width 6 -textvariable variable(Unit$id) -background $modcolor
@@ -108,13 +109,25 @@ proc LoadVariable {id} {
 	set variable(Unit$id) [lindex $v 2]
 }
 
-proc MenuLoadVariable {id var} {
+proc MenuLoadVariable {id v1 v2 v3} {
 	global variable
-	set v [lindex [treevariable -list $var] 0]
-	set variable(Name$id) [lindex $v 0]
+	set v [lindex [treevariable -list $variable(Name$id)] 0]
+	if {[llength $v] == 0} {
+		set variable(Value$id) ???
+		set variable(Unit$id) ???
+		return
+	}
 	set variable(Value$id) [lindex $v 1]
 	set variable(Unit$id) [lindex $v 2]
 }
+
+#proc MenuLoadVariable {id var} {
+#	global variable
+#	set v [lindex [treevariable -list $var] 0]
+#	set variable(Name$id) [lindex $v 0]
+#	set variable(Value$id) [lindex $v 1]
+#	set variable(Unit$id) [lindex $v 2]
+#}
 
 proc SaveVariableDefinition {} {
 	global vdefFile fullvdefFile vdefDirectory

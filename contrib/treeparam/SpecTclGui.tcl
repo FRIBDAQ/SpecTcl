@@ -71,6 +71,10 @@ CheckVersion
 
 CheckFiles
 
+GenerateMenuBitmaps
+puts "Building SpecTcl GUI ..."
+update
+
 toplevel .gui
 wm title .gui "SpecTcl 2.1 Graphical User Interface"
 tabnotebook_create .gui.main
@@ -83,6 +87,12 @@ tabnotebook_display .gui.main Gates
 tabnotebook_display .gui.main Variables
 tabnotebook_display .gui.main Parameters
 tabnotebook_display .gui.main Spectra
+trace variable spectrumParameterX w SpectrumParameterXCommand
+trace variable spectrumParameterY w SpectrumParameterYCommand
+for {set i 1} {$i <= 20} {incr i} {
+	trace variable parameter(Name$i) w "MenuLoadParameter $i"
+	trace variable variable(Name$i) w "MenuLoadVariable $i"
+}
 foreach v [treevariable -list] {
 	set vName [lindex [lindex $v 0] 0]
 	trace variable $vName w SetChanged
