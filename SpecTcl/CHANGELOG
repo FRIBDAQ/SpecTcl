@@ -196,3 +196,7 @@ SpecTcl 3.0:
 	   filename.
       Propagate fix for defect 151 from 2.1 -> 2.2-> 3.0
       
+December 28, 2004
+    - Switch ExprLong -> strtol in contrib/scriptable CIntConfigParam.cpp
+      and CIntArrayParam.cpp since ExprLong, as of Tcl 8.4 does not work
+      with large unsigned values.
