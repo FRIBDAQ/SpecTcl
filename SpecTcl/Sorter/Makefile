@@ -131,114 +131,472 @@ GateMediator.o: GateMediator.cpp
 	$(COMPILE) GateMediator.cpp
 # DO NOT DELETE
 
-AnalysisTest.o: Histogrammer.h Dictionary.h Parameter.h /usr/include/limits.h
-AnalysisTest.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-AnalysisTest.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-AnalysisTest.o: /usr/include/sys/rt_limits.h Spectrum.h Spectrum1DL.h
-AnalysisTest.o: Spectrum2DW.h Spectrum2DB.h Spectrum1DW.h Gamma1DW.h
-AnalysisTest.o: Gamma1DL.h Gamma2DW.h Gamma2DB.h
-BitSpectrumL.o: BitSpectrumL.h Spectrum.h Parameter.h /usr/include/limits.h
-BitSpectrumL.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-BitSpectrumL.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-BitSpectrumL.o: /usr/include/sys/rt_limits.h /usr/include/assert.h
-BitSpectrumL.o: /usr/include/math.h /usr/include/stdlib.h
-BitSpectrumL.o: /usr/include/getopt.h /usr/include/sys/types.h
-BitSpectrumL.o: /usr/include/mach/machine/vm_types.h
-BitSpectrumL.o: /usr/include/sys/select.h
-BitSpectrumW.o: BitSpectrumW.h Spectrum.h Parameter.h /usr/include/limits.h
-BitSpectrumW.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-BitSpectrumW.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-BitSpectrumW.o: /usr/include/sys/rt_limits.h /usr/include/assert.h
-BitSpectrumW.o: /usr/include/math.h /usr/include/stdlib.h
-BitSpectrumW.o: /usr/include/getopt.h /usr/include/sys/types.h
-BitSpectrumW.o: /usr/include/mach/machine/vm_types.h
-BitSpectrumW.o: /usr/include/sys/select.h
-DictionaryException.o: DictionaryException.h /usr/include/stdio.h
-DictionaryException.o: /usr/include/standards.h /usr/include/sys/seek.h
-DictionaryException.o: /usr/include/va_list.h /usr/include/sys/types.h
-DictionaryException.o: /usr/include/mach/machine/vm_types.h
-DictionaryException.o: /usr/include/sys/select.h /usr/include/getopt.h
-DictionaryException.o: /usr/include/sys/limits.h
-DictionaryException.o: /usr/include/machine/machlimits.h
-DictionaryException.o: /usr/include/sys/syslimits.h
-DictionaryException.o: /usr/include/machine/machtime.h
-DictionaryException.o: /usr/include/sys/rt_limits.h /usr/include/assert.h
-DictionaryException.o: /usr/include/string.h /usr/include/strings.h
-Gamma1DL.o: Gamma1DL.h Parameter.h /usr/include/limits.h
-Gamma1DL.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-Gamma1DL.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-Gamma1DL.o: /usr/include/sys/rt_limits.h
-Gamma1DW.o: Gamma1DW.h Parameter.h /usr/include/limits.h
-Gamma1DW.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-Gamma1DW.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-Gamma1DW.o: /usr/include/sys/rt_limits.h
-Gamma2DB.o: Gamma2DB.h Parameter.h /usr/include/limits.h
-Gamma2DB.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-Gamma2DB.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-Gamma2DB.o: /usr/include/sys/rt_limits.h
-Gamma2DW.o: Gamma2DW.h Parameter.h /usr/include/limits.h
-Gamma2DW.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-Gamma2DW.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-Gamma2DW.o: /usr/include/sys/rt_limits.h
-GateMediator.o: GateMediator.h Spectrum.h
-Histogrammer.o: Histogrammer.h Dictionary.h Parameter.h /usr/include/limits.h
-Histogrammer.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-Histogrammer.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-Histogrammer.o: /usr/include/sys/rt_limits.h Spectrum.h DictionaryException.h
-Histogrammer.o: /usr/include/assert.h GateMediator.h
-SnapshotSpectrum.o: SnapshotSpectrum.h Spectrum.h
-Spectrum.o: Spectrum.h /usr/include/string.h /usr/include/standards.h
-Spectrum.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
-Spectrum.o: /usr/include/sys/select.h /usr/include/strings.h
-Spectrum1DL.o: Spectrum1DL.h Parameter.h /usr/include/limits.h
-Spectrum1DL.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-Spectrum1DL.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-Spectrum1DL.o: /usr/include/sys/rt_limits.h
-Spectrum1DW.o: Spectrum1DW.h Parameter.h /usr/include/limits.h
-Spectrum1DW.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-Spectrum1DW.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-Spectrum1DW.o: /usr/include/sys/rt_limits.h
-Spectrum2DB.o: Spectrum2DB.h Parameter.h /usr/include/limits.h
-Spectrum2DB.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-Spectrum2DB.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-Spectrum2DB.o: /usr/include/sys/rt_limits.h
-Spectrum2DW.o: Spectrum2DW.h Parameter.h /usr/include/limits.h
-Spectrum2DW.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-Spectrum2DW.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
-Spectrum2DW.o: /usr/include/sys/rt_limits.h
-SpectrumFactory.o: SpectrumFactory.h Parameter.h /usr/include/limits.h
-SpectrumFactory.o: /usr/include/standards.h /usr/include/machine/machlimits.h
-SpectrumFactory.o: /usr/include/sys/syslimits.h
-SpectrumFactory.o: /usr/include/machine/machtime.h
-SpectrumFactory.o: /usr/include/sys/rt_limits.h SpectrumFactoryException.h
-SpectrumFactory.o: /usr/include/string.h /usr/include/sys/types.h
-SpectrumFactory.o: /usr/include/mach/machine/vm_types.h
-SpectrumFactory.o: /usr/include/sys/select.h /usr/include/strings.h
-SpectrumFactory.o: DictionaryException.h Spectrum.h Spectrum1DL.h
+AnalysisTest.o: /Include/histotypes.h /usr/include/g++-3/iostream.h
+AnalysisTest.o: /usr/include/g++-3/streambuf.h /usr/include/libio.h
+AnalysisTest.o: /usr/include/_G_config.h /usr/include/bits/types.h
+AnalysisTest.o: /usr/include/features.h /usr/include/sys/cdefs.h
+AnalysisTest.o: /usr/include/gnu/stubs.h
+AnalysisTest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+AnalysisTest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+AnalysisTest.o: /usr/include/string.h /usr/include/g++-3/string
+AnalysisTest.o: /usr/include/g++-3/std/bastring.h /usr/include/g++-3/cstddef
+AnalysisTest.o: /usr/include/g++-3/std/straits.h /usr/include/g++-3/cctype
+AnalysisTest.o: /usr/include/ctype.h /usr/include/endian.h
+AnalysisTest.o: /usr/include/bits/endian.h /usr/include/g++-3/cstring
+AnalysisTest.o: /usr/include/g++-3/alloc.h /usr/include/g++-3/stl_config.h
+AnalysisTest.o: /usr/include/g++-3/stl_alloc.h /usr/include/stdlib.h
+AnalysisTest.o: /usr/include/sys/types.h /usr/include/time.h
+AnalysisTest.o: /usr/include/sys/select.h /usr/include/bits/select.h
+AnalysisTest.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+AnalysisTest.o: /usr/include/alloca.h /usr/include/assert.h
+AnalysisTest.o: /usr/include/g++-3/iterator /usr/include/g++-3/stl_relops.h
+AnalysisTest.o: /usr/include/g++-3/stl_iterator.h /usr/include/g++-3/cassert
+AnalysisTest.o: /usr/include/g++-3/std/bastring.cc /usr/include/math.h
+AnalysisTest.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
+AnalysisTest.o: /usr/include/bits/mathcalls.h
+AnalysisTest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+AnalysisTest.o: /Include/Exception.h Histogrammer.h Dictionary.h
+AnalysisTest.o: /usr/include/g++-3/map /usr/include/g++-3/stl_tree.h
+AnalysisTest.o: /usr/include/g++-3/stl_algobase.h
+AnalysisTest.o: /usr/include/g++-3/stl_pair.h
+AnalysisTest.o: /usr/include/g++-3/type_traits.h /usr/include/limits.h
+AnalysisTest.o: /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h
+AnalysisTest.o: /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h
+AnalysisTest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+AnalysisTest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+AnalysisTest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+AnalysisTest.o: /usr/include/g++-3/stl_construct.h
+AnalysisTest.o: /usr/include/g++-3/stl_function.h
+AnalysisTest.o: /usr/include/g++-3/stl_map.h
+AnalysisTest.o: /usr/include/g++-3/stl_multimap.h
+AnalysisTest.o: /usr/include/g++-3/algorithm
+AnalysisTest.o: /usr/include/g++-3/stl_uninitialized.h
+AnalysisTest.o: /usr/include/g++-3/stl_tempbuf.h
+AnalysisTest.o: /usr/include/g++-3/stl_algo.h /usr/include/g++-3/stl_heap.h
+AnalysisTest.o: Parameter.h /Include/NamedItem.h Spectrum.h
+AnalysisTest.o: /usr/include/g++-3/vector /usr/include/g++-3/stl_vector.h
+AnalysisTest.o: /usr/include/g++-3/stl_bvector.h Spectrum1DL.h Spectrum2DW.h
+AnalysisTest.o: Spectrum2DB.h Spectrum1DW.h Gamma1DW.h Gamma1DL.h Gamma2DW.h
+AnalysisTest.o: Gamma2DB.h
+BitSpectrumL.o: BitSpectrumL.h Spectrum.h /usr/include/g++-3/vector
+BitSpectrumL.o: /usr/include/g++-3/stl_algobase.h
+BitSpectrumL.o: /usr/include/g++-3/stl_pair.h
+BitSpectrumL.o: /usr/include/g++-3/type_traits.h /usr/include/string.h
+BitSpectrumL.o: /usr/include/features.h /usr/include/sys/cdefs.h
+BitSpectrumL.o: /usr/include/gnu/stubs.h
+BitSpectrumL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+BitSpectrumL.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+BitSpectrumL.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+BitSpectrumL.o: /usr/include/bits/posix2_lim.h /usr/include/stdlib.h
+BitSpectrumL.o: /usr/include/sys/types.h /usr/include/bits/types.h
+BitSpectrumL.o: /usr/include/time.h /usr/include/endian.h
+BitSpectrumL.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+BitSpectrumL.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+BitSpectrumL.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+BitSpectrumL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+BitSpectrumL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+BitSpectrumL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+BitSpectrumL.o: /usr/include/g++-3/iostream.h /usr/include/g++-3/streambuf.h
+BitSpectrumL.o: /usr/include/libio.h /usr/include/_G_config.h
+BitSpectrumL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+BitSpectrumL.o: /usr/include/g++-3/stl_alloc.h /usr/include/assert.h
+BitSpectrumL.o: /usr/include/g++-3/stl_construct.h
+BitSpectrumL.o: /usr/include/g++-3/stl_uninitialized.h
+BitSpectrumL.o: /usr/include/g++-3/stl_vector.h
+BitSpectrumL.o: /usr/include/g++-3/stl_bvector.h /usr/include/g++-3/string
+BitSpectrumL.o: /usr/include/g++-3/std/bastring.h /usr/include/g++-3/cstddef
+BitSpectrumL.o: /usr/include/g++-3/std/straits.h /usr/include/g++-3/cctype
+BitSpectrumL.o: /usr/include/ctype.h /usr/include/g++-3/cstring
+BitSpectrumL.o: /usr/include/g++-3/alloc.h /usr/include/g++-3/stl_config.h
+BitSpectrumL.o: /usr/include/g++-3/iterator /usr/include/g++-3/stl_relops.h
+BitSpectrumL.o: /usr/include/g++-3/stl_iterator.h /usr/include/g++-3/cassert
+BitSpectrumL.o: /usr/include/g++-3/std/bastring.cc /Include/histotypes.h
+BitSpectrumL.o: /usr/include/math.h /usr/include/bits/huge_val.h
+BitSpectrumL.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+BitSpectrumL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+BitSpectrumL.o: Parameter.h /Include/NamedItem.h /Include/RangeError.h
+BitSpectrumL.o: /Include/Exception.h
+BitSpectrumW.o: BitSpectrumW.h Spectrum.h /usr/include/g++-3/vector
+BitSpectrumW.o: /usr/include/g++-3/stl_algobase.h
+BitSpectrumW.o: /usr/include/g++-3/stl_pair.h
+BitSpectrumW.o: /usr/include/g++-3/type_traits.h /usr/include/string.h
+BitSpectrumW.o: /usr/include/features.h /usr/include/sys/cdefs.h
+BitSpectrumW.o: /usr/include/gnu/stubs.h
+BitSpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+BitSpectrumW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+BitSpectrumW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+BitSpectrumW.o: /usr/include/bits/posix2_lim.h /usr/include/stdlib.h
+BitSpectrumW.o: /usr/include/sys/types.h /usr/include/bits/types.h
+BitSpectrumW.o: /usr/include/time.h /usr/include/endian.h
+BitSpectrumW.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+BitSpectrumW.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+BitSpectrumW.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+BitSpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+BitSpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+BitSpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+BitSpectrumW.o: /usr/include/g++-3/iostream.h /usr/include/g++-3/streambuf.h
+BitSpectrumW.o: /usr/include/libio.h /usr/include/_G_config.h
+BitSpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+BitSpectrumW.o: /usr/include/g++-3/stl_alloc.h /usr/include/assert.h
+BitSpectrumW.o: /usr/include/g++-3/stl_construct.h
+BitSpectrumW.o: /usr/include/g++-3/stl_uninitialized.h
+BitSpectrumW.o: /usr/include/g++-3/stl_vector.h
+BitSpectrumW.o: /usr/include/g++-3/stl_bvector.h /usr/include/g++-3/string
+BitSpectrumW.o: /usr/include/g++-3/std/bastring.h /usr/include/g++-3/cstddef
+BitSpectrumW.o: /usr/include/g++-3/std/straits.h /usr/include/g++-3/cctype
+BitSpectrumW.o: /usr/include/ctype.h /usr/include/g++-3/cstring
+BitSpectrumW.o: /usr/include/g++-3/alloc.h /usr/include/g++-3/stl_config.h
+BitSpectrumW.o: /usr/include/g++-3/iterator /usr/include/g++-3/stl_relops.h
+BitSpectrumW.o: /usr/include/g++-3/stl_iterator.h /usr/include/g++-3/cassert
+BitSpectrumW.o: /usr/include/g++-3/std/bastring.cc /Include/histotypes.h
+BitSpectrumW.o: /usr/include/math.h /usr/include/bits/huge_val.h
+BitSpectrumW.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
+BitSpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+BitSpectrumW.o: Parameter.h /Include/NamedItem.h /Include/RangeError.h
+BitSpectrumW.o: /Include/Exception.h
+DictionaryException.o: DictionaryException.h /Include/Exception.h
+DictionaryException.o: /Include/histotypes.h /usr/include/g++-3/iostream.h
+DictionaryException.o: /usr/include/g++-3/streambuf.h /usr/include/libio.h
+DictionaryException.o: /usr/include/_G_config.h /usr/include/bits/types.h
+DictionaryException.o: /usr/include/features.h /usr/include/sys/cdefs.h
+DictionaryException.o: /usr/include/gnu/stubs.h
+DictionaryException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+DictionaryException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+DictionaryException.o: /usr/include/string.h /usr/include/g++-3/string
+DictionaryException.o: /usr/include/g++-3/std/bastring.h
+DictionaryException.o: /usr/include/g++-3/cstddef
+DictionaryException.o: /usr/include/g++-3/std/straits.h
+DictionaryException.o: /usr/include/g++-3/cctype /usr/include/ctype.h
+DictionaryException.o: /usr/include/endian.h /usr/include/bits/endian.h
+DictionaryException.o: /usr/include/g++-3/cstring /usr/include/g++-3/alloc.h
+DictionaryException.o: /usr/include/g++-3/stl_config.h
+DictionaryException.o: /usr/include/g++-3/stl_alloc.h /usr/include/stdlib.h
+DictionaryException.o: /usr/include/sys/types.h /usr/include/time.h
+DictionaryException.o: /usr/include/sys/select.h /usr/include/bits/select.h
+DictionaryException.o: /usr/include/bits/sigset.h
+DictionaryException.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+DictionaryException.o: /usr/include/assert.h /usr/include/g++-3/iterator
+DictionaryException.o: /usr/include/g++-3/stl_relops.h
+DictionaryException.o: /usr/include/g++-3/stl_iterator.h
+DictionaryException.o: /usr/include/g++-3/cassert
+DictionaryException.o: /usr/include/g++-3/std/bastring.cc /usr/include/math.h
+DictionaryException.o: /usr/include/bits/huge_val.h
+DictionaryException.o: /usr/include/bits/mathdef.h
+DictionaryException.o: /usr/include/bits/mathcalls.h
+DictionaryException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+DictionaryException.o: /usr/include/stdio.h /usr/include/bits/stdio_lim.h
+Gamma1DL.o: Gamma1DL.h Parameter.h /Include/NamedItem.h /usr/include/string.h
+Gamma1DL.o: /usr/include/features.h /usr/include/sys/cdefs.h
+Gamma1DL.o: /usr/include/gnu/stubs.h
+Gamma1DL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Gamma1DL.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+Gamma1DL.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+Gamma1DL.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
+Gamma1DL.o: /Include/Exception.h
+Gamma1DW.o: Gamma1DW.h Parameter.h /Include/NamedItem.h /usr/include/string.h
+Gamma1DW.o: /usr/include/features.h /usr/include/sys/cdefs.h
+Gamma1DW.o: /usr/include/gnu/stubs.h
+Gamma1DW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Gamma1DW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+Gamma1DW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+Gamma1DW.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
+Gamma1DW.o: /Include/Exception.h
+Gamma2DB.o: Gamma2DB.h Parameter.h /Include/NamedItem.h /usr/include/string.h
+Gamma2DB.o: /usr/include/features.h /usr/include/sys/cdefs.h
+Gamma2DB.o: /usr/include/gnu/stubs.h
+Gamma2DB.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Gamma2DB.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+Gamma2DB.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+Gamma2DB.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
+Gamma2DB.o: /Include/Exception.h
+Gamma2DW.o: Gamma2DW.h Parameter.h /Include/NamedItem.h /usr/include/string.h
+Gamma2DW.o: /usr/include/features.h /usr/include/sys/cdefs.h
+Gamma2DW.o: /usr/include/gnu/stubs.h
+Gamma2DW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Gamma2DW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+Gamma2DW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+Gamma2DW.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
+Gamma2DW.o: /Include/Exception.h
+GateMediator.o: GateMediator.h Spectrum.h /usr/include/g++-3/vector
+GateMediator.o: /usr/include/g++-3/stl_algobase.h
+GateMediator.o: /usr/include/g++-3/stl_pair.h
+GateMediator.o: /usr/include/g++-3/type_traits.h /usr/include/string.h
+GateMediator.o: /usr/include/features.h /usr/include/sys/cdefs.h
+GateMediator.o: /usr/include/gnu/stubs.h
+GateMediator.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+GateMediator.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+GateMediator.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+GateMediator.o: /usr/include/bits/posix2_lim.h /usr/include/stdlib.h
+GateMediator.o: /usr/include/sys/types.h /usr/include/bits/types.h
+GateMediator.o: /usr/include/time.h /usr/include/endian.h
+GateMediator.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+GateMediator.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+GateMediator.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+GateMediator.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+GateMediator.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+GateMediator.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+GateMediator.o: /usr/include/g++-3/iostream.h /usr/include/g++-3/streambuf.h
+GateMediator.o: /usr/include/libio.h /usr/include/_G_config.h
+GateMediator.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+GateMediator.o: /usr/include/g++-3/stl_alloc.h /usr/include/assert.h
+GateMediator.o: /usr/include/g++-3/stl_construct.h
+GateMediator.o: /usr/include/g++-3/stl_uninitialized.h
+GateMediator.o: /usr/include/g++-3/stl_vector.h
+GateMediator.o: /usr/include/g++-3/stl_bvector.h /usr/include/g++-3/string
+GateMediator.o: /usr/include/g++-3/std/bastring.h /usr/include/g++-3/cstddef
+GateMediator.o: /usr/include/g++-3/std/straits.h /usr/include/g++-3/cctype
+GateMediator.o: /usr/include/ctype.h /usr/include/g++-3/cstring
+GateMediator.o: /usr/include/g++-3/alloc.h /usr/include/g++-3/stl_config.h
+GateMediator.o: /usr/include/g++-3/iterator /usr/include/g++-3/stl_relops.h
+GateMediator.o: /usr/include/g++-3/stl_iterator.h /usr/include/g++-3/cassert
+GateMediator.o: /usr/include/g++-3/std/bastring.cc
+Histogrammer.o: Histogrammer.h Dictionary.h /usr/include/g++-3/map
+Histogrammer.o: /usr/include/g++-3/stl_tree.h
+Histogrammer.o: /usr/include/g++-3/stl_algobase.h
+Histogrammer.o: /usr/include/g++-3/stl_pair.h
+Histogrammer.o: /usr/include/g++-3/type_traits.h /usr/include/string.h
+Histogrammer.o: /usr/include/features.h /usr/include/sys/cdefs.h
+Histogrammer.o: /usr/include/gnu/stubs.h
+Histogrammer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Histogrammer.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+Histogrammer.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+Histogrammer.o: /usr/include/bits/posix2_lim.h /usr/include/stdlib.h
+Histogrammer.o: /usr/include/sys/types.h /usr/include/bits/types.h
+Histogrammer.o: /usr/include/time.h /usr/include/endian.h
+Histogrammer.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+Histogrammer.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+Histogrammer.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+Histogrammer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+Histogrammer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+Histogrammer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+Histogrammer.o: /usr/include/g++-3/iostream.h /usr/include/g++-3/streambuf.h
+Histogrammer.o: /usr/include/libio.h /usr/include/_G_config.h
+Histogrammer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+Histogrammer.o: /usr/include/g++-3/stl_alloc.h /usr/include/assert.h
+Histogrammer.o: /usr/include/g++-3/stl_construct.h
+Histogrammer.o: /usr/include/g++-3/stl_function.h
+Histogrammer.o: /usr/include/g++-3/stl_map.h
+Histogrammer.o: /usr/include/g++-3/stl_multimap.h
+Histogrammer.o: /usr/include/g++-3/algorithm
+Histogrammer.o: /usr/include/g++-3/stl_uninitialized.h
+Histogrammer.o: /usr/include/g++-3/stl_tempbuf.h
+Histogrammer.o: /usr/include/g++-3/stl_algo.h /usr/include/g++-3/stl_heap.h
+Histogrammer.o: Parameter.h /Include/NamedItem.h Spectrum.h
+Histogrammer.o: /usr/include/g++-3/vector /usr/include/g++-3/stl_vector.h
+Histogrammer.o: /usr/include/g++-3/stl_bvector.h DictionaryException.h
+Histogrammer.o: /Include/Exception.h /Include/histotypes.h
+Histogrammer.o: /usr/include/g++-3/string /usr/include/g++-3/std/bastring.h
+Histogrammer.o: /usr/include/g++-3/cstddef /usr/include/g++-3/std/straits.h
+Histogrammer.o: /usr/include/g++-3/cctype /usr/include/ctype.h
+Histogrammer.o: /usr/include/g++-3/cstring /usr/include/g++-3/alloc.h
+Histogrammer.o: /usr/include/g++-3/stl_config.h /usr/include/g++-3/iterator
+Histogrammer.o: /usr/include/g++-3/stl_relops.h
+Histogrammer.o: /usr/include/g++-3/stl_iterator.h /usr/include/g++-3/cassert
+Histogrammer.o: /usr/include/g++-3/std/bastring.cc /usr/include/math.h
+Histogrammer.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
+Histogrammer.o: /usr/include/bits/mathcalls.h
+Histogrammer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+Histogrammer.o: GateMediator.h
+SnapshotSpectrum.o: SnapshotSpectrum.h Spectrum.h /usr/include/g++-3/vector
+SnapshotSpectrum.o: /usr/include/g++-3/stl_algobase.h
+SnapshotSpectrum.o: /usr/include/g++-3/stl_pair.h
+SnapshotSpectrum.o: /usr/include/g++-3/type_traits.h /usr/include/string.h
+SnapshotSpectrum.o: /usr/include/features.h /usr/include/sys/cdefs.h
+SnapshotSpectrum.o: /usr/include/gnu/stubs.h
+SnapshotSpectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+SnapshotSpectrum.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+SnapshotSpectrum.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+SnapshotSpectrum.o: /usr/include/bits/posix2_lim.h /usr/include/stdlib.h
+SnapshotSpectrum.o: /usr/include/sys/types.h /usr/include/bits/types.h
+SnapshotSpectrum.o: /usr/include/time.h /usr/include/endian.h
+SnapshotSpectrum.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+SnapshotSpectrum.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+SnapshotSpectrum.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+SnapshotSpectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+SnapshotSpectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+SnapshotSpectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+SnapshotSpectrum.o: /usr/include/g++-3/iostream.h
+SnapshotSpectrum.o: /usr/include/g++-3/streambuf.h /usr/include/libio.h
+SnapshotSpectrum.o: /usr/include/_G_config.h
+SnapshotSpectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+SnapshotSpectrum.o: /usr/include/g++-3/stl_alloc.h /usr/include/assert.h
+SnapshotSpectrum.o: /usr/include/g++-3/stl_construct.h
+SnapshotSpectrum.o: /usr/include/g++-3/stl_uninitialized.h
+SnapshotSpectrum.o: /usr/include/g++-3/stl_vector.h
+SnapshotSpectrum.o: /usr/include/g++-3/stl_bvector.h
+Spectrum.o: Spectrum.h /usr/include/g++-3/vector
+Spectrum.o: /usr/include/g++-3/stl_algobase.h /usr/include/g++-3/stl_pair.h
+Spectrum.o: /usr/include/g++-3/type_traits.h /usr/include/string.h
+Spectrum.o: /usr/include/features.h /usr/include/sys/cdefs.h
+Spectrum.o: /usr/include/gnu/stubs.h
+Spectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Spectrum.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+Spectrum.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+Spectrum.o: /usr/include/bits/posix2_lim.h /usr/include/stdlib.h
+Spectrum.o: /usr/include/sys/types.h /usr/include/bits/types.h
+Spectrum.o: /usr/include/time.h /usr/include/endian.h
+Spectrum.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+Spectrum.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+Spectrum.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+Spectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+Spectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+Spectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+Spectrum.o: /usr/include/g++-3/iostream.h /usr/include/g++-3/streambuf.h
+Spectrum.o: /usr/include/libio.h /usr/include/_G_config.h
+Spectrum.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+Spectrum.o: /usr/include/g++-3/stl_alloc.h /usr/include/assert.h
+Spectrum.o: /usr/include/g++-3/stl_construct.h
+Spectrum.o: /usr/include/g++-3/stl_uninitialized.h
+Spectrum.o: /usr/include/g++-3/stl_vector.h /usr/include/g++-3/stl_bvector.h
+Spectrum1DL.o: Spectrum1DL.h Parameter.h /Include/NamedItem.h
+Spectrum1DL.o: /usr/include/string.h /usr/include/features.h
+Spectrum1DL.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+Spectrum1DL.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Spectrum1DL.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+Spectrum1DL.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+Spectrum1DL.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
+Spectrum1DL.o: /Include/Exception.h
+Spectrum1DW.o: Spectrum1DW.h Parameter.h /Include/NamedItem.h
+Spectrum1DW.o: /usr/include/string.h /usr/include/features.h
+Spectrum1DW.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+Spectrum1DW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Spectrum1DW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+Spectrum1DW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+Spectrum1DW.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
+Spectrum1DW.o: /Include/Exception.h
+Spectrum2DB.o: Spectrum2DB.h Parameter.h /Include/NamedItem.h
+Spectrum2DB.o: /usr/include/string.h /usr/include/features.h
+Spectrum2DB.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+Spectrum2DB.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Spectrum2DB.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+Spectrum2DB.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+Spectrum2DB.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
+Spectrum2DB.o: /Include/Exception.h
+Spectrum2DW.o: Spectrum2DW.h Parameter.h /Include/NamedItem.h
+Spectrum2DW.o: /usr/include/string.h /usr/include/features.h
+Spectrum2DW.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+Spectrum2DW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+Spectrum2DW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+Spectrum2DW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+Spectrum2DW.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
+Spectrum2DW.o: /Include/Exception.h
+SpectrumFactory.o: SpectrumFactory.h /Include/histotypes.h
+SpectrumFactory.o: /usr/include/g++-3/iostream.h
+SpectrumFactory.o: /usr/include/g++-3/streambuf.h /usr/include/libio.h
+SpectrumFactory.o: /usr/include/_G_config.h /usr/include/bits/types.h
+SpectrumFactory.o: /usr/include/features.h /usr/include/sys/cdefs.h
+SpectrumFactory.o: /usr/include/gnu/stubs.h
+SpectrumFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+SpectrumFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+SpectrumFactory.o: /usr/include/string.h /usr/include/g++-3/string
+SpectrumFactory.o: /usr/include/g++-3/std/bastring.h
+SpectrumFactory.o: /usr/include/g++-3/cstddef
+SpectrumFactory.o: /usr/include/g++-3/std/straits.h /usr/include/g++-3/cctype
+SpectrumFactory.o: /usr/include/ctype.h /usr/include/endian.h
+SpectrumFactory.o: /usr/include/bits/endian.h /usr/include/g++-3/cstring
+SpectrumFactory.o: /usr/include/g++-3/alloc.h /usr/include/g++-3/stl_config.h
+SpectrumFactory.o: /usr/include/g++-3/stl_alloc.h /usr/include/stdlib.h
+SpectrumFactory.o: /usr/include/sys/types.h /usr/include/time.h
+SpectrumFactory.o: /usr/include/sys/select.h /usr/include/bits/select.h
+SpectrumFactory.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+SpectrumFactory.o: /usr/include/alloca.h /usr/include/assert.h
+SpectrumFactory.o: /usr/include/g++-3/iterator
+SpectrumFactory.o: /usr/include/g++-3/stl_relops.h
+SpectrumFactory.o: /usr/include/g++-3/stl_iterator.h
+SpectrumFactory.o: /usr/include/g++-3/cassert
+SpectrumFactory.o: /usr/include/g++-3/std/bastring.cc /usr/include/math.h
+SpectrumFactory.o: /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h
+SpectrumFactory.o: /usr/include/bits/mathcalls.h
+SpectrumFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
+SpectrumFactory.o: Parameter.h /Include/NamedItem.h /usr/include/limits.h
+SpectrumFactory.o: /usr/include/bits/posix1_lim.h
+SpectrumFactory.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+SpectrumFactory.o: /usr/include/bits/posix2_lim.h /usr/include/g++-3/vector
+SpectrumFactory.o: /usr/include/g++-3/stl_algobase.h
+SpectrumFactory.o: /usr/include/g++-3/stl_pair.h
+SpectrumFactory.o: /usr/include/g++-3/type_traits.h
+SpectrumFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+SpectrumFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+SpectrumFactory.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+SpectrumFactory.o: /usr/include/g++-3/stl_construct.h
+SpectrumFactory.o: /usr/include/g++-3/stl_uninitialized.h
+SpectrumFactory.o: /usr/include/g++-3/stl_vector.h
+SpectrumFactory.o: /usr/include/g++-3/stl_bvector.h
+SpectrumFactory.o: SpectrumFactoryException.h DictionaryException.h
+SpectrumFactory.o: /Include/Exception.h Spectrum.h Spectrum1DL.h
 SpectrumFactory.o: Spectrum1DW.h Spectrum2DW.h Spectrum2DB.h BitSpectrumL.h
 SpectrumFactory.o: BitSpectrumW.h SummarySpectrumW.h SummarySpectrumB.h
 SpectrumFactory.o: Gamma1DW.h Gamma1DL.h Gamma2DB.h Gamma2DW.h Histogrammer.h
-SpectrumFactory.o: Dictionary.h
-SpectrumFactoryException.o: SpectrumFactoryException.h /usr/include/string.h
-SpectrumFactoryException.o: /usr/include/standards.h /usr/include/sys/types.h
-SpectrumFactoryException.o: /usr/include/mach/machine/vm_types.h
-SpectrumFactoryException.o: /usr/include/sys/select.h /usr/include/strings.h
-SpectrumFactoryException.o: /usr/include/stdio.h /usr/include/sys/seek.h
-SpectrumFactoryException.o: /usr/include/va_list.h /usr/include/getopt.h
-SpectrumFactoryException.o: /usr/include/sys/limits.h
-SpectrumFactoryException.o: /usr/include/machine/machlimits.h
-SpectrumFactoryException.o: /usr/include/sys/syslimits.h
-SpectrumFactoryException.o: /usr/include/machine/machtime.h
-SpectrumFactoryException.o: /usr/include/sys/rt_limits.h
-SummarySpectrumB.o: SummarySpectrumB.h Parameter.h /usr/include/limits.h
-SummarySpectrumB.o: /usr/include/standards.h
-SummarySpectrumB.o: /usr/include/machine/machlimits.h
-SummarySpectrumB.o: /usr/include/sys/syslimits.h
-SummarySpectrumB.o: /usr/include/machine/machtime.h
-SummarySpectrumB.o: /usr/include/sys/rt_limits.h /usr/include/assert.h
-SummarySpectrumW.o: SummarySpectrumW.h Parameter.h /usr/include/limits.h
-SummarySpectrumW.o: /usr/include/standards.h
-SummarySpectrumW.o: /usr/include/machine/machlimits.h
-SummarySpectrumW.o: /usr/include/sys/syslimits.h
-SummarySpectrumW.o: /usr/include/machine/machtime.h
-SummarySpectrumW.o: /usr/include/sys/rt_limits.h /usr/include/assert.h
+SpectrumFactory.o: Dictionary.h /usr/include/g++-3/map
+SpectrumFactory.o: /usr/include/g++-3/stl_tree.h
+SpectrumFactory.o: /usr/include/g++-3/stl_function.h
+SpectrumFactory.o: /usr/include/g++-3/stl_map.h
+SpectrumFactory.o: /usr/include/g++-3/stl_multimap.h
+SpectrumFactory.o: /usr/include/g++-3/algorithm
+SpectrumFactory.o: /usr/include/g++-3/stl_tempbuf.h
+SpectrumFactory.o: /usr/include/g++-3/stl_algo.h
+SpectrumFactory.o: /usr/include/g++-3/stl_heap.h
+SpectrumFactoryException.o: SpectrumFactoryException.h /usr/include/stdio.h
+SpectrumFactoryException.o: /usr/include/features.h /usr/include/sys/cdefs.h
+SpectrumFactoryException.o: /usr/include/gnu/stubs.h
+SpectrumFactoryException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+SpectrumFactoryException.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+SpectrumFactoryException.o: /usr/include/bits/types.h /usr/include/libio.h
+SpectrumFactoryException.o: /usr/include/_G_config.h
+SpectrumFactoryException.o: /usr/include/bits/stdio_lim.h
+SummarySpectrumB.o: SummarySpectrumB.h Parameter.h /Include/NamedItem.h
+SummarySpectrumB.o: /usr/include/string.h /usr/include/features.h
+SummarySpectrumB.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+SummarySpectrumB.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+SummarySpectrumB.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+SummarySpectrumB.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+SummarySpectrumB.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
+SummarySpectrumB.o: /Include/Exception.h /usr/include/g++-3/algorithm
+SummarySpectrumB.o: /usr/include/g++-3/stl_algobase.h
+SummarySpectrumB.o: /usr/include/g++-3/stl_pair.h
+SummarySpectrumB.o: /usr/include/g++-3/type_traits.h /usr/include/stdlib.h
+SummarySpectrumB.o: /usr/include/sys/types.h /usr/include/bits/types.h
+SummarySpectrumB.o: /usr/include/time.h /usr/include/endian.h
+SummarySpectrumB.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+SummarySpectrumB.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+SummarySpectrumB.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+SummarySpectrumB.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+SummarySpectrumB.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+SummarySpectrumB.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+SummarySpectrumB.o: /usr/include/g++-3/iostream.h
+SummarySpectrumB.o: /usr/include/g++-3/streambuf.h /usr/include/libio.h
+SummarySpectrumB.o: /usr/include/_G_config.h
+SummarySpectrumB.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+SummarySpectrumB.o: /usr/include/g++-3/stl_construct.h
+SummarySpectrumB.o: /usr/include/g++-3/stl_uninitialized.h
+SummarySpectrumB.o: /usr/include/g++-3/stl_tempbuf.h
+SummarySpectrumB.o: /usr/include/g++-3/stl_algo.h
+SummarySpectrumB.o: /usr/include/g++-3/stl_heap.h /usr/include/assert.h
+SummarySpectrumW.o: SummarySpectrumW.h Parameter.h /Include/NamedItem.h
+SummarySpectrumW.o: /usr/include/string.h /usr/include/features.h
+SummarySpectrumW.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+SummarySpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
+SummarySpectrumW.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+SummarySpectrumW.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+SummarySpectrumW.o: /usr/include/bits/posix2_lim.h /Include/RangeError.h
+SummarySpectrumW.o: /Include/Exception.h /usr/include/g++-3/algorithm
+SummarySpectrumW.o: /usr/include/g++-3/stl_algobase.h
+SummarySpectrumW.o: /usr/include/g++-3/stl_pair.h
+SummarySpectrumW.o: /usr/include/g++-3/type_traits.h /usr/include/stdlib.h
+SummarySpectrumW.o: /usr/include/sys/types.h /usr/include/bits/types.h
+SummarySpectrumW.o: /usr/include/time.h /usr/include/endian.h
+SummarySpectrumW.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+SummarySpectrumW.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+SummarySpectrumW.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
+SummarySpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new.h
+SummarySpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/new
+SummarySpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/exception
+SummarySpectrumW.o: /usr/include/g++-3/iostream.h
+SummarySpectrumW.o: /usr/include/g++-3/streambuf.h /usr/include/libio.h
+SummarySpectrumW.o: /usr/include/_G_config.h
+SummarySpectrumW.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
+SummarySpectrumW.o: /usr/include/g++-3/stl_construct.h
+SummarySpectrumW.o: /usr/include/g++-3/stl_uninitialized.h
+SummarySpectrumW.o: /usr/include/g++-3/stl_tempbuf.h
+SummarySpectrumW.o: /usr/include/g++-3/stl_algo.h
+SummarySpectrumW.o: /usr/include/g++-3/stl_heap.h /usr/include/assert.h

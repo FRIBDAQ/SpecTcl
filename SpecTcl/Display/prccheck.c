@@ -18,7 +18,7 @@ static char *sccsinfo="@(#)prccheck.c	1.1 3/4/94 ";
 /*
 ** Include files:
 */
-
+#include <stdio.h>
 #ifdef unix
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -36,7 +36,6 @@ static char *sccsinfo="@(#)prccheck.c	1.1 3/4/94 ";
 #endif
 #endif
 
-#include "prccheck.h"
 
 /*
 ** External references:
@@ -86,6 +85,11 @@ int sys$getjpiw(int efn, pid_t *pid, struct dsc$descriptor *name,
 */
 int ProcessAlive (pid_t pid)
 #ifdef unix
+#ifdef CYGWIN
+{
+  return -1;			/* Let shutdown of pipe kill me off. */
+}
+#else 
 {
     int status;
     int waitstat;
@@ -99,13 +103,14 @@ int ProcessAlive (pid_t pid)
       return (waitstat == 0);	/* 0 if running pid if exited or zombie */
     }
     /*  If control passes here, then the process is not a child of the
-        caller and we can only determine liveness by doing a kill 0 on it.
+        caller and we can only deteyrmine liveness by doing a kill 0 on it.
         kill 0 does not work with children since zombie processes can
 	recieve signals in e.g. Linux.
 	*/
     return (kill(pid, 0) == 0);
 
 }
+#endif
 #endif
 #ifdef VMS
 {

@@ -279,7 +279,7 @@ CPipeFile::Read(Address_t pBuffer, UInt_t nBytes)
   UInt_t nTotalRead(0);
 
   while(nTotalRead != nBytes) {
-    UInt_t nRead = CFile::Read(pBuffer, nBytes);
+    UInt_t nRead = CFile::Read(pBuffer, (nBytes - nTotalRead));
     if(nRead > 0) {
       nTotalRead += nRead;
       char* p     = (char*)pBuffer;

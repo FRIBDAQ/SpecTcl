@@ -304,8 +304,9 @@ CNSCLBufferDecoder::operator() (UInt_t nBytes, Address_t pBuffer,
   // Figure out the buffer type... note can't use getBufferType() since
   // the buffer pointer has not been squirreled away yet.
 
+  setBuffer(pBuffer);		// Now we can use getBufferType().
   BHEADER* pHeader((BHEADER*)pBuffer);
-  if(pHeader->type == BEGRUNBF) {
+  if(getBufferType() == BEGRUNBF) {
     ctlbody* pBody=(ctlbody*)(&pHeader[1]);  // Point to the body.
     char czTitle[sizeof(pBody->title) + 1]; // Title string in buffer may
     memset(czTitle,0, sizeof(pBody->title)+1); // not be null terminated..
