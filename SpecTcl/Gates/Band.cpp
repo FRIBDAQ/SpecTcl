@@ -425,26 +425,8 @@ CBand::inGate(CEvent& rEvent)
     int x = rEvent[xPar];	// Pull the point out of the event array.
     int y = rEvent[yPar];
 
-    // Now count edges.  
-    // First handle the vertical edges separately.
+    return Interior(x,y);
 
-    int nCrosses(0);
-    if(y < (m_LeftLimit.Y()) && (x >= m_LeftLimit.X())) nCrosses++;
-    if(y < (m_RightLimit.Y()) && (x >= m_RightLimit.X())) nCrosses++;
-
-    // Now tally any additional crossings with the border of the band.
-
-    int nSegments = Size() - 1;
-    assert(nSegments >= 1);	// Need at least one segment to make a band.
-    vector<CPoint>::iterator first = getBegin();
-    vector<CPoint>::iterator second= first; second++;
-
-    for(int seg = 0; seg < nSegments; seg++) {
-      nCrosses += Crosses(x,y, first, second);
-      first = second;
-      second++;
-    }
-    return ((nCrosses & 1) == 1);
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -504,4 +486,34 @@ CBand::GetLRLimits()
     m_RightLimit = *f;
   }
  
+}
+/*!
+   Return true if the selected point is inside the band.
+   \param x   X coord of the point
+   \param y   Y coord of the point.
+   \return  kfTRUE if the point is interior.
+*/
+Bool_t
+CBand::Interior(int x, int y)
+{
+    // Now count edges.  
+    // First handle the vertical edges separately.
+
+    int nCrosses(0);
+    if(y < (m_LeftLimit.Y()) && (x >= m_LeftLimit.X())) nCrosses++;
+    if(y < (m_RightLimit.Y()) && (x >= m_RightLimit.X())) nCrosses++;
+
+    // Now tally any additional crossings with the border of the band.
+
+    int nSegments = Size() - 1;
+    assert(nSegments >= 1);	// Need at least one segment to make a band.
+    vector<CPoint>::iterator first = getBegin();
+    vector<CPoint>::iterator second= first; second++;
+
+    for(int seg = 0; seg < nSegments; seg++) {
+      nCrosses += Crosses(x,y, first, second);
+      first = second;
+      second++;
+    }
+    return ((nCrosses & 1) == 1);
 }

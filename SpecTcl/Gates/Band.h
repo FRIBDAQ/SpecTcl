@@ -368,8 +368,9 @@ public:
   //
   // Utilities:
   //
-
+protected:
   void GetLRLimits();
+  Bool_t Interior(int x, int y);
 };
 
 #endif
