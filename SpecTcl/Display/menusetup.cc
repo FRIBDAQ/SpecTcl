@@ -52,6 +52,7 @@
 #include "objcopy.h"
 #include "lblfont.h"
 #include "copyatr.h"
+#include "Tab.h"
 
 /*
 ** External functions:
@@ -198,18 +199,9 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   /* Print spectra: */
 
   pd->AddSeparator();
-  sub = pd->AddSubmenu("Print",5);
-  b = sub->AddMenuButton("PRSelected");
+  b = pd->AddMenuButton("Print...",Xamine_PrintSpectrumDialog);
   b->SetAccelerator("Meta<Key>P", "Alt+P");
-  b->AddCallback(Xamine_printSelected, (XtPointer)NULL);
   Xamine_AddtoSpectrumSelectedPackage(b);
-  b->Label("Print Selected Spectrum");
-
-  b = sub->AddMenuButton("PRAll");
-  b->Label("Print Visible Spectra");
-  b->SetAccelerator("Ctrl<Key>P", "Ctrl+P");
-  b->AddCallback(Xamine_printAll, (XtPointer)NULL);
-  Xamine_AddtoSpectrumPresentPackage(b);
 
   /* Exit */
 
