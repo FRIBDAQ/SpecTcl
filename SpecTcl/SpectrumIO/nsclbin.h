@@ -17,8 +17,8 @@
 #define NSCLBIN_
 class nsclbin {
  public:
-  nsclbin(istream&);
-  nsclbin(ostream&);
+  nsclbin(istream*);
+  nsclbin(ostream*);
   ~nsclbin();
   void getname(char[]);
   void getdate(char[]);
@@ -60,8 +60,8 @@ class nsclbin {
   void rtrim(char[],char);
   void padstream(ostream&);
   void readpad(istream&);
-  //data members ****************
-  iostream Binary;
+  //  data members ****************
+  //  iostream Binary;
 
   char head[121], time[9], date[11], formatinfo[131];
   short dimension, muformat, smaugformat, xlength, ylength, truey, format,buffer[512];
@@ -79,3 +79,6 @@ class nsclbin {
 
 
 #endif
+
+
+

@@ -44,7 +44,7 @@ template <class T>
 int muintemplate<T>::readin(istream& Binary) {
   T temp;
   int ReadOk;
-  Binary.read(data,sizeof(temp)*xlength*ylength);
+  Binary.read((char*)data,sizeof(temp)*xlength*ylength);
   if (Binary.fail()) {
     reporterror((nsclfileerror*)new nsclfileerror(nsclfileerror::ReadErrorS ) );
   }
@@ -119,7 +119,7 @@ int smaugintemplate<T>::readin(istream& Binary) {
   int ReadOk, num, maskrecords,current = 0;
   maskrecords = sizeofbitmask(xlength, ylength);
   bitmask mask[maskrecords];
-  Binary.read(mask, sizeof(mask));
+  Binary.read((char*)mask, sizeof(mask));
   if (ylength>0) {
     num=xlength*ylength;
   } else {
@@ -130,7 +130,7 @@ int smaugintemplate<T>::readin(istream& Binary) {
     for (int byte = 0; byte<maskbytes; byte++) {
       for (int bit = 0; bit<8; bit++) {
 	if (mask[rec][byte] & (1<<bit)) {
-	  Binary.read(&temp, sizeof(temp));
+	  Binary.read((char*)&temp, sizeof(temp));
 	  data[current]=temp;
 	}
 	current++;
@@ -267,7 +267,7 @@ bool writetemplate<T>::writeout(ostream& Binary) {
     for (int byte = 0; byte<maskbytes; byte++) {
       for (int bit = 0; bit<8; bit++) {
 	if (mask[rec][byte] & (1<<bit)) {
-	  Binary.write(&(data[current]), sizeof(T));
+	  Binary.write((char*)&(data[current]), sizeof(T));
 	}
 	current++;
 	if (current==num) break;

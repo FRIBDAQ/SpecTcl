@@ -77,7 +77,7 @@ CGamma2DB::Increment(const CEvent& rE)
   if(sGateType != "gs" && sGateType != "gb" && sGateType != "gc") {
     CEvent& rEvent((CEvent&)rE);
     UChar_t* pStorage = (UChar_t*)getStorage();
-    assert(pStorage != (UChar_t) kpNULL);
+    assert(pStorage != (UChar_t*) kpNULL);
     UInt_t xChan, yChan;
     
     for (xChan = 0; xChan < m_vParameters.size()-1; xChan++) {

@@ -197,12 +197,13 @@ Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
   if (InMap(fid)) {
     in = (ifstream*)CheckOut(fid);
   } else {
-    in = new ifstream(fid);		// Connect a stream to the file.
+    in = new ifstream;
     if (in == NULL) {
       errno = ENOMEM;
       throw(CErrnoException("Creating input file stream."));
     }
   }
+  in->attach(fid);
   CSpectrumPackage& rPack((CSpectrumPackage&)getMyPackage());
   UInt_t ReadFlags = 0;
   if(!fSnapshot) ReadFlags |= CSpectrumPackage::fLive;

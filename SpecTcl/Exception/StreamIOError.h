@@ -23,7 +23,9 @@
 
 #ifndef __STREAMIOERROR_H  //Required for current class
 #define __STREAMIOERROR_H
-
+#ifndef __HISTOTYPES_H
+#include <histotypes.h>
+#endif
                                //Required for base classes
 #ifndef __EXCEPTION_H
 #include "Exception.h"
@@ -34,7 +36,7 @@
 #define __STL_STRING
 #endif                
      
-class ios;			// Forward definition.
+
 
 class CStreamIOError  : public CException        
 {       
@@ -47,7 +49,7 @@ public:				// Data types;
 
 private:  
   IoStreamConditions m_eReason; //Reason for the throw
-  ios&               m_rStream; //Reference to stream <may be invalid>
+  std::ios&          m_rStream; //Reference to stream <may be invalid>
   char               m_sReasonText[1000]; // Reason for failure built here.
   static char**      m_svErrorMessages; //Pointer to error message table.      
 

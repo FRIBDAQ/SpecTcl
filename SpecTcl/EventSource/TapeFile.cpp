@@ -461,7 +461,7 @@ CTapeFile::TapeCreate(const std::string& name)
 
   file_item items[] = {
     { FILE_NAMEREQ,   (char*)(name.c_str()) },
-    { FILE_REQRECLEN, (char*)m_nBlocksize },
+    { FILE_REQRECLEN, (char*)(long)m_nBlocksize },
     { FILE_ENDLIST,   (char*)0 }
   };
   Int_t status = volcreate(m_pVcb.operator->(), items);

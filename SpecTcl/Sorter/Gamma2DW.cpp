@@ -77,7 +77,7 @@ CGamma2DW::Increment(const CEvent& rE)
   if(sGateType[0] != 'g') {
     CEvent& rEvent((CEvent&)rE);
     UShort_t* pStorage = (UShort_t*)getStorage();
-    assert(pStorage != (UShort_t) kpNULL);
+    assert(pStorage != (UShort_t*) kpNULL);
     UInt_t xChan, yChan;
     
     for (xChan = 0; xChan < m_vParameters.size()-1; xChan++) {

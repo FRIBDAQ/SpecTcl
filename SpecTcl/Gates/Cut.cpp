@@ -149,10 +149,12 @@ std::string
 CCut::GetConstituent(CConstituentIterator& rIterator) 
 {
 // Returns a text encoded version of the 
-// constituent 'pointed to' by the iterator.
-// 
+// constituent pointed to' by the iterator.
+// 	
+	
 
-  if(rIterator != End()) {
+  CConstituentIterator e = End();
+  if((rIterator != e)) {
     char Text[100];
     sprintf(Text, "%d %d %d", m_nId, m_nLow, m_nHigh);
     return std::string(Text);

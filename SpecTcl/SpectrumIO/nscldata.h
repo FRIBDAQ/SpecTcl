@@ -69,7 +69,7 @@ class muintemplate : public spcin {
   
   int xlength, ylength;
   T *data; 
-  istream Binary;
+//  istream Binary;
   
 };
 
@@ -114,7 +114,7 @@ class smaugintemplate : public spcin {
  private: 
   int xlength, ylength;
   T *data; 
-  istream Binary;
+//  istream Binary;
   
 };
 

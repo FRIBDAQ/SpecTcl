@@ -15,7 +15,7 @@
 
 */
 
-nsclbin::nsclbin(istream& Binary) {
+nsclbin::nsclbin(istream* Binary) {
   
   dimension = xlength = ylength = format = totcount = -1;
   memset(head, 0,sizeof(head));
@@ -47,7 +47,7 @@ void nsclbin::getdata(istream& Binary) {
   if (Binary.fail()) {
     error((nsclfileerror*)new nsclfileerror(nsclfileerror::EmptyStream));
   }
-  Binary.read(buffer, sizeof(buffer));
+  Binary.read((char*)buffer, sizeof(buffer));
 
   if (Binary.fail()) {
     error((nsclfileerror*)new nsclfileerror(nsclfileerror::HeaderReadError));
@@ -191,7 +191,7 @@ void nsclbin::smaugset() {
 
 
 
-nsclbin::nsclbin(ostream& Binary) {
+nsclbin::nsclbin(ostream* Binary) {
 
   dimension = xlength = ylength = format = totcount = elements-1;
   memset(head, 0,sizeof(head));

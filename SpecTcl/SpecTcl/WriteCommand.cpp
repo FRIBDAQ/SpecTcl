@@ -120,8 +120,9 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //   Now we can associate a stream with the file id and
   //   ask that the spectra be written out:
   //
-
+  FILE* junk;
   ofstream out(fid);
+
   nArgs--;
   pArgs++;
   UInt_t nFailed = 0;

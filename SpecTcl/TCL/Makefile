@@ -111,128 +111,204 @@ TCLObject.o: TCLObject.cpp
 # DO NOT DELETE
 
 TCLApplication.o: TCLApplication.h TCLInterpreterObject.h
-TCLApplication.o: /usr/local/tcl/include/tcl.h /usr/include/stdio.h
-TCLApplication.o: /usr/include/_ansi.h /usr/include/sys/config.h
-TCLApplication.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
-TCLApplication.o: /usr/local/tcl/include/tclDecls.h /usr/include/assert.h
+TCLApplication.o: /usr/local/include/tcl.h /usr/include/stdio.h
+TCLApplication.o: /usr/include/standards.h /usr/include/sys/seek.h
+TCLApplication.o: /usr/include/va_list.h /usr/include/sys/types.h
+TCLApplication.o: /usr/include/mach/machine/vm_types.h
+TCLApplication.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLApplication.o: /usr/include/sys/limits.h
+TCLApplication.o: /usr/include/sys/machine/machlimits.h
+TCLApplication.o: /usr/include/sys/syslimits.h
+TCLApplication.o: /usr/include/sys/machine/machtime.h
+TCLApplication.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLApplication.o: /usr/local/include/tclDecls.h /usr/include/assert.h
 TCLApplication.o: TCLInterpreter.h TCLString.h /usr/include/string.h
-TCLApplication.o: /usr/local/tcl/include/tk.h
-TCLApplication.o: /usr/local/tcl/include/X11/Xlib.h
-TCLApplication.o: /usr/local/tcl/include/X11/X.h
-TCLApplication.o: /usr/local/tcl/include/X11/Xfuncproto.h
-TCLApplication.o: /usr/local/tcl/include/tkIntXlibDecls.h
-TCLApplication.o: /usr/local/tcl/include/X11/Xutil.h
-TCLApplication.o: /usr/local/tcl/include/tkDecls.h
+TCLApplication.o: /usr/include/strings.h /usr/local/include/tk.h
+TCLApplication.o: /usr/include/X11/Xlib.h /usr/include/X11/X.h
+TCLApplication.o: /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h
+TCLApplication.o: /usr/include/stddef.h /usr/local/include/tkDecls.h
 TCLCommandPackage.o: TCLCommandPackage.h TCLInterpreterObject.h
-TCLCommandPackage.o: /usr/local/tcl/include/tcl.h /usr/include/stdio.h
-TCLCommandPackage.o: /usr/include/_ansi.h /usr/include/sys/config.h
-TCLCommandPackage.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
-TCLCommandPackage.o: /usr/local/tcl/include/tclDecls.h /usr/include/assert.h
+TCLCommandPackage.o: /usr/local/include/tcl.h /usr/include/stdio.h
+TCLCommandPackage.o: /usr/include/standards.h /usr/include/sys/seek.h
+TCLCommandPackage.o: /usr/include/va_list.h /usr/include/sys/types.h
+TCLCommandPackage.o: /usr/include/mach/machine/vm_types.h
+TCLCommandPackage.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLCommandPackage.o: /usr/include/sys/limits.h
+TCLCommandPackage.o: /usr/include/sys/machine/machlimits.h
+TCLCommandPackage.o: /usr/include/sys/syslimits.h
+TCLCommandPackage.o: /usr/include/sys/machine/machtime.h
+TCLCommandPackage.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLCommandPackage.o: /usr/local/include/tclDecls.h /usr/include/assert.h
 TCLCommandPackage.o: TCLInterpreter.h TCLString.h /usr/include/string.h
-TCLCommandPackage.o: TCLProcessor.h TCLResult.h
+TCLCommandPackage.o: /usr/include/strings.h TCLProcessor.h TCLResult.h
 TCLException.o: TCLException.h TCLInterpreterObject.h
-TCLException.o: /usr/local/tcl/include/tcl.h /usr/include/stdio.h
-TCLException.o: /usr/include/_ansi.h /usr/include/sys/config.h
-TCLException.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
-TCLException.o: /usr/local/tcl/include/tclDecls.h /usr/include/assert.h
+TCLException.o: /usr/local/include/tcl.h /usr/include/stdio.h
+TCLException.o: /usr/include/standards.h /usr/include/sys/seek.h
+TCLException.o: /usr/include/va_list.h /usr/include/sys/types.h
+TCLException.o: /usr/include/mach/machine/vm_types.h
+TCLException.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLException.o: /usr/include/sys/limits.h
+TCLException.o: /usr/include/sys/machine/machlimits.h
+TCLException.o: /usr/include/sys/syslimits.h
+TCLException.o: /usr/include/sys/machine/machtime.h
+TCLException.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLException.o: /usr/local/include/tclDecls.h /usr/include/assert.h
 TCLException.o: TCLResult.h TCLInterpreter.h TCLString.h
-TCLException.o: /usr/include/string.h
+TCLException.o: /usr/include/string.h /usr/include/strings.h
 TCLFileHandler.o: TCLFileHandler.h TCLInterpreterObject.h
-TCLFileHandler.o: /usr/local/tcl/include/tcl.h /usr/include/stdio.h
-TCLFileHandler.o: /usr/include/_ansi.h /usr/include/sys/config.h
-TCLFileHandler.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
-TCLFileHandler.o: /usr/local/tcl/include/tclDecls.h /usr/include/assert.h
-TCLFileHandler.o: /usr/include/unistd.h /usr/include/sys/unistd.h
-TCLFileHandler.o: /usr/include/sys/types.h /usr/include/machine/types.h
-TCLFileHandler.o: /usr/include/sys/features.h /usr/include/getopt.h
-TCLFileHandler.o: /usr/local/tcl/include/tk.h
-TCLFileHandler.o: /usr/local/tcl/include/X11/Xlib.h
-TCLFileHandler.o: /usr/local/tcl/include/X11/X.h
-TCLFileHandler.o: /usr/local/tcl/include/X11/Xfuncproto.h
-TCLFileHandler.o: /usr/local/tcl/include/tkIntXlibDecls.h
-TCLFileHandler.o: /usr/local/tcl/include/X11/Xutil.h
-TCLFileHandler.o: /usr/local/tcl/include/tkDecls.h
+TCLFileHandler.o: /usr/local/include/tcl.h /usr/include/stdio.h
+TCLFileHandler.o: /usr/include/standards.h /usr/include/sys/seek.h
+TCLFileHandler.o: /usr/include/va_list.h /usr/include/sys/types.h
+TCLFileHandler.o: /usr/include/mach/machine/vm_types.h
+TCLFileHandler.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLFileHandler.o: /usr/include/sys/limits.h
+TCLFileHandler.o: /usr/include/sys/machine/machlimits.h
+TCLFileHandler.o: /usr/include/sys/syslimits.h
+TCLFileHandler.o: /usr/include/sys/machine/machtime.h
+TCLFileHandler.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLFileHandler.o: /usr/local/include/tclDecls.h /usr/include/assert.h
+TCLFileHandler.o: /usr/include/unistd.h /usr/include/sys/access.h
+TCLFileHandler.o: /usr/local/include/tk.h /usr/include/X11/Xlib.h
+TCLFileHandler.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
+TCLFileHandler.o: /usr/include/X11/Xosdefs.h /usr/include/stddef.h
+TCLFileHandler.o: /usr/local/include/tkDecls.h
 TCLIdleProcess.o: TCLIdleProcess.h TCLTimer.h TCLInterpreterObject.h
-TCLIdleProcess.o: /usr/local/tcl/include/tcl.h /usr/include/stdio.h
-TCLIdleProcess.o: /usr/include/_ansi.h /usr/include/sys/config.h
-TCLIdleProcess.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
-TCLIdleProcess.o: /usr/local/tcl/include/tclDecls.h /usr/include/assert.h
-TCLIdleProcess.o: /usr/local/tcl/include/tk.h
-TCLIdleProcess.o: /usr/local/tcl/include/X11/Xlib.h
-TCLIdleProcess.o: /usr/local/tcl/include/X11/X.h
-TCLIdleProcess.o: /usr/local/tcl/include/X11/Xfuncproto.h
-TCLIdleProcess.o: /usr/local/tcl/include/tkIntXlibDecls.h
-TCLIdleProcess.o: /usr/local/tcl/include/X11/Xutil.h
-TCLIdleProcess.o: /usr/local/tcl/include/tkDecls.h
-TCLInterpreter.o: TCLInterpreter.h TCLString.h /usr/local/tcl/include/tcl.h
-TCLInterpreter.o: /usr/include/stdio.h /usr/include/_ansi.h
-TCLInterpreter.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-TCLInterpreter.o: /usr/include/sys/_types.h /usr/local/tcl/include/tclDecls.h
-TCLInterpreter.o: /usr/include/string.h TCLException.h TCLInterpreterObject.h
-TCLInterpreter.o: /usr/include/assert.h TCLResult.h
-TCLInterpreterObject.o: TCLInterpreterObject.h /usr/local/tcl/include/tcl.h
-TCLInterpreterObject.o: /usr/include/stdio.h /usr/include/_ansi.h
-TCLInterpreterObject.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-TCLInterpreterObject.o: /usr/include/sys/_types.h
-TCLInterpreterObject.o: /usr/local/tcl/include/tclDecls.h
-TCLInterpreterObject.o: /usr/include/assert.h
-TCLList.o: TCLList.h TCLInterpreterObject.h /usr/local/tcl/include/tcl.h
-TCLList.o: /usr/include/stdio.h /usr/include/_ansi.h
-TCLList.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-TCLList.o: /usr/include/sys/_types.h /usr/local/tcl/include/tclDecls.h
-TCLList.o: /usr/include/assert.h TCLInterpreter.h TCLString.h
-TCLList.o: /usr/include/string.h /usr/include/malloc.h
-TCLObject.o: TCLObject.h TCLInterpreterObject.h /usr/local/tcl/include/tcl.h
-TCLObject.o: /usr/include/stdio.h /usr/include/_ansi.h
-TCLObject.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-TCLObject.o: /usr/include/sys/_types.h /usr/local/tcl/include/tclDecls.h
-TCLObject.o: /usr/include/assert.h TCLList.h TCLInterpreter.h TCLString.h
-TCLObject.o: /usr/include/string.h TCLException.h TCLResult.h
+TCLIdleProcess.o: /usr/local/include/tcl.h /usr/include/stdio.h
+TCLIdleProcess.o: /usr/include/standards.h /usr/include/sys/seek.h
+TCLIdleProcess.o: /usr/include/va_list.h /usr/include/sys/types.h
+TCLIdleProcess.o: /usr/include/mach/machine/vm_types.h
+TCLIdleProcess.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLIdleProcess.o: /usr/include/sys/limits.h
+TCLIdleProcess.o: /usr/include/sys/machine/machlimits.h
+TCLIdleProcess.o: /usr/include/sys/syslimits.h
+TCLIdleProcess.o: /usr/include/sys/machine/machtime.h
+TCLIdleProcess.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLIdleProcess.o: /usr/local/include/tclDecls.h /usr/include/assert.h
+TCLIdleProcess.o: /usr/local/include/tk.h /usr/include/X11/Xlib.h
+TCLIdleProcess.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
+TCLIdleProcess.o: /usr/include/X11/Xosdefs.h /usr/include/stddef.h
+TCLIdleProcess.o: /usr/local/include/tkDecls.h
+TCLInterpreter.o: TCLInterpreter.h TCLString.h /usr/local/include/tcl.h
+TCLInterpreter.o: /usr/include/stdio.h /usr/include/standards.h
+TCLInterpreter.o: /usr/include/sys/seek.h /usr/include/va_list.h
+TCLInterpreter.o: /usr/include/sys/types.h
+TCLInterpreter.o: /usr/include/mach/machine/vm_types.h
+TCLInterpreter.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLInterpreter.o: /usr/include/sys/limits.h
+TCLInterpreter.o: /usr/include/sys/machine/machlimits.h
+TCLInterpreter.o: /usr/include/sys/syslimits.h
+TCLInterpreter.o: /usr/include/sys/machine/machtime.h
+TCLInterpreter.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLInterpreter.o: /usr/local/include/tclDecls.h /usr/include/string.h
+TCLInterpreter.o: /usr/include/strings.h TCLException.h
+TCLInterpreter.o: TCLInterpreterObject.h /usr/include/assert.h TCLResult.h
+TCLInterpreterObject.o: TCLInterpreterObject.h /usr/local/include/tcl.h
+TCLInterpreterObject.o: /usr/include/stdio.h /usr/include/standards.h
+TCLInterpreterObject.o: /usr/include/sys/seek.h /usr/include/va_list.h
+TCLInterpreterObject.o: /usr/include/sys/types.h
+TCLInterpreterObject.o: /usr/include/mach/machine/vm_types.h
+TCLInterpreterObject.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLInterpreterObject.o: /usr/include/sys/limits.h
+TCLInterpreterObject.o: /usr/include/sys/machine/machlimits.h
+TCLInterpreterObject.o: /usr/include/sys/syslimits.h
+TCLInterpreterObject.o: /usr/include/sys/machine/machtime.h
+TCLInterpreterObject.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLInterpreterObject.o: /usr/local/include/tclDecls.h /usr/include/assert.h
+TCLList.o: TCLList.h TCLInterpreterObject.h /usr/local/include/tcl.h
+TCLList.o: /usr/include/stdio.h /usr/include/standards.h
+TCLList.o: /usr/include/sys/seek.h /usr/include/va_list.h
+TCLList.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+TCLList.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLList.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+TCLList.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+TCLList.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLList.o: /usr/local/include/tclDecls.h /usr/include/assert.h
+TCLList.o: TCLInterpreter.h TCLString.h /usr/include/string.h
+TCLList.o: /usr/include/strings.h /usr/include/malloc.h
+TCLObject.o: TCLObject.h TCLInterpreterObject.h /usr/local/include/tcl.h
+TCLObject.o: /usr/include/stdio.h /usr/include/standards.h
+TCLObject.o: /usr/include/sys/seek.h /usr/include/va_list.h
+TCLObject.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+TCLObject.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLObject.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+TCLObject.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+TCLObject.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLObject.o: /usr/local/include/tclDecls.h /usr/include/assert.h TCLList.h
+TCLObject.o: TCLInterpreter.h TCLString.h /usr/include/string.h
+TCLObject.o: /usr/include/strings.h TCLException.h TCLResult.h
 TCLProcessor.o: TCLProcessor.h TCLInterpreter.h TCLString.h
-TCLProcessor.o: /usr/local/tcl/include/tcl.h /usr/include/stdio.h
-TCLProcessor.o: /usr/include/_ansi.h /usr/include/sys/config.h
-TCLProcessor.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
-TCLProcessor.o: /usr/local/tcl/include/tclDecls.h /usr/include/string.h
-TCLProcessor.o: TCLResult.h TCLException.h TCLInterpreterObject.h
-TCLProcessor.o: /usr/include/assert.h
-TCLResult.o: TCLResult.h TCLString.h /usr/local/tcl/include/tcl.h
-TCLResult.o: /usr/include/stdio.h /usr/include/_ansi.h
-TCLResult.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-TCLResult.o: /usr/include/sys/_types.h /usr/local/tcl/include/tclDecls.h
-TCLResult.o: /usr/include/string.h TCLInterpreter.h /usr/include/assert.h
-TCLString.o: TCLString.h /usr/local/tcl/include/tcl.h /usr/include/stdio.h
-TCLString.o: /usr/include/_ansi.h /usr/include/sys/config.h
-TCLString.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
-TCLString.o: /usr/local/tcl/include/tclDecls.h /usr/include/string.h
-TCLTest.o: /usr/local/tcl/include/tk.h /usr/local/tcl/include/X11/Xlib.h
-TCLTest.o: /usr/local/tcl/include/X11/X.h
-TCLTest.o: /usr/local/tcl/include/X11/Xfuncproto.h
-TCLTest.o: /usr/local/tcl/include/tkIntXlibDecls.h
-TCLTest.o: /usr/local/tcl/include/X11/Xutil.h
-TCLTest.o: /usr/local/tcl/include/tkDecls.h TCLApplication.h
-TCLTest.o: TCLInterpreterObject.h /usr/local/tcl/include/tcl.h
-TCLTest.o: /usr/include/stdio.h /usr/include/_ansi.h
-TCLTest.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-TCLTest.o: /usr/include/sys/_types.h /usr/local/tcl/include/tclDecls.h
-TCLTest.o: /usr/include/assert.h TCLVariable.h TCLProcessor.h
-TCLTest.o: TCLInterpreter.h TCLString.h /usr/include/string.h TCLResult.h
-TCLTest.o: /usr/include/fcntl.h /usr/include/sys/fcntl.h
-TCLTest.o: /usr/include/sys/types.h /usr/include/machine/types.h
-TCLTest.o: /usr/include/sys/stat.h /usr/include/time.h
-TCLTest.o: /usr/include/machine/time.h /usr/include/sys/features.h
-TCLTimer.o: TCLTimer.h TCLInterpreterObject.h /usr/local/tcl/include/tcl.h
-TCLTimer.o: /usr/include/stdio.h /usr/include/_ansi.h
-TCLTimer.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-TCLTimer.o: /usr/include/sys/_types.h /usr/local/tcl/include/tclDecls.h
-TCLTimer.o: /usr/include/assert.h /usr/local/tcl/include/tk.h
-TCLTimer.o: /usr/local/tcl/include/X11/Xlib.h /usr/local/tcl/include/X11/X.h
-TCLTimer.o: /usr/local/tcl/include/X11/Xfuncproto.h
-TCLTimer.o: /usr/local/tcl/include/tkIntXlibDecls.h
-TCLTimer.o: /usr/local/tcl/include/X11/Xutil.h
-TCLTimer.o: /usr/local/tcl/include/tkDecls.h
+TCLProcessor.o: /usr/local/include/tcl.h /usr/include/stdio.h
+TCLProcessor.o: /usr/include/standards.h /usr/include/sys/seek.h
+TCLProcessor.o: /usr/include/va_list.h /usr/include/sys/types.h
+TCLProcessor.o: /usr/include/mach/machine/vm_types.h
+TCLProcessor.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLProcessor.o: /usr/include/sys/limits.h
+TCLProcessor.o: /usr/include/sys/machine/machlimits.h
+TCLProcessor.o: /usr/include/sys/syslimits.h
+TCLProcessor.o: /usr/include/sys/machine/machtime.h
+TCLProcessor.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLProcessor.o: /usr/local/include/tclDecls.h /usr/include/string.h
+TCLProcessor.o: /usr/include/strings.h TCLResult.h TCLException.h
+TCLProcessor.o: TCLInterpreterObject.h /usr/include/assert.h
+TCLResult.o: TCLResult.h TCLString.h /usr/local/include/tcl.h
+TCLResult.o: /usr/include/stdio.h /usr/include/standards.h
+TCLResult.o: /usr/include/sys/seek.h /usr/include/va_list.h
+TCLResult.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+TCLResult.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLResult.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+TCLResult.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+TCLResult.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLResult.o: /usr/local/include/tclDecls.h /usr/include/string.h
+TCLResult.o: /usr/include/strings.h TCLInterpreter.h /usr/include/assert.h
+TCLString.o: TCLString.h /usr/local/include/tcl.h /usr/include/stdio.h
+TCLString.o: /usr/include/standards.h /usr/include/sys/seek.h
+TCLString.o: /usr/include/va_list.h /usr/include/sys/types.h
+TCLString.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
+TCLString.o: /usr/include/getopt.h /usr/include/sys/limits.h
+TCLString.o: /usr/include/sys/machine/machlimits.h
+TCLString.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+TCLString.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLString.o: /usr/local/include/tclDecls.h /usr/include/string.h
+TCLString.o: /usr/include/strings.h
+TCLTest.o: /usr/local/include/tk.h /usr/include/X11/Xlib.h
+TCLTest.o: /usr/include/sys/types.h /usr/include/standards.h
+TCLTest.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
+TCLTest.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
+TCLTest.o: /usr/include/X11/Xosdefs.h /usr/include/stddef.h
+TCLTest.o: /usr/local/include/tkDecls.h TCLApplication.h
+TCLTest.o: TCLInterpreterObject.h /usr/local/include/tcl.h
+TCLTest.o: /usr/include/stdio.h /usr/include/sys/seek.h
+TCLTest.o: /usr/include/va_list.h /usr/include/getopt.h
+TCLTest.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+TCLTest.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+TCLTest.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLTest.o: /usr/local/include/tclDecls.h /usr/include/assert.h TCLVariable.h
+TCLTest.o: TCLProcessor.h TCLInterpreter.h TCLString.h /usr/include/string.h
+TCLTest.o: /usr/include/strings.h TCLResult.h /usr/include/fcntl.h
+TCLTest.o: /usr/include/sys/fcntl.h /usr/include/sys/mode.h
+TCLTest.o: /usr/include/sys/stat.h
+TCLTimer.o: TCLTimer.h TCLInterpreterObject.h /usr/local/include/tcl.h
+TCLTimer.o: /usr/include/stdio.h /usr/include/standards.h
+TCLTimer.o: /usr/include/sys/seek.h /usr/include/va_list.h
+TCLTimer.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+TCLTimer.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLTimer.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+TCLTimer.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+TCLTimer.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLTimer.o: /usr/local/include/tclDecls.h /usr/include/assert.h
+TCLTimer.o: /usr/local/include/tk.h /usr/include/X11/Xlib.h
+TCLTimer.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
+TCLTimer.o: /usr/include/X11/Xosdefs.h /usr/include/stddef.h
+TCLTimer.o: /usr/local/include/tkDecls.h
 TCLVariable.o: TCLVariable.h TCLInterpreter.h TCLString.h
-TCLVariable.o: /usr/local/tcl/include/tcl.h /usr/include/stdio.h
-TCLVariable.o: /usr/include/_ansi.h /usr/include/sys/config.h
-TCLVariable.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
-TCLVariable.o: /usr/local/tcl/include/tclDecls.h /usr/include/string.h
-TCLVariable.o: /usr/include/assert.h
+TCLVariable.o: /usr/local/include/tcl.h /usr/include/stdio.h
+TCLVariable.o: /usr/include/standards.h /usr/include/sys/seek.h
+TCLVariable.o: /usr/include/va_list.h /usr/include/sys/types.h
+TCLVariable.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
+TCLVariable.o: /usr/include/getopt.h /usr/include/sys/limits.h
+TCLVariable.o: /usr/include/sys/machine/machlimits.h
+TCLVariable.o: /usr/include/sys/syslimits.h
+TCLVariable.o: /usr/include/sys/machine/machtime.h
+TCLVariable.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLVariable.o: /usr/local/include/tclDecls.h /usr/include/string.h
+TCLVariable.o: /usr/include/strings.h /usr/include/assert.h

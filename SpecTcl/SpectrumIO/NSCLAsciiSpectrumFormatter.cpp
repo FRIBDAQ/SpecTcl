@@ -78,7 +78,7 @@ public:
 
 static inline void reseteof(istream& rStream)
 {
-  int state = rStream.rdstate();
+  ios::iostate state = rStream.rdstate();
   state &= ios::failbit | ios::badbit; // Remove eof and good...
   if(!state) state = ios::goodbit;     // If no errors, good. 
   rStream.setstate(state);
