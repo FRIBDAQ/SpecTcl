@@ -2,28 +2,7 @@
   Implementation of class BufferTranslator
 ******************************************************************************/
 
-#include <buffer.h>
-#include <histotypes.h>
 #include "BufferTranslator.h"
-
-/*-----------------------------------------------------------------------------
-  Name:  TranslatorFactory::CreateTranslator
-
-  Purpose:  Compares endianess of the buffer with endianess of the running
-            system. Returns a SwappingBufferTranslator if different, and a 
-	    NonSwappingBufferTranslator if they are the same.
------------------------------------------------------------------------------*/
-
-BufferTranslator* TranslatorFactory::CreateTranslator
-( Address_t pBuffer, Endian eBufferOrdering) 
-{
-  if( MyEndianess() != eBufferOrdering ) {
-    return new SwappingBufferTranslator( pBuffer );
-  }
-  else {
-    return new NonSwappingBufferTranslator( pBuffer );
-  }
-}
 
 /*-----------------------------------------------------------------------------
   Name:  MyEndianess
@@ -31,7 +10,7 @@ BufferTranslator* TranslatorFactory::CreateTranslator
   Purpose:  Determine the running system endianess
 -----------------------------------------------------------------------------*/
 
-TranslatorFactory::Endian MyEndianess()
+BufferFactory::Endian MyEndianess()
 {
   union {
     Int_t  asInt;
@@ -40,11 +19,11 @@ TranslatorFactory::Endian MyEndianess()
   x.asInt =1;
 
   if (x.asArray[0] == 1 ) {
-    return TranslatorFactory::little;
+    return BufferFactory::little;
   }
   
   else {
-    return TranslatorFactory::big;
+    return BufferFactory::big;
   }
 }
 
@@ -55,18 +34,15 @@ TranslatorFactory::Endian MyEndianess()
             to the appropriate BufferTranslator.
 -----------------------------------------------------------------------------*/
 
-BufferTranslator* BufferFactory::CreateBuffer( Address_t pBuffer,
-					       Int_t Signature32 )
+BufferTranslator*
+BufferFactory::CreateBuffer( Address_t pBuffer, Int_t Signature32 )
 {
-  BufferTranslator* pTranslator;
-
   if( Signature32 == 0x01020304 ) {
     return new NonSwappingBufferTranslator(pBuffer);
   } 
   else {
     return new SwappingBufferTranslator(pBuffer);
   }
-  return pTranslator;
 }
 
 /*-----------------------------------------------------------------------------
