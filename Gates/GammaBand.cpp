@@ -316,7 +316,7 @@ CGammaBand::CGammaBand(const vector<CPoint>& rPoints) :
 {
   vector<string> empty;
   m_vSpecs = empty;
-  CreateLimits();
+  //  CreateLimits();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -332,7 +332,7 @@ CGammaBand::CGammaBand(const vector<CPoint>& rPoints,
   CBand(0, 0, rPoints)
 {
   m_vSpecs = rSpecs;
-  CreateLimits();
+  //  CreateLimits();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -347,7 +347,6 @@ CGammaBand::CGammaBand(UInt_t nPts, CPoint* pPoints) :
 {
   vector<string> empty;
   m_vSpecs = empty;
-  CreateLimits();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -401,12 +400,7 @@ CGammaBand::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
     if(rEvent[xPar].isValid() && rEvent[yPar].isValid()) {
       UInt_t x = rEvent[xPar];
       UInt_t y = rEvent[yPar];
-      if(x < (getLimits()).size()) {
-	return (y < (getLimits())[x]);
-      }
-      else {
-	return kfFALSE;
-      }
+      return Interior(x,y);
     }
     else
       return kfFALSE;
