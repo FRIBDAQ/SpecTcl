@@ -278,113 +278,105 @@ DAMAGES.
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
 ** Facility:
-**   Xamine utility function:
+**   Xamine -- NSCL Display program.
 ** Abstract:
-**   procede.cc  - There are times in programming X/Motif where you'd really
-**                 like to just stop and wait for the answer to a question
-**                 before proceding... normally you'd have to do a modal dialog
-**                 and set up a callback procedure and all of that sort of stuff
-**                 The code in this module follows the example 5-11 in the
-**                 O'Reilly Motif programmer's manual to set up a modal/blocking
-**                 dialog without multiplying callback routines.
+**   convert.cc:
+**      This file contains implementations of the functions which convert from
+**      mapped coordinates to channel coordinates, and vice-versa.
 ** Author:
-**  Ron FOx
-**  NSCL
-**  Michigan State University
-**  East Lansing, MI 48824-1321
+**   Jason Venema
+**   NSCL
+**   Michigan State University
+**   East Lansing, MI 48824-1321
 */
 
-/*
-** Include files:
-*/
+#include "mapcoord.h"
+#include "dispshare.h"
 
-#include "XMDialogs.h"
+extern volatile spec_shared *xamine_shared;
 
-/*
-** #define level definitions:
-*/
-
-#define YES        1
-#define NO         2
-#define UNANSWERED 0
-
-/*
-** Local static storage:
-*/
-int answer = UNANSWERED;
-
-
 /*
 ** Functional Description:
-**   PromptCallback:
-**      This function responds to cancel or ok button presses on question
-**      callback that was initiated by Prompt.
+**   Xamine_XMappedToChan:
+**     This function converts a mapped x-coordinate to the same coordinate in
+**     channel space.
 ** Formal Parameters:
-**   XMWidget *w:
-**     The dialog question widget.
-**   XtPointer cd:
-**     Pointer to where to put the reply
-**   XtPointer callback:
-**     Pointer to an XmAnyCallbackStruct from which we figure out which
-**     button was pressed.
-*/
-void PromptCallback(XMWidget *w, XtPointer cd, XtPointer callback)
-{
-  int *a = (int *)cd;
-  XmAnyCallbackStruct *why = (XmAnyCallbackStruct *)callback;
-
-  switch(why->reason) {
-  case XmCR_OK:
-    *a = YES;
-    break;
-  case XmCR_CANCEL:
-    *a = NO;
-    break;
-  default:
-    *a = UNANSWERED;
-    break;
-  }
-}
-
-/*
-** Functional Description:
-**   Procede:
-**     This function performs the X/Motif equivalent of a Yes/No prompt.
-** Formal Parameters:
-**   XMWidget *parent:
-**      Parent widget for the prompt window.
-**   char *prompt:
-**      The Prompt text.
+**   int specno
+**     The spectrum number that the map is applied to
+**   float value
+**     The mapped coordinate to convert
 ** Returns:
-**    TRUE   - if OK accepted.
-**    FALSE  - if Cancel accepted.
+**     The integer value of the channel which this mapped coordinate
+**     corresponds to.
 */
-
-int Procede(XMWidget *parent, char *prompt)
+int Xamine_XMappedToChan(int specno, float value)
 {
-  XtAppContext app;
+  float xlo = xamine_shared->getxmin_map(specno);
+  float xhi = xamine_shared->getxmax_map(specno);
+  float step_size = xamine_shared->getxdim(specno) / (xhi - xlo);
+  return (int)((value - xlo + 1) * step_size);
+}
 
-  XMQuestionDialog question("Yes_or_no", *parent,
-			    prompt,
-			    PromptCallback,
-			    (XtPointer)&answer); /* Set up the dialog */
-  question.AddCancelCallback(PromptCallback, (XtPointer)&answer); /* Add the cancel cb. */
-  question.SetModal(XmDIALOG_FULL_APPLICATION_MODAL);
+/*
+** Functional Description:
+**   Xamine_YMappedToChan:
+**     This function converts a mapped y-coordinate to the same coordinate in
+**     channel space.
+** Formal Parameters:
+**   int specno
+**     The spectrum number that the map is applied to
+**   float value
+**     The mapped coordinate to convert
+** Returns:
+**     The integer value of the channel which this mapped coordinate
+**     corresponds to.
+*/
+int Xamine_YMappedToChan(int specno, float value)
+{
+  float ylo = xamine_shared->getymin_map(specno);
+  float yhi = xamine_shared->getymax_map(specno);
+  float step_size = xamine_shared->getydim(specno) / (yhi - ylo);
+  return (int)((value - ylo + 1) * step_size);
+}
 
-  /*  The code below is a mini XtAppMainLoop simulator */
-  answer = UNANSWERED;
+/*
+** Functional Description:
+**   Xamine_XChanToMapped:
+**     This function converts an x-channel to its mapped coordinate space value
+** Formal Parameters:
+**   int specno
+**     The spectrum number that the map is applied to
+**   float value
+**     The channel number to convert
+** Returns:
+**     The floating point value of the mapped coordinate which this channel
+**     corresponds to.
+*/
+float Xamine_XChanToMapped(int specno, int chan)
+{
+  float xlo = xamine_shared->getxmin_map(specno);
+  float xhi = xamine_shared->getxmax_map(specno);
+  float step_size = (xhi - xlo + 1) / xamine_shared->getxdim(specno);
+  return (step_size * chan + xlo);
+}
 
-  app = XtWidgetToApplicationContext(question.getid());
-  while(answer == UNANSWERED) {
-    XtAppProcessEvent(app, XtIMAll);
-    XSync(XtDisplay(question.getid()),0);
-  }
-
-  /* Drop the dialog down. */
-
-  question.UnManage();
-  XSync(XtDisplay(question.getid()), 0);
-  XmUpdateDisplay(question.getid());
-
-  return (answer == YES);
+/*
+** Functional Description:
+**   Xamine_YChanToMapped:
+**     This function converts a y-channel to its mapped coordinate space value
+** Formal Parameters:
+**   int specno
+**     The spectrum number that the map is applied to
+**   float value
+**     The channel number to convert
+** Returns:
+**     The floating point value of the mapped coordinate which this channel
+**     corresponds to.
+*/
+float Xamine_YChanToMapped(int specno, int chan)
+{
+  float ylo = xamine_shared->getymin_map(specno);
+  float yhi = xamine_shared->getymax_map(specno);
+  float step_size = (yhi - ylo + 1) / xamine_shared->getydim(specno);
+  return (step_size * chan + ylo);
 }

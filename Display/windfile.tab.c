@@ -96,6 +96,7 @@ char *get_windfiletitle();
 #include "windio.h"
 #include "dispwind.h"
 #include "dispshare.h"
+#include "printer.h"
 #ifndef DEBUG
 extern win_db *database;	/* Setup by the caller. */
 #else
@@ -127,6 +128,7 @@ void windfileerror(char *c);
 
 typedef union {
   int integer;
+  double real;
   char string[80];
 } YYSTYPE;
 #include <stdio.h>
@@ -139,9 +141,9 @@ typedef union {
 
 
 
-#define	YYFINAL		144
+#define	YYFINAL		148
 #define	YYFLAG		-32768
-#define	YYNTBASE	57
+#define	YYNTBASE	59
 
 #define YYTRANSLATE(x) ((unsigned)(x) <= 310 ? yytranslate[x] : 96)
 
@@ -333,7 +335,7 @@ static const short yypgoto[] = {-32768,
 };
 
 
-#define	YYLAST		137
+#define	YYLAST		155
 
 
 static const short yytable[] = {     8,
@@ -975,7 +977,7 @@ case 21:
 		     current = NULL;
 		   ;
     break;}
-case 36:
+case 37:
 {
 		    assert(current != NULL);
 		    if(ticks)  current->tickson();
@@ -984,7 +986,7 @@ case 36:
 		    ticks = labels = axes = 0;
 		  ;
     break;}
-case 37:
+case 38:
 {
 		    if(ticks) current->ticksoff();
 		    if(labels)current->axis_labelsoff();
@@ -992,47 +994,47 @@ case 37:
 		    ticks = labels = axes = 0;
 		  ;
     break;}
-case 38:
+case 39:
 {
 		   assert(current != NULL);
 		   current->set_axes(TRUE, TRUE, TRUE);
 		 ;
     break;}
-case 39:
+case 40:
 {
 		   assert(current != NULL);
 		   current->set_axes(FALSE,FALSE,FALSE);
 		 ;
     break;}
-case 42:
+case 43:
 {
 		     ticks = TRUE;
 		   ;
     break;}
-case 43:
+case 44:
 {
 		     labels = TRUE;
 		   ;
     break;}
-case 44:
+case 45:
 {
 		     axes = TRUE;
 		   ;
     break;}
-case 45:
+case 46:
 {
 		   assert(current != NULL);
 		   current->set_titles(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
 		 ;
     break;}
-case 46:
+case 47:
 {
 		   assert(current != NULL);
 		   current->set_titles(FALSE, FALSE, FALSE,
 					 FALSE, FALSE, FALSE);
 		 ;
     break;}
-case 47:
+case 48:
 {
 		    assert(current != NULL);
 		    if(name)        current->dispname();
@@ -1044,7 +1046,7 @@ case 47:
 		    name = number = description = peak = update = objects = 0;
 		  ;
     break;}
-case 48:
+case 49:
 {
 		    assert(current != NULL);
 		    if(name)        current->hidename();
@@ -1056,73 +1058,73 @@ case 48:
 		    name = number = description = peak = update = objects = 0;
 		  ;
     break;}
-case 51:
+case 52:
 {
 		     name = TRUE;
 		   ;
     break;}
-case 52:
+case 53:
 {
 		     number = TRUE;
 		   ;
     break;}
-case 53:
+case 54:
 {
 		  description = TRUE;
 		;
     break;}
-case 54:
+case 55:
 {
 		  peak  = TRUE;
 		;
     break;}
-case 55:
+case 56:
 {
 		  update = TRUE;
 		;
     break;}
-case 56:
+case 57:
 {
 		  objects = TRUE;
 		;
     break;}
-case 57:
+case 58:
 { 
 		  assert(current != NULL);
 		  current->sideways();
 		;
     break;}
-case 58:
+case 59:
 {
 		  assert(current != NULL);
 		  current->normal();
 		;
     break;}
-case 60:
+case 61:
 {
                         assert(current != NULL);
 			current->sample();
 		      ;
     break;}
-case 61:
+case 62:
 {
 		      assert(current != NULL);
 		      current->sum();
 		    ;
     break;}
-case 62:
+case 63:
 {
 		      assert(current != NULL);
 		      current->average();
 		    ;
     break;}
-case 64:
+case 65:
 {
                        assert(current != NULL);
 		       current->autoscale();
 		     ;
     break;}
-case 65:
+case 66:
 {
 		   assert(current != NULL);
 		   current->setfs(yyvsp[0].integer);
@@ -1130,35 +1132,41 @@ case 65:
     break;}
 case 67:
 {
+  assert(current != NULL);
+  current->setmapped(yyvsp[-1].integer);
+;
+    break;}
+case 69:
+{
 			     assert(current != NULL);
 			     current->log();
 			   ;
     break;}
-case 68:
+case 70:
 {
 			 assert(current != NULL);
 			 current->linear();
 		       ;
     break;}
-case 69:
+case 71:
 {
 		   assert(current != NULL);
 		   current->setfloor(yyvsp[-1].integer);
 		 ;
     break;}
-case 70:
+case 72:
 {
 		  assert(current != NULL);
 		  current->setceiling(yyvsp[-1].integer);
 		;
     break;}
-case 71:
+case 73:
 {
 		  assert(current != NULL);
 		  current->update_interval(yyvsp[-1].integer);	/* Set the update interval. */
                 ;
     break;}
-case 72:
+case 74:
 { assert(current);
 		    if(current->is1d()) {
 		      windfilelex_line--; /* Compensate for blankline. */
@@ -1181,7 +1189,7 @@ case 72:
 		    }
 		  ;
     break;}
-case 73:
+case 75:
 { assert(current);
 		    if(!current->is1d()) {
 		      windfilelex_line--; /* compensate for blankline. */
@@ -1201,18 +1209,18 @@ case 73:
 		    }
 		  ;
     break;}
-case 74:
+case 76:
 { memcpy(&xlim, &limits, sizeof(struct limit)); ;
     break;}
-case 75:
+case 77:
 { memcpy(&ylim, &limits, sizeof(struct limit)); ;
     break;}
-case 76:
+case 78:
 { limits.low = yyvsp[-2].integer;
 		  limits.high= yyvsp[0].integer;
 		;
     break;}
-case 79:
+case 81:
 { assert(current);
 		    if(!current->is1d()) {
 		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
@@ -1221,7 +1229,7 @@ case 79:
 		    }
 		  ;
     break;}
-case 80:
+case 82:
 { assert(current);
 		    if(!current->is1d()) {
 		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
@@ -1230,7 +1238,7 @@ case 80:
 		    }
 		  ;
     break;}
-case 81:
+case 83:
 { assert(current);
                     if(!current->is1d()) {
 		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
@@ -1239,7 +1247,7 @@ case 81:
 		    }
 		  ;
     break;}
-case 82:
+case 84:
 { assert(current);
 		    if(!current->is1d()) {
 		      windfileerror("Attempted to set 1-d rendition on 2-d spectrum\n");
@@ -1248,7 +1256,7 @@ case 82:
 		    }
 		  ;
     break;}
-case 83:
+case 85:
 { assert(current);
 		    if(current->is1d()) {
 		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
@@ -1257,7 +1265,7 @@ case 83:
 		    }
 		  ;
     break;}
-case 84:
+case 86:
 { assert(current);
 		    if(current->is1d()) {
 		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
@@ -1266,7 +1274,7 @@ case 84:
 		    }
 		  ;
     break;}
-case 85:
+case 87:
 { assert(current);
 		    if(current->is1d()) {
 		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
@@ -1275,7 +1283,7 @@ case 85:
 		    }
 		  ;
     break;}
-case 86:
+case 88:
 { assert(current);
 		    if(current->is1d()) {
 		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
@@ -1284,7 +1292,7 @@ case 86:
 		    }
 		  ;
     break;}
-case 87:
+case 89:
 { assert(current);
 		    if(current->is1d()) {
 		      windfileerror("Attempted to set 2-d rendition on 1-d spectrum\n");
@@ -1293,7 +1301,7 @@ case 87:
 		    }
 		  ;
     break;}
-case 88:
+case 90:
 {
 		     assert(current);
 		     win_1d *at1 = (win_1d *)current;

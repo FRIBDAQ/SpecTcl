@@ -6,6 +6,8 @@
 #include <math.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 
 
@@ -39,30 +41,33 @@ static void setupspectra(Xamine_shared *sp)
   unsigned int     *spec_l;
 
   Xamine_ManageMemory();
-
+  
   /* Set up the ramp spectrum as spectrum 1: */
-
+  
   spec = Xamine_Allocate1d(&spn, 64, "Upward Ramp", FALSE);
+  //Xamine_SetMap1d(spn, 10.0, 20.0, "MeV");
   spec_l = (unsigned int *)spec;
   for(i = 0; i < 64; i++) {
     *spec_l++ = i;
   }
   printf("Spectrum %d filled in\n", spn);
-
+  
   /* set up downward ramp function as spectrum 2: */
-
-  spec = Xamine_Allocate1d(&spn, 64, "Downward Ramp", FALSE);
+  
+  spec = Xamine_Allocate1d(&spn, 64, "Downward Ramp", FALSE); 
+  Xamine_SetMap1d(spn, 300.0, 500.0, "KeV");
   spec_l = (unsigned int *)spec;
-
+  
   for(i = 0; i < 64; i++) {
-
+    
     *spec_l++ = 96 - i/2;
   }
   printf("Spectrum %d filled in\n", spn);
 
   /* Set up spectrum the step function: */
-
+  
   spec = Xamine_Allocate1d(&spn, 128, "Step Function", TRUE);
+  Xamine_SetMap1d(spn, 1.0, 5.0, "MeV");
   spec_w = (unsigned short *)spec;
 
   for(i = 0; i < 128; i++) {
@@ -75,18 +80,19 @@ static void setupspectra(Xamine_shared *sp)
 
   /* Set up 2d word spectrum Z = X * Y as spectrum 4 */
 
-  spec = Xamine_Allocate2d(&spn, 64, 64, "Z = X*Y [word]", FALSE);
+  spec = Xamine_Allocate2d(&spn, 256, 256, "Z = X*Y [word]", FALSE);
+  Xamine_SetMap2d(spn, 10.0, 20.0, "MeV", 0.0, 1000.0, "TOF");
   spec_w = (unsigned short *)spec;
 
-  for(j = 0; j < 64; j++) {
-    for(i = 0; i < 64; i++) {
+  for(j = 0; j < 256; j++) {
+    for(i = 0; i < 256; i++) {
       *spec_w++ = i * j;
     }
   }
   /* Set up 2-d byte spectrum z = x + y on upper diagonal */
 
-  spec = Xamine_Allocate2d(&spn, 128,128, "Z = X+Y on upper diagonal",
-			   TRUE);
+  spec = Xamine_Allocate2d(&spn, 128,128, "Z = X+Y on upper diagonal", TRUE);
+  Xamine_SetMap2d(spn, 100.0, 800.0, "KeV", 80.0, 120.0, "Time of Flight");
   spec_b = (unsigned char *)spec;
   for(j = 0; j < 128; j++) {
     for(i = 0; i < 128; i++) {
@@ -108,27 +114,18 @@ static void setupspectra(Xamine_shared *sp)
 
   spec = Xamine_Allocate2d(&spn, 512, 512, 
 			   "Gaussian C = (256,240), S = (40,20)", FALSE);
+  Xamine_SetMap2d(spn, 100.0, 800.0, "KeV", 80.0, 230.0, "TOF");
   spec_w = (unsigned short *)spec;
-
+  
   for(j = 0; j < 512; j++) {
     for(i = 0; i < 512; i ++) {
       float x = ((float)i - 256.0);
       float y = ((float)j - 240.0);
       float value = 1024.0 * exp(-(x*x)/(2*80.0*80.0)) * 
-	                     exp(-(y*y)/(2.0*40.0*40.0));
+	exp(-(y*y)/(2.0*40.0*40.0));
       *spec_w++ = (unsigned short)value; 
     }
-  }
-
-  for(i = 0; i < 8; i++) {
-    spec_title name;
-    sprintf(name, "Overlay spectrum %d", i);
-    spec = Xamine_Allocate1d(&spn, 64, name, FALSE);
-    spec_l = (unsigned int *)spec;
-    for(j = 0; j < 64; j++)
-      *spec_l++ = (i+1)*10;
-  }
-
+  } 
 }
 /*
 ** Analyze a button descriptor:
@@ -193,12 +190,11 @@ main(int argc, char* argv[])
   struct msg_InquireButtonAck binfo;
   int stat;
 
-
 #ifdef VMS
   spectra = &shared;
 #endif
 
-  if(!Xamine_CreateSharedMemory(2*MEG, &spectra)) {
+  if(!Xamine_CreateSharedMemory(10*MEG, &spectra)) {
     perror("Failed to make shared memory region");
     exit(errno);
   }
@@ -211,10 +207,11 @@ main(int argc, char* argv[])
     exit(errno);
   }
   printf("Xamine is started up\n");
-  sleep(5);
+  //sleep(5);
+  
   setupspectra(spectra);	/* Set up the classical test spectra. */
   printf("Created test spectra\n");
-
+  
 
   /*
   ** Create a button box:

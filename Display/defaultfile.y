@@ -32,6 +32,7 @@ extern void windfileerror(char *text);
 #include "dfltmgr.h"
 #include "grobjdisplay.h"
 #include "panemgr.h"
+#include "printer.h"
 #define defaultfileerror(text) windfileerror((text))
 #define yylex         defaultfilelex
 #define windfilelex() defaultfilelex
@@ -56,11 +57,13 @@ static struct limit { int low;
 
 
 extern int windfilelex_line;
+static struct DefaultPrintOptions *printops = Xamine_GetDefaultPrintOptions();
 static win_attributed *current = Xamine_GetDefaultGenericAttributes();
-
+ 
 %}
 %union {
    int integer;
+  double real;
    char string[80];
  }
 
@@ -108,6 +111,7 @@ static win_attributed *current = Xamine_GetDefaultGenericAttributes();
 %token  LEGO
 %token  REFRESH
 %token <integer> INTEGER
+%token <real> REAL
 %token COMMA
 %token ENDWINDOW
 %token ENDLINE
@@ -119,13 +123,34 @@ static win_attributed *current = Xamine_GetDefaultGenericAttributes();
 %token GROBJFONT
 %token UNMATCHED
 %token DEFAULTFILE
+%token PRINTOPTIONS
+%token LAYOUT
+%token PRINTNUM
+%token DESTINATION
+%token RESOLUTION
+%token PRINTSIZE
+%token SPECTRUMOPTIONS
+%token FILETYPE
+%token XLENGTH
+%token YLENGTH
+%token TIMESTAMP
+%token COLORPAL
+%token CONTOURS
+%token SYMBOLS
+%token PRINTCMD
+%token ROWS
+%token COLUMNS
+%token ENDPRINTOPTIONS
+%token PRINTGEOMETRY
+%token MAPPED
 
 %token <string> QSTRING
 %%
 setup_file:    setup_filel | blankline setup_filel
                ;
 
-setup_filel:	description
+setup_filel:	description |
+                description print_description
 		;
 
 description:	window_clause endwindow_clause rendition_clauses
@@ -149,7 +174,7 @@ attribute_clauses: attribute_clause | attribute_clauses attribute_clause
 attribute_clause: axes_clause      | labels_clause  | flipped_clause 
 		| reduction_clause | scale_clause   | countsaxis_clause
 		| floor_clause     | ceiling_clause 
-		 | refresh_clause
+		| refresh_clause   | mapping_clause
 		;
 
 axes_clause:      AXES axis_attributes blankline
@@ -179,7 +204,6 @@ axes_clause:      AXES axis_attributes blankline
 		 }
 
 		;
-
 axis_attributes: axis_attribute
                | axis_attributes axis_attribute
 		;
@@ -336,6 +360,11 @@ refresh_clause:   REFRESH INTEGER blankline
                 }
                 ;
 
+mapping_clause: MAPPED INTEGER blankline
+{
+  /* don't do anything */
+}
+;
 
 rendition_clauses: RENDITION_1D rend1_attribute blankline RENDITION_2D 
                    rend2_attribute blankline;
@@ -390,4 +419,76 @@ font_clauses: GROBJFONT INTEGER blankline
 
 blankline:  ENDLINE | ENDLINE blankline
           ;
+
+print_description: print_options_clause layout_clause printnum_clause 
+                   destination_clause resolution_clause file_type_clause
+                   print_size_clause spectrum_options_clause print_command
+                   print_geometry_clause end_print_options_clause
+;
+
+print_options_clause: PRINTOPTIONS blankline {
+  printops = Xamine_GetDefaultPrintOptions();
+  if(printops == NULL) {
+    printops = new struct DefaultPrintOptions;
+    Xamine_SetDefaultPrintOptions(printops);
+  }
+}
+;
+
+end_print_options_clause: ENDPRINTOPTIONS blankline
+;
+
+layout_clause: LAYOUT INTEGER blankline {
+  assert(printops);
+  printops->layout = (PrintLayout)$2;
+};
+
+printnum_clause: PRINTNUM INTEGER blankline {
+  assert(printops);
+  printops->num = (PrintNum)$2;
+};
+
+destination_clause: DESTINATION INTEGER blankline {
+  assert(printops);
+  printops->dest = (PrintDest)$2;
+};
+
+resolution_clause: RESOLUTION INTEGER blankline {
+  assert(printops);
+  printops->res = (Resolution)$2;
+};
+
+file_type_clause: FILETYPE INTEGER blankline {
+  assert(printops);
+  printops->file_type = $2;
+};
+
+print_size_clause: PRINTSIZE REAL COMMA REAL blankline {
+  assert(printops);
+  printops->xlen = $2;
+  printops->ylen = $4;
+};
+
+spectrum_options_clause: SPECTRUMOPTIONS INTEGER COMMA INTEGER COMMA INTEGER 
+                         COMMA INTEGER blankline {
+  assert(printops);
+  printops->time_stamp = $2;
+  printops->color_pal  = $4;
+  printops->contours   = $6;
+  printops->symbols    = $8;
+};
+
+print_command: PRINTCMD QSTRING blankline {
+  strcpy(printops->print_cmd, yylval.string);
+};
+
+print_geometry_clause: PRINTGEOMETRY INTEGER COMMA INTEGER blankline {
+  char r[10];
+  char c[10];
+  sprintf(r, "%d", $2);
+  sprintf(c, "%d", $4);
+  strcpy(printops->rows, r);
+  strcpy(printops->cols, c);
+}
+;
 %%

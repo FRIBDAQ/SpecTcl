@@ -1,4 +1,283 @@
 /*
+		    GNU GENERAL PUBLIC LICENSE
+		       Version 2, June 1991
+
+ Copyright (C) 1989, 1991 Free Software Foundation, Inc.
+                       59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+			    Preamble
+
+  The licenses for most software are designed to take away your
+freedom to share and change it.  By contrast, the GNU General Public
+License is intended to guarantee your freedom to share and change free
+software--to make sure the software is free for all its users.  This
+General Public License applies to most of the Free Software
+Foundation's software and to any other program whose authors commit to
+using it.  (Some other Free Software Foundation software is covered by
+the GNU Library General Public License instead.)  You can apply it to
+your programs, too.
+
+  When we speak of free software, we are referring to freedom, not
+price.  Our General Public Licenses are designed to make sure that you
+have the freedom to distribute copies of free software (and charge for
+this service if you wish), that you receive source code or can get it
+if you want it, that you can change the software or use pieces of it
+in new free programs; and that you know you can do these things.
+
+  To protect your rights, we need to make restrictions that forbid
+anyone to deny you these rights or to ask you to surrender the rights.
+These restrictions translate to certain responsibilities for you if you
+distribute copies of the software, or if you modify it.
+
+  For example, if you distribute copies of such a program, whether
+gratis or for a fee, you must give the recipients all the rights that
+you have.  You must make sure that they, too, receive or can get the
+source code.  And you must show them these terms so they know their
+rights.
+
+  We protect your rights with two steps: (1) copyright the software, and
+ (2) offer you this license which gives you legal permission to copy,
+distribute and/or modify the software.
+
+  Also, for each author's protection and ours, we want to make certain
+that everyone understands that there is no warranty for this free
+software.  If the software is modified by someone else and passed on, we
+want its recipients to know that what they have is not the original, so
+that any problems introduced by others will not reflect on the original
+authors' reputations.
+
+  Finally, any free program is threatened constantly by software
+patents.  We wish to avoid the danger that redistributors of a free
+program will individually obtain patent licenses, in effect making the
+program proprietary.  To prevent this, we have made it clear that any
+patent must be licensed for everyone's free use or not licensed at all.
+
+  The precise terms and conditions for copying, distribution and
+modification follow.
+
+		    GNU GENERAL PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. This License applies to any program or other work which contains
+a notice placed by the copyright holder saying it may be distributed
+under the terms of this General Public License.  The "Program", below,
+refers to any such program or work, and a "work based on the Program"
+means either the Program or any derivative work under copyright law:
+that is to say, a work containing the Program or a portion of it,
+either verbatim or with modifications and/or translated into another
+language.  (Hereinafter, translation is included without limitation in
+the term "modification".)  Each licensee is addressed as "you".
+
+Activities other than copying, distribution and modification are not
+covered by this License; they are outside its scope.  The act of
+running the Program is not restricted, and the output from the Program
+is covered only if its contents constitute a work based on the
+Program (independent of having been made by running the Program).
+Whether that is true depends on what the Program does.
+
+  1. You may copy and distribute verbatim copies of the Program's
+source code as you receive it, in any medium, provided that you
+conspicuously and appropriately publish on each copy an appropriate
+copyright notice and disclaimer of warranty; keep intact all the
+notices that refer to this License and to the absence of any warranty;
+and give any other recipients of the Program a copy of this License
+along with the Program.
+
+You may charge a fee for the physical act of transferring a copy, and
+you may at your option offer warranty protection in exchange for a fee.
+
+  2. You may modify your copy or copies of the Program or any portion
+of it, thus forming a work based on the Program, and copy and
+distribute such modifications or work under the terms of Section 1
+above, provided that you also meet all of these conditions:
+
+    a) You must cause the modified files to carry prominent notices
+    stating that you changed the files and the date of any change.
+
+    b) You must cause any work that you distribute or publish, that in
+    whole or in part contains or is derived from the Program or any
+    part thereof, to be licensed as a whole at no charge to all third
+    parties under the terms of this License.
+
+    c) If the modified program normally reads commands interactively
+    when run, you must cause it, when started running for such
+    interactive use in the most ordinary way, to print or display an
+    announcement including an appropriate copyright notice and a
+    notice that there is no warranty (or else, saying that you provide
+    a warranty) and that users may redistribute the program under
+    these conditions, and telling the user how to view a copy of this
+    License.  (Exception: if the Program itself is interactive but
+    does not normally print such an announcement, your work based on
+    the Program is not required to print an announcement.)
+
+These requirements apply to the modified work as a whole.  If
+identifiable sections of that work are not derived from the Program,
+and can be reasonably considered independent and separate works in
+themselves, then this License, and its terms, do not apply to those
+sections when you distribute them as separate works.  But when you
+distribute the same sections as part of a whole which is a work based
+on the Program, the distribution of the whole must be on the terms of
+this License, whose permissions for other licensees extend to the
+entire whole, and thus to each and every part regardless of who wrote it.
+
+Thus, it is not the intent of this section to claim rights or contest
+your rights to work written entirely by you; rather, the intent is to
+exercise the right to control the distribution of derivative or
+collective works based on the Program.
+
+In addition, mere aggregation of another work not based on the Program
+with the Program (or with a work based on the Program) on a volume of
+a storage or distribution medium does not bring the other work under
+the scope of this License.
+
+  3. You may copy and distribute the Program (or a work based on it,
+under Section 2) in object code or executable form under the terms of
+Sections 1 and 2 above provided that you also do one of the following:
+
+    a) Accompany it with the complete corresponding machine-readable
+    source code, which must be distributed under the terms of Sections
+    1 and 2 above on a medium customarily used for software interchange; or,
+
+    b) Accompany it with a written offer, valid for at least three
+    years, to give any third party, for a charge no more than your
+    cost of physically performing source distribution, a complete
+    machine-readable copy of the corresponding source code, to be
+    distributed under the terms of Sections 1 and 2 above on a medium
+    customarily used for software interchange; or,
+
+    c) Accompany it with the information you received as to the offer
+    to distribute corresponding source code.  (This alternative is
+    allowed only for noncommercial distribution and only if you
+    received the program in object code or executable form with such
+    an offer, in accord with Subsection b above.)
+
+The source code for a work means the preferred form of the work for
+making modifications to it.  For an executable work, complete source
+code means all the source code for all modules it contains, plus any
+associated interface definition files, plus the scripts used to
+control compilation and installation of the executable.  However, as a
+special exception, the source code distributed need not include
+anything that is normally distributed (in either source or binary
+form) with the major components (compiler, kernel, and so on) of the
+operating system on which the executable runs, unless that component
+itself accompanies the executable.
+
+If distribution of executable or object code is made by offering
+access to copy from a designated place, then offering equivalent
+access to copy the source code from the same place counts as
+distribution of the source code, even though third parties are not
+compelled to copy the source along with the object code.
+
+  4. You may not copy, modify, sublicense, or distribute the Program
+except as expressly provided under this License.  Any attempt
+otherwise to copy, modify, sublicense or distribute the Program is
+void, and will automatically terminate your rights under this License.
+However, parties who have received copies, or rights, from you under
+this License will not have their licenses terminated so long as such
+parties remain in full compliance.
+
+  5. You are not required to accept this License, since you have not
+signed it.  However, nothing else grants you permission to modify or
+distribute the Program or its derivative works.  These actions are
+prohibited by law if you do not accept this License.  Therefore, by
+modifying or distributing the Program (or any work based on the
+Program), you indicate your acceptance of this License to do so, and
+all its terms and conditions for copying, distributing or modifying
+the Program or works based on it.
+
+  6. Each time you redistribute the Program (or any work based on the
+Program), the recipient automatically receives a license from the
+original licensor to copy, distribute or modify the Program subject to
+these terms and conditions.  You may not impose any further
+restrictions on the recipients' exercise of the rights granted herein.
+You are not responsible for enforcing compliance by third parties to
+this License.
+
+  7. If, as a consequence of a court judgment or allegation of patent
+infringement or for any other reason (not limited to patent issues),
+conditions are imposed on you (whether by court order, agreement or
+otherwise) that contradict the conditions of this License, they do not
+excuse you from the conditions of this License.  If you cannot
+distribute so as to satisfy simultaneously your obligations under this
+License and any other pertinent obligations, then as a consequence you
+may not distribute the Program at all.  For example, if a patent
+license would not permit royalty-free redistribution of the Program by
+all those who receive copies directly or indirectly through you, then
+the only way you could satisfy both it and this License would be to
+refrain entirely from distribution of the Program.
+
+If any portion of this section is held invalid or unenforceable under
+any particular circumstance, the balance of the section is intended to
+apply and the section as a whole is intended to apply in other
+circumstances.
+
+It is not the purpose of this section to induce you to infringe any
+patents or other property right claims or to contest validity of any
+such claims; this section has the sole purpose of protecting the
+integrity of the free software distribution system, which is
+implemented by public license practices.  Many people have made
+generous contributions to the wide range of software distributed
+through that system in reliance on consistent application of that
+system; it is up to the author/donor to decide if he or she is willing
+to distribute software through any other system and a licensee cannot
+impose that choice.
+
+This section is intended to make thoroughly clear what is believed to
+be a consequence of the rest of this License.
+
+  8. If the distribution and/or use of the Program is restricted in
+certain countries either by patents or by copyrighted interfaces, the
+original copyright holder who places the Program under this License
+may add an explicit geographical distribution limitation excluding
+those countries, so that distribution is permitted only in or among
+countries not thus excluded.  In such case, this License incorporates
+the limitation as if written in the body of this License.
+
+  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
+
+Each version is given a distinguishing version number.  If the Program
+specifies a version number of this License which applies to it and "any
+later version", you have the option of following the terms and conditions 
+either of that version or of any later version published by the Free Software 
+Foundation.  If the Program does not specify a version number of this License,
+ you may choose any version ever published by the Free Software Foundation.
+
+  10. If you wish to incorporate parts of the Program into other free
+programs whose distribution conditions are different, write to the author to 
+ask for permission.  For software which is copyrighted by the Free Software 
+Foundation, write to the Free Software Foundation; we sometimes make 
+exceptions for this.  Our decision will be guided by the two goals of 
+preserving the free status of all derivatives of our free software and of 
+promoting the sharing and reuse of software generally.
+
+			    NO WARRANTY
+
+  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
+THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN 
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE 
+THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
+FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND 
+PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, 
+YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING 
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR 
+REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, 
+INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING 
+OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO 
+LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR 
+THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), 
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
+DAMAGES.
+
+		     END OF TERMS AND CONDITIONS
+*/
+static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
+
+/*
 ** Facility:
 **   Xamine - NSCL Display program.
 ** Abstract:
@@ -8,13 +287,14 @@
 **   scientific graphing package Gri. The spectrum's own attributes are 
 **   used in this determination, and Gri produces a postscript file that
 **   closely resembles the Xamine rendition of the same plot.
+**
 ** Jason Venema
 **   NSCL
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
 
-static char *sccsinfo="@(#)griprint.cc	2.1 12/22/93 ";
+static char *sccsinfo="@(#)griprint.cc	4.3 9/23/02 ";
 
 
 /*
@@ -32,6 +312,7 @@ static char *sccsinfo="@(#)griprint.cc	2.1 12/22/93 ";
 #include <sys/wait.h>
 #include <errno.h>
 #include <vector>
+#include <stdlib.h>
 #ifdef unix
 #include <sys/time.h>
 #include <sys/types.h>
@@ -52,6 +333,7 @@ static char *sccsinfo="@(#)griprint.cc	2.1 12/22/93 ";
 #include "grobjmgr.h"
 #include "griprint.h"
 #include "colormgr.h"
+#include "mapcoord.h"
 
 extern "C" {
 #ifdef ultrix
@@ -170,6 +452,13 @@ void Xamine_Print(XMWidget* w, XtPointer user, XtPointer call)
     float nPerPage = (nCount / nPages);
     if(nPerPage != (int)nPerPage) nPerPage++;
 
+    // Create a temporary filename for our gri command file
+    char cmd_file[30];
+    sprintf(cmd_file, ".gri_cmdXXXXXX");
+    int fd = mkstemp(cmd_file);
+    close(fd);
+    strcat(cmd_file, ".gri");
+
     int nPageNum  = 0;    // the page number we are currently printing
     int nCurrSpec = 0;    // the current spectrum number (beginning with 0)
     for(int r = 0; r < nr; r++) {
@@ -180,7 +469,7 @@ void Xamine_Print(XMWidget* w, XtPointer user, XtPointer call)
 	if(at != NULL) {
 	  Xamine_PrintSpectrum(w, user, call,
 			       at, Xamine_GetSpectrumTitle(r, c), nRows, nCols,
-			       nCount, nCurrSpec, nPageNum);
+			       nCount, nCurrSpec, nPageNum, cmd_file);
 	}
       }
     }
@@ -213,7 +502,8 @@ void
 Xamine_PrintSpectrum(XMWidget* w, XtPointer User, 
 		     XtPointer Call, win_attributed* pAttributes, 
 		     string sTitle, int nRows=1, int nCols=1, 
-		     int nSpectrumCount=1, int nCurrSpec=1, int nPageNum=1)
+		     int nSpectrumCount=1, int nCurrSpec=1, int nPageNum=1,
+		     char* cmd_file = (char*) NULL)
 {
   // First we get the spectrum number that we are dealing with...
   int nSpectrum = pAttributes->spectrum();
@@ -232,7 +522,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
   ybase = ny - (int)((float)ny * (float)XAMINE_MARGINSIZE);
 
   ofstream fStr;   // the output file stream to the Gri command file...
-
+  
   // Get the title from the user...
   string Title;
   if(nSpectrumCount == 1)
@@ -247,7 +537,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
   int nIncr;                               // color scale increments
   int nFontSize = 12;                      // the font size to draw in
   int fCropped = 0;                        // true if image needs to be cropped
-  int nXTickInterval,                      // interval between ticks on x-axis
+  float nXTickInterval,                    // interval between ticks on x-axis
     nYTickInterval;                        // interval between ticks on y-axis
   double XMajor, XMinor,                   // user specified tic intervals
     YMajor, YMinor;
@@ -388,22 +678,42 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 
     // If spectrum is expanded, we need to adjust the high and low limits
     if(pAttrib->isexpanded()) {
-      nXLowLimit  = (isFlipped ? pAttrib->ylowlim() : pAttrib->xlowlim());
-      nXHighLimit = (isFlipped ? pAttrib->yhilim()  : pAttrib->xhilim());
-      nYLowLimit  = (isFlipped ? pAttrib->xlowlim() : pAttrib->ylowlim());
-      nYHighLimit = (isFlipped ? pAttrib->xhilim()  : pAttrib->yhilim());
+      nXLowLimit  = pAttrib->xlowlim();
+      nXHighLimit = pAttrib->xhilim();
+      nYLowLimit  = pAttrib->ylowlim();
+      nYHighLimit = pAttrib->yhilim();
     }
 
     // Get the pixel limits so we can get the tick mark intervals...
     int nXRange = (nXHighLimit - nXLowLimit + 1);
     int nYRange = (nYHighLimit - nYLowLimit + 1);
-    nXTickInterval = Xamine_getTickInterval(nXRange, (nx-xbase+1));
-    nYTickInterval = Xamine_getTickInterval(nYRange, (ybase+1));
+    if(pAttrib->ismapped()) {
+      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nXHighLimit-1) -
+	Xamine_XChanToMapped(nSpectrum, nXLowLimit);
+      float fp_YRange = Xamine_YChanToMapped(nSpectrum, nYHighLimit-1) -
+	Xamine_YChanToMapped(nSpectrum, nYLowLimit);
+      nXTickInterval = Xamine_getMappedTickInterval(fp_XRange, (nx-xbase+1));
+      nYTickInterval = Xamine_getMappedTickInterval(fp_YRange, (ybase+1));
+      if((nSpectrumCount > 1) && ((fp_XRange / nXTickInterval) >= 7)) {
+	if(nRows*nCols <= 6)
+	  nXTickInterval *= 2.0;
+	else
+	  nXTickInterval *= 3.0;
+      }
+    }
+    else {
+      nXTickInterval = Xamine_getTickInterval(nXRange, (nx-xbase+1));
+      nYTickInterval = Xamine_getTickInterval(nYRange, (ybase+1));
+      if((nSpectrumCount > 1) && ((nXRange / nXTickInterval) >= 7)) {
+	if(nRows*nCols <= 6)
+	  nXTickInterval *= 2;
+	else
+	  nXTickInterval *= 3;
+      }
+    }
     if(XMajor == 0) XMajor = nXTickInterval;
     if(YMajor == 0) YMajor = nYTickInterval;
 
-    // Now put all the data points into a temporary file, leaving
-    // out the ones that are not in the expanded rendition...
     int nMaxCounts = 0;
     int nXMaxChan  = 0,
       nYMaxChan    = 0;
@@ -418,9 +728,22 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       nYRange++;
     }
 
+    // Create a temporary filename for our gri command file
+    char cmd_file_template[30];
+    if(!cmd_file) {
+      sprintf(cmd_file_template, ".gri_cmdXXXXXX");
+      int fd = mkstemp(cmd_file_template);
+      close(fd);
+      strcat(cmd_file_template, ".gri");
+      cmd_file = strdup(cmd_file_template);
+    }
+
     // Start writing the Gri command file...
-    fStr.open("temp.gri", fstream::out | fstream::app);
-    fStr << "# Commands for spectrum " << nCurrSpec << endl;
+    fStr.open(cmd_file, fstream::out | fstream::app);
+    if(!fStr.good())
+      fprintf(stderr, "Could not open Gri command file. Printing aborted!\n");
+	      
+    fStr << "# Commands for spectrum " << nCurrSpec << endl; // comment
     fStr << "set page size letter\n";
     fStr << "set tics in\n";
 
@@ -458,111 +781,10 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // If the spectrum is expanded, then the limits are inclusive...
     fStr << "read grid data " << nYRange/reso << " " << nXRange/reso << endl;
 
-    int x_index = nXLowLimit;      // The x-value to start at (low)
-    int y_index = nYHighLimit-1;   // The y-value to start at (high)
-    if(pAttrib->isexpanded()) y_index++;
-    int hival = 0;
-    int sum   = 0;
-    reduction_mode sr = pAttrib->getreduction();
-
-    // Here is where we get the points and store them. The format is that of
-    // an n x m matrix, where each column is separated by a space and each row
-    // is separated by a newline. Note that the first line will be the top
-    // row of the spectrum, i.e. the highest y-value and lowest x-value.
-    // 
-    // The reduction is performed by us to avoid losing any single channel
-    // peaks that may be of importance.
-    //
-    for(int i = 0; i < nYRange/reso; i++) {
-      for(int j = 0; j < nXRange*reso; j++) {
-	if(!(pAttrib->isexpanded()) &&
-	   (x_index >= nXHighLimit || y_index >= nYHighLimit)) 
-	  break;
-
-	// Perform the spectrum reduction by hand. If the resolution is 1:1
-	// then no further reduction has to be done. Otherwise, the method
-	// of reduction used is the same as that use by Xamine.
-	switch(reso) {
-	case 1: {
-	  if(isFlipped) 
-	    nCounts = xamine_shared->getchannel(nSpectrum, y_index, x_index);
-	  else 
-	    nCounts = xamine_shared->getchannel(nSpectrum, x_index, y_index);
-	  
-	  // If the axis is a log scale, we can't have any zeros...
-	  if(nCounts == 0 && pAttrib->islog()) nCounts = 1;
-	  if(nCounts > nMaxCounts) {
-	    nMaxCounts = nCounts;  // the highest count
-	    nXMaxChan  = j;        // the x channel of the highest count
-	    nYMaxChan  = i;        // the y channel of the highest count
-	  }
-	  if(nFloor)
-	    if(nCounts < nFloor) nCounts = 0;
-	  if(nCeiling)
-	    if(nCounts > nCeiling) nCounts = 0;
-	  fStr << nCounts << " ";
-	  x_index++;
-	  break;
-	}
-
-	  // For reduced resolution spectrum, we need to employ some sort
-	  // of spectrum reduction to make things fit in a smaller number of
-	  // pixels. Currently, this consists of sampling, summing and 
-	  // averaging of the data values.
-	case 2:
-	case 4:
-	case 8: {
-	  int cnt = isFlipped ? 
-	    xamine_shared->getchannel(nSpectrum, y_index, x_index) :
-	    xamine_shared->getchannel(nSpectrum, x_index, y_index);
-
-	  // If the axis is a log scale, we can't have any zeros...
-	  if(cnt == 0 && pAttrib->islog()) cnt = 1;
-	  if(cnt > nMaxCounts) {
-	    nMaxCounts = cnt;      // the highest count
-	    nXMaxChan  = x_index;  // the x channel of the highest count
-	    nYMaxChan  = y_index;  // the y channel of the highest count
-	  }
-	  if(nFloor)
-	    if(cnt < nFloor) cnt = 0;
-	  if(nCeiling)
-	    if(cnt > nCeiling) cnt = 0;
-	  sum += cnt;
-	  
-	  // Maintain the hi value for sampled reduction method
-	  if(cnt > hival) hival = cnt;
-	  x_index++;
-	  if((j+1) % (reso*reso) == 0) {
-	    switch(sr) {
-	      // Summing means adding all values within this box
-	    case summed:
-	      fStr << sum << " ";
-	      break;
-	      // Averaging is the same as summing, but we divide by the
-	      // number of pixels in this box
-	    case averaged:
-	      fStr << (sum/(reso*reso)) << " ";
-	      break;
-	      // Sampling means taking the maximum value in this box
-	    case sampled:
-	      fStr << hival << " ";
-	    }
-	    sum = 0;
-	    hival = 0;
-	    y_index += (reso-1);
-	  }
-	  else if((j+1) % (reso) == 0) {
-	    y_index--;
-	    x_index -= reso;
-	  }
-	}
-	}
-      }
-      x_index  = nXLowLimit;
-      y_index -= reso;
-      fStr << endl;
-    }
-    fStr << endl;
+    // Grab the points and put them into the command file
+    nMaxCounts = GrabPoints2d(nXLowLimit, nXHighLimit, nYLowLimit, nYHighLimit,
+			      nFloor, nCeiling, &nXMaxChan, &nYMaxChan,
+			      nXRange, nYRange, reso, fStr, pAttrib);
     
     // Set the font size based on the number of spectra we're displaying,
     // and the size of the title and fullscale values...
@@ -591,11 +813,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Show ticks. If the axes are flipped, we need to set the low and
     // high limits on the y-axis. Otherwise, set them on the x-axis...
     if(pAttrib->showticks()) {
-      //int nXAxisMax = (reso > 1 ? 
-      //	       nXLowLimit+nXRange-reso+(reso/2) : nXHighLimit-1);
-      //int nYAxisMax = (reso > 1 ?
-      //	       nYLowLimit+nYRange-reso+(reso/2) : nYHighLimit-1);
-
       // BUGBUGBUG -- Printing at reduced resolution yields empty channels.
       // This is because, when the resolution is reduced, the range of values
       // read in must be a multiple of the new resolution (2, 4 or 8) to work
@@ -603,21 +820,33 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       int nXAxisMax = nXHighLimit-1;
       int nYAxisMax = nYHighLimit-1;
 
-      fStr << "set x grid " << nXLowLimit << " " 
-	   << nXLowLimit+nXRange-reso << " " << reso << endl;
+      float XMappedLow = Xamine_XChanToMapped(nSpectrum, nXLowLimit);
+      float XMappedHigh = Xamine_XChanToMapped(nSpectrum, 
+					       nXLowLimit+nXRange-reso);
+      float YMappedLow = Xamine_YChanToMapped(nSpectrum, nYLowLimit);
+      float YMappedHigh = Xamine_YChanToMapped(nSpectrum, 
+					       nYLowLimit+nYRange-reso);
+      
+      if(pAttrib->ismapped()) {
+	float inc = reso * ((XMappedHigh - XMappedLow) / (nXRange-reso));
+	fStr << "set x grid " << XMappedLow << " " << XMappedHigh
+	     << " " << inc << endl;
+	fStr << "set x axis " << XMappedLow << " " << XMappedHigh << " ";
+      }
+      else {
+	fStr << "set x grid " << nXLowLimit << " "
+	     << nXLowLimit+nXRange-reso << " " << reso << endl;
+	fStr << "set x axis " << nXLowLimit << " " << nXAxisMax << " ";
+      }
 
-      // The tic marks are user-specifiable, so we need to check if they
-      // have been specified. If not, we use the default Xamine tic marks.
       switch(Options->gettics()) {
       case deflt:
 	if(nXTickInterval >= (nXHighLimit - nXLowLimit-1)) nXTickInterval = 0;
-	fStr << "set x axis " << nXLowLimit << " " << nXAxisMax << " ";
 	if(nXTickInterval) fStr << nXTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
 	if(XMajor >= (nXHighLimit - nXLowLimit-1)) XMajor = 0;
-	fStr << "set x axis " << nXLowLimit << " " << nXAxisMax << " ";
 	if(XMajor) {
 	  fStr << XMajor << " ";
 	  if(XMinor) fStr << XMinor << endl;
@@ -628,19 +857,27 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       }
 
       // Do this for both dimensions...
-      fStr << "set y grid " << nYLowLimit << " " 
-	   << nYLowLimit+nYRange-reso << " " << reso << endl;
-      
+      if(pAttrib->ismapped()) {
+	float inc = reso * ((YMappedHigh - YMappedLow) / (nYRange-reso));
+	fStr << "set y grid " << YMappedLow << " " << YMappedHigh
+	     << " " << inc << endl;
+	fStr << "set y format %.1f\n";
+	fStr << "set y axis " << YMappedLow << " " << YMappedHigh << " ";
+      }
+      else {
+	fStr << "set y grid " << nYLowLimit << " "
+	     << nYLowLimit+nYRange-reso << " " << reso << endl;
+	fStr << "set y axis " << nYLowLimit << " " << nYAxisMax << " ";
+      }
+
       switch(Options->gettics()) {
       case deflt:
 	if(nYTickInterval >= (nYHighLimit - nYLowLimit-1)) nYTickInterval = 0;
-	fStr << "set y axis " << nYLowLimit << " " << nYAxisMax << " ";
 	if(nYTickInterval) fStr << nYTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
 	if(YMajor >= (nYHighLimit - nYLowLimit-1)) YMajor = 0;
-	fStr << "set y axis " << nYLowLimit << " " << nYAxisMax << " ";
 	if(YMajor) {
 	  fStr << YMajor << " ";
 	  if(YMinor) fStr << YMinor << endl;
@@ -660,8 +897,19 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     }
 
     // Set the axes names...
-    fStr << "set x name \"" << Options->getxname() << "\"\n";
-    fStr << "set y name \"" << Options->getyname() << "\"\n";
+    if((!pAttrib->ismapped()) || (pAttrib->ismapped() && 
+				  nSpectrumCount == 1)) {
+      fStr << "set x name \"" << Options->getxname() << "\"\n";
+      fStr << "set y name \"" << Options->getyname() << "\"\n";
+    }
+    else {
+      char xlabel[72];
+      char ylabel[72];
+      xamine_shared->getxlabel_map(xlabel, nSpectrum);
+      xamine_shared->getylabel_map(ylabel, nSpectrum);
+      fStr << "set x name \"" << xlabel << "\"\n";
+      fStr << "set y name \"" << ylabel << "\"\n";
+    }
 
     // Set the page margins and drawing size...
     fStr << "set x margin " << xm << endl;
@@ -793,13 +1041,26 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 
       // If the plot is expanded, we need to clip anything outside of the
       // plotting area...
-      if(!pAttrib->isexpanded()) {
-	fStr << "set clip postscript on 0 " << nXHighLimit-1 << " 0 " 
-	     << nYHighLimit-1 << endl;
+      if(pAttrib->ismapped()) {
+	float xlolim = Xamine_XChanToMapped(nSpectrum, nXLowLimit);
+	float xhilim = Xamine_XChanToMapped(nSpectrum, nXHighLimit);
+	float ylolim = Xamine_YChanToMapped(nSpectrum, nYLowLimit);
+	float yhilim = Xamine_YChanToMapped(nSpectrum, nYHighLimit);
+	if(isFlipped)
+	  fStr << "set clip postscript on " << ylolim << " " << yhilim
+	       << " " << xlolim << " " << xhilim << endl;
+	else
+	  fStr << "set clip postscript on " << xlolim << " " << xhilim
+	       << " " << ylolim << " " << yhilim << endl;
+      }
+      else if(pAttrib->isexpanded()) {
+	fStr << "set clip postscript on " << nXLowLimit << " " 
+	     << nXHighLimit-reso << " " << nYLowLimit << " " 
+	     << nYHighLimit-reso << endl;
       }
       else {
-	fStr << "set clip postscript on " << nXLowLimit << " " << nXHighLimit-1
-	     << " " << nYLowLimit << " " << nYHighLimit-1 << endl;
+	fStr << "set clip postscript on 0 " << nXHighLimit-1 << " 0 " 
+	     << nYHighLimit-1 << endl;
       }
 
       // Now draw the image...
@@ -881,7 +1142,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	sDrawString.erase();
 	sDrawString = 
 	  Xamine_DrawGraphicalObj2d(nXLowLimit, nXHighLimit, 
-				    nYLowLimit, nYHighLimit, 
+				    nYLowLimit, nYHighLimit, reso,
 				    pAttrib, pObjects[i]);
 	fStr << sDrawString;
       }
@@ -901,7 +1162,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	sDrawString.erase();
 	sDrawString = 
 	  Xamine_DrawGraphicalObj2d(nXLowLimit, nXHighLimit, 
-				    nYLowLimit, nYHighLimit, 
+				    nYLowLimit, nYHighLimit, reso,
 				    pAttrib, pObjects[i]);
 	fStr << sDrawString;
       }
@@ -931,7 +1192,28 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     if(nFloor && nCeiling) nYRange = (nCeiling - nFloor);
     else if(nFloor) nYRange = nFullScale - nFloor;
     else if(nCeiling) nYRange = nCeiling;
-    nXTickInterval = Xamine_getTickInterval(nXRange, (nx-xbase+1));
+
+    // Get the tick interval for the hardcopy...
+    if(pAttrib->ismapped()) {
+      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nHighLimit-1) -
+	Xamine_XChanToMapped(nSpectrum, nLowLimit);
+      nXTickInterval = Xamine_getMappedTickInterval(fp_XRange, (nx-xbase+1));
+      if((nSpectrumCount > 1) && ((fp_XRange / nXTickInterval) >= 7)) {
+	if(nRows*nCols <= 6)
+	  nXTickInterval *= 2.0;
+	else
+	  nXTickInterval *= 3.0;
+      }
+    }
+    else {
+      nXTickInterval = Xamine_getTickInterval(nXRange, (nx-xbase+1));
+      if((nSpectrumCount > 1) && ((nXRange / nXTickInterval) >= 7)) {
+	if(nRows*nCols <= 6)
+	  nXTickInterval *= 2;
+	else
+	  nXTickInterval *= 3;
+      }
+    }
     nYTickInterval = Xamine_getTickInterval(nYRange, (ybase+1));
     if(XMajor == 0) XMajor = nXTickInterval;
     if(YMajor == 0) YMajor = nYTickInterval;
@@ -983,8 +1265,21 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       }
     }
 
+    // Create a temporary filename for our gri command file
+    char cmd_file_template[30];
+    if(!cmd_file) {
+      sprintf(cmd_file_template, ".gri_cmdXXXXXX");
+      int fd = mkstemp(cmd_file_template);
+      close(fd);
+      strcat(cmd_file_template, ".gri");
+      cmd_file = strdup(cmd_file_template);
+    }
+
     // Open a temporary gri file...
-    fStr.open("temp.gri", fstream::out | fstream::app);
+    fStr.open(cmd_file, fstream::out | fstream::app);
+    if(!fStr.good())
+      fprintf(stderr, "Could not open Gri command file. Printing aborted!\n");
+
     fStr << "\n# Commands for spectrum " << nCurrSpec << endl;
     fStr << "set page size letter\n";
     fStr << "set tics in\n";
@@ -1024,7 +1319,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       fStr << "set y type linear\n";
     }
 
-
     // Determine if the axes are flipped, and if there are superpositions...
     int nLegendPos = (int)((float)nFullScale * 0.8);
     int nLegendSpacing = (int)((float)nFullScale / 25);
@@ -1039,29 +1333,19 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       }
 
       // Get the points and store them in the command file
-      specID = nSpectrum;
-      for(int i = nLowLimit; i <= nHighLimit; i++) {
-	fStr << i << " ";
-	nCounts = xamine_shared->getchannel(specID, i);
-	if((nCounts > nMaxCounts) && (specID == nSpectrum)) {
-	  nMaxCounts = nCounts;
-	  nMaxChan   = i;
-	}
-	if(nCounts > nHighCnt) nCounts = nHighCnt;
-	if(pAttrib->islog() && nCounts == 0) nCounts = 1;
-	if(nFloor)
-	  if(nCounts < nFloor) nCounts = nFloor;
-	if(nCeiling)
-	  if(nCounts > nCeiling) nCounts = nCeiling;
-	fStr << nCounts << endl;
-      }
-      fStr << endl;
+      nMaxCounts = GrabPoints1d(nLowLimit, nHighLimit, &nMaxChan, nHighCnt,
+				nFloor, nCeiling, pAttrib, fStr);
     }
+
     
     // Otherwise, it becomes much more complicated! We begin by defining
     // within the command file, a procedure called 'draw curves' that
     // will draw multiple curves on the same plot.
     else {
+      int isFlipped = pAttrib->isflipped();
+      int nSpectrum = pAttrib->spectrum();
+      int specID = nSpectrum;
+      int nCounts = 0;
       fStr << "`draw curves" << nCurrSpec << " \\xname \\y1name ...'\n";
       fStr << "{\n";
       fStr << ".num_of_y_columns. = {rpn wordc 3 -}\n";
@@ -1081,7 +1365,10 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       // For each superposed spectrum, get the points and store them in the
       // command file, each in it's own column.
       for(int i = nLowLimit; i <= nHighLimit; i++) {
-	fStr << i << " ";
+	if(pAttrib->ismapped())
+	  fStr << Xamine_XChanToMapped(specID, i) << " ";
+	else
+	  fStr << i << " ";
 	for(int n = 0; n <= nSuperposCount; n++) {
 	  nCounts = xamine_shared->getchannel(specID, i);
 	  if((nCounts > nMaxCounts) && (specID == nSpectrum)) {
@@ -1094,7 +1381,17 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	    if(nCounts < nFloor) nCounts = nFloor;
 	  if(nCeiling)
 	    if(nCounts > nCeiling) nCounts = nCeiling;
+	  
 	  fStr << nCounts << " ";
+	  if(pAttrib->getrend() == histogram) { 
+	    if(pAttrib->ismapped()) {
+	      fStr << Xamine_XChanToMapped(nSpectrum, (i+1)) << " " 
+		   << nCounts << endl;
+	    }
+	    else {
+	      fStr << i+1 << " " << nCounts << endl;
+	    }
+	  }
 	  if(p > nSuperposCount)
 	    p = 0;
 	  specID = aSpecIds[++p];
@@ -1103,7 +1400,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	specID = nSpectrum;
       }
       fStr << endl;
-
+      
       fStr << "  set color rgb .r. .g. .b.\n";    // set the curve color...
       fStr << "  set font size 6\n";              // set the legend font size..
       fStr << "  set clip postscript on\n";
@@ -1121,7 +1418,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       fStr << "  .leg. = {rpn .col. 0.3 *}\n";
       if(nSuperposCount)
 	fStr << "  set font size 6\n";
-
+      
       // Make the legend either a symbol legend or a line legend. Also,
       // only draw a legend if a single spectrum is being printed. Otherwise,
       // it will not fit.
@@ -1133,10 +1430,10 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	  fStr << "  draw line legend {rpn .col. 3 + wordv} at "
 	       << xLegPos << " {rpn " << yLegPos << " .leg. -} cm .25\n";
       }
-
+      
       if(nSuperposCount)
 	fStr << "  set font size " << nFontSize << endl;
-
+      
       fStr << "  .col. += 1\n";               // increment the column number...
       fStr << "  .r. += 0.5\n";               // choose a different color...
       fStr << "  if {rpn .r. 1.0 <}\n";
@@ -1151,7 +1448,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       fStr << "    .r. = 0.25\n";
       fStr << "  end if\n";
       fStr << "end while\n";
-      fStr << "}\n";
+      fStr << "}\n";  
     }
 
     // Show ticks. If the axes are flipped, we need to set the low and
@@ -1162,16 +1459,22 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       second = (isFlipped) ? 'x' : 'y';
 
       // The tics can be user specified or the Xamine tics will be used...
+      if(pAttrib->ismapped()) {
+	fStr << "set " << first << " axis " << 
+	  Xamine_XChanToMapped(nSpectrum, nLowLimit) << " " <<
+	  Xamine_XChanToMapped(nSpectrum, nHighLimit);
+      }
+      else 
+	fStr << "set " << first << " axis " << nLowLimit << " " << nHighLimit;
+
       switch(Options->gettics()) {
       case deflt:
 	if(nXTickInterval >= (nHighLimit - nLowLimit)) nXTickInterval = 0;
-	fStr << "set " << first << " axis " << nLowLimit << " " << nHighLimit;
 	if(nXTickInterval) fStr << " " << nXTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
 	if(XMajor >= (nHighLimit - nLowLimit)) XMajor = 0;
-	fStr << "set " << first << " axis " << nLowLimit << " " << nHighLimit;
 	if(XMajor) {
 	  fStr << " " << XMajor << " ";
 	  if(XMinor) fStr << XMinor << endl;
@@ -1186,17 +1489,16 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       int low = ((nFloor) ? nFloor : 0);
       int hi  = ((nCeiling && (nCeiling<nFullScale)) ? nCeiling : nFullScale);
       if(!pAttrib->islog()) {
+	fStr << "set " << second << " axis " << low << " " << hi << " "; 
 	switch(Options->gettics()) {
 	case deflt:
 	  if(nYTickInterval >= (hi-low)) nYTickInterval = 0;
-	  fStr << "set " << second << " axis " << low << " " << hi << " "; 
 	  if(nYTickInterval) 
 	    fStr << nYTickInterval << endl;
 	  else fStr << endl;
 	  break;
 	case user:
 	  if(YMajor >= (hi-low)) YMajor = 0;
-	  fStr << "set " << second << " axis " << low << " " << hi << " ";
 	  if(YMajor) {
 	    fStr << YMajor << " ";
 	    if(YMinor) fStr << YMinor << endl;
@@ -1236,10 +1538,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Set the tics to be inside the box...
     fStr << "set tics in\n";
 
-    // Set the x and y-axes names...
-    fStr << "set x name \"\"\n";
-    fStr << "set y name \"\"\n";
-
     // Set the page margins and drawing size...
     fStr << "set x margin " << xm << endl;
     fStr << "set y margin " << ym << endl;
@@ -1255,6 +1553,37 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       fStr << "set page landscape\n";
       break;
     }
+
+    // Set the x and y-axes names...
+    if((!pAttrib->ismapped()) || (pAttrib->ismapped() && 
+				  nSpectrumCount == 1)) {
+      fStr << "set x name \"" << Options->getxname() << "\"\n";
+      fStr << "set y name \"" << Options->getyname() << "\"\n";
+    }
+    else {
+      char xlabel[72];
+      xamine_shared->getxlabel_map(xlabel, nSpectrum);
+      fStr << "set x name \"" << xlabel << "\"\n";
+      fStr << "set y name \"\"\n";
+    }
+
+    // Draw ticks, axes, and tick labels...
+    if(!(pAttrib->showaxes())) {
+      fStr << "set axes style none\n";
+    }
+    else if(!(pAttrib->showticks())) {
+      fStr << "set axes style frame\n";
+    }
+    // We need to do this so that the tick labels get drawn on log axes
+    else if(pAttrib->islog()) {
+      char axis;
+      axis = ((pAttrib->isflipped()) ? 'x' : 'y');
+      fStr << "delete " << axis << " scale\n";
+      fStr << "set " << axis << " type log\n";
+      fStr << "set axes style 0\n";
+    }
+    else
+      fStr << "set axes style 0\n";
 
     // Draw the graphical objects. For 1d spectra, these can be any
     // of the following: Cut, Summing Region, or Marker.
@@ -1300,64 +1629,71 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     switch(pAttrib->getrend()) {
     case smoothed:
     case histogram:
-    case lines:
-      if(nSpectrumCount > 1) {
-	if(!fCropped && ((nRows*nCols) != 1))
-	  fStr << "draw border box " << (xm-(INCH/2)) << " " << (ym-1.07) << " " 
-	       << (xm+XLength+(INCH/2)) << " " << (ym+YLength+1.47) << " 0.01 0\n";
+    case lines: 
+      {
+	if(nSpectrumCount > 1) {
+	  if(!fCropped && ((nRows*nCols) != 1))
+	    fStr << "draw border box " << (xm-(INCH/2)) << " " << (ym-1.07) 
+		 << " " << (xm+XLength+(INCH/2)) << " " << (ym+YLength+1.47) 
+		 << " 0.01 0\n";
+	}
+	
+	// If there are superpositions, we instruct Gri to invoke the
+	// 'draw curves' procedure defined earlier for each spectrum...
+	if(nSuperposCount) {
+	  fStr << "draw curves" << nCurrSpec << " channel ";
+	  for(int n = 0; n <= nSuperposCount; n++) {
+	    char name[40];
+	    string Title = 
+	      string((const char*)xamine_shared->getname(name, aSpecIds[n]));
+	    fStr << "\"" << Title << "\" ";
+	    if(Title.length() > nLongestTitle) nLongestTitle = Title.length();
+	  }
+	  fStr << endl;
+	  fStr << "set color rgb 0.0 0.0 0.0\n";
+	  if(nSpectrumCount == 1) {
+	    fStr << "draw border box " << (xLegPos*.98) << " " << (yLegPos+.20)
+		 << " " << (xLegPos + 0.6 + (0.15*nLongestTitle)) << " " 
+		 << (yLegPos-(nSuperposCount*0.4)) << " 0.04 0\n";
+	  }
+	}
+	
+	// Otherwise, we just draw the curve.
+	else {
+	  fStr << "draw curve\n";
+	}
+	break;
       }
 
-      // If there are superpositions, we instruct Gri to invoke the
-      // 'draw curves' procedure defined earlier for each spectrum...
-      if(nSuperposCount) {
-	fStr << "draw curves" << nCurrSpec << " channel ";
-	for(int n = 0; n <= nSuperposCount; n++) {
-	  char name[40];
-	  string Title = 
-	    string((const char*)xamine_shared->getname(name, aSpecIds[n]));
-	  fStr << "\"" << Title << "\" ";
-	  if(Title.length() > nLongestTitle) nLongestTitle = Title.length();
+    case points: 
+      {
+	// If the rendition is points, then use small bullets instead of
+	// drawing a smooth curve.
+	if(!nSuperposCount) {
+	  fStr << "set symbol size 0.02\n";
+	  fStr << "set clip on\n";
+	  fStr << "draw symbol bullet\n";
+	  fStr << "set clip off\n";
 	}
-	fStr << endl;
-	fStr << "set color rgb 0.0 0.0 0.0\n";
-	if(nSpectrumCount == 1) {
-	  fStr << "draw border box " << (xLegPos*.98) << " " << (yLegPos+.20)
-	       << " " << (xLegPos + 0.6 + (0.15*nLongestTitle)) << " " 
-	       << (yLegPos-(nSuperposCount*0.4)) << " 0.04 0\n";
+	else {
+	  int nLongestTitle = 0;
+	  fStr << "draw curves" << nCurrSpec << " channel ";
+	  for(int n = 0; n <= nSuperposCount; n++) {
+	    char name[40];
+	    string Title = 
+	      string((const char*)xamine_shared->getname(name, aSpecIds[n]));
+	    fStr << "\"" << Title << "\" ";
+	  }
+	  fStr << endl;
+	  fStr << "set color rgb 0.0 0.0 0.0\n";
+	  if(nSpectrumCount == 1) {
+	    fStr << "draw border box " << (xLegPos*.98) << " " << (yLegPos+.20)
+		 << " " << (xLegPos + 0.6 + (0.15*nLongestTitle)) << " " 
+		 << (yLegPos-(nSuperposCount*0.4)) << " 0.04 0\n";
+	  }
 	}
+	break;
       }
-      // Otherwise, we just draw the curve.
-      else
-	fStr << "draw curve\n";
-      break;
-    case points: {
-      // If the rendition is points, then use small bullets instead of
-      // drawing a smooth curve.
-      if(!nSuperposCount) {
-	fStr << "set symbol size 0.02\n";
-	fStr << "set clip on\n";
-	fStr << "draw symbol bullet\n";
-	fStr << "set clip off\n";
-      }
-      else {
-	int nLongestTitle = 0;
-	fStr << "draw curves" << nCurrSpec << " channel ";
-	for(int n = 0; n <= nSuperposCount; n++) {
-	  char name[40];
-	  string Title = 
-	    string((const char*)xamine_shared->getname(name, aSpecIds[n]));
-	  fStr << "\"" << Title << "\" ";
-	}
-	fStr << endl;
-	fStr << "set color rgb 0.0 0.0 0.0\n";
-	if(nSpectrumCount == 1) {
-	  fStr << "draw border box " << (xLegPos*.98) << " " << (yLegPos+.20)
-	       << " " << (xLegPos + 0.6 + (0.15*nLongestTitle)) << " " 
-	       << (yLegPos-(nSuperposCount*0.4)) << " 0.04 0\n";
-	}
-      }
-      break;
-    }
     }
     
     // Draw the title...
@@ -1368,28 +1704,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       fStr << "draw label \"" << Title << "\" centered at " 
 	   << ((XLength+(2*xm))/2.0) << " " << (YLength+ym+.2) << " cm\n";
     }
-
-    // Set the x and y-axes names...
-    fStr << "set x name \"" << Options->getxname() << "\"\n";
-    fStr << "set y name \"" << Options->getyname() << "\"\n";
-
-    // Draw ticks, axes, and tick labels...
-    if(!(pAttrib->showaxes())) {
-      fStr << "set axes style none\n";
-    }
-    else if(!(pAttrib->showticks())) {
-      fStr << "set axes style frame\n";
-    }
-    // We need to do this so that the tick labels get drawn on log axes
-    else if(pAttrib->islog()) {
-      char axis;
-      axis = ((pAttrib->isflipped()) ? 'x' : 'y');
-      fStr << "delete " << axis << " scale\n";
-      fStr << "set " << axis << " type log\n";
-      fStr << "set axes style 0\n";
-    }
-    else
-      fStr << "set axes style 0\n";
 
     if(!(nSuperposCount) && !(nGates) && !(nObjects))
       fStr << "draw axes if needed\n";
@@ -1446,21 +1760,28 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     char buf1[200];
     char buf[200];        // temporary buffer for concatenating to GriCmd
     strcpy(printcmd, Xamine_GetPrintCommand());
+    if(strcmp(&printcmd[strlen(printcmd)-1], "\n") == 0)
+      printcmd[strlen(printcmd)-1] = 0;
     char instdir[75];
     sprintf(instdir, "%s", HOME);
     char bindir[80];
     char etcdir[80];
     sprintf(bindir, "%s/Bin/gri", instdir);
     sprintf(etcdir, "%s/Etc", instdir);
-    
+    string cmd_root = string(cmd_file);
+    cmd_root.resize(strlen(cmd_file)-4);
+ 
     // Send to either the printer, or to file...
     switch(Options->getdest()) {
     case toprinter: {
-      sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps temp; ", 
-	      bindir, etcdir);
-      sprintf(buf1, printcmd, "temp.ps");
+      sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps %s; ", 
+	      bindir, etcdir, cmd_file);
+      char pcmd[50];
+      sprintf(pcmd, "%s.ps", cmd_root.c_str());
+      sprintf(buf1, printcmd, pcmd);
       string s(buf1);
-      sprintf(buf, "%s; rm -f temp.ps; rm -f temp.gri", s.c_str());
+      sprintf(buf, "%s; rm -f %s.ps; rm -f %s; rm -f %s", 
+	      s.c_str(), cmd_root.c_str(), cmd_file, cmd_root.c_str());
       strcat(GriCmd, buf);
       break;
     }
@@ -1470,39 +1791,51 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       // Append the appropriate postfix to the filename..
       if(sType == "JPEG, 72 dpi (*.jpg)") {
 	sFilename.append(".jpg");
-	sDest += "temp.ps";
+	//sDest += "temp.ps";
+	sDest += string(cmd_root.c_str());
+	sDest += ".ps";
       }
       else if(sType == "JPEG, 300 dpi (*.jpg)") {
 	sFilename.append(".jpg");
-	sDest += "-density 300x300 temp.ps";
+	//sDest += "-density 300x300 temp.ps";
+	sDest += "-density 300x300 ";
+	sDest += string(cmd_root.c_str());
+	sDest += ".ps";
       }
       else if(sType == "Portable Network Graphics, 72 dpi (*.png)") {
 	sFilename.append(".png");
-	sDest += "temp.ps";
+	//sDest += "temp.ps";
+	sDest += string(cmd_root.c_str());
+	sDest += ".ps";
       }
       else if(sType == "Portable Network Graphics, 300 dpi (*.png)") {
 	sFilename.append(".png");
-	sDest += "-density 300x300 temp.ps";
+	//sDest += "-density 300x300 temp.ps";
+	sDest += "-density 300x300 ";
+	sDest += string(cmd_root.c_str());
+	sDest += ".ps";
       }
       else
 	sFilename.append(".ps");
       
-      sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps temp.gri; ", 
-	      bindir, etcdir);
+      sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps %s; ", 
+	      bindir, etcdir, cmd_file);
       
       // If postscript requested, don't add the following:
       char buf[100];
       if(sType != "Postscript (*.ps)") {
 	char convert_path[50];
 	strcpy(convert_path, FindConvert());
-	sprintf(buf, "%s -page letter %s %s; rm -f temp.ps; ", convert_path,
-		sDest.c_str(), sFilename.c_str());
+	sprintf(buf, "%s -page letter %s %s; rm -f %s.ps; ", convert_path,
+		sDest.c_str(), sFilename.c_str(), cmd_root.c_str());
       }
       else {
-	sprintf(buf, "mv temp.ps %s; ", sFilename.c_str());
+	sprintf(buf, "mv %s.ps %s; ", cmd_root.c_str(), sFilename.c_str());
       }
       strcat(GriCmd, buf);
-      strcat(GriCmd, "rm -f temp.gri");
+      char tbuf[25];
+      sprintf(tbuf, "rm -f %s; rm -f %s", cmd_file, cmd_root.c_str());
+      strcat(GriCmd, tbuf);
     }
     }
     
@@ -1596,6 +1929,79 @@ Xamine_getTickInterval(int nRange, int nPixels)
 }
 
 /*
+  float Xamine_getMappedTickInterval(int nRange, int nPixels)
+
+    This function calculates the interval between ticks in the same
+    way that Xamine does, so that the tick interval on the Gri postscript
+    matches that of the Xamine display. This function should be called when
+    a user mapping has been applied to the spectrum.
+*/
+float 
+Xamine_getMappedTickInterval(float paramrange, int pixels)
+{
+  /*  Compute the 'tight' packed tick interval... */
+  int    tickpix = pixels/XAMINE_TICK_MAXCOUNT;        /* Pixels per tick    */
+  int    ntick   = XAMINE_MAPPED_TICK_MAXCOUNT;        /* Number of ticks    */
+
+  while((tickpix < XAMINE_MAPPED_TICK_MINSPACE) && (ntick > 1)) {
+    ntick--;
+    tickpix = pixels/ntick;
+  }
+
+  float tickint  = (paramrange / (float)ntick);
+  float tickmant = tickint - (int)tickint;
+
+  // If the interval is already a nice one, return it
+  if((tickint == 10.0) || (tickint == 5.0) || (tickint == 2.0))
+    return tickint;
+  else if((tickint == (int)tickint) && ((int)tickint % 10 == 0) && 
+	  (ntick < 10) && (ntick >= 6))
+    return tickint;
+  else if((tickint == (int)tickint) && ((int)tickint % 5 == 0) && 
+	  (ntick < 10) && (ntick >= 6))
+    return tickint;
+  else if((tickint == (int)tickint) && ((int)tickint % 2 == 0) && 
+	  (ntick < 10) && (ntick >= 6))
+    return tickint;
+
+  // Otherwise, see if we can make it a nice one the easy way
+  if((paramrange / 10.0 >= 6) && (paramrange / 10.0 < 10)) {
+    return 10.0;
+  }
+  else if((paramrange / 5.0 >= 6) && (paramrange / 5.0 < 10)) {
+    return 5.0;
+  }
+  else if((paramrange / 2.0 >= 6) && (paramrange / 2.0 < 10)) {
+    return 2.0;
+  }
+
+  // We have to compare the tick mantissa to a percentage of the parameter
+  // range, since the tick interval can be a floating point value.
+  if(tickmant < (paramrange * .20)) {
+    tickint = (int)tickint + 1;
+    if(tickint > (paramrange / 2.0)) {
+      tickint = paramrange / ntick;
+    }
+  }
+
+  // If the tick interval is already an integer, then try to make it a nice one
+  if((int)tickint == tickint) {
+    int tempint = (int)tickint;
+    while((10 % tempint != 0) && (tempint % 10 != 0)) {
+      int power = log10(tempint);
+      int exp   = pow(10.0, power);
+      int ones_digit = tempint % exp;
+      if(ones_digit == 0)
+	break;
+      tempint -= ones_digit;
+    }
+    tickint = tempint;
+  }
+
+  return tickint;
+}
+
+/*
   string Xmaine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit,
                                    int nFullScale, win_1d* pAttrib,
 				   grobj_generic* pObj)
@@ -1613,11 +2019,14 @@ string Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int nFloor,
   int fSumming = (Type == summing_region_1d);
   int fFlipped = pAttrib->isflipped();
   int fLog     = pAttrib->islog();
+  int specid   = pAttrib->spectrum();
+  int mapped   = pAttrib->ismapped();
 
   int x, y;
   int nFullScale = pAttrib->getfsval();
-  int lo_line = ((nFloor) ? nFloor : fLog);
-  int hi_line = ((nCeiling && (nCeiling<nFullScale)) ? nCeiling : nFullScale);
+  int lo_line = (float)((nFloor) ? nFloor : fLog);
+  int hi_line = (float)((nCeiling && (nCeiling < nFullScale)) 
+			  ? nCeiling : nFullScale);
 
   // If the plot is a log plot, set the full scale value to be the next highest
   // power of ten.
@@ -1636,23 +2045,47 @@ string Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int nFloor,
       result += "set line width 0.3\n";
       if(fSumming) result += "set dash 0.05 0.05\n";
       char szBuf[100];
-      if(fFlipped)
-	sprintf(szBuf, "draw line from %d %d to %d %d\n", 
-		lo_line, x, hi_line, x);
-      else
-	sprintf(szBuf, "draw line from %d %d to %d %d\n", 
-		x, lo_line, x, hi_line);
+      if(fFlipped) {
+	if(mapped)
+	  sprintf(szBuf, "draw line from %d %f to %d %f\n",
+		  lo_line, Xamine_XChanToMapped(specid, x), 
+		  hi_line, Xamine_XChanToMapped(specid, x));
+	else
+	  sprintf(szBuf, "draw line from %d %d to %d %d\n", 
+		  lo_line, x, hi_line, x);
+      }
+      else {
+	if(mapped)
+	  sprintf(szBuf, "draw line from %f %d to %f %d\n",
+		  Xamine_XChanToMapped(specid, x), lo_line,
+		  Xamine_XChanToMapped(specid, x), hi_line);
+	else 
+	  sprintf(szBuf, "draw line from %d %d to %d %d\n", 
+		  x, lo_line, x, hi_line);
+      }
       result += szBuf;
     }
     x = SecondPt->getx();
     if((x >= nLowLimit) && (x <= nHighLimit)) {
       char szBuf[100];
-      if(fFlipped)
-	sprintf(szBuf, "draw line from %d %d to %d %d\n", 
-		lo_line, x, hi_line, x);
-      else
-	sprintf(szBuf, "draw line from %d %d to %d %d\n", 
-		x, lo_line, x, hi_line);
+      if(fFlipped) {
+	if(mapped)
+	  sprintf(szBuf, "draw line from %d %f to %d %f\n",
+		  lo_line, Xamine_XChanToMapped(specid, x),
+		  hi_line, Xamine_XChanToMapped(specid, x));
+	else
+	  sprintf(szBuf, "draw line from %d %d to %d %d\n", 
+		  lo_line, x, hi_line, x);
+      }
+      else {
+	if(mapped)
+	  sprintf(szBuf, "draw line from %f %d to %f %d\n",
+		  Xamine_XChanToMapped(specid, x), lo_line,
+		  Xamine_XChanToMapped(specid, x), hi_line);
+	else
+	  sprintf(szBuf, "draw line from %d %d to %d %d\n", 
+		  x, lo_line, x, hi_line);
+      }
       result += szBuf;
     }
     if(fSumming)
@@ -1664,11 +2097,22 @@ string Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int nFloor,
     x = Point->getx();
     y = Point->gety();
     if((x >= nLowLimit) && (x <= nHighLimit) && (y <= hi_line)) {
-      x = ((fFlipped) ? Point->gety() : Point->getx());
-      y = ((fFlipped) ? Point->getx() : Point->gety());
       result += "set symbol size .1\n";
       char szBuf[100];
-      sprintf(szBuf, "draw symbol filleddiamond at %d %d\n", x, y);
+      if(fFlipped) {
+	if(mapped)
+	  sprintf(szBuf, "draw symbol filleddiamond at %d %f\n", 
+		  y, Xamine_XChanToMapped(specid, x));
+	else
+	  sprintf(szBuf, "draw symbol filleddiamond at %d %d\n", y, x);
+      }
+      else {
+	if(mapped)
+	  sprintf(szBuf, "draw symbol filleddiamond at %f %d\n", 
+		  Xamine_XChanToMapped(specid, x), y);
+	else
+	  sprintf(szBuf, "draw symbol filleddiamond at %d %d\n", x, y);
+      }
       result += szBuf;
     }
     break;
@@ -1682,19 +2126,21 @@ string Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int nFloor,
 
 /*
   string Xmaine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
-                                   int nYLowLimit, int nYHighLimit,
+                                   int nYLowLimit, int nYHighLimit, int reso
 				   win_2d* pAttrib, grobj_generic* pObj)
     This function generates the instructions for Gri to draw graphical objects
     in the appropriate places on 2d spectra. The return value is a string of
     the instructions for Gri.
 */
 string Xamine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
-				 int nYLowLimit, int nYHighLimit, 
+				 int nYLowLimit, int nYHighLimit, int reso,
 				 win_2d* pAttrib, grobj_generic* pObj)
 {
   string result = "";
   int fSumming,
     nPointCount;
+  int nSpectrum = pAttrib->spectrum();
+  int isMapped = pAttrib->ismapped();
   int fExpanded = pAttrib->isexpanded();
   int fFlipped  = pAttrib->isflipped();
   nPointCount     = pObj->pointcount();
@@ -1707,8 +2153,15 @@ string Xamine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
   // drawing outside of the drawing area.
   if(fExpanded) {
     char szBuf[100];
-    sprintf(szBuf, "set clip postscript on %d %d %d %d\n", 
-	    nXLowLimit, nXHighLimit, nYLowLimit, nYHighLimit);
+    if(isMapped)
+      sprintf(szBuf, "set clip postscript on %f %f %f %f\n",
+	      Xamine_XChanToMapped(nSpectrum, nXLowLimit),
+	      Xamine_XChanToMapped(nSpectrum, nXHighLimit-(reso/2)),
+	      Xamine_YChanToMapped(nSpectrum, nYLowLimit),
+	      Xamine_YChanToMapped(nSpectrum, nYHighLimit-(reso/2)));
+    else
+      sprintf(szBuf, "set clip postscript on %d %d %d %d\n", 
+	      nXLowLimit, nXHighLimit-reso, nYLowLimit, nYHighLimit-reso);
     result += szBuf;
   }
   if(fSumming)
@@ -1740,7 +2193,20 @@ string Xamine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
 	 ((y1 >= nYLowLimit) && (y1 <= nYHighLimit))) {
 	char szBuf[100];
 	result += "set symbol size .1\n";
-	sprintf(szBuf, "draw symbol filleddiamond at %d %d\n", x1, y1);
+	if(isMapped) {
+	  if(fFlipped) {
+	    sprintf(szBuf, "draw symbol filleddiamond at %f %f\n",
+		    Xamine_YChanToMapped(nSpectrum, x1),
+		    Xamine_XChanToMapped(nSpectrum, y1));
+	  }
+	  else {
+	    sprintf(szBuf, "draw symbol filleddiamond at %f %f\n",
+		    Xamine_XChanToMapped(nSpectrum, x1),
+		    Xamine_YChanToMapped(nSpectrum, y1));
+	  }
+	}
+	else
+	  sprintf(szBuf, "draw symbol filleddiamond at %d %d\n", x1, y1);
 	result += szBuf;
 	if(fExpanded)
 	  result += "set clip postscript off\n";
@@ -1756,7 +2222,24 @@ string Xamine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
     x2 = ((fFlipped) ? NextPt->gety() : NextPt->getx());
     y2 = ((fFlipped) ? NextPt->getx() : NextPt->gety());
     char szBuf[100];
-    sprintf(szBuf, "draw line from %d %d to %d %d\n", x1, y1, x2, y2);
+    if(isMapped) {
+      if(fFlipped) {
+	sprintf(szBuf, "draw line from %f %f to %f %f\n",
+		Xamine_YChanToMapped(nSpectrum, x1),
+		Xamine_XChanToMapped(nSpectrum, y1),
+		Xamine_YChanToMapped(nSpectrum, x2),
+		Xamine_XChanToMapped(nSpectrum, y2));
+      }
+      else {
+	sprintf(szBuf, "draw line from %f %f to %f %f\n", 
+		Xamine_XChanToMapped(nSpectrum, x1),
+		Xamine_YChanToMapped(nSpectrum, y1),
+		Xamine_XChanToMapped(nSpectrum, x2),
+		Xamine_YChanToMapped(nSpectrum, y2));
+      }
+    }
+    else
+      sprintf(szBuf, "draw line from %d %d to %d %d\n", x1, y1, x2, y2);
     result += szBuf;
     Pt = NextPt;
   }
@@ -1836,7 +2319,11 @@ Xamine_GetSpectrumTitle(int r = -1, int c = -1)
     // Add the peak information...
     if(pAttrib->showpeak()) {
       char szBuf[30];
-      sprintf(szBuf, "  Max=%d @ %d  ", nMaxCounts, nMaxChan);
+      if(pAttrib->ismapped())
+	sprintf(szBuf, "  Max=%d @ %.1f  ", nMaxCounts, 
+		Xamine_XChanToMapped(nSpectrum, nMaxChan));
+      else
+	sprintf(szBuf, "  Max=%d @ %d  ", nMaxCounts, nMaxChan);
       Title += szBuf;
     }
     break;
@@ -1886,7 +2373,12 @@ Xamine_GetSpectrumTitle(int r = -1, int c = -1)
     // Add the peak information...
     if(pAttrib->showpeak()) {
       char szBuf[30];
-      sprintf(szBuf, "  Max=%d @ %d,%d  ", nMaxCounts, nXMaxChan, nYMaxChan);
+      if(pAttrib->ismapped())
+	sprintf(szBuf, "  Max=%d @%.1f,%.1f  ", nMaxCounts,
+		Xamine_XChanToMapped(nSpectrum, nXMaxChan),
+		Xamine_YChanToMapped(nSpectrum, nYMaxChan));
+      else
+	sprintf(szBuf, "  Max=%d @ %d,%d  ", nMaxCounts, nXMaxChan, nYMaxChan);
       Title += szBuf;
     }
   }
@@ -1901,4 +2393,181 @@ Xamine_GetSpectrumTitle(int r = -1, int c = -1)
     Title.resize(Title.size() - 1);
   }
   return Title;
+}
+
+/*!
+  int GrabPoints2d
+
+  This function grabs the points of a 2d spectrum from the shared
+  memory region, and places them into the file pointed to by fStr.
+  The maximum count is returned.
+*/
+int GrabPoints2d(int nXLowLimit, int nXHighLimit, 
+		 int nYLowLimit, int nYHighLimit,
+		 int nFloor, int nCeiling,
+		 int* nXMaxChan, int* nYMaxChan,
+		 int nXRange, int nYRange, int reso,
+		 ofstream& fStr, win_2d* pAttrib)
+{
+  int nSpectrum = pAttrib->spectrum();
+  int nCounts = 0;
+  int x_index = nXLowLimit;      // The x-value to start at (low)
+  int y_index = nYHighLimit-1;   // The y-value to start at (high)
+  if(pAttrib->isexpanded()) y_index++;
+  int hival = 0;
+  int sum   = 0;
+  int nMaxCounts;
+  reduction_mode sr = pAttrib->getreduction();
+
+  // Here is where we get the points and store them. The format is that of
+  // an n x m matrix, where each column is separated by a space and each row
+  // is separated by a newline. Note that the first line will be the top
+  // row of the spectrum, i.e. the highest y-value and lowest x-value.
+  // 
+  // The reduction is performed by us to avoid losing any single channel
+  // peaks that may be of importance.
+  //
+  for(int i = 0; i < nYRange/reso; i++) {
+    for(int j = 0; j < nXRange*reso; j++) {
+      
+      // If it's not expanded or mapped (in which case the high and low
+      // limits could be almost anything), and the indices are out of 
+      // range, then break out of this loop before the user gets a bunch
+      // of stupid error messages.
+      if(!(pAttrib->isexpanded()) && !(pAttrib->ismapped()) &&
+	 (x_index >= nXHighLimit || y_index >= nYHighLimit)) {
+	break;
+      }
+
+      // Perform the spectrum reduction by hand. If the resolution is 1:1
+      // then no further reduction has to be done. Otherwise, the method
+      // of reduction used is the same as that use by Xamine.
+      switch(reso) {
+      case 1: {
+	if(pAttrib->isflipped()) 
+	  nCounts = xamine_shared->getchannel(nSpectrum, y_index, x_index);
+	else 
+	  nCounts = xamine_shared->getchannel(nSpectrum, x_index, y_index);
+	  
+	// If the axis is a log scale, we can't have any zeros...
+	if(nCounts == 0 && pAttrib->islog()) nCounts = 1;
+	if(nCounts > nMaxCounts) {
+	  nMaxCounts = nCounts;  // the highest count
+	  *nXMaxChan  = j;        // the x channel of the highest count
+	  *nYMaxChan  = i;        // the y channel of the highest count
+	}
+	if(nFloor)
+	  if(nCounts < nFloor) nCounts = 0;
+	if(nCeiling)
+	  if(nCounts > nCeiling) nCounts = 0;
+	fStr << nCounts << " ";
+	x_index++;
+	break;
+      }
+
+	// For reduced resolution spectrum, we need to employ some sort
+	// of spectrum reduction to make things fit in a smaller number of
+	// pixels. Currently, this consists of sampling, summing and 
+	// averaging of the data values.
+      case 2:
+      case 4:
+      case 8: {
+	int cnt = pAttrib->isflipped() ? 
+	  xamine_shared->getchannel(nSpectrum, y_index, x_index) :
+	  xamine_shared->getchannel(nSpectrum, x_index, y_index);
+	
+	// If the axis is a log scale, we can't have any zeros...
+	if(cnt == 0 && pAttrib->islog()) cnt = 1;
+	if(cnt > nMaxCounts) {
+	  nMaxCounts = cnt;      // the highest count
+	  *nXMaxChan  = x_index;  // the x channel of the highest count
+	  *nYMaxChan  = y_index;  // the y channel of the highest count
+	}
+	if(nFloor)
+	  if(cnt < nFloor) cnt = 0;
+	if(nCeiling)
+	  if(cnt > nCeiling) cnt = 0;
+	sum += cnt;
+	  
+	// Maintain the hi value for sampled reduction method
+	if(cnt > hival) hival = cnt;
+	x_index++;
+	if((j+1) % (reso*reso) == 0) {
+	  switch(sr) {
+	    // Summing means adding all values within this box
+	  case summed:
+	    fStr << sum << " ";
+	    break;
+	    // Averaging is the same as summing, but we divide by the
+	    // number of pixels in this box
+	  case averaged:
+	    fStr << (sum/(reso*reso)) << " ";
+	    break;
+	    // Sampling means taking the maximum value in this box
+	  case sampled:
+	    fStr << hival << " ";
+	  }
+	  sum = 0;
+	  hival = 0;
+	  y_index += (reso-1);
+	}
+	else if((j+1) % (reso) == 0) {
+	  y_index--;
+	  x_index -= reso;
+	}
+      }
+      }
+    }
+    x_index  = nXLowLimit;
+    y_index -= reso;
+    fStr << endl;
+  }
+  fStr << endl;  
+  return nMaxCounts;
+}
+
+/*!
+  int GrabPoints1d
+
+  This function grabs the points of a 1d spectrum from the shared
+  memory region, and places them into the file pointed to by fStr.
+  The maximum count is returned.
+*/
+int GrabPoints1d(int nLowLimit, int nHighLimit, int* nMaxChan,
+		 int nHighCnt, int nFloor, int nCeiling, 
+		 win_1d* pAttrib, ofstream& fStr)
+{
+  int nSpectrum = pAttrib->spectrum();
+  int specID = nSpectrum;
+  int nCounts = 0;
+  int nMaxCounts;
+  for(int i = nLowLimit; i <= nHighLimit; i++) {
+    if(pAttrib->ismapped())
+      fStr << Xamine_XChanToMapped(nSpectrum, i) << " ";
+    else
+      fStr << i << " ";
+    nCounts = xamine_shared->getchannel(specID, i);
+    if((nCounts > nMaxCounts) && (specID == nSpectrum)) {
+      nMaxCounts = nCounts;
+      *nMaxChan   = i;
+    }
+    if(nCounts > nHighCnt) nCounts = nHighCnt;
+    if(pAttrib->islog() && nCounts == 0) nCounts = 1;
+    if(nFloor)
+      if(nCounts < nFloor) nCounts = nFloor;
+    if(nCeiling)
+      if(nCounts > nCeiling) nCounts = nCeiling;
+    fStr << nCounts << endl;
+    if(pAttrib->getrend() == histogram) { 
+      if(pAttrib->ismapped()) {
+	fStr << Xamine_XChanToMapped(nSpectrum, (i+1)) << " "
+	     << nCounts << endl;
+      }
+      else {
+	fStr << i+1 << " " << nCounts << endl;
+      }
+    }
+  }
+  fStr << endl;
+  return nMaxCounts;
 }

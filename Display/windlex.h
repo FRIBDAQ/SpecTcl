@@ -1,5 +1,6 @@
 typedef union {
    int integer;
+  double real;
    char string[80];
  } YYSTYPE;
 #define	NAME	257

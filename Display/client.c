@@ -1002,8 +1002,7 @@ int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
   /* Return success if shmat returned a non null pointer */
 
   Xamine_memory = *ptr;		/* Save memory pointer for mgmnt rtns. */
-  return (*ptr ? 1 :
-	         0);
+  return (*ptr ? 1 : 0);
 }
 #endif
 #endif
@@ -1207,11 +1206,11 @@ void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, char *title,
   offset = spec - base;
   offset = offset/bpc;
 
-
   /* Fill in everything but the title... that needs some fancy footwork */
 
   Xamine_memory->dsp_xy[spno].xchans = xdim;
   Xamine_memory->dsp_xy[spno].ychans = ydim;
+
   Xamine_memory->dsp_offsets[spno]   = offset;
   Xamine_memory->dsp_types[spno]     = type;
 
@@ -1223,12 +1222,90 @@ void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, char *title,
   if(title != NULL) 
     strncpy(Xamine_memory->dsp_titles[spno], title, sizeof(spec_title)-1);
 
+  /* Clear out the mapping information region for now */
+  Xamine_memory->dsp_map[spno].xmin = 0;
+  Xamine_memory->dsp_map[spno].xmax = 0;
+  Xamine_memory->dsp_map[spno].ymin = 0;
+  Xamine_memory->dsp_map[spno].ymax = 0;
 
+  memset(Xamine_memory->dsp_map[spno].xlabel, 0, sizeof(spec_label));
+  memset(Xamine_memory->dsp_map[spno].ylabel, 0, sizeof(spec_label));
 }
+
+/*
+** Functional Description:
+**   Xamine_SetMap1d
+**      This function sets the mapped coordinate properties for a spectrum.
+**      These include low and high limits for the channel axis, and a
+**      label for the units.
+** Formal Parameters:
+**   int spno:
+**      Number of the spectrum to modify.
+**   float xmin:
+**      The minimum for the channel axis labels
+**   float xmax:
+**      The maximum for the channel axis labels
+**   spec_label xlabel:
+**      Units of the min and max values
+*/
+void Xamine_SetMap1d(int spno, float xmin, float xmax, spec_label xlabel)
+{
+  Xamine_memory->dsp_map[spno-1].xmin = xmin;
+  Xamine_memory->dsp_map[spno-1].xmax = xmax;
+  Xamine_memory->dsp_map[spno-1].ymin = 0;
+  Xamine_memory->dsp_map[spno-1].ymax = 0;
+  memset(Xamine_memory->dsp_map[spno-1].xlabel, 0, sizeof(spec_label));
+  memset(Xamine_memory->dsp_map[spno-1].ylabel, 0, sizeof(spec_label));
+
+  if(xlabel != NULL)
+    strncpy(Xamine_memory->dsp_map[spno-1].xlabel, xlabel, 
+	    sizeof(spec_label)-1);
+}
+
+/*
+** Functional Description:
+**   Xamine_SetMap2d
+**      This function sets the mapped coordinate properties for a spectrum.
+**      These include low and high limits for the channel axis, and a
+**      label for the units.
+** Formal Parameters:
+**   int spno:
+**      Number of the spectrum to modify.
+**   float xmin:
+**      The minimum for the x-channel axis labels
+**   float xmax:
+**      The maximum for the x-channel axis labels
+**   spec_label xlabel:
+**      Units of the min and max values
+**   float ymin:
+**      The minimum of the y-channel axis labels
+**   float ymax:
+**      The maximum of the y-channel axis labels
+**   spec_label ylabel:
+**      Units of the min and max values 
+*/
+void Xamine_SetMap2d(int spno, float xmin, float xmax, spec_label xlabel,
+		     float ymin, float ymax, spec_label ylabel) 
+{
+  Xamine_memory->dsp_map[spno-1].xmin = xmin;
+  Xamine_memory->dsp_map[spno-1].xmax = xmax;
+  Xamine_memory->dsp_map[spno-1].ymin = ymin;
+  Xamine_memory->dsp_map[spno-1].ymax = ymax;
+
+  memset(Xamine_memory->dsp_map[spno-1].xlabel, 0, sizeof(spec_label));
+  memset(Xamine_memory->dsp_map[spno-1].ylabel, 0, sizeof(spec_label));
+  if(xlabel != NULL)
+    strncpy(Xamine_memory->dsp_map[spno-1].xlabel, xlabel, 
+	    sizeof(spec_label)-1);
+  if(ylabel != NULL)
+    strncpy(Xamine_memory->dsp_map[spno-1].ylabel, ylabel,
+	    sizeof(spec_label)-1);
+}
+
 #ifdef unix
 void f77xamine_describespectrum_(int *spno, int *xdim, int *ydim,
-				char *title, int *loc, spec_type *type,
-				int tsize)
+				 char *title, int *loc, spec_type *type,
+				 int tsize)
 {
   int nc = sizeof(spec_title)-1;
   spec_title tstr;
@@ -1245,7 +1322,7 @@ void f77xamine_describespectrum_(int *spno, int *xdim, int *ydim,
     strncpy(tstr, title, nc);
     
     Xamine_DescribeSpectrum(*spno, *xdim, *ydim,
-			  tstr, spec, *type);
+			    tstr, spec, *type);
   }
 }
 #endif
@@ -1308,7 +1385,7 @@ caddr_t Xamine_Allocate1d(int *spno, int xdim, char *title, int word)
     return NULL;
   }
   /* Now describe the spectrum:   */
-  
+
   Xamine_DescribeSpectrum(num, xdim, 0, title, storage,
 			  word ? onedword : onedlong);
   
@@ -1407,7 +1484,7 @@ caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, char *title, int byte)
 
 #ifdef unix
 long f77xamine_allocate2d_(int *spno, int *xdim, int *ydim, char *title,
-			  int *byte, int tlen)
+			   int *byte, int tlen)
 #endif
 #ifdef VMS
 long f77xamine_allocate2d(int *spno, int *xdim, int *ydim,
