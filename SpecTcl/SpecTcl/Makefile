@@ -34,7 +34,7 @@ COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) -DINSTALLED_IN='"$(INST
 LINK=$($(OS)LD) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS)
 RM=rm -f
 DEPEND=makedepend
-INSTALL=cp
+INSTALL=install -m 0664
 ARCHIVE=ar cr
 CONCAT=cat
 
@@ -72,10 +72,6 @@ install: system
 	$(CONCAT) Makefile.skel            >>$(INSTDIR)/Skel/Makefile
 	$(INSTALL) SpecTclInit.tcl          $(INSTDIR)/Etc
 	$(INSTALL) SpecTclRC.tcl            $(INSTDIR)/Skel
-	chmod u+w $(INSTDIR)/Skel/*         # Needed to ensure that
-	chmod u+w $(INSTDIR)/Include/*      # stuff not checked out from
-	chmod u+w $(INSTDIR)/Lib/*          # RCS can be overwritten on next
-	chmod u+w $(INSTDIR)/Etc/*          # install.
 
 depend:
 	$(DEPEND) -Y.  *.cpp

@@ -27,7 +27,7 @@ COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS)
 LINK=$($(OS)CPP) $(NOPROFILE) $(INCLUDEDIRS) $(LIBDIRS)
 RM=rm -f
 DEPEND=makedepend
-INSTALL=cp
+INSTALL=install -m 0664 
 ARCHIVE=ar cr
 
 OBJECTS=ErrnoException.o Exception.o RangeError.o StreamIOError.o

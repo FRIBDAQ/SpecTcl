@@ -14,23 +14,24 @@ DarwinMAKESW=-j 4
 
 system:
 	g++ --version
-	mkdir -p $(INSTDIR)/Bin
-	mkdir -p $(INSTDIR)/Etc
-	mkdir -p $(INSTDIR)/Include
-	mkdir -p $(INSTDIR)/Lib
-	mkdir -p $(INSTDIR)/Script
-	mkdir -p $(INSTDIR)/Skel
-	mkdir -p $(INSTDIR)/contrib
-	mkdir -p $(INSTDIR)/doc
-	(cd contrib; \
-            tar cf - .| (cd $(INSTDIR)/contrib; tar xf -) \
+	install -d -m 02775  $(INSTDIR)/Bin
+	install -d -m 02775 $(INSTDIR)/Etc
+	install -d -m 02775 $(INSTDIR)/Include
+	install -d -m 02775 $(INSTDIR)/Lib
+	install -d -m 02775 $(INSTDIR)/Script
+	install -d -m 02775 $(INSTDIR)/Skel
+	install -d -m 02775 $(INSTDIR)/contrib
+	install -d -m 02775 $(INSTDIR)/doc
+	(umask 02; cd contrib; \
+            tar cf - .| (cd $(INSTDIR)/contrib; tar xf -); \
+	    chmod -R 0775 $(INSTDIR)/contrib \
 	)
-	(cd Scripts; \
+	(umask 02; cd Scripts; \
 		make install  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Utility;   \
+	(umask 02; cd Utility;   \
 	 make system $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Display;  \
+	(umask 02; cd Display;  \
 	make  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	if [ -e /opt/intelfortran/bin/ifc -a `uname` = "Linux" ]; \
 	then \
@@ -51,38 +52,38 @@ system:
 	  ranlib libXamine.a; \
 	fi; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Gri; ./configure; make; make install INSTDIR=$(INSTDIR) \
+	(umask 02; cd Gri; ./configure; make; make install INSTDIR=$(INSTDIR) \
 	GRI_DIRECTORY_LIBRARY=$(INSTDIR)/Etc)
-	(cd Exception; \
+	(umask 02; cd Exception; \
 	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Xamine;    make   INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
+	(umask 02; cd Xamine;    make   INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Tape; \
+	(umask 02; cd Tape; \
 	 make  $($(OS)MAKESW) OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd EventSource; \
+	(umask 02; cd EventSource; \
 	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd TCL; \
+	(umask 02; cd TCL; \
 	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Events; \
+	(umask 02; cd Events; \
 	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Gates; \
+	(umask 02; cd Gates; \
 	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Sorter;   \
+	(umask 02; cd Sorter;   \
 	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd SpectrumIO; \
+	(umask 02; cd SpectrumIO; \
 	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd SpecTcl;  \
+	(umask 02; cd SpecTcl;  \
 	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)"; \
 	make install $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd TestFiles; \
+	(umask 02; cd TestFiles; \
 	 make $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 
 clean: 
