@@ -1,4 +1,4 @@
-#
+s#
 #  Note: PROFILE builds are only done on SpecTcl, not on Xamine.  This
 #        prevents Xamine profiling output from going into SpecTcl's profile
 #        output file.  At present to profile Xamine one must manually
@@ -21,6 +21,9 @@ system:
 	mkdir -p $(INSTDIR)/Skel
 	mkdir -p $(INSTDIR)/contrib
 	mkdir -p $(INSTDIR)/doc
+	(cd contrib; \
+            tar cf - .| (cd $(INSTDIR)/contrib; tar xf -) \
+	)
 	(cd Scripts; \
 		make install  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Utility;   \
@@ -35,8 +38,6 @@ system:
 	  PATH=$$PATH:/opt/intelfortran/bin; \
 	  LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/opt/intelfortran/lib; \
 	  export PATH LD_LIBRARY_PATH; \
-	  echo Starting make with: "PATH           =" $PATH ;\
-	  echo "                   LD_LIBRARY_PATH =" $LD_LIBRARY_PATH ;\
 	  make aedxamine.o OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)"; \
 	  ar r libXamine.a aedxamine.o; \
 	fi; \

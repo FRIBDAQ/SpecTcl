@@ -108,6 +108,7 @@ object_type:   CUT1D
 
 object_def: characteristic
             | object_def characteristic
+            ;   
 
 characteristic:  obj_name
                | point_list
