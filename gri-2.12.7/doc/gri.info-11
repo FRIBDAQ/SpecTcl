@@ -1,0 +1,1105 @@
+This is gri.info, produced by makeinfo version 4.3 from gri.texi.
+
+INFO-DIR-SECTION Scientific Applications
+START-INFO-DIR-ENTRY
+* Gri: (gri).  Programming language for scientific illustration
+END-INFO-DIR-ENTRY
+
+
+File: gri.info,  Node: Version 2.2,  Next: Unstable Stream,  Prev: Version 2.4,  Up: Stable Stream
+
+Version 2.2
+-----------
+
+Version 2.2.6 [1999 Nov 25]
+...........................
+
+   Make web-based manual easier to read by putting a light-grey
+background under sample code.
+
+Version 2.2.5 [1999 Nov 10]
+...........................
+
+   Fix bug in RPN calculations that prevented using a negative exponent.
+
+Version 2.2.4 [1999 Nov 7]
+..........................
+
+   Add `set font encoding', and also change the encoding to
+ISO-Latin-1.  (This doesn't hurt old code since Gri didn't make any
+claims to handle characters outside the normal printing-set before
+anyway.)
+
+   Fix bug in which there were 4 dead links in the HTML version of
+manual.
+
+   Clean up some problems with Debian distribution (thanks, Peter
+Galbraith!).
+
+Version 2.2.3 [1999 Jun 30]
+...........................
+
+   Fix bug in which word-of-synonym (e.g. `\[0]mysyn') was not detected
+correctly (thanks to bug report from Kazuhiko Nakayama in Japan)
+
+Version 2.2.2 [-]
+.................
+
+   Clean a few spelling and cross-reference errors in documentation.
+
+Version 2.2.1 [1999 Mar 31]
+...........................
+
+   For debian, properly locate the `netcdf' library, if it is installed.
+
+   Remove remnants of old commands for polar axes.
+
+   Correct error in which the right-most and upper-most pixel of images
+created by `convert grid to image' may be blank (or not, depending on
+roundoff error) under certain conditions of exact matchup between grid
+spacing and image spacing.
+
+   Don't create PostScript file if the commandfile is non-existent, or
+if there were errors on the commandline.
+
+Version 2.2.0 [1999 Mar 25]
+...........................
+
+   First debian release.  Versions exist for intel, alpha, 68K and
+powerpc.
+
+
+File: gri.info,  Node: Unstable Stream,  Next: Development Version,  Prev: Version 2.2,  Up: History
+
+Unstable Stream
+===============
+
+* Menu:
+
+* Development Version::
+* Plans::
+
+
+File: gri.info,  Node: Development Version,  Next: Plans,  Prev: Unstable Stream,  Up: Unstable Stream
+
+Development Version
+-------------------
+
+   The list below shows changes that have been made in the development
+version of Gri, i.e. the version on CVS at
+<http://gri.sourceforge.net>.  Some or all of these features may enter
+the next stable stream of Gri, but it is important to note that
+_anything_ that's listed here may be changed without notice!  The main
+exception is bug fixes, which will enter the stable stream unless they
+are found to create new bugs.
+
+New Features
+............
+
+   * n/a
+
+Removed Features
+................
+
+   * n/a
+
+Bug Fixes
+.........
+
+   * Fix SourceForge bug #618041
+     (http://sourceforge.net/tracker/index.php?func=detail&aid=618041&group_id=5511&atid=105511)
+     ... solaris compile error, relating to the subroutine
+     `gethostname()' in the `startup.cc' source code file.
+
+
+
+File: gri.info,  Node: Plans,  Next: Deprecated Commands,  Prev: Development Version,  Up: Unstable Stream
+
+Plans
+-----
+
+   Some plans for future versions are given below.  A more extensive
+list, together with target timescales and notes on the progress towards
+completion, is available in the to-do list at the development site
+(<http://gri.sourceforge.net>), which is also the place to go if you
+have suggestions for other changes to Gri.
+
+High Priority
+.............
+
+  1. Add ability to generate SVG (scalable vector graphics) output.
+     This file type can be edited with GUI-based tools, making it easy
+     for users to put the final touches on graphs "manually."  This
+     feature will require a great deal of work, mainly to do with
+     grouping of graphical elements, and so I'll need to rely on advice
+     from users.
+
+  2. Switch to `popt' library for the processing of command-line
+     options.  (Docs on this are at
+     <http://cvs.gnome.org/lxr/source/popt>.)
+
+  3. Change `set axes style' from number-based selection to word-based
+     selection, and print a deprecation warning if the number-based
+     syntax is used.
+
+  4. Switch from `tmpname' to `mkstemp' subroutine, for temporary
+     filenames.
+
+  5. Add readline support, to handle history, command-line editing, etc,
+     for interactive usage (Docs on this are at
+     <http://cnswww.cns.cwru.edu/~chet/readline/readline.html>.)
+
+
+Medium priority
+...............
+
+  1. Add optimal interpolation as another method for gridding data
+     (*Note Convert Columns To Grid::).
+
+  2. Add ability to read PNG images (*Note Read Image::) (Docs on this
+     are at <http://www.libpng.org/pub/png/>.)
+
+
+Low priority
+............
+
+  1. Add non-RPN mathematics.
+
+  2. Add graphical output to the screen as commands are executed.
+
+  3. Add support for both little-endian and big-endian binary data.
+
+
+
+File: gri.info,  Node: Deprecated Commands,  Next: Installation,  Prev: Plans,  Up: History
+
+Deprecated Commands
+===================
+
+   * _version 2.9.0_
+        * Replace `set y axis label horizontal' with `set y axis name
+          horizontal'.
+
+        * Replace `set y axis label vertical' with `set y axis name
+          vertical'.
+
+
+File: gri.info,  Node: Installation,  Next: Unix-install,  Prev: Deprecated Commands,  Up: Top
+
+Installing Gri
+**************
+
+* Menu:
+
+* Unix-install::
+* Msdos-install::
+* OS2-install::
+* Mac-install::
+* Beos-install::
+
+
+File: gri.info,  Node: Unix-install,  Next: Archiving Old Versions,  Prev: Installation,  Up: Installation
+
+Unix Installation
+=================
+
+* Menu:
+
+* Archiving Old Versions::      Keeping the old and the new
+* Linux::                       Installing on linux
+* Precompiled Unix::            Installing precompiled versions
+* Uncompiled Unix::             Compiling and installing
+
+
+File: gri.info,  Node: Archiving Old Versions,  Next: Linux,  Prev: Unix-install,  Up: Unix-install
+
+Archiving Old Versions
+======================
+
+   Gri, like other complex programs, sometimes changes in such a way as
+to break old scripts.  This is less so of changes since about 1998 or
+so, since the syntax became pretty firm about that time.
+
+   Still, disk costs are so cheap that you would be well-advised to
+keep a backup version of Gri, whenever you update.  This is pretty
+simple; you need to keep a copy of the executable and the library file,
+and you need to write a tiny shellscript that calls this particular
+executable with this particular library file.  For example, you might
+do the following
+
+     mkdir -m 755 -p           /usr/local/share/gri/2.12.7
+     cp /usr/bin/gri           /usr/local/share/gri/2.12.7
+     cp /usr/share/gri/gri.cmd /usr/local/share/gri/2.12.7
+
+and then create a shellscript called `/usr/local/bin/gri-2.12.7'
+containing
+
+     #!/usr/bin/sh
+     /usr/local/share/gri/2.12.7/gri \
+         -directory /usr/local/share/gri/2.12.7 \
+         "$@"
+
+to invoke this version of Gri.
+
+   To be able to access this old version of gri from within the Emacs
+gri-mode, you would reset the Emacs variable `gri*directory-tree' like
+so in the file `~/.emacs' (*Note Step 2:: in *Note Installing
+gri-mode.el::)
+
+     (setq gri*directory-tree
+         '("/usr/local/share/gri/" "/usr/share/gri/"))
+
+
+File: gri.info,  Node: Linux,  Next: Precompiled Unix,  Prev: Archiving Old Versions,  Up: Unix-install
+
+Installation on Linux computers
+-------------------------------
+
+   Installation is easy on RedHat and Debian flavors of linux.  Versions
+are available from the official distributions and also at
+`http://sourceforge.net/project/showfiles.php?group_id=5511'
+
+   The RedHat version supports intel platforms only, while the Debian
+version supports intel, alpha, 68K and powerpc.  Installation follows
+the normal method for these distributions ... if you have the
+distribution, you surely know what to do.  If you don't, you may want to
+switch when you see that you can install Gri by clicking an icon in a
+window, or by typing, e.g. in RedHat linux:
+
+     rpm -i gri-2.12.7
+
+   Debian-linux installation may be done with any of several GUI-based
+tools, or with the following system command:
+
+     dkpg -i gri_2.12.7-1_i386.deb
+
+or via a properly configured `apt' interface that will fetch the latest
+version from the net:
+
+     apt-get install gri
+
+
+File: gri.info,  Node: Precompiled Unix,  Next: Uncompiled Unix,  Prev: Linux,  Up: Unix-install
+
+Pre-compiled unix versions
+--------------------------
+
+   Pre-compiled versions of Gri exist for various computers, e.g. SPARC
+(both sunOS and solaris), IBM-RS, Sequent, and Linux.  The following
+instructions, which assume a version number 2.12.7, and a SPARC solaris
+machine, show how to install these.
+
+   The compressed tar file, with a name like
+`gri-binary-SunOS5-2.12.7.tar.gz' (in this example a Sun OS 5 binary is
+assumed, with gri version number 2.12.7) contains a directory which
+holds the executable Gri file, `gri', the library file `gri.cmd', an
+instructions file, `README', and a Makefile to install Gri.
+
+   Here's how to install Gri, starting with this tar file:
+
+  1. First, uncompress (unzip) the file, and un-tar it, by doing
+
+          gunzip -c gri-binary-SunOS5-2.12.7.tar.gz | tar xvf -
+
+     or
+
+          zcat gri-binary-SunOS5-2.12.7.tar.gz | tar xvf -
+
+     This will yield a new directory, with a name like
+     `gri-binary-SunOS5-2.12.7', which contains the indicated files.
+
+  2. Follow the instructions in the `README' file to install Gri.
+
+
+File: gri.info,  Node: Uncompiled Unix,  Next: Msdos-install,  Prev: Precompiled Unix,  Up: Unix-install
+
+Compilation on Unix computers
+=============================
+
+   The following steps indicate how to compile Gri on unix computers.
+The procedure is quite standard.
+
+_Requirements_
+     You'll need a C++ compiler that is modern enough to handle
+     'templates' (i.e. almost any compiler from 1998 onward).  Don't
+     worry - if your compiler isn't new enough, you'll see that in a
+     minute or two!
+
+     You'll need TeX and texinfo to make the info files, and optionally
+     the netCDF library (if you wish gri to be able to read netCDF
+     binary data files).  To make the HTML manual, you'll need
+     imagemagick, info, gs and its fonts.
+
+     On Debian GNU/Linux systems, the required packages are listed as
+     Build-Depends in the `control' file found in the `debian'
+     directory, to which you must add the package `build-essential'.
+
+_Unpack the source_
+     Type
+
+          gunzip gri-2.12.7.tgz
+          tar xvf gri-2.12.7.tar
+
+     (or similar commands) to uncompress and untar the contents.  This
+     will yield a new directory named `gri-2.12.7' which contains many
+     files.
+
+_Move to the Gri directory_
+          cd gri-2.12.7
+
+_Configure your compiler_
+     Next you must "configure" the Gri source files.  During this step,
+     a series of tests will be made about your operating system and your
+     compiler.  Most of these tests need no interaction from you, but
+     there is one overall choice that you may wish to make: the place
+     on your filesystem where Gri (and many associated library and
+     documentation files) will reside.  To get the default
+     installation, with files residing within the directory
+     `/usr/local', type
+
+          ./configure
+
+     at this time.  If you'd rather the files go into another location,
+     run the `configure' script differently, e.g.  to get the Gri files
+     to reside within the `/opt' directory, type:
+
+          ./configure --prefix=/opt
+
+     In response, you'll see the results of several tests of the
+     properties of your operating system, your C++ compiler, etc.
+     Normally you can ignore these results.
+
+     As an example, typing `./configure' without a `--prefix' option
+     yields the directory tree (`...' indicates several files not
+     displayed in this list, for brevity).  In this example, the most
+     up-to-date version is 2.12.7, but a previous version
+     2.12.6 has also been retained.  (Note that only one copy of the
+     documentation is retained; this is all that's needed, since old
+     versions are documented there as well as new versions.)
+
+          /usr/local
+          |-- bin
+          |   |-- gri -> gri-2.12.7
+          |   |-- gri-2.12.7
+          |   |-- gri-2.12.6
+          |   |-- gri_merge
+          |   `-- gri_unpage
+          |-- info
+          |   |-- ...
+          `-- share
+              `-- gri
+                  |-- 2.6.0
+                  |   |-- gri.cmd
+                  |   |-- license.txt
+                  |   |-- logo.dat
+                  |   `-- startup.msg
+                  |-- 2.4.0
+                  |   |-- gri.cmd
+                  |   |-- license.txt
+                  |   |-- logo.dat
+                  |   `-- startup.msg
+                  `-- doc
+                      |-- examples
+                      |   |-- ...
+                      `-- html
+                          |-- ...
+                          |-- resources
+                          |   |-- ...
+                          `-- screenshots
+                              |-- ...
+
+     Trouble-shooting 1: If the permission of the `configure' file is
+     wrong, you'll get an error like `Permission denied'; if so, try
+     typing `sh ./configure' to run it in the Bourne shell.  If that
+     fails, you are going to have to do some old-fashioned work!  Start
+     by copying the generic Makefile called `Makefile.generic' into
+     `Makefile', and try the following steps, perhaps editing the
+     `Makefile' if you run into errors.
+
+     Trouble-shooting 2: Gri uses a C++ feature called 'templates'.
+     Unfortunately, templates are handled in different ways by different
+     compilers.  At least as of Spring 1997, the GNU compiler, vsn 2.7.x
+     (used by many Gri folks) has problems with templates.  Therefore
+     the configure script will check to see if you are using the GNU c++
+     compiler, and if you are it will check whether the ("template
+     repository") compiler flag `-frepo' is known on your machine.  If
+     it is not, an alternative method of templates will be used.  But
+     if it is, you'll be asked, for confirmation, whether you wish to
+     use the `-frepo' flag.  On many machines (e.g. Solaris) you should
+     answer `n' to this question.  The prompt will explain.  Also, note
+     that you can avoid the prompt by running configure as either of
+     the two below:
+
+          ./configure --enable-frepo
+          ./configure --disable-frepo
+
+     (Such switches will be ignored unless you're using the GNU
+     compiler.)
+
+     Trouble-shooting 3: If optional system libraries like the netCDF
+     library, if it exists, are installed in nonstandard places, you
+     might have to change the unix environment variable
+     `LD_LIBRARY_PATH'.  For example, on my machine the `netcdf'
+     library is not installed in `/usr/lib', as the `configure' script
+     assumes, but rather in `/usr/local/share/netcdf/lib'.  Therefore I
+     have the following line in one of my startup files:
+
+          export LD_LIBRARY_PATH=/usr/lib:/usr/local/share/netcdf/lib
+
+_Compiling Gri_
+     Now compile Gri by typing
+
+          make
+
+_Testing Gri_
+     Type
+
+          make test
+
+     to do some tests on the version of Gri that you just compiled.  If
+     no errors are reported, you may go to the next step.
+
+_Installing Gri_
+     Assuming compilation succeeds, install `gri' and the ancillary file
+     `gri.cmd', by typing
+
+          make install
+
+     If you wish to see where files where be installed, first try a dry
+     run typing
+
+          make -n install
+
+_Cleaning up_
+     Once these things are done, you may type
+
+          make clean
+          cd doc ; make clean
+
+     to clean up some files.  Of course, you could just erase the whole
+     source, but the source is probably worth a penny of hard-drive
+     space, isn't it?
+
+
+File: gri.info,  Node: Msdos-install,  Next: OS2-install,  Prev: Uncompiled Unix,  Up: Installation
+
+Compilation on x86 (PC-style) Computers
+=======================================
+
+   Versions exist for MSDOS, windows, and Linux operating systems.
+(Actually, the windows version is just the MSDOS version, which can be
+run inside an msdos window within windows-95, windows-NT, etc.)
+
+MSDOS Operating System
+......................
+
+   To compile and install Gri under MSDOS, do this:
+  1. To begin, install `DJGPP V2', if it is not on your system already.
+     It can be found at <http://www.delorie.com/djgpp>
+
+  2. Uncompress and extract from gri source package (*Note Uncompiled
+     Unix::).
+
+  3. Type `make -f Makefile.dj2' to compile.  If it fails, you might
+     have to edit the file `Makefile.dj2' to match the characteristics
+     of your system.  Please inform the author, Dan Kelley at
+     Dan.Kelley@Dal.CA, if you think your modifications might be useful
+     to others.
+
+  4. Type `make -f Makefile.dj2 install' to install it (normally on the
+     `C:' drive).
+
+   If you encounter problems, read the first few lines of the Makefile
+(i.e. the file `Makefile.dj2') for hints on things to try.  For
+example, in the present version of `Makefile.dj2' these hints are given:
+  1. There is a good chance that this Makefile will work as is, so try
+     that first.
+
+  2. If you have the `netcdf' library (used for certain types of
+     atmospheric and oceanographic datasets), then un-comment and
+     possibly edit the appropriate `NETCDF_...' lines below, as
+     instructed by the comments preceding these lines.
+
+  3. If you don't want Gri inserted in the directory `c:/gri', edit the
+     `instdir = ...' line below.
+
+  4. If you get error messages about the `stdcxx' library, edit the
+     `LIBS' line below, rewriting `-lstdcxx' as `-lstdcx'.
+
+  5. If you get compilation errors relating to `time' or to `ftime',
+     try putting the token `-DHAVE_FTIME=1' in the list of similar
+     token in the `DEFS = ...' line.  For consistency (basically, so
+     the author can help you if you do this), put it right after the
+     `-D_GRI_=1' token.
+
+   To view the output, use a PostScript viewer such as GSview.
+(<http://www.cs.wisc.edu/~ghost/index.html>).
+
+LINUX Operating System
+......................
+
+   Linux is a good emulation of unix, and it is free.  Gri for linux is
+compiled and installed according to the normal unix instructions.  The
+compiled version is with a name like
+`gri-binary-solaris-2.1.10.tar.gz'; treat it as in other unix systems
+(*Note Uncompiled Unix::).
+
+
+File: gri.info,  Node: OS2-install,  Next: Mac-install,  Prev: Msdos-install,  Up: Installation
+
+Compilation under OS/2
+======================
+
+   Gri compiles, using the gcc compiler under OS/2, provided that the
+included `Makefile.os2' is used.  Be sure to edit the first few lines
+to change filenames as required, especially taking care to account for
+whether the netCDF library is installed, etc.
+
+
+File: gri.info,  Node: Mac-install,  Next: Beos-install,  Prev: OS2-install,  Up: Installation
+
+Compilation under Macintosh Unix
+================================
+
+   The MachTen version of unix for Macintosh acts like a normal unix.
+Provided that the associated `gcc' compiler is sufficiently up-to-date,
+Gri can be compiled following the normal unix instructions.
+
+
+File: gri.info,  Node: Beos-install,  Next: Bugs,  Prev: Mac-install,  Up: Installation
+
+Compilation under BeOS
+======================
+
+   The BeOS system compiles Gri cleanly without modification; just
+follow the instructions for unix.
+
+
+File: gri.info,  Node: Bugs,  Next: Known Bugs,  Prev: Beos-install,  Up: Top
+
+Bugs
+****
+
+* Menu:
+
+* Known Bugs::                  Bugs in the current version
+* Reporting Bugs::              How to report bugs
+* Killing Bugs::                How to (try to) kill bugs
+
+
+File: gri.info,  Node: Known Bugs,  Next: Reporting Bugs,  Prev: Bugs,  Up: Bugs
+
+Known bugs
+==========
+
+   The ultimate reference for Gri bugs is the development website
+<http://gri.sourceforge.net>, which has a powerful bug-tracking
+facility at
+<http://sourceforge.net/tracker/?atid=105511&group_id=5511&func=browse>
+that permits you to view bugs that have been fixed and bugs that still
+exist, and that also lets you report bugs.
+
+   A summary of some known bugs, some reported on the development site
+and some not, follows.
+
+   * The PDF version of the manual, created by `make gri.pdf', won't
+     work unless the following patch is applied to one of the files of
+     TexInfo, version 1999-03-26.17.  (This patch entered the official
+     TeX sources in April 2001.)
+
+          *** /usr/share/texmf/pdftex/texinfo/pdftexinfo.tex	Wed Dec 20 11:54:04 2000
+          --- /usr/share/texmf/pdftex/texinfo/pdftexinfo.tex~	Mon Mar 29 06:17:02 1999
+          ***************
+          *** 5481,5487 ****
+                  \fi
+                \endgroup
+              \else
+          !     \centerline{\pdfimage {#1.pdf}}%
+              \fi
+            }
+          
+          --- 5481,5487 ----
+                  \fi
+                \endgroup
+              \else
+          !     \centerline{\pdfimage #1.pdf}%
+              \fi
+            }
+
+   * The EPSF bounding-box defaults to an 8.5 by 11 inch page, if
+     `-no_bounding_box' is specified on the commandline (*Note Invoking
+     Gri::).  It should probably know about more paper sizes.
+
+   * `draw contour labels nowhiteunder' does not break the line under
+     the label, as it should.
+
+   * `reorder columns' is slow because it uses a bubble-sort.
+
+   * Support for `netCDF' binary files is limited, e.g. (1) consistency
+     of grid x/y/data is not checked as it is in ascii/binary formats;
+     (2) Gri cannot read image data; (3) `set input data window' has no
+     effect: use `set clip' instead; and (4) Gri cannot output to
+     `netCDF' files.
+
+   * Errors sometimes report inaccurate line numbers.  (E.G.: errors
+     inside newcommands report wrong line numbers if continued lines
+     are present before the bad line.)
+
+   * Images in rasterfile format: only mapless images permitted.
+
+   * In an `insert'ed file, `read' commands which expect input from the
+     commandfile, as opposed to a datafile, do not work.
+
+   * The string size rpnfunctions `ascent("string")' and
+     `descent("string")' are inaccurate.
+
+   * Commands in the false part of `if' statements are not checked for
+     proper syntax.  All commands in false parts of `if' statements are
+     simply skipped, except for `end if' or `else [if]'.
+
+   * Clipped lines should extend as far as the axis frame, but they
+     don't.  Gri only draws line segments which connect two points each
+     of which is inside the axis frame.  Workaround: use `set clip
+     postscript' instead of `set clip'.
+
+   * Aesthetics (y-axes): labels are sometimes ugly because they are
+     right-justified, and the number of decimal points is not
+     necessarily uniform in all labels.  Workaround: Set the format
+     yourself (example: `set y format %.1f').
+
+
+File: gri.info,  Node: Reporting Bugs,  Next: Killing Bugs,  Prev: Known Bugs,  Up: Bugs
+
+Reporting Bugs
+==============
+
+   Please report any bugs you find in Gri.  Bug reports help make Gri
+more reliable and useful for all users.  The procedure for reporting
+bugs, described below, is quite standard.
+
+  1. Go to the bug-tracking part of the Source Forge Gri development
+     site, at <http://sourceforge.net/bugs/?group_id=5511> to see
+     whether your bug has already been reported.  You may find that it
+     has been reported and fixed already in a new version, in which
+     case you should archive your existing Gri version and upgrade.  If
+     the bug has been reported and *not* fixed, then you may still wish
+     to add a supplemental bug report, so the author knows that this
+     bug is of concern to you as well as the others.  (Plus, reporting
+     it this way ensures that you'll receive an email when the bug is
+     fixed.)
+
+  2. Debugging is made easier if the problem is reduced in scope.
+     Therefore, please reduce your application and your data to the
+     simplest case that produces the error.
+
+  3. If you know how, please try to find the bug yourself.  After all,
+     Gri is open-source for a reason!  The procedure is described in
+     the next section (*Note Killing Bugs::).
+
+
+
+File: gri.info,  Node: Killing Bugs,  Next: Debugging Software You Will Need,  Prev: Reporting Bugs,  Up: Bugs
+
+Killing Bugs
+============
+
+* Menu:
+
+* Debugging Software You Will Need::
+* Debugging at a Glance::
+* Debugging Example::
+
+
+File: gri.info,  Node: Debugging Software You Will Need,  Next: Debugging at a Glance,  Prev: Killing Bugs,  Up: Killing Bugs
+
+Software that you'll need
+-------------------------
+
+   This section is intended to help you find and kill bugs yourself, by
+indicating how the author does this work.  Since Gri is open-source,
+all users are invited to try to kill bugs themselves!
+
+   If you know nothing of C or C++, you may as well not read further,
+since there is little chance of your making progress.  On the other
+hand, experienced programmers won't need any of the advice I give below.
+
+   You'll need the Gri source and a C++ compiler.  It also helps if you
+have `gdb', the GNU debugger, installed; the instructions below assume
+that's the case.  Also, the instructions assume that you're using the
+Emacs editor, and running `gdb' from within Emacs.  Otherwise, you'll
+want to glance at the documentation on `gdb' to see how to use it in
+standalone mode.
+
+
+File: gri.info,  Node: Debugging at a Glance,  Next: Debugging Example,  Prev: Debugging Software You Will Need,  Up: Killing Bugs
+
+Debugging at a glance
+---------------------
+
+   The list below is a sketch of what you might try, and in what order.
+
+   * Check the bug list to see if other users have found your bug, and
+     also to see if there is a workaround.
+
+   * Try a more recent version of gri.  If it works, you might wish to
+     archive the version you have at the moment and upgrade.
+
+   * If you suspect your bug has something to do with system calls, as
+     in the `system' command (*Note System::) or as in piped input
+     files (*Note Open::), you should re-run the script with `gri
+     -superuser8' instead of with `gri'.  This will cause Gri to print
+     out all commands that it is handing over to the operating system;
+     you may see the error that way.  (Hint: it may help to
+     interactively cut/paste the commands into your OS shell to see
+     what the action of the command is.)
+
+   * If your bug results in early termination, you should run Gri
+     inside a debugger (e.g. GDB, assumed henceforth).  When the program
+     terminates, type `where' to see where termination occured.  Often
+     this will give a clue.  In many cases, early termination results
+     from faults in memory allocation.  To check memory allocation,
+     you'll need to recompile Gri, linking it against a debugging
+     memory allocator.  Many such tools exist; see comments in the
+     `Makefile' for a hint at how to use a popular one, called
+     "Electric Fence."
+
+   * If your bug does not result in early termination, you may find the
+     best scheme is to trim your example down as much as possible, and
+     then run Gri inside the GDB (or other debugger) so that you can
+     monitor program execution.  The next section explains this in
+     detail.
+
+
+File: gri.info,  Node: Debugging Example,  Next: Test Suite,  Prev: Debugging at a Glance,  Up: Killing Bugs
+
+A debugging Example
+-------------------
+
+   Let's take a recent bug as an example.  Peter Galbraith found that
+the gri script
+
+     set color hsb 0.999 1 1
+     draw box filled 2 2 3 3 cm
+     set color hsb 1.000 1 1
+     draw box filled 4 2 5 3 cm
+
+produced odd results in a previous version of Gri; the color patches
+should have been of nearly the same color, but the first one was red, as
+expected, and the second was magenta.
+
+   The list below shows how I found Peter's bug.  Experienced C or C++
+programmers will find all of this very familiar, and will really only
+need to read item 6 of the list below, since that's the only action that
+is really specific to Gri.  (Note: for display purposes, I've broken
+some of the lines in the files into two lines in this list.)
+
+  1. Copy the above script (called `test.gri') into the Gri source
+     directory, and the script into an Emacs buffer.  Note: all the
+     following steps are done within Emacs, and the items in
+     parentheses are the Emacs keys to get the indicated actions.
+
+  2. If you're working from a pre-compiled version, you'll need to get
+     the source first and do a compile yourself (*Note Uncompiled
+     Unix::).  Then do a `make tags' command (type this to the unix
+     shell) to create a so-called "tag" table.
+
+  3. Run Gri in this emacs buffer (`C-cC-r') noting from the postscript
+     window that pops up that the colors are, indeed, mixed up.
+
+  4. Load up the `gdb' debugger by typing `M-x gdb gri'.  This will
+     open a new Emacs buffer in which you may type commands.  We'll be
+     switching back and forth between this buffer and various source
+     files.
+
+  5. Reasoning that the error probably occurs at `set color' or `draw
+     box', try replacing the latter by a command such as `draw label
+     "hi" at 3 3 cm"'.  The color is still wrong, indicating that it is
+     the `set color' command that has the problem.
+
+  6. Next, we must find where the C++ code corresponding to the `set
+     color' command resides.  As it turns out, all `set' commands are
+     defined in the source file `set.cc', and this command is defined
+     in a subroutine called `set_colorCmd()'.  But the author knows
+     this - how would you?  The answer is to look in the `gri.cmd'
+     file, for the `set color' command.  (Search for the string ``set
+     color '.) Then read down to see the body of the command, enclosed
+     in braces; you'll see
+
+          {
+              extern "C" bool set_colorCmd(void);
+          }
+
+     which indicates that the subroutine name is `set_colorCmd()'.
+
+  7. Next we need to edit this subroutine to see what it is doing.
+     There are several ways to find it (e.g. `grep' through the source
+     files), but the easiest is to use the "tags" feature of Emacs, by
+     typing `M-. set_colorCmd'.  This will bring you to the indicated
+     subroutine.
+
+  8. Have a look through this subroutine to see what it is doing.  It
+     looks very much like many other Gri subroutines.  A check is done
+     on the number of words provided to the command, in the
+
+          	switch (_nword) {
+
+     line.  (That's line `set.cc:484' at the moment - but it may be
+     different by the time you read this file, if I've changed it!)  We
+     are calling it with 6 words (`set color hsb 1.000 1 1'), so move
+     down to the line
+
+          	case 6:
+
+     and you'll see that there is an `if' statement seeing whether this
+     word is `rgb' or `hsv'.  These statements are checking `_word[2]',
+     which is the third word of the command.  (In Gri, as in C, words
+     start at zero.  Thus, for this command, `_word[0]' is `set',
+     `_word[1]' is `color', and `_word[2]' is expected to be either
+     `rgb' or `hsb'.  We are having problems with the `hsb' style, so
+     we'll move down to that code.  The code that's being executed is
+     as follows.
+
+          } else if (!strcmp(_word[2], "hsb")) {
+                  // `set color hsb .hue. .saturation. .brightness.'
+                  double          hue, saturation, brightness;
+                  Require(getdnum(_word[3], &hue),
+                          READ_WORD_ERROR(".hue."));
+                  Require(getdnum(_word[4], &saturation),
+                          READ_WORD_ERROR(".saturation."));
+                  Require(getdnum(_word[5], &brightness),
+                          READ_WORD_ERROR(".brightness."));
+                  // Clip if necessary
+                  CHECK_HSB_RANGE(hue);
+                  CHECK_HSB_RANGE(saturation);
+                  CHECK_HSB_RANGE(brightness);
+                  gr_hsv2rgb(hue, saturation, brightness,
+                          &red, &green, &blue);
+                  PUT_VAR("..red..", red);
+                  PUT_VAR("..green..", green);
+                  PUT_VAR("..blue..", blue);
+                  c.setHSV(hue, saturation, brightness);
+                  _griState.set_color_line(c);
+                  if (_griState.separate_text_color() == false)
+                          _griState.set_color_text(c);
+                  return true;
+
+     The `Require' lines are ensuring that we could decode the values of
+     the variables `hue', etc, from the commandline.  Then we clip the
+     range of these values.  Then we convert from `hsb' color format to
+     `rgb' color format, save the values of the colors in Gri variables
+     with `PUT_VAR', and then set the color with `c.setHSV'.  Finally
+     we save this color in the Gri "state" with
+     `_griState.set_color_line(c)'.
+
+     As it turns out, Gri outputs all colors to the PostScript file in
+     RGB format, so the we may well suspect that the problem is in the
+     `gr_hsv2rgb()' line.
+
+  9. We have an idea where to look now, so let's go to the line just
+     after it, in the editor, and insert a "breakpoint" there by typing
+     `C-x SPC'.  Then move to the `gdb' buffer and re-run Gri by typing
+
+          run -directory . test.gri
+
+     to run Gri on our script.  Then, magic happens!  Gri stops at the
+     indicated breakpoint, and Emacs will display both the `gdb' buffer
+     and the `set.cc' buffer.  The latter has a margin indication
+     telling what line were are on.  You may now type `gdb' commands in
+     the `gdb' buffer.  In particular, type
+
+          p hue
+
+     to print the hue.  Then type
+
+          p red
+
+     to see the red value.  Then type
+
+          c
+
+     to continue running Gri.  It will pause again.  Check the hue and
+     red values again, as above.  If you like, play around with hue
+     value in the Gri script `test.gri' and run gri again (type `r' in
+     `gdb').  This seems to indicate that the conversion is working
+     strangely.
+
+ 10. To see how the conversion is done, clear the breakpoints by typing
+     `delete' in the `gdb' buffer, then insert a breakpoint *before*
+     `gr_hsv2rgb' is called.  Then, run Gri again (`r' in the `gdb'
+     buffer).  When it stops just before this subroutine, type `s' to
+     "step into" the subroutine.  Then you'll see a conversion code
+     from the (wonderful) textbook of Foley and Van Dam.  You'll see
+
+          void
+          gr_hsv2rgb(double h, double s, double v,
+                     double *r, double *g, double *b)
+          {
+          	h = 6.0 * pin0_1(h);
+          	s = pin0_1(s);
+          	v = pin0_1(v);
+          	int i = (int) floor(h);
+          	if (i > 5)
+          		i = 5; // Prevent problem if hue is exactly 1
+          	double f = h - i;
+          	double p = v * (1.0 - s);
+                  ...
+
+     in the present version of Gri, but in the previous (buggy)
+     version, the `if' statement was missing.  Without this `if'
+     statement, Gri produced wrong colors.  With the statement, the
+     colors are correct.
+        And so ends the example.  You may wish to read the Foley and
+Van Dam textbook to see just what I'm doing in `gr_hsv2rgb', but
+suffice it to say that the problem in the (older) version of Gri was
+that `i' could take the value 6 if the hue was exactly equal to 1, and
+that was erroneous.
+
+   In reading the code, you may notice that it is formatted in a uniform
+way: the Kernighan and Ritchie scheme (from their classic C textbook),
+with 8-character indents.  I get this by putting the following lines in
+the `~/.emacs' file, which is used to customize the Emacs editor:
+
+     (defun my-c-mode-common-hook ()
+       (c-set-style "K&R")
+       (setq c-basic-offset 8)
+       )
+     (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
+
+   If you submit patches, please use the same format as I've done, so
+that I can more easily see the changes you've made.
+
+
+File: gri.info,  Node: Test Suite,  Next: Gri in the Press,  Prev: Debugging Example,  Up: Top
+
+Test Suite
+**********
+
+   The following test files are invoked by typing `make test', after
+compiling Gri.  They are provided here because they are examples of
+scripts that are *known to work* for the version of Gri described in
+this manual.
+
+   Heavy use is made of the `assert' command (*Note Assert::) in these
+test files.  Thus the *code itself* demonstrates the features, instead
+of comments in the code.  This is advantageous since comments tend to
+be incorrect!
+
+
+File: gri.info,  Node: Gri in the Press,  Next: Acknowledgments,  Prev: Test Suite,  Up: Top
+
+Gri in the Press
+****************
+
+   A gentle introduction to Gri is provided in a Linux Journal article,
+available at <http://www2.linuxjournal.com/lj-issues/issue75/3743.html>
+on the web.
+
+   In March 2000, I emailed some Gri users to ask for the names of
+scientific journals in which they have published Gri-produced graphs.
+The list, which mainly arrived on Sunday in response to an email I sent
+Saturday (don't Gri users take a break?) is presented below, to
+indicate the range of Gri use in the press.
+
+   Journals in Oceanography, Atmospheric Science, Earth Science, etc.
+   * *Bulletin on Coastal Oceanography* (in Japanese with English
+     abstract)
+
+   * *Fisheries Oceanography*
+
+   * *Deep-Sea Research*
+
+   * *EOS, Transactions of the American Geophysical Union*
+
+   * *Estuarine, Coastal and Shelf Science*
+
+   * *Geophysical Research Letters*
+
+   * *Journal of Atmospheric and Oceanic Technology*
+
+   * *Journal of Geophysical Research*
+
+   * *Journal of Marine Research*
+
+   * *Journal of Plankton Research*
+
+   * *Journal of Physical Oceanography*
+
+   * *Journal of the Japan Scoiety for Marine Surveys and Technology*
+     (in Japanese with English abstract)
+
+   * *Limnology and Oceanography*
+
+   * *Marine Biology*
+
+   * *Marine Ecology Progress Series*
+
+   * *Oceanography*
+
+   * *Paleoceanography*
+
+   * *Progress in Oceanography*
+
+   * *Quaternary Research*
+
+   * *Scientia Marina*
+
+   * *South African Journal of Marine Science*
+
+   * *Umi no Kenkyu* (Japanese version for Journal of Oceanography, in
+     Japanese with English abstract)
+
+   Journals in Physics, Chemistry, etc.
+   * *Applied Physics A*
+
+   * *Journal of Fluid Mechanics*
+
+   * *Journal of Physical Chemistry B*
+
+   * *Physica D*
+
+   * *Physics of Fluids*
+
+   * *Physics A*
+
+   * *Physics Letters B*
+
+   * *Physical Review C*
+
+   * *Physical Review Letters*
+
+   * *Research on Chemical Intermediates*
+
+   * *Theoretical Computational Fluid Dynamics*
+
+   Other Journals
+   * *Nature*
+
+   Books, Monographs, etc.
+   * *The Atlas of Hawai'i* (University of Hawai'i Press)
+
+   * *Differential Equations with Applications to Biology* (American
+     Mathematical Society)
+
+   * *Ocean Drilling Program* publications
+
+
+File: gri.info,  Node: Acknowledgments,  Next: License,  Prev: Gri in the Press,  Up: Top
+
+Acknowledgments
+***************
+
+   Developing Gri was made easier by suggestions and bug reports from
+many users, among whom are: Ivo Alxneit, Karin Bryan, Sara Bennett,
+Luke Blaikie, Dave Brickman, Clyde Clements, Andrew Collier, Pierre
+Flament, Peter Galbraith, Dave Hebert, Alejandro López-Valencia,
+Kawamura Masao, Steve Matheson, Brian May, Ed Nather, Carl Osterwisch,
+Richard Andrew Miles Outerbridge, Tim Powers, Jinyu Sheng, Toru Suzuki,
+Keith Thompson, David Trueman, Jeff Whitaker, and George White.
+
+   Some of these folks also suggested detailed improvements to the C++
+code of Gri, not an easy task given the complexity and length of the
+code.
+
+   All of these, and many users with whom I've interacted over the
+years, I thank warmly.
+

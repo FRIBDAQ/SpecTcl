@@ -1,0 +1,1243 @@
+This is gri.info, produced by makeinfo version 4.3 from gri.texi.
+
+INFO-DIR-SECTION Scientific Applications
+START-INFO-DIR-ENTRY
+* Gri: (gri).  Programming language for scientific illustration
+END-INFO-DIR-ENTRY
+
+
+File: gri.info,  Node: Binary Files,  Next: NetCDF Files,  Prev: Ascii Files,  Up: Opening Simple Files
+
+   Binary Files Like most computer programs, Gri has some trouble with
+binary files.  One big issue is the so-called "endian" character of the
+computer.  Some computers store multi-byte values with the most
+significant bytes first, while others store them with the most
+significant bytes last.  The problem is that nothing is stored in data
+files to indicate which convention was employed.  For this reason, a
+version of Gri compiled on a so-called "big-endian" computer will
+misinterpret multi-byte values that were created on a so-called
+"little-endian" computer.  Many folks in the scientific community have
+converted to using the NetCDF format (*Note NetCDF Files::) for
+precisely this reason, since this format is independent of the endian
+character of the computer.
+
+   Presuming an appropriate endian character, however, reading is
+straightforward.  A command of the form
+
+     open foo.dat binary
+
+tells Gri that the data are stored in a binary format.  With the above
+syntax, Gri expects images to be in `unsigned char' (8 bits), while
+other data, such as columns and grids, are expected to be in 32-bit
+format (suitable for reading into a so-called "float" variable in the C
+programming language).
+
+   You may also specify the format directly, as in the following
+examples; Gri then interprets all data as being in the indicated format
+and then converts to the internal format before using the data.
+
+     open \filename binary uchar
+     open \filename binary 8bit
+     open \filename binary int
+     open \filename binary float
+     open \filename binary double
+     open \filename binary 16bit
+
+   As with ascii files, Gri will automatically uncompress any files that
+are compressed, and if it fails to find a given filename, it will try to
+open a compressed version of it (i.e. one with a `.gz' suffix).
+
+
+File: gri.info,  Node: NetCDF Files,  Next: Opening Pipes,  Prev: Binary Files,  Up: Opening Simple Files
+
+   NetCDF Files The NetCDF format provides the best of both worlds.  It
+is binary, so that data are relatively compact, and may be read very
+quickly.  (Reading ascii data is time-consuming in C++, the language in
+which Gri is written.)  But it does not suffer the endian problem
+problem of normal binary files (*Note Binary Files::), since
+information about the endian character is stored in the file itself,
+and Gri uses this information to decode the data without difficulty,
+regardless of the endian characteristics of the computer on which Gri
+is running and of the computer that created the data.
+
+   For more information on netCDF format, see
+
+   `http://www.unidata.ucar.edu/packages/netcdf/index.html'
+
+   The syntax of opening NetCDF files is as below
+
+     open foo.nc netCDF
+
+and the syntax for reading such files is described in sections on the
+various `read' commands (see e.g. *Note Read Columns::).
+
+
+File: gri.info,  Node: Opening Pipes,  Next: Opening URLs,  Prev: NetCDF Files,  Up: Open
+
+Opening pipes
+.............
+
+   Sometimes it makes sense to get Gri to work with the results of
+another command in the OS.  Gri handles this by creating a so-called
+"pipe", thus reading the output from the other command.  (Readers
+familiar with the unix OS will know what pipes are all about, and
+especially why they are a good thing.  Other readers might wish to skip
+this section.)
+
+   Suppose we wish to plot an x-y plot using just the first few lines
+of a datafile named `foo.dat'.  Unix users will know that a good way to
+see the first few lines of such a file would be to type the command
+`head foo.dat'.  They also know that these lines could be provided to a
+second unix command, named `do_foo' say, by the command `head foo.dat |
+do_foo'.  This uses a so-called "pipe", designated by the vertical line
+(called a pipe symbol below).
+
+   Gri can read the output from system commands by using a syntax in
+which the (quoted) system command ends in a pipe symbol, e.g.
+
+     open "head foo.dat |"
+
+as in the example above.
+
+   *Aside*: When pipe-open commands are used, Gri creates a temporary
+file (often located in `/usr/tmp', but that varies with machine).  This
+is automatically cleaned up when Gri completes executation, but if Gri
+dies (or is interrupted) before it finishes, you'll be left with an
+extra file in this temporary-storage directory.  It's up to you to clean
+that directory up from time to time.
+
+   Some common examples of pipe-open commands are given below.
+
+  1. *Comma-separated values* are common in files created by, or
+     intended for, spreadsheets.  Since Gri expects data elements to be
+     separated by blanks (or tabs), you'll have to convert the commas
+     into blanks.  There are many ways to do that using pipes, e.g.
+     `sed' system utility, e.g.
+
+          open "sed -e 's/,/ /g' foo.dat |"
+
+     Other unix facilities, such as `tr' will also work, of course.  If
+     the file has headers, you'll want to remove them also.  This can
+     be done with the `skip' command (*Note Skip::) but you could also
+     do it at the open stage, e.g. to remove the first two lines, use
+
+          open "sed -e 's/,/ /g' foo.dat | tail +2 |"
+
+  2. *Manipulating column data* is done by e.g.
+
+          open "cat foo.dat | awk '{$1, $2 * 22}' |"
+
+     where `awk' has been used to multiply the second column in the file
+     named `foo.dat' by 22.
+
+  3. *Time-based and geographical data* are sometimes encountered.  For
+     an example, suppose that longitude/latitude (i.e. x/y) data are
+     stored in Hour.minutesecond format, e.g. 12.2133 means hour 12,
+     minute 21, second 33.  Gri doesn't read HMS format, but gawk can
+     be told to:
+
+          open "cat datafile.HMS |        \
+              awk '{                      \
+              split($1, hms, \".\");      \
+              h = hms[1];                 \
+              m = int(hms[2] / 100);      \
+              s = hms[2] - 100 * m;       \
+              x = h + m / 60 + s / 3600;  \
+              split($2, hms, \".\");      \
+              h = hms[1];                 \
+              m = int(hms[2] / 100);      \
+              s = hms[2] - 100 * m;       \
+              y = h + m / 60 + s / 3600;  \
+              print(x,y)                  \
+              }' | "
+              read columns x y
+
+  4. *Timeseries data* are often stored in formats that blend letters
+     and numbers.  For one thing, using letters (e.g. `aug') removes an
+     ambiguity in numerically-based data.  (Example: 02/03/2000 means
+     one thing to an American and another thing in the rest of the
+     world.  However, everybody agrees on what 2000-Feb-03 means.)
+     Suppose, for example, that we have data in a format such as
+
+          Tue_Jul_25_11:07:51 0.62
+          Tue_Jul_25_11:22:51 0.59
+          Tue_Jul_25_11:37:51 0.56
+
+     (stored in a file called `foo.dat' say) and we want a graph of the
+     y-variable (0.62, 0.59, 0.56) versus x-variable, time expressed
+     say as seconds in the day.  Then here is how that could be done:
+
+          open "cat foo.dat |\
+              sed -e 's/_/ /g' -e 's/:/ /g' |\
+              awk '{print ($4*3600+$5*60+$6, $7)}' |"
+          read columns x y
+          draw curve
+
+     Note that the actual day information is skipped in this example;
+     seasoned `awk' users could easily fill in the code to handle
+     datasets spanning several days.
+
+
+File: gri.info,  Node: Opening URLs,  Next: Postscript,  Prev: Opening Pipes,  Up: Open
+
+Opening URLs
+............
+
+   Gri can open a URL, _if_ you have the `wget' program on your
+machine.  (`wget' is available from the GNU website
+<http://www.gnu.org/software/wget/>.)
+
+   The URL must be enclosed in quotes (since otherwise, Gri will
+interpret the `//' sequence as indicating an old way of denoting
+comments).  For example,
+     open "http://gri.sourceforge.net/gridoc/examples/example1.dat"
+     read columns x y
+     show columns
+
+   If you don't have `wget' installed on your machine, the above won't
+work, but you can always use another fetching program, with a system
+call, as in the following:
+     \url = "http://gri.sourceforge.net/gridoc/html/examples/example1.dat"
+     open "lynx -dump \url |"
+     read columns x y
+     draw curve
+
+
+File: gri.info,  Node: Postscript,  Next: Pwd,  Prev: Opening URLs,  Up: List Of Gri Commands
+
+`postscript'
+------------
+
+     `postscript \string'
+
+Write the indicated string to the PostScript output file, after
+substitution of synonyms if there are any.  Example:
+
+     \a = "45"  # angle
+     \w = "8.5" # page width
+     postscript gsave \w 72 mul 0 translate \a rotate
+     # ... other code to do stuff
+     postscript grestore
+
+   Here is how to draw an image palette vertically instead of
+horizontally:
+
+     \X = "3"	# cm
+     \Y = "10"	# cm
+     \a = "90"       # degrees counterclockwise
+     postscript gsave \X 28.35 mul \Y 28.35 mul translate \a rotate
+     # Palette is at user's origin
+     draw image palette box 0 0 10 1
+     postscript grestore
+
+   NOTE: the `postscript' command is *very* dangerous, and should
+normally only be used by developers.  Most of the code concerning this
+is in the file `doline.cc'; look for the string `postscriptCmd' to find
+the relevant code.
+
+
+File: gri.info,  Node: Pwd,  Next: Query,  Prev: Postscript,  Up: List Of Gri Commands
+
+`pwd'
+-----
+
+     `pwd'
+
+Print current directory (which can be set by `cd').
+
+
+File: gri.info,  Node: Query,  Next: Quit,  Prev: Pwd,  Up: List Of Gri Commands
+
+`query'
+-------
+
+     `query \synonym|.variable. \
+       ["\prompt" ["\default"|.default.]]'
+
+Ask the user for the value of a variable (number) or synonym (text
+string).  Gri recognizes the type of the item being asked for, either a
+variable or synonym, by the presence of a dot or backslash in the second
+word of the command line.  If a prompt string is given (in quotes), then
+this string is shown to the user.  If a default is given (in
+parentheses), then it will be displayed also, and if the user types
+carriage-return, then that item will be assigned to the variable or
+synonym.  If the default has more than one item, then Gri considers this
+a restrictive list of possibilities, and will demand that the answer be
+in that list, going into an infinite query loop until an item from the
+list (or carriage-return, meaning take first item) is found.  The items
+in the list are to be separated by spaces, not commas or any other
+non-whitespace characters.
+
+   NOTE: The `-y' command-line option bypasses all query commands,
+fooling Gri into thinking that the user typed a carriage-return to all
+questions.  Thus the defaults, if they exist, are selected.
+
+
+File: gri.info,  Node: Quit,  Next: Read,  Prev: Query,  Up: List Of Gri Commands
+
+`quit'
+------
+
+     `quit [.exit_status.]'
+
+Exits the gri program.  If an exit status (`.exit_status.') is
+specified, then Gri returns this value, rounded to the nearest integer,
+as the "exit status" (a concept meaningful mostly in the unix
+environment, where it designates an error).
+
+
+File: gri.info,  Node: Read,  Next: Read Colornames,  Prev: Quit,  Up: List Of Gri Commands
+
+The `read' commands
+-------------------
+
+   There are several varieties of `read' command.  Those commands used
+for reading numerical information (e.g. `read columns') are able to
+decode variables and synonyms as well as simple numbers.
+
+* Menu:
+
+* Read Colornames::             Read colornames
+* Read Columns::                Read (x,y,...) columnar data
+* Read Grid::                   Read grid for contouring
+* Read Image Colorscale::       Read colormap for color image
+* Read Image Grayscale::        Read colormap for gray image
+* Read Image Mask::             Read mask for image
+* Read Image::                  Read image
+* Read From::                   Change which open file looked at
+* Read Synonym or Variable::    Read individual synonym or variable
+* Read Line::                   Read whole line
+
+
+File: gri.info,  Node: Read Colornames,  Next: Read Columns,  Prev: Read,  Up: Read
+
+`read colornames'
+.................
+
+     `read colornames from RGB "\filename"'
+
+Read colornames from named file, which is in the X11 format.  This
+format has 4 or more columns, the first three giving the red, green and
+blue values in the range 0 to 255, and the last columns giving the
+colorname (which may have more than one word).  You can create colors
+yourself or read an X11 color file.  In many cases you will want to
+`read colornames from RGB "/usr/lib/X11/rgb.txt"'.  Full filenames must
+be used; the '~' syntax is not permitted.  Once you have read in a
+colorname table, the named colors may be used as builtin colors (*Note
+Set Color::).  To view the colors available on your particular system,
+use the Unix command `xcolors' or `excolors'; to see the RGB values of
+all colors on your X11 system, use the `showrgb' unix command..  To
+view the names and RGB values of the colors Gri knows, including
+builtin ones and ones from `read colornames', use `show colornames'.
+
+   This command is akin to `set colorname' (*Note Set Colorname::),
+except that the latter uses the Gri notation of color constituents being
+in the range from 0 to 1, whereas for `read colornames' uses an X11
+database, so that the color constitutents range from 0 to 255.
+
+
+File: gri.info,  Node: Read Columns,  Next: Read Grid,  Prev: Read Colornames,  Up: Read
+
+`read columns'
+..............
+
+     `read columns ...'
+
+   Read numbers into columns.  These columns have predefined meanings
+and names.  For example, `read columns x y' instructs Gri to read data
+into columns called `x' and `y'; it is these data that Gri will use if
+you tell it to `draw curve'.  Other columns are: `z', used for
+contouring a function `z=z(x,y)'; `weight', used for weighting data
+points; `u' and `v', used for arrow (vector) plots.
+
+   If the keyword `appending' is given as the last word on the `read
+columns' line, then the new data will be appended to any existing
+columnar data; otherwise they will overwrite any existing data.
+
+   As a special case, if the `x' column is not indicated (e.g. `read
+columns y') then Gri creates x-values automatically, in the sequence 0,
+1, 2, etc.
+
+   * `read columns x y' Read `x' in column 1, `y' in column 2 until
+     blank-line found.  Only the first two numbers on each line will be
+     read; any extra numbers (or words) on the line will be ignored.
+
+   * `read columns * y * * x' Read `x' in column 5, `y' in column 2.
+     The `*' character is a spacer.  It instructs Gri to skip the
+     first, third, and fourth words on the data line.  These words need
+     not be numbers.  This example illustrates a general mechanism of
+     using the `*' character to skip over unwanted items in the data
+     file.  Note that there is no need to supply `*' characters for
+     trailing extraneous words; Gri will skip them anywary.  Finally,
+     note that any order of `x' and `y' (and the other columns; see
+     below) is allowed.
+
+   * `read columns y=2 x=5' or `read columns x=5 y=2' As above; read
+     `x' in column 5 and `y' in column 2.  The column number may be
+     specified in this manner for all the named column variables.  No
+     spaces are allowed before or after the `=' sign.  The first column
+     is called column 1.  Whether this format is used or the `*' format
+     is a matter of choice, except that numbered format also permits
+     using a given number to fill several variables (for example `read
+     columns x=1 y=2 u=1 v=2').
+
+   * `read columns x="netCDF_name" ...' If the file is a `netCDF' file,
+     opened by e.g. `open myfile.nc netCDF', then the `netCDF' variables
+     for the columns, e.g.
+
+          open latlon.nc netCDF
+          read columns x="longitude" y="latitude"
+
+     Note: the data *must* be stored as the `netCDF' "float" type.
+
+     For more information on netCDF format, see
+
+     `http://www.unidata.ucar.edu/packages/netcdf/index.html'
+
+   * `read columns * y z * x' Read `x' in column 5, `y' in column 2,
+     and `z' in column 3.  The `z' column is used for contouring.
+
+   * `read columns x y u v' Read `x' and `y' in first two columns, and
+     the "arrow" data `u' and `v' as third and fourth columns.
+
+   * `read columns .rows. x y' Read `.rows.' rows of column data.
+
+   Sometimes you'll have `x' in one file and `y' in another.  In that
+case, use the operating system or an editor to put the columns in one
+file.  In unix, the easy way is
+
+     open "paste file_with_x file_with_y |"
+     read columns x y
+
+   NOTE FOR BINARY FILES: For ascii files, Gri will proceed to a new
+line after it has read the items requested; it skips any words
+appearing on the data line after the last object of interest.  Thus
+`read columns x y' will read the first two columns and ignore any other
+columns that might be present.  But for binary files, Gri has no way of
+knowing how to "skip" to the next line (see `skip' command), so you
+will have to flesh out the `read columns' command with as many spacers
+as are present in your data.  For example, if you have four numbers in
+each data record and want to interpret the first two as `x' and `y',
+you would use `read columns x y * *' to read the data.
+
+   RETURN VALUE: Sets `\.return_value' to `N rows N non-missing N
+inside-clip-region'
+
+
+File: gri.info,  Node: Read Grid,  Next: Read Image Colorscale,  Prev: Read Columns,  Up: Read
+
+`read grid'
+...........
+
+   `read grid' commands read grid characteristics.  (The "grid" is the
+object that is contoured.)
+
+   For normal ascii or binary files, the commands to read the grid's
+x-locations, y-locations and data are:
+
+     `read grid x [.rows.]'
+     `read grid y [.rows.]'
+     `read grid data [spacers] \
+       [.rows. .cols.] [spacers] [bycolumns]'
+
+   For `netCDF' files, the commands are as follows (note that it is not
+possible to specify the number of data to read, nor to read the grid by
+columns).
+
+     `read grid x = "variable_name"'
+     `read grid y = "variable_name"'
+     `read grid data = "variable_name"'
+
+The ordering of the y-grid data is the same as if they were read from a
+normal file: the first number is considered to be at the top of the
+plot.
+
+   For more information on netCDF format, see
+
+   `http://www.unidata.ucar.edu/packages/netcdf/index.html'
+
+   Details of the non-netCDF commands:
+   * `read grid x [.cols.]' Read the `x' locations of the grid points,
+     one number per line.  If `.cols.' is supplied, then that many
+     values will be read; otherwise, reading will stop at end-of-file
+     or blank-line.
+
+   * `read grid y [.rows.]' As above, but for y grid;  `.rows.' is the
+     number of rows.  The first number to be read corresponds to the
+     location of the *top* edge of the grid.  Thus, if you were to view
+     the column of numbers with a text editor, they would be oriented
+     the same way as the corresponding elements will appear on the page.
+
+   * `read grid data [.rows. .cols.]' Read data for a grid having
+     `.rows.' and `.cols.' columns.  (If `.rows.' and `.cols.' are not
+     supplied, but the grid already exists, then those pre-existing
+     values are used.  If they are specified here, then they are
+     checked for consistency with the pre-existing values if they
+     exist.) Gri will read `.rows.' lines, each containing `.cols.'
+     numbers.  (Extra information in the file can be skipped; see
+     discussion of the `*' keyword below.)  Gri will interpret the
+     first line it reads as the grid data corresponding to a value of y
+     equal to `y[.rows.]'.  Thus, file should be arranged like this:
+
+          f(x[1], y[.rows.])  ...  f(x[.cols.], y[.rows.])
+                  .
+                  .
+                  .
+          f(x[1], y[3])       ...  f(x[.cols], y[3])
+          f(x[1], y[2])       ...  f(x[.cols], y[2])
+          f(x[1], y[1])       ...  f(x[.cols], y[1])
+
+   * `read grid data [.rows. .cols.] bycolumns' As above, but the
+     `bycolumns' keyword tells Gri to read the data one column at a
+     time, instead of one row at a time.  Each line is expected to
+     contain `.rows.' numbers (as opposed to `.cols.' numbers, as in
+     the format where the `bycolumns' keyword is not present).  (Extra
+     information in the file can be skipped; see discussion of the `*'
+     keyword below).  The first line of the data file contains the
+     first column of the gridded data, corresponding to x equal to
+     `x[1]').  The file should look like this:
+
+          f(x[1], y[1])     ...     f(x[1], y[.cols.])
+          f(x[2], y[1])     ...     f(x[2], y[.cols.])
+          f(x[3], y[1])     ...     f(x[3], y[.cols.])
+                  .
+                  .
+                  .
+          f(x[.rows.],y[1]) ...  f(x[.rows.], y[.cols.])
+
+   * `read grid data * * [.rows. .cols.]' As `read grid data .rows.
+     .cols.' except that the first two words on each line are skipped.
+     As usual, trailing extraneous numbers are also skipped.
+
+   *See also* `set x grid', `set y grid'
+
+RETURN VALUE:
+
+   `read grid x' sets `\.return_value' to `N cols'
+
+   `read grid y' sets `\.return_value' to `N rows'
+
+   `read grid data' sets `\.return_value' to `N rows N cols'
+
+
+File: gri.info,  Node: Read Image Colorscale,  Next: Read Image Grayscale,  Prev: Read Grid,  Up: Read
+
+`read image colorscale'
+.......................
+
+     `read image colorscale [rgb|hsb]'
+
+Read colorscale for image, from 256 lines each containing values for
+Red, Green, and Blue (or Hue, Saturation and Brightness), separated by
+whitespace.  The values are expected to be in the range 0 to 1, and are
+clipped to these limits if not.
+
+   For hints on how to create such an input file, *Note Read Image
+Grayscale::.  If the example given there has the following code instead,
+
+     open "awk 'BEGIN {               \
+          for(i=0;i<256;i++) {        \
+            print((i - 50)/50, 1, 1)  \
+          }                           \
+        }' |"
+     read image colorscale hsb
+
+then a linear full-color spectrum running from red at 10C to magenta at
+15C is achieved.
+
+
+File: gri.info,  Node: Read Image Grayscale,  Next: Read Image Mask,  Prev: Read Image Colorscale,  Up: Read
+
+`read image grayscale'
+......................
+
+     `read image grayscale'
+
+Read grayscale for an image, from 256 lines each containing a single
+value.  The values are expected to be in the range 0 to 1, and are
+clipped to these limits if not.  For 8-bit images, Gri multiplies these
+values by 255, and uses this list for the grayscale mapping.  Such a
+list is created by `write image grayscale'.
+
+   As an example, consider the code fragment (*Note Images::).
+
+     set image range 5 30.5
+     set image grayscale black 10 white 15
+
+is equivalent to
+
+     set image range 5 30.5
+     open "awk 'BEGIN {\
+       for(i=0;i<256;i++) {\
+         print(1-(i-50)/50)\
+       } \
+     }' |"
+     read image grayscale
+     close
+
+because the image formula is
+
+     Temperature = 5C + 0.1C * pixelvalue
+
+where the pixelvalue ranges from 0 to 255.  Therefore, a temperature of
+10C is a pixelvalue of 50, and 15C is 100.  To get a grayscale ranging
+between these values, therefore, we create a linear function which maps
+the 50th pixelvalue into grayvalue 1, and the 100th pixelvalue into
+grayvalue 0.  That is what the awk line does; to see the actual numbers,
+you could insert the line `write image grayscale to TMP' and look at
+the file `TMP' (bear in mind that Gri will clip the values to the range
+0 to 1).
+
+   Sometimes you will have a file, say named `map.dat', with RGB
+numbers in the range 0-255, rather than 0-1 as Gri requires.  To read
+them, use the operating system to convert the numbers for you (*Note
+Open::).
+
+     open "cat map.dat \
+       | awk '{print(($1+$2+$3)/3/255)}' |"
+     read image grayscale
+     close
+
+
+File: gri.info,  Node: Read Image Mask,  Next: Read Image,  Prev: Read Image Grayscale,  Up: Read
+
+`read image mask'
+.................
+
+     `read image mask rasterfile|{.rows. .cols.}'
+
+Read image mask.  The mask is associated with the image read in by the
+`read image' command in the following way.  When computing image
+histograms, Gri ignores any pixels in the image for which the
+corresponding pixel in the mask is set to `1'.
+
+   * `read image mask rasterfile' The image size is specified in the
+     rasterfile file itself, so it is not specified.
+
+   * `read image mask .rows. .cols.' The file must contain
+     `.rows.*.cols.' binary data.  Pixel order is the same as for
+     images.
+
+
+File: gri.info,  Node: Read Image,  Next: Read From,  Prev: Read Image Mask,  Up: Read
+
+`read image'
+............
+
+There are several types of `read image' commands, depending on the file
+format.  If the file is "raw", with no embedded information about
+things like the width and height, then we need to specify everything, as
+in the first format given below.  The other formats make use of the
+header information in, e.g. PGM files.
+
+   *Headerless images*
+
+     `read image .rows. .cols. \
+       [box .xleft. .ybottom. .xright. .ytop.] \
+       [bycolumns]'
+
+With no options specified (`read image .rows. .cols.'), read binary
+data defining an `image'.  The image range must have previously have
+been set by `set image range'.  The data are as written by "unsigned
+char" format in C.
+
+   When the `box' option is specified, the geometry of the image, in
+user coordinates, is specified in terms of the cartesian coordinates of
+the lower-left corner (`.xleft.', `.ybottom.') and upper-right corner
+(`.xright.', `.ytop.').  If the `box' option is not specified, this
+geometry can be specified with either `read x grid' or `set x grid',
+plus either `read y grid' or `set y grid'.
+
+   With the `bycolumns' keyword present, the image is read sweeping
+from top-to-bottom, then left-to-right, instead of the usual order.
+
+   *Sun rasterfile images*
+
+     `read image rasterfile [box .xleft. .ybottom. .xright. .ytop.]'
+
+Read image in Sun rasterfile format.  Image geometry is inferred from
+the header, so `.rows.' and `.cols' parameters are not given.
+
+   *PGM images*
+
+     `read image pgm [box .xleft. .ybottom. .xright. .ytop.]'
+
+Read image in PGM (Portable Gray Map) format.  Image geometry is
+inferred from the header, so `.rows.' and `.cols' parameters are not
+given.  Both ascii and binary PGM formats are supported (that is, files
+with magic characters of P2 and P5).
+
+   *NOTE* that there are many image formats and Gri doesn't try to deal
+with them all.  The idea is to use another program to convert images to
+a file format that Gri understands.  In the future Gri may support PNG
+and other popular formats, especially in the Linux versions, for which
+libraries exist to ease the input.
+
+
+File: gri.info,  Node: Read From,  Next: Read Synonym or Variable,  Prev: Read Image,  Up: Read
+
+`read from \filename'
+.....................
+
+     `read from \filename'
+
+Cause future `read' commands to read from the indicated file.  If that
+file is not open, an error message will result.  Use `read from
+\filename' to shuffle reading among several open files.
+
+   Gri can look up filenames for `read from' in terms of their full
+pathnames or their local pathnames.  Thus, a local file called `a.dat'
+in the directory `/home/gri' can be referred to by `read from a.dat' or
+by `read from /home/gri/a.dat', which comes in handy if you need to
+work with two files of the same name, in other directories.  However,
+since Gri has the ability to search for files in a "path" (*Note Set
+Path To::), you may not have specified an exact path name; this is why
+the `open' command provides a return value which names the full
+pathname (*Note Opening Simple Files::).
+
+
+File: gri.info,  Node: Read Synonym or Variable,  Next: Read Line,  Prev: Read From,  Up: Read
+
+`read' synonym/variable
+.......................
+
+     `read [* [*...]] \synonym|.variable. [\synonym|.variable. [...]]}'
+
+Read one or more items from the next line of the input file.  These
+items may be synonyms or variables.  The token `*' indicates that the
+word in the datafile should be skipped.  As usual, the datafile may be
+embedded in the commandfile, providing the last data line is blank.
+
+   Normally one would use synonyms for words, and variables for numbers.
+The items are separated by one or more "whitespace" characters (e.g.
+space or TAB).  Thus, if a file contained the line
+
+     Temperature 10.3
+
+then the line
+
+     read \var_name .var_value.
+
+would have the same result as
+
+     \var_name = "Temperature"
+     .var_value. = 10.3
+
+   This command ignores any trailing items on the line.  That is, the
+next `read' command will start on the next line of the file.  In a
+sense then, you get just one shot at analysing the input line in your
+datafile.  If you need flexibility, you may wish to read the *whole*
+contents of the line into a synonym, which may be done using the `read
+line' command instead, to read it in as a string.  (*Note Read Line::).
+
+   If the input file is in the netCDF format, the indicated item will
+be read.  For example, `read \time:_MissingValue' reads the missing
+value for the variable called `time'.  This conveniently allows your
+data file to dictate axes names, units, missing values, etc.  Example:
+
+     # Plot profile of TU81N (age-corrected tritium)
+     open profile.nc netCDF
+     read columns x="TU81N" y="z"
+     read \{z:_FillValue}		# assume same for all
+     read \{z:long_name}
+     read \{z:units}
+     read \{TU81N:long_name}
+     read \{TU81N:units}
+     close
+     set missing value \{z:_FillValue}
+     set x name "\{TU81N:long_name} (\{TU81N:units)}"
+     set y name "\{z:long_name} (\{z:units)}"
+     set y axis decreasing
+     draw curve
+
+   For more information on netCDF format, see
+`http://www.unidata.ucar.edu/packages/netcdf/index.html'
+
+
+File: gri.info,  Node: Read Line,  Next: Regress,  Prev: Read Synonym or Variable,  Up: Read
+
+`read line'
+...........
+
+     `read line \synonym'
+
+Read the next line of the datafile (or commandfile), trim off a trailing
+comment if there is one, and then store the next line of datafile into
+the named synonym.
+
+
+File: gri.info,  Node: Regress,  Next: Reorder,  Prev: Read Line,  Up: List Of Gri Commands
+
+`regress'
+---------
+
+     `regress {y vs x [linear]}|{x vs y [linear]}'
+
+Perform linear regression of `y' as a function of `x' or `x' as a
+function of `y'.
+
+   * `regress y vs x' Linear regression of y vs x.  Several quantities
+     are reported and also saved into builtin variables.  The intercept
+     is defined as `..coeff0..', its 95 percent confidence limit is
+     defined as `..coeff0_sig..'.  Thus the confidence range is
+     `..coeff0..-..coeff0_sig..' to `..coeff0..+..coeff0_sig..'.
+     Similarly the slope and confidence limit are stored in `..coeff1..'
+     and `..coeff1_sig..'
+
+     The squared correlation coefficient is stored in `..R2..'.
+
+     *Historical note* prior to version 2.1.15, a different meaning was
+     attached to `..coeff0_sig..' and `..coeff1_sig..'; they used be
+     defined as standard errors, without having been multiplied by the
+     appropriate student-t coefficient.
+
+   * `regress x vs y' Linear regression of x vs y; for notation see
+     above.
+
+   * `regress y vs x linear' Linear regression of y vs x; for notation
+     see above.
+
+   * `regress x vs y linear' Linear regression of x vs y; for notation
+     see above.
+
+
+File: gri.info,  Node: Reorder,  Next: Rescale,  Prev: Regress,  Up: List Of Gri Commands
+
+`reorder'
+---------
+
+     `reorder columns randomly \
+       |{ascending in x|y|z} \
+       |{descending in x|y|z}'
+
+Reorder the columns in various ways.
+
+   In the `randomly' style, the column data are shuffled randomly by
+index, retaining the correspondance between a given x and y.  This is
+useful with `draw symbol' using colored dots - it prevents the
+overpainting of one dot on another from biasing the color field to
+values that happened to occur near the end of the column data.  If you
+prefer the overpainting to be done in random order, use this command to
+reorder the columns randomly.  The random number is selected using the
+system `rand' call, with the seed being provided by the PID (process
+ID) of the job.
+
+   The `ascending' and `descending' styles do what you'd expect.
+
+
+File: gri.info,  Node: Rescale,  Next: Resize,  Prev: Reorder,  Up: List Of Gri Commands
+
+`rescale'
+---------
+
+     `rescale'
+
+Re-determine the scales for the x and y axes.  Typically used after a
+column math operation, when you want the new data to be auto-scaled.
+(Note: normally, if the axes have already been drawn, Gri won't rescale
+automatically just because you modify the column data.  This is designed
+so that you can add offsets to curves, etc, while staying in saved axes.
+But if the axes have not been drawn yet when you modify the column data,
+then Gri will automatically rescale the axes it is planning to draw.)
+
+
+File: gri.info,  Node: Resize,  Next: Return,  Prev: Rescale,  Up: List Of Gri Commands
+
+`resize'
+--------
+
+     `resize {x for maps}|{y for maps}'
+
+Resize the axes frame region in such a way that geographical objects
+appear in correct proportions.  This assumes that y is degrees latitude
+and x is degrees longitude.
+
+   * `resize x for maps' Resize the plot width for maps, assuming that
+     x represents longitude and y represents latitude.  Before using
+     this, you must have defined scales for both x and y, and a size
+     for y (ie, you must have done `set x axis ...', `set y axis ...'
+     and `set y size'); this command sets the x size, thus eliminating
+     `set x size.' The result is that, at the central latitude (y), a
+     centimetre on the page will correspond to an equal distance on the
+     earth, in both the north-south and east-west directions.
+
+   * `resize y for maps' Resize the plot height for maps, assuming that
+     x represents longitude and y represents latitude.  Before using
+     this, you must have defined scales for both x and y, and a size
+     for x (ie, you must have done `set x axis ...', `set y axis ...'
+     and `set x size'); this command sets the y size, thus eliminating
+     `set y size.' The result is that, at the central latitude (y), a
+     centimetre on the page will correspond to an equal distance on the
+     earth, in both the north-south and east-west directions.
+
+     *See also* `resize x for maps'.
+
+
+File: gri.info,  Node: Return,  Next: Rewind,  Prev: Resize,  Up: List Of Gri Commands
+
+`return'
+--------
+
+     `return'
+
+Return early from a user-defined function or an `insert' file.  Or, in
+the main gri program, do the same thing as `quit'.
+
+
+File: gri.info,  Node: Rewind,  Next: Rpnfunction,  Prev: Return,  Up: List Of Gri Commands
+
+`rewind'
+--------
+
+     `rewind \filename'
+
+Rewind a data-file to the beginning.  If no filename is given, this is
+done for the currently active file; otherwise the named file is rewound.
+
+
+File: gri.info,  Node: Rpnfunction,  Next: Set,  Prev: Rewind,  Up: List Of Gri Commands
+
+`rpnfunction'
+-------------
+
+     `rpnfunction name replacement-words'
+
+Create a new keyword for use in rpn expressions.  Inside any RPN
+expression which follows this line, the word `name' will be substituted
+with the indicated replacement words.
+
+   For example, the following shows the definition and use of a
+function which computes the sine of twice an angle, by multiplying
+whatever is on the stack by `2', and then taking the sine of the result.
+
+     rpnfunction sin2 2 * sin
+     show "expect the number 1 to follow: " {rpn 45 sin2}
+
+   The replacement words will have any synonyms in them translated
+first, unless they start with an underscore followed by a double
+backslash.  Similarly, variables are substituted unless they start with
+an underscore.  These exceptions are to allow the use of the `defined'
+operator (*Note rpn Mathematics::).
+
+   Note: The mathematical constants `e' and `pi' are stored using
+`rpnfunctions'.  Also, two `rpnfunctions' are provided for finding the
+slope and intercept of a line joining two points, e.g.
+
+     # Expect answers 1 and 10 ...
+     show "slope=" {rpn 0 1 1 11 linear_slope}
+     show "inter=" {rpn 0 1 1 11 linear_intercept}
+
+   These are useful in `set grid missing above .intercept. .slope.' and
+`set z missing above .intercept. .slope.'.
+
+
+File: gri.info,  Node: Set,  Next: Set Axes Style,  Prev: Rpnfunction,  Up: List Of Gri Commands
+
+The `set' commands
+------------------
+
+   Set various flags and parameters which Gri will use in later
+commands.
+
+* Menu:
+
+* Set Axes Style::              Set type of axes
+* Set Arrow Size::              Set size for arrow heads
+* Set Arrow Type::              Set type of arrow heads
+* Set Beep::                    Set error beeping on or off
+* Set Bounding Box::            Set PostScript bounding box
+* Set Clip::                    Set clipping region
+* Set Color::                   Set color of pen
+* Set Colorname::               Create a color name
+* Set Contour Format::          Set format for numbers on contours
+* Set Contour Label For::       Set existence of contour labels
+* Set Contour Label Position::  Set spacing of contour labels
+* Set Contour Labels::          Control various things about contour lables
+* Set Dash::                    Set style of dashed lines
+* Set Environment::             (Developer cmd)
+* Set Error Action::            Set error behavior
+* Set Flag::                    Set flag to control Gri (developer cmd)
+* Set Font Color::              Set color of pen used for text
+* Set Font Encoding::           Set font encoding vector
+* Set Font Size::               Set size of text
+* Set Font To::                 Set font for text
+* Set Graylevel::               Set graylevel of pen
+* Set Grid Missing::            Set missing region of grid
+* Set Ignore Initial Newline::  Set to ignore initial blank line
+* Set Ignore Error Eof::        Set ability to tolerate EOF on files
+* Set Image Colorscale::        Set colorscale mapping for image
+* Set Image Grayscale::         Set grayscale mapping for image
+* Set Image Missing Value Color::  Set missing value color in image
+* Set Image Range::             Set range of data that image can hold
+* Set Input Data Window::       Set data window for reading columns
+* Set Input Data Separator::    Set separator between data items
+* Set Line Cap::                Set line end (cap) type
+* Set Line Join::               Set method for intersections of line segments
+* Set Line Width::              Set width of lines
+* Set Missing Value::           Set "missing" value
+* Set Page Size::               Set page size
+* Set Page::                    Set page style
+* Set Panel::                   Establish geometry for a panel of multipanel plot
+* Set Panels::                  Prepare for multipanel plot
+* Set Path To::                 Set search-path for data or command files
+* Set Postscript Filename::     Set name of PostScript file
+* Set Symbol Size::             Set size of symbols
+* Set Tic Size::                Set size of tics on axes
+* Set Trace::                   Set printout of statements as executed
+* Set U Scale::                 Set scale for u (i.e. x) component of arrows
+* Set V Scale::                 Set scale for v (i.e. y) component of arrows
+* Set X Axis::                  Set range of x axis
+* Set X Format::                Set format for numbers on x axis
+* Set X Grid::                  Set x mesh of contour grid
+* Set X Margin::                Set margin to left of x axis
+* Set X Name::                  Set name of x axis
+* Set X Size::                  Set length of x axis
+* Set X Type::                  Set type of x axis (log/linear)
+* Set Y Axis::                  Set range of y axis
+* Set Y Format::                Set format for numbers on y axis
+* Set Y Grid::                  Set y mesh of contour grid
+* Set Y Margin::                Set margin below y axis
+* Set Y Name::                  Set name of y axis
+* Set Y Size::                  Set length of y axis
+* Set Y Type::                  Set type of y axis (log/linear)
+* Set Z Missing::               Set missing region of z column
+
+
+File: gri.info,  Node: Set Axes Style,  Next: Set Arrow Size,  Prev: Set,  Up: Set
+
+`set axes style'
+................
+
+     set axes style .style.     \
+       | {offset [.dist_cm.]} \
+       | rectangular|none|default
+
+Tell Gri how you want the axes to look, when they are drawn later.
+
+   * `set axes style 0' Set axes to be rectangular, with an x-y axis
+     frame labelled at the left and bottom and tic marks on all axes.
+
+   * `set axes style 1' As style `0', but only put tics on the lower
+     and left axes.
+
+   * `set axes style 2' As style `0' but without labels or tics on any
+     axis, i.e. just an axis frame.
+
+   * `set axes style offset [.dist_cm.]' Set axes so that the actual x
+     and y axes will be drawn with a space separating them from the
+     data area.  The space, if not set by the `.distance_cm.' option,
+     will be equal to the current tic size (see `set tic size').  This
+     command can be used together with any other `set axes style'
+     command.  It applies to both the `draw axes' command and with any
+     `draw x|y axis' command in which the axis location is not
+     explicitly given.
+
+   * `set axes style rectangular' Set axes to be rectangular, with an
+     x-y axes frame labelled at the left and bottom.
+
+   * `set axes style none' Tell gri not to bother drawing axes before
+     drawing curves, etc.
+
+   * `set axes style default' Same as `set axes style 0', and with
+     `offset' turned off.
+
+
+File: gri.info,  Node: Set Arrow Size,  Next: Set Arrow Type,  Prev: Set Axes Style,  Up: Set
+
+`set arrow size'
+................
+
+     `set arrow size .size.           \
+       | {as .num. percent of length} \
+       | default'
+
+Set the arrowsize (which is stored in the builtin variable
+`..arrowsize..').
+
+   * `set arrow size .size.' Set the arrow size (ie, half-width of the
+     arrowhead) to `.size.' centimetres.
+
+   * `set arrow size as .num. percent of length' Set the arrow size to
+     be the indicated percentage of arrow length, as in "HWP" in the
+     singles ads.  (As a flag to this, `..arrowsize..' is set to the
+     negative of the fractional size measured in percent.)
+
+   * `set arrow size default' Set the arrow size to the default of 0.2
+     cm.
+
+
+File: gri.info,  Node: Set Arrow Type,  Next: Set Beep,  Prev: Set Arrow Size,  Up: Set
+
+`set arrow type'
+................
+
+     set arrow type .which.
+
+   Set type of arrow, according to the value of `.which.', rounded to
+the nearest integer.  A rounded `.which.' value of 0 yields the default
+arrows, drawn with three line strokes.  Value 1 yields outlined arrows,
+sometimes used on definition sketches.  Value 2 yields filled,
+swept-back arrow heads.
+
+   This command uses the "line join" parameters that are presently
+active (*Note Set Line Join::).  So, by default, the arrow ends are
+rounded (because the default line-join parameter is 1).  To get pointy
+ends, first set the line join parameter to 0.
+
+
+File: gri.info,  Node: Set Beep,  Next: Set Bounding Box,  Prev: Set Arrow Type,  Up: Set
+
+`set beep'
+..........
+
+     `set beep on|off'
+
+The command `set beep on' makes gri beep on errors and `query'.  `set
+beep off' (the default) turns this beeping off.
+
+
+File: gri.info,  Node: Set Bounding Box,  Next: Set Clip,  Prev: Set Beep,  Up: Set
+
+`set bounding box'
+..................
+
+     `set bounding box .xleft. .ybottom. .xright. .ytop. [pt|cm]'
+
+Set the PostScript bounding box for the graph to the indicated values.
+The bounding box is used by some programs to determine the region of the
+page on which marks have been made.  For example, LaTeX uses the
+bounding box to decide how to position figures in documents.
+
+   Normally, the bounding box is computed automatically unless the
+`-no_bounding_box' commandline option has been specified; (*Note
+Invoking Gri::).  But if `set bounding box' is done, the automatically
+computed value is ignored and the given box is used instead.  Use this
+if Gri makes mistakes in its automatic selection of bounding box.
+
+   The coordinates of the bounding box may be specified in (1) user
+coordinates, as defined *at the moment* the command is executed, or (2)
+in points on the page, measured from an origin at the lower-left (72
+point per inch), or (3) in centimeters on the page.  Which coordinate
+system is used depends on the last keyword - use `pt' for points, `cm'
+for centimeters, and nothing at all for user-units.
+
+   The most common use is in points, since that is how many other
+application packages, e.g. LaTeX and dvips, specify the bounding box.
+
+   If the box is specified in the user units, the user units in effect
+*at the moment* of executing the `set bounding box' command are used.
+This must be born in mind if the coordinate system is changing during
+the execution of the program, e.g.  if margins are changing or the x
+and y axes are changing.  For this reason it often makes sense to put
+this command at the end of the commandfile.
+
+
+File: gri.info,  Node: Set Clip,  Next: Set Color,  Prev: Set Bounding Box,  Up: Set
+
+`set clip'
+..........
+
+     `set clip [postscript] \
+       {on [.xleft. .xright. .ybottom. .ytop.]} \
+       {to curve} \
+       | off'
+
+Control clipping of following drawing commands.
+   * `set clip on' Don't plot data outside axes.
+
+   * `set clip on .xleft. .xright. .ybottom. .ytop.' Don't plot data
+     outside indicated box.
+
+   * `set clip off' Plot all data, whether inside the axes or not.
+
+   * `set clip to curve' set clip to the curve, as would be drawn by a
+     `draw curve filled' command, i.e. to the polygon constructed by
+     running along the xy points, in order, followed by a final segment
+     from the last point back to the first point.  This is a
+     "postscript" clip, as explained in the next item.
+
+   * `set clip postscript on .xleft. .xright. .ybottom. .ytop.' Turn
+     PostScript clipping on.  This will prevent *any* drawing outside
+     the named box.  Note that it will also prevent axis drawing, so
+     the recommended procedure is something like
+
+          draw axes
+          set clip postscript on 10 20 0 1
+          draw curve
+          set clip postscript off
+
+   * `set clip postscript off' Turn PostScript clipping off.  *See
+     also* `set input data window'.
+
+
+File: gri.info,  Node: Set Color,  Next: Set Colorname,  Prev: Set Clip,  Up: Set
+
+`set color'
+...........
+
+     `set color \name               | \
+         {rgb .red. .green. .blue.} | \
+     {hsb .hue. .saturation. .brightness.}'
+
+Set the color of the "pen" used for drawing lines and text.  Normally
+lines and text are drawn in the same color, but the text color can be
+specified independently if desired (*Note Set Font Color::).  This
+might be useful to get contour lines of one color and labels of
+another.  The spelling `colour' is also accepted.
+
+   In the `set color \name' style, set the drawing color to the
+indicated name, either from the builtin list (`white', `LightGray',
+`darkslategray', `black', `red', `brown', `tan', `orange', `yellow',
+`green', `ForestGreen', `cyan', `blue', `skyblue', `magenta'), or from
+a list created by `read colornames'.  In the latter case, if the
+colorname has more than one word in it, use quotes, e.g. `set color
+"ghost white"'.
+
+   In the `set color rgb ...' style, set the individual color
+components as indicated.  The numbers `.red.', `.green.' and `.blue.'
+range from 0 (for no contribution of that color component to the final
+color) to 1 (for maximal contribution).  Values less than 0 are clipped
+to 0; values greater than 1 are clipped to 1.  EXAMPLES:
+
+     set color rgb 0   0   0 # black
+     set color rgb 1   1   1 # white
+     set color rgb 1   0   0 # bright red
+     set color rgb 0.5 0   0 # dark red (only 50 percent)
+     set color rgb 0   1   0 # pure green
+     set color rgb 1   1   0 # yellow: red + green
+
+   In the `set color hsb ...' style, set the individual color
+components as indicated.  The numbers `.hue.', `.saturation.' and
+`.brightness.' range from 0 to 1.  The color, represented by .hue.,
+ranges from 0 for pure red, through 1/3 for pure green, and 2/3 for
+pure blue, and back to 1 again for pure red. The purity of the color,
+represented by .saturation., ranges from 0 (none of the hue is visible)
+to 1 (the maximal amount is present).  The brightness of the color,
+represented by `.brightness.', ranges from 0 (black) to 1 (maximal
+brigntness).  Values less than 0 are clipped to 0; values greater than
+1 are clipped to 1.  EXAMPLES:
+
+     set color hsb 0    1   1 # pure, bright red
+     set color hsb 0    1 0.5 # half black, half red
+     set color hsb .333 1   1 # pure, bright green
+
+
+File: gri.info,  Node: Set Colorname,  Next: Set Contour Format,  Prev: Set Color,  Up: Set
+
+`set colorname'
+...............
+
+     `set colorname \name {rgb .red. .green. .blue.} \
+                        | {hsb .hue. .saturation. .brightness.}'
+
+Create a colorname with the indicated color.  The color components range
+from 0 to 1, and will be clipped to these values if they are outside
+this range.  EXAMPLE (borrowing a color from `/usr/lib/X11/rgb.txt'):
+
+     set colorname peachpuff rgb 1 {rpn 218 255 / }  {rpn 185 255 / }
+     draw box filled 2 2 3 3 cm
+
+   This command is akin to `read colornames' (*Note Read Colornames::),
+except that the latter uses an X11 database, so the color constituents
+range from 0 to 255, whereas for `set colorname' they range from 0 to 1.
+

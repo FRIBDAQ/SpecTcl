@@ -1,0 +1,1352 @@
+This is gri.info, produced by makeinfo version 4.3 from gri.texi.
+
+INFO-DIR-SECTION Scientific Applications
+START-INFO-DIR-ENTRY
+* Gri: (gri).  Programming language for scientific illustration
+END-INFO-DIR-ENTRY
+
+
+File: gri.info,  Node: Important Builtin Synonyms,  Next: Alias Synonyms,  Prev: Extracting Words From Strings,  Up: Synonyms
+
+Some important builtin synonyms
+-------------------------------
+
+   Within mathematics mode (portions of strings enclosed within
+dollar-signs), Gri stores the definitions of many Greek letters and
+mathematical symbols as math-mode synonyms (*Note Mathematical Text::).
+
+   Global synonyms are shared among commands.  To see the built-in
+global synonyms (*Note Index of Builtins::) use `show synonyms', which
+produces output that looks something like the following.
+
+     Synonyms...
+         \.missingvalue.           = "10000000000000000000000.000000"
+         \.return_value.           = ""
+         \.version.                = "2.7.0"
+         \.pid.                    = "3043"
+         \.wd.                     = "/home/kelley"
+         \.time.                   = "Sun May 20 13:18:32 2001"
+         \.user.                   = "kelley"
+         \.host.                   = "Intrusion.phys.ocean.dal.ca"
+         \.system.                 = "unix"
+         \.home.                   = "/home/kelley"
+         \.lib_dir.                = "/usr/share/gri"
+         \.command_file.           = "stdin"
+         \.readfrom_file.          = "stdin"
+         \.ps_file.                = "gri-00.ps"
+         \.path_data.              = "."
+         \.path_commands.          = "."
+
+   These things will be obvious to unix users; for example `\.pid.' is
+the process ID of the job (often used in names for temporary files),
+and `\.wd.' is the working directory (often used in `draw title'
+commands to indicate in which directory the gri job was run.
+
+   Some commands set `\.return_value.' to non-blank; the meaning of the
+return value varies from command to command.
+
+
+File: gri.info,  Node: Alias Synonyms,  Next: Local Synonyms,  Prev: Important Builtin Synonyms,  Up: Synonyms
+
+Alias synonyms: the `\@alias' syntax
+------------------------------------
+
+   Sometimes you need to work with a variable or a synonym whose name
+can only be determined at run-time, perhaps through interaction with the
+user, examination of a datafile, or examination of the command provided
+to the OS when invoking Gri.
+
+   Gri handles this by so-called "alias" synonyms, which store the
+names of other items.
+
+   The syntax is simple.  Suppose that a synonym, called `\pointer'
+say, contains the *name of* another synonym, or a variable.  Then you
+may use `\@pointer' anyplace you would normally use the item named.
+
+_Illustrations of using the value of a named item_
+     The following prints an approximation to Pi followed by the name of
+     movie star.
+          .pi. = 3.14
+          \pi_pointer = ".pi."
+          show \@pi_pointer  # just like 'show .pi.'
+          
+          \hero = "Gregory Peck"
+          \our_hero = "\\hero"
+          show "\@our_hero"  # just like 'show "\hero"'
+
+_Illustrations of assigning to a named item_
+     The following prints an approximation to 2*Pi and yet another
+     star; the point is that the alias appears to the left of an
+     assignment operator.
+          # Print approximation to 2*Pi
+          .pi. = 3.14
+          \pi_pointer = ".pi."
+          \@pi_pointer *= 2
+          show .pi.
+          
+          # Stars don't shine alone
+          \hero = "Gregory Peck"
+          \our_hero = "\\hero"
+          \@our_hero = "Harrison Ford"
+          show "\hero"
+
+
+File: gri.info,  Node: Local Synonyms,  Next: If Statements,  Prev: Alias Synonyms,  Up: Synonyms
+
+Local synonyms
+--------------
+
+   Local synonyms are created by Gri upon entry to a Gri command.  You
+use them to parse the command line that was used in calling the new
+command, to look for options, gather filenames, etc.  Local synonyms
+are known only from within the local Gri command.  They are not listed
+by `show synonyms', but they can be used freely in commands like `show
+"Number of words is \.words."'.
+
+   * Within any new Gri command, the number of words in the line that
+     called the command is available in `\.words.'.  The RPN operator
+     `wordc' also yields the same value (*Note Solitary Operators::).
+
+   * The first word in the calling line is `\.word0.', the second
+     `\.word1.', etc.  (Note that this is the C convention, *not* the
+     FORTRAN convention.  If `\.words.' is 2, then `\.word0.' and
+     `\.word1.' are defined, but `\.word2.', which FORTRAN programmers
+     expect, will not be defined.)  If you don't know the place of the
+     synonym in advance (i.e. 0 versus 1, for `\.word0.' versus
+     `\.word1.'), then use the RPN operator `wordv' instead (*Note
+     Unary Operators::).
+
+   * Within any new Gri command, the proper calling usage is available
+     in `\.proper_usage.'.  This is useful in tests of syntax (*Note
+     Adding New Commands::).  For example:
+
+          `draw depths from \file'
+          Draw depth data stored in indicated file.  If the
+          filename contains periods or slashes, you'll
+          have to enclose it in double quotes, as
+          in the second example:
+            draw depths from file upper_cove
+            draw depths from file ../old_data/upper_cove
+          {
+            if {rpn \.words. 4 !=}
+              show "FATAL ERROR in `\.proper_usage.':"
+              show "  Need 4 words; got \.words. words."
+              quit
+            end if
+            # Right number of words, so continue onward...
+          }
+
+   These synonyms help you scan for optional words in commands.  Suppose
+you have defined a new command `New Thing [option]'.  If you call it
+with `New Thing', then (within `New Thing') `\.words.' will be `"2"',
+`\.word0.' will be `"New"' and `\.word1.' will be `"Thing"'.  On the
+other hand, if you call it with `New Thing 22.3' then `\.words.' will
+be `3', `\.word0.' will be `"New"', `\.word1.' will be `"Thing"' as
+before, and `\.word2.' will be `"22.3"'.
+
+   *EXAMPLE*  Here is a new command to label lines drawn by `draw
+curve':
+
+     `Draw Label For Last Curve "label"'
+     Draw a label for the last curve drawn, using
+     ..xlast.. and ..ylast.. built-in variables.
+     {
+       new .draw_label_for_last_curve_graylevel.
+       .draw_label_for_last_curve_graylevel. = ..graylevel..
+       set graylevel 0
+       draw label "\.word5." at \
+           {rpn ..xlast.. xusertocm 0.1 + xcmtouser} \
+           {rpn ..ylast.. yusertocm \
+               ..fontsize.. pttocm 2 / -
+               ycmtouser}
+       set graylevel .draw_label_for_last_curve_graylevel.
+       delete .draw_label_for_last_curve_graylevel.
+     }
+     open file.dat
+     read columns x y
+     draw curve
+     \label = "Illustration"
+     Draw Label For Last Curve "\label"
+
+(Note that Gri has a built-in command `draw label for last curve
+"\label"' written much as above, so there is no need for you to enter
+this new command into your `.grirc' file.  But you might want to check
+`gri.cmd' to see how a full command does checking of the calling syntax
+(*Note Invoking Gri::).
+
+
+File: gri.info,  Node: If Statements,  Next: Loops,  Prev: Local Synonyms,  Up: Programming
+
+If Statements
+=============
+
+   Gri has `if' statements to make your programs more flexible.  Here's
+an example:
+
+     query \thick "Use thick lines? (0 or 1)" ("0")
+     if \thick
+       set line width 2
+     else
+       set line width 0.5
+     end if
+
+If you answer 1 to the question, the line thickness will be set at 2
+points.  If you answer 0 then a thin line will be used.  If you press
+carriage return a thin line will be used.
+
+   The item following the `if' can be
+   * a number (1 means true; anything else means false)
+
+   * a variable (1 means true; anything else means false). Example:
+
+          if .plot_contours.
+            draw contour
+          end if
+
+   * a synonym which expands to a number (1 means true; anything else
+     means false). Example:
+
+          \plot_contours = "1"
+          if \plot_contours
+            draw contour
+          end if
+
+     (Don't worry about the fact that synonyms are strings; Gri expands
+     the string value before interpreting the `if' statement.)
+
+   * an expression of the form `{string1 == string2 }'.  The symbol
+     `==' is an operator which tests for string equality.  This expands
+     to `1' if the strings are equal, or `0' otherwise.  The strings
+     may be either synonyms or string constants.  If the string
+     constant contains only one word, then it is not necessary to
+     enclose it in quotes, but it is clearer to do so.  Examples:
+
+          if {"\variable" == "Salinity"}
+            set x name "Salinity"
+          else
+            set x name "Unknown"
+          end if
+
+   * a rpn (reverse polish notation) expression (*Note rpn
+     Mathematics::):
+
+          if {rpn .time. 100 <}
+            # ie, (100 < time), not (time < 100)
+            show "Time > 100"
+          else if {rpn .time. 100 >}
+            show "Time < 100"
+          else if {rpn "\item" "later" ==}
+            show "Time ... later babe"
+          else
+            show "Time is equal to 100"
+          end if
+          if {rpn .time. 10 * 100 ==}
+            show "Time is equal to 10"
+          else
+            show "Time is not equal to 10"
+          end if
+
+
+   There is no need to put the else part in if you don't need it. You
+can do
+
+     set line width 0.5
+     if \use_thick_lines
+       set line width 2
+     end if
+
+if you wish.
+
+   If you want just the else part, you can do
+
+     if ! \use_thick_lines
+       set line width 0.5
+     end if
+
+   (The exclamation point denotes logical negation: `! true' equals
+`false'.)
+
+   If statements may be nested many levels deep.  You may also have
+`else if' blocks, as in:
+
+     if {"\variable" == "S"}
+       set x name "Salinity"
+       set x axis 32 33 0.5 .1
+     else if {"\variable" == "T"}
+       set x name "Temperature"
+       set x axis 15 20 1 0.5
+     else
+       set x name "Unknown"
+     end if
+
+
+File: gri.info,  Node: Loops,  Next: Mathematics,  Prev: If Statements,  Up: Programming
+
+Loops
+=====
+
+   Gri provides only one type of loop, the `while' loop, described
+elsewhere (*Note While::).
+
+
+File: gri.info,  Node: Mathematics,  Next: rpn Mathematics,  Prev: Loops,  Up: Programming
+
+Mathematics
+===========
+
+   Gri lets you do some simple mathematical manipulations on your
+column and grid data.
+
+Column data
+-----------
+
+   The column operators are `=', `+=', `-=', `*=', `/=', `^='
+(exponentiation) and `_=' (logarithm).  There must be spaces before and
+after the operators, but no space between the 2 letters of the
+operators. The operations may be applied not only to `x' and `y' as
+shown, but also to `z' (used to hold data to be contoured or written as
+symbols), and `u' and `v' (used to store vector fields).
+
+   The axis scales are *not* changed by mathematical operations on the
+columns, regardless of whether the scales were set manually or by Gri
+command (*Note Axis Scaling::).
+
+   Elements of columns are available by the `@' reverse polish operator
+(*Note rpn Mathematics::).
+
+   Examples:
+   * To multiply all the x data by 10, use `x *= 10'; to add 5 to each
+     y-value, use `y += 5'.
+
+   * To set all the y data to 10, do `y = 10'.  (This will only work if
+     you've already read column data.)
+
+   See also *Note Tertiary Operators:: for a method of assigning or
+altering column data using the RPN operator.
+
+Grid data
+---------
+
+   Various commands let you alter grid data as used in contouring
+(*Note Contour Plots::).  Possible commands are as follows.
+
+     grid data = number
+     grid data += number
+     grid data -= number
+     grid data *= number
+     grid data /= number
+     grid data ^= number # take data to power 'number'
+     grid data _= number # take log base 'number'
+     grid x = number
+     grid x += number
+     #... others as in `grid data'
+     grid y = number
+     grid y += number
+     #... others as in `grid data'
+
+Image data
+..........
+
+   Various commands let you alter image data (*Note Images::.).
+Possible commands are as follows.
+
+     image += number
+     image -= number
+     image *= number
+     image /= number
+     image ^= number # power
+     image _= number # logarithm
+
+Image grayscale/colorscale
+..........................
+
+   Various commands let you alter image data (*Note Images::).
+Possible commands are as follows.
+
+     image grayscale += number
+     image grayscale  -= number
+     image grayscale  *= number
+     image grayscale  /= number
+     image grayscale  ^= number # power
+     image grayscale  _= number # logarithm
+     image colorscale += number
+     image colorscale  -= number
+     image colorscale  *= number
+     image colorscale  /= number
+     image colorscale  ^= number # power
+     image colorscale  _= number # logarithm
+
+Variables
+.........
+
+   Possible commands are:
+
+     .variable. = number
+     .variable. += number
+     .variable. -= number
+     .variable. *= number
+     .variable. /= number
+     .variable. ^= number # power
+     .variable. _= number # logarithm
+
+
+File: gri.info,  Node: rpn Mathematics,  Next: Stack Operators,  Prev: Mathematics,  Up: Programming
+
+Rpn (reverse-polish notation) Calculator
+========================================
+
+   Gri can do simple mathematics on numbers.  The syntax is
+reverse-polish notation (`rpn'), which is used in some calculators.
+Most users can learn rpn in a few minutes, so don't worry if you don't
+know RPN yet.
+
+   *Syntax*: rpn expressions can be used anywhere Gri expects a number.
+RPN expressions start with a opening curly brace (`{') which is
+immediately followed by the word `rpn'.  rpn expressions end with a
+closing curly brace (`}').  Instead of `set x size 10' you could write
+`set x size {rpn 20 2 /}', where the expression `{rpn 20 2 /}' tells
+Gri to insert the number 20 onto a stack, then insert the number 2
+above it on the stack, and then divide the top two items on the stack.
+The following are equivalent:
+
+     set x size {rpn 20 2 /}           # 10 = 20/2
+     set x size {rpn 30 2 / 5 -}       # 10 = (30/2-5)
+     set x size {rpn pi 3.1415 / 10 *} # 10 = 10*pi/pi
+
+   If an rpn expression contains a variable whose value is "missing",
+then the value of the result of the expression will also be missing
+(unless the value of the missing variable is thrown away with a "pop"
+operator).  However, if a missing value just happens to occur as the
+result of an intermediate calculation, then the result is not
+considered to be missing.
+
+   RPN operations can be divided roughly into the following groups.
+
+* Menu:
+
+* Stack Operators::             Operate on the rpn stack
+* Rpn Functions::               Define a new rpn operator
+* Tertiary Operators::          Act on top three items on stack
+* Binary Operators::            Act on top two items on stack
+* Unary Operators::             Act on top item on stack
+* Solitary Operators::          Act alone
+* Manipulation of Columns etc:: Act on data columns
+* rpn Examples::                A few examples
+
+
+File: gri.info,  Node: Stack Operators,  Next: Rpn Functions,  Prev: rpn Mathematics,  Up: rpn Mathematics
+
+Stack Operators
+---------------
+
+   Stack operators manipulate or display the stack.
+
+   `pop' removes the top item from the stack (*Note Unary Operators::).
+
+   `dup' duplicates the top item on the stack (*Note Unary Operators::).
+
+   `exch' reorders the top two items on the stack (*Note Binary
+Operators::).
+
+   `pstack' prints the items on the stack (without changing the stack).
+
+   `roll_right' rolls the items to the right.
+
+   `roll_left' rolls the items to the left.
+
+   For example, the following shows how you might use `exch' or
+`roll_right' to change the sense of a subtraction.
+
+     show {rpn 1 2            -} " ... yields -1"
+     show {rpn 1 2 exch       -} " ... yields  1"
+     show {rpn 1 2 roll_right -} " ... yields  1"
+
+
+File: gri.info,  Node: Rpn Functions,  Next: Tertiary Operators,  Prev: Stack Operators,  Up: rpn Mathematics
+
+Rpn function Operators
+----------------------
+
+   `rpnfunction' operators are user-defined operators.  The parser
+replaces any such operator with the user-defined rpn expression.  The
+`rpnfunction' operators are both general and powerful.  An
+`rpnfunction' may be composed of any legal primitive rpn constructs or
+even other legal `rpnfunction' constructs.  For details, (*Note
+Rpnfunction::).
+
+
+File: gri.info,  Node: Tertiary Operators,  Next: Binary Operators,  Prev: Rpn Functions,  Up: rpn Mathematics
+
+Tertiary Rpn Operators
+----------------------
+
+`{rpn 0 4 "hello" substr }'
+     Extract 4 characters from the indicated string, starting at
+     character number 0 (i.e. the start of the string).  In other
+     words, replace the three items on the top of the stack with the
+     single item `\"hell\"'.
+
+
+File: gri.info,  Node: Binary Operators,  Next: Unary Operators,  Prev: Tertiary Operators,  Up: rpn Mathematics
+
+Binary Operators
+----------------
+
+   Binary operators act on the *top two* items on the stack.  Most
+binary operators replace two items on the stack with one item, e.g.
+`{rpn 1 2 /}' yields 0.5.  However, a few binary operators replace one
+pair of items with a new pair of items, e.g. the `xyusertocm' operator
+replaces an (x,y) pair in user coordinates with an (xcm,ycm) pair in
+coordinates of centimeters on the page.
+
+   The binary operators are illustrated below, in rough alphabetical
+order.
+
+`{rpn 3 2 +}'
+     Add 2 to 3.
+
+`{rpn 3 2 -}'
+     Subtract 2 from 3.
+
+`{rpn 3 2 *}'
+     Multiply 3 by 2.
+
+`{rpn 3 2 /}'
+     Divide 3 by 2.
+
+`{rpn 3 2 <}'
+     Test whether 2 is less than 3, yielding 1.  Note: this convention
+     may be confusing to users who are familiar with HP calculators from
+     decades past.  Present-day calculators use this convention, but
+     possibly older calculators used the reverse convention, using `>'
+     where Gri uses `<'.
+
+`{rpn 3 2 <=}'
+     Test whether 2 is less than or equal to 3.
+
+`{rpn 3 2 >}'
+     Test whether 2 is greater than 3, yielding 0.
+
+`{rpn 3 2 >=}'
+     Test whether 2 is greater than or equal to 3, yielding 0.
+
+`{rpn 3 2 ==}'
+     Test whether 2 and 3 are equal, yielding 0.  (Do not confuse this
+     with the asignment operator `=', described next.)
+
+`{rpn 10 ".ten." =}'
+     Assign the value `10' to the variable named `.ten.'.  The variable
+     name must be put in quotes, or else Gri will insert the value of
+     the variable (if it exists) into the expression, instead of trying
+     to assign to it.
+
+     After the assignment is done, the stack is cleared of both the
+     value and the variable name.  For example, in the following code
+          {rpn 3.1415 ".pi." =}
+          show .pi.
+     the first line evaluates to a blank line, and the second prints
+     the value of Pi.
+
+     NOTE: Do not confuse this with the `==' equality operator
+     described above.
+
+`{rpn "hello" "\\greeting" =}'
+     Assign the value `"hello"' to the synonym `\greeting'.  See notes
+     at the above item.
+
+`{rpn 3.14159 0 x =}'
+     Assign the value Pi to the first element (at index `0') of the `x'
+     column.  All columns may be assigned to in this way, e.g.  the
+     following is a technique for plotting a quadratic function:
+          .i. = 0
+          .n. = 10
+          while {rpn .i. .n. >}
+              {rpn .i. .n. 1 - /     .i. "x" =}
+              {rpn x .i. @ 2 power  .i. "y" =}
+              .i. += 1
+          end while
+          draw curve
+
+`{rpn 0 1 &}'
+     Test whether 0 and 1 are both true, yielding 0.
+
+`{rpn 0 1 and}'
+     Test whether 0 and 1 are both true, yielding 0.
+
+`{rpn y x area}'
+     Calculate the area under the curve y=y(x).  For details (*Note
+     Manipulation of Columns etc::).
+
+`{rpn 0 1 |}'
+     Test whether either 0 or 1 is true, yielding 1.
+
+`{rpn 0 1 or}'
+     Test whether either 0 or 1 is true, yielding 1.
+
+`{rpn 2 3 exch}'
+     Exchange 2 and 3 on the stack, yielding `3 2' on the stack.  (See
+     also `pop' and `dup'.)
+
+`{rpn x 0 @}'
+     Yields the value of the first number in the x column.  A similar
+     form also works for `y', etc.  (*Note Manipulation of Columns
+     etc::).
+
+`{rpn 2 3 inf}'
+     Pick the smaller of two values, yielding 3.  (Opposite to `sup'.)
+
+`{rpn 2 3 power}'
+     Take 2 to the 3rd power, yielding 8.  Note: This convention may be
+     confusing to users who are familiar with HP calculators from
+     decades past.  Present-day calculators use this convention, which
+     they write as `y^x', but older calculators used the reverse
+     convention, labelling the key `x^y'.
+
+`{rpn 2 3 remainder}'
+     Calculate the remainder after dividing 2 by 3, yielding 2.  The
+     return value for `{rpn A B remainder}' is `B - n * A', where `n' is
+     the quotient of `A/B', rounded towards zero to an integer.  In this
+     case, `2/3' rounds to an `n' value of zero, yielding 2 as the
+     resulting remainder.
+
+`{rpn "heLLo" "s/L/l/g" sed}'
+     Switch all instances of `L' into `l', yielding the string
+     `"hello"' on the stack.  This can be helpful for working with
+     filenames, etc.  The work is preformed with a system call to the
+     `sed' utility (present on unix systems), and therefore this
+     command will fail if `sed' is not installed, or if the OS cannot
+     be contacted.
+
+`{rpn "file" ".dat" strcat}'
+     Concatenate the two strings, yielding the string `"file.dat"'.
+
+`{rpn 2 3 sup}'
+     Pick the larger of two values, yielding 3.  (Opposite to `inf'.)
+
+
+File: gri.info,  Node: Unary Operators,  Next: Solitary Operators,  Prev: Binary Operators,  Up: rpn Mathematics
+
+Unary Operators
+---------------
+
+   Unary operators replace the last item on the stack with another item.
+For example, the `sin' operator takes the sine of the number on the top
+of the stack; e.g., `{rpn 45 sin}' yields the sine of 45 degrees.
+
+   The unary operators are illustrated below, in rough alphabetical
+order.
+
+`{rpn 0 !}'
+     Replace 0 (false) with its logical negation 1 (true).
+
+`{rpn 0 not}'
+     Replace 0 (false) with its logical negation 1 (true).
+
+`{rpn -3 abs}'
+     Calculate the absolute value of `-3'.
+
+`{rpn 0.5 acos}'
+     Calculate the inverse cosine of 0.5, yielding 60 (degrees).
+
+`{rpn 2 acosh}'
+     Calculate the inverse hyperbolic cosine of 2, yielding 1.317.
+     (Note: argument must equal or exceed 1, or an error results.)
+
+`{rpn "filename" age}'
+     Calculate the "age" of the indicated file, in seconds.  An age of
+     zero indicates that the file was created, or last modified, within
+     1 second of the execution of the `age' operator.
+
+     On unix (and similar) machines, the calculation is done on unix
+     machines with the `stat()' subroutine.  On other machines, the
+     `age' operator may cause an error.
+
+     The age of a non-existent file is reported as the number of seconds
+     since the system clock's reference time, i.e. since 1970-jan-1 on
+     unix machines.  This convention is so that scripts like that in
+     the example below will work as intended.
+
+     A typical use of this command is the creation of data-files from
+     shell scripts, as illustrated below.  The idea is to update (or
+     create) the file `file.dat' using the system-executable script
+     `creator.pl', but only to do so if `creator.pl' is younger than
+     `file.dat'.
+          if {rpn "file.dat" age "creator.pl" age <}
+             system "./creator.pl > file.dat"
+          end if
+          open file.dat
+     For the convenience in such usage, a non-existent file is assigned
+     the maximum possible file age on the given OS, e.g. on a unix
+     machine, the age is reported as though the non-existent file had
+     been created on January 1, 1970 on a unix machine.
+
+`{rpn 0.5 asin}'
+     Calculate the inverse sine of 0.5, yielding 30 (degrees).
+
+`{rpn 1 atan}'
+     Calculate the inverse tangent of 1, yielding 45 (degrees).
+
+`{rpn 0.5 atanh}'
+     Calculate the inverse hyperbolic tangent of 0.5, yielding 0.549306
+     (radians).
+
+`{rpn 0 argv}'
+     Returns the name of the Gri command-file, which is considered as
+     the first "optional" argument.  (It may seem odd that the name of
+     the command-file is considered an option, but Gri does this for
+     consistency with C and other languages.  It is useful.)  Other
+     arguments provided when Gri was invoked are provided as `rpn 1
+     argv', etc.
+
+     A string consisting of a single blank character results if one
+     tries to access beyond the list of arguments that were actually
+     supplied.  See also the `argc' solitary operator (*Note Solitary
+     Operators::), which returns the number of optional arguments.
+
+     For example, if Gri is invoked as
+
+          gri myscript.gri file1.dat file2.dat
+
+     and if `myscript.gri' contained
+
+          .n. = {rpn argc}
+          .i. = 0
+          while {rpn .n. .i. <}
+              show "argument " .i. " is " {rpn .i. argv}
+              .i. += 1
+          end while
+
+     then the output would be
+
+          argument 0 is myscript.gri
+          argument 1 is file1.dat
+          argument 2 is file2.dat
+
+     For usage within the Emacs gri-mode, see *Note Filename arguments
+     when running gri::.
+
+`{rpn "hi" ascent}'
+     Determine ascent of this string (in cm), in the present font and
+     fontsize.  (See also `descent' and `width'.)
+
+`{rpn "3.1" atof}'
+     Calculate the numerical value contained in indicated string.
+
+`{rpn 1.5 ceil}'
+     Calculate the next higher integer, yielding 2.  (Opposite of
+     `floor'.)
+
+`{rpn 45 cos}'
+     Calculate the cosine of 45 degrees, yielding 0.707.
+
+`{rpn 1 cosh}'
+     Calculate the hyperbolic cosine of 1 (radian), yielding 1.543.
+
+`{rpn 1 cmtopt}'
+     Convert from 1 centimeter to so-called "point" units, yielding
+     28.45.  (Opposite of `pttocm'.)
+
+`{rpn 170 dec2hex}'
+     Convert a number into a string which is its hexadecimal
+     representation.  Before the conversion, the number is rounded to
+     the nearest integer, and if the result is negative, an error
+     results.  The string is double-quoted, with letters (if there are
+     any) being in upper case.
+
+     For example `\hex = {rpn  63  dec2hex}' is equivalent to `\hex =
+     "3F"'.
+
+     Compare with `hex2dec', the inverse.
+
+`{rpn "\\syn" defined}'
+     Test whether the synonym is defined at the moment, returning 1 if
+     so and 0 if not.  (Note the double-backslash in the synonym name,
+     which is required.)
+
+`{rpn ".var." defined}'
+     Test whether the variable is defined at the moment, returning 1 if
+     so and 0 if not.
+
+`{rpn "\\@alias" defined}'
+     Test whether the variable/synonym item that is named by the alias
+     (*Note Alias Synonyms::) is defined at the moment, returning 1 if
+     so and 0 if not.
+
+`{rpn "hi" descent}'
+     Calculate the descent (below the baseline in cm) for the given
+     string, in the present font and fontsize.  (See also `ascent' and
+     `width'.)
+
+`{rpn "/home/me/data/timeseries" directory_exists}'
+     Determine whether indicate directory exists, yielding `1' if it
+     does and `0' otherwise.  (See also `file_exists'.)
+
+`{rpn 2 dup}'
+     Duplicate the top item on stack, yielding `2 2' on the stack.
+     (See also `exch' and `pop'.)
+
+`{rpn 1 exp}'
+     Calculate the value of `e' raised to the indicated power, yielding
+     2.71828.
+
+`{rpn 2 exp10}'
+     Calculate the value of `10' raised to the indicated power,
+     yielding 100.
+
+`{rpn "foo.dat" file_exists}'
+     Determine whether the indicate file exists, yielding `1' if it does
+     and `0' otherwise.  (See also `directory_exists'.)
+
+`{rpn 1.5 floor}'
+     Calculate the nearest smaller integer, yielding 1.  (Opposite of
+     `ceil'.)
+
+`{rpn "AA" hex2dec}'
+     Convert a string, representing a hexadecimal value, into an
+     integer.  The string must be double-quoted, and it may contain
+     either lower- or upper-case letters; this is in contrast to the
+     inverse function, `dec2hex', which returns upper-case.
+
+     This operator is most often used in working with colours, since Gri
+     handles colour components in decimal terms, whereas many other
+     applications refer to the components in hexadecimal notation.
+
+     Compare with `dec2hex', the inverse.
+
+`{rpn 3 ismissing}'
+     Yields 1 if the indicated value is a "missing value" or 0
+     otherwise.
+
+`{rpn 100 log}'
+     Calculate the base-10 logarithm of 100, yielding 2.
+
+`{rpn 10 ln}'
+     Calculate the natural logarithm of 10, yielding 2.30259.
+
+`{rpn x mean}'
+     Yields the mean value of the (non-missing) numbers in the x
+     column.  A similar form also works for `y', etc.  (*Note
+     Manipulation of Columns etc::).
+
+`{rpn x max}'
+     Yields the largest value of the (non-missing) numbers in the x
+     column.  A similar form also works for `y', etc.  (*Note
+     Manipulation of Columns etc::).
+
+`{rpn x min}'
+     Yields the smallest value of the (non-missing) numbers in the x
+     column.  A similar form also works for `y', etc.  (*Note
+     Manipulation of Columns etc::).
+
+`{rpn 28.45 pttocm}'
+     Calculate the number of centimeters in 28.45 printers points,
+     yielding 1.  (Opposite of `cmtopt'.)
+
+`{rpn 1 2 pop}'
+     Remove the top item from the stack, yielding `1' on the stack.
+     Generates an error if the stack is empty.  (See also `exch' and
+     `dup'.)
+
+`{rpn 4 sqrt}'
+     Calculate the square root of 4, yielding 2.  (Negative arguments
+     yield errors.)
+
+`{rpn 45 sin}'
+     Calculate the sine of 45 (degrees), yielding 0.707107.
+
+`{rpn 2 sinh}'
+     Calculate the hyperbolic sine of 2, yielding 3.62686.
+
+`{rpn "hello" strlen}'
+     Determine the number of characters in string, e.g. 6 here.
+
+`{rpn "date" system}'
+     Call the indicated system function and insert its ouput on the
+     stack, yielding the date as a character string.
+
+`{rpn 45 tan}'
+     Calculate the tangent of 45 (degrees), yielding 1.
+
+`{rpn tanh}'
+     Calculate the hyperbolic tangent of 2, yielding 0.964028.
+
+`{rpn "hi" width}'
+     Determine width of this string (in cm), in the present font and
+     fontsize.  (See also `ascent' and `descent'.)
+
+`{rpn 0 wordv}'
+     Returns the first word used in invoking the present command.
+     Similar to the `\.word0.' synonym (*Note Local Synonyms::).
+     Example:
+
+          `let us test .it.'
+          {
+            .w. = 0
+            while {rpn .w. wordc >}
+              show "The " .w. "-th word is `" {rpn .w. wordv} "'."
+              .w. += 1
+            end while
+          }
+          let us test "this thing"
+          let us test "this" "thing"
+          let us test "Pi is" {rpn 3.14}
+
+     If you are using this to parse options given to the command, it is
+     up to you to skip the non-optional words in the command.  In this
+     case, for example, we skipped the first three words (`let', `us',
+     and `test').
+
+`{rpn 1 xusertocm}'
+     Calculate the x coordinate, in centimeters measured from left-hand
+     side of page, corresponding to a user-value of x=1.  (Opposite of
+     `xcmtouser'.)
+
+`{rpn 1 xcmtouser}'
+     Calculate the x value, in user units, for a point that is 1
+     centimeter from the left-hand edge of the paper.  (Opposite of
+     `xusertocm'.)
+
+`{rpn 1 yusertocm}'
+     Calculate the y coordinate, in centimeters measured from bottom
+     side of page, corresponding to a user-value of x=1.  (Opposite of
+     `ycmtouser'.)
+
+`{rpn 1 ycmtouser}'
+     Calculate the y value, in user units, for a point that is 1
+     centimeter from the bottom edge of the paper.  (Opposite of
+     `yusertocm'.)
+
+
+File: gri.info,  Node: Solitary Operators,  Next: Manipulation of Columns etc,  Prev: Unary Operators,  Up: rpn Mathematics
+
+Solitary Operators
+------------------
+
+   Solitary operators do not act on items on the stack; rather, they
+generate items themselves and insert them on the stack.
+
+   The solitary operators are illustrated below, in alphabetical order.
+
+`{rpn argc}'
+     Yields number of command-line arguments given by the user when Gri
+     was invoked.  Thus, invoking Gri as
+
+          gri myfile.gri file1.dat file2.dat
+
+     yields 3, for arguments `myfile.gri', `file1.dat', and
+     `file2.dat'.  These arguments are accessible through the `argv'
+     unary operator (*Note Unary Operators::).
+
+`{rpn e}'
+     Yields the base of natural logarithms, i.e. `2.718'...
+
+`{rpn pi}'
+     Yields Pi, i.e. `3.141'...
+
+`{rpn rand}'
+     Generate a random number in the range 0 to 1, using the C
+     subroutine `drand48()' if it is available, otherwise the less
+     well-distributed `rand()' subroutine.
+
+`{rpn wordc}'
+     Returns number of words used in invoking the present command.
+     Similar to the `\.words.' synonym (*Note Local Synonyms::).
+     Example:
+
+          `let us test .it.'
+          {
+            show "This command has " {rpn wordc} " words"
+          }
+          let us test 10
+          let us test {rpn 3 1 +}
+          let us test "this"
+          let us test "this thing"
+
+     The operator `wordv' may be used to extract the words of the
+     command (*Note Unary Operators::).
+
+
+File: gri.info,  Node: Manipulation of Columns etc,  Next: rpn Examples,  Prev: Solitary Operators,  Up: rpn Mathematics
+
+Manipulation of Columns etc
+---------------------------
+
+Columns
+.......
+
+   Individual data in the `x', `y', `z', `u', `v' and `weight' columns
+can be accessed with the `@' operator.  The first point has index 0.
+Examples:
+
+     show "first x is " {rpn x 0 @ }
+     show "last  x is " {rpn x ..num_col_data.. 1 - @ }
+     show "and here are all the data:"
+     .i. = 0
+     while {rpn .i. ..num_col_data.. >}
+         show {rpn x .i. @ }
+         .i. += 1
+     end while
+
+   The mean value is available from the `mean' operator (e.g., `.xmean.
+= {rpn x mean }', while the standard deviation is given by `stddev',
+the skewness is given by `skewness', and the kurtosis is given by
+`kurtosis' (using the definition that yields 3 for a gaussian
+distribution).
+
+   The minimal and maximal values are given by `min' and `max'.
+
+   The area under the curve y=y(x) is found by `{rpn y x area }',
+defined by `0.5 * sum ( (y[i] + y[i-1]) * (x[i] - x[i-1]) )' for `i'
+ranging from 1 to `..num_col_data..'-1.
+
+Grid
+....
+
+   Grid data can be accessed with e.g. `{rpn grid min } ', `{rpn grid
+max } ', and `{rpn grid mean } '.
+
+   The value of the grid at a given `(.x.,.y.)' coordinate may be found
+by by e.g. `{rpn grid .x. .y. interpolate}'.  The interpolation scheme
+is the same as that used in converting grids to images.
+
+
+File: gri.info,  Node: rpn Examples,  Next: Text,  Prev: Manipulation of Columns etc,  Up: rpn Mathematics
+
+rpn Examples
+------------
+
+   Here are some reverse-polish expressions and the corresponding
+algebraic interpretations:
+
+   * `{rpn 1 2 + 10 / }' = (1+2)/10
+
+   * `{rpn .a. .b. + .c. + .d. / }' = (.a.+.b.+.c.)/.d.
+
+   * `{rpn e 2 / }' = e/2 (Gri knows values of "e" and "pi")
+
+   * `{rpn 23 sin 100 * 12 cos + }' = cos(12) + 100sin(23)
+
+   * `{rpn 5 2 power }' = 25
+
+   * `{rpn 2 log exp }' = exp(log 2)
+
+   * `{rpn 2 ln exp10 }' = 10^ln2
+
+   * `{rpn 1.7 floor }' = 1 (rounds down to nearest integer.  Note that
+     the floor of -1.7 is -2)
+
+   * `{rpn 10.1 2 remainder }' = 0.1 (remainder of 10.1 after division
+     by 2; see C function `remainder(x,y)')
+
+   * `{rpn -10.1 2 remainder }' = -0.1
+
+   * `{rpn -10.1 -2 remainder }' = -0.1
+
+   * `{rpn .num. 10 > }' = 1 if 10 exceeds .num., or 0 otherwise
+
+NOTES:
+   * The units of `sin', `cos', etc, are degrees, not radians.
+
+   * The scales of the plot are accessible to `rpn'.  For example, with
+     the command
+
+          draw label "hi" at 10 20
+
+     you draw the indicated string at the indicated location in user
+     coordinates.  To put it 0.15 centimetres to the right of this
+     location and 0.1 centimetres lower, you could do as follows:
+
+          draw label "\label" at \
+              {rpn .x. xusertocm 0.15 + xcmtouser} \
+              {rpn .y. yusertocm 0.10 - ycmtouser}
+
+     (Note that the x and y scales have individual translations from
+     "user" to "cm" coordinates.)
+
+   * Some conversion factors are built into `rpn'; `cmtopt' converts
+     from centimetres to points (by dividing by 28.45; the conversion
+     factor to inches is 72.27) while `pttocm' converts from points to
+     centimetres.  For example, here is how to label a data curve with
+     a label placed near the last y-value of the data set:
+
+          draw curve
+          .y. = {rpn ..ylast.. yusertocm 0.5 - ycmtouser}
+          draw label "Smoothed" at ..xlast.. .y.
+
+
+
+File: gri.info,  Node: Text,  Next: Embedded Synonyms,  Prev: rpn Examples,  Up: Programming
+
+Text Strings
+============
+
+   Any text can be drawn in any size; Gri does not limit font size to a
+list, e.g. 10 point, 12 points, etc.  Several fonts are available in
+Gri, e.g. Times, Helvetica, etc.; these are all standard PostScript
+fonts.  Support for some non-English languages (e.g. French) is also
+provided.  And, finally, Gri supports inclusion of simple mathematical
+expressions (Greek letters, superscripts, etc.) in text, using a
+LaTeX-style syntax.
+
+* Menu:
+
+* Embedded Synonyms::           Embedding synonyms in text strings
+* Mathematical Text::           Mathematical symbols and Greek letters
+* Non-English Text::            French, etc.
+* Adjustment Of Character Position:: thinspaces
+
+
+File: gri.info,  Node: Embedded Synonyms,  Next: Mathematical Text,  Prev: Text,  Up: Text
+
+Embedding synonyms in quoted text strings
+-----------------------------------------
+
+   *Outside* math strings, you can embed your synonyms at will.  For
+example, you can include the name of a data file in the title of your
+plot as follows
+
+     query \filename "File to read from?" ("data.file")
+     open \filename
+     read columns x y
+     draw curve
+     draw title "data from \filename"
+
+   Within math strings (ie, between matched dollar-signs), these
+synonyms are disabled, and only the mathematical symbols and Greek
+letters work.
+
+
+File: gri.info,  Node: Mathematical Text,  Next: Non-English Text,  Prev: Embedded Synonyms,  Up: Text
+
+Mathematical text
+-----------------
+
+Subscripts
+..........
+
+   As in TeX and LaTeX, you must be in math-mode to use subscripts; in
+other words, you must enclose the string or substring in dollar-signs.
+For single-character subscripts, insert an underline prior to the
+character to be subscripted:
+
+     draw title "$a_2$"
+
+For multiple-character subscripts, insert braces before and after the
+item to be subscripted:
+
+     draw title "$a_{22}$"
+
+Superscripts
+............
+
+   As in TeX and LaTeX, you must be in math-mode to use superscripts;
+in other words, you must enclose the string or substring in
+dollar-signs.  For single-character superscripts, insert a carat prior
+to the character to be superscripted:
+
+     draw title "$a^2$"
+
+For multiple-character superscripts, insert braces before and after the
+item to be superscripted:
+
+     draw title "$a^{22}$"
+
+Mathematical symbols
+....................
+
+   As in TeX and LaTeX, you indicate mathematical symbols and Greek
+letters with backslash sequences.  The following LaTeX symbols are
+defined in math mode in Gri (cf tables in Lamport's section 3):
+
+     \Delta \Downarrow \Gamma \Im \Lambda \Leftarrow
+     \Leftrightarrow \Omega \Pi \Phi \Psi \Re
+     \Rightarrow \Sigma \Theta \Uparrow \Upsilon \Xi
+     \alpha \approx \ast \beta \bullet \chi \circ
+     \cong \delta \div \downarrow \epsilon \equiv
+     \eta \exists \forall \gamma \geq \gg \in \infty
+     \iota \kappa \lambda \langle \leftarrow
+     \leftrightarrow \leq \ll \mu \nabla \neq \nu
+     \omega \partial \phi \pi \pm \prod \propto \psi
+     \rangle \rho \rightarrow \sigma \sim \subset
+     \subseteq \sum \supset \supseteq \surd \sqrt
+     \tau \theta \times \uparrow \upsilon \varpi
+     \wedge \xi \zeta \vartheta \varsigma \varphi
+     \aleph \oplus \otimes \wp \prime \emptyset
+     \angle \neg \clubsuit \diamondsuit \spadesuit
+     \cdot \lfloor \lceil \rceil \rfloor
+
+For example, you might use these as follows:
+
+     draw title "$\alpha$ = thermal expansion coefficient"
+
+   Sometimes you'll want a mathematical symbol to be adjacent to a
+normal text string, with no space between.  You can do this by
+enclosing in braces, as in LaTeX.
+
+   TeX and LaTeX handle combinations of superscripts and subscripts
+very cleanly, putting one above the other.  Presently, Gri does not do
+this; for example `set x name "$A_1^2$"' will have the 2 appearing to
+the right of the 1 instead of above it.  Proper positioning will be
+added to a later version of Gri, but in the meantime you can achieve the
+desired effect with the TeX "negative thinspace" psuedo-character in
+math-mode.  Using this feature will not hurt you when the new Gri
+becomes available.  The symbol for a negative thinspace is `\!' in
+math-mode.  It has no meaning in nonmath mode.  A thinspace is 1/6 of an
+"em-space" (a TeX term, normally equal to the width of the character
+"M" in the current font).  In most fonts, numbers are half the width of
+the letter "M", so that 3 negative thinspaces will move leftward over a
+single number.  Thus, if the example above becomes `set x name
+"$A_1\!\!\!^2"', the 2 will be positioned above the 1.  (Equivalently,
+you could write `set x name "$A^2\!\!_1$"'.)  Depending on the actual
+characters you have in the super/subscripts, you might need more or
+less thinspaces; some experimentation might be required.  Also, note
+that the symbol `\,' in math mode is a positive thinspace (which moves
+the next character a little bit to the right).  Thus, you can add a
+little extra spaces between characters by doing something like `set x
+name "A$\,$B"'.
+
+   To get a hat over a single character, do something like the following
+(which draws a hat over the character "h"):
+
+     draw label "h${\!\!\!^{^\wedge}}$" at 10 12 cm
+
+   To get an overbar on a rho, do this:
+
+     draw label "$\rho\!\!\!\!^-$" at 3 3 cm
+
+
+File: gri.info,  Node: Non-English Text,  Next: Adjustment Of Character Position,  Prev: Mathematical Text,  Up: Text
+
+Non-English characters
+----------------------
+
+   Gri relies on the "standard" PostScript fonts, however, and it
+suffers all limitations of these fonts.
+
+   Gri supports both English and some other European-derived languages,
+permitting text with accents on letters.  (It does not support Oriental
+or other languages at this time.)  The accents are supported by using
+the so-called ISO-Latin-1 font-encoding scheme (also called the
+ISO-8859-1 scheme), and so, from what the author can gather from his
+reading, Gri should support various languages from western European,
+e.g. English, French, Spanish, Catalan, Basque, Portuguese, Italian,
+Albanian, Rhaeto-Romanic, Dutch, German, Danish, Swedish, Norwegian,
+Finnish, Faroese, Icelandic, Irish, Scottish, and as well as Afrikaans
+and Swahili.
+
+   Gri uses the ISO-Latin-1 font encodings by default, although the
+so-called `standard' font-encoding may also be selected with the `Set
+Font Encoding' command (*Note Set Font Encoding::).  For more on font
+encodings see any book on PostScript fonts ... although the bottom line
+is that if you are using accented characters in your work, then you
+probably already know about encodings, and if you don't use accents
+then you needn't learn about this topic except for the pleasure of
+learning about other languages.
+
+   The method of handling accented characters is very simple.  If you
+can type it, Gri can draw it!  It is up to you to determine how to
+enter the accents.  Most text editors permit this.  Since many users
+will prefer the Emacs editor, a few words about that are in order.
+
+   For complete information about entering iso-latin-1 characters in
+Emacs, consult your Emacs manual in the section *Note
+(emacs)Single-Byte Character Support:: which describes the available
+methods suitable for the Emacs version you are using.  A few examples
+are nevertheless provided below.
+
+   Consider the task of inserting French text, with the Emacs
+text-editor. There are several ways of doing this (and you may wish to
+consult your emacs info manual).  A method that works in emacs-19 up to
+current emacs-20 versions uses the emacs `iso-transl.el' package by
+putting the following in your `~/.emacs' file:
+
+     (require 'iso-transl)
+     (iso-transl-set-language "French")
+     (standard-display-european t)
+
+   Loading the iso-transl package defines three ways of entering the
+non-ASCII printable characters with codes above 127: the prefix `C-x
+8', or the <Alt> key, or a dead accent key.  For example, you can enter
+uppercase A-umlaut as `C-x 8 " A' or `Alt-" A' (if you have an Alt key)
+or `umlaut A' (if you have an umlaut/diaeresis key).
+
+   A more recently introduced method is to enter the mode which allows
+quick insertion of iso-latin-1 characters. Do the Emacs command `M-x
+iso-accents-mode' (either manually, or in a hook that's done
+automatically). Now, suppose the x-axis is to represent temperature. All
+you'd have to do is type in the command
+
+     set x name "Temp'erature"
+
+   As you type, the quote mark will dissappear, and reappear as an
+accent on the `e'.  And then, Gri will recognize this accented `é', and
+it will draw the accent on the axis label.
+
+   Perhaps the future default way of accomplishing this task is to use
+MULE support directly.  First, customize MULE using `M-x
+customize-group RET mule' setting the `current language environment'
+(e.g. latin-1) and the `default input method' (e.g. latin-1-prefix).
+Then, invoking `M-x toggle-input-method' (e.g. <C-\>) toggles into a
+mode similar to the `iso-accents-mode' minor-mode described above.
+
+
+File: gri.info,  Node: Adjustment Of Character Position,  Next: Adding New Commands,  Prev: Non-English Text,  Up: Text
+
+Adjustment Of Character Position
+--------------------------------
+
+   Micro-positioning is available within math-mode, via the symbols
+`\!' (which means go left one thin-space) and `\,' (which means go
+right one thin-space).  (A thin-space is 1/6 the width of the letter
+"M").
+
+
+File: gri.info,  Node: Adding New Commands,  Next: Purpose,  Prev: Adjustment Of Character Position,  Up: Programming
+
+Adding new commands to Gri
+==========================
+
+   Gri provides so-called "newcommands" as a sort of subroutine syntax
+on steroids.
+
+* Menu:
+
+* Purpose::                       What newcommands are for
+* Parsing::                       How Gri parses commands
+* Simple New Command::            Simple example of adding new command
+* Complicated New Command::       More complicated example
+* Changeable Command Arguments::  The &.var. and &\syn syntax
+
+
+File: gri.info,  Node: Purpose,  Next: Parsing,  Prev: Adding New Commands,  Up: Adding New Commands
+
+Purpose of newcommands
+----------------------
+
+   Gri can be extended easily.  Primitive commands (e.g. `set x name')
+can be supplemented with so-called "new commands."  New commands are a
+little like subroutines other programming languages.  For example, you
+might find that you often draw filled curves with a particular graylevel
+(say 0.5), and then return the graylevel to the previous value.  This
+requires you to do the following each time:
+
+     new .old_graylevel.
+     .old_graylevel. = ..graylevel..
+     set graylevel 0.5
+     draw curve filled to 0 y
+     set graylevel .old_graylevel.
+     delete .old_graylevel.
+
+This gets a bit tedious, and it would obviously be nicer to just say
+something like
+
+     Draw my kinda curve
+
+   To make this shortcut, you'd tell Gri about the existence of a new
+command called `Draw my kinda curve', and tell it that the new command
+can be accomplished by the longer code fragment written above.
+
+   Once you've learned how to make new commands, you are likely to use
+them a lot.  The following explains how you add new commands.  For
+advice on programming style, etc., (*Note Resource File::).
+
