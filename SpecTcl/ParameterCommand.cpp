@@ -485,8 +485,12 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
       }
       else {
-	if(nResolution <= 0) {	// Note that resolution > 0
-	  rResult = "Parameter resolution must be greater than zero but is: ";
+	//  BUGBUGBUG - Really need to know how big a word is to do this right
+	//              for now assume a 32 bit system.
+	
+	if((nResolution <= 0) ||
+	   (nResolution >  31)) {	// Must be in range of allowable bits
+	  rResult = "Parameter resolution must be in the range (0,32). ";
 	  rResult += pArg[2];
 	  rResult += "\n";
 	  throw rResult;
@@ -499,15 +503,25 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_ERROR;
   }
 
+
+
   // If there is range information, then the parameter has some sort
   // of transformation mapping applied to it.
 
   if(nArg == 4) {
     CTCLList lRangeList(&rInterp, pArg[3]);
     lRangeList.Split(nListElements, &ppListElements);
+    if(nListElements < 2) {
+      rResult = "Too few elements in range list\n";
+      Usage(rInterp, rResult);
+      return TCL_ERROR;
+    }
     nLow   = atof(ppListElements[0]);
     nHi    = atof(ppListElements[1]);
-    pUnits = ppListElements[2];
+    pUnits = "";
+    if(nListElements == 3) {
+      pUnits = ppListElements[2];
+    }
   }
 
 
