@@ -18,93 +18,124 @@ static const char* Copyright =
 
 // Functions.
 // Constructors.
-CGatedEventFilter::CGatedEventFilter() {}
 
-CGatedEventFilter::CGatedEventFilter(string& rFileName) {}
-
-//CGatedEventFilter::CGatedEventFilter(COutputEventStream& rOutputEventStream) {}
-
-/*
-CGatedEventFilter::CGatedEventFilter(const CGatedEventFilter& rRhs) {
-  m_pGateContainer = rRhs.m_pGateContainer;
-  m_vParameterIds = rRhs.m_vParameterIds;
-  m_pOutputEventStream = rRhs.m_pOutputEventStream;
-}
+/*!
+   Construct a gated event filter with the default filter 
+   filename.   The gate container can either be supplied now
+   or later.
+   \param pGate (CGateContainer* in default = NULL):
+      Pointer to the gate container that will be used to
+      select events for inclusion in the output stream.
+      If this is NULL (defaulted e.g.), a gate must be
+      added to the filter later on by calling
+      setGateContainer 
+      
+   \note If the filter is enabled with no
+         gate container, no events will be passed to the output
+         stream.
+         
 */
-
-CGatedEventFilter::~CGatedEventFilter() {}
-
-// Operators.
-void CGatedEventFilter::operator()(CEventList& rEventList) {
-  // NOTE: There is a !BUG! in CEventList::end(). There may be null events before the end.
-  for(CEventListIterator i = rEventList.begin(); i != rEventList.end(); i++) {
-    if((*i) != (CEvent*)kpNULL) { // Check to ensure that the event is valid.
-      operator()(**i);
-    } else { // Invalid event received.
-      break; // Break out immediately - The rest are null too.
-    }
-  }
-}
-
-void CGatedEventFilter::operator()(CEvent& rEvent) {
-  if(CheckCondition(rEvent)) {
-    FormatOutputEvent(rEvent);
-  }
-}
-
-/*
-CGatedEventFilter& CGatedEventFilter::operator=(const CGatedEventFilter& rRhs) {
-  m_pGateContainer = rRhs.m_pGateContainer;
-  m_vParameterIds = rRhs.m_vParameterIds;
-  m_pOutputEventStream = rRhs.m_pOutputEventStream;
-}
+CGatedEventFilter::CGatedEventFilter(CGateContainer* pGate) :
+   CEventFilter(),
+   m_pGateContainer(pGate)
+{}
+/*!
+   Construct a gated event filter with a given filename.
+   \param rFilename (string& in):
+       Name of the file to which filtered data will be written.
+   \param pGate (CGateContainer* in):
+       Pointer to the gate container that will determine which
+      events are passed to the output event stream (see previous
+      function).
 */
+CGatedEventFilter::CGatedEventFilter(string& rFileName,
+                                     CGateContainer* pGate) :
+   CEventFilter(rFileName),
+   m_pGateContainer(pGate)
+{
+}
 
-Bool_t CGatedEventFilter::operator==(const CGatedEventFilter& rhs) {
-  return ((m_fEnabled == rhs.m_fEnabled) &&
-	  (m_pOutputEventStream == rhs.m_pOutputEventStream) &&
-	  (m_pGateContainer == rhs.m_pGateContainer) &&
-	  (m_vParameterIds == rhs.m_vParameterIds));
-};
 
-Bool_t CGatedEventFilter::operator!=(const CGatedEventFilter& rhs) {
-  return !(operator==(rhs));
-};
+/*!
+   Destroy the gated event filter.  The client of this class
+   is responsible for maintaining the gate container, that makes
+   this function a no-op.
+*/
+CGatedEventFilter::~CGatedEventFilter() 
+{
+}
+
+
+
 
 // Additional functions.
-void CGatedEventFilter::setGateContainer(CGateContainer& rCGateContainer) {
-  m_pGateContainer = &rCGateContainer; // WATCH OUT!!!
+/*!
+   Place a new gate container into the filter.  The gate container
+   is a pointer like object to a gate.  The gate determines which
+   events will get passed to the output event stream.
+   \param rGateContainer (CGateContainer& [in]):
+     The gate container to replace the existing one.
+*/
+void 
+CGatedEventFilter::setGateContainer(CGateContainer& rCGateContainer) 
+{
+  m_pGateContainer = &rCGateContainer; 
 }
 
-void CGatedEventFilter::setParameterNames(const vector<string>& rvParameterNames) {
-  m_vParameterNames = rvParameterNames;
+
+/*!
+  Return the name of the gate that has been associated with the
+  filter.  If the filter has not gate associated with it, it will
+   return the string: "-not yet defined-"
+*/
+std::string 
+CGatedEventFilter::getGateName() {
+   if(m_pGateContainer) {
+     return m_pGateContainer->getName();
+   } else {
+      return string("-not yet defined-");
+   }
 }
 
-void CGatedEventFilter::setParameterIds(const vector<UInt_t>& rvParameterIds) {
-  m_vParameterIds = rvParameterIds;
+/*!
+  Return the gate id associated with a filter.  If the gate is not
+  yet defined, return -1.
+*/
+Int_t CGatedEventFilter::getGateID() {
+
+   if(m_pGateContainer) {
+      return m_pGateContainer->getNumber();
+   } 
+   else {
+      return -1;
+   }
 }
 
-std::string CGatedEventFilter::getGateName() {
-  return m_pGateContainer->getName();
-}
 
-UInt_t CGatedEventFilter::getGateID() {
-  return m_pGateContainer->getNumber();
-}
-
-Bool_t CGatedEventFilter::CheckCondition(CEvent& rEvent) { //, const vector<UInt_t>& vParameterIds) {
-  /*
-    Note: CGateContainer always points to a gate, even if it is invalid. Also, we do not need to use getGate(). We simply just pass the event to the function call operator of the gate container. Furthermore, CGateContainer returns whether the event passed the gate so we can simply return this output without having to check the condition using inGate, CheckGate, or whatever else. Simple, complete, concise.
-  */
-  return (m_pGateContainer->getGate())->inGate(rEvent, m_vParameterIds);
-}
-
-void CGatedEventFilter::FormatOutputEvent(CEvent& rEvent) { //, const vector<UInt_t>& vParameterIds) {
-  // Check to see if event passes all parameters upon which it is being filtered.
-  if((m_pOutputEventStream != (COutputEventStream*)kpNULL) && CheckEnabled() && CheckCondition(rEvent)) { //, m_vParameterIds)) { // If all set up and the event passes the filter ...
-    // Write to COutputEventStream,
-    (*m_pOutputEventStream)(rEvent); // Should we return a flag to say if successful?*******************
-  } else {
-    // or toss.
-  }
+/*!
+   Virtual function override that's called to check the condition
+   that passes events to the output event stream.
+   This function:
+   -  recursively clears the cache associated with the gate.
+   - Returns the value of the gate checked on the event.
+   \param rEvent (CEvent& in):
+     The event to check against the conditionl
+   \return bool 
+    - True if the gate was made and the filter should pass the
+      event to the output stream.
+    - False if the gate was not made and the filter should
+      drop the event.
+   \note
+     If the gate is not defined (m_pGateContainer == kpNULL),
+     all events are dropped.
+*/
+Bool_t 
+CGatedEventFilter::CheckCondition(CEvent& rEvent) { //, const vector<UInt_t>& vParameterIds) {
+   if(m_pGateContainer) {
+      (*m_pGateContainer)->RecursiveReset();
+      return (*m_pGateContainer)(rEvent);
+   }
+   else {
+      return false;
+   }
 }

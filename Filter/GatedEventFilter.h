@@ -11,77 +11,68 @@
 #define __STL_STRING
 #endif
 
-#ifndef __STL_VECTOR
-#include <vector>
-#define __STL_VECTOR
-#endif
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
 #define __HISTOTYPES_H
 #endif
 
-#ifndef __DICTIONARY_H
-#include "Dictionary.h"
-#define __DICTIONARY_H
-#endif
-
-#ifndef __PARAMETER_H
-#include "Parameter.h"
-#define __PARAMETER_H
-#endif
-
-#ifndef __EVENT_H
-#include <Event.h>
-#define __EVENT_H
-#endif
-
-#ifndef __EVENTSINK_H
-#include "EventSink.h"
-#define __EVENTSINK_H
-#endif
-
-#ifndef __GATECONTAINER_H
-#include <GateContainer.h>
-#define __GATECONTAINTER_H
-#endif
 
 #ifndef __EVENTFILTER_H
 #include <EventFilter.h>
 #define __EVENTFILTER_H
 #endif
 
+// Forward class definitions.
+
+class CGateContainer;
+class Event;
+   
 // Class.
+/*!
+     A gated event filter is a subclass of CEventFilter that
+   uses a SpecTcl gate as the criterion for selecting events.
+   In this implementation, we use the default output event formatting
+   mechanisms that are implemented in the base class.
+   
+*/
 class CGatedEventFilter : public CEventFilter {
-  // Attributes.
-  CGateContainer* m_pGateContainer;
-  //vector<string> m_vParameterNames;
-  vector<UInt_t> m_vParameterIds;
+
+   // Attributes.
+
+   CGateContainer* m_pGateContainer;
 
  public:
   // Constructors.
-  CGatedEventFilter();
-  CGatedEventFilter(string&);
-  //CGatedEventFilter(COutputEventStream&);
-  virtual ~CGatedEventFilter();
+   CGatedEventFilter(CGateContainer*  pGate=(CGateContainer*)kpNULL);
+   CGatedEventFilter(string&,
+						 CGateContainer*  pGate=(CGateContainer*)kpNULL);
+   virtual ~CGatedEventFilter();
 
-  // Operators.
-  void operator()(CEventList&); // If flag is set, call event formatter.
-  void operator()(CEvent&); // If flag is set, call event formatter.
-  //CGatedEventFilter& operator=(const CGatedEventFilter&);
-  Bool_t operator==(const CGatedEventFilter&);
-  Bool_t operator!=(const CGatedEventFilter&);
+   /// Disallowed canonicals:
+ 
+private:
+   CGatedEventFilter(const CGatedEventFilter&);
+   CGatedEventFilter& operator=(const CGatedEventFilter&);
+   int operator==(const CGatedEventFilter&);
+   int operator!=(const CGatedEventFilter&);
+public:
+
+   // Selectors:
+
+   CGateContainer* getGateContainer() {
+      return m_pGateContainer;
+   }
 
   // Additional functions.
-  void setGateContainer(CGateContainer&);
-  void setParameterNames(const vector<string>&);
-  void setParameterIds(const vector<UInt_t>&);
-  std::string getGateName();
-  UInt_t getGateID();
+
+public:
+   void setGateContainer(CGateContainer&);
+   std::string getGateName();
+   Int_t getGateID();
  protected:
-  Bool_t CheckCondition(CEvent&);
- public:
-  void FormatOutputEvent(CEvent&);
-}; // CGatedEventFilter.
+   Bool_t CheckCondition(CEvent&);
+
+};
 
 #endif
