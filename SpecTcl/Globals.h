@@ -305,6 +305,10 @@
 #include <BufferDecoder.h>
 #endif
 
+#ifndef __EVENTSINKPIPELINE_H
+#include <EventSinkPipeline.h>
+#endif
+
 #ifndef __EVENTSINK_H
 #include <EventSink.h>
 #endif
@@ -325,13 +329,14 @@
 #include <Analyzer.h>
 #endif
 
-extern CEventUnpacker*  gpUnpacker;      // Current event unpacker.
-extern CBufferDecoder*  gpBufferDecoder; // Buffer decoder (could be kpNULL).
-extern CEventSink*      gpEventSink;     // Analyzed event sink; could be kpNULL.
-extern CTCLInterpreter* gpInterpreter;   // Current TCL Interpreter. Can be null if not in TCL environment.
-extern CFile*           gpEventSource;   // Source of data (can be kpNULL).
-extern CRunControl*     gpRunControl;    // Run controlling object (could be kpNULL).
-extern CAnalyzer*       gpAnalyzer;      // Points to event analyzer.
-extern const char*      gpVersion;       // SpecTcl version text.
+extern CEventUnpacker*     gpUnpacker;          // Current event unpacker.
+extern CBufferDecoder*     gpBufferDecoder;     // Buffer decoder (could be kpNULL).
+extern CEventSinkPipeline* gpEventSinkPipeline; // Analyzed event sink pipeline; Could be kpNULL. (List of event sinks.)
+extern CEventSink*         gpEventSink;         // Analyzed event sink; Could be kpNULL.
+extern CTCLInterpreter*    gpInterpreter;       // Current TCL Interpreter. Can be null if not in TCL environment.
+extern CFile*              gpEventSource;       // Source of data (can be kpNULL).
+extern CRunControl*        gpRunControl;        // Run controlling object (could be kpNULL).
+extern CAnalyzer*          gpAnalyzer;          // Points to event analyzer.
+extern const char*         gpVersion;           // SpecTcl version text.
 
 #endif

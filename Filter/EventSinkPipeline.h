@@ -6,56 +6,49 @@
 #ifndef __EVENTSINKPIPELINE_H // Required for current class
 #define __EVENTSINKPIPELINE_H
 
-#ifndef __DICTIONARY_H
-#include "Dictionary.h"
+
+#ifndef __STL_LIST
+#include <list>
+#define __STL_LIST
 #endif
 
-#ifndef __PARAMETER_H
-#include "Parameter.h"
+#ifndef __EVENT_H
+#include "Event.h"
+#define __EVENT_H
 #endif
 
 #ifndef __EVENTSINK_H
 #include "EventSink.h"
+#define __EVENTSINK_H
 #endif
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
+#define __HISTOTYPES_H
 #endif
 
-#ifndef __GATECONTAINER_H
-#include <GateContainer.h>
-#endif
-
-#ifndef __STL_STRING
-#include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __STL_VECTOR
-#include <vector>
-#define __STL_VECTOR
-#endif
-
-typedef CEventSink::iterator EventSinkIterator;
+typedef list<CEventSink*>::iterator EventSinkIterator;
 
 // Class.
 class CEventSinkPipeline : public CEventSink {
-  list<CEventSink> m_lSinks;
+  list<CEventSink*> m_lSinks;
+  //typedef list<CEventSink*>::iterator EventSinkIterator;
 
  public:
-  // Constructor.
+  // Constructors.
   CEventSinkPipeline();
-
-  // Destructor.
   virtual ~CEventSinkPipeline();
 
-  EventSinkIterator AddEventSink(CEventSink &rEventSink);
-  void RemoveEventSink(EventSinkIterator); // CAREFUL HERE! ***************
+  // Operators.
+  void operator()(CEventList&);
+  void operator()(CEvent&);
+
+  // Additional functions.
+  void AddEventSink(CEventSink&);
+  void RemoveEventSink(CEventSink&); //RemoveEventSink(EventSinkIterator)
   EventSinkIterator begin();
   EventSinkIterator end();
   UInt_t size();
-  void operator() (CEventList& rEventList); // WHAT DOES THIS TAKE??? **************
-
 }; // CEventSinkPipeline.
 
 #endif
