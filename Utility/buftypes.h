@@ -306,6 +306,7 @@ DAMAGES.
 #define PAUSEBF   13
 #define RESUMEBF  14
 #define LINKLOSTBF 15
+#define PARAMDESCRIP  30	/* Filter data parameter descr. */
 #define MAXSYSBUFTYPE 31
 #define PACKBUFBASE     32
 #define TAPEDPACKEDBASE 32
