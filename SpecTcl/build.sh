@@ -1,5 +1,5 @@
 #!/bin/csh
-
+umask 02
 setenv OS `uname | sed s/-//`       # the sed is needed for HP*-*UX
 rm -rf SpecTcl/SpecTcl              # Due to bungled initial CVS load.
 rm -rf SpecTcl/Exception
