@@ -300,7 +300,10 @@ DAMAGES.
 
 #define DATABF	1
 #define SCALERBF  2
-#define SNAPSCBF	3						       /*2*/
+#define SNAPSCBF	3
+#define STATEVARBF      4
+#define RUNVARBF        5
+#define PKTDOCBF        6
 #define BEGRUNBF  11
 #define ENDRUNBF  12
 #define PAUSEBF   13

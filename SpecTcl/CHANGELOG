@@ -231,3 +231,11 @@ February 14, 2005
 February 15, 2005
     - Added C interface to Analysis library and unit tests for those.
     - Added check for paths for the 'check' c unit test framework.
+February 22, 2005
+    - Added/debugged classes to TCL++ that make it easy to
+      do variable tracing (TCLTracedVariable, and VariableTraceCallbac e.g.).
+    - Added stuff to SpecTcl that allows it to pull stuff out of string list
+      buffers that represent TCL scriptlets and execute those scripts. this
+      is currently useful to reconstruct control system data and other stuff
+      that may be in statevariable and runvariable buffers which look like
+      a bunch of set varname value commands.
