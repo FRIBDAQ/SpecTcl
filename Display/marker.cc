@@ -937,6 +937,8 @@ void Xamine_AddMarker(XMWidget *wid, XtPointer ud, XtPointer cd)
     dialog->AddOkCallback(Marker_ok, dialog);
     dialog->AddCancelCallback(Marker_cancel, dialog);
     dialog->AddApplyCallback(Marker_accept, dialog);
+    dialog->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
+			(XtPointer)&dialog);
 
   }
 

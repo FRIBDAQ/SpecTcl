@@ -417,7 +417,7 @@ void Xamine_SetPaneInputCallback(void (*callback)(XMWidget *, /* Set input */
 						  XtPointer),
 				 XtPointer client_data = NULL); /* pane. */
 void Xamine_ClearPaneInputCallback(); /* Clear callback on selected pane. */
-void Xamine_GetPaneInputCallback(void *panemgr_input_callback,
+void Xamine_GetPaneInputCallback(panemgr_input_callback *panemgr_input_callback,
 				 XtPointer *ud);
 
 void Xamine_SetDisplay(int row, int col, int spno);

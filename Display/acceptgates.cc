@@ -291,7 +291,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
+/*
+   Change Log:
+   $Log$
+   Revision 4.5  2003/04/04 17:45:12  ron-fox
+   Catch dialog destruction for cached widgets so that the destroyed dialog is re-created when it's needed.  Prior behavior would usually crash Xamine because deleted widgets would be referenced.
 
+*/
 /*
 ** Include files:
 */
@@ -433,6 +439,7 @@ class AcceptBand : public AcceptSummingRegion
 AcceptCut      *cutin  = NULL;
 AcceptContour  *contin = NULL;
 AcceptBand     *bandin = NULL;
+
 
 
 /*
@@ -1104,18 +1111,24 @@ void Xamine_AcceptGate(XMWidget *w, XtPointer clientd, XtPointer calld)
   case cut_1d:
     if(cutin == NULL) {
       cutin = new AcceptCut("Slice_Prompt", w, help_text);
+      cutin->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
+			 (XtPointer)&cutin);
     }
     prompter = (AcceptSummingRegion *)cutin;
     break;
   case contour_2d:
     if(contin == NULL) {
       contin = new AcceptContour("Contour_prompt", w, help_text);
+      contin->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
+			  (XtPointer)&contin);
     }
     prompter = (AcceptSummingRegion *)contin;
     break;
   case band:
     if(bandin == NULL) {
       bandin = new AcceptBand("Band input", w, help_text);
+      bandin->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
+			  (XtPointer)&bandin);
     }
     prompter = (AcceptSummingRegion *)bandin;
     break;

@@ -345,7 +345,7 @@ class Copy_Object : public Copy_Multiselect
 ** Class to implement the copy object dialog.
 */
 
-class CopyObjectDialog : XMCustomDialog
+class CopyObjectDialog : public XMCustomDialog
 {
  public:
   /* Instantiators and destructors */
@@ -990,6 +990,7 @@ void Xamine_CopyObject(XMWidget *button, XtPointer user_d, XtPointer call_d)
 {
   if(!dialog) {
     dialog = new CopyObjectDialog(button);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
   dialog->Manage();
 }

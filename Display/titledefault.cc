@@ -527,6 +527,7 @@ void Xamine_SetDefaultTitling(XMWidget *w, XtPointer user, XtPointer call)
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);
     dialog->AddHelpCallback(Xamine_display_help, &help);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 
   /* Grab the settings from the defaults and set the toggle buttons */

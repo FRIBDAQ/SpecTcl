@@ -694,7 +694,7 @@ void Xamine_SetDefaultAttributes(XMWidget *w, XtPointer user_d, XtPointer cd)
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);
     dialog->AddHelpCallback(Xamine_display_help, &help);
-
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 
   /* Load the data from the default database into the dialog work area */

@@ -306,6 +306,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 #define YES        1
 #define NO         2
+#define DESTROYED  3
 #define UNANSWERED 0
 
 /*
@@ -345,6 +346,20 @@ void PromptCallback(XMWidget *w, XtPointer cd, XtPointer callback)
     break;
   }
 }
+/*!
+   Called when the prompting widget is destroyed without an answer.  The
+   effect will be similar to cancel, but the answer will be DESTROYED
+   indicating to the caller that they can no longer manipulate the widget.
+   The only parameter that's important:
+
+   \pClient (XtPointer [out]) Pointer to the answer value.
+*/
+static void
+DestroyedCallback(XMWidget* pWidget, XtPointer pEvent, XtPointer pClient)
+{
+  int* pAnswer = (int*)pClient;
+  *pAnswer     = DESTROYED;
+}
 
 /*
 ** Functional Description:
@@ -362,6 +377,7 @@ void PromptCallback(XMWidget *w, XtPointer cd, XtPointer callback)
 
 int Procede(XMWidget *parent, char *prompt)
 {
+  answer = UNANSWERED;		//  Could use several times.
   XtAppContext app;
 
   XMQuestionDialog question("Yes_or_no", *parent,
@@ -370,7 +386,8 @@ int Procede(XMWidget *parent, char *prompt)
 			    (XtPointer)&answer); /* Set up the dialog */
   question.AddCancelCallback(PromptCallback, (XtPointer)&answer); /* Add the cancel cb. */
   question.SetModal(XmDIALOG_FULL_APPLICATION_MODAL);
-
+  question.AddCallback(XtNdestroyCallback, DestroyedCallback, 
+		       (XtPointer)&answer);
   /*  The code below is a mini XtAppMainLoop simulator */
   answer = UNANSWERED;
 
@@ -382,9 +399,10 @@ int Procede(XMWidget *parent, char *prompt)
 
   /* Drop the dialog down. */
 
-  question.UnManage();
-  XSync(XtDisplay(question.getid()), 0);
-  XmUpdateDisplay(question.getid());
-
+  if(answer != DESTROYED) {
+    question.UnManage();
+    XSync(XtDisplay(question.getid()), 0);
+    XmUpdateDisplay(question.getid());
+  }
   return (answer == YES);
 }

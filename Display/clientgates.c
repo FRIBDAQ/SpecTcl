@@ -235,6 +235,8 @@ int AcceptConnection(char* pName, int fd)
   /*  It turns out that on a fast system, closing and unlinking is a bad
   **  move since the accept wont' complete always on the client side.
   */
+  sleep(2);			/* By now we should complete... */
+  close(fd);			/* Close the accepting socket. */
 
   return comfid;
 }

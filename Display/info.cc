@@ -939,7 +939,9 @@ void Xamine_DisplayInfo(XMWidget *parent, XtPointer client_d, XtPointer call_d)
 
   if(!dialog_widget) {
     dialog_widget = new InfoDisplay("Info_Display", parent);
-    dialog_widget->AddOkCallback(UnManage, dialog_widget);	/* OK unmanages. */
+    dialog_widget->AddOkCallback(UnManage, dialog_widget); /* OK unmanages. */
+    dialog_widget->AddCallback(XtNdestroyCallback, NullPointer, 
+			       (XtPointer)&dialog_widget);
   }
   /*
   ** Format the information:

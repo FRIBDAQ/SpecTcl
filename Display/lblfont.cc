@@ -720,6 +720,7 @@ void Xamine_SetGrobjLblFont(XMWidget *w, XtPointer ud, XtPointer cd)
 {
   if(!dialog) {
     dialog = new FontChooser(w, "Object_Fonts");
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 
   dialog->Manage();

@@ -543,6 +543,7 @@ void Xamine_Set1dDefaultRendition(XMWidget *w,
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);
     dialog->AddHelpCallback(Xamine_display_help, &help);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
   /* Set the current state of the dialog in the toggles */
   win_1d defaults;

@@ -1133,6 +1133,7 @@ void Xamine_Expand(XMWidget *w, XtPointer user_data, XtPointer call_data)
     dialog->AddPt2Callback(AddPt2);
     dialog->AddDeletePt1Callback(DelPt1);
     dialog->AddDeletePt2Callback(DelPt2);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 
   /* Set up the characteristics of the dialog, and our ancillary callbacks. */

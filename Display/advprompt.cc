@@ -289,7 +289,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
+/*
+  Change Log:
+  $Log$
+  Revision 4.3  2003/04/04 17:45:12  ron-fox
+  Catch dialog destruction for cached widgets so that the destroyed dialog is re-created when it's needed.  Prior behavior would usually crash Xamine because deleted widgets would be referenced.
 
+*/
 
 /*
 ** Include files:
@@ -408,6 +414,7 @@ void Xamine_PromptAdvance(XMWidget *w, XtPointer client_data,
     dialog->GetHelpButton()->AddCallback(Xamine_display_help, (XtPointer)&help);
     dialog->GetApplyButton()->UnManage();
     dialog->DefaultToOk();
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 
   /* Set up the instance specifics of the dialog */

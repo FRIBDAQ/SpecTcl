@@ -554,7 +554,7 @@ void Xamine_SetDefaultReduction(XMWidget *w,
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);
     dialog->AddHelpCallback(Xamine_display_help, &help);
-
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
   /* Set the dialog state to reflect the current default reduction: */
 

@@ -531,6 +531,7 @@ void Xamine_SetDefaultAxis(XMWidget *w, XtPointer user, XtPointer call)
     dialog->AddApplyCallback(ActionAreaCallback,  dialog);
     dialog->AddCancelCallback(ActionAreaCallback, dialog);
     dialog->AddHelpCallback(Xamine_display_help, &help);
+    dialog->AddCallback(XmNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
   /* Now set the initial state of the toggle buttons and manage the dialog */
   /* widget.                                                               */

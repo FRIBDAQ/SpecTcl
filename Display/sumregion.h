@@ -291,6 +291,15 @@ DAMAGES.
 ** SCCS info:
 **    @(#)sumregion.h	8.1 6/23/95 
 */
+
+/*
+  Change Log:
+  $Log$
+  Revision 4.2  2003/04/04 17:44:21  ron-fox
+  Catch dialog destruction for cached widgets so that the destroyed dialog is re-created when it's needed.  Prior behavior would usually crash Xamine because deleted widgets would be referenced.
+
+*/
+
 #ifndef SUMREGION_H_INSTALLED
 #define SUMREGION_H_INSTALLED
 
@@ -337,14 +346,8 @@ class AcceptSummingRegion : public ObjectInput {
   /* Constructors and destructors: */
 
   AcceptSummingRegion(char *name, XMWidget *parent, char **help_text = NULL);
-  virtual ~AcceptSummingRegion() {
-    if(object != NULL)
-      delete object;
-    delete NextPoint;
-    delete NextLabel;
-    delete DeleteLast;
-    delete Points;
-  }
+  virtual ~AcceptSummingRegion();
+
   /* Virtual functions which are pure in the base class: */
 
   virtual void ClearState();

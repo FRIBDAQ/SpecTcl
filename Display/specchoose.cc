@@ -639,7 +639,8 @@ void Xamine_ChooseSpectrum(XMWidget *w, XtPointer clientd, XtPointer calld)
     SpectrumChooser->GetHelpButton()->AddCallback(Xamine_display_help, 
 						  (XtPointer)&help);
     SpectrumChooser->SetAttribute(XmNautoUnmanage, (XtArgVal)False);
-					    
+    SpectrumChooser->AddCallback(XtNdestroyCallback, NullPointer, 
+				 (XtPointer)&SpectrumChooser);
   }
   if(callback_data->default_ok) {
     SpectrumChooser->DefaultToOk();

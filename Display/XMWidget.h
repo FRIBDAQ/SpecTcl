@@ -492,4 +492,10 @@ extern void XMRemoveCallback (Callback_data *cb);
 void XMUnmanageChild (XMWidget *, XtPointer, XtPointer);
 void XMDestroyWidget (XMWidget *, XtPointer, XtPointer);		  
 
+
+
+extern void NullPointer(XMWidget* pWidget, 
+			XtPointer pClientData,
+			XtPointer pEvent);
+
 #endif

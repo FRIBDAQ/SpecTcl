@@ -366,15 +366,7 @@ class IntegrationDisplay : public XMCustomDialog {
 */
 static IntegrationDisplay *dialog = NULL;
 
-/*
-**  This function is called when the dialog is being destroyed:
-*/
-static void Destroy_callback(XMWidget* pWidget, XtPointer ud, XtPointer cd)
-{
-  delete dialog;
-  dialog = (IntegrationDisplay*)NULL;
 
-}
 
 /*
 ** Functional Description:
@@ -766,7 +758,7 @@ void Xamine_Integrate(XMWidget *wid, XtPointer ud, XtPointer cd)
 
   if(dialog == NULL) {
     dialog = new IntegrationDisplay("Integration", *wid, 20, 80);
-    dialog->AddCallback(XtNdestroyCallback, Destroy_callback);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 
   /* Put the integration text into the widget and log file if necessary  */

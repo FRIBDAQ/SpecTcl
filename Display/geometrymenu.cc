@@ -612,6 +612,8 @@ void Xamine_request_geometry(XMWidget *w, XtPointer cd, XtPointer cb)
     geometry_prompt->AddDoCallback(SetWindows, geometry_prompt);
     geometry_prompt->AddCancelCallback(SetWindows, geometry_prompt);
     geometry_prompt->AddHelpCallback(Xamine_display_help, &geometry_help);
+    geometry_prompt->AddCallback(XtNdestroyCallback, NullPointer, 
+				 (XtPointer)&geometry_prompt);
   }
 
   /* Set the initial toggle state and manage the dialog before returning */

@@ -532,6 +532,7 @@ void Xamine_Set2dDefaultRendition(XMWidget *w, XtPointer p, XtPointer q)
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);
     dialog->AddHelpCallback(Xamine_display_help, &help);
+    dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
   /* Now that the dialog exists, just set the state and manage it: */
 
