@@ -575,9 +575,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
    static char* pProgramCopyright =
    "SpecTcl NSCL Data Analyzer (c) Copyright 1999 NSCL, All rights reserved";
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "TCLHistogrammer.h"
 #include "TestFile.h"
