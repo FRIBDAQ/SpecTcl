@@ -70,7 +70,7 @@ inline int remove(const char *path) { /* VMS compatibility.  */
 ** Local declarations:
 **/
 static Callback_data *okcb = NULL, *nomatch = NULL;
-static string   LastFilename;
+static std::string   LastFilename;
 
 static XMFileListDialog *openbox = NULL;
 static XMInformationDialog *help = NULL;
@@ -454,7 +454,7 @@ void Xamine_Read_window_file(XMWidget *w, XtPointer client_data,
   /* Read in the window file.  */
 
   if(read_windows(filename)) {
-    string title("Xamine -- ");
+    std::string title("Xamine -- ");
     title += filename;
 
     LastFilename = filename;
@@ -528,7 +528,7 @@ void write_windows(XMWidget *w, XtPointer client_data,
     new XMErrorDialog("Write_failed", *Xamine_Getpanemgr(), msg, kill_widget);
   }
   else {
-    string title("Xamine -- ");
+    std::string title("Xamine -- ");
     LastFilename = filename;
     title += filename;
 

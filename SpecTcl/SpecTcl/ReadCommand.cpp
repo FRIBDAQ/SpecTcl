@@ -154,6 +154,7 @@ Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
       break;
     case keNoBind:
       fBind = kfFALSE;
+      break;
     default:
       Usage(rResult);
       return TCL_ERROR;

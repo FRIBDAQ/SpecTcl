@@ -153,7 +153,7 @@ void Xamine_confirm_exit(XMWidget *w, XtPointer client_data, XtPointer cbs)
 void Xamine_ChangedWindows()
 {
   if(!windows_changed) {
-    string title("Xamine -- ");
+    std::string title("Xamine -- ");
     title += Xamine_GetLastWindowFile();
     title += " [Modified]";
     XMWidget *mgr = Xamine_Getpanemgr();
@@ -172,7 +172,7 @@ void Xamine_ChangedWindows()
 void Xamine_ChangedGrobjs()
 {
   if(!grobjs_changed) {
-    string title("Xamine -- ");
+    std::string title("Xamine -- ");
     title += Xamine_GetLastWindowFile();
     title += " [Modified]";
 
