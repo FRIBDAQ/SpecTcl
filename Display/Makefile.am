@@ -111,9 +111,11 @@ lib_LTLIBRARIES = libXamine.la
 libXamine_la_SOURCES = client.c clientgates.c prccheck.c allocator.c \
 specalloc.c clientbuttons.c
 
+
+
+
 Xamine_SOURCES = Xamine.cc XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc \
 XMDialogs.cc XMManagers.cc XMWlist.cc XMShell.cc XMPushbutton.cc XMTab.cc \
-windfile_parse.cc windfile_lex.cc \
 XMLabel.cc XMList.cc XMScale.cc XMSeparators.cc \
 dispwind.cc menusetup.cc exit.cc helpmenu.cc winiomenu.cc \
 grobjiomenu.cc geometrymenu.cc errormsg.cc logging.cc toggles.cc \
@@ -123,15 +125,19 @@ titledefault.cc attribdefault.cc reducedefault.cc rend1default.cc \
 rend2default.cc printer.cc refreshctl.cc axes.cc scaling.cc text.cc \
 titles.cc chanplot.cc plot1d.cc  plot2d.cc colormgr.cc shared.cc \
 location.cc convert.cc trackcursor.cc expand.cc select2.cc info.cc \
-dispgrob.cc grobfile_lex.cc grobfile_parse.cc grobjdb.cc grobfile.cc \
-refreshdefault.cc defaultfile_parse.cc marker.cc grafinput.cc \
+dispgrob.cc  grobjdb.cc grobfile.cc \
+refreshdefault.cc  marker.cc grafinput.cc \
 grobjinput.cc grobjmgr.cc grobjdisplay.cc sumregion.cc integrate.cc \
 guintegrate.cc delgrob.cc messages.cc eventflags.cc gateio.cc \
 acceptgates.cc clirequests.cc prccheck.c spccheck.cc superpos.cc \
 superprompt.cc objcopy.cc copier.cc lblfont.cc checklist.cc \
-compatspec.cc copyatr.cc defaultfile_lex.cc buttonreq.cc buttondlg.cc \
+compatspec.cc copyatr.cc  buttonreq.cc buttondlg.cc \
 spcchoice.cc spccompatchoice.cc spclimchoice.cc ptlist.cc \
-lexsupport.c gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc
+lexsupport.c gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc \
+windfile_parse.cc windfile_lex.cc \
+ grobfile_lex.cc grobfile_parse.cc \
+ defaultfile_lex.cc defaultfile_parse.cc
+
 
 colorset_SOURCES = colorset.cc $(MOTIF_SOURCES) errormsg.cc helpmenu.cc \
 procede.cc colormgr.cc
