@@ -30,7 +30,7 @@
 
 typedef struct _node {
                  struct _node *next;
-		 int  size;
+		 long          size;
 	       } node;			/* memory node. */
 
 /* 
