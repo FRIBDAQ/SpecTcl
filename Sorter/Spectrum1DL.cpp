@@ -99,8 +99,8 @@ CSpectrum1DL::Increment(const CEvent& rE)
 
   if(rEvent[m_nParameter].isValid()) {  // Only increment if param present.
     UInt_t nChannel = (m_nScaleDifference > 0) ?
-                  (UInt_t)(rEvent[m_nParameter] >> m_nScaleDifference) :
-                  (UInt_t)(rEvent[m_nParameter] << (-m_nScaleDifference));
+                  (UInt_t)((Int_t)rEvent[m_nParameter] >> m_nScaleDifference) :
+                  (UInt_t)((Int_t)rEvent[m_nParameter] << (-m_nScaleDifference));
     if(nChannel < (1 << m_nScale)) {  // Only increment if in range. 
       UInt_t* p = (UInt_t*)getStorage();
       assert(p != (UInt_t*)kpNULL);    // Spectrum storage must exist!!
