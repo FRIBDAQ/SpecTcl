@@ -318,9 +318,7 @@ typedef CEvent *pCEvent;
 
 class CEventList {
   // Class Attributes:
-  CEventVector m_rvEvents;
-  CEventListIterator m_pEnd; // End of valid data.
-  UInt_t       m_nSize;
+  CEventVector       m_rvEvents;
   
  public:
   // Constructors and destructors:
@@ -338,21 +336,19 @@ class CEventList {
 
   // Exported operations:
  public:
+  pCEvent& operator[](UInt_t nEvent);
   CEventVector& getVector() {return m_rvEvents;}
   CEventListIterator begin();
   CEventListIterator end();
   UInt_t size() const;
   void clear();
-  vector<CEvent*>::iterator assign_back(CEvent*); // Assign to just beyond the last filled spot in a reserved vector.
-  vector<CEvent*>::iterator find_end(); // Get iterator to just beyond last event.
 
+  
   // Utility functions (Available to derived classes too):
  protected:
   void DoAssign(const CEventList& anEventList);
   void Expand(); // BUG: Do not run on construction, or else CAnalyzer::CreateEvent will fail.
 
- private:
-  pCEvent& operator[](UInt_t nEvent);
 };
 
 #endif
