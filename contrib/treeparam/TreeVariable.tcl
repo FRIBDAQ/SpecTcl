@@ -1,9 +1,9 @@
 # TreeVariable.tcl
+# Version 1.2 November 2003
 
 proc UpdateTreeVariable {variable} {
 	global treeVariableRoot treeVariableName treeVariableValue treeVariableUnit
-	SendMessage "treevariable -list $variable"
-	set v [lindex [GetResponse] 0]
+	set v [lindex [treevariable -list $variable] 0]
 	set theName [lindex $v 0]
 	set theValue [lindex $v 1]
 	set theUnit [lindex $v 2]
@@ -18,7 +18,6 @@ proc UpdateTreeVariable {variable} {
 	}
 	set Name [string trimright $Name .]
 	set theIndex [lsearch $treeVariableName($Name) [lindex $thePath end]]
-	puts $theIndex
 	set treeVariableValue($Name) [lreplace $treeVariableValue($Name) $theIndex $theIndex $theValue]
 	set treeVariableUnit($Name) [lreplace $treeVariableUnit($Name) $theIndex $theIndex $theUnit]
 }
@@ -26,8 +25,7 @@ proc UpdateTreeVariable {variable} {
 proc UpdateTreeVariables {} {
 # This procedure stuffs the various array variables from the treevariable names
 	global treeVariableRoot treeVariableName treeVariableValue treeVariableUnit
-	SendMessage "treevariable -list"
-	set theList [GetResponse]
+	set theList [treevariable -list]
 	foreach e $theList {
 		set theName [lindex $e 0]
 		set theValue [lindex $e 1]

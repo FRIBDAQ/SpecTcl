@@ -1,290 +1,35 @@
-/*
-		    GNU GENERAL PUBLIC LICENSE
-		       Version 2, June 1991
-
- Copyright (C) 1989, 1991 Free Software Foundation, Inc.
-                       59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
-			    Preamble
-
-  The licenses for most software are designed to take away your
-freedom to share and change it.  By contrast, the GNU General Public
-License is intended to guarantee your freedom to share and change free
-software--to make sure the software is free for all its users.  This
-General Public License applies to most of the Free Software
-Foundation's software and to any other program whose authors commit to
-using it.  (Some other Free Software Foundation software is covered by
-the GNU Library General Public License instead.)  You can apply it to
-your programs, too.
-
-  When we speak of free software, we are referring to freedom, not
-price.  Our General Public Licenses are designed to make sure that you
-have the freedom to distribute copies of free software (and charge for
-this service if you wish), that you receive source code or can get it
-if you want it, that you can change the software or use pieces of it
-in new free programs; and that you know you can do these things.
-
-  To protect your rights, we need to make restrictions that forbid
-anyone to deny you these rights or to ask you to surrender the rights.
-These restrictions translate to certain responsibilities for you if you
-distribute copies of the software, or if you modify it.
-
-  For example, if you distribute copies of such a program, whether
-gratis or for a fee, you must give the recipients all the rights that
-you have.  You must make sure that they, too, receive or can get the
-source code.  And you must show them these terms so they know their
-rights.
-
-  We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
-distribute and/or modify the software.
-
-  Also, for each author's protection and ours, we want to make certain
-that everyone understands that there is no warranty for this free
-software.  If the software is modified by someone else and passed on, we
-want its recipients to know that what they have is not the original, so
-that any problems introduced by others will not reflect on the original
-authors' reputations.
-
-  Finally, any free program is threatened constantly by software
-patents.  We wish to avoid the danger that redistributors of a free
-program will individually obtain patent licenses, in effect making the
-program proprietary.  To prevent this, we have made it clear that any
-patent must be licensed for everyone's free use or not licensed at all.
-
-  The precise terms and conditions for copying, distribution and
-modification follow.
-
-		    GNU GENERAL PUBLIC LICENSE
-   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
-  0. This License applies to any program or other work which contains
-a notice placed by the copyright holder saying it may be distributed
-under the terms of this General Public License.  The "Program", below,
-refers to any such program or work, and a "work based on the Program"
-means either the Program or any derivative work under copyright law:
-that is to say, a work containing the Program or a portion of it,
-either verbatim or with modifications and/or translated into another
-language.  (Hereinafter, translation is included without limitation in
-the term "modification".)  Each licensee is addressed as "you".
-
-Activities other than copying, distribution and modification are not
-covered by this License; they are outside its scope.  The act of
-running the Program is not restricted, and the output from the Program
-is covered only if its contents constitute a work based on the
-Program (independent of having been made by running the Program).
-Whether that is true depends on what the Program does.
-
-  1. You may copy and distribute verbatim copies of the Program's
-source code as you receive it, in any medium, provided that you
-conspicuously and appropriately publish on each copy an appropriate
-copyright notice and disclaimer of warranty; keep intact all the
-notices that refer to this License and to the absence of any warranty;
-and give any other recipients of the Program a copy of this License
-along with the Program.
-
-You may charge a fee for the physical act of transferring a copy, and
-you may at your option offer warranty protection in exchange for a fee.
-
-  2. You may modify your copy or copies of the Program or any portion
-of it, thus forming a work based on the Program, and copy and
-distribute such modifications or work under the terms of Section 1
-above, provided that you also meet all of these conditions:
-
-    a) You must cause the modified files to carry prominent notices
-    stating that you changed the files and the date of any change.
-
-    b) You must cause any work that you distribute or publish, that in
-    whole or in part contains or is derived from the Program or any
-    part thereof, to be licensed as a whole at no charge to all third
-    parties under the terms of this License.
-
-    c) If the modified program normally reads commands interactively
-    when run, you must cause it, when started running for such
-    interactive use in the most ordinary way, to print or display an
-    announcement including an appropriate copyright notice and a
-    notice that there is no warranty (or else, saying that you provide
-    a warranty) and that users may redistribute the program under
-    these conditions, and telling the user how to view a copy of this
-    License.  (Exception: if the Program itself is interactive but
-    does not normally print such an announcement, your work based on
-    the Program is not required to print an announcement.)
-
-These requirements apply to the modified work as a whole.  If
-identifiable sections of that work are not derived from the Program,
-and can be reasonably considered independent and separate works in
-themselves, then this License, and its terms, do not apply to those
-sections when you distribute them as separate works.  But when you
-distribute the same sections as part of a whole which is a work based
-on the Program, the distribution of the whole must be on the terms of
-this License, whose permissions for other licensees extend to the
-entire whole, and thus to each and every part regardless of who wrote it.
-
-Thus, it is not the intent of this section to claim rights or contest
-your rights to work written entirely by you; rather, the intent is to
-exercise the right to control the distribution of derivative or
-collective works based on the Program.
-
-In addition, mere aggregation of another work not based on the Program
-with the Program (or with a work based on the Program) on a volume of
-a storage or distribution medium does not bring the other work under
-the scope of this License.
-
-  3. You may copy and distribute the Program (or a work based on it,
-under Section 2) in object code or executable form under the terms of
-Sections 1 and 2 above provided that you also do one of the following:
-
-    a) Accompany it with the complete corresponding machine-readable
-    source code, which must be distributed under the terms of Sections
-    1 and 2 above on a medium customarily used for software interchange; or,
-
-    b) Accompany it with a written offer, valid for at least three
-    years, to give any third party, for a charge no more than your
-    cost of physically performing source distribution, a complete
-    machine-readable copy of the corresponding source code, to be
-    distributed under the terms of Sections 1 and 2 above on a medium
-    customarily used for software interchange; or,
-
-    c) Accompany it with the information you received as to the offer
-    to distribute corresponding source code.  (This alternative is
-    allowed only for noncommercial distribution and only if you
-    received the program in object code or executable form with such
-    an offer, in accord with Subsection b above.)
-
-The source code for a work means the preferred form of the work for
-making modifications to it.  For an executable work, complete source
-code means all the source code for all modules it contains, plus any
-associated interface definition files, plus the scripts used to
-control compilation and installation of the executable.  However, as a
-special exception, the source code distributed need not include
-anything that is normally distributed (in either source or binary
-form) with the major components (compiler, kernel, and so on) of the
-operating system on which the executable runs, unless that component
-itself accompanies the executable.
-
-If distribution of executable or object code is made by offering
-access to copy from a designated place, then offering equivalent
-access to copy the source code from the same place counts as
-distribution of the source code, even though third parties are not
-compelled to copy the source along with the object code.
-
-  4. You may not copy, modify, sublicense, or distribute the Program
-except as expressly provided under this License.  Any attempt
-otherwise to copy, modify, sublicense or distribute the Program is
-void, and will automatically terminate your rights under this License.
-However, parties who have received copies, or rights, from you under
-this License will not have their licenses terminated so long as such
-parties remain in full compliance.
-
-  5. You are not required to accept this License, since you have not
-signed it.  However, nothing else grants you permission to modify or
-distribute the Program or its derivative works.  These actions are
-prohibited by law if you do not accept this License.  Therefore, by
-modifying or distributing the Program (or any work based on the
-Program), you indicate your acceptance of this License to do so, and
-all its terms and conditions for copying, distributing or modifying
-the Program or works based on it.
-
-  6. Each time you redistribute the Program (or any work based on the
-Program), the recipient automatically receives a license from the
-original licensor to copy, distribute or modify the Program subject to
-these terms and conditions.  You may not impose any further
-restrictions on the recipients' exercise of the rights granted herein.
-You are not responsible for enforcing compliance by third parties to
-this License.
-
-  7. If, as a consequence of a court judgment or allegation of patent
-infringement or for any other reason (not limited to patent issues),
-conditions are imposed on you (whether by court order, agreement or
-otherwise) that contradict the conditions of this License, they do not
-excuse you from the conditions of this License.  If you cannot
-distribute so as to satisfy simultaneously your obligations under this
-License and any other pertinent obligations, then as a consequence you
-may not distribute the Program at all.  For example, if a patent
-license would not permit royalty-free redistribution of the Program by
-all those who receive copies directly or indirectly through you, then
-the only way you could satisfy both it and this License would be to
-refrain entirely from distribution of the Program.
-
-If any portion of this section is held invalid or unenforceable under
-any particular circumstance, the balance of the section is intended to
-apply and the section as a whole is intended to apply in other
-circumstances.
-
-It is not the purpose of this section to induce you to infringe any
-patents or other property right claims or to contest validity of any
-such claims; this section has the sole purpose of protecting the
-integrity of the free software distribution system, which is
-implemented by public license practices.  Many people have made
-generous contributions to the wide range of software distributed
-through that system in reliance on consistent application of that
-system; it is up to the author/donor to decide if he or she is willing
-to distribute software through any other system and a licensee cannot
-impose that choice.
-
-This section is intended to make thoroughly clear what is believed to
-be a consequence of the rest of this License.
-
-  8. If the distribution and/or use of the Program is restricted in
-certain countries either by patents or by copyrighted interfaces, the
-original copyright holder who places the Program under this License
-may add an explicit geographical distribution limitation excluding
-those countries, so that distribution is permitted only in or among
-countries not thus excluded.  In such case, this License incorporates
-the limitation as if written in the body of this License.
-
-  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
-
-Each version is given a distinguishing version number.  If the Program
-specifies a version number of this License which applies to it and "any
-later version", you have the option of following the terms and conditions 
-either of that version or of any later version published by the Free Software 
-Foundation.  If the Program does not specify a version number of this License,
- you may choose any version ever published by the Free Software Foundation.
-
-  10. If you wish to incorporate parts of the Program into other free
-programs whose distribution conditions are different, write to the author to 
-ask for permission.  For software which is copyrighted by the Free Software 
-Foundation, write to the Free Software Foundation; we sometimes make 
-exceptions for this.  Our decision will be guided by the two goals of 
-preserving the free status of all derivatives of our free software and of 
-promoting the sharing and reuse of software generally.
-
-			    NO WARRANTY
-
-  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
-THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN 
-OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE 
-THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND 
-PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, 
-YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
-
-  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING 
-WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR 
-REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, 
-INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING 
-OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO 
-LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR 
-THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), 
-EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
-DAMAGES.
-
-		     END OF TERMS AND CONDITIONS
-*/
 /* Class CTreeParameter
 	This class provides the means to declare parameters in a tree-like fashion
 	and assigns the SpecTcl parameter id automatically, removing the burden to
 	do it manually for the user
 */
+// Version 1.2 memo:
+// Now that SpecTcl has real valued parameters, the scaling part of the CTreeParameter class
+// can be removed, and the value directly passed to the CParameter class.
+// The limits of the parameters then become only indicative and don't any role other than
+// providing "reasonable" default limits for spectrum definitions.
+// The class member "max" is renamed "bins", which contains a default number of bins
+// The class member "bits" is removed and "bins" is set appropriately when a number of bits is specified
+// The following constructors were defined for version 1.1:
+// CTreeParameter(string name, UInt_t bits);
+// CTreeParameter(string name, UInt_t bits, double start, double other, string unit, bool choice);
+// The following constructors are added for version 1.2
+// CTreeParameter(string name);
+// CTreeParameter(string name, string unit);
+// CTreeParameter(string name, double start, double stop, string unit);
+// CTreeParameter(string name, UInt_t bins, double start, double stop, string unit);
+// Default values are taken for missing values:
+// 	unit = "unknown" for version 1.2 constructors and "channels" for version 1.1 constructors
+// 	bins = 100
+// 	start = 1.0
+// 	stop = 100.0
 
 #ifndef __TREEPARAMETER_H
 #define __TREEPARAMETER_H
 
-#define TreeParameterVersion "1.1"
+// Version 1.2 takes advantage of the real parameters implemented in SpecTcl 2.1
+// It is therefore only compatible with versions of SpecTcl >= 2.1
+#define TreeParameterVersion "1.2"
 
 #include <stdio.h>
 #include <math.h>
@@ -297,52 +42,110 @@ DAMAGES.
 #include <Parameter.h>
 #include <TCLProcessor.h>
 
+extern CHistogrammer* gpEventSink;
+//extern vector<CTreeParameter*> CTreeParameterpSelf;
+//extern CEvent* CTreeParameterpEvent;
+
 class CTreeParameter
 {
 private:
-	string			name;
+	string				name;
 	double			value;
-	bool			valid, haschanged;
-	UInt_t			id, bits, max;
+	bool				valid, haschanged;
+	UInt_t			id, bins;
 	double			start, stop, inc;
-	string			unit;
+	string				unit;
 	CParameter*	mpParameter;
 public:
-	static CEvent* 				pEvent;
+	static CEvent* 							pEvent;
 	static vector<CTreeParameter*>	pSelf;
 
 public:
 // Constructors
 	CTreeParameter() {}
 
-// Constructor with no scale specification (slope=1; offset=0)
-	CTreeParameter(string parameterName, UInt_t parameterBits) :
-		name(parameterName), bits(parameterBits) {
+// Constructor with only name specification (version 1.2)
+	CTreeParameter(string parameterName) : name(parameterName) {
 		valid = true;
 		haschanged = false;
-		start = 0;
+		start = 1;
 		inc = 1;
-		max = (UInt_t) (pow(2, bits) - 1);
-		stop = start + inc * (pow(2, bits) - 1);
-		unit = "ch";
+		bins = 100;
+		stop = 100;
+		unit = "unknown";
+		
+		// For now we just copy the pointer to a vector so we can later bind to the histogrammer
+		pSelf.push_back(this);
+	}
+	
+// Constructor with name and unit specifications (version 1.2)
+	CTreeParameter(string parameterName, string parameterUnit) :
+	name(parameterName), unit(parameterUnit) {
+		valid = true;
+		haschanged = false;
+		start = 1;
+		inc = 1;
+		bins = 100;
+		stop = 100;
 		
 		// For now we just copy the pointer to a vector so we can later bind to the histogrammer
 		pSelf.push_back(this);
 	}
 
-// Full-fledged constructor
-	CTreeParameter(string parameterName, UInt_t parameterBits, double parameterStart,
-	double parameterOther, string parameterUnit, bool slopeOrStop) :
-	name(parameterName), bits(parameterBits), start(parameterStart), unit(parameterUnit) {
+// Constructor with name, unit, start and stop specifications (version 1.2)
+	CTreeParameter(string parameterName, double parameterStart, double parameterStop,
+	string parameterUnit) :
+	name(parameterName), start(parameterStart), stop(parameterStop), unit(parameterUnit) {
 		valid = true;
 		haschanged = false;
-		max = (UInt_t) (pow(2, bits) - 1);
+		bins = 100;
+		inc = (stop - start) / (double)(bins - 1);
+
+		// For now we just copy the pointer to a vector so we can later bind to the histogrammer
+		pSelf.push_back(this);
+	}
+
+// Full-fledged constructor (version 1.2)
+	CTreeParameter(string parameterName, UInt_t parameterBins, double parameterStart,
+	double parameterStop, string parameterUnit) :
+	name(parameterName), bins(parameterBins), start(parameterStart), stop(parameterStop),
+	unit(parameterUnit) {
+		valid = true;
+		haschanged = false;
+		inc = (stop - start) / (double)(bins - 1);
+
+		// For now we just copy the pointer to a vector so we can later bind to the histogrammer
+		pSelf.push_back(this);
+	}
+
+// Constructor with no scale specification (slope=1; offset=0) (version 1.1)
+	CTreeParameter(string parameterName, UInt_t parameterBits) :
+		name(parameterName) {
+		valid = true;
+		haschanged = false;
+		start = 0;
+		inc = 1;
+		bins = (UInt_t) pow(2, parameterBits);
+		stop = start + inc * (double)(bins - 1);
+		unit = "channels";
+		
+		// For now we just copy the pointer to a vector so we can later bind to the histogrammer
+		pSelf.push_back(this);
+	}
+
+// Full-fledged constructor (version 1.1)
+	CTreeParameter(string parameterName, UInt_t parameterBits, double parameterStart,
+	double parameterOther, string parameterUnit, bool slopeOrStop) :
+	name(parameterName), start(parameterStart), unit(parameterUnit) {
+		valid = true;
+		haschanged = false;
+		bins = (UInt_t) pow(2, parameterBits);
 		if (slopeOrStop)	{		// Slope
 			inc = parameterOther;
-			stop = start + inc * (pow(2, bits) - 1);
+			stop = start + inc * (double)(bins - 1);
 		} else {						// Stop
 			stop = parameterOther;
-			inc = (stop - start) / (pow(2, bits) - 1);
+			inc = (stop - start) / (double)(bins - 1);
 		}
 
 		// For now we just copy the pointer to a vector so we can later bind to the histogrammer
@@ -356,9 +159,10 @@ public:
 	CTreeParameter(const CTreeParameter& aCTreeParameter) {
 		name = aCTreeParameter.name;
 		valid = aCTreeParameter.valid;
+		value = aCTreeParameter.value;
 		haschanged = aCTreeParameter.haschanged;
 		id = aCTreeParameter.id;
-		bits = aCTreeParameter.bits;
+		bins = aCTreeParameter.bins;
 		start = aCTreeParameter.start;
 		stop = aCTreeParameter.stop;
 		inc = aCTreeParameter.inc;
@@ -378,13 +182,14 @@ public:
 // Also, that way I don't need to do
 // this painful and repetitive conversion from real units to channels, once I have provided the slope
 // and offset on the parameter.
+// Version 1.2: this operation is no longer necessary since parameters are now real valued
 	double operator=(const double& rhs) {
-		UInt_t data;
+//		UInt_t data;
 		value = rhs;
-		data = (UInt_t)((rhs - start) / inc);
+//		data = (UInt_t)((rhs - start) / inc);
 //		if (data < 0) data = 0;
-		if (data > max) data = max;
-		(*pEvent)[id] = data;
+//		if (data > max) data = max;
+		(*pEvent)[id] = value;
 		return (double)rhs;
 	}
 	
@@ -449,17 +254,18 @@ public:
 	}
  
 // Access functions
-	string		getName() {return name;}
+	string			getName() {return name;}
 	UInt_t		getId() {return id;}
 	void			setId(UInt_t theId) {id = theId;}
-	UInt_t		getBits() {return bits;}
+	UInt_t		getBins() {return bins;}
+	void			setBins(UInt_t theBins) {bins = theBins; inc = (stop - start) / (double)(bins - 1);}
 	double		getStart() {return start;}
-	void			setStart(double theStart) {start = theStart;}
+	void			setStart(double theStart) {start = theStart; inc = (stop - start) / (double)(bins - 1);}
 	double		getStop() {return stop;}
-	void			setStop(double theStop) {stop = theStop;}
+	void			setStop(double theStop) {stop = theStop; inc = (stop - start) / (double)(bins - 1);}
 	double		getInc()	{return inc;}
-	void			setInc(double theInc) {inc = theInc;}
-	string		getUnit() {return unit;}
+	void			setInc(double theInc) {inc = theInc; stop = start + inc * (bins - 1);}
+	string			getUnit() {return unit;}
 	void			setUnit(char* theUnit) {unit = theUnit;}
 	bool			isValid() {return valid;}
 	void			setValid() {valid = true;}
@@ -472,8 +278,12 @@ public:
 // Binding of histogrammer parameters
 	static void BindParameters(CAnalyzer& rAnalyzer) {
 	
-		CEventSink* pSink = (CEventSink*)rAnalyzer.getSink();
-		CHistogrammer* mpHistogrammer = (CHistogrammer*)pSink;
+// The following only worked for SpecTcl versions < 2.1
+//		CEventSink* pSink = (CEventSink*)rAnalyzer.getSink();
+//		CHistogrammer* mpHistogrammer = (CHistogrammer*)pSink;
+
+// For version 2.1beta
+		CHistogrammer* mpHistogrammer = gpEventSink;
 
 		vector<CTreeParameter*>::iterator s;
 		ParameterDictionaryIterator i;
@@ -494,8 +304,12 @@ public:
 			vid.erase(vid.begin(), vid.end());
 			(*s)->setId(nextid);
 		
-			// register parameter with histogrammer (bypass the SpecTcl parameter command)
-			(*s)->mpParameter = mpHistogrammer->AddParameter((*s)->getName(), nextid, (*s)->getBits());
+			// register parameter with histogrammer (bypass the SpecTcl parameter command) (version 1.1)
+//			(*s)->mpParameter = mpHistogrammer->AddParameter((*s)->getName(), nextid, (*s)->getBits());
+			// register parameter with histogrammer (bypass the SpecTcl parameter command) (version 1.2)
+			(*s)->mpParameter = mpHistogrammer->AddParameter(
+				(*s)->getName(),
+				nextid, (*s)->getUnit().c_str());
 		}
 //		pSelf.erase(pSelf.begin(), pSelf.end());
 	}
@@ -505,41 +319,101 @@ public:
 		pEvent = (CEvent*)(&rEvent);
 	}
 
-//Initialize functions
+//Initialize functions (version 1.1)
 void
 Initialize(string parameterName, UInt_t parameterBits)
 {
 	name = parameterName;
-	bits = parameterBits;
 	valid = true;
+	haschanged = false;
 	start = 0;
 	inc = 1;
-	max = (UInt_t) (pow(2, bits) - 1);
-	stop = start + inc * (pow(2, bits) - 1);
-	unit = "ch";
+	bins = (UInt_t) pow(2, parameterBits);
+	stop = start + inc * (double)(bins - 1);
+	unit = "channels";
 	pSelf.push_back(this);
 }
 
 void
 Initialize(string parameterName, UInt_t parameterBits, double parameterStart,
-  double parameterOther, string parameterUnit, bool slopeOrStop)
+double parameterOther, string parameterUnit, bool slopeOrStop)
 {
 	name = parameterName;
-	bits = parameterBits;
 	start = parameterStart;
 	unit = parameterUnit;
 	valid = true;
-	max = (UInt_t) (pow(2, bits) - 1);
+	haschanged = false;
+	bins = (UInt_t) pow(2, parameterBits);
 	if (slopeOrStop)  {   // Slope
 		inc = parameterOther;
-		stop = start + inc * (pow(2, bits) - 1);
+		stop = start + inc * (double)(bins - 1);
 	} else {            // Stop
 		stop = parameterOther;
-		inc = (stop - start) / (pow(2, bits) - 1);
+		inc = (stop - start) / (double)(bins - 1);
 	}
 	pSelf.push_back(this);
-	
 }
+
+//Initialize functions (version 1.2)
+void
+Initialize(string parameterName)
+{
+	name = parameterName;
+	valid = true;
+	haschanged = false;
+	start = 1;
+	inc = 1;
+	bins = 100;
+	stop = 100;
+	unit = "unknown";
+	pSelf.push_back(this);
+}
+	
+void
+Initialize(string parameterName, string parameterUnit)
+{
+	name = parameterName;
+	unit = parameterUnit;
+	valid = true;
+	haschanged = false;
+	start = 1;
+	inc = 1;
+	bins = 100;
+	stop = 100;
+	pSelf.push_back(this);
+}
+
+void
+Initialize(string parameterName, double parameterStart, double parameterStop, string parameterUnit)
+{
+	name = parameterName;
+	start = parameterStart;
+	stop = parameterStop;
+	unit = parameterUnit;
+	valid = true;
+	haschanged = false;
+	bins = 100;
+	inc = (stop - start) / (double)(bins - 1);
+	pSelf.push_back(this);
+	}
+
+void
+Initialize(string parameterName, UInt_t parameterBins, double parameterStart,
+double parameterStop, string parameterUnit)
+{
+	name = parameterName;
+	bins = parameterBins;
+	start = parameterStart;
+	stop = parameterStop;
+	unit = parameterUnit;
+	valid = true;
+	haschanged = false;
+	inc = (stop - start) / (double)(bins - 1);
+	pSelf.push_back(this);
+}
+
+
+
 
 void
 ResetAll()
@@ -568,13 +442,13 @@ public:
 // Constructors
 	CTreeParameterArray() {}
 
-// Constructor with no scale specification (slope=1; offset=0)
+// Constructor with no scale specification (slope=1; offset=0) (version 1.1)
 	CTreeParameterArray(string rootName, UInt_t rootBits, UInt_t theSize, UInt_t theStart) :
 	size(theSize), start(theStart) {
-		int		i, ndigits;
-		string	theName;
-		char		str[10], form[20];
-		CTreeParameter* pCTreeParameter;
+		int							i, ndigits;
+		string						theName;
+		char						str[10], form[20];
+		CTreeParameter*		pCTreeParameter;
 
 		ndigits = int(log10((double)(size+start))+1);
 		
@@ -587,7 +461,7 @@ public:
 		}
 	}
 
-// Full-fledged constructor
+// Full-fledged constructor (version 1.1)
 	CTreeParameterArray(string rootName, UInt_t rootBits, double rootStart, double rootOther,
 	string rootUnit, bool slopeOrStop, UInt_t theSize, UInt_t theStart) :
 	size(theSize), start(theStart) {
@@ -605,7 +479,86 @@ public:
 			pCTreeParameter = new CTreeParameter(theName, rootBits, rootStart, rootOther, rootUnit, slopeOrStop);
 			array.push_back(pCTreeParameter);
 		}
-	}		
+	}
+
+// Constructor with only name specification (version 1.2)
+	CTreeParameterArray(string rootName, UInt_t theSize, UInt_t theStart) :
+	size(theSize), start(theStart) {
+		int							i, ndigits;
+		string						theName;
+		char						str[10], form[20];
+		CTreeParameter*		pCTreeParameter;
+
+		ndigits = int(log10((double)(size+start))+1);
+		
+		for (int i=0; i < size; i++) {
+			sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+			sprintf(str, form, i+start);
+			theName = rootName + str;
+			pCTreeParameter = new CTreeParameter(theName);
+			array.push_back(pCTreeParameter);
+		}
+	}
+
+// Constructor with name and unit specifications (version 1.2)
+	CTreeParameterArray(string rootName, string rootUnit, UInt_t theSize, UInt_t theStart) :
+	size(theSize), start(theStart) {
+		int							i, ndigits;
+		string						theName;
+		char						str[10], form[20];
+		CTreeParameter*		pCTreeParameter;
+
+		ndigits = int(log10((double)(size+start))+1);
+		
+		for (int i=0; i < size; i++) {
+			sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+			sprintf(str, form, i+start);
+			theName = rootName + str;
+			pCTreeParameter = new CTreeParameter(theName, rootUnit);
+			array.push_back(pCTreeParameter);
+		}
+	}
+
+// Constructor with name, unit, start and stop specifications (version 1.2)
+	CTreeParameterArray(string rootName, double rootStart, double rootStop, string rootUnit,
+	UInt_t theSize, UInt_t theStart) :
+	size(theSize), start(theStart) {
+		int							i, ndigits;
+		string						theName;
+		char						str[10], form[20];
+		CTreeParameter*		pCTreeParameter;
+
+		ndigits = int(log10((double)(size+start))+1);
+		
+		for (int i=0; i < size; i++) {
+			sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+			sprintf(str, form, i+start);
+			theName = rootName + str;
+			pCTreeParameter = new CTreeParameter(theName, rootStart, rootStop, rootUnit);
+			array.push_back(pCTreeParameter);
+		}
+	}
+
+// Full-fledged constructor (version 1.2)
+	CTreeParameterArray(string rootName, UInt_t rootBins, double rootStart, double rootStop, string rootUnit,
+	UInt_t theSize, UInt_t theStart) :
+	size(theSize), start(theStart) {
+		int							i, ndigits;
+		string						theName;
+		char						str[10], form[20];
+		CTreeParameter*		pCTreeParameter;
+
+		ndigits = int(log10((double)(size+start))+1);
+		
+		for (int i=0; i < size; i++) {
+			sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+			sprintf(str, form, i+start);
+			theName = rootName + str;
+			pCTreeParameter = new CTreeParameter(theName, rootBins, rootStart, rootStop, rootUnit);
+			array.push_back(pCTreeParameter);
+		}
+	}
+
 	
 // Destructor
 	~CTreeParameterArray() {
@@ -627,49 +580,134 @@ Reset()
 		(*s)->Reset();
 }
 
-// Initialize functions
+// Initialize functions (version 1.1)
 void
 Initialize(string rootName, UInt_t rootBits, UInt_t theSize, UInt_t theStart)
 {
-		int	i, ndigits;
-		string	theName;
-		char		str[10], form[20];
-		CTreeParameter* pCTreeParameter;
+	int	i, ndigits;
+	string	theName;
+	char		str[10], form[20];
+	CTreeParameter* pCTreeParameter;
 
-		size = theSize;
-		start = theStart;
-		ndigits = int(log10((double)(size+start))+1);
-		
-		for (int i=0; i < size; i++) {
-			sprintf(form, ".%%%d.%dd", ndigits, ndigits);
-			sprintf(str, form, i+start);
-			theName = rootName + str;
-			pCTreeParameter = new CTreeParameter(theName, rootBits);
-			array.push_back(pCTreeParameter);
-		}
+	size = theSize;
+	start = theStart;
+	ndigits = int(log10((double)(size+start))+1);
+	
+	for (int i=0; i < size; i++) {
+		sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+		sprintf(str, form, i+start);
+		theName = rootName + str;
+		pCTreeParameter = new CTreeParameter(theName, rootBits);
+		array.push_back(pCTreeParameter);
 	}
+}
 
 void
 Initialize(string rootName, UInt_t rootBits, double rootStart,
-				double rootOther, string rootUnit, bool slopeOrStop, UInt_t theSize,
-				UInt_t theStart)
+double rootOther, string rootUnit, bool slopeOrStop, UInt_t theSize,
+UInt_t theStart)
 {
-		int	i, ndigits;
-		string	theName;
-		char		str[10], form[20];
-		CTreeParameter* pCTreeParameter;
+	int	i, ndigits;
+	string	theName;
+	char		str[10], form[20];
+	CTreeParameter* pCTreeParameter;
 
-		size = theSize;
-		start = theStart;
-		ndigits = int(log10((double)(size+start))+1);
+	size = theSize;
+	start = theStart;
+	ndigits = int(log10((double)(size+start))+1);
+	
+	for (int i=0; i < size; i++) {
+		sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+		sprintf(str, form, i+start);
+		theName = rootName + str;
+		pCTreeParameter = new CTreeParameter(theName, rootBits, rootStart, rootOther, rootUnit, slopeOrStop);
+		array.push_back(pCTreeParameter);
+	}
+}
+
+// Initialize functions (version 1.2)
+void
+Initialize(string rootName, UInt_t theSize, UInt_t theStart)
+{
+	int	i, ndigits;
+	string	theName;
+	char		str[10], form[20];
+	CTreeParameter* pCTreeParameter;
+
+	size = theSize;
+	start = theStart;
+	ndigits = int(log10((double)(size+start))+1);
 		
-		for (int i=0; i < size; i++) {
-			sprintf(form, ".%%%d.%dd", ndigits, ndigits);
-			sprintf(str, form, i+start);
-			theName = rootName + str;
-			pCTreeParameter = new CTreeParameter(theName, rootBits, rootStart, rootOther, rootUnit, slopeOrStop);
-			array.push_back(pCTreeParameter);
-		}
+	for (int i=0; i < size; i++) {
+		sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+		sprintf(str, form, i+start);
+		theName = rootName + str;
+		pCTreeParameter = new CTreeParameter(theName);
+		array.push_back(pCTreeParameter);
+	}
+}
+
+void
+Initialize(string rootName, string rootUnit, UInt_t theSize, UInt_t theStart)
+{
+	int	i, ndigits;
+	string	theName;
+	char		str[10], form[20];
+	CTreeParameter* pCTreeParameter;
+
+	size = theSize;
+	start = theStart;
+	ndigits = int(log10((double)(size+start))+1);
+		
+	for (int i=0; i < size; i++) {
+		sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+		sprintf(str, form, i+start);
+		theName = rootName + str;
+		pCTreeParameter = new CTreeParameter(theName, rootUnit);
+		array.push_back(pCTreeParameter);
+	}
+}
+
+void
+Initialize(string rootName, double rootStart, double rootStop, string rootUnit, UInt_t theSize, UInt_t theStart)
+{
+	int	i, ndigits;
+	string	theName;
+	char		str[10], form[20];
+	CTreeParameter* pCTreeParameter;
+
+	size = theSize;
+	start = theStart;
+	ndigits = int(log10((double)(size+start))+1);
+		
+	for (int i=0; i < size; i++) {
+		sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+		sprintf(str, form, i+start);
+		theName = rootName + str;
+		pCTreeParameter = new CTreeParameter(theName, rootStart, rootStop, rootUnit);
+		array.push_back(pCTreeParameter);
+	}
+}
+
+void
+Initialize(string rootName, UInt_t rootBins, double rootStart, double rootStop, string rootUnit, UInt_t theSize, UInt_t theStart)
+{
+	int	i, ndigits;
+	string	theName;
+	char		str[10], form[20];
+	CTreeParameter* pCTreeParameter;
+
+	size = theSize;
+	start = theStart;
+	ndigits = int(log10((double)(size+start))+1);
+		
+	for (int i=0; i < size; i++) {
+		sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+		sprintf(str, form, i+start);
+		theName = rootName + str;
+		pCTreeParameter = new CTreeParameter(theName, rootBins, rootStart, rootStop, rootUnit);
+		array.push_back(pCTreeParameter);
+	}
 }
 
 };
@@ -692,7 +730,7 @@ public:
 		
 		if (argc == 2 && strcmp(argv[1], "-list") == 0) {
 			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
-				sprintf(str, "{%s %d %g %g %g %s}\n", ((*s)->getName()).c_str(), (*s)->getBits(),
+				sprintf(str, "{%s %d %g %g %g %s}\n", ((*s)->getName()).c_str(), (*s)->getBins(),
 				(*s)->getStart(), (*s)->getStop(), (*s)->getInc(), ((*s)->getUnit()).c_str());
 				rResult += str;
 			}
@@ -701,7 +739,7 @@ public:
 		else if (argc == 3 && strcmp(argv[1], "-list") == 0) {
 			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
 				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
-					sprintf(str, "{%s %d %g %g %g %s}\n", ((*s)->getName()).c_str(), (*s)->getBits(),
+					sprintf(str, "{%s %d %g %g %g %s}\n", ((*s)->getName()).c_str(), (*s)->getBins(),
 					(*s)->getStart(), (*s)->getStop(), (*s)->getInc(), ((*s)->getUnit()).c_str());
 					rResult += str;
 					break;
@@ -709,13 +747,55 @@ public:
 			}
 		}
 
-		else if (argc == 7 && strcmp(argv[1], "-set") == 0) {
+		else if (argc == 8 && strcmp(argv[1], "-set") == 0) {
+			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
+				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
+					(*s)->setBins(atoi(argv[3]));
+					(*s)->setStart(atof(argv[4]));
+					(*s)->setStop(atof(argv[5]));
+					(*s)->setInc(atof(argv[6]));
+					(*s)->setUnit(argv[7]);
+					(*s)->setChanged();
+					break;
+				}
+			}
+		}
+
+		else if (argc == 4 && strcmp(argv[1], "-setinc") == 0) {
+			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
+				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
+					(*s)->setInc(atof(argv[3]));
+					(*s)->setChanged();
+					break;
+				}
+			}
+		}
+
+		else if (argc == 4 && strcmp(argv[1], "-setbins") == 0) {
+			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
+				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
+					(*s)->setBins(atoi(argv[3]));
+					(*s)->setChanged();
+					break;
+				}
+			}
+		}
+
+		else if (argc == 4 && strcmp(argv[1], "-setunit") == 0) {
+			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
+				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
+					(*s)->setUnit(argv[3]);
+					(*s)->setChanged();
+					break;
+				}
+			}
+		}
+
+		else if (argc == 5 && strcmp(argv[1], "-setlimits") == 0) {
 			for (s = CTreeParameter::pSelf.begin(); s != CTreeParameter::pSelf.end(); s++) {
 				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
 					(*s)->setStart(atof(argv[3]));
 					(*s)->setStop(atof(argv[4]));
-					(*s)->setInc(atof(argv[5]));
-					(*s)->setUnit(argv[6]);
 					(*s)->setChanged();
 					break;
 				}
@@ -748,7 +828,11 @@ public:
 Usage:\n\
    treeparameter -list\n\
    treeparameter -list name\n\
-   treeparameter -set name start stop inc unit\n\
+   treeparameter -set name bins low high inc unit\n\
+   treeparameter -setinc name inc\n\
+   treeparameter -setbins name bins\n\
+   treeparameter -setunit name unit\n\
+   treeparameter -setlimits name low high\n\
    treeparameter -check name\n\
    treeparameter -uncheck name\n\
    treeparameter -version\n\
