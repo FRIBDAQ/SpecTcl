@@ -155,7 +155,7 @@ void CFilterBufferDecoder::operator()(UInt_t nBytes,
 	} else {
 	  break;
 	}
-	cerr << "... End of event." << endl << endl; //**************************
+	cerr << "... End of event." << endl << endl;
 	continue;
       } else if(m_sTag == "endofrecord") {
 	cerr << "End of record received. (Output Buffer Offset: " << m_nOutputBufferOffset << ".)" << endl;
@@ -163,7 +163,6 @@ void CFilterBufferDecoder::operator()(UInt_t nBytes,
 	m_nOffset = 0;
 	m_nOutputBufferOffset = 0;
 	m_fXDRError = kfFALSE; // Reset error flag, but still ...
-	return;
 	break; // break out of the loop.
       } else {
 	m_fXDRError = kfTRUE;
@@ -176,22 +175,26 @@ void CFilterBufferDecoder::operator()(UInt_t nBytes,
     }
   }
 
-  cerr << "*** Leaving CFilterBufferDecoder::operator()." << endl; // ********************************
+  cerr << "*** Leaving CFilterBufferDecoder::operator(). Now running CBufferDecoder::operator()." << endl;
+  CBufferDecoder::operator()(nBytes, pBuffer, rAnalyzer);
   return; // Exit.
 };
 
 // Additional functions.
 // The following functions are required as they are inherited from CBufferDecoder as pure virtual functions.
 const Address_t CFilterBufferDecoder::getBody() {
+#if 0 // Commented-out.
   CBufferDecoder::ThrowIfNoBuffer
     ("CFilterBufferDecoder::getBody - Getting buffer.");
   UInt_t address = (UInt_t)(getBuffer());
-  address += m_nOffset; // HOW IS THIS DONE?  *********************************************************
+  address += m_nOffset;
   return ((Address_t)address);
+#endif
+  return m_pOutputBuffer;
 };
 
 UInt_t CFilterBufferDecoder::getBodySize() {
-  return (m_nBUFFERSIZE - m_nOffset);
+  return m_nBUFFERSIZE;
 };
 
 UInt_t CFilterBufferDecoder::getRun() { // Just a stub.
@@ -215,7 +218,7 @@ UInt_t CFilterBufferDecoder::getPatternCount() { // Just a stub.
 };
 
 UInt_t CFilterBufferDecoder::getBufferType() { // Just a stub.
-  return 0;
+  return 0; // 0 in order to trigger OnOther().
 };
 
 void CFilterBufferDecoder::getByteOrder(Short_t& Signature16, Int_t& Signature32) { // Just a stub.
@@ -232,12 +235,13 @@ Bool_t CFilterBufferDecoder::isActive() {
 
 // The following XDR functions are intended to eliminate the need to repeat semantics.
 // They read from the XDR stream and simultaneously write to the output buffer that will be processed by the FilterEventProcessor.
-// With slight modification, they can be used for either output (XDR_ENCODE) and input (XDR_DECODE) depending on the specified create operation.
 Bool_t CFilterBufferDecoder::XDRstring(string& rString) {
+  rString = "";
   char* pString = (char*)kpNULL;
   if(xdr_string(&m_xdrs, &pString, 100)) {
+    pString[strlen(pString)] = '\0'; // Ensure that the null terminator is present.
     rString = string(pString);
-    memcpy((m_pOutputBuffer + m_nOutputBufferOffset), &pString, (strlen(pString) + 1));
+    memcpy((char*)(m_pOutputBuffer + m_nOutputBufferOffset), (char*)pString, (strlen(pString) + 1));
     incr_offset(strlen(pString) + 1);
     return kfTRUE;
   } else {
@@ -248,8 +252,9 @@ Bool_t CFilterBufferDecoder::XDRstring(string& rString) {
 };
 
 Bool_t CFilterBufferDecoder::XDRuint(UInt_t& rUInt) {
+  rUInt = 0;
   if(xdr_u_int(&m_xdrs, &rUInt)) {
-    memcpy((m_pOutputBuffer + m_nOutputBufferOffset), &rUInt, sizeof(rUInt)); // Size should be 4.
+    memcpy((char*)(m_pOutputBuffer + m_nOutputBufferOffset), (char*)&rUInt, sizeof(rUInt)); // Size should be 4.
     incr_offset(sizeof(rUInt));
     return kfTRUE;
   } else {
@@ -287,8 +292,9 @@ Bool_t CFilterBufferDecoder::XDRarray() {
 #endif
 
 Bool_t CFilterBufferDecoder::XDRfloat(Float_t& rFloat) {
+  rFloat = 0;
   if(xdr_float(&m_xdrs, &rFloat)) {
-    memcpy((m_pOutputBuffer + m_nOutputBufferOffset), &rFloat, sizeof(rFloat)); // Size should be 4.
+    memcpy((char*)(m_pOutputBuffer + m_nOutputBufferOffset), (char*)&rFloat, sizeof(rFloat)); // Size should be 4.
     incr_offset(sizeof(rFloat));
     return kfTRUE;
   } else {

@@ -615,3 +615,10 @@ void CTclAnalyzer::IncrementCounter(Counter eSelect, UInt_t incr = 1) {
 void CTclAnalyzer::ClearCounter(Counter eSelect) {
   *(m_vStatisticsInts[(Int_t)eSelect]) = 0;
 }
+
+// Added for event filtering.
+void CTclAnalyzer::OnOther(CBufferDecoder& rDecoder) {
+  CAnalyzer::OnPhysics(rDecoder); // Analyze the buffer.
+  IncrementVariable(*m_pBuffersAnalyzed);
+  SetVariable(*m_pLastSequence,rDecoder.getSequenceNo());
+}

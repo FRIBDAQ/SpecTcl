@@ -4,6 +4,12 @@
 // Include files:
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
+#define __HISTOTYPES_H
+#endif
+
+#ifndef __EVENTPROCESSOR_H
+#include <EventProcessor.h>
+#define __EVENTPROCESSOR_H
 #endif
 
 // Forward class declarations:
@@ -50,14 +56,14 @@ class CFilterEventProcessor : public CEventProcessor {
   Bool_t m_fReadError;
   Bool_t m_fHeaderReceived;
   UInt_t m_nBUFFERSIZE; // Initialize to 8K.
-  char* m_pBuffer;
+  char *m_pBuffer;
   UInt_t m_nOffset;
   string m_sTag;
   UInt_t m_nValidParameters;
-  UInt_t** m_pValidParameterArray;
+  char *m_pBitMask;
 
   vector<CParInfo*> m_vParInfo;
-  vector<CEvent*> m_vBuffer; // Still deciding whether to use this instead. ****************************************
+  vector<CEvent*> m_vEvents;
 
  public:
   // Constructors:
@@ -65,21 +71,27 @@ class CFilterEventProcessor : public CEventProcessor {
   ~CFilterEventProcessor();
 
   // Operators:
+#if 0 // Commented-out.
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent& rEvent,
 			    CAnalyzer& rAnalyzer,
 			    CBufferDecoder& rDecoder);
+#endif
+  virtual Bool_t operator()(const Address_t,
+			    CAnalyzer&,
+			    CBufferDecoder&);
 
   // Functions:
   Bool_t OnOther();
 
   Bool_t read_string(string&);
   Bool_t read_uint(UInt_t&);
-  Bool_t read_array();
+  //Bool_t read_array();
   Bool_t read_float(Float_t&);
   Bool_t read_char(char&);
-
   void incr_offset(UInt_t);
+
+  vector<CEvent*>* getEvents();
 }; // CFilterEventProcessor.
 
 #endif

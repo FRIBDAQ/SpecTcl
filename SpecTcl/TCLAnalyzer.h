@@ -332,7 +332,6 @@
 #endif
 
 // Names of the variables maintained:
-
 static const char* BufferCountVar    = "BuffersAnalyzed";
 static const char* LastSequenceVar   = "LastSeqeunce";
 
@@ -340,7 +339,7 @@ class CEventProcessor;
 typedef list<CEventProcessor*> EventProcessingPipeline;
 typedef vector<CTCLVariable*>  VariableArray;
 
-// Counter is an enumerated type which describes the sorts of 
+// Counter is an enumerated type which describes the sorts of
 // statistics counters maintained.
 enum Counter {
   RunsAnalyzed          = 0,
@@ -363,7 +362,7 @@ class CTclAnalyzer : public CAnalyzer {
 
   EventProcessingPipeline m_lAnalysisPipeline;
   VariableArray           m_vStatistics;
-  vector<Int_t*>           m_vStatisticsInts;
+  vector<Int_t*>          m_vStatisticsInts;
 
  public:
   CTclAnalyzer(CTCLInterpreter& rInterp, UInt_t nP, UInt_t nBunch);
@@ -373,31 +372,31 @@ class CTclAnalyzer : public CAnalyzer {
   CTclAnalyzer& operator=(const CTclAnalyzer& rhs);
  public:
   // The following override base class members:
-  
-  virtual void OnStateChange(UInt_t nType, CBufferDecoder& rDecoder); //
+  virtual void OnStateChange(UInt_t nType, CBufferDecoder& rDecoder);
   virtual void OnPhysics(CBufferDecoder& rDecoder);
-
+  virtual void OnOther(CBufferDecoder& rDecoder);
 
   // Extensions to base class functionality:
-
-  virtual void OnBegin(CBufferDecoder* rDecoder); // 
-  virtual void OnEnd(CBufferDecoder*   rDecoder); // 
-  virtual void OnPause(CBufferDecoder* rDecoder); //
-  virtual void OnResume(CBufferDecoder* rDecoder);//
-  void AddEventProcessor(CEventProcessor& rProcessor);     // Append to pipe.
-  void IncrementCounter(Counter eSelect, UInt_t incr = 1); //
-  void ClearCounter(Counter eSelect);                      // 
+  virtual void OnBegin(CBufferDecoder* rDecoder);
+  virtual void OnEnd(CBufferDecoder*   rDecoder);
+  virtual void OnPause(CBufferDecoder* rDecoder);
+  virtual void OnResume(CBufferDecoder* rDecoder);
+  void AddEventProcessor(CEventProcessor& rProcessor); // Append to pipe.
+  void IncrementCounter(Counter eSelect, UInt_t incr = 1);
+  void ClearCounter(Counter eSelect);
 
   void SetEventSize(UInt_t nSize) {m_nEventSize = nSize; }
   void IncrementEventSize(UInt_t nIncr=2) {m_nEventSize += nIncr;}
-  UInt_t GetEventSize() { return m_nEventSize; }
-  
+  UInt_t GetEventSize() {
+    return m_nEventSize;
+  }
+
  protected:
   // Utilities:
   virtual UInt_t OnEvent(Address_t pRawData, CEvent& anEvent);
-  static void IncrementVariable(CTCLVariable& rVar);           //
-  static void SetVariable(CTCLVariable& rVar, int newval);     //
-  static void ClearVariable(CTCLVariable& rVar) {    
+  static void IncrementVariable(CTCLVariable& rVar);
+  static void SetVariable(CTCLVariable& rVar, int newval);
+  static void ClearVariable(CTCLVariable& rVar) {
     SetVariable(rVar, 0);
   }
 };

@@ -356,6 +356,7 @@ class CAttachCommand : public CTCLPackagedCommand {
  protected:
   static void Usage(CTCLResult& rResult);
   static Switch_t ParseSwitch(char* pSwitch);
+  string ParseFileName(string&);
 };
 
 #endif
