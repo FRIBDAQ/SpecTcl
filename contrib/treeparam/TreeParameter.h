@@ -42,7 +42,7 @@
 #include <Parameter.h>
 #include <TCLProcessor.h>
 
-extern CHistogrammer* gpEventSink;
+extern CEventSink* gpEventSink;
 //extern vector<CTreeParameter*> CTreeParameterpSelf;
 //extern CEvent* CTreeParameterpEvent;
 
@@ -283,7 +283,7 @@ public:
 //		CHistogrammer* mpHistogrammer = (CHistogrammer*)pSink;
 
 // For version 2.1beta
-		CHistogrammer* mpHistogrammer = gpEventSink;
+		CHistogrammer* mpHistogrammer = (CHistogrammer*)gpEventSink;
 
 		vector<CTreeParameter*>::iterator s;
 		ParameterDictionaryIterator i;
