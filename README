@@ -40,3 +40,15 @@ Notes:
      cygpath cannot convert empty path
     you will also get linker info's when Xamine is built.
 
+
+
+OS-X: (bash)
+
+  export CXX=/usr/bin/g++2
+  export CC=/usr/bin/gcc2
+  export CPP=/usr/bin/cpp
+  configure --prefix=whatever
+
+  Note that:
+   -  prior to running SpecTcl, DYLD_LIBRARY_PATH must point to /sw/lib
+   -  Evidently libtool will not make shared libs.
