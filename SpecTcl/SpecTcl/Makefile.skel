@@ -5,62 +5,95 @@
 linuxLIBS=-ldl
 HPUXLIBS=-L/opt/tcltk/lib
 cygwinLIBS=-lrpc
+
 HPUXINCS=-I/opt/tcltk/include
-darwinINCS = -I/usr/include -I/usr/X11R6/include \
-	-I/usr/include/sys -I/usr/X11R6/include/X11
+cygwinINCS=
+cygwinLIBDIR=
 
-cygwinINCS=-I/usr/local/tcl/include
-cygwinLIBDIR=-L/usr/local/tcl/lib
-
-INCLUDEDIRS= $($(OS)INCS) -I. -I$(INSTDIR)/include -I/usr/local/include \
-	-I/usr/local/daq/include 
 
 #
 #  Comment the next line and uncomment the following to enable profiling.
 PROFILE=-g
 # PROFILE=-g3 -pg
 
-OBJECTS=MySpecTclApp.o
-INCLUDEDIRS= -I. -I$(INSTDIR)/include -I/usr/local/include \
-	-I/usr/local/daq/include $($(OS)INCS)
-LIBDIRS= -L$(INSTDIR)/lib -L/usr/local -L/usr/local/daq/lib -L/usr/X11/lib \
-	-L/usr/X11R6/lib
-LIBS=   -lTclGrammerCommands \
+
+#  Add the instdir directories to include and lib paths.
+
+INCLUDES+= -I$(INSTDIR)/include
+LIBDIRS+=-L$(INSTDIR)/lib
+
+
+
+#
+#   These are the SpecTcl libraries required.
+#
+LIBS=   $(LIBDIRS) \
+	-lTclGrammerCommands \
 	-lSorting -lXplus -lGates -lAnalysis -lEventSource -lSpecio \
 	-ltclPlus -lException \
 	-lXamine -ltape -lFilter \
-	-ltk -ltcl -lXt -lX11 -lm $($(OS)LIBS)
+	-ltk -ltcl -lXt -lX11 -lm $(LIBFLAGS)
+
 ECHO=echo
 
-# Operating system specific compilers etc.
 
-# C++ compiler
 
-linuxCPP=g++ -g -I/usr/include/tcl
-osfCPP=g++ -g
-HPUXCPP=g++ -g
-darwinCPP=c++ -g -Dunix
-cygwinCPP=g++ -g -Dunix
+CXXCOMPILE=$(CXX) $(INCLUDES) -c 
+CCCOMPILE=$(CC)   $(INCLUDES) -c
+LINK=$(LD)
 
-# Who does the LD?
-
-linuxLD=g++ -L/usr/X11/lib
-osfLD=g++ -L/usr/X11/lib
-HPUXLD=g++ -L/usr/X11/lib
-darwinLD=c++ -undefined warning -L/usr/X11R6/lib
-cygwinLD=g++ -L/usr/X11/lib -L/usr/local/tcl/lib
-
-COMPILE=$($(OS)CPP) -c $(PROFILE) $(INCLUDEDIRS) -D$(OS) -DINSTALLED_IN='"$(INSTDIR)"'
-LINK=$($(OS)LD) $(PROFILE) $(INCLUDEDIRS) $(LIBDIRS) -D$(OS) -DINSTALLED_IN='"$(INSTDIR)"'
 RM=rm -f
 DEPEND=makedepend
 INSTALL=cp
 ARCHIVE=ar cr
 CONCAT=cat
 
-SpecTcl: $(OBJECTS)
-	$(LINK) $(LIBDIRS) -o SpecTcl $(INSTDIR)/lib/Globals.o $(OBJECTS) \
-	 $(LIBS)
 
-MySpecTclApp.o: MySpecTclApp.cpp MySpecTclApp.h
-	$(COMPILE) MySpecTclApp.cpp
+#
+#   Default build rules (so user doesn't have to specify
+#   dependencies):
+#
+
+#  C++ compilations.. Files with .cpp, .cc, .cxx are C++.
+
+
+.cpp.o:
+	$(CXXCOMPILE) $(PROFILE) $<
+
+.cc.o:
+	$(CXXCOMPILE) $(PROFILE) $<
+
+.cxx.o:
+	$(CXXCOMPILE) $(PROFILE) $<
+
+#   C compilations... files with .c are C.
+#
+
+.c.o:
+	$(CCCOMPILE) $(PROFILE) $<
+
+#
+#   Append your objects to the definitions below:
+#
+
+OBJECTS=MySpecTclApp.o
+
+#
+#  Finally the makefile targets.
+#
+
+
+SpecTcl: $(OBJECTS)
+	$(LINK)  -o SpecTcl $(LIBDIRS)       \
+	$(INSTDIR)/lib/Globals.o  $(OBJECTS) \
+	$(LIBFLAGS)  $(LIBS) $($(OS)LIBS)
+	echo Be sure that $(INSTDIR)/lib is part of LD_LIBRARY_PATH!!
+
+
+clean:
+	rm -f $(OBJECTS) SpecTcl
+
+depend:
+	makedepend -Y. *.cpp *.c
+
+
