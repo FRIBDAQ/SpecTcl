@@ -362,8 +362,8 @@ int Xamine_WritePipe(int id, void *buffer, int size);
 int Xamine_ReadPipe(int id, int timeout, void *buffer, int size);
 
 
-#define WritePipe Xamine_WritePipe_
-#define ReadPipe  Xamine_ReadPipe_
+#define WritePipe Xamine_WritePipe
+#define ReadPipe  Xamine_ReadPipe
 
 #ifndef _GATEIO_H
 #define requests Xamine_requests
