@@ -14,9 +14,31 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(srcdir)/SpecTclRC.tcl $(prefix)/Skel
 	$(INSTALL_PROGRAM) $(srcdir)/setup.tcl $(prefix)/Skel
 	$(INSTALL_DATA)    $(srcdir)/Globals.o $(prefix)/lib
+	#    Build Makefile for the user.	
+	#    first the environment.	
+	#
 	echo INSTDIR=$(prefix) >Makefile.user
 	echo OS=$(OS)|  cut -d- -f1      >>Makefile.user
 	echo >>                            Makefile.user
+	#
+	#  Now the typical flags we need:
+	#
+	echo INCLUDES="@TCL_FLAGS@ @XINCLUDES@ -I."  \
+	                                        >>Makefile.user
+	echo LIBDIRS="@TCL_LDFLAGS@ @XLIBSW@ " >> Makefile.user
+	echo LIBFLAGS="@X_PRE_LIBS@"           >> Makefile.user
+	echo                                   >> Makefile.user
+	#
+	#   Now the compiler commands:
+	#
+	echo CPP=$(CPP)                        >> Makefile.user
+	echo CXX=$(CXX)                        >> Makefile.user
+	echo CC=$(CC)                          >> Makefile.user
+	echo LD=$(CXX)                         >> Makefile.user
+	echo                                   >> Makefile.user
+	#
+	#   Now the rest of the makefile:
+	#
 	cat Makefile.skel >> Makefile.user
 	$(INSTALL_PROGRAM) $(srcdir)/Makefile.user $(prefix)/Skel/Makefile
 
