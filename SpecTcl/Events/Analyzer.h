@@ -322,6 +322,14 @@
 #define __HISTOTYPES_H
 #endif
 
+#ifndef __FILTEREVENTPROCESSOR_H
+#include <FilterEventProcessor.h>
+#define __FILTEREVENTPROCESSOR_H
+#endif
+
+// Forward class declaration:
+class CFilterEventProcessor;
+
 class CAnalyzer {
   // Attributes:
   UInt_t          m_nEventThreshold; // Events processed before histogramming.
@@ -331,35 +339,40 @@ class CAnalyzer {
   CBufferDecoder* m_pDecoder;
   CEventSink*     m_pSink;
   Bool_t          m_fAbort;
+
+  CFilterEventProcessor* m_pFilterEventProcessor; // For event filtering.
+
  public:
   static UInt_t   m_nDefaultEventThreshold;
   static UInt_t   m_nDefaultParameterCount;
 
   // constructors destructors and other canonical member funtions.
  public:
-  //Default constructor
+  // Default constructor
   CAnalyzer() :
   m_nEventThreshold(CAnalyzer::m_nDefaultEventThreshold),  
     m_nParametersInEvent(CAnalyzer::m_nDefaultParameterCount),
     m_EventList(CAnalyzer::m_nDefaultEventThreshold),
     m_EventPool(),
     m_pDecoder(0),
-    m_pSink(0)
+    m_pSink(0),
+    m_pFilterEventProcessor((CFilterEventProcessor*)kpNULL) // For event filtering.
     {};
 
   virtual ~CAnalyzer();       //Destructor
 
-  //Constructor with arguments
+  // Constructor with arguments
   CAnalyzer(UInt_t am_nParametersInEvent,
 	    UInt_t nThreshold = CAnalyzer::m_nDefaultEventThreshold) :
   m_nEventThreshold(nThreshold),
     m_nParametersInEvent(am_nParametersInEvent),
     m_EventList(nThreshold),
     m_pDecoder(0),
-    m_pSink(0)
+    m_pSink(0),
+    m_pFilterEventProcessor((CFilterEventProcessor*)kpNULL) // For event filtering.
     {};
 
-  //Copy constructor
+  // Copy constructor
   CAnalyzer(const CAnalyzer& aCAnalyzer) {
     m_nEventThreshold    = aCAnalyzer.m_nEventThreshold;
     m_nParametersInEvent = aCAnalyzer.m_nParametersInEvent;
@@ -373,7 +386,7 @@ class CAnalyzer {
       m_pSink->OnAttach(*this);
   };
 
-  //Operator= Assignment Operator
+  // Operator= Assignment Operator
   CAnalyzer& operator=(const CAnalyzer& aCAnalyzer) {
     if (this == &aCAnalyzer) return *this;
 
@@ -382,7 +395,7 @@ class CAnalyzer {
     CopyEventList(aCAnalyzer.m_EventList);
     CopyEventPool(aCAnalyzer.m_EventPool);
 
-    //  The various attached objects must be detached before assigned:
+    // The various attached objects must be detached before assigned:
     DetachAll();
     m_pDecoder           = aCAnalyzer.m_pDecoder;
     if(m_pDecoder)
@@ -394,7 +407,7 @@ class CAnalyzer {
     return *this;
   };
 
-  //Operator== Equality Operator
+  // Operator== Equality Operator
   int operator==(const CAnalyzer& aCAnalyzer) {
     return (
 	    (m_nEventThreshold    == aCAnalyzer.m_nEventThreshold)    &&

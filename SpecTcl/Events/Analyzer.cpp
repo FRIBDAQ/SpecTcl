@@ -518,10 +518,13 @@ void CAnalyzer::OnOther(UInt_t nType, CBufferDecoder& rDecoder) {
   // Clean up.
 
   // For event filtering:
-  Address_t pData = m_pDecoder->getBody();
-  CFilterEventProcessor* pFilterEventProcessor = new CFilterEventProcessor;
-  if(pFilterEventProcessor->operator()(pData, (*this), rDecoder)) {
-    vector<CEvent*> Events = *(pFilterEventProcessor->getEvents());
+  Address_t pData = rDecoder.getBody();
+  // Make sure that a filter event processor exists, but don't make one unnecessarily.
+  if(m_pFilterEventProcessor == (CFilterEventProcessor*)kpNULL) {
+    m_pFilterEventProcessor = new CFilterEventProcessor;
+  }
+  if(m_pFilterEventProcessor->operator()(pData, (*this), rDecoder)) {
+    vector<CEvent*> Events = *(m_pFilterEventProcessor->getEvents());
     for(vector<CEvent*>::iterator ipEvent = Events.begin(); ipEvent != Events.end(); ipEvent++) {
       m_EventList.assign_back(*ipEvent);
     }
