@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -275,73 +275,134 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
-//  CXamineFilePrompt.h:
+//  CXamineMap1D.h:
 //
-//    This file defines the CXamineFilePrompt class.
+//    This file defines the CXamineMap1D class.
 //
 // Author:
-//    Ron Fox
+//    Jason Venema
 //    NSCL
 //    Michigan State University
 //    East Lansing, MI 48824-1321
-//    mailto:fox@nscl.msu.edu
+//    mailto:venema@nscl.msu.edu
 //
-//  Copyright 1999 NSCL, All Rights Reserved.
+//  Copyright 2002 NSCL, All Rights Reserved.
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEFILEPROMPT_H  //Required for current class
-#define __XAMINEFILEPROMPT_H
+#ifndef __XAMINEMAP2D_H  //Required for current class
+#define __XAMINEMAP2D_H
                                //Required for base classes
-#ifndef __XAMINEBUTTONPROMPT_H
-#include "XamineButtonPrompt.h"
-#endif               
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif                
-                               
-class CXamineFilePrompt  : public CXamineButtonPrompt        
+#endif
+
+#ifndef __XAMINE_XAMINE_H
+#include <Xamine.h>
+#define __XAMINE_XAMINE_H
+#endif
+
+
+class CXamineMap2D        
 {
+  Float_t m_nXLow;        // The low limit of the x-transformation
+  Float_t m_nYLow;        // The low limit of the y-transform
+  Float_t m_nXHigh;       // The high limit of the x-transformation
+  Float_t m_nYHigh;       // The high limit of the y-transform
+  std::string m_sXUnits;  // The units to label the mapped x-axis
+  std::string m_sYUnits;  // The units to label the mapped y-axis
   
 public:
-
-  CXamineFilePrompt (const std::string& rPrompt) :
-    CXamineButtonPrompt(rPrompt)
-  { }        
-  CXamineFilePrompt(const char* pPrompt) :
-    CXamineButtonPrompt(pPrompt)
-  { }
-  virtual ~ CXamineFilePrompt ( ) { }       //Destructor
   
-			//Copy constructor
+  // Constructor:
 
-  CXamineFilePrompt (const CXamineFilePrompt& aCXamineFilePrompt )   : 
-    CXamineButtonPrompt (aCXamineFilePrompt) 
-  { 
-                
-  }                                     
+  CXamineMap2D() :             // empty ctor for non-mapped spectrum
+    m_nXLow(0),
+    m_nYLow(0),
+    m_nXHigh(0),
+    m_nYHigh(0),
+    m_sXUnits(""),
+    m_sYUnits("")
+    { }
 
-			//Operator= Assignment Operator
-
-  CXamineFilePrompt& operator= (const CXamineFilePrompt& aCXamineFilePrompt)
-  { 
-    if (this == &aCXamineFilePrompt) return *this;          
-    CXamineButtonPrompt::operator= (aCXamineFilePrompt);
+  CXamineMap2D(Float_t am_nXLow, Float_t am_nYLow,
+	       Float_t am_nXHigh, Float_t am_nYHigh,
+	       const std::string& am_sXUnits, const std::string& am_sYUnits) :
+    m_nXLow(am_nXLow),
+    m_nYLow(am_nYLow),
+    m_nXHigh(am_nXHigh),
+    m_nYHigh(am_nYHigh),
+    m_sXUnits(am_sXUnits),
+    m_sYUnits(am_sYUnits)
+    { }
   
+  ~CXamineMap2D ( ) { }       //Destructor
+
+  //Copy constructor
+  CXamineMap2D(const CXamineMap2D& aCXamineMap2D )
+    {   
+      m_nXLow = aCXamineMap2D.m_nXLow;
+      m_nYLow = aCXamineMap2D.m_nYLow;
+      m_nXHigh = aCXamineMap2D.m_nXHigh;
+      m_nYHigh = aCXamineMap2D.m_nYHigh;
+      m_sXUnits = aCXamineMap2D.m_sXUnits;
+      m_sYUnits = aCXamineMap2D.m_sYUnits;
+    }                                     
+
+  //Operator= Assignment Operator
+  CXamineMap2D& operator= (const CXamineMap2D& aCXamineMap2D)
+  { 
+    if (this == &aCXamineMap2D) return *this;          
+    m_nXLow = aCXamineMap2D.m_nXLow;
+    m_nYLow = aCXamineMap2D.m_nYLow;
+    m_nXHigh = aCXamineMap2D.m_nXHigh;
+    m_nYHigh = aCXamineMap2D.m_nYHigh;
+    m_sXUnits = aCXamineMap2D.m_sXUnits;
+    m_sYUnits = aCXamineMap2D.m_sYUnits;
+    
     return *this;
   }                                     
 
-			//Operator== Equality Operator
-
-  int operator== (const CXamineFilePrompt& aCXamineFilePrompt)
+  //Operator== Equality Operator
+  int operator== (const CXamineMap2D& aCXamineMap2D)
   { 
     return (
-	    (CXamineButtonPrompt::operator== (aCXamineFilePrompt))
+	    (m_nXLow == aCXamineMap2D.m_nXLow) &&
+	    (m_nYLow == aCXamineMap2D.m_nYLow) &&
+	    (m_nXHigh == aCXamineMap2D.m_nXHigh) &&
+	    (m_nYHigh == aCXamineMap2D.m_nYHigh) &&
+	    (m_sXUnits == aCXamineMap2D.m_sXUnits) &&
+	    (m_sYUnits == aCXamineMap2D.m_sYUnits)
 	    );
   }                             
-                       
-  virtual   void FormatPrompterBlock (ButtonDescription& rButton) const  ;
- 
+  // Selectors:
+
+public:
+
+  Float_t getXLow() const
+    {
+      return m_nXLow;
+    }
+  Float_t getYLow() const
+    {
+      return m_nYLow;
+    }
+  Float_t getXHigh() const
+    {
+      return m_nXHigh;
+    }
+  Float_t getYHigh() const
+    {
+      return m_nYHigh;
+    }
+  std::string getXUnits() const
+    {
+      return m_sXUnits;
+    } 
+  std::string getYUnits() const
+    {
+      return m_sYUnits;
+    }
 };
 
 #endif
