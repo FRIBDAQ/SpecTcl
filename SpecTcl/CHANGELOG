@@ -218,3 +218,6 @@ January 26, 2005
         assert fail.
       o Xamine was not putting up the correct spectrum list due to a buffer
         overflow problem in spectra.cc
+January 27, 2005
+    - Fix low level cutoff in 1-ds that had been fixed in 2.1 but not 
+      propagated to new versions.
