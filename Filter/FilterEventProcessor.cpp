@@ -54,7 +54,7 @@ Bool_t CFilterEventProcessor::operator()(const Address_t pData,
   //m_nValidParameters = 0; // NO! The buffer need NOT have header information at the beginning so we will use what is already specified.
   m_pBitMask = (char*)kpNULL;
 
-  Float_t nParameter = 0;
+  Float_t nParameterValue = 0;
   string sBitMask = "";
   UInt_t nParIndex = 0;
   string sParName = "";
@@ -78,19 +78,18 @@ Bool_t CFilterEventProcessor::operator()(const Address_t pData,
       CParameter* pParameter = (CParameter*)kpNULL;
       for(UInt_t i = 0; i < m_nValidParameters; i++) {
 	CParInfo* pParInfo = new CParInfo;
-	// Index:
-	read_uint(nParIndex); //Not needed, but has to be done in order to move the offset.
-	//pParInfo->setParIndex(nParIndex); // Not done. The index is... the index! (DUH!)
-	// Name:
+	read_uint(nParIndex); // Not needed, but has to be done in order to move the offset. MAY BE REMOVED IN FUTURE.
+	// Set Name.
 	read_string(sParName);
 	pParInfo->setParName(sParName);
-	// ID:
-	read_uint(nParId);
-	pParInfo->setParId(nParId);
-	// Check validity. Set (in)active.
+
+	read_uint(nParId); // Old parameter ID. Not used any longer. The read is done just to move the offset and to keep things consistent.
+
 	pParameter = ((CHistogrammer*)gpEventSink)->FindParameter(sParName);
 	if(pParameter != (CParameter*)kpNULL) { // If parameter is present in dictionary...
-	  pParInfo->setActive(kfTRUE);
+	  nParId = pParameter->getNumber();
+	  pParInfo->setParId(nParId); // Set Name. This uses the currently-defined parameter ID (as opposed to whatever was used when the filter data was saved. Only the parameter name need be consistent.)
+	  pParInfo->setActive(kfTRUE); // Set Active flag.
 	} else {
 	  pParInfo->setActive(kfFALSE);
 	  cerr << "Error: Invalid parameter. (" << sParName << ")" << endl; // Should (more ideally) throw an exception.
@@ -106,8 +105,9 @@ Bool_t CFilterEventProcessor::operator()(const Address_t pData,
       for(UInt_t i = 0; i < m_nValidParameters; i++) {
 	if((m_vParInfo[i])->isActive()) {
 	  if(m_pBitMask[i] == '1') {
-	    read_float(nParameter);
-	    (*pEvent)[i] = nParameter;
+	    read_float(nParameterValue);
+	    (*pEvent)[i] = nParameterValue;
+	    (*pEvent)[(m_vParInfo[i])->getParId()] = nParameterValue; // Use the NEW, currently-defined parameter ID (gotten from the FilterDictionary).
 	  }
 	}
       }
