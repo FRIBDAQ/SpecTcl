@@ -413,3 +413,32 @@ Bool_t CEventProcessor::operator()(const Address_t pEvent,
 				   CBufferDecoder& rDecoder) {
   return kfTRUE;
 }
+/*!
+   Called whenever an unrecognized buffer type is encountered.
+   This is done to allow the user to take application specific 
+   action on these buffer types.
+   \param nType     (UInt_t [in]):
+      Type of buffer received.
+   \param rAnalyzer (CAnalyzer& [in]):
+      Reference to the analyzer that is calling us.
+   \param rDecoder (CBufferDecoder& [in]):
+      Reference to the  buffer decoder that understands the
+      overall buffer structure.
+
+   \return 
+   - kfTRUE -- If the buffer was successfully processed.
+   - kfFALSE - If the buffer was not successfully processed.
+              Note that if the processor does not understand the
+	      type of of the buffer, it should return kfTRUE
+	      since some other processor in the pipeline might.
+	      If it understands the buffer type but the format is
+	      weird/wrong etc.  Then it's appropriate to return
+	      kfFALSE.
+*/
+Bool_t
+CEventProcessor::OnOther(UInt_t nType,
+			 CAnalyzer& rAnalyzer,
+			 CBufferDecoder& rDecoder)
+{
+  return kfTRUE;
+}
