@@ -310,6 +310,7 @@
 class CTCLInterpreter;
 class CTCLCommandPackage;
 class CTCLResult;
+class CTestData;
 
 // Class definition:
 class CAttachCommand : public CTCLPackagedCommand {
@@ -321,6 +322,8 @@ class CAttachCommand : public CTCLPackagedCommand {
     kePipe,
     keBufferSize,
     keFormat,
+    keTest,
+    keNull,
     keNotSwitch
   };
 
@@ -352,6 +355,8 @@ class CAttachCommand : public CTCLPackagedCommand {
   int AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[]);
   int AttachTape(CTCLResult& rResult, int nArgs, char* pArgs[]);
   int AttachPipe(CTCLResult& rResult, int nArgs, char* pArgs[]);
+  int AttachTest(CTCLResult& rResult, int nArgs, char* pArgs[]); // Random test data.
+  int AttachNull(CTCLResult& rResult, int nArgs, char* pArgs[]); // No data!
 
  protected:
   static void Usage(CTCLResult& rResult);

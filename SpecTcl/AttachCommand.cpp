@@ -320,6 +320,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLAnalyzer.h"
 #include "FilterBufferDecoder.h"
 #include "FilterEventProcessor.h"
+// For test data:
+#include "GaussianDistribution.h"
+#include "TestFile.h"
 
 // Forward class declarations:
 class CBufferDecoder;
@@ -336,7 +339,9 @@ static const SwitchDef SwitchTable[] = {
   {"-tape", CAttachCommand::keTape},
   {"-pipe", CAttachCommand::kePipe},
   {"-size", CAttachCommand::keBufferSize},
-  {"-format", CAttachCommand::keFormat}
+  {"-format", CAttachCommand::keFormat},
+  {"-test", CAttachCommand::keTest},
+  {"-null", CAttachCommand::keNull}
 };
 
 static const UInt_t nSwitches = sizeof(SwitchTable)/sizeof(SwitchDef);
@@ -366,8 +371,8 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   nArgs--;
   pArgs++;
 
-  // Require at least 2 additional parameters.
-  if(nArgs < 2) {
+  // Require at least 1 (no longer 2) additional parameters.
+  if(nArgs < 1) { // Can have only 1 additional parameter due to -test and -null.
     Usage(rResult);
     return TCL_ERROR;
   }
@@ -386,6 +391,12 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   case kePipe:
     return AttachPipe(rResult, nArgs, pArgs);
+
+  case keTest:
+    return AttachTest(rResult, nArgs, pArgs);
+
+  case keNull:
+    return AttachNull(rResult, nArgs, pArgs);
 
   case keNotSwitch:
     rResult  = "Invalid command Switch: ";
@@ -500,9 +511,6 @@ int CAttachCommand::AttachFile(CTCLResult& rResult, int nArgs, char* pArgs[]) {
   // the blocksize.  If the blocksize is missing, then knDefaultBuffersize
   // is used.
 
-
-
-
   // Now pFilename and nBlockSize are all set up for the open.
   // Try the attach, and if it works, then do the open:
   CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
@@ -604,14 +612,40 @@ int CAttachCommand::AttachPipe(CTCLResult& rResult, int nArgs, char* pArgs[]) {
     return TCL_ERROR;
   }
 
-  // Now we're ready to try the attach, and if that is successful, the
-  // open.
+  // Now we're ready to try the attach, and if that is successful, the open.
   CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
   int stat                  = rPack.AttachPipeSource(rResult);
   if(stat != TCL_OK) 
     return stat;
 
-  return rPack.OpenSource(rResult,Command.c_str() , nBlockSize);
+  return rPack.OpenSource(rResult, Command.c_str(), nBlockSize);
+};
+
+int CAttachCommand::AttachTest(CTCLResult& rResult, int nArgs, char* pArgs[]) {
+  UInt_t nBlockSize = knDefaultBufferSize;
+  string sTestName = "";
+
+  if((nArgs > 0) && (pArgs[0])) {
+    sTestName = string(pArgs[0]);
+  }
+
+  CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
+  int stat = rPack.AttachTestSource(rResult);
+  if(stat != TCL_OK) {
+    return stat;
+  }
+  return rPack.OpenSource(rResult, sTestName.c_str(), nBlockSize);
+};
+
+int CAttachCommand::AttachNull(CTCLResult& rResult, int nArgs, char* pArgs[]) {
+  if(gpEventSource != (CFile*)kpNULL) {
+    if(gpEventSource->getState() == kfsOpen) {
+      gpEventSource->Close();
+    }
+    delete gpEventSource;
+    gpEventSource = (CFile*)kpNULL;
+  }
+  return TCL_OK;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -626,6 +660,8 @@ void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "   attach -file filename [-format filter] [blocksize]\n";
   rResult += "   attach -tape devicename\n";
   rResult += "   attach -pipe [-size nBytes] command string\n";
+  rResult += "   attach -test\n";
+  rResult += "   attach -null\n";
   rResult += "\nattach attaches various data sources to SpecTcl\n";
 };
 
