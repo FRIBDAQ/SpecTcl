@@ -313,8 +313,9 @@ DAMAGES.
               
 class CBand  : public CPointListGate        
 {
-  std::vector<UInt_t> m_aLimits;  // // Set of parameter upper limits.
-  
+private:
+  CPoint   m_LeftLimit;		// Point at left most limit.
+  CPoint   m_RightLimit;	// Point at right most limit.o
 public:
 			//Default constructor
 
@@ -333,7 +334,8 @@ public:
   CBand (const CBand& aCBand )   : 
     CPointListGate (aCBand) 
   {   
-    m_aLimits = aCBand.m_aLimits;                
+    m_LeftLimit  = aCBand.m_LeftLimit;
+    m_RightLimit = aCBand.m_RightLimit; 
   }                                     
 
 			//Operator= Assignment Operator
@@ -342,7 +344,8 @@ public:
   { 
     if (this == &aCBand) return *this;          
     CPointListGate::operator= (aCBand);
-    m_aLimits = aCBand.m_aLimits;
+    m_LeftLimit = aCBand.m_LeftLimit;
+    m_RightLimit= aCBand.m_RightLimit;
     
     return *this; 
   }                                     
@@ -352,22 +355,7 @@ public:
 private:
   int operator== (const CBand& aCBand);
 public:
-  // Selectors
 
-public:
-                       //Get accessor function for attribute
-  std::vector<UInt_t> getLimits() const
-  {
-    return m_aLimits;
-  }
-                       
-                       // Set accessor function for attribute
-                       // Mutators.
-public:
-  void setLimits (std::vector<UInt_t> am_aLimits)
-  { 
-    m_aLimits = am_aLimits;
-  }
 
   //  Operations.
   //
@@ -380,8 +368,8 @@ public:
   //
   // Utilities:
   //
-protected:
-  virtual void CreateLimits();
+
+  void GetLRLimits();
 };
 
 #endif
