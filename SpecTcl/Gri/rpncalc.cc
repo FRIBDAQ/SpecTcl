@@ -352,7 +352,8 @@ rpn(int nw, char **w, char ** result)
 		return GENERAL_ERROR;
 	case COLUMN_NAME:
 	case NOT_OPERAND:
-		break;
+	default:		// RF Because of warning about UNKNOWN
+	  break;
 	}
 	return NO_ERROR;
 }
