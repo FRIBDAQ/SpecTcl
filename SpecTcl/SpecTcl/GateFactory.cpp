@@ -299,6 +299,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
    $Log$
+   Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+   Add SpecTcl Application programming interface and make use of it
+   in spots.
+
    Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
    - Port to gcc/g++ 3.x
    - Recast swrite/sread in terms of tcl[io]stream rather than
@@ -361,6 +365,10 @@ static inline Float_t max(Float_t i, Float_t j) {
 static inline Float_t  min(Float_t i, Float_t j) {
   return (i < j) ? i : j ;
 }
+
+/// Static storage:
+
+UInt_t CGateFactory::m_nGateId(0);
 
 /////////////////////////////////////////////////////////////////////////////////
 //  Function:       CreateGate(GateType nGateType, 
@@ -695,7 +703,7 @@ CGateFactory::CreateGammaCut(Float_t nLow, Float_t nHigh,
   // Create the cut:
   
   if(rSpectrum.size() > 0) {
-    return new CGammaCut(nLow, nHigh, rSpectrum);
+    return new CGammaCut((UInt_t)nLow, (UInt_t)nHigh, rSpectrum);
   }
   else
     return new CGammaCut(nLow, nHigh);
@@ -1016,4 +1024,12 @@ CGateFactory::CreateGateList(list<CGateContainer*>& Gates,
   for(UInt_t i = 0; i < rNames.size(); i++) {
     Gates.push_back(&NameToGate(rNames[i], eType, pWhich));
   }
+}
+/*!
+   Assign a unique gate id.
+*/
+UInt_t
+CGateFactory::AssignId()
+{
+  return m_nGateId++;
 }

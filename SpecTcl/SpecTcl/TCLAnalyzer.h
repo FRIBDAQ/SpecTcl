@@ -331,14 +331,19 @@
 #define __STL_VECTOR
 #endif
 
+
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
 // Names of the variables maintained:
 static const char* BufferCountVar    = "BuffersAnalyzed";
 static const char* LastSequenceVar   = "LastSeqeunce";
 
 class CEventProcessor;
-typedef STD(list)<CEventProcessor*> EventProcessingPipeline;
-typedef STD(vector)<CTCLVariable*>  VariableArray;
-
 // Counter is an enumerated type which describes the sorts of
 // statistics counters maintained.
 enum Counter {
@@ -351,7 +356,24 @@ enum Counter {
   EventsRejectedThisRun = 6
 };
 
+/*!
+  This is the analyzer that holds the event processing pipeline.
+  @author Ron Fox
+  @version 1.0
+  @created 08-Mar-2005 09:57:35 AM
+*/
 class CTclAnalyzer : public CAnalyzer {
+  // public data types:
+public:
+  typedef STD(pair)<STD(string), CEventProcessor*> PipelineElement;
+  typedef STD(list)<PipelineElement> EventProcessingPipeline;
+  typedef EventProcessingPipeline::iterator EventProcessorIterator;
+  typedef STD(vector)<CTCLVariable*>  VariableArray;
+  
+  // member data:
+
+private:
+
   CTCLInterpreter& m_rInterpreter;
   CTCLVariable* m_pBuffersAnalyzed; // # buffers analyzed.
   CTCLVariable* m_pLastSequence; // Last sequence number analyzed.
@@ -362,7 +384,9 @@ class CTclAnalyzer : public CAnalyzer {
 
   EventProcessingPipeline m_lAnalysisPipeline;
   VariableArray           m_vStatistics;
-  STD(vector)<Int_t*>          m_vStatisticsInts;
+  STD(vector)<Int_t*>     m_vStatisticsInts;
+
+  UInt_t        m_nSequence;	//!< Anonymous naming sequence #.
 
 public:
   CTclAnalyzer(CTCLInterpreter& rInterp, UInt_t nP, UInt_t nBunch);
@@ -392,9 +416,28 @@ public:
   virtual void OnPause(CBufferDecoder* rDecoder);
   virtual void OnResume(CBufferDecoder* rDecoder);
 
-  void AddEventProcessor(CEventProcessor& rProcessor); // Append to pipe.
+  // Manipulating and inquiring the event processing pipeline.
+
+  void AddEventProcessor(CEventProcessor& rProcessor,
+			 const char* pName = 0); // Append to pipe.
+  EventProcessorIterator FindEventProcessor(STD(string) name);
+  EventProcessorIterator FindEventProcessor(CEventProcessor& processor);
+  void InsertEventProcessor(CEventProcessor& processor, 
+			    EventProcessorIterator here, 
+			    const char* name = 0);
+  CEventProcessor* RemoveEventProcessor(STD(string) name);
+  CEventProcessor* RemoveEventProcessor(EventProcessorIterator here);
+  UInt_t size();
+  EventProcessorIterator begin();
+  EventProcessorIterator end();
+
+
+  // Maintaining counters.
+
   void IncrementCounter(Counter eSelect, UInt_t incr = 1);
   void ClearCounter(Counter eSelect);
+
+  // Handling object tuning parameters:
 
   void SetEventSize(UInt_t nSize) {m_nEventSize = nSize; }
   void IncrementEventSize(UInt_t nIncr=2) {m_nEventSize += nIncr;}
@@ -410,6 +453,36 @@ protected:
   static void ClearVariable(CTCLVariable& rVar) {
     SetVariable(rVar, 0);
   }
+
+  STD(string) AssignName();
+
+  // Nested utility classes these are predicates that are
+  // used for stl algorithm calls.
+
+private:
+  //! Match pipeline element by name.
+  class MatchName 
+  {
+  private:
+    STD(string)       m_sName;
+    CEventProcessor*  m_pLastMatch;
+  public:
+    MatchName(STD(string) name);
+    bool operator()(PipelineElement& element);
+    CEventProcessor*  getLastMatch() const;
+  };
+  //! Match pipeline element by pointer.
+  class MatchAddress 
+  {
+  private:
+    CEventProcessor* m_pProcessor;
+    CEventProcessor* m_pLastMatch;
+  public:
+    MatchAddress(CEventProcessor& processor);
+    bool operator()(PipelineElement& element);
+    CEventProcessor* getLastMatch() const;
+  };
+
 };
 
 #endif

@@ -280,6 +280,10 @@ DAMAGES.
   Change Log:
 
   $Log$
+  Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+  Add SpecTcl Application programming interface and make use of it
+  in spots.
+
   Revision 5.1.2.1  2004/12/15 17:24:03  ron-fox
   - Port to gcc/g++ 3.x
   - Recast swrite/sread in terms of tcl[io]stream rather than
@@ -319,6 +323,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "FilterCommand.h"
 #include <GatedEventFilter.h>
 #include <FilterDictionary.h>
+#include <SpecTcl.h>
 
 #include <string>
 #include <vector>
@@ -530,6 +535,8 @@ Int_t
 CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		       int nArgs, char* pArgs[]) 
 {
+  SpecTcl& Api(*(SpecTcl::getInstance()));
+
   if(nArgs != 3) {
     rResult = Usage();
     return TCL_ERROR;
@@ -568,14 +575,14 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
     // Filter not already present in FilterDictionary... we can make it.
 
-    CGateContainer* pGateContainer = 
-      ((CHistogrammer*)gpEventSink)->FindGate(pGateName); // Gate must exist
+    CGateContainer* pGateContainer = Api.FindGate(pGateName);
+
     if(pGateContainer) { 
       // Make sure Parameters exist, and retrieve their IDs.
 
       for(UInt_t i=0; i<Parameters.size(); i++) {
-	CParameter* pParameter = 
-	  ((CHistogrammer*)gpEventSink)->FindParameter(Parameters[i]);
+	CParameter* pParameter = Api.FindParameter(Parameters[i]);
+
 	if(pParameter == (CParameter*)kpNULL) { 
 	  rResult += "Error: Invalid parameter (" + Parameters[i] + ").";
 	  return TCL_ERROR; 
@@ -590,7 +597,8 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
       pFilterDictionary->Enter(pFilterName, pGatedEventFilter);
 
       // Add the filter to the event sink.
-      gpEventSinkPipeline->AddEventSink(*pGatedEventFilter);
+
+      Api.AddEventSink(*pGatedEventFilter, SinkName(pFilterName).c_str());
     } else {
       rResult += "Error: Invalid gate (" + std::string(pGateName) + ").";
       return TCL_ERROR;
@@ -611,7 +619,7 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
 }
 
 /*!
-  Command processor to delete a gate.  If successful, the result is empty,
+  Command processor to delete a Filter.  If successful, the result is empty,
   otherwise it is an informative error message.
   \param rInterp (in):
      The interpreter running this command.
@@ -641,7 +649,14 @@ Int_t CFilterCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult = "No such filter (" + std::string(pFilterName) + ").";
     return TCL_ERROR;
   }
+  // Remove from event sink pipeline, dictionary and destroy the filter.
+
+  SpecTcl& Api(*(SpecTcl::getInstance()));
+  CGatedEventFilter* pFilter = 
+    dynamic_cast<CGatedEventFilter*>(Api.RemoveEventSink(SinkName(pFilterName)));
   pFilterDictionary->Remove(pFilterName);
+  delete pFilter;
+
   return TCL_OK;
 }
 /*
@@ -971,4 +986,15 @@ CFilterCommand::ListFilter(const string& name)
     return ListFilter(name, i->second);
   }
   assert(0);
+}
+/*!
+   Create the event sink name given the filter name:
+*/
+string
+CFilterCommand::SinkName(string filterName)
+{
+  string result("Filter::");
+  result += filterName;
+
+  return result;
 }

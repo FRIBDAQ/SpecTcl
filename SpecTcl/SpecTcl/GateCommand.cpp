@@ -279,6 +279,10 @@ DAMAGES.
 /* 
    Change log:
    $Log$
+   Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+   Add SpecTcl Application programming interface and make use of it
+   in spots.
+
    Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
    - Port to gcc/g++ 3.x
    - Recast swrite/sread in terms of tcl[io]stream rather than
@@ -337,6 +341,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+  Add SpecTcl Application programming interface and make use of it
+  in spots.
+
   Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
   - Port to gcc/g++ 3.x
   - Recast swrite/sread in terms of tcl[io]stream rather than
@@ -368,12 +376,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GateFactory.h"
 #include "GateFactoryException.h"
 
+
 #include <Point.h>
 
 #include <TCLList.h>
 #include <TCLString.h>
 #include <TCLResult.h>
 #include <Exception.h>
+#include <SpecTcl.h>
 
 #include <stdio.h>
 #include <assert.h>
@@ -537,7 +547,9 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 		   UInt_t nArgs, char* pArgs[])
 {
 
-  
+
+  SpecTcl& api(*(SpecTcl::getInstance()));
+
   if(nArgs != 3) {		// must be exactly 3 parameters....
     rResult = Usage();
     return TCL_ERROR;
@@ -579,7 +591,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       return TCL_ERROR;
     }
     try {
-      pGate = Factory.CreateGate(Item.eGateType,
+      pGate = api.CreateGate(Item.eGateType,
 				 Gates);
     }
     catch(CException& rExcept) {
@@ -650,7 +662,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       }
     }
     try {
-      pGate = Factory.CreateGate(Item.eGateType, Parameters, PointValues);
+      pGate = api.CreateGate(Item.eGateType, Parameters, PointValues);
     }
     catch(CException& rExcept) {
       rResult = Usage();
@@ -730,7 +742,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
     }
     
     try {
-      pGate = Factory.CreateGate(Item.eGateType, PointValues, 
+      pGate = api.CreateGate(Item.eGateType, PointValues, 
 				 SpecValues);
     }
     catch(CException& rExcept) {

@@ -246,3 +246,7 @@ February 25, 2005
    - Documented run/state variable recovery.
 March 4, 2005
    - Set the version string to 3.0pre1
+March 8, 2005
+   - Move the event sink pipeline class into Events and out of 
+     the Filter directory.
+   - Add SpecTcl API (tested) to the build and cvs.

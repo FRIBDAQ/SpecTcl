@@ -1,8 +1,11 @@
 DEFS = @WCHAR_T_DEF@
-INCLUDES = -I.. -I. -I../TCL -I../Events -I../Utility -I../Sorter  \
-	-I../NSCLException \
-	-I../EventSource -I../Gates -I../SpectrumIO -I../Xamine \
-	-I../Display -I../Tape -I../Filter -I../Analysis \
+INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
+	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
+	-I@top_srcdir@/NSCLException \
+	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates -I@top_srcdir@/SpectrumIO \
+	-I@top_srcdir@/Xamine \
+	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
+	-I@top_srcdir@/Analysis \
 	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:
@@ -39,7 +42,8 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	ReadCommand.cpp TCLAnalyzer.cpp EventProcessor.cpp TclGrammerApp.cpp \
 	Globals.cpp FilterCommand.cpp \
 	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
-	DocumentationException.cpp DocumentationCallback.cpp
+	DocumentationException.cpp DocumentationCallback.cpp \
+	SpecTcl.cpp
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
@@ -51,7 +55,8 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h \
 	FilterCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
-	DocumentationException.h DocumentationCallback.h
+	DocumentationException.h DocumentationCallback.h \
+	SpecTcl.h
 
 bin_PROGRAMS = SpecTcl
 

@@ -100,6 +100,7 @@ class CFilterCommand : public CTCLProcessor {
  protected:
   static eSwitches MatchSwitch(const char* pSwitch);
   static STD(string) Usage();
+  static STD(string) SinkName(STD(string) filterName);
 };
 
 #endif

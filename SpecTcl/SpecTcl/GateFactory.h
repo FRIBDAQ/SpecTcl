@@ -300,6 +300,10 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+  Add SpecTcl Application programming interface and make use of it
+  in spots.
+
   Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
   - Port to gcc/g++ 3.x
   - Recast swrite/sread in terms of tcl[io]stream rather than
@@ -382,6 +386,8 @@ class CGammaContour;
 */
 class CGateFactory      
 {                       
+private:
+  static UInt_t m_nGateId;
 			
    CHistogrammer* m_pHistogrammer; //!< Ptr to histogrammer.        
 public:
@@ -479,6 +485,7 @@ public:
 				const STD(vector)<STD(string)>& Specs);
    CGammaContour* CreateGammaContour (const STD(vector)<FPoint>& rPoints,
 				      const STD(vector)<STD(string)>& Specs);
+  static UInt_t  AssignId();
  
 protected:
   UInt_t ParameterToId(const STD(string)& rName, GateType eType, 

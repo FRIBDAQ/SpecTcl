@@ -478,8 +478,8 @@ CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
   RegisterEventProcessor(legacyunpacker);
 #endif
   
-    RegisterEventProcessor(Stage1);
-    RegisterEventProcessor(Stage2);
+    RegisterEventProcessor(Stage1, "Raw");
+    RegisterEventProcessor(Stage2, "Computed");
 }  
 
 // Constructors, destructors and other replacements for compiler cannonicals:

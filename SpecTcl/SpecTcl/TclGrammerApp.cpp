@@ -285,6 +285,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+  Add SpecTcl Application programming interface and make use of it
+  in spots.
+
   Revision 5.1.2.1  2004/12/15 17:24:09  ron-fox
   - Port to gcc/g++ 3.x
   - Recast swrite/sread in terms of tcl[io]stream rather than
@@ -365,6 +369,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLAnalyzer.h"
 
 #include "XamineEventHandler.h"
+
+#include "SpecTcl.h"
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -467,10 +473,12 @@ CTclGrammerApp::~CTclGrammerApp() {
      Reference  to the event processor to add to the pipeline
 
 */
-void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor) {
-  // The global pointer is used in case the analyzer build was overridden.
-  assert(gpAnalyzer);
-  ((CTclAnalyzer*)gpAnalyzer)->AddEventProcessor(rEventProcessor);
+void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor,
+					    const char* name) {
+
+  SpecTcl* api = SpecTcl::getInstance();
+  api->AddEventProcessor(rEventProcessor, name);
+
 }  
 
 //  Function:
@@ -625,7 +633,7 @@ void CTclGrammerApp::CreateHistogrammer() {
   m_pHistogrammer     = new CTCLHistogrammer(gpInterpreter, 
 					     m_nDisplaySize*kn1M);
   gpEventSink = m_pHistogrammer;
-  gpEventSinkPipeline->AddEventSink(*m_pHistogrammer);
+  gpEventSinkPipeline->AddEventSink(*m_pHistogrammer, "::Histogrammer");
 }
 
 //  Function:

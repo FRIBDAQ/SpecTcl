@@ -516,7 +516,8 @@ class CTclGrammerApp : public CTCLApplication {
 
   // Class operations:
  public:
-  void RegisterEventProcessor(CEventProcessor& rEventProcessor); // Add event processor to pipeline tail
+  void RegisterEventProcessor(CEventProcessor& rEventProcessor,
+			      const char* name = 0); // Add event processor to pipeline tail
   virtual void BindTCLVariables(CTCLInterpreter& rInterp); // Bind any CTCLVariables to interpreter.
   virtual void SourceLimitScripts(CTCLInterpreter& rInterpreter); // Source variable definition scripts.
   virtual void SetLimits(); // Finalize limit variables.
