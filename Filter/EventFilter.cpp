@@ -22,6 +22,8 @@ static const char* Copyright =
 #include <string.h>
 #include <stdlib.h>
 
+#include <iostream.h>
+
 
 static const char* headerlabel = "header";
 static const char* eventlabel  = "event";
@@ -152,7 +154,7 @@ void
 CEventFilter::operator()(CEventList& rEvents) 
 {
    CEventListIterator i;
-   CEventListIterator e;
+   CEventListIterator e = rEvents.end();
    for(i = rEvents.begin(); i != e; i++) {
       CEvent* pEvent = *i;
       if(pEvent) {
@@ -208,13 +210,15 @@ CEventFilter::operator()(CEvent& rEvent)
 void
 CEventFilter::FormatEventDescription()
 {
+
    if(!m_pOutputEventStream) return;     // No stream so give up.
    vector<string> Names = IdsToNames();  // Get names for ids that exist.
    *m_pOutputEventStream << headerlabel; // Indicate this is a header.
    *m_pOutputEventStream  << (Names.size());
    for(int i =0; i < Names.size(); i++) {
       *m_pOutputEventStream << (Names[i]); // The name to match with inbound.
-   }  
+   }
+
 }
 /*!
    Format an event into the output stream.  This overridable interacts with the
@@ -244,6 +248,7 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
 {
    if(!m_pOutputEventStream) return;
    
+
    int nParams = m_vParameterIds.size();
    int nBitmaskwords = ((nParams + sizeof(unsigned)*8 - 1) /
 			(sizeof(unsigned)*8)); // Assumes 8 bits/byte
@@ -262,6 +267,7 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
          nValid++;
       }
    }
+
    // Declare required freespace to allow the output stream to close:
    // the buffer if this event doesn't fit.
    
@@ -270,20 +276,21 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
    size_t hdrsize   = m_pOutputEventStream->sizeofString(eventlabel);
 
 
-   m_pOutputEventStream->Require(nBitmaskwords*intsize +
+   m_pOutputEventStream->Require((nBitmaskwords*intsize +
                                  nValid*floatsize       +
-                                 hdrsize);
+                                 hdrsize)*2); // Fudge??
    
    // Write the header:
    
    *m_pOutputEventStream << (eventlabel);
+
    
    // Write the bitmask:
    
    for(int i =0; i < nBitmaskwords; i++) {
       *m_pOutputEventStream << Bitmask[i];
    }
-   
+
    // Write the valid parameters:
    
    for(int i =0; i < nParams; i++) {
