@@ -293,6 +293,9 @@ DAMAGES.
 /*
    Change log:
    $Log$
+   Revision 4.3  2003/04/03 00:04:19  ron-fox
+   These files are produced during Make and therefore are not needed.
+
    Revision 4.2  2003/04/01 19:48:22  ron-fox
    Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -342,7 +345,8 @@ public:
     CXamineSpectrum(pXamine, rName),
     m_fBytes(fBytes),
     m_nXchannels(nXchans),
-    m_nYchannels(nYchans)
+    m_nYchannels(nYchans),
+    m_XamineMap(0.0,0.0,0.0,0.0,string(""),string(""))
     {}
   CXamine2D(volatile Xamine_shared* pXamine, 
 	    const std::string& rName,
