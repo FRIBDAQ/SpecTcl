@@ -193,7 +193,7 @@ static void AllocateColorMapEntries(Display *d, Colormap cmap,
 
   unsigned long plane_masks[XAMINE_MAXPLANES];
   unsigned int  numpixels;
-  int j;
+
   for(int i = planes; i >= XAMINE_MINPLANES; i--) {
     numpixels = 1 << i;		/* This is the number of pixels we want. */
     *pixels = new unsigned long[numpixels]; /* Allocate pixel storage */
@@ -335,7 +335,7 @@ static void ReadColorMap(Display *d, Colormap cmap, unsigned long *pixels,
     fclose(ctblfile);
     fprintf(stderr, 
 	    "Color table file Xamine%d.ctbl has %d entries, not %d entries\n",
-	    entries, (1 << planes));
+	    planes, entries, (1 << planes));
     exit(-1);
   }
   /*
@@ -536,8 +536,8 @@ static void ReadDirectMap (XStandardColormap *mapinfo)
     {
     	fclose(fp);
 	fprintf(stderr,
-		" Color table file Xamine%d.ctb. has %d entries not %d\n",
-		entries, numcolors);
+		" Color table file Xamine%d.ctbl. has %d entries not %d\n",
+		planes, entries, numcolors);
 	exit(-1);
     }
     //	Subsequent lines of the color table are of the form:
@@ -610,9 +610,6 @@ static void ReadDirectMap (XStandardColormap *mapinfo)
 */
 static void SetupDirectColors (Display *d, Window w, XVisualInfo *vis)
 {
-    XStandardColormap *maps;
-    int		      nmaps;
-    int               m;
     XStandardColormap mymap;     // This is actually a fake.  
     //
     //  The mymap is really a fake StandardColormap which is used since
