@@ -40,7 +40,9 @@ static char *sccsinfo="@(#)messages.cc	1.1 1/28/94 ";
 
 #ifdef unix
 #include <sys/socket.h>
-// #include <sys/un.h>
+#ifndef CYGWIN
+#include <sys/un.h>
+#endif
 #ifdef ultrix
 #include <sys/file.h>
 #endif

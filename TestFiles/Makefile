@@ -39,3 +39,25 @@ testfile: testfile.cpp
 ltwrite: ltwrite.cpp
 	$(LINK) -o ltwrite ltwrite.cpp $(LIBS)
 # DO NOT DELETE
+
+ltwrite.o: /usr/include/errno.h /usr/include/standards.h /usr/include/stdio.h
+ltwrite.o: /usr/include/sys/seek.h /usr/include/va_list.h
+ltwrite.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+ltwrite.o: /usr/include/sys/select.h /usr/include/getopt.h
+ltwrite.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+ltwrite.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+ltwrite.o: /usr/include/sys/rt_limits.h /usr/include/sys/stat.h
+ltwrite.o: /usr/include/sys/mode.h /usr/include/fcntl.h
+ltwrite.o: /usr/include/sys/fcntl.h /usr/include/unistd.h
+ltwrite.o: /usr/include/sys/access.h
+testfile.o: /usr/include/stdio.h /usr/include/standards.h
+testfile.o: /usr/include/sys/seek.h /usr/include/va_list.h
+testfile.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+testfile.o: /usr/include/sys/select.h /usr/include/getopt.h
+testfile.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+testfile.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+testfile.o: /usr/include/sys/rt_limits.h /usr/include/stdlib.h
+testfile.o: /usr/include/errno.h /usr/include/fcntl.h
+testfile.o: /usr/include/sys/fcntl.h /usr/include/sys/mode.h
+testfile.o: /usr/include/sys/stat.h /usr/include/unistd.h
+testfile.o: /usr/include/sys/access.h

@@ -95,3 +95,54 @@ TKRunControl.o: TKRunControl.cpp
 	$(COMPILE) TKRunControl.cpp
 
 # DO NOT DELETE
+
+AnalysisTest.o: Event.h ValidValue.h EventList.h EventSink.h Analyzer.h
+AnalysisTest.o: BufferDecoder.h BufferTranslator.h TranslatorPointer.h
+AnalysisTest.o: NSCLBufferDecoder.h EventUnpacker.h RunControl.h
+Analyzer.o: Analyzer.h BufferDecoder.h BufferTranslator.h TranslatorPointer.h
+Analyzer.o: EventFormatError.h
+BufferDecoder.o: BufferDecoder.h BufferTranslator.h TranslatorPointer.h
+BufferDecoder.o: EventFormatError.h Analyzer.h
+BufferTranslator.o: BufferTranslator.h TranslatorPointer.h
+Event.o: Event.h ValidValue.h
+EventFormatError.o: EventFormatError.h
+EventList.o: EventList.h
+EventSink.o: EventSink.h
+NSCLBufferDecoder.o: NSCLBufferDecoder.h Analyzer.h BufferDecoder.h
+NSCLBufferDecoder.o: BufferTranslator.h TranslatorPointer.h
+NSCLBufferDecoder.o: EventFormatError.h /usr/include/assert.h
+NSCLBufferDecoder.o: /usr/include/standards.h /usr/include/stdlib.h
+NSCLBufferDecoder.o: /usr/include/getopt.h /usr/include/sys/types.h
+NSCLBufferDecoder.o: /usr/include/mach/machine/vm_types.h
+NSCLBufferDecoder.o: /usr/include/sys/select.h /usr/include/string.h
+NSCLBufferDecoder.o: /usr/include/strings.h
+RunControl.o: RunControl.h /usr/include/assert.h /usr/include/standards.h
+TCLRunFileHandler.o: TCLRunFileHandler.h RunControl.h TKRunControl.h
+TCLRunFileHandler.o: /usr/local/include/tcl.h /usr/include/stdio.h
+TCLRunFileHandler.o: /usr/include/standards.h /usr/include/sys/seek.h
+TCLRunFileHandler.o: /usr/include/va_list.h /usr/include/sys/types.h
+TCLRunFileHandler.o: /usr/include/mach/machine/vm_types.h
+TCLRunFileHandler.o: /usr/include/sys/select.h /usr/include/getopt.h
+TCLRunFileHandler.o: /usr/include/sys/limits.h
+TCLRunFileHandler.o: /usr/include/sys/machine/machlimits.h
+TCLRunFileHandler.o: /usr/include/sys/syslimits.h
+TCLRunFileHandler.o: /usr/include/sys/machine/machtime.h
+TCLRunFileHandler.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TCLRunFileHandler.o: /usr/local/include/tclDecls.h /usr/local/include/tk.h
+TCLRunFileHandler.o: /usr/include/X11/Xlib.h /usr/include/X11/X.h
+TCLRunFileHandler.o: /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h
+TCLRunFileHandler.o: /usr/include/stddef.h /usr/local/include/tkDecls.h
+TKRunControl.o: TKRunControl.h /usr/local/include/tcl.h /usr/include/stdio.h
+TKRunControl.o: /usr/include/standards.h /usr/include/sys/seek.h
+TKRunControl.o: /usr/include/va_list.h /usr/include/sys/types.h
+TKRunControl.o: /usr/include/mach/machine/vm_types.h
+TKRunControl.o: /usr/include/sys/select.h /usr/include/getopt.h
+TKRunControl.o: /usr/include/sys/limits.h
+TKRunControl.o: /usr/include/sys/machine/machlimits.h
+TKRunControl.o: /usr/include/sys/syslimits.h
+TKRunControl.o: /usr/include/sys/machine/machtime.h
+TKRunControl.o: /usr/include/sys/rt_limits.h /usr/include/stdarg.h
+TKRunControl.o: /usr/local/include/tclDecls.h /usr/local/include/tk.h
+TKRunControl.o: /usr/include/X11/Xlib.h /usr/include/X11/X.h
+TKRunControl.o: /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h
+TKRunControl.o: /usr/include/stddef.h /usr/local/include/tkDecls.h

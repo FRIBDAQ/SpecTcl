@@ -122,3 +122,74 @@ GammaBand.o: GammaBand.cpp
 GammaContour.o: GammaContour.cpp
 	$(COMPILE) GammaContour.cpp
 # DO NOT DELETE
+
+ActualIterator.o: ActualIterator.h /usr/include/assert.h
+ActualIterator.o: /usr/include/standards.h
+AndGate.o: AndGate.h CompoundGate.h Gate.h ConstituentIterator.h
+AndGate.o: ActualIterator.h GateContainer.h
+Band.o: Band.h PointlistGate.h Gate.h ConstituentIterator.h ActualIterator.h
+Band.o: /usr/include/assert.h /usr/include/standards.h
+C2Bands.o: C2Bands.h Contour.h PointlistGate.h Gate.h ConstituentIterator.h
+C2Bands.o: ActualIterator.h Interior.h InteriorRow.h Band.h
+CompoundGate.o: CompoundGate.h Gate.h ConstituentIterator.h ActualIterator.h
+CompoundGate.o: GateContainer.h GateListIterator.h
+ConstituentIterator.o: ConstituentIterator.h ActualIterator.h
+Contour.o: Contour.h PointlistGate.h Gate.h ConstituentIterator.h
+Contour.o: ActualIterator.h Interior.h InteriorRow.h
+Cut.o: Cut.h Gate.h ConstituentIterator.h ActualIterator.h
+Cut.o: SingleItemIterator.h /usr/include/stdio.h /usr/include/standards.h
+Cut.o: /usr/include/sys/seek.h /usr/include/va_list.h
+Cut.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+Cut.o: /usr/include/sys/select.h /usr/include/getopt.h
+Cut.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+Cut.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+Cut.o: /usr/include/sys/rt_limits.h
+DeletedGate.o: DeletedGate.h FalseGate.h Gate.h ConstituentIterator.h
+DeletedGate.o: ActualIterator.h
+FalseGate.o: FalseGate.h Gate.h ConstituentIterator.h ActualIterator.h
+FalseGate.o: SingleItemIterator.h
+GammaBand.o: GammaBand.h Band.h PointlistGate.h Gate.h ConstituentIterator.h
+GammaBand.o: ActualIterator.h /usr/include/assert.h /usr/include/standards.h
+GammaContour.o: GammaContour.h Contour.h PointlistGate.h Gate.h
+GammaContour.o: ConstituentIterator.h ActualIterator.h Interior.h
+GammaContour.o: InteriorRow.h
+GammaCut.o: GammaCut.h Cut.h Gate.h ConstituentIterator.h ActualIterator.h
+GammaCut.o: SingleItemIterator.h /usr/include/stdio.h
+GammaCut.o: /usr/include/standards.h /usr/include/sys/seek.h
+GammaCut.o: /usr/include/va_list.h /usr/include/sys/types.h
+GammaCut.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
+GammaCut.o: /usr/include/getopt.h /usr/include/sys/limits.h
+GammaCut.o: /usr/include/sys/machine/machlimits.h
+GammaCut.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+GammaCut.o: /usr/include/sys/rt_limits.h
+Gate.o: Gate.h ConstituentIterator.h ActualIterator.h
+GateContainer.o: GateContainer.h
+GateListIterator.o: GateListIterator.h
+Interior.o: Interior.h InteriorRow.h /usr/include/assert.h
+Interior.o: /usr/include/standards.h /usr/include/stdio.h
+Interior.o: /usr/include/sys/seek.h /usr/include/va_list.h
+Interior.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+Interior.o: /usr/include/sys/select.h /usr/include/getopt.h
+Interior.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+Interior.o: /usr/include/sys/syslimits.h /usr/include/sys/machine/machtime.h
+Interior.o: /usr/include/sys/rt_limits.h
+InteriorRow.o: InteriorRow.h
+Not.o: Not.h GateContainer.h Gate.h ConstituentIterator.h ActualIterator.h
+Not.o: SingleItemIterator.h
+OrGate.o: OrGate.h CompoundGate.h Gate.h ConstituentIterator.h
+OrGate.o: ActualIterator.h GateContainer.h
+PointlistGate.o: PointlistGate.h Gate.h ConstituentIterator.h
+PointlistGate.o: ActualIterator.h PointlistIterator.h /usr/include/stdio.h
+PointlistGate.o: /usr/include/standards.h /usr/include/sys/seek.h
+PointlistGate.o: /usr/include/va_list.h /usr/include/sys/types.h
+PointlistGate.o: /usr/include/mach/machine/vm_types.h
+PointlistGate.o: /usr/include/sys/select.h /usr/include/getopt.h
+PointlistGate.o: /usr/include/sys/limits.h
+PointlistGate.o: /usr/include/sys/machine/machlimits.h
+PointlistGate.o: /usr/include/sys/syslimits.h
+PointlistGate.o: /usr/include/sys/machine/machtime.h
+PointlistGate.o: /usr/include/sys/rt_limits.h
+PointlistIterator.o: PointlistIterator.h
+SingleItemIterator.o: SingleItemIterator.h
+TrueGate.o: TrueGate.h Gate.h ConstituentIterator.h ActualIterator.h
+TrueGate.o: SingleItemIterator.h
