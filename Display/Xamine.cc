@@ -294,9 +294,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Include files:
 */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -307,7 +305,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 #include <Xm/DrawingA.h>
 #include <Xm/ScrolledW.h>
+
+//
+// Below we deal with the fact that an inclusion of <exception> is done
+// from withihn <new> but we have a directory named Exception and this
+// make trouble for the case insensitive CYGWIN.
+#ifndef CYGWIN
 #include <new>
+#endif
 
 using namespace std;
 
@@ -556,7 +561,7 @@ int main(Cardinal argc, char **argv)
 		  1000,
 		  Monitor,
 		  &top);
-#ifndef VMS
+#ifndef CYGWIN			// See the comment for <new> above.
   set_new_handler(MemGone);
 #endif
   top.Begin();			/* Start processing events */
