@@ -60,7 +60,8 @@ class CGatedEventFilter : public CEventFilter {
  public:
   // Constructors.
   CGatedEventFilter();
-  CGatedEventFilter(COutputEventStream&);
+  CGatedEventFilter(string&);
+  //CGatedEventFilter(COutputEventStream&);
   virtual ~CGatedEventFilter();
 
   // Operators.

@@ -14,7 +14,7 @@ static const char* Copyright =
 #include "FilterDictionary.h"
 
 // Initializations.
-CFilterDictionary* CFilterDictionary::m_pInstance = 0; //kpNULL;
+CFilterDictionary* CFilterDictionary::m_pInstance = (CFilterDictionary*)kpNULL;
 
 // Constructors.
 CFilterDictionary::CFilterDictionary() {}
@@ -22,7 +22,7 @@ CFilterDictionary::CFilterDictionary() {}
 
 // Additional functions.
 CFilterDictionary* CFilterDictionary::GetInstance() {
-  if(m_pInstance==0) {
+  if(m_pInstance == (CFilterDictionary*)kpNULL) {
     m_pInstance = new CFilterDictionary;
   }
   return m_pInstance;

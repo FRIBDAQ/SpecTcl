@@ -38,6 +38,7 @@
 
 class COutputEventStream {
   Bool_t m_fActive;
+  string m_sFileName;
   UInt_t m_nMAXBUFFERSIZE;
   vector<CEvent> Buffer;
   ofstream m_ofs;
@@ -45,14 +46,16 @@ class COutputEventStream {
  public:
   // Constructors.
   COutputEventStream();
-  COutputEventStream(const CEvent&);
+  COutputEventStream(string&);
   virtual ~COutputEventStream();
 
   // Operators.
-  Bool_t operator()();
+  Bool_t operator()(const string&); // To set file name. DO NOT ABUSE BY SENDING AN EVENT OR SOMETHING ELSE!
+  Bool_t operator()(const CEvent&); // To receive and subsequently send an event.
   COutputEventStream& operator=(const COutputEventStream&);
 
   // Additional functions.
+  string COutputEventStream::getFileName();
   Bool_t COutputEventStream::Open();
   Bool_t COutputEventStream::Close();
   Bool_t COutputEventStream::ReceiveEvent(const CEvent&);

@@ -6,6 +6,11 @@
 #ifndef __EVENTFILTER_H //Required for current class
 #define __EVENTFILTER_H
 
+#ifndef __STL_STRING
+#include <string>
+#define __STL_STRING
+#endif
+
 #ifndef __EVENT_H
 #include <Event.h>
 #define __EVENT_H
@@ -31,12 +36,14 @@ class CEventFilter : public CEventSink {
   // Attributes.
  protected:
   Bool_t m_fEnabled;
+  string m_sFileName;
   COutputEventStream* m_pOutputEventStream;
 
  public:
   // Constructors.
   CEventFilter();
-  CEventFilter(COutputEventStream&);
+  CEventFilter(string& rFileName);
+  //CEventFilter(COutputEventStream&); // I doubt that this will ever be used, even if it at all could be.
   virtual ~CEventFilter();
 
   // Operators.
@@ -47,10 +54,13 @@ class CEventFilter : public CEventSink {
   // Additional functions.
   void Enable();
   void Disable();
-  virtual void FormatOutputEvent(CEvent&);
+  string ParseFileName(string&);
+  void setFileName(string&);
+  string getFileName();
   COutputEventStream& AttachOutputEventStream(COutputEventStream&);
   COutputEventStream& DetachOutputEventStream();
-  //protected: // Commented out for now.
+  virtual void FormatOutputEvent(CEvent&);
+  //protected:
   Bool_t CheckEnabled();
   virtual Bool_t CheckCondition(CEvent&);
 }; // CEventFilter.
