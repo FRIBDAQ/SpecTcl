@@ -262,7 +262,7 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   }
   else {
     chanlow = 0;
-    chanhi  = spectra->getxdim(spec);
+    chanhi  = spectra->getxdim(spec)-1;
   }
   cntslow = 0; 
 //  if(attributes->hasfloor()) cntslow = attributes->getfloor();
@@ -377,7 +377,7 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
 //  if(attributes->hasceiling()) cntslo = attributes->getceiling();
 
   chanlo = 0;
-  chanhi = spectra->getxdim(specno);
+  chanhi = spectra->getxdim(specno)-1;
   if(att->isexpanded()) {
     chanlo = att->lowlimit();
     chanhi = att->highlimit();
@@ -461,9 +461,9 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   }
   else {
     xl = 0;
-    xh = spectra->getxdim(spec);
+    xh = spectra->getxdim(spec)-1;
     yl = 0;			/* These are in spectrum orientation so... */
-    yh = spectra->getydim(spec);
+    yh = spectra->getydim(spec)-1;
 
     /* If the axes are flipped, then so are (xl,xh) and (yl,yh) */
 
@@ -557,9 +557,9 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
   }
   else {
     xl = 0;
-    xh = spectra->getxdim(spec);
+    xh = spectra->getxdim(spec)-1;
     yl = 0;			/* These are in spectrum orientation and */
-    yh = spectra->getydim(spec); /* Must therefore be flipped if the  */
+    yh = spectra->getydim(spec)-1; /* Must therefore be flipped if the  */
 				/* spectrum is in flipped orientation.  */
     if(a->isflipped()) {
       int temp;
