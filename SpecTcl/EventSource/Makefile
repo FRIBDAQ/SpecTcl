@@ -70,46 +70,46 @@ PipeFile.o: PipeFile.cpp
 
 # DO NOT DELETE
 
-File.o: File.h /usr/include/errno.h /usr/include/sys/errno.h
-File.o: /usr/include/sys/reent.h /usr/include/_ansi.h
-File.o: /usr/include/sys/config.h /usr/include/sys/_types.h
+File.o: File.h /usr/include/errno.h /usr/include/standards.h
 File.o: /usr/include/fcntl.h /usr/include/sys/fcntl.h
-File.o: /usr/include/sys/types.h /usr/include/machine/types.h
-File.o: /usr/include/sys/stat.h /usr/include/time.h
-File.o: /usr/include/machine/time.h /usr/include/sys/features.h
-File.o: /usr/include/unistd.h /usr/include/sys/unistd.h /usr/include/getopt.h
+File.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+File.o: /usr/include/sys/select.h /usr/include/sys/seek.h
+File.o: /usr/include/sys/mode.h /usr/include/sys/stat.h /usr/include/unistd.h
+File.o: /usr/include/sys/access.h /usr/include/getopt.h
 GaussianDistribution.o: GaussianDistribution.h Distribution.h
-GaussianDistribution.o: /usr/include/stdlib.h /usr/include/_ansi.h
-GaussianDistribution.o: /usr/include/sys/config.h /usr/include/sys/reent.h
-GaussianDistribution.o: /usr/include/sys/_types.h /usr/include/math.h
-GaussianDistribution.o: /usr/include/machine/ieeefp.h /usr/include/time.h
-GaussianDistribution.o: /usr/include/machine/time.h /usr/include/sys/types.h
-GaussianDistribution.o: /usr/include/machine/types.h
-GaussianDistribution.o: /usr/include/sys/features.h /usr/include/string.h
-PipeFile.o: PipeFile.h File.h /usr/include/unistd.h /usr/include/sys/unistd.h
-PipeFile.o: /usr/include/_ansi.h /usr/include/sys/config.h
-PipeFile.o: /usr/include/sys/types.h /usr/include/machine/types.h
-PipeFile.o: /usr/include/sys/_types.h /usr/include/sys/features.h
-PipeFile.o: /usr/include/getopt.h /usr/include/stdio.h
-PipeFile.o: /usr/include/sys/reent.h /usr/include/signal.h
-PipeFile.o: /usr/include/sys/signal.h /usr/include/errno.h
-PipeFile.o: /usr/include/sys/errno.h /usr/include/fcntl.h
-PipeFile.o: /usr/include/sys/fcntl.h /usr/include/sys/stat.h
-PipeFile.o: /usr/include/time.h /usr/include/machine/time.h
-PipeFile.o: /usr/include/sys/wait.h /usr/include/sys/resource.h
-PipeFile.o: /usr/include/sys/time.h /usr/include/string.h
+GaussianDistribution.o: /usr/include/stdlib.h /usr/include/standards.h
+GaussianDistribution.o: /usr/include/getopt.h /usr/include/sys/types.h
+GaussianDistribution.o: /usr/include/mach/machine/vm_types.h
+GaussianDistribution.o: /usr/include/sys/select.h /usr/include/math.h
+GaussianDistribution.o: /usr/include/time.h /usr/include/machine/machtime.h
+GaussianDistribution.o: /usr/include/sys/timers.h /usr/include/sys/sysmisc.h
+GaussianDistribution.o: /usr/include/string.h /usr/include/strings.h
+PipeFile.o: PipeFile.h File.h /usr/include/unistd.h /usr/include/standards.h
+PipeFile.o: /usr/include/sys/types.h /usr/include/mach/machine/vm_types.h
+PipeFile.o: /usr/include/sys/select.h /usr/include/sys/access.h
+PipeFile.o: /usr/include/sys/seek.h /usr/include/getopt.h
+PipeFile.o: /usr/include/stdio.h /usr/include/va_list.h
+PipeFile.o: /usr/include/sys/limits.h /usr/include/sys/machine/machlimits.h
+PipeFile.o: /usr/include/sys/syslimits.h /usr/include/machine/machtime.h
+PipeFile.o: /usr/include/sys/rt_limits.h /usr/include/signal.h
+PipeFile.o: /usr/include/sys/siginfo.h /usr/include/sys/sysmisc.h
+PipeFile.o: /usr/include/machine/signal.h /usr/include/machine/context.h
+PipeFile.o: /usr/include/sys/procset.h /usr/include/errno.h
+PipeFile.o: /usr/include/fcntl.h /usr/include/sys/fcntl.h
+PipeFile.o: /usr/include/sys/mode.h /usr/include/sys/wait.h
+PipeFile.o: /usr/include/sys/param.h /usr/include/sys/machine/machparam.h
+PipeFile.o: /usr/include/machine/endian.h /usr/include/sys/signal.h
+PipeFile.o: /usr/include/sys/time.h /usr/include/time.h
+PipeFile.o: /usr/include/sys/timers.h /usr/include/string.h
+PipeFile.o: /usr/include/strings.h
 TapeException.o: TapeException.h
-TapeFile.o: TapeFile.h File.h /usr/include/errno.h /usr/include/sys/errno.h
-TapeFile.o: /usr/include/sys/reent.h /usr/include/_ansi.h
-TapeFile.o: /usr/include/sys/config.h /usr/include/sys/_types.h
-TapeFile.o: TapeException.h /usr/include/unistd.h /usr/include/sys/unistd.h
-TapeFile.o: /usr/include/sys/types.h /usr/include/machine/types.h
-TapeFile.o: /usr/include/sys/features.h /usr/include/getopt.h
-TapeFile.o: /usr/include/fcntl.h /usr/include/sys/fcntl.h
-TapeFile.o: /usr/include/sys/stat.h /usr/include/time.h
-TapeFile.o: /usr/include/machine/time.h /usr/include/assert.h
-TapeFile.o: /usr/include/string.h
+TapeFile.o: TapeFile.h File.h /usr/include/errno.h /usr/include/standards.h
+TapeFile.o: TapeException.h /usr/include/unistd.h /usr/include/sys/types.h
+TapeFile.o: /usr/include/mach/machine/vm_types.h /usr/include/sys/select.h
+TapeFile.o: /usr/include/sys/access.h /usr/include/sys/seek.h
+TapeFile.o: /usr/include/getopt.h /usr/include/fcntl.h
+TapeFile.o: /usr/include/sys/fcntl.h /usr/include/sys/mode.h
+TapeFile.o: /usr/include/sys/stat.h /usr/include/assert.h
+TapeFile.o: /usr/include/string.h /usr/include/strings.h
 TestFile.o: TestFile.h File.h Distribution.h /usr/include/errno.h
-TestFile.o: /usr/include/sys/errno.h /usr/include/sys/reent.h
-TestFile.o: /usr/include/_ansi.h /usr/include/sys/config.h
-TestFile.o: /usr/include/sys/_types.h
+TestFile.o: /usr/include/standards.h

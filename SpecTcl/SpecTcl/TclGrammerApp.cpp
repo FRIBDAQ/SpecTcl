@@ -47,6 +47,7 @@ void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
 #elif defined(OSF1)
 #include <machine/hal_sysinfo.h>
 #include <sys/proc.h>
+#include <sys/sysinfo.h>
 #else
 #include <sys/sysinfo.h>
 #endif
