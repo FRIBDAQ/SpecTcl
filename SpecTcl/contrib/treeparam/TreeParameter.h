@@ -610,7 +610,7 @@ public:
 // Destructor
 	~CTreeParameterArray() {
 		vector<CTreeParameter*>::iterator i;
-		for (i = array.begin(); i != array.end(); i++) delete i;
+		for (i = array.begin(); i != array.end(); i++) delete (*i);
 	}
 	
 // Operator[].  Allows to access a member of the array using backets (i.e. s800.ic.de[11])
