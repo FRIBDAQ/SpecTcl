@@ -200,3 +200,6 @@ December 28, 2004
     - Switch ExprLong -> strtol in contrib/scriptable CIntConfigParam.cpp
       and CIntArrayParam.cpp since ExprLong, as of Tcl 8.4 does not work
       with large unsigned values.
+December 31, 2004
+    - D. Bazin removed the treeparam Makefiles.  Adjust the
+      contrib/Makefile.am accordingly.
