@@ -205,3 +205,5 @@ December 31, 2004
       contrib/Makefile.am accordingly.
 January 06, 2005
     - Fixed up some missing quotes on makefile.skel's.
+January 11, 2005
+    - Roll in another treeparmaeter update from D. Bazin
