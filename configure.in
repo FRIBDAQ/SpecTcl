@@ -1,12 +1,21 @@
 # Process this file with autoconf to produce a configure script.
+
 AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 2.1-004)
+AM_INIT_AUTOMAKE(SpecTcl, 2.2)
+
 
 AC_EXEEXT
 AC_OBJEXT
+
+#  This should track the version in
+#  AM_INIT_AUTOMAKE it will be used to
+#  define the version information in shared
+#  images.
+
+SOVERSION="2:2"
 
 # Checks for programs.
 # Fortran compiler only supported on Linux and Tru64
@@ -742,6 +751,10 @@ AC_SUBST(LTLIBOBJS)
 # Operating system designator:
 
 AC_SUBST(OS)
+
+#   .so version information.
+
+AC_SUBST(SOVERSION)
 
 # create output files.
 
