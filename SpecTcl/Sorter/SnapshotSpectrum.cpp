@@ -294,6 +294,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
    $Log$
+   Revision 4.3  2003/04/19 00:11:13  ron-fox
+   Fix a nasty issue with GetDefinition() that was causing death due to a number of problems with the static output struct.  For later: change the struct to a class so that it can be returned by value rather than by reference.. then it wouldn't have to be static.
+
    Revision 4.2  2003/04/01 19:53:44  ron-fox
    Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -447,7 +450,14 @@ CSnapshotSpectrum::GetHigh(UInt_t nDimension) const
 {
   return m_rActualSpectrum.GetHigh(nDimension);
 }
-
+/*!
+   Get the spectrum units:
+*/
+string
+CSnapshotSpectrum::GetUnits(UInt_t nDimension) const
+{
+  return m_rActualSpectrum.GetUnits(nDimension);
+}
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
@@ -555,3 +565,7 @@ CSnapshotSpectrum::GetResolutions(vector<UInt_t>&  rvResolutions)
 //////////////////////////////////////////////////////////////////////////
 
 
+CSpectrum::SpectrumDefinition&
+CSnapshotSpectrum::GetDefinition() {
+  return m_rActualSpectrum.GetDefinition();
+}

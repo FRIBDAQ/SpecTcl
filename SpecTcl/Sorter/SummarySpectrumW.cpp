@@ -296,6 +296,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log:
    $Log$
+   Revision 4.4  2003/04/19 00:11:13  ron-fox
+   Fix a nasty issue with GetDefinition() that was causing death due to a number of problems with the static output struct.  For later: change the struct to a class so that it can be returned by value rather than by reference.. then it wouldn't have to be static.
+
    Revision 4.3  2003/04/03 02:21:12  ron-fox
    *** empty log message ***
 
@@ -593,7 +596,8 @@ CSummarySpectrumW::GetDefinition()
 {
   // Get the base class's idea of our definition.
 
-  static CSpectrum::SpectrumDefinition Def = CSpectrum::GetDefinition();
+  static CSpectrum::SpectrumDefinition Def;
+  Def = (CSpectrum::GetDefinition());
 
   // Remove the X axis information from nChannels, fLows, fHighs:
 
