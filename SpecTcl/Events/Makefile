@@ -107,7 +107,7 @@ AnalysisTest.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h Event.h
 AnalysisTest.o: ./ValidValue.h EventList.h EventSink.h Analyzer.h
 AnalysisTest.o: BufferDecoder.h ./BufferTranslator.h /Include/buffer.h
 AnalysisTest.o: /Include/daqtypes.h TranslatorPointer.h NSCLBufferDecoder.h
-AnalysisTest.o: EventUnpacker.h RunControl.h
+AnalysisTest.o: EventUnpacker.h RunControl.h /Include/Exception.h
 Analyzer.o: Analyzer.h BufferDecoder.h ./BufferTranslator.h /Include/buffer.h
 Analyzer.o: /Include/daqtypes.h /Include/histotypes.h /usr/include/string.h
 Analyzer.o: /usr/include/features.h /usr/include/sys/cdefs.h
@@ -116,7 +116,7 @@ Analyzer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
 Analyzer.o: /usr/include/math.h /usr/include/bits/huge_val.h
 Analyzer.o: /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h
 Analyzer.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/float.h
-Analyzer.o: TranslatorPointer.h EventFormatError.h
+Analyzer.o: TranslatorPointer.h /Include/Exception.h EventFormatError.h
 BufferDecoder.o: BufferDecoder.h ./BufferTranslator.h /Include/buffer.h
 BufferDecoder.o: /Include/daqtypes.h /Include/histotypes.h
 BufferDecoder.o: /usr/include/string.h /usr/include/features.h

@@ -125,6 +125,7 @@ int sys$setef(int efn);
 /*
 ** Below is static data.  In particular, we save the 
 ** channels/id's associated with all of the pipes:
+**   Associated with each chanel is a listener:
 */
 int Xamine_requests;		/* Xamine request mailbox. */
 int Xamine_acks;		/* Xamine ack's come here. */
@@ -872,6 +873,7 @@ void Xamine_Closepipes()
   close(requests);
   close(acks);
   close(newgates);
+
   DeletePipes();
 }
 /*
