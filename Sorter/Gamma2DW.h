@@ -289,10 +289,22 @@ DAMAGES.
 //  Copyright 2001 NSCL, All Rights Reserved.
 //
 /////////////////////////////////////////////////////////////
+/*
+   Change Log:
+   $Log$
+   Revision 4.2  2003/04/01 19:53:12  ron-fox
+   Support for Real valued parameters and spectra with arbitrary binnings.
 
-#ifndef __GAMMA2D_H  //Required for current class
-#define __GAMMA2D_H
+*/
+
+#ifndef __GAMMA2DW_H  //Required for current class
+#define __GAMMA2DW_H
+
                                //Required for base classes
+#ifndef __CAXIS_H
+#include <CAxis.h>
+#endif
+
 #ifndef __SPECTRUM_H
 #include "Spectrum.h"
 #endif                               
@@ -318,16 +330,9 @@ class CParameter;
 
 class CGamma2DW : public CSpectrum
 {
-  struct ParameterDef {
-    UInt_t nParameter;
-    UInt_t nScale;
-    int operator==(const ParameterDef& r) const {
-      return (nParameter == r.nParameter) && (nScale == r.nScale);
-    }
-  };
-  UInt_t m_nXScale;		// Log(2) x axis.
-  UInt_t m_nYScale;		// Log(2) y Axis.
-  vector<ParameterDef> m_vParameters; // Vector of parameters
+  UInt_t m_nXScale;		//!< X channel count.
+  UInt_t m_nYScale;		//!< Y Channel count.
+  vector<UInt_t> m_vParameters; //!< Vector of parameter ids.
   
 public:
 
@@ -337,9 +342,16 @@ public:
 	       vector<CParameter>& rParameters,
 	       UInt_t nXScale, UInt_t nYScale);
 
-  // Constuctor for use by derived classes
   CGamma2DW(const std::string& rName, UInt_t nId,
-	    vector<CParameter>& rParameter);
+	    vector<CParameter>& rParameters,
+	    UInt_t nXScale, UInt_t nYScale,
+	    Float_t xLow, Float_t xHigh,
+	    Float_t yLow, Float_t yHigh);
+
+
+  // Constuctor for use by derived classes
+  //  CGamma2DW(const std::string& rName, UInt_t nId,
+  //    vector<CParameter>& rParameter);
 
   virtual  ~ CGamma2DW( ) { }       //Destructor	
 private:
@@ -400,15 +412,21 @@ public:
   virtual   ULong_t operator[](const UInt_t* pIndices) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;
+
+  virtual void GetParameterIds(vector<UInt_t>& rvIds);
+  virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
   virtual   UInt_t Dimension (UInt_t n) const;
 
   virtual   UInt_t Dimensionality () const {
     return 2;
   }
-  virtual void GetParameterIds(vector<UInt_t>& rvIds);
-  virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
-  virtual Int_t getScale(UInt_t nIndex);
-  
+ private:
+  static CSpectrum::Axes CreateAxisVector(vector<CParameter>& rParams,
+					  UInt_t nXchan, UInt_t nYchan,
+					  Float_t xLow, Float_t xHigh,
+					  Float_t yLow, Float_t yHigh);
+  void CreateStorage();
+  void SetParameterVector(vector<CParameter>& rParameters);
 };
 
 #endif

@@ -444,6 +444,19 @@ CTCLProcessor::EvalRelay(ClientData pObject,
     pThat->Bind(*pPrior);
     return rexcept.ReasonCode();
   }
+  catch (string & rFailure) {
+    Result = rFailure;
+    return TCL_ERROR;
+  }
+  catch (const char* pFailure) {
+    Result = pFailure;
+    return TCL_ERROR;
+  }
+  catch (...) {			// Map other excpetions to return codes too>
+    Result = Argv[0];
+    Result += " threw an unrecognized exception";
+    return TCL_ERROR;
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 //

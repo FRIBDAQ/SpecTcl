@@ -10,7 +10,7 @@
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
 #include "CParameterMapping.h"    				
-
+#include "Parameter.h"
 
 /*!
   The default constructor creates a parameter mapping for a unit
@@ -55,9 +55,24 @@ CParameterMapping::CParameterMapping(UInt_t  nBits,
   m_fHigh(fHigh),
   m_sUnits(sUnits)
 {
-  
+  if(fLow == fHigh) 
+    m_fMapped = kfFALSE;  
 }
 
+/*!
+  Construct a parameter mapping from a parameter definition.
+  This is likely the most often form of construction.
+  \param rParam (CParameter& [in]) The parameter to construct a
+      mapping object for.
+*/
+CParameterMapping::CParameterMapping(const CParameter& rParam) :
+  m_nBits(rParam.getScale()),
+  m_fLow(rParam.getLow()),
+  m_fHigh(rParam.getHigh()),
+  m_sUnits(rParam.getUnits())
+{
+  m_fMapped = (m_fLow != m_fHigh) && (rParam.hasScale());
+}
 /*!
    Destructor requires no processing and is therefore empty.
 */

@@ -23,6 +23,8 @@
 #define __STL_STRING
 #endif
 
+class CParameter;
+
 /*!
 Provides a mapping between raw parameter coordinates and potentially
 mapped coordinates.  There are two types of parameters:
@@ -51,7 +53,7 @@ public:
 		    Float_t fLow,
 		    Float_t fHigh,
 		    const string& sUnits = string("")); //!< Create mapping.
-  
+  CParameterMapping(const CParameter& rParam); //!< Construct from param definition.
   ~ CParameterMapping ( );  //!< Destructor
   CParameterMapping (const CParameterMapping& rhs ); //!<  Copy Constructor 
   

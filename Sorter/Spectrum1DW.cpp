@@ -274,9 +274,7 @@ EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
-*/
-static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
-//  CSpectrum1DW.cpp
+*///  CSpectrum1DW.cpp
 // Encapsulates the prototypical 1-d Spectrum.  
 // For the purposes of the functional prototype,
 // the spectrum is a singly incremented
@@ -292,6 +290,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //      mailto:fox@nscl.msu.edu
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+/*
+  Change log:
+  $Log$
+  Revision 4.3  2003/04/01 19:53:46  ron-fox
+  Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
 
 //
 // Header Files:
@@ -302,7 +307,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Parameter.h"
 #include "RangeError.h"
 #include "Event.h"
+#include "CAxis.h"
 
+static const char* Copyright = 
+"CSpectrum1DW.cpp: Copyright 1999 NSCL, All rights reserved\n";
 
 // Functions for class CSpectrum1DW
 
@@ -315,22 +323,78 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Operation Type:
 //   Constructor
 //
-CSpectrum1DW::CSpectrum1DW(const std::string& rName, UInt_t nId,
-			    const CParameter& rParameter,
-			    UInt_t            nScale) :
-  CSpectrum(rName, nId),
-  m_nScale(nScale),
-  m_nParameter(rParameter.getNumber()),
-  m_nScaleDifference((Int_t)rParameter.getScale() - (Int_t)nScale)
-{
-  // Just need to allocate storage and pass it to our base class for
-  // management:
+/*!
+  Construct a 1d Spectrum.  In this constructor, the
+  axis is assumed to go from [0,nChannels).  The axis
+  channels are the axis coordinates as well (unit 
+  mapping).  The parameter may, however be mapped or
+  unmapped.
+  \param rName      (const string& [in])
+       The name of the spectrum.
+  \param nId        (UInt_t [in])
+       The spectrum id.  need not be unique.
+  \param rParameter (const CParameter& [in])
+       The discription of the parameter to histogram.
+  \param nChannels   (UInt_t [in])
+       The number of channels to allocate to the
+       spectrum.  In this constructor, the axis 
+       coordinates are [0,nChannels).
 
-  setStorageType(keWord);
-  UShort_t* pStorage = new UShort_t[(1 << m_nScale)];
-  ReplaceStorage(pStorage);	// Storage now owned by parent.
-  Clear();
+ */
+CSpectrum1DW::CSpectrum1DW(const std::string& rName, 
+			  UInt_t            nId,
+			  const CParameter& rParameter,
+			  UInt_t            nChannels) :
+  CSpectrum(rName, nId,
+	    Axes(1,
+		  CAxis(0.0, (Float_t)(nChannels-1),
+		  nChannels,
+		  CParameterMapping(rParameter)))),
+  m_nChannels(nChannels),
+  m_nParameter(rParameter.getNumber())
+{
+  AddAxis(nChannels, 0.0, (Float_t)(nChannels - 1), rParameter.getUnits());
+  CreateChannels();
 }
+/*!
+    Construct a 1d spectrum.   In this constructor,
+    the axis is assumed to go in the range [fLow, fHigh]
+    and have nChannels bins.  The parameter may be mapped
+    or unmapped.
+
+  \param rName      (const string& [in])
+       The name of the spectrum.
+  \param nId        (UInt_t [in])
+       The spectrum id.  need not be unique.
+  \param rParameter (const CParameter& [in])
+       The discription of the parameter to histogram.
+  \param nChannels   (UInt_t [in])
+       The number of channels to allocate to the
+       spectrum.  In this constructor, the axis 
+       coordinates are [0,nChannels).
+  \param fLow (Float_t [in]):
+       The low limit of the axis.
+  \param fHigh  (Float_t [in]):
+        The high limit of the axis.
+
+
+*/
+CSpectrum1DW::CSpectrum1DW(const std::string&  rName,
+			   UInt_t              nId,
+			   const   CParameter& rParameter,
+			   UInt_t              nChannels,
+			   Float_t             fLow, 
+			   Float_t             fHigh) :
+  CSpectrum(rName, nId,
+	    Axes(1, CAxis(fLow, fHigh, nChannels,
+			   CParameterMapping(rParameter)))),
+  m_nChannels(nChannels),
+  m_nParameter(rParameter.getNumber())
+{
+  AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
+  CreateChannels();
+}
+// Unused?? BUGBUGBUG - remove if really unused.
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -344,39 +408,47 @@ CSpectrum1DW::CSpectrum1DW(const std::string& rName, UInt_t nId,
 //   allocate any storage. Therefore, a derived spectrum type
 //   can call this constructor, but allocate its own storage.
 //
-CSpectrum1DW::CSpectrum1DW(const std::string& rName, UInt_t nId,
-			   const CParameter& rParameter) :
-  CSpectrum(rName, nId),
-  m_nScale(0),
-  m_nParameter(rParameter.getNumber()),
-  m_nScaleDifference(0)
-{
-  setStorageType(keWord);
-}
+// CSpectrum1DW::CSpectrum1DW(const std::string& rName, UInt_t nId,
+//			   const CParameter& rParameter) :
+//  CSpectrum(rName, nId),
+//  m_nScale(0),
+//  m_nParameter(rParameter.getNumber()),
+//  m_nScaleDifference(0)
+//{
+//  setStorageType(keWord);
+//}
+//--------------------
 
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    void Increment ( const CEvent& rEvent )
+//    void Increment( const CEvent& rEvent )
 //  Operation Type:
 //     mutator
 //
+/*!
+   Increments the spectrum.  The parameter is mapped
+   to axis coordinates and, if the resulting channel
+   is in range, it is incremented.
+
+   \param rE  (CEvent& [in]): Event to analyze.
+
+   The parameter id (m_nParameter) determines which
+   of the parameters in the rE to use.
+*/
 void 
 CSpectrum1DW::Increment(const CEvent& rE) 
 {
-// Increments channel number rEvent[m_nParameter] >> m_nScaleDifference
-// Formal Parameters:
-//
-//          const CEvent& rEvent:
-//               Event which drives the histogramming
-//
-  CEvent& rEvent((CEvent&)rE);
+
+
+  CEvent& rEvent((CEvent&)rE);	// Ok since non const  operator[] on rhs only.
 
   if(rEvent[m_nParameter].isValid()) {  // Only increment if param present.
-    UInt_t nChannel = (m_nScaleDifference > 0) ?
-      (UInt_t)((Int_t)rEvent[m_nParameter] >> m_nScaleDifference) :
-      (UInt_t)((Int_t)rEvent[m_nParameter] << (-m_nScaleDifference));
-    if(nChannel < (1 << m_nScale)) {  // Only increment if in range. 
+    
+    Int_t nChannel = Randomize(ParameterToAxis(0, 
+					       rEvent[m_nParameter]));
+    if((nChannel < (m_nChannels)) &&
+       (nChannel >= 0)) {  // 
       UShort_t* p = (UShort_t*)getStorage();
       assert(p != (UShort_t*)kpNULL);    // Spectrum storage must exist!!
       p[nChannel]++;		      // Increment the histogram.
@@ -422,7 +494,7 @@ CSpectrum1DW::operator[](const UInt_t* pIndices) const
   UInt_t   n = pIndices[0];
   if(n >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing 1DW spectrum"));
+		      std::string("Indexing 1DL spectrum"));
   }
   return (ULong_t)p[n];
 		      
@@ -444,9 +516,9 @@ CSpectrum1DW::set(const UInt_t* pIndices, ULong_t nValue)
   UInt_t   n = pIndices[0];
   if(n >= Dimension(0)) {
     throw CRangeError(0, Dimension(0)-1, n,
-		      std::string("Indexing 1DW spectrum"));
+		      std::string("Indexing 1DL spectrum"));
   }
-  p[n] = (UInt_t)nValue;
+  p[n] = (UShort_t)nValue;
 
   
 }
@@ -486,17 +558,20 @@ CSpectrum1DW::GetResolutions(vector<UInt_t>&  rvResolutions)
   // In this case it's just the single resolution.
   //
   rvResolutions.erase(rvResolutions.begin(), rvResolutions.end());
-  rvResolutions.push_back(m_nScale);
+  rvResolutions.push_back(m_nChannels);
 }
-////////////////////////////////////////////////////////////////////////
-//  
-// Function:
-//    UInt_t getScale(UInt_t nIndex)
-// Operation Type:
-//    Selector.
-//
-Int_t
-CSpectrum1DW::getScale(UInt_t nIndex)
+
+/*!
+   Create storage for the spectrum.  
+*/
+void
+CSpectrum1DW::CreateChannels()
 {
-  return ((nIndex == 0) ? m_nScaleDifference : 0);
+  // Just need to allocate storage and pass it to our base class for
+  // management:
+
+  setStorageType(keWord);
+  UShort_t* pStorage = new UShort_t[m_nChannels];
+  ReplaceStorage(pStorage);	// Storage now owned by parent.
+  Clear();
 }

@@ -293,6 +293,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
+/*
+   Change Log:
+   $Log$
+   Revision 4.2  2003/04/01 19:53:46  ron-fox
+   Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
+
 //
 // Header Files:
 //
@@ -307,48 +315,84 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 // Functions for class CSummarySpectrumW
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//   CSummarySpectrumW(const std::string& rname, UInt_t nId,
-//                     std::vector<CParameter&>& rrParameters,
-//                     UInt_t nYScale)
-// Operation Type:
-//   Constructor
-//
-CSummarySpectrumW::CSummarySpectrumW(const std::string& rName, UInt_t nId,
+/*!
+  Construct a summary spectrum.   This constructor creates a
+  summary spectrum with a Y axis that has an identity coordinate
+  transform: Y axis represents the mapped parameter interval
+  [0.0, nYScale).
+
+  \param rName   (const string& [in]) Name of the spectrum.
+  \param nId     (UInt_t [in]) Id to associate with the spectrum.
+  \param rrParameters (vector<CParameter> [in]) an array of parameter
+      definitions that describe the parameters to associate with 
+      each X-axis column.  Each parameter will be individually 
+      scaled to the Y axis on the basis of its mapping information
+      and the common Y axis range information.
+  \param nYScale (UInt_t [in]) Number of y axis channels.  The 
+      number of X axis channels is just rrParameters.size().
+
+
+*/
+CSummarySpectrumW::CSummarySpectrumW(const std::string& rName, 
+				     UInt_t nId,
 				     vector<CParameter> rrParameters,
 				     UInt_t nYScale) :
 
-  CSpectrum(rName, nId),
+  CSpectrum(rName, nId,
+	   CreateAxes(rrParameters, nYScale, 
+		      0.0, (Float_t)(nYScale - 1)) ),
   m_nYScale(nYScale),
   m_nXChannels(rrParameters.size())
 {
+  // The assumption is that all parameters have the same units.
+  AddAxis(rrParameters.size(), 0.0, 
+	  (Float_t)(rrParameters.size() - 1)); // Unit-less.
+  AddAxis(nYScale, 0.0, (Float_t)(nYScale - 1), rrParameters[0].getUnits());
+  FillParameterArray(rrParameters);
+  CreateStorage();
 
-  // Fill in the parameter and scale difference vector members:
+}
+/*!
+   Creat a summary spectrum with a y axis that represents an 
+   arbitrary cut from mapped parameter space.
+   \param rName (const string& [in]):
+       Name of the spectrum.
+   \param nId  (UInt_t [in]):
+       Spectrum id.
+   \param rrParameters (vector<CParameter> [in]):
+       Vector of parameter definitions that describe what increments
+       the histogram.
+   \param nYScale     (UInt_t [in]):
+       Number of channels on the y axis.  The x axis size is
+       determined by the size of the parameter vector.
+   \param Float_t fYLow (Float_t [in]):
+       Low limit of the y axis.
+   \param Float_t fYHigh (Float_t [in]):
+       High limit of the y axis.
+*/
+CSummarySpectrumW::CSummarySpectrumW(const std::string& rName, 
+				     UInt_t nId,
+				     vector<CParameter> rrParameters,
+				     UInt_t nYScale,
+				     Float_t fYLow,
+				     Float_t fYHigh) :
+  CSpectrum(rName, nId,
+	    CreateAxes(rrParameters, nYScale, fYLow, fYHigh)),
+  m_nYScale(nYScale),
+  m_nXChannels(rrParameters.size())
 
-  setStorageType(keWord);
-  for(UInt_t i = 0; i < rrParameters.size(); i++) {
-    CParameter& rParam(rrParameters[i]);
-    ParameterDef def;
-    def.nParameter = rParam.getNumber();
-    def.nScale     = rParam.getScale() - m_nYScale;
-    m_vParameters.push_back(def);
-  }
+{
+  AddAxis(rrParameters.size(), 0.0, 
+	  (Float_t)(rrParameters.size() - 1)); //  Unit-less
+  AddAxis(nYScale, fYLow, fYHigh, rrParameters[0].getUnits());
+  FillParameterArray(rrParameters);
+  CreateStorage();
 
-  // Just need to allocate storage and pass it to our base class for
-  // management:
-
-  Size_t nBytes = StorageNeeded();
-  UShort_t*      pStorage = new UShort_t[nBytes/sizeof(UShort_t)];
-
-  ReplaceStorage(pStorage);	// Storage now owned by parent.
-  Clear();
 }
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    void Increment ( const CEvent& rEvent )
+//    void Increment ( const CEvent& rE )
 //  Operation Type:
 //     mutator
 //
@@ -361,18 +405,17 @@ CSummarySpectrumW::Increment(const CEvent& rE)
 //          const CEvent& rEvent:
 //               Event which drives the histogramming
 //
-
   CEvent& rEvent((CEvent&)rE);
-  UInt_t nYChans = 1 << m_nYScale;
+  UInt_t   nYChans  = m_nYScale;
   UShort_t* pStorage = (UShort_t*)getStorage();
 
   for(UInt_t xChan = 0; xChan < m_vParameters.size(); xChan++) {
-    if(rEvent[m_vParameters[xChan].nParameter].isValid()) {
-      Int_t sd = m_vParameters[xChan].nScale;
-      UInt_t y = rEvent[m_vParameters[xChan].nParameter];
-      y = (sd > 0) ? y >> sd :
-	y << -sd; 
-      if(y < (1 << m_nYScale)) { // Ensure scaled param is inside spectrum.
+    if(rEvent[m_vParameters[xChan]].isValid()) {
+      Float_t rawParam = rEvent[m_vParameters[xChan]];
+      UInt_t y = Randomize(ParameterToAxis(xChan,
+					   rawParam));
+
+      if((y >= 0)   && (y < m_nYScale)) {
 	pStorage[xChan + y*m_nXChannels]++;
       }
     }
@@ -381,7 +424,7 @@ CSummarySpectrumW::Increment(const CEvent& rE)
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    Boolt_t UsesParameter (UInt_t nId) const
+//    Boolt_t UsesParameter (UInt_t nId)
 //  Operation Type:
 //     Selector
      
@@ -396,7 +439,7 @@ CSummarySpectrumW::UsesParameter(UInt_t nId) const
 //        The parameter being checked.
 
   for(UInt_t i = 0; i < m_vParameters.size(); i++) {
-    if( m_vParameters[i].nParameter == nId);
+    if( m_vParameters[i] == nId)
       return kfTRUE;
   }
   return kfFALSE;
@@ -459,25 +502,7 @@ CSummarySpectrumW::set(const UInt_t* pIndices, ULong_t nValue)
 
   
 }
-//////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//     UInt_t Dimension (UInt_t n) const
-// Operation type:
-//     Selector.
-//
-UInt_t 
-CSummarySpectrumW::Dimension (UInt_t n) const
-{
-  switch(n) {
-  case 0:
-    return m_nXChannels;
-  case 1:
-    return 1 << m_nYScale;
-  default:
-    return 0;
-  }
-}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // Function
@@ -496,8 +521,8 @@ CSummarySpectrumW::GetParameterIds(vector<UInt_t>& rvIds)
   //       vector which will contain the list of parameter ids which go into
   //       this spectrum.
   //
-  for(UInt_t i = 0;  i < m_vParameters.size(); i++)
-  rvIds.push_back(m_vParameters[i].nParameter);
+  rvIds = m_vParameters;
+
 }
 ////////////////////////////////////////////////////////////////////////
 //
@@ -517,20 +542,88 @@ CSummarySpectrumW::GetResolutions(vector<UInt_t>&  rvResolutions)
 
   rvResolutions.push_back(m_nYScale);
 }
-////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//   UInt_t getScale(UInt_t index)
-// Operation Type:
-//   selector.
-//
-Int_t
-CSummarySpectrumW::getScale(UInt_t index)
+
+/*!
+   Fill the parameter array from a set of parameter definitions.
+   \param Parameters (vector<CParam> [in]):  The set of parameters
+      whose ids we need.
+*/
+void
+CSummarySpectrumW::FillParameterArray(vector<CParameter> Params)
 {
-  if(index < m_vParameters.size()) {
-    return m_vParameters[index].nScale;
+  // Fill in the parameter and scale difference vector members:
+
+  for(UInt_t i = 0; i < Params.size(); i++) {
+    CParameter& rParam(Params[i]);
+    m_vParameters.push_back(rParam.getNumber());
   }
-  else {
-    return 0;
+}
+/*!
+  Allocate the storage required by the spectrum and 
+  make it self owned.
+*/
+void
+CSummarySpectrumW::CreateStorage()
+{
+
+  setStorageType(keWord);
+
+  Size_t        nBytes   = StorageNeeded();
+  UShort_t*      pStorage = new UShort_t[nBytes/sizeof(UChar_t)];
+
+  ReplaceStorage(pStorage);	// Storage now owned by parent.
+  Clear();
+}
+/*!
+   Overrides the base class spectrum definition fetching 
+   function.  The base class function is almost correct, however
+   our x axis is implicitly defined.  Therefore, we use the base
+   class and then remove the x axis definitions.. leaving only the
+   y axis (which is explicitly defined).
+
+   \retval CSpectrum::SpectrumDefinition
+      A structure that describes the spectrum sufficiently to 
+      remanufature it if needed.
+*/
+CSpectrum::SpectrumDefinition&
+CSummarySpectrumW::GetDefinition()
+{
+  // Get the base class's idea of our definition.
+
+  static CSpectrum::SpectrumDefinition Def = CSpectrum::GetDefinition();
+
+  // Remove the X axis information from nChannels, fLows, fHighs:
+
+  Def.nChannels.erase(Def.nChannels.begin()); // X is first axis.
+  Def.fLows.erase(Def.fLows.begin());
+  Def.fHighs.erase(Def.fHighs.begin());
+
+  return Def;
+}
+
+/*!
+   Creates the axis mapping array for the constructor.
+   \param <TT> Parameters (vector<CParameter> Params [in]) </TT>
+        The set of parameters on the spectrum.
+   \param <TT> nChannels (UInt_t [in]) </TT>
+       The nubmer of channels on the y axis.
+   \param <TT> fyLow (Float_t [in]) </TT>
+       The parameter value that represents channel 0 on the y axis.
+   \param <TT> fyHigh (Float_t [in]) </TT>
+       The parameter value that represents the last channel of the
+       y axis.
+   \retval CSpectrum::Axes
+      An array of axis scaling objects.
+*/
+CSpectrum::Axes
+CSummarySpectrumW::CreateAxes(vector<CParameter> Parameters,
+			      UInt_t             nChannels,
+			      Float_t fyLow, Float_t fyHigh)
+{
+  CSpectrum::Axes maps;
+  for(int i =0; i < Parameters.size(); i++) {
+    maps.push_back(CAxis(fyLow, fyHigh, nChannels, 
+			 CParameterMapping(Parameters[i])));
   }
+  return maps;
 }

@@ -235,7 +235,10 @@ those countries, so that distribution is permitted only in or among
 countries not thus excluded.  In such case, this License incorporates
 the limitation as if written in the body of this License.
 
-  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
+  9. The Free Software Foundation may publish revised and/or new 
+versions of the General Public License from time to time.  Such 
+new versions will be similar in spirit to the present version, but 
+may differ in detail to address new problems or concerns.
 
 Each version is given a distinguishing version number.  If the Program
 specifies a version number of this License which applies to it and "any
@@ -299,6 +302,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
+/*!
+  Change log:
+    $Log$
+    Revision 4.2  2003/04/01 19:53:46  ron-fox
+    Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
+
 //
 // Header Files:
 //
@@ -320,6 +331,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Gamma1DL.h"
 #include "Gamma2DB.h"
 #include "Gamma2DW.h"
+
+#ifdef __USE_MAPPED_SPECTRA_
 #include "MSpectrum1DW.h"
 #include "MSpectrum1DL.h"
 #include "MSpectrum2DB.h"
@@ -328,11 +341,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "MGamma1DL.h"
 #include "MGamma2DB.h"
 #include "MGamma2DW.h"
+#endif
 #include "Histogrammer.h"
 
 
 // Assumptions:
-//  There are the following global variables which get me to the stuff I need:
+//  There are the following global variables which get me to the 
+//  stuff I need:
 //
 
 extern CEventSink* gpEventSink;	// Current event sink which must really be a
@@ -346,139 +361,252 @@ UInt_t CSpectrumFactory::m_nNextId = 0;
 
 // Functions for class CSpectrumFactory
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    CSpectrum* CreateSpectrum ( const std::string& rName, 
-//                                SpectrumType_t     eSpecType, 
-//                                DataType_t         eDataType, 
-//                                vector<std::string>& rParameters, 
-//                                vector<UInt_t>& rResolutions )
-//  Operation Type:
-//     Creational
-//
+
+/*!
+ Creates a spectrum and returns a pointer to it.
+
+
+   \param   <tt> rName (const std::string& [in]): </tt>
+         Name of the spectrum to create.
+   \param   <tt>eType (SpectrumType_t [in]):    </tt>
+          Spectrum type which is one of:
+          - kOneD  One dimensional spectrum 
+	  - kTwoD  Two dimensional spectrum.
+	  - kBit   Bit mask spectrum
+	  - kSummary Summary sepctrum.
+	  - kGOneD   One-d Gamma spectrum.
+	  - kGTwoD   Two-d Gamma spectrum.
+   \param <TT> rParameters (vector<string>& [in]): </TT>
+        Names of the parameters that are involved with the
+	spectrum.
+   \param <tt>eDataType (DataType_t [in]):</tt>
+         Type of data spectrum holds.
+   \param  <tt>rParameters (vector<string>& [in]):</tt>
+         Set of parameters being histogrammed.
+   \param <tt>rChannels (vector<UInt_t>& [in]) </tt>
+          Number of channels on each axis of the spectrum.
+   \param <tt> pLows (vector<Float_t>* [in] = kpNULL) </tt>
+         Vector of axis low limit values.  These values represent
+	 the (mapped) value of the parameter displayed at the
+	 origin of an axis.  If the pointer is null, the assumed
+	 value is 0.0.
+   \param <tt> pHighs (vector<Float_t>* [in] = kpNULL) </tt>
+         Vector of axis high limit values.  These values 
+	 represent the (mapped) value of the parameter that will
+	 increment the last channel of the corresponding axis
+	 of the histogram.
+       
+   \retval CSpectrum* 
+           A pointer to the spectrum which was created.
+
+   \throw   CSpectrumFactoryException on errors.
+*/
 CSpectrum* 
-CSpectrumFactory::CreateSpectrum(const std::string& rName, 
-				 SpectrumType_t     eSpecType, 
-				 DataType_t         eDataType, 
+CSpectrumFactory::CreateSpectrum(const std::string&   rName, 
+				 SpectrumType_t       eSpecType,
+				 DataType_t           eDataType, 
 				 vector<std::string>& rParameters, 
-				 vector<UInt_t>&      rResolutions,
-				 vector<Float_t>&     rTransformCoords,
-				 vector<UInt_t>&      rChannels)
+				 vector<UInt_t>&      rChannels,
+				 vector<Float_t>*     pLows,
+				 vector<Float_t>*     pHighs)
 {
-// Creates a spectrum and returns a pointer to it.
-//
-// Formal Parameters:
-//
-//   const std::string&  rName
-//         Name of the spectrum to create.
-//
-//   SpectrumType_t    eType:      
-//          Spectrum type which is one of:
-//          { kOneD, kTwoD, kBit, kSummary, kGOneD, kGTwoD}
-//     
-//   DataType_t          eDataType:
-//         Type of data spectrum holds.
-//  
-//   vector<string>&    rParameters
-//         Set of parameters being histogrammed.
-//
-//   vector<UInt_t>&     rResolutions:
-//          Set of resolutions for spectrum axes for which this is
-//          a free parameter.
-// Returns:
-//     A pointer to the spectrum which was created.
-// Throws:
-//     CSpectrumFactoryException on errors.
-//
+
 
   vector<CParameter> ParameterList;
   ParameterList = ParameterArray(rParameters);
 
   switch(eSpecType) {		// Actions break out depending on type:
-  case ke1D:
-    if(rTransformCoords.empty()) {
+  case ke1D: 
+    {
+    // Need 1 parameter and 1 axis size.
       Require(eDataType, eSpecType, rName,
-	      ParameterList, rResolutions, 1,1);
-      return Create1D(rName, eDataType, ParameterList[0], rResolutions[0]);
+	      ParameterList, rChannels, 1,1);
+
+      CParameter p = ParameterList[0];
+      Float_t fLow, fHigh;
+
+      if(pLows == (vector<Float_t>*) kpNULL) { 
+	fLow = 0.0;
+	fHigh= DefaultAxisLength(rChannels[0], p);
+      } else {
+	fLow = (*pLows)[0];
+	fHigh= (*pHighs)[0];
+	if(fLow == fHigh) {
+	  fLow = 0.0;		// No length means default scaling.
+	  fHigh= DefaultAxisLength(rChannels[0], p);
+	}
+      }
+      return Create1D(rName, eDataType, p,
+		      rChannels[0], fLow, fHigh);
     }
-    Require(eDataType, eSpecType, rName,
-	    ParameterList, rResolutions, 1, 0);
-    MappedRequire(eDataType, eSpecType, rName,
-		  rTransformCoords, rChannels, ParameterList, 2, 1);
-    return CreateM1D(rName, eDataType, ParameterList[0],
-		     rTransformCoords[0], rTransformCoords[1], rChannels[0]);
   case ke2D:
-    if(rTransformCoords.empty()) {
+    {
+      
       Require(eDataType, eSpecType, rName,
-	      ParameterList, rResolutions, 2,2);
-      return Create2D(rName, eDataType, 
-		      ParameterList[0], ParameterList[1],
-		      rResolutions[0],  rResolutions[1]);
+	      ParameterList, rChannels, 2,2);
+      
+      CParameter p1 = ParameterList[0];
+      CParameter p2 = ParameterList[1];
+      Float_t fxLow, fxHigh;
+      Float_t fyLow, fyHigh;
+      
+      
+      if(pLows == (vector<Float_t>*) kpNULL) {
+	// Default the axis ranges.
+	fxLow = fyLow = 0.0;
+	fxHigh= DefaultAxisLength(rChannels[0], p1);
+	fyHigh= DefaultAxisLength(rChannels[1], p2);
+      }
+      else {
+	fxLow = (*pLows)[0];
+	fyLow = (*pLows)[1];
+	fxHigh= (*pHighs)[0];
+	fyHigh= (*pHighs)[1];
+	if(fxLow == fxHigh) {	// Default x axis scale.
+	  fxLow = 0.0;
+	  fxHigh= DefaultAxisLength(rChannels[0], p1);
+	}
+	if(fyLow == fyHigh) {	// Default y axis scale.
+	  fyLow = 0.0;
+	  fyHigh= DefaultAxisLength(rChannels[1], p2);
+	}
+
+      }
+      return Create2D(rName, eDataType,
+		      p1, p2,
+		      rChannels[0],
+		      fxLow, fxHigh,
+		      rChannels[1],
+		      fyLow, fyHigh);
     }
-    Require(eDataType, eSpecType, rName,
-	    ParameterList, rResolutions, 2, 0);
-    MappedRequire(eDataType, eSpecType, rName,
-		  rTransformCoords, rChannels, ParameterList, 4, 2);
-    return CreateM2D(rName, eDataType,
-		     ParameterList[0], ParameterList[1],
-		     rTransformCoords[0], rTransformCoords[2],
-		     rTransformCoords[1], rTransformCoords[3],
-		     rChannels[0], rChannels[1]);
+
   case keBitmask:
     Require(eDataType, eSpecType, rName,
-	     ParameterList, rResolutions, 1,1);
-    return CreateBit(rName, eDataType,
-		     ParameterList[0], rResolutions[0]);
-  case keSummary:
-    // Summary spectra are weird since they require 1 resolution (Y axis) and
-    // at *least* one parameter (althought such a small # of params doesn't
-    // make much sense.  In any event, the Require member can't be used
-    // to check for this, sinc it looks for exact matches in the counts.
+	     ParameterList, rChannels, 1,1);
+    if(pLows == (vector<Float_t>*)kpNULL) {
+      return CreateBit(rName, eDataType,
+		       ParameterList[0], rChannels[0]);
+    }
+    else {
+      UInt_t nLow  = (UInt_t)((*pLows)[0]);
+      UInt_t nHigh = (UInt_t)((*pHighs)[0]);
+      if(nLow == nHigh) {
+	nLow = 0;
+	nHigh= rChannels[0] -1 ;
+      }
+      return CreateBit(rName, eDataType,
+		       ParameterList[0], nLow, nHigh);
+    }
 
-    if(rResolutions.size() != 1) { // Incorrect # of resolutions
-      throw CSpectrumFactoryException(eDataType, eSpecType,
-				      rName, 
-			     CSpectrumFactoryException::keBadResolutionCount,
-				      "Creating summary spectrum");
-				      
+  case keSummary:
+    {
+      // Summary spectra are weird since they require 1 resolution (Y axis) and
+      // at *least* one parameter (althought such a small # of params doesn't
+      // make much sense.  In any event, the Require member can't be used
+      // to check for this, sinc it looks for exact matches in the counts.
+      
+      if(rChannels.size() != 1) { // Incorrect # of resolutions
+	throw CSpectrumFactoryException(eDataType, eSpecType,
+					rName, 
+			      CSpectrumFactoryException::keBadResolutionCount,
+					"Creating summary spectrum");
+	
+      }
+      if(ParameterList.size() < 1) { // Incorect # of parameters.
+	throw CSpectrumFactoryException(eDataType, eSpecType,
+					rName, 
+			     	CSpectrumFactoryException::keBadParameterCount,
+					"Creating summary spectrum");
+      }
+
+      // Default axis sizing can only be done under the assumption of
+      // uniform parameter definitions (the usual case for a summary
+      // spectrum.  We'll use ParameterList[0] to figure out what should be
+      // done.  We can always change this later if necessary.
+      //
+
+      Float_t fLow;
+      Float_t fHigh;
+      if(pLows == (vector<Float_t>*)kpNULL) {
+	
+	fLow = 0.0;
+	fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+
+      }
+      else {
+	fLow = (*pLows)[0];
+	fHigh= (*pHighs)[0];
+	if(fLow == fHigh) {
+	  fLow = 0.0;
+	  fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+	}
+      }
+      return CreateSummary(rName, eDataType,
+			   ParameterList, rChannels[0],
+			   fLow, fHigh);
     }
-    if(ParameterList.size() < 1) { // Incorect # of parameters.
-      throw CSpectrumFactoryException(eDataType, eSpecType,
-				      rName, 
-			     CSpectrumFactoryException::keBadParameterCount,
-				      "Creating summary spectrum");
-    }
-    return CreateSummary(rName, eDataType,
-			 ParameterList, rResolutions[0]);
   case keG1D:
-    if(rTransformCoords.empty()) {
+    {
       Require(eDataType, eSpecType, rName,
-	      ParameterList, rResolutions, ParameterList.size(), 1);
-      return CreateG1D(rName, eDataType, ParameterList, 
-		       rResolutions[0]);
+	      ParameterList, rChannels, ParameterList.size(), 1);
+      Float_t fLow;
+      Float_t fHigh;
+
+      // Default axis mappings can only be derived on the assumption that
+      // all of the parameters are uniform in their characteritics.  This
+      // is usually the case.
+
+      if(pLows == (vector<Float_t>*)kpNULL) {
+	fLow = 0.0;
+	fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+      }
+      else {
+	fLow = (*pLows)[0];
+	fHigh= (*pHighs)[0];
+	if(fLow == fHigh) {
+	  fLow = 0.0;
+	  fHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+	}
+	
+      }
+      return CreateG1D(rName, eDataType, ParameterList,
+		       rChannels[0], fLow, fHigh);
     }
-    Require(eDataType, eSpecType, rName,
-	    ParameterList, rResolutions, ParameterList.size(), 0);
-    MappedRequire(eDataType, eSpecType, rName,
-		  rTransformCoords, rChannels, ParameterList, 2, 1);
-    return CreateMG1D(rName, eDataType, ParameterList,
-		      rTransformCoords[0], rTransformCoords[1], rChannels[0]);
   case keG2D:
-    if(rTransformCoords.empty()) {
+    {
       Require(eDataType, eSpecType, rName,
-	      ParameterList, rResolutions, ParameterList.size(), 2);
+	      ParameterList, rChannels, ParameterList.size(), 2);
+      Float_t fxLow, fyLow;
+      Float_t fxHigh, fyHigh;
+      
+      if(pLows == (vector<Float_t>*) kpNULL) {
+	fxLow = 0.0;
+	fyLow = 0.0;
+	fxHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+	fyHigh= DefaultAxisLength(rChannels[1], ParameterList[1]);
+
+      }
+      else {
+	fxLow = (*pLows)[0];
+	fxHigh= (*pHighs)[0];
+	fyLow = (*pLows)[1];
+	fyHigh= (*pHighs)[1];
+	if(fxLow == fxHigh) {	// Default x axis:
+	  fxLow = 0.0;
+	  fxHigh= DefaultAxisLength(rChannels[0], ParameterList[0]);
+	}
+	if(fyLow == fyHigh) {
+	  fyLow = 0.0;
+	  fyHigh= DefaultAxisLength(rChannels[1], ParameterList[1]);
+	}
+
+      }
       return CreateG2D(rName, eDataType, ParameterList,
-		       rResolutions[0], rResolutions[1]);
+		       rChannels[0], fxLow, fxHigh,
+		       rChannels[1], fyLow, fyHigh);
+      
     }
-    Require(eDataType, eSpecType, rName,
-	    ParameterList, rResolutions, ParameterList.size(), 0);
-    MappedRequire(eDataType, eSpecType, rName,
-		  rTransformCoords, rChannels, ParameterList, 4, 2);
-    return CreateMG2D(rName, eDataType,
-		      ParameterList, rTransformCoords[0], rTransformCoords[2],
-		      rTransformCoords[1], rTransformCoords[3],
-		      rChannels[0], rChannels[1]);
+
   default:
     throw CSpectrumFactoryException(eDataType, eSpecType,
 				    rName,
@@ -487,40 +615,75 @@ CSpectrumFactory::CreateSpectrum(const std::string& rName,
   }
 
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    CSpectrum* Create1D ( const std::string& rName, DataType_t eType, 
-//                          CParameter rParameter, UInt_t  nRes )
-//  Operation Type:
-//     Creational.
-//
+/*!
+   Called to create a 1-d spectrum with default axis mapping (that
+   is identity transformation between parameter and axis coordinates.
+
+   \param <tt> rName (const string& [in]) </tt>
+      The name of the spectrum.
+   \param <tt> eType (DataType_t [in]) </tt>
+      The data type for the channels in the spectrum.
+   \param <tt> Param (CParameter [in]) </tt>
+      The parameter that increments the spectrum.
+   \param <tt> nChannels (UInt_t [in]) </tt>
+      The number of channels on the X axis.
+
+\retval CSpectrum* 
+     A pointer to the newly created spectrum. 
+
+\throw CSpectrumFactorException on error.
+*/
+CSpectrum*
+CSpectrumFactory::Create1D(const std::string& rName, 
+			   DataType_t Type,
+			   CParameter Param,
+			   UInt_t     nChannels)
+{
+  // This function will convert to a call to the fully specified
+  // Create1D:
+
+  return Create1D(rName, Type, Param, nChannels,
+		  0.0, (Float_t)(nChannels - 1));
+}
+
+/*!
+    Called to create a 1-d spectrum with arbitrary mapping from
+    parameter space to axis coordinates.  The mapping is specified
+    by a linear map that places fxLow on channel 0 and fxHigh
+    on channel nChannels-1
+
+   \param <tt> rName (const string& [in]) </tt>
+      The name of the spectrum.
+   \param <tt> eType (DataType_t [in]) </tt>
+      The data type for the channels in the spectrum.
+   \param <tt> Param (CParameter [in]) </tt>
+      The parameter that increments the spectrum.
+   \param <tt> nChannels (UInt_t [in]) </tt>
+      The number of channels on the X axis.
+   \param <tt> fxLow (Float_t [in]): </tt>
+      The parameter value that maps to axis channel 0.
+   \param <tt> fxHigh (Float_t [in]): </tt>
+      The parameter value tha maps to axis channel (nChannels -1).
+
+\retval CSpectrum* 
+     A pointer to the newly created spectrum. 
+
+\throw CSpectrumFactorException on error.
+*/
 CSpectrum* 
 CSpectrumFactory::Create1D(const std::string& rName, DataType_t eType, 
-			   CParameter rParameter, UInt_t  nRes) 
+			   CParameter rParameter, UInt_t  nChannels,
+			   Float_t fxLow, Float_t fxHigh) 
 {
-// Called to create 1-d spectra.
-//
-// Formal Parameters:
-//     const std::string& rName:
-//          Name of the spectrum.
-//     DataType_t eType:
-//          Type of data contained by spectrum.
-//      CParameter rParameter:
-//           Parameter on which the spectrum is to be set.
-//      UInt_t nRes:
-//           Resolution of the spectrum.
-// Returns:
-//    A pointer to the created spectrum.
-// Throws:
-//    On error throws a CSpectrumFactoryExceptoin.
-//
+
 
   switch(eType) {
   case keWord:
-    return new CSpectrum1DW(rName, NextId(), rParameter, nRes);
+    return new CSpectrum1DW(rName, NextId(), rParameter, nChannels,
+			    fxLow, fxHigh);
   case keLong:
-    return new CSpectrum1DL(rName, NextId(), rParameter, nRes);
+    return new CSpectrum1DL(rName, NextId(), rParameter, nChannels,
+			    fxLow, fxHigh);
   default:			// Only word and long spectra are supported.
     throw CSpectrumFactoryException(eType, ke1D, rName,
 				    CSpectrumFactoryException::keBadDataType,
@@ -529,48 +692,102 @@ CSpectrumFactory::Create1D(const std::string& rName, DataType_t eType,
 
   }
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    CSpectrum* Create2D ( const std::string& rName, DataType_t eType, 
-//                          CParameter xParam, CParameter yParam, 
-//                          UInt_t nXRes, UInt_t nYRes )
-//  Operation Type:
-//     Creational
-//
-CSpectrum* 
+/*!
+  Creates a 2d spectrum with identity mapping between the parameters
+  on the axes and the axis coordinates themselves. For arbitrary 
+  mappings, see the next function.  This function in fact delgates.
+
+  \param <tt> rName (const string& [in])</tt>
+     Name of the new spectrum.
+  \param <tt> eType (DataType_t [in])</tt>
+     Data type for the channels of the spectrum.
+  \param <tt> xParam (CParameter [in]) </tt>
+     Parameter derfinition of the parameter on the x axis.
+  \param <tt> yParam (CParameter [in]) </tt>
+     Parameter definintion of the parameter on the y axis.
+  \param <tt> nXChannels (UInt_t [in]) </tt>
+     Number of channels on the x axis.
+  \param <tt> nYChannels (UInt_t [in]) </tt>
+     Number of channels on the y axis.
+
+  \retval <tt> CSpectrum* </tt>
+     Pointer to the newly created spectrum.
+
+  \throw CSpectrumFactoryException
+*/
+CSpectrum*
 CSpectrumFactory::Create2D(const std::string& rName, DataType_t eType, 
 			   CParameter xParam, CParameter yParam, 
-			   UInt_t nXRes, UInt_t nYRes) 
+			   UInt_t nXChannels, UInt_t nYChannels)
 {
-// Creates a 2-d spectrum.
-//
-//  Formal Parameters:
-//        const std::string& rName:
-//             Name of the spectrum.
-//         DataType_t eType:
-//              Type of the data held by the spectrum.
-//         CParameter  xPar:
-//               X parameter.
-//         CParameter yPar:
-//               Y Channel parameter.
-//         UInt_t nXRes:
-//                X spectrum resolution.
-//         UInt_t nYRes:
-//               Y Spectrum resolution.
-// Returns:
-//    A pointer to the new spectrum.
-// Throws:
-//     CSpectrumFactoryException on errors in creation.
+  return Create2D(rName, eType, xParam, yParam,
+		  nXChannels, 0.0, (Float_t)(nXChannels - 1),
+		  nYChannels, 0.0, (Float_t)(nYChannels - 1));
+
+}
+/*!
+   Creates a 2d spectrum with arbitrary mapping between the 
+   parameters on the axes and the axis coordinates.  The mapping
+   is defined by the (fxLow, fxHigh), and (fyLow, fyHigh) pairs.
+   Eac pair defines the parameter values for the 0'th and last
+   channel of the corresponding axis.
+
+
+  \param <tt> rName (const string& [in])</tt>
+     Name of the new spectrum.
+  \param <tt> eType (DataType_t [in])</tt>
+     Data type for the channels of the spectrum.
+  \param <tt> xParam (CParameter [in]) </tt>
+     Parameter derfinition of the parameter on the x axis.
+  \param <tt> yParam (CParameter [in]) </tt>
+     Parameter definintion of the parameter on the y axis.
+  \param <tt> nXChannels (UInt_t [in]) </tt>
+     Number of channels on the x axis.
+  \param <tt> fxLow (Float_t [in]) </tt>
+      The parameter value that corresponds to the origin of the
+      x axis.
+  \param <tt> fxHigh (Float_t [in]) </tt>
+      The parameter value that corresponds to the last channel
+      (nXChannels -1) of the X axis.
+  \param <tt> nYChannels (UInt_t [in]) </tt>
+     Number of channels on the y axis.
+  \param <tt> fyLow (Float_t [in]) </tt>
+      The parameter value that corresponds to the origin of the
+      y axis.
+  \param <tt> fyHigh (Float_t [in]) </tt>
+      The parameter value that corresponds to the last channel
+      (nYChannels -1) of the Y axis.
+ 
+  \retval <tt> CSpectrum* </tt>
+     Pointer to the newly created spectrum.
+
+  \throw CSpectrumFactoryException
+*/
+CSpectrum* 
+CSpectrumFactory::Create2D(const std::string& rName, 
+			   DataType_t eType, 
+			   CParameter xParam, CParameter yParam, 
+			   UInt_t nXChannels, 
+			   Float_t fxLow, Float_t fxHigh,
+			   UInt_t nYChannels, 
+			   Float_t fyLow, Float_t fyHigh)
+{
+
 
   switch(eType) {
   case keWord:
     return new CSpectrum2DW(rName, NextId(),
-			    xParam, yParam, nXRes, nYRes);
+			    xParam, yParam,
+			    nXChannels, fxLow, fxHigh,
+			    nYChannels, fyLow, fyHigh);
+    break;
   case keByte:
-    return new CSpectrum2DB(rName, NextId(),
-			    xParam, yParam, nXRes, nYRes);
 
+    return new CSpectrum2DB(rName, NextId(),
+			    xParam, yParam,
+			    nXChannels, fxLow, fxHigh,
+			    nYChannels, fyLow, fyHigh);
+    break;
   default:			// Unsupported data type.
     throw CSpectrumFactoryException(eType, ke2D, rName,
 				    CSpectrumFactoryException::keBadDataType,
@@ -579,7 +796,7 @@ CSpectrumFactory::Create2D(const std::string& rName, DataType_t eType,
   }
 
 }
-
+#ifdef _USE_MAPPED_SPECTRA
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -688,44 +905,78 @@ CSpectrumFactory::CreateM2D(const std::string& rName, DataType_t eType,
 				    "Creating mapped 2d spectrum");
   }
 }
+#endif
+/*!
+  Creates a 1d gamma spectrum with identity transforms between
+  the parameters and the axis coordinates. 
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    CSpectrum* CreateG1D ( const std::string& rName, DataType_t eType, 
-//                           vector<CParameter>& rvParameters, 
-//                           UInt_t nResolution )
-//  Operation Type:
-//     Creational.
-//
+  \param <tt> rName (const string& [in])</tt>
+      Name to be given to the spectrum
+  \param <tt> eType (DataType_t [in]) </tt>
+      Data type for each channel of the spectrum.
+  \param <tt> rvParameters (vector<CParameter>& [in]) </tt>
+      Set of parameters that will be histogrammed.  To first order,
+      each valid parameter will increment its corresponding channel.
+  \param <tt> nChannels (UInt_t [in]) </tt>
+      Number of channels on the axis.  The axis is assumed to cover
+      the intervale [0.0, nChannels).
+  \retval CSpectrum*
+    Pointer to a newly created spectrum.
+
+    \throw CSpectrumFactoryException on errors in creation.
+*/
 CSpectrum*
 CSpectrumFactory::CreateG1D(const std::string& rName, DataType_t eType,
 			    vector<CParameter>& rvParameters, 
-			    UInt_t nResolution)
+			    UInt_t nChannels)
 {
-// Called to create a 1-d gamma spectra.
-//
-// Formal Parameters:
-//     const std::string& rName:
-//          Name of the spectrum.
-//     DataType_t eType:
-//          Type of data contained by spectrum.
-//      vector<CParameter>& rvParameters:
-//           Parameter on which the spectrum is to be set.
-//      UInt_t nResolution:
-//           Number of channels to histogram
-// Returns:
-//    A pointer to the created spectrum.
-// Throws:
-//    On error throws a CSpectrumFactoryException.
-//
+  return CreateG1D(rName, eType, rvParameters,
+		   nChannels, 0.0, (Float_t)(nChannels - 1));
+}
+
+/*!
+  Creates a 1d gamma spectrum with arbitrary transforms between
+  the parameters and the axis coordinates.  The axis covers the
+  same range for all parameters, however in the presence of mapped
+  parameters, each parameter will in general have a different 
+  transformation function.
+
+
+  \param <tt> rName (const string& [in])</tt>
+      Name to be given to the spectrum
+  \param <tt> eType (DataType_t [in]) </tt>
+      Data type for each channel of the spectrum.
+  \param <tt> rvParameters (vector<CParameter>& [in]) </tt>
+      Set of parameters that will be histogrammed.  To first order,
+      each valid parameter will increment its corresponding channel.
+  \param <tt> nChannels (UInt_t [in]) </tt>
+      Number of channels on the axis.  The axis is assumed to cover
+      the intervale [0.0, nChannels).
+  \param <tt> fxLow (Float_t [in]) </tt>
+      Mapped parameter value that increments channel 0 of the axis.
+  \param <tt> fxHigh (Float_t [in]) </tt>   
+      Mapped parameter value that increments the last channel
+      (nChannels - 1) of the spectrum.
+  \retval CSpectrum*
+    Pointer to a newly created spectrum.
+
+    \throw CSpectrumFactoryException on errors in creation.
+*/
+CSpectrum*
+CSpectrumFactory::CreateG1D(const std::string& rName, DataType_t eType,
+			    vector<CParameter>& rvParameters, 
+			    UInt_t nChannels, 
+			    Float_t fxLow, Float_t fxHigh)
+{
 
   switch(eType) {
   case keWord:
-    return new CGamma1DW(rName, NextId(), rvParameters, nResolution);
+    return new CGamma1DW(rName, NextId(), rvParameters, 
+			 nChannels, fxLow, fxHigh);
 
   case keLong:
-    return new CGamma1DL(rName, NextId(), rvParameters, nResolution);
+    return new CGamma1DL(rName, NextId(), rvParameters, 
+			 nChannels, fxLow, fxHigh);
 
   default:
     throw CSpectrumFactoryException(eType, keG1D, rName,
@@ -734,46 +985,97 @@ CSpectrumFactory::CreateG1D(const std::string& rName, DataType_t eType,
 			 
   }
 }
+/*!
+   Creates a 2-d gamma spectrum with an identity mapping between
+parameter space and axis space.  That is, each axis will cover 
+the interval [0, nChannels) where nChannels is the number of 
+channels on \em that axis.
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    CSpectrum* CreateG2D ( const std::string& rName, DataType_t eType, 
-//                           vector<CParameter>& rvParameters, 
-//                           UInt_t nXRes, UInt_t nYRes )
-//  Operation Type:
-//     Creational
-//
+   \param <tt>rName (const string& [in]) </tt>
+      The name of the spectrum.
+   \param <tt>eType (DataType_t [in]) </tt>
+       The data type for each channel of the spectrum.
+   \param <tt>rvParameters (vector<CParameter>& [in]) </tt>
+       Vector containing the parameter definitions that describe
+       how to increment the spectrum.  To first order, the
+       spectrum is incremented for each ordered pair.
+   \param <tt>nxChannels (UInt_t [in]) </tt>
+      Number of channels on the x axis.
+   \param <tt>nyChannels (UInt_t [in]) </tt>
+      Number of channels on the y axis.
+
+   \retval CSpectrum*
+       The spectrum created by the function.
+
+   \throw CSpectrumFactoryException on errors in creation.
+
+*/
+CSpectrum*
+CSpectrumFactory::CreateG2D(const std::string& rName, 
+			    DataType_t eType,
+			    vector<CParameter>& rvParameters,
+			    UInt_t nxChannels, UInt_t nyChannels)
+{
+  return CreateG2D(rName, eType, rvParameters,
+		   nxChannels, 0.0, (Float_t)(nxChannels - 1),
+		   nyChannels, 0.0, (Float_t)(nyChannels - 1));
+}
+/*!
+   Creates a 2d gamma spectrum with arbitrary mapping between
+   the parameters and axis space.
+
+   \param <tt>rName (const string& [in]) </tt>
+      The name of the spectrum.
+   \param <tt>eType (DataType_t [in]) </tt>
+       The data type for each channel of the spectrum.
+   \param <tt>rvParameters (vector<CParameter>& [in]) </tt>
+       Vector containing the parameter definitions that describe
+       how to increment the spectrum.  To first order, the
+       spectrum is incremented for each ordered pair.
+   \param <tt>nxChannels (UInt_t [in]) </tt>
+      Number of channels on the x axis.
+   \param <tt> fxLow (Float_t [in]) </tt>
+      Parameter space value that is mapped to channel 0 of the
+      x axis.
+   \param <tt> fxHigh (Float_t [in]) </tt>
+      Parameter space value that is mapped to channel (nxChannels-1)
+      of the x axis.
+   \param <tt>nyChannels (UInt_t [in]) </tt>
+      Number of channels on the y axis.
+   \param <tt> fyLow (Float_t [in]) </tt>
+      Parameter space value that is mapped to channel 0 of the
+      y axis.
+   \param <tt> fyHigh (Float_t [in]) </tt>
+      Parameter space value that is mapped to channel (nyChannels-1)
+      of the y axis.
+   \retval CSpectrum*
+       The spectrum created by the function.
+
+   \throw CSpectrumFactoryException on errors in creation.
+*/
 CSpectrum*
 CSpectrumFactory::CreateG2D(const std::string& rName, DataType_t eType,
-			    vector<CParameter>& rvParameters, UInt_t nXRes,
-			    UInt_t nYRes)
+			    vector<CParameter>& rvParameters, 
+			    UInt_t nxChannels,
+			    Float_t fxLow, Float_t fxHigh,
+			    UInt_t nyChannels,
+			    Float_t fyLow, Float_t fyHigh)
 {
-// Creates a 2-d gamma spectrum.
-//
-//  Formal Parameters:
-//         const std::string& rName:
-//              Name of the spectrum.
-//         DataType_t eType:
-//              Type of the data held by the spectrum.
-//         vector<CParameter>& rvParameters
-//              List of parameters
-//         UInt_t nXRes:
-//              X spectrum resolution.
-//         UInt_t nYRes:
-//              Y Spectrum resolution.
-// Returns:
-//    A pointer to the new spectrum.
-// Throws:
-//     CSpectrumFactoryException on errors in creation.
+
 
 
   switch(eType) {
   case keByte:
-    return new CGamma2DB(rName, NextId(), rvParameters, nXRes, nYRes);
+    return new CGamma2DB(rName, NextId(), rvParameters, 
+			 nxChannels,  nyChannels,
+			 fxLow, fxHigh,
+			 fyLow, fyHigh);
 
   case keWord:
-    return new CGamma2DW(rName, NextId(), rvParameters, nXRes, nYRes);
+    return new CGamma2DW(rName, NextId(), rvParameters, 
+			 nxChannels, nyChannels,
+			 fxLow, fxHigh,
+			 fyLow, fyHigh);
 
   default:
     throw CSpectrumFactoryException(eType, keG2D, rName,
@@ -782,6 +1084,7 @@ CSpectrumFactory::CreateG2D(const std::string& rName, DataType_t eType,
   }
 }
 
+#ifdef __USE_MAPPED_SPECTRA
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -883,46 +1186,78 @@ CSpectrumFactory::CreateMG2D(const std::string& rName, DataType_t eType,
 				    "Creating mapped 2d gamma spectrum");
   }
 }
+#endif
+/*!
+   Creates a bitmap spectrum wih an identity mapping that maps bit 0
+to channel 0 and bit rChannels-1 to the last channel of the spectrum.
 
+  \param <tt> rName (const string& [in]):</tt>
+       The name to be given to the spectrum.
+  \param <tt> eType (DataType_t [in]): </tt>
+       The type of data stored in each channel of the spectrum.
+  \param <tt> Param  (CParameter [in])  </tt>
+       The definition of the parameter to histogram.
+  \param <tt> nChannels (UInt_t [in])</tt>
+       The number of channels in the histogram.  There should be a
+       channel for each bit that is desired.
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    CSpectrum* CreateBit ( const std::string& rName, DataType_t eType, CParameter Param, UInt_t nResolution )
-//  Operation Type:
-//     creational
-//
-CSpectrum* 
-CSpectrumFactory::CreateBit(const std::string& rName, DataType_t eType, 
-			    CParameter Param, UInt_t nResolution) 
+  \retval CSpectrum*
+      The spectrum created by the function.
+  
+  \throw CSpectrumFactoryException on errors in creation. 
+*/
+CSpectrum*
+CSpectrumFactory::CreateBit(const std::string& rName,
+			    DataType_t         eType,
+			    CParameter         Param,
+			    UInt_t             nChannels)
 {
-// Creates a bitmask spectrum.
-//  Bitmask spectra are incremented once for each
-//  bit set in their parameter.
-//
-// Formal Parameters:
-//    const std::string& rName:
-//       Name of the spectrum.
-//    DataType_t eType:
-//       Channel type.
-//    CParameter Param:
-//       Parameter to be  histogrammed in this way.
-//   UInt_t nRes:
-//       Resolution of spectrum (determines which set of bits to histogram).
-// Returns:
-//    Pointer to the created spectrum.
-//
-// Throws:
-//      CSpectrumFactoryException on error.
-//
+  // We delegate to the general function:
+
+  return CreateBit(rName, eType, Param,
+		   0, nChannels-1);
+}
+/*!
+   Creates a bitmap spectrum wih an arbitrary mapping that
+   maps bit number nLow to the first channel (channel 0) of the
+   spectrum and bit number nHigh to the last channel (nHigh-nLow).
+   Note therefore that the interval is inclusive of the endpoinst,
+   that is all bits in the range [nLow, nHigh] have channels.
+   If the parameter is a mapped parameter, the mapped parameter is
+   treated as a bitmask.
+
+  \param <tt> rName (const string& [in]):</tt>
+       The name to be given to the spectrum.
+  \param <tt> eType (DataType_t [in]): </tt>
+       The type of data stored in each channel of the spectrum.
+  \param <tt> Param  (CParameter [in])  </tt>
+       The definition of the parameter to histogram.
+  \param <tt> nLow (UInt_t [in])</tt>
+       The number of the first bit to display on the spectrum.
+  \param <tt> nHigh (Uint_t [in])</tt>
+       The number of the last bit to display on the spectrum.
+
+  \retval CSpectrum*
+      The spectrum created by the function.
+  
+  \throw CSpectrumFactoryException on errors in creation. 
+*/
+CSpectrum* 
+CSpectrumFactory::CreateBit(const std::string& rName, 
+			    DataType_t eType, 
+			    CParameter Param, 
+			    UInt_t nLow,
+			    UInt_t nHigh)
+{
+
 
   switch(eType) {
   case keWord:
     return new CBitSpectrumW(rName, NextId(),
-			     Param, nResolution);
+			     Param, nLow, nHigh);
   case keLong:
     return new CBitSpectrumL(rName, NextId(),
-			     Param, nResolution);
+			     Param, nLow, nHigh);
   default:
     throw CSpectrumFactoryException(eType, keBitmask, rName,
 				    CSpectrumFactoryException::keBadDataType,
@@ -931,49 +1266,95 @@ CSpectrumFactory::CreateBit(const std::string& rName, DataType_t eType,
   }
 
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    CSpectrum* CreateSummary ( const std::string& rName, DataType_t eType, 
-//                               vector<CParameter>& rParameters, 
-//                               UInt_t nYRes )
-//  Operation Type:
-//     Creational
-//
-CSpectrum* 
-CSpectrumFactory::CreateSummary(const std::string& rName, DataType_t eType, 
-				vector<CParameter>& rParameters, UInt_t nYRes) 
+/*!
+   Creates a summary spectrum.  Summary spectra
+   are 2-d spectra, where the X channel is a parameter index
+   and the y channels histogram parameter values for each parameter.
+   The intent is to be able to see at a  glance at a set of similar channels
+   to be able to see which ones have problems.  The parameters are
+   mapped to the Y axis via an identity transform.
+
+   \param <tt>  rName (const string& [in])</tt>
+       The name of the spectrum.
+   \param <tt>  eType (DataType_t [in]) </tt>
+       The data type for each channel of the spectrum.
+   \param <tt>  rParameters (vector<CParameter>& [in])</tt>
+       A reference to a vector of parameters that define the
+       x axis and how the spectrum is incremented.
+   \param <tt>  nChannels (UInt_t [in]</tt>
+      The number of channels on the Y axis of the spectrum.
+
+   \retval CSpectrum*
+      A pointer to the spectrum created.
+    
+    \throw CSpectrumFactoryException 
+       If there are problems.
+
+*/
+CSpectrum*
+CSpectrumFactory::CreateSummary(const std::string& rName, 
+			       DataType_t eType, 
+			       vector<CParameter>& rParameters, 
+			       UInt_t nChannels)
 {
-// Creates a summary spectrum.  Summary spectra
-// are 2-d spectra, where the X channel is a parameter index
-// and the y channels histogram parameter values for each parameter.
-// The intent is to be able to see at a  glance at a set of similar channels
-//  to be able to see which ones have problems.
-//
-// Formal Parameters:
-//      const std::string& rName:
-//          Name  of the spectrum.
-//      DataType_t eType:
-//          Type of datat histogrammed.
-//      vector<CParameter>& rParams:
-//          The set of parameters  to histogram.
-//       UInt_t nYResolution:
-//           Resolution on the Y axis.
-//
-// Returns a pointer to the spectrum created.
-//  
-// Throws:
-//      A CSpectrumFactoryException if there are problems.
-//
+  // This function delegates to the more general version of the
+  // creational:
+
+  return CreateSummary(rName, eType, rParameters,
+		       nChannels, 0.0, (Float_t)(nChannels - 1));
+}
+
+/*!
+   Creates a summary spectrum.  Summary spectra
+   are 2-d spectra, where the X channel is a parameter index
+   and the y channels histogram parameter values for each parameter.
+   The intent is to be able to see at a  glance at a set of similar channels
+   to be able to see which ones have problems.  The parameters are
+   mapped to the y axis in accordance with the values fyLow, fyHigh.
+   Channel 0 of the y axis will correspond to the mapped paramter 
+   value fyLow, and channel nChannels will correspond to fyHigh.
+
+   \param <tt>  rName (const string& [in])</tt>
+       The name of the spectrum.
+   \param <tt>  eType (DataType_t [in]) </tt>
+       The data type for each channel of the spectrum.
+   \param <tt>  rParameters (vector<CParameter>& [in])</tt>
+       A reference to a vector of parameters that define the
+       x axis and how the spectrum is incremented.
+   \param <tt>  nChannels (UInt_t [in]</tt>
+      The number of channels on the Y axis of the spectrum.
+   \param <tt> fyLow (Float_t [in]) </tt>
+      Mapped parameter value of channel 0 on the y axis.
+   \param <tt> fyHigh (Float_t [in]) </tt>
+      Mapped parameter value of the last channel (nChannels-1) on
+      the y axis.
+
+   \retval CSpectrum*
+      A pointer to the spectrum created.
+    
+    \throw CSpectrumFactoryException 
+       If there are problems.
+
+*/
+CSpectrum* 
+CSpectrumFactory::CreateSummary(const std::string& rName, 
+				DataType_t eType, 
+				vector<CParameter>& rParameters, 
+				UInt_t nChannels,
+				Float_t fxLow, Float_t fxHigh) 
+{
+
 
   switch(eType) {
   case keWord:
     return new CSummarySpectrumW(rName, NextId(),
-				 rParameters, nYRes);
+				 rParameters, 
+				 nChannels, fxLow, fxHigh);
     
   case keByte:
     return new CSummarySpectrumB(rName, NextId(),
-				 rParameters, nYRes);
+				 rParameters, 
+				 nChannels, fxLow, fxHigh);
     
   default:
     throw CSpectrumFactoryException(eType, keSummary, rName,
@@ -1154,3 +1535,29 @@ CSpectrumFactory::MappedRequire(DataType_t          dType,
 	       "No mapping information in parameter to mapped spectrum in CSpectrumFactory::MappedRequire");
   }
 }
+/*!
+   Determines the default maximum parameter value represented by an axis
+   in the case an axis doesn't have its range specified. The value returned
+   depends on whether or not the associated parameter has a scale.  If it
+   does not, the axis is a 1:1 correspondence to channels.  If it does,
+   the axis defaults to cover the entire parameter range:
+   \param <TT> nChannels (UInt_t [in]): </TT>
+      Number of channels in the axis.
+   \param <TT> rParam (CParameter& [in]): </TT>
+      Reference to the description of the parameter that's on this axis.
+
+   \retval Float_t  the value of the parameter that corresponds to nChannels-1
+      (the 0.0 -> 0 regardless).
+*/
+Float_t
+CSpectrumFactory::DefaultAxisLength(UInt_t nChannels, CParameter& rParam)
+{
+  if(rParam.hasScale()) {
+    return (Float_t)((1 << rParam.getScale()) - 1); // param governs mapping.
+  }
+  else {
+    return (Float_t)(nChannels - 1); // The axis governs the mapping.
+  }
+}
+
+

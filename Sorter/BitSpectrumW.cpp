@@ -288,40 +288,101 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //   Michigan State Univesrity
 //   East Lansing, MI 48824-1321
 //
+/*!
+  Change Log:
+  $Log$
+  Revision 4.2  2003/04/01 19:52:40  ron-fox
+  Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
+
 #include "BitSpectrumW.h"
 #include "Parameter.h"
 #include "Event.h"
 #include "RangeError.h"
 #include <histotypes.h>
+#include <string>
 #include <assert.h>
 #include <math.h>
+#include "CAxis.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
-// Functions for class CBitSpectrumW:
+// Constructors:
 
-////////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//      CBitSpectrumW(const std::string& rName, UInt_t nId,
-//                    const CParameter& rParameter,
-//                    UInt_t            nScale)
-// Operation Type:
-//      Constructor.
-//
-CBitSpectrumW::CBitSpectrumW(const std::string& rName, UInt_t nId,
+
+
+/*!
+  Construct a bit spectrum with longword channels.
+  This constructor builds a spectrum that has the 
+  specified number of channels.  The axis runs from 
+  0-(nChannels-1)
+  \param rName (string& [in]) Name of the spectrum.
+  \param nId   (UInt_t  [in]) Identifier associated with
+                              the spectrum.
+  \param rParameter (const CParameter& [in]):
+                Description of the parameter to 
+		histogram.
+  \param nChannels (UInt_t [in]): Number of channels
+                in the spectrum.
+
+*/
+
+CBitSpectrumW::CBitSpectrumW(const std::string& rName, 
+			     UInt_t nId,
 			     const CParameter& rParameter,
-			     UInt_t            nScale) :
-  CSpectrum(rName, nId),
-  m_nChannels(1 << nScale),
-  m_nParameter(rParameter.getNumber())
+			     UInt_t nChannels) :
+  CSpectrum(rName, nId, 
+	    Axes(1, CAxis((Float_t)0.0, Float_t(nChannels-1), 
+			  nChannels,
+			  CParameterMapping(rParameter)))),
+  m_nChannels(nChannels),
+  m_nParameter(rParameter.getNumber()),
+  m_PDescription(rParameter)
   
 {
-  setStorageType(keWord);
-  UShort_t* pStorage = new UShort_t[m_nChannels];
-  ReplaceStorage(pStorage);	// Submit storage and ownership to parent class
-  Clear();
+  AddAxis(nChannels, 0.0, (Float_t)(nChannels - 1));
+  CreateStorage();
 }
+/*! 
+  Constructs a bit spectrum that has a cut in axis and
+  histograms with long word bins.  The histogram histograms
+  the bits set in the scaled parameter in the interval
+  from nLow - nHigh.
+
+  \param rName (const string& [in]) Name of the spectrum 
+                                    to create.
+  \param nId (UInt_t [in]): Id number of the spectrum.
+            This is a unique number.
+  \param rParameter (CParameter& [in]): Description of
+            the parameter to histogram.
+  \param nLow (UInt_t [in]): Lowest bit to histogram
+            (inclusive).
+  \param nHigh (UINt_t [in]): Highst bit to historam
+            (inclusive).
+
+   Note that if asked to histogram a bit that is out of
+
+*/
+CBitSpectrumW::CBitSpectrumW(const std::string& rName, UInt_t nId,
+	      const CParameter& rParameter,
+	      UInt_t nLow,
+	      UInt_t nHigh) :
+  CSpectrum(rName, nId,
+	    CSpectrum::Axes(1, 
+			    CAxis((Float_t) nLow,
+				  (Float_t) nHigh,
+				  (nHigh - nLow + 1),
+				  CParameterMapping(rParameter)))),
+  m_nChannels(nHigh - nLow + 1),
+  m_nParameter(rParameter.getNumber()),
+  m_PDescription(rParameter)
+{
+  AddAxis((nHigh - nLow), (Float_t)nLow, (Float_t)nHigh);
+  CreateStorage();
+}
+
+// Functions for class CBitSpectrumW:
 
 ///////////////////////////////////////////////////////////////////////
 // Function:
@@ -342,32 +403,33 @@ CBitSpectrumW::Increment(const CEvent& rE)
   if(rEvent[m_nParameter].isValid()) {
     UShort_t* p = (UShort_t*)getStorage();
     assert(p != (UShort_t*)kpNULL);
-    UInt_t nParam(rEvent[m_nParameter]);
-    UInt_t nBit   = 1;
-    UInt_t nChan  = 0;
+    UInt_t nParam = 
+      (UInt_t)m_PDescription.RawToMapped(rEvent[m_nParameter]);
+
+    UInt_t nBit   = 1 << (UInt_t)AxisToMapped(0, 0.0);
+  
+    
     //
     //  Increment a channel in p for every bit set in 
     //  nParam:
     //
-    while((nParam != 0) && (nChan < m_nChannels)) {
+    for(UInt_t nChan = 0; nChan < m_nChannels; nChan++) {
       if(nBit & nParam) {
 	p[nChan]++;
-	nParam &= ~nBit;
       }
       nBit = nBit << 1;
-      nChan++;
-    }
+     }
   }
 }
 ///////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//    Bool_t  UsesParameter (UInt_t nId) const
+//    Bool_t  UsesParameter (UInt_t nId  ) const
 //  Operation Type:
 //     Selector
 //
 Bool_t
-CBitSpectrumW::UsesParameter (UInt_t nId) const
+CBitSpectrumW::UsesParameter (UInt_t nId  ) const
 {
   return (m_nParameter == nId);
 }
@@ -421,7 +483,7 @@ CBitSpectrumW::set(const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(0)-1, n,
 		      std::string("Indexing 1DW spectrum"));
   }
-  p[n] = (UInt_t)nValue;
+  p[n] = (UShort_t)nValue;
  
 }
 /////////////////////////////////////////////////////////////////////
@@ -461,21 +523,25 @@ CBitSpectrumW::GetResolutions(vector<UInt_t>&  rvResolutions)
   //
   rvResolutions.erase(rvResolutions.begin(), rvResolutions.end());
 
-  DFloat_t scale = log((DFloat_t)m_nChannels)/log(2.0);
-  rvResolutions.push_back((UInt_t)(scale + 0.5));
+  rvResolutions.push_back(m_nChannels);
 }
-////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//     virtual Int_t getScale(UInt_t index)
-// Operation type:
-//     Selector.
-//
-Int_t 
-CBitSpectrumW::getScale(UInt_t index)
-{
-  // Returns the index'th scale factor.. this is
-  // just  0
 
-  return 0;
+/*!
+    Creates the initial spectrum storage.
+    this is a protected utility function that is used
+    to factor out common code required of all constructors.
+*/
+void
+CBitSpectrumW::CreateStorage()
+{
+
+  setStorageType(keWord);
+
+  Size_t        nBytes   = StorageNeeded();
+  UShort_t*     pStorage = new UShort_t[nBytes/sizeof(UShort_t)];
+
+  ReplaceStorage(pStorage);	// Storage now owned by parent.
+  Clear();
+
+
 }

@@ -33,7 +33,16 @@
 #include <limits.h>
 #define __CRT_LIMITS_H
 #endif
-                               
+
+/*!
+   Defines the parameter class.  The parameter class represents
+   a parameter and its properties.  by derivation from named item properties
+   include:
+   - a name
+   - an id (representing a slot in the event array).
+   - Scaling information if appropriate.
+   - Units information if appropriate.
+*/
 class CParameter  : public CNamedItem        
 {
   UInt_t  m_nScale;      // Log(2) of maximum parameter size.
@@ -49,6 +58,7 @@ public:
     m_nScale(0),
     m_nLow(0.0),
     m_nHigh(0.0),
+    m_sUnits(std::string("")),
     m_fScaled(kfFALSE)
     { }
 
@@ -68,6 +78,7 @@ public:
     m_nScale (am_nScale),
     m_nLow(0.0),
     m_nHigh(0.0),
+    m_sUnits(string("")),
     m_fScaled(kfTRUE)
     { }
 
@@ -78,6 +89,7 @@ public:
     m_nScale(am_nScale),
     m_nLow(nLow),
     m_nHigh(nHigh),
+    m_sUnits(string("")),
     m_fScaled(kfTRUE)
     {
       m_sUnits.resize(strlen(am_sUnits.c_str()) + 2, 0);
@@ -154,7 +166,7 @@ public:
   // Protected mutators:
 
 protected:
-  void setScale (UInt_t am_nScale)
+  void setScale (UInt_t am_nScale)			
   { 
     m_nScale  = am_nScale;
     m_fScaled = kfTRUE;
@@ -174,6 +186,11 @@ protected:
       m_sUnits  = am_sUnits;
       m_fScaled = kfTRUE;
     }
+public:
+  // Operations on the class:
+
+  Float_t RawToMapped(Float_t Raw);
+  Float_t MappedToRaw(Float_t Mapped);
 };
 
 #endif

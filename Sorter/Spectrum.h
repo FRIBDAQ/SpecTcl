@@ -292,6 +292,10 @@ DAMAGES.
 //     July 3, 1999:   Added getSpectrumType pure virtual function so that
 //                     spectra can report their type.
 //
+//  $Log$
+//  Revision 4.2  2003/04/01 19:53:46  ron-fox
+//  Support for Real valued parameters and spectra with arbitrary binnings.
+//
 /////////////////////////////////////////////////////////////
 
 #ifndef __SPECTRUM_H  //Required for current class
@@ -319,6 +323,15 @@ DAMAGES.
 #include "Parameter.h"
 #endif
 
+#ifndef __CAXIS_H
+#include "CAxis.h"
+#endif
+
+#ifndef __STL_VECTOR
+#include <vector>
+#define __STL_VECTOR
+#endif
+
 // Forward class definitions:
 
 class CEvent;
@@ -327,46 +340,52 @@ class CGateContainer;
 extern CGateContainer* pDefaultGate; // Gate set by default on a spectrum
 				// This defaults to a CTrueGate.
                          
-//
-//  This is an abstract base class for the set of spectrum types
-//  supported by the histogramming system.
-//
+/*!
+     This is an abstract base class for the set of spectrum types
+    supported by the histogramming system. Base services are provided including
+    a placeholder for the axis translation objects required by a spectrum.
+
+*/
 class CSpectrum  : public CNamedItem        
 {
-  Address_t       m_pStorage;     // Pointer to the channel storage.
-  Bool_t          m_fOwnStorage;  // kfTRUE if spectrum owns the storage.
-  CGateContainer* m_pGate;	// Pointer to gate on spectrum.
-  DataType_t      m_DataType;   // Type of underlying data.
+public:
+  typedef vector<CAxis>  Axes;
+  typedef Axes::iterator  AxisIterator;
+  typedef struct {
+    string             sName;	    //!< Name of spectrum.
+    UInt_t             nId;	    //!< Id of spectrum.
+    SpectrumType_t     eType;       //!< Type of spectrum.
+    DataType_t         eDataType;   //!< Data type of channels.
+    vector<UInt_t>     vParameters; //!< Set of parameters.
+    vector<UInt_t>     nChannels;   //!< Explicit channel sizes.
+    vector<Float_t>    fLows;       //!< Explicit lows.
+    vector<Float_t>    fHighs;      //!< Explicit highs.
+  } SpectrumDefinition;		    //!< Returned from GetDefinition
 
+private:
+  Address_t       m_pStorage;     //!< Pointer to the channel storage.
+  Bool_t          m_fOwnStorage;  //!< kfTRUE if spectrum owns the storage.
+  CGateContainer* m_pGate;	//!< Pointer to gate on spectrum.
+  DataType_t      m_DataType;   //!< Type of underlying data.
+  Axes            m_AxisMappings; //!< Mapping information for the axis.
+  vector<UInt_t>  m_nChannels;    //!< Number of channels on each axis
+  vector<Float_t> m_fLows;	//!< Vector of axis low limits.
+  vector<Float_t> m_fHighs;	//!< vector of axis high limits.
+  vector<string>  m_Units;	//!< Axis units.
+  vector<CParameter> m_Parameters; //!< Vector of parameters.
+  static Bool_t   m_Seedrandom;	//!< True if need to seed.
 public:
 			// Constructor
 
   CSpectrum (const std::string& rName,  UInt_t nId,
-	     CGateContainer* pGate = pDefaultGate) :  
-    CNamedItem(rName, nId),
-    m_pStorage(0),  
-    m_fOwnStorage(0) ,
-    m_pGate(pGate),
-    m_DataType(keUnknown_dt)
-    { } 
+	     Axes  Maps,
+	     CGateContainer* pGate = pDefaultGate); //!< Constructor
 
-  virtual ~ CSpectrum ( ) { 
-    if(m_fOwnStorage) {
-      ReleaseStorage();
-    }
-  }
+  CSpectrum(const std::string& rName, UInt_t nId,
+	    CGateContainer*  pGate = pDefaultGate); //!< No mapping needed.
 
-  //Constructor with arguments
-  
-  CSpectrum (  Address_t am_pStorage,  Bool_t am_fOwnStorage,
-	       const std::string& rName, UInt_t nId) :       
-    CNamedItem(rName, nId),
-    m_pStorage (am_pStorage),  
-    m_fOwnStorage (am_fOwnStorage),
-    m_pGate(pDefaultGate),
-    m_DataType(keUnknown_dt)
-    { }        
-	
+  virtual ~ CSpectrum ( );
+
   //
   // Copy constructor may not be allowed..
   //
@@ -403,7 +422,14 @@ public:
   const CGateContainer* getGate() const {
     return m_pGate;
   }
+  Axes getAxisMaps() const {
+    return m_AxisMappings;
+  }
+  Int_t getAxisMapCout() const {
+    return m_AxisMappings.size();
+  }
   virtual SpectrumType_t getSpectrumType() = 0;
+
 
   // Mutators are available to derived classes:
 
@@ -419,6 +445,14 @@ protected:
   void setStorageType(DataType_t dt) {
     m_DataType = dt;
   }
+  void AddAxis(UInt_t nChannels, Float_t fLow,
+	       Float_t fHigh, const string& Units = string("")) {
+    m_nChannels.push_back(nChannels);
+    m_fLows.push_back(fLow);
+    m_fHighs.push_back(fHigh);
+    m_Units.push_back(Units);
+
+  }
   //
   // Operations:
   //                   
@@ -431,28 +465,41 @@ public:
   }
   DataType_t StorageType () const   {return m_DataType; }
 
+  Float_t  ParameterToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue);
+  Float_t  MappedToAxis(UInt_t nAxis, Float_t fParameterValue);
+  Float_t AxisToMapped(UInt_t nAxis, UInt_t nAxisValue);
+
   // Pure virtual members:
 
   virtual   Bool_t UsesParameter(UInt_t nId) const   = 0;
-  virtual   Size_t Dimension (UInt_t nDimension) const   = 0;
-  virtual   UInt_t Dimensionality () const   = 0;
   virtual   ULong_t operator[] (const UInt_t* pIndices) const  = 0;
   virtual   void set(const UInt_t* pIndices, ULong_t nValue)= 0;
   virtual   void GetParameterIds(vector<UInt_t>& rvIds) = 0;
   virtual   void GetResolutions(vector<UInt_t>&  rvResolutions) = 0;
   virtual   void Increment(const CEvent& rEvent) = 0;
-  virtual   Int_t getScale(UInt_t index) = 0;
   //
   // Functions with default implementation.
   //
+  virtual   Size_t Dimension (UInt_t nDimension) const;
+  virtual   UInt_t Dimensionality () const;
+  virtual   Float_t GetLow(UInt_t nDimension) const;
+  virtual   Float_t GetHigh(UInt_t nDimension) const;
+  virtual   string  GetUnits(UInt_t nDimension) const;
+
   virtual   void Copy(void* pStorage) const;
   virtual   void Clear ()  ;
   virtual   Size_t StorageNeeded () const;
   virtual   void ReplaceStorage (Address_t pNewLoc, 
 				 Bool_t fTransferOwnership=kfTRUE)  ;
   virtual   Bool_t CheckGate(const CEvent& rEvent);
-  virtual   void GammaGateIncrement(const CEvent& rEvent);
+  virtual   SpectrumDefinition& GetDefinition() ;
+
+  //  virtual   void GammaGateIncrement(const CEvent& rEvent);
+
 protected:
+  static Int_t Randomize(Float_t channel);
+
   void ReleaseStorage() {
     switch(StorageType()) {
     case keByte:

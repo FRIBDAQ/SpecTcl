@@ -295,6 +295,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
+/*
+   Change log:
+    $Log$
+    Revision 4.2  2003/04/01 19:53:46  ron-fox
+    Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
+
 //
 // Header Files:
 //
@@ -305,12 +313,67 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TrueGate.h"
 #include <string.h>
 #include <iostream.h>
+#include <CAxis.h>
+#include <RangeError.h>
+#include <stdlib.h>
 
 static string T("-TRUE-");
 
 static CTrueGate       AlwaysMade;
 static CGateContainer  TrueContainer(T, 0, AlwaysMade);
 CGateContainer*        pDefaultGate = &TrueContainer;
+
+Bool_t CSpectrum::m_Seedrandom = kfTRUE; // need to init randomizer.
+
+
+/*!
+   Construct a spectrum.
+   \param rName (std::string& [in]): Name of the spectrum.
+   \param id    (UInt_t [in]):       Id of the spectrum.
+   \param Maps  (vector<CAxis> [in]): Set of paramter/axis coordinat maps.
+   \param pGate (CGateContainer* [in] default = pDefaultGate):
+             pointer to the gate set on the spectrum.  Default is a pointer to
+	     a TRUE gate.
+*/
+CSpectrum::CSpectrum (const std::string& rName,  
+		      UInt_t nId,
+		      Axes  Maps,
+		      CGateContainer* pGate) :
+  CNamedItem(rName, nId),
+  m_pStorage(0),
+  m_fOwnStorage(0),
+  m_pGate(pGate),
+  m_DataType(keUnknown_dt),	// Up to subclasser to fix this.
+  m_AxisMappings(Maps)
+{
+}
+
+/*!
+  Construct a spectrum with no need for parameter axis mapping information.
+   \param rName (std::string& [in]): Name of the spectrum.
+   \param id    (UInt_t [in]):       Id of the spectrum.
+   \param pGate (CGateContainer* [in] default = pDefaultGate):
+             pointer to the gate set on the spectrum.  Default is a pointer to
+	     a TRUE gate.
+*/
+CSpectrum:: CSpectrum(const std::string& rName, UInt_t nId,
+		      CGateContainer* pGate) :
+  CNamedItem(rName, nId),
+  m_pStorage(0),
+  m_fOwnStorage(0),
+  m_pGate(pGate),
+  m_DataType(keUnknown_dt)	// Up to subclasser to fix this.
+{
+}
+/*!
+  If necessary, the destructor releases the spectrum storage.
+*/
+CSpectrum::~CSpectrum()
+{
+  if(m_fOwnStorage) {
+    ReleaseStorage();
+  }
+}
 
 // Functions for class CSpectrum
 
@@ -320,6 +383,13 @@ CGateContainer*        pDefaultGate = &TrueContainer;
 // Operation Type:
 //     Evaluator.
 //
+/*!
+   If the spectrum's gate is made, increment the spectrum.
+   this default implementation is good for most simple spectra... as only
+   the Increment member (also virtual) is spectrum type dependent.
+   \param rEvent (const CEvent& [in]) Reference to the event that is being
+      evaluated to see how to increment the spectrum.
+*/
 void
 CSpectrum::operator()(const CEvent& rEvent)
 {
@@ -334,10 +404,16 @@ CSpectrum::operator()(const CEvent& rEvent)
 //    CGateContainer* ApplyGate(CGateContainer* pNewGate);
 // OPeration Type:
 //    Mutator
+/*!
+  Applies  a new gate to the spectrum, returning the prior gate.CGateContainer*
+  \param pNewGate (CGateContainer* [in]): New gate to apply to the spectrum.
+  \return pointer to the old gate container applied to the gate.
+*/
+
 CGateContainer*
 CSpectrum::ApplyGate(CGateContainer* pNewGate)
 {
-  // Applies  a new gate to the spectrum, returning the prior gate.
+
 
   CGateContainer* pOldGate(m_pGate);
   m_pGate = pNewGate;
@@ -350,6 +426,12 @@ CSpectrum::ApplyGate(CGateContainer* pNewGate)
 //    CGateContainer* Ungate();
 // Operation Type:
 //    Mutator.
+
+/*!
+   Replaces the current gate with the TRUE gate, effectively ungating the
+   spectrum.
+   \return A pointer to the gate that had been set on the spectrum.
+*/
 CGateContainer*
 CSpectrum::Ungate()
 {
@@ -363,26 +445,29 @@ CSpectrum::Ungate()
 //  Operation Type:
 //     mutator
 //
+
+/*! Instructs the spectrum to move the storage associated
+ with its channels into the storage pointed to by the
+ parameter.  It is up to the caller to ensure that there
+ is sufficient storage in the destination.
+ Default action is to:
+     memcpy(pNewLoc, m_pStorage, StorageNeeded());
+ If the current storage was owned by the spectrum, it is deleted.
+ The m_pStorageg and m_fOwnStorage are updated from the parameters.
+
+ Formal Parameters:
+      \param  pNewLoc (Address_t [in])
+          Pointer to the new spectrum storage.
+
+       \param fTransferOwnership (Bool_t [in] default =  kfTRUE):
+           Indicates if the storage should be owned
+           by the spectrum after transfer. kfTRUE indicates that the Spectrum
+	   will delete the storage on destruction. kfFALSE indicats the storage
+	   is externally managed.
+*/
 void 
 CSpectrum::ReplaceStorage(Address_t pNewLoc, Bool_t fTransferOwnership) 
 {
-// Instructs the spectrum to move the storage associated
-// with its channels into the storage pointed to by the
-// parameter.  It is up to the caller to ensure that there
-// is sufficient storage in the destination.
-// Default action is to:
-//     memcpy(pNewLoc, m_pStorage, StorageNeeded());
-// If the current storage was owned by the spectrum, it is deleted.
-// The m_pStorageg and m_fOwnStorage are updated from the parameters.
-//
-// Formal Parameters:
-//       Address_t pNewLoc:
-//          Pointer to the new spectrum storage.
-//
-//       Bool_t fTransferOwnership = kfTRUE:
-//           Indicates if the storage should be owned
-//           by the spectrum after transfer. 
-//
 
   if(m_pStorage)
     Copy(pNewLoc);
@@ -401,14 +486,18 @@ CSpectrum::ReplaceStorage(Address_t pNewLoc, Bool_t fTransferOwnership)
 //  Operation Type:
 //     mutator
 //
+
+/*!
+ Clears the channels assocaited with the
+ spectrum.  By default, this is done via:
+   memset(m_pStorage, 0, StorageRequried());
+  This function is virtual, however so it can be overridden.
+
+*/ 
 void 
 CSpectrum::Clear() 
 {
-// Clears the channesl assocaited with the
-// spectrum.  By default, this is done via:
-//   memset(m_pStorage, 0, StorageRequried());
-//
-// 
+
 
   memset(m_pStorage, 0, StorageNeeded());
 }
@@ -419,21 +508,29 @@ CSpectrum::Clear()
 //  Operation Type:
 //     Selector
 //
+
+/*!
+ Returns the number of storage units required
+ to store the data in the histogram.
+
+   E.g. new UChar_t[StorageNeeded()]]
+   could allocate space for the spectrum if it was
+   stored uncompressed.,
+
+ Default implementation assumes that the storage is 
+ a simple n dimensional array of items.  The only nasty
+ bit is figuring out the size of each item, done via a long
+ case statement on storage type.
+ 
+If this method does not work for a particular spectrum type. StorageNeeded
+is virtual and can be replaced as needed.
+
+ \return Size_t number of bytes of storage required by the spectrum.
+*/
 Size_t 
 CSpectrum::StorageNeeded() const 
 {
-// Returns the number of storage units required
-// to store the data in the histogram.
-//
-//   E.g. new UChar_t[StorageNeeded()]]
-//   could allocate space for the spectrum if it was
-//   stored uncompressed.,
-//
-// Default implementation assumes that the storage is 
-// a simple n dimensional array of items.  The only nasty
-// bit is figuring out the size of each item, done via a long
-// case statement on storage type.
-//  
+
 
   UInt_t nDims         = Dimensionality(); // total # of dimensions.
   Size_t nStorageUnits = 1;	           // Accumulate storage units here.
@@ -470,12 +567,22 @@ CSpectrum::StorageNeeded() const
 // Operation:
 //    Data transfer
 //
+/*!
+   Copies the current contents of a spectrum to some destination storage.
+   It is the caller's responsibility to ensure that the destination storage 
+   is big enough.  This member also requires that StorageNeeded() be accurate.
 
+   Copy is normally used when the spectrum storage is altered.  This can happen
+   in the SpecTcl program as a result of an sbind operation to bind the
+   spectrum storage to displayer storage.
+
+   \param pStorage (void* [out]): Pointer to the storage into which our
+      spectrum will be copied.
+*/
 void
 CSpectrum::Copy(void* pStorage) const
 {
-  // Copy the spectrum to external storage:
-  //
+
   memcpy(pStorage, m_pStorage, StorageNeeded());
 }
 /////////////////////////////////////////////////////////////////////////
@@ -485,14 +592,258 @@ CSpectrum::Copy(void* pStorage) const
 // Operation Type:
 //    Gate check.
 //
+
+/*!
+   Checks to see if the spectrum gate is satisfied.  This function is
+   virtual to allow for 'special' gating requirements to be implemented.
+
+   \param rEvent (CEvent& [in]): Reference to the gate to be checked.
+   \return Bool_t kfTRUE if the gate approves the increment of the spectrum.
+*/
 Bool_t
 CSpectrum::CheckGate(const CEvent& rEvent)
 {
   return (*m_pGate)((CEvent&)rEvent);
 }
-
+/*
+  I think this is not necessary in the base class.
 void
 CSpectrum::GammaGateIncrement(const CEvent& rEvent)
 {
   operator()(rEvent);
+}
+*/
+
+
+/*!
+   Converts a raw parameter value to an axis coordinate on the selected
+   axis.  
+   \param nAxis (UInt_t [in]) Selects the axis number  (0 x 1 y e.g.).
+   \param fParameterValue (Float_t [in]): The parameter value to convert.
+   \return UInt_t  The axis coordinate corresponding to fParamterValue.
+   \throw CRangeError if nAxis is out of range.
+*/
+Float_t  
+CSpectrum::ParameterToAxis(UInt_t nAxis, Float_t fParameterValue)
+{
+  if(nAxis < m_AxisMappings.size()) {
+    return m_AxisMappings[nAxis].ParameterToAxis(fParameterValue);
+  }
+  else {
+    throw CRangeError(0, m_AxisMappings.size() - 1, nAxis,
+		      string("CSpecrrumParameterToAxis"));
+  }
+}  
+
+/*!
+   Converts an axis coordinate to a raw parameter value on the selected
+   axis.
+   \param nAxis (UInt_t [in]) Selects the axis number  (0 x 1 y e.g.).
+   \param nAxisValue (UInt_t [in]): The axis value to convert.
+   \return Float_t  The parameter value corresponding to the axis value.
+   \throw CRangeError if nAxis is out of range.
+*/
+Float_t 
+CSpectrum::AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue)
+{
+  if(nAxis < m_AxisMappings.size()) {
+    return m_AxisMappings[nAxis].AxisToParameter(nAxisValue);
+  }
+  else {
+    throw CRangeError(0, m_AxisMappings.size() -1 , nAxis,
+		      string("CSpectrum::AxisToParameter"));
+  }
+}
+/*!
+   Converts a mapped parameter value to a spectrum axis coordinate.
+   \param nAxis (UInt_t [in]) Selects the axis number  (0 x 1 y e.g.).
+   \param fParameterValue (Float_t [in]): The parameter value to convert.
+   \return UInt_t  The axis coordinate corresponding to fParamterValue.
+   \throw CRangeError if nAxis is out of range.
+*/
+Float_t  
+CSpectrum::MappedToAxis(UInt_t nAxis, Float_t fParameterValue)
+{
+  if(nAxis < m_AxisMappings.size()) {
+    return m_AxisMappings[nAxis].MappedParameterToAxis(fParameterValue);
+  }
+  else {
+    throw CRangeError(0, m_AxisMappings.size() - 1, nAxis,
+		      string("CSpecrrumParameterToAxis"));
+  }
+  
+}
+/*!
+   Converts an axis coordinate to a mapped parameter value.
+   \param nAxis (UInt_t [in]) Selects the axis number  (0 x 1 y e.g.).
+   \param nAxisValue (UInt_t [in]): The axis value to convert.
+   \return Float_t  The parameter value corresponding to the axis value.
+   \throw CRangeError if nAxis is out of range.
+*/
+Float_t 
+CSpectrum::AxisToMapped(UInt_t nAxis, UInt_t nAxisValue)
+{
+  if(nAxis < m_AxisMappings.size()) {
+    return m_AxisMappings[nAxis].AxisToMappedParameter(nAxisValue);
+  }
+  else {
+    throw CRangeError(0, m_AxisMappings.size() -1 , nAxis,
+		      string("CSpectrum::AxisToParameter"));
+  }
+}
+/*!
+  Returns the number of dimensions in the spectrum
+
+  \retval UInt_t
+     Number of defined axes.
+*/
+UInt_t 
+CSpectrum::Dimensionality() const
+{
+  return m_nChannels.size();	// Number of registered axes.
+}
+/*!
+  Returns the dimension of a selected axis.  If the axis selected
+  is out of range of the allowed axes, zero is returned.
+
+  \param <tt> nDimension (UInt_t [in]) </tt>
+      Selects the axis about which we return the information.
+
+  \retval Size_t
+     The number of channels on that axis or 0 if the axis doesn't
+     exist (no channels).
+*/
+Size_t
+CSpectrum::Dimension(UInt_t nDimension) const
+{
+  if(nDimension < m_nChannels.size()) {
+    return m_nChannels[nDimension];
+  } 
+  else {
+    return 0;
+  }
+}
+/*!
+   Returns the low limit value for an axis.
+
+   \param <tt> nDimension (UInt_t [in]): </tt>
+      Selects which axis to return information about.
+
+   \retval  Float_t
+       The parameter value that corresponds to that axis's channel
+       0.
+
+    \throw CRangeError 
+        If the nDimensino parameter is not a valid dimension selector.
+*/
+Float_t
+CSpectrum::GetLow(UInt_t nDimension) const
+{
+  if(nDimension < m_fLows.size() ) {
+    return m_fLows[nDimension];
+  }
+  else {
+    throw CRangeError(0, m_fLows.size() - 1, nDimension,
+		      string("CSpectrum::GetLow"));
+  }
+}
+/*!
+  Returns the high limit value for an axis.
+
+   \param <tt> nDimension (UInt_t [in]): </tt>
+      Selects which axis to return information about.
+
+   \retval  Float_t
+       The parameter value that corresponds to that axis's last
+       channel.
+
+    \throw CRangeError 
+        If the nDimension parameter is not a valid dimension 
+	selector.
+*/
+Float_t
+CSpectrum::GetHigh(UInt_t nDimension) const
+{
+  if(nDimension < m_fHighs.size() ) {
+    return m_fHighs[nDimension];
+  }
+  else {
+    throw CRangeError(0, m_fHighs.size() - 1, nDimension,
+		      string("CSpectrum::GetHigh"));
+  }
+}
+/*!
+   Returns a structure that describes the spectrum.
+   This can be overridden by subclasses,by default,
+   it is filled in from what we know about the 
+   spectrum and its axes as a result of construction
+   stuff done by the subclasses
+
+*/
+
+struct CSpectrum::SpectrumDefinition&
+CSpectrum::GetDefinition()
+{
+  static SpectrumDefinition Def;
+  Def.sName     = getName();
+  Def.nId       = getNumber();
+  Def.eType     = getSpectrumType();
+  Def.eDataType = StorageType();
+  GetParameterIds(Def.vParameters);
+  Def.nChannels = m_nChannels;
+  Def.fLows     = m_fLows;
+  Def.fHighs    = m_fHighs;
+
+  return Def;
+}
+/*!
+   Get the units associated with an axis of the spectrum:
+   \param <TT> nDimension (UInt_t [in]) </TT>
+      The dimension to select.
+   \retval string
+     Units string (may be empty).
+   \throw CRangeError
+      If nDimension selects an undefined axis.
+
+*/
+string
+CSpectrum::GetUnits(UInt_t nDimension) const
+{
+  if(nDimension < m_Units.size() ) {
+    return m_Units[nDimension];
+  }
+  else {
+    throw CRangeError(0, m_Units.size() - 1, nDimension,
+		      string("CSpectrum::GetUnits"));
+  }
+}
+/*!
+   Randomizes a floating point channel between the two possible integer
+   channels.  This is an attempt to de-spike spectra that don't have a good
+   uniform sized mapping between the underlying parameter granularity and
+   the spectrum granularity.  This won't help when the spectrum granularity
+   is finer than the parameter granularity.. then you get channels with
+   unconditional zeroes... and that's the experimenter's fault.
+  
+  This function works like this:
+   For  c1 <= f <= c2  let b = (f - c1)  b is in the interval [0,1].
+   p(f->c1) = b and p(f->c2) = 1 - b.
+*/
+
+Int_t
+CSpectrum::Randomize(Float_t channel)
+{
+  // If necessary seed the randomizer:
+  if(m_Seedrandom) {
+    time_t seed  = time(NULL);	      // Seed with time of day.
+    srand48((long int)seed);
+    m_Seedrandom = kfFALSE;
+  }
+  Int_t low = (Int_t)channel;	      // C1 above. 
+  Float_t b = channel - (Float_t)low; // Probability in channel low.
+
+  if(b < (Float_t)drand48()) return low;
+  else                       return low+1;
+			      
+  
 }

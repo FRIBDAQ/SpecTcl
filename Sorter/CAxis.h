@@ -125,10 +125,10 @@ protected:
   
 public:
   
-  Int_t ParameterToAxis (Float_t fParameter)   ; // 
+  Float_t ParameterToAxis (Float_t fParameter)   ; // 
   Float_t AxisToParameter (UInt_t nAxisValue)   ; // 
   Float_t AxisToMappedParameter (Int_t nAxisValue)   ; // 
-  Int_t MappedParameterToAxis (Float_t fParameterValue)   ; // 
+  Float_t MappedParameterToAxis (Float_t fParameterValue)   ; // 
   
 };
 

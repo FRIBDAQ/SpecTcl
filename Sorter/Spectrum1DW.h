@@ -274,8 +274,7 @@ EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
-*/
-//  CSpectrum1D.h:
+*///  CSpectrum1D.h:
 //
 //    This file defines the CSpectrum1D class.
 //
@@ -289,6 +288,14 @@ DAMAGES.
 //  Copyright 1999 NSCL, All Rights Reserved.
 //
 /////////////////////////////////////////////////////////////
+
+/*
+   Change log:
+   $Log$
+   Revision 4.2  2003/04/01 19:53:46  ron-fox
+   Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
 
 #ifndef __SPECTRUM1DW_H  //Required for current class
 #define __SPECTRUM1DW_H
@@ -310,23 +317,35 @@ DAMAGES.
 
 class CParameter;               
                 
+/*!
+   Implements 1d histograms with word channel buckets.  The histogram
+   works on arbitrary parameters (reals, integers, mapped integers).  The
+   Axis of the spectrum can represent an arbitrary range of parameter space.
+
+*/
 
 class CSpectrum1DW  : public CSpectrum
 {
-  UInt_t m_nScale;		// Log[2) the spectrum size.
-  UInt_t m_nParameter;		// Number parameter which is histogrammed
-  Int_t  m_nScaleDifference;	// Shift count scaling parameter to spectrum.
+  UInt_t m_nChannels;		//!< Number of channels.
+  UInt_t m_nParameter;		//!< Number parameter which is histogrammed
+
   
 public:
 
-  //Constructor(s) with arguments
-  CSpectrum1DW(const std::string& rName, UInt_t nId,
-	       const CParameter& rParameter,
-	       UInt_t nScale);
+  CSpectrum1DW(const std::string&   rName, 
+	       UInt_t               nId,
+	       const CParameter&    rParameter,
+	       UInt_t               nChannels);
 
-  // Constructor(s) for use by inherited spectra
-  CSpectrum1DW(const std::string& rName, UInt_t nId,
-	       const CParameter& rParameter);
+  CSpectrum1DW(const std::string&   rName,
+	       UInt_t               nId,
+	       const   CParameter&  rParameter,
+	       UInt_t               nChannels,
+	       Float_t              fLow, 
+	       Float_t              fHigh);
+
+  //  CSpectrum1DW(const std::string& rName, UInt_t nId,
+  //	       const CParameter& rParameter);
 
   virtual  ~ CSpectrum1DW( ) { }       //Destructor	
 private:
@@ -343,25 +362,17 @@ public:
   int operator== (const CSpectrum1DW& aCSpectrum1D)
   { return (
 	    (CSpectrum::operator== (aCSpectrum1D)) &&
-	    (m_nScale == aCSpectrum1D.m_nScale) &&
-	    (m_nParameter == aCSpectrum1D.m_nParameter) &&
-	    (m_nScaleDifference == aCSpectrum1D.m_nScaleDifference) 
+	    (m_nChannels == aCSpectrum1D.m_nChannels) &&
+	    (m_nParameter == aCSpectrum1D.m_nParameter)
 	    );
   }                             
   // Selectors 
 
 public:
-  UInt_t getScale() const
-  {
-    return m_nScale;
-  }
+
   UInt_t getParameter() const
   {
     return m_nParameter;
-  }
-  Int_t getScaleDifference() const
-  {
-    return m_nScaleDifference;
   }
   virtual SpectrumType_t getSpectrumType() {
     return ke1D;
@@ -371,16 +382,13 @@ public:
 protected:
   void setScale (UInt_t am_nScale)
   { 
-    m_nScale = am_nScale;
+    m_nChannels = am_nScale;
   }
   void setParameter (UInt_t am_nParameter)
   { 
     m_nParameter = am_nParameter;
   }
-  void setScaleDifference (Int_t am_nScaleDifference)
-  { 
-    m_nScaleDifference = am_nScaleDifference;
-  }
+
   //
   //  Operations:
   //   
@@ -390,15 +398,12 @@ public:
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;
 
-  virtual   UInt_t Dimension (UInt_t n) const {
-    return ((n == 0) ? (1 << m_nScale) : 0);
-  }
-  virtual   UInt_t Dimensionality () const {
-    return 1;
-  }
   virtual void GetParameterIds(vector<UInt_t>& rvIds);
   virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
-  virtual Int_t getScale(UInt_t nIndex);
+
+  // Utility functions:
+protected:
+  void CreateChannels();	//!< Create storage.
 };
 
 #endif

@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
- (2) offer you this license which gives you legal permission to copy,
+(2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -289,6 +289,13 @@ DAMAGES.
 //  Copyright 2001 NSCL, All Rights Reserved.
 //
 /////////////////////////////////////////////////////////////
+/*
+  Change log:
+  $Log$
+  Revision 4.2  2003/04/01 19:53:12  ron-fox
+  Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
 
 #ifndef __GAMMA1DW_H  // Required for current class
 #define __GAMMA1DW_H
@@ -311,42 +318,41 @@ DAMAGES.
 #include <histotypes.h>
 #endif
 
-//  Forward class definition:
+//  Foward Class definition:
 
 class CParameter;
 
 class CGamma1DW : public CSpectrum
 {
-  struct ParameterDef {
-    UInt_t nParameter;
-    UInt_t nScale;
-    int operator==(const ParameterDef& r) const {
-      return (nParameter == r.nParameter) && (nScale == r.nScale);
-    }
-  };
-  UInt_t m_nScale;                          // Log(2) the spectrum size
-  vector<ParameterDef> m_vParameters;       // Vector of parameters
+  UInt_t         m_nScale;	//!< Spectrum channel count.
+  vector<UInt_t> m_vParameters;	//!< Vector of parameter ids.
 
  public:
 
-  //Constructor(s) with arguments
+  //Constructors
 
   CGamma1DW(const string& rName, UInt_t nId,
 	    vector<CParameter> rrParameters,
-	    UInt_t nScale);
+	    UInt_t nScale);	//!< Axis from [0,nScale)
+
+  CGamma1DW(const string& rName, UInt_t nId,
+	    vector<CParameter> rrParameters,
+	    UInt_t nChannels,
+	    Float_t fLow, Float_t fHigh); //!< axis is [fLow,fHigh]
+
 
   // Constructor for use by derived classes
-  CGamma1DW(const string& rName, UInt_t nId,
-	    vector<CParameter> rrParameters);
+  // CGamma1DW(const string& rName, UInt_t nId,
+  //	    vector<CParameter> rrParameters);
 
-  virtual ~CGamma1DW( ) { }   // Destructor
+  virtual ~CGamma1DW( ) { }      //Destructor
 
  private:
-  
-  // Copy constructor [illegal]
+
+  //Copy constructor [illegal]
   CGamma1DW(const CGamma1DW& aCGamma1DW);
 
-  // Operator= Assignment operator [illegal]
+  //Operator= Assignment operator [illegal]
   CGamma1DW operator= (const CGamma1DW& aCGamma1DW);
 
  public:
@@ -361,21 +367,17 @@ class CGamma1DW : public CSpectrum
 	      );
     }
 
-  // Selectors:
+  // Selectors
 
  public:
 
-  UInt_t getScale() const
-    {
-      return m_nScale;
-    }
   UInt_t getnParams() const
     {
       return m_vParameters.size();
     }
   UInt_t getParameterId (UInt_t n) const
     {
-      return m_vParameters[n].nParameter;
+      return m_vParameters[n];
     }
   virtual SpectrumType_t getSpectrumType()
     {
@@ -401,17 +403,18 @@ class CGamma1DW : public CSpectrum
   virtual void set (const UInt_t* pIndices, ULong_t nValue);
   virtual Bool_t UsesParameter (UInt_t nId) const;
   
-  virtual UInt_t Dimension (UInt_t n) const
-    {
-      return ((n == 0) ? (1 << m_nScale) : 0);
-    }
-  virtual UInt_t Dimensionality () const
-    {
-      return 1;
-    }
+
   virtual void GetParameterIds(vector<UInt_t>& rvIds);
   virtual void GetResolutions(vector<UInt_t>& rvResolutions);
-  virtual Int_t getScale(UInt_t nIndex);
+
+  // Utility functions:
+
+protected:
+  void   FillParameterArray(vector<CParameter> Params);
+  static CSpectrum::Axes MakeAxesVector(vector<CParameter> Params,
+					UInt_t             nChannels,
+					Float_t fLow, Float_t fHigh);
+  void   CreateStorage();
 };
 
 #endif

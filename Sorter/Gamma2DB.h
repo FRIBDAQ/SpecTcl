@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -290,9 +290,23 @@ DAMAGES.
 //
 /////////////////////////////////////////////////////////////
 
+/*
+  Change log:
+  $Log$
+  Revision 4.2  2003/04/01 19:53:12  ron-fox
+  Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
+
+
 #ifndef __GAMMA2DB_H  //Required for current class
 #define __GAMMA2DB_H
+
                                //Required for base classes
+#ifndef __CAXIS_H
+#include <CAxis.h>
+#endif
+
 #ifndef __SPECTRUM_H
 #include "Spectrum.h"
 #endif                               
@@ -318,38 +332,38 @@ class CParameter;
 
 class CGamma2DB : public CSpectrum
 {
-  struct ParameterDef {
-    UInt_t nParameter;
-    UInt_t nScale;
-    int operator==(const ParameterDef& r) const {
-      return (nParameter == r.nParameter) && (nScale == r.nScale);
-    }
-  };
-  UInt_t m_nXScale;		// Log(2) x axis.
-  UInt_t m_nYScale;		// Log(2) y Axis.
-  vector<ParameterDef> m_vParameters; // Vector of parameters
+  UInt_t m_nXScale;		//!< X channel count.
+  UInt_t m_nYScale;		//!< Y Channel count.
+  vector<UInt_t> m_vParameters; //!< Vector of parameter ids.
   
 public:
 
 			//Constructor(s) with arguments
 
   CGamma2DB(const std::string& rName, UInt_t nId,
+	       vector<CParameter>& rParameters,
+	       UInt_t nXScale, UInt_t nYScale);
+
+  CGamma2DB(const std::string& rName, UInt_t nId,
 	    vector<CParameter>& rParameters,
-	    UInt_t nXScale, UInt_t nYScale);
+	    UInt_t nXScale, UInt_t nYScale,
+	    Float_t xLow, Float_t xHigh,
+	    Float_t yLow, Float_t yHigh);
+
 
   // Constuctor for use by derived classes
-  CGamma2DB(const std::string& rName, UInt_t nId,
-	    vector<CParameter>& rParameter);
+  //  CGamma2DB(const std::string& rName, UInt_t nId,
+  //    vector<CParameter>& rParameter);
 
   virtual  ~ CGamma2DB( ) { }       //Destructor	
 private:
 			//Copy constructor [illegal]
 
-  CGamma2DB(const CGamma2DB& aCGamma1DB); 
+  CGamma2DB(const CGamma2DB& acspectrum1dl); 
 
 			//Operator= Assignment Operator [illegal] 
 
-  CGamma2DB operator= (const CGamma2DB& aCGamma1DB);
+  CGamma2DB operator= (const CGamma2DB& aCGamma1D);
 
 			//Operator== Equality Operator [Not too useful but:]
 public:
@@ -396,19 +410,26 @@ protected:
   //   
 public:                 
   virtual   void Increment(const CEvent& rEvent)  ;
-  virtual void GammaGateIncrement(const CEvent& rEvent, std::string sGateType);
+  virtual void GammaGateIncrement(const CEvent& Event, std::string sGateType);
   virtual   ULong_t operator[](const UInt_t* pIndices) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;
+
+  virtual void GetParameterIds(vector<UInt_t>& rvIds);
+  virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
   virtual   UInt_t Dimension (UInt_t n) const;
 
   virtual   UInt_t Dimensionality () const {
     return 2;
   }
-  virtual void GetParameterIds(vector<UInt_t>& rvIds);
-  virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
-  virtual Int_t getScale(UInt_t nIndex);
-  
+
+ private:
+  static Axes CreateAxisVector(vector<CParameter>& rParams,
+			       UInt_t nXchan, UInt_t nYchan,
+			       Float_t xLow, Float_t xHigh,
+			       Float_t yLow, Float_t yHigh);
+  void CreateStorage();
+  void SetParameterVector(vector<CParameter>& rParameters);
 };
 
 #endif

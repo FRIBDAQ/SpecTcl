@@ -290,6 +290,14 @@ DAMAGES.
 //
 /////////////////////////////////////////////////////////////
 
+/*
+   Change log:
+   $Log$
+   Revision 4.2  2003/04/01 19:48:22  ron-fox
+   Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
+
 #ifndef __XAMINE2D_H  //Required for current class
 #define __XAMINE2D_H
                                //Required for base classes
@@ -311,13 +319,20 @@ DAMAGES.
 #endif
 
 class CXamine1D;		// Forward definition.
-                               
+
+/*!
+    Encapsulates a 2d spectrum that's held in Xamine's shared memory
+    region.  Construction can be done either one or two stage... either
+    feed all the info right away or get a object and attach it to an
+    existing spectrum in Xamine.
+*/
+
 class CXamine2D  : public CXamineSpectrum        
 {
-  Bool_t m_fBytes;		// kfTRUE if spectrum channels are byte.
-  UInt_t m_nXchannels;		// no. of X channels.
-  UInt_t m_nYchannels;		// No of y Channels.
-  CXamineMap2D m_XamineMap;     // Transformation information, if applicable
+  Bool_t m_fBytes;		//!< kfTRUE if spectrum channels are byte.
+  UInt_t m_nXchannels;		//!< no. of X channels.
+  UInt_t m_nYchannels;		//!< No of y Channels.
+  CXamineMap2D m_XamineMap;     //!< Transformation information, if applicable
   
 public:
   // Constructor:
@@ -329,8 +344,10 @@ public:
     m_nXchannels(nXchans),
     m_nYchannels(nYchans)
     {}
-  CXamine2D(volatile Xamine_shared* pXamine, const std::string& rName,
-	    UInt_t nXChans, UInt_t nYChans, Float_t nXLow, Float_t nYLow,
+  CXamine2D(volatile Xamine_shared* pXamine, 
+	    const std::string& rName,
+	    UInt_t nXChans, UInt_t nYChans, 
+	    Float_t nXLow, Float_t nYLow,
 	    Float_t nXHigh, Float_t nYHigh,
 	    const std::string& sXUnits, const std::string& sYUnits,
 	    Bool_t fBytes = kfTRUE) :

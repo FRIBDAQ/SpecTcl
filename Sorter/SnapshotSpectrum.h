@@ -235,7 +235,10 @@ those countries, so that distribution is permitted only in or among
 countries not thus excluded.  In such case, this License incorporates
 the limitation as if written in the body of this License.
 
-  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
+  9. The Free Software Foundation may publish revised and/or new versions 
+of the General Public License from time to time.  Such new versions will 
+be similar in spirit to the present version, but may differ in detail to 
+address new problems or concerns.
 
 Each version is given a distinguishing version number.  If the Program
 specifies a version number of this License which applies to it and "any
@@ -275,22 +278,20 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
-// Class: CSnapshotSpectrum                     //ANSI C++
-//
-// Snapshot spectrum.  This contains another spectrum which is
-// never incremented.  All other operations are delegated to 
-// the underlying spectrum, however Increment is a no-op.
-//
-//
-// Author:
-//     Ron Fox
-//     NSCL
-//     Michigan State University
-//     East Lansing, MI 48824-1321
-//     mailto: fox@nscl.msu.edu
-// 
-// (c) Copyright NSCL 1999, All rights reserved SnapshotSpectrum.h
-//
+
+/*! 
+
+ Snapshot spectrum.  This contains another spectrum which is
+ never incremented.  All other operations are delegated to 
+ the underlying spectrum, however Increment is a no-op.
+
+ Change Log:
+ $Log$
+ Revision 4.2  2003/04/01 19:53:44  ron-fox
+ Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
+
 
 #ifndef __SNAPSHOTSPECTRUM_H  //Required for current class
 #define __SNAPSHOTSPECTRUM_H
@@ -314,8 +315,9 @@ public:
    // Constructors and other cannonical operations:
 
   CSnapshotSpectrum (CSpectrum& rSpectrum, Bool_t fOwner = kfTRUE) :
-    CSpectrum(kpNULL, kfFALSE, rSpectrum.getName(), 
-	      rSpectrum.getNumber()), // Note, snapshot spectra are not gated.
+    CSpectrum( rSpectrum.getName(), 
+	      rSpectrum.getNumber(),
+	      rSpectrum.getAxisMaps()), // Note, snapshot spectra are not gated.
     m_rActualSpectrum(rSpectrum),
     m_fOwnSpectrum(fOwner)
   { 
@@ -361,6 +363,8 @@ public:
   virtual   void Clear ()    ;
   virtual   Size_t Dimension (UInt_t nDimension)  const;
   virtual   UInt_t Dimensionality ()  const;
+  virtual   Float_t GetLow(UInt_t nDimension) const;
+  virtual   Float_t GetHigh(UInt_t nDimension) const;
   virtual   ULong_t operator[] (const UInt_t* pIndices)  const;
   virtual   Size_t StorageNeeded () const;
   virtual   void Increment (const CEvent& rEvent) ;
@@ -369,7 +373,6 @@ public:
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   void GetParameterIds(vector<UInt_t>& rvIds);
   virtual   void GetResolutions(vector<UInt_t>&  rvResolutions);
-  virtual   Int_t getScale(UInt_t index);
 
 
   Bool_t    SetOwnership(Bool_t fNewOwnership) {

@@ -21,6 +21,10 @@
 #                    Gamma1DL.o         - 1 d gamma longword spectra
 #                    Gamma2DB.o         - 2 d gamma byte spectra
 #                    Gamma2DW.o         - 2 d gamma word spectra
+# $Log$
+# Revision 4.25  2003/04/01 19:53:43  ron-fox
+# Support for Real valued parameters and spectra with arbitrary binnings.
+#
 
 SPECTCL_VERSION = -DVERSION=$(VERSION)
 CYGWININCS=-I/usr/local/tcl/include
@@ -51,8 +55,14 @@ OBJECTS=DictionaryException.o  Histogrammer.o Spectrum.o Spectrum1DL.o \
 	BitSpectrumW.o BitSpectrumL.o SummarySpectrumW.o SummarySpectrumB.o \
 	SpectrumFactory.o SpectrumFactoryException.o SnapshotSpectrum.o \
 	Gamma1DW.o Gamma1DL.o Gamma2DW.o Gamma2DB.o GateMediator.o \
-	MSpectrum1DW.o MSpectrum1DL.o MSpectrum2DB.o MSpectrum2DW.o \
-	MGamma1DW.o MGamma1DL.o MGamma2DB.o MGamma2DW.o
+	CAxis.o  \
+	CParameterMapping.o Parameter.o
+
+#	MSpectrum1DW.o MSpectrum1DL.o MSpectrum2DB.o MSpectrum2DW.o \
+#	MGamma1DW.o MGamma1DL.o MGamma2DB.o MGamma2DW.o 
+
+.cpp.o:
+	$(COMPILE) $<
 
 system: libSorting.a
 	$(ECHO) Library rebuild complete.
@@ -134,26 +144,26 @@ Gamma2DB.o: Gamma2DB.cpp
 GateMediator.o: GateMediator.cpp
 	$(COMPILE) GateMediator.cpp
 
-MSpectrum1DW.o: MSpectrum1DW.cpp
-	$(COMPILE) MSpectrum1DW.cpp
+#MSpectrum1DW.o: MSpectrum1DW.cpp
+#	$(COMPILE) MSpectrum1DW.cpp
 
-MSpectrum1DL.o: MSpectrum1DL.cpp
-	$(COMPILE) MSpectrum1DL.cpp
+#MSpectrum1DL.o: MSpectrum1DL.cpp
+#	$(COMPILE) MSpectrum1DL.cpp
 
-MSpectrum2DB.o: MSpectrum2DB.cpp
-	$(COMPILE) MSpectrum2DB.cpp
+#MSpectrum2DB.o: MSpectrum2DB.cpp
+#	$(COMPILE) MSpectrum2DB.cpp
 
-MSpectrum2DW.o: MSpectrum2DW.cpp
-	$(COMPILE) MSpectrum2DW.cpp
+#MSpectrum2DW.o: MSpectrum2DW.cpp
+#	$(COMPILE) MSpectrum2DW.cpp
 
-MGamma1DL.o: MGamma1DL.cpp
-	$(COMPILE) MGamma1DL.cpp
+#MGamma1DL.o: MGamma1DL.cpp
+#	$(COMPILE) MGamma1DL.cpp
 
-MGamma1DW.o: MGamma1DW.cpp
-	$(COMPILE) MGamma1DW.cpp
+#MGamma1DW.o: MGamma1DW.cpp
+#	$(COMPILE) MGamma1DW.cpp
 
-MGamma2DB.o: MGamma2DB.cpp
-	$(COMPILE) MGamma2DB.cpp
+#MGamma2DB.o: MGamma2DB.cpp
+#	$(COMPILE) MGamma2DB.cpp
 
-MGamma2DW.o: MGamma2DW.cpp
-	$(COMPILE) MGamma2DW.cpp
+#MGamma2DW.o: MGamma2DW.cpp
+#	$(COMPILE) MGamma2DW.cpp

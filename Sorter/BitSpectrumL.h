@@ -291,6 +291,14 @@ DAMAGES.
 //
 /////////////////////////////////////////////////////////////
 
+/*
+  Change log:
+  $Log$
+  Revision 4.2  2003/04/01 19:52:40  ron-fox
+  Support for Real valued parameters and spectra with arbitrary binnings.
+
+*/
+
 #ifndef __BITSPECTRUML_H  //Required for current class
 #define __BITSPECTRUML_H
                                //Required for base classes
@@ -307,23 +315,35 @@ DAMAGES.
 #include <histotypes.h>
 #endif
 
-//  Foward Class definitions:
-
-class CParameter;               
+#ifndef __PARAMETER_H
+#include "Parameter.h"
+#endif
                 
+/*!
+   Represents a spectrum of longword channels, each channel corresponds
+   to a bit in the integerized (mapped) parameter.  If the bit
+   is set in the parameter, the corresponding channel is  incremented.
+   this version supports low high axes to select from a subset of the bits.
 
+*/
 class CBitSpectrumL  : public CSpectrum
 {
   UInt_t m_nChannels;		// Spectrum size in channels.
   UInt_t m_nParameter;		// Number parameter which is histogrammed
-  
+  CParameter m_PDescription;
 public:
 
 			//Constructor(s) with arguments
 
   CBitSpectrumL(const std::string& rName, UInt_t nId,
-	       const CParameter& rParameter,
-	       UInt_t nScale);
+		const CParameter& rParameter,
+		UInt_t nChannels);	// Parameter is unmapped.
+  CBitSpectrumL(const std::string& rName, UInt_t nId,
+		const CParameter& rParameter,
+		UInt_t nLow,
+		UInt_t nHigh);	// Slice of the space... floats are no good.
+		
+
   virtual  ~ CBitSpectrumL( ) { }       //Destructor	
 private:
 			//Copy constructor [illegal]
@@ -378,15 +398,13 @@ public:
   virtual   ULong_t operator[](const UInt_t* pIndices) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;
-  virtual   UInt_t Dimension (UInt_t n) const {
-    return ((n == 0) ? (m_nChannels) : 0);
-  }
-  virtual   UInt_t Dimensionality () const {
-    return 1;
-  }
+
   virtual void GetParameterIds(vector<UInt_t>& rvIds);
   virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
-  virtual Int_t getScale(UInt_t index); 
+
+  // Utility functions:
+protected:
+  void CreateStorage();		//!< Create spec storage
 };
 
 #endif

@@ -324,14 +324,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <GammaContour.h>
 #include <assert.h>
 #include <GateMediator.h>
-#include <MSpectrum1DW.h>
-#include <MSpectrum1DL.h>
-#include <MSpectrum2DW.h>
-#include <MSpectrum2DB.h>
-#include <MGamma1DW.h>
-#include <MGamma1DL.h>
-#include <MGamma2DB.h>
-#include <MGamma2DW.h>
 
 
 #include <stdio.h>
@@ -914,143 +906,35 @@ CHistogrammer::BindToDisplay(const std::string& rsName)
   UInt_t nSpectrum;       
   CSpectrum*       pSpectrum = (*iSpectrum).second;
   CXamineSpectrum* pXSpectrum;
-  
+  Bool_t           fWord = pSpectrum->StorageType() == keWord;
   try {
     switch(pSpectrum->Dimensionality()) {
     case 1:			// 1-d spectrum.
-      switch(pSpectrum->StorageType()) {
-      case keWord:
-	if(pSpectrum->getSpectrumType() == keM1D) {
-	  CMSpectrum1DW* pSpec = (CMSpectrum1DW*)((*iSpectrum).second);
-	  pXSpectrum = new CXamine1D(m_pDisplayer->getXamineMemory(),
-				     rsName,
-				     pSpec->getChannels(),
-				     pSpec->getLow(),
-				     pSpec->getHigh(),
-				     pSpec->getUnits(),
-				     kfTRUE);
-	}
-	else if(pSpectrum->getSpectrumType() == keMG1D) {
-	  CMGamma1DW* pSpec = (CMGamma1DW*)((*iSpectrum).second);
-	  pXSpectrum = new CXamine1D(m_pDisplayer->getXamineMemory(),
-				     rsName,
-				     pSpec->getChannels(),
-				     pSpec->getLow(),
-				     pSpec->getHigh(),
-				     pSpec->getUnits(),
-				     kfTRUE);
-	}
-	else {
-	  pXSpectrum = new CXamine1D(m_pDisplayer->getXamineMemory(),
-				     rsName,
-				     pSpectrum->Dimension(0),
-				     kfTRUE);
-	}
-	break;
-      case keLong:
-	if(pSpectrum->getSpectrumType() == keM1D) {
-	  CMSpectrum1DL* pSpec = (CMSpectrum1DL*)((*iSpectrum).second);
-	  pXSpectrum = new CXamine1D(m_pDisplayer->getXamineMemory(),
-				     rsName,
-				     pSpec->getChannels(),
-				     pSpec->getLow(),
-				     pSpec->getHigh(),
-				     pSpec->getUnits());
-	}
-	else if(pSpectrum->getSpectrumType() == keMG1D) {
-	  CMGamma1DL* pSpec = (CMGamma1DL*)((*iSpectrum).second);
-	  pXSpectrum = new CXamine1D(m_pDisplayer->getXamineMemory(),
-				     rsName,
-				     pSpec->getChannels(),
-				     pSpec->getLow(),
-				     pSpec->getHigh(),
-				     pSpec->getUnits());
-	}
-	else {
-	  pXSpectrum = new CXamine1D(m_pDisplayer->getXamineMemory(),
-				     rsName,
-				     pSpectrum->Dimension(0));
-	}
-	break;
-      default:
-	assert(kfFALSE);
-      }
+      pXSpectrum   = new CXamine1D(m_pDisplayer->getXamineMemory(),
+				   rsName,
+				   pSpectrum->Dimension(0),
+				   pSpectrum->GetLow(0),
+				   pSpectrum->GetHigh(0),
+				   pSpectrum->GetUnits(0),
+				   fWord);
+      
+      
       break;
     case 2:			// 2-d spectrum.
       {
-	switch(pSpectrum->StorageType()) {
-	case keWord:
-	  if(pSpectrum->getSpectrumType() == keM2D) {
-	    CMSpectrum2DW* pSpec = (CMSpectrum2DW*)((*iSpectrum).second);
-	    pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(), rsName,
-				       pSpec->getXChannels(),
-				       pSpec->getYChannels(),
-				       pSpec->getXLow(), 
-				       pSpec->getYLow(),
-				       pSpec->getXHigh(),
-				       pSpec->getYHigh(),
-				       pSpec->getXUnits(),
-				       pSpec->getYUnits(), 
-				       kfFALSE);
-	  }
-	  else if(pSpectrum->getSpectrumType() == keMG2D) {
-	    CMGamma2DW* pSpec = (CMGamma2DW*)((*iSpectrum).second);
-	    pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(), rsName,
-				       pSpec->getXChannels(),
-				       pSpec->getYChannels(),
-				       pSpec->getXLow(), 
-				       pSpec->getYLow(),
-				       pSpec->getXHigh(),
-				       pSpec->getYHigh(),
-				       pSpec->getXUnits(),
-				       pSpec->getYUnits(), 
-				       kfFALSE);   
-	  }
-	  else {
-	    pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(),
-				       rsName,
-				       pSpectrum->Dimension(0),
-				       pSpectrum->Dimension(1),
-				       kfFALSE);
-	  }
-	  break;
-	case keByte:
-	  if(pSpectrum->getSpectrumType() == keM2D) {
-	    CMSpectrum2DB* pSpec = (CMSpectrum2DB*)((*iSpectrum).second);
-	    pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(), rsName,
-				       pSpec->getXChannels(),
-				       pSpec->getYChannels(),
-				       pSpec->getXLow(),
-				       pSpec->getYLow(),
-				       pSpec->getXHigh(),
-				       pSpec->getYHigh(),
-				       pSpec->getXUnits(),
-				       pSpec->getYUnits());
-	  }
-	  else if(pSpectrum->getSpectrumType() == keMG2D) {
-	    CMGamma2DB* pSpec = (CMGamma2DB*)((*iSpectrum).second);
-	    pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(), rsName,
-				       pSpec->getXChannels(),
-				       pSpec->getYChannels(),
-				       pSpec->getXLow(),
-				       pSpec->getYLow(),
-				       pSpec->getXHigh(),
-				       pSpec->getYHigh(),
-				       pSpec->getXUnits(),
-				       pSpec->getYUnits()); 
-	  }
-	  else {
-	    pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(),
-				       rsName,
-				       pSpectrum->Dimension(0),
-				       pSpectrum->Dimension(1));
-	  }
-	  break;
-	default:
-	  assert(kfFALSE);
-	}
+	pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(),
+				   rsName,
+				   pSpectrum->Dimension(0),
+				   pSpectrum->Dimension(1),
+				   pSpectrum->GetLow(0),
+				   pSpectrum->GetLow(1),
+				   pSpectrum->GetHigh(0),
+				   pSpectrum->GetHigh(1),
+				   pSpectrum->GetUnits(0),
+				   pSpectrum->GetUnits(1),
+				   !fWord);
 	break;
-      default:
+      default:			// Unrecognized dimensionality.
 	assert(kfFALSE);
       }
     }
@@ -1653,8 +1537,8 @@ CHistogrammer::ApplyGate(const std::string& rGateName,
   switch(spType) {
   case ke1D:
   case ke2D:
-  case keM1D:
-  case keM2D:
+    //  case keM1D:
+    //  case keM2D:
     if(gType == "gs" || gType == "gb" || gType == "gc") {
       throw CDictionaryException(CDictionaryException::knWrongGateType,
 	   "Cannot apply gamma gate to spectrum in CHistogrammer::ApplyGate()",
@@ -1787,30 +1671,32 @@ CHistogrammer::GateCount()
 //  Operation Type:
 //    Protected Utility
 //
+/*!
+   Takes a gate container and turns it into a gate suitable for
+   entry in the Xamine display program.
+   
+   Formal Parameters:
+     \param <TT> nBindingId: (UInt_t [in]): </TT>
+        The Xamine binding identifier of the spectrum (xamine spectrum
+        slot number.
+      \param <TT> rGate (CGateContainer& [in]): </TT>
+        The container which holds the gate to convert.  Note that
+        gate containers can be treated as if they were pointers to
+        gates.
+   
+   \retval    CDisplayGate*  kpNULL -- if the gate is not convertable,
+                                e.g. it is not a gate directly suported
+                                by Xamine.
+                      other  -- Pointer to the gate which was created.
+  \note
+      The gate is dynamically allocated and therefore must be deleted by
+      the client.
+  
+*/
 CDisplayGate*
 CHistogrammer::GateToXamineGate(UInt_t nBindingId, 
  			        CGateContainer& rGate)
 {
-  // Takes a gate container and turns it into a gate suitable for
-  // entry in the Xamine display program.
-  // 
-  // Formal Parameters:
-  //    UInt_t nBindingId:
-  //      The Xamine binding identifier of the spectrum (xamine spectrum
-  //      slot number.
-  //    CGateContainer& rGate:
-  //      The container which holds the gate to convert.  Note that
-  //      gate containers can be treated as if they were pointers to
-  //      gates.
-  // Returns:
-  //     CDisplayGate*  kpNULL -- if the gate is not convertable,
-  //                              e.g. it is not a gate directly suported
-  //                              by Xamine.
-  //                    other  -- Pointer to the gate which was created.
-  // NOTE:
-  //    The gate is dynamically allocated and therefore must be deleted by
-  //    the client.
-  //
 
   CDisplayGate* pXGate;
   CSpectrum*    pSpectrum = FindSpectrum(m_DisplayBindings[nBindingId]);
@@ -1829,16 +1715,19 @@ CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     case ke1D:
     case keG1D: 
       {
-	pCut->AddPoint(scale(rCut.getLow(),  pSpectrum->getScale(0)),  0);
-	pCut->AddPoint(scale(rCut.getHigh(), pSpectrum->getScale(0)), 0);
+	pCut->AddPoint(pSpectrum->ParameterToAxis(0, (Float_t)rCut.getLow()),  
+		       0);
+	pCut->AddPoint(pSpectrum->ParameterToAxis(0, (Float_t)rCut.getHigh()), 
+						  0);
 	return pCut;
 	break;
       }
+#ifdef GATESFIXED
     case keM1D:
       {
 	CMSpectrum1DL* pSpec = (CMSpectrum1DL*)pSpectrum;
-	pCut->AddPoint(pSpec->ParamToSpecPoint(rCut.getLow()), 0);
-	pCut->AddPoint(pSpec->ParamToSpecPoint(rCut.getHigh()), 0);
+	pCut->AddPoint(pSpec->ParamToSpecPoint(rCut.(Float_t)getLow()), 0);
+	pCut->AddPoint(pSpec->ParamToSpecPoint(rCut.(Float_t)getHigh()), 0);
 	return pCut;
 	break;
       }
@@ -1849,6 +1738,7 @@ CHistogrammer::GateToXamineGate(UInt_t nBindingId,
 	pCut->AddPoint(pSpec->GatePointToSpec(rCut.getHigh()), 0);
 	return pCut;
       }
+#endif
     }
   }
   else if ((rGate->Type() == std::string("b")) ||
@@ -1894,12 +1784,12 @@ CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     case ke2D:
     case keG2D:
       {
-	CPoint pt(scale(pts[i].X(), pSpectrum->getScale(0)),
-		  scale(pts[i].Y(), pSpectrum->getScale(1)));
+	CPoint pt(pSpectrum->ParameterToAxis(0, (Float_t)pts[i].X()),
+		  pSpectrum->ParameterToAxis(1, (Float_t)pts[i].Y()));
 	pXGate->AddPoint(pt);
 	break;
       }
-
+#ifdef GATESFIXED
     case keM2D:
       {
 	CMSpectrum2DW* pSpec = (CMSpectrum2DW*)pSpectrum;
@@ -1916,6 +1806,7 @@ CHistogrammer::GateToXamineGate(UInt_t nBindingId,
 		  pSpec->GatePointToSpec(pts[i].Y(), 1));
 	pXGate->AddPoint(pt);
       }
+#endif
     }
   }
   return pXGate;
