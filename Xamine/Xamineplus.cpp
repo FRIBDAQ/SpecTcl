@@ -761,6 +761,9 @@ CXamine::DefineSpectrum(CXamineSpectrum& rSpectrum)
       Xamine_SetMap1d(nSpectrum, Xmap.getLow(), Xmap.getHigh(),
 		      const_cast<char*>(Xmap.getUnits().c_str()));
     }
+    else {
+      Xamine_SetMap1d(nSpectrum, 0.0, 0.0, "");
+    }
     if(pData) {			// Successful completion:
       CXamine1D result(m_pDisplay, nSpectrum-1);
       *p1d  = result;
