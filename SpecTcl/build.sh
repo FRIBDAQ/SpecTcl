@@ -29,7 +29,6 @@ else
    exit
 endif
 
-set instdir=`(cd $instdir;pwd)`      # this trick allows relative paths.
 
 echo building and installing in $instdir 
 
