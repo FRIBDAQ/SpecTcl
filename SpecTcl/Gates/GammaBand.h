@@ -327,7 +327,6 @@ class CGammaBand : public CBand
   CGammaBand (const CGammaBand& aCGammaBand) : CBand (aCGammaBand)
     {
       m_vSpecs = aCGammaBand.m_vSpecs;
-      setLimits(aCGammaBand.getLimits());
     }
 
   // Assignment operator
@@ -336,7 +335,6 @@ class CGammaBand : public CBand
       if (this == &aCGammaBand) return *this;
       CBand::operator= (aCGammaBand);
       m_vSpecs = aCGammaBand.m_vSpecs;
-      setLimits(aCGammaBand.getLimits());
 
       return *this;
     }
