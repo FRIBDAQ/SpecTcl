@@ -1,4 +1,5 @@
-SUBDIRS =  Replace Scripts Utility Display Exception Xamine Tape EventSource \
+SUBDIRS =  Replace Scripts Utility Display \
+	NSCLException Xamine Tape EventSource \
 	TCL Events Gates Sorter SpectrumIO Filter SpecTcl \
  	 contrib
 
@@ -10,9 +11,11 @@ AUX_DIST = $(ac_aux_dir)/config.guess \
 	$(ac_aux_dir)/ltmain.sh \
 	$(ac_aux_dir)/missing \
 	$(ac_aux_dir)/mkinstalldirs \
-	$(ac_aux_dir)/ylwrap
+	$(ac_aux_dir)/ylwrap  \
+	fix_libtool
 
-EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl bootstrap Gri doc
+EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl bootstrap Gri doc \
+	build.cygwin
 
 dist-hook:
 	(cd $(distdir) && mkdir $(ac_aux_dir))
