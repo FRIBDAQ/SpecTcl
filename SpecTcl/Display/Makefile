@@ -86,7 +86,7 @@ install:
 	install -m 0664    clientgates.h $(DESTDIR)/Include/clientgates.h
 	install -m 0775    Xamine $(DESTDIR)/Bin/Xamine2_0
 	install -m 0775     colorset $(DESTDIR)/Bin/colorset
-	install -m 0664    libXamine.a $(DESTDIR)/Lib
+	install -m 0764    libXamine.a $(DESTDIR)/Lib
 	install -m 0664    *.ctbl $(DESTDIR)/Etc
 	install -m 0664    *.ico  $(DESTDIR)/Etc
 	echo "Xamine installation complete"
