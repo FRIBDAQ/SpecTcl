@@ -244,3 +244,5 @@ February 22, 2005
 February 25, 2005
    - Documented the variable tracing support.
    - Documented run/state variable recovery.
+March 4, 2005
+   - Set the version string to 3.0pre1
