@@ -313,12 +313,20 @@ DAMAGES.
 #include <vector>
 #define __STL_VECTOR
 #endif     
+/*!
+   Contour gate:  This gate is capable of evaluating itself on an arbitrary
+   set of real valued paraemters. Interiorness is defined as for flood-fills:
+   If a line extended from the point in questino to infnity crosses an odd
+   number of edges, the point is interior.
 
+   For more information on the algorithm used, see the inGate member function
+   documentation.
+*/
 class CContour  : public CPointListGate        
 {
-  CPoint m_LowerLeft;		// Lower left corner of gate.
-  CPoint m_UpperRight;          // Upper right corner of gate.
-  mutable CInterior m_Interior;   // An interior specification.
+  CPoint m_LowerLeft;		//!< Lower left corner of gate.
+  CPoint m_UpperRight;          //!< Upper right corner of gate.
+  //  mutable CInterior m_Interior;   // An interior specification.
   
 public:
 			//Default constructor
@@ -337,7 +345,7 @@ public:
   {   
     m_LowerLeft = aCContour.m_LowerLeft;
     m_UpperRight = aCContour.m_UpperRight;
-    m_Interior = aCContour.m_Interior;                
+    //    m_Interior = aCContour.m_Interior;                
   }                                     
 
 			//Operator= Assignment Operator
@@ -350,7 +358,7 @@ public:
     CPointListGate::operator= (aCContour);
     m_LowerLeft = aCContour.m_LowerLeft;
     m_UpperRight = aCContour.m_UpperRight;
-    m_Interior = aCContour.m_Interior;
+    //    m_Interior = aCContour.m_Interior;
     
     return *this;                                                                                                 
   }                                     
@@ -376,10 +384,10 @@ public:
   }
 
                        //Get accessor function for attribute
-  CInterior& getInterior() const
-  {
-    return m_Interior;
-  }
+  //  CInterior& getInterior() const
+  //  {
+  //    return m_Interior;
+  //  }
 
   // Mutators:
 
@@ -397,10 +405,10 @@ protected:
   }
 
                        //Set accessor function for attribute
-  void setInterior (const CInterior& am_aInterior)
-  { 
-    m_Interior = am_aInterior;
-  }
+  //  void setInterior (const CInterior& am_aInterior)
+  // { 
+  //  m_Interior = am_aInterior;
+  /// }
 
   //  Functions on the object:
   //
@@ -414,8 +422,12 @@ public:
   //
   // Utility functions:
   //
-protected:
+ protected:
   virtual void GenerateInterior();
+  Bool_t       Inside(int x, int y);
+  int          Crosses(int x, int y, 
+		       vector<CPoint>::iterator f,
+		       vector<CPoint>::iterator s);
 };
 
 #endif

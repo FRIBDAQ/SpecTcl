@@ -331,7 +331,7 @@ class CGammaContour : public CContour
       m_vSpecs = aCGammaContour.m_vSpecs;
       setLowerLeft(aCGammaContour.getLowerLeft());
       setUpperRight(aCGammaContour.getUpperRight());
-      setInterior(aCGammaContour.getInterior());
+      //      setInterior(aCGammaContour.getInterior());
     }
 
   // Assignment operator
@@ -342,7 +342,7 @@ class CGammaContour : public CContour
       m_vSpecs = aCGammaContour.m_vSpecs;
       setLowerLeft(aCGammaContour.getLowerLeft());
       setUpperRight(aCGammaContour.getUpperRight());
-      setInterior(aCGammaContour.getInterior());
+      //      setInterior(aCGammaContour.getInterior());
 
       return *this;
     }
