@@ -3,6 +3,7 @@
 */
 #include <stdio.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "client.h"
 
@@ -85,6 +86,7 @@ static void setupspectra(Xamine_shared *sp)
   }
 }
 
+int
 main()
 {
   Xamine_shared *spectra;
@@ -117,6 +119,7 @@ main()
 
   printf("Xamine stopped\n");
   
+  return 0;
 }
 
 

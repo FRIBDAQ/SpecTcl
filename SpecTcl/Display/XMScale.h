@@ -14,6 +14,11 @@
 */
 #ifndef _XMSCALE_H_INSTALLED
 #define _XMSCALE_H_INSTALLED
+
+#ifdef unix
+#pragma interface
+#endif
+
 #include <Xm/Scale.h>
 #include "XMWidget.h"
 

@@ -15,6 +15,11 @@
 
 #ifndef XMDialogs_h
 #define XMDialogs_h
+
+#ifdef unix
+#pragma interface
+#endif
+
 #include <stdio.h>
 
 #include <X11/StringDefs.h>

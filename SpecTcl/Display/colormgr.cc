@@ -12,9 +12,6 @@
 **   East Lansing, MI 48824-1321
 */
 
-static char *sccsinfo="@(#)colormgr.cc	8.1 6/23/95 ";
-
-
 
 #include <stdio.h>
 #include <errno.h>

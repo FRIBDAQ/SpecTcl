@@ -15,6 +15,11 @@
 
 #ifndef _XMMANAGERS_H
 #define _XMMANAGERS_H
+
+#ifdef unix
+#pragma interface
+#endif
+
 /*
 ** Include files required:
 */
@@ -26,7 +31,6 @@
 #include <Xm/Frame.h>
 
 #include "XMWidget.h"
-
 
 /*
 ** The XMManager widget is the superclass of all manager classes.

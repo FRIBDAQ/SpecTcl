@@ -26,13 +26,19 @@
 
 #ifndef XMCALLBACK_H
 #define XMCALLBACK_H
+
+#if 0
 #ifdef unix
 #pragma interface
 #endif
+#endif
+
 #include "XMWidget.h"
 #include <stdio.h>
 #include <string.h>
+
 #define TEMP_TYPEDEF
+
 template <class T>
 class  XMCallback {
  public:

@@ -15,6 +15,11 @@
 */
 #ifndef XMSHELL_H
 #define XMSHELL_H
+
+#ifdef unix
+#pragma interface
+#endif
+
 #include <Xm/Xm.h>
 #include <X11/Shell.h>
 

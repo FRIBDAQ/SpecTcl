@@ -14,9 +14,13 @@
 ** Version information:
 **    @(#)menusetup.cc	2.6 4/14/94 
 */
+
+#if 0
 #ifdef unix
 #pragma implementation "XMCallback.h"
 #endif
+#endif
+
 /*
 ** Include files required:
 */
@@ -66,10 +70,6 @@ extern "C" {
 */
 extern spec_shared xamine_shared;
 
-/*
-** sccs information:
-*/
-static char *sccsinfo="@(#)menusetup.cc	2.6 4/14/94 ";
 /*
 ** Module static data:
 */

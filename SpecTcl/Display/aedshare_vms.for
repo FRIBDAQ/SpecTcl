@@ -7,7 +7,7 @@ C     This file provides compatibility between XAMINE and the old AEDTSK by
 C     providing equivalences between the AEDTSK shared variables and the
 C     Xamine shared variables.
 C Author:
-C     Ron FOx
+C     Ron Fox
 C     NSCL
 C     Michigan State University
 C     East Lansing, MI 48824-1321

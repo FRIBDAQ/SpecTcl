@@ -12,7 +12,7 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-static char *sccsinfo = "@(#)clientbuttons.c	8.3 6/25/97 \n";
+
 /*
 ** Include files
 */

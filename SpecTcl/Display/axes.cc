@@ -13,7 +13,6 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-static char *sccsinfo="@(#)axes.cc	8.2 10/3/95 \n";
 
 
 /*

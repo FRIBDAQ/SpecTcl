@@ -13,10 +13,11 @@
 ** Version:
 **    @(#)dispgrob.cc	2.1 12/22/93 
 */
+#if 0
 #ifdef unix
 #pragma implementation "XMCallback.h"
 #endif
-static char *dispgrobversion="@(#)dispgrob.cc	2.1 12/22/93 \n";
+#endif
 
 /*
 ** Include files required:
@@ -40,7 +41,9 @@ static char *dispgrobversion="@(#)dispgrob.cc	2.1 12/22/93 \n";
 ** Local storage:
 **
 */
+#if 0
 static char dashes[2] = { 2,2 };
+#endif
 /*
 ** External references:
 */
@@ -85,6 +88,8 @@ static void SetClipRegion(XamineGrobjGC *gc, XMWidget *wid,
 {
   gc->ClipToSpectrum(*wid, *attributes);
 }
+
+#if 0
 /*
 ** Method Description:
 **   getversion - Returns a pointer to the version string.
@@ -94,6 +99,8 @@ char *grobj_generic::getversion()
 {
   return dispgrobversion;
 }
+#endif
+
 
 /*
 ** Method Description:

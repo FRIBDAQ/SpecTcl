@@ -3,7 +3,7 @@
 **   Xamine -- NSCL display program C++ widget support.
 ** Abstract:
 **   XMList.h:
-**     This file provides a classs definition for the XMList class.  The
+**     This file provides a class definition for the XMList class.  The
 **     XMList class implements list box widget, and a Scrolled list box
 **     widget.
 ** Author:
@@ -16,6 +16,11 @@
 */
 #ifndef XMLIST_H_INSTALLED
 #define XMLIST_H_INSTALLED
+
+#ifdef unix
+#pragma interface
+#endif
+
 /*
 ** Include files:
 */

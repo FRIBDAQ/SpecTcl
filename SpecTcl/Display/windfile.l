@@ -156,7 +156,6 @@ static void rd_yytitle()
 {
   int i;
   int c;
-  int res;
   i = 0;
   memset(yytitle, 0, sizeof(yytitle));
   c = yyinput();

@@ -527,7 +527,7 @@ f77xamine_enterpeakmarker_(int*  nSpectrum,
 }
 #endif
 
-#include <clientops.h>
+#include "clientops.h"
 #endif
 
 

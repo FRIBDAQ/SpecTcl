@@ -15,7 +15,7 @@
 **   Michigan State University8
 ***  East Lansing, MI 48824-1321
 */
-static char *sccsinfo = "@(#)clientgates.c	1.1 1/28/94 ";
+
 
 /*
 ** Include files:

@@ -11,10 +11,11 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 **/
+#if 0
 #ifdef unix
 #pragma implementation "XMCallback.h"
 #endif
-static char *sccsinfo="@(#)errormsg.cc	8.1 6/23/95 ";
+#endif
 
 #include "XMDialogs.h"
 #include "XMWidget.h"
@@ -30,7 +31,11 @@ static char *sccsinfo="@(#)errormsg.cc	8.1 6/23/95 ";
 */
 void Xamine_error_msg(XMWidget *parent, char *msg)
 {
-  XMErrorDialog *dialog = new XMErrorDialog("Xamine_Error_Message", 
-					    *parent, msg,
-					    XMDestroyWidget);
+  /* 
+   * This object deletes itself when dismissed by the user, so no need
+   * to hold a pointer to it.
+   */
+  new XMErrorDialog("Xamine_Error_Message", 
+		    *parent, msg,
+		    XMDestroyWidget);
 }

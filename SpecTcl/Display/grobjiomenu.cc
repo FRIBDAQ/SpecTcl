@@ -14,10 +14,11 @@
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 **/
+#if 0
 #ifdef unix
 #pragma implementation "XMCallback.h"
 #endif
-static char *sccsinfo="@(#)grobjiomenu.cc	8.4 6/25/97 \n";
+#endif
 
 /*
 ** External include files required:

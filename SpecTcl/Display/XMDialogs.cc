@@ -14,9 +14,9 @@
 **   @(#)XMDialogs.cc	8.2 9/10/96 
 */
 #ifdef unix
-#pragma implementation "XMCallback.h"
+#pragma implementation "XMDialogs.h"
 #endif
-static char *sccsinfo = "@(#)XMDialogs.cc	8.2 9/10/96 \n";
+
 /*
 ** Include files:
 */
@@ -221,7 +221,6 @@ void XMCustomDialog::CreateDialog(char *name, Widget parent, char *title,
 			    XmNdeleteResponse, XmDESTROY,
 			    NULL);
 
-  Widget shell = id;
   /*
   **  For motif custom dialogs we'll turn off the controls on the title bar.
   **  This will prevent closes from accidently destroying our widget 

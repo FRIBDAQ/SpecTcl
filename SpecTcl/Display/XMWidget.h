@@ -16,6 +16,11 @@
 
 #ifndef _XMWidget_H
 #define _XMWidget_H
+
+#ifdef unix
+#pragma interface
+#endif
+
 /*
 ** Include files:
 */
@@ -32,6 +37,8 @@
 typedef char XMWidgetName[32];
 
 struct Callback_data;
+
+
 
 class XMApplication 
                {

@@ -24,8 +24,6 @@
 #include <stdio.h>
 #include "gc.h"
 
-static char *sccsinfo = "@(#)gc.cc	1.1 10/3/95 ";
-
 
 //
 // Functional Description:

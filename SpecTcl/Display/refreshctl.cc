@@ -18,7 +18,6 @@
  **   Michigan State University
  **   East Lansing, MI 48824-1321
  */
-static char *sccsinfo="@(#)refreshctl.cc	2.10 5/26/94 ";
      
 
 /*
@@ -78,10 +77,14 @@ static Pixmap CreatePixmap(Display *display, Drawable drawable, unsigned int wid
   return p;
 
 }
+
+#if 0
 static void FreePixmap(Display *d, Pixmap p)
 {
   XFreePixmap(d,p);
 }
+#endif
+
 
 /*
 ** Functional Description:
@@ -878,9 +881,6 @@ Boolean Xamine_Refresh(XtPointer client_data)
   if(ctx->ctx != NULL) {	/* If there's a linked segment context, */
     if(ctx->destroyer != NULL) { /* If a destroyer is defined then... */
       ctx->destroyer((XtPointer)ctx->ctx); /* Call the destroyer. */
-    }
-    else {			/* If there isn't a destroyer then */
-      delete ctx->ctx;		/* Default action is to just delete it. */
     }
   }
   ctx->ctx = NULL;		/* Null out context in case not done. */
