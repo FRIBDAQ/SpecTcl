@@ -810,7 +810,7 @@ static void DrawLinearYTicks(Display *disp, Window win, GC gc,
   value_represented = (float)low;
   last_value        = -1;	/* Make sure first tick is drawn. */
 
-  value_interval = (float)ComputeLinearTickInterval(hi - low +1, (ny-ybase+1));
+  value_interval = (float)ComputeLinearTickInterval(hi - low +1, (ybase+1));
 
 
   interval       = ((float)((ybase + 1) * value_interval))/ 
