@@ -321,7 +321,7 @@ DAMAGES.
 #endif
 #endif
 
-#define DISPLAY_MAXSPEC 2000	/* Maximum spectrum count. */
+#define DISPLAY_MAXSPEC 5000	/* Maximum spectrum count. */
 #define DISPLAY_SPECBYTES 8*MEG	/* Maximum number of bytes in spectra. */
 
 #define DISPLAY_WORDS     (DISPLAY_SPECBYTES)/sizeof(short)

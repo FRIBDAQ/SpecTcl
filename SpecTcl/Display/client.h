@@ -312,7 +312,7 @@ DAMAGES.
 #endif
 #endif				/* Too big is better than too small.     */
 
-#define XAMINE_MAXSPEC 2000	/* Maximum spectrum count. */
+#define XAMINE_MAXSPEC 5000	/* Maximum spectrum count. */
 #ifndef XAMINE_SPECBYTES
 #define XAMINE_SPECBYTES 8*MEG	/* Maximum number of bytes in spectra. */
 #endif
