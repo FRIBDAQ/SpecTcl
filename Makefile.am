@@ -12,7 +12,7 @@ AUX_DIST = $(ac_aux_dir)/config.guess \
 	$(ac_aux_dir)/mkinstalldirs \
 	$(ac_aux_dir)/ylwrap
 
-EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl bootstrap
+EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl bootstrap Gri
 
 dist-hook:
 	(cd $(distdir) && mkdir $(ac_aux_dir))
