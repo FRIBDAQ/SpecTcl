@@ -597,7 +597,6 @@ class win_1d : public win_attributed
 
                   int expanded;
                   int xlow, xhigh;
-		  float mapxlow, mapxhigh;
 		  //int user_mapping;  // True if user supplied map
 		  
                   //   Rendition
@@ -628,8 +627,6 @@ class win_1d : public win_attributed
 		 int isexpanded() { return expanded; }
                  int lowlimit()   { return xlow; }
                  int highlimit()  { return xhigh; }
-		 float maplowlim() { return mapxlow; }
-		 float maphilim() { return mapxhigh; }
 		 
                  //
                  // Set/get rendition data
@@ -680,8 +677,6 @@ class win_2d:public win_attributed
 		int expandedfirst;        // True if expanded before flipped
                 int xlow, xhigh;          // X expansion limits.
                 int ylow, yhigh;          // Y expansion limits.
-		float mapxlow, mapxhigh;
-		float mapylow, mapyhigh;
 		//int user_mapping;         // Whether the user mapping is app.
 		
                 //
@@ -717,10 +712,6 @@ class win_2d:public win_attributed
 		int xhilim()     { return xhigh; }
 		int ylowlim()    { return ylow;  }
 		int yhilim()     { return yhigh; }
-		float mapxlowlim() { return mapxlow; }
-		float mapxhilim() { return mapxhigh; }
-		float mapylowlim() { return mapylow; }
-		float mapyhilim() { return mapyhigh; }
 		
                  //
                  /*  Get/Set the window's drawing rendition: */

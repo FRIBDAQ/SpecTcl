@@ -488,7 +488,8 @@ void AcceptMarker::TextPoint()
 {
   char *s = point->GetText();
   struct point pt;
-  int x,y;
+  float x;
+  float y;
 
   win_attributed *att = Xamine_GetDisplayAttributes(row, col);
   if(att == NULL) {
@@ -498,7 +499,7 @@ void AcceptMarker::TextPoint()
 
   /* Decode the text from the string. */
 
-  if(  sscanf(s, "%d %d", &x, &y) != 2) {
+  if(  sscanf(s, "%f %f", &x, &y) != 2) {
     Xamine_error_msg(this, "Valid spectrum coordinates must be supplied");
     XtFree(s);
     return;
@@ -518,16 +519,40 @@ void AcceptMarker::TextPoint()
   ** displayed region.  Only that they be inside the spectrum itself.
   */
 
+
   int spec = att->spectrum();
-  pt.x = x;			/* Point orientation doesn't change with */
-  pt.y = y;			/* flip. */
+
+  // If the point is a mapped point, it will need to be translated to spectrum 
+  // coords.
+
+  if(att->ismapped()) {
+    if(att->isflipped()) {
+      Xamine_error_msg(Xamine_Getpanemgr(),
+		       "Markers on flipped mapped spectra not yet supported");
+      return;
+    }
+    else {
+      pt.x = Xamine_XMappedToChan(spec, x);
+      if(att->is1d()) {
+	pt.y = (int)y;		            // Y is just counts..
+      } else {
+	pt.y = Xamine_YMappedToChan(spec, y); // Otherwise it's a channel number.
+      }
+    }
+  } else {
+    pt.x = (int)x;			/* Point orientation doesn't change with */
+    pt.y = (int)y;
+  }
+
+  x = pt.x;
+  y = pt.y;
 
   if(att->isflipped()) {	/* But for checking we must flip x/y. */
     x = pt.y;
     y = pt.x;
   }
   /* regardles... x chans must be checked: */
-
+  
   if( (x < 0) || (x >= xamine_shared->getxdim(spec))) {
     Xamine_error_msg(Xamine_Getpanemgr(),
 		     "Coordinate must be inside spectrum bounds");
@@ -540,7 +565,7 @@ void AcceptMarker::TextPoint()
       return;
     }
   }
-
+  
 
 
   /* Add the point and make sure it's drawn. */
