@@ -275,6 +275,15 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
+
+/* 
+   Change log:
+   $Log$
+   Revision 4.2  2003/04/15 19:25:21  ron-fox
+   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
+
+*/
+
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
 // Class: CGateCommand
@@ -305,6 +314,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
+/*
+  Change Log:
+  $Log$
+  Revision 4.2  2003/04/15 19:25:21  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
+
+*/
+
 #include "GateCommand.h"    				
 #include "GatePackage.h"
 #include "GateFactory.h"
@@ -328,6 +345,10 @@ static char* pCopyrightNotice =
 // Static/local definitions:
 //
 
+/*
+   Maps between switches on the command line and the CGateCommand::Switches
+   enum
+*/
 const struct SwitchList {
   char* pName;
   CGateCommand::Switches eValue;
@@ -338,10 +359,14 @@ const struct SwitchList {
   { "-id"    , CGateCommand::id } ,
   { "-byid"  , CGateCommand::byid }
 };
+
 static const UInt_t nSwitches = sizeof(SwitchTable) / 
                                 sizeof(SwitchList);
 
-
+/*
+   Mapping between gate type character strings and the type of gate
+   to create according to the Gate Factory's enum.
+*/
 CGateCommand::GateFactoryTable GateTable[] = {
   { "*"     , CGateFactory::And,         kfTRUE,  0, kfFALSE},
   { "b"     , CGateFactory::band,        kfFALSE, 2, kfFALSE},
@@ -431,32 +456,47 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 //  Operation Type: 
 //      Subfuction
 //
-Int_t 
-CGateCommand::NewGate(CTCLInterpreter& rInterp, 
-			    CTCLResult& rResult, UInt_t nArgs, char* pArgs[])  
-{
-  // Performs the  gate -new subcommand.
-  // This command creates a new gate by invoking the
-  //  gate factory class to create an appropriate gate.
-  //  The gate is then added by CGatePackage::AddGate()
-  // 
-  // Formal Parameters:
-  //      CTCLInterpreter& rInterp:
-  //            Reference to the interpreter running us.
-  //    CTCLResult& rResult:
-  //            Reference to the result string for this command.
-  //            on success, this is the name of the created gate, else
-  //           the failure reason.
-  //  int nArgs, char* pArgs[]
-  //      Pointer to the remaining command parameters 
-  //      (pArgs[0] should be the gate name).
-  //
+
+/*!
+  \para Functionality:
+  Performs the  gate -new subcommand.
+  This command creates a new gate by invoking the
+  gate factory class to create an appropriate gate.
+  The gate is then added by CGatePackage::AddGate()
+   
+  \para Formal Parameters:
+  \param  <TT>rInterp (CTCLInterpreter& [in]):</TT>
+              Reference to the interpreter running us.
+  \param  <TT>rResult (CTCLResult& [out]):</TT>
+              Reference to the result string for this command.
+              on success, this is the name of the created gate, else
+             the failure reason.
+  \param <TT>nArgs (UInt_t [in])</TT>
+        Number of parameters remaining on the command line.
+  \PARAM <TT>pArgs[] (char** [in]):</TT>
+        Pointer to the remaining command parameters 
+        (pArgs[0] should be the gate name).
   
-  if(nArgs != 3) {		// Must be exactly 3 parameters....
+  \para Return value:
+  \retval Int_t
+  One of:
+  - TCL_OK    - the command worked and a new gate was created.
+  - TCL_ERROR - The command failed.  The reason for the failure is in
+      rResult, the result of the command.
+
+
+ */
+Int_t 
+CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+		   UInt_t nArgs, char* pArgs[])
+{
+
+  
+  if(nArgs != 3) {		// must be exactly 3 parameters....
     rResult = Usage();
     return TCL_ERROR;
   }
- // Need to figure out how to parse the gate description... the first two items
+ // need to figure out how to parse the gate description... the first two items
   // are fixed, name and type, the last is a list with gate type 
   // dependent contents.
   //
@@ -467,26 +507,29 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp,
   pArgs++;
   const char* pList = *pArgs;
 
-  // The gate table is used to drive the rest of the parse:
+  // the gate table is used to drive the rest of the parse:
 
   CGate*  pGate;
   CGatePackage& rPackage((CGatePackage&)getMyPackage());
   CGateFactory Factory(rPackage.getHistogrammer());
+  vector<FPoint> PointValues;	// filled in below.
+  vector<string> SpecValues;  // Filled in further below
+  
 
   GateFactoryTable* pItem = MatchGateType(pType);
   if(!pItem) {
     rResult = Usage();
-    rResult += "\n  Invalid gate type";
+    rResult += "\n  invalid gate type";
     return TCL_ERROR;
   }
   GateFactoryTable& Item(*pItem);
 
-  if(Item.fGateList) {		// The list is just a list of gates.
+  if(Item.fGateList) {		// the list is just a list of gates.
     CTCLList GateList(&rInterp, pList);
     StringArray Gates;
     if(GateList.Split(Gates) != TCL_OK) {
       rResult =  Usage();
-      rResult += "List of gates had incorrect format\n";
+      rResult += "list of gates had incorrect format\n";
       return TCL_ERROR;
     }
     try {
@@ -500,10 +543,10 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp,
     }
   }
 
-  else if(!Item.fNoParams) {	// List is parameters followed by point list.
+  else if(!Item.fNoParams) {	// list is parameters followed by point list.
     CTCLList List(&rInterp, pList);
     StringArray Description;
-    List.Split(Description);	// Bust the list apart.
+    List.Split(Description);	// bust the list apart.
     if(Description.size() != (Item.nParameters+1)) {
       rResult = Usage();
       rResult += "Incorrect description list format";
@@ -511,45 +554,44 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp,
     }
 
     vector<string> Parameters;
-    // Pull out the parameters
+    // pull out the parameters
     for(UInt_t nPar = 0; nPar < Item.nParameters; nPar++) {
       Parameters.push_back(Description[nPar]);
     }
-    // The last element of the description is a point list:
+    // the last element of the description is a point list:
     CTCLList Points(&rInterp, Description[Item.nParameters]);
     vector <string> PointString;
-    Points.Split(PointString);	// Point string contains textualized points.
-    vector<CPoint> PointValues;	// Filled in below.
+    Points.Split(PointString);	// point string contains textualized Points.
     
-    // If the gate is 1-d, then each point just contains an X-coordinate.
+    // if the gate is 1-d, then each point just contains an x-coordinate.
 
     if(Item.nParameters == 1) {
-      for(UInt_t nPoint = 0; nPoint < PointString.size(); nPoint++) {
-	Int_t x;
-	if(sscanf(PointString[nPoint].c_str(), "%d", &x) == 0) {
+      for(UInt_t npoint = 0; npoint < PointString.size(); npoint++) {
+	Float_t x;
+	if(sscanf(PointString[npoint].c_str(), "%f", &x) == 0) {
 	  rResult = Usage();
-	  rResult += "\nInvalid point string in description";
-	  rResult += PointString[nPoint];
+	  rResult += "\ninvalid point string in description";
+	  rResult += PointString[npoint];
 	  return TCL_ERROR;
 	}
-	PointValues.push_back(CPoint(x,0));
+	PointValues.push_back(FPoint(x,0));
       }
     }
     else {
-      // Otherwise a point is a list containing x,y...
-      for(UInt_t nPoint = 0; nPoint < PointString.size(); nPoint++) {
-	Int_t x,y;
-	CTCLList Point(&rInterp, PointString[nPoint]);
-	vector<string> coords;
-	Point.Split(coords);
-	if(coords.size() != 2) {
+      // otherwise a point is a list containing x,y...
+      for(UInt_t npoint = 0; npoint < PointString.size(); npoint++) {
+	Float_t x,y;
+	CTCLList Point(&rInterp, PointString[npoint]);
+	vector<string> Coords;
+	Point.Split(Coords);
+	if(Coords.size() != 2) {
 	  rResult = Usage();
 	  rResult += "\nInvalid point string in description  ";
 	  rResult += Point.getList();
 	  return TCL_ERROR;
 	}
-	UInt_t s1 = sscanf(coords[0].c_str(), "%d", &x);
-	UInt_t s2 = sscanf(coords[1].c_str(), "%d", &y);
+	Float_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
+	Float_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
 	
 	if((s1 != 1)  || (s2 != 1) ) {
 	  rResult = Usage();
@@ -557,7 +599,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp,
 	  rResult += Point.getList();
 	  return TCL_ERROR;
 	}
-	CPoint pt(x,y);
+	FPoint pt(x,y);
 	PointValues.push_back(pt);
       }
     }
@@ -575,20 +617,18 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp,
     StringArray Description;
     List.Split(Description);
 
-    vector<CPoint> PointValues;	// Filled in below
-    vector<string> SpecValues;  // Filled in further below
     UInt_t nPoint = 0;
     if(Item.eGateType == CGateFactory::gammacut) {
-      Int_t x1, x2;
-      Int_t i = sscanf(Description[nPoint].c_str(), "%d %d", &x1, &x2);
+      Float_t x1, x2;
+      Int_t i = sscanf(Description[nPoint].c_str(), "%f %f", &x1, &x2);
       if(i != 2) {
 	rResult = Usage();
 	rResult += "\nInvalid point string in description";
 	rResult += Description[nPoint];
 	return TCL_ERROR;
       }
-      PointValues.push_back(CPoint(x1,0));
-      PointValues.push_back(CPoint(x2,0));
+      PointValues.push_back(FPoint(x1,0));
+      PointValues.push_back(FPoint(x2,0));
       if(PointValues.size() != 2) {
 	rResult = Usage();
 	rResult += "\nInvalid point string in description";
@@ -612,24 +652,24 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp,
       Points.Split(PointString);
       for(UInt_t i = 0; i < PointString.size(); i++) {
 	CTCLList Point(&rInterp, PointString[i]);
-	vector<string> coords;
-	Point.Split(coords);
-	if(coords.size() != 2) {
+	vector<string> Coords;
+	Point.Split(Coords);
+	if(Coords.size() != 2) {
 	  rResult = Usage();
 	  rResult += "\nInvalid point string in description  ";
 	  rResult += Point.getList();
 	  return TCL_ERROR;
 	}
-	Int_t x,y;
-	UInt_t s1 = sscanf(coords[0].c_str(), "%d", &x);
-	UInt_t s2 = sscanf(coords[1].c_str(), "%d", &y);
+	Float_t x,y;
+	Int_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
+	Int_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
 	if(s1 != 1 || s2 != 1) {
 	  rResult = Usage();
 	  rResult += "\nInvalid point string in description  ";
 	  rResult += Point.getList();
 	  return TCL_ERROR;
 	}
-	CPoint pt(x, y);
+	FPoint pt(x, y);
 	PointValues.push_back(pt);
       }
       
@@ -644,7 +684,8 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp,
     }
     
     try {
-      pGate = Factory.CreateGate(Item.eGateType, PointValues, SpecValues);
+      pGate = Factory.CreateGate(Item.eGateType, PointValues, 
+				 SpecValues);
     }
     catch(CException& rExcept) {
       rResult = Usage();
@@ -733,7 +774,7 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //         Count of the parameter tail.
   //    char* pArgs[]:
   //         Pointer to the command tail.
-  //         Either points to a list of gates, or -id followed by a list of gates.
+  //         Either Points to a list of gates, or -id followed by a list of gates.
   //
   
   if(nArgs == 0) {		// Not allowed.
@@ -741,7 +782,7 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rResult += "\nMust at least be a gate to delete.";
     return TCL_ERROR;
   }
-  // What we do depends on whether or not the next item is a -id switch:
+  // What we do depends on whether or not the next Item is a -id switch:
 
   CGatePackage& Package((CGatePackage&)getMyPackage());
   if(MatchSwitches(*pArgs) == id) { // Remaining list is a set of ids...

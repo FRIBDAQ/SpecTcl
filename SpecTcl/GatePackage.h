@@ -275,14 +275,15 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
-// Class: CGatePackage                     //ANSI C++
-//
-// Encapsulates a package of commands which
-// manipulates gates.  This class also provides
-// services which bridge between the Tcl
-// scripting language and the underlying 
-// representation of gates etc.
-//
+/*
+  Change Log:
+  $Log$
+  Revision 4.2  2003/04/15 19:25:20  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
+
+*/
+
+
 //
 // Author:
 //     Ron Fox
@@ -348,14 +349,22 @@ DAMAGES.
 #endif                               
                                //Required for 1:1 association classes
                                                              
+/*!
+
+ Encapsulates a package of commands which
+ manipulates gates.  This class also provides
+ services which bridge between the Tcl
+ scripting language and the underlying 
+ representation of gates etc.
+*/
 class CGatePackage  : public CTCLCommandPackage        
 {                       
 			
-  CHistogrammer*  m_pHistogrammer;   // Pointer to SpecTcl Histogrammer        
+  CHistogrammer*  m_pHistogrammer;   //!< Pointer to SpecTcl Histogrammer        
   CGateCommand*   m_pGateCommand;    // 1:1 association object data member
   CApplyCommand*  m_pApplyCommand;   // 1:1 association object data member
   CUngateCommand* m_pUngateCommand;  // 1:1 association object data member
-  static UInt_t   m_nNextId;	     // Next Gate Id.
+  static UInt_t   m_nNextId;	     //!< Next Gate Id.
 
 public:
 
@@ -442,22 +451,25 @@ protected:
 
 public:
 
-   Bool_t AddGate (CTCLResult& rResult, const std::string& rGateName, 
-		   const CGate* pGate)    ;
-   CTCLString ListGates ()    ;
-   CTCLString ListGatesById ()    ;
+   Bool_t AddGate (CTCLResult& rResult,
+                   const std::string& rGateName, 
+		   const CGate* pGate);
+   CTCLString ListGates();
+   CTCLString ListGatesById();
    Bool_t DeleteGates (CTCLResult& rResult, 
-		       const vector<string>& rGateNames)    ;
-   Bool_t DeleteGates (CTCLResult& rResult, const vector<UInt_t>& rIds)    ;
+		       const vector<string>& rGateNames);
+   Bool_t DeleteGates (CTCLResult& rResult, 
+                       const vector<UInt_t>& rIds)    ;
    Bool_t ApplyGate (CTCLString& rResult, const string& rGateName, 
-		     const string& rSpectrumName)    ;
-   Bool_t ListAppliedGate (CTCLString& rApplication, const string& rName)    ;
+		     const string& rSpectrumName);
+   Bool_t ListAppliedGate (CTCLString& rApplication, 
+                           const string& rName)    ;
    Bool_t  Ungate(CTCLString& rResult, const string & rName);
 
-   std::string GateToString (CGateContainer* pGate)    ;
+   std::string GateToString (CGateContainer* pGate);
    static  UInt_t AssignId();
 protected:
-   static  void SortGateListById (vector<CGateContainer*>& rpGates)   ;
+   static  void SortGateListById (vector<CGateContainer*>& rpGates);
 private:
 
 };
