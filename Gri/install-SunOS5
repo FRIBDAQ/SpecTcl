@@ -1,0 +1,97 @@
+#!/usr/bin/sh
+
+# Set defaults for file locations.
+bindir_default="/usr/local/bin"
+libdir_default="/usr/local/share/gri/VSN/lib"
+docdir_default="/usr/local/share/gri/VSN/doc"
+emacsdir_default="/usr/local/share/emacs/site-lisp"
+
+echo "Please enter the full pathname of the directory in which the Gri executable"
+echo "is to be stored."
+echo "    [Press ENTER to get the default of $bindir_default]"
+read BINDIR
+if [ -z "$BINDIR" ]
+then
+    bindir="$bindir_default"
+else
+    bindir="$BINDIR"
+fi
+
+echo "Please enter the full pathname the directory in which the Gri library"
+echo "files are to be stored."
+echo "    [Press ENTER to get the default of $libdir_default]"
+read LIBDIR
+if [ -z "$LIBDIR" ]
+then
+    libdir="$libdir_default"
+else
+    libdir="$LIBDIR"
+fi
+
+echo "Please enter the full pathname the directory in which the Gri documentation"
+echo "files are to be stored."
+echo "    [Press ENTER to get the default of $docdir_default]"
+read DOCDIR
+if [ -z "$DOCDIR" ]
+then
+    docdir="$docdir_default"
+else
+    docdir="$DOCDIR"
+fi
+
+echo "Please enter the full pathname the directory in which the Gri"
+echo "Emacs editing mode should be stored. "
+echo "    [Press ENTER to get the default of $emacsdir_default]"
+read EMACSDIR
+if [ -z "$EMACSDIR" ]
+then
+    emacsdir="$emacsdir_default"
+else
+    emacsdir="$EMACSDIR"
+fi
+
+# Install the files, creating directories if needed.
+
+echo "Installing Gri executable in $bindir"
+mkdir -m 755 -p $bindir
+cp -f bin/gri   $bindir/gri
+
+# Create a shellscript to run this, named "Gri" (note upper-case)
+cat > $bindir/Gri <<EOF
+#!/usr/bin/sh
+$bindir/gri -directory $libdir "\$@"
+EOF
+chmod a+rx      $bindir/gri $bindir/Gri
+
+echo "Installing Gri library files in $libdir"
+mkdir -m 755 -p $libdir
+cp -f lib/*     $libdir
+chmod a+r       $libdir/*
+
+echo "Installing Gri documentation files in $docdir ... may be slow"
+mkdir -m 755 -p                $docdir
+mkdir -m 755 -p                $docdir/html
+mkdir -m 755 -p                $docdir/html/examples
+mkdir -m 755 -p                $docdir/html/resources
+mkdir -m 755 -p                $docdir/html/tst_suite
+cp -f doc/gri.1                $docdir
+cp -f doc/html/*html           $docdir/html
+cp -f doc/html/*png            $docdir/html
+cp -f doc/html/examples/*dat   $docdir/html/examples
+cp -f doc/html/examples/*gri   $docdir/html/examples
+cp -f doc/html/examples/*html  $docdir/html/examples
+cp -f doc/html/resources/*gif  $docdir/html/resources
+cp -f doc/html/tst_suite/*dat  $docdir/html/tst_suite
+cp -f doc/html/tst_suite/*gri  $docdir/html/tst_suite
+cp -f doc/html/tst_suite/*html $docdir/html/tst_suite
+chmod a+r       $docdir/*
+chmod a+r       $docdir/html/*
+chmod a+rx      $docdir/html/examples
+chmod a+rx      $docdir/html/resources
+chmod a+rx      $docdir/html/tst_suite
+chmod a+r       $docdir/html/examples/*
+chmod a+r       $docdir/html/resources/*
+chmod a+r       $docdir/html/tst_suite/*
+
+echo "Installing Gri Emacs editing mode in $emacsdir"
+cp -f lib/gri-mode.el $emacsdir
