@@ -44,7 +44,7 @@ START_TEST(cbeginprocessed)
 
   strcpy(Buf.body.title, "This is a test");
   Buf.body.sortim = 0;
-  Buf.body.tod.month    = 2;
+  Buf.body.tod.month    = 1;
   Buf.body.tod.day      = 15;
   Buf.body.tod.year     = 2005;
   Buf.body.tod.hours    = 14;
@@ -79,7 +79,7 @@ START_TEST(cendprocessed)
 
   strcpy(Buf.body.title, "This is a test");
   Buf.body.sortim = 0;
-  Buf.body.tod.month    = 2;
+  Buf.body.tod.month    = 1;
   Buf.body.tod.day      = 15;
   Buf.body.tod.year     = 2005;
   Buf.body.tod.hours    = 16;
