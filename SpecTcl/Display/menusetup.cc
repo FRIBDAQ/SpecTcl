@@ -152,8 +152,6 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   XMMenuBar *bar;
   XMPulldown *pd;		/* Current pulldown menu */
   XMPulldown *sub;		/* Current Submenu pulldown */
-  XMPulldown *subsub;		/* Second level subment pulldown. */
-  XMButton   *button;		/* Button being modified   */
   XMPushButton *b;
   XMToggleButton *tb;
 
