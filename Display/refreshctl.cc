@@ -687,6 +687,9 @@ Boolean Xamine_Refresh(XtPointer client_data)
   Xamine_RefreshContext &c = q->Peek();
   Xamine_RefreshContext *ctx = &c; /* Compatibility with old code. */
 
+  // It's possible external forces have monkeyed with the drawable:
+
+  ctx->pixmap = Xamine_GetBackingStore(ctx->row, ctx->column);
 
 
   pane_db *pdb = ctx->windb;
@@ -905,7 +908,9 @@ Boolean Xamine_Refresh(XtPointer client_data)
 
     if( ctx->pixmap != XtWindow(ctx->pane->getid())) {
       XGetWindowAttributes(display, XtWindow(ctx->pane->getid()), &att);
-      XCopyArea(display, window, XtWindow(ctx->pane->getid()), gc,
+      XCopyArea(display, 
+		Xamine_GetBackingStore(ctx->row, ctx->column), 
+		XtWindow(ctx->pane->getid()), gc,
 		0,0, att.width, att.height, 0,0);
     }
   }
@@ -914,8 +919,7 @@ Boolean Xamine_Refresh(XtPointer client_data)
       Xamine_DeleteBackingStore(ctx->row, ctx->column);
     }
   }
-
-
+  ctx->pixmap = (Drawable)NULL;
   q->Remove();
   return q->IsEmpty();
 }

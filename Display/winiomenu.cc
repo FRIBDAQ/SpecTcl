@@ -317,6 +317,8 @@ static Boolean read_windows(char *filename)
   
   int nx = windows.nx();
   int ny = windows.ny();
+  Xamine_CancelUpdates();	// Kill off any pending updates.. since they 
+                                // refer to dead drawables probably.
   Xamine_SetPaneGeometry(nx,ny);
   /* For each window define the spectrum and attributes: */
   /* We also schedule an update in order to make the spectrum visible */

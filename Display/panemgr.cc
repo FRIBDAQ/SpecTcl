@@ -747,7 +747,9 @@ void Xamine_Initialize_panedb(XMForm *parent)
 void Xamine_SetPaneGeometry(int ncol, int nrow)
 {
   Xamine_CancelUpdates();
-
+  Display *display = XtDisplay(Xamine_panedb->pane(0,0)->getid());
+  XFlush(display);		// Flush any pending output on resources we'll
+                                // be destroying. 
   /* For all defined panes in the old geometry, remove the pointer motion
   ** event handler:
   */
@@ -790,7 +792,8 @@ void Xamine_SetPaneGeometry(int ncol, int nrow)
 
   if(Select_callback)
     Select_callback(-1,-1, 0,0, select_client_data);
-
+  XFlush(display);		// Flush any pending output on resources we'll
+                                // be destroying.
 }
 
 /*
@@ -1091,6 +1094,7 @@ void Xamine_SetDisplay(int row, int col, int spno)
 {
   // The first spectrum in a pane has no superimpositions.
 
+  Xamine_CancelTimedUpdate(row, col);
   Xamine_DisableUnsuperimpose();
 
   switch(Xamine_SpectrumType(spno)) {
@@ -1170,6 +1174,7 @@ void Xamine_SetDisplay(int row, int col, int spno)
       (Select_callback)) {
     (*Select_callback)(col, row, col,row, select_client_data);
   }
+
 }
 /*
 ** Functional Description:
