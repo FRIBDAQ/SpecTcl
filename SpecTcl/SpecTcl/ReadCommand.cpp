@@ -202,8 +202,9 @@ Int_t CReadCommand::operator()(CTCLInterpreter& rInterp,
       errno = ENOMEM;
       throw(CErrnoException("Creating input file stream."));
     }
+    in->attach(fid);		// Attach to the requested fd.
+
   }
-  in->attach(fid);
   CSpectrumPackage& rPack((CSpectrumPackage&)getMyPackage());
   UInt_t ReadFlags = 0;
   if(!fSnapshot) ReadFlags |= CSpectrumPackage::fLive;

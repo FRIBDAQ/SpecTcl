@@ -30,6 +30,7 @@ static char *sccsinfo="@(#)exit.cc	8.1 6/23/95 ";
 #include "helpmenu.h"
 #include "exit.h"
 #include "winiomenu.h"
+#include <string>
 /*
 ** External definitions:
 */
@@ -152,10 +153,11 @@ void Xamine_confirm_exit(XMWidget *w, XtPointer client_data, XtPointer cbs)
 void Xamine_ChangedWindows()
 {
   if(!windows_changed) {
-    char title[100];
-    sprintf(title, "Xamine -- %s [Modified]", Xamine_GetLastWindowFile());
+    string title("Xamine -- ");
+    title += Xamine_GetLastWindowFile();
+    title += " [Modified]";
     XMWidget *mgr = Xamine_Getpanemgr();
-    SetWindowLabel(mgr->getid(), title);
+    SetWindowLabel(mgr->getid(), (char*)title.c_str());
   }
   windows_changed = True;
 }
@@ -170,10 +172,12 @@ void Xamine_ChangedWindows()
 void Xamine_ChangedGrobjs()
 {
   if(!grobjs_changed) {
-    char title[100];
-    sprintf(title, "Xamine -- %s [Modified]", Xamine_GetLastWindowFile());
+    string title("Xamine -- ");
+    title += Xamine_GetLastWindowFile();
+    title += " [Modified]";
+
     XMWidget *mgr = Xamine_Getpanemgr();
-    SetWindowLabel(mgr->getid(), title);
+    SetWindowLabel(mgr->getid(), (char*)title.c_str());
   }
   grobjs_changed = True;
 }
