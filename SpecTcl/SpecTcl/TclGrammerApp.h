@@ -328,8 +328,6 @@ class CGatePackage;
 class CEventProcessor;
 class CNSCLBufferDecoder;
 
-
-
 class CTclGrammerApp : public CTCLApplication     
 {
   
@@ -352,7 +350,7 @@ class CTclGrammerApp : public CTCLApplication
     CTCLVariable m_TclParameterCount;   
     CTCLVariable m_TclEventListSize;   
    
-public:
+ public:
   //Default constructor alternative to compiler provided default constructor
   //Ensure correct initial values
   //Initialization list has members in the order declared
@@ -363,7 +361,7 @@ public:
   // Copy of this singleton is illegal so many canonical functions are
   // private and unimplemented to prevent their use.
   //
-private: 
+ private: 
              //Copy Constructor 
   CTclGrammerApp (const CTclGrammerApp& aCTclGrammerApp );
 
@@ -375,7 +373,7 @@ private:
 
 // Selectors:
 
-public:
+ public:
 
 
             //Get accessor function for non-static attribute data member
@@ -445,7 +443,7 @@ public:
 
 // Attribute mutators:
 
-protected:
+ protected:
 
           //Set accessor function for non-static attribute data member
             //Set accessor function for non-static attribute data member
@@ -515,7 +513,7 @@ protected:
 
   // Class operations:
 
-public:
+ public:
 
   void RegisterEventProcessor (CEventProcessor& rEventProcessor)   ; // Add event processor to pipeline tail
   virtual   void BindTCLVariables (CTCLInterpreter& rInterp)   ; // Bind any CTCLVariables to interpreter.
@@ -534,7 +532,7 @@ public:
 
   // Utilities:
 
-protected:  
+ protected:  
   static void UpdateUInt(CTCLVariable& rVar, UInt_t& rValue);
 };
 
