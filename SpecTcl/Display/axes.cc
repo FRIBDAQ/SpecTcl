@@ -49,7 +49,6 @@ extern volatile spec_shared *xamine_shared;
 static int ComputeLinearTickInterval(unsigned int paramrange, int pixels)
 {
   /*  Compute the 'tight' packed tick interval... */
-
   double tickmin = paramrange / XAMINE_TICK_MAXCOUNT;  /* Pack ticks tightly */
   int    tickpix = pixels/XAMINE_TICK_MAXCOUNT;        /* Pixels per tick    */
   int    ntick   = XAMINE_TICK_MAXCOUNT;               /* Number of ticks    */
@@ -173,7 +172,6 @@ static void DrawLinearXTicks(Display *disp, Window win, GC gc,
   XSegmentBatch ticks(disp, win, gc);
 
   value_interval = (float)ComputeLinearTickInterval(hi-low + 1, (nx-xbase+1));
-
 
   interval       = ((float)(nx-xbase+1) * (float)value_interval)/
                     ((float)(hi - low + 1));
@@ -576,7 +574,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
 
     unsigned int low, hi;
     low = 0;
-    hi  = xamine_shared->getxdim(attribs->spectrum());	/* Assume not expanded.*/
+    hi  = xamine_shared->getxdim(attribs->spectrum())-1;/* Assume unexpanded.*/
     
     if(attribs->is1d()) {
       win_1d *att = (win_1d *)attribs;
@@ -644,7 +642,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
     else {			/* 2-d spectrum. Figure out hi/low like X */
       win_2d *att = (win_2d *)attribs;
       low = 0;
-      hi  = xamine_shared->getydim(att->spectrum());
+      hi  = xamine_shared->getydim(att->spectrum())-1;
       if(att->isflipped()) {
 	if(att->isexpanded()) {
 	  low = att->xlowlim();
@@ -661,11 +659,7 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
 	DrawLinearYTicks(disp,win,gc, xbase,ybase, nx,ny, low,hi,
 			 att->labelaxes());
       }
-    }
-    
+    }    
   /* End of tick drawing */
-
   }
-
-  
 }
