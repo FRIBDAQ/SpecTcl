@@ -290,6 +290,14 @@ DAMAGES.
 ** (c) Copyright 1999 NSCL, All rights reserved.
 */
 
+/*
+   Change log:
+   $Log$
+   Revision 4.4  2003/04/01 19:59:49  ron-fox
+   Removed Mapped Spectrum types... Added changelog tag to header comments.
+
+*/
+
 #ifndef __HISTOTYPES_H
 #define __HISTOTYPES_H
 
@@ -444,13 +452,9 @@ typedef enum _SpectrumType_t {
   ke2D,
   keBitmask,
   keSummary,
-  keUnknown,
   keG1D,
   keG2D,
-  keM1D,
-  keM2D,
-  keMG1D,
-  keMG2D
+  keUnknown
 } SpectrumType_t;
 
 
@@ -461,11 +465,9 @@ operator<<(ostream& out, SpectrumType_t t)
 {
   switch(t) {
   case ke1D:
-  case keM1D:
     out << '1';
     break;
   case ke2D:
-  case keM2D:
     out << '2';
     break;
   case keBitmask:
