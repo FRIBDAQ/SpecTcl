@@ -1247,9 +1247,9 @@ Xamine_RemoveGate(int spec, int id, Xamine_gatetype ntype)
 /*
 ** Functional Description:
 **  Xamine_EnterGate:
-**    This function asks Xamine to enter a gate in it's gate 
+**    This function asks Xamine to enter a gate in its gate 
 **    database.  Gates in Xamine are accepted, handed to the client
-**    and then forgotten.  The client if it desires can hand the
+**    and then forgotten.  The client, if it desires, can hand the
 **    gate back to Xamine for display.
 ** Formal Parameters:
 **   int spec:
