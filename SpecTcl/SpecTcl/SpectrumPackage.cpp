@@ -295,6 +295,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
+//    Revision 4.5  2003/04/15 19:25:20  ron-fox
+//    To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
+//
 //    Revision 4.4  2003/04/01 19:55:40  ron-fox
 //    Support for Real valued parameters and spectra with arbitrary binnings.
 //
@@ -1668,6 +1671,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
   ParameterDictionary& rDict((ParameterDictionary&)
 			        m_pHistogrammer->getParameterDictionary());
   CSpectrum*           pSpectrum(0);
+  CSpectrum*           pOld(0);              // Will hold old spectrum.
 
   // First thing to try to do is to get the spectrum formatter to read the
   // spectrum from file.  We'll get a  pointer to a newly allocated 
@@ -1692,7 +1696,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
       }
       catch (...) {
       }
-      CSpectrum* pOld = m_pHistogrammer->RemoveSpectrum(pSpectrum->getName());
+      pOld = m_pHistogrammer->RemoveSpectrum(pSpectrum->getName());
       if(pOld) delete pOld;
     }
     //  Process the Live flag: This determines if we need to wrap the
@@ -1705,6 +1709,16 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
     //  dictionary.
     //
     m_pHistogrammer->AddSpectrum(*pSpectrum);
+    if((fFlags & fReplace) != 0) {
+      if(pOld) {		// If there's an old spectrum, transfer it's
+				// gate.
+	CGateContainer* pGate = (CGateContainer*)pOld->getGate();
+	if(pGate) {
+	  pSpectrum->ApplyGate(pGate);
+	}
+      }
+      delete pOld;
+    }
 
     if(fFlags & fBind) {	// Bind it if requested.
 	m_pHistogrammer->BindToDisplay(pSpectrum->getName());

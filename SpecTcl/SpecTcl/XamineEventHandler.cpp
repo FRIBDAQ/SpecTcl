@@ -302,6 +302,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <Spectrum.h>
 #include <XamineEvent.h>
 
+#include <Gamma2DW.h>
+
 #include <vector>
 #include <string>
 #include <assert.h>
@@ -326,7 +328,7 @@ static inline UInt_t scale(UInt_t value, Int_t nshift)
 //     operator()(int mask)
 //  Operation Type: 
 //     Evaluation operator.
-void CXamineEventHandler::operator()(int mask)  
+void CXamineEventHandler::operator()()  
 {
   // Called when Xamine's gate fd is readable.
   // the histogrammer is used to locate the
@@ -335,10 +337,6 @@ void CXamineEventHandler::operator()(int mask)
   // or a gate event.  The appropriate Onxxx member
   // is called.
   //
-  // Formal Parameters:
-  //   int mask:
-  //      Mask indicating what sort of Fd event
-  //     triggered this handler.
   //
 
   CXamine* pDisplay = m_pHistogrammer->getDisplayer();
@@ -346,7 +344,8 @@ void CXamineEventHandler::operator()(int mask)
   // Poll the event from the displayer:
 
   CXamineEvent Event;
-  if(pDisplay->PollEvent(0, Event)) {
+  int pollstat = pDisplay->PollEvent(0, Event);
+  if(pollstat > 0) {		// Successful poll => something read.
     
     // Determine what kind of beast we got:
 
@@ -379,23 +378,19 @@ void CXamineEventHandler::operator()(int mask)
 	  m_pHistogrammer->UnBindFromDisplay(Xid);
 	}
 	catch(...) { } // Some spectra will not be bound.
-  }
-
+      }
 
       cerr << "\n Restarting Xamine...";
-      Tcl_Close(m_pInterp->getInterpreter(), m_SocketChannel);
       pDisplay->Restart();
       
       // Re-associate ourselves with the input channel:
 
       cerr << "\n Reconnecting with Xamine gate inputs..";
       m_nFd = m_pHistogrammer->getDisplayer()->GetEventFd();
-      m_SocketChannel = Tcl_MakeTcpClientChannel((ClientData)(long)m_nFd);
-      Set(TK_READABLE);
       cerr << "\n";
     }
-    
   }
+  Set();			// Re-schedule self.
   
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -419,8 +414,6 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   //           Refers to the gate created by Xamine.
   // 
 
-#ifdef __WITH_MAPPED_SPECTRA
-  BUGBUGBUGBUG
 
   CGateFactory Factory(m_pHistogrammer);; // We'll use this to create the 
 				          // Gate itself.
@@ -441,39 +434,47 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   SpectrumType_t spType = pSpec->getSpectrumType();
 
   vector<CPoint>          GatePoints;
+  vector<FPoint>          ScaledPoints;
   CGateFactory::GateType  gType;
-
-  GatePoints.insert(GatePoints.begin(),
-		    rXamineGate.begin(),
-		    rXamineGate.end());
+  GatePoints.insert(GatePoints.begin(),	 // These are the unmapped gate points.
+		    rXamineGate.begin(), // Later we need to map them to 
+		    rXamineGate.end());	 //  Parameter coordinates.
 
   switch(rXamineGate.getGateType()) {
+
   case kgCut1d:
-    if((spType == ke1D) || (spType == keM1D)) gType = CGateFactory::cut;
-    else if((spType == keG1D) || (spType == keMG1D))
+    if((spType == ke1D))	// Ordinary 1d spectrum -> ordinary cut.
+      gType = CGateFactory::cut;
+    else if((spType == keG1D))	// Gamma spectrum -> Gamma cut.
       gType = CGateFactory::gammacut;
     else {
-      cerr << "Unknown gate type received from Xamine... better update SpecTcl"
+      cerr << "Cut gate received on a spectrum type that doesn't know about"
+           << " cut gates.\n Consider updating SpecTcl??"
 	   << endl;
       return;
     }
     break;
+
   case kgContour2d:
-    if((spType == ke2D) || (spType == keM2D)) gType = CGateFactory::contour;
-    else if((spType == keG2D) || (spType == keMG2D))
+    if((spType == ke2D)) 
+      gType = CGateFactory::contour;
+    else if((spType == keG2D))
       gType = CGateFactory::gammacontour;
     else {
-      cerr << "Unknown gate type received from Xamine... better update SpecTcl"
+      cerr << "Contour gate received on a spectrum type that doesn't know"
+           << " about contours.\n Consider updating SpecTcl?"
 	   << endl;
       return;
     }
     break;
   case kgBand2d:
-    if((spType == ke2D) || (spType == keM2D)) gType = CGateFactory::band;
-    else if((spType == keG2D) || (spType == keMG2D))
+    if((spType == ke2D))	// Ordinary 2d -> Band.
+      gType = CGateFactory::band;
+    else if((spType == keG2D))	// Gamma spectrum -> Gamm aband.
       gType = CGateFactory::gammaband;
     else {
-      cerr << "Unknown gate type received from Xamine... better update SpecTcl"
+      cerr << "Band received on a spectrum that type that doesn't know how"
+      << " to handle it.\n Consider updating Spectcl."
 	   << endl;
       return;
     }
@@ -489,14 +490,12 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
 
   switch(spType) {
   case ke1D:                      // 1-d spectrum must be a cut..
-  case keM1D:
     if(gType != CGateFactory::cut) {
       cerr << "Only cuts can be accepted on 1-d spectra\n";
       return;
     }
     break;
   case keG1D:                     // 1-d gamma spectrum must be a gamma cut...
-  case keMG1D:
     if((gType != CGateFactory::gammacut) &&
        (gType != CGateFactory::cut)) {
       cerr << "Only gammacuts or cuts can be accepted on 1-d gamma spectra\n";
@@ -504,7 +503,6 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     }
     break;
   case ke2D:                     // 2-d spectrum must be a band or contour..
-  case keM2D:
     if( (gType != CGateFactory::band) && 
 	(gType != CGateFactory::contour)) {
       cerr << "Only bands or contours can be accepted "
@@ -513,7 +511,6 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     }
     break;
   case keG2D:       // 2-d gamma spectrum must be a gammaband or gammacontour..
-  case keMG2D:
     if((gType != CGateFactory::band) && 
        (gType != CGateFactory::contour) &&
        (gType != CGateFactory::gammaband) &&
@@ -527,68 +524,38 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     cerr << "Gates must only be accepted on simple 1-d or 2-d spectra\n";
     return;
   }
-  // The points are in spectrum coordinates, so we need to reverse the
-  // scale factor which is applied to each parameter.  How this is done
-  // depends on the gate type a bit too.
-  //  Note that doing things the way we do makes stuff work even for
-  //  1-d cut points for which the y axis is irrelevant.
-  //
+  // Points are in spectrum coordinates (axis coordinates). They must be 
+  // transformed back into parameter coordinates.
+
+  UInt_t yIndex = 1;	// For typcial 2d, this index into the
+
   switch(spType) {
+  case keG2D:			// For a gamma all x transforms are first.
+    {
+      CGamma2DW* pGSpectrum = (CGamma2DW*)pSpec;
+      yIndex = pGSpectrum->getnParams();
+    }
   case ke1D:
   case ke2D:
   case keG1D:
-  case keG2D: 
     {
-      Int_t xscale = 0;
-      Int_t yscale = 0;
-      if(pSpec->Dimensionality() > 0) xscale = -pSpec->getScale(0);  // Inverse 
-      if(pSpec->Dimensionality() > 1) yscale = -pSpec->getScale(1);  // scale..
+
+      Float_t x,y(0.0);
+
+
+      
       vector<CPoint>::iterator p = GatePoints.begin();
       for(; p != GatePoints.end(); p++) {
-	*p  = CPoint(scale((*p).X(), xscale),
-		     scale((*p).Y(), yscale));
+	CPoint& rp(*p);
+	x = pSpec->AxisToParameter(0, rp.X());
+	if(pSpec->Dimensionality() > 1) 
+	  y = pSpec->AxisToParameter(yIndex, rp.Y());
+	ScaledPoints.push_back(FPoint(x,y));
+
       }
       break;
     }
-  case keM1D: 
-    {
-      CMSpectrum1DL* pS = (CMSpectrum1DL*)pSpec;
-      vector<CPoint>::iterator p = GatePoints.begin();
-      for(; p != GatePoints.end(); p++) {
-	*p = CPoint(pS->SpecToParamPoint((*p).X()), (*p).Y());
-      }
-      break;
-    }
-  case keMG1D:
-    {
-      CMGamma1DL* pS = (CMGamma1DL*)pSpec;
-      vector<CPoint>::iterator p = GatePoints.begin();
-      for(; p != GatePoints.end(); p++) {
-	*p = CPoint(pS->SpecPointToGate((*p).X()), 
-		    pS->SpecPointToGate((*p).Y()));
-      }
-      break;
-    }
-  case keM2D: 
-    {
-      CMSpectrum2DB* pS = (CMSpectrum2DB*)pSpec;
-      vector<CPoint>::iterator p = GatePoints.begin();
-      for(; p != GatePoints.end(); p++) {
-	*p = CPoint(pS->SpecToXParamPoint((*p).X()),
-		    pS->SpecToYParamPoint((*p).Y()));
-      }
-      break;
-    }
-  case keMG2D:
-    {
-      CMGamma2DW* pS = (CMGamma2DW*)pSpec;
-      vector<CPoint>::iterator p = GatePoints.begin();
-      for(; p != GatePoints.end(); p++) {
-	*p = CPoint(pS->SpecPointToGate((*p).X(), 0), 
-		    pS->SpecPointToGate((*p).Y(), 1));
-      }
-      break;
-    }
+    
   default:
     cerr << "Gates must only be accepted on simple 1-d or 2-d spectra\n";
     return;
@@ -608,8 +575,6 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   switch(spType) {
   case ke1D:
   case ke2D:
-  case keM1D:
-  case keM2D:
     for(pid = pIds.begin(); pid != pIds.end(); pid++) {
       CParameter* pParam = m_pHistogrammer->FindParameter(*pid);
       if(!pParam) {
@@ -620,14 +585,12 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     }
     // Use the gate factory creation mechanism to produce a dynamically
     // allocated SpecTcl gate:
-    pSpecTclGate = Factory.CreateGate(gType, Parameters, GatePoints);
+    pSpecTclGate = Factory.CreateGate(gType, Parameters, ScaledPoints);
     break;
   case keG1D:
   case keG2D:
-  case keMG1D:
-  case keMG2D:
     Names.push_back(strSpecName);
-    pSpecTclGate = Factory.CreateGate(gType, GatePoints, Names);
+    pSpecTclGate = Factory.CreateGate(gType, ScaledPoints, Names);
     break;
   default:
     cerr << "Spectrum type cannot accept a gate!!\n";
@@ -654,7 +617,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     cerr << "Gate not entered" << endl;
   }
   delete pSpecTclGate;
-#endif
+
 
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -722,15 +685,16 @@ CXamineEventHandler::FindDisplayBinding(const std::string& rName)
 }
 //
 // Functional Description:
-//   void Set(int mask)
+//   void Set()
 //     Registers the CallbackRelay static member as a socket callback
-//     handler as per the mask.
+//     handler as per the mask.  There are problems now with cygwin's TCL
+//     fd notification on sockets,so we'll use a timer <sigh>
 //
 void
-CXamineEventHandler::Set(int mask)
+CXamineEventHandler::Set()
 {
-  Tcl_CreateChannelHandler(m_SocketChannel, mask,
-			   CallbackRelay, this);
+  m_Timer = Tcl_CreateTimerHandler(500, CallbackRelay, (ClientData)this);
+
 }
 //
 // Functional Description:
@@ -740,7 +704,7 @@ CXamineEventHandler::Set(int mask)
 void 
 CXamineEventHandler::Clear()
 {
-  Tcl_DeleteChannelHandler(m_SocketChannel, CallbackRelay, this);
+  Tcl_DeleteTimerHandler(m_Timer);
 }
 //
 // Functional Description:
@@ -750,9 +714,9 @@ CXamineEventHandler::Clear()
 // We get into object context and call operator().
 //
 void
-CXamineEventHandler::CallbackRelay(ClientData pObject, int mask)
+CXamineEventHandler::CallbackRelay(ClientData pObject)
 {
   CXamineEventHandler* pThis = (CXamineEventHandler*)pObject;
 
-  pThis->operator()(mask);
+  pThis->operator()();
 }

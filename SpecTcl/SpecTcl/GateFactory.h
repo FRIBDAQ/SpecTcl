@@ -297,6 +297,14 @@ DAMAGES.
 // (c) Copyright NSCL 1999, All rights reserved GateFactory.h
 //
 
+/*
+  Change Log:
+  $Log$
+  Revision 4.2  2003/04/15 19:25:21  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
+
+*/
+
 #ifndef __GATEFACTORY_H  //Required for current class
 #define __GATEFACTORY_H
 
@@ -349,28 +357,34 @@ class CGammaContour;
 //
 //  The GateFactory Class:
 //
+/*!
+  Gate factories well, they produce gates.  Given a generic 
+  description of a gate the factory produces an instance of the
+  specific type of gate being described.  All the real work is done
+  by the three overloaded CreateGate functions.
+*/
 class CGateFactory      
 {                       
 			
-   CHistogrammer* m_pHistogrammer; //Ptr to histogrammer.        
+   CHistogrammer* m_pHistogrammer; //!< Ptr to histogrammer.        
 public:
-  // Data types... in this case the enum for the type sof gates which
-  // can be created:
+  // Data types... 
 
+   //! enum for the type sof gates which can be created:
   enum GateType {
-    And,			// And of multiple gates.
-    band,			// 2-d band.
-    bandcontour,		// Contour from band pair.
-    contour,			// contour
-    cut,			// Cut on 1-d spectrum.
-    deleted,			// Deleted gate placeholder.
-    falseg,			// Always false gate.
-    Not,			// Inverse of contained gate.
-    Or,				// OR of multiple gates.
-    trueg,			// Alwayw made gate.
-    gammacut,                   // Gamma cut
-    gammaband,                  // Gamma band
-    gammacontour                // Gamma contour
+    And,			//!< And of multiple gates.
+    band,			//!< 2-d band.
+    bandcontour,		//!< Contour from band pair.
+    contour,			//!< contour
+    cut,			//!< Cut on 1-d spectrum.
+    deleted,			//!< Deleted gate placeholder.
+    falseg,			//!< Always false gate.
+    Not,			//!< Inverse of contained gate.
+    Or,				//!< OR of multiple gates.
+    trueg,			//!< Alwayw made gate.
+    gammacut,                   //!< Gamma cut
+    gammaband,                  //!< Gamma band
+    gammacontour                //!< Gamma contour
   };
 
 public:
@@ -384,12 +398,6 @@ public:
   virtual ~ CGateFactory ( ) { }  //Destructor
   
   
-   //Copy constructor alternative to compiler provided default copy constructor
-   //Copy alternatives for association objects:
-   //  (1) initialize association object to nullAssociation Object
-   //  (2) Shallow copy to copy pointers of association objects 
-   //  (3) Deep copy to create new association objects
-   //      and copy values of association objects
 
   CGateFactory (const CGateFactory& aCGateFactory ) 
   {
@@ -426,30 +434,33 @@ protected:
    
 public:
 
-   CGate* CreateGate (GateType nGateType, const vector<string>& rGates);
-   CGate* CreateGate (GateType eType, const vector<string>& rParameters, 
-		      const vector<CPoint>& rPoints);
-   CGate* CreateGate (GateType eType, const vector<CPoint>& rPoints, 
+   CGate* CreateGate (GateType nGateType, 
+		      const vector<string>& rGates);
+   CGate* CreateGate (GateType eType, 
+		      const vector<string>& rParameters, 
+		      const vector<FPoint>& rPoints);
+   CGate* CreateGate (GateType eType, 
+		      const vector<FPoint>& rPoints, 
 		      const vector<string>& Ids);
 
    CTrueGate* CreateTrueGate ();
    CFalseGate* CreateFalseGate ();
    CDeletedGate* CreateDeletedGate ();
    CBand* CreateBand (const vector<string>& rParameters, 
-		     const vector<CPoint>& rPoints);
+		     const vector<FPoint>& rPoints);
    CContour* CreateContour (const vector<string>& rParameters, 
-			    const vector<CPoint>& rPoints);
+			    const vector<FPoint>& rPoints);
    C2Bands* CreateBandContour (const vector<string>& rBands);
    CNot* CreateNotGate (const string& rGateNames);
    CAndGate* CreateAndGate (const vector<string>& rGateNames);
    COrGate* CreateOrGate (const vector<string>& rGateNames)    ;
    CCut* CreateCut (const string& rParameterName, 
-		    UInt_t nLow, UInt_t nHigh);
-   CGammaCut* CreateGammaCut (UInt_t nLow, UInt_t nHigh,
+		    Float_t nLow, Float_t nHigh);
+   CGammaCut* CreateGammaCut (Float_t nLow, Float_t nHigh,
 			      const vector<string>& Specs);
-   CGammaBand* CreateGammaBand (const vector<CPoint>& rPoints,
+   CGammaBand* CreateGammaBand (const vector<FPoint>& rPoints,
 				const vector<string>& Specs);
-   CGammaContour* CreateGammaContour (const vector<CPoint>& rPoints,
+   CGammaContour* CreateGammaContour (const vector<FPoint>& rPoints,
 				      const vector<string>& Specs);
  
 protected:

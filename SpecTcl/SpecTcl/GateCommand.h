@@ -277,24 +277,7 @@ DAMAGES.
 */
 // Class: CGateCommand                     //ANSI C++
 //
-// Implements the gate command.
-// This command creates gates and enters them
-// in the gate dictionary.
-//    gate name type contents
-//             type is one of {cut, band, contour, not, and, or, true, false}
-//             contents is a list whose structure depends on the gate type:
-//                  cut - { parameter { xlow xhigh}}
-//                  band
-//                  contour { {xpar ypar}  { {x1 y1} {x2 y2} {x3 y3}...}
-//                  not     gatename
-//                  and,
-//                  or       {gate1 gate2 ...}
-//  gate -list [-byid]
-//       Lists gates in dictinoary
-//  gate -delete [-id] gatelist
-//       Replaces gate with deleted gate.
-//
-//
+
 // Author:
 //     Ron Fox
 //     NSCL
@@ -328,11 +311,34 @@ DAMAGES.
 
 class CGatePackage;		// Forward class definition.
 class CTCLInterpreter;		// Forward class definition
+/*!
+  \para Functionality:
+ Implements the gate command.
+ This command creates gates and enters them
+ in the gate dictionary.
 
+ \para Syntax:
+    gate name type contents<BR>
+             type is one of {cut, band, contour, not, and, or, true, false}
+             contents is a list whose structure depends on the gate type:
+	     - cut   { parameter { xlow xhigh}}
+	     - band  See contour below.
+	     - contour { {xpar ypar}  { {x1 y1} {x2 y2} {x3 y3}...}
+	     - not     gatename
+	     - and,
+	     - or       {gate1 gate2 ...}
+  <BR>
+  gate -list [-byid] <BR>
+       Lists gates in dictinonary
+  <BR>
+  gate -delete [-id] gatelist<BR>
+       Replaces gate with deleted gate.
+
+*/
 class CGateCommand  : public CTCLPackagedCommand        
 {                       
-public:			// Data types:
-  enum Switches {		// Set of command line switches.
+public:				// Data types:
+  enum Switches {		//!< Set of command line switches.
     newgate,
     deletegate,
     listgates,
@@ -340,12 +346,12 @@ public:			// Data types:
     byid,
     notswitch
   };
-  struct GateFactoryTable {	// Drives the decoding of gate definition strings.
-    char*                  pGateType; // Textual gate type.
-    CGateFactory::GateType eGateType; // Gate factory gate type enum.
-    Bool_t                 fGateList; // kfTRUE if list is a list of gates.
-    UInt_t                 nParameters; // Number of parameters involved.
-    Bool_t                 fNoParams;  // kfTRUE if gate description has no params
+  struct GateFactoryTable {	//!< Drives the decoding of gate definition strings.
+    char*                  pGateType; //!< Textual gate type.
+    CGateFactory::GateType eGateType; //!< Gate factory gate type enum.
+    Bool_t                 fGateList; //!< kfTRUE if list is a list of gates.
+    UInt_t                 nParameters; //!< Number of parameters involved.
+    Bool_t                 fNoParams;  //!< kfTRUE if gate description has no params
   };
   
 public:

@@ -295,6 +295,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+
+/*
+   Change log:
+   $Log$
+   Revision 4.3  2003/04/15 19:25:21  ron-fox
+   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
+
+*/
+
 #include "GateFactory.h"    				
 #include "GateFactoryException.h"
 
@@ -327,10 +336,10 @@ static char* pCopyrightNotice =
 
 // Functions for class CGateFactory
 
-static inline int max(int i, int j) {
+static inline Float_t max(Float_t i, Float_t j) {
   return (i > j ) ? i : j;
 }
-static inline int min(int i, int j) {
+static inline Float_t  min(Float_t i, Float_t j) {
   return (i < j) ? i : j ;
 }
 
@@ -338,23 +347,42 @@ static inline int min(int i, int j) {
 //  Function:       CreateGate(GateType nGateType, 
 //                             const vector<string>& rGates)
 //  Operation Type: Creational
+
+/*!
+
+\para Functionality:
+ Creates a gate given the input data.  This can create
+ gates which are primitive gates without point arrays
+ and compound gates.
+
+ \para Formal Parameters:
+      \param <TT>GateType (CGateFactory [in])</TT>
+         This must be one  of:
+           - bandcountour  Contour formed from two bands.
+	   - not  Inverse of a gate.
+	   - and  And of a list of gates.
+	   - or   Or of a list of gates.
+	   - true Always true
+	   - false Always false
+	   - deleted Gate that has been deleted.
+       \param Gates (std::vector<std::string>& [in]):
+            List of gates which are used to generate the final gate.
+
+ \para Returns:
+ \retval CGate*
+     Pointer to dynamically generated gate.  It is up to the
+     caller to delete the gate when done with it.
+
+ \para Exceptions:
+ \throw CGateFactoryException
+    If there was a problem createing a gate, an exception is thrown indicating
+    the type of gate being created and why the exception was thrown.
+*/
 CGate* 
 CGateFactory::CreateGate(GateType nGateType, 
 			 const vector<string>& rGates)  
 {
-  // Creates a gate given the input data.  This can create
-  // gates which are primitive gates without point arrays
-  // and compound gates.
-  //
-  // Formal Parameters:
-  //      CGateFactory::GateType nGateType:
-  //         This must be one  of:
-  //               {bandcountour, not, and, or, true, false, deleted}
-  //       std::vector<std::string>& Gates:
-  //            List of gates which are used to generate the final gate.
-  // Returns:
-  //   Pointer to dynamically generated gate.  It is up to the
-  //  caller to delete the gate when done with it.
+
   
   switch(nGateType) {
   case And:
@@ -402,28 +430,41 @@ CGateFactory::CreateGate(GateType nGateType,
 //
 //  Function:       CreateGate(GateType eType, 
 //                            const vector<string>& rParameters, 
-//                            const vector<CPoint>& rPoints)
+//                            const vector<FPoint>& rPoints)
 //  Operation Type: Creational
+/*!
+  \para Functionality:
+  Creates a gate from a list of points.
+   
+  \para Formal Parameters:
+        \param <TT> GateType (CGateFactory [in])</TT>
+               Type of gate being created.
+                Should be one of:
+		- cut     Upper lower limit cut (slice).
+		- contour Interior of closed polygon.
+		- band    Below a polyline.
+        \param rParameters (vector<string>& [in]):
+               Set of parameters involved in the gate.
+        \param rPoints (vector<FPoint>& [in]):
+             A set of points involved in the gate.
+
+     \para Returns:
+     \retval CGate*
+        Pointer to a created gate or throws a CGateFactoryException if the 
+        gate could not be made.
+
+     \para Throws:
+     \throw CGateFactoryException
+        If the gate could not be made.  The exception describes the type
+	of gate being made along with why the exception was thrown.
+  
+*/
 CGate* 
 CGateFactory::CreateGate(GateType eType, 
 			 const vector<string>& rParameters, 
-			 const vector<CPoint>& rPoints)  
+			 const vector<FPoint>& rPoints)  
 {
-  // Creates a gate from a list of points.
-  // 
-  // Formal Parameters:
-  //      CGateFactory::GateType:
-  //             Type of gate being created.
-  //              Should be one of:
-  //                    { cut, contour, band}
-  //      vector<string>& rParameters:
-  //             Set of parameters involved in the gate.
-  //      vector<CPoint>& rPoints:
-  //           A set of points involved in the gate.
-  //   Returns:
-  //      Pointer to a created gate or throws a CGateFactoryException if the 
-  //      gate could not be made.
-  //
+
 
   switch(eType) {
   case band:
@@ -450,10 +491,37 @@ CGateFactory::CreateGate(GateType eType,
 				"Determining type of gate in CreateGate");
   }
 }
+/*!
+  
+  \para Functionality:
+   Create a gamma gate.  These are really accepted on a spectrum unlike
+   the other gates that are accepted on parameters.
+   
+   \para Formal Parameters:
+   \param <TT>eType (GateType [in]):</TT>
+       Type of gate that is to be created.  This must be one of:
+       - gammacut A cut on a set of gamma parameters.
+       -gammaband A band on a set of ordered pairs of gamma params.
+       -gammacontour A contour on a set of ordered pairs of gamma
+          parameters.
+   \param <TT>rPoints (const vector<FPoint>& [in]):</TT>
+       The set of points that define the contour. 
+   \param <TT>rSpectrum (const vector<string>& [in]):</TT>
+       The set of spectra on which this gate should be displayed.
 
+   \para Returns:
+   \retval CGate*
+     A pointer to the gate that was created.
+
+   \para Exceptions:
+   \throw CGateFactoryException
+     In the event creating the gate is impossible.  The exception
+     indicates the type of the gate being created and why the
+     gate could not be created.
+*/
 CGate* 
 CGateFactory::CreateGate(GateType eType,
-			 const vector<CPoint>& rPoints,
+			 const vector<FPoint>& rPoints,
 			 const vector<string>& rSpectrum) {
   switch(eType) {
   case gammacut:
@@ -474,6 +542,11 @@ CGateFactory::CreateGate(GateType eType,
 				"Determining type of gate in CreateGate");
   }
 }
+
+///////////////////////////////////////////////////////
+
+// The functions below create the gates of various types.
+
 //  Function:       CreateTrueGate()
 //  Operation Type: creational
 CTrueGate* 
@@ -505,11 +578,11 @@ CGateFactory::CreateDeletedGate()
   return new CDeletedGate;
 }
 //  Function:       CreateBand(const vector<string>& rParameters, 
-//                             const vector<CPoint>& rPoints)
+//                             const vector<FPoint>& rPoints)
 //  Operation Type: Creational
 CBand* 
 CGateFactory::CreateBand(const vector<string>& rParameters,
-			       const vector<CPoint>& rPoints)  
+			       const vector<FPoint>& rPoints)  
 {
   // Creates a band gate.
   //  Band gates are made when the event is below the
@@ -517,8 +590,9 @@ CGateFactory::CreateBand(const vector<string>& rParameters,
   //     Formal Parameters:
   //        const vector<string>& rParams:
   //           2 element vector containing x and y parameter names.
-  //        const vector<CPoint>& rPoints
-  //           2 element vector containing x,y points of the band.
+  //        const vector<FPoint>& rPoints
+  //           at least 2 element vector containing x,y 
+  //           points of the band.
   // 
   
   if(rParameters.size() != 2) {	// Bands have exactly 2 parameters.
@@ -546,12 +620,12 @@ CGateFactory::CreateBand(const vector<string>& rParameters,
 ////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       CreateContour(const vector<string>& rParameters,
-//                                const vector<CPoint>& rPoints)
+//                                const vector<FPoint>& rPoints)
 //  Operation Type: Creational
 //
 CContour* 
 CGateFactory::CreateContour(const vector<string>& rParameters, 
-			    const vector<CPoint>& rPoints)  
+			    const vector<FPoint>& rPoints)  
 {
   // Creates a contour gate.  Contour gates
   // are those formed from the interior of a closed
@@ -566,7 +640,7 @@ CGateFactory::CreateContour(const vector<string>& rParameters,
   //              A 2 element vector containing the
   //              x (element 0) and y (element 1) parameter
   //             names of the parameters being checked in the gate.
-  //     const vector<CPoint>& rPoints:
+  //     const vector<FPoint>& rPoints:
   //             The set of points which define the edge of the
   //              contour.
   
@@ -590,15 +664,10 @@ CGateFactory::CreateContour(const vector<string>& rParameters,
 }
 
 CGammaCut*
-CGateFactory::CreateGammaCut(UInt_t nLow, UInt_t nHigh, 
+CGateFactory::CreateGammaCut(Float_t nLow, Float_t nHigh, 
 			     const vector<string>& rSpectrum)
 {
   if(rSpectrum.size() > 0) {
-    //vector<CSpectrum*> Specs;
-    //for(UInt_t i = 0; i < rSpectrum.size(); i++) {
-    //Specs.push_back(NameToSpec(rSpectrum[i], gammacut,
-    //			 "Translating spectrum"));
-    //}
     return new CGammaCut(nLow, nHigh, rSpectrum);
   }
   else
@@ -606,7 +675,7 @@ CGateFactory::CreateGammaCut(UInt_t nLow, UInt_t nHigh,
 }
 
 CGammaBand*
-CGateFactory::CreateGammaBand(const vector<CPoint>& rPoints,
+CGateFactory::CreateGammaBand(const vector<FPoint>& rPoints,
 			      const vector<string>& rSpectrum)
 {
   if(rPoints.size() < 2) {	// At least 2 points make a band.
@@ -628,7 +697,7 @@ CGateFactory::CreateGammaBand(const vector<CPoint>& rPoints,
 }
 
 CGammaContour*
-CGateFactory::CreateGammaContour(const vector<CPoint>& rPoints,
+CGateFactory::CreateGammaContour(const vector<FPoint>& rPoints,
 				 const vector<string>& rSpectrum)
 {
   if(rPoints.size() < 3) {	// At least 3 points make a closed contour.
@@ -694,8 +763,8 @@ CGateFactory::CreateBandContour(const vector<string>& rBands)
   //
   CBand& Band1((CBand&)*rGate1);
   CBand& Band2((CBand&)*rGate2);
-  vector<CPoint> Pts1 = Band1.getPoints();
-  vector<CPoint> Pts2 = Band2.getPoints();
+  vector<FPoint> Pts1 = Band1.getPoints();
+  vector<FPoint> Pts2 = Band2.getPoints();
   
   UInt_t x1 = Band1.getxId();
   UInt_t y1 = Band1.getyId();
@@ -709,7 +778,7 @@ CGateFactory::CreateBandContour(const vector<string>& rBands)
     // Pts2 must have coordinates flipped
 
     for(UInt_t i = 0; i < Pts2.size(); i++) { // for_each requires const f...
-      Pts2[i] = CPoint(Pts2[i].Y(), Pts2[i].X());
+      Pts2[i] = FPoint(Pts2[i].Y(), Pts2[i].X());
     }
   }
   else {			// Bad parameter set...
@@ -786,7 +855,7 @@ COrGate* CGateFactory::CreateOrGate(const vector<string>& rG)
 //  Operation Type: Creational
 //
 CCut* CGateFactory::CreateCut(const string& rParameterName,
-			      UInt_t nLow, UInt_t nHigh)  
+			      Float_t nLow, Float_t nHigh)  
 {
   // Creates a cut gate.
   //   Cut gates are a 1-d lower/upper limit gate.

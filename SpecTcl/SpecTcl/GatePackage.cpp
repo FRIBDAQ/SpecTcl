@@ -294,6 +294,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+/*
+  Change Log:
+  $Log$
+  Revision 4.3  2003/04/15 19:25:21  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
+
+*/
+
 #include "GatePackage.h"
 #include "GateCommand.h"
 #include "ApplyCommand.h"
@@ -423,29 +431,35 @@ CGatePackage::AddGate(CTCLResult& rResult, const std::string& rGateName,
 //  Function:       ListGates()
 //  Operation Type: Selector.
 //
+
+/*!
+  \para Functionality
+   Returns a TCL formatted list which contains 
+   the gate definitions sorted by alphabetical
+   order.
+
+      Each gate definition is a sublist containing the following elements:
+      #   Gate name.
+      #   Gate Id
+      #   Gate Type
+      #   Gate contents which is a list that is gate type dependent:
+                  - Cut:  { parameter { low hi }}
+                  - Band,
+                  - Contour { {xparam yparam} { {x1 y1} {x2 y2} ... }
+                  - GammaCut { low hi {speclist}}
+                  - GammaBand  { {x1 y1} {x2 y2} ... {speclist}}
+                  - GammaContour  { {x1 y1} {x2 y2}...{speclist}}
+                  - Not        { Gatename}
+                  - And,
+                  - Or          { Gate1 Gate2 ... }
+                  - True,
+                  - False,
+                  - Deleted     {}
+  
+ */
 CTCLString CGatePackage::ListGates()  
 {
-  // Returns a TCL formatted list which contains 
-  // the gate definitions sorted by alphabetical
-  // order.
-  //    Each gate definition is a sublist containing the following elements:
-  //       Gate name.
-  //       Gate Id
-  //       Gate Type
-  //       Gate contents which is a list that is gate type dependent:
-  //                Cut:  { parameter { low hi }}
-  //                Band,
-  //                Contour { {xparam yparam} { {x1 y1} {x2 y2} ... }
-  //                GammaCut { low hi {speclist}}
-  //                GammaBand  { {x1 y1} {x2 y2} ... {speclist}}
-  //                GammaContour  { {x1 y1} {x2 y2}...{speclist}}
-  //                Not        { Gatename}
-  //                And,
-  //                Or          { Gate1 Gate2 ... }
-  //                True,
-  //                False,
-  //                Deleted     {}
-  //
+
   CTCLString Gates;
   CGateDictionaryIterator gi = m_pHistogrammer->GateBegin();
   while(gi != m_pHistogrammer->GateEnd()) {
@@ -497,29 +511,34 @@ CTCLString CGatePackage::ListGatesById()
 //                              const vector<string>& rGateNames)
 //  Operation Type: Mutator
 //
+/*!
+  \para Functionality:
+   Deletes gates given a set of gate names.
+
+   The result string has either nothing appended
+   to it (all the gates were deleted) or alternatively
+   a list of failure lists as follows:
+  <BR>
+        {gate_name failure_reason} ...<BR>
+  
+    \para Formal Parameters:
+          \param <TT>rResult (CTCLResult& [out]):</TT>
+            The result string as described above.
+          \param <TT>rNames (const vector<string>& [in]):</TT>
+               Set of names of gates to delete.
+    \para Returns:
+    \retval Bool_t
+          - kfTRUE - All gates deleted.
+          - kfFALSE - Some gates could not be deleted.
+   \note <CENTER><B>NOTE:</B></CENTER>
+       The deleted gates are actually replaced by a 
+        CFalseGate.
+*/
 Bool_t 
 CGatePackage::DeleteGates(CTCLResult& rResult, 
 			  const vector<string>& rGateNames)  
 {
-  // Deletes gates given a set of gate names.
-  //
-  //  The result string has either nothing appended
-  //  to it (all the gates were deleted) or alternatively
-  //  a list of failure lists as follows:
-  //
-  //      {gate_name failure_reason} ...
-  //
-  //  Formal Parameters:
-  //        CTCLResult&  rResult:
-  ///          The result string as described above.
-  //        const vector<string>& rNames:
-  //             Set of names of gates to delete.
-  //  Returns:
-  //        kfTRUE - All gates deleted.
-  //        kfFALSE - Some gates could not be deleted.
-  // NOTE:
-  //     The deleted gates are actually replaced by a 
-  //      CFalseGate.
+
   
   CTCLString ResultString;
   UInt_t nFailed = 0;
@@ -732,21 +751,26 @@ void CGatePackage::SortGateListById(vector<CGateContainer*>& rpGates)
 //  Function:       GateToString(CGateContainer* pGate)
 //  Operation Type: Utility
 //
+
+/*!
+  \para Functionality:
+   Converts a gate to its string 
+   representation.
+  
+   \para Formal Parameters:
+          \param <TT>pGate ( pGateCGateContainer* [in]):</TT>
+                      Pointer to the container of the
+                      gate to convert.
+  
+   \para Returns:
+       \retval std::string:
+           String representation of the gate as defined
+           in the definition of ListGates()
+  
+*/
 std::string CGatePackage::GateToString(CGateContainer* pGate)  
 {
-  // Converts a gate to its string 
-  // representation.
-  //
-  // Formal Parameters:
-  //        CGateContainer* pGate:
-  //                    Pointer to the container of the
-  //                    gate to convert.
-  //
-  // Returns:
-  //     std::string:
-  //         String representation of the gate as defined
-  //         in the definition of ListGates()
-  //
+
   CTCLString Result;
   char       Id[100];
 
@@ -839,10 +863,11 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
   else {			// Special case for slice
     CConstituentIterator rIter = rGate->Begin();
     string GateInfo = rGate->GetConstituent(rIter);
-    UInt_t id, low, hi;		// because constituents have 'too much data'.
+    UInt_t id;
+    Float_t low, hi;		// because constituents have 'too much data'.
     char param[100];
-    sscanf(GateInfo.c_str(), "%d %d %d", &id, &low, &hi);
-    sprintf(param,"%d %d", low, hi);
+    sscanf(GateInfo.c_str(), "%d %f %f", &id, &low, &hi);
+    sprintf(param,"%f %f", low, hi);
     Result.AppendElement(param);
   }
 
