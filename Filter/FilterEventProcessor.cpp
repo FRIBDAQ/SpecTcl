@@ -1,233 +1,581 @@
 /*
-  FilterEventProcessor.cpp
+		    GNU GENERAL PUBLIC LICENSE
+		       Version 2, June 1991
+
+ Copyright (C) 1989, 1991 Free Software Foundation, Inc.
+                       59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+			    Preamble
+
+  The licenses for most software are designed to take away your
+freedom to share and change it.  By contrast, the GNU General Public
+License is intended to guarantee your freedom to share and change free
+software--to make sure the software is free for all its users.  This
+General Public License applies to most of the Free Software
+Foundation's software and to any other program whose authors commit to
+using it.  (Some other Free Software Foundation software is covered by
+the GNU Library General Public License instead.)  You can apply it to
+your programs, too.
+
+  When we speak of free software, we are referring to freedom, not
+price.  Our General Public Licenses are designed to make sure that you
+have the freedom to distribute copies of free software (and charge for
+this service if you wish), that you receive source code or can get it
+if you want it, that you can change the software or use pieces of it
+in new free programs; and that you know you can do these things.
+
+  To protect your rights, we need to make restrictions that forbid
+anyone to deny you these rights or to ask you to surrender the rights.
+These restrictions translate to certain responsibilities for you if you
+distribute copies of the software, or if you modify it.
+
+  For example, if you distribute copies of such a program, whether
+gratis or for a fee, you must give the recipients all the rights that
+you have.  You must make sure that they, too, receive or can get the
+source code.  And you must show them these terms so they know their
+rights.
+
+  We protect your rights with two steps: (1) copyright the software, and
+(2) offer you this license which gives you legal permission to copy,
+distribute and/or modify the software.
+
+  Also, for each author's protection and ours, we want to make certain
+that everyone understands that there is no warranty for this free
+software.  If the software is modified by someone else and passed on, we
+want its recipients to know that what they have is not the original, so
+that any problems introduced by others will not reflect on the original
+authors' reputations.
+
+  Finally, any free program is threatened constantly by software
+patents.  We wish to avoid the danger that redistributors of a free
+program will individually obtain patent licenses, in effect making the
+program proprietary.  To prevent this, we have made it clear that any
+patent must be licensed for everyone's free use or not licensed at all.
+
+  The precise terms and conditions for copying, distribution and
+modification follow.
+
+		    GNU GENERAL PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. This License applies to any program or other work which contains
+a notice placed by the copyright holder saying it may be distributed
+under the terms of this General Public License.  The "Program", below,
+refers to any such program or work, and a "work based on the Program"
+means either the Program or any derivative work under copyright law:
+that is to say, a work containing the Program or a portion of it,
+either verbatim or with modifications and/or translated into another
+language.  (Hereinafter, translation is included without limitation in
+the term "modification".)  Each licensee is addressed as "you".
+
+Activities other than copying, distribution and modification are not
+covered by this License; they are outside its scope.  The act of
+running the Program is not restricted, and the output from the Program
+is covered only if its contents constitute a work based on the
+Program (independent of having been made by running the Program).
+Whether that is true depends on what the Program does.
+
+  1. You may copy and distribute verbatim copies of the Program's
+source code as you receive it, in any medium, provided that you
+conspicuously and appropriately publish on each copy an appropriate
+copyright notice and disclaimer of warranty; keep intact all the
+notices that refer to this License and to the absence of any warranty;
+and give any other recipients of the Program a copy of this License
+along with the Program.
+
+You may charge a fee for the physical act of transferring a copy, and
+you may at your option offer warranty protection in exchange for a fee.
+
+  2. You may modify your copy or copies of the Program or any portion
+of it, thus forming a work based on the Program, and copy and
+distribute such modifications or work under the terms of Section 1
+above, provided that you also meet all of these conditions:
+
+    a) You must cause the modified files to carry prominent notices
+    stating that you changed the files and the date of any change.
+
+    b) You must cause any work that you distribute or publish, that in
+    whole or in part contains or is derived from the Program or any
+    part thereof, to be licensed as a whole at no charge to all third
+    parties under the terms of this License.
+
+    c) If the modified program normally reads commands interactively
+    when run, you must cause it, when started running for such
+    interactive use in the most ordinary way, to print or display an
+    announcement including an appropriate copyright notice and a
+    notice that there is no warranty (or else, saying that you provide
+    a warranty) and that users may redistribute the program under
+    these conditions, and telling the user how to view a copy of this
+    License.  (Exception: if the Program itself is interactive but
+    does not normally print such an announcement, your work based on
+    the Program is not required to print an announcement.)
+
+These requirements apply to the modified work as a whole.  If
+identifiable sections of that work are not derived from the Program,
+and can be reasonably considered independent and separate works in
+themselves, then this License, and its terms, do not apply to those
+sections when you distribute them as separate works.  But when you
+distribute the same sections as part of a whole which is a work based
+on the Program, the distribution of the whole must be on the terms of
+this License, whose permissions for other licensees extend to the
+entire whole, and thus to each and every part regardless of who wrote it.
+
+Thus, it is not the intent of this section to claim rights or contest
+your rights to work written entirely by you; rather, the intent is to
+exercise the right to control the distribution of derivative or
+collective works based on the Program.
+
+In addition, mere aggregation of another work not based on the Program
+with the Program (or with a work based on the Program) on a volume of
+a storage or distribution medium does not bring the other work under
+the scope of this License.
+
+  3. You may copy and distribute the Program (or a work based on it,
+under Section 2) in object code or executable form under the terms of
+Sections 1 and 2 above provided that you also do one of the following:
+
+    a) Accompany it with the complete corresponding machine-readable
+    source code, which must be distributed under the terms of Sections
+    1 and 2 above on a medium customarily used for software interchange; or,
+
+    b) Accompany it with a written offer, valid for at least three
+    years, to give any third party, for a charge no more than your
+    cost of physically performing source distribution, a complete
+    machine-readable copy of the corresponding source code, to be
+    distributed under the terms of Sections 1 and 2 above on a medium
+    customarily used for software interchange; or,
+
+    c) Accompany it with the information you received as to the offer
+    to distribute corresponding source code.  (This alternative is
+    allowed only for noncommercial distribution and only if you
+    received the program in object code or executable form with such
+    an offer, in accord with Subsection b above.)
+
+The source code for a work means the preferred form of the work for
+making modifications to it.  For an executable work, complete source
+code means all the source code for all modules it contains, plus any
+associated interface definition files, plus the scripts used to
+control compilation and installation of the executable.  However, as a
+special exception, the source code distributed need not include
+anything that is normally distributed (in either source or binary
+form) with the major components (compiler, kernel, and so on) of the
+operating system on which the executable runs, unless that component
+itself accompanies the executable.
+
+If distribution of executable or object code is made by offering
+access to copy from a designated place, then offering equivalent
+access to copy the source code from the same place counts as
+distribution of the source code, even though third parties are not
+compelled to copy the source along with the object code.
+
+  4. You may not copy, modify, sublicense, or distribute the Program
+except as expressly provided under this License.  Any attempt
+otherwise to copy, modify, sublicense or distribute the Program is
+void, and will automatically terminate your rights under this License.
+However, parties who have received copies, or rights, from you under
+this License will not have their licenses terminated so long as such
+parties remain in full compliance.
+
+  5. You are not required to accept this License, since you have not
+signed it.  However, nothing else grants you permission to modify or
+distribute the Program or its derivative works.  These actions are
+prohibited by law if you do not accept this License.  Therefore, by
+modifying or distributing the Program (or any work based on the
+Program), you indicate your acceptance of this License to do so, and
+all its terms and conditions for copying, distributing or modifying
+the Program or works based on it.
+
+  6. Each time you redistribute the Program (or any work based on the
+Program), the recipient automatically receives a license from the
+original licensor to copy, distribute or modify the Program subject to
+these terms and conditions.  You may not impose any further
+restrictions on the recipients' exercise of the rights granted herein.
+You are not responsible for enforcing compliance by third parties to
+this License.
+
+  7. If, as a consequence of a court judgment or allegation of patent
+infringement or for any other reason (not limited to patent issues),
+conditions are imposed on you (whether by court order, agreement or
+otherwise) that contradict the conditions of this License, they do not
+excuse you from the conditions of this License.  If you cannot
+distribute so as to satisfy simultaneously your obligations under this
+License and any other pertinent obligations, then as a consequence you
+may not distribute the Program at all.  For example, if a patent
+license would not permit royalty-free redistribution of the Program by
+all those who receive copies directly or indirectly through you, then
+the only way you could satisfy both it and this License would be to
+refrain entirely from distribution of the Program.
+
+If any portion of this section is held invalid or unenforceable under
+any particular circumstance, the balance of the section is intended to
+apply and the section as a whole is intended to apply in other
+circumstances.
+
+It is not the purpose of this section to induce you to infringe any
+patents or other property right claims or to contest validity of any
+such claims; this section has the sole purpose of protecting the
+integrity of the free software distribution system, which is
+implemented by public license practices.  Many people have made
+generous contributions to the wide range of software distributed
+through that system in reliance on consistent application of that
+system; it is up to the author/donor to decide if he or she is willing
+to distribute software through any other system and a licensee cannot
+impose that choice.
+
+This section is intended to make thoroughly clear what is believed to
+be a consequence of the rest of this License.
+
+  8. If the distribution and/or use of the Program is restricted in
+certain countries either by patents or by copyrighted interfaces, the
+original copyright holder who places the Program under this License
+may add an explicit geographical distribution limitation excluding
+those countries, so that distribution is permitted only in or among
+countries not thus excluded.  In such case, this License incorporates
+the limitation as if written in the body of this License.
+
+  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
+
+Each version is given a distinguishing version number.  If the Program
+specifies a version number of this License which applies to it and "any
+later version", you have the option of following the terms and conditions 
+either of that version or of any later version published by the Free Software 
+Foundation.  If the Program does not specify a version number of this License,
+ you may choose any version ever published by the Free Software Foundation.
+
+  10. If you wish to incorporate parts of the Program into other free
+programs whose distribution conditions are different, write to the author to 
+ask for permission.  For software which is copyrighted by the Free Software 
+Foundation, write to the Free Software Foundation; we sometimes make 
+exceptions for this.  Our decision will be guided by the two goals of 
+preserving the free status of all derivatives of our free software and of 
+promoting the sharing and reuse of software generally.
+
+			    NO WARRANTY
+
+  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
+THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN 
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE 
+THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
+FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND 
+PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, 
+YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING 
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR 
+REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, 
+INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING 
+OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO 
+LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR 
+THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), 
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
+DAMAGES.
+
+		     END OF TERMS AND CONDITIONS
 */
 
-// Copyright Notice:
-static const char* Copyright =
-  "FilterEventProcessor.cpp: Copyright 2003 NSCL, All rights reserved\n";
-
-// Header files:
+#include "FilterEventProcessor.h"
+#include <buftypes.h>
+#include <Globals.h>
+#include <BufferDecoder.h>
+#include <Event.h>
+#include <Analyzer.h>
+#include <Histogrammer.h>
+#include <Parameter.h>
+#include <EventFormatError.h>
+#include <TCLAnalyzer.h>
 #include <string.h>
 
-#include <Globals.h>
-#include <Parameter.h>
-#include <EventProcessor.h>
-#include <EventList.h>
-#include <Histogrammer.h>
-
-#include "FilterEventProcessor.h"
-
-// Constructors:
-CFilterEventProcessor::CFilterEventProcessor() :
-  m_fReadError(kfFALSE),
-  m_fHeaderReceived(kfFALSE),
-  m_nBUFFERSIZE(8192), // 8K. Default.
-  m_pBuffer((char*)kpNULL),
-  m_nOffset(0),
-  m_sTag(""),
-  m_nValidParameters(0),
-  m_pBitMask((char*)kpNULL)
+/*!
+    Construct a filter event processor.  For now this is null.
+*/
+CFilterEventProcessor::CFilterEventProcessor()
+{}
+/*!
+   Copy construct a filter event processor.  This just
+   requires a copy of the parameter map be constructed.
+   \param rhs (const CFilterEventProcessor& rhs [in]):
+      The source from which this is constructed.
+*/
+CFilterEventProcessor::CFilterEventProcessor(const CFilterEventProcessor& rhs) :
+  CEventProcessor(rhs),
+  m_ParameterMap(rhs.m_ParameterMap)
+{}
+/*!
+   Assignment: just copy the parameter map.
+   \param rhs (const CFilterEventProcessor& rhs [in]):
+     The source of the assignment.
+   \return CFilterEventProcessor&
+     *this
+*/
+CFilterEventProcessor&
+CFilterEventProcessor::operator=(const CFilterEventProcessor& rhs)
 {
-  m_vParInfo.clear();
-  m_vEvents.clear();
-};
-
-CFilterEventProcessor::~CFilterEventProcessor() {
-  m_sTag = "";
-};
-
-// Operators:
-#if 0 // Commented-out.
-Bool_t CFilterEventProcessor::operator()(const Address_t pEvent,
-					 CEvent& rEvent,
-					 CAnalyzer& rAnalyzer,
-					 CBufferDecoder& rDecoder);
-#endif
-Bool_t CFilterEventProcessor::operator()(const Address_t pData,
-					 CAnalyzer& rAnalyzer,
-					 CBufferDecoder& rDecoder)
+  if(this != &rhs) {
+    CEventProcessor::operator==(rhs);
+    m_ParameterMap = rhs.m_ParameterMap;
+  }
+  return *this;
+}
+/*!
+   Equality comparison.  Returns true if the the rhs object is
+   equal to us.
+   \param rhs (const CEventProcessor& [in]):
+     The object we compare to.
+   \return int
+       non-zero if the objects are equal.
+*/
+int
+CFilterEventProcessor::operator==(const CFilterEventProcessor& rhs)
 {
-  m_fReadError = kfFALSE;
-  m_pBuffer = (char*)kpNULL;
-  m_nOffset = 0;
-  m_sTag = "";
-  //m_nValidParameters = 0; // NO! The buffer need NOT have header information at the beginning so we will use what is already specified.
-  m_pBitMask = (char*)kpNULL;
+  return (CEventProcessor::operator==(rhs)             &&
+	  (m_ParameterMap == rhs.m_ParameterMap));
+}
+/*!
+   Process non event data.  For us, the data must be
+   of type PARAMDESCRIP.  The first part of the event must
+   be a null terminated string that contains the value:
+   "header".
+   If any of these conditions are not met, this buffer is not
+   processsed (silently as another event processor may know how
+   to handle these now or in the future).
+   \param nType      (UInt_t [in]):
+      The type of buffer we're dealing with (we expect only
+      PARAMDESCRIP buffers.
+   \param rAnalyzer  (CAnalyzer& [in]):
+      Then analyzer that called us.
+   \param rDecoder   (CBufferDecoder& [in]):
+      The decoder that owns the buffer we are processing.
 
-  Float_t nParameterValue = 0;
-  string sBitMask = "";
-  UInt_t nParIndex = 0;
-  string sParName = "";
-  UInt_t nParId = 0;
+   \return Bool_t
+     kfTRUE unconditionally.
 
-  m_pBuffer = (char*)pData;
+   \note We assume the data in filtered event buffers was 
+   translated from some system independent storage format and 
+   therefore we don't bother with translating buffer pointers.
+   
+   See CFilterBufferDecoder for the format of the body of this
+   buffer.
+*/
+Bool_t
+CFilterEventProcessor::OnOther(UInt_t nType,
+			       CAnalyzer& rAnalyzer,
+			       CBufferDecoder& rDecoder)
+{
+  // Get a cursor into the bufer:
 
-  while(!m_fReadError) {
-    m_sTag = "";
-    nParIndex = 0;
-    sParName = "";
-    nParId = 0;
+  void* pBuffer = rDecoder.getBody();
 
-    read_string(m_sTag);
-    if(m_sTag == "header") {
-      m_nValidParameters = 0;
-      m_vParInfo.clear(); // Clear out old parameter data.
+  // Decode the header string:
 
-      // Start reading header data.
-      read_uint(m_nValidParameters);
-      CParameter* pParameter = (CParameter*)kpNULL;
-      for(UInt_t i = 0; i < m_nValidParameters; i++) {
-	CParInfo* pParInfo = new CParInfo;
-	read_uint(nParIndex); // Not needed, but has to be done in order to move the offset. MAY BE REMOVED IN FUTURE.
-	// Set Name.
-	read_string(sParName);
-	pParInfo->setParName(sParName);
+  string id;
+  pBuffer = GetString(pBuffer, id);
+  if(id == string("header")) {
 
-	read_uint(nParId); // Old parameter ID. Not used any longer. The read is done just to move the offset and to keep things consistent.
+    CHistogrammer* pHistogrammer = (CHistogrammer*)gpEventSink;
 
-	pParameter = ((CHistogrammer*)gpEventSink)->FindParameter(sParName);
-	if(pParameter != (CParameter*)kpNULL) { // If parameter is present in dictionary...
-	  nParId = pParameter->getNumber();
-	  pParInfo->setParId(nParId); // Set Name. This uses the currently-defined parameter ID (as opposed to whatever was used when the filter data was saved. Only the parameter name need be consistent.)
-	  pParInfo->setActive(kfTRUE); // Set Active flag.
-	} else {
-	  pParInfo->setActive(kfFALSE);
-	  cerr << "Error: Invalid parameter. (" << sParName << ")" << endl; // Should (more ideally) throw an exception.
-	}
-	m_vParInfo.push_back(pParInfo);
+    // If we have an existing parameter map trash it:
+    
+    if(!m_ParameterMap.empty()) {
+      m_ParameterMap.erase(m_ParameterMap.begin(), 
+			   m_ParameterMap.end());
+    }
+    // Retrieve the number of parameters:
+
+    int numParams;
+    pBuffer = GetInt(pBuffer, numParams);
+
+    // For each parameter, get it, figure out if it maps and
+    // make the appropriate entry in the map array (-1 means does
+    // not map).
+    for(int i=0; i < numParams; i++) {
+      string name;
+      pBuffer = GetString(pBuffer, name);
+      CParameter* pParam = pHistogrammer->FindParameter(name);
+      if(pParam) {
+	m_ParameterMap.push_back(pParam->getNumber());
+      } else {
+	m_ParameterMap.push_back(-1);
       }
-      continue; // Go to next loop iteration.
-    } else if(m_sTag == "event") {
-      //read_array();
-      read_string(sBitMask);
-      m_pBitMask = (char*)(sBitMask.c_str());
-      CEvent* pEvent = new CEvent;
-      for(UInt_t i = 0; i < m_nValidParameters; i++) {
-	if((m_vParInfo[i])->isActive()) {
-	  if(m_pBitMask[i] == '1') {
-	    read_float(nParameterValue);
-	    (*pEvent)[i] = nParameterValue;
-	    (*pEvent)[(m_vParInfo[i])->getParId()] = nParameterValue; // Use the NEW, currently-defined parameter ID (gotten from the FilterDictionary).
-	  }
-	}
-      }
-      m_vEvents.push_back(pEvent);
-      continue;
-    } else if(m_sTag == "endofrecord") {
-      m_sTag = "";
-      break; // Break out of loop.
-    } else {
-      cerr << "Error: Invalid tag type. (" << m_sTag << ")" << endl;
-      m_sTag = "";
-      m_fReadError = kfTRUE;
-      break;
     }
   }
-  m_sTag = "";
+
   return kfTRUE;
-};
+}
+/*!
+  Decode a physics event.  We assume again that translating pointers
+  will not be necessary.  The format of a physics event is described
+  in CFilterBufferDecoder.  If at any point, we don't have an event
+  that starts with an "event" id, we will throw an event format
+  exception as this will indicate that we are not processing
+  a filtered data stream.
+  \param pEvent    (Address_t [in]):
+      A pointer to the raw event.
+  \param rEvent    (CEvent& [out]):
+      The event vector that we are filling.
+  \param rAnalyzer (CAnalyzer& [in]):
+      The analyzer that called us.
+  \param rDecoder  (CBufferDecoder& [in]):
+      The buffer decoder that owns the buffer this event is in.
 
-// Additional functions:
-Bool_t CFilterEventProcessor::OnOther() {
-  // COMPLETE THIS!!! **************************************************************************
-  m_pBuffer = (char*)(gpBufferDecoder->getBody());
-  return kfTRUE;
-};
+  \return Bool_t
+  kfTRUE unless an exception was thrown.
 
-Bool_t CFilterEventProcessor::read_string(string& rString) {
-  // String must be null-terminated!
-  char* pString = (char*)kpNULL;
-  rString = "";
+  \throw CEventFormatError
+    If the header is not "event"
+  \throw CEventFormatError
+    If the bitmask ever has a bit set for a parameter id past the
+    range covered by our map.
+  \throw CEventFormatError
+    If our map is empty.
 
-  pString = (char*)(m_pBuffer + m_nOffset);
-  rString = string(pString);
+  \note Elements of the map with value -1 dont' have corresponding
+  SpecTcl parameters and are just silently discared.  This is 
+  considered a legal case.
 
-  incr_offset(strlen(pString) + 1); // Add 1 for the null terminator.
-  return kfTRUE;
-};
+  \note Side effect:  rAnalyzer.SetEventSize() is called in order
+  to let the analyzer know how many bytes are in this event.
+*/
+Bool_t
+CFilterEventProcessor::operator()(const Address_t pEvent,
+				  CEvent& rEvent,
+				  CAnalyzer& rAnalyzer,
+				  CBufferDecoder& rDecoder)
+{
+  Address_t pHere(pEvent);	// Retain starting pointer.
 
-Bool_t CFilterEventProcessor::read_uint(UInt_t& rUInt) {
-  // Assuming 32-bit. Bit/byte ordering/order are dependent on the "endianness" of the architecture. BEWARE!
-  rUInt = 0;
-  char byte0, byte1, byte2, byte3;
-  byte0 = m_pBuffer[m_nOffset];
-  byte1 = m_pBuffer[m_nOffset + 1];
-  byte2 = m_pBuffer[m_nOffset + 2];
-  byte3 = m_pBuffer[m_nOffset + 3];
+  // Convert the analyzer to a CTclAnalyzer in order to be able
+  // to set the event size later:
 
-#if 0 // Commented-out. Incorrect, probably due to machine "endianness".
-  rUInt =
-    (((UInt_t)byte0 & 0xFF) << 24) |
-    (((UInt_t)byte1 & 0xFF) << 16) |
-    (((UInt_t)byte2 & 0xFF) << 8) |
-    ((UInt_t)byte3 & 0xFF);
-#endif
-  rUInt =
-    (((UInt_t)byte3 & 0xFF) << 24) |
-    (((UInt_t)byte2 & 0xFF) << 16) |
-    (((UInt_t)byte1 & 0xFF) << 8) |
-    ((UInt_t)byte0 & 0xFF);
+  CTclAnalyzer& rAna((CTclAnalyzer&)rAnalyzer);
+  
+  // The header needs to be the string "event" otherwise toss an
+  // error:
 
-  incr_offset(4);
-  return kfTRUE;
-};
+  string header;
 
-#if 0 // Commented-out. No longer necessary.
-Bool_t CFilterEventProcessor::read_array() {
-  // I would prefer to use a vector which would allow simple appends without having to know the length for creation, but...
-  if(m_pValidParameterArray) {
-    delete m_pValidParameterArray;
+  pHere = GetString(pHere, header);
+  if(header != string("event")) {
+    throw CEventFormatError((int)CEventFormatError::knPacketIdMismatch,
+			    "Decoding filtered event header",
+			    (UInt_t*)pEvent, 8,
+			    0, 0);
+
   }
-  //m_pValidParameterArray = ((Float_t[])*)kpNULL;
-  UInt_t UIntArray[m_nValidParameters];
-  m_pValidParameterArray = (UInt_t**)(&UIntArray);
-  UInt_t nUInt = 0;
-  for(UInt_t i = 0; i < m_nValidParameters; i++) {
-    read_uint(nUInt);
-    ((UInt_t[])(*m_pValidParameterArray))[i] = nUInt;
+  // Throw if the parameter map is empty:
+
+  if(m_ParameterMap.empty()) {
+    throw CEventFormatError((int)CEventFormatError::knEmptyParameterMap,
+			    "Checking size of parameter map",
+			    (UInt_t*)pEvent, 8, 0,0);
   }
-  return kfTRUE;
-};
-#endif
+  // From the size of the parameter map, we can deduce the
+  // number of bitmask entries.
 
-Bool_t CFilterEventProcessor::read_float(Float_t& rFloat) {
-  // Assuming 32-bit.
-  rFloat = 0;
-#if 0 // Commented-out. (Does not work.)
-  char byte0, byte1, byte2, byte3;
-  byte0 = m_pBuffer[m_nOffset];
-  byte1 = m_pBuffer[m_nOffset + 1];
-  byte2 = m_pBuffer[m_nOffset + 2];
-  byte3 = m_pBuffer[m_nOffset + 3];
+  int nParams = m_ParameterMap.size();
+  int nMasks  = ((nParams + sizeof(unsigned)*8 - 1)/(
+		 sizeof(unsigned)*8));
 
-  rFloat = (Float_t)(
-		     (((UInt_t)byte3 & 0xFF) << 24) |
-		     (((UInt_t)byte2 & 0xFF) << 16) |
-		     (((UInt_t)byte1 & 0xFF) << 8)  |
-		     (((UInt_t)byte0 & 0xFF) << 0)
-		     );
-#endif
-  memcpy((char*)(&rFloat), (char*)(m_pBuffer + m_nOffset), sizeof(Float_t));
-  cerr << "Parameter data (float): " << rFloat << endl;
+  // We build up the placement vector from the bitmask.
+  // the placement vector determines which parameter gets each of
+  // the floats following the bitmask array.
+  //
+  int ParamNo  = 0;		// Filter parameter number.
+  vector<int>  Placement;	// The placement array.
 
-  incr_offset(sizeof(Float_t));
-  return kfTRUE;
-};
-
-Bool_t CFilterEventProcessor::read_char(char& rChar) {
-  rChar = m_pBuffer[m_nOffset];
-  return kfTRUE;
-};
-
-void CFilterEventProcessor::incr_offset(UInt_t nIncrement) {
-  // Increment the offset, checking that it is within bounds.
-  m_nOffset += nIncrement;
-  if(m_nOffset >= m_nBUFFERSIZE) {
-    cerr << "Error: CFilterEventProcessor::incr_offset given illegal offset value.\n";
-    m_nOffset = 0;
+  for(int i =0; i < nMasks; i++) {
+    int mask;
+    pHere = GetInt(pHere, mask);
+    for(int m = 1; m != 0; m = m << 1) {
+      if(m & mask) {
+	if(ParamNo < nParams) {
+	  Placement.push_back(m_ParameterMap[ParamNo]);
+	}
+	else {			// Too high a bit!!!
+	  throw 
+	    CEventFormatError((int)CEventFormatError::knBadPacketContents,
+			      "Bit mask Parameter id too big",
+			      (UInt_t*)pEvent, 
+			      15,
+			      (ULong_t)pHere - (ULong_t)pEvent);
+	  
+	}
+      }
+      ParamNo++;
+    }
+  
   }
-};
+  // Now we can put the parameters of the event in their places:
 
-vector<CEvent*>* CFilterEventProcessor::getEvents() {
-  return &m_vEvents;
-};
+  int nPars = Placement.size();
+  for(int i =0; i < nPars; i++) {
+    int nTarget = Placement[i];
+    float parameter;
+    pHere = GetFloat(pHere, parameter);
+    if(nTarget >= 0) rEvent[nTarget] = parameter;
+
+  }
+  // Calcluate the size of the event:
+
+  rAna.SetEventSize((ULong_t)pHere - (ULong_t)pEvent);
+
+  return kfTRUE;
+  
+}
+/*!
+   Pull a string out of a buffer and update the pointer to the
+   buffer.  A string is a null terminated series of bytes.
+
+   \param p       (void* [in]):
+      Pointer to the null terminated string.
+   \param result  (string& [out]):
+     Reference to the string to fill.  The string in the buffer
+     is \em appended to the result string.
+   \return void*
+     Updated pointer.
+*/
+void*
+CFilterEventProcessor::GetString(void* p, string& result)
+{
+  char* pc((char*)p);
+  while(*pc) {
+    result += *pc;
+    pc++;
+  }
+  pc++;
+  return (void*)pc;
+}
+/*!
+   Get an integer value from an input buffer.
+   \param p         (void* [in]):
+        Pointer to the buffer from which the data are grabbed.
+   \param result    (int& [out):
+        Reference to the output integer.
+   \return void*
+        Pointer updated to past the input integer.
+
+*/
+void*
+CFilterEventProcessor::GetInt(void* p, Int_t& result)
+{
+  memcpy(&result, p, sizeof(Int_t));
+  
+  return (void*)((ULong_t)p + sizeof(Int_t));
+}
+/*!
+  Get a float value from an input buffer.
+  \param p      (void* [in]):
+     Pointer to the buffer from which the data are grabbed.
+  \param result (Float_t& [out]):
+     Reference to the result float.
+  \return void* 
+     Updated input pointer.
+*/
+void*
+CFilterEventProcessor::GetFloat(void* p, Float_t& result)
+{
+  memcpy(&result, p, sizeof(Float_t));
+  return (void*)((ULong_t)p + sizeof(Float_t));
+}

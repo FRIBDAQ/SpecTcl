@@ -350,12 +350,19 @@ public:
     return m_nFid;
   }
 
+  //  Mutators:
+
+protected:
+  void setOpen(bool state) {
+    m_fIsOpen = state;
+  }
+
 
   // class operations
 
 
    //!  Give name and connect.
-
+public:
   void Connect(const string& rName) throw (string) {
     m_sConnectionId = rName;
     Connect();
