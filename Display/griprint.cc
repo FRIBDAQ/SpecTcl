@@ -86,6 +86,7 @@ extern grobj_database Xamine_DefaultGateDatabase;
 #define DEFAULT_PRINTCMD "PRINT/DELETE/QUEUE=EXP_HP %f"
 #endif
 
+
 /*
   FindConvert
     Locates the convert command in the file system. This is for converting
@@ -1281,10 +1282,16 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     char printcmd[1000];
     char buf[200];        // temporary buffer for concatenating to GriCmd
     strcpy(printcmd, Xamine_GetPrintCommand());
+    char instdir[75];
+    sprintf(instdir, "%s", HOME);
+    char bindir[80];
+    char etcdir[80];
+    sprintf(bindir, "%s/Bin/gri", instdir);
+    sprintf(etcdir, "%s/Etc", instdir);
     switch(Options->getdest()) {
     case toprinter: {
-      sprintf(GriCmd, 
-	      "../Gri/gri -directory ../Gri -c 0 -no_cmd_in_ps temp; ");
+      sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps temp; ", 
+	      bindir, etcdir);
       sprintf(buf, "%s temp.ps; rm -f temp.ps; rm -f temp.gri", printcmd);
       strcat(GriCmd, buf);
       break;
@@ -1312,8 +1319,8 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       else
 	sFilename.append(".ps");
 
-      sprintf(GriCmd, 
-	      "../Gri/gri -directory ../Gri -c 0 -no_cmd_in_ps temp.gri; ");
+      sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps temp.gri; ", 
+	      bindir, etcdir);
       
       // If postscript requested, don't add the following:
       char buf[100];
@@ -1337,7 +1344,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // print, so forking makes sense.
     pid_t child_pid;
     if((child_pid = fork()) < 0) {
-      fprintf(stderr, "Unable to fork new process in TabsActionCallback\n");
+      fprintf(stderr, "Unable to fork new process in Xamine_PrintSpectrum.\n");
       fprintf(stderr, "Cancelled print!\n");
     }
     else if(child_pid > 0) {
