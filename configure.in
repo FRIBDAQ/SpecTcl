@@ -3,7 +3,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 2.1-pre)
+AM_INIT_AUTOMAKE(SpecTcl, 2.1)
 
 AC_EXEEXT
 AC_OBJEXT
@@ -189,7 +189,7 @@ do
       if "$x_libraries" != ""
       then
          AC_CHECK_FILE([$x_libraries/libXm${ext}],
-	               [motif_lib_found="yes"])
+x	               [motif_lib_found="yes"])
       else
 	AC_CHECK_FILE([/usr/lib/libXm${ext}],
 	               [motif_lib_found="yes"])
@@ -752,4 +752,4 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	 SpecTcl/Makefile \
-	 contrib/Makefile)
+	 contrib/Makefile contrib/scriptable/Makefile)

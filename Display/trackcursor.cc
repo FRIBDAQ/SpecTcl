@@ -421,15 +421,15 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   float fy = 0, ffx = 0;
   fx = (Xamine_XChanToMapped(sid, locdata.xpos+1) + 
 	Xamine_XChanToMapped(sid, locdata.xpos)) / 2.0;
-  ffy = (Xamine_XChanToMapped(sid, locdata.ypos+1) +
-	 Xamine_XChanToMapped(sid, locdata.ypos)) / 2.0;
+  fy = (Xamine_YChanToMapped(sid, locdata.ypos+1) +
+	 Xamine_YChanToMapped(sid, locdata.ypos)) / 2.0;
 
   // These only make sense if we are 2-d, or flipped
   if((atts->is1d()) || (atts->isflipped())) {
-    fy = (Xamine_YChanToMapped(sid, locdata.ypos+1) + 
+    ffy = (Xamine_YChanToMapped(sid, locdata.ypos+1) + 
 	  Xamine_YChanToMapped(sid, locdata.ypos)) / 2.0;
-    ffx = (Xamine_YChanToMapped(sid, locdata.xpos+1) +
-	   Xamine_YChanToMapped(sid, locdata.xpos)) / 2.0;
+    ffx = (Xamine_XChanToMapped(sid, locdata.xpos+1) +
+	   Xamine_XChanToMapped(sid, locdata.xpos)) / 2.0;
   }
 
   if(atts->ismapped()) {

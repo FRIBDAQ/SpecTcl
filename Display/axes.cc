@@ -393,7 +393,6 @@ static float ComputeMappedTickInterval(float paramrange, int pixels)
   else if((tickint == (int)tickint) && ((int)tickint % 2 == 0) && 
 	  (ntick < 10) && (ntick >= 6))
     return tickint;
-
   // Otherwise, see if we can make it a nice one the easy way
   if((paramrange / 10.0 >= 6) && (paramrange / 10.0 < 10)) {
     return 10.0;
@@ -811,7 +810,7 @@ static void DrawLinearYTicks(Display *disp, Window win, GC gc,
   value_represented = (float)low;
   last_value        = -1;	/* Make sure first tick is drawn. */
 
-  value_interval = (float)ComputeLinearTickInterval(hi - low +1, ybase+1);
+  value_interval = (float)ComputeLinearTickInterval(hi - low +1, (ny-ybase+1));
 
 
   interval       = ((float)((ybase + 1) * value_interval))/ 
@@ -887,14 +886,18 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
   char label[20];
 
   value_represented = (float)low;
-  last_value        = -1;	/* Make sure first tick is drawn. */
+  last_value        = -1.111111;	/* Make sure first tick is drawn. */
 
   // Compute the interval to display between successive tick marks
-  value_interval = ComputeMappedTickInterval((hi-low)+1, ybase+1);
+ 
+  value_interval = ComputeMappedTickInterval((hi-low), (ybase+1));
+  if(value_interval == 0) {
+    value_interval = 0.2;
+  }
 
   rem = value_interval - (int)value_interval;
-  interval = ((float)(ybase + 1) * value_interval) / (hi-low);
-  height   = (int)((nx-xbase)*XAMINE_TICK_FRACTION);
+  interval = ((float)(ybase) * value_interval) / (hi-low);
+  height   = (int)((ybase)*XAMINE_TICK_FRACTION);
 
   int labelheight = (int)((float)(2*interval)/
 			  XAMINE_TICK_LABEL_INTERVALDIVISOR);
