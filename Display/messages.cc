@@ -107,9 +107,11 @@ inline void assertvms(int state, char *module, int line)
 #endif
 #ifdef unix
 extern "C" {
+#ifdef __NEED_OWN_SELECT
   int select(int width, fd_set *readfds, 
 	     fd_set *writefds, fd_set *exceptfds, 
 	     timeval *timeout);
+#endif
 #ifdef ultrix
   int open(char *path, int flags, int mode);
   int fcntl(int fd, int request, int arg);
