@@ -170,7 +170,6 @@ void XamineGrobjGC::SetPermanent()
 //
 void XamineGrobjGC::Set2DColors(XMWidget &wid)
 {
-  long drawc;
   if(Xamine_ColorDisplay()) {
     SetPlaneMask(Xamine_GetColorPlaneMask());
     SetForeground(Xamine_GetXorDrawingColor());
