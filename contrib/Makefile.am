@@ -16,3 +16,5 @@ install-exec-local:
 EXTRA_DIST = multiread/AAREADME.txt multiread/selectscript.tcl treeparam/*.tcl treeparam/*.h treeparam/Documentation/*.html treeparam/Documentation/pics/tree.jpg treeparam/Example/*.* treeparam/Example/Makefile treeparam/Makefile \
 Grace/*.tcl
 
+SUBDIRS=scriptable
+
