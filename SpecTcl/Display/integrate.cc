@@ -191,8 +191,6 @@ static void DestroyEdgeTable(edge_table *e)
 */
 static void UpdateEdgeTable(edge_list *e, int y)
 {
-  float yf = (float)y;		/* For floating point compares. */
-
   /* Loop over all the entries in the edge list, updating and sorting. */
   /* Then whip through the sorted list and eliminate inactive edges.   */
 
@@ -484,7 +482,7 @@ void Integrate_2db::Perform()
   */
 
   edge_list active;
-  active.num_edges = 0;		/* Initially empty will be merged in loop. /
+  active.num_edges = 0;		/* Initially empty will be merged in loop. */
 
   /* Get the y limits of the scan and produce some easy access pointers to
   ** the spectrum:
@@ -572,7 +570,7 @@ void Integrate_2dw::Perform()
   */
 
   edge_list active;
-  active.num_edges = 0;		/* Initially empty will be merged in loop. /
+  active.num_edges = 0;		/* Initially empty will be merged in loop. */
 
   /* Get the y limits of the scan and produce some easy access pointers to
   ** the spectrum:
