@@ -313,12 +313,14 @@ class CTCLRunFileHandler  : public CTCLIdleProcess
   
   CRunControl* m_pRun;
   UInt_t       m_nBufferSize;
+  CTCLInterpreter* m_pInterp;
 
 public:
   CTCLRunFileHandler (CTCLInterpreter* pInterp, CRunControl& rRun) :
     CTCLIdleProcess(pInterp),
     m_pRun(&rRun),
-    m_nBufferSize(0)
+    m_nBufferSize(0),
+    m_pInterp(pInterp)
   { }        
    ~ CTCLRunFileHandler ( ) { }       //Destructor
 	
