@@ -416,6 +416,21 @@ void Xamine_DisplayPane (int row, int col, int specid)
 }
 
 
+static void
+dump(int spno)
+{
+  spno--;
+  long offset = xamine_shared->dsp_offsets[spno];
+  printf("--------------------\n");
+  printf("  Spectrum: %d\n", spno);
+  printf("   xdim   = %d\n", xamine_shared->dsp_xy[spno].xchans);
+  printf("   ydim   = %d\n", xamine_shared->dsp_xy[spno].ychans);
+  printf("   offset = %d\n", offset);
+
+
+
+
+}
 /*
 ** Functional Description:
 **    Xamine_Display:
@@ -427,6 +442,7 @@ void Xamine_DisplayPane (int row, int col, int specid)
 void Xamine_Display(int specid)
 {
   int row, col;
+
 
   row = Xamine_PaneSelectedrow();
   col = Xamine_PaneSelectedcol();
