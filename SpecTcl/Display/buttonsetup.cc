@@ -587,7 +587,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   pbt1 = pb;
   Xamine_AddtoSpectrumSelectedPackage(pb);
 
-  pb = new XMPushButton("Cut",     *grobs_rc);
+  pb = new XMPushButton("Slice",     *grobs_rc);
   pb->AddCallback(Xamine_AcceptGate, (XtPointer)cut_1d);
   grobs_rc->SetTopAttachment(*pb, XmATTACH_POSITION);
   grobs_rc->SetTopPosition(*pb, 5);
