@@ -312,9 +312,9 @@
 #define __STL_STRING
 #endif
 
+
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#define __HISTOTYPES_H
 #endif
 
 // Note this is a template class which maintains a dictionary of named 
