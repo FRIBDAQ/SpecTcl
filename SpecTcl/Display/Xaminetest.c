@@ -222,15 +222,15 @@ main()
   printf("Made shared memory named %s at %x\n",
 	 junk,
 	 spectra);
-
-  setupspectra(spectra);	/* Set up the classical test spectra. */
-  printf("Created test spectra\n");
-
   if(!Xamine_Start()) {
     perror("Failed to start Xamine subprocess\n");
     exit(errno);
   }
   printf("Xamine is started up\n");
+  sleep(5);
+  setupspectra(spectra);	/* Set up the classical test spectra. */
+  printf("Created test spectra\n");
+
 
   /*
   ** Create a button box:

@@ -57,7 +57,7 @@ CXamine1D::Twod()
 /////////////////////////////////////////////////////////////////////////
 //
 // Function:
-//    CXamine2D(Xamine_shared* pXamine, UInt_t nSlot)
+//    CXamine1D(volatile Xamine_shared* pXamine, UInt_t nSlot)
 // Operation Type:
 //    Parameterized constructor.
 //

@@ -36,6 +36,10 @@ static char *sccsinfo = "@(#)shared.cc	2.3 5/27/94 \n";
 #endif                        // CYGWIN
 #include <sys/stat.h>
 #endif
+#ifdef Darwin
+#include <sys/fcntl.h>
+#include <sys/mman.h>
+#endif
 
 #ifdef VMS
 #include <ssdef.h>
@@ -65,8 +69,10 @@ static char *sccsinfo = "@(#)shared.cc	2.3 5/27/94 \n";
 ** External references:
 */
 
+
 extern volatile  spec_shared *xamine_shared;
 extern volatile  spec_shared *spectra;
+
 
 /*
 ** Static defs:
@@ -112,7 +118,24 @@ int sys$adjwsl(int pagecnt, unsigned int *wsetlm);
 */
 static spec_shared *mapmemory(char *name, unsigned int size)
 #ifdef unix
-#ifdef CYGWIN                   // Use MSWindows functions. 
+#if defined(Darwin)
+{
+  int fd = shm_open(name, O_RDWR, S_IRUSR | S_IWUSR);
+  if(fd < 0) {
+    perror("shm_open failed in Xamine");
+    return NULL;
+  }
+
+  void* pMem = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+  if(pMem == (char*)-1) {
+    perror("mmap failed in Xamine");
+    return NULL;
+  }
+  close(fd);
+  shm_unlink(name);
+  return (spec_shared*)pMem;
+}
+#elif defined(CYGWIN)
 {
   HANDLE hMapFile;
   size += getpagesize()*64;
@@ -158,12 +181,11 @@ static spec_shared *mapmemory(char *name, unsigned int size)
   // deletion. This prevents shared memory regions from hanging around
   // after the program exits.
   //
-  
   shmctl(id, IPC_RMID, 0);        // Mark for deletion.
-
   return (spec_shared *)memory;
   
 }
+
 #endif // CYGWIN or not
 #endif // UNIX
 #ifdef VMS

@@ -64,7 +64,7 @@ static const UInt_t nSwitches = sizeof(SwitchTable) /
 
 
 CGateCommand::GateFactoryTable GateTable[] = {
-  { "*"     , CGateFactory::and,         kfTRUE,  0, kfFALSE},
+  { "*"     , CGateFactory::And,         kfTRUE,  0, kfFALSE},
   { "b"     , CGateFactory::band,        kfFALSE, 2, kfFALSE},
   { "c2band", CGateFactory::bandcontour, kfTRUE,  0, kfFALSE},
   { "c"     , CGateFactory::contour,     kfFALSE, 2, kfFALSE},
@@ -72,8 +72,8 @@ CGateCommand::GateFactoryTable GateTable[] = {
   { "-deleted-", CGateFactory::deleted,  kfTRUE,  0, kfFALSE},
   { "F",      CGateFactory::falseg,       kfTRUE,  0, kfFALSE},
   { "T",      CGateFactory::trueg,        kfTRUE,  0, kfFALSE},
-  { "-",      CGateFactory::not,         kfTRUE,  0, kfFALSE},
-  { "+",      CGateFactory::or,          kfTRUE,  0, kfFALSE},
+  { "-",      CGateFactory::Not,         kfTRUE,  0, kfFALSE},
+  { "+",      CGateFactory::Or,          kfTRUE,  0, kfFALSE},
   { "gs",     CGateFactory::gammacut,     kfFALSE,  0, kfTRUE},
   { "gb",     CGateFactory::gammaband,    kfFALSE,  0, kfTRUE},
   { "gc",     CGateFactory::gammacontour, kfFALSE,  0, kfTRUE}

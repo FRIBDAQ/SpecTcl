@@ -78,6 +78,19 @@ static inline char* strtok_r(char *s1, const char* s2, char** savept)
 
 }
 #endif
+#ifdef Darwin			// Need to implement strtok_r
+// This is posix.1C so it seems the best of the bunch of strtok-ish ones
+// to standardize on.
+//
+static inline char* strtok_r(char *s1, const char* s2, char** savept)
+{
+  if(s1) {
+    *savept = s1;
+  }
+  return strsep(savept, s2);
+
+}
+#endif
 #ifdef OSF1
 extern "C" {			// Missing from string.h
   char* strtok_r(char* s1, const char* s2, char** savept);

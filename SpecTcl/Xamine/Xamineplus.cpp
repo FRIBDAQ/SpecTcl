@@ -87,7 +87,8 @@ CXamine::CXamine(UInt_t nBytes) :
   m_fManaged(kfFALSE),
   m_nBytes(nBytes)
 {
-  assert(Xamine_CreateSharedMemory(m_nBytes, &m_pDisplay));
+  assert(Xamine_CreateSharedMemory(m_nBytes, 
+				   (volatile Xamine_shared**)&m_pDisplay));
 }
 //
 //////////////////////////////////////////////////////////////////////////
@@ -136,7 +137,8 @@ CXamine::MapMemory(const std::string& rsName, UInt_t nBytes)
 
 
   m_nBytes = nBytes;
-  assert(Xamine_MapMemory((char*)(rsName.c_str()), nBytes, &m_pDisplay));
+  assert(Xamine_MapMemory((char*)(rsName.c_str()), nBytes, 
+			  (volatile Xamine_shared**)&m_pDisplay));
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -993,7 +995,7 @@ void CXamine::Restart()
 {
   Xamine_Closepipes();
   Xamine_DetachSharedMemory();
-  assert(Xamine_CreateSharedMemory(m_nBytes, &m_pDisplay));  
+  assert(Xamine_CreateSharedMemory(m_nBytes, (volatile Xamine_shared**)&m_pDisplay));  
   Start();
   m_fManaged = kfFALSE;		// Memory not yet managed.
 }

@@ -1,3 +1,4 @@
+
 // Class: CSpectrumFormatterFactory                     //ANSI C++
 //
 // Encapsulates spectrum formatter selection behind a keyword
@@ -131,3 +132,4 @@ public:
 
 
 #endif
+

@@ -200,8 +200,8 @@ CTapeFile::Read(Address_t pBuffer, UInt_t nBytes)
   UInt_t nRead;			// Mtaccess needs this..
   AssertOpen();			// Throw if file not open.
 
-  Int_t status = volread(m_pVcb.operator->(), pBuffer, (Int_t)nBytes,
-			 &nRead);
+  Int_t status = volread(m_pVcb.operator->(), (char*)pBuffer, (Int_t)nBytes,
+			 (Int_t*)&nRead);
 
   // What we do/return, depends on the status:
 
@@ -241,7 +241,7 @@ CTapeFile::Write(const Address_t pBuffer, UInt_t  nBytes)
 
   AssertOpen();
   
-  Int_t status = volwrite(m_pVcb.operator->(), pBuffer, (Int_t)nBytes);
+  Int_t status = volwrite(m_pVcb.operator->(), (char*)pBuffer, (Int_t)nBytes);
   switch(status) {
   case MTSUCCESS:		// Normal Completion.
     return nBytes;

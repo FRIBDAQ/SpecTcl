@@ -45,6 +45,7 @@
 #include <sys/file.h>
 #include <sys/mtio.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 #endif
 
 #include "mtinternl.h"
@@ -366,10 +367,7 @@ int unit;
 **--
 */
 int 
-mtwrite (unit, block, count)
-int unit;
-char *block;
-unsigned count;
+mtwrite (int unit, char* block, unsigned count)
 {
     int status;
 #ifdef unix
@@ -410,8 +408,7 @@ unsigned count;
 **--
 */
 int 
-mtrewind (unit)
-int unit;
+mtrewind (int unit)
 {
 #ifdef unix
     struct mtop rewind;
@@ -466,8 +463,7 @@ int unit;
 **--
 */
 void
-mtload (unit)
-int unit;
+mtload (int unit)
 {
     wtdrive(unit);
 }
@@ -487,8 +483,7 @@ int unit;
 **--
 */
 void 
-mtunload (unit)
-int unit;
+mtunload (int unit)
 {
 #ifdef unix
     struct mtop unload;
@@ -537,11 +532,7 @@ int unit;
 **
 **--
 */
-int mtread (unit, block, count, actual)
-int unit;
-char *block;
-unsigned count;
-unsigned *actual;
+int mtread (int unit, char* block, unsigned count, unsigned* actual)
 {
     int status;
 
@@ -622,9 +613,7 @@ unsigned *actual;
 **
 **--
 */
-int  mtweof (unit, count)
-int unit;
-unsigned count;
+int  mtweof (int unit, unsigned count)
 {
 #ifdef unix
     struct mtop weof;
@@ -666,9 +655,7 @@ unsigned count;
 **--
 */
 int 
-mtspacef (unit, count)
-int unit, 
-    count;
+mtspacef (int unit, int count)
 {
 #ifdef unix
     struct mtop spacef;
@@ -707,9 +694,7 @@ int unit,
 **--
 */
 int 
-mtspacer (unit, count)
-int unit, 
-    count;
+mtspacer (int unit, int count)
 {
 #ifdef unix
     struct mtop spacer;
@@ -750,12 +735,3 @@ int unit,
      return mapioctlerr(iosb[0]);
 #endif
 }
-
-
-
-
-
-
-
-
-

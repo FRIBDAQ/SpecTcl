@@ -190,12 +190,20 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
   //
   if(eSpecType == keSummary) {
     Float_t res = (Float_t)vDimensions[1];   // Second res is important.
+#ifdef Darwin
+    res         = logb(res);
+#else
     res         = log2f(res);
+#endif
     vResolutions.push_back((UInt_t) res);
   } else {
     for(UInt_t i = 0; i < vDimensions.size(); i++) {
       Float_t res = (Float_t)vDimensions[i];
-      res       = log2f(res);
+#ifdef Darwin
+    res         = logb(res);
+#else
+    res         = log2f(res);
+#endif
       vResolutions.push_back((UInt_t)res);
     }
   }

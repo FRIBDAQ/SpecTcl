@@ -58,7 +58,7 @@ CXamine2D::Twod()
 ///////////////////////////////////////////////////////////////////////
 //
 // Function:
-//    CXamine2D(Xamine_shared* pXamine, UInt_t nSlot)
+//    CXamine2D(volatile Xamine_shared* pXamine, UInt_t nSlot)
 // Operation Type:
 //    Constructor
 //

@@ -197,7 +197,7 @@ int main(Cardinal argc, char **argv)
   }
 #endif
 
-  setsid();			// Form new session.
+  //  setsid();			// Form new session.
   XMApplication top("Xamine", &argc, argv); /* Top level/init ap. */
   XMMainWindow main_win("MainWindow", top, NULL, 0); /* Main window widget. */
   XMForm       work_area("WorkArea", main_win);

@@ -10,6 +10,7 @@
 #
 
 LinuxMAKESW=-j 4
+DarwinMAKESW=-j 4
 
 system:
 	rm -rf $(INSTDIR)/Include

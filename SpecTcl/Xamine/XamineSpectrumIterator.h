@@ -30,7 +30,7 @@ class CXamineSpectrum;
                                                                
 class CXamineSpectrumIterator      
 {
-  Xamine_shared*   m_pXamineMemory; // Xamine shared memory pointer.
+  volatile Xamine_shared*   m_pXamineMemory; // Xamine shared memory pointer.
   UInt_t           m_nSlot;	// Current spectrum slot [0,XAMINE_MAXSPEC]
   CXamineSpectrum* m_pSpectrum;	// Xamine shared memory.
   
@@ -38,7 +38,7 @@ public:
 
 			//Constructor with arguments:
                         // Initialized to first used slot on or after am_nSlot.
-  CXamineSpectrumIterator (  Xamine_shared* am_pXamineMemory,  
+  CXamineSpectrumIterator (volatile   Xamine_shared* am_pXamineMemory,  
 			     UInt_t am_nSlot = 0); 
   virtual ~ CXamineSpectrumIterator ( ) { 
     unbind();
@@ -74,7 +74,7 @@ public:
   // Selectors:
 
 public:
-  const Xamine_shared* getXamineMemory() const
+  const volatile Xamine_shared* getXamineMemory() const
   {
     return m_pXamineMemory;
   }
@@ -89,7 +89,7 @@ public:
   // Mutators (only available to derived classes):
 
 protected:
-  void XamineMemory (Xamine_shared* am_pXamineMemory)
+  void XamineMemory (volatile Xamine_shared* am_pXamineMemory)
   { 
     m_pXamineMemory = am_pXamineMemory;
   }

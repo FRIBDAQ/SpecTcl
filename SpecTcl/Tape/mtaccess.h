@@ -29,7 +29,7 @@
 **
 */
 
-#include "mtshare.h"
+#include "mtinternl.h"
 
 /*
 **
@@ -37,8 +37,8 @@
 **
 */
 
-typedef char volume;	    /* Essentially opaque volume type */
-typedef int tape_ucb;	    /* Opaque type for UCB	    */
+//typedef char volume;	    /* Essentially opaque volume type */
+//typedef int tape_ucb;	    /* Opaque type for UCB	    */
 
 /* In VMS systems there can be name space conflicts between e.g. fortran
 ** and C routines, so we make the following substitutions for vms:
@@ -105,13 +105,13 @@ int volopen (volume *vol,
 	     file_item *itemlist);
 
 int volwrite (volume *vol, 
-	      void *data,
-	      unsigned count);
+	      char *data,
+	      int count);
 
 int volread (volume *vol, 
-	     void *data,
-	     unsigned count,
-	     unsigned *actual);
+	     char *data,
+	     int count,
+	     int *actual);
 
 int volclose (volume *vol );
 

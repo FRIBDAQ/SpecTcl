@@ -147,3 +147,4 @@ Long_t BufferTranslator::GetLongword( UInt_t iOffset )
   Long_t Longword = Get<Long_t>( iOffset );
   return Longword;
 }
+

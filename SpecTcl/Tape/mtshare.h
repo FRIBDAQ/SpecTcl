@@ -25,6 +25,9 @@
 **--
 */
 
+#ifndef _MTSHARE
+#define _MTSHARE
+
 /*
 **
 **  MACRO DEFINITIONS
@@ -114,3 +117,5 @@ typedef struct {
 #define MTNOTFOUND	127		/* File not found. */
 #define MTIO		128		/* Transfer error */
 #define MAXMTERRORCODE	128		/* Must be value of last code. */
+
+#endif

@@ -20,8 +20,14 @@ static char *sccsinfo = "@(#)plot2d.cc	2.4 4/25/94 \n";
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#if defined(unix) & (!defined(CYGWIN))
+#ifdef unix
+#if (!defined(CYGWIN))
 #include <values.h>
+
+#elif defined(Darwin)
+#include <limits.h>
+#define MAXINT INT_MAX
+#endif
 #else
 #define MAXINT (0x10000000)	/* *BUGBUGBUG* Need a good way to get maxint */
 #endif
