@@ -15,7 +15,7 @@ C SCCS:
 C   @(#)aedxamine.for	8.1  6/23/95 
 C
 CCccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	INTEGER FUNCTION F77XAMINE_INIT(ISIZE)
+	INTEGER FUNCTION F77XAMINE_INIT (ISIZE)
 C
 C        Stubby little native function to initialize shared memory
 C        for Xamine:
@@ -23,11 +23,14 @@ C
 	INTEGER ISIZE
 	INTEGER ISTAT
 
-	CALL AEDINIT(ISTAT, ISIZE)
+	CALL AEDINIT (ISTAT, ISIZE)
 	F77XAMINE_INIT = ISTAT
 	RETURN
 	END
-	SUBROUTINE AEDINIT(ISTAT,ISIZE)
+C
+C
+C	
+	SUBROUTINE AEDINIT (ISTAT, ISIZE)
  
 C+
 C 
@@ -59,19 +62,19 @@ C--
 	IMPLICIT NONE
 	INCLUDE 'aedshare.for'
 	INTEGER  ISTAT, ISIZE
-	INTEGER IS
+	INTEGER  IS
  
-	IS = (ISIZE + 511)/512
+	IS = (ISIZE + 511) / 512
 	IS = IS * 512
-	ISTAT = F77XAMINE_CREATESHAREDMEMORY(IS, XAMINE_XYPTR)
+	ISTAT = F77XAMINE_CREATESHAREDMEMORY (IS, XAMINE_XYPTR)
 C
 C		Set the pointers so that references to the Xamine block
 C               will work.
 C
-	XAMINE_TITLESPTR  = XAMINE_XYPTR +       2*(2*XAMINE_ISMAX)
-	XAMINE_OFFSETSPTR = XAMINE_TITLESPTR +   72*XAMINE_ISMAX
-	XAMINE_TYPESPTR   = XAMINE_OFFSETSPTR +  4*XAMINE_ISMAX
-	XAMINE_DATA1PTR   = XAMINE_TYPESPTR +    4*XAMINE_ISMAX
+	XAMINE_TITLESPTR  = XAMINE_XYPTR + 2 * (2 * XAMINE_ISMAX)
+	XAMINE_OFFSETSPTR = XAMINE_TITLESPTR + 72 * XAMINE_ISMAX
+	XAMINE_TYPESPTR   = XAMINE_OFFSETSPTR + 4 * XAMINE_ISMAX
+	XAMINE_DATA1PTR   = XAMINE_TYPESPTR + 4 * XAMINE_ISMAX
 	XAMINE_DATA2PTR   = XAMINE_DATA1PTR
 	XAMINE_DATA4PTR   = XAMINE_DATA1PTR
 C
@@ -88,8 +91,10 @@ C
 
 	RETURN
 	END
-	SUBROUTINE AEDSTART(ISTAT)
- 
+C
+C
+C
+	SUBROUTINE AEDSTART (ISTAT)
 C+
 C 
 C FUNCTIONAL DESCRIPTION:	
@@ -106,17 +111,15 @@ C
 C 
 C-
 	IMPLICIT NONE
-	INCLUDE 'aedshare.for'
-	INTEGER istat
- 
-              
-              
- 
-	istat = F77XAMINE_START()
+	INCLUDE  'aedshare.for'
+	INTEGER  ISTAT
+ 	ISTAT = F77XAMINE_START ()
 	RETURN
 	END
-	SUBROUTINE AEDSTOP(istat)
- 
+C
+C
+C
+	SUBROUTINE AEDSTOP (ISTAT)
 C+
 C 
 C FUNCTIONAL DESCRIPTION:	
@@ -133,13 +136,11 @@ C
 C 
 C-
 	IMPLICIT NONE
-	INCLUDE 'aedshare.for'
-	integer istat
- 
-              
-              
- 
-	istat = F77XAMINE_STOP()
+	INCLUDE  'aedshare.for'
+	INTEGER  ISTAT
+
+ 	ISTAT = F77XAMINE_STOP ()
+
 	RETURN
 	END
 C
@@ -171,17 +172,17 @@ C
 	RETURN
 	END
 
-	LOGICAL FUNCTION AEDGETONE(LAST)
+	LOGICAL FUNCTION AEDGETONE (LAST)
 	AEDGETONE = .FALSE.
 	RETURN
 	END
 
-	LOGICAL FUNCTION AEDFREEONE(LAST)
+	LOGICAL FUNCTION AEDFREEONE (LAST)
 	AEDFREEONE = .TRUE.
 	RETURN
 	END
 
-	LOGICAL FUNCTION AEDENTER(NSPEC, NAME, ITYPE, NUM, PTS)
+	LOGICAL FUNCTION AEDENTER (NSPEC, NAME, ITYPE, NUM, PTS)
 C
 C Functional Description:
 C	AEDENTER:
@@ -203,24 +204,30 @@ C Returns:
 C	True if worked, and False if Failed.
 CCCC
 	INCLUDE 'aedshare.for'
-	INTEGER NSPEC,NAME, ITYPE, NUM, PTS(2,*)
+	INTEGER NSPEC, NAME, ITYPE, NUM, PTS (2,*)
 	INTEGER STATUS
-	CHARACTER*80 GateName
-	WRITE(GateName, '(A, I5)') 'AEDTSK Gate ID ', name
-	status = f77Xamine_EnterGate(nspec, name, itype, GateName, num, pts)
-	AEDENTER = (Status .GE. 0)
+	CHARACTER*80 GATENAME
+
+	WRITE (GATENAME, '(A, I5)') 'AEDTSK Gate ID ', NAME
+
+	STATUS = f77Xamine_EnterGate (NSPEC, NAME, ITYPE, GATENAME, NUM, PTS)
+
+	AEDENTER = (STATUS .GE. 0)
+
 	RETURN
 	END
 C
-C		AEDTEXT - Lables are not implemented in Xamine at this time.
+C		AEDTEXT - Labels are not implemented in Xamine at this time.
 C
-	LOGICAL FUNCTION AEDTEXT(NSPEC, NAME, ITYPE, IX, IY, TEXT)
+	LOGICAL FUNCTION AEDTEXT (NSPEC, NAME, ITYPE, IX, IY, TEXT)
 	PRINT *,'Warning -- AEDTEXT unsupported function called'
 	AEDTEXT = .TRUE.
 	RETURN 
 	END
-
-	LOGICAL FUNCTION AEDDELETE(NSPEC, NAME, ITYPE)
+C
+C
+C
+	LOGICAL FUNCTION AEDDELETE (NSPEC, NAME, ITYPE)
 C
 C Functional Description:
 C   AEDDELETE:
@@ -239,9 +246,8 @@ C	FALSE  - Failure.
 C
 	INCLUDE 'aedshare.for'
 	INTEGER NSPEC, NAME, ITYPE
-	INTEGER STATUS
 
-	AEDDELETE = (F77Xamine_RemoveGate(nspec, name, itype) .GE. 0)
+	AEDDELETE = (F77Xamine_RemoveGate (NSPEC, NAME, ITYPE) .GE. 0)
 
 	RETURN
 	END
@@ -252,13 +258,15 @@ C		histogrammer only has indirect access to Xamine's gate
 C		database.  This stub will claim not to find any
 C		requested entries.
 C
-	LOGICAL FUNCTION AEDLOCATE(NSPEC, NAME, ITYPE, LAST)
+	LOGICAL FUNCTION AEDLOCATE (NSPEC, NAME, ITYPE, LAST)
 	PRINT *,' WARNING -- AEDLOCATE Unsupported function called'
 	AEDLOCATE = .FALSE.
 	RETURN
 	END
-
-	INTEGER*8 FUNCTION AEDSTARTSEARCH(NSPEC)	
+C
+C
+C
+	INTEGER*8 FUNCTION AEDSTARTSEARCH (NSPEC)	
 C
 C Functional Description:
 C   AEDSTARTSEARCH:
@@ -272,14 +280,16 @@ C      Non zero search context.  If a zero is returned, then the search could
 C      not be started, most likely because the spectrum number was garbage.
 C
 	INCLUDE 'aedshare.for'
-	INTEGER NSPEC
+	INTEGER NSPEC, ISTAT
 
-	AEDSTARTSEARCH = F77Xamine_StartSearch(nspec, istat)
+	AEDSTARTSEARCH = F77Xamine_StartSearch (NSPEC, ISTAT)
 
 	RETURN
 	END
-
-	LOGICAL FUNCTION AEDNEXT1(ICTX, NAME, ITYPE)
+C
+C
+C
+	LOGICAL FUNCTION AEDNEXT1 (ICTX, NAME, ITYPE)
 C
 C Functional Description:
 C  AEDNEXT1:
@@ -297,12 +307,11 @@ C  Returns:
 C      True if there is a next gate, False if there isn't.
 C
 	INCLUDE 'aedshare.for'
-	INTEGER*8 ictx
-	INTEGER   name, itype
+	INTEGER*8 ICTX
+	INTEGER   NAME, ITYPE
+	INTEGER   NPTS, POINTS (2,50)
 
-	INTEGER  npts, points(2,50)
-
-	AEDNEXT1 = f77Xamine_NextGate(ictx, name, itype, npts, points)	
+	AEDNEXT1 = f77Xamine_NextGate (ICTX, NAME, ITYPE, NPTS, POINTS)	
 
 	RETURN
 	END
@@ -321,10 +330,10 @@ C	Context value retunred from AEDSTARTSEARCH.
 C NOTE:
 C   It is not necessary to 'complete' the search prior to calling this function
 C
-	INCLUDE 'aedshare.for'
-	INTEGER*8 ictx
+	INCLUDE   'aedshare.for'
+	INTEGER*8 ICTX
 
-	CALL F77Xamine_EndSearch(ictx)
+	CALL F77Xamine_EndSearch (ICTX)
 	ICTX = 0
 
 	RETURN
