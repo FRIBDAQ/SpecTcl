@@ -1,0 +1,787 @@
+# Process this file with autoconf to produce a configure script.
+AC_INIT(SpecTcl/MySpecTclApp.cpp)
+AC_CONFIG_AUX_DIR(config)
+AM_CONFIG_HEADER(config.h)
+AC_CANONICAL_HOST
+AM_INIT_AUTOMAKE(SpecTcl, 2.1-pre)
+
+AC_EXEEXT
+AC_OBJEXT
+
+# Checks for programs.
+# Fortran compiler only supported on Linux and Tru64
+case $host_os in
+  *linux* ) 
+	AC_PROG_F77
+	;;
+  *osf* )
+	AC_PROG_F77
+	;;
+esac
+
+AC_PROG_AWK
+AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AM_PROG_LEX
+AC_PROG_YACC
+AC_PROG_GCC_TRADITIONAL
+AC_PROG_LIBTOOL
+
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS([fcntl.h limits.h malloc.h memory.h stddef.h stdlib.h strings.h string.h sys/file.h sys/ioctl.h sys/socket.h sys/time.h unistd.h values.h windows.h machine/hal_sysinfo.h sys/proc.h sys/mtio.h sys/mman.h sys/ipc.h sys/shm.h machine/param.h sys/un.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STAT
+AC_HEADER_TIME
+AC_STRUCT_TM
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_OFF_T
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_SIGNAL
+
+# Checks for library functions.
+AC_FUNC_MMAP
+AC_REPLACE_FUNCS([atexit dup2 ftruncate getpagesize memset putenv])
+AC_REPLACE_FUNCS([strchr strcspn strerror strrchr bzero mkstemp stat]) 
+AC_REPLACE_FUNCS([malloc memcmp strftime alloca vfork strtok_r])
+AC_CHECK_FUNCS([select socket strspn fork drand48 seed48]) 
+AC_CHECK_FUNCS([pipe sbrk shm_open shmget fcntl])
+AC_CHECK_FUNCS([floor getcwd gethostname gettimeofday mbrlen])
+AC_CHECK_LIB(m, pow)
+AC_CHECK_LIB(m, sqrt)
+AC_CHECK_LIB(m, logb)
+AC_CHECK_FUNCS([strdup strstr strtol tzset mktime strtod timezone])
+
+# Locate the X11 headers files and libraries
+
+# Locate the X11 header files and the X11 library archive. Try the
+# ac_path_x macro first, but if it doesn't find the X stuff then check
+# a list of possible directories.
+
+AC_PATH_X
+AC_ARG_WITH(x-dir,
+	[  --with-x-header-dir=path Path to X],
+	[x_includes=$withval ; x_found="yes"], 
+	[x_found="no"])
+
+if test "$x_found" = "no" ; then
+not_really_there=""
+if test "$no_x" = "" ; then
+   if test "$x_includes" = "" ; then
+	AC_TRY_CPP([#include <X11/XIntrinsic.h>], , not_really_there="yes")
+   else
+	if test ! -r $x_includes/X11/Intrinsic.h ; then
+	   not_really_there="yes"
+	fi
+   fi
+fi
+if test "$no_x" = "yes" -o "$not_really_there" = "yes" ; then
+   echo "  **Couldn't find X in usual places. Trying some more places..."
+   AC_MSG_CHECKING(for X11 header files)
+   XINCLUDES="# no special path needed"
+   AC_TRY_CPP([#include <X11/Instrinsic.h>], , XINCLUDES="nope")
+   if test "$XINCLUDES" = nope ; then
+	dirs="/usr/include /usr/unsupported/include /usr/local/include /usr/X386/include /usr/include/X11R4 /usr/X11R5/include /usr/include/X11R5 /usr/openwin/include /usr/X11/include /usr/sww/include"
+	for i in $dirs ; do
+	   if test -r $i/X11/Intrinsic.h ; then
+		AC_MSG_RESULT($i)
+		if test $i = "/usr/include" ; then
+		   XINCLUDES=""  # should not need -I/usr/include
+		else
+		   XINCLUDES=" -I$i"
+		fi
+		break;
+	   fi
+	done
+   fi
+else
+   if test "$x_includes" != "" ; then
+	XINCLUDES=-I$x_includes
+   else
+	XINCLUDES="# no special path needed"
+   fi
+fi
+
+if test "$XINCLUDES" = nope; then
+   AC_MSG_ERROR(couldn't find X headers! Try using --with-x-header-dir to help me out.)
+fi
+
+# if x not found from --with
+else
+   AC_MSG_ERROR(couldn't find X headers! Try using --with-x-header-dir to hel me out.)
+fi
+
+# Find the libraries
+AC_ARG_WITH(x-lib,
+	[  --with-x-lib-dir=path Path to X libs],
+	[x_libraries=$withval ; x_libs_found="yes"], 
+	[x_libs_found="no"])
+
+if test "$x_libs_found" = "no" ; then
+if test "$no_x" = "" ; then
+   if test "$x_libraries" = "" ; then
+	AC_MSG_CHECKING(for X11 libraries)
+   	XLIBSW=nope
+   	dirs="/usr/lib /usr/unsupported/lib /usr/local/lib /usr/X386/lib /usr/lib/X11R4 /usr/X11R5/lib /usr/lib/X11R5 /usr/openwin/lib /usr/X11/lib /usr/sww/X11/lib"
+   	for i in $dirs ; do
+	   if test -r $i/libX11.a -o -r $i/libX11.so -o -r $i/libX11.sl ; then
+	      AC_MSG_RESULT($i)
+	      XLIBSW="-L$i"
+	      x_libraries="$i"
+	      break;
+	   fi
+   	done
+   else
+	XLIBSW="-L$x_libraries"
+   fi
+else
+   if test "$x_libraries" = "" ; then
+	XLIBSW=-lX11
+   else
+	XLIBSW="-L$x_libraries"
+   fi
+fi
+
+if test "$XLIBSW" = nope ; then
+   AC_CHECK_LIB(Xwindow, XCreateWindow, XLIBSW=-lXwindow)
+fi
+if test "$XLIBSW" = nope ; then
+   AC_MSG_ERROR(couldn't find X libraries! Try using --with-x-lib-dir to help me out.)
+fi
+
+# Not found using --with
+else
+   AC_MSG_ERROR(couldn't find X libraries! Try using --with-x-lib-dir to help me out.)
+fi
+
+# One more thing. On some versions of Ultrix, the "xauth" mechanism is not
+# supported, so send won't work. However, therre are usually copies of the
+# MIT X server availble as well, which do support xauth. Check for the
+# MIT stuff and use it if it's there.
+if test -d /usr/include/mit ; then
+   AC_MSG_CHECKING([MIT X libraries])
+   tk_oldCFlags=$CFLAGS
+   CFLAGS="$CFLAGS -I/usr/include/mit"
+   tk_oldLibs=$LIBS
+   LIBS="$LIBS -lX11-mit"
+   AC_TRY_LINK([
+	#include <X11/Xlib.h>
+   ], [
+	XOpenDisplay(0);
+   ], [
+	AC_MSG_RESULT(yes)
+	XLIBSW="-lX11-mit"
+	XINCLUDES="-I/usr/include/mit"
+   ], AC_MSG_RESULT(no))
+   CFLAGS=$tk_oldCFlags
+   LIBS=$tk_oldLibs
+fi
+
+#-------------------------- Begin Motif checks --------------------
+# Locate the Motif header files and the Motif library archive
+
+# We know where X is, but not Motif. We check for the headers and libraries
+# in the same places that we looked for X headers and libs. We will also check
+# if Xt is in the same path.
+
+cv_motif_path=""
+cv_xt_path=""
+AC_ARG_WITH(motif-dir,
+	[  --with-motif-headers=path Path to motif headers],
+	[cv_motif_path=$withval ; motif_found="yes"], 
+	[motif_found="no"])
+
+if test "$motif_found" = "no" ; then
+AC_TRY_CPP([#include <Xm/Xm.h>], , cv_motif_path="no")
+if test "$cv_motif_path" = "no" ; then
+   AC_MSG_CHECKING(for Motif header files)
+   MOTIF_INCLUDES="# no special path needed"
+   AC_TRY_CPP([#include <Xm/Xm.h>], , MOTIF_INCLUDES="nope")
+   if test "$MOTIF_INCLUDES" = nope ; then
+	dirs="/usr/X11R6/include /usr/include /usr/unsupported/include /usr/local/include /usr/X386/include /usr/include/X11R4 /usr/X11R5/include /usr/include/X11R5 /usr/openwin/include /usr/X11/include /usr/sww/include"
+	for i in $dirs ; do
+	   if test -r $i/Xm/Xm.h ; then
+		AC_MSG_RESULT($i)
+		cv_motif_path=$i
+		if test $i = "/usr/include" ; then
+		   MOTIF_INCLUDES=""  # shouldn't need -I/usr/include
+		else
+		   MOTIF_INCLUDES=" -I$i"
+		fi
+		break;
+	   fi
+	done
+   fi
+else
+   MOTIF_INCLUDES=""
+fi
+
+if test "$MOTIF_INCLUDES" = nope; then
+   AC_MSG_ERROR(couldn't find Motif headers! Try using --with-motif-headers to help me out.)
+else
+   if test "$MOTIF_INCLUDES" = "$XINCLUDES" ; then
+	MOTIF_INCLUDES=""
+   fi
+fi
+
+# Find the motif libraries
+AC_MSG_CHECKING(for Motif libraries)
+AC_ARG_WITH(motif-lib-dir,
+	[  --with-motif-lib-dir=path Path to motif headers],
+	[cv_motif_lib_path=$withval ; motif_lib_found="yes"], 
+	[motif_lib_found="no"])
+
+if test $motif_lib_found = yes ; then
+  MOTIF_LIBSW="-L$motif-lib-dir"
+else
+MOTIF_LIBSW=nope
+dirs="/usr/X11R6/lib /usr/lib /usr/unsupported/lib /usr/local/lib /usr/X386/lib /usr/lib/X11R4 /usr/X11R5/lib /usr/lib/X11R5 /usr/openwin/lib /usr/X11/lib /usr/sww/X11/lib"
+for i in $dirs ; do
+   if test -r $i/libXm.a -o -r $i/libXm.so -o -r $i/libXm.sl ; then
+	AC_MSG_RESULT($i)
+	MOTIF_LIBSW="-L$i"
+	if test -r $i/libXt.a -o -r $i/libXt.so -o -r $i/libXt.sl ; then
+	   cv_xt_path=$i
+	fi
+	break;
+   fi
+done
+
+if test "MOTIF_LIBSW" = "nope" ; then
+	AC_MSG_ERROR([Couldn't find Motif libraries! Try using --with-motif-lib-dir to help me out.])
+else
+   if test "$MOTIF_LIBSW" = "$XLIBSW" ; then
+	MOTIF_LIBSW=""
+   fi
+fi
+
+AC_ARG_WITH(motif-dir,
+	[  --with-xt-lib=path Path to libXt.a],
+	[cv_xt_path=$withval ; xt_found="yes"],
+	[xt_found="no"])
+fi
+
+# Make sure we found libXt.a also. Usually, this is in the same place
+# as libXm, but not always!
+
+if test cv_xt_path="" ; then
+   AC_MSG_CHECKING(for Xt libraries)
+   XTLIBSW=nope
+   dirs="/usr/X11R6/lib /usr/lib /usr/unsupported/lib /usr/local/lib /usr/X386/lib /usr/lib/X11R4 /usr/X11R5/lib /usr/lib/X11R5 /usr/openwin/lib /usr/X11/lib /usr/sww/X11/lib"
+   for i in $dirs ; do
+      if test -r $i/libXt.a -o -r $i/libXt.so -o -r $i/libXt.sl ; then
+	   AC_MSG_RESULT($i)
+	   XTLIBSW="-L$i"
+	   break;
+      fi
+   done
+fi
+
+if test "$XTLIBSW" = "nope" ; then
+	AC_MSG_ERROR([Couln't find Xt libraries! Try using --with-xt-lib to help me out.])
+else
+	if test "$XTLIBSW" = "$XLIBSW" ; then
+	   XTLIBSW=""
+	fi
+fi
+
+# Not found using --with
+else
+   AC_MSG_ERROR(Couldn't find Xt libraries! Try using --with-xt-lib to help me out.)
+fi
+
+#----------------------------- End of Motif checks ---------------
+
+# Checks for include declarations
+
+# These checks are for declarations within specific system headers. For
+# instance, MTSETBLK is not declared in sys/mtio.h on all platforms, but
+# is needed on Linux.
+
+	# MTSETBLK in sys/mtio.h
+AC_MSG_CHECKING([for MTSETBLK in sys/mtio.h])
+    AC_TRY_COMPILE([
+#include <sys/mtio.h>
+#ifndef MTSETBLK
+ error mtsetblk not defined
+#endif
+], , my_cv_have_mtsetblk=yes, my_cv_have_mtsetblk=no)
+    if test $my_cv_have_mtsetblk = yes ; then
+	AC_DEFINE(HAVE_DECL_MTSETBLK, 1, [True if MTSETBLK defined in sys/mtio.h])
+    fi
+AC_MSG_RESULT($my_cv_have_mtsetblk)
+
+	# MTOVERRUN in sys/mtio.h
+AC_MSG_CHECKING([for MTOVERRUN in sys/mtio.h])
+    AC_TRY_COMPILE([
+#include <sys/mtio.h>
+#ifndef MTOVERRUN
+ error overrun not defined
+#endif
+], , my_cv_have_mtoverrun=yes, my_cv_have_mtoverrun=no)
+    if test $my_cv_have_mtoverrun = yes ; then
+	AC_DEFINE(HAVE_DECL_MTOVERRUN, 1, [True if MTOVERRUN defined in sys/mtio.h])
+    fi
+AC_MSG_RESULT($my_cv_have_mtoverrun)
+
+
+	# MTCSE in sys/mtio.h
+AC_MSG_CHECKING([for MTCSE in sys/mtio.h])
+    AC_TRY_COMPILE([
+#include <sys/mtio.h>
+#ifndef MTCSE
+ error mtcse not defined
+#endif
+], , my_cv_have_mtcse=yes, my_cv_have_mtcse=no)
+    if test $my_cv_have_mtcse = yes ; then
+	AC_DEFINE(HAVE_DECL_MTCSE, 1, [True if MTCSE defined in sys/mtio.h])
+    fi
+AC_MSG_RESULT($my_cv_have_mtcse)
+
+	# PAGESIZE in limits.h
+AC_MSG_CHECKING([for PAGESIZE in limits.h])
+    AC_TRY_COMPILE([
+#include <limits.h>
+#ifndef PAGESIZE
+ error pagesize not defined
+#endif
+], , my_cv_have_pagesize=yes, my_cv_have_pagesize=no)
+    if test $my_cv_have_pagesize = yes ; then
+	AC_DEFINE(HAVE_DECL_PAGESIZE, 1, [True if PAGESIZE is defined in limits.h as on HP-UX])
+    fi
+AC_MSG_RESULT($my_cv_have_pagesize)
+
+	# PADSIZE in limits.h
+AC_MSG_CHECKING([for PADSIZE in limits.h])
+    AC_TRY_COMPILE([
+#include <limits.h>
+#ifndef PADSIZE
+ error padsize not defined
+#endif
+], , my_cv_have_padsize=yes, my_cv_have_padsize=no)
+    if test $my_cv_have_padsize = yes ; then
+	AC_DEFINE(HAVE_DECL_PADSIZE, 1, [True if PADSIZE defined in limits.h])
+    fi
+AC_MSG_RESULT($my_cv_have_padsize)
+
+	# INT_MAX in limits.h
+AC_MSG_CHECKING([for INT_MAX in limits.h])
+    AC_TRY_COMPILE([
+#include <limits.h>
+#ifndef INT_MAX
+ error intmax not defined
+#endif
+], , my_cv_have_int_max=yes, my_cv_have_int_max=no)
+    if test $my_cv_have_int_max = yes ; then
+	AC_DEFINE(HAVE_DECL_INT_MAX, 1, [True if INT_MAX defined in limits.h])
+    fi
+AC_MSG_RESULT($my_cv_have_int_max)
+
+	# MAXINT in values.h
+AC_MSG_CHECKING([for MAXINT in values.h])
+    AC_TRY_COMPILE([
+#include <values.h>
+#ifndef MAXINT
+ error maxint not defined
+#endif
+], , my_cv_have_maxint=yes, my_cv_have_maxint=no)
+    if test $my_cv_have_maxint = yes ; then
+	AC_DEFINE(HAVE_DECL_MAXINT, 1, [True if MAXINT defined in values.h])
+    fi
+AC_MSG_RESULT($my_cv_have_maxint)
+
+	# Check for 64 bit longs
+AC_MSG_CHECKING([whether long int is 64 bits])
+    AC_TRY_RUN([
+int main(int argc, char **argv) {
+	if(sizeof(long) == 8)
+		return 0;
+	else
+		return 1;
+}  
+], [AC_DEFINE(HAVE_TRUE_SIXTY_FOUR, 1, [True if long int is 8 bits]) AC_MSG_RESULT(yes)], AC_MSG_RESULT(no), AC_MSG_RESULT(assuming not on target machine))
+
+# Determine the particular platform we are running on. Specifically,
+# we need to know if we are running on a SPARC processor, so that we
+# can do the tape reading appropriately.
+
+AC_MSG_CHECKING([for SPARC processor type])
+case $host in
+  *sparc*)
+	AC_DEFINE(SPARC, 1, [Set to 1 if SPARC Processor])
+	echo "yes"
+	;;
+  *) echo "no" ;;
+esac
+
+# Determine what OS we are running so we know whether or not to 
+# declare some things extern "C". Also helpful for some Cygwin
+# and Ultrix specific calls. 
+
+LD_EXTRA_FLAGS=""
+AC_MSG_CHECKING([for supported OS])
+case $host_os in
+  *cygwin* ) 
+	AC_DEFINE(CYGWIN, 1, [Set to 1 if Cygwin environment])
+	AC_MSG_RESULT([Cygwin])
+
+ 	AC_MSG_CHECKING(static libraries okay to build on Cygwin)
+	dirs=". Replace Scripts Utility Display Exception Xamine Tape EventSource TCL Events Gates Sorter SpectrumIO SpecTcl contrib doc Filter"
+	echo ""
+	for dir in $dirs ; do
+  	  echo -n "  **Entering directory $dir..."
+   	  sed 's/\.lo/.o/g' < $dir/Makefile.in > $dir/Makefile2.in
+   	  sed 's/_la_/_a_/g' < $dir/Makefile2.in > $dir/Makefile3.in
+   	  sed 's/LTLIBRARIES/LIBRARIES/g' < $dir/Makefile3.in > $dir/Makefile2.in
+   	  sed 's/\.la/.a/g' < $dir/Makefile2.in > $dir/Makefile3.in
+   	  sed 's/$(LIBTOOL)  --mode=install //g' < $dir/Makefile3.in > $dir/Makefile2.in
+   	  sed 's/$(LIBTOOL)  --mode=uninstall //g' < $dir/Makefile2.in > $dir/Makefile3.in
+   	  sed 's/$(LIBTOOL) --mode=compile //g' < $dir/Makefile3.in > $dir/Makefile2.in
+   	  sed 's/$(LTCXXCOMPILE)/$(CXXCOMPILE)/g' < $dir/Makefile2.in > $dir/Makefile3.in
+   	  sed 's/$(LTCOMPILE)/$(COMPILE)/g' < $dir/Makefile3.in > $dir/Makefile2.in
+   	  sed 's/$(LIBTOOL) --mode=link //g' < $dir/Makefile2.in > $dir/Makefile3.in
+	  sed 's/-rpath//g' < $dir/Makefile.in >$dir/Makefile2.in
+	  mv -f $dir/Makefile2.in $dir/Makefile.in
+	  rm -f $dir/Makefile2.in
+
+	  # If we don't do this, make will try to recreate the makefile
+	  touch $dir/Makefile
+  	echo " done!"
+	done
+	AC_MSG_RESULT([Done removing libtool-specific commands!])
+
+	# Windows doesn't allow undefined symbols at link time
+	LD_EXTRA_FLAGS="$LD_EXTRA_FLAGS -no-undefined"
+	;;
+  *linux* )
+	AC_DEFINE(LINUX, 1, [Set to 1 if Linux environment])
+	AC_MSG_RESULT([Linux])
+	;;
+  *ultrix* )
+	AC_DEFINE(ULTRIX, 1, [Set to 1 if Ultrix environment])
+	AC_MSG_RESULT([Ultrix])
+	;;
+  *osf* )
+	AC_DEFINE(OSF, 1, [Set to 1 if OSF environment])
+	AC_MSG_RESULT([OSF1])
+	WCHAR_T_DEF=-D_WCHAR_T
+	OBJEXT=o
+
+	# Missing on OSF1 for some reason
+	AC_SUBST(OBJEXT)
+
+	# This does away with "weak symbol" warnings
+	LD_EXTRA_FLAGS="$LD_EXTRA_FLAGS -Wl,\"-S\""
+	;;
+  *darwin* )
+	AC_DEFINE(DARWIN, 1, [Set to 1 if Darwin environment])
+	AC_MSG_RESULT([Darwin])
+	;;
+  * )
+	AC_MSG_RESULT([ok])
+	;;
+esac
+
+# Locate Tcl/Tk and setup compile/link switches for them too:
+
+#  TCL headers:
+#    We know of a few places the headers can live:
+#       /usr/include              redhat linux.
+#       /usr/include/tcl          debian dude that made  link to default tcl.
+#       /usr/include/tcl<version> debian linux
+#       /usr/local/include        default for source based install.
+#       Whatever the user specifies. 
+#        For now, the versions we look for are determined by the
+#        variable tcl_versions  that variable is a list of version 
+#        number specifiers.
+#
+
+tcl_versions="8.4 8.3 8.2 8.1 8.0"     # First match;  so order new -> old.
+tcl_header_dir=""
+AC_MSG_CHECKING([for tcl header directory])
+
+AC_ARG_WITH(tcl-header-dir,
+	[  --with-tcl-header-dir=path Path to tcl headers],
+	[tcl_header_dir=$withval ;
+	tcl_headers_found="yes"],[tcl_headers_found="no"])
+
+
+	# /usr/include/tcl
+
+if test $tcl_headers_found = "no"; then
+   AC_CHECK_FILE([/usr/include/tcl/tcl.h],
+	[tcl_header_dir="/usr/include/tcl"
+	tcl_headers_found="yes"])
+fi
+
+	# /usr/include/tcl<version>
+
+if test $tcl_headers_found = "no" ; then
+ for version in ${tcl_versions};  do
+   if test $tcl_headers_found = "no" ; then   # stop at first match
+      testdir=/usr/include/tcl${versions}
+      AC_CHECK_FILE([${testdir}/tcl.h],
+	[tcl_header_dir=${testdir}
+	 tcl_headers_found="yes"])
+   fi
+ done
+fi
+
+      # /usr/local/include
+
+if test $tcl_headers_found = "no"; then
+   AC_CHECK_FILE([/usr/local/include/tcl.h],
+	[tcl_header_dir="/usr/local/include/tcl"
+	tcl_headers_found="yes"])
+fi
+
+	# /usr/include
+
+if test $tcl_headers_found = "no"; then
+   AC_CHECK_FILE([/usr/include/tcl.h],
+	[tcl_header_dir="/usr/include"
+	tcl_headers_found="yes"])
+fi
+
+if test $tcl_headers_found = "yes"; then
+   TCL_FLAGS=-I${tcl_header_dir}
+   AC_MSG_RESULT(Using path $tcl_header_dir)
+else
+   AC_MSG_ERROR([can't find tcl.h try using --with-tcl-header-dir to help me])
+fi
+
+#  Tcl libraries:
+#     We look for the following:
+#      /usr/lib/libtcl.a           - Usually a link to a default lib.
+#      /usr/lib/libtcl<version>.a  - version of tcl from tcl_versions
+#      /usr/local/lib/libtcl.a     - As above but installed from source.
+#      /usr/local/lib<version>.a   - As Above but installed from source.
+#      If --with-tcl-libdir=dir      is supplied, that directory is 
+#                                    searched first.
+# ASSUMPTIONS:  libtcl and libtk will have the same naming conventions.
+#
+
+tcl_libsearchpath=""
+tcl_libfound="no"
+AC_MSG_CHECKING([Tcl/Tk library to use])
+
+	# Does the user want us to look somewhere in particular:
+
+AC_ARG_WITH(tcl-libdir,
+	[  --with-tcl-libdir=dir Specify where the tcl libraries live.],
+	[tcl_libsearchpath=$withval])
+
+tcl_libsearchpath="$tcl_libsearchpath /usr/lib /usr/local/lib"
+
+tcl_libfiles="libtcl.a libtcl.so"
+for v in ${tcl_versions}
+do
+   tcl_libfiles="$tcl_libfiles libtcl${v}.a libtcl${v}.so"
+done
+
+
+for dir in ${tcl_libsearchpath} 
+do
+  for file in ${tcl_libfiles}
+  do
+    fname=$dir/$file
+    if test $tcl_libfound = "no" 
+    then
+      AC_CHECK_FILE($fname,
+	[tcl_libdir=$dir
+         tcl_libname=$file
+	 tcl_libfound="yes"
+	])
+    fi
+  done
+done
+
+if test $tcl_libfound = "yes" ; then
+  # Find the lib basename:
+
+  tcl_libname=$(echo $tcl_libname|cut -c 4- )  # trim off lib 
+  tcl_libname=$(echo $tcl_libname|cut -c -$(expr length $tcl_libname - 2))
+  tcl_libname=$(echo $tcl_libname|tr "." " ")    # trim off "." in .so
+  tk_libname=tk$(echo $tcl_libname|cut -c 4-)   # trim off tc...and use tk
+  TCL_LDFLAGS="-L${tcl_libdir} -l${tk_libname} -l${tcl_libname}"
+  AC_MSG_RESULT([Using directory $tcl_libdir])
+  
+else
+  AC_MSG_ERROR([Unable to find the tcl library, help me out with --with-tcl-libdir])
+fi
+
+# Look for image magick convert
+
+# Try to find ImageMagick's convert program, used for converting postscript
+# files created by Gri into JPEGs or PNGs. This is only useful if Gri is
+# present as well.
+
+AC_CHECK_PROG(have_convert, convert, "yes", "no")
+if test $have_convert = "no" ; then
+	AC_MSG_WARN(Cannot print to JPG or PNG files without ImageMagick convert.)
+else
+	AC_DEFINE(HAVE_CONVERT, 1, [True if ImageMagick's convert is present])
+fi
+
+# Look for Gri to allow production quality printing
+
+# If Gri is present, then printing will be enabled. Also required is the
+# file gri.cmd, which tell's gri how to behave on command files. If Gri
+# is not present, printing will simply be disabled.
+
+# regardless, in order to build the distro, we need to configure
+# our version of gri.
+
+
+AC_ARG_WITH(gri-dir,
+	[  --with-gri-dir=path Path to Gri binary],
+	[gri_dir=$withval ; gri_found="yes"], 
+	[gri_found="no"])
+
+
+if test $gri_found = "no" ; then
+   AC_MSG_CHECKING([for gri...])
+fi
+
+  # /usr/bin
+if test $gri_found = "no" ; then
+   AC_CHECK_FILE([/usr/bin/gri],
+	[gri_dir="/usr/bin";
+	gri_found="yes"])
+fi
+
+  # /usr/local/bin
+if test $gri_found = "no" ; then
+   AC_CHECK_FILE([/usr/local/bin/gri],
+	[gri_dir="/usr/local/bin";
+	gri_found="yes"])
+fi
+  # Installed with SpecTcl:
+
+if test $gri_found = "no" ; then
+   AC_CHECK_FILE([$prefix/share/gri],
+	         [gri_dir=$prefix/bin;
+	         gri_found="yes"])
+fi
+
+  # I give up at this point, if necessary the Gri packaged with SpecTcl is
+  # configured here and built.
+if test $gri_found = "yes" ; then
+   AC_MSG_RESULT([yes])
+   mygri="no"
+   GRI=""
+else
+   AC_MSG_RESULT([Can't find gri. help me out with --with-gri-dir=path])
+   mygri="no"
+   GRI=""
+
+fi
+
+# We need one more file to print, the Gri command file gri.cmd
+# This check is only performed if the above test resulted in yes,
+# that is, if the Gri executable was found.
+
+if test $mygri = "no" ; then
+  AC_ARG_WITH(gri-cmd-dir,
+	[  --with-gri-cmd-dir=path Path to Gri command file],
+	[gri_cmd_dir=$withval ; gri_cmd_found="yes"],
+	[gri_cmd_found="no"])
+
+  # if the user supplied the dir, congratulate them
+  if test $gri_cmd_found = "yes" ; then
+    AC_MSG_CHECKING([for $gri_cmd_dir/gri.cmd])
+  fi
+
+  # $gir_dir (the same directory as the binary)?
+  if test $gri_cmd_found = "no" ; then
+    AC_CHECK_FILE([$gri_dir/gri.cmd],
+	[gri_cmd_dir="$gri_dir"
+	gri_cmd_found="yes"])
+  fi
+
+  # $gri_dir/share/gri (wherever else they may have put gri)
+  if test $gri_cmd_found = "no" ; then
+    AC_CHECK_FILE([$gri_dir/share/gri/gri.cmd],
+	[gri_cmd_dir="$gri_dir/share/gri"
+	gri_cmd_found="yes"])
+  fi
+
+  # /usr/share/gri
+  if test $gri_cmd_found = "no" ; then
+    AC_CHECK_FILE([/usr/share/gri/gri.cmd],
+	[gri_cmd_dir="/usr/share/gri"
+	gri_cmd_found="yes"])
+  fi
+
+  # /usr/local/share/gri (this is the default, I think)
+  if test $gri_cmd_found = "no" ; then
+    AC_CHECK_FILE([/usr/local/share/gri/gri.cmd],
+	[gri_cmd_dir="/usr/local/share/gri"
+	gri_cmd_found="yes"])
+  fi
+
+  # Packaged with a prior installation of our internal gri?
+  if test $gri_cmd_found = "no";
+  then
+    AC_CHECK_FILE([$prefix/share/gri.cmd],
+	[gri_cmd_dir="$prefix/share/gri"
+	gri_cmd_found="yes"])
+  fi
+
+  # I give up at this point
+  if test $gri_cmd_found = "no" ; then
+    AC_MSG_RESULT([can't find file gri.cmd: try using --with-gri-cmd-dir to help me out])
+    AC_MSG_WARN(Can't find gri.cmd. Printing will be disabled!)
+  else
+    AC_DEFINE(HAVE_GRI, 1, [True if Gri is present on system])
+  fi
+else
+   gri_cmd_dir=${prefix}/share/gri
+fi
+
+# tcl/tk
+AC_SUBST(TCL_FLAGS)
+AC_SUBST(TCL_LDFLAGS)
+
+# X flags
+AC_SUBST(XINCLUDES)
+AC_SUBST(XLIBSW)
+AC_SUBST(CFLAGS)
+
+# Motif flags
+AC_SUBST(MOTIF_INCLUDES)
+AC_SUBST(MOTIF_LIBSW)
+AC_SUBST(XTLIBSW)
+
+# Gri directories
+AC_SUBST(gri_dir)
+AC_SUBST(gri_cmd_dir)
+
+# Tru64 specific
+AC_SUBST(WCHAR_T_DEF)
+AC_SUBST(LD_EXTRA_FLAGS)
+
+AC_SUBST(ac_aux_dir)
+
+# LIBOBJS and LTLILBOBJS set
+AC_SUBST(LTLIBOBJS)
+
+
+# create output files.
+
+
+AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
+	Display/Makefile Exception/Makefile  Xamine/Makefile Tape/Makefile \
+	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
+	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
+	 SpecTcl/Makefile \
+	TestFiles/Makefile contrib/Makefile doc/Makefile)
