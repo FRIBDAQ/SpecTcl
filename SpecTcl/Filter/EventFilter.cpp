@@ -110,8 +110,8 @@ CEventFilter::Enable() {
 
 /*!
    Disable the filter.  This involves:
-   - Destroying any existing filter.
-   - Setting the filter pointer to null.
+   - Destroying any existing filter file stream.
+   - Setting the filter file stream pointer to null.
    - Setting the enable flag false.
 
 */
@@ -245,7 +245,8 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
    if(!m_pOutputEventStream) return;
    
    int nParams = m_vParameterIds.size();
-   int nBitmaskwords = ((nParams + sizeof(unsigned) - 1) / sizeof(unsigned));
+   int nBitmaskwords = ((nParams + sizeof(unsigned)*8 - 1) /
+			(sizeof(unsigned)*8)); // Assumes 8 bits/byte
    unsigned Bitmask[nBitmaskwords];
 
    for(int i = 0; i < nBitmaskwords; i++) {
@@ -280,7 +281,7 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
    // Write the bitmask:
    
    for(int i =0; i < nBitmaskwords; i++) {
-      *m_pOutputEventStream << Bitmask;
+      *m_pOutputEventStream << Bitmask[i];
    }
    
    // Write the valid parameters:
