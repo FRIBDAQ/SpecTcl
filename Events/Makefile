@@ -109,41 +109,36 @@ NSCLBufferDecoder.o: ./BufferTranslator.h TranslatorPointer.h
 NSCLBufferDecoder.o: EventFormatError.h /usr/include/assert.h
 NSCLBufferDecoder.o: /usr/include/features.h /usr/include/sys/cdefs.h
 NSCLBufferDecoder.o: /usr/include/gnu/stubs.h /usr/include/stdlib.h
-NSCLBufferDecoder.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-NSCLBufferDecoder.o: /usr/include/sys/types.h /usr/include/bits/types.h
-NSCLBufferDecoder.o: /usr/include/time.h /usr/include/endian.h
-NSCLBufferDecoder.o: /usr/include/bits/endian.h /usr/include/sys/select.h
-NSCLBufferDecoder.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-NSCLBufferDecoder.o: /usr/include/sys/sysmacros.h /usr/include/alloca.h
-NSCLBufferDecoder.o: /usr/include/string.h
+NSCLBufferDecoder.o: /usr/include/stddef.h /usr/include/sys/types.h
+NSCLBufferDecoder.o: /usr/include/bits/types.h /usr/include/time.h
+NSCLBufferDecoder.o: /usr/include/endian.h /usr/include/bits/endian.h
+NSCLBufferDecoder.o: /usr/include/sys/select.h /usr/include/bits/select.h
+NSCLBufferDecoder.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
+NSCLBufferDecoder.o: /usr/include/alloca.h /usr/include/string.h
 RunControl.o: RunControl.h /usr/include/assert.h /usr/include/features.h
 RunControl.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
 TCLRunFileHandler.o: TCLRunFileHandler.h RunControl.h TKRunControl.h
 TCLRunFileHandler.o: /usr/include/tcl.h /usr/include/stdio.h
 TCLRunFileHandler.o: /usr/include/features.h /usr/include/sys/cdefs.h
-TCLRunFileHandler.o: /usr/include/gnu/stubs.h
-TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-TCLRunFileHandler.o: /usr/include/bits/types.h /usr/include/libio.h
-TCLRunFileHandler.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-TCLRunFileHandler.o: /usr/include/tk.h /usr/include/X11/Xlib.h
-TCLRunFileHandler.o: /usr/include/sys/types.h /usr/include/time.h
-TCLRunFileHandler.o: /usr/include/endian.h /usr/include/bits/endian.h
-TCLRunFileHandler.o: /usr/include/sys/select.h /usr/include/bits/select.h
-TCLRunFileHandler.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
-TCLRunFileHandler.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
-TCLRunFileHandler.o: /usr/include/X11/Xosdefs.h
+TCLRunFileHandler.o: /usr/include/gnu/stubs.h /usr/include/stddef.h
+TCLRunFileHandler.o: /usr/include/stdarg.h /usr/include/bits/types.h
+TCLRunFileHandler.o: /usr/include/libio.h /usr/include/_G_config.h
+TCLRunFileHandler.o: /usr/include/bits/stdio_lim.h /usr/include/tk.h
+TCLRunFileHandler.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
+TCLRunFileHandler.o: /usr/include/time.h /usr/include/endian.h
+TCLRunFileHandler.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+TCLRunFileHandler.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+TCLRunFileHandler.o: /usr/include/sys/sysmacros.h /usr/include/X11/X.h
+TCLRunFileHandler.o: /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h
 TKRunControl.o: TKRunControl.h /usr/include/tcl.h /usr/include/stdio.h
 TKRunControl.o: /usr/include/features.h /usr/include/sys/cdefs.h
-TKRunControl.o: /usr/include/gnu/stubs.h
-TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stddef.h
-TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.2/include/stdarg.h
-TKRunControl.o: /usr/include/bits/types.h /usr/include/libio.h
-TKRunControl.o: /usr/include/_G_config.h /usr/include/bits/stdio_lim.h
-TKRunControl.o: /usr/include/tk.h /usr/include/X11/Xlib.h
-TKRunControl.o: /usr/include/sys/types.h /usr/include/time.h
-TKRunControl.o: /usr/include/endian.h /usr/include/bits/endian.h
-TKRunControl.o: /usr/include/sys/select.h /usr/include/bits/select.h
-TKRunControl.o: /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h
-TKRunControl.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
-TKRunControl.o: /usr/include/X11/Xosdefs.h
+TKRunControl.o: /usr/include/gnu/stubs.h /usr/include/stddef.h
+TKRunControl.o: /usr/include/stdarg.h /usr/include/bits/types.h
+TKRunControl.o: /usr/include/libio.h /usr/include/_G_config.h
+TKRunControl.o: /usr/include/bits/stdio_lim.h /usr/include/tk.h
+TKRunControl.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
+TKRunControl.o: /usr/include/time.h /usr/include/endian.h
+TKRunControl.o: /usr/include/bits/endian.h /usr/include/sys/select.h
+TKRunControl.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
+TKRunControl.o: /usr/include/sys/sysmacros.h /usr/include/X11/X.h
+TKRunControl.o: /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h
