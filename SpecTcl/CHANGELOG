@@ -212,3 +212,9 @@ January 12, 2005
       leave postpended data if they were larger.
 January 13, 2005
     - Xamine superposition fix for id's > 999
+January 26, 2005
+    - Fix problem with long spectrum names:
+      o Xamine's truncation was making CHistogrammer::UnbindFromDisplay
+        assert fail.
+      o Xamine was not putting up the correct spectrum list due to a buffer
+        overflow problem in spectra.cc

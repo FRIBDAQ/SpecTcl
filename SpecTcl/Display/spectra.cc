@@ -331,7 +331,7 @@ spec_shared *spectra;
 ** Local storage:
 */
 
-typedef char chooser_name[80];
+typedef char chooser_name[128];
 chooser_name names[DISPLAY_MAXSPEC];
 char *(namelist[DISPLAY_MAXSPEC]);
 
