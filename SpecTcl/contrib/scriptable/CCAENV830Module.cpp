@@ -315,7 +315,8 @@ CCAENV830Module::CCAENV830Module(CTCLInterpreter& rInterp,
  */
 
 CCAENV830Module::~CCAENV830Module()
-{}
+{
+}
 /*!
    Get the module type.
    \return string

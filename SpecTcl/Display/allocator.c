@@ -236,7 +236,7 @@ void alloc_free(arenaid arena_id, caddr_t storage)
   /* with prior->next if possible.                                       */
   {
     char *p = (char *)prior;
-    p += sizeof(node);
+    p += st_node->size + sizeof(node);
     if ((node *)p == st_node) {
       prior->size += st_node->size + sizeof(node); /* Coalesce and */
       st_node = prior;		/* Fake out the code to come. */
@@ -249,7 +249,7 @@ void alloc_free(arenaid arena_id, caddr_t storage)
     /* Now we attempt to coalesce st_node and st_node->next */
     
     p = (char *)st_node;
-    p += sizeof(node);
+    p += st_node->size + sizeof(node);
     if(p == (char *)st_node->next) {	/* If st_node is last then this is never true */
       st_node->size += st_node->next->size + sizeof(node);
       st_node->next  = st_node->next->next;
