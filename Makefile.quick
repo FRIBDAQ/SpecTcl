@@ -4,6 +4,7 @@ system:
 			make install INSTDIR=$(INSTDIR) OS=$(OS) )
 	(cd Display;   make INSTDIR=$(INSTDIR) OS=$(OS); \
 	               make install INSTDIR=$(INSTDIR)  OS=$(OS))
+	(cd Gri;       ./configure; make)
 	(cd Exception; make INSTDIR=$(INSTDIR) OS=$(OS); \
 		       make INSTDIR=$(INSTDIR) install OS=$(OS))
 	(cd Xamine;    make INSTDIR=$(INSTDIR) OS=$(OS); \
