@@ -3,15 +3,17 @@
 */
 
 // Copyright Notice.
-static const char* Copyright = 
-"GatedEventFilter.cpp: Copyright 2002 NSCL, All rights reserved\n";
+static const char* Copyright =
+  "GatedEventFilter.cpp: Copyright 2002 NSCL, All rights reserved\n";
 
 // Header Files.
 #include <vector>
+
 #include "Histogrammer.h"
 #include "Parameter.h"
 #include "Event.h"
 #include "EventList.h"
+
 #include "GatedEventFilter.h"
 
 // Functions.
@@ -31,6 +33,23 @@ CGatedEventFilter::CGatedEventFilter(const CGatedEventFilter& rRhs) {
 CGatedEventFilter::~CGatedEventFilter() {}
 
 // Operators.
+// NOTE: There is a !BUG! in CEventList::end(). There may be null events before the end.
+void CGatedEventFilter::operator()(CEventList& rEventList) {
+  for(CEventListIterator i = rEventList.begin(); i != rEventList.end(); i++) {
+    if((*i) != (CEvent*)kpNULL) { // Check to ensure that the event is valid.
+      operator()(**i);
+    } else { // Invalid event received.
+      break; // Break out immediately - The rest are null too.
+    }
+  }
+}
+
+void CGatedEventFilter::operator()(CEvent& rEvent) {
+  if(CheckCondition(rEvent)) {
+    FormatOutputEvent(rEvent);
+  }
+}
+
 /*
 CGatedEventFilter& CGatedEventFilter::operator=(const CGatedEventFilter& rRhs) {
   m_pGateContainer = rRhs.m_pGateContainer;
@@ -67,29 +86,16 @@ UInt_t CGatedEventFilter::getGateID() {
   return m_pGateContainer->getNumber();
 }
 
-Bool_t CGatedEventFilter::CheckCondition(CEvent& rEvent, const vector<UInt_t>& vParameterIds) {
+Bool_t CGatedEventFilter::CheckCondition(CEvent& rEvent) { //, const vector<UInt_t>& vParameterIds) {
   /*
     Note: CGateContainer always points to a gate, even if it is invalid. Also, we do not need to use getGate(). We simply just pass the event to the function call operator of the gate container. Furthermore, CGateContainer returns whether the event passed the gate so we can simply return this output without having to check the condition using inGate, CheckGate, or whatever else. Simple, complete, concise.
   */
-  return (m_pGateContainer->getGate())->inGate(rEvent, vParameterIds);
+  return (m_pGateContainer->getGate())->inGate(rEvent, m_vParameterIds);
 }
 
-void CGatedEventFilter::FormatOutputEvent(CEvent& rEvent, const vector<UInt_t>& vParameterIds) {
-  Bool_t passed = kfTRUE;
-  UInt_t i = 0;
-
+void CGatedEventFilter::FormatOutputEvent(CEvent& rEvent) { //, const vector<UInt_t>& vParameterIds) {
   // Check to see if event passes all parameters upon which it is being filtered.
-  /*
-  while(passed && i<m_vParameterIds.size()) {
-    if(CheckCondition(rEvent, vParameterIds)) {
-      passed = passed && true; // All previous checks must have passed to pass now.
-    } else {
-      passed = kfFALSE;
-    }
-    i++;
-  }
-  */
-  if(m_pOutputEventStream && CheckEnabled() && CheckCondition(rEvent, vParameterIds)) { // If all set up and the event passes the filter ...
+  if((m_pOutputEventStream!=(COutputEventStream*)kpNULL) && CheckEnabled() && CheckCondition(rEvent)) { //, m_vParameterIds)) { // If all set up and the event passes the filter ...
     // Write to COutputEventStream,
     m_pOutputEventStream->ReceiveEvent(rEvent);
   } else {

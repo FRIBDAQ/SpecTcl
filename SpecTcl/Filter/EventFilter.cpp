@@ -7,13 +7,15 @@ static const char* Copyright =
   "EventFilter.cpp: Copyright 2002 NSCL, All rights reserved\n";
 
 // Header Files.
-#include "EventFilter.h"
-#include "OutputEventStream.h"
 #include <vector>
+
 #include "Histogrammer.h"
 #include "Parameter.h"
 #include "Event.h"
 #include "EventList.h"
+
+#include "EventFilter.h"
+#include "OutputEventStream.h"
 
 // Constructors.
 CEventFilter::CEventFilter() :
@@ -29,13 +31,19 @@ CEventFilter::CEventFilter(COutputEventStream& rOutputEventStream) :
 CEventFilter::~CEventFilter() {}
 
 // Operators.
+/*
 void CEventFilter::operator()(CEventList& rEvents) {
-  for(int i=0; i<rEvents.size(); i++) {
-    if(CheckCondition(*rEvents[i])) { // CAREFUL!!! ***************************
-      FormatOutputEvent(*rEvents[(UInt_t)i]);
-    }
+  for(CEventListIterator i = rEvents.begin(); i != rEvents.end(); i++) {
+    CEventFilter::operator()(**i);
   }
 }
+
+void CEventFilter::operator()(CEvent& rEvent) {
+  if(CheckCondition(rEvent)) { // CAREFUL!!! ***************************
+    FormatOutputEvent(rEvent);
+  }
+}
+*/
 
 CEventFilter& CEventFilter::operator=(const CEventFilter& rRhs) {
   return *this;
@@ -75,7 +83,8 @@ Bool_t CEventFilter::CheckCondition(CEvent& rEvent) {
 }
 
 void CEventFilter::FormatOutputEvent(CEvent& rEvent) {
-  (*m_pOutputEventStream).ReceiveEvent(rEvent); // rOutputEventStream undeclared. Causing problems. *Go over class structure carefully* ************
+  // OVERRIDDEN BY SUB-CLASS.
+  //(*m_pOutputEventStream).ReceiveEvent(rEvent);
 }
 
 COutputEventStream& CEventFilter::AttachOutputEventStream(COutputEventStream& rOutputEventStream) {

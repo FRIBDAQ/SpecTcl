@@ -302,6 +302,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "DataSourcePackage.h"
 #include "GatePackage.h"
 #include "FilterCommand.h"
+#include "EventSinkPipeline.h"
 
 #include "TCLAnalyzer.h"
 
@@ -343,26 +344,6 @@ static const char* kpInstalledBase = INSTALLED_IN; // Preprocessor def.
 static const char* kpAppInitSubDir = "/Etc";
 static const char* kpAppInitFile   = "/SpecTclInit.tcl";
 static const char* kpUserInitFile  = "/SpecTclRC.tcl";
-
-// Filter additions.
-class CFilterCommand : public CTCLProcessor;
-/*
-  class CFilterCommand : public CTCLProcessor {
-  public:
-  CFilterCommand(CTCLInterpreter& rInterp) : CTCLProcessor("filter", &rInterp) {}
-
-  virtual int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, int argc, char** argv);
-  };
-
-  int CFilterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, int argc, char** argv) {
-  rResult = "Echoing the NEW Filter command: ";
-  for(int i=0; i<argc; i++) {
-  rResult.AppendElement(*argv);
-  argv++;
-  }
-  return TCL_OK;
-  }
-*/
 
 // Static attribute storage and initialization for CTclGrammerApp
 
@@ -566,12 +547,12 @@ void CTclGrammerApp::SetLimits()
   If a different data sink object is created, the global
   variable:  gpEventSink must be set to point to it.
 */
-void CTclGrammerApp::CreateHistogrammer()  
-{ 
+void CTclGrammerApp::CreateHistogrammer() {
+  // Make the histogrammer, and immediately point to it and put in the EventSinkPipeline.
   m_pHistogrammer = new CTCLHistogrammer(gpInterpreter, m_nDisplaySize*kn1M);
-  gpEventSink     = m_pHistogrammer;
-  
-}  
+  gpEventSinkPipeline->AddEventSink(*m_pHistogrammer);
+  gpEventSink = m_pHistogrammer;
+}
 
 //  Function: 	
 //    void SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogrammer) 
@@ -589,7 +570,6 @@ void
 CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogrammer)  
 {
   // We need to set up the Xamine event handler however:
-
   m_pXamineEvents = new CXamineEventHandler(gpInterpreter, (CHistogrammer*)gpEventSink);
 }  
 
@@ -610,7 +590,6 @@ CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogramme
 // The internal test data source is a set of 5 gaussian distributions which
 // produce a fixed size event.
 // The distributions are defined below:
-
 //                       Cent.  Sigma  Largest allowed value.
 static CGaussianDistribution d1(512.0, 128.0, 1024.0);
 static CGaussianDistribution d2(256.0,  64.0, 1024.0);
@@ -651,7 +630,8 @@ void CTclGrammerApp::CreateAnalyzer(CEventSink* pSink)
   gpAnalyzer  = m_pAnalyzer;
 
   // The histogrammer is hooked to the analyzer as an event sink:
-  m_pAnalyzer->AttachSink(*gpEventSink);
+  //m_pAnalyzer->AttachSink(*gpEventSink);
+  m_pAnalyzer->AttachSink(*gpEventSinkPipeline);
 }  
 
 //  Function: 	
@@ -835,7 +815,8 @@ int CTclGrammerApp::operator()()
   SetupTestDataSource();
 
   // Create an analyzer and hook the histogrammer to it.
-  CreateAnalyzer(gpEventSink);
+  //CreateAnalyzer(gpEventSink);
+  CreateAnalyzer(gpEventSinkPipeline);
 
   //  Setup the buffer decoder:
   SelectDecoder(*gpAnalyzer);

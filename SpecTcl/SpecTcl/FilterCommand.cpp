@@ -14,6 +14,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Histogrammer.h"
 #include "GateCommand.h"
 #include "FilterCommand.h"
+#include "EventSinkPipeline.h"
 
 // Constructors.
 CFilterCommand::CFilterCommand(CTCLInterpreter& rInterp) : CTCLProcessor("filter", &rInterp) {
@@ -176,10 +177,12 @@ Int_t CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
 	  return TCL_ERROR; // Err out on the first invalid parameter, to be on the safe side of things.
 	}
       }
+
       // We now have the ParameterIds, and all is well. Make the Filter.
       CGatedEventFilter* pGatedEventFilter = new CGatedEventFilter;
       pGatedEventFilter->setGateContainer(*pGateContainer); // Set the Filter's Gate.
       pFilterDictionary->Enter(pFilterName, &(*pGatedEventFilter)); // Put GatedEventFilter in FilterDictionary.
+      gpEventSinkPipeline->AddEventSink((CGatedEventFilter&)*pGatedEventFilter); // Put GatedEventFilter in EventSinkPipeline.
     } else {
       rResult += "Error: Invalid gate (" + std::string(pGateName) + ").";
       return TCL_ERROR;

@@ -1,4 +1,4 @@
-OBJECTS=EventFilter.o FilterDictionary.o GatedEventFilter.o OutputEventStream.o
+OBJECTS=EventFilter.o EventSinkPipeline.o FilterDictionary.o GatedEventFilter.o OutputEventStream.o
 INCLUDEDIRS= -I. -I$(INSTDIR)/Include -I/usr/local/include
 LIBDIRS=-L/usr/local -L. -L$(INSTDIR)/Lib
 ECHO=echo
@@ -32,6 +32,9 @@ libFilter.a: $(OBJECTS)
 
 EventFilter.o: EventFilter.cpp
 	$(COMPILE) EventFilter.cpp
+
+EventSinkPipeline.o: EventSinkPipeline.cpp
+	$(COMPILE) EventSinkPipeline.cpp
 
 FilterDictionary.o: FilterDictionary.cpp
 	$(COMPILE) FilterDictionary.cpp
