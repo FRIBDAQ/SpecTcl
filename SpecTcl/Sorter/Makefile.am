@@ -1,4 +1,5 @@
-INCLUDES = -I. -I../Utility -I../Exception -I../Xamine -I../Gates -I../Events -I../Display @TCL_FLAGS@
+INCLUDES = -I. -I../Utility -I../NSCLException -I../Xamine -I../Gates \
+	   -I../Events -I../Display @TCL_FLAGS@ -I..
 LDADD = -lSorting -lXplus -lGates -lAnalysis -lEventSource -ltclPlus -lException -lXamine -lXt -lX11
 LDFLAGS = -L. @TCL_LDFLAGS@ @XTLIBSW@ @XLIBSW@
 
