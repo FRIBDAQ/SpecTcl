@@ -21,9 +21,7 @@
 ** Includes:
 */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -50,7 +48,7 @@
 
 #ifdef HAVE_SYS_SHM_H
 #include <sys/shm.h>
-#else
+#elif !HAVE_WINDOWS_H
   error No sys/shm.h needed to manipulate shared memory region!
 #endif
 
@@ -117,7 +115,7 @@ static int   Xamine_Memid = -1;
 void killmem()
 #ifdef HAVE_WINDOWS_H
 {
-  UnmapViewOfFile(Xamine_memory);
+  UnmapViewOfFile((PVOID)Xamine_memory);
 }
 #else
 {
@@ -166,6 +164,7 @@ static int genname(char *name)
 static int genmem(char *name, volatile void **ptr, unsigned int size)
 #if HAVE_SHM_OPEN     /* Defined on Darwin */
 {
+  sleep(2);			
   int fd;
   void* pMem;
   fd = shm_open(name,O_RDWR | O_CREAT  ,S_IRUSR | S_IWUSR);
@@ -202,6 +201,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   HANDLE hMapFile;
   void*  pMemory;
   size += getpagesize()*64;
+
   hMapFile = CreateFileMapping((HANDLE)0xffffffff,
 			       (LPSECURITY_ATTRIBUTES)NULL,
 			       (DWORD)PAGE_READWRITE,
@@ -335,8 +335,23 @@ int f77xamine_createsharedmemory_(int *specbytes,volatile Xamine_shared **ptr)
 
 /* C call: */
 
+static void 
+PrintOffsets()
+{
+  Xamine_shared *pShape = 0;
+  printf("(client) offsets into shared mem: \n");
+  printf("  dsp_xy      = %x\n", pShape->dsp_xy);
+  printf("  dsp_titles  = %x\n", pShape->dsp_titles);
+  printf("  dsp_types   = %x\n", pShape->dsp_types);
+  printf("  dsp_map     = %x\n", pShape->dsp_map);
+  printf("  dsp_spectra = %x\n", &(pShape->dsp_spectra));
+  printf("  Total size  = %d\n", sizeof(Xamine_shared));
+
+}
+
 int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
 {
+
   char name[33];
 
   if(!genname(name))		/* Generate the shared memory name. */
@@ -357,7 +372,7 @@ int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
 int Xamine_DetachSharedMemory()
 {
 #ifdef HAVE_WINDOWS_H
-  UnmapViewOfFile(Xamine_memory);
+  UnmapViewOfFile((PVOID)Xamine_memory);
 #else
   return shmdt((const void*)Xamine_memory);
 #endif
@@ -805,6 +820,12 @@ void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, char *title,
   spec  = (unsigned long)loc;
   offset = spec - base;
   offset = offset/bpc;
+
+  printf("---------- describe spectrum\n");
+  printf("  specid = %d\n", spno);
+  printf("  xdim   = %d\n", xdim);
+  printf("  ydim   = %d\n", ydim);
+  printf("  offset = %d\n", offset);
 
   /* Fill in everything but the title... that needs some fancy footwork */
 

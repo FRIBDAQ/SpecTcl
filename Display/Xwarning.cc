@@ -283,9 +283,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Xmain loop, start up the 'old' image of Xamine.
 */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <stdio.h>
 
