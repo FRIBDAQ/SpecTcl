@@ -375,19 +375,20 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     win_2d* pAttrib = (win_2d*)pAttributes;   // the spectrum attributes
     
     // Get the x- and y-axis high and low limits, and the fullscale value...
+    int isFlipped  = pAttrib->isflipped();
     int nXLowLimit  = 0;
-    int nXHighLimit = xdim;
+    int nXHighLimit = (isFlipped ? ydim : xdim);
     int nYLowLimit  = 0;
-    int nYHighLimit = ydim;
+    int nYHighLimit = (isFlipped ? xdim : ydim);
     nFullScale = pAttrib->getfsval();
     float red_max, green_max, blue_max;  // the color to draw sing. chan. peaks
 
     // If spectrum is expanded, we need to adjust the high and low limits
     if(pAttrib->isexpanded()) {
-      nXLowLimit  = pAttrib->xlowlim();
-      nXHighLimit = pAttrib->xhilim();
-      nYLowLimit  = pAttrib->ylowlim();
-      nYHighLimit = pAttrib->yhilim();
+      nXLowLimit  = (isFlipped ? pAttrib->ylowlim() : pAttrib->xlowlim());
+      nXHighLimit = (isFlipped ? pAttrib->yhilim()  : pAttrib->xhilim());
+      nYLowLimit  = (isFlipped ? pAttrib->xlowlim() : pAttrib->ylowlim());
+      nYHighLimit = (isFlipped ? pAttrib->xhilim()  : pAttrib->yhilim());
     }
 
     // Get the pixel limits so we can get the tick mark intervals...
@@ -403,7 +404,6 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     int nMaxCounts = 0;
     int nXMaxChan  = 0,
       nYMaxChan    = 0;
-    int isFlipped  = pAttrib->isflipped();
 
     // If the spectrum is not expanded, then its low limit is zero and we
     // must therefore subtract one from the high limits to avoid reading
