@@ -539,9 +539,9 @@ class Sampler2 {
       xstart[i] = xend[i-1];
       xoff   += xstep;
       xend[i] = (int)(xoff + 0.5);
-      if(xend[i] >= xdim) {	/* Don't let ourselves go over the end. */
+      if(xend[i] > xdim) {	/* Don't let ourselves go over the end. */
 	xsteps = i + 1;
-	xend[i] = xdim-1;
+	xend[i] = xdim;		// We only go to xend-1 on each sample!!
 	break;
       }
     }
