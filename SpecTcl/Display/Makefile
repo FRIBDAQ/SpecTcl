@@ -157,13 +157,13 @@ DISP_SHARED: spectra.o
 spectra.o: spectra.cc dispshare.h
 	$(CPP) $(XCCFLAGS) spectra.cc
 
-MOTIF_LIB: XMcallback.o XMMenus.o XMDialogs.o XMManagers.o XMWlist.o \
+MOTIF_LIB: XMCallback.o XMMenus.o XMDialogs.o XMManagers.o XMWlist.o \
 	XMShell.o copier.o
 	touch MOTIF_LIB
 	echo "MOTIF Library built"
 
-XMcallback.o: XMcallback.cc XMWidget.h
-	$(CPP) $(XCCFLAGS) XMcallback.cc
+XMCallback.o: XMCallback.cc XMWidget.h
+	$(CPP) $(XCCFLAGS) XMCallback.cc
 
 XMMenus.o: XMMenus.cc XMWidget.h XMPushbutton.h XMMenus.h
 	$(CPP) $(XCCFLAGS) XMMenus.cc
@@ -173,7 +173,7 @@ Xamine: Xamine.o \
 	 WINDOW_FILE \
 	 XAMINE_FILES \
 	GROBJ_FILE
-	$(LD) -o Xamine Xamine.o XMcallback.o XMMenus.o XMDialogs.o \
+	$(LD) -o Xamine Xamine.o XMCallback.o XMMenus.o XMDialogs.o \
 	XMManagers.o XMWlist.o XMShell.o \
 	windfile_parse.o windfile_lex.o dispwind.o \
 	menusetup.o exit.o helpmenu.o winiomenu.o grobjiomenu.o \
@@ -251,7 +251,7 @@ COLORSET: colorset colorset.ico
 
 colorset: colorset.o MOTIF_LIB errormsg.o helpmenu.o procede.o colormgr.o
 	$(LD)  -o colorset colorset.o errormsg.o helpmenu.o procede.o \
-	XMDialogs.o XMMenus.o XMcallback.o colormgr.o -lXm -lXt -lX11 \
+	XMDialogs.o XMMenus.o XMCallback.o colormgr.o -lXm -lXt -lX11 \
 	$($(OS)LIB)
 
 colorset.o: colorset.cc XMDialogs.h XMWidget.h XMPushbutton.h XMMenus.h \
@@ -575,7 +575,7 @@ ptlist.o: ptlist.cc errormsg.h dispgrob.h ptlist.h panemgr.h XMWidget.h \
 Xwarning:	Xwarning.o MOTIF_LIB
 	$(LD) $(LDFLAGS) -o Xwarning Xwarning.o  XMMenus.o \
 	XMDialogs.o XMManagers.o XMWlist.o copier.o XMShell.o \
-	errormsg.o helpmenu.o XMcallback.o \
+	errormsg.o helpmenu.o XMCallback.o \
 	-lXm -lXt -lX11 $($(OS)LIB)
 
 Xwarning.o:	Xwarning.cc XMWidget.h XMManagers.h XMLabel.h XMPushbutton.h
@@ -618,7 +618,6 @@ XMManagers.o: XMManagers.h XMWidget.h
 XMMenus.o: XMMenus.h XMWidget.h XMPushbutton.h
 XMShell.o: XMShell.h XMWidget.h XMCallback.h
 XMWlist.o: XMWlist.h XMWidget.h XMPushbutton.h
-XMcallback.o: XMWidget.h
 Xamine.o: XMWidget.h XMPushbutton.h XMMenus.h XMDialogs.h XMManagers.h
 Xamine.o: XMCallback.h dispshare.h dispwind.h superpos.h panemgr.h
 Xamine.o: menusetup.h buttonsetup.h location.h XMLabel.h pkgmgr.h colormgr.h
