@@ -428,3 +428,57 @@ CPointListGate::GetConstituent(CConstituentIterator& rIterator)
   return std::string(Formatted);
   
 }
+/*!
+   Utility function to determine if there was a line crossing between the
+   horizontal ray extended to the left of the point (x,y), and the
+   segment defined by f,s.
+
+
+   Crossing is determined as follows:
+   # If the point is above or below both endpoints, there's no line crossing
+   # If the line enpoints are both to the right of the point there's no
+     crossing for a line extended to the left.
+   # If the line's enpoints are both to the left (and test1 passed) trivially
+     there's a crossing.
+   # If the line's enpoints 'straddle' the x position of the point,
+     the x coordinate of the point on the line at the same y coordinate as
+     the point is computed.  If it's to the left of
+
+   See inGate for information about how this is determined.
+   \param x  (int) X coordinate of the point to check.
+   \param y  (int) Y coordinate of the point to check.
+   \param f (vector<CPoint>::iterator [in]) Iterator to the segment's first point.
+   \param s (vector<CPoint>::iterator[in]) Iterator to the segment's second pt.
+
+   \return 0 if there's no intersection, 1 if there is.
+*/
+int
+CPointListGate::Crosses(int x, int y, 
+		      vector<CPoint>::iterator f,
+		      vector<CPoint>::iterator s)
+{
+
+  int y1 = f->Y();
+  int y2 = s->Y();
+
+  if ((y < y1) && (y < y2)) return 0; // Segement is above point.
+  if ((y >= y1) && (y >= y2)) return 0; // Segment is below point.
+
+  int x1 = f->X();
+  int x2 = s->X();
+
+  if(( x < x1) && (x < x2)) return 0; // Segment is to right of point.
+  if(( x>= x1) && (x >= x2)) return 1; // Segment is wholly left of point.
+
+  // Need to see where the line segment is at y.
+  //
+
+  if(y2 == y1) {
+    return y == y2;		// If flat crosses if on th eline.
+  }
+  float invslope = float(x2 - x1)/float(y2 - y1);
+  float xp = float(x1) + invslope*float(y - y1);
+  return (xp <= float(x));
+
+}
+

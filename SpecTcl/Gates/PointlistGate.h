@@ -423,6 +423,11 @@ public:
   virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
   virtual   Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params
 			  = (const vector<UInt_t>&) 0 ) { }
+
+protected:
+  int       Crosses(int x, int y, 
+		    vector<CPoint>::iterator f,
+		    vector<CPoint>::iterator s); 
 };
 
 #endif
