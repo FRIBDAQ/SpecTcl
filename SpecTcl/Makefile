@@ -25,7 +25,7 @@ LIBDIRS= $($(OS)LIBDIR) -L. -L$(INSTDIR)/Lib -L/usr/local \
 LIBS=   -lTclGrammerCommands  \
 	-lSorting -lXplus -lGates -lAnalysis -lEventSource -lSpecio \
 	-ltclPlus -lException \
-	-lXamine -ltape -ltape \
+	-lXamine -ltape -ltape -lFilter \
 	-ltk -ltcl -lXt -lX11 -lm $($(OS)LIBS)
 
 PROFILE=-g3 -pg
