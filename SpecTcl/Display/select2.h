@@ -308,6 +308,28 @@ struct Select2_CallbackStruct {
   XtPointer       user_data;
 };
 
+// Unbound functions
+void  Xamine_Select2CommonCallback(XMWidget *w,
+				   XtPointer user_d, 
+				   XtPointer call_d);
+
+void Xamine_Select2SetValue(XMTextField *txt, unsigned int val);
+void Xamine_Select2SetFloatValue(XMTextField *txt, float val);
+void Xamine_Select2SetValue2(XMTextField *txt, 
+			     unsigned  x, unsigned  y);
+void Xamine_Select2SetFloatValue2(XMTextField *txt, float x, float y);
+
+int Xamine_Select2GetValue(XMTextField *t);
+int Xamine_Select2Get2Values(XMTextField *t, int *x, int *y);
+
+// Needed to accept mapped axis input coordinates.
+
+float Xamine_Select2GetFloatValue(XMTextField *t);
+void Xamine_Select2Get2FloatValues(XMTextField* t, 
+				   float& x, float&y);
+
+// 2 point graphical input class
+
 class Xamine_Select2 {
  protected:
   XMWidget     *pthis;       /* Root of dialog subhierarchy */
@@ -373,17 +395,6 @@ class Xamine_Select2 {
   }
  
 
-  friend void  Xamine_Select2CommonCallback(XMWidget *w,
-						     XtPointer user_d, 
-						     XtPointer call_d);
-  /* Manipulate the user interface: */
-
-  friend void Xamine_Select2SetValue(XMTextField *txt, unsigned int val);
-  friend void Xamine_Select2SetFloatValue(XMTextField *txt, float val);
-  friend void Xamine_Select2SetValue2(XMTextField *txt, 
-				      unsigned  x, unsigned  y);
-  friend void Xamine_Select2SetFloatValue2(XMTextField *txt, float x, float y);
-
   void SetPoint1(unsigned int value) {
     Xamine_Select2SetValue(pt1_value, value);
   }
@@ -412,21 +423,34 @@ class Xamine_Select2 {
     Xamine_Select2SetFloatValue2(pt2_value, x, y);
   }
 
-  friend int Xamine_Select2GetValue(XMTextField *t);
-  friend int Xamine_Select2Get2Values(XMTextField *t, int *x, int *y);
+
   int GetPoint1() {		/* 1-d getpoint. */
     return Xamine_Select2GetValue(pt1_value);
   }
   int GetPoint1(int *x, int *y) { /* 2-d getpoint. */
     return Xamine_Select2Get2Values(pt1_value, x,y);
   }
+  float GetFloatPoint1() {
+    return Xamine_Select2GetFloatValue(pt1_value);
+  }
+  void GetFloatPoint1(float& x, float& y) {
+      Xamine_Select2Get2FloatValues(pt1_value, x, y);
+  }
+
   int GetPoint2() {		/* 1-d get point. */
     return Xamine_Select2GetValue(pt2_value);
   }
+
   int GetPoint2(int *x, int *y) { /* 2-d getpoint */
     return Xamine_Select2Get2Values(pt2_value, x,y);
   }
-   
+  float GetFloatPoint2() {
+    return Xamine_Select2GetFloatValue(pt2_value);
+  }
+  void GetFloatPoint2(float& x, float& y) {
+    Xamine_Select2Get2FloatValues(pt2_value, x,y);
+  }
+
 
   void SetPoint1Label(char *text) {
     pt1_label->SetLabel(text);
@@ -435,5 +459,6 @@ class Xamine_Select2 {
     pt2_label->SetLabel(text);
   }		    
 };
+
 
 #endif

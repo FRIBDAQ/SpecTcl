@@ -413,6 +413,36 @@ int Xamine_Select2GetValue(XMTextField *t)
   if( (scanf_status != 1) || (value < 0)) value = -1;
   return value;
 }
+/*!
+    Xamine_Select2GetFloatValue returns a single floating point
+    value from a text selection widget.  If the value does
+    not convert to a float, then a const char* exception is thrown
+    describing the event.
+
+    \param t (XMTextField*) Pointer to text field widget that 
+      contains the string we will be converting.
+
+    \return float
+    A single floating point value
+
+    \throw const char* string describing any error condition.
+*/
+float Xamine_Select2GetFloatValue(XMTextField* t)
+{
+  char *text_value;
+  int  status;
+  float value;
+
+  text_value = t->GetText();
+  status = sscanf(text_value, "%f", &value);
+  XtFree(text_value);
+
+  if(status != 1) {
+    throw "Input value did not convert as a floating point number";
+  }
+  return value;
+}
+
 
 /*
 ** Functional Description:
@@ -428,7 +458,8 @@ int Xamine_Select2GetValue(XMTextField *t)
 **   True  - Success.
 **   False - Failure
 */
-int Xamine_Select2Get2Values(XMTextField *t, int *x, int *y)
+int 
+Xamine_Select2Get2Values(XMTextField *t, int *x, int *y)
 {
   char *text_value;
   int  scanf_status;
@@ -450,6 +481,41 @@ int Xamine_Select2Get2Values(XMTextField *t, int *x, int *y)
     return False;
   return True;
 
+}
+/*!
+  Get a pair of floating point values from an input text field.  
+  No restriction is placed on the range of these values (unlike e.g
+  Xamine_Select2Get2Values).    If the conversion fails, a const char*
+  exception is thrown describing the error.
+
+  \param t (XMTextField*)
+     Pointer to the text field widget that contains the string
+     from which we will decode these values.
+  \param x  (float&) 
+     reference to the floating point value into which the x coordinate
+     (first float) is stored.
+  \param y (float&)
+     reference to the floating point value into which the y coordinate
+     (second float) is stored.
+
+   \throw const char*
+     Explanatory error message in the event the conversion of either
+     x or y fails.
+*/
+void
+Xamine_Select2Get2FloatValues(XMTextField* t, float& x, float& y)
+{
+  char *text_value;
+  int  status;
+  
+  text_value = t->GetText();
+  
+  status = sscanf(text_value, "%f %f", &x, &y);
+  XtFree(text_value);
+
+  if(status != 2) {
+    throw "One of the input values was not a floating point number";
+  }
 }
 
 /*

@@ -608,10 +608,11 @@ static void DrawXes(Display *d, Drawable win, GC gc,
     if(flipped) {
        int t;
        switch(o->type()) {
-         case contour_2d:
-	 case summing_region_2d:	/* If necessary flip the axes */
-	 case marker_2d:
-	 case pointlist_2d:
+       case contour_2d:
+       case summing_region_2d:	/* If necessary flip the axes */
+       case marker_2d:
+       case pointlist_2d:
+       case band:
 	    t = sx;
 	    sx= sy;
 	    sy= t;

@@ -318,8 +318,8 @@ int Xamine_XMappedToChan(int specno, float value)
   if(xhi - xlo == 0)
     return -1;
 
-  float step_size = xamine_shared->getxdim(specno) / (xhi - xlo);
-  return (int)((value - xlo + 1) * step_size);
+  float step_size = (float)xamine_shared->getxdim(specno) / (xhi - xlo);
+  return (int)((value - xlo) * step_size);
 }
 
 /*
@@ -345,8 +345,8 @@ int Xamine_YMappedToChan(int specno, float value)
   if(yhi - ylo == 0)
     return -1;
 
-  float step_size = xamine_shared->getydim(specno) / (yhi - ylo);
-  return (int)((value - ylo + 1) * step_size);
+  float step_size = (float)xamine_shared->getydim(specno) / (yhi - ylo);
+  return (int)((value - ylo) * step_size);
 }
 
 /*

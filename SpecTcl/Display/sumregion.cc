@@ -632,8 +632,21 @@ void AcceptSummingRegion::AddPoint(point &pt)
   char pstring[80];
   if(att->ismapped()) {
     float fpx, fpy;
-    fpx = Xamine_XChanToMapped(att->spectrum(), pt.x);
-    fpy = Xamine_YChanToMapped(att->spectrum(), pt.y);
+    if(att->isflipped()) {
+      fpy = Xamine_XChanToMapped(att->spectrum(), pt.y);
+      if(att->is1d()) {
+	fpx = pt.x;
+      } else {
+	fpx = Xamine_YChanToMapped(att->spectrum(), pt.x);
+      }
+    } else {
+      fpx = Xamine_XChanToMapped(att->spectrum(), pt.x);
+      if(att->is1d()) {
+	fpy = pt.y;
+      } else {
+	fpy = Xamine_YChanToMapped(att->spectrum(), pt.y);
+      }
+    }
     sprintf(pstring, "%.1f %.1f", fpx, fpy);
   } else {
     sprintf(pstring, "%d %d", pt.x, pt.y);
@@ -815,7 +828,7 @@ void AcceptSummingRegion::RebuildObject()
 void AcceptSummingRegion::TextPoint()
 {
   char *s = NextPoint->GetText();
-  int    x,y;
+  float    x,y;
 
   /*  Get the spectrum attributes.. needed to validate point values. */
 
@@ -824,10 +837,11 @@ void AcceptSummingRegion::TextPoint()
     UnManage();
     return;
   }
+  int spec = att->spectrum();	// Spectrum id number.
 
   /* Convert the point to numerical equivalents and complain if it won't. */
 
-  if(sscanf(s,"%d %d", &x,&y) != 2) {
+  if(sscanf(s,"%f %f", &x,&y) != 2) {
     XtFree(s);
     Xamine_error_msg(Xamine_Getpanemgr(),
 		     "Please type in a valid pair of coordinates");
@@ -835,14 +849,40 @@ void AcceptSummingRegion::TextPoint()
   }
   XtFree(s);
 
+  // If the points are accepted on a mapped spectrum, they must be transformed
+  // into channel coordinates, since they were entered in real coordinates.
+  // 
+  if(att->ismapped()) {
+    if(att->isflipped()) {
+      // Flipped:  y transforms via the X axis transform:
+
+      y = Xamine_XMappedToChan(spec, y);
+
+      // X is either counts (1d) or transforms via y if 2d:
+
+      if(!att->is1d()) {
+	x = Xamine_YMappedToChan(spec, x);
+      }
+    } else {
+      // Not flipped, x must always transform:
+
+      x = Xamine_XMappedToChan(spec, x);
+      
+      // If a 2-d y must also transform:
+      
+      if(!att->is1d()) {
+	y = Xamine_YMappedToChan(spec, y);
+      }
+    }
+  }
+
   /* Validate the points.  We don't require that the points be inside the
   ** displayed region.  Only that they be inside the spectrum itself.
   */
 
   point pt;
-  int spec = att->spectrum();
-  pt.x = x;			/* Point orientation doesn't change with */
-  pt.y = y;			/* flip. */
+  pt.x = (int)x;			/* Point orientation doesn't change with */
+  pt.y = (int)y;			/* flip. */
 
   if(att->isflipped()) {	/* But for checking we must flip x/y. */
     x = pt.y;
