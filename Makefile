@@ -14,74 +14,42 @@ DarwinMAKESW=-j 4
 
 system:
 	(cd Utility;   \
-	 make system $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make system $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Display;  \
-	 make  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Exception; \
-	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Xamine;    make   INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	(cd Xamine;    make   INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Tape; \
-	 make  $($(OS)MAKESW) OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd EventSource; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd TCL; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Events; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS); PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Gates; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd Sorter;   \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd SpectrumIO; \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd SpecTcl;  \
-	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
+	 make  $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)";
+	make install $($(OS)MAKESW INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
 	(cd TestFiles; \
 	 make $($(OS)MAKESW) INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-
-install: system
-	rm -rf $(INSTDIR)/Include
-	rm -rf $(INSTDIR)/Lib
-	rm -rf $(INSTDIR)/Skel
-	rm -rf $(INSTDIR)/doc
-	rm -rf $(INSTDIR)/Script
-	mkdir -p $(INSTDIR)/Include
-	mkdir -p $(INSTDIR)/Bin
-	mkdir -p $(INSTDIR)/Etc
-	mkdir -p $(INSTDIR)/Lib
-	mkdir -p $(INSTDIR)/Skel
-	mkdir -p $(INSTDIR)/doc
-	mkdir -p $(INSTDIR)/Script
-	mkdir -p $(INSTDIR)/contrib
-	(cd doc; tar cf - . | (cd $(INSTDIR)/doc; tar xf -))
-	(cd contrib; tar cf - .|(cd $(INSTDIR)/contrib; tar xf -))
-	cp Scripts/*.tcl $(INSTDIR)/Script
-	cp Scripts/save.head $(INSTDIR)/Script
-	(cd Utility;   \
-	 make install INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)" )
-	(cd Display;  \
-	  make install INSTDIR=$(INSTDIR)  OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Exception; \
-        make INSTDIR=$(INSTDIR) install OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Xamine;
-	 make install INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Tape; \
-	 make install OS=$(OS) INSTDIR=$(INSTDIR) PROFILE="$(PROFILE)")
-	(cd EventSource; \
-	 make install INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd TCL; \
-	 make install INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Events; \
-	 make install INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Gates; \
-	 make install INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd Sorter;   \
-	 make install INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd SpectrumIO; \
-	 make install INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-	(cd SpecTcl;  \
-	 make install INSTDIR=$(INSTDIR) OS=$(OS) PROFILE="$(PROFILE)")
-
 
 
 clean: 
