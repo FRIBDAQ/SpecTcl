@@ -1,0 +1,2895 @@
+With Class Chart Export File
+X:\SpecTcl\SpecTcl\classbreakdown.omtUnified Method
+
+
+General Info
+Internal Version #, NextClassID, NextClassShapeID, NextRelationShapeID, NextStateID, NextStateShapeID, NextTransitionID, NextTransitionShapeID, NextObjectID, NextObjectShapeID, NextInteractionID, NextInteractionShapeID, NextOperationID, NextAttributeID
+***BEGIN_TABLE***
+4.710911071111111111778247
+***END_TABLE***
+
+Classes
+ClassID, Name, Description, Multiplicity, Concurrency, Visibility, Persistence, FileName, Package, Import File, Author, LibraryBaseClass, Invariant, User1, User2, User3, Stereotype, 
+***BEGIN_TABLE***
+32
+77CApplyCommandX:\SpecTcl\SpecTcl\ApplyCommand.cppCTCLPackagedCommand0000
+78CAttachCommandX:\SpecTcl\SpecTcl\AttachCommand.cppCTCLPackagedCommand0000
+79CBindCommandX:\SpecTcl\SpecTcl\BindCommand.cppCTCLPackagedCommand0000
+80ChannelCommandX:\SpecTcl\SpecTcl\ChanCommand.cppCTCLPackagedCommand0000
+81CClearCommandX:\SpecTcl\SpecTcl\ClearCommand.cppCTCLPackagedCommand0000
+82CDataSourcePackageX:\SpecTcl\SpecTcl\DataSourcePackage.cpp0000
+83CEventProcessorX:\SpecTcl\SpecTcl\EventProcessor.cpp0000
+84GateFactoryTableX:\SpecTcl\SpecTcl\GateCommand.cpp0000
+85CGateCommandX:\SpecTcl\SpecTcl\GateCommand.cppCTCLPackagedCommand0000
+86CGateFactoryX:\SpecTcl\SpecTcl\GateFactory.cpp0000
+87CGateFactoryExceptionX:\SpecTcl\SpecTcl\GateFactoryException.cppCException0000
+88CGatePackageX:\SpecTcl\SpecTcl\GatePackage.cpp0000
+89CMySpecTclAppX:\SpecTcl\SpecTcl\MySpecTclApp.cpp0000
+90CParameterCommandX:\SpecTcl\SpecTcl\ParameterCommand.cppCTCLPackagedCommand0000
+91CParameterPackageX:\SpecTcl\SpecTcl\ParameterPackage.cpp0000
+92CPseudoCommandX:\SpecTcl\SpecTcl\PseudoCommand.cppCTCLPackagedCommand0000
+93CPseudoScriptX:\SpecTcl\SpecTcl\PseudoScript.cppCNamedItem0000
+94StreamEntryX:\SpecTcl\SpecTcl\ReadCommand.cpp0000
+95CReadCommandX:\SpecTcl\SpecTcl\ReadCommand.cppCTCLPackagedCommand0000
+96CRunControlPackageX:\SpecTcl\SpecTcl\RunControlPackage.cpp0000
+97CSpectrumCommandX:\SpecTcl\SpecTcl\SpectrumCommand.cppCTCLPackagedCommand0000
+98CSpectrumPackageX:\SpecTcl\SpecTcl\SpectrumPackage.cpp0000
+99CStartRunX:\SpecTcl\SpecTcl\StartRun.cppCTCLPackagedCommand0000
+100CStopRunX:\SpecTcl\SpecTcl\StopRun.cppCTCLPackagedCommand0000
+101CTapeCommandX:\SpecTcl\SpecTcl\TapeCommand.cppCTCLPackagedCommand0000
+102CTclAnalyzerX:\SpecTcl\SpecTcl\TCLAnalyzer.cpp0000
+103CTclGrammerAppX:\SpecTcl\SpecTcl\TclGrammerApp.cppCTCLApplication1000
+104CTCLHistogrammerX:\SpecTcl\SpecTcl\TCLHistogrammer.cpp0000
+105CUnbindCommandX:\SpecTcl\SpecTcl\UnbindCommand.cppCTCLPackagedCommand0000
+106CUngateCommandX:\SpecTcl\SpecTcl\UngateCommand.cppCTCLPackagedCommand0000
+107CWriteCommandX:\SpecTcl\SpecTcl\WriteCommand.cppCTCLPackagedCommand0000
+108CXamineEventHandlerX:\SpecTcl\SpecTcl\XamineEventHandler.cpp0000
+***END_TABLE***
+
+Class Shape
+ShapeID, PosX, PosY, TopText, MiddleText, BottomText, ClassDataID, ClassType, Abstract, Template, Interface, Final
+***BEGIN_TABLE***
+844020CEventProcessorrEventCEventProcessor:~CEventProcessor:CEventProcessor$:operator=:operator==:OnAttach:OnBegin:OnEnd:OnPause:OnResume83000000
+10350230CTclAnalyzerm_rInterpreter:m_pBuffersAnalyzed:m_pLastSequence:m_pRunNumber:m_pRunTitle:m_pRunState:m_nEventSize:m_lAnalysisPipeline:m_vStatistics:m_vStatisticsIntsCTclAnalyzer:~CTclAnalyzer:CTclAnalyzer$:operator=:OnStateChange:OnPhysics:OnBegin:OnEnd:OnPause:OnResume:AddEventProcessor:IncrementCounter:ClearCounter:SetEventSize:IncrementEventSize:GetEventSize:OnEvent:IncrementVariable:SetVariable:ClearVariable102000000
+8770630CGateFactorym_pHistogrammerCGateFactory:~CGateFactory:CGateFactory$:operator=:operator==:getHistogrammer:setHistogrammer:CreateGate:CreateGate$:CreateGate$$:CreateTrueGate:CreateFalseGate:CreateDeletedGate:CreateBand:CreateContour:CreateBandContour:CreateNotGate:CreateAndGate:CreateOrGate:CreateCut:CreateGammaCut:CreateGammaBand:CreateGammaContour:ParameterToId:NameToSpec:NameToGate:CreateGateList86000000
+10480010CTclGrammerAppm_nDisplaySize:m_nParams:m_nListSize:m_pAnalyzer:m_pHistogrammer:m_pDecoder:m_pRunControl:m_pXamineEvents:m_pRunControlPackage:m_pParameterPackage:m_pSpectrumPackage:m_pDataSourcePackage:m_pGatePackage:m_RCFile:m_TclDisplaySize:m_TclParameterCount:m_TclEventListSizeCTclGrammerApp:~CTclGrammerApp:CTclGrammerApp$:operator=:operator==:getDisplaySize:getParams:getListSize:getAnalyzer:getHistogrammer:getRunControl:getXamineEvents:getRunControlPackage:getParameterPackage:getSpectrumPackage:getDataSourcePackage:getGatePackage:getRCFile:getTclDisplaySize:getTclParameterCount:getTclEventListSize:setDisplaySize:setParams:setListSize:setAnalyzer:setHistogrammer:setRunControl:setXamineEvents:setRunControlPackage:setParameterPackage:setSpectrumPackage:setDataSourcePackage:setGatePackage:setRCFile:setTclDisplaySize:setTclParameterCount:setTclEventListSize:RegisterEventProcessor:BindTCLVariables:SourceLimitScripts:SetLimits:CreateHistogrammer:SelectDisplayer:SetupTestDataSource:CreateAnalyzer:SelectDecoder:CreateAnalysisPipeline:AddCommands:SetupRunControl:SourceFunctionalScripts:UpdateUInt103100000
+1051070410CTCLHistogrammerm_pIntObject:m_Pseudos:nSpectra:nGatesCTCLHistogrammer:~CTCLHistogrammer:CTCLHistogrammer$:operator=:operator==:getInterpreter:getPseudoParameters:setInterpreter:setPseudoParameters:AddPseudo:RemovePseudo:FindPseudo:PseudoBegin:PseudoEnd:PseudoSize104000000
+109108020CXamineEventHandlerm_pInterp:m_pHistogrammer:m_nFd:m_SocketChannelCXamineEventHandler:~CXamineEventHandler:CXamineEventHandler$:operator=:operator==:getHistogrammer:setHistogrammer:Set:Clear:OnGate:OnButton:FindDisplayBinding:CallbackRelay108000000
+90800790CMySpecTclAppCMySpecTclApp:~CMySpecTclApp:CMySpecTclApp$:operator=:operator==:BindTCLVariables:SourceLimitScripts:SetLimits:CreateHistogrammer:SelectDisplayer:SetupTestDataSource:CreateAnalyzer:SelectDecoder:CreateAnalysisPipeline:AddCommands:SetupRunControl:SourceFunctionalScripts89000000
+83183010CDataSourcePackagem_eSourceType:m_pTape:m_pAttachCDataSourcePackage:~CDataSourcePackage:CDataSourcePackage$:operator=:operator==:getSourceType:getTapeCommand:getAttachCommand:setSourceType:setTapeCommand:setAttachCommand:AttachFileSource:AttachTapeSource:AttachPipeSource:OpenSource:CloseSource:OpenNextTapeFile:RewindTape:isTape:isFile:isPipe:IsTest:isOpen82000000
+791940340CAttachCommandrResultCAttachCommand:~CAttachCommand:CAttachCommand$:operator=:operator==:Usage:ParseSwitch78000000
+1021810340CTapeCommandnArgsCTapeCommand:~CTapeCommand:CTapeCommand$:operator=:operator==:Usage:ParseSwitch101000000
+1003922351CStartRunrResultCStartRun:~CStartRun:CStartRun$:operator=:operator==99000000
+962370260CReadCommandnArgsCReadCommand:~CReadCommand:CReadCommand$:operator=:operator==:Usage:NextSwitch:CheckIn:CheckOut:InMap:GetEntry95000000
+952370590StreamEntrypstreamloc:pos:device:inode94000000
+108247040CWriteCommandnArgsCWriteCommand:~CWriteCommand:CWriteCommand$:operator=:operator==:IsFileId:GetFileId:GetFormatter:Usage107000000
+812550200ChannelCommandnArgsChannelCommand:~ChannelCommand:ChannelCommand$:EvalIndex:operator=:operator==:ParseSwitch:Usage80000000
+982490410CSpectrumCommandnArgsCSpectrumCommand:~CSpectrumCommand:CSpectrumCommand$:operator=:operator==:Usage:MatchSwitch:SortSpectraById:SortSpectraByName:VectorToResult:ExtractId:ExtractName97000000
+822480680CClearCommandnArgsCClearCommand:~CClearCommand:CClearCommand$:operator=:operator==:Usage:MatchSwitch81000000
+802650730CBindCommandnArgsCBindCommand:~CBindCommand:CBindCommand$:operator=:operator==:BindAll:ListAll:MatchSwitch:Usage79000000
+992750110CSpectrumPackagem_nNextId:m_pHistogrammer:m_pSpectrum:m_pClear:m_pBind:m_pUnbind:m_pChannel:m_pWrite:m_pReadCSpectrumPackage:~CSpectrumPackage:CSpectrumPackage$:operator=:operator==:getNextId:getHistogrammer:setHistogrammer:setNextId:AllocateId:CreateSpectrum:ListSpectra:ListSpectrum:ListSpectrum$:ClearAll:ClearSubset:ClearSubset$:BindAll:BindList:BindList$:UnbindList:UnbindList$:UnbindXidList:UnbindAll:DeleteList:DeleteList$:DeleteAll:ListBindings:ListBindings$:ListXidBindings:ListAllBindings:GetChannel:SetChannel:Write:Read:DescribeSpectrum:FindDisplayBinding:FindDisplayBinding$:FormatBinding:SpecTypeToText:DataTypeToText:SpectrumType:Datatype:ValidateIndices:UniquifyName:AllParamsExist98000000
+1062880730CUnbindCommandnArgsCUnbindCommand:~CUnbindCommand:CUnbindCommand$:operator=:operator==:Usage:MatchSwitch105000000
+92318020CParameterPackagem_pHistogrammer:m_pParameter:m_pPseudoCParameterPackage:~CParameterPackage:CParameterPackage$:operator=:operator==:getHistogrammer:setHistogrammer:AddParameter:CreateTclParameterList:DeleteParameter:DeleteParameter$:ListParameter:ListParameter$:getParameterInfoListString:AddPseudo:DescribePseudo:DeletePseudo:GetPseudoNames91000000
+933180300CPseudoCommandrResultCPseudoCommand:~CPseudoCommand:CPseudoCommand$:operator=:operator==:Create:List:Delete:Usage:ParseSwitch92000000
+8843060CGateFactoryExceptionm_eReason:m_eGateType:m_svReasonTexts:m_svGateTypeStringsCGateFactoryException:~CGateFactoryException:CGateFactoryException$:operator=:operator==:getm_eReason:getGateType:getReasonTexts:setReason:setGateType:setReasonTexts:ReasonText:ReasonCode:ReasonCodeToText87000000
+9423020CPseudoScriptm_vParameterNames:m_vParameterIds:m_sRawScriptText:m_ScriptProc:m_CallStub:m_pInterpreter:m_fEnabledCPseudoScript:CPseudoScript$:~CPseudoScript:CPseudoScript$$:operator=:operator==:operator!=:getParameterNames:getParameterIds:getRawScriptText:getOutputParameter:getOutputId:getScriptObject:getCallStubObject:getInterpreter:isEnabled:setParameterNames:setParameterIds:setOutputParameter:setOutputId:setInterpreter:setEnabled:AddDependentParameter:AddDependentParameter$:setRawScriptText:ParNamesBegin:ParNamesSize:ParNamesEnd:ParIdsBegin:ParIdsSize:ParIdsEnd:RebuildState:BindOutputParameter93000000
+913340320CParameterCommandrResultCParameterCommand:~CParameterCommand:CParameterCommand$:operator=:operator==:Usage:ParseSwitch:ListParametersById90000000
+1014052511CStopRunrRestulCStopRun:~CStopRun:CStopRun$:operator=:operator==100000000
+865126395CGateCommandnArgs~GateFactoryTable:operator=:operator==:MatchSwitches:Usage:MatchGateType85000000
+855156535GateFactoryTablepGateType:eGateType:fGateList:nParameters:fNoParams84000000
+784956395CApplyCommandrResultCApplyCommand:~CApplyCommand:CApplyCommand$:operator=:operator==:Usage77000000
+1074776395CUngateCommandnArgsCUngateCommand:~CUngateCommand:CUngateCommand$:operator=:operator==:Usage`106000000
+89495635CGatePackagem_pHistogrammer:m_pGateCommand:m_pApplyCommand:m_pUngateCommand:m_nNextIdCGatePackage:~CGatePackage:CGatePackage$:operator=:operator==:getHistogrammer:getGateCommand:getApplyCommand:getUngateCommand:getNextId:setHistogrammer:setGateCommand:setApplyCommand:setUngateCommand:setNextId:AddGate:ListGates:ListGatesById:DeleteGates:DeleteGates$:ApplyGate:ListAppliedGate:Ungate:GateToString:AssignId:SortGateListById88000000
+973930180CRunControlPackagem_pStartRun:m_pStopRun:m_pRunStateCRunControlPackage:~CRunControlPackage:CRunControlPackage$:operator=:operator==:InitializeRunState:StartRun:StopRun:isRunning96000000
+***END_TABLE***
+
+Attributes
+ClassID, ClassName, AttrID, Name, Type, Length, IsStatic, Description, Visibility, MaxVal, MinVal, InitVal, Stereotype, Constraint, IsConstant, IsIndexed, IsUnique, IsNotNull, IsPrimaryKey, IsForeignKey, User1, User2, User3, IsArray, IsFinal, IsWriteProperty, IsReadProperty
+***BEGIN_TABLE***
+77CApplyCommand151rResultCTCLResult&0public0000000000
+78CAttachCommand152rResultCTCLResult&0public0000000000
+79CBindCommand153nArgsint0public0000000000
+80ChannelCommand154nArgsint0public0000000000
+81CClearCommand155nArgsint0public0000000000
+82CDataSourcePackage156m_eSourceTypeSourceType_t0private0000000000
+82CDataSourcePackage157m_pTapeCTapeCommand*0private0000000000
+82CDataSourcePackage158m_pAttachCAttachCommand*0private0000000000
+83CEventProcessor159rEventCEvent&0public0000000000
+84GateFactoryTable160pGateTypechar*0public0000000000
+84GateFactoryTable161eGateTypeCGateFactory::GateType0public0000000000
+84GateFactoryTable162fGateListBool_t0public0000000000
+84GateFactoryTable163nParametersUInt_t0public0000000000
+84GateFactoryTable164fNoParamsBool_t0public0000000000
+85CGateCommand165nArgsint0public0000000000
+86CGateFactory166m_pHistogrammerCHistogrammer*0private0000000000
+87CGateFactoryException167m_eReasonGateFactoryExceptionReason0private0000000000
+87CGateFactoryException168m_eGateTypeCGateFactory::GateType0private0000000000
+87CGateFactoryException169m_svReasonTextschar**1private0000000000
+87CGateFactoryException170m_svGateTypeStringschar**1private0000000000
+88CGatePackage171m_pHistogrammerCHistogrammer*0private0000000000
+88CGatePackage172m_pGateCommandCGateCommand*0private0000000000
+88CGatePackage173m_pApplyCommandCApplyCommand*0private0000000000
+88CGatePackage174m_pUngateCommandCUngateCommand*0private0000000000
+88CGatePackage175m_nNextIdUInt_t1private0000000000
+90CParameterCommand176rResultCTCLResult&0public0000000000
+91CParameterPackage177m_pHistogrammerCTCLHistogrammer*0private0000000000
+91CParameterPackage178m_pParameterCParameterCommand*0private0000000000
+91CParameterPackage179m_pPseudoCPseudoCommand*0private0000000000
+92CPseudoCommand180rResultCTCLResult&0public0000000000
+93CPseudoScript181m_vParameterNamesstring0private0000000000
+93CPseudoScript182m_vParameterIdsUInt_t0private0000000000
+93CPseudoScript183m_sRawScriptTextstring0private0000000000
+93CPseudoScript184m_ScriptProcCTCLObject0private0000000000
+93CPseudoScript185m_CallStubCTCLObject0private0000000000
+93CPseudoScript186m_pInterpreterCTCLInterpreter*0private0000000000
+93CPseudoScript187m_fEnabledBool_t0private0000000000
+94StreamEntry189pstreamlocfstream*0public0000000000
+94StreamEntry190posoff_t0public0000000000
+94StreamEntry191devicedev_t0public0000000000
+94StreamEntry192inodeino_t0public0000000000
+95CReadCommand188nArgsint0public0000000000
+96CRunControlPackage193m_pStartRunCStartRun*0private0000000000
+96CRunControlPackage194m_pStopRunCStopRun*0private0000000000
+96CRunControlPackage195m_pRunStateCTCLVariable*0private0000000000
+97CSpectrumCommand196nArgsint0public0000000000
+98CSpectrumPackage197m_nNextIdUInt_t1protected0000000000
+98CSpectrumPackage198m_pHistogrammerCHistogrammer*0protected0000000000
+98CSpectrumPackage199m_pSpectrumCSpectrumCommand*0protected0000000000
+98CSpectrumPackage200m_pClearCClearCommand*0protected0000000000
+98CSpectrumPackage201m_pBindCBindCommand*0protected0000000000
+98CSpectrumPackage202m_pUnbindCUnbindCommand*0protected0000000000
+98CSpectrumPackage203m_pChannelChannelCommand*0protected0000000000
+98CSpectrumPackage204m_pWriteCWriteCommand*0protected0000000000
+98CSpectrumPackage205m_pReadCReadCommand*0protected0000000000
+99CStartRun206rResultCTCLResult&0public0000000000
+100CStopRun207rRestulCTCLResult&0public0000000000
+101CTapeCommand208nArgsint0public0000000000
+102CTclAnalyzer209m_rInterpreterCTCLInterpreter&0private0000000000
+102CTclAnalyzer210m_pBuffersAnalyzedCTCLVariable*0private0000000000
+102CTclAnalyzer211m_pLastSequenceCTCLVariable*0private0000000000
+102CTclAnalyzer212m_pRunNumberCTCLVariable*0private0000000000
+102CTclAnalyzer213m_pRunTitleCTCLVariable*0private0000000000
+102CTclAnalyzer214m_pRunStateCTCLVariable*0private0000000000
+102CTclAnalyzer215m_nEventSizeUInt_t0private0000000000
+102CTclAnalyzer216m_lAnalysisPipelineEventProcessingPipeline0private0000000000
+102CTclAnalyzer217m_vStatisticsVariableArray0private0000000000
+102CTclAnalyzer218m_vStatisticsIntsInt_t0private0000000000
+103CTclGrammerApp219m_nDisplaySizeUInt_t0private0000000000
+103CTclGrammerApp220m_nParamsUInt_t0private0000000000
+103CTclGrammerApp221m_nListSizeUInt_t0private0000000000
+103CTclGrammerApp222m_pAnalyzerCAnalyzer*0private0000000000
+103CTclGrammerApp223m_pHistogrammerCTCLHistogrammer*0private0000000000
+103CTclGrammerApp224m_pDecoderCNSCLBufferDecoder*0private0000000000
+103CTclGrammerApp225m_pRunControlCTKRunControl*0private0000000000
+103CTclGrammerApp226m_pXamineEventsCXamineEventHandler*0private0000000000
+103CTclGrammerApp227m_pRunControlPackageCRunControlPackage*0private0000000000
+103CTclGrammerApp228m_pParameterPackageCParameterPackage*0private0000000000
+103CTclGrammerApp229m_pSpectrumPackageCSpectrumPackage*0private0000000000
+103CTclGrammerApp230m_pDataSourcePackageCDataSourcePackage*0private0000000000
+103CTclGrammerApp231m_pGatePackageCGatePackage*0private0000000000
+103CTclGrammerApp232m_RCFileCTCLVariable0private0000000000
+103CTclGrammerApp233m_TclDisplaySizeCTCLVariable0private0000000000
+103CTclGrammerApp234m_TclParameterCountCTCLVariable0private0000000000
+103CTclGrammerApp235m_TclEventListSizeCTCLVariable0private0000000000
+104CTCLHistogrammer236m_pIntObjectCTCLInterpreter*0private0000000000
+104CTCLHistogrammer237m_PseudosPseudoParameters0private0000000000
+104CTCLHistogrammer238nSpectraUInt_t0public0000000000
+104CTCLHistogrammer239nGatesUInt_t0public0000000000
+105CUnbindCommand240nArgsint0public0000000000
+106CUngateCommand241nArgsint0public0000000000
+107CWriteCommand242nArgsint0public0000000000
+108CXamineEventHandler243m_pInterpCTCLInterpreter*0private0000000000
+108CXamineEventHandler244m_pHistogrammerCHistogrammer*0private0000000000
+108CXamineEventHandler245m_nFdint0private0000000000
+108CXamineEventHandler246m_SocketChannelTcl_Channel0private0000000000
+***END_TABLE***
+
+Operations
+ClassID, ClassName, OperID, OperName, Return Type, Post Condition, PreCondition, Invariant, Stereotype, Classification, Exception, Transformation, Concurrency, Visibility,  Comment1, Comment2, Comment3, IsStatic, IsConstant, IsPureVirtual, IsVirtual, IsProcedure, IsInline, IsEvent, IsOverride, Message, IsFinal, IsSynchronized, IsNative, IsFriend
+***BEGIN_TABLE***
+77CApplyCommand1332CApplyCommandpublic000010000000
+BEGIN_CODE
+ 
+  
+END_CODE
+77CApplyCommand1333~CApplyCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+77CApplyCommand1334CApplyCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+77CApplyCommand1335operator=CApplyCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+77CApplyCommand1336operator==intpublic000010000000
+BEGIN_CODE
+
+    return CTCLPackagedCommand::operator==(aCApplyCommand);
+  
+END_CODE
+77CApplyCommand1337Usagestringprotected100010000000
+BEGIN_CODE
+
+END_CODE
+78CAttachCommand1338CAttachCommandpublic000010000000
+BEGIN_CODE
+}
+END_CODE
+78CAttachCommand1339~CAttachCommandpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+78CAttachCommand1340CAttachCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+78CAttachCommand1341operator=CAttachCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+78CAttachCommand1342operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return ((CTCLPackagedCommand::operator== (aCAttachCommand)) );
+  
+END_CODE
+78CAttachCommand1343Usagevoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+78CAttachCommand1344ParseSwitchSwitch_tprotected100010000000
+BEGIN_CODE
+
+END_CODE
+79CBindCommand1345CBindCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+79CBindCommand1346~CBindCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+79CBindCommand1347CBindCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+79CBindCommand1348operator=CBindCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+79CBindCommand1349operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (
+	    (CTCLPackagedCommand::operator== (aCBindCommand)) 
+
+	    );
+  
+END_CODE
+79CBindCommand1350BindAllInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+79CBindCommand1351ListAllInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+79CBindCommand1352MatchSwitcheSwitchesprotected100010000000
+BEGIN_CODE
+
+END_CODE
+79CBindCommand1353Usagevoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+80ChannelCommand1354ChannelCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+80ChannelCommand1355~ChannelCommandpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+80ChannelCommand1356ChannelCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+80ChannelCommand1357EvalIndexInt_tprivate000010000000
+BEGIN_CODE
+
+END_CODE
+80ChannelCommand1358operator=ChannelCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+80ChannelCommand1359operator==intpublic010010000000
+BEGIN_CODE
+
+    return CTCLPackagedCommand::operator==(aChannelCommand);
+  
+END_CODE
+80ChannelCommand1360ParseSwitchSwitchesprotected000010000000
+BEGIN_CODE
+
+END_CODE
+80ChannelCommand1361Usagevoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+81CClearCommand1362CClearCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+81CClearCommand1363~CClearCommandpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+81CClearCommand1364CClearCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+81CClearCommand1365operator=CClearCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+81CClearCommand1366operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return ((CTCLPackagedCommand::operator== (aCClearCommand)) );
+  
+END_CODE
+81CClearCommand1367Usagevoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+81CClearCommand1368MatchSwitchSwitchprotected100010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1369CDataSourcePackagepublic000010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1370~CDataSourcePackagepublic000110000000
+BEGIN_CODE
+}
+END_CODE
+82CDataSourcePackage1371CDataSourcePackage$private000010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1372operator=CDataSourcePackage&private000010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1373operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (
+	    (CTCLCommandPackage::operator== (aCDataSourcePackage)) &&
+	    (m_eSourceType == aCDataSourcePackage.m_eSourceType) 
+	    );
+  
+END_CODE
+82CDataSourcePackage1374getSourceTypeSourceType_tpublic010010000000
+BEGIN_CODE
+
+    return m_eSourceType;
+  
+END_CODE
+82CDataSourcePackage1375getTapeCommandCTapeCommand*public010010000000
+BEGIN_CODE
+
+    return m_pTape;
+  
+END_CODE
+82CDataSourcePackage1376getAttachCommandCAttachCommand*public010010000000
+BEGIN_CODE
+
+    return m_pAttach;  
+  
+END_CODE
+82CDataSourcePackage1377setSourceTypevoidprotected000010000000
+BEGIN_CODE
+ 
+    m_eSourceType = am_eSourceType;
+  
+END_CODE
+82CDataSourcePackage1378setTapeCommandvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_pTape= pTape;
+  
+END_CODE
+82CDataSourcePackage1379setAttachCommandvoidprotected000010000000
+BEGIN_CODE
+
+    m_pAttach = pAttach;
+  
+END_CODE
+82CDataSourcePackage1380AttachFileSourceintpublic000010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1381AttachTapeSourceintpublic000010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1382AttachPipeSourceintpublic000010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1383OpenSourceintpublic000010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1384CloseSourceintpublic000010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1385OpenNextTapeFileintpublic000010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1386RewindTapeintpublic000010000000
+BEGIN_CODE
+
+END_CODE
+82CDataSourcePackage1387isTapeBool_tpublic000010000000
+BEGIN_CODE
+ return m_eSourceType == kTapeSource; 
+END_CODE
+82CDataSourcePackage1388isFileBool_tpublic000010000000
+BEGIN_CODE
+ return m_eSourceType == kFileSource; 
+END_CODE
+82CDataSourcePackage1389isPipeBool_tpublic000010000000
+BEGIN_CODE
+ return m_eSourceType == kPipeSource; 
+END_CODE
+82CDataSourcePackage1390IsTestBool_tpublic000010000000
+BEGIN_CODE
+ return m_eSourceType == kTestSource; 
+END_CODE
+82CDataSourcePackage1391isOpenBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+83CEventProcessor1392CEventProcessorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+83CEventProcessor1393~CEventProcessorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+83CEventProcessor1394CEventProcessor$public000010000000
+BEGIN_CODE
+
+END_CODE
+83CEventProcessor1395operator=CEventProcessor&public000010000000
+BEGIN_CODE
+
+END_CODE
+83CEventProcessor1396operator==intpublic010010000000
+BEGIN_CODE
+
+END_CODE
+83CEventProcessor1397OnAttachBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+83CEventProcessor1398OnBeginBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+83CEventProcessor1399OnEndBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+83CEventProcessor1400OnPauseBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+83CEventProcessor1401OnResumeBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+85CGateCommand1402~GateFactoryTablepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+85CGateCommand1403operator=CGateCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+85CGateCommand1404operator==intpublic010010000000
+BEGIN_CODE
+
+    return CTCLPackagedCommand::operator==(aCGateCommand);
+  
+END_CODE
+85CGateCommand1405MatchSwitchesSwitchesprotected100110000000
+BEGIN_CODE
+
+END_CODE
+85CGateCommand1406Usagestringprotected100010000000
+BEGIN_CODE
+
+END_CODE
+85CGateCommand1407MatchGateTypeGateFactoryTable*protected100010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1408CGateFactorypublic000010000000
+BEGIN_CODE
+}
+END_CODE
+86CGateFactory1409~CGateFactorypublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+86CGateFactory1410CGateFactory$public000010000000
+BEGIN_CODE
+
+    m_pHistogrammer = aCGateFactory.m_pHistogrammer;  
+  
+END_CODE
+86CGateFactory1411operator=CGateFactory&public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1412operator==intpublic010010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1413getHistogrammerCHistogrammer*public010010000000
+BEGIN_CODE
+ 
+    return m_pHistogrammer;
+  
+END_CODE
+86CGateFactory1414setHistogrammervoidprotected000010000000
+BEGIN_CODE
+ 
+    m_pHistogrammer = am_pHistogrammer;
+  
+END_CODE
+86CGateFactory1415CreateGateCGate*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1416CreateGate$CGate*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1417CreateGate$$CGate*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1418CreateTrueGateCTrueGate*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1419CreateFalseGateCFalseGate*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1420CreateDeletedGateCDeletedGate*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1421CreateBandCBand*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1422CreateContourCContour*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1423CreateBandContourC2Bands*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1424CreateNotGateCNot*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1425CreateAndGateCAndGate*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1426CreateOrGateCOrGate*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1427CreateCutCCut*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1428CreateGammaCutCGammaCut*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1429CreateGammaBandCGammaBand*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1430CreateGammaContourCGammaContour*public000010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1431ParameterToIdUInt_tprotected010010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1432NameToSpecCSpectrum*protected010010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1433NameToGateCGateContainer&protected010010000000
+BEGIN_CODE
+
+END_CODE
+86CGateFactory1434CreateGateListvoidprotected010010000000
+BEGIN_CODE
+
+END_CODE
+87CGateFactoryException1435CGateFactoryExceptionpublic000010000000
+BEGIN_CODE
+}
+END_CODE
+87CGateFactoryException1436~CGateFactoryExceptionpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+87CGateFactoryException1437CGateFactoryException$public000010000000
+BEGIN_CODE
+
+       
+    m_eReason = aCGateFactoryException.m_eReason;
+    m_eGateType = aCGateFactoryException.m_eGateType;
+     
+  
+END_CODE
+87CGateFactoryException1438operator=CGateFactoryException&public000010000000
+BEGIN_CODE
+
+END_CODE
+87CGateFactoryException1439operator==intpublic010010000000
+BEGIN_CODE
+
+END_CODE
+87CGateFactoryException1440getm_eReasonGateFactoryExceptionReasonpublic010010000000
+BEGIN_CODE
+ return m_eReason;
+  
+END_CODE
+87CGateFactoryException1441getGateTypeCGateFactory::GateTypepublic010010000000
+BEGIN_CODE
+ return m_eGateType;
+  
+END_CODE
+87CGateFactoryException1442getReasonTextschar**public000010000000
+BEGIN_CODE
+ return m_svReasonTexts;
+  
+END_CODE
+87CGateFactoryException1443setReasonvoidprotected000010000000
+BEGIN_CODE
+ m_eReason = am_eReason;
+  
+END_CODE
+87CGateFactoryException1444setGateTypevoidprotected000010000000
+BEGIN_CODE
+ m_eGateType = am_eGateType;
+  
+END_CODE
+87CGateFactoryException1445setReasonTextsvoidprotected100010000000
+BEGIN_CODE
+ m_svReasonTexts = am_svReasonTexts;
+  
+END_CODE
+87CGateFactoryException1446ReasonTextstringpublic000110000000
+BEGIN_CODE
+
+END_CODE
+87CGateFactoryException1447ReasonCodeInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+87CGateFactoryException1448ReasonCodeToTextchar*public100010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1449CGatePackagepublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1450~CGatePackagepublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1451CGatePackage$private000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1452operator=CGatePackage&private000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1453operator==intpublic000010000000
+BEGIN_CODE
+
+    return (CTCLCommandPackage::operator==(aCGatePackage)          &&
+	    (m_pHistogrammer  == aCGatePackage.m_pHistogrammer)   &&
+	    (m_pGateCommand   == aCGatePackage.m_pGateCommand)    &&
+	    (m_pUngateCommand == aCGatePackage.m_pUngateCommand)  &&
+	    (m_nNextId        == aCGatePackage.m_nNextId));
+  
+END_CODE
+88CGatePackage1454getHistogrammerCHistogrammer*public000010000000
+BEGIN_CODE
+ 
+    return m_pHistogrammer;
+  
+END_CODE
+88CGatePackage1455getGateCommandCGateCommand*public010010000000
+BEGIN_CODE
+
+    return m_pGateCommand;
+  
+END_CODE
+88CGatePackage1456getApplyCommandCApplyCommand*public010010000000
+BEGIN_CODE
+ 
+    return m_pApplyCommand;
+  
+END_CODE
+88CGatePackage1457getUngateCommandCUngateCommand*public010010000000
+BEGIN_CODE
+ 
+    return m_pUngateCommand;
+  
+END_CODE
+88CGatePackage1458getNextIdUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nNextId;
+  
+END_CODE
+88CGatePackage1459setHistogrammervoidprotected000010000000
+BEGIN_CODE
+ 
+    m_pHistogrammer = am_pHistogrammer;
+  
+END_CODE
+88CGatePackage1460setGateCommandvoidprotected000010000000
+BEGIN_CODE
+
+    m_pGateCommand = p;
+  
+END_CODE
+88CGatePackage1461setApplyCommandvoidprotected000010000000
+BEGIN_CODE
+
+    m_pApplyCommand = p;
+  
+END_CODE
+88CGatePackage1462setUngateCommandvoidprotected000010000000
+BEGIN_CODE
+
+    m_pUngateCommand = p;
+  
+END_CODE
+88CGatePackage1463setNextIdvoidprotected000010000000
+BEGIN_CODE
+
+    m_nNextId = n;
+  
+END_CODE
+88CGatePackage1464AddGateBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1465ListGatesCTCLStringpublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1466ListGatesByIdCTCLStringpublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1467DeleteGatesBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1468DeleteGates$Bool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1469ApplyGateBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1470ListAppliedGateBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1471UngateBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1472GateToStringstd::stringpublic000010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1473AssignIdUInt_tpublic100010000000
+BEGIN_CODE
+
+END_CODE
+88CGatePackage1474SortGateListByIdvoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1475CMySpecTclApppublic000010000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1476~CMySpecTclApppublic000010000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1477CMySpecTclApp$private000010000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1478operator=CMySpecTclApp&private000010000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1479operator==intprivate010010000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1480BindTCLVariablesvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1481SourceLimitScriptsvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1482SetLimitsvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1483CreateHistogrammervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1484SelectDisplayervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1485SetupTestDataSourcevoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1486CreateAnalyzervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1487SelectDecodervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1488CreateAnalysisPipelinevoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1489AddCommandsvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1490SetupRunControlvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+89CMySpecTclApp1491SourceFunctionalScriptsvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+90CParameterCommand1492CParameterCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+90CParameterCommand1493~CParameterCommandpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+90CParameterCommand1494CParameterCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+90CParameterCommand1495operator=CParameterCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+90CParameterCommand1496operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (
+	    (CTCLPackagedCommand::operator== (aCParameterCommand)) );
+  
+END_CODE
+90CParameterCommand1497Usagevoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+90CParameterCommand1498ParseSwitchSwitchValue_tprotected000010000000
+BEGIN_CODE
+
+END_CODE
+90CParameterCommand1499ListParametersByIdUInt_tprotected000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1500CParameterPackagepublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1501~CParameterPackagepublic000110000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1502CParameterPackage$public000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1503operator=CParameterPackage&public000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1504operator==intpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1505getHistogrammerCTCLHistogrammer&public010010000000
+BEGIN_CODE
+
+    return *m_pHistogrammer;
+  
+END_CODE
+91CParameterPackage1506setHistogrammervoidprotected000010000000
+BEGIN_CODE
+
+    m_pHistogrammer = &rHistogrammer;
+  
+END_CODE
+91CParameterPackage1507AddParameterInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1508CreateTclParameterListCTCLListpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1509DeleteParameterInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1510DeleteParameter$Int_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1511ListParameterInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1512ListParameter$Int_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1513getParameterInfoListStringCTCLStringpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1514AddPseudoInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1515DescribePseudoInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1516DeletePseudoInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+91CParameterPackage1517GetPseudoNamesvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+92CPseudoCommand1518CPseudoCommandpublic000010000000
+BEGIN_CODE
+ 
+  
+END_CODE
+92CPseudoCommand1519~CPseudoCommandpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+92CPseudoCommand1520CPseudoCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+92CPseudoCommand1521operator=CPseudoCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+92CPseudoCommand1522operator==intpublic010010000000
+BEGIN_CODE
+
+    return CTCLPackagedCommand::operator==(aCPseudoCommand);
+  
+END_CODE
+92CPseudoCommand1523CreateInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+92CPseudoCommand1524ListUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+92CPseudoCommand1525DeleteUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+92CPseudoCommand1526Usagevoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+92CPseudoCommand1527ParseSwitchSwitchValue_tprotected000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1528CPseudoScriptpublic000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1529CPseudoScript$public000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1530~CPseudoScriptpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+93CPseudoScript1531CPseudoScript$$public000010000000
+BEGIN_CODE
+ 
+    m_vParameterNames   = aCPseudoScript.m_vParameterNames;
+    m_vParameterIds     = aCPseudoScript.m_vParameterIds;
+    m_sRawScriptText    = aCPseudoScript.m_sRawScriptText;
+    m_ScriptProc        = aCPseudoScript.m_ScriptProc;
+    m_CallStub          = aCPseudoScript.m_CallStub;  
+    m_pInterpreter      = aCPseudoScript.m_pInterpreter;
+    m_fEnabled          = aCPseudoScript.m_fEnabled;
+   
+  
+END_CODE
+93CPseudoScript1532operator=CPseudoScript&public000010000000
+BEGIN_CODE
+
+    if(this != &aCPseudoScript) {
+      CNamedItem::operator=(aCPseudoScript);
+      m_vParameterNames   = aCPseudoScript.m_vParameterNames;
+      m_vParameterIds     = aCPseudoScript.m_vParameterIds;
+      m_sRawScriptText    = aCPseudoScript.m_sRawScriptText;
+      m_ScriptProc        = aCPseudoScript.m_ScriptProc;
+      m_CallStub          = aCPseudoScript.m_CallStub;  
+      m_pInterpreter      = aCPseudoScript.m_pInterpreter;
+      m_fEnabled          = aCPseudoScript.m_fEnabled;
+    }
+    return *this;
+  
+END_CODE
+93CPseudoScript1533operator==intpublic010010000000
+BEGIN_CODE
+
+    return ( CNamedItem::operator==(aCPseudoScript)  &&
+	     (m_vParameterNames   == aCPseudoScript.m_vParameterNames) &&
+	     (m_vParameterIds     == aCPseudoScript.m_vParameterIds)   &&
+	     (m_sRawScriptText    == aCPseudoScript.m_sRawScriptText)  &&
+	     (m_ScriptProc        == aCPseudoScript.m_ScriptProc)      &&
+	     (m_CallStub          == aCPseudoScript.m_CallStub)        &&
+	     (m_pInterpreter      == aCPseudoScript.m_pInterpreter)    &&
+	     (m_fEnabled          == aCPseudoScript.m_fEnabled) );
+     
+  
+END_CODE
+93CPseudoScript1534operator!=intpublic010010000000
+BEGIN_CODE
+
+    return !(operator==(aCPseudoScript));
+  
+END_CODE
+93CPseudoScript1535getParameterNamesstringpublic010010000000
+BEGIN_CODE
+ return m_vParameterNames;
+  
+END_CODE
+93CPseudoScript1536getParameterIdsUInt_tpublic010010000000
+BEGIN_CODE
+ return m_vParameterIds;
+  
+END_CODE
+93CPseudoScript1537getRawScriptTextstringpublic010010000000
+BEGIN_CODE
+ return m_sRawScriptText;
+  
+END_CODE
+93CPseudoScript1538getOutputParameterstringpublic010010000000
+BEGIN_CODE
+ return getName();;
+  
+END_CODE
+93CPseudoScript1539getOutputIdUInt_tpublic010010000000
+BEGIN_CODE
+ return getNumber();
+  
+END_CODE
+93CPseudoScript1540getScriptObjectCTCLObject&public000010000000
+BEGIN_CODE
+ return m_ScriptProc;
+  
+END_CODE
+93CPseudoScript1541getCallStubObjectCTCLObject&public000010000000
+BEGIN_CODE
+ return m_CallStub;
+  
+END_CODE
+93CPseudoScript1542getInterpreterCTCLInterpreter*public010010000000
+BEGIN_CODE
+ return m_pInterpreter;
+  
+END_CODE
+93CPseudoScript1543isEnabledBool_tpublic010010000000
+BEGIN_CODE
+
+    return m_fEnabled;
+  
+END_CODE
+93CPseudoScript1544setParameterNamesvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_vParameterNames = am_vParameterNames;
+    RebuildState();
+  
+END_CODE
+93CPseudoScript1545setParameterIdsvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_vParameterIds = am_vParameterIds;
+    RebuildState();
+  
+END_CODE
+93CPseudoScript1546setOutputParametervoidprotected000010000000
+BEGIN_CODE
+ 
+    setName(am_sOutputParameter);
+  
+END_CODE
+93CPseudoScript1547setOutputIdvoidprotected000010000000
+BEGIN_CODE
+ 
+    setNumber(am_nOutputId);
+  
+END_CODE
+93CPseudoScript1548setInterpretervoidprotected000010000000
+BEGIN_CODE
+ 
+    m_pInterpreter = am_pInterpreter;
+  
+END_CODE
+93CPseudoScript1549setEnabledvoidprotected000010000000
+BEGIN_CODE
+
+    m_fEnabled = newvalue;
+  
+END_CODE
+93CPseudoScript1550AddDependentParametervoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1551AddDependentParameter$voidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1552setRawScriptTextvoidpublic000010000000
+BEGIN_CODE
+ 
+    m_sRawScriptText = am_sRawScriptText;
+    RebuildState();
+  
+END_CODE
+93CPseudoScript1553ParNamesBeginstring::iteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1554ParNamesSizeUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1555ParNamesEndstring::iteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1556ParIdsBeginUInt_t::iteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1557ParIdsSizeUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1558ParIdsEndUInt_t::iteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1559RebuildStatevoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+93CPseudoScript1560BindOutputParametervoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+95CReadCommand1561CReadCommandpublic000010000000
+BEGIN_CODE
+ 
+  
+END_CODE
+95CReadCommand1562~CReadCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+95CReadCommand1563CReadCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+95CReadCommand1564operator=CReadCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+95CReadCommand1565operator==intpublic010010000000
+BEGIN_CODE
+
+END_CODE
+95CReadCommand1566Usagevoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+95CReadCommand1567NextSwitchSwitch_tprotected100010000000
+BEGIN_CODE
+
+END_CODE
+95CReadCommand1568CheckInvoidprivate000010000000
+BEGIN_CODE
+
+END_CODE
+95CReadCommand1569CheckOutfstream*private000010000000
+BEGIN_CODE
+
+END_CODE
+95CReadCommand1570InMapboolprivate000010000000
+BEGIN_CODE
+
+END_CODE
+95CReadCommand1571GetEntryvoidprivate000010000000
+BEGIN_CODE
+
+END_CODE
+96CRunControlPackage1572CRunControlPackagepublic000010000000
+BEGIN_CODE
+
+END_CODE
+96CRunControlPackage1573~CRunControlPackagepublic000110000000
+BEGIN_CODE
+
+END_CODE
+96CRunControlPackage1574CRunControlPackage$public000010000000
+BEGIN_CODE
+ 
+                
+  
+END_CODE
+96CRunControlPackage1575operator=CRunControlPackage&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCRunControlPackage) return *this;          
+    CTCLCommandPackage::operator= (aCRunControlPackage);
+  
+    return *this;
+  
+END_CODE
+96CRunControlPackage1576operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return ((CTCLCommandPackage::operator== (aCRunControlPackage)));
+  
+END_CODE
+96CRunControlPackage1577InitializeRunStatevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+96CRunControlPackage1578StartRunBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+96CRunControlPackage1579StopRunBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+96CRunControlPackage1580isRunningBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+97CSpectrumCommand1581CSpectrumCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+97CSpectrumCommand1582~CSpectrumCommandpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+97CSpectrumCommand1583CSpectrumCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+97CSpectrumCommand1584operator=CSpectrumCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+97CSpectrumCommand1585operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return ((CTCLPackagedCommand::operator== (aCSpectrumCommand)));
+  
+END_CODE
+97CSpectrumCommand1586Usagevoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+97CSpectrumCommand1587MatchSwitchSwitchprotected100010000000
+BEGIN_CODE
+
+END_CODE
+97CSpectrumCommand1588SortSpectraByIdvoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+97CSpectrumCommand1589SortSpectraByNamevoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+97CSpectrumCommand1590VectorToResultvoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+97CSpectrumCommand1591ExtractIdUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+97CSpectrumCommand1592ExtractNamestd::stringpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1593CSpectrumPackagepublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1594~CSpectrumPackagepublic000110000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1595CSpectrumPackage$private000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1596operator=CSpectrumPackage&private000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1597operator==intpublic000010000000
+BEGIN_CODE
+ return (
+	    (CTCLCommandPackage::operator== (aCSpectrumPackage)) &&
+	    (m_pHistogrammer == m_pHistogrammer)
+	    );
+  
+END_CODE
+98CSpectrumPackage1598getNextIdUInt_tpublic100010000000
+BEGIN_CODE
+
+    return m_nNextId;
+  
+END_CODE
+98CSpectrumPackage1599getHistogrammerCHistogrammer*public010010000000
+BEGIN_CODE
+
+    return m_pHistogrammer;
+  
+END_CODE
+98CSpectrumPackage1600setHistogrammervoidprotected000010000000
+BEGIN_CODE
+ 
+    m_pHistogrammer = am_pHistogrammer;
+  
+END_CODE
+98CSpectrumPackage1601setNextIdvoidprotected100010000000
+BEGIN_CODE
+ 
+    m_nNextId = am_nNextId;
+  
+END_CODE
+98CSpectrumPackage1602AllocateIdUInt_tprotected100010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1603CreateSpectrumintpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1604ListSpectravoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1605ListSpectrumInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1606ListSpectrum$Int_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1607ClearAllvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1608ClearSubsetInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1609ClearSubset$Int_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1610BindAllInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1611BindListInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1612BindList$Int_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1613UnbindListInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1614UnbindList$Int_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1615UnbindXidListInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1616UnbindAllvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1617DeleteListInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1618DeleteList$Int_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1619DeleteAllvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1620ListBindingsInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1621ListBindings$Int_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1622ListXidBindingsInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1623ListAllBindingsvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1624GetChannelBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1625SetChannelBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1626WriteInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1627ReadInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1628DescribeSpectrumstd::stringprotected000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1629FindDisplayBindingUInt_tprotected000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1630FindDisplayBinding$UInt_tprotected000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1631FormatBindingvoidprotected000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1632SpecTypeToTextchar*public110010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1633DataTypeToTextchar*public110010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1634SpectrumTypeSpectrumType_tpublic100010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1635DatatypeDataType_tpublic100010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1636ValidateIndicesUInt_t*public100010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1637UniquifyNamevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+98CSpectrumPackage1638AllParamsExistBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+99CStartRun1639CStartRunpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+99CStartRun1640~CStartRunpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+99CStartRun1641CStartRun$private000010000000
+BEGIN_CODE
+
+END_CODE
+99CStartRun1642operator=CStartRun&private000010000000
+BEGIN_CODE
+
+END_CODE
+99CStartRun1643operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (
+	    (CTCLPackagedCommand::operator== (aCStartRun))
+
+	    );
+  
+END_CODE
+100CStopRun1644CStopRunpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+100CStopRun1645~CStopRunpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+100CStopRun1646CStopRun$private000010000000
+BEGIN_CODE
+
+END_CODE
+100CStopRun1647operator=CStopRun&private000010000000
+BEGIN_CODE
+
+END_CODE
+100CStopRun1648operator==intpublic000010000000
+BEGIN_CODE
+ return (
+	    (CTCLPackagedCommand::operator== (aCStopRun)) 
+	    );
+  
+END_CODE
+101CTapeCommand1649CTapeCommandpublic000010000000
+BEGIN_CODE
+}
+END_CODE
+101CTapeCommand1650~CTapeCommandpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+101CTapeCommand1651CTapeCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+101CTapeCommand1652operator=CTapeCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+101CTapeCommand1653operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return ((CTCLPackagedCommand::operator== (aCTapeCommand)) );
+  
+END_CODE
+101CTapeCommand1654Usagevoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+101CTapeCommand1655ParseSwitchSwitch_tprotected100010000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1656CTclAnalyzerpublic000010000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1657~CTclAnalyzerpublic000010000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1658CTclAnalyzer$private000010000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1659operator=CTclAnalyzer&private000010000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1660OnStateChangevoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1661OnPhysicsvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1662OnBeginvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1663OnEndvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1664OnPausevoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1665OnResumevoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1666AddEventProcessorvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1667IncrementCountervoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1668ClearCountervoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1669SetEventSizevoidpublic000010000000
+BEGIN_CODE
+m_nEventSize = nSize; 
+END_CODE
+102CTclAnalyzer1670IncrementEventSizevoidpublic000010000000
+BEGIN_CODE
+m_nEventSize += nIncr;
+END_CODE
+102CTclAnalyzer1671GetEventSizeUInt_tpublic000010000000
+BEGIN_CODE
+ return m_nEventSize; 
+END_CODE
+102CTclAnalyzer1672OnEventUInt_tprotected000110000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1673IncrementVariablevoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1674SetVariablevoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+102CTclAnalyzer1675ClearVariablevoidprotected100010000000
+BEGIN_CODE
+    
+    SetVariable(rVar, 0);
+  
+END_CODE
+103CTclGrammerApp1676CTclGrammerApppublic000010000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1677~CTclGrammerApppublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1678CTclGrammerApp$private000010000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1679operator=CTclGrammerApp&private000010000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1680operator==intprivate010010000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1681getDisplaySizeUInt_tpublic010010000000
+BEGIN_CODE
+ return m_nDisplaySize;
+  
+END_CODE
+103CTclGrammerApp1682getParamsUInt_tpublic010010000000
+BEGIN_CODE
+ return m_nParams;
+  
+END_CODE
+103CTclGrammerApp1683getListSizeUInt_tpublic010010000000
+BEGIN_CODE
+ return m_nListSize;
+  
+END_CODE
+103CTclGrammerApp1684getAnalyzerCAnalyzer*public010010000000
+BEGIN_CODE
+ return m_pAnalyzer;
+  
+END_CODE
+103CTclGrammerApp1685getHistogrammerCTCLHistogrammer*public010010000000
+BEGIN_CODE
+ return m_pHistogrammer;
+  
+END_CODE
+103CTclGrammerApp1686getRunControlCTKRunControl*public010010000000
+BEGIN_CODE
+ return m_pRunControl;
+  
+END_CODE
+103CTclGrammerApp1687getXamineEventsCXamineEventHandler*public010010000000
+BEGIN_CODE
+ return m_pXamineEvents;
+  
+END_CODE
+103CTclGrammerApp1688getRunControlPackageCRunControlPackage*public010010000000
+BEGIN_CODE
+ return m_pRunControlPackage;
+  
+END_CODE
+103CTclGrammerApp1689getParameterPackageCParameterPackage*public010010000000
+BEGIN_CODE
+ return m_pParameterPackage;
+  
+END_CODE
+103CTclGrammerApp1690getSpectrumPackageCSpectrumPackage*public010010000000
+BEGIN_CODE
+ return m_pSpectrumPackage;
+  
+END_CODE
+103CTclGrammerApp1691getDataSourcePackageCDataSourcePackage*public010010000000
+BEGIN_CODE
+ return m_pDataSourcePackage;
+  
+END_CODE
+103CTclGrammerApp1692getGatePackageCGatePackage*public010010000000
+BEGIN_CODE
+ return m_pGatePackage;
+  
+END_CODE
+103CTclGrammerApp1693getRCFileCTCLVariablepublic010010000000
+BEGIN_CODE
+ return m_RCFile;
+  
+END_CODE
+103CTclGrammerApp1694getTclDisplaySizeCTCLVariablepublic010010000000
+BEGIN_CODE
+ return m_TclDisplaySize;
+  
+END_CODE
+103CTclGrammerApp1695getTclParameterCountCTCLVariablepublic010010000000
+BEGIN_CODE
+ return m_TclParameterCount;
+  
+END_CODE
+103CTclGrammerApp1696getTclEventListSizeCTCLVariablepublic010010000000
+BEGIN_CODE
+ return m_TclEventListSize;
+  
+END_CODE
+103CTclGrammerApp1697setDisplaySizevoidprotected000010000000
+BEGIN_CODE
+ m_nDisplaySize = am_nDisplaySize;
+  
+END_CODE
+103CTclGrammerApp1698setParamsvoidprotected000010000000
+BEGIN_CODE
+ m_nParams = am_nParams;
+  
+END_CODE
+103CTclGrammerApp1699setListSizevoidprotected000010000000
+BEGIN_CODE
+ m_nListSize = am_nListSize;
+  
+END_CODE
+103CTclGrammerApp1700setAnalyzervoidprotected000010000000
+BEGIN_CODE
+ m_pAnalyzer = am_pAnalyzer;
+  
+END_CODE
+103CTclGrammerApp1701setHistogrammervoidprotected000010000000
+BEGIN_CODE
+ m_pHistogrammer = am_pHistogrammer;
+  
+END_CODE
+103CTclGrammerApp1702setRunControlvoidprotected000010000000
+BEGIN_CODE
+ m_pRunControl = am_pRunControl;
+  
+END_CODE
+103CTclGrammerApp1703setXamineEventsvoidprotected000010000000
+BEGIN_CODE
+ m_pXamineEvents = am_pXamineEvents;
+  
+END_CODE
+103CTclGrammerApp1704setRunControlPackagevoidprotected000010000000
+BEGIN_CODE
+ m_pRunControlPackage = am_pRunControlPackage;
+  
+END_CODE
+103CTclGrammerApp1705setParameterPackagevoidprotected000010000000
+BEGIN_CODE
+ m_pParameterPackage = am_pParameterPackage;
+  
+END_CODE
+103CTclGrammerApp1706setSpectrumPackagevoidprotected000010000000
+BEGIN_CODE
+ m_pSpectrumPackage = am_pSpectrumPackage;
+  
+END_CODE
+103CTclGrammerApp1707setDataSourcePackagevoidprotected000010000000
+BEGIN_CODE
+ m_pDataSourcePackage = am_pDataSourcePackage;
+  
+END_CODE
+103CTclGrammerApp1708setGatePackagevoidprotected000010000000
+BEGIN_CODE
+ m_pGatePackage = am_pGatePackage;
+  
+END_CODE
+103CTclGrammerApp1709setRCFilevoidprotected000010000000
+BEGIN_CODE
+ m_RCFile = am_RCFile;
+  
+END_CODE
+103CTclGrammerApp1710setTclDisplaySizevoidprotected000010000000
+BEGIN_CODE
+ m_TclDisplaySize = am_TclDisplaySize;
+  
+END_CODE
+103CTclGrammerApp1711setTclParameterCountvoidprotected000010000000
+BEGIN_CODE
+ m_TclParameterCount = am_TclParameterCount;
+  
+END_CODE
+103CTclGrammerApp1712setTclEventListSizevoidprotected000010000000
+BEGIN_CODE
+ m_TclEventListSize = am_TclEventListSize;
+  
+END_CODE
+103CTclGrammerApp1713RegisterEventProcessorvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1714BindTCLVariablesvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1715SourceLimitScriptsvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1716SetLimitsvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1717CreateHistogrammervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1718SelectDisplayervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1719SetupTestDataSourcevoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1720CreateAnalyzervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1721SelectDecodervoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1722CreateAnalysisPipelinevoidpublic001110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1723AddCommandsvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1724SetupRunControlvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1725SourceFunctionalScriptsvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+103CTclGrammerApp1726UpdateUIntvoidprotected100110000000
+BEGIN_CODE
+
+END_CODE
+104CTCLHistogrammer1727CTCLHistogrammerpublic000010000000
+BEGIN_CODE
+
+END_CODE
+104CTCLHistogrammer1728~CTCLHistogrammerpublic000110000000
+BEGIN_CODE
+
+END_CODE
+104CTCLHistogrammer1729CTCLHistogrammer$public000010000000
+BEGIN_CODE
+     
+    m_pIntObject = aCTCLHistogrammer.m_pIntObject;
+    m_Pseudos    = aCTCLHistogrammer.m_Pseudos;
+  
+END_CODE
+104CTCLHistogrammer1730operator=CTCLHistogrammer&public000010000000
+BEGIN_CODE
+
+END_CODE
+104CTCLHistogrammer1731operator==intpublic000010000000
+BEGIN_CODE
+
+END_CODE
+104CTCLHistogrammer1732getInterpreterCTCLInterpreter*public010010000000
+BEGIN_CODE
+ 
+    return m_pIntObject;
+  
+END_CODE
+104CTCLHistogrammer1733getPseudoParametersPseudoParameterspublic010010000000
+BEGIN_CODE
+
+    return m_Pseudos;
+  
+END_CODE
+104CTCLHistogrammer1734setInterpretervoidprotected000010000000
+BEGIN_CODE
+ 
+    m_pIntObject = am_pIntObject;
+  
+END_CODE
+104CTCLHistogrammer1735setPseudoParametersvoidprotected000010000000
+BEGIN_CODE
+
+    m_Pseudos = rPseudos;
+  
+END_CODE
+104CTCLHistogrammer1736AddPseudovoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+104CTCLHistogrammer1737RemovePseudovoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+104CTCLHistogrammer1738FindPseudoCPseudoScript&public000010000000
+BEGIN_CODE
+
+END_CODE
+104CTCLHistogrammer1739PseudoBeginPseudoParameterIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+104CTCLHistogrammer1740PseudoEndPseudoParameterIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+104CTCLHistogrammer1741PseudoSizeUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+105CUnbindCommand1742CUnbindCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+105CUnbindCommand1743~CUnbindCommandpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+105CUnbindCommand1744CUnbindCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+105CUnbindCommand1745operator=CUnbindCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+105CUnbindCommand1746operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return ((CTCLPackagedCommand::operator== (aCUnbindCommand)));
+  
+END_CODE
+105CUnbindCommand1747Usagevoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+105CUnbindCommand1748MatchSwitchSwitchprotected100010000000
+BEGIN_CODE
+
+END_CODE
+106CUngateCommand1749CUngateCommandpublic000010000000
+BEGIN_CODE
+     
+  
+END_CODE
+106CUngateCommand1750~CUngateCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+106CUngateCommand1751CUngateCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+106CUngateCommand1752operator=CUngateCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+106CUngateCommand1753operator==intpublic010010000000
+BEGIN_CODE
+
+    return CTCLPackagedCommand::operator==(aCUngateCommand);
+  
+END_CODE
+106CUngateCommand1777Usage`voidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+107CWriteCommand1755CWriteCommandpublic000010000000
+BEGIN_CODE
+ 
+  
+END_CODE
+107CWriteCommand1756~CWriteCommandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+107CWriteCommand1757CWriteCommand$private000010000000
+BEGIN_CODE
+
+END_CODE
+107CWriteCommand1758operator=CWriteCommand&private000010000000
+BEGIN_CODE
+
+END_CODE
+107CWriteCommand1759operator==intpublic010010000000
+BEGIN_CODE
+
+END_CODE
+107CWriteCommand1760IsFileIdBool_tprotected100010000000
+BEGIN_CODE
+
+END_CODE
+107CWriteCommand1761GetFileIdInt_tprotected100010000000
+BEGIN_CODE
+
+END_CODE
+107CWriteCommand1762GetFormatterCSpectrumFormatter*protected100010000000
+BEGIN_CODE
+
+END_CODE
+107CWriteCommand1763Usagevoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+108CXamineEventHandler1764CXamineEventHandlerpublic000010000000
+BEGIN_CODE
+ 
+    Set(TK_READABLE);		// Starts out enabled.
+  
+END_CODE
+108CXamineEventHandler1765~CXamineEventHandlerpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+108CXamineEventHandler1766CXamineEventHandler$public000010000000
+BEGIN_CODE
+ 
+   
+
+
+  
+END_CODE
+108CXamineEventHandler1767operator=CXamineEventHandler&public000010000000
+BEGIN_CODE
+
+    if(this != &aCXamineEventHandler) {
+      setHistogrammer(aCXamineEventHandler.m_pHistogrammer);
+    }
+    return *this;
+  
+END_CODE
+108CXamineEventHandler1768operator==intpublic010010000000
+BEGIN_CODE
+
+    return ( (m_pInterp == rhs.m_pInterp)      &&
+	     (m_pHistogrammer == rhs.m_pHistogrammer) &&
+	     (m_nFd == rhs.m_nFd)                     &&
+	     (m_SocketChannel == rhs.m_SocketChannel));
+  
+END_CODE
+108CXamineEventHandler1769getHistogrammerCHistogrammer*public010010000000
+BEGIN_CODE
+ 
+    return m_pHistogrammer;
+  
+END_CODE
+108CXamineEventHandler1770setHistogrammervoidprotected000010000000
+BEGIN_CODE
+ 
+    Clear();			// Disable callback on current fid.
+    m_pHistogrammer = m_pHistogrammer;
+    m_nFd = (m_pHistogrammer->getDisplayer()->GetEventFd()); // Update file id.
+    Set(TK_READABLE);		// Set callback on next fid.
+  
+END_CODE
+108CXamineEventHandler1771Setvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+108CXamineEventHandler1772Clearvoidpublic000110000000
+BEGIN_CODE
+
+END_CODE
+108CXamineEventHandler1773OnGatevoidprotected000110000000
+BEGIN_CODE
+
+END_CODE
+108CXamineEventHandler1774OnButtonvoidprotected000110000000
+BEGIN_CODE
+
+END_CODE
+108CXamineEventHandler1775FindDisplayBindingUInt_tprotected000110000000
+BEGIN_CODE
+
+END_CODE
+108CXamineEventHandler1776CallbackRelayvoidprotected100010000000
+BEGIN_CODE
+
+END_CODE
+***END_TABLE***
+
+Parameters
+OperID, Parameter Text
+***BEGIN_TABLE***
+1332 CTCLInterpreter*/pInterp//
+1332 CTCLCommandPackage&/rPack//
+1334 const  CApplyCommand&/aCApplyCommand//
+1335 const  CApplyCommand&/aCApplyCommand//
+1336 const  CApplyCommand&/aCApplyCommand//
+1338 char* CTCLInterpreter*/pInterp//
+1338 CTCLCommandPackage&/rPackage//
+1340 const  CAttachCommand&/aCAttachCommand//
+1341 const  CAttachCommand&/aCAttachCommand//
+1342 const  CAttachCommand&/aCAttachCommand//
+1343 char* CTCLResult&/rResult//
+1344 char*/pSwitch//
+1345 CTCLInterpreter*/pInterp//
+1345 CTCLCommandPackage&/rPack//
+1347 const  CBindCommand&/aCBindCommand//
+1348 const  CBindCommand&/aCBindCommand//
+1349 const  CBindCommand&/aCBindCommand//
+1350 CTCLInterpreter&/rInterp//
+1350 CTCLResult&/rResult//
+1351 char* CTCLInterpreter&/rInterp//
+1351 CTCLResult&/rResult//
+1352 char* const  char*/pSwitch//
+1353 CTCLResult&/rResult//
+1354 CTCLInterpreter*/pInterp//
+1354 CTCLCommandPackage&/rPackage//
+1356 const  ChannelCommand&/aChannelCommand//
+1357 CTCLInterpreter*/aInt_t//
+1357 string&/aInt_t//
+1358 const  ChannelCommand&/aChannelCommand//
+1359 const  ChannelCommand&/aChannelCommand//
+1360 char* const  char*/pSwitch//
+1361 CTCLResult&/rResult//
+1362 CTCLInterpreter*/pInterp//
+1362 CTCLCommandPackage&/rPack//
+1364 const  CClearCommand&/aCClearCommand//
+1365 const  CClearCommand&/aCClearCommand//
+1366 const  CClearCommand&/aCClearCommand//
+1367 char* CTCLResult&/rResult//
+1368 const  char*/pSwitchText//
+1369 CTCLInterpreter*/pInterp//
+1371 const  CDataSourcePackage&/aCDataSourcePackage//
+1372 const  CDataSourcePackage&/aCDataSourcePackage//
+1373 const  CDataSourcePackage&/aCDataSourcePackage//
+1377 SourceType_t/am_eSourceType//
+1378 CTapeCommand*/pTape//
+1379 CAttachCommand*/pAttach//
+1380 CTCLResult&/rResult//
+1381 CTCLResult&/rResult//
+1381 const  char*/pDevice//
+1382 CTCLResult&/rResult//
+1383 CTCLResult&/rResult//
+1383 const  char*/pConnectionString//
+1383 UInt_t/nBufferSize//
+1384 CTCLResult&/rResult//
+1385 CTCLResult&/rResult//
+1386 CTCLResult&/rResult//
+1394 const  CEventProcessor&/aCEventProcessor//
+1395 const  CEventProcessor&/aCEventProcessor//
+1396 const  CEventProcessor&/aCEventProcessor//
+1397 CAnalyzer&/rAnalyzer//
+1398 CAnalyzer&/rAnalyzer//
+1398 CBufferDecoder&/rDecoder//
+1399 CAnalyzer&/rAnalyzer//
+1399 CBufferDecoder&/rBuffer//
+1400 CAnalyzer&/rAnalyzer//
+1400 CBufferDecoder&/rDecoder//
+1401 CAnalyzer&/rAnalyzer//
+1401 CBufferDecoder&/rDecoder//
+1403 const  CGateCommand&/aCGateCommand//
+1404 const  CGateCommand&/aCGateCommand//
+1405 char* char*/pKey//
+1407 const  char*/pGateType//
+1408 CHistogrammer*/pHistogrammer//
+1410 const  CGateFactory&/aCGateFactory//
+1411 const  CGateFactory&/aCGateFactory//
+1412 const  CGateFactory&/aCGateFactory//
+1414 CHistogrammer*/am_pHistogrammer//
+1415 GateType/nGateType//
+1415 const  vector<string>&/rGates//
+1416 GateType/eType//
+1416 const  vector<string>&/rParameters//
+1416 const  vector<CPoint>&/rPoints//
+1417 GateType/eType//
+1417 const  vector<CPoint>&/rPoints//
+1417 const  vector<string>&/Ids//
+1421 const  vector<string>&/rParameters//
+1421 const  vector<CPoint>&/rPoints//
+1422 const  vector<string>&/rParameters//
+1422 const  vector<CPoint>&/rPoints//
+1423 const  vector<string>&/rBands//
+1424 const  string&/rGateNames//
+1425 const  vector<string>&/rGateNames//
+1426 const  vector<string>&/rGateNames//
+1427 const  string&/rParameterName//
+1427 UInt_t/nLow//
+1427 UInt_t/nHigh//
+1428 UInt_t/nLow//
+1428 UInt_t/nHigh//
+1428 const  vector<string>&/Specs//
+1429 const  vector<CPoint>&/rPoints//
+1429 const  vector<string>&/Specs//
+1430 const  vector<CPoint>&/rPoints//
+1430 const  vector<string>&/Specs//
+1431 const  string&/rName//
+1431 GateType/eType//
+1431 const  char*/pWhich//
+1432 const  string&/rName//
+1432 GateType/eType//
+1432 const  char*/pWhich//
+1433 const  string&/rName//
+1433 GateType/eType//
+1433 const  char*/pWhich//
+1434 list<CGateContainer*>&/Gates//
+1434 const  vector<string>&/rNames//
+1434 GateType/eType//
+1434 const  char*/pWhich//
+1435 GateFactoryExceptionReason/eReason//
+1435 CGateFactory::GateType/eType//
+1435 const  string&/rDoing//
+1437 const  CGateFactoryException&/aCGateFactoryException//
+1438 const  CGateFactoryException&/aCGateFactoryException//
+1439 const  CGateFactoryException&/aCGateFactoryException//
+1443 const  GateFactoryExceptionReason/am_eReason//
+1444 const  CGateFactory::GateType/am_eGateType//
+1445 char**/am_svReasonTexts//
+1448 GateFactoryExceptionReason/eReason//
+1449 CTCLInterpreter*/pInterp//
+1449 CHistogrammer*/pHistogrammer//
+1451 const  CGatePackage&/aCGatePackage//
+1452 const  CGatePackage&/aCGatePackage//
+1453 const  CGatePackage&/aCGatePackage//
+1459 CHistogrammer*/am_pHistogrammer//
+1460 CGateCommand*/p//
+1461 CApplyCommand*/p//
+1462 CUngateCommand*/p//
+1463 UInt_t/n//
+1464 CTCLResult&/rResult//
+1464 const  std::string&/rGateName//
+1464 const  CGate*/pGate//
+1467 CTCLResult&/rResult//
+1467 const  vector<string>&/rGateNames//
+1468 CTCLResult&/rResult//
+1468 const  vector<UInt_t>&/rIds//
+1469 CTCLString&/rResult//
+1469 const  string&/rGateName//
+1469 const  string&/rSpectrumName//
+1470 CTCLString&/rApplication//
+1470 const  string&/rName//
+1471 CTCLString&/rResult//
+1471 const  string&/rName//
+1472 CGateContainer*/pGate//
+1474 vector<CGateContainer*>&/rpGates//
+1477 const  CMySpecTclApp&/aCMySpecTclApp//
+1478 const  CMySpecTclApp&/aCMySpecTclApp//
+1479 const  CMySpecTclApp&/aCMySpecTclApp//
+1480 CTCLInterpreter&/rInterp//
+1481 CTCLInterpreter&/rInterpreter//
+1484 UInt_t/nDisplaySize//
+1484 CHistogrammer&/rHistogrammer//
+1486 CEventSink*/pSink//
+1487 CAnalyzer&/rAnalyzer//
+1488 CAnalyzer&/rAnalyzer//
+1489 CTCLInterpreter&/rInterp//
+1491 CTCLInterpreter&/rInterp//
+1492 CTCLInterpreter*/pInterp//
+1492 CTCLCommandPackage&/rPackage//
+1494 const  CParameterCommand&/aCParameterCommand//
+1495 const  CParameterCommand&/aCParameterCommand//
+1496 const  CParameterCommand&/aCParameterCommand//
+1497 Char_t* CTCLInterpreter&/rInterp//
+1497 CTCLResult&/rResult//
+1498 const  char*/pSwitch//
+1499 CTCLResult&/rResult//
+1500 CTCLInterpreter*/pInterp//
+1500 CTCLHistogrammer*/rHistogrammer//
+1502 const  CParameterPackage&/aCParameterPackage//
+1503 const  CParameterPackage&/aCParameterPackage//
+1504 const  CParameterPackage&/aCParameterPackage//
+1506 CTCLHistogrammer&/rHistogrammer//
+1507 CTCLResult&/rResult//
+1507 const  char*/pName//
+1507 UInt_t/nId//
+1507 UInt_t/nBits//
+1508 CTCLInterpreter&/rInterp//
+1509 CTCLResult&/rResult//
+1509 const  char*/pName//
+1510 CTCLResult&/rResult//
+1510 UInt_t/nId//
+1511 CTCLResult&/rResult//
+1511 const  char*/pName//
+1512 CTCLResult&/rResult//
+1512 UInt_t/nId//
+1513 CParameter&/rParameter//
+1514 CTCLResult&/rResult//
+1514 const  char*/pPseudoName//
+1514 vector<string>&/rDependents//
+1514 const  char*/pBody//
+1515 const  string&/rName//
+1515 string&/rDescription//
+1516 const  string&/rName//
+1516 string&/rResult//
+1517 list<string>&/rNames//
+1518 CTCLInterpreter*/pInterp//
+1518 CTCLCommandPackage&/rPackage//
+1520 const  CPseudoCommand&/aCPseudoCommand//
+1521 const  CPseudoCommand&/aCPseudoCommand//
+1522 const  CPseudoCommand&/aCPseudoCommand//
+1523 CTCLInterpreter&/rInterp//
+1523 CTCLResult&/rResult//
+1523 UInt_t/nArgs//
+1523 char**/pArgs//
+1524 CTCLInterpreter&/rInterp//
+1524 CTCLResult&/rResult//
+1524 UInt_t/nArgs//
+1524 char**/pArgs//
+1525 CTCLInterpreter&/rInterp//
+1525 CTCLResult&/rResult//
+1525 UInt_t/nArgs//
+1525 char**/pArgs//
+1526 CTCLResult&/rResult//
+1527 const  char*/pSwitch//
+1528 const  string&/rName//
+1528 CTCLInterpreter*/pInterp//
+1528 CHistogrammer&/rHistogrammer//
+1529 const  string&/rName//
+1529 vector<string>&/rDependentParameters//
+1529 CHistogrammer&/rHistogrammer//
+1529 CTCLInterpreter*/pInterp//
+1529 const  string&/ScriptText//
+1531 const  CPseudoScript&/aCPseudoScript//
+1532 const  CPseudoScript&/aCPseudoScript//
+1533 const  CPseudoScript&/aCPseudoScript//
+1534 const  CPseudoScript&/aCPseudoScript//
+1544 const  list<string>/am_vParameterNames//
+1545 const  list<UInt_t>/am_vParameterIds//
+1546 const  string/am_sOutputParameter//
+1547 const  UInt_t/am_nOutputId//
+1548 CTCLInterpreter*/am_pInterpreter//
+1549 Bool_t/newvalue//
+1550 const  string&/rName//
+1550 CHistogrammer&/rHisto//
+1551 UInt_t/nId//
+1551 CHistogrammer&/rHisto//
+1552 const  string/am_sRawScriptText//
+1560 const  string&/rName//
+1560 CHistogrammer&/rHistogrammer//
+1561 CTCLInterpreter*/pInterp//
+1561 CTCLCommandPackage&/rPack//
+1563 const  CReadCommand&/aCReadCommand//
+1564 const  CReadCommand&/aCReadCommand//
+1565 const  CReadCommand&/aCReadCommand//
+1566 CTCLResult&/rResult//
+1567 const  char*/pText//
+1568 fstream*/avoid//
+1568 int/avoid//
+1569 int/afstream*//
+1570 int/abool//
+1571 StreamEntry&/avoid//
+1571 int/avoid//
+1572 CTCLInterpreter*/pInterp//
+1574 const  CRunControlPackage&/aCRunControlPackage//
+1575 const  CRunControlPackage&/aCRunControlPackage//
+1576 const  CRunControlPackage&/aCRunControlPackage//
+1581 CTCLInterpreter*/pInterp//
+1581 CTCLCommandPackage&/rPackage//
+1583 const  CSpectrumCommand&/aCSpectrumCommand//
+1584 const  CSpectrumCommand&/aCSpectrumCommand//
+1585 const  CSpectrumCommand&/aCSpectrumCommand//
+1586 char* CTCLResult&/rResult//
+1587 const  char*/pSwitch//
+1588 std::vector<std::string>&/rvProperties//
+1589 std::vector<std::string>&/rvProperties//
+1590 CTCLResult&/rResult//
+1590 std::vector<std::string>&/rvStrings//
+1591 const  std::string&/rProperties//
+1592 const  std::string&/rProperties//
+1593 CTCLInterpreter*/pInterp//
+1593 CHistogrammer*/pHistogrammer//
+1595 const  CSpectrumPackage&/aCSpectrumPackage//
+1596 const  CSpectrumPackage&/aCSpectrumPackage//
+1597 const  CSpectrumPackage&/aCSpectrumPackage//
+1600 CHistogrammer*/am_pHistogrammer//
+1601 UInt_t/am_nNextId//
+1603 CTCLResult&/rResult//
+1603 const  char*/pName//
+1603 const  char*/pSpecType//
+1603 std::vector<std::string>&/rvParameterNames//
+1603 std::vector<UInt_t>&/rvResolutions//
+1603 const  char*/pDataType//
+1604 std::vector<std::string>&/rvProperties//
+1605 CTCLResult&/rResult//
+1605 const  char*/pName//
+1606 CTCLResult&/rResult//
+1606 UInt_t/nId//
+1608 CTCLResult&/rResult//
+1608 std::vector<std::string>&/rvSpectra//
+1609 CTCLResult&/rResult//
+1609 std::vector<UInt_t>&/rvIds//
+1610 CTCLResult&/rResult//
+1611 CTCLResult&/rResult//
+1611 std::vector<std::string>&/rvNames//
+1612 CTCLResult&/rResult//
+1612 std::vector<UInt_t>&/rIds//
+1613 CTCLResult&/rResult//
+1613 std::vector<std::string>&/rvNames//
+1614 CTCLResult&/rResult//
+1614 std::vector<UInt_t>&/rvIds//
+1615 CTCLResult&/rResult//
+1615 std::vector<UInt_t>&/rvXids//
+1617 CTCLResult&/rResult//
+1617 std::vector<std::string>&/rvNames//
+1618 CTCLResult&/rResult//
+1618 std::vector<UInt_t>&/rvnIds//
+1620 CTCLResult&/rResult//
+1620 std::vector<std::string>&/rvNames//
+1621 CTCLResult&/rResult//
+1621 std::vector<UInt_t>&/rvIds//
+1622 CTCLResult&/rResult//
+1622 std::vector<UInt_t>&/rvXIds//
+1623 CTCLResult&/rResult//
+1624 CTCLResult&/rResult//
+1624 const  string&/rName//
+1624 const  vector<UInt_t>&/pIndices//
+1625 CTCLResult&/rResult//
+1625 const  string&/rName//
+1625 const  vector<UInt_t>&/rIndices//
+1625 ULong_t/nValue//
+1626 string&/rResult//
+1626 const  string&/rSpectrum//
+1626 ostream&/rOut//
+1626 CSpectrumFormatter*/pFormat//
+1627 string&/rResult//
+1627 istream&/rIn//
+1627 CSpectrumFormatter*/pFormat//
+1627 UInt_t/fFlags//
+1628 CSpectrum&/rSpectrum//
+1629 const  std::string&/rName//
+1630 UInt_t/nId//
+1631 CTCLString&/rString//
+1631 UInt_t/nXId//
+1631 CSpectrum*/pSpectrum//
+1632 char* SpectrumType_t/sType//
+1633 DataType_t/dType//
+1634 const  char*/pType//
+1635 SpectrumType_t/st//
+1635 const  char*/pType//
+1636 CSpectrum*/pSpec//
+1636 const  vector<UInt_t>&/rIndices//
+1637 CSpectrum*/pSpectrum//
+1638 CSpectrum*/pSpectrum//
+1639 CTCLInterpreter*/pInterp//
+1639 CTCLCommandPackage&/rPackage//
+1641 const  CStartRun&/aCStartRun//
+1642 const  CStartRun&/aCStartRun//
+1643 const  CStartRun&/aCStartRun//
+1644 CTCLInterpreter*/pInterp//
+1644 CTCLCommandPackage&/rPackage//
+1646 const  CStopRun&/aCStopRun//
+1647 const  CStopRun&/aCStopRun//
+1648 const  CStopRun&/aCStopRun//
+1649 CTCLInterpreter*/pInterp//
+1649 CTCLCommandPackage&/rPackage//
+1651 const  CTapeCommand&/aCTapeCommand//
+1652 const  CTapeCommand&/aCTapeCommand//
+1653 const  CTapeCommand&/aCTapeCommand//
+1654 char* CTCLResult&/rResult//
+1655 const  char*/pSwitch//
+1656 CTCLInterpreter&/rInterp//
+1656 UInt_t/nP//
+1656 UInt_t/nBunch//
+1658 const  CTclAnalyzer&/rSrc//
+1659 const  CTclAnalyzer&/rhs//
+1660 UInt_t/nType//
+1660 CBufferDecoder&/rDecoder//
+1661 CBufferDecoder&/rDecoder//
+1662 CBufferDecoder*/rDecoder//
+1663 CBufferDecoder*/rDecoder//
+1664 CBufferDecoder*/rDecoder//
+1665 CBufferDecoder*/rDecoder//
+1666 CEventProcessor&/rProcessor//
+1667 Counter/eSelect//
+1667 UInt_t/incr/1/
+1668 Counter/eSelect//
+1669 UInt_t/nSize//
+1670 UInt_t/nIncr/2/
+1672 Address_t/pRawData//
+1672 CEvent&/anEvent//
+1673 CTCLVariable&/rVar//
+1674 CTCLVariable&/rVar//
+1674 int/newval//
+1675 CTCLVariable&/rVar//
+1678 const  CTclGrammerApp&/aCTclGrammerApp//
+1679 const  CTclGrammerApp&/aCTclGrammerApp//
+1680 const  CTclGrammerApp&/aCTclGrammerApp//
+1697 const  UInt_t/am_nDisplaySize//
+1698 const  UInt_t/am_nParams//
+1699 const  UInt_t/am_nListSize//
+1700 CAnalyzer*/am_pAnalyzer//
+1701 CTCLHistogrammer*/am_pHistogrammer//
+1702 CTKRunControl*/am_pRunControl//
+1703 CXamineEventHandler*/am_pXamineEvents//
+1704 CRunControlPackage*/am_pRunControlPackage//
+1705 CParameterPackage*/am_pParameterPackage//
+1706 CSpectrumPackage*/am_pSpectrumPackage//
+1707 CDataSourcePackage*/am_pDataSourcePackage//
+1708 CGatePackage*/am_pGatePackage//
+1709 const  CTCLVariable/am_RCFile//
+1710 const  CTCLVariable/am_TclDisplaySize//
+1711 const  CTCLVariable/am_TclParameterCount//
+1712 const  CTCLVariable/am_TclEventListSize//
+1713 CEventProcessor&/rEventProcessor//
+1714 CTCLInterpreter&/rInterp//
+1715 CTCLInterpreter&/rInterpreter//
+1718 UInt_t/nDisplaysize//
+1718 CHistogrammer&/rHistogrammer//
+1720 CEventSink*/pSink//
+1721 CAnalyzer&/rAnalyzer//
+1722 CAnalyzer&/rAnalyzer//
+1723 CTCLInterpreter&/rInterp//
+1725 CTCLInterpreter&/rInterp//
+1726 CTCLVariable&/rVar//
+1726 UInt_t&/rValue//
+1727 CTCLInterpreter*/m_pInterpreter//
+1727 UInt_t/nSpecBytes/knDefaultSpectrumSize/
+1729 const  CTCLHistogrammer&/aCTCLHistogrammer//
+1730 const  CTCLHistogrammer&/aCTCLHistogrammer//
+1731 const  CTCLHistogrammer&/aCTCLHistogrammer//
+1734 CTCLInterpreter*/am_pIntObject//
+1735 const  PseudoParameters&/rPseudos//
+1736 CPseudoScript&/rScript//
+1737 const  string&/rPseudoName//
+1738 const  string&/rPsuedoName//
+1742 CTCLInterpreter*/pInterp//
+1742 CTCLCommandPackage&/rPackage//
+1744 const  CUnbindCommand&/aCUnbindCommand//
+1745 const  CUnbindCommand&/aCUnbindCommand//
+1746 const  CUnbindCommand&/aCUnbindCommand//
+1747 char* CTCLResult&/rResult//
+1748 const  char*/pSwitch//
+1749 CTCLInterpreter*/pInterp//
+1749 CTCLCommandPackage&/rPack//
+1751 const  CUngateCommand&/aCUngateCommand//
+1752 const  CUngateCommand&/aCUngateCommand//
+1753 const  CUngateCommand&/aCUngateCommand//
+1755 CTCLInterpreter*/pInterp//
+1755 CTCLCommandPackage&/rPack//
+1757 const  CWriteCommand&/aCWriteCommand//
+1758 const  CWriteCommand&/aCWriteCommand//
+1759 const  CWriteCommand&/aCWriteCommand//
+1760 const  char*/pConnectionString//
+1761 const  char*/pConnectionString//
+1762 const  char*/pFormatter//
+1763 CTCLResult&/rResult//
+1764 CTCLInterpreter*/pInterp//
+1764 CHistogrammer*/pHistogrammer//
+1766 const  CXamineEventHandler&/rhs//
+1767 const  CXamineEventHandler&/aCXamineEventHandler//
+1768 const  CXamineEventHandler&/rhs//
+1770 CHistogrammer*/am_pHistogrammer//
+1771 int/mask//
+1773 CDisplayGate&/rXamineGate//
+1774 CButtonEvent&/rButton//
+1775 const  std::string&/rName//
+1776 ClientData/pObject//
+1776 int/mask//
+***END_TABLE***
+
+Includes
+ClassID, ClassName, Include Text
+***BEGIN_TABLE***
+77CApplyCommandTCLPackagedCommand.h
+77CApplyCommandstring
+78CAttachCommandTCLPackagedCommand.h
+79CBindCommandTCLPackagedCommand.h
+79CBindCommandvector
+79CBindCommandstring
+80ChannelCommandTCLPackagedCommand.h
+81CClearCommandTCLPackagedCommand.h
+82CDataSourcePackageTCLCommandPackage.h
+82CDataSourcePackagehistotypes.h
+83CEventProcessorhistotypes.h
+85CGateCommandTCLPackagedCommand.h
+85CGateCommandhistotypes.h
+85CGateCommandGateFactory.h
+85CGateCommandstring
+86CGateFactoryPoint.h
+86CGateFactoryGateContainer.h
+86CGateFactorySpectrum.h
+86CGateFactoryvector
+86CGateFactorystring
+86CGateFactorylist
+87CGateFactoryExceptionException.h
+87CGateFactoryExceptionGateFactory.h
+87CGateFactoryExceptionstring
+88CGatePackageTCLCommandPackage.h
+88CGatePackageGateCommand.h
+88CGatePackageApplyCommand.h
+88CGatePackageUngateCommand.h
+88CGatePackagehistotypes.h
+88CGatePackageHistogrammer.h
+88CGatePackageGateContainer.h
+88CGatePackageGate.h
+88CGatePackageSpectrumPackage.h
+88CGatePackagevector
+88CGatePackagestring
+89CMySpecTclAppEventUnpacker.h
+89CMySpecTclAppBufferDecoder.h
+89CMySpecTclAppEventSink.h
+89CMySpecTclAppTCLInterpreter.h
+89CMySpecTclAppFile.h
+89CMySpecTclAppRunControl.h
+89CMySpecTclAppAnalyzer.h
+89CMySpecTclAppTclGrammerApp.h
+90CParameterCommandTCLPackagedCommand.h
+90CParameterCommandTCLCommandPackage.h
+91CParameterPackageTCLCommandPackage.h
+91CParameterPackageTCLList.h
+91CParameterPackagelist
+92CPseudoCommandTCLPackagedCommand.h
+93CPseudoScriptNamedItem.h
+93CPseudoScriptEvent.h
+93CPseudoScriptTCLInterpreterObject.h
+93CPseudoScriptHistogrammer.h
+93CPseudoScriptTCLObject.h
+93CPseudoScriptlist
+93CPseudoScriptstring
+93CPseudoScriptvector
+95CReadCommandTCLPackagedCommand.h
+95CReadCommandfstream.h
+95CReadCommandsys
+95CReadCommandsys
+95CReadCommandmap
+96CRunControlPackageTCLCommandPackage.h
+97CSpectrumCommandTCLPackagedCommand.h
+97CSpectrumCommandhistotypes.h
+97CSpectrumCommandvector
+97CSpectrumCommandstring
+98CSpectrumPackageTCLCommandPackage.h
+98CSpectrumPackageHistogrammer.h
+98CSpectrumPackagehistotypes.h
+98CSpectrumPackagestring
+98CSpectrumPackagevector
+99CStartRunTCLPackagedCommand.h
+99CStartRunstring
+100CStopRunTCLPackagedCommand.h
+100CStopRunstring
+101CTapeCommandTCLPackagedCommand.h
+101CTapeCommandstring
+102CTclAnalyzerhistotypes.h
+102CTclAnalyzerAnalyzer.h
+102CTclAnalyzerTCLInterpreter.h
+102CTclAnalyzerTCLVariable.h
+102CTclAnalyzerlist
+102CTclAnalyzervector
+103CTclGrammerAppTCLApplication.h
+103CTclGrammerApplist
+103CTclGrammerAppTCLVariable.h
+103CTclGrammerAppAnalyzer.h
+104CTCLHistogrammerPseudoScript.h
+104CTCLHistogrammerHistogrammer.h
+104CTCLHistogrammerTCLInterpreterObject.h
+104CTCLHistogrammerPseudoScript.h
+104CTCLHistogrammerlist
+105CUnbindCommandTCLPackagedCommand.h
+106CUngateCommandTCLPackagedCommand.h
+107CWriteCommandTCLPackagedCommand.h
+107CWriteCommandstring
+108CXamineEventHandlerTCLFileHandler.h
+108CXamineEventHandlerHistogrammer.h
+108CXamineEventHandlerXamineplus.h
+108CXamineEventHandlertk.h
+***END_TABLE***
+
+Relation Shape
+ShapeID, Type, Text, Multiplicity, Source Node ID, Source Index, LineTexture, IsDisplayByVal, IsDisplayByRef, QualifierSrc
+***BEGIN_TABLE***
+432NoText010410011
+441NoText08610011
+451NoText09610011
+460NoText08310011
+470NoText08330011
+480NoText08970011
+490NoText08950011
+500NoText08910011
+520NoText09230011
+530NoText09210011
+540NoText09710011
+550NoText09730011
+560NoText099120011
+570NoText099140011
+580NoText09950011
+590NoText09970011
+600NoText09980011
+610NoText09900011
+620NoText099100011
+630NoText0104110011
+640NoText010490011
+700NoText010810011
+***END_TABLE***
+
+Branches
+Relation Shape ID, Multiplicity, Destination Node ID, Destination Index, Text, Relation Type, Branch Id,  IsDisplayStatic, IsDisplayFriend, IsDisplayPlus, QualifierDest, Offset x, Offset y
+***BEGIN_TABLE***
+430900210500000
+440850aGateFactoryTable110600000
+450950aStreamEntry110700000
+4601020m_pTape010800000
+470790m_pAttach010900000
+480862m_pGateCommand011000000
+490782m_pApplyCommand011100000
+5001072m_pUngateCommand011200000
+520910m_pParameter011400000
+530930m_pPseudo011500000
+5401000m_pStartRun011600000
+5501010m_pStopRun011700000
+560989m_pSpectrum011800000
+570829m_pClear011900000
+580809m_pBind012000000
+5901062m_pUnbind012100000
+600819m_pChannel012200000
+61010811m_pWrite012300000
+6209611m_pRead012400000
+6301052m_pHistogrammer012500000
+6401098m_pXamineEvents012600000
+700962aCReadCommand013200000
+***END_TABLE***
+
+Relations
+Id,ParentId,Name,Type,Description,SrcVisibility,SrcMultiplicity,SrcLength,IsSrcByRef,IsSrcByVal,IsSrcFriend,IsSrcStatic,SrcRole,SourceClassId,
+DestVisibility,DestMultiplicity,DestLength,DestByRef,IsDestByVal,IsDestFriend,IsDestStatic,IsDestRole,DestClassId
+***BEGIN_TABLE***
+105432private000000103private00000089
+10644aGateFactoryTable1private00000085private00000084
+10745aStreamEntry1private00000095private00000094
+10846m_pTape0private00000082private000000101
+10947m_pAttach0private00000082private00000078
+11048m_pGateCommand0private00000088private00000085
+11149m_pApplyCommand0private00000088private00000077
+11250m_pUngateCommand0private00000088private000000106
+11351m_pHistogrammer0private00000091private000000104
+11452m_pParameter0private00000091private00000090
+11553m_pPseudo0private00000091private00000092
+11654m_pStartRun0private00000096private00000099
+11755m_pStopRun0private00000096private000000100
+11856m_pSpectrum0private00000098private00000097
+11957m_pClear0private00000098private00000081
+12058m_pBind0private00000098private00000079
+12159m_pUnbind0private00000098private000000105
+12260m_pChannel0private00000098private00000080
+12361m_pWrite0private00000098private000000107
+12462m_pRead0private00000098private00000095
+12563m_pHistogrammer0private000000103private000000104
+12664m_pXamineEvents0private000000103private000000108
+12765m_pRunControlPackage0private000000103private00000096
+12866m_pParameterPackage0private000000103private00000091
+12967m_pSpectrumPackage0private000000103private00000098
+13068m_pDataSourcePackage0private000000103private00000082
+13169m_pGatePackage0private000000103private00000088
+13270aCReadCommand0private000000107private00000095
+***END_TABLE***
+
+General Shape
+ ShapeId, Type,Positionx, Position.y, # ConnectPoints metafileName, TextOffset, ShapeSize, Width, Height, Texture, FileName,  Class, Text
+
+***BEGIN_TABLE***
+***END_TABLE***
+

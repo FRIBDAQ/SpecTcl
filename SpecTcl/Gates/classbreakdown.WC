@@ -1,0 +1,2081 @@
+With Class Chart Export File
+X:\SpecTcl\Gates\classbreakdown.omtUnified Method
+
+
+General Info
+Internal Version #, NextClassID, NextClassShapeID, NextRelationShapeID, NextStateID, NextStateShapeID, NextTransitionID, NextTransitionShapeID, NextObjectID, NextObjectShapeID, NextInteractionID, NextInteractionShapeID, NextOperationID, NextAttributeID
+***BEGIN_TABLE***
+4.73334171111111144441
+***END_TABLE***
+
+Classes
+ClassID, Name, Description, Multiplicity, Concurrency, Visibility, Persistence, FileName, Package, Import File, Author, LibraryBaseClass, Invariant, User1, User2, User3, Stereotype, 
+***BEGIN_TABLE***
+24
+9CAConstituentIteratorX:\SpecTcl\Gates\ActualIterator.cpp1000
+10CAndGateX:\SpecTcl\Gates\AndGate.cpp0000
+11CBandX:\SpecTcl\Gates\Band.cpp0000
+12C2BandsX:\SpecTcl\Gates\C2Bands.cpp0000
+13CCompoundGateX:\SpecTcl\Gates\CompoundGate.cpp0000
+14CConstituentIteratorX:\SpecTcl\Gates\ConstituentIterator.cpp0000
+15CContourX:\SpecTcl\Gates\Contour.cpp0000
+16CCutX:\SpecTcl\Gates\Cut.cpp0000
+17CDeletedGateX:\SpecTcl\Gates\DeletedGate.cpp0000
+18CFalseGateX:\SpecTcl\Gates\FalseGate.cpp0000
+19CGammaBandX:\SpecTcl\Gates\GammaBand.cpp0000
+20CGammaContourX:\SpecTcl\Gates\GammaContour.cpp0000
+21CGammaCutX:\SpecTcl\Gates\GammaCut.cpp0000
+22CGateX:\SpecTcl\Gates\Gate.cpp1000
+23CGateContainerX:\SpecTcl\Gates\GateContainer.cppCNamedItem0000
+24CGateListIteratorX:\SpecTcl\Gates\GateListIterator.cpp0000
+25CInteriorX:\SpecTcl\Gates\Interior.cpp0000
+26CInteriorRowX:\SpecTcl\Gates\InteriorRow.cpp0000
+27CNotX:\SpecTcl\Gates\Not.cpp0000
+28COrGateX:\SpecTcl\Gates\OrGate.cpp0000
+29CPointListGateX:\SpecTcl\Gates\PointlistGate.cpp0000
+30CPointListIteratorX:\SpecTcl\Gates\PointlistIterator.cpp0000
+31CSingleItemIteratorX:\SpecTcl\Gates\SingleItemIterator.cpp0000
+32CTrueGateX:\SpecTcl\Gates\TrueGate.cpp0000
+***END_TABLE***
+
+Class Shape
+ShapeID, PosX, PosY, TopText, MiddleText, BottomText, ClassDataID, ClassType, Abstract, Template, Interface, Final
+***BEGIN_TABLE***
+263558502CInteriorRowm_vRowCInteriorRow:CInteriorRow$:~CInteriorRow:CInteriorRow$$:CInteriorRow$$$:operator=:operator==:getRow:setRow:SetRowSize:Size:Begin:End:operator[]26000000
+25355812CInteriorm_aRowsCInterior:CInterior$:~CInterior:CInterior$$:operator=:operator==:getRows:setRows:setShape:Clear:Set:Inside:getRowSize:getRowCount:RowBegin:RowEnd25000000
+142600CConstituentIteratorm_pActualIteratorCConstituentIterator:~CConstituentIterator:CConstituentIterator$:operator=:operator==:getActualIterator:setActualIterator:operator++:operator++$:operator!=14000000
+9250220CAConstituentIteratorCAConstituentIterator:~CAConstituentIterator:CAConstituentIterator$:operator=:operator==:operator!=:operator++:clone9100000
+3020430CPointListIteratorm_iPointsCPointListIterator:~CPointListIterator:CPointListIterator$:operator=:getPointIterator:setPointIterator:operator++:operator==:clone30000000
+24240460CGateListIteratorm_iGatesCGateListIterator:CGateListIterator$:~CGateListIterator:CGateListIterator$$:operator=:operator==:getGates:setGates:operator++:operator==$:clone24000000
+31420470CSingleItemIteratorm_fNotEndCSingleItemIterator:~CSingleItemIterator:CSingleItemIterator$:CSingleItemIterator$$:operator=:getNotEnd:setNotEnd:operator++:operator==:clone31000000
+22121010CGatem_fChecked:m_fCachedValueCGate:~CGate:CGate$:operator=:operator==:getChecked:getCachedValue:setChecked:setCachedValue:Set:Reset:wasChecked:Begin:End:Size:GetConstituent:clone:Type:inGate:inGate$22100000
+2355020CGateContainerm_pGateCGateContainer:CGateContainer$:~CGateContainer:CGateContainer$$:operator=:operator==:getGate:setGate:operator*:operator->23000000
+17990560CDeletedGateCDeletedGate:~CDeletedGate:CDeletedGate$:operator=:operator==:Type17000000
+291170320CPointListGatem_nxId:m_nyId:m_aConstituentsCPointListGate:CPointListGate$:CPointListGate$$:~CPointListGate:CPointListGate$$$:operator=:operator==:getxId:getyId:getPoints:getBegin:getEnd:getSpecs:setxId:setyId:setPoints:Begin:End:Size:GetConstituent29000000
+18960320CFalseGateCFalseGate:~CFalseGate:CFalseGate$:operator=:operator==:Begin:End:Size:GetConstituent:clone:Type:inGate:inGate$18000000
+321070320CTrueGateCTrueGate:~CTrueGate:CTrueGate$:operator=:operator==:Begin:End:Size:GetConstituent:clone:Type:inGate:inGate$32000000
+161420330CCutm_nLow:m_nHigh:m_nIdCCut:~CCut:CCut$:operator=:operator==:getLow:getHigh:getId:getSpecs:setm_nLow:setm_nHigh:setm_nId:clone:Begin:End:Size:GetConstituent:Type:inGate:inGate$16000000
+111090580CBandm_aLimitsCBand:CBand$:CBand$$:~CBand:CBand$$$:operator=:operator==:getLimits:setLimits:clone:Type:inGate:inGate$:CreateLimits11000000
+151180570CContourm_LowerLeft:m_UpperRight:m_InteriorCContour:CContour$:CContour$$:~CContour:CContour$$$:operator=:operator==:getLowerLeft:getUpperRight:getInterior:setLowerLeft:setUpperRight:setInterior:clone:Type:inGate:inGate$:GenerateInterior15000000
+211410620CGammaCutm_nLow:m_nHigh:m_vSpecsCGammaCut:CGammaCut$:~CGammaCut:CGammaCut$$:operator=:operator==:getLow:getHigh:getSpecs:setm_nLow:setm_nHigh:setm_vSpecs:clone:GetConstituent:Type:inGate21000000
+201310830CGammaContourm_vSpecsCGammaContour:CGammaContour$:~CGammaContour:CGammaContour$$:operator=:operator==:getSpecs:setm_vSpecs:clone:Type:inGate20000000
+191080810CGammaBandm_vSpecsCGammaBand:CGammaBand$:CGammaBand$$:CGammaBand$$$:~CGammaBand:CGammaBand$$$$:operator=:operator==:getSpecs:setm_vSpecs:clone:Type:inGate19000000
+121190840C2BandsC2Bands:~C2Bands:C2Bands$:operator=:operator==:Type:MarshallPoints12000000
+13870520CCompoundGatem_vConstituentsCCompoundGate:CCompoundGate$:CCompoundGate$$:CCompoundGate$$$:~CCompoundGate:CCompoundGate$$$$:operator=:operator==:GetConstituents:SetConstituents:Begin:End:Size:GetConstituent:AddGateFront:AddGateBack:AddGate:ConvertIterator13000000
+28800730COrGateCOrGate:COrGate$:COrGate$$:COrGate$$$:~COrGate:COrGate$$$$:operator=:operator==:clone:Type:inGate:inGate$28000000
+10950730CAndGateCAndGate:CAndGate$:CAndGate$$:CAndGate$$$:~CAndGate:CAndGate$$$$:operator=:operator==:clone:Type:inGate:inGate$10000000
+27790320CNotm_pConstituentCNot:~CNot:CNot$:operator=:operator==:getGate:setConstituent:Begin:End:Size:GetConstituent:clone:Type:inGate:inGate$27000000
+***END_TABLE***
+
+Attributes
+ClassID, ClassName, AttrID, Name, Type, Length, IsStatic, Description, Visibility, MaxVal, MinVal, InitVal, Stereotype, Constraint, IsConstant, IsIndexed, IsUnique, IsNotNull, IsPrimaryKey, IsForeignKey, User1, User2, User3, IsArray, IsFinal, IsWriteProperty, IsReadProperty
+***BEGIN_TABLE***
+11CBand11m_aLimitsUInt_t0private0000000000
+13CCompoundGate12m_vConstituentsCGateContainer0private0000000000
+14CConstituentIterator13m_pActualIteratorCAConstituentIterator*0private0000000000
+15CContour14m_LowerLeftCPoint0private0000000000
+15CContour15m_UpperRightCPoint0private0000000000
+15CContour16m_Interiormutable CInterior0private0000000000
+16CCut17m_nLowUInt_t0private0000000000
+16CCut18m_nHighUInt_t0private0000000000
+16CCut19m_nIdUInt_t0private0000000000
+19CGammaBand20m_vSpecsstring0private0000000000
+20CGammaContour21m_vSpecsstring0private0000000000
+21CGammaCut22m_nLowUInt_t0private0000000000
+21CGammaCut23m_nHighUInt_t0private0000000000
+21CGammaCut24m_vSpecsstring0private0000000000
+22CGate25m_fCheckedBool_t0private0000000000
+22CGate26m_fCachedValueBool_t0private0000000000
+23CGateContainer27m_pGateCGate*0private0000000000
+24CGateListIterator28m_iGatesCGateContainer::iterator0private0000000000
+25CInterior29m_aRowsCInteriorRow0private0000000000
+26CInteriorRow30m_vRowUInt_t0private0000000000
+27CNot31m_pConstituentCGateContainer*0private0000000000
+29CPointListGate38m_nxIdint0private00000000000
+29CPointListGate39m_nyIdint0private00000000000
+29CPointListGate40m_aConstituentsint0private00000000000
+30CPointListIterator35m_iPointsCPoint::iterator0private0000000000
+31CSingleItemIterator36m_fNotEndBool_t0private0000000000
+***END_TABLE***
+
+Operations
+ClassID, ClassName, OperID, OperName, Return Type, Post Condition, PreCondition, Invariant, Stereotype, Classification, Exception, Transformation, Concurrency, Visibility,  Comment1, Comment2, Comment3, IsStatic, IsConstant, IsPureVirtual, IsVirtual, IsProcedure, IsInline, IsEvent, IsOverride, Message, IsFinal, IsSynchronized, IsNative, IsFriend
+***BEGIN_TABLE***
+9CAConstituentIterator103CAConstituentIteratorpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+9CAConstituentIterator104~CAConstituentIteratorpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+9CAConstituentIterator105CAConstituentIterator$public000010000000
+BEGIN_CODE
+ 
+                
+  
+END_CODE
+9CAConstituentIterator106operator=CAConstituentIterator&public000010000000
+BEGIN_CODE
+   
+    return *this;  
+  
+END_CODE
+9CAConstituentIterator107operator==intpublic010110000000
+BEGIN_CODE
+
+END_CODE
+9CAConstituentIterator108operator!=intpublic010010000000
+BEGIN_CODE
+
+END_CODE
+9CAConstituentIterator109operator++CAConstituentIterator&public001110000000
+BEGIN_CODE
+
+END_CODE
+9CAConstituentIterator110cloneCAConstituentIterator*public001110000000
+BEGIN_CODE
+
+END_CODE
+10CAndGate111CAndGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+10CAndGate112CAndGate$public000010000000
+BEGIN_CODE
+
+END_CODE
+10CAndGate113CAndGate$$public000010000000
+BEGIN_CODE
+}
+END_CODE
+10CAndGate114CAndGate$$$public000010000000
+BEGIN_CODE
+}
+END_CODE
+10CAndGate115~CAndGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+10CAndGate116CAndGate$$$$public000010000000
+BEGIN_CODE
+ 
+                
+  
+END_CODE
+10CAndGate117operator=CAndGate&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCAndGate) return *this;          
+    CCompoundGate::operator= (aCAndGate);
+  
+    return *this;
+  
+END_CODE
+10CAndGate118operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+10CAndGate119cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+10CAndGate120Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+10CAndGate121inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+10CAndGate122inGate$Bool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+11CBand123CBandpublic000010000000
+BEGIN_CODE
+
+END_CODE
+11CBand124CBand$public000010000000
+BEGIN_CODE
+
+END_CODE
+11CBand125CBand$$public000010000000
+BEGIN_CODE
+
+END_CODE
+11CBand126~CBandpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+11CBand127CBand$$$public000010000000
+BEGIN_CODE
+   
+    m_aLimits = aCBand.m_aLimits;                
+  
+END_CODE
+11CBand128operator=CBand&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCBand) return *this;          
+    CPointListGate::operator= (aCBand);
+    m_aLimits = aCBand.m_aLimits;
+    
+    return *this; 
+  
+END_CODE
+11CBand129operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+11CBand130getLimitsUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_aLimits;
+  
+END_CODE
+11CBand131setLimitsvoidpublic000010000000
+BEGIN_CODE
+ 
+    m_aLimits = am_aLimits;
+  
+END_CODE
+11CBand132cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+11CBand133Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+11CBand134inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+11CBand135inGate$Bool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+11CBand136CreateLimitsvoidprotected000110000000
+BEGIN_CODE
+
+END_CODE
+12C2Bands137C2Bandspublic000010000000
+BEGIN_CODE
+
+END_CODE
+12C2Bands138~C2Bandspublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+12C2Bands139C2Bands$public000010000000
+BEGIN_CODE
+ 
+  
+END_CODE
+12C2Bands140operator=C2Bands&public000010000000
+BEGIN_CODE
+
+    if(&aC2Bands != this)
+      CContour::operator=(aC2Bands);
+
+    return *this;
+  
+END_CODE
+12C2Bands141operator==intprivate010010000000
+BEGIN_CODE
+
+END_CODE
+12C2Bands142Typestd::stringpublic000110000000
+BEGIN_CODE
+
+END_CODE
+12C2Bands143MarshallPointsCPointprotected000010000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate144CCompoundGatepublic000010000000
+BEGIN_CODE
+}
+END_CODE
+13CCompoundGate145CCompoundGate$public000010000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate146CCompoundGate$$public000010000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate147CCompoundGate$$$public000010000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate148~CCompoundGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+13CCompoundGate149CCompoundGate$$$$public000010000000
+BEGIN_CODE
+ 
+    m_vConstituents = aCCompoundGate.m_vConstituents;
+  
+END_CODE
+13CCompoundGate150operator=CCompoundGate&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCCompoundGate) return *this;          
+    CGate::operator= (aCCompoundGate);
+    m_vConstituents = aCCompoundGate.m_vConstituents;
+    return *this;                                                                                                 
+  
+END_CODE
+13CCompoundGate151operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate152GetConstituentsCGateContainer&public000010000000
+BEGIN_CODE
+
+    return m_vConstituents;
+  
+END_CODE
+13CCompoundGate153SetConstituentsvoidprotected000010000000
+BEGIN_CODE
+
+    m_vConstituents = gates;
+  
+END_CODE
+13CCompoundGate154BeginCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate155EndCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate156SizeUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate157GetConstituentstd::stringpublic000110000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate158AddGateFrontvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate159AddGateBackvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate160AddGatevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+13CCompoundGate161ConvertIteratorCGateContainer::iteratorprotected000010000000
+BEGIN_CODE
+
+END_CODE
+14CConstituentIterator162CConstituentIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+14CConstituentIterator163~CConstituentIteratorpublic000110000000
+BEGIN_CODE
+ 
+    delete m_pActualIterator; 
+  
+END_CODE
+14CConstituentIterator164CConstituentIterator$public000010000000
+BEGIN_CODE
+
+END_CODE
+14CConstituentIterator165operator=CConstituentIterator&public000010000000
+BEGIN_CODE
+
+END_CODE
+14CConstituentIterator166operator==intpublic010010000000
+BEGIN_CODE
+
+END_CODE
+14CConstituentIterator167getActualIteratorCAConstituentIterator*public010010000000
+BEGIN_CODE
+
+    return m_pActualIterator;
+  
+END_CODE
+14CConstituentIterator168setActualIteratorvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_pActualIterator = am_rActualIterator;
+  
+END_CODE
+14CConstituentIterator169operator++CConstituentIterator&public000010000000
+BEGIN_CODE
+
+END_CODE
+14CConstituentIterator170operator++$CConstituentIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+14CConstituentIterator171operator!=intpublic010010000000
+BEGIN_CODE
+
+END_CODE
+15CContour172CContourpublic000010000000
+BEGIN_CODE
+
+END_CODE
+15CContour173CContour$public000010000000
+BEGIN_CODE
+
+END_CODE
+15CContour174CContour$$public000010000000
+BEGIN_CODE
+
+END_CODE
+15CContour175~CContourpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+15CContour176CContour$$$public000010000000
+BEGIN_CODE
+   
+    m_LowerLeft = aCContour.m_LowerLeft;
+    m_UpperRight = aCContour.m_UpperRight;
+    m_Interior = aCContour.m_Interior;                
+  
+END_CODE
+15CContour177operator=CContour&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCContour) return *this;  
+        
+    CPointListGate::operator= (aCContour);
+    m_LowerLeft = aCContour.m_LowerLeft;
+    m_UpperRight = aCContour.m_UpperRight;
+    m_Interior = aCContour.m_Interior;
+    
+    return *this;                                                                                                 
+  
+END_CODE
+15CContour178operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+15CContour179getLowerLeftCPointpublic010010000000
+BEGIN_CODE
+
+    return m_LowerLeft;
+  
+END_CODE
+15CContour180getUpperRightCPointpublic010010000000
+BEGIN_CODE
+
+    return m_UpperRight;
+  
+END_CODE
+15CContour181getInteriorCInterior&public010010000000
+BEGIN_CODE
+
+    return m_Interior;
+  
+END_CODE
+15CContour182setLowerLeftvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_LowerLeft = am_Lower;
+  
+END_CODE
+15CContour183setUpperRightvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_UpperRight = am_Upper;
+  
+END_CODE
+15CContour184setInteriorvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_Interior = am_aInterior;
+  
+END_CODE
+15CContour185cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+15CContour186Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+15CContour187inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+15CContour188inGate$Bool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+15CContour189GenerateInteriorvoidprotected000110000000
+BEGIN_CODE
+
+END_CODE
+16CCut190CCutpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+16CCut191~CCutpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+16CCut192CCut$public000010000000
+BEGIN_CODE
+   
+    m_nLow = aCCut.m_nLow;
+    m_nHigh = aCCut.m_nHigh;
+    m_nId = aCCut.m_nId;               
+  
+END_CODE
+16CCut193operator=CCut&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCCut) return *this;          
+    CGate::operator= (aCCut);
+    m_nLow = aCCut.m_nLow;
+    m_nHigh = aCCut.m_nHigh;
+    m_nId = aCCut.m_nId;
+    
+    return *this;                                                                                                 
+  
+END_CODE
+16CCut194operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+16CCut195getLowUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nLow;
+  
+END_CODE
+16CCut196getHighUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nHigh;
+  
+END_CODE
+16CCut197getIdUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_nId;
+  
+END_CODE
+16CCut198getSpecsstringpublic010110000000
+BEGIN_CODE
+ 
+END_CODE
+16CCut199setm_nLowvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_nLow = am_nLow;
+  
+END_CODE
+16CCut200setm_nHighvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_nHigh = am_nHigh;
+  
+END_CODE
+16CCut201setm_nIdvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_nId = am_nId;
+  
+END_CODE
+16CCut202cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+16CCut203BeginCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+16CCut204EndCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+16CCut205SizeUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+16CCut206GetConstituentstd::stringpublic000110000000
+BEGIN_CODE
+
+END_CODE
+16CCut207Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+16CCut208inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+16CCut209inGate$Bool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+17CDeletedGate210CDeletedGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+17CDeletedGate211~CDeletedGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+17CDeletedGate212CDeletedGate$public000010000000
+BEGIN_CODE
+ 
+                
+  
+END_CODE
+17CDeletedGate213operator=CDeletedGate&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCDeletedGate) return *this;          
+    CFalseGate::operator= (aCDeletedGate);
+  
+    return *this;
+  
+END_CODE
+17CDeletedGate214operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+17CDeletedGate215Typestd::stringprivate000110000000
+BEGIN_CODE
+
+END_CODE
+18CFalseGate216CFalseGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+18CFalseGate217~CFalseGatepublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+18CFalseGate218CFalseGate$public000010000000
+BEGIN_CODE
+ 
+                
+  
+END_CODE
+18CFalseGate219operator=CFalseGate&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCFalseGate) return *this;          
+    CGate::operator= (aCFalseGate);
+  
+    return *this;
+  
+END_CODE
+18CFalseGate220operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+18CFalseGate221BeginCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+18CFalseGate222EndCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+18CFalseGate223SizeUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+18CFalseGate224GetConstituentstd::stringpublic000110000000
+BEGIN_CODE
+
+END_CODE
+18CFalseGate225cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+18CFalseGate226Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+18CFalseGate227inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+18CFalseGate228inGate$Bool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+19CGammaBand229CGammaBandpublic000010000000
+BEGIN_CODE
+
+END_CODE
+19CGammaBand230CGammaBand$public000010000000
+BEGIN_CODE
+
+END_CODE
+19CGammaBand231CGammaBand$$public000010000000
+BEGIN_CODE
+
+END_CODE
+19CGammaBand232CGammaBand$$$public000010000000
+BEGIN_CODE
+
+END_CODE
+19CGammaBand233~CGammaBandpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+19CGammaBand234CGammaBand$$$$public000010000000
+BEGIN_CODE
+
+      m_vSpecs = aCGammaBand.m_vSpecs;
+      setLimits(aCGammaBand.getLimits());
+    
+END_CODE
+19CGammaBand235operator=CGammaBand&public000010000000
+BEGIN_CODE
+
+      if (this == &aCGammaBand) return *this;
+      CBand::operator= (aCGammaBand);
+      m_vSpecs = aCGammaBand.m_vSpecs;
+      setLimits(aCGammaBand.getLimits());
+
+      return *this;
+    
+END_CODE
+19CGammaBand236operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+19CGammaBand237getSpecsstringpublic010110000000
+BEGIN_CODE
+
+      return m_vSpecs;
+    
+END_CODE
+19CGammaBand238setm_vSpecsvoidprotected000010000000
+BEGIN_CODE
+
+      m_vSpecs = rSpecs;
+    
+END_CODE
+19CGammaBand239cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+19CGammaBand240Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+19CGammaBand241inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+20CGammaContour242CGammaContourpublic000010000000
+BEGIN_CODE
+
+END_CODE
+20CGammaContour243CGammaContour$public000010000000
+BEGIN_CODE
+
+END_CODE
+20CGammaContour244~CGammaContourpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+20CGammaContour245CGammaContour$$public000010000000
+BEGIN_CODE
+
+      m_vSpecs = aCGammaContour.m_vSpecs;
+      setLowerLeft(aCGammaContour.getLowerLeft());
+      setUpperRight(aCGammaContour.getUpperRight());
+      setInterior(aCGammaContour.getInterior());
+    
+END_CODE
+20CGammaContour246operator=CGammaContour&public000010000000
+BEGIN_CODE
+
+      if (this == &aCGammaContour) return *this;
+      CContour::operator= (aCGammaContour);
+      m_vSpecs = aCGammaContour.m_vSpecs;
+      setLowerLeft(aCGammaContour.getLowerLeft());
+      setUpperRight(aCGammaContour.getUpperRight());
+      setInterior(aCGammaContour.getInterior());
+
+      return *this;
+    
+END_CODE
+20CGammaContour247operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+20CGammaContour248getSpecsstringpublic010110000000
+BEGIN_CODE
+
+      return m_vSpecs;
+    
+END_CODE
+20CGammaContour249setm_vSpecsvoidprotected000010000000
+BEGIN_CODE
+
+      m_vSpecs = rSpecs;
+    
+END_CODE
+20CGammaContour250cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+20CGammaContour251Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+20CGammaContour252inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+21CGammaCut253CGammaCutpublic000010000000
+BEGIN_CODE
+
+      vector<string> empty;
+      m_vSpecs = empty;
+    
+END_CODE
+21CGammaCut254CGammaCut$public000010000000
+BEGIN_CODE
+ 
+END_CODE
+21CGammaCut255~CGammaCutpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+21CGammaCut256CGammaCut$$public000010000000
+BEGIN_CODE
+
+      m_vSpecs = aCGammaCut.m_vSpecs;
+      m_nLow = aCGammaCut.m_nLow;
+      m_nHigh = aCGammaCut.m_nHigh;
+    
+END_CODE
+21CGammaCut257operator=CGammaCut&public000010000000
+BEGIN_CODE
+
+      if (this == &aCGammaCut) return *this;
+      CCut::operator= (aCGammaCut);
+      m_nLow = aCGammaCut.m_nLow;
+      m_nHigh = aCGammaCut.m_nHigh;
+      m_vSpecs = aCGammaCut.m_vSpecs;
+
+      return *this;
+    
+END_CODE
+21CGammaCut258operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+21CGammaCut259getLowUInt_tpublic010010000000
+BEGIN_CODE
+
+      return m_nLow;
+    
+END_CODE
+21CGammaCut260getHighUInt_tpublic010010000000
+BEGIN_CODE
+
+      return m_nHigh;
+    
+END_CODE
+21CGammaCut261getSpecsstringpublic010110000000
+BEGIN_CODE
+
+      return m_vSpecs;
+    
+END_CODE
+21CGammaCut262setm_nLowvoidprotected000010000000
+BEGIN_CODE
+
+      m_nLow = am_nLow;
+    
+END_CODE
+21CGammaCut263setm_nHighvoidprotected000010000000
+BEGIN_CODE
+
+      m_nHigh = am_nHigh;
+    
+END_CODE
+21CGammaCut264setm_vSpecsvoidprotected000010000000
+BEGIN_CODE
+
+      m_vSpecs = am_vSpecs;
+    
+END_CODE
+21CGammaCut265cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+21CGammaCut266GetConstituentstd::stringpublic000110000000
+BEGIN_CODE
+
+END_CODE
+21CGammaCut267Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+21CGammaCut268inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+22CGate269CGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+22CGate270~CGatepublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+22CGate271CGate$public000010000000
+BEGIN_CODE
+   
+    m_fChecked = aCGate.m_fChecked;
+    m_fCachedValue = aCGate.m_fCachedValue;           
+  
+END_CODE
+22CGate272operator=CGate&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCGate) return *this;          
+    
+    m_fChecked = aCGate.m_fChecked;
+    m_fCachedValue = aCGate.m_fCachedValue;
+    
+    return *this;
+  
+END_CODE
+22CGate273operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (
+
+	    (m_fChecked == aCGate.m_fChecked) &&
+	    (m_fCachedValue == aCGate.m_fCachedValue)
+	    );
+  
+END_CODE
+22CGate274getCheckedBool_tpublic010010000000
+BEGIN_CODE
+
+    return m_fChecked;
+  
+END_CODE
+22CGate275getCachedValueBool_tpublic010010000000
+BEGIN_CODE
+
+    return m_fCachedValue;
+  
+END_CODE
+22CGate276setCheckedvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_fChecked = am_fChecked;
+  
+END_CODE
+22CGate277setCachedValuevoidprotected000010000000
+BEGIN_CODE
+ 
+    m_fCachedValue = am_fCachedValue;
+  
+END_CODE
+22CGate278Setvoidpublic000010000000
+BEGIN_CODE
+
+    m_fChecked     = kfTRUE;
+    m_fCachedValue = fValue;
+  
+END_CODE
+22CGate279Resetvoidpublic000010000000
+BEGIN_CODE
+
+    m_fChecked = kfFALSE;
+  
+END_CODE
+22CGate280wasCheckedBool_tpublic000010000000
+BEGIN_CODE
+
+    return m_fChecked;
+  
+END_CODE
+22CGate281BeginCConstituentIteratorpublic001110000000
+BEGIN_CODE
+
+END_CODE
+22CGate282EndCConstituentIteratorpublic001110000000
+BEGIN_CODE
+
+END_CODE
+22CGate283SizeUInt_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+22CGate284GetConstituentstd::stringpublic001110000000
+BEGIN_CODE
+
+END_CODE
+22CGate285cloneCGate*public001110000000
+BEGIN_CODE
+
+END_CODE
+22CGate286Typestd::stringpublic011110000000
+BEGIN_CODE
+
+END_CODE
+22CGate287inGateBool_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+22CGate288inGate$Bool_tpublic001110000000
+BEGIN_CODE
+
+END_CODE
+23CGateContainer289CGateContainerpublic000010000000
+BEGIN_CODE
+}
+END_CODE
+23CGateContainer290CGateContainer$public000010000000
+BEGIN_CODE
+
+END_CODE
+23CGateContainer291~CGateContainerpublic000110000000
+BEGIN_CODE
+
+END_CODE
+23CGateContainer292CGateContainer$$public000010000000
+BEGIN_CODE
+
+END_CODE
+23CGateContainer293operator=CGateContainer&public000010000000
+BEGIN_CODE
+
+END_CODE
+23CGateContainer294operator==intpublic010010000000
+BEGIN_CODE
+
+    return CNamedItem::operator==(aCGateContainer);
+  
+END_CODE
+23CGateContainer295getGateCGate*public010010000000
+BEGIN_CODE
+
+    return m_pGate;
+  
+END_CODE
+23CGateContainer296setGatevoidpublic000010000000
+BEGIN_CODE
+ 
+    delete m_pGate;		// This is always dynamic.
+    m_pGate = am_pGate->clone();
+  
+END_CODE
+23CGateContainer297operator*CGate&public000010000000
+BEGIN_CODE
+
+    return *m_pGate;
+  
+END_CODE
+23CGateContainer298operator->CGate*public000010000000
+BEGIN_CODE
+
+      return m_pGate;
+  
+END_CODE
+24CGateListIterator299CGateListIteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+24CGateListIterator300CGateListIterator$public000010000000
+BEGIN_CODE
+ 
+END_CODE
+24CGateListIterator301~CGateListIteratorpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+24CGateListIterator302CGateListIterator$$public000010000000
+BEGIN_CODE
+   
+    m_iGates = aCGateListIterator.m_iGates;
+                
+  
+END_CODE
+24CGateListIterator303operator=CGateListIterator&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCGateListIterator) return *this;          
+    CAConstituentIterator::operator= (aCGateListIterator);
+    m_iGates = aCGateListIterator.m_iGates;
+        
+  return *this;
+  
+END_CODE
+24CGateListIterator304operator==intpublic010110000000
+BEGIN_CODE
+ 
+    const CGateListIterator& it((const CGateListIterator&)aCGateListIterator);
+    return (
+	    (m_iGates == it.m_iGates) 
+	    );
+  
+END_CODE
+24CGateListIterator305getGatesCGateContainer::iteratorpublic010010000000
+BEGIN_CODE
+
+    return m_iGates;
+  
+END_CODE
+24CGateListIterator306setGatesvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_iGates = am_iGates;
+  
+END_CODE
+24CGateListIterator307operator++CAConstituentIterator&public000110000000
+BEGIN_CODE
+
+END_CODE
+24CGateListIterator308operator==$intpublic000110000000
+BEGIN_CODE
+
+END_CODE
+24CGateListIterator309cloneCAConstituentIterator*public000110000000
+BEGIN_CODE
+
+END_CODE
+25CInterior310CInteriorpublic000010000000
+BEGIN_CODE
+}
+END_CODE
+25CInterior311CInterior$public000010000000
+BEGIN_CODE
+
+END_CODE
+25CInterior312~CInteriorpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+25CInterior313CInterior$$public000010000000
+BEGIN_CODE
+ 
+    m_aRows = aCInterior.m_aRows;
+  
+END_CODE
+25CInterior314operator=CInterior&public000010000000
+BEGIN_CODE
+
+END_CODE
+25CInterior315operator==intpublic000010000000
+BEGIN_CODE
+
+END_CODE
+25CInterior316getRowsCInteriorRowpublic010010000000
+BEGIN_CODE
+
+    return m_aRows;
+  
+END_CODE
+25CInterior317setRowsvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_aRows = am_aRows;
+  
+END_CODE
+25CInterior318setShapevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+25CInterior319Clearvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+25CInterior320Setvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+25CInterior321InsideBool_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+25CInterior322getRowSizeUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+25CInterior323getRowCountUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+25CInterior324RowBeginCInteriorRow::iteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+25CInterior325RowEndCInteriorRow::iteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+26CInteriorRow326CInteriorRowpublic000010000000
+BEGIN_CODE
+}
+END_CODE
+26CInteriorRow327CInteriorRow$public000010000000
+BEGIN_CODE
+
+    m_vRow.reserve(nSize);	// Size the vector appropriately...
+    fill(m_vRow.begin(), m_vRow.end(), 0); // And init to zero.
+  
+END_CODE
+26CInteriorRow328~CInteriorRowpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+26CInteriorRow329CInteriorRow$$public000010000000
+BEGIN_CODE
+ 
+END_CODE
+26CInteriorRow330CInteriorRow$$$public000010000000
+BEGIN_CODE
+  
+    m_vRow = aCInteriorRow.m_vRow;
+                
+  
+END_CODE
+26CInteriorRow331operator=CInteriorRow&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCInteriorRow) return *this;          
+  
+    m_vRow = aCInteriorRow.m_vRow;
+        
+    return *this;                                                                                                 
+  
+END_CODE
+26CInteriorRow332operator==intpublic000010000000
+BEGIN_CODE
+ 
+    return (
+	    
+	    (m_vRow == aCInteriorRow.m_vRow) 
+	    );
+  
+END_CODE
+26CInteriorRow333getRowUInt_tpublic010010000000
+BEGIN_CODE
+
+    return m_vRow;
+  
+END_CODE
+26CInteriorRow334setRowvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_vRow = am_vRow;
+  
+END_CODE
+26CInteriorRow335SetRowSizevoidpublic000010000000
+BEGIN_CODE
+
+    m_vRow.reserve(n);
+    m_vRow.insert(Begin(), (const int)n, (UInt_t)0);
+  
+END_CODE
+26CInteriorRow336SizeUInt_tpublic000010000000
+BEGIN_CODE
+
+END_CODE
+26CInteriorRow337BeginUInt_t::iteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+26CInteriorRow338EndUInt_t::iteratorpublic000010000000
+BEGIN_CODE
+
+END_CODE
+26CInteriorRow339operator[]UInt_t&public000010000000
+BEGIN_CODE
+
+END_CODE
+27CNot340CNotpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+27CNot341~CNotpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+27CNot342CNot$public000010000000
+BEGIN_CODE
+ 
+    m_pConstituent = aCNot.m_pConstituent;
+  
+END_CODE
+27CNot343operator=CNot&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCNot) return *this;          
+    m_pConstituent = aCNot.m_pConstituent;
+    return *this;                                                                                                 
+  
+END_CODE
+27CNot344operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+27CNot345getGateCGateContainer*public010010000000
+BEGIN_CODE
+
+    return m_pConstituent;
+  
+END_CODE
+27CNot346setConstituentvoidprotected000010000000
+BEGIN_CODE
+
+    m_pConstituent = pGate;
+  
+END_CODE
+27CNot347BeginCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+27CNot348EndCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+27CNot349SizeUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+27CNot350GetConstituentstd::stringpublic000110000000
+BEGIN_CODE
+
+END_CODE
+27CNot351cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+27CNot352Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+27CNot353inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+27CNot354inGate$Bool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+28COrGate355COrGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+28COrGate356COrGate$public000010000000
+BEGIN_CODE
+
+END_CODE
+28COrGate357COrGate$$public000010000000
+BEGIN_CODE
+}
+END_CODE
+28COrGate358COrGate$$$public000010000000
+BEGIN_CODE
+}
+END_CODE
+28COrGate359~COrGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+28COrGate360COrGate$$$$public000010000000
+BEGIN_CODE
+ 
+                
+  
+END_CODE
+28COrGate361operator=COrGate&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCOrGate) return *this;          
+    CCompoundGate::operator= (aCOrGate);
+    
+    return *this;                                                                                                 
+  
+END_CODE
+28COrGate362operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+28COrGate363cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+28COrGate364Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+28COrGate365inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+28COrGate366inGate$Bool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate430CPointListGatevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate431CPointListGate$voidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate432CPointListGate$$voidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate433~CPointListGatevoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate434CPointListGate$$$voidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate372operator=CPointListGate&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCPointListGate) return *this;          
+
+    CGate::operator= (aCPointListGate);
+    m_nxId          = aCPointListGate.m_nxId;
+    m_nyId          = aCPointListGate.m_nyId;
+    m_aConstituents = aCPointListGate.m_aConstituents;
+    return *this;                                                                                                 
+  
+END_CODE
+29CPointListGate373operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate435getxIdvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate436getyIdvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate437getPointsvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate438getBeginvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate439getEndvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate440getSpecsvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate441setxIdvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate442setyIdvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate443setPointsvoidpublic000010000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate383BeginCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate384EndCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate385SizeUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+29CPointListGate386GetConstituentstd::stringpublic000110000000
+BEGIN_CODE
+
+END_CODE
+30CPointListIterator387CPointListIteratorpublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+30CPointListIterator388~CPointListIteratorpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+30CPointListIterator389CPointListIterator$public000010000000
+BEGIN_CODE
+   
+    m_iPoints = aCPointListIterator.m_iPoints;
+                
+  
+END_CODE
+30CPointListIterator390operator=CPointListIterator&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCPointListIterator) return *this;          
+    CAConstituentIterator::operator= (aCPointListIterator);
+    m_iPoints = aCPointListIterator.m_iPoints;
+    
+    return *this;
+  
+END_CODE
+30CPointListIterator391getPointIteratorCPoint::iteratorpublic010010000000
+BEGIN_CODE
+
+    return m_iPoints;
+  
+END_CODE
+30CPointListIterator392setPointIteratorvoidprotected000010000000
+BEGIN_CODE
+ 
+    m_iPoints = am_iPoints;
+  
+END_CODE
+30CPointListIterator393operator++CAConstituentIterator&public000110000000
+BEGIN_CODE
+
+END_CODE
+30CPointListIterator394operator==intpublic010110000000
+BEGIN_CODE
+
+END_CODE
+30CPointListIterator395cloneCAConstituentIterator*public000110000000
+BEGIN_CODE
+
+END_CODE
+31CSingleItemIterator396CSingleItemIteratorpublic000010000000
+BEGIN_CODE
+ 
+  
+END_CODE
+31CSingleItemIterator397~CSingleItemIteratorpublic000110000000
+BEGIN_CODE
+ 
+END_CODE
+31CSingleItemIterator398CSingleItemIterator$public000010000000
+BEGIN_CODE
+ 
+  
+END_CODE
+31CSingleItemIterator399CSingleItemIterator$$public000010000000
+BEGIN_CODE
+   
+    m_fNotEnd = aCSingleItemIterator.m_fNotEnd;
+                
+  
+END_CODE
+31CSingleItemIterator400operator=CSingleItemIterator&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCSingleItemIterator) return *this;          
+    CAConstituentIterator::operator= (aCSingleItemIterator);
+    m_fNotEnd = aCSingleItemIterator.m_fNotEnd;        
+    return *this;                                                                                                 
+  
+END_CODE
+31CSingleItemIterator401getNotEndBool_tpublic010010000000
+BEGIN_CODE
+
+    return m_fNotEnd;
+  
+END_CODE
+31CSingleItemIterator402setNotEndvoidpublic000010000000
+BEGIN_CODE
+ 
+    m_fNotEnd = am_fNotEnd;
+  
+END_CODE
+31CSingleItemIterator403operator++CAConstituentIterator&public000110000000
+BEGIN_CODE
+
+END_CODE
+31CSingleItemIterator404operator==intpublic010110000000
+BEGIN_CODE
+
+END_CODE
+31CSingleItemIterator405cloneCAConstituentIterator*public000110000000
+BEGIN_CODE
+
+END_CODE
+32CTrueGate406CTrueGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+32CTrueGate407~CTrueGatepublic000010000000
+BEGIN_CODE
+ 
+END_CODE
+32CTrueGate408CTrueGate$public000010000000
+BEGIN_CODE
+ 
+                
+  
+END_CODE
+32CTrueGate409operator=CTrueGate&public000010000000
+BEGIN_CODE
+ 
+    if (this == &aCTrueGate) return *this;          
+    CGate::operator= (aCTrueGate);
+    
+    return *this;                                                                                                 
+  
+END_CODE
+32CTrueGate410operator==intprivate000010000000
+BEGIN_CODE
+
+END_CODE
+32CTrueGate411BeginCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+32CTrueGate412EndCConstituentIteratorpublic000110000000
+BEGIN_CODE
+
+END_CODE
+32CTrueGate413SizeUInt_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+32CTrueGate414GetConstituentstd::stringpublic000110000000
+BEGIN_CODE
+
+END_CODE
+32CTrueGate415cloneCGate*public000110000000
+BEGIN_CODE
+
+END_CODE
+32CTrueGate416Typestd::stringpublic010110000000
+BEGIN_CODE
+
+END_CODE
+32CTrueGate417inGateBool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+32CTrueGate418inGate$Bool_tpublic000110000000
+BEGIN_CODE
+
+END_CODE
+***END_TABLE***
+
+Parameters
+OperID, Parameter Text
+***BEGIN_TABLE***
+105 const  CAConstituentIterator&/aCAConstituentIterator//
+106 const  CAConstituentIterator&/aCAConstituentIterator//
+107 const  CAConstituentIterator&/aCAConstituentIterator//
+108 CAConstituentIterator&/rRhs//
+112 list<CGateContainer*>&/rGates//
+113 vector<CGateContainer*>&/rGates//
+114 UInt_t/nGates//
+114 CGateContainer**/ppGates//
+116 const  CAndGate&/aCAndGate//
+117 const  CAndGate&/aCAndGate//
+118 const  CAndGate&/aCAndGate//
+121 CEvent&/rEvent//
+121 const  vector<UInt_t>&/Params//
+122 CEvent&/rEvent//
+123 UInt_t/nXid//
+123 UInt_t/nYid//
+123 const  vector<CPoint>&/points//
+124 UInt_t/nXid//
+124 UInt_t/nYid//
+124 UInt_t/nPts//
+124 CPoint*/pPoints//
+125 UInt_t/nXid//
+125 UInt_t/nYid//
+125 UInt_t/nPts//
+125 UInt_t*/pX//
+125 UInt_t*/pY//
+127 const  CBand&/aCBand//
+128 const  CBand&/aCBand//
+129 const  CBand&/aCBand//
+131 std::vector<UInt_t>/am_aLimits//
+134 CEvent&/rEvent//
+134 const  vector<UInt_t>&/Params//
+135 CEvent&/rEvent//
+137 UInt_t/nXId//
+137 UInt_t/nYId//
+137 vector<CPoint>&/rLowBand//
+137 vector<CPoint>&/rHiBand//
+139 const  C2Bands&/aC2Bands//
+140 const  C2Bands&/aC2Bands//
+141 const  C2Bands&/aC2Bands//
+143 vector<CPoint>&/rLow//
+143 vector<CPoint>&/rHi//
+145 list<CGateContainer*>/pGates//
+146 vector<CGateContainer*>/pGates//
+147 UInt_t/nGates//
+147 CGateContainer**/ppGates//
+149 const  CCompoundGate&/aCCompoundGate//
+150 const  CCompoundGate&/aCCompoundGate//
+151 const  CCompoundGate&/aCCompoundGate//
+153 list<CGateContainer*>/gates//
+157 CConstituentIterator&/rIterator//
+158 CGateContainer&/rGate//
+159 CGateContainer&/rGate//
+160 CConstituentIterator&/rSpot//
+160 CGateContainer&/rGate//
+161 CConstituentIterator&/rIterator//
+162 CAConstituentIterator&/rIt//
+164 const  CConstituentIterator&/aCConstituentIterator//
+165 const  CConstituentIterator&/aCConstituentIterator//
+166 const  CConstituentIterator&/aCConstituentIterator//
+168 CAConstituentIterator*/am_rActualIterator//
+170 int/aCConstituentIterator//
+171 CConstituentIterator&/rRhs//
+172 UInt_t/nXId//
+172 UInt_t/nYId//
+172 const  vector<CPoint>&/Points//
+173 UInt_t/nXId//
+173 UInt_t/NYId//
+173 UInt_t/nPts//
+173 UInt_t*/xCoords//
+173 UInt_t*/yCoords//
+174 UInt_t/nXId//
+174 UInt_t/NYId//
+174 UInt_t/nPts//
+174 CPoint*/pPonts//
+176 const  CContour&/aCContour//
+177 const  CContour&/aCContour//
+178 const  CContour&/aCContour//
+182 const  CPoint&/am_Lower//
+183 const  CPoint&/am_Upper//
+184 const  CInterior&/am_aInterior//
+187 CEvent&/rEvent//
+187 const  vector<UInt_t>&/Params//
+188 CEvent&/rEvent//
+190 UInt_t/am_nLow//
+190 UInt_t/am_nHigh//
+190 UInt_t/am_nId//
+192 const  CCut&/aCCut//
+193 const  CCut&/aCCut//
+194 const  CCut&/aCCut//
+199 UInt_t/am_nLow//
+200 UInt_t/am_nHigh//
+201 UInt_t/am_nId//
+206 CConstituentIterator&/rIterator//
+208 CEvent&/rEvent//
+208 const  vector<UInt_t>&/Params//
+209 CEvent&/rEvent//
+212 const  CDeletedGate&/aCDeletedGate//
+213 const  CDeletedGate&/aCDeletedGate//
+214 const  CDeletedGate&/aCDeletedGate//
+218 const  CFalseGate&/aCFalseGate//
+219 const  CFalseGate&/aCFalseGate//
+220 const  CFalseGate&/aCFalseGate//
+224 CConstituentIterator&/rIterator//
+227 CEvent&/rEvent//
+227 const  vector<UInt_t>&/Params//
+228 CEvent&/rEvent//
+229 const  vector<CPoint>&/rPoints//
+230 const  vector<CPoint>&/rPoints//
+230 const  vector<string>/rSpecs//
+231 UInt_t/nPts//
+231 CPoint*/pPoints//
+232 UInt_t/nPts//
+232 UInt_t*/pX//
+232 UInt_t*/pY//
+234 const  CGammaBand&/aCGammaBand//
+235 const  CGammaBand&/aCGammaBand//
+236 const  CGammaBand&/aCGammaBand//
+238 vector<string>&/rSpecs//
+241 CEvent&/rEvent//
+241 const  vector<UInt_t>&/Params//
+242 const  vector<CPoint>&/rPoints//
+243 const  vector<CPoint>&/rPoints//
+243 const  vector<string>&/rSpecs//
+245 const  CGammaContour&/aCGammaContour//
+246 const  CGammaContour&/aCGammaContour//
+247 const  CGammaContour&/aCGammaContour//
+249 vector<string>&/rSpecs//
+252 CEvent&/rEvent//
+252 const  vector<UInt_t>&/Params//
+253 UInt_t/am_nLow//
+253 UInt_t/am_nHigh//
+254 UInt_t/am_nLow//
+254 UInt_t/am_nHigh//
+254 const  vector<string>/am_vSpecs//
+256 const  CGammaCut&/aCGammaCut//
+257 const  CGammaCut&/aCGammaCut//
+258 const  CGammaCut&/aCGammaCut//
+262 UInt_t/am_nLow//
+263 UInt_t/am_nHigh//
+264 vector<string>/am_vSpecs//
+266 CConstituentIterator&/rIterator//
+268 CEvent&/rEvent//
+268 const  vector<UInt_t>&/Param//
+271 const  CGate&/aCGate//
+272 const  CGate&/aCGate//
+273 const  CGate&/aCGate//
+276 Bool_t/am_fChecked//
+277 Bool_t/am_fCachedValue//
+278 Bool_t/fValue//
+284 CConstituentIterator&/rIterator//
+287 CEvent&/rEvent//
+287 const  vector<UInt_t>&/Params//
+288 CEvent&/rEvent//
+290 const  std::string&/sName//
+290 UInt_t/nNumber//
+290 CGate&/rGate//
+292 const  CGateContainer&/aCGateContainer//
+293 const  CGateContainer&/aCGateContainer//
+294 const  CGateContainer&/aCGateContainer//
+296 CGate*/am_pGate//
+299 std::list<CGateContainer*>::iterator/rIt//
+300 std::list<CGateContainer*>&/rArray//
+302 const  CGateListIterator&/aCGateListIterator//
+303 const  CGateListIterator&/aCGateListIterator//
+304 const  CAConstituentIterator&/aCGateListIterator//
+306 std::list<CGateContainer*>::iterator&/am_iGates//
+308 const  CAConstituentIterator&/rRhs//
+311 UInt_t/nr//
+311 UInt_t/nc//
+313 const  CInterior&/aCInterior//
+314 const  CInterior&/aCInterior//
+315 const  CInterior&/aCInterior//
+317 vector<CInteriorRow>/am_aRows//
+318 UInt_t/nr//
+318 UInt_t/nc//
+320 UInt_t/nX//
+320 UInt_t/nY//
+320 Bool_t/fValue//
+321 UInt_t/nX//
+321 UInt_t/nY//
+322 UInt_t/nRow//
+327 UInt_t/nSize//
+329 vector<UInt_t>/am_vRow//
+330 const  CInteriorRow&/aCInteriorRow//
+331 const  CInteriorRow&/aCInteriorRow//
+332 const  CInteriorRow&/aCInteriorRow//
+334 vector<UInt_t>/am_vRow//
+335 UInt_t/n//
+339 UInt_t/i//
+340 CGateContainer&/rGate//
+342 const  CNot&/aCNot//
+343 const  CNot&/aCNot//
+344 const  CNot&/aCNot//
+346 CGateContainer*/pGate//
+350 CConstituentIterator&/rp//
+353 CEvent&/rEvent//
+353 const  vector<UInt_t>&/Params//
+354 CEvent&/rEvent//
+356 list<CGateContainer*>&/rGates//
+357 vector<CGateContainer*>&/rGates//
+358 UInt_t/nGates//
+358 CGateContainer**/ppGates//
+360 const  COrGate&/aCOrGate//
+361 const  COrGate&/aCOrGate//
+362 const  COrGate&/aCOrGate//
+365 CEvent&/rEvent//
+365 const  vector<UInt_t>&/Params//
+366 CEvent&/rEvent//
+372 const  CPointListGate&/aCPointListGate//
+373 const  CPointListGate&/aCPointListGate//
+386 CConstituentIterator&/rIterator//
+387 const  vector<UInt_t>& std::vector<CPoint>::iterator/rStart/(/
+389 const  CPointListIterator&/aCPointListIterator//
+390 const  CPointListIterator&/aCPointListIterator//
+392 std::vector<CPoint>::iterator/am_iPoints//
+394 const  CAConstituentIterator&/rRhs//
+398 Bool_t/am_fNotEnd//
+399 const  CSingleItemIterator&/aCSingleItemIterator//
+400 const  CSingleItemIterator&/aCSingleItemIterator//
+402 Bool_t/am_fNotEnd//
+404 const  CAConstituentIterator&/rRhs//
+408 const  CTrueGate&/aCTrueGate//
+409 const  CTrueGate&/aCTrueGate//
+410 const  CTrueGate&/aCTrueGate//
+414 CConstituentIterator&/rIterator//
+417 CEvent&/rEvent//
+417 const  vector<UInt_t>&/Params//
+418 CEvent&/rEvent//
+***END_TABLE***
+
+Includes
+ClassID, ClassName, Include Text
+***BEGIN_TABLE***
+10CAndGateCompoundGate.h
+10CAndGateGateContainer.h
+10CAndGatehistotypes.h
+10CAndGatevector
+10CAndGatelist
+11CBandPointlistGate.h
+11CBandhistotypes.h
+11CBandPoint.h
+11CBandvector
+12C2BandsContour.h
+12C2BandsBand.h
+12C2Bandsstring
+12C2Bandsvector
+13CCompoundGateGate.h
+13CCompoundGateGateContainer.h
+13CCompoundGatelist
+13CCompoundGatevector
+14CConstituentIteratorActualIterator.h
+15CContourPointlistGate.h
+15CContourhistotypes.h
+15CContourInterior.h
+15CContourPoint.h
+15CContourvector
+16CCutGate.h
+16CCutstring
+17CDeletedGateFalseGate.h
+18CFalseGateGate.h
+19CGammaBandBand.h
+19CGammaBandPoint.h
+19CGammaBandvector
+20CGammaContourContour.h
+20CGammaContourInterior.h
+20CGammaContourPoint.h
+20CGammaContourvector
+21CGammaCutCut.h
+22CGateConstituentIterator.h
+22CGatehistotypes.h
+22CGateEvent.h
+22CGatestring
+23CGateContainerNamedItem.h
+23CGateContainerGate.h
+23CGateContainerEvent.h
+23CGateContainerstring
+24CGateListIteratorActualIterator.h
+24CGateListIteratorGateContainer.h
+24CGateListIteratorlist
+25CInteriorvector
+25CInterioriostream.h
+25CInteriorInteriorRow.h
+26CInteriorRowvector
+26CInteriorRowalgorithm
+26CInteriorRowhistotypes.h
+27CNotGateContainer.h
+27CNotGate.h
+27CNotConstituentIterator.h
+28COrGateCompoundGate.h
+28COrGatehistotypes.h
+28COrGateGateContainer.h
+28COrGatelist
+28COrGatevector
+29CPointListGateGate.h
+29CPointListGatePoint.h
+29CPointListGatehistotypes.h
+29CPointListGatevector
+29CPointListGatestring
+30CPointListIteratorActualIterator.h
+30CPointListIteratorPoint.h
+30CPointListIteratorvector
+31CSingleItemIteratorActualIterator.h
+31CSingleItemIteratorhistotypes.h
+32CTrueGateGate.h
+32CTrueGatehistotypes.h
+***END_TABLE***
+
+Relation Shape
+ShapeID, Type, Text, Multiplicity, Source Node ID, Source Index, LineTexture, IsDisplayByVal, IsDisplayByRef, QualifierSrc
+***BEGIN_TABLE***
+32NoText01310011
+42NoText02910011
+52NoText01510011
+62NoText02210011
+72NoText01830011
+82NoText01110011
+92NoText01610011
+102NoText0910011
+110NoText01320011
+120NoText01410011
+130NoText02390011
+140NoText02420011
+150NoText02510011
+160NoText02720011
+***END_TABLE***
+
+Branches
+Relation Shape ID, Multiplicity, Destination Node ID, Destination Index, Text, Relation Type, Branch Id,  IsDisplayStatic, IsDisplayFriend, IsDisplayPlus, QualifierDest, Offset x, Offset y
+***BEGIN_TABLE***
+301022700000
+3028022000000
+401162800000
+4015221100000
+501202900000
+5020021600000
+6013021000000
+6016021200000
+6018021400000
+6027421900000
+6029022100000
+6032022400000
+7017221300000
+8019021500000
+9021021700000
+10024021800000
+10030022200000
+10031022300000
+111233m_vConstituents02500000
+12090m_pActualIterator02600000
+130228m_pGate02700000
+141235m_iGates02800000
+151260m_aRows02900000
+160237m_pConstituent03000000
+***END_TABLE***
+
+Relations
+Id,ParentId,Name,Type,Description,SrcVisibility,SrcMultiplicity,SrcLength,IsSrcByRef,IsSrcByVal,IsSrcFriend,IsSrcStatic,SrcRole,SourceClassId,
+DestVisibility,DestMultiplicity,DestLength,DestByRef,IsDestByVal,IsDestFriend,IsDestStatic,IsDestRole,DestClassId
+***BEGIN_TABLE***
+732private00000013private00000010
+842private00000029private00000011
+952private00000015private00000012
+1062private00000022private00000013
+1142private00000029private00000015
+1262private00000022private00000016
+1372private00000018private00000017
+1462private00000022private00000018
+1582private00000011private00000019
+1652private00000015private00000020
+1792private00000016private00000021
+18102private0000009private00000024
+1962private00000022private00000027
+2032private00000013private00000028
+2162private00000022private00000029
+22102private0000009private00000030
+23102private0000009private00000031
+2462private00000022private00000032
+2511m_vConstituents0private00000013private10000023
+2612m_pActualIterator0private00000014private0000009
+2713m_pGate0private00000023private00000022
+2814m_iGates0private00000024private10000023
+2915m_aRows0private00000025private10000026
+3016m_pConstituent0private00000027private00000023
+***END_TABLE***
+
+General Shape
+ ShapeId, Type,Positionx, Position.y, # ConnectPoints metafileName, TextOffset, ShapeSize, Width, Height, Texture, FileName,  Class, Text
+
+***BEGIN_TABLE***
+***END_TABLE***
+
