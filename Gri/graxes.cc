@@ -421,7 +421,7 @@ gr_drawyaxis(double x, double yb, double yinc, double yt, gr_axis_properties sid
 	double          tic, tic_sml; // length of tic marks
 	double          xcm, ycm;	  // used to step along axis
 	double          xcm2, ycm2;	  // tmp, allowed to mess with
-	double          labelx_cm, labely_cm; // where tic label will go
+	double          labelx_cm(0.0), labely_cm; // where tic label will go
 	double          offset;		  // for numbers
 	double          present, next, final = yt, smallinc = 0.0;
 	int             decade_between_labels;	// for log axes
