@@ -100,7 +100,6 @@ static void CheckAbort(XtPointer userd, XtIntervalId *id)
   ** First determine which pane we're dealing with.
   */
   int index = (int)userd;
-  int ncol = Xamine_Panecols();
   int column = index  % WINDOW_MAXAXIS;
   int row    = column / WINDOW_MAXAXIS;
 
@@ -466,7 +465,6 @@ void Xamine_PaneRedrawCallback(XMWidget *w, XtPointer userd, XtPointer calld)
   if(st->event == NULL) return;
   
   XAnyEvent  *e = (XAnyEvent *)st->event;
-  XConfigureEvent *config;
   XExposeEvent    *expose;
   XamineSpectrumGC *xgc = Xamine_GetSpectrumGC(*w);
   switch(e->type) {
@@ -578,7 +576,6 @@ void Xamine_CancelTimedUpdate(int column, int row)
  */
 void Xamine_CancelUpdateTimers()
 {
-  pane_db *pdb = Xamine_GetPaneDb();
   int      ncol = Xamine_Panerows();
   int      nrow = Xamine_Panecols();
   
