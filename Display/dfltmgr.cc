@@ -44,10 +44,11 @@ extern "C" {
   time_t time(time_t *tloc);
 }
 #endif
+#ifndef Linux
 extern "C" {
   void exit(int); 
 }
-
+#endif
 /*
 ** External functions used in the default file parse.
 */

@@ -16,12 +16,13 @@
 #else
 #define XAMINE_IMAGE "/daq/bin/Xamine.old"
 #endif
+#ifndef Linux
 extern "C"
 {
   void exit(int);
   int execve(char *path, char **argv, XtPointer envp);
 }
-
+#endif
 void done(XMWidget *w, XtPointer ud, XtPointer cd)
 {
   char *arg = NULL;

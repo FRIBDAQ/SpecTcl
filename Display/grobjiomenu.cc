@@ -57,10 +57,11 @@
 ** Global references:
 */
 
-
+#ifndef Linux
 extern "C" {
   void exit(int);
 }
+#endif
 /*
 ** Local declarations:
 **/

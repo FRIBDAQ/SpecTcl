@@ -54,12 +54,14 @@
 #include "copyatr.h"
 #include "Tab.h"
 
+#ifndef Linux
 /*
 ** External functions:
 */
 extern "C" {	
   void exit(int);
 }	
+#endif
 /*
 ** External references: 
 */

@@ -36,9 +36,11 @@ extern spec_shared *xamine_shared;
 /*
 ** External functions required:
 */
+#ifndef Linux
 extern "C" {
   void exit(int code); 
 }
+#endif
 /*
 ** Local data:
 */

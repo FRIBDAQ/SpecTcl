@@ -30,9 +30,11 @@ static char *version="@(#)spectra.cc	8.1 6/23/95 ";
 /*
 ** Additional references:
 */
+#ifndef Linux
 extern "C" {
   void exit(int);
 }
+#endif
 /*
 ** Exported storage:
 */
