@@ -394,8 +394,8 @@ CGammaContour::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
   UInt_t ny = Params[1];
   if((nx < rEvent.size()) && (ny < rEvent.size())) {
     if(rEvent[nx].isValid() && rEvent[ny].isValid()) {
-      Int_t x = rEvent[nx] - getLowerLeft().X();
-      Int_t y = rEvent[ny] - getLowerLeft().Y();
+      Int_t x = (Int_t)rEvent[nx] - getLowerLeft().X();
+      Int_t y = (Int_t)rEvent[ny] - getLowerLeft().Y();
       if((x < 0) || (y < 0))
 	return kfFALSE;
       else
