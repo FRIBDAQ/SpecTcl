@@ -1162,9 +1162,9 @@ Boolean Xamine_Plot2d(Screen *s, Display *d,
 	xh = (at2->isexpandedfirst() ? at2->xhilim()  : at2->yhilim());
 	yl = (at2->isexpandedfirst() ? at2->ylowlim() : at2->xlowlim());
 	yh = (at2->isexpandedfirst() ? at2->yhilim()  : at2->xhilim());
-	if(at2->ismapped()) {
-	  xh++;
-	}
+	//	if(at2->ismapped()) {
+	// xh++;
+	//  }
       }
       ctx->sampler = 
 	Xamine_GenerateSampler2(spno, xamine_shared->gettype(spno),
