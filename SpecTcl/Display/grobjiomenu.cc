@@ -348,9 +348,11 @@ void Xamine_Read_grobj_file(XMWidget *w, XtPointer client_data,
 	    "Failed to read graphical objects file %s\n%s",
 	    filename,
 	    strerror(errno));
+    fclose(config);
   }
   else {
     Xamine_UpdateAll(Xamine_Getpanemgr(), NULL, NULL);
+    fclose(config);
   }
   XtFree(filename);
   w->UnManage();

@@ -66,6 +66,7 @@ static char *About[]
       "                      Completed port to Linux with Lesstif\n",
       "                    October 19, 1998\n",
       "                      Fixed error in points prompter on client buttons\n",
+      "                    Looking at crashes on window reconfigs [2]\n",
 	NULL
 	};
 static char *aboutname = "About";   /* For VMS C++ compiler bug */
