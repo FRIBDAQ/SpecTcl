@@ -112,36 +112,21 @@ EventSink.o: EventSink.h
 NSCLBufferDecoder.o: NSCLBufferDecoder.h Analyzer.h BufferDecoder.h
 NSCLBufferDecoder.o: ./BufferTranslator.h TranslatorPointer.h
 NSCLBufferDecoder.o: EventFormatError.h /usr/include/assert.h
-NSCLBufferDecoder.o: /usr/include/features.h /usr/include/sys/cdefs.h
-NSCLBufferDecoder.o: /usr/include/gnu/stubs.h /usr/include/stdlib.h
-NSCLBufferDecoder.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-NSCLBufferDecoder.o: /usr/include/string.h
-RunControl.o: RunControl.h /usr/include/assert.h /usr/include/features.h
-RunControl.o: /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h
+NSCLBufferDecoder.o: /usr/include/_ansi.h /usr/include/sys/config.h
+NSCLBufferDecoder.o: /usr/include/stdlib.h /usr/include/sys/reent.h
+NSCLBufferDecoder.o: /usr/include/sys/_types.h /usr/include/string.h
+RunControl.o: RunControl.h /usr/include/assert.h /usr/include/_ansi.h
+RunControl.o: /usr/include/sys/config.h
 TCLRunFileHandler.o: TCLRunFileHandler.h RunControl.h TKRunControl.h
 TCLRunFileHandler.o: /usr/include/tcl.h /usr/include/stdio.h
-TCLRunFileHandler.o: /usr/include/features.h /usr/include/sys/cdefs.h
-TCLRunFileHandler.o: /usr/include/gnu/stubs.h
-TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-TCLRunFileHandler.o: /usr/include/bits/types.h /usr/include/libio.h
-TCLRunFileHandler.o: /usr/include/_G_config.h /usr/include/wchar.h
-TCLRunFileHandler.o: /usr/include/bits/wchar.h /usr/include/gconv.h
-TCLRunFileHandler.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stdarg.h
-TCLRunFileHandler.o: /usr/include/bits/stdio_lim.h /usr/include/tclDecls.h
-TCLRunFileHandler.o: /usr/include/tk.h /usr/include/X11/Xlib.h
-TCLRunFileHandler.o: /usr/include/sys/types.h /usr/include/time.h
-TCLRunFileHandler.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
-TCLRunFileHandler.o: /usr/include/X11/Xosdefs.h /usr/include/tkDecls.h
+TCLRunFileHandler.o: /usr/include/_ansi.h /usr/include/sys/config.h
+TCLRunFileHandler.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
+TCLRunFileHandler.o: /usr/include/tk.h /usr/local/include/X11/Xlib.h
+TCLRunFileHandler.o: /usr/local/include/X11/X.h
+TCLRunFileHandler.o: /usr/local/include/X11/Xfuncproto.h
 TKRunControl.o: TKRunControl.h /usr/include/tcl.h /usr/include/stdio.h
-TKRunControl.o: /usr/include/features.h /usr/include/sys/cdefs.h
-TKRunControl.o: /usr/include/gnu/stubs.h
-TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stddef.h
-TKRunControl.o: /usr/include/bits/types.h /usr/include/libio.h
-TKRunControl.o: /usr/include/_G_config.h /usr/include/wchar.h
-TKRunControl.o: /usr/include/bits/wchar.h /usr/include/gconv.h
-TKRunControl.o: /usr/lib/gcc-lib/i386-linux/2.95.4/include/stdarg.h
-TKRunControl.o: /usr/include/bits/stdio_lim.h /usr/include/tclDecls.h
-TKRunControl.o: /usr/include/tk.h /usr/include/X11/Xlib.h
-TKRunControl.o: /usr/include/sys/types.h /usr/include/time.h
-TKRunControl.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
-TKRunControl.o: /usr/include/X11/Xosdefs.h /usr/include/tkDecls.h
+TKRunControl.o: /usr/include/_ansi.h /usr/include/sys/config.h
+TKRunControl.o: /usr/include/sys/reent.h /usr/include/sys/_types.h
+TKRunControl.o: /usr/include/tk.h /usr/local/include/X11/Xlib.h
+TKRunControl.o: /usr/local/include/X11/X.h
+TKRunControl.o: /usr/local/include/X11/Xfuncproto.h
