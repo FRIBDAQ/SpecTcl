@@ -39,6 +39,7 @@ static int superimposable(int tgt, int specid);
 int specis1d(int spec);
 int specisundefined(int spec);
 static int x,y;
+static int specnum;
 static win_attributed *current;
 static int ticks = 0, 
     labels= 0, 
@@ -56,6 +57,10 @@ static struct limit { int low;
 extern spec_shared *xamine_shared;
 void windfileerror(char *c);
 %}
+%union {
+  int integer;
+  char string[80];
+}
 %token  NAME
 %token  NUMBER
 %token  DESCRIPTION
@@ -99,7 +104,7 @@ void windfileerror(char *c);
 %token  CONTOUR
 %token  LEGO
 %token  REFRESH
-%token INTEGER
+%token <integer> INTEGER
 %token COMMA
 %token ENDWINDOW
 %token ENDLINE
@@ -110,6 +115,7 @@ void windfileerror(char *c);
 %token SUPERIMPOSE
 %token GROBJFONT
 %token UNMATCHED
+%token <string> QSTRING
 %%
 setup_file:    setup_filel | blankline setup_filel
                ;
@@ -157,17 +163,17 @@ description:	window_clause endwindow_clause
 		| window_clause attribute_clauses endwindow_clause
 		;
 
-window_clause: WINDOW INTEGER COMMA INTEGER COMMA INTEGER blankline
+window_clause: WINDOW INTEGER COMMA INTEGER COMMA spectrum blankline
                   {
-		    if(specisundefined($6)) {
+		    if(specisundefined(specnum)) {
 		       yyerror("Spectrum is not defined\n");
 		       return -1;
 		    }
 		    else {
-			    if(specis1d($6)) {
-			      database->define1d($2,$4, $6);
+			    if(specis1d(specnum)) {
+			      database->define1d($2,$4, specnum);
 			    } else {
-			      database->define2d($2,$4,$6);
+			      database->define2d($2,$4,specnum);
 			    }
 			    x = $2;
 			    y = $4;
@@ -179,6 +185,21 @@ window_clause: WINDOW INTEGER COMMA INTEGER COMMA INTEGER blankline
 			  }
 		    }
 		;
+
+
+spectrum:  INTEGER 
+           {
+	     specnum = $1;	/* Just return the number as specnum. */
+	   }
+         | QSTRING
+           {
+	     specnum = xamine_shared->getspecid(yylval.string); /* translate name->id */
+	     if(specnum == -1){
+	       yyerror("Spectrum name does not match a valid spectrum");
+	       return -1;
+	     }
+           }
+
 
 endwindow_clause: ENDWINDOW blankline
                    {

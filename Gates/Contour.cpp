@@ -358,14 +358,20 @@ CContour::inGate(CEvent& rEvent, vector<UInt_t>& Params)
 {
   UInt_t nx = Params[0];
   UInt_t ny = Params[1];
+
   if((nx < rEvent.size()) && (ny < rEvent.size())) {
-    Int_t x = rEvent[nx] - getLowerLeft().X();
-    Int_t y = rEvent[ny] - getLowerLeft().Y();
-    if((x < 0) || (y < 0)) {
-      return kfFALSE;
+    if(rEvent[nx].isValid() && rEvent[ny].isValid()) {
+      Int_t x = rEvent[nx] - getLowerLeft().X();
+      Int_t y = rEvent[ny] - getLowerLeft().Y();
+      if((x < 0) || (y < 0)) {
+	return kfFALSE;
+      }
+      else {
+	return (getInterior().Inside(x, y));
+      }
     }
     else {
-      return (getInterior().Inside(x, y));
+      return kfFALSE;
     }
   }
   return kfFALSE;

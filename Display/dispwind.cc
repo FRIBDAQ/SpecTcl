@@ -30,6 +30,11 @@ static char *revision="@(#)dispwind.cc	2.2 1/28/94 ";
 #define SEEK_CUR 1
 #define SEEK_END 2
 #endif
+#include "dispshare.h"
+
+volatile extern spec_shared *xamine_shared;
+
+
 int win_db::m_ReadOnce = 0;         // True if flex was used.
 void windfilerestart(FILE *fp);
 
@@ -510,7 +515,9 @@ int win_db::write(const char *filename)
   for(j = 0; j < win_ny; j++)
     for(i = 0; i < win_nx; i++) {
       if(defined(i,j)) {
-	if(fprintf(config, "Window  %d,%d,%d\n", i,j,windows[i][j]->spectrum())
+	spec_title spcname;
+	if(fprintf(config, "Window  %d,%d,\"%s\"\n", i,j,
+		   xamine_shared->getname(spcname,windows[i][j]->spectrum()))
 	   == EOF){
 	  fclose(config);
 	  return FALSE;
