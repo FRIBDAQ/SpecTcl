@@ -458,6 +458,9 @@ CEventFormatError::UpdateReasonText()
   case knBadPacketContents:
     m_sReason = "Event packet contents are invalid.\n";
     break;
+  case knEmptyParameterMap:
+    m_sReason = "Filter parameter map array not created yet\n";
+    break;
   default:
     if(m_nReason < knFirstUserReason) {	// Reserved code complain, not loudly
       m_sReason = "Event Format Errror >>>Reserved Error Code<<<\n";
