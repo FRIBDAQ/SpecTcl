@@ -836,26 +836,32 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       float YMappedHigh = Xamine_YChanToMapped(nSpectrum, 
 					       nYLowLimit+nYRange-reso);
       
+      float nAxisLow, nAxisHigh;
       if(pAttrib->ismapped()) {
 	float inc = reso * ((XMappedHigh - XMappedLow) / (nXRange-reso));
 	fStr << "set x grid " << XMappedLow << " " << XMappedHigh
 	     << " " << inc << endl;
 	fStr << "set x axis " << XMappedLow << " " << XMappedHigh << " ";
+	nAxisLow = XMappedLow;
+	nAxisHigh= XMappedHigh;
       }
       else {
 	fStr << "set x grid " << nXLowLimit << " "
 	     << nXLowLimit+nXRange-reso << " " << reso << endl;
 	fStr << "set x axis " << nXLowLimit << " " << nXAxisMax << " ";
+	nAxisLow = nXLowLimit;
+	nAxisHigh= nXAxisMax;
       }
 
+      float AxisChannels = (nAxisHigh - nAxisLow+1);
       switch(Options->gettics()) {
       case deflt:
-	if(nXTickInterval >= (nXHighLimit - nXLowLimit-1)) nXTickInterval = 0;
+	if(nXTickInterval >= AxisChannels) nXTickInterval = 0;
 	if(nXTickInterval) fStr << nXTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
-	if(XMajor >= (nXHighLimit - nXLowLimit-1)) XMajor = 0;
+	if(XMajor >= AxisChannels) XMajor = 0;
 	if(XMajor) {
 	  fStr << XMajor << " ";
 	  if(XMinor) fStr << XMinor << endl;
@@ -872,21 +878,26 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	     << " " << inc << endl;
 	fStr << "set y format %.1f\n";
 	fStr << "set y axis " << YMappedLow << " " << YMappedHigh << " ";
+	nAxisLow = YMappedLow;
+	nAxisHigh= YMappedHigh;
       }
       else {
 	fStr << "set y grid " << nYLowLimit << " "
 	     << nYLowLimit+nYRange-reso << " " << reso << endl;
 	fStr << "set y axis " << nYLowLimit << " " << nYAxisMax << " ";
+	nAxisLow = nYLowLimit;
+	nAxisHigh=nYAxisMax;
       }
 
+      AxisChannels = (nAxisHigh - nAxisLow+1);
       switch(Options->gettics()) {
       case deflt:
-	if(nYTickInterval >= (nYHighLimit - nYLowLimit-1)) nYTickInterval = 0;
+	if(nYTickInterval >= AxisChannels) nYTickInterval = 0;
 	if(nYTickInterval) fStr << nYTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
-	if(YMajor >= (nYHighLimit - nYLowLimit-1)) YMajor = 0;
+	if(YMajor >= AxisChannels) YMajor = 0;
 	if(YMajor) {
 	  fStr << YMajor << " ";
 	  if(YMinor) fStr << YMinor << endl;
@@ -1471,28 +1482,31 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 
     // Show ticks. If the axes are flipped, we need to set the low and
     // high limits on the y-axis. Otherwise, set them on the x-axis...
+    
+    float fLowlimit = (float)nLowLimit;
+    float fHilimit  = (float)nHighLimit;
+    if(pAttrib->ismapped()) {
+      fLowlimit = Xamine_XChanToMapped(nSpectrum, nLowLimit);
+      fHilimit  = Xamine_XChanToMapped(nSpectrum, nHighLimit);
+    }
+
     if(pAttrib->showticks()) {
       char first, second;
       first  = (isFlipped) ? 'y' : 'x';
       second = (isFlipped) ? 'x' : 'y';
 
-      // The tics can be user specified or the Xamine tics will be used...
-      if(pAttrib->ismapped()) {
-	fStr << "set " << first << " axis " << 
-	  Xamine_XChanToMapped(nSpectrum, nLowLimit) << " " <<
-	  Xamine_XChanToMapped(nSpectrum, nHighLimit);
-      }
-      else 
-	fStr << "set " << first << " axis " << nLowLimit << " " << nHighLimit;
+      fStr << "set " << first << " axis " <<
+	fLowlimit << " " << fHilimit;
+
 
       switch(Options->gettics()) {
       case deflt:
-	if(nXTickInterval >= (nHighLimit - nLowLimit)) nXTickInterval = 0;
+	if( fabsf(nXTickInterval) >= fabsf(fHilimit - fLowlimit)) nXTickInterval = 0;
 	if(nXTickInterval) fStr << " " << nXTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
-	if(XMajor >= (nHighLimit - nLowLimit)) XMajor = 0;
+	if(fabs(XMajor) >= fabsf(nHighLimit - nLowLimit)) XMajor = 0.0;
 	if(XMajor) {
 	  fStr << " " << XMajor << " ";
 	  if(XMinor) fStr << XMinor << endl;
@@ -1860,8 +1874,8 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       }
       strcat(GriCmd, buf);
       char tbuf[25];
-      // for now don't delete sprintf(tbuf, "rm -f %s; rm -f %s", cmd_file, cmd_root.c_str());
-      // strcat(GriCmd, tbuf);
+      sprintf(tbuf, "rm -f %s; rm -f %s", cmd_file, cmd_root.c_str());
+      strcat(GriCmd, tbuf);
     }
     }
     
@@ -1963,8 +1977,10 @@ Xamine_getTickInterval(int nRange, int nPixels)
     a user mapping has been applied to the spectrum.
 */
 float 
-Xamine_getMappedTickInterval(float paramrange, int pixels)
+Xamine_getMappedTickInterval(float sparamrange, int pixels)
 {
+  float paramrange = fabsf(sparamrange);
+
   /*  Compute the 'tight' packed tick interval... */
   int    tickpix = pixels/XAMINE_TICK_MAXCOUNT;        /* Pixels per tick    */
   int    ntick   = XAMINE_MAPPED_TICK_MAXCOUNT;        /* Number of ticks    */
@@ -1979,26 +1995,26 @@ Xamine_getMappedTickInterval(float paramrange, int pixels)
 
   // If the interval is already a nice one, return it
   if((tickint == 10.0) || (tickint == 5.0) || (tickint == 2.0))
-    return tickint;
+    return tickint * (sparamrange/paramrange); // Put sign back in.
   else if((tickint == (int)tickint) && ((int)tickint % 10 == 0) && 
 	  (ntick < 10) && (ntick >= 6))
-    return tickint;
+    return tickint * (sparamrange/paramrange); // Put sign back in.
   else if((tickint == (int)tickint) && ((int)tickint % 5 == 0) && 
 	  (ntick < 10) && (ntick >= 6))
-    return tickint;
+    return tickint  * (sparamrange/paramrange); // Put sign back in.
   else if((tickint == (int)tickint) && ((int)tickint % 2 == 0) && 
 	  (ntick < 10) && (ntick >= 6))
-    return tickint;
+    return tickint  * (sparamrange/paramrange); // Put sign back in.
 
   // Otherwise, see if we can make it a nice one the easy way
   if((paramrange / 10.0 >= 6) && (paramrange / 10.0 < 10)) {
-    return 10.0;
+    return 10.0  * (sparamrange/paramrange); // Put sign back in.
   }
   else if((paramrange / 5.0 >= 6) && (paramrange / 5.0 < 10)) {
-    return 5.0;
+    return 5.0  * (sparamrange/paramrange); // Put sign back in.
   }
   else if((paramrange / 2.0 >= 6) && (paramrange / 2.0 < 10)) {
-    return 2.0;
+    return 2.0  * (sparamrange/paramrange); // Put sign back in.
   }
 
   // We have to compare the tick mantissa to a percentage of the parameter
@@ -2024,7 +2040,7 @@ Xamine_getMappedTickInterval(float paramrange, int pixels)
     tickint = tempint;
   }
 
-  return tickint;
+  return tickint  * (sparamrange/paramrange); // Put sign back in.
 }
 
 /*

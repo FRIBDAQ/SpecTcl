@@ -149,7 +149,8 @@ TranslatorPointer<UShort_t>
 CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer, 
 		CEvent& rEvent, CAnalyzer& rAnalyzer, 
 		CBufferDecoder& rDecoder)  
-{ 
+{
+  TranslatorPointer<UShort_t> pBase = pBuffer;
   // Set up m_nPacketsize and m_pPacketBase for the decode:
 
   m_nPacketSize = -1;
@@ -196,12 +197,22 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
 						   rEvent,
 						   rAnalyzer,
 						   rDecoder);
-  int nSize = pEnd.getOffset() - pBuffer.getOffset();
+  int nSize = (pEnd.getOffset() - pBuffer.getOffset())/sizeof(UShort_t);
   if( nSize > m_nPacketSize) {
     throw CRangeError(0, m_nPacketSize,
 		      nSize, "CPacket::Unpack tagged packet");
   }
-  return pEnd;
+  if(!getOwner()) {		// Root knows size.
+    pBase += m_nPacketSize+1;
+    return pBase;
+  }
+  else if(m_fPacketize) {	// Packetized knows size...
+    pBase += m_nPacketSize+2;
+    return pBase;
+  }
+  else {			// Have to trust the user
+    return pEnd;
+  }
 }  
 
 /*! 
@@ -242,7 +253,7 @@ CPacket::getPacketSize(TranslatorPointer<UShort_t> p)
 { 
   if(m_nPacketSize > 0) {
     return m_nPacketSize - 
-      (p.getOffset() - m_pPacketBase->getOffset());
+      ((p.getOffset() - m_pPacketBase->getOffset())/sizeof(UShort_t));
   }
   else {
     CPacket* pOwner = getOwner();
@@ -1063,7 +1074,8 @@ CPacket::UnpackModules(TranslatorPointer<UShort_t> pBuffer,
   for(; p != EndDecoders(); p++) {
     CSegmentUnpacker* pModule = *p;
     pBuffer = pModule->Unpack(pBuffer, rEvent, rAnalyzer, rDecoder);
-    if((pBuffer.getOffset() - m_pPacketBase->getOffset()) >= m_nPacketSize) {
+    if((pBuffer.getOffset() - m_pPacketBase->getOffset())/sizeof(UShort_t)
+                                                         >= m_nPacketSize) {
       return pBuffer;
     }
   }

@@ -34,3 +34,26 @@ May 12, 2004     - Fix issue 49
                  - Fix issue with Display/Makefile that clean leaves behind
                    detritus from flex and bison. (Added MOSTLYCLEANFILES 
                    to Display/Makefile.am).
+June 8, 2004     - Increase spectrum size limits to 2^31.
+June 17, 2004    - Defect 131 - There were problems generating the print tick
+		   intervals when the axis specifications went in 'reverse'
+		   (e.g. {100 -100 200}).  Fixed in modifications to
+		   griprint.cc I think.
+                 - Fix build issues in TestFiles directory so that the
+                   event test generting programs can be built again Yeah.
+July 1, 2004     - Defect 135 - swrite does not properly preserve the
+                   axis mapping information.
+	           Fallout from defect 133 discovered and fixed a defect
+                   that causes the axis tick computation to DIV0 when
+                   mapped axes have decreasing values going away from the
+                   origin (e.g. {100 -100 201}).
+July 2, 2004     - Defect 132 - Translator pointers are constrained to 
+                   natural data boundaries.
+                 - Defect 137 - Fix defect introducec by fix of Defect 132:
+		   assumed getOffset was returning T offset it's now returning
+		   byte offsets.
+July 9, 2004     - Added DesignByContract to the Utility headers.
+July 27, 2004    - Added contrib/calibratedparams  (TUNL) for linear
+                   calibrations for parameters first the fit functions.
+July 30, 2004    - Added CCAENV1x90Data.h to contrib/scriptable in order
+                   to support unpacking of this module.
