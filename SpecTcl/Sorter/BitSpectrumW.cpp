@@ -291,6 +291,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change Log:
   $Log$
+  Revision 4.4  2003/10/24 14:43:29  ron-fox
+  Bounds check parameter ids against the size of
+  of the event.
+
   Revision 4.3  2003/04/03 02:20:14  ron-fox
   Fix mis description of bitmap spectrum channel counts.
 
@@ -403,25 +407,27 @@ CBitSpectrumW::Increment(const CEvent& rE)
   //      Refers to the event being histogrammed at this instant.
   //
   CEvent& rEvent((CEvent&)rE);
-  if(rEvent[m_nParameter].isValid()) {
-    UShort_t* p = (UShort_t*)getStorage();
-    assert(p != (UShort_t*)kpNULL);
-    UInt_t nParam = 
-      (UInt_t)m_PDescription.RawToMapped(rEvent[m_nParameter]);
-
-    UInt_t nBit   = 1 << (UInt_t)AxisToMapped(0, 0.0);
-  
-    
-    //
-    //  Increment a channel in p for every bit set in 
-    //  nParam:
-    //
-    for(UInt_t nChan = 0; nChan < m_nChannels; nChan++) {
-      if(nBit & nParam) {
-	p[nChan]++;
+  if(m_nParameter < rEvent.size()) {
+    if(rEvent[m_nParameter].isValid()) {
+      UShort_t* p = (UShort_t*)getStorage();
+      assert(p != (UShort_t*)kpNULL);
+      UInt_t nParam = 
+	(UInt_t)m_PDescription.RawToMapped(rEvent[m_nParameter]);
+      
+      UInt_t nBit   = 1 << (UInt_t)AxisToMapped(0, 0.0);
+      
+      
+      //
+      //  Increment a channel in p for every bit set in 
+      //  nParam:
+      //
+      for(UInt_t nChan = 0; nChan < m_nChannels; nChan++) {
+	if(nBit & nParam) {
+	  p[nChan]++;
+	}
+	nBit = nBit << 1;
       }
-      nBit = nBit << 1;
-     }
+    }
   }
 }
 ///////////////////////////////////////////////////////////////////////////

@@ -299,6 +299,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change log:
   $Log$
+  Revision 4.4  2003/10/24 14:43:28  ron-fox
+  Bounds check parameter ids against the size of
+  of the event.
+
   Revision 4.3  2003/04/01 19:53:46  ron-fox
   Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -455,18 +459,21 @@ CSpectrum2DB::Increment(const CEvent& rE)
 //               Event which drives the histogramming
 //
   CEvent& rEvent((CEvent&)rE);
-  if(rEvent[m_nXParameter].isValid()  && // Require the parameters be in event
-     rEvent[m_nYParameter].isValid()) {
-    Int_t nx = Randomize(ParameterToAxis(0, rEvent[m_nXParameter]));
-    Int_t ny = Randomize(ParameterToAxis(1, rEvent[m_nYParameter]));
-    if( (nx >= 0)   && (nx < m_nXScale)     &&
-	(ny >= 0)   && (ny < m_nYScale)) {
-      
-      UChar_t* pSpec = (UChar_t*)getStorage();
-      pSpec[nx + (ny * m_nXScale)]++;
+  int nParams = rEvent.size();
+  if((m_nXParameter < nParams) && (m_nYParameter < nParams)) {
+    if(rEvent[m_nXParameter].isValid()  && // Require the parameters be in event
+       rEvent[m_nYParameter].isValid()) {
+      Int_t nx = Randomize(ParameterToAxis(0, rEvent[m_nXParameter]));
+      Int_t ny = Randomize(ParameterToAxis(1, rEvent[m_nYParameter]));
+      if( (nx >= 0)   && (nx < m_nXScale)     &&
+	  (ny >= 0)   && (ny < m_nYScale)) {
+	
+	UChar_t* pSpec = (UChar_t*)getStorage();
+	pSpec[nx + (ny * m_nXScale)]++;
+      }
     }
   }
-
+    
 }
 //////////////////////////////////////////////////////////////////////////
 //

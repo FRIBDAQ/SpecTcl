@@ -293,6 +293,10 @@ DAMAGES.
 /*
   Change log:
   $Log$
+  Revision 4.5  2003/10/24 14:43:28  ron-fox
+  Bounds check parameter ids against the size of
+  of the event.
+
   Revision 4.4  2003/08/25 16:25:32  ron-fox
   Initial starting point for merge with filtering -- this probably does not
   generate a goo spectcl build.
@@ -447,14 +451,16 @@ CSpectrum1DW::Increment(const CEvent& rE)
 
   CEvent& rEvent((CEvent&)rE);	// Ok since non const  operator[] on rhs only.
 
-  if(rEvent[m_nParameter].isValid()) {  // Only increment if param present.
-    Int_t nChannel = Randomize(ParameterToAxis(0, 
-					       rEvent[m_nParameter]));
-    if((nChannel < (m_nChannels)) &&
-       (nChannel >= 0)) {  // 
+  if(m_nParameter < rEvent.size()) {
+    if(rEvent[m_nParameter].isValid()) {  // Only increment if param present.
+      Int_t nChannel = Randomize(ParameterToAxis(0, 
+						 rEvent[m_nParameter]));
+      if((nChannel < (m_nChannels)) &&
+	 (nChannel >= 0)) {  // 
       UShort_t* p = (UShort_t*)getStorage();
       assert(p != (UShort_t*)kpNULL);    // Spectrum storage must exist!!
       p[nChannel]++;		      // Increment the histogram.
+      }
     }
   }
 }
