@@ -295,9 +295,7 @@ static char *version="@(#)spectra.cc	8.1 6/23/95 ";
 ** Include files:
 */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <stdio.h>
 #include <strings.h>
