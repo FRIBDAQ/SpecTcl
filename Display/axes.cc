@@ -536,15 +536,12 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
   Window  win;
   GC      gc; 
   XamineTextGC *context;
-  XGCValues gc_values;
 
   if(!attribs->showaxes()) return; /* NO-OP if axes turned off. */
 
   disp   = XtDisplay(pane->getid());
   screen = XtScreen(pane->getid());
   win    = ctx->pixmap;
-
-  Pixel  background;
 
   context = Xamine_GetTextGC(*pane);
   gc      = context->gc;	// for now do this the sleazy way.
