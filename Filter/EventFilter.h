@@ -37,6 +37,7 @@ class CEventFilter : public CEventSink {
  protected:
   Bool_t m_fEnabled;
   string m_sFileName;
+  vector<string> m_vParameterNames;
   COutputEventStream* m_pOutputEventStream;
 
  public:
@@ -54,15 +55,15 @@ class CEventFilter : public CEventSink {
   // Additional functions.
   void Enable();
   void Disable();
-  string ParseFileName(string&);
-  void setFileName(string&);
-  string getFileName();
-  COutputEventStream& AttachOutputEventStream(COutputEventStream&);
-  COutputEventStream& DetachOutputEventStream();
-  virtual void FormatOutputEvent(CEvent&);
+  string CEventFilter::ParseFileName(string&);
+  void CEventFilter::setFileName(string&);
+  string CEventFilter::getFileName();
+  COutputEventStream& CEventFilter::AttachOutputEventStream(COutputEventStream&);
+  COutputEventStream& CEventFilter::DetachOutputEventStream();
+  virtual void CEventFilter::FormatOutputEvent(CEvent&);
   //protected:
-  Bool_t CheckEnabled();
-  virtual Bool_t CheckCondition(CEvent&);
+  Bool_t CEventFilter::CheckEnabled();
+  virtual Bool_t CEventFilter::CheckCondition(CEvent&);
 }; // CEventFilter.
 
 #endif

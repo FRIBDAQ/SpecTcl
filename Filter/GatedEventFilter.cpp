@@ -76,6 +76,10 @@ void CGatedEventFilter::setGateContainer(CGateContainer& rCGateContainer) {
   m_pGateContainer = &rCGateContainer; // WATCH OUT!!!
 }
 
+void CGatedEventFilter::setParameterNames(const vector<string>& rvParameterNames) {
+  m_vParameterNames = rvParameterNames;
+}
+
 void CGatedEventFilter::setParameterIds(const vector<UInt_t>& rvParameterIds) {
   m_vParameterIds = rvParameterIds;
 }
