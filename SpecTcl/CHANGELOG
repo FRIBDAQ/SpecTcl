@@ -1,0 +1,26 @@
+2.1-006 - Incorporate fix 113 - low level cutoffs lead to corrupted
+          1-d displays.
+        - Have build procedures clean any pre-built Gri prior to 
+          tarring up the distribution.
+2.1-007 - Incorporate fix 120 - memory leak on spectrum -delete -all
+        - Date/time/version stamp installation.
+2.1-008 
+	- Incorporate fix for issue 95: parameter -list -byid fails to parse
+          the output list for sorting.
+        - Incorporate fix for issue 105: sbind usage level help refers to
+          itself as the bind command not sbind.
+        - Incorporate fix for issue 111: swrite creates a file even if
+          no valid spectra are included on the command line.
+2.1-009 
+	- Incorporate printing fixes for last channel of 1-d.
+	- Incorporate printinf fix ensure that 2-d spectrum channels display
+      	  all non zeroes even if they are below the threshold for the lowest
+	  color range.
+        - Place upper limits on 1-d graphical entries at the top  of the
+	  channel rather than at the bottom.  This more realistically
+	  describes what's going on
+        - Fix issue 118 Superpositions in window files are by id not name.
+        - Fix issue 122 Speclist with a single spectrum gives blank output.
+	- Fix issue 123 Print with superpositions crashes gri (gives it a
+  	  bad command file).
+	- Fix issue 124 FWHM not transformed to mapped coordinates.

@@ -298,6 +298,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 4.6.2.1  2004/02/02 21:47:08  ron-fox
+  *** empty log message ***
+
   Revision 4.6  2003/10/24 14:43:28  ron-fox
   Bounds check parameter ids against the size of
   of the event.
@@ -364,7 +367,7 @@ CSpectrum1DL::CSpectrum1DL(const std::string& rName,
   m_nChannels(nChannels),
   m_nParameter(rParameter.getNumber())
 {
-  AddAxis(nChannels, 0.0, (Float_t)(nChannels - 1), 
+  AddAxis(nChannels, 0.0, (Float_t)(nChannels), 
 	  rParameter.getUnits());
   CreateChannels();
 }

@@ -291,6 +291,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log
    $Log$
+   Revision 4.4.2.1  2004/02/02 21:47:07  ron-fox
+   *** empty log message ***
+
    Revision 4.4  2003/10/24 14:43:29  ron-fox
    Bounds check parameter ids against the size of
    of the event.
@@ -348,7 +351,7 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName,
   m_PDescription(rParameter)
   
 {
-  AddAxis(nChannels, 0.0, (Float_t)(nChannels - 1)); // bits are unitless.
+  AddAxis(nChannels, 0.0, (Float_t)(nChannels)); // bits are unitless.
   CreateStorage();
 }
 /*! 

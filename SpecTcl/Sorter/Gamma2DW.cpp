@@ -295,6 +295,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 4.5.2.1  2004/02/02 21:47:08  ron-fox
+    *** empty log message ***
+
     Revision 4.5  2003/10/24 14:43:29  ron-fox
     Bounds check parameter ids against the size of
     of the event.
@@ -337,8 +340,8 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
   CSpectrum(rName, nId,
 	    CreateAxisVector(rParameters,
 			     nXScale, nYScale,
-			     0.0,    (Float_t)(nXScale - 1),
-			     0.0,    (Float_t)(nYScale -1))),
+			     0.0,    (Float_t)(nXScale ),
+			     0.0,    (Float_t)(nYScale))),
   m_nXScale(nXScale),
   m_nYScale(nYScale)
 {
