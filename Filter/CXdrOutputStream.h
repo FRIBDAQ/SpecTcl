@@ -283,6 +283,7 @@ DAMAGES.
 #endif
 
 #ifndef __RPC_XDR_H
+#include <rpc/types.h>		/* Cygwin e.g. needs this. */
 #include <rpc/xdr.h>
 #ifndef __RPC_XDR_H
 #define __RPC_XDR_H
