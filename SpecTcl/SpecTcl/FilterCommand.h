@@ -17,6 +17,7 @@
 #define __STL_STRING_H
 #endif
 
+#ifdef  __NEEDINCLUDES__
 #ifndef __GATEDEVENTFILTER_H
 #include <GatedEventFilter.h>
 #define __GATEDEVENTFILTER_H
@@ -26,10 +27,14 @@
 #include <FilterDictionary.h>
 #define __FILTERDICTIONARY_H
 #endif
+#endif
 
 // Forward declarations.
 class CTCLCommandPackage;
 class CTCLInterpreter;
+class CGatedEventFilter;
+class CFilterDictionary;
+
 /*!
    Implements the SpecTcl \em filter command. This command has the
    following format:
@@ -92,7 +97,9 @@ class CFilterCommand : public CTCLProcessor {
   Int_t Regate(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
   Int_t File(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
   Int_t List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
-  string ListFilter(const char*);
+  string ListFilter(const string& rName,
+		    CGatedEventFilter* pFilter);
+  string ListFilter(const string& rName);
  protected:
   static eSwitches MatchSwitch(const char* pSwitch);
   static std::string Usage();
