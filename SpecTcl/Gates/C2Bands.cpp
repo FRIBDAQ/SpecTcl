@@ -309,6 +309,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 //
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+/*   
+  Change Log
+  $Log$
+  Revision 4.2  2003/04/15 19:15:46  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
 #include "C2Bands.h" 
 #include <algorithm>   				
 
@@ -322,8 +330,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 // Operation Type:
 //   Constructor.
 C2Bands:: C2Bands (UInt_t nXId, UInt_t nYId,
-		   vector<CPoint>& rLowBand, 
-		   vector<CPoint>& rHiBand) :
+		   vector<FPoint>& rLowBand, 
+		   vector<FPoint>& rHiBand) :
   CContour(nXId, nYId, MarshallPoints(rLowBand, rHiBand))
   
 { 
@@ -349,10 +357,10 @@ std::string C2Bands::Type()
 // Operation Type:
 //    Utility.
 //
-std::vector<CPoint> 
-C2Bands::MarshallPoints(vector<CPoint>& rLow, vector<CPoint>& rHi)
+std::vector<FPoint> 
+C2Bands::MarshallPoints(vector<FPoint>& rLow, vector<FPoint>& rHi)
 {
-  std::vector<CPoint> MarshalledPoints;
+  std::vector<FPoint> MarshalledPoints;
 
   // First reverse the points if needed.
   //   The algorithm is rather naive... if the X coord of the
@@ -377,9 +385,9 @@ C2Bands::MarshallPoints(vector<CPoint>& rLow, vector<CPoint>& rHi)
 
   // Add the points in the lower band right to left.
 
-    std::vector<CPoint>::reverse_iterator p = rLow.rbegin();
+    std::vector<FPoint>::reverse_iterator p = rLow.rbegin();
     for(; p != rLow.rend(); p++) {
-      CPoint pt = *p;
+      FPoint pt = *p;
       MarshalledPoints.push_back(pt);
     }
 

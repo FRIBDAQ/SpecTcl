@@ -291,6 +291,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
+/*
+  Change Log:
+  $Log$
+  Revision 4.7  2003/04/15 19:15:45  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
 //
 // Header Files:
 //
@@ -302,6 +310,32 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 
 // Functions for class CCut
 
+/*!
+   Equality comparison operator.  This object is equal to the rhs
+   iff the base class operator== is true and all member items
+   are equal
+*/
+int
+CCut::operator==(const CCut& aCut) const
+{
+  return (CGate::operator==(aCut)          &
+	  (m_nLow   == aCut.m_nLow)        &
+	  (m_nHigh  == aCut.m_nHigh)       &
+	  (m_nId    == aCut.m_nId));
+}
+//
+/*!
+   Check the gate for an event.  The event makes the gate true
+   iff the parameter associated with the event lies inside the
+   limits.  No scaling  is done, as the gate end points are 
+   considered to be in parameter space.
+   \param <TT>rEvent  (CEvent& [in]) </TT>
+      The event to check.  The parameter to check is in 
+      m_nId.
+   \retval Bool_t
+    - kfTRUE if the gate was made.
+    - kfFALSE if not.
+*/
 Bool_t
 CCut::operator()(CEvent& rEvent)
 {
@@ -346,7 +380,7 @@ CCut::inGate(CEvent& rEvent)
   }
   else {
     if(rEvent[id].isValid()) {;
-      UInt_t nPoint = rEvent[id];
+      Float_t nPoint = rEvent[id];
       return((nPoint >= getLow()) && (nPoint <= getHigh()));
     }
     else {
@@ -440,7 +474,7 @@ CCut::GetConstituent(CConstituentIterator& rIterator)
   CConstituentIterator e = End();
   if((rIterator != e)) {
     char Text[100];
-    sprintf(Text, "%d %d %d", m_nId, m_nLow, m_nHigh);
+    sprintf(Text, "%d %f %f", m_nId, m_nLow, m_nHigh);
     return std::string(Text);
   }
   else {

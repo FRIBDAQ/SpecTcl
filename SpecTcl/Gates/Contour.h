@@ -290,6 +290,15 @@ DAMAGES.
 //
 /////////////////////////////////////////////////////////////
 
+/*
+  Change Log
+  $Log$
+  Revision 4.6  2003/04/15 19:15:45  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
+
 #ifndef __CONTOUR_H  //Required for current class
 #define __CONTOUR_H
                                //Required for base classes
@@ -324,24 +333,25 @@ DAMAGES.
 */
 class CContour  : public CPointListGate        
 {
-  CPoint m_LowerLeft;		//!< Lower left corner of gate.
-  CPoint m_UpperRight;          //!< Upper right corner of gate.
+  FPoint m_LowerLeft;		//!< Lower left corner of gate.
+  FPoint m_UpperRight;          //!< Upper right corner of gate.
   //  mutable CInterior m_Interior;   // An interior specification.
   
 public:
 			//Default constructor
 
   CContour (UInt_t nXId, UInt_t nYId, 
-	    const vector<CPoint>& Points);
+	    const vector<FPoint>& Points);
   CContour (UInt_t nXId, UInt_t NYId, UInt_t nPts,
-	    UInt_t *xCoords, UInt_t *yCoords);
+	    Float_t *xCoords, Float_t *yCoords);
   CContour (UInt_t nXId, UInt_t NYId, UInt_t nPts,
-	    CPoint* pPonts);
+	    FPoint* pPonts);
   ~CContour ( ) { }		//Destructor
 	
 			//Copy constructor
 
-  CContour (const CContour& aCContour )   : CPointListGate (aCContour) 
+  CContour (const CContour& aCContour )   : 
+    CPointListGate (aCContour) 
   {   
     m_LowerLeft = aCContour.m_LowerLeft;
     m_UpperRight = aCContour.m_UpperRight;
@@ -364,51 +374,41 @@ public:
   }                                     
 
 			//Operator== Equality Operator
-                        // Gates have no concept of equality.
-private:
-  int operator== (const CContour& aCContour);
-public:
+
+
+  int operator== (const CContour& aCContour) const;
+
   //
   // Selectors:
   //
                        //Get accessor function for attribute
-  CPoint getLowerLeft() const
+  FPoint getLowerLeft() const
   {
     return m_LowerLeft;
   }
 
                        //Get accessor function for attribute
-  CPoint getUpperRight() const
+  FPoint getUpperRight() const
   {
     return m_UpperRight;
   }
 
-                       //Get accessor function for attribute
-  //  CInterior& getInterior() const
-  //  {
-  //    return m_Interior;
-  //  }
 
   // Mutators:
 
 protected:        
                        //Set accessor function for attribute
-  void setLowerLeft (const CPoint&  am_Lower)
+  void setLowerLeft (const FPoint&  am_Lower)
   { 
     m_LowerLeft = am_Lower;
   }
 
                        //Set accessor function for attribute
-  void setUpperRight (const CPoint& am_Upper)
+  void setUpperRight (const FPoint& am_Upper)
   { 
     m_UpperRight = am_Upper;
   }
 
-                       //Set accessor function for attribute
-  //  void setInterior (const CInterior& am_aInterior)
-  // { 
-  //  m_Interior = am_aInterior;
-  /// }
 
   //  Functions on the object:
   //
@@ -424,7 +424,7 @@ public:
   //
  protected:
   virtual void GenerateInterior();
-  Bool_t       Inside(int x, int y);
+  Bool_t       Inside(Float_t x, Float_t y);
 
 };
 

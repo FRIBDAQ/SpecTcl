@@ -296,12 +296,36 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 //
 // Header Files:
 //
+/*
+  Change log:
+  $Log$
+  Revision 4.4  2003/04/15 19:15:42  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
 
+*/
 
 #include "PointlistGate.h"                               
 #include "PointlistIterator.h"
 
 #include <stdio.h>
+/*!
+   Comparison.  Two point list gates are equal if the base class
+   indicates equality, and all components of the two bojects are
+   equal:
+   \param  <TT>rhs (const CPointListGate& [in])</TT>
+      The gate to which this will be compared.
+   \retval <TT>int</TT>
+   - kfTRUE  if the comparison indicated equality.
+   - kfFALSE if the comparison indicated inequality.
+*/
+int
+CPointListGate::operator==(const CPointListGate& rhs) const
+{
+  return (CGate::operator==(rhs)                  &&
+	  (m_nxId     == rhs.m_nxId)              &&
+	  (m_nyId     == rhs.m_nyId)              &&
+	  (m_aConstituents == rhs.m_aConstituents));
+}
 
 // Functions for class CPointListGate
 //////////////////////////////////////////////////////////////////////////
@@ -313,7 +337,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 //   Construction
 //
 CPointListGate::CPointListGate(UInt_t nXId, UInt_t nYId, UInt_t nPts,
-			       CPoint* pPoints) :
+			       FPoint* pPoints) :
   m_nxId(nXId),
   m_nyId(nYId)
 {
@@ -332,12 +356,12 @@ CPointListGate::CPointListGate(UInt_t nXId, UInt_t nYId, UInt_t nPts,
 //   Construction
 //
 CPointListGate::CPointListGate(UInt_t nXId, UInt_t nYId, UInt_t nPts,
-			       UInt_t *xCoords, UInt_t *yCoords) :
+			       Float_t *xCoords, Float_t *yCoords) :
   m_nxId(nXId),
   m_nyId(nYId)
 {
   for(UInt_t n = 0; n < nPts; n++) {
-    CPoint pt(*xCoords, *yCoords);
+    FPoint pt(*xCoords, *yCoords);
     m_aConstituents.push_back(pt);
     xCoords++;
     yCoords++;
@@ -422,9 +446,9 @@ CPointListGate::GetConstituent(CConstituentIterator& rIterator)
 
   CPointListIterator* pI = (CPointListIterator*)rIterator.getActualIterator();
   
-  std::vector<CPoint>::iterator p = pI->getPointIterator();
+  std::vector<FPoint>::iterator p = pI->getPointIterator();
 
-  sprintf(Formatted, "%d %d", (*p).X(), (*p).Y());
+  sprintf(Formatted, "%f %f", (*p).X(), (*p).Y());
   return std::string(Formatted);
   
 }
@@ -453,19 +477,19 @@ CPointListGate::GetConstituent(CConstituentIterator& rIterator)
    \return 0 if there's no intersection, 1 if there is.
 */
 int
-CPointListGate::Crosses(int x, int y, 
-		      vector<CPoint>::iterator f,
-		      vector<CPoint>::iterator s)
+CPointListGate::Crosses(Float_t x, Float_t y, 
+		      vector<FPoint>::iterator f,
+		      vector<FPoint>::iterator s)
 {
 
-  int y1 = f->Y();
-  int y2 = s->Y();
+  Float_t y1 = f->Y();
+  Float_t y2 = s->Y();
 
   if ((y < y1) && (y < y2)) return 0; // Segement is above point.
   if ((y >= y1) && (y >= y2)) return 0; // Segment is below point.
 
-  int x1 = f->X();
-  int x2 = s->X();
+  Float_t x1 = f->X();
+  Float_t x2 = s->X();
 
   if(( x < x1) && (x < x2)) return 0; // Segment is to right of point.
   if(( x>= x1) && (x >= x2)) return 1; // Segment is wholly left of point.

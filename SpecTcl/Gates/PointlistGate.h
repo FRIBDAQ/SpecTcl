@@ -290,6 +290,14 @@ DAMAGES.
 //
 /////////////////////////////////////////////////////////////
 
+
+/*
+  Change Log:
+  $Log$
+  Revision 4.4  2003/04/15 19:15:42  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
 #ifndef __POINTLISTGATE_H  //Required for current class
 #define __POINTLISTGATE_H
                                //Required for base classes
@@ -315,28 +323,37 @@ DAMAGES.
 #include <string>
 #define __STRING
 #endif
-
+/*!
+   This class is a base class for gates that consist of a list
+   of points.  Examples are bands and countours.  The boundaries
+   of each of these gates can be expressed as an ordered set of 
+   points.
+   There's an explicit assumption that point list gates are 2-d 
+   gates.
+*/
 class CPointListGate  : public CGate        
 {
-  UInt_t m_nxId;  // Parameter Id of the gate's X parameter.
-  UInt_t m_nyId;  // // Parameter id of the Y parameter of the gate.
+  UInt_t m_nxId;  //!< Parameter Id of the gate's X parameter.
+  UInt_t m_nyId;  //!< Parameter id of the Y parameter of the gate.
   
-  vector<CPoint> m_aConstituents;
+  vector<FPoint> m_aConstituents; //!< The points themselves.
   
 public:
-			// Constructor
 
+  //!< Constructor with vector of points.
   CPointListGate (UInt_t nXId, UInt_t nYId,
-		  const vector<CPoint>& Points) :
+		  const vector<FPoint>& Points) :
     m_nxId(nXId),
     m_nyId(nYId),
     m_aConstituents(Points)
   {}
+  //!< Constructor with arrays of coordinates.
   CPointListGate(UInt_t nXId, UInt_t nYId, UInt_t nPts,
-		 UInt_t *xCoords, UInt_t *yCoords);
+		 Float_t *xCoords, Float_t *yCoords);
+  //!< Constructor with array of Points.
   CPointListGate(UInt_t nXId, UInt_t nYId, UInt_t nPts,
-		 CPoint* pPoints);
-  ~ CPointListGate ( ) { }       //Destructor
+		 FPoint* pPoints);
+  virtual ~ CPointListGate ( ) { }       //Destructor
 
 	
 			//Copy constructor
@@ -363,39 +380,38 @@ public:
     return *this;                                                                                                 
   }                                     
 
-			//Operator== Equality Operator
-                        // Gates don't have equality relationships.
-private:
-  int operator== (const CPointListGate& aCPointListGate);
-public:
+  //!< Equality comparison
+
+  int operator== (const CPointListGate& aCPointListGate) const;
   // Selectors.
 
 public:
-                       //Get accessor function for attribute
   UInt_t getxId() const
   {
     return m_nxId;
   }
 
-                       //Get accessor function for attribute
   UInt_t getyId() const
   {
     return m_nyId;
   }
        
-  vector<CPoint> getPoints() const
+  vector<FPoint> getPoints() const
   {
     return m_aConstituents;
   }
 
-  vector<CPoint>::iterator getBegin() {
+  vector<FPoint>::iterator getBegin() {
     return m_aConstituents.begin();
   }
-  vector<CPoint>::iterator getEnd() {
+  vector<FPoint>::iterator getEnd() {
     return m_aConstituents.end();
   }
 
-  virtual vector<string> getSpecs() const { };
+  virtual vector<string> getSpecs() const { 
+    vector<string> empty;
+    return empty;
+  };
 
   // Mutators:
 
@@ -409,7 +425,7 @@ protected:
   { 
     m_nyId = am_nyId;
   }
-  void setPoints(vector<CPoint>& rPoints) 
+  void setPoints(vector<FPoint>& rPoints) 
   {
     m_aConstituents = rPoints;
   }
@@ -425,9 +441,9 @@ public:
 			  = (const vector<UInt_t>&) 0 ) { }
 
 protected:
-  int       Crosses(int x, int y, 
-		    vector<CPoint>::iterator f,
-		    vector<CPoint>::iterator s); 
+  int       Crosses(Float_t x, Float_t y, 
+		    vector<FPoint>::iterator f,
+		    vector<FPoint>::iterator s); 
 };
 
 #endif

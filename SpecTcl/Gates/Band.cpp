@@ -304,12 +304,20 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 #include <assert.h>
 #include <iostream.h>
 
+/* 
+  Change log:
+  $Log$
+  Revision 4.7  2003/04/15 19:15:46  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
 // X ordering comparison for CPoints:
 //
 
 class Xorder {
 public:
-  int operator()(const CPoint& p1,const CPoint& p2)
+  int operator()(const FPoint& p1,const FPoint& p2)
   {
     return (p1.X() < p2.X());
   }
@@ -317,15 +325,17 @@ public:
 
 // Functions for class CBand
 
-//////////////////////////////////////////////////////////////////////////
-//  
-// Function:
-//   CBand (UInt_t nXid, UInt_t nYid,
-//	    vector<CPoint>& points)
-// Operation Type:
-//    Constructor.
-//
-CBand::CBand(UInt_t nXid, UInt_t nYid,const vector<CPoint>& points)   :
+/*!
+  Constructor.  Creates a band given a set of points:
+  \param  <TT>nXid (UInt_t [in])</TT> 
+     Id of the x parameter involved in the gate.
+  \param  <TT>nYid (UInt_t [in])</TT>
+     Id of the y parameter involved in the gate.
+  \param  <TT>points (const vector<FPoint>& points [in])</TT>
+     array of points to make up the band.
+*/
+CBand::CBand(UInt_t nXid, UInt_t nYid,
+	     const vector<FPoint>& points)   :
   CPointListGate(nXid, nYid, points)
 {
   GetLRLimits();
@@ -334,12 +344,12 @@ CBand::CBand(UInt_t nXid, UInt_t nYid,const vector<CPoint>& points)   :
 //
 // Function:
 //    CBand (UInt_t nXid, UInt_t nYid,
-//  	     UInt_t nPts, CPoint* pPoints);
+//  	     UInt_t nPts, FPoint* pPoints);
 // Operation Type:
 //    Constructor.
 //
 CBand::CBand(UInt_t nXid, UInt_t nYid,
-	     UInt_t nPts, CPoint* pPoints) :
+	     UInt_t nPts, FPoint* pPoints) :
   CPointListGate(nXid, nYid, nPts, pPoints)
 {
   GetLRLimits();
@@ -349,12 +359,12 @@ CBand::CBand(UInt_t nXid, UInt_t nYid,
 //
 // Function:
 //    CBand (UInt_t nXid, UInt_t nYid,
-//	     UInt_t nPts, UInt_t* pX, UInt_t* pY)
+//	     UInt_t nPts, Float_t_t* pX, Float_t* pY)
 // Operation Type:
 //   Constructor
 //
 CBand::CBand(UInt_t nXid, UInt_t nYid,
-	     UInt_t nPts, UInt_t* pX, UInt_t* pY) :
+	     UInt_t nPts, Float_t* pX, Float_t* pY) :
   CPointListGate(nXid, nYid, nPts, pX, pY)
 {
   GetLRLimits();
@@ -421,9 +431,12 @@ CBand::inGate(CEvent& rEvent)
   if( (xPar >= rEvent.size()) || (yPar >= rEvent.size())) {
     return kfFALSE;
   }
+  if(!rEvent[xPar].isValid() || !rEvent[yPar].isValid()) {
+    return kfFALSE;		// A parameter not supplied.
+  }
   else {
-    int x = rEvent[xPar];	// Pull the point out of the event array.
-    int y = rEvent[yPar];
+    Float_t x = rEvent[xPar];	// Pull the point out of the event array.
+    Float_t y = rEvent[yPar];
 
     return Interior(x,y);
 
@@ -474,8 +487,8 @@ CBand::Type() const
 void
 CBand::GetLRLimits()
 {
-  vector<CPoint>::iterator f = getBegin();
-  vector<CPoint>::iterator l = getEnd(); l--;
+  vector<FPoint>::iterator f = getBegin();
+  vector<FPoint>::iterator l = getEnd(); l--;
 
   if(f->X() < l->X()) {
     m_LeftLimit  = *f;
@@ -494,7 +507,7 @@ CBand::GetLRLimits()
    \return  kfTRUE if the point is interior.
 */
 Bool_t
-CBand::Interior(int x, int y)
+CBand::Interior(Float_t x, Float_t y)
 {
     // Now count edges.  
     // First handle the vertical edges separately.
@@ -507,8 +520,8 @@ CBand::Interior(int x, int y)
 
     int nSegments = Size() - 1;
     assert(nSegments >= 1);	// Need at least one segment to make a band.
-    vector<CPoint>::iterator first = getBegin();
-    vector<CPoint>::iterator second= first; second++;
+    vector<FPoint>::iterator first = getBegin();
+    vector<FPoint>::iterator second= first; second++;
 
     for(int seg = 0; seg < nSegments; seg++) {
       nCrosses += Crosses(x,y, first, second);
@@ -516,4 +529,15 @@ CBand::Interior(int x, int y)
       second++;
     }
     return ((nCrosses & 1) == 1);
+}
+/*!
+  Equality comparison.  two bands are equal if their point lists are
+  equal and if all member data is equal.
+*/
+int
+CBand::operator==(const CBand& rhs) const
+{
+  return (CPointListGate::operator==(rhs)          &&
+	  (m_LeftLimit == rhs.m_LeftLimit)         &&
+	  (m_RightLimit== rhs.m_RightLimit));
 }

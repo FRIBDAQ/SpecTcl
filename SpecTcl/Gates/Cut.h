@@ -290,6 +290,14 @@ DAMAGES.
 //
 /////////////////////////////////////////////////////////////
 
+/*
+  Change Log:
+  $Log$
+  Revision 4.4  2003/04/15 19:15:45  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
 #ifndef __CUT_H  //Required for current class
 #define __CUT_H
                                //Required for base classes
@@ -301,60 +309,65 @@ DAMAGES.
 #include <string>
 #define __STRING
 #endif
-                               
+/*! Encapsulates a cut on a parameter.
+  The cut is described by a high and low limit 
+  in parameter space.  In this implementation the cut is expressed
+  as a pair of floating point limits.  
+*/                               
 class CCut  : public CGate        
 {
-  UInt_t m_nLow;  // low level of cut (inclusive)
-  UInt_t m_nHigh;  // High level of cut (inclusive)
-  UInt_t m_nId;  // Id of parameter to cut.
+  Float_t m_nLow;		//!< low level of cut (inclusive)
+  Float_t m_nHigh;		//!< High level of cut (inclusive)
+  UInt_t  m_nId;		//!< Id of parameter to cut.
   
 public:
-			//Default constructor
 
-  CCut (  UInt_t am_nLow,  UInt_t am_nHigh,  UInt_t am_nId  )  :   
+  //! Constructor (Requires parameterization).
+
+  CCut (  Float_t am_nLow,  Float_t am_nHigh,  UInt_t am_nId  ) : 
     m_nLow (am_nLow),  
     m_nHigh (am_nHigh),  
     m_nId (am_nId)  
     { }        
-  ~ CCut ( ) { }       //Destructor
+  ~ CCut ( ) { }       //!< Destructor
 
 	
-			//Copy constructor
+  //! Copy constructor
 
   CCut (const CCut& aCCut )   : CGate (aCCut) 
   {   
-    m_nLow = aCCut.m_nLow;
+    m_nLow  = aCCut.m_nLow;
     m_nHigh = aCCut.m_nHigh;
-    m_nId = aCCut.m_nId;               
+    m_nId   = aCCut.m_nId;               
   }                                     
 
-			//Operator= Assignment Operator
+  //! Operator= Assignment Operator
 
-  CCut& operator= (const CCut& aCCut)
+  CCut& operator= (const CCut& aCCut) 
   { 
     if (this == &aCCut) return *this;          
     CGate::operator= (aCCut);
-    m_nLow = aCCut.m_nLow;
+    m_nLow  = aCCut.m_nLow;
     m_nHigh = aCCut.m_nHigh;
-    m_nId = aCCut.m_nId;
+    m_nId   = aCCut.m_nId;
     
     return *this;                                                                                                 
   }                                     
 
-			//Operator== Equality Operator
-private:
-  int operator== (const CCut& aCCut);
-public:
+  //!< Operator== Equality Operator
+  
+  int operator== (const CCut& aCCut) const;
+
   // Selectors
 
 public:				//Get accessor function for attribute
-  UInt_t getLow() const
+  Float_t getLow() const
   {
     return m_nLow;
   }
 
                        //Get accessor function for attribute
-  UInt_t getHigh() const
+  Float_t getHigh() const
   {
     return m_nHigh;
   }
@@ -364,25 +377,29 @@ public:				//Get accessor function for attribute
   {
     return m_nId;
   }
+  //!< Return involved spectra (for compatibility with gamma gates.
 
-  virtual vector<string> getSpecs() const { }
+  virtual vector<string> getSpecs() const { 
+    vector<string> empty;
+    return         empty;	// Must return an empty vector.
+  }
 
   // Mutators.
                        //Set accessor function for attribute
 protected:
-  void setm_nLow (UInt_t am_nLow)
+  void setLow (Float_t am_nLow)
   { 
     m_nLow = am_nLow;
   }
 
                        //Set accessor function for attribute
-  void setm_nHigh (UInt_t am_nHigh)
+  void setHigh (Float_t am_nHigh)
   { 
     m_nHigh = am_nHigh;
   }
 
                        //Set accessor function for attribute
-  void setm_nId (UInt_t am_nId)
+  void setId (UInt_t am_nId)
   { 
     m_nId = am_nId;
   }

@@ -311,6 +311,14 @@ DAMAGES.
 // (c) Copyright NSCL 1999, All rights reserved .h
 //
 
+/*
+  Change Log
+  $Log$
+  Revision 4.2  2003/04/15 19:15:45  ron-fox
+  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
+
+*/
+
 #ifndef __2BANDS_H  //Required for current class
 #define __2BANDS_H
 
@@ -343,8 +351,8 @@ public:
    //Default constructor alternative to compiler provided default constructor
 
   C2Bands (UInt_t nXId, UInt_t nYId,
-	   vector<CPoint>& rLowBand, 
-	   vector<CPoint>& rHiBand); 
+	   vector<FPoint>& rLowBand, 
+	   vector<FPoint>& rHiBand); 
 
   virtual  ~ C2Bands ( ) { }  //Destructor 
 
@@ -383,8 +391,8 @@ public:
  
 protected:
 
-  std::vector<CPoint> MarshallPoints(vector<CPoint>& rLow,
-				    vector<CPoint>& rHi);
+  std::vector<FPoint> MarshallPoints(vector<FPoint>& rLow,
+				    vector<FPoint>& rHi);
 
 };
 
