@@ -27,9 +27,9 @@ static char *sccsinfo = "@(#)plot2d.cc	2.4 4/25/94 \n";
 #elif defined(Darwin)
 #include <limits.h>
 #define MAXINT INT_MAX
-#endif
-#else
+#else                           // Cygwin for now.
 #define MAXINT (0x10000000)	/* *BUGBUGBUG* Need a good way to get maxint */
+#endif
 #endif
 
 #include "XMWidget.h"

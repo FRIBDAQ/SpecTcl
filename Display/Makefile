@@ -617,7 +617,6 @@ XMManagers.o: XMManagers.h XMWidget.h
 XMMenus.o: XMMenus.h XMWidget.h XMPushbutton.h
 XMShell.o: XMShell.h XMWidget.h XMCallback.h
 XMWlist.o: XMWlist.h XMWidget.h XMPushbutton.h
-XMcallback.o: XMWidget.h
 Xamine.o: XMWidget.h XMPushbutton.h XMMenus.h XMDialogs.h XMManagers.h
 Xamine.o: XMCallback.h dispshare.h dispwind.h superpos.h panemgr.h
 Xamine.o: menusetup.h buttonsetup.h location.h XMLabel.h pkgmgr.h colormgr.h
