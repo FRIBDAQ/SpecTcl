@@ -208,7 +208,6 @@ AttributeForm::AttributeForm(char *name, XMForm &work_area)
 */
 void Xamine_EnsureNumerics(XMWidget *w, XtPointer user_d, XtPointer call_d)
 {
-  XMText *t = (XMText *)w;
   XmTextVerifyCallbackStruct *cbd = (XmTextVerifyCallbackStruct *)call_d;
   char *text;
   int  length;
@@ -423,7 +422,7 @@ void Xamine_SetDefaultAttributes(XMWidget *w, XtPointer user_d, XtPointer cd)
   dialog->LowLevel(number);
 
   dialog->HiLevelEnabled(dflt->hasceiling());
-  sprintf(number, "%d%", dflt->getceiling());
+  sprintf(number, "%d", dflt->getceiling());
   dialog->HiLevel(number);
 
   /* Manage the dialog to make it visible to the user */
