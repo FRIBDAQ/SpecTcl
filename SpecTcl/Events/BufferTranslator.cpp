@@ -3,6 +3,7 @@
 ******************************************************************************/
 
 #include "BufferTranslator.h"
+#include <iostream.h>
 
 /*-----------------------------------------------------------------------------
   Name:  MyEndianess
@@ -51,17 +52,17 @@ BufferFactory::CreateBuffer( Address_t pBuffer, Int_t Signature32 )
   Purpose:  Copy memory from buffer and return swapped
 -----------------------------------------------------------------------------*/
 
-void SwappingBufferTranslator::GetBlock( const Address_t pItem, 
-					 Int_t size, Int_t iOffset )
+void SwappingBufferTranslator::GetBlock( Address_t pResult, Int_t iOffset, 
+					 Int_t size )
 {
   UChar_t *pBuff = (UChar_t *) m_pBuffer;
-  UChar_t *Item = (UChar_t *) pItem;
-
+  UChar_t *Item = (UChar_t *) pResult;
+  
   for( Int_t I = 0; I < size; I++ ) {
     Item[I] = pBuff[iOffset+I];
   }
 
-  UChar_t *a = (UChar_t *) pItem, b;
+  UChar_t *a = (UChar_t *) pResult, b;
   for( Int_t I = 0; I < size/2; I++ ) {
     b = a[I];
     a[I] = a[(size-1) - I];
@@ -75,11 +76,11 @@ void SwappingBufferTranslator::GetBlock( const Address_t pItem,
   Purpose:  Copy memory from buffer and return
 -----------------------------------------------------------------------------*/
 
-void NonSwappingBufferTranslator::GetBlock( const Address_t pItem, 
-					    Int_t size, Int_t iOffset )
+void NonSwappingBufferTranslator::GetBlock( Address_t pResult, Int_t iOffset, 
+					    Int_t size )
 {
   UChar_t *pBuff = (UChar_t *) m_pBuffer;
-  UChar_t *Item = (UChar_t *) pItem;
+  UChar_t *Item = (UChar_t *) pResult;
   
   for( Int_t I = 0; I < size; I++ ) {
     Item[I] = pBuff[iOffset+I];
@@ -94,8 +95,9 @@ void NonSwappingBufferTranslator::GetBlock( const Address_t pItem,
 
 UChar_t BufferTranslator::GetByte( UInt_t iOffset )
 {
-  UChar_t Byte = Get<UChar_t>( iOffset );
-  return Byte;  
+  Address_t pResult;
+  GetBlock(pResult, iOffset, sizeof(UChar_t));
+  return (UChar_t)pResult;
 }
 
 /*-----------------------------------------------------------------------------
@@ -107,8 +109,9 @@ UChar_t BufferTranslator::GetByte( UInt_t iOffset )
 
 Short_t BufferTranslator::GetWord( UInt_t iOffset )
 {
-  Short_t Word = Get<Short_t>( iOffset );
-  return Word;
+  Address_t pResult;
+  GetBlock( pResult, iOffset, sizeof(Short_t) );
+  return (Short_t)pResult;
 }
 
 /*-----------------------------------------------------------------------------
@@ -120,7 +123,7 @@ Short_t BufferTranslator::GetWord( UInt_t iOffset )
 
 Long_t BufferTranslator::GetLongword( UInt_t iOffset )
 {
-  Long_t Longword = Get<Long_t>( iOffset );
-  return Longword;
+  Address_t pResult;
+  GetBlock( pResult, iOffset, sizeof(Long_t) );
+  return (Long_t)pResult;
 }
-
