@@ -425,9 +425,7 @@ public:
  protected:
   virtual void GenerateInterior();
   Bool_t       Inside(int x, int y);
-  int          Crosses(int x, int y, 
-		       vector<CPoint>::iterator f,
-		       vector<CPoint>::iterator s);
+
 };
 
 #endif
