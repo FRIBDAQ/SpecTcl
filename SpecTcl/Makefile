@@ -25,6 +25,10 @@ system:
 	install -d -m 02775 $(INSTDIR)/Skel
 	install -d -m 02775 $(INSTDIR)/contrib
 	install -d -m 02775 $(INSTDIR)/doc
+	(umask 02; cd doc; \
+            tar cf - .| (cd $(INSTDIR)/doc; tar xf -); \
+	    chmod -R 0775 $(INSTDIR)/doc \
+	)
 	(umask 02; cd contrib; \
             tar cf - .| (cd $(INSTDIR)/contrib; tar xf -); \
 	    chmod -R 0775 $(INSTDIR)/contrib \
