@@ -84,9 +84,14 @@ SpecTcl_LDFLAGS = -L. @TCL_LDFLAGS@ @XLIBSW@ -L../SpectrumIO -L../Tape -L../Sort
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
 	-L../TCL -L../NSCLException -L../Filter -L../Analysis
 
+man_MANS = spectclapi.3
+
+
 EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
-		 mapped.tcl paramtest.tcl setup.tcl \
-	SpecTcl_Makefile.include
+	 mapped.tcl paramtest.tcl setup.tcl \
+	SpecTcl_Makefile.include $(man_MANS)
+
+
 
 
 # Unit tests.

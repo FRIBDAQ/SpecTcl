@@ -612,24 +612,9 @@ CTclAnalyzer::AddEventProcessor(CEventProcessor& rProcessor,
 				const char* name) 
 {
 
-  // Select the processor name:
+  InsertEventProcessor(rProcessor, end(), name);
 
-  string sName;
-  if(name) {
-    sName = name;
-  }
-  else {
-    sName = AssignName();
-  }
 
-  // Enter the element in the pipeline (appended to the end).
-
-  PipelineElement element(sName, &rProcessor);
-  m_lAnalysisPipeline.push_back(element);
-
-  // Let the processor know it's just been attached:
-
-  rProcessor.OnAttach(*this);
 }
 /*!
   Return an iterator (or end()) corresponding to the event processor requested by
@@ -686,6 +671,8 @@ CTclAnalyzer::InsertEventProcessor(CEventProcessor& processor,
 
   PipelineElement element(sName, &processor);
   m_lAnalysisPipeline.insert(here, element);
+
+  processor.OnAttach(*this);	// Notify the processor it was attached.
 
 }
 /*!

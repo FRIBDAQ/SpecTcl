@@ -12,6 +12,7 @@ static const char* Copyright =
 #include "EventList.h"
 
 #include "EventSinkPipeline.h"
+#include <Globals.h>
 
 #include <stdio.h>
 
@@ -70,15 +71,8 @@ void CEventSinkPipeline::operator()(CEventList& rEventList) {
  */
 void CEventSinkPipeline::AddEventSink(CEventSink& rEventSink, const char* name) 
 {
-  string sName;
-  if(name) {
-    sName = name;
-  }
-  else {
-    sName = AssignName();
-  }
-  PipelineEntry entry(sName, &rEventSink);
-  m_lSinks.push_back(entry);
+
+  InsertSink(rEventSink, end(), name);
 }
 
 /*!
@@ -96,8 +90,9 @@ void CEventSinkPipeline::InsertSink(CEventSink& entry,
 				    EventSinkIterator position, 
 				    const char* name)
 {
-
   // Figure out the sink's name:
+  
+
 
   string sName;
   if(!name) {
@@ -110,6 +105,7 @@ void CEventSinkPipeline::InsertSink(CEventSink& entry,
 
   PipelineEntry item(sName, &entry);
   m_lSinks.insert(position, item);
+  entry.OnAttach(*gpAnalyzer);
 
 }
 /*!
@@ -134,6 +130,7 @@ void CEventSinkPipeline::RemoveEventSink(CEventSink& rEventSink)
 {
   AddressMatch  predicate(rEventSink);
   m_lSinks.remove_if(predicate);
+  rEventSink.OnDetach(*gpAnalyzer);
 }
 
 /*!
@@ -154,7 +151,9 @@ CEventSinkPipeline::RemoveEventSink(string name)
 {
   NameMatch predicate(name);
   m_lSinks.remove_if(predicate);
-  return predicate.getMatch();
+  CEventSink* pSink = predicate.getMatch();
+  pSink->OnDetach(*gpAnalyzer);
+  return pSink;
 
 }
 /*!

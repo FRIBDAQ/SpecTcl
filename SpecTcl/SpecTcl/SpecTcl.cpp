@@ -936,7 +936,7 @@ void
 SpecTcl::ClearSpectrum(string name)
 {
   CHistogrammer* pHistogram = GetHistogrammer();
-  return         pHistogram->ClearSpectrum(name);
+  pHistogram->ClearSpectrum(name);
 }
 
 
