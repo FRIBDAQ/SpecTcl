@@ -283,6 +283,7 @@ DAMAGES.
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <rpc/types.h>		// CYGWIN e.g. does not include in xdr.h!!
 #include <rpc/xdr.h>
 
 /*!
