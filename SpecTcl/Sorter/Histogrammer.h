@@ -441,6 +441,8 @@ public:
   // Parameter dictionary manipulation:
 
   CParameter* AddParameter (const std::string& sName,
+			    UInt_t nId, const char* pUnits);
+  CParameter* AddParameter (const std::string& sName,
 			    UInt_t nId, 
 			    UInt_t  nScale);
   CParameter* AddParameter (const std::string& sName,

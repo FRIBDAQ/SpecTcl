@@ -586,6 +586,46 @@ CHistogrammer::operator()(CEventList& rEvents)
   }
 }
 
+/*!
+    Add a parameter to the parameter dictionary.
+    This overloaded function adds a Real (unscaled) parameter
+    that has associated optional units.  
+    \param sName (const std::string& [in]): Name of the parameter must be
+       unique or we will throw a dictionary exception for a duplicate key.
+    \param nId   (UInt_t [in]): Id of the parameter.  Must be unique or
+       we will throw a dictionary exception for a duplicate id.
+    \param pUnits (const char* [in]): If not null, this points to the units
+                text for the parameter.
+    \return A pointer to the created parameter.
+    \throw CDictionaryException for various reasons outlined above.
+*/
+CParameter*
+CHistogrammer::AddParameter(const std::string& sName,
+			    UInt_t nId, const char* pUnits)
+{
+  // Avoid Duplication:
+
+  CParameter* pPar = FindParameter(sName);
+  if(pPar) 
+    if(pPar->getName() == sName) { // Duplicate parameter name.
+      throw CDictionaryException(CDictionaryException::knDuplicateKey,
+	 "CHistogrammer::AddParameter Checking for duplicate parameter name",
+	  sName);
+    }
+  pPar = FindParameter(nId);
+  if(pPar) {			// Duplicate parameter id.
+    throw CDictionaryException(CDictionaryException::knDuplicateId,
+	    "CHistogrammer::AddParameter Checking for duplicate parameter id",
+	    nId);
+  }
+
+  // Now add the new parameter to the dictionary:
+
+  m_ParameterDictionary.Enter(sName, 
+			      CParameter( sName, nId, pUnits));
+  return FindParameter(sName);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
