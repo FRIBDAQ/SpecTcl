@@ -300,9 +300,7 @@ extern "C" {
 
 int Xamine_OpenPipes();		/* Open message IPC's to Xamine. */
 
-#ifdef unix
-  int Xamine_AcceptPipeConnections();
-#endif
+int Xamine_AcceptPipeConnections();
 
 void Xamine_Closepipes();
 

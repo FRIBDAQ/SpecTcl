@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -302,6 +302,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 // Header Files:
 //
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include "File.h" 
 #include "ErrnoException.h"
@@ -312,7 +315,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include <unistd.h>                           
 #include <iostream.h>
 #include <stdio.h>
-#ifdef CYGWIN
+#ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #endif
 
@@ -513,7 +516,7 @@ CFile::Open(const std::string& rsFilename, UInt_t nAccess)
   // Figure out the Access bits.
   
   int oflags = 0;
-#ifdef CYGWIN
+#ifdef HAVE_WINDOWS_H
   oflags |= O_BINARY;
 #endif
   oflags |= (nAccess & kacCreate) ? O_CREAT   : 0;

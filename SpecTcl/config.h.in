@@ -1,0 +1,260 @@
+/* config.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
+
+/* Define to empty if the keyword does not work.  */
+#undef const
+
+/* Define if you have a working `mmap' system call.  */
+#undef HAVE_MMAP
+
+/* Define if you have <sys/wait.h> that is POSIX.1 compatible.  */
+#undef HAVE_SYS_WAIT_H
+
+/* Define as __inline if that's what the C compiler calls it.  */
+#undef inline
+
+/* Define to `long' if <sys/types.h> doesn't define.  */
+#undef off_t
+
+/* Define to `int' if <sys/types.h> doesn't define.  */
+#undef pid_t
+
+/* Define as the return type of signal handlers (int or void).  */
+#undef RETSIGTYPE
+
+/* Define to `unsigned' if <sys/types.h> doesn't define.  */
+#undef size_t
+
+/* Define if the `S_IS*' macros in <sys/stat.h> do not work properly.  */
+#undef STAT_MACROS_BROKEN
+
+/* Define if you have the ANSI C header files.  */
+#undef STDC_HEADERS
+
+/* Define if you can safely include both <sys/time.h> and <time.h>.  */
+#undef TIME_WITH_SYS_TIME
+
+/* Define if your <sys/time.h> declares struct tm.  */
+#undef TM_IN_SYS_TIME
+
+/* Define if lex declares yytext as a char * by default, not a char[].  */
+#undef YYTEXT_POINTER
+
+/* Define if you have the alloca function.  */
+#undef HAVE_ALLOCA
+
+/* Define if you have the atexit function.  */
+#undef HAVE_ATEXIT
+
+/* Define if you have the bzero function.  */
+#undef HAVE_BZERO
+
+/* Define if you have the drand48 function.  */
+#undef HAVE_DRAND48
+
+/* Define if you have the dup2 function.  */
+#undef HAVE_DUP2
+
+/* Define if you have the fcntl function.  */
+#undef HAVE_FCNTL
+
+/* Define if you have the fork function.  */
+#undef HAVE_FORK
+
+/* Define if you have the ftruncate function.  */
+#undef HAVE_FTRUNCATE
+
+/* Define if you have the getpagesize function.  */
+#undef HAVE_GETPAGESIZE
+
+/* Define if you have the logb function.  */
+#undef HAVE_LOGB
+
+/* Define if you have the malloc function.  */
+#undef HAVE_MALLOC
+
+/* Define if you have the memcmp function.  */
+#undef HAVE_MEMCMP
+
+/* Define if you have the memset function.  */
+#undef HAVE_MEMSET
+
+/* Define if you have the mkstemp function.  */
+#undef HAVE_MKSTEMP
+
+/* Define if you have the pipe function.  */
+#undef HAVE_PIPE
+
+/* Define if you have the putenv function.  */
+#undef HAVE_PUTENV
+
+/* Define if you have the sbrk function.  */
+#undef HAVE_SBRK
+
+/* Define if you have the seed48 function.  */
+#undef HAVE_SEED48
+
+/* Define if you have the select function.  */
+#undef HAVE_SELECT
+
+/* Define if you have the shm_open function.  */
+#undef HAVE_SHM_OPEN
+
+/* Define if you have the shmget function.  */
+#undef HAVE_SHMGET
+
+/* Define if you have the socket function.  */
+#undef HAVE_SOCKET
+
+/* Define if you have the stat function.  */
+#undef HAVE_STAT
+
+/* Define if you have the strchr function.  */
+#undef HAVE_STRCHR
+
+/* Define if you have the strcspn function.  */
+#undef HAVE_STRCSPN
+
+/* Define if you have the strerror function.  */
+#undef HAVE_STRERROR
+
+/* Define if you have the strftime function.  */
+#undef HAVE_STRFTIME
+
+/* Define if you have the strrchr function.  */
+#undef HAVE_STRRCHR
+
+/* Define if you have the strspn function.  */
+#undef HAVE_STRSPN
+
+/* Define if you have the strtok_r function.  */
+#undef HAVE_STRTOK_R
+
+/* Define if you have the vfork function.  */
+#undef HAVE_VFORK
+
+/* Define if you have the <dlfcn.h> header file.  */
+#undef HAVE_DLFCN_H
+
+/* Define if you have the <fcntl.h> header file.  */
+#undef HAVE_FCNTL_H
+
+/* Define if you have the <limits.h> header file.  */
+#undef HAVE_LIMITS_H
+
+/* Define if you have the <machine/hal_sysinfo.h> header file.  */
+#undef HAVE_MACHINE_HAL_SYSINFO_H
+
+/* Define if you have the <machine/param.h> header file.  */
+#undef HAVE_MACHINE_PARAM_H
+
+/* Define if you have the <malloc.h> header file.  */
+#undef HAVE_MALLOC_H
+
+/* Define if you have the <memory.h> header file.  */
+#undef HAVE_MEMORY_H
+
+/* Define if you have the <stddef.h> header file.  */
+#undef HAVE_STDDEF_H
+
+/* Define if you have the <stdlib.h> header file.  */
+#undef HAVE_STDLIB_H
+
+/* Define if you have the <string.h> header file.  */
+#undef HAVE_STRING_H
+
+/* Define if you have the <strings.h> header file.  */
+#undef HAVE_STRINGS_H
+
+/* Define if you have the <sys/file.h> header file.  */
+#undef HAVE_SYS_FILE_H
+
+/* Define if you have the <sys/ioctl.h> header file.  */
+#undef HAVE_SYS_IOCTL_H
+
+/* Define if you have the <sys/ipc.h> header file.  */
+#undef HAVE_SYS_IPC_H
+
+/* Define if you have the <sys/mman.h> header file.  */
+#undef HAVE_SYS_MMAN_H
+
+/* Define if you have the <sys/mtio.h> header file.  */
+#undef HAVE_SYS_MTIO_H
+
+/* Define if you have the <sys/proc.h> header file.  */
+#undef HAVE_SYS_PROC_H
+
+/* Define if you have the <sys/shm.h> header file.  */
+#undef HAVE_SYS_SHM_H
+
+/* Define if you have the <sys/socket.h> header file.  */
+#undef HAVE_SYS_SOCKET_H
+
+/* Define if you have the <sys/time.h> header file.  */
+#undef HAVE_SYS_TIME_H
+
+/* Define if you have the <sys/un.h> header file.  */
+#undef HAVE_SYS_UN_H
+
+/* Define if you have the <unistd.h> header file.  */
+#undef HAVE_UNISTD_H
+
+/* Define if you have the <values.h> header file.  */
+#undef HAVE_VALUES_H
+
+/* Define if you have the <windows.h> header file.  */
+#undef HAVE_WINDOWS_H
+
+/* Name of package */
+#undef PACKAGE
+
+/* Version number of package */
+#undef VERSION
+
+/* True if MTSETBLK defined in sys/mtio.h */
+#undef HAVE_DECL_MTSETBLK
+
+/* True if MTOVERRUN defined in sys/mtio.h */
+#undef HAVE_DECL_MTOVERRUN
+
+/* True if MTCSE defined in sys/mtio.h */
+#undef HAVE_DECL_MTCSE
+
+/* True if PAGESIZE is defined in limits.h as on HP-UX */
+#undef HAVE_DECL_PAGESIZE
+
+/* True if PADSIZE defined in limits.h */
+#undef HAVE_DECL_PADSIZE
+
+/* True if INT_MAX defined in limits.h */
+#undef HAVE_DECL_INT_MAX
+
+/* True if MAXINT defined in values.h */
+#undef HAVE_DECL_MAXINT
+
+/* True if long int is 8 bits */
+#undef HAVE_TRUE_SIXTY_FOUR
+
+/* Set to 1 if SPARC Processor */
+#undef SPARC
+
+/* Set to 1 if Cygwin environment */
+#undef CYGWIN
+
+/* Set to 1 if Linux environment */
+#undef LINUX
+
+/* Set to 1 if Ultrix environment */
+#undef ULTRIX
+
+/* Set to 1 if OSF environment */
+#undef OSF
+
+/* Set to 1 if Darwin environment */
+#undef DARWIN
+
+/* True if ImageMagick's convert is present */
+#undef HAVE_CONVERT
+
+/* True if Gri is present on system */
+#undef HAVE_GRI
+

@@ -497,6 +497,8 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   CParameterPackage& rPackage = (CParameterPackage&)getMyPackage();
 
   Int_t added;
+
+  // If there is no mapping information
   if(nArg == 3) {
     added = rPackage.AddParameter(rResult, 
 				  pName, nId, nResolution);

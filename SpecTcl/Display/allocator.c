@@ -24,10 +24,10 @@
 #include "allocator.h"
 #include "client.h"
 #define remove  al_remove
+
 /*
 ** data structures used:
 */
-
 typedef struct _node {
                  struct _node *next;
 		 int  size;
@@ -131,7 +131,6 @@ arenaid alloc_init(caddr_t arena, int size)
   *first = (node *)arena;
   (*first)->next = NULL;
   (*first)->size = size - sizeof(node);
-
 
   return (arenaid)first;
 }

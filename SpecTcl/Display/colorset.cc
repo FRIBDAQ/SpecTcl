@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -304,7 +304,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files required:
 */
-				/* Standard system includes. */
+	
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+			/* Standard system includes. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -330,15 +335,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 #define MAX_COLORS 256
 
-#ifdef unix			
 #define DEFAULT_FILEMASK "./*.ctbl" /* Unix default file search  for rd/wr */
 #define ICON_FILE "/daq/etc/colorset.ico"   /* Unix Icon def file. */
-#endif
-
-#ifdef VMS			
-#define DEFAULT_FILEMASK "[]*.ctbl" /* VMS default file search  for rd/wr */
-#define ICON_FILE "DAQ_LIB:colorset.ico"  /* VMS Icon def file. */
-#endif
 #define DEFAULT_EXT ".ctbl"
 /* 
 ** Data structure definitions:
@@ -548,7 +546,7 @@ XColor       white;
 ** External references.
 */
 extern "C" {
-#ifndef Linux
+#ifndef LINUX
   void exit(int);
 #endif
 

@@ -293,6 +293,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
+ Revision 4.11.2.1  2003/03/21 17:16:56  venema
+ Added support for GNU autotools, and fixed a problem with mapped spectrum which caused Xamine to crash on Tru64 on 1d spectra.
+
  Revision 4.11  2003/01/02 16:13:00  venema
  Major version upgrade to SpecTcl 2.0. This version adds arbitrary user-coordinate mapping to Xamine using, and a special mapping button on the Xamine GUI. Also, print options are now sticky and are maintained in the Xamine.Defaults file.
 
@@ -334,10 +337,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <signal.h>
 #include <sys/wait.h>
 #include <errno.h>
-#ifdef unix
 #include <sys/time.h>
 #include <sys/types.h>
-#endif
 #include "XMDialogs.h"
 #include "XMManagers.h"
 #include "XMPushbutton.h"
@@ -356,7 +357,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "dfltmgr.h"
 
 extern "C" {
-#ifdef ultrix
+#ifndef HAVE_SYS_TIME_H
   time_t time(time_t *tloc);
 #endif
 }
@@ -381,14 +382,12 @@ extern grobj_database Xamine_DefaultGateDatabase;
 
 #define INITIAL_PRINTER_TYPE  postscript
 
-#ifdef unix
 #define DEFAULT_TEMPFILE "./Xamine_tempprint.out"
+
+#ifdef HAVE_WINDOWS_H      /* Cygwin */
+#define DEFAULT_PRINTCMD "cp %s //win-cluster/west_print1"
+#else
 #define DEFAULT_PRINTCMD "lpr -Pu1_color_print %s";
-#endif
-
-
-#ifdef CYGWIN
-#define DEFAULT_PRINTCMD "cp %s //win-cluster/west_print1";
 #endif
 
 
@@ -2050,6 +2049,18 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
 
   ps_dialog->Manage();
 }
+
+/*
+  This is the callback if Gri is not installed
+*/
+void Xamine_NoGriDialog(XMWidget* w, XtPointer user, XtPointer call)
+{
+
+  // Not much for now
+  fprintf(stderr, "Printing not available.");
+  fprintf(stderr, " You must install the Gri plotting packge!\n");
+}
+
 
 /*
   Xamine_SetDfltPrintOpts(XMWidget* w, XtPointer user, XtPointer call)

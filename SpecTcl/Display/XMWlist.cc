@@ -328,3 +328,26 @@ void XMWidgetList::SetAttribute(String attribute, void *value)
   }
 
 }
+
+/*
+** These functions are implemented here because inlining them caused linking
+** problems on Tru64. These functions are for class XMWidgetList
+*/
+
+XMWidgetList::XMWidgetList(int num = LIST_DEFAULT_SIZE) : 
+  Generic_List<XMWidget>(num) 
+{}
+
+/*
+** These functions are for class XMButtonList
+*/
+
+void
+XMButtonList::Enable() {
+  SetAttribute(XmNsensitive, (XtArgVal)True);
+}
+
+void
+XMButtonList::Disable() {
+  SetAttribute(XmNsensitive, (XtArgVal)False);
+}

@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -294,11 +294,14 @@ static char *version="@(#)spectra.cc	8.1 6/23/95 ";
 /*
 ** Include files:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
-#ifdef unix
 #include <strings.h>
 #include <memory.h>
-#endif
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
@@ -308,11 +311,12 @@ static char *version="@(#)spectra.cc	8.1 6/23/95 ";
 /*
 ** Additional references:
 */
-#ifndef Linux
+#ifndef LINUX
 extern "C" {
   void exit(int);
 }
 #endif
+
 /*
 ** Exported storage:
 */

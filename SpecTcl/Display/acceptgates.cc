@@ -712,7 +712,7 @@ Boolean AcceptCut::DoAccept()
 
   if((object->pointcount() != 2)) {
     Xamine_error_msg(Xamine_Getpanemgr(),
-		     "Slices require 2 points to be accepted");
+		     "Cuts require 2 points to be accepted");
     return False;
   }
 
@@ -975,7 +975,7 @@ void
 AcceptCut::ChooseDefaultName()
 {
   char namestr[80];
-  sprintf(namestr, "Slice %03d", Xamine_GetNextGateId());
+  sprintf(namestr, "Cut %03d", Xamine_GetNextGateId());
   ObjectInput::SetText(namestr);
 }
 /*
@@ -1103,7 +1103,7 @@ void Xamine_AcceptGate(XMWidget *w, XtPointer clientd, XtPointer calld)
   switch (object_type) {
   case cut_1d:
     if(cutin == NULL) {
-      cutin = new AcceptCut("Slice_Prompt", w, help_text);
+      cutin = new AcceptCut("Cut_Prompt", w, help_text);
     }
     prompter = (AcceptSummingRegion *)cutin;
     break;

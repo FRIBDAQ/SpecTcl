@@ -434,6 +434,9 @@ public:
   UInt_t        Randomize(Float_t nChannel);
   UInt_t        GatePointToSpec(UInt_t nPoint, UInt_t nIndex);
   UInt_t        SpecPointToGate(UInt_t nPoint, UInt_t nIndex);
+  UInt_t        XParamToSpecPoint(UInt_t nParamPoint, UInt_t nChan);
+  UInt_t        YParamToSpecPoint(UInt_t nParamPoint, UInt_t nChan);
+  UInt_t        RandomizeToMultipleBins(Float_t nChannel, Float_t nRatio);
 };
 
 #endif

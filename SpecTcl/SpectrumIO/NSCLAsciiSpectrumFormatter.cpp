@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -303,6 +303,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 //
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "NSCLAsciiSpectrumFormatter.h"    				
 #include <Spectrum.h>
 #include <Spectrum1DL.h>
@@ -466,19 +471,19 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
   //
   if(eSpecType == keSummary) {
     Float_t res = (Float_t)vDimensions[1];   // Second res is important.
-#ifdef Darwin
+#ifdef HAVE_LOGB
     res         = logb(res);
 #else
-    res         = log2f(res);
+    res         = log10(res) / log10(2.0);
 #endif
     vResolutions.push_back((UInt_t) res);
   } else {
     for(UInt_t i = 0; i < vDimensions.size(); i++) {
       Float_t res = (Float_t)vDimensions[i];
-#ifdef Darwin
+#ifdef HAVE_LOGB
     res         = logb(res);
 #else
-    res         = log2f(res);
+    res         = log10(res) / log10(2.0);
 #endif
       vResolutions.push_back((UInt_t)res);
     }

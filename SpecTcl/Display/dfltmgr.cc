@@ -295,39 +295,37 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** External include files required:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#ifdef unix
 #include <memory.h>
 #include <strings.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#endif
-#ifdef VMS
-#include <string.h>
-#include <time.h>
-#include <types.h>
-#define unlink remove
-#endif
 
 #include "panemgr.h"
 #include "grobjdisplay.h"
 #include "refreshctl.h"
 #include "printer.h"
 
-#ifdef ultrix
+#ifndef HAVE_SYS_TIME_H    /* Ultrix */
 #include <time.h>
 extern "C" {
   time_t time(time_t *tloc);
 }
 #endif
-#ifndef Linux
+#ifndef LINUX
 extern "C" {
-  void exit(int); 
+  void exit(int);
 }
 #endif
+
 /*
 ** External functions used in the default file parse.
 */
@@ -483,13 +481,7 @@ int Xamine_ReadDefaultProperties()
 
   return (status != 0);			/* BUGBUGBUG - Stub for now. */
 }
-#ifdef FLEXV2
-void defaultfilerestart(FILE *config)
-{
-  defaultfilein = config;
-  def_startlex();
-}
-#endif
+
 
 /*
 ** Functional Description:

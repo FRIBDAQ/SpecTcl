@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -294,11 +294,26 @@ DAMAGES.
 #ifndef SUMREGION_H_INSTALLED
 #define SUMREGION_H_INSTALLED
 
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
+#ifndef XMLIST_H_INSTALLED
 #include "XMList.h"
+#endif
+
+#ifndef XMPushbutton_H
 #include "XMPushbutton.h"
+#endif
+
+#ifndef _XMLABEL_H
 #include "XMLabel.h"
+#endif
+
+#ifndef _XMTEXT_H
 #include "XMText.h"
+#endif
+
 #include "convert.h"
 #include "dispgrob.h"
 #include "grobjinput.h"

@@ -320,11 +320,7 @@ CEventList::CEventList() :
 //   Parameterized constructor.
 //
 CEventList::CEventList(UInt_t nEvents)
-: m_rvEvents(
-#ifdef OSF1
-	     (unsigned long int)
-#endif
-	     nEvents, (CEvent*)kpNULL),
+: m_rvEvents((unsigned long int)nEvents, (CEvent*)kpNULL),
   m_nSize(m_rvEvents.size())
 {
 }
@@ -336,11 +332,7 @@ CEventList::CEventList(UInt_t nEvents)
 //    Copy Constructor.
 //
 CEventList::CEventList(const CEventList& anEventList)
-: m_rvEvents(
-#ifdef OSF1
-	     (unsigned long int)
-#endif
-	     knExpandSize, (CEvent*)kpNULL)
+: m_rvEvents((unsigned long int)knExpandSize, (CEvent*)kpNULL)
 {
   DoAssign(anEventList);
 }

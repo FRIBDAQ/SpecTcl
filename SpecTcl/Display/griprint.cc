@@ -311,12 +311,9 @@ static char *sccsinfo="@(#)griprint.cc	4.3 9/23/02 ";
 #include <signal.h>
 #include <sys/wait.h>
 #include <errno.h>
-#include <vector>
 #include <stdlib.h>
-#ifdef unix
 #include <sys/time.h>
 #include <sys/types.h>
-#endif
 #include "XMDialogs.h"
 #include "XMManagers.h"
 #include "XMPushbutton.h"
@@ -336,7 +333,7 @@ static char *sccsinfo="@(#)griprint.cc	4.3 9/23/02 ";
 #include "mapcoord.h"
 
 extern "C" {
-#ifdef ultrix
+#ifndef HAVE_SYS_TIME_H
   time_t time(time_t *tloc);
 #endif
 }
@@ -344,10 +341,7 @@ extern "C" {
 /*
 ** Externally referenced global:
 */
-#ifdef __NEED_OWN_ERRNO
 extern int errno;
-#endif
-
 extern volatile spec_shared *xamine_shared;
 extern win_db *database;
 
@@ -364,16 +358,8 @@ extern grobj_database Xamine_DefaultGateDatabase;
 
 #define INCH 2.54
 
-#ifdef unix
 #define DEFAULT_TEMPFILE "./Xamine_tempprint.out"
 #define DEFAULT_PRINTCMD "lpr -Pu1_color_print";
-#endif
-
-#ifdef VMS
-#define DEFAULT_TEMPFILE "SYS$SCRATCH:XAMINE_TEMPPRINT.OUT"
-#define DEFAULT_PRINTCMD "PRINT/DELETE/QUEUE=EXP_HP %f"
-#endif
-
 
 /*
   FindConvert
@@ -561,11 +547,11 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
   if(pAttributes->islog()) {
     int nPower;
     if(nFloor) {
-      nPower     = log10(nFloor);
+      nPower     = (int)log10(nFloor);
       nFloor     = (int)pow(10, (nPower));
     }
     if(nCeiling) {
-      nPower     = log10(nCeiling);
+      nPower     = (int)log10(nCeiling);
       nCeiling   = (int)pow(10, (nPower+1));
     }
   }
@@ -960,7 +946,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 
       // Find the increment tick increments for the color palette...
       int nPower = (int)(log10(nRange));
-      nIncr  = (int)(nRange / (pow(10, nPower))) * pow(10, (nPower-1));
+      nIncr  = (int)(nRange / (pow(10, nPower))) * (int)pow(10, (nPower-1));
       if(nIncr == 0) nIncr++;
       while(nIncr * 10 < nRange)
 	nIncr *=2;
@@ -995,7 +981,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       double nLogMax = log10(nMaxCounts);
       int hi_range = nFullScale, 
 	lo_range = 0;
-      if(pAttrib->islog()) hi_range = nLogFS;
+      if(pAttrib->islog()) hi_range = (int)nLogFS;
       if(nFloor) lo_range = nFloor;
       if(nCeiling) hi_range = nCeiling;
 
@@ -1231,8 +1217,8 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // value and avoid graphing outside our range.
     int nHighCnt = nFullScale;
     if(pAttrib->islog()) {
-      int nPower   = (int)(log10(nFullScale));
-      nHighCnt = pow(10, (nPower+1));
+      int nPower = (int)(log10(nFullScale));
+      nHighCnt   = (int)pow(10, (nPower+1));
     }
 
     // If expanded, decrement the high limit to avoid trying to get a channel
@@ -1510,7 +1496,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       else {
 	int nPower = (int)log10(nFullScale);
 	int nLogMax, nLogMin;
-	nLogMax = pow(10.0, (nPower+1));
+	nLogMax = (int)pow(10.0, (nPower+1));
 	nLogMin = 1;
 	if(nCeiling) {
 	  nPower  = (int)log10(nCeiling);
@@ -1762,12 +1748,14 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     strcpy(printcmd, Xamine_GetPrintCommand());
     if(strcmp(&printcmd[strlen(printcmd)-1], "\n") == 0)
       printcmd[strlen(printcmd)-1] = 0;
-    char instdir[75];
-    sprintf(instdir, "%s", HOME);
-    char bindir[80];
-    char etcdir[80];
-    sprintf(bindir, "%s/Bin/gri", instdir);
-    sprintf(etcdir, "%s/Etc", instdir);
+
+    // Get the directory of Gri from the preprocessor, and gri.cmd...
+    char gri_dir[150];
+    char gri_cmd_dir[150];
+    sprintf(gri_dir, "%s", GRI_DIR);
+    sprintf(gri_cmd_dir, "%s", GRI_CMD_DIR);
+    char gri_exec[155];
+    sprintf(gri_exec, "%s/gri", gri_dir);
     string cmd_root = string(cmd_file);
     cmd_root.resize(strlen(cmd_file)-4);
  
@@ -1775,7 +1763,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     switch(Options->getdest()) {
     case toprinter: {
       sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps %s; ", 
-	      bindir, etcdir, cmd_file);
+	      gri_exec, gri_cmd_dir, cmd_file);
       char pcmd[50];
       sprintf(pcmd, "%s.ps", cmd_root.c_str());
       sprintf(buf1, printcmd, pcmd);
@@ -1819,15 +1807,21 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	sFilename.append(".ps");
       
       sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps %s; ", 
-	      bindir, etcdir, cmd_file);
+	      gri_exec, gri_cmd_dir, cmd_file);
       
       // If postscript requested, don't add the following:
       char buf[100];
       if(sType != "Postscript (*.ps)") {
 	char convert_path[50];
+#ifdef HAVE_CONVERT
 	strcpy(convert_path, FindConvert());
 	sprintf(buf, "%s -page letter %s %s; rm -f %s.ps; ", convert_path,
 		sDest.c_str(), sFilename.c_str(), cmd_root.c_str());
+#else
+	fprintf(stderr, "** Could not convert file from postscript. ");
+	fprintf(stderr, "Image will be postscript.\nInstall ImageMagick's");
+	fprintf(stderr, " Convert to convert image formats.\n");
+#endif
       }
       else {
 	sprintf(buf, "mv %s.ps %s; ", cmd_root.c_str(), sFilename.c_str());
@@ -1988,8 +1982,8 @@ Xamine_getMappedTickInterval(float paramrange, int pixels)
   if((int)tickint == tickint) {
     int tempint = (int)tickint;
     while((10 % tempint != 0) && (tempint % 10 != 0)) {
-      int power = log10(tempint);
-      int exp   = pow(10.0, power);
+      int power = (int)log10(tempint);
+      int exp   = (int)pow(10.0, power);
       int ones_digit = tempint % exp;
       if(ones_digit == 0)
 	break;
@@ -2024,8 +2018,8 @@ string Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int nFloor,
 
   int x, y;
   int nFullScale = pAttrib->getfsval();
-  int lo_line = (float)((nFloor) ? nFloor : fLog);
-  int hi_line = (float)((nCeiling && (nCeiling < nFullScale)) 
+  int lo_line = (int)((nFloor) ? nFloor : fLog);
+  int hi_line = (int)((nCeiling && (nCeiling < nFullScale)) 
 			  ? nCeiling : nFullScale);
 
   // If the plot is a log plot, set the full scale value to be the next highest

@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -293,37 +293,32 @@ DAMAGES.
 #ifndef _DISPSHARE_H_INSTALLED_
 #define _DISPSHARE_H_INSTALLED_
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <string.h>
 #include <stdio.h>
+#include <sys/types.h>
 /* Define a megabyte if someone else hasn't done it */
 
 #ifndef MEG
 #define MEG 1024*1024
 #endif
 
-#ifdef unix
-#include <sys/types.h>
-//    Maybe the two below are not really needed?
-//
-// #include <sys/ipc.h>
-// #include <sys/shm.h>
-#endif 
-#ifdef ultrix
+#ifdef HAVE_MACHINE_PARAM_H
 #include <machine/param.h>
 #define PAGESIZE NBPG
 #endif
-#ifdef __ALPHA
-#define PADSIZE  65536
-#else
+
+#ifndef HAVE_DECL_PADSIZE
 #define PADSIZE  512
 #endif
 
-
-#ifdef VMS
-#define PAGESIZE 512
-#endif
+#ifndef HAVE_DECL_PAGESIZE
 #ifndef PAGESIZE
 #define PAGESIZE 512
+#endif
 #endif
 
 #define DISPLAY_MAXSPEC 999	/* Maximum spectrum count. */
@@ -331,10 +326,6 @@ DAMAGES.
 
 #define DISPLAY_WORDS     (DISPLAY_SPECBYTES)/sizeof(short)
 #define DISPLAY_LONGS     (DISPLAY_SPECBYTES)/sizeof(long)
-#ifdef __ALPHA
-#pragma member_alignment __save
-#pragma nomember_alignment
-#endif
 
 typedef union {
                 unsigned char  display_b[DISPLAY_SPECBYTES];
@@ -444,9 +435,6 @@ struct spec_shared {
   char *getversion() volatile;
 };
 
-#ifdef __ALPHA
-#pragma member_alignment __restore
-#endif
 void Xamine_initspectra();
 int Xamine_GetSpectrumList(char ***list);
 int Xamine_GetSpectrumId(char *name);

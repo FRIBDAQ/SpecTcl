@@ -51,12 +51,7 @@ int Xamine_AllocateSpectrum()
   }
   return 0;			/* No free spectra. */
 }
-#ifdef unix
 int f77Xamine_AllocateSpectrum_()
-#endif
-#ifdef VMS
-int f77Xamine_AllocateSpectrum()
-#endif
 {
   return Xamine_AllocateSpectrum();
 }
@@ -81,12 +76,7 @@ int Xamine_ReserveSpectrum(int spno)
   return Xamine_AllocateSpectrum();
     
 }
-#ifdef unix
 int f77Xamine_ReserveSpectrum_(int *spno)
-#endif
-#ifdef VMS
-int f77Xamine_ReserveSpectrum(int *spno)
-#endif
 {
   return Xamine_ReserveSpectrum(*spno);
 }
@@ -105,12 +95,8 @@ void Xamine_FreeSpectrum(int spno)
   allocated[spno-1] = 0;
   Xamine_memory->dsp_types[spno-1] = undefined;
 }    
-#ifdef unix
+
 void f77xamine_freespectrum_(int *spno)
-#endif
-#ifdef VMS
-void f77xamine_freespectrum(int *spno)
-#endif
 {
   Xamine_FreeSpectrum(*spno);
 }

@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -295,6 +295,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /* 
 ** Include files:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <math.h>
 
@@ -314,7 +319,7 @@ extern spec_shared *xamine_shared;
 /*
 ** External functions required:
 */
-#ifndef Linux
+#ifndef LINUX
 extern "C" {
   void exit(int code); 
 }

@@ -20,36 +20,42 @@
 /*
 ** Includes:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef Darwin
+#ifdef HAVE_SHM_OPEN
+#ifdef HAVE_MMAN_H
 #include <sys/mman.h>
+#else
+  error No shm_open needed to open shared memory region
+#endif
 #endif
 
-#ifdef unix
 #include <sys/types.h>
 #include <unistd.h>
-#ifdef CYGWIN
+
+#ifdef HAVE_WINDOWS_H      /* Needed for Cygwin */
 #include <windows.h>
-#else
-#include <sys/ipc.h>
-#include <sys/shm.h>
 #endif
+
+#ifdef HAVE_SYS_IPC_H
+#include <sys/ipc.h>
+#endif
+
+#ifdef HAVE_SYS_SHM_H
+#include <sys/shm.h>
+#else
+  error No sys/shm.h needed to manipulate shared memory region!
+#endif
+
 #include <sys/stat.h>
 #include <fcntl.h>
-#endif
-#ifdef VMS
-#include <ssdef.h>
-#include <descrip.h>
-#include <unixlib.h>
-#include <psldef.h>
-#include <secdef.h>
-#include <lnmdef.h>
-#include <clidef.h>
-#include <jpidef.h>
-#endif
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
@@ -59,41 +65,18 @@
 #include "clientgates.h"
 #include "prccheck.h" 
 #include "allocator.h"
-#ifdef __ALPHA
-#include <types.h>
-#endif
 /*
 ** Definitions.
 */
 
-#ifdef unix
 #define NAME_FORMAT "XA%02x"
-#endif
-
-#ifdef __ALPHA
-#define GRANULE 65536		    /* Bytes in a map granule */
-#endif
-
-#ifdef VMS
-#define NAME_FORMAT "XAMINE_%x"
-#endif
-
 #define SHARENV_FORMAT "XAMINE_SHMEM=%s" /* Environment names/logical names. */
 #define SIZEENV_FORMAT "XAMINE_SHMEM_SIZE=%d"
 
 #define XAMINEENV_FILENAME "XAMINE_IMAGE"
 
 #ifndef HOME
-#ifdef unix
 #define XAMINE_PATH "/daq/bin/%s"
-#endif
-#ifdef VMS
-#define XAMINE_PATH "XAMINE_DIR:%s"
-#endif
-#endif
-
-#ifdef sparc
-#define atexit(function) on_exit(function, 0)
 #endif
 
 /*
@@ -102,53 +85,6 @@
 */
 
 
-/*
-** External references:
-*/
-
-#ifdef VMS
-#ifdef __ALPHA
-#pragma member_alignment __save
-#pragma nomember_alignment
-#endif
-struct gsmatch { int criterion;
-		 short minor, major; /* Not quite accurate but close enough */
-	       };
-struct itemlist3   {
-                    short buflen;
-		    short code;
-		    char *bufadr;
-		    char *retlenadr;
-		  };
-#ifdef __ALPHA
-#pragma member_alignment __restore
-#endif
-int sys$mgblsc(int *in, int *ret, int acmode, int flags,
-	       struct dsc$descriptor *name,
-	       struct gsmatch        *match,
-	       int relpage);
-
-int sys$crmpsc(int *in, int *ret, int acmode, int flags, 
-	       struct dsc$descriptor *name, 
-	       struct gsmatch *id, int relpage, int chan, 
-	       int pagcnt, int vbn, int protection, int pfc);
-
-int sys$crelnm(int *attr, struct dsc$descriptor *table,
-	       struct dsc$descriptor *logname,
-	       int *accmode, struct itemlist3 *itemlist);
-
-int sys$getjpiw(int efn, pid_t *pid, struct dsc$descriptor *name,
-	       struct itemlist3 *items, int *iosb, int *astadr, int astprm);
-
-int lib$spawn(struct dsc$descriptor *command,
-	      struct dsc$descriptor *input, struct dsc$descriptor *output,
-	      int *mask, 
-	      struct dsc$descriptor *process_name,
-	      pid_t *pid, int *status, char *efnum,
-	      void *ast, void *astarg,
-	      struct dsc$descriptor *prompt,
-	      struct dsc$descriptor *cliname);
-#endif
 /*
 ** Exported variables;
 */
@@ -169,77 +105,6 @@ static int   Xamine_Memid = -1;
 
 
 
-#ifdef VMS			/* VMS version of putenv() */
-/*
-** Functional Description:
-**    putenv:
-**      This function is only needed in VMS implementations.
-**      it puts a string into the 'environment' of the process.
-**      In VMS, the environment of the process is a stripped down
-**      environment area and the set of DCL symbols and logical names.
-**      We break up the unix formatted name=equivalence into 
-**      logicalname = name
-**      equivalencestring = equivalence
-**      and call sys$crelnm to set the string in the process 'environment'.
-** Formal Parameters:
-**   char *name:
-**     Unix formatted environment name string.
-** Returns:
-**   0 - success.
-**  -1 - Failure (mimics unix putenv()).
-*/
-static int putenv(char *name)
-{
-  int namelen;
-  char *eqv;
-  struct itemlist3 items[2];
-  struct dsc$descriptor namedesc;
-  struct dsc$descriptor tablename;
-  int status;
-
-  eqv = strchr(name, '=');		/* Locate the = sign. */
-  if(eqv == NULL)
-    return -1;
-  else {
-    namelen = eqv - name;	/* compute length of name. */
-    eqv++;			/* Point to equivalence string. */
-  }
-  /* Build the name descriptor: */
-
-  namedesc.dsc$a_pointer = name;
-  namedesc.dsc$w_length  = namelen;
-  namedesc.dsc$b_dtype   = DSC$K_DTYPE_T;
-  namedesc.dsc$b_class   = DSC$K_CLASS_S;
-
-  /* build the table name descriptor: */
-
-  tablename.dsc$a_pointer = "LNM$PROCESS";
-  tablename.dsc$w_length  = strlen(tablename.dsc$a_pointer);
-  tablename.dsc$b_dtype   = DSC$K_DTYPE_T;
-  tablename.dsc$b_class   = DSC$K_CLASS_S;
- 
-  /* Build the item list: */
-
-  items[0].buflen       = strlen(eqv);
-  items[0].code         = LNM$_STRING;
-  items[0].bufadr       = eqv;
-  items[0].retlenadr    = NULL;
-
-  memset(&items[1], 0, sizeof(struct itemlist3));
-
-  /* now do the define: */
-
-  status = sys$crelnm((int *)NULL, &tablename, &namedesc, NULL, &(items[0]));
-  if((status & 1) == 0)
-    return -1;
-  else
-    return 0;
-
-}
-
-#endif
-
-#ifdef unix
 /*
 ** Functional Description:
 **   killmem:
@@ -250,7 +115,7 @@ static int putenv(char *name)
 **   NONE:
 */
 void killmem()
-#ifdef CYGWIN
+#ifdef HAVE_WINDOWS_H
 {
   UnmapViewOfFile(Xamine_memory);
 }
@@ -261,8 +126,6 @@ void killmem()
   }
 }
 #endif
-#endif
-
 /*
 ** Functional Description:
 **   genname:
@@ -278,9 +141,7 @@ static int genname(char *name)
   pid_t pid;
 
   pid = getpid();		/* Get the process id. */
-#ifdef unix
   pid = (pid & 0xff);		/* Only take the bottom byte of pid. */
-#endif
   sprintf(name, NAME_FORMAT, (int)pid);	/* Format the name. */
   return 1;
 }
@@ -303,8 +164,7 @@ static int genname(char *name)
 **        the shared memory was allocated.
 */
 static int genmem(char *name, volatile void **ptr, unsigned int size)
-#ifdef unix
-#if defined(Darwin)
+#if HAVE_SHM_OPEN     /* Defined on Darwin */
 {
   int fd;
   void* pMem;
@@ -316,12 +176,17 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   }
 
   if(ftruncate(fd, size) < 0) {
-    perror("frtrunate failed");
+    perror("ftruncate failed");
     *ptr = NULL;
     return FALSE;
   }
 
+#ifdef HAVE_MMAP
   pMem = mmap(NULL, size, PROT_READ |PROT_WRITE, MAP_SHARED, fd, 0);
+#else
+  read(fd, pMem, size);
+#endif
+
   if(pMem == (char*)-1) {
     perror("mmap failed");
     *ptr = NULL;
@@ -332,7 +197,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   return TRUE;
 }
 
-#elif defined(CYGWIN)
+#elif HAVE_WINDOWS_H     /* On Cygwin */
 {
   HANDLE hMapFile;
   void*  pMemory;
@@ -362,7 +227,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   *ptr = pMemory;
   return TRUE;
 }
-#else
+#elif HAVE_SHMGET
 {				/* UNIX implementation. */
   key_t key;
   int   memid;
@@ -371,7 +236,7 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
   /* Create the shared memory region: */
 
   memcpy(&key, name, sizeof(key));
-  memid   = shmget(key, size, 
+  memid = shmget(key, size, 
  	         (IPC_CREAT | IPC_EXCL) | S_IRUSR | S_IWUSR); /* Owner rd/wr */
   if(memid == -1) 
     return 0;
@@ -383,66 +248,12 @@ static int genmem(char *name, volatile void **ptr, unsigned int size)
     return 0;
 
   Xamine_Memid = memid;		/* Save the memory id. for Atexit<. */
-#ifdef unix			/* VMS GBL sections go away by themselves. */
   atexit(killmem);
-#endif
   *ptr = (void *)base;
   return -1;			/* Indicate successful finish. */
 }				/* Unix implementation. */
 #endif
-#endif
-#ifdef VMS
-{				/* VMS Implementation. */
-  int inadr[2];		/* Input address... */
-  int outadr[2];		/* Output address.  */
-  struct dsc$descriptor namedesc; /* Section name descriptor. */
-  struct gsmatch match;
-  int    status;
-#ifdef __ALPHA
-  int    gcount;
-#endif
-  /* Build the descriptor for the section name */
 
-  namedesc.dsc$a_pointer = name;
-  namedesc.dsc$w_length  = strlen(name);
-  namedesc.dsc$b_dtype   = DSC$K_DTYPE_T;
-  namedesc.dsc$b_class   = DSC$K_CLASS_S;
-
-
-  /* build the requested address block: */
-
-  inadr[0] = (int)*ptr;
-#ifdef __ALPHA
-  gcount   = (size + GRANULE - 1)/GRANULE;
-  inadr[1] = inadr[0] + gcount*GRANULE -1;
-#else
-  inadr[1] = inadr[0] + size-1;
-#endif
-
-  /* Build the match criterion */
-
-  match.criterion = SEC$K_MATALL; /* For now all will match. */
-  match.major     = 0;
-  match.minor     = 0;
-
-  /* Now try to map to the section. */
-
-  status = sys$crmpsc(inadr, outadr, PSL$C_USER,
-		      SEC$M_DZRO | SEC$M_GBL | SEC$M_PAGFIL | SEC$M_WRT,
-		      &namedesc, &match, 0, 0, 
-		      (size + PAGESIZE - 1)/PAGESIZE, 0, 
-		      0xcfff, 4);
-  if((status & 1) == 1)
-    return 1;
-  else {
-    errno = EVMSERR;
-    vaxc$errno = status;
-    return 0;
-  }
-				     
-}				/* VMS Implementation. */
-#endif
-
 /*
 ** Functional Description:
 **  genenv:
@@ -515,24 +326,10 @@ int genenv(char *name, int specbytes)
 
 /* Fortran call: */
 
-#ifdef VMS
-int f77xamine_createsharedmemory
-#endif
-#ifdef unix
-int f77xamine_createsharedmemory_
-#endif
-                                  (int *specbytes,volatile Xamine_shared **ptr)
+int f77xamine_createsharedmemory_(int *specbytes,volatile Xamine_shared **ptr)
 {
   int stat;
   stat = Xamine_CreateSharedMemory(*specbytes, ptr);
-#ifdef VMS
-  if(!stat) {
-    stat = errno;
-    if(errno == EVMSERR) stat = vaxc$errno;
-  }
-  else
-    stat = SS$_NORMAL;
-#endif
   return stat;
 }
 
@@ -559,10 +356,10 @@ int Xamine_CreateSharedMemory(int specbytes,volatile Xamine_shared **ptr)
 }
 int Xamine_DetachSharedMemory()
 {
-#ifdef CYGWIN
+#ifdef HAVE_WINDOWS_H
   UnmapViewOfFile(Xamine_memory);
 #else
-  return shmdt(Xamine_memory);
+  return shmdt((const void*)Xamine_memory);
 #endif
 }
 
@@ -580,23 +377,10 @@ int Xamine_DetachSharedMemory()
 
 /* F77 call: */
 
-#ifdef VMS
-int f77xamine_start()
-#endif
-#ifdef unix
 int f77xamine_start_()
-#endif
 {
   int stat;
   stat =  Xamine_Start();
-#ifdef VMS
-  if(!stat) {
-    stat = errno;
-    if(errno == EVMSERR) stat = vaxc$errno;
-  }
-  else
-    stat = SS$_NORMAL;
-#endif
   return stat;
 }
 /* C call:   */
@@ -625,12 +409,12 @@ int Xamine_Start()
   }
   else {
 #ifdef HOME
-    sprintf(filename,"%s/Bin/%s", HOME, "Xamine2_0");
+    sprintf(filename,"%s/bin/%s", HOME, "Xamine");
 #else
-    sprintf(filename,XAMINE_PATH, "Xamine2_0");
+    sprintf(filename,XAMINE_PATH, "Xamine");
 #endif
   }
-#ifdef unix
+
   /* The code belows makes sure that none of the stdin, stdout and stderr
   ** file descriptors is closed on us.
   */
@@ -668,61 +452,8 @@ int Xamine_Start()
       }
     }
   }
-#endif
-#ifdef VMS
-{
-    int mask;
-    struct dsc$descriptor cmd_desc;
-    struct dsc$descriptor name_desc;
-    struct dsc$descriptor in_desc;
-    char   command[100];
-    char   name[17];
-
-    /* Build up the mask for the spawn: */
-
-    mask = CLI$M_NOWAIT;    /* Run child process asynch */
-
-    /* Build up the command string and descriptor from the file name: */
-
-    sprintf(command, "RUN %s",filename);
-    cmd_desc.dsc$a_pointer = command;
-    cmd_desc.dsc$w_length  = strlen(command);
-    cmd_desc.dsc$b_dtype   = DSC$K_DTYPE_T;
-    cmd_desc.dsc$b_class   = DSC$K_CLASS_S;
-
-    /* Next build up the process name, it's going to be Xamine_PID */
-   
-    sprintf(name, "Xamine_%x", getpid());
-    name_desc.dsc$a_pointer = name;
-    name_desc.dsc$w_length  = strlen(name);
-    name_desc.dsc$b_dtype   = DSC$K_DTYPE_T;
-    name_desc.dsc$b_class   = DSC$K_CLASS_S;
-
-    /* Next build the input filename descriptor.  we use _NLA0: as that will */
-    /* make Xamine insensitive to CONTROL-Y's in the parent process          */
-
-    in_desc.dsc$a_pointer   = "_NLA0:";
-    in_desc.dsc$w_length    = strlen("_NLA0:");
-    in_desc.dsc$b_dtype     = DSC$K_DTYPE_T;
-    in_desc.dsc$b_class     = DSC$K_CLASS_S;
-
-    /* Now execute the spawn command:  */
-
-    vfstat = lib$spawn(&cmd_desc, &in_desc, NULL, &mask,
-		       &name_desc, &Xamine_Pid, NULL, NULL, 
-		       NULL, NULL, NULL, NULL);
-    if((vfstat & 1) == 1) {
-       return Xamine_OpenPipes();
-    }
-    else {
-      errno = EVMSERR;
-      vaxc$errno = vfstat;
-      return 0;
-   }
 }
-#endif
-}
-
+
 /*
 ** Functional Description:
 ** Xamine_Stop:
@@ -735,24 +466,10 @@ int Xamine_Start()
 **    True   - Success.
 **    False  - Failure.
 */
-#ifdef unix
 int f77xamine_stop_()
-#endif
-#ifdef VMS
-int f77xamine_stop()
-#endif
 {
   int stat;
   stat =  Xamine_Stop();
-
-#ifdef VMS
-  if(!stat) {
-    stat = errno;
-    if(errno == EVMSERR) stat = vaxc$errno;
-  }
-  else
-    stat = SS$_NORMAL;
-#endif
   return stat;
 }
 int Xamine_Stop()
@@ -784,13 +501,7 @@ int Xamine_Stop()
 **
 **--
 */
-int 
-#ifdef unix
-    f77xamine_alive_()
-#endif
-#ifdef VMS
-    f77xamine_alive()
-#endif
+int f77xamine_alive_()
 {
 
     return Xamine_Alive();
@@ -821,7 +532,7 @@ void Xamine_GetMemoryName(char *namebuffer)
 {
   genname(namebuffer);
 }
-#ifdef unix
+
 void f77xamine_getmemoryname_(char *namebuffer, int maxlen)
 {
   char name[80];
@@ -835,20 +546,7 @@ void f77xamine_getmemoryname_(char *namebuffer, int maxlen)
   if(strlen(name) < maxlen) namebuffer[strlen(name)-1] = ' ';
 
 }
-#endif
-#ifdef VMS
-void f77xamine_getmemoryname(struct dsc$descriptor *namedesc) 
-{
-  char name[80];
-  int  blanks;
-  Xamine_GetMemoryName(name);
 
-  strncpy(namedesc->dsc$a_pointer, name, namedesc->dsc$w_length);
-  blanks = namedesc->dsc$w_length - strlen(name);
-  memset(&(namedesc->dsc$a_pointer[strlen(name)]), ' ', blanks);
-  
-}
-#endif
 
 /*
 ** Functional Description:
@@ -878,41 +576,6 @@ void f77xamine_getmemoryname(struct dsc$descriptor *namedesc)
 ** First we take care of the Fortran call interface: 
 */
 
-#ifdef VMS
-int f77xamine_mapmemory(struct dsc$descriptor *namedesc, int *specbytes, 
-			  volatile Xamine_shared **ptr)
-{
-  char name[80];		/* Holds the name text. */
-  char *p;
-
-
-  /* figure out how much of the filename to copy and fill the whole
-  ** buffer in with NULLs.
-  */
-
-  int nchar = sizeof(name);
-  if(nchar > namedesc->dsc$w_length) nchar = namedesc->dsc$w_length;
-  memset(name, 0, sizeof(name));
-
-  /* copy the name and trim the blanks:
-  */
-  strncpy(name, namedesc->dsc$a_pointer,
-	  nchar);
-  nchar = strlen(name);
-  p     = &(name[nchar-1]);	/* Point to the last character. */
-  while(p != name) {
-    if(!isspace(*p)) break;
-    *p-- = '\0';		/* Null fill trailing whitespace. */
-  }
-  /*
-  * Now call the Native C routine and return the result: 
-  */
-
-  return Xamine_MapMemory(name, *specbytes, ptr);
-
-	  
-}
-#else
 int f77xamine_mapmemory_(char *name, int *specbytes,
 			 volatile Xamine_shared **ptr,
 			 int namesize)
@@ -938,15 +601,14 @@ int f77xamine_mapmemory_(char *name, int *specbytes,
 
   return Xamine_MapMemory(n, *specbytes, ptr);
 }
-#endif
+
 /*
 ** The code which follows is the native C implementation of 
 **  Xamine_MapMemory which is described by the comment header way up there
 ** It's completely system dependent.
 */
 int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
-#ifdef unix
-#ifdef CYGWIN
+#ifdef HAVE_WINDOWS_H
 {
   HANDLE hMapFile;
   void*  pMemory;
@@ -983,7 +645,7 @@ int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
 {
   int memsize;
   key_t key;
-  int   shmid;
+  int shmid;
 
   /* First generate the size of the shared memory region in bytes: */
 
@@ -1005,53 +667,7 @@ int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
   return (*ptr ? 1 : 0);
 }
 #endif
-#endif
-#ifdef VMS
-{
-  struct dsc$descriptor namedesc;
-  struct gsmatch        match;
-  int    inadr[2];
-  int    istat;
-#ifdef __ALPHA
-  int gcount;
-#endif
 
-  /* Set up the namedesc global section name descriptor:
-  */
-
-  namedesc.dsc$a_pointer = name;
-  namedesc.dsc$w_length  = strlen(name);
-  namedesc.dsc$b_dtype   = DSC$K_DTYPE_T;
-  namedesc.dsc$b_class   = DSC$K_CLASS_S;
-
-  /* Set up the global section match criteria: */
- 
-  match.criterion            = SEC$K_MATALL;
-  match.minor  = match.major = 0; /* Match section 0.0 */
-
-  /* Set up the range of addresses to be mapped:  */
-
-  inadr[0] = inadr[1] = (int)*ptr;
-#ifdef __ALPHA
-  gcount = (sizeof(Xamine_shared) - XAMINE_SPECBYTES + specbytes
-	     + GRANULE - 1)/GRANULE;
-  inadr[1]= inadr[0] + gcount*GRANULE - 1;
-#else
-  inadr[1] += (sizeof(Xamine_shared) - XAMINE_SPECBYTES + specbytes +
-	       PAGESIZE-1);
-#endif
-  istat = sys$mgblsc(inadr, 0, PSL$C_USER,
-		     SEC$M_WRT, &namedesc, &match, 0);
-  if(istat != SS$_NORMAL) {
-    errno = EVMSERR;
-    vaxc$errno = istat;
-    return 0;
-  }
-  Xamine_memory = *ptr;
-  return 1;
-}
-#endif
-
 /*
 ** Functional Description:
 **    Xamine_ManageMemory:
@@ -1063,17 +679,13 @@ int Xamine_MapMemory(char *name, int specbytes,volatile Xamine_shared **ptr)
 */
 void Xamine_ManageMemory()
 {
-  Xamine_memory_arena = alloc_init(Xamine_memory->dsp_spectra.XAMINE_b,
-				   Xamine_memsize);
+  Xamine_memory_arena =alloc_init((caddr_t)Xamine_memory->dsp_spectra.XAMINE_b,
+				  Xamine_memsize);
 
 
 }
-#ifdef unix
+
 void f77xamine_managememory_()
-#endif
-#ifdef VMS
-void f77xamine_managememory()
-#endif
 {
   Xamine_ManageMemory();
 }
@@ -1095,12 +707,7 @@ caddr_t Xamine_AllocMemory(int size)
   return alloc_get(Xamine_memory_arena, size);
 }
 
-#ifdef unix
 long f77xamine_allocmemory_(int *size)
-#endif
-#ifdef VMS
-long f77xamine_allocmemory(int *size)
-#endif
 {
   caddr_t loc = Xamine_AllocMemory(*size);
   unsigned long    base;
@@ -1130,16 +737,9 @@ void Xamine_FreeMemory(caddr_t loc)
   alloc_free(Xamine_memory_arena, loc);
 }
 
-void
-#ifdef unix
-f77xamine_freememory_
-#endif
-#ifdef VMS
-f77xamine_freememory
-#endif
-(int *loc)
+void f77xamine_freememory_(int *loc)
 {
-  Xamine_FreeMemory(&(Xamine_memory->dsp_spectra.XAMINE_b[*loc]));
+  Xamine_FreeMemory((caddr_t)&(Xamine_memory->dsp_spectra.XAMINE_b[*loc]));
 }
 
 /*
@@ -1218,9 +818,10 @@ void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, char *title,
   ** We copy it from the user's input.
   */
 
-  memset(Xamine_memory->dsp_titles[spno], 0, sizeof(spec_title));
+  memset((void*)Xamine_memory->dsp_titles[spno], 0, sizeof(spec_title));
   if(title != NULL) 
-    strncpy(Xamine_memory->dsp_titles[spno], title, sizeof(spec_title)-1);
+    strncpy((char*)Xamine_memory->dsp_titles[spno], title, 
+	    sizeof(spec_title)-1);
 
   /* Clear out the mapping information region for now */
   Xamine_memory->dsp_map[spno].xmin = 0;
@@ -1228,8 +829,8 @@ void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, char *title,
   Xamine_memory->dsp_map[spno].ymin = 0;
   Xamine_memory->dsp_map[spno].ymax = 0;
 
-  memset(Xamine_memory->dsp_map[spno].xlabel, 0, sizeof(spec_label));
-  memset(Xamine_memory->dsp_map[spno].ylabel, 0, sizeof(spec_label));
+  memset((void*)Xamine_memory->dsp_map[spno].xlabel, 0, sizeof(spec_label));
+  memset((void*)Xamine_memory->dsp_map[spno].ylabel, 0, sizeof(spec_label));
 }
 
 /*
@@ -1254,11 +855,11 @@ void Xamine_SetMap1d(int spno, float xmin, float xmax, spec_label xlabel)
   Xamine_memory->dsp_map[spno-1].xmax = xmax;
   Xamine_memory->dsp_map[spno-1].ymin = 0;
   Xamine_memory->dsp_map[spno-1].ymax = 0;
-  memset(Xamine_memory->dsp_map[spno-1].xlabel, 0, sizeof(spec_label));
-  memset(Xamine_memory->dsp_map[spno-1].ylabel, 0, sizeof(spec_label));
+  memset((void*)Xamine_memory->dsp_map[spno-1].xlabel, 0, sizeof(spec_label));
+  memset((void*)Xamine_memory->dsp_map[spno-1].ylabel, 0, sizeof(spec_label));
 
   if(xlabel != NULL)
-    strncpy(Xamine_memory->dsp_map[spno-1].xlabel, xlabel, 
+    strncpy((char*)Xamine_memory->dsp_map[spno-1].xlabel, xlabel, 
 	    sizeof(spec_label)-1);
 }
 
@@ -1292,17 +893,16 @@ void Xamine_SetMap2d(int spno, float xmin, float xmax, spec_label xlabel,
   Xamine_memory->dsp_map[spno-1].ymin = ymin;
   Xamine_memory->dsp_map[spno-1].ymax = ymax;
 
-  memset(Xamine_memory->dsp_map[spno-1].xlabel, 0, sizeof(spec_label));
-  memset(Xamine_memory->dsp_map[spno-1].ylabel, 0, sizeof(spec_label));
+  memset((void*)Xamine_memory->dsp_map[spno-1].xlabel, 0, sizeof(spec_label));
+  memset((void*)Xamine_memory->dsp_map[spno-1].ylabel, 0, sizeof(spec_label));
   if(xlabel != NULL)
-    strncpy(Xamine_memory->dsp_map[spno-1].xlabel, xlabel, 
+    strncpy((char*)Xamine_memory->dsp_map[spno-1].xlabel, xlabel, 
 	    sizeof(spec_label)-1);
   if(ylabel != NULL)
-    strncpy(Xamine_memory->dsp_map[spno-1].ylabel, ylabel,
+    strncpy((char*)Xamine_memory->dsp_map[spno-1].ylabel, ylabel,
 	    sizeof(spec_label)-1);
 }
 
-#ifdef unix
 void f77xamine_describespectrum_(int *spno, int *xdim, int *ydim,
 				 char *title, int *loc, spec_type *type,
 				 int tsize)
@@ -1318,36 +918,14 @@ void f77xamine_describespectrum_(int *spno, int *xdim, int *ydim,
     
     if(tsize < nc) nc = tsize;
     
-    memset(tstr, 0, sizeof(spec_title));
+    memset((void*)tstr, 0, sizeof(spec_title));
     strncpy(tstr, title, nc);
     
     Xamine_DescribeSpectrum(*spno, *xdim, *ydim,
 			    tstr, spec, *type);
   }
 }
-#endif
-#ifdef VMS
-void f77xamine_describespectrum(int *spno, int *xdim, int *ydim, 
-				struct dsc$descriptor *title, int *loc,
-				spec_type *type)
-{
-  caddr_t spec = (caddr_t)&Xamine_memory->dsp_spectra.XAMINE_b[*loc];
 
-  if(title == NULL) {
-    Xamine_DescribeSpectrum(*spno, *xdim, *ydim, NULL, spec, *type);
-  }
-  else {
-    spec_title tstr;
-    int        nc = title->dsc$w_length;
-    memset(tstr, 0, sizeof(spec_title));
-    if(( sizeof(spec_title)-1) < nc) nc = sizeof(spec_title)-1;
-    strncpy(tstr, title->dsc$a_pointer, nc);
-    
-    Xamine_DescribeSpectrum(*spno, *xdim, *ydim, tstr, spec, *type);
-  }
-}
-#endif
-
 /*
 ** Functional Description:
 **   Xamine_Allocate1d:
@@ -1395,23 +973,12 @@ caddr_t Xamine_Allocate1d(int *spno, int xdim, char *title, int word)
   return storage;
 }
 
-#ifdef unix
 long f77xamine_allocate1d_(int *spno, int *xdim, char *title, int *word,
-			  int tlen)
+			   int tlen)
 {
   spec_title t;
   int       sz = tlen;
   char     *tx = title;
-
-#endif
-#ifdef VMS
-long f77xamine_allocate1d(int *spno, int *xdim, struct dsc$descriptor *title,
-			 int *word)
-{
-  spec_title t;
-  int       sz = title->dsc$w_length;
-  char     *tx = title->dsc$a_pointer;
-#endif
   char *spectrum;
   long  offset;
   long  base = (long) Xamine_memory->dsp_spectra.XAMINE_b;
@@ -1419,7 +986,7 @@ long f77xamine_allocate1d(int *spno, int *xdim, struct dsc$descriptor *title,
   /* Produce C title string */
 
   if(sz > (sizeof(spec_title)-1)) sz = sizeof(spec_title)-1;
-  memset(t, 0, sizeof(spec_title));
+  memset((void*)t, 0, sizeof(spec_title));
   strncpy(t, tx, sz);
 
   /* Allocate the spectrum:  */
@@ -1482,14 +1049,8 @@ caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, char *title, int byte)
   return storage;
 }
 
-#ifdef unix
 long f77xamine_allocate2d_(int *spno, int *xdim, int *ydim, char *title,
 			   int *byte, int tlen)
-#endif
-#ifdef VMS
-long f77xamine_allocate2d(int *spno, int *xdim, int *ydim,
-			 struct dsc$descriptor *title, int *byte)
-#endif
 {
   spec_title t;
   int        tl;
@@ -1499,15 +1060,9 @@ long f77xamine_allocate2d(int *spno, int *xdim, int *ydim,
 
   /* Create the C string title in t: */
 
-  memset(t, 0, sizeof(spec_title));
-#ifdef unix
+  memset((void*)t, 0, sizeof(spec_title));
   txt = title;
   tl  = tlen;
-#endif
-#ifdef VMS
-  txt = title->dsc$a_pointer;
-  tl  = title->dsc$w_length;
-#endif
   if(tl > (sizeof(spec_title) -1)) tl = sizeof(spec_title)-1;
   strncpy(t, txt, tl);
 

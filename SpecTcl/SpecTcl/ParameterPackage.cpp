@@ -406,7 +406,7 @@ CParameterPackage::operator==(const CParameterPackage& aCParameterPackage)
 Int_t 
 CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName, 
 				UInt_t nId, UInt_t nBits,
-				Float_t nHi=0, Float_t nLow=0, 
+				Float_t nLow=0, Float_t nHi=0, 
 				const char* pUnits=0) 
 {
 // Interacts with the Histogrammer to create a new

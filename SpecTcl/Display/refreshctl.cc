@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -334,11 +334,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
  */
 static RefreshCallback refresh_callback  = NULL;
 static XtPointer       refresh_user_data = NULL;
-#ifdef VMS
-static Queue update_list;
-#else
 static Queue<Xamine_RefreshContext>  update_list;
-#endif
 /*
  ** External functions referenced:
  */
@@ -611,11 +607,7 @@ void Xamine_CancelPendingUpdate(int column, int row)
   /* It's supposed to be queued so locate the entry in the queue, 
    ** remove it from the queue and mark the pane as idle.
    */
-#ifdef VMS
-  QIterator q(update_list);
-#else
   QIterator<Xamine_RefreshContext>  q(update_list);
-#endif
   while(!q.Last()) {
     Xamine_RefreshContext &e = q.Next(); /* Get a queue entry. */
     if((e.column == column) && (e.row == row) ) {
@@ -947,12 +939,8 @@ Boolean Xamine_Refresh(XtPointer client_data)
    ** something is put in the queue.
    */
   
-#ifdef VMS
-  Queue *q = (Queue *)client_data;
-#else
   Queue<Xamine_RefreshContext> *q = 
     (Queue<Xamine_RefreshContext> *)client_data;
-#endif
 
   if(q->IsEmpty())
     return True;
@@ -1194,6 +1182,7 @@ Boolean Xamine_Refresh(XtPointer client_data)
   }
   ctx->pixmap = (Drawable)NULL;
   q->Remove();
+
   return q->IsEmpty();
 }
 

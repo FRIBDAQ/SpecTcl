@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -295,22 +295,8 @@ DAMAGES.
 #define _ALLOCATOR_H_
 
 #include <stdio.h>
-
-#ifdef unix
 #include <sys/types.h>
-#endif
-#ifdef VMS
-#include <types.h>
-#endif
 
-#ifdef VMS
-#ifndef __SOCKET_TYPEDEFS
-#ifndef CADDR_T_DEFINED
-#define CADDR_T_DEFINED
-typedef char *caddr_t;
-#endif
-#endif
-#endif
 typedef caddr_t *arenaid;
 
 

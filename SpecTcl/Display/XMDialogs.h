@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -291,7 +291,7 @@ DAMAGES.
 */
 
 #ifndef XMDIALOGS_H
-#define XMDIALOGS_H 1
+#define XMDIALOGS_H
 
 #include <stdio.h>
 
@@ -300,202 +300,110 @@ DAMAGES.
 #include <Xm/SelectioB.h>
 #include <Xm/FileSB.h>
 
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
+#ifndef XMPUSHBUTTON_H
 #include "XMPushbutton.h"
+#endif
+
+#ifndef XMMANAGERS_H
 #include "XMManagers.h"
+#endif
+
+#ifndef XMCALLBACK_H
 #include "XMCallback.h"
+#endif
 
 /*
 ** #Defines:
 **
 */
-#ifdef unix
 #define XMFILE_DEFAULT_DIR     "./"
 #define XMFILE_DEFAULT_DIRMASK "./*"
-#endif
 
-#ifdef VMS
-#define XMFILE_DEFAULT_DIR     "SYS$DISK:[]"
-#define XMFILE_DEFAULT_DIRMASK "SYS$DISK:[]*.*;0"
-#endif
 
 /* The message box is the parent widget type of all message like dialogs: */
 
 class XMMessageBox : public XMManagedWidget
-                   {
-		   protected:
-		     XMPushButton *okbutton;
-		     XMPushButton *cancelbutton;
-		     XMPushButton *helpbutton;
-		     void GetButtons()
-		       {
-			 Widget wid;
-			 wid = XmMessageBoxGetChild(id, XmDIALOG_OK_BUTTON);
-			 okbutton = new XMPushButton(wid);
+{
+ protected:
+  XMPushButton *okbutton;
+  XMPushButton *cancelbutton;
+  XMPushButton *helpbutton;
+  void GetButtons();
 
-			 wid = XmMessageBoxGetChild(id, XmDIALOG_CANCEL_BUTTON);
-			 cancelbutton = new XMPushButton(wid);
-
-			 wid = XmMessageBoxGetChild(id, XmDIALOG_HELP_BUTTON);
-			 helpbutton = new  XMPushButton(wid); 
-		       }
-		   public:
-		     /* Constructors and destructors */
-
-		     virtual ~XMMessageBox()
-		       { delete okbutton;
-			 delete cancelbutton;
-			 delete helpbutton;
-		       }
-
-		     XMMessageBox(char *n) : XMManagedWidget(n) {}
-
-		     XMMessageBox(Widget w) : XMManagedWidget(w)
-		       {
-			 GetButtons(); 
-		       }
-
-		     /* Get Button Widgets: */
-
-		     XMPushButton *GetOkButton()     { return okbutton; }
-		     XMPushButton *GetCancelButton() { return cancelbutton; }
-		     XMPushButton *GetHelpButton()   { return helpbutton; }
-		     
-		     /* Modify the dialog text: */
-
-		     virtual void SetText(char *txt)
-		       {
-			 XmString s = XmStringCreateLtoR(txt, 
-						     XmSTRING_DEFAULT_CHARSET);
-			 SetAttribute(XmNmessageString, s);
-			 XmStringFree(s);
-		       }
-
-		     /* Add Ok/Cancel callbacks: */
-
-		     Callback_data *AddOkCallback(void (*cb)(XMWidget *w,
-						   XtPointer, 
-						   XtPointer),
-					XtPointer cd = NULL)
-		       {
-			 return AddCallback(XmNokCallback, cb, cd);
-		       }
-
-		     Callback_data *AddCancelCallback(void (*cb)(XMWidget *w,
-						       XtPointer,
-						       XtPointer),
-					    XtPointer cd = NULL)
-		       {
-			 return AddCallback(XmNcancelCallback, cb, cd);
-		       }
-
-		     /* Label cancel/Help/OK buttons */
-
-		     void LabelCancelButton(char *txt) 
-		       { XmString str = XmStringCreateLtoR(txt, 
-						 XmSTRING_DEFAULT_CHARSET);
-			 SetAttribute(XmNcancelLabelString, str);
-			 XmStringFree(str);
-		       }
-
-		     void LabelOkButton(char *txt)
-		       {
-			 XmString str = XmStringCreateLtoR(txt,
-						 XmSTRING_DEFAULT_CHARSET);
-			 SetAttribute(XmNokLabelString, str);
-			 XmStringFree(str);
-		       }
-
-		     void LabelHelpButton(char *txt)
-		       { helpbutton->Label(txt); }
-
-		     /* Set default button types: */
-
-		     void DefaultToOk()
-		       { SetAttribute(XmNdefaultButtonType,
-				      XmDIALOG_OK_BUTTON);
-		       }
-
-		     void DefaultToCancel()
-		       { SetAttribute(XmNdefaultButtonType,
-				      XmDIALOG_CANCEL_BUTTON);
-		       }
-
-		     void DefaultToHelp()
-		       {
-			 SetAttribute(XmNdefaultButtonType,
-				      XmDIALOG_HELP_BUTTON);
-		       }
-
-		     void Show() {
-		       Manage();
-		       XtPopup(XtParent(id), XtGrabNone);
-		     }
-
-		     void Hide() {
-		       UnManage();
-		     }
-
-		     void SetModal(unsigned char modality)
-		       { SetAttribute(XmNdialogStyle, modality); }
-		   };
+ public:
+  /* Constructors and destructors */
+  
+  virtual ~XMMessageBox();
+  
+  XMMessageBox(char *n);
+  
+  XMMessageBox(Widget w);
+  
+  /* Get Button Widgets: */
+  
+  XMPushButton *GetOkButton();  
+  XMPushButton *GetCancelButton();
+  XMPushButton *GetHelpButton();
+  
+  /* Modify the dialog text: */
+  
+  virtual void SetText(char *txt);
+  
+  /* Add Ok/Cancel callbacks: */
+  
+  Callback_data *AddOkCallback(void (*cb)(XMWidget *w,
+					  XtPointer, 
+					  XtPointer),
+			       XtPointer cd = NULL);
+  
+  Callback_data *AddCancelCallback(void (*cb)(XMWidget *w,
+					      XtPointer,
+					      XtPointer),
+				   XtPointer cd = NULL);
+  
+  /* Label cancel/Help/OK buttons */
+  
+  void LabelCancelButton(char *txt);
+  void LabelOkButton(char *txt);
+  void LabelHelpButton(char *txt);
+  
+  /* Set default button types: */
+  
+  void DefaultToOk();
+  void DefaultToCancel();
+  void DefaultToHelp();
+  
+  void Show();
+  void Hide();
+  void SetModal(unsigned char modality);
+};
 
 
 
 /* Error dialogs specialize the Message box widget for error messages */
 
-
-
 class XMErrorDialog : public XMMessageBox
-                   {
-		   public:
-		     /*  Constructors: */
-		     XMErrorDialog(char *n, Widget parent, char *msg,
-				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount = 0):
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateErrorDialog(parent,
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 GetButtons();
-					 LabelOkButton("Dismiss");
-				         cancelbutton->Disable();
-					 helpbutton->Disable();
-					 if(cb)
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-		     XMErrorDialog(char *n, XMWidget &parent, char *msg,
-				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount = 0):
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateErrorDialog(parent.getid(),
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 GetButtons();
-					 LabelOkButton("Dismiss");
-				         cancelbutton->Disable();
-					 helpbutton->Disable();
-					 if(cb) 
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-		     XMErrorDialog(Widget w) : XMMessageBox(w)
-		       {
-		       }
-		   };
+{
+ public:
+  /*  Constructors: */
+  XMErrorDialog(char *n, Widget parent, char *msg,
+		void (*cb)(XMWidget *,
+			   XtPointer, XtPointer) = NULL,
+		XtPointer cbd = NULL,
+		ArgList list = NULL, Cardinal argcount = 0);
+
+  XMErrorDialog(char *n, XMWidget &parent, char *msg,
+		void (*cb)(XMWidget *,
+			   XtPointer, XtPointer) = NULL,
+		XtPointer cbd = NULL,
+		ArgList list = NULL, Cardinal argcount = 0);
+
+  XMErrorDialog(Widget w);
+};
 
 /* Information dialogs specialize MessageBox for informative messages: */
 
@@ -508,156 +416,55 @@ class XMInformationDialog : public XMMessageBox
 		      void (*cb)(XMWidget *,
 				 XtPointer, XtPointer) = NULL,
 		      XtPointer cbd = NULL,
-		      ArgList list = NULL, Cardinal argcount=0) :
-			XMMessageBox(n)
-			  {
-			    id = XmCreateInformationDialog(parent,
-							   name,
-							   list,
-							   argcount);
-			    SetText(msg);
-			    GetButtons();
-			    LabelOkButton("Dismiss");
-			    cancelbutton->Disable();
-			    helpbutton->Disable();
-			    if(cb)
-			      AddOkCallback(cb, cbd);
-			    Manage();
-			    XtPopup(XtParent(id), XtGrabNone);
-			  }
+		      ArgList list = NULL, Cardinal argcount=0);
+
   XMInformationDialog(char *n, XMWidget &parent, char *msg,
 		      void (*cb)(XMWidget *,
 				 XtPointer, XtPointer) = NULL,
 		      XtPointer cbd = NULL,
-		      ArgList list = NULL, Cardinal argcount=0) :
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateInformationDialog(
-								  parent.getid(),
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 GetButtons();
-					 LabelOkButton("Dismiss");
-				         cancelbutton->Disable();
-					 helpbutton->Disable();
-					 if(cb) 
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-                       XMInformationDialog(Widget w) : XMMessageBox(w)
-		       {
-		       }
-		   };
+		      ArgList list = NULL, Cardinal argcount=0);
+
+  XMInformationDialog(Widget w);
+};
 
 /*  Message Dialogs: Put up interaction messages: */
 
 
 class XMMessageDialog : public XMMessageBox
-                   {
-		   public:
-		     /*  Constructors: */
-		     XMMessageDialog(char *n,Widget parent, char *msg,
-				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount=0) :
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateMessageDialog(parent,
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 GetButtons();
-					 LabelOkButton("Dismiss");
-				         cancelbutton->Disable();
-					 helpbutton->Disable();
-					 if(cb)
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-		     XMMessageDialog(char *n, XMWidget &parent, char *msg,
-				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount=0) :
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateMessageDialog(parent.getid(),
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 GetButtons();
-					 LabelOkButton("Dismiss");
-				         cancelbutton->Disable();
-					 helpbutton->Disable();
-					 if(cb) 
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-		     XMMessageDialog(Widget w) : XMMessageBox(w)
-		       {
-		       }
-		   };
+{
+ public:
+  /*  Constructors: */
+  XMMessageDialog(char *n,Widget parent, char *msg,
+		  void (*cb)(XMWidget *,
+			     XtPointer, XtPointer) = NULL,
+		  XtPointer cbd = NULL,
+		  ArgList list = NULL, Cardinal argcount=0);
+  XMMessageDialog(char *n, XMWidget &parent, char *msg,
+		  void (*cb)(XMWidget *,
+			     XtPointer, XtPointer) = NULL,
+		  XtPointer cbd = NULL,
+		  ArgList list = NULL, Cardinal argcount=0);
+  XMMessageDialog(Widget w);
+};
 
 /*  Question dialogs ask users questions about things: */
 
 class XMQuestionDialog : public XMMessageBox
-                   {
-		   public:
-		     /*  Constructors: */
-		     XMQuestionDialog(char *n,Widget parent, char *msg,
-				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount=0) :
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateQuestionDialog(parent,
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 GetButtons();
-					 LabelOkButton("Yes");
-					 LabelCancelButton("No");
-					 helpbutton->Disable();
-					 if(cb)
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-		     XMQuestionDialog(char *n, XMWidget &parent, char *msg,
-				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount=0) :
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateQuestionDialog(parent.getid(),
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 GetButtons();
-					 LabelOkButton("Yes");
-					 LabelCancelButton("No");
-					 helpbutton->Disable();
-					 if(cb) 
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-		     XMQuestionDialog(Widget w) : XMMessageBox(w)
-		       {
-		       }
-		   };
+{
+ public:
+  /*  Constructors: */
+  XMQuestionDialog(char *n,Widget parent, char *msg,
+		   void (*cb)(XMWidget *,
+			      XtPointer, XtPointer) = NULL,
+		   XtPointer cbd = NULL,
+		   ArgList list = NULL, Cardinal argcount=0);
+  XMQuestionDialog(char *n, XMWidget &parent, char *msg,
+		   void (*cb)(XMWidget *,
+			      XtPointer, XtPointer) = NULL,
+		   XtPointer cbd = NULL,
+		   ArgList list = NULL, Cardinal argcount=0);
+  XMQuestionDialog(Widget w);
+};
 /*
 **  XMQuestioner is a self contained version of the XMQuestionDialog
 **  It makes available virtual functions for the Ok and Cancel buttons
@@ -667,132 +474,60 @@ class XMQuestionDialog : public XMMessageBox
 */
 
 class XMQuestioner : public XMQuestionDialog {
-  public:
-     XMQuestioner(char *n, Widget parent, char *msg,
-		  XtPointer cbd,
-		  ArgList list = NULL, Cardinal argcount = 0);
-     XMQuestioner(char *n, XMWidget &parent, char *msg,
-		  XtPointer cbd,
-		  ArgList list = NULL, Cardinal argcount = 0);
-     ~XMQuestioner();
-  protected:
-     XMCallback<XMQuestioner> yescallback;
-     XMCallback<XMQuestioner> nocallback;
-     virtual void Yescb(XMWidget *wid, XtPointer ud, XtPointer cd);
-     virtual void Nocb(XMWidget *wid, XtPointer ud, XtPointer cd);
-  private:
-
+ public:
+  XMQuestioner(char *n, Widget parent, char *msg,
+	       XtPointer cbd,
+	       ArgList list = NULL, Cardinal argcount = 0);
+  XMQuestioner(char *n, XMWidget &parent, char *msg,
+	       XtPointer cbd,
+	       ArgList list = NULL, Cardinal argcount = 0);
+  ~XMQuestioner();
+ protected:
+  XMCallback<XMQuestioner> yescallback;
+  XMCallback<XMQuestioner> nocallback;
+  virtual void Yescb(XMWidget *wid, XtPointer ud, XtPointer cd);
+  virtual void Nocb(XMWidget *wid, XtPointer ud, XtPointer cd);
+ private:
 };
 /* Warning dialogs warn the user of some impending disaster */
 
 
 class XMWarningDialog : public XMMessageBox
-                   {
-		   public:
-		     /*  Constructors: */
-		     XMWarningDialog(char *n,Widget parent, char *msg,
-				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount=0) :
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateWarningDialog(parent,
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 LabelOkButton("Dismiss");
-					 cancelbutton->Disable();
-					 helpbutton->Disable();
-					 GetButtons();
-					 if(cb)
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-		     XMWarningDialog(char *n, XMWidget &parent, char *msg,
-				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount=0) :
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateWarningDialog(parent.getid(),
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 GetButtons();
-					 LabelOkButton("Dismiss");
-					 cancelbutton->Disable();
-					 helpbutton->Disable();
-					 GetButtons();
-					 if(cb) 
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-		     XMWarningDialog(Widget w) : XMMessageBox(w)
-		       {
-		       }
-		   };
+{
+ public:
+  /*  Constructors: */
+  XMWarningDialog(char *n,Widget parent, char *msg,
+		  void (*cb)(XMWidget *,
+			     XtPointer, XtPointer) = NULL,
+		  XtPointer cbd = NULL,
+		  ArgList list = NULL, Cardinal argcount=0);
+  XMWarningDialog(char *n, XMWidget &parent, char *msg,
+		  void (*cb)(XMWidget *,
+			     XtPointer, XtPointer) = NULL,
+		  XtPointer cbd = NULL,
+		  ArgList list = NULL, Cardinal argcount=0);
+  XMWarningDialog(Widget w);
+};
 
 /*  Working dialogs let the user know something is happening */
 
 
 class XMWorkingDialog : public XMMessageBox
-                   {
-		   public:
-		     /*  Constructors: */
-		     XMWorkingDialog(char *n,Widget parent, char *msg,
-				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount=0) :
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateWorkingDialog(parent,
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 GetButtons();
-					 LabelOkButton("Dismiss");
-					 cancelbutton->Disable();
-					 helpbutton->Disable();
-					 GetButtons();
-					 if(cb)
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-		     XMWorkingDialog(char *n, XMWidget &parent, char *msg,
-				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount=0) :
-				     XMMessageBox(n)
-				       {
-					 id = XmCreateWorkingDialog(parent.getid(),
-								  name,
-								  list,
-								  argcount);
-					 SetText(msg);
-					 GetButtons();
-					 LabelOkButton("Dismiss");
-					 cancelbutton->Disable();
-					 helpbutton->Disable();
-					 GetButtons();
-					 if(cb) 
-					   AddOkCallback(cb, cbd);
-					 Manage();
-					 XtPopup(XtParent(id), XtGrabNone);
-				       }
-		     XMWorkingDialog(Widget w) : XMMessageBox(w)
-		       {
-		       }
-		   };
+{
+ public:
+  /*  Constructors: */
+  XMWorkingDialog(char *n,Widget parent, char *msg,
+		  void (*cb)(XMWidget *,
+			     XtPointer, XtPointer) = NULL,
+		  XtPointer cbd = NULL,
+		  ArgList list = NULL, Cardinal argcount=0);
+  XMWorkingDialog(char *n, XMWidget &parent, char *msg,
+		  void (*cb)(XMWidget *,
+			     XtPointer, XtPointer) = NULL,
+		  XtPointer cbd = NULL,
+		  ArgList list = NULL, Cardinal argcount=0);
+  XMWorkingDialog(Widget w);
+};
 
 /*  In order to prevent a circular include file dependency, helpmenu.h has been
 **  textually included here.  At some point another pass through the XM Object system
@@ -808,10 +543,10 @@ class XMWorkingDialog : public XMMessageBox
  */
 
 struct Xamine_help_client_data { 
-                                  char                *name; /* Widget name */
-                                  XMInformationDialog *dialog; /* Widget object */
-                                  char                **text; /* Help text. */
-				};
+  char                *name; /* Widget name */
+  XMInformationDialog *dialog; /* Widget object */
+  char                **text; /* Help text. */
+};
 
 /*
  ** The following public items define the help menus which are described in
@@ -845,101 +580,51 @@ class XMSelection : public XMMessageBox
        {
        protected:
 	 XMPushButton *applybutton;
-	 void GetButtons() { /* Get the subwidget buttons: */
+	 void GetButtons();
 
-	   Widget wid;
-	   wid = XmSelectionBoxGetChild(id, XmDIALOG_OK_BUTTON);
-	   okbutton = new XMPushButton(wid);
-	   
-	   wid = XmSelectionBoxGetChild(id, XmDIALOG_CANCEL_BUTTON);
-	   cancelbutton = new XMPushButton(wid);
-	   
-	   wid = XmSelectionBoxGetChild(id, XmDIALOG_HELP_BUTTON);
-	   helpbutton = new  XMPushButton(wid); 
-	   
-	   applybutton  = new XMPushButton(
-				   XmSelectionBoxGetChild(id,
-						XmDIALOG_APPLY_BUTTON));
-	 }
        public:
 	 /*
          ** Constructors and destructors:
 	 */
-	 XMSelection(char *name) : XMMessageBox(name) {}
-	 XMSelection(Widget w)   : XMMessageBox(w) {
-	   GetButtons();
-	 }
-	 virtual ~XMSelection() {
-	   delete applybutton;
-	 }
+	 XMSelection(char *name);
+	 XMSelection(Widget w);
+	 virtual ~XMSelection();
+
 	 /*  Set the width of the text field: */
 
-	 void SetTextWidth(Cardinal n) {
-	   SetAttribute(XmNtextColumns, (short)n);
-	 }
+	 void SetTextWidth(Cardinal n);
 
 	 /* Functions to add callbacks to functions:  */
 
-	 Callback_data *AddDoCallback(void (*cb)(XMWidget *, /* Do callbacks are  */
-				       XtPointer, /* attached to both the ok */
-				       XtPointer), /* and the apply button. */
-			    XtPointer client_data = NULL,
-				      Callback_data **apply = NULL) {
-	   Callback_data *apcb;
-	   apcb = AddCallback(XmNapplyCallback, cb, client_data);
-	   if (apply != NULL) *apply = apcb;
-	   return AddCallback(XmNokCallback, cb, client_data);
-	 }
+	 Callback_data *AddDoCallback(void (*cb)(XMWidget *, 
+						 XtPointer, 
+						 XtPointer),
+				      XtPointer client_data = NULL,
+				      Callback_data **apply = NULL);
 	 Callback_data *AddApplyCallback(void (*cb)(XMWidget *,
 					  XtPointer,
 					  XtPointer),
-			       XtPointer client_data  = NULL) {
-	   return AddCallback(XmNapplyCallback, cb, client_data);
-	 }
+			       XtPointer client_data  = NULL);
 
 	 /* Get the button widgets: */
 
-	 XMPushButton *GetApplyButton() { return applybutton;}
+	 XMPushButton *GetApplyButton();
 	
 	 /* Labelling functions */
 
-	 virtual void SetText(char *txt) {
-	   XmString s = XmStringCreateLtoR(txt, XmSTRING_DEFAULT_CHARSET);
-	   SetAttribute(XmNtextString, s);
-	   XmStringFree(s);
-	 }
-	 virtual void SetLabelString(char *txt) {
-	   XmString s = XmStringCreateLtoR(txt, 
-					   XmSTRING_DEFAULT_CHARSET);
-	   SetAttribute(XmNselectionLabelString, s);
-	   XmStringFree(s);
-	 }
+	 virtual void SetText(char *txt);
+	 virtual void SetLabelString(char *txt);
+
 	 /* Label the apply buton: */
 
-	 void LabelApplyButton(char *txt) {
-	   XmString str = XmStringCreateLtoR(txt,
-					     XmSTRING_DEFAULT_CHARSET);
-	   SetAttribute(XmNapplyLabelString, str);
-	   XmStringFree(str);
-	 }
+	 void LabelApplyButton(char *txt);
+
 	 /* Set default button: */
 
-	 void DefaultToOk() {
-	   SetAttribute(XmNdefaultButton,
-			okbutton->getid());
-	 }
-	 void DefaultToCancel() {
-	   SetAttribute(XmNdefaultButton,
-			cancelbutton->getid());
-	 }
-         void DefaultToHelp() {
-	   SetAttribute(XmNdefaultButton,
-			helpbutton->getid());
-	 }
-	 void DefaultToApply() {
-	   SetAttribute(XmNdefaultButton,
-			applybutton->getid());
-	 }
+	 void DefaultToOk();
+	 void DefaultToCancel();
+         void DefaultToHelp();
+	 void DefaultToApply();
        };
 /*
 ** Prompt dialog - This dialog consists of a single line text widget and
@@ -950,54 +635,20 @@ class XMSelection : public XMMessageBox
 class XMPromptDialog : public XMSelection
        {
        protected:
-	 void GetButtons() {
-	   Widget w;
-	   w = XmSelectionBoxGetChild(id, XmDIALOG_HELP_BUTTON);
-	   helpbutton = new XMPushButton(w);
+	 void GetButtons();
 
-	   w = XmSelectionBoxGetChild(id, XmDIALOG_CANCEL_BUTTON);
-	   cancelbutton = new XMPushButton(w);
-
-	   w = XmSelectionBoxGetChild(id, XmDIALOG_APPLY_BUTTON);
-	   applybutton = new XMPushButton(w);
-
-	   w = XmSelectionBoxGetChild(id, XmDIALOG_OK_BUTTON);
-	   okbutton = new XMPushButton(w);
-	 }
        public:
 	 XMPromptDialog(char *n, Widget parent, char *prompt = NULL,
 			void (*cb)(XMWidget *,
 				   XtPointer, XtPointer) = NULL,
 			XtPointer cbd = NULL,
-			ArgList list = NULL, Cardinal argcount = 0) :
-			  XMSelection(n) {
-	    id = XmCreatePromptDialog(parent, name,
-				      list, argcount);
-	    GetButtons();
-	    if(prompt) SetLabelString(prompt);
-	    helpbutton->Disable();
-	    if(cb) AddDoCallback(cb, cbd);
-	    Manage();
-	    XtPopup(XtParent(id), XtGrabNone);
-	  }
+			ArgList list = NULL, Cardinal argcount = 0);
 	 XMPromptDialog(char *n, XMWidget &parent, char *prompt = NULL,
 			 void (*cb)(XMWidget *,
 				    XtPointer, XtPointer) = NULL,
 			 XtPointer cbd = NULL,
-			 ArgList list = NULL, Cardinal argcount = 0) :
-			   XMSelection(n) {
-		   id = XmCreatePromptDialog(parent.getid(),
-					     name, list, argcount);
-		   GetButtons();
-		   if(prompt) SetLabelString(prompt);
-		   if(cb) AddDoCallback(cb, cbd);
-		   helpbutton->Disable();
-		   Manage();
-		   XtPopup(XtParent(id), XtGrabNone);
-		 }
-	 XMPromptDialog(Widget w) : XMSelection(w) { }
-
-			  
+			 ArgList list = NULL, Cardinal argcount = 0);
+	 XMPromptDialog(Widget w);
        };
 /*
 ** XMPrompter specializes XMPromptDialog to encapsulate the behavior of
@@ -1047,33 +698,13 @@ class XMSelectionDialog : public XMSelection
 			void (*cb)(XMWidget *,
 				   XtPointer, XtPointer) = NULL,
 			XtPointer cbd = NULL,
-			ArgList list = NULL, Cardinal argcount = 0) :
-			  XMSelection(n) {
-	    id = XmCreateSelectionDialog(parent, name,
-				      list, argcount);
-	    GetButtons();
-	    if(prompt) SetLabelString(prompt);
-	    helpbutton->Disable();
-	    if(cb) AddDoCallback(cb, cbd);
-	    Manage();
-	    XtPopup(XtParent(id), XtGrabNone);
-	  }
+			ArgList list = NULL, Cardinal argcount = 0);
 	 XMSelectionDialog(char *n, XMWidget &parent, char *prompt = NULL,
 			 void (*cb)(XMWidget *,
 				    XtPointer, XtPointer) = NULL,
 			 XtPointer cbd = NULL,
-			 ArgList list = NULL, Cardinal argcount = 0) :
-			   XMSelection(n) {
-		   id = XmCreateSelectionDialog(parent.getid(),
-					     name, list, argcount);
-		   GetButtons();
-		   if(prompt) SetLabelString(prompt);
-		   if(cb) AddDoCallback(cb, cbd);
-		   helpbutton->Disable();
-		   Manage();
-		   XtPopup(XtParent(id), XtGrabNone);
-		 }
-	 XMSelectionDialog(Widget w) : XMSelection(w) { }
+			 ArgList list = NULL, Cardinal argcount = 0);
+	 XMSelectionDialog(Widget w);
 
 	 /*
          ** Selection boxes also need a method to set the list... it can be
@@ -1081,27 +712,18 @@ class XMSelectionDialog : public XMSelection
 	 */
 
 	 void SetSelectionList(Cardinal list_count, char **selections);
-	 void SetVisibleItemCount(Cardinal num_visible) {
-	   SetAttribute(XmNvisibleItemCount, num_visible);
-	 }
+	 void SetVisibleItemCount(Cardinal num_visible);
 
 	 /*
          ** Selection boxes are allowed to restrict choices to items on the
 	 ** list.  This gives them an additional callback (XmNnoMatchCallback).
 	 */
 
-	 void RestrictChoices() {
-	   SetAttribute(XmNmustMatch, True);
-	 }
-	 void NoRestrictChoices() {
-	   SetAttribute(XmNmustMatch, (XtArgVal)False);
-	 }
+	 void RestrictChoices();
+	 void NoRestrictChoices();
 	 Callback_data *AddNoMatchCallback(void (*cb)(XMWidget *,
 					    XtPointer, XtPointer),
-				 XtPointer client_data = NULL) {
-	   return AddCallback(XmNnoMatchCallback, cb, client_data);
-	 }
-	   
+				 XtPointer client_data = NULL);
        };
 
 /*
@@ -1161,20 +783,7 @@ class XMSelector : public XMSelectionDialog
 class XMFileListDialog : public XMSelection
        {
        protected:
-	 void GetButtons() {
-	   helpbutton = new 
-	     XMPushButton(XmFileSelectionBoxGetChild(id,
-						     XmDIALOG_HELP_BUTTON));
-	   cancelbutton = new
-	     XMPushButton(XmFileSelectionBoxGetChild(id,
-						     XmDIALOG_CANCEL_BUTTON));
-	   okbutton = new
-	     XMPushButton(XmFileSelectionBoxGetChild(id,
-						     XmDIALOG_OK_BUTTON));
-	   applybutton = new
-	     XMPushButton(XmFileSelectionBoxGetChild(id,
-						     XmDIALOG_APPLY_BUTTON));
-	 }
+	 void GetButtons();
 								    
        public:
 	 XMFileListDialog(char *n, Widget parent, char 
@@ -1182,97 +791,39 @@ class XMFileListDialog : public XMSelection
 			void (*cb)(XMWidget *,
 				   XtPointer, XtPointer) = NULL,
 			XtPointer cbd = NULL,
-			ArgList list = NULL, Cardinal argcount = 0) :
-			  XMSelection(n) {
-	    id = XmCreateFileSelectionDialog(parent, name,
-				      list, argcount);
-	    GetButtons();
-	    helpbutton->Disable();
-	    SetLabelString("Filename: ");
-	    if(cb) AddDoCallback(cb, cbd);
-
-	    /* Set the search path directory: */
-
-	    DoSearch(directory);
-	    Manage();
-	    XtPopup(XtParent(id), XtGrabNone);
-	  }
+			ArgList list = NULL, Cardinal argcount = 0);
 	 XMFileListDialog(char *n, XMWidget &parent, 
 			  char *directory = XMFILE_DEFAULT_DIRMASK,
 			 void (*cb)(XMWidget *,
 				    XtPointer, XtPointer) = NULL,
 			 XtPointer cbd = NULL,
-			 ArgList list = NULL, Cardinal argcount = 0) :
-			   XMSelection(n) {
-		   id = XmCreateFileSelectionDialog(parent.getid(),
-						    name, list, argcount);
-		   GetButtons();
-		   DoSearch(directory);
-		   if(cb) AddDoCallback(cb, cbd);
-		   helpbutton->Disable();
-		   SetLabelString("Filename: ");
-		   Manage();
-		   XtPopup(XtParent(id), XtGrabNone);
-		 }
-	 XMFileListDialog(Widget w) : XMSelection(w) { }
+			 ArgList list = NULL, Cardinal argcount = 0);
+	 XMFileListDialog(Widget w);
 
 	 /* Methods which manipulate the search strings: */
-	 void DoSearch(XmString dir) {
-	   XmFileSelectionDoSearch(id, dir);
-	 }
-	 void DoSearch(char *dir) {
-	   XmString d;
-	   d = XmStringCreateLtoR(dir, XmSTRING_DEFAULT_CHARSET);
-	   XmFileSelectionDoSearch(id, d);
-	   XmStringFree(d);
-	 }
-	 void DoSearch() {	/* Do search on current mask. */
-	   XmString dirmask;	/* Will hold the directory search mask. */
-	   GetAttribute(XmNdirMask, &dirmask);
-
-	   XmFileSelectionDoSearch(id, dirmask);
-	   XmStringFree(dirmask); /* Get rid of dirmask. */
-	 }
-
+	 void DoSearch(XmString dir);
+	 void DoSearch(char *dir);
+	 void DoSearch();
 	 char *GetDirectory();
 	 char *GetFileMask();
 	 char *GetFullSearchString();
 
 	 /* Methods to manipulate the labels: */
 
-	 virtual void SetLabelString(char *txt) {
-	   XmString s = XmStringCreateLtoR(txt, XmSTRING_DEFAULT_CHARSET);
-	   XtVaSetValues(XmFileSelectionBoxGetChild(id, 
-						    XmDIALOG_SELECTION_LABEL),
-			 XmNlabelString, s,
-			 NULL);
-	   XmStringFree(s);
-	 }
-	 virtual void SetFilterString(char *txt) {
-	   XmString s = XmStringCreateLtoR(txt, XmSTRING_DEFAULT_CHARSET);
-	   SetAttribute(XmNfilterLabelString, s);
-	   XmStringFree(s);
-	 }
+	 virtual void SetLabelString(char *txt);
+	 virtual void SetFilterString(char *txt);
+
 	 /* Set restrictions on the file types searched: */
 
-	 void SetFileTypes(unsigned char fileset) {
-	   SetAttribute(XmNfileTypeMask, fileset);
-	 }
-	 void RestrictChoices() {
-	   SetAttribute(XmNmustMatch, True);
-	 }
-	 void NoRestrictChoices() {
-	   SetAttribute(XmNmustMatch, (XtArgVal)False);
-	 }
+	 void SetFileTypes(unsigned char fileset);
+	 void RestrictChoices();
+	 void NoRestrictChoices();
 
 	 /* Add callbacks if no match on filename selected */
 
 	 Callback_data *AddNoMatchCallback(void (*cb)(XMWidget *,
 					    XtPointer, XtPointer),
-				 XtPointer client_data = NULL) {
-	   return AddCallback(XmNnoMatchCallback, cb, client_data);
-	 }
-	 
+				 XtPointer client_data = NULL);
        };
 /*
 **  The XMFileSelector Dialog is a self contained version of the 
@@ -1358,67 +909,45 @@ class XMCustomDialog : public XMWidget /* Create unmanaged for greater layout ct
   /* Constructors: */
 
   XMCustomDialog(char *name, XMWidget &parent, char *title,
-		 ArgList l = NULL, Cardinal num_args = 0) : 
-		   XMWidget(name) { 
-		     CreateDialog(name, parent.getid(), title, 
-				  l, num_args);
-		   }
+		 ArgList l = NULL, Cardinal num_args = 0); 
   XMCustomDialog(char *name, Widget parent, char *title,
-		 ArgList l = NULL, Cardinal num_args = 0) :
-		   XMWidget(name) {
-		     CreateDialog(name, parent, title, l, num_args); }
+		 ArgList l = NULL, Cardinal num_args = 0);
 
   /* Destructors:  */
 
-  ~XMCustomDialog() {
-    delete Ok;
-    delete Apply;
-    delete Cancel;
-    delete Help;
-    delete action_area;
-    delete work_area;
-    delete top_manager;
-    delete shell_child;
-  }
+  ~XMCustomDialog();
 
   /* Operation on the skeleton dialog */
 
   void Manage();
   void UnManage();
 
-  XMPanedWindow *TopManager() { return top_manager; }
-  XMRowColumn   *ActionArea() { return action_area; }
-  XMForm        *WorkArea()   { return work_area;   }
-  XMPushButton  *ok()          { return Ok;          }
-  XMPushButton  *apply()       { return Apply;       }
-  XMPushButton  *cancel()      { return Cancel;      }
-  XMPushButton  *help()        { return Help;        }
+  XMPanedWindow *TopManager();
+  XMRowColumn   *ActionArea();
+  XMForm        *WorkArea();   
+  XMPushButton  *ok();
+  XMPushButton  *apply();
+  XMPushButton  *cancel();
+  XMPushButton  *help();
 
-  Callback_data *AddDoCallback(void (*callback)(XMWidget *, XtPointer, XtPointer),
-		     XtPointer user_data = NULL,
-		     Callback_data **okcb = NULL) 
-    { 
-      Callback_data *okc;
-      okc = Ok->AddCallback(callback, user_data);
-      if(okcb != NULL) *okcb = okc;
-      return Apply->AddCallback(callback, user_data);
-    }
-  Callback_data *AddOkCallback(void (*callback)(XMWidget *, XtPointer, XtPointer),
-		     XtPointer user_data = NULL)
-    { return Ok->AddCallback(callback, user_data); }
-  Callback_data *AddApplyCallback(void (*callback)(XMWidget *, XtPointer, XtPointer),
-			XtPointer user_data = NULL)
-    { return Apply->AddCallback(callback, user_data); }
-  Callback_data *AddCancelCallback(void (*callback)(XMWidget *, XtPointer, XtPointer),
-		     XtPointer user_data = NULL)
-    { return Cancel->AddCallback(callback, user_data); }
-  Callback_data *AddHelpCallback(void (*callback)(XMWidget *, XtPointer, XtPointer),
-		     XtPointer user_data = NULL)
-    { return Help->AddCallback(callback, user_data); }
+  Callback_data *AddDoCallback(void (*callback)(XMWidget *, XtPointer, 
+						XtPointer),
+			       XtPointer user_data = NULL,
+			       Callback_data **okcb = NULL); 
+  Callback_data *AddOkCallback(void (*callback)(XMWidget *, XtPointer, 
+						XtPointer),
+			       XtPointer user_data = NULL);
+  Callback_data *AddApplyCallback(void (*callback)(XMWidget *, XtPointer, 
+						   XtPointer),
+				  XtPointer user_data = NULL);
+  Callback_data *AddCancelCallback(void (*callback)(XMWidget *, XtPointer, 
+						    XtPointer),
+				   XtPointer user_data = NULL);
+  Callback_data *AddHelpCallback(void (*callback)(XMWidget *, XtPointer, 
+						  XtPointer),
+				 XtPointer user_data = NULL);
 
-  void SetModal(unsigned char modality)
-    { shell_child->SetAttribute(XmNdialogStyle, modality); }
-
+  void SetModal(unsigned char modality);
 };
 /*
 ** Base class for a custom dialog box.

@@ -19,11 +19,9 @@ static char *lexrevlevel = "@(#)windfile.l	8.1 6/23/95  - windows file lexical a
 #include "windio.h"
 #include "dispwind.h"
 #include "printer.h"
-#if  defined(Linux) || defined(CYGWIN)
+#include <config.h>
 #include "windfile_lex.h"
-#else
 #include "windlex.h"
-#endif
 #undef lex_output
 #define lex_output(c) 
 
@@ -36,10 +34,6 @@ extern YYSTYPE yylval;
 char* yytitle;
 static void rd_yytitle();
 int         yylex_line;
-#ifdef __GNUC_MINOR__
-#undef __GNUC_MINOR__
-#endif
-
 %}
 %%
 \"[^\"\n]*[\"\n]   {   if(yytext[strlen(yytext) - 1] != '"') {

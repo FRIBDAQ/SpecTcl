@@ -336,6 +336,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <stdio.h>
 
+#ifdef OSF          /* Can't find time() for some reason on OSF */
+extern "C" {
+  time_t time(time_t*);
+};
+#endif
+
 //
 //   Local variables:
 // 

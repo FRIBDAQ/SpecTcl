@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -308,29 +308,23 @@ static const char* Copyright = "(C) Copyright Michigan State University 2010, Al
 **
 */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <limits.h>
 #include <errno.h>
 
-#ifdef VMS
-#include <ssdef.h>
-#include <iodef.h>
-#include "vmsstring.h"
-#endif
-
-#ifdef unix
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/mtio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#endif
-
 #include "mtinternl.h"
 
-#ifdef Linux
+#ifdef HAVE_DECL_MTSETBLK
 static struct mtop variable = { MTSETBLK, 0 };
-
 #endif
 
 /*
@@ -357,60 +351,26 @@ static int mapioctlerr(status)
 int status;
 #endif
 {
-#ifdef unix
-    if(!status) return MTSUCCESS;
-    switch (status)
+  if(!status) return MTSUCCESS;
+  switch (status)
     {
-    	case EBADF:
-	    return MTBADHANDLE;
-	case EFAULT:
-	    return errno;
-	case EROFS:
-	     return MTPROTECTED;
-	case ETIMEDOUT:
-	     return errno;
-	case ENOSPC:
-	     return MTEOMED;
-#ifdef sparc
-	  case EINVAL:
-	    return MTOVERRUN;
+    case EBADF:
+      return MTBADHANDLE;
+    case EFAULT:
+      return errno;
+    case EROFS:
+      return MTPROTECTED;
+    case ETIMEDOUT:
+      return errno;
+    case ENOSPC:
+      return MTEOMED;
+#ifdef HAVE_DECL_MTOVERRUN
+    case EINVAL:
+      return MTOVERRUN;
 #endif
-    	default:
-	    return MTINTERNAL;
+    default:
+      return MTINTERNAL;
     }
-#endif
-#ifdef VMS
-    if (status == SS$_NORMAL)
-    {
-	return MTSUCCESS;
-    }
-    else
-    {
-	switch (status)
-	{
-	    case SS$_IVCHAN:
-		return MTBADHANDLE;
-	    case SS$_DEVALRALLOC:
-		return MTALLOCATED;
-	    case SS$_ENDOFTAPE:
-		return MTLEOT;
-	    case SS$_ENDOFFILE:
-		return  MTEOF;
-	    case SS$_DATAOVERUN:
-		return MTOVERRUN;
-	    case SS$_NOPRIV:
-		return MTPROTECTED;
-	    case SS$_DEVOFFLINE:
-		return MTOFFLINE;
-	    case SS$_ENDOFVOLUME:
-		return MTLEOV;
-	    case SS$_PARITY:
-		return MTIO;
-	    default:
-		return MTINTERNAL;
-	}
-    }
-#endif
 }
     
 /*
@@ -445,12 +405,7 @@ int write;
     int flag;
     int status;
     int fd;
-#ifdef VMS
-    vmsstring dev;
-    short channel;
-#endif
 
-#ifdef unix
     sprintf(devname, "/dev/tape%d", unit); /* Construct device name.*/
 
     if (write)
@@ -465,7 +420,7 @@ int write;
 
     fd =  open (devname, flag, 0);
 
-#ifdef Linux			/* Linux requires additional tape setup: */
+#ifdef HAVE_DECL_MTSETBLK      /* Linux requires additional tape setup: */
     if(fd < 0) return fd;
     
     /* Set the tape into variable block mode:  */
@@ -475,33 +430,9 @@ int write;
       mtclose(fd);
       return status;
     }
-
-#endif /* linux */
+#endif /* MTSETBLK */
 
     return fd;
-
-#endif /* unix */
-#ifdef VMS
-    sprintf (devname, "MAGTAPE%d:", unit);
-    strtovms(&dev, devname);
-    dev.dsc$b_dtype =  DSC$K_DTYPE_T;
-    dev.dsc$b_class = DSC$K_CLASS_S;
-    status = sys$assign (
-		 &dev, 
-		 &channel, 
-		 0, 
-		 0);
-    if (status == SS$_NORMAL)
-    {
-	return channel;
-    }
-    else
-    {
-	errno = EVMSERR;
-	vaxc$errno = status;
-	return -1;
-    }
-#endif
 }
 /*
 **  Functional Description:
@@ -519,29 +450,12 @@ int mtclose(channel)
 int channel;
 #endif
 {
-#ifdef unix
    if(close(channel) == -1)
    {
       return mapioctlerr(errno);      
    }
    else
      return 0;
-#endif
-#ifdef VMS
-    int status;
-    status = sys$dassgn (
-		 channel);
-    if (status == SS$_NORMAL)
-    {
-	return 0;
-    }
-    else
-    {
-	errno = EVMSERR; 
-	vaxc$errno = status;
-	return errno;
-    }
-#endif
 }
 /*
 ** Panic:
@@ -579,9 +493,8 @@ void mtclearerr(fd)
 int fd;
 #endif
 {
-#ifdef ultrix
+#ifdef HAVE_DECL_MTCSE    /* Defined on Ultrix */
     struct mtop reset;
-
     reset.mt_op = MTCSE;
     reset.mt_count = 1;
     ioctl(fd, MTIOCTOP, &reset);
@@ -608,21 +521,15 @@ void wtdrive(unit)
 int unit;
 #endif
 {
-#ifdef unix
-    struct mtop rewind;
+  struct mtop rewind;
 
-    rewind.mt_op = MTREW;
-    rewind.mt_count = 1;
-
-    while (ioctl(unit, MTIOCTOP, &rewind) == -1 )
+  rewind.mt_op = MTREW;
+  rewind.mt_count = 1;
+  
+  while (ioctl(unit, MTIOCTOP, &rewind) == -1 )
     {
-    	mtclearerr(unit);
+      mtclearerr(unit);
     }
-#endif
-#ifdef VMS
-    mtrewind(unit);
-#endif
-   
 }
 
 /*
@@ -647,24 +554,13 @@ int unit;
 int 
 mtwrite (int unit, char* block, unsigned count)
 {
-    int status;
-#ifdef unix
-    while(((status = write (unit, block, count)) == -1) && (errno == EINTR))
-      ;
-    if(status > 0)
-      return MTSUCCESS;
-    else
-      return mapioctlerr(0);
-#endif
-#ifdef VMS
-
-    status = mwrite(&unit, block, &count);
-    if (status != SS$_NORMAL)
-    {
-	return mapioctlerr(status);
-    }
+  int status;
+  while(((status = write (unit, block, count)) == -1) && (errno == EINTR))
+    ;
+  if(status > 0)
     return MTSUCCESS;
-#endif
+  else
+    return mapioctlerr(0);
 }
 
 
@@ -688,40 +584,11 @@ mtwrite (int unit, char* block, unsigned count)
 int 
 mtrewind (int unit)
 {
-#ifdef unix
     struct mtop rewind;
 
     rewind.mt_op = MTREW;
     rewind.mt_count = 1;
     return mapioctlerr(ioctl(unit, MTIOCTOP, &rewind));
-#endif
-#ifdef VMS
-    short iosb[4];
-    int status;
-
-    status = SYS$QIOW (
-		 0, 
-		 unit, 
-		 IO$_REWIND, 
-		 iosb, 
-		 0, 
-		 0, 
-		 0, 
-		 0, 
-		 0, 
-		 0, 
-		 0, 
-		 0);
-    if (status != SS$_NORMAL)
-    {
-	return mapioctlerr(status);
-    }
-    if (iosb[0] != SS$_NORMAL)
-    {
-	return mapioctlerr(iosb[0]);
-    }
-    return MTSUCCESS;
-#endif
 }
 
 /*
@@ -763,33 +630,12 @@ mtload (int unit)
 void 
 mtunload (int unit)
 {
-#ifdef unix
     struct mtop unload;
 
     unload.mt_op = MTOFFL;
     unload.mt_count = 1;
 
     ioctl(unit, MTIOCTOP, &unload);
-#endif
-#ifdef VMS
-    short iosb[4];
-    int   status;
-
-    status = SYS$QIOW (
-		 0, 
-		 unit, 
-		 IO$_UNLOAD, 
-		 iosb, 
-		 0, 
-		 0, 
-		 0, 
-		 0, 
-		 0, 
-		 0, 
-		 0, 
-		 0);
-
-#endif
 }
 /*
 **++
@@ -812,65 +658,39 @@ mtunload (int unit)
 */
 int mtread (int unit, char* block, unsigned count, unsigned* actual)
 {
-    int status;
-
-#ifdef VMS
-    short iosb[4];
-#endif
-
-    *actual = 0;
-
-#ifdef unix
-    while (((status =  read (unit, block, count)) == -1) && (errno ==EINTR))
-      ;
-#endif
-
-#ifdef VMS
-    status = mread(&unit, actual, iosb, block, &count);
-    if (status != SS$_NORMAL)
+  int status;
+  *actual = 0;
+  
+  while (((status =  read (unit, block, count)) == -1) && (errno ==EINTR))
+    ;
+  
+  if (status == 0)
     {
-	return mapioctlerr(status);
+      mtclearerr(unit);
+      return MTEOF;
     }
-    sys$synch (
-	0, 
-	iosb);
-#endif
-
-#ifdef unix
-    if (status == 0)
+  if (status < 0)
     {
-    	mtclearerr(unit);
-	return MTEOF;
-    }
-    if (status < 0)
-    {
-    	switch (errno)
+      switch (errno)
 	{
-	    case EINVAL:
-	         return MTOVERRUN;
-	    case EBADF:
-	    	 return MTBADHANDLE;
-	    case EINTR:
-	    	 return mtread(unit, block, count, actual);
-	    case EIO:
-	    case ETIMEDOUT:
-	    	 return MTIO;
-	    default:
-	    	 return MTINTERNAL;
+	case EINVAL:
+	  return MTOVERRUN;
+	case EBADF:
+	  return MTBADHANDLE;
+	case EINTR:
+	  return mtread(unit, block, count, actual);
+	case EIO:
+	case ETIMEDOUT:
+	  return MTIO;
+	default:
+	  return MTINTERNAL;
 	}
     }
-    else
+  else
     {
-	*actual = status;
-    	return MTSUCCESS;
+      *actual = status;
+      return MTSUCCESS;
     }
-#endif
-
-#ifdef VMS
-    *actual = iosb[1];
-    return mapioctlerr(iosb[0]);
-#endif
-
 }
 
 
@@ -893,27 +713,12 @@ int mtread (int unit, char* block, unsigned count, unsigned* actual)
 */
 int  mtweof (int unit, unsigned count)
 {
-#ifdef unix
-    struct mtop weof;
+  struct mtop weof;
+  
+  weof.mt_op = MTWEOF;
+  weof.mt_count = count;
 
-    weof.mt_op = MTWEOF;
-    weof.mt_count = count;
-
-    return mapioctlerr(ioctl(unit, MTIOCTOP, &weof));
-#endif
-#ifdef VMS
-    int i;
-    int stat;
-    for (i = 0;  i < count;  i++)
-    {
-	stat = mweof(&unit);
-	if (stat != SS$_NORMAL)
-	{
-	    return mapioctlerr(stat);;
-	}
-    }
-    return MTSUCCESS;
-#endif
+  return mapioctlerr(ioctl(unit, MTIOCTOP, &weof));
 }
 
 
@@ -935,24 +740,19 @@ int  mtweof (int unit, unsigned count)
 int 
 mtspacef (int unit, int count)
 {
-#ifdef unix
-    struct mtop spacef;
+  struct mtop spacef;
 
-    if (count > 0)
+  if (count > 0)
     {
-    	spacef.mt_op = MTFSF;
-	spacef.mt_count = count;
+      spacef.mt_op = MTFSF;
+      spacef.mt_count = count;
     }
-    else
+  else
     {
-    	spacef.mt_op = MTBSF;
-	spacef.mt_count = -count;
+      spacef.mt_op = MTBSF;
+      spacef.mt_count = -count;
     }
-    return mapioctlerr(ioctl(unit, MTIOCTOP, &spacef));
-#endif
-#ifdef VMS
-    return mapioctlerr(mspacef(&unit, &count));
-#endif
+  return mapioctlerr(ioctl(unit, MTIOCTOP, &spacef));
 }
 
 
@@ -974,42 +774,17 @@ mtspacef (int unit, int count)
 int 
 mtspacer (int unit, int count)
 {
-#ifdef unix
-    struct mtop spacer;
+  struct mtop spacer;
 
-    if (count > 0)
+  if (count > 0)
     {
-    	spacer.mt_op = MTFSR;
-	spacer.mt_count = count;
+      spacer.mt_op = MTFSR;
+      spacer.mt_count = count;
     }
-    else
+  else
     {
-    	spacer.mt_op = MTBSR;
-	spacer.mt_op = -count;
+      spacer.mt_op = MTBSR;
+      spacer.mt_op = -count;
     }
-    return mapioctlerr(ioctl(unit, MTIOCTOP, &spacer));
-#endif
-#ifdef VMS
-    int status;
-    short iosb[4];
-
-    status = SYS$QIOW (
-		 0, 
-		 unit, 
-		 IO$_SKIPRECORD, 
-		 iosb, 
-		 0, 
-		 0, 
-		 count, 
-		 0, 
-		 0, 
-		 0, 
-		 0, 
-		 0);
-     if (status != SS$_NORMAL)
-     {
-	 return mapioctlerr(status);
-     }
-     return mapioctlerr(iosb[0]);
-#endif
+  return mapioctlerr(ioctl(unit, MTIOCTOP, &spacer));
 }

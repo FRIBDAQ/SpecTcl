@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -333,18 +333,8 @@ static int FreeFlags[32] = {
 */
 int getef()
 {
-#ifdef VMS
-  for(int i = 0; i < 31; i++) {
-    if(FreeFlags[i]) {
-      FreeFlags[i] = False;
-      return i;
-    }
-  }
-  return -1;
-#else
   assert(0);
   return -1;
-#endif
 }
 
 /*
@@ -354,13 +344,7 @@ int getef()
 */
 void freeef(int i)
 {
-#ifdef VMS
-  assert( (i < 32) && (i >= 0));
-  FreeFlags[i] = True;
-#else
   i++;
   assert(0);
-#endif
-
 }
 

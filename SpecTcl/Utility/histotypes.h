@@ -293,6 +293,10 @@ DAMAGES.
 #ifndef __HISTOTYPES_H
 #define __HISTOTYPES_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifndef __CPP_IOSTREAM_H
 #include <iostream.h>
 #define __CPP_IOSTREAM_H
@@ -311,8 +315,6 @@ DAMAGES.
 using namespace std;
 
 #include <math.h>
-
-
 
 typedef int Int_t;
 typedef unsigned int UInt_t;
@@ -539,14 +541,6 @@ static const UInt_t knDefaultBufferSize   = kn1K*8;
 // Default histogram storage size
 
 static const UInt_t knDefaultSpectrumSize = 16*kn1M;
-
-
-// stands in for log2f function which is not included with linux c++
-#ifdef Linux
-inline float log2f(float a) {
-  return (float)(log(a)/log(2));
-}
-#endif
 
 #endif
 

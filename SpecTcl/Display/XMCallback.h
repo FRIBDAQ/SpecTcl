@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -304,7 +304,10 @@ DAMAGES.
 #ifndef XMCALLBACK_H
 #define XMCALLBACK_H
 
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
 #include <stdio.h>
 #include <string.h>
 

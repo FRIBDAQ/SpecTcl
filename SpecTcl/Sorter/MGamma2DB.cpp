@@ -369,26 +369,8 @@ CMGamma2DB::Increment(const CEvent& rE)
 	    rEvent[m_vParameters[yChan].nParameter].isValid())  {
 	  UInt_t nXRealChan = rEvent[m_vParameters[xChan].nParameter];
 	  UInt_t nYRealChan = rEvent[m_vParameters[yChan].nParameter];
-
-	  Float_t nXParamStep = (m_vParameters[xChan].nHigh -
-				 m_vParameters[xChan].nLow) /
-	    (1 << m_vParameters[xChan].nScale);
-	  Float_t nYParamStep = (m_vParameters[yChan].nHigh -
-				 m_vParameters[yChan].nLow) /
-	    (1 << m_vParameters[yChan].nScale);
-
-	  Float_t nXParamCoord = nXRealChan * nXParamStep;
-	  Float_t nYParamCoord = nYRealChan * nYParamStep;
-
-	  Float_t nXParamToSpecScale = ((m_nXChannels) / 
-					(m_vParameters[xChan].nHigh -
-					 m_vParameters[xChan].nLow));
-	  Float_t nYParamToSpecScale = ((m_nYChannels) /
-					(m_vParameters[yChan].nHigh -
-					 m_vParameters[yChan].nLow));
-
-	  UInt_t nXChannel = Randomize(nXParamCoord * nXParamToSpecScale);
-	  UInt_t nYChannel = Randomize(nYParamCoord * nYParamToSpecScale);
+	  UInt_t nXChannel = XParamToSpecPoint(nXRealChan, xChan);
+	  UInt_t nYChannel = YParamToSpecPoint(nYRealChan, yChan);
 	  if((nXChannel < m_nXChannels) && (nYChannel < m_nYChannels)) {
 	    UChar_t* pStorage = (UChar_t*)getStorage();
 	    assert(pStorage != (UChar_t*) kpNULL);
@@ -434,8 +416,7 @@ CMGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
     for(UInt_t xChan = 0; xChan < m_vParameters.size(); xChan++) {
       vXP.clear();
       vXP.push_back(m_vParameters[xChan].nParameter);
-      if(rEvent[m_vParameters[xChan].nParameter].isValid() &&
-	 rEvent[m_vParameters[yChan].nParameter].isValid()) {  // if valid...
+      if(rEvent[m_vParameters[xChan].nParameter].isValid()) {  // if valid...
 	if(pGate->inGate(rEvent, vXP)) {  // and x-param is in the gate...
 	  for(UInt_t p1 = 0; p1 < m_vParameters.size()-1; p1++) {
 	    for(UInt_t p2 = p1+1; p2 < m_vParameters.size(); p2++) {
@@ -444,30 +425,10 @@ CMGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
 		// Make sure these params are valid too...
 		if(rEvent[m_vParameters[p1].nParameter].isValid() &&
 		   rEvent[m_vParameters[p2].nParameter].isValid()) {
-		  UInt_t nXRealChan = rEvent[m_vParameters[xChan].nParameter];
-		  UInt_t nYRealChan = rEvent[m_vParameters[yChan].nParameter];
-		  
-		  Float_t nXParamStep = (m_vParameters[xChan].nHigh -
-					 m_vParameters[xChan].nLow) /
-		    (1 << m_vParameters[xChan].nScale);
-		  Float_t nYParamStep = (m_vParameters[yChan].nHigh -
-					 m_vParameters[yChan].nLow) /
-		    (1 << m_vParameters[yChan].nScale);
-
-		  Float_t nXParamCoord = nXRealChan * nXParamStep;
-		  Float_t nYParamCoord = nYRealChan * nYParamStep;
-		  
-		  Float_t nXParamToSpecScale = ((m_nXChannels) / 
-						(m_vParameters[xChan].nHigh -
-						 m_vParameters[xChan].nLow));
-		  Float_t nYParamToSpecScale = ((m_nYChannels) /
-						(m_vParameters[yChan].nHigh -
-						 m_vParameters[yChan].nLow));
-		  
-		  UInt_t nXChannel = 
-		    Randomize(nXParamCoord * nXParamToSpecScale);
-		  UInt_t nYChannel = 
-		    Randomize(nYParamCoord * nYParamToSpecScale);
+		  UInt_t nXRealChan = rEvent[m_vParameters[p1].nParameter];
+		  UInt_t nYRealChan = rEvent[m_vParameters[p2].nParameter];
+		  UInt_t nXChannel = XParamToSpecPoint(nXRealChan, p1);
+		  UInt_t nYChannel = YParamToSpecPoint(nYRealChan, p2);
 		  if((nXChannel < m_nXChannels) && 
 		     (nYChannel < m_nYChannels)) {
 		    pStorage[nXChannel + (nYChannel * m_nXChannels)]++;
@@ -490,6 +451,7 @@ CMGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
     else {
       pGate = (CGammaContour*)pGate;
     }
+
     // For all possible pairs of parameters in the spectrum
     for(xChan = 0; xChan < m_vParameters.size()-1; xChan++) {
       for(yChan = xChan+1; yChan < m_vParameters.size(); yChan++) {
@@ -511,30 +473,10 @@ CMGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
 		  // Make sure that these params are valid too...
 		  if(rEvent[m_vParameters[xParam].nParameter].isValid() &&
 		     rEvent[m_vParameters[yParam].nParameter].isValid()) {
-		    UInt_t nXReal = rEvent[m_vParameters[xChan].nParameter];
-		    UInt_t nYReal = rEvent[m_vParameters[yChan].nParameter];
-		    
-		    Float_t nXParamStep = (m_vParameters[xChan].nHigh -
-					   m_vParameters[xChan].nLow) /
-		      (1 << m_vParameters[xChan].nScale);
-		    Float_t nYParamStep = (m_vParameters[yChan].nHigh -
-					   m_vParameters[yChan].nLow) /
-		      (1 << m_vParameters[yChan].nScale);
-		    
-		    Float_t nXParamCoord = nXReal * nXParamStep;
-		    Float_t nYParamCoord = nYReal * nYParamStep;
-		    
-		    Float_t nXParamToSpecScale = ((m_nXChannels) / 
-						  (m_vParameters[xChan].nHigh -
-						   m_vParameters[xChan].nLow));
-		    Float_t nYParamToSpecScale = ((m_nYChannels) /
-						  (m_vParameters[yChan].nHigh -
-						   m_vParameters[yChan].nLow));
-		    
-		    UInt_t nXChannel = 
-		      Randomize(nXParamCoord * nXParamToSpecScale);
-		    UInt_t nYChannel = 
-		      Randomize(nYParamCoord * nYParamToSpecScale);
+		    UInt_t nXReal = rEvent[m_vParameters[xParam].nParameter];
+		    UInt_t nYReal = rEvent[m_vParameters[yParam].nParameter];
+		    UInt_t nXChannel = XParamToSpecPoint(nXReal, xParam);
+		    UInt_t nYChannel = YParamToSpecPoint(nYReal, yParam);
 		    if((nXChannel < m_nXChannels) && 
 		       (nYChannel < m_nYChannels)) {
 		      pStorage[nXChannel + (nYChannel * m_nXChannels)]++;
@@ -586,8 +528,11 @@ CMGamma2DB::Dimension (UInt_t n) const
 UInt_t
 CMGamma2DB::Randomize(Float_t nChannel)
 {
-  Float_t nWeight = (1 - (nChannel - (UInt_t)nChannel)) * 100;
-  UInt_t nRandNum = rand() % 100;
+  Float_t nWeight = (1 - (nChannel - (UInt_t)nChannel));
+  if(nWeight == 0.)
+    return (UInt_t)nChannel;
+
+  Float_t nRandNum = ((Float_t)rand() / (RAND_MAX+1.0));
 
   if(nWeight <= nRandNum)
     return ((UInt_t)nChannel+1);
@@ -632,4 +577,157 @@ CMGamma2DB::SpecPointToGate(UInt_t nPoint, UInt_t nIndex)
   Float_t scale = (Float_t)(1 << m_vParameters[nIndex].nScale) / 
     (nIndex ? m_nYChannels : m_nXChannels);
   return (UInt_t)(scale * nPoint);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    UInt_t XParamToSpecPoint(UInt_t nParamPoint, UInt_t nChan)
+//  Operation Type:
+//    conversion
+//  Purpose:
+//
+//    Scales a parameter point to its appropriate value in 
+//    spectrum space.
+//
+UInt_t
+CMGamma2DB::XParamToSpecPoint(UInt_t nParamPoint, UInt_t nChan)
+{
+  // The parameter space step size
+  Float_t nParamRange = m_vParameters[nChan].nHigh - m_vParameters[nChan].nLow;
+  Float_t nParamStep = (nParamRange) / (1 << m_vParameters[nChan].nScale);
+
+  // The parameter coordinate in mapped parameter space
+  Float_t nParamCoord = m_vParameters[nChan].nLow + (nParamPoint * nParamStep);
+
+  // If this is outside of mapped spectrum range, return m_nXChannels+1
+  // which will cause no increments
+  if((nParamCoord < m_nXLow) || (nParamCoord > m_nXHigh)) {
+    return m_nXChannels+1;
+  }
+  
+  // Otherwise, scale this to real spectrum space (i.e. a channel value)
+  Float_t nDist = nParamCoord - m_nXLow;          // the distance from the edge
+  Float_t nSpecScale = nDist / (m_nXHigh-m_nXLow); // the scale from mapped... 
+  if(nSpecScale < 0) nSpecScale *= -1;            // to unmapped spec. space
+
+  // Get the parameter channels to spectrum channels ratio
+  Float_t nChannelRatio = (nParamRange / (1 << m_vParameters[nChan].nScale)) /
+    ((m_nXHigh-m_nXLow) / m_nXChannels);
+
+  // If the mapped spectrum channel contains one, or more, mapped parameter 
+  // channels, randomize based on the mantissa of the floating point channel
+  if(nChannelRatio <= 1)
+    return Randomize(nSpecScale * m_nXChannels);
+
+  // Otherwise, randomize based on the size of the ratio of parameter channels
+  // to spectrum channels.
+  else
+    return RandomizeToMultipleBins(nSpecScale * m_nXChannels, nChannelRatio);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    UInt_t YParamToSpecPoint(UInt_t nParamPoint, UInt_t nChan)
+//  Operation Type:
+//    conversion
+//  Purpose:
+//
+//    Scales a parameter point to its appropriate value in 
+//    spectrum space.
+//
+UInt_t
+CMGamma2DB::YParamToSpecPoint(UInt_t nParamPoint, UInt_t nChan)
+{
+  // The parameter space step size
+  Float_t nParamRange = m_vParameters[nChan].nHigh - m_vParameters[nChan].nLow;
+  Float_t nParamStep = (nParamRange) / (1 << m_vParameters[nChan].nScale);
+
+  // The parameter coordinate in mapped parameter space
+  Float_t nParamCoord = m_vParameters[nChan].nLow + (nParamPoint * nParamStep);
+
+  // If this is outside of mapped spectrum range, return m_nYChannels+1
+  // which will cause no increments
+  if((nParamCoord < m_nYLow) || (nParamCoord > m_nYHigh)) {
+    return m_nYChannels+1;
+  }
+  
+  // Otherwise, scale this to real spectrum space (i.e. a channel value)
+  Float_t nDist = nParamCoord - m_nYLow;          // the distance from the edge
+  Float_t nSpecScale = nDist / (m_nYHigh-m_nYLow); // the scale from mapped... 
+  if(nSpecScale < 0) nSpecScale *= -1;            // to unmapped spec. space
+
+  // Get the parameter channels to spectrum channels ratio
+  Float_t nChannelRatio = (nParamRange / (1 << m_vParameters[nChan].nScale)) /
+    ((m_nYHigh-m_nYLow) / m_nYChannels);
+
+  // If the mapped spectrum channel contains one, or more, mapped parameter 
+  // channels, randomize based on the mantissa of the floating point channel
+  if(nChannelRatio <= 1)
+    return Randomize(nSpecScale * m_nYChannels);
+
+  // Otherwise, randomize based on the size of the ratio of parameter channels
+  // to spectrum channels.
+  else
+    return RandomizeToMultipleBins(nSpecScale * m_nYChannels, nChannelRatio);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    UInt_t RandomizeToMultipleBins(Float_t nChannel, Float_t nRatio)
+//  Operation Type:
+//    operation
+//  Purpose:
+//
+//    Receives a floating point channel in mapped spectrum space which
+//    can fall into one of (UInt_t)(nChannel+nRatio) bins. The way to
+//    determine which bin it actually DOES fall into is to weight each
+//    bin according to its "in-ness", generate a random number and see
+//    into which bin it falls.
+//
+UInt_t
+CMGamma2DB::RandomizeToMultipleBins(Float_t nChannel, Float_t nRatio)
+{
+  // First we generate our random number between 0 and 1, being sure
+  // to look at the high-end bits rather than the low end.
+  Float_t nRandNum  = ((Float_t)rand() / (RAND_MAX+1.0));
+
+  // We need to determine the number of bins this channel has the possibility
+  // of falling into. Then we weight each bin, according to the amount that it
+  // is in the range. To do this, we use the following variables:
+  //    nHighLim - the upper limit channel number that this count could incr.
+  //    nLowLim  - the lower limit channel number that this count could incr.
+  //    nLowMantissa - The fractional part of nChannel
+  UInt_t nHighLim = (UInt_t)(nChannel + nRatio);
+  UInt_t nLowLim  = (UInt_t)nChannel;
+  Float_t nLowMantissa  = nChannel - nLowLim;
+
+  // Determine the weight given to the lowest possible bin, (UInt_t)nChannel.
+  // We do this by dividing the fractional part of the channel passed to us
+  // by the ratio of spectrum channels to parameter channels (nRatio).
+  // If our random number falls in the range from 0 to this number, then
+  // increment this channel.
+  Float_t nLowChanProb = (1-nLowMantissa) / nRatio;
+  if(nLowChanProb >= nRandNum)
+    return nLowLim;
+
+  // Otherwise, there are a number of "whole" spectrum channels covered by
+  // this parameter channel that we need to examine. Weight each "whole"
+  // spectrum channel the same, and see if the random number falls within
+  // the specified range.
+  else {
+    for(int i = 1; i < (nHighLim - nLowLim); i++) {
+      if((1 / nRatio)+nLowChanProb >= nRandNum)
+	return nLowLim + i;
+      else 
+	nLowChanProb += (1 / nRatio);
+    }
+  }
+
+  // If it didn't fall into any of the "whole" spectrum channels fully covered
+  // by this parameter channel, then it has to fall into the highest possible
+  // channel that this parameter channel only partially covers.
+  return nHighLim;
 }

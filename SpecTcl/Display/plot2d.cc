@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -295,18 +295,21 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#ifdef unix
-#if defined(CYGWIN)                           // Cygwin for now.
-#define MAXINT (0x10000000)	/* *BUGBUGBUG* Need a good way to get maxint */
-#elif defined(Darwin)                         /* MacOS X */
+#ifdef HAVE_DECL_MAXINT
+#include <values.h>
+#elif defined(HAVE_DECL_INT_MAX)
 #include <limits.h>
 #define MAXINT INT_MAX
-#else                                         // Others...
-#include <values.h>
-#endif
+#else
+#define MAXINT (0x10000000)	/* *BUGBUGBUG* Need a good way to get maxint */
 #endif
 
 #include "XMWidget.h"
@@ -859,11 +862,7 @@ static Boolean DrawSegment(Draw2dContext *c)
   if(c->attributes->hasfloor()) floor = c->attributes->getfloor();
   ceiling -= floor;		/* Adjust ceiling relative to floor. */
 
-#ifdef VMS
-  unsigned int *values = new unsigned int[chans];
-#else
   unsigned int values[chans];
-#endif
   c->sampler->getscanline(values);
   for(int steps = 0; steps < chans; steps++) {
     unsigned int val = values[steps];
@@ -879,9 +878,6 @@ static Boolean DrawSegment(Draw2dContext *c)
   }
   c->drawer->drawchans(values, chans);
   c->drawer->next();
-#ifdef VMS
-  delete []values;
-#endif
   return c->drawer->done();
 
 
@@ -917,11 +913,7 @@ static Boolean DrawLogSegment(Draw2dContext *c)
   if(c->attributes->hasfloor()) floor = c->attributes->getfloor();
   ceiling -= floor;		/* Adjust ceiling relative to floor. */
 
-#ifdef VMS
-  unsigned int *vals = new unsigned int[nsteps];
-#else
   unsigned int vals[nsteps];
-#endif
   c->sampler->getscanline(vals);
   for(int steps = 0; steps < nsteps; steps++) {
     unsigned int val = vals[steps];
@@ -947,12 +939,7 @@ static Boolean DrawLogSegment(Draw2dContext *c)
   }
   c->drawer->drawchans(vals, nsteps);
   c->drawer->next();
-#ifdef VMS
-  delete []vals;
-#endif
   return c->drawer->done();
-
- 
 }
 
 /*

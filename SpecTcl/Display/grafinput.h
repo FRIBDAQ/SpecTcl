@@ -334,11 +334,18 @@ class GraphicalInput : public XMCustomDialog
   /* The following functions exist for all instances, but actual behavior
   ** varies:
   */
-  virtual void ClearState() = 0;	  /* Set state back to null. */
+  
+  /* Set state back to null. */
+  virtual void ClearState() = 0;
+
+  /* Draw the points. */
   virtual void DrawPoints(XMWidget *pane,
-			  Xamine_RefreshContext *ctx = NULL) = 0; /* Draw the points. */
+			  Xamine_RefreshContext *ctx = NULL) = 0;
+
+  /* Clear points from screen. */
   virtual void ClearPoints(XMWidget *pane,
-			   Xamine_RefreshContext *ctx = NULL)= 0; /* Clear points from screen. */
+			   Xamine_RefreshContext *ctx = NULL)= 0; 
+
   virtual void ClearDialog() = 0;	  /* all points from prompter */
   virtual void AddPoint(point &pt) = 0;   /* Add last point in list   */
   virtual void DelPoint() = 0;            /* Remove last point in list */

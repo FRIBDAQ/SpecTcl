@@ -302,6 +302,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 //
 ///////////////////////////////////////////////////////////////////////////
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include "TCLApplication.h"
 #include "TCLInterpreter.h"
@@ -309,6 +312,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <assert.h>
 #include <tcl.h>
 #include <tk.h>
+#include <iostream.h>
 
 
 //
@@ -348,8 +352,13 @@ EXTERN int		Tktest_Init _ANSI_ARGS_((Tcl_Interp *interp));
 int
 main(int argc,char** argv)
 {
+  try {
     Tk_Main(argc, argv, Tcl_AppInit);
     return 0;			/* Needed only to prevent compiler warning. */
+  }
+  catch(...) {
+    cerr << "Unhandled exception\n";
+  }
 }
 
 extern "C" {

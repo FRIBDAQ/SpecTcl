@@ -13,12 +13,7 @@
 **   East Lansing, MI 48824-1321
 **/
 #include <stdio.h>		/* Include standard I/O functions too. */
-#ifdef unix
 #include <strings.h>
-#endif
-#ifdef VMS
-#include <string.h>		/* String functions */
-#endif
 #include <ctype.h>		/* typeconversion functions./macros. */
 
 #include "grobjio.h"
@@ -31,10 +26,6 @@ static void spaces();
 static void comment();
 static void eoline();
 extern YYSTYPE        yylval;
-#ifdef __GNUC_MINOR__
-#undef __GNUC_MINOR__
-#endif
-
 %}
 
 qstring \"[^\"\n]*[\"\n"]
@@ -78,7 +69,6 @@ ktbl keywords[]  = {
                      {"endpts", 6, ENDPTS},
                      {"title", 5, TITLE},
                      {"cut", 3, CUT1D},
-                     {"slice",5, CUT1D},
                      {"sum-1d", 6, SUM1D},
                      {"mark-1d", 7, MARK1D},
                      {"contour", 7, CONTOUR},

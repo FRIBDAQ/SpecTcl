@@ -441,7 +441,8 @@ CNSCLBufferDecoder::getSequenceNo()
   BHEADER* pHeader = (BHEADER*)getBuffer();
   assert(pHeader != kpNULL);
 
-  TranslatorPointer<INT32> TP(*(getBufferTranslator()), &(pHeader->seq));
+  TranslatorPointer<INT32> TP(*(getBufferTranslator()), 
+			      (Address_t)&(pHeader->seq));
 
   return (UInt_t)(*TP);
 

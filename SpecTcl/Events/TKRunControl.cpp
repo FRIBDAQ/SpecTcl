@@ -366,10 +366,8 @@ CTKRunControl::OnEnd()
 //
 void
 CTKRunControl::OnBuffer(UInt_t nBytes)
-{				// 
-  if(getRunning()) {		// Needed because we may have stopped.
-    m_FileHandler.Set();		// Re-enable file handler.
-  }
+{
+  m_FileHandler.Set();		// Re-enable file handler.
   CRunControl::OnBuffer(nBytes); // Note on end of file this will clear().
 
 }

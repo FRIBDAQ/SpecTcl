@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -293,7 +293,10 @@ DAMAGES.
 #ifndef _GATEIO_H
 #define _GATEIO_H
 
+#ifndef XMWIDGET_H
 #include "XMWidget.h"
+#endif
+
 #include "dispgrob.h"
 #include "messages.h"
 #include "clientops.h"
@@ -328,9 +331,6 @@ int Xamine_ReadInquireLocation(msg_InquireButton *which);
 int Xamine_SupplyButtonInfo(msg_InquireButtonAck *ack);
 
 int Xamine_ReadBModifyBlock(msg_ModifyButton *mblock);
-#ifdef VMS
-void Xamine_ResetGatesAttnAst();
-#endif
 #endif
 
 

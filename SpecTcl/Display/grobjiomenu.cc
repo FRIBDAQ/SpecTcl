@@ -38,7 +38,7 @@ source code.  And you must show them these terms so they know their
 rights.
 
   We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
+ (2) offer you this license which gives you legal permission to copy,
 distribute and/or modify the software.
 
   Also, for each author's protection and ours, we want to make certain
@@ -297,22 +297,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** External include files required:
 **/
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
-#ifdef unix
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
-#endif
-#ifdef VMS
-#include <types.h>
-#include <stat.h>
-#include <unixio.h>
-#include <string.h>
-#ifndef S_ISREG
-#define S_ISREG(mode) (((mode) & S_IFREG) != 0)
-#endif
-#endif
 #include <errno.h>
 #include <X11/StringDefs.h>
 #include "XMDialogs.h"
@@ -335,7 +328,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Global references:
 */
 
-#ifndef Linux
+#ifndef LINUX
 extern "C" {
   void exit(int);
 }
@@ -661,17 +654,6 @@ void write_grobjs(XMWidget *w, XtPointer client_data,
 
   char msg[512];
   FILE *config;
-
-  /*  If we're running in VMS, then kill off the stuff after and including
-  ** any semicolons.   This allows the write to create a new version if
-  ** necessary
-  */
-
-#ifdef VMS
-  char *semi = strrchr(filename, ';');
-  if(semi != NULL) *semi = '\0';                /* Cut off version string. */
-
-#endif
 
   /*  Attempt to open the file for write...if fails then that's an error
   **  dialog and everything goes down
