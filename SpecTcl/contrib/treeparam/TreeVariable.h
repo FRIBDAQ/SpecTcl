@@ -111,6 +111,8 @@ public:
 	double		getValue(){return value;}
 	char*		getValueAddr(){return (char*) &value;}
 	string		getUnit() {return unit;}
+	void			setValue(double v){value = v;}
+	void			setUnit(string u){unit = u;}
 	
 // Binding of TCL variables
 	static void BindVariables(CTCLInterpreter& rInterp) {
@@ -122,6 +124,18 @@ public:
 		}
 //		pSelf.erase(pSelf.begin(), pSelf.end());
 	}
+
+// Initialize
+void
+Initialize(string variableName, double variableValue, string variableUnit)
+{
+		name = variableName;
+		value = variableValue;
+		unit = variableUnit;
+		
+		pSelf.push_back(this);
+}
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -161,14 +175,36 @@ public:
 	}
 
 // Destructor
-	~CTreeVariableArray() {
-		vector<CTreeVariable*>::iterator i;
-		for (i = array.begin(); i != array.end(); i++) delete i;
-	}
+//	~CTreeVariableArray() {
+//		vector<CTreeVariable*>::iterator i;
+//		for (i = array.begin(); i != array.end(); i++) delete i;
+//	}
 	
 // Operator[].  Allows to access a member of the array using backets (i.e. s800.ic.de[11])
 	CTreeVariable& operator[](int i) {
 		return (CTreeVariable&)(*array[i-start]);
+	}
+
+// Initialize
+void
+Initialize(string rootName, double rootValue, string rootUnit, UInt_t theSize, UInt_t theStart) 
+{
+		int		i, ndigits;
+		string	theName;
+		char		str[10], form[20];
+		CTreeVariable* pCTreeVariable;
+
+		size = theSize;
+		start = theStart;
+		ndigits = int(log10((double)(size+start))+1);
+		
+		for (int i=0; i < size; i++) {
+			sprintf(form, ".%%%d.%dd", ndigits, ndigits);
+			sprintf(str, form, i+start);
+			theName = rootName + str;
+			pCTreeVariable = new CTreeVariable(theName, rootValue, rootUnit);
+			array.push_back(pCTreeVariable);
+		}
 	}
 };
 
@@ -188,14 +224,40 @@ public:
 		vector<CTreeVariable*>::iterator s;
 		char str[80];
 	
-		if (strcmp(argv[1], "-list") == 0) {
+		if (argc == 2 && strcmp(argv[1], "-list") == 0) {
 			for (s = CTreeVariable::pSelf.begin(); s != CTreeVariable::pSelf.end(); s++) {
 				sprintf(str, "{%s %g %s}\n", ((*s)->getName()).c_str(), (*s)->getValue(), ((*s)->getUnit()).c_str());
 				rResult += str;
 			}
 		}
+
+		else if (argc == 3 && strcmp(argv[1], "-list") == 0) {
+			for (s = CTreeVariable::pSelf.begin(); s != CTreeVariable::pSelf.end(); s++) {
+				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
+					sprintf(str, "{%s %g %s}\n", ((*s)->getName()).c_str(), (*s)->getValue(), ((*s)->getUnit()).c_str());
+					rResult += str;
+					break;
+				}
+			}
+		}
+
+		else if (argc == 5 && strcmp(argv[1], "-set") == 0) {
+			for (s = CTreeVariable::pSelf.begin(); s != CTreeVariable::pSelf.end(); s++) {
+				if (strcmp(((*s)->getName()).c_str(), argv[2]) == 0) {
+					(*s)->setValue(atof(argv[3]));
+					(*s)->setUnit(argv[4]);
+					break;
+				}
+			}
+		}
+
 		else {
-			rResult = "Usage:\n   treevariable -list\n";
+			rResult = "\
+Usage:\n\
+   treevariable -list\n\
+   treevariable -list name\n\
+   treevariable -set name value unit\n\
+";
 		}
 		return TCL_OK;
 	}
