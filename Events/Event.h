@@ -307,15 +307,16 @@ DAMAGES.
 #include <ValidValue.h>
 #endif
 
-typedef std::vector<CValidValue<Int_t> >        CIntegerVector;
-typedef CValidValue<Int_t>                     CParameterValue;
-typedef CIntegerVector::iterator               CEventIterator;
+typedef Float_t ParamType;
+typedef std::vector<CValidValue<ParamType> >        CParameterVector;
+typedef CValidValue<ParamType>                      CParameterValue;
+typedef CParameterVector::iterator                    CEventIterator;
                                
 class CEvent      
 {
   
 private:
-  CIntegerVector m_rvParameters;   // The data parameters.
+  CParameterVector m_rvParameters;   // The data parameters.
   Int_t          m_nSize;	// Current vector size (optimization).
 public:
 
