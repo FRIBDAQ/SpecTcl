@@ -312,16 +312,11 @@ class CNSCLBufferDecoder : public CBufferDecoder {
  public:
   // Constructors:
   CNSCLBufferDecoder() : CBufferDecoder() {} // Default Constructor.
-  ~CNSCLBufferDecoder() {} //Destructor.
-  CNSCLBufferDecoder(const CNSCLBufferDecoder& aCNSCLBufferDecoder) : // Copy Constructor.
-  CBufferDecoder(aCNSCLBufferDecoder) {}
-
-  // Operators:
-  CNSCLBufferDecoder& operator=(const CNSCLBufferDecoder& aCNSCLBufferDecoder) { // Assignment.
-    if (this == &aCNSCLBufferDecoder) return *this;
-    CBufferDecoder::operator=(aCNSCLBufferDecoder);
-    return *this;
-  }
+  virtual ~CNSCLBufferDecoder() {} // Destructor.
+private:
+  CNSCLBufferDecoder(const CNSCLBufferDecoder& aCNSCLBufferDecoder);
+  CNSCLBufferDecoder& operator=(const CNSCLBufferDecoder& aCNSCLBufferDecoder);
+public:
 
   int operator==(const CNSCLBufferDecoder& aCNSCLBufferDecoder) { // Equality.
     return ((CBufferDecoder::operator== (aCNSCLBufferDecoder)));

@@ -105,7 +105,7 @@ public:
 
   bool          scalersSeen() const;
   unsigned int  scalerCount() const;
-  long          lastIncrement(unsigned int channel) const;
+  unsigned long lastIncrement(unsigned int channel) const;
   float         Total(unsigned int channel) const;
   unsigned long lastIntervalStart() const;
   unsigned long lastIntervalEnd() const;
@@ -126,7 +126,7 @@ public:
 
   // Support the callbacks can count on:
 
-  static TranslatorPointer<unsigned short> 
+  static BufferTranslator*
                  getTranslatingPointer(const void* pBuffer);
 
 

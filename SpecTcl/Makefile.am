@@ -57,3 +57,4 @@ install-exec-local:
 	cat  CompilationRules.include        >> CompilationRules.temp
 	$(INSTALL_DATA) CompilationRules.temp $(sysconfdir)/CompilationRules.include
 	echo "Version: " $(VERSION) build on `hostname` `date` >$(prefix)/VERSION
+	$(MANDB) $(prefix)/man

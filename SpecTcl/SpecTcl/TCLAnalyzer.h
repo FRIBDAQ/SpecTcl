@@ -364,25 +364,34 @@ class CTclAnalyzer : public CAnalyzer {
   VariableArray           m_vStatistics;
   STD(vector)<Int_t*>          m_vStatisticsInts;
 
- public:
+public:
   CTclAnalyzer(CTCLInterpreter& rInterp, UInt_t nP, UInt_t nBunch);
   ~CTclAnalyzer();
- private:
+private:
   CTclAnalyzer(const CTclAnalyzer& rSrc); // Copy constructor > not allowed <
   CTclAnalyzer& operator=(const CTclAnalyzer& rhs);
- public:
+  
+  // Selectors:
+  
+public:
+  CTCLInterpreter* getInterpreter() {
+    return &m_rInterpreter;
+  }
+  
+public:
   // The following override base class members:
 
   virtual void OnStateChange(UInt_t nType, CBufferDecoder& rDecoder);
   virtual void OnPhysics(CBufferDecoder& rDecoder);
   virtual void OnOther(UInt_t nType, CBufferDecoder& rDecoder);
+  virtual void OnScaler(CBufferDecoder& rDecoder);
 
   // Extensions to base class functionality:
   virtual void OnBegin(CBufferDecoder* rDecoder);
   virtual void OnEnd(CBufferDecoder*   rDecoder);
   virtual void OnPause(CBufferDecoder* rDecoder);
   virtual void OnResume(CBufferDecoder* rDecoder);
-  
+
   void AddEventProcessor(CEventProcessor& rProcessor); // Append to pipe.
   void IncrementCounter(Counter eSelect, UInt_t incr = 1);
   void ClearCounter(Counter eSelect);
@@ -392,8 +401,8 @@ class CTclAnalyzer : public CAnalyzer {
   UInt_t GetEventSize() {
     return m_nEventSize;
   }
-
- protected:
+  
+protected:
   // Utilities:
   virtual UInt_t OnEvent(Address_t pRawData, CEvent& anEvent);
   static void IncrementVariable(CTCLVariable& rVar);

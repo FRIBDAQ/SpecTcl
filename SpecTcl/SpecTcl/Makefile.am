@@ -2,7 +2,7 @@ DEFS = @WCHAR_T_DEF@
 INCLUDES = -I.. -I. -I../TCL -I../Events -I../Utility -I../Sorter  \
 	-I../NSCLException \
 	-I../EventSource -I../Gates -I../SpectrumIO -I../Xamine \
-	-I../Display -I../Tape -I../Filter \
+	-I../Display -I../Tape -I../Filter -I../Analysis \
 	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:
@@ -37,7 +37,8 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	GateFactoryException.cpp XamineEventHandler.cpp TCLHistogrammer.cpp \
 	PseudoCommand.cpp PseudoScript.cpp ChanCommand.cpp WriteCommand.cpp \
 	ReadCommand.cpp TCLAnalyzer.cpp EventProcessor.cpp TclGrammerApp.cpp \
-	Globals.cpp FilterCommand.cpp
+	Globals.cpp FilterCommand.cpp \
+	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
@@ -47,7 +48,8 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
 	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h \
 	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h \
-	FilterCommand.h
+	FilterCommand.h \
+	ScalerProcessor.h ScalerProcessorCallbacks.h
 
 bin_PROGRAMS = SpecTcl
 
@@ -61,7 +63,7 @@ SpecTcl_SOURCES = MySpecTclApp.cpp \
 	PseudoCommand.h PseudoScript.h ReadCommand.h RunControlPackage.h \
 	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
 	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h \
-	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h
+	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h 
 
 
 SpecTcl_LDFLAGS = -g -Wl,"-rpath=$(libdir)"
@@ -75,3 +77,28 @@ SpecTcl_LDFLAGS = -L. @TCL_LDFLAGS@ @XLIBSW@ -L../SpectrumIO -L../Tape -L../Sort
 EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
 		 mapped.tcl paramtest.tcl setup.tcl \
 	SpecTcl_Makefile.include
+
+
+# Unit tests.
+
+if CPPUNIT
+
+
+noinst_PROGRAMS =  scalertests
+
+noinst_HEADERS = Asserts.h
+
+scalertests_SOURCES = TestRunner.cpp \
+	scalercallbacktests.cpp 	\
+	controlcallbacktests.cpp \
+	ScalerProcessorCallbacks.cpp 
+
+scalertests_LDFLAGS= -L@top_srcdir@/Events -lAnalysis \
+	-L@top_srcdir@/TCL -ltclPlus \
+	-L@top_srcdir@/NSCLException -lException \
+	-L@top_srcdir@/Analysis -lBufferAnalysis \
+	$(CPPUNIT_LDFLAGS)
+
+TESTS = ./scalertests
+
+endif

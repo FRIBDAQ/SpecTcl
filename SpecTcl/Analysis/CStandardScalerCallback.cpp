@@ -89,8 +89,8 @@ CStandardScalerCallback::operator!=(const CStandardScalerCallback& rhs) const
 void
 CStandardScalerCallback::operator()(unsigned int nBufferType, const void* pBuffer)
 {
-  TranslatorPointer<unsigned short> p =
-    CBufferProcessor::getTranslatingPointer(pBuffer);
+  BufferTranslator* bt = CBufferProcessor::getTranslatingPointer(pBuffer);
+  TranslatorPointer<unsigned short> p(*bt);
 
   unsigned int numScalers = p[6]; // Number of entities inthe buffer.
 
@@ -128,6 +128,6 @@ CStandardScalerCallback::operator()(unsigned int nBufferType, const void* pBuffe
     m_pRunData->s_Totals[i]     += (float)increment;
 			       
   }
- 
+  delete bt;			// This is dynamically allocated.
 
 }

@@ -338,24 +338,17 @@ class CBufferDecoder {
   //Update to access 1:M associated class attributes
   //Ensure initial values entered
   CBufferDecoder() : m_pBuffer(0), m_pTranslator(0), m_nSize(0) {}
-  virtual ~CBufferDecoder() {} // Destructor.
+  virtual ~CBufferDecoder() {
+    delete m_pTranslator;	/* They get dynamically created. */
+  } // Destructor.
 
-  // Copy constructor
-  // This is allowed since the 
-  // pointer is already supposed to be
-  // maintained by a caller.
-  CBufferDecoder(const CBufferDecoder& aCBufferDecoder) {
-    m_pBuffer = aCBufferDecoder.m_pBuffer;
-    m_pTranslator = aCBufferDecoder.m_pTranslator;
-  }
-
-  //Operator= Assignment Operator
-  CBufferDecoder& operator=(const CBufferDecoder& aCBufferDecoder) {
-    if (this == &aCBufferDecoder) return *this;
-    m_pBuffer = aCBufferDecoder.m_pBuffer;
-    m_pTranslator = aCBufferDecoder.m_pTranslator;
-    return *this;
-  }
+  // Copy constructor not allowed since there's no good way to
+  // copy construct the buffer translator yet (would need a clone
+  // operator).
+private:
+  CBufferDecoder(const CBufferDecoder& aCBufferDecoder);
+  CBufferDecoder& operator=(const CBufferDecoder& aCBufferDecoder);
+public:
 
   //Operator== Equality Operator
   int operator==(const CBufferDecoder& aCBufferDecoder) {

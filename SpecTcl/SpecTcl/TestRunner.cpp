@@ -1,12 +1,13 @@
 #include <config.h>
-#include <Iostream.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <string>
+#include <Iostream.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
+
 
 int main(int argc, char** argv)
 {
@@ -26,6 +27,8 @@ int main(int argc, char** argv)
     cerr << rFailure << endl;
     wasSucessful = false;
   }
-  return wasSucessful ? 0 : -1;
+  return !wasSucessful;
 }
+
+
 void* gpTCLApplication;

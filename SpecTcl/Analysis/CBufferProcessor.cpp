@@ -305,11 +305,13 @@ CBufferProcessor::removeCallback(unsigned int nBufferType,
 void
 CBufferProcessor::operator()(const void* pBuffer)
 {
-  TranslatorPointer<unsigned short> p = getTranslatingPointer(pBuffer);
+  BufferTranslator* bt = getTranslatingPointer(pBuffer);
+  TranslatorPointer<unsigned short> p(*bt);
   unsigned int nBufferType = p[1];
 
 
   invokeCallbacks(nBufferType, pBuffer);
+  delete bt;
 }
 
 //     Utility(ies) for buffer callbacks:
@@ -323,13 +325,13 @@ CBufferProcessor::operator()(const void* pBuffer)
    \return TranslatorPointer<unsigned short>
    \retval a translating pointer to the first word of the buffer.
 */
-TranslatorPointer<unsigned short>
+BufferTranslator*
 CBufferProcessor::getTranslatingPointer(const void* pBuffer)
 {
   bheader *pHeader = (bheader*)pBuffer;
 
-  return TranslatorPointer<unsigned short>(*BufferFactory::CreateBuffer(pHeader,
-					      		       pHeader->lsignature));
+  return BufferFactory::CreateBuffer(pHeader,
+				       pHeader->lsignature);
 }
 
 //   -- private utility functions these by defintion don't merit doxygenized

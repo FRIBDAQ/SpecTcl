@@ -118,8 +118,8 @@ void
 CStandardControlCallback::operator()(unsigned int nBufferType,
 				     const void* pBuffer)
 {
-  TranslatorPointer<unsigned short> p = 
-                         CBufferProcessor::getTranslatingPointer(pBuffer);
+  BufferTranslator* bt = CBufferProcessor::getTranslatingPointer(pBuffer);
+  TranslatorPointer<unsigned short> p(*bt);
   
   // The following struct is useful for pulling out byte data:
 
@@ -159,7 +159,7 @@ CStandardControlCallback::operator()(unsigned int nBufferType,
   if (nBufferType == ENDRUNBF) {
     m_pRunData->s_RunEnded  = StringTime(p);
   }
-
+  delete bt;
 }
 /*!
    Utility function to turn a control body time into a text string.

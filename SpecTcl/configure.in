@@ -740,6 +740,15 @@ fi
 AM_CONDITIONAL(CPPUNIT, test $havecppunit == "yes")
 
 
+# We use mandb to index the man pages if it exists... not sure what the 
+# alternatives are on other systems so transform mandb -> echo if
+# we can't find it:
+
+AC_CHECK_PROG(MANDB, mandb, mandb, echo)
+
+# mandb:
+
+AC_SUBST(MANDB)
 
 # tcl/tk
 AC_SUBST(TCL_FLAGS)

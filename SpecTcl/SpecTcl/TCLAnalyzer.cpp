@@ -659,3 +659,11 @@ void CTclAnalyzer::OnOther(UInt_t nType, CBufferDecoder& rDecoder) {
     p++;
   }
 }
+/*!
+  Called for scaler buffers, we delegaet to onOther..
+*/
+void
+CTclAnalyzer::OnScaler(CBufferDecoder& rDecoder)
+{
+  OnOther(rDecoder.getBufferType(), rDecoder);
+}

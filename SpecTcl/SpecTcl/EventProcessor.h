@@ -325,6 +325,9 @@ class CEventProcessor {
   // Operators:
   CEventProcessor& operator= (const CEventProcessor& aCEventProcessor); // Assignment operator.
   int operator==(const CEventProcessor& aCEventProcessor) const; // Equality operator.
+  int operator!=(const CEventProcessor& aCEventProcessor) const {
+    return !(*this == aCEventProcessor);
+  }
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent& rEvent,
 			    CAnalyzer& rAnalyzer,
