@@ -300,6 +300,7 @@ void Xamine_SetButtonBarZoom(Boolean state);
 void Xamine_SetButtonBarLog(Boolean state);
 void Xamine_SetButtonBarApplyMap(Boolean state);
 void Xamine_SetApplyMapSensitivity(Boolean b);
+
 Boolean Xamine_GetButtonBarLog();
 Boolean Xamine_GetButtonBarApplyMap();
 #endif

@@ -378,6 +378,7 @@ void Xamine_SetApplyMapSensitivity(Boolean b)
   else  mapping_button->SetAttribute(XmNsensitive, (long int)False);
 }
 
+
 
 /*
 ** Functional Description:
