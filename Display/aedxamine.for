@@ -24,7 +24,7 @@ C
 	INTEGER ISTAT
 
 	CALL AEDINIT(ISTAT, ISIZE)
-	F7XAMINE_INIT = ISTAT
+	F77XAMINE_INIT = ISTAT
 	RETURN
 	END
 	SUBROUTINE AEDINIT(ISTAT,ISIZE)
@@ -246,16 +246,86 @@ C
 	RETURN
 	END
 C
+C  Functional Description:
+C     AEDLOCATE:
+CC       This function determines if a particular spectrum/gateid/gatetype
+C        triplet is present in Xamine's gate database.
+C        The functionality is somewhat different than that of 
+C        the AEDtsk function of that name.  Instead of returning a pointer
+C        to the gate storage information, we give the relative gate number
+C        if found.
+C  Formal Parameters:
+C     INTEGER NSPEC:
+C       The spectrum number to check.
+C     INTEGER NAME:
+C       The gate ID to look for.
+C     INTEGER ITYPE:
+C       The gate type to look for.
+C     INTEGER LAST [returned]:
+C       If the gate is found, this is the relative gate number
+C       (number of AEDNEXT1's needed to locate it in a search scan.
+C  Returns:
+C     TRUE   - Gate found.
+C     FALSE  - Gate not found.
+	LOGICAL FUNCTION AEDLOCATE(NSPEC, NAME, ITYPE, LAST)
+	LOGICAL AEDSTARTSEARCH, AEDNEXT1
+	INTEGER CONTEXT
+	LOGICAL firstcall/.TRUE./
+C
+C         Since functionality is different, indicate the call.
+C
+	IF (firstcall) THEN
+	    firstcall = .FALSE.
+	    TYPE *, 'XAMINE''s AEDLOCATE function has been called.'
+	    TYPE *, '   Note that there are slight differences between the'
+	    TYPE *,'    definition of this function for Xamine and AEDTSK.'
+	    TYPE *,'    If you are involved in porting this program to'
+	    TYPE *,'    Xamine, please carefully evaluate the use of'
+	    TYPE *,'    AEDLOCATE to determine if it still does what you need'
+	    TYPE *,'    NOTE that calls to AEDLOCATE can be replaced by'
+	    TYPE *,'    Calls to AEDSTARTSEARCH, AEDNEXT1 and AEDENDSEARCH'
+	    END IF
+C
+C	    Get the search context.  If NULL, return FALSE.
+C
+	context = AEDSTARTSEARCH(NSPEC)
+	IF (context .EQ. 0) THEN
+	    AEDLOCATE = .FALSE.
+	    RETURN
+	    END IF
+C
+C	    Iterate through the search until located or done.
+C
+	last = 0
+	DO WHILE (AEDNEXT1(context, n, it))
+	    last = last+1
+	    IF ((n .EQ. name) .AND. (it .EQ. itype)) THEN
+		CALL AEDENDSEARCH(context)
+		AEDLOCATE = .TRUE.
+		RETURN
+		END IF
+	    END DO
+C
+C	    Control passes here if the search failed.  end search and
+C           return .false.
+C
+	CALL AEDENDSEARCH(context)
+	AEDLOCATE = .FALSE.
+
+	RETURN
+	END
+
+C
 C		AEDLOCATE is not supported by Xamine since the
 C		histogrammer only has indirect access to Xamine's gate
 C		database.  This stub will claim not to find any
 C		requested entries.
 C
-	LOGICAL FUNCTION AEDLOCATE(NSPEC, NAME, ITYPE, LAST)
-	PRINT *,' WARNING -- AEDLOCATE Unsupported function called'
-	AEDLOCATE = .FALSE.
-	RETURN
-	END
+C	LOGICAL FUNCTION AEDLOCATE(NSPEC, NAME, ITYPE, LAST)
+C	PRINT *,' WARNING -- AEDLOCATE Unsupported function called'
+C	AEDLOCATE = .FALSE.
+C	RETURN
+C	END
 
 	INTEGER FUNCTION AEDSTARTSEARCH(NSPEC)	
 C
