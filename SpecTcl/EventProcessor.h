@@ -340,6 +340,9 @@ class CEventProcessor {
 			 CBufferDecoder& rDecoder); // Pause Run.
   virtual Bool_t OnResume(CAnalyzer& rAnalyzer,
 			  CBufferDecoder& rDecoder); // Resume Run.
+  virtual Bool_t OnOther(UInt_t nType,
+			 CAnalyzer& rAnalyzer,
+			 CBufferDecoder& rDecoder); // Unrecognized buftype.
 };
 
 #endif
