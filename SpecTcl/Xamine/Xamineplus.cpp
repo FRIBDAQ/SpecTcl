@@ -320,6 +320,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2011, Al
 #include <errno.h>
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 //
 // External References:
@@ -363,8 +364,12 @@ CXamine::CXamine(UInt_t nBytes) :
   m_fManaged(kfFALSE),
   m_nBytes(nBytes)
 {
-  assert(Xamine_CreateSharedMemory(m_nBytes, 
-				   (volatile Xamine_shared**)&m_pDisplay));
+  if(!Xamine_CreateSharedMemory(m_nBytes, 
+			       (volatile Xamine_shared**)&m_pDisplay)) {
+    perror("Failed to create Xamine shared memory!!");
+    exit(errno);
+  }
+    
 }
 //
 //////////////////////////////////////////////////////////////////////////
@@ -413,8 +418,12 @@ CXamine::MapMemory(const std::string& rsName, UInt_t nBytes)
 
 
   m_nBytes = nBytes;
-  assert(Xamine_MapMemory((char*)(rsName.c_str()), nBytes, 
-			  (volatile Xamine_shared**)&m_pDisplay));
+  
+  if(!Xamine_MapMemory((char*)(rsName.c_str()), nBytes, 
+		       (volatile Xamine_shared**)&m_pDisplay)) {
+    perror("Failed to map Xamine shared memory!");
+    exit(errno);
+  }
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -444,7 +453,10 @@ CXamine::Start()
 {
 // Starts the autonomous display subsystem.
 
-  assert(Xamine_Start());
+  if(!Xamine_Start()) {
+    perror("Xamine failed to start!! ");
+    exit(errno);
+  }
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -459,7 +471,10 @@ CXamine::Stop()
 {
 // Stops the autonomous display subsystem.
 
-  assert(Xamine_Stop());
+  if (!Xamine_Stop()) {
+    perror("Xamine failed to stop!!");
+    exit(errno);
+  }
 
 }
 //////////////////////////////////////////////////////////////////////////
