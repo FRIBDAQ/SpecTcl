@@ -395,7 +395,7 @@ class CopyObjectDialog : XMCustomDialog
 */
 char *objtype[] = {
                     "Generic",
-		    "Cut",
+		    "Slice",
 		    "Sum",
 		    "Band",
 		    "Contour",

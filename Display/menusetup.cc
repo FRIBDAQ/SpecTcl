@@ -768,7 +768,7 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   b->AddCallback(Xamine_AddMarker);
   Xamine_AddtoSpectrumSelectedPackage(b);
 
-  b = sub->AddMenuButton("Cut");
+  b = sub->AddMenuButton("Slice");
   b->SetAccelerator("Ctrl<Key>G", "Ctrl+G");
   b->AddCallback(Xamine_AcceptGate, (XtPointer)cut_1d);
   Xamine_Addto1dSelectedPackage(b);

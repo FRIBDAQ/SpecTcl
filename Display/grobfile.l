@@ -74,6 +74,7 @@ ktbl keywords[]  = {
                      {"endpts", 6, ENDPTS},
                      {"title", 5, TITLE},
                      {"cut", 3, CUT1D},
+                     {"slice",5, CUT1D},
                      {"sum-1d", 6, SUM1D},
                      {"mark-1d", 7, MARK1D},
                      {"contour", 7, CONTOUR},
