@@ -241,3 +241,6 @@ February 22, 2005
       a bunch of set varname value commands.
     - Fix 1/0 month counting problem with run control timestamps in 
       Analysis library.
+February 25, 2005
+   - Documented the variable tracing support.
+   - Documented run/state variable recovery.

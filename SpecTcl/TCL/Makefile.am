@@ -29,7 +29,6 @@ include_HEADERS = TCLApplication.h TCLCommandPackage.h TCLException.h \
 	TCLChannel.h TCLVersionHacks.h TCLTracedVariable.h \
 	VariableTraceCallback.h CLanguageTraceCallbacks.h
 
-EXTRA_DIST = TCL.WC TCL.omt tkAppInit.c
 
 if CPPUNIT
 
@@ -48,3 +47,8 @@ tracetests_LDADD = $(CPPUNIT_LDFLAGS) $(X11EXTRA_LDFLAGS) \
 TESTS = ./tracetests
 
 endif
+
+man_MANS = TracingIntro.3 CTracedVariable.3  CVariableTraceCallback.3 \
+	 CLanguageTraceCallback.3
+
+EXTRA_DIST = TCL.WC TCL.omt tkAppInit.c $(man_MANS)
