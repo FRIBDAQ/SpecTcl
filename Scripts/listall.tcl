@@ -425,10 +425,20 @@ proc outgate {gate option {tabslots 0}} {
 #
 proc ParList { {ParameterList ""} } {
     if {$ParameterList == ""} { set ParameterList [parameter -list] }
-    set output "Name\t\tId\t\tResolution\n"
-    set fmt    "%s \t %d  \t\t %d \n"
+   
+    set Header \
+	    [format "%10s %3s %4s %10s %10s %s \n" Name Id Bits Low High Units]
+    append output $Header
+
+    set fmt    "%10s %3d %4s %10s %10s %s \n"
     foreach Parameter $ParameterList {
-	set line [format $fmt [lindex $Parameter 0] [lindex $Parameter 1] [lindex $Parameter 2]]
+	set line [format $fmt [lindex $Parameter 0] \
+		              [lindex $Parameter 1] \
+			      [lindex $Parameter 2] \
+			      [lindex $Parameter 3] \
+			      [lindex $Parameter 4] \
+			      [lindex $Parameter 5] \
+	         ]
 	append output $line
 
     }
