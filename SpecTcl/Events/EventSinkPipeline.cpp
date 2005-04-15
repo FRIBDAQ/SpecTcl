@@ -12,6 +12,7 @@ static const char* Copyright =
 #include "EventList.h"
 
 #include "EventSinkPipeline.h"
+#include <algorithm>
 #include <Globals.h>
 
 #include <stdio.h>
@@ -181,7 +182,8 @@ CEventSinkPipeline::EventSinkIterator
 CEventSinkPipeline::FindSink(string name)
 {
   NameMatch predicate(name);
-  return find_if(m_lSinks.begin(), m_lSinks.end(), predicate);
+  EventSinkIterator temp =  find_if(m_lSinks.begin(), m_lSinks.end(), predicate);
+  return temp;
 }
 
 /*!

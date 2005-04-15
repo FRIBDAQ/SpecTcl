@@ -16,7 +16,7 @@ include $(INSTDIR)/etc/Directories.include
 
 #  Build up the compilation flags:
 
-CXXFLAGS=-g -fno-elide-constructors -I. -I$(SPECINCS) $(TCLINCLUDES)
+CXXFLAGS=-g  -I. -I$(SPECINCS) $(TCLINCLUDES)
 
 # The c compilation flags for now are just the same as the c++ flags:
 
@@ -37,6 +37,7 @@ LDFLAGS=-L$(SPECLIBS) -lTclGrammerCommands \
 	-ltape        \
 	-lFilter      \
 	-lBufferAnalysis \
+	-lTreeParam \
 	$(TCLLIBS)    \
 	$(X11LIBS)    \
 	-Wl,"-rpath=$(SPECLIBS)"

@@ -35,7 +35,9 @@ public:
   BindVisitor() :
     CMatchingVisitor() {}
   virtual void OnMatch(CTreeParameter* p) {
-    p->Bind();
+    if(p) {
+      p->Bind();
+    }
   }
 };
 

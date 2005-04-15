@@ -381,7 +381,6 @@ public:
   //
 public:
   operator const char* ()  ;
-  operator STD(string) ()  ;
   operator CTCLString ()  ;
 
 

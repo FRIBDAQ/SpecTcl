@@ -424,22 +424,7 @@ CTCLResult::operator const char*()
   
 
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//      operator std::string (  )
-//  Operation Type:
-//     Type conversion
-//
-  
-CTCLResult::operator std::string() 
-{
-// Returns an STL string containing a copy
-// of the result string.
 
-  return std::string(operator const char*());
-
-}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

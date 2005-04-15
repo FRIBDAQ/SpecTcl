@@ -17,6 +17,15 @@
 using namespace std;
 #endif
 
+static inline float
+rfmax(double a, double b) 
+{
+  if (a > b) {
+    return a;
+  } else {
+    return b;
+  }
+}
 
 /**
  * Default constructor.  Builds a tree parameter with no elements. 
@@ -190,7 +199,7 @@ CTreeParameterArray::CreateParameters(string baseName, UInt_t size,
   double lowdigits = log10((double)(abs((long int)m_nFirstIndex))) + 1.0;
   double hidigits  = log10((double)(abs((long int)(m_nFirstIndex + size)))) + 1.0;
   
-  int  numDigits    = (int)(fmax(lowdigits, hidigits));
+  int  numDigits    = (int)(rfmax(lowdigits, hidigits));
   
   //// Produce the digit creation format
   //

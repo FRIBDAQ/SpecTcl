@@ -230,6 +230,8 @@ private:
   // form (form at program startup).
 
   static void testClearMap();
+public:
+  static void dumpmap();
 };
 
 

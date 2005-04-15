@@ -79,10 +79,11 @@ AM_CXXFLAGS = -g
 
 SpecTcl_LDADD = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis \
 	-lFilter -lBufferAnalysis -lEventSource -lSpecio -ltclPlus \
-	-lException -lXamine  -ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)
+	-lException -lTreeParam -lXamine  -ltape \
+	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)
 SpecTcl_LDFLAGS = -L. @TCL_LDFLAGS@ @XLIBSW@ -L../SpectrumIO -L../Tape -L../Sorter \
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
-	-L../TCL -L../NSCLException -L../Filter -L../Analysis
+	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam
 
 man_MANS = spectclapi.3
 

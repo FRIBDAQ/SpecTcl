@@ -2,11 +2,11 @@
 # top level of SpecTcl Tcl/Tk GUI interface
 # Author: D. Bazin
 # Date: Aug 2001 - Sept 2002
-# Version 1.2 for SpecTcl 2.1: November 2003
+# Version 1.3 for SpecTcl 3.0: April 2005
 
 proc CheckVersion {} {
 	set version [treeparameter -version]
-	if {[string compare $version "1.2"] == 0} {
+	if {[string compare $version "1.3"] == 0} {
 		return
 	}
 	InformMessage $version
@@ -21,9 +21,7 @@ proc InformMessage {v} {
 	.thetext insert end "Please make sure you are using SpecTcl version 2.1 and \
 								are including the correct TreeParameter.h and TreeVariable.h files.\n"
 	.thetext insert end "The default path for these files is the following:\n"
-	.thetext insert end "<../contrib/treeparam/TreeParameter.h>\n"
-	.thetext insert end "<../contrib/treeparam/TreeVariable.h>\n\n"
-	.thetext insert end "D. Bazin - November 2003"
+	.thetext insert end "<TreeParameter.h>\n"
 	pack .thetext -expand 1 -fill both
 	tk_messageBox -message "Acknowledge the message"
 }

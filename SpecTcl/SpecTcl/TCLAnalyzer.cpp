@@ -297,7 +297,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "EventProcessor.h"
 #include <buftypes.h>
 #include <Iostream.h>
-
+#include <algorithm>
 #include <stdio.h>
 
 #ifdef HAVE_STD_NAMESPACE

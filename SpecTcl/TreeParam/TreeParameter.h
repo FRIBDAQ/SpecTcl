@@ -21,8 +21,16 @@
 #include <CTreeParameter.h>
 #endif
 
+#ifndef __CTREEPARAMETERARRAY_H
+#include <CTreeParameterArray.h>
+#endif
+
 #ifndef __CTREEVARIABLE_H
 #include <CTreeVariable.h>
+#endif
+
+#ifndef __CTREEVARIABLEARRAY_H
+#include <CTreeVariableArray.h>
 #endif
 
 

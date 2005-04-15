@@ -3,7 +3,7 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/Utility \
 	-I@top_srcdir@/NSCLException -I@top_srcdir@/EventSource \
 	-I@top_srcdir@/TCL \
 	-I@top_srcdir@/SpecTcl  -I@top_srcdir@/Filter \
-	@TCL_FLAGS@ @XINCLUDES@
+	@TCL_FLAGS@ @XINCLUDES@ 
 
 LDFLAGS = @TCL_LDFLAGS@
 

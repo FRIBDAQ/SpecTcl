@@ -21,6 +21,7 @@
              East Lansing, MI 48824-1321
 */
 #include <config.h>
+#include  <Event.h>
 
 #include "CTreeParameter.h"
 #include "CTreeException.h"
@@ -29,13 +30,13 @@
 #include "ResetVisitor.h"
 
 #include  <Parameter.h>
-#include  <Event.h>
 #include  <SpecTcl.h>
-
+#include <Iostream.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
+
 
 
 // Static member data:
@@ -282,6 +283,7 @@ void
 CTreeParameter::Register()
 {
 
+
   if (!isRegistered()) {
     pair<string, CTreeParameter*> entry(m_sName, this);
     m_ObjectRegistry.insert(entry); 
@@ -297,6 +299,7 @@ CTreeParameter::Register()
 void 
 CTreeParameter::Unregister()
 {
+
   multimap<string, CTreeParameter*>::iterator p = findRegistration();
   if(p != end()) {
     m_ObjectRegistry.erase(p);
@@ -1139,4 +1142,21 @@ CTreeParameter::testClearMap()
   }
 
   m_ObjectRegistry.clear();
+}
+void
+CTreeParameter::dumpmap()
+{
+  multimap<string, CTreeParameter*>::iterator p = begin();
+  while(p != end()) {
+    string name = p->first;
+    CTreeParameter* pParam = p->second;
+    cerr << name << " @ " << hex << pParam << dec << endl;
+    if(pParam) {
+      cerr << "  name:  " << pParam->m_sName <<  endl;
+      cerr << "  units: " << pParam->m_sUnits << endl;
+      cerr << " param : " << hex << pParam->m_pParameter << dec << endl;
+    }
+    cerr << "-----------\n";
+    p++;
+  }
 }
