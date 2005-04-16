@@ -1389,7 +1389,7 @@ SpecTcl::AddGate(string name, CGate* gate)
 */
 void SpecTcl::DeleteGate(string gateName)
 {
-  CHistogrammer* pHistogrammer;
+  CHistogrammer* pHistogrammer = GetHistogrammer();;
   pHistogrammer->DeleteGate(gateName);
 }
 

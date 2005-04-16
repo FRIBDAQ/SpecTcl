@@ -285,6 +285,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.3  2005/04/16 20:09:47  ron-fox
+  Add treeparameter initialization.
+
   Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
   Add SpecTcl Application programming interface and make use of it
   in spots.
@@ -371,6 +374,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "XamineEventHandler.h"
 
 #include "SpecTcl.h"
+
+#include <CTreeParameterCommand.h>
+#include <CTreeVariableCommand.h>
+#include <CTreeParameter.h>
+#include <CTreeVariable.h>
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -806,6 +814,17 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   pFilterCommand->Register();
   cerr << "Filter command (c) 2003 NSCL written by  Kanayo Orji\n";
 
+  // Create the tree parameter package commands and bind any variables
+  // that have been defined:
+
+
+  CTreeParameterCommand* pTreeParamCommand = new CTreeParameterCommand;
+  CTreeVariableCommand*  pTreeVariableCommand = new CTreeVariableCommand;
+  CTreeVariable::BindVariables(*(getInterpreter()));
+
+  cerr << "Tree parameter/variable  command " << CTreeParameter::TreeParameterVersion;
+  cerr << " (c) Copyright 2005 NSCL written by Daniel Bazin, Ron Fox\n";
+
   cerr.flush();
 }
 
@@ -883,6 +902,8 @@ void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
   new startup scheme as desired.
 */
 int CTclGrammerApp::operator()() {
+
+
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
 
@@ -918,7 +939,10 @@ int CTclGrammerApp::operator()() {
   SetupRunControl();
 
   //  Setup the user's analysis pipeline:
+
+
   CreateAnalysisPipeline(*gpAnalyzer);
+  CTreeParameter::BindParameters();           // Needed by treeparameter.
 
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely

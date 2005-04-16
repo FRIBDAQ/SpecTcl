@@ -297,6 +297,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.3  2005/04/16 20:09:47  ron-fox
+  Add treeparameter initialization.
+
   Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
   Add SpecTcl Application programming interface and make use of it
   in spots.
@@ -340,6 +343,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <string>
 #include <algorithm>
 #include <stdio.h>
+#include <Iostream.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
