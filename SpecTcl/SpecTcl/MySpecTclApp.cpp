@@ -285,6 +285,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "EventProcessor.h"
 #include "TCLAnalyzer.h"
 #include <Event.h>
+#include <TreeParameter.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -294,6 +295,46 @@ using namespace std;
 // Local Class definitions:
 
 
+// This is a sample tree parameter event structure:
+// It defines an array of 10  raw parameters that will
+// be unpacked from the data and a weighted sum
+// that will be computed.
+//
+typedef
+struct  {
+  CTreeParameterArray&  raw;
+  CTreeParameter&       sum;
+} MyEvent;
+
+// Having created the struct we must make an instance
+// that constructs the appropriate objects:
+
+
+MyEvent event = {
+  *(new CTreeParameterArray("event.raw", "channels",  10, 0)),
+  *(new CTreeParameter("event.sum", "arbitrary"))
+};
+
+// Here's a sample tree variable structure
+// that defines the weights for the weighted
+// sum so that they can be varied from the command line:
+// An array is also declared for testing purposes but not used.
+typedef
+struct {
+  CTreeVariable&  w1;
+  CTreeVariable&  w2;
+  CTreeVariableArray& unused;
+} MyParameters;
+
+// Similarly, having declared the structure, we must define
+// it and construct its elements
+
+MyParameters vars = {
+  *(new CTreeVariable("vars.w1", 1.0,  "arb/chan")),
+  *(new CTreeVariable("vars.w2", 1.0, "arb/chan")),
+  *(new CTreeVariableArray("vars.unused", 0.0, "furl/fort", 10, 0))
+
+};
 // CFixedEventUnpacker - Unpacks a fixed format event into
 // a sequential set of parameters.
 //
@@ -329,11 +370,12 @@ CFixedEventUnpacker::operator()(const Address_t pEvent,
   rAna.SetEventSize(nWords*sizeof(UShort_t)); // Set event size.
 
   nWords--;			// The word count is self inclusive.
+  int param = 0;		// No more than 10 parameters.
 
-  while(nWords) {		// Put parameters in the event starting at 1.
-    rEvent[i] = *p++;
+  while(nWords && (param < 10)) {		// Put parameters in the event starting at 1.
+    event.raw[param] = *p++;
     nWords--;
-    i++;
+    param++;
   }
   return kfTRUE;		// kfFALSE would abort pipeline.
 }
@@ -358,7 +400,7 @@ CAddFirst2::operator()(const Address_t pEvent,
 		       CAnalyzer&      rAnalyzer,
 		       CBufferDecoder& rDecoder)
 {
-  rEvent[0] = (rEvent[1] + rEvent[2])/2.0;
+  event.sum = event.raw[0]*vars.w1 + event.raw[1]*vars.w2;
   return kfTRUE;
 }
 
