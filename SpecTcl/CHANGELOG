@@ -256,3 +256,9 @@ March 21, 2005
    - Added -fno-elide-constructors to user's makefile to ensure that 
      TreeParameter construction is handled correctly.
    - Support settable I/O poll dwell time.
+April 15, 2005
+   - Began integrating a rewritten treeparameter into the software.
+April 16, 2005
+   - In contrib/calibparam : add a random number in [-.5, .5] to the
+     input of the calibration under the assumption that the input is
+     integer and therefore needs to be turned into a real.
