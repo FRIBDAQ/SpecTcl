@@ -177,8 +177,10 @@ CCalibratedParameter::operator()(CEvent& rEvent) const
 	
 	if(rEvent[m_nParameterId].isValid() && 
 	   (m_pFit->GetState() == CFit::Performed)) {
-		rEvent[m_nTargetParameterId] = 
-					   (ParamType)(*m_pFit)((double)rEvent[m_nParameterId]);
+	  double input = (double)(rEvent[m_nParameterId]) + 
+	                           (drand48() - 0.5); // undescretize the input.
+	    rEvent[m_nTargetParameterId] = (ParamType)(*m_pFit)(input);
+
 	}
 }  
 
