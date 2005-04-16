@@ -339,7 +339,7 @@ TreeVarCommandTest::SetChanged()
 void 
 TreeVarCommandTest::SetProperties()
 {
-  char* argv[4] = {"nosuch", "mm", "aaaaa", "extra"};
+  char* argv[4] = {"nosuch", "aaaa", "mm", "extra"};
 
   int status = m_pCommand->SetProperties(*m_pInterp, *m_pResult,
 					 1, argv);
@@ -351,14 +351,14 @@ TreeVarCommandTest::SetProperties()
   m_pResult->Clear();
 
 
-  argv[0] = "inidiv";
+  argv[0] = "indiv";
   status = m_pCommand->SetProperties(*m_pInterp, *m_pResult, 3, argv);
   EQMSG("Invalid fp value", TCL_ERROR , status);
   m_pResult->Clear();
 
 
   argv[0] = "nosuch";
-  argv[2] = "55.55";
+  argv[1] = "55.55";
   status = m_pCommand->SetProperties(*m_pInterp, *m_pResult, 3, argv);
   EQMSG("Invalid variable name", TCL_ERROR, status);
   m_pResult->Clear();
@@ -373,7 +373,7 @@ TreeVarCommandTest::SetProperties()
 
   // Set via command dispatch:
 
-  char* cmdargv[5] = {"treevariable", "-set", "indiv", "in", "2.22"};
+  char* cmdargv[5] = {"treevariable", "-set", "indiv",  "2.22", "in"};
   status = (*m_pCommand)(*m_pInterp, *m_pResult, 5, cmdargv);
   EQMSG("indiv good set via dispatch", TCL_OK, status);
   EQMSG("Indiv value", 2.22, m_pIndividual->getValue());

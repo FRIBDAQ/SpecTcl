@@ -252,15 +252,15 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
   // as expressions.
   
   string name(argv[0]);
-  string units(argv[1]);
+  string units(argv[2]);
   double value;
   
   try {
-    value = rInterp.ExprDouble(argv[2]);
+    value = rInterp.ExprDouble(argv[1]);
   }
   catch(...) {
      rResult = "Failed to parse value for treevariable -set needed a double and got : ";
-     rResult += argv[2];
+     rResult += argv[1];
      rResult += "\n";
      rResult += Usage();
      return TCL_ERROR;

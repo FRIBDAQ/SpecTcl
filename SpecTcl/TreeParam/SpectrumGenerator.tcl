@@ -1131,22 +1131,22 @@ proc SaveDefinitionFile {file} {
 	set changedTreeList ""
 	foreach tree $treeList {
 		if {[treeparameter -check [lindex $tree 0]]} {
-			append changedTreeList [treeparameter -list [lindex $tree 0]]
+			append changedTreeList [treeparameter -list [lindex $tree 0]] " "
 		}
 	}
 	set treeparameterList $changedTreeList
-
 	set treeList [treevariable -list]
 	set changedTreeList ""
 	foreach tree $treeList {
 		if {[treevariable -check [lindex $tree 0]]} {
-			append changedTreeList [treevariable -list [lindex $tree 0]]
+			append changedTreeList [treevariable -list [lindex $tree 0]] " "
 		}
 	}
 	set treevariableList $changedTreeList
 	
 # 12/16/04: Do not write deleted gates to file
 	set rawList [gate -list]
+    set gateList "";			# It's possible to have 0 gates
 	foreach g $rawList {
 		set t [lindex $g 2]
 		if {![string equal $t F] && ![string equal $t T]} {lappend gateList $g}

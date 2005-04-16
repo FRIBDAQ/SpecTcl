@@ -68,3 +68,9 @@ INCLUDES = -I@top_srcdir@/TCL \
 
 
 libTreeParam_la_LDFLAGS = -version-info $(SOVERSION):0
+
+SCRIPTDEST = $(prefix)/Script
+install-exec-local:
+	$(mkinstalldirs) $(SCRIPTDEST)
+	$(INSTALL_PROGRAM) *.tcl $(SCRIPTDEST)
+
