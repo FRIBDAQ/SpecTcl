@@ -71,7 +71,7 @@ ScriptedSpecTcl_LDADD =  -lScripted -lTclGrammerCommands \
 	-lSorting -lXplus \
 	-lGates -lAnalysis \
 	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lBufferAnalysis \
-	-lXamine  \
+	-lXamine  -lTreeParam \
 	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) 
 
 ScriptedSpecTcl_LDFLAGS = -L.  \
@@ -79,7 +79,8 @@ ScriptedSpecTcl_LDFLAGS = -L.  \
 	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
 	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
 	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \
-	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis
+	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
+	-L@top_srcdir@/TreeParam
 
 #
 #  At install time, in order to make this open ended we:

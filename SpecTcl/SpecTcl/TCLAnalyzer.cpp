@@ -296,7 +296,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLAnalyzer.h"
 #include "EventProcessor.h"
 #include <buftypes.h>
+#include <CTreeParameter.h>
 #include <Iostream.h>
+
 #include <algorithm>
 #include <stdio.h>
 
@@ -440,6 +442,11 @@ UInt_t CTclAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent) {
   EventProcessorIterator p = begin();
   const CBufferDecoder* cpDecoder(getDecoder());
   CBufferDecoder* pDecoder((CBufferDecoder*)cpDecoder);
+
+  // Set up tree parameter processing:
+
+  CTreeParameter::setEvent(anEvent);
+
   while(p != end()) {
     CEventProcessor* pProcessor(p->second);
     Bool_t success;

@@ -83,7 +83,9 @@ unittests_SOURCES = CommandTest.cpp FitTest.cpp CreatorTest.cpp FactoryTest.cpp 
 TestObjects=@top_srcdir@/Events/Event.o @top_srcdir@/SpecTcl/EventProcessor.o
 
 unittests_LDFLAGS = $(TestObjects) $(CPPUNIT_LDFLAGS) -L@top_srcdir@/TCL -ltclPlus  \
-	-L@top_srcdir@/NSCLException -lException -lgsl -lgslcblas -lm $(TCL_LDFLAGS)
+	-L@top_srcdir@/NSCLException -lException \
+	-L@top_srcdir@/TreeParam -lTreeParam \
+	-lgsl -lgslcblas -lm $(TCL_LDFLAGS)
 
 
 

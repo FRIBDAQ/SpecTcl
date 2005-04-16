@@ -303,6 +303,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 5.1.2.4  2005/04/16 21:10:35  ron-fox
+  Final packaging of the distribution
+
   Revision 5.1.2.3  2005/01/26 14:41:11  ron-fox
   Fix silly typo in backport of spectrum name length defect.
 
@@ -372,6 +375,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <assert.h>
 #include <GateMediator.h>
 #include <Gamma2DW.h>
+
+#include <Iostream.h>
 
 #include <stdio.h>
 #ifdef HAVE_STD_NAMESPACE
@@ -1450,7 +1455,7 @@ void CHistogrammer::AddGate(const std::string& rName, UInt_t nId, CGate& rGate) 
   }
 
   // Now add the gate:
-  CGateContainer aGate((string&)rName, nId, rGate);
+  CGateContainer& aGate(*(new CGateContainer((string&)rName, nId, rGate)));
   m_GateDictionary.Enter(rName, aGate);
   AddGateToBoundSpectra(aGate);
 }
@@ -1496,6 +1501,7 @@ void CHistogrammer::ReplaceGate(const std::string& rGateName, CGate& rGate) {
   // NOTE:
   //    The gate is cloned and attached to the existing gate container.
   //
+
   CGateContainer* pContainer = FindGate(rGateName);
   if(!pContainer) {
     throw CDictionaryException(CDictionaryException::knNoSuchKey,

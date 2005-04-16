@@ -5,7 +5,7 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates -I@top_srcdir@/SpectrumIO \
 	-I@top_srcdir@/Xamine \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
-	-I@top_srcdir@/Analysis \
+	-I@top_srcdir@/Analysis -I@top_srcdir@/TreeParam \
 	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:
