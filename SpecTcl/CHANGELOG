@@ -262,3 +262,5 @@ April 16, 2005
    - In contrib/calibparam : add a random number in [-.5, .5] to the
      input of the calibration under the assumption that the input is
      integer and therefore needs to be turned into a real.
+April 18, 2005
+   - Added documentation to the treeparamter package.
