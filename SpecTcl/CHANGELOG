@@ -264,3 +264,5 @@ April 16, 2005
      integer and therefore needs to be turned into a real.
 April 18, 2005
    - Added documentation to the treeparamter package.
+April 19, 2005
+   - Fix up a tcl 8.4 dependency in CTreeVariableProperties.cpp

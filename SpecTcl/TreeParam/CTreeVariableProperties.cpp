@@ -32,6 +32,7 @@
 #include <TCLVariable.h>
 #include <SpecTcl.h>
 #include <tcl.h>
+#include <TCLVersionHacks.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -267,7 +268,7 @@ CTreeVariableProperties::fireTraces()
     CTCLInterpreter* pInterp = api.getInterpreter();
     Tcl_Interp* pRawInterp  = pInterp->getInterpreter();
     
-    Tcl_UpdateLinkedVar(pRawInterp,  m_sName.c_str());
+    Tcl_UpdateLinkedVar(pRawInterp,  (tclConstCharPtr)m_sName.c_str());
     m_fValueChanged = false;
   }
   
