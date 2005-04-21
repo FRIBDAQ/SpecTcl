@@ -78,8 +78,10 @@ GenerateMenuBitmaps
 puts "Building SpecTcl GUI ..."
 update
 
+set version [treeparameter -version]
+
 toplevel .gui
-wm title .gui "SpecTcl 2.1 Graphical User Interface"
+wm title .gui "TreeParameter GUI version $version"
 tabnotebook_create .gui.main
 pack .gui.main -expand 1 -fill both
 SetupSpectrumGenerator .gui.main

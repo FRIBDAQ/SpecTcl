@@ -269,3 +269,5 @@ April 19, 2005
 April 21, 2005
    - Fix up coordinate transform problems in Xamine with grobj locations.
      Scaled wrong and offset wrong.
+   - Make it a bit clearer that the Treeparameter GUI version is decoupled
+     from SpecTcl's version... for now.
