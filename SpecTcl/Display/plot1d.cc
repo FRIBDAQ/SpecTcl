@@ -309,7 +309,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "panemgr.h"
 #include "dispshare.h"
 #include "dispwind.h"
+#include <Iostream.h>
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 /*
 ** External data structures referenced:
@@ -351,18 +355,24 @@ class Channel	{	    /* Base class... never meant to be instantiated. */
 class HChannel : public Channel, public XLineBatch {
  protected:
   float xpos;
+  float xbase;
   short   yorg;
+  int   channel;
  public:
   HChannel(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
     Channel(wi), XLineBatch(d, w, c) {
       xpos = (float)x0;
+      xbase= (float)x0;
+      channel = 0;
       yorg = y0;
+      channel = 0;
       draw(x0, y0);
     }
   virtual ~HChannel() { }
   virtual void drawchan(unsigned short height) {
     draw((short)xpos,yorg-height);		/* Go to channel level... */
-    xpos += width;
+    channel++;
+    xpos = xbase + channel*width;; // prevents round off problems from multiple sums.
     draw((short)xpos,yorg-height);		/* Go across channel */
   }
 };
@@ -371,17 +381,22 @@ class HChannelF : public Channel, public XLineBatch {
  protected:
   float ypos;
   short   xorg;
+  float ybase;
+  int   channel;
  public:
   HChannelF(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
     Channel(wi), XLineBatch(d, w, c) {
       ypos = (float)y0;
+      ybase = ypos;
+      channel = 0;
       draw(x0, y0);
       xorg = x0;
     }
   virtual ~HChannelF() { }
   virtual void drawchan(unsigned short height) {
     draw(xorg+height, (short)ypos);		/* Go to channel level... */
-    ypos -= width;
+    channel++;
+    ypos = ybase - width*channel; // This avoids accumulated errors.
     draw(xorg+height, (short)ypos);		/* Go across channel */
   }
 };
@@ -660,7 +675,7 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
   SuperpositionList &super_list = at1->GetSuperpositions();
   SuperpositionListIterator supers(super_list);
 
-
+  
   GC        gc = Xamine_MakeDrawingGc(d, pane, -1);
 
   /* Figure out the area of interest. */
@@ -697,7 +712,7 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
 				      &chanw); // Width of a channel in pixels
     }
     
-    
+
     /* Determine the rendition style and instantiate a channel drawer. */
     /* The drawer can be modified by the flippedness of the spectrum:  */
     Channel *drawer;
