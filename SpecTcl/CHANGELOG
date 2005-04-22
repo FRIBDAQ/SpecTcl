@@ -271,3 +271,5 @@ April 21, 2005
      Scaled wrong and offset wrong.
    - Make it a bit clearer that the Treeparameter GUI version is decoupled
      from SpecTcl's version... for now.
+April 22, 2005
+   - Remove nulls from Xamine's log files and replace them with \n's instead.

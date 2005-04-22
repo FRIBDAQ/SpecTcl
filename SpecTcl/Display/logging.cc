@@ -371,14 +371,16 @@ int LogFile::LogMessage(char *text)
 
   /* Create and write the timestamp: */
 
+  putc('\n', fp);
   stamp(timestamp);		/* Fill in the timestamp. */
-  if(fwrite(timestamp, strlen(timestamp)+1, 1, fp) != 1) goto error;
-  bytes += strlen(timestamp)+1;
+  if(fwrite(timestamp, strlen(timestamp), 1, fp) != 1) goto error;
+  putc('\n', fp);
+  bytes += strlen(timestamp) + 2;
 
   /* Write the user's message */
 
-  if(fwrite(text, strlen(text)+1, 1, fp) != 1) goto error;
-  bytes += strlen(timestamp)+1;
+  if(fwrite(text, strlen(text), 1, fp) != 1) goto error;
+  bytes += strlen(text)  + 1;
   if(putc('\n', fp) == EOF) goto error;
 
   bytes++;
