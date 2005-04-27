@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 
 //  CBufferDecoder.h:
@@ -303,7 +303,9 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __BUFFERTRANSLATOR
@@ -336,24 +338,17 @@ class CBufferDecoder {
   //Update to access 1:M associated class attributes
   //Ensure initial values entered
   CBufferDecoder() : m_pBuffer(0), m_pTranslator(0), m_nSize(0) {}
-  virtual ~CBufferDecoder() {} // Destructor.
+  virtual ~CBufferDecoder() {
+    delete m_pTranslator;	/* They get dynamically created. */
+  } // Destructor.
 
-  // Copy constructor
-  // This is allowed since the 
-  // pointer is already supposed to be
-  // maintained by a caller.
-  CBufferDecoder(const CBufferDecoder& aCBufferDecoder) {
-    m_pBuffer = aCBufferDecoder.m_pBuffer;
-    m_pTranslator = aCBufferDecoder.m_pTranslator;
-  }
-
-  //Operator= Assignment Operator
-  CBufferDecoder& operator=(const CBufferDecoder& aCBufferDecoder) {
-    if (this == &aCBufferDecoder) return *this;
-    m_pBuffer = aCBufferDecoder.m_pBuffer;
-    m_pTranslator = aCBufferDecoder.m_pTranslator;
-    return *this;
-  }
+  // Copy constructor not allowed since there's no good way to
+  // copy construct the buffer translator yet (would need a clone
+  // operator).
+private:
+  CBufferDecoder(const CBufferDecoder& aCBufferDecoder);
+  CBufferDecoder& operator=(const CBufferDecoder& aCBufferDecoder);
+public:
 
   //Operator== Equality Operator
   int operator==(const CBufferDecoder& aCBufferDecoder) {
@@ -394,7 +389,7 @@ class CBufferDecoder {
   virtual UInt_t getBufferType() = 0;
   virtual void getByteOrder(Short_t& Signature16,
 			    Int_t& Signature32) = 0;
-  virtual string getTitle() = 0;
+  virtual STD(string) getTitle() = 0;
   //
   // Default behavior for this operation can be supplied in terms of
   // the virtual selectors.

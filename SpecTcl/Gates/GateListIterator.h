@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CGateListIterator.h:
 //
@@ -303,21 +303,23 @@ DAMAGES.
                  
 #ifndef __STL_LIST
 #include <list>
+#ifndef __STL_LIST
 #define __STL_LIST
+#endif
 #endif
 
 
               
 class CGateListIterator  : public CAConstituentIterator        
 {
-  std::list<CGateContainer*>::iterator m_iGates;  // Gates array iterator.
+  STD(list)<CGateContainer*>::iterator m_iGates;  // Gates array iterator.
   
 public:
 			// Constructors
 
-  CGateListIterator (std::list<CGateContainer*>::iterator rIt);
+  CGateListIterator (STD(list)<CGateContainer*>::iterator rIt);
 
-  CGateListIterator(std::list<CGateContainer*>& rArray) :
+  CGateListIterator(STD(list)<CGateContainer*>& rArray) :
     m_iGates(rArray.begin())
   { }
    ~ CGateListIterator ( ) { }       //Destructor
@@ -354,7 +356,7 @@ public:
   // Selectors:
 
 public:
-  std::list<CGateContainer*>::iterator getGates() const
+  STD(list)<CGateContainer*>::iterator getGates() const
   {
     return m_iGates;
   }
@@ -362,7 +364,7 @@ public:
   // Mutators:
 
 protected:
-  void setGates (std::list<CGateContainer*>::iterator& am_iGates)
+  void setGates (STD(list)<CGateContainer*>::iterator& am_iGates)
   { 
     m_iGates = am_iGates;
   }

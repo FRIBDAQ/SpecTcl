@@ -7,8 +7,12 @@
 
 // Include files required:
 
+#include <config.h>
 #include "CFitCreator.h"    				
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 /*!
     Create an object of type CFitCreator

@@ -273,10 +273,16 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
-#include <iomanip.h>
-#include <iostream.h>
+#ifndef __IOMANIP_DAQH
+#include <Iomanip.h>
+#endif
+
+#ifndef __IOSTREAM_DAQH
+#include <Iostream.h>
+#endif
+
 #include <errno.h>
 #include <nsclbinerror.h>
 /* 
@@ -308,8 +314,8 @@ class spcbin {
   virtual long get(int, int) = 0;        //R: gets the value of one channel
   virtual void put(int, int)= 0;         //W: puts a value into a channel
   virtual void put(int, int, int)= 0;    //W: same as previous but using two index
-  virtual int readin(istream&) = 0;      //R: reads in data channels into an array
-  virtual bool writeout(ostream&) = 0;   //W: writes out the data array into the ostream
+  virtual int readin(STD(istream)&) = 0;      //R: reads in data channels into an array
+  virtual bool writeout(STD(ostream)&) = 0;   //W: writes out the data array into the STD(ostream)
   int sizeofbitmask(int x, int y = 1) {  //RW: returns the number of bitmask records
     if (y==0) y=1;                       //    needed for the spectrum size
     return (x*y-1)/8192+1;
@@ -325,12 +331,12 @@ class spcbin {
 class spcin : public spcbin{ 
  public:
   virtual ~spcin() {};
-  virtual int readin(istream&) = 0;
+  virtual int readin(STD(istream)&) = 0;
   virtual long get(int, int = 0) = 0;
  private:
   void put(int a, int b) {}
   void put(int a, int b, int c) {}
-  bool writeout(ostream& a) {}
+  bool writeout(STD(ostream)& a) {}
   
 };
 
@@ -340,13 +346,13 @@ class muintemplate : public spcin {
  public:
   muintemplate(int, int);
  ~muintemplate();
-  int readin(istream&);
+  int readin(STD(istream)&);
   long get(int, int=0);
  private: 
   
   int xlength, ylength;
   T *data; 
-//  istream Binary;
+//  STD(istream) Binary;
   
 };
 
@@ -359,7 +365,7 @@ class mushort : public spcin {
  public:
   mushort(int, int);
   ~mushort();
-  int readin(istream&);
+  int readin(STD(istream)&);
   long get(int, int=0);
   
  private: 
@@ -371,7 +377,7 @@ class muint : public spcin {
  public:
   muint(int, int);
   ~muint();
-  int readin(istream&);
+  int readin(STD(istream)&);
   long get(int, int=0);
  private:
   muintemplate<int> *templateobj;
@@ -385,13 +391,13 @@ class smaugintemplate : public spcin {
  public:
   smaugintemplate(int, int);
   ~smaugintemplate();
-  int readin(istream&);
+  int readin(STD(istream)&);
   long get(int, int=0);
   
  private: 
   int xlength, ylength;
   T *data; 
-//  istream Binary;
+//  STD(istream) Binary;
   
 };
 
@@ -403,7 +409,7 @@ class smaugshort : public spcin {
  public:
   smaugshort(int, int);
   ~smaugshort();
-  int readin(istream&);
+  int readin(STD(istream)&);
   long get(int, int=0);
   
  private: 
@@ -416,7 +422,7 @@ class smaugint : public spcin {
  public:
   smaugint(int, int);
   ~smaugint();
-  int readin(istream&);
+  int readin(STD(istream)&);
   long get(int, int=0);
   
  private: 
@@ -428,7 +434,7 @@ class smaugbyte : public spcin {
  public:
   smaugbyte(int, int);
   ~smaugbyte();
-  int readin(istream&);
+  int readin(STD(istream)&);
   long get(int, int=0);
   
  private: 
@@ -439,11 +445,11 @@ class smaugbyte : public spcin {
 class spcout : public spcbin{ 
  public:
   virtual ~spcout() {};
-  virtual bool writeout(ostream&) = 0;
+  virtual bool writeout(STD(ostream)&) = 0;
   virtual void put(int, int = 0) = 0;
   virtual void put(int, int, int) = 0;
   void reporterror(char er[]) {
-    cerr <<er<<endl;
+    STD(cerr) <<er<< STD(endl);
   }
   int sizeofbitmask(int x, int y) {
     if (y==0) y=1;
@@ -451,7 +457,7 @@ class spcout : public spcbin{
   }
  private:
   long get(int a, int b) {}
-  int readin(istream& a) {}
+  int readin(STD(istream)& a) {}
   
   
 };
@@ -461,7 +467,7 @@ class writetemplate : public spcout {
  public:
   writetemplate(int, int = 1);
   ~writetemplate();
-  bool writeout(ostream&);
+  bool writeout(STD(ostream)&);
   void put(int, int= 0);
   void put(int, int, int);
  private:
@@ -477,7 +483,7 @@ class smaugwriteint : public spcout {
   ~smaugwriteint();
   void put(int, int);
   void put(int, int, int);
-  bool writeout(ostream&);
+  bool writeout(STD(ostream)&);
  private:
   writetemplate<int> *spectout;
 };
@@ -488,7 +494,7 @@ class smaugwriteshort : public spcout {
   ~smaugwriteshort();
   void put(int, int);
   void put(int, int, int);
-  bool writeout(ostream&);
+  bool writeout(STD(ostream)&);
  private:
   writetemplate<short> *spectout;
 };
@@ -499,7 +505,7 @@ class smaugwritebyte : public spcout {
   ~smaugwritebyte();
   void put(int, int);
   void put(int, int, int);
-  bool writeout(ostream&);
+  bool writeout(STD(ostream)&);
  private:
   writetemplate<char> *spectout;
 };

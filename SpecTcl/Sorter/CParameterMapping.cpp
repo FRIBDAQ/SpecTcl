@@ -9,9 +9,13 @@
 */
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
+#include <config.h>
 #include "CParameterMapping.h"    				
 #include "Parameter.h"
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 /*!
   The default constructor creates a parameter mapping for a unit
 transform.  That is the mapped parameter values are the same as the

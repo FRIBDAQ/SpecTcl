@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 #ifndef __CXDRMEMINPUTSTREAM_H
@@ -328,8 +328,8 @@ public:
 
   // Overrides of the base class.
 
-  virtual void Connect()     throw (string);
-  virtual void Disconnect()  throw (string);
+  virtual void Connect()     throw (STD(string));
+  virtual void Disconnect()  throw (STD(string));
 protected:
   virtual int Read(void* pBuffer);
 

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -296,6 +296,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 5.1.2.1  2004/12/21 17:51:14  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:55:36  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -314,6 +317,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+#include <config.h>
 #include <stdio.h>
 #include <strings.h>
 #include <Xm/Xm.h>
@@ -333,12 +337,8 @@ static char *About[]
       "               Copyright (c) NSCL, 1995-2003 All rights reserved\n",
       "\n",
       "               Version: Xamine - X2.1-003\n",
-      "               O/S support for:   VAX/VMS\n",
-      "                                  AXP/VMS\n",
-      "                                  Ultrix 4.x\n",
-      "                                  SunOS 4.1.x\n",
-      "                                  OSF/1 AXP\n",
-      "                                  Linux with Lesstif\n",
+      "               O/S support for:   OSF/1 AXP\n",
+      "                                  Linux with OpenMotif\n",
       "               Recent enhancements:\n",
       "                    June 24, 1997:\n"
       "                      Added support for client supplied peak markers\n",
@@ -354,6 +354,8 @@ static char *About[]
       "                        add  Mapped spectra, units annotations\n",
       "                    April 2, 2002\n",
       "                        Provide central default config.\n",
+      "                    December 2004\n",
+      "                        Port to gcc/g++ 3.x\n",
 	NULL
 	};
 static char *aboutname = "About";   /* For VMS C++ compiler bug */

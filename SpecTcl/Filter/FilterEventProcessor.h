@@ -320,7 +320,7 @@ class CFilterEventProcessor : public CEventProcessor
 private:
   // Member data:
 
-  vector<UInt_t>  m_ParameterMap; //!< Maps Filter parameters -> spectcl.
+  STD(vector)<Int_t>  m_ParameterMap; //!< Maps Filter parameters -> spectcl.
 public:
   // Constructors and other cannonical operations.
 
@@ -350,7 +350,7 @@ public:
 
 public:				// These may be generally useful:
   static void* GetString(void* p, 
-			 string& result); //!< retrieve string.
+			 STD(string)& result); //!< retrieve string.
   static void* GetInt(void* p,
 		      Int_t&  i);         //!< Retrieve an int.
   static void* GetFloat(void* p,

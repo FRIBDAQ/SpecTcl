@@ -599,7 +599,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <histotypes.h>
 #include <buftypes.h>
 #include <string>
-#include <iostream.h>
+#include <Iostream.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -610,6 +610,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #endif
 #ifdef HAVE_SYS_PROC_H
 #include <sys/proc.h>
+#endif
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
 #endif
 
 // External references:
@@ -711,7 +714,7 @@ extern "C" {
    CTclGrammerApp   app;
    CTCLApplication* gpTCLApplication = &app;
 
-   CTCLVariable Rcfile(std::string("tcl_rcFileName"),
+   CTCLVariable Rcfile(string("tcl_rcFileName"),
                      kfFALSE);
 //
 //  This code initializes the TclGrammer Tcl interpreter and its environment.
@@ -721,16 +724,16 @@ extern "C" {
    {
    
       CTCLInterpreter* pInterp = getInterpreter();
-      CTCLVariable     RcFile(std::string("tcl_rcFileName")  , kfFALSE);
+      CTCLVariable     RcFile(string("tcl_rcFileName")  , kfFALSE);
       Rcfile.Bind(pInterp);
    
    
    // Set default values for the variables which contain sizing information
    //
    
-      CTCLVariable DisplaySize(std::string("DisplayMegabytes"),  kfFALSE);
-      CTCLVariable ParameterCount(std::string("ParameterCount"), kfFALSE);
-      CTCLVariable EventListSize(std::string("EventListSize"),   kfFALSE);
+      CTCLVariable DisplaySize(string("DisplayMegabytes"),  kfFALSE);
+      CTCLVariable ParameterCount(string("ParameterCount"), kfFALSE);
+      CTCLVariable EventListSize(string("EventListSize"),   kfFALSE);
    
    
       DisplaySize.Bind(pInterp);
@@ -750,14 +753,14 @@ extern "C" {
    // Set up a variable called  SpecTclHome which contains the base of
    // the installation tree.
    
-      CTCLVariable HomeDir(std::string("SpecTclHome"), kfFALSE);
+      CTCLVariable HomeDir(string("SpecTclHome"), kfFALSE);
       HomeDir.Bind(pInterp);
       HomeDir.Set((char*)kpInstalledBase);
    
    // Set up a variable called SpecTclVersion which contains the 
    // current SpecTcl version:
    //
-      CTCLVariable Version(std::string("SpecTclVersion"), kfFALSE);
+      CTCLVariable Version(string("SpecTclVersion"), kfFALSE);
       Version.Bind(pInterp);
       Version.Set((char*)gpVersion);
    
@@ -767,7 +770,7 @@ extern "C" {
    // TCL variables describing sizes etc.
    
       try {
-         std::string AppFilename(kpInstalledBase);
+         string AppFilename(kpInstalledBase);
          AppFilename += kpAppInitSubDir;
          AppFilename += kpAppInitFile;
          pInterp->EvalFile(AppFilename);
@@ -782,7 +785,7 @@ extern "C" {
    
       assert(getenv(kpHomeEnvName)); // this env name must exist!!
       try {
-         std::string AppFilename(getenv(kpHomeEnvName));
+         string AppFilename(getenv(kpHomeEnvName));
          AppFilename += "/";
          AppFilename += kpAppInitFile;
          pInterp->EvalFile(AppFilename);
@@ -795,7 +798,7 @@ extern "C" {
    // of the TCL/TclGrammer application environment.
    //
    
-      std::string RCFile;
+      string RCFile;
       RCFile = getenv(kpHomeEnvName);
       RCFile += kpUserInitFile;
    
@@ -904,9 +907,9 @@ extern "C" {
    {
       UInt_t Result;
    
-      CTCLVariable DisplaySize(std::string("DisplayMegabytes"),    kfFALSE);
-      CTCLVariable nParams    (std::string("ParameterCount"), kfFALSE);
-      CTCLVariable nListSize  (std::string("EventListSize"),  kfFALSE);
+      CTCLVariable DisplaySize(string("DisplayMegabytes"),    kfFALSE);
+      CTCLVariable nParams    (string("ParameterCount"), kfFALSE);
+      CTCLVariable nListSize  (string("EventListSize"),  kfFALSE);
    
    
    

@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 //  CGateContainer.h:
 //
@@ -313,8 +313,12 @@
                   
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
 #endif
+#endif
+
+
 
 class CGateContainer : public CNamedItem {
   CGate* m_pGate;
@@ -322,7 +326,7 @@ class CGateContainer : public CNamedItem {
  public:
   //Default constructor
   CGateContainer() : m_pGate(0) {} // Default constructor used by stl.
-  CGateContainer (const std::string& sName, UInt_t nNumber, 
+  CGateContainer (const STD(string)& sName, UInt_t nNumber, 
 		  CGate& rGate);  
   virtual ~CGateContainer();
 

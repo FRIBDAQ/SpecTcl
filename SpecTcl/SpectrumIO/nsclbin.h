@@ -273,13 +273,22 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 #include <string.h>
 #include <errno.h>
 #include <nscldata.h>
 #include <nsclbinerror.h>
+
+#ifndef __ISTREAM_DAQH
+#include <Istream.h>
+#endif
+
+#ifndef __OSTREAM_DAQH
+#include <Ostream.h>
+#endif
+
 /*    
       nsclbin.h
       Chase Bolen
@@ -294,13 +303,13 @@ DAMAGES.
 #define NSCLBIN_
 class nsclbin {
  public:
-  nsclbin(istream*);
-  nsclbin(ostream*);
+  nsclbin(STD(istream)*);
+  nsclbin(STD(ostream)*);
   ~nsclbin();
   void getname(char[]);
   void getdate(char[]);
   void gettime(char[]);
-  void getdata(istream&);
+  void getdata(STD(istream)&);
   int getylength();
   int getxlength();
   int getelements();
@@ -324,7 +333,7 @@ class nsclbin {
   bool setup();
   bool put(int,int);
   bool put(int, int, int);
-  ostream& writeout(ostream&);
+  STD(ostream)& writeout(STD(ostream)&);
   
  private:
   void testdata();
@@ -335,10 +344,10 @@ class nsclbin {
   void muset();
   void smaugset();
   void rtrim(char[],char);
-  void padstream(ostream&);
-  void readpad(istream&);
+  void padstream(STD(ostream)&);
+  void readpad(STD(istream)&);
   //  data members ****************
-  //  iostream Binary;
+  //  iSTD(ostream) Binary;
 
   char head[121], time[9], date[11], formatinfo[131];
   short dimension, muformat, smaugformat, xlength, ylength, truey, format,buffer[512];

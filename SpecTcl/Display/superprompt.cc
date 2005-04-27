@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -294,6 +294,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+
+#include <config.h>
 #include <stdio.h>
 
 #include "XMDialogs.h"
@@ -517,7 +519,7 @@ int SuperPrompt::Match(XtPointer cd)
   */
 
   if(sscanf(text, "%d", &specid) != 1) {      /* It was not a  number.  */
-    if(sscanf(text, "[%3d]", &specid) != 1) { /* Not bracket enclosed.   */
+    if(sscanf(text, "[%05d]", &specid) != 1) { /* Not bracket enclosed.   */
       if((specid = Xamine_MatchSpecName(text)) < 0) {
 	XtFree(text);
 	return 0;

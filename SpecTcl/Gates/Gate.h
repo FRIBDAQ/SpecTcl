@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CGate.h:
 //
@@ -307,8 +307,18 @@ DAMAGES.
 #endif
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
 #endif
+#endif
+
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif
+#endif
+
                                                                
 class CGate      
 {
@@ -400,10 +410,10 @@ public:
   virtual   CConstituentIterator Begin ()   = 0;
   virtual   CConstituentIterator End ()   = 0;
   virtual   UInt_t Size ()   = 0;
-  virtual   std::string GetConstituent (CConstituentIterator& rIterator)   = 0;
+  virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)   = 0;
   virtual   CGate* clone ()   = 0;
-  virtual   std::string Type () const   = 0;
-  virtual   Bool_t inGate (CEvent& rEvent, const vector<UInt_t>& Params) = 0;
+  virtual   STD(string) Type () const   = 0;
+  virtual   Bool_t inGate (CEvent& rEvent, const STD(vector)<UInt_t>& Params) = 0;
   virtual   Bool_t inGate (CEvent& rEvent) = 0;
 };
 

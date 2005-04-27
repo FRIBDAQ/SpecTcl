@@ -273,9 +273,10 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2009, All rights reserved";
+#include <config.h>
 #include <string.h>
 #include <errno.h>
 #include <nscldata.h>
@@ -283,6 +284,20 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 #include <nsclbin.h>
 #include <nsclbinerror.h>
 #include <math.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+// inline utilities:
+
+static
+inline int sizeofbitmask(int x, int y = 1) {
+  if (y==0) y=1;
+  return (x*y-1)/8192+1;
+}
+
+
 /*
       nsclbin.cc
       Chase Bolen
@@ -361,7 +376,7 @@ void nsclbin::getdata(istream& Binary) {
   //testdata();
 }
 
-long nsclbin::get(int x, int y = 0) {
+long nsclbin::get(int x, int y) {
   
   long dat = data->get(x,y); 
   return dat;
@@ -550,7 +565,6 @@ bool nsclbin::testinit() {
 }
 bool nsclbin::setup() {
   char finfo[131]= "CANPS FORMAT 1.0.1986 NSCL-MSU; SPCLIB; SPECTCL; MAX REC LENGTH=1KB  FOLLOWING RECORDS ARE OF TYPE";
-  int sizeofbitmask(int x, int y);
   if (testinit()) {
     truey = (ylength==0);
     if (ylength > truey) truey=ylength;
@@ -643,10 +657,7 @@ void nsclbin::rtrim(char str[120],char trimchar=' ') {
     str[i]=0;
   }
 }
-inline int sizeofbitmask(int x, int y = 1) {
-  if (y==0) y=1;
-  return (x*y-1)/8192+1;
-}
+
 //void padstream(ostream& Binary)
 //
 //adds a bit of null padding on the end of the file to bring the file size to a 

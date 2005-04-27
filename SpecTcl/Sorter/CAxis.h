@@ -24,7 +24,9 @@
  
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 /*!
@@ -58,11 +60,11 @@ public:
   // Constructors and other canonical functions.
 
   CAxis (UInt_t nChannels,
-	 string sUnits = string(""));	//!< idendtity tansform for [0,nChannels-1].
+	 STD(string) sUnits = STD(string)(""));	//!< idendtity tansform for [0,nChannels-1].
   CAxis (Float_t fLow,
 	 Float_t fHigh,
 	 UInt_t  nChannels,
-	 string sUnits = string(""));	//!< Unmapped real parameter in [fLow, fHigh].
+	 STD(string) sUnits = STD(string)(""));	//!< Unmapped real parameter in [fLow, fHigh].
   CAxis(Float_t fLow,
 	Float_t fHigh,
 	UInt_t  nChannels,

@@ -303,6 +303,22 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 5.1.2.4  2005/04/16 21:10:35  ron-fox
+  Final packaging of the distribution
+
+  Revision 5.1.2.3  2005/01/26 14:41:11  ron-fox
+  Fix silly typo in backport of spectrum name length defect.
+
+  Revision 5.1.2.2  2005/01/26 14:27:44  ron-fox
+  Fix a problem with long spectrum names:
+            o Truncation to Xamine fixed size names caused assertion failures in
+                unbind
+            o Buffer overflow in spectra.cc could cause amusing thing in the
+               Xamine spectrum chooser that ultimately could result in a segfault.
+
+  Revision 5.1.2.1  2004/12/21 17:51:24  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:07  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -360,7 +376,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <GateMediator.h>
 #include <Gamma2DW.h>
 
+#include <Iostream.h>
+
 #include <stdio.h>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 #ifdef HAVE_TIME
 #include <time.h>
@@ -1035,11 +1056,19 @@ void CHistogrammer::UnBindFromDisplay(UInt_t nSpec) {
 
   CXamineSpectrum  Spec(m_pDisplayer->getXamineMemory(), nSpec);
   if(Spec.getSpectrumType() != undefined) { // No-op if spectrum not defined
-    
-    assert(Spec.getTitle() == m_DisplayBindings[nSpec]);
+    // The Xamine title must match the first n characters of
+ 
+    // The Xamine title must match the first n characters of
+    // the bindings  name since the display bindings names are
+    // truncated to some fixed size.
+    //
+    assert(m_DisplayBindings[nSpec].find(Spec.getTitle()) == 0);
+
+
     SpectrumDictionaryIterator iSpectrum = 
-      m_SpectrumDictionary.Lookup(Spec.getTitle());
+      m_SpectrumDictionary.Lookup(m_DisplayBindings[nSpec]);
     assert(iSpectrum != m_SpectrumDictionary.end());
+
     CSpectrum*       pSpectrum = (*iSpectrum).second;
     //
     //  What we need to do is:
@@ -1426,7 +1455,7 @@ void CHistogrammer::AddGate(const std::string& rName, UInt_t nId, CGate& rGate) 
   }
 
   // Now add the gate:
-  CGateContainer aGate((string&)rName, nId, rGate);
+  CGateContainer& aGate(*(new CGateContainer((string&)rName, nId, rGate)));
   m_GateDictionary.Enter(rName, aGate);
   AddGateToBoundSpectra(aGate);
 }
@@ -1472,6 +1501,7 @@ void CHistogrammer::ReplaceGate(const std::string& rGateName, CGate& rGate) {
   // NOTE:
   //    The gate is cloned and attached to the existing gate container.
   //
+
   CGateContainer* pContainer = FindGate(rGateName);
   if(!pContainer) {
     throw CDictionaryException(CDictionaryException::knNoSuchKey,

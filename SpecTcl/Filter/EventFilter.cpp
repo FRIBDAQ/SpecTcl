@@ -8,6 +8,7 @@ static const char* Copyright =
   "EventFilter.cpp: Copyright 2002 NSCL, All rights reserved\n";
 
 // Header Files.
+#include <config.h>
 #include "EventFilter.h"
 #include "Histogrammer.h"
 #include "Parameter.h"
@@ -22,7 +23,11 @@ static const char* Copyright =
 #include <string.h>
 #include <stdlib.h>
 
-#include <iostream.h>
+#include <Iostream.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 
 static const char* headerlabel = "header";

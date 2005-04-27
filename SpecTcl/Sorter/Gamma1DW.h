@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CGamma1DW.h:
 //
@@ -292,6 +292,9 @@ DAMAGES.
 /*
   Change log:
   $Log$
+  Revision 5.1.2.1  2004/12/21 17:51:24  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:06  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -309,12 +312,16 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -328,25 +335,25 @@ class CParameter;
 class CGamma1DW : public CSpectrum
 {
   UInt_t         m_nScale;	//!< Spectrum channel count.
-  vector<UInt_t> m_vParameters;	//!< Vector of parameter ids.
+  STD(vector)<UInt_t> m_vParameters;	//!< STD(Vector) of parameter ids.
 
  public:
 
   //Constructors
 
-  CGamma1DW(const string& rName, UInt_t nId,
-	    vector<CParameter> rrParameters,
+  CGamma1DW(const STD(string)& rName, UInt_t nId,
+	    STD(vector)<CParameter> rrParameters,
 	    UInt_t nScale);	//!< Axis from [0,nScale)
 
-  CGamma1DW(const string& rName, UInt_t nId,
-	    vector<CParameter> rrParameters,
+  CGamma1DW(const STD(string)& rName, UInt_t nId,
+	    STD(vector)<CParameter> rrParameters,
 	    UInt_t nChannels,
 	    Float_t fLow, Float_t fHigh); //!< axis is [fLow,fHigh]
 
 
   // Constructor for use by derived classes
-  // CGamma1DW(const string& rName, UInt_t nId,
-  //	    vector<CParameter> rrParameters);
+  // CGamma1DW(const STD(string)& rName, UInt_t nId,
+  //	    STD(vector)<CParameter> rrParameters);
 
   virtual ~CGamma1DW( ) { }      //Destructor
 
@@ -401,20 +408,20 @@ class CGamma1DW : public CSpectrum
  public:
 
   virtual void Increment (const CEvent& rEvent);
-  virtual void GammaGateIncrement(const CEvent& rEvent, std::string sGateType);
+  virtual void GammaGateIncrement(const CEvent& rEvent, STD(string) sGateType);
   virtual ULong_t operator[] (const UInt_t* pIndices) const;
   virtual void set (const UInt_t* pIndices, ULong_t nValue);
   virtual Bool_t UsesParameter (UInt_t nId) const;
   
 
-  virtual void GetParameterIds(vector<UInt_t>& rvIds);
-  virtual void GetResolutions(vector<UInt_t>& rvResolutions);
+  virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
+  virtual void GetResolutions(STD(vector)<UInt_t>& rvResolutions);
 
   // Utility functions:
 
 protected:
-  void   FillParameterArray(vector<CParameter> Params);
-  static CSpectrum::Axes MakeAxesVector(vector<CParameter> Params,
+  void   FillParameterArray(STD(vector)<CParameter> Params);
+  static CSpectrum::Axes MakeAxesVector(STD(vector)<CParameter> Params,
 					UInt_t             nChannels,
 					Float_t fLow, Float_t fHigh);
   void   CreateStorage();

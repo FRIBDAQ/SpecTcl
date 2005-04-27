@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS 
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -299,6 +299,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
    $Log$
+   Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+   Add SpecTcl Application programming interface and make use of it
+   in spots.
+
+   Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
+   - Port to gcc/g++ 3.x
+   - Recast swrite/sread in terms of tcl[io]stream rather than
+     the kludgy thing I had done of decoding the channel fd.
+     This is both necessary due to g++ 3.x's runtime and
+     nicer too!.
+
    Revision 5.1  2004/11/29 16:56:10  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -310,7 +321,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
    To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
 
 */
-
+#include <config.h>
 #include "GateFactory.h"    				
 #include "GateFactoryException.h"
 
@@ -338,6 +349,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <list>
 #include <algorithm>
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+
 static char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved GateFactory.cpp \n";
 
@@ -349,6 +365,10 @@ static inline Float_t max(Float_t i, Float_t j) {
 static inline Float_t  min(Float_t i, Float_t j) {
   return (i < j) ? i : j ;
 }
+
+/// Static storage:
+
+UInt_t CGateFactory::m_nGateId(0);
 
 /////////////////////////////////////////////////////////////////////////////////
 //  Function:       CreateGate(GateType nGateType, 
@@ -683,7 +703,7 @@ CGateFactory::CreateGammaCut(Float_t nLow, Float_t nHigh,
   // Create the cut:
   
   if(rSpectrum.size() > 0) {
-    return new CGammaCut(nLow, nHigh, rSpectrum);
+    return new CGammaCut((UInt_t)nLow, (UInt_t)nHigh, rSpectrum);
   }
   else
     return new CGammaCut(nLow, nHigh);
@@ -1004,4 +1024,12 @@ CGateFactory::CreateGateList(list<CGateContainer*>& Gates,
   for(UInt_t i = 0; i < rNames.size(); i++) {
     Gates.push_back(&NameToGate(rNames[i], eType, pWhich));
   }
+}
+/*!
+   Assign a unique gate id.
+*/
+UInt_t
+CGateFactory::AssignId()
+{
+  return m_nGateId++;
 }

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -307,12 +307,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <sys/time.h>
 #include <sys/types.h>
 
-#ifndef HAVE_SYS_TIME_H  /* Ultrix */
-extern "C" {
-  struct tm *localtime(time_t *clock);
-  time_t time(time_t *tloc);
-}
-#endif
+
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>

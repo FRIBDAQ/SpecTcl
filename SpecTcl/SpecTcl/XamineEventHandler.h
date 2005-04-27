@@ -127,7 +127,7 @@ public:
 protected:
  virtual   void OnGate (CDisplayGate& rXamineGate)    ;
  virtual   void OnButton (CButtonEvent& rButton)    ;
- virtual   UInt_t FindDisplayBinding (const std::string& rName);
+ virtual   UInt_t FindDisplayBinding (const STD(string)& rName);
 
   static void CallbackRelay(ClientData pObject);
 

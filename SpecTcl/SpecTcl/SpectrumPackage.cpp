@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 //  CSpectrumPackage.cpp
@@ -295,6 +295,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
+//    Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+//    Add SpecTcl Application programming interface and make use of it
+//    in spots.
+//
+//    Revision 5.1.2.1  2004/12/15 17:24:06  ron-fox
+//    - Port to gcc/g++ 3.x
+//    - Recast swrite/sread in terms of tcl[io]stream rather than
+//      the kludgy thing I had done of decoding the channel fd.
+//      This is both necessary due to g++ 3.x's runtime and
+//      nicer too!.
+//
 //    Revision 5.1  2004/11/29 16:56:12  ron-fox
 //    Begin port to 3.x compilers calling this 3.0
 //
@@ -324,6 +335,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Header Files:
 //
 
+#include <config.h>
 #include "SpectrumPackage.h"                               
 #include "ClearCommand.h"
 #include "BindCommand.h"
@@ -347,6 +359,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
 #include <SpectrumFormatter.h>
+#include "SpecTcl.h"
 
 #include <tcl.h>
 #include <stdio.h>
@@ -357,6 +370,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <limits.h>
 
 #include <string>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Static member attributes.
 
@@ -505,21 +523,20 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
 				 std::vector<Float_t>&     fHighs,
 				 const char*               pDataType)
 {
+  SpecTcl& api(*(SpecTcl::getInstance()));
 
   CSpectrum* pSpec = 0;
   try {
     SpectrumType_t sType = SpectrumType(pSpecType);
     DataType_t dType= Datatype(sType, pDataType);
 
-    CSpectrumFactory Factory;
-    pSpec = Factory.CreateSpectrum(pName,
-				   sType,
-				   rvParameterNames,
-				   dType,
-				   nChannels,
-				   &fLows, &fHighs);
 
-    m_pHistogrammer->AddSpectrum(*pSpec);
+    pSpec = api.CreateSpectrum(string(pName), sType, dType, 
+			       rvParameterNames,
+		                nChannels, &fLows, &fHighs);
+
+    api.AddSpectrum(*pSpec);
+
   }
   catch (CException& rExcept) {
     delete pSpec;		// In case it was the add that did it.
@@ -552,10 +569,11 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties)
 //        set of definitions strings.
 //
 
+  SpecTcl& api(*(SpecTcl::getInstance()));
   rvProperties.erase(rvProperties.begin(), rvProperties.end());
-  SpectrumDictionaryIterator p = m_pHistogrammer->SpectrumBegin();
+  SpectrumDictionaryIterator p = api.SpectrumBegin();
 
-  for(; p != m_pHistogrammer->SpectrumEnd(); p++) {
+  for(; p != api.SpectrumEnd(); p++) {
     CSpectrum* rSpec((*p).second);
     rvProperties.push_back(DescribeSpectrum(*rSpec));
   }
@@ -587,7 +605,9 @@ CSpectrumPackage::ListSpectrum(CTCLResult& rResult, const char* pName)
 //                in which case the result string is the reason for this.
 //
 
-  CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(pName);
+  SpecTcl& api(*(SpecTcl::getInstance()));
+
+  CSpectrum* pSpec = api.FindSpectrum(pName);
   if(pSpec) {
     rResult += DescribeSpectrum(*pSpec);
     return TCL_OK;
@@ -625,7 +645,17 @@ CSpectrumPackage::ListSpectrum(CTCLResult& rResult, UInt_t nId)
 //      TCL_ERROR         - If there was a problem and then
 //                                       rResult provides the details.
 
-  CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(nId);
+  SpecTcl& api(*(SpecTcl::getInstance()));
+  CSpectrum* pSpec(0);
+  SpectrumDictionaryIterator i = api.SpectrumBegin();
+  while(i != api.SpectrumEnd()) {
+    if(i->second->getNumber() == nId) {
+      pSpec = i->second;
+      break;
+    }
+    i++;
+  }
+
 
   if(pSpec) {
     rResult += DescribeSpectrum(*pSpec);
@@ -651,11 +681,9 @@ CSpectrumPackage::ClearAll()
 // current histogrammer.
 // 
 
-  SpectrumDictionaryIterator p = m_pHistogrammer->SpectrumBegin();
-  for(;  p != m_pHistogrammer->SpectrumEnd(); p++) {
-    CSpectrum* pSpec = (*p).second;
-    pSpec->Clear();
-  }
+  SpecTcl& api(*(SpecTcl::getInstance()));
+  api.ClearAllSpectra();
+
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -683,20 +711,21 @@ CSpectrumPackage::ClearSubset(CTCLResult& rResult,
 //                                  which could not be cleared.  The only
 //                                  reason a spectrum can't be cleared is that
 //                                  it doesn't exist.
+  SpecTcl& api(*(SpecTcl::getInstance()));
 
   Bool_t     Failed = kfFALSE;
   CTCLString ResultString;
   std::vector<std::string>::iterator p = rvSpectra.begin();
   for(; p != rvSpectra.end(); p++) {
-    CSpectrum *pSpec = m_pHistogrammer->FindSpectrum((*p));
-    if(pSpec) {
-      pSpec->Clear();
+    try {
+      api.ClearSpectrum(*p);
     }
-    else {
+    catch (CDictionaryException& rDict) {
       ResultString.AppendElement(*p);
       Failed = kfTRUE;
     }
   }
+
   rResult = (const char*)ResultString;
   return (Failed ? TCL_ERROR : TCL_OK);
 }
@@ -725,12 +754,13 @@ CSpectrumPackage::ClearSubset(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
 //                                spectrum can't be cleared is that it doesn't 
 //                                exist.
 //
+  SpecTcl& api(*(SpecTcl::getInstance()));
 
   Bool_t      Failed = kfFALSE;
   CTCLString  Result;
   std::vector<UInt_t>::iterator p = rvIds.begin();
   for(; p != rvIds.end(); p++) {
-    CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
+    CSpectrum* pSpec = api.FindSpectrum(*p);
     if(pSpec) {
       pSpec->Clear();
     }
@@ -771,11 +801,12 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
 //                               spectrum which could not be bound and
 //                              the second  is the reason it couldn't be bound.
 
+  SpecTcl& api(*(SpecTcl::getInstance()));
   CTCLString Result;
   Bool_t     Failed = kfFALSE;
-  SpectrumDictionaryIterator p = m_pHistogrammer->SpectrumBegin();
+  SpectrumDictionaryIterator p = api.SpectrumBegin();
 
-  for(; p != m_pHistogrammer->SpectrumEnd(); p++) {
+  for(; p != api.SpectrumEnd(); p++) {
     CSpectrum* pSpec = (*p).second;
     try {
       m_pHistogrammer->BindToDisplay(pSpec->getName());
@@ -1124,6 +1155,7 @@ CSpectrumPackage::DeleteList(CTCLResult& rResult,
 //                                  be deleted.  See BindList for the
 //                                  result string fromat.
 //
+  SpecTcl& api(*(SpecTcl::getInstance()));
   CTCLString  MyResult;
   Bool_t      fFailed = kfFALSE;
 
@@ -1140,7 +1172,7 @@ CSpectrumPackage::DeleteList(CTCLResult& rResult,
 
   std::vector<std::string>::iterator p = rvNames.begin();
   for(; p != rvNames.end(); p++) {
-    CSpectrum* pSpec = m_pHistogrammer->RemoveSpectrum(*p);
+    CSpectrum* pSpec = api.RemoveSpectrum(*p);
     if(pSpec) {			// Spectrum existed..
       delete pSpec;		// Destroy it.
     }
@@ -1227,6 +1259,7 @@ CSpectrumPackage::DeleteList(CTCLResult& rResult, std::vector<UInt_t>& rvnIds)
 void 
 CSpectrumPackage::DeleteAll() 
 {
+  SpecTcl& api(*(SpecTcl::getInstance()));
 // Deletes all spectra known to the
 // histogrammer.
 //
@@ -1247,7 +1280,7 @@ CSpectrumPackage::DeleteAll()
     }
     catch (CException& rExcept) { // Exceptions in the find are ignored.
     }
-    CSpectrum* pSpectrum = m_pHistogrammer->RemoveSpectrum(pSpec->getName());
+    CSpectrum* pSpectrum = api.RemoveSpectrum(pSpec->getName());
     delete pSpectrum;		// Destroy spectrum storage.
   }
 
@@ -1685,6 +1718,8 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
   //    TCL_OK      - Success.
   //    TCL_ERROR   - On failure.
 
+  SpecTcl& api(*(SpecTcl::getInstance()));
+
   ParameterDictionary& rDict((ParameterDictionary&)
 			        m_pHistogrammer->getParameterDictionary());
   CSpectrum*           pSpectrum(0);
@@ -1713,7 +1748,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
       }
       catch (...) {
       }
-      pOld = m_pHistogrammer->RemoveSpectrum(pSpectrum->getName());
+      pOld = api.RemoveSpectrum(pSpectrum->getName());
     }
     //  Process the Live flag: This determines if we need to wrap the
     //  spectrum around a snapshot spectrum container:
@@ -1742,7 +1777,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
   }
   catch (CException& rExcept) {	// All exceptions drop here.
     if(pSpectrum) {		// It may have been entered in the hgrammer.
-      m_pHistogrammer->RemoveSpectrum(pSpectrum->getName());
+      api.RemoveSpectrum(pSpectrum->getName());
       delete pSpectrum;
     }
     string Reason(rExcept.ReasonText()); // Haul out the reason code.

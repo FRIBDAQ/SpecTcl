@@ -276,7 +276,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 // CGamma1DW.cpp
@@ -295,11 +295,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
-    Revision 5.1  2004/11/29 16:56:07  ron-fox
-    Begin port to 3.x compilers calling this 3.0
-
-    Revision 4.6  2004/02/03 21:32:58  ron-fox
-    Make definitions of spectra from resolutions consistent with those that have ranges.
+    Revision 5.1.2.1  2004/12/21 17:51:24  ron-fox
+    Port to gcc 3.x compilers.
 
     Revision 4.5.2.1  2004/02/02 21:47:08  ron-fox
     *** empty log message ***
@@ -317,7 +314,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 // Header Files:
 //
-
+#include <config.h>
 #include "Gamma2DW.h"
 #include "Parameter.h"
 #include "RangeError.h"
@@ -327,6 +324,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GammaCut.h"
 #include "GammaBand.h"
 #include "GammaContour.h"
+#include <assert.h>
+
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions for class CGamma2DW
 
@@ -648,7 +651,7 @@ CGamma2DW::operator[] (const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW gamma spectrum y axis"));
   }
-  return (ULong_t)pStorage[nx + (ny << m_nXScale)];
+  return (ULong_t)pStorage[nx + (ny * m_nXScale)];
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -674,7 +677,7 @@ CGamma2DW::set (const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW gamma spectrum y axis"));
   }
-  pStorage[nx + (ny << m_nXScale)] = (UInt_t)nValue;
+  pStorage[nx + (ny * m_nXScale)] = (UInt_t)nValue;
 }
 
 ///////////////////////////////////////////////////////////////////////////

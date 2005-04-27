@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS 
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -297,6 +297,20 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.3  2005/04/16 20:09:47  ron-fox
+  Add treeparameter initialization.
+
+  Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+  Add SpecTcl Application programming interface and make use of it
+  in spots.
+
+  Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
+  - Port to gcc/g++ 3.x
+  - Recast swrite/sread in terms of tcl[io]stream rather than
+    the kludgy thing I had done of decoding the channel fd.
+    This is both necessary due to g++ 3.x's runtime and
+    nicer too!.
+
   Revision 5.1  2004/11/29 16:56:10  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -304,11 +318,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
 
 */
-
+#include <config.h>
 #include "GatePackage.h"
 #include "GateCommand.h"
 #include "ApplyCommand.h"
 #include "UngateCommand.h"
+#include "SpecTcl.h"
 
 #include <TCLInterpreter.h>    				
 #include <Histogrammer.h>
@@ -319,6 +334,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <GammaBand.h>
 #include <GammaContour.h>
 
+#include <GateFactory.h>
+
 #include <Spectrum.h>
 #include <Parameter.h>
 #include <Exception.h>
@@ -326,6 +343,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <string>
 #include <algorithm>
 #include <stdio.h>
+#include <Iostream.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 static char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved GatePackage.cpp \n";
 
@@ -412,15 +435,17 @@ CGatePackage::AddGate(CTCLResult& rResult, const std::string& rGateName,
  
   // First try to replace the gate as an existing one:
   //
+  SpecTcl& api(*(SpecTcl::getInstance()));
+
   try {
-    m_pHistogrammer->ReplaceGate(rGateName, *(CGate*)pGate);
+    api.ReplaceGate(rGateName, *(CGate*)pGate);
     return kfTRUE;
   }
   catch(...) {
     //  If that fails, then add the gate as new:
     // 
     try {			// Exceptions get turned into return strings:
-      m_pHistogrammer->AddGate(rGateName, AssignId(), *(CGate*)pGate);
+      api.AddGate(rGateName,  (CGate*)pGate);
       return kfTRUE;		// Success.
     }
     catch (CException& rException) {
@@ -462,10 +487,10 @@ CGatePackage::AddGate(CTCLResult& rResult, const std::string& rGateName,
  */
 CTCLString CGatePackage::ListGates()  
 {
-
+  SpecTcl& api(*(SpecTcl::getInstance()));
   CTCLString Gates;
-  CGateDictionaryIterator gi = m_pHistogrammer->GateBegin();
-  while(gi != m_pHistogrammer->GateEnd()) {
+  CGateDictionaryIterator gi = api.GateBegin();
+  while(gi != api.GateEnd()) {
     Gates.AppendElement(GateToString(&((*gi).second)));
     Gates.Append("\n");
     gi++;
@@ -489,8 +514,9 @@ CTCLString CGatePackage::ListGatesById()
   //
   // 1. Collect  the gate information in vGates:
   //
-  CGateDictionaryIterator gi = m_pHistogrammer->GateBegin();
-  while(gi != m_pHistogrammer->GateEnd()) {
+  SpecTcl& api(*(SpecTcl::getInstance()));
+  CGateDictionaryIterator gi = api.GateBegin();
+  while(gi != api.GateEnd()) {
     vGates.push_back(&((*gi).second));
     gi++;
   }
@@ -541,13 +567,13 @@ Bool_t
 CGatePackage::DeleteGates(CTCLResult& rResult, 
 			  const vector<string>& rGateNames)  
 {
-
+  SpecTcl& api(*(SpecTcl::getInstance()));
   
   CTCLString ResultString;
   UInt_t nFailed = 0;
   for(UInt_t nGate = 0; nGate < rGateNames.size(); nGate++) {
     try {			// All failures are thrown...
-      m_pHistogrammer->DeleteGate(rGateNames[nGate]);
+      api.DeleteGate(rGateNames[nGate]);
     }
     catch(CException& rFailed) { // Failures are caught and appended to rResult
       CTCLString rFailure;
@@ -650,9 +676,9 @@ Bool_t CGatePackage::ApplyGate(CTCLString& rResult, const string& rGateName,
   //      kfTRUE - Success.
   //      kfFALSE - failure.
   //
-  
+  SpecTcl& api(*(SpecTcl::getInstance()));
   try {
-    m_pHistogrammer->ApplyGate(rGateName, rSpectrumName);
+    api.ApplyGate(rGateName, rSpectrumName);
     return kfTRUE;
   }
   catch(CException& rExcept) {
@@ -921,7 +947,6 @@ UInt_t
 CGatePackage::AssignId()
 {
   // Returns a unique gate identifier.
-
-  UInt_t nId = m_nNextId++;
-  return nId;
+  
+  return CGateFactory::AssignId();
 }

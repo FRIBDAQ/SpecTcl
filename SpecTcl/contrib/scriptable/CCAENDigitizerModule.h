@@ -35,12 +35,16 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __CRTL_STRING_H
 #include <string.h>
+#ifndef __CRTL_STRING_H
 #define __CRTL_STRING_H
+#endif
 #endif
 
 #ifndef __TRANSLATORPOINTER_H
@@ -70,7 +74,7 @@ private:
 public:
    // Constructors and other canonical functions
     CCAENDigitizerModule (CTCLInterpreter& rInterp, 
-				    const string& rName);
+				    const STD(string)& rName);
     virtual ~ CCAENDigitizerModule ( );
 private:
  
@@ -113,7 +117,7 @@ protected:
   // Class operations:
 
 public:
-  virtual  string getType() const;
+  virtual  STD(string) getType() const;
   virtual   void Setup (CAnalyzer& rAnalyzer, CHistogrammer& rHistogrammer)   ; // 
   virtual   TranslatorPointer<UShort_t> 
     Unpack (TranslatorPointer<UShort_t> pEvent, 

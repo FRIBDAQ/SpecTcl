@@ -172,11 +172,11 @@ longmask()
 caddr_t alloc_get(arenaid arena_id, int size)
 {
   
-  //
+  
   node *free = (node *)*arena_id;	/* Get the free list pointer. */
   node *largest = &empty;	/* Point to the largest free node. */
 
-  // ensure the size is a multiple of longwords:
+  /* ensure the size is a multiple of longwords: */
   
 
   size = (size + (sizeof(long))) & longmask();
