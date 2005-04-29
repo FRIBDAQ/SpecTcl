@@ -273,3 +273,7 @@ April 21, 2005
      from SpecTcl's version... for now.
 April 22, 2005
    - Remove nulls from Xamine's log files and replace them with \n's instead.
+April 29, 2005
+   - TreeParameter save function didn't always get the dependencies right 
+     causing error in loading.  Changed functions in SpectrumGenerator.tcl.
+     Fix for bugzilla bug 173

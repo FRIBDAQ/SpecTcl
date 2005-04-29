@@ -5,6 +5,17 @@
 # Date: Dec 2000 - Sept 2002
 # Version 1.2 November 2003
 
+
+# Changelog
+# 4/29/05 -Timothy Hoagland - s04.thoagland@wittenberg.edu
+# Changed the SortGate, Sort, Write, and GetDependencies functions to ensure that all
+# gates are defined in an order that prevents gates being defined before gates it 
+# depends on
+#
+#4/30/05 -Timothy Hoagland - s04.thoagland@wittenberg.edu
+# Added the DependsOnDeleted function to ensure that any gates that rely on 
+# a deleted function were not written to file when a save happens
+
 proc SetupSpectrumGenerator {parent} {
 	global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY
 	global treeParameterRoot treeParameterName treeParameterBins treeParameterStart treeParameterStop treeParameterInc treeParameterUnit
@@ -1144,15 +1155,7 @@ proc SaveDefinitionFile {file} {
 	}
 	set treevariableList $changedTreeList
 	
-# 12/16/04: Do not write deleted gates to file
-	set rawList [gate -list]
-    set gateList "";			# It's possible to have 0 gates
-	foreach g $rawList {
-		set t [lindex $g 2]
-		if {![string equal $t F] && ![string equal $t T]} {lappend gateList $g}
-	}		
-	set gateList [SortGates $gateList]
-
+        set gateList [SortGates]
 	set applyList [apply -list]
 
 	set extension [lindex [split $definitionFile .] end]
@@ -1243,63 +1246,78 @@ proc SaveDefinitionFile {file} {
 	close $handle
 }
 
-proc SortGates {theList} {
-	if {[string compare $theList ""] == 0} {return ""}
-	# first sort primitive and composite gates
-	set composites ""
-	foreach g $theList {
-		set type [lindex $g 2]
-		if {[string compare $type *] == 0} {
-			lappend composites $g
-			lappend compgates [lindex $g 0]
-		} elseif {[string compare $type +] == 0} {
-			lappend composites $g
-			lappend compgates [lindex $g 0]
-		} elseif {[string compare $type -] == 0} {
-			lappend composites $g
-			lappend compgates [lindex $g 0]
-		} else {
-			lappend primitives $g
-			lappend primgates [lindex $g 0]
-		}
+proc SortGates {} {
+	catch {unset ::SortedGates}
+	catch {unset ::SearchList}
+	set ::SortedGates [list]
+	set GateList [gate -list]
+	foreach gate $GateList {
+		lappend ::SearchList $gate
 	}
-	# then flag composite gates which depend on other composites
-	set last [expr [llength $composites] - 1]
-	for {set i 0} {$i <= $last} {incr i} {
-		set g [lindex $composites $i]
-		set gates [lindex $g 3]
-		set flag 0
-		set swap 0
-		foreach gg $gates {
-			if {[lsearch $primgates $gg] == -1} {
-				set flag 1
-				break
-			}
-		}
-		# if flagged composite depends on other composite listed later push it to the end
-		if {$flag} {
-			foreach gg $gates {
-				for {set j [expr $i+1]} {$j <= $last} {incr j} {
-					if {[string compare $gg [lindex $compgates $j]] == 0} {
-						set swap 1
-						break
-					}
-				}
-			}
-		}
-		if {$swap} {
-			set composites [lswap $composites $i $last]
-			set compgates [lswap $compgates $i $last]
-		}
-	}
-	# rebuild the whole list and we are done!
-	foreach g $primitives {
-		lappend newlist $g
-	}
-	foreach g $composites {
-		lappend newlist $g
-	}
+	set newlist [Sort $GateList]
 	return $newlist
+}
+
+proc Sort {List} {
+	foreach gate $List {
+		if {[lsearch $::SortedGates $gate] == -1} {
+			write $gate;
+		}
+	}
+        return $::SortedGates
+}
+
+proc write gate {
+        if {[DependsOnDeleted $gate]} {
+            return 0
+	}
+	set DependsOn [GetDependencies $gate] 
+	if { $DependsOn != ""} {
+	    foreach Dependent $DependsOn {
+		   foreach look_for_gate $::SearchList {
+			 if {[lindex $look_for_gate 0] == $Dependent} {
+			       if {[lsearch $::SortedGates $look_for_gate]==-1} {
+			             write $look_for_gate
+                               }
+                         }
+		    }
+	    }
+            lappend ::SortedGates $gate
+	} else {
+	    lappend ::SortedGates $gate
+	}
+}
+
+proc GetDependencies {def} {
+	set temp [lindex $def 2]
+	if {$temp=="s"||$temp=="c"||$temp=="b"||$temp=="gs"||$temp=="gb"||$temp=="gc"||$temp=="T"||$temp=="F"} {
+		return ""
+        } else {
+		return [lindex $def 3]
+	}
+}
+
+proc DependsOnDeleted gate {   
+    set Dependents [GetDependencies $gate]
+    if { $Dependents == ""} {
+	if { [lindex $gate 2] == "F"} {	
+	    return 1
+	} else {
+	    return false
+	}
+    } else {
+	foreach Dependent $Dependents {
+	    foreach lookup_gate $::SearchList {
+		if {[lindex $lookup_gate 0] == $Dependent} {
+		    if {[DependsOnDeleted $lookup_gate]} {
+			return 1
+		    } else {
+			return 0
+		    }
+		}  
+	    }
+	}
+    }  
 }
 
 proc lswap {list index1 index2} {
