@@ -279,3 +279,6 @@ April 29, 2005
      Fix for bugzilla bug 173
 May 2, 2005
    - Ensure filters get closed if active at program normal exit.
+   - Encapsulate Xamine's gates and grobs inside a vector so that there's no 
+     longer a fixed compilation limit on the number of gates /objects that
+     can be defined.

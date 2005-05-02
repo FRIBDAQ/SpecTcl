@@ -576,7 +576,7 @@ int grobj_database::write(FILE *f)
 
   /* Now write out the objects: */
 
-  for(int i = 0; i < obj_count; i++) {
+  for(int i = 0; i < objects.size(); i++) {
     bytes = objects[i]->write(f);
     if(bytes == EOF) return EOF;
     nbytes += bytes;

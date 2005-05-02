@@ -306,10 +306,17 @@ DAMAGES.
 #include "XBatch.h"
 #include "convert.h"
 
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif
+#endif
+
 
 #define GROBJ_MAXPTS	50	/* Maximum number of points in a grob. */
 #define GROBJ_NAMELEN   80	/* Characters in a graphical object name. */
-#define GROBJ_MAXOBJECTS 2048   /* Maximum # of graphical objects      */
+// #define GROBJ_MAXOBJECTS 2048   /* Maximum # of graphical objects      */
 
 static const float GROBJ_MINDIST = 0.03;  // Fraction of height peak markers
 				         // ride above spectrum. 
@@ -645,8 +652,9 @@ class grobj_database  {
                            static int    m_ReadOnce;  // Need to reset lexer.
                            grobj_name    dbname;
 			   int           hasname;
-                           grobj_generic *objects[GROBJ_MAXOBJECTS];
-			   int   obj_count; /* Number of objects. */
+			   // grobj_generic *objects[GROBJ_MAXOBJECTS];
+                           std::vector<grobj_generic*> objects;
+                           // int   obj_count; /* Number of objects. */
 			   int   lastid;    /* Last ID assigned. */
 			   int   cursor;    /* Cursor in sequential search */
 			   int   confined;  /* TRUE If seq srch in spectrum. */
@@ -654,8 +662,6 @@ class grobj_database  {
 			 public:
 			   grobj_database() 
 			     { 
-			       memset(objects, 0, sizeof(objects));
-			       obj_count = 0;
 			       lastid    = 0;
 			       cursor    = 0;
 			       confined  = 0;
