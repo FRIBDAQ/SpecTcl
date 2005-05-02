@@ -298,6 +298,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
     $Log$
+    Revision 5.1.2.2  2005/05/02 20:14:41  ron-fox
+    Little changes to support gcc 3.4 compiler which is a bit stricter even.
+
     Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
     Port to gcc 3.x compilers.
 
@@ -794,7 +797,7 @@ CSpectrum::GetHigh(UInt_t nDimension) const
 
 */
 
-struct CSpectrum::SpectrumDefinition&
+CSpectrum::SpectrumDefinition&
 CSpectrum::GetDefinition()
 {
   

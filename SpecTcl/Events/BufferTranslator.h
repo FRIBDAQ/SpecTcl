@@ -282,6 +282,9 @@ DAMAGES.
 /*
   Change log:
    $Log$
+   Revision 5.1.2.2  2005/05/02 20:14:41  ron-fox
+   Little changes to support gcc 3.4 compiler which is a bit stricter even.
+
    Revision 5.1.2.1  2004/12/21 17:51:17  ron-fox
    Port to gcc 3.x compilers.
 
@@ -303,9 +306,6 @@ DAMAGES.
 #include <buffer.h>
 #endif
 
-#ifndef __TRANSLATORPOINTER_H
-#include "TranslatorPointer.h"
-#endif
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>

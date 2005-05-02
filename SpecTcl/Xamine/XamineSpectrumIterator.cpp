@@ -409,7 +409,7 @@ CXamineSpectrumIterator::bind()
 	m_pSpectrum = new CXamine1D(m_pXamineMemory, m_nSlot);
       }
       else {
-	m_pSpectrum - new CXamine2D(m_pXamineMemory, m_nSlot);
+	m_pSpectrum = new CXamine2D(m_pXamineMemory, m_nSlot);
       }
     }
   }
