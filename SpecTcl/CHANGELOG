@@ -282,3 +282,4 @@ May 2, 2005
    - Encapsulate Xamine's gates and grobs inside a vector so that there's no 
      longer a fixed compilation limit on the number of gates /objects that
      can be defined.
+   - Support GCC-3.4 compiler
