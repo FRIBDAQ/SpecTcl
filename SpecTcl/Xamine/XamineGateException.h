@@ -324,8 +324,8 @@ class CXamineGateException  : public CException
 {
   Int_t        m_nError;	// Xamine gate manipulation error code
   CDisplayGate m_Gate;		// Gate which caused the problem.
-  STD(stringstream)    m_ReasonStream;	// Reason for error.
-  Bool_t       m_fReasonProduced; // kfTRUE if m_ReasonStream accurate.
+  mutable STD(stringstream)    m_ReasonStream;	// Reason for error.
+  mutable Bool_t       m_fReasonProduced; // kfTRUE if m_ReasonStream accurate.
   
 public:
 
@@ -401,9 +401,9 @@ protected:
 
 public:
                    
-  virtual   const char* ReasonText ()  ;
+  virtual   const char* ReasonText ()  const;
 
-  virtual   Int_t ReasonCode ()  ;
+  virtual   Int_t ReasonCode ()  const;
  
 
 };

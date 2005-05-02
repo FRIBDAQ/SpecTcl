@@ -325,7 +325,8 @@ CXamineSpectrum::is1d()
   default:
     assert(kfFALSE);		// Should be legal value here.
   }
-
+  assert(0);			// Should not get here either.
+  return kfFALSE;
 }
 ///////////////////////////////////////////////////////////////////////////
 // 

@@ -277,3 +277,5 @@ April 29, 2005
    - TreeParameter save function didn't always get the dependencies right 
      causing error in loading.  Changed functions in SpectrumGenerator.tcl.
      Fix for bugzilla bug 173
+May 2, 2005
+   - Ensure filters get closed if active at program normal exit.

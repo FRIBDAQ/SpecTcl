@@ -340,7 +340,7 @@ const static char* pGateType[] = {
 //     Selector
 //
 const char* 
-CXamineGateException::ReasonText() 
+CXamineGateException::ReasonText()  const
 {
 // Returns a pointer to a text string which contains
 // an explanation of the error.
@@ -377,7 +377,7 @@ CXamineGateException::ReasonText()
 //     Selector
 //
 Int_t 
-CXamineGateException::ReasonCode() 
+CXamineGateException::ReasonCode()  const
 {
 // Returns the reason for the error
 // Exceptions:  

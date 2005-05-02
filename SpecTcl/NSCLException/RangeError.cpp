@@ -350,7 +350,10 @@ CRangeError::ReasonCode() const
   else {
     assert( 0 != 0);		// Exception was thrown in error!!
   }
+  // Should not get here.
 
+  assert(0);
+  return -1;
 }
 
 ///////////////////////////////////////////////////////////////////////

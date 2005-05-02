@@ -398,7 +398,7 @@ CXamineButtonException::operator=(
 //     Selector.
 //
 const char* 
-CXamineButtonException::ReasonText() 
+CXamineButtonException::ReasonText() const
 {
 // Returns textual reason the exception was thrown.
   assert(m_nError >= 0);
@@ -437,7 +437,7 @@ CXamineButtonException::ReasonText()
 //     Selector
 //
 Int_t 
-CXamineButtonException::ReasonCode() 
+CXamineButtonException::ReasonCode() const
 {
 // Returns an error code reason the exception was thrown
 // Exceptions:  

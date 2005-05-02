@@ -363,7 +363,7 @@ class ObjectInput : public GraphicalInput {
   virtual void ClearDialog() {}
   virtual void AddPoint(point &pt) {}
   virtual void DelPoint() {}
-  virtual Boolean DoAccept() {}
+  virtual Boolean DoAccept() {return false;}
 };
 
 

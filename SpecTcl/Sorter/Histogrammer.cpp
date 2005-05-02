@@ -303,6 +303,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 5.1.2.5  2005/05/02 15:51:22  ron-fox
+  First passes at getting compilations on Intel C++: then
+  fix defect 159: Open filters on exit can lose data.
+
   Revision 5.1.2.4  2005/04/16 21:10:35  ron-fox
   Final packaging of the distribution
 
@@ -1030,6 +1034,7 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
   //
 
   vector<CGateContainer> DisplayGates = GatesToDisplay(rsName);
+
   UInt_t Size = DisplayGates.size();
   for(UInt_t i = 0; i < DisplayGates.size(); i++) {
     CDisplayGate* pXgate = GateToXamineGate(nSpectrum, DisplayGates[i]);
