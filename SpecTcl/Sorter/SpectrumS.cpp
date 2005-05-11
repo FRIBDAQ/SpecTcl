@@ -1,5 +1,5 @@
 /*
-		    Gnu GENERAL PUBLIC LICENSE
+		    GNU GENERAL PUBLIC LICENSE
 		       Version 2, June 1991
 
  Copyright (C) 1989, 1991 Free Software Foundation, Inc.
@@ -235,10 +235,7 @@ those countries, so that distribution is permitted only in or among
 countries not thus excluded.  In such case, this License incorporates
 the limitation as if written in the body of this License.
 
-  9. The Free Software Foundation may publish revised and/or new versions 
-of the General Public License from time to time.  Such new versions will 
-be similar in spirit to the present version, but may differ in detail 
-to address new problems or concerns.
+  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
 
 Each version is given a distinguishing version number.  If the Program
 specifies a version number of this License which applies to it and "any
@@ -278,241 +275,320 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS '
 */
-//  CSpectrumFactory.h:
+//  CSpectrumS.cpp
+//    Base Class for a StripChart histogram.  
 //
-//    This file defines the CSpectrumFactory class.
 //
-// Author:
-//    Ron Fox
-//    NSCL
-//    Michigan State University
-//    East Lansing, MI 48824-1321
-//    mailto:fox@nscl.msu.edu
+//   Author:
+//      Tim Hoagland
+//      NSCL / WIENER
+//      s04.thoagland@wittenberg.edu
 //
-//  Copyright 1999 NSCL, All Rights Reserved.
+//   CSpectrumS is based on CSpectrum1DL which
+//     was written by:
+//        Ron Fox
+//        NSCL
+//        Michigan State University
+//        East Lansing, MI 48824-1321
+//        mailto:fox@nscl.msu.edu
 //
-/////////////////////////////////////////////////////////////
+//////////////////////////.cpp file/////////////////////////////////////////////////////
 
+//
+// Header Files:
+//
+/*
+  Change Log:
+  
+  May 5 2005 - StripChart spectra has been verified to work.  Thus making
+               this the first working version of this file. -Tim Hoagland
 
-/* Change log:
-   $Log$
-   Revision 5.1.2.2  2005/05/11 16:54:54  thoagland
-   Add Support for Stripchart Spectra
-
-   Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
-   Port to gcc 3.x compilers.
-
-   Revision 5.1  2004/11/29 16:56:09  ron-fox
-   Begin port to 3.x compilers calling this 3.0
-
-   Revision 4.2  2003/04/01 19:53:46  ron-fox
-   Support for Real valued parameters and spectra with arbitrary binnings.
 
 */
-
-#ifndef __SPECTRUMFACTORY_H  //Required for current class
-#define __SPECTRUMFACTORY_H
-          
-#ifndef __HISTOTYPES_H
-#include <histotypes.h>
-#endif                     
-
-#ifndef __PARAMETER_H
+#include <config.h>
+#include "SpectrumS.h"                               
 #include "Parameter.h"
+#include "RangeError.h"
+#include "Event.h"
+#include "CAxis.h"
+#include <assert.h>
+#include <math.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
 #endif
 
-#ifndef __STL_VECTOR
-#include <vector>   //Required for include files, eg <CList.h>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
+static const char* Copyright = 
+"CSpectrumS.cpp: Copyright 1999 NSCL, All rights reserved\n";
 
-#ifndef __STL_STRING
-#include <string>   
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
+// Functions for class CSpectrumS
 
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//   CSpectrumS(const std::string& rname, UInt_t nId,
+//               const CParameter& rParameter,
+//               UInt_t            nScale)
+// Operation Type:
+//   Constructor
+//
+/*!
+  Construct a StripChart.  In this constructor, the
+  axis is assumed to go from [0,nChannels).  The axis
+  channels are the axis coordinates as well (unit 
+  mapping).  The parameter may, however be mapped or
+  unmapped.
+  \param rName      (const string& [in])
+       The name of the spectrum.
+  \param nId        (UInt_t [in])
+       The spectrum id.  need not be unique.
+  \param rParameter (const CParameter& [in])
+       The discription of the parameter to histogram.
+  \param nChannels   (UInt_t [in])
+       The number of channels to allocate to the
+       spectrum.  In this constructor, the axis 
+       coordinates are [0,nChannels).
 
-//Required for include files, eg <CList.h>                               
-
-// Forward class definitions:
-
-class CSpectrum;
-                                                               
-class CSpectrumFactory      
+ */
+CSpectrumS::CSpectrumS(const std::string&     rName, 
+			  UInt_t              nId,
+			  const CParameter&   rParameter,
+		          const CParameter&   nChannel,
+			  UInt_t              nChannels):
+  CSpectrum(rName, nId,
+	    Axes(1,
+		  CAxis((Float_t)0.0, (Float_t)(nChannels-1),
+			nChannels-1,
+			CParameterMapping(rParameter)))),
+  m_nChannels(nChannels),
+  m_nChannel(nChannel.getNumber()),
+  m_nParameter(rParameter.getNumber())
+ 
 {
-  static UInt_t m_nNextId;  // Next Spectrum ID to assign.
-  Bool_t        m_fExceptions;	// If true, exceptions are thrown
-public:
-			//Default constructor
-			//Update to access base class attributes 
-			//Update to access 1:1 part class attributes 
-			//Update to access 1:M part class attributes
-			//Update to access 1:1 associated class attributes
-			//Update to access 1:M associated class attributes
-			//Ensure initial values entered
-  CSpectrumFactory (): m_fExceptions(kfTRUE)    { } 
-  ~ CSpectrumFactory ( ) { }       //Destructor
-	
-			//Copy constructor
-			//Update to access 1:M part class attributes
-			//Update to access 1:1 associated class attributes
-			//Update to access 1:M associated class attributes      
-  CSpectrumFactory (const CSpectrumFactory& aCSpectrumFactory ) 
-  {             
-  }                                     
+  AddAxis(nChannels, 0.0, (Float_t)(nChannels), 
+	  rParameter.getUnits());
+  CreateChannels();
+}
+/*!
+    Construct a StripChart.   In this constructor,
+    the axis is assumed to go in the range [fLow, fHigh]
+    and have nChannels bins.  The parameter may be mapped
+    or unmapped.
+  \param rName      (const string& [in])
+       The name of the spectrum.
+  \param nId        (UInt_t [in])
+       The spectrum id.  need not be unique.
+  \param rParameter (const CParameter& [in])
+       The discription of the parameter to histogram.
+  \param nChannels   (UInt_t [in])
+       The number of channels to allocate to the
+       spectrum.  In this constructor, the axis 
+       coordinates are [0,nChannels).
+  \param fLow (Float_t [in]):
+       The low limit of the axis.
+  \param fHigh  (Float_t [in]):
+        The high limit of the axis.
+*/
+CSpectrumS::CSpectrumS(const std::string&        rName,
+			   UInt_t                nId,
+			   const CParameter&     rParameter,
+		           const CParameter&     nchannel,
+			   UInt_t                nChannels,
+			   Float_t               fLow, 
+			   Float_t               fHigh) :
+    CSpectrum(rName, nId,
+	    Axes(1, CAxis(fLow, fHigh, nChannels,
+			  CParameterMapping(rParameter)))),
+  m_nChannels(nChannels),
+  m_nChannel(nchannel.getNumber()),
+  m_nParameter(rParameter.getNumber())
+{
+  AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
+  CreateChannels();
+  m_nOffset=0;
+}
 
-			//Operator= Assignment Operator
+void 
+CSpectrumS::Increment(const CEvent& rE) 
+{
 
-  CSpectrumFactory& operator= (const CSpectrumFactory& aCSpectrumFactory)
-  { 
-    m_fExceptions = aCSpectrumFactory.m_fExceptions;
-    return *this;                                                           
-  }                                     
 
-			//Operator== Equality Operator
-			//Update to access 1:M part class attributes
-			//Update to access 1:1 associated class attributes
-			//Update to access 1:M associated class attributes      
-  int operator== (const CSpectrumFactory& aCSpectrumFactory)
-  { 
-    return (1);
+  CEvent& rEvent((CEvent&)rE);	// Ok since non const  operator[] on rhs only.
+  CParameterValue& rTime(rEvent[m_nChannel]);
+  CParameterValue& rParam(rEvent[m_nParameter]);
 
-  }  
-  // Selectors:
-public:
-                       //Get accessor function for attribute
-  UInt_t getnNextId() const
-  {
-    return m_nNextId;
-  }
-          
-  // Mutators:
-protected:
-                       //Set accessor function for attribute
-  void setNextId (UInt_t am_nNextId)
-  { 
-    m_nNextId = am_nNextId;
-  }
-  // Actions provided by the class:
 
-public:                   
-  CSpectrum* CreateSpectrum (const STD(string)& rName,
-			     SpectrumType_t eSpecType, 
-			     DataType_t eDataType, 
-			     STD(vector)<STD(string)>& rParameters, 
-			     STD(vector)<UInt_t>&  rChannels,
-			     STD(vector)<Float_t>* pLows  = (STD(vector)<Float_t>*)kpNULL,
-			     STD(vector)<Float_t>* pHighs = (STD(vector)<Float_t>*)kpNULL);
+  if(rTime.isValid()) {  // Only increment if param present.
+    Int_t nChannel = (Int_t)ParameterToAxis(0, rTime)- m_nOffset;
 
-  CSpectrum* CreateSpectrum (const char* pName,
-			     SpectrumType_t eSpecType, 
-			     STD(vector)<STD(string)>& rParameters,
-			     DataType_t eDataType, 
-			     STD(vector)<UInt_t>&  rChannels,
-			     STD(vector)<Float_t>* pLows = (STD(vector)<Float_t>*)kpNULL,
-			     STD(vector)<Float_t>* pHighs= (STD(vector)<Float_t>*)kpNULL)
-    {
-      return CreateSpectrum(STD(string)(pName),
-			    eSpecType, eDataType, rParameters, rChannels,
-			    pLows, pHighs);
+    if (nChannel > m_nChannels ) {
+      ShiftDataDown (static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels));
+      m_nOffset = static_cast<int>(m_nOffset + nChannel + (.25 * m_nChannels) - m_nChannels);
+      nChannel = nChannel - m_nOffset;
+    }else if (nChannel < 0) {
+      ShiftDataUp(nChannel);
+      m_nOffset =m_nOffset + nChannel;
+      nChannel = 0;
     }
-
-  // Create 1d spectrum:
-
-  CSpectrum* Create1D (const STD(string)& rName, DataType_t eType, 
-		       CParameter Param, UInt_t  nChannels)  ;
-  CSpectrum* Create1D (const STD(string)& rName, DataType_t eType,
-		       CParameter Param, UInt_t  nChannels,
-		       Float_t fxLow, Float_t fxHigh);
-  
-  // Create StripChart spectrum:
-
-  CSpectrum* CreateStrip (const STD(string)& rName, DataType_t eType, 
-		       CParameter Param, CParameter Time, UInt_t  nChannels)  ;
-  CSpectrum* CreateStrip (const STD(string)& rName, DataType_t eType,
-		       CParameter Param,CParameter Time, UInt_t  nChannels,
-		       Float_t fxLow, Float_t fxHigh);
-  
-
-  // Create 2d Spectra:
-
-  CSpectrum* Create2D (const STD(string)& rName, DataType_t eType,
-		       CParameter xParam, CParameter yParam,
-		       UInt_t nXChannels, UInt_t nYChannels);
-  CSpectrum* Create2D (const STD(string)& rName, DataType_t eType, 
-		       CParameter xParam, CParameter yParam, 
-		       UInt_t nXChannels, 
-		       Float_t fXLow, Float_t fXHigh,
-		       UInt_t nYChanels,
-		       Float_t fYLow, Float_t fYHigh)  ;
-
-
-  CSpectrum* CreateG1D (const STD(string)& rName, DataType_t eType,
-			STD(vector)<CParameter>& rvParameters, UInt_t nResolution);
-  CSpectrum* CreateG1D(const STD(string)& rName, DataType_t eType,
-		       STD(vector)<CParameter>& rvParameters, UInt_t nChannels,
-		       Float_t fxLow, Float_t fxHigh);
-
-  CSpectrum* CreateG2D (const STD(string)& rName, DataType_t eType,
-			STD(vector)<CParameter>& rvParameters, UInt_t nXRes, 
-			UInt_t nYRes);
-  CSpectrum* CreateG2D(const STD(string)& rName, DataType_t eType,
-		       STD(vector)<CParameter>& rvParameters, 
-		       UInt_t nXChannels, 
-		       Float_t fxLow, Float_t fxHigh,
-		       UInt_t nYChannels,
-		       Float_t fyLow, Float_t fyHigh);
-
-#ifdef _USE_MAPPED_SPECTRA
-  CSpectrum* CreateMG1D(const STD(string)& rName, DataType_t eType,
-			STD(vector)<CParameter>& rvParameters, Float_t nLow,
-			Float_t nHigh, UInt_t nChans);
-  CSpectrum* CreateMG2D(const STD(string)& rName, DataType_t eType,
-			STD(vector)<CParameter>& rvParameters, 
-			Float_t nXLow, Float_t nYLow, Float_t nXHigh,
-			Float_t nYHigh, UInt_t nXChans, UInt_t nYChans);
-#endif
-  CSpectrum* CreateBit (const STD(string)& rName, DataType_t eType, 
-			CParameter Param, UInt_t nResolution)  ;
-  CSpectrum* CreateBit(const STD(string)& rName, DataType_t eType, 
-		       CParameter Param, UInt_t nLow, UInt_t nHigh);
-
-  CSpectrum* CreateSummary (const STD(string)& rName, DataType_t eType, 
-			    STD(vector)<CParameter>& rParameters, UInt_t nYRes)  ;
-  CSpectrum* CreateSummary(const STD(string)& rName, DataType_t eType, 
-			   STD(vector)<CParameter>& rParameters, UInt_t nyChannels,
-			   Float_t fyLow, Float_t fyHigh);
-  UInt_t NextId ()  ;
-  Bool_t ExceptionMode() const { return m_fExceptions; }
-  Bool_t ExceptionMode(Bool_t fNewMode) {
-    Bool_t fOldMode = m_fExceptions;
-    m_fExceptions   = fNewMode;
-    return fOldMode;
+      UInt_t* p = (UInt_t*)getStorage();
+      assert(p != (UInt_t*)kpNULL);                           // Spectrum storage must exist!!
+      int value = rParam;
+      p[nChannel] = p[nChannel]+value;	      // Increment the histogram.
   }
+}
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:   
+//    Boolt_t UsesParameter (UInt_t nId) const
+//  Operation Type:
+//     Selector
+     
+//
+Bool_t 
+CSpectrumS::UsesParameter(UInt_t nId) const
+{
+// Returns nParameter == m_nParameter
+//
+// Formal Parameters:
+//      UInt_t nParameter:
+//        The parameter being checked.
 
-protected:
-  STD(vector)<CParameter> ParameterArray(STD(vector)<STD(string)>& rParameters) ;
-  static void Require(DataType_t          dType,
-		      SpectrumType_t      sType,
-		      const STD(string)&  rName,
-		      STD(vector)<CParameter>& rparams, // Needs all this extra
-		      STD(vector)<UInt_t>&     rResolutions,	// junk to throw.
-		      UInt_t              nParams, 
-		      UInt_t              nResolutions);
-  static void MappedRequire(DataType_t         dType,
-			    SpectrumType_t     sType,
-			    const STD(string)& rName,
-			    STD(vector)<Float_t>&   rTransform,
-			    STD(vector)<UInt_t>&    rChannels,
-			    STD(vector)<CParameter>& ParameterList,
-			    UInt_t             nCoords,
-			    UInt_t             nChans);
-  static Float_t  DefaultAxisLength(UInt_t nChannels, 
-				    CParameter& rParam);
-};
+  return (m_nParameter == nId||
+	  m_nChannel == nId);
 
-#endif
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Function:
+//   ULong_t operator[](const UInt_t* pIndices) const
+// Operation:
+//   Selector.
+//
+ULong_t
+CSpectrumS::operator[](const UInt_t* pIndices) const
+{
+  // Provides the value of an element of the spectrum.
+  // note:  This is not a 'normal' indexing operation in that
+  // references are not returned.
+  //
+  UInt_t* p = (UInt_t*)getStorage();
+  UInt_t   n = pIndices[0];
+  if(n >= Dimension(0)) {
+    throw CRangeError(0, Dimension(0)-1, n,
+		      std::string("Indexing StripChart"));
+  }
+  return (ULong_t)p[n];
+		      
+}
+///////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//    virtual void CSpectrumS::set(const UInt_t* pIndices, ULong_t nValue)
+//
+// Operation Type:
+//    Mutator.
+//
+void
+CSpectrumS::set(const UInt_t* pIndices, ULong_t nValue)
+{
+  // Provides write access to a channel of the spectrum.
+  //
+  UInt_t* p = (UInt_t*)getStorage();
+  UInt_t   n = pIndices[0];
+  if(n >= Dimension(0)) {
+    throw CRangeError(0, Dimension(0)-1, n,
+		      std::string("Indexing StripChart"));
+  }
+  p[n] = (UInt_t)nValue;
+
+  
+}
+/////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//    void GetParameterIds(vector<UInt_t>& rvIds)
+//  Operation Type:
+//    Selector.
+//
+void
+CSpectrumS::GetParameterIds(vector<UInt_t>& rvIds)
+{
+  // Returns a vector containing the set of parameter Ids which are
+  // used to increment this spectrum.  In our case, there's just one
+  // id, the single parameter histogrammed.
+  // 
+  // Formal Parameters:
+  //    vector<UInt_t>& rvIds:
+  //       Refers to the vector to be returned.
+  //
+  rvIds.erase(rvIds.begin(), rvIds.end());// Clear the vector.
+  rvIds.push_back(m_nParameter);
+  rvIds.push_back(m_nChannel);
+}
+///////////////////////////////////////////////////////////////////////
+//
+//
+// Function:
+//    void GetResolutions(vector<UInt_t>&  rvResolutions)
+
+// Operation type:
+//    Selector
+void
+CSpectrumS::GetResolutions(vector<UInt_t>&  rvResolutions)
+{
+  // Returns a vector containing the set of spectrum resolutions.
+  // In this case it's just the single resolution.
+  //
+  rvResolutions.clear();
+  rvResolutions.push_back(m_nChannels);
+  
+}
+
+/*!
+   Create storage for the spectrum.  
+*/
+void
+CSpectrumS::CreateChannels()
+{
+  // Just need to allocate storage and pass it to our base class for
+  // management:
+
+  setStorageType(keLong);
+  ULong_t* pStorage = new ULong_t[m_nChannels];
+  ReplaceStorage(pStorage);	// Storage now owned by parent.
+  Clear();
+}
+
+
+/*!
+  Is called when the Strip chart data goes off the rightt end of 
+  the time axis.  All data is shifted to the left by nChannel's
+*/
+
+void
+CSpectrumS::ShiftDataDown(int nShift) 
+{
+    UInt_t* p = (UInt_t*)getStorage();
+    assert(p != (UInt_t*)kpNULL);
+    for (int i = 0; i < m_nChannels-nShift; i++) {
+      p[i] = p[i+nShift];
+    }
+    for (int i =  m_nChannels-nShift; i <= m_nChannels; i++) {
+      p[i] = 0;
+    }
+}
+
+
+void 
+CSpectrumS::ShiftDataUp(int nShift)
+{
+    UInt_t* p = (UInt_t*)getStorage();
+    assert(p != (UInt_t*)kpNULL);
+    for (int i =  m_nChannels ; i >= (nShift * -1); i--) {
+      p[i] = p[i+nShift];
+    }
+    for (int i = (nShift * -1) ; i >=0 ; i--) {
+      p[i] = 0;
+    }
+}

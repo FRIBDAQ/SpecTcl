@@ -1,5 +1,5 @@
 /*
-		    Gnu GENERAL PUBLIC LICENSE
+		    GNU GENERAL PUBLIC LICENSE
 		       Version 2, June 1991
 
  Copyright (C) 1989, 1991 Free Software Foundation, Inc.
@@ -235,10 +235,7 @@ those countries, so that distribution is permitted only in or among
 countries not thus excluded.  In such case, this License incorporates
 the limitation as if written in the body of this License.
 
-  9. The Free Software Foundation may publish revised and/or new versions 
-of the General Public License from time to time.  Such new versions will 
-be similar in spirit to the present version, but may differ in detail 
-to address new problems or concerns.
+  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
 
 Each version is given a distinguishing version number.  If the Program
 specifies a version number of this License which applies to it and "any
@@ -277,12 +274,18 @@ EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGES.
 
 		     END OF TERMS AND CONDITIONS '
-*/
-//  CSpectrumFactory.h:
+ */
+//  CSpectrumS.h:
+//    This file defines the CSpectrumS class.
+//  
+//  Modified by:
+//    Tim Hoagland
+//    NSCL / WIENER
+//    s04.thoagland@wittenberg.edu
 //
-//    This file defines the CSpectrumFactory class.
+// 
+//  Based off of CSpectrum1DL.h written by Ron Fox
 //
-// Author:
 //    Ron Fox
 //    NSCL
 //    Michigan State University
@@ -292,227 +295,141 @@ DAMAGES.
 //  Copyright 1999 NSCL, All Rights Reserved.
 //
 /////////////////////////////////////////////////////////////
+/*
+  Change Log:
+  
+    
+  May 5 2005 - StripChart spectra has been verified to work.  Thus making
+               this the first working version of this file. -Tim Hoagland
 
-
-/* Change log:
-   $Log$
-   Revision 5.1.2.2  2005/05/11 16:54:54  thoagland
-   Add Support for Stripchart Spectra
-
-   Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
-   Port to gcc 3.x compilers.
-
-   Revision 5.1  2004/11/29 16:56:09  ron-fox
-   Begin port to 3.x compilers calling this 3.0
-
-   Revision 4.2  2003/04/01 19:53:46  ron-fox
-   Support for Real valued parameters and spectra with arbitrary binnings.
 
 */
 
-#ifndef __SPECTRUMFACTORY_H  //Required for current class
-#define __SPECTRUMFACTORY_H
-          
-#ifndef __HISTOTYPES_H
-#include <histotypes.h>
-#endif                     
-
-#ifndef __PARAMETER_H
-#include "Parameter.h"
-#endif
-
-#ifndef __STL_VECTOR
-#include <vector>   //Required for include files, eg <CList.h>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
+#ifndef __SPECTRUMS_H  //Required for current class
+#define __SPECTRUMS_H
+                               //Required for base classes
+#ifndef __SPECTRUM_H
+#include "Spectrum.h"
+#endif                               
 
 #ifndef __STL_STRING
-#include <string>   
+#include <string>
 #ifndef __STL_STRING
 #define __STL_STRING
 #endif
 #endif
 
-
-//Required for include files, eg <CList.h>                               
-
-// Forward class definitions:
-
-class CSpectrum;
-                                                               
-class CSpectrumFactory      
-{
-  static UInt_t m_nNextId;  // Next Spectrum ID to assign.
-  Bool_t        m_fExceptions;	// If true, exceptions are thrown
-public:
-			//Default constructor
-			//Update to access base class attributes 
-			//Update to access 1:1 part class attributes 
-			//Update to access 1:M part class attributes
-			//Update to access 1:1 associated class attributes
-			//Update to access 1:M associated class attributes
-			//Ensure initial values entered
-  CSpectrumFactory (): m_fExceptions(kfTRUE)    { } 
-  ~ CSpectrumFactory ( ) { }       //Destructor
-	
-			//Copy constructor
-			//Update to access 1:M part class attributes
-			//Update to access 1:1 associated class attributes
-			//Update to access 1:M associated class attributes      
-  CSpectrumFactory (const CSpectrumFactory& aCSpectrumFactory ) 
-  {             
-  }                                     
-
-			//Operator= Assignment Operator
-
-  CSpectrumFactory& operator= (const CSpectrumFactory& aCSpectrumFactory)
-  { 
-    m_fExceptions = aCSpectrumFactory.m_fExceptions;
-    return *this;                                                           
-  }                                     
-
-			//Operator== Equality Operator
-			//Update to access 1:M part class attributes
-			//Update to access 1:1 associated class attributes
-			//Update to access 1:M associated class attributes      
-  int operator== (const CSpectrumFactory& aCSpectrumFactory)
-  { 
-    return (1);
-
-  }  
-  // Selectors:
-public:
-                       //Get accessor function for attribute
-  UInt_t getnNextId() const
-  {
-    return m_nNextId;
-  }
-          
-  // Mutators:
-protected:
-                       //Set accessor function for attribute
-  void setNextId (UInt_t am_nNextId)
-  { 
-    m_nNextId = am_nNextId;
-  }
-  // Actions provided by the class:
-
-public:                   
-  CSpectrum* CreateSpectrum (const STD(string)& rName,
-			     SpectrumType_t eSpecType, 
-			     DataType_t eDataType, 
-			     STD(vector)<STD(string)>& rParameters, 
-			     STD(vector)<UInt_t>&  rChannels,
-			     STD(vector)<Float_t>* pLows  = (STD(vector)<Float_t>*)kpNULL,
-			     STD(vector)<Float_t>* pHighs = (STD(vector)<Float_t>*)kpNULL);
-
-  CSpectrum* CreateSpectrum (const char* pName,
-			     SpectrumType_t eSpecType, 
-			     STD(vector)<STD(string)>& rParameters,
-			     DataType_t eDataType, 
-			     STD(vector)<UInt_t>&  rChannels,
-			     STD(vector)<Float_t>* pLows = (STD(vector)<Float_t>*)kpNULL,
-			     STD(vector)<Float_t>* pHighs= (STD(vector)<Float_t>*)kpNULL)
-    {
-      return CreateSpectrum(STD(string)(pName),
-			    eSpecType, eDataType, rParameters, rChannels,
-			    pLows, pHighs);
-    }
-
-  // Create 1d spectrum:
-
-  CSpectrum* Create1D (const STD(string)& rName, DataType_t eType, 
-		       CParameter Param, UInt_t  nChannels)  ;
-  CSpectrum* Create1D (const STD(string)& rName, DataType_t eType,
-		       CParameter Param, UInt_t  nChannels,
-		       Float_t fxLow, Float_t fxHigh);
-  
-  // Create StripChart spectrum:
-
-  CSpectrum* CreateStrip (const STD(string)& rName, DataType_t eType, 
-		       CParameter Param, CParameter Time, UInt_t  nChannels)  ;
-  CSpectrum* CreateStrip (const STD(string)& rName, DataType_t eType,
-		       CParameter Param,CParameter Time, UInt_t  nChannels,
-		       Float_t fxLow, Float_t fxHigh);
-  
-
-  // Create 2d Spectra:
-
-  CSpectrum* Create2D (const STD(string)& rName, DataType_t eType,
-		       CParameter xParam, CParameter yParam,
-		       UInt_t nXChannels, UInt_t nYChannels);
-  CSpectrum* Create2D (const STD(string)& rName, DataType_t eType, 
-		       CParameter xParam, CParameter yParam, 
-		       UInt_t nXChannels, 
-		       Float_t fXLow, Float_t fXHigh,
-		       UInt_t nYChanels,
-		       Float_t fYLow, Float_t fYHigh)  ;
-
-
-  CSpectrum* CreateG1D (const STD(string)& rName, DataType_t eType,
-			STD(vector)<CParameter>& rvParameters, UInt_t nResolution);
-  CSpectrum* CreateG1D(const STD(string)& rName, DataType_t eType,
-		       STD(vector)<CParameter>& rvParameters, UInt_t nChannels,
-		       Float_t fxLow, Float_t fxHigh);
-
-  CSpectrum* CreateG2D (const STD(string)& rName, DataType_t eType,
-			STD(vector)<CParameter>& rvParameters, UInt_t nXRes, 
-			UInt_t nYRes);
-  CSpectrum* CreateG2D(const STD(string)& rName, DataType_t eType,
-		       STD(vector)<CParameter>& rvParameters, 
-		       UInt_t nXChannels, 
-		       Float_t fxLow, Float_t fxHigh,
-		       UInt_t nYChannels,
-		       Float_t fyLow, Float_t fyHigh);
-
-#ifdef _USE_MAPPED_SPECTRA
-  CSpectrum* CreateMG1D(const STD(string)& rName, DataType_t eType,
-			STD(vector)<CParameter>& rvParameters, Float_t nLow,
-			Float_t nHigh, UInt_t nChans);
-  CSpectrum* CreateMG2D(const STD(string)& rName, DataType_t eType,
-			STD(vector)<CParameter>& rvParameters, 
-			Float_t nXLow, Float_t nYLow, Float_t nXHigh,
-			Float_t nYHigh, UInt_t nXChans, UInt_t nYChans);
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif 
 #endif
-  CSpectrum* CreateBit (const STD(string)& rName, DataType_t eType, 
-			CParameter Param, UInt_t nResolution)  ;
-  CSpectrum* CreateBit(const STD(string)& rName, DataType_t eType, 
-		       CParameter Param, UInt_t nLow, UInt_t nHigh);
 
-  CSpectrum* CreateSummary (const STD(string)& rName, DataType_t eType, 
-			    STD(vector)<CParameter>& rParameters, UInt_t nYRes)  ;
-  CSpectrum* CreateSummary(const STD(string)& rName, DataType_t eType, 
-			   STD(vector)<CParameter>& rParameters, UInt_t nyChannels,
-			   Float_t fyLow, Float_t fyHigh);
-  UInt_t NextId ()  ;
-  Bool_t ExceptionMode() const { return m_fExceptions; }
-  Bool_t ExceptionMode(Bool_t fNewMode) {
-    Bool_t fOldMode = m_fExceptions;
-    m_fExceptions   = fNewMode;
-    return fOldMode;
+#ifndef __HISTOTYPES_H
+#include <histotypes.h>
+#endif
+
+
+
+//  Foward Class definitions:
+
+class CParameter;               
+                
+/*!
+   Implements 1d StripChart histograms with Longword channel buckets.  The histogram
+   works on arbitrary parameters (reals, integers, mapped integers).  The
+   Axis of the spectrum can represent an arbitrary range of parameter space.
+
+*/
+
+class CSpectrumS  : public CSpectrum
+{
+  Int_t m_nChannels;	      //!< Number of channels.
+  UInt_t m_nChannel;          //!< Time channel
+  UInt_t m_nParameter;	      //!< Count to add to channel
+  UInt_t m_nOffset;           //!< Spectrum channel Offest
+
+  
+public:
+
+  CSpectrumS(const STD(string)&         rName, 
+	       UInt_t                   nId,
+	       const CParameter&        rParameters,
+	       const CParameter&        nChannel,
+	       UInt_t                   nChannels);
+
+  CSpectrumS(const std::string&         rName,
+	       UInt_t                   nId,
+	       const CParameter&        rParameters,
+ 	       const CParameter&        nChannel,
+	       UInt_t                   nChannels,
+	       Float_t                  fLow, 
+	       Float_t                  fHigh);
+
+
+  virtual  ~ CSpectrumS( ) { }       //Destructor	
+private:
+			//Copy constructor [illegal]
+
+  CSpectrumS(const CSpectrumS& acspectrumS); 
+
+			//Operator= Assignment Operator [illegal] 
+
+  CSpectrumS operator= (const CSpectrumS& aCSpectrumS);
+
+			//Operator== Equality Operator [Not too useful but:]
+public:
+  int operator== (const CSpectrumS& aCSpectrumS)
+  { return (
+	    (CSpectrum::operator== (aCSpectrumS)) &&
+	    (m_nChannels == aCSpectrumS.m_nChannels) 
+	    // (m_nParameter == aCSpectrumS.m_nParameter)
+	    );
+  }                             
+  // Selectors 
+
+public:
+
+  UInt_t getParameter() const
+  {
+    return m_nParameter;
   }
+  virtual SpectrumType_t getSpectrumType() {
+    return keStrip;
+  }
+  // Mutators (available to derived classes:
 
 protected:
-  STD(vector)<CParameter> ParameterArray(STD(vector)<STD(string)>& rParameters) ;
-  static void Require(DataType_t          dType,
-		      SpectrumType_t      sType,
-		      const STD(string)&  rName,
-		      STD(vector)<CParameter>& rparams, // Needs all this extra
-		      STD(vector)<UInt_t>&     rResolutions,	// junk to throw.
-		      UInt_t              nParams, 
-		      UInt_t              nResolutions);
-  static void MappedRequire(DataType_t         dType,
-			    SpectrumType_t     sType,
-			    const STD(string)& rName,
-			    STD(vector)<Float_t>&   rTransform,
-			    STD(vector)<UInt_t>&    rChannels,
-			    STD(vector)<CParameter>& ParameterList,
-			    UInt_t             nCoords,
-			    UInt_t             nChans);
-  static Float_t  DefaultAxisLength(UInt_t nChannels, 
-				    CParameter& rParam);
+  void setScale (UInt_t am_nScale)
+  { 
+    m_nChannels = am_nScale;
+  }
+  void setParameter (UInt_t am_nParameter)
+  { 
+    
+    m_nChannel = am_nParameter;
+  }
+
+  //
+  //  Operations:
+  //   
+public:
+
+  virtual   void Increment (const CEvent& rE);
+  virtual   ULong_t operator[](const UInt_t* pIndices) const;
+  virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
+  virtual   Bool_t UsesParameter (UInt_t nId) const;
+
+  virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
+  virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
+  void ShiftDataUp (int nShift);
+  void ShiftDataDown(int nShift);
+
+
+  // Utility functions:
+protected:
+  void CreateChannels();	//!< Create storage.
 };
 
 #endif

@@ -298,6 +298,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.2  2005/05/11 16:54:54  thoagland
+  Add Support for Stripchart Spectra
+
   Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
   Port to gcc 3.x compilers.
 
@@ -312,7 +315,7 @@ DAMAGES.
 
   Revision 4.7  2004/02/03 21:32:58  ron-fox
   Make definitions of spectra from resolutions consistent with those that have ranges.
-
+  /*
   Revision 4.6.2.1  2004/02/02 21:47:08  ron-fox
   *** empty log message ***
 
@@ -478,7 +481,8 @@ CSpectrum1DL::Increment(const CEvent& rE)
 
 
   if(rParam.isValid()) {  // Only increment if param present.
-    Int_t nChannel = (Int_t)ParameterToAxis(0, rParam);
+    Int_t nChannel =
+   (Int_t)ParameterToAxis(0, rParam);
     
     if((nChannel < (m_nChannels)) &&
        (nChannel >= 0)) {  // 
