@@ -331,6 +331,7 @@ properties:</span></p>
   <p class=MsoNormal><span style='mso-bookmark:Top'>2d spectrum of a list of at
   least two parameters is created.</span></p>
   </td>
+
   <span style='mso-bookmark:Top'></span>
  </tr>
  <tr>
@@ -354,6 +355,17 @@ properties:</span></p>
   <td style='padding:2.25pt 2.25pt 2.25pt 2.25pt'>
   <p class=MsoNormal><span style='mso-bookmark:Top'>Bitmask spectrum of a
   single parameter is created</span></p>
+  </td>
+  <span style='mso-bookmark:Top'></span>
+ </tr>
+<tr>
+  <td style='padding:2.25pt 2.25pt 2.25pt 2.25pt'>
+  <p class=MsoNormal><span style='mso-bookmark:Top'>S</span></p>
+  </td>
+  <span style='mso-bookmark:Top'></span>
+  <td style='padding:2.25pt 2.25pt 2.25pt 2.25pt'>
+  <p class=MsoNormal><span style='mso-bookmark:Top'>A Strip Chart Spectrum
+  is created </span></p>
   </td>
   <span style='mso-bookmark:Top'></span>
  </tr>
@@ -451,6 +463,17 @@ properties:</span></p>
   </td>
   <span style='mso-bookmark:Top'></span>
  </tr>
+ <tr>
+  <td style='padding:2.25pt 2.25pt 2.25pt 2.25pt'>
+  <p class=MsoNormal><span style='mso-bookmark:Top'>S</span></p>
+  </td>
+  <span style='mso-bookmark:Top'></span>
+  <td style='padding:2.25pt 2.25pt 2.25pt 2.25pt'>
+  <p class=MsoNormal><span style='mso-bookmark:Top'>The names of the parameters
+  to be used as the time and value for the StripChart.</span></p>
+  </td>
+  <span style='mso-bookmark:Top'></span>
+ </tr>
 </table>
 
 <ul type=disc>
@@ -542,6 +565,17 @@ properties:</span></p>
   parameter. e.g. if b = 3 then an 8 channel spectrum of the bottom 8 bits is
   created. Values larger than 32 are allowed, but not very sensible at this
   time.</span></p>
+  </td>
+  <span style='mso-bookmark:Top'></span>
+ </tr>
+<tr>
+  <td style='padding:2.25pt 2.25pt 2.25pt 2.25pt'>
+  <p class=MsoNormal><span style='mso-bookmark:Top'>S</span></p>
+  </td>
+  <span style='mso-bookmark:Top'></span>
+  <td style='padding:2.25pt 2.25pt 2.25pt 2.25pt'>
+  <p class=MsoNormal><span style='mso-bookmark:Top'>The single resolution of
+  the X axis.</span></p>
   </td>
   <span style='mso-bookmark:Top'></span>
  </tr>
@@ -639,7 +673,8 @@ switch is optional. The spectrum attributes are assigned as follows:</span></p>
 <BR>
 <pre><span style='mso-bookmark:Top'>spectrum name1<span style="mso-spacerun: yes">&nbsp;&nbsp; </span>1<span style="mso-spacerun: yes">&nbsp; </span>res<span style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp; </span>12<span style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>;# 4096 channels 0-4095</span></pre><pre><span
 style='mso-bookmark:Top'>spectrum name2<span style="mso-spacerun: yes">&nbsp; </span><span style="mso-spacerun: yes">&nbsp;</span>1<span style="mso-spacerun: yes">&nbsp; </span>spec<span style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; </span>{{-10.0 10.0 200}} ;# 200 channels in the range [-10, 10).</span></pre><pre><span
-style='mso-bookmark:Top'>spectrum name3<span style="mso-spacerun: yes">&nbsp;&nbsp; </span>2 {res spec} {12 {-10.0 10.0 200}} ;# X is res y is spec/</span></pre>
+style='mso-bookmark:Top'>spectrum name3<span style="mso-spacerun: yes">&nbsp;&nbsp; </span>2 {res spec} {12 {-10.0 10.0 200}} ;# X is res y is spec/</span></pre><pre><span
+style='mso-bookmark:Top'>spectrum name4<span style="mso-spacerun: yes">&nbsp;&nbsp; </span>S {time value} 10 ;# 10 bit x-Axis/</span></pre>
 
 <ul type=disc>
  <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
