@@ -389,3 +389,10 @@ void CBufferDecoder::ThrowIfNoBuffer(const char* pszWhatImDoing) {
     throw e;
   }
 } 
+
+void
+CBufferDecoder::OnAttach(CAnalyzer& junk)
+{}
+void
+CBufferDecoder::OnDetach(CAnalyzer& junk)
+{}

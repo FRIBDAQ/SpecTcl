@@ -398,8 +398,8 @@ public:
 			   Address_t pBuffer,
 			   CAnalyzer& rAnalyzer);
 
-  virtual void OnAttach(CAnalyzer& rAnalyzer) {}
-  virtual void OnDetach(CAnalyzer& rAnalyzer) {}
+  virtual void OnAttach(CAnalyzer& rAnalyzer);
+  virtual void OnDetach(CAnalyzer& rAnalyzer);
 
   // Utilities available to derived classes:
  protected:

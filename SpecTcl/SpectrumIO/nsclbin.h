@@ -356,7 +356,7 @@ class nsclbin {
   int elements, totcount;
   spcbin *data;
   nsclbinerror *errorholder;
-  const static double recordsize = 1024;  //1k record sizes
+  const static double recordsize;  //1k record sizes
    
 };
 

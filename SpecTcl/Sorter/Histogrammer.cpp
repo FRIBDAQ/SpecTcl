@@ -303,6 +303,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 5.1.2.7  2005/05/11 21:26:15  ron-fox
+  - Add -pedantic and deal with the fallout.
+  - Fix long standing issues with sread/swrite -format binary
+  - Merge in Tim's strip chart spectrum and ensure stuff builds
+    correctly.
+
   Revision 5.1.2.6  2005/05/02 20:14:41  ron-fox
   Little changes to support gcc 3.4 compiler which is a bit stricter even.
 
@@ -632,7 +638,7 @@ void CHistogrammer::operator()(CEventList& rEvents) {
   //  Flatten the gates map into pGates:
 
   UInt_t nGates = GateCount();
-  CGateContainer* pGates[nGates]; // Holds pointer to gate containers.
+  CGateContainer** pGates = new CGateContainer*[nGates]; // Holds pointer to gate containers.
   CGateDictionaryIterator pg = GateBegin();
   CGateDictionaryIterator pge= GateEnd();
   CGateContainer** ppGate = pGates;
@@ -643,7 +649,7 @@ void CHistogrammer::operator()(CEventList& rEvents) {
   // Flatten the Spectra into pSpectra:
 
   UInt_t nSpectra = SpectrumCount();
-  CSpectrum*      pSpectra[nSpectra]; // Pointers to spectra.
+  CSpectrum**      pSpectra = new CSpectrum*[nSpectra]; // Pointers to spectra.
   CSpectrum**     ppSpectra = pSpectra;
   SpectrumDictionaryIterator ps = SpectrumBegin();
   SpectrumDictionaryIterator pse= SpectrumEnd();
@@ -667,9 +673,11 @@ void CHistogrammer::operator()(CEventList& rEvents) {
 		 nGates, pGates);
     }
     else {
-      return;
+      break;
     }
   }
+  delete []pGates;
+  delete []pSpectra;
 };
 
 /*!

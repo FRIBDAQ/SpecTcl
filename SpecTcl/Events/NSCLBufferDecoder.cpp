@@ -584,3 +584,5 @@ void CNSCLBufferDecoder::operator()(UInt_t nBytes,
 string CNSCLBufferDecoder::getTitle() {
   return m_sTitle;
 }
+
+

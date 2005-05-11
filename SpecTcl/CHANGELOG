@@ -285,5 +285,8 @@ May 2, 2005
    - Support GCC-3.4 compiler
 May 11, 2005 
   - Added support for StripChart Spectra
-   - Check the compiler type in configure to see if we can use -pedantic
+  - Check the compiler type in configure to see if we can use -pedantic
      and do so if we can.
+  - Debug -pedantic effects on compilation.
+  - Fix defects nobody noticed in swrite -format binary/sread -format binary
+    Probably introduced about SpecTcl-2.0  

@@ -335,6 +335,7 @@ public:
   virtual void getByteOrder(Short_t& Signature16, Int_t& Signature32);
   virtual STD(string) getTitle();
 
+
   virtual void operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAnalyzer);
 };
 

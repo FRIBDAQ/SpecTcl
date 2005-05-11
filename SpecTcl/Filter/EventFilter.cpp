@@ -257,7 +257,7 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
    int nParams = m_vParameterIds.size();
    int nBitmaskwords = ((nParams + sizeof(unsigned)*8 - 1) /
 			(sizeof(unsigned)*8)); // Assumes 8 bits/byte
-   unsigned Bitmask[nBitmaskwords];
+   unsigned* Bitmask = new unsigned[nBitmaskwords];
 
    for(int i = 0; i < nBitmaskwords; i++) {
      Bitmask[i] = 0;
@@ -277,6 +277,7 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
    // selected subset.
    //
    if(!nValid) {
+     delete []Bitmask;
      return;
    }
 
@@ -310,6 +311,7 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
          *m_pOutputEventStream << rEvent[m_vParameterIds[i]];
       }
    }
+   delete []Bitmask;
 }
 /*!
    Return the default name of a filter file.  This is ~/filter.flt

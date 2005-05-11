@@ -293,6 +293,12 @@ DAMAGES.
 /*
    Change log:
    $Log$
+   Revision 5.1.2.3  2005/05/11 21:26:41  ron-fox
+   - Add -pedantic and deal with the fallout.
+   - Fix long standing issues with sread/swrite -format binary
+   - Merge in Tim's strip chart spectrum and ensure stuff builds
+     correctly.
+
    Revision 5.1.2.2  2005/05/11 16:56:48  thoagland
    Added Support for StripChart Spectra
 
@@ -463,7 +469,7 @@ typedef enum {			// types of spectra in prompter.
   keAny,			// Any type is legit.
   ke1d,				// 1-d only.
   ke2d,				// 2-d only.
-  keCompatible,			// Only those compatible with selected.   
+  keCompatible			// Only those compatible with selected.   
 } DialogSpectrumType_t;
 
 typedef enum _SpectrumType_t {

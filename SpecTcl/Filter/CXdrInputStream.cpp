@@ -571,9 +571,10 @@ CXdrInputStream::operator>>(char* c)
 CXdrInputStream&
 CXdrInputStream::operator>>(string& s) 
 {
-  char strbuf[m_nBuffersize];
+  char* strbuf =  new char[m_nBuffersize];
   (*this) >> strbuf;
   s = strbuf;
+  delete []strbuf;
   return *this;
 
 }  

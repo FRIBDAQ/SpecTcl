@@ -157,8 +157,8 @@ CLinearFit::Perform()
   // function.
 
   int    nPoints = size();
-  double x[nPoints];
-  double y[nPoints];
+  double* x = new double[nPoints];
+  double* y = new double[nPoints];
   CFit::PointIterator p = begin();
   for(int i =0; i < nPoints; i++) {
     CFit::Point point = *p++;
@@ -176,7 +176,8 @@ CLinearFit::Perform()
   // Indicate the fit was done:
 
   SetFitState(CFit::Performed);
-
+  delete []x;
+  delete []y;
 }  
 
 /*! ;

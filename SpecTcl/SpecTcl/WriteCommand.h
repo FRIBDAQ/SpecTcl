@@ -340,7 +340,7 @@ public:
 
 public:
   virtual
-  int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+  int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 				int nArgs, char* pArgs[])  ;
 protected:
   int    CountValidSpectra(char** pSpectrum, int nSpectra);

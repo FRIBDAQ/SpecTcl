@@ -619,13 +619,13 @@ size_t
 CXdrOutputStream::sizeofItem(const void* item, xdrproc_t converter) const
 {
   XDR  x;
-  char buffer[m_nBuffersize];	// can't do bigger than this.
+  char* buffer = new char[m_nBuffersize];	// can't do bigger than this.
   xdrmem_create(&x, buffer, m_nBuffersize, XDR_ENCODE);
   (*converter)(&x, (void*)item);
 
   size_t result = xdr_getpos(&x);
   xdr_destroy(&x);
-
+  delete []buffer;
   return result;
 }
 /*!
