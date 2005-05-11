@@ -306,6 +306,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
+// Revision 5.1.2.2  2005/05/11 16:56:07  thoagland
+// dded Support for StripChart Spectra
+//
 // Revision 5.1.2.1  2004/12/15 17:24:06  ron-fox
 // - Port to gcc/g++ 3.x
 // - Recast swrite/sread in terms of tcl[io]stream rather than
@@ -356,6 +359,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLString.h"
 #include <RangeError.h>
 #include <Exception.h>
+
 
 #include <tcl.h>
 #include <string.h>

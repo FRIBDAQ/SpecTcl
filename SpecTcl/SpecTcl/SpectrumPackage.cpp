@@ -290,11 +290,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //      mailto:fox@nscl.msu.edu
 //
 // Change Log:
+//     
+//    May 5, 2005 - Added Support for StripChart specrtra
+//
 //    July 3, 1999 - Changed the way spectra are created to take advantage
 //                   of CSpectrumFactory: removed New1d(), New2d() and 
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
+//    Revision 5.1.2.3  2005/05/11 16:56:07  thoagland
+//    dded Support for StripChart Spectra
+//
 //    Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
 //    Add SpecTcl Application programming interface and make use of it
 //    in spots.
@@ -397,6 +403,7 @@ static const SpecTypes aSpecTypes[] = {
   {"g2",   keG2D},
   {"g2d",  keG2D},
   {"s",    keSummary},
+  {"S",    keStrip},
   {"summary", keSummary},
   {"b",    keBitmask},
   {"bitmask", keBitmask}
@@ -2139,6 +2146,7 @@ CSpectrumPackage::Datatype(SpectrumType_t st, const char* pType)
   if(!pType) 
     switch(st) {
     case ke1D:
+    case keStrip:
     case keBitmask:
     case keG1D:
       return keLong;
