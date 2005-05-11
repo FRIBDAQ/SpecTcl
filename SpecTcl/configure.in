@@ -746,6 +746,23 @@ AM_CONDITIONAL(CPPUNIT, test $havecppunit == "yes")
 
 AC_CHECK_PROG(MANDB, mandb, mandb, echo)
 
+#
+#   We'd like to compile with -pedantic if supported
+#   Intel looks like gcc so we check explicitly for a gcc
+#   named compiler
+#
+
+AC_MSG_CHECKING([gcc so use -pedantic?])
+
+if `echo $CC | grep -q gcc` 
+then 
+     CFLAGS="$CFLAGS -pedantic"
+     CXXFLAGS="$CXXFLAGS -pedantic"
+     AC_MSG_RESULT(yes)
+else  
+     AC_MSG_RESULT(no)
+fi
+
 # mandb:
 
 AC_SUBST(MANDB)

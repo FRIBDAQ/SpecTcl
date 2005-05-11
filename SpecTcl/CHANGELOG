@@ -283,3 +283,6 @@ May 2, 2005
      longer a fixed compilation limit on the number of gates /objects that
      can be defined.
    - Support GCC-3.4 compiler
+May 11, 2005
+   - Check the compiler type in configure to see if we can use -pedantic
+     and do so if we can.
