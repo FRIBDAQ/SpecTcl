@@ -293,6 +293,14 @@ DAMAGES.
 /*
    Change log:
    $Log$
+   Revision 5.1.2.2  2005/05/11 16:56:48  thoagland
+   Added Support for StripChart Spectra
+
+
+   2005/05/05 Tim Hoagland
+   Added support for StripChart Spectra
+   
+
    Revision 5.1.2.1  2004/12/21 17:51:28  ron-fox
    Port to gcc 3.x compilers.
 
@@ -435,7 +443,7 @@ operator>>(STD(istream)& in, DataType_t& t)
 
 typedef enum {			// Types of display program gates.
    kgCut1d,			// 1-d cut gate (upper lower limit)
-   kgContour2d,		// 2-d closed countour
+   kgContour2d,	 	        // 2-d closed countour
    kgBand2d,			// 2-d open band
    kgGammaCut1d,
    kgGammaBand1d,
@@ -455,7 +463,7 @@ typedef enum {			// types of spectra in prompter.
   keAny,			// Any type is legit.
   ke1d,				// 1-d only.
   ke2d,				// 2-d only.
-  keCompatible			// Only those compatible with selected.
+  keCompatible,			// Only those compatible with selected.   
 } DialogSpectrumType_t;
 
 typedef enum _SpectrumType_t {
@@ -465,7 +473,8 @@ typedef enum _SpectrumType_t {
   keSummary,
   keG1D,
   keG2D,
-  keUnknown
+  keUnknown,
+  keStrip
 } SpectrumType_t;
 
 
@@ -489,6 +498,9 @@ operator<<(STD(ostream)& out, SpectrumType_t t)
     break;
   case keG1D:
     out << "g1";
+    break;
+  case keStrip:
+    out << 'S';
     break;
   case keG2D:
     out << "g2";
@@ -519,6 +531,9 @@ operator>>(STD(istream)& in, SpectrumType_t& t)
     break;
   case 's':
     t = keSummary;
+    break;
+  case 'S':
+    t = keStrip;
     break;
   case 'g':
     in >> c;
