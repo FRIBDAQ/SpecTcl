@@ -496,15 +496,22 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // buffer formats.. .later we'll build an extensible set of buffer
   // decoders like the -format switch on the sread/swrite commands.
 
+
+  // Note well, since this mistake was already made once:
+  // We can't delete the gpBufferDecoder prior to setting
+  // a new one because setting the buffer decoder
+  // calls the OnDetach method of the decoder.
+  //
+  //
+
+  CBufferDecoder* oldDecoder = gpBufferDecoder;  // for later delete.
   
   if (options.Format == string("nscl")) {
  
-   delete gpBufferDecoder;	// Deletes of null is no-op.
     gpBufferDecoder = new CNSCLBufferDecoder;
 
   } else  if (options.Format == string("filter")) {
 
-    delete gpBufferDecoder;
     gpBufferDecoder = new CFilterBufferDecoder;
   } else if (options.Format == string("unchanged")) {
     ;				// Leave everything well enough alone!!!
@@ -519,8 +526,14 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_ERROR;
 
   }
-  if(gpAnalyzer) {
+  // Can only set a decoder if there's an analyzer
+  // and we don't want to thrash decoders if it
+  // turned out the logic above did not replace
+  // the old one.
+  //
+  if(gpAnalyzer && (oldDecoder != gpBufferDecoder)) {
     gpAnalyzer->AttachDecoder(*gpBufferDecoder);
+    delete oldDecoder; 
   }
 
   // It's now up to the individual attachers to figure out what's

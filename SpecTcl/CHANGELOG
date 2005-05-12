@@ -290,3 +290,6 @@ May 11, 2005
   - Debug -pedantic effects on compilation.
   - Fix defects nobody noticed in swrite -format binary/sread -format binary
     Probably introduced about SpecTcl-2.0  
+May 12, 2005
+  - Fixed attach -format .... error that probably only expresses on 
+    gcc-3.x since nobody's seen/reported it but me until now
