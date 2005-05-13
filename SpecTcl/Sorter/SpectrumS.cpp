@@ -300,8 +300,10 @@ DAMAGES.
 /*
   Change Log:
   
-  May 5 2005 - StripChart spectra has been verified to work.  Thus making
-               this the first working version of this file. -Tim Hoagland
+  May  5 2005 - StripChart spectra has been verified to work.  Thus making
+                this the first working version of this file. -Tim Hoagland
+  May 13 2005 - Fixed an error in GetParameterId in which the function
+                returned the parameters in the wrong order -Tim Hoagland
 
 
 */
@@ -523,8 +525,8 @@ CSpectrumS::GetParameterIds(vector<UInt_t>& rvIds)
   //       Refers to the vector to be returned.
   //
   rvIds.erase(rvIds.begin(), rvIds.end());// Clear the vector.
-  rvIds.push_back(m_nParameter);
   rvIds.push_back(m_nChannel);
+  rvIds.push_back(m_nParameter);
 }
 ///////////////////////////////////////////////////////////////////////
 //
