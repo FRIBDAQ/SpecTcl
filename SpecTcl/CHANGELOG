@@ -293,3 +293,6 @@ May 11, 2005
 May 12, 2005
   - Fixed attach -format .... error that probably only expresses on 
     gcc-3.x since nobody's seen/reported it but me until now
+May 13, 2005
+  - Fixed problem in Strip chart so that the parameter list is returned 
+    in the correct order
