@@ -64,9 +64,12 @@ proc CreateSpectrumGenerator {parent} {
 			radiobutton $type.n.1g -text "Gamma1D" -variable spectrumType -value g1 -command SpectrumType1G -background $optionscolor
 			radiobutton $type.n.2g -text "Gamma2D" -variable spectrumType -value g2 -command SpectrumType2G -background $optionscolor
 #			radiobutton $type.n.gp -text "GammaP" -variable spectrumType -value gp -command SpectrumTypeGP -background $optionscolor
-			grid $type.n.1d $type.n.bit -sticky w
+                        radiobutton $type.n.sc -text "StripChart" -variable spectrumType -value S -command SpectrumTypeS -background $optionscolor
+		
+                	grid $type.n.1d $type.n.bit -sticky w
 			grid $type.n.2d $type.n.1g -sticky w
 			grid $type.n.sum $type.n.2g -sticky w
+                        grid $type.n.sc -sticky w -columnspan 2
 			pack $type.label $type.n
 		pack $type -expand 1 -fill both -side left
 	
@@ -138,11 +141,11 @@ proc CreateSpectrumGenerator {parent} {
 		frame $varx -borderwidth 2 -relief groove -background $bottomcolor
 			entry $varx.varlabel -textvariable spectrumParameterX -background $bottomcolor
 			menubutton $varx.varmenu -text "X Parameter" -background $bottomcolor
-			label $varx.lowlabel -text Low -background $bottomcolor
+			label $varx.lowlabel -text Low -background $bottomcolor 
 			entry $varx.low -textvariable spectrumLowX -background $bottomcolor -width 6
 			label $varx.highlabel -text High -background $bottomcolor
 			entry $varx.high -textvariable spectrumHighX -background $bottomcolor -width 6
-			menubutton $varx.binsmenu -text Bins -background $bottomcolor
+			menubutton $varx.binsmenu -text Bins -background $bottomcolor 
 			entry $varx.bins -textvariable spectrumBinsX -background $bottomcolor -width 4
 			label $varx.unitlabel -text Unit -background $bottomcolor
 			label $varx.unit -textvariable spectrumUnitX -background $bottomcolor -width 8
@@ -349,6 +352,25 @@ proc SpectrumTypeGP {} {
 	$wname.bins configure -state normal
 	set wname $tops.middle.command.generatearray
 	$wname configure -state disabled
+}
+
+proc SpectrumTypeS {} {
+        global spectrumType spectrumDatatype spectrumName spectrumParameterX spectrumResolutionX spectrumParameterY spectrumResolutionY
+	global tops
+	set wname $tops.options.datatype.n
+	$wname.byte configure -state disabled
+	$wname.long configure -state normal
+	set spectrumDatatype long
+	$tops.bottom.varx.varmenu configure -text "Time Parameter"
+	set wname $tops.bottom.vary
+	$wname.varlabel configure -state normal
+	$wname.varmenu configure -state normal -text "Count Parameter"
+	$wname.low configure -state  disabled
+	$wname.high configure -state disabled
+	$wname.bins configure -state disabled
+	set wname $tops.middle.command.generatearray
+	$wname configure -state normal
+
 }
 
 proc SpectrumParameterXCommand {p1 p2 p3} {
@@ -563,6 +585,12 @@ proc GenerateSpectrum {} {
 			set spectrumResolutionList [list $spectrumAxisX $spectrumAxisY]
 			CreateSpectrum $spectrumList $spectrumName $spectrumParameterList $spectrumResolutionList
 		}
+	        S {
+		    set spectrumAxisX [list $spectrumLowX $spectrumHighX $spectrumBinsX]
+		    set spectrumResolutionList [list $spectrumAxisX]
+                    set spectrumParameterList [list $spectrumParameterX $spectrumParameterY]
+		    CreateSpectrum $spectrumList $spectrumName $spectrumParameterList  $spectrumResolutionList
+		} 
 	}
 	UpdateSpectrumList
 	Modified
@@ -721,6 +749,17 @@ proc UpdateSpectrumList {} {
 				set lowy [format %g [lindex [lindex $resolutions 1] 0]]
 				set highy [format %g [lindex [lindex $resolutions 1] 1]]
 				set binsy [lindex [lindex $resolutions 1] 2]
+			}
+                 	S {
+				set ltype "Strip"
+        			set varx [lindex $parameters 0]
+				set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+				set highx [format %g [lindex [lindex $resolutions 0] 1]]
+				set binsx [lindex [lindex $resolutions 0] 2]
+			        set vary [lindex $parameters 1]
+				set lowy ""
+				set highy ""
+				set binsy ""
 			}
 		    default {
 		    }
