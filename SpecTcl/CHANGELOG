@@ -296,3 +296,6 @@ May 12, 2005
 May 13, 2005
   - Fixed problem in Strip chart so that the parameter list is returned 
     in the correct order
+--------------------------- End of Pre3 mods ------------
+May 17, 2005
+  - Set map to on by default in Xamine.
