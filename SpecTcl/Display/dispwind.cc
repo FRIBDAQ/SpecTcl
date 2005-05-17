@@ -333,7 +333,7 @@ void win_attributed::set_defaults()
   nofloor(); noceiling();	/* Don't cut off the heights. */
   update_time = 0;
   noautoupdate();		/* Turn off autoupdate. */
-  setmapped(FALSE);
+  setmapped(TRUE);
 }
 
 /*
