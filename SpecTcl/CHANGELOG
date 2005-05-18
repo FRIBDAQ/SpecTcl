@@ -299,3 +299,7 @@ May 13, 2005
 --------------------------- End of Pre3 mods ------------
 May 17, 2005
   - Set map to on by default in Xamine.
+May 18, 2005
+  - Add support for CTCLString::AppendElement(DFloat_t, const char* format)
+    use it in parameter package's  parameter list of mapped parameters
+    as a test.

@@ -366,6 +366,23 @@ CTCLString::AppendElement(const char* pRhs)
   return *this;
 
 }
+/*!
+   Append a double as an element of a string.
+  
+   \param value   - The value to append.
+   \param pFormat - an sprintf formatting string (defaults to "%f")
+                    that describes how the float is to be formatted.
+   \return CTCLString&
+   \retval Reference to *this.
+*/
+CTCLString&
+CTCLString::AppendElement(DFloat_t value, const char* pFormat)
+{
+  char buffer[100];
+  sprintf(buffer, pFormat, value);
+  return AppendElement(buffer);
+
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -405,6 +422,7 @@ CTCLString::EndSublist()
   return *this;
 
 }
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

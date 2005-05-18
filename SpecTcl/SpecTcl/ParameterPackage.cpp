@@ -770,11 +770,8 @@ CParameterPackage::getParameterInfoListString(CParameter& rParameter)
   if(rParameter.getLow() != rParameter.getHigh()) { // Parameter has range:
     List.StartSublist();
 
-    sprintf(Text, "%f", rParameter.getLow());
-    List.AppendElement(Text);
-
-    sprintf(Text, "%f", rParameter.getHigh());
-    List.AppendElement(Text);
+    List.AppendElement(rParameter.getLow());
+    List.AppendElement(rParameter.getHigh());
 
     List.AppendElement(rParameter.getUnits());
 

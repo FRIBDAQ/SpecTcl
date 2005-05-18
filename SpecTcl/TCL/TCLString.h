@@ -429,6 +429,7 @@ public:
     return AppendElement(rRhs.c_str());
   }
   CTCLString& AppendElement (const char*             pRhs);
+  CTCLString& AppendElement(DFloat_t value, const char* pFormat = "%f");
   //
   // List/sublist bracketing calls:
   //
