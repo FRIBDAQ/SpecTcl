@@ -67,6 +67,16 @@ defined are:</p>
   <li>AND - True if all dependent gates are true.</li>
   <li>OR - True if any dependent gate is true.</li>
 </ul>
+<p>The Mask Gates take a bit pattern and compares it to the parameter value.
+They can be used in complex gates.&nbsp; The mask gates
+defined are:</p>
+<ul>
+  <li>MaskEquals(em) - True if the compare value is equal to the parameter value.</li>
+  <li>MaskAnd(am) - True if the compare value bitwise anded with the parameter value equals
+	            the comparator value.</li>
+  <li>MaskNot(nm) - True if the compare value bitwise anded with the bitwise not of the
+	            the comparator value equals the bitwise not of the comparator value
+</ul>
 <p>&nbsp;</p>
 <hr>
 <p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"

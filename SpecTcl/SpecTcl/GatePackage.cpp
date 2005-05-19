@@ -297,6 +297,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.5  2005/05/19 18:03:32  thoagland
+  Added Support for AndMask and NotMask gates
+
   Revision 5.1.2.4  2005/05/19 10:36:34  thoagland
   Added support for mask equals gates
 
@@ -339,6 +342,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <GammaContour.h>
 #include <MaskGates.h>
 #include <MaskEqualGate.h>
+#include <MaskAndGate.h>
+#include <MaskNotGate.h>
 
 #include <GateFactory.h>
 
@@ -855,9 +860,9 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     Result.EndSublist();
   }
 
-  else if ( type == "em") {
-    CMaskEqualGate& rEqual((CMaskEqualGate&)*rGate);  
-    UInt_t nPid = rEqual.getId();
+  else if (type == "em") {
+    CMaskEqualGate& rMask((CMaskEqualGate&)*rGate);  
+    UInt_t nPid = rMask.getId();
     CParameter* Param = m_pHistogrammer->FindParameter(nPid);
     if(Param) {
       Result.AppendElement(Param->getName());
@@ -865,11 +870,42 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     else {
       Result.AppendElement("-Deleted Parameter-");
     }    
-    long value = rEqual.getCompare();
+    long value = rMask.getCompare();
     Result.AppendElement(value ,"%#X");
     Result.EndSublist();
     return Result;
   }
+ else if (type == "am") {
+    CMaskAndGate& rMask((CMaskAndGate&)*rGate);  
+    UInt_t nPid = rMask.getId();
+    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    if(Param) {
+      Result.AppendElement(Param->getName());
+    }
+    else {
+      Result.AppendElement("-Deleted Parameter-");
+    }    
+    long value = rMask.getCompare();
+    Result.AppendElement(value ,"%#X");
+    Result.EndSublist();
+    return Result;
+  }
+ else if (type == "nm") {
+    CMaskNotGate& rMask((CMaskNotGate&)*rGate);  
+    UInt_t nPid = rMask.getId();
+    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    if(Param) {
+      Result.AppendElement(Param->getName());
+    }
+    else {
+      Result.AppendElement("-Deleted Parameter-");
+    }    
+    long value = rMask.getCompare();
+    Result.AppendElement(value ,"%#X");
+    Result.EndSublist();
+    return Result;
+  }
+
 
   else if ((type == "gs") ||
 	   (type == "gb") ||

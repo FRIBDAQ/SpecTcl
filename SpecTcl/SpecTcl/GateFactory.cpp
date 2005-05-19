@@ -300,6 +300,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
    $Log$
+   Revision 5.1.2.4  2005/05/19 18:03:31  thoagland
+   Added Support for AndMask and NotMask gates
+
    Revision 5.1.2.3  2005/05/19 10:36:34  thoagland
    Added support for mask equals gates
 
@@ -345,6 +348,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <GammaContour.h>
 #include <MaskGates.h>
 #include <MaskEqualGate.h>
+#include <MaskAndGate.h>
+#include <MaskNotGate.h>
 
 #include <histotypes.h>
 #include <Parameter.h>
@@ -541,6 +546,10 @@ CGateFactory::CreateGate(GateType eType,
   switch(eType) {
   case em:
     return CreateMaskEqualGate(rParameters, comparison);
+  case am:
+    return CreateMaskAndGate(rParameters, comparison);
+  case nm: 
+    return CreateMaskNotGate(rParameters, comparison);
   }
 }
 
@@ -967,6 +976,54 @@ CMaskEqualGate* CGateFactory::CreateMaskEqualGate(const vector<string>& rParamet
   UInt_t Id = ParameterToId(rParameterName[0], em, 
 			    "Translating parameter name for Masked Equal");
   return new CMaskEqualGate(Id, Compare);
+
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Function:         CreateMaskAndGate(const string& rParamterName,
+//                                       char Compare)
+//
+// Operation Type:   Create
+//
+CMaskAndGate* CGateFactory::CreateMaskAndGate(const vector<string>& rParameterName,
+						  long Compare) 
+{
+  // Creates a new Mask And Gate
+  //
+  // Formal parameters:
+  //     const string& rParameterName:
+  //          Name of the parameter on which the gate is set
+  //     char Compare:
+  //          String to compare the parameter to
+  //
+  UInt_t Id = ParameterToId(rParameterName[0], em, 
+			    "Translating parameter name for Masked Equal");
+  return new CMaskAndGate(Id, Compare);
+
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Function:         CreateMaskEqualGate(const string& rParamterName,
+//                                       char Compare)
+//
+// Operation Type:   Create
+//
+CMaskNotGate* CGateFactory::CreateMaskNotGate(const vector<string>& rParameterName,
+						  long Compare) 
+{
+  // Creates a new Mask Not Gate 
+  //
+  // Formal parameters:
+  //     const string& rParameterName:
+  //          Name of the parameter on which the gate is set
+  //     char Compare:
+  //          String to compare the parameter to
+  //
+  UInt_t Id = ParameterToId(rParameterName[0], em, 
+			    "Translating parameter name for Masked Equal");
+  return new CMaskNotGate(Id, Compare);
 
 }
 

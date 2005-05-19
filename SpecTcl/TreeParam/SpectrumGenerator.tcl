@@ -1345,7 +1345,9 @@ proc DependsOnDeleted gate {
 	    return false
 	}
     } else {
-	if {[lindex $gate 2] == "em" } {
+	if {([lindex $gate 2] == "em") || \
+	    ([lindex $gate 2] == "am") || \
+	    ([lindex $gate 2] == "nm") } {
 	    return false
 	}
 	foreach Dependent $Dependents {

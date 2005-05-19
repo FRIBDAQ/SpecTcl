@@ -275,251 +275,100 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS '
 */
-// Class: CGateFactory                     //ANSI C++
+//  MaskEqualGate.h:
 //
-// Provides gate generation support.
-//  The main entry, CreateGate takes a gate description
-//   and generates a gate from it. This is overloaded to provide support
-//   for gates which are compound gates and primary gates as well.
-//   Each overload is capable of making particular subsets of gates
-//  and throws a CGateFactory Exception if the gate could not be made.
-//  The exception describes why thme gate could not be made.
+//    This file defines the CMaskAndGate class.
 //
-
 //
-// Author:
-//     Ron Fox
-//     NSCL
-//     Michigan State University
-//     East Lansing, MI 48824-1321
-//     mailto: fox@nscl.msu.edu
-// 
-// (c) Copyright NSCL 1999, All rights reserved GateFactory.h
+//  Author:
+//    Timothy Hoagland
+//    NSCL / WIENER
+//    s04.thoagland@wittenberg.edu
 //
-
-/*
-  Change Log:
-  $Log$
-  Revision 5.1.2.4  2005/05/19 18:03:32  thoagland
-  Added Support for AndMask and NotMask gates
-
-  Revision 5.1.2.3  2005/05/19 10:36:34  thoagland
-  Added support for mask equals gates
-
-  Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
-  Add SpecTcl Application programming interface and make use of it
-  in spots.
-
-  Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
-  - Port to gcc/g++ 3.x
-  - Recast swrite/sread in terms of tcl[io]stream rather than
-    the kludgy thing I had done of decoding the channel fd.
-    This is both necessary due to g++ 3.x's runtime and
-    nicer too!.
-
-  Revision 5.1  2004/11/29 16:56:10  ron-fox
-  Begin port to 3.x compilers calling this 3.0
-
-  Revision 4.2  2003/04/15 19:25:21  ron-fox
-  To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
-
-*/
-
-#ifndef __GATEFACTORY_H  //Required for current class
-#define __GATEFACTORY_H
-
-#ifndef __POINT_H
-#include <Point.h>
-#endif
-
-#ifndef __GATECONTAINER_H
-#include <GateContainer.h>
-#endif
-
-#ifndef __SPECTRUM_H
-#include <Spectrum.h>
-#endif
-
-#ifndef __STL_VECTOR
-#include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-
-#ifndef __STL_STRING
-#include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_LIST
-#include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
-
+//  Adapted from the CTrueGate class written by:
+//    Ron Fox
+//    NSCL
+//    Michigan State University
+//    East Lansing, MI 48824-1321
+//    mailto:fox@nscl.msu.edu
 //
-//  Class forward definitions
+//  Copyright 1999 NSCL, All Rights Reserved.
 //
+/////////////////////////////////////////////////////////////
 
-class CHistogrammer;	     
-class CTrueGate;
-class CFalseGate;
-class CGate;
-class CBand;
-class CContour;
-class C2Bands;
-class CNot;
-class CAndGate;
-class COrGate;
-class CCut;
-class CDeletedGate;
-class CGammaCut;
-class CGammaBand;
-class CGammaContour;
-class CMaskGate;
-class CMaskEqualGate;
-class CMaskAndGate;
-class CMaskNotGate;
+#ifndef __MASKANDGATE_H  //Required for current class
+#define __MASKANDGATE_H
+                               //Required for base classes
+#ifndef __GATE_H
+#include "Gate.h"
+#endif                               
+  
+#ifndef __MASKGATES_H
+#include "MaskGates.h"
+#endif
 
-//
-//  The GateFactory Class:
-//
-/*!
-  Gate factories well, they produce gates.  Given a generic 
-  description of a gate the factory produces an instance of the
-  specific type of gate being described.  All the real work is done
-  by the three overloaded CreateGate functions.
-*/
-class CGateFactory      
-{                       
-private:
-  static UInt_t m_nGateId;
-			
-   CHistogrammer* m_pHistogrammer; //!< Ptr to histogrammer.        
-public:
-  // Data types... 
 
-   //! enum for the type sof gates which can be created:
-  enum GateType {
-    And,			//!< And of multiple gates.
-    band,			//!< 2-d band.
-    bandcontour,		//!< Contour from band pair.
-    contour,			//!< contour
-    cut,			//!< Cut on 1-d spectrum.
-    deleted,			//!< Deleted gate placeholder.
-    falseg,			//!< Always false gate.
-    Not,			//!< Inverse of contained gate.
-    Or,				//!< OR of multiple gates.
-    trueg,			//!< Alwayw made gate.
-    gammacut,                   //!< Gamma cut
-    gammaband,                  //!< Gamma band
-    gammacontour,               //!< Gamma contour
-    em,                         //!< Equal mask gate
-    am,                         //!< And mask gate 
-    nm                          //!< Not mask gate
-  };
-
+#ifndef __HISTOTYPES_H
+#include <histotypes.h>
+#endif
+                             
+class CMaskAndGate : public CMaskGate  
+{
+  
 public:
 
-  // Constructors/destructors and other cannonical functions:
-  //
-  
-  CGateFactory(CHistogrammer* pHistogrammer) :
-     m_pHistogrammer(pHistogrammer)
-    {}
-  virtual ~ CGateFactory ( ) { }  //Destructor
-  
-  
+  CMaskAndGate ( UInt_t am_nId, long  am_lCompare ) : // Constructor
+    m_cCompare (am_lCompare),  
+    m_nId (am_nId)  
+    { }        
 
-  CGateFactory (const CGateFactory& aCGateFactory ) 
-  {
-    m_pHistogrammer = aCGateFactory.m_pHistogrammer;  
+  ~ CMaskAndGate ( ) { }       //!< Destructor
+
+	
+  //! Copy constructor
+
+  CMaskAndGate (const CMaskAndGate& aCMaskAndGate )   : CMaskGate (aCMaskAndGate) 
+  { 
+    m_cCompare = aCMaskAndGate.m_cCompare;
+    m_nId      = aCMaskAndGate.m_nId;               
   }                                     
 
-   // Operator= Assignment Operator alternative to compiler provided 
-   // default operator= 
+  //! Operator= Assignment Operator
 
-  CGateFactory& operator= (const CGateFactory& aCGateFactory);
- 
-   //Operator== Equality Operator 
-
-  int operator== (const CGateFactory& aCGateFactory) const;
-  
-  // Selectors:
-
-public:
-
-  CHistogrammer* getHistogrammer() const
+  CMaskAndGate& operator= (const CMaskAndGate& aCMaskAndGate) 
   { 
-    return m_pHistogrammer;
-  }
-                       
-// Mutators:
+    if (this == &aCMaskAndGate) return *this;          
+    CMaskGate::operator= (aCMaskAndGate);
+    m_cCompare = aCMaskAndGate.m_cCompare;
+    m_nId      = aCMaskAndGate.m_nId;
+    
+    return *this;                                                                                                 
+  }          
 
-protected:
-
-  void setHistogrammer (CHistogrammer* am_pHistogrammer)
-  { 
-    m_pHistogrammer = am_pHistogrammer;
-  }
-  // Class operations:
-   
-public:
-
-   CGate* CreateGate (GateType nGateType, 
-		      const STD(vector)<STD(string)>& rGates);
-   CGate* CreateGate (GateType eType, 
-		      const STD(vector)<STD(string)>& rParameters, 
-		      const STD(vector)<FPoint>& rPoints);
-   CGate* CreateGate (GateType eType, 
-		      const STD(vector)<FPoint>& rPoints, 
-		      const STD(vector)<STD(string)>& Ids);
-   CGate* CreateGate(GateType eType,
-		     const STD(vector)<STD(string)>& rParameters, 
-		     long comparison);
-
-   CTrueGate* CreateTrueGate ();
-   CFalseGate* CreateFalseGate ();
-   CDeletedGate* CreateDeletedGate ();
-   CBand* CreateBand (const STD(vector)<STD(string)>& rParameters, 
-		     const STD(vector)<FPoint>& rPoints);
-   CContour* CreateContour (const STD(vector)<STD(string)>& rParameters, 
-			    const STD(vector)<FPoint>& rPoints);
-   C2Bands* CreateBandContour (const STD(vector)<STD(string)>& rBands);
-   CNot* CreateNotGate (const STD(string)& rGateNames);
-   CAndGate* CreateAndGate (const STD(vector)<STD(string)>& rGateNames);
-   COrGate* CreateOrGate (const STD(vector)<STD(string)>& rGateNames)    ;
-   CCut* CreateCut (const STD(string)& rParameterName, 
-		    Float_t nLow, Float_t nHigh);
-   CGammaCut* CreateGammaCut (Float_t nLow, Float_t nHigh,
-			      const STD(vector)<STD(string)>& Specs);
-   CGammaBand* CreateGammaBand (const STD(vector)<FPoint>& rPoints,
-				const STD(vector)<STD(string)>& Specs);
-   CGammaContour* CreateGammaContour (const STD(vector)<FPoint>& rPoints,
-				      const STD(vector)<STD(string)>& Specs);
-   CMaskEqualGate* CreateMaskEqualGate(const STD(vector<STD(string)>)& rParameter,
-				       long Compare);
-   CMaskAndGate* CreateMaskAndGate(const STD(vector<STD(string)>)& rParameter,
-				     long Compare);
-   CMaskNotGate* CreateMaskNotGate(const STD(vector<STD(string)>)& rParameter,
-				     long Compare);
-  static UInt_t  AssignId();
  
-protected:
-  UInt_t ParameterToId(const STD(string)& rName, GateType eType, 
-		       const char* pWhich) const;
-  CSpectrum* NameToSpec(const STD(string)& rName, GateType eType,
-			const char* pWhich) const;
-  CGateContainer& NameToGate(const STD(string)& rName, GateType eType,
-			     const char* pWhich)const;
-  void CreateGateList(STD(list)<CGateContainer*>& Gates,
-		      const STD(vector)<STD(string)>& rNames,
-		      GateType eType, const char* pWhich) const;
+ long getCompare() const
+  {
+    return m_cCompare;
+  }                           
+
+  UInt_t getId() const
+  {
+    return m_nId;
+  }
+                            
+private:
+  int operator == (const CMaskAndGate& aCMaskAndGate) const;
+  UInt_t m_nId;
+  long m_cCompare;
+
+public:            
+  virtual   Bool_t operator() (CEvent& rEvent)  ;
+  virtual   CGate* clone ()  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
+  virtual   Bool_t inGate(CEvent& rEvent);
+
+
 };
 
 #endif

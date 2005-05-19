@@ -34,6 +34,9 @@
 #include <GammaContour.h>
 #include <GammaCut.h>
 #include <Not.h>
+#include <MaskEqualGate.h>
+#include <MaskAndGate.h>
+#include <MaskNotGate.h>
 
 
 #include <GateContainer.h>
@@ -1381,6 +1384,72 @@ SpecTcl::CreateGammaContour(vector<FPoint> points,
   CGateFactory factory(GetHistogrammer());
   return       factory.CreateGammaContour(points, constituents);
 }
+
+
+
+/*!
+  Creates a Mask Equal Gate
+  \return CGate*
+  \retval Pointer to the newly created gate.  It is up to the caller to 
+          enter the gate into the gate dictionary where the histogrammer can
+	  operate on it.. It is also up to the caller to delete the gate
+	  when done.
+  \throw CGateFactoryException - If there's a problem creating the gate.
+
+ 
+*/
+CGate* 
+SpecTcl::CreateMaskEqualGate(vector<string> parameters, 
+			     long Compare)
+{
+  CGateFactory factory(GetHistogrammer());
+  return       factory.CreateMaskEqualGate(parameters, Compare);
+}
+
+
+/*!
+  Creates a Mask Equal Gate
+  \return CGate*
+  \retval Pointer to the newly created gate.  It is up to the caller to 
+          enter the gate into the gate dictionary where the histogrammer can
+	  operate on it.. It is also up to the caller to delete the gate
+	  when done.
+  \throw CGateFactoryException - If there's a problem creating the gate.
+
+ 
+*/
+CGate* 
+SpecTcl::CreateMaskAndGate(vector<string> parameters, 
+			     long Compare)
+{
+  CGateFactory factory(GetHistogrammer());
+  return       factory.CreateMaskAndGate(parameters, Compare);
+}
+
+
+/*!
+  Creates a Mask Equal Gate
+  \return CGate*
+  \retval Pointer to the newly created gate.  It is up to the caller to 
+          enter the gate into the gate dictionary where the histogrammer can
+	  operate on it.. It is also up to the caller to delete the gate
+	  when done.
+  \throw CGateFactoryException - If there's a problem creating the gate.
+
+ 
+*/
+CGate* 
+SpecTcl::CreateMaskNotGate(vector<string> parameters, 
+			     long Compare)
+{
+  CGateFactory factory(GetHistogrammer());
+  return       factory.CreateMaskNotGate(parameters, Compare);
+}
+
+
+
+
+
 
 
 /*!

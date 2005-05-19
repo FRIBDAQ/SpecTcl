@@ -246,6 +246,10 @@ public:
 			    STD(vector)<STD(string)> constituents);
   CGate* CreateMaskEqualGate(STD(vector)<STD(string)> rParameterName,
 			     long Compare);
+  CGate* CreateMaskAndGate(STD(vector)<STD(string)> rParameterName,
+			     long Compare);
+  CGate* CreateMaskNotGate(STD(vector)<STD(string)> rParameterName,
+			     long Compare);
 
   // Gate dictionary manipulation:
 

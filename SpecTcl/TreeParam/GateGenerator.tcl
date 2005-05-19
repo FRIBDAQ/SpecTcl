@@ -25,7 +25,7 @@ proc CreateGateGenerator {parent} {
 		entry $wname.l.name -width 15 -textvariable GateName -background  lightyellow
 		menubutton $wname.r.t.gate -text "Gate select" -background lightyellow
 		tk_optionMenu $wname.r.t.operation GateOperation And Or Not C2Band Slice Contour Band \
-		GammaBand GammaContour GammaSlice em
+		GammaBand GammaContour GammaSlice em am nm
 		$wname.r.t.operation configure -background lightyellow
 		entry $wname.r.b.depend -width 80 -textvariable GateDependency -background lightyellow
 		button $wname.r.t.clear -text "Clear dependency" -background lightyellow -command {set GateDependency ""}
@@ -121,6 +121,8 @@ proc UpdateGateList {} {
 			gc {set type GammaContour}
 			gs {set type GammaSlice}
 		        em {set type em}
+		        am {set type am}
+		        nm {set type nm}
 		}
 		set depend [lindex $gate 3]
 		if {[string compare $type F] != 0 && [string compare $type T] != 0} {
@@ -178,6 +180,8 @@ proc FillGateEntries {} {
 		GammaContour {$topg.create.r.t.operation.menu invoke 8}
 		GammaSlice {$topg.create.r.t.operation.menu invoke 9}
   	        em {$topg.create.r.t.operation.menu invoke 10}
+	        am {$topg.create.r.t.operation.menu invoke 11} 
+                nm {$topg.create.r.t.operation.menu invoke 12}
 		default {$topg.create.r.t.operation.menu invoke 0}
 	}
 }
@@ -257,6 +261,12 @@ proc CreateGate {} {
 		}
 	        em {
 		       eval gate $GateName em "{$GateDependency}"
+		}
+	        am {
+		       eval gate $GateName am "{$GateDependency}"
+		}
+	        nm {
+		       eval gate $GateName nm "{$GateDependency}"
 		}
 	}
 	UpdateGateList

@@ -279,6 +279,9 @@ DAMAGES.
 /* 
    Change log:
    $Log$
+   Revision 5.1.2.4  2005/05/19 18:03:31  thoagland
+   Added Support for AndMask and NotMask gates
+
    Revision 5.1.2.3  2005/05/19 10:36:34  thoagland
    Added support for mask equals gates
 
@@ -344,6 +347,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.4  2005/05/19 18:03:31  thoagland
+  Added Support for AndMask and NotMask gates
+
   Revision 5.1.2.3  2005/05/19 10:36:34  thoagland
   Added support for mask equals gates
 
@@ -443,7 +449,9 @@ CGateCommand::GateFactoryTable GateTable[] = {
   { "gs",     CGateFactory::gammacut,     kfFALSE,  0, kfTRUE},
   { "gb",     CGateFactory::gammaband,    kfFALSE,  0, kfTRUE},
   { "gc",     CGateFactory::gammacontour, kfFALSE,  0, kfTRUE},
-  { "em",     CGateFactory::em,           kfFALSE,   1, kfFALSE}
+  { "em",     CGateFactory::em,           kfFALSE,   1, kfFALSE},
+  { "am",     CGateFactory::am,           kfFALSE,   1, kfFALSE},
+  { "nm",     CGateFactory::nm,           kfFALSE,   1, kfFALSE}
 };
 static const UInt_t nGateTypes =
                       sizeof(GateTable)/sizeof(CGateCommand::GateFactoryTable);
@@ -635,7 +643,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
     // if the gate is 1-d, then each point just contains an x-coordinate.
 
     if(Item.nParameters == 1) { 
-      if (pType ="em") 
+      if ((pType ="em") || (pType = "am") || (pType = "nm"))
 	{
 	  long Compare ;
 	  sscanf(PointString[0].c_str(), "%x", &Compare);

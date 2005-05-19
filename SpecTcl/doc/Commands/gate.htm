@@ -167,6 +167,28 @@ should be entered are shown in the table below:</p>
     <td width="12%">Yes</td>
     <td width="56%">Gate which is always made.</td>
   </tr>
+  <tr>
+    <td width="14%">Mask Equal</td>
+    <td width="18%">em</td>
+    <td width="12%">Yes</td>
+    <td width="56%">Gate returns true whenever the parameter is equal to a user 
+      defined bit pattern.</td>
+  </tr>
+  <tr>
+    <td width="14%">Mask And</td>
+    <td width="18%">em</td>
+    <td width="12%">Yes</td>
+    <td width="56%">Gate returns true whenever the parameter value bitwise anded with
+      the user defined bit pattern is equal to the user defined bit pattern.</td>
+  </tr>
+  <tr>
+    <td width="14%">Mask Equal</td>
+    <td width="18%">em</td>
+    <td width="12%">Yes</td>
+    <td width="56%">Gate returns true whenever the parameter value bitwise anded with
+      the bitwise not of the user defined bit pattern equals the bitwise not of
+      the user defined bit pattern.</td>
+  </tr>
 </table>
 <h4>Gate Descriptions</h4>
 <p>The contents of the gate description depend on the gate type.&nbsp; In
@@ -193,7 +215,10 @@ gate ABorAC&nbsp; + {ABand AContour}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n
 ;# Can be any number of gates.<br>
 gate Slice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; s {Parameter {100
 157}}<br>
-gate TRUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T</p>
+gate TRUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T<br>
+gate EqualMask em {Parameter 0x00} <br>
+gate AndMask am {Parameter 0x00} <br>
+gate NotMask nm {Parameter 0x00000000} <p>
 <h4>Xamine and Primitive Gates</h4>
 <p>The Slice, Band, and Contour gates correspond exactly to the Cut, Band and
 Contour gates which can be accepted through Xamine.&nbsp; SpecTcl establishes a
@@ -276,6 +301,21 @@ description sub-lists contain (in order):</p>
     <td width="17%">Slice</td>
     <td width="83%">List containing the name of the parameter on which the gate
       is created and a list containing the lower and upper limits of the gate.</td>
+  </tr>
+  <tr>
+    <td width="17%">Mask Equal</td>
+    <td width="83%">First element of the list is the parameter name and the second
+      element is the mask bit pattern</td>
+  </tr>
+  <tr>
+    <td width="17%">Mask And</td>
+    <td width="83%">First element of the list is the parameter name and the second
+      element is the mask bit pattern</td>
+  </tr>
+  <tr>
+    <td width="17%">Mask Not</td>
+    <td width="83%">First element of the list is the parameter name and the second
+      element is a 32 bit mask pattern</td>
   </tr>
 </table>
 <p><a href="#Top">Top</a></p>
