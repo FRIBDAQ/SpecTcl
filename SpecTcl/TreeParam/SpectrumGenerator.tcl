@@ -1345,6 +1345,9 @@ proc DependsOnDeleted gate {
 	    return false
 	}
     } else {
+	if {[lindex $gate 2] == "em" } {
+	    return false
+	}
 	foreach Dependent $Dependents {
 	    foreach lookup_gate $::SearchList {
 		if {[lindex $lookup_gate 0] == $Dependent} {

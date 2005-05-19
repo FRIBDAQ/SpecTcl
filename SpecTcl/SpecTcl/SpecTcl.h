@@ -225,6 +225,9 @@ public:
   CGate* CreateGate(CGateFactory::GateType   gateType,
 		    STD(vector)<FPoint>      points,
 		    STD(vector)<STD(string)> spectra);
+  CGate* CreateGate(CGateFactory::GateType gateType, 
+		    STD(vector)<STD(string)> rparameters,
+		    long comparison);
   CGate* CreateTrueGate();
   CGate* CreateFalseGate();
   CGate* CreateBand(STD(string) xparameter, STD(string) yparameter, 
@@ -241,6 +244,8 @@ public:
 			 STD(vector)<STD(string)> constituents);
   CGate* CreateGammaContour(STD(vector)<FPoint> points, 
 			    STD(vector)<STD(string)> constituents);
+  CGate* CreateMaskEqualGate(STD(vector)<STD(string)> rParameterName,
+			     long Compare);
 
   // Gate dictionary manipulation:
 

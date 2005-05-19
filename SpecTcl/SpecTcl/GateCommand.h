@@ -88,7 +88,7 @@ along with the Program.
 You may charge a fee for the physical act of transferring a copy, and
 you may at your option offer warranty protection in exchange for a fee.
 
-  2. You may modify your copy or copies of the Program or any portion
+SG  2. You may modify your copy or copies of the Program or any portion
 of it, thus forming a work based on the Program, and copy and
 distribute such modifications or work under the terms of Section 1
 above, provided that you also meet all of these conditions:

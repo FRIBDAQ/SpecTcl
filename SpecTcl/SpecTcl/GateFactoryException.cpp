@@ -329,7 +329,8 @@ static char* GateTypeStrings[] = {
   "True ",
   "Gamma-Slice",
   "Gamma-Band",
-  "Gamma-Contour"
+  "Gamma-Contour",
+  "em"
 };
 
 

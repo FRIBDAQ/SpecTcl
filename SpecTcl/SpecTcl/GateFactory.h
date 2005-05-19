@@ -300,6 +300,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.3  2005/05/19 10:36:34  thoagland
+  Added support for mask equals gates
+
   Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
   Add SpecTcl Application programming interface and make use of it
   in spots.
@@ -375,6 +378,8 @@ class CDeletedGate;
 class CGammaCut;
 class CGammaBand;
 class CGammaContour;
+class CMaskGate;
+class CMaskEqualGate;
 //
 //  The GateFactory Class:
 //
@@ -407,7 +412,8 @@ public:
     trueg,			//!< Alwayw made gate.
     gammacut,                   //!< Gamma cut
     gammaband,                  //!< Gamma band
-    gammacontour                //!< Gamma contour
+    gammacontour,               //!< Gamma contour
+    em                          //!< Equal mask gate
   };
 
 public:
@@ -465,6 +471,9 @@ public:
    CGate* CreateGate (GateType eType, 
 		      const STD(vector)<FPoint>& rPoints, 
 		      const STD(vector)<STD(string)>& Ids);
+   CGate* CreateGate(GateType eType,
+		     const STD(vector)<STD(string)>& rParameters, 
+		     long comparison);
 
    CTrueGate* CreateTrueGate ();
    CFalseGate* CreateFalseGate ();
@@ -485,6 +494,8 @@ public:
 				const STD(vector)<STD(string)>& Specs);
    CGammaContour* CreateGammaContour (const STD(vector)<FPoint>& rPoints,
 				      const STD(vector)<STD(string)>& Specs);
+   CMaskEqualGate* CreateMaskEqualGate(const STD(vector<STD(string)>)& rParameter,
+				       long Compare);
   static UInt_t  AssignId();
  
 protected:

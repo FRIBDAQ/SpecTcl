@@ -1002,6 +1002,32 @@ SpecTcl::CreateGate(CGateFactory::GateType gateType, vector<string> parameters,
   CGateFactory factory(GetHistogrammer());
   return       factory.CreateGate(gateType, parameters, points);
 }
+
+/*!
+  Creates a compound gate of the specified type.  Compound gates
+  are gates that are made up of other gates.  A pointer to the gate created
+  is returned.
+  @param gateType
+    Type of gate to create. Must be a compound gate type.
+  @param names
+    Names of the gates that will make up this compound gate.
+
+  \return CGate*
+  \retval Pointer to the newly crated gate.  It is up to the caller to 
+          enter the gate into the gate dictionary where the histogrammer can
+	  operate on it.. It is also up to the caller to delete the gate
+	  when done.
+  \throw CGateFactoryException - If there's a problem creating the gate.
+ 
+*/
+CGate* 
+SpecTcl::CreateGate(CGateFactory::GateType gateType, 
+		    vector<string> parameters, 
+		    long comparison)
+{
+  CGateFactory factory(GetHistogrammer());
+  return       factory.CreateGate(gateType, parameters, comparison);
+}
 /*!
   Creates a gamma  gate.
   @param gateType

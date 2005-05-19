@@ -275,6 +275,7 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS 
 */
+
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
 // Class: CGateFactory
@@ -299,6 +300,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
    $Log$
+   Revision 5.1.2.3  2005/05/19 10:36:34  thoagland
+   Added support for mask equals gates
+
    Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
    Add SpecTcl Application programming interface and make use of it
    in spots.
@@ -339,6 +343,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <GammaCut.h>
 #include <GammaBand.h>
 #include <GammaContour.h>
+#include <MaskGates.h>
+#include <MaskEqualGate.h>
 
 #include <histotypes.h>
 #include <Parameter.h>
@@ -518,6 +524,26 @@ CGateFactory::CreateGate(GateType eType,
 				"Determining type of gate in CreateGate");
   }
 }
+
+/*!
+
+Switch statement for Mask Gates
+
+*/
+
+CGate* 
+CGateFactory::CreateGate(GateType eType, 
+			 const vector<string>& rParameters,
+			 long comparison)  
+{
+
+
+  switch(eType) {
+  case em:
+    return CreateMaskEqualGate(rParameters, comparison);
+  }
+}
+
 /*!
   
   \para Functionality:
@@ -528,8 +554,8 @@ CGateFactory::CreateGate(GateType eType,
    \param <TT>eType (GateType [in]):</TT>
        Type of gate that is to be created.  This must be one of:
        - gammacut A cut on a set of gamma parameters.
-       -gammaband A band on a set of ordered pairs of gamma params.
-       -gammacontour A contour on a set of ordered pairs of gamma
+       - gammaband A band on a set of ordered pairs of gamma params.
+       - gammacontour A contour on a set of ordered pairs of gamma
           parameters.
    \param <TT>rPoints (const vector<FPoint>& [in]):</TT>
        The set of points that define the contour. 
@@ -544,12 +570,15 @@ CGateFactory::CreateGate(GateType eType,
    \throw CGateFactoryException
      In the event creating the gate is impossible.  The exception
      indicates the type of the gate being created and why the
-     gate could not be created.
+          gate could not be created.
 */
-CGate* 
+
+
+CGate*
 CGateFactory::CreateGate(GateType eType,
 			 const vector<FPoint>& rPoints,
-			 const vector<string>& rSpectrum) {
+			 const vector<string>& rSpectrum)
+{
   switch(eType) {
   case gammacut:
     if(rPoints.size() != 2) {
@@ -913,6 +942,34 @@ CCut* CGateFactory::CreateCut(const string& rParameterName,
   
   
 }
+
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Function:         CreateMaskEqualGate(const string& rParamterName,
+//                                       char Compare)
+//
+// Operation Type:   Create
+//
+CMaskEqualGate* CGateFactory::CreateMaskEqualGate(const vector<string>& rParameterName,
+						  long Compare) 
+{
+  // Creates a new Mask Equal Gate
+  //   Mask Equal Gates return true when an event = Compare
+  //
+  // Formal parameters:
+  //     const string& rParameterName:
+  //          Name of the parameter on which the gate is set
+  //     char Compare:
+  //          String to compare the parameter to
+  //
+  UInt_t Id = ParameterToId(rParameterName[0], em, 
+			    "Translating parameter name for Masked Equal");
+  return new CMaskEqualGate(Id, Compare);
+
+}
+
 ////////////////////////////////////////////////////////////////////////
 //
 //  UInt_t ParameterToId(const string& rName, GateType eType, 

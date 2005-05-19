@@ -430,6 +430,7 @@ public:
   }
   CTCLString& AppendElement (const char*             pRhs);
   CTCLString& AppendElement(DFloat_t value, const char* pFormat = "%f");
+  CTCLString& AppendElement(long value, const char* pFormat = "%i");
   //
   // List/sublist bracketing calls:
   //

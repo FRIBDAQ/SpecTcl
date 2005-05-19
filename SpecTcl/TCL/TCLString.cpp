@@ -383,6 +383,25 @@ CTCLString::AppendElement(DFloat_t value, const char* pFormat)
   return AppendElement(buffer);
 
 }
+
+/*!
+   Append an integer as element of a list
+   
+   \param value   - The value to append
+   \param pFormat - A sprintf formatting string (defaults to "%i")
+                    that describes how the int should be formatted.
+
+   \return CTCLString&
+   \retval Reference to *this
+*/
+CTCLString&
+CTCLString::AppendElement(long value, const char* pFormat) 
+{
+  char buffer[100];
+  sprintf(buffer, pFormat, value);
+  return AppendElement(buffer);
+
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
