@@ -318,6 +318,7 @@ static char *version = "@(#)volume.c	2.14 4/5/96 Library_File\n";
 #include <unistd.h>
 #include <strings.h>
 #include <time.h>
+#include <string.h>
 
 #include "mtaccess.h"
 #include <ctype.h>

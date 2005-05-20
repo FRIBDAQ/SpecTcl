@@ -303,6 +303,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 5.1.2.8  2005/05/20 21:19:06  ron-fox
+  Port to gcc 4.0
+
   Revision 5.1.2.7  2005/05/11 21:26:15  ron-fox
   - Add -pedantic and deal with the fallout.
   - Fix long standing issues with sread/swrite -format binary
@@ -555,7 +558,7 @@ CHistogrammer& CHistogrammer::operator=(const CHistogrammer& rRhs) {
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
   return *this;
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -572,7 +575,7 @@ int CHistogrammer::operator==(const CHistogrammer& rRhs) {
 	  ( m_SpectrumDictionary  ==   rRhs.m_SpectrumDictionary)  &&
 	  ( m_GateDictionary      ==   rRhs.m_GateDictionary)
 	  );
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -616,7 +619,7 @@ void CHistogrammer::operator()(const CEvent& rEvent,
   for(int i = 0; i < nSpectra; i++) {
     (*ppSpectra[i])(rEvent);
   }
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -678,7 +681,7 @@ void CHistogrammer::operator()(CEventList& rEvents) {
   }
   delete []pGates;
   delete []pSpectra;
-};
+}
 
 /*!
   Add a parameter to the parameter dictionary.

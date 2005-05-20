@@ -293,6 +293,9 @@ DAMAGES.
 //                     spectra can report their type.
 //
 //  $Log$
+//  Revision 5.1.2.3  2005/05/20 21:19:06  ron-fox
+//  Port to gcc 4.0
+//
 //  Revision 5.1.2.2  2005/05/02 15:51:22  ron-fox
 //  First passes at getting compilations on Intel C++: then
 //  fix defect 159: Open filters on exit can lose data.
@@ -419,7 +422,7 @@ public:
 
 			//Operator= Assignment Operator [not allowed]
 private:
-  CSpectrum operator= (const CSpectrum& aCSpectrum);
+  CSpectrum& operator= (const CSpectrum& aCSpectrum);
 public:
   
 			//Operator== Equality Operator [not much use]

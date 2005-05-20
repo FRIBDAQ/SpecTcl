@@ -374,7 +374,7 @@ CEventList& CEventList::operator=(const CEventList& anEventList) {
     DoAssign(anEventList);             // Then complete the assignment.
   }
   return *this;
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -396,7 +396,7 @@ pCEvent& CEventList::operator[](UInt_t nEvent) {
   while(m_rvEvents.size() < nEvent) 
     Expand();   // Expand vector as needed.
   return m_rvEvents[nEvent];
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -517,7 +517,7 @@ int CEventList::operator==(const CEventList& EvtList) {
     if(*(operator[](i)) != *(aEventList[i]) ) return 0;
   }
   return -1;
-};
+}
 
 
 

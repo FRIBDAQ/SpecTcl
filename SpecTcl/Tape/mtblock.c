@@ -300,7 +300,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2010, Al
 *--
 */
 
-//static char *version="mtblock.c	2.6 1/12/93 Library_Source\n";
+/* static char *version="mtblock.c	2.6 1/12/93 Library_Source\n"; */
 
 /*
 **
@@ -315,6 +315,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2010, Al
 #include <stdio.h>
 #include <limits.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include <sys/types.h>
 #include <sys/file.h>

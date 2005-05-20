@@ -376,7 +376,7 @@ CEvent::operator=(const CEvent& anEvent)
     DoAssign(anEvent);
   }
   return *this;
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -391,7 +391,7 @@ CEvent::operator==(const CEvent& anEvent)
   // Relies on the fact that STL Vectors define an operator== iff
   // the underlying type does, and Int_t does.
   return (m_rvParameters == anEvent.m_rvParameters);
-};
+}
 
 
 //////////////////////////////////////////////////////////////////////////

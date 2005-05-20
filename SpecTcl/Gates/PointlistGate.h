@@ -294,6 +294,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.2  2005/05/20 21:19:05  ron-fox
+  Port to gcc 4.0
+
   Revision 5.1.2.1  2004/12/21 17:51:22  ron-fox
   Port to gcc 3.x compilers.
 
@@ -451,8 +454,8 @@ public:
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
   virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)  ;
-  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params
-			  = (const STD(vector)<UInt_t>&) 0 ) { }
+  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params)
+    { }
 
 protected:
   int       Crosses(Float_t x, Float_t y, 

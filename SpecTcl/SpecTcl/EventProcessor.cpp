@@ -301,11 +301,11 @@ CEventProcessor::~CEventProcessor() {} // Destructor.
 // Operators:
 CEventProcessor& CEventProcessor::operator=(const CEventProcessor& aCEventProcessor) { // Assignment.
   return *this;
-};
+}
 
 int CEventProcessor::operator==(const CEventProcessor& aCEventProcessor) const { // Equality.
   return kfFALSE;
-};
+}
 
 // Functions for class CEventProcessor
 

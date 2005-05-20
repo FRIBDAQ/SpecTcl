@@ -55,7 +55,7 @@ void CEventSinkPipeline::operator()(CEventList& rEventList) {
     CEventSink& sink(*(i->second));
     sink(rEventList);
   }
-};
+}
 
 // Class functions:
 

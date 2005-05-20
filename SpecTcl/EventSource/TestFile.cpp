@@ -328,7 +328,7 @@ Int_t CTestFile::operator==(const CTestFile& aCTestFile) {
   return ((CFile::operator==(aCTestFile))   &&
 	  (m_vDistributions == aCTestFile.m_vDistributions)
 	  );
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //

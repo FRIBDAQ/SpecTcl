@@ -571,7 +571,7 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   assert(0);			// Should not return here.
 
-};
+}
 
 
 /*!
@@ -601,7 +601,7 @@ int CAttachCommand::AttachFile(CTCLResult& rResult,
     return stat;
 
   return rPack.OpenSource(rResult, rName.c_str(), nBytes);
-};
+}
 
 
 
@@ -630,7 +630,7 @@ int CAttachCommand::AttachTape(CTCLResult& rResult,
 
   CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
   return rPack.AttachTapeSource(rResult, rName.c_str());
-};
+}
 /*!
     Attaches a data source which comes through a pipe file.
     These are programs which generate data on the fly and pipe
@@ -661,7 +661,7 @@ int CAttachCommand::AttachPipe(CTCLResult& rResult,
     return stat;
 
   return rPack.OpenSource(rResult, rName.c_str(), nBytes);
-};
+}
 
 /*!
    Attaches a test data source.  The connection identifier is the
@@ -688,7 +688,7 @@ int CAttachCommand::AttachTest(CTCLResult& rResult,
     return stat;
   }
   return rPack.OpenSource(rResult, sTestName.c_str(), nBlockSize);
-};
+}
 /*!
    Attach the null data source.  The null data source is a data
    source that is always at end of file (no data source).
@@ -712,7 +712,7 @@ int CAttachCommand::AttachNull(CTCLResult& rResult,
     gpEventSource = (CFile*)kpNULL;
   }
   return TCL_OK;
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -740,7 +740,7 @@ void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "               sources\n";
   rResult += "        -null  No events will be made available.\n";
 
-};
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -757,6 +757,6 @@ CAttachCommand::ParseSwitch(char* pSwitch) {
       return SwitchTable[i].Value;
   }
   return keNotSwitch;
-};
+}
 
 
