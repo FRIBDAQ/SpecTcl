@@ -278,6 +278,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.2  2005/05/23 15:47:29  thoagland
+  Added Support to allow users to filter "gate -list" by a pattern
+
   Revision 5.1.2.1  2004/12/15 17:24:05  ron-fox
   - Port to gcc/g++ 3.x
   - Recast swrite/sread in terms of tcl[io]stream rather than
@@ -468,8 +471,8 @@ public:
    Bool_t AddGate (CTCLResult& rResult,
                    const STD(string)& rGateName, 
 		   const CGate* pGate);
-   CTCLString ListGates();
-   CTCLString ListGatesById();
+   CTCLString ListGates(const char* pattern);
+   CTCLString ListGatesById(const char* pattern);
    Bool_t DeleteGates (CTCLResult& rResult, 
 		       const STD(vector)<STD(string)>& rGateNames);
    Bool_t DeleteGates (CTCLResult& rResult, 

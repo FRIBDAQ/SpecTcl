@@ -279,6 +279,9 @@ DAMAGES.
 /* 
    Change log:
    $Log$
+   Revision 5.1.2.5  2005/05/23 15:47:29  thoagland
+   Added Support to allow users to filter "gate -list" by a pattern
+
    Revision 5.1.2.4  2005/05/19 18:03:31  thoagland
    Added Support for AndMask and NotMask gates
 
@@ -347,6 +350,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.5  2005/05/23 15:47:29  thoagland
+  Added Support to allow users to filter "gate -list" by a pattern
+
   Revision 5.1.2.4  2005/05/19 18:03:31  thoagland
   Added Support for AndMask and NotMask gates
 
@@ -460,7 +466,7 @@ static const  char* pUsage[] = {
   "Usage:\n"
   "     gate [-new] name type { description }\n",
   "     gate -delete [-id] Gate1 [Gate2 ... }\n",
-  "     gate -list [-byid]\n"
+  "     gate -list [-byid] [pattern]\n"
 };
 static const UInt_t nUsageLines = (sizeof(pUsage) / sizeof(char*));
 
@@ -822,20 +828,35 @@ Int_t CGateCommand::ListGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //
   CTCLString ResultString;
   CGatePackage& Package((CGatePackage&)getMyPackage());
-
+  const char* pattern;
 
   switch(nArgs) {
   case 0:
-    ResultString = Package.ListGates();
+    pattern = "*";
+    ResultString = Package.ListGates(pattern);
     break;
   case 1:
     if(MatchSwitches(*pArgs) != byid) {
-      rResult = Usage();
-      rResult += "\n The following switch may only be -byid: ";
-      rResult += *pArgs;
-      return TCL_ERROR;
+      pattern = *pArgs;
+      ResultString = Package.ListGates(pattern);
+      break;
     }
-    ResultString = Package.ListGatesById();
+    pattern = "*";
+    ResultString = Package.ListGatesById(pattern);
+    break;
+  case 2:
+    if (MatchSwitches(*pArgs) == byid)
+      {
+	*pArgs++;
+	pattern = *pArgs;
+	ResultString = Package.ListGatesById(pattern);
+      }
+    else 
+      {
+	rResult = Usage();
+	rResult += "\nIncorrect number or wrong order of parameters";
+	return TCL_ERROR;
+      }
     break;
   default:
     rResult = Usage();

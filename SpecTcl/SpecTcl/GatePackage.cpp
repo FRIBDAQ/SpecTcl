@@ -297,6 +297,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.6  2005/05/23 15:47:29  thoagland
+  Added Support to allow users to filter "gate -list" by a pattern
+
   Revision 5.1.2.5  2005/05/19 18:03:32  thoagland
   Added Support for AndMask and NotMask gates
 
@@ -497,14 +500,18 @@ CGatePackage::AddGate(CTCLResult& rResult, const std::string& rGateName,
 		  - em {parameter string}
   
  */
-CTCLString CGatePackage::ListGates()  
+CTCLString CGatePackage::ListGates(const char* pattern)  
 {
   SpecTcl& api(*(SpecTcl::getInstance()));
   CTCLString Gates;
   CGateDictionaryIterator gi = api.GateBegin();
   while(gi != api.GateEnd()) {
-    Gates.AppendElement(GateToString(&((*gi).second)));
-    Gates.Append("\n");
+    const char* name = (&((*gi).second))->getName().c_str();
+    if ( Tcl_StringMatch(name, pattern))
+    {
+      Gates.AppendElement(GateToString(&((*gi).second)));
+      Gates.Append("\n");
+    }
     gi++;
   }
   return Gates;
@@ -514,7 +521,7 @@ CTCLString CGatePackage::ListGates()
 //  Function:       ListGatesById()
 //  Operation Type: Selector.
 
-CTCLString CGatePackage::ListGatesById()  
+CTCLString CGatePackage::ListGatesById(const char* pattern)  
 {
   // Lists the gates in the gate dictionary
   // sorted by Id rather than name.
@@ -529,7 +536,11 @@ CTCLString CGatePackage::ListGatesById()
   SpecTcl& api(*(SpecTcl::getInstance()));
   CGateDictionaryIterator gi = api.GateBegin();
   while(gi != api.GateEnd()) {
-    vGates.push_back(&((*gi).second));
+    const char* name = (&((*gi).second))->getName().c_str();
+    if ( Tcl_StringMatch(name, pattern))
+      {
+      vGates.push_back(&((*gi).second));
+      }
     gi++;
   }
   //  2. Sort the gates by ID:
