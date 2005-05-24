@@ -294,6 +294,9 @@ DAMAGES.
 //                     Removed New1d, New2d replaced with CreateSpectrum.
 //
 //   $Log$
+//   Revision 5.1.2.2  2005/05/24 11:36:48  thoagland
+//   Added support for spectrum -list [-byid] [pattern]
+//
 //   Revision 5.1.2.1  2004/12/15 17:24:06  ron-fox
 //   - Port to gcc/g++ 3.x
 //   - Recast swrite/sread in terms of tcl[io]stream rather than
@@ -445,8 +448,8 @@ public:
 
   // List Spectra
 
-  void ListSpectra (STD(vector)<STD(string)>& rvProperties)  ;
-  Int_t ListSpectrum (CTCLResult& rResult, const char* pName)  ;
+  void ListSpectra (STD(vector)<STD(string)>& rvProperties, const char* pattern)  ;
+  //Int_t ListSpectrum (CTCLResult& rResult, const char* pName)  ;
   Int_t ListSpectrum (CTCLResult& rResult, UInt_t nId)  ;
 
   // Clear Spectra:

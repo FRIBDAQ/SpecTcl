@@ -229,7 +229,7 @@ style='mso-bookmark:Top'></span></p>
 
 <p><span style='mso-bookmark:Top'>spectrum [-new] <em>name type parameter-list
 axis-speclist </em>[<em>datatype</em>]<br>
-spectrum -list [-byid]<br>
+spectrum -list [-byid] [pattern]<br>
 spectrum -list <em>name</em><br>
 spectrum -list -id <em>id</em><i><br>
 </i>spectrum -delete <em>name </em>[<em>name...</em>]<br>
@@ -769,11 +769,13 @@ histogram of Si2, strip 2 is a histogram of Si3.. .and so forth.</span></p>
 Top'>Top</span><span style='mso-bookmark:Top'></span></a><span
 style='mso-bookmark:Top'></span></p>
 
-<h3><span style='mso-bookmark:Top'>spectrum -list [-byid]</span></h3>
+<h3><span style='mso-bookmark:Top'>spectrum -list [-byid] [pattern]</span></h3>
 
 <p><span style='mso-bookmark:Top'>Lists all spectra in the spectrum dictionary.
 If the optional <strong>-byid</strong> switch is included, then the spectra are
-sorted by id, otherwise they are sorted alphabetically by name. Spectra are
+sorted by id, otherwise they are sorted alphabetically by name.  If the pattern
+optional is included then only spectra whose name equals the pattern  will be 
+displayed, * can be used a wildcard Spectra are
 listed in a format which allows them to be easily manipulated by other Tcl
 commands. The output is a list, where each spectrum is represented by a sublist
 containing in order: The Spectrum id, spectrum name, dimensionality, parameter

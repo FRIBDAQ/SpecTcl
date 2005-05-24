@@ -306,6 +306,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
+// Revision 5.1.2.3  2005/05/24 11:36:48  thoagland
+// Added support for spectrum -list [-byid] [pattern]
+//
 // Revision 5.1.2.2  2005/05/11 16:56:07  thoagland
 // dded Support for StripChart Spectra
 //
@@ -743,7 +746,7 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   if(nArgs == 0) {		// List with sort by name.
     std::vector<std::string> vDescriptions;
-    rPack.ListSpectra(vDescriptions);
+    rPack.ListSpectra(vDescriptions,"*");
     SortSpectraByName(vDescriptions);
     VectorToResult(rResult, vDescriptions);
     return TCL_OK;
@@ -755,7 +758,8 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // 
   std::vector<std::string> vDescriptions;
   Int_t nId;
- 
+  const char* pattern;
+
   switch(MatchSwitch(pArgs[0])) {
   case keId:			// List 1 spectrum given ident.
     nArgs--;
@@ -769,18 +773,36 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return rPack.ListSpectrum(rResult, nId);
 
   case keById:			// List all spectra sorted by ident.
-    if(nArgs > 1) {		// Too many command parameters...
+    if(nArgs > 2) {		// Too many command parameters...
       rResult = "Too many command line parameters\n";
       Usage(rResult);
       return TCL_ERROR;
     }
-    rPack.ListSpectra(vDescriptions);
+    if(nArgs > 1) {
+      pattern = pArgs[1];
+    } else {
+      pattern = "*";
+    }
+    rPack.ListSpectra(vDescriptions, pattern);
     SortSpectraById(vDescriptions);
     VectorToResult(rResult, vDescriptions);
     return TCL_OK;
 
-  case keNotSwitch:		// List one spectrum given the name.
-    return rPack.ListSpectrum(rResult, pArgs[0]);
+  case keNotSwitch:		// List 
+    if(nArgs > 1)
+      {
+	rResult = "Too many command line parameters or wrong parameters\n";
+	Usage(rResult);
+	return TCL_ERROR;
+      }
+    else
+      {
+	pattern = pArgs[0];
+	rPack.ListSpectra(vDescriptions, pattern);
+	//SortSpectraByName(vDescriptions);
+	VectorToResult(rResult, vDescriptions);
+	return TCL_OK;
+      }
 
   default:			// Invalid switch in context.
     Usage(rResult);
@@ -879,7 +901,7 @@ CSpectrumCommand::Usage(CTCLResult& rResult)
 
   rResult += "Usage: \n";
   rResult += "  spectrum [-new] name type { parameters... } {axisdefs... [datatype]y\n";
-  rResult += "  spectrum -list [-byid]\n";
+  rResult += "  spectrum -list [-byid] [pattern]\n";
   rResult += "  spectrum -list name\n";
   rResult += "  spectrum -list -id id\n";
   rResult += "  spectrum -delete name1 [name2...]\n";

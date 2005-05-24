@@ -306,3 +306,8 @@ May 18, 2005
   - Add support for CTCLString::AppendElement(long, const char* format)
   - Add support for mask equals gates as well as define the mask gate base class.
   - Add Support for "not mask" and "and mask" gates
+May 23, 2005
+  - Added support for "gate -list [pattern]" so that users can filter
+    the results of the gate -list command
+  - Added support for "spectrum -list [pattern]" so that users can filter
+    the results of the spectrum -list command

@@ -298,6 +298,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
+//    Revision 5.1.2.4  2005/05/24 11:36:48  thoagland
+//    Added support for spectrum -list [-byid] [pattern]
+//
 //    Revision 5.1.2.3  2005/05/11 16:56:07  thoagland
 //    dded Support for StripChart Spectra
 //
@@ -561,7 +564,7 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
 //     Interface.
 //
 void 
-CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties) 
+CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties, const char* pattern) 
 {
 // Returns the set of spectrum definitions.  Each
 // Spectrum's properties is stored in a string formatted as
@@ -581,50 +584,17 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties)
   SpectrumDictionaryIterator p = api.SpectrumBegin();
 
   for(; p != api.SpectrumEnd(); p++) {
-    CSpectrum* rSpec((*p).second);
-    rvProperties.push_back(DescribeSpectrum(*rSpec));
+    const char* name = ((p->second)->getName()).c_str();
+    if (Tcl_StringMatch(name, pattern) )
+      {
+	CSpectrum* rSpec((*p).second);
+	rvProperties.push_back(DescribeSpectrum(*rSpec));
+      }
   }
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    Int_t ListSpectrum ( CTCLResult& rResult, const char* pName )
-//  Operation Type:
-//     Interface
-//
-Int_t
-CSpectrumPackage::ListSpectrum(CTCLResult& rResult, const char* pName) 
-{
-//
-//  Returns the properties of a single spectrum.
-//
-// Formal Parameters:
-//     CTCLResult& rResult:
-//        Refers to the result string for the TCL operation.
-//     const char* pName:
-//        Name of the spectrum.
-//  Returns:
-//     TCL_OK         - if the histogram's properties could be retrieved.
-//                      in which case the result string is a TCL formatted
-//                      list of the form:
-//                 id name dimensionality { parameters... }  { resolutions...}
-//     TCL_ERROR  if the histogram's properties could not be retrieved
-//                in which case the result string is the reason for this.
-//
 
-  SpecTcl& api(*(SpecTcl::getInstance()));
 
-  CSpectrum* pSpec = api.FindSpectrum(pName);
-  if(pSpec) {
-    rResult += DescribeSpectrum(*pSpec);
-    return TCL_OK;
-  }
-  else {
-    rResult += "Spectrum does not exist";
-    return TCL_ERROR;
-  }
 
-}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
