@@ -371,7 +371,7 @@ protected:
 
   // Utilities for producing Tcl lists for parameter definitions.
 
-  UInt_t ListParametersById(CTCLResult& rResult);
+  UInt_t ListParametersById(CTCLResult& rResult, const char* pattern);
  
 };
 

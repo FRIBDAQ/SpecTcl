@@ -632,18 +632,24 @@ CParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
   CParameterPackage& rPackage = (CParameterPackage&)getMyPackage();
 
   if(nPars == 0) {		// List all parameters:
-    CTCLList ParamList(rPackage.CreateTclParameterList(rInterp));
+    CTCLList ParamList(rPackage.CreateTclParameterList(rInterp, "*"));
     rResult = ParamList.getList();
     return TCL_OK;
   }
 
+
+  char* pattern = "*";
   // The next parameter is either a switch (-byid or -id) or it is
   // the name of a parameter to list:
   //
 
   switch(ParseSwitch(pPars[0])) {
   case CParameterCommand::ByIdSw:	// List all by id.
-    return ListParametersById(rResult);
+    if (nPars>1)
+      {
+	pattern = pPars[1];
+      } 
+    return ListParametersById(rResult, pattern);
   case CParameterCommand::IdSw:	// List one given an id.
     if(nPars != 2) {
       Usage(rInterp, rResult);
@@ -669,13 +675,16 @@ CParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
       return TCL_ERROR;
     }
     return rPackage.ListParameter(rResult, nId);
-  case CParameterCommand::NotSwitch: // List one given a name.
-
-    return rPackage.ListParameter(rResult, pPars[0]);
-  default:			// Some switch invalid in context.
+  case CParameterCommand::NotSwitch: // List using pattern
+    CTCLList ParamList(rPackage.CreateTclParameterList(rInterp, pPars[0]));
+    rResult = ParamList.getList();
+    return TCL_OK;
+    break;
+  }
+  //default:			// Some switch invalid in context.
     Usage(rInterp, rResult);
     return TCL_ERROR;
-  }
+  
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -784,7 +793,7 @@ CParameterCommand::Usage(CTCLInterpreter& rInterp, CTCLResult& rResult)
   rResult += "   parameter [-new] name id units\n";
   rResult += "   parameter [-new] name id\n";
   rResult += "   parameter -list [-byid]\n";
-  rResult += "   parameter -list  name\n";
+  rResult += "   parameter -list  [pattern]\n";
   rResult += "   parameter -list  -id nId\n";
   rResult += "   parameter -delete name\n";
   rResult += "   parameter -delete -id n\n";
@@ -826,7 +835,7 @@ CParameterCommand::ParseSwitch(const char* pSwitch)
 // Operation:
 //    Utility Function
 UInt_t
-CParameterCommand::ListParametersById(CTCLResult& rResult)
+CParameterCommand::ListParametersById(CTCLResult& rResult, const char* pattern)
 {
   // This function retrieves the list of parameter definitions,
   // sorts them by parameter id order and
@@ -848,7 +857,7 @@ CParameterCommand::ListParametersById(CTCLResult& rResult)
   CParameterPackage& rPackage = (CParameterPackage&)getMyPackage();
 
 
-  CTCLList ParameterList(rPackage.CreateTclParameterList(*(getInterpreter())));
+  CTCLList ParameterList(rPackage.CreateTclParameterList(*(getInterpreter()),pattern));
   ParameterList.Bind(getInterpreter());
 
   // Strategy:

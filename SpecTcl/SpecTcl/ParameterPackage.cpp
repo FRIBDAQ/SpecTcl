@@ -517,7 +517,7 @@ CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
 //     Inquiry
 //
 CTCLList 
-CParameterPackage::CreateTclParameterList(CTCLInterpreter& rInterp) 
+CParameterPackage::CreateTclParameterList(CTCLInterpreter& rInterp, const char* pattern) 
 {
 // Creates a TCL List whose contents are 
 // Descriptions of each parameter.  
@@ -534,8 +534,12 @@ CParameterPackage::CreateTclParameterList(CTCLInterpreter& rInterp)
   ParameterDictionaryIterator i;
   for(i = api.BeginParameters();  
       i != api.EndParameters(); i++) {
-    List.AppendElement(getParameterInfoListString((*i).second));
-    List.Append("\n");
+      const char* name = (((*i).second).getName()).c_str();
+      if (Tcl_StringMatch(name, pattern))
+	  {
+	    List.AppendElement(getParameterInfoListString((*i).second));
+	    List.Append("\n");
+	  }
   }
 
 
