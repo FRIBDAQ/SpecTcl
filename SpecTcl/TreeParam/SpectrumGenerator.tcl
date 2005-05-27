@@ -1252,6 +1252,10 @@ proc SaveDefinitionFile {file} {
 				puts $handle "apply $gatename $spectrum"
 			}
 		}
+	        puts $handle "# Gates applied as folds"
+	        foreach fold [fold -list] {
+		    puts $handle "fold -apply [list [lindex $fold 1]] [list [lindex $fold 0]]"
+	        }
 		puts $handle "# TreeParameter changes from C++ code"
 		foreach treeparameter $treeparameterList {
 			set name [lindex $treeparameter 0]
