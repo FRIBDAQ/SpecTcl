@@ -297,15 +297,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
-  Revision 5.1.2.6  2005/05/23 15:47:29  thoagland
-  Added Support to allow users to filter "gate -list" by a pattern
-
-  Revision 5.1.2.5  2005/05/19 18:03:32  thoagland
-  Added Support for AndMask and NotMask gates
-
-  Revision 5.1.2.4  2005/05/19 10:36:34  thoagland
-  Added support for mask equals gates
-
+  Revision 5.1.2.7  2005/05/27 17:47:38  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
 
   Revision 5.1.2.3  2005/04/16 20:09:47  ron-fox
   Add treeparameter initialization.
@@ -340,13 +338,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <Gate.h>
 #include <Cut.h>
 #include <PointlistGate.h>
-#include <GammaCut.h>
-#include <GammaBand.h>
-#include <GammaContour.h>
-#include <MaskGates.h>
-#include <MaskEqualGate.h>
-#include <MaskAndGate.h>
-#include <MaskNotGate.h>
+#include <CGammaCut.h>
+#include <CGammaBand.h>
+#include <CGammaContour.h>
 
 #include <GateFactory.h>
 
@@ -497,7 +491,6 @@ CGatePackage::AddGate(CTCLResult& rResult, const std::string& rGateName,
                   - True,
                   - False,
                   - Deleted     {}
-		  - em {parameter string}
   
  */
 CTCLString CGatePackage::ListGates(const char* pattern)  
@@ -870,53 +863,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     }
     Result.EndSublist();
   }
-
-  else if (type == "em") {
-    CMaskEqualGate& rMask((CMaskEqualGate&)*rGate);  
-    UInt_t nPid = rMask.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
-    if(Param) {
-      Result.AppendElement(Param->getName());
-    }
-    else {
-      Result.AppendElement("-Deleted Parameter-");
-    }    
-    long value = rMask.getCompare();
-    Result.AppendElement(value ,"%#X");
-    Result.EndSublist();
-    return Result;
-  }
- else if (type == "am") {
-    CMaskAndGate& rMask((CMaskAndGate&)*rGate);  
-    UInt_t nPid = rMask.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
-    if(Param) {
-      Result.AppendElement(Param->getName());
-    }
-    else {
-      Result.AppendElement("-Deleted Parameter-");
-    }    
-    long value = rMask.getCompare();
-    Result.AppendElement(value ,"%#X");
-    Result.EndSublist();
-    return Result;
-  }
- else if (type == "nm") {
-    CMaskNotGate& rMask((CMaskNotGate&)*rGate);  
-    UInt_t nPid = rMask.getId();
-    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
-    if(Param) {
-      Result.AppendElement(Param->getName());
-    }
-    else {
-      Result.AppendElement("-Deleted Parameter-");
-    }    
-    long value = rMask.getCompare();
-    Result.AppendElement(value ,"%#X");
-    Result.EndSublist();
-    return Result;
-  }
-
+  
 
   else if ((type == "gs") ||
 	   (type == "gb") ||
@@ -950,15 +897,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     }
     Result.EndSublist();
   }
-  else if(type != "s") {
-    CConstituentIterator Constituent = rGate->Begin();
-    CConstituentIterator End = rGate->End();
-    while(Constituent != End) {
-      Result.AppendElement(rGate->GetConstituent(Constituent));
-      Constituent++;
-    }
-  }
-  else {			// Special case for slice
+  else if( (type == "s") || (type == "gs")) {
     CConstituentIterator rIter = rGate->Begin();
     string GateInfo = rGate->GetConstituent(rIter);
     UInt_t id;
@@ -967,36 +906,55 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     sscanf(GateInfo.c_str(), "%d %f %f", &id, &low, &hi);
     sprintf(param,"%f %f", low, hi);
     Result.AppendElement(param);
+
+  }
+  else {			// Special case for slice
+
+    CConstituentIterator Constituent = rGate->Begin();
+    CConstituentIterator End = rGate->End();
+    while(Constituent != End) {
+      Result.AppendElement(rGate->GetConstituent(Constituent));
+      Constituent++;
+    }
+
   }
 
   // 
-  // Special case code to output optional spectrum names for
-  // gamma gates.  Even if there are no spectrum names,
-  // a list of names ({} e.g.) will be created.
+  // Special case code to output parameters for
+  // gamma gates.  
   //
-  vector<string>           SpecNames;
-  vector<string>::iterator pNames;
+  vector<UInt_t>           paramIds;
+  vector<UInt_t>::iterator pIds;
   Bool_t                   isGammaGate = kfFALSE;
 
   if (type == "gs") {
     CGammaCut& rCut = ((CGammaCut&)*rGate);
-    SpecNames = rCut.getSpecs();
+    paramIds = rCut.getParameters();
     isGammaGate = kfTRUE;
   }
   if (type == "gc") {
     CGammaContour& rContour = ((CGammaContour&)*rGate);
-    SpecNames = rContour.getSpecs();
+    paramIds = rContour.getParameters();
     isGammaGate = kfTRUE;
   }
   if (type == "gb") {
     CGammaBand& rBand = ((CGammaBand&)*rGate);
-    SpecNames = rBand.getSpecs();
+    paramIds = rBand.getParameters();
     isGammaGate =kfTRUE;
   }
   if(isGammaGate) {
     Result.StartSublist();
-    for(pNames = SpecNames.begin(); pNames != SpecNames.end(); pNames++) {
-      Result.AppendElement(*pNames);
+    for(pIds = paramIds.begin(); pIds != paramIds.end(); pIds++) {
+      UInt_t id;
+      id =*pIds;
+      CParameter* pParam = m_pHistogrammer->FindParameter(id);
+      if(pParam) {
+	Result.AppendElement(pParam->getName());
+      } 
+      else {
+	Result.AppendElement("-Deleted Parameter-");
+      }
+
     }
     Result.EndSublist();
   }

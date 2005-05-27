@@ -595,8 +595,14 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     break;
   case keG1D:
   case keG2D:
-    Names.push_back(strSpecName);
-    pSpecTclGate = Factory.CreateGate(gType, ScaledPoints, Names);
+    for(pid = pIds.begin(); pid != pIds.end(); pid++) {
+      CParameter* pParam = m_pHistogrammer->FindParameter(*pid);
+      if(!pParam) {
+	cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
+	return;
+      }
+    }
+    pSpecTclGate = Factory.CreateGate(gType, ScaledPoints, pIds);
     break;
   default:
     cerr << "Spectrum type cannot accept a gate!!\n";

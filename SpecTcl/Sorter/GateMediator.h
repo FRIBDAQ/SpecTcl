@@ -322,6 +322,11 @@ class CGateMediator
  public: 
 
   Bool_t operator() ();
+ protected:
+  Bool_t mediate1d();
+  Bool_t mediate2d();
+  Bool_t mediateGamma1();
+  Bool_t mediateGamma2();
 };
 
 #endif

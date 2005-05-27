@@ -294,6 +294,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.2  2005/05/27 17:47:36  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
   Revision 5.1.2.1  2004/12/21 17:51:21  ron-fox
   Port to gcc 3.x compilers.
 
@@ -391,7 +399,7 @@ CCut::inGate(CEvent& rEvent)
   else {
     if(rEvent[id].isValid()) {;
       Float_t nPoint = rEvent[id];
-      return((nPoint >= getLow()) && (nPoint <= getHigh()));
+      return inGate(nPoint);
     }
     else {
       return kfFALSE;
@@ -507,4 +515,10 @@ CCut::Type() const
 // Exceptions:  
 
   return std::string("s");
+}
+//
+Bool_t 
+CCut::inGate(Float_t x)
+{
+  return ((x >= getLow()) && (x <= getHigh()));
 }

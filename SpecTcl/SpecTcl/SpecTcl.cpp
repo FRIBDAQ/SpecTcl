@@ -30,13 +30,10 @@
 #include <C2Bands.h>
 #include <Contour.h>
 #include <Cut.h>
-#include <GammaBand.h>
-#include <GammaContour.h>
-#include <GammaCut.h>
+#include <CGammaBand.h>
+#include <CGammaContour.h>
+#include <CGammaCut.h>
 #include <Not.h>
-#include <MaskEqualGate.h>
-#include <MaskAndGate.h>
-#include <MaskNotGate.h>
 
 
 #include <GateContainer.h>
@@ -46,6 +43,7 @@
 
 #include <Histogrammer.h>
 #include <GateFactory.h>
+#include <GateFactoryException.h>
 #include <SpectrumFactory.h>
 #include <SpectrumFormatterFactory.h>
 
@@ -1005,40 +1003,14 @@ SpecTcl::CreateGate(CGateFactory::GateType gateType, vector<string> parameters,
   CGateFactory factory(GetHistogrammer());
   return       factory.CreateGate(gateType, parameters, points);
 }
-
-/*!
-  Creates a compound gate of the specified type.  Compound gates
-  are gates that are made up of other gates.  A pointer to the gate created
-  is returned.
-  @param gateType
-    Type of gate to create. Must be a compound gate type.
-  @param names
-    Names of the gates that will make up this compound gate.
-
-  \return CGate*
-  \retval Pointer to the newly crated gate.  It is up to the caller to 
-          enter the gate into the gate dictionary where the histogrammer can
-	  operate on it.. It is also up to the caller to delete the gate
-	  when done.
-  \throw CGateFactoryException - If there's a problem creating the gate.
- 
-*/
-CGate* 
-SpecTcl::CreateGate(CGateFactory::GateType gateType, 
-		    vector<string> parameters, 
-		    long comparison)
-{
-  CGateFactory factory(GetHistogrammer());
-  return       factory.CreateGate(gateType, parameters, comparison);
-}
 /*!
   Creates a gamma  gate.
   @param gateType
     Type of gate to add.
   @param points
     Set of points that make up the gate.
-  @param spectra
-    List of spectra that should display this gate.
+  @param parameters
+    List of parameters on the spectrum on which the gate was defined.
 
   \return CGate*
   \retval Pointer to the newly crated gate.  It is up to the caller to 
@@ -1050,10 +1022,10 @@ SpecTcl::CreateGate(CGateFactory::GateType gateType,
 */
 CGate*
 SpecTcl::CreateGate(CGateFactory::GateType   gateType, STD(vector)<FPoint> points,
-		    STD(vector)<STD(string)> spectra)
+		    STD(vector)<UInt_t> parameters)
 {
   CGateFactory factory(GetHistogrammer());
-  return       factory.CreateGate(gateType, points, spectra);
+  return       factory.CreateGate(gateType, points, parameters);
 }
 
 /*!
@@ -1328,7 +1300,19 @@ CGate*
 SpecTcl::CreateGammaCut(Float_t low, Float_t high, vector<string> constituents)
 {
   CGateFactory factory(GetHistogrammer());
-  return       static_cast<CGate*>(factory.CreateGammaCut(low, high, constituents));
+  vector<UInt_t> paramIds;
+  try {
+    paramIds = parameterIds(constituents);
+  }
+  catch (string badname) {
+      string doing("Looking up gamma  cut  parameter: ");
+      doing  += badname;
+      throw CGateFactoryException(CGateFactoryException::NoSuchParameter,
+				  CGateFactory::gammacut,
+				  doing);
+  }
+
+  return       static_cast<CGate*>(factory.CreateGammaCut(low, high, paramIds));
 }
 
 
@@ -1356,7 +1340,19 @@ SpecTcl::CreateGammaBand(vector<FPoint> points,
 			 vector<string> constituents)
 {
   CGateFactory factory(GetHistogrammer());
-  return       factory.CreateGammaBand(points, constituents);
+  vector<UInt_t> paramIds;
+  try {
+    paramIds = parameterIds(constituents);
+  }
+  catch (string badname) {
+      string doing("Looking up gamma band parameter: ");
+      doing  += badname;
+      throw CGateFactoryException(CGateFactoryException::NoSuchParameter,
+				  CGateFactory::gammaband,
+				  doing);
+  }
+
+  return       factory.CreateGammaBand(points, paramIds);
 }
 
 
@@ -1382,74 +1378,19 @@ SpecTcl::CreateGammaContour(vector<FPoint> points,
 			    vector<string> constituents)
 {
   CGateFactory factory(GetHistogrammer());
-  return       factory.CreateGammaContour(points, constituents);
+  vector<UInt_t> paramIds;
+  try {
+    paramIds = parameterIds(constituents);
+  }
+  catch (string badname) {
+      string doing("Looking up gamma  contour parameter: ");
+      doing  += badname;
+      throw CGateFactoryException(CGateFactoryException::NoSuchParameter,
+				  CGateFactory::gammacontour,
+				  doing);
+  }
+  return       factory.CreateGammaContour(points, paramIds);
 }
-
-
-
-/*!
-  Creates a Mask Equal Gate
-  \return CGate*
-  \retval Pointer to the newly created gate.  It is up to the caller to 
-          enter the gate into the gate dictionary where the histogrammer can
-	  operate on it.. It is also up to the caller to delete the gate
-	  when done.
-  \throw CGateFactoryException - If there's a problem creating the gate.
-
- 
-*/
-CGate* 
-SpecTcl::CreateMaskEqualGate(vector<string> parameters, 
-			     long Compare)
-{
-  CGateFactory factory(GetHistogrammer());
-  return       factory.CreateMaskEqualGate(parameters, Compare);
-}
-
-
-/*!
-  Creates a Mask Equal Gate
-  \return CGate*
-  \retval Pointer to the newly created gate.  It is up to the caller to 
-          enter the gate into the gate dictionary where the histogrammer can
-	  operate on it.. It is also up to the caller to delete the gate
-	  when done.
-  \throw CGateFactoryException - If there's a problem creating the gate.
-
- 
-*/
-CGate* 
-SpecTcl::CreateMaskAndGate(vector<string> parameters, 
-			     long Compare)
-{
-  CGateFactory factory(GetHistogrammer());
-  return       factory.CreateMaskAndGate(parameters, Compare);
-}
-
-
-/*!
-  Creates a Mask Equal Gate
-  \return CGate*
-  \retval Pointer to the newly created gate.  It is up to the caller to 
-          enter the gate into the gate dictionary where the histogrammer can
-	  operate on it.. It is also up to the caller to delete the gate
-	  when done.
-  \throw CGateFactoryException - If there's a problem creating the gate.
-
- 
-*/
-CGate* 
-SpecTcl::CreateMaskNotGate(vector<string> parameters, 
-			     long Compare)
-{
-  CGateFactory factory(GetHistogrammer());
-  return       factory.CreateMaskNotGate(parameters, Compare);
-}
-
-
-
-
-
 
 
 /*!
@@ -1984,3 +1925,23 @@ CEventSinkPipeline* SpecTcl::GetEventSinkPipeline()
 }
 
 
+/*
+   Returns a vector of parameter ids for a list of parameter
+   names.  Throws a string exception of the name of the failing parameter
+   if the lookup failed.
+*/
+vector<UInt_t>
+SpecTcl::parameterIds(vector<string> names)
+{
+  // Need to build the vector of parameter ids:
+  vector<UInt_t> paramIds;
+  vector<string>::iterator i = names.begin();
+  while(i != names.end()) {
+    CParameter* pParameter = FindParameter(*i);
+    if(!pParameter) {
+      throw *i;
+    }
+    paramIds.push_back(pParameter->getNumber());
+  }
+  
+}

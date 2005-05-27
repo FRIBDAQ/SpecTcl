@@ -275,7 +275,6 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS 
 */
-
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
 // Class: CGateFactory
@@ -300,11 +299,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
    $Log$
-   Revision 5.1.2.4  2005/05/19 18:03:31  thoagland
-   Added Support for AndMask and NotMask gates
-
-   Revision 5.1.2.3  2005/05/19 10:36:34  thoagland
-   Added support for mask equals gates
+   Revision 5.1.2.5  2005/05/27 17:47:38  ron-fox
+   Re-do of Gamma gates also merged with Tim's prior changes with respect to
+   glob patterns.  Gamma gates:
+   - Now have true/false values and can therefore be applied to spectra or
+     take part in compound gates.
+   - Folds are added (fold command); and these perform the prior function
+       of gamma gates.
 
    Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
    Add SpecTcl Application programming interface and make use of it
@@ -343,13 +344,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <C2Bands.h>
 #include <Cut.h>
 #include <Not.h>
-#include <GammaCut.h>
-#include <GammaBand.h>
-#include <GammaContour.h>
-#include <MaskGates.h>
-#include <MaskEqualGate.h>
-#include <MaskAndGate.h>
-#include <MaskNotGate.h>
+#include <CGammaCut.h>
+#include <CGammaBand.h>
+#include <CGammaContour.h>
 
 #include <histotypes.h>
 #include <Parameter.h>
@@ -529,30 +526,6 @@ CGateFactory::CreateGate(GateType eType,
 				"Determining type of gate in CreateGate");
   }
 }
-
-/*!
-
-Switch statement for Mask Gates
-
-*/
-
-CGate* 
-CGateFactory::CreateGate(GateType eType, 
-			 const vector<string>& rParameters,
-			 long comparison)  
-{
-
-
-  switch(eType) {
-  case em:
-    return CreateMaskEqualGate(rParameters, comparison);
-  case am:
-    return CreateMaskAndGate(rParameters, comparison);
-  case nm: 
-    return CreateMaskNotGate(rParameters, comparison);
-  }
-}
-
 /*!
   
   \para Functionality:
@@ -563,13 +536,13 @@ CGateFactory::CreateGate(GateType eType,
    \param <TT>eType (GateType [in]):</TT>
        Type of gate that is to be created.  This must be one of:
        - gammacut A cut on a set of gamma parameters.
-       - gammaband A band on a set of ordered pairs of gamma params.
-       - gammacontour A contour on a set of ordered pairs of gamma
+       -gammaband A band on a set of ordered pairs of gamma params.
+       -gammacontour A contour on a set of ordered pairs of gamma
           parameters.
    \param <TT>rPoints (const vector<FPoint>& [in]):</TT>
        The set of points that define the contour. 
-   \param <TT>rSpectrum (const vector<string>& [in]):</TT>
-       The set of spectra on which this gate should be displayed.
+   \param <TT>rParameters (const vector<UInt_t>& [in]):</TT>
+       The set of parameters on which this gate should be displayed.
 
    \para Returns:
    \retval CGate*
@@ -579,15 +552,12 @@ CGateFactory::CreateGate(GateType eType,
    \throw CGateFactoryException
      In the event creating the gate is impossible.  The exception
      indicates the type of the gate being created and why the
-          gate could not be created.
+     gate could not be created.
 */
-
-
-CGate*
+CGate* 
 CGateFactory::CreateGate(GateType eType,
 			 const vector<FPoint>& rPoints,
-			 const vector<string>& rSpectrum)
-{
+			 const vector<UInt_t>& rParameters) {
   switch(eType) {
   case gammacut:
     if(rPoints.size() != 2) {
@@ -596,11 +566,11 @@ CGateFactory::CreateGate(GateType eType,
 				  "Creating gamma cut in CreateGate");
     }
     return CreateGammaCut(min(rPoints[0].X(), rPoints[1].X()), 
-			  max(rPoints[0].X(), rPoints[1].X()), rSpectrum);
+			  max(rPoints[0].X(), rPoints[1].X()), rParameters);
   case gammaband:
-    return CreateGammaBand(rPoints, rSpectrum);
+    return CreateGammaBand(rPoints, rParameters);
   case gammacontour:
-    return CreateGammaContour(rPoints, rSpectrum);
+    return CreateGammaContour(rPoints, rParameters);
   default:
     throw CGateFactoryException(CGateFactoryException::WrongConstructor,
 				eType,
@@ -730,50 +700,33 @@ CGateFactory::CreateContour(const vector<string>& rParameters,
 
 CGammaCut*
 CGateFactory::CreateGammaCut(Float_t nLow, Float_t nHigh, 
-			     const vector<string>& rSpectrum)
+			     const vector<UInt_t>& rParameters)
 {
-  // Need to validate the gate by getting it's descriptor (throws otherwise).
-
-  for(int i=0; i < rSpectrum.size(); i++) {
-    NameToSpec(rSpectrum[i], gammacut, "Creating a gamma slice");
-  }
   
   // Create the cut:
   
-  if(rSpectrum.size() > 0) {
-    return new CGammaCut((UInt_t)nLow, (UInt_t)nHigh, rSpectrum);
-  }
-  else
-    return new CGammaCut(nLow, nHigh);
+  return new CGammaCut(nLow, nHigh, rParameters);
 }
 
 CGammaBand*
 CGateFactory::CreateGammaBand(const vector<FPoint>& rPoints,
-			      const vector<string>& rSpectrum)
+			      const vector<UInt_t>& rParameters)
 {
   if(rPoints.size() < 2) {	// At least 2 points make a band.
     throw CGateFactoryException(CGateFactoryException::WrongPointCount,
 				gammaband,
 				"Creating gammaband in CreateGammaBand");
   }
-  // The spectra must exist:
+
+
   
-  for(UInt_t i = 0; i < rSpectrum.size(); i++) {
-    NameToSpec(rSpectrum[i], gammaband, "Translating spectrum");
-  }
+  return new CGammaBand(rPoints, rParameters);
 
-
-
-  if(rSpectrum.size() > 0) {
-    return new CGammaBand(rPoints, rSpectrum);
-  }
-  else
-    return new CGammaBand(rPoints);
 }
 
 CGammaContour*
 CGateFactory::CreateGammaContour(const vector<FPoint>& rPoints,
-				 const vector<string>& rSpectrum)
+				 const vector<UInt_t>& rParameters)
 {
   if(rPoints.size() < 3) {	// At least 3 points make a closed contour.
     throw CGateFactoryException(CGateFactoryException::WrongPointCount,
@@ -781,18 +734,7 @@ CGateFactory::CreateGammaContour(const vector<FPoint>& rPoints,
 				"Creating gammacontour in CreateGammaContour");
   }
 
-  // The spectra must exist:
-
-  for(UInt_t i = 0; i < rSpectrum.size(); i++) {
-    NameToSpec(rSpectrum[i], gammacontour, "Translating spectrum");
-  }
-  
-  if(rSpectrum.size() > 0) {
-    
-    return new CGammaContour(rPoints, rSpectrum);
-  }
-  else
-    return new CGammaContour(rPoints);
+  return new CGammaContour(rPoints, rParameters);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -951,82 +893,6 @@ CCut* CGateFactory::CreateCut(const string& rParameterName,
   
   
 }
-
-
-
-////////////////////////////////////////////////////////////////////////
-//
-// Function:         CreateMaskEqualGate(const string& rParamterName,
-//                                       char Compare)
-//
-// Operation Type:   Create
-//
-CMaskEqualGate* CGateFactory::CreateMaskEqualGate(const vector<string>& rParameterName,
-						  long Compare) 
-{
-  // Creates a new Mask Equal Gate
-  //   Mask Equal Gates return true when an event = Compare
-  //
-  // Formal parameters:
-  //     const string& rParameterName:
-  //          Name of the parameter on which the gate is set
-  //     char Compare:
-  //          String to compare the parameter to
-  //
-  UInt_t Id = ParameterToId(rParameterName[0], em, 
-			    "Translating parameter name for Masked Equal");
-  return new CMaskEqualGate(Id, Compare);
-
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// Function:         CreateMaskAndGate(const string& rParamterName,
-//                                       char Compare)
-//
-// Operation Type:   Create
-//
-CMaskAndGate* CGateFactory::CreateMaskAndGate(const vector<string>& rParameterName,
-						  long Compare) 
-{
-  // Creates a new Mask And Gate
-  //
-  // Formal parameters:
-  //     const string& rParameterName:
-  //          Name of the parameter on which the gate is set
-  //     char Compare:
-  //          String to compare the parameter to
-  //
-  UInt_t Id = ParameterToId(rParameterName[0], em, 
-			    "Translating parameter name for Masked Equal");
-  return new CMaskAndGate(Id, Compare);
-
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// Function:         CreateMaskEqualGate(const string& rParamterName,
-//                                       char Compare)
-//
-// Operation Type:   Create
-//
-CMaskNotGate* CGateFactory::CreateMaskNotGate(const vector<string>& rParameterName,
-						  long Compare) 
-{
-  // Creates a new Mask Not Gate 
-  //
-  // Formal parameters:
-  //     const string& rParameterName:
-  //          Name of the parameter on which the gate is set
-  //     char Compare:
-  //          String to compare the parameter to
-  //
-  UInt_t Id = ParameterToId(rParameterName[0], em, 
-			    "Translating parameter name for Masked Equal");
-  return new CMaskNotGate(Id, Compare);
-
-}
-
 ////////////////////////////////////////////////////////////////////////
 //
 //  UInt_t ParameterToId(const string& rName, GateType eType, 

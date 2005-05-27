@@ -43,7 +43,7 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	Globals.cpp FilterCommand.cpp \
 	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
 	DocumentationException.cpp DocumentationCallback.cpp \
-	SpecTcl.cpp
+	SpecTcl.cpp CFoldCommand.cpp
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
@@ -56,7 +56,7 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	FilterCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
-	SpecTcl.h
+	SpecTcl.h CFoldCommand.h
 
 bin_PROGRAMS = SpecTcl
 
@@ -70,7 +70,8 @@ SpecTcl_SOURCES = MySpecTclApp.cpp \
 	PseudoCommand.h PseudoScript.h ReadCommand.h RunControlPackage.h \
 	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
 	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h \
-	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h 
+	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h  \
+	CFoldCommand.h
 
 
 SpecTcl_LDFLAGS = -g -Wl,"-rpath=$(libdir)"

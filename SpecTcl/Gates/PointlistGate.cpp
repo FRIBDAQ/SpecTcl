@@ -299,6 +299,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 /*
   Change log:
   $Log$
+  Revision 5.1.2.2  2005/05/27 17:47:36  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
   Revision 5.1.2.1  2004/12/21 17:51:22  ron-fox
   Port to gcc 3.x compilers.
 
@@ -517,4 +525,19 @@ CPointListGate::Crosses(Float_t x, Float_t y,
   float xp = float(x1) + invslope*float(y - y1);
   return (xp <= float(x));
 
+}
+/*!
+   Determines if an event is in a gate.  This delegates to
+  the Inside function however we do figure out if the parameters
+  are present for it:
+*/
+Bool_t
+CPointListGate::inGate(CEvent& rEvent)
+{
+  size_t nParams = rEvent.size();
+  if((m_nxId < nParams) && (m_nyId < nParams)) {
+    if (rEvent[m_nxId].isValid() && rEvent[m_nyId].isValid()) {
+      return Inside(rEvent[m_nxId], rEvent[m_nyId]);
+    }
+  }
 }

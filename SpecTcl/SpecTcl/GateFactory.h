@@ -300,11 +300,13 @@ DAMAGES.
 /*
   Change Log:
   $Log$
-  Revision 5.1.2.4  2005/05/19 18:03:32  thoagland
-  Added Support for AndMask and NotMask gates
-
-  Revision 5.1.2.3  2005/05/19 10:36:34  thoagland
-  Added support for mask equals gates
+  Revision 5.1.2.5  2005/05/27 17:47:38  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
 
   Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
   Add SpecTcl Application programming interface and make use of it
@@ -381,11 +383,6 @@ class CDeletedGate;
 class CGammaCut;
 class CGammaBand;
 class CGammaContour;
-class CMaskGate;
-class CMaskEqualGate;
-class CMaskAndGate;
-class CMaskNotGate;
-
 //
 //  The GateFactory Class:
 //
@@ -418,10 +415,7 @@ public:
     trueg,			//!< Alwayw made gate.
     gammacut,                   //!< Gamma cut
     gammaband,                  //!< Gamma band
-    gammacontour,               //!< Gamma contour
-    em,                         //!< Equal mask gate
-    am,                         //!< And mask gate 
-    nm                          //!< Not mask gate
+    gammacontour                //!< Gamma contour
   };
 
 public:
@@ -478,10 +472,7 @@ public:
 		      const STD(vector)<FPoint>& rPoints);
    CGate* CreateGate (GateType eType, 
 		      const STD(vector)<FPoint>& rPoints, 
-		      const STD(vector)<STD(string)>& Ids);
-   CGate* CreateGate(GateType eType,
-		     const STD(vector)<STD(string)>& rParameters, 
-		     long comparison);
+		      const STD(vector)<UInt_t>& rParameters);
 
    CTrueGate* CreateTrueGate ();
    CFalseGate* CreateFalseGate ();
@@ -497,17 +488,11 @@ public:
    CCut* CreateCut (const STD(string)& rParameterName, 
 		    Float_t nLow, Float_t nHigh);
    CGammaCut* CreateGammaCut (Float_t nLow, Float_t nHigh,
-			      const STD(vector)<STD(string)>& Specs);
+			      const STD(vector)<UInt_t>& rParameters);
    CGammaBand* CreateGammaBand (const STD(vector)<FPoint>& rPoints,
-				const STD(vector)<STD(string)>& Specs);
+				const STD(vector)<UInt_t>& rParameters);
    CGammaContour* CreateGammaContour (const STD(vector)<FPoint>& rPoints,
-				      const STD(vector)<STD(string)>& Specs);
-   CMaskEqualGate* CreateMaskEqualGate(const STD(vector<STD(string)>)& rParameter,
-				       long Compare);
-   CMaskAndGate* CreateMaskAndGate(const STD(vector<STD(string)>)& rParameter,
-				     long Compare);
-   CMaskNotGate* CreateMaskNotGate(const STD(vector<STD(string)>)& rParameter,
-				     long Compare);
+				      const STD(vector)<UInt_t>& rParameters);
   static UInt_t  AssignId();
  
 protected:

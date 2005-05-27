@@ -224,10 +224,7 @@ public:
 		    STD(vector)<FPoint> points);
   CGate* CreateGate(CGateFactory::GateType   gateType,
 		    STD(vector)<FPoint>      points,
-		    STD(vector)<STD(string)> spectra);
-  CGate* CreateGate(CGateFactory::GateType gateType, 
-		    STD(vector)<STD(string)> rparameters,
-		    long comparison);
+		    STD(vector)<UInt_t> parameters);
   CGate* CreateTrueGate();
   CGate* CreateFalseGate();
   CGate* CreateBand(STD(string) xparameter, STD(string) yparameter, 
@@ -244,12 +241,6 @@ public:
 			 STD(vector)<STD(string)> constituents);
   CGate* CreateGammaContour(STD(vector)<FPoint> points, 
 			    STD(vector)<STD(string)> constituents);
-  CGate* CreateMaskEqualGate(STD(vector)<STD(string)> rParameterName,
-			     long Compare);
-  CGate* CreateMaskAndGate(STD(vector)<STD(string)> rParameterName,
-			     long Compare);
-  CGate* CreateMaskNotGate(STD(vector)<STD(string)> rParameterName,
-			     long Compare);
 
   // Gate dictionary manipulation:
 
@@ -304,7 +295,7 @@ protected:
   CHistogrammer*      GetHistogrammer();
   CTclAnalyzer*       GetAnalyzer();
   CEventSinkPipeline* GetEventSinkPipeline();
-  
+  STD(vector)<UInt_t>      parameterIds(STD(vector)<STD(string)> names);
 
   
 };

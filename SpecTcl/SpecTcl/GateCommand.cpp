@@ -279,14 +279,13 @@ DAMAGES.
 /* 
    Change log:
    $Log$
-   Revision 5.1.2.5  2005/05/23 15:47:29  thoagland
-   Added Support to allow users to filter "gate -list" by a pattern
-
-   Revision 5.1.2.4  2005/05/19 18:03:31  thoagland
-   Added Support for AndMask and NotMask gates
-
-   Revision 5.1.2.3  2005/05/19 10:36:34  thoagland
-   Added support for mask equals gates
+   Revision 5.1.2.6  2005/05/27 17:47:38  ron-fox
+   Re-do of Gamma gates also merged with Tim's prior changes with respect to
+   glob patterns.  Gamma gates:
+   - Now have true/false values and can therefore be applied to spectra or
+     take part in compound gates.
+   - Folds are added (fold command); and these perform the prior function
+       of gamma gates.
 
    Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
    Add SpecTcl Application programming interface and make use of it
@@ -350,14 +349,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
-  Revision 5.1.2.5  2005/05/23 15:47:29  thoagland
-  Added Support to allow users to filter "gate -list" by a pattern
+  Revision 5.1.2.6  2005/05/27 17:47:38  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
 
-  Revision 5.1.2.4  2005/05/19 18:03:31  thoagland
-  Added Support for AndMask and NotMask gates
-
-  Revision 5.1.2.3  2005/05/19 10:36:34  thoagland
-  Added support for mask equals gates
 
   Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
   Add SpecTcl Application programming interface and make use of it
@@ -454,10 +453,7 @@ CGateCommand::GateFactoryTable GateTable[] = {
   { "+",      CGateFactory::Or,          kfTRUE,  0, kfFALSE},
   { "gs",     CGateFactory::gammacut,     kfFALSE,  0, kfTRUE},
   { "gb",     CGateFactory::gammaband,    kfFALSE,  0, kfTRUE},
-  { "gc",     CGateFactory::gammacontour, kfFALSE,  0, kfTRUE},
-  { "em",     CGateFactory::em,           kfFALSE,   1, kfFALSE},
-  { "am",     CGateFactory::am,           kfFALSE,   1, kfFALSE},
-  { "nm",     CGateFactory::nm,           kfFALSE,   1, kfFALSE}
+  { "gc",     CGateFactory::gammacontour, kfFALSE,  0, kfTRUE}
 };
 static const UInt_t nGateTypes =
                       sizeof(GateTable)/sizeof(CGateCommand::GateFactoryTable);
@@ -586,16 +582,14 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
   pArgs++;
   const char* pList = *pArgs;
 
-
- // the gate table is used to drive the rest of the parse:
+  // the gate table is used to drive the rest of the parse:
 
   CGate*  pGate;
   CGatePackage& rPackage((CGatePackage&)getMyPackage());
   CGateFactory Factory(rPackage.getHistogrammer());
   vector<FPoint> PointValues;	// filled in below.
-  vector<string> SpecValues;  // Filled in further below
-
-
+  vector<string> paramValues;  // Filled in further below
+  
 
   GateFactoryTable* pItem = MatchGateType(pType);
   if(!pItem) {
@@ -605,28 +599,26 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
   GateFactoryTable& Item(*pItem);
 
-   if(Item.fGateList) {		// the list is just a list of gates.
-     CTCLList GateList(&rInterp, pList);
-     StringArray Gates;
-     if(GateList.Split(Gates) != TCL_OK) {
-       rResult =  Usage();
-       rResult += "list of gates had incorrect format\n";
-       return TCL_ERROR;
-     }
-     try {
-       pGate = api.CreateGate(Item.eGateType,
+  if(Item.fGateList) {		// the list is just a list of gates.
+    CTCLList GateList(&rInterp, pList);
+    StringArray Gates;
+    if(GateList.Split(Gates) != TCL_OK) {
+      rResult =  Usage();
+      rResult += "list of gates had incorrect format\n";
+      return TCL_ERROR;
+    }
+    try {
+      pGate = api.CreateGate(Item.eGateType,
 				 Gates);
-     }
-      catch(CException& rExcept) {
-       rResult = Usage();
-       rResult += rExcept.ReasonText();
-       return TCL_ERROR;
-     }
-   }
+    }
+    catch(CException& rExcept) {
+      rResult = Usage();
+      rResult += rExcept.ReasonText();
+      return TCL_ERROR;
+    }
+  }
 
-  
-
-    else if(!Item.fNoParams) {	// list is parameters followed by point list.
+  else if(!Item.fNoParams) {	// list is parameters followed by point list.
     CTCLList List(&rInterp, pList);
     StringArray Description;
     List.Split(Description);	// bust the list apart.
@@ -648,57 +640,42 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
     
     // if the gate is 1-d, then each point just contains an x-coordinate.
 
-    if(Item.nParameters == 1) { 
-      if ((pType ="em") || (pType = "am") || (pType = "nm"))
-	{
-	  long Compare ;
-	  sscanf(PointString[0].c_str(), "%x", &Compare);
-          pGate = api.CreateGate(Item.eGateType, Parameters, Compare);
-	  if(rPackage.AddGate(rResult, string(pName), pGate)) {
-	    return TCL_OK;
-	  }
-	  else {
-	    return TCL_ERROR;
-	  }
-	  assert(0);
-	} 
-      else {
-	for(UInt_t npoint = 0; npoint < PointString.size(); npoint++) {
-          Float_t x;
-          if(sscanf(PointString[npoint].c_str(), "%f", &x) == 0) {
-            rResult = Usage();
-            rResult += "\ninvalid point string in description";
-            rResult += PointString[npoint];
-            return TCL_ERROR;
-          }
-          PointValues.push_back(FPoint(x,0));
-        }
+    if(Item.nParameters == 1) {
+      for(UInt_t npoint = 0; npoint < PointString.size(); npoint++) {
+	Float_t x;
+	if(sscanf(PointString[npoint].c_str(), "%f", &x) == 0) {
+	  rResult = Usage();
+	  rResult += "\ninvalid point string in description";
+	  rResult += PointString[npoint];
+	  return TCL_ERROR;
+	}
+	PointValues.push_back(FPoint(x,0));
       }
     }
     else {
       // otherwise a point is a list containing x,y...
       for(UInt_t npoint = 0; npoint < PointString.size(); npoint++) {
-        Float_t x,y;
-        CTCLList Point(&rInterp, PointString[npoint]);
-        vector<string> Coords;
-        Point.Split(Coords);
-        if(Coords.size() != 2) {
-          rResult = Usage();
-          rResult += "\nInvalid point string in description  ";
-          rResult += Point.getList();
-          return TCL_ERROR;
-        }
-        Float_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
-        Float_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
-        
-        if((s1 != 1)  || (s2 != 1) ) {
-          rResult = Usage();
-          rResult += "\nInvalid point string in description  ";
-          rResult += Point.getList();
-          return TCL_ERROR;
-        }
-        FPoint pt(x,y);
-        PointValues.push_back(pt);
+	Float_t x,y;
+	CTCLList Point(&rInterp, PointString[npoint]);
+	vector<string> Coords;
+	Point.Split(Coords);
+	if(Coords.size() != 2) {
+	  rResult = Usage();
+	  rResult += "\nInvalid point string in description  ";
+	  rResult += Point.getList();
+	  return TCL_ERROR;
+	}
+	Float_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
+	Float_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
+	
+	if((s1 != 1)  || (s2 != 1) ) {
+	  rResult = Usage();
+	  rResult += "\nInvalid point string in description  ";
+	  rResult += Point.getList();
+	  return TCL_ERROR;
+	}
+	FPoint pt(x,y);
+	PointValues.push_back(pt);
       }
     }
     try {
@@ -710,80 +687,108 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       return TCL_ERROR;
     }
   }
-  else {        // List is just a point list, possibly followed by spec list
+  else {        // List is just a point list, possibly followed by a now
+                // mandatory spectrum list.
     CTCLList List(&rInterp, pList);
     StringArray Description;
     List.Split(Description);
-      
+    
+    // gamma cuts have a point and parameters.
+
     UInt_t nPoint = 0;
-    if(Item.eGateType == CGateFactory::gammacut) {
+    if(Item.eGateType == CGateFactory::gammacut) { 
       Float_t x1, x2;
       Int_t i = sscanf(Description[nPoint].c_str(), "%f %f", &x1, &x2);
       if(i != 2) {
-        rResult = Usage();
-        rResult += "\nInvalid point string in description";
-        rResult += Description[nPoint];
-        return TCL_ERROR;
+	rResult = Usage();
+	rResult += "\nInvalid point string in description";
+	rResult += Description[nPoint];
+	return TCL_ERROR;
       }
       PointValues.push_back(FPoint(x1,0));
       PointValues.push_back(FPoint(x2,0));
       if(PointValues.size() != 2) {
-        rResult = Usage();
-        rResult += "\nInvalid point string in description";
-        rResult += Description[nPoint];
-        return TCL_ERROR;
+	rResult = Usage();
+	rResult += "\nInvalid point string in description";
+	rResult += Description[nPoint];
+	return TCL_ERROR;
       }
 
-      if(Description.size() == 2) {
-        CTCLList Specs(&rInterp, Description[1]);
-        vector<string> SpecString;
-        Specs.Split(SpecString);
-        for(UInt_t k = 0; k < SpecString.size(); k++) {
-          SpecValues.push_back(SpecString[k]);
-        }
+      if(Description.size() == 2) { // Here are the parameters (used to be spectra).
+	CTCLList params(&rInterp, Description[1]);
+	vector<string> paramString;
+	params.Split(paramString);
+	for(UInt_t k = 0; k < paramString.size(); k++) {
+	  paramValues.push_back(paramString[k]);
+	}
+      }
+      else {
+	rResult = "Gamma gates now require a non-empty parameter list\n";
+	rResult +=Usage();
+	return TCL_ERROR;
       }
     }
-      
-    else {     // Otherwise a point is a list containing x,y...
+    
+    else {     // Otherwise a point is a list containing several x/y pairs..
       CTCLList Points(&rInterp, Description[nPoint]);
       vector<string> PointString;
       Points.Split(PointString);
       for(UInt_t i = 0; i < PointString.size(); i++) {
-        CTCLList Point(&rInterp, PointString[i]);
-        vector<string> Coords;
-        Point.Split(Coords);
-        if(Coords.size() != 2) {
-          rResult = Usage();
-          rResult += "\nInvalid point string in description  ";
-          rResult += Point.getList();
-          return TCL_ERROR;
-        }
-        Float_t x,y;
-        Int_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
-        Int_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
-        if(s1 != 1 || s2 != 1) {
-          rResult = Usage();
-          rResult += "\nInvalid point string in description  ";
-          rResult += Point.getList();
-          return TCL_ERROR;
-        }
-        FPoint pt(x, y);
-        PointValues.push_back(pt);
+	CTCLList Point(&rInterp, PointString[i]);
+	vector<string> Coords;
+	Point.Split(Coords);
+	if(Coords.size() != 2) {
+	  rResult = Usage();
+	  rResult += "\nInvalid point string in description  ";
+	  rResult += Point.getList();
+	  return TCL_ERROR;
+	}
+	Float_t x,y;
+	Int_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
+	Int_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
+	if( (s1 != 1) || (s2 != 1) ) {
+	  rResult = Usage();
+	  rResult += "\nInvalid point string in description  ";
+	  rResult += Point.getList();
+	  return TCL_ERROR;
+	}
+	FPoint pt(x, y);
+	PointValues.push_back(pt);
       }
       
-      if(Description.size() == 2) { // means there are spectrum listed, too
-        CTCLList Specs(&rInterp, Description[1]);
-        vector<string> SpecString;
-        Specs.Split(SpecString);
-        for(UInt_t k = 0; k < SpecString.size(); k++) {
-          SpecValues.push_back(SpecString[k]);
-        }
+      if(Description.size() == 2) { // means there are parameters
+	CTCLList params(&rInterp, Description[1]);
+	vector<string> paramString;
+	params.Split(paramString);
+	for(UInt_t k = 0; k < paramString.size(); k++) {
+	  paramValues.push_back(paramString[k]);
+	}
+      }
+      else {
+	rResult = "Gamma gates now require a non-empty parameter list\n";
+	rResult += Usage();
+	return TCL_ERROR;
       }
     }
     
     try {
+      // Gamma gates require that we convert parameters to parameter ids:
+      //
+      vector<UInt_t> paramIds;
+      for(int i =0; i < paramValues.size(); i++) {
+	CParameter* pParam = api.FindParameter(paramValues[i]);
+	if(!pParam) {
+	  rResult = "Gamma gate creation attempted with nonexisting parameter: ";
+	  rResult += paramValues[i];
+	  rResult += "\n";
+	  rResult += Usage();
+	  return TCL_ERROR;
+	}
+	paramIds.push_back(pParam->getNumber());
+
+      }
       pGate = api.CreateGate(Item.eGateType, PointValues, 
-			     SpecValues);
+				 paramIds);
     }
     catch(CException& rExcept) {
       rResult = Usage();
@@ -791,7 +796,6 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       return TCL_ERROR;
     }
   }
-    
   
   // Now try to enter the gate in the dictionary:
   

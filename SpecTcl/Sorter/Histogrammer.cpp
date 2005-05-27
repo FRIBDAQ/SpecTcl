@@ -303,6 +303,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 5.1.2.9  2005/05/27 17:47:37  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
   Revision 5.1.2.8  2005/05/20 21:19:06  ron-fox
   Port to gcc 4.0
 
@@ -385,9 +393,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <Contour.h>
 #include <Point.h>
 #include <PointlistGate.h>
-#include <GammaCut.h>
-#include <GammaBand.h>
-#include <GammaContour.h>
+#include <CGammaCut.h>
+#include <CGammaBand.h>
+#include <CGammaContour.h>
 #include <assert.h>
 #include <GateMediator.h>
 #include <Gamma2DW.h>
@@ -1573,19 +1581,6 @@ void CHistogrammer::ApplyGate(const std::string& rGateName,
   }
 
   SpectrumType_t spType = pSpectrum->getSpectrumType();
-  string gType = pGateContainer->getGate()->Type();
-  switch(spType) {
-  case ke1D:
-  case ke2D:
-    if(gType == "gs" || gType == "gb" || gType == "gc") {
-      throw CDictionaryException(CDictionaryException::knWrongGateType,
-				 "Cannot apply gamma gate to spectrum in CHistogrammer::ApplyGate()",
-				 rGateName);
-    }
-    break;
-  }
-
-  //  Now Apply the gate:
   pSpectrum->ApplyGate(pGateContainer);
 }
 

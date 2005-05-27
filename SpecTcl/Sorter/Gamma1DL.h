@@ -293,6 +293,10 @@ DAMAGES.
 #ifndef __GAMMA1DL_H  // Required for current class
 #define __GAMMA1DL_H
 
+#ifndef __CGAMMASPECTRUM_H
+#include "CGammaSpectrum.h"
+#endif
+
 #ifndef __SPECTRUM_H  // Required for base class
 #include "Spectrum.h"
 #endif
@@ -319,21 +323,20 @@ DAMAGES.
 
 class CParameter;
 
-class CGamma1DL : public CSpectrum
+class CGamma1DL : public CGammaSpectrum
 {
   UInt_t         m_nScale;	// Spectrum channel count.
-  STD(vector)<UInt_t> m_vParameters;	// STD(Vector) of parameter ids.
 
  public:
 
   //Constructors
 
   CGamma1DL(const STD(string)& rName, UInt_t nId,
-	    STD(vector)<CParameter> rrParameters,
+	    STD(vector)<CParameter>& rrParameters,
 	    UInt_t nScale);	//!< Axis from [0,nScale)
 
   CGamma1DL(const STD(string)& rName, UInt_t nId,
-	    STD(vector)<CParameter> rrParameters,
+	    STD(vector)<CParameter>& rrParameters,
 	    UInt_t nChannels,
 	    Float_t fLow, Float_t fHigh); //!< axis is [fLow,fHigh]
 
@@ -351,33 +354,16 @@ class CGamma1DL : public CSpectrum
 
   //Operator= Assignment operator [illegal]
   CGamma1DL operator= (const CGamma1DL& aCGamma1DL);
+  int operator==(const CGamma1DL& aCGamma1D) const;
+  int operator!=(const CGamma1DL& aCGamma1d) const;
 
- public:
-
-  //Operator== Equality operator [Not too useful still]
-  int operator== (const CGamma1DL& aCGamma1D)
-    {
-      return (
-	      (CSpectrum::operator==(aCGamma1D)) &&
-	      (m_nScale == aCGamma1D.m_nScale) &&
-	      (m_vParameters == aCGamma1D.m_vParameters)
-	      );
-    }
 
   // Selectors
 
  public:
 
 
-  UInt_t getnParams() const
-    {
-      return m_vParameters.size();
-    }
-  UInt_t getParameterId (UInt_t n) const
-    {
-      return m_vParameters[n];
-    }
-  virtual SpectrumType_t getSpectrumType()
+ virtual SpectrumType_t getSpectrumType()
     {
       return keG1D;
     }
@@ -395,20 +381,16 @@ class CGamma1DL : public CSpectrum
 
  public:
 
-  virtual void Increment (const CEvent& rEvent);
-  virtual void GammaGateIncrement(const CEvent& rEvent, STD(string) sGateType);
   virtual ULong_t operator[] (const UInt_t* pIndices) const;
   virtual void set (const UInt_t* pIndices, ULong_t nValue);
-  virtual Bool_t UsesParameter (UInt_t nId) const;
   
+  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rParameters);
 
-  virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
   virtual void GetResolutions(STD(vector)<UInt_t>& rvResolutions);
 
   // Utility functions:
 
 protected:
-  void   FillParameterArray(STD(vector)<CParameter> Params);
   static Axes MakeAxesVector(STD(vector)<CParameter> Params,
 			      UInt_t             nChannels,
 			      Float_t fLow, Float_t fHigh);

@@ -285,6 +285,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.4  2005/05/27 17:47:38  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
   Revision 5.1.2.3  2005/04/16 20:09:47  ron-fox
   Add treeparameter initialization.
 
@@ -369,6 +377,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "FilterCommand.h"
 #include "EventSinkPipeline.h"
 
+
 #include "TCLAnalyzer.h"
 
 #include "XamineEventHandler.h"
@@ -379,6 +388,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CTreeVariableCommand.h>
 #include <CTreeParameter.h>
 #include <CTreeVariable.h>
+#include "CFoldCommand.h"
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -825,6 +835,9 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   cerr << "Tree parameter/variable  command " << CTreeParameter::TreeParameterVersion;
   cerr << " (c) Copyright 2005 NSCL written by Daniel Bazin, Ron Fox\n";
 
+  CFoldCommand* pFold = new CFoldCommand(&rInterp);
+
+  cerr << "fold command (c) 2005 NSCL Written by Ron Fox\n";
   cerr.flush();
 }
 
