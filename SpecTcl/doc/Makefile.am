@@ -48,7 +48,8 @@ install-exec-local:
 EXTRA_DIST = parameters.htm HH00706_.jpg programmers_guide.htm gates.htm \
 	scripts.htm general_information.htm spectra.htm index.htm users_guide.htm \
 	nscl_logo_small.gif obtaining_and_installing.htm \
-	Commands/aplist.htm Commands/apply.htm Commands/attach.htm \
+	Commands/aplist.htm Commands/apply.htm Commands/fold.htm \
+	Commands/attach.htm \
 	Commands/bind.htm Commands/categories.htm Commands/channel.htm \
 	Commands/clean.htm Commands/clear.htm Commands/gate.htm \
 	Commands/gatelist.htm Commands/loadall.htm Commands/more.htm \
