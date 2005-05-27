@@ -301,6 +301,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 #include <config.h>
 #include "MaskGates.h"                               
 #include "SingleItemIterator.h"
+#include <stdio.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
