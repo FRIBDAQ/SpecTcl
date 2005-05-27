@@ -298,6 +298,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
+//    Revision 5.1.2.5  2005/05/27 11:07:30  thoagland
+//    Added support for pseudo, parameter, clear, apply, and bind to take an optional pattern for the -list switch.
+//
 //    Revision 5.1.2.4  2005/05/24 11:36:48  thoagland
 //    Added support for spectrum -list [-byid] [pattern]
 //
@@ -1457,7 +1460,7 @@ CSpectrumPackage::ListXidBindings(CTCLResult& rResult,
 //     Interface
 //
 void 
-CSpectrumPackage::ListAllBindings(CTCLResult& rResult) 
+CSpectrumPackage::ListAllBindings(CTCLResult& rResult, const char* pattern) 
 {
 // Creates a complete list of the display bindings.
 // 
@@ -1477,8 +1480,11 @@ CSpectrumPackage::ListAllBindings(CTCLResult& rResult)
       char textId[100];
       CSpectrum *pSpec = (*p).second;
       UInt_t xid = FindDisplayBinding(pSpec->getName());
-      
-      FormatBinding(ResultList,  xid, pSpec);
+      const char* name = (pSpec->getName()).c_str();
+      if (Tcl_StringMatch(name, pattern))
+	{  
+	  FormatBinding(ResultList,  xid, pSpec);
+	}
     }
     catch(CException& rExcept) { // No match .. ignore.
     }
@@ -2029,13 +2035,44 @@ CSpectrumPackage::GetNumberList(CTCLResult& rResult,
 //
 void
 CSpectrumPackage:: GetNameList(std::vector<std::string>& rvNames,
-			   int nArgs, char* pArgs[])
+			       CTCLResult& rResult,
+			       char* pattern)
+{
+  //  produces a vector of names from the nArgs, pArgs parameters.
+  //
+  SpecTcl& api(*(SpecTcl::getInstance()));
+  rvNames.erase(rvNames.begin(), rvNames.end());
+  SpectrumDictionaryIterator p = api.SpectrumBegin();
+
+  for(; p != api.SpectrumEnd(); p++) {
+    const char* name = ((p->second)->getName()).c_str();
+    if (Tcl_StringMatch(name, pattern) )
+      {
+	CSpectrum* rSpec((*p).second);
+	rvNames.push_back(((p->second)->getName()).c_str());
+      }
+  }
+  return;
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//   void      GetNameList(std::vector<std::string>& rvNames,
+//			       int nArgs, char* pArgs[])
+// Operation Type:
+//    Protected parsing utility.
+//
+void
+CSpectrumPackage:: GetNameList(std::vector<std::string>& rvNames,
+			       int nArgs, char* pArgs[])
 {
   //  produces a vector of names from the nArgs, pArgs parameters.
   //
   for(Int_t i  = 0; i < nArgs; i++) 
     rvNames.push_back(pArgs[i]);
 }
+
 //////////////////////////////////////////////////////////////////////////
 //
 // Function:

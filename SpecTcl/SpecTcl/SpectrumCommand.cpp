@@ -306,6 +306,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
+// Revision 5.1.2.4  2005/05/27 11:07:30  thoagland
+// Added support for pseudo, parameter, clear, apply, and bind to take an optional pattern for the -list switch.
+//
 // Revision 5.1.2.3  2005/05/24 11:36:48  thoagland
 // Added support for spectrum -list [-byid] [pattern]
 //
@@ -799,7 +802,6 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
       {
 	pattern = pArgs[0];
 	rPack.ListSpectra(vDescriptions, pattern);
-	//SortSpectraByName(vDescriptions);
 	VectorToResult(rResult, vDescriptions);
 	return TCL_OK;
       }

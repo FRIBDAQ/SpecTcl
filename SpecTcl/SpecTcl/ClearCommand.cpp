@@ -419,7 +419,7 @@ CClearCommand::ClearNameList(CTCLResult& rResult, int nArgs, char* pArgs[])
   //
 
   std::vector<std::string> vNames;
-  CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
+  CSpectrumPackage::GetNameList(vNames, rResult, pArgs[0]);
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
 
   return rPack.ClearSubset(rResult, vNames);

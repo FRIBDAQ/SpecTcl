@@ -364,7 +364,8 @@ public:
   Int_t ListBindings (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			int nArgs, char* pArgs[])  ;
 
-  Int_t ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult);
+  Int_t ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+		const char* pattern);
   Int_t ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 		   int nArgs, char* pArgs[]);
   Int_t ListById(CTCLInterpreter& rInterp, CTCLResult& rResult,

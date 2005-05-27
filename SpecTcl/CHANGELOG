@@ -311,3 +311,7 @@ May 23, 2005
     the results of the gate -list command
   - Added support for "spectrum -list [pattern]" so that users can filter
     the results of the spectrum -list command
+May 27, 2005
+  - Added support for a glob like pattern in the switch of the clear, pararmeter
+    bind, apply, and pseudo commands.  When a pattern is given after -list, the 
+    command returns objects whose name matches the pattern.

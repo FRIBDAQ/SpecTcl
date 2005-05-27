@@ -294,6 +294,9 @@ DAMAGES.
 //                     Removed New1d, New2d replaced with CreateSpectrum.
 //
 //   $Log$
+//   Revision 5.1.2.3  2005/05/27 11:07:30  thoagland
+//   Added support for pseudo, parameter, clear, apply, and bind to take an optional pattern for the -list switch.
+//
 //   Revision 5.1.2.2  2005/05/24 11:36:48  thoagland
 //   Added support for spectrum -list [-byid] [pattern]
 //
@@ -485,7 +488,7 @@ public:
 		      STD(vector)<STD(string)>& rvNames)  ;
   Int_t ListBindings (CTCLResult& rResult, STD(vector)<UInt_t>& rvIds)  ;
   Int_t ListXidBindings (CTCLResult& rResult, STD(vector)<UInt_t>& rvXIds)  ;
-  void ListAllBindings (CTCLResult& rResult)  ;
+  void ListAllBindings (CTCLResult& rResult, const char* pattern)  ;
   Bool_t GetChannel (CTCLResult& rResult, const STD(string)& rName, 
 		     const STD(vector)<UInt_t>& pIndices)    ;
   Bool_t SetChannel (CTCLResult& rResult, const STD(string)& rName, 
@@ -506,6 +509,9 @@ public:
   Bool_t      GetNumberList(CTCLResult& rResult, 
 			    STD(vector)<UInt_t>& rvIds,
 			    int nArgs, char* pArgs[]);
+  static void      GetNameList(STD(vector)<STD(string)>& rvNames,
+			       CTCLResult& rResult,
+			       char* pattern);
   static void      GetNameList(STD(vector)<STD(string)>& rvNames,
 			       int nArgs, char* pArgs[]);
   static const char*     SpecTypeToText(SpectrumType_t sType);
