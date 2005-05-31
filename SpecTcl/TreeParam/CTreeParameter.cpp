@@ -759,11 +759,12 @@ CTreeParameter::getName()
  * If m_pParameter is null throws an exception. Otherwise, returns
  * m_pParameter->getNumber()
  */
+static string gidstring("CTreeParameter::getId");
 int 
 CTreeParameter::getId()
 {
   
-  ThrowIfNoParameter("CTreeParameter::getId");
+  ThrowIfNoParameter(gidstring);
   return m_pParameter->getNumber();
 }
 
@@ -771,10 +772,11 @@ CTreeParameter::getId()
 /**
  * Get the value of the underlying parameter.
  */
+static string gvaluestring("CTreeParameter::getValue");
 double 
 CTreeParameter::getValue()
 {
-  ThrowIfNoEvent("CTreeParameter::getValue");
+  ThrowIfNoEvent(gvaluestring);
   return (*m_pEvent)[getId()];
 }
 
@@ -785,11 +787,12 @@ CTreeParameter::getValue()
  *        New value to give the parameter.
  * 
  */
+static string setvaluestring("Setting Value");
 void 
 CTreeParameter::setValue(double newValue)
 {
 
-  ThrowIfNoParameter("Setting Value");
+  ThrowIfNoParameter(setvaluestring);
   (*m_pEvent)[getId()] = newValue; // Getid calls ThrowIfNoEvent.
 }
 
