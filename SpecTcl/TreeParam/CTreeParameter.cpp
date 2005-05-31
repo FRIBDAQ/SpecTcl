@@ -1080,7 +1080,7 @@ CTreeParameter::find(string name)
    Throw a not bound exception if not parameter is defined for this treeeparameter.
 */
 void
-CTreeParameter::ThrowIfNoParameter(string doing)
+CTreeParameter::ThrowIfNoParameter(string& doing)
 {
   if(!m_pParameter) {
     throw CTreeException(CTreeException::NotBound, doing);
@@ -1092,7 +1092,7 @@ CTreeParameter::ThrowIfNoParameter(string doing)
 
 */
 void
-CTreeParameter::ThrowIfNoEvent(string doing)
+CTreeParameter::ThrowIfNoEvent(string& doing)
 {
   if(!m_pEvent) {
     throw CTreeException(CTreeException::NotBound, doing);

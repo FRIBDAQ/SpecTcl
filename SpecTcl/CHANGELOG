@@ -318,3 +318,6 @@ May 27, 2005
   - Added support for a glob like pattern in the switch of the clear, pararmeter
     bind, apply, and pseudo commands.  When a pattern is given after -list, the 
     command returns objects whose name matches the pattern.
+May 31, 2005
+  - Remove extra copy construction in TreeParameter ThrowIf's.. as that's an 
+    enormous performance hit.

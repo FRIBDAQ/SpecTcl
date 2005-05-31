@@ -217,8 +217,8 @@ protected:
   
   // Factor out some exception generating logic:
   
-  void ThrowIfNoParameter(STD(string) doing);
-  void ThrowIfNoEvent(STD(string) doing);
+  void ThrowIfNoParameter(STD(string)& doing);
+  void ThrowIfNoEvent(STD(string)& doing);
   
   // The functions below are inteded to support testability:
   
