@@ -24,7 +24,9 @@ to be compatible with the readout software.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 // forward class definitions:
@@ -40,7 +42,7 @@ class CCAENDigitizerCreator  : public CModuleCreator
 
 public:
 	// Constructors and other cannonical operatios.
-    CCAENDigitizerCreator (const string& name, CModuleCommand* pCreator);
+    CCAENDigitizerCreator (const STD(string)& name, CModuleCommand* pCreator);
     ~ CCAENDigitizerCreator ( );  
     CCAENDigitizerCreator (const CCAENDigitizerCreator& rhs );
     CCAENDigitizerCreator& operator= (const CCAENDigitizerCreator& rhs);
@@ -51,8 +53,8 @@ public:
 
 public:
 
-    virtual  CSegmentUnpacker* Create  (CTCLInterpreter& rInterp, const string& rName);
-    virtual string   TypeInfo() const;
+    virtual  CSegmentUnpacker* Create  (CTCLInterpreter& rInterp, const STD(string)& rName);
+    virtual STD(string)   TypeInfo() const;
 };
 
 #endif

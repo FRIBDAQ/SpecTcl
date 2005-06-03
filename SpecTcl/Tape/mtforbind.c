@@ -501,7 +501,7 @@ unsigned *count;
 unsigned *actual;
 #endif
 {
-    return volread(*vol, data, *count, actual);
+    return volread(*vol, data, *count, (int*)actual);
 }
 /*
 **  INTEGER f77volopen_(INTEGER VOLUME, ITEMLIST ITEMS[])

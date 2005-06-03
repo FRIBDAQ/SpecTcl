@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 //  CHistogrammer.h:
 //
@@ -298,12 +298,16 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -353,7 +357,7 @@ typedef CDictionary<CGateContainer>             CGateDictionary;
 typedef CGateDictionary::DictionaryIterator     CGateDictionaryIterator;
 
 // Display binding management types:
-typedef vector<std::string>                     DisplayBindings;
+typedef STD(vector)<STD(string)>                     DisplayBindings;
 typedef DisplayBindings::iterator               DisplayBindingsIterator;
 
 class CHistogrammer : public CEventSink {
@@ -424,18 +428,18 @@ class CHistogrammer : public CEventSink {
   virtual void operator() (CEventList& rEventList);
 
   // Parameter dictionary manipulation:
-  CParameter* AddParameter (const std::string& sName,
+  CParameter* AddParameter (const STD(string)& sName,
 			    UInt_t nId,
 			    const char* pUnits);
-  CParameter* AddParameter (const std::string& sName,
+  CParameter* AddParameter (const STD(string)& sName,
 			    UInt_t nId,
 			    UInt_t  nScale);
-  CParameter* AddParameter (const std::string& sName,
+  CParameter* AddParameter (const STD(string)& sName,
 			    UInt_t nId, UInt_t nScale,
 			    Float_t nLow, Float_t nHi,
-			    const std::string& sUnits);
-  CParameter* RemoveParameter (const std::string& sName);
-  CParameter* FindParameter (const std::string& rName);
+			    const STD(string)& sUnits);
+  CParameter* RemoveParameter (const STD(string)& sName);
+  CParameter* FindParameter (const STD(string)& rName);
   CParameter* FindParameter (UInt_t nPar);
   ParameterDictionaryIterator ParameterBegin();
   ParameterDictionaryIterator ParameterEnd();
@@ -443,19 +447,19 @@ class CHistogrammer : public CEventSink {
 
   // Spectrum dictionary manipulation.
   void AddSpectrum(CSpectrum& rSpectrum);
-  CSpectrum* RemoveSpectrum(const std::string sName);
-  void ClearSpectrum(const std::string& rsName);
+  CSpectrum* RemoveSpectrum(const STD(string) sName);
+  void ClearSpectrum(const STD(string)& rsName);
   void ClearAllSpectra();
-  CSpectrum* FindSpectrum(const std::string& rName);
+  CSpectrum* FindSpectrum(const STD(string)& rName);
   CSpectrum* FindSpectrum(UInt_t id);
   SpectrumDictionaryIterator SpectrumBegin();
   SpectrumDictionaryIterator SpectrumEnd();
   UInt_t SpectrumCount();
 
-  void UnGate(const std::string& rSpectrum); // Remove gate from spectrum
+  void UnGate(const STD(string)& rSpectrum); // Remove gate from spectrum
 
   // Manipulate display bindings:
-  UInt_t BindToDisplay (const std::string& rsName);
+  UInt_t BindToDisplay (const STD(string)& rsName);
   void UnBindFromDisplay (UInt_t nSpec);
   DisplayBindingsIterator DisplayBindingsBegin();
   DisplayBindingsIterator DisplayBindingsEnd();
@@ -463,11 +467,11 @@ class CHistogrammer : public CEventSink {
   CSpectrum* DisplayBinding(UInt_t xid);
 
   // Manipulate the gate dictionary:
-  void AddGate(const std::string& rName, UInt_t nId, CGate& rGate);
-  void DeleteGate(const std::string& rGateName);
-  void ReplaceGate(const std::string& rGateName, CGate& rGate);
-  void ApplyGate(const std::string& rGateName,  const std::string& rSpectrum);
-  CGateContainer* FindGate(const std::string& rGate);
+  void AddGate(const STD(string)& rName, UInt_t nId, CGate& rGate);
+  void DeleteGate(const STD(string)& rGateName);
+  void ReplaceGate(const STD(string)& rGateName, CGate& rGate);
+  void ApplyGate(const STD(string)& rGateName,  const STD(string)& rSpectrum);
+  CGateContainer* FindGate(const STD(string)& rGate);
   CGateContainer* FindGate(UInt_t nId);
   CGateDictionaryIterator GateBegin();
   CGateDictionaryIterator GateEnd();
@@ -476,7 +480,7 @@ class CHistogrammer : public CEventSink {
   // Utility Functions:
  protected:
   CDisplayGate* GateToXamineGate(UInt_t nBindingId, CGateContainer& rGate);
-  std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum);
+  STD(vector)<CGateContainer> GatesToDisplay(const STD(string)& rSpectrum);
   void AddGateToBoundSpectra(CGateContainer& rGate);
   void RemoveGateFromBoundSpectra(CGateContainer& rGate);
 };

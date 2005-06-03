@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -299,6 +299,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //    Chase Bolen (added TCL evaluation of indices in EvalIndex(...)) 4/20/00
 //    
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+#include <config.h>
 #include "ChanCommand.h"    				
 #include "SpectrumPackage.h"
 
@@ -309,6 +310,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <tcl.h>
 #include <vector>
 #include <string.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // 
 

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CGamma1DW.h:
 //
@@ -299,12 +299,16 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -322,7 +326,7 @@ class CMGamma1DW : public CGamma1DW
     UInt_t  nScale;
     Float_t nLow;
     Float_t nHigh;
-    std::string sUnits;
+    string sUnits;
     int operator==(const MParameterDef& r) const {
       return ((nParameter == r.nParameter) && (nScale == r.nScale) &&
 	      (nLow == r.nLow) && (nHigh == r.nHigh) && (sUnits == r.sUnits));
@@ -331,12 +335,12 @@ class CMGamma1DW : public CGamma1DW
   Float_t m_nLow;                 // Low limit to use on the mapping
   Float_t m_nHigh;                // Upper limit to use on the mapping
   UInt_t  m_nChannels;            // Number of bins
-  vector<MParameterDef> m_vParameters;    // The parameters to histogram
+  STD(vector)<MParameterDef> m_vParameters;    // The parameters to histogram
 
  public:
 
   //Constructor(s) with arguments
-  CMGamma1DW(const string& rName, UInt_t nId, vector<CParameter> rrParameters,
+  CMGamma1DW(const string& rName, UInt_t nId, STD(vector)<CParameter> rrParameters,
 	     Float_t nLow, Float_t nHigh, UInt_t nChannels);
 
   virtual ~CMGamma1DW( ) { }   // Destructor
@@ -387,7 +391,7 @@ class CMGamma1DW : public CGamma1DW
     {
       return keMG1D;
     }
-  std::string getUnits() const {
+  string getUnits() const {
     return m_vParameters[0].sUnits;
   }
   
@@ -407,7 +411,7 @@ class CMGamma1DW : public CGamma1DW
     {
       m_nChannels = am_nChannels;
     }
-  void setParameters(std::vector<MParameterDef>& am_vParameters) 
+  void setParameters(STD(vector)<MParameterDef>& am_vParameters) 
     {
       m_vParameters = am_vParameters;
     }
@@ -417,7 +421,7 @@ class CMGamma1DW : public CGamma1DW
  public:
 
   virtual void Increment (const CEvent& rEvent);
-  virtual void GammaGateIncrement(const CEvent& rEvent, std::string sGateType);
+  virtual void GammaGateIncrement(const CEvent& rEvent, STD(string) sGateType);
   UInt_t Dimension(UInt_t n) const {
     return ((n == 0) ? m_nChannels : 0);
   }

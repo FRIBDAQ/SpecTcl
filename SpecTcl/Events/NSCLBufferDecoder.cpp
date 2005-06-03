@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2006, All rights reserved";
 //  CNSCLBufferDecoder.cpp
@@ -293,6 +293,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
 // Header Files:
+#include <config.h>
 #include "NSCLBufferDecoder.h"                               
 #include "Analyzer.h"
 #include "EventFormatError.h"
@@ -304,6 +305,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Functions for class CNSCLBufferDecoder
 
@@ -578,3 +584,5 @@ void CNSCLBufferDecoder::operator()(UInt_t nBytes,
 string CNSCLBufferDecoder::getTitle() {
   return m_sTitle;
 }
+
+

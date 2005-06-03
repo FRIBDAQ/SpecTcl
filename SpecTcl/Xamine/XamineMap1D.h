@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamineMap1D.h:
 //
@@ -315,7 +315,7 @@ class CXamineMap1D
 {
   Float_t m_nLow;        // The low limit of the transformation
   Float_t m_nHigh;       // The high limit of the transformation
-  std::string m_sUnits;  // The units to label the mapped axis with
+  STD(string) m_sUnits;  // The units to label the mapped axis with
   
 public:
   
@@ -328,7 +328,7 @@ public:
     { }
 
   CXamineMap1D(Float_t am_nLow, Float_t am_nHigh,
-	       const std::string& am_sUnits) :
+	       const STD(string)& am_sUnits) :
     m_nLow(am_nLow),
     m_nHigh(am_nHigh),
     m_sUnits(am_sUnits)
@@ -376,7 +376,7 @@ public:
     {
       return m_nHigh;
     }
-  std::string getUnits() const
+  STD(string) getUnits() const
     {
       return m_sUnits;
     } 

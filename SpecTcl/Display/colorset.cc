@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -541,19 +541,10 @@ unsigned long pixels[MAX_COLORS];
 XColor       white;
 
 /*
-** External references.
-*/
-extern "C" {
-#ifndef LINUX
-  void exit(int);
-#endif
-
-/*
 ** Forward references:
 */
 void BuildButtons(int mapsize, XMWidget *manager);
 
-}
 
 /*
 **  This section contains help texts etc: 

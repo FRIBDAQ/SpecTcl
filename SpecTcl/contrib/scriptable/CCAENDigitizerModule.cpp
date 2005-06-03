@@ -1,3 +1,4 @@
+#include <config.h>
 #include <histotypes.h>
 #include "CCAENDigitizerModule.h"    				
 #include <TCLInterpreter.h>
@@ -16,6 +17,10 @@
 #include <TranslatorPointer.h>
 
 #include <assert.h>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 
 // Mask definitions:

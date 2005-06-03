@@ -7,8 +7,14 @@
 
 // Include files required:
 
+#include <config.h>
 #include "CLinearFitCreator.h"    				
 #include "CLinearFit.h"
+
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 
 /*!

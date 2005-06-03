@@ -44,4 +44,4 @@ help:
 	echo "make                  - Builds the tailored SpecTcl."
 	echo "make clean            - Removes objects from a previous build"
 	echo "make depend           - Adds header dependencies to Makefile"
-	echo "make help             - prints this message"y
+	echo "make help             - prints this message"

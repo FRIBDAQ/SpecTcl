@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CPointListGate.h:
 //
@@ -294,6 +294,17 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.3  2005/05/27 17:47:37  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
+  Revision 5.1.2.1  2004/12/21 17:51:22  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:03  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -323,12 +334,16 @@ DAMAGES.
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
 #endif
+#endif
 
-#ifndef __STRING
+#ifndef __STL_STRING
 #include <string>
-#define __STRING
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
 #endif
 /*!
    This class is a base class for gates that consist of a list
@@ -343,13 +358,13 @@ class CPointListGate  : public CGate
   UInt_t m_nxId;  //!< Parameter Id of the gate's X parameter.
   UInt_t m_nyId;  //!< Parameter id of the Y parameter of the gate.
   
-  vector<FPoint> m_aConstituents; //!< The points themselves.
+  STD(vector)<FPoint> m_aConstituents; //!< The points themselves.
   
 public:
 
-  //!< Constructor with vector of points.
+  //!< Constructor with STD(vector) of points.
   CPointListGate (UInt_t nXId, UInt_t nYId,
-		  const vector<FPoint>& Points) :
+		  const STD(vector)<FPoint>& Points) :
     m_nxId(nXId),
     m_nyId(nYId),
     m_aConstituents(Points)
@@ -403,20 +418,20 @@ public:
     return m_nyId;
   }
        
-  vector<FPoint> getPoints() const
+  STD(vector)<FPoint> getPoints() const
   {
     return m_aConstituents;
   }
 
-  vector<FPoint>::iterator getBegin() {
+  STD(vector)<FPoint>::iterator getBegin() {
     return m_aConstituents.begin();
   }
-  vector<FPoint>::iterator getEnd() {
+  STD(vector)<FPoint>::iterator getEnd() {
     return m_aConstituents.end();
   }
 
-  virtual vector<string> getSpecs() const { 
-    vector<string> empty;
+  virtual STD(vector)<STD(string)> getSpecs() const { 
+    STD(vector)<STD(string)> empty;
     return empty;
   };
 
@@ -432,7 +447,7 @@ protected:
   { 
     m_nyId = am_nyId;
   }
-  void setPoints(vector<FPoint>& rPoints) 
+  void setPoints(STD(vector)<FPoint>& rPoints) 
   {
     m_aConstituents = rPoints;
   }
@@ -443,14 +458,15 @@ public:
   virtual   CConstituentIterator Begin ()  ;
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
-  virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
-  virtual   Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params
-			  = (const vector<UInt_t>&) 0 ) { }
-
+  virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)  ;
+  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params
+			  = (const STD(vector)<UInt_t>&) 0 ) { }
+  virtual  Bool_t inGate(CEvent& rEvent);
+  virtual  Bool_t Inside(Float_t x, Float_t y) = 0;
 protected:
   int       Crosses(Float_t x, Float_t y, 
-		    vector<FPoint>::iterator f,
-		    vector<FPoint>::iterator s); 
+		    STD(vector)<FPoint>::iterator f,
+		    STD(vector)<FPoint>::iterator s); 
 
 };
 

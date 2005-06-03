@@ -276,7 +276,12 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2006, All rights reserved";
+#include <config.h>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 #include "EventSink.h"

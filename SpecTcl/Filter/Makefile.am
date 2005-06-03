@@ -12,7 +12,6 @@ libFilter_la_LDFLAGS = -version-info $(SOVERSION):0 \
 	-Wl,"-rpath-link=$(libdir)"
 
 libFilter_la_SOURCES = EventFilter.cpp \
-	EventSinkPipeline.cpp \
 	FilterDictionary.cpp \
 	FilterBufferDecoder.cpp \
 	FilterEventProcessor.cpp \
@@ -22,7 +21,6 @@ libFilter_la_SOURCES = EventFilter.cpp \
 
 include_HEADERS = EventFilter.h \
 	          FilterDictionary.h  \
-		  EventSinkPipeline.h \
 	   	  FilterEventProcessor.h \
 		  FilterBufferDecoder.h \
 	 	  GatedEventFilter.h    \

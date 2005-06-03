@@ -71,7 +71,7 @@ private:
 public:
     //  Constructors and other canonical operations.
 
-  CSegmentUnpacker (const string& rName,
+  CSegmentUnpacker (const STD(string)& rName,
 		    CTCLInterpreter& rInterp);		//!< Constructor.
   ~ CSegmentUnpacker ( ); //!< Destructor.
 
@@ -96,7 +96,7 @@ public:
                                     
   virtual   void Setup (CAnalyzer& 			rAnalyzer, 
 			CHistogrammer& rHistogrammer)   = 0 ; //!< Setup config
-  virtual string getType() const = 0;   //!< Return the module type.
+  virtual STD(string) getType() const = 0;   //!< Return the module type.
 
   virtual   void OnDelete ()   ;        //!< About to be destroyed.
 

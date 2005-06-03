@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2007, All rights reserved";
 // CGammaBand.cpp
@@ -295,14 +295,21 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 //
 /////////////////////////////////////////////////////////////////////////
 
+#include <config.h>
 #include "GammaBand.h"
 #include <assert.h>
 #include <algorithm>
-#include <iostream.h>
+#include <Iostream.h>
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 /*
    Change Log:
    $Log$
+   Revision 5.1.2.1  2004/12/21 17:51:21  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:56:02  ron-fox
    Begin port to 3.x compilers calling this 3.0
 

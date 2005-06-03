@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
 ** Facility:
@@ -290,18 +290,18 @@ DAMAGES.
 ** Version:
 **   @(#)XMText.h	8.1 6/23/95 
 */
-
+#include <config.h>
 #include "XMText.h"
 
-XMText::XMText(char *n, XMWidget &parent, int rows = 1, int columns = 30,
-	       ArgList args = NULL, Cardinal arg_count = 0) :
+XMText::XMText(char *n, XMWidget &parent, int rows , int columns,
+	       ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmTextWidgetClass, parent, args, arg_count) {
   SetColumns(columns);
   SetRows(rows);
 }
 
-XMText::XMText(char *n, Widget parent, int rows = 1, int columns = 30,
-	       ArgList args = NULL, Cardinal arg_count = 0) : 
+XMText::XMText(char *n, Widget parent, int rows, int columns,
+	       ArgList args, Cardinal arg_count) : 
   XMManagedWidget(n, xmTextWidgetClass, parent) {
   SetColumns(columns);
   SetRows(rows);
@@ -353,15 +353,15 @@ XMText::SetEditing(Boolean enable) {
 ** The following functions are implementations for class XMTextField
 */
 
-XMTextField::XMTextField(char *n, XMWidget &parent, int columns = 30,
-			 ArgList args = NULL, Cardinal arg_count = 0) :
+XMTextField::XMTextField(char *n, XMWidget &parent, int columns,
+			 ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmTextFieldWidgetClass, 
 		  parent, args, arg_count) {
   SetColumns(columns);
 }
 
-XMTextField::XMTextField(char *n, Widget parent,  int columns = 30,
-			 ArgList args = NULL, Cardinal arg_count = 0) : 
+XMTextField::XMTextField(char *n, Widget parent,  int columns,
+			 ArgList args, Cardinal arg_count) : 
   XMManagedWidget(n, xmTextFieldWidgetClass, parent) {
   SetColumns(columns);
 }
@@ -396,7 +396,7 @@ XMTextField::SetText(char *txt) {
 Callback_data*
 XMTextField::AddActivateCallback(void (*callback)(XMWidget *, 
 						  XtPointer, XtPointer), 
-				 XtPointer user_data=NULL) {
+				 XtPointer user_data) {
   return AddCallback(XmNactivateCallback, callback, user_data);
 }
 
@@ -404,9 +404,9 @@ XMTextField::AddActivateCallback(void (*callback)(XMWidget *,
 ** These implementations are for class XMScrolledText
 */
 
-XMScrolledText::XMScrolledText(char *n, XMWidget &parent, int rows = 20, 
-			       int columns = 40,
-			       ArgList args = NULL, Cardinal arg_count = 0) :
+XMScrolledText::XMScrolledText(char *n, XMWidget &parent, int rows, 
+			       int columns,
+			       ArgList args, Cardinal arg_count) :
   XMText(n) {		/* Use no-op constructor for base class */
   id       = XmCreateScrolledText(parent.getid(), n, args, arg_count);
   scroller = XtParent(id);
@@ -416,9 +416,9 @@ XMScrolledText::XMScrolledText(char *n, XMWidget &parent, int rows = 20,
   max_text_length = 0;     /* No max length. */
 }
 
-XMScrolledText::XMScrolledText(char *n, Widget parent, int rows = 20, 
-			       int columns = 40,
-			       ArgList args = NULL, Cardinal arg_count = 0) :
+XMScrolledText::XMScrolledText(char *n, Widget parent, int rows, 
+			       int columns,
+			       ArgList args, Cardinal arg_count) :
   XMText(n) {		/* Use no-op constructor for base class */
   id       = XmCreateScrolledText(parent, n, args, arg_count);
   scroller = XtParent(id);
@@ -438,9 +438,9 @@ XMScrolledText::ClearText() {
 }
 
 void
-XMScrolledText:: AddText(char *string) {
-  XmTextInsert(id, text_length, string);
-  text_length += strlen(string);
+XMScrolledText:: AddText(char *pstring) {
+  XmTextInsert(id, text_length, pstring);
+  text_length += strlen(pstring);
   if( (max_text_length > 0) && (text_length > max_text_length)) {
     int rmlen;
     rmlen = text_length - max_text_length;

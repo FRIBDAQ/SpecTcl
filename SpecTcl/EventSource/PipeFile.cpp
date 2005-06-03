@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2005, All rights reserved";
 //  CPipeFile.cpp
@@ -317,6 +317,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 // Header Files:
 //
 
+
+#include <config.h>
 #ifndef _REENTRANT
 #define _REENTRANT		// This is needed to get strtok_r defined.
 #endif
@@ -337,17 +339,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include <sys/time.h>
 #include <string.h>
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+
 #ifndef HAVE_PIPE               // Coulnd't find pipe for some reason!!
 extern "C" {
   int pipe(int*);
 };
 #endif
 
-#ifdef OSF
-extern "C" {
-  int pipe(int*);
-};
-#endif
 
 
 // Functions for class CPipeFile
