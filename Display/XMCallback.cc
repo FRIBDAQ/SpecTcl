@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -313,29 +313,22 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <stdlib.h>
 #include "XMCallback.h"
 
-#ifndef LINUX
-extern "C" {
-             void exit(int);
-	   }
-#endif
-
 
-/*
-** Functional Description:
-**    XMDispatchCallback  - This function is the callback function that
-**                          is registered as the motif callback.  We
-**                          use the client data argument to call an object
-**                          oriented callback function.
-** Formal Parameters:
-**    Widget  w:
-**      The widget ID of the object that's the source of the callback.
-**    XtPointer cbd:
-**      Actually a pointer to a Callback_data structure which describes the
-**      desired callback.
-**    XtPointer reason:
-**      Reason for callback, supplied by Motif.
-*/
+/*!
 
+    XMDispatchCallback  - This function is the callback function that
+                          is registered as the motif callback.  We
+                          use the client data argument to call an object
+                          oriented callback function.
+ Formal Parameters:
+   \param  w (Widget):
+      The widget ID of the object that's the source of the callback.
+   \param cbd (XtPointer)
+      Actually a pointer to a Callback_data structure which describes the
+      desired callback.
+   \param reason (XtPointer)
+      Reason for callback, supplied by Motif.
+*/
 static void XMDispatchCallback(Widget w, XtPointer cbd, XtPointer reason)
 {
   Callback_data *descrip = (Callback_data *)cbd;

@@ -15,10 +15,10 @@ libSpecio_la_SOURCES = SpectrumFormatter.cpp \
 	NSCLBinarySpectrumFormatter.cpp \
 	NSCLAsciiSpectrumFormatter.cpp  \
 	SpectrumFormatError.cpp \
-	nsclbin.cpp nsclbinerror.cpp nscldata.cpp
+	nsclbin.cpp nsclbinerror.cpp nscldata.cpp tclstreams.cpp
 
 include_HEADERS = NSCLAsciiSpectrumFormatter.h NSCLBinarySpectrumFormatter.h \
 	SpectrumFormatError.h SpectrumFormatter.h SpectrumFormatterFactory.h \
-	nsclbin.h nsclbinerror.h nscldata.h nscltime.h
+	nsclbin.h nsclbinerror.h nscldata.h nscltime.h tclstreams.h
 
 EXTRA_DIST = ClassDiagram.WC ClassDiagram.omt

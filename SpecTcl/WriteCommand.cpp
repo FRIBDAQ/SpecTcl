@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -294,6 +294,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+
+#include <config.h>
 #include "WriteCommand.h"    				
 
 #include <SpectrumPackage.h>
@@ -309,8 +311,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <stdio.h>
 #include <unistd.h>
-#include <iostream.h>
-#include <fstream.h>
+#include <Iostream.h>
+#include <Fstream.h>
+#include <tclstreams.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 
 // Functions for class CWriteCommand
@@ -391,30 +399,40 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
 
   //  Then next parameter can be one of two things, either a 
-  //  Tcl File descriptor or a file name.  
-  //  The next section of code determines what it is we are trying
-  //  write to and returns a file id to it if possible, or errors out if not.
-  //
+  //  Channel name or a filename.
+  //  In the end we want to have an ostream derived object 
+  //  to pass to the formatter.  The code below decides whether or not
+  //  to create a  tclostream or a ofstream.   Regardless,
+  //  by the time we pass out of this block of code, pOut is 
+  //  pointing to that stream.
+  //  Playing this kind of game removes the need to do all the fd caching
+  //  we used to do in the 2.x and earlier versions of SpectTcl.
+  //  The cost of this is that the output file permissions, when the
+  //  file parameter is a true filename are determined by the run time library
+  //  and umask rather than us.... this may cause users's some problems.
+  //  but for now tough.
 
-  Int_t  fid;
-  Bool_t MustClose = kfFALSE;
-  if(IsFileId(pArgs[0])) {
-    fid = GetFileId(pArgs[0]);
+  ostream*     pOut;
+  Tcl_Channel  pChannel(rInterp.GetChannel(pArgs[0]));
+  
+  if(pChannel) {
+    pOut = new tclostream(pChannel);
   }
   else {
-    fid = open(pArgs[0], O_WRONLY |O_CREAT, S_IRWXU | S_IRGRP | S_IROTH);
-    if(fid < 0) {
-      rResult += strerror(errno);
-      return TCL_ERROR;
-    }
-    MustClose = kfTRUE;
+    pOut = new ofstream(pArgs[0], ios::trunc | ios::out);
+    rResult="";
   }
-  //
-  //   Now we can associate a stream with the file id and
-  //   ask that the spectra be written out:
-  //
-  FILE* junk;
-  ofstream out(fid);
+  // If the file could not be created/mapped then pOut is false:
+  // kill it off, and return the error:
+
+  if(!(*pOut)) {
+    rResult = "Unable to create or open a stream on ";
+    rResult += pArgs[0];
+    delete pOut;
+    return TCL_ERROR;
+  }
+
+  // Now we can write out the spectra:
 
   nArgs--;			
   pArgs++;
@@ -424,7 +442,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   CSpectrumPackage& rPack((CSpectrumPackage&)getMyPackage());
   while(nArgs) {
     string thisResult;
-    if(rPack.Write(thisResult, string(*pArgs), out, pFormatter) != TCL_OK) {
+    if(rPack.Write(thisResult, string(*pArgs), *pOut, pFormatter) != TCL_OK) {
       nFailed++;
       Failures.push_back(thisResult);
       FailedNames.push_back(*pArgs);
@@ -432,15 +450,11 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     nArgs--;
     pArgs++;
   }
+  //  Kill off the stream:  If this is a tclostream, that won't close the
+  //  channel.
 
-  //
-  // If we opened the file we should close it.
-  //
+  delete pOut;
 
-  if(MustClose) {
-    out.flush();
-    close(fid);
-  }
   // Now based on nFailed, figure out the result and the return value:
 
   if(nFailed) {
@@ -458,80 +472,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_OK;
   }
 }
-//////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//    Bool_t               IsFileId(const char* pConnectionString);
-// Operation type:
-//    Utility.
-//  
-Bool_t
-CWriteCommand::IsFileId(const char* pConnectionString)
-{
-  //  Uses GetFileId to determine if a connection string is a valid 
-  //  Tcl/TK file id
-  // Formal Parameters:
-  //     const char* pConnection String:
-  //        Points to the connection string (e.g. file9 or /usr/local/test
-  // Returns:
-  //    kfTRUE - pConnection string represents a file id connecion.
-  //    kfFALSE- pConnection does not represent a file id connection.
-  //
-  
-  try {
-    Int_t nId = GetFileId(pConnectionString);
-    return kfTRUE;		// No throw indicates valid file id.
-  }
-  catch(...) {
-    return kfFALSE;		// throws mean that not a file id.
-  }
 
-}
-//////////////////////////////////////////////////////////////////////////
-//
-//   Function:
-//     Int_t                GetFileId(const char* pConnectionString)
-//   Operation Type:
-//     Utility:
-//
-Int_t
-CWriteCommand::GetFileId(const char* pConnectionString)
-{
-  // Takes a connection string which represents a Tcl file id and
-  // either returns the fid corresponding to it or throws an CErrnoException:
-  //  Determines if a file name string represents a Tcl internal
-  //  file variable.  If it does, it will be of the form:  file%d  where %d is
-  //  the file id of the file it represents, and %d will be a valid fd.
-  //  Therefore our strategy is to first parse the string for validity, and
-  //  if valid, to stat the id to see if it's an open fid.
-  //
-  // Formal Parameters:
-  //     const char* pConnection String:
-  //        Points to the connection string (e.g. file9 or /usr/local/test
-  // Returns:
-  //    value of the file id or an errno exception otherwise.
-  //
-  
-  Int_t  nId;
-  UInt_t Status = sscanf(pConnectionString, "file%d", &nId);
-  if(Status == 0) {
-    errno = ENOENT;
-    throw 
-      CErrnoException("Parsing connection string in CWriteCommand::GetFileId");
-  }
-
-  // nId could be a valid/open file id.. If so, then fstat should work.
-
-  struct stat statbuf;
-  if(fstat(nId, &statbuf) == -1) {
-    errno = EBADF;
-    throw
-      CErrnoException("Invoking stat() on fid in CWriteCommand::GetFileId");
-  }
-
-  return nId;
-
-}
 ////////////////////////////////////////////////////////////////////////////
 //
 // Function:

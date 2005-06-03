@@ -1,6 +1,6 @@
 SUBDIRS =  Replace Scripts Utility Display \
 	NSCLException Xamine Tape EventSource \
-	TCL Events Gates Sorter SpectrumIO Filter SpecTcl \
+	TCL Events Gates Sorter SpectrumIO Filter Analysis TreeParam SpecTcl \
 	contrib TestFiles
 
 # Gri TestFiles need to be figured out still..
@@ -57,3 +57,4 @@ install-exec-local:
 	cat  CompilationRules.include        >> CompilationRules.temp
 	$(INSTALL_DATA) CompilationRules.temp $(sysconfdir)/CompilationRules.include
 	echo "Version: " $(VERSION) build on `hostname` `date` >$(prefix)/VERSION
+	$(MANDB) $(prefix)/man

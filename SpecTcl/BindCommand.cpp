@@ -314,7 +314,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Header Files:
 //
 
-
+#include <config.h>
 #include "BindCommand.h"
 #include "TCLString.h"
 #include "SpectrumPackage.h"
@@ -324,7 +324,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <vector>
 #include <string.h>
 
-
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Static Data:
 
@@ -441,40 +443,8 @@ CBindCommand::BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
   return rPack.BindAll(rResult);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    Int_t BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
-//		       int nArgs, char* pArgs[]);
-//  Operation Type:
-//    Utility:
-//
-Int_t
-CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
-			 int nArgs, char* pArgs[])
-{
-  // Binds a list of spectrum names to Displayer slots. 
-  //
-  // Formal Parameters:
-  //     CTCLInterpreter& rInterp:
-  //        TCL Interpreter executing the command.
-  //     CTCLResult& rResult:
-  //        Result string associated with this interpreter.
-  //     int nArgs, char* p Args[]:
-  //        Command line parameters.
-  // Returns:
-  //    TCL_OK      if bound.
-  //    TCL_ERROR   if some could not be bound.
-  //
 
 
-  std::vector<std::string> vNames;
-  CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
-
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-
-  return rPack.BindList(rResult, vNames);
-}
 //////////////////////////////////////////////////////////////////////////
 //
 // Function
@@ -503,7 +473,7 @@ CBindCommand::BindByIdent(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //    TCL_OK      if bound.
   //    TCL_ERROR   if some could not be bound.
 
-  std::vector<UInt_t>  vIdents;
+  vector<UInt_t>  vIdents;
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
   if(rPack.GetNumberList(rResult, vIdents, nArgs, pArgs)) {
     return TCL_ERROR;
@@ -513,6 +483,34 @@ CBindCommand::BindByIdent(CTCLInterpreter& rInterp, CTCLResult& rResult,
   return rPack.BindList(rResult, vIdents);
 
 }
+
+Int_t
+CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
+			 int nArgs, char* pArgs[])
+{
+  // Binds a list of spectrum names to Displayer slots. 
+  //
+  // Formal Parameters:
+  //     CTCLInterpreter& rInterp:
+  //        TCL Interpreter executing the command.
+  //     CTCLResult& rResult:
+  //        Result string associated with this interpreter.
+  //     int nArgs, char* p Args[]:
+  //        Command line parameters.
+  // Returns:
+  //    TCL_OK      if bound.
+  //    TCL_ERROR   if some could not be bound.
+  //
+
+
+  std::vector<std::string> vNames;
+  CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
+
+  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+
+  return rPack.BindList(rResult, vNames);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -561,15 +559,16 @@ CBindCommand::ListBindings(CTCLInterpreter& rInterp, CTCLResult& rResult, int nA
       return ListByXid(rInterp, rResult, nArgs, pArgs);
 
     case keNotSwitch:		// List given names.
-      return ListByName(rInterp, rResult, nArgs, pArgs);
+      //return ListByName(rInterp, rResult, nArgs, pArgs);
+      return ListAll(rInterp,rResult, pArgs[0]);
 
     default:			// Invalid switch in this context...
-      Usage(rResult);
-      return TCL_ERROR;
+      return ListAll(rInterp,rResult, pArgs[0]);
+
     }
   }
   else {
-    return ListAll(rInterp, rResult);
+    return ListAll(rInterp, rResult, "*");
   }
 
 }
@@ -581,13 +580,13 @@ CBindCommand::ListBindings(CTCLInterpreter& rInterp, CTCLResult& rResult, int nA
 //   Utility:
 //
 Int_t
-CBindCommand::ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
+CBindCommand::ListAll(CTCLInterpreter& rInterp, CTCLResult& rResult, const char* pattern)
 {
   // List all spectrum bindings.
   //
 
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-  rPack.ListAllBindings(rResult);
+  rPack.ListAllBindings(rResult, pattern);
   return TCL_OK;
 
 }
@@ -620,7 +619,7 @@ CBindCommand::ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //   TCL_OK    - if all spectrum bindings fetched.
   //
 
-  std::vector<std::string> vNames;
+  vector<string> vNames;
   CSpectrumPackage::GetNameList(vNames, nArgs, pArgs);
 
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
@@ -653,7 +652,7 @@ CBindCommand::ListById(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //   TCL_ERROR - if error.
   //   TCL_OK    - if all spectrum bindings fetched.
   //
-  std::vector<UInt_t> vIds;
+  vector<UInt_t> vIds;
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
 
   if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) { 
@@ -692,7 +691,7 @@ CBindCommand::ListByXid(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //   TCL_OK    - if all spectrum bindings fetched.
   //
  
-  std::vector<UInt_t> vIds;
+  vector<UInt_t> vIds;
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
 
   if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) {

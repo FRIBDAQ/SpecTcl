@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CEventFormatError.h:
 //
@@ -299,12 +299,16 @@ DAMAGES.
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif                    
 
 #ifndef __HISTOTYPES_H
@@ -315,12 +319,12 @@ class CEventFormatError  : public CException
 {
 private:
   Int_t m_nReason;		// Reason for the exception
-  std::vector<UShort_t> m_vEventData; // Vector containing data from bad event.
+  STD(vector)<UShort_t> m_vEventData; // Vector containing data from bad event.
   UInt_t m_nDetectedOffset;	// Offset into m_vEventData where error
 				// was detected.
   UInt_t m_nEventSize;		// If able to determine, actual event size.
   Bool_t m_fSizeAccurate;	// kfTRUE if m_nEventSize is accurate.
-  std::string m_sReason;		// Current reason text.
+  STD(string) m_sReason;		// Current reason text.
 public:
   enum {			// Defined error codes.
     knNoCurrentBuffer,		// Current Buffer not defined.
@@ -361,11 +365,13 @@ public:
     m_vEventData(pFirstWord, pFirstWord + (nWords -1 )),
     m_nDetectedOffset(nOffset),
     m_nEventSize(nEventSize),
-    m_fSizeAccurate(nEventSize ? kfTRUE : kfFALSE)
+    m_fSizeAccurate(nEventSize ? kfTRUE : kfFALSE),
+    knUnused1((int)knPacketIdMismatch),
+    knUnused2((int)knInvalidPacketID)
   {
     UpdateReasonText();
   }
-  CEventFormatError(Int_t nReason, const std::string& rWasDoing,
+  CEventFormatError(Int_t nReason, const STD(string)& rWasDoing,
 		    UInt_t* pFirstWord, UInt_t nWords,
 		    UInt_t  nOffset,
 		    UInt_t  nEventSize = 0) :
@@ -374,7 +380,9 @@ public:
     m_vEventData(pFirstWord, pFirstWord + (nWords -1 )),
     m_nDetectedOffset(nOffset),
     m_nEventSize(nEventSize),
-    m_fSizeAccurate(nEventSize ? kfTRUE : kfFALSE)
+    m_fSizeAccurate(nEventSize ? kfTRUE : kfFALSE),
+    knUnused1((int)knPacketIdMismatch),
+    knUnused2((int)knInvalidPacketID)
   {
     UpdateReasonText();
   }
@@ -386,7 +394,9 @@ public:
 			//Copy constructor
 
   CEventFormatError (const CEventFormatError& aCEventFormatError )   : 
-    CException (aCEventFormatError) 
+    CException (aCEventFormatError) ,
+    knUnused1((int)knPacketIdMismatch),
+    knUnused2((int)knInvalidPacketID)
   {
     m_nReason = aCEventFormatError.m_nReason;
     m_vEventData = aCEventFormatError.m_vEventData;
@@ -433,7 +443,7 @@ public:
   {
     return m_nReason;
   }
-  std::vector<UShort_t> getEventData() const
+  STD(vector)<UShort_t> getEventData() const
   {
     return m_vEventData;
   }
@@ -458,14 +468,14 @@ protected:
     m_nReason = am_nReason;    
     UpdateReasonText();
   }
-  void setEventData (std::vector<UShort_t> am_vEventData)
+  void setEventData (STD(vector)<UShort_t> am_vEventData)
   { 
     m_vEventData = am_vEventData;
     UpdateReasonText();
   }
   void setEventData(UShort_t pStart, UInt_t nWords)
   {
-    vector<UShort_t> v(pStart, pStart + (nWords -1));
+    STD(vector)<UShort_t> v(pStart, pStart + (nWords -1));
     setEventData(v);
   }
   void setDetectedOffset (UInt_t am_nDetectedOffset)
@@ -493,7 +503,7 @@ public:
   // Functions specific to the subclass of Exception:
   //
 public:
-  std::vector<UShort_t>& EventData ()  ;
+  STD(vector)<UShort_t>& EventData ()  ;
   UInt_t Where ()  ;
   UInt_t EventSize ()  ;
   Bool_t EventSizeOk ()  ;

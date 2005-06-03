@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CParameterCommand.h:
 //
@@ -371,7 +371,7 @@ protected:
 
   // Utilities for producing Tcl lists for parameter definitions.
 
-  UInt_t ListParametersById(CTCLResult& rResult);
+  UInt_t ListParametersById(CTCLResult& rResult, const char* pattern);
  
 };
 

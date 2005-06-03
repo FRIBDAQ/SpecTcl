@@ -52,7 +52,9 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
                                //Required for 1:1 association classes
@@ -72,8 +74,8 @@ private:
   
 
   bool            m_fSetupDone;     //!<  true if Setup done at run start.  
-  string          m_sCreatorName;   //!< Name of the creator object.
-  string          m_sTopLevelName;  //!< Name of the top level packet.
+  STD(string)          m_sCreatorName;   //!< Name of the creator object.
+  STD(string)          m_sTopLevelName;  //!< Name of the top level packet.
   CPacket*        m_pTopLevel;      //!< Top level event decoder.
   CModuleCommand* m_pModuleCommand; //!< Module command processor.
 
@@ -86,8 +88,8 @@ public:
 public:
     //  Constructors and other canonical operations.
 
-    CScriptableUnpacker (string CreatorName = string("module"),
-			 string TopLevelName= string("unpack")); //!< Constructor.
+    CScriptableUnpacker (STD(string) CreatorName = STD(string)("module"),
+			 STD(string) TopLevelName= STD(string)("unpack")); //!< Constructor.
     virtual  ~CScriptableUnpacker ( ); //!< Destructor.
 private:
     CScriptableUnpacker (const CScriptableUnpacker& rSource ); //!< Copy construction.
@@ -128,7 +130,7 @@ public:
 			       CAnalyzer& rAnalyzer, 
 			       CBufferDecoder& rDecoder)   ; //!< For a physics event.
   
-  void RegisterCreator(const string& rType, CModuleCreator* pCreator);
+  void RegisterCreator(const STD(string)& rType, CModuleCreator* pCreator);
 protected:
   virtual void RegisterCreators(); //!< Register module creators
 private:

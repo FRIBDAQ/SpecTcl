@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CSummarySpectrumW.h:
 //
@@ -293,6 +293,12 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.2  2005/06/03 15:19:24  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
+  Revision 5.1.2.1  2004/12/21 17:51:26  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:09  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -310,12 +316,16 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -349,16 +359,16 @@ class CSummarySpectrumB  : public CSpectrum
 {
   UInt_t              m_nYScale;     //!< Number of Y channels. 
   UInt_t              m_nXChannels;  //!< Number of X chanels.  
-  vector<UInt_t>      m_vParameters; //!< Vector of parameter id's.
+  STD(vector)<UInt_t>      m_vParameters; //!< STD(Vector) of parameter id's.
 public:
 
 			//Constructor(s) with arguments
 
-  CSummarySpectrumB(const std::string& rName, UInt_t nId,
-		    vector<CParameter> rrParameters,
+  CSummarySpectrumB(const STD(string)& rName, UInt_t nId,
+		    STD(vector)<CParameter> rrParameters,
 		    UInt_t nYScale); //!< axis represents [0,nYScale-1]
-  CSummarySpectrumB(const std::string& rName, UInt_t nId,
-		    vector<CParameter> rrParameters,
+  CSummarySpectrumB(const STD(string)& rName, UInt_t nId,
+		    STD(vector)<CParameter> rrParameters,
 		    UInt_t nYScale,
 		    Float_t fYLow,
 		    Float_t fYHigh); //!< Axis represents [fYlow, fYHigh].
@@ -423,14 +433,14 @@ public:
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;
 
-  virtual void GetParameterIds(vector<UInt_t>& rvIds);
-  virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
+  virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
+  virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
   virtual CSpectrum::SpectrumDefinition& GetDefinition();
   // Utility functions.
 protected:
   void CreateStorage();
-  void FillParameterArray(vector<CParameter> Params);
-  CSpectrum::Axes CreateAxes(vector<CParameter> Parameters,
+  void FillParameterArray(STD(vector)<CParameter> Params);
+  CSpectrum::Axes CreateAxes(STD(vector)<CParameter> Parameters,
 			     UInt_t             nChannels,
 			     Float_t fyLow, Float_t fyHigh);
   

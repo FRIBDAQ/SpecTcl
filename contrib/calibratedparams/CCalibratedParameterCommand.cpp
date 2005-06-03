@@ -7,8 +7,10 @@
 
 ////////////////////////// FILE_NAME.cpp ///////////////////////////
 
+
 // Include files required:
 
+#include <config.h>
 #include "CCalibratedParameterCommand.h"  
 #include "CCalibratedParameterManager.h"
 #include "CCalibratedParameter.h"
@@ -27,6 +29,11 @@
 
 #include <vector>
 #include <stdio.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 using namespace DesignByContract;
   				

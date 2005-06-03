@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /******************************************************************************
   Interface for class BufferTranslator
@@ -282,6 +282,15 @@ DAMAGES.
 /*
   Change log:
    $Log$
+   Revision 5.2  2005/06/03 15:19:00  ron-fox
+   Part of breaking off /merging branch to start 3.1 development
+
+   Revision 5.1.2.2  2005/05/02 20:14:41  ron-fox
+   Little changes to support gcc 3.4 compiler which is a bit stricter even.
+
+   Revision 5.1.2.1  2004/12/21 17:51:17  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:55:40  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -300,15 +309,12 @@ DAMAGES.
 #include <buffer.h>
 #endif
 
-#ifndef __TRANSLATORPOINTER_H
-#include "TranslatorPointer.h"
-#endif
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
 #endif
 
-#include <iostream.h>
+#include <Iostream.h>
 
 /*-----------------------------------------------------------------------------
   Definition of class BufferTranslator

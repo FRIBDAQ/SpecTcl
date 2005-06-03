@@ -62,15 +62,15 @@ class CFitFactory
   // Public data types:
 public:
   // Note that the iterators below will
-  // 'point' to a pair<string,T*>.
+  // 'point' to a pair<STD(string),T*>.
   // e.g. a FitCreatorIterator points to a 
-  // pair<string, CFitCreator*>
+  // pair<STD(string), CFitCreator*>
   //
 
-  typedef map<string, CFitCreator*> FitCreatorMap;
+  typedef STD(map)<STD(string), CFitCreator*> FitCreatorMap;
   typedef FitCreatorMap::iterator  FitCreatorIterator;
 
-  typedef map<string, CFit*>        FitMap;
+  typedef STD(map)<STD(string), CFit*>        FitMap;
   typedef FitMap::iterator          FitIterator;
 
   
@@ -87,21 +87,21 @@ private:
 public:
 
 
-  static void AddFitType (const string & rType, CFitCreator* pCreator)   ; 
-  static CFit* Create (string sFitType, string sFitName)   ; 
-  static bool Delete (string sName)   ; 
-  static bool Perform (string sName)   ; 
-  static bool AddPoints (string sName,
-			 vector<FPoint> vPoints)   ; 
-  static double Evaluate (string sName, double x)   ; 
+  static void AddFitType (const STD(string) & rType, CFitCreator* pCreator)   ; 
+  static CFit* Create (STD(string) sFitType, STD(string) sFitName)   ; 
+  static bool Delete (STD(string) sName)   ; 
+  static bool Perform (STD(string) sName)   ; 
+  static bool AddPoints (STD(string) sName,
+			 STD(vector)<FPoint> vPoints)   ; 
+  static double Evaluate (STD(string) sName, double x)   ; 
   static FitCreatorIterator beginCreators();
   static FitCreatorIterator endCreators();
   static int    sizeCreators();
-  static FitCreatorIterator FindFitCreator (string sType)   ; 
+  static FitCreatorIterator FindFitCreator (STD(string) sType)   ; 
   static int size ()   ; 
   static FitIterator begin ()   ; 
   static FitIterator end ()   ; 
-  static FitIterator FindFit (string sName) ; 
+  static FitIterator FindFit (STD(string) sName) ; 
 
 
 };

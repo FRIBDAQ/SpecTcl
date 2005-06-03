@@ -10,17 +10,18 @@
     mailto:venema@nscl.msu.edu
 */
 
+#include <config.h>
 #include "XMLabel.h"
 
 XMLabel::XMLabel(char *n, XMWidget &parent, char *text,
-		 ArgList args = NULL, Cardinal arg_count = 0) :
+		 ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmLabelWidgetClass, parent, args, arg_count) 
 {
   SetLabel(text);
 }
 
 XMLabel::XMLabel(char *n, Widget parent, char *text,
-		 ArgList args = NULL, Cardinal arg_count = 0) :
+		 ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmLabelWidgetClass, parent, args, arg_count)
 {
   SetLabel(text);

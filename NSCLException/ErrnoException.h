@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 
@@ -325,7 +325,7 @@ public:
   CErrnoException(const char* pszAction) :
     m_nErrno(errno),
     CException(pszAction) {}
-  CErrnoException(const std::string& rsAction) :
+  CErrnoException(const STD(string)& rsAction) :
     m_nErrno(errno),
     CException(rsAction) {}
   ~CErrnoException ( ) { }       //Destructor

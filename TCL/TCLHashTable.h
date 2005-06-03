@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTCLHashTable.h:
 //
@@ -318,7 +318,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 template <class T>
@@ -393,7 +395,7 @@ protected:
   // Operations:
   //
 public:                       
-  void Enter (const std::string& rKey, rCTCLTHashTableItem rValue) {
+  void Enter (const STD(string)& rKey, rCTCLTHashTableItem rValue) {
     Int_t          nNew;
     Tcl_HashEntry* pEntry = Tcl_CreateHashEntry(&m_Table,
 						rKey.c_str(),
@@ -402,7 +404,7 @@ public:
     Tcl_SetHashValue(pEntry, (ClientData)&rValue);
     
   }
-  const CTCLTHashTableItem* Find (const std::string& rsKeyword) const {
+  const CTCLTHashTableItem* Find (const STD(string)& rsKeyword) const {
     Tcl_HashEntry* pEntry = Tcl_FindHashEntry(&m_Table,
 					      rsKeyword.c_str());
     if(pEntry == kpNULL) return (pCTCLTHashTableItem) kpNULL;
@@ -410,7 +412,7 @@ public:
     return (pCTCLTHashTableItem)(Tcl_GetHashValue(pEntry));
   }
   
-  CTCLTHashTableItem* Delete (const std::string& rsKeyword) {
+  CTCLTHashTableItem* Delete (const STD(string)& rsKeyword) {
     Tcl_HashEntry* pEntry = Tcl_FindHashEntry(&m_Table,
 					      rsKeyword.c_str());
     if(pEntry != kpNULL) {
@@ -435,8 +437,8 @@ public:
     return i;
   }
   
-  std::string Statistics () {
-    std::string s(Tcl_HashStats(&m_Table));
+  STD(string) Statistics () {
+    STD(string) s(Tcl_HashStats(&m_Table));
     return s;
   }
   

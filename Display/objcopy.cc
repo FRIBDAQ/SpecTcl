@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -296,6 +296,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+#include <config.h>
 #include <stdio.h>
 #include <string.h>
 #include "XMDialogs.h"
@@ -608,21 +609,24 @@ void Copy_Object::UpdateLeft()
   */
 
   win_attributed *att = Xamine_GetSelectedDisplayAttributes();
-  if(att == NULL) goto cleanup;	/* Nothing on a nonexi<stent spectrum. */
+  if(att == NULL) return;	/* Nothing on a nonexi<stent spectrum. */
 
   specid = att->spectrum();
-  if(xamine_shared->gettype(specid) == undefined) goto cleanup;
+  if(xamine_shared->gettype(specid) == undefined) return;
 
 
   /* Get the set of graphical objects and gates defined on the spectrum */
 
+  int nobjects = Xamine_GetSpectrumObjectCount(specid);
+  int ngates   = Xamine_GetSpectrumGateCount(specid);
 
-  grobj_generic *objects[GROBJ_MAXOBJECTS];
-  grobj_generic *gates[GROBJ_MAXOBJECTS];
 
-  nobj = Xamine_GetSpectrumObjects(specid, objects, GROBJ_MAXOBJECTS,
+  grobj_generic** objects = new grobj_generic*[nobjects];
+  grobj_generic** gates   = new grobj_generic*[ngates];
+
+  nobj = Xamine_GetSpectrumObjects(specid, objects, nobjects,
 				   True);
-  ngate= Xamine_GetSpectrumGates(specid, gates, GROBJ_MAXOBJECTS, True);
+  ngate= Xamine_GetSpectrumGates(specid, gates, ngates, True);
 
   /* Enter the graphical objects one by one into the list followed by
   ** the gates.  If the gate is in the selection list, then select it too:
@@ -648,11 +652,9 @@ void Copy_Object::UpdateLeft()
       XmListSelectPos(left_l->getid(), pos, False);
     pos++;
   }
+  delete []objects;
+  delete []gates;
 
-
-  /* Clean up all allocated resources */
- cleanup:                          /* This was a mistake...lists maintained
-				      by the widget */
   return;
 }
 

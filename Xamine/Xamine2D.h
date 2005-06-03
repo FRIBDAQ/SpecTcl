@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamine2D.h:
 //
@@ -293,6 +293,12 @@ DAMAGES.
 /*
    Change log:
    $Log$
+   Revision 5.2  2005/06/03 15:19:35  ron-fox
+   Part of breaking off /merging branch to start 3.1 development
+
+   Revision 5.1.2.1  2004/12/21 17:51:29  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:56:19  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -324,6 +330,14 @@ DAMAGES.
 #include <histotypes.h>
 #endif
 
+#ifndef __STL_STRING
+#include <string>
+#ifndef  __STL_STRING
+#define  __STL_STRING
+#endif
+#endif
+
+
 class CXamine1D;		// Forward definition.
 
 /*!
@@ -343,20 +357,20 @@ class CXamine2D  : public CXamineSpectrum
 public:
   // Constructor:
 
-  CXamine2D(volatile Xamine_shared* pXamine, const std::string& rName,
+  CXamine2D(volatile Xamine_shared* pXamine, const STD(string)& rName,
 	    UInt_t nXchans, UInt_t nYchans, Bool_t fBytes = kfTRUE) :
     CXamineSpectrum(pXamine, rName),
     m_fBytes(fBytes),
     m_nXchannels(nXchans),
     m_nYchannels(nYchans),
-    m_XamineMap(0.0,0.0,0.0,0.0,string(""),string(""))
+    m_XamineMap(0.0,0.0,0.0,0.0,STD(string)(""),STD(string)(""))
     {}
   CXamine2D(volatile Xamine_shared* pXamine, 
-	    const std::string& rName,
+	    const STD(string)& rName,
 	    UInt_t nXChans, UInt_t nYChans, 
 	    Float_t nXLow, Float_t nYLow,
 	    Float_t nXHigh, Float_t nYHigh,
-	    const std::string& sXUnits, const std::string& sYUnits,
+	    const STD(string)& sXUnits, const STD(string)& sYUnits,
 	    Bool_t fBytes = kfTRUE) :
     CXamineSpectrum(pXamine, rName),
     m_fBytes(fBytes),

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS'
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -296,6 +296,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+#include <config.h>
 #include  <math.h>
 
 #include "convert.h"
@@ -304,6 +305,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "dispshare.h"
 #include "axes.h"
 #include "mapcoord.h"
+#include <Iostream.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 extern volatile spec_shared *xamine_shared;
 
@@ -368,6 +375,7 @@ static void Normalize(win_attributed *a, int *xs, int *ys, int *xp, int *yp)
 
     *ys -= ymarg;
     *yp -= ymarg;
+    *xp -= 1;
     return;
   }
 
@@ -382,6 +390,7 @@ static void Normalize(win_attributed *a, int *xs, int *ys, int *xp, int *yp)
     *ys -= ymarg;
     *yp -= ymarg;
   }
+  *xp -= 1;
 }
 
 /*
@@ -679,8 +688,8 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
 
   pane->GetAttribute(XmNwidth, &nxs);
   pane->GetAttribute(XmNheight, &nys);
-  int nx = nxs;
-  int ny = nys;
+  int nx = nxs - 1;
+  int ny = nys - 1;
 
   /* Adjust these sizes figuring in the margins.  Note that the origin pixel
   ** will allow us to correct the final pixels back to the full window.
@@ -723,8 +732,9 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
 
   //  chpix = (int)LinearPosition(chan - chanlo, 1, chanpix-1, (chanhi-chanlo));
   
-  chpix = (int)Transform((float)chanlo, (float)chanhi,
-			 0.0, (float)(chanpix-1), chan);
+
+  chpix = (int)Transform((float)chanlo, (float)(chanhi - 1),
+			 0.0, (float)(chanpix), chan) + 1;
 
   /* The counts axis could be log though:  */
   int cpix;

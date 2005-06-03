@@ -37,7 +37,9 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
  
@@ -62,7 +64,7 @@ private:
 public:
     //  Constructors and other canonical operations.
 
-  CPacketCreator (const string& rName,
+  CPacketCreator (const STD(string)& rName,
 		  CModuleCommand* pModuleCreator); //!< Constructor.
   virtual  ~ CPacketCreator ( ); //!< Destructor.
   CPacketCreator (const CPacketCreator& rSource ); //!< Copy construction.
@@ -75,8 +77,8 @@ public:
 public:
 
   virtual   CSegmentUnpacker* Create (CTCLInterpreter& rInterp,
-				      const string& rName)   ; 
-  virtual   string TypeInfo ()  const ; 
+				      const STD(string)& rName)   ; 
+  virtual   STD(string) TypeInfo ()  const ; 
   
   friend class CreatorTest;	/* for test purposes only. */
 };

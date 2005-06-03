@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2006, All rights reserved";
 //  CEventFormatError.cpp
@@ -305,11 +305,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 // Header Files:
 //
 
-
+#include <config.h>
 #include "EventFormatError.h"                               
-#include <strstream.h>
-#include <iomanip.h>
+#include <Sstream.h>
+#include <Iomanip.h>
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions for class CEventFormatError
 
@@ -475,7 +478,7 @@ CEventFormatError::UpdateReasonText()
   // The dump is omitted if m_vEventData is empty.
   //
   if(!m_vEventData.empty()) {
-    ostrstream msg;
+    ostringstream msg;
     msg << "Event Dump (hex): "  << hex << setw(4) << setfill('0');
     for(UInt_t i = 0; i < m_vEventData.size(); i++) {
       if((i % 8) == 0) msg << endl;
@@ -491,7 +494,7 @@ CEventFormatError::UpdateReasonText()
   //
 
   if(m_fSizeAccurate) {
-    ostrstream msg;
+    ostringstream msg;
     msg << " The event size is accurate and is: " << m_nEventSize << endl;
     m_sReason += msg.str();
   }

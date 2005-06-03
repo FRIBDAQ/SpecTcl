@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 //  CSpectrum.cpp
@@ -298,6 +298,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
     $Log$
+    Revision 5.2  2005/06/03 15:19:23  ron-fox
+    Part of breaking off /merging branch to start 3.1 development
+
+    Revision 5.1.2.2  2005/05/02 20:14:41  ron-fox
+    Little changes to support gcc 3.4 compiler which is a bit stricter even.
+
+    Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
+    Port to gcc 3.x compilers.
+
     Revision 5.1  2004/11/29 16:56:08  ron-fox
     Begin port to 3.x compilers calling this 3.0
 
@@ -327,18 +336,21 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 // Header Files:
 //
-
+#include <config.h>
 #include "Spectrum.h"                               
 #include "Event.h"
 #include "GateContainer.h"
 #include "TrueGate.h"
 #include <string.h>
-#include <iostream.h>
+#include <Iostream.h>
 #include <CAxis.h>
 #include <RangeError.h>
 #include <stdlib.h>
 #include <time.h>
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 static string T("-TRUE-");
 
 static CTrueGate       AlwaysMade;
@@ -788,7 +800,7 @@ CSpectrum::GetHigh(UInt_t nDimension) const
 
 */
 
-struct CSpectrum::SpectrumDefinition&
+CSpectrum::SpectrumDefinition&
 CSpectrum::GetDefinition()
 {
   

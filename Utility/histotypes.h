@@ -293,6 +293,26 @@ DAMAGES.
 /*
    Change log:
    $Log$
+   Revision 5.2  2005/06/03 15:19:35  ron-fox
+   Part of breaking off /merging branch to start 3.1 development
+
+   Revision 5.1.2.3  2005/05/11 21:26:41  ron-fox
+   - Add -pedantic and deal with the fallout.
+   - Fix long standing issues with sread/swrite -format binary
+   - Merge in Tim's strip chart spectrum and ensure stuff builds
+     correctly.
+
+   Revision 5.1.2.2  2005/05/11 16:56:48  thoagland
+   Added Support for StripChart Spectra
+
+
+   2005/05/05 Tim Hoagland
+   Added support for StripChart Spectra
+   
+
+   Revision 5.1.2.1  2004/12/21 17:51:28  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:56:17  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -313,7 +333,7 @@ DAMAGES.
 #endif
 
 #ifndef __CPP_IOSTREAM_H
-#include <iostream.h>
+#include <Iostream.h>
 #define __CPP_IOSTREAM_H
 #endif
 
@@ -327,7 +347,6 @@ DAMAGES.
 #define __STL_STRING
 #endif
 
-using namespace std;
 
 #include <math.h>
 
@@ -389,8 +408,8 @@ typedef enum _Datatype_t {
   keUnknown_dt
 } DataType_t;
 
-inline ostream&
-operator<<(ostream& out, DataType_t t)
+inline STD(ostream)&
+operator<<(STD(ostream)& out, DataType_t t)
 {
   switch(t) {
   case keByte:
@@ -415,17 +434,17 @@ operator<<(ostream& out, DataType_t t)
   }
   return out;
 }
-inline istream&
-operator>>(istream& in, DataType_t& t)
+inline STD(istream)&
+operator>>(STD(istream)& in, DataType_t& t)
 {
-  string value;
+  STD(string) value;
   t = keUnknown_dt;
   in >> value;
-  if(value == string("byte")) t =  keByte;
-  if(value == string("word")) t = keWord;
-  if(value == string("long")) t = keLong;
-  if(value == string("float"))t =  keFloat;
-  if(value == string("double"))t = keDouble;
+  if(value == STD(string)("byte")) t =  keByte;
+  if(value == STD(string)("word")) t = keWord;
+  if(value == STD(string)("long")) t = keLong;
+  if(value == STD(string)("float"))t =  keFloat;
+  if(value == STD(string)("double"))t = keDouble;
   return in;
 }
 
@@ -433,7 +452,7 @@ operator>>(istream& in, DataType_t& t)
 
 typedef enum {			// Types of display program gates.
    kgCut1d,			// 1-d cut gate (upper lower limit)
-   kgContour2d,		// 2-d closed countour
+   kgContour2d,	 	        // 2-d closed countour
    kgBand2d,			// 2-d open band
    kgGammaCut1d,
    kgGammaBand1d,
@@ -453,7 +472,7 @@ typedef enum {			// types of spectra in prompter.
   keAny,			// Any type is legit.
   ke1d,				// 1-d only.
   ke2d,				// 2-d only.
-  keCompatible			// Only those compatible with selected.
+  keCompatible			// Only those compatible with selected.   
 } DialogSpectrumType_t;
 
 typedef enum _SpectrumType_t {
@@ -463,14 +482,15 @@ typedef enum _SpectrumType_t {
   keSummary,
   keG1D,
   keG2D,
-  keUnknown
+  keUnknown,
+  keStrip
 } SpectrumType_t;
 
 
 // I/O for spectrum types.
 
-inline ostream& 
-operator<<(ostream& out, SpectrumType_t t)
+inline STD(ostream)& 
+operator<<(STD(ostream)& out, SpectrumType_t t)
 {
   switch(t) {
   case ke1D:
@@ -488,6 +508,9 @@ operator<<(ostream& out, SpectrumType_t t)
   case keG1D:
     out << "g1";
     break;
+  case keStrip:
+    out << 'S';
+    break;
   case keG2D:
     out << "g2";
     break;
@@ -500,8 +523,8 @@ operator<<(ostream& out, SpectrumType_t t)
   return out;
 }
 
-inline istream& 
-operator>>(istream& in, SpectrumType_t& t)
+inline STD(istream)& 
+operator>>(STD(istream)& in, SpectrumType_t& t)
 {
   char c;
   in >> c;
@@ -517,6 +540,9 @@ operator>>(istream& in, SpectrumType_t& t)
     break;
   case 's':
     t = keSummary;
+    break;
+  case 'S':
+    t = keStrip;
     break;
   case 'g':
     in >> c;

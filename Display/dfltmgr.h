@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
 ** Facility:
@@ -294,6 +294,12 @@ DAMAGES.
 /* 
    Change log:
    $Log$
+   Revision 5.2  2005/06/03 15:18:55  ron-fox
+   Part of breaking off /merging branch to start 3.1 development
+
+   Revision 5.1.2.1  2004/12/21 17:51:13  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:55:35  ron-fox
    Begin port to 3.x compilers calling this 3.0
 

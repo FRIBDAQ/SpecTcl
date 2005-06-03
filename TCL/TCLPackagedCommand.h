@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTCLPackagedCommand.h:
 //
@@ -300,7 +300,14 @@ DAMAGES.
 
 #ifndef __TCLPROCESSOR_H
 #include "TCLProcessor.h"
-#endif                                                  
+#endif                                  
+
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif                
              
 class CTCLPackagedCommand   : public CTCLProcessor
 {
@@ -310,7 +317,7 @@ class CTCLPackagedCommand   : public CTCLProcessor
 public:
 
 			//Constructor with arguments
-  CTCLPackagedCommand (const std::string& sCommand, CTCLInterpreter* pInterp,
+  CTCLPackagedCommand (const STD(string)& sCommand, CTCLInterpreter* pInterp,
 		       CTCLCommandPackage& rPackage) :
     CTCLProcessor(sCommand, pInterp),
     m_rMyPackage(rPackage)

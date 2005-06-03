@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CCut.h:
 //
@@ -293,6 +293,20 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.2  2005/06/03 15:19:20  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
+  Revision 5.1.2.2  2005/05/27 17:47:36  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
+  Revision 5.1.2.1  2004/12/21 17:51:21  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:02  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -308,9 +322,18 @@ DAMAGES.
 #include "Gate.h"
 #endif
 
-#ifndef __STRING
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif
+#endif
+
+#ifndef __STL__STRING
 #include <string>
-#define __STRING
+#ifndef __STL_STRING
+#define __STL__STRING
+#endif
 #endif
 /*! Encapsulates a cut on a parameter.
   The cut is described by a high and low limit 
@@ -382,9 +405,9 @@ public:				//Get accessor function for attribute
   }
   //!< Return involved spectra (for compatibility with gamma gates.
 
-  virtual vector<string> getSpecs() const { 
-    vector<string> empty;
-    return         empty;	// Must return an empty vector.
+  virtual STD(vector)<STD(string)> getSpecs() const { 
+    STD(vector)<STD(string)> empty;
+    return         empty;	// Must return an empty STD(vector).
   }
 
   // Mutators.
@@ -415,10 +438,12 @@ public:
   virtual   CConstituentIterator Begin ()  ;
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
-  virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
-  virtual   std::string Type ()  const;
-  virtual   Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params);
+  virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)  ;
+  virtual   STD(string) Type ()  const;
+  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
   virtual   Bool_t inGate (CEvent& rEvent);
+  virtual   Bool_t inGate (Float_t x);
 };
 
 #endif
+

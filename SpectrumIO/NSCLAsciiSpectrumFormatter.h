@@ -16,6 +16,12 @@
 /*
   Change log:
   $Log$
+  Revision 5.2  2005/06/03 15:19:29  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
+  Revision 5.1.2.1  2004/12/21 17:51:26  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:13  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -44,6 +50,14 @@
 #include <vector>
 #define __STL_VECTOR
 #endif
+
+#ifndef __OSTREAM_DAQH
+#include <Ostream.h>
+#endif
+#ifndef __ISTREAM_DAQH
+#include <Istream.h>
+#endif
+
 
 /*!
  Class: CNSCLAsciiSpectrumFormatter
@@ -111,14 +125,14 @@ public:
        
 public:
 
- virtual   CSpectrum* Read (istream& rStream, 
+ virtual   CSpectrum* Read (STD(istream)& rStream, 
 			    ParameterDictionary& rDict)    ;
- virtual   void Write (ostream& rStream, CSpectrum& rSpectrum,
+ virtual   void Write (STD(ostream)& rStream, CSpectrum& rSpectrum,
 		       ParameterDictionary& rDict)    ;
 
 protected:
-  static void     WriteValues(ostream& rStream, CSpectrum& rSpectrum);
-  static void     WriteLine(ostream& rStream,
+  static void     WriteValues(STD(ostream)& rStream, CSpectrum& rSpectrum);
+  static void     WriteLine(STD(ostream)& rStream,
 		     UInt_t  nCoordinates,
 		     UInt_t* pCoordinates,
 		     ULong_t nValue);
@@ -127,34 +141,34 @@ protected:
 			    UInt_t* pHiLimits,
 			    UInt_t* pIndexes);
 
-  static void     ReadHeader(istream&        rStream,
-			     string&         rName,
-			     string&         rDate,
+  static void     ReadHeader(STD(istream)&        rStream,
+			     STD(string)&         rName,
+			     STD(string)&         rDate,
 			     Float_t&         rRevisionLevel,
 			     SpectrumType_t& rSpecType,
 			     DataType_t&     rDataType,
-			     vector<UInt_t>& rDimensions,
-			     vector<string>& rParameters,
-			     vector<Float_t>& rLows,
-			     vector<Float_t>& rHighs);
-  static string   ReadLine(istream&    rStream);
+			     STD(vector)<UInt_t>& rDimensions,
+			     STD(vector)<STD(string)>& rParameters,
+			     STD(vector)<Float_t>& rLows,
+			     STD(vector)<Float_t>& rHighs);
+  static STD(string)   ReadLine(STD(istream)&    rStream);
   static Bool_t   CompatibleFormat(Float_t nFormat);
-  static void     ReadBody(istream&   rStream,       
-			   vector<UInt_t>& rvDimensions, 
+  static void     ReadBody(STD(istream)&   rStream,       
+			   STD(vector)<UInt_t>& rvDimensions, 
 			   CSpectrum* pSpectrum);
-  static void     ThrowStreamError(istream& rStream,
+  static void     ThrowStreamError(STD(istream)& rStream,
 				   const char*    pDoing,
 				   Bool_t IgnoreEof=kfFALSE);
-  static void     DecodeParenList(istream& rStream, 
-				  vector<string>& rList);
-  static void     DecodeListOfParenLists(istream& rStream,
-					 vector<string>& rList);
-  static void     CheckIndices(vector<UInt_t>& Dimensions, 
-			       vector<UInt_t>& Indices);
+  static void     DecodeParenList(STD(istream)& rStream, 
+				  STD(vector)<STD(string)>& rList);
+  static void     DecodeListOfParenLists(STD(istream)& rStream,
+					 STD(vector)<STD(string)>& rList);
+  static void     CheckIndices(STD(vector)<UInt_t>& Dimensions, 
+			       STD(vector)<UInt_t>& Indices);
   static void     CheckDataSize(ULong_t data, DataType_t type);
-  static void     ReadDelimited(istream& rStream, string& rString,
+  static void     ReadDelimited(STD(istream)& rStream, STD(string)& STDString,
 				char start, char end);
-  static string   ParenListElement(istream& rStream);
+  static STD(string)   ParenListElement(STD(istream)& rStream);
 };
 
 #endif

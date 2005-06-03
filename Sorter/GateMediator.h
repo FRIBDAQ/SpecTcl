@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 #ifndef __GATEMEDIATOR_H
 #define __GATEMEDIATOR_H
@@ -286,15 +286,7 @@ DAMAGES.
 #include <Spectrum.h>
 #endif
 
-#ifndef __STL_STRING
-#include <string>
-#define __STL_STRING
-#endif
 
-#ifndef __STL_VECTOR
-#include <vector>
-#define __STL_VECTOR
-#endif
 
 class CSpectrum;
 class CGateContainer;
@@ -330,6 +322,11 @@ class CGateMediator
  public: 
 
   Bool_t operator() ();
+ protected:
+  Bool_t mediate1d();
+  Bool_t mediate2d();
+  Bool_t mediateGamma1();
+  Bool_t mediateGamma2();
 };
 
 #endif

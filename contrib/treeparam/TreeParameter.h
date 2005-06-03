@@ -24,6 +24,8 @@
 // 	start = 1.0
 // 	stop = 100.0
 
+#warning "You are including an obsolete version of Treeparameter.h"
+
 #ifndef __TREEPARAMETER_H
 #define __TREEPARAMETER_H
 

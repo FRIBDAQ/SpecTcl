@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -318,6 +318,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+#include <config.h>
 #include "PseudoCommand.h"    				
 #include "ParameterPackage.h"
 #include <TCLList.h>
@@ -326,6 +327,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <vector>
 #include <list>
 #include <string.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 static char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved PseudoCommand.cpp \n";
 
@@ -510,33 +516,36 @@ UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
   CParameterPackage& rPack = (CParameterPackage&)getMyPackage();
 
   list<string> PseudoNames;
+  char* pattern = "*";
   if(nArgs != 0) {		// List specific parameters.
-    while(nArgs) {
-      PseudoNames.push_back(string(*pArgs));
-      pArgs++;
-      nArgs--;
-    }
+   pattern = pArgs[0];
   }
-  else {			// List all parameters.
-    rPack.GetPseudoNames(PseudoNames);
-  }
+  rPack.GetPseudoNames(PseudoNames);
+
   //
   // Iterate through all pseudos getting descriptions to add to the
   // output string and error string.
   //
+
   list<string>::iterator pName = PseudoNames.begin();
   CTCLString   oks;
   CTCLString   errors;
   UInt_t       nErrors = 0;
   while(pName != PseudoNames.end()) {
     string Description;
-    if(rPack.DescribePseudo(*pName, Description) == TCL_OK) {
-      oks.AppendElement(Description);
-    }
-    else {
-      errors.AppendElement(Description);
-      nErrors++;
-    }
+    const char* name = (*pName).c_str();
+    if( Tcl_StringMatch(name, pattern))
+      {
+	if(rPack.DescribePseudo(*pName, Description) == TCL_OK) 
+	  {
+	    oks.AppendElement(Description);
+	  }
+	else 
+	  {
+	    errors.AppendElement(Description);
+	    nErrors++;
+	  }
+      }
     pName++;
   }
   // Set the result string according to the error count, and return:
@@ -609,7 +618,7 @@ void CPseudoCommand::Usage(CTCLResult& rResult)
 
   rResult += "Usage: \n";
   rResult += "   pseudo name { depemendent_params } { proc_body }\n";
-  rResult += "   pseudo -list [ name1 ... ]\n";
+  rResult += "   pseudo -list [pattern]\n";
   rResult += "   pseudo -delete name1 [name2 ... ]\n";
   rResult += "  name             - Name of a Pseudo parameter\n";
   rResult += "  dependent_params - names of parameters on which a pseudo\n";
