@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CGammaCut.h:
 //
@@ -293,6 +293,12 @@ DAMAGES.
 /*
   Change log:
   $Log$
+  Revision 5.2  2005/06/03 15:19:20  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
+  Revision 5.1.2.1  2004/12/21 17:51:22  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:03  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -307,6 +313,23 @@ DAMAGES.
 #ifndef __CUT_H       // Required for base class 
 #include "Cut.h"
 #endif
+
+
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif
+#endif
+
+
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
 /*!
    This class defines a cut or slice on gamma spectra. 
    Gamma gates are rather
@@ -321,7 +344,7 @@ class CGammaCut : public CCut
 {
   Float_t m_nLow;          //!< Low level of cut (inclusive)
   Float_t m_nHigh;         //!< High level of cut (inclusive)
-  vector<string> m_vSpecs;  //!< Vector of spectrum names to display gate on
+  STD(vector)<STD(string)> m_vSpecs;  //!< STD(vector) of spectrum names to display gate on
 
  public:
   
@@ -331,11 +354,11 @@ class CGammaCut : public CCut
     m_nHigh (am_nHigh),
     CCut(am_nLow, am_nHigh, 0)
     {
-      // The default constructor of a vector yields an empty vector.
+      // The default constructor of a STD(vector) yields an empty STD(vector).
     }
 
   CGammaCut (UInt_t am_nLow, UInt_t am_nHigh, 
-	     const vector<string> am_vSpecs) :
+	     const STD(vector)<STD(string)> am_vSpecs) :
     m_nLow (am_nLow),
     m_nHigh (am_nHigh),
     m_vSpecs (am_vSpecs),
@@ -379,7 +402,7 @@ class CGammaCut : public CCut
       return m_nHigh;
     }
 
-  virtual vector<string> getSpecs() const
+  virtual STD(vector)<STD(string)> getSpecs() const
     {
       return m_vSpecs;
     }
@@ -396,7 +419,7 @@ class CGammaCut : public CCut
       m_nHigh = am_nHigh;
     }
 
-  void setm_vSpecs (vector<string> am_vSpecs)
+  void setm_vSpecs (STD(vector)<STD(string)> am_vSpecs)
     {
       m_vSpecs = am_vSpecs;
     }
@@ -405,9 +428,9 @@ class CGammaCut : public CCut
 
   virtual Bool_t operator() (CEvent& rEvent) { return kfTRUE; }
   virtual CGate* clone ();
-  virtual std::string GetConstituent (CConstituentIterator& rIterator);
-  virtual std::string Type () const;
-  virtual Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Param);
+  virtual STD(string) GetConstituent (CConstituentIterator& rIterator);
+  virtual STD(string) Type () const;
+  virtual Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Param);
 };
 
 #endif

@@ -276,7 +276,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 //  CSpectrumFactory.cpp
@@ -305,6 +305,19 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 5.2  2005/06/03 15:19:24  ron-fox
+    Part of breaking off /merging branch to start 3.1 development
+
+    Revision 5.1.2.2  2005/05/11 16:54:54  thoagland
+    Add Support for Stripchart Spectra
+
+
+    2005/05/05 Tim Hoagland
+    Added Support for StripChart Spectra
+
+    Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
+    Port to gcc 3.x compilers.
+
     Revision 5.1  2004/11/29 16:56:09  ron-fox
     Begin port to 3.x compilers calling this 3.0
 
@@ -323,7 +336,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Header Files:
 //
 
-
+#include <config.h>
 #include "SpectrumFactory.h"
 #include "SpectrumFactoryException.h"
 #include "DictionaryException.h"
@@ -340,6 +353,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Gamma1DL.h"
 #include "Gamma2DB.h"
 #include "Gamma2DW.h"
+#include "SpectrumS.h"
 
 #ifdef __USE_MAPPED_SPECTRA_
 #include "MSpectrum1DW.h"
@@ -353,6 +367,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #endif
 #include "Histogrammer.h"
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Assumptions:
 //  There are the following global variables which get me to the 
@@ -446,6 +463,30 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
 	}
       }
       return Create1D(rName, eDataType, p,
+		      rChannels[0], fLow, fHigh);
+    }
+  case keStrip: 
+    {
+    // Need 2 parameter and 1 axis size.
+      Require(eDataType, eSpecType, rName,
+    	      ParameterList, rChannels, 2,1);
+
+      CParameter p = ParameterList[1];
+      CParameter c = ParameterList[0];
+      Float_t fLow, fHigh;
+
+      if(pLows == (vector<Float_t>*) kpNULL) { 
+	fLow = 0.0;
+	fHigh= DefaultAxisLength(rChannels[0], p);
+      } else {
+	fLow = (*pLows)[0];
+	fHigh= (*pHighs)[0];
+	if(fLow == fHigh) {
+	  fLow = 0.0;		// No length means default scaling.
+	  fHigh= DefaultAxisLength(rChannels[0], p);
+	}
+      }
+      return CreateStrip(rName, eDataType, p, c,
 		      rChannels[0], fLow, fHigh);
     }
   case ke2D:
@@ -701,6 +742,90 @@ CSpectrumFactory::Create1D(const std::string& rName, DataType_t eType,
 
   }
 }
+
+/*!
+   Called to create a StripChart spectrum with default axis mapping (that
+   is identity transformation between parameter and axis coordinates.
+
+   \param <tt> rName (const string& [in]) </tt>
+      The name of the spectrum.
+   \param <tt> eType (DataType_t [in]) </tt>
+      The data type for the channels in the spectrum.
+   \param <tt> Param (CParameter [in]) </tt>
+      The parameter that is the value to add to channel
+   \param <tt> Param (CParameter [in]) </tt>
+      The parameter that carries the time channel
+   \param <tt> nChannels (UInt_t [in]) </tt>
+      The number of channels on the X axis.
+
+\retval CSpectrum* 
+     A pointer to the newly created spectrum. 
+
+\throw CSpectrumFactorException on error.
+*/
+
+CSpectrum*
+CSpectrumFactory::CreateStrip(const std::string& rName, 
+			   DataType_t Type,
+			   CParameter Param,
+			   CParameter Time,
+			   UInt_t     nChannels)
+{
+  // This function will convert to a call to the fully specified
+  // Create1D:
+
+  return CreateStrip(rName, Type, Param, Time, nChannels,
+		  0.0, (Float_t) (nChannels - 1));
+}
+
+
+/*!
+    Called to create a 1-d spectrum with arbitrary mapping from
+    parameter space to axis coordinates.  The mapping is specified
+    by a linear map that places fxLow on channel 0 and fxHigh
+    on channel nChannels-1
+
+   \param <tt> rName (const string& [in]) </tt>
+      The name of the spectrum.
+   \param <tt> eType (DataType_t [in]) </tt>
+      The data type for the channels in the spectrum.
+   \param <tt> Param (CParameter [in]) </tt>
+      The parameter that is the value to add to channel
+   \param <tt> Param (CParameter [in]) </tt>
+      The parameter that carries the time channel
+   \param <tt> nChannels (UInt_t [in]) </tt>
+      The number of channels on the X axis.
+   \param <tt> fxLow (Float_t [in]): </tt>
+      The parameter value that maps to axis channel 0.
+   \param <tt> fxHigh (Float_t [in]): </tt>
+      The parameter value tha maps to axis channel (nChannels -1).
+
+\retval CSpectrum* 
+     A pointer to the newly created spectrum. 
+
+\throw CSpectrumFactorException on error.
+*/
+CSpectrum* 
+CSpectrumFactory::CreateStrip(const std::string& rName, DataType_t eType, 
+			   CParameter rParameter, CParameter time,
+			   UInt_t  nChannels, Float_t fxLow, Float_t fxHigh) 
+{
+
+
+  switch(eType) {
+  case keLong:
+    return new CSpectrumS(rName, NextId(), rParameter, time,  nChannels,
+			    fxLow, fxHigh);
+  default:			// Only long spectra are supported.
+    throw CSpectrumFactoryException(eType, ke1D, rName,
+				    CSpectrumFactoryException::keBadDataType,
+				    "Creating 1d spectrum");
+				    
+
+  }
+}
+
+
 /*!
   Creates a 2d spectrum with identity mapping between the parameters
   on the axes and the axis coordinates themselves. For arbitrary 

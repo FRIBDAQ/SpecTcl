@@ -7,6 +7,7 @@ static const char* Copyright =
   "GatedEventFilter.cpp: Copyright 2002 NSCL, All rights reserved\n";
 
 // Header Files.
+#include <config.h>
 #include <vector>
 
 #include "Histogrammer.h"
@@ -15,6 +16,10 @@ static const char* Copyright =
 #include "EventList.h"
 
 #include "GatedEventFilter.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions.
 // Constructors.

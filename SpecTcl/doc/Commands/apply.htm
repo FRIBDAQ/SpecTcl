@@ -20,7 +20,7 @@
 </table>
 <h2><a name="top">Syntax</a></h2>
 <pre><a href="#applygate">apply <i>GateName Spectrum1 [Spectrum2 ...]</i></a><i>
-</i><a href="listapplications">apply<i> -list [Spectrum1 ...]</i></a></pre>
+</i><a href="listapplications">apply<i> -list [pattern]</i></a></pre>
 <h2>Synopsis</h2>
 <p>Applies a gate to a set of spectrum or lists the gates applied to a spectrum.</p>
 <h2>Detailed Description</h2>
@@ -43,8 +43,8 @@ as well as allowing you to list the conditions applied to various histograms.</p
 <h3><a name="applygate"></a>apply <i>GateName</i> <i>Spectrum1 [Spectrum2...]</i></h3>
 <p>Applies the named gate to the spectra described by the list. </p>
 <p><a href="#Top">Top</a></p>
-<h3><a name="listapplications"></a>apply -list <i>[spectrum ...]</i></h3>
-<p>For each spectrum in the command line tail, describes that spectrum's
+<h3><a name="listapplications"></a>apply -list <i>[pattern]</i></h3>
+<p>For each spectrum whose name matches the pattern, describes that spectrum's
 increment condition. If no spectra are supplied, the gates applied on all
 spectra are listed.&nbsp; The format of the output from this command is a Tcl
 list.&nbsp;&nbsp; Each element of the list contains:</p>

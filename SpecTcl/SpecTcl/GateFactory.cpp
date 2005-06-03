@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS 
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -299,6 +299,28 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
    $Log$
+   Revision 5.2  2005/06/03 15:19:26  ron-fox
+   Part of breaking off /merging branch to start 3.1 development
+
+   Revision 5.1.2.5  2005/05/27 17:47:38  ron-fox
+   Re-do of Gamma gates also merged with Tim's prior changes with respect to
+   glob patterns.  Gamma gates:
+   - Now have true/false values and can therefore be applied to spectra or
+     take part in compound gates.
+   - Folds are added (fold command); and these perform the prior function
+       of gamma gates.
+
+   Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+   Add SpecTcl Application programming interface and make use of it
+   in spots.
+
+   Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
+   - Port to gcc/g++ 3.x
+   - Recast swrite/sread in terms of tcl[io]stream rather than
+     the kludgy thing I had done of decoding the channel fd.
+     This is both necessary due to g++ 3.x's runtime and
+     nicer too!.
+
    Revision 5.1  2004/11/29 16:56:10  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -310,7 +332,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
    To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
 
 */
-
+#include <config.h>
 #include "GateFactory.h"    				
 #include "GateFactoryException.h"
 
@@ -325,9 +347,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <C2Bands.h>
 #include <Cut.h>
 #include <Not.h>
-#include <GammaCut.h>
-#include <GammaBand.h>
-#include <GammaContour.h>
+#include <CGammaCut.h>
+#include <CGammaBand.h>
+#include <CGammaContour.h>
 
 #include <histotypes.h>
 #include <Parameter.h>
@@ -337,6 +359,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <assert.h>
 #include <list>
 #include <algorithm>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 static char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved GateFactory.cpp \n";
@@ -349,6 +376,10 @@ static inline Float_t max(Float_t i, Float_t j) {
 static inline Float_t  min(Float_t i, Float_t j) {
   return (i < j) ? i : j ;
 }
+
+/// Static storage:
+
+UInt_t CGateFactory::m_nGateId(0);
 
 /////////////////////////////////////////////////////////////////////////////////
 //  Function:       CreateGate(GateType nGateType, 
@@ -513,8 +544,8 @@ CGateFactory::CreateGate(GateType eType,
           parameters.
    \param <TT>rPoints (const vector<FPoint>& [in]):</TT>
        The set of points that define the contour. 
-   \param <TT>rSpectrum (const vector<string>& [in]):</TT>
-       The set of spectra on which this gate should be displayed.
+   \param <TT>rParameters (const vector<UInt_t>& [in]):</TT>
+       The set of parameters on which this gate should be displayed.
 
    \para Returns:
    \retval CGate*
@@ -529,7 +560,7 @@ CGateFactory::CreateGate(GateType eType,
 CGate* 
 CGateFactory::CreateGate(GateType eType,
 			 const vector<FPoint>& rPoints,
-			 const vector<string>& rSpectrum) {
+			 const vector<UInt_t>& rParameters) {
   switch(eType) {
   case gammacut:
     if(rPoints.size() != 2) {
@@ -538,11 +569,11 @@ CGateFactory::CreateGate(GateType eType,
 				  "Creating gamma cut in CreateGate");
     }
     return CreateGammaCut(min(rPoints[0].X(), rPoints[1].X()), 
-			  max(rPoints[0].X(), rPoints[1].X()), rSpectrum);
+			  max(rPoints[0].X(), rPoints[1].X()), rParameters);
   case gammaband:
-    return CreateGammaBand(rPoints, rSpectrum);
+    return CreateGammaBand(rPoints, rParameters);
   case gammacontour:
-    return CreateGammaContour(rPoints, rSpectrum);
+    return CreateGammaContour(rPoints, rParameters);
   default:
     throw CGateFactoryException(CGateFactoryException::WrongConstructor,
 				eType,
@@ -672,50 +703,33 @@ CGateFactory::CreateContour(const vector<string>& rParameters,
 
 CGammaCut*
 CGateFactory::CreateGammaCut(Float_t nLow, Float_t nHigh, 
-			     const vector<string>& rSpectrum)
+			     const vector<UInt_t>& rParameters)
 {
-  // Need to validate the gate by getting it's descriptor (throws otherwise).
-
-  for(int i=0; i < rSpectrum.size(); i++) {
-    NameToSpec(rSpectrum[i], gammacut, "Creating a gamma slice");
-  }
   
   // Create the cut:
   
-  if(rSpectrum.size() > 0) {
-    return new CGammaCut(nLow, nHigh, rSpectrum);
-  }
-  else
-    return new CGammaCut(nLow, nHigh);
+  return new CGammaCut(nLow, nHigh, rParameters);
 }
 
 CGammaBand*
 CGateFactory::CreateGammaBand(const vector<FPoint>& rPoints,
-			      const vector<string>& rSpectrum)
+			      const vector<UInt_t>& rParameters)
 {
   if(rPoints.size() < 2) {	// At least 2 points make a band.
     throw CGateFactoryException(CGateFactoryException::WrongPointCount,
 				gammaband,
 				"Creating gammaband in CreateGammaBand");
   }
-  // The spectra must exist:
+
+
   
-  for(UInt_t i = 0; i < rSpectrum.size(); i++) {
-    NameToSpec(rSpectrum[i], gammaband, "Translating spectrum");
-  }
+  return new CGammaBand(rPoints, rParameters);
 
-
-
-  if(rSpectrum.size() > 0) {
-    return new CGammaBand(rPoints, rSpectrum);
-  }
-  else
-    return new CGammaBand(rPoints);
 }
 
 CGammaContour*
 CGateFactory::CreateGammaContour(const vector<FPoint>& rPoints,
-				 const vector<string>& rSpectrum)
+				 const vector<UInt_t>& rParameters)
 {
   if(rPoints.size() < 3) {	// At least 3 points make a closed contour.
     throw CGateFactoryException(CGateFactoryException::WrongPointCount,
@@ -723,18 +737,7 @@ CGateFactory::CreateGammaContour(const vector<FPoint>& rPoints,
 				"Creating gammacontour in CreateGammaContour");
   }
 
-  // The spectra must exist:
-
-  for(UInt_t i = 0; i < rSpectrum.size(); i++) {
-    NameToSpec(rSpectrum[i], gammacontour, "Translating spectrum");
-  }
-  
-  if(rSpectrum.size() > 0) {
-    
-    return new CGammaContour(rPoints, rSpectrum);
-  }
-  else
-    return new CGammaContour(rPoints);
+  return new CGammaContour(rPoints, rParameters);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1004,4 +1007,12 @@ CGateFactory::CreateGateList(list<CGateContainer*>& Gates,
   for(UInt_t i = 0; i < rNames.size(); i++) {
     Gates.push_back(&NameToGate(rNames[i], eType, pWhich));
   }
+}
+/*!
+   Assign a unique gate id.
+*/
+UInt_t
+CGateFactory::AssignId()
+{
+  return m_nGateId++;
 }

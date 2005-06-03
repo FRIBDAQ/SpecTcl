@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTCLInterpreter.h:
 //
@@ -298,11 +298,23 @@ DAMAGES.
 /* 
    Change Log:
    $Log$
+   Revision 5.2  2005/06/03 15:19:30  ron-fox
+   Part of breaking off /merging branch to start 3.1 development
+
+   Revision 5.1.2.1  2004/12/21 17:51:27  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:56:14  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
    Revision 4.4  2003/03/25 12:00:45  ron-fox
    Added Change log comment generated from the CVS $Log$
+   Added Change log comment generated from the CVS Revision 5.2  2005/06/03 15:19:30  ron-fox
+   Added Change log comment generated from the CVS Part of breaking off /merging branch to start 3.1 development
+   Added Change log comment generated from the CVS
+   Added Change log comment generated from the CVS Revision 5.1.2.1  2004/12/21 17:51:27  ron-fox
+   Added Change log comment generated from the CVS Port to gcc 3.x compilers.
+   Added Change log comment generated from the CVS
    Added Change log comment generated from the CVS Revision 5.1  2004/11/29 16:56:14  ron-fox
    Added Change log comment generated from the CVS Begin port to 3.x compilers calling this 3.0
    Added Change log comment generated from the CVS tag.
@@ -317,14 +329,21 @@ DAMAGES.
 #define __TCL_H
 #endif          
 
+
+
+
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __TCLSTRING_H
@@ -389,58 +408,58 @@ protected:
 public:                       
   // Evaluate script from a string:
 
-  std::string Eval (const char* pScript) ;
-  std::string Eval(const CTCLString& rScript)  {
+  STD(string) Eval (const char* pScript) ;
+  STD(string) Eval(const CTCLString& rScript)  {
     return Eval((const char*)rScript);
   }
-  std::string Eval(const std::string& rScript)  {
+  STD(string) Eval(const STD(string)& rScript)  {
     return Eval(rScript.c_str()); 
   }
   //
   // Evaluate a scripts tored in a file.
   //
-  std::string EvalFile (const char* pFilename)   ;
-  std::string EvalFile(const CTCLString& rFilename)  {
+  STD(string) EvalFile (const char* pFilename)   ;
+  STD(string) EvalFile(const CTCLString& rFilename)  {
     return EvalFile((const char*)(rFilename));
   }
-  std::string EvalFile(const std::string& rFilename)  {
+  STD(string) EvalFile(const STD(string)& rFilename)  {
     return EvalFile(rFilename.c_str());
   }
   //  Evaluate a script at the global level (stack empty context).
   //
-  std::string GlobalEval (const char* pScript)   ;
-  std::string GlobalEval (const CTCLString& rScript)  {
+  STD(string) GlobalEval (const char* pScript)   ;
+  STD(string) GlobalEval (const CTCLString& rScript)  {
     return GlobalEval((const char*)rScript);
   }
-  std::string GlobalEval(const std::string& rScript)  {
+  STD(string) GlobalEval(const STD(string)& rScript)  {
     return GlobalEval(rScript.c_str());
   }
   // Evaluate a script and store it it's commands in the 
   // history list for later retrieval
   //
-  std::string RecordAndEval (const char* pScript, Bool_t fEval=kfFALSE);
-  std::string RecordAndEval(const CTCLString& rScript, 
+  STD(string) RecordAndEval (const char* pScript, Bool_t fEval=kfFALSE);
+  STD(string) RecordAndEval(const CTCLString& rScript, 
 			    Bool_t fEval=kfFALSE)  {
     return RecordAndEval((const char*)(rScript), fEval);
   }
-  std::string RecordAndEval(const std::string& rScript,
+  STD(string) RecordAndEval(const STD(string)& rScript,
 			    Bool_t fEval = kfFALSE)  {
     return RecordAndEval(rScript.c_str(), fEval);
   }
   //
   // Evaluate and expression with a string result:
   //
-  std::string ExprString (const char* pExpression)   ;
-  std::string ExprString(const CTCLString& rExpr)  {
+  STD(string) ExprString (const char* pExpression)   ;
+  STD(string) ExprString(const CTCLString& rExpr)  {
     return ExprString((const char*)(rExpr));
   }
-  std::string ExprString(const std::string& rExpr)  {
+  STD(string) ExprString(const STD(string)& rExpr)  {
     return ExprString(rExpr.c_str());
   }
   //  Evaluate string 
   //
   Long_t ExprLong (const char* pExpression)   ;
-  Long_t ExprLong (std::string& rExpression) {
+  Long_t ExprLong (STD(string)& rExpression) {
     return ExprLong(rExpression.c_str());
   }
   Long_t ExprLong (const CTCLString& rExpr)  {
@@ -452,7 +471,7 @@ public:
   DFloat_t ExprDouble (const CTCLString& rExpression)  {
     return ExprDouble ((const char*)(rExpression));
   }
-  DFloat_t ExprDouble(const std::string& rExpression)  {
+  DFloat_t ExprDouble(const STD(string)& rExpression)  {
     return ExprDouble(rExpression.c_str());
   }
   // Evaluate a boolean:
@@ -461,24 +480,24 @@ public:
   Bool_t ExprBoolean (const CTCLString& rExpression)  {
     return ExprBoolean((const char*)(rExpression));
   }
-  Bool_t ExprBoolean(const std::string& rExpression)  {
+  Bool_t ExprBoolean(const STD(string)& rExpression)  {
     return ExprBoolean(rExpression.c_str());
   }
   // Substitute for tilde in some filename.
   // 
-  std::string TildeSubst (const char* pFilename) const  ;
-  std::string TildeSubst (const CTCLString& rName) const {
+  STD(string) TildeSubst (const char* pFilename) const  ;
+  STD(string) TildeSubst (const CTCLString& rName) const {
     return TildeSubst((const char*)(rName));
   }
-  std::string TildeSubst (const std::string& rName) const {
+  STD(string) TildeSubst (const STD(string)& rName) const {
     return TildeSubst(rName.c_str());
   }
   
-  std::string PosixError () const  ;
-  static  std::string ErrnoId ()   ;
-  static  std::string SignalId (UInt_t nSignal)   ;
-  static  std::string SignalMsg (UInt_t nSignal)   ;
-  void DetachProcess (const std::vector<UInt_t>& rPids) const  ;
+  STD(string) PosixError () const  ;
+  static  STD(string) ErrnoId ()   ;
+  static  STD(string) SignalId (UInt_t nSignal)   ;
+  static  STD(string) SignalMsg (UInt_t nSignal)   ;
+  void DetachProcess (const STD(vector)<UInt_t>& rPids) const  ;
   void DetachProcess(UInt_t nPids, Int_t* pPids) const {
     Tcl_DetachPids(nPids, (Tcl_Pid*)pPids);
   }
@@ -490,7 +509,7 @@ public:
 		   ClientData pData, 
 		   Tcl_CmdDeleteProc* pDeleteProcessor=
 		                       (Tcl_CmdDeleteProc*)kpNULL) const  ;
-  void AddCommand(const std::string& rCommandName,
+  void AddCommand(const STD(string)& rCommandName,
 		  Tcl_CmdProc* pCommandProcessor,
 		  ClientData pData,
 		  Tcl_CmdDeleteProc* pDeleteProcessor = 
@@ -507,13 +526,20 @@ public:
 	       pData, pDeleteProcessor);
   }
   void UnregisterCommand (const char* pCommandName) const  ;
-  void UnregisterCommand (const std::string& rCommandName) const {
+  void UnregisterCommand (const STD(string)& rCommandName) const {
     UnregisterCommand(rCommandName.c_str());
   }
   void UnregisterCommand (const CTCLString& rCommandName) const {
     UnregisterCommand((const char*)(rCommandName));
   }
-  std::string GetResultString () const  ;
+  STD(string) GetResultString () const  ;
+
+  // Access to Tcl Channels inquiry:
+  //
+  Tcl_Channel GetChannel(const STD(string)& rName, Int_t* pMode=(Int_t*)kpNULL);
+  STD(vector)<STD(string)> GetChannelNames(const STD(string)& rPattern);
+
+
   //
   // These two support access to the interpreter:
   //
@@ -526,5 +552,7 @@ public:
     return m_pInterpreter; 
   }
 };
+
+
 
 #endif

@@ -276,7 +276,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 /*! 
@@ -287,6 +287,12 @@ DAMAGES.
 
  Change Log:
  $Log$
+ Revision 5.2  2005/06/03 15:19:23  ron-fox
+ Part of breaking off /merging branch to start 3.1 development
+
+ Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
+ Port to gcc 3.x compilers.
+
  Revision 5.1  2004/11/29 16:56:07  ron-fox
  Begin port to 3.x compilers calling this 3.0
 
@@ -306,7 +312,22 @@ DAMAGES.
 #ifndef __SPECTRUM_H
 #include "Spectrum.h"
 #endif
-                               
+    
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
+
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif 
+#endif
+                        
                                                                
 class CSnapshotSpectrum  : public CSpectrum        
 {                       
@@ -371,15 +392,15 @@ public:
   virtual   UInt_t Dimensionality ()  const;
   virtual   Float_t GetLow(UInt_t nDimension) const;
   virtual   Float_t GetHigh(UInt_t nDimension) const;
-  virtual   string  GetUnits(UInt_t nDimension) const;
+  virtual   STD(string)  GetUnits(UInt_t nDimension) const;
   virtual   ULong_t operator[] (const UInt_t* pIndices)  const;
   virtual   Size_t StorageNeeded () const;
   virtual   void Increment (const CEvent& rEvent) ;
   virtual   SpectrumType_t getSpectrumType() ;
   virtual   Bool_t UsesParameter(UInt_t nId) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
-  virtual   void GetParameterIds(vector<UInt_t>& rvIds);
-  virtual   void GetResolutions(vector<UInt_t>&  rvResolutions);
+  virtual   void GetParameterIds(STD(vector)<UInt_t>& rvIds);
+  virtual   void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
   virtual   SpectrumDefinition& GetDefinition();
 
   Bool_t    SetOwnership(Bool_t fNewOwnership) {

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CBand.h:
 //
@@ -293,6 +293,12 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.2  2005/06/03 15:19:20  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
+  Revision 5.1.2.1  2004/12/21 17:51:21  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:02  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -313,21 +319,31 @@ DAMAGES.
 #include "Point.h"
 #endif
 
+
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
+#endif
+
+#ifndef __STL__STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL__STRING
+#endif
 #endif
 
 class CGammaBand : public CBand
 {
-  vector<string> m_vSpecs;  // vector of spectrum Ids to display gate on
+  STD(vector)<STD(string)> m_vSpecs;  // STD(vector) of spectrum Ids to display gate on
 
  public:
 
   //! Default Constructor
-  CGammaBand (const vector<FPoint>& rPoints);
-  CGammaBand (const vector<FPoint>& rPoints, 
-	      const vector<string> rSpecs);
+  CGammaBand (const STD(vector)<FPoint>& rPoints);
+  CGammaBand (const STD(vector)<FPoint>& rPoints, 
+	      const STD(vector)<STD(string)> rSpecs);
 
   CGammaBand (UInt_t nPts, FPoint* pPoints);
   CGammaBand (UInt_t nPts, Float_t* pX, Float_t* pY);
@@ -356,14 +372,14 @@ class CGammaBand : public CBand
 
  public:  // Get accessor functions
 
-  virtual vector<string> getSpecs() const
+  virtual STD(vector)<STD(string)> getSpecs() const
     {
       return m_vSpecs;
     }
 
  protected:  // Set mutator functions
   
-  void setm_vSpecs (vector<string>& rSpecs) 
+  void setm_vSpecs (STD(vector)<STD(string)>& rSpecs) 
     {
       m_vSpecs = rSpecs;
     }
@@ -372,8 +388,8 @@ class CGammaBand : public CBand
 
   virtual Bool_t operator() (CEvent& rEvent) { return kfTRUE; }
   virtual CGate* clone ();
-  virtual std::string Type () const;
-  virtual Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params);
+  virtual STD(string) Type () const;
+  virtual Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
 };
 
 #endif

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTCLProcessor.h:
 //
@@ -292,6 +292,10 @@ DAMAGES.
 
 #ifndef __TCLPROCESSOR_H  //Required for current class
 #define __TCLPROCESSOR_H
+
+#ifndef __TCLVERSIONHACKS_H
+#include "TCLVersionHacks.h"
+#endif
                                //Required for base classes
 #ifndef __TCLINTERPRETEROBJECT_H
 #include "TCLInterpreterObject.h"
@@ -307,28 +311,32 @@ DAMAGES.
   
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
 #endif
+#endif
                              
-typedef vector<CTCLInterpreter*> TCLInterpreterList;
+typedef STD(vector)<CTCLInterpreter*> TCLInterpreterList;
 typedef TCLInterpreterList::iterator TCLInterpreterIterator;
 
 class CTCLProcessor  : public CTCLInterpreterObject        
 {
 
-  std::string m_sCommandName;                     // Name of the command.
+  STD(string) m_sCommandName;                     // Name of the command.
   TCLInterpreterList m_vRegisteredOn;  // Set of interpreters 
 				                  // we've been registered to.
 public:
   
   //Constructors with arguments
 
-  CTCLProcessor(const std::string& sCommand, CTCLInterpreter* pInterp);
+  CTCLProcessor(const STD(string)& sCommand, CTCLInterpreter* pInterp);
   CTCLProcessor(const char* pCommand, CTCLInterpreter* pInterp);
 
   ~ CTCLProcessor ( ) {
@@ -357,7 +365,7 @@ public:
   }                             
   // Selectors:
 
-  std::string getCommandName() const
+  STD(string) getCommandName() const
   {
     return m_sCommandName;
   }
@@ -370,10 +378,10 @@ public:
   // Mutators:
 protected:
 
-  void setCommandName (const std::string& am_sCommandName)
+  void setCommandName (const STD(string)& am_sCommandName)
   { m_sCommandName = am_sCommandName;
   }
-  void setRegisteredOn (const std::vector<CTCLInterpreter*>& am_vRegisteredOn)
+  void setRegisteredOn (const STD(vector)<CTCLInterpreter*>& am_vRegisteredOn)
   { m_vRegisteredOn = am_vRegisteredOn;
   }
   // Operations and overrides:
@@ -385,31 +393,27 @@ public:
 			    int nArguments, 
 			    char* pArguments[])   = 0;
   
-  static  std::string ConcatenateParameters (int nArguments, 
+  static  STD(string) ConcatenateParameters (int nArguments, 
 					      char* pArguments[])  ;
   static  int EvalRelay (ClientData pData,
 			 Tcl_Interp* pInterp, 
 			 int Argc, 
-#if (TCL_MAJOR_VERSION > 8) || ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
-			 const char *Argv[])  ;
-#else
-                         char *Argv[]);
-#endif
+			 tclConstCharPtr Argv[]);
   virtual   void OnDelete ( )  ;
   static void DeleteRelay (ClientData pObject)   ;
 
   int ParseInt (const char* pString, int* pInteger)  ;
-  int ParseInt (const std::string& rString, int* pInteger) {
+  int ParseInt (const STD(string)& rString, int* pInteger) {
     return ParseInt(rString.c_str(), pInteger);
   }
 
   int ParseDouble (const char* pString, double* pDouble)  ;
-  int ParseDouble (const std::string& rString, double* pDouble) {
+  int ParseDouble (const STD(string)& rString, double* pDouble) {
     return ParseDouble(rString.c_str(), pDouble);
   }
 
   int ParseBoolean (const char* pString, Bool_t* pBoolean)  ;
-  int ParseBoolean (const std::string& rString, Bool_t* pBoolean) {
+  int ParseBoolean (const STD(string)& rString, Bool_t* pBoolean) {
     return ParseBoolean(rString.c_str(), pBoolean);
   }
 
@@ -417,8 +421,8 @@ public:
   int Unregister ()  ;
   void UnregisterAll ()  ;
 
-  static int MatchKeyword(vector<string>& MatchTable, 
-			  const string& rValue, 
+  static int MatchKeyword(STD(vector)<STD(string)>& MatchTable, 
+			  const STD(string)& rValue, 
 			  int NoMatch = -1);
 			  
 			  // Utilities available for derived classes.

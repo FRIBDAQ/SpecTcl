@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 //  CSpectrumCommand.cpp
@@ -306,6 +306,25 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
+// Revision 5.2  2005/06/03 15:19:28  ron-fox
+// Part of breaking off /merging branch to start 3.1 development
+//
+// Revision 5.1.2.4  2005/05/27 11:07:30  thoagland
+// Added support for pseudo, parameter, clear, apply, and bind to take an optional pattern for the -list switch.
+//
+// Revision 5.1.2.3  2005/05/24 11:36:48  thoagland
+// Added support for spectrum -list [-byid] [pattern]
+//
+// Revision 5.1.2.2  2005/05/11 16:56:07  thoagland
+// dded Support for StripChart Spectra
+//
+// Revision 5.1.2.1  2004/12/15 17:24:06  ron-fox
+// - Port to gcc/g++ 3.x
+// - Recast swrite/sread in terms of tcl[io]stream rather than
+//   the kludgy thing I had done of decoding the channel fd.
+//   This is both necessary due to g++ 3.x's runtime and
+//   nicer too!.
+//
 // Revision 5.1  2004/11/29 16:56:12  ron-fox
 // Begin port to 3.x compilers calling this 3.0
 //
@@ -350,6 +369,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <RangeError.h>
 #include <Exception.h>
 
+
 #include <tcl.h>
 #include <string.h>
 
@@ -362,6 +382,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <algorithm>
 #include <vector>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 static const int MAXRESBITS(32); // Maximum resolution value.
 
@@ -727,7 +752,7 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   if(nArgs == 0) {		// List with sort by name.
     std::vector<std::string> vDescriptions;
-    rPack.ListSpectra(vDescriptions);
+    rPack.ListSpectra(vDescriptions,"*");
     SortSpectraByName(vDescriptions);
     VectorToResult(rResult, vDescriptions);
     return TCL_OK;
@@ -739,7 +764,8 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // 
   std::vector<std::string> vDescriptions;
   Int_t nId;
- 
+  const char* pattern;
+
   switch(MatchSwitch(pArgs[0])) {
   case keId:			// List 1 spectrum given ident.
     nArgs--;
@@ -753,18 +779,35 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return rPack.ListSpectrum(rResult, nId);
 
   case keById:			// List all spectra sorted by ident.
-    if(nArgs > 1) {		// Too many command parameters...
+    if(nArgs > 2) {		// Too many command parameters...
       rResult = "Too many command line parameters\n";
       Usage(rResult);
       return TCL_ERROR;
     }
-    rPack.ListSpectra(vDescriptions);
+    if(nArgs > 1) {
+      pattern = pArgs[1];
+    } else {
+      pattern = "*";
+    }
+    rPack.ListSpectra(vDescriptions, pattern);
     SortSpectraById(vDescriptions);
     VectorToResult(rResult, vDescriptions);
     return TCL_OK;
 
-  case keNotSwitch:		// List one spectrum given the name.
-    return rPack.ListSpectrum(rResult, pArgs[0]);
+  case keNotSwitch:		// List 
+    if(nArgs > 1)
+      {
+	rResult = "Too many command line parameters or wrong parameters\n";
+	Usage(rResult);
+	return TCL_ERROR;
+      }
+    else
+      {
+	pattern = pArgs[0];
+	rPack.ListSpectra(vDescriptions, pattern);
+	VectorToResult(rResult, vDescriptions);
+	return TCL_OK;
+      }
 
   default:			// Invalid switch in context.
     Usage(rResult);
@@ -863,7 +906,7 @@ CSpectrumCommand::Usage(CTCLResult& rResult)
 
   rResult += "Usage: \n";
   rResult += "  spectrum [-new] name type { parameters... } {axisdefs... [datatype]y\n";
-  rResult += "  spectrum -list [-byid]\n";
+  rResult += "  spectrum -list [-byid] [pattern]\n";
   rResult += "  spectrum -list name\n";
   rResult += "  spectrum -list -id id\n";
   rResult += "  spectrum -delete name1 [name2...]\n";

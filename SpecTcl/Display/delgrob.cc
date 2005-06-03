@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -295,6 +295,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+#include <config.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -314,7 +315,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** External references:
 */
-char *upcase(char *s);
+extern char *upcase(char *s);
 
 /*
 ** Below we define the help text for the dialog:
@@ -382,12 +383,15 @@ static int SetObjectList(XMSelectionDialog *d, int specid)
   }
 
   grobj_name    aname;
-  char          *names[GROBJ_MAXOBJECTS];
-  grobj_generic *objects[GROBJ_MAXOBJECTS];
-  assert(sizeof(names) == (GROBJ_MAXOBJECTS * sizeof(char *)));
-  assert(sizeof(objects) == (GROBJ_MAXOBJECTS * sizeof(grobj_generic *)));
+  // char          *names[GROBJ_MAXOBJECTS];
+
+  char** names = new char*[nobject];
+  // grobj_generic *objects[GROBJ_MAXOBJECTS];
+
+  grobj_generic** objects = new grobj_generic*[nobject];
+
   Xamine_GetSpectrumObjects(specid,
-			    objects, GROBJ_MAXOBJECTS,
+			    objects, nobject,
 			    True);
 
   int i;
@@ -409,6 +413,9 @@ static int SetObjectList(XMSelectionDialog *d, int specid)
   for(i = 0; i < nobject; i++) {
     delete [] names[i];
   }
+  delete []names;
+  delete []objects;
+
   return nobject;
 }
 

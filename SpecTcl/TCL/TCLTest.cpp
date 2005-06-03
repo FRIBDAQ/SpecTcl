@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 //
@@ -281,18 +281,23 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 //    Test of the TCL/TK object stuff:
 //
 // 
+
+#include <config.h>
 #include <tk.h>
 
 #include "TCLApplication.h"
 #include "TCLVariable.h"
 #include "TCLProcessor.h"
-#include <iostream.h>
+#include <Iostream.h>
 #include <string>
 
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 extern "C" {
   char* tcl_RcFileName;

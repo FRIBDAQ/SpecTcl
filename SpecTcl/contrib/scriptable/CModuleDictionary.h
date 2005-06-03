@@ -4,12 +4,16 @@
 
 #ifndef __STL_MAP
 #include <map>
+#ifndef __STL_MAP
 #define __STL_MAP
+#endif
 #endif
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 // Forward class definitions:
@@ -25,7 +29,7 @@ class CSegmentUnpacker;
 class CModuleDictionary      
 {
 public:
-    typedef map<string, CSegmentUnpacker*> ModuleMap;
+    typedef STD(map)<STD(string), CSegmentUnpacker*> ModuleMap;
     typedef ModuleMap::iterator       ModuleIterator;
 	
 private:
@@ -56,7 +60,7 @@ public:
 public:
 
     void Add (CSegmentUnpacker* pModule)   ; 
-    ModuleIterator Find (const string& rName)   ; 
+    ModuleIterator Find (const STD(string)& rName)   ; 
     void Delete (ModuleIterator iModule)   ; 
     ModuleIterator begin ()   ; 
     ModuleIterator end ()   ; 

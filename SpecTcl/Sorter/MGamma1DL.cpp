@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 // CGamma1DL.cpp
@@ -292,7 +292,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //  Header files:
 //
-
+#include <config.h>
 #include <stdlib.h>
 #include "MGamma1DL.h"                               
 #include "Parameter.h"
@@ -303,6 +303,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GammaCut.h"
 #include "GammaBand.h"
 #include "GammaContour.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions for class CMGamma1DL
 

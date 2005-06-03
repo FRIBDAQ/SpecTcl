@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
 ** Facility:
@@ -286,7 +286,7 @@ DAMAGES.
 #ifndef _PRINTER_H
 #define _PRINTER_H
 
-#include <fstream.h>
+#include <Fstream.h>
 #include <dispgrob.h>
 
 #include <string>
@@ -294,7 +294,6 @@ DAMAGES.
 #include "XMText.h"
 #include "XMPushbutton.h"
 
-using namespace std;
 
 #define XAMINE_PRINT_DEFAULTS_FILE "Xamine.PrintDefaults"
 
@@ -407,28 +406,28 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
 		 int nFloor, int nCeiling,
 		 int* nXMaxChan, int* nYMaxChan,
 		 int nXRange, int nYRange, int reso,
-		 ofstream& fStr, win_2d* pAttrib);
+		 STD(ofstream)& fStr, win_2d* pAttrib);
 int GrabPoints1d(int nLowLimit, int nHighLimit, int* nMaxChan,
 		 int nHighCnt, int nFloor, int nCeiling, 
-		 win_1d* pAttrib, ofstream& fStr);
+		 win_1d* pAttrib, STD(ofstream)& fStr);
 static char *ConstructPrintFilename();
 
 void Xamine_PrintSpectrum(XMWidget* w, XtPointer user, 
 			  XtPointer call, win_attributed* pAttributes,
-			  string sTitle, int nRows=1, int nCols=1, 
+			  STD(string) sTitle, int nRows=1, int nCols=1, 
 			  int nSpectrumCount=1, int nCurrSpec=1, 
 			  int nPageNum=1, char* cmd_file = (char*) NULL);
 void   Xamine_Print(XMWidget* w, XtPointer user, XtPointer call);
 int    Xamine_getTickInterval(int nRange, int nPixels);
 float  Xamine_getMappedTickInterval(float paramrange, int pixels);
-string Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int floor,
+STD(string) Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int floor,
 				 int ceiling, win_1d* pAttrib, 
 				 grobj_generic* pObj);
-string Xamine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
+STD(string) Xamine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
 				 int nYLowLimit, int nYHighLimit, int reso,
 				 win_2d* pAttrib, grobj_generic* pObj);
-string Xamine_GetSpectrumTitle(int r = -1, int c = -1);
-string Xamine_GetOutputFilename();
+STD(string) Xamine_GetSpectrumTitle(int r = -1, int c = -1);
+STD(string) Xamine_GetOutputFilename();
 int    Xamine_SetDfltPrintOpts(XMWidget* w, XtPointer user, XtPointer call);
 int    Xamine_ReadPrintDefaults();
 int    Xamine_WritePrintDefaults(struct DefaultPrintOptions dflts);

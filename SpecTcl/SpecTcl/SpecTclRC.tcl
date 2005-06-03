@@ -304,4 +304,8 @@ puts -nonewline "Loading TKCon console..."
 source $SpecTclHome/Script/tkcon.tcl
 puts "Done."
 
+puts -nonewline "Starting treeparamgui..."
+source $SpecTclHome/Script/SpecTclGui.tcl
+puts " Done"
+
 tk appname SpecTcl-[exec hostname]-[pid]

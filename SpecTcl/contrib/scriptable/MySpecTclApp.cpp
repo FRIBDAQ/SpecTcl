@@ -1,6 +1,8 @@
 // Class: CMySpecTclApp
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
+
+#include <config.h>
 #include "MySpecTclApp.h"    				
 #include "EventProcessor.h"
 #include "TCLAnalyzer.h"
@@ -9,6 +11,11 @@
 
 #include <Event.h>
 #include <Globals.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 //  Function: 	
 //    void CreateAnalysisPipeline(CAnalyzer& rAnalyzer) 

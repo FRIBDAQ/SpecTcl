@@ -273,12 +273,34 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS'
 */
 
 /* 
    Change log:
    $Log$
+   Revision 5.2  2005/06/03 15:19:26  ron-fox
+   Part of breaking off /merging branch to start 3.1 development
+
+   Revision 5.1.2.6  2005/05/27 17:47:38  ron-fox
+   Re-do of Gamma gates also merged with Tim's prior changes with respect to
+   glob patterns.  Gamma gates:
+   - Now have true/false values and can therefore be applied to spectra or
+     take part in compound gates.
+   - Folds are added (fold command); and these perform the prior function
+       of gamma gates.
+
+   Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+   Add SpecTcl Application programming interface and make use of it
+   in spots.
+
+   Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
+   - Port to gcc/g++ 3.x
+   - Recast swrite/sread in terms of tcl[io]stream rather than
+     the kludgy thing I had done of decoding the channel fd.
+     This is both necessary due to g++ 3.x's runtime and
+     nicer too!.
+
    Revision 5.1  2004/11/29 16:56:10  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -330,6 +352,29 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.2  2005/06/03 15:19:26  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
+  Revision 5.1.2.6  2005/05/27 17:47:38  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
+
+  Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+  Add SpecTcl Application programming interface and make use of it
+  in spots.
+
+  Revision 5.1.2.1  2004/12/15 17:24:04  ron-fox
+  - Port to gcc/g++ 3.x
+  - Recast swrite/sread in terms of tcl[io]stream rather than
+    the kludgy thing I had done of decoding the channel fd.
+    This is both necessary due to g++ 3.x's runtime and
+    nicer too!.
+
   Revision 5.1  2004/11/29 16:56:10  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -348,10 +393,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 */
 
+#include <config.h>
 #include "GateCommand.h"    				
 #include "GatePackage.h"
 #include "GateFactory.h"
 #include "GateFactoryException.h"
+
 
 #include <Point.h>
 
@@ -359,12 +406,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLString.h>
 #include <TCLResult.h>
 #include <Exception.h>
+#include <SpecTcl.h>
 
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include <vector>
 #include <string>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 static char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved GateCommand.cpp \\n";
@@ -416,7 +468,7 @@ static const  char* pUsage[] = {
   "Usage:\n"
   "     gate [-new] name type { description }\n",
   "     gate -delete [-id] Gate1 [Gate2 ... }\n",
-  "     gate -list [-byid]\n"
+  "     gate -list [-byid] [pattern]\n"
 };
 static const UInt_t nUsageLines = (sizeof(pUsage) / sizeof(char*));
 
@@ -518,7 +570,9 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 		   UInt_t nArgs, char* pArgs[])
 {
 
-  
+
+  SpecTcl& api(*(SpecTcl::getInstance()));
+
   if(nArgs != 3) {		// must be exactly 3 parameters....
     rResult = Usage();
     return TCL_ERROR;
@@ -540,7 +594,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
   CGatePackage& rPackage((CGatePackage&)getMyPackage());
   CGateFactory Factory(rPackage.getHistogrammer());
   vector<FPoint> PointValues;	// filled in below.
-  vector<string> SpecValues;  // Filled in further below
+  vector<string> paramValues;  // Filled in further below
   
 
   GateFactoryTable* pItem = MatchGateType(pType);
@@ -560,7 +614,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       return TCL_ERROR;
     }
     try {
-      pGate = Factory.CreateGate(Item.eGateType,
+      pGate = api.CreateGate(Item.eGateType,
 				 Gates);
     }
     catch(CException& rExcept) {
@@ -631,7 +685,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       }
     }
     try {
-      pGate = Factory.CreateGate(Item.eGateType, Parameters, PointValues);
+      pGate = api.CreateGate(Item.eGateType, Parameters, PointValues);
     }
     catch(CException& rExcept) {
       rResult = Usage();
@@ -639,13 +693,16 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
       return TCL_ERROR;
     }
   }
-  else {        // List is just a point list, possibly followed by spec list
+  else {        // List is just a point list, possibly followed by a now
+                // mandatory spectrum list.
     CTCLList List(&rInterp, pList);
     StringArray Description;
     List.Split(Description);
+    
+    // gamma cuts have a point and parameters.
 
     UInt_t nPoint = 0;
-    if(Item.eGateType == CGateFactory::gammacut) {
+    if(Item.eGateType == CGateFactory::gammacut) { 
       Float_t x1, x2;
       Int_t i = sscanf(Description[nPoint].c_str(), "%f %f", &x1, &x2);
       if(i != 2) {
@@ -663,17 +720,22 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	return TCL_ERROR;
       }
 
-      if(Description.size() == 2) {
-	CTCLList Specs(&rInterp, Description[1]);
-	vector<string> SpecString;
-	Specs.Split(SpecString);
-	for(UInt_t k = 0; k < SpecString.size(); k++) {
-	  SpecValues.push_back(SpecString[k]);
+      if(Description.size() == 2) { // Here are the parameters (used to be spectra).
+	CTCLList params(&rInterp, Description[1]);
+	vector<string> paramString;
+	params.Split(paramString);
+	for(UInt_t k = 0; k < paramString.size(); k++) {
+	  paramValues.push_back(paramString[k]);
 	}
+      }
+      else {
+	rResult = "Gamma gates now require a non-empty parameter list\n";
+	rResult +=Usage();
+	return TCL_ERROR;
       }
     }
     
-    else {     // Otherwise a point is a list containing x,y...
+    else {     // Otherwise a point is a list containing several x/y pairs..
       CTCLList Points(&rInterp, Description[nPoint]);
       vector<string> PointString;
       Points.Split(PointString);
@@ -690,7 +752,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	Float_t x,y;
 	Int_t s1 = sscanf(Coords[0].c_str(), "%f", &x);
 	Int_t s2 = sscanf(Coords[1].c_str(), "%f", &y);
-	if(s1 != 1 || s2 != 1) {
+	if( (s1 != 1) || (s2 != 1) ) {
 	  rResult = Usage();
 	  rResult += "\nInvalid point string in description  ";
 	  rResult += Point.getList();
@@ -700,19 +762,39 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	PointValues.push_back(pt);
       }
       
-      if(Description.size() == 2) { // means there are spectrum listed, too
-	CTCLList Specs(&rInterp, Description[1]);
-	vector<string> SpecString;
-	Specs.Split(SpecString);
-	for(UInt_t k = 0; k < SpecString.size(); k++) {
-	  SpecValues.push_back(SpecString[k]);
+      if(Description.size() == 2) { // means there are parameters
+	CTCLList params(&rInterp, Description[1]);
+	vector<string> paramString;
+	params.Split(paramString);
+	for(UInt_t k = 0; k < paramString.size(); k++) {
+	  paramValues.push_back(paramString[k]);
 	}
+      }
+      else {
+	rResult = "Gamma gates now require a non-empty parameter list\n";
+	rResult += Usage();
+	return TCL_ERROR;
       }
     }
     
     try {
-      pGate = Factory.CreateGate(Item.eGateType, PointValues, 
-				 SpecValues);
+      // Gamma gates require that we convert parameters to parameter ids:
+      //
+      vector<UInt_t> paramIds;
+      for(int i =0; i < paramValues.size(); i++) {
+	CParameter* pParam = api.FindParameter(paramValues[i]);
+	if(!pParam) {
+	  rResult = "Gamma gate creation attempted with nonexisting parameter: ";
+	  rResult += paramValues[i];
+	  rResult += "\n";
+	  rResult += Usage();
+	  return TCL_ERROR;
+	}
+	paramIds.push_back(pParam->getNumber());
+
+      }
+      pGate = api.CreateGate(Item.eGateType, PointValues, 
+				 paramIds);
     }
     catch(CException& rExcept) {
       rResult = Usage();
@@ -756,20 +838,35 @@ Int_t CGateCommand::ListGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //
   CTCLString ResultString;
   CGatePackage& Package((CGatePackage&)getMyPackage());
-
+  const char* pattern;
 
   switch(nArgs) {
   case 0:
-    ResultString = Package.ListGates();
+    pattern = "*";
+    ResultString = Package.ListGates(pattern);
     break;
   case 1:
     if(MatchSwitches(*pArgs) != byid) {
-      rResult = Usage();
-      rResult += "\n The following switch may only be -byid: ";
-      rResult += *pArgs;
-      return TCL_ERROR;
+      pattern = *pArgs;
+      ResultString = Package.ListGates(pattern);
+      break;
     }
-    ResultString = Package.ListGatesById();
+    pattern = "*";
+    ResultString = Package.ListGatesById(pattern);
+    break;
+  case 2:
+    if (MatchSwitches(*pArgs) == byid)
+      {
+	*pArgs++;
+	pattern = *pArgs;
+	ResultString = Package.ListGatesById(pattern);
+      }
+    else 
+      {
+	rResult = Usage();
+	rResult += "\nIncorrect number or wrong order of parameters";
+	return TCL_ERROR;
+      }
     break;
   default:
     rResult = Usage();

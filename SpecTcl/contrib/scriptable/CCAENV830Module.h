@@ -317,7 +317,7 @@ class CCAENV830Module : public CModule
 
 public:
   CCAENV830Module(CTCLInterpreter& rInterp,
-		  const string& rModuleName);
+		  const STD(string)& rModuleName);
   virtual ~CCAENV830Module();
 
   // Illegal canonicals:
@@ -331,7 +331,7 @@ private:
   // minimal class operations.
 
 public:
-  virtual  string getType() const;
+  virtual  STD(string) getType() const;
   virtual   void Setup (CAnalyzer& rAnalyzer, 
 			CHistogrammer& rHistogrammer)   ; // 
   virtual   TranslatorPointer<UShort_t> 

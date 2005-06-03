@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
@@ -285,6 +285,31 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.2  2005/06/03 15:19:28  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
+  Revision 5.1.2.4  2005/05/27 17:47:38  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
+  Revision 5.1.2.3  2005/04/16 20:09:47  ron-fox
+  Add treeparameter initialization.
+
+  Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
+  Add SpecTcl Application programming interface and make use of it
+  in spots.
+
+  Revision 5.1.2.1  2004/12/15 17:24:09  ron-fox
+  - Port to gcc/g++ 3.x
+  - Recast swrite/sread in terms of tcl[io]stream rather than
+    the kludgy thing I had done of decoding the channel fd.
+    This is both necessary due to g++ 3.x's runtime and
+    nicer too!.
+
   Revision 5.1  2004/11/29 16:56:12  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -355,21 +380,29 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "FilterCommand.h"
 #include "EventSinkPipeline.h"
 
+
 #include "TCLAnalyzer.h"
 
 #include "XamineEventHandler.h"
 
+#include "SpecTcl.h"
+
+#include <CTreeParameterCommand.h>
+#include <CTreeVariableCommand.h>
+#include <CTreeParameter.h>
+#include <CTreeVariable.h>
+#include "CFoldCommand.h"
+
 #include <histotypes.h>
 #include <buftypes.h>
 #include <string>
-#include <iostream.h>
+#include <Iostream.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <histotypes.h>
 #include <buftypes.h>
 #include <string>
-#include <iostream.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -382,7 +415,13 @@ void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
 #endif
 
 
+
 #include "TCLAnalyzer.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // File scoped unbound variables:
 static const UInt_t knParameterCount = 256;
@@ -455,10 +494,12 @@ CTclGrammerApp::~CTclGrammerApp() {
      Reference  to the event processor to add to the pipeline
 
 */
-void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor) {
-  // The global pointer is used in case the analyzer build was overridden.
-  assert(gpAnalyzer);
-  ((CTclAnalyzer*)gpAnalyzer)->AddEventProcessor(rEventProcessor);
+void CTclGrammerApp::RegisterEventProcessor(CEventProcessor& rEventProcessor,
+					    const char* name) {
+
+  SpecTcl* api = SpecTcl::getInstance();
+  api->AddEventProcessor(rEventProcessor, name);
+
 }  
 
 //  Function:
@@ -613,7 +654,7 @@ void CTclGrammerApp::CreateHistogrammer() {
   m_pHistogrammer     = new CTCLHistogrammer(gpInterpreter, 
 					     m_nDisplaySize*kn1M);
   gpEventSink = m_pHistogrammer;
-  gpEventSinkPipeline->AddEventSink(*m_pHistogrammer);
+  gpEventSinkPipeline->AddEventSink(*m_pHistogrammer, "::Histogrammer");
 }
 
 //  Function:
@@ -786,6 +827,20 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   pFilterCommand->Register();
   cerr << "Filter command (c) 2003 NSCL written by  Kanayo Orji\n";
 
+  // Create the tree parameter package commands and bind any variables
+  // that have been defined:
+
+
+  CTreeParameterCommand* pTreeParamCommand = new CTreeParameterCommand;
+  CTreeVariableCommand*  pTreeVariableCommand = new CTreeVariableCommand;
+  CTreeVariable::BindVariables(*(getInterpreter()));
+
+  cerr << "Tree parameter/variable  command " << CTreeParameter::TreeParameterVersion;
+  cerr << " (c) Copyright 2005 NSCL written by Daniel Bazin, Ron Fox\n";
+
+  CFoldCommand* pFold = new CFoldCommand(&rInterp);
+
+  cerr << "fold command (c) 2005 NSCL Written by Ron Fox\n";
   cerr.flush();
 }
 
@@ -863,6 +918,8 @@ void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
   new startup scheme as desired.
 */
 int CTclGrammerApp::operator()() {
+
+
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
 
@@ -898,7 +955,10 @@ int CTclGrammerApp::operator()() {
   SetupRunControl();
 
   //  Setup the user's analysis pipeline:
+
+
   CreateAnalysisPipeline(*gpAnalyzer);
+  CTreeParameter::BindParameters();           // Needed by treeparameter.
 
   // Finally the user may have some functional setup scripts they want
   // to run.  By the time these are run, SpecTcl is essentially completely

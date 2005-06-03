@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 // Typically this class should be overridden, but not necessarily.
 //  CTCLCommandPackage.h:
@@ -312,22 +312,26 @@ DAMAGES.
 
 #ifndef __STL_LIST
 #include <list>
+#ifndef __STL_LIST
 #define __STL_LIST
+#endif
 #endif
 
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 
-typedef std::list<CTCLProcessor*>   CommandList;
+typedef STD(list)<CTCLProcessor*>   CommandList;
 typedef CommandList::iterator  CommandListIterator;
 
 class CTCLCommandPackage  : public CTCLInterpreterObject        
 {
-  std::string m_sSignon;    // Package signon message.  
+  STD(string) m_sSignon;    // Package signon message.  
   CommandList m_lCommands;  // List of references to command objects
                             // which implement package.
   
@@ -335,7 +339,7 @@ public:
   // Constructors with parameters:
   //
   CTCLCommandPackage (CTCLInterpreter* pInterp, 
-		      const std::string& rSignon=std::string("Unnamed pkg")) :
+		      const STD(string)& rSignon=STD(string)("Unnamed pkg")) :
     CTCLInterpreterObject(pInterp),
     m_sSignon(rSignon)
   {}
@@ -378,7 +382,7 @@ public:
   // Selectors:
 
 public:
-  std::string getSignon() const
+  STD(string) getSignon() const
   {
     return m_sSignon;
   }
@@ -389,7 +393,7 @@ public:
   // Mutators:
 
 protected:                    
-  void setSignon (std::string am_sSignon)
+  void setSignon (STD(string) am_sSignon)
   { 
     m_sSignon = am_sSignon;
   }

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -317,6 +317,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <string.h>
 #include <errno.h>
 #include <sys/socket.h>
+#include <sys/select.h>		// Posix.
 
 
 
@@ -331,25 +332,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#ifndef O_NONBLOCK
-#define O_NONBLOCK O_NDELAY	/* This is the 'posix' draft name. */
-#endif
 
 #include <Xm/Xm.h>
 #include "messages.h"
 
-extern "C" {
-#ifdef __NEED_OWN_SELECT
-  int select(int width, fd_set *readfds, 
-	     fd_set *writefds, fd_set *exceptfds, 
-	     timeval *timeout);
-#endif
-#ifdef ULTRIX
-  int open(char *path, int flags, int mode);
-  int fcntl(int fd, int request, int arg);
-  void bzero(void *b1, int length);
-#endif
-}
+
 
 /*
 ** The pages below implement the MessageQueue.  On Unix systems this is

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTCLList.h:
 //
@@ -292,6 +292,12 @@ DAMAGES.
 /*!
     Change Log:
     $Log$
+    Revision 5.2  2005/06/03 15:19:30  ron-fox
+    Part of breaking off /merging branch to start 3.1 development
+
+    Revision 5.1.2.1  2004/12/21 17:51:27  ron-fox
+    Port to gcc 3.x compilers.
+
     Revision 5.1  2004/11/29 16:56:14  ron-fox
     Begin port to 3.x compilers calling this 3.0
 
@@ -301,6 +307,12 @@ DAMAGES.
 
     Revision 4.2  2003/03/25 12:01:28  ron-fox
     Added Change log comment generated from the CVS $Log$
+    Added Change log comment generated from the CVS Revision 5.2  2005/06/03 15:19:30  ron-fox
+    Added Change log comment generated from the CVS Part of breaking off /merging branch to start 3.1 development
+    Added Change log comment generated from the CVS
+    Added Change log comment generated from the CVS Revision 5.1.2.1  2004/12/21 17:51:27  ron-fox
+    Added Change log comment generated from the CVS Port to gcc 3.x compilers.
+    Added Change log comment generated from the CVS
     Added Change log comment generated from the CVS Revision 5.1  2004/11/29 16:56:14  ron-fox
     Added Change log comment generated from the CVS Begin port to 3.x compilers calling this 3.0
     Added Change log comment generated from the CVS
@@ -319,15 +331,19 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
 #endif
+#endif
 
-typedef vector<std::string> StringArray;
+typedef STD(vector)<STD(string)> StringArray;
 typedef StringArray::iterator StringArrayIterator;
 
 class CTCLList  : public CTCLInterpreterObject        
@@ -346,7 +362,7 @@ public:
 			//Constructors with arguments
 
   CTCLList (CTCLInterpreter* pInterp, const  char* am_pList  );       
-  CTCLList (CTCLInterpreter* pInterp, const std::string& rList);
+  CTCLList (CTCLInterpreter* pInterp, const STD(string)& rList);
 	
 			//Copy constructor
 

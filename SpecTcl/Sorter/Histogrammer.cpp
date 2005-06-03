@@ -303,6 +303,49 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 5.2  2005/06/03 15:19:22  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
+  Revision 5.1.2.9  2005/05/27 17:47:37  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
+  Revision 5.1.2.8  2005/05/20 21:19:06  ron-fox
+  Port to gcc 4.0
+
+  Revision 5.1.2.7  2005/05/11 21:26:15  ron-fox
+  - Add -pedantic and deal with the fallout.
+  - Fix long standing issues with sread/swrite -format binary
+  - Merge in Tim's strip chart spectrum and ensure stuff builds
+    correctly.
+
+  Revision 5.1.2.6  2005/05/02 20:14:41  ron-fox
+  Little changes to support gcc 3.4 compiler which is a bit stricter even.
+
+  Revision 5.1.2.5  2005/05/02 15:51:22  ron-fox
+  First passes at getting compilations on Intel C++: then
+  fix defect 159: Open filters on exit can lose data.
+
+  Revision 5.1.2.4  2005/04/16 21:10:35  ron-fox
+  Final packaging of the distribution
+
+  Revision 5.1.2.3  2005/01/26 14:41:11  ron-fox
+  Fix silly typo in backport of spectrum name length defect.
+
+  Revision 5.1.2.2  2005/01/26 14:27:44  ron-fox
+  Fix a problem with long spectrum names:
+            o Truncation to Xamine fixed size names caused assertion failures in
+                unbind
+            o Buffer overflow in spectra.cc could cause amusing thing in the
+               Xamine spectrum chooser that ultimately could result in a segfault.
+
+  Revision 5.1.2.1  2004/12/21 17:51:24  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:07  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -353,14 +396,19 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <Contour.h>
 #include <Point.h>
 #include <PointlistGate.h>
-#include <GammaCut.h>
-#include <GammaBand.h>
-#include <GammaContour.h>
+#include <CGammaCut.h>
+#include <CGammaBand.h>
+#include <CGammaContour.h>
 #include <assert.h>
 #include <GateMediator.h>
 #include <Gamma2DW.h>
 
+#include <Iostream.h>
+
 #include <stdio.h>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 #ifdef HAVE_TIME
 #include <time.h>
@@ -521,7 +569,7 @@ CHistogrammer& CHistogrammer::operator=(const CHistogrammer& rRhs) {
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
   return *this;
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -538,7 +586,7 @@ int CHistogrammer::operator==(const CHistogrammer& rRhs) {
 	  ( m_SpectrumDictionary  ==   rRhs.m_SpectrumDictionary)  &&
 	  ( m_GateDictionary      ==   rRhs.m_GateDictionary)
 	  );
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -582,7 +630,7 @@ void CHistogrammer::operator()(const CEvent& rEvent,
   for(int i = 0; i < nSpectra; i++) {
     (*ppSpectra[i])(rEvent);
   }
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -604,7 +652,7 @@ void CHistogrammer::operator()(CEventList& rEvents) {
   //  Flatten the gates map into pGates:
 
   UInt_t nGates = GateCount();
-  CGateContainer* pGates[nGates]; // Holds pointer to gate containers.
+  CGateContainer** pGates = new CGateContainer*[nGates]; // Holds pointer to gate containers.
   CGateDictionaryIterator pg = GateBegin();
   CGateDictionaryIterator pge= GateEnd();
   CGateContainer** ppGate = pGates;
@@ -615,7 +663,7 @@ void CHistogrammer::operator()(CEventList& rEvents) {
   // Flatten the Spectra into pSpectra:
 
   UInt_t nSpectra = SpectrumCount();
-  CSpectrum*      pSpectra[nSpectra]; // Pointers to spectra.
+  CSpectrum**      pSpectra = new CSpectrum*[nSpectra]; // Pointers to spectra.
   CSpectrum**     ppSpectra = pSpectra;
   SpectrumDictionaryIterator ps = SpectrumBegin();
   SpectrumDictionaryIterator pse= SpectrumEnd();
@@ -639,10 +687,12 @@ void CHistogrammer::operator()(CEventList& rEvents) {
 		 nGates, pGates);
     }
     else {
-      return;
+      break;
     }
   }
-};
+  delete []pGates;
+  delete []pSpectra;
+}
 
 /*!
   Add a parameter to the parameter dictionary.
@@ -1009,6 +1059,7 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
   //
 
   vector<CGateContainer> DisplayGates = GatesToDisplay(rsName);
+
   UInt_t Size = DisplayGates.size();
   for(UInt_t i = 0; i < DisplayGates.size(); i++) {
     CDisplayGate* pXgate = GateToXamineGate(nSpectrum, DisplayGates[i]);
@@ -1035,11 +1086,19 @@ void CHistogrammer::UnBindFromDisplay(UInt_t nSpec) {
 
   CXamineSpectrum  Spec(m_pDisplayer->getXamineMemory(), nSpec);
   if(Spec.getSpectrumType() != undefined) { // No-op if spectrum not defined
-    
-    assert(Spec.getTitle() == m_DisplayBindings[nSpec]);
+    // The Xamine title must match the first n characters of
+ 
+    // The Xamine title must match the first n characters of
+    // the bindings  name since the display bindings names are
+    // truncated to some fixed size.
+    //
+    assert(m_DisplayBindings[nSpec].find(Spec.getTitle()) == 0);
+
+
     SpectrumDictionaryIterator iSpectrum = 
-      m_SpectrumDictionary.Lookup(Spec.getTitle());
+      m_SpectrumDictionary.Lookup(m_DisplayBindings[nSpec]);
     assert(iSpectrum != m_SpectrumDictionary.end());
+
     CSpectrum*       pSpectrum = (*iSpectrum).second;
     //
     //  What we need to do is:
@@ -1426,7 +1485,7 @@ void CHistogrammer::AddGate(const std::string& rName, UInt_t nId, CGate& rGate) 
   }
 
   // Now add the gate:
-  CGateContainer aGate((string&)rName, nId, rGate);
+  CGateContainer& aGate(*(new CGateContainer((string&)rName, nId, rGate)));
   m_GateDictionary.Enter(rName, aGate);
   AddGateToBoundSpectra(aGate);
 }
@@ -1472,6 +1531,7 @@ void CHistogrammer::ReplaceGate(const std::string& rGateName, CGate& rGate) {
   // NOTE:
   //    The gate is cloned and attached to the existing gate container.
   //
+
   CGateContainer* pContainer = FindGate(rGateName);
   if(!pContainer) {
     throw CDictionaryException(CDictionaryException::knNoSuchKey,
@@ -1524,19 +1584,6 @@ void CHistogrammer::ApplyGate(const std::string& rGateName,
   }
 
   SpectrumType_t spType = pSpectrum->getSpectrumType();
-  string gType = pGateContainer->getGate()->Type();
-  switch(spType) {
-  case ke1D:
-  case ke2D:
-    if(gType == "gs" || gType == "gb" || gType == "gc") {
-      throw CDictionaryException(CDictionaryException::knWrongGateType,
-				 "Cannot apply gamma gate to spectrum in CHistogrammer::ApplyGate()",
-				 rGateName);
-    }
-    break;
-  }
-
-  //  Now Apply the gate:
   pSpectrum->ApplyGate(pGateContainer);
 }
 
@@ -1832,7 +1879,7 @@ void CHistogrammer::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
   //       can be treated as if it was a pointer to a gate.
   // 
   UInt_t nGateId = rGate.getNumber();
-  enum GateType_t eType;
+  GateType_t eType;
   if(rGate->Type() == "c" || rGate->Type() == "gc") {
     eType = kgContour2d;
   }

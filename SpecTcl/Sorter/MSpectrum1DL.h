@@ -23,7 +23,9 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -40,7 +42,7 @@ class CMSpectrum1DL  : public CSpectrum1DL
     UInt_t  nScale;
     Float_t nLow;
     Float_t nHigh;
-    std::string sUnits;
+    STD(string) sUnits;
     int operator== (const MParameterDef& r) const {
       return ((nLow == r.nLow) && (nHigh == r.nHigh) && (nScale == r.nScale)
 	      && (sUnits == r.sUnits));
@@ -54,7 +56,7 @@ class CMSpectrum1DL  : public CSpectrum1DL
  public:
 
   //Constructor(s) with arguments
-  CMSpectrum1DL(const std::string& rName, UInt_t nId,
+  CMSpectrum1DL(const STD(string)& rName, UInt_t nId,
 		const CParameter& rParameter,
 		Float_t nLow, Float_t nHigh, 
 		UInt_t nChannels);
@@ -99,7 +101,7 @@ class CMSpectrum1DL  : public CSpectrum1DL
     {
       return m_Parameter;
     }
-  std::string getUnits() const
+  STD(string) getUnits() const
     {
       return m_Parameter.sUnits;
     }

@@ -8,7 +8,7 @@
 ////////////////////////// FILE_NAME.cpp ///////////////////////////
 
 // Include files required:
-
+#include <config.h>
 #include "CPacket.h"    				
 #include "CModuleDictionary.h"
 #include <TCLInterpreter.h>
@@ -22,6 +22,11 @@
 #include "CBoolConfigParam.h"
 #include "CSegmentUnpacker.h"
 #include "CModule.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Static attribute storage and initialization for CPacket
 

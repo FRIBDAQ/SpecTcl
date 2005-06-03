@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamineMap1D.h:
 //
@@ -309,8 +309,8 @@ class CXamineMap2D
   Float_t m_nYLow;        // The low limit of the y-transform
   Float_t m_nXHigh;       // The high limit of the x-transformation
   Float_t m_nYHigh;       // The high limit of the y-transform
-  std::string m_sXUnits;  // The units to label the mapped x-axis
-  std::string m_sYUnits;  // The units to label the mapped y-axis
+  STD(string) m_sXUnits;  // The units to label the mapped x-axis
+  STD(string) m_sYUnits;  // The units to label the mapped y-axis
   
 public:
   
@@ -327,7 +327,7 @@ public:
 
   CXamineMap2D(Float_t am_nXLow, Float_t am_nYLow,
 	       Float_t am_nXHigh, Float_t am_nYHigh,
-	       const std::string& am_sXUnits, const std::string& am_sYUnits) :
+	       const STD(string)& am_sXUnits, const STD(string)& am_sYUnits) :
     m_nXLow(am_nXLow),
     m_nYLow(am_nYLow),
     m_nXHigh(am_nXHigh),
@@ -395,11 +395,11 @@ public:
     {
       return m_nYHigh;
     }
-  std::string getXUnits() const
+  STD(string) getXUnits() const
     {
       return m_sXUnits;
     } 
-  std::string getYUnits() const
+  STD(string) getYUnits() const
     {
       return m_sYUnits;
     }
