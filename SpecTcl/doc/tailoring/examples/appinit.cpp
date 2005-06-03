@@ -237,7 +237,7 @@ CTclGrammerApp::operator()()
   //
   // Hook the analyzer together with its sink, unpacker and decoder.
   //
-  gpAnalyzer->AttachSink(*gpEventSink);
+  gpAnalyzer->AttachSink(*gpEventSink, "::Histogrammer:");
   gpAnalyzer->AttachUnpacker(*gpUnpacker);
   gpAnalyzer->AttachDecoder(*gpBufferDecoder);
 

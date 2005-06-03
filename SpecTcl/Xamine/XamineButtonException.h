@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamineButtonException.h:
 //
@@ -312,7 +312,7 @@ DAMAGES.
 #endif
 
 #ifndef __CXX_STRSTREAM_H
-#include <strstream.h>
+#include <Sstream.h>
 #define __CXX_STRSTREAM_H
 #endif
 
@@ -325,8 +325,8 @@ class CXamineButtonException   : public CException
 {
   Int_t          m_nError;	// Error code responsible for the exception
   CXamineButton* m_pButton;	// Button which is causing the problem.
-  Bool_t         m_fFormatted;
-  strstream      m_ReasonText; 
+  mutable Bool_t         m_fFormatted;
+  mutable STD(stringstream)      m_ReasonText; 
   
 public:
 
@@ -334,7 +334,7 @@ public:
 
   CXamineButtonException(Int_t nStatus,
 			 const CXamineButton& rButton,
-			 const std::string&   rDoing);
+			 const STD(string)&   rDoing);
   virtual ~CXamineButtonException ( ) { delete m_pButton; } // Destructor
 	
 			//Copy constructor
@@ -385,8 +385,8 @@ protected:
   // Member operations:
 
 public:                   
-  virtual   const char* ReasonText ()  ;
-  virtual   Int_t ReasonCode ()  ;
+  virtual   const char* ReasonText ()  const;
+  virtual   Int_t ReasonCode ()  const;
  
   // Protected utilities:
 

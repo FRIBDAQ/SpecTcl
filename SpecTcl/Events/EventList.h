@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 
 //  EventList.h:
@@ -309,10 +309,12 @@
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
 #endif
+#endif
 
-typedef std::vector<CEvent*>   CEventVector;
+typedef STD(vector)<CEvent*>   CEventVector;
 typedef CEventVector::iterator CEventListIterator;
 typedef CEvent *pCEvent;
 

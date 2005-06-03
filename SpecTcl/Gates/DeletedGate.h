@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 
@@ -298,6 +298,14 @@ DAMAGES.
 #ifndef __FALSEGATE_H
 #include "FalseGate.h"
 #endif                               
+
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
                                
 class CDeletedGate  : public CFalseGate        
 {
@@ -332,7 +340,7 @@ public:
 private:
   int operator== (const CDeletedGate& aCDeletedGate);
                        
-  virtual   std::string Type ()  ;
+  virtual   STD(string) Type ()  ;
  
 
 };

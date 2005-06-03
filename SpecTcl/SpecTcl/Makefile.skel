@@ -39,4 +39,4 @@ depend:
 help:
 	echo "make                 - Build customized SpecTcl"
 	echo "make clean           - Remove objects from previous builds"
-	echo "make depend          - Add dependencies to the Makefile.
+	echo "make depend          - Add dependencies to the Makefile. "

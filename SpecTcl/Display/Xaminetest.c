@@ -28,7 +28,7 @@
 ** setupspectra:
 **   sets up the classical test spectra.
 */
-static void setupspectra(Xamine_shared *sp)
+static void setupspectra(volatile Xamine_shared *sp)
 {
   int spn;
   int i,j;
@@ -42,7 +42,6 @@ static void setupspectra(Xamine_shared *sp)
   /* Set up the ramp spectrum as spectrum 1: */
   
   spec = Xamine_Allocate1d(&spn, 64, "Upward Ramp", FALSE);
-  //Xamine_SetMap1d(spn, 10.0, 20.0, "MeV");
   spec_l = (unsigned int *)spec;
   for(i = 0; i < 64; i++) {
     *spec_l++ = i;
@@ -179,7 +178,7 @@ static void AnalyzeButton(struct msg_InquireButtonAck *ack)
 int
 main(int argc, char* argv[])
 {
-  Xamine_shared *spectra;
+  volatile Xamine_shared *spectra;
   char junk[100];
   int id = 0;			/* Gate Id serial number */
   int  deleted = 0;
@@ -200,7 +199,6 @@ main(int argc, char* argv[])
     exit(errno);
   }
   printf("Xamine is started up\n");
-  //sleep(5);
   
   setupspectra(spectra);	/* Set up the classical test spectra. */
   printf("Created test spectra\n");

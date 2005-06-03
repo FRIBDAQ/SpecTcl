@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2006, All rights reserved";
 //  CRunControl.cpp
@@ -296,8 +296,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
 // Header Files:
+
+#include <config.h>
 #include "RunControl.h"                               
 #include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Functions for class CRunControl
 

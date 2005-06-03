@@ -40,6 +40,8 @@ LDFLAGS=-L$(SPECLIBS) -L$(SPECCONTRIB)/scriptable \
 	-lXamine             \
 	-ltape               \
 	-lFilter             \
+	-lBufferAnalysis     \
+	-lTreeParam	\
 	$(TCLLIBS)           \
 	$(X11LIBS)           \
 	-Wl,"-rpath=$(SPECLIBS)"

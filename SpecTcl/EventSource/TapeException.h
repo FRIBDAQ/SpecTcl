@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTapeException.h:
 //
@@ -298,7 +298,9 @@ DAMAGES.
 #endif                
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif               
                                
 class CTapeException  : public CException        
@@ -313,7 +315,7 @@ public:
     CException(pDoing),
     m_nTapeError(nTapeError) 
   {}
-  CTapeException(UInt_t nTapeError, const string& rDoing) :
+  CTapeException(UInt_t nTapeError, const STD(string)& rDoing) :
     CException(rDoing),
     m_nTapeError(nTapeError)
   {}

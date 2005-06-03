@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CFile.h:
 //
@@ -299,7 +299,9 @@ DAMAGES.
   
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
                              
 class CFile      
@@ -365,7 +367,7 @@ public:
 
   virtual   Int_t Read (Address_t pBuffer, UInt_t nSize)  ;
   virtual   Int_t Write (const Address_t pBuffer, UInt_t nBytes)  ;
-  virtual   void Open (const std::string& rsFilename, UInt_t nAccess)  ;
+  virtual   void Open (const STD(string)& rsFilename, UInt_t nAccess)  ;
   virtual   void Open(UInt_t nFd);
   virtual   void Close ()  ;
   virtual   Bool_t IsReadable(UInt_t nMs) const;

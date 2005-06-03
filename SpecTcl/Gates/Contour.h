@@ -293,6 +293,17 @@ DAMAGES.
 /*
   Change Log
   $Log$
+  Revision 5.1.2.2  2005/05/27 17:47:36  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
+  Revision 5.1.2.1  2004/12/21 17:51:21  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:02  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -344,7 +355,7 @@ public:
 			//Default constructor
 
   CContour (UInt_t nXId, UInt_t nYId, 
-	    const vector<FPoint>& Points);
+	    const STD(vector)<FPoint>& Points);
   CContour (UInt_t nXId, UInt_t NYId, UInt_t nPts,
 	    Float_t *xCoords, Float_t *yCoords);
   CContour (UInt_t nXId, UInt_t NYId, UInt_t nPts,
@@ -419,15 +430,15 @@ public:
   virtual   Bool_t operator()(CEvent& rEvent);
   virtual   CGate* clone ()  ;
   virtual   std::string Type ()  const;
-  virtual   Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params);
-  virtual Bool_t inGate(CEvent& rEvent);
+  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
+  virtual   Bool_t inGate(CEvent& rEvent);
+  virtual   Bool_t Inside(Float_t x, Float_t y);
 
   //
   // Utility functions:
   //
  protected:
   virtual void GenerateInterior();
-  Bool_t       Inside(Float_t x, Float_t y);
 
 };
 

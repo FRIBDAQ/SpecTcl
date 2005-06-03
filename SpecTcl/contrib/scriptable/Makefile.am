@@ -4,6 +4,7 @@ INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
 	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
+	-I@top_srcdir@/Analysis \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
@@ -14,24 +15,28 @@ ScriptedSpecTcl_SOURCES = MySpecTclApp.cpp
 
 libScripted_la_LDFLAGS = -version-info $(SOVERSION):0
 
-libScripted_la_SOURCES =  CBoolConfigParam.cpp \
-	CCAENDigitizerCreator.cpp \
-	CCAENDigitizerModule.cpp \
-	CCAENV830Creator.cpp \
-	CCAENV830Module.cpp \
-	CConfigurableObject.cpp \
+MainSources=CConfigurableObject.cpp \
+	CSegmentUnpacker.cpp \
 	CConfigurationParameter.cpp \
-	CIntArrayParam.cpp \
 	CIntConfigParam.cpp \
+	CBoolConfigParam.cpp \
+	CStringConfigParam.cpp \
+	CPacket.cpp \
+	CModuleDictionary.cpp \
 	CModule.cpp \
 	CModuleCommand.cpp \
+	CPacketCreator.cpp \
 	CModuleCreator.cpp \
-	CModuleDictionary.cpp \
-	CPacket.cpp CPacketCreator.cpp \
 	CScriptableUnpacker.cpp \
-	CSegmentUnpacker.cpp \
-	CStringArrayparam.cpp \
-	CStringConfigParam.cpp 
+	CCAENDigitizerCreator.cpp \
+	CCAENV830Creator.cpp \
+	CCAENDigitizerModule.cpp \
+	CCAENV830Module.cpp CIntArrayParam.cpp \
+	CStringArrayparam.cpp 
+
+libScripted_la_SOURCES =  $(MainSources)
+
+
 
 
 
@@ -65,7 +70,8 @@ ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 ScriptedSpecTcl_LDADD =  -lScripted -lTclGrammerCommands \
 	-lSorting -lXplus \
 	-lGates -lAnalysis \
-	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lXamine  \
+	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lBufferAnalysis \
+	-lXamine  -lTreeParam \
 	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) 
 
 ScriptedSpecTcl_LDFLAGS = -L.  \
@@ -73,7 +79,8 @@ ScriptedSpecTcl_LDFLAGS = -L.  \
 	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
 	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
 	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \
-	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl
+	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
+	-L@top_srcdir@/TreeParam
 
 #
 #  At install time, in order to make this open ended we:
@@ -121,3 +128,31 @@ install-exec-local:
 
 
 EXTRA_DIST=Makefile.skel scriptable_Makefile.include 
+
+
+if CPPUNIT
+
+noinst_PROGRAMS = unittest
+
+unittest_SOURCES = SegUnpackerTest.cpp ModuleTest.cpp PacketTest.cpp CreatorTest.cpp \
+	UnpackerTest.cpp TestRunner.cpp $(MainSources)
+
+unittest_LDFLAGS = $(CPPUNIT_LDFLAGS) \
+	-L@top_srcdir@/SpecTcl -lTclGrammerCommands \
+	-L@top_srcdir@/Sorter -lSorting \
+	-L@top_srcdir@/Xamine -lXplus  \
+	-L@top_srcdir@/Gates -lGates   \
+	-L@top_srcdir@/Events -lAnalysis \
+	-L@top_srcdir@/EventSource -lEventSource \
+	-L@top_srcdir@/SpectrumIO -lSpecio \
+	-L@top_srcdir@/TCL -ltclPlus   \
+	-L@top_srcdir@/NSCLException -lException \
+	-L@top_srcdir@/Display -lXamine  \
+	-L@top_srcdir@/Tape -ltape       \
+	-L@top_srcdir@/Filter -lFilter \
+	-L@top_srcdir@/Analysis -lBufferAnalysis \
+	-ltk -ltcl $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
+
+
+TESTS = ./unittest
+endif

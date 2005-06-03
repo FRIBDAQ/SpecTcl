@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
  
@@ -314,7 +314,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 
@@ -392,7 +394,7 @@ public:
 
   // Assignments to this object 
 
-   CTCLObject& operator= (const string& rSource)    ;
+   CTCLObject& operator= (const STD(string)& rSource)    ;
    CTCLObject& operator= (const char* pSource)    ;
    CTCLObject& operator= (int nSource)    ;
    CTCLObject& operator= (const CTCLList& rList)    ;
@@ -400,7 +402,7 @@ public:
 
   // Implcit conversions which access the object's ports.
 
-  operator string ()    ;
+  operator STD(string) ()    ;
   operator int ()    ;
   operator CTCLList ()    ;
   operator double ()    ;
@@ -410,7 +412,7 @@ public:
 
   CTCLObject& operator+= (const CTCLObject& rObject)    ;
   CTCLObject& operator+= (int nItem)    ;
-  CTCLObject& operator+= (const string& rItem)    ;
+  CTCLObject& operator+= (const STD(string)& rItem)    ;
   CTCLObject& operator+= (const char* pItem)    ;
   CTCLObject& operator+= (double  Item)    ;
 
@@ -418,7 +420,7 @@ public:
 
   CTCLObject clone ()    ;
 
-  // Evaulate the object as a script returning the result string as
+  // Evaulate the object as a script returning the result STD(string) as
   // an object.  throws TCLException on error.
 
   CTCLObject operator() ()    ;

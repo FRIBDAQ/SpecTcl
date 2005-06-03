@@ -16,7 +16,12 @@
 */
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
-#include "CAxis.h"    				
+#include <config.h>
+#include "CAxis.h" 
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif   				
 
 /*!
    Construct an axis from just its length.

@@ -8,6 +8,7 @@ static const char* Copyright =
   "EventFilter.cpp: Copyright 2002 NSCL, All rights reserved\n";
 
 // Header Files.
+#include <config.h>
 #include "EventFilter.h"
 #include "Histogrammer.h"
 #include "Parameter.h"
@@ -22,7 +23,11 @@ static const char* Copyright =
 #include <string.h>
 #include <stdlib.h>
 
-#include <iostream.h>
+#include <Iostream.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 
 static const char* headerlabel = "header";
@@ -252,7 +257,7 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
    int nParams = m_vParameterIds.size();
    int nBitmaskwords = ((nParams + sizeof(unsigned)*8 - 1) /
 			(sizeof(unsigned)*8)); // Assumes 8 bits/byte
-   unsigned Bitmask[nBitmaskwords];
+   unsigned* Bitmask = new unsigned[nBitmaskwords];
 
    for(int i = 0; i < nBitmaskwords; i++) {
      Bitmask[i] = 0;
@@ -272,6 +277,7 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
    // selected subset.
    //
    if(!nValid) {
+     delete []Bitmask;
      return;
    }
 
@@ -305,6 +311,7 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
          *m_pOutputEventStream << rEvent[m_vParameterIds[i]];
       }
    }
+   delete []Bitmask;
 }
 /*!
    Return the default name of a filter file.  This is ~/filter.flt

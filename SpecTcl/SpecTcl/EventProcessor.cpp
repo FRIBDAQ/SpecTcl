@@ -276,17 +276,22 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
 // Class: CEventProcessor
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
+#include <config.h>
 #include "EventProcessor.h"    				
 #include <Analyzer.h>
 #include <BufferDecoder.h>
 #include <Event.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Constructors:
 CEventProcessor::CEventProcessor() {} // Default Constructor.
@@ -296,11 +301,11 @@ CEventProcessor::~CEventProcessor() {} // Destructor.
 // Operators:
 CEventProcessor& CEventProcessor::operator=(const CEventProcessor& aCEventProcessor) { // Assignment.
   return *this;
-};
+}
 
 int CEventProcessor::operator==(const CEventProcessor& aCEventProcessor) const { // Equality.
   return kfFALSE;
-};
+}
 
 // Functions for class CEventProcessor
 

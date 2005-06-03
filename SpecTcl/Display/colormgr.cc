@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -553,7 +553,7 @@ FILE *Xamine_OpenColorTable(unsigned int planes)
 #ifndef HOME
   sprintf(filename, fmtstring, XAMINE_DEFAULT_COLOR_DIR, planes);
 #else
-  fmtstring = "%s/Etc/Xamine%d.ctbl";
+  fmtstring = "%s/etc/Xamine%d.ctbl";
   sprintf(filename, fmtstring, HOME, planes);
   printf("Opening system colortable file %s\n", filename);
   fflush(stdout);

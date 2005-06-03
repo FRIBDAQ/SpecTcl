@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -297,14 +297,13 @@ static char *revision="@(#)dispwind.cc	2.2 1/28/94 ";
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <time.h>
 #include "dispwind.h"
 #include "errormsg.h"
 #include "panemgr.h"		/* Need to get parent for error dialogs. */
 
-#define SEEK_SET 0
-#define SEEK_CUR 1
-#define SEEK_END 2
+
 
 #include "dispshare.h"
 
@@ -334,7 +333,7 @@ void win_attributed::set_defaults()
   nofloor(); noceiling();	/* Don't cut off the heights. */
   update_time = 0;
   noautoupdate();		/* Turn off autoupdate. */
-  setmapped(FALSE);
+  setmapped(TRUE);
 }
 
 /*

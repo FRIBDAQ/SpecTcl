@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 
 static const char* Copyright = "(C) Copyright Michigan State University 2006, All rights reserved";
@@ -297,9 +297,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 //
 // Header Files:
 //
+#include <config.h>
 #include "Event.h"
 #include <histotypes.h>
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 #define UNDEFINED 0.0
 static const Size_t knExpandSize = 256;      // Vector expansion granularity.
@@ -372,7 +376,7 @@ CEvent::operator=(const CEvent& anEvent)
     DoAssign(anEvent);
   }
   return *this;
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -387,7 +391,7 @@ CEvent::operator==(const CEvent& anEvent)
   // Relies on the fact that STL Vectors define an operator== iff
   // the underlying type does, and Int_t does.
   return (m_rvParameters == anEvent.m_rvParameters);
-};
+}
 
 
 //////////////////////////////////////////////////////////////////////////

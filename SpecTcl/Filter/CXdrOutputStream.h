@@ -275,13 +275,9 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
-#ifndef __CONFIG_H
-#include <config.h>
-#define __CONFIG_H
-#endif
 
 #ifndef __STL_STRING
 #include <string>
@@ -314,13 +310,13 @@ class CXdrOutputStream {
   char* m_pBuffer;		//!< Data are xdr'd into this buffer.
   int   m_nFd;			//!< File descriptor to output file.
   bool  m_fisOpen;		//!< True if file is currently open.
-  string m_Filename;		//!< Filename if one has been supplied.
+  STD(string) m_Filename;		//!< Filename if one has been supplied.
   XDR   m_Xdr;			//!< XDR stream to buffer.
 
 public:
   CXdrOutputStream(int nBuffersize=8192);
-  CXdrOutputStream(const string& rName, int nBuffersize=8192)
-    throw (string&);
+  CXdrOutputStream(const STD(string)& rName, int nBuffersize=8192)
+    throw (STD(string)&);
   ~CXdrOutputStream();
 private:
   CXdrOutputStream(const CXdrOutputStream& rhs);
@@ -345,7 +341,7 @@ public:
   int getBuffersize() const {	//!< # bytes of buffering.
     return m_nBuffersize;
   }
-  string getFilename() const {	//!< filename or empty if stream closed.
+  STD(string) getFilename() const {	//!< filename or empty if stream closed.
     return m_Filename;
   }
 
@@ -353,9 +349,9 @@ public:
 
   // Class operations.
 
-  void Open(const string& rName) throw (string&);
-  void Close() throw (string&);
-  void Put(void* object, xdrproc_t converter) throw (string&);
+  void Open(const STD(string)& rName) throw (STD(string)&);
+  void Close() throw (STD(string)&);
+  void Put(void* object, xdrproc_t converter) throw (STD(string)&);
   void Require(int nBytes);
 
   // Sizers (sizeof is no good in xdr as it does not have to match
@@ -381,7 +377,7 @@ public:
 
   CXdrOutputStream& operator<<(char c);
   CXdrOutputStream& operator<<(const char* c);
-  CXdrOutputStream& operator<<(const string& s) 
+  CXdrOutputStream& operator<<(const STD(string)& s) 
     {return ((*this) << s.c_str());}
 
   CXdrOutputStream& operator<<(bool b);

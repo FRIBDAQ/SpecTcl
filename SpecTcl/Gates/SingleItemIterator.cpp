@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2007, All rights reserved";
 //  CSingleItemIterator.cpp
@@ -295,8 +295,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 // Header Files:
 //
 
-
+#include <config.h>
 #include "SingleItemIterator.h"                               
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Functions for class CSingleItemIterator
 

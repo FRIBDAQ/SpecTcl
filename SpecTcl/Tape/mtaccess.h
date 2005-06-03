@@ -314,8 +314,7 @@ DAMAGES.
 **
 */
 
-//typedef char volume;	    /* Essentially opaque volume type */
-//typedef int tape_ucb;	    /* Opaque type for UCB	    */
+
 
 /* In VMS systems there can be name space conflicts between e.g. fortran
 ** and C routines, so we make the following substitutions for vms:

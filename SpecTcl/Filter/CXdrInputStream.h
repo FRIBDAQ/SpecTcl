@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 
@@ -281,10 +281,7 @@ DAMAGES.
 #ifndef __CXDRINPUTSTREAM_H
 #define __CXDRINPUTSTREAM_H
 
-#ifndef __CONFIG_H
-#include <config.h>
-#define __CONFIG_H
-#endif
+
 
 #ifndef __STL_STRING
 #include <string>
@@ -325,7 +322,7 @@ private:
   int    m_nBuffersize;		//!< Read Unit size.
   char  *m_pBuffer;		//!< The actual buffer.
   XDR    m_Xdr;			//!< XDR conversion data structs.
-  string m_sConnectionId;	//!< Identifies data source.
+  STD(string) m_sConnectionId;	//!< Identifies data source.
   bool   m_fIsOpen;		//!< True when input stream open.
   int    m_nFid;		//!< Base class is a file!!.
   int    m_nSize;		//!< # bytes used in buffer.
@@ -333,7 +330,7 @@ public:
   // Constructors and other canonical functions:
 
   CXdrInputStream(int nBuffersize = 8192);
-  CXdrInputStream(const string& connection, 
+  CXdrInputStream(const STD(string)& connection, 
 		  int nBuffersize = 8192);
   ~CXdrInputStream();
 private:
@@ -354,7 +351,7 @@ public:
   bool isOpen() const {
     return m_fIsOpen;
   }
-  string getConnectionId() const {
+  STD(string) getConnectionId() const {
     return m_sConnectionId;
   }
   /*! Get file id: note this may be meaningless in derived classes */
@@ -375,14 +372,14 @@ protected:
 
    //!  Give name and connect.
 public:
-  void Connect(const string& rName) throw (string) {
+  void Connect(const STD(string)& rName) throw (STD(string)) {
     m_sConnectionId = rName;
     Connect();
   }
 
   //! Get an arbitrarily typed item from the buffer:
 
-  void Get(void* item, xdrproc_t cvt) throw (string);
+  void Get(void* item, xdrproc_t cvt) throw (STD(string));
 
   //  Stream-like operations:
 
@@ -390,15 +387,15 @@ public:
   CXdrInputStream& operator>>(float& n); //!< Get float.
   CXdrInputStream& operator>>(double& n); //!< Get double.
   CXdrInputStream& operator>>(char& c); //!< Get single char.
-  CXdrInputStream& operator>>(char* c); //!< Get czstring
-  CXdrInputStream& operator>>(string& s); //!< Get stl string
+  CXdrInputStream& operator>>(char* c); //!< Get czSTD(string)
+  CXdrInputStream& operator>>(STD(string)& s); //!< Get stl STD(string)
   CXdrInputStream& operator>>(bool& b); //!< Get a bool.
 
 
   // overrides:
 
-  virtual void Connect() throw (string);
-  virtual void Disconnect() throw(string);
+  virtual void Connect() throw (STD(string));
+  virtual void Disconnect() throw(STD(string));
 
 protected:
   virtual int  Read(void* pBuffer);
@@ -407,8 +404,8 @@ protected:
 protected:
   // Utility functions.
 
-  void DoRead() throw(string);	//!< Drive a read and all book-keeping
-  void ConditionalRead() throw (string); //!< Read if buffer done.
+  void DoRead() throw(STD(string));	//!< Drive a read and all book-keeping
+  void ConditionalRead() throw (STD(string)); //!< Read if buffer done.
 
 };
    

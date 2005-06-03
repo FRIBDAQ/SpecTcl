@@ -1,7 +1,13 @@
+
+#include <config.h>
 #include "CParameterMappingTest.h"
 #include <string>
 #include <stdlib.h>
-#include <iostream.h>
+#include <Iostream.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 CParameterMappingTest::CParameterMappingTest() :
   m_UnMapped(),			// Not mapped.

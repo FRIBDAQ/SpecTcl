@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2007, All rights reserved";
 //  CGammaContour.cpp:
@@ -306,12 +306,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 //    mailto:venemaja@msu.edu
 //
 /////////////////////////////////////////////////////////////////////////////
-
+#include <config.h>
 #include "GammaContour.h"
 #include <algorithm>
 #include <histotypes.h>
-#include <iostream.h>
+#include <Iostream.h>
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 // functions for class CContour
 
 ////////////////////////////////////////////////////////////////////////////
@@ -390,12 +393,12 @@ Bool_t
 CGammaContour::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 {
 
-  Float_t nx = Params[0];
-  Float_t ny = Params[1];
+  Int_t nx = Params[0];
+  Int_t ny = Params[1];
   if((nx < rEvent.size()) && (ny < rEvent.size())) {
     if(rEvent[nx].isValid() && rEvent[ny].isValid()) {
-      Float_t x = (Int_t)rEvent[nx] - getLowerLeft().X();
-      Float_t y = (Int_t)rEvent[ny] - getLowerLeft().Y();
+      Float_t x = rEvent[nx] - getLowerLeft().X();
+      Float_t y = rEvent[ny] - getLowerLeft().Y();
       if((x < 0) || (y < 0))
 	return kfFALSE;
       else

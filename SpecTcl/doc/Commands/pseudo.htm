@@ -20,7 +20,7 @@
 </table>
 <h2><a name="Top">Syntax</a></h2>
 <pre><a href="#Add">pseudo <i>name</i> <i>parameters</i> <i>body</i></a><i>
-</i><a href="#List">pseudo -list [<i>name1 ...</i>]</a>
+</i><a href="#List">pseudo -list [<i>pattern</i>]</a>
 <a href="#summing">pseudo -delete <i>name1</i> [<i>name2... </i>]</a></pre>
 <h2>Synopsis</h2>
 <p>The pseudo command allows you to create, list and delete dynamically computed
@@ -83,9 +83,9 @@ placed in the parameter corresponding to the pseudo.&nbsp; The procedure is
 saved as compiled byte code so that it can be efficiently called again and
 again.</p>
 <p><a href="#Top">Top</a></p>
-<h3><a name="List">pseudo -list [<i>name1 ... </i>]</a></h3>
-<p>Lists pseudo parameters and their definitions.&nbsp; Note that if parameter
-names are provided only those parameters named are listed.&nbsp; If names are
+<h3><a name="List">pseudo -list [<i>pattern </i>]</a></h3>
+<p>Lists pseudo parameters and their definitions.&nbsp; Note that if a pattern is supplied
+only pseudo parameters whose name matches that pattern are litsed.&nbsp; If a pattern is 
 not provided, all pseudo parameters are listed.&nbsp; Each parameter is
 described by a Tcl list.&nbsp; The list contains:</p>
 <ul>

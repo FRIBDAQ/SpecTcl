@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
  
@@ -349,24 +349,30 @@ DAMAGES.
 
 #ifndef __STL_LIST                               
 #include <list>
+#ifndef __STL_LIST
 #define __STL_LIST
+#endif
 #endif
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 class CPseudoScript  : public CNamedItem        
 {                         
-  list<string> m_vParameterNames; //Names of input parameters.
-  list<UInt_t> m_vParameterIds;  //Paramter Ids which are input to the script.
-  string       m_sRawScriptText; //Raw text of script.
+  STD(list)<STD(string)> m_vParameterNames; //Names of input parameters.
+  STD(list)<UInt_t> m_vParameterIds;  //Paramter Ids which are input to the script.
+  STD(string)       m_sRawScriptText; //Raw text of script.
   CTCLObject   m_ScriptProc;	//1:1 aggregation part data member
   CTCLObject   m_CallStub;	//1:1 aggregation part data member        
   CTCLInterpreter* m_pInterpreter; //association object data member      
@@ -375,14 +381,14 @@ public:
 
    // Constructors and other cannonical operations:
   
-  CPseudoScript(const string& rName, 
+  CPseudoScript(const STD(string)& rName, 
 		CTCLInterpreter* pInterp,
 		CHistogrammer& rHistogrammer) ;
-  CPseudoScript(const string& rName,
-		vector<string>& rDependentParameters,
+  CPseudoScript(const STD(string)& rName,
+		STD(vector)<STD(string)>& rDependentParameters,
 		CHistogrammer& rHistogrammer,
 		CTCLInterpreter* pInterp, 
-		const string& ScriptText);
+		const STD(string)& ScriptText);
   ~CPseudoScript ( )  
   { }  
   
@@ -439,16 +445,16 @@ public:
 
 public:
 
-  list<string> getParameterNames() const
+  STD(list)<STD(string)> getParameterNames() const
   { return m_vParameterNames;
   }
-  list<UInt_t> getParameterIds() const
+  STD(list)<UInt_t> getParameterIds() const
   { return m_vParameterIds;
   }
-  string getRawScriptText() const
+  STD(string) getRawScriptText() const
   { return m_sRawScriptText;
   }
-  string getOutputParameter() const
+  STD(string) getOutputParameter() const
   { return getName();;
   }
   UInt_t getOutputId() const
@@ -473,17 +479,17 @@ public:
 
 protected:
 
-  void setParameterNames (const list<string> am_vParameterNames)
+  void setParameterNames (const STD(list)<STD(string)> am_vParameterNames)
   { 
     m_vParameterNames = am_vParameterNames;
     RebuildState();
   }
-  void setParameterIds (const list<UInt_t> am_vParameterIds)
+  void setParameterIds (const STD(list)<UInt_t> am_vParameterIds)
   { 
     m_vParameterIds = am_vParameterIds;
     RebuildState();
   }
-  void setOutputParameter (const string am_sOutputParameter)
+  void setOutputParameter (const STD(string) am_sOutputParameter)
   { 
     setName(am_sOutputParameter);
   }
@@ -502,9 +508,9 @@ protected:
   
   // Public mutators.
 public:
-  void AddDependentParameter(const string& rName, CHistogrammer& rHisto);
+  void AddDependentParameter(const STD(string)& rName, CHistogrammer& rHisto);
   void AddDependentParameter(UInt_t        nId,   CHistogrammer& rHisto);
-  void setRawScriptText (const string am_sRawScriptText)
+  void setRawScriptText (const STD(string) am_sRawScriptText)
   { 
     m_sRawScriptText = am_sRawScriptText;
     RebuildState();
@@ -515,19 +521,19 @@ public:
 public:
 
   virtual   void operator() (CEvent& rEvent)    ;
-  list<string>::iterator ParNamesBegin ()    ;
+  STD(list)<STD(string)>::iterator ParNamesBegin ()    ;
   UInt_t ParNamesSize ()    ;
-  list<string>::iterator ParNamesEnd ()    ;
-  list<UInt_t>::iterator ParIdsBegin ()    ;
+  STD(list)<STD(string)>::iterator ParNamesEnd ()    ;
+  STD(list)<UInt_t>::iterator ParIdsBegin ()    ;
   UInt_t ParIdsSize ()    ;
-  list<UInt_t>::iterator ParIdsEnd ()    ;
+  STD(list)<UInt_t>::iterator ParIdsEnd ()    ;
   
 protected:
   // Protected utilities.
 
-  void RebuildState();		// Rebuild script and parameter object list.
-				// from raw text and parameter lists.
-  void BindOutputParameter(const string& rName, 
+  void RebuildState();		// Rebuild script and parameter object STD(list).
+				// from raw text and parameter STD(list)s.
+  void BindOutputParameter(const STD(string)& rName, 
 			   CHistogrammer& rHistogrammer);
 };
 
