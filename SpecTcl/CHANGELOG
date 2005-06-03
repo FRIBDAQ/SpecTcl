@@ -323,3 +323,5 @@ May 31, 2005
     enormous performance hit.
 June 1, 2005
   - Fix documentation errors in gate command wrt mask gates.
+
+3.0-002
