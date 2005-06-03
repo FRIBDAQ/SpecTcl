@@ -4,7 +4,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 3.0-002)
+AM_INIT_AUTOMAKE(SpecTcl, 3.1)
 
 
 AC_EXEEXT
@@ -15,7 +15,7 @@ AC_OBJEXT
 #  define the version information in shared
 #  images.
 
-SOVERSION="3:0"
+SOVERSION="3:1"
 #
 #  This symbol describes where the bundled Gri graphics package lives.
 #  Gri is used to help Xamine do printing.
