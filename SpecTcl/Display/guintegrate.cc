@@ -668,13 +668,6 @@ static void FormatIntegrationText(IntegrationDisplay *d)
   if(nints == 0) {
     return;
   }
-  // grobj_generic *objects[GROBJ_MAXOBJECTS];
-
-  grobj_generic** objects = new grobj_generic*[nobjects];
-  Xamine_GetSpectrumObjects(specno,
-			    objects,
-			    nobjects, True);
-
   /* Format the header.  Put it in the dialog and if logging is on, put
   ** it in the log file too:
   */
@@ -689,51 +682,57 @@ static void FormatIntegrationText(IntegrationDisplay *d)
     Xamine_log.LogMessage(buffer);
   }
   d->AddText(buffer);
-  int i;
-  for( i = 0; i < nobjects; i++) {
-    if( (objects[i]->type() == summing_region_1d) ||
-        (objects[i]->type() == summing_region_2d)) {
-      Integrate(dialog, objects[i], specno, spectype);
-    }
-  }
-  delete []objects;
 
-  if(!att->is1d()) {
-    sprintf(buffer,"Contours:\n");
-    if(Xamine_logging)
-      Xamine_log.LogMessage(buffer);
-    d->AddText(buffer);
+  // grobj_generic *objects[GROBJ_MAXOBJECTS];
 
-    nobjects = Xamine_GetSpectrumGateCount(specno);
-    objects = new grobj_generic*[nobjects];
-
-    Xamine_GetSpectrumGates(specno, objects, nobjects, True);
-
-    for(i = 0; i < nobjects; i++) {
-      if(objects[i]->type() == contour_2d) {
+  if(nobjects > 0) {
+    grobj_generic** objects = new grobj_generic*[nobjects];
+    Xamine_GetSpectrumObjects(specno,
+			      objects,
+			      nobjects, True);
+    
+    
+    int i;
+    for( i = 0; i < nobjects; i++) {
+      if( (objects[i]->type() == summing_region_1d) ||
+	  (objects[i]->type() == summing_region_2d)) {
 	Integrate(dialog, objects[i], specno, spectype);
       }
-      delete []objects;
     }
-  }
-  else {
-    sprintf(buffer, "Cuts: \n");
-    if(Xamine_logging)
-      Xamine_log.LogMessage(buffer);
-    d->AddText(buffer);
-    nobjects = Xamine_GetSpectrumGateCount(specno);
-    objects = new grobj_generic*[nobjects];
+    delete []objects;
 
+  }
+  nobjects = Xamine_GetSpectrumGateCount(specno);
+  if(nobjects > 0) {
+    grobj_generic** objects = new grobj_generic*[nobjects];    
     Xamine_GetSpectrumGates(specno, objects, nobjects, True);
-    for(i = 0; i < nobjects; i++) {
-      if(objects[i]->type() == cut_1d) {
-        Integrate(dialog, objects[i], specno, spectype);
+    grobj_type matching;
+    
+    if(!att->is1d()) {
+      sprintf(buffer,"Contours:\n");
+      if(Xamine_logging)
+	Xamine_log.LogMessage(buffer);
+      d->AddText(buffer);
+      matching = contour_2d;
+    }
+    else {
+      sprintf(buffer, "Cuts: \n");
+      if(Xamine_logging)
+	Xamine_log.LogMessage(buffer);
+      d->AddText(buffer);
+      matching = cut_1d;
+      
+    }      
+    for(int i = 0; i < nobjects; i++) {
+      if(objects[i]->type() == matching) {
+	Integrate(dialog, objects[i], specno, spectype);
       }
     }
     delete []objects;
   }
 
 }
+
 
 /*
 ** Functional Desription:

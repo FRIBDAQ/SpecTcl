@@ -325,3 +325,6 @@ June 1, 2005
   - Fix documentation errors in gate command wrt mask gates.
 
 3.0-002
+  - Fix defect with guintegrate - was multiply deleting contours during
+    integration.
+  - Did  a bunch of refactoring to make the integration loop code look nicer.
