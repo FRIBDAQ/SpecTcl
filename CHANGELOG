@@ -325,3 +325,5 @@ June 1, 2005
   - Fix documentation errors in gate command wrt mask gates.
 
 3.1
+June 7, 2005
+  - Incorporate defect fix in guiintegrate.cc into this version.
