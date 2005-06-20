@@ -327,3 +327,5 @@ June 1, 2005
 3.1
 June 7, 2005
   - Incorporate defect fix in guiintegrate.cc into this version.
+June 20, 2005
+  - Fix type on Spectrum.h  getAxisMapCount() had been spelled GetAxisMapCout().

@@ -293,6 +293,9 @@ DAMAGES.
 //                     spectra can report their type.
 //
 //  $Log$
+//  Revision 5.3  2005/06/20 19:52:00  ron-fox
+//  Fix type which spelled getAxisMapCount as getAxisMapCout
+//
 //  Revision 5.2  2005/06/03 15:19:24  ron-fox
 //  Part of breaking off /merging branch to start 3.1 development
 //
@@ -455,7 +458,7 @@ public:
   Axes getAxisMaps() const {
     return m_AxisMappings;
   }
-  Int_t getAxisMapCout() const {
+  Int_t getAxisMapCount() const {
     return m_AxisMappings.size();
   }
   virtual SpectrumType_t getSpectrumType() = 0;
