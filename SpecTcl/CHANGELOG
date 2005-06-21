@@ -328,3 +328,5 @@ June 1, 2005
   - Fix defect with guintegrate - was multiply deleting contours during
     integration.
   - Did  a bunch of refactoring to make the integration loop code look nicer.
+  - Treeparameter fixes: GUI should save empty units on unit-less variables and
+    spectra.  In addition for old files, treevariable -set should have units optional
