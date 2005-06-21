@@ -74,3 +74,26 @@ install-exec-local:
 	$(mkinstalldirs) $(SCRIPTDEST)
 	$(INSTALL_PROGRAM) *.tcl $(SCRIPTDEST)
 
+
+if CPPUNIT
+
+noinst_PROGRAMS=TestRunner
+
+TestRunner_SOURCES = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
+	MatchTest.cpp      TestRunner.cpp            TreeVariableArrayTests.cpp \
+	SetAllVTest.cpp    TestSuite.cpp             TreeVariableCommandTests.cpp \
+	SetChansTest.cpp   TreeExceptionTest.cpp     TreeVariablePropertyTests.cpp \
+	SetLimitsTest.cpp  TreeParamArrayTest.cpp    TreeVariableTests.cpp \
+	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  testStubs.cpp \
+	$(libTreeParam_la_SOURCES)
+
+TestRunner_LDFLAGS = -L@top_srcdir@/TCL -ltclPlus \
+	 -L@top_srcdir@/NSCLException -lException \
+	-L@top_srcdir@/Events -lAnalysis \
+	$(TCL_LDFLAGS) $(CPPUNIT_LDFLAGS)
+
+noinst_HEADERS = Asserts.h
+
+TESTS=./TestRunner
+
+endif

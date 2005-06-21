@@ -1264,14 +1264,14 @@ proc SaveDefinitionFile {file} {
 			set stop [lindex $treeparameter 3]
 			set increment [lindex $treeparameter 4]
 			set unit [lindex $treeparameter 5]
-			puts $handle "treeparameter -set $name $bins $start $stop $increment $unit"
+		    puts $handle "[list treeparameter -set $name $bins $start $stop $increment $unit]"
 		}
 		puts $handle "# TreeVariable changes from C++ code"
 		foreach treevariable $treevariableList {
 			set name [lindex $treevariable 0]
 			set value [lindex $treevariable 1]
 			set unit [lindex $treevariable 2]
-			puts $handle "treevariable -set $name $value $unit"
+		    puts $handle "[list treevariable -set $name $value $unit]"
 		}
 		puts $handle "# Parameter page"
 		foreach p [array names parameter] {

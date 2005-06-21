@@ -242,7 +242,7 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
 
   // Check the number of parameters is ok...
   
-  if (argc != 3) {
+  if (argc < 2) {
     rResult = "Incorrect number of command line parameters in treevariable -set\n";
     rResult += Usage();
     return TCL_ERROR;
@@ -252,7 +252,6 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
   // as expressions.
   
   string name(argv[0]);
-  string units(argv[2]);
   double value;
   
   try {
@@ -265,6 +264,23 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
      rResult += Usage();
      return TCL_ERROR;
   }
+  // Get the units ("" if not supplied).
+
+  string units("");
+  argv += 2;
+  argc -= 2;
+  if(argc) {
+    units = *argv;
+    argc--;
+    argv++;
+  }
+  if(argc) {
+    rResult = "Incorrect number of command line parameters in treevariable -set\n";
+    rResult += Usage();
+    return TCL_ERROR;
+  }
+
+
 
   //   Locate the variable to modify:
   
@@ -457,7 +473,7 @@ CTreeVariableCommand::Usage()
   
   result   = "Usage\n";
   result += "    treevariable -list ?pattern?\n";
-  result += "    treevariable -set name value units\n";
+  result += "    treevariable -set name value ?units?\n";
   result += "    treevariable -check name\n";
   result += "    treevariable -setchanged name\n";
   result += "    treevariable -firetraces ?pattern?\n";
