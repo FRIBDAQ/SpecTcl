@@ -31,6 +31,7 @@ class TreeVarCommandTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(ListDispat);
   CPPUNIT_TEST(SetChanged);
   CPPUNIT_TEST(SetProperties);
+  CPPUNIT_TEST(SetNoUnits);	// Set omitting units.
   CPPUNIT_TEST(CheckChanged);
   CPPUNIT_TEST(Usage);
   CPPUNIT_TEST(Traces);
@@ -68,6 +69,7 @@ protected:
   void ListDispat();
   void SetChanged();
   void SetProperties();
+  void SetNoUnits();
   void CheckChanged();
   void Usage();
   void Traces();
@@ -377,13 +379,28 @@ TreeVarCommandTest::SetProperties()
   status = (*m_pCommand)(*m_pInterp, *m_pResult, 5, cmdargv);
   EQMSG("indiv good set via dispatch", TCL_OK, status);
   EQMSG("Indiv value", 2.22, m_pIndividual->getValue());
-  EQMSG("Indiv units", "in",   "in");
+  EQMSG("Indiv units", string("in"),  m_pIndividual->getUnit());
 
   m_pResult->Clear();
 
   
 
 }
+
+// New functionality test:
+//   Check for treevariableset without supplying units:
+//
+void
+TreeVarCommandTest::SetNoUnits()
+{
+  char* argv[4] = {"treevariable", "-set", "indiv", "2.22"};
+
+  int status = (*m_pCommand)(*m_pInterp, *m_pResult, 4, argv);
+  EQMSG("Nounits set status", TCL_OK, status);
+  EQMSG("Nounits set value",  2.22, m_pIndividual->getValue());
+  EQMSG("Nounits set units", string(""), m_pIndividual->getUnit());
+}
+
 // Test for:
 //   function handles too few arguments.
 //   function handles too many arguments.
@@ -448,7 +465,7 @@ TreeVarCommandTest::CheckChanged()
 
 static string usagesb("Usage\n\
     treevariable -list ?pattern?\n\
-    treevariable -set name value units\n\
+    treevariable -set name value ?units?\n\
     treevariable -check name\n\
     treevariable -setchanged name\n\
     treevariable -firetraces ?pattern?\n");
@@ -483,7 +500,7 @@ TreeVarCommandTest::Traces()
 
   // Just modifying the value won't fire traces... we need to -firetraces too:
 
-  char* setargv[5] = {"treevariable", "-set", "indiv", "in", "2.22"};
+  char* setargv[5] = {"treevariable", "-set", "indiv", "2.22", "in", };
   int status = (*m_pCommand)(*m_pInterp, *m_pResult, 5, setargv);
   EQMSG("set status", TCL_OK, status);
   EQMSG("set trace count", 0, traces);
