@@ -43,7 +43,7 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	Globals.cpp FilterCommand.cpp \
 	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
 	DocumentationException.cpp DocumentationCallback.cpp \
-	SpecTcl.cpp CFoldCommand.cpp
+	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
@@ -56,7 +56,7 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	FilterCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
-	SpecTcl.h CFoldCommand.h
+	SpecTcl.h CFoldCommand.h CProjectionCommand.h
 
 bin_PROGRAMS = SpecTcl
 

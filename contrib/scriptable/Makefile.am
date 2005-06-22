@@ -150,6 +150,7 @@ unittest_LDFLAGS = $(CPPUNIT_LDFLAGS) \
 	-L@top_srcdir@/Display -lXamine  \
 	-L@top_srcdir@/Tape -ltape       \
 	-L@top_srcdir@/Filter -lFilter \
+	-L@top_srcdir@/TreeParam -lTreeParam \
 	-L@top_srcdir@/Analysis -lBufferAnalysis \
 	-ltk -ltcl $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
 

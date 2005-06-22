@@ -333,4 +333,5 @@ June 20, 2005
     o gui writing tree variables and parameters with "" units doesn't put
       {} for units but leaves it empty.
     o Allow treevariable -set units optional.
-
+June 22, 2005
+  - Support for projection spectra.

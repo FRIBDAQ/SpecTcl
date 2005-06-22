@@ -285,6 +285,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.3  2005/06/22 18:50:53  ron-fox
+  Add support for projections.
+
   Revision 5.2  2005/06/03 15:19:28  ron-fox
   Part of breaking off /merging branch to start 3.1 development
 
@@ -392,6 +395,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CTreeParameter.h>
 #include <CTreeVariable.h>
 #include "CFoldCommand.h"
+
+#include <CProjectionCommand.h>
+
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -841,6 +847,11 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   CFoldCommand* pFold = new CFoldCommand(&rInterp);
 
   cerr << "fold command (c) 2005 NSCL Written by Ron Fox\n";
+
+  CProjectionCommand* pProjection = new CProjectionCommand(rInterp);
+
+  cerr << "project command (c) 2005 NSCL Written by Ron Fox\n";
+
   cerr.flush();
 }
 
