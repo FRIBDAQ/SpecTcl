@@ -71,6 +71,7 @@ public:
   virtual CGate* clone();
   std::string Type() const;
   virtual Bool_t inGate(CEvent& rEvent);
+  bool UsesParameter(UInt_t nParam);
   CGammaContour::parameterIterator parametersBegin();
   CGammaContour::parameterIterator parametersEnd();
   size_t parameterSize();
