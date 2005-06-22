@@ -84,7 +84,6 @@ TestObjects=@top_srcdir@/Events/Event.o @top_srcdir@/SpecTcl/EventProcessor.o
 
 unittests_LDFLAGS = $(TestObjects) $(CPPUNIT_LDFLAGS) -L@top_srcdir@/TCL -ltclPlus  \
 	-L@top_srcdir@/NSCLException -lException \
-	-L@top_srcdir@/TreeParam -lTreeParam \
 	-lgsl -lgslcblas -lm $(TCL_LDFLAGS)
 
 
