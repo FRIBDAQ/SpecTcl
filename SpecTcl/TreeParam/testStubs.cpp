@@ -105,12 +105,14 @@ TreeTestSupport::getEvent()
 void
 TreeTestSupport::ThrowIfNoParameter(CTreeParameter& param, const char* pd)
 {
-  param.ThrowIfNoParameter(pd);
+  string pds(pd);
+  param.ThrowIfNoParameter(pds);
 }
 void
 TreeTestSupport::ThrowIfNoEvent(CTreeParameter& param, const char* pd)
 {
-  param.ThrowIfNoEvent(pd);
+  string pds(pd);
+  param.ThrowIfNoEvent(pds);
 }
 
 #include "Asserts.h"
