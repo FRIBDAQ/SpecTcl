@@ -4,7 +4,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 3.0-002)
+AM_INIT_AUTOMAKE(SpecTcl, 3.0-003)
 
 
 AC_EXEEXT
@@ -23,15 +23,6 @@ SOVERSION="3:0"
 MYGRIDIR="gri-2.12.7"
 
 # Checks for programs.
-# Fortran compiler only supported on Linux and Tru64
-case $host_os in
-  *linux* ) 
-	AC_PROG_F77
-	;;
-  *osf* )
-	AC_PROG_F77
-	;;
-esac
 
 AC_PROG_AWK
 AC_PROG_CXX
