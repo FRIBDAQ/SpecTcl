@@ -188,8 +188,7 @@ Xaminetest_DEPENDENCIES = libXamine.la
 
 EXTRA_DIST = queue.cc colorset.ico \
 	Xamine.ico Xamine.doc Xamine2.ctbl \
-	Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc \
-	aedpublic.for aedshare.f aedshare.for aedxamine.for
+	Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc 
 
 #  These files can cause problems on rebuilds.
 

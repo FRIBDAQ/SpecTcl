@@ -335,3 +335,5 @@ June 20, 2005
     o Allow treevariable -set units optional.
 June 22, 2005
   - Support for projection spectra.
+June 29, 2005
+  - Remove need for working fortran compiler.
