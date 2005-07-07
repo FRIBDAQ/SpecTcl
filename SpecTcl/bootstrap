@@ -2,6 +2,7 @@
 
 set -x
 find . -name .deps -exec rm -rf {} \;
+find . -name "*.o" -exec rm {} \;
 aclocal -I config
 libtoolize --force --copy
 autoheader
