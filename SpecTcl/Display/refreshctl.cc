@@ -495,7 +495,7 @@ void Xamine_GetRefreshCallback(RefreshCallback *cb, XtPointer *ud)
 void Xamine_RedrawPane(int column, int row)
 {
   pane_db *db;
-  int     cellno;
+  long     cellno;
   XMWidget *pane;
   
   db = Xamine_GetPaneDb();
