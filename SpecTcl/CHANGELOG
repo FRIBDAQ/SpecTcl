@@ -332,3 +332,6 @@ June 1, 2005
     spectra.  In addition for old files, treevariable -set should have units optional
 3.0-003
   - Remove requirement for fortran at config time.
+
+3.0-004
+  - Do a bit of recasting in order to make cleaner compiles on ia64 systems.
