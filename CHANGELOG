@@ -337,3 +337,5 @@ June 22, 2005
   - Support for projection spectra.
 June 29, 2005
   - Remove need for working fortran compiler.
+July 7, 2005
+  - Add ia64 adjustments from 3.0 branch

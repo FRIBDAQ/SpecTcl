@@ -376,7 +376,7 @@ static void CheckAbort(XtPointer userd, XtIntervalId *id)
   /*
   ** First determine which pane we're dealing with.
   */
-  int index = (int)userd;
+  long index = (long)userd;
   int column = index  % WINDOW_MAXAXIS;
   int row    = column / WINDOW_MAXAXIS;
 
@@ -495,7 +495,7 @@ void Xamine_GetRefreshCallback(RefreshCallback *cb, XtPointer *ud)
 void Xamine_RedrawPane(int column, int row)
 {
   pane_db *db;
-  int     cellno;
+  long     cellno;
   XMWidget *pane;
   
   db = Xamine_GetPaneDb();

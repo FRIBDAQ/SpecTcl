@@ -294,8 +294,11 @@ DAMAGES.
 
 Change Log:
    $Log$
-   Revision 5.2  2005/06/03 15:19:00  ron-fox
-   Part of breaking off /merging branch to start 3.1 development
+   Revision 5.3  2005/07/07 14:19:45  ron-fox
+   Add i64 adjustments from 3.0 branch
+
+   Revision 5.1.2.2  2005/07/07 13:26:19  ron-fox
+   Fix another casting issue
 
    Revision 5.1.2.1  2004/12/21 17:51:18  ron-fox
    Port to gcc 3.x compilers.
@@ -359,7 +362,7 @@ template <class T>
 class TranslatorPointer
 {
   BufferTranslator& m_rUnderlyingBuffer; /*! Reference to the BufferTrans. */
-  UInt_t            m_nOffset;           //!< Byte offset into the buffer.
+  ULong_t            m_nOffset;           //!< Byte offset into the buffer.
   
  public:
 
@@ -378,7 +381,7 @@ class TranslatorPointer
   // from which to calculate m_nOffset
   TranslatorPointer<T>(BufferTranslator& Translator, Address_t const Addr) :
     m_rUnderlyingBuffer(Translator),
-    m_nOffset(((UInt_t)Addr - (UInt_t)Translator.getBuffer()))
+    m_nOffset(((ULong_t)Addr - (ULong_t)Translator.getBuffer()))
     { }
 
   // Constructor from any other type of translator pointer:
