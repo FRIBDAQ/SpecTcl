@@ -1,7 +1,7 @@
 INCLUDES = -I. -I../Utility -I../NSCLException -I../Xamine -I../Gates \
 	   -I../Events -I../Display @TCL_FLAGS@ -I..
 LDADD = -lSorting -lXplus -lGates -lAnalysis -lEventSource -ltclPlus -lException -lXamine -lXt -lX11
-LDFLAGS = -L. @TCL_LDFLAGS@ @XTLIBSW@ @XLIBSW@
+AM_LDFLAGS = -L. @TCL_LDFLAGS@ @XTLIBSW@ @XLIBSW@
 
 lib_LTLIBRARIES = libSorting.la
 libSorting_la_LDFLAGS = -version-info $(SOVERSION):0 \

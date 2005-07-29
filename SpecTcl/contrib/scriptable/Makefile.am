@@ -34,6 +34,25 @@ MainSources=CConfigurableObject.cpp \
 	CCAENV830Module.cpp CIntArrayParam.cpp \
 	CStringArrayparam.cpp 
 
+Main_Objects = CConfigurableObject.o   \
+	CSegmentUnpacker.o   \
+	CConfigurationParameter.o   \
+	CIntConfigParam.o   \
+	CBoolConfigParam.o   \
+	CStringConfigParam.o   \
+	CPacket.o   \
+	CModuleDictionary.o   \
+	CModule.o   \
+	CModuleCommand.o   \
+	CPacketCreator.o   \
+	CModuleCreator.o   \
+	CScriptableUnpacker.o   \
+	CCAENDigitizerCreator.o   \
+	CCAENV830Creator.o   \
+	CCAENDigitizerModule.o   \
+	CCAENV830Module.o   CIntArrayParam.o   \
+	CStringArrayparam.o 
+
 libScripted_la_SOURCES =  $(MainSources)
 
 
@@ -63,24 +82,21 @@ noinst_HEADERS =  CBoolConfigParam.h \
 	CCAENV1x90Data.h
 
 
-ScriptedSpecTcl_LDFLAGS = -g -Wl,"-rpath=($prefix)/lib"
-
 ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 
-ScriptedSpecTcl_LDADD =  -lScripted -lTclGrammerCommands \
+ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
 	-lSorting -lXplus \
 	-lGates -lAnalysis \
 	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lBufferAnalysis \
 	-lXamine  -lTreeParam \
-	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) 
-
-ScriptedSpecTcl_LDFLAGS = -L.  \
-	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
 	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
 	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
 	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \
 	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
-	-L@top_srcdir@/TreeParam
+	-L@top_srcdir@/TreeParam \
+	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	-g -Wl,"-rpath=($prefix)/lib"
 
 #
 #  At install time, in order to make this open ended we:
@@ -101,24 +117,15 @@ ScriptedSpecTcl_LDFLAGS = -L.  \
 #
 
 install-exec-local:
-	# Make my directory hierarchy:
-	#
 	$(mkinstalldirs) $(prefix)/contrib
 	$(mkinstalldirs) $(prefix)/contrib/scripted
 	$(mkinstalldirs) $(prefix)/contrib/scripted/src
 	$(mkinstalldirs) $(prefix)/contrib/scripted/include
 	$(mkinstalldirs) $(prefix)/contrib/scripted/skel
-	#
-	#  Put the raw files where they belong.
-	#
 	$(INSTALL_DATA) *.cpp $(prefix)/contrib/scripted/src
 	$(INSTALL_DATA) *.h   $(prefix)/contrib/scripted/include
 	$(INSTALL_DATA) MySpecTclApp.cpp MySpecTclApp.h \
 			      $(prefix)/contrib/scripted/skel
-	#
-	#   Build the Makefile from Makefile.skel and stuff
-	#   figured out by autoconf.
-	#
 	echo "#-------- Begin auto generated stuff " \
 	                                  > Makefile.user
 	echo INSTDIR=$(prefix)           >> Makefile.user
@@ -135,7 +142,9 @@ if CPPUNIT
 noinst_PROGRAMS = unittest
 
 unittest_SOURCES = SegUnpackerTest.cpp ModuleTest.cpp PacketTest.cpp CreatorTest.cpp \
-	UnpackerTest.cpp TestRunner.cpp $(MainSources)
+	UnpackerTest.cpp TestRunner.cpp
+
+unittest_DEPENDENCIES = $(Main_Objects)
 
 unittest_LDFLAGS = $(CPPUNIT_LDFLAGS) \
 	-L@top_srcdir@/SpecTcl -lTclGrammerCommands \

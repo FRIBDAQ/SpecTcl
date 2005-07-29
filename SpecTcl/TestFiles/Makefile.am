@@ -3,7 +3,7 @@ INCLUDES= -I. -I../EventSource -I../TCL -I../NSCLException \
 
 LDADD = -lEventSource -lException -ltape
 
-LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
+AM_LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
 	-L../Tape \
 	-L../Filter -L../SpecTcl -Wl,"-rpath=$(libdir)"
 

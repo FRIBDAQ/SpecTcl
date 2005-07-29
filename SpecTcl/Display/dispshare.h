@@ -306,25 +306,31 @@ DAMAGES.
 #define MEG 1024*1024
 #endif
 
+
+
 #ifdef HAVE_MACHINE_PARAM_H
 #include <machine/param.h>
+#ifndef CYGWIN
 #define PAGESIZE NBPG
+#else
+#define PAGESIZE 8192
+#endif
 #endif
 
 
 #ifndef HAVE_DECL_PADSIZE
-#define PADSIZE 512
+#define PADSIZE 8192
 #endif
 
 
 #ifndef HAVE_DECL_PAGESIZE
 #ifndef PAGESIZE
-#define PAGESIZE 512
+#define PAGESIZE 8192
 #endif
 #endif
 
 #ifndef PAGESIZE
-#define PAGESIZE 512
+#define PAGESIZE 8192
 #endif
 
 

@@ -17,6 +17,23 @@ libTreeParam_la_SOURCES = CMatchingVisitor.cpp \
 	SetWidthVisitor.cpp \
 	UncheckVisitor.cpp
 
+LibraryObjects =  CMatchingVisitor.o   \
+	CTreeException.o   \
+	CTreeParameter.o   \
+	CTreeParameterArray.o   \
+	CTreeParameterCommand.o   \
+	CTreeVariable.o   \
+	CTreeVariableArray.o   \
+	CTreeVariableCommand.o   \
+	CTreeVariableProperties.o   \
+	ListVisitor.o   \
+	SetAllVisitor.o   \
+	SetChannelsVisitor.o   \
+	SetLimitsVisitor.o   \
+	SetUnitsVisitor.o   \
+	SetWidthVisitor.o   \
+	UncheckVisitor.o  
+
 include_HEADERS = Asserts.h \
 	BindVisitor.h \
 	CMatchingVisitor.h \
@@ -84,8 +101,9 @@ TestRunner_SOURCES = ListTest.cpp       SetWidthTest.cpp          TreeParameterT
 	SetAllVTest.cpp    TestSuite.cpp             TreeVariableCommandTests.cpp \
 	SetChansTest.cpp   TreeExceptionTest.cpp     TreeVariablePropertyTests.cpp \
 	SetLimitsTest.cpp  TreeParamArrayTest.cpp    TreeVariableTests.cpp \
-	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  testStubs.cpp \
-	$(libTreeParam_la_SOURCES)
+	SetUnitsTest.cpp   TreeParamCommandTest.cpp  UncheckTest.cpp  testStubs.cpp 
+
+TestRunner_DEPENDENCIES = $(LibraryObjects)
 
 TestRunner_LDFLAGS = -L@top_srcdir@/TCL -ltclPlus \
 	 -L@top_srcdir@/NSCLException -lException \

@@ -17,9 +17,6 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(srcdir)/SpecTclRC.tcl $(prefix)/Skel
 	$(INSTALL_PROGRAM) $(srcdir)/setup.tcl $(prefix)/Skel
 	$(INSTALL_DATA)    $(srcdir)/Globals.o $(prefix)/lib
-	#
-	#    Build Makefile for the user.	
-	#
 	$(INSTALL_DATA)   SpecTcl_Makefile.include $(sysconfdir)
 	echo INSTDIR=$(prefix) >Makefile.user
 	cat Makefile.skel >> Makefile.user
@@ -74,17 +71,19 @@ SpecTcl_SOURCES = MySpecTclApp.cpp \
 	CFoldCommand.h
 
 
-SpecTcl_LDFLAGS = -g -Wl,"-rpath=$(libdir)"
 
 AM_CXXFLAGS = -g
 
-SpecTcl_LDADD = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis \
+SpecTcl_LDFLAGS = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis \
 	-lFilter -lBufferAnalysis -lEventSource -lSpecio -ltclPlus \
 	-lException -lTreeParam -lXamine  -ltape \
-	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)
-SpecTcl_LDFLAGS = -L. @TCL_LDFLAGS@ @XLIBSW@ -L../SpectrumIO -L../Tape -L../Sorter \
+	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)  \
+	-L. -L../SpectrumIO \
+	-L../Tape -L../Sorter \
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
-	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam
+	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam \
+	-g -Wl,"-rpath=$(libdir)"  @TCL_LDFLAGS@ @XLIBSW@
+
 
 man_MANS = spectclapi.3
 
@@ -107,14 +106,16 @@ noinst_HEADERS = Asserts.h
 
 scalertests_SOURCES = TestRunner.cpp \
 	scalercallbacktests.cpp 	\
-	controlcallbacktests.cpp \
-	ScalerProcessorCallbacks.cpp 
+	controlcallbacktests.cpp
+
+scalertests_DEPENDENCIES = ScalerProcessorCallbacks.o
 
 docbuftests_SOURCES = TestRunner.cpp \
 	docexceptiontests.cpp \
-	callbacktests.cpp \
-	DocumentationException.cpp  \
-	DocumentationCallback.cpp
+	callbacktests.cpp 
+
+docbuftests_DEPENDENCIES = DocumentationException.o  \
+	DocumentationCallback.o
 
 
 scalertests_LDFLAGS= -L@top_srcdir@/Events -lAnalysis \

@@ -307,24 +307,31 @@ DAMAGES.
 
 #include <sys/types.h>
 #ifndef HAVE_DECL_PADSIZE
-#define PADSIZE 512
+#ifndef PADSIZE
+#define PADSIZE 8192
+#endif
 #endif
 
+
 #ifdef HAVE_MACHINE_PARAM_H
+#ifndef CYGWIN
 #include <machine/param.h>
 #define PAGESIZE NBPG
+#else
+#define PAGESIZE 8192
+#endif
 #endif
 
 #ifndef PAGESIZE
 #ifdef HAVE_DECL_PAGESIZE
 #include <limits.h>
 #else
-#define PAGESIZE 512		/* Should work for systems I know about. */
-#endif				/* Too big is better than too small.     */
+#define PAGESIZE 8192	/* Should work for systems I know about. */
+#endif				
 #endif
 
 #ifndef PAGESIZE		/* Still didn't find a pagesize... */
-#define PAGESIZE 512
+#define PAGESIZE 8192
 #endif
 
 
