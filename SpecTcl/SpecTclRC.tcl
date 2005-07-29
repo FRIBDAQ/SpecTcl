@@ -300,9 +300,11 @@ puts -nonewline "Loading gate copy script procs..."
 source $SpecTclHome/Script/CopyGates.tcl
 puts "Done."
 
-puts -nonewline "Loading TKCon console..."
-source $SpecTclHome/Script/tkcon.tcl
-puts "Done."
+if {$tcl_platform(os) != "Windows NT"} {
+	puts -nonewline "Loading TKCon console..."
+	source $SpecTclHome/Script/tkcon.tcl
+	puts "Done."
+}
 
 puts -nonewline "Starting treeparamgui..."
 source $SpecTclHome/Script/SpecTclGui.tcl
