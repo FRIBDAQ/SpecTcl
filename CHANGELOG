@@ -339,3 +339,8 @@ June 29, 2005
   - Remove need for working fortran compiler.
 July 7, 2005
   - Add ia64 adjustments from 3.0 branch
+July 27, 2005
+  - Fix up some automake incorrectnesses that old versions of AM let slide.
+    This is part of an effort to port to Cygwin.
+  - Fix up issues with the definition of PAGESIZE in Xamine (Display subdir)
+    That make it not build correctly on CYGWIN.

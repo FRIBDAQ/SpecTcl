@@ -726,7 +726,8 @@ AC_LANG_POP(C++)
 
 # We also want the 'check' package for C language unit tests.
 
-AM_PATH_CHECK()
+# AM_PATH_CHECK()
+
 fi
 
 AM_CONDITIONAL(CPPUNIT, test $havecppunit == "yes")
