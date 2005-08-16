@@ -241,5 +241,5 @@ CCAENDigitizerModule::Unpack(TranslatorPointer<UShort_t> pEvent,
 string 
 CCAENDigitizerModule::getType() const
 {
-    return string("caen7xx");
+    return string("caen17xx");
 }
