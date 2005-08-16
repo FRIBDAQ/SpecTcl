@@ -1,3 +1,5 @@
+# Skeleton makefile for 3.1
+
 include $(INSTDIR)/etc/SpecTcl_Makefile.include
 
 #  If you have any switches that need to be added to the default c++ compilation

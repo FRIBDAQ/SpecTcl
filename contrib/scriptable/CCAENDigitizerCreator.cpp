@@ -83,5 +83,5 @@ CCAENDigitizerCreator::Create(CTCLInterpreter& rInterp,
 string
 CCAENDigitizerCreator::TypeInfo() const
 {
-	return string(" Unpacks common event format for CAEN 7xx digitizers");
+	return string(" Unpacks common event format for CAEN (1)7xx digitizers");
 }

@@ -344,3 +344,5 @@ July 27, 2005
     This is part of an effort to port to Cygwin.
   - Fix up issues with the definition of PAGESIZE in Xamine (Display subdir)
     That make it not build correctly on CYGWIN.
+August 16, 2005
+  - Add support to scripted readout for caenv1785 adc (primitive).
