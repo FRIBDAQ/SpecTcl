@@ -1,14 +1,16 @@
 DEFS = @WCHAR_T_DEF@
 INCLUDES = -I.. -I. @TCL_FLAGS@ -I../Utility -I../NSCLException @XINCLUDES@
 LDADD = -ltclPlus -lException -lXt -lX11 $(X11EXTRA_LDFLAGS)
-LDFLAGS = -L. @TCL_LDFLAGS@ 
+AM_LDFLAGS = -L. @TCL_LDFLAGS@ 
 
 lib_LTLIBRARIES = libtclPlus.la
 
 libtclPlus_la_LDFLAGS = -version-info $(SOVERSION):0 \
 	-Wl,"-rpath-link=$(libdir)"
 
-testableSources = TCLInterpreter.cpp TCLProcessor.cpp  \
+testableSources = 
+
+libtclPlus_la_SOURCES = TCLApplication.cpp TCLInterpreter.cpp TCLProcessor.cpp  \
 	TCLVariable.cpp TCLString.cpp  \
 	TCLResult.cpp TCLTimer.cpp TCLFileHandler.cpp \
 	TCLList.cpp TCLException.cpp TCLInterpreterObject.cpp \
@@ -16,8 +18,6 @@ testableSources = TCLInterpreter.cpp TCLProcessor.cpp  \
 	TCLObject.cpp TCLChannel.cpp TCLTracedVariable.cpp \
 	CLanguageTraceCallbacks.cpp
 
-
-libtclPlus_la_SOURCES = TCLApplication.cpp $(testableSources)
 
 
 
@@ -38,8 +38,13 @@ noinst_HEADERS = Asserts.h
 
 tracetests_SOURCES = TestRunner.cpp \
 			ccallbacktest.cpp \
-			tracevartest.cpp  \
-			$(testableSources)
+			tracevartest.cpp 
+tracetests_DEPENDENCIES = TCLInterpreter.o TCLProcessor.o \
+	TCLVariable.o TCLString.o TCLResult.o TCLTimer.o TCLFileHandler.o \
+	TCLList.o TCLException.o TCLInterpreterObject.o \
+	TCLCommandPackage.o TCLIdleProcess.o TCLObject.o TCLChannel.o \
+	TCLTracedVariable.o CLanguageTraceCallbacks.o
+
 
 tracetests_LDADD = $(CPPUNIT_LDFLAGS) $(X11EXTRA_LDFLAGS) \
 	-L@top_srcdir@/NSCLException -lException

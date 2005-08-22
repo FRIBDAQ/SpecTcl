@@ -46,17 +46,12 @@ EXTRA_DIST=CalibIO.tcl CalibIOGUI.tcl CalibrateMainGui.tcl \
 #  Makefile.skel will be installed a Makefile in its target directory.
 
 install-exec-local:
-	#  Make the directories we need:
-	#
 	$(mkinstalldirs)    $(prefix)/lib
 	$(mkinstalldirs)    $(prefix)/contrib/calibratedparams
 	$(mkinstalldirs)    $(prefix)/contrib/calibratedparams/include
 	$(mkinstalldirs)    $(prefix)/contrib/calibratedparams/skel
 	$(mkinstalldirs)    $(prefix)/contrib/calibratedparams/Scripts
 	$(mkinstalldirs)    $(prefix)/contrib/calibratedparams/src
-	#
-	#  Put the easy stuff where it belongs.
-	#
 	$(INSTALL_DATA) *.h   $(prefix)/contrib/calibratedparams/include
 	$(INSTALL_DATA) MySpecTclApp.cpp $(prefix)/contrib/calibratedparams/skel
 	$(INSTALL_DATA) MySpecTclApp.h   $(prefix)/contrib/calibratedparams/skel
@@ -64,10 +59,6 @@ install-exec-local:
 	$(INSTALL_DATA) SpecTclRC.tcl    $(prefix)/contrib/calibratedparams/skel
 	$(INSTALL_DATA) *.tcl *.gif      $(prefix)/contrib/calibratedparams/Scripts
 	$(INSTALL_DATA) *.cpp            $(prefix)/contrib/calibratedparams/src
-	#
-	#  Finally we need to make the package  index file so that package require
-	#  will work on this stuff.
-	#
 	chmod a+x ./installpkg
 	./installpkg $(prefix)/contrib/calibratedparams/Scripts
 
@@ -76,8 +67,12 @@ if CPPUNIT
 noinst_PROGRAMS = unittests 
 
 unittests_SOURCES = CommandTest.cpp FitTest.cpp CreatorTest.cpp FactoryTest.cpp \
-	CalibParamTest.cpp CalibManagerTest.cpp TestRunner.cpp \
-	$(MainSources) 
+	CalibParamTest.cpp CalibManagerTest.cpp TestRunner.cpp 
+
+unittests_DEPENDENCIES = CFit.$(OBJEXT) \
+	CFitCommand.$(OBJEXT) CFitCreator.$(OBJEXT), CFitFactory.$(OBJEXT) \
+	CLinearFit.$(OBJEXT) CLinearFitCreator.$(OBJEXT) \
+	CCalibratedParameter.$(OBJEXT) CCalibratedParameterManager.$(OBJEXT)
 
 
 TestObjects=@top_srcdir@/Events/Event.o @top_srcdir@/SpecTcl/EventProcessor.o

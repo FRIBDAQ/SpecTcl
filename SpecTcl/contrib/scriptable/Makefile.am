@@ -63,7 +63,6 @@ noinst_HEADERS =  CBoolConfigParam.h \
 	CCAENV1x90Data.h
 
 
-ScriptedSpecTcl_LDFLAGS = -g -Wl,"-rpath=($prefix)/lib"
 
 ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 
@@ -74,7 +73,7 @@ ScriptedSpecTcl_LDADD =  -lScripted -lTclGrammerCommands \
 	-lXamine  -lTreeParam \
 	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) 
 
-ScriptedSpecTcl_LDFLAGS = -L.  \
+ScriptedSpecTcl_LDFLAGS = -L.  -g -Wl,"-rpath=($prefix)/lib" \
 	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
 	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
 	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
@@ -101,24 +100,16 @@ ScriptedSpecTcl_LDFLAGS = -L.  \
 #
 
 install-exec-local:
-	# Make my directory hierarchy:
-	#
 	$(mkinstalldirs) $(prefix)/contrib
 	$(mkinstalldirs) $(prefix)/contrib/scripted
 	$(mkinstalldirs) $(prefix)/contrib/scripted/src
 	$(mkinstalldirs) $(prefix)/contrib/scripted/include
 	$(mkinstalldirs) $(prefix)/contrib/scripted/skel
-	#
-	#  Put the raw files where they belong.
-	#
+
 	$(INSTALL_DATA) *.cpp $(prefix)/contrib/scripted/src
 	$(INSTALL_DATA) *.h   $(prefix)/contrib/scripted/include
 	$(INSTALL_DATA) MySpecTclApp.cpp MySpecTclApp.h \
 			      $(prefix)/contrib/scripted/skel
-	#
-	#   Build the Makefile from Makefile.skel and stuff
-	#   figured out by autoconf.
-	#
 	echo "#-------- Begin auto generated stuff " \
 	                                  > Makefile.user
 	echo INSTDIR=$(prefix)           >> Makefile.user
@@ -135,7 +126,17 @@ if CPPUNIT
 noinst_PROGRAMS = unittest
 
 unittest_SOURCES = SegUnpackerTest.cpp ModuleTest.cpp PacketTest.cpp CreatorTest.cpp \
-	UnpackerTest.cpp TestRunner.cpp $(MainSources)
+	UnpackerTest.cpp TestRunner.cpp 
+
+unittest_DEPENDENCIES = CConfigurableObject.$(OBJEXT) \
+	CSegmentUnpacker.$(OBJEXT) CConfigurationParameter.$(OBJEXT) \
+	CIntConfigParam.$(OBJEXT) CBoolConfigParam.$(OBJEXT) CStringConfigParam.$(OBJEXT) \
+	CPacket.$(OBJEXT) CModuleDictionary.$(OBJEXT) CModule.$(OBJEXT) \
+	CModuleCommand.$(OBJEXT) CPacketCreator.$(OBJEXT) CModuleCreator.$(OBJEXT) \
+	CScriptableUnpacker.$(OBJEXT) CCAENDigitizerCreator.$(OBJEXT) \
+	CCAENV830Creator.$(OBJEXT) CCAENDigitzerModule.$(OBJEXT) \
+	CCAENV830Module.$(OBJEXT) CIntArrayParam.$(OBJEXT) \
+	CStringArrayParam.$(OBJEXT)
 
 unittest_LDFLAGS = $(CPPUNIT_LDFLAGS) \
 	-L@top_srcdir@/SpecTcl -lTclGrammerCommands \
