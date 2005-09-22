@@ -131,6 +131,9 @@ int CTreeParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rRes
   else if (subcommand == "-version") {
     status = Version(rInterp, rResult, argc, argv);
   }
+  else if (subcommand == "-create") {
+    status = Create(rInterp, rResult, argc, argv);
+  }
   else {
     // Invalid ensemble subcommand:
     //
@@ -166,6 +169,7 @@ CTreeParameterCommand::Usage()
   usage += "     treeparameter -setlimits name low high\n";
   usage += "     treeparameter -check name\n";
   usage += "     treeparameter -uncheck name\n";
+  usage += "     treeparameter -create  name low high bins units\n";
   usage += "     treeparameter -version";
   //
   return usage;
@@ -656,7 +660,7 @@ CTreeParameterCommand::UnCheck(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
 
 /**
- * Sets the result string to the tree parameter version string, at present, 2.0
+ * Sets the result string to the tree parameter version string, at present
  * @param rInterp
  * @param rResult
  *        Result string that this command returns.
@@ -677,8 +681,86 @@ CTreeParameterCommand::Version(CTCLInterpreter& rInterp, CTCLResult& rResult,
   rResult = CTreeParameter::TreeParameterVersion;
   return TCL_OK;
 }
+/**
+ *   Creates a new tree parameter.  The tree parameter is created
+ *   and bound to the true parameter space.  This will make the 
+ *   tree parameter either correspond to an existing parameter or 
+ *   create a new one.
+ *   The remaining command line parameters must be:
+ *   - name    - The name of the new tree parameter.
+ *   - low     - The default low limit of the parameter on spectrum axes.
+ *   - high    - The default high limit of the parameter on spectrum axes.
+ *   - bins    - The default number of channesl for the parameter on spectrum axes.
+ *   - units   - The units of measure of the parameter. 
+ *
+ * @param rInterp  - The interprereter on which the command is executing
+ * @param rResult  - The result to be returned; on success, this is the
+ *                   name of the new parameter.  On failure, an error  message.
+ * @param argc     - Number of parameters remaining on the command line
+ *                   following the -create switch.
+ * @param argv     - The remaining command parameters (see above).
+ * \return int
+ * \retval TCL_OK  - If the command succeeded in creating and binding a new
+ *                   tree parameter.
+ * \retval TCL_ERROR - if the command failed.
+ */
+int
+CTreeParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
+			      int argc, char** argv)
+{
+  if (argc != 5) {
+    rResult = "Insufficient command parameters for -create\n";
+    rResult += Usage();
+    return TCL_ERROR;
+  }
 
+  double low, high;
+  long   bins;
+  string name, units;
+  int index = 1;
 
+  // Refuse to allow a duplicate name:
+
+  name = argv[0];
+  if (CTreeParameter::find(name) != CTreeParameter::end()) {
+    rResult = name;
+    rResult += " is already a treeparameter.  Duplicates are not allowed";
+    return TCL_ERROR;
+  }
+
+  // Parse the floats (low, high)
+
+  try {
+    low  = rInterp.ExprDouble(argv[index]);
+    index++;
+    high = rInterp.ExprDouble(argv[index]); 
+  }
+  catch (...) {
+    return TypeSafeParseFailed(rResult, argv[index], "double");
+  }
+  // Parse the long (channel count).
+
+  try {
+    bins = rInterp.ExprLong(argv[3]);
+  } 
+  catch (...) {
+    return TypeSafeParseFailed(rResult, argv[3], "long");
+  }
+  // get the unts:
+
+  units = argv[4];
+
+  // Now create the tree parameter:
+  
+  CTreeParameter* pParam = new CTreeParameter;
+  pParam->Initialize(name, bins, low, high, units);
+  pParam->Bind();
+  pParam->setUnit(units);	// Since bind may unset them.
+  
+  rResult = name;
+  return TCL_OK;
+
+}
 /**
  * Called when a type safe parse failed
  * @param result
