@@ -476,7 +476,8 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult,
     return TCL_OK;
   else
     return TCL_ERROR;
-
+  rResult = "BUG - Report that: Control fell through the end of CChannelCommand::Get";
+  return TCL_ERROR;
 }
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -560,6 +561,8 @@ UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t
   else {
     return TCL_ERROR;
   }
+  rResult = "BUG Report that: Control fell through to the end of CChannelCommand::Set";
+  return TCL_ERROR;
 }
 /////////////////////////////////////////////////////////////////////////////
 //

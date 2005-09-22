@@ -306,6 +306,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
+// Revision 5.3  2005/09/22 12:40:38  ron-fox
+// Port in the bitmask spectra
+//
 // Revision 5.2  2005/06/03 15:19:28  ron-fox
 // Part of breaking off /merging branch to start 3.1 development
 //
@@ -813,7 +816,8 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
     Usage(rResult);
     return TCL_ERROR;
   }
-
+  rResult = "BUG - report this, CSpectrumCommand::Delete logic error";
+  return TCL_ERROR;
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -888,6 +892,8 @@ CSpectrumCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
     Usage(rResult);
     return TCL_ERROR;
   }
+  rResult ="BUG - report this: Control reached end of CSpectrumCommand::Delete";
+  return TCL_ERROR;
 
 }
 //////////////////////////////////////////////////////////////////////////

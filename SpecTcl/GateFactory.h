@@ -300,6 +300,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.3  2005/09/22 12:40:38  ron-fox
+  Port in the bitmask spectra
+
   Revision 5.2  2005/06/03 15:19:26  ron-fox
   Part of breaking off /merging branch to start 3.1 development
 
@@ -381,6 +384,9 @@ class C2Bands;
 class CNot;
 class CAndGate;
 class COrGate;
+class CMaskEqualGate;
+class CMaskAndGate;
+class CMaskNotGate;
 class CCut;
 class CDeletedGate;
 class CGammaCut;
@@ -418,7 +424,10 @@ public:
     trueg,			//!< Alwayw made gate.
     gammacut,                   //!< Gamma cut
     gammaband,                  //!< Gamma band
-    gammacontour                //!< Gamma contour
+    gammacontour,                //!< Gamma contour
+    em,				//!< mask ==
+    am,				//!< mask & != 0
+    nm				//!< mask !=
   };
 
 public:
@@ -476,6 +485,10 @@ public:
    CGate* CreateGate (GateType eType, 
 		      const STD(vector)<FPoint>& rPoints, 
 		      const STD(vector)<UInt_t>& rParameters);
+  CGate* CreateGate(GateType eType,
+                    const STD(vector)<STD(string)>& rParameters, 
+		    long comparison);
+  
 
    CTrueGate* CreateTrueGate ();
    CFalseGate* CreateFalseGate ();
@@ -496,6 +509,13 @@ public:
 				const STD(vector)<UInt_t>& rParameters);
    CGammaContour* CreateGammaContour (const STD(vector)<FPoint>& rPoints,
 				      const STD(vector)<UInt_t>& rParameters);
+  CMaskEqualGate* CreateMaskEqualGate(const STD(vector<STD(string)>)& rParameter,
+                                      long Compare);
+  CMaskAndGate* CreateMaskAndGate(const STD(vector<STD(string)>)& rParameter,
+				  long Compare);
+  CMaskNotGate* CreateMaskNotGate(const STD(vector<STD(string)>)& rParameter,
+				  long Compare);
+  
   static UInt_t  AssignId();
  
 protected:
