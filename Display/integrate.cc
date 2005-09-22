@@ -921,3 +921,90 @@ void Integrate_2dw::Perform()
 
   DestroyEdgeTable(e);
 }
+// Integrate for a 2d longword. See the above functions for call conventions.
+
+void
+Integrate_2dl::Perform()
+{
+  /* First produce the edge table:  */
+
+  edge_table *e  = MakeEdgeTable(sumregion);
+
+  /*  The first line scan line by definition must have edge descriptions in
+  **  it.  These are also sorted.  Therefore we produce the active edge table
+  **  from it:
+  */
+
+  edge_list active;
+  active.num_edges = 0;		/* Initially empty will be merged in loop. */
+
+  /* Get the y limits of the scan and produce some easy access pointers to
+  ** the spectrum:
+  */
+  int nlines             = e->scan_lines;	/* Loop pass count. */
+  unsigned long *line    = spectrum + (e->ybase * xchans);  /* base of scan */
+
+  /* Now loop over all the scan lines represented by the edge table:      */
+  /* In each pass of the loop, pairs of points in the active edge table   */
+  /* define integration limits.  After each loop pass, dead line segments */
+  /* are eliminated and new ones merged in.                               */
+  double sum    = 0;
+  double xsum   = 0;
+  double ysum   = 0;
+  double xsqsum = 0;
+  double ysqsum = 0;
+  int  y       = e->ybase;	/* Keep track of y coord. */
+
+  for(int l = 0; l < nlines; l++) { /* Loop over scan lines. */
+    MergeEdgeTable(&active, e, l); /* Merge with next scan line.       */
+    for(int j = 0; j < active.num_edges; j += 2) { /* scan over all pairs  */
+      int lo = (int)active.bases[j].xnow;
+      int hi = (int)active.bases[j+1].xnow; /* sum limits. */
+      unsigned long *s = line + lo;
+      for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
+	double xchannel = XChannel(k);
+	double ychannel = YChannel(y);
+	float  ch       = (float)*s++;
+	sum     += ch;
+	xsum    += ch * xchannel;
+	ysum    += ch * ychannel;
+	xsqsum  += ch * (xchannel*xchannel);
+	ysqsum  += ch * (ychannel*ychannel);
+
+      }				/* Sum over one interior region. */
+    }				/* Scan over all pairs.          */
+    /* Now on to the next scan line:  */
+
+    y++;
+    UpdateEdgeTable(&active, y); /* Update contents of current edge tbl. */
+    line += xchans;
+  }
+
+  /* Now that we've summed over the interior region, we can compute the */
+  /* desired quantities for the integrator.                             */
+
+  if(sum > 0.0) {
+    volume    = sum;
+    xcentroid = xsum / sum;
+    ycentroid = ysum / sum;
+    xdeviance = (xsqsum/sum) - xcentroid*xcentroid;
+    if(xdeviance < 0) xdeviance = 0;
+    xdeviance = sqrt(xdeviance);
+    ydeviance = (ysqsum/sum) - ycentroid*ycentroid;
+    if(ydeviance < 0) ydeviance = 0;
+    ydeviance = sqrt(ydeviance);
+  }
+  else {
+    volume    = 0.0;
+    xcentroid = 0.0;
+    ycentroid = 0.0;
+    xdeviance = 0.0;
+    ydeviance = 0.0;
+  }
+
+
+  /* Get rid of the dynamic storage associated with the edge table. */
+
+  DestroyEdgeTable(e);
+
+}

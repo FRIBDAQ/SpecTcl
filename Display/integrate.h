@@ -336,7 +336,7 @@ class Integrate_1d {
 };
 
 class Integrate_2d {
- protected:
+protected:
   grobj_sum2d    *sumregion;
   unsigned short xchans;	/* For indexing. */
   float          xcentroid;
@@ -345,7 +345,7 @@ class Integrate_2d {
   float          ydeviance;
   float          volume;
   bool           m_fMapped;	// True if mapped spectrum.
- public:
+public:
   Integrate_2d(int xd, grobj_sum2d *sr, bool mapped=false) :
     sumregion(sr),
     xchans(xd),
@@ -439,4 +439,16 @@ class Integrate_2dw : public Integrate_2d {
     }
   virtual void Perform();
 };
+class Integrate_2dl : public Integrate_2d {
+protected:
+  unsigned long* spectrum;
+public:
+  Integrate_2dl(unsigned long *spc, int xd, grobj_sum2d *sr, bool mapped=false) :
+    Integrate_2d(xd, sr, mapped) 
+  {
+    spectrum = spc;
+  }
+  virtual void Perform();
+};
+
 #endif

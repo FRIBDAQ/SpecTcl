@@ -377,29 +377,16 @@ static void maxpeak1dw(unsigned short *c, int xl, int xh, unsigned int *maxval,
 }
 
 
-/*
-** Functional Description:
-**   maxpeak2dw:
-**    This function determins the parameters of the highest channel for a 
-**    2-d word spectrum within an area of interest.
-** Formal Parameters:
-**    unsigned short *c:
-**      Pointer to the channels of the spectrum ([0][0]).
-**    int xl,xy, yl,yh:
-**      Define the x and y channel limits of the areas of interest.
-**    int xdim, ydim:
-**      Indicate the x and y dimensions of the underlying spectrum for channel
-**      number to index computations.
-**    unsigned int *maxval:
-**       Returned value at the maximal channel.
-**    unsigned int *maxx, *maxy:
-**       Location of the maximal channel.
-*/
-static void maxpeak2dw(unsigned short *c, int xl, int xh, int yl, int yh,
-		       int xdim, int ydim, unsigned int *maxval, 
-		       unsigned int *maxx, unsigned int *maxy)
-{
 
+/*  maxpeak2
+      Template function that figures out the info for the max peak position
+      for 2d spectra.
+*/
+template<class T>
+static void maxpeak2d(T* c, int xl, int xh, int yl, int yh,
+			 int xdim, int ydim, unsigned int *maxval,
+			 unsigned int* maxx, unsigned int* maxy)
+{
   *maxval = 0;
   *maxx   = 0;
   *maxy   = 0;
@@ -411,7 +398,7 @@ static void maxpeak2dw(unsigned short *c, int xl, int xh, int yl, int yh,
   /* Now loop over the rows in the area of interest and look for the max chan */
 
   for(int iy = yl; iy <= yh; iy++) {
-    unsigned short *cr  = c;	/* points within the row being scanned */
+    T *cr  = c;	/* points within the row being scanned */
     for(int ix = xl; ix <= xh; ix++) {
       if( *cr >= *maxval) {
 	*maxval = *cr;
@@ -423,43 +410,34 @@ static void maxpeak2dw(unsigned short *c, int xl, int xh, int yl, int yh,
     c += xdim;			/* Point c to the next row.   */
   }
 }
-
-/*
-** Functional Description:
-**   maxpeak2db:
-**     This function determines and returns the 2-d  maximum channel 
-**     parameters for a 2-d byte spectrum.  Note that the action is the
-**     same as maxpeak2dw, but the pointers used are pointers to bytes not
-**     words... therefore please refer to maxpeak2dw for details.
-*/
-static void maxpeak2db(unsigned char *c, int xl, int xh, int yl, int yh,
-		       int xdim, int ydim, unsigned int *maxval, 
-		       unsigned int *maxx, unsigned int *maxy)
+
+// Explicit versions, so we don't have to port:
+
+static void maxpeak2dl(unsigned long* c, int xl, int xh, int yl, int yh,
+		       int xdim, int ydim, unsigned int* maxval,
+		       unsigned int* maxx, unsigned int* maxy)
 {
-
-  *maxval = 0;
-  *maxx   = 0;
-  *maxy   = 0;
-
-  /*   Compute the pointer to the first row of the area of interest: */
-
-  c += (yl)*xdim + xl;
-
-  /* Now loop over the rows in the area of interest and look for the max chan */
-
-  for(int iy = yl; iy <= yh; iy++) {
-    unsigned char *cr  = c;	/* points within the row being scanned */
-    for(int ix = xl; ix <= xh; ix++) {
-      if( *cr >= *maxval) {
-	*maxval = *cr;
-	*maxx   = ix;
-	*maxy   = iy;
-      }
-      cr++;			/* Point to the next channel. */
-    }
-    c += xdim;			/* Point c to the next row.   */
-  }
+  maxpeak2d<unsigned long>(c, xl, xh, yl, yh, xdim, ydim, maxval,
+			   maxx, maxy);
 }
+
+
+static void maxpeak2dw(unsigned short* c, int xl, int xh, int yl, int yh,
+		       int xdim, int ydim, unsigned int* maxval,
+		       unsigned int* maxx, unsigned int* maxy)
+{
+  maxpeak2d<unsigned short>(c, xl, xh, yl, yh, xdim, ydim, maxval,
+			   maxx, maxy);
+}
+
+static void maxpeak2db(unsigned char* c, int xl, int xh, int yl, int yh,
+		       int xdim, int ydim, unsigned int* maxval,
+		       unsigned int* maxx, unsigned int* maxy)
+{
+  maxpeak2d<unsigned char>(c, xl, xh, yl, yh, xdim, ydim, maxval,
+			   maxx, maxy);
+}
+
 
 
 /*
@@ -534,7 +512,34 @@ static void getpeakinfo(char *text, win_attributed *def)
 	      Xamine_XChanToMapped(spno, maxx));
     else 
       sprintf(text, " Max=%d @ %u ", maxval, maxx);
-    break;    
+    break;  
+  case twodlong:
+    if(at2->isexpanded()) {
+      xl = at2->xlowlim();
+      xh = at2->xhilim();
+      if(xl <= 0) xl = 1;
+      if(xh >= xdim-1) xh = xdim-2;
+
+      yl = at2->ylowlim();
+      yh = at2->yhilim();
+      if(yl <= 0) yl = 1;
+      if(yh >= ydim-1) yh = ydim - 2;
+    }
+    if(at2->ismapped()) {
+      fxl = xamine_shared->getxmin_map(spno);
+      fxh = xamine_shared->getxmax_map(spno);
+      fyl = xamine_shared->getymin_map(spno);
+      fyh = xamine_shared->getymax_map(spno);
+    }
+    maxpeak2dl((unsigned long *)chans, xl, xh, yl, yh, xdim, ydim,
+	       &maxval, &maxx, &maxy);
+    if(at2->ismapped()) 
+      sprintf(text, "Max=%d @ %.1f,%.1f ", maxval, 
+	      Xamine_XChanToMapped(spno, maxx),
+	      Xamine_YChanToMapped(spno, maxy));
+    else
+      sprintf(text,"Max=%d @ %u,%u ", maxval, maxx, maxy);
+    break;  
   case twodword:
     if(at2->isexpanded()) {
       xl = at2->xlowlim();

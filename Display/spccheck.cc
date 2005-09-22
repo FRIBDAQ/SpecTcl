@@ -325,7 +325,11 @@ void CheckSpectra()
 	  Xamine_RedrawPane(c,r); /* This will clear pane. */
 	}
 	else if(attrib->is1d() && 
-		((tp == twodword) || (tp == twodbyte)))	{/* Wrong spec type */
+		((tp == twodword) || (tp == twodbyte) || (tp == twodlong)))	{/* Wrong spec type */
+	  Xamine_RedrawPane(c,r);
+	}
+	else if (!(attrib->is1d()) &&
+		 ((tp == onedlong) || (tp == onedword))) {
 	  Xamine_RedrawPane(c,r);
 	}
       }

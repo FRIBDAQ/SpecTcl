@@ -522,7 +522,7 @@ int Scale1d(int specid, win_1d *att, int resolution)
 **   int specno:
 **       Spectrum number of the spectrum of interest.
 **   spec_type st:
-**      The type of the spectrum (must be either twodword or twodbyte).
+**      The type of the spectrum (must be either twodlong, twodword or twodbyte).
 **   rendition_2d rend:
 **       The rendition of the spectrum.  This determines the actual number
 **       of displayable channels since it determines the real estate that
@@ -579,6 +579,12 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
   Sampler2  *sampler;
   if(!must_reduce) {
     switch(st) {
+    case twodlong:
+      sampler = (Sampler2 *)new Sample2l((unsigned long *)
+					 xamine_shared->getbase(specno),
+					 1.0, 1.0, 
+					 xamine_shared->getxdim(specno));
+      break;
     case twodword:
       sampler = (Sampler2 *)new Sample2w((unsigned short *)
 					 xamine_shared->getbase(specno),
@@ -612,6 +618,13 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
     switch(sr) {
     case sampled:
       switch(st) {
+      case twodlong:
+	sampler = (Sampler2 *)new Sample2l((unsigned long *)
+					      xamine_shared->getbase(specno),
+					   xstep, ystep, 
+					   xamine_shared->getxdim(specno));
+	break;
+
       case twodword:
 	sampler = (Sampler2 *)new Sample2w((unsigned short *)
 					      xamine_shared->getbase(specno),
@@ -633,6 +646,12 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
       break;
     case summed:
       switch(st) {
+      case twodlong:
+	sampler = (Sampler2 *)new Sum2l((unsigned long *)
+					   xamine_shared->getbase(specno),
+					xstep, ystep, 
+					xamine_shared->getxdim(specno));
+	break;
       case twodword:
 	sampler = (Sampler2 *)new Sum2w((unsigned short *)
 					   xamine_shared->getbase(specno),
@@ -654,6 +673,12 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
       break;
     case averaged:
       switch(st) {
+      case twodlong:
+	sampler = (Sampler2 *)new Average2l((unsigned long *)
+					       xamine_shared->getbase(specno),
+					    xstep, ystep, 
+					    xamine_shared->getxdim(specno));
+	break;
       case twodword:
 	sampler = (Sampler2 *)new Average2w((unsigned short *)
 					       xamine_shared->getbase(specno),

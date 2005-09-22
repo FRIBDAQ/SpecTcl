@@ -359,6 +359,7 @@ typedef char spec_label[72];
 
 typedef enum {
                undefined = 0,
+	       twodlong = 5,
                onedlong = 4,
 	       onedword = 2,
 	       twodword = 3,
@@ -506,7 +507,7 @@ void f77Xamine_DescribeSpectrum_(int *spno, int *xdim, int *ydim,
 
 caddr_t Xamine_Allocate1d(int *spno, int xdim, char *title, int word);
 caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, char *title, 
-			  int byte);
+			  int type);
 long f77Xamine_Allocate1d_(int *spno, int *xdim, char *title, 
 			  int *word, int tlen);
 long f77Xamine_Allocate2d_(int *spno, int *xdim, int *ydim, char *title, 

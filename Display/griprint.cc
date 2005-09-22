@@ -674,524 +674,526 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
   // Now we need to do different things for 1d and 2d spectra...
   switch(xamine_shared->gettype(nSpectrum)) {    // determine spectrum type
   case twodbyte:
-  case twodword: {
-    win_2d* pAttrib = (win_2d*)pAttributes;   // the spectrum attributes
-    
-    // Get the x- and y-axis high and low limits, and the fullscale value...
-    int isFlipped  = pAttrib->isflipped();
-    int nXLowLimit  = 0;
-    int nXHighLimit = (isFlipped ? ydim : xdim);
-    int nYLowLimit  = 0;
-    int nYHighLimit = (isFlipped ? xdim : ydim);
-    nFullScale = pAttrib->getfsval();
-    float red_max, green_max, blue_max;  // the color to draw sing. chan. peaks
-
-    // If spectrum is expanded, we need to adjust the high and low limits
-    if(pAttrib->isexpanded()) {
-      nXLowLimit  = pAttrib->xlowlim();
-      nXHighLimit = pAttrib->xhilim();
-      nYLowLimit  = pAttrib->ylowlim();
-      nYHighLimit = pAttrib->yhilim();
-    }
-
-    // Get the pixel limits so we can get the tick mark intervals...
-    int nXRange = (nXHighLimit - nXLowLimit + 1);
-    int nYRange = (nYHighLimit - nYLowLimit + 1);
-    if(pAttrib->ismapped()) {
-      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nXHighLimit - 1) - 
-	Xamine_XChanToMapped(nSpectrum, nXLowLimit);
-      float fp_YRange = Xamine_YChanToMapped(nSpectrum, nYHighLimit - 1) - 
-	Xamine_YChanToMapped(nSpectrum, nYLowLimit);
-      nXTickInterval = Xamine_getMappedTickInterval(fp_XRange, (nx-xbase+1));
-      nYTickInterval = Xamine_getMappedTickInterval(fp_YRange, (ybase+1));
-      if((nSpectrumCount > 1) && ((fp_XRange / nXTickInterval) >= 7)) {
-	if(nRows*nCols <= 6)
-	  nXTickInterval *= 2.0;
-	else
-	  nXTickInterval *= 3.0;
-      }
-    }
-    else {
-      nXTickInterval = Xamine_getTickInterval(nXRange, (nx-xbase+1));
-      nYTickInterval = Xamine_getTickInterval(nYRange, (ybase+1));
-      if((nSpectrumCount > 1) && ((nXRange / nXTickInterval) >= 7)) {
-	if(nRows*nCols <= 6)
-	  nXTickInterval *= 2;
-	else
-	  nXTickInterval *= 3;
-      }
-    }
-    if(XMajor == 0) XMajor = nXTickInterval;
-    if(YMajor == 0) YMajor = nYTickInterval;
-
-    int nMaxCounts = 0;
-    int nXMaxChan  = 0,
-      nYMaxChan    = 0;
-
-    // If the spectrum is not expanded, then its low limit is zero and we
-    // must therefore subtract one from the high limits to avoid reading
-    // a channel that is too high.
-    nXRange = (nXHighLimit-nXLowLimit);
-    nYRange = (nYHighLimit-nYLowLimit);
-    if(pAttrib->isexpanded()) {
-      nXRange++;
-      nYRange++;
-    }
-
-    // Create a temporary filename for our gri command file
-    char cmd_file_template[30];
-    if(!cmd_file) {
-      sprintf(cmd_file_template, ".gri_cmdXXXXXX");
-      int fd = mkstemp(cmd_file_template);
-      close(fd);
-      strcat(cmd_file_template, ".gri");
-      cmd_file = strdup(cmd_file_template);
-    }
-
-    // Start writing the Gri command file...
-    fStr.open(cmd_file, fstream::out | fstream::app);
-    if(!fStr.good())
-      fprintf(stderr, "Could not open Gri command file. Printing aborted!\n");
-	      
-    fStr << "# Commands for spectrum " << nCurrSpec << endl; // comment
-    fStr << "set page size letter\n";
-    fStr << "set tics in\n";
-
-    // Make sure that the scales are linear and the grid size is reset...
-    fStr << "delete x scale\n";
-    fStr << "set x type linear\n";
-    fStr << "delete y scale\n";
-    fStr << "set y type linear\n";
-    fStr << "delete grid\n";
-
-    // Read the grid data...
-    int reso;
-    switch(Options->getres()) {
-    case one:
-      reso = 1;
-      break;
-    case two:
-      reso = 2;
-      break;
-    case four:
-      reso = 4;
-      break;
-    case eight:
-      reso = 8;
-    }
-
-    // Adjust the range to fit the data if reduction is to be done
-    int nXRemainder = (nXRange % reso);
-    int nYRemainder = (nYRange % reso);
-    if((reso > 1) && (nXRange % reso != 0 || nYRange % reso != 0)) {
-      nXRange -= (nXRange % reso);
-      nYRange -= (nYRange % reso);
-    }
-
-    // If the spectrum is expanded, then the limits are inclusive...
-    fStr << "read grid data " << nYRange/reso << " " << nXRange/reso << endl;
-
-    // Grab the points and put them into the command file
-    nMaxCounts = GrabPoints2d(nXLowLimit, nXHighLimit, nYLowLimit, nYHighLimit,
-			      nFloor, nCeiling, &nXMaxChan, &nYMaxChan,
-			      nXRange, nYRange, reso, fStr, pAttrib);
-    
-    // Set the font size based on the number of spectra we're displaying,
-    // and the size of the title and fullscale values...
-    if((nSpectrumCount > 1) && (nRows*nCols > 1))
-      nFontSize = 8;
-    if(fCropped) {
-      nFontSize = 5;
-      string temp_title;
-      int max_title_length = 32 - nCols;
-      while(Title.size() > max_title_length) {
-	temp_title = Title.substr(0, (Title.size()-5));
-	temp_title.append("...");
-	Title = temp_title;
-      }
-    }
-    fStr << "set font size " << nFontSize << endl;
-
-    // If the log scale is set, then take the log of the data. The operator
-    // _= is the log10 operator in Gri.
-    // BUGBUGBUG -- There's no way currently in Gri to give the image palette
-    // a scale which is other than linear. Thus, if a 2d spectrum has its
-    // scale set to log, the palette will be unlabelled.
-    if(pAttrib->islog())
-      fStr << "grid data _= 10\n";
-
-    // Show ticks. If the axes are flipped, we need to set the low and
-    // high limits on the y-axis. Otherwise, set them on the x-axis...
-    if(pAttrib->showticks()) {
-      // BUGBUGBUG -- Printing at reduced resolution yields empty channels.
-      // This is because, when the resolution is reduced, the range of values
-      // read in must be a multiple of the new resolution (2, 4 or 8) to work
-      // cleanly.
-      int nXAxisMax = nXHighLimit-1;
-      int nYAxisMax = nYHighLimit-1;
-
-      float XMappedLow = Xamine_XChanToMapped(nSpectrum, nXLowLimit);
-      float XMappedHigh = Xamine_XChanToMapped(nSpectrum, 
-					       nXLowLimit+nXRange-reso);
-      float YMappedLow = Xamine_YChanToMapped(nSpectrum, nYLowLimit);
-      float YMappedHigh = Xamine_YChanToMapped(nSpectrum, 
-					       nYLowLimit+nYRange-reso);
+  case twodword:
+  case twodlong:
+    {
+      win_2d* pAttrib = (win_2d*)pAttributes;   // the spectrum attributes
       
-      float nAxisLow, nAxisHigh;
+      // Get the x- and y-axis high and low limits, and the fullscale value...
+      int isFlipped  = pAttrib->isflipped();
+      int nXLowLimit  = 0;
+      int nXHighLimit = (isFlipped ? ydim : xdim);
+      int nYLowLimit  = 0;
+      int nYHighLimit = (isFlipped ? xdim : ydim);
+      nFullScale = pAttrib->getfsval();
+      float red_max, green_max, blue_max;  // the color to draw sing. chan. peaks
+      
+      // If spectrum is expanded, we need to adjust the high and low limits
+      if(pAttrib->isexpanded()) {
+	nXLowLimit  = pAttrib->xlowlim();
+	nXHighLimit = pAttrib->xhilim();
+	nYLowLimit  = pAttrib->ylowlim();
+	nYHighLimit = pAttrib->yhilim();
+      }
+      
+      // Get the pixel limits so we can get the tick mark intervals...
+      int nXRange = (nXHighLimit - nXLowLimit + 1);
+      int nYRange = (nYHighLimit - nYLowLimit + 1);
       if(pAttrib->ismapped()) {
-	float inc = reso * ((XMappedHigh - XMappedLow) / (nXRange-reso));
-	fStr << "set x grid " << XMappedLow << " " << XMappedHigh
-	     << " " << inc << endl;
-	fStr << "set x axis " << XMappedLow << " " << XMappedHigh << " ";
-	nAxisLow = XMappedLow;
-	nAxisHigh= XMappedHigh;
+	float fp_XRange = Xamine_XChanToMapped(nSpectrum, nXHighLimit - 1) - 
+	  Xamine_XChanToMapped(nSpectrum, nXLowLimit);
+	float fp_YRange = Xamine_YChanToMapped(nSpectrum, nYHighLimit - 1) - 
+	  Xamine_YChanToMapped(nSpectrum, nYLowLimit);
+	nXTickInterval = Xamine_getMappedTickInterval(fp_XRange, (nx-xbase+1));
+	nYTickInterval = Xamine_getMappedTickInterval(fp_YRange, (ybase+1));
+	if((nSpectrumCount > 1) && ((fp_XRange / nXTickInterval) >= 7)) {
+	  if(nRows*nCols <= 6)
+	    nXTickInterval *= 2.0;
+	  else
+	    nXTickInterval *= 3.0;
+	}
       }
       else {
-	fStr << "set x grid " << nXLowLimit << " "
-	     << nXLowLimit+nXRange-reso << " " << reso << endl;
-	fStr << "set x axis " << nXLowLimit << " " << nXAxisMax << " ";
-	nAxisLow = nXLowLimit;
-	nAxisHigh= nXAxisMax;
-      }
-
-      float AxisChannels = (nAxisHigh - nAxisLow+1);
-      switch(Options->gettics()) {
-      case deflt:
-	if(nXTickInterval >= AxisChannels) nXTickInterval = 0;
-	if(nXTickInterval) fStr << nXTickInterval << endl;
-	else fStr << endl;
-	break;
-      case user:
-	if(XMajor >= AxisChannels) XMajor = 0;
-	if(XMajor) {
-	  fStr << XMajor << " ";
-	  if(XMinor) fStr << XMinor << endl;
-	  else fStr << endl;
+	nXTickInterval = Xamine_getTickInterval(nXRange, (nx-xbase+1));
+	nYTickInterval = Xamine_getTickInterval(nYRange, (ybase+1));
+	if((nSpectrumCount > 1) && ((nXRange / nXTickInterval) >= 7)) {
+	  if(nRows*nCols <= 6)
+	    nXTickInterval *= 2;
+	  else
+	    nXTickInterval *= 3;
 	}
-	else fStr << endl;
-	break;
       }
-
-      // Do this for both dimensions...
-      if(pAttrib->ismapped()) {
-	float inc = reso * ((YMappedHigh - YMappedLow) / (nYRange-reso));
-	fStr << "set y grid " << YMappedLow << " " << YMappedHigh
-	     << " " << inc << endl;
-	fStr << "set y format %.1f\n";
-	fStr << "set y axis " << YMappedLow << " " << YMappedHigh << " ";
-	nAxisLow = YMappedLow;
-	nAxisHigh= YMappedHigh;
+      if(XMajor == 0) XMajor = nXTickInterval;
+      if(YMajor == 0) YMajor = nYTickInterval;
+      
+      int nMaxCounts = 0;
+      int nXMaxChan  = 0,
+	nYMaxChan    = 0;
+      
+      // If the spectrum is not expanded, then its low limit is zero and we
+      // must therefore subtract one from the high limits to avoid reading
+      // a channel that is too high.
+      nXRange = (nXHighLimit-nXLowLimit);
+      nYRange = (nYHighLimit-nYLowLimit);
+      if(pAttrib->isexpanded()) {
+	nXRange++;
+	nYRange++;
       }
-      else {
-	fStr << "set y grid " << nYLowLimit << " "
-	     << nYLowLimit+nYRange-reso << " " << reso << endl;
-	fStr << "set y axis " << nYLowLimit << " " << nYAxisMax << " ";
-	nAxisLow = nYLowLimit;
-	nAxisHigh=nYAxisMax;
+      
+      // Create a temporary filename for our gri command file
+      char cmd_file_template[30];
+      if(!cmd_file) {
+	sprintf(cmd_file_template, ".gri_cmdXXXXXX");
+	int fd = mkstemp(cmd_file_template);
+	close(fd);
+	strcat(cmd_file_template, ".gri");
+	cmd_file = strdup(cmd_file_template);
       }
-
-      AxisChannels = (nAxisHigh - nAxisLow+1);
-      switch(Options->gettics()) {
-      case deflt:
-	if(nYTickInterval >= AxisChannels) nYTickInterval = 0;
-	if(nYTickInterval) fStr << nYTickInterval << endl;
-	else fStr << endl;
-	break;
-      case user:
-	if(YMajor >= AxisChannels) YMajor = 0;
-	if(YMajor) {
-	  fStr << YMajor << " ";
-	  if(YMinor) fStr << YMinor << endl;
-	  else fStr << endl;
-	}
-	else fStr << endl;
-	break;
-      }
-    }
-    
-    // Set the axis labels (values) to 2 decimal places...
-    if(nYHighLimit >= 100000) {
-      fStr << "set y format %.1e\n";
-    }
-    else {
-      fStr << "set y format default\n";
-    }
-
-    // Set the axes names...
-    if((!pAttrib->ismapped()) || (pAttrib->ismapped() && 
-				  nSpectrumCount == 1)) {
-      fStr << "set x name \"" << Options->getxname() << "\"\n";
-      fStr << "set y name \"" << Options->getyname() << "\"\n";
-    }
-    else {
-      char xlabel[72];
-      char ylabel[72];
-      xamine_shared->getxlabel_map(xlabel, nSpectrum);
-      xamine_shared->getylabel_map(ylabel, nSpectrum);
-      fStr << "set x name \"" << xlabel << "\"\n";
-      fStr << "set y name \"" << ylabel << "\"\n";
-    }
-
-    // Set the page margins and drawing size...
-    fStr << "set x margin " << xm << endl;
-    fStr << "set y margin " << ym << endl;
-    fStr << "set x size " << XLength << "\n";
-    fStr << "set y size " << YLength << "\n";
-
-    // Set the layout, too...
-    switch(Options->getlayout()) {
-    case portrait:
-      fStr << "set page portrait\n";
-      break;
-    case landscape:
-      fStr << "set page landscape\n";
-      break;
-    }
-
-     // Draw the title...
-    if(!fCropped) {
-      fStr << "draw title \"" << Title << "\"\n";
-    }
-    else {
-      fStr << "draw label \"" << Title << "\" centered at " 
-	   << ((XLength+(2*xm))/2.0) << " " << (YLength+ym+.2) << " cm\n";
-    }
-
-    // Set rendition type...
-    switch(pAttrib->getrend()) {
-    case scatter:
-    case boxes:
-    case color:
-      // Draw a box around the image if there is more than one
-      if(nSpectrumCount > 1) {
-	if(!fCropped && ((nRows*nCols) != 1))
-	  fStr << "draw border box " << (xm-(INCH/2)) << " " << (ym-1.07) 
-	       << " " << (xm+XLength+(INCH/2)) << " " << (ym+YLength+1.47) 
-	       << " 0.01 0\n";
-      }
-
-      // Determine the range of tick marks for the color palette...
-      int nRange = nFullScale;
-      if(nFloor && nCeiling)
-	nRange = nCeiling - nFloor;
-      else if(nFloor)
-	nRange = nFullScale - nFloor;
-      else if(nCeiling) 
-	nRange = nCeiling;
-
-      // Find the increment tick increments for the color palette...
-      int nPower = (int)(log10((double)nRange));
-      nIncr  = (int)(nRange / (pow((double)10, (double)nPower))) * (int)pow((double)10, (double)(nPower-1));
-      if(nIncr == 0) nIncr++;
-      while(nIncr * 10 < nRange)
-	nIncr *=2;
-
-      // Next we get the resolution specified by the user. If the resolution
-      // is 1:1 (enumeration value 'one'), we don't need to do anything.
-      int xres = (nXHighLimit - nXLowLimit);
-      int yres = (nYHighLimit - nYLowLimit);
+      
+      // Start writing the Gri command file...
+      fStr.open(cmd_file, fstream::out | fstream::app);
+      if(!fStr.good())
+	fprintf(stderr, "Could not open Gri command file. Printing aborted!\n");
+      
+      fStr << "# Commands for spectrum " << nCurrSpec << endl; // comment
+      fStr << "set page size letter\n";
+      fStr << "set tics in\n";
+      
+      // Make sure that the scales are linear and the grid size is reset...
+      fStr << "delete x scale\n";
+      fStr << "set x type linear\n";
+      fStr << "delete y scale\n";
+      fStr << "set y type linear\n";
+      fStr << "delete grid\n";
+      
+      // Read the grid data...
+      int reso;
       switch(Options->getres()) {
+      case one:
+	reso = 1;
+	break;
       case two:
-	xres /= 2;
-	yres /= 2;
+	reso = 2;
 	break;
-      case four: {
-	xres /= 4;
-	yres /= 4;
+      case four:
+	reso = 4;
 	break;
+      case eight:
+	reso = 8;
       }
-      case eight: {
-	xres /= 8;
-	yres /= 8;
+      
+      // Adjust the range to fit the data if reduction is to be done
+      int nXRemainder = (nXRange % reso);
+      int nYRemainder = (nYRange % reso);
+      if((reso > 1) && (nXRange % reso != 0 || nYRange % reso != 0)) {
+	nXRange -= (nXRange % reso);
+	nYRange -= (nYRange % reso);
       }
+      
+      // If the spectrum is expanded, then the limits are inclusive...
+      fStr << "read grid data " << nYRange/reso << " " << nXRange/reso << endl;
+      
+      // Grab the points and put them into the command file
+      nMaxCounts = GrabPoints2d(nXLowLimit, nXHighLimit, nYLowLimit, nYHighLimit,
+				nFloor, nCeiling, &nXMaxChan, &nYMaxChan,
+				nXRange, nYRange, reso, fStr, pAttrib);
+      
+      // Set the font size based on the number of spectra we're displaying,
+      // and the size of the title and fullscale values...
+      if((nSpectrumCount > 1) && (nRows*nCols > 1))
+	nFontSize = 8;
+      if(fCropped) {
+	nFontSize = 5;
+	string temp_title;
+	int max_title_length = 32 - nCols;
+	while(Title.size() > max_title_length) {
+	  temp_title = Title.substr(0, (Title.size()-5));
+	  temp_title.append("...");
+	  Title = temp_title;
+	}
       }
-
-      // The fullscale value for a log plot. This is done by taking the log
-      // of the data read in and altering the image range to fit the new data.
-      // It's kind of pulling the wool over the user's eyes, but they'll never
-      // know. Unfortunately, it makes drawing an appropriate image palette
-      // even more difficult.
-      double nLogFS = (double)log10((double)nFullScale);
-      int    newFS  = (int)pow((double)10, (double)((int)nLogFS)+1);
-      double nLogMax = log10((double)nMaxCounts);
-      double hi_range = nFullScale, 
-	lo_range = 0;
-      //      if(pAttrib->islog()) hi_range = (int)nLogFS;
-      if(pAttrib->hasfloor()) lo_range = nFloor;
-      if(pAttrib->hasceiling()) hi_range = (double)nCeiling;
-      if(pAttrib->islog()) hi_range = log10(hi_range);
-      // Set the image range so Gri knows what colors to use...
-      fStr << "set image range " << lo_range << " " << hi_range << endl;
-
-      // Now read the colorscale from the Xamine colortable file. The file
-      // is the same as the one used for displaying, so the printed output
-      // should look exactly the same as the input.
-      fStr << "read image colorscale rgb\n";
-      int red, green, blue;
-      unsigned long pixels[100];
-
-      // Store all the pixel values in an array...
-      for(int i = 0; i < 100; i++) {
-	pixels[i] = Xamine_PctToPixel(i);
-      }
-
-      // Determine the rgb value for each of 256 color channels that Gri
-      // can assign. Gri must have these values in a range between 0 and 1.
-      unsigned long curr_pix;
-      for(int i = 0; i < 256; i++) {
-	curr_pix = pixels[((i*100)/256)];
-	if((curr_pix == 0) && (i == 0)) curr_pix = 0xffffff;  // white backgrnd
-	else if((curr_pix == 0) && (i > 0)) curr_pix = 0x900000;
-	red   = (curr_pix & 0xff);
-	green = ((curr_pix & 0xff00) >> 8);
-	blue  = ((curr_pix & 0xff0000) >> 16);
-	fStr << ((double)red / 256) << " " << ((double)green / 256)
-	     << " " << ((double)blue / 256) << endl;
-      }
-      red_max   = (double)red / 256;
-      green_max = (double)green / 256;
-      blue_max  = (double)blue / 256;
-
-      // Convert the grid to an image with the appropriate size, based on
-      // the user specified resolution
-      int xr = xres;
-      int yr = yres;
-      if(xres < 2) xr = 2;
-      if(yres < 2) yr = 2;
-      fStr << "convert grid to image size " << xr << " " << yr << endl;
-
-      // If the plot is expanded, we need to clip anything outside of the
-      // plotting area...
-      if(pAttrib->ismapped()) {
-	float xlolim = Xamine_XChanToMapped(nSpectrum, nXLowLimit);
-	float xhilim = Xamine_XChanToMapped(nSpectrum, nXHighLimit);
-	float ylolim = Xamine_YChanToMapped(nSpectrum, nYLowLimit);
-	float yhilim = Xamine_YChanToMapped(nSpectrum, nYHighLimit);
-	if(isFlipped)
-	  fStr << "set clip postscript on " << ylolim << " " << yhilim
-	       << " " << xlolim << " " << xhilim << endl;
-	else
-	  fStr << "set clip postscript on " << xlolim << " " << xhilim
-	       << " " << ylolim << " " << yhilim << endl;
-      }
-      else if(pAttrib->isexpanded()) {
-	fStr << "set clip postscript on " << nXLowLimit << " " 
-	     << nXHighLimit-reso << " " << nYLowLimit << " " 
-	     << nYHighLimit-reso << endl;
-      }
-      else {
-	fStr << "set clip postscript on 0 " << nXHighLimit-1 << " 0 " 
-	     << nYHighLimit-1 << endl;
-      }
-
-      // Now draw the image...
-      fStr << "draw image\n";
-      fStr << "set clip postscript off\n";
-
-      // Draw the image palette if necessary. Note that we only draw it
-      // beneath the spectrum if this is the only spectrum on the page.
-      // If there are multiple spectra, then we draw one image palette
-      // at the top of the page.
-      if((Options->getdraw_palette())) {
-	int PalHi = (nCeiling ? nCeiling : nFullScale);
-	double PalScale = 
-	  ((pAttrib->islog()) ? log10((double)nFullScale) : PalHi);
-	if(nSpectrumCount == 1) {
-	  fStr << "draw image palette axisright left " << nFloor << " right " 
-	       << PalScale << " increment " << nIncr << " box " 
-	       << (xm+XLength+.4) << " " << ym << " " << (xm+XLength+.6) 
-	       << " " << (ym+YLength) << endl;
+      fStr << "set font size " << nFontSize << endl;
+      
+      // If the log scale is set, then take the log of the data. The operator
+      // _= is the log10 operator in Gri.
+      // BUGBUGBUG -- There's no way currently in Gri to give the image palette
+      // a scale which is other than linear. Thus, if a 2d spectrum has its
+      // scale set to log, the palette will be unlabelled.
+      if(pAttrib->islog())
+	fStr << "grid data _= 10\n";
+      
+      // Show ticks. If the axes are flipped, we need to set the low and
+      // high limits on the y-axis. Otherwise, set them on the x-axis...
+      if(pAttrib->showticks()) {
+	// BUGBUGBUG -- Printing at reduced resolution yields empty channels.
+	// This is because, when the resolution is reduced, the range of values
+	// read in must be a multiple of the new resolution (2, 4 or 8) to work
+	// cleanly.
+	int nXAxisMax = nXHighLimit-1;
+	int nYAxisMax = nYHighLimit-1;
+	
+	float XMappedLow = Xamine_XChanToMapped(nSpectrum, nXLowLimit);
+	float XMappedHigh = Xamine_XChanToMapped(nSpectrum, 
+						 nXLowLimit+nXRange-reso);
+	float YMappedLow = Xamine_YChanToMapped(nSpectrum, nYLowLimit);
+	float YMappedHigh = Xamine_YChanToMapped(nSpectrum, 
+						 nYLowLimit+nYRange-reso);
+	
+	float nAxisLow, nAxisHigh;
+	if(pAttrib->ismapped()) {
+	  float inc = reso * ((XMappedHigh - XMappedLow) / (nXRange-reso));
+	  fStr << "set x grid " << XMappedLow << " " << XMappedHigh
+	       << " " << inc << endl;
+	  fStr << "set x axis " << XMappedLow << " " << XMappedHigh << " ";
+	  nAxisLow = XMappedLow;
+	  nAxisHigh= XMappedHigh;
 	}
 	else {
-	  // Only draw the image palette if it will fit...
-	  if(!fCropped) {
-	    if(PalScale >= 1000) fStr << "set font size 5\n";
-	    fStr << "set tics out\n";
-	    fStr << "draw image palette axisright left " << nFloor << " right "
- 		 << PalScale << " increment " << nIncr << " box " 
-		 << (xm+XLength+.2) << " " << ym << " " << (xm+XLength+.4) 
+	  fStr << "set x grid " << nXLowLimit << " "
+	       << nXLowLimit+nXRange-reso << " " << reso << endl;
+	  fStr << "set x axis " << nXLowLimit << " " << nXAxisMax << " ";
+	  nAxisLow = nXLowLimit;
+	  nAxisHigh= nXAxisMax;
+	}
+	
+	float AxisChannels = (nAxisHigh - nAxisLow+1);
+	switch(Options->gettics()) {
+	case deflt:
+	  if(nXTickInterval >= AxisChannels) nXTickInterval = 0;
+	  if(nXTickInterval) fStr << nXTickInterval << endl;
+	  else fStr << endl;
+	  break;
+	case user:
+	  if(XMajor >= AxisChannels) XMajor = 0;
+	  if(XMajor) {
+	    fStr << XMajor << " ";
+	    if(XMinor) fStr << XMinor << endl;
+	    else fStr << endl;
+	  }
+	  else fStr << endl;
+	  break;
+	}
+	
+	// Do this for both dimensions...
+	if(pAttrib->ismapped()) {
+	  float inc = reso * ((YMappedHigh - YMappedLow) / (nYRange-reso));
+	  fStr << "set y grid " << YMappedLow << " " << YMappedHigh
+	       << " " << inc << endl;
+	  fStr << "set y format %.1f\n";
+	  fStr << "set y axis " << YMappedLow << " " << YMappedHigh << " ";
+	  nAxisLow = YMappedLow;
+	  nAxisHigh= YMappedHigh;
+	}
+	else {
+	  fStr << "set y grid " << nYLowLimit << " "
+	       << nYLowLimit+nYRange-reso << " " << reso << endl;
+	  fStr << "set y axis " << nYLowLimit << " " << nYAxisMax << " ";
+	  nAxisLow = nYLowLimit;
+	  nAxisHigh=nYAxisMax;
+	}
+	
+	AxisChannels = (nAxisHigh - nAxisLow+1);
+	switch(Options->gettics()) {
+	case deflt:
+	  if(nYTickInterval >= AxisChannels) nYTickInterval = 0;
+	  if(nYTickInterval) fStr << nYTickInterval << endl;
+	  else fStr << endl;
+	  break;
+	case user:
+	  if(YMajor >= AxisChannels) YMajor = 0;
+	  if(YMajor) {
+	    fStr << YMajor << " ";
+	    if(YMinor) fStr << YMinor << endl;
+	    else fStr << endl;
+	  }
+	  else fStr << endl;
+	  break;
+	}
+      }
+      
+      // Set the axis labels (values) to 2 decimal places...
+      if(nYHighLimit >= 100000) {
+	fStr << "set y format %.1e\n";
+      }
+      else {
+	fStr << "set y format default\n";
+      }
+      
+      // Set the axes names...
+      if((!pAttrib->ismapped()) || (pAttrib->ismapped() && 
+				    nSpectrumCount == 1)) {
+	fStr << "set x name \"" << Options->getxname() << "\"\n";
+	fStr << "set y name \"" << Options->getyname() << "\"\n";
+      }
+      else {
+	char xlabel[72];
+	char ylabel[72];
+	xamine_shared->getxlabel_map(xlabel, nSpectrum);
+	xamine_shared->getylabel_map(ylabel, nSpectrum);
+	fStr << "set x name \"" << xlabel << "\"\n";
+	fStr << "set y name \"" << ylabel << "\"\n";
+    }
+      
+      // Set the page margins and drawing size...
+      fStr << "set x margin " << xm << endl;
+      fStr << "set y margin " << ym << endl;
+      fStr << "set x size " << XLength << "\n";
+      fStr << "set y size " << YLength << "\n";
+
+      // Set the layout, too...
+      switch(Options->getlayout()) {
+      case portrait:
+	fStr << "set page portrait\n";
+	break;
+      case landscape:
+	fStr << "set page landscape\n";
+	break;
+      }
+      
+      // Draw the title...
+      if(!fCropped) {
+	fStr << "draw title \"" << Title << "\"\n";
+      }
+      else {
+	fStr << "draw label \"" << Title << "\" centered at " 
+	     << ((XLength+(2*xm))/2.0) << " " << (YLength+ym+.2) << " cm\n";
+      }
+      
+      // Set rendition type...
+      switch(pAttrib->getrend()) {
+      case scatter:
+      case boxes:
+      case color:
+	// Draw a box around the image if there is more than one
+	if(nSpectrumCount > 1) {
+	  if(!fCropped && ((nRows*nCols) != 1))
+	    fStr << "draw border box " << (xm-(INCH/2)) << " " << (ym-1.07) 
+		 << " " << (xm+XLength+(INCH/2)) << " " << (ym+YLength+1.47) 
+		 << " 0.01 0\n";
+	}
+	
+	// Determine the range of tick marks for the color palette...
+	int nRange = nFullScale;
+	if(nFloor && nCeiling)
+	  nRange = nCeiling - nFloor;
+	else if(nFloor)
+	  nRange = nFullScale - nFloor;
+	else if(nCeiling) 
+	  nRange = nCeiling;
+	
+	// Find the increment tick increments for the color palette...
+	int nPower = (int)(log10((double)nRange));
+	nIncr  = (int)(nRange / (pow((double)10, (double)nPower))) * (int)pow((double)10, (double)(nPower-1));
+	if(nIncr == 0) nIncr++;
+	while(nIncr * 10 < nRange)
+	  nIncr *=2;
+	
+	// Next we get the resolution specified by the user. If the resolution
+	// is 1:1 (enumeration value 'one'), we don't need to do anything.
+	int xres = (nXHighLimit - nXLowLimit);
+	int yres = (nYHighLimit - nYLowLimit);
+	switch(Options->getres()) {
+	case two:
+	  xres /= 2;
+	  yres /= 2;
+	  break;
+	case four: {
+	  xres /= 4;
+	  yres /= 4;
+	  break;
+	}
+	case eight: {
+	  xres /= 8;
+	  yres /= 8;
+	}
+	}
+	
+	// The fullscale value for a log plot. This is done by taking the log
+	// of the data read in and altering the image range to fit the new data.
+	// It's kind of pulling the wool over the user's eyes, but they'll never
+	// know. Unfortunately, it makes drawing an appropriate image palette
+	// even more difficult.
+	double nLogFS = (double)log10((double)nFullScale);
+	int    newFS  = (int)pow((double)10, (double)((int)nLogFS)+1);
+	double nLogMax = log10((double)nMaxCounts);
+	double hi_range = nFullScale, 
+	  lo_range = 0;
+	//      if(pAttrib->islog()) hi_range = (int)nLogFS;
+	if(pAttrib->hasfloor()) lo_range = nFloor;
+	if(pAttrib->hasceiling()) hi_range = (double)nCeiling;
+	if(pAttrib->islog()) hi_range = log10(hi_range);
+	// Set the image range so Gri knows what colors to use...
+	fStr << "set image range " << lo_range << " " << hi_range << endl;
+	
+	// Now read the colorscale from the Xamine colortable file. The file
+	// is the same as the one used for displaying, so the printed output
+	// should look exactly the same as the input.
+	fStr << "read image colorscale rgb\n";
+	int red, green, blue;
+	unsigned long pixels[100];
+	
+	// Store all the pixel values in an array...
+	for(int i = 0; i < 100; i++) {
+	  pixels[i] = Xamine_PctToPixel(i);
+	}
+	
+	// Determine the rgb value for each of 256 color channels that Gri
+	// can assign. Gri must have these values in a range between 0 and 1.
+	unsigned long curr_pix;
+	for(int i = 0; i < 256; i++) {
+	  curr_pix = pixels[((i*100)/256)];
+	  if((curr_pix == 0) && (i == 0)) curr_pix = 0xffffff;  // white backgrnd
+	  else if((curr_pix == 0) && (i > 0)) curr_pix = 0x900000;
+	  red   = (curr_pix & 0xff);
+	  green = ((curr_pix & 0xff00) >> 8);
+	  blue  = ((curr_pix & 0xff0000) >> 16);
+	  fStr << ((double)red / 256) << " " << ((double)green / 256)
+	       << " " << ((double)blue / 256) << endl;
+	}
+	red_max   = (double)red / 256;
+	green_max = (double)green / 256;
+	blue_max  = (double)blue / 256;
+	
+	// Convert the grid to an image with the appropriate size, based on
+	// the user specified resolution
+	int xr = xres;
+	int yr = yres;
+	if(xres < 2) xr = 2;
+	if(yres < 2) yr = 2;
+	fStr << "convert grid to image size " << xr << " " << yr << endl;
+	
+	// If the plot is expanded, we need to clip anything outside of the
+	// plotting area...
+	if(pAttrib->ismapped()) {
+	  float xlolim = Xamine_XChanToMapped(nSpectrum, nXLowLimit);
+	  float xhilim = Xamine_XChanToMapped(nSpectrum, nXHighLimit);
+	  float ylolim = Xamine_YChanToMapped(nSpectrum, nYLowLimit);
+	  float yhilim = Xamine_YChanToMapped(nSpectrum, nYHighLimit);
+	  if(isFlipped)
+	    fStr << "set clip postscript on " << ylolim << " " << yhilim
+		 << " " << xlolim << " " << xhilim << endl;
+	  else
+	    fStr << "set clip postscript on " << xlolim << " " << xhilim
+		 << " " << ylolim << " " << yhilim << endl;
+	}
+	else if(pAttrib->isexpanded()) {
+	  fStr << "set clip postscript on " << nXLowLimit << " " 
+	       << nXHighLimit-reso << " " << nYLowLimit << " " 
+	       << nYHighLimit-reso << endl;
+	}
+	else {
+	  fStr << "set clip postscript on 0 " << nXHighLimit-1 << " 0 " 
+	       << nYHighLimit-1 << endl;
+	}
+	
+	// Now draw the image...
+	fStr << "draw image\n";
+	fStr << "set clip postscript off\n";
+	
+	// Draw the image palette if necessary. Note that we only draw it
+	// beneath the spectrum if this is the only spectrum on the page.
+	// If there are multiple spectra, then we draw one image palette
+	// at the top of the page.
+	if((Options->getdraw_palette())) {
+	  int PalHi = (nCeiling ? nCeiling : nFullScale);
+	  double PalScale = 
+	    ((pAttrib->islog()) ? log10((double)nFullScale) : PalHi);
+	  if(nSpectrumCount == 1) {
+	    fStr << "draw image palette axisright left " << nFloor << " right " 
+		 << PalScale << " increment " << nIncr << " box " 
+		 << (xm+XLength+.4) << " " << ym << " " << (xm+XLength+.6) 
 		 << " " << (ym+YLength) << endl;
-	    fStr << "set tics in\n";
-	    fStr << "set font size " << nFontSize << endl;
+	  }
+	  else {
+	    // Only draw the image palette if it will fit...
+	    if(!fCropped) {
+	      if(PalScale >= 1000) fStr << "set font size 5\n";
+	      fStr << "set tics out\n";
+	      fStr << "draw image palette axisright left " << nFloor << " right "
+		   << PalScale << " increment " << nIncr << " box " 
+		   << (xm+XLength+.2) << " " << ym << " " << (xm+XLength+.4) 
+		   << " " << (ym+YLength) << endl;
+	      fStr << "set tics in\n";
+	      fStr << "set font size " << nFontSize << endl;
+	    }
 	  }
 	}
-      }
-
-      // Draw contours if necessary...
-      if((Options->getdraw_contours()) && (nSpectrumCount == 1)) {
-	float nContInc = atof(Options->getcontour_inc());
-	if(strlen(Options->getcontour_inc()) == 0)
-	  nContInc = (double)nFullScale / 4;
-
-	// Note that contour increments must be within 0.1% of a multiple
-	// of the fullscale value.
-	int nCurrContour = 1;
-	int nContours = (int)(nFullScale / nContInc) + 1;
-	fStr << "set graylevel 0.7\n";
-	while((nCurrContour*nContInc) < nFullScale) {
-	  fStr << "draw contour " << (nContInc*nCurrContour) 
-	       << " unlabelled\n";
-	  nCurrContour++;
+	
+	// Draw contours if necessary...
+	if((Options->getdraw_contours()) && (nSpectrumCount == 1)) {
+	  float nContInc = atof(Options->getcontour_inc());
+	  if(strlen(Options->getcontour_inc()) == 0)
+	    nContInc = (double)nFullScale / 4;
+	  
+	  // Note that contour increments must be within 0.1% of a multiple
+	  // of the fullscale value.
+	  int nCurrContour = 1;
+	  int nContours = (int)(nFullScale / nContInc) + 1;
+	  fStr << "set graylevel 0.7\n";
+	  while((nCurrContour*nContInc) < nFullScale) {
+	    fStr << "draw contour " << (nContInc*nCurrContour) 
+		 << " unlabelled\n";
+	    nCurrContour++;
+	  }
+	  fStr << "set graylevel 0.0\n";
 	}
-	fStr << "set graylevel 0.0\n";
+	break;
       }
+      
+      // Draw ticks, axes, and tick labels...
+      if(!(pAttrib->showaxes())) {
+	fStr << "draw axes none\n";
+      }
+      else if(!(pAttrib->showticks())) {
+	fStr << "draw axes frame\n";
+      }
+      else 
+	fStr << "draw axes 0\n";
+      
+      // Draw the graphical objects. For 2d spectra, these can be any
+      // of the following: Summing Region, Marker, Contour, or Band.
+      Xamine_SetObjectDatabase(&Xamine_DefaultObjectDatabase);
+      int nObjects = Xamine_GetSpectrumObjectCount(nSpectrum);
+      if(nObjects) {
+	grobj_generic **pObjects = new grobj_generic*[nObjects];
+	if(!pObjects) {
+	  fprintf(stderr, "'new' failed in Xamine_PrintSpectrum **");
+	} 
+	Xamine_GetSpectrumObjects(nSpectrum, pObjects, nObjects, 1);
+	string sDrawString;
+	for(int i = 0; i < nObjects; i++) {
+	  sDrawString.erase();
+	  sDrawString = 
+	    Xamine_DrawGraphicalObj2d(nXLowLimit, nXHighLimit, 
+				      nYLowLimit, nYHighLimit, reso,
+				      pAttrib, pObjects[i]);
+	  fStr << sDrawString;
+	}
+	delete [] pObjects;
+      }
+      
+      // Draw the gates...
+      int nGates = Xamine_GetSpectrumGateCount(nSpectrum);
+      if(nGates) {
+	grobj_generic **pObjects = new grobj_generic*[nGates];
+	if(!pObjects) {
+	  fprintf(stderr, "'new' failed in Xamine_PrintSpectrum **");
+	}
+	Xamine_GetSpectrumGates(nSpectrum, pObjects, nGates, 1);
+	string sDrawString;
+	for(int i = 0; i < nGates; i++) {
+	  sDrawString.erase();
+	  sDrawString = 
+	    Xamine_DrawGraphicalObj2d(nXLowLimit, nXHighLimit, 
+				      nYLowLimit, nYHighLimit, reso,
+				      pAttrib, pObjects[i]);
+	  fStr << sDrawString;
+	}
+	delete [] pObjects;
+      }
+      
       break;
     }
-    
-    // Draw ticks, axes, and tick labels...
-    if(!(pAttrib->showaxes())) {
-      fStr << "draw axes none\n";
-    }
-    else if(!(pAttrib->showticks())) {
-      fStr << "draw axes frame\n";
-    }
-    else 
-      fStr << "draw axes 0\n";
-    
-    // Draw the graphical objects. For 2d spectra, these can be any
-    // of the following: Summing Region, Marker, Contour, or Band.
-    Xamine_SetObjectDatabase(&Xamine_DefaultObjectDatabase);
-    int nObjects = Xamine_GetSpectrumObjectCount(nSpectrum);
-    if(nObjects) {
-      grobj_generic **pObjects = new grobj_generic*[nObjects];
-      if(!pObjects) {
-	fprintf(stderr, "'new' failed in Xamine_PrintSpectrum **");
-      } 
-      Xamine_GetSpectrumObjects(nSpectrum, pObjects, nObjects, 1);
-      string sDrawString;
-      for(int i = 0; i < nObjects; i++) {
-	sDrawString.erase();
-	sDrawString = 
-	  Xamine_DrawGraphicalObj2d(nXLowLimit, nXHighLimit, 
-				    nYLowLimit, nYHighLimit, reso,
-				    pAttrib, pObjects[i]);
-	fStr << sDrawString;
-      }
-      delete [] pObjects;
-    }
-
-    // Draw the gates...
-    int nGates = Xamine_GetSpectrumGateCount(nSpectrum);
-    if(nGates) {
-      grobj_generic **pObjects = new grobj_generic*[nGates];
-      if(!pObjects) {
-	fprintf(stderr, "'new' failed in Xamine_PrintSpectrum **");
-      }
-      Xamine_GetSpectrumGates(nSpectrum, pObjects, nGates, 1);
-      string sDrawString;
-      for(int i = 0; i < nGates; i++) {
-	sDrawString.erase();
-	sDrawString = 
-	  Xamine_DrawGraphicalObj2d(nXLowLimit, nXHighLimit, 
-				    nYLowLimit, nYHighLimit, reso,
-				    pAttrib, pObjects[i]);
-	fStr << sDrawString;
-      }
-      delete [] pObjects;
-    }
-
-    break;
-  }
   case onedlong:
   case onedword: {
     win_1d* pAttrib = (win_1d*)pAttributes;  // the 1d spectrum attributes
@@ -2377,6 +2379,7 @@ Xamine_GetSpectrumTitle(int r, int c)
     break;
   }
   case twodbyte:
+  case twodlong:
   case twodword: {
     win_2d* pAttrib = (win_2d*)pAttributed;
 

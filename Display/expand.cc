@@ -951,6 +951,7 @@ static void AddPt1(XMWidget *wid, XtPointer user_d, XtPointer call_d)
   switch(xamine_shared->gettype(spec)) {
   case twodbyte:
   case twodword:
+  case twodlong:
     {
       int xlo = 0; 
       int ylo = 0;
@@ -1126,6 +1127,7 @@ static void AddPt2(XMWidget *wid, XtPointer user_d, XtPointer call_d)
   switch(xamine_shared->gettype(spec)) {
   case twodbyte:
   case twodword:
+  case twodlong:
     {
       int xlo = 0; 
       int ylo = 0;

@@ -297,6 +297,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 5.3  2005/09/22 12:41:47  ron-fox
+   2dl spectra in Xamine and other misc stuff.. including making
+   void functions return values in all paths, including exception
+   exits since g++3.x and higher likes that.
+
    Revision 5.2  2005/06/03 15:18:56  ron-fox
    Part of breaking off /merging branch to start 3.1 development
 
@@ -1438,6 +1443,7 @@ void Xamine_SetDisplay(int row, int col, int spno)
     break;
   case twodword:
   case twodbyte:
+  case twodlong:
     Xamine_panedb->define2d(col,
 			    row, spno);
     Xamine_EnableSpectrumPresentPackage();
@@ -1485,6 +1491,7 @@ void Xamine_SetDisplay(int row, int col, int spno)
       break;
     case twodword:
     case twodbyte:
+    case twodlong:
       Xamine_EnableSpectrumSelectedPackage();
       Xamine_Enable2dSelectedPackage();
       Xamine_Disable1dSelectedPackage();

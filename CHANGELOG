@@ -346,3 +346,10 @@ July 27, 2005
     That make it not build correctly on CYGWIN.
 August 16, 2005
   - Add support to scripted readout for caenv1785 adc (primitive).
+September 2, 2005
+  - Added support for 2d long spectra.
+September 22, 2005
+  - Fix defect in Gamma 2d increment:  If no valid parameters are left,
+    the outer loop limits are very very bad.
+  - Forward port the inclusion of bitmask gates 
+  - Support dynamic creation of treeparameters.

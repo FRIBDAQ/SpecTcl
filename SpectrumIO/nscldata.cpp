@@ -86,6 +86,7 @@ long muintemplate<T>::get(int xloc, int yloc) {
   } else {
     reporterror((nscloperror*)new nscloperror(nscloperror::BadIndexGet ) );
   }
+  return 0;
 }
 
 mushort::mushort(int x, int y){
@@ -181,6 +182,7 @@ long smaugintemplate<T>::get(int xloc, int yloc) {
   } else {
     reporterror((nscloperror*)new nscloperror(nscloperror::BadIndexGet ) );
   }
+  return 0;
 }
 
 smaugshort::smaugshort(int x, int y) {
@@ -309,6 +311,7 @@ bool writetemplate<T>::writeout(ostream& Binary) {
     spcbin::reporterror((nsclfileerror*)new nsclfileerror( nsclfileerror::DataWriteError) );
   }
   delete []mask;
+  return true;
 }
 
 smaugwriteint::smaugwriteint(int x, int y) {

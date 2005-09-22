@@ -46,6 +46,7 @@ static void setupspectra(volatile Xamine_shared *sp)
   for(i = 0; i < 64; i++) {
     *spec_l++ = i;
   }
+  Xamine_SetMap1d(spn, 0, 63, "Channels");
   printf("Spectrum %d filled in\n", spn);
   
   /* set up downward ramp function as spectrum 2: */
@@ -76,26 +77,13 @@ static void setupspectra(volatile Xamine_shared *sp)
 
   /* Set up 2d word spectrum Z = X * Y as spectrum 4 */
 
-  spec = Xamine_Allocate2d(&spn, 256, 256, "Z = X*Y [word]", FALSE);
+  spec = Xamine_Allocate2d(&spn, 256, 256, "Z = X*Y [word]", 0);
   Xamine_SetMap2d(spn, 10.0, 20.0, "MeV", 0.0, 1000.0, "TOF");
   spec_w = (unsigned short *)spec;
 
   for(j = 0; j < 256; j++) {
     for(i = 0; i < 256; i++) {
       *spec_w++ = i * j;
-    }
-  }
-  /* Set up 2-d byte spectrum z = x + y on upper diagonal */
-
-  spec = Xamine_Allocate2d(&spn, 128,128, "Z = X+Y on upper diagonal", TRUE);
-  Xamine_SetMap2d(spn, 100.0, 800.0, "KeV", 80.0, 120.0, "Time of Flight");
-  spec_b = (unsigned char *)spec;
-  for(j = 0; j < 128; j++) {
-    for(i = 0; i < 128; i++) {
-      if( i < j )
-	*spec_b++ = i + j;
-      else
-	*spec_b++ = 0;
     }
   }
 
@@ -109,7 +97,8 @@ static void setupspectra(volatile Xamine_shared *sp)
   */
 
   spec = Xamine_Allocate2d(&spn, 512, 512, 
-			   "Gaussian C = (256,240), S = (40,20)", FALSE);
+			   "Gaussian C = (256,240), S = (40,20)", 0);
+
   Xamine_SetMap2d(spn, 100.0, 800.0, "KeV", 80.0, 230.0, "TOF");
   spec_w = (unsigned short *)spec;
   
@@ -121,7 +110,36 @@ static void setupspectra(volatile Xamine_shared *sp)
 	exp(-(y*y)/(2.0*40.0*40.0));
       *spec_w++ = (unsigned short)value; 
     }
-  } 
+  }
+  // Same as above but a longword spectrum to test the new stuff:
+
+  spec = Xamine_Allocate2d(&spn, 512, 512,
+			   "Gaussian c=(256,240), s=(40,20) -longs", 2);
+  Xamine_SetMap2d(spn, 100.0, 800.0, "KeV", 80.0, 230.0, "TOF");
+  spec_l = (unsigned int*)spec;
+  for(j = 0; j < 512; j++) {
+    for(i = 0; i < 512; i ++) {
+      float x = ((float)i - 256.0);
+      float y = ((float)j - 240.0);
+      float value = 1024.0 * exp(-(x*x)/(2*80.0*80.0)) * 
+	exp(-(y*y)/(2.0*40.0*40.0));
+      *spec_l++ = (unsigned long)value; 
+    }
+  }
+  /* Set up 2-d byte spectrum z = x + y on upper diagonal */
+
+  spec = Xamine_Allocate2d(&spn, 128,128, "Z = X+Y on upper diagonal", 1);
+  Xamine_SetMap2d(spn, 100.0, 800.0, "KeV", 80.0, 120.0, "Time of Flight");
+  spec_b = (unsigned char *)spec;
+  for(j = 0; j < 128; j++) {
+    for(i = 0; i < 128; i++) {
+      if( i < j )
+	*spec_b++ = i + j;
+      else
+	*spec_b++ = 0;
+    }
+  }
+
 }
 /*
 ** Analyze a button descriptor:

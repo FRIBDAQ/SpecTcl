@@ -479,6 +479,7 @@ CContour::inGate(CEvent& rEvent)
     }                             // Event array not even big enough
     return kfFALSE;
   }
+  return kfFALSE;
 }
   /*!
    USed by this and subclasses to determine if a point is in the interior

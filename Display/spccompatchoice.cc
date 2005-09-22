@@ -402,7 +402,8 @@ Boolean CompatibleSpectrumChooser::FilterList(int specno)
   }
   else {
     return ( ((xamine_shared->gettype(specno) == twodword) ||
-	      (xamine_shared->gettype(specno) == twodbyte))  &&
+	      (xamine_shared->gettype(specno) == twodbyte) ||
+	      (xamine_shared->gettype(specno) == twodlong))  &&
 	    (xamine_shared->getxdim(spec_sel) == xamine_shared->getxdim(specno))
 	                                     &&
 	    (xamine_shared->getydim(spec_sel) == xamine_shared->getydim(specno))

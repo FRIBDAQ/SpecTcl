@@ -439,6 +439,7 @@ char *FormatSpectrumInfo(const int specno)
   spec_title     title;
 
   assert(undefined == 0);
+  assert(twodlong == 5);
   assert(onedlong == 4);
   assert(onedword == 2);
   assert(twodword == 3);
@@ -448,10 +449,11 @@ char *FormatSpectrumInfo(const int specno)
 			     "2-d Byte per channel",
 			     "1-d Word per channel",
 			     "2-d Word per channel",
-			     "1-d Longword per channel"
+			     "1-d Longword per channel",
+			     "2-d Longword per channel"
 			     };
   static int spcmult[]   = { 0, 1, 2, 
-			       2, 4 }; /* Bytes per chan for spectypes */
+			       2, 4, 4 }; /* Bytes per chan for spectypes */
 
   if(specinfo == NULL) return specinfo;
 
@@ -482,6 +484,7 @@ char *FormatSpectrumInfo(const int specno)
     break;
   case twodword:
   case twodbyte:
+  case twodlong:
     if(att->ismapped()) {
       char xlabel[72];
       char ylabel[72];

@@ -583,7 +583,8 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
 
     Format1d(d, g, centroid, fwhm, area);
   }
-  else if( (typ == twodword) || (typ == twodbyte)){ /* 2-d integration. */
+  else if( (typ == twodword) || (typ == twodbyte) ||
+	   (typ == twodlong)) { /* 2-d integration. */
     float area;
     float xc;
     float yc;
@@ -596,30 +597,34 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
 		       "Invalid summing region ignored in Integrate");
       return;
     }
+    Integrate_2d* pI2;
     if(typ == twodword) {
-      Integrate_2dw I((unsigned short *)xamine_shared->getbase(specno), 
-		      xamine_shared->getxdim(specno),
-		      (grobj_sum2d *)g, att->ismapped());
-      I.Perform();
-      area   = I.GetVolume();
-      xc     = I.GetXCentroid();
-      yc     = I.GetYCentroid();
-      xfwhm  = I.GetXStdDev()  * GAMMA;
-      yfwhm  = I.GetYStdDev()  * GAMMA;
+      pI2 = new Integrate_2dw((unsigned short *)xamine_shared->getbase(specno), 
+			      xamine_shared->getxdim(specno),
+			      (grobj_sum2d *)g, att->ismapped());
+
+    }
+    else if (typ == twodbyte) {
+      pI2 =new Integrate_2db((unsigned char *)xamine_shared->getbase(specno),
+			     xamine_shared->getxdim(specno),
+			     (grobj_sum2d *)g, att->ismapped());
+
+    } else if (typ == twodlong) {
+      pI2 = new Integrate_2dl((unsigned long *)xamine_shared->getbase(specno),
+			      xamine_shared->getxdim(specno),
+			      (grobj_sum2d *)g, att->ismapped());
     }
     else {
-      Integrate_2db I((unsigned char *)xamine_shared->getbase(specno),
-		      xamine_shared->getxdim(specno),
-		      (grobj_sum2d *)g, att->ismapped());
-      I.Perform();
-      area = I.GetVolume();
-      xc   = I.GetXCentroid();
-      yc   = I.GetYCentroid();
-      xfwhm= I.GetXStdDev() * GAMMA;
-      yfwhm= I.GetYStdDev() * GAMMA;
-
+      Xamine_error_msg(Xamine_Getpanemgr(),
+		       "Invalid 2d spectrum type ignored");
     }
-
+    pI2->Perform();
+    area    = pI2->GetVolume();
+    xc      = pI2->GetXCentroid();
+    yc      = pI2->GetYCentroid();
+    xfwhm   = pI2->GetXStdDev();
+    yfwhm   = pI2->GetYStdDev();
+    delete pI2;
 
     Format2d(d,g, xc, yc, xfwhm, yfwhm, area);
   }

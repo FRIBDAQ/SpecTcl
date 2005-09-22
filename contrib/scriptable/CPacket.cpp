@@ -591,7 +591,8 @@ CPacket::AddModuleCommand(CTCLInterpreter& rInterp,
     }
     return TCL_ERROR;
   }
-  
+  rResult = "BUG report that: COntrol reached the end of CPacket::AddModuleCommand";
+  return TCL_ERROR;
 }  
 
 /*! 
