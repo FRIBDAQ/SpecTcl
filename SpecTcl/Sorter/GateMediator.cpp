@@ -58,6 +58,7 @@ CGateMediator::operator() ()
   default:
     return kfFALSE;
   }
+  return kfFALSE;
 }
 /**
  *   Mediate the gates for a 1-d spectrum.
@@ -169,4 +170,5 @@ CGateMediator::mediateGamma2()
   else {
     return kfFALSE;
   }
+  return kfFALSE;
 }

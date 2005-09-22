@@ -335,3 +335,7 @@ June 1, 2005
 
 3.0-004
   - Do a bit of recasting in order to make cleaner compiles on ia64 systems.
+3.0-005
+  - Fix errors in gamma spectrum increment.  When there are no valid parameters
+    in an event, the outer loop of the 2d gamma spectrum increment will
+    loop almost infinitely and eventually segfault.

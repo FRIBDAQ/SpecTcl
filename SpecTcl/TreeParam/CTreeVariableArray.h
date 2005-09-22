@@ -97,7 +97,7 @@ public:
   void Initialize(STD(string) baseName, double initialValue, 
 		  STD(string) units, UInt_t size, Int_t firstElement);
   CTreeVariable& operator[](Int_t index);
-  CTreeVariable& operator=(const CTreeVariableArray& rhs);
+  CTreeVariableArray& operator=(const CTreeVariableArray& rhs);
   
   UInt_t size();
   Int_t  firstIndex();

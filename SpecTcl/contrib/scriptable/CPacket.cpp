@@ -591,7 +591,7 @@ CPacket::AddModuleCommand(CTCLInterpreter& rInterp,
     }
     return TCL_ERROR;
   }
-  
+  return TCL_ERROR;
 }  
 
 /*! 

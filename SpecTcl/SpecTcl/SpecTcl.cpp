@@ -1841,7 +1841,8 @@ CEventSink*
 SpecTcl::RemoveEventSink(CEventSinkPipeline::EventSinkIterator here)
 {
   CEventSinkPipeline* pPipeline = GetEventSinkPipeline();
-  pPipeline->RemoveEventSink(here);
+  return pPipeline->RemoveEventSink(here);
+  
 }
 
 

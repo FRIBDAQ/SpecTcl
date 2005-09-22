@@ -295,6 +295,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 5.1.2.3  2005/09/22 12:37:54  ron-fox
+    Fix errors in gamma spectrum increment.  When there are no valid parameters
+    in an event, the outer loop of the 2d gamma spectrum increment will
+    loop almost infinitely and eventually segfault.
+
+    Revision 5.2  2005/06/03 15:19:22  ron-fox
+    Part of breaking off /merging branch to start 3.1 development
+
     Revision 5.1.2.2  2005/05/27 17:47:37  ron-fox
     Re-do of Gamma gates also merged with Tim's prior changes with respect to
     glob patterns.  Gamma gates:
@@ -580,21 +588,23 @@ CGamma2DB::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 {
   UChar_t* pStorage = (UChar_t*)getStorage();
 
-  for(int i = 0; i < rParameters.size() - 1; i++) {
-    for(int j = i+1; j < rParameters.size(); j++ ) {
-      UInt_t  parx = rParameters[i].first;
-      Float_t xval = rParameters[i].second;
-      
-      UInt_t  pary = rParameters[j].first;
-      Float_t yval = rParameters[j].second;
-      
-      // transform -> Spectrum coordinates and increment.
-      
-      UInt_t x = (UInt_t)ParameterToAxis(0, xval);
-      UInt_t y = (UInt_t)ParameterToAxis(1, yval);
-
-      if ((x < m_nXScale) && (y < m_nYScale)) {
-	pStorage[x + y*m_nXScale]++;
+  if (rParameters.size() > 0) {
+    for(int i = 0; i < rParameters.size() - 1; i++) {
+      for(int j = i+1; j < rParameters.size(); j++ ) {
+	UInt_t  parx = rParameters[i].first;
+	Float_t xval = rParameters[i].second;
+	
+	UInt_t  pary = rParameters[j].first;
+	Float_t yval = rParameters[j].second;
+	
+	// transform -> Spectrum coordinates and increment.
+	
+	UInt_t x = (UInt_t)ParameterToAxis(0, xval);
+	UInt_t y = (UInt_t)ParameterToAxis(1, yval);
+	
+	if ((x < m_nXScale) && (y < m_nYScale)) {
+	  pStorage[x + y*m_nXScale]++;
+	}
       }
     }
   }

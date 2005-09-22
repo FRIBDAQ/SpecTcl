@@ -299,6 +299,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 /*
   Change log:
   $Log$
+  Revision 5.1.2.3  2005/09/22 12:37:54  ron-fox
+  Fix errors in gamma spectrum increment.  When there are no valid parameters
+  in an event, the outer loop of the 2d gamma spectrum increment will
+  loop almost infinitely and eventually segfault.
+
   Revision 5.1.2.2  2005/05/27 17:47:36  ron-fox
   Re-do of Gamma gates also merged with Tim's prior changes with respect to
   glob patterns.  Gamma gates:
@@ -540,4 +545,5 @@ CPointListGate::inGate(CEvent& rEvent)
       return Inside(rEvent[m_nxId], rEvent[m_nyId]);
     }
   }
+  return kfFALSE;
 }

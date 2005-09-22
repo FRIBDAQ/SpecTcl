@@ -306,6 +306,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                         New1d, New2D etc.
 //
 // $Log$
+// Revision 5.1.2.5  2005/09/22 12:37:54  ron-fox
+// Fix errors in gamma spectrum increment.  When there are no valid parameters
+// in an event, the outer loop of the 2d gamma spectrum increment will
+// loop almost infinitely and eventually segfault.
+//
 // Revision 5.1.2.4  2005/05/27 11:07:30  thoagland
 // Added support for pseudo, parameter, clear, apply, and bind to take an optional pattern for the -list switch.
 //
@@ -810,7 +815,7 @@ CSpectrumCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
     Usage(rResult);
     return TCL_ERROR;
   }
-
+  return TCL_ERROR;
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -885,7 +890,7 @@ CSpectrumCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
     Usage(rResult);
     return TCL_ERROR;
   }
-
+  return TCL_ERROR;
 }
 //////////////////////////////////////////////////////////////////////////
 //

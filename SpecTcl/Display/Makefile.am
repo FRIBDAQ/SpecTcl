@@ -56,7 +56,7 @@ windfile_lex.o: windfile.l dispwind.h superpos.h windfile_lex.h windio.h
 grobfile_lex.o: grobfile.l dispgrob.h grobjio.h grobfile_lex.h 
 	$(LEX) grobfile.l
 	sed s/yy/grobjfile/g $(LEXOUT) >grobfile_lex.cc
-	$(CC) $(XCCFLAGS) grobfile_lex.cc
+	$(CXX) $(XCCFLAGS) grobfile_lex.cc
 
 grobfile_parse.cc: grobfile.y dispgrob.h grobjio.h
 	$(YACC) -p grobjfile -b grobfile grobfile.y

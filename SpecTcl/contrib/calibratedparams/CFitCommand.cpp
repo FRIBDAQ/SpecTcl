@@ -669,6 +669,7 @@ CFitCommand::AddPoints_parse(CTCLInterpreter& rInterp,
     rResult += sFitName;
     return TCL_ERROR;
   }
+  return TCL_ERROR;
 }  
 
 /*! 

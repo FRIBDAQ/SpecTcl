@@ -299,6 +299,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change log:
    $Log$
+   Revision 5.1.2.6  2005/09/22 12:37:54  ron-fox
+   Fix errors in gamma spectrum increment.  When there are no valid parameters
+   in an event, the outer loop of the 2d gamma spectrum increment will
+   loop almost infinitely and eventually segfault.
+
    Revision 5.1.2.5  2005/05/27 17:47:38  ron-fox
    Re-do of Gamma gates also merged with Tim's prior changes with respect to
    glob patterns.  Gamma gates:
@@ -762,6 +767,7 @@ CGateFactory::CreateBandContour(const vector<string>& rBands)
     throw CGateFactoryException(CGateFactoryException::WrongGateCount,
 				bandcontour,
 				"Creating band contour in CreateBandContour");
+    return (C2Bands*)NULL;
   }
   //
   // Next, the Gate names are translated, both gates must be bands:
@@ -776,6 +782,7 @@ CGateFactory::CreateBandContour(const vector<string>& rBands)
     throw CGateFactoryException(CGateFactoryException::MustBeBand,
 				bandcontour,
 				"Checking band types in CreateBandContour");
+    return (C2Bands*)NULL;
   }
   // The gates must be defined on the same parameters.. if order is swapped,
   // then the points of one must have the x/y's swapped.
@@ -804,6 +811,7 @@ CGateFactory::CreateBandContour(const vector<string>& rBands)
     throw CGateFactoryException(CGateFactoryException::MustBeSameParams,
 				bandcontour,
 				"Creating contour from two band gates.");
+    return (C2Bands*)NULL;
   }
   return new C2Bands(x1,y1,
 		     Pts1, Pts2);	// Create the band

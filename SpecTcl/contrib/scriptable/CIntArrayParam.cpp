@@ -560,6 +560,7 @@ CIntArrayParam::SetValue(CTCLInterpreter& rInterp,
     rResult += pValues;
     return TCL_ERROR;
   }
+  return TCL_ERROR;
 }
 /*!
    \return the format of the configuration parameter in this

@@ -476,7 +476,7 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult,
     return TCL_OK;
   else
     return TCL_ERROR;
-
+  return TCL_ERROR;
 }
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -560,6 +560,7 @@ UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t
   else {
     return TCL_ERROR;
   }
+  return TCL_ERROR;
 }
 /////////////////////////////////////////////////////////////////////////////
 //

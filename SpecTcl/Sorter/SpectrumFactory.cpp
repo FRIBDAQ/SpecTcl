@@ -305,6 +305,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 5.1.2.3  2005/09/22 12:37:54  ron-fox
+    Fix errors in gamma spectrum increment.  When there are no valid parameters
+    in an event, the outer loop of the 2d gamma spectrum increment will
+    loop almost infinitely and eventually segfault.
+
     Revision 5.1.2.2  2005/05/11 16:54:54  thoagland
     Add Support for Stripchart Spectra
 
@@ -660,6 +665,7 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
 				 CSpectrumFactoryException::keBadSpectrumType,
 	    "CSpectrumFactory::CreateSpectrum - Deciding spectrum Type"); 
   }
+  return (CSpectrum*)kpNULL;
 
 }
 /*!

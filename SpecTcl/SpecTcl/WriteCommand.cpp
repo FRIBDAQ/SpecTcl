@@ -471,6 +471,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   else {
     return TCL_OK;
   }
+  return TCL_ERROR;
 }
 
 ////////////////////////////////////////////////////////////////////////////
