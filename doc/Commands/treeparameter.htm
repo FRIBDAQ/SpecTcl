@@ -18,6 +18,7 @@
 <a name="Top">
 <h2>Syntax</h2></a>
 <pre>
+     treeparameter -create <i>name low high units</i>
      treeparameter -list [<i>pattern</i>]
      treeparameter -set <i>name bins low high inc units</i>
      treeparameter -setinc <i>name inc</i>
@@ -40,7 +41,22 @@ The first command parameter is a switch that tells the <b>treeparameter</b>
     command what you want it to do.  The switch also defines the number and
     meaning of the remaining command line parameters. Each of the possibilities
     is described in the sections below.
+<h3>treeparameter -create <i>name low high bins units</i>
+This subcommand creates a new treeparameter, and if necessary, and underlying
+parameter.  Command line parameters:
+<ul>
+      <li><i>name</i> - the name of the new parameter </li>
+      <li><i>low</i>  - The low limit of the parameter</li>
+      <li><i>high</i> - The high limit of the parameter</li>
+      <li><i>bins</i> - The granularity of the parameter (bins between low/high).
+      <li><i>units</i> - The units of measure of the parameter.  For unitless
+	use e.g {}</li>
 
+</ul>
+Example:
+<pre>
+      treeparameter -create new.tree.parameter -1.0 1.0 100 mm
+</pre>
 <h3>treeparameter -list [<i>pattern</i>]</h3>
 <p>
 This subcommand lists the properties of the known tree parameters.  The optional
@@ -178,7 +194,7 @@ Clears the parameter's modified flag.
     <address><a href="mailto:fox@nscl.msu.edu">Ron Fox</a></address>
 <!-- Created: Mon Apr 18 09:25:24 EDT 2005 -->
 <!-- hhmts start -->
-Last modified: Mon Apr 18 10:48:49 EDT 2005
+Last modified: Thu Sep 22 13:51:15 EDT 2005
 <!-- hhmts end -->
   </body>
 </html>

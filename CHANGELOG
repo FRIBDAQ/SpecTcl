@@ -353,3 +353,4 @@ September 22, 2005
     the outer loop limits are very very bad.
   - Forward port the inclusion of bitmask gates 
   - Support dynamic creation of treeparameters.
+  - Document treeparameter -create command in online user guide.
