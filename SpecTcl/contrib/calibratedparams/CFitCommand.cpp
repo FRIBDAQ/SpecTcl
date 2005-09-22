@@ -669,6 +669,8 @@ CFitCommand::AddPoints_parse(CTCLInterpreter& rInterp,
     rResult += sFitName;
     return TCL_ERROR;
   }
+  rResult = "BUG report that control fell through to the end of CFitCommand::AddPoints";
+  return TCL_ERROR;
 }  
 
 /*! 

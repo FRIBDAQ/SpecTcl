@@ -390,6 +390,7 @@ ostream& nsclbin::writeout(ostream& Binary) {
     return Binary;
   }
   error((nscloperror*)new nscloperror(nscloperror::WriteWOSetup) );
+  return Binary;
 }
 void nsclbin::rtrim(char str[120],char trimchar=' ') {
   for(int i = strlen(str); i>=0;i--) {

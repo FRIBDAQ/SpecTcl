@@ -278,6 +278,11 @@ DAMAGES.
 
 /* Change log:
    $Log$
+   Revision 5.3  2005/09/22 12:41:47  ron-fox
+   2dl spectra in Xamine and other misc stuff.. including making
+   void functions return values in all paths, including exception
+   exits since g++3.x and higher likes that.
+
    Revision 5.2  2005/06/03 15:18:56  ron-fox
    Part of breaking off /merging branch to start 3.1 development
 
@@ -529,6 +534,7 @@ void GraphicalInput::MouseHit(XMWidget *wid, XtPointer call_d)
     /* Handling differs depending on the spectrum type: */
 
     switch(xamine_shared->gettype(attrib->spectrum())) {
+    case twodlong:
     case twodword:
     case twodbyte:
       cvt2 = new Xamine_Convert2d(wid, attrib, xamine_shared);

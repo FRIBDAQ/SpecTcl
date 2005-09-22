@@ -810,10 +810,12 @@ void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, char *title,
   **  assert that the spectrum was in bounds but that can't link well  in UNIX
   */
   channels = xdim;		/* Compute # of channels. */
-  if( ( type == twodword ) || ( type == twodbyte )) {
+  if( ( type == twodword ) || ( type == twodbyte ) ||
+      (type == twodlong)) {
     channels *= ydim;
   }
   switch(type) {		/* Compute bytes per channel. */
+  case twodlong:
   case onedlong:
     bpc = sizeof(int);
     break;
@@ -1041,21 +1043,27 @@ long f77xamine_allocate1d_(int *spno, int *xdim, char *title, int *word,
 **     Specifieds the dimensions of the spectrum.
 **   char *title:
 **     Specifies the spectrum title if present (NULL Means untitled).
-**   int byte:
-**     True if the spectrum is represented as 1 byte per channel or false
-**     otherwise.
+**   int type:
+**      Represents the 'width' of each channel as follows:
+**      - 0 The channel is 16 bits wide.
+**      - 1 The channel is  8 bits wide.
+*       - 2 The channel is 32 bits wide.
+#
 ** Returns:
 **    Pointer to the spectrum memory.  NOte that f77 versions return the
 **    spectrum offset value.
 */
-caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, char *title, int byte)
+caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, char *title, int type)
 {
   int s_amount = xdim*ydim;	/* Number of channels... */
   caddr_t storage;
+  int spectrumType;
   
   /* Allocate the spectrum storage: */
 
-  if(!byte) s_amount = s_amount * sizeof(short); /* Number of bytes of storage. */
+  if(type==0) s_amount = s_amount * sizeof(short); /* Number of bytes of storage. */
+  if(type==2) s_amount = s_amount * sizeof(long);
+
   storage = Xamine_AllocMemory(s_amount);
   if(storage == NULL) return NULL;
 
@@ -1069,8 +1077,23 @@ caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, char *title, int byte)
 
   /*  Next Describe the spectrum in the shared memory region.  */
 
+
+  switch (type) {
+  case 0:
+    spectrumType = twodword;
+    break;
+  case 1:
+    spectrumType = twodbyte;
+    break;
+  case 2:
+    spectrumType = twodlong;
+    break;
+  default:			/* Bad spectrum type. */
+    Xamine_FreeMemory(storage);
+    return NULL;
+  }
   Xamine_DescribeSpectrum(*spno, xdim, ydim, title, storage,
-			  byte ? twodbyte : twodword);
+			  spectrumType);
 
   return storage;
 }

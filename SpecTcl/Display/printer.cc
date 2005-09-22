@@ -290,6 +290,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
+ Revision 5.3  2005/09/22 12:41:47  ron-fox
+ 2dl spectra in Xamine and other misc stuff.. including making
+ void functions return values in all paths, including exception
+ exits since g++3.x and higher likes that.
+
  Revision 5.2  2005/06/03 15:18:57  ron-fox
  Part of breaking off /merging branch to start 3.1 development
 
@@ -1694,7 +1699,8 @@ void PrintAllCallback(XMWidget *w, XtPointer user, XtPointer call)
       win_attributed *at = Xamine_GetDisplayAttributes(r,c);
       if(at != NULL) {
 	if((xamine_shared->gettype(at->spectrum()) == twodbyte) ||
-	   (xamine_shared->gettype(at->spectrum()) == twodword)) {
+	   (xamine_shared->gettype(at->spectrum()) == twodword) ||
+	   (xamine_shared->gettype(at->spectrum()) == twodlong)) {
 	  is2d = True;
 	  break;
 	}
@@ -1742,7 +1748,8 @@ void PrintSelCallback(XMWidget* w, XtPointer user, XtPointer call)
   XtArgVal is2d = False;
   win_attributed *at = Xamine_GetSelectedDisplayAttributes();
   if((xamine_shared->gettype(at->spectrum()) == twodbyte) ||
-     (xamine_shared->gettype(at->spectrum()) == twodword))
+     (xamine_shared->gettype(at->spectrum()) == twodword) ||
+     (xamine_shared->gettype(at->spectrum()) == twodlong))
     is2d = True;
 
   rows->SetAttribute(XmNsensitive, (long int)False);
@@ -1960,6 +1967,7 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
     }
     break;
   }
+  case twodlong:
   case twodbyte:
   case twodword: {
     win_2d* pAttrib = (win_2d*)pAttributes;
@@ -2074,6 +2082,7 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
   // spectrum options toggle switch states.
   if(fDefaultsExist) {
     switch(xamine_shared->gettype(nSpectrum)) {
+    case twodlong:
     case twodbyte:
     case twodword:
       ps_dialog->set_palette(dflt_print_opts->color_pal);

@@ -523,12 +523,12 @@ unsigned int spec_shared::getchannel(int id, int ix) volatile
     fprintf(stderr, "Xindex out of range 0-%d (was %d) in 1d getchannel\n",
 	    getxdim(id), ix);
     return 0;
+  case twodlong:    
+  case twodbyte:
   case twodword:
     fprintf(stderr,"Attempted 1d getchannel from 2-d %d\n",id-1);
     return 0;
-  case twodbyte:
-    fprintf(stderr, "Attempted 1d getchannel from 2-d %d\n", id-1);
-    return 0;
+
   case onedword:
     sptr = (unsigned short *)getbase(id);
     if(sptr == NULL) {
@@ -552,6 +552,7 @@ unsigned int spec_shared::getchannel(int id, int ix) volatile
 }
 unsigned int spec_shared::getchannel(int id, int ix, int iy) volatile
 {
+  unsigned long* lptr;
   unsigned short *sptr;
   unsigned char  *bptr;
   int idx;
@@ -565,6 +566,24 @@ unsigned int spec_shared::getchannel(int id, int ix, int iy) volatile
     return 0;
   case onedword:
     fprintf(stderr, "Attempted 2d getchannel for 1d spectrum %d\n", id);
+    return 0;
+  case twodlong:
+    if( (ix >= 0) && (ix < getxdim(id)) &&
+        (iy >= 0) && (iy < getydim(id))) {
+      idx = ix + iy*getxdim(id);
+      lptr = (unsigned long *)getbase(id);
+      if(lptr == NULL) {
+	fprintf(stderr, "Invalid spectrum base %d \n", id);
+	return 0;
+      }
+      if((char *)&lptr[idx] > Xamine_MemoryTop()) {
+	fprintf(stderr, "Invalid spectrum channel %d,%d\n", id, idx);
+	return 0;
+      }
+      return (unsigned int)lptr[idx];
+    }
+    fprintf(stderr,"Invalid index on 2d getchannel 0-%d, 0-%d, %d,%d\n",
+	    getxdim(id), getydim(id), ix, iy);
     return 0;
   case twodword:
     if( (ix >= 0) && (ix < getxdim(id)) &&
@@ -621,6 +640,7 @@ volatile unsigned int *spec_shared::getbase(int id) volatile
 {
   volatile unsigned int *base;
   switch(gettype(id)) {
+  case twodlong:
   case onedlong:
     base =  &(dsp_spectra.display_l[dsp_offsets[id-1]]);
     break;

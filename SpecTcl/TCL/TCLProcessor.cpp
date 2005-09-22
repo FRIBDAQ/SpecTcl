@@ -686,7 +686,8 @@ CTCLProcessor::Unregister()
   CTCLInterpreter* pInterp = AssertIfNotBound();
 
   pInterp->UnregisterCommand(m_sCommandName);
-
+  
+  return TCL_OK;
 }
 //////////////////////////////////////////////////////////////////////////
 //

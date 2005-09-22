@@ -186,7 +186,9 @@ CFold::operator()(vector<pair<UInt_t, Float_t> >& rEvent, CGammaSpectrum* pSpect
       if(pGate->inGate(rEvent[i].second)) {
 	vector<pair<UInt_t, Float_t> > parameterlist;
 	CutDownParameters(parameterlist, rEvent, rEvent[i].first);
-	pSpectrum->Increment(parameterlist);
+	if (parameterlist.size()) {
+	  pSpectrum->Increment(parameterlist);
+	}
       }
     }
   }

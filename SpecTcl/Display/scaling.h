@@ -599,6 +599,39 @@ class Sampler2 {
       *buffer++ = sample();
   }
 };
+class Sample2l : public Sampler2 {
+ protected:
+  volatile unsigned long *base;		/* Spectrum base. */
+ public:
+  Sample2l(volatile unsigned long *b, float xs, float ys, int xsiz) :
+    Sampler2(xs, ys, xsiz) {
+    base   = b;
+  }
+  virtual ~Sample2l() 
+    {}				/* Force call of parent destructor.  */
+  virtual unsigned int chan(int x, int y) {
+    return (unsigned int)(base[x + y*xdim]);
+  }
+
+  virtual unsigned int sample() {
+    unsigned int val = 0;
+    int      xl      = xstart[xbin];
+    int      xh      = xend[xbin];
+    int      yl      = (int)(yoff + 0.5);
+    int      yh      = (int)(yoff + ystep + 0.5);
+
+    for(int j = yl; j < yh; j++) {
+      for(int i = xl; i < xh; i++) {
+        unsigned int c = (unsigned int)base[i+j*xdim];
+	if(val < c) val = c;
+      }
+    }
+    next();
+
+    return val;
+  }
+
+};
 
 class Sample2w : public Sampler2 {
  protected:
@@ -674,6 +707,67 @@ class Sample2b : public Sampler2 {
 /*
 ** Summing samplers:
 */
+class Sum2l : public Sampler2 {
+ protected:
+  volatile unsigned long *base;		/* Spectrum base. */
+ public:
+  Sum2l(volatile unsigned long *b, float xs, float ys, int xsiz) :
+    Sampler2(xs,ys, xsiz) {
+
+      base = b;
+  }
+  virtual ~Sum2l() {}
+  virtual unsigned int chan(int x, int y) {
+    return (unsigned int)(base[x + y*xdim]);
+  }
+  virtual unsigned int sample() {
+    int x0  = xstart[xbin];
+    int y0  = (int)(yoff); /* These are box lower left coords... */
+
+    int x1  = xend[xbin];
+    int y1  = (int)(yoff + ystep); /* These are the box upper right coords */
+
+    unsigned int sum = 0;	/* Accumulate the sum into here. */
+
+    int ychan = y0*xdim;
+    for(int y = y0; y < y1; y++) {
+      for(int x = x0; x < x1; x++) {
+	sum += (unsigned int)(base[x + ychan]);
+      }
+      ychan += xdim;
+    }
+
+    /* Adjust offsets to the next summing box. */
+
+    next();
+
+    return sum;
+  }
+
+  /* Restriction -- only gets a full scanline */
+
+  virtual void getscanline(unsigned int *buffer) {
+    int nx = getsteps();
+    for(int i = 0; i < nx; i++) {
+      int x0 = xstart[i];
+      int x1 = xend[i];
+      int y0 = (int)yoff;
+      int y1 = (int)(yoff+ystep);
+      unsigned int sum = 0;
+      int ychan = y0*xdim;
+      for(int y = y0; y < y1; y++) {
+	for(int x = x0; x < x1; x++) {
+	  sum += (unsigned int)(base[x+ychan]);
+	}
+	ychan += xdim;
+      }
+      *buffer++ = sum;
+    }
+    xbin = 0;
+    yoff += ystep;
+  }
+};
+
 class Sum2w : public Sampler2 {
  protected:
   volatile unsigned short *base;		/* Spectrum base. */
@@ -799,6 +893,70 @@ class Sum2b : public Sampler2 {
 /*
 ** Averaging samplers.
 */
+class Average2l : public Sampler2 {
+ protected:
+  volatile unsigned long *base;		/* Spectrum base. */
+ public:
+  Average2l(volatile unsigned long *b, float xs, float ys, int xsiz) :
+    Sampler2(xs, ys, xsiz)
+    {
+    base   = b;
+  }
+  virtual ~Average2l() {}
+  virtual unsigned int chan(int x, int y) {
+    return (unsigned int)(base[x + y*xdim]);
+  }
+
+  virtual unsigned int sample() {
+    int x0  = xstart[xbin];
+    int y0  = (int)(yoff); /* These are box lower left coords... */
+
+    int x1  = xend[xbin];
+
+    int y1  = (int)(yoff + ystep); /* These are the box upper right coords */
+
+
+    unsigned int sum = 0;	/* Accumulate the sum into here. */
+
+    int ychan = y0*xdim;
+    for(int y = y0; y < y1; y++) {
+      for(int x = x0; x < x1; x++) {
+	sum += (unsigned int)(base[x + ychan]);
+      }
+      ychan += xdim;
+    }
+
+    /* Adjust offsets to the next summing box. */
+
+    next();
+
+    return (sum/((x1-x0+1)*(y1-y0+1)));
+  }
+
+  /* Restriction -- only gets a full scanline */
+
+  virtual void getscanline(unsigned int *buffer) {
+    int nx = getsteps();
+    for(int i = 0; i < nx; i++) {
+      int x0 = xstart[i];
+      int x1 = xend[i];
+      int y0 = (int)yoff;
+      int y1 = (int)(yoff+ystep);
+      unsigned int sum = 0;
+      int ychan = y0*xdim;
+      for(int y = y0; y <= y1; y++) {
+	for(int x = x0; x <= x1; x++) {
+	  sum += (unsigned int)(base[x+ychan]);
+	}
+	ychan += xdim;
+      }
+      *buffer++ = sum / ((x1-x0+1)*(y1-y0+1));
+    }
+    xbin = 0;
+    yoff += ystep;
+  }
+};
+
 class Average2w : public Sampler2 {
  protected:
   volatile unsigned short *base;		/* Spectrum base. */

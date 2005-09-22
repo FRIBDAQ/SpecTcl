@@ -378,6 +378,7 @@ void Xamine_DisplayPane (int row, int col, int specid)
     Xamine_Construct1dDefaultProperties(&attr1);
     attribs = (win_attributed *)&attr1;
     break;
+  case twodlong:
   case twodword:
   case twodbyte:
     Xamine_Construct2dDefaultProperties(&attr2);

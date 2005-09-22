@@ -386,7 +386,8 @@ Boolean LimitedSpectrumChooser::FilterList(int specno)
 	    
   case twod:
     return ((xamine_shared->gettype(specno) == twodword) ||
-	    (xamine_shared->gettype(specno) == twodbyte));
+	    (xamine_shared->gettype(specno) == twodbyte) ||
+	    (xamine_shared->gettype(specno) == twodlong));
   case any:
   default:
     return (xamine_shared->gettype(specno) != undefined);

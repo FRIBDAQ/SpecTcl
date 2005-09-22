@@ -364,6 +364,7 @@ typedef char spec_label[72];
 
 typedef enum {
                undefined = 0,
+	       twodlong = 5,
                onedlong = 4,
 	       onedword = 2,
 	       twodword = 3,

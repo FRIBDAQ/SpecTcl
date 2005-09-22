@@ -293,6 +293,11 @@ DAMAGES.
 /*
    Change log:
    $Log$
+   Revision 5.3  2005/09/22 12:41:47  ron-fox
+   2dl spectra in Xamine and other misc stuff.. including making
+   void functions return values in all paths, including exception
+   exits since g++3.x and higher likes that.
+
    Revision 5.2  2005/06/03 15:19:35  ron-fox
    Part of breaking off /merging branch to start 3.1 development
 
@@ -349,7 +354,7 @@ class CXamine1D;		// Forward definition.
 
 class CXamine2D  : public CXamineSpectrum        
 {
-  Bool_t m_fBytes;		//!< kfTRUE if spectrum channels are byte.
+  Int_t m_nType;		//!< 0 - word 1 byte 2 longs.
   UInt_t m_nXchannels;		//!< no. of X channels.
   UInt_t m_nYchannels;		//!< No of y Channels.
   CXamineMap2D m_XamineMap;     //!< Transformation information, if applicable
@@ -358,9 +363,9 @@ public:
   // Constructor:
 
   CXamine2D(volatile Xamine_shared* pXamine, const STD(string)& rName,
-	    UInt_t nXchans, UInt_t nYchans, Bool_t fBytes = kfTRUE) :
+	    UInt_t nXchans, UInt_t nYchans, Int_t nType=2) :
     CXamineSpectrum(pXamine, rName),
-    m_fBytes(fBytes),
+    m_nType(nType),
     m_nXchannels(nXchans),
     m_nYchannels(nYchans),
     m_XamineMap(0.0,0.0,0.0,0.0,STD(string)(""),STD(string)(""))
@@ -371,9 +376,9 @@ public:
 	    Float_t nXLow, Float_t nYLow,
 	    Float_t nXHigh, Float_t nYHigh,
 	    const STD(string)& sXUnits, const STD(string)& sYUnits,
-	    Bool_t fBytes = kfTRUE) :
+	    Int_t nType = 2) : 
     CXamineSpectrum(pXamine, rName),
-    m_fBytes(fBytes),
+    m_nType(nType),
     m_nXchannels(nXChans),
     m_nYchannels(nYChans),
     m_XamineMap(nXLow, nYLow, nXHigh, nYHigh, sXUnits, sYUnits)
@@ -386,7 +391,7 @@ public:
   CXamine2D (const CXamine2D& aCXamine2D )   : 
     CXamineSpectrum (aCXamine2D) 
   {   
-    m_fBytes     = aCXamine2D.m_fBytes;
+    m_nType      = aCXamine2D.m_nType;
     m_nXchannels = aCXamine2D.m_nXchannels;
     m_nYchannels = aCXamine2D.m_nYchannels;
     m_XamineMap  = aCXamine2D.m_XamineMap;
@@ -398,7 +403,7 @@ public:
   { 
     if (this == &aCXamine2D) return *this;          
     CXamineSpectrum::operator= (aCXamine2D);
-    m_fBytes     = aCXamine2D.m_fBytes;
+    m_nType      = aCXamine2D.m_nType;
     m_nXchannels = aCXamine2D.m_nXchannels;
     m_nYchannels = aCXamine2D.m_nYchannels;
     m_XamineMap  = aCXamine2D.m_XamineMap;
@@ -413,7 +418,7 @@ public:
     return (
 	    (CXamineSpectrum::operator== (aCXamine2D)) &&
 	    
-	    (m_fBytes == aCXamine2D.m_fBytes) &&
+	    (m_nType      == aCXamine2D.m_nType) &&
 	    (m_nXchannels == aCXamine2D.m_nXchannels) &&
 	    (m_nYchannels == aCXamine2D.m_nYchannels) &&
 	    (m_XamineMap  == aCXamine2D.m_XamineMap)
@@ -422,9 +427,9 @@ public:
   // Selectors:                  
   
 public:
-  Bool_t getByte() const
+  Bool_t getType() const
   {
-    return m_fBytes;
+    return m_nType;
   }
   UInt_t getXchannels() const
   {
@@ -442,9 +447,9 @@ public:
 
 protected:                       
 
-  void setByte (Bool_t am_fBytes)
+  void setType (Int_t am_nType)
   { 
-    m_fBytes = am_fBytes;
+    m_nType = am_nType;
   }
   void setXchannels (UInt_t am_nXchannels)
   { 
