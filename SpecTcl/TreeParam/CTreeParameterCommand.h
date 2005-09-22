@@ -72,6 +72,8 @@ protected:
 		    int argc, char** argv);
 	int Version(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		    int argc, char** argv);
+	int Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
+		   int argc, char** argv);
 
 	// Utility functions.
 private:

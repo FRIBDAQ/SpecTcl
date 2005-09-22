@@ -251,8 +251,8 @@ proc SpectrumType2D {} {
 	global tops
 	set wname $tops.options.datatype.n
 	$wname.byte configure -state normal
-	$wname.long configure -state disabled
-	set spectrumDatatype word
+	$wname.long configure -state normal
+	set spectrumDatatype long
 	$tops.bottom.varx.varmenu configure -text "X Parameter"
 	set wname $tops.bottom.vary
 	$wname.varlabel configure -state normal
@@ -269,8 +269,8 @@ proc SpectrumTypeSummary {} {
 	global tops
 	set wname $tops.options.datatype.n
 	$wname.byte configure -state normal
-	$wname.long configure -state disabled
-	set spectrumDatatype word
+	$wname.long configure -state enabled
+	set spectrumDatatype long
 	set wname $tops.bottom.vary
 	$tops.bottom.varx.varmenu configure -text Parameters
 	$wname.varlabel configure -state disabled
@@ -323,8 +323,8 @@ proc SpectrumType2G {} {
 	global tops
 	set wname $tops.options.datatype.n
 	$wname.byte configure -state normal
-	$wname.long configure -state disabled
-	set spectrumDatatype word
+	$wname.long configure -state normal
+	set spectrumDatatype long
 	$tops.bottom.varx.varmenu configure -text Parameters
 	set wname $tops.bottom.vary
 	$wname.varlabel configure -state disabled
@@ -341,8 +341,8 @@ proc SpectrumTypeGP {} {
 	global tops
 	set wname $tops.options.datatype.n
 	$wname.byte configure -state normal
-	$wname.long configure -state disabled
-	set spectrumDatatype word
+	$wname.long configure -state normal
+	set spectrumDatatype long
 	$tops.bottom.varx.varmenu configure -text "X Parameter"
 	set wname $tops.bottom.vary
 	$wname.varlabel configure -state normal

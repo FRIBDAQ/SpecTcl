@@ -265,14 +265,14 @@ CTreeVariableArray::operator[](Int_t index)
  * @param rhs
  * 
  */
-CTreeVariable&
+CTreeVariableArray&
 CTreeVariableArray::operator=(const CTreeVariableArray& rhs)
 {
   
   DestroyArray();
   CopyArray(rhs);
   
-  
+  return *this;
 
 }
 /**
