@@ -471,6 +471,8 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   else {
     return TCL_OK;
   }
+  rResult = "BUG Report that: Control fell through to the end of CWriteCommand::operator()";
+  return TCL_ERROR;
 }
 
 ////////////////////////////////////////////////////////////////////////////

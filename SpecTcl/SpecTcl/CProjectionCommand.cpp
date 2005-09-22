@@ -669,6 +669,7 @@ CProjectionCommand::selectROI(CSpectrum*      pSource,
   else {
     return new CEverywhereROI(maps[0], maps[1]);
   }
+  return (CROI*)NULL;			// This is actually a bug.
 }
 
 /**

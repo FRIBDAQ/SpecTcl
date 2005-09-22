@@ -297,6 +297,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.3  2005/09/22 12:40:38  ron-fox
+  Port in the bitmask spectra
+
   Revision 5.2  2005/06/03 15:19:26  ron-fox
   Part of breaking off /merging branch to start 3.1 development
 
@@ -344,6 +347,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CGammaCut.h>
 #include <CGammaBand.h>
 #include <CGammaContour.h>
+#include <MaskEqualGate.h>
+#include <MaskAndGate.h>
+#include <MaskNotGate.h>
 
 #include <GateFactory.h>
 
@@ -867,6 +873,51 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     Result.EndSublist();
   }
   
+  else if (type == "em") {
+    CMaskEqualGate& rMask((CMaskEqualGate&)*rGate);  
+    UInt_t nPid = rMask.getId();
+    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    if(Param) {
+      Result.AppendElement(Param->getName());
+    }
+    else {
+      Result.AppendElement("-Deleted Parameter-");
+    }    
+    long value = rMask.getCompare();
+    Result.AppendElement(value ,"%#X");
+    Result.EndSublist();
+    return Result;
+  }
+ else if (type == "am") {
+    CMaskAndGate& rMask((CMaskAndGate&)*rGate);  
+    UInt_t nPid = rMask.getId();
+    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    if(Param) {
+      Result.AppendElement(Param->getName());
+    }
+    else {
+      Result.AppendElement("-Deleted Parameter-");
+    }    
+    long value = rMask.getCompare();
+    Result.AppendElement(value ,"%#X");
+    Result.EndSublist();
+    return Result;
+  }
+ else if (type == "nm") {
+    CMaskNotGate& rMask((CMaskNotGate&)*rGate);  
+    UInt_t nPid = rMask.getId();
+    CParameter* Param = m_pHistogrammer->FindParameter(nPid);
+    if(Param) {
+      Result.AppendElement(Param->getName());
+    }
+    else {
+      Result.AppendElement("-Deleted Parameter-");
+    }    
+    long value = rMask.getCompare();
+    Result.AppendElement(value ,"%#X");
+    Result.EndSublist();
+    return Result;
+  }
 
   else if ((type == "gs") ||
 	   (type == "gb") ||

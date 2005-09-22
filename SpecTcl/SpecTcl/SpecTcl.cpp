@@ -33,6 +33,10 @@
 #include <CGammaBand.h>
 #include <CGammaContour.h>
 #include <CGammaCut.h>
+#include <MaskGates.h>
+#include <MaskEqualGate.h>
+#include <MaskAndGate.h>
+#include <MaskNotGate.h>
 #include <Not.h>
 
 
@@ -1004,6 +1008,32 @@ SpecTcl::CreateGate(CGateFactory::GateType gateType, vector<string> parameters,
   return       factory.CreateGate(gateType, parameters, points);
 }
 /*!
+  Creates a mask gate of the specified type.  Compound gates
+  are gates that are made up of other gates.  A pointer to the gate created
+  is returned.
+  @param gateType
+    Type of gate to create. Must be a compound gate type.
+  @param names
+    Names of the gates that will make up this compound gate.
+
+  \return CGate*
+  \retval Pointer to the newly crated gate.  It is up to the caller to 
+          enter the gate into the gate dictionary where the histogrammer can
+	  operate on it.. It is also up to the caller to delete the gate
+	  when done.
+  \throw CGateFactoryException - If there's a problem creating the gate.
+ 
+*/
+CGate* 
+SpecTcl::CreateGate(CGateFactory::GateType gateType, 
+		    vector<string> parameters, 
+		    long comparison)
+{
+  CGateFactory factory(GetHistogrammer());
+  return       factory.CreateGate(gateType, parameters, comparison);
+}
+
+/*!
   Creates a gamma  gate.
   @param gateType
     Type of gate to add.
@@ -1392,6 +1422,64 @@ SpecTcl::CreateGammaContour(vector<FPoint> points,
   return       factory.CreateGammaContour(points, paramIds);
 }
 
+/*!
+  Creates a Mask Equal Gate
+  \return CGate*
+  \retval Pointer to the newly created gate.  It is up to the caller to 
+          enter the gate into the gate dictionary where the histogrammer can
+	  operate on it.. It is also up to the caller to delete the gate
+	  when done.
+  \throw CGateFactoryException - If there's a problem creating the gate.
+
+ 
+*/
+CGate* 
+SpecTcl::CreateMaskEqualGate(vector<string> parameters, 
+			     long Compare)
+{
+  CGateFactory factory(GetHistogrammer());
+  return       factory.CreateMaskEqualGate(parameters, Compare);
+}
+
+
+/*!
+  Creates a Mask Equal Gate
+  \return CGate*
+  \retval Pointer to the newly created gate.  It is up to the caller to 
+          enter the gate into the gate dictionary where the histogrammer can
+	  operate on it.. It is also up to the caller to delete the gate
+	  when done.
+  \throw CGateFactoryException - If there's a problem creating the gate.
+
+ 
+*/
+CGate* 
+SpecTcl::CreateMaskAndGate(vector<string> parameters, 
+			     long Compare)
+{
+  CGateFactory factory(GetHistogrammer());
+  return       factory.CreateMaskAndGate(parameters, Compare);
+}
+
+
+/*!
+  Creates a Mask Equal Gate
+  \return CGate*
+  \retval Pointer to the newly created gate.  It is up to the caller to 
+          enter the gate into the gate dictionary where the histogrammer can
+	  operate on it.. It is also up to the caller to delete the gate
+	  when done.
+  \throw CGateFactoryException - If there's a problem creating the gate.
+
+ 
+*/
+CGate* 
+SpecTcl::CreateMaskNotGate(vector<string> parameters, 
+			     long Compare)
+{
+  CGateFactory factory(GetHistogrammer());
+  return       factory.CreateMaskNotGate(parameters, Compare);
+}
 
 /*!
   Adds a gate to the gate dictionary.  The gate dictionary does not manage
@@ -1840,8 +1928,11 @@ SpecTcl::RemoveEventSink(string name)
 CEventSink* 
 SpecTcl::RemoveEventSink(CEventSinkPipeline::EventSinkIterator here)
 {
+  CEventSink* pSink = here->second;
   CEventSinkPipeline* pPipeline = GetEventSinkPipeline();
   pPipeline->RemoveEventSink(here);
+
+  return pSink;
 }
 
 
