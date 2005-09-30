@@ -19,6 +19,13 @@
 #endif
 #endif
 
+#ifndef __STL_MAP
+#include <map>
+#ifndef __STL_MAP
+#define __STL_MAP
+#endif
+#endif
+
 // Forward Definitions:
 
 class CTCLInterpreter;
@@ -44,37 +51,40 @@ class CTCLResult;
  */
 class CTreeParameterCommand : public CTCLProcessor
 {
+private:
+  static STD(map)<STD(string), STD(string)> m_createdParameters;
 
 public:
-	virtual ~CTreeParameterCommand();
-	CTreeParameterCommand(CTCLInterpreter* pInterp = 0);
-	virtual int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			       int argc, char** argv);
-
-protected:
-	friend class TreeCommandTest;
-	STD(string) Usage();
-	int List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		 char argc, char** argv);
-	int SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			  int argc, char** argv);
-	int SetIncrement(CTCLInterpreter& rInterpreter, CTCLResult& rResult, 
+  virtual ~CTreeParameterCommand();
+  CTreeParameterCommand(CTCLInterpreter* pInterp = 0);
+  virtual int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			 int argc, char** argv);
-	int SetChannelCount(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			    int argc, char** argv);
-	int SetUnit(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+protected:
+  friend class TreeCommandTest;
+  STD(string) Usage();
+  int List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+	   char argc, char** argv);
+  int SetDefinition(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		    int argc, char** argv);
-	int SetLimits(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		      int argc, char** argv);
-	int Check(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		  int argc, char** argv);
-	int UnCheck(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		    int argc, char** argv);
-	int Version(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		    int argc, char** argv);
-	int Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
+  int SetIncrement(CTCLInterpreter& rInterpreter, CTCLResult& rResult, 
 		   int argc, char** argv);
-
+  int SetChannelCount(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+		      int argc, char** argv);
+  int SetUnit(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+	      int argc, char** argv);
+  int SetLimits(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+		int argc, char** argv);
+  int Check(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+	    int argc, char** argv);
+  int UnCheck(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+	      int argc, char** argv);
+  int Version(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+	      int argc, char** argv);
+  int Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
+	     int argc, char** argv);
+  
+  int listNew(CTCLInterpreter& rInterp, CTCLResult& rResult,
+	      int argc, char** argv);
 	// Utility functions.
 private:
 	int TypeSafeParseFailed(CTCLResult& rResult,

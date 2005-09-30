@@ -33,6 +33,9 @@ using namespace std;
 //
 static const DFloat_t tolerance(0.01);
 
+// Class data:
+
+map<string, string> CTreeParameterCommand::m_createdParameters;
 
 //!  Destructor: Nothing really to do.
 
@@ -134,6 +137,9 @@ int CTreeParameterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rRes
   else if (subcommand == "-create") {
     status = Create(rInterp, rResult, argc, argv);
   }
+  else if (subcommand == "-listnew") {
+    status = listNew(rInterp, rResult, argc, argv);
+  }
   else {
     // Invalid ensemble subcommand:
     //
@@ -162,6 +168,7 @@ CTreeParameterCommand::Usage()
   //
   usage   = "Usage:\n";
   usage += "     treeparameter -list ?pattern?\n";
+  usage += "     treeparameter -listnew\n";
   usage += "     treeparameter -set name bins low high inc units\n";
   usage += "     treeparameter -setinc name inc\n";
   usage += "     treeparameter -setbins name bins\n";
@@ -757,7 +764,38 @@ CTreeParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   pParam->Bind();
   pParam->setUnit(units);	// Since bind may unset them.
   
+  // Record the parameter in the new list:
+
+  m_createdParameters[name] = name;
+
   rResult = name;
+  return TCL_OK;
+
+}
+/*!
+   Called to list the set of parameters that were created at runtime.
+   These are stored in the m_createdParameter map with the key the name
+   and the value the name too.
+   @param rInterp - The interpreter that is executing us.
+   @param rResult - The command result.. will be filled in with a TCL
+                    list that contains the set of created parameters.
+   @param argc    - Number of remaining command line parameters (should be 0).
+   @param argv    - Pointers to the comand line parameters.
+*/
+int
+CTreeParameterCommand::listNew(CTCLInterpreter& rInterp, CTCLResult& rResult,
+			       int argc, char** argv)
+{
+  if (argc) {
+    rResult = "Too many command parameters\n";
+    rResult += Usage();
+    return TCL_ERROR;
+  }
+  map<string, string>::iterator    i = m_createdParameters.begin();
+  while (i != m_createdParameters.end()) {
+    rResult.AppendElement(i->first);
+    i++;
+  }
   return TCL_OK;
 
 }
