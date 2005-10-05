@@ -345,7 +345,7 @@ static const SwitchDef SwitchTable[] = {
   {"-size", CAttachCommand::keBufferSize},
   {"-format", CAttachCommand::keFormat},
   {"-test", CAttachCommand::keTest},
-  {"-list", CAttachCommand:keList},
+  {"-list", CAttachCommand::keList},
   {"-null", CAttachCommand::keNull}
 };
 
@@ -685,7 +685,7 @@ int CAttachCommand::AttachPipe(CTCLResult& rResult,
     return stat;
 
   stat = rPack.OpenSource(rResult, rName.c_str(), nBytes);
-  if (state == TCL_OK) {
+  if (stat == TCL_OK) {
     m_AttachedTo = "Pipe from: ";
     m_AttachedTo += rName;
   }
