@@ -339,3 +339,5 @@ June 1, 2005
   - Fix errors in gamma spectrum increment.  When there are no valid parameters
     in an event, the outer loop of the 2d gamma spectrum increment will
     loop almost infinitely and eventually segfault.
+3.0-006
+   - Retry pipe data source select if it fails with eintr.

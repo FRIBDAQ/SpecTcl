@@ -624,10 +624,19 @@ CPipeFile::IsReadable(UInt_t nMs) const
   FD_SET(fd, &readfds);
   FD_SET(fd, &exceptfds);
 
-  if(select(fd+5, &readfds, (fd_set*)kpNULL, &exceptfds, &timeout) < 0) {
-    throw CErrnoException("CPipeFile::IsReadable - select() failed");
+  // Retry the select in case a signal is sent/handled.
+
+  while (1) {
+    if(select(fd+5, &readfds, (fd_set*)kpNULL, &exceptfds, &timeout) < 0) {
+      if (errno != EINTR) {
+	throw CErrnoException("CPipeFile::IsReadable - select() failed");
+      }
+    }
+    else {
+      return (FD_ISSET(fd, &readfds) || FD_ISSET(fd, &exceptfds));
+    }
   }
-  return (FD_ISSET(fd, &readfds) || FD_ISSET(fd, &exceptfds));
+
 
 }
 /////////////////////////////////////////////////////////////////////
