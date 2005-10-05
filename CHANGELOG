@@ -358,3 +358,5 @@ September 30, 2005  - Happy Birthday Ron: 48
   - Add -listnew to treeparameter command so that new gui can
     figure out which parameters have been created since program
     started ... and save them.
+October 5, 2005
+  - Retry select in pipe data source in case of EINTR.
