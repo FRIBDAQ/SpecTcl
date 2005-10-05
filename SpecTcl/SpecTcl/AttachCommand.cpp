@@ -345,6 +345,7 @@ static const SwitchDef SwitchTable[] = {
   {"-size", CAttachCommand::keBufferSize},
   {"-format", CAttachCommand::keFormat},
   {"-test", CAttachCommand::keTest},
+  {"-list", CAttachCommand:keList},
   {"-null", CAttachCommand::keNull}
 };
 
@@ -429,6 +430,10 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     case keTest:
       numSourceTypes++;
       options.eSource = eTest;
+      break;
+    case keList:
+      rResult = m_AttachedTo;
+      return TCL_OK;
       break;
     case keNull:
       numSourceTypes++;
@@ -600,7 +605,15 @@ int CAttachCommand::AttachFile(CTCLResult& rResult,
   if(stat != TCL_OK)
     return stat;
 
-  return rPack.OpenSource(rResult, rName.c_str(), nBytes);
+  stat = rPack.OpenSource(rResult, rName.c_str(), nBytes);
+  if(stat == TCL_OK) {
+    m_AttachedTo  = "File: ";
+    m_AttachedTo += rName;
+  } 
+  else {
+    m_AttachedTo = "";
+  }
+  return stat;
 }
 
 
@@ -624,12 +637,23 @@ int CAttachCommand::AttachTape(CTCLResult& rResult,
 			       const string& rName,
 			       long nSize)
 {
+  int stat;
 
   // This one is just an attach.  Opens are done using the tape -open 
   // command.
 
   CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
-  return rPack.AttachTapeSource(rResult, rName.c_str());
+  stat =  rPack.AttachTapeSource(rResult, rName.c_str());
+
+  if (stat == TCL_OK) {
+    m_AttachedTo = "Tape: ";
+    m_AttachedTo += rName;
+  }
+  else {
+    m_AttachedTo = "";
+  }
+
+  return stat;
 }
 /*!
     Attaches a data source which comes through a pipe file.
@@ -660,7 +684,15 @@ int CAttachCommand::AttachPipe(CTCLResult& rResult,
   if(stat != TCL_OK) 
     return stat;
 
-  return rPack.OpenSource(rResult, rName.c_str(), nBytes);
+  stat = rPack.OpenSource(rResult, rName.c_str(), nBytes);
+  if (state == TCL_OK) {
+    m_AttachedTo = "Pipe from: ";
+    m_AttachedTo += rName;
+  }
+  else {
+    m_AttachedTo = "";
+  }
+  return stat;
 }
 
 /*!
@@ -687,7 +719,15 @@ int CAttachCommand::AttachTest(CTCLResult& rResult,
   if(stat != TCL_OK) {
     return stat;
   }
-  return rPack.OpenSource(rResult, sTestName.c_str(), nBlockSize);
+
+  stat = rPack.OpenSource(rResult, sTestName.c_str(), nBlockSize);
+  if (stat == TCL_OK) {
+    m_AttachedTo = "Test Source";
+  }
+  else {
+    m_AttachedTo = "";
+  }
+  return stat;
 }
 /*!
    Attach the null data source.  The null data source is a data
@@ -711,6 +751,7 @@ int CAttachCommand::AttachNull(CTCLResult& rResult,
     delete gpEventSource;
     gpEventSource = (CFile*)kpNULL;
   }
+  m_AttachedTo = "Null";
   return TCL_OK;
 }
 

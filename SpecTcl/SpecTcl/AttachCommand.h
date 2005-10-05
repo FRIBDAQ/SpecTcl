@@ -312,10 +312,18 @@ class CTCLCommandPackage;
 class CTCLResult;
 class CTestData;
 
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
+
 // Class definition:
 class CAttachCommand : public CTCLPackagedCommand {
   // Data types:
- public:
+public:
   enum Switch_t { // The command switch set.
     keFile,
     keTape,
@@ -323,32 +331,36 @@ class CAttachCommand : public CTCLPackagedCommand {
     keBufferSize,
     keFormat,
     keTest,
+    keList,
     keNull,
     keNotSwitch
   };
-
- public:
+private:
+  STD(string) m_AttachedTo;
+  
+public:
   //Constructor with arguments
   CAttachCommand(CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage) :
-  CTCLPackagedCommand("attach", pInterp, rPackage)
+    CTCLPackagedCommand("attach", pInterp, rPackage),
+    m_AttachedTo("Test Data Source")
   {}
   virtual ~CAttachCommand() {} //Destructor
 	
   //Copy constructor [illegal]
- private:
+private:
   CAttachCommand(const CAttachCommand& aCAttachCommand);
- public:
+public:
   //Operator= Assignment Operator [illegal]
- private:
+private:
   CAttachCommand& operator=(const CAttachCommand& aCAttachCommand);
- public:
+public:
   //Operator== Equality Operator legal, but who cares.
   int operator==(const CAttachCommand& aCAttachCommand) { 
     return ((CTCLPackagedCommand::operator== (aCAttachCommand)));
   }
 
   // Operations on the class:
- public:
+public:
   virtual int operator()(CTCLInterpreter& rInterp,
 			 CTCLResult& rResult,
 			 int nArgs, char* pArgs[]);
@@ -363,7 +375,7 @@ class CAttachCommand : public CTCLPackagedCommand {
   int AttachNull(CTCLResult& rResult,  const STD(string)& Connection,
 		 long nBytes);
 
- protected:
+protected:
   static void Usage(CTCLResult& rResult);
   static Switch_t ParseSwitch(char* pSwitch);
 
