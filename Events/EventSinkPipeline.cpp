@@ -96,7 +96,7 @@ void CEventSinkPipeline::InsertSink(CEventSink& entry,
 
 
   string sName;
-  if(!name) {
+  if(name) {
     sName = name;
   } 
   else {
@@ -150,10 +150,13 @@ void CEventSinkPipeline::RemoveEventSink(CEventSink& rEventSink)
 CEventSink*
 CEventSinkPipeline::RemoveEventSink(string name)
 {
-  NameMatch predicate(name);
+  NameMatch&  predicate(*(new NameMatch(name)));
   m_lSinks.remove_if(predicate);
   CEventSink* pSink = predicate.getMatch();
-  pSink->OnDetach(*gpAnalyzer);
+  if(pSink) {
+    pSink->OnDetach(*gpAnalyzer);
+  }
+  delete &predicate;
   return pSink;
 
 }
@@ -169,6 +172,7 @@ CEventSinkPipeline::RemoveEventSink(EventSinkIterator entry)
 {
   CEventSink*  pSink = entry->second;
   m_lSinks.erase(entry);
+  pSink->OnDetach(*gpAnalyzer);
   return pSink;
 }
 /*!

@@ -361,3 +361,6 @@ September 30, 2005  - Happy Birthday Ron: 48
 October 5, 2005
   - Retry select in pipe data source in case of EINTR.
   - Add attach -list to support determination of event source.
+October 7, 2005
+  - Fix defects in eventsink pipeline add/delete code.  Predicates
+    not constructed correctly.
