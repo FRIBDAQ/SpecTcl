@@ -307,7 +307,7 @@ if {$tcl_platform(os) != "Windows NT"} {
 }
 
 puts -nonewline "Starting treeparamgui..."
-source $SpecTclHome/Script/SpecTclGui.tcl
+source $SpecTclHome/Script/newGui.tcl
 puts " Done"
 
 tk appname SpecTcl-[exec hostname]-[pid]

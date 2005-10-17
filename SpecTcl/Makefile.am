@@ -1,7 +1,7 @@
 SUBDIRS =  Replace Scripts Utility Display \
 	NSCLException Xamine Tape EventSource \
 	TCL Events Gates Sorter SpectrumIO Filter Analysis TreeParam SpecTcl \
-	contrib TestFiles
+	contrib TestFiles Gui
 
 # Gri TestFiles need to be figured out still..
 
