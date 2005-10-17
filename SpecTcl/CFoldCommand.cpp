@@ -290,11 +290,13 @@ CFoldCommand::listFolds(CTCLInterpreter& rInterp, CTCLResult& rResult,
       
       if( isGammaSpectrum(pSpectrum)) {
 	CGammaSpectrum *pG = dynamic_cast<CGammaSpectrum*>(pSpectrum);
-	if(pG->haveFold()) {
-	  answer.StartSublist();
-	  answer.AppendElement(name);
-	  answer.AppendElement((pG->getFold())->getFoldName());
-	  answer.EndSublist();
+	if (pG) {	 // Since snapshot spectra will be gamma but not cast!.
+	  if(pG->haveFold()) {
+	    answer.StartSublist();
+	    answer.AppendElement(name);
+	    answer.AppendElement((pG->getFold())->getFoldName());
+	    answer.EndSublist();
+	  }
 	}
       }
     }

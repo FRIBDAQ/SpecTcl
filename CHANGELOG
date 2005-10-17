@@ -364,3 +364,5 @@ October 5, 2005
 October 7, 2005
   - Fix defects in eventsink pipeline add/delete code.  Predicates
     not constructed correctly.
+October 17, 2005
+  - Add the new browser based GUI to the system.

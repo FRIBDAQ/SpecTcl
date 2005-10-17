@@ -303,13 +303,19 @@ proc Help {} {
     exec netscape $URL &
 }
 
-button .exit -text Exit -command "exit"
+proc Exit {} {
+    set answer [tk_messageBox -icon question -type yesno -title Exit \
+		    -message {Are you sure you want to exit SpecTcl?}]
+    if {$answer == "yes"} exit
+}
+
+button .exit -text Exit -command "Exit"
 button .startstop -textvariable StartButtonText -command StartStop
 button .clearall  -text "Clear Spectra" -command {clear -all}
 button .help      -text "Help"          -command {Help}
 
 
-pack .startstop .clearall .exit .help    -side top -fill x
+pack .clearall .exit     -side top -fill x
 
 trace variable RunState w  UpdateStartButton
 
