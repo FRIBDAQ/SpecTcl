@@ -58,7 +58,6 @@ guiutilities.tcl \
 hostPrompt.html \
 maskGate.html \
 maskeditor.tcl \
-minimal.tcl \
 multiparam.html \
 multipoint.tcl \
 nameFilter.html \
@@ -75,7 +74,6 @@ selectGateApplyToMultiple.html \
 selectspectrumlist.html \
 setFilterFile.html \
 setParameters.html \
-setup.tcl \
 slice.tcl \
 sliceGate.html \
 spectraMenu.html \
