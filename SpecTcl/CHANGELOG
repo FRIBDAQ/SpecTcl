@@ -366,3 +366,5 @@ October 7, 2005
     not constructed correctly.
 October 17, 2005
   - Add the new browser based GUI to the system.
+October 18, 2005
+  - Add fix for defect 188 - grobj files need to specify spectra by name.
