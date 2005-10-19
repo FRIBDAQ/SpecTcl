@@ -341,3 +341,7 @@ June 1, 2005
     loop almost infinitely and eventually segfault.
 3.0-006
    - Retry pipe data source select if it fails with eintr.
+   - Fix defect 188 - Grobj files write out spectrum ids rather than 
+     names.. The fix will read old files, but new files will use
+     names.
+
