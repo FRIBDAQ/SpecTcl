@@ -344,4 +344,5 @@ June 1, 2005
    - Fix defect 188 - Grobj files write out spectrum ids rather than 
      names.. The fix will read old files, but new files will use
      names.
-
+   - Fix issue with reading old tcl-list files: the treeparameter command
+     was invoked with the wrong number of parameters.
