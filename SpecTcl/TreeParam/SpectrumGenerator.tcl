@@ -1112,7 +1112,10 @@ proc LoadDefinitionFile {file} {
 			set stop [lindex $treeparameter 3]
 			set increment [lindex $treeparameter 4]
 			set unit [lindex $treeparameter 5]
-			treeparameter -set $name $start $stop $increment $unit
+		    #  WRONG WRONG WRONG treeparameter -set $name $start $stop $increment $unit
+		    treeparameter -setunit   $name $unit
+		    treeparameter -setlimits $name $start $stop
+		    treeparameter -setinc    $name $increment
 		}
 		foreach gate $theGateList {
 			set name [lindex $gate 0]
