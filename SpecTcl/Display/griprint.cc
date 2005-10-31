@@ -1793,7 +1793,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Now determine what to do with the command file and the resulting
     // postscript. The idea is to create a system command and let the shell
     // interpret it for us.
-    char GriCmd[200];
+    char GriCmd[1000];
     char printcmd[1000];
     char buf1[200];
     char buf[200];        // temporary buffer for concatenating to GriCmd
@@ -1879,8 +1879,8 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	sprintf(buf, "mv %s.ps %s; ", cmd_root.c_str(), sFilename.c_str());
       }
       strcat(GriCmd, buf);
-      char tbuf[25];
-      sprintf(tbuf, "rm -f %s; rm -f %s", cmd_file, cmd_root.c_str());
+      char tbuf[100];
+      snprintf(tbuf, sizeof(tbuf), "rm -f %s; rm -f %s", cmd_file, cmd_root.c_str());
       strcat(GriCmd, tbuf);
     }
     }

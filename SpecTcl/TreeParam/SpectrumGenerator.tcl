@@ -1204,7 +1204,7 @@ proc SaveDefinitionFile {file} {
 	if {[string compare $extension sdef] == 0} {
 		set theList ""
 		lappend theList $spectrumList
-		lappend theList treeparameterList
+		lappend theList $treeparameterList
 		lappend theList $gateList
 		lappend theList $applyList
 		puts $handle $theList

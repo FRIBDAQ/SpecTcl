@@ -346,3 +346,5 @@ June 1, 2005
      names.
    - Fix issue with reading old tcl-list files: the treeparameter command
      was invoked with the wrong number of parameters.
+   - Fix error in saving .sdef files in old treeparameter gui.
+   - Fix buffer overflow error in grprint.cc found by Dave Caussyn.
