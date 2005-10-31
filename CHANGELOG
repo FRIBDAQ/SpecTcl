@@ -371,3 +371,9 @@ October 18, 2005
 October 21, 2005
   - Fix error in old tree gui handling of old list mode save files:
     treeparameter -set was invoked with the wrong number of parameters.
+October 24, 2005
+  - Fix error in old tree gui:  Saving list mode files treeparameterList
+    was missing a $ when being appended to the list of lists...so no modified
+    treeparameters were saved.
+October 31, 2005
+  - Fix buffer overflow problem in griprint.cc found by D. Caussyn.
