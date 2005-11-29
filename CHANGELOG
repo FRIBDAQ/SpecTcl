@@ -381,3 +381,5 @@ November 29, 2005
   - Put spectrum names in integrations (and hence in logfiles), rather
     than slot numbers
   - Defect 174 - Make +/- buttons kick out of autoscale.
+  - Defect 162 - Document user's obligation to delete buffer
+    translators.

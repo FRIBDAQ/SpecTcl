@@ -283,6 +283,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 /*
   Change Log:
    $Log$
+   Revision 5.3  2005/11/29 19:53:25  ron-fox
+   Defect 162 Document that the translators created by the factory and buffer processor
+   support classes are dynamically allocated and must be deleted by the
+   client of these.
+
    Revision 5.2  2005/06/03 15:19:00  ron-fox
    Part of breaking off /merging branch to start 3.1 development
 
@@ -335,6 +340,9 @@ BufferFactory::Endian MyEndianess()
 
   Purpose:  Examine the lsignature of a buffer header and return a pointer
             to the appropriate BufferTranslator.
+            The translator is dynamically allocated and it is the
+	    caller's resopnsibility to delete it at the appropriate time
+	    to prevent memory leaks.
 -----------------------------------------------------------------------------*/
 
 BufferTranslator*
