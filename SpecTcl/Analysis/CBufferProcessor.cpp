@@ -320,6 +320,7 @@ CBufferProcessor::operator()(const void* pBuffer)
    Create a translator pointer for a buffer.
    This TranslatorPointer<unsigned short> can be used to get byte order
    independent access to the contents of an NSCL data buffer.
+   The user must free this pointer when done.
    \param pBuffer (const void*):
        A pointer to an NSCL data acquisition system buffer.
    \return TranslatorPointer<unsigned short>
