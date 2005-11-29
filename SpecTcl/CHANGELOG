@@ -377,3 +377,6 @@ October 24, 2005
     treeparameters were saved.
 October 31, 2005
   - Fix buffer overflow problem in griprint.cc found by D. Caussyn.
+November 29, 2005
+  - Put spectrum names in integrations (and hence in logfiles), rather
+    than slot numbers
