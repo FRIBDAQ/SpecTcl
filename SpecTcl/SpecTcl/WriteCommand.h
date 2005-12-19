@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 // Class: CWriteCommand                     //ANSI C++
 //
@@ -302,10 +302,6 @@ DAMAGES.
 #include "TCLPackagedCommand.h"
 #endif
 
-
-#ifndef __STL_STRING
-#include <string>
-#endif
 
 
 class CSpectrumFormatter;
@@ -344,12 +340,10 @@ public:
 
 public:
   virtual
-  int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
+  int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 				int nArgs, char* pArgs[])  ;
 protected:
   int    CountValidSpectra(char** pSpectrum, int nSpectra);
-  static Bool_t               IsFileId(const char* pConnectionString);
-  static Int_t                GetFileId(const char* pConnectionString);
   static CSpectrumFormatter*  GetFormatter(const char* pFormatter);
   static void                 Usage(CTCLResult& rResult);
 

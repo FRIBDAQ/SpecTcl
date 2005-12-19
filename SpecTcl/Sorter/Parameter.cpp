@@ -1,8 +1,10 @@
 // Implements nontrivial functions of CParameter.
 
-
+#include <config.h>
 #include "Parameter.h"
-
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 // Class operations:
 
 /*!

@@ -8,7 +8,9 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __FILE_H
@@ -24,7 +26,7 @@ class CMultiTestSource : public CFile {
   // Attributes
  private:
   static CMultiTestSource* m_pInstance;
-  map<string, CTestFile*> m_mTestSources;
+  STD(map)<STD(string), CTestFile*> m_mTestSources;
   CTestFile* m_pDefaultTestSource;
 
  protected:
@@ -34,15 +36,15 @@ class CMultiTestSource : public CFile {
 
  public:
   // Operators:
-  Bool_t operator()(string); // Uses the requested test source.
+  Bool_t operator()(STD(string)); // Uses the requested test source.
 
   // Additional functions:
   static CMultiTestSource* GetInstance(); // For the singleton.
 
-  Bool_t addTestSource(string, CTestFile*);
-  CTestFile* getTestSource(string);
+  Bool_t addTestSource(STD(string), CTestFile*);
+  CTestFile* getTestSource(STD(string));
   CTestFile* getDefaultTestSource();
-  Bool_t useTestSource(string);
+  Bool_t useTestSource(STD(string));
   Bool_t useDefaultTestSource();
 }; // CMultiTestSource.
 

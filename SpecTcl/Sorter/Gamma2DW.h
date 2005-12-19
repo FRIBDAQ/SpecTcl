@@ -191,90 +191,22 @@ the Program or works based on it.
 Program), the recipient automatically receives a license from the
 original licensor to copy, distribute or modify the Program subject to
 these terms and conditions.  You may not impose any further
-restrictions on the recipients' exercise of the rights granted herein.
-You are not responsible for enforcing compliance by third parties to
-this License.
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2005.
 
-  7. If, as a consequence of a court judgment or allegation of patent
-infringement or for any other reason (not limited to patent issues),
-conditions are imposed on you (whether by court order, agreement or
-otherwise) that contradict the conditions of this License, they do not
-excuse you from the conditions of this License.  If you cannot
-distribute so as to satisfy simultaneously your obligations under this
-License and any other pertinent obligations, then as a consequence you
-may not distribute the Program at all.  For example, if a patent
-license would not permit royalty-free redistribution of the Program by
-all those who receive copies directly or indirectly through you, then
-the only way you could satisfy both it and this License would be to
-refrain entirely from distribution of the Program.
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
 
-If any portion of this section is held invalid or unenforceable under
-any particular circumstance, the balance of the section is intended to
-apply and the section as a whole is intended to apply in other
-circumstances.
+     http://www.gnu.org/licenses/gpl.txt
 
-It is not the purpose of this section to induce you to infringe any
-patents or other property right claims or to contest validity of any
-such claims; this section has the sole purpose of protecting the
-integrity of the free software distribution system, which is
-implemented by public license practices.  Many people have made
-generous contributions to the wide range of software distributed
-through that system in reliance on consistent application of that
-system; it is up to the author/donor to decide if he or she is willing
-to distribute software through any other system and a licensee cannot
-impose that choice.
-
-This section is intended to make thoroughly clear what is believed to
-be a consequence of the rest of this License.
-
-  8. If the distribution and/or use of the Program is restricted in
-certain countries either by patents or by copyrighted interfaces, the
-original copyright holder who places the Program under this License
-may add an explicit geographical distribution limitation excluding
-those countries, so that distribution is permitted only in or among
-countries not thus excluded.  In such case, this License incorporates
-the limitation as if written in the body of this License.
-
-  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
-
-Each version is given a distinguishing version number.  If the Program
-specifies a version number of this License which applies to it and "any
-later version", you have the option of following the terms and conditions 
-either of that version or of any later version published by the Free Software 
-Foundation.  If the Program does not specify a version number of this License,
- you may choose any version ever published by the Free Software Foundation.
-
-  10. If you wish to incorporate parts of the Program into other free
-programs whose distribution conditions are different, write to the author to 
-ask for permission.  For software which is copyrighted by the Free Software 
-Foundation, write to the Free Software Foundation; we sometimes make 
-exceptions for this.  Our decision will be guided by the two goals of 
-preserving the free status of all derivatives of our free software and of 
-promoting the sharing and reuse of software generally.
-
-			    NO WARRANTY
-
-  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
-THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN 
-OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE 
-THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND 
-PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, 
-YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
-
-  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING 
-WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR 
-REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, 
-INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING 
-OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO 
-LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR 
-THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), 
-EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
-DAMAGES.
-
-		     END OF TERMS AND CONDITIONS
+     Author:
+             Ron Fox
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
 */
+
 //  CGamma2DW.h:
 //
 //    This file defines the CGamma2DW class.
@@ -292,6 +224,17 @@ DAMAGES.
 /*
    Change Log:
    $Log$
+   Revision 5.1.2.2  2005/05/27 17:47:37  ron-fox
+   Re-do of Gamma gates also merged with Tim's prior changes with respect to
+   glob patterns.  Gamma gates:
+   - Now have true/false values and can therefore be applied to spectra or
+     take part in compound gates.
+   - Folds are added (fold command); and these perform the prior function
+       of gamma gates.
+
+   Revision 5.1.2.1  2004/12/21 17:51:24  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:56:07  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -302,6 +245,10 @@ DAMAGES.
 
 #ifndef __GAMMA2DW_H  //Required for current class
 #define __GAMMA2DW_H
+
+#ifndef __CGAMMASPECTRUM_H
+#include "CGammaSpectrum.h"
+#endif
 
                                //Required for base classes
 #ifndef __CAXIS_H
@@ -314,12 +261,16 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -331,30 +282,29 @@ DAMAGES.
 class CParameter;
 
 
-class CGamma2DW : public CSpectrum
+class CGamma2DW : public CGammaSpectrum
 {
   UInt_t m_nXScale;		//!< X channel count.
   UInt_t m_nYScale;		//!< Y Channel count.
-  vector<UInt_t> m_vParameters; //!< Vector of parameter ids.
   
 public:
 
 			//Constructor(s) with arguments
 
-  CGamma2DW(const std::string& rName, UInt_t nId,
-	       vector<CParameter>& rParameters,
+  CGamma2DW(const STD(string)& rName, UInt_t nId,
+	       STD(vector)<CParameter>& rParameters,
 	       UInt_t nXScale, UInt_t nYScale);
 
-  CGamma2DW(const std::string& rName, UInt_t nId,
-	    vector<CParameter>& rParameters,
+  CGamma2DW(const STD(string)& rName, UInt_t nId,
+	    STD(vector)<CParameter>& rParameters,
 	    UInt_t nXScale, UInt_t nYScale,
 	    Float_t xLow, Float_t xHigh,
 	    Float_t yLow, Float_t yHigh);
 
 
   // Constuctor for use by derived classes
-  //  CGamma2DW(const std::string& rName, UInt_t nId,
-  //    vector<CParameter>& rParameter);
+  //  CGamma2DW(const STD(string)& rName, UInt_t nId,
+  //    STD(vector)<CParameter>& rParameter);
 
   virtual  ~ CGamma2DW( ) { }       //Destructor	
 private:
@@ -372,7 +322,7 @@ public:
   { return (
 	    (CGamma2DW::operator== (aCGamma)) &&
 	    (m_nXScale == aCGamma.m_nXScale) &&
-	    (m_vParameters == aCGamma.m_vParameters) &&
+	    (m_Parameters == aCGamma.m_Parameters) &&
 	    (m_nYScale == aCGamma.m_nYScale)
 	    );
   }
@@ -387,10 +337,7 @@ public:
   {
     return m_nYScale;
   }
-  UInt_t getnParams() const
-  {
-    return m_vParameters.size();
-  }
+
   virtual SpectrumType_t getSpectrumType() {
     return keG2D;
   }
@@ -410,26 +357,24 @@ protected:
   //  Operations:
   //   
 public:                 
-  virtual   void Increment(const CEvent& rEvent)  ;
-  virtual void GammaGateIncrement(const CEvent& Event, std::string sGateType);
+
   virtual   ULong_t operator[](const UInt_t* pIndices) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
-  virtual   Bool_t UsesParameter (UInt_t nId) const;
 
-  virtual void GetParameterIds(vector<UInt_t>& rvIds);
-  virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
+  virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
   virtual   UInt_t Dimension (UInt_t n) const;
 
   virtual   UInt_t Dimensionality () const {
     return 2;
   }
+
+  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rParameters);
  private:
-  static CSpectrum::Axes CreateAxisVector(vector<CParameter>& rParams,
+  static CSpectrum::Axes CreateAxisVector(STD(vector)<CParameter>& rParams,
 					  UInt_t nXchan, UInt_t nYchan,
 					  Float_t xLow, Float_t xHigh,
 					  Float_t yLow, Float_t yHigh);
   void CreateStorage();
-  void SetParameterVector(vector<CParameter>& rParameters);
 };
 
 #endif

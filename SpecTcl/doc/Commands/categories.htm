@@ -70,6 +70,9 @@ Index</a>.</p>
     <tr>
         <td width="100%"><a href="#Filters">Filters</a></td>
     </tr>
+    <tr>
+	<td width="100%"><a href="#TreeParam">TreeParameter and TreeVariable</a></td>
+    </tr>
 </table>
 
 <p><a href="categories.htm#Top">Top</a></p>
@@ -270,6 +273,9 @@ conditions are true:</p>
     <td width="18%"><a href="ungate.htm">ungate</a></td>
     <td width="82%">Ungates a spectrum.</td>
   </tr>
+  <tr>
+    <td width="18%"><a href="fold.htm">fold</a> </td>
+    <td width="82%">Folds gamma spectra.</td>
 </table>
 
 <p><a href="categories.htm#Top">Top</a>&nbsp; <a
@@ -318,6 +324,43 @@ for more information.&nbsp; Commands to save and restore the analysis state are:
 
 <p>The <a href="filter.htm">filter</a> command allows you to create and
 manipulate event filters.</p>
+
+<H2><a name="TreeParam">TreeParameter and TreeVariable</a></h2>
+<p>
+    The <a href="../treeparam/TreeParameter.html">Tree Parameter package</a>
+    provides three facilities:</p>
+    <UL>
+        <LI>The capability of layering a structure on top of the normally flat
+        SpecTcl parameter space </LI>
+      <LI> The capability of building a structure of real-like data and binding
+        it to a similarly structured set of Tcl variables.  Usually these
+        variables are used to steer computation that is performed by your event
+        processors.</LI>
+      <LI>A graphical user interface (GUI), for manipulating spectrum,
+        parameter and gate definitions.</LI>
+    </UL>
+<P>
+     In order to support the GUI supplied by Treeparameter, and to allow you to
+     create your own GUI software, the Treeparameter package creates two
+     SpecTcl commands:
+</P>
+<table border="1" width ="83%">
+  <tr>
+	<td width="50%"><b>Command</b></td>
+	<td width="50%"><b>Purpose</b></td>
+  </tr>
+  <tr>
+      <td><a href="treeparameter.htm">treeparameter</a> </td>
+      <td>Manipulates and queries the properties of tree parameters.</td>
+  <tr>
+  <tr>
+     <td><a href="treevariable.htm">treevariable</a></td>
+     <td>Manipulates and queries the properties of tree variables.</td>
+  </tr>
+</table>
+
+<p><a href="#Top">Top</a> <a href="#FunctionalIdx">Functional Index</a></p>
+
 
 <h2><a name="FormattedLists">Formatted State Displays</a></h2>
 
@@ -396,6 +439,10 @@ SpecTcl to produce more user friendly output:</p>
         <td width="88%">Creates and manipulates event filters.</td>
     </tr>
     <tr>
+      <td><a href="fold.htm">fold</a></td>
+      <td>Applies, removes and lists folds on gamma spectra </td>
+    </tr>
+    <tr>
         <td width="12%"><a href="gate.htm">gate</a></td>
         <td width="88%">Create list or delete&nbsp; gates</td>
     </tr>
@@ -463,6 +510,14 @@ SpecTcl to produce more user friendly output:</p>
     <tr>
         <td width="12%"><a href="tape.htm">tape</a></td>
         <td width="88%">Select specific files from tape</td>
+    </tr>
+    <tr>
+        <td><a href="treeparameter.htm">treeparameter</a></td>
+        <td>Manipulate and query tree parameters.</td>
+    </tr>
+    <tr>
+        <td><a href="treevariable.htm">treevariable</a></td>
+	<td>Manipulate and query tree variables </td>
     </tr>
     <tr>
         <td width="12%"><a href="unbind.htm">unbind</a></td>

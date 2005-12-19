@@ -1,24 +1,59 @@
 DEFS = @WCHAR_T_DEF@
 INCLUDES = -I.. -I. @TCL_FLAGS@ -I../Utility -I../NSCLException @XINCLUDES@
 LDADD = -ltclPlus -lException -lXt -lX11 $(X11EXTRA_LDFLAGS)
-LDFLAGS = -L. @TCL_LDFLAGS@ 
+AM_LDFLAGS = -L. @TCL_LDFLAGS@ 
 
 lib_LTLIBRARIES = libtclPlus.la
 
 libtclPlus_la_LDFLAGS = -version-info $(SOVERSION):0 \
 	-Wl,"-rpath-link=$(libdir)"
 
-libtclPlus_la_SOURCES = TCLInterpreter.cpp TCLProcessor.cpp  \
+testableSources = 
+
+libtclPlus_la_SOURCES = TCLApplication.cpp TCLInterpreter.cpp TCLProcessor.cpp  \
 	TCLVariable.cpp TCLString.cpp  \
 	TCLResult.cpp TCLTimer.cpp TCLFileHandler.cpp \
 	TCLList.cpp TCLException.cpp TCLInterpreterObject.cpp \
-	TCLApplication.cpp TCLCommandPackage.cpp TCLIdleProcess.cpp \
-	TCLObject.cpp
+	TCLCommandPackage.cpp TCLIdleProcess.cpp \
+	TCLObject.cpp TCLChannel.cpp TCLTracedVariable.cpp \
+	CLanguageTraceCallbacks.cpp
+
+
+
 
 include_HEADERS = TCLApplication.h TCLCommandPackage.h TCLException.h \
 	TCLFileHandler.h TCLHashTable.h TCLHashTableItem.h \
 	TCLHashTableIterator.h TCLIdleProcess.h	TCLInterpreter.h \
 	TCLInterpreterObject.h TCLList.h TCLObject.h TCLPackagedCommand.h \
-	TCLProcessor.h TCLResult.h TCLString.h TCLTimer.h TCLVariable.h
+	TCLProcessor.h TCLResult.h TCLString.h TCLTimer.h TCLVariable.h \
+	TCLChannel.h TCLVersionHacks.h TCLTracedVariable.h \
+	VariableTraceCallback.h CLanguageTraceCallbacks.h
 
-EXTRA_DIST = TCL.WC TCL.omt tkAppInit.c
+
+if CPPUNIT
+
+noinst_PROGRAMS = tracetests
+
+noinst_HEADERS = Asserts.h
+
+tracetests_SOURCES = TestRunner.cpp \
+			ccallbacktest.cpp \
+			tracevartest.cpp 
+tracetests_DEPENDENCIES = TCLInterpreter.o TCLProcessor.o \
+	TCLVariable.o TCLString.o TCLResult.o TCLTimer.o TCLFileHandler.o \
+	TCLList.o TCLException.o TCLInterpreterObject.o \
+	TCLCommandPackage.o TCLIdleProcess.o TCLObject.o TCLChannel.o \
+	TCLTracedVariable.o CLanguageTraceCallbacks.o
+
+
+tracetests_LDADD = $(CPPUNIT_LDFLAGS) $(X11EXTRA_LDFLAGS) \
+	-L@top_srcdir@/NSCLException -lException
+
+TESTS = ./tracetests
+
+endif
+
+man_MANS = TracingIntro.3 CTracedVariable.3  CVariableTraceCallback.3 \
+	 CLanguageTraceCallback.3
+
+EXTRA_DIST = TCL.WC TCL.omt tkAppInit.c $(man_MANS)

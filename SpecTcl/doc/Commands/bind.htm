@@ -37,7 +37,7 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 sbind -id <em>id</em> [<em>id</em>...]
 sbind -all
 sbind -list
-sbind -list <em>name</em>     [<em>name</em>...]
+sbind -list <em>name</em>     [<em>pattern</em>]
 sbind -list -id <em>id</em>   [<em>id</em>...]
 sbind -list -xid <em>xid</em> [<em>xid</em>...]</pre>
 
@@ -95,10 +95,10 @@ attempted (e.g. after a new list of spectra have been defined).</p>
 
 <p>Lists all spectra which are bound to the display.</p>
 
-<h3>sbind -list <em>name </em>[<em>name...</em>]</h3>
+<h3>sbind -list <em>name </em>[<em>pattern</em>]</h3>
 
-<p>Lists the bindings for the set of spectra named in the command
-parameters.</p>
+<p>Lists all bound spectra whose name matches pattern .
+Wildcards are permitted in the pattern</p>
 
 <h3>sbind -list -id <em>id </em>[<em>id...</em>]</h3>
 

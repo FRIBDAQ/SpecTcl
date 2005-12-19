@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -301,6 +301,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
+#include <config.h>
 #include "ApplyCommand.h"    				
 #include "GatePackage.h"
 
@@ -312,6 +313,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <assert.h>
 #include <vector>
 #include <string.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 static char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved ApplyCommand.cpp \\n";
@@ -453,8 +459,8 @@ CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // the following forms are accepted:
   //     apply -list           
   //         lists all spectra and their gates.
-  //     apply  -list spec1 [spec2 ...]   
-  //          lists gates applied specified spectra.
+  //     apply  -list [pattern]   
+  //          lists gates applied specified pattern.
   // Formal Parameters:
   //     CTCLInterpreter& rInterp:
   //         Reference to an interpreter object which
@@ -483,36 +489,35 @@ CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   // The only difference between no more parameters and parameters
   // is how the Spectra vector is filled:
-
-  if(nArgs != 0) {		// Fill Spectra from command parameters:
-    do {
-      Spectra.push_back(string(*pArgs));
-      
-      nArgs--;
-      pArgs++;
-    } 
-    while (nArgs > 0);
-  }
-  else {			// Fill spectra from the histogrammer's dict.
-    CHistogrammer* pHist = Package.getHistogrammer();
-    SpectrumDictionaryIterator p = pHist->SpectrumBegin();
-    while(p != pHist->SpectrumEnd()) {
-      Spectra.push_back((*p).second->getName());
-      p++;
+  char* pattern = "*";
+  if (nArgs != 0) 
+    {
+      pattern = pArgs[0];
     }
+
+  CHistogrammer* pHist = Package.getHistogrammer();
+  SpectrumDictionaryIterator p = pHist->SpectrumBegin();
+  while(p != pHist->SpectrumEnd()) {
+    const char* name = (((*p).second)->getName()).c_str();
+    if (Tcl_StringMatch(name, pattern))
+    {
+      Spectra.push_back((*p).second->getName());
+    }
+    p++;
+    
   }
   // Now Spectra contains the names of the histograms we want application
   // information about, the rest is common code:
 
-  vector<string>::iterator p   = Spectra.begin();
+  vector<string>::iterator p2   = Spectra.begin();
   Bool_t            SomeFailed = kfFALSE;
   CTCLString        Failures, Successes;
   
-  while(p != Spectra.end()) {
+  while(p2 != Spectra.end()) {
     CTCLString Result;
-    if(Package.ListAppliedGate(Result, *p)) { // List worked.
+    if(Package.ListAppliedGate(Result, *p2)) { // List worked.
       Successes.StartSublist();
-      Successes.AppendElement(*p);
+      Successes.AppendElement(*p2);
       Successes.AppendElement(Result);
       Successes.EndSublist();
       Successes.Append("\n");
@@ -520,12 +525,12 @@ CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult,
     else {
       SomeFailed = kfTRUE;
       Failures.StartSublist();
-      Failures.AppendElement(*p);
+      Failures.AppendElement(*p2);
       Failures.AppendElement(Result);
       Failures.EndSublist();
       Failures.Append("\n");
     }
-    p++;
+    p2++;
   }
   if(SomeFailed) {
     rResult = (const char*)Failures;
@@ -550,6 +555,6 @@ CApplyCommand::Usage()
   string Use;
   Use +=   " Usage\n";
   Use +=   "   apply gate spectrum1 [spectrum2 ...]\n";
-  Use +=   "   apply -list [spectrum1 ...]\n";
+  Use +=   "   apply -list [pattern]\n";
   return Use;
 }

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -292,6 +292,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files required:
 */
+#include <config.h>
 #include <stdio.h>
 #include "XMWlist.h"
 
@@ -334,7 +335,7 @@ void XMWidgetList::SetAttribute(String attribute, void *value)
 ** problems on Tru64. These functions are for class XMWidgetList
 */
 
-XMWidgetList::XMWidgetList(int num = LIST_DEFAULT_SIZE) : 
+XMWidgetList::XMWidgetList(int num) : 
   Generic_List<XMWidget>(num) 
 {}
 

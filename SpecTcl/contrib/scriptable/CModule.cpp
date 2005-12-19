@@ -9,11 +9,18 @@
 
 // Include files required:
 
+#include <config.h>
 #include "CModule.h"    				
 #include <Histogrammer.h>
 #include <Parameter.h>
 #include <RangeError.h>
 #include <Globals.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+
 
 // Static attribute storage and initialization for CModule
 

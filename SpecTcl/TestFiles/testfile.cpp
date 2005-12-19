@@ -294,7 +294,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2010, Al
 static char* pCopyright=
 "testfile.cpp - (c) Copyright NSCL 1999, all rights reserved\n";
 
-#include <iostream.h>
+#include <config.h>
+#include <Iostream.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -306,6 +307,10 @@ static char* pCopyright=
 #include <sys/types.h>
 #include <unistd.h>
 #include <TCLApplication.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 static const UInt_t nProgressCounter=100; // progress counter rollover.
 static const UInt_t nRecordSize     = 8192; // Size of each record in the file.

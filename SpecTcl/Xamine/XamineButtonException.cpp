@@ -292,13 +292,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 2011, Al
 //
 // Header Files:
 //
-
+#include <config.h>
 #include "XamineButtonException.h"                               
 #include "XamineButton.h"
 #include "XaminePushButton.h"
 #include "XamineToggleButton.h"
 
 #include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Static constants:
 
@@ -358,7 +362,7 @@ CXamineButtonException::CXamineButtonException
 	       m_nError(aCXamineButtonException.m_nError),
 	       m_fFormatted(aCXamineButtonException.m_fFormatted)
 {
-  strstream& str = (strstream&)aCXamineButtonException.m_ReasonText;
+  STD(stringstream)& str = (STD(stringstream)&)aCXamineButtonException.m_ReasonText;
   SetButton(*(aCXamineButtonException.m_pButton));
   m_ReasonText << str.str();
 }
@@ -374,7 +378,7 @@ CXamineButtonException&
 CXamineButtonException::operator=(
 		const CXamineButtonException& aCXamineButtonException)
 {
-  strstream& rStr = (strstream&)aCXamineButtonException.m_ReasonText;
+  STD(stringstream)& rStr = (STD(stringstream)&)aCXamineButtonException.m_ReasonText;
   if(this != &aCXamineButtonException) {
     CException::operator=(aCXamineButtonException);
     m_nError            = aCXamineButtonException.m_nError;
@@ -394,7 +398,7 @@ CXamineButtonException::operator=(
 //     Selector.
 //
 const char* 
-CXamineButtonException::ReasonText() 
+CXamineButtonException::ReasonText() const
 {
 // Returns textual reason the exception was thrown.
   assert(m_nError >= 0);
@@ -421,8 +425,8 @@ CXamineButtonException::ReasonText()
 
     m_fFormatted = kfTRUE;
   }
-
-  return m_ReasonText.str();
+  string result = m_ReasonText.str();
+  return result.c_str();
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -433,7 +437,7 @@ CXamineButtonException::ReasonText()
 //     Selector
 //
 Int_t 
-CXamineButtonException::ReasonCode() 
+CXamineButtonException::ReasonCode() const
 {
 // Returns an error code reason the exception was thrown
 // Exceptions:  

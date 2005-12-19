@@ -273,7 +273,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 //  CNamedItem.h:
 //
@@ -293,6 +293,9 @@
 /*!
   Change Log:
   $Log$
+  Revision 5.1.2.1  2004/12/21 17:51:28  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:17  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -305,6 +308,9 @@
 
   Revision 4.2  2003/03/25 12:03:17  ron-fox
   Added Change log comment generated from the CVS $Log$
+  Added Change log comment generated from the CVS Revision 5.1.2.1  2004/12/21 17:51:28  ron-fox
+  Added Change log comment generated from the CVS Port to gcc 3.x compilers.
+  Added Change log comment generated from the CVS
   Added Change log comment generated from the CVS Revision 5.1  2004/11/29 16:56:17  ron-fox
   Added Change log comment generated from the CVS Begin port to 3.x compilers calling this 3.0
   Added Change log comment generated from the CVS
@@ -336,14 +342,14 @@
                                
 class CNamedItem      
 {
-  std::string m_sName;  // // Name of the item.
+  STD(string) m_sName;  // // Name of the item.
   UInt_t m_nNumber;  // Identification number of the item.
   
  public:
   //Constructor with arguments
   CNamedItem() : m_nNumber(0) 
   {}
-  CNamedItem (  std::string am_sName,  UInt_t am_nNumber  )
+  CNamedItem (  STD(string) am_sName,  UInt_t am_nNumber  )
     :
     m_sName(am_sName),
     m_nNumber (am_nNumber) {
@@ -382,7 +388,7 @@ class CNamedItem
 
   // Selectors:
  public:
-  std::string getName() const
+  STD(string) getName() const
   {
     return m_sName;
   }
@@ -394,7 +400,7 @@ class CNamedItem
   // Protected mutators:
   //
  protected:
-  void setName (const std::string& am_sName)
+  void setName (const STD(string)& am_sName)
   { 
     m_sName = am_sName;
   }
@@ -403,7 +409,7 @@ class CNamedItem
     m_nNumber = am_nNumber;
   }
  public:
-  void ChangeName(const std::string& rNewName) {
+  void ChangeName(const STD(string)& rNewName) {
     m_sName = rNewName;
   }
 };
@@ -420,9 +426,9 @@ class CMatchNamedItemId {
 };
 
 class CMatchNamedItem {
-  string Name;
+  STD(string) Name;
  public:
-  CMatchNamedItem(const string& rName) : 
+  CMatchNamedItem(const STD(string)& rName) : 
   Name(rName)
   {}
   Bool_t operator()(CNamedItem& item) {

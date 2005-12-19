@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CInteriorRow.h:
 //
@@ -295,13 +295,21 @@ DAMAGES.
 
 #ifndef __STL_VECTOR                               
 #include <vector>   //Required for include files, eg <CList.h>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
 #endif
+#endif
 
+
+/*
 #ifndef __STL_ALGORITHM
 #include <algorithm>
+#ifndef __STL_ALGORITHM
 #define __STL_ALGORITHM
 #endif
+#endif
+
+*/
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>   //Required for include files, eg <CList.h>
@@ -309,7 +317,7 @@ DAMAGES.
                                                                
 class CInteriorRow      
 {
-  vector<UInt_t> m_vRow;  // Contains the scanline interior flags.
+  STD(vector)<UInt_t> m_vRow;  // Contains the scanline interior flags.
   
 public:
 			// 'normal' constructor.
@@ -317,13 +325,13 @@ public:
 
   CInteriorRow() {}
   CInteriorRow (UInt_t nSize) {
-    m_vRow.reserve(nSize);	// Size the vector appropriately...
+    m_vRow.reserve(nSize);	// Size the STD(vector) appropriately...
     fill(m_vRow.begin(), m_vRow.end(), 0); // And init to zero.
   }
   virtual ~ CInteriorRow ( ) { }       //Destructor
 			//Constructor with pre-existing row.
 
-  CInteriorRow (  vector<UInt_t> am_vRow  )       
+  CInteriorRow (  STD(vector)<UInt_t> am_vRow  )       
   :   m_vRow (am_vRow)  { }        
 	
 			//Copy constructor
@@ -357,7 +365,7 @@ public:
   // Selectors:
 
 public:
-  vector<UInt_t> getRow() const
+  STD(vector)<UInt_t> getRow() const
   {
     return m_vRow;
   }
@@ -365,7 +373,7 @@ public:
 
 protected:                   
                        //Set accessor function for attribute
-  void setRow (vector<UInt_t> am_vRow)
+  void setRow (STD(vector)<UInt_t> am_vRow)
   { 
     m_vRow = am_vRow;
   }
@@ -378,8 +386,8 @@ public:
 
 public:                   
     UInt_t Size ()  ;
-    vector<UInt_t>::iterator Begin ()  ;
-    vector<UInt_t>::iterator End ()  ;
+    STD(vector)<UInt_t>::iterator Begin ()  ;
+    STD(vector)<UInt_t>::iterator End ()  ;
     UInt_t& operator[] (UInt_t i)  ;
 
 };

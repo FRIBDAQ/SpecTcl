@@ -13,12 +13,12 @@
 #include "XMList.h"
 
 XMListBaseClass::XMListBaseClass(char *n, WidgetClass cl, XMWidget &parent, 
-				 ArgList l = NULL, Cardinal num_args = 0) :
+				 ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args) 
 {}
 
 XMListBaseClass:: XMListBaseClass(char *n, WidgetClass cl, Widget parent, 
-				  ArgList l = NULL, Cardinal num_args = 0) :
+				  ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args) 
 {}
 
@@ -31,13 +31,13 @@ XMListBaseClass::XMListBaseClass(Widget w) :
 {}
 
 void
-XMListBaseClass::AutoSelect(Boolean enable=True) 
+XMListBaseClass::AutoSelect(Boolean enable) 
 {
   SetAttribute(XmNautomaticSelection, enable);
 }
 
 void
-XMListBaseClass::SetDoubleClickTime(int ms = 100) 
+XMListBaseClass::SetDoubleClickTime(int ms) 
 {
   SetAttribute(XmNdoubleClickInterval, ms);
 }
@@ -49,13 +49,13 @@ XMListBaseClass::SetRows(int rows)
 }
 
 void
-XMListBaseClass::SetScrollPolicy(int policy = XmAS_NEEDED) 
+XMListBaseClass::SetScrollPolicy(int policy) 
 {
   SetAttribute(XmNscrollBarDisplayPolicy, policy);
 }
 
 void
-XMListBaseClass::SetSelectionPolicy(int policy = XmSINGLE_SELECT)
+XMListBaseClass::SetSelectionPolicy(int policy)
 {
   SetAttribute(XmNselectionPolicy, policy);
 }
@@ -96,7 +96,7 @@ Callback_data*
 XMListBaseClass::AddbrowseSelectionCallback(void (*callback)(XMWidget *,
 							     XtPointer,
 							     XtPointer),
-					    XtPointer user_data = NULL)
+					    XtPointer user_data)
 {
   return AddCallback(XmNbrowseSelectionCallback, callback, user_data);
 }
@@ -105,7 +105,7 @@ Callback_data*
 XMListBaseClass::AddDefaultActionCallback(void (*callback)(XMWidget *,
 							   XtPointer,
 							   XtPointer),
-					  XtPointer user_data =NULL)
+					  XtPointer user_data )
 {
   return AddCallback(XmNdefaultActionCallback, callback, user_data);
 }
@@ -114,7 +114,7 @@ Callback_data*
 XMListBaseClass::AddExtendedSelectionCallback(void (*callback)(XMWidget *,
 							       XtPointer,
 							       XtPointer),
-					      XtPointer user_data = NULL)
+					      XtPointer user_data )
 {
   return AddCallback(XmNextendedSelectionCallback, callback, user_data);
 }
@@ -123,7 +123,7 @@ Callback_data*
 XMListBaseClass::AddMultipleSelectionCallback(void (*callback)(XMWidget *,
 							       XtPointer,
 							       XtPointer),
-					      XtPointer user_data = NULL)
+					      XtPointer user_data)
 {
   return AddCallback(XmNmultipleSelectionCallback, callback, user_data);
 }
@@ -132,13 +132,13 @@ Callback_data*
 XMListBaseClass::AddSingleSelectionCallback(void (*callback)(XMWidget *,
 							     XtPointer ,
 							     XtPointer),
-					    XtPointer user_data = NULL)
+					    XtPointer user_data )
 {
   return AddCallback(XmNsingleSelectionCallback, callback, user_data);
 }
 
 void
-XMListBaseClass::AddItem(char *item, int position = 0) 
+XMListBaseClass::AddItem(char *item, int position) 
 {
   XmString s = XmStringCreateLtoR(item, XmSTRING_DEFAULT_CHARSET);
   XmListAddItem(id, s, position);
@@ -157,12 +157,12 @@ XMListBaseClass::DeleteItem(char *item)
 }
 
 void
-XMListBaseClass::DeleteItem(int loc = 0) {
+XMListBaseClass::DeleteItem(int loc ) {
   XmListDeletePos(id, loc);
 }
 
 void
-XMListBaseClass::DeleteItems(int loc, int count = 1) {
+XMListBaseClass::DeleteItems(int loc, int count ) {
   XmListDeleteItemsPos(id, count, loc);
 }
 
@@ -179,17 +179,17 @@ XMListBaseClass::DeselectItem(char *item) {
 }
 
 void
-XMListBaseClass::DeselectItem(int pos = 0) {
+XMListBaseClass::DeselectItem(int pos ) {
   XmListDeselectPos(id, pos); 
 }
 
 void
-XMListBaseClass::SetBottomItem(int position = 0) {
+XMListBaseClass::SetBottomItem(int position ) {
   XmListSetBottomPos(id, position);
 }
 
 void
-XMListBaseClass::SelectItem(int pos = 0) {
+XMListBaseClass::SelectItem(int pos ) {
   XmListSelectPos(id, pos, False);
 }
 
@@ -198,15 +198,15 @@ XMListBaseClass::SelectItem(int pos = 0) {
 ** These files are implemented for the class XMList
 */
 
-XMList::XMList(char *n, XMWidget &parent, int rows = 10,
-	       ArgList args = NULL, Cardinal arg_count = 0) :
+XMList::XMList(char *n, XMWidget &parent, int rows ,
+	       ArgList args, Cardinal arg_count ) :
   XMListBaseClass(n, xmListWidgetClass, parent, args, arg_count) {
   SetRows(rows);
   Manage();
 }
 
-XMList::XMList(char *n, Widget parent, int rows = 10,
-	       ArgList args =NULL, Cardinal arg_count = 0) :
+XMList::XMList(char *n, Widget parent, int rows ,
+	       ArgList args, Cardinal arg_count) :
   XMListBaseClass(n, xmListWidgetClass, parent, args, arg_count) {
   SetRows(rows);
   Manage();
@@ -221,8 +221,8 @@ XMList::XMList(Widget w) : XMListBaseClass(w) { Manage(); }
 ** These functions are implementations for the class XMScrolledList
 */
 
-XMScrolledList::XMScrolledList(char *n, XMWidget &parent, int rows = 10,
-			       ArgList args = NULL, Cardinal arg_count = 0) :
+XMScrolledList::XMScrolledList(char *n, XMWidget &parent, int rows ,
+			       ArgList args , Cardinal arg_count) :
   XMListBaseClass(n) {	/* Cheat. */
   id = XmCreateScrolledList(parent.getid(), 
 			    n, args, arg_count);
@@ -232,8 +232,8 @@ XMScrolledList::XMScrolledList(char *n, XMWidget &parent, int rows = 10,
   XtManageChild(scrolled_widget);
 }
 
-XMScrolledList::XMScrolledList(char *n, Widget parent, int rows = 10,
-			       ArgList args = NULL, Cardinal arg_count = 0) :
+XMScrolledList::XMScrolledList(char *n, Widget parent, int rows ,
+			       ArgList args , Cardinal arg_count ) :
   XMListBaseClass(n)  { /* Cheat. */
   id = XmCreateScrolledList(parent, n, args, arg_count);
   scrolled_widget = XtParent(id);

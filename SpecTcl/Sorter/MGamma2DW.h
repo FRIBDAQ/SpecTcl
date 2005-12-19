@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CGamma2DW.h:
 //
@@ -299,12 +299,16 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -322,7 +326,7 @@ class CMGamma2DW : public CGamma2DW
     UInt_t nScale;
     Float_t nLow;
     Float_t nHigh;
-    std::string sUnits;
+    STD(string) sUnits;
     int operator==(const MParameterDef& r) const {
       return ((nParameter == r.nParameter) && (nScale == r.nScale) &&
 	      (nLow == r.nLow) && (nHigh == r.nHigh) && (sUnits == r.sUnits));
@@ -334,13 +338,13 @@ class CMGamma2DW : public CGamma2DW
   Float_t m_nYHigh;                // Upper limit to use on the y-mapping
   UInt_t  m_nXChannels;            // Number of bins on x-axis
   UInt_t  m_nYChannels;            // Number of bins on y-axis
-  vector<MParameterDef> m_vParameters; // Vector of parameters
+  STD(vector)<MParameterDef> m_vParameters; // STD(Vector) of parameters
   
 public:
 
   //Constructor(s) with arguments
-  CMGamma2DW(const std::string& rName, UInt_t nId,
-	     vector<CParameter>& rParameters,
+  CMGamma2DW(const STD(string)& rName, UInt_t nId,
+	     STD(vector)<CParameter>& rParameters,
 	     Float_t nXLow, Float_t nYLow, Float_t nXHigh, Float_t nXHigh,
 	     UInt_t nXChans, UInt_t nYChans);
 
@@ -389,10 +393,10 @@ public:
   UInt_t getYChannels() const {
     return m_nYChannels;
   }
-  std::string getXUnits() const {
+  STD(string) getXUnits() const {
     return m_vParameters[0].sUnits;
   }
-  std::string getYUnits() const {
+  STD(string) getYUnits() const {
     return m_vParameters[1].sUnits;
   }
   UInt_t getnParams() const {
@@ -429,7 +433,7 @@ protected:
   //   
 public:                 
   virtual  void Increment(const CEvent& rEvent)  ;
-  virtual  void GammaGateIncrement(const CEvent& Event, std::string sGateType);
+  virtual  void GammaGateIncrement(const CEvent& Event, STD(string) sGateType);
   UInt_t        Dimension(UInt_t n) const;
   UInt_t        Randomize(Float_t nChannel);
   UInt_t        GatePointToSpec(UInt_t nPoint, UInt_t nIndex);

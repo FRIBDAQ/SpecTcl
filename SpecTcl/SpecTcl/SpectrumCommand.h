@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CSpectrumCommand.h:
 //
@@ -303,12 +303,16 @@ DAMAGES.
               
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 class CTCLInterpreter;
@@ -365,14 +369,14 @@ protected:
   static void   Usage(CTCLResult& rResult);
   static Switch MatchSwitch(const char* pSwitch);
 
-  void          SortSpectraById(std::vector<std::string>& rvProperties);
-  void          SortSpectraByName(std::vector<std::string>& rvProperties);
+  void          SortSpectraById(STD(vector)<STD(string)>& rvProperties);
+  void          SortSpectraByName(STD(vector)<STD(string)>& rvProperties);
 
   static void   VectorToResult(CTCLResult& rResult, 
-			       std::vector<std::string>& rvStrings);
+			       STD(vector)<STD(string)>& rvStrings);
 public:
-  UInt_t      ExtractId(const std::string& rProperties);
-  std::string ExtractName(const std::string& rProperties);
+  UInt_t      ExtractId(const STD(string)& rProperties);
+  STD(string) ExtractName(const STD(string)& rProperties);
 };
 
 #endif

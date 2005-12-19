@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -292,7 +292,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Header Files:
 //
 
-
+#include <config.h>
 #include "ParameterPackage.h"                               
 #include "TCLHistogrammer.h"
 #include "Exception.h"
@@ -301,6 +301,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "ParameterCommand.h"
 #include "PseudoCommand.h"
 #include "PseudoScript.h"
+#include "SpecTcl.h"
 
 #include <histotypes.h>
 #include <string>
@@ -308,6 +309,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <list>
 #include <assert.h>
 #include <stdio.h>
+
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions for class CParameterPackage
 
@@ -406,8 +412,8 @@ CParameterPackage::operator==(const CParameterPackage& aCParameterPackage)
 Int_t 
 CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName, 
 				UInt_t nId, UInt_t nBits,
-				Float_t nLow=0, Float_t nHi=0, 
-				const char* pUnits=0) 
+				Float_t nLow, Float_t nHi, 
+				const char* pUnits) 
 {
 // Interacts with the Histogrammer to create a new
 // parameter.  Catches common exceptions and
@@ -432,24 +438,20 @@ CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
 // NOTE:
 //     The reason string is placed in the result. object passed in.
 //
+  SpecTcl& api(*(SpecTcl::getInstance()));
 
   try {
     if(nHi == nLow) {
-      m_pHistogrammer->AddParameter(std::string(pName),
-				    nId,
-				    nBits);
+      api.AddParameter(pName, nId, nBits);
       rResult = pName;
       return TCL_OK;
     }
     else {
       if(pUnits != (char*)kpNULL) {
-	m_pHistogrammer->AddParameter(std::string(pName),
-				      nId, nBits, nLow, nHi,
-				      std::string(pUnits));
+	api.AddParameter(pName, nId, nBits, nLow, nHi, pUnits);
       }
       else {
-	m_pHistogrammer->AddParameter(std::string(pName), nId, nBits,
-				      nLow, nHi, "");
+	api.AddParameter(pName, nId, nBits, nLow, nHi, "");
       }
       rResult = pName;
       return TCL_OK;
@@ -490,9 +492,15 @@ Int_t
 CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
 				UInt_t nId, const char* pUnits)
 {
+  SpecTcl& api(*(SpecTcl::getInstance()));
+  string Units;
+  if(pUnits) {
+    Units = pUnits;
+  }
+
   try {
-    m_pHistogrammer->AddParameter(std::string(pName), nId, 
-				  pUnits);
+    api.AddParameter(pName, nId, Units);
+
   }
   catch (CException& rException) {
     rResult = rException.ReasonText();
@@ -509,7 +517,7 @@ CParameterPackage::AddParameter(CTCLResult& rResult, const char* pName,
 //     Inquiry
 //
 CTCLList 
-CParameterPackage::CreateTclParameterList(CTCLInterpreter& rInterp) 
+CParameterPackage::CreateTclParameterList(CTCLInterpreter& rInterp, const char* pattern) 
 {
 // Creates a TCL List whose contents are 
 // Descriptions of each parameter.  
@@ -518,15 +526,20 @@ CParameterPackage::CreateTclParameterList(CTCLInterpreter& rInterp)
 //
 //   { name  idnumber bitsofresolution }
 //
+  SpecTcl& api(*(SpecTcl::getInstance()));
   CTCLString List;		// List is built up in here.
 
   // Note that dictionary order should be parameter name order.
 
   ParameterDictionaryIterator i;
-  for(i = m_pHistogrammer->ParameterBegin();  
-      i != m_pHistogrammer->ParameterEnd(); i++) {
-    List.AppendElement(getParameterInfoListString((*i).second));
-    List.Append("\n");
+  for(i = api.BeginParameters();  
+      i != api.EndParameters(); i++) {
+      const char* name = (((*i).second).getName()).c_str();
+      if (Tcl_StringMatch(name, pattern))
+	  {
+	    List.AppendElement(getParameterInfoListString((*i).second));
+	    List.Append("\n");
+	  }
   }
 
 
@@ -562,8 +575,9 @@ CParameterPackage::DeleteParameter(CTCLResult& rResult, const char* pName)
 //   Unlike the histogramming library, we require an exact match of parameter
 //   name
 
+  SpecTcl& api(*(SpecTcl::getInstance()));
   try {
-    CParameter* pParam = m_pHistogrammer->FindParameter(std::string(pName));
+    CParameter* pParam = api.FindParameter(std::string(pName));
     if(pParam == (CParameter*)kpNULL) 
       throw CDictionaryException(CDictionaryException::knNoSuchKey,
 				 "Locating parameter",
@@ -572,7 +586,7 @@ CParameterPackage::DeleteParameter(CTCLResult& rResult, const char* pName)
       throw CDictionaryException(CDictionaryException::knNoSuchKey,
 				 "Locating parameter - inexact match only",
 				 pName);
-    pParam = m_pHistogrammer->RemoveParameter(pName);
+    pParam = api.RemoveParameter(pName);
     delete pParam;
     rResult = pName;
     return TCL_OK;
@@ -608,11 +622,13 @@ CParameterPackage::DeleteParameter(CTCLResult& rResult, UInt_t nId)
 //     This is done a bit inefficiently in order to re-use the delete by name
 //     code
 
+  SpecTcl& api(*(SpecTcl::getInstance()));
+
   char Id[100];
   sprintf(Id, "%d", nId);	// String version of Id string.
 
   try {
-    CParameter* pPar = m_pHistogrammer->FindParameter(nId);
+    CParameter* pPar = api.FindParameter(nId);
     if(pPar == (CParameter*)kpNULL)
       throw CDictionaryException(CDictionaryException::knNoSuchId,
 				 "Looking up parameter",
@@ -652,9 +668,9 @@ CParameterPackage::ListParameter(CTCLResult& rResult, const char*  pName)
 //  Note:
 //     We allow inexact matches.
 
-
+  SpecTcl& api(*(SpecTcl::getInstance()));
   try {
-    CParameter* pParam = m_pHistogrammer->FindParameter(std::string(pName));
+    CParameter* pParam = api.FindParameter(std::string(pName));
     if(pParam == (CParameter*)kpNULL)
       throw CDictionaryException(CDictionaryException::knNoSuchKey,
 				 "Looking up parameter",
@@ -693,11 +709,13 @@ CParameterPackage::ListParameter(CTCLResult& rResult, UInt_t  nId)
 //      TCL_ERROR- List could not be created.
 // Exceptions:  
 
+  SpecTcl& api(*(SpecTcl::getInstance()));
+
   char Id[100];
   sprintf(Id, "%d", nId);
 
   try {
-    CParameter* pParam = m_pHistogrammer->FindParameter(nId);
+    CParameter* pParam = api.FindParameter(nId);
     if(pParam == (CParameter*)kpNULL)
       throw CDictionaryException(CDictionaryException::knNoSuchKey,
 				 "Looking up parameter",
@@ -756,11 +774,8 @@ CParameterPackage::getParameterInfoListString(CParameter& rParameter)
   if(rParameter.getLow() != rParameter.getHigh()) { // Parameter has range:
     List.StartSublist();
 
-    sprintf(Text, "%f", rParameter.getLow());
-    List.AppendElement(Text);
-
-    sprintf(Text, "%f", rParameter.getHigh());
-    List.AppendElement(Text);
+    List.AppendElement(rParameter.getLow());
+    List.AppendElement(rParameter.getHigh());
 
     List.AppendElement(rParameter.getUnits());
 

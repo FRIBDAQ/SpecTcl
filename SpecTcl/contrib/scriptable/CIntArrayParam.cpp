@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Ron Fox 2002, All rights reserved";
 /*! \class CIntArrayParam   
@@ -284,6 +284,7 @@ static const char* Copyright = "(C) Copyright Ron Fox 2002, All rights reserved"
 */
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
+#include <config.h>
 #include "CIntArrayParam.h"    				
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
@@ -293,6 +294,14 @@ static const char* Copyright = "(C) Copyright Ron Fox 2002, All rights reserved"
 #include <string.h>
 #include <assert.h>
 #include <vector>
+
+#include <stdlib.h>
+#include <errno.h>
+
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 /*!
    Constructor: Constructs an array that is not range checked.
@@ -506,8 +515,18 @@ CIntArrayParam::SetValue(CTCLInterpreter& rInterp,
   vector<Long_t> Values;
   Long_t nLong;
   for(int i = 0; i < values.size(); i++) {
-    try {
-      nLong = rInterp.ExprLong(values[i]);
+      //      nLong = rInterp.ExprLong(values[i]);
+      nLong = strtoll(values[i].c_str(), (char**) NULL, 0);
+      if( (nLong == 0) && (errno == EINVAL) ) {
+	char value[100];
+	sprintf(value, "%d", Values[i]);
+	rResult  += "Configuration parameter array : ";
+	rResult += getSwitch();
+	rResult += " element: ";
+	rResult += value;
+	rResult += " failed to parse as a long";
+	return TCL_ERROR;
+      }
       if(m_fCheckRange) {
         if((nLong < m_nLow) || (nLong > m_nHigh)) {
 	  char value[100];
@@ -523,17 +542,6 @@ CIntArrayParam::SetValue(CTCLInterpreter& rInterp,
       // The value is correct.
       Values.push_back(nLong);      // Save the elemnt.
 
-    }
-    catch (...) {
-      char value[100];
-      sprintf(value, "%d", Values[i]);
-      rResult  += "Configuration parameter array : ";
-      rResult += getSwitch();
-      rResult += " element: ";
-      rResult += value;
-      rResult += " failed to parse as a long";
-      return TCL_ERROR;
-    }
   }
   // Now we need to be sure the Values array has the proper
   // size:
@@ -552,6 +560,7 @@ CIntArrayParam::SetValue(CTCLInterpreter& rInterp,
     rResult += pValues;
     return TCL_ERROR;
   }
+  return TCL_ERROR;
 }
 /*!
    \return the format of the configuration parameter in this
@@ -562,7 +571,7 @@ string
 CIntArrayParam::GetParameterFormat()
 {
   char   result[100];
-  sprintf(result, "{int[%d]}", m_nSize);
+  sprintf(result, "int[%d]", m_nSize);
   
   return string(result);
 }

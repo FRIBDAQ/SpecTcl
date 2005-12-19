@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //! \class: CIntArrayParam           
 //! \file:  .h
@@ -295,7 +295,9 @@ DAMAGES.
  
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 // Forward class definitions:
@@ -322,10 +324,10 @@ private:
 public:
 // Constructors and other canonical members:
 
-  CIntArrayParam (const string& rName, 
+  CIntArrayParam (const STD(string)& rName, 
                   unsigned int size,
                   int nDefault = 0);
-  CIntArrayParam (const string&, 
+  CIntArrayParam (const STD(string)&, 
                   unsigned int size,
                   int nLow, 
                   int nHigh, 
@@ -395,7 +397,7 @@ public:
   virtual int SetValue (CTCLInterpreter& rInterp, 
                         CTCLResult& rResult, 
                         const char* pValues);
-  virtual string GetParameterFormat();
+  virtual STD(string) GetParameterFormat();
   void setRange(int nLow, int nHigh)
   {
     m_nLow  = nLow;

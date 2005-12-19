@@ -62,11 +62,11 @@ public:
       return !(operator==(rhs));
     }
   };
-  typedef vector<Point> PointArray; //!< Point array is a vector of points.
+  typedef STD(vector)<Point> PointArray; //!< Point array is a STD(vector) of points.
   typedef PointArray::iterator PointIterator;
 
-  typedef pair<string, double> FitParameter;
-  typedef vector<FitParameter> FitParameterList;
+  typedef STD(pair)<STD(string), double> FitParameter;
+  typedef STD(vector)<FitParameter> FitParameterList;
   typedef FitParameterList::iterator FitParameterIterator;
 
   typedef enum {
@@ -77,7 +77,7 @@ private:
   
   // Private Member data:
 
-  vector<Point> m_afpPoints;  //!<  //<! Input points.  
+  STD(vector)<Point> m_afpPoints;  //!<  //<! Input points.  
   FitState m_eState;  //!<  //!< accumulating | performed  
    
 
@@ -128,7 +128,7 @@ public:
   virtual   void Perform ()   = 0 ; 
   virtual  double operator() (double x)  =0 ; 
   virtual  FitParameterList GetParameters () =0  ; 
-  virtual  string Type() const  = 0;
+  virtual  STD(string) Type() const  = 0;
  
 
 private:

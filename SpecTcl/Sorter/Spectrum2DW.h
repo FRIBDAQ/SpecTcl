@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CSpectrum2DW.h:
 //
@@ -299,8 +299,18 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
 #endif
+#endif
+
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif 
+#endif
+
 
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
@@ -326,23 +336,18 @@ public:
 
 			//Constructor(s) with arguments
 
-  CSpectrum2DW(const std::string& rName, UInt_t nId,
+  CSpectrum2DW(const STD(string)& rName, UInt_t nId,
 	       const CParameter& rXParameter,
 	       const CParameter& rYParameter,
 	       UInt_t nXScale, UInt_t nYScale);
 
-  CSpectrum2DW(const std::string& rName, UInt_t nId,
+  CSpectrum2DW(const STD(string)& rName, UInt_t nId,
 	       const CParameter& rXParameter,
 	       const CParameter& rYParameter,
 	       UInt_t nXChannels, Float_t fxLow, Float_t fxHigh,
 	       UInt_t nYChannels, Float_t fyLow, Float_t fyHigh);
   
-  // Constructor for use by derived classes that manage their own
-  // storage
-  //    (Unused???).    
-  //  CSpectrum2DW(const std::string& rName, UInt_t nId,
-  //       const CParameter& rXParameter,
-  //       const CParameter& rYParameter);
+
 
   virtual  ~ CSpectrum2DW( ) { }       //Destructor	
 private:
@@ -421,8 +426,8 @@ public:
   virtual   UInt_t Dimensionality () const {
     return 2;
   }
-  virtual void GetParameterIds(vector<UInt_t>& rvIds);
-  virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
+  virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
+  virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
 
   // Utility functions:
 protected:
