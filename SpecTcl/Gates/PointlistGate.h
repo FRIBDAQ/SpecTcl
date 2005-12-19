@@ -294,6 +294,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.3  2005/12/19 16:28:09  ron-fox
+  Remove illegal default parameter from CPointlistGate::InGate in the header`
+
   Revision 5.2  2005/06/03 15:19:20  ron-fox
   Part of breaking off /merging branch to start 3.1 development
 
@@ -462,8 +465,8 @@ public:
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
   virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)  ;
-  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params
-			  = (const STD(vector)<UInt_t>&) 0 ) { }
+  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params) 
+    { }
   virtual  Bool_t inGate(CEvent& rEvent);
   virtual  Bool_t Inside(Float_t x, Float_t y) = 0;
 protected:

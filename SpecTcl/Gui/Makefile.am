@@ -62,7 +62,6 @@ multiparam.html \
 multipoint.tcl \
 nameFilter.html \
 newGui.tcl \
-newjunk.tcl \
 parameterInfo.html \
 pkgIndex.tcl \
 pointicon.gif \
