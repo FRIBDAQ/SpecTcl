@@ -294,6 +294,9 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.4  2005/12/19 16:26:30  ron-fox
+  Remove illegal default parameter from InGate in PointlistGate.h
+
   Revision 5.1.2.3  2005/05/27 17:47:37  ron-fox
   Re-do of Gamma gates also merged with Tim's prior changes with respect to
   glob patterns.  Gamma gates:
@@ -459,8 +462,8 @@ public:
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
   virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)  ;
-  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params
-			  = (const STD(vector)<UInt_t>&) 0 ) { }
+  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params) 
+    { }
   virtual  Bool_t inGate(CEvent& rEvent);
   virtual  Bool_t Inside(Float_t x, Float_t y) = 0;
 protected:
