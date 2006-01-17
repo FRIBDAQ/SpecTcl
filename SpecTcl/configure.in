@@ -3,7 +3,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 2.1-003)
+AM_INIT_AUTOMAKE(SpecTcl, 2.1-018)
 
 AC_EXEEXT
 AC_OBJEXT
@@ -120,6 +120,7 @@ fi
 #      /usr/X11R6/include
 #      /sw/include             (Darwin lesstif).
 #      /usr/local/include      (default lesstif installation).
+#      /usr/include            linux lesstif installation
 #
 
 #  If in /usr/include we don't need anything:
@@ -127,7 +128,7 @@ fi
 
 if test $motif_h_found = no
 then
-   motif_header_dirs="/usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include"
+   motif_header_dirs="/usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include /usr/include"
    for d in ${motif_header_dirs}
    do
 	AC_CHECK_FILE([${d}/Xm/Xm.h],

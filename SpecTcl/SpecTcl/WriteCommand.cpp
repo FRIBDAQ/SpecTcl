@@ -372,6 +372,24 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     Usage(rResult);
     return TCL_ERROR;
   }
+
+  // Before we go and create a new file, we want to respond to 
+  // Bug #111 by ensuring there's at lease one valid spectrum in 
+  // the list we've been handed.
+
+  char** pSpectra = pArgs;
+  int    nSpectra = nArgs;
+  pSpectra++;                     // Don't check the file itself.
+  nSpectra--;
+
+  int nValid = CountValidSpectra(pSpectra, nSpectra);
+  
+  if(nValid <= 0) {		// No valid spectra!!
+    rResult = "None of the spectra in this swrite command exist\n";
+    Usage(rResult);
+    return TCL_ERROR;
+  }
+
   //  Then next parameter can be one of two things, either a 
   //  Tcl File descriptor or a file name.  
   //  The next section of code determines what it is we are trying
@@ -384,7 +402,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     fid = GetFileId(pArgs[0]);
   }
   else {
-    fid = open(pArgs[0], O_WRONLY |O_CREAT, S_IRWXU | S_IRGRP | S_IROTH);
+    fid = open(pArgs[0], O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
     if(fid < 0) {
       rResult += strerror(errno);
       return TCL_ERROR;
@@ -398,7 +416,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   FILE* junk;
   ofstream out(fid);
 
-  nArgs--;
+  nArgs--;			
   pArgs++;
   UInt_t nFailed = 0;
   vector<string> Failures;
@@ -562,4 +580,34 @@ CWriteCommand::Usage(CTCLResult& rResult)
 
     i++;
   }
+}
+/*!
+   Return the number of spectra in a list that actually exist.
+   \param pSpectra (char** [in]) list of spectra to check for.
+   \param nSpectra (int [in]):   Number of spectra in the list
+
+   \retval int - number of spectra that exist.
+*/
+int
+CWriteCommand::CountValidSpectra(char** pSpectra,
+				 int    nSpectra) 
+{
+  // Locate the histogrammer:
+
+  CSpectrumPackage& rPack((CSpectrumPackage&)getMyPackage());
+  CHistogrammer*   pHist = (CHistogrammer*)rPack.getHistogrammer();
+
+  // Figure out the set of valid spectra.
+
+  int result(0);
+  while (nSpectra) {
+    if(pHist->FindSpectrum(string(*pSpectra))) {
+      result++;
+    }
+    nSpectra--;
+    pSpectra++;
+  }
+  
+  
+  return result;
 }

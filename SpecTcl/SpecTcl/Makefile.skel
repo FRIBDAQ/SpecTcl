@@ -32,7 +32,7 @@ LIBS=   $(LIBDIRS) \
 	-lSorting -lXplus -lGates -lAnalysis -lEventSource -lSpecio \
 	-ltclPlus -lException \
 	-lXamine -ltape -lFilter \
-	-ltk -ltcl -lXt -lX11 -lm $(LIBFLAGS)
+	$(TCL_LDFLAGS) -lXt -lX11 -lm $(LIBFLAGS)
 
 ECHO=echo
 

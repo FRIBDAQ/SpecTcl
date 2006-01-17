@@ -314,6 +314,8 @@ static unsigned long *pixels = NULL;   /* Pointer to pixel values.           */
 static unsigned long pctpixels[101];   /* Lookup table for % of FS values.   */
 static unsigned long planemasks = 0; /* Will contain an or of the plane masks */
 static Colormap colormap_id;	/* Id of color map used by widgets.  */
+
+
 /*
 **++
 **  FUNCTIONAL DESCRIPTION:
@@ -359,6 +361,22 @@ static void ConvertMask(unsigned long *max, unsigned long *mult,
     *max = mask;
     *mult= mu;
 }
+
+// Count # bits set in a mask
+//
+static int countbits(unsigned long mask)
+{
+  int nbits = 0;
+  int bit  = 1;
+  while(bit) {
+    if (mask & bit) {
+      nbits++;
+    }
+    bit = bit << 1;
+  }
+  return nbits;
+}
+
 
 /*
 **++
@@ -535,7 +553,7 @@ FILE *Xamine_OpenColorTable(unsigned int planes)
 #ifndef HOME
   sprintf(filename, fmtstring, XAMINE_DEFAULT_COLOR_DIR, planes);
 #else
-  fmtstring = "%s/Etc/Xamine%d.ctbl";
+  fmtstring = "%s/etc/Xamine%d.ctbl";
   sprintf(filename, fmtstring, HOME, planes);
   printf("Opening system colortable file %s\n", filename);
   fflush(stdout);
@@ -681,8 +699,9 @@ static void GetWidgetVisualInfo (Display *d, Window w, XVisualInfo *vis)
     ** about that visual:
     */
     template_vis.visualid = vid;
-    result            = XGetVisualInfo(d, VisualIDMask,
-				       &template_vis, &nitem);
+    //    result            = XGetVisualInfo(d, VisualIDMask,
+    //				       &template_vis, &nitem);
+    result = XGetVisualInfo(d, 0, &template_vis, &nitem);
 //    if (nitem != 1)
 //    {
 //    	fprintf(stderr, 
@@ -690,9 +709,57 @@ static void GetWidgetVisualInfo (Display *d, Window w, XVisualInfo *vis)
 //	        nitem);
 //	exit(-1);
 //   }
-   // Take the first visual...
 
-    memcpy (vis,result,sizeof(XVisualInfo));
+
+    sleep(1);			// Let the rest of the crap come out.
+
+    // We need to get the 'best visual'  This is defined as:
+    // 1. If there are pseudo color visuals, the one with the
+    //    largest number of bits per rgb.
+    // 2. If there are no pseudo color visuals, the colormapped
+    //    visual with the largest depth.
+    //
+    int besttrue   = -1;
+    int besttruebits = -1;
+    int bestpseudo = -1;
+    int bestpseudodepth = 0;
+
+    for(int i =0; i < nitem; i++) {
+      if(result[i].c_class == PseudoColor) {
+	if(result[i].depth > bestpseudodepth) {
+	  bestpseudodepth = result[i].depth;
+	  bestpseudo      = i;
+	  fprintf(stderr, "Pseudo visual with depth: %d \n", bestpseudodepth);
+	} 
+      }
+      if((result[i].c_class == TrueColor) ||
+	 (result[i].c_class == DirectColor)) {
+	int totalbits = countbits(result[i].red_mask)  +
+	                countbits(result[i].blue_mask) +
+	                countbits(result[i].green_mask);
+	if(totalbits > besttruebits) {
+	  besttruebits = totalbits;
+	  besttrue     = i;
+	  fprintf(stderr, "Direct or true visual with %d total bits\n", besttruebits);
+	}
+      }
+    }
+    
+    if(besttrue >= 0) {		// Got a nice true color visual.
+      fprintf(stderr, "Selected direct/true with %d bits\n", besttruebits);
+      memcpy(vis, &(result[besttrue]), sizeof(XVisualInfo));
+    }
+    else if(bestpseudo >= 0) {	// Falling back to a nice pseudo
+      fprintf(stderr, "Selected pseudo with depth %d\n", bestpseudodepth);
+      memcpy(vis, &(result[bestpseudo]), sizeof(XVisualInfo));
+    }
+
+   // Nothing good: Take the first visual...
+
+    else {
+      fprintf(stderr, "Took nothing good!!\n");
+      memcpy (vis,result,sizeof(XVisualInfo));
+    }
     XFree((char* )result);
 }
 
@@ -891,6 +958,8 @@ static void SetupDirectColors (Display *d, Window w, XVisualInfo *vis)
     ConvertMask(&mymap.red_max, &mymap.red_mult, vis->red_mask);
     ConvertMask(&mymap.blue_max, &mymap.blue_mult, vis->blue_mask);
     ConvertMask(&mymap.green_max, &mymap.green_mult, vis->green_mask);
+    fprintf(stderr, "red_max = %d blue_max = %d green_max = %d\n",
+	    mymap.red_max, mymap.blue_max, mymap.green_max);
     //
     //   Then ReadDirectMap does the remainder of the job:
     //
@@ -942,10 +1011,12 @@ void Xamine_InitColors(XMWidget *w)
 	/*		Mapped color usage.     */
       case GrayScale:
       case PseudoColor:
+	fprintf(stderr, "Setting up  pseudo color planes = %d\n", vis.depth);
 	  SetupMappedColors(d,win);
 	  break;
       case DirectColor:
       case TrueColor:
+	fprintf(stderr, "Setting up Direct/True:\n");
 	  pixels    = NULL;	/* This assumes we can't get a good true */
 	  numcolors = 2;	/* color match and may be overridden     */
 	  SetupDirectColors(d,win, &vis);
@@ -954,6 +1025,7 @@ void Xamine_InitColors(XMWidget *w)
       case StaticGray:
       case StaticColor:
       default:
+	fprintf(stderr, "Bitonal!!\n");
 	  pixels    = NULL;
 	  numcolors = 2;
 	  break;

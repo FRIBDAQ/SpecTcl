@@ -293,12 +293,6 @@ DAMAGES.
 #ifndef XAMINE_CLIENT_H
 #define XAMINE_CLIENT_H
 
-
-#ifndef __CONFIG_H
-#include <config.h>
-#define __CONFIG_H
-#endif
-
 /* Define a megabyte if someone else hasn't done it */
 
 #ifndef MEG
@@ -348,8 +342,8 @@ typedef union {
 
 
 typedef struct {
-                 unsigned short xchans;
-		 unsigned short ychans;
+                 unsigned int xchans;
+		 unsigned int ychans;
 	       } spec_dimension;	/* Describes the channels in a spectrum. */
 
 typedef char spec_title[72];

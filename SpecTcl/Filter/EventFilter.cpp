@@ -268,6 +268,13 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
       }
    }
 
+   // No point in writing an event that has no valid parameters in the 
+   // selected subset.
+   //
+   if(!nValid) {
+     return;
+   }
+
    // Declare required freespace to allow the output stream to close:
    // the buffer if this event doesn't fit.
    
@@ -278,7 +285,7 @@ CEventFilter::FormatOutputEvent(CEvent& rEvent)
 
    m_pOutputEventStream->Require((nBitmaskwords*intsize +
                                  nValid*floatsize       +
-                                 hdrsize)*2); // Fudge??
+                                 hdrsize)); // Fudge??
    
    // Write the header:
    
@@ -377,8 +384,9 @@ CEventFilter::IdsToNames() throw (CDictionaryException)
 inline void
 CEventFilter::setBit(unsigned* bits, unsigned offset)
 {
-   int element = offset/sizeof(unsigned);
-   int mask    = 1 << (offset % sizeof(unsigned));
+		// The code below assumes 8 bits per byte ...
+   int element = offset/(sizeof(unsigned)*8);
+   int mask    = 1 << (offset % (sizeof(unsigned)*8));
    bits[element] |= mask;
 }
 /*!
