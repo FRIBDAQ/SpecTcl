@@ -349,3 +349,5 @@ June 1, 2005
    - Fix error in saving .sdef files in old treeparameter gui.
    - Fix buffer overflow error in grprint.cc found by Dave Caussyn.
    - Remove illegal default argument in PointlistGate.h
+
+SpecTcl-3.0-007
