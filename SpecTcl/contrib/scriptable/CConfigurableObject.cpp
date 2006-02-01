@@ -530,6 +530,20 @@ CConfigurableObject::ListConfiguration(CTCLInterpreter& rInterp,
 } 
 
 /*!
+  Add a new type of arbitrary paramter to the configuration database.
+  \param parameter :CConfigurationParameter*
+      Pointer to the new parameter object.
+  \return ParmeterIterator
+  \retval iterator in the parameter set to the newly added parameter.
+
+ */
+CConfigurableObject::ParameterIterator
+CConfigurableObject::AddParameter(CConfigurationParameter* parameter)
+{
+  m_Configuration.push_back(parameter);
+  return Find(parameter->getSwitch());
+}
+/*!
 
 Adds an integer configuration parameter to the
 set recognized by the default configuration parser.
@@ -545,8 +559,8 @@ CConfigurableObject::AddIntParam(const string& sParamName,
 { 
   CIntConfigParam* pNewParam = new CIntConfigParam(sParamName,
                                                    nDefault);
-  m_Configuration.push_back(pNewParam);
-  return Find(sParamName);
+  return AddParameter(pNewParam);
+
 }  
 
 /*! 
@@ -570,8 +584,7 @@ CConfigurableObject::AddIntArrayParam(const string& rParamName,
   CIntArrayParam* pNew = new CIntArrayParam(rParamName,
                                             nArraySize,
                                             nDefault);
-  m_Configuration.push_back(pNew);
-  return Find(rParamName);
+  return AddParameter(pNew);
 
 }  
 
@@ -592,8 +605,8 @@ CConfigurableObject::AddBoolParam(const string& rName,
 { 
   CBoolConfigParam* pParam = new CBoolConfigParam(rName, 
                                                   fDefault);
-  m_Configuration.push_back(pParam);
-  return Find(rName);
+  return AddParameter(pParam);
+
 
 }
 
@@ -609,8 +622,7 @@ CConfigurableObject::ParameterIterator
 CConfigurableObject::AddStringParam(const string& rName)
 {
   CStringConfigParam *p = new CStringConfigParam(rName);
-  m_Configuration.push_back(p);
-  return Find(rName);
+  return AddParameter(p);
 
 
 }
@@ -629,8 +641,8 @@ CConfigurableObject::AddStringArrayParam(const string& rName,
 				     int nArraySize)
 {
   CStringArrayparam* p = new CStringArrayparam(rName, nArraySize);
-  m_Configuration.push_back(p);
-  return Find(rName);
+  return AddParameter(p);
+
 
 }
 
