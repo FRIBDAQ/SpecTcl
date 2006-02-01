@@ -391,6 +391,7 @@ public:
   virtual  int      ListConfiguration (CTCLInterpreter& rInterp, 
 				       CTCLResult& rResult, 
 				       int nArgs, char** pArgs); //!< list subcommand 
+  ParameterIterator AddParameter(CConfigurationParameter*);
   ParameterIterator AddIntParam (const STD(string)& sParamName, 
 				 int nDefault=0)   ; //!< Create an int.
   ParameterIterator AddBoolParam (const STD(string)& rName,
