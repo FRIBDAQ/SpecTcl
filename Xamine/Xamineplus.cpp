@@ -1051,3 +1051,22 @@ void CXamine::Restart()
   Start();
   m_fManaged = kfFALSE;		// Memory not yet managed.
 }
+/*!
+    Return the size of the spectrum title string.
+*/
+UInt_t
+CXamine::getTitleSize() const
+{
+  return sizeof(spec_title);
+}
+/*!
+   Set the title of a specific slot in Xamine memory.
+   The title will be truncated to the size of the spec_title if
+   necessary
+*/
+void 
+CXamine::setTitle(string name, UInt_t slot)
+{
+  memset((void*)m_pDisplay->dsp_titles[slot], 0, getTitleSize());
+  strncpy((char*)m_pDisplay->dsp_titles[slot], name.c_str(), getTitleSize() -1);
+}
