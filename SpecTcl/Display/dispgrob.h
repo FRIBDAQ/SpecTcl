@@ -293,6 +293,11 @@ DAMAGES.
 
 #ifndef _DISPGROB_H_INSTALLED
 #define _DISPGROB_H_INSTALLED
+
+#ifndef __XAMINEDATATYPES_H
+#include "xamineDataTypes.h"
+#endif
+
 #include <stdio.h>
 #include <assert.h>
 #include <memory.h>
@@ -314,9 +319,6 @@ DAMAGES.
 #endif
 
 
-#define GROBJ_MAXPTS	50	/* Maximum number of points in a grob. */
-#define GROBJ_NAMELEN   80	/* Characters in a graphical object name. */
-// #define GROBJ_MAXOBJECTS 2048   /* Maximum # of graphical objects      */
 
 static const float GROBJ_MINDIST = 0.03;  // Fraction of height peak markers
 				         // ride above spectrum. 
@@ -325,7 +327,6 @@ static const float GROBJ_MINDIST = 0.03;  // Fraction of height peak markers
 ** Data type and class definitions.
 */
 
-typedef char grobj_name[GROBJ_NAMELEN+1];
 
 class grobj_point {                       // X-Y point in graphical object 
                   protected:
@@ -354,20 +355,7 @@ class grobj_point {                       // X-Y point in graphical object
 
 		      
 		      
-typedef enum {			/* Types of graphical objects. */
 
-               generic           = -1,
-               cut_1d            = 1,
-	       summing_region_1d = 2,
-	       marker_1d         = 5,
-	       contour_2d           = 4,
-	       band              = 3,
-	       summing_region_2d = 6,
-	       marker_2d         = 7,
-	       peak1d            = 8,
-	       pointlist_1d      = 100,
-	       pointlist_2d      = 200
-	       } grobj_type;
 
 
 class grobj_generic {                       /* Generic graphical object */

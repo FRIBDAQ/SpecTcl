@@ -331,7 +331,7 @@ void CompatibleSpectrumList::Update()
   /* Now run through the spectra available for compatibles:  */
   
   speclist->SetSelectionPolicy(XmMULTIPLE_SELECT);
-  for(int i = 0; i < DISPLAY_MAXSPEC; i++) {
+  for(int i = 0; i < XAMINE_MAXSPEC; i++) {
     if(Xamine_IsCompatible(spectrum, i) && (spectrum != i)) {
       sprintf(specname, "[%3d] %s",
 	      i,

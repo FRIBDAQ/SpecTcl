@@ -711,7 +711,7 @@ void Copy_Object::UpdateRight()
   */
 
   pos = 1;
-  for(i = 0; i < DISPLAY_MAXSPEC; i++) {
+  for(i = 0; i < XAMINE_MAXSPEC; i++) {
     if(Xamine_IsCompatible(specid, i)) {
       spec_title name;
       char      tname[100];

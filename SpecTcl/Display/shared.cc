@@ -525,7 +525,7 @@ void Xamine_initspectra()
 
   /* Now map to the memory: */
 
-  memsize = sizeof(spec_shared) - DISPLAY_SPECBYTES + size;
+  memsize = sizeof(spec_shared) - XAMINE_SPECBYTES + size;
 
 
   xamine_shared = mapmemory(name, memsize);

@@ -332,8 +332,8 @@ spec_shared *spectra;
 */
 
 typedef char chooser_name[128];
-chooser_name names[DISPLAY_MAXSPEC];
-char *(namelist[DISPLAY_MAXSPEC]);
+chooser_name names[XAMINE_MAXSPEC];
+char *(namelist[XAMINE_MAXSPEC]);
 
 int comp(const void *s1,const void *s2)
 {
@@ -447,7 +447,7 @@ int spec_shared::getspecid(char *name) volatile
   search[sizeof(search)-1] = '\0';
   upcase(search);		/* Make an upper case version of the name */
   
-  for(id = 0; id < DISPLAY_MAXSPEC; id++) {
+  for(id = 0; id < XAMINE_MAXSPEC; id++) {
     if(dsp_types[id] != undefined) {
       cvttitle(current, dsp_titles[id], 1);
       if(strncmp(current, search, sizeof(spec_title)) == 0) return id+1;
@@ -642,14 +642,14 @@ volatile unsigned int *spec_shared::getbase(int id) volatile
   switch(gettype(id)) {
   case twodlong:
   case onedlong:
-    base =  &(dsp_spectra.display_l[dsp_offsets[id-1]]);
+    base =  &(dsp_spectra.XAMINE_l[dsp_offsets[id-1]]);
     break;
   case onedword:
   case twodword:
-    base =  (unsigned int *)&(dsp_spectra.display_w[dsp_offsets[id-1]]);
+    base =  (unsigned int *)&(dsp_spectra.XAMINE_w[dsp_offsets[id-1]]);
     break;
   case twodbyte:
-    base = (unsigned int *)&(dsp_spectra.display_b[dsp_offsets[id-1]]);
+    base = (unsigned int *)&(dsp_spectra.XAMINE_b[dsp_offsets[id-1]]);
     break;
   case undefined:
   default:
@@ -674,7 +674,7 @@ volatile unsigned int *spec_shared::getbase(int id) volatile
 /*    The type of the spectrum.						    */
 spec_type spec_shared::gettype(int id) volatile
 {
-    if( (id < 0) || (id > DISPLAY_MAXSPEC))
+    if( (id < 0) || (id > XAMINE_MAXSPEC))
 	return undefined;
     return dsp_types[id-1];
 }
@@ -729,7 +729,7 @@ int Xamine_GetSpectrumList(char ***list)
   ** spectra:
   */
   int i;
-  for(i = 0; i < DISPLAY_MAXSPEC; i++) {
+  for(i = 0; i < XAMINE_MAXSPEC; i++) {
     if(xamine_shared->gettype(i+1) != undefined) {
        xamine_shared->getname(aname, i+1);     /* Make nulll filled string */
        if(strlen(aname) == 0) {	               // Spectra don't require names...

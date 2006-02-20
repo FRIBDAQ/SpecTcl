@@ -926,8 +926,8 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	fStr << "set y name \"" << Options->getyname() << "\"\n";
       }
       else {
-	char xlabel[72];
-	char ylabel[72];
+	spec_label xlabel;
+	spec_label ylabel;
 	xamine_shared->getxlabel_map(xlabel, nSpectrum);
 	xamine_shared->getylabel_map(ylabel, nSpectrum);
 	fStr << "set x name \"" << xlabel << "\"\n";
@@ -1601,7 +1601,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       fStr << "set y name \"" << Options->getyname() << "\"\n";
     }
     else {
-      char xlabel[72];
+      spec_label xlabel;
       xamine_shared->getxlabel_map(xlabel, nSpectrum);
       fStr << "set x name \"" << xlabel << "\"\n";
       fStr << "set y name \"\"\n";
@@ -2329,7 +2329,7 @@ Xamine_GetSpectrumTitle(int r, int c)
   }
   // Add spectrum name...
   if(pAttributed->showname()) {
-    char name[72];
+    spec_title name;
     Title += string((const char*)xamine_shared->getname(name, nSpectrum));
   }
 

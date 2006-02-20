@@ -299,99 +299,9 @@ DAMAGES.
 #define __CONFIG_H
 #endif
 
-/* Define a megabyte if someone else hasn't done it */
-
-#ifndef MEG
-#define MEG 1024*1024
+#ifndef __XAMINEDATATYPES_H
+#include "xamineDataTypes.h"
 #endif
-
-#include <sys/types.h>
-#ifndef HAVE_DECL_PADSIZE
-#ifndef PADSIZE
-#define PADSIZE 8192
-#endif
-#endif
-
-
-#ifdef HAVE_MACHINE_PARAM_H
-#ifndef CYGWIN
-#include <machine/param.h>
-#define PAGESIZE NBPG
-#else
-#define PAGESIZE 8192
-#endif
-#endif
-
-#ifndef PAGESIZE
-#ifdef HAVE_DECL_PAGESIZE
-#include <limits.h>
-#else
-#define PAGESIZE 8192	/* Should work for systems I know about. */
-#endif				
-#endif
-
-#ifndef PAGESIZE		/* Still didn't find a pagesize... */
-#define PAGESIZE 8192
-#endif
-
-
-
-
-#define XAMINE_MAXSPEC 5000	/* Maximum spectrum count. */
-#ifndef XAMINE_SPECBYTES
-#define XAMINE_SPECBYTES 8*MEG	/* Maximum number of bytes in spectra. */
-#endif
-
-#define XAMINE_WORDS     (XAMINE_SPECBYTES)/sizeof(short)
-#define XAMINE_LONGS     (XAMINE_SPECBYTES)/sizeof(long)
-
-#ifndef _DISPSHARE_H_INSTALLED_
-/* #pragma pack(1) */
-typedef union {
-                unsigned char  XAMINE_b[XAMINE_SPECBYTES];
-		unsigned short XAMINE_w[XAMINE_WORDS];
-		unsigned int  XAMINE_l[XAMINE_LONGS];
-	      } spec_spectra; /* Spectrum storage type. */
-
-
-typedef struct {
-                 unsigned int xchans;
-		 unsigned int ychans;
-	       } spec_dimension;	/* Describes the channels in a spectrum. */
-
-typedef char spec_title[72];
-typedef char spec_label[72];
-
-typedef enum {
-               undefined = 0,
-	       twodlong = 5,
-               onedlong = 4,
-	       onedword = 2,
-	       twodword = 3,
-	       twodbyte = 1
-	     } spec_type;
-
-typedef struct {
-  float xmin;
-  float xmax;
-  float ymin;
-  float ymax;
-  spec_label xlabel;
-  spec_label ylabel;
-} spec_map;
-
-#endif
-typedef struct _Xamine_shared {
-  spec_dimension  dsp_xy[XAMINE_MAXSPEC];
-  spec_title      dsp_titles[XAMINE_MAXSPEC];
-  unsigned int    dsp_offsets[XAMINE_MAXSPEC];
-  spec_type       dsp_types[XAMINE_MAXSPEC];
-  spec_map        dsp_map[XAMINE_MAXSPEC];
-  spec_spectra    dsp_spectra;
-  char            page_pad[PAGESIZE];
-} Xamine_shared;
-
-/* #pragma pack(0) */
 
 #if defined(__cplusplus) || defined(c_plusplus)
 extern "C" {
@@ -424,12 +334,7 @@ int f77xamine_mapmemory_(char *name, int *specbytes, Xamine_shared **ptr,
 /*
 ** The functions below interface to Xamine's gate handling.
 */
-typedef struct { int x, y; } Xamine_point;
-typedef enum {
-               Xamine_cut1d      = 1,
-	       Xamine_contour2d  = 4,
-	       Xamine_band        = 3
-             } Xamine_gatetype;
+
 
 int Xamine_EnterGate(int spec, int id, Xamine_gatetype type,
 		     char *name,

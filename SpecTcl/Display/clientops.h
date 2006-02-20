@@ -306,6 +306,10 @@ DAMAGES.
 #ifndef _CLIENTOPS_H
 #define _CLIENTOPS_H
 
+#ifndef __XAMIENDATATYPES_H
+#include "xamineDataTypes.h"
+#endif
+
 #include <Xamine.h>
 
 #define BUTTON_LABELSIZE  16
@@ -315,15 +319,8 @@ DAMAGES.
 typedef char ButtonText[BUTTON_MAXTEXT];
 
 
-#define GROBJ_MAXPTS	50	/* Maximum number of points in a grob. */
-#define GROBJ_NAMELEN   80	/* Characters in a graphical object name. */
-#define GROBJ_MAXOBJECTS 2048   /* Maximum # of graphical objects      */
 
-typedef char grobj_name[GROBJ_NAMELEN+1];
 		      
-#ifndef _DISPGROB_H_INSTALLED
-typedef Xamine_gatetype grobj_type ;
-#endif
 
 typedef int  unsigned Cardinal;
 

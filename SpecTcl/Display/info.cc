@@ -461,7 +461,7 @@ char *FormatSpectrumInfo(const int specno)
   case onedlong:
   case onedword:
     if(att->ismapped()) {
-      char xlabel[72];
+      spec_label xlabel;
       xamine_shared->getxlabel_map(xlabel, specno);
       sprintf(specinfo,
 	      "Spectrum : %d\nTitle    : %s\nType     : %s\nChannels : %d using %d bytes\nMapping  : %.1f to %.1f %s\n",
@@ -486,8 +486,8 @@ char *FormatSpectrumInfo(const int specno)
   case twodbyte:
   case twodlong:
     if(att->ismapped()) {
-      char xlabel[72];
-      char ylabel[72];
+      spec_label xlabel;
+      spec_label ylabel;
       xamine_shared->getxlabel_map(xlabel, specno);
       xamine_shared->getylabel_map(ylabel, specno);
       sprintf(specinfo,

@@ -21,6 +21,7 @@ extern void windfileerror(char *text);
 #include <assert.h>
 #include <memory.h>
 #include <stdio.h>
+#include "xamineDataTypes.h"
 
 #include "windio.h"
 #include "dispwind.h"
@@ -60,7 +61,7 @@ static win_attributed *current = Xamine_GetDefaultGenericAttributes();
 %union {
    int integer;
   double real;
-   char string[80];
+  spec_title string;
  }
 
 %token  NAME

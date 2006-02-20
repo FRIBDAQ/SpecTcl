@@ -36,89 +36,16 @@
 #include <config.h>
 #endif
 
+#ifndef __XAMINEDATATYPES_H
+#include "xamineDataTypes.h"
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include <sys/types.h>
-/* Define a megabyte if someone else hasn't done it */
 
-#ifndef MEG
-#define MEG 1024*1024
-#endif
-
-
-
-#ifdef HAVE_MACHINE_PARAM_H
-#include <machine/param.h>
-#ifndef CYGWIN
-#define PAGESIZE NBPG
-#else
-#define PAGESIZE 8192
-#endif
-#endif
-
-
-#ifndef HAVE_DECL_PADSIZE
-#define PADSIZE 8192
-#endif
-
-
-#ifndef HAVE_DECL_PAGESIZE
-#ifndef PAGESIZE
-#define PAGESIZE 8192
-#endif
-#endif
-
-#ifndef PAGESIZE
-#define PAGESIZE 8192
-#endif
-
-
-#define DISPLAY_MAXSPEC 5000	/* Maximum spectrum count. */
-#define DISPLAY_SPECBYTES 8*MEG	/* Maximum number of bytes in spectra. */
-
-#define DISPLAY_WORDS     (DISPLAY_SPECBYTES)/sizeof(short)
-#define DISPLAY_LONGS     (DISPLAY_SPECBYTES)/sizeof(long)
-
-typedef union {
-                unsigned char  display_b[DISPLAY_SPECBYTES];
-		unsigned short display_w[DISPLAY_WORDS];
-		unsigned int  display_l[DISPLAY_LONGS];
-	      } spec_spectra; /* Spectrum storage type. */
-
-typedef struct {
-                 unsigned int xchans;
-		 unsigned int ychans;
-	       } spec_dimension;   /* Describes the channels in a spectrum. */
-
-typedef char spec_title[72];
-typedef char spec_label[72];
-
-typedef enum {
-               undefined = 0,
-	       twodlong = 5,
-               onedlong = 4,
-	       onedword = 2,
-	       twodword = 3,
-	       twodbyte = 1
-	     } spec_type;
-
-typedef struct {
-  float xmin;
-  float xmax;
-  float ymin;
-  float ymax;
-  spec_label xlabel;
-  spec_label ylabel;
-} spec_map;
-
-struct spec_shared {
-  spec_dimension  dsp_xy[DISPLAY_MAXSPEC];
-  spec_title      dsp_titles[DISPLAY_MAXSPEC];
-  unsigned int    dsp_offsets[DISPLAY_MAXSPEC];
-  spec_type       dsp_types[DISPLAY_MAXSPEC];
-  spec_map        dsp_map[DISPLAY_MAXSPEC];
-  spec_spectra    dsp_spectra;
-  char            page_pad[PAGESIZE];
+struct spec_shared : Xamine_shared 
+{
   void setdim(int id, int xd) volatile {
     dsp_xy[id-1].xchans = xd;
     dsp_xy[id-1].ychans = 0;
@@ -138,8 +65,8 @@ struct spec_shared {
 
   // Gets and sets for the other non-mapping stuff...
   int getspecid(char *name) volatile;
-  int getspectrumcount() volatile  {return DISPLAY_MAXSPEC; }
-  int getmaxchannels() volatile    {return DISPLAY_SPECBYTES; }
+  int getspectrumcount() volatile  {return XAMINE_MAXSPEC; }
+  int getmaxchannels() volatile    {return XAMINE_SPECBYTES; }
   spec_type gettype(int id) volatile;
   void settype(int id, spec_type tp) volatile {
     dsp_types[id-1] = tp;
