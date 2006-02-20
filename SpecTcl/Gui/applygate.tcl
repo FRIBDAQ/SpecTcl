@@ -239,8 +239,10 @@ snit::widget applyGateToMultiple {
     # Parameters:
     #    path   -Path to a spectrum.
     method selectSpectrum path {
+	puts $path
         set name [pathToName $path]
-        $win.spectra insert end $name
+	puts $name
+        $win.spectra insert end  $name
 
         $win.browser update
     }
@@ -524,7 +526,7 @@ proc selectAndApplyGate {} {
         set spectra [.applygatetomultiple getSpectra]
 
         if { ($gate != "") && ([llength $spectra] != 0)} {
-            eval apply $gate $spectra
+            eval apply $gate [list $spectra]
 
         }
         failsafeWrite

@@ -978,7 +978,7 @@ image create photo ::browser::pseudoicon   -format gif \
             set id [$win.tree nearest $x $y]
             if {$id != ""} {
                 set path [$win.tree get -full $id]
-                eval $script $path
+                eval $script [list $path]
             }
         }
     }
