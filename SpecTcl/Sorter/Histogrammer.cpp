@@ -47,6 +47,7 @@
 #include <Gamma2DW.h>
 
 #include <Iostream.h>
+#include <Sstream.h>
 
 #include <stdio.h>
 #ifdef HAVE_STD_NAMESPACE
@@ -651,7 +652,8 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
       {
 	Bool_t           fWord = pSpectrum->StorageType() == keWord;
 	pXSpectrum   = new CXamine1D(m_pDisplayer->getXamineMemory(),
-				     rsName,
+				     createTitle(pSpectrum, 
+						 m_pDisplayer->getTitleSize()),
 				     pSpectrum->Dimension(0),
 				     pSpectrum->GetLow(0),
 				     pSpectrum->GetHigh(0),
@@ -681,7 +683,8 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
 	}
 
 	pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(),
-				   rsName,
+				   createTitle(pSpectrum, 
+					       m_pDisplayer->getTitleSize()),
 				   pSpectrum->Dimension(0),
 				   pSpectrum->Dimension(1),
 				   pSpectrum->GetLow(0),
@@ -748,13 +751,6 @@ void CHistogrammer::UnBindFromDisplay(UInt_t nSpec) {
 
   CXamineSpectrum  Spec(m_pDisplayer->getXamineMemory(), nSpec);
   if(Spec.getSpectrumType() != undefined) { // No-op if spectrum not defined
-    // The Xamine title must match the first n characters of
- 
-    // The Xamine title must match the first n characters of
-    // the bindings  name since the display bindings names are
-    // truncated to some fixed size.
-    //
-    assert(m_DisplayBindings[nSpec].find(Spec.getTitle()) == 0);
 
 
     SpectrumDictionaryIterator iSpectrum = 
@@ -862,6 +858,25 @@ DisplayBindingsIterator CHistogrammer::DisplayBindingsEnd() {
   return m_DisplayBindings.end();
 }
 
+/*!
+    Find the bindings for a spectrum by name.
+   \param name  : string
+       Name of the spectrum
+   \return 
+   \retval -1   - Spectrum has no binding.
+   \retval >= 0 - The binding index (xamine slot).
+
+*/
+Int_t
+CHistogrammer::findDisplayBinding(string name)
+{
+  for (int i = 0; i < DisplayBindingsSize(); i++) {
+    if (name == m_DisplayBindings[i]) {
+      return i;
+    }
+  }
+  return -1;
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -1105,6 +1120,12 @@ void CHistogrammer::UnGate(const std::string& rSpectrum) {
   }
   else {
     pSpectrum->ApplyGate(&NoGate);
+    Int_t b  = findDisplayBinding(pSpectrum->getName());
+    if (b >= 0) {
+      m_pDisplayer->setTitle(createTitle(pSpectrum,
+					 m_pDisplayer->getTitleSize()), b);
+    }
+    
   }
 }
 
@@ -1247,6 +1268,12 @@ void CHistogrammer::ApplyGate(const std::string& rGateName,
 
   SpectrumType_t spType = pSpectrum->getSpectrumType();
   pSpectrum->ApplyGate(pGateContainer);
+  Int_t b =  findDisplayBinding(rSpectrum);
+  if(b >= 0) {
+    m_pDisplayer->setTitle(createTitle(pSpectrum,
+				       m_pDisplayer->getTitleSize()),
+			   b);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1571,4 +1598,176 @@ void CHistogrammer::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
       }
     }
   }
+}
+///////////////////////////////////////////////////////////////////////////
+//
+//  Creates a trial spectrum title.  This unconditionally
+//  glues the elements of a title together to form a title.
+//  The string created is of the form:
+//   title : type [low hi chans] x [low hi chans]  Gated on  gatename : {parameters...}
+//  However:
+//    - If there are no axes (size of vector is 0), the axes are omitted.
+//    - If there are no characters in the gate name, the gate is omitted.
+//    - If the parameters vector is size 0 it is omitted too.
+//   The idea is for createTitle to use this to iteratively try to fit
+//   title elements into the number of characters accepted by a displayer.
+// Parameters:
+//     name  : string
+//          Spectrum name
+//     type  : string
+//          type of the spectrum.
+//     axes  : vector<string>
+//          Axis names.
+//     parameters : vector <string>
+//          Names of parameters.
+//     gate : string
+//          Name of gate on spectrum.
+//
+// Returns:
+//    A string that describes the spectrum in standard from from these
+//    elements.
+//
+string
+CHistogrammer::createTrialTitle(string name, string type, 
+				vector<string>      axes,
+				vector<string>      parameters,
+				string gate)
+{
+  string result(name);
+  result += " : ";
+  result += type;
+
+  // If there are axes, put them in:
+
+  if (axes.size() > 0) {
+    string separator = " ";
+    for (int i =0; i < axes.size(); i++) {
+      result += separator;
+      result += "[";
+      result += axes[i];
+      result += "]";
+
+      separator = " X ";
+    }
+  }
+  // If there's a nonempty gate string add that information:
+  
+  if (gate != string("")) {
+    result += " Gated on : ";
+    result += gate;
+  }
+  // If there are parameters comma separate them in curlies.
+  
+  if(parameters.size() > 0) {
+    string separator = "";
+    result += " {";
+    for (int i = 0; i < parameters.size(); i++) {
+      result += separator;
+      result += parameters[i];
+      separator = ", ";
+    }
+    result += "}";
+  }
+  
+  
+  
+  
+  return result;
+}
+//////////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//   Create a spectrum displayer title from the information in the
+//   spectrum definition.   As needed items will be dropped from the
+//   definition to ensure that this will all fit in the limited
+//   number of characters avaialable to a spectrum title.
+//
+string
+CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
+{
+  string name = pSpectrum->getName();
+  ostringstream typestream;
+  typestream << pSpectrum->getSpectrumType();
+  string type = typestream.str();
+
+  // Create the axis vector:
+
+  vector<string> axes;
+  for (int i = 0; i < pSpectrum->Dimensionality(); i++) {
+    ostringstream axisstream;
+    axisstream << pSpectrum->GetLow(i) << ", " << pSpectrum->GetHigh(i)
+	       << " : " << pSpectrum->Dimension(i);
+    axes.push_back(axisstream.str());
+  }
+  // gate name:
+ 
+  const CGateContainer& gate(*(pSpectrum->getGate()));
+  string gateName;
+  if (&gate != pDefaultGate) {
+    gateName = gate.getName();
+  } else {
+    gateName = "";
+  }
+  //  Get the parameter names
+
+  vector<UInt_t> ids;
+  vector<string> parameters;
+  pSpectrum->GetParameterIds(ids);
+  for (int i =0; i < ids.size(); i++) {
+    CParameter* pParam = FindParameter(ids[i]);
+    if (pParam) {
+      parameters.push_back(pParam->getName());
+    } else {
+      parameters.push_back(string("--deleted--"));
+    }
+  }
+ 
+  // Ok now the following variables are set up for the first try:
+  //  name       - Name of the spectrum
+  //  type       - String type of the spectrum
+  //  axes       - Vector of axis definitions.
+  //  gateName       - name of gateName on spectrum.
+  //  parameters - vector of parameter names.
+
+  string trialTitle = createTrialTitle(name, type, axes, parameters, gateName);
+  if (trialTitle.size() < maxLength) return trialTitle;
+
+  // Didn't fit.one by one drop the parameters..replacing the most recently
+  // dropped parameter by "..."
+
+  while (parameters.size()) {
+    parameters[parameters.size()-1] = "..."; // Probably smaller than it was.
+    trialTitle = createTrialTitle(name, type, axes, parameters, gateName);
+    if (trialTitle.size() < maxLength) return trialTitle;
+    vector<string>::iterator i = parameters.end();
+    i--;
+    parameters.erase(i);	// Kill off last parameter.
+  }
+  // Still didn't fit... and there are no more parameters left to drop.
+  // now we drop the axis definition...
+  
+  axes.clear();
+  trialTitle = createTrialTitle(name, type , axes, parameters, gateName);
+  if (trialTitle.size() < maxLength) return trialTitle;
+
+  // Now compute if we can delete the tail of the spectrum name
+  // to fit... For this try we drop at most 1/2 of the name.
+
+  if ((trialTitle.size() - (name.size()/2 + 3)) < maxLength) {
+    while(trialTitle.size() > maxLength) {
+      name = name.assign(name.c_str(), name.size()-4) + string("...");
+      trialTitle = createTrialTitle(name, type, axes, parameters, gateName);
+    }
+    return trialTitle;
+  }
+
+  
+  // nope...drop the gateName and delete the tail of the spectrum name so it fits.
+  //
+  
+  name.assign(name.c_str(), maxLength - 3) + string("...");
+  return name;
+
+
+  
 }

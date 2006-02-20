@@ -424,6 +424,9 @@ public:
   CXamineSpectrumIterator begin ()  ;
   CXamineSpectrumIterator end ()  ;
 
+  UInt_t getTitleSize()  const;
+  void setTitle(STD(string) name, UInt_t slot);
+
   // Utility Functions:
 
 protected:

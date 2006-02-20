@@ -392,3 +392,7 @@ Decemberr 19, 2005
 February 1, 2006
   - Factor adding a configuration parameter to a CModule in Scriptable SpecTcl
     into AddParameter member function so extenders can add new parameter types.
+February 17, 2006
+  - Factor out multiple identical definitions of some typedefs into
+    xamineDataTypes.h
+ -  Add longer descriptive titles to the Xamine names (parameter, gates etc).
