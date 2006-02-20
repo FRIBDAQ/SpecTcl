@@ -703,20 +703,20 @@ void Xamine_DrawTitles(Xamine_RefreshContext *ctx, win_attributed *def)
   **  of the display.
   */
   XMWidget *pane = ctx->pane;
-  char label[200];		/* String to hold the label text. */
+  char label[400];		/* String to hold the label text. */
   char label_element[200];	/* The element being built up. */
 
   memset(label, 0, sizeof(label));
   if(def->shownum()) {
     sprintf(label_element, "[%d] ", def->spectrum());
-    strncat(label, label_element, sizeof(label)-1);
+    strncat(label, label_element, sizeof(label) - strlen(label) -1);
   }
 
   if(def->showname()) {
     xamine_shared->getname(label_element, def->spectrum());
     if(strlen(label_element) == 0) strcpy(label_element, "<Untitled>");
-    strncat(label, label_element, sizeof(label)-1);
-    strncat(label, " ", sizeof(label)-1);
+    strncat(label, label_element, sizeof(label) - strlen(label) -1);
+    strncat(label, " ", sizeof(label) - strlen(label) -1);
   }
   if(def->showdescrip()) {
     if(def->is1d()) {
@@ -728,15 +728,15 @@ void Xamine_DrawTitles(Xamine_RefreshContext *ctx, win_attributed *def)
 	      xamine_shared->getxdim(def->spectrum()), 
 	      xamine_shared->getydim(def->spectrum()));
     }
-    strncat(label, label_element, sizeof(label)-1);
+    strncat(label, label_element, sizeof(label) - strlen(label) - 1);
   }
   if(def->showpeak()) {
     getpeakinfo(label_element, def);
-    strncat(label, label_element, sizeof(label)-1);
+    strncat(label, label_element, sizeof(label) - strlen(label) - 1);
   }
   if(def->showupdt()) {
     getupdatetime(label_element, def);
-    strncat(label, label_element, sizeof(label)-1);
+    strncat(label, label_element, sizeof(label) - strlen(label) - 1);
   }
   /* Note that the grobj labels are drawn by the grobj updater */
 

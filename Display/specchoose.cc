@@ -481,7 +481,7 @@ int Xamine_MatchSpecName(char *name)
 
   /* Loop over all defined spectra looking for matches: */
 
-  for(int i = 1; i <= DISPLAY_MAXSPEC; i++) {
+  for(int i = 1; i <= XAMINE_MAXSPEC; i++) {
     if(xamine_shared->gettype(i) != undefined) {
       spec_title spname;
       char *s1, *s2;
@@ -543,7 +543,7 @@ void Callback_handler(XMWidget *w, XtPointer userd, XtPointer calld)
     if(isdigit(spectrum_name[0])) {   /* Numeric type-in */
       specid = atoi(spectrum_name);
     numeric_spectrum:
-      if((specid <= 0) || (specid > DISPLAY_MAXSPEC)) {
+      if((specid <= 0) || (specid > XAMINE_MAXSPEC)) {
 	Xamine_error_msg(choice,
 			 "Invalid spectrum number\nPlease choose one from the list");
 	choice->Show();

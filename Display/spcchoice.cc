@@ -386,12 +386,12 @@ SpectrumChooser::~SpectrumChooser()
 void SpectrumChooser::SetupList()
 {
   char **speclist;
-  char *(dispspec[DISPLAY_MAXSPEC]);
+  char *(dispspec[XAMINE_MAXSPEC]);
   Cardinal    accepted;
   int         lsize;
   int         spno;
 
-  assert((sizeof(dispspec) == DISPLAY_MAXSPEC * sizeof(char *)));
+  assert((sizeof(dispspec) == XAMINE_MAXSPEC * sizeof(char *)));
   lsize = Xamine_GetSpectrumList(&speclist); // Get the formatted/sorted list.
   assert((sizeof(dispspec) >= (lsize * sizeof(char*))));
 

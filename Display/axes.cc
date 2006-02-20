@@ -1145,8 +1145,8 @@ void Xamine_DrawAxes(Xamine_RefreshContext *ctx, win_attributed *attribs)
 
     unsigned int low, hi;
     unsigned int mapped = 0;
-    char xlabel[72];
-    char ylabel[72];
+    spec_label xlabel;
+    spec_label ylabel;
     low = 0;
     hi  = xamine_shared->getxdim(attribs->spectrum());/* Assume unexpanded.*/
     

@@ -107,8 +107,9 @@ XMText.h        copier.h           grobjdisplay.h  prccheck.h   windfile_lex.h\
 XMWidget.h      copyatr.h          grobjinput.h    printer.h    windfile_tab.h\
 XMWlist.h       defaultfile_lex.h  grobjio.h       procede.h     windio.h\
 Xamine.h        delgrob.h          grobjiomenu.h   properties.h  windlex.h\
-acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h\
-advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h
+acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h \
+advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
+xamineDataTypes.h
 
 lib_LTLIBRARIES = libXamine.la
 
