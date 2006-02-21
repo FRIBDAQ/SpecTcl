@@ -91,7 +91,7 @@ proc writeGate {fd description} {
         set type [lindex $description 2]
         set info [lindex $description 3]
         set writeinfo [listInfoToWriteInfo $type $info]
-        puts $fd "gate $name $type [list $writeinfo]"
+        puts $fd "gate [list $name] $type [list $writeinfo]"
 
         # Mark the gate written:
 
@@ -140,7 +140,7 @@ proc writeTreeParameters fd {
         # The catch is to ensure that the script keeps running if the tree parameter
         # already exists.
 
-        puts $fd "catch {treeparameter -create $parameter $low $high $bins $units}"
+        puts $fd "catch {treeparameter -create [list $parameter] $low $high $bins [list $units]}"
     }
 
     puts $fd "\n#Modified Tree Parameters:\n"
@@ -154,9 +154,9 @@ proc writeTreeParameters fd {
 
         # Only write the ones that are not new and have changed...
         if {([lsearch $newTreeParameters $name] == -1) && [treeparameter -check $name]} {
-            puts $fd "treeparameter -setlimits $name $low $high"
-            puts $fd "treeparameter -setbins   $name $bins"
-            puts $fd "treeparameter -setunit   $name $units\n"
+            puts $fd "treeparameter -setlimits [list $name] $low $high"
+            puts $fd "treeparameter -setbins   [list $name] $bins"
+            puts $fd "treeparameter -setunit   $name [list $units]\n"
         }
     }
 
@@ -194,8 +194,8 @@ proc writePseudo {fd description} {
     }
     # now we can write ourself.
 
-    puts $fd "catch {pseudo -delete $name}"
-    puts $fd "pseudo $name [list $params] [list $body]\n"
+    puts $fd "catch {pseudo -delete [list $name]}"
+    puts $fd "pseudo [list $name] [list $params] [list $body]\n"
 
     # and mark ourself written:
 
@@ -248,7 +248,7 @@ proc writeTreeVariables fd {
         set value [lindex $variable 1]
         set units [lindex $variable 2]
         if {[treevariable -check $name]} {
-            puts $fd "treevariable -set $name $value $units"
+            puts $fd "treevariable -set [list $name] $value [list $units]"
         }
     }
 }
@@ -270,8 +270,8 @@ proc writeSpectrumDefinitions fd {
         set parameters [lindex $spectrum 3]
         set axes       [lindex $spectrum 4]
 
-        puts $fd "catch {spectrum -delete $name}"
-        puts $fd "spectrum $name $type [list $parameters] [list $axes]"
+        puts $fd "catch {spectrum -delete [list $name]}"
+        puts $fd "spectrum [list $name] $type [list $parameters] [list $axes]"
 
     }
 }
@@ -322,7 +322,7 @@ proc writeGateApplications fd {
         set gatename [lindex $gate 0]
         # ungated spectra are actually gated on -TRUE-
         if {$gatename != "-TRUE-"} {
-            puts $fd "apply $gatename $spectrum"
+            puts $fd "apply [list $gatename]  [list $spectrum]"
         }
     }
 }
@@ -342,9 +342,9 @@ proc writeFilters fd {
         set file [lindex $filter 2]
         set parameters [lindex $filter 3]
 
-        puts $fd "catch {filter -delete $name}"
-        puts $fd [list filter $name $gate $parameters]
-        puts $fd [list filter -file $file $name]
+        puts $fd "catch {filter -delete [list $name]}"
+        puts $fd [list filter [list $name] [list $gate] [list $parameters]]
+        puts $fd [list filter -file [list $file] [list $name]]
         puts $fd ""
     }
 }
