@@ -202,7 +202,7 @@ snit::widget maskGateEditor {
                 set widget $frame.bit$bno
                 set varname [$widget cget -variable]
                 global $varname
-                if {[eval set $varname]} {
+                if {[eval set [list $varname]]} {
                     set mask [expr $mask | $thisbit]
                 }
                 incr bno

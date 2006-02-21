@@ -149,7 +149,7 @@ snit::widget editparameter {
             treeparameter -create $name $low $high $bins [list $units]
             set script $options(-createcommand)
             if {$script != ""} {
-                eval $script $name
+                eval $script [list $name]
             }
         } else {
             treeparameter -setlimits $name $low $high

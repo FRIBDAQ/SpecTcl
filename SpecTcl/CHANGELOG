@@ -395,4 +395,9 @@ February 1, 2006
 February 17, 2006
   - Factor out multiple identical definitions of some typedefs into
     xamineDataTypes.h
- -  Add longer descriptive titles to the Xamine names (parameter, gates etc).
+February 20, 2006
+  -  Add longer descriptive titles to the Xamine names (parameter, gates etc).
+  -  Fix some quoting errors in gui with respect to spectrum names with spaces.
+February 21, 2006
+  - Protect evals from parameters that have spaces in them by quoting
+    with [list].
