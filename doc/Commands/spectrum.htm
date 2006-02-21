@@ -229,9 +229,9 @@ style='mso-bookmark:Top'></span></p>
 
 <p><span style='mso-bookmark:Top'>spectrum [-new] <em>name type parameter-list
 axis-speclist </em>[<em>datatype</em>]<br>
-spectrum -list [-byid] [pattern]<br>
-spectrum -list <em>name</em><br>
-spectrum -list -id <em>id</em><i><br>
+spectrum -list [-byid] [-showgate] [pattern]<br>
+spectrum -list [-showgate] <em>name</em><br>
+spectrum -list -id [-showgate] <em>id</em><i><br>
 </i>spectrum -delete <em>name </em>[<em>name...</em>]<br>
 spectrum -delete <em>id </em>[<em>id...</em>]<br>
 spectrum -delete -all</span></p>
@@ -769,7 +769,7 @@ histogram of Si2, strip 2 is a histogram of Si3.. .and so forth.</span></p>
 Top'>Top</span><span style='mso-bookmark:Top'></span></a><span
 style='mso-bookmark:Top'></span></p>
 
-<h3><span style='mso-bookmark:Top'>spectrum -list [-byid] [pattern]</span></h3>
+<h3><span style='mso-bookmark:Top'>spectrum -list [-byid] [-showgate] [ [pattern]</span></h3>
 
 <p><span style='mso-bookmark:Top'>Lists all spectra in the spectrum dictionary.
 If the optional <strong>-byid</strong> switch is included, then the spectra are
@@ -796,15 +796,33 @@ style='mso-bookmark:Top'>{0.000000 1023.000000 256} {0.000000 2047.000000 256}} 
 style='mso-bookmark:Top'></span><a href="#Top"><span style='mso-bookmark:Top'>Top</span><span
 style='mso-bookmark:Top'></span></a><span style='mso-bookmark:Top'></span></pre>
 
-<h3><span style='mso-bookmark:Top'>spectrum -list <em>name</em></span></h3>
+<p>
+   If the optional -showgate switch is supplied, the gate name of the gate
+currently applied to the spectrum is appended to the end of the list describing
+each spectrum.
+</p>
+
+<h3><span style='mso-bookmark:Top'>spectrum -list [-showgate] <em>name</em></span></h3>
 
 <p><span style='mso-bookmark:Top'>Lists the spectrum with the supplied <em>name</em>,
 or an error message if <em>name</em> could not be listed.</span></p>
 
-<h3><span style='mso-bookmark:Top'>spectrum -list -id <em>id</em></span></h3>
+<p>
+   If the optional -showgate switch is supplied, the gate name of the gate
+currently applied to the spectrum is appended to the end of the list describing
+each spectrum.
+</p>
+
+<h3><span style='mso-bookmark:Top'>spectrum -list -id [-showgate] <em>id</em></span></h3>
 
 <p><span style='mso-bookmark:Top'>Lists the spectrum with the supplied <em>id</em>,
 or an error message if <em>id</em> could not be listed.</span></p>
+
+<p>
+   If the optional -showgate switch is supplied, the gate name of the gate
+currently applied to the spectrum is appended to the end of the list describing
+each spectrum.
+</p>
 
 <h3><span style='mso-bookmark:Top'>spectrum -delete <em>name </em>[<em>name...</em>]</span></h3>
 

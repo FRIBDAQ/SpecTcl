@@ -401,3 +401,6 @@ February 20, 2006
 February 21, 2006
   - Protect evals from parameters that have spaces in them by quoting
     with [list].
+  - Add ability to list gates with spectra in SpectrumPackage.cpp's 
+    DescribeSpectrum and immediate callers.
+  - Add -showgate switch to -list operation on spectrum command.
