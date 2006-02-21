@@ -294,6 +294,9 @@ DAMAGES.
 //                     Removed New1d, New2d replaced with CreateSpectrum.
 //
 //   $Log$
+//   Revision 5.3  2006/02/21 19:30:59  ron-fox
+//   Add -showgate to spectrum -list command/subcommand
+//
 //   Revision 5.2  2005/06/03 15:19:28  ron-fox
 //   Part of breaking off /merging branch to start 3.1 development
 //
@@ -454,9 +457,11 @@ public:
 
   // List Spectra
 
-  void ListSpectra (STD(vector)<STD(string)>& rvProperties, const char* pattern)  ;
+  void ListSpectra (STD(vector)<STD(string)>& rvProperties, const char* pattern,
+		    bool showGates=false)  ;
   //Int_t ListSpectrum (CTCLResult& rResult, const char* pName)  ;
-  Int_t ListSpectrum (CTCLResult& rResult, UInt_t nId)  ;
+  Int_t ListSpectrum (CTCLResult& rResult, UInt_t nId,
+		      bool showGate=false)  ;
 
   // Clear Spectra:
 
@@ -503,7 +508,7 @@ public:
   // Utility functions:
 
 protected:
-  STD(string) DescribeSpectrum(CSpectrum& rSpectrum);
+  STD(string) DescribeSpectrum(CSpectrum& rSpectrum, bool showGate=false);
   UInt_t      FindDisplayBinding(const STD(string)& rName);
   UInt_t      FindDisplayBinding(UInt_t             nId);
   void        FormatBinding(CTCLString& rString, UInt_t nXId, 

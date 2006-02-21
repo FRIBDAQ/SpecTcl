@@ -37,6 +37,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
+//    Revision 5.4  2006/02/21 19:30:59  ron-fox
+//    Add -showgate to spectrum -list command/subcommand
+//
 //    Revision 5.3  2005/09/22 12:40:38  ron-fox
 //    Port in the bitmask spectra
 //
@@ -306,28 +309,29 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
   rResult = pSpec->getName();
   return TCL_OK;
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    void ListSpectra ( std::vector<std::string> rvProperties )
-//  Operation Type:
-//     Interface.
-//
+/*!
+ Returns the set of spectrum definitions.  Each
+ Spectrum's properties is stored in a string formatted as
+ a TCL List in the following format:
+
+   id name dimensions { parameters...} {resolutions...} ?gatename?
+
+
+    \param vector<std::string>& rvProperties
+        Vector which will be cleared and filled with the
+        set of definitions strings.
+    \param pattern (const char*)
+       A pattern to match.. only spectra with glob matching against the
+      pattern are listed.
+    \param showGates : bool [false]
+       If true, the gate name is also added to the listing.
+       This is actually just passed to DescribSpectrum.
+*/
 void 
-CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties, const char* pattern) 
+CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties, 
+			      const char* pattern, bool showGates) 
 {
-// Returns the set of spectrum definitions.  Each
-// Spectrum's properties is stored in a string formatted as
-// a TCL List in the following format:
-//
-//   id name dimensions { parameters...} {resolutions...}
-//
-// Formal Parameters:
-//
-//    vector<std::string>& rvProperties
-//        Vector which will be cleared and filled with the
-//        set of definitions strings.
-//
+
 
   SpecTcl& api(*(SpecTcl::getInstance()));
   rvProperties.erase(rvProperties.begin(), rvProperties.end());
@@ -338,39 +342,37 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties, const char
     if (Tcl_StringMatch(name, pattern) )
       {
 	CSpectrum* rSpec((*p).second);
-	rvProperties.push_back(DescribeSpectrum(*rSpec));
+	rvProperties.push_back(DescribeSpectrum(*rSpec, showGates));
       }
   }
 }
 
 
+/*!
+ Produces a string describing the selected
+ spectrum.  The spectrum properties are given in
+ the form:
+       id   name  dimensions {parameterlist} {resolutionlist} ?gatename?
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    Int_t ListSpectrum ( CTCLResult& rResult, UInt_t nId )
-//  Operation Type:
-//     Interface
-//
+    \param   rResult CTCLResult& 
+          References the command result string.
+    \param  nId UInt_t
+         Identifier of the spectrum to describe.
+    \param showGate : bool [false]
+         This is passeed on to DescribeSpectrum if true, the
+         name of the gate on each spectrum is also provided.
+    \return int
+       \retval TCL_OK    If the spectrum properties
+                                       could be retrieved, then rResult
+                                       contains the property list.
+       \retval TCL_ERROR If there was a problem and then
+                                         rResult provides the details.
+*/
 Int_t 
-CSpectrumPackage::ListSpectrum(CTCLResult& rResult, UInt_t nId) 
+CSpectrumPackage::ListSpectrum(CTCLResult& rResult, UInt_t nId,
+			       bool showGates) 
 {
-// Produces a string describing the selected
-// spectrum.  The spectrum properties are given in
-// the form:
-//       id   name  dimensions {parameterlist} {resolutionlist}
-//
-// Formal Parameters:
-//     CTCLResult&   rResult:
-//          References the command result string.
-//     UInt_t  nId:
-//         Identifier of the spectrum to describe.
-// Returns:
-//     TCL_OK                  - If the spectrum properties
-//                                       could be retrieved, then rResult
-//                                       contains the property list.
-//      TCL_ERROR         - If there was a problem and then
-//                                       rResult provides the details.
+
 
   SpecTcl& api(*(SpecTcl::getInstance()));
   CSpectrum* pSpec(0);
@@ -385,7 +387,7 @@ CSpectrumPackage::ListSpectrum(CTCLResult& rResult, UInt_t nId)
 
 
   if(pSpec) {
-    rResult += DescribeSpectrum(*pSpec);
+    rResult += DescribeSpectrum(*pSpec, showGates);
     return TCL_OK;
   }
   else {
@@ -1550,12 +1552,16 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
 
    \param <tt> rSpectrum (CSpectrum& [in]): </tt>
       The spectrum to describe.
+   \param <tt>showGate (bool [in] default = false): </tt>
+      If true, an additional element is added to the spectrum
+      information that lists the name of the gate applied to the
+      spectrum.
 
    \retval std::string
        A description of the spectrum (TCL list rendered as a string)
 */
 std::string
-CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum)
+CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
 {
   // Given a spectrum, describes it in standard form.
 
@@ -1607,6 +1613,13 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum)
   // List the data type:
 
   Description.AppendElement(DataTypeToText(Def.eDataType));
+
+  // If requested, show the gate applied:
+
+  if (showGate) {
+    const CGateContainer&  g(*(rSpectrum.getGate()));
+    Description.AppendElement(g.getName());
+  }
 
   // Return the description string:
 
