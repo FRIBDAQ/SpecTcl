@@ -361,7 +361,7 @@ proc applyGateToSpectra gatename {
     if {[winfo exists .gatedialog]} {
         set appliedTo [.gatedialog cget -applications]
         if {[llength $appliedTo] > 0} {
-            eval apply $gatename $appliedTo
+            eval apply [list $gatename] list $appliedTo
         }
         destroy .gatedialog
         .gui.b update
