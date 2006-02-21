@@ -287,7 +287,7 @@ Please correct your input on the form}
             if {[pseudo -list $name] != ""} {
                 pseudo -delete $name;
             }
-            pseudo [list $name] $depends $body
+            pseudo $name $depends $body
 
             # Refresh the browser to show the new parameter:
 

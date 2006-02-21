@@ -404,3 +404,5 @@ February 21, 2006
   - Add ability to list gates with spectra in SpectrumPackage.cpp's 
     DescribeSpectrum and immediate callers.
   - Add -showgate switch to -list operation on spectrum command.
+  - Fix PseudoScript.cpp - did not properly handle cases where pseudo names
+    had spaces in them.
