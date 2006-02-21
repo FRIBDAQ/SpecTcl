@@ -239,9 +239,7 @@ snit::widget applyGateToMultiple {
     # Parameters:
     #    path   -Path to a spectrum.
     method selectSpectrum path {
-	puts $path
         set name [pathToName $path]
-	puts $name
         $win.spectra insert end  $name
 
         $win.browser update
