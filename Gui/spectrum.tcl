@@ -1089,7 +1089,7 @@ proc saveSeveralSpectra {} {
                 set dir    [file dirname $filter]
                 set file   [file join $dir $file]
             }
-            if {[catch {eval swrite -format ascii [lsit $file] $spectra} msg]} {
+            if {[catch {eval swrite -format ascii [list $file] $spectra} msg]} {
                 tk_messageBox -icon error -title "Failed!" \
                     -message "Could not write [join $spectra {, }] to $file : $msg"
             }
