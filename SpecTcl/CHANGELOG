@@ -406,3 +406,5 @@ February 21, 2006
   - Add -showgate switch to -list operation on spectrum command.
   - Fix PseudoScript.cpp - did not properly handle cases where pseudo names
     had spaces in them.
+February 23, 2006
+  - Fix typo in Gui/spectrum.tcl
