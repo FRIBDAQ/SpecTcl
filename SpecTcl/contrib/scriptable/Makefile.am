@@ -146,7 +146,7 @@ unittest_SOURCES = SegUnpackerTest.cpp ModuleTest.cpp PacketTest.cpp CreatorTest
 
 unittest_DEPENDENCIES = $(Main_Objects)
 
-unittest_LDFLAGS = $(CPPUNIT_LDFLAGS) \
+unittest_LDFLAGS = $(Main_Objects) $(CPPUNIT_LDFLAGS) \
 	-L@top_srcdir@/SpecTcl -lTclGrammerCommands \
 	-L@top_srcdir@/Sorter -lSorting \
 	-L@top_srcdir@/Xamine -lXplus  \

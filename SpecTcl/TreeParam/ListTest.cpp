@@ -60,7 +60,7 @@ void ListTests::ListAll() {
   ListVisitor listAll("*", *m_pResult);
   for_each(CTreeParameter::begin(), CTreeParameter::end(), listAll);
 
-  CTCLList List(m_pInterp, string((const char*)(*m_pResult)));
+  CTCLList List(m_pInterp, string((*m_pResult)));
   StringArray list;
   List.Split(list);
 
@@ -76,7 +76,7 @@ ListTests::ListOne()
   ListVisitor listAll("*.00", *m_pResult);
   for_each(CTreeParameter::begin(), CTreeParameter::end(), listAll);
 
-  CTCLList List(m_pInterp, string((const char*)(*m_pResult)));
+  CTCLList List(m_pInterp, string((*m_pResult)));
   StringArray list;
   List.Split(list);
 

@@ -348,15 +348,19 @@ void CalibManager::EvalTest()
     ASSERT(anEvent[1].isValid());
     ASSERT(anEvent[2].isValid());
 
-    // and the elements should have correct values:
+    // and the elements should have correct values: to within the 
+    // spread out +/- 0.5
 
     float y      = (float)i*2.0;
     float actual = anEvent[1]; 
-    EQMSG("Element 1: ", y, actual);
+    float delta  = fabs(y - actual);
+    ASSERT(delta <= 0.5*2.0);
 
     y      = (float)i*2.0 + 5.0;
     actual = anEvent[2]; 
-    EQMSG("Element2: ", y, actual);
+    delta  = fabs(y - actual);
+    ASSERT(delta < 0.5*2.0);
+
   }
 }
 

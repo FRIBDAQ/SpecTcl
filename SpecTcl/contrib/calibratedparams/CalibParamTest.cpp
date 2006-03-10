@@ -11,7 +11,7 @@ using namespace std;
 #include <CCalibratedParameter.h>
 #include <Event.h>
 #include <CLinearFit.h>
-
+#include <math.h>
 
 
 // Test for the calibrated parameter class.
@@ -123,6 +123,7 @@ Test Description
    1.	Construct a fit and perform it such that it will yield y = 2*x+1
    2.	Construct a calibrated parameter with this fit.
    3.	Run several concocted events through the parameter checking that they all compute to y= 2*x+1.
+        within +/- 0.5*slope due to the randomized undiscetation.
 Expected Results	
    1.	NA
    2.	NA
@@ -155,7 +156,10 @@ CalibratedParameterTest::FunctionCall()
     
     float result = (double)i*2.0 + 1.0;
     float calibrated = event[1];
-    EQMSG("comparison", result, calibrated);
+    float delta = fabs(result - calibrated);
+    ASSERT(delta <= 0.5*2.0);
+
+    //    EQMSG("comparison", result, calibrated);
 
   }
 }
@@ -170,6 +174,10 @@ Test Description
 Expected Results	
    4.	Initial fit should be equal to replaced fit.
    5.	Parameter should evaluate using new fit.
+        note that since the input parameter gets
+        spread across +/- .5 there will not be an
+        exact comparison.. The comparison should be
+        within +/- 0.5*slope.
 
  */
 void
@@ -219,6 +227,8 @@ CalibratedParameterTest::FitChange()
 
     float result = ((float)i)*3.0 - 5.0;
     float calib  = event[1];
-    EQMSG("Comparison", result, calib);
+    float delta  = fabs(result - calib);
+    ASSERT(delta <= 0.5*3.0);
+
   }
 }

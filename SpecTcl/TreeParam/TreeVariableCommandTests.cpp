@@ -48,7 +48,7 @@ private:
 public:
   void setUp() {
     TreeTestSupport::InitTestInterpreter();
-    m_pCommand   = new CTreeVariableCommand;
+    m_pCommand   = new CTreeVariableCommand(TreeTestSupport::getInterpreter());
     m_pIndividual= new CTreeVariable("indiv", 1.234, "cm");
     m_pArray     = new CTreeVariableArray("multi", 5.432,  "in", 10, 10);
     m_pInterp    = TreeTestSupport::getInterpreter();

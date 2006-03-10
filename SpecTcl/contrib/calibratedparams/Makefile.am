@@ -25,7 +25,6 @@ MainObjects = CFit.o \
 	  CLinearFitCreator.o    \
 	CCalibratedParameter.o  \
 	CCalibratedParameterManager.o
-	
 
 
 libCalibrations_la_SOURCES = $(MainSources) CCalibratedParameterCommand.cpp 
@@ -82,7 +81,7 @@ unittests_DEPENDENCIES = $(MainObjects)
 
 TestObjects=@top_srcdir@/Events/Event.o @top_srcdir@/SpecTcl/EventProcessor.o
 
-unittests_LDFLAGS = $(TestObjects) $(CPPUNIT_LDFLAGS) -L@top_srcdir@/TCL -ltclPlus  \
+unittests_LDFLAGS = $(TestObjects) $(unittests_DEPENDENCIES) $(CPPUNIT_LDFLAGS) -L@top_srcdir@/TCL -ltclPlus  \
 	-L@top_srcdir@/NSCLException -lException \
 	-lgsl -lgslcblas -lm $(TCL_LDFLAGS)
 

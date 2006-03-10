@@ -118,14 +118,16 @@ docbuftests_DEPENDENCIES = DocumentationException.o  \
 	DocumentationCallback.o
 
 
-scalertests_LDFLAGS= -L@top_srcdir@/Events -lAnalysis \
+commonTestLdFlags= -L@top_srcdir@/Events -lAnalysis \
 	-L@top_srcdir@/TCL -ltclPlus \
 	-L@top_srcdir@/NSCLException -lException \
 	-L@top_srcdir@/Analysis -lBufferAnalysis \
 	$(CPPUNIT_LDFLAGS)
 
+scalertests_LDFLAGS= ScalerProcessorCallbacks.o $(commonTestLdFlags)
 
-docbuftests_LDFLAGS = $(scalertests_LDFLAGS)
+docbuftests_LDFLAGS = DocumentationException.o DocumentationCallback.o \
+	$(commonTestLdFlags)
 
 TESTS = ./scalertests ./docbuftests
 
