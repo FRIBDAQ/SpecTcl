@@ -256,7 +256,7 @@ void CommandTest::ListTest()
 			  0, (char**)NULL); // Default pattern is *.
   EQMSG("list *", TCL_OK, status);
   
-  CTCLList listall(m_pInterp, (const char*)(*m_pResult));
+  CTCLList listall(m_pInterp, (string)(*m_pResult));
   StringArray elements;
   EQMSG("list * split status", TCL_OK,  listall.Split(elements));
   EQMSG("list * size", (size_t)3, elements.size());
@@ -269,7 +269,7 @@ void CommandTest::ListTest()
   status  = m_pFitCommand->List_parse(*m_pInterp, *m_pResult,
 				      listpattern_count, listpattern_args);
   EQMSG("list fit*", TCL_OK, status);
-  CTCLList listfitstar(m_pInterp, (const char*)(*m_pResult));
+  CTCLList listfitstar(m_pInterp, string(*m_pResult));
   EQMSG("list fit* split status", TCL_OK, listfitstar.Split(elements));
   EQMSG("list fit* size", (size_t)2, elements.size());
   elements.erase(elements.begin(), elements.end());
@@ -281,7 +281,7 @@ void CommandTest::ListTest()
   status  = m_pFitCommand->List_parse(*m_pInterp, *m_pResult,
 				      listpattern_count, listpattern_args);
   EQMSG("list fit*", TCL_OK, status);
-  CTCLList listgeorge(m_pInterp, (const char*)(*m_pResult));
+  CTCLList listgeorge(m_pInterp, string(*m_pResult));
   EQMSG("list george split status", TCL_OK, listgeorge.Split(elements));
   EQMSG("list george size", (size_t)1, elements.size());
 
@@ -441,7 +441,7 @@ void CommandTest::Perform()
 
   // There should be 3 elements in the result list:
 
-  CTCLList params(m_pInterp, (const char*)(*m_pResult));
+  CTCLList params(m_pInterp, string(*m_pResult));
   vector<string> parameters;
   params.Split(parameters);
   EQMSG("num params:", (size_t)3, parameters.size());
@@ -519,7 +519,7 @@ void CommandTest::Evaluate()
 					       argc, argv);
 
     EQMSG("Eval status: ", TCL_OK, status);
-    string result((const char*)*m_pResult);
+    string result(*m_pResult);
     double value;
     sscanf(result.c_str(), "%lf", &value);
     double actual = (*pFit)(x);

@@ -328,11 +328,9 @@ PacketTest::cmdListTest()
   // Add the modules via TCL command: and list...
 
   m_pInterp->Eval("top add dum1 dum2\n");
-  m_pInterp->Eval("top list\n");
+  string result(m_pInterp->Eval("top list\n"));
 
-  CTCLResult r(m_pInterp);
   
-  string result((const char*)r);
   EQ(string("{dum1 Testsegment} {dum2 Testsegment}"), result);
   
   delete pm1;

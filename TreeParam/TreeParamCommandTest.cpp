@@ -51,7 +51,7 @@ public:
   void setUp() {
    
     TreeTestSupport::InitTestInterpreter();
-    m_pCommand = new CTreeParameterCommand; // With default interp.
+    m_pCommand = new CTreeParameterCommand(TreeTestSupport::getInterpreter()); // With default interp.
 
     m_pIndividual = new CTreeParameter("moe", "cm");
     m_pArray      = new CTreeParameterArray("george", "mm", 10, 0);
@@ -189,6 +189,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TreeCommandTest);
 
 string sbusage ="Usage:\n\
      treeparameter -list ?pattern?\n\
+     treeparameter -listnew\n\
      treeparameter -set name bins low high inc units\n\
      treeparameter -setinc name inc\n\
      treeparameter -setbins name bins\n\
@@ -196,6 +197,7 @@ string sbusage ="Usage:\n\
      treeparameter -setlimits name low high\n\
      treeparameter -check name\n\
      treeparameter -uncheck name\n\
+     treeparameter -create  name low high bins units\n\
      treeparameter -version";
 
 void TreeCommandTest::UsageTest() 

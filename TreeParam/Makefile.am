@@ -105,7 +105,7 @@ TestRunner_SOURCES = ListTest.cpp       SetWidthTest.cpp          TreeParameterT
 
 TestRunner_DEPENDENCIES = $(LibraryObjects)
 
-TestRunner_LDFLAGS = -L@top_srcdir@/TCL -ltclPlus \
+TestRunner_LDFLAGS = $(LibraryObjects) -L@top_srcdir@/TCL -ltclPlus \
 	 -L@top_srcdir@/NSCLException -lException \
 	-L@top_srcdir@/Events -lAnalysis \
 	$(TCL_LDFLAGS) $(CPPUNIT_LDFLAGS)
