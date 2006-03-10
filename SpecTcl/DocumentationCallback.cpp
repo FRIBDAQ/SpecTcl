@@ -35,7 +35,7 @@ using namespace std;
 
 /*!
    Construct a documentation callback.  Documentation callbacks are associated with
-   a TCL Interpreter.  The interpreter is either one that the use already has in mind,
+   a TCL Interpreter.  The interpreter is either one that the user already has in mind,
    or one that is created for the sole purpose of maintaining the reconstructed TCL
    variables in the documentation buffers. 
 

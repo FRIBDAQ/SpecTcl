@@ -66,7 +66,7 @@ public:
 			CCalibratedParameter* pParam = entry.second;
 
 			string item(CCalibratedParameterCommand::FormatParameter(name,
-						  										   *pParam));
+										 *pParam));
 			m_rResult.AppendElement(item);
 
 		}
