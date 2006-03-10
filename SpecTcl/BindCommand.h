@@ -338,18 +338,10 @@ public:
 			//Operator= Assignment Operator - illegal
 private:
   CBindCommand& operator= (const CBindCommand& aCBindCommand);
+  int operator==(const CBindCommand& rhs) const;
+  int operator!=(const CBindCommand& rhs) const;
 public:
 
-
-			//Operator== Equality Operator - legal but weird.
-
-  int operator== (const CBindCommand& aCBindCommand)
-  { 
-    return (
-	    (CTCLPackagedCommand::operator== (aCBindCommand)) 
-
-	    );
-  }                             
   // Operations:
 
 public:                       

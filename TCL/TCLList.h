@@ -292,6 +292,10 @@ DAMAGES.
 /*!
     Change Log:
     $Log$
+    Revision 5.3  2006/03/10 14:21:53  ron-fox
+    Migrate TCL Interfaces to object form and remove direct
+    references to interp->result
+
     Revision 5.2  2005/06/03 15:19:30  ron-fox
     Part of breaking off /merging branch to start 3.1 development
 
@@ -307,6 +311,10 @@ DAMAGES.
 
     Revision 4.2  2003/03/25 12:01:28  ron-fox
     Added Change log comment generated from the CVS $Log$
+    Added Change log comment generated from the CVS Revision 5.3  2006/03/10 14:21:53  ron-fox
+    Added Change log comment generated from the CVS Migrate TCL Interfaces to object form and remove direct
+    Added Change log comment generated from the CVS references to interp->result
+    Added Change log comment generated from the CVS
     Added Change log comment generated from the CVS Revision 5.2  2005/06/03 15:19:30  ron-fox
     Added Change log comment generated from the CVS Part of breaking off /merging branch to start 3.1 development
     Added Change log comment generated from the CVS
@@ -320,7 +328,6 @@ DAMAGES.
     Added Change log comment generated from the CVS Fix a defect discovered in TCLList::operator= attempt to allow variables
     Added Change log comment generated from the CVS as axis specs (failed).
     Added Change log comment generated from the CVS tag.
-
 */
 #ifndef __TCLLIST_H  //Required for current class
 #define __TCLLIST_H

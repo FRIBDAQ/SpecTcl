@@ -86,14 +86,10 @@ public:
 			//Operator= Assignment Operator - Illegal;
 private:
   CSpectrumCommand& operator= (const CSpectrumCommand& aCSpectrumCommand);
+  int operator==(const CSpectrumCommand& rhs);
+  int operator!=(const CSpectrumCommand& rhs);
 public:
 
-			//Operator== Equality Operator - legal but...
-  
-  int operator== (const CSpectrumCommand& aCSpectrumCommand)
-  { 
-    return ((CTCLPackagedCommand::operator== (aCSpectrumCommand)));
-  }                             
   // Operations:
 
 public:  

@@ -298,6 +298,10 @@ DAMAGES.
 /* 
    Change Log:
    $Log$
+   Revision 5.3  2006/03/10 14:21:53  ron-fox
+   Migrate TCL Interfaces to object form and remove direct
+   references to interp->result
+
    Revision 5.2  2005/06/03 15:19:30  ron-fox
    Part of breaking off /merging branch to start 3.1 development
 
@@ -309,6 +313,10 @@ DAMAGES.
 
    Revision 4.4  2003/03/25 12:00:45  ron-fox
    Added Change log comment generated from the CVS $Log$
+   Added Change log comment generated from the CVS Revision 5.3  2006/03/10 14:21:53  ron-fox
+   Added Change log comment generated from the CVS Migrate TCL Interfaces to object form and remove direct
+   Added Change log comment generated from the CVS references to interp->result
+   Added Change log comment generated from the CVS
    Added Change log comment generated from the CVS Revision 5.2  2005/06/03 15:19:30  ron-fox
    Added Change log comment generated from the CVS Part of breaking off /merging branch to start 3.1 development
    Added Change log comment generated from the CVS
@@ -416,7 +424,7 @@ public:
     return Eval(rScript.c_str()); 
   }
   //
-  // Evaluate a scripts tored in a file.
+  // Evaluate a scripts stored in a file.
   //
   STD(string) EvalFile (const char* pFilename)   ;
   STD(string) EvalFile(const CTCLString& rFilename)  {

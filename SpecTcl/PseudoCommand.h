@@ -360,13 +360,10 @@ private:
   // Operator= Assignment Operator 
   
   CPseudoCommand& operator= (const CPseudoCommand& aCPseudoCommand);
+  int operator==(const CPseudoCommand& rhs) const;
+  int operator!=(const CPseudoCommand& rhs) const;
 public:
-  
-  //Operator== Equality Operator 
-  
-  int operator== (const CPseudoCommand& aCPseudoCommand) const {
-    return CTCLPackagedCommand::operator==(aCPseudoCommand);
-  }
+
   
   // Class operations.  
   

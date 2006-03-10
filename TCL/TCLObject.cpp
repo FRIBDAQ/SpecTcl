@@ -1,280 +1,19 @@
 /*
-		    GNU GENERAL PUBLIC LICENSE
-		       Version 2, June 1991
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2005.
 
- Copyright (C) 1989, 1991 Free Software Foundation, Inc.
-                       59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
 
-			    Preamble
+     http://www.gnu.org/licenses/gpl.txt
 
-  The licenses for most software are designed to take away your
-freedom to share and change it.  By contrast, the GNU General Public
-License is intended to guarantee your freedom to share and change free
-software--to make sure the software is free for all its users.  This
-General Public License applies to most of the Free Software
-Foundation's software and to any other program whose authors commit to
-using it.  (Some other Free Software Foundation software is covered by
-the GNU Library General Public License instead.)  You can apply it to
-your programs, too.
-
-  When we speak of free software, we are referring to freedom, not
-price.  Our General Public Licenses are designed to make sure that you
-have the freedom to distribute copies of free software (and charge for
-this service if you wish), that you receive source code or can get it
-if you want it, that you can change the software or use pieces of it
-in new free programs; and that you know you can do these things.
-
-  To protect your rights, we need to make restrictions that forbid
-anyone to deny you these rights or to ask you to surrender the rights.
-These restrictions translate to certain responsibilities for you if you
-distribute copies of the software, or if you modify it.
-
-  For example, if you distribute copies of such a program, whether
-gratis or for a fee, you must give the recipients all the rights that
-you have.  You must make sure that they, too, receive or can get the
-source code.  And you must show them these terms so they know their
-rights.
-
-  We protect your rights with two steps: (1) copyright the software, and
-(2) offer you this license which gives you legal permission to copy,
-distribute and/or modify the software.
-
-  Also, for each author's protection and ours, we want to make certain
-that everyone understands that there is no warranty for this free
-software.  If the software is modified by someone else and passed on, we
-want its recipients to know that what they have is not the original, so
-that any problems introduced by others will not reflect on the original
-authors' reputations.
-
-  Finally, any free program is threatened constantly by software
-patents.  We wish to avoid the danger that redistributors of a free
-program will individually obtain patent licenses, in effect making the
-program proprietary.  To prevent this, we have made it clear that any
-patent must be licensed for everyone's free use or not licensed at all.
-
-  The precise terms and conditions for copying, distribution and
-modification follow.
-
-		    GNU GENERAL PUBLIC LICENSE
-   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
-  0. This License applies to any program or other work which contains
-a notice placed by the copyright holder saying it may be distributed
-under the terms of this General Public License.  The "Program", below,
-refers to any such program or work, and a "work based on the Program"
-means either the Program or any derivative work under copyright law:
-that is to say, a work containing the Program or a portion of it,
-either verbatim or with modifications and/or translated into another
-language.  (Hereinafter, translation is included without limitation in
-the term "modification".)  Each licensee is addressed as "you".
-
-Activities other than copying, distribution and modification are not
-covered by this License; they are outside its scope.  The act of
-running the Program is not restricted, and the output from the Program
-is covered only if its contents constitute a work based on the
-Program (independent of having been made by running the Program).
-Whether that is true depends on what the Program does.
-
-  1. You may copy and distribute verbatim copies of the Program's
-source code as you receive it, in any medium, provided that you
-conspicuously and appropriately publish on each copy an appropriate
-copyright notice and disclaimer of warranty; keep intact all the
-notices that refer to this License and to the absence of any warranty;
-and give any other recipients of the Program a copy of this License
-along with the Program.
-
-You may charge a fee for the physical act of transferring a copy, and
-you may at your option offer warranty protection in exchange for a fee.
-
-  2. You may modify your copy or copies of the Program or any portion
-of it, thus forming a work based on the Program, and copy and
-distribute such modifications or work under the terms of Section 1
-above, provided that you also meet all of these conditions:
-
-    a) You must cause the modified files to carry prominent notices
-    stating that you changed the files and the date of any change.
-
-    b) You must cause any work that you distribute or publish, that in
-    whole or in part contains or is derived from the Program or any
-    part thereof, to be licensed as a whole at no charge to all third
-    parties under the terms of this License.
-
-    c) If the modified program normally reads commands interactively
-    when run, you must cause it, when started running for such
-    interactive use in the most ordinary way, to print or display an
-    announcement including an appropriate copyright notice and a
-    notice that there is no warranty (or else, saying that you provide
-    a warranty) and that users may redistribute the program under
-    these conditions, and telling the user how to view a copy of this
-    License.  (Exception: if the Program itself is interactive but
-    does not normally print such an announcement, your work based on
-    the Program is not required to print an announcement.)
-
-These requirements apply to the modified work as a whole.  If
-identifiable sections of that work are not derived from the Program,
-and can be reasonably considered independent and separate works in
-themselves, then this License, and its terms, do not apply to those
-sections when you distribute them as separate works.  But when you
-distribute the same sections as part of a whole which is a work based
-on the Program, the distribution of the whole must be on the terms of
-this License, whose permissions for other licensees extend to the
-entire whole, and thus to each and every part regardless of who wrote it.
-
-Thus, it is not the intent of this section to claim rights or contest
-your rights to work written entirely by you; rather, the intent is to
-exercise the right to control the distribution of derivative or
-collective works based on the Program.
-
-In addition, mere aggregation of another work not based on the Program
-with the Program (or with a work based on the Program) on a volume of
-a storage or distribution medium does not bring the other work under
-the scope of this License.
-
-  3. You may copy and distribute the Program (or a work based on it,
-under Section 2) in object code or executable form under the terms of
-Sections 1 and 2 above provided that you also do one of the following:
-
-    a) Accompany it with the complete corresponding machine-readable
-    source code, which must be distributed under the terms of Sections
-    1 and 2 above on a medium customarily used for software interchange; or,
-
-    b) Accompany it with a written offer, valid for at least three
-    years, to give any third party, for a charge no more than your
-    cost of physically performing source distribution, a complete
-    machine-readable copy of the corresponding source code, to be
-    distributed under the terms of Sections 1 and 2 above on a medium
-    customarily used for software interchange; or,
-
-    c) Accompany it with the information you received as to the offer
-    to distribute corresponding source code.  (This alternative is
-    allowed only for noncommercial distribution and only if you
-    received the program in object code or executable form with such
-    an offer, in accord with Subsection b above.)
-
-The source code for a work means the preferred form of the work for
-making modifications to it.  For an executable work, complete source
-code means all the source code for all modules it contains, plus any
-associated interface definition files, plus the scripts used to
-control compilation and installation of the executable.  However, as a
-special exception, the source code distributed need not include
-anything that is normally distributed (in either source or binary
-form) with the major components (compiler, kernel, and so on) of the
-operating system on which the executable runs, unless that component
-itself accompanies the executable.
-
-If distribution of executable or object code is made by offering
-access to copy from a designated place, then offering equivalent
-access to copy the source code from the same place counts as
-distribution of the source code, even though third parties are not
-compelled to copy the source along with the object code.
-
-  4. You may not copy, modify, sublicense, or distribute the Program
-except as expressly provided under this License.  Any attempt
-otherwise to copy, modify, sublicense or distribute the Program is
-void, and will automatically terminate your rights under this License.
-However, parties who have received copies, or rights, from you under
-this License will not have their licenses terminated so long as such
-parties remain in full compliance.
-
-  5. You are not required to accept this License, since you have not
-signed it.  However, nothing else grants you permission to modify or
-distribute the Program or its derivative works.  These actions are
-prohibited by law if you do not accept this License.  Therefore, by
-modifying or distributing the Program (or any work based on the
-Program), you indicate your acceptance of this License to do so, and
-all its terms and conditions for copying, distributing or modifying
-the Program or works based on it.
-
-  6. Each time you redistribute the Program (or any work based on the
-Program), the recipient automatically receives a license from the
-original licensor to copy, distribute or modify the Program subject to
-these terms and conditions.  You may not impose any further
-restrictions on the recipients' exercise of the rights granted herein.
-You are not responsible for enforcing compliance by third parties to
-this License.
-
-  7. If, as a consequence of a court judgment or allegation of patent
-infringement or for any other reason (not limited to patent issues),
-conditions are imposed on you (whether by court order, agreement or
-otherwise) that contradict the conditions of this License, they do not
-excuse you from the conditions of this License.  If you cannot
-distribute so as to satisfy simultaneously your obligations under this
-License and any other pertinent obligations, then as a consequence you
-may not distribute the Program at all.  For example, if a patent
-license would not permit royalty-free redistribution of the Program by
-all those who receive copies directly or indirectly through you, then
-the only way you could satisfy both it and this License would be to
-refrain entirely from distribution of the Program.
-
-If any portion of this section is held invalid or unenforceable under
-any particular circumstance, the balance of the section is intended to
-apply and the section as a whole is intended to apply in other
-circumstances.
-
-It is not the purpose of this section to induce you to infringe any
-patents or other property right claims or to contest validity of any
-such claims; this section has the sole purpose of protecting the
-integrity of the free software distribution system, which is
-implemented by public license practices.  Many people have made
-generous contributions to the wide range of software distributed
-through that system in reliance on consistent application of that
-system; it is up to the author/donor to decide if he or she is willing
-to distribute software through any other system and a licensee cannot
-impose that choice.
-
-This section is intended to make thoroughly clear what is believed to
-be a consequence of the rest of this License.
-
-  8. If the distribution and/or use of the Program is restricted in
-certain countries either by patents or by copyrighted interfaces, the
-original copyright holder who places the Program under this License
-may add an explicit geographical distribution limitation excluding
-those countries, so that distribution is permitted only in or among
-countries not thus excluded.  In such case, this License incorporates
-the limitation as if written in the body of this License.
-
-  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
-
-Each version is given a distinguishing version number.  If the Program
-specifies a version number of this License which applies to it and "any
-later version", you have the option of following the terms and conditions 
-either of that version or of any later version published by the Free Software 
-Foundation.  If the Program does not specify a version number of this License,
- you may choose any version ever published by the Free Software Foundation.
-
-  10. If you wish to incorporate parts of the Program into other free
-programs whose distribution conditions are different, write to the author to 
-ask for permission.  For software which is copyrighted by the Free Software 
-Foundation, write to the Free Software Foundation; we sometimes make 
-exceptions for this.  Our decision will be guided by the two goals of 
-preserving the free status of all derivatives of our free software and of 
-promoting the sharing and reuse of software generally.
-
-			    NO WARRANTY
-
-  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
-THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN 
-OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE 
-THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND 
-PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, 
-YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
-
-  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING 
-WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR 
-REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, 
-INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING 
-OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO 
-LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR 
-THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), 
-EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
-DAMAGES.
-
-		     END OF TERMS AND CONDITIONS '
+     Author:
+             Ron Fox
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
 */
+
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 // Class: CTCLObject
 
@@ -331,14 +70,8 @@ CTCLObject::operator= (const CTCLObject& aCTCLObject)
   // Assigns This object from the aCTCLObject and returns *this.
   // This assignment is a non sharing one.
 
-  if(this != &aCTCLObject) {
-    CTCLInterpreterObject::operator=(aCTCLObject);
-    Tcl_DecrRefCount(m_pObject);
-    m_pObject = Tcl_DuplicateObj(aCTCLObject.m_pObject);
-    Tcl_IncrRefCount(m_pObject);
-  }
+  return operator=(aCTCLObject.m_pObject);
 
-  return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -354,9 +87,7 @@ CTCLObject& CTCLObject::operator=(const string& rSource)
   // Formal Parameters:
   //    const string& rSource
 
-  DupIfMust();
-  Tcl_SetStringObj(m_pObject, (char*)(rSource.c_str()), -1);
-  return *this;
+  return operator=(rSource.c_str());
 }
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -372,6 +103,7 @@ CTCLObject& CTCLObject::operator=(const char* pSource)
   // Formal Parameters:
   //    const char* pSource
   
+  NewIfMust();			// Don't overwrite shared obj.
   Tcl_SetStringObj(m_pObject, (char*)pSource, -1);
   return *this;
 
@@ -389,7 +121,7 @@ CTCLObject& CTCLObject::operator=(int nSource)
   // Formal Paramters:
   //    int nSource
   
-  DupIfMust();
+  NewIfMust();			// Don't ovewrite shared obj.
   Tcl_SetIntObj(m_pObject, nSource);
   return *this;
 }
@@ -408,8 +140,10 @@ CTCLObject& CTCLObject::operator=(const CTCLList& rList)
   // Formal Parameters:
   //     const CTCLList& rList
   
-  DupIfMust();
+  NewIfMust();			// Don't ovewrite shared obj.
   Tcl_SetStringObj(m_pObject, (char*)rList.getList(), -1);
+  Bind(rList.getInterpreter());
+  
   return *this;
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -422,10 +156,26 @@ CTCLObject& CTCLObject::operator=(double dSource)
 {
   // Assigns a double to the object.
  
-  DupIfMust();
+  NewIfMust();			// Dont' ovewrite shared obj.
   Tcl_SetDoubleObj(m_pObject, dSource);
   return *this;
 }
+///////////////////////////////////////////////////////////////////////////////
+/*!
+    Assign to *this from another object.
+*/
+CTCLObject&
+CTCLObject::operator=(Tcl_Obj* rhs)
+{
+
+  if (rhs != m_pObject) {	// If we don't check this rhs could get released.
+    Tcl_DecrRefCount(m_pObject);
+    m_pObject = rhs;
+    Tcl_IncrRefCount(m_pObject);
+  }
+  return *this;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
@@ -454,7 +204,7 @@ CTCLObject::operator int()
 				 m_pObject, &result);
   if(Retval != TCL_OK) {
     throw CTCLException(*pInterp, Retval, 
-		  "CTCLObject::oeprator int - Conversion to int failed");
+		  "CTCLObject::operator int - Conversion to int failed");
   }
   return result;
   
@@ -467,13 +217,13 @@ CTCLObject::operator int()
 //     Conversion
   CTCLObject::operator CTCLList()  
 {
-  // Converts object to a TCLList  Note that this object will not
-  // be bound to an interpreter.
+  // Converts object to a TCLList  
+
   //
 
   int len;
 
-  return CTCLList(0, Tcl_GetStringFromObj(m_pObject, &len));  
+  return CTCLList(getInterpreter(), (string)*this);  
 }
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -544,12 +294,7 @@ CTCLObject& CTCLObject::operator+=(const string& rItem)
 {
   //  Appends a string to this object as a list element.
   
-  DupIfMust();
-  CTCLInterpreter* pInterp = AssertIfNotBound();
-  CTCLObject obj;
-  obj = rItem;
-  Tcl_ListObjAppendElement(pInterp->getInterpreter(),
-			   m_pObject, obj.m_pObject);
+  return operator+=(rItem.c_str());
   return *this;
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -601,7 +346,9 @@ CTCLObject CTCLObject::clone()
   // Produces a reference to a termporary object
   // which is a duplicate of this, but is not shared.
   
-  return CTCLObject(Tcl_DuplicateObj(m_pObject));
+  CTCLObject result(Tcl_DuplicateObj(m_pObject));
+  result.Bind(*getInterpreter());
+  return result;
 }
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -629,17 +376,249 @@ CTCLObject CTCLObject::operator()()
     return CTCLObject(Tcl_GetObjResult(pInt));
   }
 }
+////////////////////////////////////////////////////////////////////////////
+/*!
+    Get a range of characters from the object.  See Tcl_GetRange
+    for the full semantics of this as all we will do is return
+    an object constructed from the return value of Tcl_GetRange.
 
+    \param first : int
+        First character position to copy.
+    \param last   : int 
+        Last character position (inclusive) to copy.
+  
+    \return CTCLObject
+    \retval  A CTCLObject that is constructed from the output of
+             Tcl_GetRange.
 
+    \note This function will operate on the unicode representation of the string
+          according to the Tcl_GetRange manpage.
+*/
+CTCLObject
+CTCLObject::getRange(int first, int last)
+{
+  CTCLObject result(Tcl_GetRange(m_pObject, first, last));
+  result.Bind(getInterpreter());
+  return result;
+  
+}
+////////////////////////////////////////////////////////////////////////////
+/*!
+    Concatente a rhs object that is assumed to be a list into
+    *this... see Tcl_ListObjAppendList for more information about this
+    function.   Note that if Tcl_ListObjAppendList returns an error,
+    this is mapped to a CTCLException of the appropriate type.
 
+    \param rhs  : CTCLObject&
+         The list of elements that will be concatted with *this.
+         note that to avoid failure, both *this and rhs must be convertible
+         to a valid list format.
+    \return CTCLObject&
+    \retval *this
 
+    \throws  CTCLException if Tcl_ListObjeAppendList returns an error.
 
+    \note *this must be bound to an interpreter.
 
+*/
+CTCLObject&
+CTCLObject::concat(CTCLObject& rhs)
+{
+  CTCLInterpreter* pInterp = AssertIfNotBound();
+  DupIfMust();			// Don't destroy this if shared.
+  int status = Tcl_ListObjAppendList(pInterp->getInterpreter(),
+				     m_pObject, rhs.m_pObject);
+  if(status != TCL_OK) {
+    throw CTCLException(*pInterp, status, 
+			"CTCLObject::concat");
+  }
+  return *this;
+}
+///////////////////////////////////////////////////////////////////////////
+/*!
+    Treating *this as a Tcl List, return its elements as a vector
+    of objects.  This is a wrapper for 
+    Tcl_ListObjGetElements(). 
 
+    \return vector<CTCLObject>
+    \retval elements of *this.
 
+    \throws  CTCLException if Tcl_ListObjGetElements returns an error.
+    \note    *this must be convertible to a properly formatted Tcl list.
+    \note    we require that the object be bound to an interpreter...although
+             strictly speaking the Tcl lib does not require it.
+*/
+vector<CTCLObject>
+CTCLObject::getListElements()
+{
+  int              count;
+  Tcl_Obj**        elements;
+  CTCLInterpreter* pInterp = AssertIfNotBound();
 
+  int status = Tcl_ListObjGetElements(pInterp->getInterpreter(),
+				      m_pObject, &count, &elements);
 
+  if (status != TCL_OK) {
+    throw CTCLException(*pInterp, status, "CTCLObject::getListElements");
+  }
+  vector<CTCLObject> theList;
+  for(int i =0; i < count; i++) {
+    CTCLObject obj(elements[i]);
+    obj.Bind(getInterpreter());
+    theList.push_back(obj);
+  }
+  return theList;
+}
+/////////////////////////////////////////////////////////////////////////
+/*!
+   set the object to a list of elements.  This is an object oriented
+   wrapper for Tcl_SetListObj  
 
+   \param elements : vector<CTCLObject&>
+      The elements that will be used to form this list.
 
+   \return CTCLObject&
+   \retval *this
+*/
+CTCLObject&
+CTCLObject::setList(vector<CTCLObject> elements)
+{
 
+  int   objc  = elements.size();
+  Tcl_Obj** objects = new Tcl_Obj*[objc];
+  for (int i =0; i < objc; i++) {
+    objects[i] = elements[i].m_pObject;
+  }
+  Tcl_Obj* newObject = Tcl_NewListObj(objc, objects);
 
+  // Now replace the object we hold with the one we just created.
+
+  Tcl_DecrRefCount(m_pObject);
+  Tcl_IncrRefCount(newObject);
+  m_pObject = newObject;
+
+  // Kill off our temp storage and...
+  delete [] objects;
+
+  // Return ourselves.
+
+  return *this;
+}
+///////////////////////////////////////////////////////////////////////////
+/*!
+   Retrieve the length of the list this object represents.
+
+   \return int
+   \retval length of list
+
+   \throws  CTCLException if *this cannot be recast as an appropriately
+            formatted list.
+
+   \note we require that *this be bound to an interpreter... somewhat
+         more restrictive a requirement than Tcl_ListObjectLength.
+*/
+int
+CTCLObject::llength()
+{
+  CTCLInterpreter* pInterp = AssertIfNotBound();
+  int length;
+  int status = Tcl_ListObjLength(pInterp->getInterpreter(), m_pObject, &length);
+  if (status != TCL_OK) {
+    throw CTCLException(*pInterp,
+			status, "CTCLObject::llength()");
+
+  }
+  return length;
+			
+}
+///////////////////////////////////////////////////////////////////////////
+/*!
+    Get the element of a list at the specified index.
+    If the index is out of range, an empty element is returned.
+
+    \param index : integer
+       The element number in the list (numbered from 0).
+
+    \return CTCLObject
+    \retval The element returned or an empty object if index is not valid.
+
+    \throws CTCLException if *this cannot be recast as a list.
+
+    \note  We require that *this be bound to an interpreter
+*/
+CTCLObject
+CTCLObject::lindex(int index)
+{
+  CTCLInterpreter* pInterp = AssertIfNotBound();
+  Tcl_Obj*         result(0);
+
+  int status   = Tcl_ListObjIndex(pInterp->getInterpreter(),
+				  m_pObject, index, &result);
+
+  // Conversion failed....
+
+  if (status != TCL_OK) {
+    throw CTCLException(*pInterp, status, "CTCLObject::lindex");
+  }
+  // Could be a null object... or not:
+
+  CTCLObject objResult;
+  objResult.Bind(pInterp);
+  if(result) {
+    objResult = result;
+  }
+  return objResult;
+  
+}
+///////////////////////////////////////////////////////////////////////////
+/*!
+    Replace a range of elements of this treated as a list with
+    another set of objects treated as list elements.
+    
+    \param  first : int
+       First element of the set to replace.
+    \param count  : int
+       Number to replace.
+    \param newElements : vector<CTCLObject&>
+       Elements to replace with.
+  
+    \return CTCLObject&
+    \retval *this
+
+    \throws CTCLException  If *this cannot be converted to a valid list format.
+
+    \note  *this must be bound.
+*/
+CTCLObject&
+CTCLObject::lreplace(int first, int count, vector<CTCLObject> newElements)
+{
+  CTCLInterpreter* pInterp = AssertIfNotBound();
+  int              objc    = newElements.size();
+  Tcl_Obj**        objv    = new Tcl_Obj*[objc];
+
+  /// Marshall the objv:
+
+  for(int i =0; i < objc; i ++) {
+    objv[i] = newElements[i].m_pObject;
+  }
+  // Do the replace:
+
+  DupIfMust();			// If shared split from original..
+
+  int status = Tcl_ListObjReplace(pInterp->getInterpreter(),
+				   m_pObject, 
+				   first, count, objc, objv);
+  // Kill off temp storage...
+
+  delete []objv;
+
+  // Throw if the status was bad or return *this if it was good:
+
+  if (status != TCL_OK) {
+    throw CTCLException(*pInterp, status, "CTCLObject::lreplace");
+  }
+  
+
+  return *this;
+  
+}

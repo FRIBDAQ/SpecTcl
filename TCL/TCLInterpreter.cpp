@@ -345,7 +345,7 @@ CTCLInterpreter::Eval(const char* pScript)
 			Status,
 			"CTCLInterpreter::Eval - Evaluating expression");
   }
-  return std::string(m_pInterpreter->result);
+  return std::string(Tcl_GetStringResult(m_pInterpreter));
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -380,7 +380,7 @@ CTCLInterpreter::EvalFile(const char* pFilename)
 			Status,
 			"CTCLInterpreter::EvalFile - Evaluating file script");;
   }
-  return std::string(m_pInterpreter->result);
+  return std::string(Tcl_GetStringResult(m_pInterpreter));
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -403,7 +403,7 @@ CTCLInterpreter::GlobalEval(const char* pScript)
 			"CTCLInterpreter::Eval - Evaluating expression");
     throw except;
   }
-  return std::string(m_pInterpreter->result);
+  return std::string(Tcl_GetStringResult(m_pInterpreter));
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -437,7 +437,7 @@ CTCLInterpreter::RecordAndEval(const char* pScript, Bool_t fEvaluate)
     throw except;
   }
 
-  return std::string(m_pInterpreter->result);
+  return std::string(Tcl_GetStringResult(m_pInterpreter));
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -460,14 +460,33 @@ CTCLInterpreter::ExprString(const char* pExpression)
 //    The string.  On failure to evaluate,  a
 //    CTCLException is thrown.
 
-  int Status = Tcl_ExprString(m_pInterpreter, (char*)pExpression);
+  Tcl_Obj* expressionObject = Tcl_NewStringObj(pExpression, -1);
+  Tcl_IncrRefCount(expressionObject); // So I can explicitly kill it.
+  Tcl_Obj* resultObject;
+
+  int Status = Tcl_ExprObj(m_pInterpreter, expressionObject, &resultObject);
+  Tcl_DecrRefCount(expressionObject); // Destroy expression.
+
+  // Throw an exception on error (e.g. invalid exception).
+
   if(Status != TCL_OK) {
+    string msg = "CTCLInterpreter::ExprString - Evaluating string expression : ";
+    msg += pExpression;
     CTCLException e(*this,
 		    Status,
-	  "CTCLInterpreter::ExprString - Evaluating string expression");
-    throw e;
+		    msg);
+	  
+    throw e;  
   }
-  return std::string(m_pInterpreter->result);
+
+  // Get the string form of the object, kill the reference count,
+  // and return the string:
+
+  string result(Tcl_GetString(resultObject));
+  Tcl_DecrRefCount(resultObject);
+
+  return result;
+
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -492,17 +511,26 @@ CTCLInterpreter::ExprLong(const char* pExpression)
 //
 // Returns:
 //   The longword value evaluated.
-  Long_t l;
-  int    Status =  Tcl_ExprLong(m_pInterpreter, 
-				(char*)pExpression,
-				&l);
+
+  Tcl_Obj* expressionObject = Tcl_NewStringObj(pExpression, -1);
+  Tcl_IncrRefCount(expressionObject); // So I can explicitly kill it.
+  Long_t result;
+
+  int Status = Tcl_ExprLongObj(m_pInterpreter, expressionObject, &result);
+  Tcl_DecrRefCount(expressionObject); // Destroy expression.
+
+  // Throw an exception on error (e.g. invalid exception).
+
   if(Status != TCL_OK) {
+    string msg = "CTCLInterpreter::ExprString - Evaluating string expression : ";
+    msg += pExpression;
     CTCLException e(*this,
 		    Status,
-		    "CTCLInterpreter::ExprLong - Evaluating long expression");
-    throw e;
+		    msg);
+	  
+    throw e;  
   }
-  return l;
+  return result;
 
 
 }
@@ -529,17 +557,27 @@ CTCLInterpreter::ExprDouble(const char* pExpression)
 // Returns:
 //   The floating point value of the expression
 //
-  DFloat_t f;
-  Int_t    Status = Tcl_ExprDouble(m_pInterpreter, 
-				   (char*)pExpression,
-				   &f);
+
+  Tcl_Obj* expressionObject = Tcl_NewStringObj(pExpression, -1);
+  Tcl_IncrRefCount(expressionObject); // So I can explicitly kill it.
+  DFloat_t result;
+
+  int Status = Tcl_ExprDoubleObj(m_pInterpreter, expressionObject, &result);
+  Tcl_DecrRefCount(expressionObject); // Destroy expression.
+
+  // Throw an exception on error (e.g. invalid exception).
+
   if(Status != TCL_OK) {
+    string msg = "CTCLInterpreter::ExprString - Evaluating string expression : ";
+    msg += pExpression;
     CTCLException e(*this,
 		    Status,
-		    "CTCLInterpreter::ExprDouble - Evaluating dbl expression");
-    throw e;
+		    msg);
+	  
+    throw e;  
   }
-  return f;
+  return result;
+
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -563,16 +601,27 @@ CTCLInterpreter::ExprBoolean(const char*  pExpression)
 //      types.
 // Returns:
 //    The value of the expression.
+  Tcl_Obj* expressionObject = Tcl_NewStringObj(pExpression, -1);
+  Tcl_IncrRefCount(expressionObject); // So I can explicitly kill it.
+  int result;
 
-  Int_t flag;
-  int   Status = Tcl_ExprBoolean(m_pInterpreter, (char*)pExpression, &flag);
+  int Status = Tcl_ExprBooleanObj(m_pInterpreter, expressionObject, &result);
+  Tcl_DecrRefCount(expressionObject); // Destroy expression.
+
+  // Throw an exception on error (e.g. invalid exception).
+
   if(Status != TCL_OK) {
+    string msg = "CTCLInterpreter::ExprString - Evaluating string expression : ";
+    msg += pExpression;
     CTCLException e(*this,
 		    Status,
-		    "CTCLInterpreter::ExprBoolean - Evaluating boolean expr.");
-    throw e;
+		    msg);
+	  
+    throw e;  
   }
-  return (flag ? kfTRUE : kfFALSE);
+
+
+  return (result ? kfTRUE : kfFALSE);
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -798,7 +847,7 @@ CTCLInterpreter::GetResultString() const
 // Returns a string containing the TCL result string
 // if no string has been set, an empty string is returned.
 
-  return std::string(m_pInterpreter->result);
+  return std::string(Tcl_GetStringResult(m_pInterpreter));
 
 }
 

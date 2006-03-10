@@ -26,6 +26,10 @@ CLanguageTraceCallback::CLanguageTraceCallback(VariableTraceCallback* pCallback,
 {
 }
 /*!
+   Destructor is noop.
+*/
+CLanguageTraceCallback::~CLanguageTraceCallback() {}
+/*!
    Function call operator... called for a trace.  We delegate to the
    callback.
    \param pInterp (CTCLInterpreter*)

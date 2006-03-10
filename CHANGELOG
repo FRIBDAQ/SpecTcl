@@ -386,12 +386,10 @@ November 29, 2005
 Decemberr 19, 2005
   - Remove illegal default parameter from PointlistGate.h's InGate with
     parameters.
-
-
-3.1-pre4
 February 1, 2006
   - Factor adding a configuration parameter to a CModule in Scriptable SpecTcl
     into AddParameter member function so extenders can add new parameter types.
+3.1-pre5
 February 17, 2006
   - Factor out multiple identical definitions of some typedefs into
     xamineDataTypes.h
@@ -408,3 +406,6 @@ February 21, 2006
     had spaces in them.
 February 23, 2006
   - Fix typo in Gui/spectrum.tcl
+March 10, 2006
+  - Unit tested migration of TCL++ library to object interfaces (remove
+    deprecated interfaces).

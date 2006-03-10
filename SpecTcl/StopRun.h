@@ -325,14 +325,10 @@ public:
                         // Assignment operator [illegal]
 private:
   CStopRun& operator= (const CStopRun& aCStopRun);
+  int operator==(const CStopRun& rhs) const;
+  int operator!=(const CStopRun& rhs) const;
 public:
 
-			//Operator== Equality Operator [strange but allowed]
-  int operator== (const CStopRun& aCStopRun)
-  { return (
-	    (CTCLPackagedCommand::operator== (aCStopRun)) 
-	    );
-  }                             
   // Operations:
 
 public:

@@ -117,13 +117,10 @@ public:
 
 private:
   CGateCommand& operator= (const CGateCommand& aCGateCommand);
+  int operator==(const CGateCommand& rhs) const;
+  int operator!=(const CGateCommand& rhs) const;
 public:
 
-   //Operator== Equality Operator - Doesn't make sense, but allowed.
-
-  int operator== (const CGateCommand& aCGateCommand) const {
-    return CTCLPackagedCommand::operator==(aCGateCommand);
-  }
 	
   // Class operations:
 public:

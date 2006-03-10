@@ -353,11 +353,10 @@ public:
   //Operator= Assignment Operator [illegal]
 private:
   CAttachCommand& operator=(const CAttachCommand& aCAttachCommand);
+  int operator==(const CAttachCommand& rhs) const;
+  int operator!=(const CAttachCommand& rhs) const;
 public:
-  //Operator== Equality Operator legal, but who cares.
-  int operator==(const CAttachCommand& aCAttachCommand) { 
-    return ((CTCLPackagedCommand::operator== (aCAttachCommand)));
-  }
+
 
   // Operations on the class:
 public:

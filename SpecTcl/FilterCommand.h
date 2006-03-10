@@ -79,11 +79,11 @@ class CFilterCommand : public CTCLProcessor {
   // Operators.
  public:
   virtual int operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
-  int operator==(const CFilterCommand& aCFilterCommand) { // Legal, but weird.
-    return (CTCLProcessor::operator==(aCFilterCommand));
-  }
+
  private:
   CFilterCommand& operator=(const CFilterCommand& aCFilterCommand); // Assignment operator is illegal.
+  int operator==(const CFilterCommand& rhs) const;
+  int operator!=(const CFilterCommand& rhs) const;
 
   // Additional functions.
  public:

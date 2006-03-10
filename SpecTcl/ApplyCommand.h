@@ -342,13 +342,10 @@ public:
    // Operator= Assignment Operator: Illegal
 private:
   CApplyCommand& operator= (const CApplyCommand& aCApplyCommand);
+  int operator==(const CApplyCommand& rhs) const;
+  int operator!=(const CApplyCommand& rhs) const;
 public:
 
-   //Operator== Equality Operator - Makes no sense,but supplied anyway.
-
-  int operator== (const CApplyCommand& aCApplyCommand) {
-    return CTCLPackagedCommand::operator==(aCApplyCommand);
-  }
 public:
 
   virtual   int operator() (CTCLInterpreter& rInterp, 

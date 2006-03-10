@@ -325,13 +325,10 @@ public:
    // Operator= Assignment Operator Illegal
 private:
   CUngateCommand& operator= (const CUngateCommand& aCUngateCommand);
+  int operator==(const CUngateCommand& rhs) const;
+  int operator!=(const CUngateCommand& rhs) const;
 public:
- 
-   //Operator== Equality Operator - nonsense, but allowed:
 
-  int operator== (const CUngateCommand& aCUngateCommand) const {
-    return CTCLPackagedCommand::operator==(aCUngateCommand);
-  }
 	
   // Class operations.
 public:
