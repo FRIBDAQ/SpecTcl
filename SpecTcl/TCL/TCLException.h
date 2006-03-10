@@ -338,7 +338,7 @@ public:
     CException(pString),
     m_nReason(am_nReason)
   {
-    m_ResultText = (const char*)GetResult();
+    m_ResultText = STD(string)(GetResult());
   }
   CTCLException(CTCLInterpreter& am_rInterpreter,
 		Int_t am_nReason,
@@ -347,7 +347,7 @@ public:
     CException(rString),
     m_nReason(am_nReason)
   {
-    m_ResultText = (const char*)GetResult();
+    m_ResultText = STD(string)(GetResult());
   }
   virtual ~CTCLException ( ) { }       //Destructor
 	

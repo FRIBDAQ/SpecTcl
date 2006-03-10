@@ -18,6 +18,7 @@
 #include "UncheckVisitor.h"
 #include <SpecTcl.h>
 #include <histotypes.h>
+#include <TCLResult.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

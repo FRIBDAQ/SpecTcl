@@ -339,14 +339,9 @@ public:
    // Operator= Assignment Operator 
 private:
   ChannelCommand& operator= (const ChannelCommand& aChannelCommand);
+  int operator==(const ChannelCommand& rhs) const;
+  int operator!=(const ChannelCommand& rhs) const;
 public:
-
-
-   //Operator== Equality Operator 
-
-  int operator== (const ChannelCommand& aChannelCommand) const {
-    return CTCLPackagedCommand::operator==(aChannelCommand);
-  }
 	
   // operations:       
 public:

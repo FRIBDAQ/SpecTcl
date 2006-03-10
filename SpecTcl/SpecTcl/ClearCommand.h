@@ -328,14 +328,9 @@ public:
 
 private:
   CClearCommand& operator= (const CClearCommand& aCClearCommand);
+  int operator==(const CClearCommand& rhs) const;
+  int operator!=(const CClearCommand& rhs) const;
 public:
-
-			//Operator== Equality Operator -- allowed but...
-
-  int operator== (const CClearCommand& aCClearCommand)
-  { 
-    return ((CTCLPackagedCommand::operator== (aCClearCommand)) );
-  }                             
 
   // Operations.
 

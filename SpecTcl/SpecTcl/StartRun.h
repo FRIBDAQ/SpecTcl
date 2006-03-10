@@ -321,18 +321,13 @@ public:
 			//Operator= Assignment Operator [illegal]
 private:
   CStartRun& operator= (const CStartRun& aCStartRun);
+  int operator==(const CStartRun& rhs) const;
+  int operator!=(const CStartRun& rhs) const;
 public:
 
 			//Operator== Equality Operator [strange but legal]
 
-  int operator== (const CStartRun& aCStartRun)
-  { 
-    return (
-	    (CTCLPackagedCommand::operator== (aCStartRun))
-
-	    );
-  }                             
-  // class operations:
+  //
 
 public:
   virtual   int operator() (CTCLInterpreter& rInterpreter, 

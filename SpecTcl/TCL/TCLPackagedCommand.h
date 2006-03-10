@@ -337,17 +337,9 @@ public:
 private:
   CTCLPackagedCommand& operator= 
       (const CTCLPackagedCommand& aCTCLPackagedCommand);
+  int operator==(const CTCLPackagedCommand& rhs) const;
+  int operator!=(const CTCLPackagedCommand& rhs) const;
 public:
-
-			//Operator== Equality Operator
-                        // Nonsense maybe, but provided anyway.
-
-  int operator== (const CTCLPackagedCommand& aCTCLPackagedCommand) const
-  { return ( CTCLProcessor::operator==(aCTCLPackagedCommand) &&
-	    (m_rMyPackage == aCTCLPackagedCommand.m_rMyPackage)
-
-	     );
-  }                             
   // Selectors:
 
 public:

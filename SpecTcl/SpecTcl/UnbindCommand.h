@@ -325,14 +325,10 @@ public:
 			//Operator= Assignment Operator -- Illegal
 private:
   CUnbindCommand& operator= (const CUnbindCommand& aCUnbindCommand);
+  int operator==(const CUnbindCommand& rhs) const;
+  int operator!=(const CUnbindCommand& rhs) const;
 public:
 
-			//Operator== Equality Operator - Legal but meaningless
-
-  int operator== (const CUnbindCommand& aCUnbindCommand)
-  { 
-    return ((CTCLPackagedCommand::operator== (aCUnbindCommand)));
-  }                             
   // Operations:
 
 public:             

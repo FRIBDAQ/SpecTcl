@@ -14,16 +14,18 @@ testableSources = TCLInterpreter.cpp TCLProcessor.cpp  \
 	TCLList.cpp TCLException.cpp TCLInterpreterObject.cpp \
 	TCLCommandPackage.cpp TCLIdleProcess.cpp \
 	TCLObject.cpp TCLChannel.cpp TCLTracedVariable.cpp \
-	CLanguageTraceCallbacks.cpp
+	CLanguageTraceCallbacks.cpp TCLObjectProcessor.cpp \
+	TCLCompatibilityProcessor.cpp
 
-testableOjbects = TCLInterpreter.o   TCLProcessor.o    \
+testableObjects = TCLInterpreter.o   TCLProcessor.o    \
 	TCLVariable.o   TCLString.o    \
 	TCLResult.o   TCLTimer.o   TCLFileHandler.o   \
 	TCLList.o   TCLException.o \
 	TCLInterpreterObject.o   \
 	TCLCommandPackage.o   TCLIdleProcess.o   \
 	TCLObject.o   TCLChannel.o   TCLTracedVariable.o   \
-	CLanguageTraceCallbacks.o  
+	CLanguageTraceCallbacks.o  TCLObjectProcessor.o \
+	TCLCompatibilityProcessor.o
 
 libtclPlus_la_SOURCES = TCLApplication.cpp $(testableSources)
 
@@ -35,25 +37,42 @@ include_HEADERS = TCLApplication.h TCLCommandPackage.h TCLException.h \
 	TCLInterpreterObject.h TCLList.h TCLObject.h TCLPackagedCommand.h \
 	TCLProcessor.h TCLResult.h TCLString.h TCLTimer.h TCLVariable.h \
 	TCLChannel.h TCLVersionHacks.h TCLTracedVariable.h \
-	VariableTraceCallback.h CLanguageTraceCallbacks.h
+	VariableTraceCallback.h CLanguageTraceCallbacks.h \
+	TCLObjectProcessor.h TCLCompatibilityProcessor.h
+
 
 
 if CPPUNIT
 
-noinst_PROGRAMS = tracetests
+noinst_PROGRAMS = tracetests interptests
 
 noinst_HEADERS = Asserts.h
+
+
 
 tracetests_SOURCES = TestRunner.cpp \
 			ccallbacktest.cpp \
 			tracevartest.cpp  
 
-tracetests_DEPENDENCIES = $(testableOjects)
+tracetests_DEPENDENCIES = $(testableObjects)
 
-tracetests_LDADD = $(CPPUNIT_LDFLAGS) $(X11EXTRA_LDFLAGS) \
+TestLdflags = $(testableObjects) $(CPPUNIT_LDFLAGS) $(X11EXTRA_LDFLAGS) \
 	-L@top_srcdir@/NSCLException -lException
 
-TESTS = ./tracetests
+
+tracetests_LDADD = $(TestLdflags)
+
+interptests_SOURCES=interpretertest.cpp objecttest.cpp resulttest.cpp \
+	objcommandtest.cpp compatcommand.cpp
+
+
+interptests_LDADD = TestRunner.o $(TestLdflags)
+
+
+interptests_DEPENDENCIES = $(testableObjects) TestRunner.o
+
+
+TESTS = ./tracetests ./interptests
 
 endif
 

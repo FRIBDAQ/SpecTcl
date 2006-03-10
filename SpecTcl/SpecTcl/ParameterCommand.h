@@ -333,14 +333,10 @@ public:
 			//Operator= Assignment Operator [illegal]
 private:
   CParameterCommand& operator= (const CParameterCommand& aCParameterCommand);
+  int operator==(const CParameterCommand& rhs) const;
+  int operator!=(const CParameterCommand& rhs) const;
 public:
-			//Operator== Equality Operator [wierd but..]
 
-  int operator== (const CParameterCommand& aCParameterCommand)
-  { 
-    return (
-	    (CTCLPackagedCommand::operator== (aCParameterCommand)) );
-  }                             
   //
   // Operations on the Object:
   //

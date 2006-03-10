@@ -334,15 +334,10 @@ public:
 			//Operator= Assignment Operator [illegal]
 private:
   CTapeCommand& operator= (const CTapeCommand& aCTapeCommand);
+  int operator==(const CTapeCommand& rhs) const;
+  int operator!=(const CTapeCommand& rhs) const;
 public:
 
-
-			//Operator== Equality Operator legal but...
-
-  int operator== (const CTapeCommand& aCTapeCommand)
-  { 
-    return ((CTCLPackagedCommand::operator== (aCTapeCommand)) );
-  }                             
                        
   // Operations on the class:
 
