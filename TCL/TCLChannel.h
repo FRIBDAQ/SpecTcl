@@ -376,13 +376,13 @@ public:
 
   // Canonical operations (assignment and (in)equality comparison.
 
-public:
 
+private:
   CTCLChannel& operator=(const CTCLChannel& rhs); //!< assignment.
 
   int operator==(const CTCLChannel& rhs) const;     //!< Equality comparison.
   int operator!=(const CTCLChannel& rhs) const;     //!< Inequality comparison.
-
+public:
   // Selectors:
 
 public:
