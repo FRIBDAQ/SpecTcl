@@ -409,3 +409,7 @@ February 23, 2006
 March 10, 2006
   - Unit tested migration of TCL++ library to object interfaces (remove
     deprecated interfaces).
+  - Added Docbook generating stuff to configure.in
+March 13, 2006
+  - Made operator=, operator== and operator!= of CTCLChannel private as there
+    are no implementations.
