@@ -123,6 +123,10 @@ public:
   virtual void preDelete();	// Ditto for OnDelete().
   virtual void postDelete();
 			  
+  CTCLInterpreter* Bind(CTCLInterpreter& binding);
+  CTCLInterpreter* Bind(CTCLInterpreter* binding);
+
+
   // Utilities available for derived classes.
 protected:
 
