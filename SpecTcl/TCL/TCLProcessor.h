@@ -120,6 +120,8 @@ public:
 			  int NoMatch = -1);
   virtual void preCommand();	// Called just prior to operator()
   virtual void postCommand();	// Called on return from operator()
+  virtual void preDelete();	// Ditto for OnDelete().
+  virtual void postDelete();
 			  
   // Utilities available for derived classes.
 protected:
