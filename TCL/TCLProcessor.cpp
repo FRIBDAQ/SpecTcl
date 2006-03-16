@@ -313,3 +313,19 @@ void
 CTCLProcessor::postCommand()
 {
 }
+///////////////////////////////////////////////////////////////
+/*!
+   Hook for derived classes to get control just prior to OnDelete.
+*/
+void
+CTCLProcessor::preDelete()
+{
+}
+///////////////////////////////////////////////////////////////
+/*!
+   Hook for derived classes to get control just after OnDelete
+*/
+void
+CTCLProcessor::postDelete()
+{
+}

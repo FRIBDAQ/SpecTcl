@@ -105,5 +105,7 @@ CTCLCompatibilityProcessor::operator()(CTCLInterpreter&    interp,
 void
 CTCLCompatibilityProcessor::onUnregister()
 {
+  m_ActualCommand.preDelete();
   m_ActualCommand.OnDelete();
+  m_ActualCommand.postDelete();
 }
