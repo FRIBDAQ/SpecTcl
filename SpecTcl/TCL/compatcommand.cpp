@@ -22,6 +22,8 @@ using namespace std;
 class Reverse : public CTCLProcessor
 {
   bool deleted;
+  bool preCalled;
+  bool postCalled;
 public:
   Reverse(CTCLInterpreter* pInterp, string command = string("reverse"));
   ~Reverse();
@@ -30,7 +32,13 @@ public:
 			 CTCLResult&      result,
 			 int argc, char** argv);
   virtual void OnDelete();
+
   bool isDeleted();
+  bool wasPreCalled();
+  bool wasPostCalled();
+
+  virtual void preCommand();
+  virtual void postCommand();
 };
 
 // Implementing the test class;
@@ -38,7 +46,10 @@ public:
 Reverse::Reverse(CTCLInterpreter* pInterp,
 		 string command) :
   CTCLProcessor(command, pInterp),
-  deleted(false) { 
+  deleted(false),
+  preCalled(false),
+  postCalled(false)
+{
   Register();
 }
 Reverse::~Reverse()
@@ -63,8 +74,30 @@ Reverse::OnDelete()
   deleted = true;
 }
 bool
-Reverse::isDeleted() {
+Reverse::isDeleted() 
+{
   return deleted;
+}
+void
+Reverse::preCommand()
+{
+  preCalled = true;
+}
+void
+Reverse::postCommand()
+{
+  postCalled = true;
+}
+
+bool
+Reverse::wasPreCalled()
+{
+  return preCalled;
+}
+bool
+Reverse::wasPostCalled()
+{
+  return postCalled;
 }
 
 ///// The tests.
@@ -117,6 +150,8 @@ void argvprocessor::construction() {
 void argvprocessor::invoke() {
   string result = m_pInterpreter->Eval("reverse a b cd e");
   EQ(string("e cd b a reverse"), result);
+  ASSERT(m_pCommand->wasPreCalled());
+  ASSERT(m_pCommand->wasPostCalled());
 }
 // Now see that deletion is relayed correctly.
 

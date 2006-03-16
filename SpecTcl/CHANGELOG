@@ -416,3 +416,5 @@ March 13, 2006
 March 16, 2006
   - Added extensive XML based manpages for the tclPlus CTCL class
     library.
+  - Support pre/post command functions for CTCLProcessor.
+    this is used in nscldaq to implement the CDAQTCLProcessor.

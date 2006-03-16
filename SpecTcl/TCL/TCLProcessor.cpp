@@ -294,3 +294,22 @@ CTCLProcessor::MatchKeyword(vector<string>& MatchTable,
   }
   return NoMatch;
 }
+////////////////////////////////////////////////////////////////////////
+/*!
+   This is a hook that can be overridden by derived classes.
+   It is called just prior to the execution of operator().
+*/
+void
+CTCLProcessor::preCommand()
+{
+}
+/////////////////////////////////////////////////////////////////////////
+/*!
+   This is a hook that can be overiddent by derived classes.
+   It is called just after the execution of operator()... success
+   or failure.
+*/
+void
+CTCLProcessor::postCommand()
+{
+}

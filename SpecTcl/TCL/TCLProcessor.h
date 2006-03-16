@@ -118,9 +118,12 @@ public:
   static int MatchKeyword(STD(vector)<STD(string)>& MatchTable, 
 			  const STD(string)& rValue, 
 			  int NoMatch = -1);
+  virtual void preCommand();	// Called just prior to operator()
+  virtual void postCommand();	// Called on return from operator()
 			  
   // Utilities available for derived classes.
 protected:
+
   void NextParam(int& argc, char**& argv) {
     argc--;
     argv++;
