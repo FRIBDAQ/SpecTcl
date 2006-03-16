@@ -82,10 +82,13 @@ CTCLCompatibilityProcessor::operator()(CTCLInterpreter&    interp,
   
   int status;
   try {
+    m_ActualCommand.preCommand();
     status = m_ActualCommand(interp, result, argc, argv);
+    m_ActualCommand.postCommand();
     result.commit();
   }
   catch (...) {
+    m_ActualCommand.postCommand();
     delete [] argv;
     throw;
   }
