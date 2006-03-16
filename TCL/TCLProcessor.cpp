@@ -329,3 +329,18 @@ void
 CTCLProcessor::postDelete()
 {
 }
+/////////////////////////////////////////////////////////////
+/*!  Binding must also rebind the adaptor.
+ */
+CTCLInterpreter*
+CTCLProcessor::Bind(CTCLInterpreter* binding)
+{
+  m_pObjectProcessor->Bind(binding); // Bind the adaptor.
+  return   CTCLInterpreterObject::Bind(binding);	// Bind ourselves...
+
+}
+CTCLInterpreter*
+CTCLProcessor::Bind(CTCLInterpreter& binding)
+{
+  return Bind(&binding);
+}
