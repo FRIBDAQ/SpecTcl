@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
+ >
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLVariable</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLVariable</refname>
+        <refpurpose>
+            Encapsulate Tcl interpreter variables.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLVariable.h&gt;
+
+class CTCLVariable  : public CTCLInterpreterObject
+{
+public:
+  CTCLVariable (std::string am_sVariable,  Bool_t am_fTracing  );
+  CTCLVariable (CTCLInterpreter* pInterp,
+                std::string am_sVariable,  Bool_t am_fTracing  );
+  CTCLVariable (const CTCLVariable&amp; aCTCLVariable );
+
+  CTCLVariable&amp; operator= (const CTCLVariable&amp; aCTCLVariable);
+  int operator== (const CTCLVariable&amp; aCTCLVariable) const;
+
+  std::string getVariableName() const;
+  Bool_t IsTracing() const;
+
+  void setVariableName (const std::string am_sVariable);
+  virtual   char*  operator() (char* pName,
+                               char* pSubscript,
+                               int Flags)  ;
+
+   static  char* TraceRelay (ClientData pObject, Tcl_Interp* pInterpreter,
+                             tclConstCharPtr  pName,
+                             tclConstCharPtr pIndex,
+                             int flags)  ;
+
+  const char* Set (const char* pValue, int flags=TCL_LEAVE_ERR_MSG |
+                                                 TCL_GLOBAL_ONLY)  ;
+  const char* Set (const char* pSubscript, char* pValue,
+                   int flags=TCL_LEAVE_ERR_MSG | TCL_GLOBAL_ONLY)  ;
+  const char* Get (int flags=TCL_LEAVE_ERR_MSG | TCL_GLOBAL_ONLY,
+                   char* pIndex=0)  ;
+  int Link (void* pVariable, int Type)  ;
+  void Unlink ()  ;
+  int Trace (int flags=TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
+             char* pIndex = (char*)kpNULL)  ;
+
+  void UnTrace ()  ;
+
+};
+</programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            <classname>CTCLVariable</classname> allows an existing or new Tcl interpreter
+            variable to be encapsulated so that it can be accessed, traced or linked
+            in C++ code.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+            <programlisting>
+  <function>CTCLVariable</function>(<type>std::string</type> <parameter>sName</parameter>,
+             <type>Bool_t</type> <parameter>fTracing</parameter>  );
+  <function>CTCLVariable</function> (<type>CTCLInterpreter</type>* <parameter>pInterp</parameter>,
+             <type>std::string</type> <parameter>sName</parameter>,
+             <type>Bool_t</type> <parameter>fTracing</parameter>  );
+  <function>CTCLVariable</function> (<type>const CTCLVariable</type>&amp; <parameter>aCTCLVariable</parameter> );
+            </programlisting>
+        </para>
+        <para>
+            In the first two cases, <parameter>sName</parameter> is the name of the variable
+            that will be wrapped by this object.  The variable name can contain namespace
+            qualifications as well as indices.  If <parameter>fTracing</parameter> is true,
+            the object is set to record that it is tracing the variable.  Normally
+            this parameter should be allowed to default to <literal>kfFALSE</literal>,
+            and the trace member functions used to set explicit traces.
+            For the final form of the constructor (copy constructor),
+            <parameter>aCTCLVariable</parameter> is a <classname>CTCLVariable</classname> that
+            will be copied into this object.
+        </para>
+        <para>
+            In the first form of the constructor, one must later call the
+            <function>Bind</function> function (see CTCLInterpreterObject), to bind
+            the variable to a specific interpreter prior to accessing it.
+        </para>
+        <para>
+            <programlisting>
+  <type>CTCLVariable</type>&amp; <function>operator=</function>(<type>const CTCLVariable</type>&amp; <parameter>rhs</parameter>);
+            </programlisting>
+        </para>
+        <para>
+            Assigns the <parameter>rhs</parameter> object to this one.  A reference to the
+            left hand side of the assignment is returned.  The semantics of assignment are
+            not that the variable values are assigned, but that the left side of the
+            assignment becomes a functional equivalent of <parameter>rhs</parameter>,
+            that is it stands for the same object and has the same traces (if any) set.
+            Thus, if <parameter>rhs</parameter> wraps the interpreter variable <varname>a</varname>
+            and the object on the left side wraps interpreter variable <varname>b</varname>
+            after the assignment executes, the left side object will be wrapping
+            <varname>a</varname>.
+            A reference to the object on the left hand side of the assignment is returned.
+        </para>
+        <para>
+            <programlisting>
+  <type>int</type> <function>operator==</function>(<type>const CTCLVariable</type>&amp; <parameter>rhs</parameter>) const;
+            </programlisting>
+        </para>
+        <para>
+            Compares this object for functional equality with <parameter>rhs</parameter>.
+            Functional equality is defined as the two objects referring to the same
+            variable, in the same interpreter, and having traces set on the same
+            operations.
+        </para>
+        <para>
+            <programlisting>
+  <type>std::string</type> <function>getVariableName</function>() const;
+            </programlisting>
+        </para>
+        <para>
+            Returns the name of the Tcl variable that is wrapped by this object.
+        </para>
+        <para>
+            <programlisting>
+<type>int</type> <function>Trace</function>(<type>int</type> <parameter>flags</parameter>=<literal>TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS</literal>,
+          <type>char</type>* <parameter>pIndex</parameter> = (<type>char</type>*)<literal>kpNULL</literal>)  ;
+<type>void</type> <function>UnTrace</function> ()  ;
+<type>Bool_t</type> <function>IsTracing</function>() const;
+virtual <type>char</type>*  <function>operator()</function> (<type>char</type>* <parameter>pName</parameter>,
+                        <type>char</type>* <parameter>pSubscript</parameter>,
+                        <type>int</type> <parameter>Flags</parameter>)  ;
+            </programlisting>
+        </para>
+        <para>
+            This set of functions supports variable tracing.  In Tcl, a trace is a function
+            that is called when some event of interest occurs on a varialbe.  The possible
+            events are read, write, and unset.  To effectively use variable tracing, you
+            must create a subclass of <classname>CTCLVariable</classname>, override its
+            <function>operator()</function> member to handle the trace and call
+            <function>Trace</function> to initiate tracing.
+        </para>
+        <para>
+            The <function>Trace</function> member initiates tracing on the variable.
+            <parameter>flags</parameter> describes when the trace should fire.
+            See the manpage for <function>Tcl_TraceVar</function> for information about
+            the legal flag values.
+        </para>
+        <para>
+            <function>Untrace</function> cancels all traces on the variable represented by
+            this object.
+        </para>
+        <para>
+            <function>IsTracing</function> returns <literal>kfTRUE</literal> if tracing
+            is being performed on the variable.
+        </para>
+        <para>
+            When a trace fires, the <function>operator()</function> member will be called.
+            This is why you must override the <classname>CTCLVariable</classname> base
+            class to do anything useful with a trace.  The parameters to the
+            call are; <parameter>pName</parameter> is the name of the variable that
+            has been traced. <parameter>pSubscript</parameter> is the array subscript in the
+            event the trace fires on an array or element of an array, and is
+            <literal>NULL</literal> otherwise.  <parameter>Flag</parameter> describes
+            why the trace fired.  Again, see the <function>Tcl_TraceVar</function>
+            manpage for more information.
+            Note that for write traces, the variable has already been set.  Modifying
+            the value of the traced variable within a trace function will not fire any
+            additional traces.
+            The <function>operator()</function> function must return a <literal>NULL</literal>
+            pointer if the trace is successful.  It must return a pointer to an error message
+            if the trace is not successful.  An example of an unsuccessful trace might be
+            a write trace that ensures that only particular values are assigned to the
+            variable.
+        </para>
+        <para>
+            <programlisting>
+const <type>char</type>* <function>Set</function>(const <type>char</type>* <parameter>pValue</parameter>,
+                <type>int</type> <parameter>flags</parameter>=<literal>TCL_LEAVE_ERR_MSG</literal> |
+                          <literal>TCL_GLOBAL_ONLY</literal>)  ;
+const <type>char</type>* <function>Set</function>(const <type>char</type>* <parameter>pSubscript</parameter>,
+               <type>char</type>* <parameter>pValue</parameter>,
+               <type>int</type> <parameter>flags</parameter>=<literal>TCL_LEAVE_ERR_MSG</literal> | <literal>TCL_GLOBAL_ONLY</literal>)  ;
+            </programlisting>
+        </para>
+        <para>
+            Sets the value of the variable to the string pointed to by <parameter>pValue</parameter>
+            The second form of this assumes that the <classname>CTCLVariable</classname>
+            represents an array and the <parameter>pSubscript</parameter> parameter
+            specifies the subscript of the array that is being set.  The <parameter>flags</parameter>
+            parameter is fully documented in the Tcl manpage for Tcl_SetVar
+        </para>
+        <para>
+            <programlisting>
+const <type>char</type>* <function>Get</function>(<type>int</type> <parameter>flags</parameter>=<literal>TCL_LEAVE_ERR_MSG</literal> | <literal>TCL_GLOBAL_ONLY</literal>,
+              <type>char</type>* <parameter>pIndex</parameter>=<literal>0</literal>)  ;
+            </programlisting>
+        </para>
+        <para>
+            Retrieves the current value of a variable.  If the <parameter>pIndex</parameter>
+            parameter is supplied, the variable wrapped by <classname>CTCLVariable</classname>
+            is assumed to be an array and <parameter>pIndex</parameter> points to the subscript of the
+            element to retrieve.  The <parameter>flags</parameter> parameter is fully
+            documented in the Tcl_GetVar manpage.  The return value of the function is
+            a null terminated character string that is the current value of the variable.
+            If the variable does not exist, then a <literal>NULL</literal> is returned.
+        </para>
+        <para>
+            <programlisting>
+<type>int</type> <function>Link</function>(<type>void</type>* <parameter>pVariable</parameter>,
+         <type>int</type> <parameter>Type</parameter>)  ;
+<type>void</type> <function>Unlink</function>()  ;
+            </programlisting>
+        </para>
+        <para>
+            <function>Link</function> and <function>Unlink</function> support variable
+            linking.  Variable linking is when a Tcl variable is made to track the value
+            of a C/C++ variable or C++ member variable of an object.
+            <function>Link</function> establishes the link.  <parameter>pVariable</parameter>
+            points to the C or C++ variable or member variable to link to this
+            <classname>CTCLVariable</classname>.  The <parameter>Type</parameter>
+            parameter is one of following values:
+            <literal>TCL_LINK_INT</literal>,
+            <literal>TCL_LINK_DOUBLE</literal>,
+            <literal>TCL_LINK_BOOLEAN</literal>,
+            <literal>TCL_LINK_WIDE_INT</literal>, or
+            <literal>TCL_LINK_STRING</literal> indicating the type of the variable
+            to which <parameter>pVariable</parameter> points.  For all but
+            <literal>TCL_LINK_STRING</literal>, <parameter>pVariable</parameter> points
+            to a variable of the type indicated, and that variable will be linked.
+            for <literal>TCL_LINK_STRING</literal>, <parameter>pVariable</parameter> points
+            to a <type>char*</type> which should be initialized to point to <literal>NULL</literal>.
+            The Tcl interpreter will use <function>Tcl_Alloc</function> and <function>Tcl_Free</function>
+            to maintain a dynamically allocated string pointed to by that pointer which
+            reflects the value of the variable.  If the C/C++ program modifies this string,
+            it must <function>Tcl_Free</function> the prior value and <function>Tcl_Alloc</function>
+            a new value with the new variable value.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>DEFECTS</title>
+        <para>
+            No <function>operator!=</function> has been defined.
+        </para>
+        <para>
+            There is no protection against multiple links... the most recent link
+            for an underlying Tcl variable is the one effective.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+        CTCLInterpreter(3), CTCLInterpreterObject(3),
+        Tcl_GetVar(3tcl), Tcl_LinkVar(3tcl), Tcl_SetVar(3tcl), Tcl_TraceVar(3tcl)
+        </para>
+    </refsect1>
+</refentry>
+
+
+</article>
+</book>

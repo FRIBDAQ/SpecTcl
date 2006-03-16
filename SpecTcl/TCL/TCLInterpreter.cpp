@@ -429,7 +429,10 @@ CTCLInterpreter::RecordAndEval(const char* pScript, Bool_t fEvaluate)
 //      The results of the script on success or
 //       throws an exception on error.
 
-  int Status = Tcl_RecordAndEval(m_pInterpreter, (char*)pScript, fEvaluate);
+  int Status = Tcl_RecordAndEval(m_pInterpreter, (char*)pScript, 
+				 fEvaluate ? TCL_EVAL_GLOBAL : 
+				             TCL_NO_EVAL);
+
   if(Status != TCL_OK) {
     CTCLException except(*this,
 			Status,

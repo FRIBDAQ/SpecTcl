@@ -57,7 +57,7 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 
 bin_PROGRAMS = SpecTcl
 
-SpecTcl_DEPENDENCIES =  libTclGrammerCommands.la
+SpecTcl_DEPENDENCIES =  libTclGrammerCommands.la Globals.o
 
 SpecTcl_SOURCES = MySpecTclApp.cpp \
 	AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \

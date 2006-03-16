@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
+  >
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLResult</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLResult</refname>
+        <refpurpose>
+            Provide an object oriented interace to the Tcl interpreter result.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLResult.h&gt;
+...
+class CTCLResult  : public CTCLObject
+{
+  CTCLResult (CTCLInterpreter* pInterp, bool reset=true );
+  CTCLResult (const CTCLResult&amp; aCTCLResult );
+  virtual ~CTCLResult ( );
+
+  CTCLResult&amp; operator= (const CTCLResult&amp; aCTCLResult);
+  CTCLResult&amp; operator= (const char* rhs);
+  CTCLResult&amp; operator=(std::string    rhs);
+
+  int operator== (const CTCLResult&amp; aCTCLResult) ;
+  int operator!= (const CTCLResult&amp; rhs);
+
+  CTCLResult&amp; operator+= (const char* pString);
+  CTCLResult&amp; operator+= (const std::string&amp; rString);
+
+  void Clear ()  ;
+  void AppendElement (const char* pString)  ;
+  void AppendElement (const std::string&amp; rString);
+  void commit() const;
+  std::string getString();
+};
+
+    </programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Each Tcl command can return <firstterm>result string</firstterm>
+            the result string can be used by subsequent commands in the event
+            the command operated successfully, or by <command>catch</command>
+            commands if the command failed.  <classname>CTCLResult</classname>
+            provides an extension of the <classname>CTCLObject</classname>
+            class that builds up a string which can then be comitted to the
+            result.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+<function>CTCLResult</function>(<type>CTCLInterpreter</type>* <parameter>pInterp</parameter>,
+           <type>bool</type> <parameter>reset</parameter>=<literal>true</literal> );
+<function>CTCLResult</function>(const <type>CTCLResult</type>&amp; <parameter>aCTCLResult</parameter>);
+          </programlisting>
+          </para>
+          <para>
+            Constructs a Tcl interpreter result string.  <parameter>pInterp</parameter> is the interpeter
+            that will be associated with this result. <parameter>reset</parameter> controls
+            whether or not the result string is reset when constructed, or if it is loaded
+            with the current value of the result string.  In the case of copy construction,
+            the interpreter associated with <parameter>aCTCLResult</parameter> is used.
+            <parameter>aCTCLResult</parameter> is committed to the interpreter result, and
+            the object under construction is then loaded from that interpreter's result.
+          </para>
+          <para>
+          <programlisting>
+  <type>CTCLResult</type>&amp; <function>operator=</function> (const <type>CTCLResult</type>&amp; <parameter>rhs</parameter>);
+  <type>CTCLResult</type>&amp; <function>operator=</function> (const <type>char</type>* <parameter>rhs</parameter>);
+  <type>CTCLResult</type>&amp; <function>operator=</function>(<type>std::string</type>    <parameter>rhs</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Assigns a value to the result from <parameter>rhs</parameter>.
+            If the <parameter>rhs</parameter> is a <classname>CTCLResult</classname>, then the
+            <parameter>rhs</parameter> is first committed to its interpreter result,
+            the left hand object is then bound to the same interpreter as <parameter>rhs</parameter>
+            and loaded with the result string of that interpreter.
+        </para>
+        <para>
+        <programlisting>
+  <type>int</type> <function>operator==</function> (const <type>CTCLResult</type>&amp; <parameter>rhs</parameter>) ;
+  <type>int</type> <function>operator!=</function> (const <type>CTCLResult</type>&amp; <parameter>rhs</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            These functions suport comparison. Equality comparison is true
+            (<function>operator==</function>) if the interpreters match as the assumption
+            is that the user is working to maintain coherency if several <classname>CTCLResult</classname>
+            objects are simultaneously live on a single interpreter.
+            Inequality (<function>operator!=</function>) is defined as true when
+            <function>operator==</function> is false.
+        </para>
+        <para>
+        <programlisting>
+<type>CTCLResult</type>&amp; <function>operator+=</function> (const <type>char</type>* <parameter>rhs</parameter>);
+<type>CTCLResult</type>&amp; <function>operator+=</function>(const <type>std::string</type>&amp; <parameter>rhs</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            <parameter>rhs</parameter> is textually appended to the result string being built
+            up.   Note that the semantics of this are different than for the base class
+            where <function>operator+=</function> is a list append.
+        </para>
+        <para>
+        <programlisting>
+  <type>void</type> <function>Clear</function>()  ;
+          </programlisting>
+          </para>
+          <para>
+            Clears the result string being built up as well as clearing the
+            underlying interpreter's result.
+          </para>
+          <para>
+          <programlisting>
+  <type>void</type> <function>AppendElement</function>(const <type>char</type>* <parameter>item</parameter>)  ;
+  <type>void</type> <function>AppendElement</function>(const <type>std::string</type>&amp; <parameter>item</parameter>);
+          </programlisting>
+          </para>
+          <para>
+            Appends <parameter>item</parameter> to the result string being built up as a
+            list element.  This means that under some circumstances extra quoting may be
+            done to ensure that the result will be maintained as a valid list.
+          </para>
+          <para>
+          <programlisting>
+  <type>void</type> <function>commit</function>() const;
+  <type>std::string</type> <function>getString</function>();
+        </programlisting>
+        </para>
+        <para>
+            <function>commit</function> sets the interpreter result string equal
+            to the string being built up in the object.  <function>getString</function>
+            does a commit and then returns the string.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+CTCLObject(3)
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

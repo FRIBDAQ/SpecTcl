@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
+ >
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLHashTable</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLHashTable</refname>
+        <refpurpose>
+            Object oriented interface to Tcl's hash table functions.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLHashTable.h&gt;
+
+template &lt;class T&gt;
+class CTCLHashTable
+{
+public:
+  CTCLHashTable () ;
+  CTCLHashTable (  Tcl_HashTable am_HashTable  );
+  CTCLHashTable (const CTCLHashTable&amp; aCTCLHashTable );
+  virtual ~CTCLHashTable ( );
+
+  CTCLHashTable operator= (const CTCLHashTable&amp; aCTCLHashTable);
+
+  int operator== (const CTCLHashTable&amp; aCTCLHashTable);
+
+  Tcl_HashTable* getHashTable() const;
+
+  void Enter (const std::string&amp; rKey, rCTCLTHashTableItem rValue);
+  const CTCLTHashTableItem* Find (const std::string&amp; rsKeyword) const;
+  CTCLTHashTableItem* Delete (const std::string&amp; rsKeyword);
+  CTCLTHashTableIterator begin ();
+  CTCLTHashTableIterator end ();
+  std::string Statistics ();
+};
+
+    </programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Hash tables are tables of keyword value pairs that are organized
+            such that the lookup time for any key in the table is <firstterm>amortized
+            constant</firstterm>.  Hash tables operate by running the key through a
+            function called the <firstterm>hash function</firstterm>, and storing the
+            key/value pair as an element of an array indexed by the result of that hash
+            function (<firstterm>hash index</firstterm>).  Depending on the implementation of the hash table, different
+            methods are used to resolve cases where two keys result in the same
+            hash index.
+        </para>
+        <para>
+            Tcl includes support libraries for hash tables with string keys and
+            arbitrary value types (e.g. structures, pointers etc. etc.).  One example
+            of the use of this sort of data structure is Tcl's storage of array variables.
+            Each array is a hash table indexed by the hash index of the array subscripts.
+            In this way Tcl supports subscripts that are arbitrary strings without
+            any search overhead when referencing an element of the array.
+        </para>
+        <para>
+            The <classname>CTCLHashTable</classname> and related classes provide an object oriented
+            interface to the Tcl API for hash tables.  This class is a <firstterm>template class</firstterm>.
+            The template parameter is the type of data that will be associated with each
+            hash key.  For example, to create a has key of <classname>CSpectrum*</classname>
+            (pointers to SpecTcl Spectra):
+            <programlisting>
+        CTCLHashTable&lt;CSpectrum*&gt; spectrumHashTable;
+            </programlisting>
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+  <function>CTCLHashTable</function> () ;
+  <function>CTCLHashTable</function> (  <type>Tcl_HashTable</type> <parameter>aHashTable</parameter>  );
+  <function>CTCLHashTable</function> (const <type>CTCLHashTable</type>&amp; <parameter>aCTCLHashTable</parameter> );
+        </programlisting>
+        </para>
+        <para>
+            Three methods for creating <classname>CTCLHashTable</classname> objects
+            are defined.   The first of these creates a new, empty hash table.
+            The second, takes the handle to an existing hash table;
+            <type>Tcl_HashTable</type> <parameter>aHashTable</parameter> and wraps
+            a <classname>CTCLHashTable</classname> around this existing hash table
+            providing an object oriented interface to that hash table.
+            The final constructor, a copy constructor, creates a
+            <classname>CTCLHashTable</classname> that refers to the same underlying
+            <type>Tcl_HashTable</type> as the <parameter>aCTCLHashTable</parameter> parameter.
+        </para>
+        <para>
+        <programlisting>
+  <type>CTCLHashTable</type> <function>operator</function>= (const <type>CTCLHashTable</type>&amp; <parameter>rhs</parameter>);
+  <type>int</type> <function>operator==</function> (const <type>CTCLHashTable</type>&amp; <parameter>rhs</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            <function>operator=</function>  assigns <parameter>rhs</parameter> to an existing
+            object.  The semantics of assignment are that
+            followingt assignment, <varname>*this</varname> and <parameter>rhs</parameter>
+            will refer to the same underlying hash table.
+        </para>
+        <para>
+            <function>operator==</function> compares two hash tables, <varname>*this</varname>
+            and <parameter>rhs</parameter> for equality.  The semantics of equality are
+            that the two <classname>CTCLHashTable</classname> objects refer to the same
+            underlying Tcl hash tables.
+        </para>
+        <para>
+        <programlisting>
+  <type>Tcl_HashTable</type>* <function>getHashTable</function>() const;
+        </programlisting>
+        </para>
+        <para>
+            Gets the underlying <type>Tcl_HashTable</type> that is wrapped by
+            a <classname>CTCLHashTable</classname> object.
+        </para>
+        <para>
+            <programlisting>
+<type>void</type> <function>Enter</function> (const <type>std::string</type>&amp; <parameter>rKey</parameter>,
+            <type>CTCLTHashTableItem&lt;T&gt;</type> <parameter>rValue</parameter>);
+            </programlisting>
+            </para>
+            <para>
+            Adds an entry to a hash table.  <parameter>rKey</parameter> is the
+            lookup key that will be associated with the entry.  <parameter>rValue</parameter>
+            is the data that is associated with that key.  Note that <type>T</type>
+            is the template type that was used to create the hashtable.  E.g. if the
+            hash table is a <classname>CTCLHashTable&lt;float&gt;</classname>,
+            <parameter>rValue</parameter> must be a <classname>CTCLHashTableItem&lt;float&gt;</classname>.
+            Note that Tcl hash tables do not support duplicate keys.  If a hash table
+            entry with the key <parameter>rKey</parameter> already is in the table it is
+            replaced.
+            </para>
+            <para>
+                <programlisting>
+  const <type>CTCLTHashTableItem</type>* <function>Find</function> (const <type>std::string</type>&amp; <parameter>rsKeyword</parameter>) const;
+                </programlisting>
+            </para>
+            <para>
+                Looks up a hash table item by key.  If a hash table item with
+                the key <parameter>rsKeyword</parameter> exists, a pointer to its
+                entry is returned.   If <parameter>rsKeyword</parameter> has not
+                yet been <function>Enter</function>ed in the hash table, a
+                <literal>NULL</literal> pointer is returned.
+            </para>
+            <para>
+                <programlisting>
+  <type>CTCLTHashTableItem</type>* <function>Delete</function> (const <type>std::string</type>&amp; <parameter>rsKeyword</parameter>);
+                </programlisting>
+            </para>
+            <para>
+                Removes the hash table entry with the key <parameter>rsKeyword</parameter>.
+                If the item existed, a pointer to it is returned.  If the item does not
+                exist in the hash table a <literal>NULL</literal> pointer is returned.
+            </para>
+            <para>
+                <programlisting>
+  <type>CTCLTHashTableIterator</type> <function>begin</function> ();
+  <type>CTCLTHashTableIterator</type> <function>end</function> ();
+                </programlisting>
+            </para>
+            <para>
+                <function>begin</function> returns an <firstterm>iterator</firstterm> that
+                "points" to the first entry in the hash table.  dereferencing the
+                iterator yields the pointer to a HashTableItem.  The iterator can be
+                incremented via ++ so that it advances to the next item in the table.
+            </para>
+            <para>
+                <function>end</function>returns an iterator that points past the end of the
+                table and can be used to determine when iteration is complete.
+            </para>
+            <para>
+                Iterators are pointer like objects.  See the STL reference below for more
+                information about them.  The following example Takes a Hash table and
+                counts up the number of elements it contains.
+                <programlisting>
+        CTCLHashTableIterator i = table.begin();    // Table a CTCLHashTable
+        int                   n = 0;
+        while (i != table.end()) {
+            n++;
+        }
+        // N is a count of elements in the table.
+
+            </programlisting>
+            </para>
+            <para>
+                <programlisting>
+  <type>std::string</type> <function>Statistics</function> ();
+                </programlisting>
+        </para>
+        <para>
+            Returns a string that contains statistics about the hash table.
+            This is a wrapper for <function>Tcl_HashStats</function>
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+CTCLHashTableItem(3),
+CTCLHashTableIterator(3),
+Tcl_HashStats(3tcl)
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>REFERENCES</title>
+        <para>
+        <programlisting>
+Niklaus Wirth <parameter>Algorithms + Data Structures = Programs</parameter>
+Prentice Hall Series in Automatic Computation 1976 See section 4.6
+
+Musser, Derge, Saini: <parameter>STL Tutorial and Reference Guide</parameter>
+Addison-Wesley Professional Computing Series; 2001 ISBN 0-201-37923-6
+        </programlisting>
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

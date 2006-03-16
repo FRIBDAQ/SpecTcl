@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
+ >
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLInterpreterObject  3 </refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLInterpreterObject</refname>
+        <refpurpose>
+            Base class for objects that are associated with a Tcl Interpreter.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <programlisting>
+#include &lt;CTCLInterpreterObject.h&gt;
+...
+class CTCLInterpreterObject
+{
+public:
+  CTCLInterpreterObject ();
+  CTCLInterpreterObject (CTCLInterpreter* pInterp );
+  CTCLInterpreterObject (const CTCLInterpreterObject&amp; src );
+
+  CTCLInterpreterObject&amp; operator=
+                        (const CTCLInterpreterObject&amp; rhs);
+  int operator== (const CTCLInterpreterObject&amp; rhs) const;
+
+
+  CTCLInterpreter* getInterpreter() const;
+  CTCLInterpreter* Bind (CTCLInterpreter&amp; rBinding);
+  CTCLInterpreter* Bind (CTCLInterpreter* pBinding);
+
+};
+
+
+        </programlisting>
+
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            <classname>CTCLInterpreterObject</classname>
+            is a base class for any object that requires a <type>CTCLInterpreter</type>
+            (Tcl interpreter) to operate.  Almost  all objects in the Tcl++ library are
+            derived from this base class.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+            <function>CTCLInterpreterObject()</function>
+        </para>
+        <para>
+            Constructor for an interpreter object that will be bound to an underlying
+            interpreter at a later time.  See the <function>Bind</function> functions
+            for more information about binding interpreters. More normally, if you
+            already have an interpreter you will construct using that interpreter.
+        </para>
+        <para>
+            <function>CTCLInterpreterObject</function>
+                       (<type>CTCLInterpreter</type>* <parameter>pInterp</parameter>)
+        </para>
+        <para>
+            Constructs a <classname>CTCLInterpreterObject</classname> given
+            that <parameter>pInterp</parameter> is an existing
+            interpreter encapsulated in a <classname>CTCLInterpreter</classname>.
+        </para>
+        <para>
+            <function>CTCLInterpreterObject</function>
+                    (<type>const CTCLObject</type>&amp; <parameter>src</parameter>)
+        </para>
+        <para>
+            Constructs a new <classname>CTCLInterpreterObject</classname>
+            that is an exact copy of <parameter>src</parameter>.
+        </para>
+        <para>
+            <classname>CTCLInterpreterObject</classname>&amp;
+            <function>operator=</function>
+                (const <type>CTCLInterpreterObjectd</type>&amp; <parameter>rhs</parameter>)
+        </para>
+        <para>
+            Provides a mechanism for assigning a <classname>CTCLInterpreterObject</classname>
+            a copy of the <parameter>rhs</parameter> <classname>CTCLInterpreterObject</classname>.
+            The return value is just a reference to the left hand side of the assignment.  This
+            permits operator chaining.
+        </para>
+        <para>
+            <type>int</type> <function>operator==</function>(
+                            const <type>CTCLInterpreterObject</type>&amp; rhs)
+        </para>
+        <para>
+            Compares a <classname>CTCLInterpreterObject</classname> to another
+            (<parameter>rhs</parameter>).  If the underlying interpreters are the
+            same, the objects are said to be equal and <literal>1</literal> is
+            returned.  If not, <literal>0</literal> is returned.
+        </para>
+        <para>
+            <type>CTCLInterpreter</type>* <function>getInterpreter</function>() const
+        </para>
+        <para>
+            Returns a pointer to the underlying <classname>CTCLInterpreter</classname>
+            object.  See the <classname>CTCLInterpreter</classname>(3) manpage for
+            more information about the services offered by that class.
+        </para>
+        <para>
+            <type>CTCLInterpreter</type>* <function>Bind</function>(
+                        <type>CTCLInterpreter</type>&amp; <parameter>rBinding</parameter>
+                                                          )
+        </para>
+        <para>
+            <type>CTCLInterpeter</type>* <function>Bind</function>(
+                        <type>CTCLInterpreter</type>* <parameter>pBinding</parameter>)
+        </para>
+        <para>
+            Binds the object to a new interpreter.  Typically this will only be
+            called when the object was constructed without an initial interpreter.
+            This is because most objects really are related to some interpreter and cannot
+            be willy-nilly rebound.  The return value is  a pointer to the
+            <classname>CTCLInterpreter</classname> the object was previously
+            bound to.  This will be <literal>NULL</literal> if the object was not
+            initially bound.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>DEFECTS</title>
+        <para>
+            No <function>operator!=</function> was defined.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+        CTCLInterpreter, CTCLApplication, CTCLChannel, CTCLCommandPackage,
+        CTCLFileHandler, CTCLList, CTCLObject, CTCLObjectProcessor, CTCLTimer,
+        CTCLVariable
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

@@ -413,3 +413,6 @@ March 10, 2006
 March 13, 2006
   - Made operator=, operator== and operator!= of CTCLChannel private as there
     are no implementations.
+March 16, 2006
+  - Added extensive XML based manpages for the tclPlus CTCL class
+    library.

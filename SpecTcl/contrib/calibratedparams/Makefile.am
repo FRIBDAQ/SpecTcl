@@ -79,7 +79,7 @@ unittests_SOURCES = CommandTest.cpp FitTest.cpp CreatorTest.cpp FactoryTest.cpp 
 
 unittests_DEPENDENCIES = $(MainObjects)
 
-TestObjects=@top_srcdir@/Events/Event.o @top_srcdir@/SpecTcl/EventProcessor.o
+TestObjects=@top_srcdir@/Events/Event.lo @top_srcdir@/SpecTcl/EventProcessor.lo
 
 unittests_LDFLAGS = $(TestObjects) $(unittests_DEPENDENCIES) $(CPPUNIT_LDFLAGS) -L@top_srcdir@/TCL -ltclPlus  \
 	-L@top_srcdir@/NSCLException -lException \
