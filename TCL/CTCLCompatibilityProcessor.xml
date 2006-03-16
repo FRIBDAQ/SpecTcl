@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
+ >
+<book>
+<article>
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLCompatibiltyProcessor</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLCompatibilityProcessor</refname>
+        <refpurpose>
+            Adaptor between <classname>CTCLOjbectProcessor</classname>
+            and <classname>CTCLProcessor</classname>.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLCompatibilityProcessor.h&gt;
+...
+class CTCLCompatibilityProcessor : public CTCLObjectProcessor
+{
+
+public:
+
+  CTCLCompatibilityProcessor(CTCLProcessor&amp; actualCommand);
+  virtual ~CTCLCompatibilityProcessor();
+
+  virtual int operator()(CTCLInterpreter&amp; interp,
+                         std::vector&lt;CTCLObject&gt;&amp; objv);
+  virtual void onUnregister();
+};
+
+    </programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Note that the information on this page is only to be used to
+            "grandfather" old <classname>CTCLProcessor</classname> objects
+            into Tcl.  New command processors should be based on the
+            CTCLObjectProcessor.
+        </para>
+        <para>
+            A rewrite of the TCL++ library in March 2006 eliminated the use of
+            Tcl functions that are scheduled to be deprecated in the known future
+            of Tcl.    One set of functions scheduled for deprecation are those
+            that revolve around direct access to the Tcl interpreter result, and
+            command processors that use the <parameter>argc</parameter>,
+            <parameter>argv</parameter> interfaces.
+        </para>
+        <para>
+            Since a number of existing command extensions are, no doubt built on
+            top of the <classname>CTCLProcessor</classname> <parameter>argc</parameter>
+                                                            <parameter>argv</parameter>
+            interface, a mechanism that allows the use of existing commands was built
+            as well.
+        </para>
+        <para>
+            The current implementation of a <classname>CTCLProcessor</classname> includes
+            as member data a <classname>CTCLCompatibilityProcessor</classname> object.
+            This object registers itself as a <classname>CTCLObjectProcessor</classname>
+            for the command intended by the <classname>CTCLProcessor</classname> and
+            serves as an adaptor between these two command types, marshalling command
+            objects into an <parameter>argc</parameter>, <parameter>argv</parameter> pair,
+            creating and committing a <classname>CTCLResult</classname> object.
+        </para>
+        <para>
+            For most users of this library, this is completely transparent, this documentation
+            is provided for completeness, however.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+<function>CTCLCompatibilityProcessor</function>(<type>CTCLProcessor</type>&amp; <parameter>actualCommand</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Constructs a  compatibility processor that adapts the object based command
+            interface for <parameter>actualCommand</parameter>.  <parameter>actualCommand</parameter>
+            must already be bound to an interpreter.
+        </para>
+        <para>
+        <programlisting>
+virtual <type>int</type> <function>operator()</function>(<type>CTCLInterpreter</type>&amp; <parameter>interp</parameter>,
+                       <type>std::vector&lt;CTCLObject&gt;</type>&amp; <parameter>objv</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Called when the command is executed.  <parameter>objv</parameter> is marshalled
+            into an argc, argv pair.  A <classname>CTCLResult</classname> is created and the
+            actual command's <function>operator()</function> is called to execute the command.
+            On return, the result is committed, and all dynamic storage released prior to
+            returning the status from the command processor.
+        </para>
+        <para>
+        <programlisting>
+virtual <type>void</type> <function>onUnregister</function>();
+        </programlisting>
+        </para>
+        <para>
+            Called when the command is unregistered.  The actual command's <function>OnDelete</function>
+            member is called.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+CTCLObject(3),
+CTCLObjectProcessor(3),
+CTCLProcessor(3),
+CTCLResult(3),
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>REFERENCES</title>
+        <para>
+            <programlisting>
+Gamma, Helm, Johnson, Vlissides <parameter>Design Patterns Elements of Reusable
+Object-Oriented Software</parameter>
+Addison-Wesley Professional Computing Series 1995 ISBN 0-0201-63361-2
+See Chapter 4 the Adapter pattern.
+            </programlisting>
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

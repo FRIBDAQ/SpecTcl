@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
+ >
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLException</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLException</refname>
+        <refpurpose>
+            Class for reporting exceptional conditions in Tcl applications
+            via the C++ try/catch mechanism.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLException.h&gt;
+...
+class CTCLException  : public CTCLInterpreterObject ,public CException
+{
+public:
+  CTCLException (CTCLInterpreter&amp; am_rInterpreter,
+                 Int_t am_nReason,
+                 const char* pString);
+  CTCLException(CTCLInterpreter&amp; am_rInterpreter,
+                Int_t am_nReason,
+                const std::string&amp; rString);
+  CTCLException (const CTCLException&amp; aCTCLException );
+  virtual ~CTCLException ( );
+
+  CTCLException operator= (const CTCLException&amp; aCTCLException);
+  int operator== (const CTCLException&amp; aCTCLException);
+
+  void AddErrorInfo (const char* pMessage)  ;
+  void AddErrorInfo(const std::string&amp; rMessage);
+  void AddErrorInfo(const CTCLString&amp; rMessage);
+
+  void SetErrorCode (const char* pMessage,
+                     const char* pMnemonic="???",
+                     const char* pFacility="TCL",
+                     const char* pSeverity="FATAL")  ;
+  void SetErrorCode(const std::string rMessage,
+                    const std::string &amp;rMnemonic=std::string("???"),
+                    const std::string &amp;rFacility=std::string("TCL"),
+                    const std::string &amp;rSeverity=std::string("FATAL"));
+
+  virtual   const char* ReasonText () const;
+  virtual   Int_t ReasonCode () const  ;
+};
+
+    </programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The <classname>CTCLException</classname> class allows you to
+            instantiate and throw exceptions that are distinguishable as coming
+            from the TCL library and its extensions.   In most cases the
+            TclPlus library itself will convert error conditions detected by the
+            Tcl API and intantiate and throw an appropriate exception.
+        </para>
+        <para>
+            The following example shows how to execute code that is aware of
+            these exceptions.  In this case, the code just reports the error
+            message and continues.
+            <programlisting>
+    try {
+        // In here is TclPlus invoking code.
+    }
+    catch (CTCLException&amp; e) {
+        cerr &lt;&lt; "TclPlus error caught: " &lt;&lt; e.ReasonText() &lt;&lt; endl;
+    }
+            </programlisting>
+        </para>
+        <para>
+            The following example shows a typical code segment that throws a
+            <classname>CTCLException</classname>:
+                <programlisting>
+    int status = Tcl_xxxxxxx(pInterp-&gt;getInterpreter()....); // Some Tcl call.
+    if (status != TCL_OK) {
+        throw CTCLException(*pInterp, status,
+                            "Call to Tcl_xxxxxx returned an error");
+    }
+                </programlisting>
+        </para>
+        <para>
+            Note that constructing a <classname>CTCLException</classname> object
+            incorporates the Tcl result string at the time into the
+            text returned by the <function>ReasonText()</function> member function.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+  <function>CTCLException</function> (<type>CTCLInterpreter</type>&amp; <parameter>rInterpreter</parameter>,
+                 <type>Int_t</type> <parameter>nReason</parameter>,
+                 const <type>char</type>* <parameter>pString</parameter>);
+  <function>CTCLException</function>(<type>CTCLInterpreter</type>&amp; <parameter>rInterpreter</parameter>,
+                <type>Int_t</type> <parameter>nReason</parameter>,
+                const <type>std::string</type>&amp; <parameter>rString</parameter>);
+  <function>CTCLException</function> (const <type>CTCLException</type>&amp; <parameter>aCTCLException</parameter> );
+        </programlisting>
+        </para>
+        <para>
+            These construct a <classname>CTCLException</classname>.
+            <parameter>rInterpreter</parameter> is a reference to the intepreter that was
+            used in the operation that resulted in the error.  The result string of that
+            interpreter will be saved as part of the text returned by the
+            <function>ReasonText</function> member function.
+        </para>
+        <para>
+            The <parameter>nReason</parameter> is a reason for the exception.  Typically
+            this will be <literal>TCL_ERROR</literal> however other error codes can be
+            created and used for application specific problems.  This is the value that will
+            be returned by the <function>ReasonCode</function> member function.
+        </para>
+        <para>
+            <parameter>rString</parameter> and <parameter>pString</parameter> are intended to provide
+            information about the context of the error, and will be incorporated into the
+            text strin greturned from <function>ReasonText</function>.
+        </para>
+        <para>
+            <parameter>aCTCLException</parameter> is a reference for the sourc object of
+            the copy constructor.
+        </para>
+        <para>
+        <programlisting>
+  <type>CTCLException</type> <function>operator=</function> (const <type>CTCLException</type>&amp; <parameter>rhs</parameter>);
+  <type>int</type> <function>operator==</function>(const <type>CTCLException</type>&amp; <parameter>rhs</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            These two functions provide a mechanism to assign exceptions and to compare
+            them for equality.  <parameter>rhs</parameter> is the object that is the source
+            of the assignment or the object to which <varname>this</varname> is being compared.
+            Equality is defined as the two exceptions having the same underlying interpreter,
+            and same reason text.
+        </para>
+        <para>
+        <programlisting>
+  <type>void</type> <function>AddErrorInfo</function> (const <type>char</type>* <parameter>pMessage</parameter>)  ;
+  <type>void</type> <function>AddErrorInfo</function>(const <type>std::string</type>&amp; <parameter>rMessage</parameter>);
+  <type>void</type> <function>AddErrorInfo</function>(const <type>CTCLString</type>&amp; <parameter>rMessage</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            These functions are wrapperf ro the API function <function>Tcl_AddErrorInfo</function>
+            the <parameter>pMessage</parameter>, and <parameter>rMessage</parameter>
+            parameters provide the message that is added to the <parameter>errorInfo</parameter>
+            variable.
+        </para>
+        <para>
+        <programlisting>
+  <type>void</type> <function>SetErrorCode</function> (const <type>char</type>* <parameter>pMessage,</parameter>
+                     const <type>char</type>* <parameter>pMnemonic</parameter>=<literal>"???"</literal>,
+                     const <type>char</type>* <parameter>pFacility</parameter>=<literal>"TCL"</literal>,
+                     const <type>char</type>* <parameter>pSeverity</parameter>=<literal>"FATAL"</literal>)  ;
+  <type>void</type> <function>SetErrorCode</function>(const <type>std::string</type> <parameter>rMessage</parameter>,
+                    const <type>std::string</type>&amp; <parameter>rMnemonic</parameter>=<type>std::string</type>(<literal>"???"</literal>),
+                    const <type>std::string</type>&amp; <parameter>rFacility</parameter>=<type>std::string</type>(<literal>"TCL"</literal>),
+                    const <type>std::string</type>&amp; <parameter>rSeverity</parameter>=<type>std::string</type>(<literal>"FATAL</literal>"));
+        </programlisting>
+        </para>
+        <para>
+            These function set the <varname>errorCode</varname> Tcl interpreter variable.
+            The convention these function support is to set the error code to a list that
+            consists of a message (<parameter>pMessage</parameter> and <parameter>rMessage</parameter>,
+            mnemonic for the message (<parameter>pMnemonic</parameter> or <parameter>rMnemonic</parameter>, the
+            Facility (<parameter>pFacility</parameter> or <parameter>rFacility</parameter>)that is throwing
+            the error and the severity (<parameter>pSeverity</parameter> or <parameter>rSeverity</parameter>)
+            of the error.
+        </para>
+        <para>
+            <programlisting>
+virtual   const <type>char</type>* <function>ReasonText</function> () const;
+virtual   <type>Int_t</type> <function>ReasonCode</function> () const  ;
+        </programlisting>
+        </para>
+        <para>
+            These two functions are intended for use by exception catch blocks.
+            <function>ReasonText</function> provides human readable text that
+            describes the exception.  <function>ReasonCode</function> provides a
+            numerical code that describes the exception.  Often this just has the
+            value <literal>TCL_ERROR</literal>
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+Tcl_AddErrorInfo(3tcl),
+Tcl_SetErrorCode(3tcl)
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

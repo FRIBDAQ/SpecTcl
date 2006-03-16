@@ -38,6 +38,15 @@ AC_PROG_GCC_TRADITIONAL
 AC_PROG_LIBTOOL
 
 
+# The following are for doctools things:
+
+AC_PATH_PROG(HCDOCBOOK,   docbook2dvi,  echo)
+AC_PATH_PROG(HTMLDOCBOOK, docbook2html, echo)
+AC_PATH_PROG(DVIPDF,      dvipdf,       echo)
+AC_PATH_PROG(MANDOCBOOK,  xmlto,        echo)
+
+
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
@@ -798,6 +807,14 @@ AC_SUBST(OS)
 #   .so version information.
 
 AC_SUBST(SOVERSION)
+
+# docbook tools:
+
+AC_SUBST(HCDOCBOOK)
+AC_SUBST(HTMLDOCBOOK)
+AC_SUBST(DVIPDF)
+AC_SUBST(MANDOCBOOK)
+
 
 # create output files.
 

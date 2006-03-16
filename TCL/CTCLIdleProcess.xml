@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd">
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLIdleProcess</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLIdleProcess</refname>
+        <refpurpose>
+            Allows the establishment of an executable object that
+            can be scheduled to be invoked when the Tcl/Tk intperpreter
+            has no events that require processing.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLIdleProcess.h&gt;
+
+class CTCLIdleProcess : protected CTCLTimer
+{
+public:
+  CTCLIdleProcess(CTCLInterpreterObject* pObject);
+  CTCLIdleProcess(CTCLInterpreter* pInterp);
+  virtual ~CTCLIdleProcess();
+
+  void Set();
+  void Clear();
+  virtual void operator()() = 0;
+};
+    </programlisting>
+
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            While Tcl provides a mechanism for scheduling the execution of
+            a function when the interpreter main loop is idle (no pending events),
+            this is not suitable for processes that may need to be rescheduled.
+            Therefore, <classname>CTCLIdleProcess</classname> is actually based on a
+            timer dispatch where the delay interval is 0ms.
+        </para>
+        <para>
+        <classname>CTCLIdleProcess</classname>
+        provides an abstract base class for creating function like classes that
+        are 'called' to run interleaved with the interpreter.
+        A function like class is one that implements <classname>operator()</classname>
+        (see REFERENCES) below.  You can create an idle processor by creating
+        a subclass of <classname>CTCLIdleProcess</classname> overriding
+        <classname>operator()</classname>, creating an instance of that new class,
+        and invoking the <function>Set()</function> function to schedule the
+        execution of the <function>operator()</function>.  Note that
+        It is possible for the code in your <function>operator()</function> to
+        reschedule itself by calling <function>Set()</function>.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+  <function>CTCLIdleProcess</function>(<type>CTCLInterpreterObject</type>* <parameter>pObject</parameter>);
+  <function>CTCLIdleProcess</function>(<type>CTCLInterpreter</type>* <parameter>pInterp</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Creates a <classname>CTCLIdleProcess</classname> and initializes the timer on which this
+            is based. <parameter>pInterp</parameter> is the interpreter that will schedule
+            the object's <function>operator()</function>.  <parameter>pObject</parameter>
+            points to an interpreter object who's interpreter will schedule the
+            <function>operator()</function> to run.
+        </para>
+        <para>
+            <programlisting>
+  <type>void</type> <function>Set</function>();
+  <type>void</type> <function>Clear</function>();
+            </programlisting>
+        </para>
+        <para>
+            These function control the scheduling of the <function>operator()</function>
+            call. <function>Set</function> schedules the function to be called pretty much
+            the next time the interpreter loop is intered, while <function>Clear</function>
+            cancels a pending schedule.
+        </para>
+        <para>
+            <programlisting>
+  virtual <type>void</type> <function>operator()</function>() = 0;
+        </programlisting>
+        </para>
+        <para>
+            This pure virtual function is overridden by your idle processor to
+            provide the behavior of the idle processor.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+CTCLTimer(3),
+Tcl_CreateTimerHandler(3tcl),
+Tcl_DoWhenIdle(3tcl),
+
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>REFERENCES</title>
+        <para>
+            <programlisting>
+Musser, Derge, Saini: <parameter>STL Tutorial and Reference Guide</parameter>
+Addison-Wesley Professional Computing Series; 2001 ISBN 0-201-37923-6
+See section 2.4 for a description and discussion of function objects.
+            </programlisting>
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

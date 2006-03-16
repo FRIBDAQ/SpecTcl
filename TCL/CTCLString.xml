@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd" >
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLString</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLString</refname>
+        <refpurpose>
+            Provide a wrapper for the <type>Tcl_DString</type> data type
+            and its API
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLString.h&gt;
+...
+class CTCLString
+{
+public:
+  CTCLString ();
+  CTCLString (const char* pString  ) ;
+  CTCLString(const std::string&amp; rString);
+  CTCLString(const Tcl_DString&amp; rString);
+  CTCLString (const CTCLString&amp; aCTCLString );
+  ~ CTCLString ();
+
+  CTCLString&amp; operator= (const CTCLString&amp; aCTCLString);
+  int operator== (const CTCLString&amp; aCTCLString);
+  int operator!= (const CTCLString&amp; aCTCLString);
+  int operator&gt; (const CTCLString&amp; aCTCLString);
+  int operator&lt; (const CTCLString&amp; aCTCLString);
+  int operator&gt;=(const CTCLString&amp; aCTCLString);
+  int operator&lt;=(const CTCLString&amp; aCTCLString);
+
+  Tcl_DString&amp; getString();
+  CTCLString&amp; Append (const std::string&amp; rString, Int_t nLength=-1);
+  CTCLString&amp; Append (const CTCLString&amp;  rString, Int_t nLength=-1);
+  CTCLString&amp; Append (Tcl_DString&amp;       pString, Int_t nLength=-1);
+  CTCLString&amp; Append (const char*        pString, Int_t nLength=-1);
+  CTCLString&amp; AppendElement (const Tcl_DString*      pRhs);
+  CTCLString&amp; AppendElement (const CTCLString&amp;       rRhs);
+  CTCLString&amp; AppendElement (const std::string&amp;      rRhs);
+  CTCLString&amp; AppendElement (const char*             pRhs);
+  CTCLString&amp; AppendElement(DFloat_t value, const char* pFormat = "%f");
+  CTCLString&amp; AppendElement(long value, const char* pFormat = "%i");
+
+  CTCLString&amp; StartSublist ()  ;
+  CTCLString&amp; EndSublist ()  ;
+  UInt_t  Length () const ;
+  CTCLString&amp; Truncate (UInt_t nNewLength)  ;
+  Bool_t isCommand () const  ;
+
+  Bool_t Match (const char*       pPattern) const;
+  Bool_t Match (std::string&amp;      rPattern) const;
+  Bool_t Match (const CTCLString&amp; rPattern) const;
+
+  operator const char* () const;
+  operator std::string () const;
+  operator Tcl_DString* ();
+};
+    </programlisting>
+
+
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The Tcl API provides a dynamic string type <type>Tcl_DString</type>.
+            For many purposes, the C++ <type>std::string</type> is sufficient, however
+            the <type>Tcl_DString</type> list building functions are unmatched in
+            <type>std::string</type>.  <classname>CTCLString</classname> is an object oriented
+            wrapping of a <type>Tcl_DString</type>
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+            <programlisting>
+<type>CTCLString</type> ();
+<type>CTCLString</type> (const <type>char</type>* <parameter>pString</parameter>) ;
+<type>CTCLString</type>(const <type>std::string</type>&amp; <parameter>rString</parameter>);
+<type>CTCLString</type>(const <type>Tcl_DString</type>&amp; <parameter>rString</parameter>);
+<type>CTCLString</type> (const <type>CTCLString</type>&amp; <type>aCTCLString</type> );
+            </programlisting>
+            </para>
+            <para>
+                Constructs a <classname>CTCLString</classname> object.  With the exception
+                of the first constructor, which produces an empty string, all of these
+                constructors initialize the contents of the underlying
+                <classname>Tcl_DString</classname> with the string representation of their
+                parameter.
+            </para>
+            <para>
+            <programlisting>
+<type>CTCLString</type>&amp; <function>operator=</function> (const <type>CTCLString</type>&amp; <parameter>rhs</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Supports assignment to a <classname>CTCLString</classname> from another;
+            <parameter>rhs</parameter>.
+        </para>
+        <para>
+        <programlisting>
+<type>int</type> <function>operator==</function> (const <type>CTCLString</type>&amp; <parameter>rhs</parameter>);
+<type>int</type> <function>operator!=</function> (const <type>CTCLString</type>&amp; <parameter>rhs</parameter>);
+<type>int</type> <function>operator&gt;</function> (const <type>CTCLString</type>&amp; <parameter>rhs</parameter>);
+<type>int</type> <function>operator&lt;</function> (const <type>CTCLString</type>&amp; <parameter>rhs</parameter>);
+<type>int</type> <function>operator&gt;=</function>(const <type>CTCLString</type>&amp; <parameter>rhs</parameter>);
+<type>int</type> <function>operator&lt;=</function>(const <type>CTCLString</type>&amp; <parameter>rhs</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Relational operators provide for lexicographic copmarisons between the object
+            and <parameter>rhs</parameter> which is another <classname>CTCLString</classname>.
+        </para>
+        <para>
+        <programlisting>
+<type>Tcl_DString</type>&amp; <function>getString</function>();
+        </programlisting>
+        </para>
+        <para>
+            Returns a reference tothe underlying <type>Tcl_DString</type> of the
+            object.
+        </para>
+        <para>
+        <programlisting>
+<type>CTCLString</type>&amp; <function>Append</function> (const <type>std::string</type>&amp; <parameter>String</parameter>,
+                  <type>Int_t</type> <parameter>nLength</parameter>=<literal>-1</literal>);
+<type>CTCLString</type>&amp; <function>Append</function> (const <type>CTCLString</type>&amp; <parameter>String</parameter>,
+                  <type>Int_t</type> <parameter>nLength</parameter>=<literal>-1</literal>);
+<type>CTCLString</type>&amp; <function>Append</function> (<type>Tcl_DString</type>&amp;       <parameter>String</parameter>,
+                  <type>Int_t</type> <parameter>nLength</parameter>=<literal>-1</literal>);
+<type>CTCLString</type>&amp; <function>Append</function> (const <type>char</type>*            <parameter>String</parameter>,
+                  <type>Int_t</type> <parameter>nLength</parameter>=<literal>-1</literal>);
+        </programlisting>
+        </para>
+        <para>
+            Appends a section of <parameter>String</parameter> to the
+            <classname>CTCLString</classname> that is being built up.
+            The first <parameter>nLength</parameter> characters are appended.
+            if <parameter>nLength</parameter> is <literal>-1</literal> then
+            all <parameter>String</parameter> is appended.
+        </para>
+        <para>
+        <programlisting>
+<type>CTCLString</type>&amp; <function>AppendElement</function> (const <type>Tcl_DString</type>*  <parameter>item</parameter>);
+<type>CTCLString</type>&amp; <function>AppendElement</function> (const <type>CTCLString</type>&amp;   <parameter>item</parameter>);
+<type>CTCLString</type>&amp; <function>AppendElement</function> (const <type>std::string</type>&amp;  <parameter>item</parameter>);
+<type>CTCLString</type>&amp; <function>AppendElement</function> (const <type>char*</type>         <parameter>item</parameter>);
+<type>CTCLString</type>&amp; <function>AppendElement</function>(<type>DFloat_t</type> <parameter>item</parameter>,
+                         const <type>char*</type> <parameter>pFormat</parameter> = <literal>"%f"</literal>);
+<type>CTCLString</type>&amp; <function>AppendElement</function>(<type>long</type>     <parameter>item</parameter>,
+                         const <type>char*</type> <parameter>pFormat</parameter> = <literal>"%i"</literal>);
+        </programlisting>
+        </para>
+        <para>
+            Appends <parameter>item</parameter> as a list element to the end of the
+            string.  If necessary quotation is performed to ensure the item is treated as a
+            single list element.  The <parameter>pFormat</parameter> parameter
+            controls the conversion of non string data types to a string and is of the form
+            of any control sequence used by sprintf.  For example
+            <literal>"i = %d"</literal> could be used to convert an integer to a label
+            and its value which would be appended to the string as e.g.
+            <literal>{i = 1234}</literal>
+        </para>
+        <para>
+        <programlisting>
+<type>CTCLString</type>&amp; <function>StartSublist</function> ()  ;
+<type>CTCLString</type>&amp; <function>EndSublist</function> ()  ;
+        </programlisting>
+        </para>
+        <para>
+            Used in conjuntion with <function>AppendElement</function> these
+            start and end sublists which are list elements that consist of lists.
+            Sublists can be nested to any depth.
+            For example:
+            <programlisting>
+    CTCLString s;
+    s.AppendElement("a");
+    s.StartSublist();
+    s.AppendElement("b");
+    s.AppendElement("c");
+    s.StartSublist();
+    s.AppendElement("d");
+    s.AppendElement("e");
+    s.EndSublist();
+    s.AppendElement("f");
+    s.EndSublist();
+    s.AppendElement("g");
+            </programlisting>
+        Would make the <varname>s</varname> contain the string
+        <literal>"a {b c {d e} f} g"</literal>
+        </para>
+        <para>
+        <programlisting>
+<type>UInt_t</type>  <function>Length</function>() const ;
+        </programlisting>
+        </para>
+        <para>
+            Returns the number of characters in the string.
+        </para>
+        <para>
+        <programlisting>
+CTCLString&amp; Truncate (UInt_t nNewLength)  ;
+        </programlisting>
+        </para>
+        <para>
+            Truncates the string to the first <parameter>nNewLength</parameter>
+            characters.
+        </para>
+        <para>
+        <programlisting>
+<type>Bool_t</type> <function>isCommand</function> () const  ;
+        </programlisting>
+        </para>
+        <para>
+            Analyzes the string and returns <literal>kfTRUE</literal> if the
+            string is a 'well formed command'.  Note that a well formed command
+            may still have syntax and execution errors.  This just ensures that
+            a string has a balanced set of quoting characters.
+        </para>
+        <para>
+        <programlisting>
+<type>Bool_t</type> <function>Match</function> (const <type>char</type>*           <parameter>Pattern</parameter>) const;
+<type>Bool_t</type> <function>Match</function> (<type>std::string</type>&amp;      <parameter>Pattern</parameter>) const;
+<type>Bool_t</type> <function>Match</function> (const <type>CTCLString</type>&amp; <parameter>Pattern</parameter>) const;
+        </programlisting>
+        </para>
+        <para>
+            Returns <literal>kfTRUE</literal> if the contents of the string matches the
+            <parameter>Pattern</parameter>
+            parameter.  The <parameter>Pattern</parameter> parameter can contain all of the
+            wildcards in <firstterm>glob</firstterm> style pattern matching.  See
+            REFERENCES below for moer information about glob style matching.
+        </para>
+        <para>
+        <programlisting>
+operator const char* () const;
+operator std::string () const;
+operator Tcl_DString* ();
+    </programlisting>
+        </para>
+        <para>
+            These operators are implicit and explicit type conversion operators that
+            allow a <classname>CTCLString</classname> object to be treated as a
+            <type>char*</type> pointing to a null terminated string, a
+            <type>std::string</type> object, or a <type>Tcl_DString</type> pointer.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+Tcl_DStringAppend(3tcl),
+Tcl_DStringAppendElement(3tcl),
+Tcl_DStringEndSublist(3tcl),
+Tcl_DStringFree(3tcl),
+Tcl_DStringGetResult(3tcl),
+Tcl_DStringInit(3tcl),
+Tcl_DStringLength(3tcl),
+Tcl_DStringResult(3tcl),
+Tcl_DStringSetLength(3tcl),
+Tcl_DStringStartSublist(3tcl)
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>REFERENCES</title>
+        <para>
+            <programlisting>
+J.K. Ousterhout <parameter>Tcl and the Tk Toolkit</parameter>
+Addison-Wesley Professional Computing Series 1994 see section 9.2
+            </programlisting>
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>
