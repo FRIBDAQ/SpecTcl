@@ -739,9 +739,20 @@ proc addSpectrum widget {
             spectrum -delete $name
         }
         # Make the new spectrum.
+	
 
-        spectrum $name $type $parameters $axes
-        sbind $name
+        set stat [catch {spectrum $name $type $parameters $axes} msg]
+	if {$stat} {
+	    tk_messageBox -icon error -title {failed to make}  \
+		-message "Could not create spectrum $name : $msg"
+	    error spectrumerror
+	}
+        set stat [catch {sbind $name} msg]
+	if {$stat} {
+	    tk_messageBox -icon error -title {failed to bind} \
+		-message "Could not bind $name :  $msg"
+	    error bindfailure
+	}
 
         # If there's a gate apply it.
 
@@ -767,11 +778,23 @@ proc addSpectrum widget {
 
             #  Make the spectrum.
 
-            spectrum $name.$index $type $pname $axes
+            set stat [catch {spectrum $name.$index $type $pname $axes} msg]
+	    if {$stat} {
+		tk_messageBox -icon error -title {failed to make}  \
+		    -message "Could not create spectrum $name : $msg"
+		error spectrumerror
+	    }
             if {$gate != ""} {
                 apply $gate $name
             }
-	    sbind $name.$index
+	    stat stat [catch {sbind $name.$index} msg]
+	    if {$stat} {
+		tk_messageBox -icon error -title {failed to bind} \
+		    -message "Could not bind $name :  $msg"
+		error bindfailure
+	    }
+	    
+
         }
     }
     .gui.b update
