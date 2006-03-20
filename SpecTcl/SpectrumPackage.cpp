@@ -37,6 +37,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
+//    Revision 5.5  2006/03/20 18:25:16  ron-fox
+//    Add a bit more error detection/checking in spectrum binding/creation in
+//    GUI...other changes are incidental and accidental
+//
 //    Revision 5.4  2006/02/21 19:30:59  ron-fox
 //    Add -showgate to spectrum -list command/subcommand
 //
@@ -595,6 +599,12 @@ CSpectrumPackage::BindList(CTCLResult& rResult,
       Result.AppendElement(*p);
       Result.AppendElement(rExcept.ReasonText());
       Result.EndSublist();
+    }
+    catch (...) {
+      // Any other exception...
+
+      Failed = kfTRUE;
+      Result = "BindToDisplay threw an error of some sort";
     }
   }
 
