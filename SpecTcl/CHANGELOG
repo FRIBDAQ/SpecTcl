@@ -421,3 +421,5 @@ March 16, 2006
   - Need to implement CTCLProcssor::Bind to bind itself and the adaptor.
 March 20, 2006
   - Added a bit more error checking/reporting to spectrum creation gui.
+March 22, 2006
+  - Fixed an error in 1-d spectrum creation.. syntax 
