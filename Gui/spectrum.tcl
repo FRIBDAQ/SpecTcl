@@ -787,7 +787,7 @@ proc addSpectrum widget {
             if {$gate != ""} {
                 apply $gate $name
             }
-	    stat stat [catch {sbind $name.$index} msg]
+	    set stat [catch {sbind $name.$index} msg]
 	    if {$stat} {
 		tk_messageBox -icon error -title {failed to bind} \
 		    -message "Could not bind $name :  $msg"
