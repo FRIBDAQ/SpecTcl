@@ -1,4 +1,8 @@
+
 # TreeVariable.tcl
+# Tcl/Tk script to generate a menu driven spectrum creation
+# Author: D. Bazin
+# Date: Dec 2000 - Sept 2002
 # Version 1.2 November 2003
 
 proc UpdateTreeVariable {variable} {

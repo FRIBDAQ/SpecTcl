@@ -4,7 +4,12 @@
 //  Created on:      30-Mar-2005 11:03:49 AM
 //  Original author: Ron Fox
 ///////////////////////////////////////////////////////////
-
+// This implementation of TreeParameter is based on the ideas and original code of::
+//    Daniel Bazin
+//    National Superconducting Cyclotron Lab
+//    Michigan State University
+//    East Lansing, MI 48824-1321
+//
 #include <config.h>
 #include "CTreeException.h"
 

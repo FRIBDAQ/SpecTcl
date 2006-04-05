@@ -351,3 +351,5 @@ June 1, 2005
    - Remove illegal default argument in PointlistGate.h
 
 SpecTcl-3.0-007
+   - Credit D. Bazin as original author of TreeParam in the sources.
+   - Fix configuration not always finding motif headers on current systems.

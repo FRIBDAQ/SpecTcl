@@ -1,7 +1,4 @@
-# (C) Copyright Michigan State University 2019, All rights reserved 
-# Copyright (c) 1999, Bryan Oakley
-# All Rights Reservered
-#
+
 # Bryan Oakley
 # oakley@channelpoint.com
 #

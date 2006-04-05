@@ -159,6 +159,7 @@ fi
 #      /usr/include/X11R6
 #      /usr/X11/include
 #      /usr/X11R6/include
+#      /usr/X11R6/include/X11
 #      /sw/include             (Darwin lesstif).
 #      /usr/local/include      (default lesstif installation).
 #
@@ -168,7 +169,7 @@ fi
 
 if test $motif_h_found = no
 then
-   motif_header_dirs="/usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include"
+   motif_header_dirs="/usr/include/X11 /usr/include /usr/include/X11R6 /usr/X11R6/include/X11 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include"
    for d in ${motif_header_dirs}
    do
 	AC_CHECK_FILE([${d}/Xm/Xm.h],
