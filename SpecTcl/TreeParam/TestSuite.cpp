@@ -1,4 +1,10 @@
 // Template for a test suite.
+// This implementation of TreeParameter is based on the ideas and original code of::
+//    Daniel Bazin
+//    National Superconducting Cyclotron Lab
+//    Michigan State University
+//    East Lansing, MI 48824-1321
+//
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>

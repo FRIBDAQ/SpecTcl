@@ -290,6 +290,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
+ Revision 5.4  2006/04/05 11:34:19  ron-fox
+ Credit D. Bazin with treeparam original concept.
+
  Revision 5.3  2005/09/22 12:41:47  ron-fox
  2dl spectra in Xamine and other misc stuff.. including making
  void functions return values in all paths, including exception
@@ -364,6 +367,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <errno.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include "xamineDataTypes.h"
 #include "XMDialogs.h"
 #include "XMManagers.h"
 #include "XMPushbutton.h"
@@ -1929,8 +1933,8 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
   ps_dialog->SetModal(XmDIALOG_FULL_APPLICATION_MODAL);
 
   win_attributed* pAttributes = Xamine_GetSelectedDisplayAttributes();
-  char xlabel[72];
-  char ylabel[72];
+  spec_title xlabel;
+  spec_title ylabel;
   int nSpectrum = pAttributes->spectrum();
   int fDefaultsExist = (dflt_print_opts != NULL);
   if(!fDefaultsExist) {
