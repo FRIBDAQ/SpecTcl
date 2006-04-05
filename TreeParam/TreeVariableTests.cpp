@@ -1,3 +1,9 @@
+// This implementation of TreeParameter is based on the ideas and original code of::
+//    Daniel Bazin
+//    National Superconducting Cyclotron Lab
+//    Michigan State University
+//    East Lansing, MI 48824-1321
+//
 // Note that this also tests assignment to CTreeVariableProperties from
 // a CTreeVariable as we need to ensure that enough infrastructure in the
 // CTreeVariable world works before we can do that test.

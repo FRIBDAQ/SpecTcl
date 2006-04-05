@@ -13,6 +13,13 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
+// This implementation of TreeParameter is based on the ideas and original code of::
+//    Daniel Bazin
+//    National Superconducting Cyclotron Lab
+//    Michigan State University
+//    East Lansing, MI 48824-1321
+//
+
 #ifndef __RESETVISITOR_H
 #define __RESETVISITOR_H
 

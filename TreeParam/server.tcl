@@ -1,3 +1,7 @@
+# (C) Copyright Michigan State University 2019, All rights reserved 
+# Copyright (c) 1999, Bryan Oakley
+# All Rights Reservered
+
 proc ServerAccept {cid addr port} {
 	global ClientState
 	puts "Client established connection on $cid, address $addr, port $port"

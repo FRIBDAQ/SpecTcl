@@ -1,4 +1,7 @@
+# (C) Copyright Michigan State University 2019, All rights reserved 
 # TreeVariable.tcl
+# Author: D. Bazin
+# Date: July 2001 - Modified September 2002
 # Version 1.2 November 2003
 
 proc UpdateTreeVariable {variable} {

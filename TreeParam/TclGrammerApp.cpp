@@ -285,6 +285,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 1.3  2006/04/05 11:34:20  ron-fox
+  Credit D. Bazin with treeparam original concept.
+
   Revision 1.2  2005/06/03 15:19:33  ron-fox
   Part of breaking off /merging branch to start 3.1 development
 
@@ -346,6 +349,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
   Uncomment registration of filter command
 
 */
+// This implementation of TreeParameter is based on the ideas and original code of::
+//    Daniel Bazin
+//    National Superconducting Cyclotron Lab
+//    Michigan State University
+//    East Lansing, MI 48824-1321
+//
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
 
