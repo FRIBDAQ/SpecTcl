@@ -507,6 +507,7 @@ class CAnalyzer {
     if(pEvent) pEvent->clear(); // BUG prevention.
     return pEvent;
   }
+  void ReturnEvent(CEvent* pEvent);
 
   void ClearEventList() {
     CEventVector& evlist(m_EventList.getVector());

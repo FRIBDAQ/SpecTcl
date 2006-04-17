@@ -1005,6 +1005,46 @@ Xamine_Draw1dCut(Display *d, Drawable win, GC ctx,
   char label[10];
   sprintf(label, " S%d", object->getid());
 
+  grobj_point *pt1 = object->getpt(0); // First point
+  grobj_point *pt2 = (grobj_point*)NULL;
+  int xlow = pt1->getx();
+  int xhigh;
+  if(object->pointcount() > 1) {
+    pt2 = object->getpt(1);
+    xhigh= pt2->getx();
+    if(xlow > xhigh) {
+      xhigh = xlow;
+      xlow  = pt2->getx();
+    }
+  }
+
+  // start by assuming pt1 is left and pt2 is right, then correct
+  // as needed:
+
+
+  // Assuming xlow/xhigh are in channel coordinates, we want xhigh to 
+  // display on the right side of the channel and xlow on the left so:
+
+  xhigh++;
+  int xpix,ypix;
+  // The drawing depends on whether or not the axis is flipped.
+  if(flipped) {
+    cvt->SpecToScreen(&xpix, &ypix, xlow);
+    XDrawLine(d, win, ctx, xpix, ypix-1, (int)nx, ypix-1);
+    if(pt2) {
+      cvt->SpecToScreen(&xpix, &ypix, xhigh);
+      XDrawLine(d, win, ctx, xpix, ypix+1, (int)nx, ypix+1);
+    }
+  } else {
+    cvt->SpecToScreen(&xpix, &ypix, xlow);
+    XDrawLine(d, win, ctx, xpix, ypix, xpix, 0);
+    if(pt2) {
+      cvt->SpecToScreen(&xpix, &ypix, xhigh);
+      XDrawLine(d, win, ctx, xpix-1, ypix, xpix-1, 0);    
+    }
+  }
+  return;
+
   /* While summing regions are supposed to only consist of a pair of points,
   ** we display all points in the graphical object just in case this definition
   ** gets generalized later.

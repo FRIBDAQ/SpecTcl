@@ -482,7 +482,7 @@ void CPseudoScript::operator()(CEvent& rEvent)
   }
   catch (CTCLException& rException) {
     string Result;
-    Result = (const char*)(rException.GetResult());
+    Result = rException.ReasonText();
 
     cerr << "Evaluation of script: " << getName() << " failed\n";
     cerr << "Result was: " << Result << endl;
