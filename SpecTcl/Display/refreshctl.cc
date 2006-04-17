@@ -701,7 +701,7 @@ void Xamine_UpdateAll(XMWidget *w, XtPointer userd, XtPointer clientd)
  */
 void Xamine_PaneRedrawCallback(XMWidget *w, XtPointer userd, XtPointer calld)
 {
-  int index;
+  long index;
   int column, row;
   int ncol;
   XmDrawingAreaCallbackStruct *st = (XmDrawingAreaCallbackStruct *)calld;
@@ -874,9 +874,10 @@ void Xamine_CancelUpdateTimers()
  */
 void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
 {
+
   XMWidget *pane = (XMWidget *)wid;
   int      ncol;
-  int      index;
+  long      index;
   int       col, row;
   pane_db   *pdb;
   
@@ -885,21 +886,22 @@ void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
    */
   pdb = Xamine_GetPaneDb();
   pane->GetAttribute(XmNuserData, &index);
+
   ncol= Xamine_Panecols();
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
-  
+
   /* Now schedule the work procedure and reschedule us if the spectrum
    ** is still defined: 
    */
   if(pdb->defined(col, row)) {
     if( (pdb->refresh_rate(col,row) != 0)) {
       Xamine_RedrawPane(col, row);
-      pdb->updatetimer(row, col,
-		       XtAppAddTimeOut(XtWidgetToApplicationContext(pane->getid()),
-				       pdb->refresh_rate(col,row)*1000,
-				       Xamine_UpdateTimerRoutine,
-				       (XtPointer)pane));
+                  pdb->updatetimer(row, col,
+             XtAppAddTimeOut(XtWidgetToApplicationContext(pane->getid()),
+      		       pdb->refresh_rate(col,row)*1000,
+      		       Xamine_UpdateTimerRoutine,
+      		       (XtPointer)pane));
     }
     else {
       pdb->updatetimer(row, col, (XtIntervalId)NULL);
