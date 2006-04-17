@@ -453,21 +453,35 @@ void CPseudoScript::operator()(CEvent& rEvent)
   if(!m_fEnabled) return;	// Return if disabled.
   list<UInt_t>::iterator     pId         = m_vParameterIds.begin();
   string Pseudo(m_CallStub);
+  //
+  // We must now build up the actual parameter list.
+  // This will consist of pairs of paramter value and
+  // true/false flags:
+  //     The flags are true if the parameter id is in the range of the
+  //     Event vector and that rEvent[nid].isValid() and false otherwise:
+  //
+  
   while(pId != m_vParameterIds.end()) {
 
     char  Value[100];
-    Int_t nValue;
+    Float_t nValue;
+    bool  isValid;
     if((*pId) < rEvent.size()) {
       if(rEvent[*pId].isValid()) {
-	nValue = rEvent[*pId];
-      } else {
-	nValue = -1;     // Means undefined.
+		nValue = rEvent[*pId];
+		isValid= true;
+      } 
+      else {
+	nValue =-1;
+	isValid = false;
       }
     }
     else {
-      nValue =  -1;	// This means undefined.
+      nValue =  -1;	    // This means undefined.
+      isValid= false;   // Which is unconditionally not set.
     }
-    sprintf(Value, " %d ", nValue);
+    sprintf(Value, " %f %d", nValue,
+    		isValid ? 1 : 0);
     Pseudo += Value;
     pId++;
 
@@ -695,8 +709,20 @@ CPseudoScript::RebuildState()
 
   ProcedureDef.StartSublist();	// Construct the parameter definition.
   list<string>::iterator pn = m_vParameterNames.begin();
+  //
+  // The procedure is parameterized by:
+  //   parameter parameter.isValid pairs 
+  // where
+  //    parameter is the name of a parameter known to the histogramming
+  //    kernel.  For each event, parameter will be substituted for with
+  //    the value of that parameter while parameter.isValid will be the
+  //    result of isValid() on that parameter.
+  //
   while(pn != m_vParameterNames.end()) {
     ProcedureDef.AppendElement((*pn));
+    string isValid(*pn);
+    isValid+=  "isValid";
+    ProcedureDef.AppendElement(isValid);
     pn++;
   }
   ProcedureDef.EndSublist();

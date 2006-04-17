@@ -377,7 +377,7 @@ void Xamine_PointerMotionCallback(Widget wid, XtPointer userd, XEvent *evt,
   /* raw position into the real position:                             */
 
   struct spec_location locdata;
-  int                  index;
+  long                  index;
   int          row, col;
   pane_db     *pdb;
   win_attributed *atts;

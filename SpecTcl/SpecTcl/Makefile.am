@@ -6,46 +6,24 @@ INCLUDES = -I.. -I. -I../TCL -I../Events -I../Utility -I../Sorter  \
 	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:
-	$(mkinstalldirs) $(prefix)/Etc
+	$(mkinstalldirs) $(prefix)/etc
 	$(mkinstalldirs) $(prefix)/Skel
-	$(INSTALL_PROGRAM) $(srcdir)/SpecTclInit.tcl $(prefix)/Etc
+	$(INSTALL_PROGRAM) $(srcdir)/SpecTclInit.tcl $(prefix)/etc
 	$(INSTALL_PROGRAM) $(srcdir)/MySpecTclApp.cpp $(prefix)/Skel
 	$(INSTALL_PROGRAM) $(srcdir)/MySpecTclApp.h $(prefix)/Skel
 	$(INSTALL_PROGRAM) $(srcdir)/SpecTclRC.tcl $(prefix)/Skel
 	$(INSTALL_PROGRAM) $(srcdir)/setup.tcl $(prefix)/Skel
 	$(INSTALL_DATA)    $(srcdir)/Globals.o $(prefix)/lib
-	#    Build Makefile for the user.	
-	#    first the environment.	
-	#
+	$(INSTALL_DATA)   SpecTcl_Makefile.include $(sysconfdir)
 	echo INSTDIR=$(prefix) >Makefile.user
-	echo OS=$(OS)|  cut -d- -f1      >>Makefile.user
-	echo >>                            Makefile.user
-	#
-	#  Now the typical flags we need:
-	#
-	echo INCLUDES="@TCL_FLAGS@ @XINCLUDES@ -I."  \
-	                                        >>Makefile.user
-	echo LIBDIRS="@TCL_LDFLAGS@ @XLIBSW@ " >> Makefile.user
-	echo LIBFLAGS="@X_PRE_LIBS@"           >> Makefile.user
-	echo                                   >> Makefile.user
-	#
-	#   Now the compiler commands:
-	#
-	echo CPP=$(CPP)                        >> Makefile.user
-	echo CXX=$(CXX)                        >> Makefile.user
-	echo CC=$(CC)                          >> Makefile.user
-	echo LD=$(CXX)                         >> Makefile.user
-	echo                                   >> Makefile.user
-	#
-	#   Now the rest of the makefile:
-	#
 	cat Makefile.skel >> Makefile.user
 	$(INSTALL_PROGRAM) $(srcdir)/Makefile.user $(prefix)/Skel/Makefile
 
 
 lib_LTLIBRARIES = libTclGrammerCommands.la
 
-libTclGrammerCommands_la_LDFLAGS = -version-info $(SOVERSION):0
+libTclGrammerCommands_la_LDFLAGS = -version-info $(SOVERSION):0 \
+	-Wl,"-rpath-link=$(libdir)"
 
 libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	RunControlPackage.cpp ParameterPackage.cpp ParameterCommand.cpp \
@@ -83,12 +61,13 @@ SpecTcl_SOURCES = MySpecTclApp.cpp \
 	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h
 
 
-SpecTcl_LDFLAGS = -g
-
 AM_CXXFLAGS = -g
 
 SpecTcl_LDADD = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis \
 	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lXamine  -ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)
-SpecTcl_LDFLAGS = -L. @TCL_LDFLAGS@ @XLIBSW@ -L../SpectrumIO -L../Tape -L../Sorter -L../Xamine -L../Display -L../Gates -L../EventSource -L../Events -L../TCL -L../NSCLException -L../Filter
 
-EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl classbreakdown.WC classbreakdown.omt mapped.tcl paramtest.tcl setup.tcl
+SpecTcl_LDFLAGS = -L. @TCL_LDFLAGS@ @XLIBSW@ -L../SpectrumIO -L../Tape -L../Sorter -L../Xamine -L../Display -L../Gates -L../EventSource -L../Events -L../TCL -L../NSCLException -L../Filter -g -Wl,"-rpath=$(libdir)"
+
+EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
+		 mapped.tcl paramtest.tcl setup.tcl \
+	SpecTcl_Makefile.include

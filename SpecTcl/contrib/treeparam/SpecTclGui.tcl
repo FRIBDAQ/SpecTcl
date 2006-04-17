@@ -29,7 +29,7 @@ proc InformMessage {v} {
 }
 
 proc CheckFiles {} {
-	global SpecTclHome
+	global TreeParameterHome
 	set fileList "\
 	mclistbox.tcl \
 	notebook.tcl \
@@ -42,30 +42,33 @@ proc CheckFiles {} {
 	GateGenerator.tcl \
 	"
 	foreach f $fileList {
-		if {[file exists $SpecTclHome/contrib/treeparam/$f] == 0} {
+		if {[file exists $TreeParameterHome/$f] == 0} {
 			tk_messageBox -message "Incorrect TreeParameter installation. \
-File $f is missing in directory $SpecTclHome/contrib/treeparam"
+File $f is missing in directory $TreeParameterHome"
 			exit
 		}
 	}
 }
 
+if {![info exist TreeParameterHome]} {
+	set TreeParameterHome $SpecTclHome/contrib/treeparam
+}
 
-source $SpecTclHome/contrib/treeparam/mclistbox.tcl
-source $SpecTclHome/contrib/treeparam/notebook.tcl
-source $SpecTclHome/contrib/treeparam/tabnbook.tcl
+source $TreeParameterHome/mclistbox.tcl
+source $TreeParameterHome/notebook.tcl
+source $TreeParameterHome/tabnbook.tcl
 
-source $SpecTclHome/contrib/treeparam/TreeParameter.tcl
+source $TreeParameterHome/TreeParameter.tcl
 
-source $SpecTclHome/contrib/treeparam/SpectrumGenerator.tcl
+source $TreeParameterHome/SpectrumGenerator.tcl
 
-source $SpecTclHome/contrib/treeparam/ParameterManipulator.tcl
+source $TreeParameterHome/ParameterManipulator.tcl
 
-source $SpecTclHome/contrib/treeparam/TreeVariable.tcl
+source $TreeParameterHome/TreeVariable.tcl
 
-source $SpecTclHome/contrib/treeparam/VariableManipulator.tcl
+source $TreeParameterHome/VariableManipulator.tcl
 
-source $SpecTclHome/contrib/treeparam/GateGenerator.tcl
+source $TreeParameterHome/GateGenerator.tcl
 
 CheckVersion
 

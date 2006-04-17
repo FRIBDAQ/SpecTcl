@@ -325,9 +325,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2011, Al
 CXamineGates::CXamineGates(UInt_t spec)
 {
   int status;
+
   long context = Xamine_StartSearch(spec, &status);
-  if((status == NoSuchObject) || (status == NoProcess)) return;
-  assert(status == 0);
+  if(status != Success) return;	// All errors lead to an empty gate list.
+
 
   msg_object gate;
   gate.spectrum = spec;		// All gates from same spectrum.

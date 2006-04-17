@@ -300,7 +300,7 @@ using namespace std;
 
 typedef enum {
   postscript,
-  color_postscript,
+  color_postscript
 } PrinterType;
 
 typedef enum { 
@@ -310,12 +310,12 @@ typedef enum {
 
 typedef enum {
   printall,
-  printsel,
+  printsel
 } PrintNum;
 
 typedef enum {
   tofile,
-  toprinter,
+  toprinter
 } PrintDest;
 
 typedef enum {

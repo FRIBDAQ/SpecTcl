@@ -289,11 +289,39 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-
+#include <math.h>
 #include "mapcoord.h"
 #include "dispshare.h"
 
 extern volatile spec_shared *xamine_shared;
+
+
+/*!
+   Do an arbitrary coordinate transformation:
+   \param fSourcelow, fSourceHigh (float)
+      Define a window in the source coordinate system.
+   \param fDestLow, fDestHigh (float)
+      Define the corresponding window in the destination
+      coordinate system.
+    \param point (float)
+       The source coordinate.
+    \return float
+    \retval  the coordinate transformed as indicated by the
+             two coordinate windows.
+*/
+float Transform(float fSourceLow, float fSourceHigh,
+		float fDestLow,   float fDestHigh, 
+		float point)
+{
+  float fraction;
+  if (fSourceHigh - fSourceLow != 0) {
+    fraction = (point - fSourceLow)/(fSourceHigh - fSourceLow);
+  } 
+  else {
+    fraction = 0.0;
+  }
+  return fDestLow + fraction*(fDestHigh - fDestLow);
+}
 
 /*
 ** Functional Description:
@@ -313,13 +341,11 @@ int Xamine_XMappedToChan(int specno, float value)
 {
   float xlo = xamine_shared->getxmin_map(specno);
   float xhi = xamine_shared->getxmax_map(specno);
+  float nch = xamine_shared->getxdim(specno);
 
-  // Don't divide by zero!
-  if(xhi - xlo == 0)
-    return -1;
+  float x = Transform(xlo, xhi, 0.0, (float)(nch-1), value);
+  return (int)(x + copysign(1.0, x)*0.5);
 
-  float step_size = (float)xamine_shared->getxdim(specno) / (xhi - xlo);
-  return (int)((value - xlo) * step_size);
 }
 
 /*
@@ -338,15 +364,15 @@ int Xamine_XMappedToChan(int specno, float value)
 */
 int Xamine_YMappedToChan(int specno, float value)
 {
+
+
   float ylo = xamine_shared->getymin_map(specno);
   float yhi = xamine_shared->getymax_map(specno);
+  float nch = xamine_shared->getydim(specno);
 
-  // Don't divide by zero!
-  if(yhi - ylo == 0)
-    return -1;
+  float y = Transform(ylo, yhi, 0.0, (float)(nch-1), value);
+  return (int)(y + copysignf(1.0, y)*0.5);
 
-  float step_size = (float)xamine_shared->getydim(specno) / (yhi - ylo);
-  return (int)((value - ylo) * step_size);
 }
 
 /*
@@ -362,18 +388,14 @@ int Xamine_YMappedToChan(int specno, float value)
 **     The floating point value of the mapped coordinate which this channel
 **     corresponds to or -1.0 on failure
 */
-float Xamine_XChanToMapped(int specno, int chan)
+float Xamine_XChanToMapped(int specno, float chan)
 {
   float xlo = xamine_shared->getxmin_map(specno);
   float xhi = xamine_shared->getxmax_map(specno);
+  int   nch = xamine_shared->getxdim(specno);
 
-  // Don't divide by zero!
-  int xdim  = xamine_shared->getxdim(specno);
-  if(xdim == 0)
-    return -1.0;
-
-  float step_size = (xhi - xlo) / xdim;
-  return (step_size * chan + xlo);
+  return Transform(0.0, (float)(nch -1),
+		   xlo, xhi, chan);
 }
 
 /*
@@ -389,16 +411,12 @@ float Xamine_XChanToMapped(int specno, int chan)
 **     The floating point value of the mapped coordinate which this channel
 **     corresponds to or -1.0 on failure
 */
-float Xamine_YChanToMapped(int specno, int chan)
+float Xamine_YChanToMapped(int specno, float chan)
 {
   float ylo = xamine_shared->getymin_map(specno);
   float yhi = xamine_shared->getymax_map(specno);
+  int   nch = xamine_shared->getydim(specno);
 
-  // Don't divide by zero!
-  int ydim  = xamine_shared->getydim(specno);
-  if(ydim == 0)
-    return -1.0;
+  return Transform(0.0, (float)(nch-1), ylo, yhi, chan);
 
-  float step_size = (yhi - ylo) / ydim;
-  return (step_size * chan + ylo);
 }

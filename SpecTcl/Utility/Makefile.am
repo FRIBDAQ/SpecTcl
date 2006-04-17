@@ -1,3 +1,3 @@
 include_HEADERS =  NamedItem.h buffer.h buftypes.h Refptr.h daqtypes.h \
-	histotypes.h SpecMath.h
+	histotypes.h SpecMath.h DesignByContract.h
 EXTRA_DIST = Utility.WC Utility.omt

@@ -47,9 +47,10 @@ class CAxis
   // Member data (private by coding convention).
 
 private:
-  float m_fLow;  //!<  Parameter value corresponding to axis coord 0.  
-  float m_fHigh; //!<  Parameter val corresponding to Axis coord m_nChannels-1.
+  float  m_fLow;  //!<  Parameter value corresponding to axis coord 0.  
+  float  m_fHigh; //!<  Parameter val corresponding to Axis coord m_nChannels-1.
   UInt_t m_nChannels;	       //!<  Number of channels on this axis.  
+  float  m_fScaleFactor;	//!< Precomputed nchannels/(high-low).
   CParameterMapping  m_ParameterSpecification; //!< Parameter mapping info.
   
 public:
@@ -125,11 +126,26 @@ protected:
   
 public:
   
-  Float_t ParameterToAxis (Float_t fParameter)   ; // 
+  // Profiling suggests ParameterToAxis should be inlined.
+  //
+  Float_t ParameterToAxis (Float_t fParameter) {
+    Float_t mP = m_ParameterSpecification.RawToMapped(fParameter);
+    return MappedParameterToAxis(mP);
+  }
   Float_t AxisToParameter (UInt_t nAxisValue)   ; // 
   Float_t AxisToMappedParameter (Int_t nAxisValue)   ; // 
-  Float_t MappedParameterToAxis (Float_t fParameterValue)   ; // 
-  
+
+  // Profiling suggests MappedParameterToAxis should be inlined.
+
+  Float_t MappedParameterToAxis (Float_t fParameterValue) {
+    Float_t fsF = fParameterValue - m_fLow;
+    fsF = fsF*m_fScaleFactor;
+    
+    return (fsF);
+  }
+  // Utility functions
+private:
+  void ComputeScale();
 };
 
 #endif

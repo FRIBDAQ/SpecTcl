@@ -279,6 +279,9 @@ DAMAGES.
 /*
   Change log:
   $Log$
+  Revision 1.5.4.1  2004/08/30 15:33:04  ron-fox
+  Merged with modifications for fixed filter.
+
   Revision 1.5  2003/10/24 14:42:55  ron-fox
   Get a working filter play back subsystem that
   does break the way events are normally

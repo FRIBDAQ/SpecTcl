@@ -491,9 +491,11 @@ static void PlotLin(Channel *d, Sampler *s, float xw, int nx, int ny,
   int   range    = maximum - base + 1;
 
   while(channels < fnx) {
-    unsigned long value = s->sample() - base; /* Get a channel value. */
-    if(value < 0) {
-      value = 0;	/* Apply any lower level cut. */
+    unsigned long value = s->sample();
+    if(value <= base) {
+      value = 0;
+    } else {
+      value -= base;
     }
     if(value > range) value = range;
 
@@ -555,6 +557,9 @@ static void PlotLog(Channel *d, Sampler *s, float xw, int nx, int ny,
   float fnx    = (float)nx;
   while (offset < fnx) {
     double value = (float)s->sample(); /* Get a sample. */
+    if (value == 1.0) {
+      value = 1.5;		// This kludge allows 1 count chans to be seen
+    }
     if(value <= 0.0) 
       value = -logbase;
     else

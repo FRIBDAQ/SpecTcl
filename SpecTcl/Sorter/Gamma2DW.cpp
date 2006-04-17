@@ -295,8 +295,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
-    Revision 4.6  2004/02/03 21:32:58  ron-fox
-    Make definitions of spectra from resolutions consistent with those that have ranges.
+    Revision 4.6.2.1  2004/12/16 13:09:35  ron-fox
+    Fix channel indexing that broke starting SpecTcl 2.1 note histogramming
+    was fine, only channel get/set was affected (maybe swrite too?).
 
     Revision 4.5.2.1  2004/02/02 21:47:08  ron-fox
     *** empty log message ***
@@ -645,7 +646,7 @@ CGamma2DW::operator[] (const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW gamma spectrum y axis"));
   }
-  return (ULong_t)pStorage[nx + (ny << m_nXScale)];
+  return (ULong_t)pStorage[nx + (ny * m_nXScale)];
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -671,7 +672,7 @@ CGamma2DW::set (const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW gamma spectrum y axis"));
   }
-  pStorage[nx + (ny << m_nXScale)] = (UInt_t)nValue;
+  pStorage[nx + (ny * m_nXScale)] = (UInt_t)nValue;
 }
 
 ///////////////////////////////////////////////////////////////////////////

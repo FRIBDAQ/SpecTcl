@@ -1,4 +1,4 @@
-This is gri.info, produced by makeinfo version 4.6 from gri.texi.
+This is gri.info, produced by makeinfo version 4.3 from gri.texi.
 
 INFO-DIR-SECTION Scientific Applications
 START-INFO-DIR-ENTRY
@@ -6,1510 +6,1223 @@ START-INFO-DIR-ENTRY
 END-INFO-DIR-ENTRY
 
 
-File: gri.info,  Node: Concept Index,  Next: Index of Commands,  Prev: License,  Up: Top
+File: gri.info,  Node: Handling Headers,  Next: Ignoring Columns,  Prev: Handling Data,  Up: Handling Data
 
-Index, general
-**************
+Handling headers
+----------------
 
-* Menu:
+   Case 1 - known number of header lines.  This is easy.  If you know
+that the file has, say, 10 header lines, you can just do this:
 
-* ! rpn operator:                        Unary Operators.
-* & rpn operator:                        Binary Operators.
-* & syntax, how it is parsed:            Implementation of Ampersand Syntax.
-* * rpn operator:                        Binary Operators.
-* + rpn operator:                        Binary Operators.
-* - rpn operator:                        Binary Operators.
-* -batch command-line option:            Invoking Gri.
-* -chatty command-line option:           Invoking Gri.
-* -creator command-line option:          Invoking Gri.
-* -debug command-line option:            Invoking Gri.
-* -directory command-line option:        Invoking Gri.
-* -directory_default command-line option: Invoking Gri.
-* -help command-line option:             Invoking Gri.
-* -no_bounding_box command-line option:  Invoking Gri.
-* -no_cmd_in_ps:                         Invoking Gri.
-* -no_startup_message command-line option: Invoking Gri.
-* -no_warn_offpage command-line option:  Invoking Gri.
-* -output PS_file_name commandline option: Invoking Gri.
-* -publication command-line option:      Invoking Gri.
-* -superuser command-line option:        Invoking Gri.
-* -trace command-line option:            Invoking Gri.
-* -version command-line option:          Invoking Gri.
-* -warn_offpage command-line option:     Invoking Gri.
-* -yes command-line option:              Invoking Gri.
-* / rpn operator:                        Binary Operators.
-* < comparison operator in rpn expressions: Binary Operators.
-* < rpn operator:                        Binary Operators.
-* <= rpn operator:                       Binary Operators.
-* = rpn operator assigns to variables, synonyms, and columns: Binary Operators.
-* == comparison operator in rpn expressions: Binary Operators.
-* > comparison operator in rpn expressions: Binary Operators.
-* >= rpn operator:                       Binary Operators.
-* @ rpn operator, for accessing columnar data: Binary Operators.
-* [] syntax for optional words in commands: Invoking Gri.
-* [] syntax for selecting words in synonyms: Extracting Words From Strings.
-* \$() syntax for system commands:       Using OS Inside Gri.
-* \& and \&& notation:                   Determining Calling Information.
-* \.return_value., from read columns:    Read Columns.
-* \.return_value., from read grid ...:   Read Grid.
-* \.return_value., from system ...:      System.
-* \.return_value., general:              Important Builtin Synonyms.
-* \.wd. synonym, storing working directory: Important Builtin Synonyms.
-* \<<, for newline in show commands:     Show.
-* \>>, for horizontal tab in show commands: Show.
-* \@alias notation:                      Alias Synonyms.
-* \\.path_commands. builtin synonym <1>: Set Path To.
-* \\.path_commands. builtin synonym:     Invoking Gri.
-* \\.path_data. builtin synonym:         Set Path To.
-* abs rpn operator:                      Unary Operators.
-* accented characters in text:           Non-English Text.
-* acknowledgments:                       Acknowledgments.
-* acos rpn operator:                     Unary Operators.
-* acosh rpn operator:                    Unary Operators.
-* adding new commands to Gri:            Adding New Commands.
-* adding new commands, complicated example: Complicated New Command.
-* age rpn operator:                      Unary Operators.
-* Alejandro Lopez-Valencia (contributer): Acknowledgments.
-* alias synonyms, checking for existence of: Unary Operators.
-* alias synonyms, with the \@alias notation: Alias Synonyms.
-* aligning superscripts and subscripts with \!: Mathematical Text.
-* American Geophysical Union, recommended font size: Set Font Size.
-* American Geophysical Union, recommended gray levels: Set Graylevel.
-* American Geophysical Union, recommended image gray levels: Images.
-* American Geophysical Union, recommended line thickness: Set Line Width.
-* and rpn operator:                      Binary Operators.
-* Andrew Collier (contributer):          Acknowledgments.
-* annotating lines:                      Legend.
-* arc, drawing:                          Draw Arc.
-* area rpn operator:                     Manipulation of Columns etc.
-* area under curve:                      Manipulation of Columns etc.
-* argc rpn operator, yielding number of commandline arguments: Solitary Operators.
-* argc, RPN operator to access commandline arguments: Invoking Gri.
-* arguments on command line, accessing with argv rpn operator: Unary Operators.
-* arguments on commandline, accessing:   Invoking Gri.
-* arguments to new commands, how to alter: Changeable Command Arguments.
-* argv rpn operator, access commandline arguments: Unary Operators.
-* argv, RPN operator to access commandline arguments: Invoking Gri.
-* arrows:                                Set Arrow Type.
-* arrows, drawing single:                Draw Arrow.
-* arrows, how to read direction field:   Read Columns.
-* arrows, setting size of heads:         Set Arrow Size.
-* arrows, size of heads stored in ..arrowsize..: Built-in Variables.
-* ascent rpn operator:                   Unary Operators.
-* asin rpn operator:                     Unary Operators.
-* assert command, for debugging:         Assert.
-* assigning to columns, variables and synonyms within RPN expressions: Binary Operators.
-* atan rpn operator:                     Unary Operators.
-* atof rpn operator:                     Unary Operators.
-* awk system tool:                       Awk.
-* awk, sample of use:                    Operating System.
-* axes, and mathematical operations on columns: Axis Scaling.
-* axes, automatic drawing of:            Grayscale Images.
-* axes, autoscaling of:                  Axis Scaling.
-* axes, displaying information about:    Show.
-* axes, forcing rescaling:               Rescale.
-* axes, guide to choosing length of:     Length.
-* axes, labels for:                      Labels.
-* axes, length of:                       Built-in Variables.
-* axes, linear:                          Log And Linear.
-* axes, location of:                     Position.
-* axes, logarithmic:                     Log And Linear.
-* axes, range of values on:              Range.
-* axes, scales:                          Simple Example Revisited.
-* axes, setting tic size:                Set Tic Size.
-* axis labels, controlling:              Set X Axis.
-* axis sizes, scaled with golden ratio:  Length.
-* Barnes method for gridding data:       Ungridded Data.
-* batch processing <1>:                  Built-in Variables.
-* batch processing:                      Invoking Gri.
-* beeping on errors:                     Set Beep.
-* beginners, simple example:             Simple Example.
-* BeOS unix compilation:                 Beos-install.
-* big-endian vs little-endian data, caution: Binary Files.
-* big-endian vs little-endian data, plans: Plans.
-* binary data:                           Binary Files.
-* binary operators in rpn expressions:   Binary Operators.
-* bounding box:                          Invoking Gri.
-* bounding box, setting:                 Set Bounding Box.
-* Brian May, contributer:                Acknowledgments.
-* bug, resulting in bus error:           Reporting Bugs.
-* bug, resulting in segmentation fault:  Reporting Bugs.
-* bugs in Gri:                           Known Bugs.
-* bugs, how to kill them:                Killing Bugs.
-* bugs, how to report:                   Reporting Bugs.
-* built-in synonyms, global:             Important Builtin Synonyms.
-* built-in synonyms, local:              Local Synonyms.
-* built-in variables:                    Built-in Variables.
-* builtin colors, list of:               Pen Color.
-* builtin synonym \\.path_commands. <1>: Set Path To.
-* builtin synonym \\.path_commands.:     Invoking Gri.
-* builtin synonym \\.path_data.:         Set Path To.
-* bus error, what to do:                 Reporting Bugs.
-* calling OS from within strings:        Using OS Inside Gri.
-* Carl Osterwisch (contributer):         Acknowledgments.
-* cd command:                            Cd.
-* ceil rpn operator:                     Unary Operators.
-* changeable arguments, using delete on: Using New And Delete.
-* changeable arguments, using new on:    Using New And Delete.
-* changes to Gri, protection against:    Expecting.
-* changing directories:                  Cd.
-* character variables (synonyms) <1>:    Using Synonyms.
-* character variables (synonyms):        Synonyms.
-* checking for missing value in rpn expressions: Unary Operators.
-* circles, drawing:                      Draw Circle.
-* clipping data using set input clip:    Set Clip.
-* clipping data using set input data window: Set Input Data Window.
-* close command:                         Close.
-* closing files:                         Close.
-* Clyde Clements (contributer):          Acknowledgments.
-* cmtopt rpn operator:                   Unary Operators.
-* colon on commandline:                  Invoking Gri.
-* color, displaying names and RGB values of: Show.
-* color, for text:                       Set Font Color.
-* color, symbols:                        Scattergraphs.
-* colors, list of:                       Pen Color.
-* colors, reading from X11 database:     Read Colornames.
-* colorscale modification:               Mathematics.
-* colorscale of image, reading from file: Read Image Colorscale.
-* colorscale, drawing:                   Draw Image Palette.
-* colorscale, setting for images:        Set Image Colorscale.
-* colour vs Color spelling:              List Of Gri Commands.
-* column dat, assigning within RPN expressions: Binary Operators.
-* column data, accessing individual values and stats: Manipulation of Columns etc.
-* column data, statistics:               Manipulation of Columns etc.
-* column data, writing to a file:        Write Columns.
-* column data, x in one file and y in another: Read Columns.
-* column mathematics:                    Mathematics.
-* column, displaying statistics of:      Show.
-* columns, assigning within RPN expressions: Binary Operators.
-* columns, creating from grid:           Convert Grid To Columns.
-* columns, filtering <1>:                Smooth.
-* columns, filtering:                    Filter.
-* columns, reordering:                   Reorder.
-* comma-separated values:                Opening Pipes.
-* command arguments, how to alter:       Changeable Command Arguments.
-* command files:                         Invoking Gri.
-* command files, path to search for:     Set Path To.
-* command lines, parsing in new Gri commands: Local Synonyms.
-* command-line interface:                Plans.
-* command-line option -creator:          Invoking Gri.
-* command-line option -warn_offpage:     Invoking Gri.
-* command-line options:                  Invoking Gri.
-* command-line, specifying command file: Invoking Gri.
-* CommandFile command-line option:       Invoking Gri.
-* commandfile, pathname:                 Using OS Inside Gri.
-* commandline arguments, accessing:      Invoking Gri.
-* commandline arguments, accessing with argv rpn operator: Unary Operators.
-* commandline flag colon:                Invoking Gri.
-* commandline option -output PS_file_name: Invoking Gri.
-* commands extending over several lines: Long Command Lines.
-* commands, complete list of:            List Of Gri Commands.
-* commands, how to add new ones to Gri:  Adding New Commands.
-* comments, # style:                     Linegraphs.
-* comments, and system commands:         System.
-* comparison operators in rpn expressions: Binary Operators.
-* compilation under BeOS:                Beos-install.
-* compilation under Linux:               Msdos-install.
-* compilation under Macintosh Unix:      Mac-install.
-* compilation under MSDOS:               Msdos-install.
-* compilation under OS/2:                OS2-install.
-* compiling gri:                         Uncompiled Unix.
-* compressed files, opening:             Ascii Files.
-* computational cost, of convert columns to grid command: Convert Columns To Grid.
-* configure script, how to use to compile gri: Uncompiled Unix.
-* continued lines:                       Long Command Lines.
-* contour data, writing to a file:       Write Contour.
-* contouring:                            Draw Contour.
-* contouring, clipping out invalid areas: Set Grid Missing.
-* contouring, interpolating to new grid: Interpolate.
-* contours:                              Contour Plots.
-* contours on images:                    Combination.
-* contours, orientation of labels:       Set Contour Labels.
-* contours, pre-gridded data:            Pre-gridded Data.
-* contours, smoothing grid data:         Smooth.
-* contours, spacing of labels on:        Set Contour Label Position.
-* contours, ungridded data:              Ungridded Data.
-* contours, whiting/nowhiting under the labels: Set Contour Labels.
-* contributer, Alejandro Lopez-Valencia: Acknowledgments.
-* contributer, Andrew Collier:           Acknowledgments.
-* contributer, Brian May:                Acknowledgments.
-* contributer, Carl Osterwisch:          Acknowledgments.
-* contributer, Clyde Clements:           Acknowledgments.
-* contributer, Dave Brickman:            Acknowledgments.
-* contributer, Dave Hebert:              Acknowledgments.
-* contributer, David Trueman:            Acknowledgments.
-* contributer, Ed Nather:                Acknowledgments.
-* contributer, George White:             Acknowledgments.
-* contributer, Ivo Alxneit:              Acknowledgments.
-* contributer, Jeff Whitaker:            Acknowledgments.
-* contributer, Jinyu Sheng:              Acknowledgments.
-* contributer, Karin Bryan:              Acknowledgments.
-* contributer, Kawamura Masao:           Acknowledgments.
-* contributer, Keith Thompson:           Acknowledgments.
-* contributer, Luke Blaikie:             Acknowledgments.
-* contributer, Peter Galbraith:          Acknowledgments.
-* contributer, Pierre Flament:           Acknowledgments.
-* contributer, Richard Andrew Miles Outerbridge: Acknowledgments.
-* contributer, Sara Bennett:             Acknowledgments.
-* contributer, Steve Matheson:           Acknowledgments.
-* contributer, Tim Powers:               Acknowledgments.
-* contributer, Toru Suzuki:              Acknowledgments.
-* conversion between user and page units: Binary Operators.
-* conversion, hour-minute-second to decimal hour: Opening Pipes.
-* conversion, string to number, in rpn expressions: Unary Operators.
-* convert columns to grid command:       Convert Columns To Grid.
-* convert columns to spline command:     Convert Columns To Spline.
-* convert grid to columns command:       Convert Grid To Columns.
-* convert grid to image command:         Convert Grid To Image.
-* convert image to grid command:         Convert Image To Grid.
-* converting decimal values to hexadecimal strings: Unary Operators.
-* converting grids to images:            Reading and Creating Image Data.
-* converting hexadecimal strings to decimal values: Unary Operators.
-* cookbook:                              Examples.
-* cookbook FTP site:                     Introduction.
-* cos rpn operator:                      Unary Operators.
-* cosh rpn operator:                     Unary Operators.
-* create columns from function command:  Create Columns From Function.
-* csv data:                              Opening Pipes.
-* curves, drawing:                       Draw Curve.
-* dashed lines:                          Set Dash.
-* data files, opening:                   Open.
-* data files, path to search for:        Set Path To.
-* data files, positioning within:        Skip.
-* data files, protecting against movement of: Length.
-* data files, words in lines:            Built-in Variables.
-* data format:                           Linegraphs.
-* data in columns, writing to a file:    Write Columns.
-* data in contours, writing to a file:   Write Contour.
-* data in grid, writing to a file:       Write Grid.
-* data in image, writing to a file:      Write Image.
-* data, clipping using set input clip:   Set Clip.
-* data, clipping using set input data window: Set Input Data Window.
-* data, comma-separated values:          Opening Pipes.
-* data, csv:                             Opening Pipes.
-* data, dealing with odd datasets:       Handling Data.
-* data, from a spreadsheet:              Opening Pipes.
-* data, images:                          Reading and Creating Image Data.
-* data, missing values:                  Missing Values.
-* data, spreadsheet:                     Opening Pipes.
-* data, stored in comma-separated values: Opening Pipes.
-* date:                                  Important Builtin Synonyms.
-* Dave Brickman (contributer):           Acknowledgments.
-* Dave Hebert (contributer):             Acknowledgments.
-* David Trueman (contributer):           Acknowledgments.
-* day-of-week axis:                      Set X Axis.
-* debian:                                Linux.
-* debug command:                         Debug.
-* debug command-line option:             Built-in Variables.
-* debugger used with Gri:                Reporting Bugs.
-* debugging:                             Debug.
-* debugging Gri programs:                Debugging.
-* debugging using superuser flags:       Superuser.
-* debugging, using ..debug..:            Built-in Variables.
-* debugging, with assert command:        Assert.
-* default values:                        Defaults.
-* defining rpn functions:                Rpnfunction.
-* delete command:                        Delete.
-* delete, used on changeable arguments:  Using New And Delete.
-* deleting variables, synonyms, scales, etc: Delete.
-* deprecated commands:                   Deprecated Commands.
-* descent rpn operator:                  Unary Operators.
-* developer command set environment:     Set Environment.
-* developer command set flag:            Set Flag.
-* differentiate command:                 Differentiate.
-* differentiation:                       Differentiate.
-* direction field, how to read:          Read Columns.
-* directories, changing:                 Cd.
-* directory listing:                     Ls.
-* directory structure of Gri installation: Unix-install.
-* directory, how to find out:            Pwd.
-* directory, stored in synonym \.wd.:    Important Builtin Synonyms.
-* directory_exists rpn operator:         Unary Operators.
-* discussion Group:                      Discussion Group.
-* dollar-parenthesis syntax for system commands: Using OS Inside Gri.
-* draw arrows command:                   Draw Arrows.
-* draw axes command:                     Draw Axes.
-* draw axes if needed command:           Draw Axes If Needed.
-* draw border box command:               Draw Border Box.
-* draw box command:                      Draw Box.
-* draw circle command:                   Draw Circle.
-* draw contour command:                  Draw Contour.
-* draw curve command:                    Draw Curve.
-* draw essay command:                    Draw Essay.
-* draw gri logo command:                 Draw Gri Logo.
-* draw grid comman:                      Draw Grid.
-* draw image comman:                     Draw Image.
-* draw image histogram command:          Draw Image Histogram.
-* draw image palette comman:             Draw Image Palette.
-* draw isopycnal command:                Draw Isopycnal.
-* draw isospice command:                 Draw Isospice.
-* draw label boxed command:              Draw Label Boxed.
-* draw label command:                    Draw Label.
-* draw label for last curve command:     Draw Label For Last Curve.
-* draw label whiteunder command:         Draw Label Whiteunder.
-* draw line command:                     Draw Line From.
-* draw line legend command:              Draw Line Legend.
-* draw lines command:                    Draw Lines.
-* draw patches command:                  Draw Patches.
-* draw polygon command:                  Draw Polygon.
-* draw regression line command:          Draw Regression Line.
-* draw symbol at command:                Draw Symbol At.
-* draw symbol command:                   Draw Symbol.
-* draw symbol legend command:            Draw Symbol Legend.
-* draw time stamp command:               Draw Time Stamp.
-* draw title command:                    Draw Title.
-* draw values command:                   Draw Values.
-* draw x axis command:                   Draw X Axis.
-* draw x box plot command:               Draw X Box Plot.
-* draw y axis command:                   Draw Y Axis.
-* draw y box plot command:               Draw Y Box Plot.
-* draw zero line command:                Draw Zero Line.
-* drawing arcs:                          Draw Arc.
-* drawing contours:                      Draw Contour.
-* drawing contours of pregridded data:   Pre-gridded Data.
-* drawing contours of ungridded data:    Ungridded Data.
-* drawing curves:                        Draw Curve.
-* drawing data lines:                    Linegraphs.
-* drawing image plots:                   Example Image.
-* drawing labels:                        Draw Label Boxed.
-* drawing labels for data curves:        rpn Examples.
-* drawing labels on xy curves:           Draw Label For Last Curve.
-* drawing legends:                       Legend.
-* drawing linegraphs:                    Linegraphs.
-* drawing patches:                       Draw Patches.
-* drawing polygons:                      Draw Polygon.
-* drawing satellite images:              Example Image.
-* drawing single symbols:                Draw Symbol At.
-* drawing text strings:                  Draw Label Boxed.
-* drawing titles:                        Linegraphs.
-* drawing x-y graphs, simple:            Simple Example.
-* dup rpn operator:                      Unary Operators.
-* dup rpn stack operator:                Stack Operators.
-* e, base of natural logarithms, in RPN expressions: Solitary Operators.
-* Ed Nather (contributer):               Acknowledgments.
-* editing Gri code with Emacs:           Emacs Mode.
-* electric fence, for debugging:         Debugging at a Glance.
-* emacs, editing mode for Gri:           Emacs Mode.
-* email list:                            Discussion Group.
-* end group command:                     End Group.
-* endian file compatibility, caution:    Binary Files.
-* endian file compatibility, plans:      Plans.
-* environment variables:                 Get Env.
-* eof on files:                          Set Ignore Error Eof.
-* error messages:                        Error Messages.
-* errors, beeping:                       Set Beep.
-* example 01, linegraph using data in a separate file <1>: Linegraphs.
-* example 01, linegraph using data in a separate file: Simple Example.
-* example 03 (controlling scales, etc):  Simple Example Revisited.
-* example 03, controlling scales, etc:   Simple Example Revisited.
-* example 04 (contouring pregridded data): Pre-gridded Data.
-* example 05 - Contouring ungridded data, from figure: Ungridded Data.
-* example 06, plot IR image of Gulf of Maine: Example Image.
-* example 07, box plots of mixing efficiency vs density ratio (meddy): Box Plots.
-* example 08, plot T=T(x,rho) section of eubex data: Contouring.
-* example 09, plot dTdrho-rho section:   Grayscale Images.
-* example 10 (image plot with contours): Combination.
-* example 10, draw image plot of flushing of dye out of cove: Combination.
-* example 11, fancy plot:                Fancy.
-* example 12, linegraph with key inside plot: Legend.
-* example 13, TS diagram, with isopycnals: TS Diagram.
-* examples of rpn mathematics:           rpn Mathematics.
-* exch rpn operator:                     Binary Operators.
-* exch rpn stack operator:               Stack Operators.
-* existence of a synonym, testing:       Unary Operators.
-* existence of a variable, testing:      Unary Operators.
-* existence of an alias synonym, testing: Unary Operators.
-* exp rpn operator:                      Unary Operators.
-* exp10 rpn operator:                    Unary Operators.
-* expecting command:                     Expecting.
-* exponentiation:                        Mathematics.
-* extending Gri by adding new commands:  Adding New Commands.
-* extending Gri by adding new commands, complicated example: Complicated New Command.
-* fancy plot:                            Fancy.
-* FEM mesh plot:                         Finite Element Model Mesh.
-* file age, determined with the age rpn operator: Unary Operators.
-* file permissions, testing with file_exists and directory_exists: Unary Operators.
-* file, saving results into:             Write.
-* file, selecting between open files:    Read From.
-* file, temporary:                       Using OS Inside Gri.
-* file_exists rpn operator:              Unary Operators.
-* filename, temporary:                   Using OS Inside Gri.
-* filenames, constructing using the operating system: Using Synonyms.
-* files, closing:                        Close.
-* files, Command-file:                   Invoking Gri.
-* files, listing:                        Ls.
-* files, positioning within:             Skip.
-* files, testing for eof:                Set Ignore Error Eof.
-* files, ~/.grirc initialization file:   Resource File.
-* filled regions:                        Draw Curve.
-* filter command:                        Filter.
-* filtering column data:                 Filter.
-* filtering image data:                  Filter.
-* Finite Element Model mesh:             Finite Element Model Mesh.
-* first-time usage:                      Simple Example.
-* flip command:                          Flip.
-* flipping grids and images:             Flip.
-* floor rpn operator:                    Unary Operators.
-* font encoding:                         Set Font Encoding.
-* font size:                             Set Font Size.
-* font, selecting:                       Simple Example Revisited.
-* font, setting color of:                Set Font Color.
-* font, setting encoding vector of:      Set Font Encoding.
-* font, size:                            Built-in Variables.
-* format for columnar data:              Linegraphs.
-* format, for sprintf command:           Sprintf.
-* formulae, how to plot:                 Formula Plots.
-* French accents in text:                Non-English Text.
-* FTP site, cookbook:                    Introduction.
-* functions in rpn expressions:          Rpnfunction.
-* functions, how to plot:                Formula Plots.
-* gawk system tool:                      Awk.
-* gawk, sample of use:                   System.
-* gawk, using to convert files from HMS to decimal: Opening Pipes.
-* geography, converting hour-minute-second to decimal hour: Opening Pipes.
-* George White (contributer):            Acknowledgments.
-* get env command:                       Get Env.
-* global built-in synonyms:              Important Builtin Synonyms.
-* global synonyms:                       Important Builtin Synonyms.
-* golden ratio, used for axes sizes:     Length.
-* graphics state, saving and restoring:  State.
-* gray level:                            Built-in Variables.
-* gray level, example for polygons:      Polygons.
-* gray vs Grey spelling:                 List Of Gri Commands.
-* graylevel for lines, example:          Fancy.
-* graylevel, command:                    Set Graylevel.
-* graylevel, explanation:                Pen Color.
-* grayscale modification:                Mathematics.
-* grayscale of image, reading from file: Read Image Grayscale.
-* grayscale, setting for images:         Set Image Grayscale.
-* greek Letters:                         Mathematical Text.
-* grep system tool:                      Grep.
-* grey vs Gray spelling:                 List Of Gri Commands.
-* gri code, editing:                     Emacs Mode.
-* gri commands, categories of:           Overview Of Gri Commands.
-* gri commands, complete list of:        List Of Gri Commands.
-* Gri newsgroup:                         Introduction.
-* gri version:                           Introduction.
-* gri-mode, command name abbreviation:   Command abbreviations.
-* gri-mode, Configuring gri-mode to where gri lives on your system: Step 2.
-* gri-mode, editing gri syntax:          Editing the syntax.
-* gri-mode, editing in emacs:            Emacs Mode.
-* gri-mode, enter chunks of code with short-cuts: Gri code fragments.
-* gri-mode, Extra user configuration of gri-mode: Step 4.
-* gri-mode, gri code fragments:          Gri code fragments.
-* gri-mode, gri command names:           Gri command names.
-* gri-mode, handling argv and argc:      Filename arguments when running gri.
-* gri-mode, handling filename command arguments: Filename arguments when running gri.
-* gri-mode, handling multiple Gri versions: Dealing with many Gri versions.
-* gri-mode, how it names gri commands:   Gri command names.
-* gri-mode, imenu support:               Other features.
-* gri-mode, Info interface:              Info interface.
-* gri-mode, installing:                  Installing gri-mode.el.
-* gri-mode, major commands:              Major Gri-mode commands.
-* gri-mode, Placing gri-mode.el where Emacs can find it.: Step 1.
-* gri-mode, possible completions:        Possible completions.
-* gri-mode, screenshots:                 Gri-mode screenshots.
-* gri-mode, sysnonym completion:         Variable completion.
-* gri-mode, Telling emacs to load gri-mode: Step 3.
-* gri-mode, toolbar:                     Other features.
-* gri-mode, user-defined commands:       User commands.
-* gri-mode, variable completion:         Variable completion.
-* gri.cmd, how it is located:            Invoking Gri.
-* gri_merge:                             gri_merge.
-* gri_unpage:                            gri_unpage.
-* grid data - accessing individual values and stats: Manipulation of Columns etc.
-* grid data - minimum, maximum, mean:    Manipulation of Columns etc.
-* grid data mathematical operations:     Mathematics.
-* grid data, determining geometry from file: Pre-gridded Data.
-* grid data, displaying:                 Show.
-* grid data, smoothing:                  Smooth.
-* grid data, write to file:              Write Grid.
-* grid data, writing to a file:          Write Grid.
-* grid mask, displaying:                 Show.
-* grid, converting to image:             Reading and Creating Image Data.
-* grid, creating from image:             Convert Image To Grid.
-* grid, deleting:                        Delete.
-* grid, flipping:                        Flip.
-* grid, interpolating from one to another: Interpolate.
-* grid, interpolating to given (x,y) value: Manipulation of Columns etc.
-* grid, missing values:                  Set Grid Missing.
-* grid, reading:                         Read Grid.
-* gridding data, advice on methods:      Ungridded Data.
-* group command:                         Group.
-* gzipped files, opening:                Ascii Files.
-* Handling errors with set error command: Set Error Action.
-* handling multiple gri versions:        Uncompiled Unix.
-* hat, drawing hat on top of character:  Mathematical Text.
-* header lines, reading information from: Handling Headers.
-* header lines, skipping:                Handling Headers.
-* heal command:                          Heal.
-* help command:                          Help.
-* help, online:                          Online Help.
-* hexadecimal, converting to decimal:    Unary Operators.
-* hexadecimal, converting to from decimal: Unary Operators.
-* hint, color palette range:             Pen Color.
-* hint, contour lines on image palette:  Draw Image Palette.
-* hint, first-time usage:                Simple Example.
-* hint, palette range:                   Draw Image Palette.
-* hint, using query to interact with user: Hints.
-* hints:                                 Hints.
-* histogram enhancement of image plots:  Example Image.
-* hms format:                            Opening Pipes.
-* hour, minute, second data:             Opening Pipes.
-* how to compile gri:                    Uncompiled Unix.
-* HP calculators, RPN notation different from: Binary Operators.
-* if command:                            If.
-* if statements <1>:                     If Statements.
-* if statements:                         If.
-* ignore command:                        Ignore.
-* image colorscale, reading:             Read Image Colorscale.
-* image data, determining geometry from file: Pre-gridded Data.
-* image data, write to file:             Write Image.
-* image data, writing to a file:         Write Image.
-* image formats, other than 8-bit:       Plans.
-* image grayscale, reading:              Read Image Grayscale.
-* image grayscale/colorscale modification: Mathematics.
-* image mask data, write to file:        Write Image.
-* image mask, reading:                   Read Image Mask.
-* image mathematical operations:         Mathematics.
-* image palette data, write to file:     Write Image.
-* image plot, with contours:             Combination.
-* image plots, general:                  Images.
-* image plots, setting colorscale:       Set Image Colorscale.
-* image plots, setting grayscale:        Set Image Grayscale.
-* image, banded:                         Create Image Grayscale.
-* image, creating from grid:             Convert Grid To Image.
-* image, data format:                    Reading and Creating Image Data.
-* image, displaying histogram of:        Show.
-* image, drawing colorscale palette:     Draw Image Palette.
-* image, drawing palette:                Draw Image Palette.
-* image, flipping:                       Flip.
-* image, histogra:                       Draw Image Histogram.
-* image, interpolation from grid:        Convert Grid To Image.
-* image, masking:                        Mask.
-* image, PostScript output:              Image PostScript Output.
-* images, filtering:                     Filter.
-* images, histogram scaling:             Example Image.
-* images, linear scaling:                Example Image.
-* images, reading:                       Read Image.
-* incompatibilities, keeping track of:   Expecting.
-* inf rpn operator:                      Binary Operators.
-* inf rpn operator, finds smaller of pair: Binary Operators.
-* initialization commands:               Resource File.
-* input command:                         Input.
-* input data window:                     Set Input Data Window.
-* insert command:                        Insert.
-* installation, debian linux:            Linux.
-* installation, linux redhat/debian:     Linux.
-* installation, redhat linux:            Linux.
-* interaction with user, -y command-line option: Invoking Gri.
-* interaction with user, query command <1>: Embedded Synonyms.
-* interaction with user, query command <2>: If Statements.
-* interaction with user, query command <3>: Storing User Responses.
-* interaction with user, query command <4>: User Variables.
-* interaction with user, query command:  Query.
-* interpolate command:                   Interpolate.
-* interpolating grid to given (x,y) value: Manipulation of Columns etc.
-* interpolation, from grid to image:     Convert Grid To Image.
-* ismissing rpn operator:                Unary Operators.
-* ISO latin 1 font encoding:             Set Font Encoding.
-* iso-latin-1 font encoding:             Non-English Text.
-* isopycnals <1>:                        Draw Isopycnal.
-* isopycnals:                            TS Diagram.
-* Ivo Alxneit (contributer):             Acknowledgments.
-* Jeff Whitaker (contributer):           Acknowledgments.
-* Jinyu Sheng (contributer):             Acknowledgments.
-* Karin Bryan (contributer):             Acknowledgments.
-* Kawamura Masao (contributer):          Acknowledgments.
-* Keith Thompson (contributer):          Acknowledgments.
-* keywords of Gri commands:              Commands.
-* kurtosis, calculating for column data: Manipulation of Columns etc.
-* labels on contour lines, controlling orientation and white-under: Set Contour Labels.
-* labels, drawing text anywhere:         Draw Label Boxed.
-* labels, example:                       Fancy.
-* labels, for xy curves:                 Draw Label For Last Curve.
-* labels, on axes <1>:                   If Statements.
-* labels, on axes:                       Labels.
-* labels, on contours:                   Set Contour Label Position.
-* labels, on data curves:                rpn Examples.
-* landscape orientation of page:         Set Page.
-* larger of two numbers, rpn operator sup: Binary Operators.
-* latex overline command, emulating:     Mathematical Text.
-* legend for symbol:                     Scattergraphs.
-* legends:                               Legend.
-* length of axes:                        Built-in Variables.
-* length of axes, guide on choosing:     Length.
-* license:                               License.
-* line cap:                              Set Line Cap.
-* line join:                             Set Line Join.
-* line width:                            Set Line Width.
-* linear axes:                           Log And Linear.
-* linear interpolation:                  Rpnfunction.
-* linear regression:                     Regress.
-* linear_intercept rpn operator:         Rpnfunction.
-* linear_slope rpn operator:             Rpnfunction.
-* linegraphs:                            Linegraphs.
-* lines in data files, parsing:          Read Line.
-* lines, dashed:                         Set Dash.
-* lines, gray, command:                  Set Graylevel.
-* lines, gray, explanation:              Pen Color.
-* LINUX compilation:                     Msdos-install.
-* linux compilation:                     Msdos-install.
-* linux distributions:                   Linux.
-* list command:                          List.
-* little-endian vs big-endian data, caution: Binary Files.
-* little-endian vs big-endian data, plans: Plans.
-* ln rpn operator:                       Unary Operators.
-* local built-in synonyms:               Local Synonyms.
-* local synonyms:                        Local Synonyms.
-* log rpn operator:                      Unary Operators.
-* logarithmic axes:                      Log And Linear.
-* logarithms:                            Mathematics.
-* logical negation, ! rpn operator:      Unary Operators.
-* logical negation, not rpn operator:    Unary Operators.
-* logical operators in rpn expressions:  Binary Operators.
-* logo, how to draw:                     Draw Gri Logo.
-* loops:                                 While.
-* ls command:                            Ls.
-* Luke Blaikie (contributer):            Acknowledgments.
-* macintosh unix compilation:            Mac-install.
-* makefiles, emulating action with the age rpn operator: Unary Operators.
-* mapping page location units to user units: rpn Examples.
-* maps, converting hour-minute-second to decimal hour: Opening Pipes.
-* maps, format of x axis:                Set X Type.
-* maps, format of y axis:                Set Y Type.
-* maps, scales:                          Resize.
-* maps, scaling:                         Length.
-* margins:                               Built-in Variables.
-* mask command:                          Mask.
-* mask for image, reading:               Read Image Mask.
-* masking image:                         Mask.
-* math on columns, rescaling after:      Rescale.
-* mathematical operators in rpn expressions: Binary Operators.
-* mathematical Symbols:                  Mathematical Text.
-* mathematics, on columns:               Mathematics.
-* mathematics, on grid data:             Mathematics.
-* mathematics, on image grayscale/colorscale: Mathematics.
-* mathematics, on images:                Mathematics.
-* mathematics, on variables:             Mathematics.
-* mathematics, rpn notation, description: rpn Mathematics.
-* mathematics, rpn notation, example <1>: rpn Examples.
-* mathematics, rpn notation, example:    Built-in Variables.
-* mathematics, trigonometric operations: rpn Examples.
-* maximum, column data:                  Manipulation of Columns etc.
-* maximum, grid data:                    Manipulation of Columns etc.
-* mean, calculating for column data:     Manipulation of Columns etc.
-* mesh plot for FEM:                     Finite Element Model Mesh.
-* minimum, column data:                  Manipulation of Columns etc.
-* minimum, grid data:                    Manipulation of Columns etc.
-* missing value code:                    Missing Values.
-* missing value, checking for in rpn  expressions: Unary Operators.
-* missing values:                        Set Missing Value.
-* MSDOS compilation:                     Msdos-install.
-* Multi-panel plots <1>:                 Set Panels.
-* Multi-panel plots:                     Set Panel.
-* multiple datasets in one file:         Linegraphs.
-* multiple gri versions:                 Uncompiled Unix.
-* multiple panels:                       Simple Example Revisited.
-* multiple panels, example:              Fancy.
-* name, of PostScript file:              Set Postscript Filename.
-* naming convention for synonyms:        Naming Convention.
-* NaN for missing value code:            Missing Values.
-* negation, ! rpn operator:              Unary Operators.
-* negation, not rpn operator:            Unary Operators.
-* netcdf data:                           NetCDF Files.
-* netCDF files, opening:                 Open.
-* netCDF files, reading attributes, units, etc: Read Synonym or Variable.
-* netCDF files, reading columns:         Read Columns.
-* netCDF files, reading grid data:       Read Grid.
-* new command:                           New.
-* new commands, complicated example:     Complicated New Command.
-* new commands, how they are parsed:     Parsing.
-* new commands, how to add to Gri:       Adding New Commands.
-* new commands, simple example:          Simple New Command.
-* new page command:                      Newpage.
-* new postscript file command:           New Postscript File.
-* new, used on changeable arguments:     Using New And Delete.
-* newcommand arguments, how to alter:    Changeable Command Arguments.
-* newcommands, determining calling argument level with \&&: Determining Calling Information.
-* newcommands, determining calling argument names with \&: Determining Calling Information.
-* newline, in a show command:            Show.
-* newline, in a system command:          Naming Convention.
-* newline, using \<< in show:            Show.
-* newsgroup:                             Introduction.
-* non-English language text:             Non-English Text.
-* not rpn operator:                      Unary Operators.
-* numbers, stored in variables:          Variables.
-* numbers, using underscore to separate thousand parts: Version 2.8.
-* oceanographic plots:                   TS Diagram.
-* oceanographic plots isopycnals on TS diagram: Draw Isopycnal.
-* oceanographic plots, iso-spice lines on TS diagrams: Draw Isospice.
-* oceanographic plots, isopycnals on TS diagrams: TS Diagram.
-* online help:                           Online Help.
-* open command:                          Open.
-* opening compressed files:              Ascii Files.
-* opening data files:                    Open.
-* opening files through pipes:           Using OS Inside Gri.
-* opening gzipped:                       Ascii Files.
-* operating system commands, assigned to synonyms <1>: Operating System.
-* operating system commands, assigned to synonyms <2>: Using Synonyms.
-* operating system commands, assigned to synonyms: System.
-* operating system commands, printing results of <1>: Operating System.
-* operating system commands, printing results of: System.
-* operating system, environment variables: Get Env.
-* operating system, example of using to construct filenames: Using Synonyms.
-* operating system, filtering datafiles: Open.
-* operating system, getenv:              Get Env.
-* optional words in commands, [] syntax: Invoking Gri.
-* options on Gri command-line:           Invoking Gri.
-* or rpn operator:                       Binary Operators.
-* orientation of page, landscape:        Set Page.
-* orientation of page, portrait:         Set Page.
-* OS, embedding system output into strings: Using OS Inside Gri.
-* OS/2 unix compilation:                 OS2-install.
-* overbar, drawing line on top of character: Mathematical Text.
-* overhead projection images, suggested line widths: Set Line Width.
-* overline, emulating latex command:     Mathematical Text.
-* overview of awk system tool:           Awk.
-* overview of grep system tool:          Grep.
-* overview of gri commands:              Overview Of Gri Commands.
-* overview of perl system tool:          Perl.
-* overview of sed system tool:           Sed.
-* page breaks:                           Newpage.
-* page orientation, landscape:           Set Page.
-* page orientation, portrait:            Set Page.
-* page units:                            rpn Examples.
-* page units, converting to user units:  Binary Operators.
-* paint regions with color:              Draw Curve.
-* palette for image colorscale, drawing: Draw Image Palette.
-* parsing headers in data files:         Read Line.
-* parsing of the & syntax:               Implementation of Ampersand Syntax.
-* patches, drawing:                      Draw Patches.
-* path, for command files:               Set Path To.
-* path, for data files:                  Set Path To.
-* pathname of commandfile:               Using OS Inside Gri.
-* perl system tool:                      Perl.
-* perl, use to create probability density function: PDF Diagram.
-* Peter Galbraith (contributer):         Acknowledgments.
-* pi, in RPN expressions:                Solitary Operators.
-* Pierre Flament (contributer):          Acknowledgments.
-* pipes, opening files through them <1>: Using OS Inside Gri.
-* pipes, opening files through them:     Opening Pipes.
-* plans for future versions:             Plans.
-* polygons, drawing:                     Draw Polygon.
-* polygons, filled:                      Polygons.
-* pop rpn operator:                      Unary Operators.
-* pop rpn stack operator:                Stack Operators.
-* portrait orientation of page:          Set Page.
-* positioning axes:                      Position.
-* postscript bounding box:               Invoking Gri.
-* postscript command:                    Postscript.
-* PostScript file name, specifying:      Invoking Gri.
-* postscript file, write to:             Postscript.
-* postscript filename:                   Set Postscript Filename.
-* postscript output, embedded images:    Image PostScript Output.
-* postscript-standard font encoding:     Set Font Encoding.
-* power rpn operator:                    Binary Operators.
-* powers, of columns or variables:       Mathematics.
-* probability density function diagram:  PDF Diagram.
-* problems and how to cope with them:    Debugging.
-* process, causing Gri to sleep:         Sleep.
-* programming in Gri:                    Programming.
-* programming, complete list of Gri commands: Commands.
-* programming, if statements:            If Statements.
-* programming, parsing command lines:    Local Synonyms.
-* programming, synonyms:                 Synonyms.
-* programming, using local built-in synonyms: Local Synonyms.
-* programming, variables:                Variables.
-* projected images, suggested line widths: Set Line Width.
-* protecting Gri programs against datafile movement: Using OS Inside Gri.
-* protection against changes to Gri:     Expecting.
-* pstack rpn stack operator:             Stack Operators.
-* pttocm rpn operator:                   Unary Operators.
-* publication quality plots, built-in variable ..publication..: Built-in Variables.
-* publication quality, command-line flag: Invoking Gri.
-* pwd command:                           Pwd.
-* query command:                         Query.
-* quit command:                          Quit.
-* quiting Gri:                           Quit.
-* quoting in system commands:            System.
-* rand RPN operator:                     Solitary Operators.
-* random numbers, generating in RPN expressions: Solitary Operators.
-* range of axes:                         Range.
-* rapidograph scaling for line width:    Set Line Width.
-* read ... command:                      Read Synonym or Variable.
-* read colornames command:               Read Colornames.
-* read columns command:                  Read Columns.
-* read command:                          Read Colornames.
-* read from command:                     Read From.
-* read grid command:                     Read Grid.
-* read image colorscale command:         Read Image Colorscale.
-* read image command:                    Read Image.
-* read image grayscale command:          Read Image Grayscale.
-* read image greyscale command:          Read Image Grayscale.
-* read image mask command:               Read Image Mask.
-* read line command:                     Read Line.
-* read line raw command:                 Read Line.
-* reading attributes in NetCDF files:    Read Synonym or Variable.
-* reading columns of data:               Linegraphs.
-* reading data, checks:                  Built-in Variables.
-* reading grid data:                     Read Grid.
-* reading information from header lines: Handling Headers.
-* reading synonyms <1>:                  Read Line.
-* reading synonyms:                      Read Synonym or Variable.
-* reading variables <1>:                 Read Line.
-* reading variables:                     Read Synonym or Variable.
-* recovering commands from a PostScript file: Invoking Gri.
-* redhat:                                Linux.
-* region painting:                       Draw Curve.
-* regress command:                       Regress.
-* regression, linear:                    Regress.
-* remainder rpn operator:                Binary Operators.
-* removing files with unlink:            Unlink.
-* reorder command:                       Reorder.
-* reordering Columns:                    Reorder.
-* rescale command:                       Rescale.
-* rescaling axes:                        Rescale.
-* resize x command:                      Resize.
-* resource files:                        Resource File.
-* restoring graphics state:              State.
-* return command:                        Return.
-* return value, \.return_value.:         Important Builtin Synonyms.
-* rewind command:                        Rewind.
-* RGB values of known colors:            Show.
-* Richard Andrew Miles Outerbridge (contributer): Acknowledgments.
-* roll_left rpn stack operator:          Stack Operators.
-* roll_right rpn stack operator:         Stack Operators.
-* RPM version of installation package:   Linux.
-* rpn functions:                         Rpnfunction.
-* rpn mathematics, examples:             rpn Mathematics.
-* RPN notation, difference from old-series HP calculators: Binary Operators.
-* rpn operator !:                        Unary Operators.
-* rpn operator &:                        Binary Operators.
-* rpn operator *:                        Binary Operators.
-* rpn operator +:                        Binary Operators.
-* rpn operator -:                        Binary Operators.
-* rpn operator /:                        Binary Operators.
-* rpn operator <:                        Binary Operators.
-* rpn operator <=:                       Binary Operators.
-* rpn operator =:                        Binary Operators.
-* rpn operator ==:                       Binary Operators.
-* rpn operator >:                        Binary Operators.
-* rpn operator >=:                       Binary Operators.
-* rpn operator abs:                      Unary Operators.
-* rpn operator acos:                     Unary Operators.
-* rpn operator acosh:                    Unary Operators.
-* rpn operator age:                      Unary Operators.
-* rpn operator and:                      Binary Operators.
-* rpn operator area:                     Manipulation of Columns etc.
-* rpn operator argc, yielding number of commandline arguments: Solitary Operators.
-* rpn operator ascent:                   Unary Operators.
-* rpn operator asin:                     Unary Operators.
-* rpn operator atan:                     Unary Operators.
-* rpn operator atof:                     Unary Operators.
-* rpn operator ceil:                     Unary Operators.
-* rpn operator cmtopt:                   Unary Operators.
-* rpn operator cos:                      Unary Operators.
-* rpn operator cosh:                     Unary Operators.
-* rpn operator descent:                  Unary Operators.
-* rpn operator directory_exists:         Unary Operators.
-* rpn operator dup:                      Unary Operators.
-* rpn operator exch:                     Binary Operators.
-* rpn operator exp:                      Unary Operators.
-* rpn operator exp10:                    Unary Operators.
-* rpn operator file_exists:              Unary Operators.
-* rpn operator floor:                    Unary Operators.
-* rpn operator inf:                      Binary Operators.
-* rpn operator inf, finds smaller of pair: Binary Operators.
-* rpn operator interpolate:              Manipulation of Columns etc.
-* rpn operator ismissing:                Unary Operators.
-* rpn operator linear_intercept:         Rpnfunction.
-* rpn operator linear_slope:             Rpnfunction.
-* rpn operator ln:                       Unary Operators.
-* rpn operator log:                      Unary Operators.
-* rpn operator not:                      Unary Operators.
-* rpn operator or:                       Binary Operators.
-* rpn operator pop:                      Unary Operators.
-* rpn operator power:                    Binary Operators.
-* rpn operator pttocm:                   Unary Operators.
-* RPN operator rand:                     Solitary Operators.
-* rpn operator remainder:                Binary Operators.
-* rpn operator sed:                      Binary Operators.
-* rpn operator sin:                      Unary Operators.
-* rpn operator sinh:                     Unary Operators.
-* rpn operator sqrt:                     Unary Operators.
-* rpn operator strcat:                   Binary Operators.
-* rpn operator strlen:                   Unary Operators.
-* RPN operator substr:                   Tertiary Operators.
-* rpn operator sup:                      Binary Operators.
-* rpn operator sup, finds larger of pair: Binary Operators.
-* rpn operator system:                   Unary Operators.
-* rpn operator tan:                      Unary Operators.
-* rpn operator tanh:                     Unary Operators.
-* rpn operator width:                    Unary Operators.
-* RPN operator wordc:                    Solitary Operators.
-* RPN operator wordv:                    Unary Operators.
-* rpn operator xcmtouser:                Unary Operators.
-* rpn operator xusertocm:                Unary Operators.
-* rpn operator ycmtouser:                Unary Operators.
-* rpn operator yusertocm:                Unary Operators.
-* rpn operator |:                        Binary Operators.
-* rpn stack operator dup:                Stack Operators.
-* rpn stack operator exch:               Stack Operators.
-* rpn stack operator pop:                Stack Operators.
-* rpn stack operator pstack:             Stack Operators.
-* rpn stack operator roll_left:          Stack Operators.
-* rpn stack operator roll_right:         Stack Operators.
-* rpn, conversion of string to number:   Unary Operators.
-* rpn, system calls:                     Unary Operators.
-* rpnfunction command:                   Rpnfunction.
-* running a commandfile:                 Source.
-* Running-Mean Skyline Diagram:          Running Means.
-* Sara Bennett (contributer):            Acknowledgments.
-* satellite images:                      Example Image.
-* save results in a file:                Write.
-* saving graphics state:                 State.
-* scalar operations:                     Mathematics.
-* scales:                                Simple Example Revisited.
-* scales, accessing:                     rpn Examples.
-* scales, deleting:                      Delete.
-* scaling for maps:                      Length.
-* scattergraphs:                         Scattergraphs.
-* scientific journals with Gri graphs:   Gri in the Press.
-* screen snapshots, using Gri:           Gri-mode screenshots.
-* sed rpn operator:                      Binary Operators.
-* sed system tool:                       Sed.
-* segmentation fault, what to do:        Reporting Bugs.
-* set arrow size command:                Set Arrow Size.
-* set arrow type command:                Set Arrow Type.
-* set axes style command:                Set Axes Style.
-* set beep command:                      Set Beep.
-* set bounding box command:              Set Bounding Box.
-* set clip command:                      Set Clip.
-* set color command:                     Set Color.
-* set color name command:                Set Colorname.
-* set colour command:                    Set Color.
-* set command:                           Set.
-* set contour format command:            Set Contour Format.
-* set contour label for command:         Set Contour Label For.
-* set contour label position command:    Set Contour Label Position.
-* set contour labels command:            Set Contour Labels.
-* set dash command:                      Set Dash.
-* set environment command:               Set Environment.
-* set error command:                     Set Error Action.
-* set flag command:                      Set Flag.
-* set font color command:                Set Font Color.
-* set font colour command:               Set Font Color.
-* set font encoding command:             Set Font Encoding.
-* set font size command:                 Set Font Size.
-* set font to command:                   Set Font To.
-* set graylevel command:                 Set Graylevel.
-* set greylevel command:                 Set Graylevel.
-* set grid missing command:              Set Grid Missing.
-* set ignore error eof command:          Set Ignore Error Eof.
-* set ignore initial newline command:    Set Ignore Initial Newline.
-* set image colorscale command:          Set Image Colorscale.
-* set image colourscale command:         Set Image Colorscale.
-* set image grayscale command:           Set Image Grayscale.
-* set image grayscale using histogram command: Set Image Grayscale.
-* set image greyscale command:           Set Image Grayscale.
-* set image greyscale using histogram command: Set Image Grayscale.
-* set image missing value color command: Set Image Missing Value Color.
-* set image missing value colour command: Set Image Missing Value Color.
-* set image range command:               Set Image Range.
-* set input data separator command:      Set Input Data Separator.
-* set input data window command:         Set Input Data Window.
-* set line cap command:                  Set Line Cap.
-* set line join command:                 Set Line Join.
-* set line width command:                Set Line Width.
-* set missing value command:             Set Missing Value.
-* set page command:                      Set Page.
-* set page size command:                 Set Page Size.
-* set panel command:                     Set Panel.
-* set panels command:                    Set Panels.
-* set path command:                      Set Path To.
-* set postscript filename command:       Set Postscript Filename.
-* set symbol size command:               Set Symbol Size.
-* set tic size command:                  Set Tic Size.
-* set trace command:                     Set Trace.
-* set u scale command:                   Set U Scale.
-* set v scale command:                   Set V Scale.
-* set x axis command:                    Set X Axis.
-* set x format command:                  Set X Format.
-* set x grid command:                    Set X Grid.
-* set x margin command:                  Set X Margin.
-* set x name command:                    Set X Name.
-* set x size command:                    Set X Size.
-* set x type command:                    Set X Type.
-* set y axis command:                    Set Y Axis.
-* set y format command:                  Set Y Format.
-* set y grid command:                    Set Y Grid.
-* set y margin command:                  Set Y Margin.
-* set y name command:                    Set Y Name.
-* set y size command:                    Set Y Size.
-* set y type command:                    Set Y Type.
-* set z missing command:                 Set Z Missing.
-* setting line cap type:                 Set Line Cap.
-* setting line join type:                Set Line Join.
-* setting line width:                    Set Line Width.
-* setting symbol size:                   Set Symbol Size.
-* show command:                          Show.
-* show command, \>> for horizontal tab:  Show.
-* show command, how to get a newline:    Show.
-* show command, how to get a tab:        Show.
-* show command, using \<< for newline:   Show.
-* show stopwatch command:                Show.
-* sin rpn operator:                      Unary Operators.
-* sinh rpn operator:                     Unary Operators.
-* skewness, calculating for column data: Manipulation of Columns etc.
-* skip command:                          Skip.
-* skipping header lines:                 Handling Headers.
-* sleep command:                         Sleep.
-* sleep, causing Gri to:                 Sleep.
-* slides, suggested line widths:         Set Line Width.
-* smaller of two numbers, rpn operator inf: Binary Operators.
-* smooth command:                        Smooth.
-* smooth grid data command:              Smooth.
-* smoothing column data <1>:             Smooth.
-* smoothing column data:                 Filter.
-* smoothing grid data:                   Smooth.
-* snapshots of computer screen, using Gri: Gri-mode screenshots.
-* source command, for running another command file: Source.
-* space in text:                         Mathematical Text.
-* specifying the PostScript file name:   Invoking Gri.
-* spelling of gri commands:              List Of Gri Commands.
-* spice lines, on TS diagram:            Draw Isospice.
-* spline, fitting to (x,y) data:         Convert Columns To Spline.
-* spreadsheet data:                      Opening Pipes.
-* sprintf command:                       Sprintf.
-* sqrt rpn operator:                     Unary Operators.
-* standard deviation, calculating for column data: Manipulation of Columns etc.
-* standard deviation, column data:       Manipulation of Columns etc.
-* startup commands:                      Resource File.
-* startup message:                       Invoking Gri.
-* statistics of column data:             Show.
-* statistics, column data:               Manipulation of Columns etc.
-* statistics, performing regression:     Regress.
-* Steve Matheson (contributer):          Acknowledgments.
-* stopping Gri:                          Quit.
-* stopwatch, for timing things:          Show.
-* strcat rpn operator:                   Binary Operators.
-* string, conversion to number in rpn expressions: Unary Operators.
-* strings, embedding OS output into:     Using OS Inside Gri.
-* strings, storing variable values within: Sprintf.
-* strlen rpn operator:                   Unary Operators.
-* subscripts:                            Mathematical Text.
-* substr RPN operator:                   Tertiary Operators.
-* substrings, getting with RPN operator substr: Tertiary Operators.
-* suite of test files:                   Test Suite.
-* sup rpn operator:                      Binary Operators.
-* sup rpn operator, finds larger of pair: Binary Operators.
-* superscripts:                          Mathematical Text.
-* superscripts and subscripts - how to align using \!: Mathematical Text.
-* superuser command:                     Superuser.
-* superuser flags:                       Superuser.
-* symbol legend:                         Scattergraphs.
-* symbol size, stored in ..symbolsize..: Built-in Variables.
-* symbols:                               Scattergraphs.
-* symbols in color:                      Scattergraphs.
-* symbols, drawing single ones:          Draw Symbol At.
-* symbols, setting size:                 Set Symbol Size.
-* synonym, and the & syntax:             Changeable Command Arguments.
-* synonyms, aliasing with the \@alias notation: Alias Synonyms.
-* synonyms, assigning values to:         Using Synonyms.
-* synonyms, assigning within RPN expressions: Binary Operators.
-* synonyms, built-in, list of:           Important Builtin Synonyms.
-* synonyms, checking for existence of:   Unary Operators.
-* synonyms, constructing using the operating system: Using Synonyms.
-* synonyms, deleting:                    Delete.
-* synonyms, displaying list of:          Show.
-* synonyms, embedding in quoted text strings: Embedded Synonyms.
-* synonyms, extracting individual words from: Using Synonyms.
-* synonyms, for storing character strings: Synonyms.
-* synonyms, for storing output from system commands: Using Synonyms.
-* synonyms, global:                      Important Builtin Synonyms.
-* synonyms, local:                       Local Synonyms.
-* synonyms, making local versions:       New.
-* synonyms, multiple copies of:          New.
-* synonyms, naming convention <1>:       Naming Convention.
-* synonyms, naming convention:           Synonyms.
-* synonyms, reading <1>:                 Read Line.
-* synonyms, reading:                     Read Synonym or Variable.
-* synonyms, storing variable values within: Sprintf.
-* syntax of Gri commands:                Commands.
-* system calls in rpn expressions:       Unary Operators.
-* system calls, using dollar-parenthesis shell syntax: Using OS Inside Gri.
-* system command:                        System.
-* system command, how to get a newline:  Naming Convention.
-* system command, how to get a tab:      Naming Convention.
-* system commands acting as datafiles:   Open.
-* system commands, assigned to synonyms <1>: Operating System.
-* system commands, assigned to synonyms <2>: Using Synonyms.
-* system commands, assigned to synonyms: System.
-* system commands, example of using to construct filenames: Using Synonyms.
-* system commands, printing results of <1>: Operating System.
-* system commands, printing results of:  System.
-* system rpn operator:                   Unary Operators.
-* T-S diagram, drawing isopycnals on:    Draw Isopycnal.
-* T-S diagram, drawing spice lines on:   Draw Isospice.
-* T-S diagram, example of drawing:       TS Diagram.
-* tab, in a show command:                Show.
-* tab, in a system command:              Naming Convention.
-* tab, using \>> in show:                Show.
-* tan rpn operator:                      Unary Operators.
-* tanh rpn operator:                     Unary Operators.
-* temperature-salinity diagram:          TS Diagram.
-* temperature-salinity diagram, drawing isopycnals on: Draw Isopycnal.
-* temperature-salinity diagram, drawing spice lines on: Draw Isospice.
-* temporary file allocation:             Using OS Inside Gri.
-* test suite <1>:                        Test Suite.
-* test suite:                            Uncompiled Unix.
-* testing for end of file:               Set Ignore Error Eof.
-* testing for existence of a synonym:    Unary Operators.
-* testing for existence of a variable:   Unary Operators.
-* testing for existence of an aliased synonym: Unary Operators.
-* testing for file eof:                  Set Ignore Error Eof.
-* text strings, drawing:                 Draw Label Boxed.
-* text strings, embedding synonyms within: Embedded Synonyms.
-* text, color used for:                  Set Font Color.
-* text, encoding vector of:              Set Font Encoding.
-* text, Greek letters:                   Mathematical Text.
-* text, inserting forward/backward space: Mathematical Text.
-* text, ISO characters:                  Non-English Text.
-* text, mathematical symbols:            Mathematical Text.
-* text, subscripts:                      Mathematical Text.
-* text, superscripts:                    Mathematical Text.
-* text, thin-spaces within:              Adjustment Of Character Position.
-* the &.variable. notation:              Changeable Command Arguments.
-* the &\synonym notation:                Changeable Command Arguments.
-* thin-space in text:                    Adjustment Of Character Position.
-* thousand parts, indicating in numbers using underscore: Version 2.8.
-* tic size, setting:                     Set Tic Size.
-* Tim Powers (contributer):              Acknowledgments.
-* time:                                  Important Builtin Synonyms.
-* timing things:                         Show.
-* titles, drawing above plot:            Linegraphs.
-* tmpname:                               Using OS Inside Gri.
-* Toru Suzuki (contributer):             Acknowledgments.
-* traceback:                             Show.
-* tracing execution, command-line option: Invoking Gri.
-* tracing execution, using ..trace..:    Debugging.
-* transforming page location units to user units: rpn Examples.
-* trigonometric operations in rpn math:  rpn Examples.
-* types of gri commands:                 Overview Of Gri Commands.
-* underscore, in numbers:                Version 2.8.
-* unix environment variables:            Get Env.
-* unix, dollar-parenthesis notation within Gri commands: Using OS Inside Gri.
-* unlink command:                        Unlink.
-* unlink, to remove files:               Unlink.
-* URL, how to open:                      Opening URLs.
-* user input to Gri:                     Acknowledgments.
-* user interaction, query command:       Query.
-* user units:                            rpn Examples.
-* user units, converting to page units:  Binary Operators.
-* user-defined synonyms:                 Using Synonyms.
-* user-defined variables:                User Variables.
-* using environment variables for directory names: Using OS Inside Gri.
-* variables:                             Variables.
-* variables, and the & syntax:           Changeable Command Arguments.
-* variables, assigning within RPN expressions: Binary Operators.
-* variables, built-in:                   Built-in Variables.
-* variables, checking for existence of:  Unary Operators.
-* variables, defined by user:            User Variables.
-* variables, deleting:                   Delete.
-* variables, displaying list of:         Show.
-* variables, making local versions:      New.
-* variables, multiple copies of:         New.
-* variables, reading <1>:                Read Line.
-* variables, reading:                    Read Synonym or Variable.
-* variables, storing values within synonyms (strings): Sprintf.
-* vector field, how to read:             Read Columns.
-* version 2.10:                          Version 2.10.
-* version 2.12:                          Version 2.12.
-* version numbers:                       Introduction.
-* versions, handling multiple:           Uncompiled Unix.
-* while command:                         While.
-* width rpn operator:                    Unary Operators.
-* Window-pane plots <1>:                 Set Panels.
-* Window-pane plots:                     Set Panel.
-* wordc RPN operator:                    Solitary Operators.
-* wordv RPN operator:                    Unary Operators.
-* working directory, stored in synonym \.wd.: Important Builtin Synonyms.
-* write command:                         Write.
-* write PostScript commands directly to output file: Postscript.
-* writing to a file, column data:        Write Columns.
-* writing to a file, contour data:       Write Contour.
-* writing to a file, grid data:          Write Grid.
-* writing to a file, image data:         Write Image.
-* x-y graphs <1>:                        Draw Curve.
-* x-y graphs:                            Linegraphs.
-* X11 colors, reading:                   Read Colornames.
-* xcmtouser rpn operator:                Unary Operators.
-* xusertocm rpn operator:                Unary Operators.
-* ycmtouser rpn operator:                Unary Operators.
-* yusertocm rpn operator:                Unary Operators.
-* | rpn operator:                        Binary Operators.
-* ~/.grirc initialization file:          Resource File.
+     open file
+     skip 10
+     read columns x y
+     ...
+
+   Case 2 - header itself indicates number of header lines.  Quite
+often the first line of a file will indicate the number of header
+lines.  For example, suppose the first line contains a single number,
+indicating the number of header lines to follow:
+
+     open file
+     read .skip.
+     skip .skip.
+     read columns x y
+     ...
+
+   Case 3 - header lines marked by a textual key.  Sometimes header
+lines are indicated by a textual key, for example, the characters
+`HEADER' at the start of the line in the file.  The easy way to skip
+such a header is to use a system command.  Depending on your
+familiarity with the operating system (here presumed to be Unix), you
+might choose to use Grep, Awk, or Perl.  Here are examples:
+
+     open "grep -v '^HEADER' file |"
+
+   For more on the `|' mechanism, see *Note Open::.  The Grep command
+prints lines which do not match the indicated string (because of the
+`-v' switch), and the `^' character stands for the start of the line
+(*Note Grep::).  Thus all lines with the key word at the *start* of the
+line are skiped.
+
+   Case 4 - reading and using information in header.  Consider a
+dataset in which the first line gives the time of observation, followed
+by a list of observations.  This might be, for example, an indication
+of the data taken from a weather balloon released at a particular time
+from a fixed location, with the main data being air temperature as a
+function of elevation of the balloon.  The time indication might be,
+for instance, the hour number.  One might need to know the time to
+print a label on the diagram.  You could do that by:
+
+     open file
+     read .time.
+     read columns x y
+     draw curve
+     sprintf \label "Time of observation is %f hour" .time.
+     draw title "\label"
+
+where the `sprintf' command has been used to change the numerical time
+indication into a synonym that can be inserted into a quoted string for
+drawing the title of the diagram (*Note Sprintf::).  Here the time has
+been assumed to be a decimal hour.  You might also have three numbers on
+the line, perhaps a day, an hour and a minute.  Then you could do
+something like
+
+     open file
+     read .d. .h. .m.
+     read columns x y
+     draw curve
+     sprintf \label "Obs. %.0f:%.0f, day %.0f" .h. .m. .d.
+     draw title "\label"
+
+Here the `%.0f' code is used to ensure no numbers will be written after
+the decimal point.  Naturally, you could convert this to a decimal day,
+by e.g.
+
+     ...
+     .dday. = {rpn .day. .hour. 24 / .min. 24 / 60 /}
+     sprintf \label "Decimal day is %.4f" .dday.
+     ...
+
+(Some of you might know how many minutes in a day, but I'm silly so I
+kept the extra mathematical step - nothing is lost by being
+straightforward!)
 
 
-File: gri.info,  Node: Index of Commands,  Next: Index of Builtins,  Prev: Concept Index,  Up: Top
+File: gri.info,  Node: Ignoring Columns,  Next: Column Algebra,  Prev: Handling Headers,  Up: Handling Data
 
-Index of Commands
-*****************
+Ignoring columns that are not of interest
+-----------------------------------------
 
-* Menu:
+   Quite often a dataset will have many columns, of which only a couple
+are of interest to you.  Consider for example oceanographic data which
+has columns storing, in order, these variables: (1) depth in water
+column, (2) "in situ" temperature, (3) "potential" temperature, (4)
+salinity, (5) conductivity, (6) density, (7) sigma-theta, (8) sound
+speed, and (9) oxygen concentration.  But you might only be interested
+in plotting a graph of salinity on the x-axis and depth on the y-axis.
+Here are several ways to do this:
 
-* assert:                                Assert.
-* cd:                                    Cd.
-* close:                                 Close.
-* convert columns to grid:               Convert Columns To Grid.
-* convert columns to spline:             Convert Columns To Spline.
-* convert grid to columns:               Convert Grid To Columns.
-* convert grid to image:                 Convert Grid To Image.
-* convert image to grid:                 Convert Image To Grid.
-* create:                                Create Columns From Function.
-* create image grayscale:                Create Image Grayscale.
-* debug:                                 Debug.
-* delete:                                Delete.
-* differentiate:                         Differentiate.
-* draw:                                  Draw.
-* draw arc:                              Draw Arc.
-* draw arrows:                           Draw Arrows.
-* draw axes:                             Draw Axes.
-* draw axes if needed:                   Draw Axes If Needed.
-* draw border box:                       Draw Border Box.
-* draw box:                              Draw Box.
-* draw circle:                           Draw Circle.
-* draw contour:                          Draw Contour.
-* draw curve:                            Draw Curve.
-* draw essay:                            Draw Essay.
-* draw gri logo:                         Draw Gri Logo.
-* draw grid:                             Draw Grid.
-* draw image:                            Draw Image.
-* draw image histogram:                  Draw Image Histogram.
-* draw image palette:                    Draw Image Palette.
-* draw isopycnal:                        Draw Isopycnal.
-* draw isospice:                         Draw Isospice.
-* draw label:                            Draw Label.
-* draw label boxed:                      Draw Label Boxed.
-* draw label for last curve:             Draw Label For Last Curve.
-* draw label whiteunder:                 Draw Label Whiteunder.
-* draw line:                             Draw Line From.
-* draw line legend:                      Draw Line Legend.
-* draw lines:                            Draw Lines.
-* draw patches:                          Draw Patches.
-* draw polygon:                          Draw Polygon.
-* draw regression line:                  Draw Regression Line.
-* draw symbol:                           Draw Symbol.
-* draw symbol at:                        Draw Symbol At.
-* draw symbol legend:                    Draw Symbol Legend.
-* draw times stamp:                      Draw Time Stamp.
-* draw title:                            Draw Title.
-* draw values:                           Draw Values.
-* draw x axis:                           Draw X Axis.
-* draw x box plot:                       Draw X Box Plot.
-* draw y axis:                           Draw Y Axis.
-* draw y box plot:                       Draw Y Box Plot.
-* draw zero line:                        Draw Zero Line.
-* end group:                             End Group.
-* expecting:                             Expecting.
-* filter:                                Filter.
-* flip:                                  Flip.
-* get env:                               Get Env.
-* group:                                 Group.
-* heal:                                  Heal.
-* help:                                  Help.
-* if:                                    If.
-* ignore:                                Ignore.
-* input:                                 Input.
-* insert:                                Insert.
-* interpolate:                           Interpolate.
-* list:                                  List.
-* ls:                                    Ls.
-* mask:                                  Mask.
-* new:                                   New.
-* new page:                              Newpage.
-* new postscript file:                   New Postscript File.
-* open:                                  Open.
-* postscript:                            Postscript.
-* pwd:                                   Pwd.
-* query:                                 Query.
-* quit:                                  Quit.
-* read:                                  Read Synonym or Variable.
-* read colornames:                       Read Colornames.
-* read columns:                          Read Columns.
-* read from:                             Read From.
-* read grid:                             Read Grid.
-* read image:                            Read Image.
-* read image colorscale:                 Read Image Colorscale.
-* read image grayscale:                  Read Image Grayscale.
-* read image mask:                       Read Image Mask.
-* read line:                             Read Line.
-* regress:                               Regress.
-* reorder:                               Reorder.
-* rescale:                               Rescale.
-* resize x:                              Resize.
-* return:                                Return.
-* rewind:                                Rewind.
-* rpnfunction:                           Rpnfunction.
-* set:                                   Set.
-* set arrow size:                        Set Arrow Size.
-* set arrow type:                        Set Arrow Type.
-* set axes style:                        Set Axes Style.
-* set beep:                              Set Beep.
-* set bounding box:                      Set Bounding Box.
-* set clip:                              Set Clip.
-* set color:                             Set Color.
-* set colorname:                         Set Colorname.
-* set colour:                            Set Color.
-* set contour format:                    Set Contour Format.
-* set contour label for:                 Set Contour Label For.
-* set contour label position:            Set Contour Label Position.
-* set contour labels:                    Set Contour Labels.
-* set dash:                              Set Dash.
-* set environment:                       Set Environment.
-* set error:                             Set Error Action.
-* set flag:                              Set Flag.
-* set font color:                        Set Font Color.
-* set font colour:                       Set Font Color.
-* set font encoding:                     Set Font Encoding.
-* set font size:                         Set Font Size.
-* set font to:                           Set Font To.
-* set graylevel:                         Set Graylevel.
-* set greylevel:                         Set Graylevel.
-* set grid missing:                      Set Grid Missing.
-* set ignore error eof:                  Set Ignore Error Eof.
-* set ignore initial newline:            Set Ignore Initial Newline.
-* set image colorscale:                  Set Image Colorscale.
-* set image colourscale:                 Set Image Colorscale.
-* set image grayscale:                   Set Image Grayscale.
-* set image grayscale using histogram:   Set Image Grayscale.
-* set image greyscale:                   Set Image Grayscale.
-* set image greyscale using histogram:   Set Image Grayscale.
-* set image missing value color:         Set Image Missing Value Color.
-* set image missing value colour:        Set Image Missing Value Color.
-* set image range:                       Set Image Range.
-* set input data separator:              Set Input Data Separator.
-* set input data window:                 Set Input Data Window.
-* set line cap:                          Set Line Cap.
-* set line join:                         Set Line Join.
-* set line width:                        Set Line Width.
-* set missing value:                     Set Missing Value.
-* set page <1>:                          Set Page.
-* set page:                              Set Page Size.
-* set panel:                             Set Panel.
-* set panels:                            Set Panels.
-* set path:                              Set Path To.
-* set postscript filename:               Set Postscript Filename.
-* set symbol size:                       Set Symbol Size.
-* set tic size:                          Set Tic Size.
-* set trace:                             Set Trace.
-* set u scale:                           Set U Scale.
-* set v scale:                           Set V Scale.
-* set x axis:                            Set X Axis.
-* set x format:                          Set X Format.
-* set x grid:                            Set X Grid.
-* set x margin:                          Set X Margin.
-* set x name:                            Set X Name.
-* set x size:                            Set X Size.
-* set x type:                            Set X Type.
-* set y axis:                            Set Y Axis.
-* set y format:                          Set Y Format.
-* set y grid:                            Set Y Grid.
-* set y margin:                          Set Y Margin.
-* set y name:                            Set Y Name.
-* set y size:                            Set Y Size.
-* set y type:                            Set Y Type.
-* set z missing:                         Set Z Missing.
-* show:                                  Show.
-* skip:                                  Skip.
-* smooth:                                Smooth.
-* smooth grid data:                      Smooth.
-* source:                                Source.
-* sprintf:                               Sprintf.
-* state command:                         State.
-* superuser:                             Superuser.
-* system:                                System.
-* unlink:                                Unlink.
-* while:                                 While.
-* write:                                 Write.
+     open file
+     read columns y * * x
+     draw curve
+
+where the `*' is a place-keeper to indicate to skip that column.  For a
+large number of columns, or as an aesthetic choice, you might prefer to
+write this a
+
+     open file
+     read columns y=1 x=4
+     draw curve
+
+   Many users would just as soon not bother with this syntax, preferring
+instead to use system tools with which they are more familiar.  So a
+Gawk user might write
+
+     open "gawk '{print($1, $4)}' file |"
+     read columns y x
+     draw curve
+
+For more on the Gawk command see *Note Awk::.
 
 
-File: gri.info,  Node: Index of Builtins,  Prev: Index of Commands,  Up: Top
+File: gri.info,  Node: Column Algebra,  Next: Combining Columns,  Prev: Ignoring Columns,  Up: Handling Data
 
-Index of Built-in Variables and Synonyms
-****************************************
+Algebra on column data
+----------------------
+
+   Suppose the file contains (x,y), but you wish to plot 2y times x.
+You could do the doubling of y within Gri, as
+
+     open file
+     read columns x y
+     y *= 2
+     draw curve
+
+or you could use a system tool, e.g. gawk, as in this example (*Note
+Awk::).
+
+     open "gawk '{print($1,2*$2)}' file|"
+     read columns x y
+     draw curve
+
+   The latter is preferable in the sense that it is more powerful.  The
+reason for this is that Gri allows you to manipulate the x and y
+columns, using so-called RPN mathematics (*Note rpn Mathematics::), but
+you cannot blend the columns.  For example, you cannot easily form the
+ratio y/x in Gri.  (Actually, you can, by looping through your data and
+doing the calculation index by index, but if you knew that already you
+wouldn't need to be reading this section!)  Such blending is trivial in
+the operating system, though, as in the following Gawk example (*Note
+Awk::).
+
+     open "gawk 'print {($1, $2/$1)}' file |"
+     read columns x y
+     draw curve
+
+
+File: gri.info,  Node: Combining Columns,  Next: Plotting Several Columns,  Prev: Column Algebra,  Up: Handling Data
+
+Combining columns from different files
+--------------------------------------
+
+   Suppose you want to plot a column (`y', say) from one file versus a
+second column (`x') from a second data file.  The easy way is to use a
+system command to create a new file, for example the Unix command
+`paste' - but of course you don't want to clutter your filesystem with
+such files, so you should do this withing Gri:
+
+     open "paste file1 file2 |"
+     read columns x y
+     draw curve
+
+
+File: gri.info,  Node: Plotting Several Columns,  Next: Commands,  Prev: Combining Columns,  Up: Handling Data
+
+Plotting several y-columns versus on x-column
+---------------------------------------------
+
+   Sometimes you'll have a datafile with the first column being x, and
+the other columns being various things to plot versus x.  For example,
+you might have the data
+
+     1  8 11  9
+     2 22 21 20
+     3 11 10  9
+     4 20 15 10
+
+in a file called `test.dat'.  Let's say the x-column is time, and the
+y-columns are the readings from three temperature sensors.  The
+following illustrates how you might plot these data.  If you think the
+new-command which starts this script is useful, just insert it in your
+`~/.grirc' file and you can just use it without re-defining it each
+time.  This will give Gri a command called `draw curves'.
+
+     `draw curves \xname \y1name ...'
+     Draw multiple y columns versus an x column.  Assumes
+     that the datafile is open, and that x is in the first
+     column, with the y values in one or more following
+     columns.
+     
+     The number of columns is figured out from the options,
+     as is the name of the x-axis, and the labels to be
+     used on each of the y curves.
+     {
+       # NB. the 3 below lets us skip the words 'draw'
+       # and 'curves', and the name of the x-column.
+       .num_of_y_columns. = {rpn wordc 3 -}
+       if {rpn .num_of_y_columns. 1 >}
+         show "ERROR: `draw curves' needs at least 1 y column!"
+         quit
+       end if
+     
+       set x name {rpn 2 wordv}
+       set y name ""
+     
+       # Loop through the columns.
+       .col. = 0
+       while {rpn .num_of_y_columns. .col. <}
+         # The x-values will be in column 1, with y-values
+         # in columns 2, 3, ..., of the file.
+         .ycol. = {rpn .col. 2 +}
+         rewind
+         read columns x=1 y=.ycol.
+         # At this point, you may want to change line thickness,
+         # thickness, color, dash-type, etc.  For illustration,
+         # let's set dash type to the column number.
+         set dash .col.
+         draw curve
+         draw label for last curve {rpn .col. 3 + wordv}
+         .col. += 1
+       end while
+     }
+     
+     open test.dat
+     draw curves time y1 y2 y3
+
+
+File: gri.info,  Node: Commands,  Next: Overview Of Gri Commands,  Prev: Plotting Several Columns,  Up: Top
+
+List of Commands in the Gri Language
+************************************
 
 * Menu:
 
-* ..arrowsize.., size of arrows:         Built-in Variables.
-* ..batch.., flag used for batch mode:   Built-in Variables.
-* ..blue..:                              Built-in Variables.
-* ..debug.., flag used for debugging:    Built-in Variables.
-* ..debug.., for debugging (by normal users): Invoking Gri.
-* ..eof.., flag indicating end-of-file:  Built-in Variables.
-* ..exit_status.., exit status from system call: Built-in Variables.
-* ..fontsize.., size of letters:         Built-in Variables.
-* ..graylevel.., graylevel (0=black):    Built-in Variables.
-* ..image_height.., height of image:     Built-in Variables.
-* ..image_width.., width of image:       Built-in Variables.
-* ..length_blank.., length/cm of blanks <1>: Built-in Variables.
-* ..length_blank.., length/cm of blanks: Set Dash.
-* ..length_dash.., length/cm of dashes <1>: Built-in Variables.
-* ..length_dash.., length/cm of dashes:  Set Dash.
-* ..linewidth.., width of lines:         Built-in Variables.
-* ..linewidthaxis.., width of lines on axis: Built-in Variables.
-* ..linewidthsymbol.., width of lines in symbols: Built-in Variables.
-* ..missingvalue.., missing value code:  Built-in Variables.
-* ..missingvalue.., value for missing data: Missing Values.
-* ..num_col_data.., number column data <1>: Manipulation of Columns etc.
-* ..num_col_data.., number column data:  Built-in Variables.
-* ..publication.., flag for final copy of plot: Built-in Variables.
-* ..superuser.., for debugging (by developers): Invoking Gri.
-* ..superuser.., was -superuser flag set?: Built-in Variables.
-* ..symbolsize.., size of symbols:       Built-in Variables.
-* ..tic_direction.., direction of axis tics: Built-in Variables.
-* ..tic_size.., size/cm of axis tics:    Built-in Variables.
-* ..trace.., for tracing program execution: Built-in Variables.
-* ..use_default_for_query.., simulate -yes commandline flag: Invoking Gri.
-* ..words_in_dataline..:                 Built-in Variables.
-* ..xinc.., x increment on axes <1>:     Built-in Variables.
-* ..xinc.., x increment on axes:         Axis Scaling.
-* ..xlast.., last drawn x value:         Axis Scaling.
-* ..xleft.., x value at left of plot <1>: Built-in Variables.
-* ..xleft.., x value at left of plot:    Axis Scaling.
-* ..xmargin.., left margin <1>:          Built-in Variables.
-* ..xmargin.., left margin:              Axis Scaling.
-* ..xright.., x value at right of plot <1>: Built-in Variables.
-* ..xright.., x value at right of plot:  Axis Scaling.
-* ..xsize.., x-axis length <1>:          Built-in Variables.
-* ..xsize.., x-axis length:              Axis Scaling.
-* ..ybottom.., y value at bottom of plot <1>: Built-in Variables.
-* ..ybottom.., y value at bottom of plot: Axis Scaling.
-* ..yinc.., y increment on axes <1>:     Built-in Variables.
-* ..yinc.., y increment on axes:         Axis Scaling.
-* ..ylast.., last drawn y value:         Axis Scaling.
-* ..ymargin.., bottom margin <1>:        Built-in Variables.
-* ..ymargin.., bottom margin:            Axis Scaling.
-* ..ysize.., y-axis length <1>:          Built-in Variables.
-* ..ysize.., y-axis length:              Axis Scaling.
-* ..ytop.., y value at top of plot <1>:  Built-in Variables.
-* ..ytop.., y value at top of plot:      Axis Scaling.
-* \.command_file., command-file name:    Important Builtin Synonyms.
-* \.home., home directory:               Important Builtin Synonyms.
-* \.missingvalue., command-file name:    Important Builtin Synonyms.
-* \.pid., process ID of job:             Important Builtin Synonyms.
-* \.proper_usage.:                       Local Synonyms.
-* \.ps_file., PostScript file name:      Important Builtin Synonyms.
-* \.readfrom_file., data file name:      Important Builtin Synonyms.
-* \.return_value., Return value:         Important Builtin Synonyms.
-* \.system., operating system name:      Important Builtin Synonyms.
-* \.time., time and date:                Important Builtin Synonyms.
-* \.user., user's login name:            Important Builtin Synonyms.
-* \.version., version of Gri:            Important Builtin Synonyms.
-* \.wd., working directory:              Important Builtin Synonyms.
-* \.word0.:                              Local Synonyms.
-* \.word1.:                              Local Synonyms.
-* \.words.:                              Local Synonyms.
+* Overview Of Gri Commands::    General classification of commands
+* Command Syntax::              Syntax of the commands
+* List Of Gri Commands::
 
+
+File: gri.info,  Node: Overview Of Gri Commands,  Next: Command Syntax,  Prev: Commands,  Up: Commands
+
+Overview of Gri Commands
+========================
+
+   The Gri commands may be divided roughly into a few categories, as
+indicated in the following list.
+
+   * *Working with files*: Commands are `open', `close', `skip',
+     `read', and `rewind'.
+
+   * *Controlling parameters of the drawn material*: Various `set'
+     commands control values of parameters, like size of plot,
+     linewidth, font, etc.
+
+   * *Drawing things*: Various `draw' commands let you draw data, axes,
+     etc.
+
+   * *Interacting with the user*: The `query' command gets instructions
+     from the user.  The `show' command displays messages to user.
+
+   * *Controlling program flow*: The `if' statement controls optional
+     execution of commands (*Note If Statements::).  The `while'
+     statement allows loops.
+
+   * *Moving around in directories*: The `pwd', `cd' and `ls' commands
+     do the usual unix things.
+
+   * *Using the operating system* The `system' command passes
+     instructions to the operating system; the output may be saved into
+     a synonym by using `\syn = system ...'.  The `get env' command
+     determines the value of any unix environment variables the system
+     has defined.  For more discussion (*Note Operating System::).
+
+   * *Statistical operations*: Some very limited capabilities exist;
+     for example, `regress' does linear regression.
+
+   * *Mathematical operations*: Simple mathematical manipulation of
+     column, grid, and image data is provided.  Also, wherever Gri
+     expects a number, it will accept a reverse-polish expression; for
+     example, `set x size 10' could also be written `set x size {rpn 20
+     2 /}'.  For details (*Note Mathematics::).
+
+
+File: gri.info,  Node: Command Syntax,  Next: List Of Gri Commands,  Prev: Overview Of Gri Commands,  Up: Commands
+
+Command syntax
+==============
+
+   The syntax description is enclosed within angled single quotes,
+optional items are enclosed in square brackets, multiword items are
+enclosed in curly braces, and vertical bars separate different
+legitimate choices.  For example, the documentation item for the
+command for drawing contours
+
+     `draw contour \
+         [.value. |  \
+           {.min. .max. .inc. [.inc_unlabelled.]}] \
+         [unlabelled]'
+
+indicates that following are legal:
+
+     draw contour                   # gri selects levels
+     draw contour unlabelled        # " but unlabelled
+     draw contour 10                # single contour line
+     draw contour 10 unlabelled     # " but unlabelled
+     draw contour 0 100 10          # contours at z=0,1,
+     draw contour 0 10 1 unlabelled # " but unlabelled
+     # contours at 0, 0.1, ... labelled at 0, 1
+     draw contour 0 10 1 0.1
+
+Note that items enclosed in braces must appear in their entirety; for
+example,
+
+     draw contour 0 10              # WRONG; missing .inc.
+
+which might look similar `draw contour .min. .max. .inc.' to you, looks
+like garbage to Gri.  Gri will recognize it as an attempt at the `draw
+contour' command (because the first 2 words match the syntax) but it
+will then get confused, spit out an error message, and quit.
+
+
+File: gri.info,  Node: List Of Gri Commands,  Next: Assert,  Prev: Command Syntax,  Up: Commands
+
+List of all Gri commands
+========================
+
+   Commands are listed below in the order in which they are defined in
+the `gri.cmd' file (*Note Invoking Gri::).  What you see here is
+similar to, but not identical to, the text of the online help.  Gri
+usually accepts both American and English spellings (As an example of
+spelling latitude, Gri accepts `grey' anywhere the manual says `gray',
+and `colour' for `color'.)
+
+* Menu:
+
+* Assert::                      Assert something to be true (for debugging)
+* Cd::                          Change directory
+* Close::                       Close a file
+* Convert::                     Convert various data types
+* Create::                      Create columns from specified function
+* Debug::                       Set to debugging mode
+* Delete::                      Delete various data structures
+* Differentiate::               Differentiate things
+* Draw::                        Draw various things
+* End Group::                   End a group
+* Expecting::                   Make Gri warn of incompatibilites
+* Filter::                      Filter (smooth) various data structures
+* Flip::                        Flip or transpose grid or image
+* Get Env::                     Get a unix environment variable
+* Group::                       Start a group of drawn objects
+* Heal::                        Interpolate across missing values
+* Help::                        Give on-line help
+* If::                          If and if/else statements
+* Ignore::                      Ignore some of data recently read in
+* Input::                       Input PostScript file into output file
+* Insert::                      Run another command file
+* Interpolate::                 Interpolate grid data to new x/y grid
+* List::                        List source of a gri command
+* Ls::                          List files in current directory
+* Mask::                        Mask the image
+* New::                         Get space for new variable or synonym
+* Newpage::                     Start a new page
+* New Postscript File::         Start a new PostScript file
+* Open::                        Open a data file
+* Postscript::                  Insert a line into the PostScript file
+* Pwd::                         Print working directory
+* Query::                       Get user input
+* Quit::                        Exit from gri
+* Read::                        Read something
+* Regress::                     Do linear regressions on columnar data
+* Reorder::                     Reorder columns
+* Rescale::                     Re-determine scales for x/y axes
+* Resize::                      Resize plot width/height for maps
+* Return::                      Return early from command or insert file
+* Rewind::                      Rewind data file to beginning
+* Rpnfunction::                 Define an rpn function
+* Set::                         Set various preference flags, etc
+* Show::                        Show values of various things
+* Skip::                        Skip some lines in data file
+* Sleep::                       Sleep for a while
+* Smooth::                      Smooth data
+* Source::                      Run another command file
+* Sprintf::                     Print variable values into a synonym
+* State::                       Save or restore the graphics state
+* Superuser::                   Enable some programmers debugging commands
+* System::                      Performing system commands within gri
+* Unlink::                      Delete file
+* While::                       Loop over some code while a condition is true
+* Write::                       Write data to a file
+
+
+File: gri.info,  Node: Assert,  Next: Cd,  Prev: List Of Gri Commands,  Up: List Of Gri Commands
+
+`assert'
+--------
+
+     `assert .condition. ["message"]
+
+The condition may be a variable, a synonym, or an RPN expression.  If
+this condition is true (i.e. evaluates to a non-zero number), do
+nothing.  If the condition is false, the program will terminate with an
+error condition (in unix, it will terminate with a non-zero exit code).
+
+   Before termination, a message will be printed, the form of which
+depends on the optional `"message"' string.
+
+   If no `"message"' string is given, the the printed message will
+indicate the name of the command-file and the line at which the assert
+command was encountered.
+
+   If a `"message"' string is given, and if it ends in a newline
+(`"\\n"'), then this string is printed.
+
+   If a `"message"' string is given, and if it does not end in `"\\n"',
+then the string is printed along with an indication of the location in
+the command-file.
+
+   (Perl users will recognize this as being patterned on the `"die"'
+command.)
+
+
+File: gri.info,  Node: Cd,  Next: Close,  Prev: Assert,  Up: List Of Gri Commands
+
+`cd'
+----
+
+     `cd [\pathname]'
+
+If a pathname specified, change to that directory.  Normal unix
+filenames are used, as in the C-shell convention.  For example, the
+commands `cd ~/src' and `cd $HOME/src' are equivalent.  You may specify
+relative pathnames as in `cd ../sister_directory'.
+
+   If no \pathname directory path is specified, go to the home
+directory, exactly as `cd ~' and `cd $HOME' do.
+
+
+File: gri.info,  Node: Close,  Next: Convert,  Prev: Cd,  Up: List Of Gri Commands
+
+`close'
+-------
+
+     `close [\filename]'
+
+If no filename is specified, close the most recently opened data-file;
+otherwise close the indicated file.
+
+
+File: gri.info,  Node: Convert,  Next: Convert Columns To Grid,  Prev: Close,  Up: List Of Gri Commands
+
+The `convert' commands
+----------------------
+
+* Menu:
+
+* Convert Columns To Grid::      Create grid from (x,y,f) data
+* Convert Columns To Spline::    Create spline (x',y') from (x,y) data
+* Convert Grid To Columns::      Create (x,y,f) data from grid
+* Convert Grid To Image::        Create an image from grid data
+* Convert Image To Grid::        Create a grid from image data
+
+
+File: gri.info,  Node: Convert Columns To Grid,  Next: Convert Columns To Spline,  Prev: Convert,  Up: Convert
+
+`convert columns to grid'
+.........................
+
+   Various forms exist:
+
+     `convert columns to grid OPTIONS'
+
+where the `OPTIONS' may be omitted or selected from this list:
+
+     `neighbor'
+     `boxcar    [.xr. .yr. [.n. .e.]]'
+     `objective [.xr. .yr. [.n. .e.]]'
+     `barnes    [.xr. .yr. .gamma. .iter.]'
+
+For more discussion on the methods see *Note Ungridded Data::.
+
+   All these commands "grid" columnar (x,y,z) data.  That is, they fill
+up a grid based on some form of interpolation of the possibly
+randomly-spaced columnar data.  There are many methods in existence for
+doing this, and Gri implements several of them as alternatives.
+
+   The grid will have been defined by commands such as `set x grid',
+`set y grid', `read grid x' and `read grid y'.  As of version 2.1.9,
+Gri does not require a grid to have been pre-defined; it will create a
+regular 20 by 20 grid, spanning the range of x and y data, as a
+default.  This is a good starting point in many cases.
+
+_`neighbor' method_
+     Very fast but very limited.
+
+_`boxcar' method_
+     Slower but a lot better.  Still, this can produce noisy contours
+     if the data are not densely and uniformly ditributed through
+     domain.
+
+_`objective' method_
+     Somewhat slower than `boxcar', but produces better fields since the
+     averaging function is smooth.
+
+_`barnes' method_
+     Somewhat slower than `objective', but only by a constant factor
+     (that is, independent of number of data).  This produces by far
+     the best results, since the smoothing function has variable
+     spatial scale.  This is the default method if no method is
+     supplied.
+
+   All except the `neighbor' method may take optional arguments to
+define the x and y scales of the smoothing function (called `.xr.' and
+`.yr.').  (The barnes method has two other optional arguments - see
+below.)  If you do not supply these arguments, Gri will make a
+reasonable choice and inform you of its decision.  Many users find that
+it is best to `convert columns to grid' with no additional parameters
+as a first step, to get advice on values to use for the optional
+parameters.
+
+   The default `.xr.' and `.yr.' are calculated by determining the span
+in x and in y directions, and dividing each by the square root of the
+number of data points.  These numbers are then multiplied by the square
+root of 2.  The method is as proposed by S. E. Koch and M.  DesJardins
+and P. J. Kocin, 1983.  "An interactive Barnes objective map anlaysis
+scheme for use with satellite and conventional data,", J. Climate Appl.
+Met., vol 22, p. 1487-1503.
+
+   If `.xr.' and `.yr.' were supplied but negative, then Gri interprets
+this as an instruction to modify the default values, described in last
+paragraph, by multiplying by the absolute values of the negative
+numbers given, instead of muliplying by square root of 2.
+
+   If the `chatty' option is turned on then Gri will print out the
+values of (dx,dy) that it has calculated; this gives you some guidance
+for supplying your own values of `(.xr.,.yr.)' if you choose to supply
+them yourself.  It is also a good idea to let these parameters be a
+guide for your grid spacing; for example, Koch et al., 1983, suggest
+using grid spacing of 0.3 to 0.5 times (dx,dy).
+
+   And now, the details ...
+
+   * *"Neighbor" method* The `convert columns to grid neighbor' method
+     is useful for (x,y,z) data which are already gridded (i.e., for
+     which x and y take only values which lie on the grid), or nearly
+     gridded.  The (x,y,z) data are scanned from start to finish. For
+     each data point, the nearest grid point is found.  Nearness is
+     measured as Cartesian distance, with scale factor given by the
+     distance between the first and second grid points.  In other
+     words, distance is given by D=sqrt(dx*dx+dy*dy) where dx is ratio
+     of distance from data point to nearest grid point, in x-units,
+     divided by the difference between the first two elements of the
+     x-grid, and dy is similarly defined.  Once the grid point nearest
+     the data point is determined, Gri adds the z-value to a list of
+     possible values to store in the grid.  Once the entire data set
+     has been scanned, Gri then goes back to each grid point, and
+     chooses the z-value of the data point that was nearest to the grid
+     point - that is, it stores the z value of the (x,y,z) data triplet
+     which has minimal D value.  Note that this scheme is independent
+     of the order of the data within the columns.
+
+     The `neighbor' method is useful when the data are already
+     pre-gridded, meaning that the (x,y,z) triplets have x and y values
+     which are already aligned with the grid.  *Computational cost:* For
+     `P' data points, `X' x-grid points, and `Y' y-grid points, the
+     method calculation cost is proportional to `P*[log2(X)+log2(Y)]'
+     where `log2' is logarithm base 2.  As discussed below, this is
+     often several orders of magnitude lower than the other methods of
+     gridding.
+
+   * *"Objective" method* In the `objective' method, a smoothing
+     technique known as objective mapping is applied.  It is
+     essentially a variable-size smoothing filter of approximately
+     Gaussian shape (it is method "two" of Levy and Brown [1986 J.
+     Geophysical Res. vol 91, p 5153-5158]) The parameters `.xr.' and
+     `.yr.' give the width of the filter.
+
+     With the optional additional parameters `.n.' and `.e.' are
+     specified, then grid values will be assigned the missing value if
+     there are fewer than `.n.' (x,y,f) data in the neighborhood of the
+     gridpoint, even after enlarging the neighborhood by widening and
+     heightening by root(2) up to `.e.' times.  (The enlargement is only
+     done if fewer than `.n.' points are found.)  If these parameters
+     are not specified in the command, then values `.n.'=5 and `.e.'=1
+     are assumed.  The special case where `.e.' is negative tells Gri
+     to *always* fill in each grid point, by extending the neighborhood
+     to enclose the entire dataset if necessary.
+
+     *Computational cost:* For `P' data points, `X' x-grid points, and
+     `Y' y-grid points, the method calculation cost is proportional to
+     `P*X*Y'.  Given that `X' and `Y' are determined by the requirement
+     for smoothness of contours and the size of the graph, they are
+     more or less fixed for all applications.  They are often in the
+     range of 20 or so - on 10 cm wide graph, this yields a contour
+     footprint of 1/2 cm, which is often small enough to yield smooth
+     contours.  Therefore, the computational cost scales linearly with
+     the number of data points.  Compared to the "neighborhood" method,
+     this is more costly by a factor of `X*Y/log_2(X)/log_2(Y)' which is
+     normally in the range from 20 to 50.
+
+   * *"Boxcar" method* In the `boxcar' method, the grid points are
+     derived from simple averages calculated in rectangles `.xr.' wide
+     and `.yr.' tall, centred on the gridpoints.  The `.n.' and `.e.'
+     parameters have similar meanings as in the "objective" method.
+
+     *Computational cost:* Roughly same as `objective' method described
+     above.
+
+   * *"Barnes" method* This is the default scheme.
+
+     The Barnes algorithm is applied.  If no parameters are specified,
+     `.xr.' and `.yr.' are determined as above, with `.gamma.' set to
+     0.5, and `.iter.' set to 2 so that two iterations are done.  On
+     successive iterations, the smoothing lengthscales `.xr' and `.yr'
+     are each reduced by multiplying by the square root of `.gamma.'.
+     Smaller `.gamma.' values yield better resolution of small-scale
+     features on successive iterations.  Koch et al., 1983, recommend
+     using a `.gamma.' value in the range 0.2 to 1, with two iterations.
+
+     Provided that all the grid points are close enough to at least some
+     column data, the entire grid is filled.  But if `.xr.' and `.yr.'
+     are too small, the weighting function can fall to zero, since it
+     is exponential in the sum of the squares of the x-distance/`.xr.'
+     and the y-distance/`.yr.'; in that case missing values result at
+     those grid points.  On a 32 bit computer, the weighting function
+     will fall to zero when x-distance/`.xr.'  and y-distance/`.yr.'
+     are less than about 15 to 20.
+
+     If weights have been read in (*Note Read Columns::), then these
+     values are applied in addition to the distance-based weighting.
+     (The normalization means that weights for two data points of e.g.
+     1 and 2 will yield the same result as if the weights had been
+     given as 10 and 20.)
+
+     The computational cost at each iteration scales as `P*X*Y)'.  This
+     is comparable to that of the "objective" and "boxcar" methods.
+     Since normally two iterations are done, "barnes" is about double
+     the cost of these methods.  (Note: versions prior to 2.1.8 were
+     much slower for large datasets, being proportional to `P*P'.)
+
+     References: (1) Section 3.6 in Roger Daley, 1991, "Atmospheric data
+     analysis," Cambridge Press, New York. (2) S. E. Koch and M.
+     DesJardins and P. J. Kocin, 1983.  "An interactive Barnes
+     objective map anlaysis scheme for use with satellite and
+     conventional data,", J. Climate Appl.  Met., vol 22, p. 1487-1503.
+
+   The Barnes algorithm is as follows:
+
+   The gridded field is estimated iteratively.  Successive iterations
+retain largescale features from previous iterations, while adding
+details at smaller scales.
+
+   The first estimate of the gridded field, here denoted `G_(ij)^0'
+(the superscript indicating the order of the iteration) is given by a
+weighted sum of the input data, with `z_k' denoting the k-th `z' value.
+
+                  sum_1^n W_(ijk)^0 z_k
+     G_(ij)^(0) = ----------------------
+                    sum_1^n W_(ijk)0
+
+where the notation `sum_1^n' means to sum the elements for the `k'
+index ranging from 1 to `n'.
+
+   The weights `W_(ijk)^0' are defined in terms of a Guassian function
+decaying with distance from observation point to grid point:
+
+                    (   (x_k - X_i)^2       (y_k - Y_j)^2  )
+     W_(ijk)^0 = exp(-  --------------  -  --------------- )
+                    (      L_x^2                L_y^2      )
+
+Here `L_x' and `L_y' are lengths which define the smallest `(x,y)'
+scales over which the gridded field will have significant variations
+(for details of the spectral response see Koch et al. 1983).
+
+   Note: if the user has supplied weights then these are applied in
+addition to the distance-based weights.  That is, `w_i W_(ijk)' is used
+instead of `W_(ijk)'.
+
+   The second iteration derives a grid `G_(ij)^1' in terms of the first
+grid `G_(ij)^0' and "analysis values" `f_k^0' calculated at the
+`(x_k,y_k)' using a formula analogous to that above.  (Interpolation
+based on the first estimate of the grid `G_(ij)^0' can also be used to
+calculate `f_k^0', with equivalent results for a grid of sufficiently
+fine mesh.)  In this iteration, however, the weighted average is based
+on the difference between the data and the gridded field, so that no
+further adjustment of the gridded field is done in regions where it is
+already close to through the observed values.  The second estimate of
+the gridded field is given by
+
+                            sum_1^n W_(ijk)^1 (f_k - f_k^0)
+     G_(ij)^1 = G_(ij)^0 +  -------------------------------
+                                   sum_1^n W_(ijk)^1
+
+where the weights `w_{ik,1}' are defined by analogy with `W_{ik}^0'
+except that `L_x' and `L_y' are replaced by `gamma^{1/2}L_x' and
+`gamma^{1/2}L_y'.  The nondimensional parameter `gamma' (`0<gamma<1')
+controls the degree to which the focus is improved on the second
+iteration.  Just as the weighting function forced the gridded field to
+be smooth over scales smaller than `L_x' and `L_y' on the first
+iteration, so it forces the second estimate of the gridded field to be
+smooth over the smaller scales `gamma^{1/2}L_x' and `gamma^{1/2}L_y'.
+
+   The first iteration yields a gridded field which represents the
+observations over scales larger than `(L_x,L_y)', while successive
+iterations fill in details at smaller scales, without greatly modifying
+the larger scale field.
+
+   In principle, the iterative process may be continued an arbitrary
+number of times, each time reducing the scale of variation in the
+gridded field by the factor `gamma^{1/2}'.  Koch et al. 1983 suggest
+that there is little utility in performing more than two iterations,
+providing an appropriate choice of the focussing parameter `gamma' has
+been made.  Thus the gridding procedure defines a gridded field based
+on three tunable parameters: `(L_x,L_y,gamma)'.
+
+
+File: gri.info,  Node: Convert Columns To Spline,  Next: Convert Grid To Columns,  Prev: Convert Columns To Grid,  Up: Convert
+
+`convert columns to spline'
+...........................
+
+     `convert columns to spline \
+         [.gamma.] \
+         [.xmin. .xmax. .xinc.]'
+
+   Fit a normal or taut interpolating spline, y=y(x), through the (x,y)
+data.  Then subsample this spline to get a new set of (x,y) data.  If
+the spline x-values, `.xmin.', etc, are not specified, the spline
+ranges from the smallest x-value with legitimate data to the largest
+one, with 200 steps in between.
+
+   The parameter `.gamma.' determines the type of spline used.  If
+`.gamma.' is not specified, or is given as zero, a standard
+interpolating spline is used.  A knot appears at each x location, with
+cubic polynomials spanning the space between the knots.  If `.gamma.'
+lies between 0 and 6, a taut spline is used; this tends to have fewer
+wiggles than a normal spline.  If `.gamma.'  lies in the range 0 to 3,
+a taut spline is used, with the possible insertion of knots between
+interior x pairs.  The value 2.5 is used commonly.  If `.gamma.' lies
+in the range 3 to 6, extra knots are permitted in the x pairs at the
+ends of the domain.  A value of 5.5 is used commonly.
+
+   *Reference* Chapter 16 of Carl de Boar, 1987. "A Practical Guide to
+Splines" Springer-Verlag.
+
+     read columns x y  # function is y=x^2
+     0 0
+     1 1
+     2 4
+     3 9
+     4 16
+     
+     set symbol size 0.2
+     draw symbol bullet
+     convert columns to spline
+     draw curve
+
+
+File: gri.info,  Node: Convert Grid To Columns,  Next: Convert Grid To Image,  Prev: Convert Columns To Spline,  Up: Convert
+
+`convert grid to columns'
+.........................
+
+     `convert grid to columns'
+
+Create column data from grid data.  Each non-missing gridpoint is
+translated into a single (x,y,z) triplet.  If column data already exist,
+then they are first erased.  This command is useful in changing the grid
+configuration, perhaps from a non-uniform grid to a uniform grid.  In
+the following example, a new grid with x=(0, 0.05, 0.1, ..., 0.1) and
+y=(10, 11, ..., 20) is created.  The default gridding method (`convert
+columns to grid') is used here, but of course one is free to adjust the
+method as usual.
+
+     # ... read/create grid
+     convert grid to columns
+     delete grid
+     set x grid  0  1 0.05
+     set y grid 10 20 1
+     convert columns to grid
+
+
+File: gri.info,  Node: Convert Grid To Image,  Next: Convert Image To Grid,  Prev: Convert Grid To Columns,  Up: Convert
+
+`convert grid to image'
+.......................
+
+     `convert grid to image [size .width. .height.] \
+         [box .xleft. .ybottom. .xright. .ytop.]'
+
+With no options specified, convert grid to a 128x128 image, using an
+image range as previously set by `set image range'.
+
+   Interpolation method: The interpolation scheme is the same used for
+contouring.  Image points that lie outside the grid domain are
+considered missing.  For points within the grid, the first step is to
+locate the patch of the grid upon which the pixel lies.  Then the 4
+neighboring grid points are examined, and one of the following cases
+holds.
+  1. If 3 or more of them are missing, the pixel is considered missing.
+
+  2. If just one of the neighboring grid points is missing, then the
+     image pixel value is determined by bilinear interpolation on the
+     remaining 3 non-missing grid points.  (This amounts to fitting a
+     plane to three measurements of height.)
+
+  3. If all 4 of the grid points are non-missing, then the rectangle
+     defined by the grid patch is subdivided into four triangles.  The
+     triangles are defined by the two diagonal lines joining opposite
+     corners of the rectangle.  An "image point" is constructed at the
+     center of the grid patch, with f(x,y) value taken to be the
+     average of the values of the four neighbors.  This value is taken
+     to be the value at the common vertex of the four triangles, and
+     then bilinear interpolation is used to calculate the image pixel
+     value.
+
+   With the `size' options `.width.' and `.height.' specified, they set
+the number of rectanglular patches in the image.
+
+   With the `box' options specified, they set the bounding box for the
+image.  If `box' is not given, the image spans the same bounding box as
+the grid as set by `set x grid' and `set y grid'.
+
+   Normally, missing values in the grid become white in the image, but
+this can be changed using the `set image missing value color to'...
+command.
+
+
+File: gri.info,  Node: Convert Image To Grid,  Next: Create,  Prev: Convert Grid To Image,  Up: Convert
+
+`convert image to grid'
+.......................
+
+     `convert image to grid'
+
+Convert image to grid, using current graylevel/colorlevel mapping.  For
+example, if one had a linear mapping of pixel values 0->255 into the
+user values 10->20, as in
+
+     set image range 10 20
+     set image grayscale black 10 white 20
+
+then the output grid will be of value 10 where the pixel value is 0,
+etc.  If the image is in color, the grid values will represent the
+result of mapping the colors to grayscale in the standard way (Foley and
+VanDam, 1984). [BUG: as of 1.063, the colorscale is ignored completely,
+and I'm not sure what happens.] The image data are interpolated onto the
+grid using a nearest-neighbor substitution.  This command insists that
+the image x/y grids have already been defined.
+
+
+File: gri.info,  Node: Create,  Next: Create Columns From Function,  Prev: Convert Image To Grid,  Up: List Of Gri Commands
+
+The `create' commands
+---------------------
+
+* Menu:
+
+* Create Columns From Function:: prepare to draw a function
+* Create Image Grayscale::       prepare to draw banded image
+
+
+File: gri.info,  Node: Create Columns From Function,  Next: Create Image Grayscale,  Prev: Create,  Up: Create
+
+`create columns from function'
+..............................
+
+     `create columns from function'
+
+Plot a function of x which is defined in synonym \function.
+
+     ENVIRONMENT
+     \function = function to plot.
+     \xmin     = minimum x value
+     \xmax     = maximum x value
+     \xinc     = increment in x values
+     
+     EXAMPLE
+     \function = "cos(x)"
+     \xmin     = "0"
+     \xmax     = "2 * 3.14"
+     \xinc     = "0.1"
+     create columns from function
+     draw curve
+
+NOTE: This only works on machines which have the `awk' command
+available at the commandline.  This means most unix machines and some
+vax machines.
+
+
+File: gri.info,  Node: Create Image Grayscale,  Next: Debug,  Prev: Create Columns From Function,  Up: Create
+
+`create image grayscale'
+........................
+
+     `create image grayscale banded .band.'
+
+Make a banded grayscale with in units of .band. pixel values each.
+Thus, pixel values 0 to (.band. - 1) on the image will map to 0, while
+values from .band. to (2 * .band. - 1) will map to .band., etc.  For
+example, .band. = 2 gives grayscale = (0 0 2 2 4 4 6 6 ... 252 252 254
+254).
+
+
+File: gri.info,  Node: Debug,  Next: Delete,  Prev: Create Image Grayscale,  Up: List Of Gri Commands
+
+`debug'
+-------
+
+     `debug [.n.]|[clipped values in draw commands]|off'
+
+With no optional parameters, sets the value of `..debug..' to 1.
+(Normally, `..debug..' is 0.)  You may use `..debug..' in `if'
+statements, etc.  Note that `..debug..' is also set to 1 when gri is
+invoked with the commandline switch `-d'.
+
+   With `.n.' specified, `..debug..' is set to `.n.'; a value of zero
+for `.n.' turns debugging off, while 1 turns it on.  Higher values may
+be used for deeper debugging, if you choose:
+
+     if {rpn ..debug.. 2 <}
+       # Code to do if ..debug.. is greater than 2.
+     end if
+
+Note that you can assign to `..debug..' as you can to any other
+variable; `debug .n.' is equivalent to `..debug.. = .n.'.
+
+   With the `clipped' option, Gri prints any clipped data encountered
+during any `draw ...' commands, EXCEPT in the case of `postscript'
+clipping, where no check is possible.  (Note that `..debug..' is not
+affected.)
+
+   All these forms of debugging are cancelled by `debug off'.
+
+
+File: gri.info,  Node: Delete,  Next: Differentiate,  Prev: Debug,  Up: List Of Gri Commands
+
+`delete'
+--------
+
+     `delete .variable.|\synonym [.variable.|\synonym [...]]'
+     `delete columns [where missing]'
+     `delete columns [randomly .fraction.]'
+     `delete grid'
+     `delete [x|y] scale'
+
+Delete some item or characteristic.
+
+   * `delete .variable.' Delete definition of variable `.variable.',
+     making it undefined.  Any number of variables or synonyms may be
+     specified on one line.
+
+   * `delete \synonym' Delete definition of synonym `\synonym', making
+     it undefined.  Any number of variables or synonyms may be
+     specified on one line.
+
+   * `delete \@alias' Delete the item named by the alias (*Note Alias
+     Synonyms::).
+
+   * `delete' with an `&' item Delete the item in the calling program.
+
+   * `delete columns' Delete column data.
+
+   * `delete columns where missing' Completely delete all column data
+     for which any one of x, y, etc is missing.
+
+   * `delete columns randomly .fraction.' Randomly select fraction
+     `.fraction.'  of the non-missing column data, and designate them
+     as being missing.
+
+   * `delete grid' Delete grid data.
+
+   * `delete scale' Delete scales for both x and y, so next `read
+     columns' will set it.
+
+   * `delete x scale' Delete scales for x, so next `read columns' will
+     set it.
+
+   * `delete y scale' Delete scales for y, so next `read columns' will
+     set it.
+
+
+File: gri.info,  Node: Differentiate,  Next: Draw,  Prev: Delete,  Up: List Of Gri Commands
+
+`differentiate'
+---------------
+
+     `differentiate {x|y wrt index|y|x} | {grid wrt x|y}'
+
+Differentiate column data or grid data.  Only the `x' and `y' columns
+may be differentiated.  They may be differentiated either with respect
+to ("wrt") the index (forming a first difference) or with respect to
+the other column.  The derivative is done with the backwards-difference
+algorithm.  Grid data may differentiated with respect to `x' direction
+or `y' direction.  Grid differentiation is done with a centred
+difference, with endpoints being assigned the derivative of the
+neighboring interior point (so that the second derivative is zero at
+the edges of the grid).
+
+
+File: gri.info,  Node: Draw,  Next: Draw Arc,  Prev: Differentiate,  Up: List Of Gri Commands
+
+The `draw' commands
+-------------------
+
+   Draw commands do actual drawing on the page.  You can draw axes,
+lineplots, symbols, contours, images, and text.
+
+   *NOTE* Gri likes drawings to have axes, so if a `draw' command is
+executed before any axes have been drawn, Gri will draw axes after it
+draws the item.  (You can get drawings without axes by preceding any
+other `draw' commands with the command `draw axes none'.)  Many users
+have been surprised by the results of this rule.  For example, if you
+do `set graylevel 0.5' before `draw curve', you'll find that the axes
+are drawn in gray also.  To avoid this, make sure to do `draw axes'
+before you modify the graylevel.)
+
+* Menu:
+
+* Draw Arc::                    Draw an arc segment
+* Draw Arrow::                  Draw single arrow
+* Draw Arrows::                 Draw many arrows (using columns)
+* Draw Axes If Needed::         Draw axes if haven't done so yet
+* Draw Axes::                   Draw axes
+* Draw Border Box::             Draw border around plot
+* Draw Box::                    Draw a box, possibly filled
+* Draw Circle::                 Draw a circle
+* Draw Contour::                Draw contour(s)
+* Draw Curve::                  Draw a curve of y(x) column data
+* Draw Essay::                  Draw text, adjusting position for each line
+* Draw Gri Logo::               Draw a Gri logo
+* Draw Grid::                   Draw the location of grid points
+* Draw Image Histogram::        Draw histogram of values in image
+* Draw Image Palette::          Draw palette used in image plots
+* Draw Image::                  Draw image
+* Draw Isopycnal::              Draw isopycnal line on TS plot
+* Draw Isospice::               Draw iso-spice line on TS plot
+* Draw Label Boxed::            Draw a label in a box
+* Draw Label Whiteunder::       Draw a label with white ink under it
+* Draw Label For Last Curve::   What it says
+* Draw Label::                  Draw text somewhere
+* Draw Line From::              Draw line segment
+* Draw Line Legend::            Draw legend displaying line types
+* Draw Lines::                  Draw sequence of parallel lines
+* Draw Patches::                Draw grayscale patches showing z(x,y)
+* Draw Polygon::                Draw a polygon
+* Draw Regression Line::        Draw line from regression between x and y
+* Draw Symbol At::              Draw a symbol at a point
+* Draw Symbol Legend::          Draw a symbol and a string describing it
+* Draw Symbol::                 Draw symbols at (x,y), or at a point
+* Draw Time Stamp::             Draw a timestamp at top of plot
+* Draw Title::                  Draw a title for plot
+* Draw Values::                 Draw numbers beside z(x,y)
+* Draw X Axis::                 Draw the x axis
+* Draw X Box Plot::             Draw box plots showing x spread
+* Draw Y Axis::                 Draw the y axis
+* Draw Y Box Plot::             Draw box plots showing y spread
+* Draw Zero Line::              Draw y=0 or x=0
+
+
+File: gri.info,  Node: Draw Arc,  Next: Draw Arrow,  Prev: Draw,  Up: Draw
+
+The `draw arc' command
+......................
+
+     `draw arc [filled] .xc_cm. .yc_cm. .r_cm. .angle_1. .angle_2.'
+
+   Draw an "arc", that is, a portion of a circle.  The center of the
+circle is at the coordinate (`.xc_cm.', `.yc_cm.'), and the circle
+radius is `.r_cm.', all three quantities being in cm on the page, _not_
+in user-units.  The arc starts at angle `.angle_1.', measured in
+degrees counterclockwise from a horizontal line, and extends to angle
+`.angle_2.', in the same units.
+
+   If the keyword `filled' is present, the arc is filled with the
+current color.  Otherwise it is drawn with the current "curve"
+linewidth *Note Set Line Width::.
+
+
+File: gri.info,  Node: Draw Arrow,  Next: Draw Arrows,  Prev: Draw Arc,  Up: Draw
+
+`draw arrow'
+............
+
+     draw arrow from .x0. .y0. to .x1. .y1. [cm]
+
+   With no optional parameters, draw an arrow from (`.x0.', `.y0.') to
+(`.x1.', `.y1.'), where coordinates are in user units.  The arrow head
+will be at (`.x1.', `.y1.'), and its size is as set by most recent call
+to `set arrow size'.  With the `cm' keyword present, the coordinates
+are in centimetres on the page.  NOTE: This will not cause auto-drawing
+of axes.
+
+
+File: gri.info,  Node: Draw Arrows,  Next: Draw Axes If Needed,  Prev: Draw Arrow,  Up: Draw
+
+`draw arrows'
+.............
+
+     `draw arrows'
+
+Draw a vector field consisting of arrows emanating from the coordinates
+stored in the (x, y) columns.  The lengths and orientations of the
+arrows are stored in the (u, v) columns, and the scale for the (u,v)
+columns is set by `set u scale' and `set v scale'.  *See also* (1) To
+set arrow size, use `set arrow size'.  (2) To get a single arrow, use
+`draw arrow'.
+
+
+File: gri.info,  Node: Draw Axes If Needed,  Next: Draw Axes,  Prev: Draw Arrows,  Up: Draw
+
+`draw axes if needed'
+.....................
+
+     `draw axes if needed'
+
+Draw axes frame if required.  Used within gri commands that auto-draw
+axes.  NOTE: this should only be done by developers.
+
+
+File: gri.info,  Node: Draw Axes,  Next: Draw Border Box,  Prev: Draw Axes If Needed,  Up: Draw
+
+`draw axes'
+...........
+
+     `draw axes [.style.|frame|none]'
+
+With no style (`.style.') specified, draw x-y axes frame labelled at
+left and bottom. The value of `.style.' determines the style of axes:
+   * `.style. = 0' Draw x-y axes frame labelled at left and bottom.
+     Since this is the default, it's best to leave it out altogether to
+     make your code easier to understand.
+
+   * `.style. = 1' Draw axes without tics at top and right
+
+   * `.style. = 2' Draw axes frame with no tics or labels; same as
+     `draw axes frame'
+
+   With the keyword `frame' specified, draw axes frame with no tics or
+labels (just like `.style.' = 2, but preferable because it makes for
+code that is easier to read and understand).
+
+   With the keyword `none' specified, prevent Gri from automatically
+drawing axes when drawing curves.
+
+   Note: `set axes style' can also be used to set axes properties, and
+then simply using `draw axes', or letting axes be auto-drawn, will
+result in the desired effect (*Note Set Axes Style::).  However, if the
+`draw axes' command explicitly asks for a particular style, then it
+over-rides the style set by `Set Axes Style'.
+
+
+File: gri.info,  Node: Draw Border Box,  Next: Draw Box,  Prev: Draw Axes,  Up: Draw
+
+`draw border box'
+.................
+
+     `draw border box .xleft. .ybottom. .xright. .ytop. \
+         .width_cm. .brightness.'
+
+Draw gray box, as decoration or alignment key for pastup. The box, with
+outer lower left corner at (`.xleft.', `.ybottom.') and outer upper
+right corner at (`.xright'., `.ytop.') - both coordinates being in
+centimetres on the page - is drawn with thickness `.width_cm.' and with
+graylevel `.brightness.' (0 for black; 1 for white).  The gray line is
+drawn inside the box.  After drawing the gray line, a thin black line
+is drawn along the outside edge.
+
+   If the geometry is not specified with `.xleft.' and the other
+parameters, then a reasonable margin is used around the present axes
+area, and the defaults (`.border.' = 0.2, `.brightness.' = 0.75) are
+used.
+
+   NOTE: This command does not cause auto-drawing of axes.
+
+
+File: gri.info,  Node: Draw Box,  Next: Draw Circle,  Prev: Draw Border Box,  Up: Draw
+
+`draw box'
+..........
+
+     `draw box filled .xleft. .ybottom. .xright. .ytop. [cm|pt]'
+
+Draw filled box spanning indicated range, with lower-left corner at
+(`.xleft.', `.ybottom.') and upper-right corner at (`.xright.',
+`.ytop.').  The corners are specified in user coordinates, unless the
+optional `cm' or `pt' keyword is present, in which case they are in
+centimetres or points on the page.  An error will result if you specify
+user coordinates but they aren't defined yet.
+
+   No checking is done on the rectangle; for example, there is no
+requirement that `.xleft.' be to the left of `.xright.' in your
+coordinate system.
+
+   NOTE: if the box is specified in user units, this command will cause
+auto-drawing of axes, but not if the box is specified in `cm' or `pt'
+units
+
+     `draw box .xleft. .ybottom. .xright. .ytop. [cm|pt]'
+
+Draw box spanning indicated range, with lower-left corner at
+(`.xleft.', `.ybottom.)' and upper-right corner at (`.xright.',
+`.ytop.').
+
+   The corners are specified in user coordinates, unless the optional
+`cm' or `pt' keyword is present, in which case they are in centimetres
+or points on the page.  An error will result if you specify user
+coordinates but they aren't defined yet.
+
+   No checking is done on the rectangle; for example, there is no
+requirement that `.xleft.' be to the left of `.xright.' in your
+coordinate system.
 

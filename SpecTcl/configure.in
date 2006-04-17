@@ -4,7 +4,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 2.2)
+AM_INIT_AUTOMAKE(SpecTcl, 2.2-005)
 
 
 AC_EXEEXT
@@ -134,6 +134,7 @@ fi
 #      /usr/X11R6/include
 #      /sw/include             (Darwin lesstif).
 #      /usr/local/include      (default lesstif installation).
+#      /usr/include            Linux lesstif.
 #
 
 #  If in /usr/include we don't need anything:
@@ -141,7 +142,7 @@ fi
 
 if test $motif_h_found = no
 then
-   motif_header_dirs="/usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include"
+   motif_header_dirs="/usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include /usr/include"
    for d in ${motif_header_dirs}
    do
 	AC_CHECK_FILE([${d}/Xm/Xm.h],
@@ -644,12 +645,13 @@ else
    # this so CXX etc. propagates at the risk we wind up stranded
    # in the Gri directory on failure or ^C
    #
-   cd ${MYGRIDIR}
-    rm -f Makefile          # Tru64 fails if Makefile already exists.
-    ./configure --prefix=$prefix                      
-    make                                            
-    make install
-   cd ..
+	
+   (cd ${MYGRIDIR}; \
+    rm -f Makefile; \          # Tru64 fails if Makefile already exists.
+    ./configure --prefix=$prefix                      ; \
+    make                                            ;\
+    make install			           ;\
+   )
    AC_MSG_NOTICE([Now that GRI is build I know where I put stuff])
    
    gri_dir=$prefix/bin
@@ -713,4 +715,7 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	 SpecTcl/Makefile \
-	 contrib/Makefile contrib/scriptable/Makefile)
+	 contrib/Makefile contrib/scriptable/Makefile \
+	 contrib/calibratedparams/Makefile \
+	 contrib/calibratedparams/Makefile.skel \
+	 TestFiles/Makefile)
