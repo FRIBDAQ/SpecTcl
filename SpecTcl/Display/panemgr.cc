@@ -297,6 +297,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 5.1.2.3  2006/04/17 13:50:50  ron-fox
+   Fix 64bit unclealiness in Xamine
+
    Revision 5.1.2.2  2005/05/02 15:51:21  ron-fox
    First passes at getting compilations on Intel C++: then
    fix defect 159: Open filters on exit can lose data.
@@ -862,7 +865,7 @@ void Xamine_PaneInputCallback(XMWidget *pane, XtPointer client_data,
   /* If this is the current input and there's a defined pane callback, then */
   /* call it and return.                                                    */
 
-  int row, col, index;
+  long row, col, index;
 
   XmProcessTraversal(pane->getid(), XmTRAVERSE_CURRENT);
   pane->GetAttribute(XmNuserData, &index); /* Get the pane index. */

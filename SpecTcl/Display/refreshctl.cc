@@ -701,7 +701,7 @@ void Xamine_UpdateAll(XMWidget *w, XtPointer userd, XtPointer clientd)
  */
 void Xamine_PaneRedrawCallback(XMWidget *w, XtPointer userd, XtPointer calld)
 {
-  int index;
+  long index;
   int column, row;
   int ncol;
   XmDrawingAreaCallbackStruct *st = (XmDrawingAreaCallbackStruct *)calld;
@@ -876,7 +876,7 @@ void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
 {
   XMWidget *pane = (XMWidget *)wid;
   int      ncol;
-  int      index;
+  long      index;
   int       col, row;
   pane_db   *pdb;
   
