@@ -297,6 +297,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 5.4  2006/04/17 13:41:18  ron-fox
+   Fix some 64-bit uncleanlinesses
+
    Revision 5.3  2005/09/22 12:41:47  ron-fox
    2dl spectra in Xamine and other misc stuff.. including making
    void functions return values in all paths, including exception
@@ -870,7 +873,7 @@ void Xamine_PaneInputCallback(XMWidget *pane, XtPointer client_data,
   /* If this is the current input and there's a defined pane callback, then */
   /* call it and return.                                                    */
 
-  int row, col, index;
+  long row, col, index;
 
   XmProcessTraversal(pane->getid(), XmTRAVERSE_CURRENT);
   pane->GetAttribute(XmNuserData, &index); /* Get the pane index. */
