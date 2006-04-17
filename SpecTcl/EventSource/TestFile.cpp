@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2005, All rights reserved";
 //  CTestFile.cpp
@@ -298,12 +298,19 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
 // Header Files:
+#include <config.h>
 #include "TestFile.h"                               
 #include "ErrnoException.h"
 #include "RangeError.h"
 #include <errno.h>
 #include <buffer.h>
 #include <buftypes.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+
 
 // Functions for class CTestFile
 
@@ -321,7 +328,7 @@ Int_t CTestFile::operator==(const CTestFile& aCTestFile) {
   return ((CFile::operator==(aCTestFile))   &&
 	  (m_vDistributions == aCTestFile.m_vDistributions)
 	  );
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //

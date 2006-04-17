@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -301,8 +301,13 @@ char *sccsversion="@(#)grobfile.cc	8.1 6/23/95 ";
 #include "dispgrob.h"
 #include "panemgr.h"
 #include "errormsg.h"
+#include "dispshare.h"
+
 FILE *yyin = 0;			/* Define here to allow */
 FILE *yyout = 0;		/* multipler lexers.    */
+
+extern spec_shared* xamine_shared;
+
 int grobj_database::m_ReadOnce = 0;    // Need to reset lexer.
 void grobjfilerestart(FILE *fp);
 
@@ -322,7 +327,8 @@ int grobj_generic::write(FILE *f)
   int bytes;			/* Bytes written this I/o */
 
 
-  bytes = fprintf(f, "   spectrum %d\n", spectrum);
+  spec_title title;
+  bytes = fprintf(f, "   spectrum \"%s\"\n", xamine_shared->getname(title, spectrum));
   if(bytes == EOF) return EOF;
   nbytes += bytes;
 
@@ -576,7 +582,7 @@ int grobj_database::write(FILE *f)
 
   /* Now write out the objects: */
 
-  for(int i = 0; i < obj_count; i++) {
+  for(int i = 0; i < objects.size(); i++) {
     bytes = objects[i]->write(f);
     if(bytes == EOF) return EOF;
     nbytes += bytes;

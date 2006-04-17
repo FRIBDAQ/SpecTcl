@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 //  CEventSink.h:
 //
@@ -295,6 +295,9 @@
 
 #ifndef __EVENTSINK_H  //Required for current class
 #define __EVENTSINK_H
+
+
+
 
 // Forward definition.
 class CAnalyzer;

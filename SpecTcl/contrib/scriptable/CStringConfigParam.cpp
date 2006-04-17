@@ -1,8 +1,13 @@
    
 ///////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
+#include <config.h>
 #include "CStringConfigParam.h"    	
 #include <TCLInterpreter.h>			
 #include <TCLResult.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 /*!
 	Construct a string valued configuration parameter.

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  COrGate.h:
 //
@@ -308,13 +308,23 @@ DAMAGES.
 
 #ifndef __STL_LIST
 #include <list>
+#ifndef __STL_LIST
 #define __STL_LIST
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
 #define __STL_VECTOR
 #endif    
+
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
                  
 class COrGate  : public CCompoundGate        
 {
@@ -324,8 +334,8 @@ public:
 
   COrGate ()  
   { }
-  COrGate(list<CGateContainer*>& rGates);
-  COrGate(vector<CGateContainer*>& rGates) :
+  COrGate(STD(list)<CGateContainer*>& rGates);
+  COrGate(STD(vector)<CGateContainer*>& rGates) :
     CCompoundGate(rGates)
   {}
   COrGate(UInt_t nGates, CGateContainer** ppGates) :
@@ -360,8 +370,8 @@ public:
 
 public:                       
   virtual   CGate* clone ()  ;
-  virtual   std::string Type ()  const; 
-  virtual   Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params);
+  virtual   STD(string) Type ()  const; 
+  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
   virtual   Bool_t inGate(CEvent& rEvent);
 };
 

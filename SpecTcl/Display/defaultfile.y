@@ -17,6 +17,7 @@
 static char *yaccrevlevel = "@(#)defaultfile.y	2.1 12/22/93  - windows file parser\n";
 extern void windfileerror(char *text);
 /* #define SHARED extern */
+#include <config.h>
 #include <assert.h>
 #include <memory.h>
 #include <stdio.h>

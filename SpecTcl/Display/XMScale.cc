@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
 ** Facility:
@@ -289,16 +289,16 @@ DAMAGES.
 **   East Lansing, MI 48824-1321
 **   @(#)XMScale.h	8.1 6/23/95 
 */
-
+#include <config.h>
 #include "XMScale.h"
 
 XMScale::XMScale(char *n, XMWidget &parent, 
-		 ArgList args = NULL, Cardinal arg_count = 0) :
+		 ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmScaleWidgetClass, parent, args, arg_count)
 {}
 
 XMScale::XMScale(char *n, Widget parent,
-		 ArgList args = NULL, Cardinal arg_count = 0) : 
+		 ArgList args, Cardinal arg_count) : 
   XMManagedWidget(n, xmScaleWidgetClass, parent, args, arg_count) 
 { }
 
@@ -307,7 +307,7 @@ XMScale::XMScale(char *n) : XMManagedWidget(n) { }
 XMScale::XMScale(Widget w): XMManagedWidget(w) { }
 
 void
-XMScale::SetRange(int hi, int lo = 0) {
+XMScale::SetRange(int hi, int lo) {
   XtVaSetValues(id, 
 		XmNmaximum, hi,
 		XmNminimum, lo,
@@ -329,14 +329,14 @@ XMScale::Value(int value) {
 Callback_data*
 XMScale::AddDragCallback(void (*callback)(XMWidget *, 
 					  XtPointer, XtPointer),
-			 XtPointer user_data = NULL) {
+			 XtPointer user_data) {
   return AddCallback(XmNdragCallback, callback, user_data);
 }
 
 Callback_data*
 XMScale::AddChangedCallback(void (*callback)(XMWidget *,
 					     XtPointer, XtPointer),
-			    XtPointer user_data = NULL) {
+			    XtPointer user_data) {
   return AddCallback(XmNvalueChangedCallback, callback, user_data);
 }
 

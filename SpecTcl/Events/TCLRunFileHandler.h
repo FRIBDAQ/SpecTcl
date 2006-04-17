@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTCLRunFileHandler.h:
 //
@@ -316,12 +316,7 @@ class CTCLRunFileHandler  : public CTCLIdleProcess
   CTCLInterpreter* m_pInterp;
 
 public:
-  CTCLRunFileHandler (CTCLInterpreter* pInterp, CRunControl& rRun) :
-    CTCLIdleProcess(pInterp),
-    m_pRun(&rRun),
-    m_nBufferSize(0),
-    m_pInterp(pInterp)
-  { }        
+  CTCLRunFileHandler (CTCLInterpreter* pInterp, CRunControl& rRun);
    ~ CTCLRunFileHandler ( ) { }       //Destructor
 	
 			//Copy constructor [illegal]

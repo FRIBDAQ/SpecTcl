@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 // Class: CSpectrumFormatter                     //ANSI C++
 //
@@ -309,6 +309,16 @@ DAMAGES.
 #define __STL_STRING
 #endif
 
+#ifndef __OSTREAM_DAQH
+#include <Ostream.h>
+#endif
+
+#ifndef __ISTREAM_DAQH
+#include <Istream.h>
+#endif
+
+
+
 typedef CDictionary<CParameter>                   ParameterDictionary;
 typedef ParameterDictionary::DictionaryIterator   ParameterDictinoaryIterator;
 
@@ -317,8 +327,8 @@ class CSpectrum;
 class CSpectrumFormatter      
 {                       
 			
-   string m_Description; //Describes the formatter (e.g. "NSCL ASCII format").
-   string m_FileType; //File type typically associated with a spectrum (e.g. .spa).        
+   STD(string) m_Description; //Describes the formatter (e.g. "NSCL ASCII format").
+   STD(string) m_FileType; //File type typically associated with a spectrum (e.g. .spa).        
 
 protected:
 
@@ -326,8 +336,8 @@ public:
 
    // Constructors and other cannonical operations:
 
-  CSpectrumFormatter (const string& rDescription,
-		      const string& rFileType)    : 
+  CSpectrumFormatter (const STD(string)& rDescription,
+		      const STD(string)& rFileType)    : 
     m_Description(rDescription),   
     m_FileType(rFileType) 
   { 
@@ -361,11 +371,11 @@ public:
 
 public:
 
-  string getDescription() const
+  STD(string) getDescription() const
   { 
     return m_Description;
   }
-  string getFileType() const
+  STD(string) getFileType() const
   { 
     return m_FileType;
   }
@@ -374,11 +384,11 @@ public:
 
 protected:
 
-  void setDescription (const string am_Description)
+  void setDescription (const STD(string) am_Description)
   { 
     m_Description = am_Description;
   }
-  void setFileType (const string am_FileType)
+  void setFileType (const STD(string) am_FileType)
   { 
     m_FileType = am_FileType;
   }
@@ -387,9 +397,9 @@ public:
 
   // Pure virtual interface definitions.
   //
- virtual   CSpectrum* Read (istream& rStream, 
+ virtual   CSpectrum* Read (STD(istream)& rStream, 
 			    ParameterDictionary& rDict)   = 0  ;
- virtual   void Write (ostream& rStream, CSpectrum& rSpectrum,
+ virtual   void Write (STD(ostream)& rStream, CSpectrum& rSpectrum,
 		       ParameterDictionary& rDict)   = 0  ;
  
 

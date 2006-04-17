@@ -280,6 +280,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Class: CMySpecTclApp
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
+
+#include <config.h>
 #include "MySpecTclApp.h"    				
 #include "EventProcessor.h"
 #include "TCLAnalyzer.h"
@@ -294,6 +296,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CalibrationDistribution.h>
 
 #include <CScriptableUnpacker.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Local Class definitions:
 

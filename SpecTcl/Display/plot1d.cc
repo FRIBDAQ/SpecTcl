@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -309,21 +309,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "panemgr.h"
 #include "dispshare.h"
 #include "dispwind.h"
+#include <Iostream.h>
 
-#include "mapcoord.h"
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 /*
 ** External data structures referenced:
 */
 extern spec_shared *xamine_shared;
-/*
-** External functions required:
-*/
-#ifndef LINUX
-extern "C" {
-  void exit(int code); 
-}
-#endif
+
 /*
 ** Local data:
 */
@@ -359,18 +355,24 @@ class Channel	{	    /* Base class... never meant to be instantiated. */
 class HChannel : public Channel, public XLineBatch {
  protected:
   float xpos;
+  float xbase;
   short   yorg;
+  int   channel;
  public:
   HChannel(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
     Channel(wi), XLineBatch(d, w, c) {
       xpos = (float)x0;
+      xbase= (float)x0;
+      channel = 0;
       yorg = y0;
+      channel = 0;
       draw(x0, y0);
     }
   virtual ~HChannel() { }
   virtual void drawchan(unsigned short height) {
     draw((short)xpos,yorg-height);		/* Go to channel level... */
-    xpos += width;
+    channel++;
+    xpos = xbase + channel*width;; // prevents round off problems from multiple sums.
     draw((short)xpos,yorg-height);		/* Go across channel */
   }
 };
@@ -379,17 +381,22 @@ class HChannelF : public Channel, public XLineBatch {
  protected:
   float ypos;
   short   xorg;
+  float ybase;
+  int   channel;
  public:
   HChannelF(Display *d, Drawable w, GC c, short x0, short y0, float wi) :
     Channel(wi), XLineBatch(d, w, c) {
       ypos = (float)y0;
+      ybase = ypos;
+      channel = 0;
       draw(x0, y0);
       xorg = x0;
     }
   virtual ~HChannelF() { }
   virtual void drawchan(unsigned short height) {
     draw(xorg+height, (short)ypos);		/* Go to channel level... */
-    ypos -= width;
+    channel++;
+    ypos = ybase - width*channel; // This avoids accumulated errors.
     draw(xorg+height, (short)ypos);		/* Go across channel */
   }
 };
@@ -505,9 +512,7 @@ static void PlotLin(Channel *d, Sampler *s, float xw, int nx, int ny,
     ** coordinates to fit the range.
     */
 
-    //    value = (unsigned long)((float)ny*((float)value)/((float)range));
-    value = (unsigned long)(Transform((float)base, (float)maximum,
-				      0.0, (float)(ny-1), (float)value));
+    value = (unsigned long)((float)ny*((float)value)/((float)range));
     d->drawchan((short)value);
 
     channels += xw;		/* Go on to the next channel position */
@@ -570,10 +575,7 @@ static void PlotLog(Channel *d, Sampler *s, float xw, int nx, int ny,
       value = log10(value) - logbase;	/* We're plotting logs though. */
     if(value < 0.0) value = 0.0;
     if(value > loginterval) value = loginterval;
-    // int y = (int)((float)ny*(value/loginterval));
-
-    int y = (int)Transform(0.0, (float)loginterval,
-			   0.0, (float)ny, value);
+    int y = (int)((float)ny*(value/loginterval));
 
     d->drawchan((short)y);
 
@@ -673,7 +675,7 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
   SuperpositionList &super_list = at1->GetSuperpositions();
   SuperpositionListIterator supers(super_list);
 
-
+  
   GC        gc = Xamine_MakeDrawingGc(d, pane, -1);
 
   /* Figure out the area of interest. */
@@ -710,7 +712,7 @@ Boolean Xamine_Plot1d(Screen *s, Display *d,  win_attributed *att,
 				      &chanw); // Width of a channel in pixels
     }
     
-    
+
     /* Determine the rendition style and instantiate a channel drawer. */
     /* The drawer can be modified by the flippedness of the spectrum:  */
     Channel *drawer;

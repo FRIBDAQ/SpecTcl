@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTCLException.h:
 //
@@ -308,7 +308,9 @@ DAMAGES.
                            
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -325,7 +327,7 @@ class CTCLException  : public CTCLInterpreterObject ,public CException
 				// TCL_RETURN   - fuction return.
 				// NOTE: Really no business throwing anything
 				//       but TCL_ERRORs.
-   string m_ResultText;		// Cached result text at construction time.
+   STD(string) m_ResultText;		// Cached result text at construction time.
 public:
 			//Default constructor
 
@@ -340,7 +342,7 @@ public:
   }
   CTCLException(CTCLInterpreter& am_rInterpreter,
 		Int_t am_nReason,
-		const std::string& rString) : 
+		const STD(string)& rString) : 
     CTCLInterpreterObject(&am_rInterpreter),
     CException(rString),
     m_nReason(am_nReason)
@@ -410,7 +412,7 @@ protected:
   //
 public:
   void AddErrorInfo (const char* pMessage)  ;
-  void AddErrorInfo(const string& rMessage) {
+  void AddErrorInfo(const STD(string)& rMessage) {
     AddErrorInfo(rMessage.c_str());
   }
   void AddErrorInfo(const CTCLString& rMessage) {
@@ -421,10 +423,10 @@ public:
 		     const char* pMnemonic="???", 
 		     const char* pFacility="TCL", 
 		     const char* pSeverity="FATAL")  ;
-  void SetErrorCode(const string rMessage,
-		    const string &rMnemonic=string("???"),
-		    const string &rFacility=string("TCL"),
-		    const string &rSeverity=string("FATAL")) {
+  void SetErrorCode(const STD(string) rMessage,
+		    const STD(string) &rMnemonic=STD(string)("???"),
+		    const STD(string) &rFacility=STD(string)("TCL"),
+		    const STD(string) &rSeverity=STD(string)("FATAL")) {
     SetErrorCode(rMessage.c_str(), rMnemonic.c_str(),
 		 rFacility.c_str(), rSeverity.c_str());
   }

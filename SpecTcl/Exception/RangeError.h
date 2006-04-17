@@ -307,7 +307,7 @@ class CRangeError  : public CException
   Int_t m_nHigh;		// Highest allowed value for range.
   Int_t m_nRequested;		// Actual requested value which is outside
 				// of the range.
-  string m_ReasonText;            // Reason text will be built up  here.
+  STD(string) m_ReasonText;            // Reason text will be built up  here.
 public:
   //   The type below is intended to allow the client to categorize the
   //   exception:
@@ -326,13 +326,13 @@ public:
     m_nRequested (nRequested)
   { UpdateReason(); }
   CRangeError(Int_t nLow, Int_t nHigh, Int_t nRequested,
-	      const string& rDoing) :
+	      const STD(string)& rDoing) :
     CException(rDoing),
     m_nLow(nLow),
     m_nHigh(nHigh),
     m_nRequested(nRequested)
   { UpdateReason(); }
-  virtual ~ CRangeError ( ) { }       //Destructor
+  virtual ~CRangeError ( ) { }       //Destructor
 
 			//Copy constructor
 

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -300,6 +300,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
  ** Include files required:
  */
+#include <config.h>
 #include <stdio.h>
 
 #include "XMWidget.h"
@@ -375,7 +376,7 @@ static void CheckAbort(XtPointer userd, XtIntervalId *id)
   /*
   ** First determine which pane we're dealing with.
   */
-  int index = (int)userd;
+  long index = (long)userd;
   int column = index  % WINDOW_MAXAXIS;
   int row    = column / WINDOW_MAXAXIS;
 
@@ -494,7 +495,7 @@ void Xamine_GetRefreshCallback(RefreshCallback *cb, XtPointer *ud)
 void Xamine_RedrawPane(int column, int row)
 {
   pane_db *db;
-  int     cellno;
+  long     cellno;
   XMWidget *pane;
   
   db = Xamine_GetPaneDb();
@@ -700,7 +701,7 @@ void Xamine_UpdateAll(XMWidget *w, XtPointer userd, XtPointer clientd)
  */
 void Xamine_PaneRedrawCallback(XMWidget *w, XtPointer userd, XtPointer calld)
 {
-  int index;
+  long index;
   int column, row;
   int ncol;
   XmDrawingAreaCallbackStruct *st = (XmDrawingAreaCallbackStruct *)calld;
@@ -875,7 +876,7 @@ void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
 {
   XMWidget *pane = (XMWidget *)wid;
   int      ncol;
-  int      index;
+  long      index;
   int       col, row;
   pane_db   *pdb;
   

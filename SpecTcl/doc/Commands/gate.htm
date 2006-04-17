@@ -20,7 +20,7 @@
 </table>
 <h2><a name="Top"></a>Syntax</h2>
 <p><a href="#AddGate">gate <i>name type</i> { <i>description </i>}</a><br>
-<a href="#ListGates">gate -list [-byid]</a><br>
+<a href="#ListGates">gate -list [-byid] [pattern]</a><br>
 <a href="#DeleteGates">gate -delete [-id] <i>gate1 [gate2 ...]</i></a></p>
 <h2>Synopsis</h2>
 <p>The <i>gate</i> command allows you to create, list or delete gates in the
@@ -29,7 +29,7 @@ SpecTcl gate dictionary.</p>
 <p>Using the gate command you can:</p>
 <ul>
   <li>Create a new gate</li>
-  <li>list the existing gates sorted by name or gate id.</li>
+  <li>list the existing gates sorted by name or gate id and filtered by pattern.</li>
   <li>Delete an existing set of gates by name or id.</li>
 </ul>
 <p>If the first command parameter is not either the -list or -delete switch then
@@ -105,12 +105,19 @@ should be entered are shown in the table below:</p>
 	<td width="18%">gb</td>
 	<td width="12%">Yes</td>
 	<td width="56%">An open set of points forming a polyline on a spectrum.
-	  Applied to a 1-d spectrum, for all pairs of parameters below the
+	  Applied as a <A HREF="fold.htm">fold</A> to a 1-d gamma spectrum, for all 
+    pairs of parameters below the
 	  polyline, increments for all parameters in the spectrum which are
-	  not in the pair.<p>
-	  Applied to a 2-d spectrum, for all pairs of parameters, (p1, p2), 
+	  not in the pair.  Applied as an ordinary gate to any spectrum
+    via <A href="apply.htm">apply</A>
+    the gate is true whenever any  pair of parameters in the gate is under the band.<p>
+	  Applied to a 2-d spectrum as a <A href="fold.htm">fold</a>, 
+    for all pairs of parameters, (p1, p2), 
 	  below the polyline, increments for all pairs of parameters, (x, y) 
 	  in the spectrum such that (p1, p2) and (x, y) have no intersection.
+    As a gate to any spectrum via the <a href="apply.htm">apply</a> command,
+    the gate is true whenever any pair of parameters that make up the gate
+    lie under the band.
 	</td>
       </tr>
       <tr>
@@ -122,10 +129,10 @@ should be entered are shown in the table below:</p>
 	is used to determine the interior of the shape. Applied to a 1-d 
 	spectrum, for all pairs of parameters in the interior of the polygon,
 	increments for all parameters in the spectrum which are not in the 
-	pair.<p>Applied to a 2-d spectrum, for all pairs of parameters, 
-	(p1, p2), in the interior, increments for all pairs of parameters,
-	(x, y) in the spectrum such that (p1, p2) and (x, y) have no
-	intersection.
+	pair.
+  <p>This gate has identical meaning to the gamma band but parameter pairs must
+  lie within the contour (according to the odd crossing rule) to make the gate 
+  true.
 	</td>
       </tr>
       <tr>
@@ -133,12 +140,21 @@ should be entered are shown in the table below:</p>
 	<td width="18%">gs</td>
 	<td width="12%">Yes</td>
 	<td width="56%">A lower and upper limit set on a spectrum..
-	  Applied to a 1-d spectrum, for all parameters within the bounds of
+	  Applied as a <a href="fold.htm">fold</a> to a 1-d spectrum, 
+    for all parameters within the bounds of
 	  the upper and lower limits, increments for all other parameters in
-	  the spectrum.<p>
-	  Applied to a 2-d spectrum, for all parameters within the bounds of
+	  the spectrum.  <p>
+    Applied as a gate to any spectrum, via <a href="apply.htm">apply</a>,
+    is true whenever any parameter in the gate definition is in the 
+    slice.
+    <p>
+	  Applied as a <a href="fold.htm">fold</a>
+    to a 2-d spectrum, for all parameters within the bounds of
 	  the upper and lower limits, increments for all pairs of parameters in
 	  the spectrum such that neither parameter in the pair is in the slice.
+    <p>
+    Applied as a gate via <a href="apply.htm">apply</a> is true whenever
+    any parameter in the gate is inside the slice.
 	</td>
       </tr>
       <tr>
@@ -167,6 +183,28 @@ should be entered are shown in the table below:</p>
     <td width="12%">Yes</td>
     <td width="56%">Gate which is always made.</td>
   </tr>
+  <tr>
+    <td width="14%">Mask Equal</td>
+    <td width="18%">em</td>
+    <td width="12%">Yes</td>
+    <td width="56%">Gate returns true whenever the parameter is equal to a user 
+      defined bit pattern.</td>
+  </tr>
+  <tr>
+    <td width="14%">Mask And</td>
+    <td width="18%">am</td>
+    <td width="12%">Yes</td>
+    <td width="56%">Gate returns true whenever the parameter value bitwise anded with
+      the user defined bit pattern is equal to the user defined bit pattern.</td>
+  </tr>
+  <tr>
+    <td width="14%">Not Mask Equal</td>
+    <td width="18%">nm</td>
+    <td width="12%">Yes</td>
+    <td width="56%">Gate returns true whenever the parameter value bitwise anded with
+      the bitwise not of the user defined bit pattern equals the bitwise not of
+      the user defined bit pattern.</td>
+  </tr>
 </table>
 <h4>Gate Descriptions</h4>
 <p>The contents of the gate description depend on the gate type.&nbsp; In
@@ -184,16 +222,19 @@ gate ACont&nbsp; c { XParameter YParameter { {10 10 } {200 10} {200 200} {10
 200}}} <br>
 gate AB2C c2band { Band1 Band2 }<br>
 gate FALSE F<br>
-gate GammaBand&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gb { { {200 200} {300 400}} Spectrum1}<br>
-gate GammaContour gc { { {200 300} {200 400} {400 400} {400 300}} {Spectrum1 Spectrum2}}<br>
-gate GammaSlice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs { {400 600} Spectrum2}<br>
+gate GammaBand&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gb { { {200 200} {300 400}} gamma1 gamma2 gamma3}<br>
+gate GammaContour gc { { {200 300} {200 400} {400 400} {400 300}} {gamma1 gamma2 gamma3}}<br>
+gate GammaSlice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gs { {400 600} gamma1 gamma2 gamma 3}<br>
 gate NotAband - {ABand}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 ;# Can be only one gate.<br>
 gate ABorAC&nbsp; + {ABand AContour}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 ;# Can be any number of gates.<br>
 gate Slice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; s {Parameter {100
 157}}<br>
-gate TRUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T</p>
+gate TRUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T<br>
+gate EqualMask em {Parameter 0x00} <br>
+gate AndMask am {Parameter 0x00} <br>
+gate NotMask nm {Parameter 0x00000000} <p>
 <h4>Xamine and Primitive Gates</h4>
 <p>The Slice, Band, and Contour gates correspond exactly to the Cut, Band and
 Contour gates which can be accepted through Xamine.&nbsp; SpecTcl establishes a
@@ -251,7 +292,7 @@ description sub-lists contain (in order):</p>
     <td width="83%">List containing: 
 	  <ul>
 	    <li>List of point coordinates making up the band.</li>
-	    <li>List of spectrum to display the gate on (optional).</li>
+	    <li>List of parameters to check on the gate.</li>
 	  </ul>
 	</td>
   </tr>
@@ -260,7 +301,7 @@ description sub-lists contain (in order):</p>
     <td width="83%">List containing: 
 	  <ul>
 	    <li>List of lower and upper limits of the gate.</li>
-	    <li>List of spectrum to display the gate on (optional).</li>
+	    <li>List of parameters to check the gate on.</li>
 	  </ul>
 	</td>
   </tr>
@@ -276,6 +317,21 @@ description sub-lists contain (in order):</p>
     <td width="17%">Slice</td>
     <td width="83%">List containing the name of the parameter on which the gate
       is created and a list containing the lower and upper limits of the gate.</td>
+  </tr>
+  <tr>
+    <td width="17%">Mask Equal</td>
+    <td width="83%">First element of the list is the parameter name and the second
+      element is the mask bit pattern</td>
+  </tr>
+  <tr>
+    <td width="17%">Mask And</td>
+    <td width="83%">First element of the list is the parameter name and the second
+      element is the mask bit pattern</td>
+  </tr>
+  <tr>
+    <td width="17%">Mask Not</td>
+    <td width="83%">First element of the list is the parameter name and the second
+      element is a 32 bit mask pattern</td>
   </tr>
 </table>
 <p><a href="#Top">Top</a></p>
@@ -302,7 +358,14 @@ Slice&nbsp;&nbsp;&nbsp;&nbs<td width="79%">
 </table>
 <h2><a name="Top"></a>Syntax</h2>
 <p><a href="#AddGate">gate <i>name type</i> { <i>description </i>}</a><br>
-<a href="#ListGates">gate -list [-byid]</a><br>
+<a href="#ListGates">gate -list [-byid] [pattern]</a><br>
 <a href="#DeleteGates">gate -delete [-id] <i>gate1 [gate2 ...]</i></a></p>
-<h2>Synopsis</h2>
-<p>The <i>gate</i> command allows yo
+<hr>
+<p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
+s-format="%B %d, %Y" startspan -->May 27, 2005<!--webbot bot="Timestamp" endspan i-checksum="30351" -->
+ by: <a href="mailto:fox@nscl.msu.edu">fox@nscl.msu.edu</a><br>
+<font size="2">© Copyright NSCL 2005, All rights reserved</font></p>
+
+</body>
+
+</html>

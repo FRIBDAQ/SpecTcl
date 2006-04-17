@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //
 // Author:
@@ -294,7 +294,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 
@@ -317,12 +319,12 @@ class CConfigurationParameter
 private:
   
   // Private Member data:
-    string m_sSwitch;  //!  Switch keyword. e.g. -pedestal  
-    string m_sValue;  //!   Value of parameter in string form.  
+    STD(string) m_sSwitch;  //!  Switch keyword. e.g. -pedestal  
+    STD(string) m_sValue;  //!   Value of parameter in STD(string) form.  
    
 public:
   // Constructors and other canonical member functinos:
-  CConfigurationParameter (const string& keyword);
+  CConfigurationParameter (const STD(string)& keyword);
   virtual  ~ CConfigurationParameter ( );  
 
     //Copy Constructor 
@@ -338,12 +340,12 @@ public:
 public:
 
           //Get accessor function for non-static attribute data member
-  string getSwitch() const
+  STD(string) getSwitch() const
   {
     return m_sSwitch;
   }  
             //Get accessor function for non-static attribute data member
-  string getValue() const
+  STD(string) getValue() const
   {
     return m_sValue;
   }   
@@ -352,11 +354,11 @@ public:
 
 protected:
 
-  void setSwitch (const string am_sSwitch)
+  void setSwitch (const STD(string) am_sSwitch)
   { 
     m_sSwitch = am_sSwitch;
   }  
-  void setValue (const string am_sValue)
+  void setValue (const STD(string) am_sValue)
   {
     m_sValue = am_sValue;
   }   
@@ -365,15 +367,15 @@ protected:
 
 public:
 
-  bool Match (const string & rSwitch)   ; 
+  bool Match (const STD(string) & rSwitch)   ; 
   virtual   int operator() (CTCLInterpreter& rInterp, 
                             CTCLResult& rResult, 
                             const char* parameter)   ; 
-  string getOptionString () const   ; 
+  STD(string) getOptionString () const   ; 
   virtual   int SetValue (CTCLInterpreter& rInterp, 
                           CTCLResult& rResult, 
                           const char* pvalue)   = 0 ;
-  virtual string GetParameterFormat() = 0;
+  virtual STD(string) GetParameterFormat() = 0;
 
 };
 

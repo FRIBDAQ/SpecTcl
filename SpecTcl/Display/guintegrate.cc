@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -305,6 +305,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+#include <config.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -667,11 +668,6 @@ static void FormatIntegrationText(IntegrationDisplay *d)
   if(nints == 0) {
     return;
   }
-  grobj_generic *objects[GROBJ_MAXOBJECTS];
-  Xamine_GetSpectrumObjects(specno,
-			    objects,
-			    GROBJ_MAXOBJECTS, True);
-
   /* Format the header.  Put it in the dialog and if logging is on, put
   ** it in the log file too:
   */
@@ -686,44 +682,57 @@ static void FormatIntegrationText(IntegrationDisplay *d)
     Xamine_log.LogMessage(buffer);
   }
   d->AddText(buffer);
-  int i;
-  for( i = 0; i < nobjects; i++) {
-    if( (objects[i]->type() == summing_region_1d) ||
-        (objects[i]->type() == summing_region_2d)) {
-      Integrate(dialog, objects[i], specno, spectype);
-    }
-  }
 
-  if(!att->is1d()) {
-    sprintf(buffer,"Contours:\n");
-    if(Xamine_logging)
-      Xamine_log.LogMessage(buffer);
-    d->AddText(buffer);
+  // grobj_generic *objects[GROBJ_MAXOBJECTS];
 
-    nobjects = Xamine_GetSpectrumGateCount(specno);
-    Xamine_GetSpectrumGates(specno, objects, GROBJ_MAXOBJECTS, True);
-
-    for(i = 0; i < nobjects; i++) {
-      if(objects[i]->type() == contour_2d) {
+  if(nobjects > 0) {
+    grobj_generic** objects = new grobj_generic*[nobjects];
+    Xamine_GetSpectrumObjects(specno,
+			      objects,
+			      nobjects, True);
+    
+    
+    int i;
+    for( i = 0; i < nobjects; i++) {
+      if( (objects[i]->type() == summing_region_1d) ||
+	  (objects[i]->type() == summing_region_2d)) {
 	Integrate(dialog, objects[i], specno, spectype);
       }
     }
+    delete []objects;
+
   }
-  else {
-    sprintf(buffer, "Cuts: \n");
-    if(Xamine_logging)
-      Xamine_log.LogMessage(buffer);
-    d->AddText(buffer);
-    nobjects = Xamine_GetSpectrumGateCount(specno);
-    Xamine_GetSpectrumGates(specno, objects, GROBJ_MAXOBJECTS, True);
-    for(i = 0; i < nobjects; i++) {
-      if(objects[i]->type() == cut_1d) {
-        Integrate(dialog, objects[i], specno, spectype);
+  nobjects = Xamine_GetSpectrumGateCount(specno);
+  if(nobjects > 0) {
+    grobj_generic** objects = new grobj_generic*[nobjects];    
+    Xamine_GetSpectrumGates(specno, objects, nobjects, True);
+    grobj_type matching;
+    
+    if(!att->is1d()) {
+      sprintf(buffer,"Contours:\n");
+      if(Xamine_logging)
+	Xamine_log.LogMessage(buffer);
+      d->AddText(buffer);
+      matching = contour_2d;
+    }
+    else {
+      sprintf(buffer, "Cuts: \n");
+      if(Xamine_logging)
+	Xamine_log.LogMessage(buffer);
+      d->AddText(buffer);
+      matching = cut_1d;
+      
+    }      
+    for(int i = 0; i < nobjects; i++) {
+      if(objects[i]->type() == matching) {
+	Integrate(dialog, objects[i], specno, spectype);
       }
     }
+    delete []objects;
   }
 
 }
+
 
 /*
 ** Functional Desription:

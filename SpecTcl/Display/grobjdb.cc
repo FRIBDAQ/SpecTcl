@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -290,9 +290,16 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Version:
 **    @(#)grobjdb.cc	8.1 6/23/95 
 */
+#include <config.h>
 #include <stdio.h>
 #include <errno.h>
 #include "dispgrob.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+
 #ifndef TRUE
 #define TRUE -1
 #define FALSE 0
@@ -331,6 +338,11 @@ grobj_generic *grobj_database::enteras(grobj_generic *obj)
     errno = ENOMEM;
     return NULL;
   }
+  objects.push_back(object);
+  object->setid(obj->getid());
+  return object;
+
+#ifdef UNDEFINED
   if(obj_count < GROBJ_MAXOBJECTS) {
     object->setid(obj->getid());
     objects[obj_count] = object;
@@ -341,6 +353,7 @@ grobj_generic *grobj_database::enteras(grobj_generic *obj)
     errno = ENOMEM;
     return (grobj_generic *)NULL;
   }
+#endif
 }
 grobj_generic *grobj_database::enter(grobj_generic *obj)
 {
@@ -351,6 +364,12 @@ grobj_generic *grobj_database::enter(grobj_generic *obj)
     errno = ENOMEM;
     return NULL;
   }
+  object->setid(lastid);
+  lastid++;
+  objects.push_back(object);
+  return object;
+
+#ifdef UNDEFINED
   if(obj_count < GROBJ_MAXOBJECTS) {
     object->setid(lastid);
     lastid++;
@@ -362,7 +381,7 @@ grobj_generic *grobj_database::enter(grobj_generic *obj)
     errno = ENOMEM;
     return (grobj_generic *)NULL;
   }
-
+#endif
 }
 
 /*
@@ -384,6 +403,20 @@ grobj_generic *grobj_database::enter(grobj_generic *obj)
 int grobj_database::remove(grobj_generic *entry)
 {
 
+  vector<grobj_generic*>::iterator i = objects.begin();
+  while(i != objects.end()) {
+    if(entry == *i) {
+      objects.erase(i);
+      delete entry;
+      return -1;
+    }
+
+    i++;
+  }
+  errno = ENOENT;
+  return 0;
+
+#ifdef UNDEFINED
   for(int i = 0; i < obj_count; i++) {
     if(objects[i] == entry) {
       obj_count--;
@@ -395,6 +428,7 @@ int grobj_database::remove(grobj_generic *entry)
   }
   errno = ENOENT;
   return 0;
+#endif
 }
 
 /*
@@ -427,7 +461,7 @@ grobj_generic *grobj_database::replace(int id, grobj_generic *obj)
   grobj_name    name;
   int           i;
 
-  for(i = 0; i < obj_count; i++) {
+  for(i = 0; i < objects.size(); i++) {
     if(objects[i]->getid() == id) { /*  Replace this one */
       object = obj->clone();
       if(object == NULL ) {
@@ -458,7 +492,7 @@ grobj_generic *grobj_database::replace(int spec,int id, grobj_generic *obj)
   int           i;
   grobj_generic *object;
 
-  for(i = 0; i < obj_count; i++) {
+  for(i = 0; i < objects.size(); i++) {
     if((objects[i]->getid() == id) && 
        (objects[i]->getspectrum() == spec)) { /*  Replace this one */
       object = obj->clone();
@@ -491,7 +525,7 @@ grobj_generic *grobj_database::replace(int spec,int id, grobj_generic *obj)
 */
 grobj_generic *grobj_database::find(int id)
 {
-  for(int i = 0; i < obj_count; i++) {
+  for(int i = 0; i < objects.size(); i++) {
     if(objects[i]->getid() == id) return objects[i];
   }
   return (grobj_generic *)NULL;
@@ -499,7 +533,7 @@ grobj_generic *grobj_database::find(int id)
 
 grobj_generic *grobj_database::find(int id, int spec) 
 {
-  for(int i = 0; i < obj_count; i++) {
+  for(int i = 0; i < objects.size(); i++) {
     if( (objects[i]->getid() == id) &&
         (objects[i]->getspectrum() == spec)) 
       return objects[i];
@@ -521,14 +555,14 @@ grobj_generic *grobj_database::find_first()
 {
   confined = FALSE;
   cursor   = 0;
-  if(obj_count > 0) return objects[0];
+  if(objects.size() > 0) return objects[0];
   else              return (grobj_generic *) NULL;
 }
 grobj_generic *grobj_database::find_first(int spec)
 {
   confined   = TRUE;
   searchspec = spec;
-  for(cursor = 0; cursor < obj_count; cursor++)
+  for(cursor = 0; cursor < objects.size(); cursor++)
     if(objects[cursor]->getspectrum() == spec) 
       return objects[cursor];
   return (grobj_generic *)NULL;
@@ -544,7 +578,7 @@ grobj_generic *grobj_database::find_first(int spec)
 */
 grobj_generic *grobj_database::find_next()
 {
-  for(cursor++; cursor < obj_count; cursor++) {
+  for(cursor++; cursor < objects.size(); cursor++) {
     if(!confined) return objects[cursor]; /* Return next if not confined. */
     else {
       if(objects[cursor]->getspectrum() == searchspec)
@@ -562,7 +596,7 @@ grobj_generic *grobj_database::find_next()
 grobj_database::~grobj_database()
 {
   int i;
-  for(i = 0; i < GROBJ_MAXOBJECTS; i++)
+  for(i = 0; i < objects.size(); i++)
     if(objects[i] != NULL) delete objects[i];
 }
 
@@ -574,6 +608,14 @@ grobj_database::~grobj_database()
 */
 void grobj_database::clear()
 {
+  while(!objects.empty()) {
+    delete (objects.back());
+    objects.pop_back();
+  }
+
+  lastid    = 0;
+  cursor    = 0;
+#ifdef UNDEFINED
   for(int i = 0; i < obj_count; i++) {
     delete objects[i];
     objects[i] = NULL;
@@ -582,8 +624,7 @@ void grobj_database::clear()
   /* Reset all the counters and things */
 
   obj_count = 0;
-  lastid    = 0;
-  cursor    = 0;
+
   
-  
+#endif
 }

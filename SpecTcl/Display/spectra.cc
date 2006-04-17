@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -309,6 +309,10 @@ static char *version="@(#)spectra.cc	8.1 6/23/95 ";
 
 #include "dispshare.h"
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 /*
 ** Additional references:
 */
@@ -327,7 +331,7 @@ spec_shared *spectra;
 ** Local storage:
 */
 
-typedef char chooser_name[80];
+typedef char chooser_name[128];
 chooser_name names[DISPLAY_MAXSPEC];
 char *(namelist[DISPLAY_MAXSPEC]);
 
@@ -392,7 +396,7 @@ char *upcase(char *s)
 ** Assumptions:
 **    The destination is of type spec_title or at least that large.
 */
-static char *cvttitle(char *dest, volatile char *src, int upper=1)
+static char *cvttitle(char *dest, volatile char *src, int upper)
 {
   char *p;
 
@@ -445,7 +449,7 @@ int spec_shared::getspecid(char *name) volatile
   
   for(id = 0; id < DISPLAY_MAXSPEC; id++) {
     if(dsp_types[id] != undefined) {
-      cvttitle(current, dsp_titles[id]);
+      cvttitle(current, dsp_titles[id], 1);
       if(strncmp(current, search, sizeof(spec_title)) == 0) return id+1;
     }
   }
@@ -466,7 +470,7 @@ int spec_shared::getspecid(char *name) volatile
 */
 volatile char *spec_shared::getname(spec_title name, int id) volatile
 {
-  cvttitle(name, dsp_titles[id-1]);
+  cvttitle(name, dsp_titles[id-1],1);
   return name;
 }
 volatile char* spec_shared::getxlabel_map(spec_label label, int id) volatile

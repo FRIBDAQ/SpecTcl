@@ -1,3 +1,4 @@
+#include <config.h>
 #include "CModule.h"
 #include "CModuleCommand.h"    				
 #include "CModuleDictionary.h"
@@ -11,6 +12,11 @@
 
 
 #include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Local classes:
 

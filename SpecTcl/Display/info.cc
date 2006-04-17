@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -298,6 +298,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Include files:
 */
 
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -677,10 +678,11 @@ static char *FormatGrobjInfo(int specno)
 {
   char *result;
   char element[20];
-  grobj_generic *objects[GROBJ_MAXOBJECTS];
+  int  nobjects   = Xamine_GetSpectrumObjectCount(specno);
+  grobj_generic** objects = new grobj_generic*[nobjects];
   int object_count = Xamine_GetSpectrumObjects(specno, 
 					       objects,
-					       GROBJ_MAXOBJECTS,
+					       nobjects,
 					       True);
 
   /* We take two passes through this... first we size the names of all
@@ -732,6 +734,7 @@ static char *FormatGrobjInfo(int specno)
   }
   strcat(result, "\n");
 
+  delete []objects;
 
   /* Return the string. */
 
@@ -755,10 +758,12 @@ FormatGateInfo(int specno)
 {
   char *result;
   char element[20];
-  grobj_generic *objects[GROBJ_MAXOBJECTS];
+  int  nobjects  = Xamine_GetSpectrumGateCount(specno);
+  
+  grobj_generic** objects = new grobj_generic*[nobjects];
   int object_count = Xamine_GetSpectrumGates(specno, 
 					       objects,
-					       GROBJ_MAXOBJECTS,
+					       nobjects,
 					       True);
 
   /* We take two passes through this... first we size the names of all
@@ -811,7 +816,7 @@ FormatGateInfo(int specno)
     }
   }
   strcat(result, "\n");
-
+  delete []objects;
 
   /* Return the string. */
 
