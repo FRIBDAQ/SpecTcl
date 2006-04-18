@@ -715,7 +715,10 @@ void Xamine_DrawTitles(Xamine_RefreshContext *ctx, win_attributed *def)
   if(def->showname()) {
     xamine_shared->getname(label_element, def->spectrum());
     if(strlen(label_element) == 0) strcpy(label_element, "<Untitled>");
-    strncat(label, label_element, sizeof(label) - strlen(label) -1);
+    strncat(label, label_element, sizeof(label) - strlen(label) - 1);
+    xamine_shared->getinfo(label_element, def->spectrum()); // The info string..
+    strncat(label, " : ", sizeof(label) - strlen(label) - 1);
+    strncat(label, label_element, sizeof(label) - strlen(label) - 1);
     strncat(label, " ", sizeof(label) - strlen(label) -1);
   }
   if(def->showdescrip()) {

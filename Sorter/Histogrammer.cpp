@@ -597,32 +597,28 @@ CSpectrum* CHistogrammer::RemoveSpectrum(const std::string sName) {
   return pSpectrum;
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    UInt_t BindToDisplay ( const std::string& rsName, UInt_t nSpecId=0 )
-//  Operation Type:
-//     mutator
-//
+
+/*!
+    Binds a spectrum to the display.
+    The first free spectrum will be allocated.
+   If the spectrum is already bound, then we short circuit and
+   just return the current binding number:
+   This is not an error, just a user mistake we can handle.
+
+  
+    \param sName : const std::string
+             Name of the spectrum to bind.
+
+    \return   UInt_t  - Actual spectrum number chosen.
+
+   
+   \throw   CDictionaryException - if spectrum of given name does not exist.
+   \throw  CErrnoException      - may be thrown by routines we call.
+
+  
+  */
 UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
-  //  Binds a spectrum to the display.
-  //  The first free spectrum will be allocated.
-  //
-  //  Formal Parameter:
-  //       const std::string sName
-  //           Name of the spectrum to bind.
 
-  //  Returns:
-  //      UInt_t  - Actual spectrum number chosen.
-  //
-  // Throws:
-  //    CDictionaryException - if spectrum of given name does not exist.
-  //    CErrnoException      - may be thrown by routines we call.
-
-  // If the spectrum is already bound, then we short circuit and
-  // just return the current binding number:
-  // This is not an error, just a user mistake we can handle.
-  //
   for(int i = 0; i < m_DisplayBindings.size(); i++) {
     if(rsName == m_DisplayBindings[i])
       return i;
@@ -652,14 +648,13 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
       {
 	Bool_t           fWord = pSpectrum->StorageType() == keWord;
 	pXSpectrum   = new CXamine1D(m_pDisplayer->getXamineMemory(),
-				     createTitle(pSpectrum, 
-						 m_pDisplayer->getTitleSize()),
+				     rsName,
 				     pSpectrum->Dimension(0),
 				     pSpectrum->GetLow(0),
 				     pSpectrum->GetHigh(0),
 				     pSpectrum->GetUnits(0),
 				     fWord);
-	
+
 	
 	break;
       }
@@ -683,8 +678,7 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
 	}
 
 	pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(),
-				   createTitle(pSpectrum, 
-					       m_pDisplayer->getTitleSize()),
+				   rsName,
 				   pSpectrum->Dimension(0),
 				   pSpectrum->Dimension(1),
 				   pSpectrum->GetLow(0),
@@ -694,6 +688,7 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
 				   pSpectrum->GetUnits(0),
 				   pSpectrum->GetUnits(1),
 				   dataType);
+
 	break;
       default:			// Unrecognized dimensionality.
 	assert(kfFALSE);
@@ -706,9 +701,12 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
     //   Replace the spectrum's storage with Xamine's.
     //   Enter the slot/name correspondence in the m_DisplayBindings table.
     //
+			      
     Address_t pStorage           = m_pDisplayer->DefineSpectrum(*pXSpectrum);
     nSpectrum                    = pXSpectrum->getSlot();
 
+    m_pDisplayer->setInfo(createTitle(pSpectrum, 
+				      m_pDisplayer->getTitleSize()), nSpectrum);
     pSpectrum->ReplaceStorage(pStorage, kfFALSE);
     while(m_DisplayBindings.size() <= nSpectrum) 
       m_DisplayBindings.push_back("");
@@ -1122,7 +1120,8 @@ void CHistogrammer::UnGate(const std::string& rSpectrum) {
     pSpectrum->ApplyGate(&NoGate);
     Int_t b  = findDisplayBinding(pSpectrum->getName());
     if (b >= 0) {
-      m_pDisplayer->setTitle(createTitle(pSpectrum,
+      m_pDisplayer->setTitle(pSpectrum->getName(), b);
+      m_pDisplayer->setInfo(createTitle(pSpectrum,
 					 m_pDisplayer->getTitleSize()), b);
     }
     
@@ -1270,9 +1269,10 @@ void CHistogrammer::ApplyGate(const std::string& rGateName,
   pSpectrum->ApplyGate(pGateContainer);
   Int_t b =  findDisplayBinding(rSpectrum);
   if(b >= 0) {
-    m_pDisplayer->setTitle(createTitle(pSpectrum,
-				       m_pDisplayer->getTitleSize()),
-			   b);
+    m_pDisplayer->setTitle(pSpectrum->getName(), b);
+    m_pDisplayer->setInfo(createTitle(pSpectrum,
+				      m_pDisplayer->getTitleSize()),
+			  b);
   }
 }
 
@@ -1628,13 +1628,11 @@ void CHistogrammer::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
 //    elements.
 //
 string
-CHistogrammer::createTrialTitle(string name, string type, 
-				vector<string>      axes,
+CHistogrammer::createTrialTitle(string type, vector<string>      axes,
 				vector<string>      parameters,
 				string gate)
 {
-  string result(name);
-  result += " : ";
+  string result;
   result += type;
 
   // If there are axes, put them in:
@@ -1729,7 +1727,7 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
   //  gateName       - name of gateName on spectrum.
   //  parameters - vector of parameter names.
 
-  string trialTitle = createTrialTitle(name, type, axes, parameters, gateName);
+  string trialTitle = createTrialTitle(type, axes, parameters, gateName);
   if (trialTitle.size() < maxLength) return trialTitle;
 
   // Didn't fit.one by one drop the parameters..replacing the most recently
@@ -1737,7 +1735,7 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
 
   while (parameters.size()) {
     parameters[parameters.size()-1] = "..."; // Probably smaller than it was.
-    trialTitle = createTrialTitle(name, type, axes, parameters, gateName);
+    trialTitle = createTrialTitle(type, axes, parameters, gateName);
     if (trialTitle.size() < maxLength) return trialTitle;
     vector<string>::iterator i = parameters.end();
     i--;
@@ -1747,7 +1745,7 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
   // now we drop the axis definition...
   
   axes.clear();
-  trialTitle = createTrialTitle(name, type , axes, parameters, gateName);
+  trialTitle = createTrialTitle(type , axes, parameters, gateName);
   if (trialTitle.size() < maxLength) return trialTitle;
 
   // Now compute if we can delete the tail of the spectrum name
@@ -1756,7 +1754,7 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
   if ((trialTitle.size() - (name.size()/2 + 3)) < maxLength) {
     while(trialTitle.size() > maxLength) {
       name = name.assign(name.c_str(), name.size()-4) + string("...");
-      trialTitle = createTrialTitle(name, type, axes, parameters, gateName);
+      trialTitle = createTrialTitle(type, axes, parameters, gateName);
     }
     return trialTitle;
   }

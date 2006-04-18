@@ -473,6 +473,11 @@ volatile char *spec_shared::getname(spec_title name, int id) volatile
   cvttitle(name, dsp_titles[id-1],1);
   return name;
 }
+volatile char* spec_shared::getinfo(spec_title info, int id) volatile
+{
+  cvttitle(info, dsp_info[id-1], 1);
+  return info;
+}
 volatile char* spec_shared::getxlabel_map(spec_label label, int id) volatile
 {
   cvttitle(label, dsp_map[id-1].xlabel, 0);

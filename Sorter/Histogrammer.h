@@ -220,7 +220,7 @@ class CHistogrammer : public CEventSink {
   STD(vector)<CGateContainer> GatesToDisplay(const STD(string)& rSpectrum);
   void AddGateToBoundSpectra(CGateContainer& rGate);
   void RemoveGateFromBoundSpectra(CGateContainer& rGate);
-  STD(string) createTrialTitle(STD(string) name, STD(string) type, 
+  STD(string) createTrialTitle(STD(string) type, 
 			       STD(vector)<STD(string)>      axes,
 			       STD(vector)<STD(string)>      parameters,
 			       STD(string)                   gate);

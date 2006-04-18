@@ -98,15 +98,15 @@ CXamineSpectrum::CXamineSpectrum(volatile Xamine_shared* pXamine, UInt_t nSlot) 
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+/*!
+   Set the spectrum info string.  This is a new field in shared memory
+   that includes supplemental title information displayed on the
+   spectrum along with the spectrum name.
+   \param infoString : std::string [in]
+      The info string to put in dsp_info.
+*/
+void 
+CXamineSpectrum::setInfoString(string infoString) 
+{
+  strncpy((char*)m_pXamineMemory->dsp_info, infoString.c_str(), sizeof(spec_title) - 1);
+}

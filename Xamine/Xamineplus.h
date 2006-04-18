@@ -426,6 +426,7 @@ public:
 
   UInt_t getTitleSize()  const;
   void setTitle(STD(string) name, UInt_t slot);
+  void setInfo(STD(string)  name, UInt_t slot);
 
   // Utility Functions:
 

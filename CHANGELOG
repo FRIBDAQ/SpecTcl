@@ -428,3 +428,6 @@ March 30, 2006
 April 17, 2006
   - Fix some 64 bit uncleanliness in Xamine so SpecTcl/Xamine can run
     reliably on 64bit systems in 64bit mode.
+April 18, 2006
+  - Old method of long titles did not work very well as it made
+    old .win files worthless.
