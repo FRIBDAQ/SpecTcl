@@ -1070,3 +1070,13 @@ CXamine::setTitle(string name, UInt_t slot)
   memset((void*)m_pDisplay->dsp_titles[slot], 0, getTitleSize());
   strncpy((char*)m_pDisplay->dsp_titles[slot], name.c_str(), getTitleSize() -1);
 }
+/*!
+  Set the info string of a specific slot in xamine memory.
+  the info string will be truncated to spec_title size if needed.
+*/
+void
+CXamine::setInfo(string info, UInt_t slot)
+{
+  memset((void*)m_pDisplay->dsp_info[slot], 0, getTitleSize());
+  strncpy((char*)m_pDisplay->dsp_info[slot], info.c_str(), getTitleSize() - 1);
+}

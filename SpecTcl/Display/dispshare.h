@@ -109,6 +109,7 @@ struct spec_shared : Xamine_shared
 	    getydim(id)); 
   }
   volatile char *getname(spec_title name, int id) volatile;
+  volatile char *getinfo(spec_title info, int id) volatile;
   unsigned int getchannel(int id, int ix) volatile;
   unsigned int getchannel(int id, int ix, int iy) volatile;
   volatile unsigned int *getbase(int id) volatile;

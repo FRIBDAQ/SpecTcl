@@ -119,6 +119,7 @@ typedef struct {
 typedef struct _Xamine_shared {
   spec_dimension  dsp_xy[XAMINE_MAXSPEC];
   spec_title      dsp_titles[XAMINE_MAXSPEC];
+  spec_title      dsp_info[XAMINE_MAXSPEC];    /* Associated info.  */
   unsigned int    dsp_offsets[XAMINE_MAXSPEC];
   spec_type       dsp_types[XAMINE_MAXSPEC];
   spec_map        dsp_map[XAMINE_MAXSPEC];

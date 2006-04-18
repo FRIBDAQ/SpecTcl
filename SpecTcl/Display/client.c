@@ -847,6 +847,7 @@ void Xamine_DescribeSpectrum(int spno, int xdim, int ydim, char *title,
   */
 
   memset((void*)Xamine_memory->dsp_titles[spno], 0, sizeof(spec_title));
+  memset((void*)Xamine_memory->dsp_info[spno],   0, sizeof(spec_title));
   if(title != NULL) 
     strncpy((char*)Xamine_memory->dsp_titles[spno], title, 
 	    sizeof(spec_title)-1);
