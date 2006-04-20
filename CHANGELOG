@@ -431,3 +431,5 @@ April 17, 2006
 April 18, 2006
   - Old method of long titles did not work very well as it made
     old .win files worthless.
+April 20, 2006
+  - Fix error in sourcing file from GUI.. file should execute at global level.
