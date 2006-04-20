@@ -53,7 +53,7 @@ proc sourceScript {} {
                                     [list "All files"    *]]    \
                              -title {Select File to Source}]
     if {[file readable $file]} {
-        if {[catch {source $file} msg]} {
+        if {[catch {uplevel #0 source $file} msg]} {
             tk_messageBox -icon error -title {Error in sourced script} \
                           -message "An error occured running the script: $file : $msg"
         }
