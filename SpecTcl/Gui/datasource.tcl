@@ -14,6 +14,7 @@
 #            East Lansing, MI 48824-1321
 #
 package provide datasource 1.0
+package require snit
 package require Iwidgets
 package require guiutilities
 #
@@ -46,8 +47,9 @@ proc attachOnline {} {
         if {$host != ""} {
             set $::datasource::lasthost $host
             set url [format "tcp://%s:2602/" $host]
+	    set size [.hostprompt cget -buffersize]
             catch stop;                         # In case analysis is active.
-            attach -pipe [file join $::datasource::daqroot bin spectcldaq]  $url
+            attach -size $size -pipe [file join $::datasource::daqroot bin spectcldaq]  $url
             start
         }
         destroy .hostprompt
@@ -57,15 +59,24 @@ proc attachOnline {} {
 #       Prompts for an event file to attach to and does the deed.
 #
 proc attachFile {} {
-    set file [tk_getOpenFile  -defaultextension .evt                                   \
-                              -initialfile [file tail $::datasource::lasteventfile]    \
-                              -initialdir  [file dirname $::datasource::lasteventfile] \
-                              -filetypes [list [list "Event files" .evt]]]
+#    set file [tk_getOpenFile  -defaultextension .evt                                   \
+#                              -initialfile [file tail $::datasource::lasteventfile]    \
+#                             -initialdir  [file dirname $::datasource::lasteventfile] \
+#                            -filetypes [list [list "Event files" .evt]]]
 
+    attachfile .prompt                                               \
+	-defaultextension .evt                                       \
+	-initialfile  $::datasource::lasteventfile                   \
+	-initialdir   [file dirname $::datasource::lasteventfile] 
+    .prompt modal
+    set file [.prompt cget -initialfile]
+    set size [.prompt cget -buffersize]
+    destroy .prompt
+	
     if {$file != ""} {
         if {[file readable $file]} {
             catch stop
-            attach -file $file
+            attach -size $size -file $file
             start
             set ::datasource::lasteventfile $file
         } else {
@@ -91,7 +102,8 @@ proc attachPipe {} {
         if {$command != "" } {
             if {[file executable $command]} {
                 catch stop
-                if {![catch {eval attach -pipe $command $arguments} msg] } {
+		set size [.attachpipe cget -buffersize]
+                if {![catch {eval attach -size $size -pipe $command $arguments} msg] } {
                     start
                     set ::datasource::lastpipecommand $command
                     set ::datasource::lastpipeargs    $arguments
@@ -235,11 +247,15 @@ snit::widget hostprompt {
     option -host           {}
     option -okcommand      {}
     option -cancelcommand  {}
+    option -buffersize     8192
 
     variable hidden {}
     constructor args {
         label $win.hostlabel -text Host:
         entry $win.host
+	spinbox $win.buffersize -values {512 1024 2048 4096 8192 16348 32768 65536}
+	label   $win.buflabel   -text {Buffer size in bytes: }
+	$win.buffersize set $options(-buffersize)
 
         button $win.ok     -text Ok     -command [mymethod onOk]
         button $win.cancel -text Cancel -command [mymethod onCancel]
@@ -247,6 +263,7 @@ snit::widget hostprompt {
 
 
         grid $win.hostlabel $win.host
+	grid $win.buflabel  $win.buffersize
         grid $win.ok        $win.cancel  $win.help
 
         $self configurelist $args
@@ -302,11 +319,25 @@ snit::widget hostprompt {
     onconfigure -host value {
         setEntry $win.host $value
     }
+    # configure -buffersize n
+    #    SEt the buffersize.
+    #
+    onconfigure -buffersize value {
+	set options(-buffersize) $value
+	$win.buffersize set $value
+    }
+
     # cget -host
     #      Called to retrieve the hostname from the widget.
     oncget -host {
         return [$win.host get]
     }
+    # cget -buffersize
+    #       Return the sizeof the buffer.
+    oncget -buffersize {
+	return [$win.buffersize get]
+    }
+	
 }
 #  attachpipe:
 #      A dialog widget that prompts for a pipe command to attach to and a
@@ -323,6 +354,7 @@ snit::widget attachpipe {
     option -arguments     {}
     option -okcommand     {}
     option -cancelcommand {}
+    option -buffersize    8192
 
     variable hidden       {}
 
@@ -339,12 +371,17 @@ snit::widget attachpipe {
         setEntry $win.args $options(-initialargs)
 
 
+	label   $win.sizelbl -text {Buffer Size: }
+	spinbox $win.size    -values {512 1024 2048 4096 8192 16384 32768 65536}
+	$win.size set $options(-buffersize)
+
         button $win.ok     -text Ok     -command [mymethod onOk]
         button $win.cancel -text Cancel -command [mymethod onCancel]
         button $win.help   -text Help   -command [list spectclGuiDisplayHelpTopic attachPipe]
 
         grid $win.fsb           -
         grid $win.argslabel  $win.args
+	grid $win.sizelbl    $win.size
         grid $win.ok         $win.cancel  $win.help
 
     }
@@ -411,10 +448,161 @@ snit::widget attachpipe {
             set hidden {}
         }
     }
+    onconfigure -buffersize value {
+	$win.size set $value
+	set options(-buffersize) $value
+    }
+    oncget -buffersizte {
+	return [$win.size get]
+    }
     oncget -command {
         return [$win.fsb get]
     }
     oncget -arguments {
         return [$win.args get]
+    }
+}
+#
+#   Snit widget to prompt for a file and buffersize for an event data source.
+#   The top part of this widget is an iwdigets fileselectionbox.
+#   The middle part a buffersize selector.
+#   The bottom part the an Ok/Cancel button pair.
+#   Options:
+#     -defaultextension  (.evt)    - Default file extension.
+#     -initialfile        {}       - Initially selected file.
+#     -initialdir         .        - Directory initially being searched.
+#     -buffersize         8129     - Buffersize.
+#     -command            {}       - Script invoked when ok is clicked.
+#     -cancel             {}       - script invoked when cancel is clicked.
+snit::widget attachfile {
+    hulltype toplevel
+    option -defaultextension  {.evt}
+    option -initialfile       {}
+    option -initialdir        {.}
+    option -buffersize        8192
+    option -command           {}
+    option -cancel            {}
+
+    variable hidden {}
+
+    constructor args {
+	# the file selector:
+
+	iwidgets::fileselectionbox $win.fsb -directory $options(-initialdir) \
+                                            -mask *$options(-defaultextension) 
+	$self setSelectedFile $options(-initialfile)
+
+	label $win.sizelabel -text {Buffer size: }
+	spinbox $win.size    -values {512 1024 2048 4096 8192 16348 32768 65536}
+	$win.size set $options(-buffersize)
+
+	button $win.ok     -text Ok     -command [mymethod onOk]
+	button $win.cancel -text Cancel -command [mymethod onCancel]
+
+	grid $win.fsb           -
+	grid $win.sizelabel $win.size
+	grid $win.ok        $win.cancel
+	                                    
+	$self configurelist $args
+    }
+    # modal:
+    #   Turns this into a modal dialog.
+    #
+    method modal {} {
+	if {$hidden == ""} {
+	    set hidden [frame $win.hidden]
+	    wm deiconify $win
+	    focus $win
+	    grab  $win
+	    tkwait window $hidden
+	}
+    }
+    # endModal
+    #    Ends the modalness of the window.
+    #
+    method endModal {} {
+	if {$hidden != ""} {
+	    destroy $hidden
+	    set hidden {}
+	    grab release $win
+	}
+    }
+    # setSelectedFile name
+    #    Sets the name of the selected file.
+    #
+    method setSelectedFile name {
+	$win.fsb.selection clear
+	$win.fsb.selection insert end $name
+    }
+    #  onOk  
+    #    Invoke the -command script and end modality.
+    #
+    method onOk {} {
+	set script $options(-command)
+	if {$script != ""} {
+	    eval $script
+	}
+	$self endModal
+    }
+    # onCancel
+    #    Invoke the -cancel script and end modality.
+    #    Set the value to "" though.
+    method onCancel {} {
+	set script $options(-cancel)
+	if {$script != ""} {
+	    eval $script
+	}
+	$self configure -initialfile {}
+	$self endModal
+    }
+    # configure -defaultextension
+    #    Set a new default extension and refilter the box.
+    #
+    onconfigure -defaultextension {ext} {
+	set currentMask [$win.fsb cget -mask]
+	set currentFile [file rootname $currentMask]
+	set currentMask $currentFile$ext
+	set options(-defaultextension) $currentMask
+	$win.fsb configure -mask $currentMask
+	$win.fsb filter
+    }
+    # configure -initialfile 
+    #     Set the selecte file.  This should be a full path.
+    #
+    onconfigure -initialfile name {
+	set options(-initialfile) $name
+	$self setSelectedFile $name
+    }
+    # configure -initialdir
+    #    Set the search directory.
+    onconfigure -initialdir name {
+	$win.fsb configure -directory $name
+	$win.fsb filter
+	set options(-initialdir) $name
+    }
+    # configure -buffersize
+    #   Set the buffersize spinbox value.
+    #
+    onconfigure -buffersize value {
+	$win.size set $value
+	set options(-buffersize) $value
+    }
+    #  cget -defaultextension
+    #    Returns the extension part of the mask.
+    #
+    oncget -defaultextension {
+	return [file extension [$win.fsb cget -mask]]
+    }
+    # cget -initialfile 
+    #    Return the currently selected file.
+    #
+    oncget -initialfile {
+	return [$win.fsb get]
+    }
+    # cget -bufferszie
+    #      Get the selected buffersize.
+    #
+    oncget -buffersize {
+	return [$win.size get]
     }
 }

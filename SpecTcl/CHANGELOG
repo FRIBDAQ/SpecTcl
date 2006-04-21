@@ -433,3 +433,5 @@ April 18, 2006
     old .win files worthless.
 April 20, 2006
   - Fix error in sourcing file from GUI.. file should execute at global level.
+April 21, 2006
+  - Add buffersize selector to event source dialogs.
