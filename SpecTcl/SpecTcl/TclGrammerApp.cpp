@@ -285,6 +285,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.4  2006/04/24 15:49:15  ron-fox
+  Added a bunch of credits to the SpecTcl signon message.
+
   Revision 5.3  2005/06/22 18:50:53  ron-fox
   Add support for projections.
 
@@ -975,6 +978,23 @@ int CTclGrammerApp::operator()() {
   // to run.  By the time these are run, SpecTcl is essentially completely
   // set up.
   SourceFunctionalScripts(*gpInterpreter);
+
+  // Additional credits.
+
+  cerr << "SpecTcl and its GUI would not be possible without the following open source software: \n";
+  cerr << "    - Gri  by Dan Kelley and Peter Galbraith.\n";
+  cerr << "    - TkCon by Jeff Hobbs\n";
+  cerr << "    - BWidgets by Jeff Hobbs\n";
+  cerr << "    - BLT by George Howlett\n";
+  cerr << "    - Snit by Will Duquette\n";
+  cerr << "    - TkTable by Eric Melski, Jeff Hobbs, Joe English and Pat Thoyts\n";
+  cerr << "    - IWidgets by David Gravereaux, Don Porter, Jeff Hobbs, Mark Harrison,\n";
+  cerr << "                  Marty Backe, Michael McLennan, Chad Smith, and Brent B. Welch\n";
+  cerr << "    - Tcl/Tk originally by John K. Ousterhout embellished and extended by the Tcl Core Team\n";
+  cerr << "    - Daniel Bazin for the concept of TreeParameter and its original GUI\n";
+  cerr << " If your name should be on this list and is not, my apologies, please contact\n";
+  cerr << "   fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
+  cerr << "   the list of credits.\n";
 
   return TCL_OK;
 }
