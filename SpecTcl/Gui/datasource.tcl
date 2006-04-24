@@ -253,7 +253,7 @@ snit::widget hostprompt {
     constructor args {
         label $win.hostlabel -text Host:
         entry $win.host
-	spinbox $win.buffersize -values {512 1024 2048 4096 8192 16348 32768 65536}
+	spinbox $win.buffersize -values {512 1024 2048 4096 8192 16384 32768 65536}
 	label   $win.buflabel   -text {Buffer size in bytes: }
 	$win.buffersize set $options(-buffersize)
 
@@ -452,7 +452,7 @@ snit::widget attachpipe {
 	$win.size set $value
 	set options(-buffersize) $value
     }
-    oncget -buffersizte {
+    oncget -buffersize {
 	return [$win.size get]
     }
     oncget -command {
@@ -493,7 +493,7 @@ snit::widget attachfile {
 	$self setSelectedFile $options(-initialfile)
 
 	label $win.sizelabel -text {Buffer size: }
-	spinbox $win.size    -values {512 1024 2048 4096 8192 16348 32768 65536}
+	spinbox $win.size    -values {512 1024 2048 4096 8192 16384 32768 65536}
 	$win.size set $options(-buffersize)
 
 	button $win.ok     -text Ok     -command [mymethod onOk]
