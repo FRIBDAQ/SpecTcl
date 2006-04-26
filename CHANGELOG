@@ -438,3 +438,6 @@ April 21, 2006
 April 23, 2006
   - Fix typos in  event source dialogs buffersize stuff.
   - Add many credits.
+April 26, 2006
+  - Added screen dump based printing for the A1900 group and the
+    KSU folks who want a wysiwyg printing mechanism.
