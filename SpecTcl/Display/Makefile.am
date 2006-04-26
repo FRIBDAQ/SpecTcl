@@ -6,7 +6,7 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 
 INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 	-I@top_srcdir@/Utility
-AM_LDFLAGS = -g @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
+AM_LDFLAGS = -g -lgd @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
 
 #  @LD_EXTRA_FLAGS@
 
@@ -108,7 +108,8 @@ XMWidget.h      copyatr.h          grobjinput.h    printer.h    windfile_tab.h\
 XMWlist.h       defaultfile_lex.h  grobjio.h       procede.h     windio.h\
 Xamine.h        delgrob.h          grobjiomenu.h   properties.h  windlex.h\
 acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h\
-advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h
+advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
+wysiwygPrint.h
 
 lib_LTLIBRARIES = libXamine.la
 
@@ -138,8 +139,8 @@ acceptgates.cc clirequests.cc  spccheck.cc superpos.cc \
 superprompt.cc objcopy.cc copier.cc lblfont.cc checklist.cc \
 compatspec.cc copyatr.cc  buttonreq.cc buttondlg.cc \
 spcchoice.cc spccompatchoice.cc spclimchoice.cc ptlist.cc \
-lexsupport.c gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc 
-
+lexsupport.c gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc \
+wysiwygPrint.cc
 
 PARSEOBJECTS=windfile_parse.o windfile_lex.o grobfile_lex.o grobfile_parse.o \
 	defaultfile_lex.o defaultfile_parse.o
