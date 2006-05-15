@@ -354,3 +354,6 @@ SpecTcl-3.0-007
    - Credit D. Bazin as original author of TreeParam in the sources.
    - Fix configuration not always finding motif headers on current systems.
    - Fix 64-bit uncleanliness in Xamine
+
+SpecTcl-3.0-008
+   - Added wysiwyg printing based on image capture from the frames.
