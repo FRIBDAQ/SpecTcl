@@ -47,7 +47,7 @@ CPacket::CPacket (const string& rName,
   m_nId(-1),
   m_fPacketize(false),
   m_pModules(pDictionary),
-  m_nPacketSize(0),
+  m_nPacketSize(-1),
   m_pPacketBase(0)
 { 
   assert(pDictionary);
@@ -182,6 +182,9 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
     } else {
       return pBuffer;
     }
+    if (m_nPacketSize == 0) {
+      return pBuffer;		// Empty packet.
+    }
   }
   // If not packetizing, we just have raw data and need to get the
   // packet size either from ourselves (root) or our parent):
@@ -246,7 +249,7 @@ Pseudo code:
 \verbatim
 m_nPacketsize > 0:: 
     return (m_nPacketsize - (m_PacketStart - p))
-m_nPacketsize <= 0::
+m_nPacketsize < 0::
     m_nPacketSize = m_pOwner->getPacketSize(p)
     return m_nPacketSize   
    
@@ -256,7 +259,7 @@ m_nPacketsize <= 0::
 int 
 CPacket::getPacketSize(TranslatorPointer<UShort_t> p)  
 { 
-  if(m_nPacketSize > 0) {
+  if(m_nPacketSize >= 0) {
     return m_nPacketSize - 
       ((p.getOffset() - m_pPacketBase->getOffset())/sizeof(UShort_t));
   }
