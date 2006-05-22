@@ -25,6 +25,11 @@ extern "C" {
 #include        "GriColor.hh"
 #include        "superus.hh"
 
+
+// Ron Fox - postscript header:
+
+extern bool _postscript_header;
+
 // The next few lines are trying to get around an intermittent
 // problem with Solaris compilation.  I don't compile on Solaris
 // often, and every time I do, I have to either comment-out,
@@ -677,6 +682,7 @@ interpret_optional_arguments(int argc, char *argv[])
 		{ "version",           'v',  POPT_ARG_NONE   | POPT_ARGFLAG_ONEDASH, NULL, 'v'                   },
 		{ "warn_offpage",      '\0', POPT_ARG_NONE   | POPT_ARGFLAG_ONEDASH, NULL, FLAG_WARN_OFFPAGE     },
 		{ "yes",               'y',  POPT_ARG_NONE   | POPT_ARGFLAG_ONEDASH, NULL, 'y'                   },
+		{ "postscript"         'p',  POPT_ARG_NONE   | POPT_ARGFLAG_ONEDASH, NULL, 'p'                   },
 		{  0,                   0,                                       0,     0, 0                     }
 	};
 	const poptContext optCon =
@@ -696,6 +702,9 @@ interpret_optional_arguments(int argc, char *argv[])
 		const char *optArg = poptGetOptArg(optCon);
 		int ival;
 		switch (arg) {
+		case 'p':
+		  _postscript_header = true;
+		  break;
 		case 'b':
 			PUT_VAR("..batch..", 1.0);
 		        //printf("DEBUG: %s:%d set to 'batch' mode\n",__FILE__,__LINE__);
@@ -883,6 +892,9 @@ interpret_optional_arguments(int argc, char *argv[])
 			if (*argv[i] == '-') {
 				int             val;
 				extern bool _no_bounding_box;
+				if (!strcmp(argv[i], "-p") || !strcmp(argv[i], "-postsript")){
+				  _postscript_header = true;
+				}
 				if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "-version")) {
 					gr_textput("gri version ");
 					gr_textput(_gri_number);
