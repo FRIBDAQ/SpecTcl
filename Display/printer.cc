@@ -290,16 +290,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
- Revision 5.4  2006/04/05 11:34:19  ron-fox
- Credit D. Bazin with treeparam original concept.
-
- Revision 5.3  2005/09/22 12:41:47  ron-fox
- 2dl spectra in Xamine and other misc stuff.. including making
- void functions return values in all paths, including exception
- exits since g++3.x and higher likes that.
-
- Revision 5.2  2005/06/03 15:18:57  ron-fox
- Part of breaking off /merging branch to start 3.1 development
+ Revision 5.5  2006/05/22 19:59:16  ron-fox
+ -Fix issues with printing: gri used an EPSF header which
+  caused printers to squash multiple pages onto one.
+ - Evidently the print setup dialog had a duplicate widget name with some
+   disastrous results.
 
  Revision 5.1.2.2  2005/05/02 20:14:40  ron-fox
  Little changes to support gcc 3.4 compiler which is a bit stricter even.
@@ -367,7 +362,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <errno.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include "xamineDataTypes.h"
 #include "XMDialogs.h"
 #include "XMManagers.h"
 #include "XMPushbutton.h"
@@ -1200,7 +1194,7 @@ SetupPrintDialog::SetupPrintDialog(char *name, XMWidget *w, char *title) :
 
   XtSetArg(chars[3], XmNtopWidget, prtcmd_label->getid());
   XtSetArg(chars[4], XmNbottomAttachment, XmATTACH_FORM);
-  prtcmd = new XMText("Command", *work_area, 1, 32, chars, 5);
+  prtcmd = new XMText("commandprintsetup", *work_area, 1, 32, chars, 5);
 
   /* Last but not least, remove the Apply button: */
 
@@ -1703,8 +1697,7 @@ void PrintAllCallback(XMWidget *w, XtPointer user, XtPointer call)
       win_attributed *at = Xamine_GetDisplayAttributes(r,c);
       if(at != NULL) {
 	if((xamine_shared->gettype(at->spectrum()) == twodbyte) ||
-	   (xamine_shared->gettype(at->spectrum()) == twodword) ||
-	   (xamine_shared->gettype(at->spectrum()) == twodlong)) {
+	   (xamine_shared->gettype(at->spectrum()) == twodword)) {
 	  is2d = True;
 	  break;
 	}
@@ -1752,8 +1745,7 @@ void PrintSelCallback(XMWidget* w, XtPointer user, XtPointer call)
   XtArgVal is2d = False;
   win_attributed *at = Xamine_GetSelectedDisplayAttributes();
   if((xamine_shared->gettype(at->spectrum()) == twodbyte) ||
-     (xamine_shared->gettype(at->spectrum()) == twodword) ||
-     (xamine_shared->gettype(at->spectrum()) == twodlong))
+     (xamine_shared->gettype(at->spectrum()) == twodword))
     is2d = True;
 
   rows->SetAttribute(XmNsensitive, (long int)False);
@@ -1933,8 +1925,8 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
   ps_dialog->SetModal(XmDIALOG_FULL_APPLICATION_MODAL);
 
   win_attributed* pAttributes = Xamine_GetSelectedDisplayAttributes();
-  spec_title xlabel;
-  spec_title ylabel;
+  char xlabel[72];
+  char ylabel[72];
   int nSpectrum = pAttributes->spectrum();
   int fDefaultsExist = (dflt_print_opts != NULL);
   if(!fDefaultsExist) {
@@ -1971,7 +1963,6 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
     }
     break;
   }
-  case twodlong:
   case twodbyte:
   case twodword: {
     win_2d* pAttrib = (win_2d*)pAttributes;
@@ -2086,7 +2077,6 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
   // spectrum options toggle switch states.
   if(fDefaultsExist) {
     switch(xamine_shared->gettype(nSpectrum)) {
-    case twodlong:
     case twodbyte:
     case twodword:
       ps_dialog->set_palette(dflt_print_opts->color_pal);
