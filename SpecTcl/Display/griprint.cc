@@ -1807,7 +1807,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     sprintf(gri_dir, "%s", GRI_DIR);
     sprintf(gri_cmd_dir, "%s", GRI_CMD_DIR);
     char gri_exec[155];
-    sprintf(gri_exec, "%s/gri", gri_dir);
+    sprintf(gri_exec, "%s/gri -p ", gri_dir);
     string cmd_root = string(cmd_file);
     cmd_root.resize(strlen(cmd_file)-4);
  

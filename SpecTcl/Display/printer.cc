@@ -290,6 +290,22 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
+ Revision 5.1.2.3  2006/05/23 13:26:12  ron-fox
+ Fix defects 195,196:
+ - Gri was emitting EPSF headers which for multipage output squashes all the
+    output on a sigle page.  Added -postscript switch which removes the EPSF
+    from the header resulting in good multipage output modified griprint.cc
+    to use this switch.
+ - printer.cc - the print setup dialog print command XMText widget was
+   duplicating the name of an existing widget.  This caused the  dialog
+   to function funny.  Changed the widget name.
+
+ Revision 5.5  2006/05/22 19:59:16  ron-fox
+ -Fix issues with printing: gri used an EPSF header which
+  caused printers to squash multiple pages onto one.
+ - Evidently the print setup dialog had a duplicate widget name with some
+   disastrous results.
+
  Revision 5.1.2.2  2005/05/02 20:14:40  ron-fox
  Little changes to support gcc 3.4 compiler which is a bit stricter even.
 
@@ -1188,7 +1204,7 @@ SetupPrintDialog::SetupPrintDialog(char *name, XMWidget *w, char *title) :
 
   XtSetArg(chars[3], XmNtopWidget, prtcmd_label->getid());
   XtSetArg(chars[4], XmNbottomAttachment, XmATTACH_FORM);
-  prtcmd = new XMText("Command", *work_area, 1, 32, chars, 5);
+  prtcmd = new XMText("commandprintsetup", *work_area, 1, 32, chars, 5);
 
   /* Last but not least, remove the Apply button: */
 
