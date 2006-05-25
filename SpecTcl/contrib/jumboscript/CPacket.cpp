@@ -22,6 +22,7 @@
 #include "CBoolConfigParam.h"
 #include "CSegmentUnpacker.h"
 #include "CModule.h"
+#include "NSCLJumboBufferDecoder.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -156,6 +157,20 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
 		CBufferDecoder& rDecoder)  
 {
   TranslatorPointer<UShort_t> pBase = pBuffer;
+  TranslatorPointer<UInt_t>   plBuffer= pBuffer;
+
+  // It's possible packet sizes are 32 bits long:
+
+  bool sizesAre32Bits = false;
+  CNSCLJumboBufferDecoder* pJumbo = 
+    dynamic_cast<CNSCLJumboBufferDecoder*>(&rDecoder);
+  if(pJumbo) {
+    if (pJumbo->size32()) {
+      sizesAre32Bits = true;
+    }
+  }
+  
+
   // Set up m_nPacketsize and m_pPacketBase for the decode:
 
   m_nPacketSize = -1;
@@ -165,8 +180,14 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
   // first guestimate of the packet size;
   
   if(!getOwner()) {
-    m_nPacketSize = *pBuffer - 1;
-    ++pBuffer;			// Point past  the word count.
+    if (sizesAre32Bits) {
+      m_nPacketSize = *plBuffer;
+      pBuffer += 2;
+    }
+    else {
+      m_nPacketSize = *pBuffer - 1;
+      ++pBuffer;			// Point past  the word count.
+    }
     if(m_nPacketSize <= 0) {
       return pBuffer;		// Empty!!
     }
@@ -174,10 +195,20 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
 
   // If packetization is on, We have a count and then an Id:
   // we don't do anything if the id doesn't match us.
+  UShort_t packetId;
+  UInt_t   packetHeaderSize;
   if(m_fPacketize) {
-    if(m_nId == pBuffer[1]) {
-      m_nPacketSize = *pBuffer - 2; // Update the packetsize...
-      pBuffer += 2;
+    if (sizesAre32Bits) {
+      packetId = pBuffer[2];
+      packetHeaderSize = 3;
+    }
+    else {
+      packetId = pBuffer[1];
+      packetHeaderSize = 2;
+    }
+    if(m_nId ==  packetId) {
+      m_nPacketSize = *pBuffer - packetHeaderSize; // Update the packetsize...
+      pBuffer += packetHeaderSize; // Point to the packet body.
       m_pPacketBase = &pBuffer;
     } else {
       return pBuffer;
