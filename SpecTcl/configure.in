@@ -809,6 +809,7 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	TreeParam/Makefile \
 	 SpecTcl/Makefile \
 	 contrib/Makefile contrib/scriptable/Makefile \
+	 contrib/jumboscript/Makefile \
 	 contrib/calibratedparams/Makefile \
 	 contrib/calibratedparams/Makefile.skel \
 	 TestFiles/Makefile)

@@ -1,0 +1,159 @@
+DEFS = @WCHAR_T_DEF@
+INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
+	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
+	-I@top_srcdir@/NSCLException \
+	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
+	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
+	-I@top_srcdir@/Analysis \
+	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
+	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+
+bin_PROGRAMS=jumboScriptedSpecTcl
+lib_LTLIBRARIES=libjumboScripted.la
+
+jumboScriptedSpecTcl_SOURCES = MySpecTclApp.cpp
+
+libjumboScripted_la_LDFLAGS = -version-info $(SOVERSION):0
+
+MainSources=CConfigurableObject.cpp \
+	CSegmentUnpacker.cpp \
+	CConfigurationParameter.cpp \
+	CIntConfigParam.cpp \
+	CBoolConfigParam.cpp \
+	CStringConfigParam.cpp \
+	CPacket.cpp \
+	CModuleDictionary.cpp \
+	CModule.cpp \
+	CModuleCommand.cpp \
+	CPacketCreator.cpp \
+	CModuleCreator.cpp \
+	CScriptableUnpacker.cpp \
+	CCAENDigitizerCreator.cpp \
+	CCAENV830Creator.cpp \
+	CCAENDigitizerModule.cpp \
+	CCAENV830Module.cpp CIntArrayParam.cpp \
+	CStringArrayparam.cpp NSCLJumboBufferDecoder.cpp
+
+libjumboScripted_la_SOURCES =  $(MainSources)
+
+
+
+
+
+noinst_HEADERS =  CBoolConfigParam.h \
+	CCAENDigitizerCreator.h \
+	CCAENDigitizerModule.h \
+	CCAENV830Creator.h \
+	CCAENV830Module.h \
+	CConfigurableObject.h \
+	CConfigurationParameter.h \
+	CIntArrayParam.h \
+	CIntConfigParam.h \
+	CModule.h \
+	CModuleCommand.h \
+	CModuleCreator.h \
+	CModuleDictionary.h \
+	CPacket.h CPacketCreator.h \
+	CScriptableUnpacker.h \
+	CSegmentUnpacker.h \
+	CStringArrayparam.h \
+	CStringConfigParam.h \
+	MySpecTclApp.h \
+	CConfigurableObject.h \
+	CCAENV1x90Data.h NSCLJumboBufferDecoder.h
+
+
+
+jumboScriptedSpecTcl_DEPENDENCIES = libjumboScripted.la
+
+jumboScriptedSpecTcl_LDADD =  -ljumboScripted -lTclGrammerCommands \
+	-lSorting -lXplus \
+	-lGates -lAnalysis \
+	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lBufferAnalysis \
+	-lXamine  -lTreeParam \
+	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) 
+
+jumboScriptedSpecTcl_LDFLAGS = -L.  -g -Wl,"-rpath=($prefix)/lib" \
+	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
+	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
+	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \
+	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
+	-L@top_srcdir@/TreeParam
+
+#
+#  At install time, in order to make this open ended we:
+#   Create $(prefix)/contrib/scripted
+#          $(prefix)/contrib/scripted/src
+#          $(prefix)/contrib/scripted/include
+#          $(prefix)/contrib/scripted/skel
+#
+#    The headers all go in ...include.
+#    The .cpp    all go in ...src
+#    skel gets:
+#                 MySpecTclApp.cpp
+#                 MySpecTclApp.h
+#        and an extensible  Makefile that's built from Makefile.skel
+#        that will, given MySpecTclApp.cpp build the 
+#        Scripted SpecTcl.  Extensible means that the user can
+#        easily add additional modules to the build.
+#
+
+install-exec-local:
+	$(mkinstalldirs) $(prefix)/contrib
+	$(mkinstalldirs) $(prefix)/contrib/jumboscripted
+	$(mkinstalldirs) $(prefix)/contrib/jumboscripted/src
+	$(mkinstalldirs) $(prefix)/contrib/jumboscripted/include
+	$(mkinstalldirs) $(prefix)/contrib/jumboscripted/skel
+
+	$(INSTALL_DATA) *.cpp $(prefix)/contrib/jumboscripted/src
+	$(INSTALL_DATA) *.h   $(prefix)/contrib/jumboscripted/include
+	$(INSTALL_DATA) MySpecTclApp.cpp MySpecTclApp.h \
+			      $(prefix)/contrib/jumboscripted/skel
+	echo "#-------- Begin auto generated stuff " \
+	                                  > Makefile.user
+	echo INSTDIR=$(prefix)           >> Makefile.user
+	cat Makefile.skel                >> Makefile.user
+	$(INSTALL_DATA) Makefile.user $(prefix)/contrib/jumboscripted/skel/Makefile
+	$(INSTALL_DATA) jumboscriptable_Makefile.include $(sysconfdir)
+
+
+EXTRA_DIST=Makefile.skel scriptable_Makefile.include 
+
+
+if CPPUNIT
+
+noinst_PROGRAMS = unittest
+
+unittest_SOURCES = SegUnpackerTest.cpp ModuleTest.cpp PacketTest.cpp CreatorTest.cpp \
+	UnpackerTest.cpp TestRunner.cpp 
+
+unittest_DEPENDENCIES = CConfigurableObject.$(OBJEXT) \
+	CSegmentUnpacker.$(OBJEXT) CConfigurationParameter.$(OBJEXT) \
+	CIntConfigParam.$(OBJEXT) CBoolConfigParam.$(OBJEXT) CStringConfigParam.$(OBJEXT) \
+	CPacket.$(OBJEXT) CModuleDictionary.$(OBJEXT) CModule.$(OBJEXT) \
+	CModuleCommand.$(OBJEXT) CPacketCreator.$(OBJEXT) CModuleCreator.$(OBJEXT) \
+	CScriptableUnpacker.$(OBJEXT) CCAENDigitizerCreator.$(OBJEXT) \
+	CCAENV830Creator.$(OBJEXT) CCAENDigitzerModule.$(OBJEXT) \
+	CCAENV830Module.$(OBJEXT) CIntArrayParam.$(OBJEXT) \
+	CStringArrayParam.$(OBJEXT)
+
+unittest_LDFLAGS = $(CPPUNIT_LDFLAGS) \
+	-L@top_srcdir@/SpecTcl -lTclGrammerCommands \
+	-L@top_srcdir@/Sorter -lSorting \
+	-L@top_srcdir@/Xamine -lXplus  \
+	-L@top_srcdir@/Gates -lGates   \
+	-L@top_srcdir@/Events -lAnalysis \
+	-L@top_srcdir@/EventSource -lEventSource \
+	-L@top_srcdir@/SpectrumIO -lSpecio \
+	-L@top_srcdir@/TCL -ltclPlus   \
+	-L@top_srcdir@/NSCLException -lException \
+	-L@top_srcdir@/Display -lXamine  \
+	-L@top_srcdir@/Tape -ltape       \
+	-L@top_srcdir@/Filter -lFilter \
+	-L@top_srcdir@/Analysis -lBufferAnalysis \
+	-ltk -ltcl $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
+
+
+TESTS = ./unittest
+endif

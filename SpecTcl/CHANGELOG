@@ -360,3 +360,4 @@ SpecTcl-3.0-008
    - Fix defects 195, 196: Gri was emitting epsf which printers would
      smoosh all on one page. Print setup dialog's print command had
      a duplicate widget name that made it operate strangely.
+   - Added jumboscripted ..scriptable readout for buffers > 64Kwords.

@@ -275,141 +275,224 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS '
 */
-/* DEC/CMS REPLACEMENT HISTORY, Element MTYPES.H*/
-/* *8    18-APR-1992 18:08:42 FOX "Add signature bytes to buffer header structure"*/
-/* *7    20-MAR-1990 17:08:52 FOX "Remove special fields from user events."*/
-/* *6     6-FEB-1990 16:57:19 FOX "Add srcpid field to bufamsg structure"*/
-/* *5     7-DEC-1989 16:44:54 FOX "Add feature variable to support multiple inclusion"*/
-/* *4    17-NOV-1989 13:55:14 FOX "Add user event/buffer definitions"*/
-/* *3    31-AUG-1989 17:44:22 FOX "Use CCONFIG logical rather than config"*/
-/* *2    19-SEP-1988 08:50:00 FOX "Add 3 unused words to buffer"*/
-/* *1     3-FEB-1988 11:35:46 FOX "Include file of master data types"*/
-/* DEC/CMS REPLACEMENT HISTORY, Element MTYPES.H*/
-/* DEC/CMS REPLACEMENT HISTORY, Element MTYPES.H*/
-/* *4     9-OCT-1987 10:33:48 FOX "Make phydata a structured type"*/
-/* *3     8-OCT-1987 18:10:39 FOX "Make bftime fields all INT16"*/
-/* *2     7-OCT-1987 16:05:08 FOX "Add partition control blocks"*/
-/* *1     7-OCT-1987 11:28:18 FOX "Master processor data types"*/
-/* DEC/CMS REPLACEMENT HISTORY, Element MTYPES.H*/
+static const char* Copyright = "(C) Copyright Ron Fox 2002, All rights reserved";
+/*! \class CIntConfigParam   
+           CLASS_PACKAGE
+           Represents an integer configuration parameter
+           Integer configuration parametes appear as a keyword value
+           pair.  E.g.:
+           \verbatim
+           -vsn 5
+           \endverbatim
+           might set a FERA virtual slot number to 5.
+           
+*/
+
+////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
+#include <config.h>
+#include "CIntConfigParam.h"    
+#include <TCLInterpreter.h>
+#include <TCLResult.h>
+#include <stdio.h>
+#include <errno.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+/*!
+   Constructor.  Creates an integer configuration parameter.
+   This version of the constructor creates a parameter that
+   is not range checked.
+   
+   \param sName const string& [in]
+                keyword by which the parameter is recognized.
+   \param nDefault int [in]
+                 Default (initial) value of the parameter.
+*/
+CIntConfigParam::CIntConfigParam (const string& rName,
+                                  int           nDefault) :
+      CConfigurationParameter(rName),
+      m_fCheckrange(false),
+      m_nValue(nDefault)
+{
+  char svalue[100];
+  sprintf(svalue, "%d", nDefault);
+  setValue(string(svalue));
+} 
+
+/*!
+    Constructor:  This version of the construtor creates
+    a range checked parameter.  Range checked parameters refuse
+    to set themselves outside of the range [m_nLow, m_nHigh].
+
+  \param rName   const string& [in]
+                  Name of the parameter to set.
+  \param nLow int [in] 
+                Low end of the range.
+  \param nHigh int [in]
+                High end of the range.
+  \param nDefault int [in]
+                Default (initial) parameter value.
+*/
+CIntConfigParam::CIntConfigParam(const string& rName,
+                                 int           nLow,
+                                 int           nHigh,
+                                 int           nDefault) :
+  CConfigurationParameter(rName),
+  m_fCheckrange(true),
+  m_nLow(nLow),
+  m_nHigh(nHigh),
+  m_nValue(nDefault)
+{
+}
+/*!
+    Destructor
+*/
+ CIntConfigParam::~CIntConfigParam ( )  //Destructor - Delete dynamic objects
+{
+}
+
+
+/*!
+    Copy constructor.
+*/
+CIntConfigParam::CIntConfigParam (const CIntConfigParam& rhs ) 
+  : CConfigurationParameter (rhs),
+    m_fCheckrange(rhs.m_fCheckrange),
+    m_nLow(rhs.m_nLow),
+    m_nHigh(rhs.m_nHigh),
+    m_nValue(rhs.m_nValue)
+{ 
+} 
+
 /*
-**++
-**  FACILITY:
-**
-**      Data acquisition system front end MASTER processor.
-**
-**  ABSTRACT:
-**
-**      This file contains type definitions used by the master processor
-**  We assume the definition of the following types:
-**	INT32	- 32 bit integer
-**      INT16	- 16 bit integer
-**	INT8	- eight bit integer.
-**
-**  AUTHORS:
-**
-**      Ron Fox
-**
-**
-**  CREATION DATE:     7-Oct-1987
-**
-**  MODIFICATION HISTORY:
-**     @(#)mtypes.h	1.2 3/25/94 Include
-**--
-**/
-
-#ifndef __MTYPES_H	
-#define __MTYPES_H
-#include <daqtypes.h>
-/*		Absolute time:		*/
-
-struct bftime
-    {
-	INT16	month;			/* Month 1-12		*/     /* 3 */
-	INT16	day;			/* Day	 1-31		*/     /* 3 */
-	INT16	year;			/* e.g. 1987		*/
-	INT16	hours;			/* 0-23			*/     /* 3 */
-	INT16	min;			/* 0-59			*/     /* 3 */
-	INT16	sec;			/* 0-59			*/     /* 3 */
-	INT16	tenths;			/* 0-9.			*/     /* 3 */
-    };
-
-/*		Structures which describe the final output data buffers */
-
-struct bheader				/* Data buffer header	*/
+   Assignment.  This is the lhs of the assignment, the 
+   parameter the rhs.
+  
+  \param rhs const CIntConfigParam& [in]
+          this gets assigned to rhs.
+  \return reference to this.
+*/
+CIntConfigParam& CIntConfigParam::operator= (const CIntConfigParam& rhs)
 {
-  INT16	nwds;			/* Used part of buffer	*/
-  INT16	type;			/* buffer type		*/
-  INT16	cks;			/* checksum over used part of buffer */
-  INT16	run;			/* Run number		*/
-  INT32	seq;			/* Buffer sequence number */
-  INT16	nevt;			/* Event count in buffer    */
-  INT16	nlam;			/* Number of lam masks	    */
-  INT16	cpu;			/* Processor number	    */
-  INT16	nbit;			/* Number of bit registers */
-  INT16	buffmt;			/* Data format revision level */
-  INT16   ssignature;		/* Short byte order signature */
-  INT32   lsignature;		/* Long byte order signature  */
-      INT16   nwdsHigh;
-  INT16	unused;		/* Pad out to 16 words.	    */
-};
+  if(this != &rhs) {
+    CConfigurationParameter::operator=(rhs);
+    m_fCheckrange  = rhs.m_fCheckrange;
+    m_nLow         = rhs.m_nLow;
+    m_nHigh        = rhs.m_nHigh;
+    m_nValue       = rhs.m_nValue;
+  }
+  return *this;
+}
 
-struct ctlbody				/* Body of control buffer   */
-    {					/* start/stop/pause/resume  */
-	char    title[80];		/* Run title.		    */
-	INT32	sortim;			/* Time in ticks since run start */
-	struct  bftime tod;		/* Absolute time buffer was made    */
-    };
+/*!
+    Equality comparison.  Objects are equal iff
+    all members are equal.
+  \param rhs  const CIntConfigParam& [in] 
+            Object we compare to.
+  \return Any of:
+      - true   The objects are functionally equal.
+      - false  The objects are no functionally equal.
+*/
+int CIntConfigParam::operator== (const CIntConfigParam& rhs) const
+{ 
+  return (CConfigurationParameter::operator==(rhs)     &&
+          (m_fCheckrange == rhs.m_fCheckrange)         &&
+          (m_nLow        == rhs.m_nLow)                &&
+          (m_nHigh       == rhs.m_nHigh)               &&
+          (m_nValue      == rhs.m_nValue));
+}
 
-struct	usrbufbody			/* Declares user buffer body. */
+// Functions for class CIntConfigParam
+
+/*!  
+
+Returns the integer value of the parameter.  Note
+that construction will establish a well defined default
+parameter value.
+
+  \return The value of the parameter.
+*/
+int 
+CIntConfigParam::getOptionValue()  
+{ 
+    return m_nValue;
+}  
+
+/*!  
+
+Sets the parameter value according to the next parameter
+on the command line. Errors can result if:
+- The value does not parse as an integer.
+- The value parses as an integer, however it is outside
+   of the range [m_nLow, m_nHigh] and m_fCheckrange is true.
+
+\param rInterp - CTCLInterpreter& [in]
+              The interpreter that is setting the parameter.
+\param rResult - CTCLResult& [in]
+              The result string that will be set in case
+              of error.
+\param Value   char* [in]
+            The C null terminated string containing the
+            potential value of the parameter.
+\return 
+    - TCL_OK normal completion.
+    - TCL_ERROR if one of the errors described above is encountered.  In this case,
+      the result string will be the error message.
+
+*/
+int 
+CIntConfigParam::SetValue(CTCLInterpreter& rInterp, 
+                          CTCLResult& rResult, 
+                          const char* pValue)  
 {
-    struct bftime   usertime;		/* Time stamp for user buffer. */
-    INT16  userbody[1];			/* Body of user buffer.	       */
-
-};
-
-struct sclbody				/* body of scaler buffers   */
-    {					/* taped and snapshot	    */
-	INT32	etime; /* Start time since SOR in ticks */
-	INT16	unused1[3]; /* Unused words.	    */
-	INT32	btime; /* End time since SOR in ticks	*/
-	INT16	unused2[3]; /* Unused words.	    */
-                  
-	INT32	scalers[1];		/* Array with scaler data   */
+  Long_t nNewValue;
+  long long llnewvalue = strtoll(pValue, NULL, 0);
+  if((llnewvalue == 0) && (errno == EINVAL)) {
+    string Result; 
+    Result += "Attempt to configure integer parameter ";
+    Result += getSwitch();
+    Result += "  with non integer value: ";
+    Result += pValue;
+    rResult.AppendElement(Result);
+    return TCL_ERROR;
+  }
+  else {
+    nNewValue = llnewvalue;
+  }
+  if(m_fCheckrange) {
+    if((nNewValue < m_nLow) || 
+       (nNewValue > m_nHigh)) {
+      char RangeString[500];
+      string Result;
+      Result += " Attempt to configure integer parameter ";
+      Result += getSwitch();
+      Result += " with an integer value out of valid range: ";
+      Result += pValue;
+      sprintf(RangeString, "[%d, %d]\n", m_nLow, m_nHigh);
+      Result += RangeString;
+      rResult.AppendElement(Result);
+      return TCL_ERROR;
     }
-#ifdef __GNUC__ 
- __attribute__((packed))
-#endif
-;
-
-/*	    The types below define the structure of event packets put in    */
-/*	the circular buffer queue by the event acquisition processor.	    */
-
-typedef    INT32    ctlevt;		/* Control events just have time    */
-
-struct sclevt				/* Scaler event		    */
-    {
-	INT32	bticks;			/* Ticks at interval start  */
-	INT32	eticks;			/* Ticks at interval end.   */
-	INT16	nscl;			/* Number of scalers	    */
-	INT32	scls[1];	       	/* The scaler data	    */
-    };
-
-struct phydata							       /* 4 */
-    {								       /* 4 */
-	INT16    cnt;			/* Size of event data in words */ /* 4 */
-	INT16	 data[1];		/* actual data		    */ /* 4 */
-    };								       /* 4 */
-
-struct	usrevt				/* User generated event.	 */
+  }
+  m_nValue = nNewValue;
+  return TCL_OK;
+}
+/*!
+   \return Returns the format of the parameter.  In this case
+           int
+*/
+string
+CIntConfigParam::GetParameterFormat()
 {
-    INT16   usrevtbody[1];		/* User event body.		  */
-};
+  return string("int");
+}
 
 
 
-typedef    struct bheader    BHEADER;	    /* Buffer header		*/
-typedef    struct event      EVENT;	    /* Event structure		*/
-typedef    struct evtpool    EVTPOOL;	    /* Event pool control struct */
-typedef    struct part	     PART;	    /* Partition control block	*/ /* 2 */
 
-#endif
+
+
+
+
