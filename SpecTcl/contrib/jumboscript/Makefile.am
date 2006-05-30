@@ -118,7 +118,7 @@ install-exec-local:
 	$(INSTALL_DATA) jumboscriptable_Makefile.include $(sysconfdir)
 
 
-EXTRA_DIST=Makefile.skel scriptable_Makefile.include 
+EXTRA_DIST=Makefile.skel jumboscriptable_Makefile.include 
 
 
 if CPPUNIT
