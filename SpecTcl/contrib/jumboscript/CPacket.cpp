@@ -175,6 +175,7 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
 
   m_nPacketSize = -1;
   m_pPacketBase = &pBuffer;
+  UInt_t   packetHeaderSize;
 
   // If we are the root unpacker, We have the raw event size as our
   // first guestimate of the packet size;
@@ -182,10 +183,12 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
   if(!getOwner()) {
     if (sizesAre32Bits) {
       m_nPacketSize = *plBuffer;
+      packetHeaderSize = 2;
       pBuffer += 2;
     }
     else {
       m_nPacketSize = *pBuffer - 1;
+      packetHeaderSize = 1;
       ++pBuffer;			// Point past  the word count.
     }
     if(m_nPacketSize <= 0) {
@@ -196,7 +199,6 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
   // If packetization is on, We have a count and then an Id:
   // we don't do anything if the id doesn't match us.
   UShort_t packetId;
-  UInt_t   packetHeaderSize;
   if(m_fPacketize) {
     if (sizesAre32Bits) {
       packetId = pBuffer[2];
@@ -239,11 +241,11 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
 		      nSize, "CPacket::Unpack tagged packet");
   }
   if(!getOwner()) {		// Root knows size.
-    pBase += m_nPacketSize+1;
+    pBase += m_nPacketSize;
     return pBase;
   }
   else if(m_fPacketize) {	// Packetized knows size...
-    pBase += m_nPacketSize+2;
+    pBase += m_nPacketSize+packetHeaderSize;
     return pBase;
   }
   else {			// Have to trust the user
