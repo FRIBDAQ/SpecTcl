@@ -3,8 +3,8 @@
 # command does not exist.
 
 .xml.3:
-	$(MANDOCBOOK) man $<
-	touch $^
+	-$(MANDOCBOOK) man $< 2>/dev/null
+	touch $@
 
 DEFS = @WCHAR_T_DEF@
 INCLUDES = -I.. -I. @TCL_FLAGS@ -I../Utility -I../NSCLException @XINCLUDES@
@@ -72,7 +72,12 @@ manpages: $(XMLMANS) $(XMLMANSRC)
 install-data-local: manpages
 	$(mkinstalldirs) $(prefix)/man
 	$(mkinstalldirs) $(prefix)/man/man3
-	$(INSTALL_DATA) $(XMLMANS) @prefix@/man/man3
+	for f in  $(XMLMANS); do                          \
+            if [ -e $$f ]; then                                \
+		$(INSTALL_DATA) $$f @prefix@/man/man3;         \
+	   fi;						      \
+	done
+
 
 clean-local:
 	-rm -f $(XMLMANS)
