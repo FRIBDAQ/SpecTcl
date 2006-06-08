@@ -446,3 +446,6 @@ May 23, 2006
     to smoosh onto a single page, printer.cc: Print setup dialog had a
     widget that duplicated the name of another widget causing it to operate
     funny.
+SpecTcl-3.1-001
+   - Try to make the docbook builds more robust even in the presence of missing
+     or broken(?) docbook installs.

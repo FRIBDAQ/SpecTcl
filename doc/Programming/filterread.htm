@@ -25,8 +25,8 @@ Guide</a> <a href="obtaining_and_installing.htm">Obtaining and Installing</a></p
 manner.&nbsp; This page describes:</p>
 <ul>
   <li>How to recover the raw parameters recorded in a filtered data file.</li>
-  <li>In general terms the structure of a filtered data file.</li>
   <li>How the filtered event decode software works.</li>
+  <li>In general terms the structure of a filtered data file.</li>
 </ul>
 <h2><a name="reading"></a>Recovering raw parameters in a filtered data file</h2>
 <p>Filtered data are not stored in NSCL event buffer format.&nbsp; Instead a
@@ -82,32 +82,6 @@ SpecTcl will only be able to read filtered event data.</p>
 format.&nbsp; For example:</p>
 <pre>attach -file -format filter  myfilteredfile.flt</pre>
 <pre><a href="#Top">Top</a></pre>
-<h2><a name="structure"></a>Structure of a Filtered event file.</h2>
-<p>Filtered event files contain XDR encoded binary data.&nbsp; Each event file
-is written in fixed length blocks.&nbsp; All data described below have been XDR
-encoded.&nbsp; Each buffer is a self-contained XDR input stream.&nbsp; Buffers
-have a single long header that is the value of the offset into the stream past
-the last data item inserted.</p>
-<p>Filtered files contain a single event description record followed by an
-arbitrary number of event records.&nbsp;&nbsp; The event description record
-describes the set of parameters that have been recorded in the filtered data
-set.&nbsp; Since it is possible and perhaps usual to combine the filtering of
-several runs of data into a single event output file, filtered data sets do not
-have any concept of a run number or title.&nbsp;&nbsp; The event description
-record contains a string header, an integer and a set of strings. The string
-header contains the text &quot;header&quot; and distinguishes this data record
-from event data.&nbsp; The integer is the number of parameters in the filtered
-data set, the strings are the names of the parameters as they were specified to
-the filter command.</p>
-<p>Event data consists of a string header, an array of integer bit masks and a
-set of floating point parameter values.&nbsp; The header contains the string
-&quot;event&quot;&nbsp; to distinguish this record as an event record.&nbsp; The
-bit masks are an array of long words containing one bit for each parameter in
-the list of parameters in the filtered data set.&nbsp; Bits are packed from low
-order bit to high order bit.&nbsp; Each bit the bit mask will have the
-corresponding parameter present in the event.&nbsp;&nbsp;&nbsp; The bit masks
-should be processed from first long word to last long word from bottom set bit
-to top set bit.</p>
 <h2><a name="theory">How the filter event decode software works</a></h2>
 <p>The filtered event decode software consists of two components.&nbsp; A
 specialized buffer decoder, selected by the -format filter qualifier on the
@@ -135,6 +109,107 @@ is then pulled out of the event.&nbsp; Two cases then apply:</p>
     (SpecTcl does not have a parameter with the same name as the filter
     parameter), SpecTcl will ignore that parameter.</li>
 </ul>
+<a href="#Top">Top</a>
+<h2><a name="structure"></a>Structure of a Filtered event file.</h2>
+<p>
+  Filtered files are written using the eXternal Data Representation (XDR) library.  
+  For information about
+  this library on unix see the xdr man page.  XDR files are system and byte order
+  independent.  This ensures that regardless of the byte ordering of data in the
+  system writing he filter file, you can unambiguously recover the data on your
+  host system.  XDR is also a mature standard, heavily used in network protocols
+  such as RPC and CORBA.</p>
+<p>
+  Filtered data files at present have a block size of 8192 bytes.   Each block
+  can be treated as an indpendent chunk of xdr data.  Each block begins with an
+  XDR int that describes the value of xdr_getpos() when at the end of the used
+  part of the data block.</p>
+<p>
+  Data block bodies consist of tagged bodies.  A tag is an XDR string that
+  describes what the body of the following data means.  The two tags
+  currently defined are:
+  <ul>
+    <li>"header"  - Header data describing the parameter set.</li>
+    <li>"event"   - Parameter from an event.
+  </ul>
+  <h3>Header records.</h3>
+  <p>
+    Header records describe the parameters in the filter file.  They also provide
+    an implicit mapping between parameter numbers in the event file and parameter
+    names.  Following the "header" tag will be a single XDR integer.  This integer
+    is the number of parameter present in the file.  The integer is followed by
+    the names of the parameters in XDR string form.  The parameter number of each
+    parameter is determined positionally. </p>
+    <h4>Sample header</h4>
+    <p>
+       Suppose we have a header of the form:
+       <pre>
+       "header"
+       3
+       "s800.fp.x"
+       "s800.fp.y"
+       "s800.fp.p"
+       </pre>
+       The 3 indicates there will be three parameter names.  The parameters are
+       then:
+       <table>
+        <tr><th>Parameter Number</th><th>Parameter Name</th></tr>
+        <tr><td>0</td>               <td>s800.fp.x</td></tr>
+        <tr><td>1</td>               <td>s800.fp.y</td></tr>
+        <tr><td>2</td>               <td>s800.fp.p</td></tr>
+       </table>
+    <h3>Event records</h3>
+    <p>Event records contain physics data that has been included in filtered data
+       file.  These data made the filter gate, and also were in the list of parameters
+       selected by the filter.  Not all selected parameters will appear in every 
+       event.</p>
+    <p>Event consist of:</p>
+       <ul>
+          <li>An XDR string: "event" identifying the data as an event.</li>
+          <li>A set of bitmasks (number determined by the number of parameters in the header).
+              Bits set in the mask indicate the presence of a parameter. Cleared bits,
+              indicate the absence of a parameter.  Bit masks are organized from
+              low parameter number to high parameter number with bits from lsb
+              to msb.  Each bitmask is a full int (32 bits) worth of data,
+              unused bits should be considered to be indeterminate.</li>
+          <li>The parameters present in the bit, starting with the lowest numbered
+               present parameter proceeding towards the highest numbered present parameter.
+               </li>
+        </ul>
+    <p>Each parameter is represented by an XDR floating point number.  The XDR
+      libraries convert this number to an equivalent floating point number in
+      the representation of your host computer.</p>
+    <h4>An event (first example)</h4>
+    <p>
+      Suppose using the example for the header, we have  an event with
+      <tt>s800.fp.x</tt> and <tt>s800.fp.p</tt> present. This will contain
+      the following xdr values:
+      <pre>
+      "event"
+      0x5
+      s800.fp.x value
+      s800.fp.p value
+      </pre>
+      </p>
+      <h4>An event (second example)</h4>
+      <p>
+        Suppose we have a filtered file with a header record that describes
+        60 parameters (we will refer to those parameters by number rather
+        than name to spare some tedium).  An event in that event file that
+        has parameters 0-31 and 33,34, 40 will look like this:
+        <pre>
+        "event"
+        0xffffffff  (first 32 bits of bitmask)
+        0x00000106  (second 32 bits of bitmask)
+        parameter 0 value
+        parameter 1 value
+        ...
+        parameter 31 value
+        parameter 33 value
+        parameter 34 value
+        parameter 40 value
+        </pre>
+        </p>
 <hr>
 <p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
 s-format="%B %d, %Y" startspan -->October 28, 2003<!--webbot bot="Timestamp" endspan i-checksum="30351" -->
