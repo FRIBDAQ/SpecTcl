@@ -42,6 +42,10 @@ static int      which_page = 0;	/* page counter */
 bool            _no_bounding_box = false;
 
 
+// Ron Fox switch to not use EPSF header.
+
+extern bool _postscript_header;
+
 extern GriState _griState;	// <-> gri.cc
 extern bool     _drawingstarted;
 extern int      _debugFlag;
@@ -362,8 +366,12 @@ insert_ps_header(FILE * fp)
 	/*
 	 * write conforming postscript prolog
 	 */
-	/* fprintf(fp, "%%!PS-Adobe-1.0\n"); */
-	fprintf(fp, "%%!PS-Adobe-2.0 EPSF-1.2\n");
+	if (_postscript_header) {
+	  fprintf(fp, "%%!PS-Adobe-1.0\n"); 
+	} 
+	else {
+	  fprintf(fp, "%%!PS-Adobe-2.0 EPSF-1.2\n");
+	}
 	fprintf(fp, "%%%%Creator: %s\n", creator_name);
 	fprintf(fp, "%%%%Title: %s\n", ps_filename_used);
 	SECOND_TYPE sec;

@@ -8,8 +8,9 @@
 /*!
   Construct a digitizer creator for CAEN7xx modules.
 */
-CCAENDigitizerCreator::CCAENDigitizerCreator () :
-	CModuleCreator("caen7xx")
+CCAENDigitizerCreator::CCAENDigitizerCreator (const string& name,
+					      CModuleCommand* pCreator) :
+	CModuleCreator(name, pCreator)
 {   
     
 } 
@@ -66,7 +67,7 @@ Creates a CAEN digitizer unpacking module.
 \param  rName (const string& [in]): Name of the new module (command name too).
 \return POinter to the new module or null if could not create.
 */
-CModule* 
+CSegmentUnpacker* 
 CCAENDigitizerCreator::Create(CTCLInterpreter& rInterp, 
 				         const string& rName)
 { 

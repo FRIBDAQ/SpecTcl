@@ -279,6 +279,10 @@ DAMAGES.
 /* 
    Change log:
    $Log$
+   Revision 4.3.2.1  2004/10/22 19:19:40  ron-fox
+    Force gamma gate creation to throw gate factory exceptions when the gate
+    spectra don't have names of spectra that exist.
+
    Revision 4.3  2004/02/03 21:10:07  ron-fox
    Fix Bug 75 get -delete -byid gives error message.
    Forgot to bump argv and decrement argc after parsing -id keyword.
@@ -323,6 +327,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.3.2.1  2004/10/22 19:19:40  ron-fox
+   Force gamma gate creation to throw gate factory exceptions when the gate
+   spectra don't have names of spectra that exist.
+
   Revision 4.3  2004/02/03 21:10:07  ron-fox
   Fix Bug 75 get -delete -byid gives error message.
   Forgot to bump argv and decrement argc after parsing -id keyword.
@@ -337,6 +345,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GateCommand.h"    				
 #include "GatePackage.h"
 #include "GateFactory.h"
+#include "GateFactoryException.h"
 
 #include <Point.h>
 

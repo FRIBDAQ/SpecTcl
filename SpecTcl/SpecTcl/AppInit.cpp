@@ -628,7 +628,7 @@ extern "C" {
 // The following are used to locate our initialization and RC files:
 
    static const char*  kpInstalledBase    = INSTALLED_IN; // Base of installation dir.
-   static const char*  kpAppInitSubDir    = "/Etc/";  // This subdir has app init.
+   static const char*  kpAppInitSubDir    = "/etc/";  // This subdir has app init.
    static const char*  kpAppInitFile      = "SpecTclInit.tcl";
    static const char*  kpHomeEnvName      = "HOME";
    static  char*  kpUserInitFile          = "/SpecTclRC.tcl";

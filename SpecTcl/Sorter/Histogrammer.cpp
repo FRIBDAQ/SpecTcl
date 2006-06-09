@@ -303,6 +303,19 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 4.10.4.2  2005/01/26 14:29:10  ron-fox
+  Fix a problem with long spectrum names:
+      o Truncation to Xamine fixed size names caused assertion failures in
+         unbind
+      o Buffer overflow in spectra.cc could cause amusing thing in the
+          Xamine spectrum chooser that ultimately could result in a segfaulT.
+
+  Revision 4.10.4.1  2004/10/27 12:38:40  ron-fox
+  optimize performance of Spectrum1DL histogram increments.  Total
+  performance gain was a factor of 2.8.  The 'unusual' modifications
+  are documented via comments that indicate they were suggested by profile
+  data.
+
   Revision 4.10  2003/11/07 21:49:07  ron-fox
   unconditionally include <config.h>
 
@@ -1026,12 +1039,18 @@ void CHistogrammer::UnBindFromDisplay(UInt_t nSpec) {
 
   CXamineSpectrum  Spec(m_pDisplayer->getXamineMemory(), nSpec);
   if(Spec.getSpectrumType() != undefined) { // No-op if spectrum not defined
-    
-    assert(Spec.getTitle() == m_DisplayBindings[nSpec]);
+    // The Xamine title must match the first n characters of
+    // the bindings  name since the display bindings names are
+    // truncated to some fixed size.
+    //
+    assert(m_DisplayBindings[nSpec].find(Spec.getTitle()) == 0);
+
+
     SpectrumDictionaryIterator iSpectrum = 
-      m_SpectrumDictionary.Lookup(Spec.getTitle());
+      m_SpectrumDictionary.Lookup(m_DisplayBindings[nSpec]);
     assert(iSpectrum != m_SpectrumDictionary.end());
     CSpectrum*       pSpectrum = (*iSpectrum).second;
+
     //
     //  What we need to do is:
     //    0. Remove the gates which are being displayed.
@@ -1694,9 +1713,9 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     case ke1D:
     case keG1D: 
       {
-	pCut->AddPoint(pSpectrum->ParameterToAxis(0, rCut.getLow()),  
+	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getLow()),  
 		       0);
-	pCut->AddPoint(pSpectrum->ParameterToAxis(0, rCut.getHigh()), 
+	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getHigh()), 
 		       0);
 	return pCut;
 	break;
@@ -1760,8 +1779,8 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     
     for(UInt_t i = 0; i < pts.size(); i++) {
       
-      CPoint pt(pSpectrum->ParameterToAxis(0, pts[i].X()),
-		pSpectrum->ParameterToAxis(nYIndex, pts[i].Y()));
+      CPoint pt((int)pSpectrum->ParameterToAxis(0, pts[i].X()),
+		(int)pSpectrum->ParameterToAxis(nYIndex, pts[i].Y()));
       pXGate->AddPoint(pt);
       
     }
