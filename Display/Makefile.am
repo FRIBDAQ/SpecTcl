@@ -5,8 +5,8 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
 
 INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
-	-I@top_srcdir@/Utility
-AM_LDFLAGS = -g -lgd @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
+	-I@top_srcdir@/Utility $(GDINCLUDES)
+AM_LDFLAGS = -g $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
 
 #  @LD_EXTRA_FLAGS@
 
