@@ -361,3 +361,5 @@ SpecTcl-3.0-008
      smoosh all on one page. Print setup dialog's print command had
      a duplicate widget name that made it operate strangely.
    - Added jumboscripted ..scriptable readout for buffers > 64Kwords.
+   - Check for gd in configure and create appropriate compiler/ld
+     options.
