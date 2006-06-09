@@ -1,0 +1,96 @@
+2.1-006 - Incorporate fix 113 - low level cutoffs lead to corrupted
+          1-d displays.
+        - Have build procedures clean any pre-built Gri prior to 
+          tarring up the distribution.
+2.1-007 - Incorporate fix 120 - memory leak on spectrum -delete -all
+        - Date/time/version stamp installation.
+2.1-008 
+	- Incorporate fix for issue 95: parameter -list -byid fails to parse
+          the output list for sorting.
+        - Incorporate fix for issue 105: sbind usage level help refers to
+          itself as the bind command not sbind.
+        - Incorporate fix for issue 111: swrite creates a file even if
+          no valid spectra are included on the command line.
+2.1-009 
+	- Incorporate printing fixes for last channel of 1-d.
+	- Incorporate printinf fix ensure that 2-d spectrum channels display
+      	  all non zeroes even if they are below the threshold for the lowest
+	  color range.
+        - Place upper limits on 1-d graphical entries at the top  of the
+	  channel rather than at the bottom.  This more realistically
+	  describes what's going on
+        - Fix issue 118 Superpositions in window files are by id not name.
+        - Fix issue 122 Speclist with a single spectrum gives blank output.
+	- Fix issue 123 Print with superpositions crashes gri (gives it a
+  	  bad command file).
+	- Fix issue 124 FWHM not transformed to mapped coordinates.
+2.1-010 - Fix Display/Makefile issues with lingering bison/flex output
+          Add missing return value in ValidValue::operator=.
+2.1-011 - Fix issue 135  swrite -format ascii does not retain the axis
+             mapping information correctly.
+        - Fallout from issue 133; fixed a defect in Display/axes.cc where
+          computation of mapped channel tick mark intervals could cause
+          DIV0 crashes in Xamine when the axis decreases from left to right. 
+        - Backport colormanager intelligent visual choices from 2.2
+2.1-012 - Backport fix for defect 144 from 2.2: Memory leak when user
+          rejects events.
+        - Backport repair for defect 149: Some cases where spectrum
+          deletion from Xamine can kill both Xamine and SpecTcl
+        - Backport repair for defect 145 Names with special characters
+	  cause saveall to produce bad files.
+2.1-013 - Backport filter generation fix from 2.2
+          Repair defect 157: Graphical object copies fail if target
+          is spectrum slot > 999
+2.1-014
+	- Fixed defect 151: printing 2-d's the channels have incorrect
+          values, and log prints are just plain flat lined.
+2.1-015 
+        - Fix un-numbered defect channel command gets/sets wrong channel
+          on Gamma 2-d's.  This was broken with the introduction of 
+ 	  arbitrary binning in 2.1.
+        - In contrib/scriptable, CIntConfigParam and CIntArrayParam
+          must now use strtol instead of ExprLong since the latter only deal
+	  with signed values as of Tcl 8.4
+2.1-016
+        - In contrib/treeparam the Makefiles have now been removed by 
+          D. Bazin... fixe the contrib Makefile.am to deal with this.
+        - Xamine.h includes <config.h> which is not installed and also
+          not required.. removed.
+        - Fix the makefile skeleton so it gets the TCl flags from
+          autoconf.. they were hard coded.
+        - Get an even later set of updates from D. Bazin.
+        - Added O_TRUNC to open on swrite command otherwise previously 
+          existing files of the same name can leave junk at the end of the
+          file if they were longer.
+        - Fix superposition defect - if id >= 1000 wrong spectrum.
+        - Fix long spectrum name defect: If names are longer than 72 chars,
+          bindings get all screwed up:
+          o unbind throws an assert failur because the bound name does not
+            match the spectrum name due to truncation.
+          o The size of the buffer into which Xamine encodes chooser names
+            is too small to hold 72 chars (max title size) and the
+            bracketed spectrum number.
+2.1-017
+    March 4, 2005
+        - Set the gpVersion string to 2.1-017
+    May 12, 2005
+        - Fix error in the attach -format which deleted the
+          old formatter and then proceded to indirectly call its OnDetach
+          member.
+2.1-018
+    - Retry the pipe data source select if it ended due to EINTR.
+    - Make this work with newer versions of autotools.
+    - Make build work on linux install of lesstif.
+    - Put color table stuff etc. for Xamine in $(prefix)/etc not
+      $(prefix)/Etc so builds work correctly.
+2.1-019
+    - Fix some 64 bit uncleanlinesses in Xamine
+2.1-020 
+    - Add wysiwyg printing based on pane screen dumps.
+    - Fix defects 195, 196: gri - in this case dirty patch
+      to unconditionally emit a !Ps header rather than an EPSF header.
+      later versions do this cleanly.  Modify printer.cc so that 
+      print command entry is not a duplicate widget name which caused
+      other problems.
+    - Locate gd.h and libgd using configure and set makefile options
+      accordingly.

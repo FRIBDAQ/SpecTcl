@@ -494,7 +494,7 @@ void Xamine_GetRefreshCallback(RefreshCallback *cb, XtPointer *ud)
 void Xamine_RedrawPane(int column, int row)
 {
   pane_db *db;
-  int     cellno;
+  long     cellno;
   XMWidget *pane;
   
   db = Xamine_GetPaneDb();
@@ -700,7 +700,7 @@ void Xamine_UpdateAll(XMWidget *w, XtPointer userd, XtPointer clientd)
  */
 void Xamine_PaneRedrawCallback(XMWidget *w, XtPointer userd, XtPointer calld)
 {
-  int index;
+  long index;
   int column, row;
   int ncol;
   XmDrawingAreaCallbackStruct *st = (XmDrawingAreaCallbackStruct *)calld;
@@ -875,7 +875,7 @@ void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
 {
   XMWidget *pane = (XMWidget *)wid;
   int      ncol;
-  int      index;
+  long      index;
   int       col, row;
   pane_db   *pdb;
   
@@ -1069,8 +1069,16 @@ Boolean Xamine_Refresh(XtPointer client_data)
     pdb->refresh_state(ctx->row, ctx->column, rfsh_titles);
     /* If necessary set the scaling: */
     {
-      if(!def->manuallyscaled())
-	def->setfsval(Xamine_ComputeScaling(def, ctx->pane));
+      if(!def->manuallyscaled()) {
+	int fs = (Xamine_ComputeScaling(def, ctx->pane));
+	if (fs <= 0) {		// Something bad happened...
+	  // Treat this like the spectrum disappeared:
+	  XClearWindow(display,window);
+	  pdb->refresh_state(ctx->row, ctx->column, rfsh_idle);
+	  goto display_done;
+	}
+	def->setfsval(fs);
+      }
     }
     /*
     **  Ensure that if there's a floor, the full scale value never goes

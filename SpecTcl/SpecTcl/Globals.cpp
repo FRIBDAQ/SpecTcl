@@ -292,6 +292,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //     July 12, 1999 Ron FOx
 //        Added gpVersion and set it to be 0.2
 //   $Log$
+//   Revision 4.5.2.1  2005/03/04 19:10:22  ron-fox
+//   Set version to 2.1-017
+//
 //   Revision 4.5  2003/08/27 13:37:52  ron-fox
 //   Create the event sink pipeline in the TclGrammerApp so that we have explicit
 //   control over when it gets created and don't get any compiler dependencies on
@@ -363,4 +366,4 @@ CRunControl* gpRunControl = (CRunControl*)kpNULL;
 CAnalyzer* gpAnalyzer   = (CAnalyzer*)kpNULL;
 
 // SpecTcl also retains a version text string.
-const char* gpVersion = "1.0"; 
+const char* gpVersion = "2.1-017"; 

@@ -368,8 +368,10 @@ static int ComputeLinearTickInterval(unsigned int paramrange, int pixels)
   return (int)(10.0*tickmult);		// Only possible if bad rounding problems.
 }
 
-static float ComputeMappedTickInterval(float paramrange, int pixels)
+static float ComputeMappedTickInterval(float pparamrange, int pixels)
 {
+  float paramrange = fabsf(pparamrange); // Compute in abs vale.
+  float rangesign = pparamrange/paramrange; // +/- 1 depending on sign of pparamrange.
   /*  Compute the 'tight' packed tick interval... */
   int    tickpix = pixels/XAMINE_TICK_MAXCOUNT;        /* Pixels per tick    */
   int    ntick   = XAMINE_MAPPED_TICK_MAXCOUNT;        /* Number of ticks    */
@@ -393,16 +395,16 @@ static float ComputeMappedTickInterval(float paramrange, int pixels)
     return tickint;
   else if((tickint == (int)tickint) && ((int)tickint % 2 == 0) && 
 	  (ntick < 10) && (ntick >= 6))
-    return tickint;
+    return tickint*rangesign;
   // Otherwise, see if we can make it a nice one the easy way
   if((paramrange / 10.0 >= 6) && (paramrange / 10.0 < 10)) {
-    return 10.0;
+    return 10.0*rangesign;
   }
   else if((paramrange / 5.0 >= 6) && (paramrange / 5.0 < 10)) {
-    return 5.0;
+    return 5.0*rangesign;
   }
   else if((paramrange / 2.0 >= 6) && (paramrange / 2.0 < 10)) {
-    return 2.0;
+    return 2.0*rangesign;
   }
 
   // We have to compare the tick mantissa to a percentage of the parameter
@@ -420,7 +422,7 @@ static float ComputeMappedTickInterval(float paramrange, int pixels)
     while((10 % tempint != 0) && (tempint % 10 != 0)) {
       int power = (int)log10(tempint);
       int exp   = (int)pow(10.0, power);
-      int ones_digit = tempint % exp;
+      int ones_digit = exp ? (tempint % exp)  : 0; // Gaurd against exp == 0.
       if(ones_digit == 0)
 	break;
       tempint -= ones_digit;
@@ -428,7 +430,7 @@ static float ComputeMappedTickInterval(float paramrange, int pixels)
     tickint = tempint;
   }
 
-  return tickint;
+  return tickint*rangesign;
 }
 
 

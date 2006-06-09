@@ -303,6 +303,16 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log
   $Log$
+  Revision 4.10.2.1  2005/01/26 13:39:25  ron-fox
+  Fix long spectrum name defect: If names are longer than 72 chars,
+  bindings get all screwed up:
+  	o unbind throws an assert failur because the bound name does not
+    	  match the spectrum name due to truncation.
+          o The size of the buffer into which Xamine encodes chooser names
+                is too small to hold 72 chars (max title size) and the
+                  bracketed spectrum number.
+  Note that Makefile update is to fix attempt to install treeparam Makefile
+
   Revision 4.10  2003/11/07 21:49:07  ron-fox
   unconditionally include <config.h>
 
@@ -1026,10 +1036,16 @@ void CHistogrammer::UnBindFromDisplay(UInt_t nSpec) {
 
   CXamineSpectrum  Spec(m_pDisplayer->getXamineMemory(), nSpec);
   if(Spec.getSpectrumType() != undefined) { // No-op if spectrum not defined
-    
-    assert(Spec.getTitle() == m_DisplayBindings[nSpec]);
+  
+    // The Xamine title must match the first n characters of
+    // the bindings  name since the display bindings names are
+    // truncated to some fixed size.
+    //
+    assert(m_DisplayBindings[nSpec].find(Spec.getTitle()) == 0);
+
+
     SpectrumDictionaryIterator iSpectrum = 
-      m_SpectrumDictionary.Lookup(Spec.getTitle());
+      m_SpectrumDictionary.Lookup(m_DisplayBindings[nSpec]);
     assert(iSpectrum != m_SpectrumDictionary.end());
     CSpectrum*       pSpectrum = (*iSpectrum).second;
     //
