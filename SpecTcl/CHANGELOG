@@ -450,3 +450,5 @@ SpecTcl-3.1-001
    - Try to make the docbook builds more robust even in the presence of missing
      or broken(?) docbook installs.
    - configure for libgd.
+
+SpecTcl 3.2-pre1 starts.
