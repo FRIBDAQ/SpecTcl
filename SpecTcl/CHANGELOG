@@ -454,3 +454,5 @@ SpecTcl-3.1-001
 SpecTcl 3.2-pre1 starts.
   June 20, 2006 defect 206:  Check parameter validity in mask gates.
                              Catch exceptions while histogramming
+                Defect 197:  Averaging reduction boxes too large by 
+                             1 channel in x.              
