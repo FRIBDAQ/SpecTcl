@@ -453,3 +453,4 @@ SpecTcl-3.1-001
 SpecTcl-3.1-002
    - Fix defect 206 : Bit mask gates don't check parameter
      validity and therefore can crash.
+   - Fix defect 197 : 2d averaging boxes too large in x.
