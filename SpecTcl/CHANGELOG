@@ -364,3 +364,5 @@ SpecTcl-3.0-008
    - Check for gd in configure and create appropriate compiler/ld
      options.
 SpecTcl-3.0-009
+   - Defect 197 : scaling.h the averaging boxes for 2d average reduction
+                  were too wide by a channel
