@@ -363,3 +363,4 @@ SpecTcl-3.0-008
    - Added jumboscripted ..scriptable readout for buffers > 64Kwords.
    - Check for gd in configure and create appropriate compiler/ld
      options.
+SpecTcl-3.0-009
