@@ -615,8 +615,8 @@ class Sum2b : public Sampler2 {
       int y1 = (int)(yoff+ystep);
       unsigned int sum = 0;
       int ychan = y0*xdim;
-      for(int y = y0; y <= y1; y++) {
-	for(int x = x0; x <= x1; x++) {
+      for(int y = y0; y < y1; y++) {
+	for(int x = x0; x < x1; x++) {
 	  sum += (unsigned int)(base[x+ychan]);
 	}
 	ychan += xdim;
