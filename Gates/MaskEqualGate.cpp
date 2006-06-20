@@ -299,6 +299,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.1  2006/06/20 17:29:21  ron-fox
+  Fix defect 206: Mask gates were not checking their parameter validity
+  ----------------------------------------------------------------------
+
   Revision 5.1  2005/06/03 15:19:20  ron-fox
   Part of breaking off /merging branch to start 3.1 development
 
@@ -393,6 +397,9 @@ CMaskEqualGate::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 Bool_t
 CMaskEqualGate::inGate(CEvent& rEvent)
 {
+  if (!rEvent[m_nId].isValid()) { // Short circuit if param not defined.
+    return kfFALSE;
+  }
   long value = rEvent[m_nId];
   if (value == m_cCompare) 
     {

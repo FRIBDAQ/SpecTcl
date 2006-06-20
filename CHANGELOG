@@ -451,3 +451,5 @@ SpecTcl-3.1-001
      or broken(?) docbook installs.
    - configure for libgd.
 SpecTcl-3.1-002
+   - Fix defect 206 : Bit mask gates don't check parameter
+     validity and therefore can crash.
