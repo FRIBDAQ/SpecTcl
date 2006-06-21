@@ -454,3 +454,4 @@ SpecTcl-3.1-002
    - Fix defect 206 : Bit mask gates don't check parameter
      validity and therefore can crash.
    - Fix defect 197 : 2d averaging boxes too large in x.
+   - Fix defect 200 : Gamma 1dL spectrum were not 64 bit clean
