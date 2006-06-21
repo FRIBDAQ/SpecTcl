@@ -366,3 +366,8 @@ SpecTcl-3.0-008
 SpecTcl-3.0-009
    - Defect 197 : scaling.h the averaging boxes for 2d average reduction
                   were too wide by a channel
+   - Defect 200 : long/int mixup that is 64 bit unclean in gamma1DL.cpp
+                  This makes 64bit gamma1dL spectra have only everyother
+                  channel set and can overwrite past the end of the spectrum
+                  as well fi the parameter range covers more than the
+                  spectrum range!!

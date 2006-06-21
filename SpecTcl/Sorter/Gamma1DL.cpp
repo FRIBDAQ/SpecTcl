@@ -291,6 +291,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*  
    Change Log:
    $Log$
+   Revision 5.1.2.3  2006/06/21 14:02:14  ron-fox
+   Defect 200 g1 spectrum only have counts in every other channel because
+   storage is treated as a long which is 64 bits on 64bit systems, rather than
+   an int which is 32 bits on both... note this can also cause spectrum
+   increments to overwrite.
+
    Revision 5.1.2.2  2005/05/27 17:47:37  ron-fox
    Re-do of Gamma gates also merged with Tim's prior changes with respect to
    glob patterns.  Gamma gates:
@@ -533,7 +539,7 @@ CGamma1DL::MakeAxesVector(vector<CParameter> Params,
 void
 CGamma1DL::Increment(vector<pair<UInt_t, Float_t> >& rParams)
 {
-  ULong_t* pStorage = (ULong_t*)getStorage();
+  UInt_t* pStorage = (UInt_t*)getStorage();
 
   for(int i =0; i < rParams.size(); i++) {
     UInt_t   nParameter = rParams[i].first;
