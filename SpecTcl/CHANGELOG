@@ -371,3 +371,4 @@ SpecTcl-3.0-009
                   channel set and can overwrite past the end of the spectrum
                   as well fi the parameter range covers more than the
                   spectrum range!!
+   - Defect 209 : more issues like Defect 200.

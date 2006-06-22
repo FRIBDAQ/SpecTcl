@@ -298,6 +298,15 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.3  2006/06/22 17:26:36  ron-fox
+  Fix more 32 bit unclean issues (Defect 209).
+
+  Revision 5.2.2.1  2006/06/22 17:11:23  ron-fox
+  Defect 209: Some other 64 bit uncleanliness that needed mopping up.
+
+  Revision 5.2  2005/06/03 15:19:24  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
   Revision 5.1.2.2  2005/05/11 16:54:54  thoagland
   Add Support for Stripchart Spectra
 
@@ -609,7 +618,7 @@ CSpectrum1DL::CreateChannels()
   // management:
 
   setStorageType(keLong);
-  ULong_t* pStorage = new ULong_t[m_nChannels];
+  UInt_t* pStorage = new UInt_t[m_nChannels];
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
 }

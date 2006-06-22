@@ -291,6 +291,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*  
    Change Log:
    $Log$
+   Revision 5.1.2.4  2006/06/22 17:26:36  ron-fox
+   Fix more 32 bit unclean issues (Defect 209).
+
+   Revision 5.2.2.1  2006/06/21 14:31:24  ron-fox
+   Propagate fix for defect 200 to this version
+
    Revision 5.1.2.3  2006/06/21 14:02:14  ron-fox
    Defect 200 g1 spectrum only have counts in every other channel because
    storage is treated as a long which is 64 bits on 64bit systems, rather than
