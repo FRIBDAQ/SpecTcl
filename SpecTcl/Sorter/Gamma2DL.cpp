@@ -32,6 +32,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 1.1.2.1  2006/06/22 17:11:23  ron-fox
+    Defect 209: Some other 64 bit uncleanliness that needed mopping up.
+
     Revision 1.1  2006/04/17 12:46:26  ron-fox
     Add files missing found by doing a build from checkout rather than
     from tarball.
@@ -169,7 +172,7 @@ CGamma2DL::CGamma2DL(const std::string& rName, UInt_t nId,
 ULong_t
 CGamma2DL::operator[] (const UInt_t* pIndices) const
 {
-  ULong_t* pStorage = (ULong_t*)getStorage();
+  UInt_t* pStorage = (UInt_t*)getStorage();
   UInt_t nx = pIndices[0];
   UInt_t ny = pIndices[1];
   if (nx >= Dimension(0)) {
@@ -195,7 +198,7 @@ CGamma2DL::operator[] (const UInt_t* pIndices) const
 void
 CGamma2DL::set (const UInt_t* pIndices, ULong_t nValue)
 {
-  ULong_t* pStorage = (ULong_t*)getStorage();
+  UInt_t* pStorage = (UInt_t*)getStorage();
   UInt_t nx = pIndices[0];
   UInt_t ny = pIndices[1];
   if (nx >= Dimension(0)) {
@@ -239,7 +242,7 @@ CGamma2DL::CreateStorage()
 {
   setStorageType(keLong);
   Size_t nBytes = StorageNeeded();
-  ULong_t* pStorage = new ULong_t[nBytes/sizeof(ULong_t)];
+  UInt_t* pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
 
   ReplaceStorage(pStorage);
   Clear();
@@ -326,7 +329,7 @@ CGamma2DL::Dimension(UInt_t n) const
 void
 CGamma2DL::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 {
-  ULong_t* pStorage = (ULong_t*)getStorage();
+  UInt_t* pStorage = (UInt_t*)getStorage();
 
   if (rParameters.size() > 0) {
     for(int i = 0; i < rParameters.size() - 1; i++) {
