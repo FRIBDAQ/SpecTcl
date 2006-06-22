@@ -457,3 +457,4 @@ SpecTcl 3.2-pre1 starts.
                 Defect 197:  Averaging reduction boxes too large by 
                              1 channel in x.
                 Defect 200:  Gamma 1dL spectrum increments no 64 bit clean
+                Defect 209:  Mor of the same as 200.

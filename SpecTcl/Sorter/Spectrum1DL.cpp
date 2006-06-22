@@ -298,6 +298,12 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.3  2006/06/22 17:28:37  ron-fox
+  Defect 209 : more 64bit unclean issues.
+
+  Revision 5.2.2.1  2006/06/22 17:11:23  ron-fox
+  Defect 209: Some other 64 bit uncleanliness that needed mopping up.
+
   Revision 5.2  2005/06/03 15:19:24  ron-fox
   Part of breaking off /merging branch to start 3.1 development
 
@@ -612,7 +618,7 @@ CSpectrum1DL::CreateChannels()
   // management:
 
   setStorageType(keLong);
-  ULong_t* pStorage = new ULong_t[m_nChannels];
+  UInt_t* pStorage = new UInt_t[m_nChannels];
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
 }
