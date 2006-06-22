@@ -455,3 +455,9 @@ SpecTcl-3.1-002
      validity and therefore can crash.
    - Fix defect 197 : 2d averaging boxes too large in x.
    - Fix defect 200 : Gamma 1dL spectrum were not 64 bit clean
+   - Fix defect 209 : More instances of non 64bit clean longword spectra:
+	                BitSpectrumL.cpp
+	               	Gamma1DL.cpp
+			Spectrum1DL.cpp
+			Spectrum2DL.cpp
+			SummarySpectrumL.cpp
