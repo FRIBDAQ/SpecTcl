@@ -917,16 +917,16 @@ extern "C" {
    
    
    
-      if(sscanf(DisplaySize.Get(), "%d", &Result) > 0) {
+      if(sscanf(DisplaySize.Get(), "%u", &Result) > 0) {
          m_nDisplaySize = Result;
       }
    
       nParams.Bind(getInterpreter());
-      if(sscanf(nParams.Get(), "%d", &Result) > 0) {
+      if(sscanf(nParams.Get(), "%u", &Result) > 0) {
          m_nParams = Result;
       }
       nListSize.Bind(getInterpreter());
-      if(sscanf(nListSize.Get(), "%d", &Result)) {
+      if(sscanf(nListSize.Get(), "%u", &Result)) {
          m_nListSize = Result;
       }
    }
