@@ -340,9 +340,9 @@ class Sampler2 {
 };
 class Sample2l : public Sampler2 {
  protected:
-  volatile unsigned long *base;		/* Spectrum base. */
+  volatile unsigned int *base;		/* Spectrum base. */
  public:
-  Sample2l(volatile unsigned long *b, float xs, float ys, int xsiz) :
+  Sample2l(volatile unsigned int *b, float xs, float ys, int xsiz) :
     Sampler2(xs, ys, xsiz) {
     base   = b;
   }
@@ -448,9 +448,9 @@ class Sample2b : public Sampler2 {
 */
 class Sum2l : public Sampler2 {
  protected:
-  volatile unsigned long *base;		/* Spectrum base. */
+  volatile unsigned int *base;		/* Spectrum base. */
  public:
-  Sum2l(volatile unsigned long *b, float xs, float ys, int xsiz) :
+  Sum2l(volatile unsigned int *b, float xs, float ys, int xsiz) :
     Sampler2(xs,ys, xsiz) {
 
       base = b;
@@ -634,9 +634,9 @@ class Sum2b : public Sampler2 {
 */
 class Average2l : public Sampler2 {
  protected:
-  volatile unsigned long *base;		/* Spectrum base. */
+  volatile unsigned int *base;		/* Spectrum base. */
  public:
-  Average2l(volatile unsigned long *b, float xs, float ys, int xsiz) :
+  Average2l(volatile unsigned int *b, float xs, float ys, int xsiz) :
     Sampler2(xs, ys, xsiz)
     {
     base   = b;
