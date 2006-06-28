@@ -461,3 +461,6 @@ SpecTcl 3.2-pre1 starts.
   June 23, 2006 Defect 210:  Problems with scaning ints -> longs.
   June 28, 2006 Xamine has some 64 bit defects as well, these manifest
                            on longword 2d spectra
+                Gui has problems if the user makes e.g. a and a.b  fix this.
+                Defect 211 - crash if making g1 spectrum with empty parameter 
+                             list
