@@ -465,3 +465,7 @@ SpecTcl-3.1-002
                       e.g. sscaning to long but with %d conversion instead of
                       %ld. 
    - Find some more 64 bit uncleanliness.. this time in Xamine.
+   - Re-do the GUI to deal with the case where there's an item named a
+     and another named a.b  - big rewrite!!!!
+   - Fix Defect 211 - did not check parameter count on g1 spectrum creation.
+                      if no parameters, spectcl segfaults.

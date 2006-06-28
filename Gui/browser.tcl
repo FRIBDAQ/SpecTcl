@@ -1,4 +1,4 @@
-#
+
 #    This software is Copyright by the Board of Trustees of Michigan
 #    State University (c) Copyright 2005.
 #
@@ -39,7 +39,7 @@ package require snit
 #     -gatefoldercommand      script
 #
 #       The following allow the attachment of scripts
-#       to double-clicks of spectra, parameters, variables and gates:
+#       to double-clicks of spectra, parameters, variablesand gates:
 #
 #     -spectrumscript        script
 #     -parameterscript       script
@@ -289,7 +289,8 @@ image create photo ::browser::pseudoicon   -format gif \
             if {$gate == "-TRUE-"} {
                 set gate "";              # Not intersted in ungated.
             }
-            set treename Spectra.$name
+            set treename [nameToPath Spectra $name]
+	    $self makeParents $treename
             set id [$win.tree insert end $treename]
             set treetype "$type $dtype"
             $win.tree entry configure $id -icons {::browser::spectrumicon ::browser::spectrumicon} \
@@ -317,7 +318,8 @@ image create photo ::browser::pseudoicon   -format gif \
                 }
             }
             set rawname [lindex $parameter 0]
-            set name Parameters.$rawname
+            set name [nameToPath Parameters $rawname]
+	    $self makeParents $name
             set id [$win.tree insert end $name]
             $win.tree entry configure $id -icons {::browser::paramicon ::browser::paramicon} \
                                           -activeicons {::browser::paramicon ::browser::paramicon}
@@ -339,11 +341,10 @@ image create photo ::browser::pseudoicon   -format gif \
                                     -activeicons {::browser::pseudoicon ::browser::pseudoicon}
                     set pseudoInfo [lindex $pseudoInfo 0]
                     set dependencies [lindex $pseudoInfo 1]
+		    set pseudonum 0
                     foreach dependentParam $dependencies {
-                        set dependentName Parameters.$rawname.Dependencies.$dependentParam
-                        set did [$win.tree insert end $dependentName]
-                        $win.tree entry configure $did -icons {::browser::paramicon ::browser::paramicon} \
-                                        -activeicons {::browser::paramicon ::browser::paramicon}
+			$self addEntryParameter $id $pseudonum $dependentParam
+			incr pseudonum
                     }
                 }
             }
@@ -362,7 +363,8 @@ image create photo ::browser::pseudoicon   -format gif \
             set rawname [lindex $variable 0]
             set value   [lindex $variable 1]
             set units   [lindex $variable 2]
-            set name Variables.$rawname
+            set name [nameToPath Variables $rawname]
+	    $self makeParents $name
             set id [$win.tree insert end $name]
             $win.tree tag add variable $id
             $win.tree entry configure $id -data [list Value $value Units $units] \
@@ -396,22 +398,28 @@ image create photo ::browser::pseudoicon   -format gif \
     #       Note that the item type prefix (e.g. Gates or Spectrum) is still
     #       present.
     #       If there are no elements selected, an empty list is returned.
+    # Returns:
+    #     A list of names in the selection. 
+    #     The elements of this list are translated back  to names 
+    #     (the _BLTFOLDER is removed from intermediate path entries.
     #
     method getSelection {} {
         set selected [$win.tree curselection];         # These are ID's.
         set names [list]
         foreach id $selected {
-            lappend names [$win.tree get -full $id]
+            lappend names [pathToName [$win.tree get -full $id]]
         }
         return $names
     }
     # remove path
-    #      Removes an entry from the browser tree given its path.
+    #      Removes an entry from the browser tree given its name.
     #      note that if the path is not a terminal node all subordinate
     #      entries will also be deleted.
     # Parameters:
-    #    path   - the full path to the node.
-    method remove path {
+    #    name   - the name of the node.  This will not have any folder decoration.
+    #
+    method remove name {
+	set path [nameToPath [getPrefix $name] $name]
         set id [$win.tree find -full $path]
         if {[llength $id] != 0} {
             foreach i $id {
@@ -422,9 +430,12 @@ image create photo ::browser::pseudoicon   -format gif \
     # find name
     #      Locate the id of a name in the browser tree.
     # Parameters:
-    #  name:  - Name of the item to locate.
+    #  name:  - Name of the item to locate.  This name will not have any
+    #           folder decorations.
+    #
     method find name {
-        return [$win.tree find -full $name]
+	set nameList [split $name .]
+        return [$win.tree find -full [nameToPath [getPrefix $name] $name]]
     }
     # addGate name
     #    Adds a gate to the browser tree.
@@ -452,7 +463,8 @@ image create photo ::browser::pseudoicon   -format gif \
         set name        [lindex $gate 0]
         set type        [lindex $gate 2]
         set description [lindex $gate 3]
-        set entryname "Gates.$name"
+        set entryname [nameToPath Gates $name]
+	$self makeParents $entryname
         set id [$win.tree insert end $entryname]
         $win.tree tag add gate $id
         $win.tree entry configure $id -data [list Type $type]   \
@@ -978,7 +990,7 @@ image create photo ::browser::pseudoicon   -format gif \
             set id [$win.tree nearest $x $y]
             if {$id != ""} {
                 set path [$win.tree get -full $id]
-                eval $script [list $path]
+                eval $script [list [pathToName $path]]
             }
         }
     }
@@ -999,7 +1011,7 @@ image create photo ::browser::pseudoicon   -format gif \
             set id [$win.tree nearest $x $y]
             if {$id != ""} {
                 set path [$win.tree get -full $id]
-                eval $script [list $path] $X $Y
+                eval $script [pathToName [list $path]] $X $Y
             }
         }
     }
@@ -1013,5 +1025,75 @@ image create photo ::browser::pseudoicon   -format gif \
             $win.tree selection set $id $id
         }
     }
+    # nameToPath  prefix name
+    #   Converts name to a browser path for the group prefix.
+    #   This is done by appending _BLTFOLDER to all but the last
+    #   path element in name and prepending prefix.
+    #   This is done to ensure that items can have the same name as
+    #   folders e.g. a spectrum named a and one named a.b
+    #
+    # parameters:
+    #      prefix  - The path prefix e.g. Spectra
+    #      name    - The SpecTcl name of the item.
+    #
+    proc nameToPath {prefix name} {
+	set path $prefix
+	set nameList [split $name .]
+	foreach folder [lrange $nameList 0 end-1] {
+	    append path  .  $folder _BLTFOLDER
+	}
+	append path . [lindex $nameList end]
+	return $path
+    }
+    # pathToName path
+    #    Returns the name associated with an element.
+    #    This will include the prefix (e.g. Spectrum).
+    #    We strip the _BLTFOLDER from the end of all intermediate nodes
+    #    in the name.
+    #
+    proc pathToName path {
+	set pathList [split $path .]
+	set prefix [lindex $pathList 0]
+	set terminal [lindex $pathList end]
+	set name $prefix
+	foreach node [lrange $pathList 1 end-1] {
+	    append name . [regsub {_BLTFOLDER$} $node ""]
+	}
+	append name . $terminal
+	puts "Converted $path -> $name"
+	return $name
+    }
+    proc getPrefix name {
+	set nameList [split $name .]
+	return [lindex $nameList 0]
+    }
+    # makeParents path
+    #    Takes a tree path (with the _BLTFOLDER bits in the path)
+    #    and creates any neede parts of the folder hierarchy above the
+    #    terminal node.
+    #      These folders are labelled so that the _BLTFOLDER is missing.
+    #
+    method makeParents path {
+	set pathList [split $path .]
+	#
+	#  The prefix is already made by definition.
+	#
+	set parentPath [lindex $pathList 0]
+	foreach element [lrange $pathList 1 end-1] {
+	    append parentPath . $element
+	    set id [$win.tree find -full $parentPath]
+	    #
+	    #  If not found, need to make one
+	    #
+	    if {$id eq ""} {
+		set label [regsub {_BLTFOLDER$} $element ""]
+		$win.tree insert end $parentPath -label $label
+	    }
+
+
+	}
+	
+    }
+
 }
 
