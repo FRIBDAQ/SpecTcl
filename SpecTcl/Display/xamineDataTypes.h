@@ -73,7 +73,7 @@
 #endif
 
 #define XAMINE_WORDS     (XAMINE_SPECBYTES)/sizeof(short)
-#define XAMINE_LONGS     (XAMINE_SPECBYTES)/sizeof(long)
+#define XAMINE_LONGS     (XAMINE_SPECBYTES)/sizeof(int)
 
 /* Graphical object limits etc. */
 

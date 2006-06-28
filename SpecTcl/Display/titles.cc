@@ -413,11 +413,11 @@ static void maxpeak2d(T* c, int xl, int xh, int yl, int yh,
 
 // Explicit versions, so we don't have to port:
 
-static void maxpeak2dl(unsigned long* c, int xl, int xh, int yl, int yh,
+static void maxpeak2dl(unsigned int* c, int xl, int xh, int yl, int yh,
 		       int xdim, int ydim, unsigned int* maxval,
 		       unsigned int* maxx, unsigned int* maxy)
 {
-  maxpeak2d<unsigned long>(c, xl, xh, yl, yh, xdim, ydim, maxval,
+  maxpeak2d<unsigned int>(c, xl, xh, yl, yh, xdim, ydim, maxval,
 			   maxx, maxy);
 }
 
@@ -531,7 +531,7 @@ static void getpeakinfo(char *text, win_attributed *def)
       fyl = xamine_shared->getymin_map(spno);
       fyh = xamine_shared->getymax_map(spno);
     }
-    maxpeak2dl((unsigned long *)chans, xl, xh, yl, yh, xdim, ydim,
+    maxpeak2dl((unsigned int *)chans, xl, xh, yl, yh, xdim, ydim,
 	       &maxval, &maxx, &maxy);
     if(at2->ismapped()) 
       sprintf(text, "Max=%d @ %.1f,%.1f ", maxval, 
