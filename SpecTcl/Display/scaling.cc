@@ -580,7 +580,7 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
   if(!must_reduce) {
     switch(st) {
     case twodlong:
-      sampler = (Sampler2 *)new Sample2l((unsigned long *)
+      sampler = (Sampler2 *)new Sample2l((unsigned int *)
 					 xamine_shared->getbase(specno),
 					 1.0, 1.0, 
 					 xamine_shared->getxdim(specno));
@@ -619,7 +619,7 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
     case sampled:
       switch(st) {
       case twodlong:
-	sampler = (Sampler2 *)new Sample2l((unsigned long *)
+	sampler = (Sampler2 *)new Sample2l((unsigned int *)
 					      xamine_shared->getbase(specno),
 					   xstep, ystep, 
 					   xamine_shared->getxdim(specno));
@@ -647,7 +647,7 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
     case summed:
       switch(st) {
       case twodlong:
-	sampler = (Sampler2 *)new Sum2l((unsigned long *)
+	sampler = (Sampler2 *)new Sum2l((unsigned int *)
 					   xamine_shared->getbase(specno),
 					xstep, ystep, 
 					xamine_shared->getxdim(specno));
@@ -674,7 +674,7 @@ Sampler2 *Xamine_GenerateSampler2(int specno,
     case averaged:
       switch(st) {
       case twodlong:
-	sampler = (Sampler2 *)new Average2l((unsigned long *)
+	sampler = (Sampler2 *)new Average2l((unsigned int *)
 					       xamine_shared->getbase(specno),
 					    xstep, ystep, 
 					    xamine_shared->getxdim(specno));

@@ -557,7 +557,7 @@ unsigned int spec_shared::getchannel(int id, int ix) volatile
 }
 unsigned int spec_shared::getchannel(int id, int ix, int iy) volatile
 {
-  unsigned long* lptr;
+  unsigned int* lptr;
   unsigned short *sptr;
   unsigned char  *bptr;
   int idx;
@@ -576,7 +576,7 @@ unsigned int spec_shared::getchannel(int id, int ix, int iy) volatile
     if( (ix >= 0) && (ix < getxdim(id)) &&
         (iy >= 0) && (iy < getydim(id))) {
       idx = ix + iy*getxdim(id);
-      lptr = (unsigned long *)getbase(id);
+      lptr = (unsigned int *)getbase(id);
       if(lptr == NULL) {
 	fprintf(stderr, "Invalid spectrum base %d \n", id);
 	return 0;
