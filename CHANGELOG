@@ -464,3 +464,4 @@ SpecTcl-3.1-002
    - Fix defect 210 : Some acceptance of integer input is not 64 bit clean
                       e.g. sscaning to long but with %d conversion instead of
                       %ld. 
+   - Find some more 64 bit uncleanliness.. this time in Xamine.
