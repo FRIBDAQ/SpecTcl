@@ -427,7 +427,14 @@ CSpectrumFactoryException::SpectrumType(SpectrumType_t eType)
     return "Bit mask spectrum";
   case keSummary:
     return "Summary spectrum";
+  case keStrip:
+    return "Strip chart spectrum";
+  case keG1D:
+    return "1d Gamma Spectrum";
+  case keG2D:
+    return "2d Gamma Spectrum";
   default:
+    
     return "Unknown spectrum type";
   }
 }
