@@ -305,6 +305,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 5.1.2.4  2006/06/28 20:02:40  ron-fox
+    Fix defect 211 - Making g1 spectrum with empty parameter list segfaults.
+
     Revision 5.1.2.3  2005/09/22 12:37:54  ron-fox
     Fix errors in gamma spectrum increment.  When there are no valid parameters
     in an event, the outer loop of the 2d gamma spectrum increment will
@@ -1607,6 +1610,11 @@ CSpectrumFactory::Require(DataType_t          dType,
     throw CSpectrumFactoryException(dType, sType, rName,
 	    CSpectrumFactoryException::keBadParameterCount,
 	    "Checking parameter counts of keG2D in CSpectrumFactory::Require");
+  }
+  if (sType == keG1D && nParams < 1) {
+    throw CSpectrumFactoryException(dType, sType, rName,
+				    CSpectrumFactoryException::keBadParameterCount,
+				    "Checking keG1D parameter count in CSpectrumFactory::Require - need at least one parameters");
   }
 
   if(rResolutions.size() != nResolutions) { // Incorrect # of resolutions.
