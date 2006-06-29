@@ -141,15 +141,7 @@ arenaid alloc_init(caddr_t arena, int size)
 static long
 longmask()
 {
-  int    i;
-  long  mask;
-
-  mask = 0;
-  for(i = 1; i < sizeof(long); i++) {
-    mask = mask << 1;
-    mask |= 1;
-  }
-  return  ~mask;
+  return  ~(sizeof(long) - 1);
 }
 
 /*
@@ -199,6 +191,8 @@ caddr_t alloc_get(arenaid arena_id, int size)
   ** we allocate the storage from the top part of the block
   ** (makes handling the list easier).
   */
+
+  size += sizeof(node);
   
   if(largest->size < size)
     return (caddr_t)NULL;		/* Not enough contiguous memory. */
@@ -248,6 +242,7 @@ void alloc_free(arenaid arena_id, caddr_t storage)
     st_node->next = nxt;     /* First thread this node on the list */
     *arena_id = (caddr_t)st_node;
     if( (node *)(storage + st_node->size) == nxt) { /* Coalesce if possible */
+
       st_node->size += nxt->size + sizeof(node);
       st_node->next  = nxt->next;
     }
@@ -277,6 +272,7 @@ void alloc_free(arenaid arena_id, caddr_t storage)
     
     p = (char *)st_node;
     p += st_node->size + sizeof(node);
+
     if(p == (char *)st_node->next) {	/* If st_node is last then this is never true */
       st_node->size += st_node->next->size + sizeof(node);
       st_node->next  = st_node->next->next;
