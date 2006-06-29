@@ -469,3 +469,7 @@ SpecTcl-3.1-002
      and another named a.b  - big rewrite!!!!
    - Fix Defect 211 - did not check parameter count on g1 spectrum creation.
                       if no parameters, spectcl segfaults.
+   - Fix Error in allocator.c - mask for longword alignent incorrectly 
+     calculated.. caused smaller allocations than should have been done.
+     this caused corruption of the Xamine shared memory free list.
+   - Improve performance of GUI parenting.
