@@ -359,7 +359,11 @@ image create photo ::browser::pseudoicon   -format gif \
     #
     method fillVariableFolder {} {
         catch {$win.tree delete variable}
-        foreach variable [treevariable -list] {
+	set vars [treevariable -list]
+	set varCount [llength $vars]
+	set varNum   0
+        foreach variable $vars {
+	    incr varNum
             set rawname [lindex $variable 0]
             set value   [lindex $variable 1]
             set units   [lindex $variable 2]
@@ -371,6 +375,8 @@ image create photo ::browser::pseudoicon   -format gif \
                      -icons {::browser::varicon ::browser::varicon}      \
                      -activeicons {::browser::varicon ::browser::varicon}  \
                      -bindtags [list variable all]
+	    if {($varNum % 100) == 0} {
+	    }
 
         }
     }
@@ -1060,7 +1066,6 @@ image create photo ::browser::pseudoicon   -format gif \
 	    append name . [regsub {_BLTFOLDER$} $node ""]
 	}
 	append name . $terminal
-	puts "Converted $path -> $name"
 	return $name
     }
     proc getPrefix name {
@@ -1075,6 +1080,16 @@ image create photo ::browser::pseudoicon   -format gif \
     #
     method makeParents path {
 	set pathList [split $path .]
+	# Short cut optimization:
+	# Most of the time, users have more than one terminal in
+	# a single folder, If the entire path prior to our terminal
+	# exists, then we don't need to make anything.
+
+	set folderPath [join [lrange  $pathList 0 end-1] .]
+	if {[$win.tree find -full $folderPath] ne ""} {
+	    return 
+	}
+
 	#
 	#  The prefix is already made by definition.
 	#
