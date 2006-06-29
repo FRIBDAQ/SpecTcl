@@ -374,4 +374,6 @@ SpecTcl-3.0-009
    - Defect 209 : more issues like Defect 200.
    - Defect 210 : SpecTcl/AppInit.cpp had sscanf of int -> long. 64 bit bad.
    - Defect 211 : Creating g1 spectrum with empty parameter list crashes with
-                  SEGFLT
+                  SEGFLT.
+   - Fix erroneous alignment mask computation in allocator.c that could lead
+       to Xamine free list corruption
