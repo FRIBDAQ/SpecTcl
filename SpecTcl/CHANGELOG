@@ -464,3 +464,6 @@ SpecTcl 3.2-pre1 starts.
                 Gui has problems if the user makes e.g. a and a.b  fix this.
                 Defect 211 - crash if making g1 spectrum with empty parameter 
                              list
+  June 29, 2006 Improve performance of terminal parent creation in gui.
+                Fix defect in allocatro.c's alignment mask computation that
+                causes free list corruption on e.g. 64 bit systems.
