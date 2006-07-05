@@ -475,3 +475,5 @@ SpecTcl-3.1-002
    - Improve performance of GUI parenting.
    - Mask gates were not checked in a 64 bit pure way.. sign extends could
      make the check incorrect.
+   - Mask gate editor in gui - work around issue in early tcl 8.4
+     where [string is integer] is false for e.g. 0x80000000
