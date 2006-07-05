@@ -468,3 +468,6 @@ SpecTcl 3.2-pre1 starts.
                 Fix defect in allocatro.c's alignment mask computation that
                 causes free list corruption on e.g. 64 bit systems.
   July 5, 2006  Propagate fix for 64 bit problems with mask equal gates.
+                Work around issue with tclsh 8.4 early where
+                string is integer 0x80000000 (e.g.) returns false..
+                makes creation of mask gates fail.
