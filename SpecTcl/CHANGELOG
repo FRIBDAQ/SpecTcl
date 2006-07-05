@@ -467,3 +467,4 @@ SpecTcl 3.2-pre1 starts.
   June 29, 2006 Improve performance of terminal parent creation in gui.
                 Fix defect in allocatro.c's alignment mask computation that
                 causes free list corruption on e.g. 64 bit systems.
+  July 5, 2006  Propagate fix for 64 bit problems with mask equal gates.
