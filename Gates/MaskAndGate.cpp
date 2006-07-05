@@ -389,7 +389,7 @@ CMaskAndGate::inGate(CEvent& rEvent)
   if (!rEvent[m_nId].isValid()) {
     return kfFALSE;		// short circuit if not valid.
   }
-  long value = rEvent[m_nId];
+  UInt_t value = rEvent[m_nId];
   if ((value & m_cCompare) == m_cCompare ) 
     {
       return true;

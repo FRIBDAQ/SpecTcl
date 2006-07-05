@@ -299,6 +299,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.2  2006/07/05 12:51:40  ron-fox
+  Mask gates were not being done in a 64 bit pure way... sign extends
+  were causing evaluations to be incorrect.
+
   Revision 5.1.2.1  2006/06/20 17:29:21  ron-fox
   Fix defect 206: Mask gates were not checking their parameter validity
   ----------------------------------------------------------------------
@@ -400,7 +404,7 @@ CMaskEqualGate::inGate(CEvent& rEvent)
   if (!rEvent[m_nId].isValid()) { // Short circuit if param not defined.
     return kfFALSE;
   }
-  long value = rEvent[m_nId];
+  UInt_t value = rEvent[m_nId];
   if (value == m_cCompare) 
     {
       return true;
