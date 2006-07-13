@@ -311,6 +311,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <vector>
 #include <string.h>
 
+#include <errno.h>
+
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -476,6 +478,7 @@ ChannelCommand::Get(CTCLInterpreter* pInterp, CTCLResult& rResult,
     return TCL_OK;
   else
     return TCL_ERROR;
+  rResult = "BUG - Report that: Control fell through the end of CChannelCommand::Get";
   return TCL_ERROR;
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -508,23 +511,26 @@ UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t
   }
   // The parameters are the spectrum name and a TCL formatted list of
   // channel indices.
-  // Note that while it looks like just a bunch of assignments are going
-  // on below, what's actually happening is that the assignemnt operator
-  // of CTCLObject does conversions to the appropriate destination type.
-  //
+
   string SpectrumName(*pArgs);
   pArgs++;
   CTCLList           ParamList(pInterp, *pArgs);
   pArgs++;
-  CTCLObject         Value;
-  //CTCLObject         IndexObject;  // I commented out lines using the IndexObject
-  //                                    instead of deleting, just in case.
+
   StringArray        StringIndices;
   vector<UInt_t>     NumericIndices;
   Int_t              nIndex;
+
+  const char* Value = *pArgs;	// String representation of the value to set.
+  errno             = 0;
+  UInt_t      nValue= strtoul(Value, NULL, 0);
+  if ((nValue ==0 ) && (errno != 0)) {
+    char message[100];
+    sprintf(message,"%s is not a valid channel value", Value);
+    rResult = message;
+    return TCL_ERROR;
+  }
   
-  Value.Bind(pInterp);		// Spectrum value.
-  Value = *pArgs;
   //IndexObject.Bind(pInterp);		// an index object.
   ParamList.Split(StringIndices);
   for(UInt_t i = 0; i < StringIndices.size(); i++) {
@@ -547,11 +553,6 @@ UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t
   }
   // Now set the channel using the package's facility.
 
-  int nValue = (Int_t)Value;
-  if(nValue < 0) {		// Spectrum values are unsigned.
-    rResult = "Spectrum channel values must be unsigned integers";
-    return TCL_ERROR;
-  }
   CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
   if(rPack.SetChannel(rResult, SpectrumName, NumericIndices, 
 		      (ULong_t)nValue)) {
@@ -560,6 +561,7 @@ UInt_t ChannelCommand::Set(CTCLInterpreter* pInterp, CTCLResult& rResult, UInt_t
   else {
     return TCL_ERROR;
   }
+  rResult = "BUG Report that: Control fell through to the end of CChannelCommand::Set";
   return TCL_ERROR;
 }
 /////////////////////////////////////////////////////////////////////////////

@@ -399,7 +399,7 @@ static void CheckAbort(XtPointer userd, XtIntervalId *id)
 **      This function clears a window whether or not the window is
 **      being drawn to through a pixmap or directly.
 ** Formal Parameters:
-**    Xamine_RefreshContext *ctx:
+**    Xamine_Refreshontext *ctx:
 **       Redraw context.  If the pixmap entry is zero, then the
 **       window is just cleared via XClearWindow.  Otherwise,
 **       we assume the pixmap is as large as the window and
@@ -874,6 +874,7 @@ void Xamine_CancelUpdateTimers()
  */
 void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
 {
+
   XMWidget *pane = (XMWidget *)wid;
   int      ncol;
   long      index;
@@ -885,21 +886,22 @@ void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
    */
   pdb = Xamine_GetPaneDb();
   pane->GetAttribute(XmNuserData, &index);
+
   ncol= Xamine_Panecols();
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
-  
+
   /* Now schedule the work procedure and reschedule us if the spectrum
    ** is still defined: 
    */
   if(pdb->defined(col, row)) {
     if( (pdb->refresh_rate(col,row) != 0)) {
       Xamine_RedrawPane(col, row);
-      pdb->updatetimer(row, col,
-		       XtAppAddTimeOut(XtWidgetToApplicationContext(pane->getid()),
-				       pdb->refresh_rate(col,row)*1000,
-				       Xamine_UpdateTimerRoutine,
-				       (XtPointer)pane));
+                  pdb->updatetimer(row, col,
+             XtAppAddTimeOut(XtWidgetToApplicationContext(pane->getid()),
+      		       pdb->refresh_rate(col,row)*1000,
+      		       Xamine_UpdateTimerRoutine,
+      		       (XtPointer)pane));
     }
     else {
       pdb->updatetimer(row, col, (XtIntervalId)NULL);
@@ -1071,13 +1073,7 @@ Boolean Xamine_Refresh(XtPointer client_data)
     /* If necessary set the scaling: */
     {
       if(!def->manuallyscaled()) {
-	int fs = (Xamine_ComputeScaling(def, ctx->pane));
-	if (fs <= 0) {		// Something bad happened...
-	  // Treat this like the spectrum disappeared:
-	  XClearWindow(display,window);
-	  pdb->refresh_state(ctx->row, ctx->column, rfsh_idle);
-	  goto display_done;
-	}
+	unsigned int fs = (Xamine_ComputeScaling(def, ctx->pane));
 	def->setfsval(fs);
       }
     }
