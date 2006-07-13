@@ -493,11 +493,11 @@ class PChannelF : public Channel, public XPointBatch {
 **         The upper level of the region represented by ny pixels.
 */
 static void PlotLin(Channel *d, Sampler *s, float xw, int nx, int ny,
-		    int base, int maximum)
+		    unsigned int base, unsigned int maximum)
 {
   float channels = xw/2.0;	/* Starting offset from where we're going */
   float fnx      = (float)nx;	/* Number of x pixels in fp... */
-  int   range    = maximum - base + 1;
+  unsigned int   range    = maximum - base + 1;
 
   while(channels < fnx) {
     unsigned long value = s->sample();
@@ -542,7 +542,7 @@ static void PlotLin(Channel *d, Sampler *s, float xw, int nx, int ny,
 **       made to fit into complete decades prior to scaling.
 */
 static void PlotLog(Channel *d, Sampler *s, float xw, int nx, int ny, 
-		    int base, int maximum)
+		    unsigned int base, unsigned int maximum)
 {
   /* Figure out the scaling parameters in logs: */
 
@@ -609,7 +609,7 @@ static void Plot(Channel *d, Sampler *s, float xw, int nx, int ny, win_1d *att)
 {
   /* Figure out the scaling and offset parameters.  */
 
-  int base, maximum;		/* Bottom value and full scale. */
+  unsigned int base, maximum;		/* Bottom value and full scale. */
 
   base = 0;			/* Assume zero bias... */
   if(att->hasfloor()) base = att->getfloor();

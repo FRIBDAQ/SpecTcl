@@ -471,3 +471,6 @@ SpecTcl 3.2-pre1 starts.
                 Work around issue with tclsh 8.4 early where
                 string is integer 0x80000000 (e.g.) returns false..
                 makes creation of mask gates fail.
+  July 13, 2006 Forward propagate fix for defect 213 to this version.
+                Took the easy way out copying all of *.cc,*.h from Display
+                and ChanCommand.cpp from SpecTcl.
