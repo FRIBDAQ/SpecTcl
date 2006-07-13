@@ -397,7 +397,7 @@ class Xamine_Location : public XMForm {
      if(c != counts) {
        counts = c;
        char string[10];
-       sprintf(string, "%6d", c);
+       sprintf(string, "%9u", c);
        countsvalue->SetLabel(string);
      }
    }
