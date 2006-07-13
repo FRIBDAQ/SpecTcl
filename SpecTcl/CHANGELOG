@@ -477,3 +477,18 @@ SpecTcl-3.1-002
      make the check incorrect.
    - Mask gate editor in gui - work around issue in early tcl 8.4
      where [string is integer] is false for e.g. 0x80000000
+   - Address defect 213:  When a 1-d spectrum has counts > 0x80000000,
+     with autoscaling turned on, it updating it/displaying it causes Xamine
+     to crash.
+     o Modify refreshctl.cc - Xamine_Refresh.. return from Xamine_ComputeScaling
+       should be unsigned, and further more checking for it to go negative
+       is stupid and should be removed.
+     o dispwind.h - getceiling and get floor modified to return uint.
+     o plot1d.cc  - Plot : base/max changed to be uint and propagated
+                    into PlotLog, PlotLin (range as well in PlotLin?).
+     o plot2d.cc  - DrawLogSegment, DrawSegment floor/ceil
+                    vars -> uint.
+     o axes.cc    - Ensure that counts axes are always + and that
+                    mapped axes will be right for very large +/- values.
+   - Side piece of defect 213... channel command is not rejecting large unsigned
+     channel values e.g. 0x87654321.
