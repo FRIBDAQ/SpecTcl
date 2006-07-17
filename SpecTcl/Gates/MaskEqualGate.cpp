@@ -299,8 +299,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 /*
   Change Log:
   $Log$
-  Revision 5.3  2006/07/05 12:53:35  ron-fox
-  Propagate 64 bit fix for mask gate types
+  Revision 5.4  2006/07/17 16:58:38  ron-fox
+  Fix issues with bit masks that are shizoid about wether they are 32 or 64 bits
+  wide on 64 bit systems.
 
   Revision 5.1.2.2  2006/07/05 12:51:40  ron-fox
   Mask gates were not being done in a 64 bit pure way... sign extends
