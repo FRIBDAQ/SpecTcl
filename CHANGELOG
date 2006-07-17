@@ -474,3 +474,6 @@ SpecTcl 3.2-pre1 starts.
   July 13, 2006 Forward propagate fix for defect 213 to this version.
                 Took the easy way out copying all of *.cc,*.h from Display
                 and ChanCommand.cpp from SpecTcl.
+  July 17, 2006 Fix bitmask gate inconsistency between mask size in command
+                and in the classes implemebnting the gates....do this
+                by loading the gate mask value into the base class.
