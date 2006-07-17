@@ -492,3 +492,4 @@ SpecTcl-3.1-002
                     mapped axes will be right for very large +/- values.
    - Side piece of defect 213... channel command is not rejecting large unsigned
      channel values e.g. 0x87654321.
+   - Really get mask gates to work correctly.
