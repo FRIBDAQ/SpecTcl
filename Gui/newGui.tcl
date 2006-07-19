@@ -689,7 +689,7 @@ proc updateStatus nms {
         after $nms [list updateStatus $nms];           # Reschedule.
 
         .gui.statusline1 configure -text \
-            [format "Title %s Run Number: %d" $RunTitle $RunNumber]
+            [format "Title %s Run Number: %s" $RunTitle $RunNumber]
 
         set source  [attach -list]
         if  {$LastSequence > 0} {
