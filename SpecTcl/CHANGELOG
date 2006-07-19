@@ -493,3 +493,5 @@ SpecTcl-3.1-002
    - Side piece of defect 213... channel command is not rejecting large unsigned
      channel values e.g. 0x87654321.
    - Really get mask gates to work correctly.
+   - Fix error in newGUI.tcl - if used with Scaler processing,
+     run number could be non decimal (e.g. UNKNOWN).
