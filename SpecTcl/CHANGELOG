@@ -477,3 +477,6 @@ SpecTcl 3.2-pre1 starts.
   July 17, 2006 Fix bitmask gate inconsistency between mask size in command
                 and in the classes implemebnting the gates....do this
                 by loading the gate mask value into the base class.
+  July 19, 2006 Fix error in newGui.tcl. When used with scaler processing,
+                RunNumber could be >Unknown< when formatting the status
+                line.
