@@ -307,6 +307,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "clientops.h"
 #include "mapcoord.h"
 #include "panemgr.h"
+#include <Iostream.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 /*
 ** DEFINE's.  These DEFINE's are used to derive the names of the message
 ** queues used by this module:

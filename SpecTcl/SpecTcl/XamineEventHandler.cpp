@@ -446,6 +446,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
 		    rXamineGate.begin(), // Later we need to map them to 
 		    rXamineGate.end());	 //  Parameter coordinates.
 
+  
   switch(rXamineGate.getGateType()) {
 
   case kgCut1d:

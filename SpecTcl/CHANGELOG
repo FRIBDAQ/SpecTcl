@@ -377,3 +377,4 @@ SpecTcl-3.0-009
                   SEGFLT.
    - Fix erroneous alignment mask computation in allocator.c that could lead
        to Xamine free list corruption
+   - Fix error in wysiwyg printing when zoomed.

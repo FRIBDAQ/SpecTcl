@@ -28,6 +28,7 @@
 #include "XMLabel.h"
 #include "XMPushbutton.h"
 #include "XMText.h"
+#include "dispwind.h"
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
@@ -41,6 +42,8 @@
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
+
+
 
 // This file implements 'printing' via a bitmap capture of the Xamine
 // spectrum area.
@@ -391,14 +394,27 @@ printCapture(XtPointer userd, XtIntervalId* id)
 
   allPanes       theImages;
 
-  for (int pr = 0; pr < paneRows; pr++) {
-    rowOfPanes   rowOfImages;
-    for (int pc = 0; pc < paneCols; pc++) {
-      XMWidget*  w = Xamine_GetFrame(pr, pc);
-      pPaneImage i = capturePane(w);
-      rowOfImages.push_back(i);
+  pane_db*  db = Xamine_GetPaneDb();
+  if (db->iszoomed()) {
+    rowOfPanes images;
+    XMWidget* w = Xamine_GetFrame(Xamine_PaneSelectedrow(),
+				  Xamine_PaneSelectedcol());
+    pPaneImage i = capturePane(w);
+    images.push_back(i);
+    theImages.push_back(images);
+    paneRows = 1;
+    paneCols = 1;
+  }
+  else {
+    for (int pr = 0; pr < paneRows; pr++) {
+      rowOfPanes   rowOfImages;
+      for (int pc = 0; pc < paneCols; pc++) {
+	XMWidget*  w = Xamine_GetFrame(pr, pc);
+	pPaneImage i = capturePane(w);
+	rowOfImages.push_back(i);
+      }
+      theImages.push_back(rowOfImages);
     }
-    theImages.push_back(rowOfImages);
   }
 
   // Figure out the size of the stitched together image.

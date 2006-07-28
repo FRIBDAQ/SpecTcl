@@ -304,6 +304,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "integrate.h"
 #include "dispshare.h"
 #include "dispgrob.h"
+#include <Iostream.h>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 /*
 ** Some compilers such as ultrix have problems including both math.h
 ** and limits.h
