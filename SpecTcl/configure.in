@@ -903,6 +903,7 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	Analysis/Makefile \
 	TreeParam/Makefile \
 	 SpecTcl/Makefile \
+	 radware/Makefile \
 	 contrib/Makefile contrib/scriptable/Makefile \
 	 contrib/calibratedparams/Makefile \
 	 contrib/calibratedparams/Makefile.skel \

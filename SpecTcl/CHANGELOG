@@ -480,3 +480,4 @@ SpecTcl 3.2-pre1 starts.
   July 19, 2006 Fix error in newGui.tcl. When used with scaler processing,
                 RunNumber could be >Unknown< when formatting the status
                 line.
+  July 28, 2006 Fix error in wysiwyg printing  for zoomed displays.
