@@ -495,3 +495,4 @@ SpecTcl-3.1-002
    - Really get mask gates to work correctly.
    - Fix error in newGUI.tcl - if used with Scaler processing,
      run number could be non decimal (e.g. UNKNOWN).
+   - Fix error in wysiwyg prints of zoomed panes.
