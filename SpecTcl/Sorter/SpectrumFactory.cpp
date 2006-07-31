@@ -305,6 +305,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 4.2.2.2  2006/06/28 20:04:46  ron-fox
+    Fix defect 211: Creating spectrum of type g1 with empty parameter list segfaults.
+
+    Revision 4.2.2.1  2004/02/02 21:47:08  ron-fox
+    *** empty log message ***
+
     Revision 4.2  2003/04/01 19:53:46  ron-fox
     Support for Real valued parameters and spectra with arbitrary binnings.
 
@@ -492,7 +498,7 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
       UInt_t nHigh = (UInt_t)((*pHighs)[0]);
       if(nLow == nHigh) {
 	nLow = 0;
-	nHigh= rChannels[0] -1 ;
+	nHigh= rChannels[0];
       }
       return CreateBit(rName, eDataType,
 		       ParameterList[0], nLow, nHigh);
@@ -1471,6 +1477,11 @@ CSpectrumFactory::Require(DataType_t          dType,
 	    CSpectrumFactoryException::keBadParameterCount,
 	    "Checking parameter counts of keG2D in CSpectrumFactory::Require");
   }
+  if (sType == keG1D && nParams < 1) {
+    throw CSpectrumFactoryException(dType, sType, rName,
+				    CSpectrumFactoryException::keBadParameterCount,
+				    "Checking keG1D parameter count in CSpectrumFactory::Require - need at least one parameters");
+  }
 
   if(rResolutions.size() != nResolutions) { // Incorrect # of resolutions.
     throw CSpectrumFactoryException(dType, sType, rName,
@@ -1553,7 +1564,7 @@ Float_t
 CSpectrumFactory::DefaultAxisLength(UInt_t nChannels, CParameter& rParam)
 {
   if(rParam.hasScale()) {
-    return (Float_t)((1 << rParam.getScale()) - 1); // param governs mapping.
+    return (Float_t)((1 << rParam.getScale())); // param governs mapping.
   }
   else {
     return (Float_t)(nChannels - 1); // The axis governs the mapping.

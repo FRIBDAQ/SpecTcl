@@ -299,6 +299,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change log:
   $Log$
+  Revision 4.4.2.1  2004/02/02 21:47:08  ron-fox
+  *** empty log message ***
+
   Revision 4.4  2003/10/24 14:43:28  ron-fox
   Bounds check parameter ids against the size of
   of the event.
@@ -355,9 +358,9 @@ CSpectrum2DB::CSpectrum2DB(const std::string& rName, UInt_t nId,
 			    UInt_t nXScale, UInt_t nYScale) :
   CSpectrum(rName, nId,
 	    CreateAxisVector(rXParameter, 
-			     nXScale, 0.0, (Float_t)(nXScale-1),
+			     nXScale, 0.0, (Float_t)(nXScale),
 			     rYParameter, 
-			     nYScale, 0.0, (Float_t)(nYScale-1))),
+			     nYScale, 0.0, (Float_t)(nYScale))),
   m_nXScale(nXScale),
   m_nYScale(nYScale),
   m_nXParameter(rXParameter.getNumber()),

@@ -295,6 +295,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 4.6.2.1  2006/01/04 20:52:39  ron-fox
+   Fix some makefile errors involving Etc.
+
    Revision 4.6  2003/11/07 21:32:17  ron-fox
    Unconditionally include config.h
 
@@ -304,7 +307,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
    Revision 4.4  2003/04/02 18:35:24  ron-fox
    Added support for central Xamine.Default files that live in any of:
-   $SpecTclHome/Etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
+   $SpecTclHome/etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
 
 */
 

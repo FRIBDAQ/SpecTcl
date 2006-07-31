@@ -293,6 +293,7 @@ static const char* Copyright = "(C) Copyright Ron Fox 2002, All rights reserved"
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
 #include <stdio.h>
+#include <errno.h>
 /*!
    Constructor.  Creates an integer configuration parameter.
    This version of the constructor creates a parameter that
@@ -441,10 +442,8 @@ CIntConfigParam::SetValue(CTCLInterpreter& rInterp,
                           const char* pValue)  
 {
   Long_t nNewValue;
-  try {
-    nNewValue = rInterp.ExprLong(pValue);
-  }
-  catch (...) {
+  long long llnewvalue = strtoll(pValue, NULL, 0);
+  if((llnewvalue == 0) && (errno == EINVAL)) {
     string Result; 
     Result += "Attempt to configure integer parameter ";
     Result += getSwitch();
@@ -452,6 +451,9 @@ CIntConfigParam::SetValue(CTCLInterpreter& rInterp,
     Result += pValue;
     rResult.AppendElement(Result);
     return TCL_ERROR;
+  }
+  else {
+    nNewValue = llnewvalue;
   }
   if(m_fCheckrange) {
     if((nNewValue < m_nLow) || 

@@ -279,6 +279,10 @@ DAMAGES.
 /* 
    Change log:
    $Log$
+   Revision 4.2.2.1  2004/02/03 21:31:43  ron-fox
+   Back port gate -delete -id fix (Bug 75).
+   Also update treeparam from Daniel
+
    Revision 4.2  2003/04/15 19:25:21  ron-fox
    To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
 
@@ -317,6 +321,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 4.2.2.1  2004/02/03 21:31:43  ron-fox
+  Back port gate -delete -id fix (Bug 75).
+  Also update treeparam from Daniel
+
   Revision 4.2  2003/04/15 19:25:21  ron-fox
   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
 
@@ -786,6 +794,8 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   CGatePackage& Package((CGatePackage&)getMyPackage());
   if(MatchSwitches(*pArgs) == id) { // Remaining list is a set of ids...
+    nArgs--;
+    pArgs++;
     vector<UInt_t> Ids;
     Bool_t ConvertFailed = kfFALSE;
     for(UInt_t i = 0; i < nArgs; i++) {
@@ -806,7 +816,7 @@ CGateCommand::DeleteGates(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	error.AppendElement(" Gate ID cannot be negative");
 	error.EndSublist();
 	rResult += (const char*)error;
-	ConvertFailed = kfTRUE;
+	ConvertFailed = kfFALSE;
       }
       else {			// n  is a good gate id:
 	Ids.push_back((UInt_t)n);
