@@ -378,3 +378,6 @@ SpecTcl-3.0-009
    - Fix erroneous alignment mask computation in allocator.c that could lead
        to Xamine free list corruption
    - Fix error in wysiwyg printing when zoomed.
+   - Fix an off by one error in scaling 1-d lineary channels.  For small scales
+     and channel values the hieght of the channel was visibly lower than the 
+     corresponding tick mark.
