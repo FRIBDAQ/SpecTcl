@@ -295,6 +295,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change log:
   $Log$
+  Revision 4.5.2.1  2004/02/02 21:47:08  ron-fox
+  *** empty log message ***
+
   Revision 4.5  2003/10/24 14:43:28  ron-fox
   Bounds check parameter ids against the size of
   of the event.
@@ -364,9 +367,9 @@ CSpectrum2DW::CSpectrum2DW(const std::string& rName, UInt_t nId,
   m_nYParameter(rYParameter.getNumber())
 
 {
-  AddAxis(nXScale, 0.0, (Float_t)(nXScale -1), 
+  AddAxis(nXScale, 0.0, (Float_t)(nXScale), 
 	  rXParameter.getUnits());
-  AddAxis(nYScale, 0.0, (Float_t)(nYScale -1), 
+  AddAxis(nYScale, 0.0, (Float_t)(nYScale), 
 	  rYParameter.getUnits());
   CreateStorage();
 }

@@ -3,7 +3,7 @@ INCLUDES = -I. -I../Utility -I../NSCLException -I../EventSource -I../TCL \
 	-I../SpecTcl -I../Filter \
 	@TCL_FLAGS@ @XINCLUDES@
 
-LDFLAGS = @TCL_LDFLAGS@
+AM_LDFLAGS = @TCL_LDFLAGS@
 
 lib_LTLIBRARIES = libAnalysis.la
 

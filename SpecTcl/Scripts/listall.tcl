@@ -296,6 +296,7 @@ proc Speclist {{slist ""} {parformat down}} {
     if {$slist == "" } {
 	set slist [spectrum -list]
     }
+
 #                   name    id   type dty pars   lows his  chans
     set titleformat  "%-16s %-5s %-5s %-5s %-16s %-5s %-5s %-5s\n"
     set formatstring "%-16s %-5s %-5s %-5s %-16s %-5s %-5s %-5s\n"
@@ -304,6 +305,15 @@ proc Speclist {{slist ""} {parformat down}} {
     append output $titleline
     
     # Iterate over the spectra:
+    #
+    #  If slist is a single spectrum, it's going to fake us out unless we
+    # do the stuff below to encapsulate it all in a list:
+    #
+    set first [lindex $slist 0]
+    if {[llength $first] == 1} { ;	# This smells like a single spectrum.
+	set first "{$slist}"
+	set slist $first
+    }
 
     foreach spectrum $slist {
 	set id     [lindex $spectrum 0]
@@ -316,6 +326,7 @@ proc Speclist {{slist ""} {parformat down}} {
 	set npars  [llength $params]
 	set naxes  [llength $axes]
 	set nlines [expr ($npars > $naxes) ? $npars : $naxes]
+
 
 	# Now format the lines:
 

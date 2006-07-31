@@ -361,6 +361,29 @@ extern grobj_database Xamine_DefaultGateDatabase;
 #define DEFAULT_TEMPFILE "./Xamine_tempprint.out"
 #define DEFAULT_PRINTCMD "lpr -Pu1_color_print";
 
+// Limit:
+//   Enforce hi/lo/min limits.
+//   Channels with counts above or below hi/lo respectively are forced to
+//   0, nonzero counts are foreced tob e at least min (so they will be visible).
+//
+static double Limit(double value,int  hi,int  lo,int min)
+{
+
+  // Enforce the cutoffs.
+
+  if(lo && (value < (double)lo)) {
+    value = 0.0;
+  }
+  if(hi && (value > (double)hi)) {
+    value = 0.0;
+  }
+
+  if((value != 0.0) && (value < (double)min)) {
+    value = min;
+  }
+  return value;
+}
+
 /*
   FindConvert
     Locates the convert command in the file system. This is for converting
@@ -489,7 +512,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 		     XtPointer Call, win_attributed* pAttributes, 
 		     string sTitle, int nRows=1, int nCols=1, 
 		     int nSpectrumCount=1, int nCurrSpec=1, int nPageNum=1,
-		     char* cmd_file = (char*) NULL)
+		     char* cmd_file)
 {
   // First we get the spectrum number that we are dealing with...
   int nSpectrum = pAttributes->spectrum();
@@ -519,7 +542,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
   int nCounts;                             // # of counts in a channel
   int nFullScale;                          // fullscale value
   int nFloor = ((pAttributes->hasfloor()) ? pAttributes->getfloor() : 0);
-  int nCeiling = ((pAttributes->hasceiling()) ? pAttributes->getceiling() : 0);
+  int nCeiling = ((pAttributes->hasceiling()) ? pAttributes->getceiling() : pAttributes->getfsval());
   int nIncr;                               // color scale increments
   int nFontSize = 12;                      // the font size to draw in
   int fCropped = 0;                        // true if image needs to be cropped
@@ -674,9 +697,9 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     int nXRange = (nXHighLimit - nXLowLimit + 1);
     int nYRange = (nYHighLimit - nYLowLimit + 1);
     if(pAttrib->ismapped()) {
-      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nXHighLimit-1) -
+      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nXHighLimit - 1) - 
 	Xamine_XChanToMapped(nSpectrum, nXLowLimit);
-      float fp_YRange = Xamine_YChanToMapped(nSpectrum, nYHighLimit-1) -
+      float fp_YRange = Xamine_YChanToMapped(nSpectrum, nYHighLimit - 1) - 
 	Xamine_YChanToMapped(nSpectrum, nYLowLimit);
       nXTickInterval = Xamine_getMappedTickInterval(fp_XRange, (nx-xbase+1));
       nYTickInterval = Xamine_getMappedTickInterval(fp_YRange, (ybase+1));
@@ -813,26 +836,32 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       float YMappedHigh = Xamine_YChanToMapped(nSpectrum, 
 					       nYLowLimit+nYRange-reso);
       
+      float nAxisLow, nAxisHigh;
       if(pAttrib->ismapped()) {
 	float inc = reso * ((XMappedHigh - XMappedLow) / (nXRange-reso));
 	fStr << "set x grid " << XMappedLow << " " << XMappedHigh
 	     << " " << inc << endl;
 	fStr << "set x axis " << XMappedLow << " " << XMappedHigh << " ";
+	nAxisLow = XMappedLow;
+	nAxisHigh= XMappedHigh;
       }
       else {
 	fStr << "set x grid " << nXLowLimit << " "
 	     << nXLowLimit+nXRange-reso << " " << reso << endl;
 	fStr << "set x axis " << nXLowLimit << " " << nXAxisMax << " ";
+	nAxisLow = nXLowLimit;
+	nAxisHigh= nXAxisMax;
       }
 
+      float AxisChannels = (nAxisHigh - nAxisLow+1);
       switch(Options->gettics()) {
       case deflt:
-	if(nXTickInterval >= (nXHighLimit - nXLowLimit-1)) nXTickInterval = 0;
+	if(nXTickInterval >= AxisChannels) nXTickInterval = 0;
 	if(nXTickInterval) fStr << nXTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
-	if(XMajor >= (nXHighLimit - nXLowLimit-1)) XMajor = 0;
+	if(XMajor >= AxisChannels) XMajor = 0;
 	if(XMajor) {
 	  fStr << XMajor << " ";
 	  if(XMinor) fStr << XMinor << endl;
@@ -849,21 +878,26 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	     << " " << inc << endl;
 	fStr << "set y format %.1f\n";
 	fStr << "set y axis " << YMappedLow << " " << YMappedHigh << " ";
+	nAxisLow = YMappedLow;
+	nAxisHigh= YMappedHigh;
       }
       else {
 	fStr << "set y grid " << nYLowLimit << " "
 	     << nYLowLimit+nYRange-reso << " " << reso << endl;
 	fStr << "set y axis " << nYLowLimit << " " << nYAxisMax << " ";
+	nAxisLow = nYLowLimit;
+	nAxisHigh=nYAxisMax;
       }
 
+      AxisChannels = (nAxisHigh - nAxisLow+1);
       switch(Options->gettics()) {
       case deflt:
-	if(nYTickInterval >= (nYHighLimit - nYLowLimit-1)) nYTickInterval = 0;
+	if(nYTickInterval >= AxisChannels) nYTickInterval = 0;
 	if(nYTickInterval) fStr << nYTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
-	if(YMajor >= (nYHighLimit - nYLowLimit-1)) YMajor = 0;
+	if(YMajor >= AxisChannels) YMajor = 0;
 	if(YMajor) {
 	  fStr << YMajor << " ";
 	  if(YMinor) fStr << YMinor << endl;
@@ -979,12 +1013,12 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       double nLogFS = (double)log10(nFullScale);
       int    newFS  = (int)pow(10, ((int)nLogFS)+1);
       double nLogMax = log10(nMaxCounts);
-      int hi_range = nFullScale, 
+      double hi_range = nFullScale, 
 	lo_range = 0;
-      if(pAttrib->islog()) hi_range = (int)nLogFS;
-      if(nFloor) lo_range = nFloor;
-      if(nCeiling) hi_range = nCeiling;
-
+      //      if(pAttrib->islog()) hi_range = (int)nLogFS;
+      if(pAttrib->hasfloor()) lo_range = nFloor;
+      if(pAttrib->hasceiling()) hi_range = (double)nCeiling;
+      if(pAttrib->islog()) hi_range = log10(hi_range);
       // Set the image range so Gri knows what colors to use...
       fStr << "set image range " << lo_range << " " << hi_range << endl;
 
@@ -1169,7 +1203,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Set the low and high limits based on the expansion characteristics...
     if(pAttrib->isexpanded()) {
       nLowLimit  = pAttrib->lowlimit();
-      nHighLimit = pAttrib->highlimit();
+      nHighLimit = pAttrib->highlimit() +1;
     }
 
     // Get the pixel limits so we can get the tick mark intervals...
@@ -1181,7 +1215,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 
     // Get the tick interval for the hardcopy...
     if(pAttrib->ismapped()) {
-      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nHighLimit-1) -
+      float fp_XRange = Xamine_XChanToMapped(nSpectrum, nHighLimit) - // used to have: -1)
 	Xamine_XChanToMapped(nSpectrum, nLowLimit);
       nXTickInterval = Xamine_getMappedTickInterval(fp_XRange, (nx-xbase+1));
       if((nSpectrumCount > 1) && ((fp_XRange / nXTickInterval) >= 7)) {
@@ -1224,7 +1258,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // If expanded, decrement the high limit to avoid trying to get a channel
     // that isn't there (since we're starting at channel zero).
     if(!(pAttrib->isexpanded())) {
-      nHighLimit--;
+      nHighLimit;		// was --.
     }
 
     // Now get the superpositions...
@@ -1318,8 +1352,9 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	fStr << "read columns x y\n";
       }
 
-      // Get the points and store them in the command file
-      nMaxCounts = GrabPoints1d(nLowLimit, nHighLimit, &nMaxChan, nHighCnt,
+      // Get the points and store them in the command file nHighLimit-1 because
+      // the axis goes through nHighLimit to display channels 0-nHighLimit-1.
+      nMaxCounts = GrabPoints1d(nLowLimit, nHighLimit-1, &nMaxChan, nHighCnt,
 				nFloor, nCeiling, pAttrib, fStr);
     }
 
@@ -1351,11 +1386,15 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       // For each superposed spectrum, get the points and store them in the
       // command file, each in it's own column.
       for(int i = nLowLimit; i <= nHighLimit; i++) {
-	if(pAttrib->ismapped())
+	if(pAttrib->ismapped()) {
 	  fStr << Xamine_XChanToMapped(specID, i) << " ";
-	else
+	}
+	else {
 	  fStr << i << " ";
+	}
+	int Counts[nSuperposCount+1];
 	for(int n = 0; n <= nSuperposCount; n++) {
+	  specID  = aSpecIds[n];
 	  nCounts = xamine_shared->getchannel(specID, i);
 	  if((nCounts > nMaxCounts) && (specID == nSpectrum)) {
 	    nMaxCounts = nCounts;
@@ -1367,23 +1406,27 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	    if(nCounts < nFloor) nCounts = nFloor;
 	  if(nCeiling)
 	    if(nCounts > nCeiling) nCounts = nCeiling;
-	  
+	  Counts[n] = nCounts;
 	  fStr << nCounts << " ";
-	  if(pAttrib->getrend() == histogram) { 
-	    if(pAttrib->ismapped()) {
-	      fStr << Xamine_XChanToMapped(nSpectrum, (i+1)) << " " 
-		   << nCounts << endl;
-	    }
-	    else {
-	      fStr << i+1 << " " << nCounts << endl;
-	    }
-	  }
-	  if(p > nSuperposCount)
-	    p = 0;
-	  specID = aSpecIds[++p];
+
 	}
+
 	fStr << endl;
-	specID = nSpectrum;
+	if(pAttrib->getrend() == histogram) { 
+	  if(pAttrib->ismapped()) {
+	    fStr << Xamine_XChanToMapped(nSpectrum, (i+1)) << " " ;
+
+	  }
+	  else {
+	    fStr << i+1 <<  " ";
+	  }
+	  for (int j = 0; j <= nSuperposCount; j++) {
+	    fStr << Counts[j] << " ";
+	  }
+	  fStr << endl;
+	
+	}
+
       }
       fStr << endl;
       
@@ -1439,28 +1482,31 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 
     // Show ticks. If the axes are flipped, we need to set the low and
     // high limits on the y-axis. Otherwise, set them on the x-axis...
+    
+    float fLowlimit = (float)nLowLimit;
+    float fHilimit  = (float)nHighLimit;
+    if(pAttrib->ismapped()) {
+      fLowlimit = Xamine_XChanToMapped(nSpectrum, nLowLimit);
+      fHilimit  = Xamine_XChanToMapped(nSpectrum, nHighLimit);
+    }
+
     if(pAttrib->showticks()) {
       char first, second;
       first  = (isFlipped) ? 'y' : 'x';
       second = (isFlipped) ? 'x' : 'y';
 
-      // The tics can be user specified or the Xamine tics will be used...
-      if(pAttrib->ismapped()) {
-	fStr << "set " << first << " axis " << 
-	  Xamine_XChanToMapped(nSpectrum, nLowLimit) << " " <<
-	  Xamine_XChanToMapped(nSpectrum, nHighLimit);
-      }
-      else 
-	fStr << "set " << first << " axis " << nLowLimit << " " << nHighLimit;
+      fStr << "set " << first << " axis " <<
+	fLowlimit << " " << fHilimit;
+
 
       switch(Options->gettics()) {
       case deflt:
-	if(nXTickInterval >= (nHighLimit - nLowLimit)) nXTickInterval = 0;
+	if( fabsf(nXTickInterval) >= fabsf(fHilimit - fLowlimit)) nXTickInterval = 0;
 	if(nXTickInterval) fStr << " " << nXTickInterval << endl;
 	else fStr << endl;
 	break;
       case user:
-	if(XMajor >= (nHighLimit - nLowLimit)) XMajor = 0;
+	if(fabs(XMajor) >= fabsf(nHighLimit - nLowLimit)) XMajor = 0.0;
 	if(XMajor) {
 	  fStr << " " << XMajor << " ";
 	  if(XMinor) fStr << XMinor << endl;
@@ -1762,15 +1808,15 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Send to either the printer, or to file...
     switch(Options->getdest()) {
     case toprinter: {
-      sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps %s; ", 
-	      gri_exec, gri_cmd_dir, cmd_file);
+      sprintf(GriCmd, "%s  -c 0 -no_cmd_in_ps %s; ", 
+	      gri_exec,  cmd_file);
       char pcmd[50];
       sprintf(pcmd, "%s.ps", cmd_root.c_str());
       sprintf(buf1, printcmd, pcmd);
       string s(buf1);
-      sprintf(buf, "%s; rm -f %s.ps; rm -f %s; rm -f %s", 
-	      s.c_str(), cmd_root.c_str(), cmd_file, cmd_root.c_str());
-      strcat(GriCmd, buf);
+      //      sprintf(buf, "%s; rm -f %s.ps; rm -f %s; rm -f %s", 
+      //	      s.c_str(), cmd_root.c_str(), cmd_file, cmd_root.c_str());
+      strcat(GriCmd, buf1);
       break;
     }
     case tofile: {
@@ -1806,8 +1852,8 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       else
 	sFilename.append(".ps");
       
-      sprintf(GriCmd, "%s -directory %s -c 0 -no_cmd_in_ps %s; ", 
-	      gri_exec, gri_cmd_dir, cmd_file);
+      sprintf(GriCmd, "%s  -c 0 -no_cmd_in_ps %s; ", 
+	      gri_exec,  cmd_file);
       
       // If postscript requested, don't add the following:
       char buf[100];
@@ -1931,8 +1977,10 @@ Xamine_getTickInterval(int nRange, int nPixels)
     a user mapping has been applied to the spectrum.
 */
 float 
-Xamine_getMappedTickInterval(float paramrange, int pixels)
+Xamine_getMappedTickInterval(float sparamrange, int pixels)
 {
+  float paramrange = fabsf(sparamrange);
+
   /*  Compute the 'tight' packed tick interval... */
   int    tickpix = pixels/XAMINE_TICK_MAXCOUNT;        /* Pixels per tick    */
   int    ntick   = XAMINE_MAPPED_TICK_MAXCOUNT;        /* Number of ticks    */
@@ -1947,26 +1995,26 @@ Xamine_getMappedTickInterval(float paramrange, int pixels)
 
   // If the interval is already a nice one, return it
   if((tickint == 10.0) || (tickint == 5.0) || (tickint == 2.0))
-    return tickint;
+    return tickint * (sparamrange/paramrange); // Put sign back in.
   else if((tickint == (int)tickint) && ((int)tickint % 10 == 0) && 
 	  (ntick < 10) && (ntick >= 6))
-    return tickint;
+    return tickint * (sparamrange/paramrange); // Put sign back in.
   else if((tickint == (int)tickint) && ((int)tickint % 5 == 0) && 
 	  (ntick < 10) && (ntick >= 6))
-    return tickint;
+    return tickint  * (sparamrange/paramrange); // Put sign back in.
   else if((tickint == (int)tickint) && ((int)tickint % 2 == 0) && 
 	  (ntick < 10) && (ntick >= 6))
-    return tickint;
+    return tickint  * (sparamrange/paramrange); // Put sign back in.
 
   // Otherwise, see if we can make it a nice one the easy way
   if((paramrange / 10.0 >= 6) && (paramrange / 10.0 < 10)) {
-    return 10.0;
+    return 10.0  * (sparamrange/paramrange); // Put sign back in.
   }
   else if((paramrange / 5.0 >= 6) && (paramrange / 5.0 < 10)) {
-    return 5.0;
+    return 5.0  * (sparamrange/paramrange); // Put sign back in.
   }
   else if((paramrange / 2.0 >= 6) && (paramrange / 2.0 < 10)) {
-    return 2.0;
+    return 2.0  * (sparamrange/paramrange); // Put sign back in.
   }
 
   // We have to compare the tick mantissa to a percentage of the parameter
@@ -1992,7 +2040,7 @@ Xamine_getMappedTickInterval(float paramrange, int pixels)
     tickint = tempint;
   }
 
-  return tickint;
+  return tickint  * (sparamrange/paramrange); // Put sign back in.
 }
 
 /*
@@ -2404,13 +2452,15 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
 		 ofstream& fStr, win_2d* pAttrib)
 {
   int nSpectrum = pAttrib->spectrum();
-  int nCounts = 0;
+  double nCounts = 0.0;
   int x_index = nXLowLimit;      // The x-value to start at (low)
   int y_index = nYHighLimit-1;   // The y-value to start at (high)
   if(pAttrib->isexpanded()) y_index++;
   int hival = 0;
-  int sum   = 0;
+  double sum   = 0.0;
   int nMaxCounts;
+  int nCountRange = (nCeiling - nFloor) + 1;
+  int n1Percent   = 100/nCountRange+1;
   reduction_mode sr = pAttrib->getreduction();
 
   // Here is where we get the points and store them. The format is that of
@@ -2421,6 +2471,7 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
   // The reduction is performed by us to avoid losing any single channel
   // peaks that may be of importance.
   //
+  
   for(int i = 0; i < nYRange/reso; i++) {
     for(int j = 0; j < nXRange*reso; j++) {
       
@@ -2439,21 +2490,21 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
       switch(reso) {
       case 1: {
 	if(pAttrib->isflipped()) 
-	  nCounts = xamine_shared->getchannel(nSpectrum, y_index, x_index);
+	  nCounts = (double)xamine_shared->getchannel(nSpectrum, y_index, x_index);
 	else 
-	  nCounts = xamine_shared->getchannel(nSpectrum, x_index, y_index);
+	  nCounts = (double)xamine_shared->getchannel(nSpectrum, x_index, y_index);
 	  
 	// If the axis is a log scale, we can't have any zeros...
-	if(nCounts == 0 && pAttrib->islog()) nCounts = 1;
+	nCounts = Limit(nCounts,  nCeiling, nFloor, n1Percent);
 	if(nCounts > nMaxCounts) {
-	  nMaxCounts = nCounts;  // the highest count
+	  nMaxCounts = (int)nCounts;  // the highest count
 	  *nXMaxChan  = j;        // the x channel of the highest count
 	  *nYMaxChan  = i;        // the y channel of the highest count
 	}
-	if(nFloor)
-	  if(nCounts < nFloor) nCounts = 0;
-	if(nCeiling)
-	  if(nCounts > nCeiling) nCounts = 0;
+
+	if((nCounts == 1.0) && (pAttrib->islog())) nCounts = 1.5;
+	if(nCounts == 0.0 && pAttrib->islog()) nCounts = 1.0;
+
 	fStr << nCounts << " ";
 	x_index++;
 	break;
@@ -2477,10 +2528,10 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
 	  *nXMaxChan  = x_index;  // the x channel of the highest count
 	  *nYMaxChan  = y_index;  // the y channel of the highest count
 	}
-	if(nFloor)
-	  if(cnt < nFloor) cnt = 0;
-	if(nCeiling)
-	  if(cnt > nCeiling) cnt = 0;
+	//	if(nFloor)
+	//        if(cnt < nFloor) cnt = 0;
+	//   if(nCeiling)
+	//      if(cnt > nCeiling) cnt = 0;
 	sum += cnt;
 	  
 	// Maintain the hi value for sampled reduction method
@@ -2490,16 +2541,17 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
 	  switch(sr) {
 	    // Summing means adding all values within this box
 	  case summed:
+	    sum = Limit(sum,  nCeiling, nFloor, n1Percent);
 	    fStr << sum << " ";
 	    break;
 	    // Averaging is the same as summing, but we divide by the
 	    // number of pixels in this box
 	  case averaged:
-	    fStr << (sum/(reso*reso)) << " ";
+	    fStr << Limit((sum/(reso*reso)), nCeiling, nFloor,  n1Percent) << " ";
 	    break;
 	    // Sampling means taking the maximum value in this box
 	  case sampled:
-	    fStr << hival << " ";
+	    fStr << Limit(hival, nCeiling,  nFloor,  n1Percent)  << " ";
 	  }
 	  sum = 0;
 	  hival = 0;
@@ -2533,24 +2585,25 @@ int GrabPoints1d(int nLowLimit, int nHighLimit, int* nMaxChan,
 {
   int nSpectrum = pAttrib->spectrum();
   int specID = nSpectrum;
-  int nCounts = 0;
+  double nCounts = 0.0;
   int nMaxCounts;
   for(int i = nLowLimit; i <= nHighLimit; i++) {
     if(pAttrib->ismapped())
       fStr << Xamine_XChanToMapped(nSpectrum, i) << " ";
     else
       fStr << i << " ";
-    nCounts = xamine_shared->getchannel(specID, i);
-    if((nCounts > nMaxCounts) && (specID == nSpectrum)) {
-      nMaxCounts = nCounts;
+    nCounts = (double)xamine_shared->getchannel(specID, i);
+    if((nCounts > (double)nMaxCounts) && (specID == nSpectrum)) {
+      nMaxCounts = (int)nCounts;
       *nMaxChan   = i;
     }
-    if(nCounts > nHighCnt) nCounts = nHighCnt;
+    if(nCounts > (double)nHighCnt) nCounts = (double)nHighCnt;
+    if((pAttrib->islog()) && (nCounts == 1.0)) nCounts = 1.5;
     if(pAttrib->islog() && nCounts == 0) nCounts = 1;
     if(nFloor)
-      if(nCounts < nFloor) nCounts = nFloor;
+      if(nCounts < nFloor) nCounts = (double)nFloor;
     if(nCeiling)
-      if(nCounts > nCeiling) nCounts = nCeiling;
+      if(nCounts > (double)nCeiling) nCounts = (double)nCeiling;
     fStr << nCounts << endl;
     if(pAttrib->getrend() == histogram) { 
       if(pAttrib->ismapped()) {

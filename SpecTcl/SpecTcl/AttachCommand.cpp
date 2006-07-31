@@ -358,7 +358,7 @@ struct OptionInfo {
   string     Connection;	// Connection string.
   OptionInfo() {		// Construct with default parameters.
     eSource = eUnspecified;
-    Format  = "nscl";
+    Format  = "unchanged";
     nBytes  = knDefaultBufferSize;
     Connection = "";
   }
@@ -492,17 +492,18 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // decoders like the -format switch on the sread/swrite commands.
 
   
+  CBufferDecoder* oldDecoder = gpBufferDecoder;
+  
   if (options.Format == string("nscl")) {
- 
-   delete gpBufferDecoder;	// Deletes of null is no-op.
-    gpBufferDecoder = new CNSCLBufferDecoder;
+     gpBufferDecoder = new CNSCLBufferDecoder;
 
-  } else 
-    if (options.Format == string("filter")) {
+  } else  if (options.Format == string("filter")) {
 
-    delete gpBufferDecoder;
     gpBufferDecoder = new CFilterBufferDecoder;
-
+  } else if (options.Format == string("unchanged")) {
+    ;				// Leave everything well enough alone!!!
+                                // This is necessary to support 
+                                // external formatters and is the default. 
   } else {			// Bad format.
 
     rResult  = "Unrecognized format type: ";
@@ -512,8 +513,10 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_ERROR;
 
   }
-  if(gpAnalyzer) {
+  
+  if(gpAnalyzer && (oldDecoder != gpBufferDecoder)) {
     gpAnalyzer->AttachDecoder(*gpBufferDecoder);
+    delete oldDecoder;
   }
 
   // It's now up to the individual attachers to figure out what's

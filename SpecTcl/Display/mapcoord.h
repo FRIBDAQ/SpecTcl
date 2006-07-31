@@ -297,8 +297,8 @@ DAMAGES.
 
 int Xamine_XMappedToChan(int specno, float value);
 int Xamine_YMappedToChan(int specno, float value);
-float Xamine_XChanToMapped(int specno, int chan);
-float Xamine_YChanToMapped(int specno, int chan);
+float Xamine_XChanToMapped(int specno, float chan);
+float Xamine_YChanToMapped(int specno, float chan);
 
 #endif
 

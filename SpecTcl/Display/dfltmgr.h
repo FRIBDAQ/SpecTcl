@@ -294,13 +294,16 @@ DAMAGES.
 /* 
    Change log:
    $Log$
+   Revision 4.3.2.1  2006/01/04 20:52:39  ron-fox
+   Fix some makefile errors involving Etc.
+
    Revision 4.3  2003/08/25 16:25:30  ron-fox
    Initial starting point for merge with filtering -- this probably does not
    generate a goo spectcl build.
 
    Revision 4.2  2003/04/02 18:35:25  ron-fox
    Added support for central Xamine.Default files that live in any of:
-   $SpecTclHome/Etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
+   $SpecTclHome/etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
 
 */
 

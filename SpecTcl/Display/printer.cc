@@ -290,6 +290,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
+ Revision 4.14.2.1  2006/05/23 13:31:06  ron-fox
+ - Fix defect 195 - Not so cleanly as for later versions... make
+   gri unconditionally output a %%!Ps-Adobe header rather than one with
+   the EPSF flag.  This allows multipage output to function more cleanly.
+   Users should upgrade to later versions of SpecTcl as soon as possible.
+ - Fix Defect 196 - printer.cc - the print setup dialog's text widget for
+   accepting the print command evidently was duplicating another widget name.
+   Changed the name of the widget in printer.cc
+
  Revision 4.14  2003/08/25 16:25:30  ron-fox
  Initial starting point for merge with filtering -- this probably does not
  generate a goo spectcl build.
@@ -1174,7 +1183,7 @@ SetupPrintDialog::SetupPrintDialog(char *name, XMWidget *w, char *title) :
 
   XtSetArg(chars[3], XmNtopWidget, prtcmd_label->getid());
   XtSetArg(chars[4], XmNbottomAttachment, XmATTACH_FORM);
-  prtcmd = new XMText("Command", *work_area, 1, 32, chars, 5);
+  prtcmd = new XMText("setuprintcommand", *work_area, 1, 32, chars, 5);
 
   /* Last but not least, remove the Apply button: */
 
