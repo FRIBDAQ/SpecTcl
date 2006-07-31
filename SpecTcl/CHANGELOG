@@ -481,3 +481,6 @@ SpecTcl 3.2-pre1 starts.
                 RunNumber could be >Unknown< when formatting the status
                 line.
   July 28, 2006 Fix error in wysiwyg printing  for zoomed displays.
+  July 31, 2006 Fix off by one error in scaling.cc - for small scale ranges,
+                and small channel values, the channel height was visibly
+                lower than the corresponding tick mark.
