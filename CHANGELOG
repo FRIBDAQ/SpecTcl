@@ -496,3 +496,5 @@ SpecTcl-3.1-002
    - Fix error in newGUI.tcl - if used with Scaler processing,
      run number could be non decimal (e.g. UNKNOWN).
    - Fix error in wysiwyg prints of zoomed panes.
+   - Fix Y height error in plotting linear 1-d channels.. an off by 1 error only
+     visible for a relatively small number of counts.
