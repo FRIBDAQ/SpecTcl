@@ -486,3 +486,7 @@ SpecTcl 3.2-pre1 starts.
                 lower than the corresponding tick mark.
   August 8, 2006 Enhancement 194 - increase precision in output of 
                  integrations.
+  August 15,2006 Enhancement 205 - Limited the length of the attach spec on the
+                GUI status line to at most 50 chars with the middle ones
+                replaced by ...  this prevents the window from becoming
+                >very large< for e.g. cluster file analysis.

@@ -35,6 +35,7 @@ package require applygate
 package require datasource
 package require filtercontrol
 
+set LargestSource 50
 
 
 #--------------- Utility functions -------------------------
@@ -680,6 +681,7 @@ proc updateStatus nms {
     global RunState
     global BuffersAnalyzed
     global LastSequence
+    global LargestSource
 
     # It's always possible the user destroyed the window so conditionalize
     # the update on the window's existence.
@@ -702,6 +704,24 @@ proc updateStatus nms {
         } else {
             set state Inactive
         }
+	#
+	#  For some data sources, the status line can get terribly long.
+	#  for example attach -pipe cat {list of 100 file}
+	#  If the status line is more than LargestSource chars long, we replace the middle
+	#  characters with ...
+	#
+
+	set sourceLen [string length $source]
+	if {$sourceLen > $LargestSource} {
+	    set remove [expr $sourceLen - $LargestSource]
+	    set midpoint [expr $sourceLen/2]
+	    set start  [expr $midpoint - $remove/2]
+	    set stop   [expr $midpoint + $remove/2]
+	    set source [string replace $source $start $stop ...]
+	}
+
+	# format statusline 2.
+
         .gui.statusline2 configure -text \
             [format "Data Source: %s (%s) %d Buffers Analyzed %.2f%% efficient" $source $state $BuffersAnalyzed $efficiency]
         }
