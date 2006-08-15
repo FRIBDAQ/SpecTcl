@@ -498,4 +498,6 @@ SpecTcl-3.1-002
    - Fix error in wysiwyg prints of zoomed panes.
    - Fix Y height error in plotting linear 1-d channels.. an off by 1 error only
      visible for a relatively small number of counts.
-   - Enh 194 - print more precision in integration results.y
+   - Enh 194 - print more precision in integration results.
+   - Enh 205 - max the gui status line for tha attach so that it can't
+     make the gui window very very wide.
