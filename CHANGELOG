@@ -501,3 +501,5 @@ SpecTcl-3.1-002
    - Enh 194 - print more precision in integration results.
    - Enh 205 - max the gui status line for tha attach so that it can't
      make the gui window very very wide.
+   - Deal with the fact that treeview find is >very< slow on 64 bit systems
+     in browser.tcl 
