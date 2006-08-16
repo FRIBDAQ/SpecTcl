@@ -490,3 +490,5 @@ SpecTcl 3.2-pre1 starts.
                 GUI status line to at most 50 chars with the middle ones
                 replaced by ...  this prevents the window from becoming
                 >very large< for e.g. cluster file analysis.
+  August 16, 2006 Do performance tuning of browser.tcl for 64 bit system.
+	        on those systems, treeview find is terribly slow.

@@ -290,7 +290,13 @@ image create photo ::browser::pseudoicon   -format gif \
                 set gate "";              # Not intersted in ungated.
             }
             set treename [nameToPath Spectra $name]
-	    $self makeParents $treename
+
+	    set parentPath [split $treename .]
+	    set parentPath [lrange $parentPath 0 end-1]
+	    set parentPath [join $parentPath .]
+	    if {[catch {set parentPaths($parentPath)}] } {
+		$self makeParents $treename
+	    }
             set id [$win.tree insert end $treename]
             set treetype "$type $dtype"
             $win.tree entry configure $id -icons {::browser::spectrumicon ::browser::spectrumicon} \
@@ -319,7 +325,14 @@ image create photo ::browser::pseudoicon   -format gif \
             }
             set rawname [lindex $parameter 0]
             set name [nameToPath Parameters $rawname]
-	    $self makeParents $name
+
+	    set parentPath [split $name .]
+	    set parentPath [lrange $parentPath 0 end-1]
+	    set parentPath [join $parentPath .]
+	    if {[catch {set parentPaths($parentPath)}] } {
+		$self makeParents $name
+	    }
+
             set id [$win.tree insert end $name]
             $win.tree entry configure $id -icons {::browser::paramicon ::browser::paramicon} \
                                           -activeicons {::browser::paramicon ::browser::paramicon}
@@ -368,7 +381,14 @@ image create photo ::browser::pseudoicon   -format gif \
             set value   [lindex $variable 1]
             set units   [lindex $variable 2]
             set name [nameToPath Variables $rawname]
-	    $self makeParents $name
+
+	    set parentPath [split $name .]
+	    set parentPath [lrange $parentPath 0 end-1]
+	    set parentPath [join $parentPath .]
+	    if {[catch {set parentPaths($parentPath)}] } {
+		$self makeParents $name
+	    }
+
             set id [$win.tree insert end $name]
             $win.tree tag add variable $id
             $win.tree entry configure $id -data [list Value $value Units $units] \
@@ -470,7 +490,14 @@ image create photo ::browser::pseudoicon   -format gif \
         set type        [lindex $gate 2]
         set description [lindex $gate 3]
         set entryname [nameToPath Gates $name]
-	$self makeParents $entryname
+
+	set parentPath [split $entryname .]
+	set parentPath [lrange $parentPath 0 end-1]
+	set parentPath [join $parentPath .]
+	if {[catch {set parentPaths($parentPath)}] } {
+	    $self makeParents $entryname
+	}
+
         set id [$win.tree insert end $entryname]
         $win.tree tag add gate $id
         $win.tree entry configure $id -data [list Type $type]   \
@@ -1084,11 +1111,8 @@ image create photo ::browser::pseudoicon   -format gif \
 	# Most of the time, users have more than one terminal in
 	# a single folder, If the entire path prior to our terminal
 	# exists, then we don't need to make anything.
+	
 
-	set folderPath [join [lrange  $pathList 0 end-1] .]
-	if {[$win.tree find -full $folderPath] ne ""} {
-	    return 
-	}
 
 	#
 	#  The prefix is already made by definition.
@@ -1096,17 +1120,15 @@ image create photo ::browser::pseudoicon   -format gif \
 	set parentPath [lindex $pathList 0]
 	foreach element [lrange $pathList 1 end-1] {
 	    append parentPath . $element
-	    set id [$win.tree find -full $parentPath]
 	    #
 	    #  If not found, need to make one
 	    #
-	    if {$id eq ""} {
 		set label [regsub {_BLTFOLDER$} $element ""]
-		$win.tree insert end $parentPath -label $label
-	    }
+	    catch {$win.tree insert end $parentPath -label $label}
 
 
 	}
+
 	
     }
 
