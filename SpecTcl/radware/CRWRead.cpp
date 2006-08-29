@@ -88,10 +88,7 @@ CRWRead::operator()(CTCLInterpreter& interp,
 
   if ((objv.size() != 2) && (objv.size() != 4)) {
     string sresult = Usage();
-    CTCLObject oresult;
-    oresult.Bind(interp);
-    oresult = sresult;
-    Tcl_SetObjResult(interp.getInterpreter(), oresult.getObject());
+    interp.setResult(sresult);
     return TCL_ERROR;
 
   }
@@ -109,10 +106,7 @@ CRWRead::operator()(CTCLInterpreter& interp,
     string maxsw = objv[1];
     if (maxsw != "-maxchans") {
       string sresult = Usage();
-      CTCLObject oresult;
-      oresult.Bind(interp);
-      oresult = sresult;
-      Tcl_SetObjResult(interp.getInterpreter(), oresult.getObject());
+      interp.setResult(sresult);
       return TCL_ERROR;
     }
     try {
@@ -125,10 +119,8 @@ CRWRead::operator()(CTCLInterpreter& interp,
       sresult       += objv[2];
       sresult       += "\n";
       sresult       += Usage();
-      CTCLObject oresult;
-      oresult.Bind(interp);
-      oresult = sresult;
-      Tcl_SetObjResult(interp.getInterpreter(), oresult.getObject());
+      interp.setResult(sresult);
+
       return TCL_ERROR;
     }
   }
@@ -149,11 +141,9 @@ CRWRead::operator()(CTCLInterpreter& interp,
   if (status != 0) {
     delete []chans;
     string sresult = "read_spe_file failed, see terminal output for more";
-      CTCLObject oresult;
-      oresult.Bind(interp);
-      oresult = sresult;
-      Tcl_SetObjResult(interp.getInterpreter(), oresult.getObject());
-      return TCL_ERROR;
+    interp.setResult(sresult);
+
+    return TCL_ERROR;
 
   }
 
@@ -200,10 +190,8 @@ CRWRead::operator()(CTCLInterpreter& interp,
   // Deallocate dynamic memory and return.
 
   delete []chans;
-  CTCLObject oresult;
-  oresult.Bind(interp);
-  oresult = spectclName;
-  Tcl_SetObjResult(interp.getInterpreter(), oresult.getObject());
+
+  interp.setResult(spectclName);
   
   return TCL_OK;
 }

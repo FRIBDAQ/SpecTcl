@@ -192,8 +192,9 @@ CTCLResult::AppendElement(const string& rstring)
 void
 CTCLResult::commit() const
 {
-  CTCLInterpreter* pInterp = getInterpreter();
-  Tcl_SetObjResult(pInterp->getInterpreter(), (Tcl_Obj*)getObject());
+  CTCLObject result(*this);
+  getInterpreter()->setResult(result);
+
 }
 //////////////////////////////////////////////////////////////////////////
 /*!
