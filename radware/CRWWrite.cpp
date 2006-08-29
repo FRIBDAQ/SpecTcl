@@ -69,15 +69,14 @@ CRWWrite::operator()(CTCLInterpreter& interp,
 
   if (objv.size() != 3) {
     string   sresult;
-    CTCLObject result;
-    result.Bind(interp);
+
     sresult            = "Usage:\n";
     sresult           += "   rwwrite spectrum file\n";
     sresult           += "Where:\n";
     sresult           += "   spectrum   - is the name of a SpecTcl spectrum.\n";
     sresult           += "   file       - is a filename, extension defaults to .spe\n";
-    result             = sresult;
-    Tcl_SetObjResult(interp.getInterpreter(), result.getObject());
+    interp.setResult(sresult);
+
     return TCL_ERROR;
   }
 
@@ -94,20 +93,17 @@ CRWWrite::operator()(CTCLInterpreter& interp,
     string sresult = "Spectrum ";
     sresult       += spectrumName;
     sresult       += " does not exist";
-    CTCLObject result;
-    result.Bind(interp);
-    result         = sresult;
-    Tcl_SetObjResult(interp.getInterpreter(), result.getObject());
+    interp.setResult(sresult);
+
+
     return TCL_ERROR;
   }
   if (pSpectrum->Dimensionality() != 1) {
     string sresult = "Spectrum ";
     sresult       += spectrumName;
     sresult       += " must be a 1-d spectrum and is not";
-    CTCLObject result;
-    result.Bind(interp);
-    result       =sresult;
-    Tcl_SetObjResult(interp.getInterpreter(), result.getObject());
+    interp.setResult(sresult);
+
     return TCL_ERROR;
   }
 
@@ -131,10 +127,8 @@ CRWWrite::operator()(CTCLInterpreter& interp,
     string result = "Radware's wspec failed to write ";
     result       += filnamcz;
     result       += " check for output on SpecTcl's terminal window";
-    CTCLObject oresult;
-    oresult.Bind(interp);
-    oresult = result;
-    Tcl_SetObjResult(interp.getInterpreter(), oresult.getObject());
+    interp.setResult(result);
+
     return TCL_ERROR;
   }
 

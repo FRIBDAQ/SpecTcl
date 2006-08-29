@@ -492,3 +492,5 @@ SpecTcl 3.2-pre1 starts.
                 >very large< for e.g. cluster file analysis.
   August 16, 2006 Do performance tuning of browser.tcl for 64 bit system.
 	        on those systems, treeview find is terribly slow.
+  August 29, 2006 Added setResult functions to CTCLInterpreter to factor
+               object based result setting into one spot.
