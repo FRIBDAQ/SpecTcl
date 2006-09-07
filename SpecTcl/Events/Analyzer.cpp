@@ -412,6 +412,8 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
     CEvent* pEvent = 0;
     try {
       while(nEvents) {
+	m_fPartialEntity = false;
+
 	if(nOffset >= nBufferSize) { // Someone lied about event sizes:
 	  cerr << "-------------------------------------------------\n";
 	  cerr << "Unpacker tried to run analyzer off end of the buffer\n";
@@ -451,7 +453,9 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	  cerr << "Attempting to continue with next event in buffer\n";
 	  cerr << "-------------------------------------------------------\n";
 	}
-	nEvents--;
+	if (!m_fPartialEntity) {
+	  nEvents--;
+	}
 	pData     = (Address_t)((ULong_t)pData + nEventSize);
 	nOffset  += nEventSize;
 	if(nEventNo >= m_nEventThreshold) {
@@ -620,7 +624,27 @@ CEventSink* CAnalyzer::DetachSink() {
 
   return pSink;
 }
+/*!
+    This function provides support for super events.  A super event is an
+    entity in a physics buffer that has several physics events packed inside
+    of it.  The event processor needs to be called once for each event in the
+    super-event without OnPhysics decrementing the entity count.
+    The event processor would therefore invoke this function
+    for all events in a super event except the last.  A call to this
+    function will disable the decrement of the remaining entity count
+    in OnPhysics. 
+ 
+    Without this support, OnPhysics would not invoke the event processor a
+    sufficient number of times.  It is up to the event processor to maitain
+    sufficient state to know when it is in the middle of a super event and 
+    when it is expecting the front of a super event.
 
+*/
+void
+CAnalyzer::entityNotDone()
+{
+  m_fPartialEntity = true;
+}
 ///////////////////////////////////////////////////////////////////////////
 //
 // Function:

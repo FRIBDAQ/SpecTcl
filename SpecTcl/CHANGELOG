@@ -494,3 +494,5 @@ SpecTcl 3.2-pre1 starts.
 	        on those systems, treeview find is terribly slow.
   August 29, 2006 Added setResult functions to CTCLInterpreter to factor
                object based result setting into one spot.
+  September 7, 2006 Added support for super-events with 
+                CAnalyzer::entityNotDone() function.
