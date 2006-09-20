@@ -438,7 +438,7 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	  else {                           // Must return the event (bug 144)
 	  	ReturnEvent(pEvent);           // to the pool to prevent memory leak.
 	  }
-	  if (nEventSize == 0) { // If we didn't throw now we'd hang here.
+	  if ((nEventSize == 0) && !(m_fPartialEntity)) { // If we didn't throw now we'd hang here.
 	    throw CEventFormatError((int)CEventFormatError::knSizeMismatch,
 				    STD(string)("Packer returned event size = 0"),
 				    (UInt_t*)pData, 16, 0,0);
