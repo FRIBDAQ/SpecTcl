@@ -341,7 +341,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 	                rInterpreter.ExprDouble(ppAxisElements[0]);
 	element++;
 	fHigh      = (Float_t)
-	                rInterpreter.ExprDouble(ppAxisElements[1]);
+<	                rInterpreter.ExprDouble(ppAxisElements[1]);
 	element++;
 	nChannels  = (Int_t)rInterpreter.ExprLong(ppAxisElements[2]);
 
