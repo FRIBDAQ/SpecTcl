@@ -27,13 +27,18 @@
 
 #include <string>
 #include <string.h>
-#include <publib.h>
 
 #include "util.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
+
+// Need to do the following due to string and publib conflicts:
+
+extern "C" {
+  char* strrtrim(char* s);
+}
 
 static const int defaultMaxChans=8*1024;
 
@@ -99,11 +104,11 @@ CRWRead::operator()(CTCLInterpreter& interp,
   int    maxchans = defaultMaxChans;
 
   if (objv.size() == 2) {
-    filename = objv[1];
+    filename = (string)(objv[1]);
   }
   else {
-    filename = objv[3];
-    string maxsw = objv[1];
+    filename = (string)(objv[3]);
+    string maxsw = (string)(objv[1]);
     if (maxsw != "-maxchans") {
       string sresult = Usage();
       interp.setResult(sresult);
@@ -116,7 +121,7 @@ CRWRead::operator()(CTCLInterpreter& interp,
     }
     catch (...) {
       string sresult = "Invalid maxchans parameter: ";
-      sresult       += objv[2];
+      sresult       += (string)(objv[2]);
       sresult       += "\n";
       sresult       += Usage();
       interp.setResult(sresult);

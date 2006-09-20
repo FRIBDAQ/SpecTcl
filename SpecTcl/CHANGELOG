@@ -496,3 +496,5 @@ SpecTcl 3.2-pre1 starts.
                object based result setting into one spot.
   September 7, 2006 Added support for super-events with 
                 CAnalyzer::entityNotDone() function.
+  Sept 8, 2006b Related to the above, allow event processors to indicate that
+                0 bytes of the event were processed if the event was not complete.
