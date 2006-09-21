@@ -290,6 +290,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
+ Revision 5.5.2.1  2006/09/21 15:32:46  ron-fox
+ Fix regression error with printer title size not being long enough
+ causing segflts.
+
  Revision 5.5  2006/05/22 19:59:16  ron-fox
  -Fix issues with printing: gri used an EPSF header which
   caused printers to squash multiple pages onto one.
@@ -378,6 +382,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "grobjmgr.h"
 #include "griprint.h"
 #include "dfltmgr.h"
+#include "xamineDataTypes.h"
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -1925,8 +1930,8 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
   ps_dialog->SetModal(XmDIALOG_FULL_APPLICATION_MODAL);
 
   win_attributed* pAttributes = Xamine_GetSelectedDisplayAttributes();
-  char xlabel[72];
-  char ylabel[72];
+  spec_label xlabel;
+  spec_label ylabel;
   int nSpectrum = pAttributes->spectrum();
   int fDefaultsExist = (dflt_print_opts != NULL);
   if(!fDefaultsExist) {
