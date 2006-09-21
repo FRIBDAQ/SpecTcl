@@ -497,7 +497,7 @@ int main(Cardinal argc, char **argv)
   /* Set up the icon for the application */
 #ifdef HOME
   char IconName[100];
-  sprintf(IconName,"%s/Etc/Xamine.ico" ,HOME);
+  sprintf(IconName,"%s/etc/Xamine.ico" ,HOME);
   SetIcon(main_win.getid(), IconName);
 #else
   SetIcon(main_win.getid(), ICON_FILENAME);

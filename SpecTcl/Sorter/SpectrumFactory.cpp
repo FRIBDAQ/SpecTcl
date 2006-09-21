@@ -305,6 +305,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 4.3.2.1  2006/06/28 20:03:42  ron-fox
+    DEfect 211 : making 1-d gamma spectrum with empty parameter list segfaults.
+
     Revision 4.3  2004/02/03 21:32:58  ron-fox
     Make definitions of spectra from resolutions consistent with those that have ranges.
 
@@ -1476,6 +1479,11 @@ CSpectrumFactory::Require(DataType_t          dType,
     throw CSpectrumFactoryException(dType, sType, rName,
 	    CSpectrumFactoryException::keBadParameterCount,
 	    "Checking parameter counts of keG2D in CSpectrumFactory::Require");
+  }
+  if (sType == keG1D && nParams < 1) {
+    throw CSpectrumFactoryException(dType, sType, rName,
+				    CSpectrumFactoryException::keBadParameterCount,
+				    "Checking keG1D parameter count in CSpectrumFactory::Require - need at least one parameters");
   }
 
   if(rResolutions.size() != nResolutions) { // Incorrect # of resolutions.

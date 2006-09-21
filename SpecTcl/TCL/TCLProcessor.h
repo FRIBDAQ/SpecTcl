@@ -420,6 +420,13 @@ public:
   static int MatchKeyword(vector<string>& MatchTable, 
 			  const string& rValue, 
 			  int NoMatch = -1);
+			  
+			  // Utilities available for derived classes.
+  protected:
+  	void NextParam(int& argc, char**& argv) {
+	  argc--;
+	  argv++;
+  	}
 };
 
 #endif

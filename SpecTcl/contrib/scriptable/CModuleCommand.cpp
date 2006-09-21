@@ -1,51 +1,58 @@
 #include "CModule.h"
 #include "CModuleCommand.h"    				
 #include "CModuleDictionary.h"
-#include "CUnpacker.h"
 #include "CModuleCreator.h"
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
+#include <TCLString.h>
+
 #include <string>
 #include <algorithm>
-#include <TCLString.h>
+
+
+#include <assert.h>
+
 // Local classes:
 
 // Predicate to visit modules in the module dictionary and create the 
 // list of modules.
 class ListVisitor {
-  string         m_Pattern;
+  string      m_Pattern;
   CTCLResult& m_rResult;
 public:
-	ListVisitor(const string& rPattern, CTCLResult& rResult) :
-		m_Pattern(rPattern), 
-		m_rResult(rResult) {}
-	void operator()(pair<string,CModule*> p) {
-	  CTCLString entry;
-	  if(Tcl_StringMatch(p.first.c_str(), m_Pattern.c_str())) {
-	    CModule* pModule = p.second;
-	    entry.AppendElement(pModule->getName());
-	    entry.AppendElement(pModule->getType());
-	    m_rResult.AppendElement((const char*)entry);
-	    
-	  }
-	}
+  ListVisitor(const string& rPattern, CTCLResult& rResult) :
+    m_Pattern(rPattern), 
+    m_rResult(rResult) {}
+  void operator()(pair<string,CSegmentUnpacker*> p) {
+    CTCLString entry;
+    if(Tcl_StringMatch(p.first.c_str(), m_Pattern.c_str())) {
+      CSegmentUnpacker* pModule = p.second;
+      assert(pModule);
+      entry.AppendElement(pModule->getName());
+      entry.AppendElement(pModule->getType());
+      m_rResult.AppendElement((const char*)entry);
+      
+    }
+  }
 };
 
 
 // Predicate to visit module creators and create the types list.
 
 class TypesVisitor {
-    CTCLResult& m_rResult;
+  CTCLResult& m_rResult;
 public:
-    TypesVisitor(CTCLResult& rResult) :
-	m_rResult(rResult) {}
-    void operator()(pair<string, CModuleCreator*> item)
-    {
-	string info(item.first);
-	info   += "\t - ";
-	info   += item.second->TypeInfo();
-	m_rResult.AppendElement((const string)info);
-    }
+  TypesVisitor(CTCLResult& rResult) :
+    m_rResult(rResult) {}
+  void operator()(pair<string, CModuleCreator*> item)
+  {
+    string info(item.first);
+    CModuleCreator* pCreator = item.second;
+    assert(pCreator);
+    info   += "\t - ";
+    info   += pCreator->TypeInfo();
+    m_rResult.AppendElement((const string)info);
+  }
 };
 // Class implementation.
 
@@ -63,19 +70,17 @@ public:
   \param rDict (CModuleDictionary& [in]): Reference to the module dictionary.
 */
 CModuleCommand::CModuleCommand (CTCLInterpreter& rInterp,
-						   const string&      rCommand,
-						   CUnpacker&        rUnpacker,
-						   CModuleDictionary& rDict) :
-    CTCLProcessor(rCommand, &rInterp),
-    m_rUnpacker(rUnpacker),
-    m_rModules(rDict)
- 
+				const string&      rCommand,
+				CModuleDictionary& rDict) :
+  CTCLProcessor(rCommand, &rInterp),
+  m_rModules(rDict)
+  
 {
   Bind(&rInterp);
   Register();
 } 
 /*!
-   Desctruction is only  requires the invocation of the base class
+   Desctruction   requires the invocation of the base class
    destructor to unregister our command.  This is done automatically
    via virtual contructor chaining.
 */
@@ -116,44 +121,44 @@ The subcommands dispatch as follows
 */
 int 
 CModuleCommand::operator()(CTCLInterpreter&  rInterp, 
-					  CTCLResult& rResult, 
-					  int argc, char** pArgv)  
+			   CTCLResult& rResult, 
+			   int argc, char** pArgv)  
 { 
-	int nStatus(TCL_OK);
-	argc--; 
-	pArgv++; 
-	
-	if(argc) {                           // There must be a subcommand keyword
-		string Command(*pArgv);  // Extract the command.
-		argc--;
-		pArgv++;
-		
-		// Dispatch on the command keyword:
-		
-		if       (Command == string("-create")) {  // Make a module.
-			nStatus = Create(rInterp, rResult, argc, pArgv);
-		}
-		else if (Command == string("-list")) {    // List existing modules.
-			nStatus = List(rInterp, rResult, argc, pArgv);
-		}
-		else if (Command == string("-types")) { // List module types:
-			nStatus = ListTypes(rInterp, rResult, argc, pArgv);
-		}
-		else if (Command == string("-delete")) {
-			nStatus = Destroy(rInterp, rResult, argc, pArgv);
-		}
-		else {		// Asssume create:
-		  argc++;
-		  pArgv--;
-		  nStatus = Create(rInterp, rResult, argc, pArgv);
-		}
-	} 
-	else {                               // No subcommand keyword
-		rResult = Usage();
-		nStatus = TCL_ERROR;
-	}
-	
-	return nStatus;
+  int nStatus(TCL_OK);
+  argc--; 
+  pArgv++; 
+  
+  if(argc) {                           // There must be a subcommand keyword
+    string Command(*pArgv);  // Extract the command.
+    argc--;
+    pArgv++;
+    
+    // Dispatch on the command keyword:
+    
+    if       (Command == string("-create")) {  // Make a module.
+      nStatus = Create(rInterp, rResult, argc, pArgv);
+    }
+    else if (Command == string("-list")) {    // List existing modules.
+      nStatus = List(rInterp, rResult, argc, pArgv);
+    }
+    else if (Command == string("-types")) { // List module types:
+      nStatus = ListTypes(rInterp, rResult, argc, pArgv);
+    }
+    else if (Command == string("-delete")) {
+      nStatus = Destroy(rInterp, rResult, argc, pArgv);
+    }
+    else {		// Asssume create:
+      argc++;
+      pArgv--;
+      nStatus = Create(rInterp, rResult, argc, pArgv);
+    }
+  } 
+  else {                               // No subcommand keyword
+    rResult = Usage();
+    nStatus = TCL_ERROR;
+  }
+  
+  return nStatus;
 }  
 
 /*!  Function: 	
@@ -189,61 +194,74 @@ Invoked to create a new module:
 */
 int 
 CModuleCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
-				    int argc, char** pArgv)  
+		       int argc, char** pArgv)  
 { 
-	int nStatus(TCL_OK);
+  int nStatus(TCL_OK);
+  
+  // We need at least a module name and module type.
+  
+  if(argc >= 2) {
+    string Name(*pArgv);
+    string Type(pArgv[1]);
+    argc    -= 2;
+    pArgv   += 2;
+    
+    // If the module already exists this is an error:
+
+    if(m_rModules.Find(Name) == m_rModules.end()) {
+
+      // Locate the creator:
+      
+      CreatorIterator iCreator = m_Creators.find(Type);
+      if(iCreator != m_Creators.end()) {
+	CModuleCreator* pCreator = iCreator->second;
+	assert(pCreator);
 	
-	// We need at least a module name and module type.
+	// Create and configure the module:
 	
-	if(argc >= 2) {
-	  string Name(*pArgv);
-	  string Type(pArgv[1]);
-	  argc    -= 2;
-	  pArgv   += 2;
-	  
-	  // Locate the creator:
-	  
-	  CreatorIterator iCreator = m_Creators.find(Type);
-	  if(iCreator != m_Creators.end()) {
-	    CModuleCreator* pCreator = iCreator->second;
-	    
-	    // Create and configure the module:
-	    
-	    CModule* pModule = pCreator->Create(rInterp, Name);
-	    if(pModule) {
-	      if(argc) {
-		nStatus = pModule->Configure(rInterp,
-					     rResult,
-					     argc, pArgv);
-	      }
-	      // add the module to the module dictionary:
-	      
-	      m_rModules.Add(pModule);
-	    }
-	    else {          // Module creation failed.
-	      rResult += "Failed to create a module named ";
-	      rResult += Name;
-	      rResult += " of type ";
-	      rResult += Type;
-	      rResult += "\n";
-	      nStatus = TCL_ERROR;
-	    }
+	CSegmentUnpacker* pModule = pCreator->Create(rInterp, Name);
+	if(pModule) {
+	  if(argc) {
+	    nStatus = pModule->Configure(rInterp,
+					 rResult,
+					 argc, pArgv);
 	  }
-	  else {                   // No match for module.
-	    rResult += "Unrecoginzed module type: ";
-	    rResult += Type;
-	    rResult +=  "\n";
-	    rResult += Usage();
-	    nStatus = TCL_ERROR;
-	  }
+	  // add the module to the module dictionary:
+	  
+	  m_rModules.Add(pModule);
 	}
-	else {                            // Insufficient parameters on command line.
-	  rResult += "module creation requires at least a ";
-	  rResult += " module name and type\n";
-	  rResult += Usage();
+	else {          // Module creation failed.
+	  rResult += "Failed to create a module named ";
+	  rResult += Name;
+	  rResult += " of type ";
+	  rResult += Type;
+	  rResult += "\n";
 	  nStatus = TCL_ERROR;
 	}
-	return nStatus;
+      }
+      else {                   // No match for module.
+	rResult += "Unrecoginzed module type: ";
+	rResult += Type;
+	rResult +=  "\n";
+	rResult += Usage();
+	nStatus = TCL_ERROR;
+      }
+    }
+    else {
+      rResult += "Duplicat module name: ";
+      rResult += Name;
+      rResult += " You must first module -delete this module\n";
+      rResult += Usage();
+      nStatus  = TCL_ERROR;
+    }
+  }
+  else {                            // Insufficient parameters on command line.
+    rResult += "module creation requires at least a ";
+    rResult += " module name and type\n";
+    rResult += Usage();
+    nStatus = TCL_ERROR;
+  }
+  return nStatus;
 }  
 
 /*!  
@@ -271,7 +289,7 @@ Destroys a single module:
 */
 int 
 CModuleCommand::Destroy(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				     int argc, char** pArgv)  
+			int argc, char** pArgv)  
 { 
   int nStatus(TCL_OK);
   
@@ -286,17 +304,13 @@ CModuleCommand::Destroy(CTCLInterpreter& rInterp, CTCLResult& rResult,
     if(iModule != m_rModules.end()) {
       // Remove the module from the dictionary.
       
-      CModule* pModule= iModule->second;
+      CSegmentUnpacker* pModule= iModule->second;
+      assert(pModule);
       m_rModules.Delete(iModule);
       
-      // If the module is in the unpacker, remove it.
-       
-      CUnpacker::UnpackerIterator iUnpack = m_rUnpacker.Find(Name);
-      if(iUnpack != m_rUnpacker.end()) {
-	m_rUnpacker.Delete(iUnpack);
-      }
-     
-      // Delete the module.
+
+      // Delete the module.  This calls the OnDelete member which removes
+      // the modle from it's packet.
       
       delete pModule;
     }
@@ -338,26 +352,28 @@ the entire module dictionary to be listed.
 */
 int 
 CModuleCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-				int argc, char** pArgv)  
+		     int argc, char** pArgv)  
 { 
-	int nStatus(TCL_OK);
-	string SearchPattern("*");
-	
-	// We need 0 or 1 parameters... 1 parameter will be  a pattern to look for,
-	// 0 will imply a search pattern of *
-	
-	if((argc == 0) || (argc == 1)) {
-		if(argc == 1) SearchPattern   = *pArgv;
-		for_each(m_rModules.begin(), m_rModules.end(),
-			     ListVisitor(SearchPattern, rResult));
-	}
-	else {
-		rResult += "Invalid number of parameters for the ";
-		rResult += "module list subcommand\n";
-		rResult += Usage();
-		nStatus = TCL_ERROR;
-	}
-	return nStatus;
+  int nStatus(TCL_OK);
+  string SearchPattern("*");
+  
+  // We need 0 or 1 parameters... 1 parameter will be  a pattern to look for,
+  // 0 will imply a search pattern of *
+  
+  if((argc == 0) || (argc == 1)) {
+    if(argc == 1) {
+      SearchPattern   = *pArgv;
+    }
+    for_each(m_rModules.begin(), m_rModules.end(),
+	     ListVisitor(SearchPattern, rResult));
+  }
+  else {
+    rResult += "Invalid number of parameters for the ";
+    rResult += "module list subcommand\n";
+    rResult += Usage();
+    nStatus = TCL_ERROR;
+  }
+  return nStatus;
 }  
 
 /*!  Function: 	
@@ -368,22 +384,22 @@ Returns the command usage.
 string 
 CModuleCommand::Usage()  
 { 
-	string Result("Usage:\n");
-	       Result += "    ";
-	       Result +=      getCommandName();
-	       Result +=      " [-create] name type ?config-pairs?\n";
-	
-	       Result += "   ";
-	       Result +=      getCommandName();
-	       Result +=      " -list ?pattern?\n";
-               Result += "   ";
-	       Result +=      getCommandName();
-               Result +=      " -delete module\n";
-	       Result += "   ";
-               Result +=      getCommandName();
-	       Result +=      " -types\n"; 
-	
-	return Result;
+  string Result("Usage:\n");
+  Result += "    ";
+  Result += getCommandName();
+  Result += " [-create] name type ?config-pairs?\n";
+  
+  Result += "   ";
+  Result += getCommandName();
+  Result += " -list ?pattern?\n";
+  Result += "   ";
+  Result += getCommandName();
+  Result += " -delete module\n";
+  Result += "   ";
+  Result += getCommandName();
+  Result += " -types\n"; 
+  
+  return Result;
 }  
 
 /*! 
@@ -406,21 +422,21 @@ CModuleCommand::Usage()
 */
 int 
 CModuleCommand::ListTypes(CTCLInterpreter& rInterp, 
-					CTCLResult& rResult, 
-					int argc, char** argv)  
+			  CTCLResult& rResult, 
+			  int argc, char** argv)  
 { 
-    int nStatus(TCL_OK);
-    if(argc == 0) {
-	for_each(m_Creators.begin(), m_Creators.end(),
-		    TypesVisitor(rResult));
-    }
-    else {
-	rResult += "Too many paramers to module types \n";
-	rResult += Usage();
-	nStatus = TCL_ERROR;
-    }
-	
-	return nStatus;
+  int nStatus(TCL_OK);
+  if(argc == 0) {
+    for_each(m_Creators.begin(), m_Creators.end(),
+	     TypesVisitor(rResult));
+  }
+  else {
+    rResult += "Too many paramers to module types \n";
+    rResult += Usage();
+    nStatus = TCL_ERROR;
+  }
+  
+  return nStatus;
 }
 /*!
    Adds a creator to the set of recognixed modules that can be 

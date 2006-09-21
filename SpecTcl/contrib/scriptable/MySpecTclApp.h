@@ -38,10 +38,7 @@ class CUnpacker;
 class CMySpecTclApp  : public CTclGrammerApp        
 {
 private: 
-  CModuleDictionary* m_pDictionary;
-  CUnpackerCommand*  m_pUnpackerCommand;
-  CModuleCommand*    m_pModuleCommand;
-  CUnpacker*         m_pUnpacker;
+
 public:
              //Default constructor alternative to compiler provided default constructor
   CMySpecTclApp ();

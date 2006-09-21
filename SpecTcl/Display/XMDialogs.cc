@@ -1557,7 +1557,7 @@ XMCustomDialogBox::XMCustomDialogBox(char *name,XMWidget &parent, char *title,
 		   HelpCb(this)
 {
   SetCallbacks();		// Register the callbacks.
-  RevertHelpText();		// And set the default help text.
+  InitializeHelp();		// And set the default help text.
 }   
 
 XMCustomDialogBox::XMCustomDialogBox(char *name, Widget parent, char *title,

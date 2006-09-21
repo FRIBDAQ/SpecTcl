@@ -393,7 +393,7 @@ protected:
                        
 public:
   
-  virtual   string ReasonText ()    ;
+  virtual   const char*  ReasonText ()   const ;
   virtual   Int_t ReasonCode ()    ;
   static    char*  ReasonCodeToText (GateFactoryExceptionReason eReason)    ;
  

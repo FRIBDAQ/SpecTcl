@@ -273,9 +273,16 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
+/*!
+  \class CCAENV830Creator
+  \file  CCAENV830Creator.h
 
+  This is a dummy creator for the CAEN v830 scaler module.
+  It is defined in order to support a common specification script
+  for SpectTcl and the Readout engine.
+*/
 #ifndef __CCAENV830CREATOR_H
 #define __CCAENV830CREATOR_H
 
@@ -295,17 +302,13 @@ DAMAGES.
 
 class CModule;
 class CTCLInterpreter;
-class CTCLResult;
+class CModuleCommand;
 
-/*!
-  This is a dummy creator for the CAEN v830 scaler module.
-  It is defined in order to support a common specification script
-  for SpectTcl and the Readout engine.
-*/
+
 class CCAENV830Creator : public CModuleCreator 
 {
 public:
-  CCAENV830Creator();
+  CCAENV830Creator(const string& rName, CModuleCommand* pCommand);
   ~CCAENV830Creator();
   CCAENV830Creator (const CCAENV830Creator& rhs );
   CCAENV830Creator& operator= (const CCAENV830Creator& rhs);
@@ -316,7 +319,7 @@ public:
   
  public:
   
-  CModule* Create (CTCLInterpreter& rInterp, const string& rName);
+  CSegmentUnpacker* Create (CTCLInterpreter& rInterp, const string& rName);
   virtual string TypeInfo() const;
 };
 

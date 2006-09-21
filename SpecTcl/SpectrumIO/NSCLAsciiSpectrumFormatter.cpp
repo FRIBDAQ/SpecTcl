@@ -307,6 +307,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 /*
   Change Log:
   $Log$
+  Revision 4.6.4.1  2004/07/01 13:54:42  ron-fox
+  Defect 135: swrite does not properly preserve channel -> spectrum mappings.
+
   Revision 4.6  2003/11/13 19:48:49  ron-fox
   Unconditionally  include config.h
 
@@ -608,7 +611,7 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
   Float_t xlow, xhigh;
   UInt_t  nChannels = rSpectrum.Dimension(0); // Everyone has this..
   xlow = rSpectrum.AxisToMapped(0, 0);
-  xhigh= rSpectrum.AxisToMapped(0, nChannels-1);
+  xhigh= rSpectrum.AxisToMapped(0, nChannels);
 
   rStream << '(' << xlow << " " << xhigh << ") ";
   if(rSpectrum.Dimensionality() == 2) {
@@ -617,7 +620,7 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
       nymap = Parameters.size(); // All x maps are first in gamma 2ds.
     }
     xlow = rSpectrum.AxisToMapped(nymap, 0);
-    xhigh= rSpectrum.AxisToMapped(nymap, rSpectrum.Dimension(1) - 1);
+    xhigh= rSpectrum.AxisToMapped(nymap, rSpectrum.Dimension(1));
     rStream << '(' << xlow << " " << xhigh << ")";
   }
   rStream << "\n";
@@ -1194,7 +1197,7 @@ CNSCLAsciiSpectrumFormatter::CheckIndices(vector<UInt_t>& Dimensions,
   //   Dimensions.size() == Indices.size()
   //
   for(UInt_t i = 0; i < Dimensions.size(); i++) {
-    if(Indices[i] > Dimensions[i]) {
+    if(Indices[i] >= Dimensions[i]) {
       throw CSpectrumFormatError(CSpectrumFormatError::InvalidChannels,
 				 "Range checking index list");
     }

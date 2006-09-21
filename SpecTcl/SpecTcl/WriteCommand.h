@@ -347,6 +347,7 @@ public:
   int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 				int nArgs, char* pArgs[])  ;
 protected:
+  int    CountValidSpectra(char** pSpectrum, int nSpectra);
   static Bool_t               IsFileId(const char* pConnectionString);
   static Int_t                GetFileId(const char* pConnectionString);
   static CSpectrumFormatter*  GetFormatter(const char* pFormatter);

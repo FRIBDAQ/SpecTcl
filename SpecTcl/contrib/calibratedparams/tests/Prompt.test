@@ -1,0 +1,41 @@
+#  Load the TCL Test packages.
+
+if {[lsearch [namespace children] ::tcltest] == -1 } {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+	
+#  Load the packages under test.
+
+if {[lsearch [namespace children] ::Prompt] == -1} {
+
+    source          ../TkPrompt.tcl
+    package require Prompt
+}
+
+#   Need the tk libraries too:
+
+source $tk_library/dialog.tcl
+
+# The tests:
+
+test Prompt-1.0 {Test Prompt::Error dialog popup} {} {
+    Prompt::Error "This is a test"
+    puts -nonewline "Should have gotten the prompt 'This is a test' Y/N "
+    flush stdout
+    set answer [gets stdin]
+} {Y}
+
+test Prompt-1.1 {Test Prompt::Prompt dialog popup} {} {
+    set answer [Prompt::Prompt "Click one of the buttons below" \
+		    0 {{A A} {B B} {C C} {D D}}]
+    puts -nonewline "Wich did you click? A B C or D: "
+    flush stdout
+    set typedin [gets stdin]
+    string equal $answer $typedin
+} {1}
+
+# Post test cleanup.
+
+::tcltest::cleanupTests
+return

@@ -480,7 +480,7 @@ CEventFormatError::UpdateReasonText()
     for(UInt_t i = 0; i < m_vEventData.size(); i++) {
       if((i % 8) == 0) msg << endl;
       msg << (i == m_nDetectedOffset) ? "  >" : "  ";
-      msg << m_vEventData[i];
+      msg << m_vEventData[i] << " ";
       msg << (i == m_nDetectedOffset) ? "< " : "  ";
     }
     msg << endl;

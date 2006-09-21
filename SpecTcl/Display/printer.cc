@@ -290,6 +290,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
+ Revision 4.14.4.1  2006/05/23 13:28:52  ron-fox
+ - Fix defect 195: gri was outputting an EPSF header which squashed multipage
+   output to the printer onto a single page (gv worked just fine).  Added
+   -p (-postsript) switch to make it emit a plain old %%!Ps-Adobe header
+   modified griprint.cc to invoke gri with that switch.
+ - Fix defect 196: printer.cc - the print setup dialog print command
+   XMText widget evidently had duplicated the name of another widget leading
+   to strange results.  Uniquified the name of that widget.
+
  Revision 4.14  2003/08/25 16:25:30  ron-fox
  Initial starting point for merge with filtering -- this probably does not
  generate a goo spectcl build.
@@ -1174,7 +1183,7 @@ SetupPrintDialog::SetupPrintDialog(char *name, XMWidget *w, char *title) :
 
   XtSetArg(chars[3], XmNtopWidget, prtcmd_label->getid());
   XtSetArg(chars[4], XmNbottomAttachment, XmATTACH_FORM);
-  prtcmd = new XMText("Command", *work_area, 1, 32, chars, 5);
+  prtcmd = new XMText("commandprintsetup", *work_area, 1, 32, chars, 5);
 
   /* Last but not least, remove the Apply button: */
 
