@@ -382,3 +382,7 @@ SpecTcl-3.0-009
      and channel values the hieght of the channel was visibly lower than the 
      corresponding tick mark.
    - Enh 194    : provide more precision in output of integration.
+
+  Released September 21, 2006
+
+3.0-010
