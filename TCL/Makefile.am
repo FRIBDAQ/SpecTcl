@@ -2,14 +2,17 @@
 # touch is done just in case the docbook man page creation
 # command does not exist.
 
+
+SUFFIXES =  .xml .3
+
 .xml.3:
 	-$(MANDOCBOOK) man $< 2>/dev/null
 	touch $@
 
 DEFS = @WCHAR_T_DEF@
 INCLUDES = -I.. -I. @TCL_FLAGS@ -I../Utility -I../NSCLException @XINCLUDES@
-LDADD = -ltclPlus -lException -lXt -lX11 $(X11EXTRA_LDFLAGS)
-AM_LDFLAGS = -L. @TCL_LDFLAGS@
+LDADD = -ltclPlus -lException -lXt -lX11 $(X11EXTRA_LDFLAGS) -L. @TCL_LDFLAGS@
+# AM_LDFLAGS = -L. @TCL_LDFLAGS@
 
 lib_LTLIBRARIES = libtclPlus.la
 
