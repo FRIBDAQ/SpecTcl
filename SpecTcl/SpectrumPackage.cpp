@@ -37,6 +37,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
+//    Revision 5.6  2006/09/22 11:40:18  ron-fox
+//    - SpectrumCommand - had a typo I introduced.
+//    - SpectrumPackage -added lookups for m2 spectra
+//
 //    Revision 5.5  2006/03/20 18:25:16  ron-fox
 //    Add a bit more error detection/checking in spectrum binding/creation in
 //    GUI...other changes are incidental and accidental
@@ -166,7 +170,8 @@ static const SpecTypes aSpecTypes[] = {
   {"S",    keStrip},
   {"summary", keSummary},
   {"b",    keBitmask},
-  {"bitmask", keBitmask}
+  {"bitmask", keBitmask},
+  {"m2",   ke2Dm}
 
 };
 static const UInt_t nSpecTypes = sizeof(aSpecTypes)/sizeof(SpecTypes);
