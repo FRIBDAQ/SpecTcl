@@ -1,11 +1,16 @@
 INCLUDES= -I. -I../EventSource -I../TCL -I../NSCLException \
 	-I../Utility @TCL_FLAGS@ -I../Tape
 
-LDADD = -lEventSource -lException -ltape
-
-AM_LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
+LDADD = -lEventSource -lException -ltape \
+	 -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
 	-L../Tape \
-	-L../Filter -L../SpecTcl -Wl,"-rpath=$(libdir)"
+	-L../Filter -L../SpecTcl 
+
+LDFLAGS=-Wl,"-rpath=$(libdir)"
+
+#AM_LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
+#	-L../Tape \
+#	-L../Filter -L../SpecTcl -Wl,"-rpath=$(libdir)"
 
 
 bin_PROGRAMS = testfile ltwrite
