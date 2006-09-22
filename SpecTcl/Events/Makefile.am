@@ -4,8 +4,8 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/Utility \
 	-I@top_srcdir@/TCL \
 	-I@top_srcdir@/SpecTcl  -I@top_srcdir@/Filter \
 	@TCL_FLAGS@ @XINCLUDES@ 
-
-AM_LDFLAGS = @TCL_LDFLAGS@
+LDADD = @TCL_LDFLAGS@
+# AM_LDFLAGS = @TCL_LDFLAGS@
 
 lib_LTLIBRARIES = libAnalysis.la
 libAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0 \
