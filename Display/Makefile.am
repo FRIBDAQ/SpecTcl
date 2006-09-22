@@ -1,3 +1,5 @@
+bin_PROGRAMS = Xamine colorset
+
 HOMEDEF = -DHOME='"$(prefix)"'
 GRIFLAGS = -DGRI_DIR='"@gri_dir@"' -DGRI_CMD_DIR='"@gri_cmd_dir@"'
 LEXOUT = lex.yy.c
@@ -6,7 +8,12 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 
 INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 	-I@top_srcdir@/Utility $(GDINCLUDES)
-AM_LDFLAGS = -g $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
+# AM_LDFLAGS = -g $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
+
+Xamine_LDFLAGS=  -g 
+Xamine_LDADD=  $(PARSEOBJECTS)  @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
+	        -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
+# Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
 #  @LD_EXTRA_FLAGS@
 
@@ -84,7 +91,6 @@ defaultfile_lex.o: windfile.l defaultfile.l dispwind.h superpos.h \
 	cp defaultfile_lex.h windlex.h
 	$(CC) $(XCCFLAGS)  defaultfile_lex.cc
 
-bin_PROGRAMS = Xamine colorset
 
 check_PROGRAMS = Xaminetest
 TESTS = $(check_PROGRAMS)
@@ -154,9 +160,8 @@ procede.cc colormgr.cc
 Xaminetest_SOURCES = Xaminetest.c
 
 
-Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
-colorset_LDADD = -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
+colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
 Xaminetest_LDADD = -lXamine -lm
 
