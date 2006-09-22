@@ -18,6 +18,10 @@
 /*
    Change log:
    $Log$
+   Revision 5.4  2006/09/22 11:40:55  ron-fox
+   - Cleaned up license text
+   - Added support for m2 in SpectrumType_t enum and operator <<>>'s.
+
    Revision 5.3  2006/09/20 10:43:49  ron-fox
    Just some formatting (replacing licenses etc). stuff.
 
@@ -211,7 +215,8 @@ typedef enum _SpectrumType_t {
   keG1D,
   keG2D,
   keUnknown,
-  keStrip
+  keStrip,
+  ke2Dm
 } SpectrumType_t;
 
 
@@ -241,6 +246,9 @@ operator<<(STD(ostream)& out, SpectrumType_t t)
     break;
   case keG2D:
     out << "g2";
+    break;
+  case ke2Dm:
+    out << "m2";
     break;
   case keUnknown:
   default:
@@ -286,6 +294,14 @@ operator>>(STD(istream)& in, SpectrumType_t& t)
       break;
     }
     break;
+  case 'm':
+    in >>c;
+    if (c == '2') {
+      t = ke2Dm;
+    }
+    else {
+      t= keUnknown;
+    }
   case '?':
   default:
     t = keUnknown;
