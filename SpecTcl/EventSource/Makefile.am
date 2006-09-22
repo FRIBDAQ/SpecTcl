@@ -1,7 +1,8 @@
 INCLUDES = -I. -I../Utility -I../NSCLException  -I../Tape -I../SpecTcl \
 	-I../Events -I../TCL -I../Filter @TCL_FLAGS@
 
-AM_LDFLAGS=-L. @TCL_LDFLAGS@
+LDADD=-L. @TCL_LDFLAGS@
+# AM_LDFLAGS=-L. @TCL_LDFLAGS@
 
 
 lib_LTLIBRARIES = libEventSource.la
