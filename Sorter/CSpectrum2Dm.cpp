@@ -98,6 +98,11 @@ CSpectrum2Dm:: CSpectrum2Dm(STD(string)              name,
 }
 
 /*!
+   Destroy us;
+*/
+CSpectrum2Dm::~CSpectrum2Dm() {}
+
+/*!
    Determines if a specific parameter is used by this spectrum.
 
    \param id : UInt_t
@@ -139,6 +144,18 @@ CSpectrum2Dm::GetResolutions(vector<UInt_t>& rvResolutions)
   rvResolutions.push_back(m_yChannels);
 }
 
+/*!
+   Return a description of the spectrum.
+*/
+CSpectrum::SpectrumDefinition&
+CSpectrum2Dm::GetDefinition()
+{
+  static CSpectrum::SpectrumDefinition def = GetCommonDefinition();
+  def.eDataType  = StorageType();
+  return def;
+}
+
+
 /////////////////////////////////////////////////////////////////////
 ///////////////////// protected utilities //////////////////////////
 ////////////////////////////////////////////////////////////////////
@@ -157,12 +174,15 @@ CSpectrum2Dm::GetCommonDefinition()
   def.eType       = ke2Dm;
   def.vParameters = m_parameterList;
 
+  def.nChannels.clear();
   def.nChannels.push_back(m_xChannels);
   def.nChannels.push_back(m_yChannels);
 
+  def.fLows.clear();
   def.fLows.push_back(GetLow(0));
   def.fLows.push_back(GetLow(1));
   
+  def.fHighs.clear();
   def.fHighs.push_back(GetHigh(0));
   def.fHighs.push_back(GetHigh(1));
 
