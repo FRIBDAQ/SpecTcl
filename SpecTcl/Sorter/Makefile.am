@@ -16,7 +16,7 @@ libSorting_la_SOURCES = DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	Gamma2DB.cpp GateMediator.cpp CAxis.cpp CParameterMapping.cpp  Parameter.cpp \
 	SpectrumS.cpp \
 	Spectrum2DL.cpp Gamma2DL.cpp  SummarySpectrumL.cpp \
-	CSpectrum2Dm.cpp CSpectrum2DmL.cpp
+	CSpectrum2Dm.cpp CSpectrum2DmL.cpp CSpectrum2DmW.cpp
 
 include_HEADERS = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	DictionaryException.h Gamma1DL.h Gamma1DW.h Gamma2DB.h Gamma2DW.h \
@@ -27,6 +27,6 @@ include_HEADERS = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	SpectrumFactory.h SpectrumFactoryException.h SummarySpectrumB.h \
 	SummarySpectrumW.h CAxis.h CParameterMapping.h SpectrumS.h \
 	Spectrum2DL.h  Gamma2DL.h SummarySpectrumL.h \
-	CSpectrum2Dm.h CSpectrum2DmL.h
+	CSpectrum2Dm.h CSpectrum2DmL.h CSpectrum2DmW.h
 
 EXTRA_DIST = Sorter.WC Sorter.omt
