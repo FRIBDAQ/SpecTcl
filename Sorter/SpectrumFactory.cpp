@@ -42,6 +42,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 5.5  2006/09/26 11:06:56  ron-fox
+    Added 2d multiply incremented spectra to the spectrum factory
+
     Revision 5.4  2006/06/28 20:00:31  ron-fox
     Fix g1 with empty parameter list crash (defect 211) and issues with gui
     when user makes both a and a.b
@@ -106,6 +109,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Gamma2DW.h"
 #include "Gamma2DL.h"
 #include "SpectrumS.h"
+#include "CSpectrum2DmL.h"
+#include "CSpectrum2DmW.h"
+#include "CSpectrum2DmB.h"
+
 
 #include "Histogrammer.h"
 
@@ -398,7 +405,48 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
 		       rChannels[1], fyLow, fyHigh);
       
     }
+  case ke2Dm:
+    {
+      // Require an even number of parameters:
+      
+      if((ParameterList.size() % 2) != 0) {
+	throw CSpectrumFactoryException(eDataType, ke2Dm, rName,
+					CSpectrumFactoryException::keBadParameterCount,
+					"2m spectra need an even number of parameters");
+      }
+      Float_t fxLow, fxHigh;
+      Float_t fyLow, fyHigh;
+      
+      // figure out the low/high values.. using defaults if needed?
+      
+      if (pLows == static_cast<vector<Float_t>* >(kpNULL)) {
+	fxLow  = 0.0;		// Default lows.
+	fyLow  = 0.0;
+	fxHigh = DefaultAxisLength(rChannels[0], ParameterList[0]); // Default highs too.
+	fyHigh = DefaultAxisLength(rChannels[1], ParameterList[1]);
+	
+      }
+      else {
+	fxLow = (*pLows)[0];	// Lows from vector...
+	fyLow = (*pLows)[1];
+	fxHigh= (*pHighs)[0];
+	fyHigh= (*pHighs)[1];
+	
+	if (fxLow == fxHigh) {	// Default the x axis:
+	  fxLow = 0.0;
+	  fxHigh = DefaultAxisLength(rChannels[0], ParameterList[0]);
+	}
+	if(fyLow == fyHigh) {	// Default y axis...
+	  fyLow =0.0;
+	  fyHigh = DefaultAxisLength(rChannels[1], ParameterList[1]);
+	}
+	
+      }
 
+      return Create2DMultiple(rName, eDataType, ParameterList,
+			      rChannels[0], fxLow, fxHigh,
+			      rChannels[1], fyLow, fyHigh);
+    }
   default:
     throw CSpectrumFactoryException(eDataType, eSpecType,
 				    rName,
@@ -1050,6 +1098,53 @@ CSpectrumFactory::CreateSummary(const std::string& rName,
   return (CSpectrum*)NULL;
 
 }
+
+/*!
+  Create a 2d multiply incremented spectrum.  This is just a matter of
+  invoking the right constructor depending on the requested data type:
+  \param name : std::string
+     Name of the spectrum to create.
+  \param eType : DataType_t
+     Data type to create.
+  \param parameters std::vector<CParameter> parameters.
+    Parameters for the spectrum.
+  \param xChans : UInt_t
+     Number of channels on the x axis.
+  \param xlow, xhigh : Float_t
+     Limits for the x axis.
+  \param yChans : UInt_t
+    Number of y channel axes.
+  \param ylow, yhigh : Flaot_t
+     Limits for the y axis.
+*/
+CSpectrum*
+CSpectrumFactory::Create2DMultiple(STD(string) name, DataType_t eType,
+			      STD(vector)<CParameter>& parameters, 
+			      UInt_t  xChans,
+			      Float_t xLow, Float_t xHigh,
+			      UInt_t  yChans,
+			      Float_t yLow, Float_t yHigh)
+{
+  switch (eType) {
+  case keByte:
+    return new  CSpectrum2DmB(name, NextId(), parameters, xChans, yChans,
+			     xLow, xHigh, yLow, yHigh);
+  case keWord:
+    return new  CSpectrum2DmW(name, NextId(), parameters, xChans, yChans,
+			     xLow, xHigh, yLow, yHigh);
+
+  case keLong:
+    return new CSpectrum2DmL(name, NextId(), parameters, xChans, yChans,
+			     xLow, xHigh, yLow, yHigh);
+
+  default:
+    throw CSpectrumFactoryException(eType, ke2Dm, name,
+				    CSpectrumFactoryException::keBadDataType,
+				    "Creating 2d multiply incremented  spectrum");
+  }
+  return (CSpectrum*)kpNULL;	// Acutally a bad error.
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

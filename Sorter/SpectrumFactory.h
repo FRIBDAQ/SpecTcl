@@ -32,6 +32,9 @@
 
 /* Change log:
    $Log$
+   Revision 5.4  2006/09/26 11:06:56  ron-fox
+   Added 2d multiply incremented spectra to the spectrum factory
+
    Revision 5.3  2006/09/20 10:57:59  ron-fox
    Modify more licenses to short form
 
@@ -219,6 +222,13 @@ public:
   CSpectrum* CreateSummary(const STD(string)& rName, DataType_t eType, 
 			   STD(vector)<CParameter>& rParameters, UInt_t nyChannels,
 			   Float_t fyLow, Float_t fyHigh);
+  CSpectrum* Create2DMultiple(STD(string) name, DataType_t eType,
+			      STD(vector)<CParameter>& parameters, 
+			      UInt_t  xChans,
+			      Float_t xLow, Float_t xHigh,
+			      UInt_t  yChans,
+			      Float_t yLow, Float_t yHigh);
+
   UInt_t NextId ()  ;
   Bool_t ExceptionMode() const { return m_fExceptions; }
   Bool_t ExceptionMode(Bool_t fNewMode) {

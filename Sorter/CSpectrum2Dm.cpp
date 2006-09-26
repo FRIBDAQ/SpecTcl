@@ -154,6 +154,14 @@ CSpectrum2Dm::GetDefinition()
   def.eDataType  = StorageType();
   return def;
 }
+/*!
+  Returns the type of the spectrum.
+*/
+SpectrumType_t
+CSpectrum2Dm::getSpectrumType()
+{
+  return ke2Dm;
+}
 
 
 /////////////////////////////////////////////////////////////////////
