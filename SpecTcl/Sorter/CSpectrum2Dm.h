@@ -88,6 +88,7 @@ public:
 	       Float_t  xlow, Float_t   xhigh,
 	       Float_t  ylow, Float_t   yhigh);
 
+  virtual ~CSpectrum2Dm();
 private:
   CSpectrum2Dm(const CSpectrum2Dm& rhs);
   CSpectrum2Dm& operator=(const CSpectrum2Dm& rhs);
@@ -101,10 +102,14 @@ public:
   virtual Bool_t UsesParameter(UInt_t nId) const;
   virtual void   GetParameterIds(STD(vector)<UInt_t>& rvIds);
   virtual void   GetResolutions(STD(vector)<UInt_t>& rvResolutions);
+  virtual CSpectrum::SpectrumDefinition& GetDefinition();
 
 
 protected:
   CSpectrum::SpectrumDefinition GetCommonDefinition();
+  UInt_t coordsToIndex(UInt_t x, UInt_t y) const {
+    return (y*m_xChannels) + x;
+  }
 
 private:
   CSpectrum::Axes CreateAxisVector(const CParameter& xParam,
