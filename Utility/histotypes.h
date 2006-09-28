@@ -18,6 +18,9 @@
 /*
    Change log:
    $Log$
+   Revision 5.5  2006/09/28 21:55:09  ron-fox
+   Fix issues with m2 spectra I/O and listing
+
    Revision 5.4  2006/09/22 11:40:55  ron-fox
    - Cleaned up license text
    - Added support for m2 in SpectrumType_t enum and operator <<>>'s.
@@ -302,6 +305,7 @@ operator>>(STD(istream)& in, SpectrumType_t& t)
     else {
       t= keUnknown;
     }
+    break;
   case '?':
   default:
     t = keUnknown;
