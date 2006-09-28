@@ -96,9 +96,17 @@ private:
   int operator!=(const CSpectrum2Dm& rhs) const;
 public:
 
+
+  // Selectors:
+
+  Axes getAxisMaps() const {
+    return m_axisMappings;
+  }
+
   //   These are virtual member functions that can be 
   //   shared by all implementation so fCSpectrum2Dm<type>
   //
+public:
   virtual Bool_t UsesParameter(UInt_t nId) const;
   virtual void   GetParameterIds(STD(vector)<UInt_t>& rvIds);
   virtual void   GetResolutions(STD(vector)<UInt_t>& rvResolutions);

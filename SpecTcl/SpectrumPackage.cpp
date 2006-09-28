@@ -28,75 +28,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //      East Lansing, MI 48824-1321
 //      mailto:fox@nscl.msu.edu
 //
-// Change Log:
-//     
-//    May 5, 2005 - Added Support for StripChart specrtra
-//
-//    July 3, 1999 - Changed the way spectra are created to take advantage
-//                   of CSpectrumFactory: removed New1d(), New2d() and 
-//                   replaced them with CreateSpectrum().
-//
-//    $Log$
-//    Revision 5.6  2006/09/22 11:40:18  ron-fox
-//    - SpectrumCommand - had a typo I introduced.
-//    - SpectrumPackage -added lookups for m2 spectra
-//
-//    Revision 5.5  2006/03/20 18:25:16  ron-fox
-//    Add a bit more error detection/checking in spectrum binding/creation in
-//    GUI...other changes are incidental and accidental
-//
-//    Revision 5.4  2006/02/21 19:30:59  ron-fox
-//    Add -showgate to spectrum -list command/subcommand
-//
-//    Revision 5.3  2005/09/22 12:40:38  ron-fox
-//    Port in the bitmask spectra
-//
-//    Revision 5.2  2005/06/03 15:19:28  ron-fox
-//    Part of breaking off /merging branch to start 3.1 development
-//
-//    Revision 5.1.2.5  2005/05/27 11:07:30  thoagland
-//    Added support for pseudo, parameter, clear, apply, and bind to take an optional pattern for the -list switch.
-//
-//    Revision 5.1.2.4  2005/05/24 11:36:48  thoagland
-//    Added support for spectrum -list [-byid] [pattern]
-//
-//    Revision 5.1.2.3  2005/05/11 16:56:07  thoagland
-//    dded Support for StripChart Spectra
-//
-//    Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
-//    Add SpecTcl Application programming interface and make use of it
-//    in spots.
-//
-//    Revision 5.1.2.1  2004/12/15 17:24:06  ron-fox
-//    - Port to gcc/g++ 3.x
-//    - Recast swrite/sread in terms of tcl[io]stream rather than
-//      the kludgy thing I had done of decoding the channel fd.
-//      This is both necessary due to g++ 3.x's runtime and
-//      nicer too!.
-//
-//    Revision 5.1  2004/11/29 16:56:12  ron-fox
-//    Begin port to 3.x compilers calling this 3.0
-//
-//    Revision 4.6.2.1  2004/04/13 19:37:24  ron-fox
-//    Issue 120 and related bugs: Memory leak on spectrum -delet -all
-//    - Also fix up the way iteration works.
-//    - Fix Issues in Xamine interface library: check for allocation failure was too late.
-//    - Fix issues in Xamine allocator/free.. correct compaction algorithms.
-//
-//    Revision 4.6  2004/01/31 03:48:18  ron-fox
-//    Fix double deletion error on sread -replace.
-//
-//    Revision 4.5.2.1  2004/01/31 03:44:13  ron-fox
-//    Fix error in sread -replace : doubly deleted old spectrum and failed second time
-//    around
-//
-//    Revision 4.5  2003/04/15 19:25:20  ron-fox
-//    To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
-//
-//    Revision 4.4  2003/04/01 19:55:40  ron-fox
-//    Support for Real valued parameters and spectra with arbitrary binnings.
-//
-//
+
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
 //
@@ -1892,7 +1824,7 @@ CSpectrumPackage::DataTypeToText(DataType_t dType)
     if(dType == aDataTypes[i].eType) 
       return aDataTypes[i].pName;
   }
-  return "*uknown*";
+  return "*unknown*";
 }
 ////////////////////////////////////////////////////////////////////////
 //
@@ -1925,21 +1857,9 @@ CSpectrumPackage::Datatype(SpectrumType_t st, const char* pType)
   //  If pType is NULL, then we default depending on the type of the
   //  spectrum.
 
-  if(!pType) 
-    switch(st) {
-    case ke1D:
-    case keStrip:
-    case keBitmask:
-    case keG1D:
-    case ke2D:
-    case keSummary:
-    case keG2D:
-      return keLong;		// All spectra default to long data types now.
-    default:
-      errno = EINVAL;
-      throw CErrnoException("Mapping default data type for spectrum");
-      
-    }
+  if(!pType) {
+    return keLong;
+  }
 
   // Look up pType:
   //
