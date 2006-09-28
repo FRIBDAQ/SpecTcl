@@ -946,6 +946,31 @@ image create photo ::browser::pseudoicon   -format gif \
         $self addEntryParameter $id 1 "Value : $valuep"
 
     }
+
+    # set2dMultipleSubInfo id parameters axes
+    #     Fills in the required sub info for a 2d multiply incremented
+    #     spectrum.  We add 2 axes named arbitrarily X and Y
+    #     and list all the parameters and their information as well.
+    #
+    # Parameters:
+    #    id         : Id of the spectrum node.
+    #    parameters : list of parameter names.
+    #    axes       : 2 axis specifications.
+    #
+    method set2dMultipleSubInfo {id parameters axes} {
+        set axisid [$self addAxis $id X "" [lindex $axes 0]]
+        $win.tree entry configure $axisid -label X
+        set axisid [$self addAxis $id Y "" [lindex $axes 1]]
+        $win.tree entry configure $axisid -label Y
+
+
+	set i 0
+	foreach parameter $parameters {
+	    $self addEntryParameter $id $i $parameter"
+	    incr i
+	}
+    }
+
     #
     # setSpectrumSubInfo id type parameters axes
     #      Fills in any required child nodes for a spectrum.  This is type dependent.
@@ -987,6 +1012,9 @@ image create photo ::browser::pseudoicon   -format gif \
         S {
             $self setStripchartSubInfo $id $parameters $axes
         }
+	m2 {
+	    $self set2dMultipleSubInfo $id $parameters $axes
+	    }
         default {}
         }
     }
