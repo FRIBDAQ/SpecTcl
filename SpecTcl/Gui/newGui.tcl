@@ -1,4 +1,4 @@
-ed#
+#
 #    This software is Copyright by the Board of Trustees of Michigan
 #    State University (c) Copyright 2005.
 #
@@ -22,6 +22,7 @@ package provide SpecTclGui 1.0
 
 lappend auto_path [file dirname [info script]]
 
+package require snit
 package require browser
 package require pseudo
 package require gate

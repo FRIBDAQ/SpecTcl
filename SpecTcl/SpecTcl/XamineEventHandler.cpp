@@ -40,10 +40,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <ButtonEvent.h>
 #include <DisplayGate.h>
 #include <Spectrum.h>
+#include <CSpectrum2Dm.h>
+#include <SpecTcl.h>
 #include <XamineEvent.h>
 
 #include <Gamma2DW.h>
 
+
+#include <stdio.h>
 #include <vector>
 #include <string>
 #include <assert.h>
@@ -205,6 +209,9 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
       gType = CGateFactory::contour;
     else if((spType == keG2D))
       gType = CGateFactory::gammacontour;
+    else if (spType == ke2Dm) {
+      gType = CGateFactory::contour; // will become an or of contours.
+    }
     else {
       cerr << "Contour gate received on a spectrum type that doesn't know"
            << " about contours.\n Consider updating SpecTcl?"
@@ -215,8 +222,11 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   case kgBand2d:
     if((spType == ke2D))	// Ordinary 2d -> Band.
       gType = CGateFactory::band;
-    else if((spType == keG2D))	// Gamma spectrum -> Gamm aband.
+    else if((spType == keG2D))	// Gamma spectrum -> Gamma aband.
       gType = CGateFactory::gammaband;
+    else if (spType == ke2Dm) {
+      gType = CGateFactory::band; // will become an or of bands.
+    }
     else {
       cerr << "Band received on a spectrum that type that doesn't know how"
       << " to handle it.\n Consider updating Spectcl."
@@ -234,6 +244,10 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   //
 
   switch(spType) {
+  case  ke2Dm:
+    make2dSumgate(strGateName, gType, pSpec,
+		  GatePoints);
+    return;
   case ke1D:                      // 1-d spectrum must be a cut..
     if(gType != CGateFactory::cut) {
       cerr << "Only cuts can be accepted on 1-d spectra\n";
@@ -470,4 +484,120 @@ CXamineEventHandler::CallbackRelay(ClientData pObject)
   CXamineEventHandler* pThis = (CXamineEventHandler*)pObject;
 
   pThis->operator()();
+}
+
+///////////////////////////////////////////////////////////////////////
+////////////////////// Private utility functions //////////////////////
+///////////////////////////////////////////////////////////////////////
+
+// Create a gate on a sum spectrum.  The gate type will
+// be either a contour or a band.  The gate will be made by
+// creating individual gates for each parameter pair in the
+// spectrum and then creating a gate that will or these together.
+// so the gate is true whenever any pair of parameters falls in it.
+//
+// Parameters:
+//     std::string gateName                        - Name of the final gate to create.
+//     CGateFactory::GateType componentGateType    - Type of component gates.
+//     CSpectrum*             pSpectrum            - Pointer to the spectrum.
+//     std::vector<CPoint>    rawPoints            - Spectrum coordinates points.
+//
+void
+CXamineEventHandler::make2dSumgate(string                 gatename,
+				   CGateFactory::GateType componentGateType,
+				   CSpectrum*             pSpectrum,
+				   vector<CPoint>         rawPoints)
+{
+  vector<string> componentNames; // So that we can create the OR gate.
+  SpecTcl& api(*SpecTcl::getInstance()); // so we can call API members.
+
+  CSpectrum2Dm* pSumSpectrum(dynamic_cast<CSpectrum2Dm*>(pSpectrum));
+  vector<UInt_t> parameterIds;
+  pSumSpectrum->GetParameterIds(parameterIds);
+
+  //  Now we're ready to get what we need to create the component gates.
+
+  for (int i = 0; i < parameterIds.size(); i+=2) {
+    UInt_t xId   = parameterIds[i];
+    UInt_t yId   = parameterIds[i+1];
+    vector<UInt_t>  gateParams;
+    gateParams.push_back(xId);
+    gateParams.push_back(yId);
+
+    vector<FPoint> points = scaleSumSpectrumPoints(pSpectrum, 
+						   i,
+						   rawPoints);
+    string         componentName = createComponentGateName(gatename,
+							   xId, yId);
+    CGate* pGate = api.CreateGate(componentGateType,
+			    points, gateParams);
+    api.AddGate(componentName, pGate);
+    componentNames.push_back(componentName);
+  }
+  // Now create the or gate:
+
+  CGate* orGate = api.CreateOrGate(componentNames);
+  api.AddGate(gatename, orGate);
+}
+// Create a unique component name for a component of a 
+// gate accepted on a sum spectrum.
+// component names are of the form basename.p1.p2.serial
+// where
+//   basename - the final name of the or gate of which this is a component.
+//   p1       - First parameter id of the gate.
+//   p2       - Second paraemter id of the gate
+//   serial   - Is an unsigned integer that uniquifies any conflicts.
+// 
+// Parameters:
+//   std::string baseName     - Name of the gate being made.
+//   UInt_t p1, p2            - Parameter ids of the component gate.
+//
+string 
+CXamineEventHandler::createComponentGateName(string baseName,
+					     UInt_t p1,
+					     UInt_t p2)
+{
+  UInt_t serial;
+  SpecTcl& api(*(SpecTcl::getInstance()));
+
+  while (true) {
+    char gateName[1000];	// hopefully this is large enough...
+    snprintf(gateName, sizeof(gateName), "_%s.%d.%d.%03d",
+	     baseName.c_str(), p1, p2, serial);
+    string strName(gateName);
+    if (!api.FindGate(strName)) {
+      return strName;
+    }
+    serial++;
+  }
+}
+//  Create a set of scaled points for a component gate of ta gate accepted on
+//  as summed 2d spectrum.
+// Parameters:
+//     CSpectrum* pSpectrum           - pointer to the spectrum in which we're 
+//                                      scaling gates.
+//     UInt_t     firstAxis           - Number of the converter for the x point.
+//                                      For the y point it's firstAxis+1.
+//     std::vector<CPoint> rawPoints  - The list of points to convert.
+// Returns:
+//   std::vector<FPoint>     - The converted points.
+//
+vector<FPoint>
+CXamineEventHandler::scaleSumSpectrumPoints(CSpectrum* pSpectrum,
+					  UInt_t     firstAxis,
+					  vector<CPoint> rawPoints)
+{
+  CSpectrum2Dm*      p = dynamic_cast<CSpectrum2Dm*>(pSpectrum);
+  assert(p);
+  CSpectrum2Dm::Axes a = p->getAxisMaps();
+  vector<FPoint>     result;
+
+  for (int i =0; i < rawPoints.size(); i++) {
+    Float_t x = a[i].AxisToParameter(rawPoints[i].X());
+    Float_t y = a[i+1].AxisToParameter(rawPoints[i].Y());
+    
+    result.push_back(FPoint(x,y));
+  }
+  return result;
+
 }

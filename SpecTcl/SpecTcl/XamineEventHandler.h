@@ -32,14 +32,36 @@
 #include <Xamineplus.h>
 #endif
 
+#ifndef __GATEFACTORY_H
+#include "GateFactory.h"
+#endif
+
+#ifndef __POINT_H
+#include <Point.h>
+#endif
+
 #ifndef _TK_H
 #include <tk.h>
 #define _TK_H
 #endif
 
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif
+#endif
 
 class CDisplayGate;
 class CButtonEvent;
+class CSpectrum;
 
 // XamineEventHandler class declaration:
                                                                
@@ -129,8 +151,21 @@ protected:
  virtual   void OnButton (CButtonEvent& rButton)    ;
  virtual   UInt_t FindDisplayBinding (const STD(string)& rName);
 
-  static void CallbackRelay(ClientData pObject);
+ static void CallbackRelay(ClientData pObject);
+  // Utilities:
+private:
 
+  void make2dSumgate(STD(string)            gateName,
+		     CGateFactory::GateType componentGateType,
+		     CSpectrum*             pSpectrum,
+		     STD(vector)<CPoint>    rawPoints);
+  STD(string) createComponentGateName(STD(string) baseName,
+				      UInt_t      p1,
+				      UInt_t      p2);
+  STD(vector)<FPoint> scaleSumSpectrumPoints(CSpectrum*          pSpectrum,
+					     UInt_t              firstAxis,
+					     STD(vector)<CPoint> rawPoints);
+		     
 };
 
 #endif

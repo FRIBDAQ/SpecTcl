@@ -57,6 +57,10 @@ CSpectrum2Dm::CSpectrum2Dm(string              name,
   m_yChannels(yscale)
 {
 
+
+  AddAxis(xscale, 0.0, xscale-1.0, parameters[0].getUnits());
+  AddAxis(yscale, 0.0, yscale-1.0, parameters[1].getUnits());
+
   CreateMappings(parameters, 0.0, static_cast<Float_t>(xscale),
 		0.0, static_cast<Float_t>(yscale));
   
@@ -94,6 +98,9 @@ CSpectrum2Dm:: CSpectrum2Dm(STD(string)              name,
   m_xChannels(xchans),
   m_yChannels(ychans)
 {
+  AddAxis(xchans, xlow, xhigh, parameters[0].getUnits());
+  AddAxis(ychans, ylow, yhigh, parameters[1].getUnits());
+
   CreateMappings(parameters, xlow, xhigh, ylow, yhigh);
 }
 
@@ -214,17 +221,18 @@ CSpectrum2Dm::CreateAxisVector(const CParameter&      xParam,
 			       UInt_t                 nyChannels,
 			       Float_t fyLow, Float_t fyHigh)
 {
+  
  CSpectrum:Axes aMappings;
-
+ 
  CAxis xMap(fxLow, fxHigh, nxChannels, 
 	    CParameterMapping(xParam));
  CAxis yMap(fyLow, fyHigh, nyChannels,
 	    CParameterMapping(yParam));
-
+ 
  
  aMappings.push_back(xMap);
  aMappings.push_back(yMap);
-
+ 
  return aMappings;
 }
 
