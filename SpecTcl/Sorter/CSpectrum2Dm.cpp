@@ -157,7 +157,8 @@ CSpectrum2Dm::GetResolutions(vector<UInt_t>& rvResolutions)
 CSpectrum::SpectrumDefinition&
 CSpectrum2Dm::GetDefinition()
 {
-  static CSpectrum::SpectrumDefinition def = GetCommonDefinition();
+  static CSpectrum::SpectrumDefinition def;
+  def = GetCommonDefinition();
   def.eDataType  = StorageType();
   return def;
 }
