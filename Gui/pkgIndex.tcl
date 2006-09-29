@@ -30,4 +30,4 @@ package ifneeded guistate     1.0 [list source [file join $dir guistate.tcl]]
 package ifneeded applygate    1.0 [list source [file join $dir applygate.tcl]]
 package ifneeded datasource   1.0 [list source [file join $dir datasource.tcl]]
 package ifneeded filtercontrol 1.0 [list source [file join $dir filtercontrol.tcl]]
-
+package ifneeded edit2dmulti 1.0  [list source [file join $dir edit2dmulti.tcl]]
