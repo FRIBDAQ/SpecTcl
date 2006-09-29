@@ -520,9 +520,12 @@ CXamineEventHandler::make2dSumgate(string                 gatename,
   for (int i = 0; i < parameterIds.size(); i+=2) {
     UInt_t xId   = parameterIds[i];
     UInt_t yId   = parameterIds[i+1];
-    vector<UInt_t>  gateParams;
-    gateParams.push_back(xId);
-    gateParams.push_back(yId);
+    vector<string>  gateParams;
+    CParameter* pX = api.FindParameter(parameterIds[i]);
+    CParameter* pY = api.FindParameter(parameterIds[i+1]);
+
+    gateParams.push_back(pX->getName());
+    gateParams.push_back(pY->getName());
 
     vector<FPoint> points = scaleSumSpectrumPoints(pSpectrum, 
 						   i,
@@ -530,7 +533,7 @@ CXamineEventHandler::make2dSumgate(string                 gatename,
     string         componentName = createComponentGateName(gatename,
 							   xId, yId);
     CGate* pGate = api.CreateGate(componentGateType,
-			    points, gateParams);
+				  gateParams, points);
     api.AddGate(componentName, pGate);
     componentNames.push_back(componentName);
   }
@@ -557,7 +560,7 @@ CXamineEventHandler::createComponentGateName(string baseName,
 					     UInt_t p1,
 					     UInt_t p2)
 {
-  UInt_t serial;
+  UInt_t serial=0;
   SpecTcl& api(*(SpecTcl::getInstance()));
 
   while (true) {

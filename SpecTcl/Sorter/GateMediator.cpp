@@ -53,6 +53,8 @@ CGateMediator::operator() ()
     return mediateGamma1();
   case keG2D:
     return mediateGamma2();
+  case ke2Dm:
+    return mediate2dMultiple();
   
     // No other spectrum types can display gates.
   default:
@@ -111,6 +113,11 @@ CGateMediator::mediate2d()
   else {
     return kfFALSE;
   }
+}
+Bool_t 
+CGateMediator::mediate2dMultiple()
+{
+  return false;			// for now it is false.. tough tofigure out.
 }
 /**
  *  Determine if a gate is displayable on 1-d gamma spectrum.
