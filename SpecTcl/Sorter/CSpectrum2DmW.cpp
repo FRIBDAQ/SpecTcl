@@ -85,6 +85,7 @@ CSpectrum2DmW::CSpectrum2DmW(STD(string)              name,
   CreateChannels();
 }
 
+
 CSpectrum2DmW::~CSpectrum2DmW() {}
 
 
