@@ -35,14 +35,45 @@ package require guistate
 package require applygate
 package require datasource
 package require filtercontrol
+package require preferences
 
 set LargestSource 50
+
+
+#-------------- Global defaults for preferences ------------
+
+# GuiPrefs::preferences is an array that contains
+# the user preferences.  These can be modified
+# by the user's ~/.SpecTcl file at startup time
+# and by the user via Edit->Preferences...
+#
+
+namespace eval GuiPrefs {
+    variable preferences
+}
+
+#   Default x/y channels in a 2-d.
+#
+
+set GuiPrefs::preferences(defaultXChannels)   1024
+set GuiPrefs::preferences(defaultYChannels)   1024
+
+
 
 
 #--------------- Utility functions -------------------------
 
 
 #------------------- menu action procs -------------------------
+
+
+# editPrefs
+#   Edit the user preferences.
+#   We also save the new preferences for the user.
+proc editPrefs {} {
+    preferences::editPrefs
+    preferences::savePrefs
+}
 
 #sourceScript
 #    Prompt for a tcl/tk script to source into the program.
@@ -748,6 +779,8 @@ proc startGui {} {
     .topmenu.filemenu add separator
     .topmenu.filemenu add command -label Exit... -command exitProgram
 
+    menu .topmenu.edit -tearoff 0
+    .topmenu.edit add command -label Preferences.. -command editPrefs
 
     menu .topmenu.help -tearoff 0
     .topmenu.help add command -label Topics...  -command spectclGuiHelpTopics
@@ -786,6 +819,7 @@ proc startGui {} {
     .topmenu.gate add command -label Delete...        -command "selectAndDeleteGates; .gui.b update"
 
     .topmenu add cascade -label File -menu .topmenu.filemenu
+    .topmenu add cascade -label Edit -menu .topmenu.edit
     .topmenu add cascade -label Help -menu .topmenu.help
     .topmenu add cascade -label {Data Source} -menu .topmenu.source
     .topmenu add cascade -label {Filters}     -menu .topmenu.filter
@@ -820,3 +854,5 @@ proc startGui {} {
 set SpecTclIODwellMax 100
 startGui
 updateStatus 1000
+
+preferences::readPrefs
