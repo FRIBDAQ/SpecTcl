@@ -29,8 +29,8 @@ package require guiutilities
 #----------------------------------------------------------------------------
 #  editRatesDialog
 #
-#    This is a snidget to edit a 2-d rates spectrum definition.
-#    2-d rates spectra are defined in terms of sets of parameter pairs.
+#    This is a snidget to edit a 2-d sum   spectrum definition.
+#    2-d sum spectra are defined in terms of sets of parameter pairs.
 #    parameter pairs can be accepted a parameter at a time from the
 #    parameters in the parameter browser or from the browsable set of
 #    2-d spectra (each providing an x/y parameter pair).
@@ -413,15 +413,29 @@ snit::widget edit2dMulti {
     method setAxis {which parameter} {
 	set basename $win.${which}axis
 	set paraminfo [treeparameter -list $parameter]
-	if {[llength $paraminfo] == 0} {
-	    return
+	if {$which eq "x"} {
+	    set index defaultXChannels
+	} else {
+	    set index defaultYChannels
 	}
-	set info [lindex $paraminfo 0]
-	set low  [lindex $info 2]
-	set high [lindex $info 3]
-	set bins [lindex $info 1]
-	set units [lindex $info 5]
+	set defaultMax $::GuiPrefs::preferences($index)
 
+
+	if {[llength $paraminfo] == 0} {
+	    set low 0
+	    set high [expr $defaultMax - 1]
+	    set bins $defaultMax
+	    set units ""
+	} else  {
+	    set info [lindex $paraminfo 0]
+	    set low  [lindex $info 2]
+	    set high [lindex $info 3]
+	    set bins [lindex $info 1]
+	    set units [lindex $info 5]
+	}
+	if {$bins > $defaultMax} {
+	    set bins $defaultMax
+	}
 
 	if {[$basename.from get ] eq ""} {
 	    ::setEntry $win.${which}axis.from $low

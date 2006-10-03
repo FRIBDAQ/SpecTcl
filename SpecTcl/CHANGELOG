@@ -499,3 +499,6 @@ SpecTcl 3.2-pre1 starts.
   Sept 8, 2006b Related to the above, allow event processors to indicate that
                 0 bytes of the event were processed if the event was not complete.
   Sept 27,2006  Added code to support multiply incremented 2-d sum spectra.
+  Oct. 03, 2006 Gui: Add preferences control panel with ~/.SpecTclDefaults
+                save file.  Use this to default the length of 2-d spectrum
+                axes.
