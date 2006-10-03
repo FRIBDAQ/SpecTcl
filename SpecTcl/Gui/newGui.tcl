@@ -846,8 +846,8 @@ proc startGui {} {
 
     label .gui.statusline1 -justify left -text {Title:  N/A     Run Number: N/A}
     label .gui.statusline2 -justify left -text {Data Source:  Test (inactive)   0 buffers analyzed  100% efficient}
-    pack .gui.statusline1 -fill x -expand 1 -anchor w
-    pack .gui.statusline2 -fill x -expand 1 -anchor w
+    pack .gui.statusline1 -fill x -expand 0 -anchor w
+    pack .gui.statusline2 -fill x -expand 0 -anchor w
 
 }
 
