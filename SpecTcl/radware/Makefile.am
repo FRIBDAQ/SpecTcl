@@ -27,3 +27,6 @@ INCLUDES		= -I. -I@top_builddir@ 		\
 				-I@top_builddir@/Display        \
 				-I@top_builddir@/Gates		\
 				-I@top_builddir@/Filter
+
+
+EXTRA_DIST = permission.txt
