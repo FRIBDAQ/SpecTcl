@@ -53,6 +53,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "xaminegc.h"
 #include "gc.h"
 #include "chanplot.h"
+#include "colormgr.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -1736,7 +1737,8 @@ grobj_Fitline::draw(XMWidget* pWindow, win_attributed* pAttributes,
 
   XamineGrobjGC *xgc = Xamine_GetGrobjGC(*pWindow);
   SetClipRegion(xgc, pWindow, pAttributes);
-  xgc->Set2DColors(*pWindow);	// A bit dirty to get contrast on the draw.
+  //  xgc->Set2DColors(*pWindow);	// A bit dirty to get contrast on the draw.
+  xgc->SetForeground(Xamine_PctToPixel(50));
   xgc->SetPermanent();
   GC gc = xgc->gc;
 
