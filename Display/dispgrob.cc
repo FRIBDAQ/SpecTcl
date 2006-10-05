@@ -37,6 +37,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <config.h>
 
 #include <stdio.h>
+#include <string.h>
+#include <tcl.h>
 #include "dispgrob.h"
 #include "XMWidget.h"
 #include "XBatch.h"
@@ -51,6 +53,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "xaminegc.h"
 #include "gc.h"
 #include "chanplot.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 /*
 ** Local storage:
 **
@@ -1541,9 +1547,378 @@ grobj_Peak1d::ComputeLocation(Xamine_Convert1d& cvt,
   xpix  = (short)xpix1;
 }
 
+////////////////////////////////////////////////////////////////////////////
+//////////////// Implementation of grobj_Fitline ///////////////////////////
+////////////////////////////////////////////////////////////////////////////
+
+/*!
+   Construct a fitline (parameterized):
+   \param nSpectrum : int
+      Number of the spectrum this fitline is defined on. That is the slot
+      in shared memory of the spectrum descriptor.
+   \param nId : int
+      A unique id for the object.  This is used by clients e.g. to select
+      this object from among all objects defined on a spectrum.
+   \param pszName : grobj_name
+      Name of the gate... could be null for an anonymous gate.
+   \param low, high : int
+      Defines the region of interest over which the fitline is defined.
+      this is in terms of spectrum channel numbers... irrespective of mapping.
+   \param evalProc : const char*
+      Points to a Tcl script that must define the proc 'fitline'  this proc
+      returns the height of the fitline at all points between low and high.
+   
+*/
+grobj_Fitline::grobj_Fitline(int nSpectrum, int nId, grobj_name pszName,
+			     int low, int high, const char* evalProc) : 
+  grobj_generic(),
+  m_low(low),
+  m_high(high),
+  m_evalProc(evalProc)
+{
+  // Initialize base class.. I know this is ugly  but it's what we're left with
+  // at this point in time:
+
+  if (pszName) {
+    setname(pszName);
+  }
+  id       = nId;
+  spectrum = nSpectrum;
+  npts     = 0;
+  
+}
+/*!
+  Copy constructor.  Construct into ourselves to make a duplicate of some
+  other object:
+
+  \param rhs : const grob_Fitline&
+     Reference to the object we are duplicating inside ourselves.
+
+*/
+grobj_Fitline::grobj_Fitline(const grobj_Fitline& rhs)
+{
+  copyIn(rhs);
+}
+
+/*!
+   Destructor is a place holder since the only dynamic storage
+   associated with us is a string that knows how to deal with itself on
+   default destruction
+*/
+grobj_Fitline::~grobj_Fitline()
+{
+}
+/*!
+   Assignment - Assign to ourselves from another object the result
+                is an object that has all the same member data as the rhs.
+   \param rhs : const grobj_Fitline&
+      Reference to the object that we will become a duplicate of.
+   \return grobj_Fitline&
+   \retval  -- A reference to *this to support chaining.
+*/
+grobj_Fitline&
+grobj_Fitline::operator=(const grobj_Fitline& rhs)
+{
+  if (this != &rhs) {
+    copyIn(rhs);
+  }
+  return *this;
+}
+/*!
+   Return true if all the member data we care about is the same as the
+   rhs:
+   \param rhs : const grobj_Fitline& 
+      Object we are comparing *this to.
+   \return int
+   \retval 0   Not equal
+   \retval 1   Equal
+*/
+int
+grobj_Fitline::operator==(const grobj_Fitline& rhs) const
+{
+  //  Name comparison is a bit tricky since one or both objects
+  // may not have a name:
+
+  bool namesame;
+  if (hasname == rhs.hasname) {
+    if (hasname) {		// Can compare
+      namesame = (strcmp(name, rhs.name) == 0);
+    } 
+    else {			// Both have no name
+      namesame = true;
+    }
+  }
+  else {			// Namedness is different.
+    namesame = false;
+  }
+
+  // Now we can do the 'grand return' typical of ==:
+
+  return (namesame                          &&
+	  (id == rhs.id)                    &&
+	  (spectrum == rhs.spectrum)        &&
+	  (m_low  == rhs.m_low)             &&
+	  (m_high == rhs.m_high)            &&
+	  (m_evalProc == rhs.m_evalProc));
+}
+
+/*!
+  Inequality is defined as the logical negation of equality:
+*/
+int
+grobj_Fitline::operator!=(const grobj_Fitline& rhs) const
+{
+  return !(*this == rhs);
+}
+
+/*!
+  Return the type of the object:
+*/
+grobj_type
+grobj_Fitline::type()
+{
+  return fitline;
+}
+
+/*!
+  Clone the object:
+*/
+grobj_generic*
+grobj_Fitline::clone()
+{
+  return new grobj_Fitline(*this); // Good thing we have a coyp consructor.
+}
+
+
+/*!
+   Draw the object on a window.
+  \param pWindow  : XMWidget*
+     Pointer to the object wrapped widget in which we will draw.
+    This is a drawing area widget.
+  \param pAttributes : win_attributed*
+    Pointer to the spectrum attributes object.
+  \param final : Boolean
+    Draw in final or tentative for.  Tentative draws are done with an xor blt
+    to promote easy editing.
+*/
+void
+grobj_Fitline::draw(XMWidget* pWindow, win_attributed* pAttributes,
+		    Boolean final)
+{
+  // Get the boilerplate stuff done
+  Display*  d = XtDisplay(pWindow->getid());
+  Window  win = XtWindow(pWindow->getid());
+  Drawable pm = (Drawable)NULL;
+
+  // If there's a pixmap to accelerate refresh, then get it into pm.
+  // we rely on the fact that the pane widget has the pane number in it's
+  // user data field:
+
+  long index, row, col;
+  pWindow->GetAttribute(XmNuserData, &index);
+  col = index % WINDOW_MAXAXIS;
+  row = index / WINDOW_MAXAXIS;
+  pm  = Xamine_GetBackingStore(row, col);
+
+  // We need a converter to convert the spectrum coordinates of the centroid
+  // and width as well as heights into pixels.  The underlying spectrum is
+  // gaurenteed to be 1d:
+
+  Xamine_Convert1d cvt(pWindow, pAttributes, xamine_shared);
+  cvt.NoClip();
+
+  // Extract the flip and label flag fromt the spectrum attributes:
+
+  Boolean flipped = pAttributes->isflipped();
+  Boolean labelit = pAttributes->showlbl();
+
+  // Create a graphical context which will be used for the drawing.
+
+  XamineGrobjGC *xgc = Xamine_GetGrobjGC(*pWindow);
+  SetClipRegion(xgc, pWindow, pAttributes);
+  xgc->Set2DColors(*pWindow);	// A bit dirty to get contrast on the draw.
+  xgc->SetPermanent();
+  GC gc = xgc->gc;
+
+  // We're now going to make a vector of points in spectrum coordinates
+  // which we will then draw...the vector is in channel/floating height
+  // pairs.
+
+  vector<pair<int, float> > points = computePoints();
+  vector<pair<int, int> >   pts;
+  for (int i=0; i < points.size(); i++) {
+    pair<int, int> p = computePosition(cvt, points[i].first, points[i].second);
+    pts.push_back(p);
+  }
+  // Draw the fitline/label in the window and, if necessary, the backing
+  // store pixmap
+
+
+  drawFitline(d, win, gc, pWindow,
+	      flipped, labelit,
+	      pts);
+  if(pm) {
+    drawFitline(d, pm, gc, pWindow,
+		flipped, labelit,
+		pts);
+  }
+
+
+}
 
 
 
+/*
+  Copy in private member of the grobj_Fitline class
+  Copies member data from rhs to *this:
+*/
+void
+grobj_Fitline::copyIn(const grobj_Fitline& rhs)
+{
+  // Our stuff first.
+
+  m_low   = rhs.m_low;
+  m_high  = rhs.m_high;
+  m_evalProc = rhs.m_evalProc;
+
+  // Now the base class stuff:
+
+  id       = rhs.id;
+  spectrum = rhs.spectrum;
+  npts     = rhs.npts;
+
+  // Name if we have one:
+
+  hasname = rhs.hasname;
+  if (hasname) {
+    strcpy(name, rhs.name);
+  }
+}
+/*
+  Private member to compute the points for the fitline.
+  This involves:
+   - Creating an interpreter, 
+   - Sourcing into it the fitline definition.
+   - Foreach point in the range [m_low, m_high] construct
+     a script string of the form fitline channel
+     evaluate it
+   - add the point and result (as a float) to the vector of points
+     being returned.
+   - Destroy the interpreter
+   - return the points.
+*/
+vector<pair<int, float> >
+grobj_Fitline::computePoints()
+{
+  vector<pair<int, float> > result;
+  pair<int, float>          point;
+
+  Tcl_Interp* interp = Tcl_CreateInterp();
+  Tcl_GlobalEval(interp, m_evalProc.c_str()); // Define the fitline proc.
+
+  for (int x = m_low; x <= m_high; x++) {
+    char script[1000];
+    sprintf(script, "fitline %d", x);
+    Tcl_GlobalEval(interp, script);
+    const char* value = Tcl_GetStringResult(interp);
+    float y;
+    sscanf(value, "%f", &y);
+    point.first  = x;
+    point.second = y;
+    result.push_back(point);
+  }
+  Tcl_DeleteInterp(interp);
+
+  return result;
+}
+/*
+   Compute a position from a channel number and floating point height.
+   Linear interpolation is used to figure out a pixel position more precise
+   than an integerized height.
+*/
+pair<int,int>
+grobj_Fitline::computePosition(Xamine_Convert1d& cvt,
+			       int               channel,
+			       float             height)
+{
+  int htlow = (int)height;
+  int hthigh= htlow+1;
+  int xpix;
+  int ypix1;
+  int ypix2;
+
+  cvt.SpecToScreen(&xpix, &ypix1, channel, htlow);
+  cvt.SpecToScreen(&xpix, &ypix2, channel, hthigh);
+
+  // Interpolate here.
+
+  int ypix = ypix1 + (int)((height - (int)height)*(float)(ypix2-ypix1));
+
+  return pair<int,int>(xpix, ypix);
+
+}
 
 
+/*
+   Draw the polyline that makes up the fitline in a drawable
+   (could be either the window or its manually maintained backing store
+   pixmap
+   Display*    d               - Display id of X11 connection.
+   Drawabele   w               - Id of drawable to write in.
+   GC&          gc             - Reference to graphical context to use when drawing
+   XMWidget*   pWindow         - Pointer to the XMWidget we're drawing into (for
+                                 the label).
+   Boolean    flipped          - True if axes are 'backwards'.
+   Boolean    labelit          - True if the object should be labelled (fn).
+   std::vector<std::pair<int, int> >& points - pixel coordinates of polyline.
 
+
+*/
+void
+grobj_Fitline::drawFitline(Display* d, Drawable w, GC& gc, XMWidget* pWindow,
+			   Boolean flipped, Boolean labelit,
+			   vector<pair<int, int> >& points)
+{
+  // We're going to draw into an XSegmentBatch for efficiency:
+  // This is all inside a block so that the XSegmentBatch is destroyed,
+  // flushing the line to the drawable after the end of the block.
+ 
+  {
+    int lastx = points[0].first;
+    int lasty = points[0].second;
+    if (flipped) {
+      lastx = points[0].second;
+      lasty = points[0].first;
+      
+    }    
+    XSegmentBatch polyline(d, w, gc);
+    for(int i = 1; i < points.size(); i++) {
+      int x = points[i].first;
+      int y = points[i].second;
+      if (flipped) {
+	x = points[i].second;
+	y = points[i].first;
+      }
+      polyline.draw(lastx, lasty, x, y);
+      lastx = x;
+      lasty = y;
+    
+    }
+  }                         // Flush the line to drawable
+
+  // If labelling is turned on, label the grob at its first point:
+
+  if (labelit) {
+    char label[100];
+    sprintf(label, "f%d", getid());
+    int labelx = points[0].first;
+    int labely = points[0].second;
+    if (flipped) {
+      labelx = points[0].second;
+      labely = points[0].first;
+    }
+    Xamine_LabelGrobj(d, w, gc, pWindow,
+		      label, labelx, labely);
+  }
+  
+}

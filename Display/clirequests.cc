@@ -125,13 +125,14 @@ EnterGate(grobj_generic *object)
   switch(type) {
   case onedlong:
   case onedword:
-    if((gtype != cut_1d) && (gtype != peak1d) ) {
+    if((gtype != cut_1d) && (gtype != peak1d) && (gtype != fitline) ) {
       Xamine_EnterAck(InappropriateGate);
       return;
     }
     break;
   case twodword:
   case twodbyte:
+  case twodlong:
     if( (gtype != contour_2d) && (gtype != band)) {
       Xamine_EnterAck(InappropriateGate);
       return;
@@ -211,6 +212,16 @@ DeleteGate(int spec, int id, grobj_type type)
 **     of the spectrum.  If the spectrum is legal then we send the ack back
 **     with the count of the set of gates. This is followed by the gates
 **     themselves.
+**     Note that peak markers and fitlines count as gates as well as
+**     'normal' gates like cuts, bands and contours.  It's up to the
+**      receiver to sort all this out.
+**     Note as well that at present, these abnormal gates are only passed
+**     back with enough information to identify them to the caller.
+**     You get:
+**     - Spectrum Id
+**     - Gate id
+**     - Gate type.
+**     - Empty points list.
 ** Formal Parameters:
 **   int spec:
 **     The spectrum to list.
@@ -231,7 +242,6 @@ ListGates(int spec)
   /* Get the number of gates and send the ack:   */
 
   int ngates = Xamine_GetSpectrumGateCount(spec);
-  int nonPeakGates = 0;
 
   //
   // Count the number of non peak marker gates:
@@ -240,20 +250,18 @@ ListGates(int spec)
   {
     Xamine_GetSpectrumGates(spec, &object, 1, 
 			    (i == 0) ? True : False);
-    if(object->type() != peak1d) nonPeakGates++;
   }
   //
   // Tell the client how many to expect..
   //
-  Xamine_InqAck(Success, nonPeakGates);
+  Xamine_InqAck(Success, ngates);
   //
   //   Then deliver them one at a time.
   //
   for(i = 0; i < ngates; i++) {
     Xamine_GetSpectrumGates(spec, &object, 1, 
 			    (i == 0) ? True : False);
-    if(object->type() != peak1d)
-      Xamine_ListGate(object);
+    Xamine_ListGate(object);
   }
 }
 
@@ -325,6 +333,13 @@ Xamine_ProcessClientRequests(XtPointer client_data,
       break;
     case EnterPeakPosition:	// Accept peak position from client...
       Xamine_ReadPeak(&object); // Read peak from user,  make grobj_Peak1d
+      if(object) {
+	EnterGate(object);
+	delete object;
+      }
+      break;
+    case EnterFitline:
+      Xamine_ReadFitline(&object);
       if(object) {
 	EnterGate(object);
 	delete object;

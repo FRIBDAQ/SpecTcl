@@ -201,6 +201,7 @@ class RequestMsgQueue : public MessageQueue
   int ReadCommand(msg_command *command, int wait);
   int ReadObject(msg_object *object);
   int ReadPeak(msg_peakentry* object);
+  int ReadFitline(msg_fitline* object);
   int ReadDeleteData(msg_remove *object);
   int ReadObjectListData(unsigned int *spectrum);
   int ReadButtonBoxGeometry(Cardinal *columns, Cardinal *rows);

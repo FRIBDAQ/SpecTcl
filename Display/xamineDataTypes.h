@@ -151,8 +151,16 @@ typedef enum {			/* Types of graphical objects. */
 	       summing_region_2d = 6,
 	       marker_2d         = 7,
 	       peak1d            = 8,
+	       fitline           = 9,
 	       pointlist_1d      = 100,
 	       pointlist_2d      = 200
 	       } grobj_type, Xamine_gatetype;
+
+
+/*  Put a maximum on the size of scripts that specify how to evaluate a fitline. */
+
+#define XAMINE_MAXTCLPROCSIZE    1024
+typedef char FitProc[XAMINE_MAXTCLPROCSIZE];
+typedef FitProc *pFitProc;
 
 #endif

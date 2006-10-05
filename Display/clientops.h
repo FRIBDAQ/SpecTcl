@@ -95,7 +95,8 @@ typedef enum _operation {
 
 		 /* User created graphical objects: */
 
-		 EnterPeakPosition /* Enter a Peak position grobj. */
+		 EnterPeakPosition,      /* Enter a Peak position grobj. */
+		 EnterFitline	         /* Enter a fitline grobj.       */
 	       } operation;
 
     /* Status return codes in the ack mailbox: */
@@ -115,6 +116,9 @@ typedef enum _msg_status {
 		  BadCoordinates        = -8,
 		  BadType               = -9,
 		  BadPrompter           = -10,
+		  FitlineOverflow       = -11, /* Fitline script too big. */
+		  FitlineEvalError      = -12, /* Fitline script eval failed */
+		  NameOverflow          = -13, /* Name does not fit in buffer */
 		  ButtonCreated         =  1
 		} msg_status;
 
@@ -222,6 +226,17 @@ struct _msg_peakentry {
                         float        fWidth;
                       } msg_peakentry;
                        
+
+typedef 
+struct _msg_fitline {
+  int        nSpectrum;		        /* Number of object's spectrum. */
+  int        nId;       		/* Unique object id number.     */
+  int        nHasName;			/* True if named item.          */
+  grobj_name szName;		        /* Name of the item.            */
+  int        low;		        /* First point on which line is valid  */
+  int        high;		        /* Last point on which line is valid.  */
+  FitProc    tclProc;		        /* Txt of Tcl Proc.  */
+} msg_fitline;
 
     /* The acknowledgment message for enter messages: */
 
