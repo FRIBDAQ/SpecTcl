@@ -399,6 +399,38 @@ int Xamine_ReadPeak(grobj_generic** object)
   return (obj ? status : -1);   // Return status if everything worked.
 			   
 }
+/*!
+   Read a fitline specification from the user mailbox.
+   after receiving an EnterFitline operation code.
+  \param grobj_generic** object [out]
+     The object will be read into a dynamically allocated grobj_Fitline. A pointer
+     to that object will be placed in this buffer.
+     On failure, this will be null.
+  \return int
+  \retval -1 An error of some sort occured.
+  \retval >0 Number of bytes that was actually read from thje mailbox.
+*/
+int
+Xamine_ReadFitline(grobj_generic** object)
+{
+  MakeObjects();		// Ensure the pipes are all set up.
+  msg_fitline   fitline;        // The fitline that will be read in.
+  grobj_generic* obj = NULL;
+
+  // read the message...and on success generate the new fitline object
+
+  int status = requests->RequestMsgQueue::ReadFitline(&fitline);
+  if (status > 0) {
+    obj = new grobj_Fitline(fitline.nSpectrum,
+			    fitline.nId,
+			    (char*)(fitline.nHasName ?
+				    fitline.szName : NULL),
+			    fitline.low, fitline.high,
+			    fitline.tclProc);
+  }
+  *object = obj;
+  return (obj ? status : -1);
+}
 
 /*
 ** Functional Description:

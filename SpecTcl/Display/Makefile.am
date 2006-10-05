@@ -12,6 +12,7 @@ INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 
 Xamine_LDFLAGS=  -g 
 Xamine_LDADD=  $(PARSEOBJECTS)  @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
+		$(TCL_LDFLAGS) 						\
 	        -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 # Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
@@ -19,8 +20,8 @@ Xamine_LDADD=  $(PARSEOBJECTS)  @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
 
 XCCFLAGS =   -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE 
 
-AM_CXXFLAGS = -g -pedantic
-AM_CFLAGS   = -g -pedantic
+AM_CXXFLAGS = -g -pedantic $(TCL_FLAGS)
+AM_CFLAGS   = -g -pedantic $(TCL_FLAGS)
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/etc
@@ -163,7 +164,7 @@ Xaminetest_SOURCES = Xaminetest.c
 
 colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
-Xaminetest_LDADD = -lXamine -lm
+Xaminetest_LDADD = -lXamine -lm $(TCL_LDFLAGS)
 
 Xaminetest_LDFLAGS = -L.
 

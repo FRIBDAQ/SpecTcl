@@ -57,6 +57,14 @@
 #endif
 #endif
 
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
+
 
 
 static const float GROBJ_MINDIST = 0.03;  // Fraction of height peak markers
@@ -475,5 +483,53 @@ public:
 		    Boolean   fFinal);
   virtual grobj_generic* clone();	         // Produce copy of self.
 
+};
+
+/*!
+
+     This is a graphical object that displays a fitline. 
+     we are quite a bit different than other grobjs in that our points
+     re relatively meaningless.. instead, we have a region of interest
+     and a Tcl proc that is capable of evaluating to the height of the
+     fitline at any position within the area of interest.
+*/
+class grobj_Fitline : public grobj_generic
+{
+  // Attributes:
+private:
+  int         m_low;
+  int         m_high;
+  STD(string) m_evalProc;
+  // constructors.. we can support the full cannonical set too!
+
+public:
+  grobj_Fitline(int nSpectrum, int nId, grobj_name pszName,
+		int low, int high, const char* evalProc);
+  grobj_Fitline(const grobj_Fitline& rhs);
+  virtual ~grobj_Fitline();
+
+  grobj_Fitline&  operator=(const grobj_Fitline& rhs);
+  int operator==(const grobj_Fitline& rhs) const;
+  int operator!=(const grobj_Fitline& rhs) const;
+
+  // Virtual function overrides:
+
+  virtual grobj_type type();
+  virtual void draw(XMWidget* pWindow, win_attributed* pAttributes, 
+		    Boolean final);
+  virtual grobj_generic* clone();
+
+
+  // Utility functions:
+private:
+  void copyIn(const grobj_Fitline& rhs);
+
+  STD(vector)<STD(pair)<int,float> > computePoints();
+  STD(pair)<int,int> computePosition(Xamine_Convert1d& cvt,
+				     int               channel,
+				     float             height);
+  void drawFitline(Display* d, Drawable w, GC& gc, XMWidget* pWindow,
+		   Boolean flipped, Boolean labelit,
+		   STD(vector)<STD(pair)<int, int> >& points);
 };
 #endif

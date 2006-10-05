@@ -717,6 +717,19 @@ int RequestMsgQueue::ReadPeak(msg_peakentry* peak)
 {
   return read(peak, sizeof(msg_peakentry));
 }
+/*!
+   Read a fitline from the message ueue.  This is a convenience function
+   that does little more than delegate to read:
+   \param object : msg_fitline* [out]
+      Pointer to a buffer into which the fitline message will be read.
+   \return int
+   \retval Return value from read.
+*/
+int
+RequestMsgQueue::ReadFitline(msg_fitline* object) 
+{
+  return read(object, sizeof(msg_fitline));
+}
 
 /*
 ** Functional Description:

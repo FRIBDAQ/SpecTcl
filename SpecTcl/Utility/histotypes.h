@@ -18,6 +18,10 @@
 /*
    Change log:
    $Log$
+   Revision 5.6  2006/10/05 11:51:17  ron-fox
+   - Support for computed fitlines in Xamine displays.
+   - Changed a few more files to use short license comment headers
+
    Revision 5.5  2006/09/28 21:55:09  ron-fox
    Fix issues with m2 spectra I/O and listing
 
@@ -195,6 +199,8 @@ typedef enum {			// Types of display program gates.
    kgGammaCut2d,
    kgGammaBand2d,
    kgGammaContour2d,
+   kgPeak1d,
+   kgFitline,
    kgUnSpecified		// Gate type not yet known.
 } GateType_t;
 

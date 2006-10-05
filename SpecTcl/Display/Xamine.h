@@ -200,6 +200,8 @@ int f77xamine_enterpeakmarker_(int*  nSpectrum,
 			       float* fWidth
 			       , int  nNameLength
 			  );
+  int Xamine_EnterFitline(int nSpectrum,  int nId, char* szName, 
+			  int low, int high, char* szEvalScript);
 
 #if defined(__cplusplus) || defined(c_plusplus)
 }

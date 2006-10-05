@@ -51,6 +51,7 @@ int   Xamine_InqAck(msg_status status, int object_count);  /* Ack inquire */
 int   Xamine_ListGate(grobj_generic *object);    /* List gate */
 int   Xamine_ReadGate(grobj_generic **object);    /* Read an object from user */
 int   Xamine_ReadPeak(grobj_generic** object);   /* Read peak position */
+int   Xamine_ReadFitline(grobj_generic** object); /* Read a fitline specification */
 int   Xamine_ReadDeleteData(int *spec, int *id, /* Read obj to del */
 			    grobj_type *type);
 int   Xamine_ReadInqData(int *spec);

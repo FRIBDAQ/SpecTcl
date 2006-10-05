@@ -502,7 +502,8 @@ SpecTcl 3.2-pre1 starts.
   Oct. 03, 2006 Gui: Add preferences control panel with ~/.SpecTclDefaults
                 save file.  Use this to default the length of 2-d spectrum
                 axes.
-  Oct 08, 2006 Gui: Prevent status lines from expanding in height.
-  Oct 09, 2006 rwio package - added permissions letter to the cvs and
+  Oct 03, 2006 Gui: Prevent status lines from expanding in height.
+  Oct 04, 2006 rwio package - added permissions letter to the cvs and
                to the distro.
 
+  Oct 05, 2006 Xamine- add support for entering fitlines.
