@@ -36,8 +36,10 @@ const char* pFitTemplate=
 /*!
     Create an object of type CLinearFit
 */
-CLinearFit::CLinearFit ()
-   : m_fSlope(0),
+CLinearFit::CLinearFit (STD(string) name, int id)
+   :
+  CFit(name, id),
+  m_fSlope(0),
    m_fOffset(0),
    m_fChiSquare(0)
  

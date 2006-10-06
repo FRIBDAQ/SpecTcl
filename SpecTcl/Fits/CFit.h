@@ -88,7 +88,7 @@ public:
     //  and the visibility esp. if you cannot
     // implement assignment/copy construction.
     // safely.
-  CFit ();		//!< Constructor.
+  CFit (STD(string) name, int id = 0);		//!< Constructor.
   virtual  ~ CFit ( ); //!< Destructor.
   CFit (const CFit& rSource ); //!< Copy construction.
   CFit& operator= (const CFit& rhs); //!< Assignment.

@@ -97,7 +97,7 @@ Parameters:
 
 */
 CFit* 
-CFitFactory::Create(string sFitType, string sFitName)  
+CFitFactory::Create(string sFitType, string sFitName, int id)  
 {
 
 
@@ -108,7 +108,7 @@ CFitFactory::Create(string sFitType, string sFitName)
     return (CFit*)NULL;
   }
   CFitCreator* pCreator = i->second;
-  CFit* pFit = (*pCreator)();
+  CFit* pFit = (*pCreator)(sFitName, id);
   CHECK(pFit, "Null Fit created");
 
 

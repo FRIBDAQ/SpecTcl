@@ -26,7 +26,8 @@ using namespace std;
 /*!
     Create an object of type CFit
 */
-CFit::CFit (): 
+CFit::CFit (string name, int id) : 
+  CNamedItem(name, id),
   m_eState(Accepting)
 { 
 } 
@@ -44,7 +45,8 @@ CFit::~CFit ( )
    \param rSource (const CFit& ):
       The object that we will dupliate.
 */
-CFit::CFit (const CFit& aCFit ) 
+CFit::CFit (const CFit& aCFit ) :
+  CNamedItem(aCFit)
 {
   CopyIn(aCFit);
 
@@ -58,6 +60,7 @@ CFit::CFit (const CFit& aCFit )
 CFit& CFit::operator= (const CFit& rhs)
 { 
   if(this != &rhs) {
+    CNamedItem::operator=(rhs);
     CopyIn(rhs);		// See why we bothered?
   }
   return *this;
@@ -77,7 +80,8 @@ int
 CFit::operator== (const CFit& rhs) const
 {
   return ((m_eState    == rhs.m_eState)   &&
-	  (m_afpPoints == rhs.m_afpPoints));
+	  (m_afpPoints == rhs.m_afpPoints) &&
+	  CNamedItem::operator==(rhs));
 }
 
 
