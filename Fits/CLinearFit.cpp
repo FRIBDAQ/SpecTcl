@@ -14,6 +14,7 @@
 #include "CLinearFit.h"    				
 #include <DesignByContract.h>
 
+#include <stdio.h>
 #include <gsl/gsl_fit.h>
 
 #ifdef HAVE_STD_NAMESPACE
@@ -22,6 +23,12 @@ using namespace std;
 
 using namespace DesignByContract;
 
+const char* pFitTemplate=
+"proc fitline x {\n\
+   set slope %f  \n\
+   set offset %f \n\
+   return [expr {$x*$slope + $offset}]\n\
+}\n";
 
 
 // Static attribute storage and initialization for CLinearFit
@@ -253,6 +260,27 @@ CLinearFit::GetParameters()
 
   return aParameters;
 }
+
+/*!
+   Return a Tcl script that allows the fit to be evaluated at all points.
+   the fit proc is named 'fitline'.  The proc is also built in such a way 
+   that the parameters of the fit (other than the Chisquare) are easily
+   read from it.
+   \pre  - The fit has already been performed.
+*/
+string
+CLinearFit::makeTclFitScript()
+{
+  REQUIRE(GetState() == CFit::Performed,
+	  "Fit not yet performed!");
+
+  char fitscript[1000];		// Should be big enough.
+  sprintf(fitscript, pFitTemplate, m_fSlope, m_fOffset);
+  string sFitScript(fitscript);
+
+  return sFitScript;
+}
+
 /*!
    Clone ourselves.  Clone provides polymorphic copy construction.
    \return CFit*

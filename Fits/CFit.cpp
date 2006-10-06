@@ -105,6 +105,17 @@ CFit::AddPoint(CFit::Point p)
   m_afpPoints.push_back(p);	// Add the point.
 }  
 
+/*!
+   Clear all the points in the fit. This allows a reconstitution of the
+   fit with new points.. It is especially important for spectrum fits.
+
+*/
+void
+CFit::ClearPoints()
+{
+  m_afpPoints.clear();
+  SetFitState(Accepting);	// This puts us back to accepting.
+}
 /*! 
 
 

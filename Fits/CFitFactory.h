@@ -70,16 +70,10 @@ public:
   typedef STD(map)<STD(string), CFitCreator*> FitCreatorMap;
   typedef FitCreatorMap::iterator  FitCreatorIterator;
 
-  typedef STD(map)<STD(string), CFit*>        FitMap;
-  typedef FitMap::iterator          FitIterator;
-
-  
-
   // Private member data.
 
 private:  
   static FitCreatorMap m_mapCreators;
-  static FitMap        m_mapDefinedFits;
 
   // Note that all data are static, therefore
   // all functions are static too.
@@ -89,20 +83,11 @@ public:
 
   static void AddFitType (const STD(string) & rType, CFitCreator* pCreator)   ; 
   static CFit* Create (STD(string) sFitType, STD(string) sFitName)   ; 
-  static bool Delete (STD(string) sName)   ; 
-  static bool Perform (STD(string) sName)   ; 
-  static bool AddPoints (STD(string) sName,
-			 STD(vector)<FPoint> vPoints)   ; 
-  static double Evaluate (STD(string) sName, double x)   ; 
+
   static FitCreatorIterator beginCreators();
   static FitCreatorIterator endCreators();
-  static int    sizeCreators();
+  static int    numberOfCreators();
   static FitCreatorIterator FindFitCreator (STD(string) sType)   ; 
-  static int size ()   ; 
-  static FitIterator begin ()   ; 
-  static FitIterator end ()   ; 
-  static FitIterator FindFit (STD(string) sName) ; 
-
 
 };
 

@@ -902,6 +902,7 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	Analysis/Makefile \
 	TreeParam/Makefile \
+	Fits/Makefile	   \
 	 SpecTcl/Makefile \
 	 radware/Makefile \
 	 contrib/Makefile contrib/scriptable/Makefile \
