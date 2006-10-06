@@ -88,6 +88,15 @@ CSpectrumFit::CSpectrumFit(const CSpectrumFit& rhs) :
 {
   update();
 }
+/*!
+  Destruction... if m_ownFit is true we need to delete m_pFit.
+*/
+CSpectrumFit::~CSpectrumFit()
+{
+  if (m_ownFit) {
+    delete m_pFit;
+  }
+}
 /*! 
   Assignment is similar to copy construction.  
   See the initial constructor for exceptions that can be thrown.
