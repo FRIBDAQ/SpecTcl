@@ -113,6 +113,7 @@ public:
   
 
   void AddPoint (Point p)   ; 
+  void ClearPoints();
   PointIterator begin ()   ; 
   PointIterator end ()   ; 
   size_t size ()   ; 
@@ -129,6 +130,7 @@ public:
   virtual  double operator() (double x)  =0 ; 
   virtual  FitParameterList GetParameters () =0  ; 
   virtual  STD(string) Type() const  = 0;
+  virtual  STD(string) makeTclFitScript() = 0;
  
 
 private:

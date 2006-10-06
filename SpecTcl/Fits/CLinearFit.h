@@ -64,6 +64,8 @@ public:
   virtual   STD(string) Type() const {
     return STD(string)("linear");
   }
+  virtual  STD(string) makeTclFitScript();
+
 
   // Overrides for virtual base class functions:
   
