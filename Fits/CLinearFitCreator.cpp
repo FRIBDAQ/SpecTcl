@@ -100,9 +100,9 @@ Parameters:
 
 */
 CFit* 
-CLinearFitCreator::operator()()  
+CLinearFitCreator::operator()(STD(string) name, int id)  
 { 
-  return new CLinearFit;
+  return new CLinearFit(name, id);
 }
 /*!
    Return a description of the type of fit we create:

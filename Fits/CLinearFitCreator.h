@@ -51,7 +51,7 @@ public:
 
 public:
 
-  virtual   CFit* operator() () ; 
+  virtual   CFit* operator() (STD(string) name, int id=0) ; 
   virtual   STD(string) DescribeFit();
 
 };

@@ -47,7 +47,7 @@ public:
     //  and the visibility esp. if you cannot
     // implement assignment/copy construction.
     // safely.
-    CLinearFit ();		 //!< Constructor.
+    CLinearFit (STD(string) name, int id=0);		 //!< Constructor.
     virtual  ~ CLinearFit ( );   //!< Destructor.
     CLinearFit (const CLinearFit& rSource ); //!< Copy construction.
     CLinearFit& operator= (const CLinearFit& rhs); //!< Assignment.

@@ -82,7 +82,7 @@ public:
 
 
   static void AddFitType (const STD(string) & rType, CFitCreator* pCreator)   ; 
-  static CFit* Create (STD(string) sFitType, STD(string) sFitName)   ; 
+  static CFit* Create (STD(string) sFitType, STD(string) sFitName, int id =  0)   ; 
 
   static FitCreatorIterator beginCreators();
   static FitCreatorIterator endCreators();
