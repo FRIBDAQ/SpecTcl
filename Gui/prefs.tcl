@@ -19,6 +19,8 @@ package require snit
 package require guiutilities
 package require guihelp
 
+
+
 #
 # Editor dialog for preferences.
 # The dialog is laid out as shown below:
@@ -28,12 +30,17 @@ package require guihelp
 #  | X axis:  [         ]                        |
 #  | Y axis:  [         ]  [] Same as X          |
 #  +---------------------------------------------+
+#  | NSCL DAQ:                                   |
+#  | NSCL DAQ root: [           ]  [browse...]   |
+#  +---------------------------------------------+
 #  | [Ok]   [Cancel] [Help]                      |
 #  +---------------------------------------------+
 #
 # OPTIONS:
 #     -xdefault   - Value in the X axis entry.
 #     -ydefault   - Value in the Y axis entry.
+#     -daqroot    - Value of location of nscldaq root.
+#
 #     -okscript   - Script to execute on click of ok.
 #     -cancelscript - Script to execute on click of cancel.
 #     -helpscript   - Script to execute on click of help.
@@ -44,6 +51,8 @@ snit::widget prefsEditor {
     hulltype toplevel
     option   -xdefault
     option   -ydefault
+    option   -daqroot
+
     option   -okscript
     option   -cancelscript
     option   -helpscript
@@ -63,6 +72,13 @@ snit::widget prefsEditor {
 	                       -variable ${selfns}::same   \
 	                       -command [mymethod setSameAxes]
 
+	frame $win.daqparams  -relief groove -borderwidth 3
+	label $win.daqparams.title -text {NSCLDAQ Parameters}
+	label $win.daqparams.rootlbl -text {NSCL DAQ Root: }
+	entry $win.daqparams.root    -textvariable ${selfns}::options(-daqroot) \
+	                             -width 15
+	button $win.daqparams.browse -text Browse... -command [mymethod browseRoot]
+
 	frame $win.action -relief groove -borderwidth 3
 	button $win.action.ok     -text Ok -command       [mymethod dispatch -okscript]
 	button $win.action.cancel -text Cancel -command   [mymethod dispatch -cancelscript]
@@ -74,13 +90,27 @@ snit::widget prefsEditor {
 	grid $win.xaxistitle      $win.xaxis     x
 	grid $win.yaxistitle      $win.yaxis     $win.same
 
+	grid $win.daqparams.title       -                       -
+	grid $win.daqparams.rootlbl $win.daqparams.root   $win.daqparams.browse
+	grid $win.daqparams        -columnspan 3 -sticky ew
+
 	pack $win.action.ok $win.action.cancel $win.action.help -side left
 	grid $win.action -columnspan 3 -sticky ew
 
 	$self configurelist $args
 
+    }
+
+    # browseRoot
+    #   Browses for the root directory of the NSCLDAQ software.
+    #
+    method browseRoot {} {
+	set options(-daqroot) [tk_chooseDirectory \
+				   -title {Choose NSCLDAQ root directory}]
 
     }
+
+
     # dispatch opt
     #   Dispatches control to the appropriate action script.
     #
@@ -129,6 +159,7 @@ namespace eval preferences {
 proc preferences::ok {} {
     set ::GuiPrefs::preferences(defaultXChannels) [.prefs cget -xdefault]
     set ::GuiPrefs::preferences(defaultYChannels) [.prefs cget -ydefault]
+    set ::GuiPrefs::preferences(defaultDaqRoot)   [.prefs cget -daqroot]
     destroy .prefs
 }
 proc preferences::cancel {} {
