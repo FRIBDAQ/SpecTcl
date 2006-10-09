@@ -21,7 +21,7 @@ package require guiutilities
 #  Namespace to hold some of the configuration entries.
 #
 namespace eval datasource {
-    variable daqroot         /usr/opt/daq;   # Where the DAQ software is installed.
+    variable daqroot         [list /usr/opt/daq/current /usr/opt/daq];   # Where the DAQ software is installed.
     variable lasthost        localhost;  # Most recent online host.
     variable lasteventfile   {}
     variable lastpipecommand {}
@@ -30,8 +30,50 @@ namespace eval datasource {
     variable runlistFiles    {}
     variable warnedFilters   0
     variable lastFilterFile {}
+    variable actualSpecTclDaq {}
 }
 
+# datasource::findSpecTclDaq
+#    Locate the atual spectcldaq file.  We try for it in the
+#    nscldaq roots described by daqroot, and if we can't find
+#    it there, we ask the user to browse for it.
+#
+proc datasource::findSpecTclDaq {} {
+    if {$datasource::actualSpecTclDaq ne ""} {
+	return;				# already found.
+    }
+    if {[array names GuiPrefs::preferences defaultDaqRoot] ne ""} {
+	set candidate \
+	    [file join $GuiPrefs::preferences(defaultDaqRoot) bin spectcldaq]
+	if {[file executable $candidate]} {
+	    set datasource::actualSpecTclDaq $candidate
+	    return
+	}
+
+    }
+
+    foreach root $datasource::daqroot {
+	set candidate [file join $root bin spectcldaq]
+	if {[file executable $candidate]} {
+	    set datasource::actualSpecTclDaq $candidate
+	    return
+	}
+    }
+    #  Didn't find one so prompt the user with tk_getOpenFile:
+
+    set datasource::actualSpecTclDaq \
+	[tk_getOpenFile -title {Locate spectcldaq for me please}]
+    if {[file executable $datasource::actualSpecTclDaq]} {
+	return
+    }
+    set datasource::actualSpecTclDaq [list]
+    tk_messageBox -icon info -title {No spectcldaq}   \
+	-message \
+	{Can't locate spectcldaq, and you could not help, cancelling the attach}
+
+
+}
+#
 # attachOnline
 #      Attach to an online data source.
 #      datasource::daqroot is assumed to hold the installation
@@ -49,8 +91,11 @@ proc attachOnline {} {
             set url [format "tcp://%s:2602/" $host]
 	    set size [.hostprompt cget -buffersize]
             catch stop;                         # In case analysis is active.
-            attach -size $size -pipe [file join $::datasource::daqroot bin spectcldaq]  $url
-            start
+	    datasource::findSpecTclDaq
+	    if {$datasource::actualSpecTclDaq ne ""} {
+		attach -size $size -pipe $datasource::actualSpecTclDaq  $url
+		start
+	    }
         }
         destroy .hostprompt
     }
