@@ -87,4 +87,5 @@ stripchart.html \
 treeparicon.gif \
 treevaricon.gif \
 variableInfo.html \
-edit2dmulti.html
+edit2dmulti.html  \
+savestatedialog.html

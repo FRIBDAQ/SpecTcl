@@ -509,3 +509,6 @@ SpecTcl 3.2-pre1 starts.
   Oct 05, 2006 Xamine- add support for entering fitlines.
   Oct 09, 2006 GUI - Bugzilla 207 - Increase the sophistication used
                by SpecTcl's gui to located spectcldaq.
+  Oct 10, 2006 GUI - Bugzilla 208 - Enhancement request for File->Save...
+               to support a selective store.
+
