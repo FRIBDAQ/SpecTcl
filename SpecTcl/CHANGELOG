@@ -511,4 +511,9 @@ SpecTcl 3.2-pre1 starts.
                by SpecTcl's gui to located spectcldaq.
   Oct 10, 2006 GUI - Bugzilla 208 - Enhancement request for File->Save...
                to support a selective store.
+               Filter processor Bugzilla 217 - Put a bit of code in the
+               filter event processor to attempt to determine if it has
+	       been pointed at something that is not a filter file.
+               Seems to work for the cases I've tried, so it's 
+ 	       certainly better than it was before.
 
