@@ -1,6 +1,9 @@
 # Make a man page from xml... note that the
 # touch is done just in case the docbook man page creation
-# command does not exist.
+# command does not exist... in that case an empty man page
+# is created so that the installer doesn't have to be so
+# smart (although in fact it is.).
+
 
 
 SUFFIXES =  .xml .3
