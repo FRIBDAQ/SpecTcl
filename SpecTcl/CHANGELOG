@@ -507,3 +507,6 @@ SpecTcl-3.1-002
   Released September 21, 2006
 
 3.1-003
+   Added -rpath to --with-motif-libdir configuration so that we can be sure we get the
+   right motif.
+   Added prntout of VERSION to tkcon at startup
