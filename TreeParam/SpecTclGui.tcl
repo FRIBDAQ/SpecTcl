@@ -51,13 +51,16 @@ File $f is missing in directory $TreeParameterHome"
 		}
 	}
 }
+set answer no;				# In case we never prompt.
 
-set answer [tk_messageBox -icon question -type yesno -title "New Gui" \
-		-message {This is the old SpecTcl GUI.  If you want to use the new GUI, click "Yes" below}]
+if {![info exists NoPromptForNewGui] || (!$NoPromptForNewGui)} {
+    set answer [tk_messageBox -icon question -type yesno -title "New Gui" \
+		    -message {This is the old SpecTcl GUI.  If you want to use the new GUI, click "Yes" below}]
+}
 if {$answer == "yes"} {
     source $SpecTclHome/Script/newGui.tcl
 } else {
-
+    
     
     if {![info exist TreeParameterHome]} {
 	set scriptname [info script]
