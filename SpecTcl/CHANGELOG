@@ -516,5 +516,9 @@ SpecTcl 3.2-pre1 starts.
 	       been pointed at something that is not a filter file.
                Seems to work for the cases I've tried, so it's 
  	       certainly better than it was before.
-               - Bugzilla 219 : Added code to TclGrammerApp.cpp to output
+  Oct 16, 2006 - Bugzilla 219 : Added code to TclGrammerApp.cpp to output
 	         the VERSION file to tkcon.
+               - BZ 220 Allow user to disable prompt for 
+                 new gui.  If NoPromptForNewGui is defined and true,
+                 prompting will be disabled.
+
