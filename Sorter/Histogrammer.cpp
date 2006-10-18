@@ -31,6 +31,7 @@
 #include <XamineMap2D.h>
 #endif
 #include <XamineGates.h>
+#include <Xamine.h>
 #include <DisplayGate.h>
 #include <TrueGate.h>
 #include <FalseGate.h>
@@ -46,6 +47,7 @@
 #include <assert.h>
 #include <GateMediator.h>
 #include <Gamma2DW.h>
+#include <CSpectrumFit.h>
 
 #include <Iostream.h>
 #include <Sstream.h>
@@ -69,6 +71,11 @@ static CTrueGate   AlwaysTrue;
 static CDeletedGate  AlwaysFalse;
 static CGateContainer NoGate(U, 0,      AlwaysTrue);
 static CGateContainer Deleted(D, 0, AlwaysFalse);
+
+
+// Static member data:
+
+int CHistogrammer::m_nextFitlineId(1); // Next fitline id assigned.
 
 // Very stupid local function to do parameter scaling: 
 static inline UInt_t scale(UInt_t nValue, Int_t nScale) {
@@ -1400,6 +1407,96 @@ CGateDictionaryIterator CHistogrammer::GateEnd() {
 //
 UInt_t CHistogrammer::GateCount() {
   return m_GateDictionary.size();
+}
+
+/*!
+   addFit : adds a fit to the Xamine bindings.  We keep track of
+   these fits in m_fitlineBindings.  This is a vector of lists.
+   The index of each vector element is the Xamine 'display slot' fitlines
+   are bound to. Each element is a list of pairs.  Each pair is the fitline
+   id and fitline name.
+   \param fit : CSpectrumFit&
+     Reference to the fit to add.
+*/
+void
+CHistogrammer::addFit(CSpectrumFit& fit)
+{
+  // get the fit name and spectrum name... both of which we'll need to
+  //   ensure we can add/bind the fit.
+
+  string fitName      = fit.fitName();
+  string spectrumName = fit.getName();
+  Int_t  xSpectrumId  = findDisplayBinding(spectrumName);
+  if (xSpectrumId < 0) {
+    // Display is not bound to Xamine.
+
+    return;
+  }
+  // The display is bound... ensure that our fitlines binding array is large
+  // enough.
+
+  while (m_FitlineBindings.size() <=  xSpectrumId) {
+    FitlineList empty;
+    m_FitlineBindings.push_back(empty);
+  }
+
+  // Now we must:
+  //  1. Allocate a fitline id.
+  //  2. Enter the fit line in Xamine.
+  //  3. Add the fitline name/id to our m_FitlineBindings 
+
+  int fitId = m_nextFitlineId++;
+  Xamine_EnterFitline(xSpectrumId, fitId,
+		      const_cast<char*>(fitName.c_str()),
+		      fit.low(), fit.high(),
+		      const_cast<char*>(fit.makeTclFitScript().c_str()));
+  pair <int, string> fitInfo(fitId, fitName);
+  m_FitlineBindings[xSpectrumId].push_back(fitInfo);
+
+  
+}
+/*!
+  Remove a fit.  It is  a no-op to delete a fit that does not exist or is
+  on an unbound spectrum. The rough cut of what we will do is
+  - Locate the spectrum id of the binding.
+  - Locate any fit that matches the name of the fit we are given
+    in the fit bindings list assocated with that spectrum.
+  - Ask Xamine to delete that fit (fits are like gates).
+  - Remove this fit from our bindings list.
+  \param fit : CSpectrumFit&
+     referenced to the fit to remove.
+*/
+void
+CHistogrammer::deleteFit(CSpectrumFit& fit)
+{
+  string spectrumName =  fit.getName();
+  string fitName      = fit.fitName();
+  int    xSpectrumId  = findDisplayBinding(spectrumName);
+  if (xSpectrumId >= 0 && (m_FitlineBindings.size() < xSpectrumId)) {
+
+    // xSpectrumId < 0 means spectrum not bound.
+    // xSpectrumId >= size of the bindings vector means no fitlines on spectrum.
+
+    FitlineList::iterator i = m_FitlineBindings[xSpectrumId].begin();
+    FitlineList::iterator e = m_FitlineBindings[xSpectrumId].end();
+    while (i != e) {
+      if (fitName == i->second) {
+	// found it.. delete this one and return... don't delete all
+	// occurences as 
+	// a. there's only supposed to be one occurence.
+	// b. Depending on the underlying representation of a FitlineList,
+	//    deletion may invalidate i.
+
+	Xamine_RemoveGate(xSpectrumId, i->first,
+			  fitline);
+	m_FitlineBindings[xSpectrumId].erase(i);
+	return;
+      }
+      i++;
+    }
+    // Falling through here means no matching fit lines...which is a no-op.
+    
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////

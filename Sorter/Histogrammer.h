@@ -46,6 +46,14 @@
 #endif
 #endif
 
+
+#ifndef __STL_LIST
+#include <list>
+#ifndef __STL_LIST
+#define __STL_LIST
+#endif
+#endif
+
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
 #define __HISTOTYPES_H
@@ -81,6 +89,10 @@
 #define __GATECONTAINER_H
 #endif
 
+// Forward class definitions (probably should be a lot more of these).
+
+class CSpectrumFit;
+
 // Typedefs for some of instances of templated classes:
 // Dictionary types:
 typedef CDictionary<CParameter>                 ParameterDictionary;
@@ -97,11 +109,18 @@ typedef STD(vector)<STD(string)>                     DisplayBindings;
 typedef DisplayBindings::iterator               DisplayBindingsIterator;
 
 class CHistogrammer : public CEventSink {
+  typedef STD(pair)<int, STD(string)> BoundFitline;
+  typedef STD(list)<BoundFitline>     FitlineList;
+  typedef STD(vector)<FitlineList>    FitlineBindings;
+
   CXamine*            m_pDisplayer;          // Points to displayer object.
   DisplayBindings     m_DisplayBindings;     // Display id to spectrum name map.
+  FitlineBindings     m_FitlineBindings;     // Fitlines bound to displayer.
   ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
+
+  static int          m_nextFitlineId;       // Next Xamine fitline id.
 
  public:
   // Constructors.
@@ -213,6 +232,11 @@ class CHistogrammer : public CEventSink {
   CGateDictionaryIterator GateBegin();
   CGateDictionaryIterator GateEnd();
   UInt_t GateCount();
+
+  // Manipulate the set of fits bound to Xamine:
+
+  void addFit(CSpectrumFit& fit);
+  void deleteFit(CSpectrumFit& fit);
 
   // Utility Functions:
  protected:
