@@ -1,6 +1,7 @@
 INCLUDES = -I. -I../Utility -I../NSCLException -I../Xamine -I../Gates \
-	   -I../Events -I../Display @TCL_FLAGS@ -I..
-LDADD = -lSorting -lXplus -lGates -lAnalysis -lEventSource -ltclPlus -lException -lXamine -lXt -lX11
+	   -I../Events -I../Display @TCL_FLAGS@ -I.. -I@top_srcdir@/Fits
+LDADD = -lSorting -lXplus -lGates -lAnalysis -lEventSource -ltclPlus \
+	-lException -lXamine -lXt -lX11
 # AM_LDFLAGS = -L. @TCL_LDFLAGS@ @XTLIBSW@ @XLIBSW@
 
 lib_LTLIBRARIES = libSorting.la
@@ -16,7 +17,8 @@ libSorting_la_SOURCES = DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	Gamma2DB.cpp GateMediator.cpp CAxis.cpp CParameterMapping.cpp  Parameter.cpp \
 	SpectrumS.cpp \
 	Spectrum2DL.cpp Gamma2DL.cpp  SummarySpectrumL.cpp \
-	CSpectrum2Dm.cpp CSpectrum2DmL.cpp CSpectrum2DmW.cpp CSpectrum2DmB.cpp
+	CSpectrum2Dm.cpp CSpectrum2DmL.cpp CSpectrum2DmW.cpp CSpectrum2DmB.cpp \
+	CHistogrammerFitObserver.cpp
 
 include_HEADERS = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	DictionaryException.h Gamma1DL.h Gamma1DW.h Gamma2DB.h Gamma2DW.h \
@@ -27,6 +29,7 @@ include_HEADERS = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	SpectrumFactory.h SpectrumFactoryException.h SummarySpectrumB.h \
 	SummarySpectrumW.h CAxis.h CParameterMapping.h SpectrumS.h \
 	Spectrum2DL.h  Gamma2DL.h SummarySpectrumL.h \
-	CSpectrum2Dm.h CSpectrum2DmL.h CSpectrum2DmW.h CSpectrum2DmB.h
+	CSpectrum2Dm.h CSpectrum2DmL.h CSpectrum2DmW.h CSpectrum2DmB.h \
+	CHistogrammerFitObserver.h
 
 EXTRA_DIST = Sorter.WC Sorter.omt
