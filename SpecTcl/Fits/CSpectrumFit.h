@@ -89,6 +89,9 @@ public:
   CSpectrumFit*       clone();	// Clone self.
   void                update();
 
+  int                 low() const;
+  int                 high() const;
+
   // Private utilities.
 private:
   CSpectrum* findSpectrum();
