@@ -28,7 +28,7 @@ using namespace std;
 
 // Static member data:
 
-CFitDictionary*   m_pTheInstance(0);
+CFitDictionary*   CFitDictionary::m_pTheInstance(0);
 
 
 

@@ -48,6 +48,8 @@
 #include <GateMediator.h>
 #include <Gamma2DW.h>
 #include <CSpectrumFit.h>
+#include "CHistogrammerFitObserver.h"
+
 
 #include <Iostream.h>
 #include <Sstream.h>
@@ -158,6 +160,7 @@ CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
   srand(time(NULL));
   m_pDisplayer = new CXamine(nSpecbytes);
   m_pDisplayer->Start();
+  m_pFitObserver = new CHistogrammerFitObserver(*this); // Follow changes to fits.
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -174,6 +177,7 @@ CHistogrammer::CHistogrammer(const CXamine& rDisplayer) :
   srand(time(NULL)); 
   if(!m_pDisplayer->isAlive())
     m_pDisplayer->Start();
+  m_pFitObserver = new CHistogrammerFitObserver(*this); // Follow changes to fits.
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -188,6 +192,7 @@ CHistogrammer::~CHistogrammer() {
     m_pDisplayer->Stop();
 
   delete m_pDisplayer;
+  delete m_pFitObserver; 
 }
 
 //////////////////////////////////////////////////////////////////////////

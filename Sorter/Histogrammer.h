@@ -92,6 +92,7 @@
 // Forward class definitions (probably should be a lot more of these).
 
 class CSpectrumFit;
+class CHistogrammerFitObserver;
 
 // Typedefs for some of instances of templated classes:
 // Dictionary types:
@@ -119,8 +120,10 @@ class CHistogrammer : public CEventSink {
   ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
+  CHistogrammerFitObserver* m_pFitObserver; // Monitor for fit changes.
 
   static int          m_nextFitlineId;       // Next Xamine fitline id.
+
 
  public:
   // Constructors.
