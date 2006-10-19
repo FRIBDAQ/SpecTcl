@@ -510,3 +510,5 @@ SpecTcl-3.1-002
    Added -rpath to --with-motif-libdir configuration so that we can be sure we get the
    right motif.
    Added prntout of VERSION to tkcon at startup
+   Back ported fix for defect BZ 224 (integrations of 2dlong spectra
+   give incorrect centroids on 64 bit systems) from 3.2
