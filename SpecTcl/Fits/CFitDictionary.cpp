@@ -20,6 +20,7 @@
 #include "DictionaryException.h"
 #include "CFitFactory.h"
 #include "CLinearFitCreator.h"
+#include "CGaussianFitCreator.h"
 #include <tcl.h>
 
 #ifdef HAVE_STD_NAMESPACE
@@ -40,6 +41,7 @@ CFitDictionary*   CFitDictionary::m_pTheInstance(0);
 CFitDictionary::CFitDictionary()
 {
   CFitFactory::AddFitType("linear", new CLinearFitCreator);
+  CFitFactory::AddFitType("gaussian", new CGaussianFitCreator);
 }
 CFitDictionary::~CFitDictionary() 
 {}
