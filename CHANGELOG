@@ -521,4 +521,4 @@ SpecTcl 3.2-pre1 starts.
                - BZ 220 Allow user to disable prompt for 
                  new gui.  If NoPromptForNewGui is defined and true,
                  prompting will be disabled.
-
+  Oct 19, 2006 - BZ 224 - 2d long integrations were incorrect on 64 bit plats.
