@@ -42,7 +42,8 @@ libFits_la_SOURCES = 	CFit.cpp		\
 			CSpectrumFit.cpp	\
 			CFitDictionary.cpp	\
 			fitgsl.c		\
-			CGaussianFit.cpp
+			CGaussianFit.cpp	\
+			CGaussianFitCreator.cpp
 
 include_HEADERS	=	CFit.h			\
 			CFitCreator.h		\
@@ -52,5 +53,6 @@ include_HEADERS	=	CFit.h			\
 			CSpectrumFit.h		\
 			CFitDictionary.h	\
 			fitgsl.h		\
-			CGaussianFit.h
+			CGaussianFit.h		\
+			CGaussianFitCreator.h
 
