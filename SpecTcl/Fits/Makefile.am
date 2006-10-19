@@ -31,7 +31,8 @@ INCLUDES = 	-I@top_srcdir@/Utility	\
 
 lib_LTLIBRARIES=libFits.la
 libFits_la_LDFLAGS = -version-info $(SOVERSION):0  \
-	-Wl,"-rpath-link=$(libdir)" $(TCL_LDFLAGS)
+	-Wl,"-rpath-link=$(libdir)" $(TCL_LDFLAGS) \
+	-lgsl -lgslcblas -lm
 
 libFits_la_SOURCES = 	CFit.cpp		\
 			CFitCreator.cpp		\
@@ -39,7 +40,9 @@ libFits_la_SOURCES = 	CFit.cpp		\
 			CLinearFit.cpp		\
 			CLinearFitCreator.cpp	\
 			CSpectrumFit.cpp	\
-			CFitDictionary.cpp
+			CFitDictionary.cpp	\
+			fitgsl.c		\
+			CGaussianFit.cpp
 
 include_HEADERS	=	CFit.h			\
 			CFitCreator.h		\
@@ -47,5 +50,7 @@ include_HEADERS	=	CFit.h			\
 			CLinearFit.h		\
 			CLinearFitCreator.h	\
 			CSpectrumFit.h		\
-			CFitDictionary.h
+			CFitDictionary.h	\
+			fitgsl.h		\
+			CGaussianFit.h
 
