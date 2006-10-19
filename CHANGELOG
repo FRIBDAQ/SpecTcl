@@ -524,3 +524,4 @@ SpecTcl 3.2-pre1 starts.
   Oct 19, 2006 - BZ 224 - 2d long integrations were incorrect on 64 bit plats.
                - BZ 226 - Added support for attach and eof callouts to
 		 event processors.
+               - Documented new functions in the event processors.
