@@ -349,7 +349,7 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
 			     (grobj_sum2d *)g, att->ismapped());
 
     } else if (typ == twodlong) {
-      pI2 = new Integrate_2dl((unsigned long *)xamine_shared->getbase(specno),
+      pI2 = new Integrate_2dl((unsigned int *)xamine_shared->getbase(specno),
 			      xamine_shared->getxdim(specno),
 			      (grobj_sum2d *)g, att->ismapped());
     }
