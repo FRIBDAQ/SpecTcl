@@ -59,6 +59,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "FilterBufferDecoder.h"
 #include "NSCLBufferDecoder.h"
 #include "FilterEventProcessor.h"
+#include "SpecTcl.h"
+#include "EventProcessor.h"
+
 // For test data:
 #include "GaussianDistribution.h"
 #include "TestFile.h"
@@ -283,26 +286,27 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // various attachers:
 
 
+  int status;
   switch(options.eSource) {
   case eFile:
     options.Connection = rInterp.TildeSubst(options.Connection);
-    return AttachFile(rResult, options.Connection,
+    status =  AttachFile(rResult, options.Connection,
 		      options.nBytes);
     break;
   case eTape:
-    return AttachTape(rResult, options.Connection,
+    status = AttachTape(rResult, options.Connection,
 		      options.nBytes);
     break;
   case ePipe:
-    return AttachPipe(rResult, options.Connection,
+    status = AttachPipe(rResult, options.Connection,
 		      options.nBytes);
     break;
   case eTest:
-    return AttachTest(rResult, options.Connection,
+    status = AttachTest(rResult, options.Connection,
 		      options.nBytes);
     break;
   case eNull:
-    return AttachNull(rResult, options.Connection,
+    status = AttachNull(rResult, options.Connection,
 		      options.nBytes);
     break;
   case eUnspecified:		// Prior tests should have
@@ -310,8 +314,20 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     assert(0);			// Let me know noisily if I'm wrong.
   }
 
-  assert(0);			// Should not return here.
 
+  // Iterate through the event processing pipeline, invoking the
+  //  each event processor's OnEventSourceOpen function:
+
+
+  SpecTcl* api = SpecTcl::getInstance();
+  CTclAnalyzer::EventProcessorIterator p = api->ProcessingPipelineBegin();
+
+  while (p != api->ProcessingPipelineEnd()) {
+    CEventProcessor *pProcessor = p->second;
+    if (!pProcessor->OnEventSourceOpen(m_AttachedTo)) break;
+    p++;
+  }
+  return status;
 }
 
 
