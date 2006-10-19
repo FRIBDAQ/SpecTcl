@@ -23,7 +23,7 @@ using namespace std;
 
 using namespace DesignByContract;
 
-const char* pFitTemplate=
+static const char* pFitTemplate=
 "proc fitline x {\n\
    set slope %f  \n\
    set offset %f \n\
