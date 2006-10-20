@@ -55,6 +55,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CTreeParameter.h>
 #include <CTreeVariable.h>
 #include "CFoldCommand.h"
+#include "CFitCommand.h"
 
 #include <CProjectionCommand.h>
 
@@ -520,6 +521,9 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
 
   cerr << "project command (c) 2005 NSCL Written by Ron Fox\n";
 
+  CFitCommand *Fit  = new CFitCommand(rInterp);
+  cerr << "fit command (c) 2006 NSCL Written by Ron Fox\n";
+
   cerr.flush();
 }
 
@@ -657,6 +661,7 @@ int CTclGrammerApp::operator()() {
   cerr << "                  Marty Backe, Michael McLennan, Chad Smith, and Brent B. Welch\n";
   cerr << "    - Tcl/Tk originally by John K. Ousterhout embellished and extended by the Tcl Core Team\n";
   cerr << "    - Daniel Bazin for the concept of TreeParameter and its original GUI\n";
+  cerr << "    - Leilehau Maly for gaussian fit harnesses to the gsl.\n";
   cerr << " If your name should be on this list and is not, my apologies, please contact\n";
   cerr << "   fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
   cerr << "   the list of credits.\n";

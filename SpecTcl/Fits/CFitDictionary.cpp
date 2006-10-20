@@ -282,8 +282,17 @@ CFitDictionary::updateFits(string pattern)
   CFitDictionary::iterator i = begin();
   while (i != end()) {
     if (Tcl_StringMatch(i->first.c_str(), pattern.c_str())) {
-      i->second->update();
-      observeUpdate(*(i->second));
+
+      // It's possible for update to throw..we ignore exceptions:
+      // but assume that since the update failed, it is not necessary
+      // to trigger the observers for it:
+
+      try {
+	i->second->update();
+	observeUpdate(*(i->second));
+      }
+      catch(...) {
+      }
     }
     i++;
   }
