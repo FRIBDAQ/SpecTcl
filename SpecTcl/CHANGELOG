@@ -525,3 +525,7 @@ SpecTcl 3.2-pre1 starts.
                - BZ 226 - Added support for attach and eof callouts to
 		 event processors.
                - Documented new functions in the event processors.
+  Oct 20,2006  - BZ 87 Added basic fitting... still some kinks to work out
+                 in the Xamine display but it does work...also need
+                 to Xamine drive Gui to create the fit.
+   
