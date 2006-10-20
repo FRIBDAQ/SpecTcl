@@ -86,7 +86,11 @@ CFitDictionary::add(CSpectrumFit& fit)
 void
 CFitDictionary::addOrReplace(CSpectrumFit& fit)
 {
-  m_Fits[fit.fitName()] = &fit;
+  if (find(fit.fitName()) != end()) {
+    Delete(fit.fitName());	// Get rid of the old one (with observation).
+  }
+  m_Fits[fit.fitName()] = &fit;	//  put in the new one
+  observeAdd(fit);		// and trigger the observers.
 }
 
 /*!
