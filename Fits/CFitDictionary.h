@@ -110,6 +110,9 @@ public:
   void     erase(iterator here);
   void     erase(iterator first, iterator last);
 
+  void updateFits(STD(string) name=STD(string)("*")); 
+
+
   // functions operating on the observers:
 
   void addObserver(CObserver& obs);
@@ -119,7 +122,6 @@ protected:
   void observeDelete(CSpectrumFit& fit);
   void observeUpdate(CSpectrumFit& fit);
 public:
-  void updateFits(STD(string) name=STD(string)("*")); 
  
 };
 

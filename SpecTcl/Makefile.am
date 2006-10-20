@@ -6,6 +6,7 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Xamine \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	-I@top_srcdir@/Analysis -I@top_srcdir@/TreeParam \
+	-I@top_srcdir@/Fits                               \
 	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:
@@ -40,7 +41,8 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	Globals.cpp FilterCommand.cpp \
 	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
 	DocumentationException.cpp DocumentationCallback.cpp \
-	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp
+	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp
+
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
@@ -53,7 +55,8 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	FilterCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
-	SpecTcl.h CFoldCommand.h CProjectionCommand.h
+	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h
+
 
 bin_PROGRAMS = SpecTcl
 
