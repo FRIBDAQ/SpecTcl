@@ -1,3 +1,4 @@
+
 /*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2005.
@@ -97,12 +98,16 @@ CFitCommand::operator()(CTCLInterpreter& interp,
     return Create(interp, objv);
   }
   else if (subcommand == string("update")) {
+    return Update(interp,objv);
   }
   else if (subcommand == string("delete")) {
+    return Delete(interp,objv);
   }
   else if (subcommand == string("list")) {
+    return List(interp, objv);
   }
   else if (subcommand == string("proc")) {
+    return Proc(interp, objv);
   }
   else {
     string result = objv[0];
@@ -423,11 +428,12 @@ CFitCommand:: List(CTCLInterpreter& interp,
   CFitDictionary::iterator p = m_dictionary.begin();
   while (p != m_dictionary.end()) {
     CTCLObject element;
+    element.Bind(interp);
     string         name   = p->first;
     CSpectrumFit*  pFit   = p->second;
 
     if (Tcl_StringMatch(name.c_str(), pattern.c_str())) {
-      element = describeFit(pFit);
+      element = describeFit(interp, pFit);
       result += element;
     }
 
@@ -510,7 +516,7 @@ CFitCommand::Proc(CTCLInterpreter& interp,
 
 */
 CTCLObject
-CFitCommand::describeFit(CSpectrumFit* pFit)
+CFitCommand::describeFit(CTCLInterpreter& interp, CSpectrumFit* pFit)
 {
   // Pull out the elements of the fit description:
   //
@@ -525,6 +531,7 @@ CFitCommand::describeFit(CSpectrumFit* pFit)
   // Limits:
 
   CTCLObject limits;
+  limits.Bind(interp);
   limits     += low;
   limits     += high;
 
@@ -532,6 +539,8 @@ CFitCommand::describeFit(CSpectrumFit* pFit)
 
   CTCLObject parameters;
   CTCLObject parameter;
+  parameters.Bind(interp);
+  parameter.Bind(interp);
   CFit::FitParameterIterator p = params.begin();
   while (p != params.end()) {
     string paramName = p->first;
@@ -545,6 +554,7 @@ CFitCommand::describeFit(CSpectrumFit* pFit)
   // Now we're ready to build pu and return the result:
 
   CTCLObject result;
+  result.Bind(interp);
   result += fitName;
   result += spectrumName;
   result += fitType;

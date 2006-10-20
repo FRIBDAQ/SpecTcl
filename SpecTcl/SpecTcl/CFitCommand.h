@@ -148,7 +148,7 @@ private:
   int Proc(CTCLInterpreter& interp,
 	   STD(vector)<CTCLObject>& objv);
 
-  CTCLObject describeFit(CSpectrumFit* pFit);
+  CTCLObject describeFit(CTCLInterpreter& interp, CSpectrumFit* pFit);
   STD(string) Usage();
 };
 

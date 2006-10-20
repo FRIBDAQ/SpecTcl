@@ -1451,7 +1451,7 @@ CHistogrammer::addFit(CSpectrumFit& fit)
   //  3. Add the fitline name/id to our m_FitlineBindings 
 
   int fitId = m_nextFitlineId++;
-  Xamine_EnterFitline(xSpectrumId, fitId,
+  Xamine_EnterFitline(xSpectrumId+1, fitId,
 		      const_cast<char*>(fitName.c_str()),
 		      fit.low(), fit.high(),
 		      const_cast<char*>(fit.makeTclFitScript().c_str()));
@@ -1477,7 +1477,7 @@ CHistogrammer::deleteFit(CSpectrumFit& fit)
   string spectrumName =  fit.getName();
   string fitName      = fit.fitName();
   int    xSpectrumId  = findDisplayBinding(spectrumName);
-  if (xSpectrumId >= 0 && (m_FitlineBindings.size() < xSpectrumId)) {
+  if (xSpectrumId >= 0 && ( xSpectrumId <  m_FitlineBindings.size())) {
 
     // xSpectrumId < 0 means spectrum not bound.
     // xSpectrumId >= size of the bindings vector means no fitlines on spectrum.
@@ -1492,7 +1492,7 @@ CHistogrammer::deleteFit(CSpectrumFit& fit)
 	// b. Depending on the underlying representation of a FitlineList,
 	//    deletion may invalidate i.
 
-	Xamine_RemoveGate(xSpectrumId, i->first,
+	Xamine_RemoveGate(xSpectrumId+1, i->first,
 			  fitline);
 	m_FitlineBindings[xSpectrumId].erase(i);
 	return;
