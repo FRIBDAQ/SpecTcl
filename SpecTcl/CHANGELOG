@@ -528,4 +528,5 @@ SpecTcl 3.2-pre1 starts.
   Oct 20,2006  - BZ 87 Added basic fitting... still some kinks to work out
                  in the Xamine display but it does work...also need
                  to Xamine drive Gui to create the fit.
-   
+  Oct 23, 2006 - Added documentation for the fit command and how to 
+                 extend the fitting subsystem.
