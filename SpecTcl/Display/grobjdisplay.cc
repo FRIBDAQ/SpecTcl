@@ -324,6 +324,8 @@ void Xamine_PlotMarker(Display *d, Drawable w, GC gc, XMWidget *wid,
     int xp, yp;			/* Pixel coords of marker */
 
     cvt->SpecToScreen(&xp, &yp, x0, y0);
+    fprintf(stderr, "(%d, %d) -> (%d,%d)\n",
+	    x0, y0, xp, yp);
 
     /* Return without drawing anything if the points are outside the spectrum
     ** region:
@@ -402,7 +404,7 @@ void Xamine_DrawObjects(Xamine_RefreshContext *ctx, win_attributed *attributes)
     */
     for(int i = 0; i < nobjects; i++) {
       grobj_type type = objects[i]->type();
-      if( (type < max1dtypes) || (onedspec != typeisoned[type])  ) {
+      if( (type >= max1dtypes) || (onedspec != typeisoned[type])  ) {
 	Xamine_DeleteGrobj(specid, objects[i]->getid());
       }
       else {

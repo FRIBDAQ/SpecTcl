@@ -55,6 +55,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "chanplot.h"
 #include "colormgr.h"
 
+#include <Iostream.h>
+
 #include <math.h>
 
 #ifdef HAVE_STD_NAMESPACE
@@ -540,6 +542,8 @@ void grobj_mark1d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   Window  win= XtWindow(pane->getid());
   Drawable pm= (Drawable)NULL;
 
+  cerr << "Drawing mark1d\n";
+
   /* Determine if there's a backing store too.. we rely on the fact that
   ** the pane has encoded in it the widget index:
   */
@@ -574,12 +578,17 @@ void grobj_mark1d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   xgc->Set1DColors(*pane);
   GC gc;
   if(final) {
+    cerr << "Final\n";
+    cerr.flush();
     gc = xgc->gc;
     Xamine_PlotMarker(d, win, gc, pane, labelit, &cvt, this, at);
     if(pm)
       Xamine_PlotMarker(d,pm,gc, pane, labelit, &cvt, this, at);
   }
   else {
+    cerr << "Not final" << endl ;
+    cerr.flush();
+     
     grobj_point *pt = getpt(0);
     int x = pt->getx(),
         y = pt->gety();
@@ -1828,13 +1837,7 @@ grobj_Fitline::computePoints(win_attributed* pAtr)
     float y;
     sscanf(value, "%f", &y);
 
-    // If log display need to deal with that:
-    if (pAtr->islog()) {
-      if(y <= 0.0) {		// Can't take the log of that...
-	y = 0.01;
-      }
-      y = log(y);		// Compute log of parameter.
-    }
+
     point.first  = x;
     point.second = y;
     result.push_back(point);
@@ -1864,7 +1867,7 @@ grobj_Fitline::computePosition(Xamine_Convert1d& cvt,
 
   // Interpolate here.
 
-  int ypix = ypix1 + (int)((height - (int)height)*(float)(ypix2-ypix1));
+  int ypix = ypix1 + (int)((height - htlow)*(float)(ypix2-ypix1));
 
   return pair<int,int>(xpix, ypix);
 

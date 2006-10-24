@@ -530,3 +530,8 @@ SpecTcl 3.2-pre1 starts.
                  to Xamine drive Gui to create the fit.
   Oct 23, 2006 - Added documentation for the fit command and how to 
                  extend the fitting subsystem.
+  Oct 24, 2006 - Fixed error in log display of fitlines (actually convert1d error).
+                 Made fitlines solid lines not just dots.
+                 Fixed defect introduced with fitlines - where 1-d objects
+                 got deleted on updates.
+    
