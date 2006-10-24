@@ -49,7 +49,7 @@
 #include <Gamma2DW.h>
 #include <CSpectrumFit.h>
 #include "CHistogrammerFitObserver.h"
-
+#include <CFitDictionary.h>
 
 #include <Iostream.h>
 #include <Sstream.h>
@@ -759,6 +759,20 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
     if(pXgate) m_pDisplayer->EnterGate(*pXgate);
     delete pXgate;
   }
+  // same for the fitlines:
+  //
+
+  CFitDictionary& dict(CFitDictionary::getInstance());
+  CFitDictionary::iterator pf = dict.begin();
+
+  while (pf != dict.end()) {
+    CSpectrumFit* pFit = pf->second;
+    if (pFit->getName() == pSpectrum->getName()) {
+      addFit(*pFit);		// not very efficient, but doesn't need to be
+    }
+    pf++;
+  }
+
   return nSpectrum;
 }
 
