@@ -524,7 +524,7 @@ public:
 private:
   void copyIn(const grobj_Fitline& rhs);
 
-  STD(vector)<STD(pair)<int,float> > computePoints();
+  STD(vector)<STD(pair)<int,float> > computePoints(win_attributed* pAttrib);
   STD(pair)<int,int> computePosition(Xamine_Convert1d& cvt,
 				     int               channel,
 				     float             height);

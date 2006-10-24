@@ -55,6 +55,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "chanplot.h"
 #include "colormgr.h"
 
+#include <math.h>
+
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -1746,7 +1748,7 @@ grobj_Fitline::draw(XMWidget* pWindow, win_attributed* pAttributes,
   // which we will then draw...the vector is in channel/floating height
   // pairs.
 
-  vector<pair<int, float> > points = computePoints();
+  vector<pair<int, float> > points = computePoints(pAttributes);
   vector<pair<int, int> >   pts;
   for (int i=0; i < points.size(); i++) {
     pair<int, int> p = computePosition(cvt, points[i].first, points[i].second);
@@ -1810,7 +1812,7 @@ grobj_Fitline::copyIn(const grobj_Fitline& rhs)
    - return the points.
 */
 vector<pair<int, float> >
-grobj_Fitline::computePoints()
+grobj_Fitline::computePoints(win_attributed* pAtr)
 {
   vector<pair<int, float> > result;
   pair<int, float>          point;
@@ -1825,6 +1827,14 @@ grobj_Fitline::computePoints()
     const char* value = Tcl_GetStringResult(interp);
     float y;
     sscanf(value, "%f", &y);
+
+    // If log display need to deal with that:
+    if (pAtr->islog()) {
+      if(y <= 0.0) {		// Can't take the log of that...
+	y = 0.01;
+      }
+      y = log(y);		// Compute log of parameter.
+    }
     point.first  = x;
     point.second = y;
     result.push_back(point);
@@ -1886,24 +1896,16 @@ grobj_Fitline::drawFitline(Display* d, Drawable w, GC& gc, XMWidget* pWindow,
   // flushing the line to the drawable after the end of the block.
  
   {
-    int lastx = points[0].first;
-    int lasty = points[0].second;
-    if (flipped) {
-      lastx = points[0].second;
-      lasty = points[0].first;
-      
-    }    
-    XSegmentBatch polyline(d, w, gc);
-    for(int i = 1; i < points.size(); i++) {
+
+    XLineBatch polyline(d, w, gc);
+    for(int i = 0; i < points.size(); i++) {
       int x = points[i].first;
       int y = points[i].second;
       if (flipped) {
 	x = points[i].second;
 	y = points[i].first;
       }
-      polyline.draw(lastx, lasty, x, y);
-      lastx = x;
-      lasty = y;
+      polyline.draw(x, y);
     
     }
   }                         // Flush the line to drawable
