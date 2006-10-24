@@ -385,29 +385,25 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
 
 
 }
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Function:       
-//     OnButton(CXamineButton& rButton)
-//  Operation Type: 
-//     Overridable Action
+/*!
+   Process button events.  This is done by traversing the
+   set of established button handlers.  Each handler is called
+   in turn until true is returned by the handler or 
+   until the end of the list is reached.
+
+   \pram rButton : CButtonEvent&
+       Reference to the button event that triggered us.
+*/
+
 void CXamineEventHandler::OnButton(CButtonEvent& rButton)  
 {
-  // Processes an Xamine Button event.  
-  // At present this is a no-op....later we'll provide
-  // mechanisms for attaching TCL scripts to button
-  // definitions in Xamine.  This is needed in addition to TK
-  // buttons as Xamine buttons can accept points on Xamine
-  // spectra etc, as well as return information about the
-  //  currently selected spectrum.
-  //
-  // Formal Parameters:
-  //      CXamineButton& rButtonEvent:
-  //            Refers to the Xamine button event
-  //            which was just received.
-  //
-  
-  // Currently a no-op.
+  ButtonHandlerList::iterator p = m_buttonHandlers.begin();
+  while (p != m_buttonHandlers.end()) {
+    CButtonHandler* pHandler = *p;
+    if ((*pHandler)(rButton)) return;
+    p++;
+  }
+
 }
 ////////////////////////////////////////////////////////////////////////
 //
@@ -471,6 +467,21 @@ CXamineEventHandler::Clear()
 {
   Tcl_DeleteTimerHandler(m_Timer);
 }
+
+/*!
+   Add a button handler to the list of handlers that are
+   given a chance to deal with button events:
+   \param handler : CXamineEventHandler::CButtonHandler& 
+      Reference to a concrete button handler object (derived from
+      the abstract base class CXamineEventHandler::CButtonHandler).
+
+*/
+void 
+CXamineEventHandler::addButtonHandler(CXamineEventHandler::CButtonHandler& handler)
+{
+  m_buttonHandlers.push_back(&handler);
+}
+
 //
 // Functional Description:
 //    void CallbackRelay(ClientData pObject, int mask)
