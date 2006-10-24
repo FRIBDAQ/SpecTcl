@@ -59,6 +59,14 @@
 #endif
 #endif
 
+#ifndef __STL_LIST
+#include <list>
+#ifndef __STL_LIST
+#define __STL_LIST
+#endif
+#endif
+
+
 class CDisplayGate;
 class CButtonEvent;
 class CSpectrum;
@@ -66,12 +74,20 @@ class CSpectrum;
 // XamineEventHandler class declaration:
                                                                
 class CXamineEventHandler
-{                       
+{
+  // Base class for button handlers:
+public:
+  class CButtonHandler {
+  public:
+    virtual Bool_t operator()(CButtonEvent& event) = 0;
+  };
+  typedef STD(list)<CButtonHandler*> ButtonHandlerList;
+private:                       
   CTCLInterpreter* m_pInterp;
   CHistogrammer* m_pHistogrammer; //1:1 association object data member      
   int            m_nFd;
   Tcl_TimerToken  m_Timer;	// Poll timer for read.
-
+  ButtonHandlerList m_buttonHandlers; // List of button handlers.
 public:
 
    // Constructors and other cannonical operations:
@@ -140,6 +156,11 @@ protected:
     Set();			// Set callback on next fid.
   }
 
+  // Button handlers can be registered here's the interface for that:
+
+  void addButtonHandler(CButtonHandler& handler);
+
+  // Overridable operations.
 public:
 
  virtual   void operator() ()    ;
