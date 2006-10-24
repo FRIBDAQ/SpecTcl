@@ -535,3 +535,5 @@ SpecTcl 3.2-pre1 starts.
                  Fixed defect introduced with fitlines - where 1-d objects
                  got deleted on updates.
                  Ensured that fitlines get sent in on sbind. 
+                 Added framework for user processing of Xamine buttons in
+                 the Xamine custom button box.
