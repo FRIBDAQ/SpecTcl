@@ -158,6 +158,7 @@ protected:
 
   // Button handlers can be registered here's the interface for that:
 
+public:
   void addButtonHandler(CButtonHandler& handler);
 
   // Overridable operations.
