@@ -7,6 +7,10 @@
  *	-lgsl -lgslcblas -lm
  *
  */
+/*
+  This software is included in SpecTcl thanks to the kind permission of 
+  Tony Denault and Leilehua Maly of the NASA IRTF Telescope.
+*/
  
  #include "fitgsl.h"
  

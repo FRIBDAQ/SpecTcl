@@ -13,6 +13,11 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
+/*
+  The implementation of this class makes use of fitgsl.{c,h} included
+  in SpecTcl with permission from 
+  Tony Denault, and Leilehua Maly of the NASA IRTF Telescope.
+*/
 
 #include <config.h>
 #include "CGaussianFit.h"

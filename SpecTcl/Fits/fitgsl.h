@@ -20,6 +20,10 @@
  *	-lgsl -lgslcblas -lm
  *
  */
+/*
+  This software is included in SpecTcl thanks to the kind permission of 
+  Tony Denault and Leilehua Maly of the NASA IRTF Telescope.
+*/
 
 #ifndef __FITGSL_H_INCLUDED
 #define __FITGSL_H_INCLUDED
