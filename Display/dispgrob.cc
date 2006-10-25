@@ -542,7 +542,6 @@ void grobj_mark1d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   Window  win= XtWindow(pane->getid());
   Drawable pm= (Drawable)NULL;
 
-  cerr << "Drawing mark1d\n";
 
   /* Determine if there's a backing store too.. we rely on the fact that
   ** the pane has encoded in it the widget index:
@@ -578,16 +577,12 @@ void grobj_mark1d::draw(XMWidget *pane, win_attributed *at, Boolean final)
   xgc->Set1DColors(*pane);
   GC gc;
   if(final) {
-    cerr << "Final\n";
-    cerr.flush();
     gc = xgc->gc;
     Xamine_PlotMarker(d, win, gc, pane, labelit, &cvt, this, at);
     if(pm)
       Xamine_PlotMarker(d,pm,gc, pane, labelit, &cvt, this, at);
   }
   else {
-    cerr << "Not final" << endl ;
-    cerr.flush();
      
     grobj_point *pt = getpt(0);
     int x = pt->getx(),
