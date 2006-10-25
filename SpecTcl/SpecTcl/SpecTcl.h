@@ -316,9 +316,9 @@ public:
   CTCLInterpreter*  getInterpreter();
   
 
-  // Utility functions:
+  // Expose the guts for the really curious and those who need more
+  // than we can offer.
 
-protected:
   CHistogrammer*      GetHistogrammer();
   CTclAnalyzer*       GetAnalyzer();
   CEventSinkPipeline* GetEventSinkPipeline();
