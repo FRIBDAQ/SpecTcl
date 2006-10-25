@@ -34,6 +34,9 @@
   To be precise about the area of the background subtracted peak,
   A = p/(w*sqrt(2*pi)).
 
+  The implementation of this class makes use of fitgsl.{c,h} included
+  in SpecTcl with permission from 
+  Tony Denault, and Leilehua Maly of the NASA IRTF Telescope.
 
 */
 class CGaussianFit : public CFit

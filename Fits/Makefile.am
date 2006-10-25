@@ -56,3 +56,4 @@ include_HEADERS	=	CFit.h			\
 			CGaussianFit.h		\
 			CGaussianFitCreator.h
 
+EXTRA_DIST=permission.txt

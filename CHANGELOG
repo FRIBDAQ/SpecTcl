@@ -540,3 +540,5 @@ SpecTcl 3.2-pre1 starts.
  Oct 25, 2006  - CXamineEvent::addButtonHandler needs to be public.
                  Expose ability to get the histogrammer etc. in SpecTcl.h
                  Expose fit id allocation in CfitCommand.
+                 Added credits for gsl.{cpp,h} and permission grant to the
+                 distribution
