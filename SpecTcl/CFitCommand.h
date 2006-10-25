@@ -126,6 +126,10 @@ private:
   int operator!=(const CFitCommand& rhs) const;
 public:
 
+  // Public interface:
+
+  static int id();		// Allocate a fit id.
+
 
   // Virtual function overrides.
 
@@ -133,7 +137,6 @@ protected:
   virtual int operator()(CTCLInterpreter& interp,
 			 STD(vector)<CTCLObject>& objv);
 
-  static int id();		// Allocate a fit id.
 
   // Private subcommand executors.. these are named
   // after their commands.
