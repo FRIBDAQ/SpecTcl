@@ -124,6 +124,15 @@ CFitCommand::operator()(CTCLInterpreter& interp,
 }
 
 /*!
+   Allocate a fit id. (used for external fit creators).
+*/
+int 
+CFitCommand::id()
+{
+  return m_fitId++;
+}
+
+/*!
    Create a  fit.
    The full syntax of this is:
 
