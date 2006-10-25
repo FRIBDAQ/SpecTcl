@@ -324,8 +324,6 @@ void Xamine_PlotMarker(Display *d, Drawable w, GC gc, XMWidget *wid,
     int xp, yp;			/* Pixel coords of marker */
 
     cvt->SpecToScreen(&xp, &yp, x0, y0);
-    fprintf(stderr, "(%d, %d) -> (%d,%d)\n",
-	    x0, y0, xp, yp);
 
     /* Return without drawing anything if the points are outside the spectrum
     ** region:
