@@ -539,3 +539,4 @@ SpecTcl 3.2-pre1 starts.
                  the Xamine custom button box.
  Oct 25, 2006  - CXamineEvent::addButtonHandler needs to be public.
                  Expose ability to get the histogrammer etc. in SpecTcl.h
+                 Expose fit id allocation in CfitCommand.
