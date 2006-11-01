@@ -18,7 +18,7 @@
 
 INCLUDES = 	-I@top_srcdir@/Utility	\
 	  	-I@top_srcdir@/Xamine	\
-		-I@top_srcdir@/Exception \
+		-I@top_srcdir@/NSCLException \
 		-I@top_srcdir@/Sorter    \
 		-I@top_srcdir@/SpecTcl	\
 		-I@top_srcdir@/Events	\

@@ -542,3 +542,5 @@ SpecTcl 3.2-pre1 starts.
                  Expose fit id allocation in CfitCommand.
                  Added credits for gsl.{cpp,h} and permission grant to the
                  distribution
+ November 1, 2006 - Fix some issues for building from the distro rather than
+                 from CVS.
