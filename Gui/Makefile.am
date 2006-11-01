@@ -88,4 +88,5 @@ treeparicon.gif \
 treevaricon.gif \
 variableInfo.html \
 edit2dmulti.html  \
-savestatedialog.html
+savestatedialog.html \
+prefs.tcl
