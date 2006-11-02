@@ -30,7 +30,7 @@ MainObjects = CFit.o \
 libCalibrations_la_SOURCES = $(MainSources) CCalibratedParameterCommand.cpp 
 
 
-include_HEADERS = CFit.h  CFitCommand.h  CFitCreator.h  CFitFactory.h  \
+noinst_HEADERS = CFit.h  CFitCommand.h  CFitCreator.h  CFitFactory.h  \
 	CLinearFit.h  CLinearFitCreator.h CCalibratedParameter.h \
 	CCalibratedParameterCommand.h CCalibratedParameterManager.h
 
