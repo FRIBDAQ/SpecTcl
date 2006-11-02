@@ -21,6 +21,8 @@ EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl \
 	 doc build.cygwin Directories.include CompilationRules.include
 
 dist-hook:
+	mkdir -p $(distdir)/config
+	echo `pwd`
 	for file in $(AUX_DIST) $(AUX_DIST_EXTRA); do \
 	  cp $$file $(distdir)/$$file; \
 	done
