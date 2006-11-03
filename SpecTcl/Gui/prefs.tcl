@@ -32,6 +32,7 @@ package require guihelp
 #  +---------------------------------------------+
 #  | NSCL DAQ:                                   |
 #  | NSCL DAQ root: [           ]  [browse...]   |
+#  | Default Buffer Size [       ]               |
 #  +---------------------------------------------+
 #  | [Ok]   [Cancel] [Help]                      |
 #  +---------------------------------------------+
@@ -40,6 +41,7 @@ package require guihelp
 #     -xdefault   - Value in the X axis entry.
 #     -ydefault   - Value in the Y axis entry.
 #     -daqroot    - Value of location of nscldaq root.
+#     -buffersize - Default buffers size in bytes on attach dialogs.
 #
 #     -okscript   - Script to execute on click of ok.
 #     -cancelscript - Script to execute on click of cancel.
@@ -52,6 +54,7 @@ snit::widget prefsEditor {
     option   -xdefault
     option   -ydefault
     option   -daqroot
+    option   -buffersize
 
     option   -okscript
     option   -cancelscript
@@ -78,6 +81,10 @@ snit::widget prefsEditor {
 	entry $win.daqparams.root    -textvariable ${selfns}::options(-daqroot) \
 	                             -width 15
 	button $win.daqparams.browse -text Browse... -command [mymethod browseRoot]
+	label $win.daqparams.bufsizelbl -text {Default BufferSize}
+	entry $win.daqparams.bufsize    -textvariable ${selfns}::options(-buffersize) \
+	                                -width 15
+
 
 	frame $win.action -relief groove -borderwidth 3
 	button $win.action.ok     -text Ok -command       [mymethod dispatch -okscript]
@@ -91,8 +98,10 @@ snit::widget prefsEditor {
 	grid $win.yaxistitle      $win.yaxis     $win.same
 
 	grid $win.daqparams.title       -                       -
-	grid $win.daqparams.rootlbl $win.daqparams.root   $win.daqparams.browse
+	grid $win.daqparams.rootlbl     $win.daqparams.root   $win.daqparams.browse
+	grid $win.daqparams.bufsizelbl  $win.daqparams.bufsize    x
 	grid $win.daqparams        -columnspan 3 -sticky ew
+
 
 	pack $win.action.ok $win.action.cancel $win.action.help -side left
 	grid $win.action -columnspan 3 -sticky ew
@@ -160,6 +169,7 @@ proc preferences::ok {} {
     set ::GuiPrefs::preferences(defaultXChannels) [.prefs cget -xdefault]
     set ::GuiPrefs::preferences(defaultYChannels) [.prefs cget -ydefault]
     set ::GuiPrefs::preferences(defaultDaqRoot)   [.prefs cget -daqroot]
+    set ::GuiPrefs::preferences(defaultBuffersize) [.prefs cget -buffersize]
     destroy .prefs
 }
 proc preferences::cancel {} {
@@ -172,10 +182,13 @@ proc  preferences::help {} {
 proc preferences::editPrefs {} {
     prefsEditor .prefs  -xdefault $::GuiPrefs::preferences(defaultXChannels) \
 	                -ydefault $::GuiPrefs::preferences(defaultYChannels) \
+	                -daqroot  $::GuiPrefs::preferences(defaultDaqRoot)   \
+	                -buffersize $::GuiPrefs::preferences(defaultBuffersize) \
 	-okscript     preferences::ok                                            \
 	-cancelscript preferences::cancel                                   \
         -helpscript   preferences::help
 
+    
     focus .prefs
     grab  .prefs
     tkwait window .prefs
