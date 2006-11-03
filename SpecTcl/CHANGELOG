@@ -549,3 +549,6 @@ SpecTcl 3.2-pre1 starts.
                - Fix wierd issues with make dist on ubuntu edgy edge...
                  was not putting config dir into the distro.=======
                  distribution
+ Nov 3, 2006   - Fix error introduced in scaler display by attempt to 
+                 format totals as %u when they are actually floating point
+                 exactly to keep them from overflowing.
