@@ -82,7 +82,8 @@ proc datasource::findSpecTclDaq {} {
 #      We need to pop up a dialog to request the node from which we take data.
 #
 proc attachOnline {} {
-    hostprompt .hostprompt -host $::datasource::lasthost
+    hostprompt .hostprompt -host $::datasource::lasthost \
+	-buffersize $::GuiPrefs::preferences(defaultBuffersize)
     .hostprompt modal
     if {[winfo exists .hostprompt]} {
         set host [.hostprompt cget -host]
@@ -94,6 +95,7 @@ proc attachOnline {} {
 	    datasource::findSpecTclDaq
 	    if {$datasource::actualSpecTclDaq ne ""} {
 		attach -size $size -pipe $datasource::actualSpecTclDaq  $url
+		set ::GuiPrefs::preferences(defaultBuffersize) $size
 		start
 	    }
         }
@@ -112,7 +114,8 @@ proc attachFile {} {
     attachfile .prompt                                               \
 	-defaultextension .evt                                       \
 	-initialfile  $::datasource::lasteventfile                   \
-	-initialdir   [file dirname $::datasource::lasteventfile] 
+	-initialdir   [file dirname $::datasource::lasteventfile]   \
+	-buffersize   $::GuiPrefs::preferences(defaultBuffersize)
     .prompt modal
     set file [.prompt cget -initialfile]
     set size [.prompt cget -buffersize]
@@ -122,6 +125,7 @@ proc attachFile {} {
         if {[file readable $file]} {
             catch stop
             attach -size $size -file $file
+	    set ::GuiBufferSize::preferences(defaultBuffersize) $size
             start
             set ::datasource::lasteventfile $file
         } else {
@@ -138,7 +142,8 @@ proc attachFile {} {
 proc attachPipe {} {
     attachpipe .attachpipe -initialdir [file dirname $::datasource::lastpipecommand] \
                            -initialfile  $::datasource::lastpipecommand \
-                           -initialargs $::datasource::lastpipeargs
+                           -initialargs $::datasource::lastpipeargs    \
+	                   -buffersize $::GuiPrefs::preferences(defaultBuffersize)
     .attachpipe modal
 
     if {[winfo exists .attachpipe]} {
@@ -149,6 +154,7 @@ proc attachPipe {} {
                 catch stop
 		set size [.attachpipe cget -buffersize]
                 if {![catch {eval attach -size $size -pipe $command $arguments} msg] } {
+		    set ::GuiPrefs::preferences(defaultBuffersize) $size
                     start
                     set ::datasource::lastpipecommand $command
                     set ::datasource::lastpipeargs    $arguments
@@ -267,7 +273,8 @@ proc nextFileInRunlist {varname index op} {
         set ::datasource::runlistFiles [lrange $::datasource::runlistFiles 1 end]
         if {$file != ""} {
             catch stop
-            if {![catch {attach -file $file} msg]} {
+	    set size $::GuiPrefs::preferences(defaultBuffersize)
+            if {![catch {attach -size $size -file $file} msg]} {
                 catch start
             } else {
                 set answer [tk_messageBox -icon error -title {attach failed} \

@@ -552,3 +552,4 @@ SpecTcl 3.2-pre1 starts.
  Nov 3, 2006   - Fix error introduced in scaler display by attempt to 
                  format totals as %u when they are actually floating point
                  exactly to keep them from overflowing.
+               - Support a default buffersize preference.

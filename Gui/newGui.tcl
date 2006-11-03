@@ -57,6 +57,8 @@ namespace eval GuiPrefs {
 
 set GuiPrefs::preferences(defaultXChannels)   1024
 set GuiPrefs::preferences(defaultYChannels)   1024
+set GuiPrefs::preferences(defaultDaqRoot)    /usr/opt/daq/current
+set GuiPrefs::preferences(defaultBuffersize)  8192
 
 
 
