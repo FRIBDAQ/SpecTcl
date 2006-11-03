@@ -524,15 +524,18 @@ void CTclAnalyzer::ClearCounter(Counter eSelect) {
 */
 void CTclAnalyzer::OnOther(UInt_t nType, CBufferDecoder& rDecoder) {
 
-  EventProcessorIterator p = m_lAnalysisPipeline.begin();
+  EventProcessorIterator p = begin();
 
+  int i = 0;
   while(p != end()) {
     CEventProcessor* pProcessor(p->second);
     if(!pProcessor->OnOther(nType, *this, rDecoder)) {
       break ;
     }
     p++;
+    i++;
   }
+  
 }
 /*!
   Called for scaler buffers, we delegate to onOther..
