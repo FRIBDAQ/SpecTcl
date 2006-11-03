@@ -125,7 +125,7 @@ proc attachFile {} {
         if {[file readable $file]} {
             catch stop
             attach -size $size -file $file
-	    set ::GuiBufferSize::preferences(defaultBuffersize) $size
+	    set ::GuiPrefs::preferences(defaultBuffersize) $size
             start
             set ::datasource::lasteventfile $file
         } else {
