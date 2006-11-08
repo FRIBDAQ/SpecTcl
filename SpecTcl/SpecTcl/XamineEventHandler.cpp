@@ -131,14 +131,27 @@ void CXamineEventHandler::operator()()
 
       cerr << "\n Restarting Xamine...";
       pDisplay->Restart();
-      
+
       // Re-associate ourselves with the input channel:
 
       cerr << "\n Reconnecting with Xamine gate inputs..";
       m_nFd = m_pHistogrammer->getDisplayer()->GetEventFd();
       cerr << "\n";
+
+      // Now that we're all back together we need to let the
+      // restart handlers observer this event (e.g. to re-establish
+      // the button box.
+      //
+
+      RestartHandlerList::iterator i = m_restartHandlers.begin();
+      while (i != m_restartHandlers.end()) {
+	CRestartHandler* pHandler = *i;
+	(*pHandler)();
+	i++;
+      }
     }
   }
+
   Set();			// Re-schedule self.
   
 }
@@ -481,7 +494,23 @@ CXamineEventHandler::addButtonHandler(CXamineEventHandler::CButtonHandler& handl
 {
   m_buttonHandlers.push_back(&handler);
 }
-
+/*!
+   Add a restart handler to the restart observer list.
+   This allows application specific operations to be done when
+   Xamine is restarted as a result of a crash/inadvertent exit etc.
+   \param handler : CRestartHandler&
+      Function object derived from CRestartHandler that will be
+      invoked on an Xamine restart, once Xamine is all back up and
+      connected.
+*/
+void
+CXamineEventHandler::addRestartHandler(CRestartHandler& handler)
+{
+  m_restartHandlers.push_back(&handler);
+}
+///////////////////////////////////////////////////////////////////////
+////////////////////// Private utility functions //////////////////////
+///////////////////////////////////////////////////////////////////////
 //
 // Functional Description:
 //    void CallbackRelay(ClientData pObject, int mask)
@@ -497,9 +526,6 @@ CXamineEventHandler::CallbackRelay(ClientData pObject)
   pThis->operator()();
 }
 
-///////////////////////////////////////////////////////////////////////
-////////////////////// Private utility functions //////////////////////
-///////////////////////////////////////////////////////////////////////
 
 // Create a gate on a sum spectrum.  The gate type will
 // be either a contour or a band.  The gate will be made by
