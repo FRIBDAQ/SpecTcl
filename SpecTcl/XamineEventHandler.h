@@ -81,13 +81,19 @@ public:
   public:
     virtual Bool_t operator()(CButtonEvent& event) = 0;
   };
+  class CRestartHandler {
+  public:
+    virtual void  operator()() = 0;
+  };
   typedef STD(list)<CButtonHandler*> ButtonHandlerList;
+  typedef STD(list)<CRestartHandler*> RestartHandlerList;
 private:                       
-  CTCLInterpreter* m_pInterp;
-  CHistogrammer* m_pHistogrammer; //1:1 association object data member      
-  int            m_nFd;
-  Tcl_TimerToken  m_Timer;	// Poll timer for read.
-  ButtonHandlerList m_buttonHandlers; // List of button handlers.
+  CTCLInterpreter*   m_pInterp;
+  CHistogrammer*     m_pHistogrammer; //1:1 association object data member      
+  int                m_nFd;
+  Tcl_TimerToken     m_Timer;	// Poll timer for read.
+  ButtonHandlerList  m_buttonHandlers; // List of button handlers.
+  RestartHandlerList m_restartHandlers;
 public:
 
    // Constructors and other cannonical operations:
@@ -156,10 +162,11 @@ protected:
     Set();			// Set callback on next fid.
   }
 
-  // Button handlers can be registered here's the interface for that:
+  // User hooks that observer various things can be added here.
 
 public:
   void addButtonHandler(CButtonHandler& handler);
+  void addRestartHandler(CRestartHandler& handler);
 
   // Overridable operations.
 public:
