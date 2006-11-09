@@ -387,3 +387,4 @@ SpecTcl-3.0-009
 
 3.0-010  
 	Oct. 17, 2006 BZ 219  - output the contents of VERSIOn to TCL's stdout
+        Nov 09, 2006 Added CHANGELOG to installation.

@@ -16,7 +16,8 @@ AUX_DIST = $(ac_aux_dir)/config.guess \
 
 EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl \
 	bootstrap $(MYGRIDIR)  \
-	 doc build.cygwin Directories.include CompilationRules.include
+	 doc build.cygwin Directories.include CompilationRules.include \
+	CHANGELOG
 
 dist-hook:
 	(cd $(distdir)/$(MYGRIDIR); make -k clean)
@@ -53,4 +54,5 @@ install-exec-local:
 	cat  CompilationRules.include        >> CompilationRules.temp
 	$(INSTALL_DATA) CompilationRules.temp $(sysconfdir)/CompilationRules.include
 	echo "Version: " $(VERSION) build on `hostname` `date` >$(prefix)/VERSION
+	$(INSTALL_DATA) CHANGELOG $(prefix)
 	$(MANDB) $(prefix)/man
