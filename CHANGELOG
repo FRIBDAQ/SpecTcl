@@ -512,3 +512,5 @@ SpecTcl-3.1-002
    Added prntout of VERSION to tkcon at startup
    Back ported fix for defect BZ 224 (integrations of 2dlong spectra
    give incorrect centroids on 64 bit systems) from 3.2
+   Added CHANGELOG to the installation.
+
