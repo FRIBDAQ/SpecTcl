@@ -554,3 +554,4 @@ SpecTcl 3.2-pre1 starts.
                  exactly to keep them from overflowing.
                - Support a default buffersize preference.
  Nov 8, 2006   - Add Xamine restart handler capability to Xamine interface.
+ Nov 9, 2006   - Install CHANGELOG 
