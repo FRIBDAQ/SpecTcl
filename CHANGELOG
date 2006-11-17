@@ -555,3 +555,5 @@ SpecTcl 3.2-pre1 starts.
                - Support a default buffersize preference.
  Nov 8, 2006   - Add Xamine restart handler capability to Xamine interface.
  Nov 9, 2006   - Install CHANGELOG 
+ Nov 17, 2006  - Fix defect 228 - Xamine.Defaults can get printing defaults
+                 all garbled causing printing to fail or crash Xamine

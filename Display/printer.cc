@@ -290,8 +290,18 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 /*
  $Log$
- Revision 5.6  2006/09/20 11:06:12  ron-fox
- Printer.cc had too short a spectrum name buffer.
+ Revision 5.7  2006/11/17 16:08:39  ron-fox
+ Defect 228 fix: Printer defaults could wind up only partially
+ initialized.. this resulted in bad Xamine.Default files and
+ could cause printing to fail or crash Xamine.
+
+ Revision 5.5.2.2  2006/11/17 14:41:55  ron-fox
+ Defect 228 - Xamine can make bad Xamine.Default files which can cause printing
+ to fail because the print defauts can be set to whacky values.
+
+ Revision 5.5.2.1  2006/09/21 15:32:46  ron-fox
+ Fix regression error with printer title size not being long enough
+ causing segflts.
 
  Revision 5.5  2006/05/22 19:59:16  ron-fox
  -Fix issues with printing: gri used an EPSF header which
@@ -418,7 +428,7 @@ extern grobj_database Xamine_DefaultGateDatabase;
 #ifdef HAVE_WINDOWS_H      /* Cygwin */
 #define DEFAULT_PRINTCMD "cp %s //win-cluster/west_print1"
 #else
-#define DEFAULT_PRINTCMD "lpr -Pu1_color_print %s"
+#define DEFAULT_PRINTCMD "lpr -Pu1_color %s"
 #endif
 
 
@@ -557,6 +567,28 @@ static char *help_setup_text[] = {
 static Xamine_help_client_data help = {"PrinterHelp", NULL, help_text};
 static Xamine_help_client_data help_setup = {"SetupHelp", NULL, help_setup_text};
   
+/*
+  Create the default print options with reasonable initial values
+*/
+DefaultPrintOptions::DefaultPrintOptions()
+{
+  layout = portrait;
+  num    = printsel;
+  dest   = toprinter;
+  res    = one;
+  file_type  = -1;
+  xlen       = 4;
+  ylen       = 4;
+  time_stamp = 0;
+  color_pal  = 0;
+  contours   = 0;
+  symbols    = 0;
+  
+  strcpy(print_cmd, printcmd);
+  sprintf(rows, "%d", Xamine_Panerows());
+  sprintf(cols, "%d", Xamine_Panecols());
+}
+
 
 /*
 ** Functional Description:
@@ -579,7 +611,6 @@ char *Xamine_GetPrintCommand()
 {
   if(!dflt_print_opts) {
     dflt_print_opts = new struct DefaultPrintOptions;
-    strcpy(dflt_print_opts->print_cmd,printcmd);
   }
   return dflt_print_opts->print_cmd;
 }
@@ -1932,12 +1963,12 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
   spec_label xlabel;
   spec_label ylabel;
   int nSpectrum = pAttributes->spectrum();
-  int fDefaultsExist = (dflt_print_opts != NULL);
-  if(!fDefaultsExist) {
-    ps_dialog->setnum(printsel);
-  } else {
-    ps_dialog->setnum(dflt_print_opts->num);
+
+  if(!dflt_print_opts) {
+    dflt_print_opts = new DefaultPrintOptions;
   }
+    ps_dialog->setnum(dflt_print_opts->num);
+
 
   switch(xamine_shared->gettype(nSpectrum)) {
   case onedword:
@@ -2032,71 +2063,52 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
   ps_dialog->allow_geom(false);
   ps_dialog->allow_tics(false);
   ps_dialog->settics(deflt);
-  if(!fDefaultsExist) {
-    ps_dialog->setlayout(portrait);
-  } else {
-    ps_dialog->setlayout(dflt_print_opts->layout);
-  }
+  ps_dialog->setlayout(dflt_print_opts->layout);
 
-  if(!fDefaultsExist) {
-    ps_dialog->setrows(rows);
-    ps_dialog->setcols(cols);
-  }
-  else {
-    ps_dialog->setrows(dflt_print_opts->rows);
-    ps_dialog->setcols(dflt_print_opts->cols);
-  }
+
+  ps_dialog->setrows(dflt_print_opts->rows);
+  ps_dialog->setcols(dflt_print_opts->cols);
 
   ps_dialog->settitle
     (const_cast<char*>(Xamine_GetSpectrumTitle().c_str()));
   
-  if(!fDefaultsExist) {
-    ps_dialog->setxlen("4");
-    ps_dialog->setylen("4");
-  } else {
-    char xlen[10];
-    char ylen[10];
-    sprintf(xlen, "%f", dflt_print_opts->xlen);
-    sprintf(ylen, "%f", dflt_print_opts->ylen);
-    ps_dialog->setxlen(xlen);
-    ps_dialog->setylen(ylen);
-  }
+  char xlen[10];
+  char ylen[10];
+  sprintf(xlen, "%f", dflt_print_opts->xlen);
+  sprintf(ylen, "%f", dflt_print_opts->ylen);
+  ps_dialog->setxlen(xlen);
+  ps_dialog->setylen(ylen);
+  
   ps_dialog->setspecified();
   if(fs / 4) {
     ps_dialog->setcontour_inc(ci);
   }
-  if(!fDefaultsExist) {
-    ps_dialog->setcmd(Xamine_GetPrintCommand());
-    ps_dialog->setdest(toprinter);
-    ps_dialog->setres(one);
-  } else {
-    ps_dialog->setcmd(dflt_print_opts->print_cmd);
-    ps_dialog->setdest(dflt_print_opts->dest);
-    ps_dialog->setlist_type(dflt_print_opts->file_type+1);
-    ps_dialog->setres(dflt_print_opts->res);
-  }
+  ps_dialog->setcmd(dflt_print_opts->print_cmd);
+  ps_dialog->setdest(dflt_print_opts->dest);
+  ps_dialog->setlist_type(dflt_print_opts->file_type+1);
+  ps_dialog->setres(dflt_print_opts->res);
+
   ps_dialog->setfile(const_cast<char*>(Xamine_GetOutputFilename().c_str()));
 
   // If defaults exist in the defaults file, set the appropriate
   // spectrum options toggle switch states.
-  if(fDefaultsExist) {
-    switch(xamine_shared->gettype(nSpectrum)) {
-    case twodbyte:
-    case twodword:
-      ps_dialog->set_palette(dflt_print_opts->color_pal);
-      ps_dialog->setdraw_palette(1);
-      ps_dialog->set_contours(dflt_print_opts->contours);
-      break;
-    case onedword:
-    case onedlong:
-      ps_dialog->set_symbols(dflt_print_opts->symbols);
-      break;
-    }
-    ps_dialog->set_time(dflt_print_opts->time_stamp);
+
+  switch(xamine_shared->gettype(nSpectrum)) {
+  case twodbyte:
+  case twodword:
+    ps_dialog->set_palette(dflt_print_opts->color_pal);
+    ps_dialog->setdraw_palette(1);
+    ps_dialog->set_contours(dflt_print_opts->contours);
+    break;
+  case onedword:
+  case onedlong:
+    ps_dialog->set_symbols(dflt_print_opts->symbols);
+    break;
   }
-
+  ps_dialog->set_time(dflt_print_opts->time_stamp);
+  
   /* Manage the dialog to pop it up */
-
+  
   ps_dialog->Manage();
 }
 
