@@ -557,3 +557,5 @@ SpecTcl 3.2-pre1 starts.
  Nov 9, 2006   - Install CHANGELOG 
  Nov 17, 2006  - Fix defect 228 - Xamine.Defaults can get printing defaults
                  all garbled causing printing to fail or crash Xamine
+               - Fix defect 299 - setup.tcl is obsolete now, don't distribute
+                 in Skel dir.
