@@ -16,7 +16,6 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(srcdir)/MySpecTclApp.cpp $(prefix)/Skel
 	$(INSTALL_PROGRAM) $(srcdir)/MySpecTclApp.h $(prefix)/Skel
 	$(INSTALL_PROGRAM) $(srcdir)/SpecTclRC.tcl $(prefix)/Skel
-	$(INSTALL_PROGRAM) $(srcdir)/setup.tcl $(prefix)/Skel
 	$(INSTALL_DATA)    $(srcdir)/Globals.o $(prefix)/lib
 	$(INSTALL_DATA)   SpecTcl_Makefile.include $(sysconfdir)
 	echo INSTDIR=$(prefix) >Makefile.user
@@ -93,7 +92,7 @@ man_MANS = spectclapi.3
 
 
 EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
-	 mapped.tcl paramtest.tcl setup.tcl \
+	 mapped.tcl paramtest.tcl  \
 	SpecTcl_Makefile.include $(man_MANS)
 
 
