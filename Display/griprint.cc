@@ -1,4 +1,4 @@
-/*
+*
     This software is Copyright by the Board of Trustees of Michigan
     State University (c) Copyright 2005.
 
@@ -101,7 +101,7 @@ extern grobj_database Xamine_DefaultGateDatabase;
 #define INCH 2.54
 
 #define DEFAULT_TEMPFILE "./Xamine_tempprint.out"
-#define DEFAULT_PRINTCMD "lpr -Pu1_color_print"
+#define DEFAULT_PRINTCMD "lpr -Pu1_color"
 
 // Limit:
 //   Enforce hi/lo/min limits.
