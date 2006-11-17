@@ -515,3 +515,4 @@ SpecTcl-3.1-002
    Added CHANGELOG to the installation.
    Figure out defect 228 - printer defaults can be written with illegal values
    in Xamine.Defaults file.
+   Defect 229 - setup.tcl is obsolete now.
