@@ -336,6 +336,7 @@ snit::widget edit2dMulti {
 	set definition [lindex $definition 0]
 	set type       [lindex $definition 2]
 	set parameters [lindex $definition 3]
+	set axes       [lindex $definition 4]
 	set xparam     [lindex $parameters 0]
 	set yparam     [lindex $parameters 1]
 
@@ -353,15 +354,19 @@ snit::widget edit2dMulti {
 	    $options(-browser) update
 	    return
 	}
+	set xaxis [lindex $axes 0]
+	set yaxis [lindex $axes 1]
+
 	#  Add the parameters.
 	
 	$win.xparams insert end $xparam
 	$win.yparams insert end $yparam
 	
-	# If necessary set the axis from the parameter.
+	# If necessary set the axis from the parameter.. or if it is not
+	# a tree parameter from the axis of the parent spectrum.
 
-	$self setAxis x $xparam
-	$self setAxis y $yparam
+	$self setAxis x $xparam [lindex $xaxis 0] [lindex $xaxis 1]
+	$self setAxis y $yparam [lindex $yaxis 0] [lindex $yaxis 1]
     }
 
     #
@@ -410,7 +415,7 @@ snit::widget edit2dMulti {
     #
     #  Only sets a field if it is empty... and if the parameter has a definition.
     #
-    method setAxis {which parameter} {
+    method setAxis {which parameter args} {
 	set basename $win.${which}axis
 	set paraminfo [treeparameter -list $parameter]
 	if {$which eq "x"} {
@@ -418,13 +423,25 @@ snit::widget edit2dMulti {
 	} else {
 	    set index defaultYChannels
 	}
+
+	# Falback defaults if not given in args:
+
+	set defaultMin 0
 	set defaultMax $::GuiPrefs::preferences($index)
+
+	# If there are 2 args, the are the default min and
+	# max respectively.
+
+	if {[llength $args] == 2} {
+	    set defaultMin [lindex $args 0]
+	    set defaultMax [lindex $args 1]
+	}
 
 
 	if {[llength $paraminfo] == 0} {
-	    set low 0
-	    set high [expr $defaultMax - 1]
-	    set bins $defaultMax
+	    set low $defaultMin
+	    set high $defaultMax
+	    set bins $::GuiPrefs::preferences($index)
 	    set units ""
 	} else  {
 	    set info [lindex $paraminfo 0]
@@ -433,7 +450,7 @@ snit::widget edit2dMulti {
 	    set bins [lindex $info 1]
 	    set units [lindex $info 5]
 	}
-	if {$bins > $defaultMax} {
+	if {$bins > [expr $defaultMax - $defaultMin]} {
 	    set bins $defaultMax
 	}
 

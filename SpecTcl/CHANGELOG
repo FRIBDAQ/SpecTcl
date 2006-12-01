@@ -559,3 +559,8 @@ SpecTcl 3.2-pre1 starts.
                  all garbled causing printing to fail or crash Xamine
                - Fix defect 299 - setup.tcl is obsolete now, don't distribute
                  in Skel dir.
+December 1, 2006 
+               - Fix defect in edit2dmulti.tcl (pre-release).  If selecting
+		a spectrum and an axis parameter is not a treeparameter,
+		use the source spectrum axis definitions to provide the
+		appropriate axis def for the new spectrum.
