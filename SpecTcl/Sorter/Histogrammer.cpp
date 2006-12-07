@@ -622,6 +622,34 @@ CSpectrum* CHistogrammer::RemoveSpectrum(const std::string sName) {
   CSpectrum*                 pSpectrum((CSpectrum*)kpNULL);
   if(iSpectrum != m_SpectrumDictionary.end()) {
     pSpectrum = (*iSpectrum).second;
+
+    // I don't like doing this here but I'm really not sure where else to do
+    // it.. in an ideal world I'd have observers on the spectrum dictionary
+    // and the deletion of a spectrum would trigger the deletion of
+    // the corresponding fits... however that sort of internal restruturing
+    // is a 4.0 thing.
+
+    CFitDictionary&          Fits(CFitDictionary::getInstance());
+    CFitDictionary::iterator iFit  = Fits.begin();
+    while (iFit != Fits.end()) {
+      CSpectrumFit* pFit = iFit->second;
+      if (pFit->getName() == sName) {
+
+	Fits.erase(iFit);	// This will also trigger remove from Xamine.
+	delete pFit;
+
+	// The iterator has been invalidated potentially so start again:
+
+	iFit = Fits.begin();
+      } 
+      else {
+	iFit++;
+      }
+    }
+
+
+    // Kill off the spectrum from the dictionary.
+
     m_SpectrumDictionary.Remove(sName);
   }
   return pSpectrum;

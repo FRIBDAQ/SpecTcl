@@ -15,7 +15,7 @@
 */
 
 #ifndef __CSPECTRUMFIT_H
-#define __CSpECTRUMFIT_H
+#define __CSPECTRUMFIT_H
 
 
 #ifndef __NAMEDITEM_H
@@ -53,7 +53,7 @@ class CSpectrum;
 class CSpectrumFit : public CNamedItem
 {
   // Member data:
-private:
+ private:
   int     m_low;		// Channel coordinates of left side of ROI.
   int     m_high;		// Channel coordinates of right side of ROI.
   bool    m_ownFit;		// true if we dynamically created the fit.

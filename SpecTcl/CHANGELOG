@@ -564,3 +564,10 @@ December 1, 2006
 		a spectrum and an axis parameter is not a treeparameter,
 		use the source spectrum axis definitions to provide the
 		appropriate axis def for the new spectrum.
+December 7, 2006 
+               - Fix 2 defects:
+                 o Removing fits from xamine via SpecTcl failed due to 
+                   not allowing that 'gate type' to be recognized for 
+                   deletion.
+                 o Deleting a spectrum should delete all fits that are
+                   defined on that spectrum.
