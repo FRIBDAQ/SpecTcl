@@ -391,3 +391,5 @@ SpecTcl-3.0-009
         Nov 17, 2006 Fix defect 228 - Printer defaults can be whacky resulting
                      in prints killing Xamine or not working.
         Nov 17, 2006 No longer distribute setup.tcl with Skel.
+        Dec 19, 2006 Fix CXdrInputStream.cpp per D. Caussyn's catch,
+                    delete [] m_pBuffer not delete m_pBuffer
