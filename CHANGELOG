@@ -507,12 +507,16 @@ SpecTcl-3.1-002
   Released September 21, 2006
 
 3.1-003
-   Added -rpath to --with-motif-libdir configuration so that we can be sure we get the
-   right motif.
-   Added prntout of VERSION to tkcon at startup
-   Back ported fix for defect BZ 224 (integrations of 2dlong spectra
-   give incorrect centroids on 64 bit systems) from 3.2
-   Added CHANGELOG to the installation.
-   Figure out defect 228 - printer defaults can be written with illegal values
-   in Xamine.Defaults file.
-   Defect 229 - setup.tcl is obsolete now.
+   - Added -rpath to --with-motif-libdir configuration so that we can be sure we get the
+     right motif.
+   - Added prntout of VERSION to tkcon at startup
+   - Back ported fix for defect BZ 224 (integrations of 2dlong spectra
+     give incorrect centroids on 64 bit systems) from 3.2
+   - Added CHANGELOG to the installation.
+   - Figure out defect 228 - printer defaults can be written with illegal values
+     in Xamine.Defaults file.
+   - Defect 229 - setup.tcl is obsolete now.
+   - CXdrInputStream.cpp - as per D. Caussyn's catch: delete [] m_pBuffer not
+     delete m_pBuffer.
+
+   
