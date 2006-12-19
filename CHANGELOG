@@ -571,3 +571,6 @@ December 7, 2006
                    deletion.
                  o Deleting a spectrum should delete all fits that are
                    defined on that spectrum.
+December 19, 2006 
+               - Fix defect per D. Caussyn FSU: CXdrInputStream.cpp was
+                 doing delete m_pBuffer -> delete [] m_pBuffer.
