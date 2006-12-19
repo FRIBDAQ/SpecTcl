@@ -4,20 +4,26 @@ LEXOUT = lex.yy.c
 MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
 
-INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS)
-LDFLAGS = -g @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @LD_EXTRA_FLAGS@
-XCCFLAGS = -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE
+INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
+	-I@top_srcdir@/Utility $(GDINCLUDES)
 
-AM_CXXFLAGS = -g
-AM_CFLAGS   = -g
+AM_LDFLAGS = -g $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
+
+#  @LD_EXTRA_FLAGS@
+
+XCCFLAGS =   -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE 
+
+AM_CXXFLAGS = -g -pedantic
+AM_CFLAGS   = -g -pedantic
 
 install-exec-local:
-	$(mkinstalldirs) $(prefix)/Etc
-	$(INSTALL_PROGRAM) $(srcdir)/*.ctbl $(prefix)/Etc
-	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/Etc
+	$(mkinstalldirs) $(prefix)/etc
+	$(INSTALL_PROGRAM) $(srcdir)/*.ctbl $(prefix)/etc
+	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/etc
 	$(INSTALL_PROGRAM) $(srcdir)/Xamine $(prefix)/bin/Xamine2_0
 
 $(LEXOUT):
+	rm *_lex.{h,cc}
 	$(LEX) windfile.l
 
 windfile_lex.cc: $(LEXOUT)
@@ -51,7 +57,7 @@ windfile_lex.o: windfile.l dispwind.h superpos.h windfile_lex.h windio.h
 grobfile_lex.o: grobfile.l dispgrob.h grobjio.h grobfile_lex.h 
 	$(LEX) grobfile.l
 	sed s/yy/grobjfile/g $(LEXOUT) >grobfile_lex.cc
-	$(CC) $(XCCFLAGS) grobfile_lex.cc
+	$(CXX) $(XCCFLAGS) grobfile_lex.cc
 
 grobfile_parse.cc: grobfile.y dispgrob.h grobjio.h
 	$(YACC) -p grobjfile -b grobfile grobfile.y
@@ -65,8 +71,7 @@ grobfile_lex.h: grobfile.y grobjio.h grobfile_parse.cc
 	mv y.tab.h grobfile_lex.h
 	rm -f y.tab.c
 
-grobfile.o: grobfile.cc dispgrob.h grobjio.h panemgr.h errormsg.h
-	$(CC) $(XCCFLAGS) grobfile.cc
+
 
 defaultfile_lex.h: defaultfile.y windio.h
 	$(YACC) -p defaultfile -b defaultfile -dl defaultfile.y
@@ -104,15 +109,15 @@ XMWidget.h      copyatr.h          grobjinput.h    printer.h    windfile_tab.h\
 XMWlist.h       defaultfile_lex.h  grobjio.h       procede.h     windio.h\
 Xamine.h        delgrob.h          grobjiomenu.h   properties.h  windlex.h\
 acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h\
-advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h
+advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
+wysiwygPrint.h
 
 lib_LTLIBRARIES = libXamine.la
 
 libXamine_la_LDFLAGS = -version-info $(SOVERSION):0
 
-libXamine_la_SOURCES = client.c clientgates.c prccheck.c allocator.c \
-specalloc.c clientbuttons.c
-
+libXamine_la_SOURCES = client.c clientgates.c  allocator.c \
+	specalloc.c clientbuttons.c prccheck.c
 
 
 
@@ -127,19 +132,17 @@ titledefault.cc attribdefault.cc reducedefault.cc rend1default.cc \
 rend2default.cc printer.cc refreshctl.cc axes.cc scaling.cc text.cc \
 titles.cc chanplot.cc plot1d.cc  plot2d.cc colormgr.cc shared.cc \
 location.cc convert.cc trackcursor.cc expand.cc select2.cc info.cc \
-dispgrob.cc  grobjdb.cc grobfile.cc \
+dispgrob.cc  grobjdb.cc  grobfile.cc xprccheck.c \
 refreshdefault.cc  marker.cc grafinput.cc \
 grobjinput.cc grobjmgr.cc grobjdisplay.cc sumregion.cc integrate.cc \
 guintegrate.cc delgrob.cc messages.cc eventflags.cc gateio.cc \
-acceptgates.cc clirequests.cc prccheck.c spccheck.cc superpos.cc \
+acceptgates.cc clirequests.cc  spccheck.cc superpos.cc \
 superprompt.cc objcopy.cc copier.cc lblfont.cc checklist.cc \
 compatspec.cc copyatr.cc  buttonreq.cc buttondlg.cc \
 spcchoice.cc spccompatchoice.cc spclimchoice.cc ptlist.cc \
-lexsupport.c gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc 
+lexsupport.c gc.cc xaminegc.cc gcmgr.cc Tab.c griprint.cc mapcoord.cc  \
+wysiwygPrint.cc
 
-# windfile_parse.cc windfile_lex.cc \
-#  grobfile_lex.cc grobfile_parse.cc \
-#  defaultfile_lex.cc defaultfile_parse.cc
 
 PARSEOBJECTS=windfile_parse.o windfile_lex.o grobfile_lex.o grobfile_parse.o \
 	defaultfile_lex.o defaultfile_parse.o
@@ -151,8 +154,6 @@ procede.cc colormgr.cc
 
 Xaminetest_SOURCES = Xaminetest.c
 
-EXTRA_Xamine_SOURCES = defaultfile.y grobfile.y windfile.y defaultfile.l \
-grobfile.l windfile.l
 
 Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
@@ -174,14 +175,24 @@ Xamine_DEPENDENCIES = windfile_parse.o windfile_lex.o dispwind.o \
 	select2.o info.o refreshdefault.o defaultfile_parse.o marker.o \
 	grafinput.o grobjinput.o grobjmgr.o grobjdisplay.o  sumregion.o \
 	integrate.o guintegrate.o delgrob.o messages.o eventflags.o \
-	gateio.o acceptgates.o clirequests.o spccheck.o prccheck.o superpos.o \
+	gateio.o acceptgates.o clirequests.o spccheck.o  superpos.o \
 	superprompt.o objcopy.o lblfont.o checklist.o compatspec.o copyatr.o \
 	buttonreq.o buttondlg.o spcchoice.o spccompatchoice.o spclimchoice.o \
 	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o Tab.o \
-	griprint.o mapcoord.o dispgrob.o grobfile_lex.o grobfile_parse.o \
-	grobjdb.o grobfile.o XMCallback.o XMMenus.o XMDialogs.o XMManagers.o \
-	XMWlist.o XMShell.o XMTab.o XMText.o colorset colorset.ico libXamine.la
+	griprint.o mapcoord.o dispgrob.o  grobfile_lex.o grobfile_parse.o \
+	grobjdb.o  XMCallback.o XMMenus.o XMDialogs.o XMManagers.o \
+	XMWlist.o XMShell.o XMTab.o XMText.o colorset.ico libXamine.la
 
 Xaminetest_DEPENDENCIES = libXamine.la
 
-EXTRA_DIST = queue.cc colorset.ico Xamine-X.3.release_notes Xamine-X.4.release_notes Xamine-X.6.release_notes Xamine-X.7.feature_list Xamine.ico Xamine.doc Xamine2.ctbl Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc aedpublic.for aedshare.f aedshare.for aedxamine.for build.com dflt.tpu grobj.tpu win.tpu
+EXTRA_DIST = queue.cc colorset.ico \
+	Xamine.ico Xamine.doc Xamine2.ctbl \
+	Xamine3.ctbl Xamine4.ctbl Xamine5.ctbl Xamine6.ctbl Xaminedemo.doc \
+	defaultfile.y grobfile.y windfile.y defaultfile.l \
+	grobfile.l windfile.l
+
+#  These files can cause problems on rebuilds.
+
+MOSTLYCLEANFILES = defaultfile_lex.cc defaultfile_lex.h grobfile_lex.cc \
+	grobfile_lex.h windfile_lex.cc windfile_lex.h              \
+	defaultfile_parse.cc grobfile_parse.cc windfile_parse.cc

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 
@@ -283,19 +283,24 @@ DAMAGES.
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
 
+#include <assert.h>
 
 /*!
   Constructor.
 
  */
-CCAENV830Creator::CCAENV830Creator() :
-  CModuleCreator("caenv830")
+CCAENV830Creator::CCAENV830Creator(const string& rName,
+				   CModuleCommand* pCommand) :
+  CModuleCreator( rName, pCommand)
 {
+  assert(pCommand);
 }
 /*!
    Destructor
 */
-CCAENV830Creator::~CCAENV830Creator() {}
+CCAENV830Creator::~CCAENV830Creator() 
+{
+}
 
 /*!  
 
@@ -330,7 +335,7 @@ CCAENV830Creator::operator==(const CCAENV830Creator& rhs) const
 /*!
   Create a new scaler module.
 */
-CModule*
+CSegmentUnpacker*
 CCAENV830Creator::Create(CTCLInterpreter& rInterp,
 			 const string& rName)
 {

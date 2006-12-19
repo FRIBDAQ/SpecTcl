@@ -341,4 +341,4 @@ main(int nArgs, char** pArgs)
     cerr << rExcept.ReasonText() << endl;
   }
 }
-CTCLApplication* gpTCLApplication(0);
+void *gpEventSource;

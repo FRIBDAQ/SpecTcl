@@ -317,6 +317,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "advprompt.h"
 #include "panemgr.h"
 #include "pkgmgr.h"
+#include "wysiwygPrint.h"
 #include "optionmenu.h"
 #include "printer.h"
 #include "refreshctl.h"
@@ -489,6 +490,10 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
 #endif
   b->SetAccelerator("Meta<Key>P", "Alt+P");
   Xamine_AddtoSpectrumSelectedPackage(b);
+
+  /* WYSIWYG printing:  */
+   
+  b = pd->AddMenuButton("WSYWIG Print...", Xamine_printCapture);
 
   /* Exit */
 

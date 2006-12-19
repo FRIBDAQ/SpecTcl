@@ -4,7 +4,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 2.2)
+AM_INIT_AUTOMAKE(SpecTcl, 2.2-008)
 
 
 AC_EXEEXT
@@ -134,6 +134,7 @@ fi
 #      /usr/X11R6/include
 #      /sw/include             (Darwin lesstif).
 #      /usr/local/include      (default lesstif installation).
+#      /usr/include            Linux lesstif.
 #
 
 #  If in /usr/include we don't need anything:
@@ -141,7 +142,7 @@ fi
 
 if test $motif_h_found = no
 then
-   motif_header_dirs="/usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include"
+   motif_header_dirs="/usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /sw/include /usr/local/include /usr/include"
    for d in ${motif_header_dirs}
    do
 	AC_CHECK_FILE([${d}/Xm/Xm.h],
@@ -587,6 +588,75 @@ if test $have_convert = "no" ; then
 else
 	AC_DEFINE(HAVE_CONVERT, 1, [True if ImageMagick's convert is present])
 fi
+#  libgd: We'll only hunt for the headers in /usr/include /usr/local/include
+#         which I >think< will be automatically searched by the compiler.
+#         libs we will also only look for in /usr/lib and /usr/local/lib
+#         If not found we invite the user to use --with-gd-headerdir
+#         and  --with-gd-libdir
+#
+
+AC_MSG_CHECKING([   libgd used to do wysiwyg printing in Xamine])
+
+AC_ARG_WITH(gd-headerdir,
+	   [   --with-gd-headerdir=path Path to the gd.h header],
+	   [gdheaderdir=$withval],
+	   [gdheaderdir=""])
+AC_ARG_WITH(gd-libdir,
+	   [   --with-gd-headerdir=path Path to libgd],
+	   [gdlibdir=$withval],
+	   [gdlibdri=""])
+
+
+# If user supplied a directory for gd.h, keep them honest:
+
+if test "$gdheaderdir" != ""
+then
+   AC_MSG_RESULT([ User provided --with-gd-headerdir=$gdheaderdir])
+   if test -e $gdheaderdir/gd.h
+   then
+      GDINCLUDES="-I$gdheaderdir"
+   else
+      AC_MSG_ERROR([ User provided --with-gd-headerdir=$gdheaderdir does not contain gd.h])
+   fi
+else
+#   Need to hunt in 'normal places'.
+   
+   AC_CHECK_HEADER(gd.h, [gdheaderdir="found in -I path"])   
+
+    if test "$gdheaderdir" != ""
+    then
+       AC_MSG_RESULT([gd.h $gdheaderdir])
+       GDINCLUDES=""
+    else
+       AC_MSG_ERROR([Unable to locate gd.h, try --with-gd-headerdir to help me out])
+    fi
+fi
+
+# if user supplied a directory for libgd keep them honest.  We'll look for the
+# static lib libgd.a  - since .so is not the only shared object header supported.
+#
+
+if test "$gdlibdir" != ""
+then
+   AC_MSG_RESULT([ User providied --with-gd-libdir=$gdlibdir])
+   if test -e $gdlibdir/libgd.a
+   then
+	GDLDSW="-L$gdlibdir -lgd"
+   else
+	AC_MSG_ERROR([ User provided --with-gd-libdir=$gdlibdir does not contain libgd.a])
+   fi
+else
+#  Need to hunt in the normal places.
+
+   AC_CHECK_LIB(gd, gdImageCreate, [gdlibdir="found in -L path"])
+   if test "$gdlibdir" != ""
+   then
+      AC_MSG_RESULT([libgd $gdlibdir])
+      GDLDSW="-lgd"
+   else
+      AC_MSG_ERROR([Unable to locate libgd try --with-gd-libdir to help me out])
+   fi
+fi
 
 # Look for Gri to allow production quality printing
 
@@ -644,12 +714,13 @@ else
    # this so CXX etc. propagates at the risk we wind up stranded
    # in the Gri directory on failure or ^C
    #
-   cd ${MYGRIDIR}
-    rm -f Makefile          # Tru64 fails if Makefile already exists.
-    ./configure --prefix=$prefix                      
-    make                                            
-    make install
-   cd ..
+	
+   (cd ${MYGRIDIR}; \
+    rm -f Makefile; \          # Tru64 fails if Makefile already exists.
+    ./configure --prefix=$prefix                      ; \
+    make                                            ;\
+    make install			           ;\
+   )
    AC_MSG_NOTICE([Now that GRI is build I know where I put stuff])
    
    gri_dir=$prefix/bin
@@ -704,6 +775,12 @@ AC_SUBST(OS)
 
 AC_SUBST(SOVERSION)
 
+# Xamine uses libgd for wysiwyg printing:
+
+  AC_SUBST(GDINCLUDES)
+  AC_SUBST(GDLDSW)
+
+
 # create output files.
 
 
@@ -713,4 +790,7 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	 SpecTcl/Makefile \
-	 contrib/Makefile contrib/scriptable/Makefile)
+	 contrib/Makefile contrib/scriptable/Makefile \
+	 contrib/calibratedparams/Makefile \
+	 contrib/calibratedparams/Makefile.skel \
+	 TestFiles/Makefile)

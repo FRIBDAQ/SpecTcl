@@ -391,9 +391,8 @@ public:
   void Reset () {
     m_fChecked = kfFALSE;
   }
-  virtual void RecursiveReset() {
-    m_fChecked = kfFALSE;	/* works for simple gates. */
-  }
+  virtual void RecursiveReset(); 
+
   Bool_t wasChecked () {
     return m_fChecked;
   }

@@ -292,6 +292,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+
+#include <config.h>
+
 #include <X11/Intrinsic.h>
 
 #include <stdio.h>

@@ -732,13 +732,15 @@ CBindCommand::Usage(CTCLResult& rResult)
   // bind Tcl Command:
 
   rResult  = "Usage: \n";
-  rResult += "   bind [-new] name1 [name2...]\n";
-  rResult += "   bind -id id1 [id2...]\n"; 
-  rResult += "   bind -all\n";
-  rResult += "   bind -list\n";
-  rResult += "   bind -list name1 [name2 ...]\n";
-  rResult += "   bind -list -id  id1 [id2...]\n";
-  rResult += "   bind -list -xid slot1 [slot2...]\n";
-  rResult += "\n bind allocates a display slot for a spectrum or lists\n";
+  rResult += "   sbind [-new] name1 [name2...]\n";
+  rResult += "   sbind -id id1 [id2...]\n"; 
+  rResult += "   sbind -all\n";
+  rResult += "   sbind -list\n";
+  rResult += "   sbind -list name1 [name2 ...]\n";
+  rResult += "   sbind -list -id  id1 [id2...]\n";
+  rResult += "   sbind -list -xid slot1 [slot2...]\n";
+  rResult += "\n sbind allocates a display slot for a spectrum or lists\n";
   rResult += " the correspondence between display slots and spectra.\n";
+  rResult += "NOTE: The bind command is a Tk command that binds gui events\n";
+  rResult += "      to tcl procedures\n";
 }

@@ -54,14 +54,21 @@ list of existing SpecTcl parameters on which the computation depends.&nbsp;
 These parameters can be raw parameters or pseudo parameters for which the pseudo
 script has already been defined. <i>Body</i> is a Tcl script body which computes
 the pseudo.&nbsp; The script body will be converted into a procedure body with
-the dependent parameters as its parameter list.</p>
+the independent parameters and their validity flags as its parameter list.
+The independent formal parameters will be named the same as the corresponding event
+parameter name.  The validity flag associated with a parameter <i>name</i> will just
+have isValid appended to its name (e.g. <i>nameisValid</i></p>
 <h4><a name="summing">example:&nbsp; Summing two parameters:</a></h4>
 <p>Suppose the parameters par1 and par2 exist with resolution 10 bits.&nbsp; The
 following sequence will define a pseudo called sum which will compute the sum of
 these two parameters:</p>
 <pre>parameter sum 1234 11     ;# Sum is Id 1234 11bits
 pseudo sum { par1 par2 } {
-   return [expr $par1 + $par2]
+   if {$par1isValid && $par2isValid} {
+      return [expr $par1 + $par2]
+   } else {
+       return -1
+   }
 }</pre>
 <pre>&nbsp;</pre>
 <p><a href="#Top">Top</a></p>

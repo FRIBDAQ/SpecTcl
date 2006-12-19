@@ -375,6 +375,16 @@ class GraphicalInput : public XMCustomDialog
   */
   void setrow(int r) { row = r; }
   void setcol(int c) { col = c; }
+
+  // Callback relays:
+
+private:
+  static void SelectCallback_Relay(int oldc, int oldr, int newc, int newr,
+				    XtPointer user_d);
+  static void PaneInput_Relay(XMWidget *w, XtPointer user_d, XtPointer call_d);
+  static void Refresh_Relay(Xamine_RefreshContext *ctx, XtPointer user_d);
+
+
 };
 
 extern void Xamine_DestroyGraphicalInput(XMWidget* pWidget,

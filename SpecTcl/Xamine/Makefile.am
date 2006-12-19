@@ -1,10 +1,11 @@
 INCLUDES = -g -I. -I../Utility -I../Display -I../NSCLException
 LDADD = -lXplus	-lException -lXamine
-LDFLAGS = -L.
+AM_LDFLAGS = -L.
 
 lib_LTLIBRARIES = libXplus.la
 
-libXplus_la_LDFLAGS = -verson-info $(SOVERSION):0
+libXplus_la_LDFLAGS = -verson-info $(SOVERSION):0 \
+	-Wl,"-rpath=$(libdir)"
 
 libXplus_la_SOURCES = DisplayGate.cpp Xamine1D.cpp Xamine2D.cpp \
 	XamineButton.cpp XamineButtonException.cpp XamineButtonPrompt.cpp \

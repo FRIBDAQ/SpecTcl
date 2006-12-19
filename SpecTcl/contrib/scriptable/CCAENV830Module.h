@@ -273,8 +273,16 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
+
+/*!
+  This is a dummy unpacker for the CAEN v830 scaler.
+  it does nothing, but is necessary in order to make a single
+  config file work for both readout and SpecTcl.
+
+ */
+
 
 #ifndef __CCAENV830MODULE_H
 #define __CCAENV830MODULE_H
@@ -303,12 +311,6 @@ class CBufferDecoder;
 class CEvent;
 class CHistogrammer;
 
-/*!
-  This is a dummy unpacker for the CAEN v830 scaler.
-  it does nothing, but is necessary in order to make a single
-  config file work for both readout and SpecTcl.
-
- */
 class CCAENV830Module : public CModule
 {
   // Constructors and other canonnical members:

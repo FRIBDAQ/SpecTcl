@@ -296,6 +296,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLAnalyzer.h"
 #include "EventProcessor.h"
 #include <buftypes.h>
+#include <iostream>
 
 
 // CounterInfo describes the characteristics of a counter.
@@ -433,7 +434,22 @@ UInt_t CTclAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent) {
   CBufferDecoder* pDecoder((CBufferDecoder*)cpDecoder);
   while(p != m_lAnalysisPipeline.end()) {
     CEventProcessor* pProcessor(*p);
-    if(!pProcessor->operator()(pRawData, anEvent, *this, *pDecoder)) {
+    Bool_t success;
+    try {
+      success = pProcessor->operator()(pRawData, anEvent, *this, *pDecoder);
+    } 
+    catch (string msg) {
+      cerr << "Event processor threw: '" << msg << "'" << endl;
+      success = kfFALSE;
+    }
+    catch (CException& r) {
+      throw;
+    }
+    catch (...) {
+      cerr << "Event processor threw an unanticipated exception " << endl;
+      success = kfFALSE;
+    }
+    if(!success) {
       IncrementCounter(EventsRejected);
       IncrementCounter(EventsRejectedThisRun);
       AbortEvent();
