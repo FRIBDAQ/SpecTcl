@@ -18,15 +18,19 @@
 // Header Files:
 //
 
-
+#include <config.h>
 #include <stdlib.h>
-#include <iostream.h>
+#include <Iostream.h>
 #include <limits.h>
 #include "MSpectrum1DL.h"
 #include "Parameter.h"                               
 #include "RangeError.h"
 #include "Event.h"
 
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions for class CMSpectrum1DW
 

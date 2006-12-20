@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 //
 //  CDictionary.h:
@@ -299,17 +299,23 @@
 
 #ifndef __STL_MAP
 #include <map>
+#ifndef __STL_MAP
 #define __STL_MAP
+#endif
 #endif
 
 #ifndef __STL_ALGORITHM
 #include <algorithm>
+#ifndef __STL_ALGORITHM
 #define __STL_ALGORITHM
+#endif
 #endif
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 
@@ -325,8 +331,8 @@ template <class T>
 class CDictionary      
 {
  public:
-  typedef map<std::string, T> Dictionary;
-  typedef Dictionary::iterator DictionaryIterator;
+  typedef  STD(map)<STD(string),  T> Dictionary;
+  typedef typename  Dictionary::iterator DictionaryIterator;
 
  private:
   Dictionary     m_Map;
@@ -351,7 +357,7 @@ class CDictionary
   }
 
   // Operations:
-  DictionaryIterator Lookup(const std::string& sName) {
+  DictionaryIterator Lookup(const STD(string)& sName) {
     return m_Map.find(sName);
   }
 
@@ -361,11 +367,11 @@ class CDictionary
   }
 
   // Note: Enter will overwrite any existing with key sName.
-  void Enter(const std::string& sName, const T& Item) {
+  void Enter(const STD(string)& sName, const T& Item) {
     m_Map[sName] = Item;
   }
 
-  void Remove(const std::string& rsName) {
+  void Remove(const STD(string)& rsName) {
     DictionaryIterator i = m_Map.find(rsName);
     if(i != m_Map.end()) 
       m_Map.erase(i);

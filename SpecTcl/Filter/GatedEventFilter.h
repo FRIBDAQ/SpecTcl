@@ -8,7 +8,9 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 
@@ -45,7 +47,7 @@ class CGatedEventFilter : public CEventFilter {
  public:
   // Constructors.
    CGatedEventFilter(CGateContainer*  pGate=(CGateContainer*)kpNULL);
-   CGatedEventFilter(string&,
+   CGatedEventFilter(STD(string)&,
 						 CGateContainer*  pGate=(CGateContainer*)kpNULL);
    virtual ~CGatedEventFilter();
 
@@ -68,7 +70,7 @@ public:
 
 public:
    void setGateContainer(CGateContainer&);
-   std::string getGateName();
+   STD(string) getGateName();
    Int_t getGateID();
  protected:
    Bool_t CheckCondition(CEvent&);

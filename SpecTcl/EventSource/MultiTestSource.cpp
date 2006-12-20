@@ -1,8 +1,14 @@
+#include <config.h>
 #include "TestFile.h"
 #include "GaussianDistribution.h"
 #include "Globals.h"
 
 #include "MultiTestSource.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Initializations.
 CMultiTestSource* CMultiTestSource::m_pInstance = (CMultiTestSource*)kpNULL;
@@ -34,12 +40,12 @@ CMultiTestSource::CMultiTestSource() :
   addTestSource("default", m_pDefaultTestSource);
   //m_pDefaultTestSource->Open("Testing", kacRead);
   //gpEventSource = m_pDefaultTestSource;
-};
+}
 
 // Operators:
 Bool_t CMultiTestSource::operator()(string sName) {
   return useTestSource(sName);
-};
+}
 
 // Additional functions.
 CMultiTestSource* CMultiTestSource::GetInstance() { // For singleton.
@@ -58,7 +64,7 @@ Bool_t CMultiTestSource::addTestSource(string sName, CTestFile* pTestFile) {
     m_mTestSources[sName] = pTestFile;
     return kfTRUE;
   }
-};
+}
 
 CTestFile* CMultiTestSource::getTestSource(string sName) {
   map<string, CTestFile*>::iterator i = m_mTestSources.find(sName);
@@ -67,11 +73,11 @@ CTestFile* CMultiTestSource::getTestSource(string sName) {
   } else {
     return (CTestFile*)kpNULL;
   }
-};
+}
 
 CTestFile* CMultiTestSource::getDefaultTestSource() {
   return getTestSource("default");
-};
+}
 
 Bool_t CMultiTestSource::useTestSource(string sName) {
   if(m_mTestSources.find(sName) != m_mTestSources.end()) { // Present.

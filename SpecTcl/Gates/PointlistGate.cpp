@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2007, All rights reserved";
 //  CPointListGate.cpp
@@ -299,6 +299,22 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 /*
   Change log:
   $Log$
+  Revision 5.1.2.3  2005/09/22 12:37:54  ron-fox
+  Fix errors in gamma spectrum increment.  When there are no valid parameters
+  in an event, the outer loop of the 2d gamma spectrum increment will
+  loop almost infinitely and eventually segfault.
+
+  Revision 5.1.2.2  2005/05/27 17:47:36  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
+  Revision 5.1.2.1  2004/12/21 17:51:22  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:03  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -310,11 +326,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
   To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs.
 
 */
-
+#include <config.h>
 #include "PointlistGate.h"                               
 #include "PointlistIterator.h"
-
 #include <stdio.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 /*!
    Comparison.  Two point list gates are equal if the base class
    indicates equality, and all components of the two bojects are
@@ -511,4 +530,20 @@ CPointListGate::Crosses(Float_t x, Float_t y,
   float xp = float(x1) + invslope*float(y - y1);
   return (xp <= float(x));
 
+}
+/*!
+   Determines if an event is in a gate.  This delegates to
+  the Inside function however we do figure out if the parameters
+  are present for it:
+*/
+Bool_t
+CPointListGate::inGate(CEvent& rEvent)
+{
+  size_t nParams = rEvent.size();
+  if((m_nxId < nParams) && (m_nyId < nParams)) {
+    if (rEvent[m_nxId].isValid() && rEvent[m_nyId].isValid()) {
+      return Inside(rEvent[m_nxId], rEvent[m_nyId]);
+    }
+  }
+  return kfFALSE;
 }

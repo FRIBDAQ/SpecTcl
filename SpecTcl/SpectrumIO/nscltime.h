@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
   nscltime.h
@@ -285,47 +285,23 @@ DAMAGES.
    
 */
 
-#include <time.h>
-#include <iostream.h>
+
 #ifndef NSCLTIME_
 #define NSCLTIME_
-int exp(int, int);
+#include <time.h>
 
-void chartime(char t[9]) {
-  void itochar(int,char[]);
-  time_t tloc;
-  tm *timestr;
-  time(&tloc);
-  timestr = localtime(&tloc);
-  char hr[3], min[3],sec[3];
-  itochar(timestr->tm_hour, hr);
-  itochar(timestr->tm_min, min);
-  itochar(timestr->tm_sec, sec);
-  
-  strcpy(t, hr);
-  strcat(t,":");
-  strcat(t,min);
-  strcat(t,":");
-  strcat(t,sec);
+inline static int
+exp(int num, int power) {
+  if (power==0) return 1;
+  int temp = num;
+  for(int i = 1;i<power;i++) {
+    temp*=num;
+  }
+  return temp;
 }
-void chardate(char d[10]) {  
-  void itochar(const int,char[]);
-  void charmonth(const int,char[]);
-  time_t tloc;
-  int iyear;
-  tm *timestr;
-  time(&tloc);
-  timestr = localtime(&tloc);
-  char day[3], mon[6],year[3];
-  itochar(timestr->tm_mday, day);
-  iyear = timestr->tm_year-(timestr->tm_year/100)*100;
-  itochar(iyear, year);
-  strcpy(d,day);
-  charmonth(timestr->tm_mon+1, mon);
-  strcat(d,mon);
-  strcat(d,year);
-}
-void charmonth(int imon, char mon[6]) {
+
+inline static void
+charmonth(int imon, char mon[6]) {
   switch(imon) {
   case 1:
     strcpy(mon, "-JAN-");
@@ -365,7 +341,8 @@ void charmonth(int imon, char mon[6]) {
     break;
   }  
 }
-void itochar(int i,char text[]) {
+inline static void
+itochar(int i,char text[]) {
   char charin[5];
   memset(charin,0,5);
   int temp=i,s=-1;
@@ -384,12 +361,42 @@ void itochar(int i,char text[]) {
   }
   strcpy(text,charin);
 }
-int exp(int num, int power) {
-  if (power==0) return 1;
-  int temp = num;
-  for(int i = 1;i<power;i++) {
-    temp*=num;
-  }
-  return temp;
+
+inline static void
+chartime(char t[9]) {
+  time_t tloc;
+  tm *timestr;
+  time(&tloc);
+  timestr = localtime(&tloc);
+  char hr[3], min[3],sec[3];
+  itochar(timestr->tm_hour, hr);
+  itochar(timestr->tm_min, min);
+  itochar(timestr->tm_sec, sec);
+  
+  strcpy(t, hr);
+  strcat(t,":");
+  strcat(t,min);
+  strcat(t,":");
+  strcat(t,sec);
 }
+inline static void
+chardate(char d[10]) {  
+  void itochar(const int,char[]);
+  time_t tloc;
+  int iyear;
+  tm *timestr;
+  time(&tloc);
+  timestr = localtime(&tloc);
+  char day[3], mon[6],year[3];
+  itochar(timestr->tm_mday, day);
+  iyear = timestr->tm_year-(timestr->tm_year/100)*100;
+  itochar(iyear, year);
+  strcpy(d,day);
+  charmonth(timestr->tm_mon+1, mon);
+  strcat(d,mon);
+  strcat(d,year);
+}
+
+
+
 #endif

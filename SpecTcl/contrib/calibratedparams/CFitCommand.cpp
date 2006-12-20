@@ -7,6 +7,7 @@
 
 // Include files required:
 
+#include <config.h>
 #include "CFitCommand.h"    				
 #include "CFitFactory.h"
 #include "CFit.h"
@@ -25,6 +26,11 @@
 #include <algorithm>
 
 #include <stdio.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 using namespace DesignByContract;
 
@@ -663,6 +669,7 @@ CFitCommand::AddPoints_parse(CTCLInterpreter& rInterp,
     rResult += sFitName;
     return TCL_ERROR;
   }
+  return TCL_ERROR;
 }  
 
 /*! 

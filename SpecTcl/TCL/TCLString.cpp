@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 //  CTCLString.cpp
@@ -298,9 +298,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 //
 // Header Files:
 //
-
+#include <config.h>
 #include "TCLString.h"                               
-
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 // Functions for class CTCLString
 
 //////////////////////////////////////////////////////////////////////////
@@ -364,6 +366,42 @@ CTCLString::AppendElement(const char* pRhs)
   return *this;
 
 }
+/*!
+   Append a double as an element of a string.
+  
+   \param value   - The value to append.
+   \param pFormat - an sprintf formatting string (defaults to "%f")
+                    that describes how the float is to be formatted.
+   \return CTCLString&
+   \retval Reference to *this.
+*/
+CTCLString&
+CTCLString::AppendElement(DFloat_t value, const char* pFormat)
+{
+  char buffer[100];
+  sprintf(buffer, pFormat, value);
+  return AppendElement(buffer);
+
+}
+
+/*!
+   Append an integer as element of a list
+   
+   \param value   - The value to append
+   \param pFormat - A sprintf formatting string (defaults to "%i")
+                    that describes how the int should be formatted.
+
+   \return CTCLString&
+   \retval Reference to *this
+*/
+CTCLString&
+CTCLString::AppendElement(long value, const char* pFormat) 
+{
+  char buffer[100];
+  sprintf(buffer, pFormat, value);
+  return AppendElement(buffer);
+
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -403,6 +441,7 @@ CTCLString::EndSublist()
   return *this;
 
 }
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -286,6 +286,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <config.h>
 
 #include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #include "XMWidget.h"
 #include "XMManagers.h"
@@ -293,13 +295,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "XMPushbutton.h"
 
 #define XAMINE_IMAGE "/daq/bin/Xamine.old"
-#ifndef LINUX
-extern "C"
-{
-  void exit(int);
-  int execve(char *path, char **argv, XtPointer envp);
-}
-#endif
+
 void done(XMWidget *w, XtPointer ud, XtPointer cd)
 {
   char *arg = NULL;

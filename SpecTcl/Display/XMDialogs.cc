@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -295,6 +295,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+#include <config.h>
 
 #include "helpmenu.h"
 #include "errormsg.h"
@@ -1557,7 +1558,7 @@ XMCustomDialogBox::XMCustomDialogBox(char *name,XMWidget &parent, char *title,
 		   HelpCb(this)
 {
   SetCallbacks();		// Register the callbacks.
-  RevertHelpText();		// And set the default help text.
+  InitializeHelp();		// And set the default help text.
 }   
 
 XMCustomDialogBox::XMCustomDialogBox(char *name, Widget parent, char *title,
@@ -1854,7 +1855,7 @@ Callback_data*
 XMMessageBox::AddOkCallback(void (*cb)(XMWidget *w,
 				       XtPointer, 
 				       XtPointer),
-			    XtPointer cd = NULL)
+			    XtPointer cd)
 {
   return AddCallback(XmNokCallback, cb, cd);
 }
@@ -1863,7 +1864,7 @@ Callback_data*
 XMMessageBox::AddCancelCallback(void (*cb)(XMWidget *w,
 					   XtPointer, 
 					   XtPointer),
-				XtPointer cd = NULL)
+				XtPointer cd)
 {
   return AddCallback(XmNcancelCallback, cb, cd);
 }
@@ -1939,9 +1940,9 @@ XMMessageBox::SetModal(unsigned char modality)
 
 XMErrorDialog::XMErrorDialog(char *n, Widget parent, char *msg,
 			     void (*cb)(XMWidget *,
-					XtPointer, XtPointer) = NULL,
-			     XtPointer cbd = NULL,
-			     ArgList list = NULL, Cardinal argcount = 0):
+					XtPointer, XtPointer),
+			     XtPointer cbd,
+			     ArgList list, Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateErrorDialog(parent,
@@ -1961,9 +1962,9 @@ XMErrorDialog::XMErrorDialog(char *n, Widget parent, char *msg,
 
 XMErrorDialog::XMErrorDialog(char *n, XMWidget &parent, char *msg,
 			     void (*cb)(XMWidget *,
-					XtPointer, XtPointer) = NULL,
-			     XtPointer cbd = NULL,
-			     ArgList list = NULL, Cardinal argcount = 0):
+					XtPointer, XtPointer),
+			     XtPointer cbd,
+			     ArgList list, Cardinal argcount):
   XMMessageBox(n)
 {
   id = XmCreateErrorDialog(parent.getid(),
@@ -1991,11 +1992,10 @@ XMErrorDialog::XMErrorDialog(Widget w) :
 
 XMInformationDialog::XMInformationDialog(char *n,Widget parent, char *msg,
 					 void (*cb)(XMWidget *,
-						    XtPointer, XtPointer) 
-					 = NULL,
-					 XtPointer cbd = NULL,
-					 ArgList list = NULL, 
-					 Cardinal argcount=0) :
+						    XtPointer, XtPointer) ,
+					 XtPointer cbd,
+					 ArgList list, 
+					 Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateInformationDialog(parent,
@@ -2015,11 +2015,10 @@ XMInformationDialog::XMInformationDialog(char *n,Widget parent, char *msg,
 
 XMInformationDialog::XMInformationDialog(char *n, XMWidget &parent, char *msg,
 					 void (*cb)(XMWidget *,
-						    XtPointer, XtPointer) 
-					 = NULL,
-					 XtPointer cbd = NULL,
-					 ArgList list = NULL, 
-					 Cardinal argcount=0) :
+						    XtPointer, XtPointer) ,
+					 XtPointer cbd,
+					 ArgList list, 
+					 Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateInformationDialog(
@@ -2048,9 +2047,9 @@ XMInformationDialog::XMInformationDialog(Widget w) :
 
 XMMessageDialog::XMMessageDialog(char *n,Widget parent, char *msg,
 				 void (*cb)(XMWidget *,
-					    XtPointer, XtPointer) = NULL,
-				 XtPointer cbd = NULL,
-				 ArgList list = NULL, Cardinal argcount=0) :
+					    XtPointer, XtPointer),
+				 XtPointer cbd,
+				 ArgList list, Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateMessageDialog(parent,
@@ -2070,9 +2069,9 @@ XMMessageDialog::XMMessageDialog(char *n,Widget parent, char *msg,
 
 XMMessageDialog::XMMessageDialog(char *n, XMWidget &parent, char *msg,
 				 void (*cb)(XMWidget *,
-					    XtPointer, XtPointer) = NULL,
-				 XtPointer cbd = NULL,
-				 ArgList list = NULL, Cardinal argcount=0) :
+					    XtPointer, XtPointer),
+				 XtPointer cbd,
+				 ArgList list, Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateMessageDialog(parent.getid(),
@@ -2100,9 +2099,9 @@ XMMessageDialog::XMMessageDialog(Widget w) :
 
 XMQuestionDialog::XMQuestionDialog(char *n,Widget parent, char *msg,
 				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount=0) :
+					      XtPointer, XtPointer),
+				   XtPointer cbd,
+				   ArgList list, Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateQuestionDialog(parent,
@@ -2122,9 +2121,9 @@ XMQuestionDialog::XMQuestionDialog(char *n,Widget parent, char *msg,
 
 XMQuestionDialog::XMQuestionDialog(char *n, XMWidget &parent, char *msg,
 				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, Cardinal argcount=0) :
+					      XtPointer, XtPointer),
+				   XtPointer cbd,
+				   ArgList list, Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateQuestionDialog(parent.getid(),
@@ -2152,9 +2151,9 @@ XMQuestionDialog::XMQuestionDialog(Widget w) :
 
 XMWarningDialog::XMWarningDialog(char *n,Widget parent, char *msg,
 				 void (*cb)(XMWidget *,
-					    XtPointer, XtPointer) = NULL,
-				 XtPointer cbd = NULL,
-				 ArgList list = NULL, Cardinal argcount=0) :
+					    XtPointer, XtPointer),
+				 XtPointer cbd,
+				 ArgList list, Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateWarningDialog(parent,
@@ -2174,9 +2173,9 @@ XMWarningDialog::XMWarningDialog(char *n,Widget parent, char *msg,
 
 XMWarningDialog::XMWarningDialog(char *n, XMWidget &parent, char *msg,
 				 void (*cb)(XMWidget *,
-					    XtPointer, XtPointer) = NULL,
-				 XtPointer cbd = NULL,
-				 ArgList list = NULL, Cardinal argcount=0) :
+					    XtPointer, XtPointer),
+				 XtPointer cbd,
+				 ArgList list, Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateWarningDialog(parent.getid(),
@@ -2205,9 +2204,9 @@ XMWarningDialog::XMWarningDialog(Widget w) :
 
 XMWorkingDialog::XMWorkingDialog(char *n,Widget parent, char *msg,
 				 void (*cb)(XMWidget *,
-					    XtPointer, XtPointer) = NULL,
-				 XtPointer cbd = NULL,
-				 ArgList list = NULL, Cardinal argcount=0) :
+					    XtPointer, XtPointer),
+				 XtPointer cbd ,
+				 ArgList list, Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateWorkingDialog(parent,
@@ -2228,9 +2227,9 @@ XMWorkingDialog::XMWorkingDialog(char *n,Widget parent, char *msg,
 
 XMWorkingDialog::XMWorkingDialog(char *n, XMWidget &parent, char *msg,
 				 void (*cb)(XMWidget *,
-					    XtPointer, XtPointer) = NULL,
-				 XtPointer cbd = NULL,
-				 ArgList list = NULL, Cardinal argcount=0) :
+					    XtPointer, XtPointer),
+				 XtPointer cbd,
+				 ArgList list, Cardinal argcount) :
   XMMessageBox(n)
 {
   id = XmCreateWorkingDialog(parent.getid(),
@@ -2295,8 +2294,8 @@ Callback_data*
 XMSelection::AddDoCallback(void (*cb)(XMWidget *, /* Do callbacks are  */
 				      XtPointer, /* attached to both the ok */
 				      XtPointer), /* and the apply button. */
-			   XtPointer client_data = NULL,
-			   Callback_data **apply = NULL) 
+			   XtPointer client_data ,
+			   Callback_data **apply ) 
 {
   Callback_data *apcb;
   apcb = AddCallback(XmNapplyCallback, cb, client_data);
@@ -2308,7 +2307,7 @@ Callback_data*
 XMSelection::AddApplyCallback(void (*cb)(XMWidget *,
 					 XtPointer,
 					 XtPointer),
-			      XtPointer client_data  = NULL)
+			      XtPointer client_data )
 {
   return AddCallback(XmNapplyCallback, cb, client_data);
 }
@@ -2373,11 +2372,11 @@ XMSelection::DefaultToApply()
 ** Implementation of functions from class XMPromptDialog
 */
 
-XMPromptDialog::XMPromptDialog(char *n, Widget parent, char *prompt = NULL,
+XMPromptDialog::XMPromptDialog(char *n, Widget parent, char *prompt,
 			       void (*cb)(XMWidget *,
-					  XtPointer, XtPointer) = NULL,
-			       XtPointer cbd = NULL,
-			       ArgList list = NULL, Cardinal argcount = 0) :
+					  XtPointer, XtPointer),
+			       XtPointer cbd,
+			       ArgList list, Cardinal argcount) :
   XMSelection(n) 
 {
   id = XmCreatePromptDialog(parent, name,
@@ -2390,11 +2389,11 @@ XMPromptDialog::XMPromptDialog(char *n, Widget parent, char *prompt = NULL,
   XtPopup(XtParent(id), XtGrabNone);
 }
 
-XMPromptDialog::XMPromptDialog(char *n, XMWidget &parent, char *prompt = NULL,
+XMPromptDialog::XMPromptDialog(char *n, XMWidget &parent, char *prompt,
 			       void (*cb)(XMWidget *,
-					  XtPointer, XtPointer) = NULL,
-			       XtPointer cbd = NULL,
-			       ArgList list = NULL, Cardinal argcount = 0) :
+					  XtPointer, XtPointer) ,
+			       XtPointer cbd ,
+			       ArgList list , Cardinal argcount ) :
   XMSelection(n)
 {
   id = XmCreatePromptDialog(parent.getid(),
@@ -2433,12 +2432,12 @@ XMPromptDialog::GetButtons()
 */
 
 XMSelectionDialog::XMSelectionDialog(char *n, Widget parent, 
-				     char *prompt = NULL,
+				     char *prompt ,
 				     void (*cb)(XMWidget *,
-						XtPointer, XtPointer) = NULL,
-				     XtPointer cbd = NULL,
-				     ArgList list = NULL, 
-				     Cardinal argcount = 0) :
+						XtPointer, XtPointer) ,
+				     XtPointer cbd ,
+				     ArgList list , 
+				     Cardinal argcount ) :
   XMSelection(n)
 {
   id = XmCreateSelectionDialog(parent, name,
@@ -2452,12 +2451,12 @@ XMSelectionDialog::XMSelectionDialog(char *n, Widget parent,
 }
 
 XMSelectionDialog::XMSelectionDialog(char *n, XMWidget &parent, 
-				     char *prompt = NULL,
+				     char *prompt ,
 				     void (*cb)(XMWidget *,
-						XtPointer, XtPointer) = NULL,
-				     XtPointer cbd = NULL,
-				     ArgList list = NULL, 
-				     Cardinal argcount = 0) :
+						XtPointer, XtPointer) ,
+				     XtPointer cbd,
+				     ArgList list, 
+				     Cardinal argcount) :
   XMSelection(n) 
 {
   id = XmCreateSelectionDialog(parent.getid(),
@@ -2495,7 +2494,7 @@ XMSelectionDialog::NoRestrictChoices()
 Callback_data*
 XMSelectionDialog::AddNoMatchCallback(void (*cb)(XMWidget *,
 						 XtPointer, XtPointer),
-				      XtPointer client_data = NULL) 
+				      XtPointer client_data ) 
 {
   return AddCallback(XmNnoMatchCallback, cb, client_data);
 }
@@ -2505,12 +2504,12 @@ XMSelectionDialog::AddNoMatchCallback(void (*cb)(XMWidget *,
 */
 
 XMFileListDialog::XMFileListDialog(char *n, Widget parent, char 
-				   *directory = XMFILE_DEFAULT_DIRMASK,
+				   *directory,
 				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, 
-				   Cardinal argcount = 0) :
+					      XtPointer, XtPointer),
+				   XtPointer cbd,
+				   ArgList list , 
+				   Cardinal argcount ) :
   XMSelection(n)
 {
   id = XmCreateFileSelectionDialog(parent, name,
@@ -2528,12 +2527,12 @@ XMFileListDialog::XMFileListDialog(char *n, Widget parent, char
 }
 
 XMFileListDialog::XMFileListDialog(char *n, XMWidget &parent, 
-				   char *directory = XMFILE_DEFAULT_DIRMASK,
+				   char *directory,
 				   void (*cb)(XMWidget *,
-					      XtPointer, XtPointer) = NULL,
-				   XtPointer cbd = NULL,
-				   ArgList list = NULL, 
-				   Cardinal argcount = 0) :
+					      XtPointer, XtPointer),
+				   XtPointer cbd,
+				   ArgList list , 
+				   Cardinal argcount) :
   XMSelection(n)
 {
   id = XmCreateFileSelectionDialog(parent.getid(),
@@ -2614,7 +2613,7 @@ XMFileListDialog::NoRestrictChoices()
 Callback_data*
 XMFileListDialog::AddNoMatchCallback(void (*cb)(XMWidget *,
 						XtPointer, XtPointer),
-				     XtPointer client_data = NULL)
+				     XtPointer client_data)
 {
   return AddCallback(XmNnoMatchCallback, cb, client_data);
 }
@@ -2641,14 +2640,14 @@ XMFileListDialog:: GetButtons()
 */
 
 XMCustomDialog::XMCustomDialog(char *name, XMWidget &parent, char *title,
-			       ArgList l = NULL, Cardinal num_args = 0) : 
+			       ArgList l, Cardinal num_args) : 
   XMWidget(name)
 { 
   CreateDialog(name, parent.getid(), title, l, num_args);
 }
 
 XMCustomDialog::XMCustomDialog(char *name, Widget parent, char *title,
-			       ArgList l = NULL, Cardinal num_args = 0) :
+			       ArgList l, Cardinal num_args) :
   XMWidget(name)
 {
   CreateDialog(name, parent, title, l, num_args); 
@@ -2690,8 +2689,8 @@ XMCustomDialog::help()       { return Help;        }
 Callback_data*
 XMCustomDialog::AddDoCallback(void (*callback)(XMWidget *, XtPointer, 
 					       XtPointer),
-			      XtPointer user_data = NULL,
-			      Callback_data **okcb = NULL) 
+			      XtPointer user_data ,
+			      Callback_data **okcb ) 
 { 
   Callback_data *okc;
   okc = Ok->AddCallback(callback, user_data);
@@ -2702,25 +2701,25 @@ XMCustomDialog::AddDoCallback(void (*callback)(XMWidget *, XtPointer,
 Callback_data*
 XMCustomDialog::AddOkCallback(void (*callback)(XMWidget *, XtPointer, 
 					       XtPointer),
-			      XtPointer user_data = NULL)
+			      XtPointer user_data)
 { return Ok->AddCallback(callback, user_data); }
 
 Callback_data*
 XMCustomDialog::AddApplyCallback(void (*callback)(XMWidget *, XtPointer,
 						  XtPointer),
-				 XtPointer user_data = NULL)
+				 XtPointer user_data)
 { return Apply->AddCallback(callback, user_data); }
 
 Callback_data*
 XMCustomDialog::AddCancelCallback(void (*callback)(XMWidget *, XtPointer, 
 						   XtPointer),
-				  XtPointer user_data = NULL)
+				  XtPointer user_data )
 { return Cancel->AddCallback(callback, user_data); }
 
 Callback_data*
 XMCustomDialog::AddHelpCallback(void (*callback)(XMWidget *, XtPointer, 
 						 XtPointer),
-				XtPointer user_data = NULL)
+				XtPointer user_data)
 { return Help->AddCallback(callback, user_data); }
 
 void

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -300,6 +300,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
  ** Include files required:
  */
+#include <config.h>
 #include <stdio.h>
 
 #include "XMWidget.h"
@@ -375,7 +376,7 @@ static void CheckAbort(XtPointer userd, XtIntervalId *id)
   /*
   ** First determine which pane we're dealing with.
   */
-  int index = (int)userd;
+  long index = (long)userd;
   int column = index  % WINDOW_MAXAXIS;
   int row    = column / WINDOW_MAXAXIS;
 
@@ -398,7 +399,7 @@ static void CheckAbort(XtPointer userd, XtIntervalId *id)
 **      This function clears a window whether or not the window is
 **      being drawn to through a pixmap or directly.
 ** Formal Parameters:
-**    Xamine_RefreshContext *ctx:
+**    Xamine_Refreshontext *ctx:
 **       Redraw context.  If the pixmap entry is zero, then the
 **       window is just cleared via XClearWindow.  Otherwise,
 **       we assume the pixmap is as large as the window and
@@ -494,7 +495,7 @@ void Xamine_GetRefreshCallback(RefreshCallback *cb, XtPointer *ud)
 void Xamine_RedrawPane(int column, int row)
 {
   pane_db *db;
-  int     cellno;
+  long     cellno;
   XMWidget *pane;
   
   db = Xamine_GetPaneDb();
@@ -700,7 +701,7 @@ void Xamine_UpdateAll(XMWidget *w, XtPointer userd, XtPointer clientd)
  */
 void Xamine_PaneRedrawCallback(XMWidget *w, XtPointer userd, XtPointer calld)
 {
-  int index;
+  long index;
   int column, row;
   int ncol;
   XmDrawingAreaCallbackStruct *st = (XmDrawingAreaCallbackStruct *)calld;
@@ -873,9 +874,10 @@ void Xamine_CancelUpdateTimers()
  */
 void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
 {
+
   XMWidget *pane = (XMWidget *)wid;
   int      ncol;
-  int      index;
+  long      index;
   int       col, row;
   pane_db   *pdb;
   
@@ -884,21 +886,22 @@ void Xamine_UpdateTimerRoutine(XtPointer wid, XtIntervalId *tid)
    */
   pdb = Xamine_GetPaneDb();
   pane->GetAttribute(XmNuserData, &index);
+
   ncol= Xamine_Panecols();
   col = index % WINDOW_MAXAXIS;
   row = index / WINDOW_MAXAXIS;
-  
+
   /* Now schedule the work procedure and reschedule us if the spectrum
    ** is still defined: 
    */
   if(pdb->defined(col, row)) {
     if( (pdb->refresh_rate(col,row) != 0)) {
       Xamine_RedrawPane(col, row);
-      pdb->updatetimer(row, col,
-		       XtAppAddTimeOut(XtWidgetToApplicationContext(pane->getid()),
-				       pdb->refresh_rate(col,row)*1000,
-				       Xamine_UpdateTimerRoutine,
-				       (XtPointer)pane));
+                  pdb->updatetimer(row, col,
+             XtAppAddTimeOut(XtWidgetToApplicationContext(pane->getid()),
+      		       pdb->refresh_rate(col,row)*1000,
+      		       Xamine_UpdateTimerRoutine,
+      		       (XtPointer)pane));
     }
     else {
       pdb->updatetimer(row, col, (XtIntervalId)NULL);
@@ -1070,13 +1073,7 @@ Boolean Xamine_Refresh(XtPointer client_data)
     /* If necessary set the scaling: */
     {
       if(!def->manuallyscaled()) {
-	int fs = (Xamine_ComputeScaling(def, ctx->pane));
-	if (fs <= 0) {		// Something bad happened...
-	  // Treat this like the spectrum disappeared:
-	  XClearWindow(display,window);
-	  pdb->refresh_state(ctx->row, ctx->column, rfsh_idle);
-	  goto display_done;
-	}
+	unsigned int fs = (Xamine_ComputeScaling(def, ctx->pane));
 	def->setfsval(fs);
       }
     }

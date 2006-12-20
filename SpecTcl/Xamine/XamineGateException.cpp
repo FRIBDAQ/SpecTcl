@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2011, All rights reserved";
 //  CXamineGateException.cpp
@@ -296,10 +296,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2011, Al
 //
 // Header Files:
 //
-
+#include <config.h>
 
 #include "XamineGateException.h"                               
 #include <assert.h>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 
 // Static constants - these are indexed by negative of status code:
@@ -336,7 +340,7 @@ const static char* pGateType[] = {
 //     Selector
 //
 const char* 
-CXamineGateException::ReasonText() 
+CXamineGateException::ReasonText()  const
 {
 // Returns a pointer to a text string which contains
 // an explanation of the error.
@@ -361,7 +365,8 @@ CXamineGateException::ReasonText()
     
     m_fReasonProduced = kfTRUE;
   }
-  return m_ReasonStream.str();
+  string result = m_ReasonStream.str();
+  return result.c_str();
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -372,7 +377,7 @@ CXamineGateException::ReasonText()
 //     Selector
 //
 Int_t 
-CXamineGateException::ReasonCode() 
+CXamineGateException::ReasonCode()  const
 {
 // Returns the reason for the error
 // Exceptions:  

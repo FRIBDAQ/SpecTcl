@@ -128,153 +128,23 @@ exercise the right to control the distribution of derivative or
 collective works based on the Program.
 
 In addition, mere aggregation of another work not based on the Program
-with the Program (or with a work based on the Program) on a volume of
-a storage or distribution medium does not bring the other work under
-the scope of this License.
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2005.
 
-  3. You may copy and distribute the Program (or a work based on it,
-under Section 2) in object code or executable form under the terms of
-Sections 1 and 2 above provided that you also do one of the following:
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
 
-    a) Accompany it with the complete corresponding machine-readable
-    source code, which must be distributed under the terms of Sections
-    1 and 2 above on a medium customarily used for software interchange; or,
+     http://www.gnu.org/licenses/gpl.txt
 
-    b) Accompany it with a written offer, valid for at least three
-    years, to give any third party, for a charge no more than your
-    cost of physically performing source distribution, a complete
-    machine-readable copy of the corresponding source code, to be
-    distributed under the terms of Sections 1 and 2 above on a medium
-    customarily used for software interchange; or,
-
-    c) Accompany it with the information you received as to the offer
-    to distribute corresponding source code.  (This alternative is
-    allowed only for noncommercial distribution and only if you
-    received the program in object code or executable form with such
-    an offer, in accord with Subsection b above.)
-
-The source code for a work means the preferred form of the work for
-making modifications to it.  For an executable work, complete source
-code means all the source code for all modules it contains, plus any
-associated interface definition files, plus the scripts used to
-control compilation and installation of the executable.  However, as a
-special exception, the source code distributed need not include
-anything that is normally distributed (in either source or binary
-form) with the major components (compiler, kernel, and so on) of the
-operating system on which the executable runs, unless that component
-itself accompanies the executable.
-
-If distribution of executable or object code is made by offering
-access to copy from a designated place, then offering equivalent
-access to copy the source code from the same place counts as
-distribution of the source code, even though third parties are not
-compelled to copy the source along with the object code.
-
-  4. You may not copy, modify, sublicense, or distribute the Program
-except as expressly provided under this License.  Any attempt
-otherwise to copy, modify, sublicense or distribute the Program is
-void, and will automatically terminate your rights under this License.
-However, parties who have received copies, or rights, from you under
-this License will not have their licenses terminated so long as such
-parties remain in full compliance.
-
-  5. You are not required to accept this License, since you have not
-signed it.  However, nothing else grants you permission to modify or
-distribute the Program or its derivative works.  These actions are
-prohibited by law if you do not accept this License.  Therefore, by
-modifying or distributing the Program (or any work based on the
-Program), you indicate your acceptance of this License to do so, and
-all its terms and conditions for copying, distributing or modifying
-the Program or works based on it.
-
-  6. Each time you redistribute the Program (or any work based on the
-Program), the recipient automatically receives a license from the
-original licensor to copy, distribute or modify the Program subject to
-these terms and conditions.  You may not impose any further
-restrictions on the recipients' exercise of the rights granted herein.
-You are not responsible for enforcing compliance by third parties to
-this License.
-
-  7. If, as a consequence of a court judgment or allegation of patent
-infringement or for any other reason (not limited to patent issues),
-conditions are imposed on you (whether by court order, agreement or
-otherwise) that contradict the conditions of this License, they do not
-excuse you from the conditions of this License.  If you cannot
-distribute so as to satisfy simultaneously your obligations under this
-License and any other pertinent obligations, then as a consequence you
-may not distribute the Program at all.  For example, if a patent
-license would not permit royalty-free redistribution of the Program by
-all those who receive copies directly or indirectly through you, then
-the only way you could satisfy both it and this License would be to
-refrain entirely from distribution of the Program.
-
-If any portion of this section is held invalid or unenforceable under
-any particular circumstance, the balance of the section is intended to
-apply and the section as a whole is intended to apply in other
-circumstances.
-
-It is not the purpose of this section to induce you to infringe any
-patents or other property right claims or to contest validity of any
-such claims; this section has the sole purpose of protecting the
-integrity of the free software distribution system, which is
-implemented by public license practices.  Many people have made
-generous contributions to the wide range of software distributed
-through that system in reliance on consistent application of that
-system; it is up to the author/donor to decide if he or she is willing
-to distribute software through any other system and a licensee cannot
-impose that choice.
-
-This section is intended to make thoroughly clear what is believed to
-be a consequence of the rest of this License.
-
-  8. If the distribution and/or use of the Program is restricted in
-certain countries either by patents or by copyrighted interfaces, the
-original copyright holder who places the Program under this License
-may add an explicit geographical distribution limitation excluding
-those countries, so that distribution is permitted only in or among
-countries not thus excluded.  In such case, this License incorporates
-the limitation as if written in the body of this License.
-
-  9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time.  Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
-
-Each version is given a distinguishing version number.  If the Program
-specifies a version number of this License which applies to it and "any
-later version", you have the option of following the terms and conditions 
-either of that version or of any later version published by the Free Software 
-Foundation.  If the Program does not specify a version number of this License,
- you may choose any version ever published by the Free Software Foundation.
-
-  10. If you wish to incorporate parts of the Program into other free
-programs whose distribution conditions are different, write to the author to 
-ask for permission.  For software which is copyrighted by the Free Software 
-Foundation, write to the Free Software Foundation; we sometimes make 
-exceptions for this.  Our decision will be guided by the two goals of 
-preserving the free status of all derivatives of our free software and of 
-promoting the sharing and reuse of software generally.
-
-			    NO WARRANTY
-
-  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
-THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN 
-OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE 
-THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND 
-PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, 
-YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
-
-  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING 
-WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR 
-REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, 
-INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING 
-OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO 
-LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR 
-THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), 
-EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
-DAMAGES.
-
-		     END OF TERMS AND CONDITIONS
+     Author:
+             Ron Fox
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
 */
+
+
 //  CGamma2DB.h:
 //
 //    This file defines the CGamma2DB class.
@@ -293,6 +163,17 @@ DAMAGES.
 /*
   Change log:
   $Log$
+  Revision 5.1.2.2  2005/05/27 17:47:37  ron-fox
+  Re-do of Gamma gates also merged with Tim's prior changes with respect to
+  glob patterns.  Gamma gates:
+  - Now have true/false values and can therefore be applied to spectra or
+    take part in compound gates.
+  - Folds are added (fold command); and these perform the prior function
+      of gamma gates.
+
+  Revision 5.1.2.1  2004/12/21 17:51:24  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:06  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -305,6 +186,10 @@ DAMAGES.
 #ifndef __GAMMA2DB_H  //Required for current class
 #define __GAMMA2DB_H
 
+#ifndef __CGAMMASPECTRUM_H
+#include <CGammaSpectrum.h>
+#endif
+
                                //Required for base classes
 #ifndef __CAXIS_H
 #include <CAxis.h>
@@ -316,12 +201,16 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -333,30 +222,29 @@ DAMAGES.
 class CParameter;
 
 
-class CGamma2DB : public CSpectrum
+class CGamma2DB : public CGammaSpectrum
 {
   UInt_t m_nXScale;		//!< X channel count.
   UInt_t m_nYScale;		//!< Y Channel count.
-  vector<UInt_t> m_vParameters; //!< Vector of parameter ids.
   
 public:
 
 			//Constructor(s) with arguments
 
-  CGamma2DB(const std::string& rName, UInt_t nId,
-	       vector<CParameter>& rParameters,
+  CGamma2DB(const STD(string)& rName, UInt_t nId,
+	       STD(vector)<CParameter>& rParameters,
 	       UInt_t nXScale, UInt_t nYScale);
 
-  CGamma2DB(const std::string& rName, UInt_t nId,
-	    vector<CParameter>& rParameters,
+  CGamma2DB(const STD(string)& rName, UInt_t nId,
+	    STD(vector)<CParameter>& rParameters,
 	    UInt_t nXScale, UInt_t nYScale,
 	    Float_t xLow, Float_t xHigh,
 	    Float_t yLow, Float_t yHigh);
 
 
   // Constuctor for use by derived classes
-  //  CGamma2DB(const std::string& rName, UInt_t nId,
-  //    vector<CParameter>& rParameter);
+  //  CGamma2DB(const STD(string)& rName, UInt_t nId,
+  //    STD(vector)<CParameter>& rParameter);
 
   virtual  ~ CGamma2DB( ) { }       //Destructor	
 private:
@@ -374,7 +262,7 @@ public:
   { return (
 	    (CGamma2DB::operator== (aCGamma)) &&
 	    (m_nXScale == aCGamma.m_nXScale) &&
-	    (m_vParameters == aCGamma.m_vParameters) &&
+	    (m_Parameters == aCGamma.m_Parameters) &&
 	    (m_nYScale == aCGamma.m_nYScale)
 	    );
   }
@@ -389,10 +277,7 @@ public:
   {
     return m_nYScale;
   }
-  UInt_t getnParams() const
-  {
-    return m_vParameters.size();
-  }
+
   virtual SpectrumType_t getSpectrumType() {
     return keG2D;
   }
@@ -412,27 +297,23 @@ protected:
   //  Operations:
   //   
 public:                 
-  virtual   void Increment(const CEvent& rEvent)  ;
-  virtual void GammaGateIncrement(const CEvent& Event, std::string sGateType);
   virtual   ULong_t operator[](const UInt_t* pIndices) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
-  virtual   Bool_t UsesParameter (UInt_t nId) const;
-
-  virtual void GetParameterIds(vector<UInt_t>& rvIds);
-  virtual void GetResolutions(vector<UInt_t>&  rvResolutions);
-  virtual   UInt_t Dimension (UInt_t n) const;
-
+  
+  virtual void GetResolutions(STD(vector)<UInt_t>& rvResolutions);
+  virtual   UInt_t Dimension (UInt_t n) const;  
   virtual   UInt_t Dimensionality () const {
     return 2;
   }
 
- private:
-  static Axes CreateAxisVector(vector<CParameter>& rParams,
+  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rParameters);
+private:
+  static Axes CreateAxisVector(STD(vector)<CParameter>& rParams,
 			       UInt_t nXchan, UInt_t nYchan,
 			       Float_t xLow, Float_t xHigh,
 			       Float_t yLow, Float_t yHigh);
   void CreateStorage();
-  void SetParameterVector(vector<CParameter>& rParameters);
+  void SetParameterVector(STD(vector)<CParameter>& rParameters);
 };
 
 #endif

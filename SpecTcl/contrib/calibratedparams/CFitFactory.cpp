@@ -9,11 +9,17 @@
 
 // Include files required:
 
+#include <config.h>
+
 #include "CFitFactory.h"    				
 #include "CFit.h"
 #include "CFitCreator.h"
 
 #include <DesignByContract.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 using namespace DesignByContract;
 

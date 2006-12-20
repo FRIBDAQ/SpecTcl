@@ -1,3 +1,54 @@
+]
+2.1-006 - Incorporate fix 113 - low level cutoffs lead to corrupted
+          1-d displays.
+        - Have build procedures clean any pre-built Gri prior to 
+          tarring up the distribution.
+2.1-007 - Incorporate fix 120 - memory leak on spectrum -delete -all
+        - Date/time/version stamp installation.
+2.1-008 
+	- Incorporate fix for issue 95: parameter -list -byid fails to parse
+          the output list for sorting.
+        - Incorporate fix for issue 105: sbind usage level help refers to
+          itself as the bind command not sbind.
+        - Incorporate fix for issue 111: swrite creates a file even if
+          no valid spectra are included on the command line.
+2.1-009 
+	- Incorporate printing fixes for last channel of 1-d.
+	- Incorporate printinf fix ensure that 2-d spectrum channels display
+      	  all non zeroes even if they are below the threshold for the lowest
+	  color range.
+        - Place upper limits on 1-d graphical entries at the top  of the
+	  channel rather than at the bottom.  This more realistically
+	  describes what's going on
+        - Fix issue 118 Superpositions in window files are by id not name.
+        - Fix issue 122 Speclist with a single spectrum gives blank output.
+	- Fix issue 123 Print with superpositions crashes gri (gives it a
+  	  bad command file).
+	- Fix issue 124 FWHM not transformed to mapped coordinates.
+2.1-010 - Fix Display/Makefile issues with lingering bison/flex output
+          Add missing return value in ValidValue::operator=.
+2.1-011 - Fix issue 135  swrite -format ascii does not retain the axis
+             mapping information correctly.
+        - Fallout from issue 133; fixed a defect in Display/axes.cc where
+          computation of mapped channel tick mark intervals could cause
+          DIV0 crashes in Xamine when the axis decreases from left to right. 
+        - Backport colormanager intelligent visual choices from 2.2
+2.1-012 - Backport fix for defect 144 from 2.2: Memory leak when user
+          rejects events.
+        - Backport repair for defect 149: Some cases where spectrum
+          deletion from Xamine can kill both Xamine and SpecTcl
+        - Backport repair for defect 145 Names with special characters
+	  cause saveall to produce bad files.
+2.1-013 - Backport filter generation fix from 2.2
+          Repair defect 157: Graphical object copies fail if target
+          is spectrum slot > 999
+2.1-014
+	- Fixed defect 151: printing 2-d's the channels have incorrect
+          values, and log prints are just plain flat lined.
+2.1-015 
+        - Fix un-numbered defect channel command gets/sets wrong channel
+          on Gamma 2-d's.  This was broken with the introduction of 
+ 	  arbitrary binning in 2.1.
 Modifications for SpecTcl 2.2
 January 30,2004  - Updated gri to gri-2.12.7
 March 23, 2004   - Issue 97b - Add hierarchical unpacking capability to scripted spectcl.
@@ -120,3 +171,225 @@ November 102004 - Repaired defect 147: Xamine copy object copies to wrong
                   spectrum if slot # > 999
 
 Edit level 2.2-001
+November 30, 2004 
+	- Forward port fix to defect 151 from 2.1:
+             colorscales on griprint were way off for 2-d prints.
+        - Fix unnumbered defect: channel get/set broke for 2-d gamma 
+          spectra starting with SpecTcl 2.2
+                  spectrum if slot # > 999
+
+SpecTcl 3.0: 
+      Port to gcc/g++ 3.x:
+         o Lots of gruntwork with config.h etc. in all sources.
+         o Added Tcl Channel inquiry functions to CTCLInterpreter to
+	   allow the location of Tcl_Channel given it's name.
+	    GetChannel
+	    GetChannelNames
+         o Added CTCLChannel object that can do simple channel operations.
+            Read
+	    Write
+	    atEof
+	    Flush
+            Close
+         o In {Write,Read}Command.cpp  use tcl[io]streams to connect
+           swrite/sread to Tcl channel parameters rather than decoding the
+	   filename.
+      Propagate fix for defect 151 from 2.1 -> 2.2-> 3.0
+      
+December 28, 2004
+    - Switch ExprLong -> strtol in contrib/scriptable CIntConfigParam.cpp
+      and CIntArrayParam.cpp since ExprLong, as of Tcl 8.4 does not work
+      with large unsigned values.
+December 31, 2004
+    - D. Bazin removed the treeparam Makefiles.  Adjust the
+      contrib/Makefile.am accordingly.
+January 06, 2005
+    - Fixed up some missing quotes on makefile.skel's.
+January 11, 2005
+    - Roll in another treeparmaeter update from D. Bazin
+January 12, 2005
+    - swrite file creation needs an ios::trunc else existing files will 
+      leave postpended data if they were larger.
+January 13, 2005
+    - Xamine superposition fix for id's > 999
+January 26, 2005
+    - Fix problem with long spectrum names:
+      o Xamine's truncation was making CHistogrammer::UnbindFromDisplay
+        assert fail.
+      o Xamine was not putting up the correct spectrum list due to a buffer
+        overflow problem in spectra.cc
+January 27, 2005
+    - Fix low level cutoff in 1-ds that had been fixed in 2.1 but not 
+      propagated to new versions.
+
+3.0-001
+February 11, 2005
+    - Added Analysis subdirectory to the build.  This directory will have stuff
+      that's used by buffer analysis it is NSCL specific.
+February 14, 2005
+    - Completed testing of Analysis library.
+February 15, 2005
+    - Added C interface to Analysis library and unit tests for those.
+    - Added check for paths for the 'check' c unit test framework.
+February 22, 2005
+    - Added/debugged classes to TCL++ that make it easy to
+      do variable tracing (TCLTracedVariable, and VariableTraceCallbac e.g.).
+    - Added stuff to SpecTcl that allows it to pull stuff out of string list
+      buffers that represent TCL scriptlets and execute those scripts. this
+      is currently useful to reconstruct control system data and other stuff
+      that may be in statevariable and runvariable buffers which look like
+      a bunch of set varname value commands.
+    - Fix 1/0 month counting problem with run control timestamps in 
+      Analysis library.
+February 25, 2005
+   - Documented the variable tracing support.
+   - Documented run/state variable recovery.
+March 4, 2005
+   - Set the version string to 3.0pre1
+March 8, 2005
+   - Move the event sink pipeline class into Events and out of 
+     the Filter directory.
+   - Add SpecTcl API (tested) to the build and cvs.
+March 17, 2005
+   - Add documentation for the SpecTcl api as a spectcl man page.
+March 21, 2005
+   - Added -fno-elide-constructors to user's makefile to ensure that 
+     TreeParameter construction is handled correctly.
+   - Support settable I/O poll dwell time.
+April 15, 2005
+   - Began integrating a rewritten treeparameter into the software.
+April 16, 2005
+   - In contrib/calibparam : add a random number in [-.5, .5] to the
+     input of the calibration under the assumption that the input is
+     integer and therefore needs to be turned into a real.
+April 18, 2005
+   - Added documentation to the treeparamter package.
+April 19, 2005
+   - Fix up a tcl 8.4 dependency in CTreeVariableProperties.cpp
+April 21, 2005
+   - Fix up coordinate transform problems in Xamine with grobj locations.
+     Scaled wrong and offset wrong.
+   - Make it a bit clearer that the Treeparameter GUI version is decoupled
+     from SpecTcl's version... for now.
+April 22, 2005
+   - Remove nulls from Xamine's log files and replace them with \n's instead.
+April 29, 2005
+   - TreeParameter save function didn't always get the dependencies right 
+     causing error in loading.  Changed functions in SpectrumGenerator.tcl.
+     Fix for bugzilla bug 173
+May 2, 2005
+   - Ensure filters get closed if active at program normal exit.
+   - Encapsulate Xamine's gates and grobs inside a vector so that there's no 
+     longer a fixed compilation limit on the number of gates /objects that
+     can be defined.
+   - Support GCC-3.4 compiler
+May 11, 2005 
+  - Added support for StripChart Spectra
+  - Check the compiler type in configure to see if we can use -pedantic
+     and do so if we can.
+  - Debug -pedantic effects on compilation.
+  - Fix defects nobody noticed in swrite -format binary/sread -format binary
+    Probably introduced about SpecTcl-2.0  
+May 12, 2005
+  - Fixed attach -format .... error that probably only expresses on 
+    gcc-3.x since nobody's seen/reported it but me until now
+May 13, 2005
+  - Fixed problem in Strip chart so that the parameter list is returned 
+    in the correct order
+--------------------------- End of Pre3 mods ------------
+May 17, 2005
+  - Set map to on by default in Xamine.
+May 18, 2005
+  - Add support for CTCLString::AppendElement(DFloat_t, const char* format)
+    use it in parameter package's  parameter list of mapped parameters
+    as a test.
+  - Add support for CTCLString::AppendElement(long, const char* format)
+  - Add support for mask equals gates as well as define the mask gate base class.  - Add Support for "not mask" and "and mask" gates
+May 20, 2005
+  - Support for compilation on gcc/g++ 4.0
+May 23, 2005
+  - Integrate gamma gate redo=======
+  - Add Support for "not mask" and "and mask" gates
+  - Added support for "gate -list [pattern]" so that users can filter
+    the results of the gate -list command
+  - Added support for "spectrum -list [pattern]" so that users can filter
+    the results of the spectrum -list command
+May 27, 2005
+  - Added support for a glob like pattern in the switch of the clear, pararmeter
+    bind, apply, and pseudo commands.  When a pattern is given after -list, the 
+    command returns objects whose name matches the pattern.
+May 31, 2005
+  - Remove extra copy construction in TreeParameter ThrowIf's.. as that's an 
+    enormous performance hit.
+June 1, 2005
+  - Fix documentation errors in gate command wrt mask gates.
+
+3.0-002
+  - Fix defect with guintegrate - was multiply deleting contours during
+    integration.
+  - Did  a bunch of refactoring to make the integration loop code look nicer.
+  - Treeparameter fixes: GUI should save empty units on unit-less variables and
+    spectra.  In addition for old files, treevariable -set should have units optional
+3.0-003
+  - Remove requirement for fortran at config time.
+
+3.0-004
+  - Do a bit of recasting in order to make cleaner compiles on ia64 systems.
+3.0-005
+  - Fix errors in gamma spectrum increment.  When there are no valid parameters
+    in an event, the outer loop of the 2d gamma spectrum increment will
+    loop almost infinitely and eventually segfault.
+3.0-006
+   - Retry pipe data source select if it fails with eintr.
+   - Fix defect 188 - Grobj files write out spectrum ids rather than 
+     names.. The fix will read old files, but new files will use
+     names.
+   - Fix issue with reading old tcl-list files: the treeparameter command
+     was invoked with the wrong number of parameters.
+   - Fix error in saving .sdef files in old treeparameter gui.
+   - Fix buffer overflow error in grprint.cc found by Dave Caussyn.
+   - Remove illegal default argument in PointlistGate.h
+
+SpecTcl-3.0-007
+   - Credit D. Bazin as original author of TreeParam in the sources.
+   - Fix configuration not always finding motif headers on current systems.
+   - Fix 64-bit uncleanliness in Xamine
+
+SpecTcl-3.0-008
+   - Added wysiwyg printing based on image capture from the frames.
+   - Fix defects 195, 196: Gri was emitting epsf which printers would
+     smoosh all on one page. Print setup dialog's print command had
+     a duplicate widget name that made it operate strangely.
+   - Added jumboscripted ..scriptable readout for buffers > 64Kwords.
+   - Check for gd in configure and create appropriate compiler/ld
+     options.
+SpecTcl-3.0-009
+   - Defect 197 : scaling.h the averaging boxes for 2d average reduction
+                  were too wide by a channel
+   - Defect 200 : long/int mixup that is 64 bit unclean in gamma1DL.cpp
+                  This makes 64bit gamma1dL spectra have only everyother
+                  channel set and can overwrite past the end of the spectrum
+                  as well fi the parameter range covers more than the
+                  spectrum range!!
+   - Defect 209 : more issues like Defect 200.
+   - Defect 210 : SpecTcl/AppInit.cpp had sscanf of int -> long. 64 bit bad.
+   - Defect 211 : Creating g1 spectrum with empty parameter list crashes with
+                  SEGFLT.
+   - Fix erroneous alignment mask computation in allocator.c that could lead
+       to Xamine free list corruption
+   - Fix error in wysiwyg printing when zoomed.
+   - Fix an off by one error in scaling 1-d lineary channels.  For small scales
+     and channel values the hieght of the channel was visibly lower than the 
+     corresponding tick mark.
+   - Enh 194    : provide more precision in output of integration.
+
+  Released September 21, 2006
+
+3.0-010  
+	Oct. 17, 2006 BZ 219  - output the contents of VERSIOn to TCL's stdout
+        Nov 09, 2006 Added CHANGELOG to installation.
+        Nov 17, 2006 Fix defect 228 - Printer defaults can be whacky resulting
+                     in prints killing Xamine or not working.
+        Nov 17, 2006 No longer distribute setup.tcl with Skel.
+        Dec 19, 2006 Fix CXdrInputStream.cpp per D. Caussyn's catch,
+                    delete [] m_pBuffer not delete m_pBuffer

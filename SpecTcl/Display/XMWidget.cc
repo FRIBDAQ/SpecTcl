@@ -1,3 +1,4 @@
+#include <config.h>
 #include "XMWidget.h"
 
 /*
@@ -5,10 +6,10 @@
 */
 
 XMApplication::XMApplication(char *cl, Cardinal *argc, char **argv,
-			     XrmOptionDescList options = NULL, 
-			     Cardinal noptions = 0,
-			     const char **fallback_resources = NULL,
-			     ArgList args = NULL, Cardinal num_args=0)
+			     XrmOptionDescList options , 
+			     Cardinal noptions,
+			     const char **fallback_resources,
+			     ArgList args, Cardinal num_args)
 {
   strcpy(app_class, cl);
   toplevel_shell = XtAppInitialize(&application,
@@ -101,19 +102,19 @@ XMWidget::XMWidget(Widget w)
 }
 
 XMWidget::XMWidget(char *n, WidgetClass cl, XMApplication &parent,
-		   ArgList l=NULL, Cardinal num_args=0)
+		   ArgList l, Cardinal num_args)
 {
   Create(n, cl, parent.getid(), l, num_args);
 }
 
 XMWidget::XMWidget(char *n, WidgetClass cl, Widget parent,
-		   ArgList l=NULL, Cardinal num_args=0)
+		   ArgList l, Cardinal num_args)
 {
   Create(n, cl, parent, l, num_args);
 }
 
 XMWidget::XMWidget(char *n, WidgetClass cl, XMWidget &parent,
-		   ArgList l=NULL, Cardinal num_args=0)
+		   ArgList l, Cardinal num_args)
 {
   Create(n, cl, parent.getid(), l, num_args);
 }
@@ -159,7 +160,7 @@ XMWidget::GetAttribute(String attribute, XtArgVal value)
 Callback_data*
 XMWidget::AddCallback(String reason,
 		      void (*proc)(XMWidget *, XtPointer, XtPointer),
-		      XtPointer data = NULL)
+		      XtPointer data)
 { 
   extern Callback_data *XMAddCallback(XMWidget *, String, 
 				      void (*)(XMWidget *,
@@ -203,14 +204,14 @@ XMManagedWidget::XMManagedWidget(char *n) :
 { /* Null default constructor to allow full override */ }
 
 XMManagedWidget::XMManagedWidget(char *n, WidgetClass cl, Widget parent,
-				 ArgList l=NULL, Cardinal num_args=0) :
+				 ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args)
 { 
   Manage();
 }
 
 XMManagedWidget::XMManagedWidget(char *n, WidgetClass cl, XMWidget &parent,
-				 ArgList l=NULL, Cardinal num_args=0) :
+				 ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args)
 {
   Manage();

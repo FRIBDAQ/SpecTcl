@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CFalseGate.h:
 //
@@ -296,6 +296,19 @@ DAMAGES.
 #ifndef __GATE_H
 #include "Gate.h"
 #endif                               
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif
+#endif
+
+#ifndef __STL__STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL__STRING
+#endif
+#endif
 
 // Forward class definitions:
 
@@ -337,10 +350,10 @@ public:
   virtual   CConstituentIterator Begin ()  ;
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
-  virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
+  virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)  ;
   virtual   CGate* clone ()  ;
-  virtual   std::string Type () const;
-  virtual   Bool_t inGate(CEvent& rEvent, const vector<UInt_t>& Params);
+  virtual   STD(string) Type () const;
+  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
   virtual Bool_t inGate(CEvent& rEvent);
 };
 

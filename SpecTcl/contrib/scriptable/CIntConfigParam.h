@@ -273,10 +273,19 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 #ifndef __CINTCONFIGPARAM_H  //Required for current class
 #define __CINTCONFIGPARAM_H
+
+
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
 
 //
 // Include files:
@@ -310,8 +319,8 @@ public:
   //  Constructors.  The first constructor is without
   //  range checking, the second with.
 
-  CIntConfigParam (const string& rName, int nDefault=0);
-  CIntConfigParam (const string& rName,
+  CIntConfigParam (const STD(string)& rName, int nDefault=0);
+  CIntConfigParam (const STD(string)& rName,
                    int nLow, int nHigh, int nDefault=0);
   // Destructor:
   virtual ~CIntConfigParam ( );  
@@ -374,7 +383,7 @@ public:
                           CTCLResult& rResult, 
                           const char* pValue)   ; //!< Parse/validate
 
-  virtual string GetParameterFormat();
+  virtual STD(string) GetParameterFormat();
   void setRange(int nLo, int nHi) {
       m_nLow  = nLo;
       m_nHigh = nHi;

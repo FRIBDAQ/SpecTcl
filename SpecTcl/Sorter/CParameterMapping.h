@@ -20,7 +20,9 @@
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 class CParameter;
@@ -42,17 +44,17 @@ private:
   UInt_t m_nBits;		//!  Bits of resolution of the raw parameter.  
   Float_t m_fLow;		//!  Low part of range of mapped parameter.  
   Float_t m_fHigh;		//!  High value of mapped parameter range  
-  string m_sUnits;		//!  Parameter units or empty if there are none.  
+  STD(string) m_sUnits;		//!  Parameter units or empty if there are none.  
   
   
 public:
   // Constructors and other canonical operations.
 
-  CParameterMapping (const string& sUnits=string(""));		//!< Constructs identity mapping.
+  CParameterMapping (const STD(string)& sUnits=STD(string)(""));		//!< Constructs identity mapping.
   CParameterMapping(UInt_t  nBits,
 		    Float_t fLow,
 		    Float_t fHigh,
-		    const string& sUnits = string("")); //!< Create mapping.
+		    const STD(string)& sUnits = STD(string)("")); //!< Create mapping.
   CParameterMapping(const CParameter& rParam); //!< Construct from param definition.
   ~ CParameterMapping ( );  //!< Destructor
   CParameterMapping (const CParameterMapping& rhs ); //!<  Copy Constructor 
@@ -87,7 +89,7 @@ public:
     return m_fHigh;
   }  
 
-  string getUnits() const	//!< Selector for m_sUnits
+  STD(string) getUnits() const	//!< Selector for m_sUnits
   { 
     return m_sUnits;
   }   
@@ -117,7 +119,7 @@ protected:
     m_fHigh = am_fHigh;
   }  
 
-  void setUnits (const string am_sUnits) //!< Mutator for m_sUnits
+  void setUnits (const STD(string) am_sUnits) //!< Mutator for m_sUnits
   { 
     m_sUnits = am_sUnits;
   }   

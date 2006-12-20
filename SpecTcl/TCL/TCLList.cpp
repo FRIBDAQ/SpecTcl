@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 
 
@@ -296,12 +296,17 @@ DAMAGES.
 // Header Files:
 //
 
-
+#include <config.h>
+#include "TCLVersionHacks.h"
 #include "TCLList.h"                               
 #include "TCLInterpreter.h"
 #include <string.h>
 #include <assert.h>
 #include <malloc.h>		// Since Tcl uses malloc/free
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 typedef char *pChar;
 
@@ -410,12 +415,7 @@ CTCLList::Split(StringArray& rElements)
     for(int i = 0; i < nElements; i++) {
       rElements.push_back(pElements[i]);
     }
-#if defined(WIN32) || (TCL_MAJOR_VERSION > 8) || \
-                ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
-	Tcl_Free((char*)pElements);
-#else
-    free(pElements);		// Early versions of Tcl_Free on unix failed.
-#endif
+    tclSplitListFree(pElements);
   }
   return result;
 
@@ -437,11 +437,7 @@ CTCLList::Split(int& n, char***p)
   
   
   int result = Tcl_SplitList(pInterp->getInterpreter(), m_pList, &n, 
-#if (TCL_MAJOR_VERSION > 8) || ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
-			     (const char***)p);
-#else
-                                           p);
-#endif
+			     (tclConstCharPtr**)p);
   return result;
 }
 //////////////////////////////////////////////////////////////////////////
@@ -490,12 +486,8 @@ CTCLList::Merge(int n, char** pElements)
 {
   char* pList = Tcl_Merge(n, pElements);
   setList(pList);
-#if defined(WIN32) || (TCL_MAJOR_VERSION > 8) || \
-                ((TCL_MAJOR_VERSION ==8) && (TCL_MINORO_VERSION > 3))
-  Tcl_Free(pList);
-#else
-  free(pList);             // Documented to work this way in books but win32??
-#endif
+  tclSplitListFree(pList);
+
   return  m_pList;
 }
 /////////////////////////////////////////////////////////////////////////

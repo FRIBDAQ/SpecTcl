@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 //  BitSpectrumL.cpp:
@@ -291,6 +291,18 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log
    $Log$
+   Revision 5.1.2.2  2006/06/22 17:26:36  ron-fox
+   Fix more 32 bit unclean issues (Defect 209).
+
+   Revision 5.2.2.1  2006/06/22 17:11:23  ron-fox
+   Defect 209: Some other 64 bit uncleanliness that needed mopping up.
+
+   Revision 5.2  2005/06/03 15:19:22  ron-fox
+   Part of breaking off /merging branch to start 3.1 development
+
+   Revision 5.1.2.1  2004/12/21 17:51:23  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:56:06  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -318,6 +330,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 */
 
+#include <config.h>
 #include "BitSpectrumL.h"
 #include "Parameter.h"
 #include "Event.h"
@@ -327,6 +340,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <assert.h>
 #include <math.h>
 #include "CAxis.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -426,8 +443,8 @@ CBitSpectrumL::Increment(const CEvent& rE)
   CEvent& rEvent((CEvent&)rE);
   if(m_nParameter < rEvent.size()) {
     if(rEvent[m_nParameter].isValid()) {
-      ULong_t* p = (ULong_t*)getStorage();
-      assert(p != (ULong_t*)kpNULL);
+      UInt_t* p = (UInt_t*)getStorage();
+      assert(p != (UInt_t*)kpNULL);
       UInt_t nParam = 
 	(UInt_t)m_PDescription.RawToMapped(rEvent[m_nParameter]);
       
@@ -563,7 +580,7 @@ CBitSpectrumL::CreateStorage()
   setStorageType(keLong);
 
   Size_t        nBytes   = StorageNeeded();
-  ULong_t*      pStorage = new ULong_t[nBytes/sizeof(ULong_t)];
+  UInt_t*      pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();

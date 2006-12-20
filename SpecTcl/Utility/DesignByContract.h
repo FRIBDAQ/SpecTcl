@@ -26,7 +26,7 @@ namespace DesignByContract
           line_(line),
           errorPrefix_("DesignByContract failed")
         {}
-
+	~DesignByContractException() throw () {}
     public:
         // Queries
 

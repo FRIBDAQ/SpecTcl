@@ -317,12 +317,16 @@ Each of these represents a keyword/value pair.
 
 #ifndef _STL_LIST
 #include <list>
-#define _STL_LIST
+#ifndef __STL_LIST
+#define __STL_LIST
+#endif
 #endif
 
 #ifndef _STL_STRING
 #include <string>
-#define _STL_STRING
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
 #endif
 
 
@@ -341,17 +345,17 @@ class CConfigurableObject : public  CTCLProcessor
 {
   // Public data types.
 public:
-  typedef list<CConfigurationParameter*> ConfigArray;
+  typedef STD(list)<CConfigurationParameter*> ConfigArray;
   typedef ConfigArray::iterator          ParameterIterator;
 private:
   
-  string          m_sName;	//!< Name of the command associated with the object.
+  STD(string)          m_sName;	//!< Name of the command associated with the object.
   ConfigArray     m_Configuration; //!< The configuration.
 
 
   // Constructors and other canonical operations.
 public:
-  CConfigurableObject (const string& rName,
+  CConfigurableObject (const STD(string)& rName,
 		       CTCLInterpreter& rInterp);
   virtual  ~ CConfigurableObject ( );  
 
@@ -367,7 +371,7 @@ public:
 
   //!  Retrieve a copy of the name:
 
-  string getName() const
+  STD(string) getName() const
   { 
     return m_sName;
   }   
@@ -387,25 +391,25 @@ public:
   virtual  int      ListConfiguration (CTCLInterpreter& rInterp, 
 				       CTCLResult& rResult, 
 				       int nArgs, char** pArgs); //!< list subcommand 
-  ParameterIterator AddIntParam (const string& sParamName, 
+  ParameterIterator AddIntParam (const STD(string)& sParamName, 
 				 int nDefault=0)   ; //!< Create an int.
-  ParameterIterator AddBoolParam (const string& rName,
+  ParameterIterator AddBoolParam (const STD(string)& rName,
 				  bool          fDefault)   ; //!< Create a boolean. 
-  ParameterIterator AddStringParam (const string& rName)   ; //!< Create string param. 
-  ParameterIterator AddIntArrayParam (const string&  rParameterName, 
+  ParameterIterator AddStringParam (const STD(string)& rName)   ; //!< Create STD(string) param. 
+  ParameterIterator AddIntArrayParam (const STD(string)&  rParameterName, 
 				      int nArraySize, 
 				      int nDefault=0)   ; //!< Create array of ints.
-  ParameterIterator AddStringArrayParam (const string& rName, 
-					 int nArraySize)   ; //!< Create array of strings.
-  ParameterIterator Find (const string& rKeyword)   ; //!< Find a param 
+  ParameterIterator AddStringArrayParam (const STD(string)& rName, 
+					 int nArraySize)   ; //!< Create array of STD(string)s.
+  ParameterIterator Find (const STD(string)& rKeyword)   ; //!< Find a param 
   ParameterIterator begin ()   ; //!< Config param start iterator.
   ParameterIterator end ()   ;   //!< Config param end iterator.
   int size ()   ;                //!< Config param number of items.
-  string ListParameters (const string& rPattern)   ; //!< List configuration 
-  string ListKeywords ()   ;     //!< List keyword/type pairs.
+  STD(string) ListParameters (const STD(string)& rPattern)   ; //!< List configuration 
+  STD(string) ListKeywords ()   ;     //!< List keyword/type pairs.
 
 protected:
-  virtual string Usage();
+  virtual STD(string) Usage();
 private:
   void              DeleteParameters ()   ; //!< Delete all parameters. 
   

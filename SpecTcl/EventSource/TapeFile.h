@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CTapeFile.h:
 //
@@ -305,19 +305,27 @@ DAMAGES.
 #include <mtaccess.h>
 #define __DAQ_MTACCESS_H
 #endif
+
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
                                
 class CTapeFile  : public CFile        
 {
-  std::string m_sDevice;  //  Name of the tape device (e.g. /dev/rmt0h
+  STD(string) m_sDevice;  //  Name of the tape device (e.g. /dev/rmt0h
   UInt_t m_nBlocksize;    //  Bytes in block on tape (set by open),
                           //  used to set size on Open.
   CRefcountedPtr<volume> m_pVcb;// Shared volume context between all CTapeFile
 				// objects for the same tape file.
-  std::string m_sFilename;	// File name when one is open.
+  STD(string) m_sFilename;	// File name when one is open.
 public:
 			//Constructor with arguments
 
-  CTapeFile (const std::string& am_sDevice);
+  CTapeFile (const STD(string)& am_sDevice);
   virtual ~ CTapeFile ( );          //Destructor
 	
 			//Copy constructor
@@ -344,7 +352,7 @@ public:
   {
     return m_nBlocksize;
   }
-  std::string getDevice() const
+  STD(string) getDevice() const
   {
     return m_sDevice;
   }
@@ -352,7 +360,7 @@ public:
   {
     return m_pVcb.operator->();
   }
-  std::string getFilename() const
+  STD(string) getFilename() const
   {
     AssertOpen();
     return m_sFilename;
@@ -374,7 +382,7 @@ public:
   // Mutating (Write) selectors:
 protected:
 
-  void setDevice (const std::string& am_sDevice)
+  void setDevice (const STD(string)& am_sDevice)
   { 
     m_sDevice = am_sDevice;
   }
@@ -384,7 +392,7 @@ protected:
 //    m_pVcb = CRefcountedPtr<volume>(*pVCB) 
 //				// Point to new Volume control block.
 //  }
-  void setFilename(const std::string& sName)
+  void setFilename(const STD(string)& sName)
   {
     m_sFilename = sName;
   }
@@ -394,17 +402,17 @@ protected:
 public:                   
   virtual   int Read (Address_t pBuffer, UInt_t nBytes)  ;
   virtual   Int_t Write (const Address_t pBuffer, UInt_t  nBytes)  ;
-  virtual   void Open (const std::string&  rsFilename, UInt_t nAccess)  ;
+  virtual   void Open (const STD(string)&  rsFilename, UInt_t nAccess)  ;
   virtual   void Close ()  ;
-  static void      Initialize(const std::string& device, // Initialize tape 
-			      const std::string& label); // volume.
+  static void      Initialize(const STD(string)& device, // Initialize tape 
+			      const STD(string)& label); // volume.
 
   //  Utility functions:
 
 protected:
   void DoAssign(const CTapeFile& rhs);
-  void TapeCreate(const std::string& name);
-  void TapeOpen(const std::string& name);
+  void TapeCreate(const STD(string)& name);
+  void TapeOpen(const STD(string)& name);
 };
 
 

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CSpectrum1DL.cpp
 // Encapsulates the prototypical 1-d Spectrum.  
@@ -298,6 +298,21 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.3  2006/06/22 17:26:36  ron-fox
+  Fix more 32 bit unclean issues (Defect 209).
+
+  Revision 5.2.2.1  2006/06/22 17:11:23  ron-fox
+  Defect 209: Some other 64 bit uncleanliness that needed mopping up.
+
+  Revision 5.2  2005/06/03 15:19:24  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
+  Revision 5.1.2.2  2005/05/11 16:54:54  thoagland
+  Add Support for Stripchart Spectra
+
+  Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
+  Port to gcc 3.x compilers.
+
   Revision 5.1  2004/11/29 16:56:08  ron-fox
   Begin port to 3.x compilers calling this 3.0
 
@@ -309,7 +324,7 @@ DAMAGES.
 
   Revision 4.7  2004/02/03 21:32:58  ron-fox
   Make definitions of spectra from resolutions consistent with those that have ranges.
-
+  /*
   Revision 4.6.2.1  2004/02/02 21:47:08  ron-fox
   *** empty log message ***
 
@@ -328,12 +343,17 @@ DAMAGES.
   Support for Real valued parameters and spectra with arbitrary binnings.
 
 */
-
+#include <config.h>
 #include "Spectrum1DL.h"                               
 #include "Parameter.h"
 #include "RangeError.h"
 #include "Event.h"
 #include "CAxis.h"
+#include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 static const char* Copyright = 
 "CSpectrum1DL.cpp: Copyright 1999 NSCL, All rights reserved\n";
@@ -470,7 +490,8 @@ CSpectrum1DL::Increment(const CEvent& rE)
 
 
   if(rParam.isValid()) {  // Only increment if param present.
-    Int_t nChannel = (Int_t)ParameterToAxis(0, rParam);
+    Int_t nChannel =
+   (Int_t)ParameterToAxis(0, rParam);
     
     if((nChannel < (m_nChannels)) &&
        (nChannel >= 0)) {  // 
@@ -597,7 +618,7 @@ CSpectrum1DL::CreateChannels()
   // management:
 
   setStorageType(keLong);
-  ULong_t* pStorage = new ULong_t[m_nChannels];
+  UInt_t* pStorage = new UInt_t[m_nChannels];
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
 }

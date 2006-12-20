@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 //  CAttachCommand.h:
 //
@@ -352,15 +352,15 @@ class CAttachCommand : public CTCLPackagedCommand {
   virtual int operator()(CTCLInterpreter& rInterp,
 			 CTCLResult& rResult,
 			 int nArgs, char* pArgs[]);
-  int AttachFile(CTCLResult& rResult, const string& Connection,
+  int AttachFile(CTCLResult& rResult, const STD(string)& Connection,
 		 long nBytes);
-  int AttachTape(CTCLResult& rResult,  const string& Connection,
+  int AttachTape(CTCLResult& rResult,  const STD(string)& Connection,
 		 long nBytes);
-  int AttachPipe(CTCLResult& rResult,  const string& Connection,
+  int AttachPipe(CTCLResult& rResult,  const STD(string)& Connection,
 		 long nBytes);
-  int AttachTest(CTCLResult& rResult,  const string& Connection,
+  int AttachTest(CTCLResult& rResult,  const STD(string)& Connection,
 		 long nBytes);
-  int AttachNull(CTCLResult& rResult,  const string& Connection,
+  int AttachNull(CTCLResult& rResult,  const STD(string)& Connection,
 		 long nBytes);
 
  protected:

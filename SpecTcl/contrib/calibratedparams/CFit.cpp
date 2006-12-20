@@ -15,7 +15,12 @@
 
 // Include files required:
 
+#include <config.h>
 #include "CFit.h"    				
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 
 /*!

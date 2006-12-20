@@ -1,5 +1,12 @@
+#include <config.h>
 #include "CModuleDictionary.h"    				
 #include "CModule.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+
 /*!    Constructs a module dictionary.  In fact this is a No-op
     for this class as all the work is done by the default
     constructor of the map class.

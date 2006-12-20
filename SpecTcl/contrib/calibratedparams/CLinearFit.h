@@ -61,8 +61,8 @@ public:
   virtual   void Perform ()   ; 
   virtual   double operator() (double x)   ; 
   virtual   CFit::FitParameterList GetParameters ()   ; 
-  virtual   string Type() const {
-    return string("linear");
+  virtual   STD(string) Type() const {
+    return STD(string)("linear");
   }
 
   // Overrides for virtual base class functions:

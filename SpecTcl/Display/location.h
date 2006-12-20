@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
 ** Facility:
@@ -397,7 +397,7 @@ class Xamine_Location : public XMForm {
      if(c != counts) {
        counts = c;
        char string[10];
-       sprintf(string, "%6d", c);
+       sprintf(string, "%9u", c);
        countsvalue->SetLabel(string);
      }
    }
