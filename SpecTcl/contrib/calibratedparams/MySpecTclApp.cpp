@@ -280,8 +280,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 // Class: CMySpecTclApp
 
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
-
-#include <config.h>
 #include "MySpecTclApp.h"    				
 #include "EventProcessor.h"
 #include "TCLAnalyzer.h"
@@ -294,13 +292,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CCalibratedParameterManager.h>
 #include <MultiTestSource.h>
 #include <CalibrationDistribution.h>
-
-#include <CScriptableUnpacker.h>
-
-#ifdef HAVE_STD_NAMESPACE
-using namespace std;
-#endif
-
 
 // Local Class definitions:
 
@@ -489,18 +480,8 @@ CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)
   RegisterEventProcessor(legacyunpacker);
 #endif
   
-  RegisterEventProcessor(*(new CScriptableUnpacker));
-
-  // Below is a trick to get the scaler stuff defined too.
-  // 
-
-  CScriptableUnpacker* pUnpacker = new CScriptableUnpacker("scaler",
-							   "scalerbank");
-  pUnpacker->OnAttach(rAnalyzer); // Register the commands.
-
-  // Register to do cablibratedparameters:
-
-  RegisterEventProcessor(*(new CCalibratedParameterManager));
+    RegisterEventProcessor(Stage1);
+    RegisterEventProcessor(*(new CCalibratedParameterManager));
 
 
 }  
@@ -639,6 +620,27 @@ CMySpecTclApp::SetupTestDataSource()
 { 
   CTclGrammerApp::SetupTestDataSource();
 
+  CMultiTestSource* pSource = getTestDataSource();
+  
+  // starting with the default test source, add another test source
+  // that produces multiple evenly spaced narrow peaks.
+  //
+  
+
+  CTestFile *pmyTestFile = new CTestFile(*(pSource->getDefaultTestSource()));
+  // Calibration distributions construct with 
+  // First peak position, number of peaks, peak spacing
+  // and peak widths. This will produce a spectrrum that looks like
+  // a pulsr was run across the spectrum at regular intervals.. good for my testing.
+  // 
+  CCalibrationDistribution* pCalibrationParameter  =
+    new CCalibrationDistribution(50.0, 10, 100.0, 5.0, 1024.0);
+  pmyTestFile->AddDistribution(*pCalibrationParameter);
+  pSource->addTestSource("calibrationSource", pmyTestFile);
+
+  // Select it.
+
+  pSource->useTestSource("calibrationSource");
  
 }  
 
