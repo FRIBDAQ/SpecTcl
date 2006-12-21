@@ -321,10 +321,10 @@ struct spec_location {
 
 class Xamine_Converter {
  protected:
-  XMWidget       *pane;
-  win_attributed *attributes;
+  XMWidget                *pane;
+  win_attributed          *attributes;
   volatile spec_shared    *spectra;
-  Boolean         clipping;
+  Boolean                  clipping;
  public:
   Xamine_Converter(XMWidget *p, win_attributed *a,volatile spec_shared *s) {
     pane       = p;

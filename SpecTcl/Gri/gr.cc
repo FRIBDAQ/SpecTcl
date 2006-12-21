@@ -359,7 +359,7 @@ insert_ps_header(FILE * fp)
 	 * write conforming postscript prolog
 	 */
 	/* fprintf(fp, "%%!PS-Adobe-1.0\n"); */
-	fprintf(fp, "%%!PS-Adobe-2.0 EPSF-1.2\n");
+	fprintf(fp, "%%!PS-Adobe-2.0 \n");
 	fprintf(fp, "%%%%Creator: %s\n", creator_name);
 	fprintf(fp, "%%%%Title: %s\n", ps_filename_used);
 	SECOND_TYPE sec;

@@ -300,7 +300,7 @@ using namespace std;
 
 typedef enum {
   postscript,
-  color_postscript,
+  color_postscript
 } PrinterType;
 
 typedef enum { 
@@ -310,12 +310,12 @@ typedef enum {
 
 typedef enum {
   printall,
-  printsel,
+  printsel
 } PrintNum;
 
 typedef enum {
   tofile,
-  toprinter,
+  toprinter
 } PrintDest;
 
 typedef enum {
@@ -374,19 +374,8 @@ struct DefaultPrintOptions {
   char        print_cmd[200];
   char        rows[10];
   char        cols[10];
-  DefaultPrintOptions() {
-    layout = portrait;
-    num    = printsel;
-    dest   = toprinter;
-    res    = one;
-    file_type  = -1;
-    xlen       = 0;
-    ylen       = 0;
-    time_stamp = 0;
-    color_pal  = 0;
-    contours   = 0;
-    symbols    = 0;
-  }
+  DefaultPrintOptions();
+
 };
 
 void Xamine_SetupPrinter(XMWidget *w, XtPointer user, XtPointer call);

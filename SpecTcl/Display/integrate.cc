@@ -650,16 +650,16 @@ void Integrate_1dw::Perform()
 
   /* Do the sum. */
 
-  float  sum     = 0.0;
-  float  chansum = 0.0;
-  float  sqsum   = 0.0;
-  float chan;
+  double  sum     = 0.0;
+  double  chansum = 0.0;
+  double  sqsum   = 0.0;
+  double  chan;
   for(int i = lolim; i <= hilim; i++) {
     chan = *s++;
     sum += chan;
-    chan *= (float)i;		/* Weight the channel. */
+    chan *= Channel(i);		/* Weight the channel. */
     chansum += chan;
-    sqsum   += chan*i;		/* Weight channel**2 by height. */
+    sqsum   += chan*Channel(i);		/* Weight channel**2 by height. */
   }
 
   /* Use the sums to produce the centroid and stddev: */
@@ -708,16 +708,16 @@ void Integrate_1dl::Perform()
 
   /* Do the sum. */
 
-  float  sum     = 0.0;
-  float  chansum = 0.0;
-  float  sqsum   = 0.0;
-  float chan;
+  double  sum     = 0.0;
+  double  chansum = 0.0;
+  double  sqsum   = 0.0;
+  double  chan;
   for(int i = lolim; i <= hilim; i++) {
     chan = *s++;
     sum += chan;
-    chan *= (float)i;		/* Weight the channel. */
+    chan *= Channel(i);		/* Weight the channel. */
     chansum += chan;
-    sqsum   += chan*i;		/* Weight channel**2 by height. */
+    sqsum   += chan*Channel(i);		/* Weight channel**2 by height. */
   }
 
   /* Use the sums to produce the centroid and stddev: */
@@ -770,11 +770,11 @@ void Integrate_2db::Perform()
   /* In each pass of the loop, pairs of points in the active edge table   */
   /* define integration limits.  After each loop pass, dead line segments */
   /* are eliminated and new ones merged in.                               */
-  float sum    = 0;
-  float xsum   = 0;
-  float ysum   = 0;
-  float xsqsum = 0;
-  float ysqsum = 0;
+  double sum    = 0;
+  double xsum   = 0;
+  double ysum   = 0;
+  double xsqsum = 0;
+  double ysqsum = 0;
   int  y       = e->ybase;	/* Keep track of y coord. */
 
   for(int l = 0; l < nlines; l++) { /* Loop over scan lines. */
@@ -784,12 +784,15 @@ void Integrate_2db::Perform()
       int hi = (int)active.bases[j+1].xnow; /* sum limits. */
       unsigned char *s = line + lo;
       for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
-	float ch = (float)*s++;
+	double  xchannel = XChannel(k);
+	double  ychannel = YChannel(y);
+	float   ch       = (float)*s++;
 	sum     += ch;
-	xsum    += ch * k;
-	ysum    += ch * y;
-	xsqsum  += ch * (k*k);
-	ysqsum  += ch * (y*y);
+	xsum    += ch * xchannel;
+	ysum    += ch * ychannel;
+	xsqsum  += ch * (xchannel*xchannel);
+	ysqsum  += ch * (ychannel*ychannel);
+
       }				/* Sum over one interior region. */
     }				/* Scan over all pairs.          */
     /* Now on to the next scan line:  */
@@ -858,11 +861,11 @@ void Integrate_2dw::Perform()
   /* In each pass of the loop, pairs of points in the active edge table   */
   /* define integration limits.  After each loop pass, dead line segments */
   /* are eliminated and new ones merged in.                               */
-  float sum    = 0;
-  float xsum   = 0;
-  float ysum   = 0;
-  float xsqsum = 0;
-  float ysqsum = 0;
+  double sum    = 0;
+  double xsum   = 0;
+  double ysum   = 0;
+  double xsqsum = 0;
+  double ysqsum = 0;
   int  y       = e->ybase;	/* Keep track of y coord. */
 
   for(int l = 0; l < nlines; l++) { /* Loop over scan lines. */
@@ -872,12 +875,15 @@ void Integrate_2dw::Perform()
       int hi = (int)active.bases[j+1].xnow; /* sum limits. */
       unsigned short *s = line + lo;
       for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
-	float ch = (float)*s++;
+	double xchannel = XChannel(k);
+	double ychannel = YChannel(y);
+	float  ch       = (float)*s++;
 	sum     += ch;
-	xsum    += ch * k;
-	ysum    += ch * y;
-	xsqsum  += ch * (k*k);
-	ysqsum  += ch * (y*y);
+	xsum    += ch * xchannel;
+	ysum    += ch * ychannel;
+	xsqsum  += ch * (xchannel*xchannel);
+	ysqsum  += ch * (ychannel*ychannel);
+
       }				/* Sum over one interior region. */
     }				/* Scan over all pairs.          */
     /* Now on to the next scan line:  */

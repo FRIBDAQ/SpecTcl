@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -424,6 +424,11 @@ class AcceptMarker : public ObjectInput {
      }
      ObjectInput::UnManage();
   }
+  // Callback relays:
+public:
+  static void Marker_ok(XMWidget *w, XtPointer ud, XtPointer cd);
+  static void Marker_cancel(XMWidget *w, XtPointer ud, XtPointer cd);
+  static void Marker_accept(XMWidget *w, XtPointer ud, XtPointer cd);
 
 };
 
@@ -527,9 +532,14 @@ void AcceptMarker::TextPoint()
 
   if(att->ismapped()) {
     if(att->isflipped()) {
-      Xamine_error_msg(Xamine_Getpanemgr(),
-		       "Markers on flipped mapped spectra not yet supported");
-      return;
+      pt.x = Xamine_YMappedToChan(spec, y);
+      if(att->is1d()) {
+	pt.y = (int)x;
+      } 
+      else {
+	pt.y = Xamine_XMappedToChan(spec, x);
+      }
+
     }
     else {
       pt.x = Xamine_XMappedToChan(spec, x);
@@ -919,18 +929,21 @@ void Xamine_DrawMarker(Display *d, Drawable w, GC gc, int x, int y)
 /*
 ** Callback relays:
 */
-static void Marker_ok(XMWidget *w, XtPointer ud, XtPointer cd)
+void 
+AcceptMarker::Marker_ok(XMWidget *w, XtPointer ud, XtPointer cd)
 {
   AcceptMarker *d = (AcceptMarker *)ud;
   d->OkCallback(NULL);
 }
-static void Marker_cancel(XMWidget *w, XtPointer ud, XtPointer cd)
+void 
+AcceptMarker::Marker_cancel(XMWidget *w, XtPointer ud, XtPointer cd)
 {
   AcceptMarker *d = (AcceptMarker *)ud;
 
   d->CancelCallback(NULL);
 }
-static void Marker_accept(XMWidget *w, XtPointer ud, XtPointer cd)
+void 
+AcceptMarker::Marker_accept(XMWidget *w, XtPointer ud, XtPointer cd)
 {
   AcceptMarker *d = (AcceptMarker *)ud;
  
@@ -959,9 +972,9 @@ void Xamine_AddMarker(XMWidget *wid, XtPointer ud, XtPointer cd)
   if(dialog == NULL) {
     dialog = new AcceptMarker(wid, "Define_Marker", help_text);
 
-    dialog->AddOkCallback(Marker_ok, dialog);
-    dialog->AddCancelCallback(Marker_cancel, dialog);
-    dialog->AddApplyCallback(Marker_accept, dialog);
+    dialog->AddOkCallback(&AcceptMarker::Marker_ok, (XtPointer)dialog);
+    dialog->AddCancelCallback(&AcceptMarker::Marker_cancel, (XtPointer)dialog);
+    dialog->AddApplyCallback(&AcceptMarker::Marker_accept, (XtPointer)dialog);
     dialog->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			(XtPointer)&dialog);
 

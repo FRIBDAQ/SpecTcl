@@ -350,6 +350,7 @@ public:
   CValidValue& operator=(const T& rRhs) {
     m_Value = rRhs;
     m_Valid = kfTRUE;
+    return *this;
   }
   operator T&() { return m_Value; }
 };
