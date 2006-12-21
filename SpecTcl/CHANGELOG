@@ -574,3 +574,6 @@ December 7, 2006
 December 19, 2006 
                - Fix defect per D. Caussyn FSU: CXdrInputStream.cpp was
                  doing delete m_pBuffer -> delete [] m_pBuffer.
+Decmeber 21,2006 
+               - Ensure that the scriptable makefile also links in 
+		 the fits library.
