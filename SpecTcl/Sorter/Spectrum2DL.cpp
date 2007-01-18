@@ -157,7 +157,7 @@ CSpectrum2DL::Increment(const CEvent& rE)
     Int_t ny = (Int_t)ParameterToAxis(1, yParam);
     if( (nx >= 0)   && (nx < m_nXScale)     &&
 	(ny >= 0)   && (ny < m_nYScale)) {
-      ULong_t* pSpec = (ULong_t*)getStorage();
+      UInt_t* pSpec = (UInt_t*)getStorage();
       pSpec[nx + (ny * m_nXScale)]++;
     }
   }
@@ -198,7 +198,7 @@ CSpectrum2DL::operator[](const UInt_t* pIndices) const
   // note:  This is not a 'normal' indexing operation in that
   // references are not returned.
   //
-  ULong_t* p = (ULong_t*)getStorage();
+  UInt_t* p = (UInt_t*)getStorage();
   UInt_t   nx = pIndices[0];
   UInt_t   ny = pIndices[1];
   if(nx >= Dimension(0)) {
@@ -225,7 +225,7 @@ CSpectrum2DL::set(const UInt_t* pIndices, ULong_t nValue)
 {
   // Provides write access to a channel of the spectrum.
   //
-  ULong_t* p = (ULong_t*)getStorage();
+  UInt_t* p = (UInt_t*)getStorage();
   UInt_t   nx = pIndices[0];
   UInt_t   ny = pIndices[1];
   if(nx >= Dimension(0)) {
@@ -298,7 +298,7 @@ CSpectrum2DL::CreateStorage()
   setStorageType(keLong);
 
   Size_t nBytes = StorageNeeded();
-  ULong_t*      pStorage = new ULong_t[nBytes/sizeof(ULong_t)];
+  UInt_t*      pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();

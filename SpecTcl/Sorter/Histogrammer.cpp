@@ -18,7 +18,8 @@
 #include <config.h>
 
 // Header Files:
-#include "Histogrammer.h"                               
+#include "Histogrammer.h"    
+#include <Exception.h>                           
 #include "DictionaryException.h"
 #include "EventList.h"
 
@@ -320,19 +321,36 @@ void CHistogrammer::operator()(CEventList& rEvents) {
   //  the assumption is that the first null
   //  event or the end of the vector terminates.
   //
-  CEventListIterator i;
-  CEventListIterator e = rEvents.end();
-  for(i = rEvents.begin(); i != e; i++) {
-    CEvent* pEvent = *i;
-    if(pEvent) {
-      nEvents++;
-      operator()(*pEvent,
-		 nSpectra, pSpectra,
-		 nGates, pGates);
+  try {
+    CEventListIterator i;
+    CEventListIterator e = rEvents.end();
+    for(i = rEvents.begin(); i != e; i++) {
+      CEvent* pEvent = *i;
+      if(pEvent) {
+	nEvents++;
+	operator()(*pEvent,
+		   nSpectra, pSpectra,
+		   nGates, pGates);
+      }
+      else {
+	break;
+      }
     }
-    else {
-      break;
-    }
+  }
+  catch (CException& e) {
+    cerr << "Exception caught while histogramming events: "
+	 << e.ReasonText() << " while " << e.WasDoing() <<endl;
+  }
+  catch (string msg) {
+    cerr << "String exception caught while histogramming events: "
+	 << msg << endl;
+  }
+  catch (const char* msg) {
+    cerr << "Char* exception caught while histogramming events: "
+	 << msg <<endl;
+  }
+  catch (...) {
+    cerr << "Unexpected exception type caught while histogramming events.\n";
   }
   delete []pGates;
   delete []pSpectra;
