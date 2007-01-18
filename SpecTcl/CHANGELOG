@@ -518,5 +518,9 @@ SpecTcl-3.1-002
    - Defect 229 - setup.tcl is obsolete now.
    - CXdrInputStream.cpp - as per D. Caussyn's catch: delete [] m_pBuffer not
      delete m_pBuffer.
+ Released     Jan 15, 2007
 
+3.1-004
+   - Defect 288 the eval apply $gate [list $spectra] did not work as believed.
+     iterate over the list instead.
    
