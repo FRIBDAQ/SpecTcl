@@ -577,3 +577,9 @@ December 19, 2006
 Decmeber 21,2006 
                - Ensure that the scriptable makefile also links in 
 		 the fits library.
+Release Jan 15, 2007
+
+Pre 2 starts.
+
+January 18, 2007 - Defect 288 : applygate.tcl did not handle case of
+			multiple target spectra correctly.
