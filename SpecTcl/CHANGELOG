@@ -523,4 +523,6 @@ SpecTcl-3.1-002
 3.1-004
    - Defect 288 the eval apply $gate [list $spectra] did not work as believed.
      iterate over the list instead.
-   
+3.1-004
+   - Enh 232 : If treeparameter -set is invoked fire traces on that parameter so
+	any GUI elements associated with it are updated.
