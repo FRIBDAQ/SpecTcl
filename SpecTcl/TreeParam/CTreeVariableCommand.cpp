@@ -25,6 +25,7 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 //
+
 #include <config.h>
 #include "CTreeVariableCommand.h"
 #include "CTreeVariable.h"
@@ -302,6 +303,7 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
   CTreeVariableProperties* pProps = i->second;
   (*pProps)  = value;
   pProps->setUnits(units);
+  pProps->fireTraces();
   
   return TCL_OK;
   
