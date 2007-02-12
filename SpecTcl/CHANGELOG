@@ -583,3 +583,6 @@ Pre 2 starts.
 
 January 18, 2007 - Defect 288 : applygate.tcl did not handle case of
 			multiple target spectra correctly.
+February 12, 2007 - Enh Request 232 : when treevariable -set is invoked,
+		 fire the traces on that variable so that any GUI elements
+		bound to that treevariable are updated.
