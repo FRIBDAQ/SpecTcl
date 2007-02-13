@@ -672,7 +672,7 @@ proc failsafeWrite {} {
 #    Restore the state file.. this is the same as sourcing it
 #
 proc restoreState {} {
-    sourceScript
+    sourceScriptReportingErrors
     sbind -all;				# Ensure spectra are visible.
 }
 # writeVariables

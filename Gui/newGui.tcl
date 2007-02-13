@@ -65,6 +65,129 @@ set GuiPrefs::preferences(defaultBuffersize)  8192
 
 #--------------- Utility functions -------------------------
 
+# displayScriptErrors filename errors
+#   Displays the errors associated with sourcing a file.
+#   The errors are displayed in a non-modal dialog named
+#   .scriptErrors
+#   Any existing dialog named .scriptErrors is destroyed first.
+#
+# Parameters:
+#    filename   - Name of the file.
+#    errors     - list of errors.  See incrementalSource
+#                 for a description of this parameter..which is just
+#                 the value returned from that function.
+#
+
+proc displayScriptErrors {filename errors} {
+    destroy .scriptErrors
+
+    set top [toplevel .scriptErrors]
+    label  $top.filename -text "$filename had errors: "
+    grid   $top.filename   -     -
+    label  $top.lineHead -text "Line #"
+    label  $top.commandHead  -text "Command"
+    label  $top.errorHead    -text "Error"
+
+    grid $top.lineHead $top.commandHead $top.errorHead
+
+    set errNumber 0
+    foreach error $errors {
+
+
+	set line    [lindex $error 0]
+	set cmd     [lindex $error 1]
+	set message [lindex $error 2]
+
+	label $top.line$errNumber  -text $line  \
+	    -borderwidth 2 -relief groove -justify left
+	label $top.cmd$errNumber   -text $cmd \
+	    -borderwidth 2 -relief groove -justify left
+	label $top.msg$errNumber   -text $message   \
+	    -borderwidth 2 -relief groove -justify left
+
+	grid $top.line$errNumber $top.cmd$errNumber $top.msg$errNumber \
+	    -sticky nsew
+
+	incr errNumber
+    }
+
+    button $top.dismiss -text Dismiss -command [list destroy .scriptErrors]
+   grid   x   $top.dismiss     x
+
+
+}
+# getLine fd
+#     Returns a full line from a file.  This proc deals with lines ending in 
+#     \ as indicating a continuation line.
+#
+#
+proc getLine fd {
+    set line ""
+    set lines 0
+
+    while {![eof $fd]} {
+	gets $fd fragment
+	incr lines
+	if {[regexp {\\$} $fragment]} {
+	    append line [regsub {\\$} $fragment " "]
+	} else {
+	    append line $fragment
+	    return [list $line $lines]
+	}
+    }
+    return [list $line $lines]
+}
+
+
+# incrementalSource file
+#    Executes a Tcl script a command at a time.
+#    If an error occurs, it is caught and appended to a list
+#    of error messages that is returned to the caller.
+#    Each error message list entry is a 3 element list consisting
+#    of:
+#      Line number of start of error.
+#      offending command
+#      error message.
+#
+# Parameters:
+#   filename   - The name of the file to source.
+#                it is the caller's responsibility to ensure this is
+#                a readable file.
+#
+proc incrementalSource filename {
+    set fd [open $filename r]
+    set lineNumber 1
+    set errors [list]
+
+    while {![eof $fd]} {
+
+	# Asssemble a command from fragments:
+
+	set firstLine $lineNumber
+	set info        [getLine $fd]
+	incr lineNumber [lindex $info 1]
+	set  command    [lindex $info 0]
+
+	while {![eof $fd] && ![info complete $command]} {
+	    set info [getLine $fd]
+	    set fragment [lindex $info 0]
+
+	    append command $fragment
+	    incr lineNumber [lindex $info 1]
+	}
+	# If we got here, the command is complete or we've
+	# run out of file.
+
+
+	if {[catch {eval $command} msg]} {
+	    lappend errors [list $firstLine $command $msg]
+	}
+    }
+
+
+    close $fd
+    return $errors
+}
 
 #------------------- menu action procs -------------------------
 
@@ -75,6 +198,34 @@ set GuiPrefs::preferences(defaultBuffersize)  8192
 proc editPrefs {} {
     preferences::editPrefs
     preferences::savePrefs
+}
+
+
+# sourceScriptReportingErrors
+#   Prompt for and source tcl/tk script but report
+#   all the errors by incrementally executing it...
+#   The entire script is run, ignoring errors.
+#   At the end, if errors have occured a dialog box
+#   that shows for each error:
+#     The line number at which the command started,
+#     The offending command.
+#     The error message
+#  
+proc sourceScriptReportingErrors {} {
+    set file [tk_getOpenFile -defaultextension .tcl             \
+                             -filetypes [list                   \
+                                    [list "Tcl Scripts"  .tcl]  \
+                                    [list "Tk Scripts"   .tk]   \
+                                    [list "All files"    *]]    \
+                             -title {Select File to Source}]
+    if {[file readable $file]} {
+	set errors [incrementalSource $file]
+	if {$errors ne ""} {
+	    displayScriptErrors $file $errors
+	}
+        .gui.b update;       # In case the script execution changes something.
+        failsafeWrite
+    }
 }
 
 #sourceScript
