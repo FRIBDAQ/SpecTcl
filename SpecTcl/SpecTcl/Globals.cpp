@@ -292,6 +292,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //     July 12, 1999 Ron FOx
 //        Added gpVersion and set it to be 0.2
 //   $Log$
+//   Revision 5.1.2.3  2007/02/17 02:39:10  ron-fox
+//   BZ292 - Synch gpVersion with VERSION in config.h
+//
 //   Revision 5.1.2.2  2005/03/04 19:05:41  ron-fox
 //   Set the version string to 3.0pre1
 //
@@ -383,4 +386,4 @@ CRunControl* gpRunControl = (CRunControl*)kpNULL;
 CAnalyzer* gpAnalyzer   = (CAnalyzer*)kpNULL;
 
 // SpecTcl also retains a version text string.
-const char* gpVersion = "3.0pre1"; 
+const char* gpVersion = VERSION; 

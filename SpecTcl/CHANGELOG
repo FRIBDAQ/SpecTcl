@@ -398,3 +398,4 @@ Released January 15, 2007
 3.0-011
 	Feb 12, 2007 - BZ 232 - fire traces on treevariable -set
         so that any associated GUI elements are updated.
+	Feb 16, 2007 - BZ 292 - Synch gpVersion with VERSION in config.h
