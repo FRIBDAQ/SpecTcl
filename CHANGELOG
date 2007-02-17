@@ -585,4 +585,10 @@ January 18, 2007 - Defect 288 : applygate.tcl did not handle case of
 			multiple target spectra correctly.
 February 12, 2007 - Enh Request 232 : when treevariable -set is invoked,
 		 fire the traces on that variable so that any GUI elements
-		bound to that treevariable are updated.
+		bound to that treevariable are updated
+February 13, 2007 - Defect/enh. 234 : When a configuration is restored,
+                and the config script has an error, keep on trying to
+		execute the script but report all the errors in a dialog...
+		at present, hopefully there are not very many errors as
+		the dialog is not a scrolling dialog.
+February 15,2007 - Synch gpVersion with VERSION symbol in config.h
