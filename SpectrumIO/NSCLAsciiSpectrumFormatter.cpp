@@ -47,6 +47,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 /*
   Change Log:
   $Log$
+  Revision 5.3  2007/02/23 20:38:18  ron-fox
+  BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
+  parameter lists).
+
   Revision 5.2  2005/06/03 15:19:29  ron-fox
   Part of breaking off /merging branch to start 3.1 development
 
@@ -235,11 +239,12 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
   vector<UInt_t> vDimensions;	// # channels in each dimension.
   //  vector<UInt_t> vResolutions;	// Spectrum channel resolutions.
   vector<string> vParameters;	// Vector of parameter names.
+  vector<string> vyParameters;  // Parameters on y axis for g2d delux.
   vector<Float_t> vLows;
   vector<Float_t> vHighs;
 
   ReadHeader(rStream, Name, Date, nRevision, eSpecType, eDataType, 
-	     vDimensions, vParameters, vLows, vHighs);
+	     vDimensions, vParameters, vyParameters, vLows, vHighs);
   if(!CompatibleFormat(nRevision)) {
     throw CSpectrumFormatError(CSpectrumFormatError::IncompatibleFormat,
 			       "Reading NSCLAscii spectrum header");
@@ -247,6 +252,8 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
   // Summary spectra are weird... Although 2-d, they only have a single
   // low/high specification, and that's determined by their
   // second dimension.  Here we do that special case translation:
+
+
 
   vector<Float_t> createLows;
   vector<Float_t> createHighs;
@@ -261,7 +268,8 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
     createLows.push_back(fLow);
     createHighs.push_back(fHigh);
 
-  } else {
+  }
+  else {
     createDims = vDimensions;
     createLows = vLows;
     createHighs= vHighs;
@@ -269,13 +277,22 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
   //
   // Create an appropriate spectrum:
   //
+  CSpectrum* pSpectrum(0);
   CSpectrumFactory Factory;
   Factory.ExceptionMode(kfFALSE);
-  CSpectrum* pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType,
-						vParameters, 
-						createDims,
- 						&createLows, 
-						&createHighs);
+  if (vyParameters.size() == 0) {
+    pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType,
+				       vParameters, 
+				       createDims,
+				       &createLows, 
+				       &createHighs);
+  } 
+  else {
+    pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType,
+				       vParameters, vyParameters,
+				       createDims[0],  createDims[1],
+				       &createLows, &createHighs);
+  }
   // Fill in the spectrum:
   //
   pSpectrum->Clear();
@@ -314,16 +331,17 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
   //         name correspondences.
   // 
   //
+  CSpectrum::SpectrumDefinition spectrumDef = rSpectrum.GetDefinition();
   string Quote("\"");
-  string Spname = Quote + rSpectrum.getName() + Quote;
+  string Spname = Quote + spectrumDef.sName + Quote;
   
   rStream << Spname.c_str() << " ";  // Write out quoted spectrum name
   
   // Write out the dimensions parethesized, spaces between dimensions
 
   char Delimeter = '(';
-  for(UInt_t i = 0; i < rSpectrum.Dimensionality(); i++) {
-    rStream << Delimeter << rSpectrum.Dimension(i);
+  for(UInt_t i = 0; i < spectrumDef.nChannels.size(); i++) {
+    rStream << Delimeter << spectrumDef.nChannels[i];
     Delimeter = ' ';
   }
   rStream << ")\n";
@@ -338,29 +356,67 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
 
   // List the spectrum type:
   //
-  SpectrumType_t sType = rSpectrum.getSpectrumType();
-  DataType_t     dType = rSpectrum.StorageType();
+  SpectrumType_t sType = spectrumDef.eType;
+  DataType_t     dType = spectrumDef.eDataType;
 
   rStream << sType  << ' ' << dType << 
     endl;
 
   // List the parameters of the spectrum.
   // 
-  vector<UInt_t> Parameters;
-  rSpectrum.GetParameterIds(Parameters);
-  Delimeter = '(';
-  for(UInt_t i = 0; i < Parameters.size(); i++) {
-    FindById p(Parameters[i]);
-    ParameterDictionaryIterator i = rDict.FindMatch(p);
-    if(i != rDict.end()) {
-      rStream << Delimeter << Quote << (*i).second.getName() << Quote;
+
+  // Gamma 2d deluxe parameters are written as two lists (x then y) parameters
+  // All others are written as a single list:
+
+  vector<UInt_t> Parameters = spectrumDef.vParameters;
+  if (sType == keG2DD) {
+    Delimeter = '(';
+    for (UInt_t i = 0; i < Parameters.size(); i++) {
+      FindById p(Parameters[i]);
+      ParameterDictionaryIterator i = rDict.FindMatch(p);
+      string name;
+      if (i != rDict.end()) {
+	name =  i->second.getName();
+      }
+      else {
+	name = "*UNKNOWN*";
+      }
+      rStream << Delimeter << Quote << name << Quote;
+      Delimeter = ' ';		// Internal delimeter.
     }
-    else {
-      rStream << Delimeter << "*UNKNOWN*";
+    rStream << ") ";		// Close off the first one:
+    Delimeter = '(';
+    for (UInt_t i = 0; i < spectrumDef.vyParameters.size(); i++) {
+      FindById p(spectrumDef.vyParameters[i]);
+      ParameterDictionaryIterator i = rDict.FindMatch(p);
+      string name;
+      if (i != rDict.end()) {
+	name =  i->second.getName();
+      }
+      else {
+	name = "*UNKNOWN*";
+      }
+      rStream << Delimeter << Quote << name << Quote;
+      Delimeter   = ' ';
     }
-    Delimeter = ' ';
+    rStream << ")\n";
   }
-  rStream << ")\n";
+  else {
+    Delimeter = '(';
+    for(UInt_t i = 0; i < Parameters.size(); i++) {
+      FindById p(Parameters[i]);
+      ParameterDictionaryIterator i = rDict.FindMatch(p);
+      if(i != rDict.end()) {
+	rStream << Delimeter << Quote << (*i).second.getName() << Quote;
+      }
+      else {
+	rStream << Delimeter << "*UNKNOWN*";
+      }
+      Delimeter = ' ';
+    }
+    rStream << ")\n";
+
+  }
   // 
   // List of axis ranges.  This is gotten from 
   // calling AxisToMappedParameter for each axis for channel 0 and size-1.
@@ -375,8 +431,11 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
   rStream << '(' << xlow << " " << xhigh << ") ";
   if(rSpectrum.Dimensionality() == 2) {
     UInt_t nymap = 1;		// By default second axis is second map..
-    if(rSpectrum.getSpectrumType() == keG2D) {
+    if(sType == keG2D) {
       nymap = Parameters.size(); // All x maps are first in gamma 2ds.
+    } 
+    if(sType == keG2DD) {
+      nymap = spectrumDef.vyParameters[0];
     }
     xlow = rSpectrum.AxisToMapped(nymap, 0);
     xhigh= rSpectrum.AxisToMapped(nymap, rSpectrum.Dimension(1));
@@ -579,6 +638,8 @@ CNSCLAsciiSpectrumFormatter::ReadLine(istream& rStream)
           for each axis of the histogram.
     \param <TT>rParameters (vector<string>& [out])</TT>
           The set of parameter names read from the file header.
+    \param <tt>ryParameters (vector<string>& [out] </tt>
+          Set of y axis parameter names for gamma 2d delux spectra.
     \param <TT>rLows (vector<Float_t>& [out])</TT>
           vector of spectrum low limits.  This will be filled with
 	  0.0 for level 1 formatted files, otherwise read from the 
@@ -600,6 +661,7 @@ CNSCLAsciiSpectrumFormatter::ReadHeader(istream&  rStream,
 					DataType_t&     rDataType,
 					vector<UInt_t>& rDimensions,
 					vector<string>& rParameters,
+					vector<string>& ryParameters,
 					vector<Float_t>& rLows,
 					vector<Float_t>& rHighs)
 {
@@ -690,15 +752,26 @@ CNSCLAsciiSpectrumFormatter::ReadHeader(istream&  rStream,
   // Decode the parameter names:
 
   istringstream ParameterStream(parameters.c_str());
-  DecodeParenList(ParameterStream, rParameters);
 
+  DecodeParenList(ParameterStream, rParameters); //  This is all or x only params:
   // Each parameter name is surrounded by quotes to allow for spaces.  These
   // must be removed.
 
   for(UInt_t  i = 0; i < rParameters.size(); i++) {
     rParameters[i] = rParameters[i].substr(1, 
 					   rParameters[i].size()-2);
-  } 						   
+  } 						
+  // If a gamma 2d deluxe spectrum there are two parameter lists:
+
+  if (rSpecType == keG2DD) {
+    DecodeParenList(ParameterStream, ryParameters);
+    for (UInt_t i =0; i < ryParameters.size(); i++) {
+      ryParameters[i] = ryParameters[i].substr(1, 
+					       ryParameters[i].size()-2);
+    }
+  }
+
+
 
   // if this is format 2.0 or greater, we have a new line to decode
   // that has limit information for each axis:

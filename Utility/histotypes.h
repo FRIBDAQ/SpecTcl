@@ -18,6 +18,10 @@
 /*
    Change log:
    $Log$
+   Revision 5.7  2007/02/23 20:38:18  ron-fox
+   BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
+   parameter lists).
+
    Revision 5.6  2006/10/05 11:51:17  ron-fox
    - Support for computed fitlines in Xamine displays.
    - Changed a few more files to use short license comment headers
@@ -225,7 +229,8 @@ typedef enum _SpectrumType_t {
   keG2D,
   keUnknown,
   keStrip,
-  ke2Dm
+  ke2Dm,
+  keG2DD
 } SpectrumType_t;
 
 
@@ -255,6 +260,9 @@ operator<<(STD(ostream)& out, SpectrumType_t t)
     break;
   case keG2D:
     out << "g2";
+    break;
+  case keG2DD:
+    out << "gd";
     break;
   case ke2Dm:
     out << "m2";
@@ -297,6 +305,9 @@ operator>>(STD(istream)& in, SpectrumType_t& t)
       break;
     case '2':
       t = keG2D;
+      break;
+    case 'd':
+      t = keG2DD;
       break;
     default:
       t = keUnknown;

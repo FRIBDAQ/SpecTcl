@@ -250,6 +250,7 @@ class CHistogrammer : public CEventSink {
   STD(string) createTrialTitle(STD(string) type, 
 			       STD(vector)<STD(string)>      axes,
 			       STD(vector)<STD(string)>      parameters,
+			       STD(vector)<STD(string)>      yparameters,
 			       STD(string)                   gate);
   STD(string) createTitle(CSpectrum* pSpectrum, UInt_t     maxLength);
 		

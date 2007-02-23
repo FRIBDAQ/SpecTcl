@@ -97,6 +97,7 @@ public:
     SpectrumType_t     eType;       //!< Type of spectrum.
     DataType_t         eDataType;   //!< Data type of channels.
     STD(vector)<UInt_t>     vParameters; //!< Set of parameters.
+    STD(vector)<UInt_t>     vyParameters; //!< Set of y parameters (G2DDD).
     STD(vector)<UInt_t>     nChannels;   //!< Explicit channel sizes.
     STD(vector)<Float_t>    fLows;       //!< Explicit lows.
     STD(vector)<Float_t>    fHighs;      //!< Explicit highs.

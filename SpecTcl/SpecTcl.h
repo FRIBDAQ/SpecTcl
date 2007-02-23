@@ -161,6 +161,23 @@ public:
 			    STD(vector)<UInt_t> channels, 
 			    STD(vector)<Float_t>* pLows, 
 			    STD(vector)<Float_t>* pHighs);
+  CSpectrum* CreateSpectrum(STD(string) Name,
+			    SpectrumType_t type,
+			    DataType_t     dataType,
+			    STD(vector)<STD(string)> xParameters,
+			    STD(vector)<STD(string)> yParameters,
+			    STD(vector)<UInt_t>      channels,
+			    STD(vector)<Float_t>*    pLows,
+			    STD(vector)<Float_t>*    pHighs);
+
+  CSpectrum* CreateG2DDeluxe(STD(string) Name,
+			DataType_t     dataType,
+			STD(vector)<STD(string)> xParameters,
+			STD(vector)<STD(string)> yParameters,
+			STD(vector)<UInt_t>      channels,
+			STD(vector)<Float_t>*    pLows,
+			STD(vector)<Float_t>*    pHighs);
+
   CSpectrum* Create1D(STD(string) name, 
 		      DataType_t dataType, 
 		      CParameter& parameter, 

@@ -220,7 +220,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   case kgContour2d:
     if((spType == ke2D)) 
       gType = CGateFactory::contour;
-    else if((spType == keG2D))
+    else if((spType == keG2D) || (spType == keG2DD))
       gType = CGateFactory::gammacontour;
     else if (spType == ke2Dm) {
       gType = CGateFactory::contour; // will become an or of contours.
@@ -235,7 +235,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   case kgBand2d:
     if((spType == ke2D))	// Ordinary 2d -> Band.
       gType = CGateFactory::band;
-    else if((spType == keG2D))	// Gamma spectrum -> Gamma aband.
+    else if((spType == keG2D) || (spType == keG2DD))	// Gamma spectrum -> Gamma aband.
       gType = CGateFactory::gammaband;
     else if (spType == ke2Dm) {
       gType = CGateFactory::band; // will become an or of bands.
@@ -282,6 +282,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
       return;
     }
     break;
+  case keG2DD:
   case keG2D:       // 2-d gamma spectrum must be a gammaband or gammacontour..
     if((gType != CGateFactory::band) && 
        (gType != CGateFactory::contour) &&
@@ -310,6 +311,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   case ke1D:
   case ke2D:
   case keG1D:
+  case keG2DD:
     {
 
       Float_t x,y(0.0);
@@ -361,6 +363,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     break;
   case keG1D:
   case keG2D:
+  case keG2DD:
     for(pid = pIds.begin(); pid != pIds.end(); pid++) {
       CParameter* pParam = m_pHistogrammer->FindParameter(*pid);
       if(!pParam) {

@@ -32,6 +32,10 @@
 
 /* Change log:
    $Log$
+   Revision 5.5  2007/02/23 20:38:18  ron-fox
+   BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
+   parameter lists).
+
    Revision 5.4  2006/09/26 11:06:56  ron-fox
    Added 2d multiply incremented spectra to the spectrum factory
 
@@ -165,6 +169,35 @@ public:
 			    eSpecType, eDataType, rParameters, rChannels,
 			    pLows, pHighs);
     }
+
+  // Create spectra where the axis specs must be segregated (e.g.
+  // gamma 2d deluxe (the only current type):
+  //
+
+  CSpectrum* CreateSpectrum(const STD(string)& rName,
+			    SpectrumType_t eSpecType,
+			    DataType_t     eDataType,
+			    STD(vector)<STD(string)>   xParameters,
+			    STD(vector)<STD(string)>   yParameters,
+			    UInt_t                     xChannels,
+			    UInt_t                     yChannels,
+			    STD(vector)<Float_t>*      pLows = (STD(vector)<Float_t>*)kpNULL,
+			    STD(vector)<Float_t>*      pHighs= (STD(vector)<Float_t>*)kpNULL);
+
+
+
+  // Create a gamma 2d deluxe spectrum:
+
+  CSpectrum* CreateG2dDeluxe(STD(string) name,
+			     DataType_t        eType,
+			     STD(vector)<CParameter>& rxParameters,
+			     STD(vector)<CParameter>& ryParameters,
+			     UInt_t  xChannels, 
+			     Float_t xLow, Float_t xHigh,
+			     UInt_t  yChannels,
+			     Float_t yLow, Float_t yHigh);
+			     
+
 
   // Create 1d spectrum:
 

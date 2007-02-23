@@ -103,7 +103,8 @@ static const SpecTypes aSpecTypes[] = {
   {"summary", keSummary},
   {"b",    keBitmask},
   {"bitmask", keBitmask},
-  {"m2",   ke2Dm}
+  {"m2",   ke2Dm},
+  {"gd",   keG2DD}
 
 };
 static const UInt_t nSpecTypes = sizeof(aSpecTypes)/sizeof(SpecTypes);
@@ -250,6 +251,70 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
   rResult = pSpec->getName();
   return TCL_OK;
 }
+
+/*!
+  Create a spectrum that requires separate axis specs,and enter it into the
+  histogrammer's spectrum dictionarry.
+
+  \param rResult   - The result string of the creation. This will
+                     either be the name of the spectrum created or an error
+		     message if a problem was encountered.
+  \param pName     - The name of the spectrum to create.
+  \param pSpecType - Points to the textual spectrum type. 
+  \param xParmeterNames - Names of the parameters on the x axis.
+  \param yParameterNames- Names of the parameters on the y axis.
+  \param vChannels - Vector of number of channels per axis.
+  \param fLows     - Vector of low axis limits.
+  \param fHighs    - Vector of high axis limits.
+  \param pDataType - Type of data for each channel
+ */
+int
+CSpectrumPackage::CreateSpectrum(CTCLResult& rResult, const char* pName,
+		     const char* pSpecType,
+		     STD(vector)<STD(string)> xParameterNames,
+		     STD(vector)<STD(string)> yParameterNames,
+		     vector<UInt_t>           vChannels,
+		     STD(vector)<Float_t>     fLows,
+		     STD(vector)<Float_t>     fHighs,
+		     const char*              pDataType)
+{
+
+  // Wrap the spectrum creation/histogrammer entry in a try block so that we
+  // can convert any exceptions into a failed return status:
+
+  CSpectrum* pSpec(0);
+  SpecTcl *pApi = SpecTcl::getInstance();
+  try {
+    SpectrumType_t sType = SpectrumType(pSpecType);
+    DataType_t     dType = Datatype(sType, pDataType);
+
+    pSpec = pApi->CreateSpectrum(string(pName),
+				 sType, dType,
+				 xParameterNames, yParameterNames,
+				 vChannels,
+				 &fLows, &fHighs);
+    pApi->AddSpectrum(*pSpec);
+    rResult = pSpec->getName();
+    return TCL_OK;
+  }
+  catch (CException& except) {
+    rResult = except.ReasonText();
+    return TCL_ERROR;
+  }
+  catch (string& msg) {
+    rResult = msg;
+    return TCL_ERROR;
+  }
+  catch (const char* msg) {
+    rResult = string(msg);
+    return TCL_ERROR;
+  }
+  catch (...) {
+    rResult = string("Unanticipated exception while creating spectrum");
+    return TCL_ERROR;
+  }
+}
+
 /*!
  Returns the set of spectrum definitions.  Each
  Spectrum's properties is stored in a string formatted as
@@ -1525,14 +1590,39 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
 
 
   //
-  // List the parameters in the spectrum:
+  // List the parameters in the spectrum;
+  // If the spectrum type is keG2DD then it is a 2d Gamma Deluxe and 
+  // must have two parameter lists, X and Y parameters otherwise
+  // a single parameter list.
   //
-  std::vector<UInt_t>::iterator p = Def.vParameters.begin();
-  Description.StartSublist();
-  for(; p != Def.vParameters.end(); p++) {
-    CParameter* pPar = m_pHistogrammer->FindParameter(*p);
-    Description.AppendElement(pPar ? pPar->getName() :
-			              std::string("--Deleted Parameter--"));
+
+  
+  Description.StartSublist();	// Regardless there's an outer sublist:
+
+  if(Def.eType == keG2DD) {
+    Description.StartSublist();	// X parameters:
+    std::vector<UInt_t>::iterator p;
+    for (p = Def.vParameters.begin(); p != Def.vParameters.end(); p++) {
+      CParameter* pPar = m_pHistogrammer->FindParameter(*p);
+      Description.AppendElement(pPar ? pPar->getName() : 
+				std::string("--Deleted Parameter--"));
+    }
+    Description.EndSublist();   // X parameters.
+    Description.StartSublist();	// Y parameters:
+    for (p = Def.vyParameters.begin(); p != Def.vyParameters.end(); p++) {
+      CParameter* pPar = m_pHistogrammer->FindParameter(*p);
+      Description.AppendElement(pPar ? pPar->getName() :
+				std::string("--Deleted Parameter--"));
+    }
+    Description.EndSublist();
+  }
+  else {
+    std::vector<UInt_t>::iterator p = Def.vParameters.begin();
+    for(; p != Def.vParameters.end(); p++) {
+      CParameter* pPar = m_pHistogrammer->FindParameter(*p);
+      Description.AppendElement(pPar ? pPar->getName() :
+				std::string("--Deleted Parameter--"));
+    }
   }
   Description.EndSublist();
 

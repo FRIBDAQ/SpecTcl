@@ -966,7 +966,35 @@ image create photo ::browser::pseudoicon   -format gif \
 
 	set i 0
 	foreach parameter $parameters {
-	    $self addEntryParameter $id $i $parameter"
+	    $self addEntryParameter $id $i $parameter
+	    incr i
+	}
+    }
+    #
+    #  setgdSubInfo id parameters axes
+    #    Set the sub information for a gamma 2d deluxe spectrum.
+    #    Note that the parameters parameter is a 2 element list of
+    #    the x and y parameters.
+    #
+    method setgdSubInfo {id parameters axes} {
+	set xparams [lindex $parameters 0]
+	set yparams [lindex $parameters 1]
+
+
+	set axisid [$self addAxis $id X "" [lindex $axes 0]]
+	$win.tree entry configure $axisid -label X
+
+	set axisid [$self addAxis $id Y "" [lindex $axes 1]]
+	$win.tree entry configure $axisid -label Y
+
+	set i 0
+
+	foreach x $xparams {
+	    $self addEntryParameter $id $i "X: $x"
+	    incr i
+	}
+	foreach y $yparams {
+	    $self addEntryParameter $id $i "Y $y"
 	    incr i
 	}
     }
@@ -991,31 +1019,34 @@ image create photo ::browser::pseudoicon   -format gif \
         # Branch out depending on the type of spectrum:
 
         switch -exact -- $spectrumType {
-        1 {
-            $self set1dSubInfo $id $parameters $axes
-        }
-        2 {
-            $self set2dSubInfo $id $parameters $axes
-        }
-        g1 {
-            $self setg1SubInfo $id $parameters $axes
-        }
-        g2 {
-            $self setg2SubInfo $id $parameters $axes
-        }
-        s {
-            $self setSummarySubInfo $id $parameters $axes
-        }
-        b {
-            $self setBitmaskSubInfo $id $parameters $axes
-        }
-        S {
-            $self setStripchartSubInfo $id $parameters $axes
-        }
-	m2 {
-	    $self set2dMultipleSubInfo $id $parameters $axes
+	    1 {
+		$self set1dSubInfo $id $parameters $axes
 	    }
-        default {}
+	    2 {
+		$self set2dSubInfo $id $parameters $axes
+	    }
+	    g1 {
+		$self setg1SubInfo $id $parameters $axes
+	    }
+	    g2 {
+		$self setg2SubInfo $id $parameters $axes
+	    }
+	    gd {
+		$self setgdSubInfo $id $parameters $axes
+	    }
+	    s {
+		$self setSummarySubInfo $id $parameters $axes
+	    }
+	    b {
+		$self setBitmaskSubInfo $id $parameters $axes
+	    }
+	    S {
+		$self setStripchartSubInfo $id $parameters $axes
+	    }
+	    m2 {
+		$self set2dMultipleSubInfo $id $parameters $axes
+	    }
+	    default {}
         }
     }
     # [mymethod FolderContextDispatch Option %X %Y]

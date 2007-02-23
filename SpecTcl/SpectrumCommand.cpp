@@ -253,12 +253,50 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
   int                      nListElements;
   char**                   ppListElements;
   vector<string> vParameters;
+  vector<string> vyParameters;
 
   CTCLList lParameters(&rInterpreter, pArgs[2]);
   lParameters.Split(nListElements, &ppListElements);
 
   // Get the parameter name list
-  rPack.GetNameList(vParameters, nListElements, ppListElements);
+  
+  // If the spectrum is a Gamma 2d Deluxe there must be
+  // exactly 2 elements in the list..each of them themselves
+  // a list of x/y parameters.
+  // Otherwise, there's just a single parameter list:
+
+  if (string(pType) == string("gd")) {
+    if (nListElements == 2) {
+      int nxParams;
+      int nyParams;
+      char** pxParams;
+      char** pyParams;
+      CTCLList lxParameters(&rInterpreter, ppListElements[0]);
+      CTCLList lyParameters(&rInterpreter, ppListElements[1]);
+
+      lxParameters.Split(nxParams, &pxParams);
+      lyParameters.Split(nyParams, &pyParams);
+
+      rPack.GetNameList(vParameters, nxParams, pxParams);
+      rPack.GetNameList(vyParameters, nyParams, pyParams);
+
+      Tcl_Free((char*)pxParams);
+      Tcl_Free((char*)pyParams);
+      
+
+    }
+    else {
+      rResult = string("Gamma 2d spectra must have a pair of parameter lists");
+      Usage(rResult);
+      return TCL_ERROR;
+    }
+  }
+  else {
+    rPack.GetNameList(vParameters, nListElements, ppListElements);
+  }
+
+
+  
 
   Tcl_Free((char*)ppListElements);
   
@@ -378,10 +416,21 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
   Tcl_Free((char*)ppListElements);
 
 
-  
-  return rPack.CreateSpectrum(rResult,  pName, pType, vParameters, 
-			      vChannels, vLows, vHighs,
-			      pDataType);
+  if (vyParameters.size() == 0) {
+    
+    return rPack.CreateSpectrum(rResult,  pName, pType, vParameters, 
+				vChannels, vLows, vHighs,
+				pDataType);
+  }
+  else {
+    return rPack.CreateSpectrum(rResult, pName, pType, 
+				vParameters,
+				vyParameters,
+				vChannels,
+				vLows,
+				vHighs,
+				pDataType);
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 //

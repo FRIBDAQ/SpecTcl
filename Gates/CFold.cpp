@@ -244,7 +244,100 @@ CFold::operator()(vector<pair<UInt_t, Float_t> >& rEvent, CGammaSpectrum* pSpect
   }
 }
 
-  
+/*!
+   Apply a fold to a 2-d gamma deluxe spectrum.  
+   This is the same effectively as 1-d but the cut down is for all
+   the parameters in both the x/y vectors.
+*/
+void
+CFold::operator()(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParams,
+		  STD(vector)<STD(pair)<UInt_t, Float_t> >& yParams,
+		  CGammaSpectrum* pSpectrum)
+{
+  string gateType = (*m_pGate)->Type();
+
+  // Slice gate (1-d)
+
+  if(gateType == "gs") {
+    CGammaCut* pGate = static_cast<CGammaCut*>(m_pGate->getGate());
+    for (int i = 0; i < xParams.size(); i++) {
+      if(pGate->inGate(xParams[i].second)) {
+	vector<pair<UInt_t, Float_t> > xparameterlist;
+	vector<pair<UInt_t, Float_t> > yparameterlist;
+	CutDownParameters(xparameterlist, xParams, xParams[i].first);
+	CutDownParameters(yparameterlist, yParams, xParams[i].first);
+	if (xparameterlist.size() && yparameterlist.size()) {
+	  pSpectrum->Increment(xparameterlist,yparameterlist);
+	}
+      }
+    }
+    for (int i = 0; i < yParams.size(); i++) {
+      if (pGate->inGate(yParams[i].second)) {
+	vector<pair<UInt_t, Float_t> > xparameterlist;
+	vector<pair<UInt_t, Float_t> > yparameterlist;
+	CutDownParameters(xparameterlist, xParams, xParams[i].first);
+	CutDownParameters(yparameterlist, yParams, xParams[i].first);
+	if (xparameterlist.size() && yparameterlist.size()) {
+	  pSpectrum->Increment(xparameterlist,yparameterlist);
+	}
+      }
+    }
+  }
+
+  // Band gate (2-d) - there may be some inheritance games we can play to 
+  // collapse these two code branches.
+  //
+
+  else if(gateType == "gb") {
+    CGammaBand* pBand = static_cast<CGammaBand*>(m_pGate->getGate());
+    for (int i =0; i < xParams.size(); i++) {
+      for(int j = 0; j < yParams.size(); j++) {
+	UInt_t   ipar    = xParams[i].first;
+	Float_t  iparval = xParams[i].second;
+
+	UInt_t   jpar    = yParams[j].first;
+	Float_t  jparval = yParams[j].second;
+
+	if(pBand->Inside(iparval, jparval)) {
+	  vector<pair<UInt_t, Float_t> > xparameterlist;
+	  vector<pair<UInt_t, Float_t> > yparameterlist;
+	  CutDownParameters(xparameterlist, xParams, ipar);
+	  CutDownParameters(yparameterlist, yParams, jpar);
+	  pSpectrum->Increment(xparameterlist, yparameterlist);
+	}
+      }
+    }
+
+  // Contour gate (2-d)
+
+  } 
+  else if(gateType == "gc") {
+    CGammaContour* pContour = static_cast<CGammaContour*>(m_pGate->getGate());
+    for (int i =0; i < xParams.size(); i++) {
+      for(int j = 0; j < yParams.size(); j++) {
+	UInt_t   ipar    = xParams[i].first;
+	Float_t  iparval = xParams[i].second;
+	
+	UInt_t   jpar    = yParams[j].first;
+	Float_t  jparval = yParams[j].second;
+	
+	if(pContour->Inside(iparval, jparval)) {
+	  vector<pair<UInt_t, Float_t> > xparameterlist;
+	  vector<pair<UInt_t, Float_t> > yparameterlist;
+	  CutDownParameters(xparameterlist, xParams, ipar);
+	  CutDownParameters(yparameterlist, yParams, jpar);
+	  pSpectrum->Increment(xparameterlist, yparameterlist);
+	}
+      }
+    }
+    // No gate or not a fold-worthy gate.
+  }
+  else {
+    pSpectrum->Increment(xParams, yParams);
+  }
+    
+}
+
 /**
  * Cut down a parameter list by removing a single parmater by id.
  * @param rNew    The new parameter list we are creating.
