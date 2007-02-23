@@ -89,4 +89,6 @@ treevaricon.gif \
 variableInfo.html \
 edit2dmulti.html  \
 savestatedialog.html \
-prefs.tcl
+prefs.tcl \
+editGammaDeluxe.tcl \
+editGammaDeluxehelp.html
