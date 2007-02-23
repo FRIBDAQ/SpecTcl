@@ -67,6 +67,8 @@ class CGammaSpectrum : public CSpectrum
 {
 protected:
   STD(vector)<UInt_t> m_Parameters;	//!< The parameter list we care about.
+  STD(vector)<UInt_t> m_yParameters;    //!< for the y acis for the 2d deluxe.
+
   CFold          *m_pFold;      //!< Pointer to a CFold object that is the fold for this spectrum.
 
 public:
@@ -76,8 +78,16 @@ public:
   CGammaSpectrum(const STD(string)& rName, UInt_t nId,  CSpectrum::Axes Maps,
 		 STD(vector)<CParameter>& Parameters,
 		 CGateContainer* pGate = pDefaultGate);
+  CGammaSpectrum(const STD(string)& rName, UInt_t nId,  CSpectrum::Axes Maps,
+		 STD(vector)<CParameter>& xParameters,
+		 STD(vector)<CParameter>& yParameters,
+		 CGateContainer* pGate = pDefaultGate);
   CGammaSpectrum(const STD(string)& rName, UInt_t nId, 
 		 STD(vector)<CParameter>& Parameters,
+		 CGateContainer* pGate = pDefaultGate);
+  CGammaSpectrum(const STD(string)& rName, UInt_t nId,
+		 STD(vector)<CParameter>& xParameters,
+		 STD(vector)<CParameter>& yParameters,
 		 CGateContainer* pGate = pDefaultGate);
   virtual ~CGammaSpectrum();
 
@@ -92,6 +102,8 @@ public:
 
   virtual void Increment(const CEvent& rEvent);
   virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rParameters) =0;
+  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
+			 STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters) = 0;
   Bool_t       haveFold();
   void         Fold(CGateContainer* pGate);
   CFold*       getFold();
@@ -109,7 +121,11 @@ public:
 protected:
   void CreateParameterList(STD(vector)<STD(pair)<UInt_t, Float_t> >& outList, 
 			   const CEvent& rEvent);
+  void CreateYParameterList(STD(vector)<STD(pair)<UInt_t, Float_t> >& outList,
+			    const CEvent& rEvent);
   void CreateParameterVector(STD(vector)<CParameter>& Parameters);
+  void CreateYParameterVector(STD(vector)<CParameter>& Parameters);
+
   
 };
 

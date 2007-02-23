@@ -21,6 +21,7 @@ package require edit2d
 package require edit2dmulti
 package require editmulti
 package require editstrip
+package require editGammaDeluxe
 package require guiutilities
 package require Iwidgets
 package require guihelp
@@ -73,7 +74,7 @@ snit::widget spectrumGui {
         $self configurelist $args
 
         set spectrumType $emptyString
-        array set spectrumTypeNames [list 1 1-d 2 2-d g1 {gamma 1-d} g2 {gamma 2-d} s Summary b bitmask S {Strip Chart} m2 {2d Sum Spectrum}]
+        array set spectrumTypeNames [list 1 1-d 2 2-d g1 {gamma 1-d} g2 {gamma 2-d} gd {Gamma 2-d x/y} s Summary b bitmask S {Strip Chart} m2 {2d Sum Spectrum}]
 
 
         # Top common contents frame:
@@ -87,6 +88,7 @@ snit::widget spectrumGui {
         $typemenu add separator
         $typemenu add command -label {gamma 1-d}   -command [mymethod startMultiparameterSpectrumEditor g1]
         $typemenu add command -label {gamma 2-d}   -command [mymethod startMultiparameterSpectrumEditor g2]
+	$typemenu add command -label {gamma 2-d x/y} -command [mymethod startGamma2dDeluxeEditor]
 	$typemenu add command -label {2-d Sum}     -command [mymethod start2dSumEditor]
         $typemenu add separator
         $typemenu add command -label {Summary}     -command [mymethod startMultiparameterSpectrumEditor s]
@@ -174,6 +176,10 @@ snit::widget spectrumGui {
                 $self start2dEditor
                 $win.editor.contents load $name
             }
+	    gd {
+		$self startGamma2dDeluxeEditor
+	        $win.editor.contents load $name
+	    }
             g1 -
             g2 -
             s {
@@ -242,6 +248,23 @@ snit::widget spectrumGui {
         $browser update
         set helpTopic [$win.editor.contents getHelpTopic]
 
+    }
+    # startGamma2dDeluxeEditor
+    #     Starts the editor for 2d gamma deluxe spectra.  These are gamma
+    #     spectra that have parameters bound to specific axes.
+    #
+    method startGamma2dDeluxeEditor {} {
+	$self setSpectrumType gd
+
+	set browser [$self createBrowser]
+	destroy $win.editor.contents
+
+	editGammaDeluxe $win.editor.contents -browser $browser
+
+	pack $win.editor.contents -fill x -expand 1
+
+	$browser update
+	set helpTopic [$win.editor.contents getHelpTopic]
     }
     # startMultiparameterSpectrumEditor stype
     #     Starts a spectrum creating editor for
@@ -378,6 +401,7 @@ snit::widget spectrumGui {
     method dispatchOption {reason} {
         if {$options($reason) != ""} {
             if {[catch {eval $options($reason)} errorMessage]} {
+		# do nothing as the the thrower is supposed to provide an error dialog.
             }
         }
     }
@@ -737,7 +761,6 @@ proc addSpectrum widget {
     set axes  [$widget getAxes]
     set gate [$widget getGate]
     set array [$widget isArray]
-
 
 
     #  Ensure the definition is complete:

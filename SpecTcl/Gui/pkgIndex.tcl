@@ -20,6 +20,7 @@ package ifneeded multipointeditor 1.0 [list source [file join $dir multipoint.tc
 package ifneeded spectrum     1.0 [list source [file join $dir spectrum.tcl]]
 package ifneeded edit1d       1.0 [list source [file join $dir edit1d.tcl]]
 package ifneeded edit2d       1.0 [list source [file join $dir edit2d.tcl]]
+package ifneeded editGammaDeluxe 1.0 [list source [file join $dir editGammaDeluxe.tcl]]
 package ifneeded editmulti    1.0 [list source [file join $dir editmulti.tcl]]
 package ifneeded editstrip    1.0 [list source [file join $dir editstrip.tcl]]
 package ifneeded editvariable 1.0 [list source [file join $dir editvariable.tcl]]

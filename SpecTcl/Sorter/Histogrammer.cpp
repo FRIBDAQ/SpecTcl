@@ -1636,7 +1636,8 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
   //
 
   if((pSpectrum->getSpectrumType() == ke2D)   ||
-     (pSpectrum->getSpectrumType() == keG2D)) {
+     (pSpectrum->getSpectrumType() == keG2D)  ||
+     (pSpectrum->getSpectrumType() == keG2DD)) {
     
 
     CPointListGate& rSpecTclGate = (CPointListGate&)rGate.operator*();
@@ -1657,7 +1658,8 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     // y axis transform index depends on spectrum type sincd gammas
     // have all x transforms first then y and so on:
     int nYIndex;
-    if(pSpectrum->getSpectrumType() == ke2D) {
+    if((pSpectrum->getSpectrumType() == ke2D)  ||
+       (pSpectrum->getSpectrumType() == keG2DD)) {
       nYIndex = 1;
     }
     else {
@@ -1782,6 +1784,8 @@ void CHistogrammer::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
 //          Axis names.
 //     parameters : vector <string>
 //          Names of parameters.
+//     yparameter : vector<string>
+//         vector of y axis parameters (gamma 2d deluxe).
 //     gate : string
 //          Name of gate on spectrum.
 //
@@ -1792,6 +1796,7 @@ void CHistogrammer::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
 string
 CHistogrammer::createTrialTitle(string type, vector<string>      axes,
 				vector<string>      parameters,
+				vector<string>      yparameters,
 				string gate)
 {
   string result;
@@ -1828,6 +1833,16 @@ CHistogrammer::createTrialTitle(string type, vector<string>      axes,
     }
     result += "}";
   }
+  if (yparameters.size() > 0) {
+    string separator = "";
+    result += " {";
+    for (int i = 0; i < yparameters.size(); i++) {
+      result += separator;
+      result += yparameters[i];
+      separator = ", ";
+    }
+    result += "}";
+  }
   
   
   
@@ -1845,9 +1860,10 @@ CHistogrammer::createTrialTitle(string type, vector<string>      axes,
 string
 CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
 {
-  string name = pSpectrum->getName();
+  CSpectrum::SpectrumDefinition def = pSpectrum->GetDefinition();
+  string name = def .sName;
   ostringstream typestream;
-  typestream << pSpectrum->getSpectrumType();
+  typestream << def.eType;
   string type = typestream.str();
 
   // Create the axis vector:
@@ -1870,9 +1886,13 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
   }
   //  Get the parameter names
 
-  vector<UInt_t> ids;
-  vector<string> parameters;
-  pSpectrum->GetParameterIds(ids);
+  vector<UInt_t> ids = def.vParameters;
+  vector<UInt_t> yids= def.vyParameters;
+  vector<string> parameters;;
+  vector<string> yparameters;
+
+  
+
   for (int i =0; i < ids.size(); i++) {
     CParameter* pParam = FindParameter(ids[i]);
     if (pParam) {
@@ -1881,6 +1901,16 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
       parameters.push_back(string("--deleted--"));
     }
   }
+  for (int i = 0; i < yids.size(); i++) {
+    CParameter* pParam = FindParameter(yids[i]);
+    if (pParam) {
+      yparameters.push_back(pParam->getName());
+    }
+    else {
+      yparameters.push_back(string("--deleted--"));
+    }
+  }
+
  
   // Ok now the following variables are set up for the first try:
   //  name       - Name of the spectrum
@@ -1889,25 +1919,34 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
   //  gateName       - name of gateName on spectrum.
   //  parameters - vector of parameter names.
 
-  string trialTitle = createTrialTitle(type, axes, parameters, gateName);
+  string trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
   if (trialTitle.size() < maxLength) return trialTitle;
 
   // Didn't fit.one by one drop the parameters..replacing the most recently
   // dropped parameter by "..."
 
+  while (yparameters.size()) {
+    yparameters[yparameters.size()-1] = "...";
+    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+    if (trialTitle.size() < maxLength) return trialTitle;
+    vector<string>::iterator i = parameters.end();
+    i--;
+    parameters.erase(i);
+  }
   while (parameters.size()) {
     parameters[parameters.size()-1] = "..."; // Probably smaller than it was.
-    trialTitle = createTrialTitle(type, axes, parameters, gateName);
+    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
     if (trialTitle.size() < maxLength) return trialTitle;
     vector<string>::iterator i = parameters.end();
     i--;
     parameters.erase(i);	// Kill off last parameter.
   }
+
   // Still didn't fit... and there are no more parameters left to drop.
   // now we drop the axis definition...
   
   axes.clear();
-  trialTitle = createTrialTitle(type , axes, parameters, gateName);
+  trialTitle = createTrialTitle(type , axes, parameters, yparameters, gateName);
   if (trialTitle.size() < maxLength) return trialTitle;
 
   // Now compute if we can delete the tail of the spectrum name
@@ -1916,7 +1955,7 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
   if ((trialTitle.size() - (name.size()/2 + 3)) < maxLength) {
     while(trialTitle.size() > maxLength) {
       name = name.assign(name.c_str(), name.size()-4) + string("...");
-      trialTitle = createTrialTitle(type, axes, parameters, gateName);
+      trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
     }
     return trialTitle;
   }

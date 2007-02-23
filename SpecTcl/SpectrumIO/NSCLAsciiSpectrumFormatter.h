@@ -16,6 +16,10 @@
 /*
   Change log:
   $Log$
+  Revision 5.3  2007/02/23 20:38:18  ron-fox
+  BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
+  parameter lists).
+
   Revision 5.2  2005/06/03 15:19:29  ron-fox
   Part of breaking off /merging branch to start 3.1 development
 
@@ -149,6 +153,7 @@ protected:
 			     DataType_t&     rDataType,
 			     STD(vector)<UInt_t>& rDimensions,
 			     STD(vector)<STD(string)>& rParameters,
+			     STD(vector)<STD(string)>& ryParameters,
 			     STD(vector)<Float_t>& rLows,
 			     STD(vector)<Float_t>& rHighs);
   static STD(string)   ReadLine(STD(istream)&    rStream);

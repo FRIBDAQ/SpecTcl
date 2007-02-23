@@ -49,6 +49,7 @@
 #include <GateFactory.h>
 #include <GateFactoryException.h>
 #include <SpectrumFactory.h>
+#include <SpectrumFactoryException.h>
 #include <SpectrumFormatterFactory.h>
 
 #include <TCLInterpreter.h>
@@ -344,7 +345,7 @@ SpecTcl::ParameterCount()
 
 
 /*!
-  Creates a new spectrum and enters it into the parameter dictionary.  This is a
+  Creates a new spectrum.  This is a
   front   end to the spectrum factory.  A  pointer to the new spectrum is returned.
   @param Name
     Name of the spectrum to create.
@@ -386,6 +387,91 @@ SpecTcl::CreateSpectrum(string Name,
 }
 
 
+/*!
+   Creates a new spectrum that requires separate x/y axis information.
+   we are a bit more flexible than the spectrum factory method.
+   For all but Gamma 2D Deluxe spectra (keG2DD), we are going to 
+   re-marshal the parameters for a call to the previous CreateSpectrum.
+   For Gamma 2D Delux we will delegate to CreateG2DDeluxe below.
+   @param Name          Name of the spectrum to create.
+   @param type          Type of spectrum to create.
+   @param dataType      Channel datatype for the spectrum.
+   @param xParameters   Names of the parameters on the x axis.
+   @param yParametesr   Names of the paramteers on the y axis.
+   @param channels      Vector of number of channels on the axes.
+   @param pLows         Pointer to low level axis cut offs.
+   @param pHighs        Pointer to high level axis cut offs.
+
+   \return CSpectrum*
+   \retval The spectrum created.  If a spectrum cannot be created,
+      the spectrum factor will throw an exception the caller should catch
+      at some level or else SpecTcl will exit.
+*/
+CSpectrum*
+SpecTcl::CreateSpectrum(STD(string) Name,
+			SpectrumType_t type,
+			DataType_t     dataType,
+			STD(vector)<STD(string)> xParameters,
+			STD(vector)<STD(string)> yParameters,
+			STD(vector)<UInt_t>      channels,
+			STD(vector)<Float_t>*    pLows,
+			STD(vector)<Float_t>*    pHighs)
+{
+  if (type == keG2DD) {
+    return CreateG2DDeluxe(Name, dataType, 
+			    xParameters, yParameters,
+			    channels, pLows, pHighs);
+  }
+  else {
+    // conglomorate the parameters into one set and delegate.
+    
+    xParameters.insert(xParameters.end(),
+		       yParameters.begin(), yParameters.end());
+    return CreateSpectrum(Name, type, dataType, xParameters,
+			  channels, pLows, pHighs);
+  }
+}
+
+/*!
+  Create a Gamma 2d Deluxe spectrum
+
+   @param Name          Name of the spectrum to create.
+   @param type          Type of spectrum to create.
+   @param dataType      Channel datatype for the spectrum.
+   @param xParameters   Names of the parameters on the x axis.
+   @param yParametesr   Names of the paramteers on the y axis.
+   @param channels      Vector of number of channels on the axes.
+   @param pLows         Pointer to low level axis cut offs.
+   @param pHighs        Pointer to high level axis cut offs.
+
+   \return CSpectrum*
+   \retval The spectrum created.  If a spectrum cannot be created,
+      the spectrum factory will throw an exception the caller should catch
+      at some level or else SpecTcl will exit.
+*/
+
+CSpectrum*
+SpecTcl::CreateG2DDeluxe(STD(string) Name,
+			DataType_t     dataType,
+			STD(vector)<STD(string)> xParameters,
+			STD(vector)<STD(string)> yParameters,
+			STD(vector)<UInt_t>      channels,
+			STD(vector)<Float_t>*    pLows,
+			STD(vector)<Float_t>*    pHighs)
+{
+  if (channels.size() != 2) {
+    throw CSpectrumFactoryException(dataType, keG2DD,
+				    Name,
+				    CSpectrumFactoryException::keBadResolutionCount,
+				    "SpecTcl::CreateG2DDeluxe marshalling arguments");
+  }
+  CSpectrumFactory factory;
+  return factory.CreateSpectrum(Name, keG2DD, dataType,
+				xParameters, yParameters, 
+				channels[0], channels[1],
+				pLows, pHighs);
+
+}
 /*!
   Creates a 1-d spectrum with an x axis that runs from
   0-n in parameter space.

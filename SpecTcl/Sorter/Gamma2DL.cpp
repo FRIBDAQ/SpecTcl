@@ -32,6 +32,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 1.2  2007/02/23 20:38:18  ron-fox
+    BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
+    parameter lists).
+
     Revision 1.1  2006/04/17 12:46:26  ron-fox
     Add files missing found by doing a build from checkout rather than
     from tarball.
@@ -69,7 +73,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <config.h>
 #include "Gamma2DL.h"
 #include "Parameter.h"
-#include "RangeError.h"
+#include <Exception.h>
+#include <RangeError.h>
 #include "Event.h"
 #include "GateContainer.h"
 #include "Gate.h"
@@ -348,4 +353,13 @@ CGamma2DL::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
       }
     }
   }
+}
+
+//! Incrementing with 2d deluxe increment is ann error:
+
+void
+CGamma2DL::Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
+		     STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters)
+{
+  throw CException("Gamma 2d Deluxe increment called on CGamma2DL");
 }
