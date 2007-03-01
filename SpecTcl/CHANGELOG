@@ -528,3 +528,6 @@ SpecTcl-3.1-002
 	any GUI elements associated with it are updated.
    - BZ292 - Synchronize gpVersion with config.h's VERSION symbol.
 
+   - BZ 293 - Uniquify tk appname   and remove NSCL copyright notice from the top of
+       tkcon.tcl as it's really Jeff Hobb's work under "bourbonware".
+
