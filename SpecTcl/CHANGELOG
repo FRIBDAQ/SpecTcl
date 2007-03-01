@@ -594,3 +594,5 @@ February 13, 2007 - Defect/enh. 234 : When a configuration is restored,
 February 15,2007 - Synch gpVersion with VERSION symbol in config.h
 Week of Feb 22, 2007 - BZ enhancement request 291 Gamma 2d deluxe 
                  spectrum.
+Week of Feb 26, 2007 - BZ 292?  Ensure that tk app name is unique
+                so multiple tkcons will open.
