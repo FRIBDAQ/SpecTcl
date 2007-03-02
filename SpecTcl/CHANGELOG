@@ -399,3 +399,11 @@ Released January 15, 2007
 	Feb 12, 2007 - BZ 232 - fire traces on treevariable -set
         so that any associated GUI elements are updated.
 	Feb 16, 2007 - BZ 292 - Synch gpVersion with VERSION in config.h
+        Mar 01, 2007 - BZ 293 - 1. Remove NSCL Copyright from tkcon.tcl
+                                   the code is Jeff Hobbs reproduced by
+                                   permission, both explicit and via the
+                                   code's  bourbonware license.
+                                2. Further butcher tkcon.tcl so that
+                                   unique tk appnames get generated/connected
+                                   to ensure all SpecTcls on the same display
+                                   pop up tkcons.

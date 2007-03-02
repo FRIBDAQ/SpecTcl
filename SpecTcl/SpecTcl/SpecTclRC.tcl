@@ -282,7 +282,6 @@
 #  Setup the standard scripted commandsin SpecTcl.
 #
 
-tk appname SpecTcl
 
 puts -nonewline "Loading SpecTcl gui..."
 source $SpecTclHome/Script/gui.tcl
@@ -308,4 +307,3 @@ puts -nonewline "Starting treeparamgui..."
 source $SpecTclHome/Script/SpecTclGui.tcl
 puts " Done"
 
-tk appname SpecTcl-[exec hostname]-[pid]
