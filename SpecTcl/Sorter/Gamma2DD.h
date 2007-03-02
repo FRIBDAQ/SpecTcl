@@ -159,7 +159,7 @@ private:
 #include "Gamma2DD.cpp"
 #endif
 
-typedef CGamma2DD<ULong_t>  CGamma2DDL;
+typedef CGamma2DD<UInt_t>  CGamma2DDL;
 typedef CGamma2DD<UShort_t> CGamma2DDW;
 typedef CGamma2DD<UChar_t>  CGamma2DDB;
 #endif
