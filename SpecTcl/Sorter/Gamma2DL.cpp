@@ -32,6 +32,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 1.5  2007/03/02 00:38:09  ron-fox
+    fix type Int-t -> Uint_t
+
     Revision 1.4  2007/03/02 00:26:04  ron-fox
     Get allthe ULong_t's right
 
@@ -181,7 +184,7 @@ CGamma2DL::CGamma2DL(const std::string& rName, UInt_t nId,
 ULong_t
 CGamma2DL::operator[] (const UInt_t* pIndices) const
 {
-  Int_t* pStorage = (UInt_t*)getStorage();
+  UInt_t* pStorage = (UInt_t*)getStorage();
   UInt_t nx = pIndices[0];
   UInt_t ny = pIndices[1];
   if (nx >= Dimension(0)) {
