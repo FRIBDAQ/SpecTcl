@@ -32,6 +32,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 1.3  2007/03/02 00:12:22  ron-fox
+    Get the size 64bit clean in Gamma2DD and Gamma2Dl, for some reason
+    Gamma2DL did not track when this was fixed for 3.1
+
     Revision 1.2  2007/02/23 20:38:18  ron-fox
     BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
     parameter lists).
@@ -331,7 +335,7 @@ CGamma2DL::Dimension(UInt_t n) const
 void
 CGamma2DL::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 {
-  ULong_t* pStorage = (ULong_t*)getStorage();
+  UInt_t* pStorage = (ULong_t*)getStorage();
 
   if (rParameters.size() > 0) {
     for(int i = 0; i < rParameters.size() - 1; i++) {
