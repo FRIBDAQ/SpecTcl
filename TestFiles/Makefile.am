@@ -6,7 +6,7 @@ LDADD = -lEventSource -lException -ltape \
 	-L../Tape \
 	-L../Filter -L../SpecTcl 
 
-LDFLAGS=-Wl,"-rpath=$(libdir)"
+AM_LDFLAGS=-Wl,"-rpath=$(libdir)"
 
 #AM_LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
 #	-L../Tape \

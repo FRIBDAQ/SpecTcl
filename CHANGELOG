@@ -599,3 +599,4 @@ Week of Feb 26, 2007 - BZ 292?  Ensure that tk app name is unique
                - Fix inadvertent leaving of Gamma 2d as Ulong_t not
                  UInt_t and same for gamma deluxe, for 3.1 , Gamma 2dL
                  was already correct.
+Week of March 5 - Add Splash screen.
