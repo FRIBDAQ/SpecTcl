@@ -3,7 +3,7 @@ SUBDIRS =  Replace Scripts Utility Display \
 	TCL Events Gates Sorter SpectrumIO Filter Analysis TreeParam \
 	Fits SpecTcl \
 	radware \
-	contrib TestFiles Gui
+	contrib TestFiles Gui splash
 
 # Gri TestFiles need to be figured out still..
 
