@@ -275,6 +275,6 @@ CGaussianFit::ChiSquare()
     float diff      = pt.y - (*this)(pt.x);
     chisquare      += diff*diff/pt.y;
   }
-  chisquare       = chisquare/4.0;
+  chisquare       = chisquare/((float)size() - 4.0);
   return chisquare;
 }
