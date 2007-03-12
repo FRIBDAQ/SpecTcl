@@ -21,6 +21,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.6  2007/03/12 13:24:46  ron-fox
+  Ensure that SpecTcl does not crash even if VERSION file is not present
+  or not readable.
+
   Revision 5.1.2.5  2006/10/17 12:19:47  ron-fox
   BZ 219 - Output VERSION to Tcl's stdout at the end of startup
 
@@ -162,7 +166,7 @@ using namespace std;
 // File scoped unbound variables:
 
 static const char* printVersionScript = 
-"if {[file exists [file join $SpecTclHome VERSION]]} { \
+"if {[file readable [file join $SpecTclHome VERSION]]} { \
    puts [exec cat [file join $SpecTclHome VERSION]]           \
 }";
 
@@ -706,8 +710,12 @@ int CTclGrammerApp::operator()() {
   // to run.  By the time these are run, SpecTcl is essentially completely
   // set up.
   SourceFunctionalScripts(*gpInterpreter);
-
-  gpInterpreter->GlobalEval(printVersionScript);
+  try {
+    gpInterpreter->GlobalEval(printVersionScript);
+  }
+  catch (...) {
+    cerr << "SpecTcl version: " << gpVersion << endl;
+  }
 
   return TCL_OK;
 }

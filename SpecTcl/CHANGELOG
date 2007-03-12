@@ -407,3 +407,5 @@ Released January 15, 2007
                                    unique tk appnames get generated/connected
                                    to ensure all SpecTcls on the same display
                                    pop up tkcons.
+       Mar 09, 2007 - ensure that SpecTcl can survive a non readable
+	              VERSION file.
