@@ -92,7 +92,7 @@ using namespace std;
 // TCL Script to print the program version.
 
 static const char* printVersionScript = 
-"if {[file exists [file join $SpecTclHome VERSION]]} { \
+"if {[file readable [file join $SpecTclHome VERSION]]} { \
    puts [exec cat [file join $SpecTclHome VERSION]]           \
 }";
 
@@ -670,7 +670,12 @@ int CTclGrammerApp::operator()() {
 
   // Finally run the version script:
 
-  gpInterpreter->GlobalEval(printVersionScript);
+  try {
+    gpInterpreter->GlobalEval(printVersionScript);
+  }
+  catch (...) {
+    cerr << "SpecTcl Version: " << gpVersion << endl;
+  }
 
   return TCL_OK;
 }

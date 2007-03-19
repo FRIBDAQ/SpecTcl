@@ -270,11 +270,19 @@ CGaussianFit::ChiSquare()
 {
   float chisquare = 0.0;		// We'll sum directly in to the member.
   CFit::PointIterator p = begin();
+  int empties = 0;
+
   for (int i =0; i < size(); i++) {
     CFit::Point pt  = *p++;
     float diff      = pt.y - (*this)(pt.x);
-    chisquare      += diff*diff/pt.y;
+    float denom     = (*this)(pt.x);
+    if (denom != 0.0) {
+      chisquare      += diff*diff/denom;
+    } 
+    else {
+      empties++;
+    }
   }
-  chisquare       = chisquare/((float)size() - 4.0);
+  chisquare       = chisquare/((float)(size() - empties) - 4.0);
   return chisquare;
 }

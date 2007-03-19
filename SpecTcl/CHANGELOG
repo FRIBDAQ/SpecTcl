@@ -602,3 +602,8 @@ Week of Feb 26, 2007 - BZ 292?  Ensure that tk app name is unique
 Week of March 5 - Add Splash screen.
                 - Adjust chisquare calculation to be correct for CGaussianFit 
 		  (thanks to Dirk Weisshaar).
+Week of March 12, 2007-
+	- Ensure that SpecTcl does not crash if VERSION not readable.
+	  (BZ 294).
+Week of March 19, 2007
+        - Make CEvent::clear() O(1) time.
