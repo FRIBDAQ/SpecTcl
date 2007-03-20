@@ -557,7 +557,7 @@ CSpectrumS::CreateChannels()
   // management:
 
   setStorageType(keLong);
-  ULong_t* pStorage = new ULong_t[m_nChannels];
+  UInt_t* pStorage = new UInt_t[m_nChannels];
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
 }
