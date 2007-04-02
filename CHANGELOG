@@ -530,4 +530,4 @@ SpecTcl-3.1-002
 
    - BZ 293 - Uniquify tk appname   and remove NSCL copyright notice from the top of
        tkcon.tcl as it's really Jeff Hobb's work under "bourbonware".
-
+   - BZ 284 - Ensure SpecTcldoes not crash if the VERSION file is not readable.

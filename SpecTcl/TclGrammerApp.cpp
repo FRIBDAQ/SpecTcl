@@ -21,6 +21,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
+  Revision 5.4.2.2  2007/04/02 15:56:21  ron-fox
+  Final commit prior to distro build for APril 2007 shutdown.
+
   Revision 5.4.2.1  2006/10/10 15:24:56  ron-fox
   BZ219 - Added printout of VERSION file to tkcon on startup.,
 
@@ -174,7 +177,7 @@ using namespace std;
 // TCL Script to print the program version.
 
 static const char* printVersionScript = 
-"if {[file exists [file join $SpecTclHome VERSION]]} { \
+"if {[file readable [file join $SpecTclHome VERSION]]} { \
    puts [exec cat [file join $SpecTclHome VERSION]]           \
 }";
 
@@ -746,7 +749,12 @@ int CTclGrammerApp::operator()() {
 
   // Finally run the version script:
 
-  gpInterpreter->GlobalEval(printVersionScript);
+  try {
+    gpInterpreter->GlobalEval(printVersionScript);
+  }
+  catch (...) {
+    cerr << "SpecTcl Version: " << gpVersion << endl;
+  }
 
   return TCL_OK;
 }

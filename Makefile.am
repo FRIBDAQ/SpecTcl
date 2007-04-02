@@ -57,5 +57,6 @@ install-exec-local:
 	echo CCLD=$(CC)                    >> CompilationRules.temp
 	cat  CompilationRules.include        >> CompilationRules.temp
 	$(INSTALL_DATA) CompilationRules.temp $(sysconfdir)/CompilationRules.include
-	echo "Version: " $(VERSION) build on `hostname` `date` >$(prefix)/VERSION
+	echo "Version: " $(VERSION) build on `hostname` `date` >VERSION
+	$(INSTALL_DATA)   VERSION       $(prefix)/VERSION
 	$(MANDB) $(prefix)/man
