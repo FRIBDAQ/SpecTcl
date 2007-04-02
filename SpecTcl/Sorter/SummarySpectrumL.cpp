@@ -35,6 +35,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log:
    $Log$
+   Revision 1.1.2.1  2006/06/22 17:11:23  ron-fox
+   Defect 209: Some other 64 bit uncleanliness that needed mopping up.
+
    Revision 1.1  2006/04/17 12:46:26  ron-fox
    Add files missing found by doing a build from checkout rather than
    from tarball.
@@ -185,7 +188,7 @@ CSummarySpectrumL::Increment(const CEvent& rE)
 //
   CEvent&   rEvent((CEvent&)rE);
   UInt_t    nYChans  = m_nYScale;
-  ULong_t* pStorage = (ULong_t*)getStorage();
+  UInt_t* pStorage = (UInt_t*)getStorage();
   int       nParams  = rEvent.size();
   for(UInt_t xChan = 0; xChan < m_vParameters.size(); xChan++) {
     if(m_vParameters[xChan] < nParams) {
@@ -240,7 +243,7 @@ CSummarySpectrumL::operator[](const UInt_t* pIndices) const
   // note:  This is not a 'normal' indexing operation in that
   // references are not returned.
   //
-  ULong_t* p = (ULong_t*)getStorage();
+  UInt_t* p = (UInt_t*)getStorage();
   UInt_t   nx = pIndices[0];
   UInt_t   ny = pIndices[1];
   if(nx >= Dimension(0)) {
@@ -267,7 +270,7 @@ CSummarySpectrumL::set(const UInt_t* pIndices, ULong_t nValue)
 {
   // Provides write access to a channel of the spectrum.
   //
-  ULong_t* p = (ULong_t*)getStorage();
+  UInt_t* p = (UInt_t*)getStorage();
   UInt_t   nx = pIndices[0];
   UInt_t   ny = pIndices[1];
   if(nx >= Dimension(0)) {
@@ -349,7 +352,7 @@ CSummarySpectrumL::CreateStorage()
   setStorageType(keLong);
 
   Size_t        nBytes   = StorageNeeded();
-  ULong_t*      pStorage = new ULong_t[nBytes/sizeof(ULong_t)];
+  UInt_t*      pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();

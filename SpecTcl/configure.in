@@ -4,7 +4,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 3.1-001)
+AM_INIT_AUTOMAKE(SpecTcl, 3.1-004)
 
 
 AC_EXEEXT
@@ -228,7 +228,7 @@ motif_lib_found="no"
 AC_MSG_CHECKING([for libXm])
 AC_ARG_WITH(motif-lib,
 	   [  --with-motif-lib=path Path to libXm],
-	   [motif_libdir=""
+	   [motif_libdir="$withval"
 	    motif_lib_found="yes"]
 	   )
 
@@ -275,7 +275,7 @@ then
 	AC_MSG_RESULT([Found libXm in $x_libraries])
     else
         AC_MSG_RESULT([Found libXm in $motif_libdir])
-	MOTIF_LIBSW="-L$motif_libdir"
+	MOTIF_LIBSW="-L$motif_libdir -Wl,\"-rpath=$motif_libdir\""
     fi
 else
    AC_MSG_ERROR([Can't fine libXm give me a hand with --with-motif-lib])

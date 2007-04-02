@@ -538,8 +538,8 @@ class win_attributed : public win_definition {
   }
   int hasfloor() { return has_floor; }
   int hasceiling() { return has_ceiling; }
-  int getfloor()   { return floor; }
-  int getceiling() { return ceiling; }
+  unsigned int getfloor()   { return floor; }
+  unsigned int getceiling() { return ceiling; }
   void setall(win_attributed &that);
   void setattribs(win_attributed &that);
   

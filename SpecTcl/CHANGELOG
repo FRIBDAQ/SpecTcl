@@ -450,3 +450,84 @@ SpecTcl-3.1-001
    - Try to make the docbook builds more robust even in the presence of missing
      or broken(?) docbook installs.
    - configure for libgd.
+SpecTcl-3.1-002
+   - Fix defect 206 : Bit mask gates don't check parameter
+     validity and therefore can crash.
+   - Fix defect 197 : 2d averaging boxes too large in x.
+   - Fix defect 200 : Gamma 1dL spectrum were not 64 bit clean
+   - Fix defect 209 : More instances of non 64bit clean longword spectra:
+	                BitSpectrumL.cpp
+	               	Gamma1DL.cpp
+			Spectrum1DL.cpp
+			Spectrum2DL.cpp
+			SummarySpectrumL.cpp
+   - Fix defect 210 : Some acceptance of integer input is not 64 bit clean
+                      e.g. sscaning to long but with %d conversion instead of
+                      %ld. 
+   - Find some more 64 bit uncleanliness.. this time in Xamine.
+   - Re-do the GUI to deal with the case where there's an item named a
+     and another named a.b  - big rewrite!!!!
+   - Fix Defect 211 - did not check parameter count on g1 spectrum creation.
+                      if no parameters, spectcl segfaults.
+   - Fix Error in allocator.c - mask for longword alignent incorrectly 
+     calculated.. caused smaller allocations than should have been done.
+     this caused corruption of the Xamine shared memory free list.
+   - Improve performance of GUI parenting.
+   - Mask gates were not checked in a 64 bit pure way.. sign extends could
+     make the check incorrect.
+   - Mask gate editor in gui - work around issue in early tcl 8.4
+     where [string is integer] is false for e.g. 0x80000000
+   - Address defect 213:  When a 1-d spectrum has counts > 0x80000000,
+     with autoscaling turned on, it updating it/displaying it causes Xamine
+     to crash.
+     o Modify refreshctl.cc - Xamine_Refresh.. return from Xamine_ComputeScaling
+       should be unsigned, and further more checking for it to go negative
+       is stupid and should be removed.
+     o dispwind.h - getceiling and get floor modified to return uint.
+     o plot1d.cc  - Plot : base/max changed to be uint and propagated
+                    into PlotLog, PlotLin (range as well in PlotLin?).
+     o plot2d.cc  - DrawLogSegment, DrawSegment floor/ceil
+                    vars -> uint.
+     o axes.cc    - Ensure that counts axes are always + and that
+                    mapped axes will be right for very large +/- values.
+   - Side piece of defect 213... channel command is not rejecting large unsigned
+     channel values e.g. 0x87654321.
+   - Really get mask gates to work correctly.
+   - Fix error in newGUI.tcl - if used with Scaler processing,
+     run number could be non decimal (e.g. UNKNOWN).
+   - Fix error in wysiwyg prints of zoomed panes.
+   - Fix Y height error in plotting linear 1-d channels.. an off by 1 error only
+     visible for a relatively small number of counts.
+   - Enh 194 - print more precision in integration results.
+   - Enh 205 - max the gui status line for tha attach so that it can't
+     make the gui window very very wide.
+   - Deal with the fact that treeview find is >very< slow on 64 bit systems
+     in browser.tcl 
+
+  Released September 21, 2006
+
+3.1-003
+   - Added -rpath to --with-motif-libdir configuration so that we can be sure we get the
+     right motif.
+   - Added prntout of VERSION to tkcon at startup
+   - Back ported fix for defect BZ 224 (integrations of 2dlong spectra
+     give incorrect centroids on 64 bit systems) from 3.2
+   - Added CHANGELOG to the installation.
+   - Figure out defect 228 - printer defaults can be written with illegal values
+     in Xamine.Defaults file.
+   - Defect 229 - setup.tcl is obsolete now.
+   - CXdrInputStream.cpp - as per D. Caussyn's catch: delete [] m_pBuffer not
+     delete m_pBuffer.
+ Released     Jan 15, 2007
+
+3.1-004
+   - Defect 288 the eval apply $gate [list $spectra] did not work as believed.
+     iterate over the list instead.
+3.1-004
+   - Enh 232 : If treeparameter -set is invoked fire traces on that parameter so
+	any GUI elements associated with it are updated.
+   - BZ292 - Synchronize gpVersion with config.h's VERSION symbol.
+
+   - BZ 293 - Uniquify tk appname   and remove NSCL copyright notice from the top of
+       tkcon.tcl as it's really Jeff Hobb's work under "bourbonware".
+   - BZ 284 - Ensure SpecTcldoes not crash if the VERSION file is not readable.

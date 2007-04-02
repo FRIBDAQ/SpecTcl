@@ -524,8 +524,9 @@ proc selectAndApplyGate {} {
         set spectra [.applygatetomultiple getSpectra]
 
         if { ($gate != "") && ([llength $spectra] != 0)} {
-            eval apply $gate [list $spectra]
-
+	    foreach spectrum $spectra {
+		apply $gate $spectrum
+	    }
         }
         failsafeWrite
         destroy .applygatetomultiple

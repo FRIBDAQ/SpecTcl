@@ -303,6 +303,7 @@ CTreeVariableCommand::SetProperties(CTCLInterpreter& rInterp, CTCLResult& rResul
   CTreeVariableProperties* pProps = i->second;
   (*pProps)  = value;
   pProps->setUnits(units);
+  pProps->fireTraces();
   
   return TCL_OK;
   

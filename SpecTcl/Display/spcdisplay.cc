@@ -491,10 +491,10 @@ void Xamine_MultiplySelectedScale(float multiplier)
 
 
   unsigned int scale = at->getfsval();
-  scale = (int)((float)scale*multiplier);
-  if(scale <= 0) scale = 1;	/* Don't allow scale to go to zero. */
+  scale = (unsigned int)((float)scale*multiplier);
+  if(scale == 0) scale = 1;	/* Don't allow scale to go to zero. */
   if( (scale < at->getfsval()) && (multiplier > 1.0))
-    scale = at->getfsval();      /* Don't let scale wrap. */
+    scale = (unsigned int)0xfff00000;      /* Don't let scale wrap. */
   at->setfs(scale);
   Xamine_RedrawSelectedPane(); /* Update the display */
   Xamine_ChangedWindows();	/* Indicate windows are changed too. */

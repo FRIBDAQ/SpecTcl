@@ -862,7 +862,7 @@ static Boolean DrawSegment(Draw2dContext *c)
 
   int chans = c->sampler->getsteps();
 
-  int floor = 0, ceiling;
+  unsigned int floor = 0, ceiling;
   int hasceiling = c->attributes->hasceiling();
   ceiling = hasceiling ? c->attributes->getceiling() :
                          c->attributes->getfsval();
@@ -915,7 +915,7 @@ static Boolean DrawLogSegment(Draw2dContext *c)
 
   /* get all the floor/ceiling stuff for height cuts. */
 
-  int floor = 0, ceiling;
+  unsigned int floor = 0, ceiling;
   int nsteps = c->sampler->getsteps();
   int hasceiling = c->attributes->hasceiling();
   ceiling = hasceiling ? c->attributes->getceiling() :

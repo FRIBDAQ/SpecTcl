@@ -132,7 +132,16 @@ snit::widget maskGateEditor {
         set parameter [$win.parameter cget -text]
         set mask      [$win.bits      get]
 
-        if {($parameter == $emptyString) || ![string is integer -strict $mask]} {
+	# Note for Tcl 8.4 on debain integers with the top bit set
+	# has hex strings make string is integer false, so I need to
+	# get wierd to check validity...incr only operates on good
+	# integers so a catch of incr on the mask should fail if the
+	#  mask is not a valid integer:
+	#
+	set amask $mask
+#        if {($parameter == $emptyString) || ![string is integer -strict $mask]} {
+	#        }  
+	if {($parameter == $emptyString)  || [catch {incr amask}]} {
             return [list]
         } else {
             return [list $parameter $mask]

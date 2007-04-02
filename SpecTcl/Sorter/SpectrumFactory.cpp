@@ -42,6 +42,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 5.3.2.1  2006/06/28 19:32:08  ron-fox
+    Defect 211 - g1 spectrum creation with empty parameter list segfaults.
+    Should return error .. insufficient parameters.
+
     Revision 5.3  2005/09/22 12:40:00  ron-fox
     Fix defects in gamma 2d spectrum increment.  When there are no valid
     parameters the outer loop limits are bad and eventually lead to segflt
@@ -695,6 +699,12 @@ CSpectrumFactory::CreateG1D(const std::string& rName, DataType_t eType,
 			    vector<CParameter>& rvParameters, 
 			    UInt_t nChannels)
 {
+  if (rvParameters.empty()) {
+    throw CSpectrumFactoryException(eType, keG1D, rName,
+				    CSpectrumFactoryException::keBadParameterCount,
+				    "Creating 1d gamma - need at least one parameter");
+				    
+  }
   return CreateG1D(rName, eType, rvParameters,
 		   nChannels, 0.0, (Float_t)(nChannels - 1));
 }
@@ -781,6 +791,7 @@ CSpectrumFactory::CreateG2D(const std::string& rName,
 			    vector<CParameter>& rvParameters,
 			    UInt_t nxChannels, UInt_t nyChannels)
 {
+  
   return CreateG2D(rName, eType, rvParameters,
 		   nxChannels, 0.0, (Float_t)(nxChannels - 1),
 		   nyChannels, 0.0, (Float_t)(nyChannels - 1));
@@ -1140,9 +1151,13 @@ CSpectrumFactory::Require(DataType_t          dType,
   if(sType == keG2D && nParams < 2) {
     throw CSpectrumFactoryException(dType, sType, rName,
 	    CSpectrumFactoryException::keBadParameterCount,
-	    "Checking parameter counts of keG2D in CSpectrumFactory::Require");
+	    "Checking parameter counts of keG2D in CSpectrumFactory::Require need at least 2 parameters");
   }
-
+  if (sType == keG1D && nParams < 1) {
+    throw CSpectrumFactoryException(dType, sType, rName,
+				    CSpectrumFactoryException::keBadParameterCount,
+				    "Checking keG1D parameter count in CSpectrumFactory::Require - need at least one parameters");
+  }
   if(rResolutions.size() != nResolutions) { // Incorrect # of resolutions.
     throw CSpectrumFactoryException(dType, sType, rName,
 			      CSpectrumFactoryException::keBadResolutionCount,
