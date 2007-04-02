@@ -307,6 +307,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
+
 
 #include "XMDialogs.h"
 #include "XMText.h"
@@ -471,20 +473,10 @@ static void Format1d(IntegrationDisplay *d, grobj_generic *g,
   char txt[1024];		/* A nice big formatting buffer. */
   grobj_name n;
 
-  if(att->ismapped()) {
-    float f_centroid = Xamine_XChanToMapped(att->spectrum(), (int)centroid);
-    win_1d* a1 = NULL;
-    if(att->is1d()) {
-      a1 = (win_1d*)att;
-      sprintf(txt, "%4d %27s  %8.2f       %8.2f         %f\n",
-	      g->getid(), g->getname(n), f_centroid, fwhm, area);
-    }
-  } else {
-    sprintf(txt, "%4d %27s  %8.2f     %8.2f         %f\n",
-	    g->getid(),
-	    g->getname(n),
-	    centroid, fwhm, area);
-  }
+  sprintf(txt, "%4d %27s  %8.2f     %8.2f         %f\n",
+	  g->getid(),
+	  g->getname(n),
+	  centroid, fwhm, area);
   d->AddText(txt);		/* Add to the dialog. */
   if(Xamine_logging) {
     Xamine_log.ContinueMessage(txt);
@@ -521,16 +513,10 @@ static void Format2d(IntegrationDisplay *d, grobj_generic *g,
   
   /* Format the output line: */
   
-  if(att->ismapped()) {
-    float fcx = Xamine_XChanToMapped(att->spectrum(), (int)cx);
-    float fcy = Xamine_YChanToMapped(att->spectrum(), (int)cy);
-    sprintf(txt, "%4d %27s  (%6.1f,%6.1f) (%6.1f,%6.1f) %f\n",
-	    g->getid(), g->getname(n), fcx, fcy, fx, fy, a);
-  } else {
-    sprintf(txt, "%4d %27s  (%6.1f,%6.1f) (%6.1f,%6.1f) %f\n",
-	    g->getid(), g->getname(n),
-	    cx,cy, fx,fy, a);
-  }
+
+  sprintf(txt, "%4d %27s  (%6.1f,%6.1f) (%6.1f,%6.1f) %f\n",
+	  g->getid(), g->getname(n),
+	  cx,cy, fx,fy, a);
 
   /* Add the line to the dialog: */
 
@@ -563,6 +549,8 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
 		      int specno, int typ)
 {
 
+  win_attributed* att = Xamine_GetSelectedDisplayAttributes();
+
   /* First we branch on spectrum type... to separate 1-d from 2-d: */
 
   if( (typ == onedlong) || (typ == onedword)) {	/* 1-d integration. */
@@ -576,7 +564,7 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
     }
     if(typ == onedlong) {
       Integrate_1dl I((unsigned int *)xamine_shared->getbase(specno), 
-		      (grobj_sum1d *)g);
+		      (grobj_sum1d *)g, att->ismapped());
       I.Perform();
       centroid = I.GetCentroid();
       fwhm     = I.GetStdDev() * GAMMA;
@@ -584,12 +572,14 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
     }
     else {
       Integrate_1dw I((unsigned short *)xamine_shared->getbase(specno),
-		      (grobj_sum1d *)g);
+		      (grobj_sum1d *)g, att->ismapped());
       I.Perform();
       centroid = I.GetCentroid();
       fwhm     = I.GetStdDev() * GAMMA;
       area     = I.GetVolume();
     }
+
+
     Format1d(d, g, centroid, fwhm, area);
   }
   else if( (typ == twodword) || (typ == twodbyte)){ /* 2-d integration. */
@@ -608,7 +598,7 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
     if(typ == twodword) {
       Integrate_2dw I((unsigned short *)xamine_shared->getbase(specno), 
 		      xamine_shared->getxdim(specno),
-		      (grobj_sum2d *)g);
+		      (grobj_sum2d *)g, att->ismapped());
       I.Perform();
       area   = I.GetVolume();
       xc     = I.GetXCentroid();
@@ -619,7 +609,7 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
     else {
       Integrate_2db I((unsigned char *)xamine_shared->getbase(specno),
 		      xamine_shared->getxdim(specno),
-		      (grobj_sum2d *)g);
+		      (grobj_sum2d *)g, att->ismapped());
       I.Perform();
       area = I.GetVolume();
       xc   = I.GetXCentroid();
@@ -628,6 +618,8 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
       yfwhm= I.GetYStdDev() * GAMMA;
 
     }
+
+
     Format2d(d,g, xc, yc, xfwhm, yfwhm, area);
   }
   else {                                       /* Bad news here. */

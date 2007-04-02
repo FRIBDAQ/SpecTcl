@@ -282,7 +282,6 @@
 #  Setup the standard scripted commandsin SpecTcl.
 #
 
-tk appname SpecTcl
 
 puts -nonewline "Loading SpecTcl gui..."
 source $SpecTclHome/Script/gui.tcl
@@ -304,4 +303,3 @@ puts -nonewline "Loading TKCon console..."
 source $SpecTclHome/Script/tkcon.tcl
 puts "Done."
 
-tk appname SpecTcl-[exec hostname]-[pid]

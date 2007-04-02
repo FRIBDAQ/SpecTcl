@@ -294,6 +294,20 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 4.6.2.1  2006/09/21 15:12:53  ron-fox
+    - Fix Xamine issues with scaling by mass importing Xamine from 2.2
+    - Close off 2.1-021 development and start on maint release 2.1-022
+
+   Revision 4.6.4.2  2004/10/20 20:02:56  ron-fox
+   Factor the DrawPoints function from the acceptgates dialogs into sumregion
+   where
+   - It already existed,
+   - It was the same,
+   - sumregion was the base class anyway.
+
+   Revision 4.6.4.1  2004/10/20 15:47:42  ron-fox
+   Misc changes resulting from update merges and pedantic finds.
+
    Revision 4.6  2003/08/25 16:25:30  ron-fox
    Initial starting point for merge with filtering -- this probably does not
    generate a goo spectcl build.
@@ -384,8 +398,6 @@ class AcceptCut : public AcceptSummingRegion
 
   /* Replacements for virtual functions in AcceptSummingRegion: */
 
-  virtual void DrawPoints(XMWidget *pane,
-			  Xamine_RefreshContext *ctx = NULL);
   virtual Boolean DoAccept();
   virtual void SelectChanged(int oldc, int oldr, int newc, int newr);
   virtual void ChooseDefaultName();
@@ -405,8 +417,6 @@ class AcceptContour : public AcceptSummingRegion
 
   /* Replacements for virtual functions in AcceptSummingRegion: */
 
-  virtual void DrawPoints(XMWidget *pane,
-			  Xamine_RefreshContext *ctx = NULL);
   virtual Boolean DoAccept();
   virtual void SelectChanged(int oldc, int oldr, int newc, int newr);
   virtual void ChooseDefaultName();
@@ -425,8 +435,7 @@ class AcceptBand : public AcceptSummingRegion
 
   /* Replacements for virtual functions in AcceptSummingRegion: */
 
-  virtual void DrawPoints(XMWidget *pane,
-			  Xamine_RefreshContext *ctx = NULL);
+
   virtual void ClearPoints(XMWidget *pane,
 			   Xamine_RefreshContext *ctx = NULL) 
                                    { DrawPoints(pane,ctx); }
@@ -523,174 +532,7 @@ AcceptContour::~AcceptContour() {}
 **      Destructor for the AcceptBand class.
 */
 AcceptBand::~AcceptBand() {}
-
-/*
-** Functional Description:
-**   AcceptCut::DrawPoints
-**    This function draws the echo points of a cut being accepted.  This
-**    essentially duplicates the summing region draw for 1-d's.
-** Formal Parameters:
-**   XMWidget *pane:
-**     The pane to draw the widget it.
-**   Xamine_RefreshContext *ctx:
-**     A refresh context passed in if the spectrum is in the midst of an
-**     update.  
-** NOTE:
-**   For now we simplify and draw in both the window and the pixmap if both
-**   exist.  Even though this is not necessary during a refresh.
-*/
-void AcceptCut::DrawPoints(XMWidget *pane,
-			   Xamine_RefreshContext *ctx) 
-{ 
-  /* We need to get the display attributes of the spectrum associated with
-  ** this pane, since it has the flipped flag and labelling flags.  If it
-  ** Does not exist, then we cancel the input function.
-  */
 
-  win_attributed *att = Xamine_GetDisplayAttributes(row, col);
-  if(att == NULL) {
-    UnManage();
-    return;
-  }
-
-  /* We need to check to see if the object is still alive.  If not then we
-  ** also unmanage and vanish.   If there are no points, then we just
-  ** return without drawing.
-  */
-
-  if(object == NULL) {
-    UnManage();
-    return;
-  }
-  if(object->pointcount() == 0) {
-    return;
-  }
-
-  /* If a draw is in progress, and we are not in the callback stage of the
-  ** draw, then any drawing we do now will at best be wasted and at worst
-  ** be partly overwritten, causing funny (even number of draws) output.
-  ** Therefore we just return in that case and let the callback time deal
-  ** with the draw when it happens:
-  */
-  pane_db *pdb = Xamine_GetPaneDb();
-  if( (pdb->refresh_state(row, col) != rfsh_idle)   &&
-      (pdb->refresh_state(row, col) != rfsh_callback))
-    return;
-
-
-  /*  Now draw the object:  */
-
-  object->draw(pane, att, False);
-
-}
-/*
-** Functional Description:
-**   AcceptContour::DrawPoints:
-**     This function draws the echo points of a contour being accepted.
-**     For closed contours, this duplicates the summing region draw for 2-d's.
-** Formal Parameters:
-**    XMWidget *pane:
-**      Pane to draw in.
-**    Xamine_RefreshContext *ctx:
-**      If refresh in progress, then this is a pointer to the refresh context.
-*/
-void 
-AcceptContour::DrawPoints(XMWidget *pane, Xamine_RefreshContext *ctx) 
-{
-  /* We need to get the display attributes of the spectrum associated with
-  ** this pane, since it has the flipped flag and labelling flags.  If it
-  ** Does not exist, then we cancel the input function.
-  */
-
-  win_attributed *att = Xamine_GetDisplayAttributes(row, col);
-  if(att == NULL) {
-    UnManage();
-    return;
-  }
-
-  /* We need to check to see if the object is still alive.  If not then we
-  ** also unmanage and vanish.   If there are no points, then we just
-  ** return without drawing.
-  */
-
-  if(object == NULL) {
-    UnManage();
-    return;
-  }
-  if(object->pointcount() == 0) {
-    return;
-  }
-
-  /* If a draw is in progress, and we are not in the callback stage of the
-  ** draw, then any drawing we do now will at best be wasted and at worst
-  ** be partly overwritten, causing funny (even number of draws) output.
-  ** Therefore we just return in that case and let the callback time deal
-  ** with the draw when it happens:
-  */
-  pane_db *pdb = Xamine_GetPaneDb();
-  if( (pdb->refresh_state(row, col) != rfsh_idle)   &&
-      (pdb->refresh_state(row, col) != rfsh_callback))
-    return;
-
-  /* Draw the graphical object: */
-
-  object->draw(pane, att, False);
-}
-
-/*
-** Funtional Description:
-**   AcceptBand::DrawPoints:
-**      This function draws a band.  Bands are drawn exactly like 
-**      2-d summing regions, but the first and last points are not connected.
-** Formal Parameters:
-**   XMWidget *pane:
-**     The pane on which we're to draw the lines.
-**   Xamine_RefreshContext *ctx:
-**      The refresh context if a refresh is in progress or NULL if not.
-*/
-void
-AcceptBand::DrawPoints(XMWidget *pane,
-		       Xamine_RefreshContext *ctx)
-{
-  /* We need to get the display attributes of the spectrum associated with
-  ** this pane, since it has the flipped flag and labelling flags.  If it
-  ** Does not exist, then we cancel the input function.
-  */
-
-  win_attributed *att = Xamine_GetDisplayAttributes(row, col);
-  if(att == NULL) {
-    UnManage();
-    return;
-  }
-
-  /* We need to check to see if the object is still alive.  If not then we
-  ** also unmanage and vanish.   If there are no points, then we just
-  ** return without drawing.
-  */
-
-  if(object == NULL) {
-    UnManage();
-    return;
-  }
-  if(object->pointcount() == 0) {
-    return;
-  }
-
-  /* If a draw is in progress, and we are not in the callback stage of the
-  ** draw, then any drawing we do now will at best be wasted and at worst
-  ** be partly overwritten, causing funny (even number of draws) output.
-  ** Therefore we just return in that case and let the callback time deal
-  ** with the draw when it happens:
-  */
-  pane_db *pdb = Xamine_GetPaneDb();
-  if( (pdb->refresh_state(row, col) != rfsh_idle)   &&
-      (pdb->refresh_state(row, col) != rfsh_callback))
-    return;
-
-  /* Now draw the object */
-
-  object->draw(pane, att, False);
-}
 
 /*
 ** Functional Description:
@@ -986,7 +828,7 @@ void
 AcceptCut::ChooseDefaultName()
 {
   char namestr[80];
-  sprintf(namestr, "Cut %03d", Xamine_GetNextGateId());
+  sprintf(namestr, "slice_%03d", Xamine_GetNextGateId());
   ObjectInput::SetText(namestr);
 }
 /*
@@ -998,7 +840,7 @@ AcceptCut::ChooseDefaultName()
 void
 AcceptContour::ChooseDefaultName() {
   char namestr[80];
-  sprintf(namestr, "Contour %03d", Xamine_GetNextGateId());
+  sprintf(namestr, "contour_%03d", Xamine_GetNextGateId());
   ObjectInput::SetText(namestr);
 }
 /*
@@ -1010,7 +852,7 @@ AcceptContour::ChooseDefaultName() {
 void
 AcceptBand::ChooseDefaultName() {
   char namestr[80];
-  sprintf(namestr, "Band %03d", Xamine_GetNextGateId());
+  sprintf(namestr, "band_%03d", Xamine_GetNextGateId());
   ObjectInput::SetText(namestr);
 }
 

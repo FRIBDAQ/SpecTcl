@@ -484,6 +484,7 @@ CXamine::Stop()
 //  Operation Type:
 //     mutator
 //
+
 void 
 CXamine::EnterGate(CDisplayGate& rGate) 
 {
@@ -509,7 +510,8 @@ CXamine::EnterGate(CDisplayGate& rGate)
     pPoints->x = p->X();
     pPoints->y = p->Y();
   }
-  
+
+
   int nStatus = Xamine_EnterGate(rGate.getSpectrum()+1,
 				 rGate.getId(),
 				 MapFromGate_t(rGate.getGateType()),
@@ -528,6 +530,7 @@ CXamine::EnterGate(CDisplayGate& rGate)
 void 
 CXamine::RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) 
 {
+
 // Removes a specified gate from the spectrum.
 // The gate is defined by its spectrum, id, and type.
 //
@@ -769,17 +772,16 @@ CXamine::DefineSpectrum(CXamineSpectrum& rSpectrum)
 			       p1d->getChannels(),
 			       (char*)(p1d->getTitle().c_str()),
 			       p1d->getWord());
-
-    // Apply the mapping transformation if it exists
-    CXamineMap1D Xmap = p1d->getXamineMap();
-    if(Xmap.getLow() != Xmap.getHigh()) {
-      Xamine_SetMap1d(nSpectrum, Xmap.getLow(), Xmap.getHigh(),
-		      const_cast<char*>(Xmap.getUnits().c_str()));
-    }
-    else {
-      Xamine_SetMap1d(nSpectrum, 0.0, 0.0, "");
-    }
-    if(pData) {			// Successful completion:
+    if(pData) {
+      // Apply the mapping transformation if it exists
+      CXamineMap1D Xmap = p1d->getXamineMap();
+      if(Xmap.getLow() != Xmap.getHigh()) {
+	Xamine_SetMap1d(nSpectrum, Xmap.getLow(), Xmap.getHigh(),
+			const_cast<char*>(Xmap.getUnits().c_str()));
+      }
+      else {
+	Xamine_SetMap1d(nSpectrum, 0.0, 0.0, "");
+      }
       CXamine1D result(m_pDisplay, nSpectrum-1);
       *p1d  = result;
     }
@@ -794,17 +796,17 @@ CXamine::DefineSpectrum(CXamineSpectrum& rSpectrum)
 			       p2d->getYchannels(),
 			       (char*)(p2d->getTitle().c_str()),
 			       p2d->getByte());
-
-    // Apply the mapping transformation if it exists
-    CXamineMap2D Xmap = p2d->getXamineMap();
-    if(Xmap.getXLow() != Xmap.getXHigh()) {
-      Xamine_SetMap2d(nSpectrum,
-		      Xmap.getXLow(), Xmap.getXHigh(), 
-		      const_cast<char*>(Xmap.getXUnits().c_str()),
-		      Xmap.getYLow(), Xmap.getYHigh(), 
-		      const_cast<char*>(Xmap.getYUnits().c_str()));
-    }
     if(pData) {			// Success
+      
+      // Apply the mapping transformation if it exists
+      CXamineMap2D Xmap = p2d->getXamineMap();
+      if(Xmap.getXLow() != Xmap.getXHigh()) {
+	Xamine_SetMap2d(nSpectrum,
+			Xmap.getXLow(), Xmap.getXHigh(), 
+			const_cast<char*>(Xmap.getXUnits().c_str()),
+			Xmap.getYLow(), Xmap.getYHigh(), 
+			const_cast<char*>(Xmap.getYUnits().c_str()));
+      }
       CXamine2D result(m_pDisplay, nSpectrum-1);
       *p2d = result;
     }
@@ -1226,9 +1228,12 @@ CXamine::ThrowGateStatus(Int_t nStatus, const CDisplayGate& rGate,
   //
 
   if(nStatus == CheckErrno) {
+    cerr << "Throwing a checkerrno exception\n";
     throw CErrnoException(doing);
   }
   if(nStatus < 0) {
+    cerr << "Throwing an xamine gate exception\n";
+
     throw CXamineGateException(nStatus, rGate,
 			       doing);
   }

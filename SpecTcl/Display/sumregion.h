@@ -295,6 +295,13 @@ DAMAGES.
 /*
   Change Log:
   $Log$
+  Revision 4.3.2.1  2006/09/21 15:13:00  ron-fox
+   - Fix Xamine issues with scaling by mass importing Xamine from 2.2
+   - Close off 2.1-021 development and start on maint release 2.1-022
+
+  Revision 4.3.4.1  2004/10/20 15:47:42  ron-fox
+  Misc changes resulting from update merges and pedantic finds.
+
   Revision 4.3  2003/08/25 16:25:31  ron-fox
   Initial starting point for merge with filtering -- this probably does not
   generate a goo spectcl build.
@@ -413,6 +420,14 @@ class AcceptSummingRegion : public ObjectInput {
     NextPoint->UnManage();
     ObjectInput::UnManage();
   }
+  // Callback relay functionsl
+
+private:
+  static void CancelRelay(XMWidget *w, XtPointer ud, XtPointer cd);
+  static void ApplyRelay(XMWidget *w, XtPointer ud, XtPointer cd);
+  static void OkRelay(XMWidget *w, XtPointer ud, XtPointer cd);
+  static void TextPointRelay(XMWidget *w, XtPointer ud, XtPointer cd);
+  static void Delete_relay(XMWidget *w, XtPointer ud, XtPointer cd);
 
 };
 

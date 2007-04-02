@@ -295,6 +295,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
+    Revision 4.5.2.2  2004/12/16 13:05:25  ron-fox
+    Fix un-numbered defect: Gamma spectrum channel computations for indexing
+    are incorrect.  This only affects channel get/set commands.
+
+    Revision 4.5.2.1  2004/02/02 21:47:08  ron-fox
+    *** empty log message ***
+
     Revision 4.5  2003/10/24 14:43:29  ron-fox
     Bounds check parameter ids against the size of
     of the event.
@@ -337,8 +344,8 @@ CGamma2DW::CGamma2DW(const std::string& rName, UInt_t nId,
   CSpectrum(rName, nId,
 	    CreateAxisVector(rParameters,
 			     nXScale, nYScale,
-			     0.0,    (Float_t)(nXScale - 1),
-			     0.0,    (Float_t)(nYScale -1))),
+			     0.0,    (Float_t)(nXScale ),
+			     0.0,    (Float_t)(nYScale))),
   m_nXScale(nXScale),
   m_nYScale(nYScale)
 {
@@ -639,7 +646,7 @@ CGamma2DW::operator[] (const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW gamma spectrum y axis"));
   }
-  return (ULong_t)pStorage[nx + (ny << m_nXScale)];
+  return (ULong_t)pStorage[nx + (ny * m_nXScale)];
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -665,7 +672,7 @@ CGamma2DW::set (const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DW gamma spectrum y axis"));
   }
-  pStorage[nx + (ny << m_nXScale)] = (UInt_t)nValue;
+  pStorage[nx + (ny * m_nXScale)] = (UInt_t)nValue;
 }
 
 ///////////////////////////////////////////////////////////////////////////

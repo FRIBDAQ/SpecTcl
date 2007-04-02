@@ -295,6 +295,22 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   replaced them with CreateSpectrum().
 //
 //    $Log$
+//    Revision 4.5.2.2  2004/04/14 14:07:07  ron-fox
+//    Fix memory leak and alignment problems with Xamine memory allocation
+//
+//    Revision 4.6.2.1  2004/04/13 19:37:24  ron-fox
+//    Issue 120 and related bugs: Memory leak on spectrum -delet -all
+//    - Also fix up the way iteration works.
+//    - Fix Issues in Xamine interface library: check for allocation failure was too late.
+//    - Fix issues in Xamine allocator/free.. correct compaction algorithms.
+//
+//    Revision 4.6  2004/01/31 03:48:18  ron-fox
+//    Fix double deletion error on sread -replace.
+//
+//    Revision 4.5.2.1  2004/01/31 03:44:13  ron-fox
+//    Fix error in sread -replace : doubly deleted old spectrum and failed second time
+//    around
+//
 //    Revision 4.5  2003/04/15 19:25:20  ron-fox
 //    To support real valued parameters, primitive gates must be internally stored as real valued coordinate pairs. Modifications support the input, listing and application information when gate coordinates are floating point.
 //
@@ -1231,7 +1247,8 @@ CSpectrumPackage::DeleteAll()
     }
     catch (CException& rExcept) { // Exceptions in the find are ignored.
     }
-    m_pHistogrammer->RemoveSpectrum(pSpec->getName());
+    CSpectrum* pSpectrum = m_pHistogrammer->RemoveSpectrum(pSpec->getName());
+    delete pSpectrum;		// Destroy spectrum storage.
   }
 
 }
@@ -1697,7 +1714,6 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
       catch (...) {
       }
       pOld = m_pHistogrammer->RemoveSpectrum(pSpectrum->getName());
-      if(pOld) delete pOld;
     }
     //  Process the Live flag: This determines if we need to wrap the
     //  spectrum around a snapshot spectrum container:
