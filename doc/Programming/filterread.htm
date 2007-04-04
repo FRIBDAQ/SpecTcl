@@ -123,7 +123,8 @@ is then pulled out of the event.&nbsp; Two cases then apply:</p>
   Filtered data files at present have a block size of 8192 bytes.   Each block
   can be treated as an indpendent chunk of xdr data.  Each block begins with an
   XDR int that describes the value of xdr_getpos() when at the end of the used
-  part of the data block.</p>
+  part of the data block. Data beyond that position has no particular value
+  and should not be relied on to be initialized in any way shape or form.</p>
 <p>
   Data block bodies consist of tagged bodies.  A tag is an XDR string that
   describes what the body of the following data means.  The two tags

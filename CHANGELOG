@@ -606,4 +606,8 @@ Week of March 12, 2007-
 	- Ensure that SpecTcl does not crash if VERSION not readable.
 	  (BZ 294).
 Week of March 19, 2007
-        - Make CEvent::clear() O(1) time.
+        - Make CEvent::clear() O(1) time.bg
+Week of April 2, 2007
+        - Add disclaimer to filterread.htm about data beyond the last used
+          position in filter buffers as someone made an assumption that is not
+          true about it.
