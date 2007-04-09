@@ -19,7 +19,7 @@
 </table>
 <h2>Syntax</h2>
 <p>
-fit create <em>spectrum low high type</em><br />
+fit create <em>fitname spectrum low high type</em><br />
 fit update <em>?pattern?</em> <br />
 fit delete <em>name</em><br />
 fit list <em>?pattern?</em><br />
@@ -42,10 +42,11 @@ Fits are also displayed in Xamine.
 guide section on <a href="../Programming/fits.htm">Extending SpecTcl's Fitting
 subsystem</a>for information about how to add a fit type to SpecTcl.
 </p>
-<h3>fit create <em>spectrum low high type</em></h3>
+<h3>fit create <em>name spectrum low high type</em></h3>
 <p>
 Creates a fit and performs it based on the data currently in <em>spectrum</em>.
 <ul>
+  <li><em>name</em>is the name of the fit to create.</li>
   <li><em>spectrum</em> is the name of an existing spectrum on which the
     fit is to be created and performed</li>
   <li><em>low high</em> define the region of interest for the fit in channel

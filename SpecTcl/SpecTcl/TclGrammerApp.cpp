@@ -663,7 +663,7 @@ int CTclGrammerApp::operator()() {
   cerr << "    - Daniel Bazin for the concept of TreeParameter and its original GUI\n";
   cerr << "    - Leilehau Maly and Tony Denault of the NASA IRTF Telescope\n";
   cerr << "      for the  gaussian fit harnesses to the gsl: fitgsl.{c,h}\n";
-  cerr << "    - Emmanuel Frecon Swdish Institute of Computer Science for the splash package\n";
+  cerr << "    - Emmanuel Frecon Swedish Institute of Computer Science for the splash package\n";
   cerr << " If your name should be on this list and is not, my apologies, please contact\n";
   cerr << "   fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
   cerr << "   the list of credits.\n";
