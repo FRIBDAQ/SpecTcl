@@ -909,4 +909,4 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	 contrib/calibratedparams/Makefile \
 	 contrib/calibratedparams/Makefile.skel \
 	 TestFiles/Makefile \
-	 Gui/Makefile splash/Makefile)
+	 Gui/Makefile splash/Makefile doc/Makefile)
