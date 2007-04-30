@@ -409,3 +409,6 @@ Released January 15, 2007
                                    pop up tkcons.
        Mar 09, 2007 - ensure that SpecTcl can survive a non readable
 	              VERSION file.
+Released April 30, 2007
+
+3.0-012
