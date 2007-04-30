@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS'
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -368,6 +368,7 @@ static void Normalize(win_attributed *a, int *xs, int *ys, int *xp, int *yp)
 
     *ys -= ymarg;
     *yp -= ymarg;
+    *xp -= 1;
     return;
   }
 
@@ -382,6 +383,7 @@ static void Normalize(win_attributed *a, int *xs, int *ys, int *xp, int *yp)
     *ys -= ymarg;
     *yp -= ymarg;
   }
+  *xp -= 1;
 }
 
 /*
@@ -399,10 +401,12 @@ static void Normalize(win_attributed *a, int *xs, int *ys, int *xp, int *yp)
 ** Returns:
 **     other  - The value in the [low,hi] range represented by the pixel.
 */
-static int LinearPosition(int pixel, int lo, int hi, int npix)
+static float LinearPosition(int pixel, int lo, int hi, int npix)
 {
 
-  return ((pixel*(hi-lo+1)/npix) + lo);
+  return Transform(0.0, (float)(npix-1), (float)lo, (float)hi,
+		    (float)pixel);
+
 }
 
 /*
@@ -425,6 +429,7 @@ static int LogPosition(int pixel, int lo, int hi, int npix)
   if(pixel < 0) return -1;
   if(pixel > npix) return -1;
 
+
   /* Xamine only allows full decade displays so we compute the log of the 
   ** low/hi range truncated to the decade.
   */
@@ -433,23 +438,36 @@ static int LogPosition(int pixel, int lo, int hi, int npix)
     int llo = (int)log10((double)lo);
     loglo   = (double)llo;
   }
-  else 
+  else {
     loglo = 0.0;
-
-  if(hi > 0) {
-    int lhi = (int)log10((double)hi);
-    loghi   = (double)lhi;
   }
-  else
+  if(hi > 0) {
+    double lhi = log10((double)hi);
+    if ((float)((int)lhi) != lhi) {
+      loghi = (double)((int)(lhi+1.0));
+    } 
+    else {
+      loghi      = (double)((int)lhi);    
+    }
+  }
+  else {
     loghi = 1.0;
+  }
+  float logvalue = ((float)pixel/(float)npix)*(loghi - loglo) + loglo;
+
+  return (int)pow(10, logvalue);
+
+
 
   /* now compute the log of the position: */
 
-
-  double lpos = loglo + ((double)(pixel)*(loghi - loglo+1)/(double)npix);
-
-  lpos = pow(10, lpos);
-  return (int)lpos;
+  // double lpos = Transform(0, log10((float)(npix-1)), 
+  //		  loglo, loghi, log10((float)pixel));
+  
+  //  double lpos = loglo + ((double)(pixel)*(loghi - loglo+1)/(double)npix);
+  
+  //   lpos = pow(10, lpos);
+  //   return (int)lpos;
 }
 
 /*
@@ -497,8 +515,13 @@ int LogPixel(int counts, int lo, int hi, int npix)
   /* Now figure out where on the axis this all lands: */
 
   if(low_decade > hi_decade) low_decade = hi_decade;   // Protect divide by 0.
-  int position = (int)( (lcounts * (double)npix)/
-		       ((double)(hi_decade-low_decade + 1)));
+  
+  int position  = (int)Transform(low_decade, hi_decade, 
+				 0, (float)npix-1,
+				 (float)lcounts);
+				 
+  //  int position = (int)( (lcounts * (double)npix)/
+  //		       ((double)(hi_decade-low_decade + 1)));
   return position;
 
 }
@@ -567,11 +590,11 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   }
   if(a->isexpanded()) {
     chanlow = (int)a->lowlimit();
-    chanhi  = (int)a->highlimit();
+    chanhi  = (int)a->highlimit() + 1;
   }
   else {
     chanlow = 0;
-    chanhi  = (int)spectra->getxdim(spec)-1;
+    chanhi  = (int)spectra->getxdim(spec);
   }
   cntslow = 0; 
   cntshi  = attributes->getfsval();
@@ -588,23 +611,37 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   int channel;
   unsigned int countpos;
   if((chanpix < 0) && clipping) {		/* set at  bottom channel */
-    channel =   0;		// Clip to the axis.
+    channel =   chanlow;		// Clip to the axis.
     countpos=   0;
     loc->counts = 0;
   }
   else {
-    channel = LinearPosition(chanpix, chanlow, chanhi, chansize);
-    if((channel < chanlow) || (channel > chanhi)) {
-      loc->counts = 0;
+    // channel = (int)LinearPosition(chanpix, chanlow, chanhi, chansize);
+   
+    channel = (int)Transform(0.0, (float)(chansize-1), 
+			(float)chanlow, (float)chanhi, 
+			(float)chanpix);
+    if (channel < chanlow) {
+      channel = chanlow;
     }
-    else {
-      loc->counts  = spectra->getchannel(spec, channel);
+    if (channel >= chanhi) {
+      channel = chanhi - 1;
     }
+    
+    // if((channel < chanlow) || (channel > chanhi)) {
+    //   loc->counts = 0;
+    //  }
+    // else {
+    loc->counts  = spectra->getchannel(spec, channel);
+    // }
     if(attributes->islog()) {
       countpos = LogPosition(cntspix, cntslow, cntshi, cntssize);
     }
     else {
-      countpos = LinearPosition(cntspix, cntslow, cntshi, cntssize);
+      //      countpos =(int)LinearPosition(cntspix, cntslow, cntshi, cntssize);
+      countpos = (unsigned int)Transform(0, (float)(cntssize-1), 
+			   (float)cntslow, (float)cntshi, 
+			   cntspix);
     }
   }
   /*
@@ -612,19 +649,12 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   */
   if(attributes->isflipped()) {
     loc->xpos = countpos;
-    if(clipping) {
-      if(loc->xpos > cntshi) loc->xpos = cntshi;
-      if(loc->xpos < cntslow)loc->xpos = cntslow;
-    }
     loc->ypos = channel;
   }
   else {
     loc->xpos = channel;
     loc->ypos = countpos;
-    if(clipping) {  
-      if(loc->ypos > cntshi) loc->ypos = cntshi;
-      if((loc->ypos < cntslow)) loc->ypos = cntslow;
-    }
+
   }
 }
 
@@ -684,15 +714,19 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   cntshi = attributes->getfsval();
 
   chanlo = 0;
-  chanhi = spectra->getxdim(specno)-1;
+  chanhi = spectra->getxdim(specno); // Goes to the end of the last chan.
   if(att->isexpanded()) {
     chanlo = att->lowlimit();
-    chanhi = att->highlimit();
+    chanhi = att->highlimit() +1; // Goes to end of last channel.
   }
 
   /* The channel axis is always linear so:  */
   int chpix;
-  chpix = LinearPosition(chan - chanlo, 1, chanpix, (chanhi-chanlo + 1));
+
+  //  chpix = (int)LinearPosition(chan - chanlo, 1, chanpix-1, (chanhi-chanlo));
+  
+  chpix = (int)Transform((float)chanlo, (float)(chanhi - 1),
+			 0.0, (float)(chanpix), chan) + 1;
 
   /* The counts axis could be log though:  */
   int cpix;
@@ -700,7 +734,10 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
     cpix = LogPixel(counts, cntslo, cntshi, cntspix);
   }
   else {
-    cpix = LinearPosition(counts - cntslo, 1, cntspix, (cntshi-cntslo + 1));
+
+    //    cpix = (int)LinearPosition(counts - cntslo, 1, cntspix-1, (cntshi-cntslo));
+    cpix  = (int)Transform((float)cntslo, (float)cntshi,
+			   0.0, (float)(cntspix-1), counts);
   }
 
   /* Figure the cartesian pixels relative to the axis origin based on the
@@ -769,6 +806,8 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
     xh = (att->isflipped() ? att->yhilim()  : att->xhilim());
     yl = (att->isflipped() ? att->xlowlim() : att->ylowlim());
     yh = (att->isflipped() ? att->xhilim()  : att->yhilim());
+    xh++;
+    yh++;
     if(att->isexpandedfirst()) {
       /*
 	int temp = xl;
@@ -810,8 +849,15 @@ void Xamine_Convert2d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   /* Get channel values: */
 
   int xp, yp;
-  xp = LinearPosition(xpix, xl, xh, nx);
-  yp = LinearPosition(ypix, yl, yh, ny);
+
+  // xp = (int)LinearPosition(xpix, xl, xh, nx);
+  // yp = (int)LinearPosition(ypix, yl, yh, ny);
+
+  xp = (int)Transform(0.0, (float)(nx-1),
+		      (float)xl, (float)xh, (float)xpix);
+  yp = (int)Transform(0.0, (float)(ny-1),
+		      (float)yl, (float)yh, (float)ypix);
+		      
 
   if((att->isflipped() && att->isexpanded() && att->isexpandedfirst()) ||
      (!att->isflipped() && att->isexpanded() && !att->isexpandedfirst())) {
@@ -916,9 +962,15 @@ void Xamine_Convert2d::SpecToScreen(int *xpix, int *ypix, int chanx, int chany)
   ** coordinates.
   */
 
-  *xpix = LinearPosition(chanx - xl,1, nx, (xh-xl + 1));
-  *ypix = LinearPosition(chany - yl,1, ny, (yh-yl + 1));
 
+  // *xpix = (int)LinearPosition(chanx - xl,1, nx, (xh-xl + 1));
+  // *ypix = (int)LinearPosition(chany - yl,1, ny, (yh-yl + 1));
+
+  *xpix = (int)(Transform((float)xl, (float)xh,
+			  0.0, (float)(nx-1), (float)chanx));
+  *ypix = (int)(Transform((float)yl, (float)yh, 
+			  0.0, (float)(ny-1), (float)chany));
+		
   /* Adjust pixel coordinates into X/Y X-11 positions: */
 
   *xpix -= orgx;

@@ -754,10 +754,18 @@ CParameterPackage::getParameterInfoListString(CParameter& rParameter)
   }
   
   if(rParameter.getLow() != rParameter.getHigh()) { // Parameter has range:
-    sprintf(Text, "%f %f %s", rParameter.getLow(),
-	    rParameter.getHigh(),
-	    rParameter.getUnits().c_str());
+    List.StartSublist();
+
+    sprintf(Text, "%f", rParameter.getLow());
     List.AppendElement(Text);
+
+    sprintf(Text, "%f", rParameter.getHigh());
+    List.AppendElement(Text);
+
+    List.AppendElement(rParameter.getUnits());
+
+    List.EndSublist();
+
   }
   else {			// No scaling or range info:
     string RangeUnits("{} {} {");	// No low/high

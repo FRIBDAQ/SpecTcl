@@ -291,6 +291,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log
    $Log$
+   Revision 4.5.2.2  2006/06/22 17:41:26  ron-fox
+   Defect 209: Other 64 bit unclean things fixed.
+
+   Revision 4.5.2.1  2004/10/27 12:38:40  ron-fox
+   optimize performance of Spectrum1DL histogram increments.  Total
+   performance gain was a factor of 2.8.  The 'unusual' modifications
+   are documented via comments that indicate they were suggested by profile
+   data.
+
    Revision 4.5  2004/02/03 21:32:57  ron-fox
    Make definitions of spectra from resolutions consistent with those that have ranges.
 
@@ -417,12 +426,12 @@ CBitSpectrumL::Increment(const CEvent& rE)
   CEvent& rEvent((CEvent&)rE);
   if(m_nParameter < rEvent.size()) {
     if(rEvent[m_nParameter].isValid()) {
-      ULong_t* p = (ULong_t*)getStorage();
-      assert(p != (ULong_t*)kpNULL);
+      UInt_t* p = (UInt_t*)getStorage();
+      assert(p != (UInt_t*)kpNULL);
       UInt_t nParam = 
 	(UInt_t)m_PDescription.RawToMapped(rEvent[m_nParameter]);
       
-      UInt_t nBit   = 1 << (UInt_t)AxisToMapped(0, 0.0);
+      UInt_t nBit   = 1 << (UInt_t)AxisToMapped(0, 0);
       
       
       //
@@ -554,7 +563,7 @@ CBitSpectrumL::CreateStorage()
   setStorageType(keLong);
 
   Size_t        nBytes   = StorageNeeded();
-  ULong_t*      pStorage = new ULong_t[nBytes/sizeof(ULong_t)];
+  UInt_t*      pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();

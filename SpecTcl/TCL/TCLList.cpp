@@ -275,7 +275,8 @@ DAMAGES.
 
 		     END OF TERMS AND CONDITIONS
 */
-static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
+
+
 //  CTCLList.cpp
 // Encapsulates a TCL List.  Lists in TCL are 
 // sets of strings with space delimeters e.g.:
@@ -296,19 +297,16 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 //
 
 
-#include <config.h>
 #include "TCLList.h"                               
 #include "TCLInterpreter.h"
 #include <string.h>
 #include <assert.h>
-
-#if HAVE_MALLOC_H
 #include <malloc.h>		// Since Tcl uses malloc/free
-#endif
 
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
+typedef char *pChar;
+
+static const char* Copyright=
+"CTCLList.cpp: Copyright 1999 NSCL, All rights reserved\n";
 
 // Functions for class CTCLList
 
@@ -412,7 +410,12 @@ CTCLList::Split(StringArray& rElements)
     for(int i = 0; i < nElements; i++) {
       rElements.push_back(pElements[i]);
     }
-    Tcl_Free((char*)pElements);
+#if defined(WIN32) || (TCL_MAJOR_VERSION > 8) || \
+                ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
+	Tcl_Free((char*)pElements);
+#else
+    free(pElements);		// Early versions of Tcl_Free on unix failed.
+#endif
   }
   return result;
 
@@ -432,12 +435,14 @@ CTCLList::Split(int& n, char***p)
   if(m_pList == (char*)kpNULL)
     return TCL_OK;		// Treat null ptr as empty list.
   
+  
   int result = Tcl_SplitList(pInterp->getInterpreter(), m_pList, &n, 
 #if (TCL_MAJOR_VERSION > 8) || ((TCL_MAJOR_VERSION ==8) && (TCL_MINOR_VERSION > 3))
-			     (const char***)p);  
+			     (const char***)p);
 #else
-                              p);
+                                           p);
 #endif
+  return result;
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -463,15 +468,15 @@ CTCLList::Merge(const StringArray& rElements)
 //
 
   int     n         = rElements.size();
-  char**  pElements = new (char*)[n];
+  char**  pElements = new pChar[n];
 
   for(int i = 0; i < n; i ++) {
     pElements[i] = (char*)rElements[i].c_str();
   }
-  const char* pResult = (const char*)Merge(n, pElements);
+  Merge(n, pElements);
 
   delete []pElements;
-  return pResult;
+  return m_pList;
 }
 /////////////////////////////////////////////////////////////////////////
 //
@@ -485,8 +490,13 @@ CTCLList::Merge(int n, char** pElements)
 {
   char* pList = Tcl_Merge(n, pElements);
   setList(pList);
-  free(pList);
-  return (const char*)m_pList;
+#if defined(WIN32) || (TCL_MAJOR_VERSION > 8) || \
+                ((TCL_MAJOR_VERSION ==8) && (TCL_MINORO_VERSION > 3))
+  Tcl_Free(pList);
+#else
+  free(pList);             // Documented to work this way in books but win32??
+#endif
+  return  m_pList;
 }
 /////////////////////////////////////////////////////////////////////////
 //

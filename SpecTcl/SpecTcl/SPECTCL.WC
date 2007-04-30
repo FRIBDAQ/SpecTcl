@@ -43,36 +43,21 @@ ClassID, Name, Description, Multiplicity, Concurrency, Visibility, Persistence, 
 29CXamineEventHandlerI:\spectcl\spectcl\XamineEventHandler.cppCTCLFileHandler0000
 59CTclGrammerAppPerforms SpecTcl initialization.  The user extends this calss to add their own initialization.publicTclGrammerAppEventProcessingCTCLApplication1000
 60CMySpecTclAppThe user creates this subclass and fills in the appropriate overrides for any 
-
 additions they want to make.  The class is a self contained example which 
-
 registers two event processors.  One which unpacks a simple fixed length
-
 event and another which produces a pseudo parameter from the sum of 
-
 the first two parameters in an event.1sequentialpublicTransitoryMySpecTclApp0010
 61CEventProcessorThis is a base class for all elements in the analysis pipeline.  
-
 Elements in the pipeline can do whatever they want with the raw
-
 event and the unpacked event array.  They are registered into the
-
 analyzer as a sequential set of processors which are called in registration
-
   The base class makes no assumption about which of the run events
-
 is actually handled and is essentially a no-op for all member functions.
-
 This allows a user to write e.g. an event processor which only cares about
-
 things like the Begin Run event.
 
-
-
 BUGBUGBUG - Need to extend this class at some point to have
-
    entries for Documentation buffers.
-
 order for each event.publicEventProcessor0000
 ***END_TABLE***
 
@@ -1858,154 +1843,99 @@ BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3358RegisterEventProcessorvoidMutatorpublicAdd an event processor to the list of event processors 
-
 maintained by SpecTcl's analyzer.  This can only be 
-
 safely called at the time or after the time that 
-
 CreateAnalysisPipeline is called, since prior to that 
-
 there's no assurance that the analyzer has been instantiated.Add event processor to pipeline tail000010000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3359BindTCLVariablesvoidOperationpublicCalled to bind variables to the TCL interpreter used by SpecTcl.
-
 This member can be overidden, however for SpecTcl to work
-
 correctly it must be overridden as an extension, that is
-
 there should be as the first action a call to:
-
-
 
 CTclGrammerApp::BindTCLVariablesBind any CTCLVariables to interpreter.000110000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3360SourceLimitScriptsvoidBehaviorpublicSources initialization scripts.  The scripts
-
 sourced at this point in time are intended to
-
 allow additional variables to be defined and set
-
 as well as limits etc.  It is not safe to do 
-
 arbitrary SpecTcl commands at this point.
-
 Additional 'functional' scripts can be sourced
-
 from an overridden operator()  Note that the
-
 default implementation can be overridden, however it
-
 sources scripts which set various limit variables and
-
 therefore an override should include the code:
 
-
-
 CTclGrammerApp::operator()(rInterpreter);
-
 Source variable definition scripts.000110000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3361SetLimitsvoidBehaviorpublicBased on script variables etc. set limits and other statically defined variables.
-
 The default implementation uses this to set the final values for the size of
-
 the display subsystem shared memory, the parameter array size and the
-
 size of the event list.  If this method is overridden, you should call the
-
 base class functionality to ensure that SpecTcl is properly started:
-
-
 
 CTclGrammerApp::SetLimits();Finalize limit variables.000110000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3362CreateHistogrammervoidBehaviorpublicCreate the Histogrammer object and link it in as
-
 SpecTcl's data sink.  This behavior can be overidden.
-
 If a different data sink object is created, the global
-
 variable:  gpEventSink must be set to point to it.Link Histogramer sink to SpecTcl.000110000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3363SelectDisplayervoidBehaviorpublicSelects the displayer and hooks it into the histogrammer.  
-
 Note:  In the current architecture, this is a No-Op, however,
-
 in the future, we will support turning on and off displayers, null
-
 displayers and so on and this member function will be useful
-
 at that time.Link Histogrammer to Displayer000110000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3364SetupTestDataSourcevoidBehaviorpublicSets up a test (internal) data source.  The default
-
 behavior is to create  fixed length event with some
-
 gaussian distributions for parameters.  This source is
-
 used by SpecTcl developers to test functionality without
-
 referring to real data.  Note that an eventsource is currently 
-
 necessary to create and setup the run control object. Set up test data source.000110000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3365CreateAnalyzervoidBehavioralpublicCreates a data analyzer.  The histogrammer
-
 in gpEventSink is set as the analyzer's event sink.
-
 Note that by default a CTclAnalyzer is created.
-
 Create the event analyzer.000110000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3366SelectDecodervoidBehavioralpublicSelects the Buffer decoder to be associated with the
-
 data stream.  The default is to instantiate an NSCLBufferDecoder,
-
 connect it to the global pointer: gpBufferDecoder  and in turn
-
 to the analyzer.Select Buffer Decoder.000110000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3367CreateAnalysisPipelinevoidBehavioralpublicThis must be provided by the subclass.  The experimenter
-
 must set up the analysis pipeline which manages the
-
 data received from the data source.  This pipeline
-
 consists of an ordered set of CEventProcessor 
-
 derived objects.Create the event pipeline.001110000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3368AddCommandsvoidBehavioralpublicRegisters the commands and command packages
-
 which make up SpecTcl.  Note that the default
-
 method registers the standard SpecTcl commands.
-
 If an override is supplied to add user commands, you 
-
 must invoke the base class function at some point:
-
-
 
 CTclGrammerApp::AddCommands(rInterp);000110000000
 BEGIN_CODE
@@ -2016,273 +1946,179 @@ BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3370SourceFunctionalScriptsvoidBehavioralpublicThis function provides an opportunity to 
-
 source scripts which perform functional 
-
 operations either in spectcl or in other (e.g. Tk, Blt)
-
 packages which are now all hooked together properly.
-
 Do functional Tcl initialization.000110000000
 BEGIN_CODE
 
 END_CODE
 59CTclGrammerApp3371operator()intEntry pointpublicCalled when the tcl interpreter starts up.  The base 
-
 functionality is to call the action member functions
-
 (e.g. CreateAnalyzer) in the appropriate order.  This
-
 an be extended by overriding and delegating the 
-
 operation to the base class or by writing an entirely
-
 new startup scheme as desired.
-
 SpecTcl entry point.000110000000
 BEGIN_CODE
 
 END_CODE
 60CMySpecTclApp3372BindTCLVariablesvoidoverridepublic Add code to this function to bind any TCL variable to
-
  the SpecTcl interpreter.  Note that at this time,
-
  variables have not yet been necessarily created so you
-
  can do Set but not necessarily Get operations.
-
-
 
 000110000000
 BEGIN_CODE
 CTclGrammerApp::BindTCLVariables(rInterp);
 END_CODE
 60CMySpecTclApp3373SourceLimitScriptsvoidOverridepublicAdd code here to source additional variable setting
-
 scripts.  At this time the entire SpecTcl/Tk infrastructure
-
 is not yet set up.  Scripts run at this stage can only run
-
 basic Tcl/Tk commands, and not SpecTcl extensions.
-
 Typically, this might be used to set a bunch of initial values
-
 for variables which were bound in BindTCLVariables.000110000000
 BEGIN_CODE
 CTclGrammerApp::SourceLimitScripts(rInterpreter);
 END_CODE
 60CMySpecTclApp3374SetLimitsvoidoveridepublicCalled after BindVariables and SourceLimitScripts.
-
 This function can be used to fetch values of bound Tcl
-
 variables which were modified/set by the limit scripts to
-
 update program default values. 000110010000
 BEGIN_CODE
 CTclGrammerApp::SetLimits();
 END_CODE
 60CMySpecTclApp3375CreateHistogrammervoidOverridepublicCreates the histogramming data sink.  If you want to override
-
 this in general you probably won't make use of the actual
-
 base class function.  You might, however extend this by 
-
 defining a base set of parameters and histograms from within
-
 the program.000110010000
 BEGIN_CODE
 CTclGrammerApp::CreateHistogrammer();
 END_CODE
 60CMySpecTclApp3376SelectDisplayervoidOverride.publicSelect a displayer object and link it to the
-
 histogrammer.  The default code will link Xamine
-
 to the displayer, and set up the Xamine event handler
-
 to deal with gate objects accepted by Xamine interaction.000110010000
 BEGIN_CODE
 CTclGrammerApp::SelectDisplayer(nDisplaySize, rHistogrammer);
 END_CODE
 60CMySpecTclApp3377SetupTestDataSourcevoidOverridepublic Allows you to set up a test data source.  At
-
 present, SpecTcl must have a data source of some sort
-
 connected to it... The default test data source produces a 
-
 fixed length event where all parameters are selected from
-
 a gaussian distribution.  If you can figure out how to do it,
-
 you can setup your own data source... as long as you don't
-
 start analysis, the default one is harmless.000110010000
 BEGIN_CODE
 CTclGrammerApp::SetupTestDataSource();
 END_CODE
 60CMySpecTclApp3378CreateAnalyzervoidOverridepublicCreates an analyzer.  The Analyzer is connected to the data
-
 source which supplies buffers.  Connected to the analyzer is a
-
 buffer decoder and an event unpacker.  The event unpacker is 
-
 the main experiment dependent chunk of code, not the analyzer.
-
 The analyzer constructed by the base class is a CTclAnalyzer instance.
-
 This is an analyzer which maintains statistics about itself in Tcl Variables.000110010000
 BEGIN_CODE
 CTclGrammerApp::CreateAnalyzer(pSink);
 END_CODE
 60CMySpecTclApp3379SelectDecodervoidOverridepublic  Selects a decoder and attaches it to the analyzer.
-
 A decoder is responsible for knowing the overall structure of
-
 a buffer produced by a data analysis system.  The default code
-
 constructs a CNSCLBufferDecoder object which knows the format
-
 of NSCL buffers.000110010000
 BEGIN_CODE
 CTclGrammerApp::SelectDecoder(rAnalyzer);
 END_CODE
 60CMySpecTclApp3380CreateAnalysisPipelinevoidOverridepublic  Sets up an analysis pipeline.  This function is required and must
-
 be filled in by the SpecTcl user.  Pipeline elements are objects
-
 which are members of classes derived from the CEventProcessor
-
 class. They should be added to the Analyzer's event processing pipeline
-
 by calling RegisterEventProcessor (non virtual base class member).
-
    The sample implementation in this
-
 file produces a two step pipeline.  The first step decodes a fixed length
-
 event into the CEvent array.  The first parameter is put into index 1 and so on.
-
 The second step produces a compiled pseudo parameter by adding event array
-
 elements 1 and 2 and putting the result into element 0.
-
 000110010000
 BEGIN_CODE
 
 END_CODE
 60CMySpecTclApp3381AddCommandsvoidOverridepublicThis function adds commands to extend Tcl/Tk/SpecTcl.
-
 The base class function registers the standard SpecTcl command
-
 packages.  Your commands can be registered at this point.
-
 Do not remove the sample code or the SpecTcl commands will
-
 not get registered.000110010000
 BEGIN_CODE
 CTclGrammerApp::AddCommands(rInterp);
 END_CODE
 60CMySpecTclApp3382SetupRunControlvoidOverride.public  Sets up the Run control object.  The run control object
-
 is responsible for interacting with the underlying operating system
-
 and programming framework to route data from the data source to 
-
 the SpecTcl analyzer.  The base class object instantiates a 
-
 CTKRunControl object.  This object uses fd waiting within the 
-
 Tcl/TK event processing loop framework to dispatch buffers for
-
 processing as they become available.000110010000
 BEGIN_CODE
 CTclGrammerApp::SetupRunControl();
 END_CODE
 60CMySpecTclApp3383SourceFunctionalScriptsvoidOverridepublic  This function allows the user to source scripts
-
 which have access to the full Tcl/Tk/SpecTcl
-
 command set along with whatever extensions have been
-
 added by the user in AddCommands.  000110010000
 BEGIN_CODE
 CTclGrammerApp::SourceFunctionalScripts(rInterp);
 END_CODE
 60CMySpecTclApp3384operator()intOverride.public  Entered at Tcl/Tk initialization time (think of this
-
 as the entry point of the SpecTcl program).  The base
-
 class default  implementation calls the member functions
-
 of this class in an appropriate order.  It's possible for the user
-
 to extend this functionality by adding code to this function.000110010000
 BEGIN_CODE
 CTclGrammerApp::operator()();
 END_CODE
 61CEventProcessor3385OnAttachBool_tDefault methodpublicCalled once when the event processor is
-
 registered on the analyzer.  The default action
-
 is null.  If this member returns kfFALSE,
-
 the registration is aborted with an error message.Called on registration000110000000
 BEGIN_CODE
 return kfTRUE;
 END_CODE
 61CEventProcessor3386OnBeginBool_tDefault BehaviorpublicCalled when a begin run buffer/event is received.
-
 If kfFALSE is returned, the pipeline is silently aborted.Begin Run000110000000
 BEGIN_CODE
 return kfTRUE;
 END_CODE
 61CEventProcessor3387OnEndBool_tDefault behaviorpublicCalled when an end of run event/buffer is received.
-
 If kfFALSE is returned, the processing pipeline is 
-
 silently aborted.  The default implementation is a
-
 no-op returning kfTRUEEnd Run000110000000
 BEGIN_CODE
 return kfTRUE;
 END_CODE
 61CEventProcessor3388OnPauseBool_tDefault BehaviorpublicCalled when a pause run event/buffer is received.
-
 Returning kfFALSE will silently abort the remainder of the
-
 event pipeline.  The default is an no-op which returns kfTRUEPause Run.000110000000
 BEGIN_CODE
 return kfTRUE;
 END_CODE
 61CEventProcessor3389OnResumeBool_tDefault BehaviorpublicCalled when a resume run event/buffer is received
-
 If this function returns kfFALSE, the remainder of the
-
 event pipeline is silently aborted.  The default 
-
 implementation is a no-op which returns kfTRUE.Resume Run000110000000
 BEGIN_CODE
 return kfTRUE;
 END_CODE
 61CEventProcessor3390operator()Bool_tBase class behaviorpublicThis member is called whenever a physics event is 
-
 received.  At least one of the processors in the processing
-
 pipeline must call the analyzer's SetEventSize() member function.
-
 This member informs the analyzer how many bytes are in the raw event.
-
 Other useful members involved in that are:
-
 IncrementEventSize(int nSize=2)      - Adds to the current event size.
-
 GetEventSize()                                 - Retrieves the current event size.
 
-
-
 If the function returns kfFALSE, the entire event processing pipeline is 
-
 aborted and the unpacked event being construction is not sent on
-
 to the event sink.Physics Event000110000000
 BEGIN_CODE
 return kfTRUE;

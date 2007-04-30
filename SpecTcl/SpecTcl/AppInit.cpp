@@ -628,7 +628,7 @@ extern "C" {
 // The following are used to locate our initialization and RC files:
 
    static const char*  kpInstalledBase    = INSTALLED_IN; // Base of installation dir.
-   static const char*  kpAppInitSubDir    = "/Etc/";  // This subdir has app init.
+   static const char*  kpAppInitSubDir    = "/etc/";  // This subdir has app init.
    static const char*  kpAppInitFile      = "SpecTclInit.tcl";
    static const char*  kpHomeEnvName      = "HOME";
    static  char*  kpUserInitFile          = "/SpecTclRC.tcl";
@@ -914,16 +914,16 @@ extern "C" {
    
    
    
-      if(sscanf(DisplaySize.Get(), "%d", &Result) > 0) {
+      if(sscanf(DisplaySize.Get(), "%u", &Result) > 0) {
          m_nDisplaySize = Result;
       }
    
       nParams.Bind(getInterpreter());
-      if(sscanf(nParams.Get(), "%d", &Result) > 0) {
+      if(sscanf(nParams.Get(), "%u", &Result) > 0) {
          m_nParams = Result;
       }
       nListSize.Bind(getInterpreter());
-      if(sscanf(nListSize.Get(), "%d", &Result)) {
+      if(sscanf(nListSize.Get(), "%u", &Result)) {
          m_nListSize = Result;
       }
    }

@@ -273,13 +273,16 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
   Author: Kanayo Orji
   Change Log:
 
   $Log$
+  Revision 1.12.4.1  2005/05/02 15:07:36  ron-fox
+  Ensure that open filters get properly closed on program exit.
+
   Revision 1.12  2003/10/28 21:33:14  ron-fox
   Remove obsolete #include <sstream> which barfs on Tru64 anyway.
 
@@ -322,6 +325,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Histogrammer.h"
 #include "GateCommand.h"
 #include "EventSinkPipeline.h"
+#include <iostream.h>
 #include <assert.h>
 
 // Static Data:

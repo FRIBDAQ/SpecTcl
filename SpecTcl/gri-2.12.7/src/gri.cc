@@ -39,7 +39,14 @@ std::vector<double>       _dash;
 std::vector<DataFile>     _dataFILE;
 std::vector<CmdFile>      _cmdFILE;
 std::vector<const char*>  _gri_argv;
+//
+//   Ron Fox additions for -postscript switch.
+//
 
+bool          _postscript_header = false; // Flag for EPSF or not.
+
+
+/////////////
 
 char            _input_data_separator; // ' ' (general whitespace) or '\t'
 char *          _cmd_being_done_IP[cmd_being_done_LEN];
@@ -125,6 +132,7 @@ bool            _ygrid_exists;
 bool            _ygrid_increasing;
 bool            _yscale_exists;
 bool            _use_default_for_query = false;
+
 
 /*
  * Matrices
