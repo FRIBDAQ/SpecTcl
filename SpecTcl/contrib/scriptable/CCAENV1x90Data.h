@@ -7,6 +7,9 @@
 */
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
 #endif
 namespace CCAENV1x90Data {
 
@@ -126,10 +129,10 @@ namespace CCAENV1x90Data {
 
   */
   static inline int
-  TriggerNumber(unsigned long Header) throw (string)
+  TriggerNumber(unsigned long Header) throw (STD(string))
   {
     if(!isGlobalHeader(Header)) {
-      throw string("CCAENV1x90Data::TriggerNumber - given non global header");
+      throw STD(string)("CCAENV1x90Data::TriggerNumber - given non global header");
     }
     else {
       return ((Header & EVENTCOUNT_MASK) >> EVENT_RSHIFT);
@@ -144,16 +147,16 @@ namespace CCAENV1x90Data {
 	the GEO field.
 
 	\return unsigned The GEO field of header
-	\throw string - if the longword passed in is not a 
-	global header word, a string indicating this fact is 
+	\throw STD(string) - if the longword passed in is not a 
+	global header word, a STD(string) indicating this fact is 
 	thrown.
 
    */
   static inline unsigned int
-  BoardNumber(unsigned long Header) throw (string)
+  BoardNumber(unsigned long Header) throw (STD(string))
   {
     if((!isGlobalHeader(Header)) && (!isGlobalTrailer(Header))) {
-      throw string("CCAENV1x90Data::BoardNumber - given non global header");
+      throw STD(string)("CCAENV1x90Data::BoardNumber - given non global header");
     }
     else {
       return (Header & GEO_MASK);
@@ -226,16 +229,16 @@ namespace CCAENV1x90Data {
 
 	\return unsigned -  the chip number within the board of 
 	the TDCchip from a TDC header or trailer word.
-	\throw string - Message is thrown if the input Header is 
+	\throw STD(string) - Message is thrown if the input Header is 
 	  not a TDC chip header or trailer longword.
   */
   static inline unsigned int
-  TDCChip(unsigned long Header) throw (string)
+  TDCChip(unsigned long Header) throw (STD(string))
   {
     if(! isTDCHeader(Header) && 
        !isTDCTrailer(Header) &&
        !isTDCError(Header)) {
-      throw string("CCAENV1x90Data::TDCChip - not data with chip no.");
+      throw STD(string)("CCAENV1x90Data::TDCChip - not data with chip no.");
     } else {
       return ((Header & TDC_MASK) >> TDC_RSHIFT);
     }
@@ -249,14 +252,14 @@ namespace CCAENV1x90Data {
 	The header longword to extract the event id from.
 
 	\return unsigned - the event id
-	\throw	String - a message is thrown in the event that 
+	\throw	STD(String) - a message is thrown in the event that 
 	this header does not represent a TDC Header or trailer.
   */
   static inline unsigned int
-  EventId(unsigned long Header) throw (string)
+  EventId(unsigned long Header) throw (STD(string))
   {
     if (!isTDCHeader(Header)  && !isTDCTrailer(Header)) {
-      throw string("CAENV1x90Data::EventId - not a tdc header");
+      throw STD(string)("CAENV1x90Data::EventId - not a tdc header");
     } 
     else {
       return ((Header & EVENTID_MASK) >> EVENTID_RSHIFT);
@@ -274,15 +277,15 @@ namespace CCAENV1x90Data {
 	The TDC header longword.
 
 	\return	The bunch count extracted from the TDC Header.
-	\throw	string - if the Header longword does not 
+	\throw	STD(string) - if the Header longword does not 
 	represent a TDC header
 
    */
   static inline unsigned int
-  BunchId(unsigned long Header) throw (string)
+  BunchId(unsigned long Header) throw (STD(string))
   {
     if(!isTDCHeader(Header)) {
-      throw string("CCAENV1x90Data::Bundhid - not a tdc header");
+      throw STD(string)("CCAENV1x90Data::Bundhid - not a tdc header");
     }
     else {
       return (Header & BUNCHID_MASK); // Assumes right justified.
@@ -297,14 +300,14 @@ namespace CCAENV1x90Data {
 
 	\return unsigned short	The word count extracted from the 
 	bunch count word.
-	\throws	string if the header is not a TDC Trailer.
+	\throws	STD(string) if the header is not a TDC Trailer.
 
   */
   static inline short
-  TDCWordCount(unsigned long Header) throw (string)
+  TDCWordCount(unsigned long Header) throw (STD(string))
   {
     if(!isTDCTrailer(Header)) {
-      throw string("CCAENV1x90Data::TDCWordCount not a tdc trailer");
+      throw STD(string)("CCAENV1x90Data::TDCWordCount not a tdc trailer");
     } 
     else {
       return (Header & TDCWORDCOUNT_MASK);
@@ -339,14 +342,14 @@ namespace CCAENV1x90Data {
   \retval True - datum represents a trailing edge signal timing.
   \retval False - datum represents a non trailing edge signal 
   (trailing edge or width).
-  \throw string if the datum does not represent a TDC measurement.
+  \throw STD(string) if the datum does not represent a TDC measurement.
 
    */
   static inline bool
-  isTrailing(unsigned long datum)  throw (string)
+  isTrailing(unsigned long datum)  throw (STD(string))
   {
     if(!isMeasurement(datum)) {
-      throw string("CCAENV1x90Data::isTrailing not a measurement word");
+      throw STD(string)("CCAENV1x90Data::isTrailing not a measurement word");
     } else {
       return ((datum & TRAILING_BIT) != 0);
     }
@@ -364,13 +367,13 @@ namespace CCAENV1x90Data {
    1190 vs. the 1290. Defaults to true (NSCL needs).
 
    \return Unsigned the value of the contents of the dataum word.
-   \throw string if datum is not a TDC measurement.
+   \throw STD(string) if datum is not a TDC measurement.
   */
   static inline int
-  ChannelNumber(unsigned long Datum, bool is1190 = true) throw (string)
+  ChannelNumber(unsigned long Datum, bool is1190 = true) throw (STD(string))
   {
     if(!isMeasurement(Datum)) {
-      throw string("CCAENV1x90Data::ChannelNumber  is not a measurement");
+      throw STD(string)("CCAENV1x90Data::ChannelNumber  is not a measurement");
     } 
     else   {
       unsigned long mask = V1190CHANNEL_MASK;
@@ -401,14 +404,14 @@ namespace CCAENV1x90Data {
     \return The unsigned long
     value of the conversion represented by this data 
     word.
-    \throw String if datum is not a measuremenet.
+    \throw STD(String) if datum is not a measuremenet.
 
    */
   static inline long
-  ChannelValue(unsigned long datum, bool is1190=true) throw (string)
+  ChannelValue(unsigned long datum, bool is1190=true) throw (STD(string))
   {
     if (!isMeasurement(datum)) {
-      throw string("CCAENV1sx90Data::ChannelValue - is not a measurement");
+      throw STD(string)("CCAENV1sx90Data::ChannelValue - is not a measurement");
     } else {
       unsigned long mask = is1190 ? V1190DATA_MASK : 
 	                            V1290DATA_MASK;
@@ -424,14 +427,14 @@ namespace CCAENV1x90Data {
     \return Returns the error flag bit fields from TDCErrorBits. 
     Note that there are definitions in this class that describe 
     each of the bits in this bitfield.
-    \throw string if datum is not a TDC error reporting longword.
+    \throw STD(string) if datum is not a TDC error reporting longword.
     
    */
   static inline unsigned long
-  TDCErrorBits(unsigned long datum) throw (string)
+  TDCErrorBits(unsigned long datum) throw (STD(string))
   {
     if(!isTDCError(datum)) {
-      throw string("CCAENV1x90DATA:: not an error flag word");
+      throw STD(string)("CCAENV1x90DATA:: not an error flag word");
     }
     else {
       return datum & ERROR_MASK;
@@ -468,14 +471,14 @@ namespace CCAENV1x90Data {
 
     \return unsigned long 
     \retval The extended timestamp of the trigger tag longword.
-    \throw String - if datum is not a trigger tag longword.
+    \throw STD(String) - if datum is not a trigger tag longword.
 
    */
   static inline unsigned long 
-  ExtendedTriggerTime(unsigned long datum) throw (string)
+  ExtendedTriggerTime(unsigned long datum) throw (STD(string))
   {
     if(!isTriggerTimeTag(datum)) {
-      throw string("CCAENV1x90DATA::ExtendedTriggerTime not a trigger time word");
+      throw STD(string)("CCAENV1x90DATA::ExtendedTriggerTime not a trigger time word");
     } 
     else {
       return (datum & TRIGGERTIME_MASK);
@@ -493,14 +496,14 @@ namespace CCAENV1x90Data {
     \retval 	true if the global trailer longword has the 
                 overflow bit set.
     \retval	False if not.
-    \throw    String if datum is not a global trailer.
+    \throw    STD(String) if datum is not a global trailer.
 
    */
   static inline bool
-  Overflow(unsigned long datum) throw (string)
+  Overflow(unsigned long datum) throw (STD(string))
   {
     if(!isGlobalTrailer(datum)) {
-      throw string("CCAENV1x90DATA::Overflow - not a global trailer");
+      throw STD(string)("CCAENV1x90DATA::Overflow - not a global trailer");
     }
     else {
       return ((datum & OVERFLOW_MASK) == OVERFLOW_MASK);
@@ -520,14 +523,14 @@ namespace CCAENV1x90Data {
   \return Bool
   \retval 	true if there was an error this last event
   \retval 	false if there were no errors this last event.
-  \throw   String if the datum parameter is not a global trailer 
+  \throw   STD(String) if the datum parameter is not a global trailer 
   longword.
   */
   static inline bool 
-  Error(unsigned long datum) throw (string)
+  Error(unsigned long datum) throw (STD(string))
   {
     if(!isGlobalTrailer(datum)) {
-      throw string("CCAENV1x90DATA::Error - not a global trailer");
+      throw STD(string)("CCAENV1x90DATA::Error - not a global trailer");
     } 
     else {
       return ((datum & TDCERROR_MASK) == TDCERROR_MASK);
@@ -543,14 +546,14 @@ namespace CCAENV1x90Data {
     \return Bool
     \retval true if the TriggersLost bit was set in datum
     \retval false if the Triggerslost bit is not set in datum.
-    \throw String - if datum is not a global trailer longword.
+    \throw STD(String) - if datum is not a global trailer longword.
 
    */
   static inline bool 
-  Lost(unsigned long datum) throw (string)
+  Lost(unsigned long datum) throw (STD(string))
   {
     if(!isGlobalTrailer(datum)) {
-      throw string("CAENV1x90DATA::Lost - not a trailer long");
+      throw STD(string)("CAENV1x90DATA::Lost - not a trailer long");
     } 
     else {
       return ((datum & TRIGGERLOST_MASK) & TRIGGERLOST_MASK);
@@ -564,14 +567,14 @@ namespace CCAENV1x90Data {
 
     \return Unsigned long 
     \retval The number of words in the events for which this is a trailer.
-    \throw  String if datum is not a global trailer longword.
+    \throw  STD(String) if datum is not a global trailer longword.
 
    */
   static inline unsigned long
   EventSize(unsigned long datum)
   {
     if(!isGlobalTrailer(datum)) {
-      throw string("CAENV1x90DATA::EventSize - not a trailer long");
+      throw STD(string)("CAENV1x90DATA::EventSize - not a trailer long");
     }
     else {
       return ((datum & WORDCOUNT_MASK) >> WORDCOUNT_RSHIFT);

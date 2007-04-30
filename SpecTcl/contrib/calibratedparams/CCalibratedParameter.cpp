@@ -9,10 +9,15 @@
 
 // Include files required:
 
+#include <config.h>
 #include "CCalibratedParameter.h"    				
 #include "CFit.h"
 
 #include <Event.h>                 // Required to set/get event values.
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Design by contract provides support for precondition, postcondition,
 // and invariance assertsions.
@@ -172,8 +177,10 @@ CCalibratedParameter::operator()(CEvent& rEvent) const
 	
 	if(rEvent[m_nParameterId].isValid() && 
 	   (m_pFit->GetState() == CFit::Performed)) {
-		rEvent[m_nTargetParameterId] = 
-					   (ParamType)(*m_pFit)((double)rEvent[m_nParameterId]);
+	  double input = (double)(rEvent[m_nParameterId]) + 
+	                           (drand48() - 0.5); // undescretize the input.
+	    rEvent[m_nTargetParameterId] = (ParamType)(*m_pFit)(input);
+
 	}
 }  
 

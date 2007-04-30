@@ -2,9 +2,13 @@
    Implementation of the CCalibrationDistribtuion class.
    See CalibrationDistribution.h for more details.
 */
-
+#include <config.h>
 #include "CalibrationDistribution.h"
 #include "GaussianDistribution.h"
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 /*!
     Constructor Create a new calibration distribution. A calibration distribution
@@ -127,7 +131,7 @@ CCalibrationDistribution::operator()()
 
   // Create the raw sampled value....
 
-  UInt_t nValue = m_Distribution();                 // Sample the distribution...
+  UInt_t nValue = (UInt_t)m_Distribution();                 // Sample the distribution...
   nValue       += (UInt_t)((Float_t)m_nSample * m_fInterval); // Shift to the correct peak.
 
 

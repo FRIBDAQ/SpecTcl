@@ -273,7 +273,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS 
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -292,6 +292,19 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //     July 12, 1999 Ron FOx
 //        Added gpVersion and set it to be 0.2
 //   $Log$
+//   Revision 5.1.2.3  2007/02/17 02:39:10  ron-fox
+//   BZ292 - Synch gpVersion with VERSION in config.h
+//
+//   Revision 5.1.2.2  2005/03/04 19:05:41  ron-fox
+//   Set the version string to 3.0pre1
+//
+//   Revision 5.1.2.1  2004/12/15 17:24:05  ron-fox
+//   - Port to gcc/g++ 3.x
+//   - Recast swrite/sread in terms of tcl[io]stream rather than
+//     the kludgy thing I had done of decoding the channel fd.
+//     This is both necessary due to g++ 3.x's runtime and
+//     nicer too!.
+//
 //   Revision 5.1  2004/11/29 16:56:10  ron-fox
 //   Begin port to 3.x compilers calling this 3.0
 //
@@ -305,6 +318,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 static char* pCopyright=
   "Globals.cpp (c) Copyright 1999 NSCL, All rights reserved.";
 
+#include <config.h>
 #include <EventUnpacker.h>
 #include <BufferDecoder.h>
 #include <EventSinkPipeline.h>
@@ -315,6 +329,12 @@ static char* pCopyright=
 #include <Analyzer.h>
 #include <histotypes.h>
 #include <NSCLBufferDecoder.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+
 
 //  The following points to the current event unpacker.
 //  This must be an object which is derived from the CEventUnpacker class.
@@ -366,4 +386,4 @@ CRunControl* gpRunControl = (CRunControl*)kpNULL;
 CAnalyzer* gpAnalyzer   = (CAnalyzer*)kpNULL;
 
 // SpecTcl also retains a version text string.
-const char* gpVersion = "1.0"; 
+const char* gpVersion = VERSION; 

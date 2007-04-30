@@ -1,6 +1,6 @@
 INCLUDES = -I. -I../Utility -I../Exception
 LDADD = -lXplus -lXamine
-LDFLAGS = -L.
+AM_LDFLAGS = -L.
 
 lib_LTLIBRARIES = libException.la
 

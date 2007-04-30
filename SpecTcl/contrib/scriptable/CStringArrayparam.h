@@ -6,6 +6,13 @@
 #include "CConfigurationParameter.h"
 #endif
 
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
 // Forward class definitions:
 
 class CTCLInterpreter;
@@ -17,11 +24,11 @@ class CTCLResult;
 class CStringArrayparam  : public CConfigurationParameter        
 {
 private:
-    string* m_aStrings;
+    STD(string)* m_aStrings;
     int m_nSize;
 public:
     // Constructors and other 
-    CStringArrayparam (const string& rKey, int nSize);
+    CStringArrayparam (const STD(string)& rKey, int nSize);
     virtual ~ CStringArrayparam ( ); 
     CStringArrayparam (const CStringArrayparam& rhs );
     CStringArrayparam& operator= (const CStringArrayparam& rhs);
@@ -34,14 +41,14 @@ public:
 
 public:
 
-    const string* getStrings() const
+    const STD(string)* getStrings() const
     { 
 	return m_aStrings;
     }
 
 protected:
 
-    void setStrings (string* aStrings)
+    void setStrings (STD(string)* aStrings)
    { 
 	delete []m_aStrings;
 	m_aStrings =aStrings;
@@ -51,10 +58,10 @@ protected:
 
 public:
 
-    string& operator[] (int n)   ; // 
+    STD(string)& operator[] (int n)   ; // 
     virtual   int SetValue (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 				    const char* pValue);
-    virtual   string GetParameterFormat();
+    virtual   STD(string) GetParameterFormat();
 };
 
 #endif

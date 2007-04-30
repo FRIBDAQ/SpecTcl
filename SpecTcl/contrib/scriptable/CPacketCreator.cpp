@@ -9,11 +9,17 @@
 
 // Include files required:
 
+#include <config.h>
 #include "CPacketCreator.h"    
 #include "CPacket.h"				
 #include "CModuleDictionary.h"
 #include "CModuleCommand.h"
 #include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 
 // Static attribute storage and initialization for CPacketCreator
 

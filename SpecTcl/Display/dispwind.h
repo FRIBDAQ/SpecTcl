@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
 ** Facility:
@@ -538,8 +538,8 @@ class win_attributed : public win_definition {
   }
   int hasfloor() { return has_floor; }
   int hasceiling() { return has_ceiling; }
-  int getfloor()   { return floor; }
-  int getceiling() { return ceiling; }
+  unsigned int getfloor()   { return floor; }
+  unsigned int getceiling() { return ceiling; }
   void setall(win_attributed &that);
   void setattribs(win_attributed &that);
   

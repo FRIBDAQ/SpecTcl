@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /* DEC/CMS REPLACEMENT HISTORY, Element MTYPES.H*/
 /* *8    18-APR-1992 18:08:42 FOX "Add signature bytes to buffer header structure"*/
@@ -336,21 +336,22 @@ struct bftime
 /*		Structures which describe the final output data buffers */
 
 struct bheader				/* Data buffer header	*/
-    {
-	INT16	nwds;			/* Used part of buffer	*/
-	INT16	type;			/* buffer type		*/
-	INT16	cks;			/* checksum over used part of buffer */
-	INT16	run;			/* Run number		*/
-	INT32	seq;			/* Buffer sequence number */
-	INT16	nevt;			/* Event count in buffer    */
-	INT16	nlam;			/* Number of lam masks	    */
-	INT16	cpu;			/* Processor number	    */
-	INT16	nbit;			/* Number of bit registers */
-	INT16	buffmt;			/* Data format revision level */
-	INT16   ssignature;		/* Short byte order signature */
-	INT32   lsignature;		/* Long byte order signature  */
-	INT16	unused[2];		/* Pad out to 16 words.	    */
-    };
+{
+  INT16	nwds;			/* Used part of buffer	*/
+  INT16	type;			/* buffer type		*/
+  INT16	cks;			/* checksum over used part of buffer */
+  INT16	run;			/* Run number		*/
+  INT32	seq;			/* Buffer sequence number */
+  INT16	nevt;			/* Event count in buffer    */
+  INT16	nlam;			/* Number of lam masks	    */
+  INT16	cpu;			/* Processor number	    */
+  INT16	nbit;			/* Number of bit registers */
+  INT16	buffmt;			/* Data format revision level */
+  INT16   ssignature;		/* Short byte order signature */
+  INT32   lsignature;		/* Long byte order signature  */
+      INT16   nwdsHigh;
+  INT16	unused;		/* Pad out to 16 words.	    */
+};
 
 struct ctlbody				/* Body of control buffer   */
     {					/* start/stop/pause/resume  */
@@ -368,12 +369,17 @@ struct	usrbufbody			/* Declares user buffer body. */
 
 struct sclbody				/* body of scaler buffers   */
     {					/* taped and snapshot	    */
-	INT32	etime;			/* Start time since SOR in ticks */
-	INT16	unused1[3];		/* Unused words.	    */
-	INT32	btime;			/* End time since SOR in ticks	*/
-	INT16	unused2[3];		/* Unused words.	    */
+	INT32	etime; /* Start time since SOR in ticks */
+	INT16	unused1[3]; /* Unused words.	    */
+	INT32	btime; /* End time since SOR in ticks	*/
+	INT16	unused2[3]; /* Unused words.	    */
+                  
 	INT32	scalers[1];		/* Array with scaler data   */
-    };
+    }
+#ifdef __GNUC__ 
+ __attribute__((packed))
+#endif
+;
 
 /*	    The types below define the structure of event packets put in    */
 /*	the circular buffer queue by the event acquisition processor.	    */

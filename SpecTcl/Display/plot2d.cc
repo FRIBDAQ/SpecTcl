@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -318,6 +318,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "scaling.h"
 #include "colormgr.h"
 
+#include <memory>
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 #define LOG_RESOLUTION 100	/* Multiplier for log values. */
 #define RANDOM_RANGE   (MAXINT-1) /* Range of values from rand */
 /*
@@ -329,6 +334,9 @@ extern spec_shared *xamine_shared;
 */
 static inline double frandom()	/* Return random # in range [0,1] */
 {
+  return drand48();		// Can't think why not do this now.
+                                // Don't really even need good randoms.
+  /*
   double val;
   int    r;
   r = rand();
@@ -336,6 +344,7 @@ static inline double frandom()	/* Return random # in range [0,1] */
   val = (double)r;
   val = val / (float)RANDOM_RANGE;
   return val;
+  */
 }
 static int Xamine_PutPixel8(XImage *i, int x, int y, unsigned long pixel)
 {
@@ -853,14 +862,17 @@ static Boolean DrawSegment(Draw2dContext *c)
 
   int chans = c->sampler->getsteps();
 
-  int floor = 0, ceiling;
+  unsigned int floor = 0, ceiling;
   int hasceiling = c->attributes->hasceiling();
   ceiling = hasceiling ? c->attributes->getceiling() :
                          c->attributes->getfsval();
   if(c->attributes->hasfloor()) floor = c->attributes->getfloor();
   ceiling -= floor;		/* Adjust ceiling relative to floor. */
 
-  unsigned int values[chans];
+  //  unsigned int values[chans];
+  auto_ptr<unsigned int> pvalues(new unsigned int[chans]);
+  unsigned int*  values = pvalues.get();
+
   c->sampler->getscanline(values);
   for(int steps = 0; steps < chans; steps++) {
     unsigned int val = values[steps];
@@ -903,7 +915,7 @@ static Boolean DrawLogSegment(Draw2dContext *c)
 
   /* get all the floor/ceiling stuff for height cuts. */
 
-  int floor = 0, ceiling;
+  unsigned int floor = 0, ceiling;
   int nsteps = c->sampler->getsteps();
   int hasceiling = c->attributes->hasceiling();
   ceiling = hasceiling ? c->attributes->getceiling() :
@@ -911,7 +923,10 @@ static Boolean DrawLogSegment(Draw2dContext *c)
   if(c->attributes->hasfloor()) floor = c->attributes->getfloor();
   ceiling -= floor;		/* Adjust ceiling relative to floor. */
 
-  unsigned int vals[nsteps];
+  //  unsigned int vals[nsteps];
+  auto_ptr<unsigned int> pvals(new unsigned int[nsteps]);
+  unsigned int* vals = pvals.get();
+
   c->sampler->getscanline(vals);
   for(int steps = 0; steps < nsteps; steps++) {
     unsigned int val = vals[steps];

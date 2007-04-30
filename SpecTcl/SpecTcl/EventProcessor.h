@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 // Class: CEventProcessor            //ANSI C++
 // File: EventProcessor.h
@@ -325,6 +325,9 @@ class CEventProcessor {
   // Operators:
   CEventProcessor& operator= (const CEventProcessor& aCEventProcessor); // Assignment operator.
   int operator==(const CEventProcessor& aCEventProcessor) const; // Equality operator.
+  int operator!=(const CEventProcessor& aCEventProcessor) const {
+    return !(*this == aCEventProcessor);
+  }
   virtual Bool_t operator()(const Address_t pEvent,
 			    CEvent& rEvent,
 			    CAnalyzer& rAnalyzer,

@@ -273,9 +273,9 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
-
+#include <config.h>
 #include "CXdrInputStream.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -283,6 +283,10 @@ DAMAGES.
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 /*!
    Construct a default xdr input stream.  This input stream
@@ -327,7 +331,7 @@ CXdrInputStream::CXdrInputStream(const string& connection,
 */
 CXdrInputStream::~CXdrInputStream()
 {
-  delete m_pBuffer;
+  delete [] m_pBuffer;
 }
 
 /*!
@@ -567,9 +571,10 @@ CXdrInputStream::operator>>(char* c)
 CXdrInputStream&
 CXdrInputStream::operator>>(string& s) 
 {
-  char strbuf[m_nBuffersize];
+  char* strbuf =  new char[m_nBuffersize];
   (*this) >> strbuf;
   s = strbuf;
+  delete []strbuf;
   return *this;
 
 }  

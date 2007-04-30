@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CSpectrum.h:
 //
@@ -293,6 +293,16 @@ DAMAGES.
 //                     spectra can report their type.
 //
 //  $Log$
+//  Revision 5.1.2.3  2005/05/20 21:19:06  ron-fox
+//  Port to gcc 4.0
+//
+//  Revision 5.1.2.2  2005/05/02 15:51:22  ron-fox
+//  First passes at getting compilations on Intel C++: then
+//  fix defect 159: Open filters on exit can lose data.
+//
+//  Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
+//  Port to gcc 3.x compilers.
+//
 //  Revision 5.1  2004/11/29 16:56:08  ron-fox
 //  Begin port to 3.x compilers calling this 3.0
 //
@@ -320,12 +330,16 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __STL_VECTOR
 #include <vector>
+#ifndef __STL_VECTOR
 #define __STL_VECTOR
+#endif
 #endif
 
 #ifndef __PARAMETER_H
@@ -362,17 +376,17 @@ extern CGateContainer* pDefaultGate; // Gate set by default on a spectrum
 class CSpectrum  : public CNamedItem        
 {
 public:
-  typedef vector<CAxis>  Axes;
+  typedef STD(vector)<CAxis>  Axes;
   typedef Axes::iterator  AxisIterator;
   typedef struct {
-    string             sName;	    //!< Name of spectrum.
+    STD(string)             sName;	    //!< Name of spectrum.
     UInt_t             nId;	    //!< Id of spectrum.
     SpectrumType_t     eType;       //!< Type of spectrum.
     DataType_t         eDataType;   //!< Data type of channels.
-    vector<UInt_t>     vParameters; //!< Set of parameters.
-    vector<UInt_t>     nChannels;   //!< Explicit channel sizes.
-    vector<Float_t>    fLows;       //!< Explicit lows.
-    vector<Float_t>    fHighs;      //!< Explicit highs.
+    STD(vector)<UInt_t>     vParameters; //!< Set of parameters.
+    STD(vector)<UInt_t>     nChannels;   //!< Explicit channel sizes.
+    STD(vector)<Float_t>    fLows;       //!< Explicit lows.
+    STD(vector)<Float_t>    fHighs;      //!< Explicit highs.
   } SpectrumDefinition;		    //!< Returned from GetDefinition
 
 private:
@@ -381,20 +395,20 @@ private:
   CGateContainer* m_pGate;	//!< Pointer to gate on spectrum.
   DataType_t      m_DataType;   //!< Type of underlying data.
   Axes            m_AxisMappings; //!< Mapping information for the axis.
-  vector<UInt_t>  m_nChannels;    //!< Number of channels on each axis
-  vector<Float_t> m_fLows;	//!< Vector of axis low limits.
-  vector<Float_t> m_fHighs;	//!< vector of axis high limits.
-  vector<string>  m_Units;	//!< Axis units.
-  vector<CParameter> m_Parameters; //!< Vector of parameters.
+  STD(vector)<UInt_t>  m_nChannels;    //!< Number of channels on each axis
+  STD(vector)<Float_t> m_fLows;	//!< STD(Vector) of axis low limits.
+  STD(vector)<Float_t> m_fHighs;	//!< STD(vector) of axis high limits.
+  STD(vector)<STD(string)>  m_Units;	//!< Axis units.
+  STD(vector)<CParameter> m_Parameters; //!< STD(Vector) of parameters.
   static Bool_t   m_Seedrandom;	//!< True if need to seed.
 public:
 			// Constructor
 
-  CSpectrum (const std::string& rName,  UInt_t nId,
+  CSpectrum (const STD(string)& rName,  UInt_t nId,
 	     Axes  Maps,
 	     CGateContainer* pGate = pDefaultGate); //!< Constructor
 
-  CSpectrum(const std::string& rName, UInt_t nId,
+  CSpectrum(const STD(string)& rName, UInt_t nId,
 	    CGateContainer*  pGate = pDefaultGate); //!< No mapping needed.
 
   virtual ~ CSpectrum ( );
@@ -408,9 +422,9 @@ public:
 
 			//Operator= Assignment Operator [not allowed]
 private:
-  CSpectrum operator= (const CSpectrum& aCSpectrum);
+  CSpectrum& operator= (const CSpectrum& aCSpectrum);
 public:
-
+  
 			//Operator== Equality Operator [not much use]
 
   int operator== (const CSpectrum& aCSpectrum)
@@ -459,7 +473,7 @@ protected:
     m_DataType = dt;
   }
   void AddAxis(UInt_t nChannels, Float_t fLow,
-	       Float_t fHigh, const string& Units = string("")) {
+	       Float_t fHigh, const STD(string)& Units = STD(string)("")) {
     m_nChannels.push_back(nChannels);
     m_fLows.push_back(fLow);
     m_fHighs.push_back(fHigh);
@@ -486,7 +500,7 @@ public:
     }
     else {
       throw CRangeError(0, m_AxisMappings.size() - 1, nAxis,
-			string("CSpectrumParameterToAxis"));
+			STD(string)("CSpectrumParameterToAxis"));
     }
   }
   Float_t AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue);
@@ -498,8 +512,8 @@ public:
   virtual   Bool_t UsesParameter(UInt_t nId) const   = 0;
   virtual   ULong_t operator[] (const UInt_t* pIndices) const  = 0;
   virtual   void set(const UInt_t* pIndices, ULong_t nValue)= 0;
-  virtual   void GetParameterIds(vector<UInt_t>& rvIds) = 0;
-  virtual   void GetResolutions(vector<UInt_t>&  rvResolutions) = 0;
+  virtual   void GetParameterIds(STD(vector)<UInt_t>& rvIds) = 0;
+  virtual   void GetResolutions(STD(vector)<UInt_t>&  rvResolutions) = 0;
   virtual   void Increment(const CEvent& rEvent) = 0;
   //
   // Functions with default implementation.
@@ -508,7 +522,7 @@ public:
   virtual   UInt_t Dimensionality () const;
   virtual   Float_t GetLow(UInt_t nDimension) const;
   virtual   Float_t GetHigh(UInt_t nDimension) const;
-  virtual   string  GetUnits(UInt_t nDimension) const;
+  virtual   STD(string)  GetUnits(UInt_t nDimension) const;
 
   virtual   void Copy(void* pStorage) const;
   virtual   void Clear ()  ;

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXaminePointsPrompt.h:
 //
@@ -299,7 +299,9 @@ DAMAGES.
 
 #ifndef __STL_STRING
 #include <string>
+#ifndef __STL_STRING
 #define __STL_STRING
+#endif
 #endif
 
 #ifndef __HISTOTYPES_H
@@ -314,7 +316,7 @@ class CXaminePointsPrompt  : public CXamineButtonPrompt
 public:
 			//Default constructor
 
-  CXaminePointsPrompt (const std::string& rPrompt, 
+  CXaminePointsPrompt (const STD(string)& rPrompt, 
 		       UInt_t nMinPoints = 1,
 		       UInt_t nMaxPoints = GROBJ_MAXPTS) :
     CXamineButtonPrompt(rPrompt),

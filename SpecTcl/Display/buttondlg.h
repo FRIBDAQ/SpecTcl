@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*
 ** Facility:
@@ -394,8 +394,8 @@ class ButtonBox {
     Cardinal GetColumns()        { return columns; }
     Cardinal GetRows()           { return rows; }
     Boolean  ValidLocation(Cardinal row, Cardinal col)
-      { return ((row >= 0) && (row < rows) &&
-		(col >= 0) && (col < columns)); }
+      { return ((row < rows) &&
+		(col < columns)); }
   protected:
     Cardinal Index(Cardinal row, Cardinal col) { return (col + row*columns); }
   private:

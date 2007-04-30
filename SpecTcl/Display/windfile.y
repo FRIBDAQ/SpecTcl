@@ -16,6 +16,7 @@
 */
 static char *yaccrevlevel = "@(#)windfile.y	8.1 6/23/95  - windows file parser\n";
 char *get_windfiletitle();
+#include <config.h>
 #include <assert.h>
 #include <memory.h>
 #include <stdio.h>

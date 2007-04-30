@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 // CGamma1DL.cpp
@@ -291,6 +291,29 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*  
    Change Log:
    $Log$
+   Revision 5.1.2.4  2006/06/22 17:26:36  ron-fox
+   Fix more 32 bit unclean issues (Defect 209).
+
+   Revision 5.2.2.1  2006/06/21 14:31:24  ron-fox
+   Propagate fix for defect 200 to this version
+
+   Revision 5.1.2.3  2006/06/21 14:02:14  ron-fox
+   Defect 200 g1 spectrum only have counts in every other channel because
+   storage is treated as a long which is 64 bits on 64bit systems, rather than
+   an int which is 32 bits on both... note this can also cause spectrum
+   increments to overwrite.
+
+   Revision 5.1.2.2  2005/05/27 17:47:37  ron-fox
+   Re-do of Gamma gates also merged with Tim's prior changes with respect to
+   glob patterns.  Gamma gates:
+   - Now have true/false values and can therefore be applied to spectra or
+     take part in compound gates.
+   - Folds are added (fold command); and these perform the prior function
+       of gamma gates.
+
+   Revision 5.1.2.1  2004/12/21 17:51:24  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:56:06  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -315,18 +338,23 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //  Header files:
 //
-
+#include <config.h>
 #include "Gamma1DL.h"                               
 #include "Parameter.h"
 #include "RangeError.h"
 #include "Event.h"
 #include "GateContainer.h"
 #include "Gate.h"
-#include "GammaCut.h"
-#include "GammaBand.h"
-#include "GammaContour.h"
+#include "CGammaCut.h"
+#include "CGammaBand.h"
+#include "CGammaContour.h"
 #include "CParameterMapping.h"
 #include "CAxis.h"
+#include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions for class CGamma1DL
 
@@ -360,17 +388,16 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 */
 CGamma1DL::CGamma1DL(const std::string& rName, UInt_t nId,
-		     vector<CParameter> rrParameters,
+		     vector<CParameter>& rrParameters,
 		     UInt_t nScale) :
-  CSpectrum(rName, nId,
+  CGammaSpectrum(rName, nId,
 	    MakeAxesVector(rrParameters, nScale,
-			   0.0, (Float_t)(nScale))),
+			   0.0, (Float_t)(nScale)), rrParameters),
   m_nScale(nScale)
 {
   // The assumption is that all axes have the same units.
 
   AddAxis(nScale, 0.0, (Float_t)(nScale - 1), rrParameters[0].getUnits());
-  FillParameterArray(rrParameters);
   CreateStorage();
 
 }
@@ -395,178 +422,17 @@ CGamma1DL::CGamma1DL(const std::string& rName, UInt_t nId,
       represented by channel nChannels-1 on the x axis
 */
 CGamma1DL::CGamma1DL(const string& rName, UInt_t nId,
-		     vector<CParameter> rrParameters,
+		     vector<CParameter>& rrParameters,
 		     UInt_t nChannels,
 		     Float_t fLow, Float_t fHigh) :
-  CSpectrum(rName, nId,
-	    MakeAxesVector(rrParameters, nChannels, fLow, fHigh)),
+  CGammaSpectrum(rName, nId,
+		 MakeAxesVector(rrParameters, nChannels, fLow, fHigh), rrParameters),
   m_nScale(nChannels)
 {
   AddAxis(nChannels, fLow, fHigh, rrParameters[0].getUnits());
-  FillParameterArray(rrParameters);
   CreateStorage();
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    void Increment( const CEvent& rEvent )
-//  Operation Type:
-//     mutator
-//  Purpose:
-//    Increment channel number rEvent[m_vParameters[xChan].nParameter] >> 
-//                             m_vParameters[xChan].nScale;
-//    If gate is a gamma, control is passed to GammaGateIncrement
-//
-void CGamma1DL::Increment(const CEvent& rE)
-{
-  string sGateType = getGate()->getGate()->Type();
-
-  // Increment normally if gate is a 'normal' gate
-  if(sGateType != "gs" && sGateType != "gb" && sGateType != "gc") {
-    UInt_t* pStorage = (UInt_t*)getStorage();
-    assert(pStorage != (UInt_t*)kpNULL);
-    CEvent& rEvent((CEvent&)rE);
-    int     nPars = rEvent.size();
-    UInt_t xChan;
-    
-    for (xChan = 0; xChan < m_vParameters.size(); xChan++) {
-      if(m_vParameters[xChan] < nPars) {
-	if(rEvent[m_vParameters[xChan]].isValid()) {
-	  UInt_t y = 
-	    Randomize(ParameterToAxis(xChan, 
-				      rEvent[m_vParameters[xChan]]));
-	  if ((y >= 0) && (y < m_nScale)) {
-	    pStorage[y]++;
-	  }
-	}
-      }
-    }
-  }
-  //otherwise pass control to GammaGateIncrement
-  else if(sGateType == "gs" || sGateType == "gb" || sGateType == "gc") {
-    GammaGateIncrement(rE, sGateType);
-  }
-  else {			// Should never get here!!!!
-    // Throw some suitable exception.
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    void GammaGateIncrement( const CEvent& rEvent, std::string sGT )
-//  Operation Type:
-//    mutator
-//  Purpose:
-//    Increment channel number rEvent[m_vParameters[xChan].nParameter] >> 
-//                             m_vParameters[xChan].nScale;
-//    for all parameters, or pairs of parameters, which do not fall 
-//    in the gate.
-//
-void
-CGamma1DL::GammaGateIncrement (const CEvent& rE, std::string sGT)
-{
-  UInt_t* pStorage = (UInt_t*)getStorage();
-  assert(pStorage != (UInt_t*)kpNULL);
-  CEvent& rEvent((CEvent&)rE);
-  int     nParams = rEvent.size();
-  UInt_t xChan, mvx, mvy;
-  vector<UInt_t> vXP, vYP;
-  
-  if(sGT == "gs") {  // Gate is a gamma slice
-    CGammaCut* pGate = (CGammaCut*)getGate()->getGate();
-    for(xChan = 0; xChan < m_vParameters.size(); xChan++) {  // for all params
-      vXP.clear();
-      vXP.push_back(m_vParameters[xChan]);
-      if (m_vParameters[xChan] < nParams) {
-	if(rEvent[m_vParameters[xChan]].isValid()) {  // if valid...
-	  if(pGate->inGate(rEvent, vXP)) {  // and parameter is in bounds...
-	    for(UInt_t Param = 0; Param < m_vParameters.size(); Param++) {
-	      if(Param != xChan) {  // Increment for all other parameters
-		// Make sure this parameter is valid too...
-		if(m_vParameters[Param] < nParams) {
-		  if(rEvent[m_vParameters[Param]].isValid()) {
-		    UInt_t y = 
-		      Randomize(ParameterToAxis(Param,
-						rEvent[m_vParameters[Param]]));
-		    if ((y >= 0) && (y <  m_nScale)) {
-		      pStorage[y]++;
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-  else if(sGT == "gb" || sGT == "gc") {  // Gate is a gamma band or contour
-    CPointListGate* pGate((CPointListGate*)(getGate()->getGate()));
-    if(pGate->Type() == "gb") {
-      pGate = (CGammaBand*)pGate;
-    }
-    else {
-      pGate = (CGammaContour*)pGate;
-    }
-    // For all possible pairs of parameters in the spectrum
-    for(UInt_t XPar = 0; XPar < m_vParameters.size()-1; XPar++) {
-      for(UInt_t YPar = XPar+1; YPar < m_vParameters.size(); YPar++) {
-	if((m_vParameters[XPar] < nParams) &&
-	   (m_vParameters[YPar] < nParams)) {
-	  if(rEvent[m_vParameters[XPar]].isValid() &&
-	     rEvent[m_vParameters[YPar]].isValid()) {  // if valid...
-	    mvx = m_vParameters[XPar];
-	    mvy = m_vParameters[YPar];
-	    vXP.clear(); vYP.clear();
-	    vXP.push_back(mvx); vXP.push_back(mvy); // Need to check
-	    vYP.push_back(mvy); vYP.push_back(mvx); // Either order.
-	    // and if (p1, p2) or (p2, p1) is in gate...
-	    if(pGate->inGate(rEvent, vXP) || 
-	       pGate->inGate(rEvent, vYP)) {
-	      for(UInt_t Param = 0; Param < m_vParameters.size(); 
-		  Param++) {
-		// Increment for all params not in (p1, p2) which are valid
-		if(Param != XPar && Param != YPar) {
-		  // Make sure this parameter is valid too...
-		  if(m_vParameters[Param] < nParams) {
-		    if(rEvent[m_vParameters[Param]].isValid()) {
-		      UInt_t y = 
-			Randomize(ParameterToAxis(Param,
-						  rEvent[m_vParameters[Param]]));
-		      if ((y >= 0) && (y < m_nScale)) {
-			pStorage[y]++;
-		      }
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    Boolt_t UsesParameter (UInt_t nId) const
-//  Operation Type:
-//     Selector   
-//
-
-Bool_t
-CGamma1DL::UsesParameter(UInt_t nId) const
-{
-  for (UInt_t I = 0; I < m_vParameters.size(); I++) {
-    if (m_vParameters[I] == nId)
-      return kfTRUE;
-  }
-  return kfFALSE;
-}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -609,20 +475,7 @@ CGamma1DL::set (const UInt_t* pIndices, ULong_t nValue)
   pStorage[n] = (UInt_t)nValue;
 }
 
-/////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    void GetParameterIds(vector<UInt_t>& rvIds)
-//  Operation Type:
-//    Selector.
-//
 
-void
-CGamma1DL::GetParameterIds (vector<UInt_t>& rvIds)
-{
-  for (UInt_t I = 0; I < m_vParameters.size(); I++)
-    rvIds.push_back(m_vParameters[I]);
-}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -654,19 +507,7 @@ CGamma1DL::CreateStorage()
   Clear();
 
 }
-/*!
-    Fill the parameter m_vParameters with the parameter id's
-    of the parameters to use when incrementing the spectrum.
-    \param Params (vector<CParamteer> Params [in]):  The parameter
-        definitions to use when incrementing the spectrum.
-*/
-void
-CGamma1DL::FillParameterArray(vector<CParameter> Params)
-{
-  for(int i = 0; i < Params.size(); i++) {
-    m_vParameters.push_back(Params[i].getNumber());
-  }
-}
+
 /*!
    Creates a vector of axis definitions.  This is needed
    because while the axis is a fixe cut in parameter space, if
@@ -692,7 +533,27 @@ CGamma1DL::MakeAxesVector(vector<CParameter> Params,
   Axes Scales;
   for(int i=0; i < Params.size(); i++) {
     Scales.push_back(CAxis(fLow, fHigh, nChannels,
-			   CParameterMapping(Params[i])));
+			   CParameterMapping((Params[i]))));
   }
   return Scales;
+}
+/**
+ * Increment the spectrum indirectly from a fold
+ * @param rParams
+ *    An array of parameter id/value pairs.
+ */
+void
+CGamma1DL::Increment(vector<pair<UInt_t, Float_t> >& rParams)
+{
+  UInt_t* pStorage = (UInt_t*)getStorage();
+
+  for(int i =0; i < rParams.size(); i++) {
+    UInt_t   nParameter = rParams[i].first;
+    Float_t  fValue     = rParams[i].second;
+    UInt_t   y          = (UInt_t)ParameterToAxis(0, fValue);
+    if (y < m_nScale) {
+      pStorage[y]++;
+    }
+    
+  }
 }

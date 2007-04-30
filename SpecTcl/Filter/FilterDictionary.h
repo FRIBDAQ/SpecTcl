@@ -29,6 +29,7 @@ class CFilterDictionary : public CDictionary<CGatedEventFilter*> {
   // Additional functions.
  public: //protected:
   static CFilterDictionary* GetInstance();
+  static void onExit();		// Called at app exit.
 }; // CFilterDictionary.
 
 typedef CFilterDictionary::DictionaryIterator CFilterDictionaryIterator;

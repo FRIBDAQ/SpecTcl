@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -294,6 +294,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Include files:
 */
+#include <config.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -306,6 +307,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "clientops.h"
 #include "mapcoord.h"
 #include "panemgr.h"
+#include <Iostream.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
 /*
 ** DEFINE's.  These DEFINE's are used to derive the names of the message
 ** queues used by this module:

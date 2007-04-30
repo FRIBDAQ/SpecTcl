@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 //  CXamineButton.h:
 //
@@ -315,7 +315,7 @@ class CXamineToggleButton;
 class CXamineButton      
 {
   int                  m_nReturnCode;    // Identifier for button in event.
-  std::string          m_sLabel;         // textual label on the button.
+  STD(string)          m_sLabel;         // textual label on the button.
   Bool_t               m_fEnabled;   // kfTRUE if button is initially enabled. 
   ButtonSensitivity    m_eWhenSensitive; // Indicates when button is available.
   CXamineButtonPrompt* m_pPrompter;
@@ -324,7 +324,7 @@ public:
   // Constructor:
 
   CXamineButton (  int am_nReturnCode,  
-		   const std::string& am_sLabel,  
+		   const STD(string)& am_sLabel,  
 		   Bool_t am_fEnabled,  
 		   ButtonSensitivity am_eWhenSensitive,
 		   CXamineButtonPrompt& rPrompter) :
@@ -393,7 +393,7 @@ public:
   {
     return m_nReturnCode;
   }
-  const std::string& getLabel() const
+  const STD(string)& getLabel() const
   {
     return m_sLabel;
   }
@@ -416,7 +416,7 @@ protected:
   { 
     m_nReturnCode = am_nReturnCode;
   }
-  void setLabel (const std::string& am_sLabel)
+  void setLabel (const STD(string)& am_sLabel)
   { 
     m_sLabel = am_sLabel;
   }

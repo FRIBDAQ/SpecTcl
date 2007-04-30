@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 /*!
   \class: TranslatorPointer
@@ -294,6 +294,12 @@ DAMAGES.
 
 Change Log:
    $Log$
+   Revision 5.1.2.2  2005/07/07 13:26:19  ron-fox
+   Fix another casting issue
+
+   Revision 5.1.2.1  2004/12/21 17:51:18  ron-fox
+   Port to gcc 3.x compilers.
+
    Revision 5.1  2004/11/29 16:55:56  ron-fox
    Begin port to 3.x compilers calling this 3.0
 
@@ -353,7 +359,7 @@ template <class T>
 class TranslatorPointer
 {
   BufferTranslator& m_rUnderlyingBuffer; /*! Reference to the BufferTrans. */
-  UInt_t            m_nOffset;           //!< Byte offset into the buffer.
+  ULong_t            m_nOffset;           //!< Byte offset into the buffer.
   
  public:
 
@@ -372,7 +378,7 @@ class TranslatorPointer
   // from which to calculate m_nOffset
   TranslatorPointer<T>(BufferTranslator& Translator, Address_t const Addr) :
     m_rUnderlyingBuffer(Translator),
-    m_nOffset(((UInt_t)Addr - (UInt_t)Translator.getBuffer()))
+    m_nOffset(((ULong_t)Addr - (ULong_t)Translator.getBuffer()))
     { }
 
   // Constructor from any other type of translator pointer:

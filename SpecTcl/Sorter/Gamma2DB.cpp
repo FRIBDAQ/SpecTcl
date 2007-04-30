@@ -276,7 +276,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 // CGamma2DB.cpp
@@ -295,11 +295,24 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
-    Revision 5.1  2004/11/29 16:56:06  ron-fox
-    Begin port to 3.x compilers calling this 3.0
+    Revision 5.1.2.3  2005/09/22 12:37:54  ron-fox
+    Fix errors in gamma spectrum increment.  When there are no valid parameters
+    in an event, the outer loop of the 2d gamma spectrum increment will
+    loop almost infinitely and eventually segfault.
 
-    Revision 4.6  2004/02/03 21:32:58  ron-fox
-    Make definitions of spectra from resolutions consistent with those that have ranges.
+    Revision 5.2  2005/06/03 15:19:22  ron-fox
+    Part of breaking off /merging branch to start 3.1 development
+
+    Revision 5.1.2.2  2005/05/27 17:47:37  ron-fox
+    Re-do of Gamma gates also merged with Tim's prior changes with respect to
+    glob patterns.  Gamma gates:
+    - Now have true/false values and can therefore be applied to spectra or
+      take part in compound gates.
+    - Folds are added (fold command); and these perform the prior function
+        of gamma gates.
+
+    Revision 5.1.2.1  2004/12/21 17:51:24  ron-fox
+    Port to gcc 3.x compilers.
 
     Revision 4.5.2.1  2004/02/02 21:47:08  ron-fox
     *** empty log message ***
@@ -317,16 +330,21 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 // Header Files:
 //
-
+#include <config.h>
 #include "Gamma2DB.h"
 #include "Parameter.h"
 #include "RangeError.h"
 #include "Event.h"
 #include "GateContainer.h"
 #include "Gate.h"
-#include "GammaCut.h"
-#include "GammaBand.h"
-#include "GammaContour.h"
+#include "CGammaCut.h"
+#include "CGammaBand.h"
+#include "CGammaContour.h"
+#include <assert.h>
+
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 // Functions for class CGamma2DB
 
@@ -343,11 +361,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
 		     vector<CParameter>& rParameters,
 		     UInt_t nXScale, UInt_t nYScale) :
-  CSpectrum(rName, nId,
+  CGammaSpectrum(rName, nId,
 	    CreateAxisVector(rParameters,
 			     nXScale, nYScale,
 			     0.0,    (Float_t)(nXScale - 1),
-			     0.0,    (Float_t)(nYScale -1))),
+			     0.0,    (Float_t)(nYScale -1)),rParameters),
   m_nXScale(nXScale),
   m_nYScale(nYScale)
 {
@@ -355,7 +373,6 @@ CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
   AddAxis(nXScale, 0.0, (Float_t)(nXScale), rParameters[0].getUnits());
   AddAxis(nYScale, 0.0, (Float_t)(nYScale), rParameters[0].getUnits());
 
-  SetParameterVector(rParameters);
   CreateStorage();
   
   
@@ -387,9 +404,9 @@ CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
 		     UInt_t nXScale, UInt_t nYScale,
 		     Float_t xLow, Float_t xHigh,
 		     Float_t yLow, Float_t yHigh) :
-  CSpectrum(rName, nId,
+  CGammaSpectrum(rName, nId,
 	    CreateAxisVector(rParameters, nXScale, nYScale,
-			     xLow, xHigh, yLow, yHigh)),
+			     xLow, xHigh, yLow, yHigh), rParameters),
   m_nXScale(nXScale),
   m_nYScale(nYScale)
 {
@@ -397,232 +414,11 @@ CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
   AddAxis(nXScale, xLow, xHigh, rParameters[0].getUnits());
   AddAxis(nYScale, yLow, yHigh, rParameters[0].getUnits());
 
-  SetParameterVector(rParameters);
   CreateStorage();
 }
 
 	    
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//   CGammaDW(const std::string& rname, UInt_t nId,
-//            vector<CParameter>& rParameters)
-// Operation Type:
-//   Constructor
-// Comments:
-//   This constructor exists for functions that want to allocate
-//   their own storage.
-//
-//CGamma2DB::CGamma2DB(const std::string& rName, UInt_t nId,
-//		     vector<CParameter>& rParameters) :
-//  CSpectrum(rName, nId),
-//  m_nXScale(0),
-//  m_nYScale(0)
-//{
-//  setStorageType(keWord);
-//  for (UInt_t i = 0; i < rParameters.size(); i++) {
-//    CParameter& rParam(rParameters[i]);
-//    ParameterDef def;
-//    def.nParameter = rParam.getNumber();
-//    def.nScale = rParam.getScale() - m_nXScale;
-//    m_vParameters.push_back(def);
-//  }
-//}
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    void Increment ( const CEvent& rEvent )
-//  Operation Type:
-//     mutator
-//
-
-/*!
-   Increment the spectrum.  This increment handles the case where
-   the gate is not a gamma gate.  In this case, the gate is
-   checked normally, and if it is made, the spectrum is incremented
-   for each ordered pair of valid parameters.  If the gate is
-   a gamma gate, the operation is delegated to GammaGateIncrement.
-
-   \param rE (const CEvent& [in]):  The event for which to increment
-      the spectrum.  Note that the m_vParameters vector determines
-      the set of paramters we need from the event.
-*/
-void
-CGamma2DB::Increment(const CEvent& rE)
-{
-  string sGateType = getGate()->getGate()->Type();
-
-  // Increment normally if gate is a 'normal' gate
-  if(sGateType[0] != 'g') {
-    CEvent& rEvent((CEvent&)rE);
-    int     nParams = rEvent.size();
-    UChar_t* pStorage = (UChar_t*)getStorage();
-    assert(pStorage != (UChar_t*) kpNULL);
-    UInt_t xChan, yChan;
-    
-    for (xChan = 0; xChan < m_vParameters.size()-1; xChan++) {
-      for( yChan = xChan+1; yChan < m_vParameters.size(); yChan++) {
-	if((m_vParameters[xChan] < nParams) &&
-	   (m_vParameters[yChan] < nParams)) {
-	  if (rEvent[m_vParameters[xChan]].isValid() && 
-	      rEvent[m_vParameters[yChan]].isValid()) {
-	    
-	    Int_t px = Randomize(ParameterToAxis(xChan, 
-						 rEvent[m_vParameters[xChan]]));
-	    Int_t py = Randomize(ParameterToAxis(yChan + m_vParameters.size(), 
-						 rEvent[m_vParameters[yChan]]));
-	    
-	    if ( (px >= 0) && (px < (m_nXScale))    && 
-		 (py >= 0) && (py < (m_nYScale))  ) {
-	      pStorage[px + py*Dimension(0)]++;
-	    }
-	  }
-	}
-      }
-    }
-  }
-  // Otherwise control is passed to GammaGateIncrement
-  // Where the increment is a bit more interesting.
-  else if(sGateType[0] == 'g') {
-    GammaGateIncrement(rE, sGateType);
-  }
-  else {			// Gates are gamma or not:
-    assert(0);			// so this is a bug!!!
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    void GammaGateIncrement( const CEvent& rEvent, std::string sGT )
-//  Operation Type:
-//    mutator
-//  Purpose:
-//    Increment channel number (rEvent[m_vParameters[p1].nParameter] >> 
-//                              m_vParameters[p1].nScale) +
-//                             (rEvent[m_vParameters[p2].nParameter] >>
-//                              m_vParameters[p2].nScale)*Dimension(0);
-//    for all parameters, or pairs of parameters, which do not fall 
-//    in the gate.
-//
-void
-CGamma2DB::GammaGateIncrement (const CEvent& rE, std::string sGT)
-{
-  UChar_t* pStorage = (UChar_t*)getStorage();
-  assert(pStorage != (UChar_t*)kpNULL);
-  CEvent& rEvent((CEvent&)rE);
-  int     nParams = rEvent.size();
-  UInt_t xChan, yChan;
-  vector<UInt_t> vXP, vYP;
-
-  if(sGT == "gs") {  // Gate is a gamma slice
-    CGammaCut* pGate = (CGammaCut*)getGate()->getGate();
-    // For all parameters in the spectrum
-    for(UInt_t xChan = 0; xChan < m_vParameters.size(); xChan++) {
-      if(m_vParameters[xChan] < nParams) {
-	if(rEvent[m_vParameters[xChan]].isValid()) { // if valid...
-	  vXP.clear();
-	  vXP.push_back(m_vParameters[xChan]);
-	  if(pGate->inGate(rEvent, vXP)) {  // and X-param is in gate...
-	    for(UInt_t p1 = 0; p1 < m_vParameters.size()-1; p1++) {
-	      for(UInt_t p2 = p1+1; p2 < m_vParameters.size(); p2++) {
-		// Increment for all pairs not containing the param
-		if(p1 != xChan && p2 != xChan) {
-		  // Make sure these params are valid too...
-		  if((m_vParameters[p1] < nParams) &&
-		     (m_vParameters[p1] < nParams)) {
-		    if(rEvent[m_vParameters[p1]].isValid() &&
-		       rEvent[m_vParameters[p2]].isValid()) {
-		      Int_t px = Randomize(ParameterToAxis(p1, 
-							   rEvent[m_vParameters[p1]]));
-		      Int_t py = Randomize(
-					   ParameterToAxis(p2 + m_vParameters.size(), 
-							   rEvent[m_vParameters[p2]]));
-		      
-		      if ( (px >= 0) && (px < (m_nXScale))    && 
-			   (py >= 0) && (py < (m_nYScale))  ) {
-			pStorage[px + py*Dimension(0)]++;
-		      }
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-  else if(sGT == "gb" || sGT == "gc") {  // Gate is a gamma band or contour
-    CPointListGate* pGate((CPointListGate*)(getGate()->getGate()));
-
-    UInt_t mvx, mvy;
-    // For all possible pairs of parameters in the spectrum
-    for(xChan = 0; xChan < m_vParameters.size()-1; xChan++) {
-      for(yChan = xChan+1; yChan < m_vParameters.size(); yChan++) {
-	mvx = m_vParameters[xChan];
-	mvy = m_vParameters[yChan];
-	if((mvx < nParams) && (mvy < nParams)) {
-	  if(rEvent[mvx].isValid() && rEvent[mvy].isValid()) {  // if valid...
-	    vXP.clear(); vYP.clear();
-	    vXP.push_back(mvx); vXP.push_back(mvy);
-	    vYP.push_back(mvy); vYP.push_back(mvx);
-	    // and (p1, p2) or (p2, p1) is in the gate...
-	    if(pGate->inGate(rEvent, vXP) || pGate->inGate(rEvent, vYP)) {
-	      for(UInt_t xParam = 0; xParam < m_vParameters.size()-1; xParam++) {
-		for(UInt_t yParam = xParam+1; yParam < m_vParameters.size(); 
-		    yParam++) {
-		  if(((xChan != xParam && xChan != yParam)) &&
-		     (yChan != xParam && yChan != yParam)) {
-		    // Increment for all pairs which do not intersect
-		    // with (xChan, yChan) as long as they are valid...
-		    if((xParam < nParams) && (yParam < nParams)) {
-		      if(rEvent[m_vParameters[xParam]].isValid() &&
-			 rEvent[m_vParameters[yParam]].isValid()) {
-			
-			
-			Int_t px = Randomize(ParameterToAxis(xParam, 
-							     rEvent[m_vParameters[xParam]]));
-			Int_t py = Randomize(
-					     ParameterToAxis(yParam + m_vParameters.size(), 
-							     rEvent[m_vParameters[yParam]]));
-			
-			if ( (px >= 0) && (px < (m_nXScale))    && 
-			     (py >= 0) && (py < (m_nYScale))  ) {
-			  pStorage[px + py*Dimension(0)]++;
-			}
-			
-		      }
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    Boolt_t UsesParameter (UInt_t nId) const
-//  Operation Type:
-//     Selector
-
-Bool_t
-CGamma2DB::UsesParameter(UInt_t nId) const
-{
-  for (UInt_t I = 0; I < m_vParameters.size(); I++) {
-    if (m_vParameters[I] == nId)
-      return kfTRUE;
-  }
-  return kfFALSE;
-}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -646,7 +442,7 @@ CGamma2DB::operator[] (const UInt_t* pIndices) const
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DB gamma spectrum y axis"));
   }
-  return (ULong_t)pStorage[nx + (ny << m_nXScale)];
+  return (ULong_t)pStorage[nx + (ny * m_nXScale)];
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -672,24 +468,9 @@ CGamma2DB::set (const UInt_t* pIndices, ULong_t nValue)
     throw CRangeError(0, Dimension(1)-1, ny,
 		      std::string("Indexing 2DB gamma spectrum y axis"));
   }
-  pStorage[nx + (ny << m_nXScale)] = (UInt_t)nValue;
+  pStorage[nx + (ny * m_nXScale)] = (UInt_t)nValue;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-// Function
-//   void GetParameterIds(vector<UInt_t>& rvIds)
-// Operation type:
-//   Selector.
-//
-
-void
-CGamma2DB::GetParameterIds (vector<UInt_t>&rvIds)
-{
-  for (UInt_t I = 0; I < m_vParameters.size(); I++) {
-    rvIds.push_back(m_vParameters[I]);
-  }
-}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -744,21 +525,7 @@ CGamma2DB::CreateStorage()
   ReplaceStorage(pStorage);
   Clear();
 }
-/*!
-   Create a  list of the parameters that are used by this
-   spectrum at the increment stage. 
-   \param rParameters (vector<CParameter>& [in]) the vector
-      of parameters we increment on.
-*/
-void
-CGamma2DB::SetParameterVector(vector<CParameter>& rParameters)
-{
 
-  for (UInt_t i = 0; i < rParameters.size(); i++) {
-    CParameter& rParam(rParameters[i]);
-    m_vParameters.push_back(rParam.getNumber());
-  }
-}
 /*!
    Creates an axis transformation vector for the gamma spectrum.
    The transformation vector will contain two entries for each 
@@ -812,4 +579,33 @@ CGamma2DB::CreateAxisVector(vector<CParameter>& rParams,
   }
 
   return Result;
+}
+/*!
+   Increment callback from the fold.  
+*/
+void
+CGamma2DB::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
+{
+  UChar_t* pStorage = (UChar_t*)getStorage();
+
+  if (rParameters.size() > 0) {
+    for(int i = 0; i < rParameters.size() - 1; i++) {
+      for(int j = i+1; j < rParameters.size(); j++ ) {
+	UInt_t  parx = rParameters[i].first;
+	Float_t xval = rParameters[i].second;
+	
+	UInt_t  pary = rParameters[j].first;
+	Float_t yval = rParameters[j].second;
+	
+	// transform -> Spectrum coordinates and increment.
+	
+	UInt_t x = (UInt_t)ParameterToAxis(0, xval);
+	UInt_t y = (UInt_t)ParameterToAxis(1, yval);
+	
+	if ((x < m_nXScale) && (y < m_nYScale)) {
+	  pStorage[x + y*m_nXScale]++;
+	}
+      }
+    }
+  }
 }

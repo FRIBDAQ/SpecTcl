@@ -276,7 +276,7 @@
   EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
   DAMAGES.
 
-  END OF TERMS AND CONDITIONS
+  END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -303,6 +303,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
 // Header Files:
+
+#include <config.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string>
@@ -325,6 +327,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GaussianDistribution.h"
 #include "TestFile.h"
 
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
 
 
 // Static data declarations:
@@ -491,15 +496,22 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // buffer formats.. .later we'll build an extensible set of buffer
   // decoders like the -format switch on the sread/swrite commands.
 
+
+  // Note well, since this mistake was already made once:
+  // We can't delete the gpBufferDecoder prior to setting
+  // a new one because setting the buffer decoder
+  // calls the OnDetach method of the decoder.
+  //
+  //
+
+  CBufferDecoder* oldDecoder = gpBufferDecoder;  // for later delete.
   
   if (options.Format == string("nscl")) {
  
-   delete gpBufferDecoder;	// Deletes of null is no-op.
     gpBufferDecoder = new CNSCLBufferDecoder;
 
   } else  if (options.Format == string("filter")) {
 
-    delete gpBufferDecoder;
     gpBufferDecoder = new CFilterBufferDecoder;
   } else if (options.Format == string("unchanged")) {
     ;				// Leave everything well enough alone!!!
@@ -514,8 +526,14 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_ERROR;
 
   }
-  if(gpAnalyzer) {
+  // Can only set a decoder if there's an analyzer
+  // and we don't want to thrash decoders if it
+  // turned out the logic above did not replace
+  // the old one.
+  //
+  if(gpAnalyzer && (oldDecoder != gpBufferDecoder)) {
     gpAnalyzer->AttachDecoder(*gpBufferDecoder);
+    delete oldDecoder; 
   }
 
   // It's now up to the individual attachers to figure out what's
@@ -553,7 +571,7 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   assert(0);			// Should not return here.
 
-};
+}
 
 
 /*!
@@ -583,7 +601,7 @@ int CAttachCommand::AttachFile(CTCLResult& rResult,
     return stat;
 
   return rPack.OpenSource(rResult, rName.c_str(), nBytes);
-};
+}
 
 
 
@@ -612,7 +630,7 @@ int CAttachCommand::AttachTape(CTCLResult& rResult,
 
   CDataSourcePackage& rPack = (CDataSourcePackage&)getMyPackage();
   return rPack.AttachTapeSource(rResult, rName.c_str());
-};
+}
 /*!
     Attaches a data source which comes through a pipe file.
     These are programs which generate data on the fly and pipe
@@ -643,7 +661,7 @@ int CAttachCommand::AttachPipe(CTCLResult& rResult,
     return stat;
 
   return rPack.OpenSource(rResult, rName.c_str(), nBytes);
-};
+}
 
 /*!
    Attaches a test data source.  The connection identifier is the
@@ -670,7 +688,7 @@ int CAttachCommand::AttachTest(CTCLResult& rResult,
     return stat;
   }
   return rPack.OpenSource(rResult, sTestName.c_str(), nBlockSize);
-};
+}
 /*!
    Attach the null data source.  The null data source is a data
    source that is always at end of file (no data source).
@@ -694,7 +712,7 @@ int CAttachCommand::AttachNull(CTCLResult& rResult,
     gpEventSource = (CFile*)kpNULL;
   }
   return TCL_OK;
-};
+}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -722,7 +740,7 @@ void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "               sources\n";
   rResult += "        -null  No events will be made available.\n";
 
-};
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -739,6 +757,6 @@ CAttachCommand::ParseSwitch(char* pSwitch) {
       return SwitchTable[i].Value;
   }
   return keNotSwitch;
-};
+}
 
 

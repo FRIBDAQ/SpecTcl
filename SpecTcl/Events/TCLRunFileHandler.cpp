@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2006, All rights reserved";
 //  CTCLRunFileHandler.cpp
@@ -292,16 +292,47 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 // Header Files:
 //
 
-
+#include <config.h>
 #include "TCLRunFileHandler.h"                               
 #include "TCLInterpreter.h"
 #include "TKRunControl.h"
+#include "TCLVariable.h"
 #include <tcl.h>
 #include <tk.h>
+#include <stdio.h>
 
-static const UInt_t knWaitTime = 500; // Ms to wait for file to be readable.
+#ifdef HAVE_STD_NAMESPACE
+using namespace std;
+#endif
+
+
+
+const UInt_t knWaitTime = 500; // default Ms to wait for file to be readable.
+ULong_t        nWaitTime(knWaitTime);
 
 // Functions for class CTCLRunFileHandler
+
+/*!
+  Construct the run file handler.  We init our data elements, and
+  bind knWaitTime to the the TCL Variable SpecTclIODwellMax.
+*/
+CTCLRunFileHandler::CTCLRunFileHandler(CTCLInterpreter* pInterp, 
+				       CRunControl& rRun) :
+    CTCLIdleProcess(pInterp),
+    m_pRun(&rRun),
+    m_nBufferSize(0),
+    m_pInterp(pInterp)
+{
+  CTCLVariable Dwell(pInterp, "SpecTclIODwellMax", false);
+
+  UInt_t    nCurrentDwell(nWaitTime);
+  Dwell.Link(&nWaitTime, TCL_LINK_INT);
+
+  char sDwell[100];
+  snprintf(sDwell, sizeof(sDwell), "%d", nCurrentDwell);
+  Dwell.Set(sDwell);
+}        
+
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -335,7 +366,7 @@ CTCLRunFileHandler::operator()()
   // Process data from the file.
 
   const CFile* pSource = m_pRun->getEventSource();
-  if(pSource->IsReadable(knWaitTime)) {
+  if(pSource->IsReadable(nWaitTime)) {
     m_pRun->OnBuffer(m_nBufferSize); // If a buffer is available process else.
   }
   else {

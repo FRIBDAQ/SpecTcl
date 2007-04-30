@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -927,14 +927,14 @@ XMPulldown *XMMenuBar::GetNextPulldown()
 */
 
 XMPulldown::XMPulldown(char *n, Widget &parent, Cardinal max_items,
-		       ArgList l=NULL, Cardinal num_args=0) :
+		       ArgList l, Cardinal num_args) :
   XMManagedWidget(n)
 {
   BuildMenu(max_items, parent, l, num_args);
 }
 
 XMPulldown::XMPulldown(char *n, XMWidget &parent, Cardinal max_items,
-		       ArgList l = NULL, Cardinal num_args = 0) :
+		       ArgList l, Cardinal num_args) :
   XMManagedWidget(n)
 {
   BuildMenu(max_items, parent.getid(), 
@@ -1009,14 +1009,14 @@ XMPulldown::GetFirstMenuItem()
 */
 
 XMMenuBar::XMMenuBar(char *n, Widget parent, Cardinal num_menus,
-		     ArgList l = NULL, Cardinal num_args = 0) :
+		     ArgList l, Cardinal num_args) :
   XMManagedWidget(n)
 {
   mbCreate(parent, num_menus, l, num_args);
 }
 
 XMMenuBar::XMMenuBar(char *n, XMWidget &parent, Cardinal num_menus,
-		     ArgList l = NULL, Cardinal num_args = 0) :
+		     ArgList l, Cardinal num_args) :
   XMManagedWidget(n)
 {
   mbCreate(parent.getid(), num_menus, l, num_args);

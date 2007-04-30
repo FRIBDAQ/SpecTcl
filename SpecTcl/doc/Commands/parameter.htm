@@ -37,7 +37,7 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 </em>parameter [-new] <i>name id resolution {low high units}<br>
 </i>parameter [-new] <i>name id  [units]</i><br>
 parameter -list [-byid]<br>
-parameter -list <em>name<br>
+parameter -list <em>[pattern]<br>
 </em>parameter -list -id <em>id<br>
 </em>parameter -delete <em>name</em><br>
 parameter -delete -id <em>id</em></p>
@@ -209,11 +209,11 @@ parameter.</p>
 
 <p><a href="parameter.htm#Top">Top</a></p>
 
-<h3>parameter -list <em>name</em></h3>
+<h3>parameter -list <em>[-byid] [pattern]</em></h3>
 
-<p>Returns the parameter definition for the parameter named <em>name</em>.
-If the parameter cannot be listed, the return value is an error
-message string.</p>
+<p>Returns a parameter list of whose whose name matches the pattern.  The pattern
+ may include * as a wildcard.  The -byid falg is optional and will cause the parameters
+to be sorted by id number instead of by name.</p>
 
 <p><a href="parameter.htm#Top">Top</a></p>
 

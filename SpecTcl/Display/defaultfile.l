@@ -15,6 +15,7 @@
 **    @(#)windfile.l	8.1 6/23/95 
 */
 static char *lexrevlevel = "@(#)defaultfile.l	8.1 6/23/95  - windows file lexical analyzer";
+#include <config.h>
 #include <stdlib.h>
 #include "printer.h"
 #include <config.h>

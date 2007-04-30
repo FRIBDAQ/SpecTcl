@@ -1,12 +1,18 @@
 %{
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "grobjio.h"
 #include "dispgrob.h"
+#include "dispshare.h"
 #define yyleng grobyyleng
 #define yytext grobyytext
+
+  extern spec_shared* xamine_shared;
+
 void yyerror(char *txt);
+
 
 int yylex();
 
@@ -22,6 +28,7 @@ static char *typenames[] = { " Invalid ",
 			     "2-d Summing region",
 			     "2-d Marker"
                            };
+ int specnum;
 %}
 %union {
         int integer;
@@ -124,11 +131,26 @@ obj_name:   OBJECTNAME QSTRING
 point_list:  BEGINPTS points ENDPTS
          ;
 
-spectrum_id:  SPECTRUM INTEGER
+spectrum_id:  SPECTRUM spectrum_selector
               { assert(current != (grobj_generic *) NULL);
-                current->setspectrum(yylval.integer);
+                current->setspectrum(specnum);
 	      }
             ;
+
+spectrum_selector: INTEGER
+                     {
+		       specnum = yylval.integer;
+		     }
+                 | QSTRING
+                     {
+		       specnum = xamine_shared->getspecid(yylval.string);
+		       if (specnum == -1) {
+			 yyerror("Spectrum  name does not match a valid spectrum");
+			 return -1;
+		       }
+                     }
+                ;
+
 
 points:      /* Empty */
         | points point
