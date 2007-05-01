@@ -161,8 +161,9 @@ unittest_LDFLAGS = $(Main_Objects) $(CPPUNIT_LDFLAGS) \
 	-L@top_srcdir@/Tape -ltape       \
 	-L@top_srcdir@/Filter -lFilter \
 	-L@top_srcdir@/TreeParam -lTreeParam \
-	-L@top_srcdir@/Analysis -lBufferAnalysis \
-	-ltk -ltcl $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
+	-L@top_srcdir@/Analysis -lBufferAnalysis  \
+	-L@top_srcdir@/Fits     -lFits            \
+	$(TCL_LDFLAGS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
 
 
 TESTS = ./unittest
