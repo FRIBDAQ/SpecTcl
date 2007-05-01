@@ -623,3 +623,5 @@ Week of April 30, 2007
           allow support of traces on e.g. spectrum dictionary.
         - Added tests for dictionary observers and the observer manager
           helper classes.
+        - Added capability to add/remove observers from the spectrum dictionary
+          to CHistogrammer.

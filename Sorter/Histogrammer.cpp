@@ -1049,6 +1049,30 @@ UInt_t CHistogrammer::SpectrumCount() {
   return m_SpectrumDictionary.size();
 }
 
+/*!
+    Add a spectrum dictionary observer so that software can monitor
+    changes to the spectrum dictionary:
+    \param observer : SpectrumDictionaryObserver*
+       Pointer to the observer to add.
+*/
+void
+CHistogrammer::addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer) 
+{
+  m_SpectrumDictionary.addObserver(observer);
+}
+
+/*!
+   Remove an existing spectrum dictionary observer from the spectrum
+   dictionary.  That observer object will no longer be notified of
+   changes in the spectrum dictionary.
+   \param observer : SpectrumDictionaryObserver* 
+         Pointer to the observer to remove.
+*/
+void
+CHistogrammer::removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
+{
+  m_SpectrumDictionary.removeObserver(observer);
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
