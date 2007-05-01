@@ -1003,7 +1003,30 @@ SpecTcl::SpectrumEnd()
   return         pHistogrammer->SpectrumEnd();
 }
 
+/*!
+   Add an an observer to track changes in the spectrum 
+   dictionary.  Observers get invoked on additions and deletions of
+   spectra.
+   \param observer : SpectrumDictionaryObserver*
+      Pointer to the observer to add.
+*/
+void
+SpecTcl::addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
+{
+  CHistogrammer* pHistogrammer = GetHistogrammer();
+  pHistogrammer->addSpectrumDictionaryObserver(observer);
+}
+/*!
+  Remove an observer from the spectrum dictionary.
+  \param observer : SpectrumDictionaryObserver*
+*/
+void
+SpecTcl::removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
+{
+  CHistogrammer* pHistogrammer = GetHistogrammer();
+  pHistogrammer->removeSpectrumDictionaryObserver(observer);
 
+}
 /*!
   Returns the number of spectra in the spectrum dictionary.
  */

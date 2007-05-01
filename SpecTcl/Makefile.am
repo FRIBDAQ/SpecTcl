@@ -125,7 +125,7 @@ commonTestLdFlags= -L@top_srcdir@/Events -lAnalysis \
 	-L@top_srcdir@/TCL -ltclPlus \
 	-L@top_srcdir@/NSCLException -lException \
 	-L@top_srcdir@/Analysis -lBufferAnalysis \
-	$(CPPUNIT_LDFLAGS)
+	$(CPPUNIT_LDFLAGS) $(TCL_LDFLAGS)
 
 scalertests_LDFLAGS= ScalerProcessorCallbacks.o $(commonTestLdFlags)
 

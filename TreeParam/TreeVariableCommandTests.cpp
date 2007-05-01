@@ -504,12 +504,12 @@ TreeVarCommandTest::Traces()
   Tcl_TraceVar(m_pInterp->getInterpreter(), "indiv", TCL_TRACE_WRITES,
 	       myTrace, (ClientData)NULL);
 
-  // Just modifying the value won't fire traces... we need to -firetraces too:
+  // Just modifying the values now fires traces.
 
   char* setargv[5] = {"treevariable", "-set", "indiv", "2.22", "in", };
   int status = (*m_pCommand)(*m_pInterp, *m_pResult, 5, setargv);
   EQMSG("set status", TCL_OK, status);
-  EQMSG("set trace count", 0, traces);
+  EQMSG("set trace count", 1, traces);
 
   // Now fire the traces:
 

@@ -243,6 +243,9 @@ public:
   SpectrumDictionaryIterator SpectrumEnd();
   UInt_t SpectrumCount();
 
+  void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+  void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+
   // Misc spectrum utilities:
 
   void ClearSpectrum(STD(string) name);
