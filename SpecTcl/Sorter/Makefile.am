@@ -1,7 +1,13 @@
 INCLUDES = -I. -I../Utility -I../NSCLException -I../Xamine -I../Gates \
 	   -I../Events -I../Display @TCL_FLAGS@ -I.. -I@top_srcdir@/Fits
-LDADD = -lSorting -lXplus -lGates -lAnalysis -lEventSource -ltclPlus \
-	-lException -lXamine -lXt -lX11
+libSorting_la_LIBADD =  @top_srcdir@/Xamine/libXplus.la 	\
+			@top_srcdir@/Gates/libGates.la 		\
+			@top_srcdir@/Events/libAnalysis.la 	\
+			@top_srcdir@/EventSource/libEventSource.la \
+			@top_srcdir@/TCL/libtclPlus.la   	 \
+			@top_srcdir@/NSCLException/libException.la 	\
+			@top_srcdir@/Display/libXamine.la	
+
 # AM_LDFLAGS = -L. @TCL_LDFLAGS@ @XTLIBSW@ @XLIBSW@
 
 lib_LTLIBRARIES = libSorting.la
@@ -33,3 +39,19 @@ include_HEADERS = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	CHistogrammerFitObserver.h Gamma2DD.h
 
 EXTRA_DIST = Sorter.WC Sorter.omt
+
+
+if CPPUNIT
+noinst_PROGRAMS=TestRunner
+
+TestRunner_SOURCES=TestRunner.cpp TestDictObservers.cpp
+
+TestRunner_CXXFLAGS=$(CPPUNIT_INCLUDES)
+
+TestRunner_LDADD = $(CPPUNIT_LDFLAGS)
+
+noinst_HEADERS = Asserts.h
+
+TESTS=./TestRunner
+
+endif
