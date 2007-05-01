@@ -617,3 +617,9 @@ Week of April 2, 2007
 Pre-released April 26, 2007
 
 Pre-3.
+ 
+Week of April 30, 2007
+        - Added observer capability to all dictionaries types.  This will
+          allow support of traces on e.g. spectrum dictionary.
+        - Added tests for dictionary observers and the observer manager
+          helper classes.
