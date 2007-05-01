@@ -98,12 +98,15 @@ class CHistogrammerFitObserver;
 // Dictionary types:
 typedef CDictionary<CParameter>                 ParameterDictionary;
 typedef ParameterDictionary::DictionaryIterator ParameterDictionaryIterator;
+typedef DictionaryObserver<CParameter>          ParameterDictionaryObserver;
 
 typedef CDictionary<CSpectrum*>                 SpectrumDictionary;
 typedef SpectrumDictionary::DictionaryIterator  SpectrumDictionaryIterator;
+typedef DictionaryObserver<CSpectrum*>          SpectrumDictionaryObserver;
 
 typedef CDictionary<CGateContainer>             CGateDictionary;
 typedef CGateDictionary::DictionaryIterator     CGateDictionaryIterator;
+typedef DictionaryObserver<CGateContainer>      GateDictionaryObserver;
 
 // Display binding management types:
 typedef STD(vector)<STD(string)>                     DisplayBindings;
@@ -121,6 +124,7 @@ class CHistogrammer : public CEventSink {
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
   CHistogrammerFitObserver* m_pFitObserver; // Monitor for fit changes.
+
 
   static int          m_nextFitlineId;       // Next Xamine fitline id.
 
@@ -213,6 +217,9 @@ class CHistogrammer : public CEventSink {
   SpectrumDictionaryIterator SpectrumBegin();
   SpectrumDictionaryIterator SpectrumEnd();
   UInt_t SpectrumCount();
+  void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+  void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+
 
   void UnGate(const STD(string)& rSpectrum); // Remove gate from spectrum
 
