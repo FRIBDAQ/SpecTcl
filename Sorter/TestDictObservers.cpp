@@ -23,14 +23,14 @@ static string removeName;
 
 class MyObserver : public DictionaryObserver<int> 
 {
-  virtual void onAdd(const STD(string)& name,
-		     const int&         item) {
+  virtual void onAdd(string name,
+		     int&         item) {
     counter++;
     addItem = item;
     addName = name;
   }
-  virtual void onRemove(const STD(string)& name,
-			const int&         item) {
+  virtual void onRemove(string name,
+			int&         item) {
     counter--;
     removeItem = item;
     removeName = name;

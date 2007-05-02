@@ -401,8 +401,10 @@ CParameter* CHistogrammer::AddParameter(const std::string& sName,
 
   // Now add the new parameter to the dictionary:
 
-  m_ParameterDictionary.Enter(sName, 
-			      CParameter( sName, nId, pUnits));
+  CParameter par(sName, nId, pUnits);
+
+  m_ParameterDictionary.Enter(string(sName), 
+			      par);
   return FindParameter(sName);
 }
 
@@ -453,8 +455,8 @@ CParameter* CHistogrammer::AddParameter(const std::string& sName, UInt_t nId,
 
   // Now add the new parameter to the dictionary:
 
-  m_ParameterDictionary.Enter(sName, 
-			      CParameter(nScale, sName, nId));
+  CParameter par(nScale, sName, nId);
+  m_ParameterDictionary.Enter(string(sName), par);
   return FindParameter(sName);
 }
 
@@ -508,9 +510,9 @@ CParameter* CHistogrammer::AddParameter(const std::string& sName, UInt_t nId,
 
   // Now add the new parameter to the dictionary:
 
-  m_ParameterDictionary.Enter(sName, 
-			      CParameter(nScale, sName, nId, 
-					 nLow, nHi, sUnits));
+  CParameter par(nScale, sName, nId, nLow, nHi, sUnits);
+  m_ParameterDictionary.Enter(string(sName), par);
+					 
   return FindParameter(sName);  
 }
 
@@ -562,7 +564,8 @@ void CHistogrammer::AddSpectrum(CSpectrum& rSpectrum) {
   //
   // Now enter the item:
   //
-  m_SpectrumDictionary.Enter(rSpectrum.getName(), &rSpectrum);
+  CSpectrum*  pSpectrum = &rSpectrum;
+  m_SpectrumDictionary.Enter(rSpectrum.getName(), pSpectrum);
 
 }
 

@@ -36,6 +36,10 @@
 #include "TCLPackagedCommand.h"
 #endif
 
+#ifndef __TCLOBJECT_H
+#include <TCLObject.h>
+#endif
+
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
 #endif
@@ -56,7 +60,9 @@
 
 class CTCLInterpreter;
 class CTCLResult;
-class CTCLCommandPackage;                  
+class CTCLCommandPackage;   
+class SpectrumTraceObserver;      
+class CSpectrum;         
                                
 class CSpectrumCommand  : public CTCLPackagedCommand        
 {
@@ -69,14 +75,20 @@ public:
     keAll,
     keById,
     keShowGate,
+    keTrace,
     keNotSwitch
   };
+private:
+  CTCLObject     m_createTrace;	// Trace script fired on a spectrum creation.
+  CTCLObject     m_removeTrace; // Trace script fired on a spectrum deletion.
+  bool           m_fTracing;    // True when traces are being called.
+
+  SpectrumTraceObserver* m_pObserver; 
+
 public:
 			//Constructor with arguments
-  CSpectrumCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage ) :
-    CTCLPackagedCommand("spectrum", pInterp, rPackage)
-  { }
-  virtual ~CSpectrumCommand ( ) { }       //Destructor	
+  CSpectrumCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPackage );
+  virtual ~CSpectrumCommand ( );
 
 			//Copy constructor - Illegal
 private:
@@ -101,6 +113,9 @@ public:
 	      int nArgs, char* Args[]);
   Int_t Delete (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		int nArgs, char* pArgs[])  ;
+  Int_t Trace  (CTCLInterpreter& rInterp, CTCLResult& rResult,
+		int nArgs, char* pArgs[]);
+
 protected:
   static void   Usage(CTCLResult& rResult);
   static Switch MatchSwitch(const char* pSwitch);
@@ -113,6 +128,11 @@ protected:
 public:
   UInt_t      ExtractId(const STD(string)& rProperties);
   STD(string) ExtractName(const STD(string)& rProperties);
+  void traceAdd(const STD(string)& name,
+		const CSpectrum* pSpectrum);
+  void traceRemove(const STD(string)& name,
+		   const CSpectrum* pSpectrum);
+
 };
 
 #endif

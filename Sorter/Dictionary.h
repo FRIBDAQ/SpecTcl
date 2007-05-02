@@ -56,8 +56,8 @@ template <class T>
 class DictionaryObserver 
 {
 public:
-  virtual void onAdd(const STD(string)&    name,  const  T& item) {}
-  virtual void onRemove(const STD(string)& name,  const  T& item) {}
+  virtual void onAdd(STD(string)   name,   T& item) {}
+  virtual void onRemove( STD(string) name,    T& item) {}
 
 };
 
@@ -89,7 +89,7 @@ public:
       i++;
     }
   }
-  void invokeAdd(const STD(string)& name, const T& item) {
+  void invokeAdd(const STD(string) name, T& item) {
     ObserverIterator i = m_observers.begin();
     while (i  != m_observers.end()) {
       DictionaryObserver<T>* obs = static_cast<DictionaryObserver<T>*>(*i);
@@ -97,7 +97,7 @@ public:
       i++;
     }
   }
-  void invokeRemove(const STD(string)& name, const T& item) {
+  void invokeRemove(const STD(string) name, T& item) {
     ObserverIterator i = m_observers.begin();
     while (i  != m_observers.end()) {
       DictionaryObserver<T>* obs = static_cast<DictionaryObserver<T>*>(*i);
@@ -145,7 +145,7 @@ class CDictionary
   }
 
   // Operations:
-  DictionaryIterator Lookup(const STD(string)& sName) {
+  DictionaryIterator Lookup(STD(string) sName) {
     return m_Map.find(sName);
   }
 
@@ -155,12 +155,12 @@ class CDictionary
   }
 
   // Note: Enter will overwrite any existing with key sName.
-  void Enter(const STD(string)& sName, const T& Item) {
+  void Enter(STD(string) sName, T& Item) {
     m_Map[sName] = Item;
     m_observers.invokeAdd(sName, Item);
   }
 
-  void Remove(const STD(string)& rsName) {
+  void Remove(STD(string) rsName) {
     DictionaryIterator i = m_Map.find(rsName);
     if(i != m_Map.end()) 
       m_observers.invokeRemove(rsName, i->second);
