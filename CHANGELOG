@@ -627,3 +627,4 @@ Week of April 30, 2007
           to CHistogrammer.
         - Added API entries to add/remove spectrum observers.
         - Added spectrum -trace command.
+        - Added docs for the -trace command.

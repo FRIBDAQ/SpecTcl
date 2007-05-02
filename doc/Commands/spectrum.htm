@@ -166,7 +166,7 @@ div.Section1
 	mso-list-template-ids:-151981646 -288182996 19688730 247338382 1135761690 -806847966 -943448650 1243382536 1460013002 161523684;}
 @list l3:level1
 	{mso-level-number-format:bullet;
-	mso-level-text:\F0B7;
+	mso-level-text:/F0B7;
 	mso-level-tab-stop:.5in;
 	mso-level-number-position:left;
 	text-indent:-.25in;
@@ -191,29 +191,29 @@ ul
   <p class=MsoNormal align=center style='text-align:center'><b><a
   href="http://www.nscl.msu.edu"><span style='text-decoration:none;text-underline:
   none'><img border=0 width=63 height=52 id="_x0000_i1025"
-  src="..\images\nscl_logo_small.gif" alt="nscl_logo_small.gif (2463 bytes)"></span></a><o:p></o:p></b></p>
+  src="../images/nscl_logo_small.gif" alt="nscl_logo_small.gif (2463 bytes)"></span></a><o:p></o:p></b></p>
   </td>
   <td width="79%" style='width:79.0%;padding:0in 0in 0in 0in'>
   <h1>spectrum - SpecTcl Command</h1>
   </td>
   <td width="12%" style='width:12.0%;padding:0in 0in 0in 0in'>
-  <p class=MsoNormal><a href="..\index.htm"><span style='text-decoration:none;
+  <p class=MsoNormal><a href="../index.htm"><span style='text-decoration:none;
   text-underline:none'><img border=0 width=192 height=84 id="_x0000_i1026"
-  src="..\images\hh00706_.jpg" alt="HH00706_.wmf (6530 bytes)"></span></a></p>
+  src="../images/hh00706_.jpg" alt="HH00706_.wmf (6530 bytes)"></span></a></p>
   </td>
  </tr>
 </table>
 
-<p><a name=Top></a><a href="..\index.htm"><span style='mso-bookmark:Top'>SpecTcl
+<p><a name=Top></a><a href="../index.htm"><span style='mso-bookmark:Top'>SpecTcl
 Home</span><span style='mso-bookmark:Top'></span></a><span style='mso-bookmark:
-Top'>&nbsp; </span><a href="..\general_information.htm"><span style='mso-bookmark:
+Top'>&nbsp; </span><a href="../general_information.htm"><span style='mso-bookmark:
 Top'>General Information</span><span style='mso-bookmark:Top'></span></a><span
-style='mso-bookmark:Top'> </span><a href="..\users_guide.htm"><span
+style='mso-bookmark:Top'> </span><a href="../users_guide.htm"><span
 style='mso-bookmark:Top'>User Guide</span><span style='mso-bookmark:Top'></span></a><span
-style='mso-bookmark:Top'> </span><a href="..\programmers_guide.htm"><span
+style='mso-bookmark:Top'> </span><a href="../programmers_guide.htm"><span
 style='mso-bookmark:Top'>Programmer's Guide</span><span style='mso-bookmark:
 Top'></span></a><span style='mso-bookmark:Top'> </span><a
-href="..\obtaining_and_installing.htm"><span style='mso-bookmark:Top'>Obtaining
+href="../obtaining_and_installing.htm"><span style='mso-bookmark:Top'>Obtaining
 and Installing</span><span style='mso-bookmark:Top'></span></a><span
 style='mso-bookmark:Top'></span></p>
 
@@ -226,8 +226,10 @@ spectrum -list [-showgate] <em>name</em><br>
 spectrum -list -id [-showgate] <em>id</em><i><br>
 </i>spectrum -delete <em>name </em>[<em>name...</em>]<br>
 spectrum -delete <em>id </em>[<em>id...</em>]<br>
-spectrum -delete -all</span></p>
-
+spectrum -delete -all <br />
+spectrum -trace {add | delete} <em>script</em>
+</span>
+</p>
 <h2><span style='mso-bookmark:Top'>Synopsis</span></h2>
 
 <p><span style='mso-bookmark:Top'>Creates, lists properties of and deletes
@@ -249,6 +251,8 @@ spectra.</span></p>
      Top'>-delete will return either a null string or the list of spectra which
      could not be deleted. For each spectrum a list containing the spectrum
      name or id and the reason it could not be deleted.</span></li>
+ <li>-trace allows you to set list or delete a script that is executed when
+     spectra are added or deleted from SpecTcl.</li>
 </ul>
 
 <p><span style='mso-bookmark:Top'></span><a href="#Top"><span style='mso-bookmark:
@@ -945,6 +949,41 @@ style='mso-bookmark:Top'>spectrum -delete -id <em>id </em>[<em>id...</em>]</span
 <p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
 style='mso-bookmark:Top'>Deletes the spectra listed by id.</span></p>
 
+<h3>spectrum -trace {add | delete} [<em>script</em>]</h3>
+<p>
+   Allows you to add delete or list a script that will be executed when spectra
+are added or deleted from SpecTcl.  If the keyword after the -trace switch is
+add, the trace affected will be a trace invoked when spectra are created.
+If the keyword after the -trace switch is delete, the
+trace affected will be a trace invoked when spectra are deleted.
+</p>
+<p>
+If <em>script</em> is supplied, it becomes the new trace script for that
+operation. The previous script is returned as the result of the command.
+If the <em>script</em> is not supplied, the current trace script is
+returned.
+</p>
+<p>
+  When a spectrum is added, the add trace is called with the name of the
+  spectrum appended to it.  No spectrum traces (add or delete) will fire
+  while the script is executing.  At the timethe script is invoked, the
+  spectrum has already been added tothe spectrum dictionary.  The
+  following sample script will output the description of the new spectrum
+  to stdout:
+  <pre>
+
+proc addtrace name {
+   puts [spectrum -list $name]
+}
+spectrum -trace add addtrace;     # Establish the trace.
+
+</p>
+
+<p>
+When a spectrum is deleted, the delete trace is called with the name of
+the spectrum appended to it.  When the script is called, the spectrum
+has not yet been deleted from SpecTcl.
+</p>
 <h2 style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
 style='mso-bookmark:Top'>Examples:</span></h2>
 
@@ -954,7 +993,7 @@ style='mso-bookmark:Top'>spectrum mapped 2 {Distribution1 Distribution2} {{10 99
 style='mso-bookmark:Top'>#</span></pre><pre><span style='mso-bookmark:Top'>#<span style="mso-spacerun: yes">&nbsp; </span>The following multiline example just lists only the names of spectra:</span></pre><pre><span
 style='mso-bookmark:Top'>#</span></pre><pre><span style='mso-bookmark:Top'>% set result &quot;&quot;</span></pre><pre><span
 style='mso-bookmark:Top'>% foreach Spectrum [spectrum -list] {</span></pre><pre><span
-style='mso-bookmark:Top'><span style="mso-spacerun: yes">&nbsp;&nbsp; </span>append result [lindex $Spectrum 1] &quot;\n&quot;</span></pre><pre><span
+style='mso-bookmark:Top'><span style="mso-spacerun: yes">&nbsp;&nbsp; </span>append result [lindex $Spectrum 1] &quot;/n&quot;</span></pre><pre><span
 style='mso-bookmark:Top'>}<span style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>;# result contains the list.</span></pre><pre><span
 style='mso-bookmark:Top'>set $result<span style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>;# Show the list</span></pre><pre><span
 style='mso-bookmark:Top'>d1</span></pre><pre><span style='mso-bookmark:Top'>d1-vs-sum</span></pre><pre><span
@@ -980,12 +1019,12 @@ style='mso-bookmark:Top'>Top</span><span style='mso-bookmark:Top'></span></a><sp
 style='mso-bookmark:Top'></span></p>
 
 <p style='tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'><span
-style='mso-bookmark:Top'></span><a href="..\index.htm"><span style='mso-bookmark:
+style='mso-bookmark:Top'></span><a href="../index.htm"><span style='mso-bookmark:
 Top'>SpecTcl Home</span><span style='mso-bookmark:Top'></span></a><span
-style='mso-bookmark:Top'></span>&nbsp; <a href="..\general_information.htm">General
-Information</a> <a href="..\users_guide.htm">User Guide</a> <a
-href="..\programmers_guide.htm">Programmer's Guide</a> <a
-href="..\obtaining_and_installing.htm">Obtaining and Installing</a></p>
+style='mso-bookmark:Top'></span>&nbsp; <a href="../general_information.htm">General
+Information</a> <a href="../users_guide.htm">User Guide</a> <a
+href="../programmers_guide.htm">Programmer's Guide</a> <a
+href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 
 
 <div class=MsoNormal align=center style='text-align:center;tab-stops:45.8pt 91.6pt 137.4pt 183.2pt 229.0pt 274.8pt 320.6pt 366.4pt 412.2pt 458.0pt 503.8pt 549.6pt 595.4pt 641.2pt 687.0pt 732.8pt'>
