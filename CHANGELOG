@@ -628,3 +628,9 @@ Week of April 30, 2007
         - Added API entries to add/remove spectrum observers.
         - Added spectrum -trace command.
         - Added docs for the -trace command.
+        - Made Xamine's Xamine_DrawFittedString also attempt truncation
+          rather than just leaving a string blank if it does not fit.
+          e.g. a title that is:
+          "this is a very long string that does not fit"
+          could get rendered/displayed as:
+          "this is a very lo..."  if that's all the room there is
