@@ -336,21 +336,22 @@ struct bftime
 /*		Structures which describe the final output data buffers */
 
 struct bheader				/* Data buffer header	*/
-    {
-	INT16	nwds;			/* Used part of buffer	*/
-	INT16	type;			/* buffer type		*/
-	INT16	cks;			/* checksum over used part of buffer */
-	INT16	run;			/* Run number		*/
-	INT32	seq;			/* Buffer sequence number */
-	INT16	nevt;			/* Event count in buffer    */
-	INT16	nlam;			/* Number of lam masks	    */
-	INT16	cpu;			/* Processor number	    */
-	INT16	nbit;			/* Number of bit registers */
-	INT16	buffmt;			/* Data format revision level */
-	INT16   ssignature;		/* Short byte order signature */
-	INT32   lsignature;		/* Long byte order signature  */
-	INT16	unused[2];		/* Pad out to 16 words.	    */
-    };
+{
+  INT16	nwds;			/* Used part of buffer	*/
+  INT16	type;			/* buffer type		*/
+  INT16	cks;			/* checksum over used part of buffer */
+  INT16	run;			/* Run number		*/
+  INT32	seq;			/* Buffer sequence number */
+  INT16	nevt;			/* Event count in buffer    */
+  INT16	nlam;			/* Number of lam masks	    */
+  INT16	cpu;			/* Processor number	    */
+  INT16	nbit;			/* Number of bit registers */
+  INT16	buffmt;			/* Data format revision level */
+  INT16   ssignature;		/* Short byte order signature */
+  INT32   lsignature;		/* Long byte order signature  */
+      INT16   nwdsHigh;
+  INT16	unused;		/* Pad out to 16 words.	    */
+};
 
 struct ctlbody				/* Body of control buffer   */
     {					/* start/stop/pause/resume  */
