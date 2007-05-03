@@ -14,11 +14,11 @@ libAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0 \
 libAnalysis_la_SOURCES = Analyzer.cpp BufferDecoder.cpp BufferTranslator.cpp \
 	Event.cpp EventFormatError.cpp EventList.cpp NSCLBufferDecoder.cpp \
 	RunControl.cpp TCLRunFileHandler.cpp TKRunControl.cpp EventSink.cpp \
-	EventSinkPipeline.cpp
+	EventSinkPipeline.cpp NSCLJumboBufferDecoder.cpp
 
 include_HEADERS = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	EventFormatError.h EventList.h EventSink.h EventUnpacker.h \
 	NSCLBufferDecoder.h RunControl.h TCLRunFileHandler.h TKRunControl.h \
-	TranslatorPointer.h ValidValue.h EventSinkPipeline.h
+	TranslatorPointer.h ValidValue.h EventSinkPipeline.h NSCLJumboBufferDecoder.h
 
 EXTRA_DIST = ClassBreakdown.WC ClassBreakdown.omt

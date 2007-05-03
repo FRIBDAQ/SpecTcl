@@ -412,3 +412,4 @@ Released January 15, 2007
 Released April 30, 2007
 
 3.0-012
+	May  3, 2007      Really integrate jumbo buffer support into the beast.
