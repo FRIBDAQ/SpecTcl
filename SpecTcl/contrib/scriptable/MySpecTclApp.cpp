@@ -7,7 +7,7 @@
 #include "EventProcessor.h"
 #include "TCLAnalyzer.h"
 #include "CScriptableUnpacker.h" 
-
+#include <NSCLJumboBufferDecoder.h>
 
 #include <Event.h>
 #include <Globals.h>
@@ -226,7 +226,10 @@ of NSCL buffers.
 */
 void 
 CMySpecTclApp::SelectDecoder(CAnalyzer& rAnalyzer)  
-{ CTclGrammerApp::SelectDecoder(rAnalyzer);
+{ // CTclGrammerApp::SelectDecoder(rAnalyzer);
+  gpBufferDecoder = new CNSCLJumboBufferDecoder;
+  rAnalyzer.AttachDecoder(*gpBufferDecoder);
+    
 }  
 
 
