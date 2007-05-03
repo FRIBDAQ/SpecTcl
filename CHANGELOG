@@ -535,3 +535,5 @@ SpecTcl-3.1-002
 Released April 26, 2007
 
 3.1-005
+  May  3, 2007 - backport the 3.2 mod to drawing text in Xamine so something
+                 is always drawn.
