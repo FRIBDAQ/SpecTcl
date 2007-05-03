@@ -15,6 +15,7 @@
 #include "CCAENDigitizerCreator.h"
 #include "CCAENV830Creator.h"
 #include "CPacketCreator.h"
+#include "NSCLJumboBufferDecoder.h"
 
 #include <Analyzer.h>
 #include <BufferDecoder.h>
@@ -432,7 +433,19 @@ CScriptableUnpacker::operator()(const Address_t pBuffer, CEvent& rEvent,
   if(retval) {
     // Create the translating pointer and get the event size.
     TranslatorPointer<UShort_t> p(*(rDecoder.getBufferTranslator()), pBuffer);
-    UShort_t nWords = *p;
+    UInt_t nWords = *p;
+
+    // If the decoder is a jumbo decoder we need to see if this is 32
+    // bit word count data and act accordingly:
+
+    CNSCLJumboBufferDecoder* pJumbo = 
+      dynamic_cast<CNSCLJumboBufferDecoder*>(&rDecoder);
+    if(pJumbo) {
+      if (pJumbo->size32()) {
+	TranslatorPointer<ULong_t> pl(*(rDecoder.getBufferTranslator()), pBuffer);
+	nWords = *pl;		// Long word sizes!!
+      }
+    }
    
     // Let the analyzer know how big the event is...
 
