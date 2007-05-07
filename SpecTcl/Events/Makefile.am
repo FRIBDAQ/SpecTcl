@@ -20,6 +20,6 @@ include_HEADERS = Analyzer.h BufferDecoder.h BufferTranslator.h Event.h \
 	EventFormatError.h EventList.h EventSink.h EventUnpacker.h \
 	NSCLBufferDecoder.h RunControl.h TCLRunFileHandler.h TKRunControl.h \
 	TranslatorPointer.h ValidValue.h EventSinkPipeline.h \
-	NSCLJumboBufferDecoder.cpp
+	NSCLJumboBufferDecoder.h
 
 EXTRA_DIST = ClassBreakdown.WC ClassBreakdown.omt
