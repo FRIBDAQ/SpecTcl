@@ -14,7 +14,7 @@ INCLUDES=-I@top_srcdir@/Filter
 cmdline.c: filtsplit.ggo
 	gengetopt --unamed-opts <filtsplit.ggo
 
-EXTRA_DIST=daqstart.ggo
+EXTRA_DIST=filtsplit.ggo  filtsplit.xml
 
 
 filtsplit_LDADD = @top_srcdir@/Filter/CXdrInputStream.lo \
