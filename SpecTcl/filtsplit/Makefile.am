@@ -1,3 +1,7 @@
+.xml.1:
+	-$(MANDOCBOOK) man $< 2>/dev/null
+	touch $@
+
 bin_PROGRAMS=filtsplit
 
 filtsplit_SOURCES=filtsplit.cpp cmdline.c
@@ -15,3 +19,5 @@ EXTRA_DIST=daqstart.ggo
 
 filtsplit_LDADD = @top_srcdir@/Filter/CXdrInputStream.lo \
 		@top_srcdir@/Filter/CXdrOutputStream.lo
+
+man_MANS = filtsplit.1
