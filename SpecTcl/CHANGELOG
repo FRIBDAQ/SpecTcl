@@ -636,3 +636,12 @@ Week of April 30, 2007
           "this is a very lo..."  if that's all the room there is
         - Port in the jumbo buffer decoder and put it in scriptable unpacker
             too
+Week of May 7, 2007
+        - BZ 295 - add support for splitting/joining filter files.  Note that
+          cat can join perfectly well, so this reduces to writing a program
+	  filtsplit that can split.  We'll choose to write:
+		filtspilt --size blocks_per_file --output stem_name  input_file
+          blocks_per_file - number of input filter blocks per output file.
+          stem_name       - Is the stem of the split output files which 
+                            will have names like stem_name_nnn.flt
+          input_file      - Is the input file to split.
