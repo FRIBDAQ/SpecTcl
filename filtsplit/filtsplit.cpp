@@ -154,6 +154,7 @@ createFilename(int index)
   sprintf(indexString, "%03d", index);
   string name = filenameStem;
   name += indexString;
+  name += ".flt";
   return name;
 }
 
@@ -165,9 +166,9 @@ void
 writeHeader(CXdrOutputStream& out, vector<string> parameters)
 {
   out << "header";
-  out << parameters.size();
+  out << (int)parameters.size();
   for (int i =0; i < parameters.size(); i++) {
-    out << parameters[i];
+    out << (parameters[i]);
   }
 }
 
@@ -192,16 +193,34 @@ copyEvent(CXdrInputStream& in, CXdrOutputStream& out, size_t numParams)
 {
   size_t numBitRegisters = (numParams + 31)/32;	// Number of bit registers needed.
   
+  size_t intsize   = out.sizeofInt();
+  size_t floatsize = out.sizeofFloat();
+  size_t hdrsize   = out.sizeofString("event");
+
+  vector<int> bitmasks;
+  
   // Need to see how many bits are set so that we know how many parameters to copy
   // so copy the bit registers seperatly tallying bits:
   //
+
   int numParameters = 0;
   for (int i= 0; i < numBitRegisters; i++) {
     int mask;
     in >> mask;
     numParameters += countBits(mask);
-    out << mask;
+    bitmasks.push_back(mask);
   }
+
+  // Ensure we have room for the event:
+
+  out.Require(numBitRegisters*intsize   +
+	      numParameters*floatsize   + hdrsize);
+
+  out << "event";
+  for(int i = 0; i < numBitRegisters; i++) {
+    out << bitmasks[i];
+  }
+
   // Now copy the parameters:
 
   for (int i =0; i < numParameters; i++) {
