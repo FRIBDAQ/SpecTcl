@@ -35,6 +35,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log:
    $Log$
+   Revision 1.3  2007/05/11 20:51:57  ron-fox
+   Make NSCLAsciiSpectrumFormatter correctly deal with rev 2, 3 and
+   'malforme3d 2' produced by version 3.2-pre2 for summary spectra.
+
    Revision 1.2  2006/06/22 17:28:37  ron-fox
    Defect 209 : more 64bit unclean issues.
 
@@ -166,6 +170,8 @@ CSummarySpectrumL::CSummarySpectrumL(const std::string& rName,
   m_nXChannels(rrParameters.size())
 
 {
+
+
   AddAxis(rrParameters.size(), 0.0, 
 	  (Float_t)(rrParameters.size() - 1)); //  Unit-less
   AddAxis(nYScale, fYLow, fYHigh, rrParameters[0].getUnits());

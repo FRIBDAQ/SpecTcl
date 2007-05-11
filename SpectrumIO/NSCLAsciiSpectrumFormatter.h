@@ -16,6 +16,10 @@
 /*
   Change log:
   $Log$
+  Revision 5.4  2007/05/11 20:51:57  ron-fox
+  Make NSCLAsciiSpectrumFormatter correctly deal with rev 2, 3 and
+  'malforme3d 2' produced by version 3.2-pre2 for summary spectra.
+
   Revision 5.3  2007/02/23 20:38:18  ron-fox
   BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
   parameter lists).
@@ -174,6 +178,7 @@ protected:
   static void     ReadDelimited(STD(istream)& rStream, STD(string)& STDString,
 				char start, char end);
   static STD(string)   ParenListElement(STD(istream)& rStream);
+  static bool     LimitCountOk(SpectrumType_t type, size_t limits, size_t dimensions);
 };
 
 #endif
