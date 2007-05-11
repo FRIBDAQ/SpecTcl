@@ -645,4 +645,9 @@ Week of May 7, 2007
           stem_name       - Is the stem of the split output files which 
                             will have names like stem_name_nnn.flt
           input_file      - Is the input file to split.
-       - Changed swrite format level to 3.
+       - Changed swrite format level to 3: Make NSCLAsciiFormatter able to read:
+         rev 2,1 and even 2 where summary spectra only have 1 coord.
+       - Fix some issues with Gamma Delux 2d spectrum classes that don't compile
+         on 4.x compilers
+       - get NSCLAsciiFormatter to properly read rev 2,3 and 'malformed rev2'
+         produced by the pre2 version of 3.2.
