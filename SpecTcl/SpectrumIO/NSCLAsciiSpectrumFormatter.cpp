@@ -47,6 +47,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 /*
   Change Log:
   $Log$
+  Revision 5.4  2007/05/11 15:30:53  ron-fox
+  Change spectrum I/O format version to 3.  Need to figure out how to read 2
+  for e.g. summary spectra.
+
   Revision 5.3  2007/02/23 20:38:18  ron-fox
   BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
   parameter lists).
@@ -108,7 +112,7 @@ using namespace std;
 static char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved NSCLAsciiSpectrumFormatter.cpp \n";
 
-static float FormatLevel = 2.0;
+static float FormatLevel = 3.0;
 static char* HeaderEnding= "--------------------------------------------\n";
 
 // The stuff below is a table which gives largest values for 
