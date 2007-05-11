@@ -54,15 +54,15 @@ using namespace std;
    \param yChannels   - Number of y channel bins.
 */
 template<class T>
-CGamma2DD<T>::CGamma2DD<T>(const STD(string)& rName, UInt_t nId,
+CGamma2DD<T>::CGamma2DD(const STD(string)& rName, UInt_t nId,
 			   STD(vector)<CParameter>&  xParameters,
 			   STD(vector)<CParameter>&  yParameters,
 			   UInt_t xChannels, UInt_t yChannels) :
   CGammaSpectrum(rName, nId,
-		 CreateAxisVector(xParameter, yParameters,
-				  nChannels, yChannels,
-				  0.0,   (Float_t)(nXScale),
-				  0.0,   (Float_t)(nYScale)),
+		 CreateAxisVector(xParameters, yParameters,
+				  xChannels, yChannels,
+				  0.0,   (Float_t)(xChannels),
+				  0.0,   (Float_t)(yChannels)),
 		 xParameters, yParameters),
   m_nXscale(xChannels),
   m_nYscale(yChannels),
