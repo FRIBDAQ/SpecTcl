@@ -1243,7 +1243,13 @@ proc readSpectrumFile {} {
                 set fd $msg
 
                 while {![eof $fd]} {
-                    catch {eval sread -format ascii $switches $fd}
+                    if {[catch {eval sread -format ascii $switches $fd} msg]} {
+			if {![eof $fd]} {
+			    tk_messageBox -icon error -title "Spectrum file read failed"  \
+				-message "Failed to read a spectrum from $file: $msg"
+			    break
+			}
+		    }
                 }
             }
         }
