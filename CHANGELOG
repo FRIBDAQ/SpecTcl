@@ -645,3 +645,4 @@ Week of May 7, 2007
           stem_name       - Is the stem of the split output files which 
                             will have names like stem_name_nnn.flt
           input_file      - Is the input file to split.
+       - Changed swrite format level to 3.
