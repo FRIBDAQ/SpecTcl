@@ -651,3 +651,5 @@ Week of May 7, 2007
          on 4.x compilers
        - get NSCLAsciiFormatter to properly read rev 2,3 and 'malformed rev2'
          produced by the pre2 version of 3.2.
+       - Make the spectrum file read functions able to correctly report errors in
+         reads (e.g. not a spectrum file).
