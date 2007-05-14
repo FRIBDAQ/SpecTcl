@@ -538,3 +538,5 @@ Released April 26, 2007
   May  3, 2007 - backport the 3.2 mod to drawing text in Xamine so something
                  is always drawn.
                - Fold in the jumbo buffer stuff for real.
+  May 14, 2007 - BZ 297 - Deal with pathalogical case of a single channel on
+                 an axis.
