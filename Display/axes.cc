@@ -233,6 +233,8 @@ static void DrawLinearXTicks(Display *disp, Window win, GC gc,
   float xb = (float)xbase;
   char label[20];
 
+  if ((hi - low)  == 0 ) return; // No tick marks if no interval.
+
   last_value        = 0xffffffff;	/* Make sure the first tick is drawn. */
   value_represented = (float)low;
 
@@ -320,6 +322,8 @@ static void DrawMappedXTicks(Display *disp, Window win, GC gc,
   char label[20];
   float rem;
   float mant = low - (int)low;
+
+  if ((hi - low) == 0) return;	// If no range then no ticks.
 
   last_value        = -1.1111111111;	/* (not a nice value) */
   value_represented = low;
@@ -531,8 +535,12 @@ static void DrawLinearYTicks(Display *disp, Window win, GC gc,
   int height;
   unsigned int last_value;
 
+
+
   XSegmentBatch ticks(disp, win, gc);
   char label[20];
+
+  if ((hi - low) == 0) return;	// no ticks if no interval.
 
   value_represented = (float)low;
   last_value        = 0xffffffff;	/* Make sure first tick is drawn. */
@@ -609,6 +617,8 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
   float last_value;
   float rem;
   float mant = low - (int)low;
+
+  if ((hi - low) == 0) return;	// No ticks if no interval.
 
   XSegmentBatch ticks(disp, win, gc);
   char label[20];
