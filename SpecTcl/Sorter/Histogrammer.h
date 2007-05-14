@@ -108,6 +108,15 @@ typedef CDictionary<CGateContainer>             CGateDictionary;
 typedef CGateDictionary::DictionaryIterator     CGateDictionaryIterator;
 typedef DictionaryObserver<CGateContainer>      GateDictionaryObserver;
 
+/*!
+   Abstract base class for gate observers:
+*/
+class CGateObserver : public GateDictionaryObserver {
+public:
+  virtual void onChange(STD(string) name, CGateContainer& gateContainer) = 0;
+};
+
+
 // Display binding management types:
 typedef STD(vector)<STD(string)>                     DisplayBindings;
 typedef DisplayBindings::iterator               DisplayBindingsIterator;
@@ -117,6 +126,8 @@ class CHistogrammer : public CEventSink {
   typedef STD(list)<BoundFitline>     FitlineList;
   typedef STD(vector)<FitlineList>    FitlineBindings;
 
+  typedef STD(list)<CGateObserver*>   GateObserverList;
+
   CXamine*            m_pDisplayer;          // Points to displayer object.
   DisplayBindings     m_DisplayBindings;     // Display id to spectrum name map.
   FitlineBindings     m_FitlineBindings;     // Fitlines bound to displayer.
@@ -124,6 +135,7 @@ class CHistogrammer : public CEventSink {
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
   CHistogrammerFitObserver* m_pFitObserver; // Monitor for fit changes.
+  GateObserverList   m_gateObservers; 
 
 
   static int          m_nextFitlineId;       // Next Xamine fitline id.
@@ -220,7 +232,6 @@ class CHistogrammer : public CEventSink {
   void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
   void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
 
-
   void UnGate(const STD(string)& rSpectrum); // Remove gate from spectrum
 
   // Manipulate display bindings:
@@ -243,6 +254,9 @@ class CHistogrammer : public CEventSink {
   CGateDictionaryIterator GateEnd();
   UInt_t GateCount();
 
+  void addGateObserver(CGateObserver* observer);
+  void removeGateObserver(CGateObserver* observer);
+
   // Manipulate the set of fits bound to Xamine:
 
   void addFit(CSpectrumFit& fit);
@@ -260,6 +274,8 @@ class CHistogrammer : public CEventSink {
 			       STD(vector)<STD(string)>      yparameters,
 			       STD(string)                   gate);
   STD(string) createTitle(CSpectrum* pSpectrum, UInt_t     maxLength);
+
+  void invokeGateChangedObservers(STD(string) name, CGateContainer& gate);
 		
 };
 

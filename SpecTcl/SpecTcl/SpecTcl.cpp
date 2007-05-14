@@ -1718,7 +1718,26 @@ SpecTcl::GateCount()
   return         pHistogrammer->GateCount();
 
 }
+/*!
+   Adds a gate observer to the list:
 
+*/
+void
+SpecTcl::addGateDictionaryObserver(CGateObserver* observer)
+{
+  CHistogrammer* pHistogrammer = GetHistogrammer();
+  pHistogrammer->addGateObserver(observer);
+}
+
+/*!
+   Removes a gate observer:
+*/
+void
+SpecTcl::removeGateDictionaryObserver(CGateObserver* observer)
+{
+  CHistogrammer* pHistogrammer = GetHistogrammer();
+  pHistogrammer->removeGateObserver(observer);
+}
 
 /*!
   Applies the specified gate to the specified histogram.  Once a gate is applied

@@ -1324,6 +1324,7 @@ void CHistogrammer::ReplaceGate(const std::string& rGateName, CGate& rGate) {
 
   RemoveGateFromBoundSpectra(*pContainer);
   pContainer->setGate(&rGate);
+  invokeGateChangedObservers(rGateName, *pContainer);
   AddGateToBoundSpectra(*pContainer);
 }
 
@@ -1483,6 +1484,41 @@ UInt_t CHistogrammer::GateCount() {
   return m_GateDictionary.size();
 }
 
+/*!
+    Add a gate observer.  The gate observer must be added to both the
+    gate dictionary and our own gate observer list as we need to trigger the
+    gate changed calls ourself.
+    \param observer - Pointer to the gate observer to add to the dictionary
+                     as well as our own list.
+*/
+void
+CHistogrammer::addGateObserver(CGateObserver* observer)
+{
+  m_GateDictionary.addObserver(observer);
+
+  m_gateObservers.push_back(observer);
+}
+
+/*!
+  Remove a gate observer.  This is a no-op if the observer pointed
+  to by the parameter does not exist.
+
+  \param observer - Pointer to tyhe observer to remove. 
+*/
+void
+CHistogrammer::removeGateObserver(CGateObserver* observer)
+{
+  m_GateDictionary.removeObserver(observer);
+
+  GateObserverList::iterator p = m_gateObservers.begin();
+  while (p != m_gateObservers.end()) {
+    if (*p == observer) {
+      m_gateObservers.erase(p);
+      return;
+    }
+    p++;
+  }
+}
 /*!
    addFit : adds a fit to the Xamine bindings.  We keep track of
    these fits in m_fitlineBindings.  This is a vector of lists.
@@ -1996,4 +2032,20 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
 
 
   
+}
+
+//  Invoke the gate observers when a gate has changed.
+// Parameters:
+//   name   - name of the gate that's changing.
+//   gate   - New gate container.
+//
+void
+CHistogrammer::invokeGateChangedObservers(string name, CGateContainer& gate)
+{
+  GateObserverList::iterator p = m_gateObservers.begin();
+  while (p != m_gateObservers.end()) {
+    CGateObserver*  pObserver = (*p);
+    pObserver->onChange(name, gate);
+    p++;
+  }
 }

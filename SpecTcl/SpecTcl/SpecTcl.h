@@ -264,7 +264,6 @@ public:
   CGate* CreateGate(CGateFactory::GateType gateType, 
 		    STD(vector)<STD(string)> rparameters,
 		    long comparison);
-
   CGate* CreateTrueGate();
   CGate* CreateFalseGate();
   CGate* CreateBand(STD(string) xparameter, STD(string) yparameter, 
@@ -298,6 +297,12 @@ public:
   CGateDictionaryIterator GateBegin();
   CGateDictionaryIterator GateEnd();
   UInt_t GateCount();
+
+  void addGateDictionaryObserver(CGateObserver* observer);
+  void removeGateDictionaryObserver(CGateObserver* observer);
+  
+
+
   void ApplyGate(STD(string) gateName, STD(string) spectrumName);
 
   // Manipulating the event processor pipeline.
