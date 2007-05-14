@@ -413,3 +413,6 @@ Released April 30, 2007
 
 3.0-012
 	May  3, 2007      Really integrate jumbo buffer support into the beast.
+        May 14, 2007      BZ 297 - Deal with pathalogical axes that only
+				have 1 channel.  Draw ticks used to loop
+				infinitely.
