@@ -542,3 +542,6 @@ Released April 26, 2007
                  an axis.
   May 16, 2007 - Correct error in -state enabled -> -state normal in 
 	TreeParam/SpectrumGenerator.tcl
+  May 16, 2007 - Correct error in TreeParam/SpectrumGenerator.tcl 
+                 Duplicate Spectrum was not correctly retrieving the parameters
+                 of the spectrum being duplicated.
