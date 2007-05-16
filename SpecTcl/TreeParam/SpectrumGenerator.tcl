@@ -891,7 +891,7 @@ proc DuplicateSpectra {} {
 				}
 			}
 		}
-		set newSpectrum [spectrum -list $spectrumName]
+	        set newSpectrum [lindex [spectrum -list $spectrumName] 0]
 		set type [lindex $newSpectrum 2]
 		set parameters [lindex $newSpectrum 3]
 		set resolutions [lindex $newSpectrum 4]
