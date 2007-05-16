@@ -540,3 +540,5 @@ Released April 26, 2007
                - Fold in the jumbo buffer stuff for real.
   May 14, 2007 - BZ 297 - Deal with pathalogical case of a single channel on
                  an axis.
+  May 16, 2007 - Correct error in -state enabled -> -state normal in 
+	TreeParam/SpectrumGenerator.tcl
