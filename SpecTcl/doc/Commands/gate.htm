@@ -21,7 +21,10 @@
 <h2><a name="Top"></a>Syntax</h2>
 <p><a href="#AddGate">gate <i>name type</i> { <i>description </i>}</a><br>
 <a href="#ListGates">gate -list [-byid] [pattern]</a><br>
-<a href="#DeleteGates">gate -delete [-id] <i>gate1 [gate2 ...]</i></a></p>
+<a href="#DeleteGates">gate -delete [-id] <i>gate1 [gate2 ...]</i></a>
+<br />
+<a href="#TraceGates">gate -trace add | change <i>[script]</i></a>
+</p>
 <h2>Synopsis</h2>
 <p>The <i>gate</i> command allows you to create, list or delete gates in the
 SpecTcl gate dictionary.</p>
@@ -31,6 +34,7 @@ SpecTcl gate dictionary.</p>
   <li>Create a new gate</li>
   <li>list the existing gates sorted by name or gate id and filtered by pattern.</li>
   <li>Delete an existing set of gates by name or id.</li>
+  <li>Specify scripts to be run when gates are added or changed</li>
 </ul>
 <p>If the first command parameter is not either the -list or -delete switch then
 a new gate is created.&nbsp;&nbsp; Otherwise the action is as indicated by the
@@ -343,6 +347,34 @@ Otherwise, gate names should be specified.&nbsp; </p>
 until it is either ungated or until a new apply is made for an existing
 gate.&nbsp; You can thing of the <i>gate -delete</i> command as effectively
 replacing the gate with a FALSE with the same name.</p>
+<p><a href="#Top">Top</a></p>
+<h3><a name="TraceGates"><a>gate -trace add | change <i>[script]</i></h3>
+<p>Places, deletes or lists a trace on the gate dictionary.  The keywords
+<em>add</em> and <em>change</em> describe the type of operation to trace.
+<em>add</em> traces the creation of a new gate while <em>change</em> traces
+the modification of an existing gate.
+</p>
+<p>
+If the optional <i>script</i> parameters is present, it provides a script that
+will be executed when the specified operation (add or change) occurs  (note
+that
+delete is a supported keyword, but currently gate deletion is implemented as a
+change of the gate to a False gate.  Scripts are invoked with the name of the
+affected gate appended to them, therefore it's wise for the script to be
+a procedure invocation with the gate name as the final parameter.
+</p>
+<p>
+If the script parameter is present, but empty, the existing script is deleted.
+If the script parameter is omitted, nothing is changed.  Regardless, the
+previously established script (or an empty string if there was none) is
+returned by the command.
+</p>
+<p>
+Both scripts are invoked when a <tt>gate -list name</tt> will return the
+description of the gate after the command has executed.
+</p>
+
+<p><a href="#Top">Top</a></p>
 <h3>Examples:</h3>
 <p>gate Slice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; s {Parameter {100
 157}} ;# Adds a cut gate.<br>
@@ -351,15 +383,13 @@ gate
 ;# Lists the set of gates defined.<br>
 gate -delete
 Slice&nbsp;&nbsp;&nbsp;&nbs<td width="79%">
-      <h1>gate command</h1>
-    </td>
-    <td width="12%"><a href="../index.htm"><img src="../images/HH00706_.jpg" alt="HH00706_.jpg (6530 bytes)" width="192" height="84"></a></td>
-  </tr>
-</table>
-<h2><a name="Top"></a>Syntax</h2>
-<p><a href="#AddGate">gate <i>name type</i> { <i>description </i>}</a><br>
-<a href="#ListGates">gate -list [-byid] [pattern]</a><br>
-<a href="#DeleteGates">gate -delete [-id] <i>gate1 [gate2 ...]</i></a></p>
+<pre>
+proc reportAdd name {
+   puts "Gate $name has been created: [gate -list $name]"
+}
+gate -trace add reportAdd;           # Report to stdout when gates are added.
+gate -trace add;                     # outputs reportAdd
+</pre>
 <hr>
 <p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
 s-format="%B %d, %Y" startspan -->May 27, 2005<!--webbot bot="Timestamp" endspan i-checksum="30351" -->
