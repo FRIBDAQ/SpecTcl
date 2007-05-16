@@ -269,7 +269,7 @@ proc SpectrumTypeSummary {} {
 	global tops
 	set wname $tops.options.datatype.n
 	$wname.byte configure -state normal
-	$wname.long configure -state enabled
+	$wname.long configure -state normal
 	set spectrumDatatype long
 	set wname $tops.bottom.vary
 	$tops.bottom.varx.varmenu configure -text Parameters
