@@ -658,3 +658,5 @@ Week of May 14, 2007
         the spectrum (well really just don't draw tick marks at all.
        - Add code to support gate observers.. for new displayer.
        - Add -trace subcommand to gate.
+       - Fix error in TreeParameter/SpectrumGenerator.tcl -state normal not
+          -state enabled.
