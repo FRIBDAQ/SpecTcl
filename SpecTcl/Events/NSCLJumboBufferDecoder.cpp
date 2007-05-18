@@ -340,7 +340,7 @@ CNSCLJumboBufferDecoder::size32()
 {
   BHEADER* pHeader = static_cast<BHEADER*>(getBuffer());
 
-  TranslatorPointer<UShort_t> p(*(getBufferTranslator()), pHeader->buffmt);
+  TranslatorPointer<UShort_t> p(*(getBufferTranslator()), &pHeader->buffmt);
   UShort_t  version  = *p;
 
   return (version >= 6);
