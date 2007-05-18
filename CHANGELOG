@@ -545,3 +545,5 @@ Released April 26, 2007
   May 16, 2007 - Correct error in TreeParam/SpectrumGenerator.tcl 
                  Duplicate Spectrum was not correctly retrieving the parameters
                  of the spectrum being duplicated.
+  May 18, 2007 -  Fix CNSCLJumboBuffer::size32() member, was not correctly 
+                  picking up the buffer revision level.
