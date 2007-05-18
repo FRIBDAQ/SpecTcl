@@ -663,3 +663,5 @@ Week of May 14, 2007
        - Fix error in TreeParameter/SpectrumGenerator.tcl - Duplicate button
          did not correctly decode parameters of spectrum being duplicated.
        - Add docs for the gate -trace subcommand to the web docs.
+       - Fix CNSCLJumboBuffer::size32() member, was not correctly picking up 
+         the buffer revision level.
