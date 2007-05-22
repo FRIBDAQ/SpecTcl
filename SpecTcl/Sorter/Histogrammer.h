@@ -198,7 +198,9 @@ class CHistogrammer : public CEventSink {
   // Analysis evaluation operators:
   virtual void operator() (const CEvent&     rEvent,
 			   UInt_t nSpectra, CSpectrum** ppSpectra,
-			   UInt_t nGates,   CGateContainer** ppGates) ;
+			   UInt_t nGates,   CGateContainer** ppGates,
+			   UInt_t nCached,  CGateContainer** ppCached);
+
   virtual void operator() (CEventList& rEventList);
 
   // Parameter dictionary manipulation:

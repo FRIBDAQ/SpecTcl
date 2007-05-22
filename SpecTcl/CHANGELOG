@@ -665,3 +665,5 @@ Week of May 14, 2007
        - Add docs for the gate -trace subcommand to the web docs.
        - Fix CNSCLJumboBuffer::size32() member, was not correctly picking up 
          the buffer revision level.
+Week of May 24, 2007
+       - Only clear gates that are worth clearing.

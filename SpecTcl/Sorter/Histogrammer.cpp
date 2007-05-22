@@ -276,11 +276,12 @@ int CHistogrammer::operator==(const CHistogrammer& rRhs) {
 */
 void CHistogrammer::operator()(const CEvent& rEvent,
 			       UInt_t nSpectra, CSpectrum** ppSpectra,
-			       UInt_t nGates,   CGateContainer** ppGates)
+			       UInt_t nGates,   CGateContainer** ppGates,
+			       UInt_t nCached,  CGateContainer** ppCached)
 {
   // Reset the gates:
-  for(int i = 0; i < nGates; i++) {
-    (*ppGates[i])->Reset();	// Invalidate the gate value cache.
+  for(int i = 0; i < nCached; i++) {
+    (*ppCached[i])->Reset();	// Invalidate the gate value cache.
   }
 
   // Increment the histograms:
@@ -309,12 +310,17 @@ void CHistogrammer::operator()(CEventList& rEvents) {
   //  Flatten the gates map into pGates:
 
   UInt_t nGates = GateCount();
+  UInt_t nCached= 0;
   CGateContainer** pGates = new CGateContainer*[nGates]; // Holds pointer to gate containers.
+  CGateContainer** pCached = new CGateContainer*[nGates]; // ptrs to clrable gates
   CGateDictionaryIterator pg = GateBegin();
   CGateDictionaryIterator pge= GateEnd();
   CGateContainer** ppGate = pGates;
   while(pg != pge) {
     *ppGate++ = &((*pg).second); 
+    if ( (*pg).second->caches()) {
+      pCached[nCached++] = &((*pg).second);
+    }
     pg++;
   }
   // Flatten the Spectra into pSpectra:
@@ -342,7 +348,8 @@ void CHistogrammer::operator()(CEventList& rEvents) {
 	nEvents++;
 	operator()(*pEvent,
 		   nSpectra, pSpectra,
-		   nGates, pGates);
+		   nGates, pGates,
+		   nCached, pCached);
       }
       else {
 	break;
@@ -365,6 +372,7 @@ void CHistogrammer::operator()(CEventList& rEvents) {
     cerr << "Unexpected exception type caught while histogramming events.\n";
   }
   delete []pGates;
+  delete []pCached;
   delete []pSpectra;
 }
 
