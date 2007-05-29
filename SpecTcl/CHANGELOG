@@ -547,3 +547,5 @@ Released April 26, 2007
                  of the spectrum being duplicated.
   May 18, 2007 -  Fix CNSCLJumboBuffer::size32() member, was not correctly 
                   picking up the buffer revision level.
+  May 28, 2007 - Fix conversion errors in channel -> screens whas moving
+                 the dispay of summing errors around.
