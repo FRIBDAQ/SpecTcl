@@ -667,3 +667,7 @@ Week of May 14, 2007
          the buffer revision level.
 Week of May 24, 2007
        - Only clear gates that are worth clearing.
+Week of May 28,l 2007
+       - Fix channel position to pixel position coversions which had
+         the width of a channel to be too large (too few channels in displayed
+         range.
