@@ -422,3 +422,6 @@ Released April 30, 2007
                            specifications of the spectrum being duplicated.
         May 18, 2007       Fix CNSCLJumboBuffer::size32() member, was not
 			   correctly picking up the buffer revision level.
+        May 28, 2007   Fix errors in converting channels-> pixels that were
+                       causing sumregions and cuts to be drawn in the wrong
+                       spot.

@@ -733,8 +733,8 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   //  chpix = (int)LinearPosition(chan - chanlo, 1, chanpix-1, (chanhi-chanlo));
   
 
-  chpix = (int)Transform((float)chanlo, (float)(chanhi - 1),
-			 0.0, (float)(chanpix), chan) + 1;
+  chpix = (int)Transform((float)chanlo, (float)(chanhi),
+			 0.0, (float)(chanpix), chan);
 
   /* The counts axis could be log though:  */
   int cpix;
