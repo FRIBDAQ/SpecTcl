@@ -425,3 +425,5 @@ Released April 30, 2007
         May 28, 2007   Fix errors in converting channels-> pixels that were
                        causing sumregions and cuts to be drawn in the wrong
                        spot.
+        May 30, 2007   Port the new gate handling (1/2 open interval)
+                       from 3.2 to here.
