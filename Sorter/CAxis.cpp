@@ -193,7 +193,18 @@ CAxis::AxisToMappedParameter(Int_t nAxisValue)
 void
 CAxis::ComputeScale()
 {
-  m_fScaleFactor = (float)m_nChannels/(m_fHigh - m_fLow +1);
+  // This is a bit nasty..and I'm not really sure this is right.
+  // For a very very small range you want to be about exact.
+  // for a larger range, you need to allow all of that last channel
+  // to display.
+
+  Float_t range = (m_fHigh - m_fLow);
+  if (range < (m_nChannels-1)) {	// Channel size < 1.0
+    m_fScaleFactor = (float)m_nChannels/(range);
+  } 
+  else {			// Channel size >= 1.0
+    m_fScaleFactor = (float)m_nChannels/(range +1.0);
+  }
 }
 
 

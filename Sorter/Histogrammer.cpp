@@ -1672,13 +1672,23 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     case ke1D:
     case keG1D: 
       {
-	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getLow()),  
-		       0);
-	// Note that the - 1 here is because the right point in the cut
-	// was adjusted to be at the right side of the channel.
-	// that's where Xamine will display it anyway.
+	// Produce the nearest channel to the gate points.
+	// then add them to the display gate.
 	//
-	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getHigh()) - 1, 
+	int x1 = (int)(pSpectrum->ParameterToAxis(0, rCut.getLow()));
+	int x2 = (int)(pSpectrum->ParameterToAxis(0, rCut.getHigh()));
+	pCut->AddPoint(x1,  
+		       0);
+	// The weirdness below is all about dealing with a special boundary
+	// case when we try to get the right side of the cut to land
+	// on the right side of the channel on which it's set.
+	// ..all this in the presence of gates accepted on fractional parameters.
+	//(consider a fine spectrum (e.g. 400-401 with 100 bins and a coarse
+	// spectrum, of the same parameter (e.g. 0-1023 1024 bins)..with 
+	// the gate set on 400.5, 400.51 and you'll see the thing I'm trying
+	// to deal with here.
+	// 
+	pCut->AddPoint(x1 == x2 ? x2 : x2 - 1, 
 		       0);
 	return pCut;
 	break;
