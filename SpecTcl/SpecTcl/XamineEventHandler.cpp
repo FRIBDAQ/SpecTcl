@@ -309,8 +309,32 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
       yIndex = pGSpectrum->getnParams();
     }
   case ke1D:
-  case ke2D:
   case keG1D:
+    {
+      // Only allowed 2 points, and the right point must be 
+      // set so that it is on the right side of its channel.
+      
+      int low   = GatePoints[0].X();
+      int high  = GatePoints[1].X();
+      if (low > high) {
+	int temp = low;
+	low  = high;
+	high = temp;
+      }
+      //  Note that high is offset by 1 channel to put it on the right side
+      // of our channel:
+      
+      Float_t xlow = pSpec->AxisToParameter(0, low);
+      Float_t xhigh= pSpec->AxisToParameter(0, high+1);
+
+      
+      ScaledPoints.push_back(FPoint(xlow, 0));
+      ScaledPoints.push_back(FPoint(xhigh, 0));
+      
+    }
+    
+    break;
+  case ke2D:
   case keG2DD:
     {
 

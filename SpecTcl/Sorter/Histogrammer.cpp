@@ -1674,7 +1674,11 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
       {
 	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getLow()),  
 		       0);
-	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getHigh()), 
+	// Note that the - 1 here is because the right point in the cut
+	// was adjusted to be at the right side of the channel.
+	// that's where Xamine will display it anyway.
+	//
+	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getHigh()) - 1, 
 		       0);
 	return pCut;
 	break;

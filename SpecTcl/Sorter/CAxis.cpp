@@ -193,7 +193,7 @@ CAxis::AxisToMappedParameter(Int_t nAxisValue)
 void
 CAxis::ComputeScale()
 {
-  m_fScaleFactor = (float)m_nChannels/(m_fHigh - m_fLow);
+  m_fScaleFactor = (float)m_nChannels/(m_fHigh - m_fLow +1);
 }
 
 

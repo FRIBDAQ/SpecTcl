@@ -671,3 +671,9 @@ Week of May 28,l 2007
        - Fix channel position to pixel position coversions which had
          the width of a channel to be too large (too few channels in displayed
          range.
+       - Do some jiggerypokery with 1-d gates to make them more consistent with
+         their integration:
+         o On acceptance the right point is adjusted to the right by a channel.
+         o Gate checking is now exclusive of the right point.
+         o On entering in the display the adjustment is un-done so that
+           Xamine will display correctly.
