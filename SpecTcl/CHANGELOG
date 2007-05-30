@@ -549,3 +549,4 @@ Released April 26, 2007
                   picking up the buffer revision level.
   May 28, 2007 - Fix conversion errors in channel -> screens whas moving
                  the dispay of summing errors around.
+  May 30, 2007 - Fix up gate locations to match the 3.2 branch.
