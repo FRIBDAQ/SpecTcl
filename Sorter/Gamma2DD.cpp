@@ -91,7 +91,7 @@ CGamma2DD<T>::CGamma2DD(const STD(string)& rName, UInt_t nId,
 
 */
 template <class T>
-CGamma2DD<T>::CGamma2DD<T>(const STD(string)& rName, UInt_t nId,
+CGamma2DD<T>::CGamma2DD(const STD(string)& rName, UInt_t nId,
 			   STD(vector)<CParameter>& xParameters,
 			   STD(vector)<CParameter>& yParameters,
 			   UInt_t nXChannels, UInt_t nYChannels,
