@@ -677,3 +677,8 @@ Week of May 28,l 2007
          o Gate checking is now exclusive of the right point.
          o On entering in the display the adjustment is un-done so that
            Xamine will display correctly.
+ Week of June 4, 2007
+       - Ensure that Xamine's SuperPrompt::SetList message boxes
+         from Xamine_error_msg() get displayed by making them
+         children of the prompter's parent rather than of the prompter
+         which, after all is hidden.
