@@ -427,3 +427,7 @@ Released April 30, 2007
                        spot.
         May 30, 2007   Port the new gate handling (1/2 open interval)
                        from 3.2 to here.
+        June 6, 2007   superprompt.cc was putting up error dialogs and
+                       then hiding the prompter but the error dialogs,
+                       as children of the prompter were then themselves
+                       getting hidden.
