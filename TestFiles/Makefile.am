@@ -6,7 +6,7 @@ LDADD = -lEventSource -lException -ltape \
 	-L../Tape \
 	-L../Filter -L../SpecTcl 
 
-AM_LDFLAGS=-Wl,"-rpath=$(libdir)"
+
 
 #AM_LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
 #	-L../Tape \
@@ -21,3 +21,5 @@ testfile_SOURCES = testfile.cpp
 
 ltwrite_SOURCES = ltwrite.cpp
 
+testfile_LDFLAGS=-Wl,"-rpath=$(libdir)"
+ltwrite_LDFLAGS=-Wl,"-rpath=$(libdir)"

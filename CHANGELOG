@@ -682,3 +682,5 @@ Week of May 28,l 2007
          from Xamine_error_msg() get displayed by making them
          children of the prompter's parent rather than of the prompter
          which, after all is hidden.
+ Week of June 11, 2007
+       - Get nice support for ubuntu edgy eft.
