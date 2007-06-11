@@ -1,10 +1,10 @@
-.xml.1:
+ .xml.1:
 	-$(MANDOCBOOK) man $< 2>/dev/null
 	touch $@
 
 bin_PROGRAMS=filtsplit
 
-filtsplit_SOURCES=filtsplit.cpp cmdline.c
+filtsplit_SOURCES=cmdline.c filtsplit.cpp
 
 noinst_HEADERS=cmdline.h
 
