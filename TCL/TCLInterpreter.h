@@ -227,12 +227,12 @@ public:
 		   Tcl_CmdProc* pCommandProcessor, 
 		   ClientData pData, 
 		   Tcl_CmdDeleteProc* pDeleteProcessor=
-		                       (Tcl_CmdDeleteProc*)kpNULL) const  ;
+		                       (Tcl_CmdDeleteProc*)0) const  ;
   void AddCommand(const STD(string)& rCommandName,
 		  Tcl_CmdProc* pCommandProcessor,
 		  ClientData pData,
 		  Tcl_CmdDeleteProc* pDeleteProcessor = 
-		                    (Tcl_CmdDeleteProc*)kpNULL) const {
+		                    (Tcl_CmdDeleteProc*)0) const {
     AddCommand(rCommandName.c_str(), pCommandProcessor, pData, 
 	       pDeleteProcessor);
   }
@@ -240,7 +240,7 @@ public:
 		  Tcl_CmdProc* pCommandProcessor,
 		  ClientData pData,
 		  Tcl_CmdDeleteProc* pDeleteProcessor = 
-		                       (Tcl_CmdDeleteProc*)kpNULL) const {
+		                       (Tcl_CmdDeleteProc*)0) const {
     AddCommand((const char*)(rCommandName), pCommandProcessor,
 	       pData, pDeleteProcessor);
   }
