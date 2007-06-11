@@ -1,3 +1,5 @@
+SUFFIXES = .xml .1
+
  .xml.1:
 	-$(MANDOCBOOK) man $< 2>/dev/null
 	touch $@
