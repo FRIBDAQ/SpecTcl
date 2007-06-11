@@ -554,3 +554,4 @@ Released April 26, 2007
                  by making them children of the parent of the dialog rather
                  than children of the dialog (which gets hidden when
                  Xamine_error_msg is called).
+  June 11,2007   Get a clean development build on ubuntu edgy eft (e.g. from cvs co).
