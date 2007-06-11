@@ -3,11 +3,13 @@ INCLUDES = -I.. -I. \
 	-I../SpecTcl -I../Sorter -I../Utility -I../TCL -I../NSCLException \
 	-I../Xamine -I../Events -I../Gates -I../Display @TCL_FLAGS@
 LDADD = -ltclPlus -lException -lXt -lX11
-AM_LDFLAGS = -L. @TCL_LDFLAGS@
+
 
 lib_LTLIBRARIES = libSpecio.la
 
 libSpecio_la_LDFLAGS = $(SOVERSION):0 -Wl,"-rpath=$(libdir)"
+
+libSpecio_la_LIBADD = -L. @TCL_LDFLAGS@
 
 libSpecio_la_SOURCES = SpectrumFormatter.cpp \
 	SpectrumFormatterFactory.cpp \

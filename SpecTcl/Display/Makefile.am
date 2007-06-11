@@ -6,7 +6,10 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 
 INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 	-I@top_srcdir@/Utility $(GDINCLUDES)
-AM_LDFLAGS = -g $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
+
+Xamine_LDFLAGS = -g
+Xamine_LDADD   =  $(PARSEOBJECTS) @XLIBSW@ @GDLDSW@ @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ \
+		-lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
 #  @LD_EXTRA_FLAGS@
 
@@ -154,7 +157,6 @@ procede.cc colormgr.cc
 Xaminetest_SOURCES = Xaminetest.c
 
 
-Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
 colorset_LDADD = -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
