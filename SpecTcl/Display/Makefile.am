@@ -6,7 +6,6 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 
 INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 	-I@top_srcdir@/Utility $(GDINCLUDES)
-AM_LDFLAGS = -g $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
 
 #  @LD_EXTRA_FLAGS@
 
@@ -86,6 +85,13 @@ defaultfile_lex.o: windfile.l defaultfile.l dispwind.h superpos.h \
 
 bin_PROGRAMS = Xamine colorset
 
+
+Xamine_LDFLAGS=-g
+
+Xamine_LDADD =  $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@  \
+	$(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
+
+
 check_PROGRAMS = Xaminetest
 TESTS = $(check_PROGRAMS)
 
@@ -153,9 +159,10 @@ procede.cc colormgr.cc
 Xaminetest_SOURCES = Xaminetest.c
 
 
-Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
-colorset_LDADD = -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
+colorset_LDFLAGS=-g
+colorset_LDADD =  $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@  \
+		-lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
 Xaminetest_LDADD = -lXamine -lm
 

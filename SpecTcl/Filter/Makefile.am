@@ -5,10 +5,9 @@ INCLUDES = -g  -I. -I@top_srcdir@/Sorter -I@top_srcdir@/Events \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Display \
 	@TCL_FLAGS@
 
-AM_LDFLAGS  = -L.
 
 lib_LTLIBRARIES = libFilter.la
-libFilter_la_LDFLAGS = -version-info $(SOVERSION):0 \
+libFilter_la_LDFLAGS = -L. -version-info $(SOVERSION):0 \
 	-Wl,"-rpath-link=$(libdir)"
 
 libFilter_la_SOURCES = EventFilter.cpp \

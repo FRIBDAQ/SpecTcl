@@ -1,6 +1,5 @@
 INCLUDES = -g -I. -I../Utility -I../Display -I../NSCLException
-LDADD = -lXplus	-lException -lXamine
-AM_LDFLAGS = -L.
+LDADD =-L. -lXplus	-lException -lXamine
 
 lib_LTLIBRARIES = libXplus.la
 

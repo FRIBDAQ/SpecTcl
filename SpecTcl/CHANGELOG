@@ -431,3 +431,4 @@ Released April 30, 2007
                        then hiding the prompter but the error dialogs,
                        as children of the prompter were then themselves
                        getting hidden.
+        June 12, 2007  Get a good compilation from cvs co on ubuntu edgy eft.

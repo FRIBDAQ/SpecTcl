@@ -3,12 +3,18 @@ INCLUDES= -I. -I../EventSource -I../TCL -I../NSCLException \
 
 LDADD = -lEventSource -lException -ltape
 
-AM_LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
+
+bin_PROGRAMS = testfile ltwrite
+
+testfile_LDFLAGS=-L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
 	-L../Tape \
 	-L../Filter -L../SpecTcl -Wl,"-rpath=$(libdir)"
 
 
-bin_PROGRAMS = testfile ltwrite
+ltwrite_LDFLAGS= -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
+	-L../Tape \
+	-L../Filter -L../SpecTcl -Wl,"-rpath=$(libdir)"
+
 
 testfile_SOURCES = testfile.cpp
 

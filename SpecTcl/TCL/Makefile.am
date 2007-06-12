@@ -1,11 +1,12 @@
 DEFS = @WCHAR_T_DEF@
 INCLUDES = -I.. -I. @TCL_FLAGS@ -I../Utility -I../NSCLException @XINCLUDES@
 LDADD = -ltclPlus -lException -lXt -lX11 $(X11EXTRA_LDFLAGS)
-AM_LDFLAGS = -L. @TCL_LDFLAGS@ 
+
+
 
 lib_LTLIBRARIES = libtclPlus.la
 
-libtclPlus_la_LDFLAGS = -version-info $(SOVERSION):0 \
+libtclPlus_la_LDFLAGS =  -L. @TCL_LDFLAGS@  -version-info $(SOVERSION):0 \
 	-Wl,"-rpath-link=$(libdir)"
 
 testableSources = 
@@ -48,6 +49,9 @@ tracetests_DEPENDENCIES = TCLInterpreter.o TCLProcessor.o \
 
 tracetests_LDADD = $(CPPUNIT_LDFLAGS) $(X11EXTRA_LDFLAGS) \
 	-L@top_srcdir@/NSCLException -lException
+
+
+tracetests_LDFLAGS= -L. @TCL_LDFLAGS@ 
 
 TESTS = ./tracetests
 

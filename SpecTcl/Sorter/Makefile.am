@@ -1,10 +1,11 @@
 INCLUDES = -I. -I../Utility -I../NSCLException -I../Xamine -I../Gates \
 	   -I../Events -I../Display @TCL_FLAGS@ -I..
 LDADD = -lSorting -lXplus -lGates -lAnalysis -lEventSource -ltclPlus -lException -lXamine -lXt -lX11
-AM_LDFLAGS = -L. @TCL_LDFLAGS@ @XTLIBSW@ @XLIBSW@
 
 lib_LTLIBRARIES = libSorting.la
-libSorting_la_LDFLAGS = -version-info $(SOVERSION):0 \
+
+libSorting_la_LDFLAGS = -L. @TCL_LDFLAGS@ @XTLIBSW@ @XLIBSW@ \
+	-version-info $(SOVERSION):0 \
 	-Wl,"-rpath=$(libdir)"
 
 libSorting_la_SOURCES = DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
