@@ -365,7 +365,7 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
     yfwhm   = pI2->GetYStdDev();
     delete pI2;
 
-    Format2d(d,g, xc, yc, xfwhm, yfwhm, area);
+    Format2d(d,g, xc, yc, xfwhm*GAMMA, yfwhm*GAMMA, area);
   }
   else {                                       /* Bad news here. */
     Xamine_error_msg(Xamine_Getpanemgr(),
