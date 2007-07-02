@@ -686,4 +686,6 @@ Week of May 28,l 2007
        - Get nice support for ubuntu edgy eft.
  Week of June 25, 2007
        - Begin adding the 'integrate' command.
-
+ Week of July 2, 2007
+       - 2-d integrations in Xamine had displayed standard deviations not
+         fwhm's as advertised.
