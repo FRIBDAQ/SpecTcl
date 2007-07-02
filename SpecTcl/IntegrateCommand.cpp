@@ -185,6 +185,7 @@ CIntegrateCommand::operator()(CTCLInterpreter&    interp,
       result += "Must be the name of a contour that is displayable\n";
       result += "on the spectrum or a list of at least 3 coordinates was: \n";
       result += (string)objv[2];
+      interp.setResult(result);
       return TCL_ERROR;
     }
     return integrate2d(interp, *pSpectrum, coordinates);
@@ -677,7 +678,7 @@ public:
 	low = second.Y();
 	hi = first.Y();
       }
-      return new VerticalEdge(low, hi, first.X());
+      return new VerticalEdge(hi, low, first.X());
     }
 
     // Horizontal:
@@ -802,19 +803,23 @@ CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
   for (int y = miny; y <= maxy; y++) {
     vector<int> edgepoints = makeEdgePoints(edges, y);
     double yc              = spectrum.AxisToParameter(1, y);
-    for (int i =0; i < edgepoints.size()-1; i+=2) {
-      int xmin = edgepoints[i];
-      int xmax = edgepoints[i+1];
-      for (int x = xmin; x <= xmax; x++) {
-	double xc        = spectrum.AxisToParameter(0, x);
-	UInt_t    coords[2] = {x, y};
-	double counts    = spectrum[coords];
-
-	sum   += counts;
-	wxsum += xc*counts;
-	wysum += yc*counts;
-	sqxsum += xc*xc*counts;
-	sqysum += yc*yc*counts;
+    int edgecount = edgepoints.size();
+    edgecount--;		// Since .size() is unsigned.
+    for (int i =0; i < edgecount; i+=2) {
+      if (i+1 < edgepoints.size()) { // in case it's an odd # of edges.
+	int xmin = edgepoints[i];
+	int xmax = edgepoints[i+1];
+	for (int x = xmin; x <= xmax; x++) {
+	  double xc        = spectrum.AxisToParameter(0, x);
+	  UInt_t    coords[2] = {x, y};
+	  double counts    = spectrum[coords];
+	  
+	  sum   += counts;
+	  wxsum += xc*counts;
+	  wysum += yc*counts;
+	  sqxsum += xc*xc*counts;
+	  sqysum += yc*yc*counts;
+	}
       }
     }
   }
@@ -826,31 +831,39 @@ CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
 
   // Calculate the final statistics, and create the result list:
 
-  double xCentroid = wxsum/sum;
-  double xFwhm     = sqrt(sqxsum - xCentroid*xCentroid)*fwhmgamma;
-
-  double yCentroid = wysum/sum;
-  double yFwhm     = sqrt(sqysum - yCentroid*yCentroid)*fwhmgamma;
-
-
-
-  CTCLObject result;
-  CTCLObject centroids;
-  CTCLObject fwhms;
-  result.Bind(interp);
-  centroids.Bind(interp);
-  fwhms.Bind(interp);
-
-  centroids += xCentroid;
-  centroids += yCentroid;
-
-  fwhms     += xFwhm;
-  fwhms     += yFwhm;
-
-  result += centroids;
-  result += sum;
-  result += fwhms;
-
-  interp.setResult(result);
+  if (sum == 0.0 ) {
+    interp.setResult("Integration area is 0");
+    return TCL_ERROR;
+    
+  }
+  else {
+    
+    double xCentroid = wxsum/sum;
+    double xFwhm     = sqrt(sqxsum/sum - xCentroid*xCentroid)*fwhmgamma;
+    
+    double yCentroid = wysum/sum;
+    double yFwhm     = sqrt(sqysum/sum - yCentroid*yCentroid)*fwhmgamma;
+    
+    
+    
+    CTCLObject result;
+    CTCLObject centroids;
+    CTCLObject fwhms;
+    result.Bind(interp);
+    centroids.Bind(interp);
+    fwhms.Bind(interp);
+    
+    centroids += xCentroid;
+    centroids += yCentroid;
+    
+    fwhms     += xFwhm;
+    fwhms     += yFwhm;
+    
+    result += centroids;
+    result += sum;
+    result += fwhms;
+    
+    interp.setResult(result);
+  }
   return TCL_OK;
 }
