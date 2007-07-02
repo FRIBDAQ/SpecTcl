@@ -40,7 +40,8 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	Globals.cpp FilterCommand.cpp \
 	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
 	DocumentationException.cpp DocumentationCallback.cpp \
-	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp
+	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp \
+	IntegrateCommand.cpp
 
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
@@ -54,7 +55,9 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	FilterCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
-	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h
+	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
+	IntegrateCommand.h
+
 
 
 bin_PROGRAMS = SpecTcl
@@ -85,7 +88,7 @@ SpecTcl_LDFLAGS = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis \
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
 	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam \
 	-L../Fits	\
-	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas  @TCL_LDFLAGS@ @XLIBSW@
+	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas -lpub  @TCL_LDFLAGS@ @XLIBSW@
 
 
 man_MANS = spectclapi.3

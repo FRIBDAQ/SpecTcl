@@ -40,6 +40,7 @@ LDFLAGS=-L$(SPECLIBS) -lTclGrammerCommands \
 	-lTreeParam \
 	-lFits		\
 	-lgsl -lgslcblas	\
+	-lpub 			\
 	$(TCLLIBS)    \
 	$(X11LIBS)    \
 	-Wl,"-rpath=$(SPECLIBS)"

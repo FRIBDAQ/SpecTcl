@@ -58,7 +58,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CFitCommand.h"
 
 #include <CProjectionCommand.h>
-
+#include "IntegrateCommand.h"
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -519,10 +519,15 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
 
   CProjectionCommand* pProjection = new CProjectionCommand(rInterp);
 
+
   cerr << "project command (c) 2005 NSCL Written by Ron Fox\n";
 
   CFitCommand *Fit  = new CFitCommand(rInterp);
   cerr << "fit command (c) 2006 NSCL Written by Ron Fox\n";
+
+  CIntegrateCommand* pIntegrate = new CIntegrateCommand(rInterp);
+  
+  cerr << "integrate command (c) 2007 Written by Ron Fox\n";
 
   cerr.flush();
 }
