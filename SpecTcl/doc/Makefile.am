@@ -63,6 +63,7 @@ EXTRA_DIST = parameters.htm HH00706_.jpg programmers_guide.htm gates.htm \
 	Commands/sread.htm Commands/start.htm Commands/stop.htm Commands/swrite.htm \
 	Commands/tape.htm Commands/unbind.htm Commands/ungate.htm \
 	Commands/fit.htm \
+	Commands/integrate.htm \
 	Commands/_vti_cnf/aplist.htm Commands/_vti_cnf/apply.htm \
 	Commands/_vti_cnf/attach.htm Commands/_vti_cnf/bind.htm \
 	Commands/_vti_cnf/categories.htm Commands/_vti_cnf/channel.htm \

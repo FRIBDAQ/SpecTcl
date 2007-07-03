@@ -689,3 +689,4 @@ Week of May 28,l 2007
  Week of July 2, 2007
        - 2-d integrations in Xamine had displayed standard deviations not
          fwhm's as advertised.
+       - Add docs for integrate command.

@@ -785,7 +785,7 @@ CIntegrateCommand::integrate2d(CTCLInterpreter&    interp,
   maxy = clip(maxy, yChannels);
 
   if ((minx == maxx) || (miny == maxy)) {
-    interp.setResult("No spectrum points are in the region of interest");
+    interp.setResult("No spectrum channels are in the region of interest");
     return TCL_ERROR;
   }
 
