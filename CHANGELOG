@@ -557,3 +557,4 @@ Released April 26, 2007
   June 11,2007   Get a clean development build on ubuntu edgy eft (e.g. from cvs co).
   July 2, 2007   Fix error in 2d integration was returning stdevs not
                  FWHMs.
+  July 12,2007 - Fix jumbo buffer handling in scriptable.

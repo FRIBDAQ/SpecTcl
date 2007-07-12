@@ -209,7 +209,12 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
       packetHeaderSize = 2;
     }
     if(m_nId ==  packetId) {
-      m_nPacketSize = *pBuffer - packetHeaderSize; // Update the packetsize...
+      if (sizesAre32Bits) {
+	m_nPacketSize = *plBuffer - packetHeaderSize;
+      } 
+      else {
+	m_nPacketSize = *pBuffer - packetHeaderSize; // Update the packetsize...
+      }
       pBuffer += packetHeaderSize; // Point to the packet body.
       m_pPacketBase = &pBuffer;
     } else {
