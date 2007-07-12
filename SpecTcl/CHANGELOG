@@ -432,3 +432,4 @@ Released April 30, 2007
                        as children of the prompter were then themselves
                        getting hidden.
         June 12, 2007  Get a good compilation from cvs co on ubuntu edgy eft.
+        July 12, 2007  Correct jumbo buffer/packet handling in scriptable.
