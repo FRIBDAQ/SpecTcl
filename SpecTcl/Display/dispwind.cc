@@ -334,7 +334,7 @@ void win_attributed::set_defaults()
   nofloor(); noceiling();	/* Don't cut off the heights. */
   update_time = 0;
   noautoupdate();		/* Turn off autoupdate. */
-  setmapped(FALSE);
+  setmapped(TRUE);
 }
 
 /*
@@ -528,7 +528,7 @@ int win_1d::write(FILE *f)
 
   nbytes = 0;
 
-  /* Use anscestral write function t write the invariantly formed part of
+  /* Use anscestral write function to write the invariantly formed part of
   ** The object.
   */
   wbytes = win_attributed::write(f); /* Write invariant part of object. */
@@ -573,8 +573,10 @@ int win_1d::write(FILE *f)
   if(additional_spectra.Count() != 0) {
     SuperpositionListIterator sli(additional_spectra);
     while(!sli.Last()) {
+      spec_title spcname;
       int id = (sli.Next()).Spectrum();
-      wbytes = fprintf(f,"   Superimpose %d\n", id);
+      xamine_shared->getname(spcname, id);
+      wbytes = fprintf(f,"   Superimpose \"%s\"\n", spcname);
       if(wbytes == EOF) {
 	sprintf(msg_txt,"%s%s%s",
 		"Failed to write a Superimpose record.\n",

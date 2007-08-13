@@ -294,13 +294,22 @@ DAMAGES.
 /* 
    Change log:
    $Log$
+   Revision 4.3.2.2  2006/09/21 15:12:53  ron-fox
+    - Fix Xamine issues with scaling by mass importing Xamine from 2.2
+    - Close off 2.1-021 development and start on maint release 2.1-022
+
+   Revision 4.3.4.1  2004/04/12 16:37:31  ron-fox
+   - Use etc for etc stuff with link named Etc rather than the other way around.
+   - Extract all Makefile definitions into separate include files so the user makefile
+     becomes less variable with time.
+
    Revision 4.3  2003/08/25 16:25:30  ron-fox
    Initial starting point for merge with filtering -- this probably does not
    generate a goo spectcl build.
 
    Revision 4.2  2003/04/02 18:35:25  ron-fox
    Added support for central Xamine.Default files that live in any of:
-   $SpecTclHome/Etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
+   $SpecTclHome/etc or $SpecTclHome/etc as well as the user's $HOME/Xamine.Defaults.  The effect of having multiple files is cumulative.
 
 */
 

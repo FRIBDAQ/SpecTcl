@@ -5,10 +5,14 @@
 /*!
 	Construct a module creator.
 	\param rType (const string& [in]):  Type of module being constructed.
+	\param pCreatorCommand (CModuleCommand* [in]):
+	    Pointer to the command that creates modules.
 	
 */
-CModuleCreator::CModuleCreator (const string& rType)
-   : m_sType(rType)
+CModuleCreator::CModuleCreator (const string&   rType,
+				CModuleCommand* pCreatorCommand)
+  : m_sType(rType),
+    m_pCreatorCommand(pCreatorCommand)
 {   
     
          //Initialization of array of 1:M association objects to null association objects

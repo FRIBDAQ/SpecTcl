@@ -396,7 +396,7 @@ void SpectrumChooser::SetupList()
 
   accepted = 0;
   for(int i = 0; i < lsize; i++) { // For each spectrum in the list:
-    sscanf(speclist[i], "[%03d]", &spno); // Pull out the spectrum number.
+    sscanf(speclist[i], "[%d]", &spno); // Pull out the spectrum number.
     if(FilterList(spno)) {
       dispspec[accepted] = speclist[i];	// Accept one spectrum.
       accepted++;
@@ -494,7 +494,7 @@ Boolean SpectrumChooser::Perform(XMWidget *wid, XtPointer userd,
     case XmCR_OK:		// Legitimate match from string list so
     case XmCR_APPLY:		// fmt is [nnn] Name of spectrum.
     case XmCR_NO_MATCH:
-      if(sscanf(text, "[%03d]", &spno) != 1) {
+      if(sscanf(text, "[%05d]", &spno) != 1) {
 	nonb = strspn(text, " \t\v\r\n");
 	if(nonb < strlen(text)) {
 	  if(sscanf(&text[nonb], "%d", &spno) != 1) {

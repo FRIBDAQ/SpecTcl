@@ -327,7 +327,7 @@ CXdrInputStream::CXdrInputStream(const string& connection,
 */
 CXdrInputStream::~CXdrInputStream()
 {
-  delete m_pBuffer;
+  delete [] m_pBuffer;
 }
 
 /*!
