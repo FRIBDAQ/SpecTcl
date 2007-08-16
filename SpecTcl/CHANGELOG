@@ -433,3 +433,7 @@ Released April 30, 2007
                        getting hidden.
         June 12, 2007  Get a good compilation from cvs co on ubuntu edgy eft.
         July 12, 2007  Correct jumbo buffer/packet handling in scriptable.
+        Aug  16, 2007  Correct error in old gui SpectrumGenerator.tcl
+                       was not displaying applied gates correctly
+                       if spectrum filter was not *
+
