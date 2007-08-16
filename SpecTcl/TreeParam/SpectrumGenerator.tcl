@@ -667,7 +667,7 @@ proc UpdateSpectrumList {} {
 		set parameters [lindex $spectrum 3]
 		set resolutions [lindex $spectrum 4]
 		set data [lindex $spectrum 5]
-		set appliedGate [lindex $theApplyList $i]
+		set appliedGate [lindex $theApplyList $id]
 		set gate [lindex [lindex $appliedGate 1] 0]
 		if {[string match $gate -TRUE-]} {set gate ""}
 		if {[string match $gate -Ungated-]} {set gate ""}
