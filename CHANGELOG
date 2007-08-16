@@ -692,3 +692,6 @@ Week of May 28,l 2007
        - Add docs for integrate command.
 Week of July 9, 2007
        - Corrected CPacket.cpp for jumbos in scriptable.
+Week of August 13, 2007
+       - BZ 318 - Old GUI SpectrumGenerator.tcl was not listing  applied
+         gates correctly when the filter mask was not *
