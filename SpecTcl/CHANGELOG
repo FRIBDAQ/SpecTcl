@@ -436,4 +436,7 @@ Released April 30, 2007
         Aug  16, 2007  Correct error in old gui SpectrumGenerator.tcl
                        was not displaying applied gates correctly
                        if spectrum filter was not *
+        Sep 10, 2007  BZ 318 - Move to hashing not indexing see prior element.
+                      the previous 'solution' breaks down if spectra are
+                      added out of alpha order after gates have been created.
 
