@@ -695,3 +695,6 @@ Week of July 9, 2007
 Week of August 13, 2007
        - BZ 318 - Old GUI SpectrumGenerator.tcl was not listing  applied
          gates correctly when the filter mask was not *
+Week of Sept 10,2007
+       - BZ 318 revisited... need to use hashtables for the applied gates
+         rather than lists to be utterly reliable.
