@@ -562,3 +562,5 @@ Released April 26, 2007
                 wrong gate applications unless the filter string was *
                 because the applied gate used was determined using the wrong
                 index into the application list.
+  Sep 10, 2007 - BZ 318 again.. use hashtables for the gates since indices are
+                 fragile wrt  the insertion of new spectra.
