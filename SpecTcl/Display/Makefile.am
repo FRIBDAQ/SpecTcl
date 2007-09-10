@@ -158,7 +158,7 @@ Xaminetest_SOURCES = Xaminetest.c
 
 
 
-colorset_LDADD = -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
+colorset_LDADD = @MOTIF_LIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
 Xaminetest_LDADD = -lXamine -lm
 
