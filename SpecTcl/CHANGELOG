@@ -696,5 +696,8 @@ Week of August 13, 2007
        - BZ 318 - Old GUI SpectrumGenerator.tcl was not listing  applied
          gates correctly when the filter mask was not *
 Week of Sept 10,2007
-       - BZ 318 revisited... need to use hashtables for the applied gates
+       - BZ 318 revisited... need to use hash tables for the applied gates
          rather than lists to be utterly reliable.
+       - Fix error in gamma 2d deluxe where if only one y parameter was specified
+         one of the constructors would segfault because it was mistakenly getting units
+         from y[1] not y[0].
