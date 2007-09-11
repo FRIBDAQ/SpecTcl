@@ -109,7 +109,7 @@ CGamma2DD<T>::CGamma2DD(const STD(string)& rName, UInt_t nId,
   m_yParameters(yParameters)
 {
   AddAxis(nXChannels, xLow, xHigh, xParameters[0].getUnits());
-  AddAxis(nYChannels, yLow, yHigh, yParameters[1].getUnits());
+  AddAxis(nYChannels, yLow, yHigh, yParameters[0].getUnits());
 
   CreateStorage();
 }
