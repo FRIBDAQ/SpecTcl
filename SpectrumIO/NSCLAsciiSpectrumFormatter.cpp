@@ -47,6 +47,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 /*
   Change Log:
   $Log$
+  Revision 5.6  2007/09/11 21:06:33  ron-fox
+  Put the correct spectrum axis limits into swrite files.
+
   Revision 5.5  2007/05/11 20:51:57  ron-fox
   Make NSCLAsciiSpectrumFormatter correctly deal with rev 2, 3 and
   'malforme3d 2' produced by version 3.2-pre2 for summary spectra.
@@ -459,8 +462,8 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
   
   Float_t xlow, xhigh;
   UInt_t  nChannels = rSpectrum.Dimension(0); // Everyone has this..
-  xlow = rSpectrum.AxisToMapped(0, 0);
-  xhigh= rSpectrum.AxisToMapped(0, nChannels);
+  xlow = spectrumDef.fLows[0];
+  xhigh= spectrumDef.fHighs[0];
 
   rStream << '(' << xlow << " " << xhigh << ") ";
   if(rSpectrum.Dimensionality() == 2) {
@@ -471,8 +474,8 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
     if(sType == keG2DD) {
       nymap = spectrumDef.vyParameters[0];
     }
-    xlow = rSpectrum.AxisToMapped(nymap, 0);
-    xhigh= rSpectrum.AxisToMapped(nymap, rSpectrum.Dimension(1));
+    xlow = spectrumDef.fLows[nymap];
+    xhigh= spectrumDef.fHighs[nymap];
     rStream << '(' << xlow << " " << xhigh << ")";
   }
   rStream << "\n";

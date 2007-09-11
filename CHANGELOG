@@ -701,3 +701,6 @@ Week of Sept 10,2007
        - Fix error in gamma 2d deluxe where if only one y parameter was specified
          one of the constructors would segfault because it was mistakenly getting units
          from y[1] not y[0].
+       - Fix error in swrite NSCLAsciiSpectrumFormatter...get axis limits directly from the
+         spectrum description rather than dorking around to get them from
+         the converter.
