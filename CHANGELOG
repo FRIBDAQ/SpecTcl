@@ -564,3 +564,6 @@ Released April 26, 2007
                 index into the application list.
   Sep 10, 2007 - BZ 318 again.. use hashtables for the gates since indices are
                  fragile wrt  the insertion of new spectra.
+  Sep 11, 2007 - Use spectrum definition in swrite to get the acutal axis
+                 limits rather than using the conversions in a hokey way.
+                 But remember the summary spectrum's special case.
