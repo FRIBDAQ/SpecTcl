@@ -47,6 +47,18 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 /*
   Change Log:
   $Log$
+  Revision 5.1.2.3  2007/09/12 11:54:01  ron-fox
+  BZ 322 -  Correct axis definitions on swrite commands.
+
+  Revision 5.2.2.1  2007/09/12 11:48:07  ron-fox
+  BZ322 - Correct spectrum definitions, axis limits were wrong.
+          Get axis limits from the def rather than playing hokey games
+          with the conversion stuff..and remember that for this version,
+          summary spectra are weird
+
+  Revision 5.2  2005/06/03 15:19:29  ron-fox
+  Part of breaking off /merging branch to start 3.1 development
+
   Revision 5.1.2.2  2005/05/11 21:26:37  ron-fox
   - Add -pedantic and deal with the fallout.
   - Fix long standing issues with sread/swrite -format binary
@@ -362,22 +374,41 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
   // List of axis ranges.  This is gotten from 
   // calling AxisToMappedParameter for each axis for channel 0 and size-1.
   //
-				// First dimension is easy:
   
-  Float_t xlow, xhigh;
-  UInt_t  nChannels = rSpectrum.Dimension(0); // Everyone has this..
-  xlow = rSpectrum.AxisToMapped(0, 0);
-  xhigh= rSpectrum.AxisToMapped(0, nChannels);
 
-  rStream << '(' << xlow << " " << xhigh << ") ";
-  if(rSpectrum.Dimensionality() == 2) {
-    UInt_t nymap = 1;		// By default second axis is second map..
-    if(rSpectrum.getSpectrumType() == keG2D) {
-      nymap = Parameters.size(); // All x maps are first in gamma 2ds.
+  // Except for summary spectra for which the x axis is the
+  // 1 - nparameters. and the y axis is as in the flows/fhighs.
+  //
+  CSpectrum::SpectrumDefinition def = rSpectrum.GetDefinition();
+
+
+  if (rSpectrum.getSpectrumType() == keSummary) {
+    std::vector<UInt_t> paramIds;
+    rSpectrum.GetParameterIds(paramIds);
+    rStream << '(' << 1 << ' ' << paramIds.size() << ") "
+	    << '(' << def.fLows[0] << ' ' << def.fHighs[0] << ')';
+
+  }
+  else {
+    
+    // First dimension is easy:
+    
+    
+    Float_t xlow, xhigh;
+    UInt_t  nChannels = rSpectrum.Dimension(0); // Everyone has this..
+    xlow = def.fLows[0];
+    xhigh= def.fHighs[0];
+    
+    rStream << '(' << xlow << " " << xhigh << ") ";
+    if(rSpectrum.Dimensionality() == 2) {
+      UInt_t nymap = 1;		// By default second axis is second map..
+      if(rSpectrum.getSpectrumType() == keG2D) {
+	nymap = Parameters.size(); // All x maps are first in gamma 2ds.
+      }
+      xlow = def.fLows[nymap];
+      xhigh= def.fHighs[nymap];
+      rStream << '(' << xlow << " " << xhigh << ")";
     }
-    xlow = rSpectrum.AxisToMapped(nymap, 0);
-    xhigh= rSpectrum.AxisToMapped(nymap, rSpectrum.Dimension(1));
-    rStream << '(' << xlow << " " << xhigh << ")";
   }
   rStream << "\n";
 

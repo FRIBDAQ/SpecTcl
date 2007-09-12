@@ -439,4 +439,4 @@ Released April 30, 2007
         Sep 10, 2007  BZ 318 - Move to hashing not indexing see prior element.
                       the previous 'solution' breaks down if spectra are
                       added out of alpha order after gates have been created.
-
+        Sep 11, 2007  BZ 322 - Correct output of axis limits in swrite.
