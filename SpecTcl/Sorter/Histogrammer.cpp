@@ -18,7 +18,8 @@
 #include <config.h>
 
 // Header Files:
-#include "Histogrammer.h"                               
+#include "Histogrammer.h"    
+#include <Exception.h>                           
 #include "DictionaryException.h"
 #include "EventList.h"
 
@@ -320,19 +321,36 @@ void CHistogrammer::operator()(CEventList& rEvents) {
   //  the assumption is that the first null
   //  event or the end of the vector terminates.
   //
-  CEventListIterator i;
-  CEventListIterator e = rEvents.end();
-  for(i = rEvents.begin(); i != e; i++) {
-    CEvent* pEvent = *i;
-    if(pEvent) {
-      nEvents++;
-      operator()(*pEvent,
-		 nSpectra, pSpectra,
-		 nGates, pGates);
+  try {
+    CEventListIterator i;
+    CEventListIterator e = rEvents.end();
+    for(i = rEvents.begin(); i != e; i++) {
+      CEvent* pEvent = *i;
+      if(pEvent) {
+	nEvents++;
+	operator()(*pEvent,
+		   nSpectra, pSpectra,
+		   nGates, pGates);
+      }
+      else {
+	break;
+      }
     }
-    else {
-      break;
-    }
+  }
+  catch (CException& e) {
+    cerr << "Exception caught while histogramming events: "
+	 << e.ReasonText() << " while " << e.WasDoing() <<endl;
+  }
+  catch (string msg) {
+    cerr << "String exception caught while histogramming events: "
+	 << msg << endl;
+  }
+  catch (const char* msg) {
+    cerr << "Char* exception caught while histogramming events: "
+	 << msg <<endl;
+  }
+  catch (...) {
+    cerr << "Unexpected exception type caught while histogramming events.\n";
   }
   delete []pGates;
   delete []pSpectra;
@@ -1439,9 +1457,23 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     case ke1D:
     case keG1D: 
       {
-	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getLow()),  
+	// Produce the nearest channel to the gate points.
+	// then add them to the display gate.
+	//
+	int x1 = (int)(pSpectrum->ParameterToAxis(0, rCut.getLow()));
+	int x2 = (int)(pSpectrum->ParameterToAxis(0, rCut.getHigh()));
+	pCut->AddPoint(x1,  
 		       0);
-	pCut->AddPoint((int)pSpectrum->ParameterToAxis(0, rCut.getHigh()), 
+	// The weirdness below is all about dealing with a special boundary
+	// case when we try to get the right side of the cut to land
+	// on the right side of the channel on which it's set.
+	// ..all this in the presence of gates accepted on fractional parameters.
+	//(consider a fine spectrum (e.g. 400-401 with 100 bins and a coarse
+	// spectrum, of the same parameter (e.g. 0-1023 1024 bins)..with 
+	// the gate set on 400.5, 400.51 and you'll see the thing I'm trying
+	// to deal with here.
+	// 
+	pCut->AddPoint(x1 == x2 ? x2 : x2 - 1, 
 		       0);
 	return pCut;
 	break;

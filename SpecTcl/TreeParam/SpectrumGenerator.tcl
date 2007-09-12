@@ -269,7 +269,7 @@ proc SpectrumTypeSummary {} {
 	global tops
 	set wname $tops.options.datatype.n
 	$wname.byte configure -state normal
-	$wname.long configure -state enabled
+	$wname.long configure -state normal
 	set spectrumDatatype long
 	set wname $tops.bottom.vary
 	$tops.bottom.varx.varmenu configure -text Parameters
@@ -651,122 +651,126 @@ proc DynamicSpectrumList {name1 name2 op} {
 }
 
 proc UpdateSpectrumList {} {
-	global tops spectrumMask
-	set fraction [lindex [$tops.slist.listbox yview] 0]
-	$tops.slist.listbox delete 0 end
-	set theList [spectrum -list]
-	set theApplyList [apply -list]
-	set i 0
-	foreach spectrum $theList {
-		set id [lindex $spectrum 0]
-		set name [lindex $spectrum 1]
-		if {[string match $spectrumMask $name] == 0} {
-			continue
-		}
-		set type [lindex $spectrum 2]
-		set parameters [lindex $spectrum 3]
-		set resolutions [lindex $spectrum 4]
-		set data [lindex $spectrum 5]
-		set appliedGate [lindex $theApplyList $i]
-		set gate [lindex [lindex $appliedGate 1] 0]
-		if {[string match $gate -TRUE-]} {set gate ""}
-		if {[string match $gate -Ungated-]} {set gate ""}
-		incr i
-		switch -- $type {
-			1 {
-				set ltype "1D"
-				set varx $parameters
-				set lowx [format %g [lindex [lindex $resolutions 0] 0]]
-				set highx [format %g [lindex [lindex $resolutions 0] 1]]
-				set binsx [lindex [lindex $resolutions 0] 2]
-				set vary ""
-				set lowy ""
-				set highy ""
-				set binsy ""
-			}
-			2 {
-				set ltype "2D"
-				set varx [lindex $parameters 0]
-				set lowx [format %g [lindex [lindex $resolutions 0] 0]]
-				set highx [format %g [lindex [lindex $resolutions 0] 1]]
-				set binsx [lindex [lindex $resolutions 0] 2]
-				set vary [lindex $parameters 1]
-				set lowy [format %g [lindex [lindex $resolutions 1] 0]]
-				set highy [format %g [lindex [lindex $resolutions 1] 1]]
-				set binsy [lindex [lindex $resolutions 1] 2]
-			}
-			s {
-				set ltype "Sum"
-				set varx [lindex $parameters 0]
-				set lowx [format %g [lindex [lindex $resolutions 0] 0]]
-				set highx [format %g [lindex [lindex $resolutions 0] 1]]
-				set binsx [lindex [lindex $resolutions 0] 2]
-				set vary ""
-				set lowy ""
-				set highy ""
-				set binsy ""
-			}
-			b {
-				set ltype "Bit"
-				set varx $parameters
-				set lowx [format %g [lindex [lindex $resolutions 0] 0]]
-				set highx [format %g [lindex [lindex $resolutions 0] 1]]
-				set binsx [lindex [lindex $resolutions 0] 2]
-				set vary ""
-				set lowy ""
-				set highy ""
-				set binsy ""
-			}
-			g1 {
-				set ltype "G1"
-				set varx [lindex $parameters 0]
-				set lowx [format %g [lindex [lindex $resolutions 0] 0]]
-				set highx [format %g [lindex [lindex $resolutions 0] 1]]
-				set binsx [lindex [lindex $resolutions 0] 2]
-				set vary ""
-				set lowy ""
-				set highy ""
-				set binsy ""
-			}
-			g2 {
-				set ltype "G2"
-				set varx [lindex $parameters 0]
-				set lowx [format %g [lindex [lindex $resolutions 0] 0]]
-				set highx [format %g [lindex [lindex $resolutions 0] 1]]
-				set binsx [lindex [lindex $resolutions 0] 2]
-				set vary ""
-				set lowy ""
-				set highy ""
-				set binsy ""
-			}
-			gp {
-				set ltype "GP"
-				set varx [lindex $parameters 0]
-				set lowx [format %g [lindex [lindex $resolutions 0] 0]]
-				set highx [format %g [lindex [lindex $resolutions 0] 1]]
-				set binsx [lindex [lindex $resolutions 0] 2]
-				set vary [lindex $parameters 1]
-				set lowy [format %g [lindex [lindex $resolutions 1] 0]]
-				set highy [format %g [lindex [lindex $resolutions 1] 1]]
-				set binsy [lindex [lindex $resolutions 1] 2]
-			}
-                 	S {
-				set ltype "Strip"
-        			set varx [lindex $parameters 0]
-				set lowx [format %g [lindex [lindex $resolutions 0] 0]]
-				set highx [format %g [lindex [lindex $resolutions 0] 1]]
-				set binsx [lindex [lindex $resolutions 0] 2]
-			        set vary [lindex $parameters 1]
-				set lowy ""
-				set highy ""
-				set binsy ""
-			}
-		    default {
-		    }
-		}
-		$tops.slist.listbox insert end [list $name $ltype $data $varx $lowx $highx $binsx $vary $lowy $highy $binsy $gate]
+    global tops spectrumMask
+    set fraction [lindex [$tops.slist.listbox yview] 0]
+    $tops.slist.listbox delete 0 end
+    set theList [spectrum -list]
+    set theApplyList [apply -list]
+    foreach item $theApplyList {
+	set spectrumname [lindex $item 0]
+	set gatename     [lindex [lindex $item 1] 0]
+	set Applications($spectrumname) $gatename
+    }
+    set i 0
+    foreach spectrum $theList {
+	set id [lindex $spectrum 0]
+	set name [lindex $spectrum 1]
+	if {[string match $spectrumMask $name] == 0} {
+	    continue
 	}
-	$tops.slist.listbox yview moveto $fraction
+	set type [lindex $spectrum 2]
+	set parameters [lindex $spectrum 3]
+	set resolutions [lindex $spectrum 4]
+	set data [lindex $spectrum 5]
+	set gate $Applications($name)
+	if {[string match $gate -TRUE-]} {set gate ""}
+	if {[string match $gate -Ungated-]} {set gate ""}
+	incr i
+	switch -- $type {
+	    1 {
+		set ltype "1D"
+		set varx $parameters
+		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+		set highx [format %g [lindex [lindex $resolutions 0] 1]]
+		set binsx [lindex [lindex $resolutions 0] 2]
+		set vary ""
+		set lowy ""
+		set highy ""
+		set binsy ""
+	    }
+	    2 {
+		set ltype "2D"
+		set varx [lindex $parameters 0]
+		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+		set highx [format %g [lindex [lindex $resolutions 0] 1]]
+		set binsx [lindex [lindex $resolutions 0] 2]
+		set vary [lindex $parameters 1]
+		set lowy [format %g [lindex [lindex $resolutions 1] 0]]
+		set highy [format %g [lindex [lindex $resolutions 1] 1]]
+		set binsy [lindex [lindex $resolutions 1] 2]
+	    }
+	    s {
+		set ltype "Sum"
+		set varx [lindex $parameters 0]
+		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+		set highx [format %g [lindex [lindex $resolutions 0] 1]]
+		set binsx [lindex [lindex $resolutions 0] 2]
+		set vary ""
+		set lowy ""
+		set highy ""
+		set binsy ""
+	    }
+	    b {
+		set ltype "Bit"
+		set varx $parameters
+		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+		set highx [format %g [lindex [lindex $resolutions 0] 1]]
+		set binsx [lindex [lindex $resolutions 0] 2]
+		set vary ""
+		set lowy ""
+		set highy ""
+		set binsy ""
+	    }
+	    g1 {
+		set ltype "G1"
+		set varx [lindex $parameters 0]
+		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+		set highx [format %g [lindex [lindex $resolutions 0] 1]]
+		set binsx [lindex [lindex $resolutions 0] 2]
+		set vary ""
+		set lowy ""
+		set highy ""
+		set binsy ""
+	    }
+	    g2 {
+		set ltype "G2"
+		set varx [lindex $parameters 0]
+		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+		set highx [format %g [lindex [lindex $resolutions 0] 1]]
+		set binsx [lindex [lindex $resolutions 0] 2]
+		set vary ""
+		set lowy ""
+		set highy ""
+		set binsy ""
+	    }
+	    gp {
+		set ltype "GP"
+		set varx [lindex $parameters 0]
+		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+		set highx [format %g [lindex [lindex $resolutions 0] 1]]
+		set binsx [lindex [lindex $resolutions 0] 2]
+		set vary [lindex $parameters 1]
+		set lowy [format %g [lindex [lindex $resolutions 1] 0]]
+		set highy [format %g [lindex [lindex $resolutions 1] 1]]
+		set binsy [lindex [lindex $resolutions 1] 2]
+	    }
+	    S {
+		set ltype "Strip"
+		set varx [lindex $parameters 0]
+		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+		set highx [format %g [lindex [lindex $resolutions 0] 1]]
+		set binsx [lindex [lindex $resolutions 0] 2]
+		set vary [lindex $parameters 1]
+		set lowy ""
+		set highy ""
+		set binsy ""
+	    }
+	    default {
+	    }
+	}
+	$tops.slist.listbox insert end [list $name $ltype $data $varx $lowx $highx $binsx $vary $lowy $highy $binsy $gate]
+    }
+    $tops.slist.listbox yview moveto $fraction
 }
 
 # sort the list based on a particular column
@@ -891,7 +895,7 @@ proc DuplicateSpectra {} {
 				}
 			}
 		}
-		set newSpectrum [spectrum -list $spectrumName]
+	        set newSpectrum [lindex [spectrum -list $spectrumName] 0]
 		set type [lindex $newSpectrum 2]
 		set parameters [lindex $newSpectrum 3]
 		set resolutions [lindex $newSpectrum 4]

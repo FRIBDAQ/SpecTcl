@@ -213,7 +213,7 @@ static void Format1d(IntegrationDisplay *d, grobj_generic *g,
   char txt[1024];		/* A nice big formatting buffer. */
   grobj_name n;
 
-  sprintf(txt, "%4d %27s  %8.2f     %8.2f         %f\n",
+  sprintf(txt, "%4d %27s  %10.5f     %10.5f         %f\n",
 	  g->getid(),
 	  g->getname(n),
 	  centroid, fwhm, area);
@@ -254,7 +254,7 @@ static void Format2d(IntegrationDisplay *d, grobj_generic *g,
   /* Format the output line: */
   
 
-  sprintf(txt, "%4d %27s  (%6.1f,%6.1f) (%6.1f,%6.1f) %f\n",
+  sprintf(txt, "%4d %27s  (%10.5f,%10.5f) (%10.5f,%10.5f) %f\n",
 	  g->getid(), g->getname(n),
 	  cx,cy, fx,fy, a);
 
@@ -349,7 +349,7 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
 			     (grobj_sum2d *)g, att->ismapped());
 
     } else if (typ == twodlong) {
-      pI2 = new Integrate_2dl((unsigned long *)xamine_shared->getbase(specno),
+      pI2 = new Integrate_2dl((unsigned int *)xamine_shared->getbase(specno),
 			      xamine_shared->getxdim(specno),
 			      (grobj_sum2d *)g, att->ismapped());
     }
@@ -365,7 +365,7 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
     yfwhm   = pI2->GetYStdDev();
     delete pI2;
 
-    Format2d(d,g, xc, yc, xfwhm, yfwhm, area);
+    Format2d(d,g, xc, yc, xfwhm*GAMMA, yfwhm*GAMMA, area);
   }
   else {                                       /* Bad news here. */
     Xamine_error_msg(Xamine_Getpanemgr(),

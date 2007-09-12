@@ -22,6 +22,7 @@
 #include "CBoolConfigParam.h"
 #include "CSegmentUnpacker.h"
 #include "CModule.h"
+#include "NSCLJumboBufferDecoder.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -47,7 +48,7 @@ CPacket::CPacket (const string& rName,
   m_nId(-1),
   m_fPacketize(false),
   m_pModules(pDictionary),
-  m_nPacketSize(-1),
+  m_nPacketSize(0),
   m_pPacketBase(0)
 { 
   assert(pDictionary);
@@ -156,17 +157,40 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
 		CBufferDecoder& rDecoder)  
 {
   TranslatorPointer<UShort_t> pBase = pBuffer;
+  TranslatorPointer<UInt_t>   plBuffer= pBuffer;
+
+  // It's possible packet sizes are 32 bits long:
+
+  bool sizesAre32Bits = false;
+  CNSCLJumboBufferDecoder* pJumbo = 
+    dynamic_cast<CNSCLJumboBufferDecoder*>(&rDecoder);
+  if(pJumbo) {
+    if (pJumbo->size32()) {
+      sizesAre32Bits = true;
+    }
+  }
+  
+
   // Set up m_nPacketsize and m_pPacketBase for the decode:
 
   m_nPacketSize = -1;
   m_pPacketBase = &pBuffer;
+  UInt_t   packetHeaderSize;
 
   // If we are the root unpacker, We have the raw event size as our
   // first guestimate of the packet size;
   
   if(!getOwner()) {
-    m_nPacketSize = *pBuffer - 1;
-    ++pBuffer;			// Point past  the word count.
+    if (sizesAre32Bits) {
+      m_nPacketSize = *plBuffer;
+      packetHeaderSize = 2;
+      pBuffer += 2;
+    }
+    else {
+      m_nPacketSize = *pBuffer - 1;
+      packetHeaderSize = 1;
+      ++pBuffer;			// Point past  the word count.
+    }
     if(m_nPacketSize <= 0) {
       return pBuffer;		// Empty!!
     }
@@ -174,16 +198,27 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
 
   // If packetization is on, We have a count and then an Id:
   // we don't do anything if the id doesn't match us.
+  UShort_t packetId;
   if(m_fPacketize) {
-    if(m_nId == pBuffer[1]) {
-      m_nPacketSize = *pBuffer - 2; // Update the packetsize...
-      pBuffer += 2;
+    if (sizesAre32Bits) {
+      packetId = pBuffer[2];
+      packetHeaderSize = 3;
+    }
+    else {
+      packetId = pBuffer[1];
+      packetHeaderSize = 2;
+    }
+    if(m_nId ==  packetId) {
+      if (sizesAre32Bits) {
+	m_nPacketSize = *plBuffer - packetHeaderSize;
+      } 
+      else {
+	m_nPacketSize = *pBuffer - packetHeaderSize; // Update the packetsize...
+      }
+      pBuffer += packetHeaderSize; // Point to the packet body.
       m_pPacketBase = &pBuffer;
     } else {
       return pBuffer;
-    }
-    if (m_nPacketSize == 0) {
-      return pBuffer;		// Empty packet.
     }
   }
   // If not packetizing, we just have raw data and need to get the
@@ -211,11 +246,11 @@ CPacket::Unpack(TranslatorPointer<UShort_t> pBuffer,
 		      nSize, "CPacket::Unpack tagged packet");
   }
   if(!getOwner()) {		// Root knows size.
-    pBase += m_nPacketSize+1;
+    pBase += m_nPacketSize;
     return pBase;
   }
   else if(m_fPacketize) {	// Packetized knows size...
-    pBase += m_nPacketSize+2;
+    pBase += m_nPacketSize+packetHeaderSize;
     return pBase;
   }
   else {			// Have to trust the user
@@ -249,7 +284,7 @@ Pseudo code:
 \verbatim
 m_nPacketsize > 0:: 
     return (m_nPacketsize - (m_PacketStart - p))
-m_nPacketsize < 0::
+m_nPacketsize <= 0::
     m_nPacketSize = m_pOwner->getPacketSize(p)
     return m_nPacketSize   
    
@@ -259,7 +294,7 @@ m_nPacketsize < 0::
 int 
 CPacket::getPacketSize(TranslatorPointer<UShort_t> p)  
 { 
-  if(m_nPacketSize >= 0) {
+  if(m_nPacketSize > 0) {
     return m_nPacketSize - 
       ((p.getOffset() - m_pPacketBase->getOffset())/sizeof(UShort_t));
   }
@@ -594,7 +629,6 @@ CPacket::AddModuleCommand(CTCLInterpreter& rInterp,
     }
     return TCL_ERROR;
   }
-  rResult = "BUG report that: COntrol reached the end of CPacket::AddModuleCommand";
   return TCL_ERROR;
 }  
 

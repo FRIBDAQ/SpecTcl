@@ -399,7 +399,7 @@ static void CheckAbort(XtPointer userd, XtIntervalId *id)
 **      This function clears a window whether or not the window is
 **      being drawn to through a pixmap or directly.
 ** Formal Parameters:
-**    Xamine_RefreshContext *ctx:
+**    Xamine_Refreshontext *ctx:
 **       Redraw context.  If the pixmap entry is zero, then the
 **       window is just cleared via XClearWindow.  Otherwise,
 **       we assume the pixmap is as large as the window and
@@ -1073,13 +1073,7 @@ Boolean Xamine_Refresh(XtPointer client_data)
     /* If necessary set the scaling: */
     {
       if(!def->manuallyscaled()) {
-	int fs = (Xamine_ComputeScaling(def, ctx->pane));
-	if (fs <= 0) {		// Something bad happened...
-	  // Treat this like the spectrum disappeared:
-	  XClearWindow(display,window);
-	  pdb->refresh_state(ctx->row, ctx->column, rfsh_idle);
-	  goto display_done;
-	}
+	unsigned int fs = (Xamine_ComputeScaling(def, ctx->pane));
 	def->setfsval(fs);
       }
     }

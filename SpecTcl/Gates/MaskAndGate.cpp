@@ -386,7 +386,10 @@ CMaskAndGate::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 Bool_t
 CMaskAndGate::inGate(CEvent& rEvent)
 {
-  long value = rEvent[m_nId];
+  if (!rEvent[m_nId].isValid()) {
+    return kfFALSE;		// short circuit if not valid.
+  }
+  UInt_t value = rEvent[m_nId];
   if ((value & m_cCompare) == m_cCompare ) 
     {
       return true;

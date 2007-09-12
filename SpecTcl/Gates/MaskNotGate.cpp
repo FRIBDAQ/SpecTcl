@@ -386,7 +386,10 @@ CMaskNotGate::inGate(CEvent& rEvent, const vector<UInt_t>& Params)
 Bool_t
 CMaskNotGate::inGate(CEvent& rEvent)
 {
-  long value = rEvent[m_nId];
+  if (!rEvent[m_nId].isValid()) { // short circuit to false if param not set.
+    return kfFALSE;		
+  }
+  UInt_t value = rEvent[m_nId];
   unsigned long comp = ~m_cCompare;
   if ((value & comp) == comp )
     {
