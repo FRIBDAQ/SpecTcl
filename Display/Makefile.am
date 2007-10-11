@@ -113,7 +113,7 @@ XMTab.h         convert.h          grobfile_lex.h  pkgmgr.h      trackcursor.h\
 XMText.h        copier.h           grobjdisplay.h  prccheck.h   windfile_lex.h\
 XMWidget.h      copyatr.h          grobjinput.h    printer.h    windfile_tab.h\
 XMWlist.h       defaultfile_lex.h  grobjio.h       procede.h     windio.h\
-Xamine.h        delgrob.h          grobjiomenu.h   properties.h  windlex.h\
+Xamine.h        delgrob.h          grobjiomenu.h   properties.h  \
 acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h \
 advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
 xamineDataTypes.h wysiwygPrint.h
@@ -185,7 +185,7 @@ Xamine_DEPENDENCIES = windfile_parse.o windfile_lex.o dispwind.o \
 	buttonreq.o buttondlg.o spcchoice.o spccompatchoice.o spclimchoice.o \
 	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o Tab.o \
 	griprint.o mapcoord.o dispgrob.o  grobfile_lex.o grobfile_parse.o \
-	grobjdb.o  XMCallback.o XMMenus.o XMDialogs.o XMManagers.o \
+	grobjdb.o  XMCallback.o XMMenus.o XMDialogs.o XMManagers.o windlex.h \
 	XMWlist.o XMShell.o XMTab.o XMText.o colorset.ico libXamine.la
 
 Xaminetest_DEPENDENCIES = libXamine.la
