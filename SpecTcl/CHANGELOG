@@ -704,3 +704,6 @@ Week of Sept 10,2007
        - Fix error in swrite NSCLAsciiSpectrumFormatter...get axis limits directly from the
          spectrum description rather than dorking around to get them from
          the converter.
+Pre3 released
+
+October 11, 2007 Pre 4 (or possibly 3.2-001) opened.
