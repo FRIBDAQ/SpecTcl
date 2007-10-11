@@ -129,21 +129,8 @@ CParameterMapping::operator== (const CParameterMapping& aCParameterMapping) cons
 
 // Functions for class CParameterMapping
 
-/*!
 
 
-Returns the mapped value corresponding to a
-raw parameter value.  This is an identity transform if
-m_fMapped is false.
-
-*/
-Float_t 
-CParameterMapping::RawToMapped(Float_t fRaw)
-{ 
-  if(!m_fMapped) return fRaw;	// Unmapped parameters don't change
-  Float_t RawMax = (Float_t)((1 << m_nBits) - 1);
-  return m_fLow + (m_fHigh - m_fLow)*fRaw/RawMax; 
-}  
 
 /*!  
 

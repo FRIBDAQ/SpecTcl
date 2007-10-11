@@ -297,6 +297,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 4.5.4.1  2006/04/17 14:16:36  ron-fox
+   Fix 64 bit uncleanliness in Xamine
+
    Revision 4.5  2003/04/03 00:29:11  ron-fox
    Fix intermittent disable of map toggle.  Define mapped spectrum one where it's axislow != axishigh for all axes.
 
@@ -850,7 +853,7 @@ void Xamine_PaneInputCallback(XMWidget *pane, XtPointer client_data,
   /* If this is the current input and there's a defined pane callback, then */
   /* call it and return.                                                    */
 
-  int row, col, index;
+  long row, col, index;
 
   XmProcessTraversal(pane->getid(), XmTRAVERSE_CURRENT);
   pane->GetAttribute(XmNuserData, &index); /* Get the pane index. */

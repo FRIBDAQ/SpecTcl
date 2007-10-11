@@ -517,7 +517,7 @@ int SuperPrompt::Match(XtPointer cd)
   */
 
   if(sscanf(text, "%d", &specid) != 1) {      /* It was not a  number.  */
-    if(sscanf(text, "[%3d]", &specid) != 1) { /* Not bracket enclosed.   */
+    if(sscanf(text, "[%05d]", &specid) != 1) { /* Not bracket enclosed.   */
       if((specid = Xamine_MatchSpecName(text)) < 0) {
 	XtFree(text);
 	return 0;
@@ -708,7 +708,7 @@ void SuperPrompt::SetList()
       name_list[slots_filled] = (spec_title *)new spec_title;
       xamine_shared->getname(name, i);
       name[sizeof(name)-10] = '\0';                  /* Force truncation */
-      sprintf((char *)name_list[slots_filled], "[%03d]  %s", i, name);
+      sprintf((char *)name_list[slots_filled], "[%05d]  %s", i, name);
       slots_filled++;
     }
   }

@@ -3,10 +3,10 @@ INCLUDES = -I. -I../Utility -I../NSCLException -I../EventSource -I../TCL \
 	-I../SpecTcl -I../Filter \
 	@TCL_FLAGS@ @XINCLUDES@
 
-LDFLAGS = @TCL_LDFLAGS@
-
 lib_LTLIBRARIES = libAnalysis.la
-libAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0
+libAnalysis_la_LDFLAGS = @TCL_LDFLAGS@ \
+	-version-info $(SOVERSION):0 \
+	-Wl,"-rpath-link=$(libdir)"
 
 libAnalysis_la_SOURCES = Analyzer.cpp BufferDecoder.cpp BufferTranslator.cpp \
 	Event.cpp EventFormatError.cpp EventList.cpp NSCLBufferDecoder.cpp \

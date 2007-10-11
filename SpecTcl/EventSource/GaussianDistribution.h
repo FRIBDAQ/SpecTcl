@@ -409,7 +409,7 @@ public:
   // from the underlying distribution, as an integer channel.
 
 public:
-  virtual   UInt_t operator() ()  ;
+  virtual   Float_t operator() ()  ;
   static void      Seed();	// Reseed random number generator.
  
 };

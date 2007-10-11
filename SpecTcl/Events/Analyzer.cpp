@@ -427,6 +427,9 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	    m_EventList[nEventNo] = pEvent;
 	    nEventNo++; 
 	  }
+	  else {                           // Must return the event (bug 144)
+	  	ReturnEvent(pEvent);           // to the pool to prevent memory leak.
+	  }
 	  if (nEventSize == 0) { // If we didn't throw now we'd hang here.
 	    throw CEventFormatError((int)CEventFormatError::knSizeMismatch,
 				    string("Packer returned event size = 0"),
@@ -655,4 +658,18 @@ void CAnalyzer::CopyEventList(const CEventList& rhs) {
 void CAnalyzer::CopyEventPool(const CEventList& rhs) {
   m_EventPool.clear();
   m_EventPool = rhs;
+}
+/*!
+   This function returns an event to the event pool. It can be called if,
+   for any reason, CreateEvent results in an event that is not eventually
+   submitted to the event list.  For example, OnPhysics will call this
+   if the user's event processing pipeline rejects an event by returning
+   kfFalse.  Thanks to Jon Elson of Wash-U for pointing out this
+   stupidity of mine.
+*/
+void
+CAnalyzer::ReturnEvent(CEvent* pEvent)
+{
+	CEventVector& rPool(m_EventPool.getVector());
+	rPool.push_back(pEvent);
 }

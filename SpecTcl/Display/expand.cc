@@ -403,6 +403,18 @@ class Expand : public GraphicalInput, public Xamine_Select2 {
   Boolean Pt2() { return pt2_accepted; }
   void    Pt1(int *x, int *y)  { *x = pt1.x; *y = pt1.y; }
   void    Pt2(int *x, int *y)  { *x = pt2.x; *y = pt2.y; }
+private:
+  // Callback relay functions:
+
+  static void CancelCallback_relay(XMWidget* w,
+				   XtPointer u,
+				   XtPointer c);
+  static void ApplyCallback_relay(XMWidget* w,
+				  XtPointer u,
+				  XtPointer c);
+  static void OkCallback_relay(XMWidget* w,
+			       XtPointer u,
+			       XtPointer c);
 };
 
 static Expand *dialog = NULL;
@@ -416,17 +428,20 @@ extern spec_shared *xamine_shared;
 ** The two line functions below are intended to relay the callback
 ** functions into class methods for Expand:
 */
-static void CancelCallback_relay(XMWidget *w, XtPointer u, XtPointer c)
+void 
+Expand::CancelCallback_relay(XMWidget *w, XtPointer u, XtPointer c)
 {
   Expand *t = (Expand *)u;
   t->CancelCallback(c);
 }
-static void ApplyCallback_relay(XMWidget *w, XtPointer u, XtPointer c)
+void 
+Expand::ApplyCallback_relay(XMWidget *w, XtPointer u, XtPointer c)
 {
   Expand *t = (Expand *)u;
   t->ApplyCallback(c);
 }
-static void OkCallback_relay(XMWidget *w, XtPointer u, XtPointer c)
+void 
+Expand::OkCallback_relay(XMWidget *w, XtPointer u, XtPointer c)
 {
   Expand *t = (Expand *)u;
   t->OkCallback(c);
@@ -706,15 +721,14 @@ void Expand::AddPoint(point &pt)
 **     This function performs a point deletion.  The highest numbered
 **     point is removed. 
 */
-void Expand::DelPoint()
+void 
+Expand::DelPoint()
 {
   if(pt2_accepted) {
-    pt2_accepted = False;
-    SetPoint2(0);
+    DelPt2();
     return;
   }
-  pt1_accepted = False;
-  SetPoint1(0);
+  DelPt1();
 }
 
 /*

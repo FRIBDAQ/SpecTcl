@@ -1,10 +1,11 @@
 INCLUDES = -I. -I../Utility -I../Exception
-LDADD = -lXplus -lXamine
-LDFLAGS = -L.
+LDADD = -L. -lXplus -lXamine
+
 
 lib_LTLIBRARIES = libException.la
 
-libException_la_LDFLAGS = -version-info $(SOVERSION):0
+libException_la_LDFLAGS = -version-info $(SOVERSION):0 \
+	-Wl,"-rpath-link=$(libdir)"
 
 libException_la_SOURCES = ErrnoException.cpp Exception.cpp RangeError.cpp \
 	StreamIOError.cpp

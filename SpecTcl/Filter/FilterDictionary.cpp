@@ -8,6 +8,7 @@ static const char* Copyright =
 
 // Header Files.
 #include <vector>
+#include <iostream.h>
 
 #include "Dictionary.h"
 
@@ -24,8 +25,32 @@ CFilterDictionary::CFilterDictionary() {}
 CFilterDictionary* CFilterDictionary::GetInstance() {
   if(m_pInstance == (CFilterDictionary*)kpNULL) {
     m_pInstance = new CFilterDictionary;
+    atexit(CFilterDictionary::onExit);
   }
   return m_pInstance;
-  //static CFilterDictionary instance; // Not to worry; Destroyed on program termination.
-  //return &instance;
+  
+}
+
+// On exit we whip through all of the filters and close them cleanly:
+//
+typedef CDictionary<CGatedEventFilter*>   FilterDict;
+typedef FilterDict::DictionaryIterator    FilterIterator;
+void
+CFilterDictionary::onExit()
+{
+  // Don't need to do anything if no filters
+
+  cerr << "closing off filters\n";
+
+  if(m_pInstance) {
+    FilterIterator p = m_pInstance->begin();
+    while(p != m_pInstance->end()) {
+      CGatedEventFilter* pFilter = p->second;
+      if(pFilter->CheckEnabled()) {
+	pFilter->Disable();
+	cerr << "Closed filter: " << p->first << endl;
+      }
+      p++;
+    }
+  }
 }

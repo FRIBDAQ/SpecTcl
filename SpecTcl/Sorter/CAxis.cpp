@@ -35,6 +35,7 @@ CAxis::CAxis(UInt_t nChannels, string sUnits) :
   m_nChannels(nChannels),
   m_ParameterSpecification(sUnits)	// Defaults to unmapped.
 {
+  ComputeScale();
 }
 /*!
   Construct an axis for an umapped parameter that represents
@@ -57,6 +58,7 @@ CAxis::CAxis(Float_t fLow,
   m_nChannels(nChannels),
   m_ParameterSpecification(sUnits)
 {
+  ComputeScale();
 }
 
 /*!
@@ -81,6 +83,7 @@ CAxis::CAxis(Float_t fLow,
   m_nChannels(nChannels),
   m_ParameterSpecification(Mapping)
 {
+  ComputeScale();
 }
 /*!
     Since no dynamic storage is required, the destructor
@@ -103,6 +106,7 @@ CAxis::CAxis (const CAxis& aCAxis ) :
   m_nChannels(aCAxis.m_nChannels),
   m_ParameterSpecification(aCAxis.m_ParameterSpecification)
 {
+  ComputeScale();		// Could init too.
 }
 /*!
   Assignment:
@@ -120,6 +124,7 @@ CAxis& CAxis::operator= (const CAxis& aCAxis)
     m_fHigh = aCAxis.m_fHigh;
     m_nChannels = aCAxis.m_nChannels;
     m_ParameterSpecification = aCAxis.m_ParameterSpecification;
+    ComputeScale();		// Could copy too.
   }
   
   return *this;
@@ -140,18 +145,6 @@ int CAxis::operator== (const CAxis& aCAxis) const
     );
 }
 
-/*!  
-Converts a raw parameter value to axis coordinates. The parameter
-is converted to a mapped value and then MappedParameterToAxis is
-called since axes are a mapping between axis coordinates and
-the mapped parameter.
-*/
-Float_t
-CAxis::ParameterToAxis(Float_t fParameter)  
-{ 
-  Float_t mP = m_ParameterSpecification.RawToMapped(fParameter);
-  return MappedParameterToAxis(mP);
-}  
 
 /*!  
 
@@ -182,33 +175,21 @@ Float_t
 CAxis::AxisToMappedParameter(Int_t nAxisValue)  
 { 
   Float_t fsF;
-  fsF = ((Float_t)(nAxisValue))*(m_fHigh - m_fLow)/
-                                           ((Float_t)(m_nChannels));
+  fsF = ((Float_t)(nAxisValue))/m_fScaleFactor;
+
   return fsF + m_fLow;
 }  
 
-/*!  Function: 	
-   Int_t MappedParameterToAxis(Float_t fParameterValue) 
- Operation Type:
-    
-Purpose: 	
 
-Converts a mapped parameter value to an axis coordinate.
-If the parameter is not a mapped parameter, the input is treated
-as a raw parameter.
-
-
+/*!
+   Efficiency enhancing function. Computes m_fScaleFactor
+   from m_fLow, m_fHigh, m_nChannels
 */
-Float_t 
-CAxis::MappedParameterToAxis(Float_t fParameterValue)  
-{ 
-  Float_t fsF = fParameterValue - m_fLow;
-  fsF = fsF*((Float_t)(m_nChannels))/(m_fHigh - m_fLow);
-
-  return (fsF);
+void
+CAxis::ComputeScale()
+{
+  m_fScaleFactor = (float)m_nChannels/(m_fHigh - m_fLow);
 }
-
-
 
 
 

@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS '
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 
@@ -320,10 +320,13 @@ static char* GateTypeStrings[] = {
   "False ",
   "Not ",
   "Or ",
-  "True "
+  "True ",
+  "Gamma-Slice",
+  "Gamma-Band",
+  "Gamma-Contour"
 };
 
-char** CGateFactoryException::m_svGateTypeStrings = GateTypeStrings;
+
 
 
 // Functions for class CGateFactoryException
@@ -334,7 +337,8 @@ char** CGateFactoryException::m_svGateTypeStrings = GateTypeStrings;
 //     ReasonText()
 //  Operation Type: 
 //     Selector
-string CGateFactoryException::ReasonText()  
+const char* 
+CGateFactoryException::ReasonText()   const
 {
   // Returns a complete string describing the error which
   // caused the exception.
@@ -344,11 +348,14 @@ string CGateFactoryException::ReasonText()
   //   m_svReasonTexts
   //   m_eGateType
   //
-  ostrstream Text;
-  Text << m_svReasonTexts[(UInt_t) m_eReason] << endl;
-  Text << "While instantiating a " 
-       << m_svGateTypeStrings[(UInt_t) m_eGateType] << endl;
-  return Text.str();
+
+  string Text(m_svReasonTexts[m_eReason]);
+  Text   += "\nWhile instantiating a ";
+  Text   += GateTypeStrings[m_eGateType];
+  Text   += "\n";
+
+  return Text.c_str();
+
   
   
 }

@@ -488,6 +488,12 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
     }
 
     if(nArg > 2) {
+      if (string(pArg[2]) == "") {
+	rResult = "Units/resolution parameter cannot be blank: ";
+	rResult += pArg[2];
+	rResult += "\n";
+	throw rResult;
+      }
       
   
       if(ParseInt(pArg[2], &nResolution) != TCL_OK) { // pArg[2] are units.
@@ -862,7 +868,8 @@ CParameterCommand::ListParametersById(CTCLResult& rResult)
     Int_t   nId;
     Char_t** pItems;		// the parameter description.
     
-    // break out the parameter description. It must be a list with 3 items.
+    // break out the parameter description. It must be a list with 
+    // At least a parameter and an id:
 
     if(Parameter.Split(nItems, &pItems) != TCL_OK) {
       rResult = "Unable to split parameter description: ";
@@ -871,7 +878,7 @@ CParameterCommand::ListParametersById(CTCLResult& rResult)
       Tcl_Free((char*)pParameters);
       return TCL_ERROR;
     }
-    if(nItems != 3) {
+    if(nItems < 2) {
       rResult = "Incorrectly formatted parameter description: ";
       rResult += pParameters[i];
       rResult += "\n";

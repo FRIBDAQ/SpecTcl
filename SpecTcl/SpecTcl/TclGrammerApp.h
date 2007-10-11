@@ -440,6 +440,10 @@ class CTclGrammerApp : public CTCLApplication {
     return m_TclEventListSize;
   }
 
+  CMultiTestSource* getTestDataSource() {
+    return m_pMultiTestSource;
+  }
+
   // Attribute mutators:
  protected:
   //Set accessor function for non-static attribute data member
