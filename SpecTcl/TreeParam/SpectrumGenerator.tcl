@@ -63,13 +63,13 @@ proc CreateSpectrumGenerator {parent} {
 			radiobutton $type.n.bit -text "Bitmask" -variable spectrumType -value b -command SpectrumTypeBitmask -background $optionscolor
 			radiobutton $type.n.1g -text "Gamma1D" -variable spectrumType -value g1 -command SpectrumType1G -background $optionscolor
 			radiobutton $type.n.2g -text "Gamma2D" -variable spectrumType -value g2 -command SpectrumType2G -background $optionscolor
-#			radiobutton $type.n.gp -text "GammaP" -variable spectrumType -value gp -command SpectrumTypeGP -background $optionscolor
+			radiobutton $type.n.gp -text "Gamma Deluxe" -variable spectrumType -value gd -command SpectrumTypeGP -background $optionscolor
                         radiobutton $type.n.sc -text "StripChart" -variable spectrumType -value S -command SpectrumTypeS -background $optionscolor
 		
                 	grid $type.n.1d $type.n.bit -sticky w
 			grid $type.n.2d $type.n.1g -sticky w
 			grid $type.n.sum $type.n.2g -sticky w
-                        grid $type.n.sc -sticky w -columnspan 2
+                        grid $type.n.sc $type.n.gp  -sticky w
 			pack $type.label $type.n
 		pack $type -expand 1 -fill both -side left
 	
@@ -568,18 +568,12 @@ proc GenerateSpectrum {} {
 			set spectrumResolutionList [list $spectrumAxisX $spectrumAxisX]
 			CreateSpectrum $spectrumList $spectrumName $spectrumParameterList $spectrumResolutionList
 		}
-		gp {
-			if {[string match $spectrumParameterY ""] && $spectrumType == gp} {
+		gd {
+			if {($spectrumParameterY eq "") && $spectrumType eq "gd"} {
 				tk_messageBox -icon error -message "Please select the Y parameters" -title Error
 				return
 			}
-			lappend spectrumParameterList $spectrumParameterX
-			set arrayname [string range $spectrumParameterY 0 [expr [string last . $spectrumParameterY] - 1]]
-			foreach e $treeParameterName($arrayname) {
-				if {[info exist treeParameterName($arrayname.$e)] == 0} {
-					lappend spectrumParameterList $arrayname.$e
-				}
-			}
+			lappend spectrumParameterList $spectrumParameterX $spectrumParameterY
 			set spectrumAxisX [list $spectrumLowX $spectrumHighX $spectrumBinsX]
 			set spectrumAxisY [list $spectrumLowY $spectrumHighY $spectrumBinsY]
 			set spectrumResolutionList [list $spectrumAxisX $spectrumAxisY]
@@ -743,8 +737,8 @@ proc UpdateSpectrumList {} {
 		set highy ""
 		set binsy ""
 	    }
-	    gp {
-		set ltype "GP"
+	    gd {
+		set ltype "GD"
 		set varx [lindex $parameters 0]
 		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
 		set highx [format %g [lindex [lindex $resolutions 0] 1]]
@@ -810,7 +804,7 @@ proc FillEntries {} {
 		Bit {set type b; SpectrumTypeBitmask}
 		G1 {set type g1; SpectrumType1G}
 		G2 {set type g2; SpectrumType2G}
-		GP {set type gp; SpectrumTypeGP}
+		GD {set type gd; SpectrumTypeGP}
 	}
 	set spectrumArray 0
 	if {[IsSpectrumArray]} {
@@ -823,14 +817,14 @@ proc FillEntries {} {
 	set spectrumLowX [lindex $spectrum 4]
 	set spectrumHighX [lindex $spectrum 5]
 	set spectrumBinsX [lindex $spectrum 6]
-	set spectrumUnitX [GetParameterUnit $spectrumParameterX]
+    set spectrumUnitX [GetParameterUnit [lindex $spectrumParameterX 0]]  ;  # Could be several params.
 	CreateBinsMenu $tops.bottom.varx $spectrumBinsX spectrumBinsX
-	if {[string compare $type 2] == 0 || [string compare $type gp] == 0} {
+	if {($type eq "2") || ($type eq "gd")} {
 		set spectrumParameterY [lindex $spectrum 7]
 		set spectrumLowY [lindex $spectrum 8]
 		set spectrumHighY [lindex $spectrum 9]
 		set spectrumBinsY [lindex $spectrum 10]
-		set spectrumUnitY [GetParameterUnit $spectrumParameterY]
+	    set spectrumUnitY [GetParameterUnit [lindex $spectrumParameterY 0]]
 		CreateBinsMenu $tops.bottom.vary $spectrumBinsY spectrumBinsY
 	}
 	set spectrumGate [lindex $spectrum 11]
