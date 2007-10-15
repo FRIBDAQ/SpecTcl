@@ -351,7 +351,8 @@ class CTestFile : public CFile {
  public:
   // Constructors:
   CTestFile() {}
-  ~CTestFile() {}
+  ~CTestFile() ;
+
 
   CTestFile(const CTestFile& aCTestFile) {
     DoAssign(aCTestFile);

@@ -212,7 +212,9 @@ int CDataSourcePackage::AttachTestSource(CTCLResult& rResult) {
   CFile* pNewEventSource = pMultiTestSource->getDefaultTestSource();
   gpEventSource = pNewEventSource;
   CFile* pOldEventSource = gpRunControl->Attach(pNewEventSource);
-  delete pOldEventSource;
+  if (pOldEventSource != pNewEventSource) { // Re-attaching test source.
+    delete pOldEventSource;
+  }
 
   // The new data source type is a file, the result string and
   // return code should now show success:

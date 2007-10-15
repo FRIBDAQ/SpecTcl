@@ -19,25 +19,7 @@ CMultiTestSource::CMultiTestSource() :
 {
   m_mTestSources.clear();
 
-  // For the default source:
-  // The internal test data source is a set of 5 gaussian distributions which
-  // produce a fixed size event.
-  // The distributions are defined below:
-  //                       Cent.  Sigma  Largest allowed value.
-  static CGaussianDistribution d1(512.0, 128.0, 1024.0);
-  static CGaussianDistribution d2(256.0,  64.0, 1024.0);
-  static CGaussianDistribution d3(128.0,  32.0, 1024.0);
-  static CGaussianDistribution d4( 64.0,  16.0, 1024.0);
-  static CGaussianDistribution d5( 32.0,   8.0, 1024.0);
 
-  m_pDefaultTestSource = new CTestFile;
-  m_pDefaultTestSource->AddDistribution(d1);
-  m_pDefaultTestSource->AddDistribution(d2);
-  m_pDefaultTestSource->AddDistribution(d3);
-  m_pDefaultTestSource->AddDistribution(d4);
-  m_pDefaultTestSource->AddDistribution(d5);
-
-  addTestSource("default", m_pDefaultTestSource);
   //m_pDefaultTestSource->Open("Testing", kacRead);
   //gpEventSource = m_pDefaultTestSource;
 }
@@ -76,7 +58,30 @@ CTestFile* CMultiTestSource::getTestSource(string sName) {
 }
 
 CTestFile* CMultiTestSource::getDefaultTestSource() {
-  return getTestSource("default");
+  CTestFile* result =  getTestSource("default");
+  if (!result) {
+    // For the default source:
+    // The internal test data source is a set of 5 gaussian distributions which
+    // produce a fixed size event.
+    // The distributions are defined below:
+    //                       Cent.  Sigma  Largest allowed value.
+    static CGaussianDistribution d1(512.0, 128.0, 1024.0);
+    static CGaussianDistribution d2(256.0,  64.0, 1024.0);
+    static CGaussianDistribution d3(128.0,  32.0, 1024.0);
+    static CGaussianDistribution d4( 64.0,  16.0, 1024.0);
+    static CGaussianDistribution d5( 32.0,   8.0, 1024.0);
+    
+    m_pDefaultTestSource = new CTestFile;
+    m_pDefaultTestSource->AddDistribution(d1);
+    m_pDefaultTestSource->AddDistribution(d2);
+    m_pDefaultTestSource->AddDistribution(d3);
+    m_pDefaultTestSource->AddDistribution(d4);
+    m_pDefaultTestSource->AddDistribution(d5);
+    
+    addTestSource("default", m_pDefaultTestSource);
+    result = m_pDefaultTestSource;
+  }
+  return result;
 }
 
 Bool_t CMultiTestSource::useTestSource(string sName) {
@@ -92,7 +97,27 @@ Bool_t CMultiTestSource::useTestSource(string sName) {
 }
 
 Bool_t CMultiTestSource::useDefaultTestSource() {
-  m_pDefaultTestSource->Open("Testing", kacRead);
-  gpEventSource = m_pDefaultTestSource;
+  gpEventSource = getDefaultTestSource();
+  gpEventSource->Open("Testing", kacRead);
+
   return kfTRUE;
+}
+/*!
+   A test source calls this when it's getting destroyed so that it can
+   be removed from the list of test sources if it's in it in the first place.
+   The assumption is that each test source is in the map at most one time.
+   \param source - Pointer to the test source to delete.
+*/
+void
+CMultiTestSource::destroyingTestSource(CTestFile* source)
+{
+ 
+  map<string, CTestFile*>::iterator  i = m_mTestSources.begin();
+  while (i != m_mTestSources.end()) {
+    if (i->second == source) {
+      m_mTestSources.erase(i);
+      return;
+    }
+    i++;
+  }
 }

@@ -46,6 +46,7 @@ class CMultiTestSource : public CFile {
   CTestFile* getDefaultTestSource();
   Bool_t useTestSource(STD(string));
   Bool_t useDefaultTestSource();
+  void   destroyingTestSource(CTestFile* source);
 }; // CMultiTestSource.
 
 #endif
