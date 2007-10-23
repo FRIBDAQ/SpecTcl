@@ -949,6 +949,9 @@ proc startGui {} {
     .topmenu.source add separator
     .topmenu.source add command -label {List of runs...}        -command attachRunList
     .topmenu.source add command -label {Filter File...}         -command attachFilter
+    .topmenu.source add separator
+    .topmenu.source add command -label {Detach}                 -command detach
+
 
     menu .topmenu.filter -tearoff 0
     .topmenu.filter add command -label {Filter Wizard...}       -command createFilter
