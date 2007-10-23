@@ -21,7 +21,7 @@ package require guiutilities
 #  Namespace to hold some of the configuration entries.
 #
 namespace eval datasource {
-    variable daqroot         [list /usr/opt/daq/current /usr/opt/daq];   # Where the DAQ software is installed.
+    variable daqroot         [list /usr/opt/daq/current /usr/opt/daq/8.1 /usr/opt/daq/8.0  /usr/opt/daq];   # Where the DAQ software is installed.
     variable lasthost        localhost;  # Most recent online host.
     variable lasteventfile   {}
     variable lastpipecommand {}
@@ -291,6 +291,14 @@ proc nextFileInRunlist {varname index op} {
     }
 }
 
+#
+#  Detach from data sources.. well not really, this is actuall stop
+#  and attach -file /dev/null.
+#
+proc detach {} {
+    catch stop
+    attach -file /dev/null
+}
 #
 #  Prompter for a host for the attachonline.
 #
