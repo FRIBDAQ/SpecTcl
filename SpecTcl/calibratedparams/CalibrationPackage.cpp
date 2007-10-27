@@ -18,8 +18,13 @@
 #include <SpecTcl.h>
 #include <tcl.h>
 #include <TCLInterpreter.h>
-#include "CFitCommand.h"
+#include "CCalibratedFitCommand.h"
 #include "CCalibratedParameterCommand.h"
+#include "CCalibratedParameterManager.h"
+#include "CLinearFitCreator.h"
+
+
+const static char* version = "1.0";
 
 /*! \file CalibrationPackage.cpp
        This file contains the package initialization for the calibrated
@@ -38,10 +43,57 @@
   The entry point is called as a Tcl Package initialization function.
   It must:
   -# Register the commands with the interpreter.
+  -# Add the default set of fit types.
   -# Instantiate and register the event processor
   -# Make the GUI available to be instantiated and pasted into any container
      widget (toplevel or frame depending on how the person who loads the 
      plugin wants to integrte the GUI with an existing GUI.
 
 */
-Calibrationpackage_Init
+extern "C" {
+  int
+  Calibrations_Init(Tcl_Interp* pInterp)
+  {
+    Tcl_PkgProvide(pInterp, "CalibratedParameters", version);
+    
+    // Wrap the interpreter into an interpeer object.
+    
+    CTCLInterpreter& interpreter(*(new CTCLInterpreter(pInterp)));
+    
+    // Create the commands.
+    
+    CCalibratedFitCommand* pFitCommand = 
+                                 new CCalibratedFitCommand(&interpreter);
+    pFitCommand->Bind(interpreter);
+    pFitCommand->Register();
+    
+    CCalibratedParameterCommand* pCalibrateCommand =  
+                                new CCalibratedParameterCommand(&interpreter);
+    pCalibrateCommand->Bind(interpreter);
+    pCalibrateCommand->Register();
+
+				      
+    // Create and register the event processor.
+
+    
+    CCalibratedParameterManager* pCalibrationEventProcessor = 
+                                      new CCalibratedParameterManager;
+    SpecTcl* pApi = SpecTcl::getInstance();
+    pApi->AddEventProcessor(*pCalibrationEventProcessor,
+			    "CalibratedParameters");
+
+    // Register the fit types:
+
+    CLinearFitCreator* pLinearCreator = new CLinearFitCreator;
+    CFitFactory::AddFitType("linear", pLinearCreator);
+
+    // TODO:: Make the GUI available for incorporation.
+    // 
+
+    // Return a good status.
+
+    return TCL_OK;
+  }
+
+
+}
