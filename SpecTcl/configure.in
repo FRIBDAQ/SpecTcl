@@ -481,6 +481,20 @@ esac
 #
 
 tcl_versions="8.5 8.4 8.3 8.2 8.1 8.0"   # First match;  so order new -> old.
+
+
+#  The TCL Shell - used to run tests... must be in path.
+#  First check for a version qualified command:
+#
+
+AC_MSG_CHECKING([for tcl shell command...])
+for version in $tcl_versions
+do
+	name=tclsh${version}
+	AC_CHECK_PROG(TCLSH_CMD, $name, $name)
+done
+
+
 tcl_header_dir=""
 AC_MSG_CHECKING([for tcl header directory])
 
@@ -844,6 +858,7 @@ AC_SUBST(MANDB)
 # tcl/tk
 AC_SUBST(TCL_FLAGS)
 AC_SUBST(TCL_LDFLAGS)
+AC_SUBST(TCLSH_CMD)
 
 # X flags
 
@@ -906,7 +921,6 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	 SpecTcl/Makefile \
 	 radware/Makefile \
 	 contrib/Makefile contrib/scriptable/Makefile \
-	 contrib/calibratedparams/Makefile \
-	 contrib/calibratedparams/Makefile.skel \
 	 TestFiles/Makefile \
-	 Gui/Makefile splash/Makefile filtsplit/Makefile doc/Makefile )
+	 Gui/Makefile splash/Makefile filtsplit/Makefile doc/Makefile \
+	 calibratedparams/Makefile)

@@ -36,3 +36,15 @@ noinst_HEADERS	=		CCalibratedParameterCommand.h	\
 				CLinearFitCreator.h		\
 				CLinearFit.h
 
+
+
+#  Install myself in $(prefix)/TclLibs/calibration
+
+install-exec-local:
+	$(mkinstalldirs) $(prefix)/TclLibs
+	$(mkinstalldirs) $(prefix)/TclLibs/calibration
+	$(INSTALL_SCRIPT) *.tcl $(prefix)/TclLibs/calibration
+	$(INSTALL_PROGRAM) .libs/libCalibrations.* $(prefix)/TclLibs/calibration
+	$(TCLSH_CMD)  packages.tcl $(prefix)/TclLibs/calibration
+	echo "package ifneeded Calibrations 1.0 [list load [file join \$$dir libCalibrations.so]]" >> 				\
+	$(prefix)/TclLibs/calibration/pkgIndex.tcl
