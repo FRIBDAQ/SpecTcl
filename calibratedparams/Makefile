@@ -151,6 +151,7 @@ SET_MAKE =
 SHELL = /bin/sh
 SOVERSION = 3:2
 STRIP = strip
+TCLSH_CMD = tclsh8.4
 TCL_FLAGS = -I/usr/include/tcl8.4
 TCL_LDFLAGS = -L/usr/lib -ltk8.4 -ltcl8.4
 VERSION = 3.2-pre4
@@ -492,7 +493,7 @@ install-data-am:
 
 install-dvi: install-dvi-am
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am: install-exec-local install-libLTLIBRARIES
 
 install-html: install-html-am
 
@@ -533,8 +534,8 @@ uninstall-am: uninstall-libLTLIBRARIES
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
+	install-dvi-am install-exec install-exec-am install-exec-local \
+	install-html install-html-am install-info install-info-am \
 	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
 	install-ps install-ps-am install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
@@ -542,6 +543,17 @@ uninstall-am: uninstall-libLTLIBRARIES
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-libLTLIBRARIES
 
+
+#  Install myself in $(prefix)/TclLibs/calibration
+
+install-exec-local:
+	$(mkinstalldirs) $(prefix)/TclLibs
+	$(mkinstalldirs) $(prefix)/TclLibs/calibration
+	$(INSTALL_SCRIPT) *.tcl $(prefix)/TclLibs/calibration
+	$(INSTALL_PROGRAM) .libs/libCalibrations.* $(prefix)/TclLibs/calibration
+	$(TCLSH_CMD)  packages.tcl $(prefix)/TclLibs/calibration
+	echo "package ifneeded Calibrations 1.0 [list load [file join \$$dir libCalibrations.so]]" >> 				\
+	$(prefix)/TclLibs/calibration/pkgIndex.tcl
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

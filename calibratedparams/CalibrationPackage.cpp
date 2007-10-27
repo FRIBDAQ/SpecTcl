@@ -54,7 +54,7 @@ extern "C" {
   int
   Calibrations_Init(Tcl_Interp* pInterp)
   {
-    Tcl_PkgProvide(pInterp, "CalibratedParameters", version);
+    Tcl_PkgProvide(pInterp, "Calibrations", version);
     
     // Wrap the interpreter into an interpeer object.
     
@@ -87,8 +87,10 @@ extern "C" {
     CLinearFitCreator* pLinearCreator = new CLinearFitCreator;
     CFitFactory::AddFitType("linear", pLinearCreator);
 
-    // TODO:: Make the GUI available for incorporation.
-    // 
+    // Make the GUI available for incorporation.
+    // This is done by requiring the package CalibrationGUI
+
+    interpreter.GlobalEval("package require CalibrationGUI\n");
 
     // Return a good status.
 
