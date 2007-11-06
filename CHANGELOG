@@ -717,3 +717,4 @@ October 23, 2007 - Add detach menu entry.. really stops processing and does an
                  - added version specific daq locations to search path for
                    spectcldaq (gui).
 
+November 6, 2007 - Convert to svn repository
