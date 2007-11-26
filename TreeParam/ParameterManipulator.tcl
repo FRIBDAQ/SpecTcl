@@ -1,7 +1,8 @@
 # (C) Copyright Michigan State University 2019, All rights reserved 
 # ParameterManipulator.tcl
-# Author: D. Bazin
-# Date: July 2001 - Modified September 2002
+# Author: D. Bazin, R. Fox
+# Date: July 2001 - see svn revision history for full modification history.
+#
 # Version 1.2 - November 2003
 
 proc SetupParameterManipulator {parent} {
@@ -26,7 +27,6 @@ proc CreateParameterManipulator {parent} {
 	label $mod.labelname -text Name -background $modcolor
 	label $mod.labelstart -text Low -background $modcolor
 	label $mod.labelstop -text High -background $modcolor
-#	label $mod.labelinc -text Increment -background $modcolor
 	label $mod.labelunit -text Unit -background $modcolor
 	checkbutton $mod.array -text "Array" -variable parameter(Array) -background $modcolor
 	grid $mod.parameter $mod.labelname $mod.labelstart $mod.labelstop $mod.labelunit x $mod.array - -sticky news
@@ -52,14 +52,10 @@ proc InsertParameterManipulator {id} {
 	set modcolor lightblue
 	set mod $topp.modify
 
-#	menubutton $mod.parameter$id -width 8 -text Parameter -background $modcolor
-#	GenerateTreeMenu $mod.parameter$id "MenuLoadParameter $id"
-#	GenerateTreeMenu $mod.parameter$id "set parameter(Name$id)"
 	radiobutton $mod.select$id -width 8 -text "" -variable parameter(select) -value $id -bg $modcolor
 	entry $mod.labelparameter$id -textvariable parameter(Name$id) -background $modcolor
 	entry $mod.start$id -width 8 -textvariable parameter(Start$id) -background $modcolor
 	entry $mod.stop$id -width 8 -textvariable parameter(Stop$id) -background $modcolor
-#	entry $mod.inc$id -width 8 -textvariable parameter(Inc$id) -background $modcolor
 	entry $mod.unit$id -width 6 -textvariable parameter(Unit$id) -background $modcolor
 	button $mod.set$id -text Set -command "SetParameter $id" -background $modcolor
 	button $mod.load$id -text Load -command "LoadParameter $id" -background $modcolor
@@ -67,23 +63,9 @@ proc InsertParameterManipulator {id} {
 	grid $mod.select$id $mod.labelparameter$id $mod.start$id $mod.stop$id $mod.unit$id \
 	$mod.load$id $mod.set$id $mod.change$id -sticky news
 
-#	trace variable parameter(Start$id) w "SetParameterStopInc $id"
-#	trace variable parameter(Stop$id) w "SetParameterStopInc $id"
-#	trace variable parameter(Inc$id) w "SetParameterStopInc $id"
+
 }
 
-#proc SetParameterStopInc {id name1 name2 op} {
-#	global topp parameter
-#	if {[string equal [focus -displayof $topp] $topp.modify$id.stop]} {
-#		set parameter(Inc$id) [expr ($parameter(Stop$id) - $parameter(Start$id)) / ($parameter(Bins$id) - 1.0)]
-#	} elseif {[string equal [focus -displayof $topp] $topp.modify$id.start]} {
-#		set parameter(Inc$id) [expr ($parameter(Stop$id) - $parameter(Start$id)) / ($parameter(Bins$id) - 1.0)]
-#	} elseif {[string equal [focus -displayof $topp] $topp.modify$id.inc]} {
-#		set parameter(Stop$id) [expr $parameter(Start$id) + $parameter(Inc$id) * ($parameter(Bins$id) - 1.0)]
-#	} elseif {[string equal [focus -displayof $topp] $topp.modify$id.bins]} {
-#		set parameter(Inc$id) [expr ($parameter(Stop$id) - $parameter(Start$id)) / ($parameter(Bins$id) - 1.0)]
-#	}
-#}
 
 proc SetParameter {id} {
 	global parameter
@@ -93,8 +75,8 @@ proc SetParameter {id} {
 	global spectrumLowY spectrumHighY spectrumBinsY spectrumUnitY
 	if {$parameter(Array) && [IsParameterArray $id]} {
 		foreach p [ListParameterArray $id] {
-			treeparameter -setunit $p $parameter(Unit$id)
-			treeparameter -setlimits $p $parameter(Start$id) $parameter(Stop$id)
+		    treeparameter -setunit $p $parameter(Unit$id)
+		    treeparameter -setlimits $p $parameter(Start$id) $parameter(Stop$id)
 		}
 		UpdateTreeParameters
 	} else {
@@ -102,17 +84,14 @@ proc SetParameter {id} {
 		treeparameter -setlimits $parameter(Name$id) $parameter(Start$id) $parameter(Stop$id)
 		UpdateTreeParameter $parameter(Name$id)
 	}
-#	set spectrumInfoX [GetParameterInfo $spectrumParameterX]
-#	set spectrumInfoY [GetParameterInfo $spectrumParameterY]
 	set spectrumLowX [GetParameterLow $spectrumParameterX]
 	set spectrumHighX [GetParameterHigh $spectrumParameterX]
-#	set spectrumBinsX [GetParameterBins $spectrumParameterX]
 	set spectrumUnitX [GetParameterUnit $spectrumParameterX]
 	set spectrumLowY [GetParameterLow $spectrumParameterY]
 	set spectrumHighY [GetParameterHigh $spectrumParameterY]
 	set spectrumBinsY [GetParameterBins $spectrumParameterY]
 	set spectrumUnitY [GetParameterUnit $spectrumParameterY]
-	Modified
+ 	Modified
 }
 
 proc IsParameterArray {id} {
@@ -237,15 +216,10 @@ proc ChangeSpectra {id} {
 		foreach p $parameterList {
 		    set which [lsearch -exact $parameters $p]
 		    if {$which >= 0} {
-			puts "Matched $p to $which" 
 			set parameterDef [lindex [treeparameter -list $p] 0]
-			puts "parameter def $parameterDef"
 			set low [lindex $parameterDef 2]
 			set high [lindex $parameterDef 3]
-			puts "low, high: $low $high"
-			puts "axes before: $axes"
 			set axes [changeAxisLimits $axes $which $low $high]
-			puts "axes after: $axes"
 
 		    }
 		}
@@ -381,15 +355,3 @@ proc MenuLoadParameter {id p1 p2 p3} {
 	set parameter(Unit$id) [lindex $p 5]
 }
 
-#proc MenuLoadParameter {id par} {
-#	global parameter
-#	set p [lindex [treeparameter -list $par] 0]
-#	set parameter(Name$id) [lindex $p 0]
-#	set parameter(Start$id) [lindex $p 2]
-#	set parameter(Stop$id) [lindex $p 3]
-#	set parameter(Unit$id) [lindex $p 5]
-#}
-
-#proc GeneratePseudoParameter {parameter} {
-#	puts $parameter
-#}
