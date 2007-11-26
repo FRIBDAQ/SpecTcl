@@ -935,7 +935,7 @@ CTreeParameter::getUnit()
 void
 CTreeParameter::setUnit(string units)
 {
-  m_sUnits = units;
+  m_sUnits = units.c_str();	// Force a copy to prevent string pooling.
   m_fDefinitionChanged = true;
 }
 

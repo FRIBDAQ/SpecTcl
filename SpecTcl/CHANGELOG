@@ -574,3 +574,5 @@ Oct 11, 2007 3.1-006 development begins.
   November  26, 2007 - BZ327 - Multicolored monster has problems when parameter definitions
                                are changed and when such changes are asked to modify spectrum
                                definitions.
+                             - Avoid std::string string pooling as in CTreeParameter::setUnits
+                               as that's not threadsafe.
