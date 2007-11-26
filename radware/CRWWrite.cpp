@@ -32,7 +32,7 @@ using namespace std;
    Instantiate us... our command will just be rwwrite.
 */
 CRWWrite::CRWWrite(CTCLInterpreter& interp) :
-  CTCLObjectProcessor(interp, string("rwwrite"))
+  CTCLObjectProcessor(interp, string("RDWwrite"))
 {}
 
 /*!
