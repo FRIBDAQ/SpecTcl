@@ -720,3 +720,6 @@ October 23, 2007 - Add detach menu entry.. really stops processing and does an
 November  6, 2007 - Convert to svn repository
 November 26, 2007 - BZ 327 - Fix multicolored monster problems with changing spectra
                     in resopnse to tree parameter range changes.
+December 4,2007   - Correct the Usage member of the calibration fit command so that
+                    it reflects the change in the name of the command.
+

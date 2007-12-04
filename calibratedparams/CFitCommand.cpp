@@ -774,12 +774,12 @@ string
 CFitCommand::Usage()  
 { 
   string sUsage("Usage:\n");
-  sUsage     += "   fit ?-create? type name\n";
-  sUsage     += "   fit  -list ?pattern?\n";
-  sUsage     += "   fit  -delete name\n";
-  sUsage     += "   fit  -perform name\n";
-  sUsage     += "   fit  -add name point1 ?point2...?\n";
-  sUsage     += "   fit  -evaluate name x\n";
+  sUsage     += "   calibrationfit ?-create? type name\n";
+  sUsage     += "   calibrationfit  -list ?pattern?\n";
+  sUsage     += "   calibrationfit  -delete name\n";
+  sUsage     += "   calibrationfit  -perform name\n";
+  sUsage     += "   calibrationfit  -add name point1 ?point2...?\n";
+  sUsage     += "   calibrationfit  -evaluate name x\n";
   sUsage     += "\n";
   sUsage     += "Where:\n";
   sUsage     += "  `type' is the type of fit to create (see below)\n";
