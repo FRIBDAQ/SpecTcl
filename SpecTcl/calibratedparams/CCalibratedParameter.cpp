@@ -34,7 +34,7 @@ using namespace DesignByContract;
     \post The target parameter id member is positive.
 */
 CCalibratedParameter::CCalibratedParameter (int nTargetId, int nRawId, 
-									string sFitName, CFit* pFit)
+					    string sFitName, CFit* pFit)
    : m_nParameterId(nRawId),
    m_nTargetParameterId(nTargetId),
    m_sFitName(sFitName),
