@@ -52,9 +52,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include "XamineSpectrumPrompt.h"
 
 #include "Point.h"
-
+extern "C" {
 #include <Xamine.h>
 #include <clientgates.h>
+
+}
 
 #include <errno.h>
 #include <assert.h>
