@@ -314,8 +314,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2011, Al
 
 #include "Point.h"
 
+extern "C" {
 #include <Xamine.h>
 #include <clientgates.h>
+}
 
 #include <errno.h>
 #include <assert.h>
@@ -330,8 +332,8 @@ using namespace std;
 //
 extern "C" {
   Xamine_shared* Xamine_memory;	   // Pointer to shared memory.
-  int            Xamine_newgates;  // fd for events. 
 }
+int            Xamine_newgates;  // fd for events. 
 
 //
 // Static declarations:
