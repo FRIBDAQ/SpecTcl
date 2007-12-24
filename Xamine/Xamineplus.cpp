@@ -71,8 +71,9 @@ using namespace std;
 //
 extern "C" {
   Xamine_shared* Xamine_memory;	   // Pointer to shared memory.
-  int            Xamine_newgates;  // fd for events. 
 }
+extern  int            Xamine_newgates;  // fd for events. 
+
 
 //
 // Static declarations:
