@@ -1465,8 +1465,7 @@ void AttributeCopyDialog::HelpPressed(XMWidget *button, XtPointer user_data,
 void AttributeCopyDialog::OkPressed(XMWidget *buton, XtPointer user_d, 
 				    XtPointer call_d)
 {
-  int     dmis    = (int)user_d;
-  Boolean dismiss = (Boolean)dmis;
+  Boolean dismiss = (Boolean)(user_d != (XtPointer)0);
 
   /* Perform the copy operation. */
 
