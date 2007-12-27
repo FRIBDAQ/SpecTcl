@@ -37,6 +37,11 @@ noinst_HEADERS	=		CCalibratedParameterCommand.h	\
 				CLinearFit.h
 
 
+EXTRA_DIST = 	CalibIOGUI.tcl Dialogs.tcl gui.tcl TkPrompt.tcl	\
+		CalibIO.tcl ErrorRead.tcl packages.tcl	\
+		CalibrateMainGui.tcl FitIO.tcl PeakStatistics.tcl \
+		CalibrationPoints.tcl  GlobalData.tcl  
+
 
 #  Install myself in $(prefix)/TclLibs/calibration
 
