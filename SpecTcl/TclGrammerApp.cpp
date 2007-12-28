@@ -130,7 +130,7 @@ CTclGrammerApp::CTclGrammerApp() :
   m_pSpectrumPackage(0),
   m_pDataSourcePackage(0),
   m_pGatePackage(0),
-  m_RCFile(string("tcl_rcFielname"),            kfFALSE),
+  m_RCFile(string("tcl_rcFilename"),            kfFALSE),
   m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
   m_TclParameterCount(string("ParameterCount"), kfFALSE),
   m_TclEventListSize(string("EventListSize"),   kfFALSE),
