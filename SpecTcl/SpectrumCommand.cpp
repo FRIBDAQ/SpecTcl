@@ -416,10 +416,16 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 			    "Selecting channel resolution");
 	}
 	nChannels = 1 << nBits;
+
+	// Let's fix this right here and now.
+	// rather than having a special case later in the code
+	// The axis range represented by this is (while the integerists hold sway)
+	// [0, nChannels-1] with nChannels bins:
+
 	
 	vChannels.push_back((UInt_t)nChannels);
 	vLows.push_back(0.0);	// Indicate there is no high/low for this axis.
-	vHighs.push_back(0.0);
+	vHighs.push_back(static_cast<float>(nChannels-1));
       }
       catch (CException& rExcept) { // Spectrum size invalid.
 	rResult = "Spectrum size "; // Note that TCL Exceptions set Reason!!
