@@ -1399,7 +1399,7 @@ void ChangeColor(XMWidget *w, XtPointer client, XtPointer cbd)
 */
 void pb_callback(XMWidget *wid, XtPointer cli, XtPointer cbd)
 {
-  lonb button_number = (long)cli;
+  long button_number = (long)cli;
   XMPushButton *help;
   static  color_entry *entry;
 
