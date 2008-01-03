@@ -576,3 +576,6 @@ Oct 11, 2007 3.1-006 development begins.
                                definitions.
                              - Avoid std::string string pooling as in CTreeParameter::setUnits
                                as that's not threadsafe.
+
+Finalized edit level 3.1-006 Jan 3, 2008
+Start edit level 3.1-007 
