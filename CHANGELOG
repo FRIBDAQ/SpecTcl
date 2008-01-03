@@ -723,3 +723,5 @@ November 26, 2007 - BZ 327 - Fix multicolored monster problems with changing spe
 December 4,2007   - Correct the Usage member of the calibration fit command so that
                     it reflects the change in the name of the command.
 
+January 3, 2008   - Install splash/license.terms -> $(prefix)/splash.license
+                    to comply with its license terms.
