@@ -725,3 +725,6 @@ December 4,2007   - Correct the Usage member of the calibration fit command so t
 
 January 3, 2008   - Install splash/license.terms -> $(prefix)/splash.license
                     to comply with its license terms.
+Finalized Pre-release 4 January 3, 2008
+
+Start edit level 3.2-pre5 (may change to 3.2-001 midstream.. watch the log below).
