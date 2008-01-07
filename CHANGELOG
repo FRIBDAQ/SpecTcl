@@ -729,3 +729,6 @@ Finalized Pre-release 4 January 3, 2008
 
 Start edit level 3.2-pre5 (may change to 3.2-001 midstream.. watch the log below).
 January 7, 2008   - Fixed include license.terms in the build.
+                  - GUI Attach -pipe was failing due to attempts to set
+                    the value of the buffersize widget prior to the creation
+                    of that widget's spinbox.

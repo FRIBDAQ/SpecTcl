@@ -142,7 +142,8 @@ proc attachFile {} {
 proc attachPipe {} {
     attachpipe .attachpipe -initialdir [file dirname $::datasource::lastpipecommand] \
                            -initialfile  $::datasource::lastpipecommand \
-                           -initialargs $::datasource::lastpipeargs    \
+                           -initialargs $::datasource::lastpipeargs 
+    .attachpipe configure \
 	                   -buffersize $::GuiPrefs::preferences(defaultBuffersize)
     .attachpipe modal
 
