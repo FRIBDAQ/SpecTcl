@@ -728,3 +728,4 @@ January 3, 2008   - Install splash/license.terms -> $(prefix)/splash.license
 Finalized Pre-release 4 January 3, 2008
 
 Start edit level 3.2-pre5 (may change to 3.2-001 midstream.. watch the log below).
+January 7, 2008   - Fixed include license.terms in the build.

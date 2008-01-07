@@ -4,5 +4,5 @@ install-exec-local:
 	$(INSTALL_SCRIPT) *.tcl $(prefix)/TclLibs/splash
 	$(INSTALL_DATA)  license.terms $(prefix)/splash.license
 
-EXTRA_DIST = pkgIndex.tcl splash.tcl
+EXTRA_DIST = pkgIndex.tcl splash.tcl license.terms
 
