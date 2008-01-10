@@ -50,6 +50,9 @@
 #include <CSpectrumFit.h>
 #include "CHistogrammerFitObserver.h"
 #include <CFitDictionary.h>
+#include <CFlattenedGateList.h>
+#include <CSpectrumByParameter.h>
+
 
 #include <Iostream.h>
 #include <Sstream.h>
@@ -161,6 +164,11 @@ CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
   m_pDisplayer = new CXamine(nSpecbytes);
   m_pDisplayer->Start();
   m_pFitObserver = new CHistogrammerFitObserver(*this); // Follow changes to fits.
+
+  // Create and register the gate/histogram observer needed to maitain the gate/spectrum
+  // optimized lists:
+
+  createListObservers();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -178,6 +186,7 @@ CHistogrammer::CHistogrammer(const CXamine& rDisplayer) :
   if(!m_pDisplayer->isAlive())
     m_pDisplayer->Start();
   m_pFitObserver = new CHistogrammerFitObserver(*this); // Follow changes to fits.
+  createListObservers();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -192,7 +201,9 @@ CHistogrammer::~CHistogrammer() {
     m_pDisplayer->Stop();
 
   delete m_pDisplayer;
-  delete m_pFitObserver; 
+  delete m_pFitObserver;
+  delete m_pGateList;
+  delete m_pSpectrumLists;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -209,6 +220,8 @@ CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
+
+  createListObservers();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -225,6 +238,8 @@ CHistogrammer& CHistogrammer::operator=(const CHistogrammer& rRhs) {
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
+
+  createListObservers();
   return *this;
 }
 
@@ -265,29 +280,24 @@ int CHistogrammer::operator==(const CHistogrammer& rRhs) {
   \par Formal Parameters:
   \param  </TT>rEvent (const CEvent& [in]): </TT>
   References the event to histogram.
-  \param  </TT>nSpectra (UInt_t [in]):</TT>
-  Number of spectra defined.
-  \param  </TT>ppSpectra (CSpectrum** ppSpectra)</TT>
-  Array of pointers to defined spectra.
-  \param <TT> nGates (UInt_t [in]):</TT>
-  Number of gates to chekc...
-  \param <TT>ppGates (Uint_t [in]):</TT>
-  Array of pointers to defined gates.
+
 */
-void CHistogrammer::operator()(const CEvent& rEvent,
-			       UInt_t nSpectra, CSpectrum** ppSpectra,
-			       UInt_t nGates,   CGateContainer** ppGates,
-			       UInt_t nCached,  CGateContainer** ppCached)
+void CHistogrammer::operator()(const CEvent& rEvent)
 {
   // Reset the gates:
-  for(int i = 0; i < nCached; i++) {
-    (*ppCached[i])->Reset();	// Invalidate the gate value cache.
+
+  CGateContainer** gateList = m_pGateList->getList();
+  if (gateList) {
+    while(*gateList) {
+      (**gateList)->Reset();
+      gateList++;
+    }
   }
 
   // Increment the histograms:
-  for(int i = 0; i < nSpectra; i++) {
-    (*ppSpectra[i])(rEvent);
-  }
+
+  (*m_pSpectrumLists)(rEvent);
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -299,41 +309,11 @@ void CHistogrammer::operator()(const CEvent& rEvent,
 //
 static  int nEvents = 0;
 
-void CHistogrammer::operator()(CEventList& rEvents) {
-  //  Profiling demonstrates that it's inefficient to
-  //  traverse the CSpectrum and CGateContainer maps for each event.
-  //  Therefore these are traversed once now and placed in tables.
-  //  This is redone on each batch of events in case the maps get modified.
+void CHistogrammer::operator()(CEventList& rEvents) 
+{
 
   nEvents = 0;
 
-  //  Flatten the gates map into pGates:
-
-  UInt_t nGates = GateCount();
-  UInt_t nCached= 0;
-  CGateContainer** pGates = new CGateContainer*[nGates]; // Holds pointer to gate containers.
-  CGateContainer** pCached = new CGateContainer*[nGates]; // ptrs to clrable gates
-  CGateDictionaryIterator pg = GateBegin();
-  CGateDictionaryIterator pge= GateEnd();
-  CGateContainer** ppGate = pGates;
-  while(pg != pge) {
-    *ppGate++ = &((*pg).second); 
-    if ( (*pg).second->caches()) {
-      pCached[nCached++] = &((*pg).second);
-    }
-    pg++;
-  }
-  // Flatten the Spectra into pSpectra:
-
-  UInt_t nSpectra = SpectrumCount();
-  CSpectrum**      pSpectra = new CSpectrum*[nSpectra]; // Pointers to spectra.
-  CSpectrum**     ppSpectra = pSpectra;
-  SpectrumDictionaryIterator ps = SpectrumBegin();
-  SpectrumDictionaryIterator pse= SpectrumEnd();
-  while(ps != pse) {
-    *ppSpectra++ = (*ps).second;
-    ps++;
-  }
 
   //  Now analyze the events.
   //  the assumption is that the first null
@@ -346,10 +326,7 @@ void CHistogrammer::operator()(CEventList& rEvents) {
       CEvent* pEvent = *i;
       if(pEvent) {
 	nEvents++;
-	operator()(*pEvent,
-		   nSpectra, pSpectra,
-		   nGates, pGates,
-		   nCached, pCached);
+	operator()(*pEvent);
       }
       else {
 	break;
@@ -371,9 +348,7 @@ void CHistogrammer::operator()(CEventList& rEvents) {
   catch (...) {
     cerr << "Unexpected exception type caught while histogramming events.\n";
   }
-  delete []pGates;
-  delete []pCached;
-  delete []pSpectra;
+
 }
 
 /*!
@@ -2070,4 +2045,17 @@ CHistogrammer::invokeGateChangedObservers(string name, CGateContainer& gate)
     pObserver->onChange(name, gate);
     p++;
   }
+}
+//
+// Create and hook in the spectrum and gate observers that ensure we keep our optimized
+// gate and spectrum lists up to date.
+//
+void
+CHistogrammer::createListObservers()
+{
+  m_pGateList = new CFlattenedGateList;
+  addGateObserver(m_pGateList);
+
+  m_pSpectrumLists = new CSpectrumByParameter;
+  addSpectrumDictionaryObserver(m_pSpectrumLists);
 }

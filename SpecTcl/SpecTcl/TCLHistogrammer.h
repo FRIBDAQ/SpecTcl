@@ -113,10 +113,8 @@ protected:
   }
 
 public:
-  virtual   void operator() (const  CEvent& rEvent,
-			     UInt_t nSpectra, CSpectrum** ppSpectra,
-			     UInt_t nGates,   CGateContainer** ppGates,
-			     UInt_t nCached,  CGateContainer** ppCached)    ;  
+  virtual   void operator() (const  CEvent& rEvent);
+
   void AddPseudo (CPseudoScript& rScript)    ;
   void RemovePseudo (const STD(string)& rPseudoName)    ;
   CPseudoScript& FindPseudo (const STD(string)& rPsuedoName)    ;
