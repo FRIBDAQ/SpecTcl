@@ -86,7 +86,7 @@ CSpectrum1DL::CSpectrum1DL(const std::string& rName,
   CSpectrum(rName, nId,
 	    Axes(1,
 		  CAxis((Float_t)0.0, (Float_t)(nChannels-1),
-			nChannels-1,
+			nChannels,
 			CParameterMapping(rParameter)))),
   m_nChannels(nChannels),
   m_nParameter(rParameter.getNumber())
