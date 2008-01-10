@@ -118,6 +118,8 @@ public:
     }
  
 
+  virtual Bool_t needParameter() const;
+
 protected:
   void CreateParameterList(STD(vector)<STD(pair)<UInt_t, Float_t> >& outList, 
 			   const CEvent& rEvent);

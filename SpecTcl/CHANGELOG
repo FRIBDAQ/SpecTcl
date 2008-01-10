@@ -732,3 +732,5 @@ January 7, 2008   - Fixed include license.terms in the build.
                   - GUI Attach -pipe was failing due to attempts to set
                     the value of the buffersize widget prior to the creation
                     of that widget's spinbox.
+January 9, 2008   - Add needParameter virtual to CSpectrum class hierarchy.
+                    this is used to know which list spectra belong in.

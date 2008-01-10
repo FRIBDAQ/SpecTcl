@@ -640,3 +640,11 @@ CSpectrum::Randomize(Float_t channel)
 			      
   
 }
+/*! 
+  By default all spectra need a parameter, and the ones that don't can override this.
+*/
+Bool_t 
+CSpectrum::needParameter() const
+{
+  return kfTRUE;
+}
