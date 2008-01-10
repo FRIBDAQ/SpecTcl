@@ -93,6 +93,8 @@
 
 class CSpectrumFit;
 class CHistogrammerFitObserver;
+class CFlattenedGateList;
+class CSpectrumByParameter;
 
 // Typedefs for some of instances of templated classes:
 // Dictionary types:
@@ -140,6 +142,10 @@ class CHistogrammer : public CEventSink {
 
   static int          m_nextFitlineId;       // Next Xamine fitline id.
 
+  // For maintaining the flattened lists.
+
+  CFlattenedGateList*   m_pGateList;
+  CSpectrumByParameter* m_pSpectrumLists;
 
  public:
   // Constructors.
@@ -196,11 +202,7 @@ class CHistogrammer : public CEventSink {
   // Operations on the object:
  public:
   // Analysis evaluation operators:
-  virtual void operator() (const CEvent&     rEvent,
-			   UInt_t nSpectra, CSpectrum** ppSpectra,
-			   UInt_t nGates,   CGateContainer** ppGates,
-			   UInt_t nCached,  CGateContainer** ppCached);
-
+  virtual void operator() (const CEvent&     rEvent);
   virtual void operator() (CEventList& rEventList);
 
   // Parameter dictionary manipulation:
@@ -278,6 +280,7 @@ class CHistogrammer : public CEventSink {
   STD(string) createTitle(CSpectrum* pSpectrum, UInt_t     maxLength);
 
   void invokeGateChangedObservers(STD(string) name, CGateContainer& gate);
+  void createListObservers();
 		
 };
 

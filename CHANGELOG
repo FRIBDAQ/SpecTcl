@@ -735,3 +735,7 @@ January 7, 2008   - Fixed include license.terms in the build.
 January 9, 2008   - Add needParameter virtual to CSpectrum class hierarchy.
                     this is used to know which list spectra belong in.
 January 10, 2008  - Fix errors in 1d construction.
+          	  - Use spectra organized by parameter to make
+                    increments a bit more efficent.
+		  - Use observers to maintain the flattened gate lists
+                    so there's no increment time overhead.

@@ -376,10 +376,7 @@ CTCLHistogrammer::operator== (const CTCLHistogrammer& aCTCLHistogrammer)
 //     operator()(const  CEvent&)
 //  Operation Type: 
 //     Override
-void CTCLHistogrammer::operator()(const  CEvent& rE,
-				  UInt_t nSpectra, CSpectrum** ppSpectra,
-				  UInt_t nGates, CGateContainer** ppGates,
-				  UInt_t nCached, CGateContainer** ppCached)  
+void CTCLHistogrammer::operator()(const  CEvent& rE)
 {
   // Overrides the base class operation as follows:
   //  first computes all of the Pseudo parameters
@@ -413,10 +410,8 @@ void CTCLHistogrammer::operator()(const  CEvent& rE,
   }
   // Then do the normal histogramming.
   //
-  CHistogrammer::operator()(rEvent,
-			    nSpectra, ppSpectra,
-			    nGates,   ppGates,
-			    nCached,  ppCached); 
+  CHistogrammer::operator()(rEvent);
+
 
 }
 //////////////////////////////////////////////////////////////////////////////
