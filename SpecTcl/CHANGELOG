@@ -734,3 +734,4 @@ January 7, 2008   - Fixed include license.terms in the build.
                     of that widget's spinbox.
 January 9, 2008   - Add needParameter virtual to CSpectrum class hierarchy.
                     this is used to know which list spectra belong in.
+January 10, 2008  - Fix errors in 1d construction.
