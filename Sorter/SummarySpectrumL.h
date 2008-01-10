@@ -153,7 +153,7 @@ public:
   virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
   virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
   virtual CSpectrum::SpectrumDefinition& GetDefinition();
-
+  virtual Bool_t needParameter() const;
  
   // Utility functions.
 protected:

@@ -420,3 +420,12 @@ CSummarySpectrumL::CreateAxes(vector<CParameter> Parameters,
   }
   return maps;
 }
+
+/*!
+  Don't actually need a parameter.
+*/
+Bool_t
+CSummarySpectrumL::needParameter() const
+{
+  return kfFALSE;
+}

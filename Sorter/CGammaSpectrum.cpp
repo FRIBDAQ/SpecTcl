@@ -345,3 +345,11 @@ CGammaSpectrum::UsesParameter(UInt_t nId) const
   }
   return kfFALSE;
 }
+/*!
+  Gamma spectra don't actually need a specific parameter.
+*/
+Bool_t
+CGammaSpectrum::needParameter() const
+{
+  return kfFALSE;
+}

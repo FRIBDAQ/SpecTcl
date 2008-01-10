@@ -245,7 +245,8 @@ public:
   virtual   Bool_t CheckGate(const CEvent& rEvent);
   virtual   SpectrumDefinition& GetDefinition() ;
 
-  //  virtual   void GammaGateIncrement(const CEvent& rEvent);
+  virtual   Bool_t needParameter() const;
+
 
 protected:
   static Int_t Randomize(Float_t channel);
