@@ -739,3 +739,6 @@ January 10, 2008  - Fix errors in 1d construction.
                     increments a bit more efficent.
 		  - Use observers to maintain the flattened gate lists
                     so there's no increment time overhead.
+January 11, 2008 - Make CFlattenedGateList work even if the gate container
+                   for the gate has changed from the inserted one.. 
+                   that is match the name.
