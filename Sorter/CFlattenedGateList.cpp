@@ -98,11 +98,25 @@ CFlattenedGateList::onAdd(std::string name, CGateContainer& item)
   Unconditionally remove the specified gate.  We don't bother to check
 if the gate is actually in the list in the first place (is a caching gate),
 since the remove function is a no-op for items not in the list.
+
+Since SpecTcl can swap around gate containers, we need
+to match by name, not by pointer and then remove the right one:
+
 */
 void 
 CFlattenedGateList::onRemove(std::string name, CGateContainer& item)
 {
-  m_Gates.remove(&item);
+  CGateContainer** pGates = getList();
+  if (pGates) {
+    while (*pGates) {
+      CGateContainer* candidate = *pGates;
+      if (name == candidate->getName()) {
+	m_Gates.remove(candidate);
+	return;
+      }
+      pGates++;
+    }
+  }
 }
 
 /*
