@@ -14,36 +14,6 @@
 	     East Lansing, MI 48824-1321
 */
 
-/*
-  Change log:
-  $Log$
-  Revision 5.3  2006/10/10 13:45:16  ron-fox
-  BZ217 - Add some additional sanity checking in the filter event decoder
-          to attempt to detect when it has been pointed to a data source that
-  	is not a filter file.  In that case, the processor will signal an
-  	end of file in the run control handler, and print an error message to
-  	stderr.
-  - Mods to files other than FilterBufferDecoder.cpp are just large->small
-    license edits.
-
-  Revision 5.2  2005/06/03 15:19:03  ron-fox
-  Part of breaking off /merging branch to start 3.1 development
-
-  Revision 5.1.2.1  2004/12/21 17:51:20  ron-fox
-  Port to gcc 3.x compilers.
-
-  Revision 5.1  2004/11/29 16:56:00  ron-fox
-  Begin port to 3.x compilers calling this 3.0
-
-  Revision 1.5.4.1  2004/08/30 15:33:04  ron-fox
-  Merged with modifications for fixed filter.
-
-  Revision 1.5  2003/10/24 14:42:55  ron-fox
-  Get a working filter play back subsystem that
-  does break the way events are normally
-  processed.
-
-*/
 
 
 #ifndef __FILTERBUFFERDECODER_H
