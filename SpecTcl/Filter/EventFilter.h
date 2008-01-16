@@ -1,4 +1,20 @@
 /*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2005.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Author:
+             Ron Fox
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
+*/
+
+/*
   EventFilter.h
 */
 
@@ -38,7 +54,8 @@
 
 class CEvent;
 class CEventList;
-class CXdrOutputStream;
+class CFilterOutputStage;
+
 // class CDictionaryException;
    
 // Class.
@@ -57,11 +74,11 @@ class CEventFilter : public CEventSink {
    // Attributes.
  
 protected:
-   Bool_t m_fEnabled;                 //!< Filter only works when enabled.
-   STD(string) m_sFileName;                //!< Name of output file.
+   Bool_t m_fEnabled;                           //!< Filter only works when enabled.
+   STD(string)              m_sFileName;        //!< Name of output file.
    STD(vector)<STD(string)> m_vParameterNames;  //!< Names of parameters in output.
-   STD(vector)<UInt_t> m_vParameterIds;    //!< Ids of params in output stream.
-   CXdrOutputStream* m_pOutputEventStream; //!< Output file.
+   STD(vector)<UInt_t>      m_vParameterIds;    //!< Ids of params in output stream.
+   CFilterOutputStage*      m_pOutput;          //!< Output stage (formatter).
 
  public:
       // Constructors and other canonical operations.
@@ -94,20 +111,22 @@ public:
   STD(string) getFileName() const {
       return m_sFileName;
   }
-   CXdrOutputStream* getOutputStream() {      // not const.
-      return m_pOutputEventStream;
-   }
+  CFilterOutputStage* getOutputStream() {
+    return m_pOutput;
+  }
+
    // Mutators.
 protected:
   // Operations on the class.
 public:
 
-   void setParameterNames(const STD(vector)<STD(string)>& names);
-   void setOutputStream(CXdrOutputStream* str);
-
-   void Enable();                        //!< Enable the filter.
-   void Disable();                       //!< Disable the filter.
-   void setFileName(STD(string)&);            //!< Choose a new filename.
+  void setParameterNames(const STD(vector)<STD(string)>& names);
+  void setOutputStream(CFilterOutputStage* str);
+  
+  void Enable();                        //!< Enable the filter.
+  void Disable();                       //!< Disable the filter.
+  void setFileName(STD(string)&);       //!< Choose a new filename.
+  void setOutputFormat(CFilterOutputStage* format);
 
   
    virtual void operator()(CEventList& rEvents);  //!< Process list of events.
@@ -117,8 +136,6 @@ protected:
    // Behavioral override hooks.
 
    virtual Bool_t CheckCondition(CEvent& rEvent) = 0;
-   virtual void FormatEventDescription();   //!< Describe event in output file
-   virtual void FormatOutputEvent(CEvent& rEvent); //!< Format a filtered event
 
 // utilities:
 
@@ -126,7 +143,6 @@ protected:
    void NamesToIds();                       //!< Translate param names -> ids.
    STD(vector)<STD(string)> IdsToNames() 
               throw (CDictionaryException); //!< and back again.
-   static void setBit(unsigned* bits, unsigned offset); //!< set a bit.
 };
 
 

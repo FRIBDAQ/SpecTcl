@@ -742,3 +742,5 @@ January 10, 2008  - Fix errors in 1d construction.
 January 11, 2008 - Make CFlattenedGateList work even if the gate container
                    for the gate has changed from the inserted one.. 
                    that is match the name.
+January 16, 2008 - Separate filter output formatting from the filter
+                   class itself.
