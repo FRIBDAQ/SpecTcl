@@ -60,6 +60,7 @@ class CFilterDictionary;
    filter -regate filtername gatename
    filter -file filename filtername
    filter -list ?glob-pattern?
+   filter -format filtername format
 
    \endverbatim
 
@@ -81,6 +82,7 @@ class CFilterCommand : public CTCLProcessor {
     keRegate,
     keFile,
     keList,
+    keFormat,
     keNotSwitch
   };
 
@@ -110,6 +112,8 @@ class CFilterCommand : public CTCLProcessor {
   Int_t Regate(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
   Int_t File(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
   Int_t List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
+  Int_t Format(CTCLInterpreter& rInterp, CTCLResult& rResult, int Nargs, char* pArgs[]);
+
   STD(string) ListFilter(const STD(string)& rName,
 		    CGatedEventFilter* pFilter);
   STD(string) ListFilter(const STD(string)& rName);

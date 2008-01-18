@@ -744,3 +744,9 @@ January 11, 2008 - Make CFlattenedGateList work even if the gate container
                    that is match the name.
 January 16, 2008 - Separate filter output formatting from the filter
                    class itself.
+January 17, 2008 - Provide extensible filter format structure.
+                 - Fix error in filter save in gui .. parameter list had
+		   an extra layer of {}'s.
+                 - Add ability to introspect filter format.
+January 18, 2008 - Added support for the newer spectrum types to the API
+                 - Added filter support to the API.

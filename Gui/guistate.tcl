@@ -553,10 +553,16 @@ proc writeFilters fd {
         set gate [lindex $filter 1]
         set file [lindex $filter 2]
         set parameters [lindex $filter 3]
+	set format [lindex $filter 5]
 
         puts $fd "catch {filter -delete [list $name]}"
-        puts $fd [list filter [list $name] [list $gate] [list $parameters]]
+        puts $fd [list filter [list $name] [list $gate] $parameters]
         puts $fd [list filter -file [list $file] [list $name]]
+
+	# The catch is in case the filter format comes from a plugin that is not
+        # loaded in this instance.
+
+	puts $fd "catch {[list filter -format [list $name] [list $format]]}"
         puts $fd ""
     }
 }

@@ -21,7 +21,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "FilterCommand.h"
 #include <GatedEventFilter.h>
 #include <FilterDictionary.h>
-#include <CXdrFilterOutputStage.h>
+#include "CFilterOutputStageFactory.h"
 
 #include <SpecTcl.h>
 
@@ -59,8 +59,11 @@ static const SwitchTableEntry Switches[] = {
   {"-disable", CFilterCommand::keDisable},
   {"-regate", CFilterCommand::keRegate},
   {"-file", CFilterCommand::keFile},
-  {"-list", CFilterCommand::keList}
+  {"-list", CFilterCommand::keList},
+  {"-format", CFilterCommand::keFormat}
 };
+
+static const string defaultOutputFormat("xdr");
 
 static const UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntry);
 
@@ -160,6 +163,9 @@ int CFilterCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     pArgs++;
   case keNotSwitch:		//  Create a new filter.
     return Create(rInterp, rResult, nArgs, pArgs);
+  case keFormat:
+    return Format(rInterp, rResult, nArgs, pArgs);
+
   default:                     // Bug to get here:
     assert(0);
 
@@ -206,7 +212,11 @@ std::string CFilterCommand::Usage() {
   Use += " filter -regate filtername gatename\n";
   Use += " filter -file filename filtername\n";
   Use += " filter -list ?glob-pattern?\n";
-  Use += "\nfilter allows the gating upon a parameter in an event.";
+  Use += " filter -format filtername format\n";
+  Use += "\nfilter creates pre-sorted event files\n";
+  Use += "\nfilter formats are: \n";
+  CFilterOutputStageFactory& fact(CFilterOutputStageFactory::getInstance());
+  Use += fact.document();
   return Use;
 }
 
@@ -299,7 +309,8 @@ CFilterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
       // Hard wire the formatter in this version:
       // TODO: provide mechanism to select formatter.
       //
-      pGatedEventFilter->setOutputFormat(new CXdrFilterOutputStage);
+      CFilterOutputStageFactory& factory(CFilterOutputStageFactory::getInstance());
+      pGatedEventFilter->setOutputFormat(factory.create(defaultOutputFormat));
 
       pFilterDictionary->Enter(pFilterName, pGatedEventFilter);
 
@@ -407,6 +418,7 @@ Int_t CFilterCommand::Enable(CTCLInterpreter& rInterp, CTCLResult& rResult, int 
       return TCL_ERROR;
     }
   } else {
+
     rResult = "Error: Invalid filter (" + std::string(pFilterName) + ").";
     return TCL_ERROR;
   }
@@ -620,7 +632,7 @@ Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // a string that is later set to be the result:
 
   CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
-  CTCLString         OutputList;
+  CTCLString         OutputList; 
   CFilterDictionaryIterator i = pFilterDictionary->begin();
   while(i != pFilterDictionary->end()) {
     CTCLString          FilterName(i->first);
@@ -636,6 +648,80 @@ Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   return TCL_OK;
 }
+/*!
+    Set the output format of a filter.  The format of the command is:
+    filter -format filtername format
+
+    Where format is a format selector that is recognized by the filter format
+    factory.
+
+    \param rInterp - Reference to the interpreter running this command.
+    \param rResult - Reference to the interpreter result object.
+    \param nArgs   - Number of command words, should be exactly 3.
+                     as the caller has sliced off the command verb.
+    \param pArgs   - Pointers to the command words.
+
+    \return int
+    \retval TCL_OK - The command worked. The result will be the filter name.
+    \retval TCL_ERROR - The command failed, the result will be an error message.
+*/
+Int_t
+CFilterCommand::Format(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[])
+{
+  if (nArgs != 3) {
+    rResult = "In correct number of parameters in filter -format: \n";
+    rResult += Usage();
+    return TCL_ERROR;
+  }
+
+  // Pull out the filter name and the output type and validate them:
+
+  char*  name    = pArgs[1];
+  string format  = pArgs[2];
+
+  CFilterDictionary* pFilterDictionary = CFilterDictionary::GetInstance();
+  CFilterDictionaryIterator fIterator  = pFilterDictionary->Lookup(name);
+
+
+  // Filter does not exist.
+
+  if (fIterator == pFilterDictionary->end()) {
+    rResult  = "Filter: ";
+    rResult += name;
+    rResult += " does not exist in filter -format command\n";
+    rResult += Usage();
+    return TCL_ERROR;
+  }
+  // It's an error to do any of this if the filter is enabled:
+
+  CEventFilter* pFilter = fIterator->second;
+  if (pFilter->CheckEnabled()) {
+    rResult  = "Filter: ";
+    rResult += name;
+    rResult += " is enabled, and filter -format can only be used on disabled filters\n";
+    rResult += Usage();
+    return TCL_ERROR;
+  }
+
+  // Try to get the formater:
+
+  CFilterOutputStageFactory& outFactory(CFilterOutputStageFactory::getInstance());
+  CFilterOutputStage*        pOutputStage = outFactory.create(format);
+  if (!pOutputStage) {
+    rResult  = "Filter format type: ";
+    rResult += format;
+    rResult += " does not exist in filter -format command";
+    rResult += Usage();
+    return TCL_ERROR;
+  }
+
+
+
+  pFilter->setOutputFormat(pOutputStage);
+  rResult = name;
+  return TCL_OK;
+}
+
 /*!
    Lists a filter given a pointer to the filter itself.
    See as well the overloaded version that first looks up a filter
@@ -672,6 +758,9 @@ string CFilterCommand::ListFilter(const string& rName,
   } else {
     List.AppendElement(std::string("disabled"));
   }
+
+  List.AppendElement(pFilter->outputFormat());
+
   return string((const char*) List);
 }
 /*!

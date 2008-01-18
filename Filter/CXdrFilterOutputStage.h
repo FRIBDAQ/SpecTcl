@@ -106,6 +106,8 @@ public:
 			     std::vector<UInt_t>      parameterIds);
 
   virtual void operator()(CEvent& event);
+  virtual std::string type() const;
+
 
   // Utilities:
 private:

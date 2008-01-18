@@ -64,6 +64,7 @@ public:
   virtual void DescribeEvent(std::vector<std::string> parameterNames,
 			     std::vector<UInt_t>      parameterIds) =0;
   virtual void operator()(CEvent& event) = 0;
+  virtual std::string  type() const = 0;
 };
 
 #endif
