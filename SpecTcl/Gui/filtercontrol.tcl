@@ -143,7 +143,7 @@ snit::widget filterenables {
     variable hidden {}
 
     constructor args {
-        table      $win.filters -cols 6 -rows 1 -titlerows 1 -yscrollcommand [list $win.scroll set] \
+        table      $win.filters -cols 7 -rows 1 -titlerows 1 -yscrollcommand [list $win.scroll set] \
                                 -justify left -cache 1 -resizeborders both
         scrollbar  $win.scroll  -orient vertical -command [list $win.filters yview]
 
@@ -169,7 +169,7 @@ snit::widget filterenables {
         # The titles:
 
         set col 0
-        foreach title {Enable Name Gate File Parameters State} {
+        foreach title {Enable Name Gate File Parameters  State Format} {
             $widget set 0,$col $title
             incr col
         }
@@ -201,10 +201,12 @@ snit::widget filterenables {
             set height [llength $parameters]
             set parameters [join $parameters "\n"]
             set state [lindex $filter 4]
+	    
+	    set format [lindex $filter 5]
 
             $widget insert rows end
             $widget height $row $height
-            $widget set row $row,1 [list $name $gate $file $parameters $state]
+            $widget set row $row,1 [list $name $gate $file $parameters $state $format]
 
             checkbutton $widget.enable$name
             if {$state == "enabled"} {

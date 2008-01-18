@@ -186,6 +186,19 @@ CEventFilter::setOutputFormat(CFilterOutputStage* format)
 
 }
 /*!
+  Return the output format .. if non is attached, the value "--" is returned.
+*/
+string
+CEventFilter::outputFormat() const
+{
+  if (m_pOutput) {
+    return m_pOutput->type();
+  }
+  else {
+    return string("--");
+  }
+}
+/*!
    Function call operator with a list of events.
    This overridable member provides the default behavior
    for a filter on a list of events.  For each event in the

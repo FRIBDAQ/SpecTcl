@@ -40,7 +40,7 @@ CXdrFilterOutputStage::CXdrFilterOutputStage() :
 */
 CXdrFilterOutputStage::~CXdrFilterOutputStage()
 {
-  close();			// Close does what we want acutally.
+  delete m_pOutputEventStream; 
 }
 
 /*!
@@ -201,6 +201,14 @@ CXdrFilterOutputStage::operator()(CEvent& event)
    delete []Bitmask;
 }
 
+/*!
+   Return the output stage type.
+*/
+string
+CXdrFilterOutputStage::type() const
+{
+  return string("xdr");
+}
 
 /*
    Set a bit in a bit vector.  The bit is assumed to fit in the vector.

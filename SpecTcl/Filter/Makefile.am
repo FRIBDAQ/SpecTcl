@@ -18,7 +18,9 @@ libFilter_la_SOURCES = EventFilter.cpp \
 	GatedEventFilter.cpp \
 	CXdrOutputStream.cpp CXdrInputStream.cpp \
 	CXdrMemInputStream.cpp	\
-	CFilterOutputStage.cpp CXdrFilterOutputStage.cpp
+	CFilterOutputStage.cpp CXdrFilterOutputStage.cpp \
+	CFilterOutputStageFactory.cpp \
+	CXdrFilterOutputStageCreator.cpp
 
 include_HEADERS = EventFilter.h \
 	          FilterDictionary.h  \
@@ -27,4 +29,8 @@ include_HEADERS = EventFilter.h \
 	 	  GatedEventFilter.h    \
 		  CXdrOutputStream.h CXdrInputStream.h \
 		  CXdrMemInputStream.h	\
-		CFilterOutputStage.h CXdrFilterOutputStage.h
+		CFilterOutputStage.h CXdrFilterOutputStage.h \
+	CFilterOutputStageFactory.h \
+	CFilterOutputStageCreator.h \
+	CXdrFilterOutputStageCreator.h
+

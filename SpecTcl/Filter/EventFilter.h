@@ -127,6 +127,7 @@ public:
   void Disable();                       //!< Disable the filter.
   void setFileName(STD(string)&);       //!< Choose a new filename.
   void setOutputFormat(CFilterOutputStage* format);
+  std::string outputFormat() const;
 
   
    virtual void operator()(CEventList& rEvents);  //!< Process list of events.
