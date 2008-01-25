@@ -211,16 +211,19 @@ CEventFilter::outputFormat() const
 void
 CEventFilter::operator()(CEventList& rEvents) 
 {
-   CEventListIterator i;
-   CEventListIterator e = rEvents.end();
-   for(i = rEvents.begin(); i != e; i++) {
+
+  if (m_fEnabled) {		// Don't execute if disabled!!
+    CEventListIterator i;
+    CEventListIterator e = rEvents.end();
+    for(i = rEvents.begin(); i != e; i++) {
       CEvent* pEvent = *i;
       if(pEvent) {
-         operator()(*pEvent);
+	operator()(*pEvent);
       } else {
 	break;
       }
-   }
+    }
+  }
 }
 /*!
    Function Call operator.  This function call operator processes a single event.

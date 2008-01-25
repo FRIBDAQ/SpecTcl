@@ -750,3 +750,6 @@ January 17, 2008 - Provide extensible filter format structure.
                  - Add ability to introspect filter format.
 January 18, 2008 - Added support for the newer spectrum types to the API
                  - Added filter support to the API.
+January 25, 2008 - Debugged filter support API
+                 - Fixed error in gate flattener handling that was preventing
+                   gate from being properly applied.

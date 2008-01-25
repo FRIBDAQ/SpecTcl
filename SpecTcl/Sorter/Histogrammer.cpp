@@ -2053,7 +2053,7 @@ CHistogrammer::invokeGateChangedObservers(string name, CGateContainer& gate)
 void
 CHistogrammer::createListObservers()
 {
-  m_pGateList = new CFlattenedGateList;
+  m_pGateList = new CFlattenedGateList( this);
   addGateObserver(m_pGateList);
 
   m_pSpectrumLists = new CSpectrumByParameter;
