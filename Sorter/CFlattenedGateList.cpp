@@ -16,12 +16,14 @@
 
 #include <config.h>
 #include "CFlattenedGateList.h"
+#include "Histogrammer.h"
 
 /*!
   Default constructor:
   The GateList constructor takes care of itself.
 */
-CFlattenedGateList::CFlattenedGateList()
+CFlattenedGateList::CFlattenedGateList(CHistogrammer *pHistogrammer) :
+  m_pHistogrammer(pHistogrammer)
 {
 }
 /*!
@@ -36,7 +38,8 @@ CFlattenedGateList::~CFlattenedGateList()
 
 */
 CFlattenedGateList::CFlattenedGateList(const CFlattenedGateList& rhs) :
-  m_Gates(rhs.m_Gates)
+  m_Gates(rhs.m_Gates),
+  m_pHistogrammer(rhs.m_pHistogrammer)
 {
 }
 /*
@@ -46,6 +49,7 @@ CFlattenedGateList&
 CFlattenedGateList::operator=(const CFlattenedGateList& rhs)
 {
   m_Gates = rhs.m_Gates;
+  m_pHistogrammer = rhs.m_pHistogrammer;
 
   return *this;
 }
@@ -81,6 +85,9 @@ CFlattenedGateList::clearCache()
    Reacts to the addition of  new gate to the gate dictionary.
 This is only called for gates that don't yet exist.  Insert the
 gate at the end of the flattened gates list.
+  Since SpecTcl can swap around gate containers and 
+since those gate containers will copy gates, we need to get the
+actual gate container that's been inserted in the dictionary.
 
 \param name       - Name of the new gate.
 \param container  - The container that fronts the gate.
@@ -90,7 +97,8 @@ void
 CFlattenedGateList::onAdd(std::string name, CGateContainer& item)
 {
   if (item->caches()) {
-    m_Gates.add(&item);
+    CGateContainer* pItem = m_pHistogrammer->FindGate(name);
+    m_Gates.add(pItem);
   }
 
 }

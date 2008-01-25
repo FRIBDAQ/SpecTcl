@@ -1,5 +1,6 @@
 INCLUDES = -I. -I../Utility -I../NSCLException -I../Xamine -I../Gates \
-	   -I../Events -I../Display @TCL_FLAGS@ -I.. -I@top_srcdir@/Fits
+	   -I../Events -I../Display @TCL_FLAGS@ -I.. -I@top_srcdir@/Fits 
+
 libSorting_la_LIBADD =  @top_srcdir@/Xamine/libXplus.la 	\
 			@top_srcdir@/Gates/libGates.la 		\
 			@top_srcdir@/Events/libAnalysis.la 	\

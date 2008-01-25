@@ -28,6 +28,7 @@
 #include "DynamicList.h"
 #endif
 
+class CHistogrammer;
 
 
 /*!
@@ -54,10 +55,10 @@ private:
   // Member data:
 
 private:
-  GateList    m_Gates;
-
+  GateList        m_Gates;
+  CHistogrammer*  m_pHistogrammer;
 public:
-  CFlattenedGateList();
+  CFlattenedGateList(CHistogrammer* histogrammer);
   virtual ~CFlattenedGateList();
 
   CFlattenedGateList(const CFlattenedGateList& rhs);
