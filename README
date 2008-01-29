@@ -57,6 +57,6 @@ sbind [rwread myfile.spe]
 
 
 
-
-
+See INSTALL for installation instructions.
+For installation issues, post at http://daqbugs.nscl.msu.edu
 

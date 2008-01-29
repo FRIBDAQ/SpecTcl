@@ -1,0 +1,23 @@
+To install this plugin
+
+./configure --prefix=spectclhome
+<a bunch of stuff gets printed>
+make install
+
+spectclhome is the home directory of a SpecTcl-3.2 installation.
+
+See
+./configure --help for other options. The main ones you may need are
+
+--with-spectcl-home=dir
+
+If you want to install the plugin outside of the SpecTcl installation directory,
+you can specify that directory with --prefix and the SpecTcl installation directory with 
+--with-spectcl-home
+
+
+--with-tcl-header=dir
+   Specifies where the Tcl headers are located.  This is not usually needed.
+
+
+
