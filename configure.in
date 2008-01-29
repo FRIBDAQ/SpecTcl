@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 
-AC_INIT(RootFilterFormat, 1.0, fox@nscl.msu.edu)
+AC_INIT(radwareio, 1.0, fox@nscl.msu.edu)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER([configure.h])
 AC_CANONICAL_HOST
@@ -103,16 +103,6 @@ AC_ARG_WITH(spectcl-home,
 	[SPECTCLHOME=$withval],
 	[SPECTCLHOME=$prefix])
 
-# --rootsys is required as we have no idea where to look for it.
-
-AC_ARG_WITH(rootsys,
-	[  --with-rootsys=path Path to Root installation],
-	[ROOTSYS=$withval],
-	[ROOTSYS=""])
-
-if [ "${ROOTSYS}" =  "" ]; then
-   AC_MSG_ERROR([ You must tell me where root is installed via --with-rootsys])
-fi
 
 # Makefile macros exported:
 
@@ -127,13 +117,6 @@ fi
   SPECTCLCCSW="-I${SPECTCLHOME}/include"
   AC_SUBST(SPECTCLCCSW)
 
-  # Root:
-
-  ROOTCCSW="-I${ROOTSYS}/include/root"
-  ROOTLDSW="-L${ROOTSYS}/lib/root -lTree -lCore -lCint -ldl -Wl,\"-rpath=${ROOTSYS}/lib/root\""
-
-  AC_SUBST(ROOTCCSW)
-  AC_SUBST(ROOTLDSW)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
