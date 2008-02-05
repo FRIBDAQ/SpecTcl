@@ -20,9 +20,16 @@ INCLUDES		= -I. $(SPECTCLCCSW) \
 				$(TCLCCSW) 
 
 
-EXTRA_DIST = permission.txt
+EXTRA_DIST = permission.txt radwareio.xml
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs; done
+
+
+radwareio.pdf: radwareio.xml
+	@DOCBOOK@ radwareio.xml
+
+docs: radwareio.pdf
+
 
