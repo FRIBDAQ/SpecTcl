@@ -15,9 +15,10 @@ package require snit
 #
 snit::widget filterFormat {
     hulltype toplevel
-    constructor args {
+    variable format
+ 
+   constructor args {
 
-	variable format
 
 	# List the Filters
 
@@ -78,7 +79,7 @@ snit::widget filterFormat {
     #   will select the format for a specific filter.
     #
     method selectFormat {filter label x y} {
-	puts "Pop up for $filter widget: $label @ $x $y"
+
 	set name $win.filterformatmenu
 	destroy  $name
 
