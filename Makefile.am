@@ -19,3 +19,10 @@ noinst_HEADERS=	CRootFilterOutputStage.h	\
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs; done
+
+rootFilterFormat.pdf: rootFilterFormat.xml
+	@DOCBOOK@	rootFilterFormat.xml
+
+docs: rootFilterFormat.pdf
+
+EXTRA_DIST=rootFilterFormat.xml selectFilterFormat.tcl

@@ -1,1 +1,7 @@
 Version 1.0 Released January 25, 2008
+
+February 6, 2008
+	Added selectFilterFormat.tcl sample script to add filter format
+	selection dialog to the folder GUI
+	Ensure that the package initializer returns TCL_OK.
+	
