@@ -20,6 +20,10 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+
+
 # Checks for libraries.
 
 # Checks for header files.
@@ -114,6 +118,14 @@ if [ "${ROOTSYS}" =  "" ]; then
    AC_MSG_ERROR([ You must tell me where root is installed via --with-rootsys])
 fi
 
+# In order to make documentation, we need a docbooktopdf
+# installed.  If it's not installed, we'll make some substitutions
+# that will make the build succeed.
+
+AC_PATH_PROG([DOCBOOK], [docbook2pdf],
+	     [docbook2pdf], [touch $$@])
+
+
 # Makefile macros exported:
 
   # TCL:
@@ -135,8 +147,11 @@ fi
   AC_SUBST(ROOTCCSW)
   AC_SUBST(ROOTLDSW)
 
-# Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
+  # Documentation:
+
+  AC_SUBST(DOCBOOK)
+
+
 
 # Checks for library functions.
 
