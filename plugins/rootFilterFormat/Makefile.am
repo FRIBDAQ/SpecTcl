@@ -20,9 +20,13 @@ install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs; done
 
-rootFilterFormat.pdf: rootFilterFormat.xml
+rootFilterFormat.dvi: rootFilterFormat.xml
 	@DOCBOOK@	rootFilterFormat.xml
+
+rootFilterFormat.pdf: rootFilterFormat.dvi
+	@DVIPDF@        rootFilterFormat.dvi
 
 docs: rootFilterFormat.pdf
 
-EXTRA_DIST=rootFilterFormat.xml selectFilterFormat.tcl
+EXTRA_DIST=rootFilterFormat.xml selectFilterFormat.tcl \
+	selectiondialog.gif selectiondialog.eps
