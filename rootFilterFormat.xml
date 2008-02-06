@@ -202,8 +202,8 @@ filter creates pre-sorted event files
 
 filter formats are: 
 xdr        - NSCL XDR system independent filter file format
-rootntuple - Root file containing an ntuple named spectcl.   <co id="format" />
-</computeroutput>
+rootntuple - Root file containing an ntuple named spectcl.</computeroutput>   <co id="format" />
+
             </programlisting>
         </example>
         <calloutlist>
@@ -774,7 +774,7 @@ snit::widget filterFormat {               <co id="snitwidget" />
         When constructed, the final dialog might look something like this:
     </para>
     <figure>
-      <title>FIGURE TITLE</title>
+      <title>The filter format dialog</title>
     
       <mediaobject>
         <imageobject>
