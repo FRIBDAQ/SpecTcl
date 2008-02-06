@@ -40,4 +40,6 @@ extern "C" int Rootfilterformat_Init(Tcl_Interp* pInterp)
   SpecTcl* api = SpecTcl::getInstance();
   api->addFilterOutputFormat(creator);
 
+  return TCL_OK;
+
 }
