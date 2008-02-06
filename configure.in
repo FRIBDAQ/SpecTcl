@@ -122,8 +122,10 @@ fi
 # installed.  If it's not installed, we'll make some substitutions
 # that will make the build succeed.
 
-AC_PATH_PROG([DOCBOOK], [docbook2pdf],
-	     [docbook2pdf], [touch $$@])
+AC_PATH_PROG([DOCBOOK], [docbook2dvi],
+	     [docbook2dvi], [touch $$@])
+AC_PATH_PROG([DVIPDF], [dvipdf],
+             [dvipdf], [touch $$@])
 
 
 # Makefile macros exported:
@@ -150,6 +152,7 @@ AC_PATH_PROG([DOCBOOK], [docbook2pdf],
   # Documentation:
 
   AC_SUBST(DOCBOOK)
+  AC_SUBST(DVIPDF)
 
 
 

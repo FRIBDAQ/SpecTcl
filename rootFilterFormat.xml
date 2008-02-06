@@ -144,7 +144,7 @@
 make install
         </programlisting>
     </example>
-    
+</chapter>
 <chapter>
     <title>Usage</title>
     <para>
@@ -429,7 +429,7 @@ proc filterFormatDialog {} {            <co id="createproc" />
                 This code actually creates the widget.
             </para>
         </callout>
-        <callout>
+        <callout arearefs="menuadd">
             <para>
                 This line adds a menu item labeled <literal>Filter Format...</literal>
                 to the filter menu, which is named <literal>.topmenu.filter</literal>.
@@ -544,7 +544,7 @@ xdr        - NSCL XDR system independent filter file format  <co id="aformatdesc
                 list of known filter formats.
             </para>
         </callout>
-        <callout arearefs="aformatdescdr">
+        <callout arearefs="aformatdescr">
             <para>
                 This is a sample format description.  I make use of the fact
                 that the <literal>-</literal> character separates
@@ -821,7 +821,7 @@ snit::widget filterFormat {               <co id="snitwidget" />
         </programlisting>
     </figure>
     <calloutlist>
-        <callout arearefs="selectionformatparams">
+        <callout arearefs="selectformatparams">
             <para>
                 The <function>selectFormat</function> proc takes as parameters
                 the name of the filter, the label widget and the screen
