@@ -123,23 +123,31 @@ AC_ARG_WITH(gsl-home,
 # if not explcitly specified, we are going to assume that if we can find
 # the lib we can find the header...
 
-if [ "$GLSHOME = "none" ] then
+if test "$GSLHOME" = "none"  
+then
 
-   AC_CHECK_HEADER([gsl.h],
+   echo "++++++++ Checking for headers/libs ++++++"
+
+   AC_CHECK_HEADER([gsl/gsl_fit.h],
 		   [GSLHOME=""], [GSLHOME="none"])
-   AC_HAVE_LIBRARY([[gsl],
-		   [GSL_LDFLAGS="", [GSLHOME="none"])
+   AC_CHECK_LIB([gsl], [gsl_fit_linear],
+		[GSLHOME=""], [GSLHOME="none"], [-lgslcblas])
 fi
 
-if [ $GLSHOME = "none" ] then
+
+echo +++++++++++++++++++++ $GSLHOME ++++++++++++++
+
+if test "$GSLHOME" = "none"
+ then
    AC_MSG_ERROR([Can't find the GNU Scientific library install it or use --with-gsl-home to tell me where it is])
 else
-   if [ "$GSLHOME" = "" ] then
-      GSL_CXXFLAGS = ""
-      GSL_LDFLAGS  = "-lgsl -lgslcblas"
+   if test "$GSLHOME" = "" 
+   then
+      GSL_CXXFLAGS=""
+      GSL_LDFLAGS="-lgsl -lgslcblas"
    else
-      GSL_CXXFLAGS = "-I$GSLHOME/include"
-      GSL_LDFLAGS  = "-L$GLSHOME/lib -lgsl -lgslcblas"
+      GSL_CXXFLAGS="-I$GSLHOME/include"
+      GSL_LDFLAGS="-L$GSLHOME/lib -lgsl -lgslcblas"
       
    fi
 fi
