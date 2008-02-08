@@ -214,8 +214,8 @@ namespace eval CalibrationGUI {
 		return 0
 	    }
 	} else {			# No such calibrated parameter...
-	    set fail [catch "parameter -list $TargetName"]
-	    if {!$fail} {
+	    set fail [llength [parameter -list $TargetName]]
+	    if {$fail != 0} {
 		set answer [tk_dialog .rawexists "Raw parameter exists" \
 				"$TargetName exists as a raw parameter.  Replace?" \
 				questhead 1 Yes No]
