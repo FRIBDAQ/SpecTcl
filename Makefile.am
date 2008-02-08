@@ -36,7 +36,9 @@ noinst_HEADERS	=		CCalibratedParameterCommand.h	\
 EXTRA_DIST = 	CalibIOGUI.tcl Dialogs.tcl gui.tcl TkPrompt.tcl	\
 		CalibIO.tcl ErrorRead.tcl packages.tcl	\
 		CalibrateMainGui.tcl FitIO.tcl PeakStatistics.tcl \
-		CalibrationPoints.tcl  GlobalData.tcl  calibparams.xml
+		CalibrationPoints.tcl  GlobalData.tcl  calibparams.xml \
+		calibrate.bmp calibrate.gif calibrate.eps \
+		paramselect.bmp paramselect.gif paramselect.eps
 
 
 #  Install myself in $(prefix)/TclLibs/calibration
@@ -51,7 +53,11 @@ install-exec-local:
 	$(prefix)/TclLibs/calibration/pkgIndex.tcl
 
 
-calibparams.pdf: calibparams.xml
+calibparams.dvi: calibparams.xml
 	$(DOCBOOK) $<
+
+calibparams.pdf: calibparams.dvi
+	$(DVIPDF) $<
+
 
 docs: calibparams.pdf
