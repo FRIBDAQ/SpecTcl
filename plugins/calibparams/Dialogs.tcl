@@ -313,6 +313,7 @@ namespace eval CalibrationGUI {
 		     centroid]} {
 		lappend CentroidList "$name $centroid"
 		incr DataPoint
+	    } else {
 	    }
 	}
 	if {$DataPoint == 0} {		# No point in doing any more work.
