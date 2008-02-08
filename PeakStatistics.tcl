@@ -96,7 +96,7 @@ namespace eval CalibrationGUI {
 	#  Get the spectrum definition and figure out the transformation windows.
         #  Note that the spectrum channel window is just [0,(nchans-1)]
 	#
-	set SpectrumInfo [spectrum -list $Spectrum]
+	set SpectrumInfo [lindex [spectrum -list $Spectrum] 0]
 	set Type         [lindex $SpectrumInfo 2]
 	if {$Type != 1} {
 	    error "$Spectrum is not a 1-d spectrum in ComputeCentroid"

@@ -34,7 +34,6 @@ namespace eval  CalibIOGUI {
     #    message    - Error Message
     proc FitError {command message} {
 	variable OverwriteAll
-	puts "In Fit Error $command $message"
 
 	set first       [lindex $message 0]
 	set last        [lindex $message end]
@@ -79,7 +78,6 @@ namespace eval  CalibIOGUI {
     #     message   - Reason it failed.
     #
     proc CalibError {command message} {
-	puts "Calib error $command $message"
 	variable OverwriteAll
 
 	set WordNum 0
@@ -99,10 +97,8 @@ namespace eval  CalibIOGUI {
 	if { ($words(0) == "The") && ($words(2) == $fitname) && \
 	     ($words($WordNum) == "not") } {
 	    if {[ContinueOrFail "Error executing : $command : $message"] == "Continue"} {
-		puts "returning 2"
 		return 2
 	    } else {
-		puts "Returning 0"
 		return 0
 	    }
 	}
@@ -113,10 +109,8 @@ namespace eval  CalibIOGUI {
 	    ($words(2) == "Parameter") && ($words(3) == $rawname) && \
 	    ($words($WordNum) == "not") } {
 	    if {[ContinueOrFail "Error executing : $command $message" ] == "Continue"} {
-		puts "Returning 2."
 		return 2
 	    } else {
-		puts "Returning 0"
 		return 0
 	    }
 	}
@@ -136,7 +130,6 @@ namespace eval  CalibIOGUI {
 	    set prompt 1;		# Duplicate name..
 	    set message "Attempting to redefine parameter $target"
 	    set killcmd "parameter -delete $target"
-	    puts "Killcmd set: $killcmd"
 	}
 	if {($words(0) == "A") && ($words(1) == "parameter") &&     \
             ($words(2) == "with") &&                                \
@@ -149,25 +142,21 @@ namespace eval  CalibIOGUI {
 	}
 
 	if {!$prompt} {			# Unrecognized problem... abort.
-	    puts "Returning 0"
 
 	    return 0
 	}
 	#  If overwite all already set we know what to do:
 
 	if {$OverwriteAll} {
-	    puts "Returning 1 $killcmd"
 	    eval $killcmd;		# Kill the entity however...
 	    return 1;			# Retry the command.
 	} else {			# Need to prompt.
 	    set WhatToDo [Prompt::Prompt $message 0 \
 	      {{"Keep old" 0} {Overwrite 1} {"Overwrite all" 2} {Abort 3}}]
 	    if {$WhatToDo == 3} {
-		puts "returining 0"
 		return 0;		# Abort.
 	    }
 	    if {$WhatToDo == 0} {
-		puts "returning 2"
 		return 2;		# Keep the old one...
 	    }
 	    if {$WhatToDo == 2} {	# Overwrite all:
@@ -178,7 +167,6 @@ namespace eval  CalibIOGUI {
 	    eval $killcmd
 	    return 1
 	}
-	puts "Invalid flow of control in CalibError"
     }
     # Description:	Prompts for a configuration file.  If the file exists and is
     #                   readable, the fits and calibrations are read from it.

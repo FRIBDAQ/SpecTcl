@@ -33,6 +33,12 @@ AC_C_CONST
 
 tcl_versions="8.5 8.4 8.3 8.2 8.1 8.0"   # First match;  so order new -> old.
 
+AC_MSG_CHECKING([for tcl shell command...])
+for version in $tcl_versions
+do
+	name=tclsh${version}
+	AC_CHECK_PROG(TCLSH_CMD, $name, $name)
+done
 
 
 tcl_header_dir=""
@@ -126,7 +132,6 @@ AC_ARG_WITH(gsl-home,
 if test "$GSLHOME" = "none"  
 then
 
-   echo "++++++++ Checking for headers/libs ++++++"
 
    AC_CHECK_HEADER([gsl/gsl_fit.h],
 		   [GSLHOME=""], [GSLHOME="none"])
@@ -135,7 +140,6 @@ then
 fi
 
 
-echo +++++++++++++++++++++ $GSLHOME ++++++++++++++
 
 if test "$GSLHOME" = "none"
  then
@@ -168,6 +172,7 @@ AC_PATH_PROG([DOCBOOK], [docbook2pdf],
 
   TCLCCSW="-I${TCLINCDIR}"
   AC_SUBST(TCLCCSW)
+  AC_SUBST(TCLSH_CMD)
 
   # SpecTcl:
 

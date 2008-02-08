@@ -1,16 +1,15 @@
 initLDFLAGS=@TCL_LDFLAGS@
 
-INCLUDES = -I. 
+INCLUDES = -I. 						\
 	@SPECTCLCCSW@					\
-	@TCL_FLAGS@ \
+	@TCLCCSW@ 					\
 	-D_DEBUG -DCHECK_ALL -DDESIGN_BY_CONTRACT      \
 	@GSL_CXXFLAGS@
 
 
 lib_LTLIBRARIES=libCalibrations.la
 
-libCalibrations_la_LDFLAGS = -version-info $(SOVERSION):0 \
-	-Wl,"-rpath-link=$(libdir)" @GSL_LDFLAGS@
+libCalibrations_la_LDFLAGS = -Wl,"-rpath-link=$(libdir)" @GSL_LDFLAGS@ 
 
 libCalibrations_la_SOURCES =	CalibrationPackage.cpp		\
 				CCalibratedParameterCommand.cpp	\
@@ -37,7 +36,7 @@ noinst_HEADERS	=		CCalibratedParameterCommand.h	\
 EXTRA_DIST = 	CalibIOGUI.tcl Dialogs.tcl gui.tcl TkPrompt.tcl	\
 		CalibIO.tcl ErrorRead.tcl packages.tcl	\
 		CalibrateMainGui.tcl FitIO.tcl PeakStatistics.tcl \
-		CalibrationPoints.tcl  GlobalData.tcl  
+		CalibrationPoints.tcl  GlobalData.tcl  calibparams.xml
 
 
 #  Install myself in $(prefix)/TclLibs/calibration
@@ -50,3 +49,9 @@ install-exec-local:
 	$(TCLSH_CMD)  packages.tcl $(prefix)/TclLibs/calibration
 	echo "package ifneeded Calibrations 1.0 [list load [file join \$$dir libCalibrations.so]]" >> 				\
 	$(prefix)/TclLibs/calibration/pkgIndex.tcl
+
+
+calibparams.pdf: calibparams.xml
+	$(DOCBOOK) $<
+
+docs: calibparams.pdf
