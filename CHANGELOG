@@ -753,3 +753,4 @@ January 18, 2008 - Added support for the newer spectrum types to the API
 January 25, 2008 - Debugged filter support API
                  - Fixed error in gate flattener handling that was preventing
                    gate from being properly applied.
+-------------------------- Finalized 3.2 Feb 19, 2008 ----------------------
