@@ -24,6 +24,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //   attach  -file   filename  [size]
 //   attach  -tape   devicename
 //   attach  -pipe   [-size nwords]  command_string    
+//   attach  -list
 //
 //   Author:
 //      Ron Fox
