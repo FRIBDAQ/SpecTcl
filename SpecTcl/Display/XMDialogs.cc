@@ -2294,14 +2294,16 @@ XMFileListDialog::XMFileListDialog(Widget w) : XMSelection(w) { }
 void
 XMFileListDialog::DoSearch(XmString dir)
 {
+  SetAttribute(XmNdirMask, &dir);
   XmFileSelectionDoSearch(id, dir);
 }
 
 void
-XMFileListDialog::DoSearch(char *dir)
+XMFileListDialog::DoSearch(const char *dir)
 {
+  char* pDir = const_cast<char*>(dir);
   XmString d;
-  d = XmStringCreateLtoR(dir, XmSTRING_DEFAULT_CHARSET);
+  d = XmStringCreateLtoR(pDir, XmSTRING_DEFAULT_CHARSET);
   XmFileSelectionDoSearch(id, d);
   XmStringFree(d);
 }

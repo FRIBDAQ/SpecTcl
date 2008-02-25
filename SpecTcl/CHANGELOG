@@ -753,4 +753,8 @@ January 18, 2008 - Added support for the newer spectrum types to the API
 January 25, 2008 - Debugged filter support API
                  - Fixed error in gate flattener handling that was preventing
                    gate from being properly applied.
--------------------------- Finalized 3.2 Feb 19, 2008 ----------------------
+February 25,2008 - Work around lesstif file dialog bug..For each re-use of the file selection
+                   dialog, explicitly set the search mask to the dirname of the  mask with
+                   *.win appended.  lesstif has the tendency to store the selected file
+                   in the filter path.
+

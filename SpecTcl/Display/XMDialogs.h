@@ -802,7 +802,7 @@ class XMFileListDialog : public XMSelection
 
 	 /* Methods which manipulate the search strings: */
 	 void DoSearch(XmString dir);
-	 void DoSearch(char *dir);
+	 void DoSearch(const char *dir);
 	 void DoSearch();
 	 char *GetDirectory();
 	 char *GetFileMask();
