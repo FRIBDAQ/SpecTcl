@@ -448,3 +448,5 @@ October 11, 2007  3.0-012 released
 
 Finalized release  on January 3, 2008
 Start edit level 3.0-014
+ - Work around problem with file selection box in lestif. Need to 
+   explicitly re-assert the filter mask when re-using.
