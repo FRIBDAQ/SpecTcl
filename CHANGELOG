@@ -576,6 +576,6 @@ Oct 11, 2007 3.1-006 development begins.
                                definitions.
                              - Avoid std::string string pooling as in CTreeParameter::setUnits
                                as that's not threadsafe.
-
-Finalized edit level 3.1-006 Jan 3, 2008
-Start edit level 3.1-007 
+February 25, 2008 - Workaround errror in lesstif file prompter dialog box.
+                    If the dialog is reused, the filter mask is replaced
+                    with the last selected file.
