@@ -757,4 +757,5 @@ February 25,2008 - Work around lesstif file dialog bug..For each re-use of the f
                    dialog, explicitly set the search mask to the dirname of the  mask with
                    *.win appended.  lesstif has the tendency to store the selected file
                    in the filter path.
-
+March 12, 2008   - Cosmetic changes to folder gui file menu and the prompter for the 
+                   which gui to use dialog.

@@ -51,74 +51,76 @@ File $f is missing in directory $TreeParameterHome"
 		}
 	}
 }
-set answer no;				# In case we never prompt.
+set answer 0;				# In case we never prompt.
 
 if {![info exists NoPromptForNewGui] || (!$NoPromptForNewGui)} {
-    set answer [tk_messageBox -icon question -type yesno -title "New Gui" \
-		    -message {This is the old SpecTcl GUI.  If you want to use the new GUI, click "Yes" below}]
+    set answer [tk_dialog .newgui "New Gui"  \
+		    {This is the old SpecTcl GUI.  If you want to use the new GUI, click "New (folder) otherwise click Old(multicolored)" below} \
+		    questhead 0 "Old(multicolored)" "New(Folder)"]
+    
+    
+    if {$answer == 1} {
+	source $SpecTclHome/Script/newGui.tcl
+    }
 }
-if {$answer == "yes"} {
-    source $SpecTclHome/Script/newGui.tcl
-} else {
     
     
-    if {![info exist TreeParameterHome]} {
-	set scriptname [info script]
-	set scriptdir  [file dirname $scriptname]
-	set TreeParameterHome $scriptdir
-    }
-    
-    source $TreeParameterHome/mclistbox.tcl
-    source $TreeParameterHome/notebook.tcl
-    source $TreeParameterHome/tabnbook.tcl
-    
-    source $TreeParameterHome/TreeParameter.tcl
-    
-    source $TreeParameterHome/SpectrumGenerator.tcl
-    
-    source $TreeParameterHome/ParameterManipulator.tcl
-    
-    source $TreeParameterHome/TreeVariable.tcl
-    
-    source $TreeParameterHome/VariableManipulator.tcl
-    
-    source $TreeParameterHome/GateGenerator.tcl
-    
-    CheckVersion
-    
-    CheckFiles
-    
-    GenerateMenuBitmaps
-    puts "Building SpecTcl GUI ..."
-    update
-    
-    set version [treeparameter -version]
-    
-    toplevel .gui
-    wm title .gui "TreeParameter GUI version $version"
-    tabnotebook_create .gui.main
-    pack .gui.main -expand 1 -fill both
-    SetupSpectrumGenerator .gui.main
-    SetupParameterManipulator .gui.main
-    SetupVariableManipulator .gui.main
-    SetupGateGenerator .gui.main
-    tabnotebook_display .gui.main Gates
-    tabnotebook_display .gui.main Variables
-    tabnotebook_display .gui.main Parameters
-    tabnotebook_display .gui.main Spectra
-    trace variable spectrumParameterX w SpectrumParameterXCommand
-    trace variable spectrumParameterY w SpectrumParameterYCommand
-    for {set i 1} {$i <= 20} {incr i} {
-	trace variable parameter(Name$i) w "MenuLoadParameter $i"
-	trace variable variable(Name$i) w "MenuLoadVariable $i"
-    }
-    foreach v [treevariable -list] {
-	set vName [lindex [lindex $v 0] 0]
-	trace variable $vName w SetChanged
-    }
-    global spectrumMask gateMask
-    trace variable spectrumMask w DynamicSpectrumList
-    trace variable gateMask w DynamicGateList
-    puts "SpecTcl GUI loaded."
-    
+if {![info exist TreeParameterHome]} {
+    set scriptname [info script]
+    set scriptdir  [file dirname $scriptname]
+    set TreeParameterHome $scriptdir
 }
+
+source $TreeParameterHome/mclistbox.tcl
+source $TreeParameterHome/notebook.tcl
+source $TreeParameterHome/tabnbook.tcl
+
+source $TreeParameterHome/TreeParameter.tcl
+
+source $TreeParameterHome/SpectrumGenerator.tcl
+
+source $TreeParameterHome/ParameterManipulator.tcl
+
+source $TreeParameterHome/TreeVariable.tcl
+
+source $TreeParameterHome/VariableManipulator.tcl
+
+source $TreeParameterHome/GateGenerator.tcl
+
+CheckVersion
+
+CheckFiles
+
+GenerateMenuBitmaps
+puts "Building SpecTcl GUI ..."
+update
+
+set version [treeparameter -version]
+
+toplevel .gui
+wm title .gui "TreeParameter GUI version $version"
+tabnotebook_create .gui.main
+pack .gui.main -expand 1 -fill both
+SetupSpectrumGenerator .gui.main
+SetupParameterManipulator .gui.main
+SetupVariableManipulator .gui.main
+SetupGateGenerator .gui.main
+tabnotebook_display .gui.main Gates
+tabnotebook_display .gui.main Variables
+tabnotebook_display .gui.main Parameters
+tabnotebook_display .gui.main Spectra
+trace variable spectrumParameterX w SpectrumParameterXCommand
+trace variable spectrumParameterY w SpectrumParameterYCommand
+for {set i 1} {$i <= 20} {incr i} {
+    trace variable parameter(Name$i) w "MenuLoadParameter $i"
+    trace variable variable(Name$i) w "MenuLoadVariable $i"
+}
+foreach v [treevariable -list] {
+    set vName [lindex [lindex $v 0] 0]
+    trace variable $vName w SetChanged
+}
+global spectrumMask gateMask
+trace variable spectrumMask w DynamicSpectrumList
+trace variable gateMask w DynamicGateList
+puts "SpecTcl GUI loaded."
+

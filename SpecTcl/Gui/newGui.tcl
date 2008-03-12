@@ -927,7 +927,7 @@ proc startGui {} {
     .topmenu.filemenu add command -label {Save TreeVariables...} -command writeVariables
     .topmenu.filemenu add command -label {Save Contents of Spectra...} -command saveSeveralSpectra
     .topmenu.filemenu add separator
-    .topmenu.filemenu add command -label Restore... -command "restoreState; .gui.b update; .gui.b update"
+    .topmenu.filemenu add command -label Load... -command "restoreState; .gui.b update; .gui.b update"
     .topmenu.filemenu add command -label {Read Spectrum File...}      -command readSpectrumFile
     .topmenu.filemenu add command -label {Source Tcl Script...} \
                                                 -command sourceScript
