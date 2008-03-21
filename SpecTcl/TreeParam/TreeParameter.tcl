@@ -15,7 +15,7 @@ proc UpdateTreeParameter {parameter} {
 		append Name [lindex $thePath $j] .
 	}
 	set Name [string trimright $Name .]
-	set theIndex [lsearch $treeParameterName($Name) [lindex $thePath end]]
+	set theIndex [lsearch -exact $treeParameterName($Name) [lindex $thePath end]]
 	set treeParameterBins($Name) [lreplace $treeParameterBins($Name) $theIndex $theIndex [lindex $p 1]]
 	set treeParameterStart($Name) [lreplace $treeParameterStart($Name) $theIndex $theIndex [lindex $p 2]]
 	set treeParameterStop($Name) [lreplace $treeParameterStop($Name) $theIndex $theIndex [lindex $p 3]]
@@ -40,8 +40,8 @@ proc UpdateTreeParameters {} {
 		set rootName [lindex $thePath 0]
 # Add parameter root name if it hasn't been registered yet
 		if {[info exist treeParameterRoot]} {
-			if {[lsearch $treeParameterRoot $rootName] == -1} {
-				append treeParameterRoot "$rootName "
+			if {[lsearch -exact $treeParameterRoot $rootName] == -1} {
+			    lappend treeParameterRoot $rootName
 			}
 		} else {
 			set treeParameterRoot "$rootName "
@@ -55,20 +55,20 @@ proc UpdateTreeParameters {} {
 			set Name [string trimright $Name .]
 			set subName [lindex $thePath [expr $i+1]]
 			if {[info exist treeParameterName($Name)]} {
-				if {[set Index [lsearch $treeParameterName($Name) $subName]] == -1} {
-					append treeParameterName($Name) "$subName "
+				if {[set Index [lsearch -exact $treeParameterName($Name) $subName]] == -1} {
+					lappend treeParameterName($Name) $subName
 					if {$i == [expr $theLength-2]} {
-						append treeParameterBins($Name) "$theBins "
-						append treeParameterStart($Name) "$theStart "
-						append treeParameterInc($Name) "$theInc "
-						append treeParameterStop($Name) "$theStop "
-						append treeParameterUnit($Name) "$theUnit "
+						lappend treeParameterBins($Name) $theBins 
+						lappend treeParameterStart($Name) $theStart 
+						lappend treeParameterInc($Name)  $theInc 
+						lappend treeParameterStop($Name) $theStop
+						lappend treeParameterUnit($Name) $theUnit
 					} else {
-						append treeParameterBins($Name) "none "
-						append treeParameterStart($Name) "none "
-						append treeParameterInc($Name) "none "
-						append treeParameterStop($Name) "none "
-						append treeParameterUnit($Name) "none "
+					    lappend treeParameterBins($Name) none 
+					    lappend treeParameterStart($Name) none 
+					    lappend treeParameterInc($Name) none 
+					    lappend treeParameterStop($Name) none 
+					    lappend treeParameterUnit($Name) none 
 					}
 				} else {
 					if {$i == [expr $theLength-2]} {
