@@ -759,3 +759,8 @@ February 25,2008 - Work around lesstif file dialog bug..For each re-use of the f
                    in the filter path.
 March 12, 2008   - Cosmetic changes to folder gui file menu and the prompter for the 
                    which gui to use dialog.
+March 21, 2008   - Fix error in MCM GUI where parameters with empty units could cause
+                   errors in the data structures keeping track of the parameters.
+                   Specifically, the entries in the units list would collapse out of 
+                   that list due to the use of append, rather than lappend to create those lists.
+
