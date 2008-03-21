@@ -579,3 +579,7 @@ Oct 11, 2007 3.1-006 development begins.
 February 25, 2008 - Workaround errror in lesstif file prompter dialog box.
                     If the dialog is reused, the filter mask is replaced
                     with the last selected file.
+March 21, 2008 - Fix defect in multicolored monster GUI.  Was building lists
+                 with append rather than lappend.  This caused problems
+                 with the units list when unit-less parameters were used,
+		 as their list entries would collapse out of the list.
