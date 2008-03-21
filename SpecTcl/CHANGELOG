@@ -450,3 +450,7 @@ Finalized release  on January 3, 2008
 Start edit level 3.0-014
  - Work around problem with file selection box in lestif. Need to 
    explicitly re-assert the filter mask when re-using.
+ - Fix error in multicolored monster GUI. Was using append instead of lappend
+   to build up lists.   This caused problems when there were unit-less 
+   parameters present as their list entries collapsed.
+ 
