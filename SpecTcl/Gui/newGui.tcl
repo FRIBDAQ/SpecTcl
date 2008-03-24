@@ -843,7 +843,7 @@ proc modifyVariable path {
     .editvariable configure -variable $name
 
 }
-# modifyParameter path
+# modifyParameter paths
 #     Called to allow the user to modify a parameter.
 #     A prompter for the parameter properties is created if
 #     necessary and configured to edit the parameter.
@@ -857,6 +857,45 @@ proc modifyParameter path {
     }
     .editparameter configure -parameter [pathToName $path]
 }
+
+#
+#   Determine how many bytes of display memory are in use:
+#
+proc spectrumUsage {} {
+    set multiplier(long)  4
+    set multiplier(word)  2
+    set multiplier(byte)  1
+
+
+    set spectra [spectrum -list]
+    set usage 0
+
+    foreach spectrum $spectra {
+	
+	# Figure out the channel count for the spectrum:
+
+	set axes [lindex $spectrum 4]
+	set dtype [lindex $spectrum 5]
+
+
+	set xChannels [lindex [lindex $axes 0] 2]
+	if {[llength $axes] == 1} {
+	    set channels $xChannels
+	} else {
+	    set yChannels [lindex [lindex $axes 1] 2]
+	    set channels [expr $xChannels * $yChannels]
+	}
+
+	# Multiply depending on the size of each channel:
+
+	set bytes [expr $channels * $multiplier($dtype)]
+
+	set usage [expr $usage + $bytes]
+	
+    }
+    return $usage
+
+}
 # updateStatus nms
 #      Maintains the status line in an updated state.
 # Parameters:
@@ -869,6 +908,8 @@ proc updateStatus nms {
     global BuffersAnalyzed
     global LastSequence
     global LargestSource
+    
+
 
     # It's always possible the user destroyed the window so conditionalize
     # the update on the window's existence.
@@ -877,9 +918,17 @@ proc updateStatus nms {
 
         after $nms [list updateStatus $nms];           # Reschedule.
 
-        .gui.statusline1 configure -text \
-            [format "Title %s Run Number: %s" $RunTitle $RunNumber]
 
+	set spectrumMemory [spectrumUsage]
+	set spectrumMemory [expr $spectrumMemory/(1024*1024)]
+	set outOf          ""
+	if {[info globals DisplayMegabytes] ne ""} {
+	    set outOf "/$::DisplayMegabytes"
+	}
+
+			    
+        .gui.statusline1 configure -text \
+            [format "Display memory: %s%s MB   Title %s Run Number: %s" $spectrumMemory $outOf $RunTitle $RunNumber]
         set source  [attach -list]
         if  {$LastSequence > 0} {
             set efficiency [expr 100.0*$BuffersAnalyzed/$LastSequence]
@@ -908,6 +957,8 @@ proc updateStatus nms {
 	}
 
 	# format statusline 2.
+
+
 
         .gui.statusline2 configure -text \
             [format "Data Source: %s (%s) %d Buffers Analyzed %.2f%% efficient" $source $state $BuffersAnalyzed $efficiency]

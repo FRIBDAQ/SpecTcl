@@ -763,4 +763,6 @@ March 21, 2008   - Fix error in MCM GUI where parameters with empty units could 
                    errors in the data structures keeping track of the parameters.
                    Specifically, the entries in the units list would collapse out of 
                    that list due to the use of append, rather than lappend to create those lists.
+March 24, 2008   - Add spectrum memory usage to status line of folder GUI per Kevin Carnes 
+                   suggestion.
 
