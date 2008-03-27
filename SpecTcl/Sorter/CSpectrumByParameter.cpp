@@ -16,6 +16,9 @@
 #include <config.h>
 #include "CSpectrumByParameter.h"
 #include "Spectrum.h"
+
+#include <limits.h>
+
  
 using namespace std;
 
@@ -139,7 +142,16 @@ void CSpectrumByParameter::onAdd(std::string name, CSpectrum*& spectrum)
   }
   else {
     vector<UInt_t> parameterIds;
+
+
     spectrum->GetParameterIds(parameterIds);
+    // If any parameter ids are UINT_MAX this spectrum is not incrementable
+    // (must be a spectrum read in that was not re-connected).
+
+    for (int i=0; i < parameterIds.size(); i++) {
+      if (parameterIds[i] == UINT_MAX) return;
+    }
+
     addToParameter(spectrum, parameterIds[0]);
   }
 }
@@ -161,6 +173,14 @@ void CSpectrumByParameter::onRemove(std::string name, CSpectrum*& spectrum)
   if (spectrum->needParameter()) {
     vector<UInt_t> parameters;
     spectrum->GetParameterIds(parameters);
+
+    // We're not going to be in any of these lists if we have a parameter id
+    // that's UINT_MAX (see onAdd)
+
+    for (int i=0; i < parameters.size(); i++) {
+      if (parameters[i] == UINT_MAX) return;
+    }
+
     UInt_t         param  = parameters[0];
     if ((param < m_spectraByParameter.size())  && m_spectraByParameter[param]) {
       m_spectraByParameter[param]->remove(spectrum);

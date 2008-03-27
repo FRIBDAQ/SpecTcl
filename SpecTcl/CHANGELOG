@@ -766,3 +766,11 @@ March 21, 2008   - Fix error in MCM GUI where parameters with empty units could 
 March 24, 2008   - Add spectrum memory usage to status line of folder GUI per Kevin Carnes 
                    suggestion.
 
+March 24,2008 tag release of 3.2
+Start work on 3.2-001
+
+March 27, 2008    - Correct error in spectrum observer.  Don't try to enter a spectrum that is
+                    not connected to all its parameters.  This can happen in e.g. sread.
+
+
+
