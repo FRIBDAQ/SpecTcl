@@ -959,6 +959,8 @@ void Xamine_AcceptSummingRegion(XMWidget *w, XtPointer ud, XtPointer cd)
 				     w, help_text);
     dialog->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			(XtPointer)&dialog);
+    dialog->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput,
+			(XtPointer)&dialog);
   }
   /* Set the current row/column: */
 

@@ -1,6 +1,6 @@
 #include <config.h>
 #include "XMWidget.h"
-
+using namespace std;
 /*
 ** Implementation of functions from class XMApplication
 */
@@ -122,6 +122,19 @@ XMWidget::XMWidget(char *n, WidgetClass cl, XMWidget &parent,
 XMWidget::~XMWidget()
 {
   XtDestroyWidget(id);
+
+  // delete the callback data structures that were dynamically created 
+  // XMAddCallback
+
+  list<Callback_data*>::iterator i = m_callbacks.begin();
+  while (i != m_callbacks.end()) {
+    Callback_data* pcb = *i; 
+    delete []pcb->reason;	// This is dynamically allocated.
+    delete pcb;			// delete the callback struct itself.
+    i++;
+  }
+  // std::list can clean up after itself now.
+
 }
 
 Widget
@@ -166,7 +179,44 @@ XMWidget::AddCallback(String reason,
 				      void (*)(XMWidget *,
 					       XtPointer, XtPointer),
 				      XtPointer);
-  return XMAddCallback(this, reason, proc, data);
+  Callback_data* pData = XMAddCallback(this, reason, proc, data);
+  m_callbacks.push_back(pData);
+  return pData;
+
+}
+//
+// To remove a callback we have to search our 
+// callback list for one that matches then call
+// XMRemoveCallback and get it out of our callback list.
+// XMRemoveCallback will release the resources used by
+// the Callback_data struct.
+//
+void
+XMWidget::RemoveCallback(String reason,
+			 void (*proc)(XMWidget*, XtPointer, XtPointer),
+			 XtPointer data)
+{
+  list<Callback_data*>::iterator i = m_callbacks.begin();
+  while (i != m_callbacks.end()) {
+    Callback_data* cbd   = *i;
+
+    // compare the simple fields before bothering with the strcmp on the reason:
+
+    if ((this == cbd->object)    &&  (proc == cbd->function) && (data == cbd->client_data)) {
+      if (strcmp(reason, cbd->reason) == 0) {
+
+	// perfect match:
+
+	XMRemoveCallback(cbd);	// This deletes cbd and the string
+	m_callbacks.erase(i);	// Get rid of the list element.
+	return;
+
+      }
+    }
+
+    i++;
+  }
+  // As with Xt, there's no penalty for removing a nonexistent callback.
 }
 
 void

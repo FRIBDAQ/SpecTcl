@@ -587,4 +587,7 @@ March 21, 2008 - Fix defect in multicolored monster GUI.  Was building lists
 
 March 24, 2008 3.1-007 released
 Started 3.1-008
-
+March 28, 2008 - BZ 330 Port fix from 3.0, ensure that [X] calls some sort
+                 of callback that deletes the widget.
+               - In support of the above, add easy mechanism to remove
+                 callbacks.
