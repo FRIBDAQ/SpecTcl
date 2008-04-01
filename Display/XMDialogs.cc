@@ -286,6 +286,25 @@ void XMCustomDialog::CreateDialog(char *name, Widget parent, char *title,
 
 }
 
+/*
+  Pop the widget down:
+*/
+
+void XMCustomDialog::popDown()
+{
+  XtPopdown(id);
+}
+
+/* 
+   Pop the widget up:
+*/
+void 
+XMCustomDialog::popUp()
+{
+  XtPopup(id, XtGrabNone);
+
+}
+
 
 /*
 ** Method Description:

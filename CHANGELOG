@@ -780,4 +780,5 @@ March 28, 2008   - BZ330 (hopefully)
                       * Kill mouse callbacks for graph input.
                       * Remove the callbacks for delete and popdown.
 
-
+April 1, 2008    - Stop recycling properties dialog so it gets
+                   properly recreated (lesstif mis-remanages it).
