@@ -755,6 +755,7 @@ Xamine_DestroyGraphicalInput(XMWidget* pWidget,
 			 pClientData);
   pInput->RemoveCallback(XmNpopdownCallback, Xamine_DestroyGraphicalInput,
 			 pClientData);
+
   NullPointer(pWidget, pClientData, pEvent);
 
 }

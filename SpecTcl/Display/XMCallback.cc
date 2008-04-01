@@ -455,6 +455,18 @@ void NullPointer(XMWidget* pWidget,
 		 XtPointer pClientData, XtPointer pEvent)
 {
   XMWidget** ppWidget = (XMWidget**)(pClientData);
+
+  XMWidget*  p = *ppWidget;
+
+  //
+  // Get rid of the callbacks for deletion and for
+  // popdown so we don't have circularity.
+  //
+
+  p->RemoveCallback(XmNdestroyCallback, NullPointer,
+			 pClientData);
+  p->RemoveCallback(XmNpopdownCallback, NullPointer,
+			 pClientData);
   *ppWidget     = (XMWidget*)NULL;
   delete pWidget;		/* Object may as well be destroyed too. */
 
