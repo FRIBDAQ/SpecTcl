@@ -782,3 +782,8 @@ March 28, 2008   - BZ330 (hopefully)
 
 April 1, 2008    - Stop recycling properties dialog so it gets
                    properly recreated (lesstif mis-remanages it).
+April 4, 2008    - BZ330 - Don't call cancel callback in
+                    Xamine_DestroyGraphicalInput until the callbacks
+                    are removed so we avoid recursion that will double
+                    destroy the object.
+
