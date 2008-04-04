@@ -591,3 +591,7 @@ March 28, 2008 - BZ 330 Port fix from 3.0, ensure that [X] calls some sort
                  of callback that deletes the widget.
                - In support of the above, add easy mechanism to remove
                  callbacks.
+April 4, 2008  - Ensure that Xamine_DestroyGraphicalInput invokes cancel
+                 after the callbacks have been removed so that
+                 there's no recursion which would double delete the object.
+

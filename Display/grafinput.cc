@@ -744,7 +744,6 @@ Xamine_DestroyGraphicalInput(XMWidget* pWidget,
 {
   GraphicalInput** ppInput = (GraphicalInput**)pClientData;
   GraphicalInput*   pInput = *ppInput;
-  pInput->CancelCallback(NULL);
   pInput->ClearStandardCallbacks();
   //
   // Get rid of the callbacks for deletion and for
@@ -755,6 +754,10 @@ Xamine_DestroyGraphicalInput(XMWidget* pWidget,
 			 pClientData);
   pInput->RemoveCallback(XmNpopdownCallback, Xamine_DestroyGraphicalInput,
 			 pClientData);
+
+
+  pInput->CancelCallback(NULL);	// Prevent recursion/double deletion.
+
   NullPointer(pWidget, pClientData, pEvent);
 
 }
