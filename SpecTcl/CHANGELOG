@@ -788,3 +788,4 @@ April 4, 2008    - BZ330 - Don't call cancel callback in
                     destroy the object.
 April 22, 2008   - Fix slight errors in binning in SpecTcl.. correctly
                    compute the bin width for the integeristas.
+                   Per Thomas Baumann.
