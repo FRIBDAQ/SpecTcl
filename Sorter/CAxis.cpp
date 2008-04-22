@@ -193,6 +193,29 @@ CAxis::AxisToMappedParameter(Int_t nAxisValue)
 void
 CAxis::ComputeScale()
 {
+
+  // Here's the math.  We want a scale factor such that
+  // the last channel includes the high limit plus a channel
+  // width.  If n is the number of channels, r the range
+  // covered by those channels, and w the channel width:
+  //
+  // nw = r+w (the range is really one more channel width than claimed).
+  // nw - w =r
+  // w(n-1) = r
+  // w  = (r/(n-1)).
+  // so:
+
+  Float_t  range = (m_fHigh - m_fLow);
+
+  // The scale factor is the reciprocal of the channel width:
+
+  m_fScaleFactor = ((float)(m_nChannels-1)/range);
+
+  return;
+
+#ifdef OLDSCALEFACTOR
+
+
   // This is a bit nasty..and I'm not really sure this is right.
   // For a very very small range you want to be about exact.
   // for a larger range, you need to allow all of that last channel
@@ -205,6 +228,8 @@ CAxis::ComputeScale()
   else {			// Channel size >= 1.0
     m_fScaleFactor = (float)m_nChannels/(range +1.0);
   }
+#endif
+
 }
 
 
