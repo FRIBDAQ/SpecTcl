@@ -786,4 +786,5 @@ April 4, 2008    - BZ330 - Don't call cancel callback in
                     Xamine_DestroyGraphicalInput until the callbacks
                     are removed so we avoid recursion that will double
                     destroy the object.
-
+April 22, 2008   - Fix slight errors in binning in SpecTcl.. correctly
+                   compute the bin width for the integeristas.
