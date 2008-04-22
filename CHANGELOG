@@ -595,4 +595,4 @@ April 4, 2008  - Ensure that Xamine_DestroyGraphicalInput invokes cancel
                  after the callbacks have been removed so that
                  there's no recursion which would double delete the object.
 
-April 22,2008 - Correct bin width computations in CAxis.
+April 22,2008 - Correct bin width computations in CAxis. Per Thomas Baumaann
