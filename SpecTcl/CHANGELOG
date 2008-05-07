@@ -795,3 +795,5 @@ May 7, 2008      - Fix defect in Xamine gate acceptor on m2 spectra.
                    adding the gate.. which can throw an uncaught exception.
                    Thanks to Kevin Carnes KSU for stepping into this defect
                    and alerting me to it.
+                 - Added Kevin Carnes and Dirk Weisshaar to the acknowledgements.
+
