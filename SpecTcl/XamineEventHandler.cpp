@@ -598,13 +598,21 @@ CXamineEventHandler::make2dSumgate(string                 gatename,
 							   xId, yId);
     CGate* pGate = api.CreateGate(componentGateType,
 				  gateParams, points);
+
     api.AddGate(componentName, pGate);
+
     componentNames.push_back(componentName);
   }
   // Now create the or gate:
 
   CGate* orGate = api.CreateOrGate(componentNames);
-  api.AddGate(gatename, orGate);
+
+  if (api.FindGate(gatename)) {
+    api.ReplaceGate(gatename, *orGate);
+  }
+  else {
+    api.AddGate(gatename, orGate);
+  }
 }
 // Create a unique component name for a component of a 
 // gate accepted on a sum spectrum.
