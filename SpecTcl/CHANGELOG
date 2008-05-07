@@ -789,3 +789,9 @@ April 4, 2008    - BZ330 - Don't call cancel callback in
 April 22, 2008   - Fix slight errors in binning in SpecTcl.. correctly
                    compute the bin width for the integeristas.
                    Per Thomas Baumann.
+May 7, 2008      - Fix defect in Xamine gate acceptor on m2 spectra.
+                   Needed to select appropriately between adding the gate
+                   and modifying the existing gate, rather than unconditionally
+                   adding the gate.. which can throw an uncaught exception.
+                   Thanks to Kevin Carnes KSU for stepping into this defect
+                   and alerting me to it.
