@@ -27,7 +27,7 @@ using namespace std;
 
 static char* version = "1.0";
 extern "C" {
-  int firstof_Init(Tcl_Interp* pInterp) 
+  int Firstof_Init(Tcl_Interp* pInterp) 
   {
     Tcl_PkgProvide(pInterp, "firstof", version );
 

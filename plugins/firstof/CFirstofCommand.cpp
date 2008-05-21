@@ -67,7 +67,7 @@ int
 CFirstofCommand::operator()(CTCLInterpreter&     interp,
 			    vector<CTCLObject>&  objv)
 {
-  if (objv.size() != 5) {
+  if (objv.size() != 4) {
     string result;
     result += "Incorrect number of command parameters\n";
     result += Usage();
@@ -123,9 +123,16 @@ CFirstofCommand::operator()(CTCLInterpreter&     interp,
     sourceParameters.push_back(pParameter);
   }
   // At this point everything must succeed.
+  // Create the new output parameters, 
   // construct the new event processor, add it to the SpecTcl event processors
   // and return TCL_OK to signal success.
   // we leave the result empty.
+
+
+  pValue = pApi->AddParameter(valueParam, 
+			      pApi->AssignParameterId(), string(""));
+  pHit   = pApi->AddParameter(hitnumParam,
+			      pApi->AssignParameterId(), string(""));
 
   CFirstofEventProcessor* pProcessor = new CFirstofEventProcessor(pValue, pHit, 
 								  sourceParameters);
@@ -134,4 +141,23 @@ CFirstofCommand::operator()(CTCLInterpreter&     interp,
 
   return TCL_OK;
 
+}
+
+/////////////////////////////////////////////////////////////////////
+// Private utilities.
+
+/*
+  Return the command usage help string.
+*/
+string
+CFirstofCommand::Usage() const
+{
+  string usage;
+  usage    += "Usage\n";
+  usage    += "  firstof valueparam hitnumparam input-list\n";
+  usage    += "valueparam  - output parameter with first value\n";
+  usage    += "hitnumparam - output paramter with first index\n";
+  usage    += "input-list  - Tcl List of input parameters.";
+
+  return usage;
 }
