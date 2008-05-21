@@ -1,0 +1,19 @@
+Installation follows the form:
+
+./configure --prefix=target-dir
+make install
+
+
+Note that generally target-dir should be the location in which you've installed
+your SpecTcl.  The plugin will be installed in the TclLibs subdirectory of the
+target-dir.  If you choose to install this plugin in a different directory
+tree than SpecTcl
+
+./configure --prefix=target-dir --with-spectcl-home=SpectclHome
+
+where SpecTclHome is the top level of the SpecTcl installation directory tree.
+
+./configure --help
+
+provides the usual description of the plethora of options configure accepts.
+
