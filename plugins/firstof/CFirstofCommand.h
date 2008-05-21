@@ -21,7 +21,7 @@
 #include <TCLObjectProcessor.h>
 #endif
 
-#include  __STL_STRING
+#ifndef  __STL_STRING
 #include <string>
 #ifndef __STL_STRING
 #define __STL_STRING
@@ -68,7 +68,7 @@ public:
   // The command interface:
 
 public:
-  int operator()(CTCLInterpeter&          interp,
+  int operator()(CTCLInterpreter&          interp,
 		 std::vector<CTCLObject>& objv);
  
   // utilities.

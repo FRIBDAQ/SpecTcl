@@ -17,7 +17,7 @@
 #include "CFirstofCommand.h"
 #include "CFirstofEventProcessor.h"
 
-#include <TCLInterpeter.h>
+#include <TCLInterpreter.h>
 #include <TCLInterpreterObject.h>
 #include <Parameter.h>
 #include <SpecTcl.h>
@@ -65,7 +65,7 @@ CFirstofCommand::~CFirstofCommand()
 */
 int
 CFirstofCommand::operator()(CTCLInterpreter&     interp,
-			    vector<CTCLOBject>&  objv)
+			    vector<CTCLObject>&  objv)
 {
   if (objv.size() != 5) {
     string result;
@@ -84,7 +84,7 @@ CFirstofCommand::operator()(CTCLInterpreter&     interp,
   
   SpecTcl* pApi = SpecTcl::getInstance();
   CParameter* pValue = pApi->FindParameter(valueParam);
-  CParameter* pHit   = pApi->FindParameter(hitnumparam);
+  CParameter* pHit   = pApi->FindParameter(hitnumParam);
   if (pValue || pHit) {
     string result;
     result += "The target parameters of firstof must not be";
@@ -108,7 +108,7 @@ CFirstofCommand::operator()(CTCLInterpreter&     interp,
     result  += "Final parameter of firstof must be a valid Tcl list\n";
     result  += Usage();
     interp.setResult(result);
-    return TCL_ERROR:
+    return TCL_ERROR;
   }
   for (int i=0; i < paramList.size(); i++) {
     CParameter* pParameter = pApi->FindParameter((string)(paramList[i]));
@@ -120,7 +120,7 @@ CFirstofCommand::operator()(CTCLInterpreter&     interp,
       interp.setResult(result);
       return TCL_ERROR;
     }
-    sourceParameter.push_back(pParameter);
+    sourceParameters.push_back(pParameter);
   }
   // At this point everything must succeed.
   // construct the new event processor, add it to the SpecTcl event processors

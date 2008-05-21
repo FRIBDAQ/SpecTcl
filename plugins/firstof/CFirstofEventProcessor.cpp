@@ -14,11 +14,11 @@
 	     East Lansing, MI 48824-1321
 */
 #include <config.h>
-#include "CFirstoEventProcessor.h"
+#include "CFirstofEventProcessor.h"
 #include "Parameter.h"
 #include "Event.h"
 #include "BufferDecoder.h"
-#include "Analyzerh."
+#include "Analyzer.h"
 
 
 using std::vector;
@@ -124,7 +124,7 @@ CFirstofEventProcessor::operator!=(const CFirstofEventProcessor& rhs) const
 
 */
 Bool_t
-CFirstofEventProcesor::operator()(const Address_t pEvent,
+CFirstofEventProcessor::operator()(const Address_t pEvent,
 				  CEvent&         rEvent,
 				  CAnalyzer&      rAnalyzer,
 				  CBufferDecoder& rDecoder)
