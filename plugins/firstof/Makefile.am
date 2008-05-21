@@ -14,3 +14,13 @@ install-exec-local:
 
 
 
+EXTRA_DIST	=	firstof.xml
+
+firstof.dvi: firstof.xml
+	@DOCBOOK@ firstof.xml
+
+firstof.pdf: firstof.dvi
+	@DVIPDF@ firstof.dvi
+
+docs: firstof.pdf
+
