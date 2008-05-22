@@ -4,4 +4,9 @@ February 6, 2008
 	Added selectFilterFormat.tcl sample script to add filter format
 	selection dialog to the folder GUI
 	Ensure that the package initializer returns TCL_OK.
+
+May 22,2008
+	Make this compatible with older versions of root which
+	don't have that additional root dir under lib and include.
+	
 	
