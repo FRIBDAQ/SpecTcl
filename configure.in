@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 
-AC_INIT(RootFilterFormat, 1.0, fox@nscl.msu.edu)
+AC_INIT(RootFilterFormat, 1.0-001, fox@nscl.msu.edu)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER([configure.h])
 AC_CANONICAL_HOST
@@ -143,8 +143,12 @@ AC_PATH_PROG([DVIPDF], [dvipdf],
 
   # Root:
 
-  ROOTCCSW="-I${ROOTSYS}/include/root"
-  ROOTLDSW="-L${ROOTSYS}/lib/root -lTree -lCore -lCint -ldl -Wl,\"-rpath=${ROOTSYS}/lib/root\""
+  # for the CCSW, ROOTSYS/include works for 'old roots',
+  # ROOTSYS/include/root is needed for newer roots. >sigh<
+  # same crap for the lib stuff.
+
+  ROOTCCSW="-I${ROOTSYS}/include -I${ROOTSYS}/include/root"
+  ROOTLDSW="-L${ROOTSYS}/lib -L${ROOTSYS}/lib/root -lTree -lCore -lCint -ldl -Wl,\"-rpath=${ROOTSYS}/lib/root\""
 
   AC_SUBST(ROOTCCSW)
   AC_SUBST(ROOTLDSW)
