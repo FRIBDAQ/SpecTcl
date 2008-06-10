@@ -25,10 +25,11 @@
       Spectcl event processing pipeline.
    </para>
    <para>
-      The new event processors locate the first parameter in a list of parameters
+      The new event processors locate the first, or largest parameter in a list
+      of parameters
       that has been assigned a value and produces two output parameters.
-      The first output parameter is the value of the first defined parameter.
-      The second output parameter is the index of the first defined parameter.
+      The first output parameter is the value of the first, or largest defined parameter.
+      The second output parameter is the index of the found parameter.
    </para>
    <para>
       One sample use of this plugin would be to create hit/position spectra
@@ -292,6 +293,40 @@ sbind dsssd1.xy
          The two dimensional position spectrum we defined will have
          channel (5,3) incremented.
       </para>
+   </section>
+   <section>
+      <title>The <command>biggestof</command> command</title>
+      <para>
+         The
+         <command>biggestof</command>
+         command is also added, it has the same syntax as the
+         <command>firstof</command>
+         command but generates an event processor that returns the largest value
+         and index of the largest value parameter in the list of parameter monitored.
+      </para>
+      <para>
+         An example of this that is identical to that of the
+         <command>firstof</command> example is:
+      </para>
+      <example>
+         <title>Making a 2-d position spectrum for a dsssd detector using <command>biggestof</command></title>
+         <programlisting>
+load $SpecTclHome/TclLibs/libfirstof.so
+
+for {set strip 0} {$strip &lt; 32} {incr strip} {
+   set stripnum [format %02d $strip]
+   lappend xstrips dsssd1.x.$stripnum  
+   lappend ystrips dsssd1.y.$stripnum
+}
+
+biggestof dsssd1.x.e  dsssd1.x.pos $xstrips
+biggestof dsssd1.y.e  dsssd1.y.pos $ystrips
+
+spectrum dsssd1.xy  2 {dsssd1.x.pos dsssd1.y.pos} {{0 31 32} {0 31 32}} 
+sbind dsssd1.xy
+
+         </programlisting>
+      </example>
    </section>
 </chapter>
 

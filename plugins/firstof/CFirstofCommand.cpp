@@ -16,6 +16,8 @@
 #include <config.h>
 #include "CFirstofCommand.h"
 #include "CFirstofEventProcessor.h"
+#include "CBiggestOfEventProcessor.h" 
+
 
 #include <TCLInterpreter.h>
 #include <TCLInterpreterObject.h>
@@ -67,10 +69,12 @@ int
 CFirstofCommand::operator()(CTCLInterpreter&     interp,
 			    vector<CTCLObject>&  objv)
 {
+  string  command = objv[0];
+
   if (objv.size() != 4) {
     string result;
     result += "Incorrect number of command parameters\n";
-    result += Usage();
+    result += Usage(command);
     interp.setResult(result);
     return TCL_ERROR;
   }
@@ -89,7 +93,7 @@ CFirstofCommand::operator()(CTCLInterpreter&     interp,
     string result;
     result += "The target parameters of firstof must not be";
     result += "defined\n";
-    result += Usage();
+    result += Usage(command);
     interp.setResult(result);
     return TCL_ERROR;
   }
@@ -106,7 +110,7 @@ CFirstofCommand::operator()(CTCLInterpreter&     interp,
   catch (...) {
     string result;
     result  += "Final parameter of firstof must be a valid Tcl list\n";
-    result  += Usage();
+    result  += Usage(command);
     interp.setResult(result);
     return TCL_ERROR;
   }
@@ -134,8 +138,23 @@ CFirstofCommand::operator()(CTCLInterpreter&     interp,
   pHit   = pApi->AddParameter(hitnumParam,
 			      pApi->AssignParameterId(), string(""));
 
-  CFirstofEventProcessor* pProcessor = new CFirstofEventProcessor(pValue, pHit, 
-								  sourceParameters);
+  CEventProcessor* pProcessor;
+  if (command == string("firstof")) {
+    pProcessor   = new CFirstofEventProcessor(pValue, pHit, 
+					       sourceParameters);
+  }
+  else if (command == string("biggestof")) {
+    pProcessor = new CBiggestofEventProcessor(pValue, pHit, 
+					      sourceParameters);
+  }
+  else {
+    string result;
+    result = "Unrecognized command keyword!";
+    interp.setResult(result);
+    return TCL_ERROR;
+  }
+
+
 
   pApi->AddEventProcessor(*pProcessor);
 
@@ -150,11 +169,13 @@ CFirstofCommand::operator()(CTCLInterpreter&     interp,
   Return the command usage help string.
 */
 string
-CFirstofCommand::Usage() const
+CFirstofCommand::Usage(string commandName) const
 {
   string usage;
   usage    += "Usage\n";
-  usage    += "  firstof valueparam hitnumparam input-list\n";
+  usage    += "  ";
+  usage    += commandName;
+  usage    += " valueparam hitnumparam input-list\n";
   usage    += "valueparam  - output parameter with first value\n";
   usage    += "hitnumparam - output paramter with first index\n";
   usage    += "input-list  - Tcl List of input parameters.";

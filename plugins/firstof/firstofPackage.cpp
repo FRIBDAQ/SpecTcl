@@ -36,7 +36,8 @@ extern "C" {
     // create the commands.
 
     CTCLInterpreter& interp(*(new CTCLInterpreter(pInterp)));
-    CFirstofCommand* pAddedCommand = new CFirstofCommand(interp, "firstof");
+    CFirstofCommand* pAddedCommand   = new CFirstofCommand(interp, "firstof");
+    CFirstofCommand* pBiggestCommand = new CFirstofCommand(interp, "biggestof");
 
     return TCL_OK;
 

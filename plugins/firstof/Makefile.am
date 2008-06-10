@@ -1,9 +1,11 @@
 lib_LTLIBRARIES=libfirstof.la
 libfirstof_la_SOURCES 	=	CFirstofCommand.cpp		\
 				CFirstofEventProcessor.cpp	\
-				firstofPackage.cpp 		
+				firstofPackage.cpp 		\
+				CBiggestOfEventProcessor.cpp
 noinst_HEADERS	=	CFirstofCommand.h 	\
-			CFirstofEventProcessor.h
+			CFirstofEventProcessor.h \
+			CBiggestOfEventProcessor.h
 
 INCLUDES=$(SPECTCLCCSW) $(TCLCCSW)
 

@@ -50,6 +50,9 @@ class CTCLObject;
 
    At present, there's no way to list the parameters so created nor
    edit them.
+
+  - added.. if the command is biggestof, an event processor that matches the
+  largest value from the set of parameters is created
 */
 class CFirstofCommand : public CTCLObjectProcessor
 {
@@ -73,7 +76,7 @@ public:
  
   // utilities.
 private:
-  std::string Usage() const;
+  std::string Usage(std::string commandName) const;
 };
 
 
