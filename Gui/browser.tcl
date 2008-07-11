@@ -125,6 +125,9 @@ image create photo ::browser::pseudoicon   -format gif \
     option -width 8in
     option -treewidth 2.5in
 
+    delegate option * to tree
+    delegate method * to tree
+
     constructor {args} {
         $self configurelist $args
 
@@ -133,7 +136,7 @@ image create photo ::browser::pseudoicon   -format gif \
 
 
 
-        ::blt::treeview $win.tree
+        install tree using ::blt::treeview $win.tree
         $win.tree configure -autocreate 1 -hideroot 1 -separator . -width $options(-width)tree
         $win.tree sort auto 1
 

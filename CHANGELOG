@@ -800,3 +800,5 @@ June 5, 2008     - Fix typeo in BufferAnalysis.h
 
 July 11, 2008    - Gui/slice.tcl - re-init the browser on accepting a gate (reinit member)
                    that restores the parameters used to the list.
+                 - Expose the treeview interface to clients of 
+                   Gui/browser.tcl
