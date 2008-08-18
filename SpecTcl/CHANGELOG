@@ -802,3 +802,4 @@ July 11, 2008    - Gui/slice.tcl - re-init the browser on accepting a gate (rein
                    that restores the parameters used to the list.
                  - Expose the treeview interface to clients of 
                    Gui/browser.tcl
+August 18, 2008  - Update to tkcon V2.4
