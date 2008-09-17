@@ -803,3 +803,7 @@ July 11, 2008    - Gui/slice.tcl - re-init the browser on accepting a gate (rein
                  - Expose the treeview interface to clients of 
                    Gui/browser.tcl
 August 18, 2008  - Update to tkcon V2.4
+September 17, 2008 
+                 - Fixed error in RunState handling.. Set it to
+                   "Inactive" on event source EOF.  This is needed to
+ 		   support batchmode processing of e.g. filter files.
