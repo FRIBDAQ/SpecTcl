@@ -4,7 +4,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 3.2-001)
+AM_INIT_AUTOMAKE(SpecTcl, 3.3)
 
 
 AC_EXEEXT
@@ -911,6 +911,7 @@ AC_SUBST(MANDOCBOOK)
 
 
 AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
+        factories/Makefile					      \
 	Display/Makefile NSCLException/Makefile  \
 	Xamine/Makefile Tape/Makefile \
 	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
