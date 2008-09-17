@@ -1,4 +1,4 @@
-SUBDIRS =  Replace Scripts Utility Display \
+SUBDIRS =  Replace Scripts Utility factories Display \
 	NSCLException Xamine Tape EventSource \
 	TCL Events Gates Sorter SpectrumIO Filter Analysis TreeParam \
 	Fits SpecTcl \
