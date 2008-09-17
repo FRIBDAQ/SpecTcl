@@ -551,6 +551,7 @@ CTclAnalyzer::OnScaler(CBufferDecoder& rDecoder)
     call the OnEventSourceEOF member for each event processing pipeline
     element.
 */
+
 void
 CTclAnalyzer::OnEndFile()
 {
@@ -562,7 +563,11 @@ CTclAnalyzer::OnEndFile()
     if (!pProcessor->OnEventSourceEOF()) break;
     p++;
   }
+  // Set the Run State to Halted:
+
+  m_pRunState->Set("Halted");    // <-- Added this line
 }
+
 
 /*!
   Assigns a unique name of the form Anonymous::n where n is an integer.  This is
