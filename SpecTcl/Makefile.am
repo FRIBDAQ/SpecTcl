@@ -7,6 +7,7 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	-I@top_srcdir@/Analysis -I@top_srcdir@/TreeParam \
 	-I@top_srcdir@/Fits                               \
+	-I@top_srcdir@/factories			\
 	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:

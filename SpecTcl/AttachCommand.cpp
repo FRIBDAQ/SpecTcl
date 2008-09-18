@@ -72,6 +72,10 @@ using namespace std;
 #endif
 
 
+// Class level members:
+
+CAttachCommand::CDecoderFactory CAttachCommand::m_decoderFactory;
+
 // Static data declarations:
 struct SwitchDef {
   char*     pName;
@@ -237,10 +241,6 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_ERROR;
   }
 
-  // Select the buffer decoder... for now we just have 2 hardwired
-  // buffer formats.. .later we'll build an extensible set of buffer
-  // decoders like the -format switch on the sread/swrite commands.
-
 
   // Note well, since this mistake was already made once:
   // We can't delete the gpBufferDecoder prior to setting
@@ -249,21 +249,12 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //
   //
 
-  CBufferDecoder* oldDecoder = gpBufferDecoder;  // for later delete.
-  
-  if (options.Format == string("nscl")) {
- 
-    gpBufferDecoder = new CNSCLBufferDecoder;
 
-  } else  if (options.Format == string("filter")) {
 
-    gpBufferDecoder = new CFilterBufferDecoder;
-  } else if (options.Format == string("unchanged")) {
-    ;				// Leave everything well enough alone!!!
-                                // This is necessary to support 
-                                // external formatters and is the default. 
-  } else {			// Bad format.
-
+  CBufferDecoder* oldDecoder = gpBufferDecoder;
+  CBufferDecoder* pNewDecoder= createDecoder(options.Format);
+  if (!pNewDecoder) 
+  {
     rResult  = "Unrecognized format type: ";
     rResult += options.Format;
     rResult += "\n";
@@ -271,6 +262,9 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_ERROR;
 
   }
+
+  gpBufferDecoder = pNewDecoder;
+
   // Can only set a decoder if there's an analyzer
   // and we don't want to thrash decoders if it
   // turned out the logic above did not replace
@@ -508,6 +502,22 @@ int CAttachCommand::AttachNull(CTCLResult& rResult,
   return TCL_OK;
 }
 
+
+/*!
+   Register a new buffer decoder type to the attach command's decoder
+   factory.
+   \param type    - Name by which the type will be known.
+                    If -format type is used, the registered creator
+                    will be used to create the buffer decoder.
+   \param creator - pointer to a creator that will be used to generate
+                    buffer decoders for that type.
+
+*/
+void
+CAttachCommand::addDecoderType(string type, CAttachCommand::CDecoderCreator* creator)
+{
+  m_decoderFactory.addCreator(type, creator);
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:
@@ -554,3 +564,27 @@ CAttachCommand::ParseSwitch(char* pSwitch) {
 }
 
 
+/////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//    CBufferDecoder* createDecoder(std::string type)
+// Operation Type:
+//    private utility
+// Description:
+//    Given a format type string produces a pointer to the
+//    decoder represented by that typ.
+//    Returns NULL if type does not correspond to a 
+//    known decoder type.
+// 
+//   Note that the special type "unchanged" will return the
+//   value of gpBuferDecoder.
+//
+CBufferDecoder*
+CAttachCommand::createDecoder(string type)
+{
+  if (type == string("unchanged")) {
+    return gpBufferDecoder;
+  }
+
+  return m_decoderFactory.create(type);
+}

@@ -115,6 +115,15 @@ SpecTcl::getInstance()
 }
 ///////////////////////////// API functions /////////////////////////////
 
+/*!
+  Register the creator for a new type of buffer decoder.
+*/
+void
+SpecTcl::addBufferDecoder(string type,
+			  CAttachCommand::CDecoderCreator* creator)
+{
+  CAttachCommand::addDecoderType(type, creator);
+}
 
 /*!
   Allocate a new parameter id. and return it to the caller.
