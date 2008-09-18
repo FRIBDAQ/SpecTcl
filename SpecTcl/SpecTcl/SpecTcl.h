@@ -77,6 +77,10 @@
 #endif
 
 
+#ifndef __ATTACHCOMMAND_H
+#include <AttachCommand.h>
+#endif
+
 
 // Forward class definitions
 
@@ -134,6 +138,12 @@ public:
 
   static SpecTcl* getInstance();
 
+
+  // Allow the definition of a new buffer decoder.
+  // This requires that the analyzer is already defined.
+
+  void addBufferDecoder(std::string                      type,
+			CAttachCommand::CDecoderCreator* creator);
 
 
   // Manipulate the parameter diectionary etc.
@@ -385,6 +395,7 @@ public:
   CEventSinkPipeline* GetEventSinkPipeline();
   STD(vector)<UInt_t>      parameterIds(STD(vector)<STD(string)> names);
 
+  
 
   
 };
