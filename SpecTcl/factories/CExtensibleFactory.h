@@ -1,4 +1,4 @@
-#ifndef __CEXTENISBLEFACTORY_H
+#ifndef __CEXTENSIBLEFACTORY_H
 #define __CEXTENSIBLEFACTORY_H
 
 
@@ -31,6 +31,11 @@
 #define __STL_MAP
 #endif
 #endif
+
+#ifndef __CCREATOR_H
+#include <CCreator.h>
+#endif
+
 
 /*!
   This is an extensible factory pattern realized as a template class.
@@ -109,7 +114,6 @@ class CExtensibleFactory
 {
 private:
   typedef  std::map<std::string, CCreator<T>* > CreatorMap;
-  typedef  CreatorMap::iterator                 CreatorIterator;
   CreatorMap m_creators;
 
 public:
@@ -118,12 +122,11 @@ public:
     m_creators[type] = pCreator;
   }
   T* create(std::string type) {
-    CreatorIterator p = m_creators.find(type);
-    if (p == m_creators.end()) {
+    if(m_creators.find(type) == m_creators.end()) {
       return reinterpret_cast<T*>(NULL);
     } 
     else {
-      return p->second;
+      return (*(m_creators.find(type)->second))();
     }
   }
   
