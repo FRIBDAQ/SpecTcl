@@ -917,6 +917,7 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	Analysis/Makefile \
+	DecoderRing/Makefile \
 	TreeParam/Makefile \
 	Fits/Makefile	   \
 	 SpecTcl/Makefile \

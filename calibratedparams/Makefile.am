@@ -6,6 +6,7 @@ INCLUDES = -I. -I@top_srcdir@/Utility -I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/Sorter -I@top_srcdir@/EventSource \
 	-I@top_srcdir@/Filter -I@top_srcdir@/Gates       \
 	-I@top_srcdir@/Xamine -I@top_srcdir@/Display      \
+	-I@top_srcdir@/factories			\
 	@TCL_FLAGS@ \
 	-D_DEBUG -DCHECK_ALL -DDESIGN_BY_CONTRACT
 

@@ -60,7 +60,7 @@ class CRingBufferDecoder : public CBufferDecoder
 private:
   uint32_t*    m_pBuffer;	// Buffer being processed.
   uint32_t*    m_pBufferCursor;	// Cursor into buffer being processed.
-  uint32_t     m_nBufferSize    // Bytes in the buffer.
+  uint32_t     m_nBufferSize;   // Bytes in the buffer.
   uint32_t     m_nResidual;     // Bytes remaining to be processed in buffer.
   uint32_t*    m_pPartialEvent; // If non-zero pointer to partial event being assembled.
   uint32_t     m_nPartialEventSize;  // Expected size of the partial event.
@@ -97,19 +97,22 @@ public:
   virtual UInt_t getBodySize();
   virtual UInt_t getRun();
   virtual UInt_t getEntityCount();
-  virtual UInt_t getSequenceNumber();
+  virtual UInt_t getSequenceNo();
   virtual UInt_t getLamCount();
-  virtual UInt_t getPatternCount();
   virtual UInt_t getBufferType();
+  virtual UInt_t getPatternCount();
   virtual void   getByteOrder(Short_t& signature16,
 			      Int_t&   signature32);
-  std::string    getTitle();
+  virtual std::string    getTitle();
+  virtual BufferTranslator* getBufferTranslator();
+
 private:
   void createTranslator();
   void processBuffer();
   void dispatchPartialEvent();
   void dispatchEvent(void* pEvent);
   UInt_t mapType(UInt_t type);
+  void createPartialEvent();
 };
 
 

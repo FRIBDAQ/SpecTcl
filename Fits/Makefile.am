@@ -26,6 +26,7 @@ INCLUDES = 	-I@top_srcdir@/Utility	\
 		-I@top_srcdir@/Gates	\
 		-I@top_srcdir@/Filter	\
 		-I@top_srcdir@/TCL	\
+		-I@top_srcdir@/factories \
 		$(TCL_FLAGS)
 
 
