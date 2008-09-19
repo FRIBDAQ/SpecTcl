@@ -25,6 +25,13 @@
 #endif
 #endif
 
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif
+#endif
+
 #ifndef __STL_MAP
 #include <map>
 #ifndef __STL_MAP
@@ -116,6 +123,16 @@ private:
   typedef  std::map<std::string, CCreator<T>* > CreatorMap;
   CreatorMap m_creators;
 
+  class visitor {
+    std::vector<std::string>&  m_descriptions;
+  public:
+    visitor(std::vector<std::string>& descriptions) :
+      m_descriptions(descriptions) {}
+    void operator()(std::pair<std::string, CCreator<T>*> item) {
+      m_descriptions.push_back(item.second->describe());
+    }
+  };
+
 public:
   void addCreator(std::string type,
 		  CCreator<T>* pCreator) {
@@ -128,6 +145,13 @@ public:
     else {
       return (*(m_creators.find(type)->second))();
     }
+  }
+  std::vector<std::string> getDescriptions() {
+    std::vector<std::string> descriptions;
+    visitor v(descriptions);
+      
+    for_each(m_creators.begin(), m_creators.end(), v);
+    return descriptions;
   }
   
 };
