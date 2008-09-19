@@ -530,7 +530,7 @@ void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "  attach {switches...} connection\n";
   rResult += "  Where:\n";
   rResult += "     Switches are taken from the following:\n";
-  rResult += "     -format filter|nscl  - Choose buffer format\n";
+  rResult += "     -format {format type}\n";
   rResult += "     -size nBytes - Number of bytes per buffer.\n";
   rResult += "     {sourcetype} which can be only one of:\n";
   rResult += "        -file  when connection is the name of the file\n";
@@ -544,6 +544,13 @@ void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "               sources\n";
   rResult += "        -null  No events will be made available.\n";
 
+  vector<string> formats = m_decoderFactory.getDescriptions();
+
+  rResult += "Available format types are:\n";
+  for (int i =0; i < formats.size(); i++) {
+    rResult += formats[i];
+    rResult += "\n";
+  }
 }
 
 
