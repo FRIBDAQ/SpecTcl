@@ -1,6 +1,7 @@
 SUBDIRS =  Replace Scripts Utility factories Display \
 	NSCLException Xamine Tape EventSource \
-	TCL Events Gates Sorter SpectrumIO Filter Analysis TreeParam \
+	TCL Events Gates Sorter SpectrumIO Filter Analysis\
+	DecoderRing  TreeParam \
 	Fits SpecTcl \
 	contrib TestFiles Gui splash filtsplit calibratedparams
 

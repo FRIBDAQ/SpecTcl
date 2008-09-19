@@ -8,6 +8,7 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Analysis -I@top_srcdir@/TreeParam \
 	-I@top_srcdir@/Fits                               \
 	-I@top_srcdir@/factories			\
+	-I@top_srcdir@/DecoderRing			\
 	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:
@@ -80,15 +81,17 @@ SpecTcl_SOURCES = MySpecTclApp.cpp \
 
 AM_CXXFLAGS = -g
 
-SpecTcl_LDFLAGS = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis \
+SpecTcl_LDFLAGS = -lTclGrammerCommands -lXplus -lGates -lAnalysis \
 	-lFilter -lBufferAnalysis -lEventSource -lSpecio -ltclPlus \
 	-lException -lTreeParam -lXamine  -ltape -lFits \
+	@top_srcdir@/Sorter/libSorting.la		\
+	@top_srcdir@/DecoderRing/libDecoderRing.la	\
 	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)  \
 	-L. -L../SpectrumIO \
 	-L../Tape -L../Sorter \
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
 	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam \
-	-L../Fits	\
+	-L../Fits -L@top_srcdir/DecoderRing	\
 	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas -lpub  @TCL_LDFLAGS@ @XLIBSW@
 
 

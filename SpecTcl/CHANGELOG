@@ -809,3 +809,13 @@ September 17, 2008
  		   support batchmode processing of e.g. filter files.
 
 Start on 3.3
+September 17, 2008 
+		- Added extensible factory template class directory
+                  factories.  This can be used both by new factories
+                  and to refactor the code provided by existing factories.
+                - Use extensible factory to generate the buffer decoder
+                  selected by the attach -format switch so that buffer decoders
+                  are extensible.
+September 18, 2008
+                - Registered default decoders with DataSourcePackage
+

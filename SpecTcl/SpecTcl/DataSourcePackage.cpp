@@ -55,6 +55,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <NSCLBufferDecoder.h>
 #include <NSCLJumboBufferDecoder.h>
+#include <CRingBufferDecoder.h>
 #include <FilterBufferDecoder.h>
 
 
@@ -109,6 +110,17 @@ public:
 };
 
 
+class CRingDecoderCreator : public CAttachCommand::CDecoderCreator
+{
+public:
+  virtual CBufferDecoder* operator()() {
+    return new CRingBufferDecoder();
+  }
+  virtual string    describe() const {
+    return string("ring  - NSCL DAQ Ring buffer data acquisition system");
+  }
+};
+
 ///////////////////////////////////////////////////////////////////////////
 
 // Functions for class CDataSourcePackage
@@ -136,6 +148,7 @@ CDataSourcePackage::CDataSourcePackage(CTCLInterpreter* pInterp) :
   pApi->addBufferDecoder("nscl", new CNSCLDecoderCreator());
   pApi->addBufferDecoder("jumbo", new CJumboDecoderCreator());
   pApi->addBufferDecoder("filter",new CFilterDecoderCreator());
+  pApi->addBufferDecoder("ring",  new CRingDecoderCreator());
   
 }
 

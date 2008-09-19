@@ -514,7 +514,7 @@ int Xamine_MatchSpecName(char *name)
 void Callback_handler(XMWidget *w, XtPointer userd, XtPointer calld)
 {
   XMSelectionDialog *choice          = (XMSelectionDialog *)w;
-  void  (*usercallback)(int id)      = (void (*)(int))userd;
+  void  (*usercallback)(int id)      = reinterpret_cast<void (*)(int)>(userd);
   XmSelectionBoxCallbackStruct *info = (XmSelectionBoxCallbackStruct *)calld;
   char error_msg[512];
   
@@ -671,12 +671,12 @@ void Xamine_ChooseSpectrum(XMWidget *w, XtPointer clientd, XtPointer calld)
   }
 typedef void (*cbfunc)(XMWidget *, XtPointer, XtPointer);
   ok = SpectrumChooser->AddDoCallback(Callback_handler, 
-				      (XtPointer)callback_data->displayfunc,
+				      reinterpret_cast<XtPointer>(callback_data->displayfunc),
 				      &apply); /* New Ok/Apply */
   cancel = SpectrumChooser->AddCancelCallback(Callback_handler, 
-				     (XtPointer)callback_data->displayfunc); /* New cancel */
+				     reinterpret_cast<XtPointer>(callback_data->displayfunc)); /* New cancel */
   nomatch = SpectrumChooser->AddNoMatchCallback(Callback_handler, 
-				      (XtPointer)callback_data->displayfunc);
+				      reinterpret_cast<XtPointer>(callback_data->displayfunc));
 
   /* Show the dialog to the world. */
 

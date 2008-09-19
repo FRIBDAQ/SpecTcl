@@ -39,6 +39,7 @@ LDFLAGS=-L$(SPECLIBS) -lTclGrammerCommands \
 	-lBufferAnalysis \
 	-lTreeParam \
 	-lFits		\
+	-lDecoderRing	\
 	-lgsl -lgslcblas	\
 	-lpub 			\
 	$(TCLLIBS)    \

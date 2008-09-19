@@ -18,7 +18,6 @@
 #include "CRingBufferDecoder.h"
 #include "DataFormat.h"
 
-#include <Globals.h>
 #include <Analyzer.h>
 #include <BufferTranslator.h>
 
@@ -86,8 +85,8 @@ void
 CRingBufferDecoder::operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAnalyzer)
 {
   m_pAnalyzer     = &rAnalyzer;
-  m_pBuffer       = pBuffer;
-  m_pBufferCursor = pBuffer;
+  m_pBuffer       = reinterpret_cast<uint32_t*>(pBuffer);
+  m_pBufferCursor = m_pBuffer;
   m_nBufferSize   = nBytes;
   m_nResidual     = nBytes;
 
@@ -174,7 +173,7 @@ CRingBufferDecoder::getEntityCount()
 
 */
 UInt_t
-CRingBufferDecoder::getSequenceNumber()
+CRingBufferDecoder::getSequenceNo()
 {
   return m_nTriggerCount;
 }
@@ -244,11 +243,24 @@ CRingBufferDecoder::getByteOrder(Short_t& signature16,
    \retval The most recently received title.
    \retval empty string if no title has ever been seen.
 */
-void
+string
 CRingBufferDecoder::getTitle()
 {
   return m_title;
 }
+
+/*!
+  Returns the buffer translator to the caller.
+  this allows the caller to construct translator pointers as well.
+  \return BufferTranslator*
+  \retval Pointer to the most recently constructed buffer translator
+*/
+BufferTranslator*
+CRingBufferDecoder::getBufferTranslator()
+{
+  return m_pTranslator;
+}
+
 ///////////////////////////////////////////////////////////////////
 //
 // Non-public utility functions:
@@ -267,7 +279,7 @@ CRingBufferDecoder::createTranslator()
   pRingItem pItem = reinterpret_cast<pRingItem>(m_pBuffer);
 
   delete m_pTranslator;
-  if (*pItem & 0xffff0000) {
+  if (pItem->s_header.s_type & 0xffff0000) {
     m_pTranslator = new SwappingBufferTranslator(m_pBuffer);
   }
   else {
@@ -293,13 +305,12 @@ CRingBufferDecoder::processBuffer()
     UInt_t remaining = m_nPartialEventSize - m_nPartialEventBytes;
     UInt_t append    = m_nBufferSize >= remaining ? remaining : m_nBufferSize;
 
-    m_pPartialEvent = realloc(m_pPartialEvent, append + m_partialEventBytes);
     uint8_t* p      = reinterpret_cast<uint8_t*>(m_pPartialEvent) + m_nPartialEventBytes;
     memcpy(p, m_pBuffer, append);
 
     m_nPartialEventBytes += append;
     m_nResidual          -= append;
-    m_pBufferCursor       = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*> + append);
+    m_pBufferCursor       = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(m_pBufferCursor) + append);
 
     if (m_nPartialEventSize <= m_nPartialEventBytes) {
       dispatchPartialEvent();
@@ -323,7 +334,7 @@ CRingBufferDecoder::processBuffer()
       // Full event fits in the remainder of the buffer:
 
       dispatchEvent(m_pBufferCursor);
-      m_pBufferCursor = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*> + size);
+      m_pBufferCursor = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(m_pBufferCursor) + size);
       m_nResidual    -= size;
     }
   }
@@ -352,12 +363,12 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
 {
   // extract the type of the event and the total size:
 
-  pRingItem*       pItem = reinterpret_cast<pRingItemHeader>(pEvent);
+  pRingItem        pItem = reinterpret_cast<pRingItem>(pEvent);
   uint32_t         size  = m_pTranslator->TranslateLong(pItem->s_header.s_size);
   uint32_t         type  = m_pTranslator->TranslateLong(pItem->s_header.s_type);
   m_pTranslator->newBuffer(pItem);
   m_pBody                = (pItem->s_body);
-  m_nBodySize            = size - sizeof(RingItemHEader);
+  m_nBodySize            = size - sizeof(RingItemHeader);
   m_nCurrentItemType     = mapType(type);
 
   
@@ -382,7 +393,7 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   case MONITORED_VARIABLES:
     {
       pTextItem pText = reinterpret_cast<pTextItem>(pItem);
-      m_nEntityCount  = m_pTranslator->TranslateLong(pText->s_stringCOunt);
+      m_nEntityCount  = m_pTranslator->TranslateLong(pText->s_stringCount);
       m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
     }
     break;
@@ -425,7 +436,7 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
 ** SpecTcl expected are mapped to them here.
 */
 UInt_t
-CRingBUfferDecoder::mapType(UInt_t type)
+CRingBufferDecoder::mapType(UInt_t type)
 {
   static bool                mapSetup(false);
   static map<int, int>  typeMapping;
@@ -448,6 +459,28 @@ CRingBUfferDecoder::mapType(UInt_t type)
   else {
     return type;
   }
+
+
+}
+/*
+** Create a new partial event that is filled in from the current
+** buffer cursor to the end of the buffer.
+*/
+void
+CRingBufferDecoder::createPartialEvent()
+{
+  // Get the full size of the event and allocate a build buffer for it:
+
+  pRingItemHeader pHeader = reinterpret_cast<pRingItemHeader>(m_pBufferCursor);
+  uint32_t    size    = m_pTranslator->TranslateLong(pHeader->s_size);
+
+  m_pPartialEvent      = reinterpret_cast<uint32_t*>(malloc(size));
+  m_nPartialEventSize = size;
+
+  // Copy in what's left in the current buffer:
+
+  memcpy(m_pPartialEvent, m_pBufferCursor, m_nResidual);
+  m_nPartialEventBytes  = m_nResidual;
 
 
 }
