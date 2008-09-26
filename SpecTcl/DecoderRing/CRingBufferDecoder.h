@@ -106,6 +106,10 @@ public:
   virtual std::string    getTitle();
   virtual BufferTranslator* getBufferTranslator();
 
+  virtual bool blockMode();	// True if data source must deliver fixed sized blocks.
+
+
+
 private:
   void createTranslator();
   void processBuffer();

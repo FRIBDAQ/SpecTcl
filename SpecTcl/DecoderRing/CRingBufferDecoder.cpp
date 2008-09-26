@@ -260,6 +260,18 @@ CRingBufferDecoder::getBufferTranslator()
 {
   return m_pTranslator;
 }
+/*!
+   Returns false idicating that the data source is not going to be
+   necessarily providing fixed length data buffers.  This is required to
+   ensure that SpecTcl does not block indefinitely on a read when 
+   runs end due to them not ending on block boundaries.
+*/
+bool
+CRingBufferDecoder::blockMode()
+{
+  return false;
+}
+
 
 ///////////////////////////////////////////////////////////////////
 //
