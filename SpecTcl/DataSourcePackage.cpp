@@ -181,7 +181,9 @@ int CDataSourcePackage::AttachFileSource(CTCLResult& rResult) {
   }
 
   // Disconnect the current event source and connect the new one.
-  CFile* pNew   = new CDiskFile;
+
+  
+  CFile* pNew   = new CDiskFile();
   gpEventSource = pNew;
   CFile* pOld   = gpRunControl->Attach(pNew);
   delete pOld;
@@ -263,7 +265,7 @@ int CDataSourcePackage::AttachPipeSource(CTCLResult& rResult) {
   }
 
   // Disconnect the current event source and connect the new one.
-  CFile* pNew   = new CPipeFile;
+  CFile* pNew   = new CPipeFile();
   gpEventSource = pNew;
   CFile* pOld   = gpRunControl->Attach(pNew);
   delete pOld;
@@ -369,7 +371,8 @@ int CDataSourcePackage::OpenSource(CTCLResult& rResult,
   try {
     if(gpEventSource->getState() == kfsOpen) 
       gpEventSource->Close();
-    gpEventSource->Open(pConnectionString, kacRead);
+    gpEventSource->Open(pConnectionString, kacRead,
+			gpBufferDecoder->blockMode());
     
     // Now the event record size is set.  Either from the parameter, or,
     // if the source was a tape, from the blocksize in the event tape source.

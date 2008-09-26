@@ -13,7 +13,8 @@
 */
  
  #include "fitgsl.h"
- 
+ #include <string.h>
+
  /* Function parameter, passed to each of the f(x), f'(x) and fdf(x) */
 typedef struct _fitgsl_fnparams
 {
