@@ -821,4 +821,14 @@ September 18, 2008
 September 22, 2008 
                 - Added CRingBufferDecoder support so that ring buffer
                   data can be decoded.
+September 26, 2008
+                - Provided mechanisms for buffer decoders to specify they
+                  operate either on fixed sized blocks of data or on streams.
+                  This is needed to ensure SpecTcl's input stage does not
+                  get permanently blocked when data taking pauses or 
+                  a run ends on a stream oriented pipe data source.
+                - Indicated that the CRingBufferDecoder is a stream decoder.
+                - Documented SpecTcl::addBufferDecoder.
+                - Documented new behavior of the -format switch on the
+                  attach command.
 
