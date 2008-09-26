@@ -261,6 +261,8 @@ class SpecTcl
 {
 public:
   static SpecTcl* getInstance();
+  void addBufferDecoder(std::string                      type,
+			CAttachCommand::CDecoderCreator* creator);
   UInt_t AssignParameterId();
   CParameter* AddParameter(STD(string) name, 
 			   UInt_t Id, 
@@ -426,6 +428,12 @@ The SpecTcl API
 class supports interfaces to the following subsections of SpecTcl's
 functionality:
 .TP
+The buffer decoder factory.
+New buffer decoders creators can be registered with an extensible factory
+for buffer decoder objects.  This factory is used to select the appropriate
+buffer decoder as specified or implied by the 
+\fBattach\fR command's \fB-format\fR switch.
+.TP
 Parameter Dictionary
 Parameters can be created, searched for, removed and iterated through.
 .TP
@@ -477,6 +485,27 @@ using the object.  For example, the code below adds a new parameter to SpecTcl:
 SpecTcl& api(*(SpecTcl::getInstance()));
 api.AddParameter("someposition", api.AssignParameterId(), "mm");
 .CE
+
+.SH "BUFFER DECODER FACTORY"
+.PP
+SpecTcl's set of buffer decoders is extensible.  The extensible factory pattern
+is used to accomplish this.  The extensible factory pattern requires that
+each specific object type that can be created have a corresponding creator
+object.  The factory provides a mechanism for registering new creators and
+associating them with a keyword.
+.PP
+This interface is abstracted somewhat by the API:
+.TP
+\fBvoid CSpecTcl::addBufferDecoder(std::string type, CAttachCommand::CDecoderCreator* creator)
+Interacts with the extensible decoder factory to add a new decoder type.
+The parameters are as follows:
+.AP std::string type in
+Provides the keyword to be associated witht he creator.  This keyword will be
+matched against the \fB-format\fR switch on the \fBattach\fR command to select
+the desired decoder.
+.AP CAttachCommand::CDecoderCreator* creator in
+Provides a pointer to the object that knows how to create the buffer decoder
+associated with the \fItype\fR string.
 
 .SH "PARAMETER INTERFACE"
 .PP
