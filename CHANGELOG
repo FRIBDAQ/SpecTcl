@@ -831,4 +831,6 @@ September 26, 2008
                 - Documented SpecTcl::addBufferDecoder.
                 - Documented new behavior of the -format switch on the
                   attach command.
+                - Xamine - integrate superimposed spectra as well
+                  as base spectra.
 
