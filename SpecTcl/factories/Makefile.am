@@ -1,7 +1,7 @@
 
 
 EXTRA_DIST	=	CCreator.h		\
-			CExtensibleFactor.h
+			CExtensibleFactory.h
 
 install-exec-local:
 	install -d -m 0755 $(prefix)/include

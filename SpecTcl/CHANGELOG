@@ -818,4 +818,7 @@ September 17, 2008
                   are extensible.
 September 18, 2008
                 - Registered default decoders with DataSourcePackage
+September 22, 2008 
+                - Added CRingBufferDecoder support so that ring buffer
+                  data can be decoded.
 
