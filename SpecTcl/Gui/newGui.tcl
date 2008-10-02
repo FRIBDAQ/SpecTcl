@@ -62,8 +62,23 @@ set GuiPrefs::preferences(defaultBuffersize)  8192
 
 
 
-
 #--------------- Utility functions -------------------------
+
+# unGate spectrum 
+#   Removes a gate that's applied to a spectrum.  The browser
+#   is then updated to reflect the new state.
+#
+# Parameters:
+#   spectrum - name of the spectrum to ungatge.
+# Implicit:
+#   .gui.b - Browser widget path.
+#
+proc unGate spectrum {
+    ungate $spectrum
+    .gui.b update
+    failsafeWrite
+
+}
 
 # displayScriptErrors filename errors
 #   Displays the errors associated with sourcing a file.
@@ -644,6 +659,7 @@ proc createSpectrumContextMenu {} {
     $men add command -label {Edit...}
     $men add command -label {Clear}
     $men add command -label {Gate...}
+    $men add command -label {UnGate}
     $men add separator
     $men add command -label {Write...}
     $men add separator
@@ -764,10 +780,11 @@ proc spectrumContextMenu  {path x y} {
     .spectrumcontextmenu entryconfigure 0 -command [list editSpectrum   $path]
     .spectrumcontextmenu entryconfigure 1 -command [list clear $name]
     .spectrumcontextmenu entryconfigure 2 -command [list applyGate  $name]
+    .spectrumcontextmenu entryconfigure 3 -command [list unGate     $name]
 
-    .spectrumcontextmenu entryconfigure 4 -command [list writeSpectrum  $name]
+    .spectrumcontextmenu entryconfigure 5 -command [list writeSpectrum  $name]
 
-    .spectrumcontextmenu entryconfigure 6 -command [list deleteSpectrum $name]
+    .spectrumcontextmenu entryconfigure 7 -command [list deleteSpectrum $name]
 
     tk_popup .spectrumcontextmenu $x $y
 }

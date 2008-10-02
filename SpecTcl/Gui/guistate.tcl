@@ -533,7 +533,7 @@ proc writeGateApplications fd {
         set gate     [lindex $application 1]
         set gatename [lindex $gate 0]
         # ungated spectra are actually gated on -TRUE-
-        if {$gatename != "-TRUE-"} {
+        if {$gatename != "-TRUE-" && $gatename != "-Ungated-"} {
             puts $fd "apply [list $gatename]  [list $spectrum]"
         }
     }

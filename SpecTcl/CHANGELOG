@@ -833,4 +833,8 @@ September 26, 2008
                   attach command.
                 - Xamine - integrate superimposed spectra as well
                   as base spectra.
+October 2, 2008 - Add ungate context menu option to new GUI.
+                - Don't write applications if the gate is -Ungated-
+                  (spectrum was ungated).
+
 
