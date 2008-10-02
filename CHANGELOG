@@ -836,5 +836,8 @@ September 26, 2008
 October 2, 2008 - Add ungate context menu option to new GUI.
                 - Don't write applications if the gate is -Ungated-
                   (spectrum was ungated).
+                - Correct the count of buffers analyzed to account for the
+                  fact that the first buffer is sequence 0 so we need
+                  the first buffer to increment our buffers analyzed -> 0.
 
 
