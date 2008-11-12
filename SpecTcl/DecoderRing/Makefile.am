@@ -2,7 +2,8 @@ lib_LTLIBRARIES	= libDecoderRing.la
 
 libDecoderRing_la_SOURCES	=	CRingBufferDecoder.cpp
 
-noinst_HEADERS			= 	CRingBufferDecoder.h
+noinst_HEADERS			= 	CRingBufferDecoder.h 	\
+					DataFormat.h
 
 
 INCLUDES			= 	-I@top_srcdir@/Utility	\
