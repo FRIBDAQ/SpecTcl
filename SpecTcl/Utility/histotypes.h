@@ -230,7 +230,8 @@ typedef enum _SpectrumType_t {
   keUnknown,
   keStrip,
   ke2Dm,
-  keG2DD
+  keG2DD,
+  keGSummary
 } SpectrumType_t;
 
 
@@ -264,6 +265,9 @@ operator<<(STD(ostream)& out, SpectrumType_t t)
   case keG2DD:
     out << "gd";
     break;
+  case keGSummary:
+    out << "gs";
+      break;
   case ke2Dm:
     out << "m2";
     break;
@@ -308,6 +312,9 @@ operator>>(STD(istream)& in, SpectrumType_t& t)
       break;
     case 'd':
       t = keG2DD;
+      break;
+    case 's':
+      t = keGSummary;
       break;
     default:
       t = keUnknown;
