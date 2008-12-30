@@ -123,7 +123,12 @@ CGammaSummarySpectrum<T>::CGammaSummarySpectrum(const std::string name,
 	     nYChannels,
 	     fYLow, fYHigh);
 }
-  
+
+/*!
+  Destructor is here for chaining:
+*/
+template <class T>
+CGammaSummarySpectrum<T>::~CGammaSummarySpectrum() {}  
 
 /*!
    Increment the spectrum.  Iterating through each x channel and its associated
