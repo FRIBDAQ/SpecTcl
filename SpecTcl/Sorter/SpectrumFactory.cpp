@@ -574,7 +574,7 @@ CSpectrumFactory::CreateSpectrum(string                  name,
   // validate the type and take action accordingly:
 
   switch(specType) {
-  keGSummary:
+  case  keGSummary:
     {
       // Marshall the parameter array:
 

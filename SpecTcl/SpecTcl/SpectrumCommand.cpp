@@ -505,7 +505,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 
   if (string(pType) == string("gs")) {
 
-    rPack.CreateSpectrum(rResult, pName, pType, vGSParameters,
+    return rPack.CreateSpectrum(rResult, pName, pType, vGSParameters,
 			 vChannels, vLows, vHighs, pDataType);
   }
   else if (vyParameters.size() == 0) {
