@@ -19,7 +19,7 @@
 //
 
 
-#ifndef 
+#ifndef __CGAMMASUMMARYSPECTRUM_CXX
 #define __CGAMMASUMMARYSPECTRUM_CXX
 #include <config.h>
 
@@ -35,6 +35,9 @@
 #include <RangeError.h>
 #endif
 
+#ifndef __EVENT_H
+#include <Event.h>
+#endif
 
 #ifndef __STL_SET
 #include <set>
@@ -70,7 +73,7 @@ template <class T>
 CGammaSummarySpectrum<T>::CGammaSummarySpectrum(string              name, 
 						UInt_t              nId,
 						UInt_t              nYChannels,
-						vector<CParameter>* pParameters) :
+						vector<vector <CParameter> >*  pParameters) :
   CSpectrum(name, nId),
   m_nXChannels(pParameters->size()),
   m_nYChannels(nYChannels)
@@ -78,7 +81,7 @@ CGammaSummarySpectrum<T>::CGammaSummarySpectrum(string              name,
 
   UInt_t nXChannels = pParameters->size();
   CreateStorage();
-  fillParameterArray(pParameters,
+  fillParameterArray(*pParameters,
 		     nXChannels);
   CreateAxes(pParameters,
 	     nXChannels,
@@ -112,13 +115,13 @@ CGammaSummarySpectrum<T>::CGammaSummarySpectrum(const std::string name,
   m_nYChannels(nYChannels)
 
 {
-  UInt_t nXChannels = pParametesr->size();
+  UInt_t nXChannels = pParameters->size();
   CreateStorage();
-  fillParameterArray(pParameters, nXChannels);
-  CreateAxes(pParameters,
+  fillParameterArray(*pParameters, nXChannels);
+  CreateAxes(*pParameters,
 	     nXChannels,
 	     nYChannels,
-	     fYlow, fYHigh);
+	     fYLow, fYHigh);
 }
   
 
@@ -132,10 +135,12 @@ CGammaSummarySpectrum<T>::CGammaSummarySpectrum(const std::string name,
 */
 template <class T>
 void
-CGammaSummarySpectrum<T>::Increment(const CEvent& event)
+CGammaSummarySpectrum<T>::Increment(const CEvent& e)
 {
+  CEvent& event((CEvent&)e);
+
   T* p = (T*)getStorage();
-  for (uint x = 0; x < m_nXChannels; x++) {
+  for (UInt_t x = 0; x < m_nXChannels; x++) {
     vector<UInt_t>&      params(m_Parameters[x]);
     // 
     // Iterate over all parameters in a y stripe:
@@ -143,7 +148,7 @@ CGammaSummarySpectrum<T>::Increment(const CEvent& event)
     for(int i =0; i < params.size(); i++) {
       UInt_t paramId = params[i];
       if (paramId < event.size() && event[paramId].isValid()) {
-	UInt_t chan = ParameterToAxis(x, event[paramId]);
+	UInt_t chan = static_cast<UInt_t>(m_Axes[x].ParameterToAxis(event[paramId]));
 	if (chan < m_nYChannels) {
 	  p[chan*m_nYChannels]++;
 	}
@@ -161,10 +166,10 @@ CGammaSummarySpectrum<T>::Increment(const CEvent& event)
 */
 template <class T>
 ULong_t
-CGammaSummarySpectrum<T>::operator[](const Uint_t* pIndices) const
+CGammaSummarySpectrum<T>::operator[](const UInt_t* pIndices) const
 {
-  Uint_t x = pIndices[0];
-  Uint_t y = pIndices[1];
+  UInt_t x = pIndices[0];
+  UInt_t y = pIndices[1];
   indexCheck(x,y);
 
   T* p = (T*)getStorage();
@@ -176,6 +181,7 @@ CGammaSummarySpectrum<T>::operator[](const Uint_t* pIndices) const
   \param nValue    - Value to use.
 */
 template <class T>
+void
 CGammaSummarySpectrum<T>::set(const UInt_t* pIndices, ULong_t nValue)
 {
   UInt_t x = pIndices[0];
@@ -183,7 +189,7 @@ CGammaSummarySpectrum<T>::set(const UInt_t* pIndices, ULong_t nValue)
   indexCheck(x,y);
 
   T* p = (T*)getStorage();
-  p[x+y*m_nYChannels] = (T*)(nValue);
+  p[x+y*m_nYChannels] = (T)(nValue);
 }
 
 /*!
@@ -194,15 +200,16 @@ CGammaSummarySpectrum<T>::set(const UInt_t* pIndices, ULong_t nValue)
 
 */
 template <class T>
+Bool_t
 CGammaSummarySpectrum<T>::UsesParameter(UInt_t nId) const
 {
   for (int i =0; i < m_Parameters.size(); i++) {
-    std::vector<UInt_t>& p(m_Parameters[i]);
+    const std::vector<UInt_t>& p(m_Parameters[i]);
     for(int j = 0; j < p.size(); j++) {
-      if (p[j] == nId) return true;
+      if (p[j] == nId) return kfTRUE;
     }
   }
-  return false;
+  return kfFALSE;
 }
 /*!
    Returns a list of the parameter ids the spectrum uses.
@@ -214,17 +221,17 @@ template <class T>
 void
 CGammaSummarySpectrum<T>::GetParameterIds(vector<UInt_t>& ids)
 {
-  set<UInt_t> resultSet;	// Used to uniquify.
+  std::set<UInt_t> resultSet;	// Used to uniquify.
   for (int i =0; i < m_Parameters.size(); i++) {
     std::vector<UInt_t>& p(m_Parameters[i]);
-    for (int j =0; j < p.size(); p++) {
+    for (int j =0; j < p.size(); j++) {
       resultSet.insert(p[j]);
     }
   }
   // Iterate through the set, pulling keys out and stuffing them
   // sequentially in ids:
 
-  set<UInt_t>::iterator p = resultSet.begin();
+  std::set<UInt_t>::iterator p = resultSet.begin();
   while (p != resultSet.end()) {
     ids.push_back(*p);
     p++;
@@ -319,6 +326,17 @@ CGammaSummarySpectrum<T>::Dimension(UInt_t n) const
   }
   throw CRangeError(0,1, n, "Gamma summary spectrum dimension call");
 }
+/*!
+  \return SpectrumType_t
+  \retval keGSummary
+*/
+
+template <class T>
+SpectrumType_t
+CGammaSummarySpectrum<T>::getSpectrumType()
+{
+  return keGSummary;
+}
 ///////////////////////////////////////////////////////////////////////////////
 //  Utility methods.
 //
@@ -349,7 +367,7 @@ CGammaSummarySpectrum<T>::CreateStorage()
    
   }
 
-  T* pSTorage = new T[StorageNeeded()/sizeof(T)];
+  T* pStorage = new T[StorageNeeded()/sizeof(T)];
   ReplaceStorage(pStorage);
   Clear();
 }
@@ -359,11 +377,16 @@ CGammaSummarySpectrum<T>::CreateStorage()
  */
 template <class T>
 void
-CGammaSummarySpectrum<T>::fillParameterArray(std::vector<CParameter>* params,
-					  UInt_T xChannels)
+CGammaSummarySpectrum<T>::fillParameterArray(vector<vector<CParameter> >& params,
+					  UInt_t xChannels)
 {
   for (int i=0; i < xChannels; i++) {
-    m_Parameters.push_back(params[i]);
+    vector<CParameter>& p(params[i]);
+    vector<UInt_t> v;
+    for (int j = 0; j < p.size(); j++) {
+      v.push_back(p[j].getNumber());
+    }
+    m_Parameters.push_back(v);
   }
 
 }
@@ -373,7 +396,7 @@ CGammaSummarySpectrum<T>::fillParameterArray(std::vector<CParameter>* params,
 */
 template <class T>
 void
-CGammaSummarySpecrum<T>::CreateAxes(vector<CParameter>* params,
+CGammaSummarySpectrum<T>::CreateAxes(vector<vector<CParameter> >& params,
 				    UInt_t              nx,
 				    UInt_t              ny,
 				    Float_t             low,
@@ -390,14 +413,14 @@ CGammaSummarySpecrum<T>::CreateAxes(vector<CParameter>* params,
  */
 template <class T>
 void
-indexCheck(UInt_t x, UInt_t y)
+CGammaSummarySpectrum<T>::indexCheck(UInt_t x, UInt_t y) const
 {
   if (x >= m_nXChannels) {
     throw CRangeError(0, m_nXChannels, x, 
 		      "X Indexing gamma summary spectrum");
   }
   if (y >= m_nYChannels) {
-    throw CRangeError(0, m_nYchannels, y,
+    throw CRangeError(0, m_nYChannels, y,
 		      "Y Indexing gamma summary spectrum");
   }
 }

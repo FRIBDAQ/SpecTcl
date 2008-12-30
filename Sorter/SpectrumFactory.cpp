@@ -39,54 +39,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
 
-/*!
-  Change log:
-    $Log$
-    Revision 5.6  2007/02/23 20:38:18  ron-fox
-    BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
-    parameter lists).
 
-    Revision 5.5  2006/09/26 11:06:56  ron-fox
-    Added 2d multiply incremented spectra to the spectrum factory
-
-    Revision 5.4  2006/06/28 20:00:31  ron-fox
-    Fix g1 with empty parameter list crash (defect 211) and issues with gui
-    when user makes both a and a.b
-
-    Revision 5.3.2.1  2006/06/28 19:32:08  ron-fox
-    Defect 211 - g1 spectrum creation with empty parameter list segfaults.
-    Should return error .. insufficient parameters.
-
-    Revision 5.3  2005/09/22 12:40:00  ron-fox
-    Fix defects in gamma 2d spectrum increment.  When there are no valid
-    parameters the outer loop limits are bad and eventually lead to segflt
-
-    Revision 5.2  2005/06/03 15:19:24  ron-fox
-    Part of breaking off /merging branch to start 3.1 development
-
-    Revision 5.1.2.2  2005/05/11 16:54:54  thoagland
-    Add Support for Stripchart Spectra
-
-
-    2005/05/05 Tim Hoagland
-    Added Support for StripChart Spectra
-
-    Revision 5.1.2.1  2004/12/21 17:51:25  ron-fox
-    Port to gcc 3.x compilers.
-
-    Revision 5.1  2004/11/29 16:56:09  ron-fox
-    Begin port to 3.x compilers calling this 3.0
-
-    Revision 4.3  2004/02/03 21:32:58  ron-fox
-    Make definitions of spectra from resolutions consistent with those that have ranges.
-
-    Revision 4.2.2.1  2004/02/02 21:47:08  ron-fox
-    *** empty log message ***
-
-    Revision 4.2  2003/04/01 19:53:46  ron-fox
-    Support for Real valued parameters and spectra with arbitrary binnings.
-
-*/
 
 //
 // Header Files:
@@ -117,6 +70,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CSpectrum2DmW.h"
 #include "CSpectrum2DmB.h"
 #include "Gamma2DD.h"
+#include "CGammaSummarySpectrum.h"
 
 #include "Histogrammer.h"
 
@@ -459,6 +413,207 @@ CSpectrumFactory::CreateSpectrum(const std::string&   rName,
   }
   return (CSpectrum*)NULL;
 }
+
+/*!
+   Create a spectrum that requires separate x/y axis definitions.
+   This is acceptable under the following circumstances:
+   - Gamma 2d deluxe spectra.
+   - 2d spectra, when there must be exactly one parameter on each axis.
+
+   \param rName     - Name  of the spectrum to create.
+   \param eSpecType - Type of spectrum to create.  It is an error to attempt
+                      anything other than keG2DD or ke2D.
+   \param eDataType - The data type in each channel.
+   \param xParameters - The parameters on the X axis of the spectrum.
+   \param yParameters - The parameters on the Y axis of the spectrum.
+   \param xChannels   - Number of channels on the x axis.
+   \param yChannels   - Number of channels on the y axis.
+   \param xLow        - X axis lower limit.
+   \param pLows       - Pointer to axis low specifications. If null axis low defaults.
+   \param pHighs      - Pointer to axis high specifications. If null, axis highs default.
+
+   \note If pLows/pHighs are not null, they must have 2 elements,
+
+   \return CSpectrum*
+   \retval a pointer to the spectrum produced.
+   \retval kpNULL - if exceptions have been turned off and the requested
+           spectrum type cannot be created.
+
+
+*/
+CSpectrum*
+CSpectrumFactory::CreateSpectrum(const STD(string)& rName,
+				 SpectrumType_t eSpecType,
+				 DataType_t     eDataType,
+				 STD(vector)<STD(string)>   xParameters,
+				 STD(vector)<STD(string)>   yParameters,
+				 UInt_t                     xChannels,
+				 UInt_t                     yChannels,
+				 STD(vector)<Float_t>*      pLows,
+				 STD(vector)<Float_t>*      pHighs)
+{
+  // Require the spectrum type be a 2d or g2dd.  else
+  // it's an error:
+
+  switch (eSpecType) {
+  case ke2D:
+    // 2d -- require a exactly 1 x/y parameter, and call the more normal
+    //       creator:
+
+    if ( (xParameters.size() == 1) && (yParameters.size() == 1)) {
+      // Re-marshal the parameters for a more mainstream create:
+
+      vector<string> parameters;
+      vector<UInt_t> channels;
+
+      parameters.push_back(xParameters[0]);
+      parameters.push_back(yParameters[0]);
+
+      channels.push_back(xChannels);
+      channels.push_back(yChannels);
+
+      return CreateSpectrum(rName, eSpecType, eDataType,
+			    parameters, channels, pLows, pHighs);
+    }
+    else {
+      // Too many parameter specifications:
+
+      if (m_fExceptions) {
+	throw CSpectrumFactoryException(eDataType,
+					eSpecType,
+					rName,
+					CSpectrumFactoryException::keBadParameterCount,
+					"2d spectra can only have 2 parameters");
+      }
+      else {
+	return static_cast<CSpectrum*>(kpNULL);
+      }
+    }
+
+  case keG2DD:
+    {
+      // Convert parameter names to parameter object vectors:
+      
+      vector<CParameter> x = ParameterArray(xParameters);
+      vector<CParameter> y = ParameterArray(yParameters);
+      
+      // Figure out the actual xLow/Xhigh yLow/yHigh:
+      // By assuming the defaults and replacing them if parameters
+      // are present:
+      Float_t xLow  = 0.0;
+      Float_t xHigh = DefaultAxisLength(xChannels, x[0]);
+      
+      if (pLows  && (pLows->size() >= 1)) {
+	xLow = (*pLows)[0];
+      }
+      if (pHighs && (pHighs->size() >= 1)) {
+	xHigh = (*pHighs)[0];
+      }
+      
+      Float_t yLow  = 0.0; 
+      Float_t yHigh = DefaultAxisLength(yChannels, y[0]);
+      if (pLows  && (pLows->size() >= 2)) {
+	yLow = (*pLows)[1];
+      }
+      if (pHighs && (pHighs->size() >= 2)) {
+	yHigh = (*pHighs)[1];
+      }
+      
+      // Now we can attempt the creation:
+      
+      return CreateG2dDeluxe(rName,
+			     eDataType,
+			     x,y,
+			     xChannels,
+			     xLow, xHigh,
+			     yChannels,
+			     yLow, yHigh);
+    }
+  default:
+    // Invalid spectrum type:
+
+    if (m_fExceptions) {
+      throw CSpectrumFactoryException(eDataType,
+				      eSpecType,
+				      rName,
+				      CSpectrumFactoryException::keBadSpectrumType,
+				      "Distinct x/y axis specifications can only be supplied for 2d and 2d gamma deluxe spectra");
+    }
+    else {
+      return static_cast<CSpectrum*>(kpNULL);
+    }
+  }
+}
+
+
+/*!
+  Called to create spectra whose parameters are arrays of parameters.
+  This is currently only good for a gamma summary spectrum.
+  \param name           - Name of the spectrum.
+  \param specType       - Spectrum type.
+  \param dataType       - Data type for each channel.
+  \param parameterNames - vector of vector of parameter names.
+  \param channels       - vector of channels.
+  \param pLows          - Pointer to vector of low values (or null if not supplied).
+  \param pHighs         - Pointer to vector of high values (or null if not supplied).
+
+  \return CSpectrum*
+  \retval Pointer to the newly created spectrum.
+
+  \throw CSpectrumFactoryException on error.
+*/
+CSpectrum*
+CSpectrumFactory::CreateSpectrum(string                  name,
+				 SpectrumType_t          specType,
+				 DataType_t              dataType,
+				 vector<vector<string> > parameterNames,
+				 vector<UInt_t>          channels,
+				 vector<Float_t>*        pLows,
+				 vector<Float_t>*        pHighs)
+{
+  // validate the type and take action accordingly:
+
+  switch(specType) {
+  keGSummary:
+    {
+      // Marshall the parameter array:
+
+      vector<vector<CParameter> > parameters;
+      for (int i =0; i < parameterNames.size(); i++) {
+	vector<CParameter> slice = ParameterArray(parameterNames[i]);
+	parameters.push_back(slice);
+      }
+      // Figure out the hi/lo:
+
+      UInt_t ychans = channels[0];
+      Float_t yLow;
+      Float_t yHigh;
+      if (pLows) {
+	yLow = (*pLows)[0];
+      }
+      else {
+	yLow = 0.0;
+      }
+      if (pHighs) {
+	yHigh = (*pHighs)[0];
+      }
+      else {
+	yHigh = DefaultAxisLength(ychans, parameters[0][0]);
+      }
+      return CreateGammaSummary(name, dataType, parameters, ychans, yLow, yHigh);
+    }
+    break;
+  default:
+    throw CSpectrumFactoryException (dataType,
+				     specType,
+				     name, 
+				     CSpectrumFactoryException::keBadSpectrumType,
+				     "Vector of parameter vectors can only be provided for gamma summary spectra");
+
+  }
+}
+
+
 /*!
    Called to create a 1-d spectrum with default axis mapping (that
    is identity transformation between parameter and axis coordinates.
@@ -1149,6 +1304,42 @@ CSpectrumFactory::Create2DMultiple(STD(string) name, DataType_t eType,
   return (CSpectrum*)kpNULL;	// Acutally a bad error.
 }
 
+/*!
+   Create a gamma summary spectrum.
+   \param name       - Name  of the spectrum.
+   \param parameters - Vector of vector of parameters.
+   \param yChannels  - Number of channels on the y axis.
+   \param yLow       - Low limit of y axis.
+   \param yHigh      - High limit of the y axis.
+
+   \return CSpectrum*
+   \retval Pointer to the newly created spectrum.
+
+*/
+CSpectrum*
+CSpectrumFactory::CreateGammaSummary(string name, DataType_t eType,
+				     vector<vector<CParameter> > parameters,
+				     UInt_t yChannels,
+				     Float_t yLow,
+				     Float_t yHigh)
+{
+  UInt_t id = NextId();
+  switch (eType) {
+  case keByte:
+    return new CGammaSummarySpectrumB(name, id, &parameters, yChannels, yLow, yHigh);
+  case keWord:
+    return new CGammaSummarySpectrumW(name, id, &parameters, yChannels, yLow, yHigh);
+  case keLong:
+    return new CGammaSummarySpectrumL(name, id, &parameters, yChannels, yLow, yHigh);
+  default:
+    throw CSpectrumFactoryException(eType, 
+				    keGSummary,
+				    name,
+				    CSpectrumFactoryException::keBadDataType,
+				    "Creating gamma summary spectrum");
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -1414,133 +1605,3 @@ CSpectrumFactory::CreateG2dDeluxe(string name,
   }
 }
 
-/*!
-   Create a spectrum that requires separate x/y axis definitions.
-   This is acceptable under the following circumstances:
-   - Gamma 2d deluxe spectra.
-   - 2d spectra, when there must be exactly one parameter on each axis.
-
-   \param rName     - Name  of the spectrum to create.
-   \param eSpecType - Type of spectrum to create.  It is an error to attempt
-                      anything other than keG2DD or ke2D.
-   \param eDataType - The data type in each channel.
-   \param xParameters - The parameters on the X axis of the spectrum.
-   \param yParameters - The parameters on the Y axis of the spectrum.
-   \param xChannels   - Number of channels on the x axis.
-   \param yChannels   - Number of channels on the y axis.
-   \param xLow        - X axis lower limit.
-   \param pLows       - Pointer to axis low specifications. If null axis low defaults.
-   \param pHighs      - Pointer to axis high specifications. If null, axis highs default.
-
-   \note If pLows/pHighs are not null, they must have 2 elements,
-
-   \return CSpectrum*
-   \retval a pointer to the spectrum produced.
-   \retval kpNULL - if exceptions have been turned off and the requested
-           spectrum type cannot be created.
-
-
-*/
-CSpectrum*
-CSpectrumFactory::CreateSpectrum(const STD(string)& rName,
-				 SpectrumType_t eSpecType,
-				 DataType_t     eDataType,
-				 STD(vector)<STD(string)>   xParameters,
-				 STD(vector)<STD(string)>   yParameters,
-				 UInt_t                     xChannels,
-				 UInt_t                     yChannels,
-				 STD(vector)<Float_t>*      pLows,
-				 STD(vector)<Float_t>*      pHighs)
-{
-  // Require the spectrum type be a 2d or g2dd.  else
-  // it's an error:
-
-  switch (eSpecType) {
-  case ke2D:
-    // 2d -- require a exactly 1 x/y parameter, and call the more normal
-    //       creator:
-
-    if ( (xParameters.size() == 1) && (yParameters.size() == 1)) {
-      // Re-marshal the parameters for a more mainstream create:
-
-      vector<string> parameters;
-      vector<UInt_t> channels;
-
-      parameters.push_back(xParameters[0]);
-      parameters.push_back(yParameters[0]);
-
-      channels.push_back(xChannels);
-      channels.push_back(yChannels);
-
-      return CreateSpectrum(rName, eSpecType, eDataType,
-			    parameters, channels, pLows, pHighs);
-    }
-    else {
-      // Too many parameter specifications:
-
-      if (m_fExceptions) {
-	throw CSpectrumFactoryException(eDataType,
-					eSpecType,
-					rName,
-					CSpectrumFactoryException::keBadParameterCount,
-					"2d spectra can only have 2 parameters");
-      }
-      else {
-	return static_cast<CSpectrum*>(kpNULL);
-      }
-    }
-
-  case keG2DD:
-    {
-      // Convert parameter names to parameter object vectors:
-      
-      vector<CParameter> x = ParameterArray(xParameters);
-      vector<CParameter> y = ParameterArray(yParameters);
-      
-      // Figure out the actual xLow/Xhigh yLow/yHigh:
-      // By assuming the defaults and replacing them if parameters
-      // are present:
-      Float_t xLow  = 0.0;
-      Float_t xHigh = DefaultAxisLength(xChannels, x[0]);
-      
-      if (pLows  && (pLows->size() >= 1)) {
-	xLow = (*pLows)[0];
-      }
-      if (pHighs && (pHighs->size() >= 1)) {
-	xHigh = (*pHighs)[0];
-      }
-      
-      Float_t yLow  = 0.0; 
-      Float_t yHigh = DefaultAxisLength(yChannels, y[0]);
-      if (pLows  && (pLows->size() >= 2)) {
-	yLow = (*pLows)[1];
-      }
-      if (pHighs && (pHighs->size() >= 2)) {
-	yHigh = (*pHighs)[1];
-      }
-      
-      // Now we can attempt the creation:
-      
-      return CreateG2dDeluxe(rName,
-			     eDataType,
-			     x,y,
-			     xChannels,
-			     xLow, xHigh,
-			     yChannels,
-			     yLow, yHigh);
-    }
-  default:
-    // Invalid spectrum type:
-
-    if (m_fExceptions) {
-      throw CSpectrumFactoryException(eDataType,
-				      eSpecType,
-				      rName,
-				      CSpectrumFactoryException::keBadSpectrumType,
-				      "Distinct x/y axis specifications can only be supplied for 2d and 2d gamma deluxe spectra");
-    }
-    else {
-      return static_cast<CSpectrum*>(kpNULL);
-    }
-  }
-}

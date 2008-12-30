@@ -53,21 +53,22 @@ class CParameter;
    UShort_t, or UChar_t.
 */
 template <class T>
-class CGammaSummarySpectrum<T> : public CSpectrum
+class CGammaSummarySpectrum : public CSpectrum
 {
 
   // Local data type definitions and so on.
 private:
 
   UInt_t                m_nXChannels; // Number of channels in the x direction.
-  Uint_t                m_nYChannels; // Number of channels in the y direction.
-  std::vector<CSpectrum::Axis>       m_Axes;      // One axis vector per x channel.
+  UInt_t                m_nYChannels; // Number of channels in the y direction.
+  std::vector<CAxis>       m_Axes;      // One axis vector per x channel.
   std::vector<std::vector<UInt_t> >  m_Parameters; // Vector of parameters per x channel.
 
   // Construtors and other canonicals:
 
 public:
-  CGammaSummarySpectrum(const std::string name, UInt_t nId,
+  CGammaSummarySpectrum(const std::string name, 
+			UInt_t nId,
 			UInt_t               nYChannels,
 			std::vector<std::vector<CParameter> >* pParameters);
   CGammaSummarySpectrum(const std::string name, UInt_t nId,
@@ -99,18 +100,20 @@ private:
 
   virtual Bool_t needParameter() const;
 
+  virtual SpectrumType_t getSpectrumType();
+
   //  Utility functions:
 
 private:
   void CreateStorage();
-  void fillParameterArray(std::vector<CParameter>* params,
+  void fillParameterArray(std::vector<std::vector<CParameter> >& params,
 			  UInt_t                   xChannels);
-  void CreateAxes(std::vector<CParameter>* params,
-		  UInt_t                   xChannels
+  void CreateAxes(std::vector<std::vector<CParameter> >& params,
+		  UInt_t                   xChannels,
 		  UInt_t                   ychannels,
 		  Float_t                  yLow,
 		  Float_t                  yHigh);
-  void indexCheck(UInt_t x, UInt_t y);
+  void indexCheck(UInt_t x, UInt_t y) const;
 };
 
 #ifndef __CGAMMASUMMARYSPECTRUM_CXX
