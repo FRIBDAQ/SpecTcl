@@ -102,6 +102,10 @@ private:
 
   virtual SpectrumType_t getSpectrumType();
 
+  virtual Float_t GetLow(UInt_t n) const;
+  virtual Float_t GetHigh(UInt_t n) const;
+  virtual std::string GetUnits(UInt_t n) const;
+
   //  Utility functions:
 
 private:

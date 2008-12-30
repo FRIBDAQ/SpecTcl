@@ -155,7 +155,7 @@ CGammaSummarySpectrum<T>::Increment(const CEvent& e)
       if (paramId < event.size() && event[paramId].isValid()) {
 	UInt_t chan = static_cast<UInt_t>(m_Axes[x].ParameterToAxis(event[paramId]));
 	if (chan < m_nYChannels) {
-	  p[chan*m_nYChannels]++;
+	  p[chan*m_nXChannels]++;
 	}
       }
     }
@@ -178,7 +178,7 @@ CGammaSummarySpectrum<T>::operator[](const UInt_t* pIndices) const
   indexCheck(x,y);
 
   T* p = (T*)getStorage();
-  return (ULong_t)p[x + y*m_nYChannels];
+  return (ULong_t)p[x + y*m_nXChannels];
 }
 /*!
   Sets a channel value in a spectrum
@@ -194,7 +194,7 @@ CGammaSummarySpectrum<T>::set(const UInt_t* pIndices, ULong_t nValue)
   indexCheck(x,y);
 
   T* p = (T*)getStorage();
-  p[x+y*m_nYChannels] = (T)(nValue);
+  p[x+y*m_nXChannels] = (T)(nValue);
 }
 
 /*!
@@ -272,6 +272,12 @@ CSpectrum::SpectrumDefinition&
 CGammaSummarySpectrum<T>::GetDefinition()
 {
   static SpectrumDefinition def;
+  def.fLows.clear();
+  def.fHighs.clear();
+  def.nChannels.clear();
+  def.vParameters.clear();
+
+
   def.sName = getName();
   def.nId   = getNumber();
   def.eType = keGSummary;
@@ -285,11 +291,17 @@ CGammaSummarySpectrum<T>::GetDefinition()
       def.vParameters.push_back(p[j]);
     }
     def.vParameters.push_back(UINT_MAX); // end of row sentinel.
-    def.fLows.push_back(m_Axes[i].getLow());
-    def.fHighs.push_back(m_Axes[i].getHigh());
+
   }
 
-  def.nChannels.push_back(m_Parameters.size());
+  def.fLows.push_back(0);
+  def.fHighs.push_back(m_nXChannels-1);
+  def.nChannels.push_back(m_nXChannels);
+
+  def.nChannels.push_back(m_nYChannels);
+  def.fLows.push_back(m_Axes[0].getLow());
+  def.fHighs.push_back(m_Axes[0].getHigh());
+
 
   return def;
 }
@@ -342,6 +354,61 @@ CGammaSummarySpectrum<T>::getSpectrumType()
 {
   return keGSummary;
 }
+
+/*!
+  Return a low limit on an axis.
+*/
+template <class T>
+Float_t
+CGammaSummarySpectrum<T>::GetLow(UInt_t n) const
+{
+  if (n == 0) {
+    return 0.0;
+  }
+  else if (n == 1) {
+    return m_Axes[0].getLow();
+  }
+  else {
+    throw CRangeError(0,1,n, "Getting low limit of a gamma summary spectrum axis");
+  }
+}
+
+/*!
+  Return high limit on an axis:
+*/
+template<class T>
+Float_t
+CGammaSummarySpectrum<T>::GetHigh(UInt_t n) const
+{
+  if (n == 0) {
+    return static_cast<Float_t>(m_nXChannels - 1);
+  }
+  else if (n == 1) {
+    return m_Axes[0].getHigh();
+  }
+  else {
+    throw CRangeError(0,1,n, "Getting high limit of a gamma summary spectrum axis");
+  }
+}
+
+/*!
+  Return the units for an axis:
+*/
+template<class T>
+string
+CGammaSummarySpectrum<T>::GetUnits(UInt_t n) const
+{
+  if (n == 0 ) {
+    return string("channels");
+  }
+  else if (n == 1) {
+    return m_Axes[0].getParameterMapping().getUnits();
+  } 
+  else {
+    throw CRangeError(0,1,n, "Getting units of a gamma summary spectrum axis");
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //  Utility methods.
 //
