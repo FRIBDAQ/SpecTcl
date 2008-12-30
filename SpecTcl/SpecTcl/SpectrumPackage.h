@@ -14,54 +14,7 @@
 	     East Lansing, MI 48824-1321
 */
 
-//  CSpectrumPackage.h:
-//
-//    This file defines the CSpectrumPackage class.
-//
-// Author:
-//    Ron Fox
-//    NSCL
-//    Michigan State University
-//    East Lansing, MI 48824-1321
-//    mailto:fox@nscl.msu.edu
-//
-//  Copyright 1999 NSCL, All Rights Reserved.
-//
-//  Change Log:
-//      July 3, 1999 - Changed the way spectra are created to take
-//                     advantage of spectrum factories:
-//                     Removed New1d, New2d replaced with CreateSpectrum.
-//
-//   $Log$
-//   Revision 5.4  2007/02/23 20:38:18  ron-fox
-//   BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
-//   parameter lists).
-//
-//   Revision 5.3  2006/02/21 19:30:59  ron-fox
-//   Add -showgate to spectrum -list command/subcommand
-//
-//   Revision 5.2  2005/06/03 15:19:28  ron-fox
-//   Part of breaking off /merging branch to start 3.1 development
-//
-//   Revision 5.1.2.3  2005/05/27 11:07:30  thoagland
-//   Added support for pseudo, parameter, clear, apply, and bind to take an optional pattern for the -list switch.
-//
-//   Revision 5.1.2.2  2005/05/24 11:36:48  thoagland
-//   Added support for spectrum -list [-byid] [pattern]
-//
-//   Revision 5.1.2.1  2004/12/15 17:24:06  ron-fox
-//   - Port to gcc/g++ 3.x
-//   - Recast swrite/sread in terms of tcl[io]stream rather than
-//     the kludgy thing I had done of decoding the channel fd.
-//     This is both necessary due to g++ 3.x's runtime and
-//     nicer too!.
-//
-//   Revision 5.1  2004/11/29 16:56:12  ron-fox
-//   Begin port to 3.x compilers calling this 3.0
-//
-//   Revision 4.2  2003/04/01 19:55:40  ron-fox
-//   Support for Real valued parameters and spectra with arbitrary binnings.
-//
+
 /////////////////////////////////////////////////////////////
 
 #ifndef __SPECTRUMPACKAGE_H  //Required for current class
@@ -206,6 +159,16 @@ public:
 		     STD(vector)<Float_t>     fLows,
 		     STD(vector)<Float_t>     fHighs,
 		     const char*              pDataType);
+
+  int CreateSpectrum(CTCLResult&                            rResult, 
+		     const char*                            pName,
+		     const char*                            pSpecType,
+		     std::vector<std::vector<std::string> > parameterNames,
+		     std::vector<UInt_t>                    nChannels,
+		     std::vector<Float_t>                   fLows,
+		     std::vector<Float_t>                   fHighs,
+		     const char*                            pDataType);
+
   // List Spectra
 
   void ListSpectra (STD(vector)<STD(string)>& rvProperties, const char* pattern,

@@ -322,6 +322,7 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
   char**                   ppListElements;
   vector<string> vParameters;
   vector<string> vyParameters;
+  vector<vector<string> > vGSParameters; // gamma summary parameters.
 
   CTCLList lParameters(&rInterpreter, pArgs[2]);
   lParameters.Split(nListElements, &ppListElements);
@@ -357,6 +358,18 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
       rResult = string("Gamma 2d spectra must have a pair of parameter lists");
       Usage(rResult);
       return TCL_ERROR;
+    }
+  }
+  else if (string(pType) == string("gs")) {
+    // Gamma summary spectrum is just wierd.  Expect a list
+    // of lists of parameters:
+
+    for (int i=0; i < nListElements; i++) {
+      StringArray column;
+      CTCLList cparams(&rInterpreter, ppListElements[i]);
+      cparams.Split(column);
+      vGSParameters.push_back(column);
+      
     }
   }
   else {
@@ -490,7 +503,12 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
   Tcl_Free((char*)ppListElements);
 
 
-  if (vyParameters.size() == 0) {
+  if (string(pType) == string("gs")) {
+
+    rPack.CreateSpectrum(rResult, pName, pType, vGSParameters,
+			 vChannels, vLows, vHighs, pDataType);
+  }
+  else if (vyParameters.size() == 0) {
     
     return rPack.CreateSpectrum(rResult,  pName, pType, vParameters, 
 				vChannels, vLows, vHighs,
