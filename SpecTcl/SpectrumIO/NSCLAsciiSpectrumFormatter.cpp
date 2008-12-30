@@ -44,53 +44,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 //
 //
 //////////////////////////.cpp file/////////////////////////////////////////////////////
-/*
-  Change Log:
-  $Log$
-  Revision 5.6  2007/09/11 21:06:33  ron-fox
-  Put the correct spectrum axis limits into swrite files.
 
-  Revision 5.5  2007/05/11 20:51:57  ron-fox
-  Make NSCLAsciiSpectrumFormatter correctly deal with rev 2, 3 and
-  'malforme3d 2' produced by version 3.2-pre2 for summary spectra.
-
-  Revision 5.4  2007/05/11 15:30:53  ron-fox
-  Change spectrum I/O format version to 3.  Need to figure out how to read 2
-  for e.g. summary spectra.
-
-  Revision 5.3  2007/02/23 20:38:18  ron-fox
-  BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
-  parameter lists).
-
-  Revision 5.2  2005/06/03 15:19:29  ron-fox
-  Part of breaking off /merging branch to start 3.1 development
-
-  Revision 5.1.2.2  2005/05/11 21:26:37  ron-fox
-  - Add -pedantic and deal with the fallout.
-  - Fix long standing issues with sread/swrite -format binary
-  - Merge in Tim's strip chart spectrum and ensure stuff builds
-    correctly.
-
-  Revision 5.1.2.1  2004/12/21 17:51:26  ron-fox
-  Port to gcc 3.x compilers.
-
-  Revision 5.1  2004/11/29 16:56:13  ron-fox
-  Begin port to 3.x compilers calling this 3.0
-
-  Revision 4.6.4.1  2004/07/01 13:54:42  ron-fox
-  Defect 135: swrite does not properly preserve channel -> spectrum mappings.
-
-  Revision 4.6  2003/11/13 19:48:49  ron-fox
-  Unconditionally  include config.h
-
-  Revision 4.5  2003/08/25 16:25:33  ron-fox
-  Initial starting point for merge with filtering -- this probably does not
-  generate a goo spectcl build.
-
-  Revision 4.4  2003/04/19 00:11:50  ron-fox
-  Move to format version 2.0:  Supply mapping information about the range covered by each axis of a spectrum.  Note that reads are backwards compatible with version 1.0 and will default the range to 0 - nchans-1.
-
-*/
 
 
 #include <config.h>
@@ -271,33 +225,44 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
   vector<Float_t> createHighs;
   vector<UInt_t>  createDims;
 
-  if(eSpecType == keSummary) {
-    UInt_t nChannels;
-    if (nRevision == 3) {
-      nChannels = vDimensions[0];
-    }
-    else {
-      // There was a time that I had not incremented the
-      // rev level to 2, but wrote only 1 dim:
 
-      if (vDimensions.size() == 1) {
+  // This switch handles special cases:
+
+  switch (eSpecType) {
+
+  case keSummary:
+    {
+      
+      UInt_t nChannels;
+      if (nRevision == 3) {
 	nChannels = vDimensions[0];
-      } else {
-	nChannels = vDimensions[1];
       }
+      else {
+	// There was a time that I had not incremented the
+	// rev level to 2, but wrote only 1 dim:
+	
+	if (vDimensions.size() == 1) {
+	  nChannels = vDimensions[0];
+	} else {
+	  nChannels = vDimensions[1];
+	}
+      }
+      Float_t fLow      = vLows[1];
+      Float_t fHigh     = vHighs[1];
+      
+      createDims.push_back(nChannels);
+      createLows.push_back(fLow);
+      createHighs.push_back(fHigh);
+      
     }
-    Float_t fLow      = vLows[1];
-    Float_t fHigh     = vHighs[1];
-    
-    createDims.push_back(nChannels);
-    createLows.push_back(fLow);
-    createHighs.push_back(fHigh);
-    
-  }
-  else {
-    createDims = vDimensions;
-    createLows = vLows;
-    createHighs= vHighs;
+    break;
+  default: 
+    {
+      
+      createDims = vDimensions;
+      createLows = vLows;
+      createHighs= vHighs;
+    }
   }
   //
   // Create an appropriate spectrum:
@@ -305,7 +270,36 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
   CSpectrum* pSpectrum(0);
   CSpectrumFactory Factory;
   Factory.ExceptionMode(kfFALSE);
-  if (vyParameters.size() == 0) {
+
+  // Gamma summary spectra are a special case:
+
+  if (eSpecType == keGSummary) {
+    // parameter names have to be marshalled into a vector of vectors.
+    // each parameter strip ends in an empty parameter name ("").
+    // This includes the last strip.
+
+    vector<vector<string> > gSummaryParams;
+    vector<string>          column;
+    for (int i=0; i < vParameters.size(); i++) {
+      if (vParameters[i] == "") {
+	// End of strip:
+
+	gSummaryParams.push_back(column);
+	column.clear();
+      }
+      else {
+	column.push_back(vParameters[i]);
+      }
+    }
+    // Now we can create the spectrum:
+
+    pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType,
+				       gSummaryParams, 
+				       createDims, &createLows, &createHighs);
+				       
+
+  }
+  else if (vyParameters.size() == 0) {
     pSpectrum = Factory.CreateSpectrum(Name, eSpecType, eDataType,
 				       vParameters, 
 				       createDims,
@@ -325,7 +319,8 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
   // Once more a wierdness of summary spectra.. at this time
   // vDimensions won't be right for them:
 
-  if (eSpecType == keSummary) {
+  if ((eSpecType == keSummary)      ||
+      (eSpecType == keGSummary)) {
     vDimensions.clear();
     vDimensions.push_back(vParameters.size());  // X axis dim is parameter count.
     vDimensions.push_back(createDims[0]);       // and y axis is the 1 creation dim.
@@ -424,7 +419,8 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
     rStream << ") ";		// Close off the first one:
     Delimeter = '(';
     for (UInt_t i = 0; i < spectrumDef.vyParameters.size(); i++) {
-      FindById p(spectrumDef.vyParameters[i]);
+      UInt_t   pnum = spectrumDef.vyParameters[i];
+      FindById p(pnum);
       ParameterDictionaryIterator i = rDict.FindMatch(p);
       string name;
       if (i != rDict.end()) {
@@ -441,13 +437,14 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
   else {
     Delimeter = '(';
     for(UInt_t i = 0; i < Parameters.size(); i++) {
-      FindById p(Parameters[i]);
+      UInt_t pnum = Parameters[i];
+      FindById p(pnum);
       ParameterDictionaryIterator i = rDict.FindMatch(p);
       if(i != rDict.end()) {
 	rStream << Delimeter << Quote << (*i).second.getName() << Quote;
       }
       else {
-	rStream << Delimeter << "*UNKNOWN*";
+	rStream << Delimeter << (pnum == UINT_MAX ? Quote+Quote : "*UNKNOWN*");
       }
       Delimeter = ' ';
     }
