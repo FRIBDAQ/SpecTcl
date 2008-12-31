@@ -91,4 +91,6 @@ edit2dmulti.html  \
 savestatedialog.html \
 prefs.tcl \
 editGammaDeluxe.tcl \
-editGammaDeluxehelp.html
+editGammaDeluxehelp.html \
+editgsummary.tcl    \
+gammasummery.html

@@ -22,6 +22,7 @@ package require edit2dmulti
 package require editmulti
 package require editstrip
 package require editGammaDeluxe
+package require editGammaSummary
 package require guiutilities
 package require Iwidgets
 package require guihelp
@@ -74,7 +75,10 @@ snit::widget spectrumGui {
         $self configurelist $args
 
         set spectrumType $emptyString
-        array set spectrumTypeNames [list 1 1-d 2 2-d g1 {gamma 1-d} g2 {gamma 2-d} gd {Gamma 2-d x/y} s Summary b bitmask S {Strip Chart} m2 {2d Sum Spectrum}]
+        array set spectrumTypeNames [list 1 1-d 2 2-d g1 {gamma 1-d} \
+				     g2 {gamma 2-d} gd {Gamma 2-d x/y} s Summary \
+				     b bitmask S {Strip Chart} \
+				     m2 {2d Sum Spectrum} gs {Gamma Summary}]
 
 
         # Top common contents frame:
@@ -89,6 +93,7 @@ snit::widget spectrumGui {
         $typemenu add command -label {gamma 1-d}   -command [mymethod startMultiparameterSpectrumEditor g1]
         $typemenu add command -label {gamma 2-d}   -command [mymethod startMultiparameterSpectrumEditor g2]
 	$typemenu add command -label {gamma 2-d x/y} -command [mymethod startGamma2dDeluxeEditor]
+	$typemenu add command -label {gamma Summary} -command [mymethod startGammaSummaryEditor gs]
 	$typemenu add command -label {2-d Sum}     -command [mymethod start2dSumEditor]
         $typemenu add separator
         $typemenu add command -label {Summary}     -command [mymethod startMultiparameterSpectrumEditor s]
@@ -186,6 +191,10 @@ snit::widget spectrumGui {
                 $self startMultiparameterSpectrumEditor $type
                 $win.editor.contents load $name
             }
+	    gs {
+		$self startGammaSummaryEditor $type
+		$win.editor.contents load $name
+	    }
             S {
                 $self startStripchartEditor
                 $win.editor.contents load $name
@@ -213,6 +222,7 @@ snit::widget spectrumGui {
                 -showcolumns [list type low high bins units] -width 5in
         return $win.editor.browser
     }
+
     # start1dEditor stype
     #      Start a 1-d spectrum editor for spectrum stype
     #      (currently limited to 1 and b).
@@ -266,6 +276,27 @@ snit::widget spectrumGui {
 	$browser update
 	set helpTopic [$win.editor.contents getHelpTopic]
     }
+    # startGammaSummaryEditor stype
+    #    start a spectrum editor for gamma sumary spectra.
+    #
+    # Parameters:
+    #    stype - The typ of spectrum to create ('gs').
+    #
+    method startGammaSummaryEditor stype {
+	$self setSpectrumType $stype
+	set browser [$self createBrowser]
+	destroy $win.editor.contents
+	
+	editGammaSummary $win.editor.contents -browser $browser
+	
+	pack $win.editor.contents -fill x -expand 1
+	$browser update
+	
+	set helpTopic [$win.editor.contents getHelpTopic]
+	
+    }
+    
+    
     # startMultiparameterSpectrumEditor stype
     #     Starts a spectrum creating editor for
     #     spectra that allow an unbounded number of parameters.
