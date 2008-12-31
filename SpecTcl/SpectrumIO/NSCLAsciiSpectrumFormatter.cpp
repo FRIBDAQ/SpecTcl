@@ -256,6 +256,11 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
       
     }
     break;
+  case keGSummary:
+    createDims.push_back(vDimensions[1]);
+    createLows.push_back(vLows[1]);
+    createHighs.push_back(vHighs[1]);
+    break;
   default: 
     {
       
@@ -319,8 +324,7 @@ CNSCLAsciiSpectrumFormatter::Read(istream& rStream,
   // Once more a wierdness of summary spectra.. at this time
   // vDimensions won't be right for them:
 
-  if ((eSpecType == keSummary)      ||
-      (eSpecType == keGSummary)) {
+  if (eSpecType == keSummary) {
     vDimensions.clear();
     vDimensions.push_back(vParameters.size());  // X axis dim is parameter count.
     vDimensions.push_back(createDims[0]);       // and y axis is the 1 creation dim.
@@ -993,6 +997,7 @@ CNSCLAsciiSpectrumFormatter::ReadBody(istream&   rfStream,
   //
   CSpectrum& rSpectrum(*pSpectrum);    // Make the notation a bit easier.
   UInt_t*     IndexArray = new UInt_t[rvDimensions.size()];
+  string Line; 
 
   // The main loop of this function reads the parethesized lists of
   // spectrum coordinates, converts them into integers. If any are -1
@@ -1001,9 +1006,8 @@ CNSCLAsciiSpectrumFormatter::ReadBody(istream&   rfStream,
 
   try {
     while(!rfStream.eof()) {
-      string Line = ReadLine(rfStream);
+      Line = ReadLine(rfStream);
       istringstream rStream(Line.c_str());
-      
       // Pull index texts from parenlist:
       
       vector<string> IndexList;
@@ -1035,7 +1039,7 @@ CNSCLAsciiSpectrumFormatter::ReadBody(istream&   rfStream,
       ULong_t Channel;
       skipwhite(rStream);
       rStream >> Channel;
-      ThrowStreamError(rStream, 
+      ThrowStreamError(rStream,
 		       "Pulling channel value out of stream", kfTRUE);
       CheckDataSize(Channel, rSpectrum.StorageType());
       
