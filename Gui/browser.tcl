@@ -1003,6 +1003,45 @@ image create photo ::browser::pseudoicon   -format gif \
     }
 
     #
+    #  setGammaSummarySubInfo id parameters axes
+    #
+    #  Set the sub information for a gamma summary spectrum.
+    #  We'll have one axis, which is the Y axis, and that will
+    #  display as on a 1-d spectrum.
+    #  We'll have strip subfolders numbered for the x axis coordinate
+    #  each strip subfolder will have entries for each parameter in that strip.
+    #
+    #
+    method setGammaSummarySubInfo {id parameters axes} {
+        
+        #  Add the y axis as our axisi formation:
+        
+        set axis [lindex $axes 1]
+        $self addAxisInfo $id $axis [list]
+        
+        set xChannel 0
+        set param 0
+        foreach channel $parameters {
+            
+            # Add a folder for a channels parameters.
+            
+            set name Channel$xChannel
+            set channelId [$win.tree insert -at $id end $name]
+            $win.tree entry configure $channelId -label $name
+            
+            
+            foreach parameter $channel {
+                # Add a parameter definition.
+                
+                $self addEntryParameter $channelId $param $parameter
+                
+                incr param
+            }
+            incr xChannel
+        }
+    }
+
+    #
     # setSpectrumSubInfo id type parameters axes
     #      Fills in any required child nodes for a spectrum.  This is type dependent.
     #      Note that in the case of 1-d spectra (type 1, g1, b, and S),
@@ -1049,6 +1088,9 @@ image create photo ::browser::pseudoicon   -format gif \
 	    m2 {
 		$self set2dMultipleSubInfo $id $parameters $axes
 	    }
+            gs {
+                $self setGammaSummarySubInfo $id $parameters $axes
+            }
 	    default {}
         }
     }
