@@ -95,6 +95,8 @@ snit::widget editGammaSummary {
     # Data required:
     
     variable parameters;                  # Array of parameter lists.
+    variable separatorCoords;             # Array of separator y coordinates.
+    variable currentChannel 0
     
     #
     #  Constructor - builds the GUI and lays it out.
@@ -166,10 +168,46 @@ snit::widget editGammaSummary {
         grid $rightframe -sticky nsew
         grid $brframe    -sticky e
 
-        pack $browser $topframe -side left -fill y -expand 1 
+        pack $browser $topframe -side left -fill y -expand 1
+        
+        
+        # Additional event bindings:
+        
+        bind $parameterListBox <Double-1>  [mymethod removeParam %x %y]
+        
+        $self reinit        
+    }
+    
+    # reinit
+    #   Initialize the GUI state and the internal data state as if nothing
+    #   had ever been entered:
+    #
+    method reinit  {} {
+        #
+        # Get rid of internal data structures:
+        #
+        foreach element [array names parameters] {
+            unset parameters($element)
+        }
+        set currentChannel -1
+ 
+        #
+        # Empty the list box except for --- Channel 0 ---:
+        #
+        $parameterListBox delete 0 end
+        $self nextChannel
+        
+        #
+        #  Empty out the axis specification entries:
+        #
+        setEntry $lowEntry {}
+        setEntry $hiEntry {}
+        setEntry $channelEntry {}
+        setEntry $unitEntry {}
         
         
     }
+    
     
     # gsSpectraOnly description
     #
@@ -190,19 +228,190 @@ snit::widget editGammaSummary {
             return 0
         }
     }
+    #  getHelpTopic
+    #   Returns the topic that supplies context sensitive help for the editor.
+    # Returns:
+    #   "gammasummary"
+    #
+    method getHelpTopic {} {
+        return "gammasummary"
+    }
+    
+    # nextChannel
+    #
+    #  Advances to specifying the next channel
+    #  This:
+    #   - increments currentChannel
+    #   - inserts a channel marker for the current channel at the bottom of the
+    #     parameter list box.
+    #   - creates an empty list of parameters for the new column.
+    #
+    #
+    method nextChannel {} {
+        incr currentChannel
+        set parameters($currentChannel) [list]
+        $parameterListBox insert end "--- Channel $currentChannel ---"
+        
+        # Store the separator index in the separatorCoords array:
+        
+        set index [$parameterListBox index end]
+        incr index -1
+        set separatorCoords($currentChannel) $index
+        
+        
+    }
+    # selectParameter
+    #   Called when the user double clicks a parameter.
+    #   the parameter is added to the listbox and the current channels list.
+    #   If the axis specifications are empty, they are set from this as well:
+    # Parameters:
+    #   path   - the browser path to the element.
+    method selectParameter path {
+        set name [::pathToName $path]
+        
+        # If axis info is available for the parameter pull it out
+        # and conditionally set the axis entries:
+        
+        set info [treeparameter -list $name]
+        if {[llength $info] != 0} {
+            set info [lindex $info 0]
+            set low [lindex $info 2]
+            set hi  [lindex $info 3]
+            set bins [lindex $info 1]
+            set units [lindex $info 5]
+            
+            $self setAxisIfNotSet $low $hi $bins $units
+        }
+        
+        #  Save the parameter and update the listbox:
+        
+        lappend parameters($currentChannel) $name
+        puts "$currentChannel $parameters($currentChannel)"
+        $parameterListBox insert end $name
+    }
+    
+    # setAxisIfNotSet
+    #
+    #   If lists boxes are emtpy in the axis spec,
+    #   they are filled from the corresponding items
+    #   in the method parameters:
+    # Parameters:
+    #   low   - Low limit of axis.
+    #   hi    - High limit of axis.
+    #   bins  - Number of bins on the axis.
+    #   units - Units of measure for the parameters on the axis.
+    #
+    method setAxisIfNotSet {low hi bins units} {
+        if {[$lowEntry get] eq ""} {
+            setEntry $lowEntry $low
+        }
+        if {[$hiEntry get] eq ""} {
+            setEntry $hiEntry $hi
+        }
+        if {[$channelEntry get] eq ""} {
+            setEntry $channelEntry $bins
+        }
+        if {[$unitEntry get] eq ""} {
+            setEntry $unitEntry $units
+        }
+        
+        
+    }
+    
+    #  removeParam x y
+    #
+    #  Remove the item from the parameter list box that has just been double
+    #  clicked.  Then regenerate the list box:
+    #
+    # Parameter:
+    #    x,y     - The coordinates of the pointer relative to the widget
+    #              when the double click occured.
+    #
+    method removeParam {x y} {
+        set coords @$x,$y
+        set itemIndex [$parameterListBox index $coords]
+        
+        # we need to figure out where we are relative to the channel as well
+        # as which channel, so that we can delete from the appropriate
+        # channel list:
+        
+        for {set i $currentChannel} {$i >= 0} {incr i -1} {
+            if {$itemIndex >= $separatorCoords($i)} {
+                break
+            }
+        }
+        #
+        #   Can't delete separators:
+        #
+        if {$itemIndex == $separatorCoords($i)} {
+            return
+        }
+        # Figure out which item it is in that parameter list.
+        
+        set chanArrayIndex [expr $itemIndex - $separatorCoords($i) -1]
+        puts "Found item in channel $i index $chanArrayIndex"
+        set parameters($i) [lreplace $parameters($i) $chanArrayIndex $chanArrayIndex]
+        puts "After delete: $parameters($i)"
+        
+        $self regenerateListBox
+        
+        
+    }
+    
+    #
+    #  Regenerate the list box after a paramter has been removed.
+    #  the parameter removal may result in channel deletion.
+    #
+    method regenerateListBox {} {
+        $parameterListBox delete 0 end
+        set newCurrentChannel -1
+        
+        # First make a new parameters array that does not have any
+        # empty slots:
+        
+        for {set i 0} {$i <= $currentChannel} {incr i} {
+            puts "$i parameters: $parameters($i)"
+            if {[llength $parameters($i)] != 0} {
+                incr newCurrentChannel
+                set  newParameters($newCurrentChannel) $parameters($i)
+            }
+        }
+        # Kill off the old parameter and separator coords arrays:
+        
+        foreach element [array names parameters] {
+            unset parameters($element)
+            unset separatorCoords($element)
+        }
+        
+        # Now build up the new information
+        
+        set currentChannel -1
+        
+        # If there are no channels with data, just make the first empty one
+        # and we're done:
+        
+        if {$newCurrentChannel == -1} {
+            $self nextChannel
+        } else {
+            #  Build up the new listBox, parameters,and separatorCoords array:
+            
+            for {set i 0} {$i <= $newCurrentChannel} {incr i} {
+                $self nextChannel
+                set parameters($i) $newParameters($i)
+                foreach parameter $parameters($i) {
+                    $parameterListBox insert end $parameter
+                }
+            }
+        }
+    }
     
     #---------------------------------------------------------------------------
     #   Stubs
     #---------------------------------------------------------------------------
     
-    method selectSpectrum args {}
-    method selectParameter args {}
-    
-    method nextChannel args {}
-    
-    method reinit args {}
+    method selectSpectrum args {}    
     method load args {}
-    method getHelpTopic args {return ""}
+
     method getParameters args {return [list]}
     method getAxes args {return [list]}
     
