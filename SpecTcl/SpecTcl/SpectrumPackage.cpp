@@ -1723,7 +1723,14 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
   //   The axis sublist is a list of axis definitions.  Each axis definition
   //   is a triplet list of low high nchannels:
   Description.StartSublist();	// List of axes.
-  for(int i = 0; i < Def.nChannels.size(); i++) {
+
+  // Once more gamma summaries are strange... just use the second element of the description:
+  //
+  int start =0;
+  if (Def.eType == keGSummary) {
+    start = 1;
+  }
+  for(int i = start; i < Def.nChannels.size(); i++) {
     Description.StartSublist();	// Axis definition
 
     sprintf(txtNum, "%f", Def.fLows[i]);
