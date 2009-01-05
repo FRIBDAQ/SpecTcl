@@ -840,4 +840,4 @@ October 2, 2008 - Add ungate context menu option to new GUI.
                   fact that the first buffer is sequence 0 so we need
                   the first buffer to increment our buffers analyzed -> 0.
 
-
+January 5, 2009 - Added gamma summary spectrum.

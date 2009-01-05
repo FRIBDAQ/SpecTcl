@@ -737,6 +737,18 @@ proc UpdateSpectrumList {} {
 		set highy ""
 		set binsy ""
 	    }
+	    gs {
+		set ltype "GS"
+		set varx [lindex [lindex $parameters 0] 0]
+		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+		set highx [format %g [lindex [lindex $resolutions 0] 1]]
+		set binx  [format %x [lindex [lindex $resolutions 0] 2]]
+		set vary ""
+		set lowy ""
+		set highy ""
+		set binsy ""
+			  
+	    }
 	    gd {
 		set ltype "GD"
 		set varx [lindex $parameters 0]
