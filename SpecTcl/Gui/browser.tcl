@@ -1017,7 +1017,9 @@ image create photo ::browser::pseudoicon   -format gif \
         #  Add the y axis as our axisi formation:
         
         set axis [lindex $axes 1]
-        $self addAxisInfo $id $axis [list]
+	set c [lindex $parameters 0]
+	set p [lindex $c 0]
+        $self addAxisInfo $id $axis $p
         
         set xChannel 0
         set param 0

@@ -272,21 +272,14 @@ snit::widget editGammaSummary {
         # If axis info is available for the parameter pull it out
         # and conditionally set the axis entries:
         
-        set info [treeparameter -list $name]
-        if {[llength $info] != 0} {
-            set info [lindex $info 0]
-            set low [lindex $info 2]
-            set hi  [lindex $info 3]
-            set bins [lindex $info 1]
-            set units [lindex $info 5]
+
             
-            $self setAxisIfNotSet $low $hi $bins $units
-        }
+	$self setAxisIfNotSet $name
+    
         
         #  Save the parameter and update the listbox:
         
         lappend parameters($currentChannel) $name
-        puts "$currentChannel $parameters($currentChannel)"
         $parameterListBox insert end $name
     }
     
@@ -296,12 +289,21 @@ snit::widget editGammaSummary {
     #   they are filled from the corresponding items
     #   in the method parameters:
     # Parameters:
-    #   low   - Low limit of axis.
-    #   hi    - High limit of axis.
-    #   bins  - Number of bins on the axis.
-    #   units - Units of measure for the parameters on the axis.
+    #   param  - name of the parameter to use for setting.
+    #            this will only be a no-op if the
+    #            parameter is a tree param.
     #
-    method setAxisIfNotSet {low hi bins units} {
+    method setAxisIfNotSet parameter {
+
+        set info [treeparameter -list $parameter]
+
+        if {[llength $info] != 0} {
+            set info [lindex $info 0]
+            set low [lindex $info 2]
+            set hi  [lindex $info 3]
+            set bins [lindex $info 1]
+            set units [lindex $info 5]
+	}
         if {[$lowEntry get] eq ""} {
             setEntry $lowEntry $low
         }
@@ -349,9 +351,7 @@ snit::widget editGammaSummary {
         # Figure out which item it is in that parameter list.
         
         set chanArrayIndex [expr $itemIndex - $separatorCoords($i) -1]
-        puts "Found item in channel $i index $chanArrayIndex"
         set parameters($i) [lreplace $parameters($i) $chanArrayIndex $chanArrayIndex]
-        puts "After delete: $parameters($i)"
         
         $self regenerateListBox
         
@@ -370,7 +370,6 @@ snit::widget editGammaSummary {
         # empty slots:
         
         for {set i 0} {$i <= $currentChannel} {incr i} {
-            puts "$i parameters: $parameters($i)"
             if {[llength $parameters($i)] != 0} {
                 incr newCurrentChannel
                 set  newParameters($newCurrentChannel) $parameters($i)
@@ -404,15 +403,66 @@ snit::widget editGammaSummary {
             }
         }
     }
-    
+    #
+    #   Lets the user select a spectrum.  
+    #   Only gamma 1-d spectra are displayed.  When the user selects
+    #   a gamma spectra, all of its parameters are added to the current
+    #   channel list.
+    #
+    #  Parameters:
+    #    path     - Tree path to the item double clicked.
+    # 
+    method selectSpectrum path {
+	set name [::pathToName $path];	#  Spectrum name.
+	set list [spectrum -list $name]
+
+	set def  [lindex $list 0]
+	set params [lindex $def 3]
+
+	foreach param $params {
+	    lappend parameters($currentChannel) $param
+	    $parameterListBox insert end $param
+	    $self setAxisIfNotSet $param
+
+	}
+
+    }    
+
+    # Returns the parameters from the spectrum definition.
+    # this is a list of parameter lists.  Each sublist defining the parameters
+    # in a vertical stripe.
+    #
+    method getParameters {} {
+	set result [list]
+	for {set i 0} {$i <= $currentChannel} {incr i} {
+	    lappend result $parameters($i)
+	}
+       	return $result
+    }
+    # Returns the axis definition for hte
+    # spectum. 
+    #  Since the user can type these in, be sure they are all of the correct type:
+    #
+    method getAxes {} {
+	set low  [$lowEntry    get]
+	set hi   [$hiEntry      get]
+	set bins [$channelEntry get]
+
+	if {[string is double -strict $low] &&
+	    [string is double -strict $hi]  &&
+	    [string is integer -strict $bins]} {
+	    return [list [list $low $hi $bins]]
+	} else {
+	    return [list]
+	}
+    }
+
+
     #---------------------------------------------------------------------------
     #   Stubs
     #---------------------------------------------------------------------------
     
-    method selectSpectrum args {}    
-    method load args {}
+     method load args {}
 
-    method getParameters args {return [list]}
-    method getAxes args {return [list]}
     
 }
