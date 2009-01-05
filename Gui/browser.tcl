@@ -1019,10 +1019,8 @@ image create photo ::browser::pseudoicon   -format gif \
         set axis [lindex $axes 0]
 	set c [lindex $parameters 0]
 
-	puts "Column0: $c"
 
 	set p [lindex $c 0]
-	puts "parameter0: $p"
 
         $self addAxisInfo $id $axis $p
         
