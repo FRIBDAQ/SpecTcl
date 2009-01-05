@@ -793,7 +793,6 @@ proc addSpectrum widget {
     set gate [$widget getGate]
     set array [$widget isArray]
 
-    puts "name: $name type: $type parameters: $parameters axes $axes"
 
     #  Ensure the definition is complete:
 
@@ -836,7 +835,8 @@ proc addSpectrum widget {
 
         set info [spectrum -list $name]
         if {$info != ""} {
-            set keep [tk_dialog .duplicate {Spectrum Exists} \ 
+	    set keep 0
+            set keep [tk_dialog .duplicate {Spectrum Exists} \
                         "$name is already a spectrum.  Do you want to replace it?" \
                          questhead 1 Ok Cancel]
             if {$keep} {

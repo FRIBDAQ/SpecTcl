@@ -456,13 +456,46 @@ snit::widget editGammaSummary {
 	    return [list]
 	}
     }
+    #
+    #  Load an existing spectrum into the editor.
+    # Parameters:
+    #    name   - name of the spectrum to load.  Note that
+    #             The caller has ensured this is a gamma summary spectrum.
+    #
+    method load name {
+	$self reinit
+	set info [lindex [spectrum -list $name] 0]
+	
+	set pars       [lindex $info 3]
+	set axis       [lindex [lindex $info 4] 0]
 
+	# Fill the parameters array, and then ask the listbox to update itself.
 
-    #---------------------------------------------------------------------------
-    #   Stubs
-    #---------------------------------------------------------------------------
-    
-     method load args {}
+	
+	foreach column $pars {
+	    set parameters($currentChannel) $column
+	    set separatorCoords($currentChannel) 0;#  for regen listbox.
+	    incr currentChannel
+	}
+	incr currentChannel -1;		# it incremented too far.
+	
+	$self regenerateListBox
+
+	# Now the axis specs.. The units come fromt he first parameter,
+	# but everything else from the axis specs:
+
+	set p [lindex [lindex $pars 0] 0]
+	$self setAxisIfNotSet $p
+
+	set low [lindex $axis 0]
+	set hi  [lindex $axis 1]
+	set bins [lindex $axis 2]
+
+	setEntry $lowEntry $low
+	setEntry $hiEntry $hi
+	setEntry $channelEntry $bins
+
+    }
 
     
 }
