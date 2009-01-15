@@ -288,6 +288,37 @@ public:
 			    STD(vector)<UInt_t> channels, 
 			    STD(vector)<Float_t>* pLows, 
 			    STD(vector)<Float_t>* pHighs);
+  CSpectrum* CreateSpectrum(STD(string) Name,
+			    SpectrumType_t type,
+			    DataType_t     dataType,
+			    STD(vector)<STD(string)> xParameters,
+			    STD(vector)<STD(string)> yParameters,
+			    STD(vector)<UInt_t>      channels,
+			    STD(vector)<Float_t>*    pLows,
+			    STD(vector)<Float_t>*    pHighs);
+
+  CSpectrum* CreateSpectrum(std::string           Name,
+			    SpectrumType_t        type,
+			    DataType_t            dataType,
+			    std::vector<std::vector<std::string> > parameters,
+			    std::vector<UInt_t>   channels,
+			    std::vector<Float_t>* lows,
+			    std::vector<Float_t>* highs);
+
+  CSpectrum* CreateGammaSummary(std::string                      Name,
+				DataType_t                       dataType,
+				std::vector<std::vector<std::string> > parameters,
+				UInt_t                           nChannels,
+				std::vector<Float_t>*            low,
+				std::vector<Float_t>*            high);
+
+  CSpectrum* CreateG2DDeluxe(STD(string) Name,
+			DataType_t     dataType,
+			STD(vector)<STD(string)> xParameters,
+			STD(vector)<STD(string)> yParameters,
+			STD(vector)<UInt_t>      channels,
+			STD(vector)<Float_t>*    pLows,
+			STD(vector)<Float_t>*    pHighs);
   CSpectrum* Create1D(STD(string) name, 
 		      DataType_t dataType, 
 		      CParameter& parameter, 
@@ -696,7 +727,53 @@ by SpecTcl.  The type of spectrum created is selectec by the \fItype\fR
 parameter. The other parameters must be sufficient in number and type to
 support the creation of the desired spectrum or else a
 \fBCSpectrumFactoryException\fR will be thrown.  A pointer to the new spectrum
-(dynamically created) will be returned.  
+(dynamically created) will be returned.
+
+.TP
+\fBCSpectrum* CreateSpectrum(STD(string) \fIName\fB, SpectrumType_t \fItype\fB,
+DataType_t  \fIdataType\fB, STD(vector)<STD(string)> \fIxParameters\fB,
+STD(vector)<STD(string)> \fIyParameters\fB,
+STD(vector)<UInt_t> \fIchannels\fB, STD(vector)<Float_t>* \fIpLows\fB,
+STD(vector)<Float_t>* \fIpHighs\fB);
+
+This spectrum creation function is needed for spectra that require two separable
+lists of parameters.  This is specifically used to create gamma deluxe spectra.
+Paramters are as for the previous creation function howeer the
+\fIxParameters\fB and \fIyParameters\fB parameters are lists of parameters for the
+X and Y axes respectively.
+
+.TP
+CSpectrum* CreateSpectrum(std::string \fIName\fB, SpectrumType_t \fItype\fB,
+DataType_t \fIdataType\fB, std::vector<std::vector<std::string> > \fIparameters\fB,
+std::vector<UInt_t> \fIchannels\fB, std::vector<Float_t>* \fIlows\fB,
+std::vector<Float_t>* \fIhighs\fB);
+
+Creates a spectrum that needs a list of lists of parameters.  Currently this
+means a gamma summary spectrum is created.
+
+.TP
+CSpectrum* CreateGammaSummary(std::string  \fIName\fB, DataType_t \fIdataType\fB,
+std::vector<std::vector<std::string> > \fIparameters\fB, Int_t \fInChannels\fB,
+std::vector<Float_t>* \fIlow\fB, std::vector<Float_t>* \fIhigh\fB);
+
+Creates a gamma summary spectrum.  A gamma summary spectrum is a 2-d spectrum where
+each vertical strip is a gamma 1-d spectrum.  The \fIparameters\fB parameter is
+a vector where each element is the vector of parameters that will be histogrammed
+in that X channel's vertical strip. 
+
+.TP
+CSpectrum* CreateG2DDeluxe(STD(string) \fIName\fB, DataType_t \fIdataType\fB,
+STD(vector)<STD(string)> \fIxParameters\fB, STD(vector)<STD(string)> \fIyParameters\fB,
+STD(vector)<UInt_t> \fBchannels\fI,
+STD(vector)<Float_t>* \fIpLows\fB,
+STD(vector)<Float_t>* \fIpHighs\fB);
+
+Creates a gbamma 2d deluxe spectrum.  This is a spectrum with a pair of
+independent x and y parameter specifications.  This spectrum in incremented for
+all x/y parameter pairs.  The \fIxParameters\fB parameter is a vector of the
+names of the X parameters while \fIyParameters\fB is a vector of the names of the
+y parameters.
+
 .TP
 \fBCSpectrum* Create1D(STD(string) \fIname\fB, DataType_t \fIdataType\fB, CParameter& \fIparameter\fB, UInt_t \fIchannels\fB);\fR
 Creates a 1D spectrum. A pointer to the new spectrum is returned.  The
