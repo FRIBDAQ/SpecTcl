@@ -845,3 +845,6 @@ January 15, 2009
                 - Fix Xamine compilation errors with -pedantic.
                   Need to use reinterpret_cast to cast XtPointer ->
                   function pointers.
+                - Document gamma summary spectra in the on-board html.
+                - Document GUI gamma summary spectrum creator.
+                - Added API docs for gamma deluxe and gamma summary spectra
