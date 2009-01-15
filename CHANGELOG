@@ -841,3 +841,7 @@ October 2, 2008 - Add ungate context menu option to new GUI.
                   the first buffer to increment our buffers analyzed -> 0.
 
 January 5, 2009 - Added gamma summary spectrum.
+January 15, 2009 
+                - Fix Xamine compilation errors with -pedantic.
+                  Need to use reinterpret_cast to cast XtPointer ->
+                  function pointers.
