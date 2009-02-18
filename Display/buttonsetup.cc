@@ -53,13 +53,28 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "acceptgates.h"
 #include "trackcursor.h"
 #include "properties.h"
-
+#include <string>
 /*
 ** Module static storage:
 */
 static XMToggleButton *zoom_button;
 static XMToggleButton *log_button;
 static XMToggleButton *mapping_button;
+
+
+/*
+  See if this is a test system.
+*/
+static bool
+isTestSystem()
+{
+  std::string filename(HOME);
+  filename += "/../../TEST_VERSION";
+  int result = access(filename.c_str(), F_OK);
+
+  printf("Checking for: %s got %d\n",filename.c_str(), result);
+  return (result == 0);
+}
 
 /* 
 ** Functional Description:
@@ -150,6 +165,8 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   spectra = new XMFrame("Spectra_f", *manager, &frame_attribs, 1);
   grobs   = new XMFrame("Grobj_f",   *manager, &frame_attribs, 1);
 
+
+
   /* Produce the forms: */
 
   XMForm *windows_rc, *spectra_rc, *grobs_rc;
@@ -157,6 +174,16 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   windows_rc = new XMForm("Windows_rc", *windows);
   spectra_rc = new XMForm("Spectra_rc", *spectra);
   grobs_rc   = new XMForm("Grobj_rc",   *grobs);
+
+  // In a test systesm make the background of the button box an ugly black.
+
+  if (isTestSystem()) {
+    Pixel black = BlackPixelOfScreen(XtScreen(manager->getid()));
+    manager->SetAttribute(XmNbackground, black);
+    windows_rc->SetAttribute(XmNbackground, black);
+    spectra_rc->SetAttribute(XmNbackground, black);
+    grobs_rc->SetAttribute(XmNbackground, black);
+  }
 
 
   /* Create the buttons in windows category */
