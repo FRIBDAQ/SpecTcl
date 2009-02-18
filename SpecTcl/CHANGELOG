@@ -848,3 +848,6 @@ January 15, 2009
                 - Document gamma summary spectra in the on-board html.
                 - Document GUI gamma summary spectrum creator.
                 - Added API docs for gamma deluxe and gamma summary spectra
+February 18, 2008
+                - Made the background of the button box a clear indicator of whether
+                  or not SpecTcl is in a test system.
