@@ -810,3 +810,5 @@ September 17, 2008
 September 26, 2008
                  - backport capability to integrate superpositions as well
                    as the base spectrum.
+3.2-002
+Feb 18, 2008    - Xamine button bar background -> black on test installs.
