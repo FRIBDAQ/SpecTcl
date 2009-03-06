@@ -47,7 +47,7 @@
 #include <ValidValue.h>
 #endif
 
-typedef Float_t ParamType;
+typedef DFloat_t ParamType;
 typedef STD(vector)<CValidValue<ParamType> > CParameterVector;
 typedef CValidValue<ParamType>               CParameterValue;
 typedef CParameterVector::iterator           CEventIterator;

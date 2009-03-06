@@ -851,3 +851,5 @@ January 15, 2009
 February 18, 2008
                 - Made the background of the button box a clear indicator of whether
                   or not SpecTcl is in a test system.
+pre2:
+  March 6, 2009 - Make the rEvent array hold doubles not floats.
