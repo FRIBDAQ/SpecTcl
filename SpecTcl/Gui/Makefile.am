@@ -93,4 +93,4 @@ prefs.tcl \
 editGammaDeluxe.tcl \
 editGammaDeluxehelp.html \
 editgsummary.tcl    \
-gammasummery.html
+gammasummary.html
