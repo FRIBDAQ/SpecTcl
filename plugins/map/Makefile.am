@@ -25,6 +25,8 @@ install-exec-local:
 	$(prefix)/TclLibs/mapvalues/pkgIndex.tcl
 
 
+EXTRA_DIST=mapvalues.xml
+
 mapvalues.dvi: mapvalues.xml
 	$(DOCBOOK) $<
 

@@ -20,7 +20,6 @@ noinst_HEADERS	=		CMapValueCommand.h	\
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs
 	$(mkinstalldirs) $(prefix)/TclLibs/mapvalues
-	$(INSTALL_SCRIPT) *.tcl $(prefix)/TclLibs/mapvalues
 	$(INSTALL_PROGRAM) .libs/libMapValues.* $(prefix)/TclLibs/mapvalues
 	echo "package ifneeded MapValues 1.0 [list load [file join \$$dir libMapValues.so]]" >> 				\
 	$(prefix)/TclLibs/mapvalues/pkgIndex.tcl
