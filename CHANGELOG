@@ -811,4 +811,6 @@ September 26, 2008
                  - backport capability to integrate superpositions as well
                    as the base spectrum.
 3.2-002
-Feb 18, 2008    - Xamine button bar background -> black on test installs.
+Feb 18, 2009    - Xamine button bar background -> black on test installs.
+March 18, 2009  - tkcon.tcl - rename clear command to tkconclear so it does not
+                  interfere with SpecTcl's clear command.
