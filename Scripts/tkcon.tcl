@@ -183,7 +183,7 @@ proc ::tkcon::Init {args} {
 	protocol	exit
 	showOnStartup	1
 	slaveprocs	{
-	    alias clear dir dump echo idebug lremove
+	    alias tkconclear dir dump echo idebug lremove
 	    tkcon_puts tkcon_gets observe observe_var unalias which what
 	}
 	RCS		{RCS: @(#) $Id$}
@@ -1411,7 +1411,7 @@ proc ::tkcon::InitMenus {w title} {
 	$m add command -label "Close Console"	-underline 0 -accel Ctrl-w \
 		-command ::tkcon::Destroy
 	$m add command -label "Clear Console"	-underline 1 -accel Ctrl-l \
-		-command { clear; ::tkcon::Prompt }
+		-command { tkconclear; ::tkcon::Prompt }
 	if {[string match unix $tcl_platform(platform)]} {
 	    $m add separator
 	    $m add command -label "Make Xauth Secure" -und 5 \
@@ -3735,7 +3735,7 @@ proc echo args { puts stdout [concat $args] }
 ## clear - clears the buffer of the console (not the history though)
 ## This is executed in the parent interpreter
 ## 
-proc clear {{pcnt 100}} {
+proc tkconclear {{pcnt 100}} {
     if {![regexp {^[0-9]*$} $pcnt] || $pcnt < 1 || $pcnt > 100} {
 	return -code error \
 		"invalid percentage to clear: must be 1-100 (100 default)"
@@ -5071,7 +5071,7 @@ proc ::tkcon::Bindings {} {
     bind TkConsole <<TkCon_Clear>> {
 	## Clear console buffer, without losing current command line input
 	set ::tkcon::PRIV(tmp) [::tkcon::CmdGet %W]
-	clear
+	tkconclear
 	::tkcon::Prompt {} $::tkcon::PRIV(tmp)
     }
     bind TkConsole <<TkCon_Previous>> {
