@@ -654,7 +654,7 @@ class XMCustomDialog : public XMWidget /* Create unmanaged for greater layout ct
 
   /* Destructors:  */
 
-  ~XMCustomDialog();
+  virtual ~XMCustomDialog();
 
   /* Operation on the skeleton dialog */
 

@@ -112,7 +112,8 @@ XMShell.h       compatspec.h       grobfile.tab.h  panemgr.h     toggles.h\
 XMTab.h         convert.h          grobfile_lex.h  pkgmgr.h      trackcursor.h\
 XMText.h        copier.h           grobjdisplay.h  prccheck.h   windfile_lex.h\
 XMWidget.h      copyatr.h          grobjinput.h    printer.h    windfile_tab.h\
-XMWlist.h       defaultfile_lex.h  grobjio.h       procede.h     windio.h\
+XMWlist.h       XMMultiSelectionList.h defaultfile_lex.h        grobjio.h      \
+ procede.h     windio.h\
 Xamine.h        delgrob.h          grobjiomenu.h   properties.h  \
 acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h \
 advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
@@ -129,7 +130,7 @@ libXamine_la_SOURCES = client.c clientgates.c  allocator.c \
 
 Xamine_SOURCES = Xamine.cc XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc \
 XMDialogs.cc XMManagers.cc XMWlist.cc XMShell.cc XMPushbutton.cc XMTab.cc \
-XMLabel.cc XMList.cc XMScale.cc XMSeparators.cc \
+XMLabel.cc XMList.cc XMScale.cc XMSeparators.cc XMMultiSelectionList.cc \
 dispwind.cc menusetup.cc exit.cc helpmenu.cc winiomenu.cc \
 grobjiomenu.cc geometrymenu.cc errormsg.cc logging.cc toggles.cc \
 spectra.cc specchoose.cc spcdisplay.cc advprompt.cc properties.cc \
