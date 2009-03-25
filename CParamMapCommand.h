@@ -80,21 +80,21 @@ public:
     std::string name;		// Allows clients to know who they are.
     int vsn;
     int type;
-    int map[128];		// big enough to handle CAEN V1190's.
+    int map[256];		// big enough to handle about anything
     void* extraData;            // Pointer for data the unpacker can hang on this.
 
     AdcMapping() :
-       vsn(-1), type(-1) { for(int i=0; i < 128; i++) map[i] = -1;}
+       vsn(-1), type(-1) { for(int i=0; i < 256; i++) map[i] = -1;}
     AdcMapping(const AdcMapping& rhs) : name(rhs.name), vsn(rhs.vsn), type(rhs.type) {
       
-      for(int i =0; i < 128; i++) map[i] = rhs.map[i];
+      for(int i =0; i < 256; i++) map[i] = rhs.map[i];
       extraData = rhs.extraData;
     }
     AdcMapping& operator=(const AdcMapping& rhs) {
       name = rhs.name;
       vsn = rhs.vsn;
       type= rhs.type;
-      for (int i =0; i < 128; i++) map[i] = rhs.map[i];
+      for (int i =0; i < 256; i++) map[i] = rhs.map[i];
       extraData = rhs.extraData;
     }
     int& operator[](int i) { return map[i]; }

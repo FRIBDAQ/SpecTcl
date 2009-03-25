@@ -111,12 +111,7 @@ CStackUnpacker::operator()(const Address_t pEvent,
 
   unsigned int offset = 0;
 
-  // Sometimes the VM-USB gives us events that are just 0xffff's.
-  // Skip these events without even starting to try:
 
-  if (event[0] == 0xffff) {
-    return kfFALSE;
-  }
 
   for (int i = 0; i < myMap.size(); i++) {
     CParamMapCommand::AdcMapping* pMap = myMap[i];
