@@ -323,7 +323,7 @@ class ReduceDialog : public XMCustomDialog, public ReduceForm {
   ReduceDialog(char *name, XMWidget *parent, char *title) :
     XMCustomDialog(name, *parent, title),
     ReduceForm(name, *work_area) {
-      Apply->Label("Apply To All");
+    Apply->Label(const_cast<char*>("Apply To All"));
       ReduceForm::Manage();
     }
   ~ReduceDialog() {}
@@ -340,7 +340,7 @@ class ReduceDialog : public XMCustomDialog, public ReduceForm {
 ** Module static data
 */
 static ReduceDialog *dialog  = NULL;
-static char *help_text[] = {
+static const char *help_text[] = {
   "   This dialog is prompting for the default spectrum reduction mechanism.\n",
   "The spectrum reduction mechanism determines how to render spectra when\n",
   "there are insufficient screen pixels in a pane to display all channels\n",
@@ -363,7 +363,8 @@ static char *help_text[] = {
   "         Help     - Displays this message\n",
   NULL };
 
-static Xamine_help_client_data help = { "Reduce_help", NULL, help_text };
+  static Xamine_help_client_data help = { const_cast<char*>("Reduce_help"), NULL, 
+					  const_cast<char**>(help_text) };
 
 /*
 ** Method description:
@@ -387,7 +388,7 @@ ReduceForm::ReduceForm(char *name, XMForm &work_area)
 {
   /* Create the row column widget and set radio box behavior: */
 
-  radio_box = new XMRowColumn("Reduce_radio", work_area);
+  radio_box = new XMRowColumn(const_cast<char*>("Reduce_radio"), work_area);
   radio_box->RadioMenu();
   radio_box->RadioForceOne();
   radio_box->SetOrientation(XmVERTICAL);
@@ -403,14 +404,14 @@ ReduceForm::ReduceForm(char *name, XMForm &work_area)
 
   /*  Next populate the radio box with toggle buttons: */
 
-  Sampled = new XMToggleButton("Sample", *radio_box);
-  Sampled->Label("Reduce by Sampling");
+  Sampled = new XMToggleButton(const_cast<char*>("Sample"), *radio_box);
+  Sampled->Label(const_cast<char*>("Reduce by Sampling"));
 
-  Summed = new XMToggleButton("Sum", *radio_box);
-  Summed->Label("Reduce by Summing");
+  Summed = new XMToggleButton(const_cast<char*>("Sum"), *radio_box);
+  Summed->Label(const_cast<char*>("Reduce by Summing"));
   
-  Averaged = new XMToggleButton("Averaged", *radio_box);
-  Averaged->Label("Reduce by Averaging");
+  Averaged = new XMToggleButton(const_cast<char*>("Averaged"), *radio_box);
+  Averaged->Label(const_cast<char*>("Reduce by Averaging"));
 
 }
 
@@ -550,7 +551,8 @@ void Xamine_SetDefaultReduction(XMWidget *w,
 
   if(dialog == NULL) {		/* Instantiate the dialog and set callbacks */
 
-    dialog = new ReduceDialog("Reduce_Prompt", w, "Reduction Method");
+    dialog = new ReduceDialog(const_cast<char*>("Reduce_Prompt"), w, 
+			      const_cast<char*>("Reduction Method"));
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);

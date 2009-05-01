@@ -312,11 +312,11 @@ class XMListBaseClass : public XMWidget {
  public:
   /* Constructors: */
 
-  XMListBaseClass(char *n, WidgetClass cl, XMWidget &parent, 
+  XMListBaseClass(const char *n, WidgetClass cl, XMWidget &parent, 
 		  ArgList l = NULL, Cardinal num_args = 0);
-  XMListBaseClass(char *n, WidgetClass cl, Widget parent, 
+  XMListBaseClass(const char *n, WidgetClass cl, Widget parent, 
 		  ArgList l = NULL, Cardinal num_args = 0);
-  XMListBaseClass(char *n);
+  XMListBaseClass(const char *n);
   XMListBaseClass(Widget w);
 
   /* Manage the attributes: */
@@ -374,11 +374,11 @@ class XMList : public XMListBaseClass {
  public:
   /* Constructors and Destructors: */
 
-  XMList(char *n, XMWidget &parent, int rows = 10,
+  XMList(const char *n, XMWidget &parent, int rows = 10,
 	 ArgList args = NULL, Cardinal arg_count = 0);
-  XMList(char *n, Widget parent, int rows = 10,
+  XMList(const char *n, Widget parent, int rows = 10,
 	 ArgList args =NULL, Cardinal arg_count = 0);
-  XMList(char *n);
+  XMList(const char *n);
   XMList(Widget w);
 };
 /*
@@ -392,9 +392,9 @@ class XMScrolledList : public XMListBaseClass {
   Widget scrolled_widget;
 
  public:
-  XMScrolledList(char *n, XMWidget &parent, int rows = 10,
+  XMScrolledList(const char *n, XMWidget &parent, int rows = 10,
 		 ArgList args = NULL, Cardinal arg_count = 0);
-  XMScrolledList(char *n, Widget parent, int rows = 10,
+  XMScrolledList(const char *n, Widget parent, int rows = 10,
 		 ArgList args = NULL, Cardinal arg_count = 0);
 
   /* Get the scrolled widget id:  */

@@ -308,7 +308,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** occasions.
 */
 
-static char *default_help[] =
+static const char *default_help[] =
 {
   "  You are being prompted to enter a list of points.  Points can be\n",
   "accepted either by clicking MB1 in the currently selected spectrum\n",
@@ -356,8 +356,9 @@ AcceptPointList::AcceptPointList(char *name, XMWidget *parent,
 				 int minpts, int maxpts,
 				 char **help_text) :
 		 AcceptSummingRegion(name, parent, 
-				     help_text == NULL ? default_help :
-				                         help_text)
+				     help_text == NULL ? 
+				     const_cast<char**>(default_help) :
+				     help_text)
 {
   if(minpts > 0) min_pts = minpts;
   else           min_pts = 1;
@@ -422,7 +423,7 @@ Boolean AcceptPointList::DoAccept()
 
 void AcceptPointList::ChooseDefaultName()
 {
-  ObjectInput::SetText("Point List");
+  ObjectInput::SetText(const_cast<char*>("Point List"));
 }   
 
 
@@ -537,6 +538,6 @@ void AcceptPointList::AddPoint(point &pt)
   sprintf(pstring, "%d %d", pt.x, pt.y);
   Points->AddItem(pstring);
   Points->SetBottomItem();	/* Scroll up if needed to show last item.  */
-  NextPoint->SetText("");  /* Clear the input point.             */
+  NextPoint->SetText(const_cast<char*>(""));  /* Clear the input point.             */
   
 }   

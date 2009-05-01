@@ -277,6 +277,8 @@ DAMAGES.
 */
 static const char* Copyright = "(C) Copyright Michigan State University 2010, All rights reserved";
 #include <config.h>
+#include <stdlib.h>
+
 #include "TapeFile.h"
 #include "Exception.h"
 #include <Iostream.h>

@@ -14,6 +14,7 @@
 #include "CFit.h"
 
 #include <Event.h>                 // Required to set/get event values.
+#include <stdlib.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

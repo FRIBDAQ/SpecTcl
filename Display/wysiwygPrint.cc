@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
-
+#include <limits.h>
 #include <gd.h>
 
 #include <string>
@@ -128,7 +128,7 @@ public:
   Boolean   isLandscape();
 
 };
-char* dialogHelpText[] = {
+static const char* dialogHelpText[] = {
   "1. Fill in the top text entry with the command that will print the \n",
   "   graphics file.  Put a %s where you want the name of that file to appear\n",
   "2. Fill in the \"width\" text entry with the desired width of the graphic \n",
@@ -150,10 +150,10 @@ wysiwygPrintDialog::wysiwygPrintDialog(char* name, XMWidget& parent, char* title
   m_width(0),
   m_orientation(0)
 {
-  SetHelpText(dialogHelpText);
+  SetHelpText(const_cast<char**>(dialogHelpText));
 
   XMForm* manager = WorkArea();
-  m_layout = new XMRowColumn("wysiwygprint.layout", *manager);
+  m_layout = new XMRowColumn(const_cast<char*>("wysiwygprint.layout"), *manager);
   manager->SetLeftAttachment(*m_layout, XmATTACH_FORM);
   manager->SetTopAttachment(*m_layout, XmATTACH_FORM);
   manager->SetRightAttachment(*m_layout, XmATTACH_FORM);
@@ -165,23 +165,24 @@ wysiwygPrintDialog::wysiwygPrintDialog(char* name, XMWidget& parent, char* title
 
   // Define the work area widgets..
 
-  m_printCommandLabel = new XMLabel("wysiwygprint.commandlabel",
-				    *m_layout, "Print command: ");
-  m_widthLabel        = new XMLabel("wysiwygprint.widlabel",
-				    *m_layout, "Width (inches):");
-  m_orientation       = new XMToggleButton("wysiwygprint.orientation",
+  m_printCommandLabel = new XMLabel(const_cast<char*>("wysiwygprint.commandlabel"),
+				    *m_layout, 
+				    const_cast<char*>("Print command: "));
+  m_widthLabel        = new XMLabel(const_cast<char*>("wysiwygprint.widlabel"),
+				    *m_layout, const_cast<char*>("Width (inches):"));
+  m_orientation       = new XMToggleButton(const_cast<char*>("wysiwygprint.orientation"),
 					   *m_layout);
-  m_orientation->Label("Landscape orientation");
+  m_orientation->Label(const_cast<char*>("Landscape orientation"));
 
 
-  m_printCommand      = new XMTextField("wysiwygprint.command",
+  m_printCommand      = new XMTextField(const_cast<char*>("wysiwygprint.command"),
 				        *m_layout);
   m_printCommand->SetText(Xamine_GetPrintCommand());
 
  
-  m_width             = new XMTextField("wysiwygprint.width",
+  m_width             = new XMTextField(const_cast<char*>("wysiwygprint.width"),
 					*m_layout, 5);
-  m_width->SetText("7.5");	// Default width.
+  m_width->SetText(const_cast<char*>("7.5"));	// Default width.
   
  
 
@@ -564,7 +565,8 @@ Xamine_printCapture(XMWidget* who,
 		    XtPointer cd)
 {
   if (!pDialog) {
-    pDialog = new wysiwygPrintDialog("wysiwygprint", *who, "Print options");
+    pDialog = new wysiwygPrintDialog(const_cast<char*>("wysiwygprint"), *who, 
+				     const_cast<char*>("Print options"));
     pDialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&pDialog);
   }
   pDialog->Manage();

@@ -46,7 +46,7 @@ class CLanguageTraceCallback : public CVariableTraceCallback
 			  void*                  pClientData);
   virtual ~CLanguageTraceCallback();
 
-  virtual char* operator()(CTCLInterpreter* pInterp,
+  virtual const char* operator()(CTCLInterpreter* pInterp,
 			   char*            pVariable, 
 			   char*            pElement, 
 			   int              flags);

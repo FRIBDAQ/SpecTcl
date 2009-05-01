@@ -330,9 +330,9 @@ typedef CheckElement *pCheckElement;
 **     The text string for the extra label, defaults to NULL in which
 **     case no label will be set.
 */
-CheckElement::CheckElement(char *name, XMWidget *parent, Boolean state,
+CheckElement::CheckElement(const char *name, XMWidget *parent, Boolean state,
 			   char *blabel, char *labels) : 
-       XMForm(name, *parent)
+  XMForm(name, *parent)
 {
 
   /* Instantiate the subwidgets and set their properties. */
@@ -383,12 +383,12 @@ CheckElement::~CheckElement()
 **         Pointer to new label string.  Note that if this is null we'll
 **         put in an empty string on the caller's behalf.
 */
-void CheckElement::SetButtonString(char *newlabel)
+void CheckElement::SetButtonString(const char *newlabel)
 {
   if(newlabel)
-    button->Label(newlabel);
+    button->Label(const_cast<char*>(newlabel));
   else
-    button->Label("");
+    button->Label(const_cast<char*>(""));
 }
 
 /*
@@ -400,7 +400,7 @@ void CheckElement::SetButtonString(char *newlabel)
 **      The new label string.  If NULL, we provide a null string for the
 **      caller.
 */
-void CheckElement::SetLabelString(char *newlabel)
+void CheckElement::SetLabelString(const char *newlabel)
 {
   if(newlabel) 
     label->SetLabel(newlabel);
@@ -474,7 +474,7 @@ void  CheckElement::UnManage()
 **       If non null, an array of button_count strings.  The non null ones
 **       are labels for the extra label strings in the button checklists.
 */
-CheckList::CheckList(char *name,   XMWidget *parent,
+CheckList::CheckList(const char *name,   XMWidget *parent,
 		     char *title,  int button_count,
 		     char **buttonstrings, char **labelstrings) :
        XMForm(name, *parent)
@@ -502,7 +502,7 @@ CheckList::CheckList(char *name,   XMWidget *parent,
   for(button = 0; button < nchecks; button++) {
     char bname[32];
     sprintf(bname, "Button_%d", button);
-    CheckElement *c = new CheckElement(bname, this);
+    CheckElement *c = new CheckElement(const_cast<char*>(bname), this);
     SetLeftAttachment(*c, XmATTACH_FORM);
     SetRightAttachment(*c, XmATTACH_FORM);
     SetTopAttachment(*c, XmATTACH_WIDGET);

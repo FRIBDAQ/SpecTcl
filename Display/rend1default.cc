@@ -319,7 +319,7 @@ class Rend1dDialog : public XMCustomDialog,
     Rend1dDialog(char *name, XMWidget *parent, char *title) :
       XMCustomDialog(name, *parent, title),
       Rend1dForm(name, *work_area) {
-	Apply->Label("Apply To All");
+      Apply->Label(const_cast<char*>("Apply To All"));
         Rend1dForm::Manage();
       }
     ~Rend1dDialog() { }
@@ -337,7 +337,7 @@ class Rend1dDialog : public XMCustomDialog,
 */
 static Rend1dDialog *dialog  = NULL;
 
-static char *help_text[] = 
+static const char *help_text[] = 
 {
   "  This dialog is prompting you to select the default rendition for 1-d\n",
   "histograms.  The following 1-d renditions are currently supported by\n",
@@ -355,7 +355,8 @@ static char *help_text[] =
   NULL
   };
 
-static Xamine_help_client_data help = {"Rend1d_default", NULL, help_text};
+static Xamine_help_client_data help = {const_cast<char*>("Rend1d_default"), NULL, 
+				       const_cast<char**>(help_text) };
 
 /*
 ** Method Description:
@@ -378,7 +379,7 @@ Rend1dForm::Rend1dForm(char *name, XMForm &work_area)
   /* Create and set up the work area row/column manager: */
   /* Create the row column widget and set radio box behavior: */
 
-  radio_box = new XMRowColumn("Reduce_radio", work_area);
+  radio_box = new XMRowColumn(const_cast<char*>("Reduce_radio"), work_area);
   radio_box->RadioMenu();
   radio_box->RadioForceOne();
   radio_box->SetOrientation(XmVERTICAL);
@@ -394,9 +395,9 @@ Rend1dForm::Rend1dForm(char *name, XMForm &work_area)
 
   /*  Next populate the radio box with toggle buttons: */
 
-  Histogram = new XMToggleButton("Histogram", *radio_box);
-  Lines     = new XMToggleButton("Lines",     *radio_box);
-  Points    = new XMToggleButton("Points",    *radio_box);
+  Histogram = new XMToggleButton(const_cast<char*>("Histogram"), *radio_box);
+  Lines     = new XMToggleButton(const_cast<char*>("Lines"),     *radio_box);
+  Points    = new XMToggleButton(const_cast<char*>("Points"),    *radio_box);
 
 
 }
@@ -539,7 +540,8 @@ void Xamine_Set1dDefaultRendition(XMWidget *w,
   ** callbacks:
   */
   if(dialog == NULL) {
-    dialog = new Rend1dDialog("Rend1d_defaults", w, "1-D Default Renditions");
+    dialog = new Rend1dDialog(const_cast<char*>("Rend1d_defaults"), w, 
+			      const_cast<char*>("1-D Default Renditions"));
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);

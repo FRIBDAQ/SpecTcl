@@ -323,7 +323,7 @@ class XMButton : public XMManagedWidget
   /* PIXMAP subtype                                     */
 
   virtual void Label(XmString label);
-  virtual void Label(String label);
+  virtual void Label(const String label);
 		      
   /* Set the button trigger mnemonic: */
   
@@ -331,11 +331,11 @@ class XMButton : public XMManagedWidget
   
   /* Constructors: */
   
-  XMButton(char *n, WidgetClass c, Widget parent);
-  XMButton(char *n, WidgetClass c, XMWidget &parent);
+  XMButton(const char *n, WidgetClass c, Widget parent);
+  XMButton(const char *n, WidgetClass c, XMWidget &parent);
   XMButton(Widget w);
   
-  void SetAccelerator(char *translation, char *prompt);
+  void SetAccelerator(const char *translation, const char *prompt);
 };
 
 /*
@@ -346,11 +346,11 @@ class XMPushButton : public XMButton
  public:
   /* Constructors... make the widget */
   
-  XMPushButton(char *n, Widget parent, 
+  XMPushButton(const char *n, Widget parent, 
 	       void (*cb)(XMWidget *, XtPointer, XtPointer)
 	       = NULL,
 	       XtPointer cd = NULL);
-  XMPushButton(char *n, XMWidget &parent, 
+  XMPushButton(const char *n, XMWidget &parent, 
 	       void (*cb)(XMWidget *, XtPointer, XtPointer)
 	       = NULL,
 	       XtPointer cd=NULL);
@@ -380,11 +380,11 @@ class XMCascadeButton : public XMButton
   
   /* Constructors... make the widget */
   
-  XMCascadeButton(char *n, Widget parent, 
+  XMCascadeButton(const char *n, Widget parent, 
 		  void (*cb)(XMWidget *, XtPointer, XtPointer)
 		  = NULL,
 		  XtPointer cd = NULL);
-  XMCascadeButton(char *n, XMWidget &parent, 
+  XMCascadeButton(const char *n, XMWidget &parent, 
 		  void (*cb)(XMWidget *, XtPointer, XtPointer)
 		  = NULL,
 		  XtPointer cd=NULL);
@@ -406,10 +406,10 @@ class XMToggleButton: public XMButton
  public:
   /* Constructors: */
   
-  XMToggleButton(char *n, Widget parent,
+  XMToggleButton(const char *n, Widget parent,
 		 void (*cb)(XMWidget *, XtPointer, XtPointer) = NULL,
 		 XtPointer cd = NULL);
-  XMToggleButton(char *n, XMWidget &parent,
+  XMToggleButton(const char *n, XMWidget &parent,
 		 void (*cb)(XMWidget *, XtPointer, XtPointer) = NULL,
 		 XtPointer cd = NULL);
   XMToggleButton(Widget w);
@@ -444,10 +444,10 @@ class XMArrowButton : public XMButton
  public:
   /* Constructors/destructors */
 
-  XMArrowButton(char *n, Widget parent, 
+  XMArrowButton(const char *n, Widget parent, 
 		void (*cb)(XMWidget *, XtPointer, XtPointer) = NULL,
 		XtPointer cd = NULL);
-  XMArrowButton(char *n, XMWidget &parent,
+  XMArrowButton(const char *n, XMWidget &parent,
 		void (*cb)(XMWidget *, XtPointer, XtPointer) = NULL,
 		XtPointer cd = NULL);
 
@@ -465,7 +465,7 @@ class XMArrowButton : public XMButton
   /* Overrides of virtual functions in the base class */
 
   virtual void Label(XmString label);
-  virtual void Label(String label);
+  virtual void Label(const String label);
   virtual void SetMnemonic(KeySym k);
 };
 #endif

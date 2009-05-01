@@ -65,7 +65,7 @@ using namespace std;
 // Local Data types:
 
 struct LookupTableEntry {
-  char* pSwitch;
+  const char* pSwitch;
   CParameterCommand::SwitchValue_t Value;
 };
 
@@ -279,7 +279,7 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
     }
     nLow   = atof(ppListElements[0]);
     nHi    = atof(ppListElements[1]);
-    pUnits = "";
+    pUnits = const_cast<char*>("");
     if(nListElements == 3) {
       pUnits = ppListElements[2];
     }
@@ -377,7 +377,7 @@ CParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
 
 
-  char* pattern = "*";
+  const char* pattern = "*";
   // The next parameter is either a switch (-byid or -id) or it is
   // the name of a parameter to list:
   //

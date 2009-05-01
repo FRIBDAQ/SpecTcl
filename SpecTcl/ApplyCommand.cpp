@@ -58,7 +58,7 @@ using namespace std;
 #endif
 
 
-static char* pCopyrightNotice = 
+static const  char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved ApplyCommand.cpp \\n";
 
 // Functions for class CApplyCommand
@@ -228,7 +228,7 @@ CApplyCommand::ListApplications(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   // The only difference between no more parameters and parameters
   // is how the Spectra vector is filled:
-  char* pattern = "*";
+  const char* pattern = "*";
   if (nArgs != 0) 
     {
       pattern = pArgs[0];

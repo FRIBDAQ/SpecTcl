@@ -553,7 +553,7 @@ void ConfirmClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
 
   if(ButtonAvailable(description.whenavailable, sptype)) {
     if(prompter == (ClientConfirmation *)NULL) {
-      prompter = new ClientConfirmation("TextPrompt", *wid,
+      prompter = new ClientConfirmation(const_cast<char*>("TextPrompt"), *wid,
 					description.promptstr,
 					this);
     }
@@ -641,7 +641,7 @@ Boolean ClientTextPrompter::Perform(XMWidget *wid, XtPointer userd, XtPointer ca
        */
       
       char *text;
-      if(XmStringGetLtoR(cs->value, XmSTRING_DEFAULT_CHARSET, &text)) {
+      if(XmStringGetLtoR(cs->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &text)) {
 	memset(event.data.button.text, 0, sizeof(event.data.button.text));
 	strncpy(event.data.button.text, text,
 		sizeof(event.data.button.text)-1);
@@ -719,7 +719,7 @@ void TextClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
 
   if(ButtonAvailable(description.whenavailable, sptype)) {
     if(prompter == (ClientTextPrompter *)NULL) {
-      prompter = new ClientTextPrompter("TextPrompt", *wid,
+      prompter = new ClientTextPrompter(const_cast<char*>("TextPrompt"), *wid,
 					description.promptstr,
 					this);
     }
@@ -883,27 +883,27 @@ void SpectrumClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
 		"Invalid spectrum prompt type on button, defaulting to 'Any'");
 
     case Any:
-      prompter = new ClientSpectrumChooser("Spectrum_Choice",
+      prompter = new ClientSpectrumChooser(const_cast<char*>("Spectrum_Choice"),
 					   *wid,
 					   description.promptstr,
 					   (XtPointer)this);
       break;
     case Oned:
-      prompter = new ClientLimSpectrumChooser("Spectrum_Choice",
+      prompter = new ClientLimSpectrumChooser(const_cast<char*>("Spectrum_Choice"),
 					      *wid,
 					      description.promptstr,
 					      oned,
 					      (XtPointer)this);
       break;
     case Twod:
-      prompter = new ClientLimSpectrumChooser("Spectrum_Choice",
+      prompter = new ClientLimSpectrumChooser(const_cast<char*>("Spectrum_Choice"),
 					      *wid,
 					      description.promptstr,
 					      twod,
 					      (XtPointer)this);
       break;
     case Compatible:
-      prompter = new ClientCompatSpectrumChooser("Spectrum_Choice",
+      prompter = new ClientCompatSpectrumChooser(const_cast<char*>("Spectrum_Choice"),
 						 *wid,
 						 description.promptstr,
 						 (XtPointer)this);
@@ -1093,7 +1093,7 @@ void FileClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
   }
 
   if(prompter == (ClientFileSelector *)NULL) {
-    prompter = new ClientFileSelector("Choose_File",
+    prompter = new ClientFileSelector(const_cast<char*>("Choose_File"),
 				      *wid,
 				      (XtPointer)this);
   }
@@ -1359,7 +1359,7 @@ void PointsClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
   }
 
   if(prompter == (AcceptPointsPrompter *)NULL) {
-    prompter = new AcceptPointsPrompter("User points",
+    prompter = new AcceptPointsPrompter(const_cast<char*>("User points"),
 					wid,
 					this,
 					description.minpts,
@@ -1652,7 +1652,8 @@ static void CreateButtonBox(XMWidget *parent,
 {
   msg_status stat;
   if(buttons == (ButtonBox *)NULL) {		// Doesn't exist yet so make...
-    buttons = new ButtonBox(parent, "Client Buttons", r, c);
+    buttons = new ButtonBox(parent, 
+			    const_cast<char*>("Client Buttons"), r, c);
     buttons->Manage();		// Pop it up
     stat = Success;
   }

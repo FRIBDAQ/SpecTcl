@@ -314,11 +314,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
 ** Local storage:
 */
-static char *mode[] = { "Sampled",
+static const char *mode[] = { "Sampled",
 			"Summed",
 			"Averaged"
 		      };
-static char *rend2[] = {
+static const char *rend2[] = {
                          "Scatter",
 			 "Boxes",
 			 "Color",
@@ -326,7 +326,7 @@ static char *rend2[] = {
 			 "Surface",
 			 "Lego"
 			 };
-static char *rend1[] = {
+static const char *rend1[] = {
                          "Smoothed",
 			 "Histogram",
 			 "Lines",
@@ -471,13 +471,13 @@ static void CopyAttributes(AttributeCopy *form); /* Copy selected pane attribs. 
 **      fields.
 */
 AxisLabels::AxisLabels(XMWidget *parent, win_attributed *atr) :
-       CheckList("AxisLabels", parent, "Axis Labels", 3)
+  CheckList(const_cast<char*>("AxisLabels"), parent, const_cast<char*>("Axis Labels"), 3)
 {
   /* Set the button titles:  */
 
-  SetButtonString(0, "Axes        ");
-  SetButtonString(1, "Ticks       ");
-  SetButtonString(2, "Tick Labels ");
+  SetButtonString(0, const_cast<char*>("Axes        "));
+  SetButtonString(1, const_cast<char*>("Ticks       "));
+  SetButtonString(2, const_cast<char*>("Tick Labels "));
 
   State(0, True);
   State(1, True);
@@ -553,14 +553,15 @@ void AxisLabels::CopyAttributes(win_attributed *in, win_attributed *out)
 **      Attributes of the pane we're copying from.
 */
 SpectrumTitles::SpectrumTitles(XMWidget *parent, win_attributed *atr) :
-       CheckList("SpectrumTitles", parent, "Spectrum Titles", 6)
+  CheckList(const_cast<char*>("SpectrumTitles"), parent, 
+	    const_cast<char*>("Spectrum Titles"), 6)
 {
-  SetButtonString(0, "Name          ");
-  SetButtonString(1, "Number        ");
-  SetButtonString(2, "Description   ");
-  SetButtonString(3, "Peak Info     ");
-  SetButtonString(4, "Update time   ");
-  SetButtonString(5, "Object labels ");
+  SetButtonString(0, const_cast<char*>("Name          "));
+  SetButtonString(1, const_cast<char*>("Number        "));
+  SetButtonString(2, const_cast<char*>("Description   "));
+  SetButtonString(3, const_cast<char*>("Peak Info     "));
+  SetButtonString(4, const_cast<char*>("Update time   "));
+  SetButtonString(5, const_cast<char*>("Object labels "));
 
   State(0, True);
   State(1, True);
@@ -652,19 +653,19 @@ void SpectrumTitles::CopyAttributes(win_attributed *in, win_attributed *out)
 **      The attributes of the source.
 */
 DisplayAttributes::DisplayAttributes(XMWidget *parent, win_attributed *atr) : 
-       CheckList("DisplayAttributes", parent, "Display Attributes",
+  CheckList(const_cast<char*>("DisplayAttributes"), parent, const_cast<char*>("Display Attributes"),
 		 7)
 {
 
   /* Label the toggles */
 
-  SetButtonString(0, "Axis Orientation ");
-  SetButtonString(1, "Reduction        ");
-  SetButtonString(2, "Scale            ");
-  SetButtonString(3, "Counts axis      ");
-  SetButtonString(4, "Floor            ");
-  SetButtonString(5, "Ceiling          ");
-  SetButtonString(6, "Auto update      ");
+  SetButtonString(0, const_cast<char*>("Axis Orientation "));
+  SetButtonString(1, const_cast<char*>("Reduction        "));
+  SetButtonString(2, const_cast<char*>("Scale            "));
+  SetButtonString(3, const_cast<char*>("Counts axis      "));
+  SetButtonString(4, const_cast<char*>("Floor            "));
+  SetButtonString(5, const_cast<char*>("Ceiling          "));
+  SetButtonString(6, const_cast<char*>("Auto update      "));
 
   /* Initialize the default filter */
 
@@ -802,11 +803,12 @@ void DisplayAttributes::CopyAttributes(win_attributed *in, win_attributed *out)
 **     Attribute block used to stock the status parts of the checklist.
 */
 TwodAttributes::TwodAttributes(XMWidget *parent, win_2d *atr) :
-       CheckList("2-d", parent, "2-d Attributes", 3)
+  CheckList(const_cast<char*>("2-d"), parent, 
+	    const_cast<char*>("2-d Attributes"), 3)
 {
-  SetButtonString(0, "Rendition        ");
-  SetButtonString(1, "Expansion Limits ");
-  SetButtonString(2, "Projection       ");
+  SetButtonString(0, const_cast<char*>("Rendition        "));
+  SetButtonString(1, const_cast<char*>("Expansion Limits "));
+  SetButtonString(2, const_cast<char*>("Projection       "));
 
   State(0, True);
   State(1, True);
@@ -831,7 +833,7 @@ void TwodAttributes::Update(win_2d *atr)
 {
   char label[100];
 
-  SetButtonString(0, rend2[atr->getrend()]);
+  SetButtonString(0, const_cast<char*>(rend2[atr->getrend()]));
 
   if(atr->isexpanded()) {
     sprintf(label, "(%d,%d) - (%d,%d)", 
@@ -842,8 +844,7 @@ void TwodAttributes::Update(win_2d *atr)
     strcpy(label, "Not Expanded");
   }
   SetButtonString(1, label);
-
-  SetButtonString(2,"Unimplemented");
+  SetButtonString(2,const_cast<char*>("Unimplemented"));
  
 }
 /*
@@ -893,11 +894,11 @@ void TwodAttributes::CopyAttributes(win_2d *in, win_2d *out)
 **     The spectrum attributes.
 */
 OnedAttributes::OnedAttributes(XMWidget *parent, win_1d *atr) :
-       CheckList("OnedAttribs", parent, "1-d Attributes", 3)
+  CheckList(const_cast<char*>("OnedAttribs"), parent, const_cast<char*>("1-d Attributes"), 3)
 {
-  SetButtonString(0, "Rendition");
-  SetButtonString(1, "Expansion");
-  SetButtonString(2, "Superposition");
+  SetButtonString(0, const_cast<char*>("Rendition"));
+  SetButtonString(1, const_cast<char*>("Expansion"));
+  SetButtonString(2, const_cast<char*>("Superposition"));
 
   State(0, True);
   State(1, True);
@@ -924,7 +925,7 @@ void OnedAttributes::Update(win_1d *atr)
   char label[100];
   SuperpositionList  slist = atr->GetSuperpositions();
 
-  SetLabelString(0, rend1[atr->getrend()]);
+  SetLabelString(0, const_cast<char*>(rend1[atr->getrend()]));
 
   if(atr->isexpanded()) {
     sprintf(label, "%d - %d", atr->lowlimit(), atr->highlimit());
@@ -1035,9 +1036,9 @@ AttributeCopy::AttributeCopy(XMWidget *parent, win_attributed *atr) :
   TwodSpecific    = new TwodAttributes(properties, &atr2);
   OnedSpecific    = new OnedAttributes(properties, &atr1);
 
-  CopyTo          = new DisplayedCompatibleSpectrumList("Speclist",
+  CopyTo          = new DisplayedCompatibleSpectrumList(const_cast<char*>("Speclist"),
 							this,
-							"Copy to",
+							const_cast<char*>("Copy to"),
 							atr->spectrum());
   UpdateButton   = new XMPushButton("Update", *this, 
 				    AtrCopy_UpdateRelay, (XtPointer)this);
@@ -1393,7 +1394,7 @@ void AttributeCopyDialog::CancelPressed(XMWidget *b,
 ** The stuff below is used to describe the help dialog that can be popped
 ** up from this dialog
 */
-static char *AtrCpyHelp_Text[] = {
+static const  char *AtrCpyHelp_Text[] = {
   "    This dialog allows you to copy the display attributes of a window\n",
   "to one or panes containing compatible spectra.   The top part of\n",
   "the work area of this dialog consists of a number of check boxes and \n",
@@ -1422,9 +1423,9 @@ static char *AtrCpyHelp_Text[] = {
   NULL
   };
 
-static Xamine_help_client_data help = { "Copy_Help",
+static Xamine_help_client_data help = { const_cast<char*>("Copy_Help"),
 					  NULL,
-					  AtrCpyHelp_Text
+					const_cast<char**>(AtrCpyHelp_Text)
 					  };
 
 /*
@@ -1553,7 +1554,8 @@ void Xamine_CopyPaneAttributes(XMWidget *parent, XtPointer ud, XtPointer cd)
     Xamine_error_msg(parent, "Selected spectrum is empty");
   }
   if(!dialog) {
-    dialog = new AttributeCopyDialog("Copy_ATR", parent, "Copy Attributes",
+    dialog = new AttributeCopyDialog(const_cast<char*>("Copy_ATR"), parent, 
+				     const_cast<char*>("Copy Attributes"),
 				     atr);
     dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }

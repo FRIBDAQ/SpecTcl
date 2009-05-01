@@ -63,7 +63,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 extern volatile spec_shared *xamine_shared;
 
-static char *help_text[]  = {
+static const char *help_text[]  = {
   "  This dialog allows you to change the properties of the currently \n",
   "selected spectrum.  When the dialog is first presented, it shows the\n",
   "current settings for the selected spectrum.  Modify them as you see fit\n",
@@ -80,9 +80,9 @@ static char *help_text[]  = {
 ** that software will display a help dialog (information dialog).
 ** containing the help_text
 */
-static struct Xamine_help_client_data help = { "Properties_Help",
+static struct Xamine_help_client_data help = { const_cast<char*>("Properties_Help"),
 					       NULL,
-					       help_text
+					       const_cast<char**>(help_text)
 				           };
 
 
@@ -217,13 +217,13 @@ class PropertyDialog : public XMCustomDialog,
   PropertyDialog(char *name, XMWidget &parent, char *title) :
     XMCustomDialog(name, parent, title),
     PropertyForm(*work_area),
-    AxisForm("Axis_Prompt", *axis_labels),
-    AttributeForm("Attribute_Prompt", *attributes),
-    ReduceForm("Reduction_Prompt", *reduction),
-    Rend1dForm("Rendition_1d", *rendition_1),
-    Rend2dForm("Rendition_2d", *rendition_2),
-    TitleForm("Titles", *spectrum_titles),
-    RefreshForm("Refresh", *refresh_form) {
+    AxisForm(const_cast<char*>("Axis_Prompt"), *axis_labels),
+    AttributeForm(const_cast<char*>("Attribute_Prompt"), *attributes),
+    ReduceForm(const_cast<char*>("Reduction_Prompt"), *reduction),
+    Rend1dForm(const_cast<char*>("Rendition_1d"), *rendition_1),
+    Rend2dForm(const_cast<char*>("Rendition_2d"), *rendition_2),
+    TitleForm(const_cast<char*>("Titles"), *spectrum_titles),
+    RefreshForm(const_cast<char*>("Refresh"), *refresh_form) {
       SetColor(Xamine_ColorDisplay());
       PropertyForm::Manage();
       Apply->UnManage();
@@ -269,13 +269,13 @@ static PropertyDialog *dialog = NULL;
 
   /* First we set up the left and right half forms.   */
 
-  left_form = new XMForm("Left_form", parent);
-  right_form= new XMForm("Right_Form", parent);
+  left_form = new XMForm(const_cast<char*>("Left_form"), parent);
+  right_form= new XMForm(const_cast<char*>("Right_Form"), parent);
 
   /* Create the axis label box.  It's in the top part of the left form. */
 
-  axis_frame  = new XMFrame("Axis_Frame", *left_form);
-  axis_labels = new XMForm("Axis_Form",   *axis_frame);
+  axis_frame  = new XMFrame(const_cast<char*>("Axis_Frame"), *left_form);
+  axis_labels = new XMForm(const_cast<char*>("Axis_Form"),   *axis_frame);
   left_form->SetTopAttachment(*axis_frame,    XmATTACH_FORM);
   left_form->SetLeftAttachment(*axis_frame,   XmATTACH_FORM);
   left_form->SetRightAttachment(*axis_frame,  XmATTACH_FORM);
@@ -286,8 +286,8 @@ static PropertyDialog *dialog = NULL;
   ** right form.
   */
 
-  spectrum_frame = new XMFrame("Spectrum_Frame", *right_form);
-  spectrum_titles= new XMForm("Spectrum_form", *spectrum_frame);
+  spectrum_frame = new XMFrame(const_cast<char*>("Spectrum_Frame"), *right_form);
+  spectrum_titles= new XMForm(const_cast<char*>("Spectrum_form"), *spectrum_frame);
   right_form->SetTopAttachment(*spectrum_frame,    XmATTACH_FORM);
   right_form->SetLeftAttachment(*spectrum_frame,   XmATTACH_FORM);
   right_form->SetRightAttachment(*spectrum_frame,  XmATTACH_FORM);
@@ -300,8 +300,8 @@ static PropertyDialog *dialog = NULL;
   ** It's a child of the left form:
   */
 
-  attributes_frame = new XMFrame("Att_Frame", *left_form);
-  attributes       = new XMForm("Att_Form",  *attributes_frame);
+  attributes_frame = new XMFrame(const_cast<char*>("Att_Frame"), *left_form);
+  attributes       = new XMForm(const_cast<char*>("Att_Form"),   *attributes_frame);
   left_form->SetTopAttachment(*attributes_frame,      XmATTACH_POSITION);
   left_form->SetTopPosition(*attributes_frame,         26);
   left_form->SetLeftAttachment(*attributes_frame,     XmATTACH_FORM);
@@ -314,8 +314,8 @@ static PropertyDialog *dialog = NULL;
   **  to the form on the left and right and is in the right form.
   */
 
-  reduction_frame = new XMFrame("Reduction_frame", *right_form);
-  reduction       = new XMForm("Reduction_form",   *reduction_frame);
+  reduction_frame = new XMFrame(const_cast<char*>("Reduction_frame"), *right_form);
+  reduction       = new XMForm(const_cast<char*>("Reduction_form"),   *reduction_frame);
   right_form->SetTopAttachment(*reduction_frame,     XmATTACH_POSITION);
   right_form->SetTopPosition(*reduction_frame,        41);
   right_form->SetLeftAttachment(*reduction_frame,    XmATTACH_FORM);
@@ -332,17 +332,17 @@ static PropertyDialog *dialog = NULL;
   ** the reduction_frame and everywhere else to the form.
   */
 
-  rendition_frame   = new XMFrame("Rendition_Frame",*right_form);
-  rendition_form    = new XMForm("Rendition_Form",  *rendition_frame);
+  rendition_frame   = new XMFrame(const_cast<char*>("Rendition_Frame"),*right_form);
+  rendition_form    = new XMForm(const_cast<char*>("Rendition_Form"),  *rendition_frame);
 
 
-  rendition_1      = new XMForm("Rendition_1d", *rendition_form);
+  rendition_1      = new XMForm(const_cast<char*>("Rendition_1d"), *rendition_form);
   rendition_form->SetTopAttachment(*rendition_1, XmATTACH_NONE);
   rendition_form->SetLeftAttachment(*rendition_1, XmATTACH_NONE);
   rendition_form->SetRightAttachment(*rendition_1, XmATTACH_NONE);
   rendition_form->SetBottomAttachment(*rendition_1, XmATTACH_NONE);
 
-  rendition_2      = new XMForm("Rendition_2", *rendition_form);
+  rendition_2      = new XMForm(const_cast<char*>("Rendition_2"), *rendition_form);
   rendition_form->SetTopAttachment(*rendition_2, XmATTACH_NONE);
   rendition_form->SetLeftAttachment(*rendition_2, XmATTACH_NONE);
   rendition_form->SetBottomAttachment(*rendition_2, XmATTACH_NONE);
@@ -358,8 +358,8 @@ static PropertyDialog *dialog = NULL;
   ** top of the main form:
   */
 
-  refresh_frame = new XMFrame("Refresh_frame", parent);
-  refresh_form  = new XMForm("Refresh_from",  *refresh_frame);
+  refresh_frame = new XMFrame(const_cast<char*>("Refresh_frame"), parent);
+  refresh_form  = new XMForm(const_cast<char*>("Refresh_from"),  *refresh_frame);
   parent.SetLeftAttachment(*refresh_frame,     XmATTACH_FORM);
   parent.SetTopAttachment(*refresh_frame,      XmATTACH_FORM);
   parent.SetRightAttachment(*refresh_frame,    XmATTACH_FORM);
@@ -540,8 +540,8 @@ void Xamine_SetSelectedProperties(XMWidget *w, XtPointer cli, XtPointer call)
   */
 
   if(!dialog) {
-    dialog = new PropertyDialog("Property_dialog", *w, 
-				"Set Spectrum Properties");
+    dialog = new PropertyDialog(const_cast<char*>("Property_dialog"), *w, 
+				const_cast<char*>("Set Spectrum Properties"));
     dialog->AddDoCallback(ActionCallback, (XtPointer)dialog);
     dialog->AddCancelCallback(ActionCallback, (XtPointer)dialog);
     dialog->AddHelpCallback(Xamine_display_help, &help);

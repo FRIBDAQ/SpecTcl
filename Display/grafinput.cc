@@ -360,12 +360,12 @@ extern spec_shared *xamine_shared;
 */
  GraphicalInput::GraphicalInput(XMWidget *parent, char *name, 
 				char **help_text) :
-  XMCustomDialog(name, *parent, "Graphical Input")
+   XMCustomDialog(name, *parent, const_cast<char*>("Graphical Input"))
 {
   /* Set up the help button */
 
   if(help_text) {
-    help.name = "Help_Popup";
+    help.name = const_cast<char*>("Help_Popup");
     help.dialog = NULL;
     help.text   = help_text;
     AddHelpCallback(Xamine_display_help, &help);

@@ -28,6 +28,8 @@
 
 
 #include <config.h>
+#include <stdlib.h>
+
 #include "CTreeParameterArray.h"
 #include "CTreeParameter.h"
 #include "CTreeException.h"

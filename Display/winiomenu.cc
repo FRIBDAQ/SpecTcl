@@ -80,7 +80,7 @@ static string   LastFilename;
 static XMFileListDialog *openbox = NULL;
 static XMInformationDialog *help = NULL;
 
-static char *confirm_help_text[] = {
+static const char *confirm_help_text[] = {
   "  The file name that you selected for a write windows operation already\n",
   "exists.  If you click on the \"Cancel\" button then the windows file will\n",
   "NOT be written out to that file.  If you click on the \"Confirm\" button\n",
@@ -90,12 +90,12 @@ static char *confirm_help_text[] = {
   };
 
 static Xamine_help_client_data confirm_help = {
-                                         "Window_overwrite_confirm",
-					 NULL,
-					 confirm_help_text
+  const_cast<char*>("Window_overwrite_confirm"),
+  NULL,
+  const_cast<char**>(confirm_help_text)
 					 };
 
-static char *open_help_text[] = {
+static const char *open_help_text[] = {
   "  This file selection box allows you to choose a window file for the\n",
   "operation you just selected.  You can use the mouse to click on a\n",
   "directory in the list of directories on the left side of the box to\n",
@@ -239,9 +239,9 @@ static
   XMWidget *help_parent = (XMWidget *)client_data;
 
   if(!help) {
-    help = Xamine_help("Open_window_file_help",
+    help = Xamine_help(const_cast<char*>("Open_window_file_help"),
 		       help_parent,
-		       open_help_text);
+		       const_cast<char**>(open_help_text));
     help->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&help);
   }
   else {
@@ -286,7 +286,7 @@ void Xamine_Open_window_file(XMWidget *w, XtPointer client_data,
   /* If necessary create the dialog otherwise just manage it: */
 
   if(!openbox) {
-    openbox = new XMFileListDialog("Open_windows_file", *w);
+    openbox = new XMFileListDialog(const_cast<char*>("Open_windows_file"), *w);
     openbox->GetHelpButton()->AddCallback(open_help, (XtPointer)openbox);
     openbox->GetHelpButton()->Enable();
     openbox->AddCancelCallback(XMUnmanageChild);
@@ -294,8 +294,9 @@ void Xamine_Open_window_file(XMWidget *w, XtPointer client_data,
 			   (XtPointer)&openbox);
     /* Build the directory search string */
     
-    full = Xamine_GetSearchMask(XAMINE_WINDOW_ENV, XMFILE_DEFAULT_DIR, 
-				WINDOW_MASK);
+    full = Xamine_GetSearchMask(const_cast<char*>(XAMINE_WINDOW_ENV), 
+				const_cast<char*>(XMFILE_DEFAULT_DIR), 
+				const_cast<char*>(WINDOW_MASK));
     openbox->DoSearch(full);
   }
   else {
@@ -410,10 +411,10 @@ void Xamine_Read_window_file(XMWidget *w, XtPointer client_data,
   FILE *fp;
 
   /* Convert the name of the file to a C ASCIZ string: */
-  if(!XmStringGetLtoR(reason->value, XmSTRING_DEFAULT_CHARSET, &filename)) {
+  if(!XmStringGetLtoR(reason->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &filename)) {
     sprintf(error_msg, 
 	    "Xamine_Read_window_file -- Could not get filename from prompter");
-    new XMErrorDialog("Failure", *Xamine_Getpanemgr(), error_msg, kill_widget);
+    new XMErrorDialog(const_cast<char*>("Failure"), *Xamine_Getpanemgr(), error_msg, kill_widget);
     return;
   }
 
@@ -443,7 +444,7 @@ void Xamine_Read_window_file(XMWidget *w, XtPointer client_data,
 	    "Xamine was not able to determine the characteristics of the ",
 	    "file\n",
 	    strerror(errno));
-    new XMErrorDialog("Stat_Failed", *Xamine_Getpanemgr(), error_msg, 
+    new XMErrorDialog(const_cast<char*>("Stat_Failed"), *Xamine_Getpanemgr(), error_msg, 
 		      kill_widget);
     XtFree(filename);
     return;
@@ -455,7 +456,7 @@ void Xamine_Read_window_file(XMWidget *w, XtPointer client_data,
 	    " File does not exist or is not suitable for use as a\n",
 	    "windows input file.\n",
 	    "Possibly it is a directory or a pipeline/mailbox file\n");
-    new XMErrorDialog("Bad_file",  *Xamine_Getpanemgr(), error_msg, kill_widget);
+    new XMErrorDialog(const_cast<char*>("Bad_file"),  *Xamine_Getpanemgr(), error_msg, kill_widget);
     XtFree(filename);
     return;
   }
@@ -471,7 +472,7 @@ void Xamine_Read_window_file(XMWidget *w, XtPointer client_data,
 	    "If you do not own this file, then ask whoever does to change the\n",
 	    "protections so that you can read it.\n",
 	    strerror(errno));
-    new XMErrorDialog("Read_Protected", *Xamine_Getpanemgr(), 
+    new XMErrorDialog(const_cast<char*>("Read_Protected"), *Xamine_Getpanemgr(), 
 		      error_msg, kill_widget);
     XtFree(filename);
     return;
@@ -532,7 +533,7 @@ void write_windows(XMWidget *w, XtPointer client_data,
       sprintf(msg, "Open failed for file: %s\n%s",
 	      filename,
 	      strerror(errno));
-      new XMErrorDialog("Open_Failed", 
+      new XMErrorDialog(const_cast<char*>("Open_Failed"), 
 			*Xamine_Getpanemgr(),  msg, kill_widget);
       return;
     }
@@ -541,7 +542,7 @@ void write_windows(XMWidget *w, XtPointer client_data,
   if(remove(filename)) {
     sprintf(msg, "Failed to remove temp file %s\n%s", filename,
     strerror(errno));
-    new XMErrorDialog("Remove_Failed", *Xamine_Getpanemgr(), msg, kill_widget);
+    new XMErrorDialog(const_cast<char*>("Remove_Failed"), *Xamine_Getpanemgr(), msg, kill_widget);
   }
 
   /* Now write the pane database out to file: */
@@ -552,7 +553,7 @@ void write_windows(XMWidget *w, XtPointer client_data,
     sprintf(msg, "Failed to write window file %s\n%s",
 	    filename,
 	    strerror(errno));
-    new XMErrorDialog("Write_failed", *Xamine_Getpanemgr(), msg, kill_widget);
+    new XMErrorDialog(const_cast<char*>("Write_failed"), *Xamine_Getpanemgr(), msg, kill_widget);
   }
   else {
     string title("Xamine -- ");
@@ -595,10 +596,10 @@ void Xamine_Write_window_file(XMWidget *w, XtPointer client_data,
 
   /* Convert the name of the file to a C ASCIZ string: */
 
-  if(!XmStringGetLtoR(reason->value, XmSTRING_DEFAULT_CHARSET, &filename)) {
+  if(!XmStringGetLtoR(reason->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &filename)) {
     sprintf(error_msg, 
 	    "Xamine_Write_window_file -- Could not get filename string\n");
-    new XMErrorDialog("String_GetFailed", *Xamine_Getpanemgr(), error_msg,
+    new XMErrorDialog(const_cast<char*>("String_GetFailed"), *Xamine_Getpanemgr(), error_msg,
 		      kill_widget);
     return;
   }
@@ -632,7 +633,7 @@ void Xamine_Write_window_file(XMWidget *w, XtPointer client_data,
 	      filename,
 	      "This file is not suitable for use as a window definition file\n",
 	      "Most likely it is a directory or a pipeline/mailbox file\n");
-      new XMErrorDialog("Bad_file",  
+      new XMErrorDialog(const_cast<char*>("Bad_file"),  
 			*Xamine_Getpanemgr(), error_msg, kill_widget);
       XtFree(filename);
       return;
@@ -642,7 +643,7 @@ void Xamine_Write_window_file(XMWidget *w, XtPointer client_data,
 	    filename,
 	    "Click \"Overwrite\" to overwrite it or click \"Cancel\" to abort\n"
 	    );
-    overwrite = new  XMWarningDialog("Good_file", *Xamine_Getpanemgr(), 
+    overwrite = new  XMWarningDialog(const_cast<char*>("Good_file"), *Xamine_Getpanemgr(), 
 				     error_msg, write_windows, 
 				     (XtPointer)filename);
     overwrite->AddOkCallback(kill_widget); /* After write... kill off dialog */
@@ -662,7 +663,7 @@ void Xamine_Write_window_file(XMWidget *w, XtPointer client_data,
 	    "Xamine was not able to determine the characteristics of the ",
 	    "file\n",
 	    strerror(errno));
-    new XMErrorDialog("Stat_Failed", *Xamine_Getpanemgr(), error_msg, 
+    new XMErrorDialog(const_cast<char*>("Stat_Failed"), *Xamine_Getpanemgr(), error_msg, 
 		      kill_widget);
     XtFree(filename);
     return;

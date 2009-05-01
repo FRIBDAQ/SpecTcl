@@ -323,7 +323,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** that we'll be building.
 */
 
-char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog allows you to select an expansion region for the selected\n",
   "spectrum.  Points can be accepted by either clicking in the spectrum, or\n",
   "by typing them into the slots below.  If you click on a different spectrum\n",
@@ -1270,10 +1270,11 @@ void Xamine_Expand(XMWidget *w, XtPointer user_data, XtPointer call_data)
   /* If the dialog does not exist, then instantiate it.  */
 
   if(dialog == NULL) {
-    dialog = new Expand(w, "Expand", help_text);
+    dialog = new Expand(w, const_cast<char*>("Expand"), 
+			const_cast<char**>(help_text));
 
-    dialog->SetPoint1Label("Limit 1");
-    dialog->SetPoint2Label("Limit 2");
+    dialog->SetPoint1Label(const_cast<char*>("Limit 1"));
+    dialog->SetPoint2Label(const_cast<char*>("Limit 2"));
 
     dialog->AddPt1Callback(AddPt1);
     dialog->AddPt2Callback(AddPt2);

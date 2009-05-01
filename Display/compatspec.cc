@@ -151,7 +151,7 @@ CompatibleSpectrumList::CompatibleSpectrumList(char     *name,
   speclist   = new XMScrolledList("List", *this);
   speclist->SetSelectionPolicy(XmEXTENDED_SELECT);
   select_all = new XMPushButton("Button", *this, SelAll_relay, this);
-  select_all->Label("Select All");
+  select_all->Label(const_cast<char*>("Select All"));
 
   speclist->SetRows(10);
 
@@ -272,7 +272,7 @@ void CompatibleSpectrumList::GetSelections(char ***items, int *count)
   *items = new cstring[*count];
   char **item = *items;
   for(int i = 0; i < *count; i++) {
-    XmStringGetLtoR(selections[i], XmSTRING_DEFAULT_CHARSET, item);
+    XmStringGetLtoR(selections[i], const_cast<char*>(XmSTRING_DEFAULT_CHARSET), item);
     item++;
   }
 }

@@ -385,35 +385,37 @@ class ColorDialog : public XMPromptDialog
 	      void (*cb)(XMWidget *,
 			 XtPointer,
 			 XtPointer) = NULL,
-	      XtPointer cbd = NULL) : XMPromptDialog("Color_Button",
-						     parent, "Lower Limit",
+	      XtPointer cbd = NULL) : XMPromptDialog(const_cast<char*>("Color_Button"),
+						     parent, 
+						     const_cast<char*>("Lower Limit"),
 						     cb, cbd) {
 		XmString label;
 
 		this->UnManage();
-		manager = new XMWidget("Slidermgr", xmRowColumnWidgetClass, id);
+		manager = new XMWidget(const_cast<char*>("Slidermgr"),
+				       xmRowColumnWidgetClass, id);
 		manager->SetAttribute(XmNorientation, XmVERTICAL);
 		manager->SetAttribute(XmNpacking, XmPACK_COLUMN);
 		manager->SetAttribute(XmNnumColumns, 1);
 
 		/* Red slider/label */
 
-		redlabel = new XMManagedWidget("Red", xmLabelWidgetClass, *manager);
-		label    = XmStringCreateSimple("Red Intensity");
+		redlabel = new XMManagedWidget(const_cast<char*>("Red"), xmLabelWidgetClass, *manager);
+		label    = XmStringCreateSimple(const_cast<char*>("Red Intensity"));
 		redlabel->SetAttribute(XmNlabelString, label);
 		XmStringFree(label);
-		redslider = new XMManagedWidget("RedSlider", xmScaleWidgetClass, *manager);
+		redslider = new XMManagedWidget(const_cast<char*>("RedSlider"), xmScaleWidgetClass, *manager);
 		redslider->SetAttribute(XmNorientation, XmHORIZONTAL);
 		redslider->SetAttribute(XmNprocessingDirection, XmMAX_ON_RIGHT);
 		redslider->SetAttribute(XmNshowValue, True);
 
 		/* Green slider/label */
 
-		greenlabel = new XMManagedWidget("Green", xmLabelWidgetClass, *manager);
-		label    = XmStringCreateSimple("Green Intensity");
+		greenlabel = new XMManagedWidget(const_cast<char*>("Green"), xmLabelWidgetClass, *manager);
+		label    = XmStringCreateSimple(const_cast<char*>("Green Intensity"));
 		greenlabel->SetAttribute(XmNlabelString, label);
 		XmStringFree(label);
-		greenslider = new XMManagedWidget("GreenSlider", xmScaleWidgetClass, 
+		greenslider = new XMManagedWidget(const_cast<char*>("GreenSlider"), xmScaleWidgetClass, 
 						  *manager);
 		greenslider->SetAttribute(XmNorientation, XmHORIZONTAL);
 		greenslider->SetAttribute(XmNprocessingDirection, XmMAX_ON_RIGHT);
@@ -422,8 +424,8 @@ class ColorDialog : public XMPromptDialog
 		/* Blue slider/label */
 
 
-		bluelabel = new XMManagedWidget("Blue", xmLabelWidgetClass, *manager);
-		label    = XmStringCreateSimple("Blue Intensity");
+		bluelabel = new XMManagedWidget(const_cast<char*>("Blue"), xmLabelWidgetClass, *manager);
+		label    = XmStringCreateSimple(const_cast<char*>("Blue Intensity"));
 		bluelabel->SetAttribute(XmNlabelString, label);
 		XmStringFree(label);
 		blueslider = new XMManagedWidget("BlueSlider", xmScaleWidgetClass,
@@ -435,7 +437,7 @@ class ColorDialog : public XMPromptDialog
 		/* Top level label/prompt */
 
 		toplabel  = new XMManagedWidget("TopLabel", xmLabelWidgetClass, *manager);
-		label = XmStringCreateSimple("Upper Limit");
+		label = XmStringCreateSimple(const_cast<char*>("Upper Limit"));
 		toplabel->SetAttribute(XmNlabelString, label);
 		XmStringFree(label);
 		top_level = new XMManagedWidget("Top", xmTextWidgetClass, *manager);
@@ -550,7 +552,7 @@ void BuildButtons(int mapsize, XMWidget *manager);
 **  This section contains help texts etc: 
 */
 
-char *about_text[] = {
+const char *about_text[] = {
   "   colorset X1.0 --   Color table definition program\n",
   "   Ron Fox\n",
   "   NSCL\n",
@@ -559,10 +561,11 @@ char *about_text[] = {
     NULL
   };
 
-static Xamine_help_client_data about_help = { "About", NULL, about_text };
+static Xamine_help_client_data about_help = { const_cast<char*>("About"), NULL, 
+					      const_cast<char**>(about_text) };
 
 
-char *main_help_text[]  = {
+const char *main_help_text[]  = {
   "   Colorset is a program which allows you to set up a customized color table\n",
   " The main window pane contains a File menu which can be used to read in or write out\n",
   " color table files, or to exit the program\n\n",
@@ -577,9 +580,10 @@ char *main_help_text[]  = {
   "covered by that button and the red, green, blue values of the color table entry\n",
   NULL
   };
-static Xamine_help_client_data main_help = {"Help", NULL, main_help_text };
+static Xamine_help_client_data main_help = {const_cast<char*>("Help"), NULL, 
+					    const_cast<char**>(main_help_text) };
 
-char *help_colorsetting_text[] = {
+const char *help_colorsetting_text[] = {
   "  This dialog allows you to set up an entry in the color table.  The two text entry\n",
   "fields let you set up the percentage of full scale covered by the selected entry\n",
   "of the color table.  The three sliders let you set the color table values.  As you\n",
@@ -596,9 +600,10 @@ char *help_colorsetting_text[] = {
   "         Help   - Displays this help text dialog\n",
   NULL
   };
-Xamine_help_client_data help_colorsetting = {"Color_help", NULL, help_colorsetting_text };
+Xamine_help_client_data help_colorsetting = {const_cast<char*>("Color_help"), NULL, 
+					     const_cast<char**>(help_colorsetting_text) };
 
-char *exit_help_text[] = {
+const char *exit_help_text[] = {
   "  You have made changes to the color table which have not yet been saved\n",
   "If you exit now, then you will loose these changes.  The Write menu entry\n",
   "in the file menu will allow you to save color table changes.\n\n",
@@ -608,9 +613,10 @@ char *exit_help_text[] = {
   "      Help          - Displays this text\n",
   NULL
   };
-Xamine_help_client_data exit_help = { "Exit_help", NULL, exit_help_text };
+Xamine_help_client_data exit_help = { const_cast<char*>("Exit_help"), NULL, 
+				      const_cast<char**>(exit_help_text) };
 
-char *file_help_text[] = {
+const char *file_help_text[] = {
   "  You are being prompted for the name of a file to read or write.\n",
   "The list in the middle-left part of the selection box is a list of the\n",
   "directories which are immediately accessible from this directory\n",
@@ -631,7 +637,8 @@ char *file_help_text[] = {
   NULL
   };
 
-Xamine_help_client_data file_help = { "File_Help", NULL, file_help_text };
+Xamine_help_client_data file_help = { const_cast<char*>("File_Help"), NULL, 
+				      const_cast<char**>(file_help_text) };
 
 /*
 ** Functions to convert pct to color and back..
@@ -819,7 +826,8 @@ int ReadColorTable(FILE *fp)
 	      pixels, table_size, 0);
   if(XAllocColorCells(XtDisplay(shell_manager->getid()), app_colormap,
 		      False, &planes, 0, pixels, entries) == 0) {
-    Procede(shell_manager, "Insufficient color resources unable to continue");
+    Procede(shell_manager, 
+	    const_cast<char*>("Insufficient color resources unable to continue"));
     exit(-1);
   }
   delete button_manager;
@@ -921,7 +929,8 @@ void ReadFile(XMWidget *w, XtPointer cd, XtPointer cbd)
   switch (why->reason) {
   case XmCR_NO_MATCH:		/* No Such file.. */
   case XmCR_OK:			/* File exists. */
-    XmStringGetLtoR(why->value, XmSTRING_DEFAULT_CHARSET, &filename);
+    XmStringGetLtoR(why->value, 
+		    const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &filename);
 
     /* If there is no "." in the filename, then we add the default
      ** extension:
@@ -991,12 +1000,13 @@ void PromptReadFile(XMWidget *w, XtPointer cd, XtPointer cbd)
   /* Make sure the mean it if things have changed */
 
   if(changed)
-    if(!Procede(w, "Current color table has not been saved\nProcede?"))
+    if(!Procede(w, const_cast<char*>("Current color table has not been saved\nProcede?")))
       return;
 
   if(!prompt) {
-    prompt = new XMFileListDialog("Read_Colortable",
-				  *w, DEFAULT_FILEMASK);
+    prompt = new XMFileListDialog(const_cast<char*>("Read_Colortable"),
+				  *w, 
+				  const_cast<char*>(DEFAULT_FILEMASK));
     prompt->GetHelpButton()->Enable();
     prompt->AddOkCallback(ReadFile, cd);
     prompt->AddNoMatchCallback(ReadFile, cd);
@@ -1042,10 +1052,11 @@ void WriteFile(XMWidget *w, XtPointer cd, XtPointer calldata)
 
   switch(why->reason) {
   case XmCR_OK:			/* File exists. */
-    if(!Procede(w, "File exists Ok to overwrite? ")) 
+    if(!Procede(w, const_cast<char*>("File exists Ok to overwrite? "))) 
       return;
   case XmCR_NO_MATCH:		/* File doesn't exist (yet) */
-    XmStringGetLtoR(why->value, XmSTRING_DEFAULT_CHARSET, &filename);
+    XmStringGetLtoR(why->value, 
+		    const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &filename);
 
     /* If there is no "." in the filename, then we add the default
      ** extension:
@@ -1105,8 +1116,9 @@ void PromptWriteFile(XMWidget *w, XtPointer cd, XtPointer callback)
   static XMFileListDialog *prompt = NULL;
 
   if(!prompt) {
-    prompt = new XMFileListDialog("Write_Colortable",
-				  *w, DEFAULT_FILEMASK);
+    prompt = new XMFileListDialog(const_cast<char*>("Write_Colortable"),
+				  *w, 
+				  const_cast<char*>(DEFAULT_FILEMASK));
 
     prompt->GetHelpButton()->Enable();
     prompt->AddOkCallback(WriteFile, cd);
@@ -1482,7 +1494,8 @@ void BuildButtons(int mapsize, XMWidget *manager)
     sprintf(txt,  "%d\n\n%d", 
 	    button_table[i].hi,
 	    button_table[i].low); /* Button label */
-    label = XmStringCreateLtoR(txt, XmSTRING_DEFAULT_CHARSET);
+    label = XmStringCreateLtoR(txt, 
+			       const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
 
     button = new XMPushButton(name, *manager, pb_callback, (XtPointer)i);
     button->SetAttribute(XmNlabelString, label);
@@ -1529,8 +1542,8 @@ void ExitCallback(XMWidget *w, XtPointer client, XtPointer callback)
 
   if(warn) {
     if(!ExitWarning) {
-      ExitWarning = new XMWarningDialog("Exit_Warning", *w,
-		  "If you Exit now you will loose unsaved color table changes",
+      ExitWarning = new XMWarningDialog(const_cast<char*>("Exit_Warning"), *w,
+					const_cast<char*>("If you Exit now you will loose unsaved color table changes"),
 					ExitCallback, (XtPointer)&f);
       ExitWarning->LabelOkButton("Really Exit");
       ExitWarning->LabelCancelButton("Don't Exit");
@@ -1575,15 +1588,15 @@ static void ReadInitialFile(int planes)
 /*
 **  Main program entry point
 */
-int main(Cardinal argc, char **argv)
+int main(int argc, char **argv)
 {
-  XMApplication top("Xamine-test", &argc, argv); /* Top level/init ap. */
+  XMApplication top("Xamine-test", reinterpret_cast<Cardinal*>(&(argc)), argv); /* Top level/init ap. */
   /*  The window is divided into a set of vertically oriented sliders and */
   /*  a set of horizontally oriented buttons.                             */
   /*  All managed by the row/column widget MainManager                    */
 
-  XMWidget rc("MainManager", xmRowColumnWidgetClass, top);
-  XMMenuBar menubar("Menu_bar", rc, 2);
+  XMWidget rc(const_cast<char*>("MainManager"), xmRowColumnWidgetClass, top);
+  XMMenuBar menubar(const_cast<char*>("Menu_bar"), rc, 2);
 
 
 
@@ -1624,7 +1637,7 @@ int main(Cardinal argc, char **argv)
 
   /* Set up the application icon: */
 
-  SetIcon(top.getid(), ICON_FILE);
+  SetIcon(top.getid(), const_cast<char*>(ICON_FILE));
 
   /*
   **  Set up the menus:
@@ -1636,7 +1649,7 @@ int main(Cardinal argc, char **argv)
 
   /* File menu */
 
-  pd = menubar.AddPulldown("File", 4);
+  pd = menubar.AddPulldown(const_cast<char*>("File"), 4);
   pb = pd->AddMenuButton("Read...", PromptReadFile, (XtPointer)&top);
   pb = pd->AddMenuButton("Write...", PromptWriteFile, (XtPointer) &top);
   pd->AddSeparator();
@@ -1644,7 +1657,7 @@ int main(Cardinal argc, char **argv)
 
   /* Help Menu */
 
-  pd = menubar.AddHelpPulldown("Help", 3);
+  pd = menubar.AddHelpPulldown(const_cast<char*>("Help"), 3);
   pb = pd->AddMenuButton("About", Xamine_display_help, (XtPointer)&about_help);
 
   pb = pd->AddMenuButton("Help", Xamine_display_help, (XtPointer)&main_help);

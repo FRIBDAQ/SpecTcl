@@ -519,11 +519,11 @@ XMWidget *Xamine_SetupLocator(XMWidget *parent)
   /* Create the bounding frame: */
 
   XtSetArg(frame_attribs, XmNshadowType, XmSHADOW_ETCHED_IN);
-  loc_frame = new XMFrame("Loc_f",   *parent, &frame_attribs, 1);
+  loc_frame = new XMFrame(const_cast<char*>("Loc_f"),   *parent, &frame_attribs, 1);
 
   /* Create the locator widget.  */
 
-  location_panel = new Xamine_Location("Location", *loc_frame);
+  location_panel = new Xamine_Location(const_cast<char*>("Location"), *loc_frame);
 
   location_panel->Manage();
   loc_frame->Manage();

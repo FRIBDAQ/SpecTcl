@@ -494,7 +494,7 @@ static SetupPrintDialog *dialog = NULL;
 
 static PrintSpectrumDialog* ps_dialog = NULL;
 
-static char *help_text[] = {
+static const  char *help_text[] = {
   "  This dialog is prompting you for the printer setup.  The top part of\n",
   "the dialog allows you to set up the printer type, the name of a temporary\n",
   "file that is used to hold the print information and an operating system\n",
@@ -513,7 +513,7 @@ static char *help_text[] = {
   NULL
   };
 
-static char *help_setup_text[] = {
+static const  char *help_setup_text[] = {
   "                 *****This dialog is prompting you for the page setup and spectrum options.*****\n\n",
   "The dialog is broken up into three tabs, each of which controls a\n",
   "separate aspect of the printing.\n\n",
@@ -564,8 +564,10 @@ static char *help_setup_text[] = {
   NULL
 };
 
-static Xamine_help_client_data help = {"PrinterHelp", NULL, help_text};
-static Xamine_help_client_data help_setup = {"SetupHelp", NULL, help_setup_text};
+static Xamine_help_client_data help = {const_cast<char*>("PrinterHelp"), NULL, 
+				       const_cast<char**>(help_text)};
+static Xamine_help_client_data help_setup = {const_cast<char*>("SetupHelp"), NULL, 
+					     const_cast<char**>(help_setup_text)};
   
 /*
   Create the default print options with reasonable initial values
@@ -884,7 +886,7 @@ char* PrintSpectrumDialog::gettype()
 {
   char* string;
   XmStringTable st = list_type->GetSelectedItems();
-  XmStringGetLtoR(st[0], XmSTRING_DEFAULT_CHARSET, &string);
+  XmStringGetLtoR(st[0], const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &string);
   return string;
 }
 
@@ -1197,7 +1199,8 @@ SetupPrintDialog::SetupPrintDialog(char *name, XMWidget *w, char *title) :
   XtSetArg(chars[0], XmNleftAttachment,  XmATTACH_FORM);
   XtSetArg(chars[1], XmNtopAttachment,   XmATTACH_FORM);
   XtSetArg(chars[2], XmNrightAttachment, XmATTACH_FORM);
-  type_label = new XMLabel("PtypeLabel", *work_area, "Printer Type", chars, 3);
+  type_label = new XMLabel(const_cast<char*>("PtypeLabel"), *work_area, 
+			   const_cast<char*>("Printer Type"), chars, 3);
 
   /* Set up the radio box: */
 
@@ -1209,12 +1212,12 @@ SetupPrintDialog::SetupPrintDialog(char *name, XMWidget *w, char *title) :
   XtSetArg(chars[3], XmNtopAttachment,  XmATTACH_WIDGET);
   XtSetArg(chars[4], XmNtopWidget,      type_label->getid());
   XtSetArg(chars[5], XmNrightAttachment,XmATTACH_FORM);
-  type_manager = new XMRowColumn("PtypeRadioBox", *work_area, chars, 6);
+  type_manager = new XMRowColumn(const_cast<char*>("PtypeRadioBox"), *work_area, chars, 6);
 
-  post = new XMToggleButton("MonoPost", *type_manager);
-  post->Label("Monochrome Postscript");
-  cpost = new XMToggleButton("ColorPost", *type_manager);
-  cpost->Label("Color Postscript");
+  post = new XMToggleButton(const_cast<char*>("MonoPost"), *type_manager);
+  post->Label(const_cast<char*>("Monochrome Postscript"));
+  cpost = new XMToggleButton(const_cast<char*>("ColorPost"), *type_manager);
+  cpost->Label(const_cast<char*>("Color Postscript"));
 
   /* Set up the labelled text widget for the print command.: */
 
@@ -1224,12 +1227,13 @@ SetupPrintDialog::SetupPrintDialog(char *name, XMWidget *w, char *title) :
   XtSetArg(chars[3], XmNtopWidget,       type_manager->getid());
 
 
-  prtcmd_label = new XMLabel("CommandLabel", *work_area, "Print command",
+  prtcmd_label = new XMLabel(const_cast<char*>("CommandLabel"), *work_area, 
+			     const_cast<char*>("Print command"),
 			     chars, 4);
 
   XtSetArg(chars[3], XmNtopWidget, prtcmd_label->getid());
   XtSetArg(chars[4], XmNbottomAttachment, XmATTACH_FORM);
-  prtcmd = new XMText("commandprintsetup", *work_area, 1, 32, chars, 5);
+  prtcmd = new XMText(const_cast<char*>("commandprintsetup"), *work_area, 1, 32, chars, 5);
 
   /* Last but not least, remove the Apply button: */
 
@@ -1261,15 +1265,15 @@ PrintSpectrumDialog::PrintSpectrumDialog(char *name,
   Arg chars[100];
 
   /* Create the main tab widget to hold everything else */
-  tab = new XMTab("Tab", *work_area);
+  tab = new XMTab(const_cast<char*>("Tab"), *work_area);
 
   /* Here, we create three tabs in the widget */
   XtSetArg(chars[0], XmNwidth, 320);
   XtSetArg(chars[1], XmNheight, 305);
-  first_tab = new XMForm("Page Setup", *tab, chars, 2);
-  second_tab = new XMForm("Spectrum Options", *tab, chars, 2);
-  third_tab  = new XMForm("Tic Marks", *tab, chars, 2);
-  fourth_tab = new XMForm("Output Options", *tab, chars, 2);
+  first_tab = new XMForm(const_cast<char*>("Page Setup"), *tab, chars, 2);
+  second_tab = new XMForm(const_cast<char*>("Spectrum Options"), *tab, chars, 2);
+  third_tab  = new XMForm(const_cast<char*>("Tic Marks"), *tab, chars, 2);
+  fourth_tab = new XMForm(const_cast<char*>("Output Options"), *tab, chars, 2);
 
   /* Next, we create the widgets needed for the page setup tab */
   XtSetArg(chars[0], XmNshadowThickness, 2);
@@ -1278,21 +1282,21 @@ PrintSpectrumDialog::PrintSpectrumDialog(char *name,
   XtSetArg(chars[3], XmNtopAttachment, XmATTACH_FORM);
   XtSetArg(chars[4], XmNrightAttachment, XmATTACH_FORM);
   XtSetArg(chars[5], XmNleftAttachment, XmATTACH_FORM);
-  layout_frame = new XMFrame("PSFrameOne", *first_tab, chars, 6);
+  layout_frame = new XMFrame(const_cast<char*>("PSFrameOne"), *first_tab, chars, 6);
 
   XtSetArg(chars[0], XmNradioAlwaysOne, True);
   XtSetArg(chars[1], XmNradioBehavior,  True);
   XtSetArg(chars[2], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[3], XmNtopAttachment,  XmATTACH_FORM);
   XtSetArg(chars[4], XmNrightAttachment,XmATTACH_FORM);
-  type_manager = new XMRowColumn("PtypeRadioBox", *layout_frame, chars, 5);
+  type_manager = new XMRowColumn(const_cast<char*>("PtypeRadioBox"), *layout_frame, chars, 5);
 
   XtSetArg(chars[0], XmNradioAlwaysOne, True);
   XtSetArg(chars[1], XmNradioBehavior,  True);
   XtSetArg(chars[2], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[3], XmNtopAttachment, XmATTACH_WIDGET);
   XtSetArg(chars[5], XmNtopWidget, type_manager->getid());
-  num_manager = new XMRowColumn("PnumRadioBox", *first_tab, chars, 6);
+  num_manager = new XMRowColumn(const_cast<char*>("PnumRadioBox"), *first_tab, chars, 6);
 
   XtSetArg(chars[0], XmNshadowThickness, 2);
   XtSetArg(chars[1], XmNwidth, 320);
@@ -1300,36 +1304,38 @@ PrintSpectrumDialog::PrintSpectrumDialog(char *name,
   XtSetArg(chars[3], XmNtopAttachment, XmATTACH_WIDGET);
   XtSetArg(chars[5], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[6], XmNtopWidget, num_manager->getid());
-  spp_frame = new XMFrame("PsppFrame", *first_tab, chars, 7);
+  spp_frame = new XMFrame(const_cast<char*>("PsppFrame"), *first_tab, chars, 7);
 
   XtSetArg(chars[0], XmNtopAttachment, XmATTACH_FORM);
   XtSetArg(chars[1], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[2], XmNrightAttachment, XmATTACH_FORM);
-  spp_mgr = new XMRowColumn("PtextRowCol", *spp_frame, chars, 3);
+  spp_mgr = new XMRowColumn(const_cast<char*>("PtextRowCol"), *spp_frame, chars, 3);
   spp_mgr->SetOrientation(XmHORIZONTAL);
   spp_mgr->SetPacking(XmPACK_TIGHT);
 
-  port = new XMToggleButton("Portrait", *type_manager);
-  port->Label("Portrait");
-  land = new XMToggleButton("Landscape", *type_manager);
-  land->Label("Landscape");
-  print_sel = new XMToggleButton("PrintSel", *num_manager);
-  print_sel->Label("Print Selected Spectrum");
+  port = new XMToggleButton(const_cast<char*>("Portrait"), *type_manager);
+  port->Label(const_cast<char*>("Portrait"));
+  land = new XMToggleButton(const_cast<char*>("Landscape"), *type_manager);
+  land->Label(const_cast<char*>("Landscape"));
+  print_sel = new XMToggleButton(const_cast<char*>("PrintSel"), *num_manager);
+  print_sel->Label(const_cast<char*>("Print Selected Spectrum"));
   print_sel->AddCallback(PrintSelCallback, &Print_Options);
-  print_all = new XMToggleButton("PrintAll", *num_manager);
-  print_all->Label("Print All Spectra");
+  print_all = new XMToggleButton(const_cast<char*>("PrintAll"), *num_manager);
+  print_all->Label(const_cast<char*>("Print All Spectra"));
   print_all->AddCallback(PrintAllCallback, &Print_Options);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
-  rows = new XMLabel("Prows", *spp_mgr, "Rows", chars, 1);
+  rows = new XMLabel(const_cast<char*>("Prows"), *spp_mgr, 
+		     const_cast<char*>("Rows"), chars, 1);
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_WIDGET);
   XtSetArg(chars[1], XmNleftWidget, rows->getid());
-  t_rows = new XMText("rows", *spp_mgr, 1, 2, chars, 2);
+  t_rows = new XMText(const_cast<char*>("rows"), *spp_mgr, 1, 2, chars, 2);
 
   XtSetArg(chars[1], XmNleftWidget, t_rows->getid());
-  cols = new XMLabel("Pcols", *spp_mgr, "Columns", chars, 2);
+  cols = new XMLabel(const_cast<char*>("Pcols"), *spp_mgr, 
+		     const_cast<char*>("Columns"), chars, 2);
   XtSetArg(chars[1], XmNleftWidget, cols->getid());
-  t_cols = new XMText("cols", *spp_mgr, 1, 2, chars, 2);
+  t_cols = new XMText(const_cast<char*>("cols"), *spp_mgr, 1, 2, chars, 2);
 
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
   XtSetArg(chars[1], XmNleftAttachment, XmATTACH_FORM);
@@ -1338,23 +1344,23 @@ PrintSpectrumDialog::PrintSpectrumDialog(char *name,
   XtSetArg(chars[4], XmNshadowThickness, 2);
   XtSetArg(chars[5], XmNwidth, 320);
   XtSetArg(chars[6], XmNheight, 110);
-  size_frame = new XMFrame("PsizeFrame", *first_tab, chars, 7);
+  size_frame = new XMFrame(const_cast<char*>("PsizeFrame"), *first_tab, chars, 7);
 
   XtSetArg(chars[0], XmNradioAlwaysOne, True);
   XtSetArg(chars[1], XmNradioBehavior,  True);
   XtSetArg(chars[2], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[3], XmNtopAttachment,  XmATTACH_FORM);
   XtSetArg(chars[4], XmNrightAttachment,XmATTACH_FORM);
-  size_mgr = new XMRowColumn("PtypeRadioBox", *size_frame, chars, 5);
+  size_mgr = new XMRowColumn(const_cast<char*>("PtypeRadioBox"), *size_frame, chars, 5);
 
-  user_specified = new XMToggleButton("User", *size_mgr);
-  user_specified->Label("Specify size in Spectrum Options");
+  user_specified = new XMToggleButton(const_cast<char*>("User"), *size_mgr);
+  user_specified->Label(const_cast<char*>("Specify size in Spectrum Options"));
   user_specified->AddCallback(PresetSizeCallback, &Print_Options);
-  ten_by_ten = new XMToggleButton("Square", *size_mgr);
-  ten_by_ten->Label("4\" x 4\"");
+  ten_by_ten = new XMToggleButton(const_cast<char*>("Square"), *size_mgr);
+  ten_by_ten->Label(const_cast<char*>("4\" x 4\""));
   ten_by_ten->AddCallback(PresetSizeCallback, &Print_Options);
-  ten_by_fifteen = new XMToggleButton("Rectangle", *size_mgr);
-  ten_by_fifteen->Label("6\" x 4\"");
+  ten_by_fifteen = new XMToggleButton(const_cast<char*>("Rectangle"), *size_mgr);
+  ten_by_fifteen->Label(const_cast<char*>("6\" x 4\""));
   ten_by_fifteen->AddCallback(PresetSizeCallback, &Print_Options);
 
   /* Here, we create the widgets needed for the Spectrum Options tab */
@@ -1362,39 +1368,39 @@ PrintSpectrumDialog::PrintSpectrumDialog(char *name,
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[1], XmNrightAttachment, XmATTACH_FORM);
   XtSetArg(chars[2], XmNtopAttachment, XmATTACH_FORM);
-  row_one = new XMRowColumn("ProwOne", *second_tab, chars, 3);
+  row_one = new XMRowColumn(const_cast<char*>("ProwOne"), *second_tab, chars, 3);
   row_one->SetOrientation(XmHORIZONTAL);
   row_one->SetPacking(XmPACK_TIGHT);
 
   XtSetArg(chars[2], XmNtopAttachment, XmATTACH_WIDGET);
   XtSetArg(chars[3], XmNtopWidget, row_one->getid());
-  row_two = new XMRowColumn("ProwTwo", *second_tab, chars, 4);
+  row_two = new XMRowColumn(const_cast<char*>("ProwTwo"), *second_tab, chars, 4);
   row_two->SetOrientation(XmHORIZONTAL);
   row_two->SetPacking(XmPACK_TIGHT);
 
   XtSetArg(chars[3], XmNtopWidget, row_two->getid());
-  row_three = new XMRowColumn("ProwThree", *second_tab, chars, 4);
+  row_three = new XMRowColumn(const_cast<char*>("ProwThree"), *second_tab, chars, 4);
   row_three->SetOrientation(XmHORIZONTAL);
   row_three->SetPacking(XmPACK_TIGHT);
   
   XtSetArg(chars[3], XmNtopWidget, row_three->getid());
-  row_four = new XMRowColumn("ProwFour", *second_tab, chars, 4);
+  row_four = new XMRowColumn(const_cast<char*>("ProwFour"), *second_tab, chars, 4);
   row_four->SetOrientation(XmHORIZONTAL);
   row_four->SetPacking(XmPACK_TIGHT);
   
   XtSetArg(chars[3], XmNtopWidget, row_four->getid());
-  row_five = new XMRowColumn("ProwFive", *second_tab, chars, 4);
+  row_five = new XMRowColumn(const_cast<char*>("ProwFive"), *second_tab, chars, 4);
   row_five->SetOrientation(XmHORIZONTAL);
   row_five->SetPacking(XmPACK_TIGHT);
 
   XtSetArg(chars[3], XmNtopWidget, row_five->getid());
-  row_six = new XMRowColumn("ProwSix", *second_tab, chars, 4);
+  row_six = new XMRowColumn(const_cast<char*>("ProwSix"), *second_tab, chars, 4);
   row_six->SetOrientation(XmHORIZONTAL);
   row_six->SetPacking(XmPACK_TIGHT);
 
   XtSetArg(chars[3], XmNtopWidget, row_six->getid());
   XtSetArg(chars[4], XmNbottomAttachment, XmATTACH_FORM);
-  drawing_mgr = new XMRowColumn("PdrawMgr", *second_tab, chars, 5);
+  drawing_mgr = new XMRowColumn(const_cast<char*>("PdrawMgr"), *second_tab, chars, 5);
   drawing_mgr->SetOrientation(XmHORIZONTAL);
   drawing_mgr->SetPacking(XmPACK_TIGHT);
 
@@ -1402,44 +1408,50 @@ PrintSpectrumDialog::PrintSpectrumDialog(char *name,
   XtSetArg(chars[1], XmNtopAttachment, XmATTACH_FORM);
   XtSetArg(chars[2], XmNbottomAttachment, XmATTACH_FORM);
   XtSetArg(chars[3], XmNalignment, XmALIGNMENT_END);
-  spec_title = new XMLabel("Ptitle", *row_one, "Spectrum Title", chars, 4);
+  spec_title = new XMLabel(const_cast<char*>("Ptitle"), *row_one, 
+			   const_cast<char*>("Spectrum Title"), chars, 4);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
-  t_title = new XMText("title", *row_one, 1, 25, chars, 3);
+  t_title = new XMText(const_cast<char*>("title"), *row_one, 1, 25, chars, 3);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
-  name_x = new XMLabel("Pxname", *row_two, "X-Axis Name", chars, 4);
+  name_x = new XMLabel(const_cast<char*>("Pxname"), *row_two, 
+		       const_cast<char*>("X-Axis Name"), chars, 4);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
-  t_name_x = new XMText("xname", *row_two, 1, 28, chars, 3);
+  t_name_x = new XMText(const_cast<char*>("xname"), *row_two, 1, 28, chars, 3);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
-  name_y = new XMLabel("Pyname", *row_three, "Y-Axis Name", chars, 4);
+  name_y = new XMLabel(const_cast<char*>("Pyname"), *row_three, const_cast<char*>("Y-Axis Name"), 
+		       chars, 4);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
-  t_name_y = new XMText("yname", *row_three, 1, 28, chars, 3);
+  t_name_y = new XMText(const_cast<char*>("yname"), *row_three, 1, 28, chars, 3);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
-  length_x = new XMLabel("Pxlen", *row_four, "X-Axis Length (in)", chars, 4);
+  length_x = new XMLabel(const_cast<char*>("Pxlen"), *row_four, 
+			 const_cast<char*>("X-Axis Length (in)"), chars, 4);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
-  t_length_x = new XMText("xlen", *row_four, 1, 21, chars, 3);
+  t_length_x = new XMText(const_cast<char*>("xlen"), *row_four, 1, 21, chars, 3);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
-  length_y = new XMLabel("Pylen", *row_five, "Y-Axis Length (in)", chars, 4);
+  length_y = new XMLabel(const_cast<char*>("Pylen"), *row_five, 
+			 const_cast<char*>("Y-Axis Length (in)"), chars, 4);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
-  t_length_y = new XMText("ylen", *row_five, 1, 21, chars, 3);
+  t_length_y = new XMText(const_cast<char*>("ylen"), *row_five, 1, 21, chars, 3);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
-  contour_inc = new XMLabel("Pcont", *row_six, "Contour Increment", chars, 4);
+  contour_inc = new XMLabel(const_cast<char*>("Pcont"), *row_six, 
+			    const_cast<char*>("Contour Increment"), chars, 4);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
-  t_contour_inc = new XMText("cont", *row_six, 1, 22, chars, 3);
+  t_contour_inc = new XMText(const_cast<char*>("cont"), *row_six, 1, 22, chars, 3);
 
-  draw_palette = new XMToggleButton("palette", *drawing_mgr);
-  draw_palette->Label("Draw color palette");
-  draw_contours = new XMToggleButton("contours", *drawing_mgr);
-  draw_contours->Label("Draw contour lines"); 
+  draw_palette = new XMToggleButton(const_cast<char*>("palette"), *drawing_mgr);
+  draw_palette->Label(const_cast<char*>("Draw color palette"));
+  draw_contours = new XMToggleButton(const_cast<char*>("contours"), *drawing_mgr);
+  draw_contours->Label(const_cast<char*>("Draw contour lines")); 
   draw_contours->AddCallback(DrawContoursCallback, &Contours_Data);
-  draw_time = new XMToggleButton("time", *drawing_mgr);
-  draw_time->Label("Draw time stamp   ");
-  use_symbols = new XMToggleButton("symbols", *drawing_mgr);
-  use_symbols->Label("Superpositions use symbols");
+  draw_time = new XMToggleButton(const_cast<char*>("time"), *drawing_mgr);
+  draw_time->Label(const_cast<char*>("Draw time stamp   "));
+  use_symbols = new XMToggleButton(const_cast<char*>("symbols"), *drawing_mgr);
+  use_symbols->Label(const_cast<char*>("Superpositions use symbols"));
 
   Contours_Data.t_contour_inc = t_contour_inc;
   Contours_Data.tb = draw_contours;
@@ -1452,57 +1464,62 @@ PrintSpectrumDialog::PrintSpectrumDialog(char *name,
   XtSetArg(chars[3], XmNshadowThickness, 2);
   XtSetArg(chars[4], XmNwidth, 320);
   XtSetArg(chars[5], XmNheight, 75);
-  tics_frame = new XMFrame("Ptics", *third_tab, chars, 6);
+  tics_frame = new XMFrame(const_cast<char*>("Ptics"), *third_tab, chars, 6);
 
   XtSetArg(chars[2], XmNtopAttachment, XmATTACH_WIDGET);
   XtSetArg(chars[5], XmNheight, 75);
   XtSetArg(chars[6], XmNtopWidget, tics_frame->getid());
-  tics_entry_frame = new XMFrame("Pticsentry", *third_tab, chars, 7);
+  tics_entry_frame = new XMFrame(const_cast<char*>("Pticsentry"), *third_tab, chars, 7);
 
   XtSetArg(chars[2], XmNtopAttachment, XmATTACH_FORM);
   XtSetArg(chars[3], XmNradioAlwaysOne, True);
   XtSetArg(chars[4], XmNradioBehavior,  True);
-  tics_mgr = new XMRowColumn("Pticsmgr", *tics_frame, chars, 5);
+  tics_mgr = new XMRowColumn(const_cast<char*>("Pticsmgr"), *tics_frame, chars, 5);
 
   tics_entry_mgr = 
-    new XMRowColumn("Pticsentrymgr", *tics_entry_frame, chars, 3);
+    new XMRowColumn(const_cast<char*>("Pticsentrymgr"), 
+		    *tics_entry_frame, chars, 3);
   tics_entry_mgr->SetOrientation(XmHORIZONTAL);
   tics_entry_mgr->SetPacking(XmPACK_TIGHT);
   
-  default_tics = new XMToggleButton("default", *tics_mgr);
-  default_tics->Label("Use Xamine tic intervals");
+  default_tics = new XMToggleButton(const_cast<char*>("default"), *tics_mgr);
+  default_tics->Label(const_cast<char*>("Use Xamine tic intervals"));
   default_tics->AddCallback(UseDefaultTicsCallback, &Print_Options);
-  user_tics    = new XMToggleButton("user", *tics_mgr);
-  user_tics->Label("Specify tic intervals");
+  user_tics    = new XMToggleButton(const_cast<char*>("user"), *tics_mgr);
+  user_tics->Label(const_cast<char*>("Specify tic intervals"));
   user_tics->AddCallback(SpecifyTicsCallback, &Contours_Data);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[1], XmNtopAttachment, XmATTACH_FORM);
-  xmajor = new XMLabel("Pxmaj", *tics_entry_mgr, "X Major", chars, 2);  
+  xmajor = new XMLabel(const_cast<char*>("Pxmaj"), *tics_entry_mgr, 
+		       const_cast<char*>("X Major"), chars, 2);  
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
-  t_xmajor = new XMText("xmaj", *tics_entry_mgr, 1, 15, chars, 2);
+  t_xmajor = new XMText(const_cast<char*>("xmaj"), *tics_entry_mgr, 1, 15, chars, 2);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[1], XmNtopAttachment, XmATTACH_WIDGET);
   XtSetArg(chars[2], XmNtopWidget, xmajor->getid());
-  xminor = new XMLabel("Pxmin", *tics_entry_mgr, "X Minor", chars, 3);
+  xminor = new XMLabel(const_cast<char*>("Pxmin"), *tics_entry_mgr, 
+		       const_cast<char*>("X Minor"), chars, 3);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
   XtSetArg(chars[2], XmNtopWidget, t_xmajor->getid());
-  t_xminor = new XMText("xmin", *tics_entry_mgr, 1, 15, chars, 3);
+  t_xminor = new XMText(const_cast<char*>("xmin"), *tics_entry_mgr, 1, 15, chars, 3);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[2], XmNtopWidget, xminor->getid());
-  ymajor = new XMLabel("Pymaj", *tics_entry_mgr, "Y Major", chars, 3);
+  ymajor = new XMLabel(const_cast<char*>("Pymaj"), *tics_entry_mgr, 
+		       const_cast<char*>("Y Major"), chars, 3);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
   XtSetArg(chars[2], XmNtopWidget, t_xminor->getid());
-  t_ymajor = new XMText("ymaj", *tics_entry_mgr, 1, 15, chars, 3);
+  t_ymajor = new XMText(const_cast<char*>("ymaj"), *tics_entry_mgr, 1, 15, chars, 3);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[2], XmNtopWidget, ymajor->getid());
-  yminor = new XMLabel("Pymin", *tics_entry_mgr, "Y Minor", chars, 3);
+  yminor = new XMLabel(const_cast<char*>("Pymin"), *tics_entry_mgr, 
+		       const_cast<char*>("Y Minor"), chars, 3);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
   XtSetArg(chars[2], XmNtopWidget, t_ymajor->getid());
-  t_yminor = new XMText("ymin", *tics_entry_mgr, 1, 15, chars, 3);
+  t_yminor = new XMText(const_cast<char*>("ymin"), *tics_entry_mgr, 1, 15, chars, 3);
 
   Print_Options.t_rows = t_rows;
   Print_Options.t_cols = t_cols;
@@ -1528,62 +1545,65 @@ PrintSpectrumDialog::PrintSpectrumDialog(char *name,
   XtSetArg(chars[3], XmNtopAttachment, XmATTACH_FORM);
   XtSetArg(chars[4], XmNrightAttachment, XmATTACH_FORM);
   XtSetArg(chars[5], XmNleftAttachment, XmATTACH_FORM);
-  dest_frame = new XMFrame("PprintOpt", *fourth_tab, chars, 6);
+  dest_frame = new XMFrame(const_cast<char*>("PprintOpt"), *fourth_tab, chars, 6);
 
   XtSetArg(chars[0], XmNradioAlwaysOne, True);
   XtSetArg(chars[1], XmNradioBehavior,  True);
   XtSetArg(chars[2], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[3], XmNtopAttachment,  XmATTACH_FORM);
   XtSetArg(chars[4], XmNrightAttachment,XmATTACH_FORM);
-  dest_mgr = new XMRowColumn("PdestMgr", *dest_frame, chars, 4);
+  dest_mgr = new XMRowColumn(const_cast<char*>("PdestMgr"), *dest_frame, chars, 4);
 
   XtSetArg(chars[3], XmNtopAttachment, XmATTACH_WIDGET);
   XtSetArg(chars[4], XmNtopWidget, dest_frame->getid());
-  cmd_mgr = new XMRowColumn("PcmdMgr", *fourth_tab, chars, 5);
+  cmd_mgr = new XMRowColumn(const_cast<char*>("PcmdMgr"), *fourth_tab, chars, 5);
   cmd_mgr->SetOrientation(XmHORIZONTAL);
   cmd_mgr->SetPacking(XmPACK_TIGHT);
 
   XtSetArg(chars[4], XmNtopWidget, cmd_mgr->getid());
-  file_mgr = new XMRowColumn("PfileMgr", *fourth_tab, chars, 5);
+  file_mgr = new XMRowColumn(const_cast<char*>("PfileMgr"), *fourth_tab, chars, 5);
   file_mgr->SetOrientation(XmHORIZONTAL);
   file_mgr->SetPacking(XmPACK_TIGHT);
 
   XtSetArg(chars[4], XmNtopWidget, file_mgr->getid());
   XtSetArg(chars[5], XmNrightAttachment, XmATTACH_FORM);
   XtSetArg(chars[6], XmNselectionPolicy, XmSINGLE_SELECT);
-  list_type = new XMScrolledList("PlistType", *fourth_tab, 5, chars, 7);
-  list_type->AddItem("Postscript (*.ps)");
-  list_type->AddItem("JPEG, 72 dpi (*.jpg)");
-  list_type->AddItem("JPEG, 300 dpi (*.jpg)");
-  list_type->AddItem("Portable Network Graphics, 72 dpi (*.png)");
-  list_type->AddItem("Portable Network Graphics, 300 dpi (*.png)");
+  list_type = new XMScrolledList(const_cast<char*>("PlistType"), *fourth_tab, 5, chars, 7);
+  list_type->AddItem(const_cast<char*>("Postscript (*.ps)"));
+  list_type->AddItem(const_cast<char*>("JPEG, 72 dpi (*.jpg)"));
+  list_type->AddItem(const_cast<char*>("JPEG, 300 dpi (*.jpg)"));
+  list_type->AddItem(const_cast<char*>("Portable Network Graphics, 72 dpi (*.png)"));
+  list_type->AddItem(const_cast<char*>("Portable Network Graphics, 300 dpi (*.png)"));
   list_type->SelectItem(1);
 
-  to_printer = new XMToggleButton("toPrinter", *dest_mgr);
-  to_printer->Label("To Printer");
+  to_printer = new XMToggleButton(const_cast<char*>("toPrinter"), *dest_mgr);
+  to_printer->Label(const_cast<char*>("To Printer"));
   to_printer->AddCallback(ToPrinterCallback, &Printer_Options_Data);
 
-  to_file    = new XMToggleButton("toFile", *dest_mgr);
-  to_file->Label("To File");
+  to_file    = new XMToggleButton(const_cast<char*>("toFile"), *dest_mgr);
+  to_file->Label(const_cast<char*>("To File"));
   to_file->AddCallback(ToFileCallback, &Printer_Options_Data);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[1], XmNtopAttachment, XmATTACH_FORM);
   XtSetArg(chars[2], XmNbottomAttachment, XmATTACH_FORM);
-  cmd = new XMLabel("cmdName", *cmd_mgr, "Print Command", chars, 3);
+  cmd = new XMLabel(const_cast<char*>("cmdName"), *cmd_mgr, 
+		    const_cast<char*>("Print Command"), chars, 3);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
-  t_cmd  = new XMText("cmd", *cmd_mgr, 1, 28, chars, 3);
+  t_cmd  = new XMText(const_cast<char*>("cmd"), *cmd_mgr, 1, 28, chars, 3);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
-  file = new XMLabel("fileName", *file_mgr, "Output File Path", chars, 3);
+  file = new XMLabel(const_cast<char*>("fileName"), *file_mgr, 
+		     const_cast<char*>("Output File Path"), chars, 3);
   XtSetArg(chars[0], XmNrightAttachment, XmATTACH_FORM);
-  t_file = new XMText("filen", *file_mgr, 1, 25, chars, 3);
+  t_file = new XMText(const_cast<char*>("filen"), *file_mgr, 1, 25, chars, 3);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[1], XmNtopAttachment, XmATTACH_WIDGET);
   XtSetArg(chars[2], XmNrightAttachment, XmATTACH_FORM);
   XtSetArg(chars[3], XmNtopWidget, list_type->getid());
-  res = new XMLabel("resolution", *fourth_tab, "Select 2d Output Resolution", 
+  res = new XMLabel(const_cast<char*>("resolution"), *fourth_tab, 
+		    const_cast<char*>("Select 2d Output Resolution"), 
 		    chars, 4);
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
@@ -1592,23 +1612,23 @@ PrintSpectrumDialog::PrintSpectrumDialog(char *name,
   XtSetArg(chars[3], XmNrightAttachment, XmATTACH_FORM);
   XtSetArg(chars[4], XmNshadowThickness, 2);
   XtSetArg(chars[5], XmNheight, 75);
-  res_frame = new XMFrame("PresFrame", *fourth_tab, chars, 6);
+  res_frame = new XMFrame(const_cast<char*>("PresFrame"), *fourth_tab, chars, 6);
 
   XtSetArg(chars[1], XmNtopAttachment, XmATTACH_FORM);
   XtSetArg(chars[3], XmNradioAlwaysOne, True);
   XtSetArg(chars[4], XmNradioBehavior,  True);
-  res_mgr = new XMRowColumn("PresMgr", *res_frame, chars, 5);
+  res_mgr = new XMRowColumn(const_cast<char*>("PresMgr"), *res_frame, chars, 5);
   res_mgr->SetOrientation(XmHORIZONTAL);
   res_mgr->SetPacking(XmPACK_TIGHT);
 
-  one_to_one = new XMToggleButton("onetoone", *res_mgr);
-  one_to_one->Label("1:1    ");
-  one_to_two = new XMToggleButton("twotoone", *res_mgr);
-  one_to_two->Label("1:2    ");
-  one_to_four = new XMToggleButton("fourtoone", *res_mgr);
-  one_to_four->Label("1:4    ");
-  one_to_eight = new XMToggleButton("eighttoone", *res_mgr);
-  one_to_eight->Label("1:8");
+  one_to_one = new XMToggleButton(const_cast<char*>("onetoone"), *res_mgr);
+  one_to_one->Label(const_cast<char*>("1:1    "));
+  one_to_two = new XMToggleButton(const_cast<char*>("twotoone"), *res_mgr);
+  one_to_two->Label(const_cast<char*>("1:2    "));
+  one_to_four = new XMToggleButton(const_cast<char*>("fourtoone"), *res_mgr);
+  one_to_four->Label(const_cast<char*>("1:4    "));
+  one_to_eight = new XMToggleButton(const_cast<char*>("eighttoone"), *res_mgr);
+  one_to_eight->Label(const_cast<char*>("1:8"));
 
   Printer_Options_Data.t_file = t_file;
   Printer_Options_Data.t_cmd  = t_cmd;
@@ -1914,7 +1934,8 @@ void Xamine_SetupPrinter(XMWidget *w, XtPointer user, XtPointer call)
   /* must be specified.                                                  */
 
   if(!dialog) {
-    dialog = new SetupPrintDialog("PrinterSetup", w, "Setup Printer Options");
+    dialog = new SetupPrintDialog(const_cast<char*>("PrinterSetup"), w, 
+				  const_cast<char*>("Setup Printer Options"));
 
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);
@@ -1952,8 +1973,8 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
     delete ps_dialog;
     ps_dialog = NULL;
   }
-  ps_dialog = new PrintSpectrumDialog("PrintSpectrum", w, 
-				      "Print Spectrum Options");
+  ps_dialog = new PrintSpectrumDialog(const_cast<char*>("PrintSpectrum"), w, 
+				      const_cast<char*>("Print Spectrum Options"));
   ps_dialog->AddOkCallback(TabsActionCallback, ps_dialog);
   ps_dialog->AddCancelCallback(TabsActionCallback, ps_dialog);
   ps_dialog->AddHelpCallback(Xamine_display_help, &help_setup);
@@ -1986,15 +2007,15 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
       xamine_shared->getxlabel_map(xlabel, nSpectrum);
       if(pAttrib->isflipped()) {
 	ps_dialog->setyname(xlabel);
-	ps_dialog->setxname("");
+	ps_dialog->setxname(const_cast<char*>(""));
       } else {
 	ps_dialog->setxname(xlabel);
-	ps_dialog->setyname("");
+	ps_dialog->setyname(const_cast<char*>(""));
       }
     }
     else {
-      ps_dialog->setxname("");
-      ps_dialog->setyname("");
+      ps_dialog->setxname(const_cast<char*>(""));
+      ps_dialog->setyname(const_cast<char*>(""));
     }
     break;
   }
@@ -2020,8 +2041,8 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
       }
     }
     else {
-      ps_dialog->setxname("");
-      ps_dialog->setyname("");
+      ps_dialog->setxname(const_cast<char*>(""));
+      ps_dialog->setyname(const_cast<char*>(""));
     }
     break;
   }

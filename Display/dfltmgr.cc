@@ -291,7 +291,7 @@ int Xamine_ReadDefaultProperties()
 
 
   dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
-  if(!dir) dir = "";		// If no env var, use current dir.
+  if(!dir) dir = const_cast<char*>("");		// If no env var, use current dir.
 
   char *filename = ConstructFilename(dir);
   int stat =  Xamine_ReadDefaultFile(filename);
@@ -325,7 +325,7 @@ int Xamine_SaveDefaultProperties()
 
   /* Construct the filename and open the file for write: */
   char* dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
-  if(!dir) dir = "";		// If no env var, use current dir.
+  if(!dir) dir = const_cast<char*>("");		// If no env var, use current dir.
   filename = ConstructFilename(dir); /* Glue together the filename. */
   fp = fopen(filename, "r+");     /* Try to open existing for read/write */
   if(fp) {			  // Deal with filesystems which support
@@ -359,16 +359,16 @@ int Xamine_SaveDefaultProperties()
   char *rend_text;
   switch(rend1d) {
   case smoothed:
-    rend_text = "Smoothed";
+    rend_text = const_cast<char*>("Smoothed");
     break;
   case histogram:
-    rend_text = "Histogram";
+    rend_text = const_cast<char*>("Histogram");
     break;
   case points:
-    rend_text = "Points";
+    rend_text = const_cast<char*>("Points");
     break;
   case lines:
-    rend_text = "Line";
+    rend_text = const_cast<char*>("Line");
     break;
   default:
     fprintf(stderr, "BUGBUGBUG>> Invalid 1-d default rendition at write\n");
@@ -381,19 +381,19 @@ int Xamine_SaveDefaultProperties()
 
   switch(rend2d) {
   case scatter:
-    rend_text = "Scatter";
+    rend_text = const_cast<char*>("Scatter");
     break;
   case boxes:
-    rend_text = "Box";
+    rend_text = const_cast<char*>("Box");
     break;
   case color:
-    rend_text = "Color";
+    rend_text = const_cast<char*>("Color");
     break;
   case contour:
-    rend_text = "Contour";
+    rend_text = const_cast<char*>("Contour");
     break;
   case lego:
-    rend_text = "Lego";
+    rend_text = const_cast<char*>("Lego");
     break;
   default:
     fprintf(stderr, "BUGBUGBUG>> Invalid 2-d default rendition at write\n");

@@ -298,10 +298,10 @@ using namespace std;
 
 
 
-static char* pCopyrightNotice = 
+static const  char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved .cpp \n";
 
-static char* ReasonTexts[] =  {
+static const char* ReasonTexts[] =  {
   "Incorrect instantiation member called",
   "Incorrect number of gates for a compound gate",
   "Invalid number of parameters for a primitive gate",
@@ -314,9 +314,9 @@ static char* ReasonTexts[] =  {
 
 } ; 
 
-char**  CGateFactoryException::m_svReasonTexts = ReasonTexts;
+const char**  CGateFactoryException::m_svReasonTexts = ReasonTexts;
 
-static char* GateTypeStrings[] = {
+const static char* GateTypeStrings[] = {
   "And ",
   "Band ",
   "Band-Contour ",
@@ -390,5 +390,5 @@ CGateFactoryException::ReasonCodeToText(GateFactoryExceptionReason eReason)
 {
   // Returns the reason code transated to text.
   //
-  return m_svReasonTexts[(UInt_t)eReason];
+  return const_cast<char*>(m_svReasonTexts[(UInt_t)eReason]);
 }

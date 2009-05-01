@@ -288,7 +288,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **   Michigan State University
 **   East Lansing, MI 48824-1321
 */
-char *sccsversion="@(#)grobfile.cc	8.1 6/23/95 ";
+const char *sccsversion="@(#)grobfile.cc	8.1 6/23/95 ";
 /*
 ** Include files:
 */

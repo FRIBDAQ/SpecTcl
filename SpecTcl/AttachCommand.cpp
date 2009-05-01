@@ -74,7 +74,7 @@ using namespace std;
 
 // Static data declarations:
 struct SwitchDef {
-  char*     pName;
+  const char*     pName;
   CAttachCommand::Switch_t  Value;
 };
 

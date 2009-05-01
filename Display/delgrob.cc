@@ -320,7 +320,7 @@ extern char *upcase(char *s);
 /*
 ** Below we define the help text for the dialog:
 */
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog deletes graphical objects.  The list at the top of the\n",
   "work area is the set of deletable graphical objects defined on the\n",
   "spectrum at the time this dialog was popped up.  To refresh the list\n",
@@ -338,9 +338,9 @@ static char *help_text[] = {
   NULL
   };
 
-static Xamine_help_client_data help = { "Delete_grobj_help",
+static Xamine_help_client_data help = { const_cast<char*>("Delete_grobj_help"),
 					NULL,
-					help_text
+					const_cast<char**>(help_text)
 					};
 /*
 ** Below are type flag characters used to identify individual object types
@@ -508,7 +508,7 @@ static Boolean DeleteObject(XmString name, int specid)
   /* First convert the string to an ASCIZ string. */
 
   char *cname;
-  if(!XmStringGetLtoR(name, XmSTRING_DEFAULT_CHARSET, &cname)) {
+  if(!XmStringGetLtoR(name, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &cname)) {
     Xamine_error_msg(Xamine_Getpanemgr(), 
 		     "DeleteObject -- Unable to get selection from Motif");
     return False;
@@ -599,7 +599,7 @@ static void TakeAction(XMWidget *w, XtPointer ud, XtPointer cd)
     break;;
   case XmCR_OK:
     if(DeleteObject(cbd->value, specid)) {
-      d->SetText("");
+      d->SetText(const_cast<char*>(""));
       d->UnManage();
       Xamine_RedrawSelectedPane();
     }
@@ -607,7 +607,7 @@ static void TakeAction(XMWidget *w, XtPointer ud, XtPointer cd)
   case XmCR_APPLY:
     if(DeleteObject(cbd->value, specid)) {
       if(SetObjectList(d, specid) <= 0) d->UnManage();
-      d->SetText("");
+      d->SetText(const_cast<char*>(""));
       Xamine_RedrawSelectedPane();
     }
     break;
@@ -664,9 +664,9 @@ void Xamine_DeleteObject(XMWidget *w, XtPointer ud, XtPointer cd)
   /* If the dialog is NULL, then it must be created.  */
 
   if(dialog == NULL) {
-    dialog = new XMSelectionDialog("Delete_Grobj",
+    dialog = new XMSelectionDialog(const_cast<char*>("Delete_Grobj"),
 				   *w,
-				   "Object name or ID",
+				   const_cast<char*>("Object name or ID"),
 				   TakeAction);
     /* Add callbacsk for cancel and help: */
 

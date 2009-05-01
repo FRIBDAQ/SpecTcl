@@ -106,9 +106,9 @@ class XMMessageBox : public XMManagedWidget
   
   /* Label cancel/Help/OK buttons */
   
-  void LabelCancelButton(char *txt);
-  void LabelOkButton(char *txt);
-  void LabelHelpButton(char *txt);
+  void LabelCancelButton(const char *txt);
+  void LabelOkButton(const char *txt);
+  void LabelHelpButton(const char *txt);
   
   /* Set default button types: */
   
@@ -129,13 +129,13 @@ class XMErrorDialog : public XMMessageBox
 {
  public:
   /*  Constructors: */
-  XMErrorDialog(char *n, Widget parent, char *msg,
+  XMErrorDialog(const char *n, Widget parent, char *msg,
 		void (*cb)(XMWidget *,
 			   XtPointer, XtPointer) = NULL,
 		XtPointer cbd = NULL,
 		ArgList list = NULL, Cardinal argcount = 0);
 
-  XMErrorDialog(char *n, XMWidget &parent, char *msg,
+  XMErrorDialog(const char *n, XMWidget &parent, char *msg,
 		void (*cb)(XMWidget *,
 			   XtPointer, XtPointer) = NULL,
 		XtPointer cbd = NULL,
@@ -526,13 +526,13 @@ class XMFileListDialog : public XMSelection
 								    
        public:
 	 XMFileListDialog(char *n, Widget parent, char 
-			  *directory = XMFILE_DEFAULT_DIRMASK,
+			  *directory = const_cast<char*>(XMFILE_DEFAULT_DIRMASK),
 			void (*cb)(XMWidget *,
 				   XtPointer, XtPointer) = NULL,
 			XtPointer cbd = NULL,
 			ArgList list = NULL, Cardinal argcount = 0);
 	 XMFileListDialog(char *n, XMWidget &parent, 
-			  char *directory = XMFILE_DEFAULT_DIRMASK,
+			  char *directory =const_cast<char*>( XMFILE_DEFAULT_DIRMASK),
 			 void (*cb)(XMWidget *,
 				    XtPointer, XtPointer) = NULL,
 			 XtPointer cbd = NULL,
@@ -549,8 +549,8 @@ class XMFileListDialog : public XMSelection
 
 	 /* Methods to manipulate the labels: */
 
-	 virtual void SetLabelString(char *txt);
-	 virtual void SetFilterString(char *txt);
+	 virtual void SetLabelString(const char *txt);
+	 virtual void SetFilterString(const char *txt);
 
 	 /* Set restrictions on the file types searched: */
 
@@ -582,11 +582,11 @@ class XMFileSelector : public XMFileListDialog
   public:
     XMFileSelector(char *n, Widget parent, 
 		   XtPointer calld = NULL,
-		   char *directory = XMFILE_DEFAULT_DIRMASK);
+		   char *directory = const_cast<char*>(XMFILE_DEFAULT_DIRMASK));
 
     XMFileSelector(char *n, XMWidget &parent, 
 		   XtPointer ud = NULL,
-		   char *directory = XMFILE_DEFAULT_DIRMASK);
+		   char *directory = const_cast<char*>(XMFILE_DEFAULT_DIRMASK));
 
 
     ~XMFileSelector();
@@ -642,14 +642,14 @@ class XMCustomDialog : public XMWidget /* Create unmanaged for greater layout ct
   XMPushButton  *Apply;
   XMPushButton  *Cancel;
   XMPushButton  *Help;
-  void CreateDialog(char *name, Widget parent, char *title,
+  void CreateDialog(const char *name, Widget parent, char *title,
 		    ArgList l, Cardinal num_args);
  public:
   /* Constructors: */
 
-  XMCustomDialog(char *name, XMWidget &parent, char *title,
+  XMCustomDialog(const char *name, XMWidget &parent, char *title,
 		 ArgList l = NULL, Cardinal num_args = 0); 
-  XMCustomDialog(char *name, Widget parent, char *title,
+  XMCustomDialog(const char *name, Widget parent, char *title,
 		 ArgList l = NULL, Cardinal num_args = 0);
 
   /* Destructors:  */

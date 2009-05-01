@@ -329,7 +329,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** The text below is the help text for the dialog that accepts summing
 ** regions:
 */
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog prompts you to enter the points that make up a summing\n",
   "region.  A summing region consists of either two points (1-d spectra)\n",
   "which describe a lower and upper limit pair or a coutable set of points\n",
@@ -431,8 +431,8 @@ AcceptSummingRegion::AcceptSummingRegion(char *name, XMWidget *parent,
   Points         = new XMScrolledList(name, *point_prompts);
   DeleteLast     = new XMPushButton(name, *point_prompts, Delete_relay,
 				    this);
-  DeleteLast->Label("Delete Last");
-  NextLabel      = new XMLabel(name, *point_prompts, "Next Point:");
+  DeleteLast->Label(const_cast<char*>("Delete Last"));
+  NextLabel      = new XMLabel(name, *point_prompts, const_cast<char*>("Next Point:"));
   NextPoint      = new XMTextField(name, *point_prompts);
 
   object = NULL;		/* Null out the object so that Rebuild works.  */
@@ -660,7 +660,7 @@ void AcceptSummingRegion::AddPoint(point &pt)
   }
   Points->AddItem(pstring);
   Points->SetBottomItem();	/* Scroll up if needed to show last item.  */
-  NextPoint->SetText("");  /* Clear the input point.             */
+  NextPoint->SetText(const_cast<char*>(""));  /* Clear the input point.             */
 
 }
 
@@ -955,8 +955,8 @@ void Xamine_AcceptSummingRegion(XMWidget *w, XtPointer ud, XtPointer cd)
   /* If the dialog does not exist, then we build it. */
 
   if(dialog == NULL) {
-    dialog = new AcceptSummingRegion("Summing region",
-				     w, help_text);
+    dialog = new AcceptSummingRegion(const_cast<char*>("Summing region"),
+				     w, const_cast<char**>(help_text));
     dialog->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			(XtPointer)&dialog);
     dialog->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput,

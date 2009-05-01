@@ -319,10 +319,10 @@ ObjectInput::ObjectInput(XMWidget *parent, char *name, char **help_text) :
 {
   /* Instantiate the widgets:   */
 
-  name_prompt = new XMTextField("Name_input", *work_area);
-  name_label  = new XMLabel("Name_Label", *work_area, "Object Name");
-  separator   = new XMSeparator("Separator", *work_area);
-  point_prompts = new XMForm("Client_region", *work_area);
+  name_prompt = new XMTextField(const_cast<char*>("Name_input"), *work_area);
+  name_label  = new XMLabel(const_cast<char*>("Name_Label"), *work_area, const_cast<char*>("Object Name"));
+  separator   = new XMSeparator(const_cast<char*>("Separator"), *work_area);
+  point_prompts = new XMForm(const_cast<char*>("Client_region"), *work_area);
 
   /* Set up the client area form widget.  This consists of just pasting 
   ** the form to the upper part of the work area.

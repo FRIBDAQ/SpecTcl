@@ -446,13 +446,16 @@ void SetIcon(Widget w, char *filename)
 }
 
 
-int main(Cardinal argc, char **argv)
+int main(int argc, char **argv)
 {
 
-  XMApplication top("Xamine", &argc, argv); /* Top level/init ap. */
-  XMMainWindow main_win("MainWindow", top, NULL, 0); /* Main window widget. */
-  XMForm       work_area("WorkArea", main_win);
-  XMForm       panes("PaneManager",  work_area);
+  XMApplication top("Xamine",
+		    reinterpret_cast<Cardinal*>(&argc), 
+		    argv);	/* Top level/init ap. */
+  XMMainWindow main_win(const_cast<char*>("MainWindow"), top, NULL, 0); /* Main window widget. */
+  XMForm       work_area(const_cast<char*>("WorkArea"), 
+			 main_win);
+  XMForm       panes(const_cast<char*>("PaneManager"),  work_area);
   XMWidget    *status_area = Xamine_SetupLocator(&work_area);
 
   /*
@@ -478,7 +481,7 @@ int main(Cardinal argc, char **argv)
   XtSetArg(arg[0], XmNscrollingPolicy, XmAUTOMATIC);
   XtSetArg(arg[1], XmNscrollBarDisplayPolicy, XmAS_NEEDED);
   XtSetArg(arg[2], XmNresizable, False);
-  XMWidget *cmd_area = new XMWidget("button_bar", 
+  XMWidget *cmd_area = new XMWidget(const_cast<char*>("button_bar"), 
 				     xmScrolledWindowWidgetClass, main_win,
 				     arg, 3);
   XMMenuBar *mb;

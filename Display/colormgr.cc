@@ -263,7 +263,7 @@ ReadColorMap for a description
 FILE *Xamine_OpenColorTable(unsigned int planes)
 {
   char filename[BUFSIZ];	/* Build up filenames here. */
-  char *fmtstring = "%s/Xamine%d.ctbl"; /* Describe how to build up filename */
+  char *fmtstring = const_cast<char*>("%s/Xamine%d.ctbl"); /* Describe how to build up filename */
 
   /* First try environment path search: */
  
@@ -292,7 +292,7 @@ FILE *Xamine_OpenColorTable(unsigned int planes)
 #ifndef HOME
   sprintf(filename, fmtstring, XAMINE_DEFAULT_COLOR_DIR, planes);
 #else
-  fmtstring = "%s/etc/Xamine%d.ctbl";
+  fmtstring = const_cast<char*>("%s/etc/Xamine%d.ctbl");
   sprintf(filename, fmtstring, HOME, planes);
   printf("Opening system colortable file %s\n", filename);
   fflush(stdout);

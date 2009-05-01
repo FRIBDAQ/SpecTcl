@@ -389,7 +389,7 @@ CSpectrumFactoryException::ReasonCode() const
 // Operation Type:
 //     Protected utility:
 //
-char*
+const char*
 CSpectrumFactoryException::DataType(DataType_t eType)
 {
   switch(eType) {
@@ -415,7 +415,7 @@ CSpectrumFactoryException::DataType(DataType_t eType)
 // Operation Type:
 //   Protected utility.
 //
-char*
+const char*
 CSpectrumFactoryException::SpectrumType(SpectrumType_t eType)
 {
   switch (eType) {

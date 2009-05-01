@@ -316,7 +316,7 @@ using namespace std;
 // Static data:
 
 struct SwitchEntry {
-  char*                   pName;
+  const char*                   pName;
   CTapeCommand::Switch_t  Value;
 };
 static const SwitchEntry SwitchTable[] = {

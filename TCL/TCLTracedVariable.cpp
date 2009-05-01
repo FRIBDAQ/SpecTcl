@@ -71,7 +71,7 @@ CTCLTracedVariable::~CTCLTracedVariable()
             with an error, and this string will represent the error
 
 */
-char*
+const char*
 CTCLTracedVariable::operator()(char* pName, char* pElement, int flags)
 {
   return (*m_pCallback)(getInterpreter(), pName, pElement, flags);

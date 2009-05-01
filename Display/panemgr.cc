@@ -991,7 +991,7 @@ void Xamine_Initialize_panedb(XMForm *parent)
 
     /* Instantiate and initialize the pane database */
 
-  Xamine_panedb = new pane_db(parent, "Xamine -- Unnamed");
+  Xamine_panedb = new pane_db(parent, const_cast<char*>("Xamine -- Unnamed"));
 
   /*  Set Callbacks on all the newly created drawing area widgets to */
   /* point to Xamine_PaneInputCallback which contains common code    */

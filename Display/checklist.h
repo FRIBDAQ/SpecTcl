@@ -315,7 +315,7 @@ class CheckElement : public XMForm {
  public:
   /* Constructors and destructors: */
 
-  CheckElement(char *name,	       /* 's name. */
+  CheckElement(const char *name,	       /* 's name. */
 	       XMWidget *parent,       /* Form's parent. */
 	       Boolean state = False,  /* Button initial state. */
 	       char *blabel = "Check", /* Button initial label string. */
@@ -324,8 +324,8 @@ class CheckElement : public XMForm {
 
   /* Manipulators: */
 
-  void SetButtonString(char *newlabel);
-  void SetLabelString(char  *newlabel = NULL);
+  void SetButtonString(const char *newlabel);
+  void SetLabelString(const char  *newlabel = NULL);
 
   Boolean State();		/* Get button state */
   void    State(Boolean set);	/* Set button state */
@@ -346,7 +346,7 @@ class CheckList : public XMForm {
  public:
   /*  Constructors and destructors: */
 
-  CheckList(char *name,		/* Form's name. */
+  CheckList(const char *name,		/* Form's name. */
 	    XMWidget *parent,	/* Form's parent widget */
 	    char *title,	/* Title string at top of form. */
 	    int button_count,	/* Number of buttons. */

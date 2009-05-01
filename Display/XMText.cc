@@ -434,7 +434,7 @@ XMScrolledText::SetMaxLength(int maxlen) { max_text_length = maxlen; }
 void
 XMScrolledText::ClearText() {
   text_length = 0;
-  XmTextSetString(id, "");	/* Set text value to empty string. */
+  XmTextSetString(id, const_cast<char*>(""));	/* Set text value to empty string. */
 }
 
 void

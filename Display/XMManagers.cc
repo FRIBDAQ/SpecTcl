@@ -349,22 +349,22 @@ void XMMainWindow::SetAreas(XMWidget *menubar, XMWidget *commandwindow,
 **  These functions are implemented for the class XMManager
 */
 
-XMManager::XMManager(char *n) : XMWidget(n) {}
+XMManager::XMManager(const char *n) : XMWidget(n) {}
 
 XMManager::XMManager(Widget w) : XMWidget(w) {}
 
-XMManager::XMManager(char *n,
+XMManager::XMManager(const char *n,
 		     WidgetClass cl,
 		     XMApplication &parent,
 		     ArgList l,Cardinal num_args) : 
   XMWidget(n, cl, parent, l, num_args) {}
 
 
-XMManager::XMManager(char *n, WidgetClass cl, Widget parent,
+XMManager::XMManager(const char *n, WidgetClass cl, Widget parent,
 		     ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args) {}
 
-XMManager::XMManager(char *n, WidgetClass cl, XMWidget &parent,
+XMManager::XMManager(const char *n, WidgetClass cl, XMWidget &parent,
 		     ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args) { }
 
@@ -414,24 +414,24 @@ XMManager::SetConstraint(Widget w, String constraint, void *value) {
 ** These functions are implementations for class XMBulletinBoard
 */
 
-XMBulletinBoard::XMBulletinBoard(char *n, WidgetClass cl, Widget parent,
+XMBulletinBoard::XMBulletinBoard(const char *n, WidgetClass cl, Widget parent,
 				 ArgList l, Cardinal num_args) : 
   XMManager(n, cl, parent, l, num_args) 
 {}
 
-XMBulletinBoard::XMBulletinBoard(char *n) : XMManager(n) {}
+XMBulletinBoard::XMBulletinBoard(const char *n) : XMManager(n) {}
 
 XMBulletinBoard::XMBulletinBoard(Widget w): XMManager(w) {}
 
-XMBulletinBoard::XMBulletinBoard(char *n, XMApplication &parent,
+XMBulletinBoard::XMBulletinBoard(const char *n, XMApplication &parent,
 				 ArgList l, Cardinal num_args) :
   XMManager(n, xmBulletinBoardWidgetClass, parent, l, num_args) {}
 
-XMBulletinBoard::XMBulletinBoard(char *n, Widget parent, 
+XMBulletinBoard::XMBulletinBoard(const char *n, Widget parent, 
 				 ArgList l, Cardinal num_args) : 
   XMManager(n, xmBulletinBoardWidgetClass, parent, l, num_args) {}
 
-XMBulletinBoard::XMBulletinBoard(char *n, XMWidget &parent,
+XMBulletinBoard::XMBulletinBoard(const char *n, XMWidget &parent,
 				 ArgList l, Cardinal num_args) : 
   XMManager(n, xmBulletinBoardWidgetClass, parent, l, num_args) {}
 
@@ -462,19 +462,19 @@ XMBulletinBoard::SetAbsPosition(XMWidget &w, int x, int y) {
 ** These functions implement those in class XMFrame
 */
 
-XMFrame::XMFrame(char *name) : XMManager(name) {}
+XMFrame::XMFrame(const char *name) : XMManager(name) {}
 
 XMFrame::XMFrame(Widget id)  : XMManager(id)   {}
 
-XMFrame::XMFrame(char *n, XMApplication &parent, 
+XMFrame::XMFrame(const char *n, XMApplication &parent, 
 		 ArgList l, Cardinal num_args) : 
   XMManager(n, xmFrameWidgetClass, parent, l, num_args) {}
 
-XMFrame::XMFrame(char *n, XMWidget &parent,
+XMFrame::XMFrame(const char *n, XMWidget &parent,
 		 ArgList l, Cardinal num_args) :
   XMManager(n, xmFrameWidgetClass, parent, l, num_args) {}
 
-XMFrame::XMFrame(char *n, Widget parent, ArgList l, 
+XMFrame::XMFrame(const char *n, Widget parent, ArgList l, 
 		 Cardinal num_args) :
   XMManager(n, xmFrameWidgetClass, parent, l, num_args) {}
 
@@ -493,21 +493,21 @@ XMFrame::SetShadowType(unsigned char type) {
 ** These functions are implemented for class XMForm
 */
 
-XMForm::XMForm(char *name) : XMBulletinBoard(name) {}
+XMForm::XMForm(const char *name) : XMBulletinBoard(name) {}
 
 XMForm::XMForm(Widget id)  : XMBulletinBoard(id)   {}
 
-XMForm::XMForm(char *n, XMApplication &parent, 
+XMForm::XMForm(const char *n, XMApplication &parent, 
 	       ArgList l, Cardinal num_args) :
   XMBulletinBoard(n, xmFormWidgetClass, parent.getid(), l, num_args)
 {}
 
-XMForm::XMForm(char *n, Widget parent, 
+XMForm::XMForm(const char *n, Widget parent, 
 	       ArgList l, Cardinal num_args) :
   XMBulletinBoard(n, xmFormWidgetClass, parent, l, num_args)
 {}
 
-XMForm::XMForm(char *n, XMWidget &parent, 
+XMForm::XMForm(const char *n, XMWidget &parent, 
 	       ArgList l, Cardinal num_args) :
   XMBulletinBoard(n, xmFormWidgetClass, parent.getid(), l, num_args) 
 {}
@@ -666,19 +666,19 @@ XMForm::SetTopWidget(Widget wid, XMWidget &bound) {
 ** These are implementations of functions from class XMRowColumn
 */
 
-XMRowColumn::XMRowColumn(char *name) : XMManager(name) {}
+XMRowColumn::XMRowColumn(const char *name) : XMManager(name) {}
 
 XMRowColumn::XMRowColumn(Widget id)  : XMManager(id)   {}
 
-XMRowColumn::XMRowColumn(char *name, XMApplication &parent, 
+XMRowColumn::XMRowColumn(const char *name, XMApplication &parent, 
 			 ArgList l, Cardinal num_args) :
   XMManager(name, xmRowColumnWidgetClass, parent, l, num_args) {}
 
-XMRowColumn::XMRowColumn(char *name, XMWidget &parent,
+XMRowColumn::XMRowColumn(const char *name, XMWidget &parent,
 			 ArgList l, Cardinal num_args) :
   XMManager(name, xmRowColumnWidgetClass, parent, l, num_args) {}
 
-XMRowColumn::XMRowColumn(char *name, Widget parent,
+XMRowColumn::XMRowColumn(const char *name, Widget parent,
 			 ArgList l, Cardinal num_args) :
   XMManager(name, xmRowColumnWidgetClass, parent, l, num_args) {}
 
@@ -754,15 +754,15 @@ XMRowColumn::AddEntryCallback(void(*callback)(XMWidget *,XtPointer, XtPointer),
 ** The following are implementations of functions for class XMPanedWindow
 */
 
-XMPanedWindow::XMPanedWindow(char *name) : XMManager(name) {}
+XMPanedWindow::XMPanedWindow(const char *name) : XMManager(name) {}
 
 XMPanedWindow::XMPanedWindow(Widget id)  : XMManager(id)   {}
 
-XMPanedWindow::XMPanedWindow(char *n, XMWidget &parent,
+XMPanedWindow::XMPanedWindow(const char *n, XMWidget &parent,
 			     ArgList l, Cardinal num_args) :
   XMManager(n, xmPanedWindowWidgetClass, parent, l, num_args) {}
 
-XMPanedWindow::XMPanedWindow(char *n, Widget parent,
+XMPanedWindow::XMPanedWindow(const char *n, Widget parent,
 			     ArgList l, Cardinal num_args) :
   XMManager(n, xmPanedWindowWidgetClass, parent, l, num_args) {}
 
@@ -816,19 +816,19 @@ XMPanedWindow::SkipAdjust(XMWidget &wid, Boolean skip) {
 ** The following are implemented for class XMMainWindow
 */
 
-XMMainWindow::XMMainWindow(char *name) : XMManager(name) {}
+XMMainWindow::XMMainWindow(const char *name) : XMManager(name) {}
 
 XMMainWindow::XMMainWindow(Widget id)  : XMManager(id  ) {}
 
-XMMainWindow::XMMainWindow(char *name, XMApplication &parent,
+XMMainWindow::XMMainWindow(const char *name, XMApplication &parent,
 			   ArgList l, Cardinal arg_count) :
   XMManager(name, xmMainWindowWidgetClass, parent, l, arg_count) {}
 
-XMMainWindow::XMMainWindow(char *name, XMWidget &parent, 
+XMMainWindow::XMMainWindow(const char *name, XMWidget &parent, 
 			   ArgList l, Cardinal arg_count) :
   XMManager(name, xmMainWindowWidgetClass, parent, l, arg_count) {}
 
-XMMainWindow::XMMainWindow(char *name, Widget &parent,
+XMMainWindow::XMMainWindow(const char *name, Widget &parent,
 			   ArgList l, Cardinal arg_count) :
   XMManager(name, xmMainWindowWidgetClass, parent, l, arg_count) {}
 

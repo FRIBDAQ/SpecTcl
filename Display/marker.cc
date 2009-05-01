@@ -326,7 +326,7 @@ extern spec_shared *xamine_shared;
 ** that we use to prompt for a marker.
 */
 
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog is prompting for a point which will be used to enter a\n",
   "marker graphical object into Xamine's graphical object database.  A\n",
   "marker is a reference point on a spectrum which can be used to gauge\n",
@@ -646,10 +646,10 @@ AcceptMarker::AcceptMarker(XMWidget *parent, char *name, char **hlp_text) :
 
   /* Build the widgets...  */
 
-  point = new XMTextField("Point_prompter", *point_prompts,  PROMPT_WIDTH);
-  pt_label = new XMLabel("Point_Label",     *point_prompts,
-			 "Position");
-  del_button = new XMPushButton("Delete_point", *point_prompts);
+  point = new XMTextField(const_cast<char*>("Point_prompter"), *point_prompts,  PROMPT_WIDTH);
+  pt_label = new XMLabel(const_cast<char*>("Point_Label"),     *point_prompts,
+			 const_cast<char*>("Position"));
+  del_button = new XMPushButton(const_cast<char*>("Delete_point"), *point_prompts);
 
   /* Paste up the widgets left to right. inside the point_prompts form: */
 
@@ -744,7 +744,7 @@ void AcceptMarker::DrawPoints(XMWidget *pane,
 */
 void AcceptMarker::ClearDialog()
 {
-  point->SetText("");
+  point->SetText(const_cast<char*>(""));
 }
 
 /*
@@ -814,7 +814,7 @@ void AcceptMarker::DelPoint()
   /* Clear the points if the marker is not already empty. */
 
   object->clrpts();
-  point->SetText(" ");
+  point->SetText(const_cast<char*>(" "));
 }
 
 /*
@@ -970,7 +970,7 @@ void Xamine_AddMarker(XMWidget *wid, XtPointer ud, XtPointer cd)
   ** instantiate it now and set up the invariant behavior.
   */
   if(dialog == NULL) {
-    dialog = new AcceptMarker(wid, "Define_Marker", help_text);
+    dialog = new AcceptMarker(wid, const_cast<char*>("Define_Marker"), const_cast<char**>(help_text));
 
     dialog->AddOkCallback(&AcceptMarker::Marker_ok, (XtPointer)dialog);
     dialog->AddCancelCallback(&AcceptMarker::Marker_cancel, (XtPointer)dialog);

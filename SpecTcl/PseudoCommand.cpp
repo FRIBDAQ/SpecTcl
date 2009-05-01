@@ -72,13 +72,13 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 using namespace std;
 #endif
 
-static char* pCopyrightNotice = 
+static const  char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved PseudoCommand.cpp \n";
 
 // static data:
 
 struct SwitchDefinition {
-  char*                          pSwitchName;
+  const char*                          pSwitchName;
   CPseudoCommand::SwitchValue_t  eValue;
 };
 
@@ -256,7 +256,7 @@ UInt_t CPseudoCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
   CParameterPackage& rPack = (CParameterPackage&)getMyPackage();
 
   list<string> PseudoNames;
-  char* pattern = "*";
+  const char* pattern = "*";
   if(nArgs != 0) {		// List specific parameters.
    pattern = pArgs[0];
   }

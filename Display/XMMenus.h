@@ -340,7 +340,7 @@ class XMPulldown : public XMManagedWidget
 		  ~XMPulldown();
 		  /* Label the pulldown button */
 
-		  void Label(char *label);
+		  void Label(const char *label);
 
 		  /* Set the toggle button policy */
 
@@ -350,7 +350,7 @@ class XMPulldown : public XMManagedWidget
 		  void RadioNoForceOne();
 		  /* Add entries to the menu: */
 		  
-		  XMPushButton *AddMenuButton(char *n, 
+		  XMPushButton *AddMenuButton(const char *n, 
 					      void (*callback)(XMWidget *,
 							       XtPointer,
 							       XtPointer) = NULL,
@@ -369,7 +369,7 @@ class XMPulldown : public XMManagedWidget
 					      Cardinal num_args = 0
 					      );
 		  XMWidget   *AddSeparator();
-		  XMPulldown *AddSubmenu(char *n, int max_items,
+		  XMPulldown *AddSubmenu(const char *n, int max_items,
 					 ArgList l = NULL, 
 					 Cardinal num_args=0);
 		  

@@ -317,15 +317,15 @@ class XMManager : public XMWidget {
  public:
   /* Constructors */
 
-  XMManager(char *n);
+  XMManager(const char *n);
   XMManager(Widget w);
-  XMManager(char *n,
+  XMManager(const char *n,
 	    WidgetClass cl,
 	    XMApplication &parent,
 	    ArgList l= NULL,Cardinal num_args = 0);
-  XMManager(char *n, WidgetClass cl, Widget parent,
+  XMManager(const char *n, WidgetClass cl, Widget parent,
 	    ArgList l=NULL, Cardinal num_args = 0);
-  XMManager(char *n, WidgetClass cl, XMWidget &parent,
+  XMManager(const char *n, WidgetClass cl, XMWidget &parent,
 	     ArgList l = NULL, Cardinal num_args = 0);
   
   /*  The following functions manipulate generic manager resources: */
@@ -353,19 +353,19 @@ class XMManager : public XMWidget {
 */
 class XMBulletinBoard : public XMManager {
  protected:
-  XMBulletinBoard(char *n, WidgetClass cl, Widget parent,
+  XMBulletinBoard(const char *n, WidgetClass cl, Widget parent,
 		  ArgList l, Cardinal num_args);
 
  public:
   /* Constructors: */
 
-  XMBulletinBoard(char *n);
+  XMBulletinBoard(const char *n);
   XMBulletinBoard(Widget w);
-  XMBulletinBoard(char *n, XMApplication &parent,
+  XMBulletinBoard(const char *n, XMApplication &parent,
 		  ArgList l = NULL, Cardinal num_args = 0);
-  XMBulletinBoard(char *n, Widget parent, 
+  XMBulletinBoard(const char *n, Widget parent, 
 		  ArgList l = NULL, Cardinal num_args=0);
-  XMBulletinBoard(char *n, XMWidget &parent,
+  XMBulletinBoard(const char *n, XMWidget &parent,
 		  ArgList l = NULL, Cardinal num_args = 0);
 
   /* The following modify attributes of the bulletin board itself: */
@@ -387,13 +387,13 @@ class XMFrame : public XMManager {
  public:
   /* Constructors: */
 
-  XMFrame(char *name);
+  XMFrame(const char *name);
   XMFrame(Widget id);
-  XMFrame(char *n, XMApplication &parent, 
+  XMFrame(const char *n, XMApplication &parent, 
 	  ArgList l = NULL, Cardinal num_args = 0);
-  XMFrame(char *n, XMWidget &parent,
+  XMFrame(const char *n, XMWidget &parent,
 	  ArgList l = NULL, Cardinal num_args = 0);
-  XMFrame(char *n, Widget parent, ArgList l = NULL, Cardinal num_args = 0);
+  XMFrame(const char *n, Widget parent, ArgList l = NULL, Cardinal num_args = 0);
   
   /* Set frame attributes: */
   
@@ -409,13 +409,13 @@ class XMFrame : public XMManager {
 class XMForm : public XMBulletinBoard  {
  public:
   /* Constructors: */
-  XMForm(char *name);
+  XMForm(const char *name);
   XMForm(Widget id);
-  XMForm(char *n, XMApplication &parent, 
+  XMForm(const char *n, XMApplication &parent, 
 	 ArgList l = NULL, Cardinal num_args = 0);
-  XMForm(char *n, Widget parent, 
+  XMForm(const char *n, Widget parent, 
 	 ArgList l=NULL, Cardinal num_args = 0);
-  XMForm(char *n, XMWidget &parent, 
+  XMForm(const char *n, XMWidget &parent, 
 	 ArgList l = NULL, Cardinal num_args = 0);
   
   /* Methods  which  set attributes of the form as a whole */
@@ -468,13 +468,13 @@ class XMRowColumn : public XMManager {
  public:
   /*  Constructors:  */
 
-  XMRowColumn(char *name);
+  XMRowColumn(const char *name);
   XMRowColumn(Widget id);
-  XMRowColumn(char *name, XMApplication &parent, 
+  XMRowColumn(const char *name, XMApplication &parent, 
 	      ArgList l = NULL, Cardinal num_args = 0);
-  XMRowColumn(char *name, XMWidget &parent,
+  XMRowColumn(const char *name, XMWidget &parent,
 	      ArgList l = NULL, Cardinal num_args = 0);
-  XMRowColumn(char *name, Widget parent,
+  XMRowColumn(const char *name, Widget parent,
 	      ArgList l = NULL, Cardinal num_args = 0);
 
   /* Methods to set the major attributes of a row column widget */
@@ -504,11 +504,11 @@ class XMRowColumn : public XMManager {
 class XMPanedWindow : public XMManager {
  public:
   /* Constructors: */
-  XMPanedWindow(char *name);
+  XMPanedWindow(const char *name);
   XMPanedWindow(Widget id);
-  XMPanedWindow(char *n, XMWidget &parent,
+  XMPanedWindow(const char *n, XMWidget &parent,
 		 ArgList l = NULL, Cardinal num_args = 0);
-  XMPanedWindow(char *n, Widget parent,
+  XMPanedWindow(const char *n, Widget parent,
 		ArgList l = NULL, Cardinal num_args = 0);
 
   /* Set attributes of the manager itself. */
@@ -534,13 +534,13 @@ class XMPanedWindow : public XMManager {
 */
 class XMMainWindow : public XMManager {
  public:
-  XMMainWindow(char *name);
+  XMMainWindow(const char *name);
   XMMainWindow(Widget id);
-  XMMainWindow(char *name, XMApplication &parent,
+  XMMainWindow(const char *name, XMApplication &parent,
 	       ArgList l = NULL, Cardinal arg_count = 0);
-  XMMainWindow(char *name, XMWidget &parent, 
+  XMMainWindow(const char *name, XMWidget &parent, 
 	       ArgList l = NULL, Cardinal arg_count  = 0);
-  XMMainWindow(char *name, Widget &parent,
+  XMMainWindow(const char *name, Widget &parent,
 	       ArgList l = NULL, Cardinal arg_count = 0);
 
   /*  Modify attributes of the main window: */

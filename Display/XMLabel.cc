@@ -13,21 +13,21 @@
 #include <config.h>
 #include "XMLabel.h"
 
-XMLabel::XMLabel(char *n, XMWidget &parent, char *text,
+XMLabel::XMLabel(const char *n, XMWidget &parent, const char *text,
 		 ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmLabelWidgetClass, parent, args, arg_count) 
 {
   SetLabel(text);
 }
 
-XMLabel::XMLabel(char *n, Widget parent, char *text,
+XMLabel::XMLabel(const char *n, Widget parent, const char *text,
 		 ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmLabelWidgetClass, parent, args, arg_count)
 {
   SetLabel(text);
 }
 
-XMLabel::XMLabel(char *n) : 
+XMLabel::XMLabel(const char *n) : 
   XMManagedWidget(n) 
 { }
 
@@ -36,9 +36,9 @@ XMLabel::XMLabel(Widget w) :
 { }
 
 void
-XMLabel::SetLabel(char *text)
+XMLabel::SetLabel(const char *text)
 {
-  XmString label = XmStringCreateSimple(text);
+  XmString label = XmStringCreateSimple(const_cast<char*>(text));
   SetAttribute(XmNlabelString, label);
   XmStringFree(label);
 }

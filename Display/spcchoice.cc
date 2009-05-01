@@ -315,7 +315,7 @@ extern spec_shared *xamine_shared;
 /*
 ** Help text for the widgets:
 */
-static char *ChooserHelp[] =
+static const char *ChooserHelp[] =
 {
   " This dialog is prompting you for a spectrum.  There are several ways to\n",
   "specify a spectrum: \n\n",
@@ -355,7 +355,7 @@ SpectrumChooser::SpectrumChooser(char *name, Widget parent, char *prompt,
 {
   SetupList();
   RestrictChoices();
-  SetHelpText(ChooserHelp);
+  SetHelpText(const_cast<char**>(ChooserHelp));
 }
 SpectrumChooser::SpectrumChooser(char *name, XMWidget &parent, char *prompt,
 				 XtPointer cbd) :
@@ -363,7 +363,7 @@ SpectrumChooser::SpectrumChooser(char *name, XMWidget &parent, char *prompt,
 {
   SetupList();
   RestrictChoices();
-  SetHelpText(ChooserHelp);
+  SetHelpText(const_cast<char**>(ChooserHelp));
 }
 
 /*
@@ -484,7 +484,7 @@ Boolean SpectrumChooser::Perform(XMWidget *wid, XtPointer userd,
 
   /* First extract the ASCII version of the value string: */
 
-  if(!XmStringGetLtoR(value, XmSTRING_DEFAULT_CHARSET, &text)) {
+  if(!XmStringGetLtoR(value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &text)) {
     status = False;
     Xamine_error_msg(this,
 		   "SpectrumChooser::Perform, Could not extract ASCII choice");

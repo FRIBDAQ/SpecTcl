@@ -443,7 +443,7 @@ XMPulldown::~XMPulldown()
 **   Cardinal num_args:
 **     Possibly zero argument list size.  
 */
-XMPushButton *XMPulldown::AddMenuButton(char *n, 
+XMPushButton *XMPulldown::AddMenuButton(const char *n, 
 					void (*callback)(XMWidget *, 
 							 XtPointer,
 							 XtPointer),
@@ -460,15 +460,16 @@ XMPushButton *XMPulldown::AddMenuButton(char *n,
 	    );
     exit(-1);
   }
-  menu_items[menu_count].item = pb = new XMPushButton(n,
-						      *this,
-						      callback,
-						      client_data);
+  pb = new XMPushButton(const_cast<char*>(n),
+			*this,
+			callback,
+			client_data);
   if(pb == NULL) {
     fprintf(stderr,
 	    "Error in XMPulldown::AddmenuButton - unable to new pushbutton\n");
     exit(-1);
   }
+  menu_items[menu_count].item = pb;
   /*  Set the item list properties: */
 
   for(int i = 0; i < num_args; i++) {
@@ -601,7 +602,7 @@ XMWidget *XMPulldown::AddSeparator()
 ** Returns:
 **   Pointer to the created widget object.
 */
-XMPulldown *XMPulldown::AddSubmenu(char *n, int size, ArgList l, Cardinal num_args)
+XMPulldown *XMPulldown::AddSubmenu(const char *n, int size, ArgList l, Cardinal num_args)
 {
   XMPulldown *pd;
 
@@ -614,14 +615,15 @@ XMPulldown *XMPulldown::AddSubmenu(char *n, int size, ArgList l, Cardinal num_ar
   }
   /*  Generate the new pulldown: */
 
-  menu_items[menu_count].item = pd = 
-                                new XMPulldown(n, *this, size, l, num_args);
+  pd  =  new XMPulldown(const_cast<char*>(n), *this, size, l, num_args);
+  
   if(pd == NULL) {
     fprintf(stderr,
 	    "Error in XMPulldown::AddSubmenu - new XMPulldown failed\n");
     exit(-1);
 
   }
+  menu_items[menu_count].item = pd;
   /* Set type, increment the size and return the pulldown */
 
   menu_items[menu_count].type = Submenu;
@@ -942,9 +944,9 @@ XMPulldown::XMPulldown(char *n, XMWidget &parent, Cardinal max_items,
 }
 
 void
-XMPulldown::Label(char *label) 
+XMPulldown::Label(const char *label) 
 {
-  pd_button->Label(label); 
+  pd_button->Label(const_cast<char*>(label)); 
 }
 
 void
