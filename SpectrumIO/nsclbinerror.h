@@ -315,7 +315,7 @@ class nsclbinerror {
 
 class nsclfileerror :public nsclbinerror {
  public:  
-  typedef enum errorreason {
+  typedef enum _errorreason {
     EmptyStream,
     HeaderReadError,
     ReadErrorN,
@@ -323,7 +323,7 @@ class nsclfileerror :public nsclbinerror {
     BufferWriteError,
     DataWriteError,
     BitmaskWriteError
-  };
+  } errorreason;
   nsclfileerror(errorreason);
   nsclfileerror& operator=(errorreason);
   bool operator==(errorreason& rhs) {return (whatswrong==rhs);}
@@ -337,14 +337,14 @@ class nsclfileerror :public nsclbinerror {
 
 class nscloperror : public nsclbinerror {
  public:
-  typedef enum errorreason {
+  typedef enum _errorreason {
     InvalidFormat,
     InvalidHeader,
     WriteWOSetup,
     BadDataIndex,
     BadIndexGet,
     OutOfMemory
-  };
+  } errorreason;
   nscloperror(errorreason);
   nscloperror& operator=(errorreason);
   bool operator==(errorreason& rhs) {return (whatswrong==rhs);}

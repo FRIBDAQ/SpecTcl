@@ -58,6 +58,6 @@ CLanguageTraceCallback::operator()(CTCLInterpreter* pInterp,
 			   Flags, m_pClientData);
   } 
   else {
-    return "CLanguageTraceCallback::operator() invoked with null function ptr";
+    return const_cast<char*>("CLanguageTraceCallback::operator() invoked with null function ptr");
   }
 }

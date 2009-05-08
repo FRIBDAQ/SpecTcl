@@ -323,7 +323,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** that we'll be building.
 */
 
-char *help_text[] = {
+const char *help_text[] = {
   "  This dialog allows you to select an expansion region for the selected\n",
   "spectrum.  Points can be accepted by either clicking in the spectrum, or\n",
   "by typing them into the slots below.  If you click on a different spectrum\n",
@@ -368,7 +368,7 @@ class Expand : public GraphicalInput, public Xamine_Select2 {
  public:
   /* Constructors and destructors: */
 
-  Expand(XMWidget *parent, char *name, char **help_text = NULL);
+  Expand(XMWidget *parent, const char *name, const char **help_text = NULL);
   virtual ~Expand() { }			/* Get the hierarchy destroyed. */
 
   /* The following functions replace the virtual function set that
@@ -456,7 +456,7 @@ Expand::OkCallback_relay(XMWidget *w, XtPointer u, XtPointer c)
 **    by the parent constructors.  We just have to clear the internal state
 **    and dialogs.
 */
-Expand::Expand(XMWidget *parent, char *name, char **help_text) :
+Expand::Expand(XMWidget *parent, const char *name, const char **help_text) :
        GraphicalInput(parent, name, help_text),
        Xamine_Select2(this, *work_area)
 {

@@ -304,17 +304,17 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 using namespace std;
 #endif
 
-static char* pCopyrightNotice = 
+static const char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved StreamIOError.cpp \n";
 
-static char* pErrorMessages[] =
+static const  char* pErrorMessages[] =
 {
   "End of file encountered (prematurely) ",
   "Bad bit set in ios:: ",
   "Fail bit set in ios:: "
 };
 
-char** CStreamIOError::m_svErrorMessages = pErrorMessages; //Static data member initialization
+const char** CStreamIOError::m_svErrorMessages = pErrorMessages; //Static data member initialization
 
 // Functions for class CStreamIOError
 //////////////////////////////////////////////////////////////////////////////

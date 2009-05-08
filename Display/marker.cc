@@ -326,7 +326,7 @@ extern spec_shared *xamine_shared;
 ** that we use to prompt for a marker.
 */
 
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog is prompting for a point which will be used to enter a\n",
   "marker graphical object into Xamine's graphical object database.  A\n",
   "marker is a reference point on a spectrum which can be used to gauge\n",
@@ -377,7 +377,7 @@ class AcceptMarker : public ObjectInput {
 
   /* Class constructors and destructors. */
 
-  AcceptMarker(XMWidget *parent, char *name, char **hlp_text);
+  AcceptMarker(XMWidget *parent, const char *name, const char **hlp_text);
   ~AcceptMarker() {
     if(object != NULL) delete object;
     delete point;
@@ -633,7 +633,7 @@ void AcceptMarker::RebuildObject()
 **         type of marker.
 ** Formal Parameters: (all passed to parent types).
 */
-AcceptMarker::AcceptMarker(XMWidget *parent, char *name, char **hlp_text) :
+AcceptMarker::AcceptMarker(XMWidget *parent, const char *name, const char **hlp_text) :
        ObjectInput(parent, name, hlp_text)
 {
   /* Build the appropriate graphical object: */

@@ -373,7 +373,7 @@ class XMPromptGeometry : public XMCustomDialog {
 /*
 ** Local definitions:
 */
-static char *geometry_help_text[] = {
+static const char *geometry_help_text[] = {
   "  This dialog is prompting you to enter the number of horizontal and\n",
   "vertical boxes that will comprise the display.  Once this geometry is\n",
   "accepted, you will be able to display one or more spectra into each box.\n",
@@ -607,9 +607,9 @@ void Xamine_request_geometry(XMWidget *w, XtPointer cd, XtPointer cb)
   /* Otherwise it just needs to be managed:                               */
 
   if(!geometry_prompt) {
-    geometry_prompt = new XMPromptGeometry("Geometry_Prompt",
+    geometry_prompt = new XMPromptGeometry(const_cast<char*>("Geometry_Prompt"),
 					   w,
-					   "Pane Geometry");
+					   const_cast<char*>("Pane Geometry"));
     geometry_prompt->AddDoCallback(SetWindows, geometry_prompt);
     geometry_prompt->AddCancelCallback(SetWindows, geometry_prompt);
     geometry_prompt->AddHelpCallback(Xamine_display_help, &geometry_help);

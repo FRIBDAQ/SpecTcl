@@ -117,7 +117,7 @@ using namespace std;
 #endif
 
 
-static char* pCopyrightNotice = 
+static const char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved GateCommand.cpp \\n";
 
 // Static/local definitions:
@@ -128,7 +128,7 @@ static char* pCopyrightNotice =
    enum
 */
 const struct SwitchList {
-  char* pName;
+  const char* pName;
   CGateCommand::Switches eValue;
 } SwitchTable[] = {
   { "-new"   , CGateCommand::newgate },

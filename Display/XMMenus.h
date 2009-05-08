@@ -333,14 +333,14 @@ class XMPulldown : public XMManagedWidget
 		public:
 		  /* Constructors and destructor: */
 
-		  XMPulldown(char *n, Widget &parent, Cardinal max_items,
+		  XMPulldown(const char *n, Widget &parent, Cardinal max_items,
 			     ArgList l=NULL, Cardinal num_args=0);
-		  XMPulldown(char *n, XMWidget &parent, Cardinal max_items,
+		  XMPulldown(const char *n, XMWidget &parent, Cardinal max_items,
 			     ArgList l = NULL, Cardinal num_args = 0);
 		  ~XMPulldown();
 		  /* Label the pulldown button */
 
-		  void Label(char *label);
+		  void Label(const char *label);
 
 		  /* Set the toggle button policy */
 
@@ -350,7 +350,7 @@ class XMPulldown : public XMManagedWidget
 		  void RadioNoForceOne();
 		  /* Add entries to the menu: */
 		  
-		  XMPushButton *AddMenuButton(char *n, 
+		  XMPushButton *AddMenuButton(const char *n, 
 					      void (*callback)(XMWidget *,
 							       XtPointer,
 							       XtPointer) = NULL,
@@ -359,7 +359,7 @@ class XMPulldown : public XMManagedWidget
 					      Cardinal num_args = 0
 					      );
 		  XMToggleButton *AddMenuToggleButton
-		                             (char *n,
+		                             (const char *n,
 					      void (*callback)(XMWidget *,
 							       XtPointer,
 							       XtPointer) 
@@ -369,7 +369,7 @@ class XMPulldown : public XMManagedWidget
 					      Cardinal num_args = 0
 					      );
 		  XMWidget   *AddSeparator();
-		  XMPulldown *AddSubmenu(char *n, int max_items,
+		  XMPulldown *AddSubmenu(const char *n, int max_items,
 					 ArgList l = NULL, 
 					 Cardinal num_args=0);
 		  
@@ -378,7 +378,7 @@ class XMPulldown : public XMManagedWidget
 		  int MenuSize();
 		  int MaxMenuSize();
 		  XMMenuItem *GetMenuItem(Cardinal index); 
-		  XMMenuItem *FindMenuItem(char *n);
+		  XMMenuItem *FindMenuItem(const char *n);
 		  XMWidget *GetCascadeButton();
 		  /*
 		  ** The methods below allow one to traverse the menu list.
@@ -405,28 +405,28 @@ class XMMenuBar : public XMManagedWidget
 
                   /* Constructors and destructors: */
 
-		  XMMenuBar(char *n, Widget parent, Cardinal num_menus,
+		  XMMenuBar(const char *n, Widget parent, Cardinal num_menus,
 			    ArgList l = NULL, Cardinal num_args = 0);
-		  XMMenuBar(char *n, XMWidget &parent, Cardinal num_menus,
+		  XMMenuBar(const char *n, XMWidget &parent, Cardinal num_menus,
 			    ArgList l = NULL, Cardinal num_args = 0);
                   ~XMMenuBar();
 
                   /* Methods to add pulldowns: */
 
-                  XMPulldown *AddPulldown(char *n, int max_items,
+                  XMPulldown *AddPulldown(const char *n, int max_items,
 					  ArgList l = NULL, 
 					  Cardinal num_args=0);
-                  XMPulldown *AddHelpPulldown(char *n, int max_items,
+                  XMPulldown *AddHelpPulldown(const char *n, int max_items,
 					      ArgList l = NULL,
 					      Cardinal num_args = 0);
 
                   /* Information methods: */
 
                   int NumMenus();
-                  XMPulldown *GetPulldown(char *n);
+                  XMPulldown *GetPulldown(const char *n);
                   XMPulldown *GetPulldown(Cardinal index);
                   XMPulldown *GetHelpPulldown();
-                  XMMenuItem *GetMenuItem(char *n);
+                  XMMenuItem *GetMenuItem(const char *n);
                   /*
                   ** Methods to allow an iterative walk of the menubars:
 		  */

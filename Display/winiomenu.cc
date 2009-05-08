@@ -80,7 +80,7 @@ static string   LastFilename;
 static XMFileListDialog *openbox = NULL;
 static XMInformationDialog *help = NULL;
 
-static char *confirm_help_text[] = {
+static const char *confirm_help_text[] = {
   "  The file name that you selected for a write windows operation already\n",
   "exists.  If you click on the \"Cancel\" button then the windows file will\n",
   "NOT be written out to that file.  If you click on the \"Confirm\" button\n",
@@ -95,7 +95,7 @@ static Xamine_help_client_data confirm_help = {
 					 confirm_help_text
 					 };
 
-static char *open_help_text[] = {
+static const char *open_help_text[] = {
   "  This file selection box allows you to choose a window file for the\n",
   "operation you just selected.  You can use the mouse to click on a\n",
   "directory in the list of directories on the left side of the box to\n",
@@ -142,7 +142,8 @@ static char *open_help_text[] = {
 **    truncation will occur.
 */
 #define MAX_SEARCHMASK 132
-char *Xamine_GetSearchMask(char *envstr, char *fallbackdir, char *mask)
+char *Xamine_GetSearchMask(const char *envstr, const char *fallbackdir, 
+			   const char *mask)
 {
   static char searchmask[MAX_SEARCHMASK+1];
   memset(searchmask, 0, sizeof(searchmask));
@@ -151,7 +152,7 @@ char *Xamine_GetSearchMask(char *envstr, char *fallbackdir, char *mask)
   **  Supplied and valid.
   */
 
-  char *dstring = NULL;
+  const char *dstring = NULL;
   if(envstr) {
     dstring = getenv(envstr);
     if(dstring) {
@@ -410,7 +411,7 @@ void Xamine_Read_window_file(XMWidget *w, XtPointer client_data,
   FILE *fp;
 
   /* Convert the name of the file to a C ASCIZ string: */
-  if(!XmStringGetLtoR(reason->value, XmSTRING_DEFAULT_CHARSET, &filename)) {
+  if(!XmStringGetLtoR(reason->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &filename)) {
     sprintf(error_msg, 
 	    "Xamine_Read_window_file -- Could not get filename from prompter");
     new XMErrorDialog("Failure", *Xamine_Getpanemgr(), error_msg, kill_widget);
@@ -595,7 +596,7 @@ void Xamine_Write_window_file(XMWidget *w, XtPointer client_data,
 
   /* Convert the name of the file to a C ASCIZ string: */
 
-  if(!XmStringGetLtoR(reason->value, XmSTRING_DEFAULT_CHARSET, &filename)) {
+  if(!XmStringGetLtoR(reason->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &filename)) {
     sprintf(error_msg, 
 	    "Xamine_Write_window_file -- Could not get filename string\n");
     new XMErrorDialog("String_GetFailed", *Xamine_Getpanemgr(), error_msg,

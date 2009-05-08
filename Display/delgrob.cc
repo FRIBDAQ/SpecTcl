@@ -320,7 +320,7 @@ extern char *upcase(char *s);
 /*
 ** Below we define the help text for the dialog:
 */
-static char *help_text[] = {
+static const  char *help_text[] = {
   "  This dialog deletes graphical objects.  The list at the top of the\n",
   "work area is the set of deletable graphical objects defined on the\n",
   "spectrum at the time this dialog was popped up.  To refresh the list\n",
@@ -508,7 +508,8 @@ static Boolean DeleteObject(XmString name, int specid)
   /* First convert the string to an ASCIZ string. */
 
   char *cname;
-  if(!XmStringGetLtoR(name, XmSTRING_DEFAULT_CHARSET, &cname)) {
+  if(!XmStringGetLtoR(name, 
+		      const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &cname)) {
     Xamine_error_msg(Xamine_Getpanemgr(), 
 		     "DeleteObject -- Unable to get selection from Motif");
     return False;

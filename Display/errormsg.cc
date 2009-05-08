@@ -304,7 +304,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 
 void
-Xamine_error_msg (XMWidget *parent, char *msg)
+Xamine_error_msg (XMWidget *parent, const char *msg)
 {
   /* 
    * This object deletes itself when dismissed by the user, so no need

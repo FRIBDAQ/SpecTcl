@@ -312,7 +312,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 class Rend2dDialog : public XMCustomDialog, public Rend2dForm {
  public:
-  Rend2dDialog(char *name, XMWidget *parent, char *title) :
+  Rend2dDialog(const char *name, XMWidget *parent, const char *title) :
     XMCustomDialog(name, *parent, title),
     Rend2dForm(name, *work_area)
       {
@@ -329,7 +329,7 @@ class Rend2dDialog : public XMCustomDialog, public Rend2dForm {
 */
 static Rend2dDialog *dialog = NULL;	/* Dialog handle. */
 
-static char *help_text[] = {
+static const  char *help_text[] = {
   "  This dialog prompts you for the default 2-d histogram rendition\n",
   "The following renditions are supported:\n\n",
   "     Color    - Each channel is represented by a Color which indicates\n",
@@ -367,7 +367,7 @@ static Xamine_help_client_data help = { "Rend2d_help", NULL, help_text };
 **   XMForm &work_area:
 **     The form which parents the widgets we create.
 */
- Rend2dForm::Rend2dForm(char *name, XMForm &work_area)
+ Rend2dForm::Rend2dForm(const char *name, XMForm &work_area)
 {
   /* Create the radio box's manager widget and set it up. */
 

@@ -339,7 +339,7 @@ class XMMessageBox : public XMManagedWidget
   
   virtual ~XMMessageBox();
   
-  XMMessageBox(char *n);
+  XMMessageBox(const char *n);
   
   XMMessageBox(Widget w);
   
@@ -351,7 +351,7 @@ class XMMessageBox : public XMManagedWidget
   
   /* Modify the dialog text: */
   
-  virtual void SetText(char *txt);
+  virtual void SetText(const char *txt);
   
   /* Add Ok/Cancel callbacks: */
   
@@ -367,9 +367,9 @@ class XMMessageBox : public XMManagedWidget
   
   /* Label cancel/Help/OK buttons */
   
-  void LabelCancelButton(char *txt);
-  void LabelOkButton(char *txt);
-  void LabelHelpButton(char *txt);
+  void LabelCancelButton(const char *txt);
+  void LabelOkButton(const char *txt);
+  void LabelHelpButton(const char *txt);
   
   /* Set default button types: */
   
@@ -390,13 +390,15 @@ class XMErrorDialog : public XMMessageBox
 {
  public:
   /*  Constructors: */
-  XMErrorDialog(char *n, Widget parent, char *msg,
+  XMErrorDialog(const char *n, Widget parent, 
+		const char *msg,
 		void (*cb)(XMWidget *,
 			   XtPointer, XtPointer) = NULL,
 		XtPointer cbd = NULL,
 		ArgList list = NULL, Cardinal argcount = 0);
 
-  XMErrorDialog(char *n, XMWidget &parent, char *msg,
+  XMErrorDialog(const char *n, XMWidget &parent,
+		const char *msg,
 		void (*cb)(XMWidget *,
 			   XtPointer, XtPointer) = NULL,
 		XtPointer cbd = NULL,
@@ -412,13 +414,15 @@ class XMInformationDialog : public XMMessageBox
 {
  public:
   /*  Constructors: */
-  XMInformationDialog(char *n,Widget parent, char *msg,
+  XMInformationDialog(const char *n,Widget parent, 
+		      const char *msg,
 		      void (*cb)(XMWidget *,
 				 XtPointer, XtPointer) = NULL,
 		      XtPointer cbd = NULL,
 		      ArgList list = NULL, Cardinal argcount=0);
 
-  XMInformationDialog(char *n, XMWidget &parent, char *msg,
+  XMInformationDialog(const char *n, XMWidget &parent, 
+		      const char *msg,
 		      void (*cb)(XMWidget *,
 				 XtPointer, XtPointer) = NULL,
 		      XtPointer cbd = NULL,
@@ -434,12 +438,14 @@ class XMMessageDialog : public XMMessageBox
 {
  public:
   /*  Constructors: */
-  XMMessageDialog(char *n,Widget parent, char *msg,
+  XMMessageDialog(const char *n,Widget parent, 
+		  const char *msg,
 		  void (*cb)(XMWidget *,
 			     XtPointer, XtPointer) = NULL,
 		  XtPointer cbd = NULL,
 		  ArgList list = NULL, Cardinal argcount=0);
-  XMMessageDialog(char *n, XMWidget &parent, char *msg,
+  XMMessageDialog(const char *n, XMWidget &parent, 
+		  const char *msg,
 		  void (*cb)(XMWidget *,
 			     XtPointer, XtPointer) = NULL,
 		  XtPointer cbd = NULL,
@@ -453,12 +459,14 @@ class XMQuestionDialog : public XMMessageBox
 {
  public:
   /*  Constructors: */
-  XMQuestionDialog(char *n,Widget parent, char *msg,
+  XMQuestionDialog(const char *n,Widget parent, 
+		   const char *msg,
 		   void (*cb)(XMWidget *,
 			      XtPointer, XtPointer) = NULL,
 		   XtPointer cbd = NULL,
 		   ArgList list = NULL, Cardinal argcount=0);
-  XMQuestionDialog(char *n, XMWidget &parent, char *msg,
+  XMQuestionDialog(const char *n, XMWidget &parent, 
+		   const char *msg,
 		   void (*cb)(XMWidget *,
 			      XtPointer, XtPointer) = NULL,
 		   XtPointer cbd = NULL,
@@ -475,10 +483,10 @@ class XMQuestionDialog : public XMMessageBox
 
 class XMQuestioner : public XMQuestionDialog {
  public:
-  XMQuestioner(char *n, Widget parent, char *msg,
+  XMQuestioner(const char *n, Widget parent, const char *msg,
 	       XtPointer cbd,
 	       ArgList list = NULL, Cardinal argcount = 0);
-  XMQuestioner(char *n, XMWidget &parent, char *msg,
+  XMQuestioner(const char *n, XMWidget &parent, const char *msg,
 	       XtPointer cbd,
 	       ArgList list = NULL, Cardinal argcount = 0);
   ~XMQuestioner();
@@ -496,12 +504,12 @@ class XMWarningDialog : public XMMessageBox
 {
  public:
   /*  Constructors: */
-  XMWarningDialog(char *n,Widget parent, char *msg,
+  XMWarningDialog(const char *n,Widget parent, const char *msg,
 		  void (*cb)(XMWidget *,
 			     XtPointer, XtPointer) = NULL,
 		  XtPointer cbd = NULL,
 		  ArgList list = NULL, Cardinal argcount=0);
-  XMWarningDialog(char *n, XMWidget &parent, char *msg,
+  XMWarningDialog(const char *n, XMWidget &parent, const char *msg,
 		  void (*cb)(XMWidget *,
 			     XtPointer, XtPointer) = NULL,
 		  XtPointer cbd = NULL,
@@ -516,12 +524,14 @@ class XMWorkingDialog : public XMMessageBox
 {
  public:
   /*  Constructors: */
-  XMWorkingDialog(char *n,Widget parent, char *msg,
+  XMWorkingDialog(const char *n,Widget parent, 
+		  const char *msg,
 		  void (*cb)(XMWidget *,
 			     XtPointer, XtPointer) = NULL,
 		  XtPointer cbd = NULL,
 		  ArgList list = NULL, Cardinal argcount=0);
-  XMWorkingDialog(char *n, XMWidget &parent, char *msg,
+  XMWorkingDialog(const char *n, XMWidget &parent, 
+		  const char *msg,
 		  void (*cb)(XMWidget *,
 			     XtPointer, XtPointer) = NULL,
 		  XtPointer cbd = NULL,
@@ -543,9 +553,9 @@ class XMWorkingDialog : public XMMessageBox
  */
 
 struct Xamine_help_client_data { 
-  char                *name; /* Widget name */
-  XMInformationDialog *dialog; /* Widget object */
-  char                **text; /* Help text. */
+  const char                *name; /* Widget name */
+  XMInformationDialog       *dialog; /* Widget object */
+  const char                **text; /* Help text. */
 };
 
 /*
@@ -559,8 +569,9 @@ extern Xamine_help_client_data Xamine_Help_Overview;
 ** The following are public entry points to the module:
 */
 
-XMInformationDialog *Xamine_help(char *name, 
-				 XMWidget *parent, char **help_text);
+XMInformationDialog *Xamine_help(const char *name, 
+				 XMWidget *parent, 
+				 const char **help_text);
 void                 Xamine_display_help(XMWidget *caller,
 					 XtPointer client_data,
 					 XtPointer reason = NULL);
@@ -586,7 +597,7 @@ class XMSelection : public XMMessageBox
 	 /*
          ** Constructors and destructors:
 	 */
-	 XMSelection(char *name);
+	 XMSelection(const char *name);
 	 XMSelection(Widget w);
 	 virtual ~XMSelection();
 
@@ -612,12 +623,12 @@ class XMSelection : public XMMessageBox
 	
 	 /* Labelling functions */
 
-	 virtual void SetText(char *txt);
-	 virtual void SetLabelString(char *txt);
+	 virtual void SetText(const char *txt);
+	 virtual void SetLabelString(const char *txt);
 
 	 /* Label the apply buton: */
 
-	 void LabelApplyButton(char *txt);
+	 void LabelApplyButton(const char *txt);
 
 	 /* Set default button: */
 
@@ -638,12 +649,14 @@ class XMPromptDialog : public XMSelection
 	 void GetButtons();
 
        public:
-	 XMPromptDialog(char *n, Widget parent, char *prompt = NULL,
+	 XMPromptDialog(const char *n, Widget parent, 
+			const char *prompt = NULL,
 			void (*cb)(XMWidget *,
 				   XtPointer, XtPointer) = NULL,
 			XtPointer cbd = NULL,
 			ArgList list = NULL, Cardinal argcount = 0);
-	 XMPromptDialog(char *n, XMWidget &parent, char *prompt = NULL,
+	 XMPromptDialog(const char *n, XMWidget &parent, 
+			const char *prompt = NULL,
 			 void (*cb)(XMWidget *,
 				    XtPointer, XtPointer) = NULL,
 			 XtPointer cbd = NULL,
@@ -663,14 +676,16 @@ class XMPromptDialog : public XMSelection
 */
 class XMPrompter : public XMPromptDialog {
  public:
-  XMPrompter(char *name, Widget parent, char *prompt = NULL,
+  XMPrompter(const char *name, Widget parent, 
+	     const char *prompt = NULL,
 	     XtPointer calldata = NULL);
-  XMPrompter(char *name, XMWidget &parent, char *prompt = NULL,
+  XMPrompter(const char *name, XMWidget &parent, 
+	     const char *prompt = NULL,
 	     XtPointer calldata = NULL);
   ~XMPrompter();
 
 
-  void SetHelpText(char **new_help);
+  void SetHelpText(const char **new_help);
   void RevertHelpText();
  protected:
   XMCallback<XMPrompter> ok;
@@ -694,12 +709,14 @@ class XMPrompter : public XMPromptDialog {
 class XMSelectionDialog : public XMSelection
       {
       public:
-	 XMSelectionDialog(char *n, Widget parent, char *prompt = NULL,
+	 XMSelectionDialog(const char *n, Widget parent, 
+			   const char *prompt = NULL,
 			void (*cb)(XMWidget *,
 				   XtPointer, XtPointer) = NULL,
 			XtPointer cbd = NULL,
 			ArgList list = NULL, Cardinal argcount = 0);
-	 XMSelectionDialog(char *n, XMWidget &parent, char *prompt = NULL,
+	 XMSelectionDialog(const char *n, XMWidget &parent, 
+			   const char *prompt = NULL,
 			 void (*cb)(XMWidget *,
 				    XtPointer, XtPointer) = NULL,
 			 XtPointer cbd = NULL,
@@ -743,16 +760,16 @@ class XMSelectionDialog : public XMSelection
 class XMSelector : public XMSelectionDialog
 {
   public:
-     XMSelector(char *n, Widget parent, char *prompt = NULL,
+     XMSelector(const char *n, Widget parent, const char *prompt = NULL,
 		XtPointer cbd = NULL,
 		ArgList list = NULL, Cardinal argcount = 0);
-     XMSelector(char *n, XMWidget &parent, char *prompt = NULL,
+     XMSelector(const char *n, XMWidget &parent, const char *prompt = NULL,
 		XtPointer cbd = NULL,
 		ArgList list = NULL, Cardinal argcount = 0);
      ~XMSelector();
 
      virtual void SetupList();		/* Set up the selectionlist. */
-     void         SetHelpText(char **text);
+     void         SetHelpText(const char **text);
      void         RevertHelpText();
    protected:
      virtual Boolean Perform(XMWidget *wid, XtPointer cd,
@@ -786,14 +803,14 @@ class XMFileListDialog : public XMSelection
 	 void GetButtons();
 								    
        public:
-	 XMFileListDialog(char *n, Widget parent, char 
-			  *directory = XMFILE_DEFAULT_DIRMASK,
+	 XMFileListDialog(const char *n, Widget parent, 
+			  const char *directory = XMFILE_DEFAULT_DIRMASK,
 			void (*cb)(XMWidget *,
 				   XtPointer, XtPointer) = NULL,
 			XtPointer cbd = NULL,
 			ArgList list = NULL, Cardinal argcount = 0);
-	 XMFileListDialog(char *n, XMWidget &parent, 
-			  char *directory = XMFILE_DEFAULT_DIRMASK,
+	 XMFileListDialog(const char *n, XMWidget &parent, 
+			  const char *directory = XMFILE_DEFAULT_DIRMASK,
 			 void (*cb)(XMWidget *,
 				    XtPointer, XtPointer) = NULL,
 			 XtPointer cbd = NULL,
@@ -810,8 +827,8 @@ class XMFileListDialog : public XMSelection
 
 	 /* Methods to manipulate the labels: */
 
-	 virtual void SetLabelString(char *txt);
-	 virtual void SetFilterString(char *txt);
+	 virtual void SetLabelString(const char *txt);
+	 virtual void SetFilterString(const char *txt);
 
 	 /* Set restrictions on the file types searched: */
 
@@ -841,22 +858,22 @@ class XMFileListDialog : public XMSelection
 class XMFileSelector : public XMFileListDialog
 {
   public:
-    XMFileSelector(char *n, Widget parent, 
+    XMFileSelector(const char *n, Widget parent, 
 		   XtPointer calld = NULL,
-		   char *directory = XMFILE_DEFAULT_DIRMASK);
+		   const char *directory = XMFILE_DEFAULT_DIRMASK);
 
-    XMFileSelector(char *n, XMWidget &parent, 
+    XMFileSelector(const char *n, XMWidget &parent, 
 		   XtPointer ud = NULL,
-		   char *directory = XMFILE_DEFAULT_DIRMASK);
+		   const char *directory = XMFILE_DEFAULT_DIRMASK);
 
 
     ~XMFileSelector();
 		   
-    void SetHelpText(char **text);
+    void SetHelpText(const char **text);
     void RevertHelpText();
   protected:
     virtual Boolean Perform(XMWidget *wid, XtPointer ud,
-			    char *filename,
+			    const char *filename,
 			    int reason);
     virtual void OkCb(XMWidget *wid, XtPointer ud, XtPointer cd);
     virtual void NomatchCb(XMWidget *wid, XtPointer ud, XtPointer cd);
@@ -903,14 +920,17 @@ class XMCustomDialog : public XMWidget /* Create unmanaged for greater layout ct
   XMPushButton  *Apply;
   XMPushButton  *Cancel;
   XMPushButton  *Help;
-  void CreateDialog(char *name, Widget parent, char *title,
+  void CreateDialog(const char *name, Widget parent, 
+		    const char *title,
 		    ArgList l, Cardinal num_args);
  public:
   /* Constructors: */
 
-  XMCustomDialog(char *name, XMWidget &parent, char *title,
+  XMCustomDialog(const char *name, XMWidget &parent, 
+		 const char *title,
 		 ArgList l = NULL, Cardinal num_args = 0); 
-  XMCustomDialog(char *name, Widget parent, char *title,
+  XMCustomDialog(const char *name, Widget parent, 
+		 const char *title,
 		 ArgList l = NULL, Cardinal num_args = 0);
 
   /* Destructors:  */
@@ -955,14 +975,14 @@ class XMCustomDialog : public XMWidget /* Create unmanaged for greater layout ct
 class XMCustomDialogBox : public XMCustomDialog
 {
  public:
-  XMCustomDialogBox(char *name, XMWidget &parent, char *title,
+  XMCustomDialogBox(const char *name, XMWidget &parent, const char *title,
 		    ArgList l= NULL, Cardinal num_args=0);
-  XMCustomDialogBox(char *name, Widget parent, char *title,
+  XMCustomDialogBox(const char *name, Widget parent, const char *title,
 		    ArgList l=NULL, Cardinal num_args=0);
   ~XMCustomDialogBox();
 
 
-  void SetHelpText(char **help_text);
+  void SetHelpText(const char **help_text);
   void RevertHelpText();
 
  protected:

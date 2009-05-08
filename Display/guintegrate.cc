@@ -498,7 +498,7 @@ void Xamine_Integrate(XMWidget *wid, XtPointer ud, XtPointer cd)
   /* If necessary, instantiate the widget:  */
 
   if(dialog == NULL) {
-    dialog = new IntegrationDisplay("Integration", *wid, 20, 80);
+    dialog = new IntegrationDisplay(const_cast<char*>("Integration"), *wid, 20, 80);
     dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 

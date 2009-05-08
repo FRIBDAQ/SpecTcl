@@ -358,8 +358,8 @@ extern spec_shared *xamine_shared;
 **    char **help_text:
 **      Possibly null pointer to the help text strings.
 */
- GraphicalInput::GraphicalInput(XMWidget *parent, char *name, 
-				char **help_text) :
+ GraphicalInput::GraphicalInput(XMWidget *parent, const char *name, 
+				const char **help_text) :
   XMCustomDialog(name, *parent, "Graphical Input")
 {
   /* Set up the help button */

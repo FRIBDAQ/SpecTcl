@@ -1,3 +1,18 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2005.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Author:
+             Ron Fox
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
+*/
 #include <config.h>
 #include "XMWidget.h"
 using namespace std;
@@ -5,7 +20,7 @@ using namespace std;
 ** Implementation of functions from class XMApplication
 */
 
-XMApplication::XMApplication(char *cl, Cardinal *argc, char **argv,
+XMApplication::XMApplication(const char *cl, Cardinal *argc, const char **argv,
 			     XrmOptionDescList options , 
 			     Cardinal noptions,
 			     const char **fallback_resources,
@@ -16,10 +31,10 @@ XMApplication::XMApplication(char *cl, Cardinal *argc, char **argv,
 				   app_class, options,
 				   noptions,
 				   (int *)
-				   argc, argv,
-				   (String *)
-				   fallback_resources,
-				   args, num_args);
+				   argc, 
+				   const_cast<char**>(argv),
+				   const_cast<char**>(fallback_resources),
+				   (args), num_args);
 }
 
 void
@@ -89,7 +104,7 @@ XMApplication::GetAttribute(String attribute, XtArgVal value)
 ** Implementation of functions for class XMWidget 
 */
 
-XMWidget::XMWidget(char *n)
+XMWidget::XMWidget(const char *n)
 {
   strcpy(name, n);
   /* Null constructor to allow full override. */
@@ -101,19 +116,19 @@ XMWidget::XMWidget(Widget w)
   strcpy(name, XtName(id));
 }
 
-XMWidget::XMWidget(char *n, WidgetClass cl, XMApplication &parent,
+XMWidget::XMWidget(const char *n, WidgetClass cl, XMApplication &parent,
 		   ArgList l, Cardinal num_args)
 {
   Create(n, cl, parent.getid(), l, num_args);
 }
 
-XMWidget::XMWidget(char *n, WidgetClass cl, Widget parent,
+XMWidget::XMWidget(const char *n, WidgetClass cl, Widget parent,
 		   ArgList l, Cardinal num_args)
 {
   Create(n, cl, parent, l, num_args);
 }
 
-XMWidget::XMWidget(char *n, WidgetClass cl, XMWidget &parent,
+XMWidget::XMWidget(const char *n, WidgetClass cl, XMWidget &parent,
 		   ArgList l, Cardinal num_args)
 {
   Create(n, cl, parent.getid(), l, num_args);
@@ -143,17 +158,17 @@ XMWidget::getid() { return id; }
 Widget
 XMWidget::getparent() { return XtParent(id); }
 
-char*
+const char*
 XMWidget::getname() { return name; }
 
 void
-XMWidget::SetAttribute(String attribute, XtArgVal value) 
+XMWidget::SetAttribute(const char* attribute, XtArgVal value) 
 {
   XtVaSetValues(id, attribute, value, NULL);
 }
 
 void
-XMWidget::SetAttribute(String attribute, void *value)
+XMWidget::SetAttribute(const char* attribute, void *value)
 {
   XtVaSetValues(id, attribute, value, NULL);
 }
@@ -238,7 +253,7 @@ void
 XMWidget::UnRealize() { XtUnrealizeWidget(id); }
 
 void
-XMWidget::Create(char *n, WidgetClass cl, Widget parent,
+XMWidget::Create(const char *n, WidgetClass cl, Widget parent,
 		 ArgList l, Cardinal num_args)
 {
   strcpy(name,n);
@@ -249,18 +264,18 @@ XMWidget::Create(char *n, WidgetClass cl, Widget parent,
 ** Implementation of functions from class XMManagedWidget
 */
 
-XMManagedWidget::XMManagedWidget(char *n) :
+XMManagedWidget::XMManagedWidget(const char *n) :
   XMWidget(n)
 { /* Null default constructor to allow full override */ }
 
-XMManagedWidget::XMManagedWidget(char *n, WidgetClass cl, Widget parent,
+XMManagedWidget::XMManagedWidget(const char *n, WidgetClass cl, Widget parent,
 				 ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args)
 { 
   Manage();
 }
 
-XMManagedWidget::XMManagedWidget(char *n, WidgetClass cl, XMWidget &parent,
+XMManagedWidget::XMManagedWidget(const char *n, WidgetClass cl, XMWidget &parent,
 				 ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args)
 {

@@ -88,7 +88,7 @@ public:				// Data types:
     notswitch
   };
   struct GateFactoryTable {	//!< Drives the decoding of gate definition strings.
-    char*                  pGateType; //!< Textual gate type.
+    const char*                  pGateType; //!< Textual gate type.
     CGateFactory::GateType eGateType; //!< Gate factory gate type enum.
     Bool_t                 fGateList; //!< kfTRUE if list is a list of gates.
     UInt_t                 nParameters; //!< Number of parameters involved.

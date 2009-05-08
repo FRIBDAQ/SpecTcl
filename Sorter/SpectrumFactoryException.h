@@ -440,8 +440,8 @@ public:
   // Utilities:
 
 protected:
-  static char* DataType(DataType_t eType);
-  static char* SpectrumType(SpectrumType_t eType);
+  static const char* DataType(DataType_t eType);
+  static const char* SpectrumType(SpectrumType_t eType);
   const static char* MessageText(SpectrumErrorReason_t eReason);
   void  UpdateMessage();
 

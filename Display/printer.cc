@@ -489,7 +489,7 @@ static SetupPrintDialog *dialog = NULL;
 
 static PrintSpectrumDialog* ps_dialog = NULL;
 
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog is prompting you for the printer setup.  The top part of\n",
   "the dialog allows you to set up the printer type, the name of a temporary\n",
   "file that is used to hold the print information and an operating system\n",
@@ -508,7 +508,7 @@ static char *help_text[] = {
   NULL
   };
 
-static char *help_setup_text[] = {
+static const  char *help_setup_text[] = {
   "                 *****This dialog is prompting you for the page setup and spectrum options.*****\n\n",
   "The dialog is broken up into three tabs, each of which controls a\n",
   "separate aspect of the printing.\n\n",
@@ -708,7 +708,7 @@ char* PrintSpectrumDialog::getrows()
   return t_rows->GetText();
 }
 
-void PrintSpectrumDialog::setrows(char* r)
+void PrintSpectrumDialog::setrows(const char* r)
 {
   t_rows->SetText(r);
 }
@@ -718,7 +718,7 @@ char* PrintSpectrumDialog::getcols()
   return t_cols->GetText();
 }
 
-void PrintSpectrumDialog::setcols(char* c)
+void PrintSpectrumDialog::setcols(const char* c)
 {
   t_cols->SetText(c);
 }
@@ -728,7 +728,7 @@ char* PrintSpectrumDialog::gettitle()
   return t_title->GetText();
 }
 
-void PrintSpectrumDialog::settitle(char* n)
+void PrintSpectrumDialog::settitle(const char* n)
 {
   t_title->SetText(n);
 }
@@ -738,7 +738,7 @@ char* PrintSpectrumDialog::getxname()
   return t_name_x->GetText();
 }
 
-void PrintSpectrumDialog::setxname(char* n)
+void PrintSpectrumDialog::setxname(const char* n)
 {
   t_name_x->SetText(n);
 }
@@ -748,7 +748,7 @@ char* PrintSpectrumDialog::getyname()
   return t_name_y->GetText();
 }
 
-void PrintSpectrumDialog::setyname(char* n)
+void PrintSpectrumDialog::setyname(const char* n)
 {
   t_name_y->SetText(n);
 }
@@ -770,7 +770,7 @@ float PrintSpectrumDialog::getxlen()
   return dLenInCm;
 }
 
-void PrintSpectrumDialog::setxlen(char* n)
+void PrintSpectrumDialog::setxlen(const char* n)
 {
   t_length_x->SetText(n);
 }
@@ -793,7 +793,7 @@ float PrintSpectrumDialog::getylen()
   return dLenInCm;
 }
 
-void PrintSpectrumDialog::setylen(char* n)
+void PrintSpectrumDialog::setylen(const char* n)
 {
   t_length_y->SetText(n);
 }
@@ -803,7 +803,7 @@ char* PrintSpectrumDialog::getcontour_inc()
   return t_contour_inc->GetText();
 }
 
-void PrintSpectrumDialog::setcontour_inc(char* inc)
+void PrintSpectrumDialog::setcontour_inc(const char* inc)
 {
   t_contour_inc->SetText(inc);
 }
@@ -816,7 +816,7 @@ double PrintSpectrumDialog::getxmajor()
     return atof(t_xmajor->GetText());
 }
 
-void PrintSpectrumDialog::setxmajor(char* maj)
+void PrintSpectrumDialog::setxmajor(const char* maj)
 {
   t_xmajor->SetText(maj);
 }
@@ -829,7 +829,7 @@ double PrintSpectrumDialog::getxminor()
     return atof(t_xminor->GetText());
 }
 
-void PrintSpectrumDialog::setxminor(char* min)
+void PrintSpectrumDialog::setxminor(const char* min)
 {
   t_xminor->SetText(min);
 }
@@ -842,7 +842,7 @@ double PrintSpectrumDialog::getymajor()
     return atof(t_ymajor->GetText());
 }
 
-void PrintSpectrumDialog::setymajor(char* maj)
+void PrintSpectrumDialog::setymajor(const char* maj)
 {
   t_ymajor->SetText(maj);
 }
@@ -855,17 +855,17 @@ double PrintSpectrumDialog::getyminor()
     return atof(t_yminor->GetText());
 }
 
-void PrintSpectrumDialog::setyminor(char* min)
+void PrintSpectrumDialog::setyminor(const char* min)
 {
   t_yminor->SetText(min);
 }
 
-void PrintSpectrumDialog::setcmd(char* prtcmd)
+void PrintSpectrumDialog::setcmd(const char* prtcmd)
 {
   t_cmd->SetText(prtcmd);
 }
 
-void PrintSpectrumDialog::setfile(char* f)
+void PrintSpectrumDialog::setfile(const char* f)
 {
   t_file->SetText(f);
 }
@@ -879,7 +879,7 @@ char* PrintSpectrumDialog::gettype()
 {
   char* string;
   XmStringTable st = list_type->GetSelectedItems();
-  XmStringGetLtoR(st[0], XmSTRING_DEFAULT_CHARSET, &string);
+  XmStringGetLtoR(st[0], const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &string);
   return string;
 }
 
@@ -1909,7 +1909,8 @@ void Xamine_SetupPrinter(XMWidget *w, XtPointer user, XtPointer call)
   /* must be specified.                                                  */
 
   if(!dialog) {
-    dialog = new SetupPrintDialog("PrinterSetup", w, "Setup Printer Options");
+    dialog = new SetupPrintDialog(const_cast<char*>("PrinterSetup"), w, 
+				  const_cast<char*>("Setup Printer Options"));
 
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);
@@ -1947,8 +1948,8 @@ void Xamine_PrintSpectrumDialog(XMWidget* w, XtPointer user, XtPointer call)
     delete ps_dialog;
     ps_dialog = NULL;
   }
-  ps_dialog = new PrintSpectrumDialog("PrintSpectrum", w, 
-				      "Print Spectrum Options");
+  ps_dialog = new PrintSpectrumDialog(const_cast<char*>("PrintSpectrum"), w, 
+				      const_cast<char*>("Print Spectrum Options"));
   ps_dialog->AddOkCallback(TabsActionCallback, ps_dialog);
   ps_dialog->AddCancelCallback(TabsActionCallback, ps_dialog);
   ps_dialog->AddHelpCallback(Xamine_display_help, &help_setup);

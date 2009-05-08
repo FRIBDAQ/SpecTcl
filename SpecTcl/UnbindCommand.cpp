@@ -326,7 +326,7 @@ using namespace std;
 // Static storage.
 
 struct SwitchTableEntry {
-  char*  pSwitch;		// Text of switch.
+  const char*  pSwitch;		// Text of switch.
   CUnbindCommand::Switch eValue;		// Value associated with switch.
 };
 

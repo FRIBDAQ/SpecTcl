@@ -322,7 +322,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Below is the help definition for the dialog
 */
 
-static char *help_text[] = {
+static const  char *help_text[] = {
   "   This dialog allows you to set the selection advance value.  This is\n",
   "number of panes by which the selection will advance on completing a\n",
   "successful `Display +'.  Type in a numeric value other than zero\n",
@@ -370,7 +370,7 @@ void callback_handler(XMWidget *w, XtPointer clidata, XtPointer caldata)
   switch(why->reason) {
   case XmCR_OK:
   case XmCR_APPLY:
-    if(!XmStringGetLtoR(why->value, XmSTRING_DEFAULT_CHARSET, &value_txt)) {
+    if(!XmStringGetLtoR(why->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &value_txt)) {
       Xamine_error_msg(w,
 		       "Unable to extract result string");
       return;

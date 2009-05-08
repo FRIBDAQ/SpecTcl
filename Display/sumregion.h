@@ -376,7 +376,8 @@ class AcceptSummingRegion : public ObjectInput {
 
   /* Constructors and destructors: */
 
-  AcceptSummingRegion(char *name, XMWidget *parent, char **help_text = NULL);
+  AcceptSummingRegion(const char *name, XMWidget *parent, 
+		      const char **help_text = NULL);
   virtual ~AcceptSummingRegion();
 
   /* Virtual functions which are pure in the base class: */

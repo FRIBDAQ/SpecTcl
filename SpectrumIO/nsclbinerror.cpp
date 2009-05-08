@@ -297,7 +297,7 @@ See nsclbinerror.h for an explanation of the classes.
 
 
 
-static char* fileerrorstrings[] = {
+static const  char* fileerrorstrings[] = {
   "File error: Empty stream.",
   "File error: error reading header.",
   "File error: read error from data object.",
@@ -318,7 +318,7 @@ const char* nsclfileerror::reasontext() {
 }
 
 
-static char* operrorstrings[] = {
+static const  char* operrorstrings[] = {
   "Header error: invalid format.",
   "Header error: invalid header.",
   "Cannot write without setup.",

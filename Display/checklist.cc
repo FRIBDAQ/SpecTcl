@@ -330,8 +330,8 @@ typedef CheckElement *pCheckElement;
 **     The text string for the extra label, defaults to NULL in which
 **     case no label will be set.
 */
-CheckElement::CheckElement(char *name, XMWidget *parent, Boolean state,
-			   char *blabel, char *labels) : 
+CheckElement::CheckElement(const char *name, XMWidget *parent, Boolean state,
+			   const char *blabel, const char *labels) : 
        XMForm(name, *parent)
 {
 
@@ -383,7 +383,7 @@ CheckElement::~CheckElement()
 **         Pointer to new label string.  Note that if this is null we'll
 **         put in an empty string on the caller's behalf.
 */
-void CheckElement::SetButtonString(char *newlabel)
+void CheckElement::SetButtonString(const char *newlabel)
 {
   if(newlabel)
     button->Label(newlabel);
@@ -400,7 +400,7 @@ void CheckElement::SetButtonString(char *newlabel)
 **      The new label string.  If NULL, we provide a null string for the
 **      caller.
 */
-void CheckElement::SetLabelString(char *newlabel)
+void CheckElement::SetLabelString(const char *newlabel)
 {
   if(newlabel) 
     label->SetLabel(newlabel);
@@ -474,9 +474,10 @@ void  CheckElement::UnManage()
 **       If non null, an array of button_count strings.  The non null ones
 **       are labels for the extra label strings in the button checklists.
 */
-CheckList::CheckList(char *name,   XMWidget *parent,
-		     char *title,  int button_count,
-		     char **buttonstrings, char **labelstrings) :
+CheckList::CheckList(const char *name,   XMWidget *parent,
+		     const char *title,  int button_count,
+		     const char **buttonstrings, 
+		     const char **labelstrings) :
        XMForm(name, *parent)
 {
   nchecks = button_count;
@@ -556,7 +557,7 @@ CheckList::~CheckList()
 **   char *string:
 **      New string.  If null, we supply a blank.
 */
-void CheckList::SetButtonString(int num, char *string)
+void CheckList::SetButtonString(int num, const  char *string)
 {
   /* Do nothing for out of range button number */
 
@@ -575,7 +576,7 @@ void CheckList::SetButtonString(int num, char *string)
 **   char *str:
 **     New label string.
 */
-void CheckList::SetLabelString(int num, char *str)
+void CheckList::SetLabelString(int num, const char *str)
 {
  /* Do nothing for out of range button number */
 

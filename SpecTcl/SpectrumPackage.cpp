@@ -149,7 +149,7 @@ UInt_t CSpectrumPackage::m_nNextId = 0;
 // Static unbound members:
 
 struct SpecTypes {
-  char           *pName;
+  const char           *pName;
   SpectrumType_t eType;
 };
 
@@ -172,7 +172,7 @@ static const SpecTypes aSpecTypes[] = {
 static const UInt_t nSpecTypes = sizeof(aSpecTypes)/sizeof(SpecTypes);
 
 struct DataTypes {
-  char*      pName;
+  const char*      pName;
   DataType_t eType;
 };
 

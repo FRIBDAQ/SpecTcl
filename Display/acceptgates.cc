@@ -92,7 +92,7 @@ extern volatile spec_shared *xamine_shared;
 ** The text below is the help text for the dialog that accepts summing
 ** regions:
 */
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog prompts you to enter the points that make up a gate.\n",
   "Gates are graphical objects which are passed to Xamine's client program\n",
   "and interpreted by the client. \n\n",
@@ -136,7 +136,8 @@ class AcceptCut : public AcceptSummingRegion
 
   /* Constructors and destructors: */
 
-  AcceptCut(char *name, XMWidget *parent, char **help_text = NULL);
+  AcceptCut(const char *name, XMWidget *parent, 
+	    const char **help_text = NULL);
   virtual ~AcceptCut();
 
   /* Replacements for virtual functions in AcceptSummingRegion: */
@@ -155,7 +156,8 @@ class AcceptContour : public AcceptSummingRegion
 
   /* Constructors and destructors: */
 
-  AcceptContour(char *name, XMWidget *parent, char **help_text = NULL);
+  AcceptContour(const char *name, XMWidget *parent, 
+		const char **help_text = NULL);
   virtual ~AcceptContour();
 
   /* Replacements for virtual functions in AcceptSummingRegion: */
@@ -173,7 +175,7 @@ class AcceptBand : public AcceptSummingRegion
 
   /* Constructors and destructors: */
 
-  AcceptBand(char *name, XMWidget *parent, char **help_text = NULL);
+  AcceptBand(const char *name, XMWidget *parent, const char **help_text = NULL);
   virtual ~AcceptBand();
 
   /* Replacements for virtual functions in AcceptSummingRegion: */
@@ -212,7 +214,7 @@ AcceptBand     *bandin = NULL;
 **   char **help_text:
 **     Help text pointer, or NULL If help is not available for the dialog.
 */
-AcceptCut::AcceptCut(char* name, XMWidget* parent, char** help_text) :
+AcceptCut::AcceptCut(const char* name, XMWidget* parent, const char** help_text) :
        AcceptSummingRegion(name, parent, help_text) 
 {
   object = (grobj_generic *)new grobj_cut1d;
@@ -231,7 +233,7 @@ AcceptCut::AcceptCut(char* name, XMWidget* parent, char** help_text) :
 **    char **help_text:
 **      Help text if present or NULL if there is no help.
 */
-AcceptContour::AcceptContour(char *name, XMWidget *parent, char **help_text) :
+AcceptContour::AcceptContour(const char *name, XMWidget *parent, const char **help_text) :
        AcceptSummingRegion(name, parent, help_text)
 {
   object = (grobj_generic *) new grobj_contour;
@@ -249,7 +251,7 @@ AcceptContour::AcceptContour(char *name, XMWidget *parent, char **help_text) :
 **   char **help_text:
 **      Help text if any, NULL If none.
 */
-AcceptBand::AcceptBand(char *name, XMWidget *parent, char **help_text) :
+AcceptBand::AcceptBand(const char *name, XMWidget *parent, const char **help_text) :
      AcceptSummingRegion(name, parent, help_text)
 {
   object = (grobj_generic *)new grobj_band;
@@ -699,7 +701,8 @@ void Xamine_AcceptGate(XMWidget *w, XtPointer clientd, XtPointer calld)
   switch (object_type) {
   case cut_1d:
     if(cutin == NULL) {
-      cutin = new AcceptCut("Slice_Prompt", w, help_text);
+      cutin = new AcceptCut("Slice_Prompt", w, 
+			    help_text);
       cutin->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			 (XtPointer)&cutin);
       cutin->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput,
@@ -710,7 +713,8 @@ void Xamine_AcceptGate(XMWidget *w, XtPointer clientd, XtPointer calld)
     break;
   case contour_2d:
     if(contin == NULL) {
-      contin = new AcceptContour("Contour_prompt", w, help_text);
+      contin = new AcceptContour("Contour_prompt", w, 
+				 help_text);
       contin->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			  (XtPointer)&contin);
       contin->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput,
@@ -720,7 +724,8 @@ void Xamine_AcceptGate(XMWidget *w, XtPointer clientd, XtPointer calld)
     break;
   case band:
     if(bandin == NULL) {
-      bandin = new AcceptBand("Band input", w, help_text);
+      bandin = new AcceptBand("Band input", w, 
+			      help_text);
       bandin->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			  (XtPointer)&bandin);
       bandin->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput,

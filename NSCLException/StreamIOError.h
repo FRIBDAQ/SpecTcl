@@ -328,7 +328,7 @@ private:
   IoStreamConditions m_eReason; //Reason for the throw
   STD(ios)&          m_rStream; //Reference to stream <may be invalid>
   char               m_sReasonText[1000]; // Reason for failure built here.
-  static char**      m_svErrorMessages; //Pointer to error message table.      
+  static const  char**      m_svErrorMessages; //Pointer to error message table.      
 
 
 public:

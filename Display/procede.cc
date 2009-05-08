@@ -375,7 +375,7 @@ DestroyedCallback(XMWidget* pWidget, XtPointer pEvent, XtPointer pClient)
 **    FALSE  - if Cancel accepted.
 */
 
-int Procede(XMWidget *parent, char *prompt)
+int Procede(XMWidget *parent, const char *prompt)
 {
   answer = UNANSWERED;		//  Could use several times.
   XtAppContext app;

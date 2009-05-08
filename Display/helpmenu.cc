@@ -330,7 +330,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Static local declarations of the help strings and associated dialogs. 
 */
 
-static char *About[]
+static const  char *About[]
   = { "Xamine -- The NSCL X/Motif histogram display program\n",
       "               Author: Ron Fox\n",
       "                       NSCL\n",
@@ -361,11 +361,11 @@ static char *About[]
       "                        Port to gcc/g++ 3.x\n",
 	NULL
 	};
-static char *aboutname = "About";   /* For VMS C++ compiler bug */
+static const char *aboutname = "About";   /* For VMS C++ compiler bug */
 
 Xamine_help_client_data Xamine_About = { aboutname, NULL, About };
                        
-static char *Help[] 
+static const char *Help[] 
   = { "Xamine is the NSCL X/Motif histogram display program\n\n",
       "   The highlighted pane is the \"selected\" pane. All operations\n",
       " that require a pane are performed on that pane. To get a feel\n",
@@ -381,7 +381,7 @@ static char *Help[]
       NULL
       };
 
-static char *overname = "Help_Overview";
+static const  char *overname = "Help_Overview";
 Xamine_help_client_data Xamine_Help_Overview = {overname,  NULL, Help };
 
 
@@ -412,10 +412,10 @@ Xamine_help_client_data Xamine_Help_Overview = {overname,  NULL, Help };
 **    XMInformationDialog *  - Pointer to the created information dialog.
 **    NULL                   - If failed.
 */
-XMInformationDialog *Xamine_help(char *name, XMWidget *parent, 
-				 char **help_text)
+XMInformationDialog *Xamine_help(const char *name, XMWidget *parent, 
+				 const char **help_text)
 {
-  char **ht;			/* Used to traverse the help text. */
+  const char **ht;			/* Used to traverse the help text. */
   int    ht_size;		/* Number of characters of help text. */
   char *help;			/* Points to the concatenated strings. */
   XMInformationDialog *dialog;	/* Will point to the dialog.          */

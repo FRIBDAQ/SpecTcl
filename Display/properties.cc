@@ -323,7 +323,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 extern volatile spec_shared *xamine_shared;
 
-static char *help_text[]  = {
+static const  char *help_text[]  = {
   "  This dialog allows you to change the properties of the currently \n",
   "selected spectrum.  When the dialog is first presented, it shows the\n",
   "current settings for the selected spectrum.  Modify them as you see fit\n",
@@ -474,7 +474,7 @@ class PropertyDialog : public XMCustomDialog,
                        public RefreshForm
 {
  public:
-  PropertyDialog(char *name, XMWidget &parent, char *title) :
+  PropertyDialog(const char *name, XMWidget &parent, const char *title) :
     XMCustomDialog(name, parent, title),
     PropertyForm(*work_area),
     AxisForm("Axis_Prompt", *axis_labels),

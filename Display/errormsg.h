@@ -301,6 +301,6 @@ DAMAGES.
 #include "XMDialogs.h"
 #endif
 
-void Xamine_error_msg (XMWidget *parent, char *msg);
+void Xamine_error_msg (XMWidget *parent, const char *msg);
 
 #endif

@@ -33,7 +33,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **   East Lansing, MI 48824-1321
 */
 
-static char *sccsinfo="@(#)griprint.cc	4.3 9/23/02 ";
+static const char *sccsinfo="@(#)griprint.cc	4.3 9/23/02 ";
 
 
 /*

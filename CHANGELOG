@@ -598,5 +598,7 @@ April 4, 2008  - Ensure that Xamine_DestroyGraphicalInput invokes cancel
 April 22,2008 - Correct bin width computations in CAxis. Per Thomas Baumaann
 
 3.1-009
-February 18, 2008 - Modify Xamine's button bar so it's got a black backround when
+February 18, 2009 - Modify Xamine's button bar so it's got a black backround when
                     test software is installed.
+3.1-010
+May 8, 2009          - Port to Debian lenny.

@@ -54,7 +54,7 @@ static const int MAXRESBITS(32); // Maximum resolution value.
 typedef vector<string>::iterator StrVectorIterator;
 
 struct SwitchInfo {
-  char*   pSwitch;
+  const char*   pSwitch;
   CSpectrumCommand::Switch  Value;
 };
 static const SwitchInfo SwitchTable[] = {

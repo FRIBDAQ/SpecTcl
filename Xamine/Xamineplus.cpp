@@ -522,7 +522,8 @@ CXamine::DefineSpectrum(CXamineSpectrum& rSpectrum)
 			const_cast<char*>(Xmap.getUnits().c_str()));
       }
       else {
-	Xamine_SetMap1d(nSpectrum, 0.0, 0.0, "");
+	Xamine_SetMap1d(nSpectrum, 0.0, 0.0, 
+			const_cast<char*>(""));
       }
       CXamine1D result(m_pDisplay, nSpectrum-1);
       *p1d  = result;

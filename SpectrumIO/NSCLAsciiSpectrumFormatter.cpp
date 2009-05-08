@@ -107,11 +107,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 using namespace std;
 #endif
 
-static char* pCopyrightNotice = 
+static const char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved NSCLAsciiSpectrumFormatter.cpp \n";
 
 static float FormatLevel = 2.0;
-static char* HeaderEnding= "--------------------------------------------\n";
+static const  char* HeaderEnding= "--------------------------------------------\n";
 
 // The stuff below is a table which gives largest values for 
 // various data types.

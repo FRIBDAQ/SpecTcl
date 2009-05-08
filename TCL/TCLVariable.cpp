@@ -356,7 +356,7 @@ CTCLVariable::operator()(char* pName, char* pSubscript, int Flags)
 //   an error.
 //
 
-  return "Unimplemented variable trace.";
+  return const_cast<char*>("Unimplemented variable trace.");
 
 }
 //////////////////////////////////////////////////////////////////////////

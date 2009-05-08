@@ -440,7 +440,7 @@ void Xamine_SetSelectedFlip(int onoff)
 */
 void Xamine_SetSelectedReduction(reduction_mode mode)
 {
-  char *new_mode;
+  const char *new_mode;
 
   switch(mode) {
   case sampled:

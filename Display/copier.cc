@@ -568,7 +568,7 @@ static int GetSelectionList(XMListBaseClass *list, char ***elements)
       list->GetAttribute(XmNselectedItems, &selections);
       for(int i =0; i < nelts; i++) { /* We do our best on failures. */
 	char *el = NULL;
-	XmStringGetLtoR(selections[i], XmSTRING_DEFAULT_CHARSET, &el);
+	XmStringGetLtoR(selections[i], const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &el);
 	els[i] = el;
       }
     }

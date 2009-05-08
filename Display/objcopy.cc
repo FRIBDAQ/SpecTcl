@@ -325,7 +325,9 @@ class Copy_Object : public Copy_Multiselect
 {
  public:
   Copy_Object(XMForm *top, XMForm *bottom) :
-    Copy_Multiselect(top, bottom, "Objects", "Spectra") 
+    Copy_Multiselect(top, bottom, 
+		     const_cast<char*>("Objects"), 
+		     const_cast<char*>("Spectra")) 
                          {
 			   UpdateLeft();
 			   UpdateRight();
@@ -333,7 +335,7 @@ class Copy_Object : public Copy_Multiselect
   virtual ~Copy_Object() {}
   virtual void UpdateLeft();
   virtual void UpdateRight();
-  virtual int CopyItem(char *from , char *to, Copier_Arrow_Direction dir);
+  virtual int CopyItem(const char *from , const char *to, Copier_Arrow_Direction dir);
   void Manage()    { 
                      Copy_Multiselect::Manage(); 
 
@@ -394,7 +396,7 @@ class CopyObjectDialog : public XMCustomDialog
 /*
 ** Static data declarations:
 */
-char *objtype[] = {
+static const char *objtype[] = {
                     "Generic",
 		    "Cut",
 		    "Sum",
@@ -404,7 +406,7 @@ char *objtype[] = {
 		    "Sum",
 		    "Marker"
                   };
-static char *help_text[] = {
+static const char *help_text[] = {
   "This dialog is prompting you to copy objects from the selected spectrum\n",
   "to any compatible spectrum.  To copy an object or set of objects, select\n",
   "the objects you want to copy in the left list, and selecte the set of\n",
@@ -743,7 +745,7 @@ void Copy_Object::UpdateRight()
 **   Copier_Arrow_Direction dir:
 **      Must be right... the arrow direction.
 */
-int Copy_Object::CopyItem(char *from, char *to, Copier_Arrow_Direction dir)
+int Copy_Object::CopyItem(const char *from, const char *to, Copier_Arrow_Direction dir)
 {
   char msg[1000];
 

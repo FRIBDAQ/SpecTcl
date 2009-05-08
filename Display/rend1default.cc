@@ -316,7 +316,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 class Rend1dDialog : public XMCustomDialog, 
                      public Rend1dForm {
   public:
-    Rend1dDialog(char *name, XMWidget *parent, char *title) :
+    Rend1dDialog(const char *name, XMWidget *parent, const char *title) :
       XMCustomDialog(name, *parent, title),
       Rend1dForm(name, *work_area) {
 	Apply->Label("Apply To All");
@@ -337,7 +337,7 @@ class Rend1dDialog : public XMCustomDialog,
 */
 static Rend1dDialog *dialog  = NULL;
 
-static char *help_text[] = 
+static const char *help_text[] = 
 {
   "  This dialog is prompting you to select the default rendition for 1-d\n",
   "histograms.  The following 1-d renditions are currently supported by\n",
@@ -373,7 +373,7 @@ static Xamine_help_client_data help = {"Rend1d_default", NULL, help_text};
 **    XMForm &work_area:
 **      Parent widget form object.
 */
-Rend1dForm::Rend1dForm(char *name, XMForm &work_area)
+Rend1dForm::Rend1dForm(const char *name, XMForm &work_area)
 {
   /* Create and set up the work area row/column manager: */
   /* Create the row column widget and set radio box behavior: */

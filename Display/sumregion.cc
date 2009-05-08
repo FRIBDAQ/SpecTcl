@@ -329,7 +329,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** The text below is the help text for the dialog that accepts summing
 ** regions:
 */
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog prompts you to enter the points that make up a summing\n",
   "region.  A summing region consists of either two points (1-d spectra)\n",
   "which describe a lower and upper limit pair or a coutable set of points\n",
@@ -422,8 +422,8 @@ AcceptSummingRegion::Delete_relay(XMWidget *w, XtPointer ud, XtPointer cd) /* De
 **   char **help_text:
 **      Pointer to the list of help strings.
 */
-AcceptSummingRegion::AcceptSummingRegion(char *name, XMWidget *parent,
-					 char **help_text) :
+AcceptSummingRegion::AcceptSummingRegion(const char *name, XMWidget *parent,
+					 const char **help_text) :
        ObjectInput(parent, name, help_text) 
 {
   /* Build the widgets that will live in the point_prompts form: */

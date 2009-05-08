@@ -291,7 +291,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2010, Al
 //   East Lansing, MI 48824-1321
 //  
 //
-static char* pCopyright=
+static const char* pCopyright=
 "testfile.cpp - (c) Copyright NSCL 1999, all rights reserved\n";
 
 #include <config.h>

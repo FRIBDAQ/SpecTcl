@@ -1,11 +1,28 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2008
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Author:
+             Ron Fox
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
+*/
+
+
 #include <config.h>
 #include "XMPushbutton.h"
 
-XMButton::XMButton(char *n, WidgetClass c, Widget parent)
+XMButton::XMButton(const char *n, WidgetClass c, Widget parent)
   : XMManagedWidget(n, c, parent)
 {}
 
-XMButton::XMButton(char *n, WidgetClass c, XMWidget &parent)
+XMButton::XMButton(const char *n, WidgetClass c, XMWidget &parent)
   : XMManagedWidget(n, c, parent)
 {}
 
@@ -31,11 +48,11 @@ XMButton::Label(XmString label)
 }
 
 void
-XMButton::Label(String label)
+XMButton::Label(const char* label)
 {
   XmString s;
-  s = XmStringCreateLtoR(label, 
-			 XmSTRING_DEFAULT_CHARSET);
+  s = XmStringCreateLtoR(const_cast<char*>(label), 
+			 const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   Label(s);
   XmStringFree(s);
 }
@@ -47,9 +64,9 @@ XMButton::SetMnemonic(KeySym k)
 }
 
 void
-XMButton::SetAccelerator(char *translation, char *prompt)
+XMButton::SetAccelerator(const char *translation, const char *prompt)
 {
-  XmString acctext = XmStringCreateSimple(prompt);
+  XmString acctext = XmStringCreateSimple(const_cast<char*>(prompt));
   XtVaSetValues(id,
 		XmNaccelerator, translation,
 		XmNacceleratorText, acctext,
@@ -58,7 +75,7 @@ XMButton::SetAccelerator(char *translation, char *prompt)
 }
 
 
-XMPushButton::XMPushButton(char *n, Widget parent, 
+XMPushButton::XMPushButton(const char *n, Widget parent, 
 			   void (*cb)(XMWidget *, XtPointer, XtPointer),
 			   XtPointer cd ):
   XMButton(n, xmPushButtonWidgetClass, parent)
@@ -68,7 +85,7 @@ XMPushButton::XMPushButton(char *n, Widget parent,
     XMWidget::AddCallback(XmNactivateCallback, cb, cd);
 }
 
-XMPushButton::XMPushButton(char *n, XMWidget &parent, 
+XMPushButton::XMPushButton(const char *n, XMWidget &parent, 
 			   void (*cb)(XMWidget *, XtPointer, XtPointer),
 			   XtPointer cd):
   XMButton(n, xmPushButtonWidgetClass, parent)
@@ -90,7 +107,7 @@ XMPushButton::AddCallback(void (*cb)(XMWidget *,
 }
 
 
-XMCascadeButton::XMCascadeButton(char *n, Widget parent, 
+XMCascadeButton::XMCascadeButton(const char *n, Widget parent, 
 				 void (*cb)(XMWidget *, XtPointer, XtPointer),
 				 XtPointer cd):
   XMButton(n, xmCascadeButtonWidgetClass, parent)
@@ -100,7 +117,7 @@ XMCascadeButton::XMCascadeButton(char *n, Widget parent,
     XMWidget::AddCallback(XmNactivateCallback, cb, cd);
 }
 
-XMCascadeButton::XMCascadeButton(char *n, XMWidget &parent, 
+XMCascadeButton::XMCascadeButton(const char *n, XMWidget &parent, 
 				 void (*cb)(XMWidget *, XtPointer, XtPointer),
 				 XtPointer cd):
   XMButton(n, xmCascadeButtonWidgetClass, parent)
@@ -134,7 +151,7 @@ XMCascadeButton::AddCallback(void (*cb)(XMWidget *,
 }
 
 
-XMToggleButton::XMToggleButton(char *n, Widget parent,
+XMToggleButton::XMToggleButton(const char *n, Widget parent,
 			       void (*cb)(XMWidget *, XtPointer, XtPointer) ,
 			       XtPointer cd) :
   XMButton(n, xmToggleButtonWidgetClass, parent)
@@ -145,7 +162,7 @@ XMToggleButton::XMToggleButton(char *n, Widget parent,
 			  cb, cd);
 }
 
-XMToggleButton::XMToggleButton(char *n, XMWidget &parent,
+XMToggleButton::XMToggleButton(const char *n, XMWidget &parent,
 			       void (*cb)(XMWidget *, XtPointer, XtPointer) ,
 			       XtPointer cd) :
   XMButton(n, xmToggleButtonWidgetClass, parent)
@@ -219,7 +236,7 @@ XMToggleButton::AddCallback(void (*cb)(XMWidget *,
 }
 
 
-XMArrowButton::XMArrowButton(char *n, Widget parent, 
+XMArrowButton::XMArrowButton(const char *n, Widget parent, 
 			     void (*cb)(XMWidget *, XtPointer, XtPointer) ,
 			     XtPointer cd ) :
   XMButton(n, xmArrowButtonWidgetClass, parent)
@@ -229,7 +246,7 @@ XMArrowButton::XMArrowButton(char *n, Widget parent,
     XMWidget::AddCallback(XmNactivateCallback, cb, cd);
 }
 
-XMArrowButton::XMArrowButton(char *n, XMWidget &parent,
+XMArrowButton::XMArrowButton(const char *n, XMWidget &parent,
 			     void (*cb)(XMWidget *, XtPointer, XtPointer) ,
 			     XtPointer cd ) :
   XMButton(n, xmArrowButtonWidgetClass, parent)
@@ -284,7 +301,7 @@ XMArrowButton::Label(XmString label)
 {}
 
 void
-XMArrowButton::Label(String label)
+XMArrowButton::Label(const char* label)
 {}
 
 void

@@ -362,7 +362,7 @@ static XMInformationDialog *help = NULL;
 static Callback_data *ok  = NULL, 
                      *nomatch = NULL;
 
-static char *confirm_help_text[] = {
+static const  char *confirm_help_text[] = {
   "  The file name that you selected for a write graphical objects operation already\n",
   "exists.  If you click on the \"Cancel\" button then the graphical object file will\n",
   "NOT be written out to that file.  If you click on the \"Confirm\" button\n",
@@ -377,7 +377,7 @@ static Xamine_help_client_data confirm_help = {
 					 confirm_help_text
 					 };
 
-static char *open_help_text[] = {
+static const char *open_help_text[] = {
   "  This file selection box allows you to choose a graphical object file for the\n",
   "operation you just selected.  You can use the mouse to click on a\n",
   "directory in the list of directories on the left side of the box to\n",
@@ -557,7 +557,7 @@ void Xamine_Read_grobj_file(XMWidget *w, XtPointer client_data,
 
   /* Convert the name of the file to a C ASCIZ string: */
 
-  if(!XmStringGetLtoR(reason->value, XmSTRING_DEFAULT_CHARSET, &filename)) {
+  if(!XmStringGetLtoR(reason->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &filename)) {
     fprintf(stderr, 
 	    "Xamine_Read_grobj_file -- Could not get filename string\n");
     exit(-1);
@@ -725,7 +725,7 @@ void Xamine_Write_grobj_file(XMWidget *w, XtPointer client_data,
 
   /* Convert the name of the file to a C ASCIZ string: */
 
-  if(!XmStringGetLtoR(reason->value, XmSTRING_DEFAULT_CHARSET, &filename)) {
+  if(!XmStringGetLtoR(reason->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &filename)) {
     fprintf(stderr, 
 	    "Xamine_Write_grobj_file -- Could not get filename string\n");
     exit(-1);

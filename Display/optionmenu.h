@@ -353,7 +353,7 @@ class AxisForm
   /*
   ** Constructors:
   */
-  AxisForm(char *name, XMForm &parent);
+  AxisForm(const char *name, XMForm &parent);
   /*
   ** Destructors.
   */
@@ -424,7 +424,7 @@ class AttributeForm
  public:
   /*  Constructors and destructors: */
  
-  AttributeForm(char *name, XMForm &parent);
+  AttributeForm(const char *name, XMForm &parent);
   virtual ~AttributeForm() {
     delete flipped;
     delete logscale;
@@ -542,7 +542,7 @@ class ReduceForm
   /*
   **  Constructors and destructors:
   */
-  ReduceForm(char *name, XMForm &parent);
+  ReduceForm(const char *name, XMForm &parent);
   virtual ~ReduceForm() {
     delete Summed;
     delete Averaged;
@@ -586,7 +586,7 @@ class Rend1dForm {
   /* 
   ** Constructors and destructors:
   */
-  Rend1dForm(char *name, XMForm &parent);
+  Rend1dForm(const char *name, XMForm &parent);
   virtual ~Rend1dForm() {
     delete Histogram;
     delete Lines;
@@ -621,7 +621,7 @@ class Rend2dForm {
   /*
   ** Constructors and destructors:
   */
-  Rend2dForm(char *name, XMForm &w);
+  Rend2dForm(const char *name, XMForm &w);
   virtual ~Rend2dForm() {
     delete Color;
     delete Scatter;
@@ -671,7 +671,7 @@ class TitleForm
  public:
   /*  Constructors and destructors: */
 
-  TitleForm(char *name, XMForm &parent);
+  TitleForm(const char *name, XMForm &parent);
   virtual ~TitleForm()
     { delete showname;
       delete shownumber;
@@ -744,7 +744,7 @@ class RefreshForm
  public:
    /* Constructors and destructors: */
 
-   RefreshForm(char *name, XMForm &parent);
+   RefreshForm(const char *name, XMForm &parent);
 
    virtual ~RefreshForm() {
      delete interval;

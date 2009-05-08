@@ -301,6 +301,6 @@ DAMAGES.
 #include "XMDialogs.h"
 #endif
 
-int Procede(XMWidget *parent, char *text);
+int Procede(XMWidget *parent, const char *text);
 
 #endif

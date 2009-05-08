@@ -302,8 +302,8 @@ class LogFile
       {
       protected:
       public:
-	int LogMessage(char *txt);
-	int ContinueMessage(char *txt);	/* Continue a message. */
+	int LogMessage(const char *txt);
+	int ContinueMessage(const char *txt);	/* Continue a message. */
       }; 
 
 void Xamine_SetupLogFile(XMWidget *w, XtPointer userd, XtPointer clientd);

@@ -324,7 +324,7 @@ extern volatile spec_shared *xamine_shared;
 
 class AttributeDialog : public XMCustomDialog, public AttributeForm {
  public:
-  AttributeDialog(char *name, XMWidget &parent, char *title) :
+  AttributeDialog(const char *name, XMWidget &parent, const char *title) :
     XMCustomDialog(name, parent, title),
     AttributeForm(name, *work_area) {
       Apply->Label("Apply To All");
@@ -337,7 +337,7 @@ class AttributeDialog : public XMCustomDialog, public AttributeForm {
 */
 static AttributeDialog *dialog = NULL;	/* Caches pointer to the dialog. */
 
-static char *help_text[] = {
+static const  char *help_text[] = {
   "   This dialog is prompting you to set the default attributes for spectra\n",
   "default attributes affect some aspects of how spectra placed in panes\n",
   "will look. Default attributes do not affect the appearance of spectra\n",
@@ -380,7 +380,7 @@ static Xamine_help_client_data help = {"Attribute_Help", NULL, help_text};
 **   XMWidget *parent:
 **     Parent of the dialog.
 */
-AttributeForm::AttributeForm(char *name, XMForm &work_area)
+AttributeForm::AttributeForm(const char *name, XMForm &work_area)
 {
   /* Create and layout all the widgets as a top to bottom chain.  */
   /* Note that for the text/label pairs, we chain the left to the right */

@@ -164,7 +164,7 @@ char *XMFileListDialog::GetDirectory() {
 
   GetAttribute(XmNdirectory, &dir_compound);
 
-  XmStringGetLtoR(dir_compound, XmSTRING_DEFAULT_CHARSET, &directory);
+  XmStringGetLtoR(dir_compound, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &directory);
   XmStringFree(dir_compound);
   return directory;
 }
@@ -181,7 +181,7 @@ char *XMFileListDialog::GetFileMask()
   char    *mask;
 
   GetAttribute(XmNdirMask, &mask_compound);
-  XmStringGetLtoR(mask_compound, XmSTRING_DEFAULT_CHARSET, &mask);
+  XmStringGetLtoR(mask_compound, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &mask);
   XmStringFree(mask_compound);
   return mask;
 }
@@ -201,7 +201,7 @@ char *XMFileListDialog::GetFullSearchString()
   char     *mask;
 
   GetAttribute(XmNdirSpec, &search_compound);
-  XmStringGetLtoR(search_compound, XmSTRING_DEFAULT_CHARSET, &mask);
+  XmStringGetLtoR(search_compound, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &mask);
   XmStringFree(search_compound);
   return mask;
 }
@@ -225,7 +225,8 @@ char *XMFileListDialog::GetFullSearchString()
 **   Cardinal num_args:
 **     Count of resource argumnts which will be applied to the shell.
 */
-void XMCustomDialog::CreateDialog(char *name, Widget parent, char *title,
+void XMCustomDialog::CreateDialog(const char *name, Widget parent, 
+				  const char* title,
 				  ArgList l, Cardinal num_args)
 {
 
@@ -344,7 +345,7 @@ void XMCustomDialog::UnManage()
 ** dialog objects.
 */
 
-static char *prompter_help[] = {
+static const char *prompter_help[] = {
   "You are being prompted for some text.  Type the text in the text window.\n",
   " When you have edited the text to look like what you want click:  \n\n",
   "   Ok    - To accept the text and remove the dialog.\n",
@@ -373,7 +374,8 @@ static char *prompter_help[] = {
 **     XtPointer calldata:
 **        Optional User data which will be passed to callback routines.
 */
-XMPrompter::XMPrompter(char *name, Widget parent, char *prompt, 
+XMPrompter::XMPrompter(const char *name, Widget parent, 
+		       const char *prompt, 
 		       XtPointer calldata) :
 		       XMPromptDialog(name, parent, prompt),
 		       ok(this),
@@ -397,7 +399,8 @@ XMPrompter::XMPrompter(char *name, Widget parent, char *prompt,
   help_info.dialog    = NULL;
   help_info.text      = prompter_help;
 }
-XMPrompter::XMPrompter(char *name, XMWidget &parent, char *prompt,
+XMPrompter::XMPrompter(const char *name, XMWidget &parent, const 
+char *prompt,
 		       XtPointer calldata) :
 		       XMPromptDialog(name, parent, prompt),
 		       ok(this),
@@ -452,7 +455,7 @@ XMPrompter::~XMPrompter()
 **    List of null terminated text strings to display in the dialog.
 **    The last string pointer should be NULL.
 */
-void XMPrompter::SetHelpText(char **new_help)
+void XMPrompter::SetHelpText(const char **new_help)
 {
   help_info.text = new_help;
 }
@@ -582,7 +585,7 @@ void XMPrompter::HelpCallback(XMWidget *wind, XtPointer userd, XtPointer calld)
 **   Cardinal argcount:
 **      Number of resource entries in 'list'
 */
-XMQuestioner::XMQuestioner(char *n, Widget parent, char *msg, XtPointer cbd,
+XMQuestioner::XMQuestioner(const char *n, Widget parent, const char *msg, XtPointer cbd,
 			   ArgList list, Cardinal argcount) :
 			   XMQuestionDialog(n, parent, msg, 
 					    NULL, cbd, list, 
@@ -594,7 +597,7 @@ XMQuestioner::XMQuestioner(char *n, Widget parent, char *msg, XtPointer cbd,
   nocallback.Register(this, XmNcancelCallback, &XMQuestioner::Nocb, cbd);
   
 }
-XMQuestioner::XMQuestioner(char *n, XMWidget &parent, char *msg, XtPointer cbd,
+XMQuestioner::XMQuestioner(const char *n, XMWidget &parent, const char *msg, XtPointer cbd,
 			   ArgList list, Cardinal argcount) :
 			   XMQuestionDialog(n, parent, msg, 
 					    NULL, cbd, list, 
@@ -651,7 +654,7 @@ void XMQuestioner::Nocb(XMWidget *wid, XtPointer userd, XtPointer calld)
 ** Default help text for selection box widgets.:
 */
 
-static char *SelectionDefaultHelp[] = {
+static const  char *SelectionDefaultHelp[] = {
   "  You are being asked to select an item from the list of choices\n",
   "in the list box part of the widget.  You can select an item either by\n",
   "clicking on it with the mouse or by typing it into the text input\n",
@@ -688,7 +691,7 @@ static char *SelectionDefaultHelp[] = {
 **    Cardinal argcount:
 **       Number of override resource value pairs in list.
 */
-XMSelector::XMSelector(char *name, Widget parent, char *prompt, 
+XMSelector::XMSelector(const char *name, Widget parent, const char *prompt, 
 		       XtPointer cbd, ArgList list, Cardinal argcount) :
 		       XMSelectionDialog(name, parent, prompt, NULL,
 					 cbd, list, argcount),
@@ -720,7 +723,7 @@ XMSelector::XMSelector(char *name, Widget parent, char *prompt,
   SetupList();
 
 }
-XMSelector::XMSelector(char *name, XMWidget &parent, char *prompt,
+XMSelector::XMSelector(const char *name, XMWidget &parent, const char *prompt,
 		       XtPointer cbd, ArgList list, Cardinal argcount) :
 		       XMSelectionDialog(name, parent, prompt, NULL,
 					 cbd, list, argcount),
@@ -792,7 +795,7 @@ void XMSelector::SetupList()
 **    char **newhelp:
 **      New help text.
 */
-void XMSelector::SetHelpText(char **newhelp)
+void XMSelector::SetHelpText(const char **newhelp)
 {
   helpinfo.text = newhelp;
 }
@@ -910,7 +913,7 @@ Boolean XMSelector::Perform(XMWidget *wid, XtPointer cd,
 ** XMFileSelector dialog.
 */
 
-static char *FileSelectorHelp[] = // Default help text for file selector.
+static const char *FileSelectorHelp[] = // Default help text for file selector.
 {
   "  You are being prompted a filename.  If you know the complete name of\n",
   "the file, you can type it in at the text box at the bottom of the work\n",
@@ -976,8 +979,8 @@ static char *FileSelectorHelp[] = // Default help text for file selector.
 **    There is more than one constructor binding.
 */
 
-XMFileSelector::XMFileSelector(char *n, Widget parent, XtPointer calld,
-			       char *directory) :
+XMFileSelector::XMFileSelector(const char *n, Widget parent, XtPointer calld,
+			       const char *directory) :
 		 XMFileListDialog(n, parent, directory),
 		 okcb(this),
 		 nomatchcb(this),
@@ -1002,9 +1005,9 @@ XMFileSelector::XMFileSelector(char *n, Widget parent, XtPointer calld,
   helpinfo.dialog = (XMInformationDialog *)NULL;
   RevertHelpText();
 }   
-XMFileSelector::XMFileSelector(char *n, XMWidget &parent,
+XMFileSelector::XMFileSelector(const char *n, XMWidget &parent,
 			       XtPointer calld, 
-			       char *directory) :
+			       const char *directory) :
 		XMFileListDialog(n, parent, directory),
 		okcb(this),
 		nomatchcb(this),
@@ -1060,7 +1063,7 @@ XMFileSelector::~XMFileSelector()
 **     This is a list of character string pointers terminated by a null
 **     pointer.  Each string itself is Null terminated.
 */
-void XMFileSelector::SetHelpText(char **text)
+void XMFileSelector::SetHelpText(const char **text)
 {
   helpinfo.text = text;
 }   
@@ -1114,7 +1117,7 @@ void XMFileSelector::RevertHelpText()
 **   False  - If the client would like the dialog to remain.
 */
 Boolean XMFileSelector::Perform(XMWidget *wid, XtPointer ud, 
-				char *filename, int reason)
+				const char *filename, int reason)
 {
   return True;			// Default to No-Op all done with dialog.
 }
@@ -1147,7 +1150,7 @@ void XMFileSelector::OkCb(XMWidget *wid, XtPointer ud, XtPointer cd)
 
   char *filename;
 
-  if(!XmStringGetLtoR(calldata->value, XmSTRING_DEFAULT_CHARSET,
+  if(!XmStringGetLtoR(calldata->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET),
 		      &filename)) {
     Xamine_error_msg(this,
 	     "XMFileSelector::OkCb Unable to retreive file name string");
@@ -1248,7 +1251,7 @@ void XMFileSelector::HelpCb(XMWidget *wid, XtPointer ud, XtPointer cd)
 ** it is really difficult to generically describe a custom dialog box,
 ** the user will typically have to replace this text using SetHelpText.
 */
-static char *custom_help[] = {
+static const  char *custom_help[] = {
   "  This is a custom dialog box which was created by a programmer that was\n",
   "too lazy to supply detailed help text about what the dialog does.  Since\n",
   "the work area of the dialog box could be almost anything, I cannot be\n",
@@ -1288,7 +1291,8 @@ static char *custom_help[] = {
 **     Number of arguments in l.
 */
 
-XMCustomDialogBox::XMCustomDialogBox(char *name,XMWidget &parent, char *title,
+XMCustomDialogBox::XMCustomDialogBox(const char *name,XMWidget &parent, 
+				     const char *title,
 				     ArgList l, Cardinal num_args) :
 		   XMCustomDialog(name, parent, title, l, num_args),
 		   OkCb(this),
@@ -1300,7 +1304,8 @@ XMCustomDialogBox::XMCustomDialogBox(char *name,XMWidget &parent, char *title,
   InitializeHelp();		// And set the default help text.
 }   
 
-XMCustomDialogBox::XMCustomDialogBox(char *name, Widget parent, char *title,
+XMCustomDialogBox::XMCustomDialogBox(const char *name, Widget parent, 
+				     const char *title,
 				     ArgList l, Cardinal num_args) :
 		   XMCustomDialog(name, parent, title, l, num_args),
 		   OkCb(this),
@@ -1343,7 +1348,7 @@ XMCustomDialogBox::~XMCustomDialogBox()
 **    Points to the help text string list.
 */
 
-void XMCustomDialogBox::SetHelpText(char **help)
+void XMCustomDialogBox::SetHelpText(const char **help)
 {
   help_info.text = help;	// Set new help text.
 }   
@@ -1553,7 +1558,7 @@ XMMessageBox::~XMMessageBox()
   delete helpbutton;
 }
 
-XMMessageBox::XMMessageBox(char *n) :
+XMMessageBox::XMMessageBox(const char *n) :
   XMManagedWidget(n)
 {}
 
@@ -1582,10 +1587,10 @@ XMMessageBox::GetHelpButton()
 }
 
 void
-XMMessageBox::SetText(char *txt)
+XMMessageBox::SetText(const char *txt)
 {
-  XmString s = XmStringCreateLtoR(txt, 
-				  XmSTRING_DEFAULT_CHARSET);
+  XmString s = XmStringCreateLtoR(const_cast<char*>(txt), 
+				  const_cast<char*>(const_cast<char*>(XmSTRING_DEFAULT_CHARSET)));
   SetAttribute(XmNmessageString, s);
   XmStringFree(s);
 }
@@ -1609,25 +1614,25 @@ XMMessageBox::AddCancelCallback(void (*cb)(XMWidget *w,
 }
 
 void
-XMMessageBox::LabelCancelButton(char *txt) 
+XMMessageBox::LabelCancelButton(const char *txt) 
 {
-  XmString str = XmStringCreateLtoR(txt, 
-				    XmSTRING_DEFAULT_CHARSET);
+  XmString str = XmStringCreateLtoR(const_cast<char*>(txt), 
+				    const_cast<char*>(const_cast<char*>(XmSTRING_DEFAULT_CHARSET)));
   SetAttribute(XmNcancelLabelString, str);
   XmStringFree(str);
 }
 
 void
-XMMessageBox::LabelOkButton(char *txt)
+XMMessageBox::LabelOkButton(const char *txt)
 {
-  XmString str = XmStringCreateLtoR(txt,
-				    XmSTRING_DEFAULT_CHARSET);
+  XmString str = XmStringCreateLtoR(const_cast<char*>(txt),
+				    const_cast<char*>(const_cast<char*>(XmSTRING_DEFAULT_CHARSET)));
   SetAttribute(XmNokLabelString, str);
   XmStringFree(str);
 }
 
 void
-XMMessageBox::LabelHelpButton(char *txt)
+XMMessageBox::LabelHelpButton(const char *txt)
 {
   helpbutton->Label(txt); 
 }
@@ -1681,7 +1686,8 @@ XMMessageBox::SetModal(unsigned char modality)
 ** Functions for class XMErrorDialog
 */
 
-XMErrorDialog::XMErrorDialog(char *n, Widget parent, char *msg,
+XMErrorDialog::XMErrorDialog(const char *n, Widget parent, 
+			     const char *msg,
 			     void (*cb)(XMWidget *,
 					XtPointer, XtPointer),
 			     XtPointer cbd,
@@ -1703,7 +1709,8 @@ XMErrorDialog::XMErrorDialog(char *n, Widget parent, char *msg,
   XtPopup(XtParent(id), XtGrabNone);
 }
 
-XMErrorDialog::XMErrorDialog(char *n, XMWidget &parent, char *msg,
+XMErrorDialog::XMErrorDialog(const char *n, XMWidget &parent, 
+			     const char *msg,
 			     void (*cb)(XMWidget *,
 					XtPointer, XtPointer),
 			     XtPointer cbd,
@@ -1733,7 +1740,8 @@ XMErrorDialog::XMErrorDialog(Widget w) :
 ** Functions for class XMInformationDialog
 */
 
-XMInformationDialog::XMInformationDialog(char *n,Widget parent, char *msg,
+XMInformationDialog::XMInformationDialog(const char *n,Widget parent, 
+					 const char *msg,
 					 void (*cb)(XMWidget *,
 						    XtPointer, XtPointer) ,
 					 XtPointer cbd,
@@ -1756,7 +1764,8 @@ XMInformationDialog::XMInformationDialog(char *n,Widget parent, char *msg,
   XtPopup(XtParent(id), XtGrabNone);
 }
 
-XMInformationDialog::XMInformationDialog(char *n, XMWidget &parent, char *msg,
+XMInformationDialog::XMInformationDialog(const char *n, XMWidget &parent, 
+					 const char *msg,
 					 void (*cb)(XMWidget *,
 						    XtPointer, XtPointer) ,
 					 XtPointer cbd,
@@ -1788,7 +1797,8 @@ XMInformationDialog::XMInformationDialog(Widget w) :
 ** Functions from class XMMessageDialog
 */
 
-XMMessageDialog::XMMessageDialog(char *n,Widget parent, char *msg,
+XMMessageDialog::XMMessageDialog(const char *n,Widget parent, 
+				 const char *msg,
 				 void (*cb)(XMWidget *,
 					    XtPointer, XtPointer),
 				 XtPointer cbd,
@@ -1810,7 +1820,8 @@ XMMessageDialog::XMMessageDialog(char *n,Widget parent, char *msg,
   XtPopup(XtParent(id), XtGrabNone);
 }
 
-XMMessageDialog::XMMessageDialog(char *n, XMWidget &parent, char *msg,
+XMMessageDialog::XMMessageDialog(const char *n, XMWidget &parent, 
+				 const char *msg,
 				 void (*cb)(XMWidget *,
 					    XtPointer, XtPointer),
 				 XtPointer cbd,
@@ -1840,7 +1851,8 @@ XMMessageDialog::XMMessageDialog(Widget w) :
 ** Functions for class XMQuestionDialog
 */
 
-XMQuestionDialog::XMQuestionDialog(char *n,Widget parent, char *msg,
+XMQuestionDialog::XMQuestionDialog(const char *n,Widget parent, 
+				   const char *msg,
 				   void (*cb)(XMWidget *,
 					      XtPointer, XtPointer),
 				   XtPointer cbd,
@@ -1862,7 +1874,8 @@ XMQuestionDialog::XMQuestionDialog(char *n,Widget parent, char *msg,
   XtPopup(XtParent(id), XtGrabNone);
 }
 
-XMQuestionDialog::XMQuestionDialog(char *n, XMWidget &parent, char *msg,
+XMQuestionDialog::XMQuestionDialog(const char *n, XMWidget &parent, 
+				   const char *msg,
 				   void (*cb)(XMWidget *,
 					      XtPointer, XtPointer),
 				   XtPointer cbd,
@@ -1892,7 +1905,8 @@ XMQuestionDialog::XMQuestionDialog(Widget w) :
 ** Functions for class XMWarningDialog
 */
 
-XMWarningDialog::XMWarningDialog(char *n,Widget parent, char *msg,
+XMWarningDialog::XMWarningDialog(const char *n,Widget parent, 
+				 const char *msg,
 				 void (*cb)(XMWidget *,
 					    XtPointer, XtPointer),
 				 XtPointer cbd,
@@ -1914,7 +1928,8 @@ XMWarningDialog::XMWarningDialog(char *n,Widget parent, char *msg,
   XtPopup(XtParent(id), XtGrabNone);
 }
 
-XMWarningDialog::XMWarningDialog(char *n, XMWidget &parent, char *msg,
+XMWarningDialog::XMWarningDialog(const char *n, XMWidget &parent, 
+				 const char *msg,
 				 void (*cb)(XMWidget *,
 					    XtPointer, XtPointer),
 				 XtPointer cbd,
@@ -1945,7 +1960,8 @@ XMWarningDialog::XMWarningDialog(Widget w) :
 ** Functions for class XMWorkingDialog
 */
 
-XMWorkingDialog::XMWorkingDialog(char *n,Widget parent, char *msg,
+XMWorkingDialog::XMWorkingDialog(const char *n,Widget parent, 
+				 const char *msg,
 				 void (*cb)(XMWidget *,
 					    XtPointer, XtPointer),
 				 XtPointer cbd ,
@@ -1968,7 +1984,8 @@ XMWorkingDialog::XMWorkingDialog(char *n,Widget parent, char *msg,
   XtPopup(XtParent(id), XtGrabNone);
 }
 
-XMWorkingDialog::XMWorkingDialog(char *n, XMWidget &parent, char *msg,
+XMWorkingDialog::XMWorkingDialog(const char *n, XMWidget &parent, 
+				 const char *msg,
 				 void (*cb)(XMWidget *,
 					    XtPointer, XtPointer),
 				 XtPointer cbd,
@@ -2015,7 +2032,7 @@ XMSelection::GetButtons()
 				  (id, XmDIALOG_APPLY_BUTTON));
 }
 
-XMSelection::XMSelection(char *name) : XMMessageBox(name) {}
+XMSelection::XMSelection(const char *name) : XMMessageBox(name) {}
 
 XMSelection::XMSelection(Widget w) : 
   XMMessageBox(w) 
@@ -2062,27 +2079,27 @@ XMSelection::GetApplyButton()
 }
 
 void
-XMSelection::SetText(char *txt)
+XMSelection::SetText(const char *txt)
 {
-  XmString s = XmStringCreateLtoR(txt, XmSTRING_DEFAULT_CHARSET);
+  XmString s = XmStringCreateLtoR(const_cast<char*>(txt), const_cast<char*>(const_cast<char*>(XmSTRING_DEFAULT_CHARSET)));
   SetAttribute(XmNtextString, s);
   XmStringFree(s);
 }
 
 void
-XMSelection::SetLabelString(char *txt)
+XMSelection::SetLabelString(const char *txt)
 {
-  XmString s = XmStringCreateLtoR(txt, 
-				  XmSTRING_DEFAULT_CHARSET);
+  XmString s = XmStringCreateLtoR(const_cast<char*>(txt), 
+				  const_cast<char*>(const_cast<char*>(XmSTRING_DEFAULT_CHARSET)));
   SetAttribute(XmNselectionLabelString, s);
   XmStringFree(s);
 }
 
 void
-XMSelection::LabelApplyButton(char *txt)
+XMSelection::LabelApplyButton(const char *txt)
 {
-  XmString str = XmStringCreateLtoR(txt,
-				    XmSTRING_DEFAULT_CHARSET);
+  XmString str = XmStringCreateLtoR(const_cast<char*>(txt),
+				    const_cast<char*>(const_cast<char*>(XmSTRING_DEFAULT_CHARSET)));
   SetAttribute(XmNapplyLabelString, str);
   XmStringFree(str);
 }
@@ -2115,7 +2132,8 @@ XMSelection::DefaultToApply()
 ** Implementation of functions from class XMPromptDialog
 */
 
-XMPromptDialog::XMPromptDialog(char *n, Widget parent, char *prompt,
+XMPromptDialog::XMPromptDialog(const char *n, Widget parent, 
+			       const char *prompt,
 			       void (*cb)(XMWidget *,
 					  XtPointer, XtPointer),
 			       XtPointer cbd,
@@ -2132,7 +2150,8 @@ XMPromptDialog::XMPromptDialog(char *n, Widget parent, char *prompt,
   XtPopup(XtParent(id), XtGrabNone);
 }
 
-XMPromptDialog::XMPromptDialog(char *n, XMWidget &parent, char *prompt,
+XMPromptDialog::XMPromptDialog(const char *n, XMWidget &parent, 
+			       const char *prompt,
 			       void (*cb)(XMWidget *,
 					  XtPointer, XtPointer) ,
 			       XtPointer cbd ,
@@ -2174,8 +2193,8 @@ XMPromptDialog::GetButtons()
 ** Implementation of functions from class XMSelectionDialog
 */
 
-XMSelectionDialog::XMSelectionDialog(char *n, Widget parent, 
-				     char *prompt ,
+XMSelectionDialog::XMSelectionDialog(const char *n, Widget parent, 
+				     const char *prompt ,
 				     void (*cb)(XMWidget *,
 						XtPointer, XtPointer) ,
 				     XtPointer cbd ,
@@ -2193,8 +2212,8 @@ XMSelectionDialog::XMSelectionDialog(char *n, Widget parent,
   XtPopup(XtParent(id), XtGrabNone);
 }
 
-XMSelectionDialog::XMSelectionDialog(char *n, XMWidget &parent, 
-				     char *prompt ,
+XMSelectionDialog::XMSelectionDialog(const char *n, XMWidget &parent, 
+				     const char *prompt ,
 				     void (*cb)(XMWidget *,
 						XtPointer, XtPointer) ,
 				     XtPointer cbd,
@@ -2246,8 +2265,8 @@ XMSelectionDialog::AddNoMatchCallback(void (*cb)(XMWidget *,
 ** Implementation of functions from class XMFileListDialog
 */
 
-XMFileListDialog::XMFileListDialog(char *n, Widget parent, char 
-				   *directory,
+XMFileListDialog::XMFileListDialog(const char *n, Widget parent, 
+				   const char *directory,
 				   void (*cb)(XMWidget *,
 					      XtPointer, XtPointer),
 				   XtPointer cbd,
@@ -2269,8 +2288,8 @@ XMFileListDialog::XMFileListDialog(char *n, Widget parent, char
   XtPopup(XtParent(id), XtGrabNone);
 }
 
-XMFileListDialog::XMFileListDialog(char *n, XMWidget &parent, 
-				   char *directory,
+XMFileListDialog::XMFileListDialog(const char *n, XMWidget &parent, 
+				   const char *directory,
 				   void (*cb)(XMWidget *,
 					      XtPointer, XtPointer),
 				   XtPointer cbd,
@@ -2303,7 +2322,7 @@ XMFileListDialog::DoSearch(const char *dir)
 {
   char* pDir = const_cast<char*>(dir);
   XmString d;
-  d = XmStringCreateLtoR(pDir, XmSTRING_DEFAULT_CHARSET);
+  d = XmStringCreateLtoR(const_cast<char*>(pDir), const_cast<char*>(const_cast<char*>(XmSTRING_DEFAULT_CHARSET)));
   XmFileSelectionDoSearch(id, d);
   XmStringFree(d);
 }
@@ -2319,9 +2338,10 @@ XMFileListDialog::DoSearch()
 }
 
 void
-XMFileListDialog::SetLabelString(char *txt)
+XMFileListDialog::SetLabelString(const char *txt)
 {
-  XmString s = XmStringCreateLtoR(txt, XmSTRING_DEFAULT_CHARSET);
+  XmString s = XmStringCreateLtoR(const_cast<char*>(txt), 
+				  const_cast<char*>(const_cast<char*>(XmSTRING_DEFAULT_CHARSET)));
   XtVaSetValues(XmFileSelectionBoxGetChild(id, 
 					   XmDIALOG_SELECTION_LABEL),
 		XmNlabelString, s,
@@ -2330,9 +2350,10 @@ XMFileListDialog::SetLabelString(char *txt)
 }
 
 void
-XMFileListDialog::SetFilterString(char *txt)
+XMFileListDialog::SetFilterString(const char *txt)
 {
-  XmString s = XmStringCreateLtoR(txt, XmSTRING_DEFAULT_CHARSET);
+  XmString s = XmStringCreateLtoR(const_cast<char*>(txt), 
+				  const_cast<char*>(const_cast<char*>(XmSTRING_DEFAULT_CHARSET)));
   SetAttribute(XmNfilterLabelString, s);
   XmStringFree(s);
 }
@@ -2384,14 +2405,16 @@ XMFileListDialog:: GetButtons()
 ** Implementation of functions from class XMCustomDialog
 */
 
-XMCustomDialog::XMCustomDialog(char *name, XMWidget &parent, char *title,
+XMCustomDialog::XMCustomDialog(const char *name, XMWidget &parent, 
+			       const char *title,
 			       ArgList l, Cardinal num_args) : 
   XMWidget(name)
 { 
   CreateDialog(name, parent.getid(), title, l, num_args);
 }
 
-XMCustomDialog::XMCustomDialog(char *name, Widget parent, char *title,
+XMCustomDialog::XMCustomDialog(const char *name, Widget parent, 
+			       const char *title,
 			       ArgList l, Cardinal num_args) :
   XMWidget(name)
 {

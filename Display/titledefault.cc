@@ -314,7 +314,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 class TitleDialog : public XMCustomDialog, public TitleForm
 {
  public:
-  TitleDialog(char *name, XMWidget &parent, char *title) :
+  TitleDialog(const char *name, XMWidget &parent, const char *title) :
     XMCustomDialog(name, parent, title),
     TitleForm(name, *work_area) {
       Apply->Label("Apply To All");
@@ -333,7 +333,7 @@ class TitleDialog : public XMCustomDialog, public TitleForm
 */
 static TitleDialog *dialog = NULL; /* Pointer to the dialog. */
 
-static char *help_text[] = {
+static const char *help_text[] = {
   "This dialog is prompting you for new settings which describe how much\n",
   "title information to place on a spectrum by default.  The upper half\n",
   "of the box allows you to enable or disable the display of:\n\n",
@@ -371,7 +371,7 @@ static Xamine_help_client_data help = { "Title_help", NULL, help_text };
 **       The work area form is a vertical column of toggle button widgets
 **       with labels describing the options that they control.
 */
-TitleForm::TitleForm(char *name, XMForm &work_area)
+TitleForm::TitleForm(const char *name, XMForm &work_area)
 {
   /*  First instantiate the toggle buttons in the work_area and bind them */
   /*  to positions in the form.  All buttons are bound to the left and right */
