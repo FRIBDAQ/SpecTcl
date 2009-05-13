@@ -135,9 +135,9 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
   // and it should have a geo field that matches the vsn in our pMap element.
 
   uint32_t header = getLong(event, offset);
-  if ((header & ITEM_TYPE) != TYPE_GBLHEAD) return 0; // not TDC data.
+  if ((header & ITEM_TYPE) != TYPE_GBLHEAD) return offset; // not TDC data.
   
-  if ((header & GBLHEAD_VSN ) != pMap->vsn) return 0;
+  if ((header & GBLHEAD_VSN ) != pMap->vsn) return offset;
 
   // We've established this is our module.  We need to get the information
   // associated with this TDC.
