@@ -343,7 +343,7 @@ static XMSelectionDialog *SpectrumChooser = NULL;
 ** Help text and help structure for the HELP button on the chooser:
 */
 
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog allows you to choose a spectrum.  The list at the top of the\n",
   "chooser box lists all available spectra.  If you double click on one of the\n",
   "items in this list, the corresponding spectrum will be selected. If you know\n",
@@ -530,7 +530,7 @@ void Callback_handler(XMWidget *w, XtPointer userd, XtPointer calld)
     choice->Hide();
     return;
   case XmCR_NO_MATCH:		/* No match... Could be a numeric type-in   */
-    if(!XmStringGetLtoR(info->value, XmSTRING_DEFAULT_CHARSET, &spectrum_name)) {
+    if(!XmStringGetLtoR(info->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &spectrum_name)) {
       Xamine_error_msg(choice, 
 		       "Unable to determine spectrum name from selection");
       return;
@@ -583,7 +583,7 @@ void Callback_handler(XMWidget *w, XtPointer userd, XtPointer calld)
     return;
   case XmCR_OK:
   case XmCR_APPLY:
-    if(!XmStringGetLtoR(info->value, XmSTRING_DEFAULT_CHARSET, &spectrum_name)) {
+    if(!XmStringGetLtoR(info->value, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &spectrum_name)) {
       Xamine_error_msg(choice, 
 		       "Unable to determine spectrum name from selection");
       return;
@@ -653,7 +653,7 @@ void Xamine_ChooseSpectrum(XMWidget *w, XtPointer clientd, XtPointer calld)
 
   /* Set up the list of spectra: */
 
-  SpectrumChooser->SetSelectionList(num_defined, defined_list);
+  SpectrumChooser->SetSelectionList(num_defined, const_cast<const char**>(defined_list));
   if(num_defined < XAMINE_VISIBLE_SPECTRUM_CHOICES) {
     SpectrumChooser->SetVisibleItemCount(num_defined);
   }

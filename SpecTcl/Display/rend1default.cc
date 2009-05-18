@@ -337,7 +337,7 @@ class Rend1dDialog : public XMCustomDialog,
 */
 static Rend1dDialog *dialog  = NULL;
 
-static char *help_text[] = 
+static const char *help_text[] = 
 {
   "  This dialog is prompting you to select the default rendition for 1-d\n",
   "histograms.  The following 1-d renditions are currently supported by\n",
@@ -373,7 +373,7 @@ static Xamine_help_client_data help = {"Rend1d_default", NULL, help_text};
 **    XMForm &work_area:
 **      Parent widget form object.
 */
-Rend1dForm::Rend1dForm(char *name, XMForm &work_area)
+Rend1dForm::Rend1dForm(const char *name, XMForm &work_area)
 {
   /* Create and set up the work area row/column manager: */
   /* Create the row column widget and set radio box behavior: */
@@ -539,7 +539,8 @@ void Xamine_Set1dDefaultRendition(XMWidget *w,
   ** callbacks:
   */
   if(dialog == NULL) {
-    dialog = new Rend1dDialog("Rend1d_defaults", w, "1-D Default Renditions");
+    dialog = new Rend1dDialog(const_cast<char*>("Rend1d_defaults"), w, 
+			      const_cast<char*>("1-D Default Renditions"));
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);

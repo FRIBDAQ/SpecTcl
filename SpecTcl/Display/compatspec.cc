@@ -272,7 +272,7 @@ void CompatibleSpectrumList::GetSelections(char ***items, int *count)
   *items = new cstring[*count];
   char **item = *items;
   for(int i = 0; i < *count; i++) {
-    XmStringGetLtoR(selections[i], XmSTRING_DEFAULT_CHARSET, item);
+    XmStringGetLtoR(selections[i], const_cast<char*>(XmSTRING_DEFAULT_CHARSET), item);
     item++;
   }
 }

@@ -61,7 +61,7 @@ protected:
 
 
 public:
-  XMApplication(char *cl, Cardinal *argc, char **argv,
+  XMApplication(const char *cl, Cardinal *argc, char **argv,
 		XrmOptionDescList options = NULL, 
 		Cardinal noptions = 0,
 		const char **fallback_resources = NULL,
@@ -91,19 +91,19 @@ private:
 protected:
   Widget id;
   XMWidgetName name;
-  void Create(char *n, WidgetClass cl, Widget parent,
+  void Create(const char *n, WidgetClass cl, Widget parent,
 	      ArgList l, Cardinal num_args);
 
 public:
 
   /* Constructors and Destructors */
-  XMWidget(char *n);
+  XMWidget(const char *n);
   XMWidget(Widget w); 
-  XMWidget(char *n, WidgetClass cl, XMApplication &parent,
+  XMWidget(const char *n, WidgetClass cl, XMApplication &parent,
 	   ArgList l=NULL, Cardinal num_args=0);
-  XMWidget(char *n, WidgetClass cl, Widget parent,
+  XMWidget(const char *n, WidgetClass cl, Widget parent,
 	   ArgList l=NULL, Cardinal num_args=0);
-  XMWidget(char *n, WidgetClass cl, XMWidget &parent,
+  XMWidget(const char *n, WidgetClass cl, XMWidget &parent,
 	   ArgList l=NULL, Cardinal num_args=0);
   virtual ~XMWidget();
 		  
@@ -111,7 +111,7 @@ public:
 		  
   Widget getid();
   Widget getparent();
-  char *getname();
+  const char *getname() const ;
 		  
   /* Get/Modify X resources: */
   void SetAttribute(String attribute, XtArgVal value);
@@ -142,10 +142,10 @@ public:
 class XMManagedWidget : public XMWidget
 {
  public:
-  XMManagedWidget(char *n);
-  XMManagedWidget(char *n, WidgetClass cl, Widget parent,
+  XMManagedWidget(const char *n);
+  XMManagedWidget(const char *n, WidgetClass cl, Widget parent,
 		  ArgList l=NULL, Cardinal num_args=0);
-  XMManagedWidget(char *n, WidgetClass cl, XMWidget &parent,
+  XMManagedWidget(const char *n, WidgetClass cl, XMWidget &parent,
 		  ArgList l=NULL, Cardinal num_args=0);
   XMManagedWidget(Widget w);
   virtual ~XMManagedWidget();

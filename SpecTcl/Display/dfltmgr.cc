@@ -291,7 +291,7 @@ int Xamine_ReadDefaultProperties()
 
 
   dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
-  if(!dir) dir = "";		// If no env var, use current dir.
+  if(!dir) dir =  const_cast<char*>("");		// If no env var, use current dir.
 
   char *filename = ConstructFilename(dir);
   int stat =  Xamine_ReadDefaultFile(filename);
@@ -324,7 +324,7 @@ int Xamine_SaveDefaultProperties()
   FILE *fp;
 
   /* Construct the filename and open the file for write: */
-  char* dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
+  const char* dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
   if(!dir) dir = "";		// If no env var, use current dir.
   filename = ConstructFilename(dir); /* Glue together the filename. */
   fp = fopen(filename, "r+");     /* Try to open existing for read/write */
@@ -356,7 +356,7 @@ int Xamine_SaveDefaultProperties()
 
   /* Write the renditions:  */
 
-  char *rend_text;
+  const char *rend_text;
   switch(rend1d) {
   case smoothed:
     rend_text = "Smoothed";

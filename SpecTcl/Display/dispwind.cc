@@ -290,7 +290,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Revision data:
 **    @(#)dispwind.cc	2.2 1/28/94 
 */
-static char *revision="@(#)dispwind.cc	2.2 1/28/94 ";
+static const  char *revision="@(#)dispwind.cc	2.2 1/28/94 ";
 
 #include <config.h>
 

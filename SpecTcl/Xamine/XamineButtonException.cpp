@@ -425,7 +425,7 @@ CXamineButtonException::ReasonText() const
 
     m_fFormatted = kfTRUE;
   }
-  string result = m_ReasonText.str();
+  static string result = m_ReasonText.str();
   return result.c_str();
 
 }

@@ -48,7 +48,7 @@ using namespace std;
 // CounterInfo describes the characteristics of a counter.
 struct CounterInfo {
   Counter eCounterType;
-  char*   pSubscript;		// Subscript of Statistics array.
+  const char*   pSubscript;		// Subscript of Statistics array.
   Bool_t  fZeroOnBegin;		// kfTRUE if stat is zeroed at eor.
 };
 

@@ -60,7 +60,7 @@ using namespace std;
 /*
 ** Below we define the help text for the dialog:
 */
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog deletes graphical objects.  The list at the top of the\n",
   "work area is the set of deletable graphical objects defined on the\n",
   "spectrum at the time this dialog was popped up.  To refresh the list\n",
@@ -137,7 +137,8 @@ private:
  @param parent XMWidget& - Widget that is the parent of this megawidget.
 */
 MultiGrobSelectionList::MultiGrobSelectionList(XMWidget& parent) :
-  XMMultiSelectionList("GrobjChooser", parent, "Select objects to delet")
+  XMMultiSelectionList( const_cast<char*>("GrobjChooser"), parent, 
+			const_cast<char*>("Select objects to delete"))
 {
   SetSelectionPolicy(XmEXTENDED_SELECT);
   SetHelpText(help_text);

@@ -72,7 +72,7 @@ CreateTotals(CTCLInterpreter* pInterp, int num)
     char index[100];
     snprintf(index, sizeof(index), "%d", i);
     if(!totals.Get(TCL_GLOBAL_ONLY, index)) {
-      totals.Set(index, "0");	// Create if fetch fails.
+      totals.Set(index, const_cast<char*>("0"));	// Create if fetch fails.
     }
   }
 }

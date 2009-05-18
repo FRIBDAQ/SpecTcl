@@ -298,10 +298,10 @@ using namespace std;
 
 
 
-static char* pCopyrightNotice = 
+static const char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved .cpp \n";
 
-static char* ReasonTexts[] =  {
+static const char* ReasonTexts[] =  {
   "Incorrect instantiation member called",
   "Incorrect number of gates for a compound gate",
   "Invalid number of parameters for a primitive gate",
@@ -314,9 +314,9 @@ static char* ReasonTexts[] =  {
 
 } ; 
 
-char**  CGateFactoryException::m_svReasonTexts = ReasonTexts;
+const char**  CGateFactoryException::m_svReasonTexts = ReasonTexts;
 
-static char* GateTypeStrings[] = {
+static const  char* GateTypeStrings[] = {
   "And ",
   "Band ",
   "Band-Contour ",
@@ -356,12 +356,12 @@ CGateFactoryException::ReasonText()   const
   //   m_eGateType
   //
 
-  string Text(m_svReasonTexts[m_eReason]);
+  static string Text(m_svReasonTexts[m_eReason]);
   Text   += "\nWhile instantiating a ";
   Text   += GateTypeStrings[m_eGateType];
   Text   += "\n";
 
-  return Text.c_str();
+  return const_cast<char*>(Text.c_str());
 
   
   
@@ -385,7 +385,7 @@ Int_t CGateFactoryException::ReasonCode()
 //     ReasonCodeToText(GateFactory...Reason eReason)
 //  Operation Type: 
 //     Selector
-char*  
+const char*  
 CGateFactoryException::ReasonCodeToText(GateFactoryExceptionReason eReason)  
 {
   // Returns the reason code transated to text.

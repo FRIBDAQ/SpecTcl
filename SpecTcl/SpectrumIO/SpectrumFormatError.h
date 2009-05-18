@@ -318,7 +318,7 @@ public:
 private:                      
 			
   ErrorReason   m_eError;	//Why exception was generated.
-  static char** m_svErrorStrings; //Pointer to list of error strings.        
+  static const char** m_svErrorStrings; //Pointer to list of error strings.        
 
 protected:
 

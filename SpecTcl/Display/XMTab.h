@@ -312,11 +312,11 @@ class XMTab : public XMManagedWidget
   Widget *tab;
 
  public:
-  XMTab(char *n, XMWidget &parent, 
+  XMTab(const char *n, XMWidget &parent, 
 	ArgList args = NULL, Cardinal arg_count = 0);
-  XMTab(char *n, Widget parent, char *text,
+  XMTab(const char *n, Widget parent, const char *text,
 	ArgList args = NULL, Cardinal arg_count = 0);
-  XMTab(char *n);
+  XMTab(const char *n);
   XMTab(Widget w);
 
   Callback_data *AddCallback(void (*cb)(XMWidget *, XtPointer, XtPointer) 

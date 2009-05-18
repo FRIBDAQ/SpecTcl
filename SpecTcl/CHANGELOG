@@ -856,3 +856,8 @@ pre2:
   March 18, 2009 - Fix tkcon.tcl so it does not implement a clear command
                    that interferes with the SpecTcl clear command.
   March 24, 2009 - Make the delgrob dialog a multiselect.
+  May 1, 2009    - CSpectrum2Dm.{h,cpp}  Ensure these spectra get put in the
+                  don't need a parameter list rather than some need a parameter list
+                  which causes them to be grossly underincremented.
+pre3:
+  May   2009     - Port to debian lenny with minimized compiler warnings.

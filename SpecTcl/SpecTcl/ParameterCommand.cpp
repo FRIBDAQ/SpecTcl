@@ -65,7 +65,7 @@ using namespace std;
 // Local Data types:
 
 struct LookupTableEntry {
-  char* pSwitch;
+  const char* pSwitch;
   CParameterCommand::SwitchValue_t Value;
 };
 
@@ -209,7 +209,7 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   char**  ppListElements;
   Float_t nLow;
   Float_t nHi;
-  char*   pUnits = (char*)kpNULL;
+  const char*   pUnits = (char*)kpNULL;
   
   //  To simplify error handling, the parsing of the id and resolution
   //  values is done within a try catch block with the CTCLResult reference
@@ -377,7 +377,7 @@ CParameterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult,
   }
 
 
-  char* pattern = "*";
+  const char* pattern = "*";
   // The next parameter is either a switch (-byid or -id) or it is
   // the name of a parameter to list:
   //

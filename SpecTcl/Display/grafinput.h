@@ -60,8 +60,8 @@ class GraphicalInput : public XMCustomDialog
 
   /* Constructors and destructors: */
 
-  GraphicalInput(XMWidget *parent, char *name, 
-		 char **help_text);
+  GraphicalInput(XMWidget *parent, const char *name, 
+		 const char **help_text);
   virtual ~GraphicalInput();
 
 

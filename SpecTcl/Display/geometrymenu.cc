@@ -335,7 +335,7 @@ class XMPromptGeometry : public XMCustomDialog {
  public:
   /*  Constructors and destructors: */
 
-  XMPromptGeometry(char *name, XMWidget *parent, char *title);
+  XMPromptGeometry(const char *name, XMWidget *parent, const char *title);
   ~XMPromptGeometry() {
     delete rowlabel;
     delete collabel;
@@ -373,7 +373,7 @@ class XMPromptGeometry : public XMCustomDialog {
 /*
 ** Local definitions:
 */
-static char *geometry_help_text[] = {
+static const char *geometry_help_text[] = {
   "  This dialog is prompting you to enter the number of horizontal and\n",
   "vertical boxes that will comprise the display.  Once this geometry is\n",
   "accepted, you will be able to display one or more spectra into each box.\n",
@@ -410,7 +410,7 @@ static Xamine_help_client_data geometry_help = { "Geometry_help",
 **   char *title:
 **    Title of the widget.
 */
-XMPromptGeometry::XMPromptGeometry(char *name, XMWidget *parent, char *title) :
+XMPromptGeometry::XMPromptGeometry(const char *name, XMWidget *parent, const char *title) :
        XMCustomDialog(name, *parent, title)
 {
   Arg chars[10];		/* Characteristics. */

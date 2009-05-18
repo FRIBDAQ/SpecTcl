@@ -48,7 +48,7 @@ using namespace std;
 
 // Static Data:
 struct SwitchTableEntry {
-  char* pSwitchText;
+  const char* pSwitchText;
   CFilterCommand::eSwitches Switch;
 };
 
@@ -619,7 +619,7 @@ Int_t CFilterCommand::File(CTCLInterpreter& rInterp, CTCLResult& rResult,
 Int_t CFilterCommand::List(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			   int nArgs, char* pArgs[]) 
 {
-  char* pPattern = "*";		// Default pattern is just *.
+  const char* pPattern = "*";		// Default pattern is just *.
   if(nArgs == 1) {
     pPattern = *pArgs;
   }

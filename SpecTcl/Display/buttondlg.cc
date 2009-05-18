@@ -612,7 +612,7 @@ void Button::GetLabel(ButtonTitle label)
     
     
     button->GetAttribute(XmNlabelString, &cpnd);
-    XmStringGetLtoR(cpnd, XmSTRING_DEFAULT_CHARSET, &asciz);
+    XmStringGetLtoR(cpnd, const_cast<char*>(XmSTRING_DEFAULT_CHARSET), &asciz);
     XmStringFree(cpnd);
     strncpy(label, asciz, (sizeof(ButtonTitle) - 1));
 

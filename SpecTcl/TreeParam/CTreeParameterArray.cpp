@@ -33,7 +33,7 @@
 #include "CTreeException.h"
 
 #include <stdio.h>
-
+#include <stdlib.h>
 #include <math.h>
 
 #ifdef HAVE_STD_NAMESPACE

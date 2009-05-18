@@ -372,7 +372,7 @@ CTCLException::SetErrorCode(const char* pMessage, const char* pMnemonic,
 //  Operation Type:
 //     Selector.
 //
-const char* 
+const  char* 
 CTCLException::ReasonText() const
 {
 // Returns  a pointer to the reason for the

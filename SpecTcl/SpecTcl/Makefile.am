@@ -91,7 +91,7 @@ SpecTcl_LDFLAGS = -lTclGrammerCommands -lXplus -lGates -lAnalysis \
 	-L../Tape -L../Sorter \
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
 	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam \
-	-L../Fits -L@top_srcdir/DecoderRing	\
+	-L../Fits -L@top_srcdir@/DecoderRing	\
 	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas -lpub  @TCL_LDFLAGS@ @XLIBSW@
 
 

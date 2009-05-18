@@ -308,7 +308,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** occasions.
 */
 
-static char *default_help[] =
+static const char *default_help[] =
 {
   "  You are being prompted to enter a list of points.  Points can be\n",
   "accepted either by clicking MB1 in the currently selected spectrum\n",
@@ -352,9 +352,9 @@ static char *default_help[] =
 **   char **help_text:
 **     User supplied help text list.. we supply default text if omitted.
 */
-AcceptPointList::AcceptPointList(char *name, XMWidget *parent, 
+AcceptPointList::AcceptPointList(const char *name, XMWidget *parent, 
 				 int minpts, int maxpts,
-				 char **help_text) :
+				 const char **help_text) :
 		 AcceptSummingRegion(name, parent, 
 				     help_text == NULL ? default_help :
 				                         help_text)

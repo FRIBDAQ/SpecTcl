@@ -325,7 +325,7 @@ class ObjectInput : public GraphicalInput {
  public:
   /* Constructors and destructors: */
 
-  ObjectInput(XMWidget *parent, char *name, char **help_text = NULL);
+  ObjectInput(XMWidget *parent, const char *name, const char **help_text = NULL);
   ~ObjectInput() {
     delete name_prompt;
     delete name_label;
@@ -335,7 +335,7 @@ class ObjectInput : public GraphicalInput {
 
   /* Manipulators of the text field:  */
 
-  void SetText(char *text) { name_prompt->SetText(text); }
+  void SetText(const char *text) { name_prompt->SetText(text); }
   char *GetText()          { return name_prompt->GetText(); }
 
   /* Management:                      */
