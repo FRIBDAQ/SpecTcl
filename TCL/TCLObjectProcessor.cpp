@@ -233,7 +233,7 @@ CTCLObjectProcessor::commandRelay(ClientData    pObject,
     return TCL_ERROR;
   }
   catch (...) {
-    Tcl_SetResult(pInterp, "Unexpected exception type processing a Tcl command",
+    Tcl_SetResult(pInterp, const_cast<char*>("Unexpected exception type processing a Tcl command"),
 		  TCL_STATIC);
     return TCL_ERROR;
   }

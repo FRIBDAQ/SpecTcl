@@ -292,17 +292,17 @@ DAMAGES.
 */
 
 
-XMTab::XMTab(char *n, XMWidget &parent, 
+XMTab::XMTab(const char *n, XMWidget &parent, 
 	     ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmTabWidgetClass, parent, args, arg_count) 
 { }
 
-XMTab::XMTab(char *n, Widget parent, char *text,
+XMTab::XMTab(const char *n, Widget parent, const char *text,
 	     ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmLabelWidgetClass, parent, args, arg_count) 
 { }
 
-XMTab::XMTab(char *n) : XMManagedWidget(n)
+XMTab::XMTab(const char *n) : XMManagedWidget(n)
 { }
 
 XMTab::XMTab(Widget w) : XMManagedWidget(w) 

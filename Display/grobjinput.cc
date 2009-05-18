@@ -314,7 +314,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **    char **help_text
 **       Pointer to the help text list, NULL means no help available.
 */
-ObjectInput::ObjectInput(XMWidget *parent, char *name, char **help_text) :
+ObjectInput::ObjectInput(XMWidget *parent, const char *name, const char **help_text) :
        GraphicalInput(parent, name, help_text)
 {
   /* Instantiate the widgets:   */

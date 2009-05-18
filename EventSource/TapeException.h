@@ -372,7 +372,7 @@ protected:
   // Operations in the CException Interface:
   //
 public:             
-  virtual   const char* ReasonText () const  ;
+  virtual   const  char* ReasonText () const  ;
   virtual   Int_t ReasonCode () const  ;
  
 };

@@ -5,7 +5,7 @@ using namespace std;
 ** Implementation of functions from class XMApplication
 */
 
-XMApplication::XMApplication(char *cl, Cardinal *argc, char **argv,
+XMApplication::XMApplication(const char *cl, Cardinal *argc, char **argv,
 			     XrmOptionDescList options , 
 			     Cardinal noptions,
 			     const char **fallback_resources,
@@ -89,7 +89,7 @@ XMApplication::GetAttribute(String attribute, XtArgVal value)
 ** Implementation of functions for class XMWidget 
 */
 
-XMWidget::XMWidget(char *n)
+XMWidget::XMWidget(const char *n)
 {
   strcpy(name, n);
   /* Null constructor to allow full override. */
@@ -101,19 +101,19 @@ XMWidget::XMWidget(Widget w)
   strcpy(name, XtName(id));
 }
 
-XMWidget::XMWidget(char *n, WidgetClass cl, XMApplication &parent,
+XMWidget::XMWidget(const char *n, WidgetClass cl, XMApplication &parent,
 		   ArgList l, Cardinal num_args)
 {
   Create(n, cl, parent.getid(), l, num_args);
 }
 
-XMWidget::XMWidget(char *n, WidgetClass cl, Widget parent,
+XMWidget::XMWidget(const char *n, WidgetClass cl, Widget parent,
 		   ArgList l, Cardinal num_args)
 {
   Create(n, cl, parent, l, num_args);
 }
 
-XMWidget::XMWidget(char *n, WidgetClass cl, XMWidget &parent,
+XMWidget::XMWidget(const char *n, WidgetClass cl, XMWidget &parent,
 		   ArgList l, Cardinal num_args)
 {
   Create(n, cl, parent.getid(), l, num_args);
@@ -143,8 +143,11 @@ XMWidget::getid() { return id; }
 Widget
 XMWidget::getparent() { return XtParent(id); }
 
-char*
-XMWidget::getname() { return name; }
+const char*
+XMWidget::getname() const
+{ 
+   return name; 
+}
 
 void
 XMWidget::SetAttribute(String attribute, XtArgVal value) 
@@ -238,7 +241,7 @@ void
 XMWidget::UnRealize() { XtUnrealizeWidget(id); }
 
 void
-XMWidget::Create(char *n, WidgetClass cl, Widget parent,
+XMWidget::Create(const char *n, WidgetClass cl, Widget parent,
 		 ArgList l, Cardinal num_args)
 {
   strcpy(name,n);
@@ -249,18 +252,18 @@ XMWidget::Create(char *n, WidgetClass cl, Widget parent,
 ** Implementation of functions from class XMManagedWidget
 */
 
-XMManagedWidget::XMManagedWidget(char *n) :
+XMManagedWidget::XMManagedWidget(const char *n) :
   XMWidget(n)
 { /* Null default constructor to allow full override */ }
 
-XMManagedWidget::XMManagedWidget(char *n, WidgetClass cl, Widget parent,
+XMManagedWidget::XMManagedWidget(const char *n, WidgetClass cl, Widget parent,
 				 ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args)
 { 
   Manage();
 }
 
-XMManagedWidget::XMManagedWidget(char *n, WidgetClass cl, XMWidget &parent,
+XMManagedWidget::XMManagedWidget(const char *n, WidgetClass cl, XMWidget &parent,
 				 ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args)
 {

@@ -395,11 +395,11 @@ protected:
   //  Additional operations:
   //
 public:                   
-  virtual   char*  operator() (char* pName, 
+  virtual   const char*  operator() (char* pName, 
 			       char* pSubscript, 
 			       int Flags)  ;
 
-   static  char* TraceRelay (ClientData pObject, Tcl_Interp* pInterpreter, 
+   static const   char* TraceRelay (ClientData pObject, Tcl_Interp* pInterpreter, 
 			     tclConstCharPtr  pName,
 			     tclConstCharPtr pIndex,
 			     int flags)  ;

@@ -349,7 +349,7 @@ class InfoDisplay : public XMCustomDialog {
   ~InfoDisplay() {
     delete text;
   }
-  void SetText(char *t) { text->SetText(t); }
+  void SetText(const char *t) { text->SetText(t); }
 };
 
 /*
@@ -395,7 +395,7 @@ InfoDisplay::InfoDisplay(char *name, XMWidget *parent) :
   XtSetArg(scrollargs[4], XmNcursorPositionVisible, False);
 
   Widget text_wd = XmCreateScrolledText(work_area->getid(),
-					"InfoText", scrollargs, 5);
+					const_cast<char*>("InfoText"), scrollargs, 5);
   text = (XMText *)(new XMWidget(text_wd));
 
 
@@ -445,7 +445,7 @@ char *FormatSpectrumInfo(const int specno)
   assert(twodword == 3);
   assert(twodbyte == 1);
 
-  static char *spctype[] = { "Undefined", /* String names for each spec type */
+  static const char *spctype[] = { "Undefined", /* String names for each spec type */
 			     "2-d Byte per channel",
 			     "1-d Word per channel",
 			     "2-d Word per channel",
@@ -543,15 +543,15 @@ static char *FormatAttributeInfo(win_attributed *attribs)
   if(text == NULL) return NULL;
 
 
-  static char *reduction_text[] = { "Sampled",
+  static const char *reduction_text[] = { "Sampled",
 				    "Summed",
 				    "Averaged" };
-  static char *r1dtext[] = { "Smoothed",
+  static const char *r1dtext[] = { "Smoothed",
 			     "Histogram",
 			     "Lines",
 			     "Points" };
 
-  static char *r2dtext[] = { "Scatter",
+  static const char *r2dtext[] = { "Scatter",
 			     "Boxes",
 			     "Color",
 			     "Contour",
@@ -833,7 +833,7 @@ FormatGateInfo(int specno)
 **     string.  It is up to the caller to delete the storage allocated
 **     using XtFree.
 */
-static char *FormatInfo()
+static const char *FormatInfo()
 {
   char *text;
   int  size = 0;
@@ -842,10 +842,10 @@ static char *FormatInfo()
   ** currently selected spectrum.  This has a lot of stuff in it,
   ** like the current spectrum which are needed in subsequent subinfo calls.
   */
+  const char *t = " Pane does not contain a spectrum ";
 
   win_attributed *att = Xamine_GetSelectedDisplayAttributes();
   if(att == NULL) {
-    char *t = " Pane does not contain a spectrum ";
     text = XtMalloc(strlen(t)+1);
     if(text != NULL) strcpy(text, t);
     return t;
@@ -855,7 +855,6 @@ static char *FormatInfo()
   /* If the spectrum is undefined, then mention that and clear the spectrum. */
 
   if(Xamine_SpectrumType(sp) == undefined) {
-    char *t = " Pane does not contain a spectrum ";
     text = XtMalloc(strlen(t)+1);
     if(text != NULL) strcpy(text, t);
     Xamine_ClearSelectedPane(Xamine_Getpanemgr(), NULL, NULL);
@@ -940,13 +939,13 @@ static void UnManage(XMWidget *wid, XtPointer user_d, XtPointer call_d)
 */
 void Xamine_DisplayInfo(XMWidget *parent, XtPointer client_d, XtPointer call_d)
 {
-  char *information;
+  const char *information;
   /*
   ** If the dialog widget does not exist, then create it:
   */
 
   if(!dialog_widget) {
-    dialog_widget = new InfoDisplay("Info_Display", parent);
+    dialog_widget = new InfoDisplay(const_cast<char*>("Info_Display"), parent);
     dialog_widget->AddOkCallback(UnManage, dialog_widget); /* OK unmanages. */
     dialog_widget->AddCallback(XtNdestroyCallback, NullPointer, 
 			       (XtPointer)&dialog_widget);
@@ -976,5 +975,5 @@ void Xamine_DisplayInfo(XMWidget *parent, XtPointer client_d, XtPointer call_d)
 
   /* The information string was dynamically allocated, so we free it here */
 
-  XtFree(information);
+  XtFree(const_cast<char*>(information));
 }

@@ -323,11 +323,11 @@ extern "C" {
 static XMInformationDialog *exit_help_dialog = NULL; /* The help dialog. */
 static XMQuestionDialog *dlg = NULL;
 
-static char *msg =
+static const char *msg =
   "If you exit, all changes will be lost.\nAre you sure you want to exit?";
 
 
-static char *Exit_help[] 
+static const char *Exit_help[] 
   = { "If you click on the button labelled \"Yes\" Xamine will exit\n",
       "If you click on the button labelled \"No\" Xamine will continue\n\n",
       "If you have graphical objects you have not yet saved, or if you\n"
@@ -357,7 +357,7 @@ void exit_display_help(XMWidget *help_gadget, XtPointer client_data,
 {
   if(!exit_help_dialog)
     exit_help_dialog = Xamine_help("Exit_help", (XMWidget *)dlg, 
-				   (char **)Exit_help);
+				   Exit_help);
   else
     exit_help_dialog->Manage();
 }

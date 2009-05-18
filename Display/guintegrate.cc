@@ -491,7 +491,7 @@ static void FormatIntegrationText(IntegrationDisplay *d)
     if (superimposed.Count() == 0) return; // nothing superimposed.
 
     SuperpositionListIterator sp(superimposed);
-    addAndLog(d, "Superpositions:\n");
+    addAndLog(d, const_cast<char*>("Superpositions:\n"));
 
     grobj_generic** objects = new grobj_generic*[nobjects];
     grobj_generic** gates   = new grobj_generic*[ngates];
@@ -523,7 +523,7 @@ static void FormatIntegrationText(IntegrationDisplay *d)
       }
       // cuts:
       
-      addAndLog(d, "Cuts\n");
+      addAndLog(d, const_cast<char*>("Cuts\n"));
       
       for (int i=0; i < ngates; i++) {
 	if ((gates[i]->type() == cut_1d)) {
@@ -560,7 +560,7 @@ void Xamine_Integrate(XMWidget *wid, XtPointer ud, XtPointer cd)
   /* If necessary, instantiate the widget:  */
 
   if(dialog == NULL) {
-    dialog = new IntegrationDisplay("Integration", *wid, 20, 80);
+    dialog = new IntegrationDisplay(const_cast<char*>("Integration"), *wid, 20, 80);
     dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 

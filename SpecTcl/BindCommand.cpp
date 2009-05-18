@@ -73,7 +73,7 @@ using namespace std;
 
 
 struct SwitchTableEntry {
-  char*      pSwitchText;
+  const char*      pSwitchText;
   CBindCommand::eSwitches Switch;
 };
 static const SwitchTableEntry Switches[] = {

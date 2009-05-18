@@ -329,7 +329,7 @@ class Rend2dDialog : public XMCustomDialog, public Rend2dForm {
 */
 static Rend2dDialog *dialog = NULL;	/* Dialog handle. */
 
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog prompts you for the default 2-d histogram rendition\n",
   "The following renditions are supported:\n\n",
   "     Color    - Each channel is represented by a Color which indicates\n",
@@ -367,7 +367,7 @@ static Xamine_help_client_data help = { "Rend2d_help", NULL, help_text };
 **   XMForm &work_area:
 **     The form which parents the widgets we create.
 */
- Rend2dForm::Rend2dForm(char *name, XMForm &work_area)
+ Rend2dForm::Rend2dForm(const char *name, XMForm &work_area)
 {
   /* Create the radio box's manager widget and set it up. */
 
@@ -527,7 +527,8 @@ static void ActionCallback(XMWidget *w, XtPointer user_d, XtPointer call_d)
 void Xamine_Set2dDefaultRendition(XMWidget *w, XtPointer p, XtPointer q)
 {
   if(dialog == NULL) {		/* Need to instantiate dialog.  */
-    dialog = new Rend2dDialog("Rend_2d", w, "Select 2d default rendition");
+    dialog = new Rend2dDialog(const_cast<char*>("Rend_2d"), w, 
+			      const_cast<char*>("Select 2d default rendition"));
 
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddApplyCallback(ActionCallback, dialog);

@@ -323,7 +323,7 @@ using namespace std;
 //  Operation Type:
 //     selector.
 //
-const char*  
+const  char*  
 CEventFormatError::ReasonText() const 
 {
 // Returns reason text associated with the m_nReason value.

@@ -102,7 +102,7 @@ int CWriteCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   // -format selector pair.
   // The appropriate format is selected.
 
-  char* pFormat = "nsclascii";	// Default format.
+  const char* pFormat = "nsclascii";	// Default format.
   if(strcmp(pArgs[0], "-format") == 0) {	// Format override.
     pFormat = pArgs[1];
     nArgs -= 2;

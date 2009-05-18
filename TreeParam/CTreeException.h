@@ -94,7 +94,7 @@ public:
   int operator==(const CTreeException& rhs);
   int operator!=(const CTreeException& rhs);
 
-  virtual const char*   ReasonText() const;
+  virtual const  char*   ReasonText() const;
   virtual Int_t   ReasonCode() const;
   static TreeErrorReason ReasonToCode(Int_t nReason);
   STD(string)          ReasonValueToText(TreeErrorReason eReason) const;

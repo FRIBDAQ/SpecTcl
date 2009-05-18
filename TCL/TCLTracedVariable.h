@@ -67,7 +67,7 @@ public:
   // class functions:
 
 public:
-  virtual char* operator()(char* pName, char* pElement, int flags);
+  virtual const char* operator()(char* pName, char* pElement, int flags);
 
 };
 

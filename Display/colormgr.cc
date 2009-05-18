@@ -263,7 +263,7 @@ ReadColorMap for a description
 FILE *Xamine_OpenColorTable(unsigned int planes)
 {
   char filename[BUFSIZ];	/* Build up filenames here. */
-  char *fmtstring = "%s/Xamine%d.ctbl"; /* Describe how to build up filename */
+  const char *fmtstring = "%s/Xamine%d.ctbl"; /* Describe how to build up filename */
 
   /* First try environment path search: */
  

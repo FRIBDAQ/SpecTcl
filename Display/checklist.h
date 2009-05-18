@@ -315,17 +315,17 @@ class CheckElement : public XMForm {
  public:
   /* Constructors and destructors: */
 
-  CheckElement(char *name,	       /* 's name. */
+  CheckElement(const char *name,	       /* 's name. */
 	       XMWidget *parent,       /* Form's parent. */
 	       Boolean state = False,  /* Button initial state. */
-	       char *blabel = "Check", /* Button initial label string. */
-	       char *label = NULL);    /* Button additional label string  */
+	       const char *blabel = "Check", /* Button initial label string. */
+	       const char *label = NULL);    /* Button additional label string  */
   ~CheckElement();
 
   /* Manipulators: */
 
-  void SetButtonString(char *newlabel);
-  void SetLabelString(char  *newlabel = NULL);
+  void SetButtonString(const char *newlabel);
+  void SetLabelString(const char  *newlabel = NULL);
 
   Boolean State();		/* Get button state */
   void    State(Boolean set);	/* Set button state */
@@ -346,20 +346,20 @@ class CheckList : public XMForm {
  public:
   /*  Constructors and destructors: */
 
-  CheckList(char *name,		/* Form's name. */
+  CheckList(const char *name,		/* Form's name. */
 	    XMWidget *parent,	/* Form's parent widget */
-	    char *title,	/* Title string at top of form. */
+	    const char *title,	/* Title string at top of form. */
 	    int button_count,	/* Number of buttons. */
-	    char **buttonstrings = NULL,	/* Initial button names */
-	    char **labelstrings  = NULL);       /* Initial label strings  */
+	    const char **buttonstrings = NULL,	/* Initial button names */
+	    const char **labelstrings  = NULL);       /* Initial label strings  */
   ~CheckList();
 
   /* Manipulators: */
 
   void SetButtonString(int num, /* Button number from zero. */
-		       char *str); /* Button title string. */
+		       const char *str); /* Button title string. */
   void SetLabelString(int num,	/* Button number from zero. */
-		      char *str); /* Button extra label string. */
+		      const char *str); /* Button extra label string. */
 
   Boolean State(int num);	/* Get state of button num */
   void State(int num,		/* Set state of button num */

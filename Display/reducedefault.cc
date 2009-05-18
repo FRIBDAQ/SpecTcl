@@ -340,7 +340,7 @@ class ReduceDialog : public XMCustomDialog, public ReduceForm {
 ** Module static data
 */
 static ReduceDialog *dialog  = NULL;
-static char *help_text[] = {
+static const char *help_text[] = {
   "   This dialog is prompting for the default spectrum reduction mechanism.\n",
   "The spectrum reduction mechanism determines how to render spectra when\n",
   "there are insufficient screen pixels in a pane to display all channels\n",
@@ -383,7 +383,7 @@ static Xamine_help_client_data help = { "Reduce_help", NULL, help_text };
 **      Form that we're filling in..
 **    char *title:
 */
-ReduceForm::ReduceForm(char *name, XMForm &work_area)
+ReduceForm::ReduceForm(const char *name, XMForm &work_area)
 {
   /* Create the row column widget and set radio box behavior: */
 
@@ -550,7 +550,8 @@ void Xamine_SetDefaultReduction(XMWidget *w,
 
   if(dialog == NULL) {		/* Instantiate the dialog and set callbacks */
 
-    dialog = new ReduceDialog("Reduce_Prompt", w, "Reduction Method");
+    dialog = new ReduceDialog(const_cast<char*>("Reduce_Prompt"), w, 
+			      const_cast<char*>("Reduction Method"));
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);

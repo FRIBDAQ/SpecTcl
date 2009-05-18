@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
+#include <limits.h>
 
 #include <gd.h>
 
@@ -128,7 +129,7 @@ public:
   Boolean   isLandscape();
 
 };
-char* dialogHelpText[] = {
+const char* dialogHelpText[] = {
   "1. Fill in the top text entry with the command that will print the \n",
   "   graphics file.  Put a %s where you want the name of that file to appear\n",
   "2. Fill in the \"width\" text entry with the desired width of the graphic \n",
@@ -564,7 +565,8 @@ Xamine_printCapture(XMWidget* who,
 		    XtPointer cd)
 {
   if (!pDialog) {
-    pDialog = new wysiwygPrintDialog("wysiwygprint", *who, "Print options");
+    pDialog = new wysiwygPrintDialog(const_cast<char*>("wysiwygprint"), *who, 
+				     const_cast<char*>("Print options"));
     pDialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&pDialog);
   }
   pDialog->Manage();

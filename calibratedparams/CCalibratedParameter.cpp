@@ -10,6 +10,8 @@
 // Include files required:
 
 #include <config.h>
+#include <stdlib.h>
+
 #include "CCalibratedParameter.h"    				
 #include "CFit.h"
 

@@ -317,7 +317,7 @@ using namespace std;
 #endif
 
 struct SwitchEntry {
-  char*                  pSwitchText;
+  const char*                  pSwitchText;
   CClearCommand::Switch  eSwitchValue;
 };
 

@@ -317,7 +317,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **  context sensitive help.
 */
 
-static char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog is prompting for the default spectrum refresh interval.\n",
   "Non-zero refresh intervals cause Xamine to periodically re-draw a pane\n",
   "with current data.  Be careful when setting the default refresh value\n",
@@ -377,7 +377,7 @@ static RefreshDialog *dialog = NULL; /* Dialog pointer */
 **    XMForm &parent:
 **      Parent of the widget... assumed to be a form widget.
 */
-RefreshForm::RefreshForm(char *name, XMForm &parent) {
+RefreshForm::RefreshForm(const char *name, XMForm &parent) {
 
   /* Instantiate a scale widget. */
 
@@ -386,8 +386,8 @@ RefreshForm::RefreshForm(char *name, XMForm &parent) {
 
   /* Set the scale's label */
 
-  XmString label = XmStringCreateLtoR("Refresh Interval In Seconds",
-				      XmSTRING_DEFAULT_CHARSET);
+  XmString label = XmStringCreateLtoR(const_cast<char*>("Refresh Interval In Seconds"),
+				      const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   interval->SetAttribute(XmNtitleString, label);
   interval->SetAttribute(XmNorientation, XmHORIZONTAL);
   interval->SetAttribute(XmNprocessingDirection, XmMAX_ON_RIGHT);
@@ -483,7 +483,7 @@ void Xamine_SetDefaultRefresh(XMWidget *wid, XtPointer ud, XtPointer cd)
   ** If necessary, we must create the dialog the first time:
   */
   if(!dialog) {
-    dialog = new RefreshDialog("RefreshDefault", wid);
+    dialog = new RefreshDialog( const_cast<char*>("RefreshDefault"), wid);
     dialog->AddOkCallback(SetRefresh); /* Add the completion callback. */
     dialog->AddApplyCallback(SetRefresh);
     dialog->AddCancelCallback(SetRefresh);

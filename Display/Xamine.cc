@@ -186,10 +186,10 @@ void SetIcon(Widget w, char *filename)
 }
 
 
-int main(Cardinal argc, char **argv)
+int main(int argc, char **argv)
 {
 
-  XMApplication top("Xamine", &argc, argv); /* Top level/init ap. */
+  XMApplication top("Xamine", reinterpret_cast<Cardinal*>(&argc), argv); /* Top level/init ap. */
   XMMainWindow main_win("MainWindow", top, NULL, 0); /* Main window widget. */
   XMForm       work_area("WorkArea", main_win);
   XMForm       panes("PaneManager",  work_area);

@@ -268,3 +268,13 @@ CSpectrum2Dm::CreateMappings(vector<CParameter>& parameters,
     m_axisMappings.push_back(ymap);
   }
 }
+/*!
+   This spectrum should not be classified as needing
+   parmeter[0] or else it will underincrement.
+*/
+Bool_t
+CSpectrum2Dm::needParameter() const
+{
+  return kfFALSE;
+
+}

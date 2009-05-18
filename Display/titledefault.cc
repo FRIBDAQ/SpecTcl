@@ -333,7 +333,7 @@ class TitleDialog : public XMCustomDialog, public TitleForm
 */
 static TitleDialog *dialog = NULL; /* Pointer to the dialog. */
 
-static char *help_text[] = {
+static const char *help_text[] = {
   "This dialog is prompting you for new settings which describe how much\n",
   "title information to place on a spectrum by default.  The upper half\n",
   "of the box allows you to enable or disable the display of:\n\n",
@@ -371,7 +371,7 @@ static Xamine_help_client_data help = { "Title_help", NULL, help_text };
 **       The work area form is a vertical column of toggle button widgets
 **       with labels describing the options that they control.
 */
-TitleForm::TitleForm(char *name, XMForm &work_area)
+TitleForm::TitleForm(const char *name, XMForm &work_area)
 {
   /*  First instantiate the toggle buttons in the work_area and bind them */
   /*  to positions in the form.  All buttons are bound to the left and right */
@@ -522,7 +522,8 @@ static void ActionCallback(XMWidget *w, XtPointer user_d, XtPointer client_d)
 void Xamine_SetDefaultTitling(XMWidget *w, XtPointer user, XtPointer call)
 {
   if(dialog == NULL) {
-    dialog = new TitleDialog("TitleDefaults", *w, "Title Defaults");
+    dialog = new TitleDialog(const_cast<char*>("TitleDefaults"), *w, 
+			     const_cast<char*>("Title Defaults"));
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);

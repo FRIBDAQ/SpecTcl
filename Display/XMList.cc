@@ -12,17 +12,17 @@
 
 #include "XMList.h"
 
-XMListBaseClass::XMListBaseClass(char *n, WidgetClass cl, XMWidget &parent, 
+XMListBaseClass::XMListBaseClass(const char *n, WidgetClass cl, XMWidget &parent, 
 				 ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args) 
 {}
 
-XMListBaseClass:: XMListBaseClass(char *n, WidgetClass cl, Widget parent, 
+XMListBaseClass:: XMListBaseClass(const char *n, WidgetClass cl, Widget parent, 
 				  ArgList l, Cardinal num_args) :
   XMWidget(n, cl, parent, l, num_args) 
 {}
 
-XMListBaseClass::XMListBaseClass(char *n)  : 
+XMListBaseClass::XMListBaseClass(const char *n)  : 
   XMWidget(n)
 {}
 
@@ -138,9 +138,9 @@ XMListBaseClass::AddSingleSelectionCallback(void (*callback)(XMWidget *,
 }
 
 void
-XMListBaseClass::AddItem(char *item, int position) 
+XMListBaseClass::AddItem(const char *item, int position) 
 {
-  XmString s = XmStringCreateLtoR(item, XmSTRING_DEFAULT_CHARSET);
+  XmString s = XmStringCreateLtoR(const_cast<char*>(item), const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   XmListAddItem(id, s, position);
   XmStringFree(s);
 }
@@ -149,9 +149,9 @@ void
 XMListBaseClass::ClearItems() { XmListDeleteAllItems(id); }
 
 void
-XMListBaseClass::DeleteItem(char *item) 
+XMListBaseClass::DeleteItem(const char *item) 
 {
-  XmString s = XmStringCreateLtoR(item, XmSTRING_DEFAULT_CHARSET);
+  XmString s = XmStringCreateLtoR(const_cast<char*>(item), const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   XmListDeleteItem(id, s);
   XmStringFree(s);
 }
@@ -172,8 +172,8 @@ XMListBaseClass::DeselectAll() {
 }
 
 void
-XMListBaseClass::DeselectItem(char *item) {
-  XmString s = XmStringCreateLtoR(item, XmSTRING_DEFAULT_CHARSET);
+XMListBaseClass::DeselectItem(const char *item) {
+  XmString s = XmStringCreateLtoR(const_cast<char*>(item), const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   XmListDeselectItem(id, s);
   XmStringFree(s);
 }
@@ -198,21 +198,21 @@ XMListBaseClass::SelectItem(int pos ) {
 ** These files are implemented for the class XMList
 */
 
-XMList::XMList(char *n, XMWidget &parent, int rows ,
+XMList::XMList(const char *n, XMWidget &parent, int rows ,
 	       ArgList args, Cardinal arg_count ) :
   XMListBaseClass(n, xmListWidgetClass, parent, args, arg_count) {
   SetRows(rows);
   Manage();
 }
 
-XMList::XMList(char *n, Widget parent, int rows ,
+XMList::XMList(const char *n, Widget parent, int rows ,
 	       ArgList args, Cardinal arg_count) :
   XMListBaseClass(n, xmListWidgetClass, parent, args, arg_count) {
   SetRows(rows);
   Manage();
 }
 
-XMList::XMList(char *n) : XMListBaseClass(n) { Manage();}
+XMList::XMList(const char *n) : XMListBaseClass(n) { Manage();}
 
 XMList::XMList(Widget w) : XMListBaseClass(w) { Manage(); }
 
@@ -221,21 +221,21 @@ XMList::XMList(Widget w) : XMListBaseClass(w) { Manage(); }
 ** These functions are implementations for the class XMScrolledList
 */
 
-XMScrolledList::XMScrolledList(char *n, XMWidget &parent, int rows ,
+XMScrolledList::XMScrolledList(const char *n, XMWidget &parent, int rows ,
 			       ArgList args , Cardinal arg_count) :
   XMListBaseClass(n) {	/* Cheat. */
   id = XmCreateScrolledList(parent.getid(), 
-			    n, args, arg_count);
+			    const_cast<char*>(n), args, arg_count);
   scrolled_widget = XtParent(id);
   SetRows(rows);
   Manage();
   XtManageChild(scrolled_widget);
 }
 
-XMScrolledList::XMScrolledList(char *n, Widget parent, int rows ,
+XMScrolledList::XMScrolledList(const char *n, Widget parent, int rows ,
 			       ArgList args , Cardinal arg_count ) :
   XMListBaseClass(n)  { /* Cheat. */
-  id = XmCreateScrolledList(parent, n, args, arg_count);
+  id = XmCreateScrolledList(parent, const_cast<char*>(n), args, arg_count);
   scrolled_widget = XtParent(id);
   SetRows(rows);
   Manage();

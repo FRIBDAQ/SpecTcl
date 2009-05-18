@@ -112,6 +112,7 @@ public:
   virtual void   GetResolutions(STD(vector)<UInt_t>& rvResolutions);
   virtual CSpectrum::SpectrumDefinition& GetDefinition();
   virtual SpectrumType_t getSpectrumType();
+  virtual Bool_t needParameter() const;
 
 
 protected:

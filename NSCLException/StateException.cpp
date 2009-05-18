@@ -104,7 +104,7 @@ CStateException::operator!=(const CStateException& rhs)
    \retval  m_Reason.c_str()
 
 */
-const char*
+const  char*
 CStateException::ReasonText() const
 {
   return m_Reason.c_str();

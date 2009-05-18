@@ -523,7 +523,7 @@ XMWidget *Xamine_SetupLocator(XMWidget *parent)
 
   /* Create the locator widget.  */
 
-  location_panel = new Xamine_Location("Location", *loc_frame);
+  location_panel = new Xamine_Location(const_cast<char*>("Location"), *loc_frame);
 
   location_panel->Manage();
   loc_frame->Manage();

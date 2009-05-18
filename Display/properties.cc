@@ -63,7 +63,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 extern volatile spec_shared *xamine_shared;
 
-static char *help_text[]  = {
+static const char *help_text[]  = {
   "  This dialog allows you to change the properties of the currently \n",
   "selected spectrum.  When the dialog is first presented, it shows the\n",
   "current settings for the selected spectrum.  Modify them as you see fit\n",
@@ -214,16 +214,16 @@ class PropertyDialog : public XMCustomDialog,
                        public RefreshForm
 {
  public:
-  PropertyDialog(char *name, XMWidget &parent, char *title) :
+  PropertyDialog(const char *name, XMWidget &parent, const char *title) :
     XMCustomDialog(name, parent, title),
     PropertyForm(*work_area),
-    AxisForm("Axis_Prompt", *axis_labels),
-    AttributeForm("Attribute_Prompt", *attributes),
-    ReduceForm("Reduction_Prompt", *reduction),
-    Rend1dForm("Rendition_1d", *rendition_1),
-    Rend2dForm("Rendition_2d", *rendition_2),
-    TitleForm("Titles", *spectrum_titles),
-    RefreshForm("Refresh", *refresh_form) {
+    AxisForm(const_cast<char*>("Axis_Prompt"), *axis_labels),
+    AttributeForm(const_cast<char*>("Attribute_Prompt"), *attributes),
+    ReduceForm(const_cast<char*>("Reduction_Prompt"), *reduction),
+    Rend1dForm(const_cast<char*>("Rendition_1d"), *rendition_1),
+    Rend2dForm(const_cast<char*>("Rendition_2d"), *rendition_2),
+    TitleForm(const_cast<char*>("Titles"), *spectrum_titles),
+    RefreshForm(const_cast<char*>("Refresh"), *refresh_form) {
       SetColor(Xamine_ColorDisplay());
       PropertyForm::Manage();
       Apply->UnManage();

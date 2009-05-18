@@ -76,6 +76,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include <sys/wait.h>
 #include <sys/time.h>
 #include <string.h>
+#include <stdlib.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
