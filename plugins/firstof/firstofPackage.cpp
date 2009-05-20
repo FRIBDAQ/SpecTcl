@@ -25,7 +25,7 @@
 using namespace std;
 #endif
 
-static char* version = "1.0";
+static const char* version = "1.0";
 extern "C" {
   int Firstof_Init(Tcl_Interp* pInterp) 
   {
