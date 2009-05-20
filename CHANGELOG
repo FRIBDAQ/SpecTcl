@@ -861,3 +861,6 @@ pre2:
                   which causes them to be grossly underincremented.
 pre3:
   May   2009     - Port to debian lenny with minimized compiler warnings.
+  May 20,2009    - In source files add back the newline after each lineof
+                   a multiline command to prevent syntax errors on e.g.
+                   pseudo defs.
