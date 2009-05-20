@@ -172,7 +172,7 @@ proc incrementalSource filename {
 	    set info [getLine $fd]
 	    set fragment [lindex $info 0]
 
-	    append command $fragment
+	    append command $fragment "\n"
 	    incr lineNumber [lindex $info 1]
 	}
 	# If we got here, the command is complete or we've
