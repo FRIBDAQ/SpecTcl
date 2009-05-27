@@ -823,3 +823,5 @@ May 1, 2009     - Complete a raft of editing so that SpecTcl compiles and runs
 		  Debina g++-4.3.2-1.1
 May 20, 2009    - Fix sourcing from new gui.. was stripping newlines from multiline
                   definintions (e.g. psuedos). which caused them to fail.
+May 27, 2009    - Fix an error in the handling of contours on gamma spectra
+                  

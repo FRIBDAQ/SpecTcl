@@ -303,11 +303,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   UInt_t yIndex = 1;	// For typcial 2d, this index into the
 
   switch(spType) {
-  case keG2D:			// For a gamma all x transforms are first.
-    {
-      CGamma2DW* pGSpectrum = (CGamma2DW*)pSpec;
-      yIndex = pGSpectrum->getnParams();
-    }
+
   case ke1D:
   case keG1D:
     {
@@ -323,7 +319,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
       }
       //  Note that high is offset by 1 channel to put it on the right side
       // of our channel:
-      
+      //
       Float_t xlow = pSpec->AxisToParameter(0, low);
       Float_t xhigh= pSpec->AxisToParameter(0, high+1);
 
@@ -334,6 +330,11 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     }
     
     break;
+  case keG2D:			// For a gamma all x transforms are first.
+    {
+      CGamma2DW* pGSpectrum = (CGamma2DW*)pSpec;
+      yIndex = pGSpectrum->getnParams();
+    }
   case ke2D:
   case keG2DD:
     {
