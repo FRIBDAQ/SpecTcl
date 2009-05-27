@@ -864,3 +864,5 @@ pre3:
   May 20,2009    - In source files add back the newline after each lineof
                    a multiline command to prevent syntax errors on e.g.
                    pseudo defs.
+  May 27, 2009   - Fix error switch/case for handling gate point scaling.
+                   gamma gates resulted in no points being accepted.
