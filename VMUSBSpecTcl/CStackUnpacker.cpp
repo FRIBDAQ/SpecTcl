@@ -99,9 +99,11 @@ CStackUnpacker::operator()(const Address_t pEvent,
   CTclAnalyzer&    analyzer(dynamic_cast<CTclAnalyzer&>(rAnalyzer));
   TranslatorPointer<UShort_t> p(*(rDecoder.getBufferTranslator()), pEvent);
   vector<uint16_t> event;
+  StackInfo        info;
 
-  int stackId = assembleEvent(p, event);
-  analyzer.SetEventSize((1+ event.size())*sizeof(uint16_t)); // +1 for the header.
+  info        = assembleEvent(p, event);
+  int stackId = info.s_stackNumber;
+  analyzer.SetEventSize((info.s_stackSize)*sizeof(uint16_t)); // +1 for the header.
 
   // Get our stack map:
 
@@ -153,18 +155,21 @@ CStackUnpacker::operator()(const Address_t pEvent,
    extract the stack id and return it to the caller.
 
 */
-int
+CStackUnpacker::StackInfo
 CStackUnpacker::assembleEvent(TranslatorPointer<UShort_t>&p, 
 			      vector<uint16_t>& event)
 {
+  StackInfo result;
   bool done    = false;
   int  stackId = -1;
+  size_t totalSize = 0;
   while(!done) {
     // Decode the header:
 
     uint16_t header = *p; ++p;
     done            = (header & VMUSB_CONTINUE) == 0;
     int fragmentSize = header & VMUSB_LENGTH;
+    totalSize++;		// headers are a word of size...
 
     // only pull the stackid out of the first header (just in case).
 
@@ -177,6 +182,10 @@ CStackUnpacker::assembleEvent(TranslatorPointer<UShort_t>&p,
       uint16_t datum = *p; ++p;
       event.push_back(datum);
     }
+    totalSize += fragmentSize;	// Words in the fragment...
   }
-  return stackId;
+  
+  result.s_stackNumber = stackId;
+  result.s_stackSize   = totalSize;
+  return result;
 }
