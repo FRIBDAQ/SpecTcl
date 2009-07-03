@@ -111,6 +111,9 @@ C785Unpacker::operator()(CEvent&                       rEvent,
   // Get the 'header' .. ensure that it is one and that it matches our VSN.
 
   unsigned long header=  getLong(event, offset);
+  if (header == 0xffffffff) {
+    return offset+2;		// If immed BERR skip the BERR word and give up
+  }
 
   int           vsn   = (header & ALLH_GEOMASK) >> ALLH_GEOSHIFT;
   if(vsn != pMap->vsn) return offset;
