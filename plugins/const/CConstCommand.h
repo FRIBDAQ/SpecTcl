@@ -1,5 +1,5 @@
-#ifndef __CCONSTPROCESSOR_H
-#define __CCONSTPROCESSOR_H
+#ifndef __CCONSTCOMMAND_H
+#define __CCONSTCOMMAND_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -36,20 +36,20 @@
    performed.
 
 */
-class CConstProcessor : public CTCLInterpreterObject
+class CConstCommand : public CTCLInterpreterObject
 {
   // Constructors and canonicals:
 public:
-  CConstProcessor(CTCLInterpreter& interp);
-  virtual ~CConstProcessor();
+  CConstCommand(CTCLInterpreter& interp);
+  virtual ~CConstCommand();
 
   // illegal canonicals:
 
 private:
-  CConstProcessor(const CConstProcessor& rhs);
-  CConstProcessor& operator=(const CConstProcessor& rhs);
-  int operator==(const CConstProcessor& rhs) const;
-  int operator!=(const CConstProcessor& rhs) const;
+  CConstCommand(const CConstCommand& rhs);
+  CConstCommand& operator=(const CConstCommand& rhs);
+  int operator==(const CConstCommand& rhs) const;
+  int operator!=(const CConstCommand& rhs) const;
 
   // Dispatcher for the commands:
 

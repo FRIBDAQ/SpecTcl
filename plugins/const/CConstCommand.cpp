@@ -15,7 +15,7 @@
 */
 
 #include <config.h>
-#include "CConstProcessor.h"
+#include "CConstCommand.h"
 #include "CConstData.h"
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
@@ -34,7 +34,7 @@ using namespace std;
     @param interp - Reference to the interpreter on which the command will be
                     registered.
 */
-CConstProcessor::CConstProcessor(CTCLInterpreter& interp) :
+CConstCommand::CConstCommand(CTCLInterpreter& interp) :
   CTCLObjectProcessor(interp, string("const"), true)
 {}
 
@@ -42,7 +42,7 @@ CConstProcessor::CConstProcessor(CTCLInterpreter& interp) :
    Destructor just passes up the inheritance chain as we have no object specific 
    dynamic data:
 */
-CConstProcessor::~CConstProcessor()
+CConstCommand::~CConstCommand()
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ CConstProcessor::~CConstProcessor()
                           the interpreter result (error message).
 */
 int
-CConstProcessor::operator()(CTCLInterpreter& interp,
+CConstCommand::operator()(CTCLInterpreter& interp,
 			    std::vector<CTCLObject>& objv)
 {
   // Check for the minimum number of command words:
@@ -125,7 +125,7 @@ CConstProcessor::operator()(CTCLInterpreter& interp,
  *             reason for the failure.
  */
 int
-CConstProcessor::create(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
+CConstCommand::create(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
 {
   // All errors are turned into string exceptions:
 
@@ -216,7 +216,7 @@ CConstProcessor::create(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
  *   TCL_ERROR - Parameter deletion failed and the result is an error message.
  */
 int
-CConstProcessor::destroy(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
+CConstCommand::destroy(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
 {
   // All errors get mapped to string exceptions:
 
@@ -245,7 +245,7 @@ CConstProcessor::destroy(CTCLInterpreter& interp, vector<CTCLObject>& objv) cons
  *  Provides information about  how to use the const command:
  */
 string
-CConstProcessor::usage() const
+CConstCommand::usage() const
 {
   string result   = "Usage:\n";
   result         += "  const ?-and? outname outvalue [list innames]\n";
