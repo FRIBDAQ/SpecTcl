@@ -824,4 +824,5 @@ May 1, 2009     - Complete a raft of editing so that SpecTcl compiles and runs
 May 20, 2009    - Fix sourcing from new gui.. was stripping newlines from multiline
                   definintions (e.g. psuedos). which caused them to fail.
 May 27, 2009    - Fix an error in the handling of contours on gamma spectra
-                  
+ August 13, 2009 - Fix error in Strip chart spectrum was not requiring
+                   that target parameter was defined.                  
