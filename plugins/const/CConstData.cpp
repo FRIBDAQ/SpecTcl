@@ -15,6 +15,7 @@
 */
 #include <config.h>        // SpecTcl configuration file.
 #include "CConstData.h"    // my class.
+#include "CConstProcessor.h"
 #include <SpecTcl.h>       // SpecTcl API.
 
 
@@ -23,7 +24,10 @@ using namespace std;
 
 // Class level data:
 
-CConstData*  CConstData::m_pInstance(0); // Singleton pointer.
+CConstData*       CConstData::m_pInstance(0); // Singleton pointer.
+CConstProcessor*  CConstData::m_pProcessor(0);
+
+static const char* ProcessorName = "ConstEventProcessor";
 
 ///////////////////////////////////////////////////////////////////////
 /*
@@ -46,6 +50,8 @@ CConstData::getInstance()
   if (!m_pInstance) {
     new CConstData();		// Stores the instance pointer.
   }
+
+
   return *m_pInstance;
 }
 
@@ -65,8 +71,8 @@ CConstData::addAndParameter(std::string name, double value,
 			    std::vector<std::string> inputs)
 {
   addParameter(m_andParameters, 
-	       std::string name, double value, 
-	       std::vector<std::string> inputs);
+	       name, value, 
+	       inputs);
 }
 /*!
    Adds an or parameter.
@@ -80,12 +86,13 @@ CConstData::addAndParameter(std::string name, double value,
    @throw string - One of the input parameters does not exist.
 */
 void
-ConstData:: addOrParameter(std::string name,  double value, 
+CConstData:: addOrParameter(std::string name,  double value, 
 			   std::vector<std::string> inputs)
 {
   addParameter(m_orParameters,
-	       std::string name, double value, 
-	       std::vector<std::string> inputs);
+	       name, 
+	       value, 
+	       inputs);
 }
 
 /*!
@@ -99,14 +106,14 @@ ConstData:: addOrParameter(std::string name,  double value,
    @throw string - If parameter is not a const parameter.
 */
 void
-ConstData::deleteParameter(std::string name)
+CConstData::deleteParameter(std::string name)
 {
   DictionaryIterator p = m_dictionary.find(name);
   if (p == m_dictionary.end()) {
     throwParameterNotConst(name);
   }
   else {
-    p->second.s_pList.erase(p->second.s_pParam); // Erase from list.
+    p->second.s_pList->erase(p->second.s_pParam); // Erase from list.
     m_dictionary.erase(p);
     SpecTcl* pApi = SpecTcl::getInstance();
     pApi->RemoveParameter(name);
@@ -127,7 +134,7 @@ CConstData::andBegin()
 CConstData::ParameterIterator
 CConstData::andEnd()
 {
-  return m_andParameterse.end();
+  return m_andParameters.end();
 }
 
 CConstData::ParameterIterator
@@ -166,14 +173,14 @@ CConstData::addParameter(ParameterDefinitions& which,
   // First validate the output and input parameters.
   // if they are not valid, call the appropriate thrower method:
 
-  pParameter  = pApi=>FindParameter(name); 
+  pParameter  = pApi->FindParameter(name); 
   if(pParameter) {
     throwParameterExists(name);
   }
   for (int i =0; i < inputs.size(); i++) {
     pParameter = pApi->FindParameter(inputs[i]);
     if (!pParameter) {
-      throw ParameterDoesNotExist(inputs[i]);
+      throwParameterDoesNotExist(inputs[i]);
     }
     def.s_inputParameters.push_back(pParameter->getNumber());
   }
@@ -181,13 +188,25 @@ CConstData::addParameter(ParameterDefinitions& which,
   // input parameters.  make the output parameter:
 
   def.s_outParameterId = pApi->AssignParameterId();
-  def.outValue         = value;
+  def.s_outValue         = value;
   pApi->AddParameter(name,def.s_outParameterId, string(""));
 
   which.push_back(def);
 
   dict.s_pList  = &which;
-  dict.s_pParam = which.back();
+  dict.s_pParam = which.end() - 1;
+
+  // Finally if the event processor is not yet registered, register it.
+  // if it is registered, move it to the back of the processing list:
+
+  if(m_pProcessor) {
+    pApi->RemoveEventProcessor(string(ProcessorName));
+  }
+  else {
+    m_pProcessor = new CConstProcessor;
+  }
+  pApi->AddEventProcessor(*m_pProcessor, ProcessorName);
+
  
 }
 
@@ -209,7 +228,7 @@ CConstData::throwParameterExists(std::string name)
 void
 CConstData::throwParameterDoesNotExist(std::string name)
 {
-  string exception embedName("There is no parameter named",name, 
+  string exception = embedName("There is no parameter named",name, 
 			     "defined in SpecTcl");
   throw exception;
 }
@@ -220,7 +239,7 @@ CConstData::throwParameterDoesNotExist(std::string name)
 void
 CConstData::throwParameterNotConst(std::string name)
 {
-  string exception embedName("", name,
+  string exception =  embedName("", name,
 			     "is not an existing 'const' parameter");
   throw exception;
 }
@@ -232,8 +251,10 @@ std::string
 CConstData::embedName(const char* prefix, std::string name, const char* suffix)
 {
   string output(prefix);
-  prefix += ' ';
-  prefix += name;
-  prefix += ' ';
-  prefix += suffix;
+  output += ' ';
+  output += name;
+  output += ' ';
+  output += suffix;
+
+  return output;
 }

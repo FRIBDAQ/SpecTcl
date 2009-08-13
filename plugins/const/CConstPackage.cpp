@@ -22,7 +22,7 @@
 using namespace std;
 
 
-static char*  version = "0.1";
+static const char*  version = "1.0";
 
 /*!
    The package inintialization is done here.

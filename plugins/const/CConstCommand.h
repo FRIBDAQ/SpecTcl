@@ -36,7 +36,7 @@
    performed.
 
 */
-class CConstCommand : public CTCLInterpreterObject
+class CConstCommand : public CTCLObjectProcessor
 {
   // Constructors and canonicals:
 public:
@@ -65,7 +65,7 @@ private:
   int destroy(CTCLInterpreter& interp,
 	      std::vector<CTCLObject>& objv) const;
 
-  static std::string usage() const;
+  static std::string usage();
 };
 
 #endif

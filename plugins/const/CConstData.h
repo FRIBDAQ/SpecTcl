@@ -37,6 +37,8 @@
 #endif
 #endif
 
+class CConstProcessor;
+
 /*!
    This class contains the data used to drive the const  event processor.
    The data maintenance functions are called by the command processor or
@@ -66,7 +68,7 @@ public:
   typedef std::vector<ParameterDefinition> ParameterDefinitions;
   typedef ParameterDefinitions::iterator   ParameterIterator;
 
-  typdef struct _DictionaryEntry {
+  typedef struct _DictionaryEntry {
     ParameterDefinitions*  s_pList;
     ParameterIterator      s_pParam;
   } DictionaryEntry;
@@ -83,7 +85,8 @@ private:
 
   // Singleton instance
 
-  static CConstData*     m_pInstance;
+  static CConstData*      m_pInstance;
+  static CConstProcessor* m_pProcessor;
 
   // Constructors...and canonicals.. remember this is a singleton:
 

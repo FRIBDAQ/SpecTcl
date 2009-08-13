@@ -29,6 +29,12 @@
 */
 class CConstProcessor : public CEventProcessor
 {
+  // Realize the singleton pattern:
+
+
+public:
+  static CConstProcessor*  getInstance();
+
   // only need the function call operator.
 
 public:
@@ -36,7 +42,7 @@ public:
 			    CEvent& rEvent,
 			    CAnalyzer& rAnalyzer,
 			    CBufferDecoder& rDecoder); // Physics Event.
-}
+};
 
 
 #endif

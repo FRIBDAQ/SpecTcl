@@ -14,10 +14,14 @@
 	     East Lansing, MI 48824-1321
 */
 #include <config.h>
+
 #include "CConstProcessor.h"
 #include "CConstData.h"
+#include <SpecTcl.h>
+#include "Event.h"
 
 using namespace std;
+
 
 static void processAndParameters(CEvent& event, 
 				 CConstData::ParameterIterator start,
@@ -27,6 +31,8 @@ static void processOrParameters(CEvent& event,
 				CConstData::ParameterIterator stop);
 
 static bool assigned(CEvent& event, UInt_t index);
+
+
 
 /*!
    Process events.
@@ -46,7 +52,7 @@ CConstProcessor:: operator()(const Address_t pEvent,
   CConstData& data(CConstData::getInstance());
 
   processAndParameters(rEvent, data.andBegin(), data.andEnd());
-  procesOrParameter(rEvent, data.orBegin(), data.orEnd());
+  processOrParameters(rEvent, data.orBegin(), data.orEnd());
   
   return kfTRUE;
 }
@@ -85,7 +91,7 @@ void processAndParameters(CEvent& event,
     }
 
     if (increment) {
-      event[start->s_outParameterId] = start->outValue;
+      event[start->s_outParameterId] = start->s_outValue;
     }
 
     stop++;
@@ -109,7 +115,7 @@ void  processOrParameters(CEvent& event,
     }
 
     if (increment) {
-      event[start->s_outParameterId] = start->outValue;
+      event[start->s_outParameterId] = start->s_outValue;
     }
 
     stop++;

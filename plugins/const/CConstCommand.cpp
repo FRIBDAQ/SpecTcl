@@ -132,23 +132,23 @@ CConstCommand::create(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
   try {
     size_t wordCount = objv.size();
     int    nameIndex = 1;
-    bool   and(false);
+    bool   And(false);
 
     // Must be 4 or 5 words:
 
     if (wordCount != 5 && wordCount != 4) {
-      throw string("Incorrect number of command paramters");
+      throw string("Incorrect number of commAnd paramters");
     }
     // If 5 first parameter must be '-and'.
 
     if (wordCount == 5) {
-      if (objv[1] != string("-and")) {
-	throw string("If there are 5 command words the second must be '-and'");
+      if (string(objv[1]) != string("-and")) {
+	throw string("If there are 5 commAnd words the second must be '-and'");
       }
-      and = true;
+      And = true;
       nameIndex = 2;
     }
-    // at this point, and is true if we are doing an and and outparam is at
+    // at this point, And is true if we are doing an And And outparam is at
     // the index in nameIndex.  The rest is nice common code until the
     // actual attempt to create:
 
@@ -158,14 +158,15 @@ CConstCommand::create(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
 
     string value(objv[nameIndex+1]);
     char*  endPointer;
-    double fValue = strotod(value.c_str(), &endPointer);
+    double fValue = strtod(value.c_str(), &endPointer);
     if (endPointer == value.c_str()) {
       throw string("The value parameter is not evaluating to a floating point number");
     }
     // Pull the input params into a list of strings:
 
+    vector<CTCLObject> inputParameters; 
     try {
-      vector<CTCLObject> inputParameters = objv[nameIndex + 2].getListElments();
+      inputParameters = objv[nameIndex + 2].getListElements();
     }
     catch (...) {
       throw string("The input parameters are not a correctly formatted TCL list");
@@ -178,14 +179,14 @@ CConstCommand::create(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
     }
     
     CConstData& data(CConstData::getInstance());
-    if (and) {
+    if (And) {
       data.addAndParameter(name, fValue, inputParameterNames);
     }
     else {
       data.addOrParameter(name, fValue, inputParameterNames);
     }
 
-    // We survived so we can set the result and return TCL_OK.
+    // We survived so we can set the result And return TCL_OK.
 
     interp.setResult(name);
     return TCL_OK;
@@ -195,7 +196,7 @@ CConstCommand::create(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
   // All errors are turned into exceptions:
 
   catch(string msg) {
-    mst += '\n';
+    msg += '\n';
     msg += usage();
     interp.setResult(msg);
     return TCL_ERROR;
@@ -205,15 +206,15 @@ CConstCommand::create(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
 
 /*
  * Delete an existing variable. 
- * - There must be exactly three command words.
- * - The last command word is passed to the data manager's
+ * - There must be exactly three commAnd words.
+ * - The last commAnd word is passed to the data manager's
  *   deleteParameter function
  * Parameters:
- *    interp - Intepreter that's running this command.
- *    objv   - Array of encapsulated objects (Tcl_Obj) that define the command.
+ *    interp - Intepreter that's running this commAnd.
+ *    objv   - Array of encapsulated objects (Tcl_Obj) that define the commAnd.
  * Return:
  *   TCL_OK    - The parameter was deleted.  No result is set.
- *   TCL_ERROR - Parameter deletion failed and the result is an error message.
+ *   TCL_ERROR - Parameter deletion failed And the result is an error message.
  */
 int
 CConstCommand::destroy(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
@@ -222,7 +223,7 @@ CConstCommand::destroy(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
 
   try {
     if (objv.size() != 3) {
-      throw string("const -delete has the wrong number of command words");
+      throw string("const -delete has the wrong number of commAnd words");
     }
     string name = objv[2];
     CConstData& data(CConstData::getInstance());
@@ -242,10 +243,10 @@ CConstCommand::destroy(CTCLInterpreter& interp, vector<CTCLObject>& objv) const
 
 }
 /*
- *  Provides information about  how to use the const command:
+ *  Provides information about  how to use the const commAnd:
  */
 string
-CConstCommand::usage() const
+CConstCommand::usage()
 {
   string result   = "Usage:\n";
   result         += "  const ?-and? outname outvalue [list innames]\n";
