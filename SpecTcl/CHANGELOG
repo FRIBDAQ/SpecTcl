@@ -866,3 +866,5 @@ pre3:
                    pseudo defs.
   May 27, 2009   - Fix error switch/case for handling gate point scaling.
                    gamma gates resulted in no points being accepted.
+  August 13, 2009 - Fix error in Strip chart spectrum was not requiring
+                   that target parameter was defined.
