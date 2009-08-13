@@ -94,7 +94,7 @@ void processAndParameters(CEvent& event,
       event[start->s_outParameterId] = start->s_outValue;
     }
 
-    stop++;
+    start++;
   }
 }
 /*
@@ -118,6 +118,6 @@ void  processOrParameters(CEvent& event,
       event[start->s_outParameterId] = start->s_outValue;
     }
 
-    stop++;
+    start++;
   }
 }
