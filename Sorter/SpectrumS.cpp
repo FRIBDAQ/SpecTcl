@@ -566,12 +566,20 @@ CSpectrumS::CreateChannels()
 /*!
   Is called when the Strip chart data goes off the rightt end of 
   the time axis.  All data is shifted to the left by nChannel's
+  If the shift is greater than the spectrum size the spectrum is just cleared.
+
 */
 
 void
 CSpectrumS::ShiftDataDown(int nShift) 
 {
     UInt_t* p = (UInt_t*)getStorage();
+
+    if (nShift >= m_nChannels) {
+      Clear();
+      return;
+    }
+
     assert(p != (UInt_t*)kpNULL);
     for (int i = 0; i < m_nChannels-nShift; i++) {
       p[i] = p[i+nShift];
@@ -587,6 +595,12 @@ CSpectrumS::ShiftDataUp(int nShift)
 {
     UInt_t* p = (UInt_t*)getStorage();
     assert(p != (UInt_t*)kpNULL);
+
+    if (m_nChannels <=  (-nShift)) {
+      Clear();
+      return;
+
+    }
     for (int i =  m_nChannels ; i >= (nShift * -1); i--) {
       p[i] = p[i+nShift];
     }
