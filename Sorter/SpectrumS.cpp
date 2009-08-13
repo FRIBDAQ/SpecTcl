@@ -573,6 +573,11 @@ CSpectrumS::ShiftDataDown(int nShift)
 {
     UInt_t* p = (UInt_t*)getStorage();
     assert(p != (UInt_t*)kpNULL);
+
+    if (nShift >= m_nChannels) { // chase where shift is more than channels
+      Clear();
+      return;
+    }
     for (int i = 0; i < m_nChannels-nShift; i++) {
       p[i] = p[i+nShift];
     }
@@ -587,6 +592,11 @@ CSpectrumS::ShiftDataUp(int nShift)
 {
     UInt_t* p = (UInt_t*)getStorage();
     assert(p != (UInt_t*)kpNULL);
+
+    if (m_nChannels <=  (-nShift)) { // Case where shift is more than channels.
+      Clear();
+      return;
+    }
     for (int i =  m_nChannels ; i >= (nShift * -1); i--) {
       p[i] = p[i+nShift];
     }

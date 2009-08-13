@@ -825,4 +825,6 @@ May 20, 2009    - Fix sourcing from new gui.. was stripping newlines from multil
                   definintions (e.g. psuedos). which caused them to fail.
 May 27, 2009    - Fix an error in the handling of contours on gamma spectra
  August 13, 2009 - Fix error in Strip chart spectrum was not requiring
-                   that target parameter was defined.                  
+                    - Fix error in strip chart shift.  If shift is larger than spectrum
+                    channel count would segfault.that target parameter was defined.
+                                   
