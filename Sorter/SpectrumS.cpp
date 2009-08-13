@@ -420,7 +420,7 @@ CSpectrumS::Increment(const CEvent& rE)
   CParameterValue& rParam(rEvent[m_nParameter]);
 
 
-  if(rTime.isValid()) {  // Only increment if param present.
+  if(rTime.isValid() && rParam.isValid()) {  // Only increment if params present.
     Int_t nChannel = (Int_t)ParameterToAxis(0, rTime)- m_nOffset;
 
     if (nChannel > m_nChannels ) {
