@@ -868,3 +868,5 @@ pre3:
                    gamma gates resulted in no points being accepted.
   August 13, 2009 - Fix error in Strip chart spectrum was not requiring
                    that target parameter was defined.
+                  - Fix error in strip chart shift.  If shift is larger than spectrum
+                    channel count would segfault.
