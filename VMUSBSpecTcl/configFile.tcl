@@ -71,7 +71,11 @@ proc configClear {} {
 #  Read a configuration file.  This is just a source.
 #
 proc configRead filename {
-    uplevel #0 source $filename
+    puts "Sourceing the config file:"
+    if {[catch {uplevel #0 source $filename} msg]} {
+	puts "Configuration file failed $msg"
+    }
+    puts "Sourced"
 }
 
 
@@ -337,10 +341,7 @@ proc stack args {
 # deal with in SpecTcl...
 # these are defined as procs that do nothing:
 #
-
-
 proc sis3820 args {
-
 }
 proc v830 args {
 }

@@ -26,12 +26,22 @@
 # parameters/spectra appropriately given the depth for each
 #        TDC channel
 
+puts "In SpecTcl Setup"
+
 set here [file dirname [info script]]
 source [file join $here configFile.tcl]
 
+puts "configFile sourced"
 
 configClear
-configRead [file join $here daqconfig.tcl]
+
+puts "Configuration cleared"
+
+if {[catch {configRead [file join $here daqconfig.tcl]} msg]} {
+    puts "Error in configuration file read: $msg"
+}
+
+puts "Configuration read"
 
 set channelCount($typeCAEN)   4096
 set channelCount($typeHYTEC)  8192
@@ -179,10 +189,13 @@ proc buildStackMaps {} {
 #  Setup SpecTcl
 #
 
+
+puts "Building channel maps"
 buildChannelMaps 20
+puts "Building stack maps"
 
 buildStackMaps
-
+puts "Binding spectra to Xamine"
 
 sbind -all
 
