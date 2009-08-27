@@ -19,3 +19,10 @@ install-exec-local:
 	for f in .libs/lib*; do $(INSTALL_PROGRAM) $$f $(prefix)/TclLibs/constparam; done
 	echo package ifneeded constparam 1.0 [list load [file join '$$dir' libconstparam.so]] > $(prefix)/TclLibs/constparam/pkgIndex.tcl
 
+EXTRA_DIST	= const.xml
+
+const.pdf:	const.xml
+	@DOCBOOK@ const.xml
+
+
+docs:   const.pdf
