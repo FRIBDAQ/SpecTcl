@@ -1989,9 +1989,9 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
     yparameters[yparameters.size()-1] = "...";
     trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
     if (trialTitle.size() < maxLength) return trialTitle;
-    vector<string>::iterator i = parameters.end();
+    vector<string>::iterator i = yparameters.end();
     i--;
-    parameters.erase(i);
+    yparameters.erase(i);
   }
   while (parameters.size()) {
     parameters[parameters.size()-1] = "..."; // Probably smaller than it was.
