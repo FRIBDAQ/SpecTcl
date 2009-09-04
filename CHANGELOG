@@ -820,11 +820,18 @@ May 1, 2009     - CSpectrum2Dm.{h,cpp}  Ensure these spectra get put in the
                   which causes them to be grossly underincremented.
 May 1, 2009     - Complete a raft of editing so that SpecTcl compiles and runs
                   with minimal error messages on debian lenny...really 
-		  Debina g++-4.3.2-1.1
+		  Debian g++-4.3.2-1.1
 May 20, 2009    - Fix sourcing from new gui.. was stripping newlines from multiline
                   definintions (e.g. psuedos). which caused them to fail.
 May 27, 2009    - Fix an error in the handling of contours on gamma spectra
- August 13, 2009 - Fix error in Strip chart spectrum was not requiring
+
+3.2-004
+August 13, 2009 - Fix error in Strip chart spectrum was not requiring y parameter
                     - Fix error in strip chart shift.  If shift is larger than spectrum
                     channel count would segfault.that target parameter was defined.
+September 4, 2009 - Fix BZ 378 - CHistogrammer::createTitle had typos in the reduction
+                    of the y parameter list that led to segfaults when g2d spectra 
+                    titles were created.
+
+
                                    
