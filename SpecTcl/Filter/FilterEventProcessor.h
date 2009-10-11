@@ -93,7 +93,7 @@ public:				// These may be generally useful:
   static void* GetInt(void* p,
 		      Int_t&  i);         //!< Retrieve an int.
   static void* GetFloat(void* p,
-			Float_t& f);      //!<  Retrieve a float.
+			DFloat_t& f);      //!<  Retrieve a float.
 
 };
 

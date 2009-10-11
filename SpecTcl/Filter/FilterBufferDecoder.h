@@ -115,6 +115,8 @@ private:
   UShort_t m_nEntities;		//!< How many items in m_pTranslated.
   Bool_t   m_fSeenHeader;	//!< true once we've seen a header.
   BufferTranslator* m_pTranslator; //!< Buffer translator we hand out.
+  bool     m_isSingle;          //!< true if buffer is single precision.
+
 
   // Constructors and other canonical functions.
 public:
@@ -160,6 +162,7 @@ private:
   void ProcessEvents(CXdrInputStream& xdr,
 		     CAnalyzer&       rAnalyzer);
   static int CountBits(unsigned mask);
+  bool   dataWidth(UInt_t nBytes, void* pBuffer);
 };
 
 #endif

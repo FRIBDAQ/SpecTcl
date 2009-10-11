@@ -28,6 +28,13 @@ using namespace std;
 #endif
 
 
+static int inline numBitmasks(Int_t nParameters)
+{
+  return (nParameters  + sizeof(unsigned)*8 - 1)/
+			(sizeof(unsigned)*8);
+}
+
+
 /*!
   Simple constructor.  The Decoder is constructed with:
   - A null translated buffer.
@@ -289,7 +296,8 @@ CFilterBufferDecoder::TranslateBuffer(CXdrInputStream& xdr,
 
   delete []m_pTranslated;
   m_pTranslated = 0;		// Not really necessary but good.
-  m_pTranslated = new char[nBytes];
+  m_pTranslated = new char[nBytes * 2]; // If single this is needed since
+                                        // each float -> double
   delete m_pTranslator;
   m_pTranslator = new NonSwappingBufferTranslator(m_pTranslated);
 
@@ -305,6 +313,9 @@ CFilterBufferDecoder::TranslateBuffer(CXdrInputStream& xdr,
       cerr << "Event source does not appear to be a filter file!! ending\n";
       return;
     }
+    m_isSingle = dataWidth(nBytes, xdr.getBuffer());
+
+    
   }
 
   // The following attempt to detect unsuitable buffer types:
@@ -348,6 +359,7 @@ CFilterBufferDecoder::ProcessHeader(CXdrInputStream& xdr,
  
   int      nItemSize;
   char*    pCursor(m_pTranslated); // Insertion pointer.
+  bool     testing = (&rAnalyzer == NULL);
 
   // Insert the header string...
   // In the line below, the extra space in the strlen is not
@@ -355,9 +367,11 @@ CFilterBufferDecoder::ProcessHeader(CXdrInputStream& xdr,
   // in the header string gets copied too.
 
   nItemSize = strlen("header ");
-  memcpy(pCursor, "header", nItemSize);	
-  m_nBytes += nItemSize;
-  pCursor  += nItemSize;
+  if (!testing) {
+    memcpy(pCursor, "header", nItemSize);	
+    m_nBytes += nItemSize;
+    pCursor  += nItemSize;
+  }
 
   // Next is the number of parameters that are in the filtered
   // data set, we need this in order to be able to 
@@ -365,19 +379,23 @@ CFilterBufferDecoder::ProcessHeader(CXdrInputStream& xdr,
 
   xdr >> m_nParamCount;
   nItemSize = sizeof(int);
-  memcpy(pCursor, &m_nParamCount, nItemSize);
-  m_nBytes += nItemSize;
-  pCursor  += nItemSize;
+  if (!testing) {
+    memcpy(pCursor, &m_nParamCount, nItemSize);
+    m_nBytes += nItemSize;
+    pCursor  += nItemSize;
+  }
 
   // Now there will be m_nParamCount strings:
 
   for(int i =0; i < m_nParamCount; i++) {
     string name;
     xdr >> name;		// Pull the name from the buffer
-    nItemSize = name.size() + 1;
-    memcpy(pCursor, name.c_str(), nItemSize);
-    m_nBytes += nItemSize;
-    pCursor  += nItemSize;
+    if (!testing) {
+      nItemSize = name.size() + 1;
+      memcpy(pCursor, name.c_str(), nItemSize);
+      m_nBytes += nItemSize;
+      pCursor  += nItemSize;
+    }
   }
   m_fSeenHeader = true;		// We've seen a header.
 
@@ -385,7 +403,9 @@ CFilterBufferDecoder::ProcessHeader(CXdrInputStream& xdr,
   
   m_nEntities    = m_nParamCount; // Each parameter is an entity.
   m_nCurrentType = PARAMDESCRIP; // Parameter description 'buffer'.
-  rAnalyzer.OnOther(m_nCurrentType, *this);
+  if (!testing) {
+    rAnalyzer.OnOther(m_nCurrentType, *this);
+  }
   
 }
 
@@ -429,8 +449,8 @@ CFilterBufferDecoder::ProcessEvents(CXdrInputStream& xdr,
     // Read the bitmasks and count the number of set bits.
 
     nItemSize = sizeof(unsigned);
-    int nBitmasks = (m_nParamCount + sizeof(unsigned)*8 - 1)/
-			(sizeof(unsigned)*8);
+    int nBitmasks = numBitmasks(m_nParamCount);
+
     int bits = 0;
     for(int i=0; i < nBitmasks; i++) {
       int mask;
@@ -443,10 +463,17 @@ CFilterBufferDecoder::ProcessEvents(CXdrInputStream& xdr,
     // Bits has the number of parameters that's present.
     // There's one float for each parameter.
 			
-    int nItemSize = sizeof(float);
+    int nItemSize = sizeof(double);
     for (int i =0; i < bits; i++) {
-      float item;
-      xdr >> item;
+      double item;
+      float fitem;
+      if (m_isSingle) {
+	xdr >> fitem;
+	item = fitem;
+      } 
+      else {
+	xdr >> item;
+      }
       memcpy(pCursor, &item, nItemSize);
       pCursor += nItemSize;
       nSize   += nItemSize;
@@ -536,4 +563,49 @@ CFilterBufferDecoder::CopyIn(const CFilterBufferDecoder& rhs)
   m_fSeenHeader  = rhs.m_fSeenHeader;
   m_pTranslator  = rhs.m_pTranslator;
 
+}
+/*
+**  returns true if the buffer is a single precision buffer
+**  this is the case if after processig the first event as single precision,
+**  We get to an 'event' header again:
+**  Parameters:
+**    UInt_t nBytes  - Size of input buffer.
+**    void*  pBuffer - Pointer to a 'header' buffer.
+*/
+bool
+CFilterBufferDecoder::dataWidth(UInt_t nBytes, void* pBuffer)
+{
+  CXdrMemInputStream xdr(nBytes, pBuffer);
+  xdr.Connect();
+
+
+  string type;
+  xdr >> type;			// 'header'
+  ProcessHeader(xdr, *(reinterpret_cast<CAnalyzer*>(NULL)));	// Skip the header.
+  xdr >> type;                  // 'event'
+  int nBitmasks = numBitmasks(m_nParamCount);
+
+  int bits=0;
+
+  // Flip through the bit masks counting then number of parameters
+  // to expect:
+
+  for (int i=0; i < nBitmasks; i++) {
+    int mask;
+    xdr >> mask;
+    bits += CountBits(mask);
+  }
+  // skip them as if they were floating:
+
+  for (int i=0; i < bits; i++) {
+    float param;
+    xdr >> param;
+  }
+  // If it's single precision we are at an 'event' header except for
+  // the very pathological case of a single output event.. in that case
+  // alles ist verloren.
+
+
+  xdr >> type;
+  return type == "event";
 }

@@ -256,7 +256,7 @@ CFilterEventProcessor::operator()(const Address_t pEvent,
   int nPars = Placement.size();
   for(int i =0; i < nPars; i++) {
     int nTarget = Placement[i];
-    float parameter;
+    double parameter;
     pHere = GetFloat(pHere, parameter);
     if(nTarget >= 0) rEvent[nTarget] = parameter;
 
@@ -318,8 +318,8 @@ CFilterEventProcessor::GetInt(void* p, Int_t& result)
      Updated input pointer.
 */
 void*
-CFilterEventProcessor::GetFloat(void* p, Float_t& result)
+CFilterEventProcessor::GetFloat(void* p, DFloat_t& result)
 {
-  memcpy(&result, p, sizeof(Float_t));
-  return (void*)((ULong_t)p + sizeof(Float_t));
+  memcpy(&result, p, sizeof(DFloat_t));
+  return (void*)((ULong_t)p + sizeof(DFloat_t));
 }
