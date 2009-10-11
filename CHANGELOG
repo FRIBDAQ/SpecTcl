@@ -870,3 +870,10 @@ pre3:
                    that target parameter was defined.
                   - Fix error in strip chart shift.  If shift is larger than spectrum
                     channel count would segfault.
+  Sep 4, 2009     - Fix BZ 378 - Segfaults can happen when cutting down the
+                    Y parameters of a g2d spectrum to generate the title.
+
+pre4: 
+  October 11, 2009 - BZ 379 when SpecTcl started using double for parameters
+                    in an event, filters broke.  The fix allows both filters
+                    from older and current versions of SpecTcl to be read.
