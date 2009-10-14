@@ -425,7 +425,7 @@ CSpectrumS::Increment(const CEvent& rE)
 
     if (nChannel > m_nChannels ) {
       ShiftDataDown (static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels));
-      m_nOffset = static_cast<int>(m_nOffset + nChannel + (.25 * m_nChannels) - m_nChannels);
+      m_nOffset = static_cast<int>(m_nOffset + nChannel + (.25 * m_nChannels) - m_nChannels) +1;
       nChannel = nChannel - m_nOffset;
     }else if (nChannel < 0) {
       ShiftDataUp(nChannel);
