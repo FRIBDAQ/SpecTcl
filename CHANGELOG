@@ -832,6 +832,9 @@ August 13, 2009 - Fix error in Strip chart spectrum was not requiring y paramete
 September 4, 2009 - Fix BZ 378 - CHistogrammer::createTitle had typos in the reduction
                     of the y parameter list that led to segfaults when g2d spectra 
                     titles were created.
-
+3.2-005
+October 14, 2009 - Fix error in strip chart spectrum.  After a slide left, the
+                   offset was off by one causing continuous parameters to have a 
+                   1-channel hole in their spectra.
 
                                    
