@@ -877,3 +877,6 @@ pre4:
   October 11, 2009 - BZ 379 when SpecTcl started using double for parameters
                     in an event, filters broke.  The fix allows both filters
                     from older and current versions of SpecTcl to be read.
+  October 14, 2009 - Strip chart spectrum was miscalculateing m_nOffset on
+                     shifts to the left leaving gaps in the spectra for
+                     continuously varying parameters.
