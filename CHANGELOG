@@ -880,3 +880,7 @@ pre4:
   October 14, 2009 - Strip chart spectrum was miscalculateing m_nOffset on
                      shifts to the left leaving gaps in the spectra for
                      continuously varying parameters.
+  December 4, 2009 - Fix error in XMWarningDialog::Create .. was referencing
+                     button objects prior to ensuring they were created.
+
+

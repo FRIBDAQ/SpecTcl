@@ -144,7 +144,9 @@ XMMessageBox::~XMMessageBox()
 
 XMMessageBox::XMMessageBox(const char *n) :
   XMManagedWidget(n)
-{}
+{
+
+}
 
 XMMessageBox::XMMessageBox(Widget w) :
   XMManagedWidget(w)
@@ -598,9 +600,9 @@ XMWarningDialog::Create(const char *n,Widget parent,
 			     argcount);
   SetText(msg);
   LabelOkButton("Dismiss");
+  GetButtons();
   cancelbutton->Disable();
   helpbutton->Disable();
-  GetButtons();
   if(cb)
     AddOkCallback(cb, cbd);
   Manage();
