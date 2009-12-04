@@ -326,10 +326,8 @@ static void LoadFonts(Display *display)
 
   // Control landed here if none of the font families could be located.
 
-  Xamine_error_msg(Xamine_TopLevel,
-		   "This server does not have a font family suitable for labeling the spectra");
-  fprintf(stderr, "No fonts we can use!!\n");
-  exit(-1);
+  throw "This server does not have a font family suitable for labeling the spectra";
+
 
 
 

@@ -444,6 +444,14 @@ void SetIcon(Widget w, char *filename)
 
   XtVaSetValues(w, XmNiconPixmap, icon, NULL);
 }
+/*
+ *  Exit callback for for the error handler
+ */
+void
+ExitOnError(XMWidget* pWidget, XtPointer ed, XtPointer cd)
+{
+  exit(-1);
+}
 
 XMWidget* Xamine_TopLevel;	// Point to the top level widget.
 
@@ -460,117 +468,131 @@ int main(int argc, char **argv)
   XMForm       panes(const_cast<char*>("PaneManager"),  work_area);
   XMWidget    *status_area = Xamine_SetupLocator(&work_area);
 
-  Xamine_TopLevel = reinterpret_cast<XMWidget*>(&main_win);
+  try {
+    Xamine_TopLevel = reinterpret_cast<XMWidget*>(&main_win);
 
-  /*
-  ** Set up the work area with the panes on top and the status form on the
-  ** Bottom.
-  */
+    /*
+    ** Set up the work area with the panes on top and the status form on the
+    ** Bottom.
+    */
 
-  work_area.SetFractionBase(100);
-  work_area.SetTopAttachment(panes,    XmATTACH_FORM);
-  work_area.SetLeftAttachment(panes,   XmATTACH_FORM);
-  work_area.SetRightAttachment(panes,  XmATTACH_FORM);
+    work_area.SetFractionBase(100);
+    work_area.SetTopAttachment(panes,    XmATTACH_FORM);
+    work_area.SetLeftAttachment(panes,   XmATTACH_FORM);
+    work_area.SetRightAttachment(panes,  XmATTACH_FORM);
 
-  work_area.SetLeftAttachment(*status_area,   XmATTACH_FORM);
-  work_area.SetBottomAttachment(*status_area, XmATTACH_FORM);
-  work_area.SetRightAttachment(*status_area, XmATTACH_FORM);
-  work_area.SetTopAttachment(*status_area, XmATTACH_POSITION);
-  work_area.SetTopPosition(*status_area, 95);
+    work_area.SetLeftAttachment(*status_area,   XmATTACH_FORM);
+    work_area.SetBottomAttachment(*status_area, XmATTACH_FORM);
+    work_area.SetRightAttachment(*status_area, XmATTACH_FORM);
+    work_area.SetTopAttachment(*status_area, XmATTACH_POSITION);
+    work_area.SetTopPosition(*status_area, 95);
 
-  work_area.SetBottomAttachment(panes,   XmATTACH_POSITION);
-  work_area.SetBottomPosition(panes,  94);
+    work_area.SetBottomAttachment(panes,   XmATTACH_POSITION);
+    work_area.SetBottomPosition(panes,  94);
 
-  Arg arg[10];
-  XtSetArg(arg[0], XmNscrollingPolicy, XmAUTOMATIC);
-  XtSetArg(arg[1], XmNscrollBarDisplayPolicy, XmAS_NEEDED);
-  XtSetArg(arg[2], XmNresizable, False);
-  XMWidget *cmd_area = new XMWidget(const_cast<char*>("button_bar"), 
-				     xmScrolledWindowWidgetClass, main_win,
-				     arg, 3);
-  XMMenuBar *mb;
+    Arg arg[10];
+    XtSetArg(arg[0], XmNscrollingPolicy, XmAUTOMATIC);
+    XtSetArg(arg[1], XmNscrollBarDisplayPolicy, XmAS_NEEDED);
+    XtSetArg(arg[2], XmNresizable, False);
+    XMWidget *cmd_area = new XMWidget(const_cast<char*>("button_bar"), 
+				      xmScrolledWindowWidgetClass, main_win,
+				      arg, 3);
+    XMMenuBar *mb;
 
-  /* We need to set up the mechanism for getting Xt notification of */
-  /* gate events from the users.  This will also create the appropriate */
-  /* pipe/mailboxes to communicate between Xamine and the client.   */
+    /* We need to set up the mechanism for getting Xt notification of */
+    /* gate events from the users.  This will also create the appropriate */
+    /* pipe/mailboxes to communicate between Xamine and the client.   */
 
-  Xamine_SetupRequestNotification(XtWidgetToApplicationContext(top.getid()),
-			    (XtInputCallbackProc)Xamine_ProcessClientRequests);
+    Xamine_SetupRequestNotification(XtWidgetToApplicationContext(top.getid()),
+				    (XtInputCallbackProc)Xamine_ProcessClientRequests);
 
-  /* Initialize access to the shared memory spectra. */
+    /* Initialize access to the shared memory spectra. */
 
-  Xamine_initspectra();
+    Xamine_initspectra();
 
-  /* Set up the icon for the application */
+    /* Set up the icon for the application */
 #ifdef HOME
-  char IconName[100];
-  sprintf(IconName,"%s/etc/Xamine.ico" ,HOME);
-  SetIcon(main_win.getid(), IconName);
+    char IconName[100];
+    sprintf(IconName,"%s/etc/Xamine.ico" ,HOME);
+    SetIcon(main_win.getid(), IconName);
 #else
-  SetIcon(main_win.getid(), ICON_FILENAME);
+    SetIcon(main_win.getid(), ICON_FILENAME);
 #endif
-  /* Set up the user interface */
+    /* Set up the user interface */
 
-  mb = Xamine_setup_menus(&main_win); /* Set up the menu bar. */
+    mb = Xamine_setup_menus(&main_win); /* Set up the menu bar. */
 
-  Xamine_SetupButtonBar(cmd_area);
-  Xamine_Initialize_panedb(&panes); /* Set up the spectrum display panes */
-
-
-  main_win.SetAreas(mb, cmd_area, NULL, NULL, &work_area); 
-  main_win.SetAttribute(XmNcommandWindowLocation, XmCOMMAND_BELOW_WORKSPACE);
+    Xamine_SetupButtonBar(cmd_area);
+    Xamine_Initialize_panedb(&panes); /* Set up the spectrum display panes */
 
 
-  XMWidget *panemgr = Xamine_Getpanemgr();
-  panemgr->Manage();
-  panes.Manage();
-  status_area->Manage();
-  work_area.Manage();
-  cmd_area->Manage();
-  main_win.Manage();
-
-  Xamine_EnableBasePackage();
-  Xamine_DisableMultiwindowPackage();
-  Xamine_DisableSpectrumPresentPackage();
-  Xamine_DisableSpectrumSelectedPackage();
-  Xamine_Disable1dSelectedPackage();
-  Xamine_Disable2dSelectedPackage();
+    main_win.SetAreas(mb, cmd_area, NULL, NULL, &work_area); 
+    main_win.SetAttribute(XmNcommandWindowLocation, XmCOMMAND_BELOW_WORKSPACE);
 
 
-  /* Set up the colormap if any: */
+    XMWidget *panemgr = Xamine_Getpanemgr();
+    panemgr->Manage();
+    panes.Manage();
+    status_area->Manage();
+    work_area.Manage();
+    cmd_area->Manage();
+    main_win.Manage();
 
-  top.Realize();
-  Xamine_InitColors(&main_win);
+    Xamine_EnableBasePackage();
+    Xamine_DisableMultiwindowPackage();
+    Xamine_DisableSpectrumPresentPackage();
+    Xamine_DisableSpectrumSelectedPackage();
+    Xamine_Disable1dSelectedPackage();
+    Xamine_Disable2dSelectedPackage();
 
-  /* Read default pane properties and modify as needed for the tube */
 
-  Xamine_ReadDefaultProperties();
-  /*
-  **   BUGBUGBUG -- Here's something I can't figure out...
-  **                Default properties get updated on all changes
-  **                This can cause flips between BW/Color renditions
-  **                depending on what's running... 
-  **                the code below effectively ignores the users's default
-  **                rendition.
-  **                possibly later, we'll have two files, one for color,
-  **                one for B/W.
-  */
+    /* Set up the colormap if any: */
 
-  if(!Xamine_ColorDisplay()) 
-    Xamine_SetDefault2DRendition(scatter);
-  else
-    Xamine_SetDefault2DRendition(color);
+    top.Realize();
+    Xamine_InitColors(&main_win);
 
-  /* Start the application */
+    /* Read default pane properties and modify as needed for the tube */
 
-  usage = (caddr_t)sbrk(0);	    /* Get current stack/heap break point. */
-  XtAppAddTimeOut(top.GetContext(),
-		  1000,
-		  Monitor,
-		  &top);
+    Xamine_ReadDefaultProperties();
+    /*
+    **   BUGBUGBUG -- Here's something I can't figure out...
+    **                Default properties get updated on all changes
+    **                This can cause flips between BW/Color renditions
+    **                depending on what's running... 
+    **                the code below effectively ignores the users's default
+    **                rendition.
+    **                possibly later, we'll have two files, one for color,
+    **                one for B/W.
+    */
+
+    if(!Xamine_ColorDisplay()) 
+      Xamine_SetDefault2DRendition(scatter);
+    else
+      Xamine_SetDefault2DRendition(color);
+
+    /* Start the application */
+
+    usage = (caddr_t)sbrk(0);	    /* Get current stack/heap break point. */
+    XtAppAddTimeOut(top.GetContext(),
+		    1000,
+		    Monitor,
+		    &top);
 #ifndef CYGWIN			// See the comment for <new> above.
-  set_new_handler(MemGone);
+    set_new_handler(MemGone);
 #endif
-  top.Begin();			/* Start processing events */
+    top.Begin();			/* Start processing events */
+  }
+  catch(const char* msg) {		// Error message dialog and exit on accept.
+    XMWarningDialog error(const_cast<char*>("Exiting"),
+			  reinterpret_cast<XMWidget&>(main_win),
+			  const_cast<char*>(msg),
+			  ExitOnError,
+			  (XtPointer)NULL,
+			  (Arg*)NULL, (Cardinal)0);
+    error.SetModal(XmDIALOG_APPLICATION_MODAL);
+
+    top.Begin();		// Back into the event loop.
+  }
+
 }
  

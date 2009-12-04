@@ -843,3 +843,10 @@ December 4, 2009 - BZ 384 provide a list of fallback fonts in case
                    adobe courier is missing (e.g. Xming without font pack).
                    If no fonts in the list of fonts are available, do a popup
                    error rather than an stderr message before exiting.
+		   BZ384 - Provide a const char* exception handler in main()
+                           when caught displays a modal warning box with the
+                           exception displayed and when dismissed exits Xamine.
+                         - Throw an appropriate const char* exception when
+                           no suitable fonts can be found in text.cc:LoadFonts
+
+		   
