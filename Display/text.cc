@@ -49,6 +49,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
+/* Xamine utilities: */
+
+#include "errormsg.h"
+
     /* Local function prototypes. */
 
 #include "text.h"
@@ -60,10 +64,25 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 extern "C" {  void exit(int); }
 #endif
 
+extern XMWidget* Xamine_TopLevel;
+
 /*
 **  Constant definitions:
 */
 #define XAMINE_FONT_FAMILY "-adobe-courier-medium-r*"
+#define ALTERNATE_XAMINE_FONT_FAMILY "-*-fixed-*-r*"
+
+
+// List of fonts that are acceptable to us:
+
+static const char* FontList[] = {
+  XAMINE_FONT_FAMILY,
+  "*courier-medium-r*",
+  "*courier*",
+  ALTERNATE_XAMINE_FONT_FAMILY,
+  NULL
+};
+
 
 /*
 ** Class definitions
@@ -283,24 +302,36 @@ static void LoadFonts(Display *display)
   ** First get the list of fonts that are in the font family used
   ** by Xamine:
   */
-  font_names = XListFonts(display, XAMINE_FONT_FAMILY, 100, &nfonts);
-  if(font_names == NULL) {
-    fprintf(stderr, "This server does not have the font family %s\n",
-	    XAMINE_FONT_FAMILY);
-    fprintf(stderr, "Unfortunately Xamine cannot continue from that error\n");
-    exit(-1);
+  const char** pFontFamily = FontList;
+  while(*pFontFamily) {
+      font_names = XListFonts(display, *pFontFamily, 100, &nfonts);
+      if (font_names) {
+	font_namelist = font_names;
+	/*
+	** now load the fonts into the database one by one:
+	*/
+	fonts = new FontDatabase(nfonts);
+	
+	while(nfonts > 0) {
+	  fonts->AddFont(*font_names, XLoadQueryFont(display, *font_names));
+	  font_names++;
+	  nfonts--;
+	}
+	return;
+      }
+      else {
+	pFontFamily++;
+      }
   }
-  font_namelist = font_names;
-  /*
-  ** now load the fonts into the database one by one:
-  */
-  fonts = new FontDatabase(nfonts);
 
-  while(nfonts > 0) {
-    fonts->AddFont(*font_names, XLoadQueryFont(display, *font_names));
-    font_names++;
-    nfonts--;
-  }
+  // Control landed here if none of the font families could be located.
+
+  Xamine_error_msg(Xamine_TopLevel,
+		   "This server does not have a font family suitable for labeling the spectra");
+  fprintf(stderr, "No fonts we can use!!\n");
+  exit(-1);
+
+
 
 }
 
