@@ -1923,10 +1923,10 @@ XMWarningDialog::XMWarningDialog(char *n,Widget parent, char *msg,
 			     list,
 			     argcount);
   SetText(msg);
+  GetButtons();
   LabelOkButton("Dismiss");
   cancelbutton->Disable();
   helpbutton->Disable();
-  GetButtons();
   if(cb)
     AddOkCallback(cb, cbd);
   Manage();

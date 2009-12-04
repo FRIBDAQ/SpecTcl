@@ -445,6 +445,8 @@ void SetIcon(Widget w, char *filename)
   XtVaSetValues(w, XmNiconPixmap, icon, NULL);
 }
 
+XMWidget* Xamine_TopLevel;	// Point to the top level widget.
+
 
 int main(int argc, char **argv)
 {
@@ -457,6 +459,8 @@ int main(int argc, char **argv)
 			 main_win);
   XMForm       panes(const_cast<char*>("PaneManager"),  work_area);
   XMWidget    *status_area = Xamine_SetupLocator(&work_area);
+
+  Xamine_TopLevel = reinterpret_cast<XMWidget*>(&main_win);
 
   /*
   ** Set up the work area with the panes on top and the status form on the

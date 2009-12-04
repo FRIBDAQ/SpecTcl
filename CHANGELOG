@@ -836,5 +836,10 @@ September 4, 2009 - Fix BZ 378 - CHistogrammer::createTitle had typos in the red
 October 14, 2009 - Fix error in strip chart spectrum.  After a slide left, the
                    offset was off by one causing continuous parameters to have a 
                    1-channel hole in their spectra.
-
-                                   
+3.2-006
+December 3, 2009 - Fix error in XMDialogs.cc XMWarningDialog::XMWarningDialog
+                   references the buttons prior to ensuring their creation.
+December 4, 2009 - BZ 384 provide a list of fallback fonts in case 
+                   adobe courier is missing (e.g. Xming without font pack).
+                   If no fonts in the list of fonts are available, do a popup
+                   error rather than an stderr message before exiting.
