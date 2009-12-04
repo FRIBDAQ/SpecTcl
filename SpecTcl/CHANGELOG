@@ -882,5 +882,6 @@ pre4:
                      continuously varying parameters.
   December 4, 2009 - Fix error in XMWarningDialog::Create .. was referencing
                      button objects prior to ensuring they were created.
-
+  December 4, 2009 - BZ384 - Provide some fallback fonts in case the adobe-courier
+                     family is not present.
 
