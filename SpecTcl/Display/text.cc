@@ -75,6 +75,7 @@ extern XMWidget* Xamine_TopLevel;
 
 // List of fonts that are acceptable to us:
 
+
 static const char* FontList[] = {
   XAMINE_FONT_FAMILY,
   "*courier-medium-r*",
@@ -82,6 +83,7 @@ static const char* FontList[] = {
   ALTERNATE_XAMINE_FONT_FAMILY,
   NULL
 };
+
 
 
 /*
@@ -326,10 +328,8 @@ static void LoadFonts(Display *display)
 
   // Control landed here if none of the font families could be located.
 
-  Xamine_error_msg(Xamine_TopLevel,
-		   "This server does not have a font family suitable for labeling the spectra");
-  fprintf(stderr, "No fonts we can use!!\n");
-  exit(-1);
+  throw "This server does not have a font family suitable for labeling the spectra";
+
 
 
 
