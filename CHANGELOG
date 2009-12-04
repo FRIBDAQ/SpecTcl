@@ -884,4 +884,11 @@ pre4:
                      button objects prior to ensuring they were created.
   December 4, 2009 - BZ384 - Provide some fallback fonts in case the adobe-courier
                      family is not present.
+                     BZ384 - Provide a const char* exception handler in main()
+                             when caught displays a modal warning box with the
+                             exception displayed and when dismissed exits Xamine.
+                           - Throw an appropriate const char* exception when
+                             no suitable fonts can be found in text.cc:LoadFonts
+
+                          
 
