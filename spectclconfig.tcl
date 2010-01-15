@@ -26,48 +26,91 @@ if {[info globals SpecTclHome] eq ""} {
 #  3. For each digitizer in the list, create/execute a parammap
 #     Create spectra (4k raw channel spectra).
 #
+#   The strategy is to parse the chunks we need out of daqconfig.tcl
+#   and combine that with the parameter information ~/config/daqconfig.tcl
+#
+# Specific global arrays that get built are:
+#
+#   parameters    - (from daqconfig.tcl) - indexed by the name of a module
+#                    provides names for each of the module channels.
+#   channelCounts - Indexed by the module name, represents the number of channels
+#                   each digitizer provides (channels in a raw spectrum).
+#   moduleTypes   - Array indexed by module name provides the type of module
+#                   (see Module type numbers below).
+#   moduleIds     - Array indexed by module name provides the id tag that 
+#                   prefixes the data from the module.  This is
+#                   picked out of the -id configuration parameter for the module.
+#                   by convention all modules provide id = 0 if not configured.
+# 
 
 
 set daqconfig [file join ~ config daqconfig.tcl]
 
 #
-# Module type numbers:
+# Module type numbers, extend this table as needed.
 #
-set PH7xx   0
-set AD811   1
+set moduleTypeCodes(ph7xxx)  0
+set moduleTypeCodes(ad811)   1
+set moduleTypeCodes(lrs2249) 2
+set moduleTypeCodes(lrs2228) 3
+
+# Resolutions for each module type:
+
+set moduleChannels(ph7xxx)  4096
+set moduleChannels(ad811)   4096
+set moduleChannels(lrs2249) 1024
+set moduleChannels(lrs2228) 2048
+
+
+#  Processes a module.. this will be front ended by a simple 
+# function for each module type.
+#
+#  Parameters:
+#    command -  The command that invoked us.
+#    args    -  the rest of the arguments.
+proc module {command tail} {
+    set args $tail
+    set moduleType                  $command
+    set moduleName                  [lindex $args 1]
+    set ::channelCounts($moduleName)  $::moduleChannels($moduleType)
+    set ::moduleTypes($moduleName)    $::moduleTypeCodes($moduleType)
+
+    set idindex [lsearch -exact $args "-id"]
+    if {$idindex != -1} {
+	set ::moduleIds($moduleName)  [lindex $args [incr idindex]]
+    }
+}
+
 
 
 # Process ph7xxx (phillips 7xxx series digitizers.
 
 proc ph7xxx args {
-    global channelCounts
-    global moduleTypes
-
-    set moduleName [lindex $args 1]
-    set channelCounts($moduleName) 4096; # Number of channels in the spectrum.
-    set moduleTypes($moduleName)   $::PH7xx
-    set idindex [lsearch  -exact $args "-id"]
-    if {$idindex != -1} {
-	global moduleIds
-	set moduleIds($moduleName) [lindex $args [incr idindex]]
-    }
+    module ph7xxx $args
 }
 
 # Proces ortec ad811 digitizers.
 
 proc ad811 args {
-    global channelCounts
-    global moduleTypes
+    module ad811 $args
 
-    set moduleName [lindex $args 1]
-    set channelCounts($moduleName) 4096
-    set moduleTypes($moduleName)  $::AD811
+}
 
-    set idindex [lsearch  -exact $args "-id"]
-    if {$idindex != -1} {
-	global moduleIds
-	set moduleIds($moduleName) [lindex $args [incr idindex]]
-    }
+#  LRS 2249:
+
+proc lrs2249 args {
+    module lrs2249 $args
+}
+
+#  LRS 2228
+
+proc lrs2228 args {
+    module lrs2228 $args
+}
+
+#  For now scalers are ignored.
+
+proc lrs2551 args {
 }
 
 #
