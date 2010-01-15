@@ -60,10 +60,10 @@ CFixedSizedUnpacker::unpack(TranslatorPointer<UShort_t> p,
 
   for (int chan =0; chan < m_numWords; chan++) {
     uint16_t datum = *p; ++p;
-    if (parameterMap.size() < chan) {
+    if (parameterMap.size() > chan) {
       int param = parameterMap[chan];
-      if (chan >= 0) {
-	rEvent[chan] = datum;
+      if (param >= 0) {
+	rEvent[param] = datum;
       }
     }
   }
