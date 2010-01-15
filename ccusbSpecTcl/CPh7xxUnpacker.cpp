@@ -79,7 +79,7 @@ CPh7xxxUnpacker:: unpack(TranslatorPointer<UShort_t> p,
   for (int i =0; i < channels; i++) {
     uint16_t datum = *p; ++p;
     int      channel = Channel(datum);
-    if (parameters.size() < channel) {
+    if (parameters.size() > channel) {
       int param =   parameters[channel];
       if (param >= 0) {
 	rEvent[param] = Value(datum);
@@ -89,6 +89,7 @@ CPh7xxxUnpacker:: unpack(TranslatorPointer<UShort_t> p,
   }
 
   // we consumed the id the bit mask (2) and channels words:
+  // And there's a garbage word when the qstop finally fails:
 
-  return 2 + channels;
+  return 3 + channels;
 }

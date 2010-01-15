@@ -58,8 +58,8 @@ set moduleTypeCodes(lrs2228) 3
 
 set moduleChannels(ph7xxx)  4096
 set moduleChannels(ad811)   4096
-set moduleChannels(lrs2249) 1024
-set moduleChannels(lrs2228) 2048
+set moduleChannels(lrs2249) 2048
+set moduleChannels(lrs2228) 4096
 
 
 #  Processes a module.. this will be front ended by a simple 

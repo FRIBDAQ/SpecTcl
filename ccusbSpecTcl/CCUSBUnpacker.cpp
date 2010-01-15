@@ -105,13 +105,13 @@ CCUSBUnpacker::operator()(const Address_t pEvent,
       // - The id must match the id of the next unpacker because 
       //   all readers must at least put their id in the buffer.
       //
-      if ((type < 0) || (type >= sizeof(unpackers)/sizeof(unpackers))) {
+      if ((type < 0) || (type >= sizeof(unpackers)/sizeof(CCCUSBPacket*))) {
 	char message[100];
 	sprintf(message, "Module type %d is out of range", type);
 	throw string(message);
       }
       CCCUSBPacket* pUnpacker = unpackers[type];
-      if (!id != *p) {
+      if (id != *p) {
 	char message[100];
 	sprintf(message, "ID in buffer: %d does not match that of expected unpacker (%d)",
 		id, *p);
