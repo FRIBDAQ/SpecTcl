@@ -42,22 +42,18 @@
   +-------------------+
   | event word count  |
   +-------------------+
-  |  module 0 hitmask |
+  |  id for first mod |
   +-------------------+
-  | module 0 params   | (will be zero of these if the hitmask is 0).
-       ...
-  |                   |
+  | Data from first   |
+  |  module           |
+  |   /\/\/\/\/\
   +-------------------+
-        ...
-  +-------------------+ 
-  | module n hitmask  |
-  +-------------------+
-  | module n params   |
-        ...
-  |                   |
-  +-------------------+
+  | id for second mod |
+    etc.
 
 \endverbatim
+
+\note the event word count is not self inclusive
 
 */
 
@@ -69,8 +65,7 @@ public:
 			    CAnalyzer&      rAnalyzer,
 			    CBufferDecoder& rDecoder);
 
-private:
-  static int bitsInMask(UShort_t mask);
+
 
 };
 
