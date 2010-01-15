@@ -20,8 +20,10 @@
 #include <BufferDecoder.h>
 #include <TCLAnalyzer.h>
 #include "ParamMapCommand.h"
+#include "CCCUSBPacket.h"
 #include "CPh7xxUnpacker.h"
-#include "CAD811Unpacker.h"
+#include "CFixedSizedUnpacker.h"
+
 
 #include <string>
 #include <iostream>
@@ -30,39 +32,18 @@
 using namespace std;
 
 
-/*
-  The table below is the number of bits set in a 4 bit mask.
-  e.g. bitCount[5] = 2 because 5 = 101b.
-
-  this is used to speed up the couting of bits in a 16 bit mask by
-  turning it in to 4 table lookups rather than 16 bit checks.
-
-*/
-
-static int bitCount[16] = {
-  0,                            // 0000
-  1,                            // 0001
-  1,                            // 0010
-  2,                            // 0011
-  1,                            // 0100
-  2,                            // 0101
-  2,                            // 0110
-  3,                            // 0111
-  1,                            // 1000
-  2,                            // 1001
-  2,                            // 1010
-  3,                            // 1011
-  2,                            // 1100
-  3,                            // 1101
-  3,                            // 1110
-  4 };                          // 1111
 
 
+static CPh7xxxUnpacker         ph7xxx;
+static CFixedSizedUnpacker     ad811(8);
+static CFixedSizedUnpacker     lrs2249w(12);
+static CFixedSizedUnpacker     lrs2228(8);
 
-static const CPH7xxUnpacker     ph7xx;
-static const CAD811Unpacker     ad811;
-static  *CUSBPacket unpacker[] = {
-  &ph7xx, &ad811
+static CCCUSBPacket* unpackers[] = {
+  &ph7xxx, 			// Type 0 => phillips 7xxx
+  &ad811,			// Type 1 => Ortec AD811
+  &lrs2249w,                    // Type 2 => LRS 2249 QDC
+  &lrs2228                      // Type 3 => LRS 2228 TDC.
 };				// Indices must match types in spectclsetup.tcl
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -124,22 +105,25 @@ CCUSBUnpacker::operator()(const Address_t pEvent,
       // - The id must match the id of the next unpacker because 
       //   all readers must at least put their id in the buffer.
       //
-      if ((type < 0) || (type >= sizeof(unpackers)/sizeof(CCUSBPacket*))) {
+      if ((type < 0) || (type >= sizeof(unpackers)/sizeof(unpackers))) {
 	char message[100];
 	sprintf(message, "Module type %d is out of range", type);
 	throw string(message);
       }
-      CUSBPacket* pUnpacker = unpackers[type];
-      if (!pUnpacker->matchId(id, p)) {
-	throw string("ID in buffer does not match that expected by unpacker");
+      CCCUSBPacket* pUnpacker = unpackers[type];
+      if (!id != *p) {
+	char message[100];
+	sprintf(message, "ID in buffer: %d does not match that of expected unpacker (%d)",
+		id, *p);
+	throw message;
       }
-
-      int wordsConsumed = pUnpacker->unpack(p, moudleInfo);
-
+      
+      int wordsConsumed = pUnpacker->unpack(p, moduleInfo, rEvent);
+      
       p      += wordsConsumed;
       nWords -= wordsConsumed;
       module++;
-
+      
     }
     catch (string msg) {
       cerr << "Error unpacking data: " << msg << " Event will be ignored " << endl;
@@ -149,7 +133,7 @@ CCUSBUnpacker::operator()(const Address_t pEvent,
       cerr << "Error unpacking data: " << msg << " event will be ignored " << endl;
       return kfFALSE;
     }
-    catc (...) {
+    catch (...) {
       cerr << "Error unpacking data .. unable to determine cause event will be ignored\n";
       return kfFALSE;
     }
@@ -162,27 +146,3 @@ CCUSBUnpacker::operator()(const Address_t pEvent,
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////
-/*
-   Returns the number of bits in 16 bit mask that is passed into us.
-   We use the bitCount array to speed this up to 4 table lookups from
-   16 bit tests.
-   Parameters:
-      mask   - The mask in which to count bits.
-*/
-int
-CCUSBUnpacker::bitsInMask(UShort_t mask)
-{
-  int count = 0;
-
-  // The loop below is faster than a counted loop because
-  // - there's no increment, and we have to shift the mask anyway.
-  // - We'll short cut out of the loop in there are upper nybbles that don't
-  //   have bits set.
-  //
-  while(mask) {
-    count += bitCount[mask & 0xf];  // Count lowest 4 bits.
-    mask   = mask >> 4;		    // Next 4 bits.
-  }
-  return count;
-}

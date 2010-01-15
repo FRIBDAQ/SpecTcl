@@ -1,5 +1,5 @@
-#ifndef __CPH7XXUNPACKER_H
-#define __CPH7XXUNPACKER_H
+#ifndef __CFIXEDSIZEDUNPACKER_H
+#define __CFIXEDSIZEDUNPACKER_H
 
 /*
     This software is Copyright by the Board of Trustees of Michigan
@@ -23,16 +23,23 @@
 
 class CEvent;
 
-
 /*!
-  This class is intended to unpack data from the
-  Phillips 7xxx series of digitizers.
-
+   This class will work with a wide variety of module types.
+   It assumes that the data from a module is a fixed sized block of channels
+   read in order from channel 0 -> channel n
 */
-class CPh7xxxUnpacker : public CCCUSBPacket
+
+
+class CFixedSizedUnpacker : public CCCUSBPacket
 {
+private:
+  int     m_numWords;
+
+public:
+  CFixedSizedUnpacker(int numWords);
   int  unpack(TranslatorPointer<UShort_t> p,
 	      const CParamMapCommand::ParameterMap* pModuleInfo,
-	      CEvent& rEvent);
+	      CEvent& rEvent);  
 };
+
 #endif
