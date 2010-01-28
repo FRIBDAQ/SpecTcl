@@ -132,7 +132,17 @@ proc hytec args {
     set name       [lindex $args 1]
     
     set ::readoutDeviceType($name) $::typeHYTEC
-    set ::adcConfiguration($name)  -1;	# There is no geo associated with this adc.
+#    set ::adcConfiguration($name)  -1;	# There is no geo associated with this adc.
+
+    # The hytec readout uses a marker word to simulate a vsn/geo.
+    # the config param for this is "-id" followed by the value of
+    # the marker.
+
+    set idindex [lsearch -exact $args "-id"]
+    if {$idindex != -1} {
+	incr idindex
+	set ::adcConfiguration($name) [lindex $args $idindex]
+    }
 }
 
 #---------------------------------------------------------------
@@ -189,7 +199,7 @@ proc tdc1x90 args {
     # Default the -depth/-refchannel if needed:
 
     if {[array names ::CAENV1x90 $name] eq ""} {
-	set ::CAENV1x90($name) [list 0 16 128]
+	set ::CAENV1x90($name) [list -1 16 128]
     }
 
     # Default the trigger window and offset for now
