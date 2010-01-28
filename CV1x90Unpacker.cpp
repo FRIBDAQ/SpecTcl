@@ -135,9 +135,12 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
   // and it should have a geo field that matches the vsn in our pMap element.
 
   uint32_t header = getLong(event, offset);
-  if ((header & ITEM_TYPE) != TYPE_GBLHEAD) return 0; // not TDC data.
+  if (header == 0xffffffff) {
+    return offset+2;
+  }
+  if ((header & ITEM_TYPE) != TYPE_GBLHEAD) return offset; // not TDC data.
   
-  if ((header & GBLHEAD_VSN ) != pMap->vsn) return 0;
+  if ((header & GBLHEAD_VSN ) != pMap->vsn) return offset;
 
   // We've established this is our module.  We need to get the information
   // associated with this TDC.
@@ -190,35 +193,48 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
   // If the next longword is a 0xffffffff that's due to the BERR
   // at the end of our readout:
 
-  if(getLong(event, offset)) offset++;
+  if(getLong(event, offset) == 0xffffffff) offset += 2;
 
-  // Now we need to get the reference time and put the reftime subtracted
-  // values into the tree parameters.
+  // 
+  // Two cases to consider.  If the reference channel number is -1
+  // there's no reference channel..otherwised there is:
+  //
+  int32_t reftime = 0;		// Default to no reference chhanel:
+  if (info.s_refchannel >= 0) {	//  Reference channel used:
 
-  if (rawTimes[info.s_refchannel].size() > 0) {
-    int32_t reftime = rawTimes[info.s_refchannel][0];
-    for (int i = 0; i < info.s_channelCount; i++) {
-      int hits = rawTimes[i].size();
-      if (hits > info.s_depth) hits = info.s_depth;
-      CTreeParameterArray* pArray = info.s_parameters[i];
-      if (pArray) {		// No parameter defined.
-	CTreeParameterArray&  Array(*pArray);
-	for (int hit =0; hit < hits; hit++) {
-	  double triggerRelative = static_cast<double>(rawTimes[i][hit] - reftime);
-	  triggerRelative        = triggerRelative*info.s_chansToNs;
 
-	  Array[hit] = triggerRelative;	// common stop assumption.
-	}
-      }
+    if (rawTimes[info.s_refchannel].size() > 0) {
+      reftime = rawTimes[info.s_refchannel][0];
+    }
+    else {
+      std::cerr << "-- TDC data with no hits in reference time discarded from vsn: ";
+      std::cerr << pMap->vsn << std::endl;
+      return offset;
     }
   }
-  else {
-    std::cerr << "-- TDC data with no hits in reference time discarded from ";
-    std::cerr << pMap->vsn << std::endl;
+
+  // The reftime defaults to zero which essentially does not adjust the times
+  // if no reference channel is specified.
+
+  for (int i = 0; i < info.s_channelCount; i++) {
+    int hits = rawTimes[i].size();
+    if (hits > info.s_depth) hits = info.s_depth;
+    CTreeParameterArray* pArray = info.s_parameters[i];
+    if (pArray) {		// No parameter defined.
+      CTreeParameterArray&  Array(*pArray);
+      for (int hit =0; hit < hits; hit++) {
+	double triggerRelative = static_cast<double>(rawTimes[i][hit] - reftime);
+	triggerRelative        = triggerRelative*info.s_chansToNs;
+	
+	Array[hit] = triggerRelative;	// common stop assumption.
+	  }
+    }
   }
 
-  return offset;
 
+
+  return offset;
+  
 } 
 
 

@@ -76,6 +76,12 @@ class CBufferDecoder;
 
 class CStackUnpacker  : public CEventProcessor
 {
+private:
+  // data structures:
+  typedef struct _StackInfo {
+    int         s_stackNumber;
+    size_t      s_stackSize;
+  } StackInfo;
 
   // static data:
 
@@ -99,7 +105,7 @@ public:
   // Utilties:
 
 private:
-  static int assembleEvent(TranslatorPointer<UShort_t>& p, std::vector<uint16_t>& event);
+  static StackInfo assembleEvent(TranslatorPointer<UShort_t>& p, std::vector<uint16_t>& event);
 };
 
 #endif

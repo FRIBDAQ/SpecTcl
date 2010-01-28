@@ -71,7 +71,11 @@ proc configClear {} {
 #  Read a configuration file.  This is just a source.
 #
 proc configRead filename {
-    uplevel #0 source $filename
+    puts "Sourceing the config file:"
+    if {[catch {uplevel #0 source $filename} msg]} {
+	puts "Configuration file failed $msg"
+    }
+    puts "Sourced"
 }
 
 
@@ -128,7 +132,17 @@ proc hytec args {
     set name       [lindex $args 1]
     
     set ::readoutDeviceType($name) $::typeHYTEC
-    set ::adcConfiguration($name)  -1;	# There is no geo associated with this adc.
+#    set ::adcConfiguration($name)  -1;	# There is no geo associated with this adc.
+
+    # The hytec readout uses a marker word to simulate a vsn/geo.
+    # the config param for this is "-id" followed by the value of
+    # the marker.
+
+    set idindex [lsearch -exact $args "-id"]
+    if {$idindex != -1} {
+	incr idindex
+	set ::adcConfiguration($name) [lindex $args $idindex]
+    }
 }
 
 #---------------------------------------------------------------
@@ -185,7 +199,7 @@ proc tdc1x90 args {
     # Default the -depth/-refchannel if needed:
 
     if {[array names ::CAENV1x90 $name] eq ""} {
-	set ::CAENV1x90($name) [list 0 16 128]
+	set ::CAENV1x90($name) [list -1 16 128]
     }
 
     # Default the trigger window and offset for now
@@ -337,10 +351,7 @@ proc stack args {
 # deal with in SpecTcl...
 # these are defined as procs that do nothing:
 #
-
-
 proc sis3820 args {
-
 }
 proc v830 args {
 }

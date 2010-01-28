@@ -111,8 +111,9 @@ C785Unpacker::operator()(CEvent&                       rEvent,
   // Get the 'header' .. ensure that it is one and that it matches our VSN.
 
   unsigned long header=  getLong(event, offset);
-  uint32_t      type  = (header & ALLH_TYPEMASK) >> ALLH_TYPESHIFT;
-  if (type != HEADER) return offset;
+  if (header == 0xffffffff) {
+    return offset+2;		// If immed BERR skip the BERR word and give up
+  }
 
   int           vsn   = (header & ALLH_GEOMASK) >> ALLH_GEOSHIFT;
   if(vsn != pMap->vsn) return offset;
@@ -121,33 +122,50 @@ C785Unpacker::operator()(CEvent&                       rEvent,
 
   offset += 2;			// Next longword..
 
-  unsigned long datum   = getLong(event, offset);
-  offset += 2;			// skip even if its not a data long as it's a trailer then.
+  // I've seen cases where all I get is a _trailer_.. in that case
+  // we're done so skip the analysis:
 
-  while (((datum & ALLH_TYPEMASK) >> ALLH_TYPESHIFT) == DATA) {
-    bool underflow = (datum & DATAL_UNBIT) != 0;
-    bool overflow  = (datum & DATAL_OVBIT) != 0;
+  if (((header & ALLH_TYPEMASK) >> ALLH_TYPESHIFT) != TRAILER) {
 
-    // Must have valid and neither of the underflow/overflow bits.
-
-    if (!(overflow || underflow)) {
-      // Extract channel and the data:
-
-      int channel = (datum & DATAH_CHANMASK) >> DATAH_CHANSHIFT;
-      int value   = datum & DATAL_DATAMASK;
-      int id      = pMap->map[channel];
-      if (id != -1) {
-	rEvent[id] = value;
-      }      
+    unsigned long datum   = getLong(event, offset);
+    offset += 2;			// skip even if its not a data long as it's a trailer then.
+    
+    while (((datum & ALLH_TYPEMASK) >> ALLH_TYPESHIFT) == DATA) {
+      bool underflow = (datum & DATAL_UNBIT) != 0;
+      bool overflow  = (datum & DATAL_OVBIT) != 0;
+      
+      // Must have valid and neither of the underflow/overflow bits.
+      
+      if (!(overflow || underflow)) {
+	// Extract channel and the data:
+	
+	int channel = (datum & DATAH_CHANMASK) >> DATAH_CHANSHIFT;
+	int value   = datum & DATAL_DATAMASK;
+	int id      = pMap->map[channel];
+	if (id != -1) {
+	  rEvent[id] = value;
+	}      
+      }
+      
+      datum = getLong(event, offset);
+      offset += 2;
     }
+    // And damned if I havn't seen duplicated trailers as well so:
 
-    datum = getLong(event, offset);
+    while(((datum & ALLH_TYPEMASK) >> ALLH_TYPESHIFT) == TRAILER) {
+      datum = getLong(event,offset);
+      offset += 2;
+    }
+    offset -= 2;		// Don't count the non trailer longword.
+  }
+
+  // An extra 32 bits of 0xffffffff was read if not in a chain or if at
+  // end of chain:
+
+  if (getLong(event, offset) == 0xffffffff) {
     offset += 2;
   }
-  // An extra 32 bits was read...
 
-  while ((getLong(event,offset) == 0xffffffff) && (offset < event.size())) {
-    offset+=2;
-  }
+
   return offset;
 }
