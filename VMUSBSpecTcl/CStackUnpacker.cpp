@@ -105,6 +105,7 @@ CStackUnpacker::operator()(const Address_t pEvent,
   int stackId = info.s_stackNumber;
   analyzer.SetEventSize((info.s_stackSize)*sizeof(uint16_t)); // +1 for the header.
 
+
   // Get our stack map:
 
   const CStackMapCommand::stackMap& myMap(CStackMapCommand::getMap(stackId));

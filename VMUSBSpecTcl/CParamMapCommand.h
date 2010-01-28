@@ -60,7 +60,7 @@ class CTCLInterpreter;
 
    Where:
     - modulename is the name of the module whose channel map is being created.
-    - moduletype is a integer that represents the type of the module to the unpacker.
+    - moduletype is a integer that represents the type of the module to the3 unpacker.
     - slot       is the virtual slot of the module if it has one.
     - channels   is the list of channel names to enter into the map.
 
