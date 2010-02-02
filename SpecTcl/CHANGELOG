@@ -890,5 +890,6 @@ pre4:
                            - Throw an appropriate const char* exception when
                              no suitable fonts can be found in text.cc:LoadFonts
 
-                          
+February 2, 2010  - Export CRingBufferDecoder.h to the world rather than
+                    hiding it in noinst_HEADERS.                      
 
