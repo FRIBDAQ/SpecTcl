@@ -53,7 +53,8 @@ CRingBufferDecoder::CRingBufferDecoder() :
   m_pBuffer(0),
   m_pPartialEvent(0),
   m_pTranslator(0),
-  m_runNumber((UInt_t)-1)
+  m_runNumber((UInt_t)-1),
+  m_pGluedBuffer(0)
 {
 
 }
@@ -94,7 +95,7 @@ CRingBufferDecoder::operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAna
   // they've already been created.
   //
   
-  if (!m_pPartialEvent) {
+  if (!m_pPartialEvent && !m_pGluedBuffer) {
     createTranslator();
   }
   else {
@@ -314,11 +315,12 @@ CRingBufferDecoder::processBuffer()
 
 
   if (m_pPartialEvent) {
+
     UInt_t remaining = m_nPartialEventSize - m_nPartialEventBytes;
     UInt_t append    = m_nBufferSize >= remaining ? remaining : m_nBufferSize;
 
     uint8_t* p      = reinterpret_cast<uint8_t*>(m_pPartialEvent) + m_nPartialEventBytes;
-    memcpy(p, m_pBuffer, append);
+    memcpy(p, m_pBufferCursor, append);
 
     m_nPartialEventBytes += append;
     m_nResidual          -= append;
@@ -328,26 +330,85 @@ CRingBufferDecoder::processBuffer()
       dispatchPartialEvent();
     }
   }
+  // If we have a glued buffer then:
+  // - Append the current buffer to it (we can no longer have a partial).
+  // - Set the buffer cursor to point into the glue buffer rather than 
+  //   the initial buffer:
+  // - Add the initial glue size to the buffer size.
+  // - Process normally.
+  // NOTE: The glue buffer will hang around as used storage until either
+  //       we have a partial event for which we have at least the header.
+  //       or we have a new need for a glued buffer.
+  //
+  if (m_pGluedBuffer) {
+    m_pGluedBuffer = reinterpret_cast<uint32_t*>(realloc(m_pGluedBuffer, 
+							 m_nBufferSize + m_nGlueSize));
+    uint8_t* pAppend = reinterpret_cast<uint8_t*>(m_pGluedBuffer);
+    pAppend         += m_nGlueSize;
+    memcpy(pAppend, m_pBuffer, m_nBufferSize);
+    m_nResidual      = m_nGlueSize + m_nBufferSize;
+    m_pBufferCursor  = m_pGluedBuffer;
+      
+  }
+   
   // At this point if there's anything left in the buffer (at m_pBufferCursor),
   // we must be starting at the beginning of an item.
   // 
   
   while(m_nResidual) {
-    pRingItemHeader pItemHeader = reinterpret_cast<pRingItemHeader>(m_pBufferCursor);
-    uint32_t size = m_pTranslator->TranslateLong(pItemHeader->s_size);
+    //
+    // If the residual is > header size  we can at least make a partial event
+    // Otherwise we need to assemble the size using the next buffer too.
+    //
 
-    if (size > m_nResidual) {
-      // Full event does not fit in the remainder of the buffer..
+    if (m_nResidual > sizeof(RingItemHeader)) {
 
-      createPartialEvent();
-      m_nResidual = 0;		// By definition we're done with the buffer.
+      pRingItemHeader pItemHeader = reinterpret_cast<pRingItemHeader>(m_pBufferCursor);
+      uint32_t size = m_pTranslator->TranslateLong(pItemHeader->s_size);
+      
+      if (size > m_nResidual) {
+	// Full event does not fit in the remainder of the buffer..
+	
+	createPartialEvent();
+	m_nResidual = 0;		// By definition we're done with the buffer.
+	if (m_pGluedBuffer) {	        // Partial events are not compatible with
+	  free(m_pGluedBuffer);	        // having glued buffers.
+	  m_pGluedBuffer = 0;
+	}
+      }
+      else {
+	// Full event fits in the remainder of the buffer:
+	
+	dispatchEvent(m_pBufferCursor);
+	m_pBufferCursor = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(m_pBufferCursor) + size);
+	m_nResidual    -= size;
+
+	// If we've used up the buffer, kill off any glue buffer:
+	// Else hell will break loose on the next buffer.
+	if (m_pGluedBuffer) {
+	  free(m_pGluedBuffer);
+	  m_pGluedBuffer = 0;
+	}
+      }
     }
     else {
-      // Full event fits in the remainder of the buffer:
+      // Allocate space for and put the remainder of the current buffer into it
+      // 
+      uint32_t* pNewGluedBuffer = reinterpret_cast<uint32_t*>(malloc(m_nResidual));
+      memcpy(pNewGluedBuffer, m_pBufferCursor, m_nResidual);
 
-      dispatchEvent(m_pBufferCursor);
-      m_pBufferCursor = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(m_pBufferCursor) + size);
-      m_nResidual    -= size;
+      // If there's an existing glued buffer get rid of it as it must be the one
+      // we were originally processing:
+      //
+      if (m_pGluedBuffer) {
+	free(m_pGluedBuffer);
+      }
+      // Either way, set m_pGluedBuffer:
+
+      m_pGluedBuffer = pNewGluedBuffer;
+      m_nGlueSize = m_nResidual;
+      m_nResidual = 0;		// Buffer is all consumed.
+							      
     }
   }
   
@@ -485,6 +546,11 @@ CRingBufferDecoder::createPartialEvent()
 
   pRingItemHeader pHeader = reinterpret_cast<pRingItemHeader>(m_pBufferCursor);
   uint32_t    size    = m_pTranslator->TranslateLong(pHeader->s_size);
+
+  if (size > 512) {
+    cerr << "Size really big!!\n";
+
+  }
 
   m_pPartialEvent      = reinterpret_cast<uint32_t*>(malloc(size));
   m_nPartialEventSize = size;

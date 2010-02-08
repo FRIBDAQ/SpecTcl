@@ -73,6 +73,8 @@ private:
   UInt_t       m_nCurrentItemType; // Item type of event being delivered.
   UInt_t       m_nEntityCount;  // Number of items in event being delivered.
   UInt_t       m_nTriggerCount; // Estimate of the number of triggers so far.
+  uint32_t*    m_pGluedBuffer;  // Buffer glued together from last and current buffer.
+  uint32_t     m_nGlueSize;     // # bytes in the glued buffer when first made.
 
   CAnalyzer*   m_pAnalyzer;
 
