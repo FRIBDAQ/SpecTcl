@@ -891,5 +891,9 @@ pre4:
                              no suitable fonts can be found in text.cc:LoadFonts
 
 February 2, 2010  - Export CRingBufferDecoder.h to the world rather than
-                    hiding it in noinst_HEADERS.                      
+                    hiding it in noinst_HEADERS.
+Feburary 11, 2010 - Modify data source GUI elements to include a data
+                    format selector that includes support for ring so people
+                    can attach to ring buffers or event files from the ring
+                    buffer system.                      
 

@@ -98,7 +98,7 @@ public:
   virtual   void   Open (const STD(string)& rsConnection, UInt_t nAccess,
 			 bool fullBlocks = true)  ;
 
-    virtual   void   Close ()  ;
+  virtual   void   Close ()  ;
   virtual   Bool_t IsReadable (UInt_t nMs) const  ;
 
   // Protected utilities.
