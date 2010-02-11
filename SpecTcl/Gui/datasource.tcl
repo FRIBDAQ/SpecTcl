@@ -23,6 +23,7 @@ package require guiutilities
 namespace eval datasource {
     variable daqroot         [list /usr/opt/daq/current /usr/opt/daq/8.1 /usr/opt/daq/8.0  /usr/opt/daq];   # Where the DAQ software is installed.
     variable lasthost        localhost;  # Most recent online host.
+    variable lastformat      nscl
     variable lasteventfile   {}
     variable lastpipecommand {}
     variable lastpipeargs    {}
@@ -49,7 +50,7 @@ proc datasource::findSpecTclDaq {} {
 	    set datasource::actualSpecTclDaq $candidate
 	    return
 	}
-
+	
     }
 
     foreach root $datasource::daqroot {
@@ -83,21 +84,25 @@ proc datasource::findSpecTclDaq {} {
 #
 proc attachOnline {} {
     hostprompt .hostprompt -host $::datasource::lasthost \
-	-buffersize $::GuiPrefs::preferences(defaultBuffersize)
+	-format $::datasource::lastformat                \
+	-buffersize $::GuiPrefs::preferences(defaultBuffersize) 
     .hostprompt modal
     if {[winfo exists .hostprompt]} {
         set host [.hostprompt cget -host]
+
         if {$host != ""} {
-            set $::datasource::lasthost $host
-            set url [format "tcp://%s:2602/" $host]
+	    set format [.hostprompt cget -format]
+
+            set ::datasource::lasthost     $host
+	    set ::datasource::lastformat   $format
 	    set size [.hostprompt cget -buffersize]
-            catch stop;                         # In case analysis is active.
-	    datasource::findSpecTclDaq
-	    if {$datasource::actualSpecTclDaq ne ""} {
-		attach -size $size -pipe $datasource::actualSpecTclDaq  $url
-		set ::GuiPrefs::preferences(defaultBuffersize) $size
-		start
-	    }
+	    
+	    set helper [.hostprompt onlinehelper $host]
+	    
+	    catch stop
+	    attach -format $format  -size $size -pipe $helper
+	    set ::GuiPrefs::preferences(defaultBuffersize) $size
+	    start
         }
         destroy .hostprompt
     }
@@ -115,19 +120,22 @@ proc attachFile {} {
 	-defaultextension .evt                                       \
 	-initialfile  $::datasource::lasteventfile                   \
 	-initialdir   [file dirname $::datasource::lasteventfile]   \
-	-buffersize   $::GuiPrefs::preferences(defaultBuffersize)
+	-buffersize   $::GuiPrefs::preferences(defaultBuffersize)   \
+	-format $::datasource::lastformat
     .prompt modal
     set file [.prompt cget -initialfile]
     set size [.prompt cget -buffersize]
+    set format [.prompt cget -format]
     destroy .prompt
 	
     if {$file != ""} {
         if {[file readable $file]} {
             catch stop
-            attach -size $size -file $file
+            attach -size $size -format $format -file $file
 	    set ::GuiPrefs::preferences(defaultBuffersize) $size
             start
             set ::datasource::lasteventfile $file
+	    set ::datasource::lastformat $format
         } else {
             tk_messageBox -icon error  -title {Can't read file} \
                           -message "Could not read the file $file permission problem or file does not exist"
@@ -300,6 +308,106 @@ proc detach {} {
     catch stop
     attach -file /dev/null
 }
+
+#
+#  This radio box can be used within the various prompters to select the
+#  format of the data source.  For now this is restricted to three hard coded
+#  choices:
+#   nscl  -  NSCL standard buffers with event sizes < 32K and buffersize < 32K
+#   jumbo -  NSCL standard buffers with events/buffers sizes potentially > 32k
+#   ring  -  Data from NSCLDAQ 10.0 and later (ringbuffer data).
+#
+
+#  
+#  OPTIONS:
+#    -format   - get set the radio button value which can be nscl, jumbo, ring
+#  Methods:
+#    helptext  - Get help text that describes the formats.
+#    pipehelper- Given a node, provides the helper to be used for a pipe data
+#                source for the current format.  The directory is assumed to be
+#                provided by the caller, or in the path.
+#                For ring buffers, the assumption is that the 
+#                ring for the current user is desired.
+#
+#
+
+snit::widget formatChooser {
+    variable formats {nscl jumbo ring};     # Valid options
+    option   -format nscl;        # Default option.
+
+    constructor args {
+	$self configurelist $args
+	
+	set col 0
+	foreach format $formats {
+	    radiobutton $win.$format -variable ${selfns}::options(-format) \
+                                 -value $format -text $format
+	    grid $win.$format -sticky w -row 0 -column $col
+	    incr col
+	}
+	
+    }
+    #
+    #  Return help text for the formats
+    #
+    method helptext {} {
+	append result "Format   Meaning\n"
+	append result "nscl     nscl buffers/events < 32K words (< 10.0)\n" 
+	append result "jumbo    nscl buffers/events >= 32KWords (< 10.0)\n"
+	append result "ring     Ring buffer data from nscldaq 10.0 and later\n"
+
+	return $result
+    }
+    #
+    #  Method to return the correct helper command for online attaches.
+    #  The assumption is that for each format there's a method
+    #  by that name.. The assumption is also that the 
+    #  caller will figure out the directory part of the path.
+    #
+    method onlinehelper {host} {
+	return [$self $options(-format) $host]
+    }
+
+    #-----------------------------------------------------------------
+    # 
+    # Private methods
+    #
+    
+    # Construct the helper program line for spectrodaq online
+    
+    method spectrodaq {host} {
+	#
+	# Really dirty:
+
+	set url tcp://$host:2602
+	datasource::findSpecTclDaq
+	return "$datasource::actualSpecTclDaq $url"
+    }
+
+    # Construct the helper program for nscl format 
+
+    method nscl {host} {
+	return [$self spectrodaq $host]
+    }
+    # Construct the helper program for jumbo format:
+
+    method jumbo {host} {
+	return [$self spectrodaq $host]
+    }
+
+    # Construct the helper program for ring buffers.
+    # We are going to assum the current user is the
+    # owner of the target ring.
+
+    method ring {host} {
+	set url "tcp://$host/$::tcl_platform(user)"
+	set selection "--sample=PHYSICS_EVENT"
+
+	return "/usr/opt/daq/10.0/bin/ringselector --source=$url $selection"
+    }
+
+}
+
 #
 #  Prompter for a host for the attachonline.
 #
@@ -310,6 +418,11 @@ snit::widget hostprompt {
     option -cancelcommand  {}
     option -buffersize     8192
 
+    delegate option -format to format
+
+    delegate method onlinehelper to format
+    
+
     variable hidden {}
     constructor args {
         label $win.hostlabel -text Host:
@@ -318,6 +431,9 @@ snit::widget hostprompt {
 	label   $win.buflabel   -text {Buffer size in bytes: }
 	$win.buffersize set $options(-buffersize)
 
+	label         $win.fmtlabel -text {Data format}
+	install format using formatChooser $win.format
+
         button $win.ok     -text Ok     -command [mymethod onOk]
         button $win.cancel -text Cancel -command [mymethod onCancel]
         button $win.help   -text Help   -command [list spectclGuiDisplayHelpTopic  hostPrompt]
@@ -325,6 +441,8 @@ snit::widget hostprompt {
 
         grid $win.hostlabel $win.host
 	grid $win.buflabel  $win.buffersize
+	grid $win.fmtlabel
+	grid $win.format
         grid $win.ok        $win.cancel  $win.help
 
         $self configurelist $args
@@ -544,6 +662,8 @@ snit::widget attachfile {
     option -command           {}
     option -cancel            {}
 
+    delegate option -format to  format
+
     variable hidden {}
 
     constructor args {
@@ -557,11 +677,15 @@ snit::widget attachfile {
 	spinbox $win.size    -values {512 1024 2048 4096 8192 16384 32768 65536}
 	$win.size set $options(-buffersize)
 
+	label $win.formatlabel -text {Format:}
+	install format using formatChooser $win.format
+
 	button $win.ok     -text Ok     -command [mymethod onOk]
 	button $win.cancel -text Cancel -command [mymethod onCancel]
 
 	grid $win.fsb           -
 	grid $win.sizelabel $win.size
+	grid $win.format
 	grid $win.ok        $win.cancel
 	                                    
 	$self configurelist $args
@@ -667,3 +791,4 @@ snit::widget attachfile {
 	return [$win.size get]
     }
 }
+

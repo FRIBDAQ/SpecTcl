@@ -115,6 +115,9 @@ public:
   virtual   void Close ()  ;
   virtual   Bool_t IsReadable(UInt_t nMs) const;
 
+  void      setVariableRecord();
+  void      setFixedRecord();
+
   // Utility functions available to derived classes:
 
 protected:

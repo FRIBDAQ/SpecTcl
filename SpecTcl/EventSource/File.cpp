@@ -346,6 +346,30 @@ CFile::Close()
   
 	  
 }
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Control whether or not the records from the data source are fixed length
+// or variable:
+
+/*!
+   Sets the record type to variable.  If this is set the Read function
+   is allowed to return data to the call if the buffer was not completely filled.
+*/
+void
+CFile::setVariableRecord()
+{
+  m_fixedLength = false;
+}
+/*!
+   Sets the record type to fixed.  In this case Read can only return if it has
+   filled the buffer or if the end of file was encountered on the input source.
+*/
+void
+CFile::setFixedRecord()
+{
+  m_fixedLength = true;
+}
 //////////////////////////////////////////////////////////////////////////////
 //
 // Function:

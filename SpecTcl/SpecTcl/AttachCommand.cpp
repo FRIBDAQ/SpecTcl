@@ -50,6 +50,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <histotypes.h>
 #include <Globals.h>
+#include <File.h>
 
 #include "AttachCommand.h"                               
 #include "TCLInterpreter.h"
@@ -307,6 +308,16 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   case eUnspecified:		// Prior tests should have
   default:			// prevented these cases...
     assert(0);			// Let me know noisily if I'm wrong.
+  }
+
+  // Set the block/nonblock mode on the event source depending on what the
+  // decoder needs:
+
+  if(gpBufferDecoder->blockMode()) {
+    gpEventSource->setFixedRecord();
+  }
+  else {
+    gpEventSource->setVariableRecord();
   }
 
 
