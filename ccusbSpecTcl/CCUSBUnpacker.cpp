@@ -23,6 +23,7 @@
 #include "CCCUSBPacket.h"
 #include "CPh7xxUnpacker.h"
 #include "CFixedSizedUnpacker.h"
+#include "CC1205Unpacker.h"
 
 
 #include <string>
@@ -38,12 +39,14 @@ static CPh7xxxUnpacker         ph7xxx;
 static CFixedSizedUnpacker     ad811(8);
 static CFixedSizedUnpacker     lrs2249w(12);
 static CFixedSizedUnpacker     lrs2228(8);
+static CC1205Unpacker          c1205;
 
 static CCCUSBPacket* unpackers[] = {
   &ph7xxx, 			// Type 0 => phillips 7xxx
   &ad811,			// Type 1 => Ortec AD811
   &lrs2249w,                    // Type 2 => LRS 2249 QDC
-  &lrs2228                      // Type 3 => LRS 2228 TDC.
+  &lrs2228,                     // Type 3 => LRS 2228 TDC.
+  &c1205			// Type 4 => CAEN C1205 QDC.
 };				// Indices must match types in spectclsetup.tcl
 
 ///////////////////////////////////////////////////////////////////////////////////

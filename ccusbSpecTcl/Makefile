@@ -22,7 +22,8 @@ USERLDFLAGS=
 #
 
 OBJECTS=MySpecTclApp.o ParamMapCommand.o CCUSBUnpacker.o \
-	CCCUSBPacket.o CPh7xxUnpacker.o CFixedSizedUnpacker.o
+	CCCUSBPacket.o CPh7xxUnpacker.o CFixedSizedUnpacker.o \
+	CC1205Unpacker.o
 
 #
 #  Finally the makefile targets.

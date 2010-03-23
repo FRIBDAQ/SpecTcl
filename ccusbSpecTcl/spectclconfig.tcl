@@ -53,6 +53,7 @@ set moduleTypeCodes(ph7xxx)  0
 set moduleTypeCodes(ad811)   1
 set moduleTypeCodes(lrs2249) 2
 set moduleTypeCodes(lrs2228) 3
+set moduleTypeCodes(c1205)   4
 
 # Resolutions for each module type:
 
@@ -60,6 +61,7 @@ set moduleChannels(ph7xxx)  4096
 set moduleChannels(ad811)   4096
 set moduleChannels(lrs2249) 2048
 set moduleChannels(lrs2228) 4096
+set moduleChannels(c1205)   4096
 
 
 #  Processes a module.. this will be front ended by a simple 
@@ -107,10 +109,18 @@ proc lrs2249 args {
 proc lrs2228 args {
     module lrs2228 $args
 }
+# Caen 1205 QDC
+
+proc c1205 args {
+    module c1205 $args
+}
+
 
 #  For now scalers are ignored.
 
 proc lrs2551 args {
+}
+proc c257 args {
 }
 
 #
@@ -187,6 +197,52 @@ proc getChannels name {
 proc getType name {
     return $::moduleTypes($name)
 }
+
+#  The CANE C1205 module requires special handling because it provides 3
+#  potential channels of data for each of the input channels.  This is because
+#  it provides 3 ranges of value per channel.   We are going to take the parameters
+#  passed in as a base name from which a 3 element 'treearray' will be built.
+#  I say 'treearray' because we're not going to actually create tree parameters here,
+#  just the parameters.
+#  Each parameter will also have a 1d spectrum associated with it.,
+#  @param id          - The module id programmed via the -id configuration option.
+#  @param number      - The module number used in the mapparam command.
+#  @param type        - The module type.
+#  @param parametesr  - list of parameter base name.
+#
+proc mapC1205Channels {id number type parameters} {
+    #
+    # Produce the parameter list.  Note that if a parameter is '' it produces
+    # three un-created parameters.
+
+    if {$parameters ne ""} {
+	set expandedParameters [list]
+	foreach parameter $parameters {
+	    if {$parameter eq ""} {
+		lappend expandedParameters ""
+		lappend expandedParameters ""
+		lappend expandedParameters ""
+	    } else {
+		foreach suffix {.low .mid .high} {
+		    lappend expandedParameters $parameter$suffix
+		}
+	    }
+	}
+	# Create the parameter map, which also creates the parameter:
+
+	parammap -add $number $type $id $expandedParameters
+
+	# Now create a spectrum for each non blank parameter:
+	
+	foreach parameter $expandedParameters {
+	    if {$parameter ne ""} {
+		spectrum $parameter 1 $parameter {{0 4095 4096}}
+	    }
+	}
+    }
+
+}
+
 #
 #   Create the parameter maps and spectra
 #   for the set of modules specified.
@@ -208,10 +264,19 @@ proc createMapAndSpectra modules {
 
 	set axis [list 0 [expr $channels-1] $channels]
 	set axisspec [list $axis]
-	if {[array names parameters $module] ne ""} {
-	    parammap -add $moduleNumber $type $id  $parameters($module)
-	    foreach parameter $parameters($module) {
-		spectrum $parameter 1 $parameter $axisspec
+
+	#  The 1205 module is special because it creates 3 parameters
+	#  for each of the 16 channels... looking like a tree array per channel.
+	#
+	if ($type eq ::$moduleTypeCodes(c1205) {
+	    mapC1205Channels $id $moduleNumber $type $parameters($module)
+	} else {
+
+	    if {[array names parameters $module] ne ""} {
+		parammap -add $moduleNumber $type $id  $parameters($module)
+		foreach parameter $parameters($module) {
+		    spectrum $parameter 1 $parameter $axisspec
+		}
 	    }
 	}
 	incr moduleNumber
