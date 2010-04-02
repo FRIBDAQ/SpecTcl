@@ -228,6 +228,8 @@ proc mapC1205Channels {id number type parameters} {
 		}
 	    }
 	}
+
+
 	# Create the parameter map, which also creates the parameter:
 
 	parammap -add $number $type $id $expandedParameters
@@ -268,7 +270,7 @@ proc createMapAndSpectra modules {
 	#  The 1205 module is special because it creates 3 parameters
 	#  for each of the 16 channels... looking like a tree array per channel.
 	#
-	if ($type eq ::$moduleTypeCodes(c1205) {
+	if {$type eq $::moduleTypeCodes(c1205)} {
 	    mapC1205Channels $id $moduleNumber $type $parameters($module)
 	} else {
 

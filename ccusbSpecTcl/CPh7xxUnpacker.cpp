@@ -89,7 +89,7 @@ CPh7xxxUnpacker:: unpack(TranslatorPointer<UShort_t> p,
   }
 
   // we consumed the id the bit mask (2) and channels words:
-  // And there's a garbage word when the qstop finally fails:
 
-  return 3 + channels;
+
+  return 2 + channels;
 }

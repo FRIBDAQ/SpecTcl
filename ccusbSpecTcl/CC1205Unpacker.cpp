@@ -41,12 +41,14 @@ static const uint32_t headerEvNumMask(0x0f0000);
 // Data word format:
 
 static const uint32_t dataValueMask(0x003fff); // Data value mask
+static const int32_t  dataSignBit  (0x002000); // If set conversion negative.
+static const int32_t  dataSignExtend(0xffffc000);
 static const uint32_t rangeMask    (0x00c000);
 static const uint32_t rangeLow     (0x000000);
 static const uint32_t rangeMid     (0x004000);
 static const uint32_t rangeHigh    (0x008000);
-static const uint32_t rangeShift   (14);
 static const uint32_t rangeOverflow(0x00c000);
+static const uint32_t rangeShift   (14);
 static const uint32_t channelMask  (0x0f0000);
 static const uint32_t channelShift (16);
 
@@ -119,13 +121,18 @@ CC1205Unpacker::unpack(TranslatorPointer<UShort_t> p,
 	if (paramIndex < parameterMap.size()) {
 	  int parno = parameterMap[paramIndex];
 	  if (parno >= 0) {
-	    uint32_t conversion = datum & dataValueMask;
+	    int32_t conversion = datum & dataValueMask;
+	    // If the conversion is negative sign extend it:
+	    if (conversion & dataSignExtend) {
+	      conversion |= dataSignExtend;
+	    }
+
 	    rEvent[parno] = conversion;
 	  }
 	}
       }
     }
-    numWords++;
+    numWords+= 2;		// Processed a longword.
   } while ((datum & typeMask) != typeTrailer);
   
   return numWords;

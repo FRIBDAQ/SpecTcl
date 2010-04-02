@@ -78,7 +78,7 @@ splash::config $splash -delay 2000
 #  set up the paramter map hard for now:
 #
 
- source [file join ~ config spectclconfig.tcl]
+source [file join ~ config spectclconfig.tcl]
 sbind -all
 
 .gui.b update
