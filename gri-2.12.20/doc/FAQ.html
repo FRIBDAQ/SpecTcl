@@ -1,0 +1,1197 @@
+<!-- 
+UPDATE SourceForge site by the command:
+
+scp FAQ.html dankelley@gri.sourceforge.net:/home/groups/g/gr/gri/htdocs/gridoc/html
+
+-->
+
+
+<html>
+<head> <title>
+Gri Frequently Asked Questions
+</title>
+<style type="text/css">
+    <!--
+    BODY { background-color: #FFFFFF }
+
+    A { text-decoration: none; color #6666DD; }
+    A:visited { text-decoration: none; color: #6666DD; }
+    A:link { text-decoration: none; color: #6666DD; }
+    A:active { text-decoration: none; color: #6666DD; }
+    A:hover { text-decoration: underline; color: #6666DD; }
+    A:mail { text-decoration: none; color: #6666DD; font-weight: bold }
+    OL,UL,P,BODY,TD,TR,TH,FORM,SPAN { font-family: arial,helvetica,sans-serif;color: #333333 }
+    H1,H2,H3,H4,H5,H6 { font-family: arial,helvetica,sans-serif }
+    CODE,PRE,TT { font-family: courier,sans-serif; color: #82140F; }
+
+    SPAN.center { text-align: center }
+    SPAN.boxspace { font-size: 2pt; }
+
+    A.maintitlebar { color: #FFFFFF;  }
+    A.bottombar { color: #FFFFFF; text-decoration: none;  }
+    A.sortbutton { color: #FFFFFF; text-decoration: none; }
+    A.menus { color: #6666DD; text-decoration: none; }
+    A.menus:hover { text-decoration: underline; }
+    A.tabs { color: #000000; text-decoration: none; }
+    A.date { color: #ff0000; text-decoration: none; }
+    SPAN.alignright { text-align: right }
+    SPAN.maintitlebar { font-size: 10pt; color: #FFFFFF; font-weight: bold  }
+    SPAN.bottombar { font-size: 10pt; color: #FFFFFF; font-weight: bold }
+    SPAN.titlebar { text-align: center; font-size: 10pt; color: #FFFFFF; font-weight: bold }
+    TD.featurebox { font-size: small; }
+    TD.newsbox { font-size: 8pt; }
+    TD.menus { color: #000000; }
+    -->
+    </style>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h1> Introduction</h1>
+
+This is the FAQ ("frequently asked questions") document for the Gri
+scientific graphing language, (c) 1991-2003 Dan Kelley,
+to whom you are asked to <A
+HREF="mailto:dankelley@users.sourceforge.net"> email</A> reports of Gri errors, or
+suggestions for Gri improvements or new features.
+
+
+
+<h1> The Questions</h1>
+
+<h2> Q1 Features</h2>
+<UL>
+<LI>
+<A NAME="Q1.1">Q1.1</A>
+<A HREF="#A1.1">What is Gri?</A>
+<LI>
+<A NAME="Q1.2">Q1.2</A>
+<A HREF="#A1.2">What does `Gri' stand for?  How is it pronounced?</A>
+<LI>
+<A NAME="Q1.3">Q1.3</A>
+<A HREF="#A1.3">What does Gri cost?</A>
+<LI>
+<A NAME="Q1.4">Q1.4</A>
+<A HREF="#A1.4">How long will it take to learn Gri?</A>
+</UL>
+
+
+<h2> Q2 Documentation </h2>
+<UL>
+<LI>
+<A NAME="Q2.1">Q2.1</A>
+<A HREF="#A2.1">Is there a quick-reference card for Gri?</A>
+<LI>
+<A NAME="Q2.2">Q2.2</A>
+<A HREF="#A2.2">Where can I get documentation for Gri?</A>
+<LI>
+<A NAME="Q2.3">Q2.3</A>
+<A HREF="#A2.3">Is there a cookbook of Gri program to use for guidance?</A>
+<LI>
+<A NAME="Q2.4">Q2.4</A>
+<A HREF="#A2.4">Is there a newsgroup for Gri?</A>
+<LI>
+<A NAME="Q2.5">Q2.5</A>
+<A HREF="#A2.5">Where can I get some sample Gri input files?</A>
+</UL>
+
+
+<h2> Q3 Can Gri do ... ?</h2>
+<UL>
+<LI>
+<A NAME="Q3.1">Q3.1</A>
+<A HREF="#A3.1"> Can Gri do barcharts?</A>
+<LI>
+<A NAME="Q3.2">Q3.2</A>
+<A HREF="#A3.2"> Can Gri do histograms?</A>
+<LI>
+<A NAME="Q3.3">Q3.3</A>
+<A HREF="#A3.3"> Can Gri do error bars?</A>
+<LI>
+<A NAME="Q3.4">Q3.4</A>
+<A HREF="#A3.4"> Can Gri draw labels for Tukey box plots?</A>
+<LI>
+<A NAME="Q3.5">Q3.5</A>
+<A HREF="#A3.5"> Can Gri read compressed data files?</A>
+<LI>
+<A NAME="Q3.6">Q3.6</A>
+<A HREF="#A3.6"> Can Gri use scientific notation on axes?</A>
+<LI>
+<A NAME="Q3.7">Q3.7</A>
+<A HREF="#A3.7"> Can Gri label x-axis with day of week?</A>
+<LI>
+<A NAME="Q3.8">Q3.8</A>
+<A HREF="#A3.8"> Can Gri draw maps?</A>
+<LI>
+<A NAME="Q3.9">Q3.9</A>
+<A HREF="#A3.9"> Can Gri draw residuals on regressions?</A>
+
+</UL>
+
+
+<h2> Q4 Gri and other programs</h2>
+<UL>
+<LI>
+<A NAME="Q4.1">Q4.1</A>
+<A HREF="#A4.1">Is Gri better than Fortran/C/... plotting subroutines?</A>
+<LI>
+<A NAME="Q4.2">Q4.2</A>
+<A HREF="#A4.2">How can I include Gri plots in LaTeX/word/... files?</A>
+<LI>
+<A NAME="Q4.3">Q4.3</A>
+<A HREF="#A4.3">How may I convert Gri output to GIF format?</A>
+<LI>
+<A NAME="Q4.4">Q4.4</A>
+<A HREF="#A4.4">Is there an Emacs mode for Gri?</A>
+<LI>
+<A NAME="Q4.5">Q4.5</A>
+<A HREF="#A4.5">Is there a Gri module for perl/python/R/octave/...?</A>
+</UL>
+
+
+<h2> Q5 Evolution of Gri</h2>
+<UL>
+<LI>
+<A NAME="Q5.1">Q5.1</A>
+<A HREF="#A5.1">Where can I get the latest version of Gri?</A>
+<LI>
+<A NAME="Q5.2">Q5.2</A>
+<A HREF="#A5.2">How can I find out the most recent features of Gri?</A>
+<LI>
+<A NAME="Q5.3">Q5.3</A>
+<A HREF="#A5.3">Should I keep my copy of Gri up-to-date?</A>
+<LI>
+<A NAME="Q5.4">Q5.4</A>
+<A HREF="#A5.4">How can I protect myself against changes to Gri?</A>
+</UL>
+
+<h2> Q6 Gri on various computers</h2>
+<UL>
+<LI>
+<A NAME="Q6.1">Q6.1</A>
+<A HREF="#A6.1">What computers does Gri work on?</A>
+<LI>
+<A NAME="Q6.2">Q6.2</A>
+<A HREF="#A6.2">What kind of compiler is required to compile gri?</A>
+<LI>
+<A NAME="Q6.3">Q6.3</A>
+<A HREF="#A6.3">Why can't I link my compiled gri? (on HP computer)</a>
+<LI>
+<A NAME="Q6.4">Q6.4</A>
+<A HREF="#A6.4">Is there a Macintosh version of Gri?</A>
+<LI>
+<A NAME="Q6.5">Q6.5</A>
+<A HREF="#A6.5">Is there a DOS/Windows version of Gri?</A>
+<LI>
+<A NAME="Q6.6">Q6.6</A>
+<A HREF="#A6.6">Is there a linux version of Gri?</A>
+</UL>
+
+
+<h2> Q7 Gri bugs</h2>
+<UL>
+<LI>
+<A NAME="Q7.1">Q7.1</A>
+<A HREF="#A7.1"> What are known bugs in Gri?</A>
+<LI>
+<A NAME="Q7.2">Q7.2</A>
+<A HREF="#A7.2"> How can I report Gri bugs?</A>
+</UL>
+
+
+<h1> The Answers</h1>
+
+<hr>
+
+<h2> A1 Features </h2>
+
+<A NAME="A1.1"></A>
+<A HREF="#Q1.1"><h3>A1.1 What is Gri?</h3></A>
+
+<p> Gri is a program for drawing scientific graphs.  It makes xy plots
+(linegraphs and scattergraphs), contour plots, and image plots.
+Unlike many scientific plotting packages, Gri provides precise control
+over fonts, line widths, grayscales, colors, etc.  Since Gri was
+written by a scientist, it does the kinds of plots scientists want.
+It has few frills; e.g., it does not do 3D mesh plots, because the
+author dislikes them.  Gri is command-driven, not mouse driven.
+
+<p>
+<A NAME="A1.2"></A>
+<A HREF="#Q1.2"><h3>A1.2 What does `Gri' stand for?  How is it pronounced?</h3></A>
+
+<p> Gri stands for `<tt>gr-interactive</tt>', and `<tt>gr</tt>' is the
+name of a subroutine library that preceded Gri.  The `interactive'
+adjective indicates that Gri can be used interactively -- that is, Gri
+is an interpreted language whereas Gr is a compiled language.  `Gri'
+rhymes with `tree'.
+
+
+<p>
+<A NAME="A1.3"></A>
+<A HREF="#Q1.3"><h3>A1.3 What does Gri cost?</h3></a>
+
+<p> Gri is free.  A commercial version, called <A
+HREF="http://www.phys.ocean.dal.ca/~kelley/gre">Gre</A>
+will be made available soon.  It
+contains most of Gri as a subset, but also contains quite a lot of the
+<tt>Perl</tt> language as well, making it a fully functional and
+efficient programming language.
+
+
+<p>
+<A NAME="A1.4"></A>
+<A HREF="#Q1.4"><h3>A1.4 How long will it take to learn Gri?</h3></a>
+
+<p> Most users can get Gri working after spending half an hour with
+manual (see <a href="#Q2.1">Q2.1</a>).  Familiarity with your
+operating system (for example for viewing PostScript files) will speed
+this somewhat.  After that, it's best to learn new features only as
+you come to need them.  To begin with, you should skim the manual and
+the cookbook (see <a href="#Q2.3">Q2.3</a>), looking just at the
+illustrations.  This will take no more than an hour.
+
+<p> The Gri manual is like most computer manuals: it would be a waste
+of time to read it cover to cover before starting to use Gri.  But
+you'll find the manual helpful as you branch out, modifying the
+existing examples and inventing code of your own.
+
+<p> Learning how to use a new command usually takes only a minute but
+realizing that the command exists can take longer.  That's why many
+users with sophisticated needs find it useful to spend an afternoon
+leafing through the entire manual at some point.
+
+<p> Most things in Gri can be done elegantly or crudely.  The elegant
+approach may require a little investment in time at the beginning, but
+this will pay off constantly as your needs grow.  For example, folks
+who like computer programming often start using Gri "newcommands" (a
+form of subroutines) within a few days.  Other folks might avoid
+newcommands, instead putting their entire program in one long "main
+routine".  What's right for you depends on how you think and the sort
+of work you do.
+
+
+
+
+<hr>
+<h2> A2 Documentation </h2>
+
+<A NAME="A2.1"></A>
+<A HREF="#Q2.1"><h3>A2.1 Is there a quick-reference card for Gri?</h3></A>
+
+<p> Yes, two quick-reference cards are stored on the 
+Gri development site
+<A HREF="http://gri.sourceforge.net">
+<code>http://gri.sourceforge.net</code>,
+</A>
+and these are also installed when gri is installed.
+<p> 
+<A NAME="A2.2"></A>
+<A HREF="#Q2.2"><h3>A2.2 Where can I get documentation for Gri?</h3></A>
+
+<p> Full documentation is available in several forms on the Gri 
+development site
+Gri development site
+<A HREF="http://gri.sourceforge.net">
+<code>http://gri.sourceforge.net</code>,
+</A>
+Check out the FAQ file (which you are
+reading now), reference cards (see previous answer), etc.
+
+<P> The Gri manual is available on the WWW (world wide web) at the URL
+<a href="http://gri.sourceforge.net/gridoc/html/index.html">
+http://gri.sourceforge.net/gridoc/html/index.html
+</A>.
+
+<A NAME="A2.3"></A>
+<A HREF="#Q2.3"><h3>A2.3 Is there a cookbook of Gri programs to use for guidance?</h3></A>
+
+Yes, at the website
+<A HREF="http://gri.sourceforge.net/gri-cookbook/index.html"> 
+<code>
+http://gri.sourceforge.net/gri-cookbook/index.html
+</code>
+</a>
+
+
+<p>
+<A NAME="A2.4"></A>
+<A HREF="#Q2.4"><h3>A2.4 Is there a newsgroup for Gri?</h3></A>
+
+<p> Gri has several discussion forums at the development site
+<A HREF="http://gri.sourceforge.net">
+<code>http://gri.sourceforge.net</code>,
+</A> and users are highly encouraged to participate!
+
+
+<p> 
+<A NAME="A2.5"></A>
+<A HREF="#Q2.5"><h3>A2.5 Where can I get some sample Gri input files?</h3></A>
+
+Sample files are scattered throughout the Gri manual and cookbook; the
+manual also contains a test-suite that you may find helpful in
+learning the language syntax, especially for programming.
+
+
+
+<hr>
+<h2> A3 Can Gri do ... ?</h2>
+<A NAME="A3.1"></A>
+<A HREF="#Q3.1"><h3>A3.1 Can Gri do barcharts?</h3></A>
+
+<P> Gri has no specific command for barcharts, but the operating
+system can easily rearrange your data into a form that lets Gri draw
+barcharts.  In the following example, the synonym <CODE>\width</CODE>
+is set to the desired width of the bars and <CODE>\missing</CODE> is
+set to an arbitrary missing value.  The rest of the code will make
+sense to any Perl programmer.  If you don't know Perl, you should
+learn it.
+
+<pre>
+    \width = "1"                    // width of bars, in x units
+    \missing = "-99"                // missing value
+    set missing value \missing
+    set x axis 0 6 1
+    set y axis 0 20 10 
+    draw axes none                  // will get whited out by the chart anyway
+
+    // Create dataset
+    system cat &gt; barchart.dat &lt;&lt; "EOF"
+    1 12
+    2 14
+    3 15
+    4 13
+    5 10
+    EOF
+
+    // Create barchart style dataset and plot it
+    system perl &lt;&lt;"EOF"
+    open (IN, "barchart.dat") || die "Cannot open barchart.dat";
+    while(&lt;IN&gt;) {
+	($x[$i], $y[$i]) = split(' ');
+	$i++;
+    }
+    $n = $i;
+    open (TMP, "&gt;tmp") || die "Cannot open tmp";
+    for ($i = 0; $i &lt; $n; $i++) {
+	print TMP $x[$i] - \width / 2, " ",      0, "\n";
+	print TMP $x[$i] - \width / 2, " ", $y[$i], "\n";
+	print TMP $x[$i] + \width / 2, " ", $y[$i], "\n";
+	print TMP $x[$i] + \width / 2, " ",      0, "\n";
+	print TMP \missing, " ", \missing, "\n";
+    }
+    EOF
+    open tmp
+    read columns x y
+    set graylevel 0.95
+    draw curve filled to 0 y
+    set graylevel 0
+    draw curve
+    draw axes
+    draw title "Demonstrate Gri barchart"
+
+</pre>
+
+<A NAME="A3.2"></A>
+<A HREF="#Q3.2"><h3>A3.2 Can Gri do histograms?</h3></A>
+
+<P> Gri has no specific command for histograms, but the operating
+system can easily rearrange your data into a histogram format.
+
+<P> Here is Gri code to do it:
+<pre>
+    open "histogram -l 0 -h 10 -i 0.5 &lt inputfile |"
+    read columns x y // y is number of obs
+    draw curve filled to 0 y
+</pre>
+
+<P> where <code>histogram</code> is a perlscript which creates a
+histogram file named <code>inputfile</code>.  An example of histogram
+is:
+
+<pre>
+    #!/opt/bin/perl
+    # Calculate histogram of 1-column data
+    $usage ="\
+    NAME\
+	 histogram -- create histogram file, given data file (1 column)\
+    \
+    SYNOPSIS\
+	 histogram -l low -h high -i increment &lt input_file &gt output_file\
+    \
+    DESCRIPTION\
+	 Scans the input values and finds the percentage of data in bins\
+	 starting at value `low', ending at value `high', and incrementing by\
+	 value `inc'.\
+    \
+    FILES\
+	 Standard input:  column of numbers\
+	 Standard output: columns: (bin_centre, per, cum_per, num, cum_num)\
+	     where 'per'=percentage and 'num'=number.\
+    ";
+    require "getopts.pl";
+    $opt_l = 0;
+    $opt_h = 0;
+    $opt_i = 0;
+    &Getopts('l:h:i:');
+    die "You must supply commandline arguments!\n$usage" if ($opt_l == $opt_h || $opt_i == 0);
+    $n = ($opt_h - $opt_l) / $opt_i;
+    print STDERR "Will have $n bins, running from $opt_l to $opt_h in steps of $opt_i\n";
+    for ($i = 0; $i &lt= $n; $i++) {
+	$bin[$i] = 0;
+    }
+    while(&lt&gt) {
+	chop;
+	($x) = split;
+	$i = int(0.5 + ($x - $opt_l) / $opt_i);
+	$i =  0 if ($i &lt 0);
+	$i = $n if ($i &gt $n);
+	$bin[$i]++;
+    }
+    for ($i = 0; $i &lt= $n; $i++) {
+	$x = $opt_l + $opt_i * ($i - 0.5);
+	print "$x $bin[$i]\n";
+	$x = $opt_l + $opt_i * ($i + 0.5);
+	print "$x $bin[$i]\n";
+    }
+</pre>
+
+
+<p>
+<A NAME="A3.3"></A>
+<A HREF="#Q3.3"><h3>A3.3 Can Gri do error bars?</h3></A>
+
+<P> Gri has no specific command for error bars.  It has no internal
+representation of error bar data -- that is, you can't get them by a
+<code>read columns</code> command.  However, you can get error bars
+quite easily, simply by reading the data line by line, plotting each
+one as individually.  Here's an example of error bars in y, where the
+third column stores the error:
+
+<pre>
+    open a.dat
+    while 1
+	read .x. .y. .ey.
+	if ..eof..
+	    break
+	end if
+	draw symbol bullet at .x. .y.
+	draw line from .x. {rpn .y. .ey. -} to .x. {rpn .y. .ey. +}
+    end while
+</pre>
+
+
+<A NAME="A3.4"></A>
+<A HREF="#Q3.4"><h3>A3.4 Can Gri draw labels for Tukey box plots?</h3></A>
+
+<P> Yes.  Here is sample code, in which a label "My Label" is drawn to
+the right of the median of a Tukey plot extending in the y direction:
+
+<pre>
+    read columns x y
+    1 11
+    2 22
+    1.2 3
+    3 5
+    2 20
+    3 10
+
+    draw y box plot at 2
+    draw label "My Label" at {rpn 2 xusertocm 0.4 +} \
+	{rpn y median yusertocm "M" ascent 2 / -} \
+	cm
+</pre>
+
+
+<p> 
+<A NAME="A3.5"></A>
+<A HREF="#Q3.5"><h3>A3.5 Can Gri read compressed data files?</h3></A>
+
+<P> Yes, as of version 2.6 Gri can read compressed files, e.g.
+<pre>
+    open myfile.gz
+    read columns x y
+</pre>
+will work.  You may also, of course, do
+<pre>
+    open "zcat myfile.gz |"
+    read columns x y
+</pre>
+if you like.
+
+
+<p>
+<A NAME="A3.6"></A>
+<A HREF="#Q3.6"><h3>A3.6  Can Gri use scientific notation on axes?</h3></A>
+
+<P> You have to trick it.  Here's an example:
+<pre>
+    // NOTE: this requires manual setting of axes.
+    read columns x y
+    1 1.1e3
+    2 1.0e3
+    3 1.4e3
+    4 2.3e3
+    4 1.0e4
+
+    y /= 1e3
+    set y axis 1 5 1
+    set y format "%g$\times10^3$"
+    draw curve
+</pre>
+
+
+<p>
+<A NAME="A3.7"></A>
+<A HREF="#Q3.7"><h3>A3.7 Can Gri label x-axis with day of week?</h3></A>
+
+<P> A future version of Gri will have much more powerful and general
+ways of handling axes labelling.  In the meantime, you have to trick
+Gri to get such special effects.  Here's an example:
+
+<pre>
+    set x axis 1 8 1
+    set y axis 0 1 .1
+    set font size 0
+    draw x axis at top
+    draw y axis at right
+    draw x axis at bottom
+    set font size 12
+    draw y axis at left
+    draw label "Mon" centered at 1.5 {rpn ..ymargin.. 0.7 - ycmtouser}
+    draw label "Tue" centered at 2.5 {rpn ..ymargin.. 0.7 - ycmtouser}
+    draw label "Wed" centered at 3.5 {rpn ..ymargin.. 0.7 - ycmtouser}
+    draw label "Thu" centered at 4.5 {rpn ..ymargin.. 0.7 - ycmtouser}
+    draw label "Fri" centered at 5.5 {rpn ..ymargin.. 0.7 - ycmtouser}
+    draw label "Sat" centered at 6.5 {rpn ..ymargin.. 0.7 - ycmtouser}
+    draw label "Sun" centered at 7.5 {rpn ..ymargin.. 0.7 - ycmtouser}
+</pre>
+
+Note that the offset of <code>0.7</code> centimeters looks OK to me,
+with a 12 point font, but you may wish to experiment if you don't like
+the placement.
+
+
+<p>
+<A NAME="A3.8"></A>
+<A HREF="#Q3.8"><h3>A3.8 Can Gri draw maps?</h3></A>
+
+<P> Gri can draw maps, but it lacks builtin support for map
+projections.  (A previous version had projections, but they were not
+working correctly and were removed.)  Gri does not have builtin
+coastline files, either.  Many good coastline files are on the web;
+see, for example, Rich Signell's site
+<A HREF="http://crusty.er.usgs.gov/coast/getcoast.html">
+http://crusty.er.usgs.gov/coast/getcoast.html </A> or the USGS mapping
+site <A HREF="http://www.usgs.gov"> http://www.usgs.gov </A> or the
+Global Self-consistent Hierarchical High-resolution Shoreline site <A
+HREF="http://www.ngdc.noaa.gov/mgg/shorelines/gshhs.html">
+http://www.ngdc.noaa.gov/mgg/shorelines/gshhs.html </A>
+
+<p>
+<A NAME="A3.9"></A>
+<A HREF="#Q3.9"><h3>A3.9 Can Gri draw residuals on regressions?</h3></A>
+<p>There is no builtin command for that, but it's easy enough to
+code, as follows:</p>
+<pre>
+read columns x y
+0.05 12.5  
+0.25 19    
+0.5  15    
+0.75 15    
+0.95 13
+
+draw regression line
+# Draw the residuals individually
+.i. = 0
+while {rpn .i. ..num_col_data.. >}
+    .x. = {rpn x .i. @}
+    .y. = {rpn y .i. @}
+    .ypred. = {rpn .x. ..coeff1.. * ..coeff0.. +}
+    draw line from .x. .y. to .x. .ypred.
+    .i. += 1
+end while
+</pre>
+
+
+<hr>
+<h2> A4 Gri and other programs </h2>
+<A NAME="A4.1"></A>
+<A HREF="#Q4.1"><h3>A4.1 Is Gri better than Fortran/C/... plotting subroutines?</h3></A>
+
+<P> Gri started out as a set of subroutines.  The set is called `gr';
+the name `gri' means gr-interactive.  Although I wrote both `gr' and
+`gri', I haven't used gr in years.  I am unaware of anybody else who
+ever used `gr'.  Thus, in at least this case, the interpreted Gri
+language is superior to subroutines.
+
+<P> In some applications the graphics are hard-wired into the
+computation so using Gri might not make sense.  An example is the SPEM
+numerical model, which has builtin NCAR plotting calls.  But this
+approach is inefficient in user-time and computer-time, because
+changing the format of the output may require re-running a model.  The
+best approach is to decouple preparation of data from presentation of
+data.
+
+<P> In highly interactive applications, such as many uses of matlab
+and statistical programs such as S and S-plus, it may make sense to
+use the builtin graphics routines because they are so tightly bound to
+the processing.
+
+
+
+<A NAME="A4.2"></A>
+<A HREF="#Q4.2"><h3>A4.2 How can I include Gri plots in LaTeX/Word/... files?</h3></A>
+
+<h4>Latex</h4>
+<P> There are several schemes for including PostScript figures, such
+as those created by Gri, into LaTeX files.  That's unfortunate, in the
+sense that it can confuse folks who are not experts.  The example
+below works great at the moment, but 5 years ago a typical user might
+have another command instead of <tt>includegraphics</tt>, and 5 years
+from now there may be something new.  Still, I've found that
+decade-old LaTeX files still work for me, so you shouldn't worry about
+the chagnes.
+
+<p>The example below includes the file <tt>fig.ps</tt> as a figure.
+To test this, you may run a Gri script named <tt>fig.gri</tt>
+consisting of the single command <tt>draw axes</tt>, and then save the
+following into a file named <tt>test.tex</tt>, and then run LaTeX on
+it, which in unix would mean typing <tt>latex test</tt> at the prompt.
+
+<pre>
+    \documentclass{article}
+    \usepackage[dvips]{graphicx}
+
+    \begin{document}
+
+    \begin{figure}
+    \includegraphics{fig.ps}
+    \caption{Isn't this a nice graph?}
+    \end{figure}
+
+    Nice graph, eh?
+
+    \end{document}
+</pre>
+<p>
+It is worth noting that LaTeX has handled graphics in various ways
+over the years.  The above indicates the preferred scheme as of 2001
+or so, but other older schemes still work.
+
+<h4>MS Word</h4>
+
+All you need to do is to convert the file to GIF or PNG (see the next
+question), or to another file format that MS word handles.  It is a
+bad idea to use a JPEG format, since that doesn't work well on
+linegraphs.
+
+<p>
+<A NAME="A4.3"></A>
+<A HREF="#Q4.3"><h3>A4.3 How may I convert Gri output to GIF format?</h3></A>
+
+<p> Conversion of the Gri PostScript output to GIF is normally done
+for inclusion in web-pages.  For a discussion of the merits of various
+image formats, see <A
+HREF="http://www.lanl.gov/projects/ia">Information Architecture</A>.
+I have been told that GIF images suffer from both technical
+limitations (no gamma value is stored in the file) and license
+restrictions.  The PNG format was designed to overcome these
+limitations, and is expected to replace GIF over time.
+
+<p> It should also be noted that there is no generally acceptable way
+to convert PostScript to gif, especially when the PostScript is vector
+based.  One problem is that of resolution: if the output GIF is
+low-resolution, then the text may be drawn roughly because of
+rasterization.  In many convertors one may specify the size of the
+output image, which permits control over this resolution problem,
+giving the user the task of weighing file size against output quality.
+Note also that the colour table frequently gets reordered in the
+conversion, possibly leading to inaccurate results.  Simply stated,
+PostScript is superior to GIF and other raster-based formats.  That's
+why Gri chose PostScript for the output model.
+
+<p> There are several ways to convert Gri PostScript into GIF or PNG images.
+
+<ul>
+
+<LI> METHOD 1.  Use the <code>convert</code> program, which is a part
+of the <code>ImageMagick</code> set of software.  The
+<code>convert</code> software is quite powerful, being able to convert
+from almost any format into almost any other, e.g.
+<pre>
+$ convert gri-1.ps gri-1.png
+</pre>
+If the output is to be used for the web, the above is fine.  If it's to be
+imported into a word processor such as MS-Word, then the pixel resolution
+is insufficient because the default is 72 dpi.  Try this instead:
+<pre>
+$ convert -density 300x300 gri-1.ps gri-1.png
+</pre>
+The <code>ImageMagick</code> software is free, and available on the
+world-wide-web at URL <a
+href="http://www.wizards.dupont.com/cristy/ImageMagick.html">
+<code>http://www.wizards.dupont.com/cristy/ImageMagick.html</code>
+</a>
+
+<p>
+<LI> METHOD 2: The GNU program <code>gs</code> can also do this
+conversion.  In newer versions, this conversion to GIF is builtin.
+Here is a shellscript
+<pre>
+    #!/usr/bin/sh
+    gri -y -p -b $1.gri
+    gs -q -dNOPAUSE -sDEVICE=ppm -sOutputFile=$1.ppm $1.ps -c quit
+    ppmtogif -interlace -transparent rgb:ff/ff/ff $1.ppm > $1.gif
+    rm -f $1.ppm
+</pre>
+
+<p>
+<LI> METHOD 3: In older versions of <code>gs</code>, you must run a
+little program in the <code>gs</code> interpreter, by typing  
+<pre>
+    $ gs foo.ps
+    GS> (pstoppm.ps)run
+    GS> (foo) ppm1run
+    GS> quit
+</pre>
+
+This creates a file called <code>foo.ppm</code>, in the so-called PPM
+format.  Various programs exist for converting image types,
+e.g. <code>convert</code>.
+
+</ul>
+
+<p> Availability of software: ImageMagick uses Aladdin Ghostscript,
+another free program, to rasterize the PostScript file created by gri.
+Ghostscript is available from <A
+HREF="http://www.cs.wisc.edu/~ghost/index.html">
+<code>http://www.cs.wisc.edu/~ghost/index.html</code> </A> and many
+other sites (including any CTAN archive).  Older version of
+ghostscript are available under the GNU GPL.  Speaking of GNU,
+<code>gs</code> and other GNU software are freely available at many
+locations on the web, e.g.  <a href="ftp://prep.ai.mit.edu/pub/gnu">
+<code>ftp://prep.ai.mit.edu/pub/gnu</code> </a>.
+
+
+<p> <i>Author's note</i>: this answer was compiled with advice from
+Peter Galbraith, Toru Suzuki, and George White, to each of whom I am
+very grateful for the help.  In fact, the answer is mostly a patchwork
+of their suggestions, and all the helpful pointers to information on
+the web are theirs, not mine.
+
+
+<p> 
+<A NAME="A4.4"></A>
+<A HREF="#Q4.4"><h3>A4.4 Is there an Emacs mode for Gri?</h3></A>
+
+<p> Yes.  Peter Galbraith has written a very powerful mode for Gri
+commandfiles which is supplied with Gri and which is fully documented
+in the manual.  The capabilities of the mode include the following.
+
+<UL>
+
+<LI> Indents loops, if statements, newcommands, etc.
+
+<LI> Uses built-in knowledge of Gri commands to 'complete' your
+commands. For example, typing 'drM-TAB' (where M-TAB is the completion
+keystroke) causes the mode to write 'draw' in place of the
+'dr'. Pressing M-TAB again gives a list of all Gri commands starting
+with 'draw'.
+
+<LI> Provides complete access to Gri help on commands, including the
+full Gri 'info' manual if your machine has that installed.  There is
+even an 'apropos' feature to let you search for commands you're not
+sure even exist.  
+
+<LI> Lets you run Gri from within the buffer.  If syntax or runtime
+Gri errors are encountered, the cursor (usually) moves to the
+offending line in the Gri editing buffer.
+
+<LI>  Lets you run Ghostview without leaving Emacs.
+
+</UL>
+
+
+<p> 
+<A NAME="A4.5"></A>
+<A HREF="#Q4.5"><h3>A4.5 Is there a Gri module for perl/python/R/octave/...?</h3></A>
+
+<p> No.  The task of creating such modules is so time-consuming that
+the Gri author cannot undertake it without help.  (Note: Gri contains
+about 40,000 lines of C++ code.)
+
+<hr>
+<h2> A5 Evolution of Gri </h2>
+<A NAME="A5.1"></A>
+<A HREF="#Q5.1"><h3>A5.1 Where can I get the latest version of Gri?</h3></A>
+
+Gri is available at the
+Gri development site
+<A HREF="http://gri.sourceforge.net">
+<code>http://gri.sourceforge.net</code>,
+</A>
+
+
+<p>
+<A NAME="A5.2"></A>
+<A HREF="#Q5.2"><h3>A5.2 How can I find out the most recent features of Gri?</h3></A>
+
+<P> Just visit the 
+<a href="http://gri.sourceforge.net">
+gri website
+</a>
+and look around; it's pretty simple.
+
+
+<A NAME="A5.3"></A>
+<A HREF="#Q5.3"><h3>A5.3 Should I keep my copy of Gri up-to-date?</h3></A>
+
+
+<P> The advantages of being up-do-date are:
+
+<UL>
+<LI>You get new features.
+
+<LI> There is a better chance of getting your bugs repaired, since all
+bug fixes are applied only to the current version.)  The disadvantages
+of being up-to-date are:
+
+<LI> You can get clobbered by new bugs.  (You should avoid this by
+keeping your old versions of Gri.  That means archiving both
+<code>gri</code>, the executable, and <code>gri.cmd</code>, the
+startup file.)
+
+<LI> You can get clobbered by changes in the syntax.  This is the
+penalty you pay for using a program under active development.  To
+protect yourself, use the <code>expecting version</code> command,
+which will warn you of any incompatibilites between the version you
+expect and the version that is presently installed.
+
+</UL>
+
+<P> Most people should not be more than 5-10 versions out of date.  To
+keep in touch, subscribe to the gri maillist (...see <a
+href="#Q2.3">Q2.3</A>).  Also, keep track of the file ChangeLog in the FTP
+location.  As with most software, the supplier may be more
+enthusiastic about new versions than the users are.  Other Gri users
+may therefore provide the best advice on whether it is worth
+upgrading.
+
+
+
+<p>
+<A NAME="A5.4"></A>
+<A HREF="#Q5.4"><h3>A5.4 How can I protect myself against changes to Gri?</h3></A>
+
+
+<P> The most important thing is to save old versions of Gri.  At
+hard-disk street prices of about a cent per megabyte, an archive will
+cost under a nickle.
+
+<p> Archiving the source is just a matter of copying the files you've
+downloaded to a location of your choosing.  Since the directory name
+is of the form <code>gri-VERSION</code>, keeping track of old sources
+is trivial.
+
+<p> If you're using a prepackaged version of Gri (e.g. in RedHat or in
+Debian linux), then you'll probably know how to update Gri already.
+At any rate, you can skip some of the steps below, since <code> rpm
+-ql gri</code> will list all the relevant files, saving you the part
+of the steps below that involves locating files.
+
+<p> Archiving the Gri binary and library file is quite easy, but
+archiving the documentation is complicated since there are a
+<emph>lot</emph> of documentation files, and they are scattered across
+your filesystem.  For example, 'info' files go in the
+<code>/usr/info</code> directory, while 'manpage' files go in the
+<code>/usr/man/man*</code> directory, and the 'html' files go
+someplace else).  This isn't specific to Gri; the filesystem is just
+defined that way, for historical reasons.  Your first step is to
+determine whether you wish to archive the documentation.  In most case
+you won't want to.  The point is just that you have an old set of
+scripts that you need to work; you won't be writing new scripts, and
+if you wrote these ones, then you understand Gri well enough anyway.
+Besides, Gri doesn't change that much from version to version, and the
+changes mostly involve additions.
+
+<p> If you <emph>do</emph> wish to archive the documentation and emacs
+files, locate the files and copy them.  (If you do not, skip the
+remainder of this paragraph.)  In Redhat linux, do <code>rpm -ql
+gri</code> to locate the files.  In debian linux, do something
+similar.  If 'locate' is working on your computer, do <code>locate
+gri</code> and examine the list that you get.  If none of the above is
+true, look in the second-last paragraph above for directories where
+Gri documentation files are often found, and move them to wherever
+seems appropriate.  You'll probably have to alter other things as
+well, to tell the <code>info</code> and <code>man</code> programs
+where to find the documentation.  If you use the Emacs editing mode,
+move that appropriately and edit whatever dot-files and system
+configuration files that Emacs uses to locate mode files.  (Note that
+all emacs modes understand about using different versions; see the
+<code>C-c C-r</code> or by calling the command <code>M-x
+gri-version</code>.  If, as is likely, you're only archiving Gri for
+old scripts that you don't need to edit, you may not need to worry
+about changes to gri-mode and you may as well go ahead and install the
+new gri-mode and forget about the old one.)
+
+<p> If you <emph>only</emph> wish to archive Gri itself, things are
+<emph>much</emph> easier!  You need to copy only two files, the
+executable (often <code>/usr/bin/gri</code>) and a library file (often
+<code>/usr/share/gri/gri.cmd</code>) to a directory of your choosing,
+and then create a shell alias (or a shellscript), which uses these two
+files you've copied.  Let me take it step by step.
+
+<p>
+First, type
+<pre>
+    gri -version
+</pre>
+and make note of the present version number.  For concreteness, let's
+say it is version 2.6.0.  
+
+<p> 
+Next, decide where you wish to keep this gri version.  For
+concreteness, let's say that you'd like to keep it in
+a directory named <code>/usr/local/gri/2.6.0</code>.  Create that
+directory if it doesn't exist already:
+<pre>
+    mkdir -p /usr/local/gri/2.6.0
+</pre>
+
+<p>
+Next, type
+<pre>
+    gri -directory_default
+</pre>
+to find out where the <code>gri.cmd</code> file is located.  Let's say
+it's in the common location <code>usr/share/gri</code>, for
+concreteness; then you need to move this to your chosen directory:
+<pre>
+    mv /usr/share/gri/gri.cmd /usr/local/gri/2.6.0
+</pre>
+
+<p>
+Now, we need to copy the executable.  If you don't know where it is, type
+<pre>
+    which gri
+</pre>
+to find out.  Then move it also, e.g. if Gri is located in the
+<code>/usr/bin</code> directory, you'd type
+<pre>
+    mv /usr/bin/gri /usr/local/gri/2.6.0
+</pre>
+
+<p>
+Now we just have to make an alias to run this particular copy of Gri,
+with this particular library file.  In the Bash shell, just put the
+following line in your <code>~/.aliases</code> file:
+<pre>
+    alias gri2.6.0='/usr/local/gri/2.6.0/gri -directory /usr/local/gri/2.6.0'
+</pre>
+and then you have a new command, <code>gri2.6.0</code> that runs this
+particular copy of Gri.  Alternatively, you could create a shellscript
+to run this Gri, e.g. a script named <code>gri2.6.0</code> that
+contains the lines:
+<pre>
+    #!/usr/bin/sh
+    # Run numbered version of gri
+    /usr/local/gri/2.6.0/gri -directory /usr/local/gri/2.6.0 "$@"
+</pre>
+
+
+
+<hr>
+<h2> <strong>A6</strong> Gri on various computers </h2>
+
+<A NAME="A6.1"></A>
+<A HREF="#Q6.1"><h3>A6.1 What computers does Gri work on?</h3></A>
+
+<P> Gri has been ported to several Unix machines (e.g. Sun solaris and
+sunOS; IBM RISC; HP RISC; SGI; DEC alpha; and x86 linux) and to x86
+MS-DOS.  An old version is available for DEC vax VMS.
+
+
+<P>
+<A NAME="A6.2"></A>
+<A HREF="#Q6.2"><h3>A6.2 What kind of compiler is required to compile gri?</h3></A>
+
+<p> Gri requires a C++ compiler capable of handling the language
+feature called "templates," and it also needs the so-called "standard
+template library" (STL).  Templates have been a feature of C++ since
+about 1994, and STL became part of the draft C++ library standard in
+early 1996.  If your compiler vendor does not support templates or
+STL, you should obtain a newer compiler.
+
+<p> The free C++ compiler called <code>g++</code>, available from the
+Free Software Foundation, is known to compile Gri on at least a
+half-dozen problems.  The compiler version must be 2.7.2 or higher for
+success.
+
+
+<P>
+<A NAME="A6.3"></A>
+<A HREF="#Q6.3"><h3>A6.3 Why can't I link my compiled gri? (on HP computer)</h3></A>
+
+<p> Unfortunately, I made a bad programming decision several versions
+ago -- I decided to start using the STL (the standard template
+library).  The STL is part of the draft ANSI C++ standard, so I
+figured I'd be safe.  And my tests on solaris and linux platforms
+indicated that STL worked as advertised, in g++ 2.7.x.  However, I
+should have checked further.  It turns out that g++ on some platforms
+(e.g. HP's unix and IBMRS's AIX unix) does not handle templates
+properly.  The linker cannot locate templates defined in one file and
+used in another.  This issue is discussed at some length in the g++
+documentation, where three methods are presented for solving the
+problem.  (In the info-format documentation, you can find the relevant
+parts by searching for the string "where's the template?")  In Gri
+I've used what method 3 as defined in the g++ manual.  Apparently this
+fails on some platforms.  Although I'd welcome tests by users on the
+other two g++ methods, and I'd be happy to switch if one of them
+appeared to work more universally, I have to say that I'm not
+optimistic: from what I read on the newsgroups, nobody is having much
+success on this.  The GNU folks say that g++ version 2.8 will handle
+templates much better, so I'm waiting for that.  Unfortunately it's
+been, so far, a two-year wait.
+
+<p> Almost certainly, commercial compilers handle templates better,
+but I lack resources to purchase these for the various platforms.  I'd
+be happy, though, to act as a broker for anyone who is able to compile
+Gri on the problematic platforms, and who is willing to share their
+results.
+
+
+<p> 
+<A NAME="A6.4"></A>
+<A HREF="#Q6.4"><h3>A6.4 Is there a Macintosh version of Gri?</h3></A>
+
+<P> There once was a clicky-pointy Macintosh version of gri, but I got
+frustrated with modifying the code each time Apple upgraded the OS and
+stopped maintaining the code.  After several years of living (happily)
+without the Macintosh, I flushed the Mac code down the drain.
+
+<P> However, with the advent of OS-X, Gri compiles without
+modification.  It has also been packaged for this system; check out
+the 
+<a href="http://fink.sourceforge.net/pdb/package.php/gri">
+FINK</a> site to learn more about this project.
+
+<p>
+<A NAME="A6.5"></A>
+<A HREF="#Q6.5"><h3>A6.5 Is there a DOS/Windows version of Gri?</h3></A>
+
+<P> Versions of Gri have been available for MSDOS/Windows platforms
+for years, kindly provided by Gri users with MSDOS/Windows machines.
+In summer 2001, the porting procedure was systematized within the
+GnuWin32 project.  This project provides win32 ports of GNU tools.  It
+has been keeping very up-to-date with Gri development, trailing the
+Unix versions by only a week or so.
+
+Please visit
+<A HREF="http://gnuwin32.sourceforge.net">
+<code>http://gnuwin32.sourceforge.net</code>
+</A>
+for more on the GnuWin32 project, and to download Gri (and other GNU
+software) for your windows platform.
+
+<p> If, for some reason, you'd like to compile your own MSDOS/Windows
+version, check the Gri manual under the heading 
+<A HREF="http://gri.sourceforge.net/gridoc/html/msdos-install.html#Msdos-install">
+Compilation on x86 (PC-style) Computers</A>.
+
+<p> As for viewing Gri output, I recommend obtaining a copy of the
+Ghostview program (which is a general PostScript display program), in
+the version called 
+<A HREF="http://www.cs.wisc.edu/~ghost/index.html">
+GSview</A>.
+
+<p>
+<A NAME="A6.6"></A>
+<A HREF="#Q6.6"><h3>A6.6 Is there a linux version of Gri?</h3></A>
+
+<p> For non-RedHat versions of linux, one compiles and installs Gri in
+the usual way; see 
+<a href="http://gri.sourceforge.net/gridoc/html/index.html">
+the manual
+</a> for more details.
+
+<P> Users of RedHat linux have it much easier though!  A RPM (RedHat
+Program Manager) version of Gri exists, so that installing it takes
+just one line of typing, or one mouse-click in a GUI interface to RPM.
+
+<p> The RPM (RedHat Package Manager) version exists at the
+Gri development site
+<A HREF="http://gri.sourceforge.net">
+<code>http://gri.sourceforge.net</code>,
+</a>
+Once you've downloaded this, install Gri by typing
+<pre>
+    rpm -i gri-2.1.17-1.i386.rpm
+</pre>
+
+Later on, Gri may be uninstalled ('extracted') by typing
+<pre>
+    rpm -e gri
+</pre>
+
+<p>
+Knowledgeable RedHat users will know that RPM can also give
+information about Gri; for non-experts, here are a few examples:
+<pre>
+    rpm -qa       --  list all installed packages
+    rpm -qi gri   --  summarize gri capabilities (if it's installed)
+    rpm -ql gri   --  list all files related to gri
+</pre>
+
+
+<hr>
+<h2> <strong>A7</strong> Gri bugs </h2>
+
+<A NAME="A7.1"></A>
+<A HREF="#Q7.1"><h3>A7.1 What are known bugs in Gri?</h3></A>
+
+<p> Gri is used daily by many users, including the author, so that it
+suffers few serious bugs.  Generally, more recent versions of Gri
+suffer fewer bugs than earlier versions.  This improvement owes much
+to the trial of daily usage by folks with differing working styles;
+and all users can thank those who send in bug reports (see <A
+HREF="#Q7.2">Q7.2</A>).
+
+<p> One of the main problems with recent versions of Gri is that line
+numbers of syntax errors are reported inaccurately, if the error
+occured inside a new-command.
+
+<p> A list of 
+<A HREF="http://gri.sourceforge.net/gridoc/html/KnownBugs.html#KnownBugs">
+Gri bugs
+</A>
+is maintained in the manual.
+
+<p>
+<A NAME="A7.2"></A>
+<A HREF="#Q7.2"><h3>A7.2 How can I report Gri bugs?</h3></A>
+
+<p> The first step is to make sure it is actually a bug.  You might
+try, for example, posting a question to the Gri newsgroup (see <a
+href="#Q2.3">Q2.3</A>), and getting advice from other users.  Please
+be clear, so you don't waste others users' time.  If you think you've
+found a bug, let the author know.  Here's the advice from the manual
+(see especially item 4, for directions on emailing bug reports):
+
+<P> Your bug reports help make Gri reliable and useful.  Reporting
+bugs often results in quick changes to gri which will solve your
+problem.  This is especially true if your version is reasonably
+up-to-date, for then you can simply get the corrected version and
+replace the version you were using.  Here is how to report bugs.
+
+<p> The details of how to report bugs is in the <a
+href="http://gri.sourceforge.net/gridoc/html/ReportingBugs.html#ReportingBugs">online
+documents </a>, but the quick answer is to go to
+the
+<a href="http://sourceforge.net/bugs/?group_id=5511">
+Sourceforge Gri/bug site</a> and use the slick GUI
+interface there.
+
+</body>
+
+</html>
