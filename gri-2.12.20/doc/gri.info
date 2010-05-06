@@ -1,0 +1,375 @@
+This is gri.info, produced by makeinfo version 4.11 from gri.texi.
+
+INFO-DIR-SECTION Scientific Applications
+START-INFO-DIR-ENTRY
+* Gri: (gri).  Programming language for scientific illustration
+END-INFO-DIR-ENTRY
+
+
+Indirect:
+gri.info-1: 214
+gri.info-2: 299260
+gri.info-3: 570197
+
+Tag Table:
+(Indirect)
+Node: Top214
+Node: Introduction2189
+Node: Simple Example7691
+Node: Invoking Gri9869
+Node: Getting More Control21907
+Node: Simple Example Revisited22753
+Node: Axis Scaling26726
+Node: Log And Linear28462
+Node: Length28738
+Node: Range29370
+Node: Labels29998
+Node: Position30243
+Node: Fonts31226
+Node: Pen Color31670
+Ref: pen-color-hexadecimal33009
+Node: X-y Plots37189
+Node: Linegraphs37479
+Node: Scattergraphs40270
+Node: Formula Plots43019
+Node: Contour Plots45092
+Node: Pre-gridded Data45480
+Node: Ungridded Data49320
+Node: Images51524
+Node: Reading and Creating Image Data52470
+Node: Image PostScript Output56272
+Node: Example Image57185
+Node: Examples60836
+Node: Box Plots62069
+Node: Contouring64004
+Node: Grayscale Images68120
+Node: Combination71072
+Node: Fancy74677
+Node: Legend79897
+Node: Polygons82683
+Node: TS Diagram84408
+Node: PDF Diagram86090
+Node: Running Means92045
+Node: Finite Element Model Mesh95215
+Node: Handling Data98401
+Node: Handling Headers98909
+Node: Ignoring Columns101970
+Node: Column Algebra103268
+Node: Combining Columns104439
+Node: Plotting Several Columns105047
+Node: Commands107289
+Node: Overview Of Gri Commands107636
+Node: Command Syntax109433
+Node: List Of Gri Commands110866
+Node: Assert114644
+Node: Cd115718
+Node: Close116217
+Node: Convert116466
+Node: Convert Columns To Grid116966
+Node: Convert Columns To Spline129779
+Node: Convert Grid To Columns131337
+Node: Convert Grid To Image132234
+Node: Convert Image To Grid134957
+Node: Create135871
+Node: Create Columns From Function136187
+Node: Create Image Grayscale136946
+Node: Debug137456
+Node: Delete138572
+Node: Differentiate140043
+Node: Draw140816
+Node: Draw Arc143888
+Node: Draw Arrow144638
+Node: Draw Arrows145181
+Node: Draw Axes If Needed145705
+Node: Draw Axes146013
+Node: Draw Border Box147280
+Node: Draw Box148238
+Node: Draw Circle149715
+Node: Draw Contour149989
+Node: Draw Curve151916
+Node: Draw Essay153301
+Node: Draw Gri Logo154012
+Node: Draw Grid155052
+Node: Draw Image Histogram155274
+Node: Draw Image Palette155793
+Node: Draw Image158353
+Node: Draw Isopycnal158591
+Node: Draw Isospice162301
+Node: Draw Label Boxed163682
+Node: Draw Label Whiteunder164171
+Node: Draw Label For Last Curve164677
+Node: Draw Label165004
+Node: Draw Line From165752
+Node: Draw Line Legend166239
+Node: Draw Lines167280
+Node: Draw Patches167940
+Node: Draw Polygon168460
+Node: Draw Regression Line168988
+Node: Draw Symbol At169694
+Node: Draw Symbol Legend171130
+Node: Draw Symbol171560
+Node: Draw Time Stamp174361
+Node: Draw Title175091
+Node: Draw Values175300
+Node: Draw X Axis176644
+Node: Draw X Box Plot177566
+Node: Draw Y Axis178830
+Node: Draw Y Box Plot179869
+Node: Draw Zero Line180528
+Node: End Group180963
+Node: Expecting181180
+Node: Filter181793
+Node: Flip184510
+Node: Get Env185015
+Node: Group186338
+Node: Heal186533
+Node: Help187951
+Node: If188595
+Node: Ignore190947
+Node: Input191139
+Node: Insert192211
+Node: Interpolate192950
+Node: List193583
+Node: Ls193987
+Node: Mask194417
+Node: New195165
+Node: Newpage197002
+Node: New Postscript File197395
+Node: Open197770
+Node: Opening Simple Files198197
+Node: Ascii Files198409
+Node: Binary Files199855
+Node: NetCDF Files201777
+Node: Opening Pipes202801
+Node: Opening URLs207298
+Node: Postscript208160
+Node: Pwd209169
+Node: Query209351
+Node: Quit210608
+Node: Read210993
+Node: Read Colornames211912
+Node: Read Columns212979
+Node: Read Grid216985
+Node: Read Image Colorscale220876
+Node: Read Image Grayscale221771
+Node: Read Image Mask223527
+Node: Read Image224242
+Node: Read From226455
+Node: Read Synonym or Variable227432
+Node: Read Line229561
+Node: Regress229893
+Node: Reorder231174
+Node: Rescale232071
+Node: Resize232715
+Node: Return234199
+Node: Rewind234460
+Node: Rpnfunction234758
+Node: Set236163
+Node: Set Axes Style240064
+Node: Set Arrow Size241529
+Node: Set Arrow Type242319
+Node: Set Beep243047
+Node: Set Bounding Box243324
+Node: Set Clip245082
+Node: Set Color246801
+Node: Set Colorname249197
+Node: Set Contour Format249997
+Node: Set Contour Label For250726
+Node: Set Contour Label Position251047
+Node: Set Contour Labels252005
+Node: Set Dash252857
+Node: Set Environment254215
+Node: Set Error Action254648
+Node: Set Flag254895
+Node: Set Font Color255964
+Node: Set Font Encoding256604
+Node: Set Font Size257346
+Node: Set Font To258276
+Node: Set Graylevel259238
+Node: Set Grid Missing259947
+Node: Set Ignore Initial Newline260975
+Node: Set Ignore Error Eof261369
+Node: Set Image Colorscale261733
+Node: Set Image Grayscale263777
+Node: Set Image Missing Value Color266441
+Node: Set Image Range267163
+Node: Set Input Data Window269397
+Node: Set Input Data Separator270525
+Node: Set Line Cap271334
+Node: Set Line Join272072
+Node: Set Line Width272713
+Node: Set Missing Value275360
+Node: Set Page Size275991
+Node: Set Page277048
+Node: Set Panel278392
+Node: Set Panels278842
+Node: Set Path To280060
+Node: Set Postscript Filename281713
+Node: Set Symbol Size281990
+Node: Set Tic Size282434
+Node: Set Trace282866
+Node: Set Transparency283264
+Node: Set U Scale283802
+Node: Set V Scale284343
+Node: Set X Axis284878
+Node: Set X Format288424
+Node: Set X Grid289231
+Node: Set X Margin289939
+Node: Set X Name290711
+Node: Set X Size291021
+Node: Set X Type291433
+Node: Set Y Axis292639
+Node: Set Y Format296208
+Node: Set Y Grid297017
+Node: Set Y Margin297725
+Node: Set Y Name298535
+Node: Set Y Size298845
+Node: Set Y Type299260
+Node: Set Z Missing300470
+Node: Show300797
+Node: Skip303748
+Node: Sleep304419
+Node: Smooth304968
+Node: Source307481
+Node: Sprintf307883
+Node: State308759
+Node: Superuser309530
+Node: System310552
+Node: Unlink316207
+Node: While317155
+Node: Write318973
+Node: Write Columns319939
+Node: Write Contour320168
+Node: Write Grid321108
+Node: Write Image321572
+Node: Programming323272
+Node: Defaults324921
+Node: Online Help326752
+Node: Long Command Lines329394
+Node: Variables329715
+Node: About Variables330051
+Node: User Variables332278
+Node: Built-in Variables333952
+Node: Synonyms340666
+Node: Naming Convention341281
+Node: Using Synonyms344694
+Node: Generalizing Code345134
+Node: Storing OS Output345580
+Node: Storing User Responses346642
+Node: Storing File Contents347440
+Node: Extracting Words From Strings348159
+Node: Important Builtin Synonyms349718
+Node: Alias Synonyms351526
+Node: Local Synonyms353146
+Node: If Statements356730
+Node: Loops359657
+Node: Mathematics359864
+Node: rpn Mathematics362816
+Node: Stack Operators364784
+Node: Rpn Functions365649
+Node: Tertiary Operators366168
+Node: Binary Operators366601
+Node: Unary Operators371262
+Ref: age-rpn-operator372149
+Node: Solitary Operators381337
+Node: Manipulation of Columns etc382868
+Node: rpn Examples384351
+Node: Text386394
+Node: Embedded Synonyms387202
+Node: Mathematical Text387851
+Node: Non-English Text391859
+Node: Adjustment Of Character Position395565
+Node: Adding New Commands395979
+Node: Purpose396568
+Node: Parsing397827
+Node: Simple New Command400330
+Node: Complicated New Command402607
+Node: Changeable Command Arguments405107
+Node: The Ampersand Syntax406033
+Node: Doubling A Variable407536
+Node: Manipulating A Synonym409188
+Node: Nesting409711
+Node: Using New And Delete410492
+Node: Determining Calling Information411614
+Node: Implementation of Ampersand Syntax412493
+Node: Hints414583
+Node: Debugging418133
+Node: Error Messages420263
+Node: Missing Values422098
+Node: Operating System423151
+Node: Using OS Inside Gri423502
+Node: Using Gri Inside OS428318
+Node: Resource File429147
+Node: Environment431276
+Node: Extras431833
+Node: gri_merge432136
+Node: gri_unpage434141
+Node: Using System Tools434914
+Node: Why Use The Environment435565
+Node: Grep437811
+Node: Sed438199
+Node: Awk438766
+Node: Perl440551
+Node: Discussion Group441615
+Node: Emacs Mode442100
+Node: About Gri Mode442870
+Node: Gri-mode screenshots445114
+Node: Screenshot 1445395
+Node: Screenshot 2445957
+Node: Screenshot 3446543
+Node: Screenshot 4447085
+Node: Installing gri-mode.el447564
+Node: Step 1448952
+Node: Step 2450179
+Node: Step 3453713
+Node: Step 4454933
+Node: Major Gri-mode commands455881
+Node: Gri command names456669
+Node: Possible completions457529
+Node: Command abbreviations459117
+Node: Variable completion459863
+Node: Editing the syntax460685
+Node: User commands462758
+Node: Gri code fragments463253
+Node: Info interface464453
+Node: Other features465453
+Node: Dealing with many Gri versions466796
+Node: Filename arguments when running gri468588
+Node: History469892
+Node: Stable Stream471098
+Node: Version 2.12471623
+Node: Version 2.10493623
+Node: Version 2.8497341
+Node: Version 2.6501091
+Node: Version 2.4508642
+Node: Version 2.2510059
+Node: Unstable Stream511992
+Node: Development Version512183
+Node: Plans513170
+Node: Deprecated Commands515107
+Node: Installation515458
+Node: Unix-install515687
+Node: Archiving Old Versions516087
+Node: Linux517528
+Node: Precompiled Unix518584
+Node: Uncompiled Unix519773
+Node: Msdos-install526196
+Node: OS2-install528784
+Node: Mac-install529195
+Node: Beos-install531831
+Node: Bugs532078
+Node: Known Bugs532355
+Node: Reporting Bugs532614
+Node: Killing Bugs533947
+Node: Debugging Software You Will Need534193
+Node: Debugging at a Glance535164
+Node: Debugging Example537052
+Node: Test Suite545751
+Node: Gri in the Press546322
+Node: Acknowledgments548656
+Node: License549669
+Node: Concept Index570197
+Node: Index of Commands679188
+Node: Index of Builtins693394
+
+End Tag Table

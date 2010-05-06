@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# emacsen install script for the gri package
+# -
+# This script is installed by the Gri package `rules' file to 
+#  /usr/lib/emacsen-common/packages/install/gri
+# It is run by Gri package `postinst' which calls 
+#  /usr/lib/emacsen-common/emacs-package-install gri
+# The Gri package `postinst' is installed as /var/lib/dpkg/info/gri.postinst
+set -e
+
+flavour=$1
+
+package=gri
+files="gri-mode.el"
+ELCDIR=/usr/share/${flavour}/site-lisp/gri-el
+flags="-q --no-site-file -no-site-file --batch -l path.el -f batch-byte-compile"
+LOG=`tempfile -pelc_ -s.log -m644`
+
+if [ ${flavour} != emacs ]
+then
+    echo install/${package}: Handling ${flavour}, logged in ${LOG}
+
+    # link the source .el files into the ELCDIR directory
+    install -c -m 0755 -d ${ELCDIR}
+    cd ${ELCDIR}
+    for i in $files
+    do 
+	ln -fs /usr/share/emacs/site-lisp/gri-el/$i
+    done
+
+    # Byte-compile
+    cat << EOF > path.el
+(setq load-path (cons "." load-path) byte-compile-warnings nil)
+EOF
+
+    echo ${flavour} ${flags} ${files} >> ${LOG}
+    ${flavour} ${flags} ${files} >> ${LOG} 2>&1
+    rm -f path.el
+    egrep -s -e "While compiling|\*\*" ${LOG} || /bin/true
+    echo install/${package}: Deleting ${LOG}
+    rm -f ${LOG}
+else
+    echo install/${package}: Ignoring emacsen flavour ${flavour}
+fi
+
+exit 0;
