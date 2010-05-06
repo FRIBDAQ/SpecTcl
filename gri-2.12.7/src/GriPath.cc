@@ -4,6 +4,7 @@
 #include <string>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "GriPath.hh"
 #include "superus.hh"
 #include "gr.hh"

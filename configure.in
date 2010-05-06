@@ -20,7 +20,7 @@ SOVERSION="3:2"
 #  This symbol describes where the bundled Gri graphics package lives.
 #  Gri is used to help Xamine do printing.
 #
-MYGRIDIR="gri-2.12.7"
+MYGRIDIR="gri-2.12.20"
 
 # Checks for programs.
 
@@ -769,7 +769,7 @@ else
    #
 	
    (cd ${MYGRIDIR}; \
-    rm -f Makefile; \          # Tru64 fails if Makefile already exists.
+    rm -f Makefile; \
     ./configure --prefix=$prefix                      ; \
     make                                            ;\
     make install			           ;\
