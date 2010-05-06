@@ -849,4 +849,6 @@ December 4, 2009 - BZ 384 provide a list of fallback fonts in case
                          - Throw an appropriate const char* exception when
                            no suitable fonts can be found in text.cc:LoadFonts
 
-		   
+3.2-007
+May 5, 2010   - Remvoe -exact from tkcon's package require of Tcl as
+                that fails in ubuntu 10.04.		  
