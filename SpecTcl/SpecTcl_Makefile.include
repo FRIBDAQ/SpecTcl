@@ -41,7 +41,6 @@ LDFLAGS=-L$(SPECLIBS) -lTclGrammerCommands \
 	-lFits		\
 	-lDecoderRing	\
 	-lgsl -lgslcblas	\
-	-lpub 			\
 	$(TCLLIBS)    \
 	$(X11LIBS)    \
 	-Wl,"-rpath=$(SPECLIBS)"
