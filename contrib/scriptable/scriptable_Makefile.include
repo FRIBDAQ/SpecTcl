@@ -43,7 +43,6 @@ LDFLAGS=-L$(SPECLIBS) -L$(SPECCONTRIB)/scriptable \
 	-lBufferAnalysis     \
 	-lTreeParam	\
 	-lFits          \
-	-lpub		\
 	$(TCLLIBS)           \
 	$(X11LIBS)           \
 	-Wl,"-rpath=$(SPECLIBS)"
