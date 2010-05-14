@@ -13,7 +13,7 @@ libradwareio_la_SOURCES		= 	cask.c 			\
 noinst_HEADERS			= 	util.h CRWWrite.h CRWRead.h
 
 
-libradwareio_la_LIBADD  	= -lpub
+libradwareio_la_LIBADD  	= 
 
 
 INCLUDES		= -I. -I@top_builddir@ 		\
