@@ -98,7 +98,7 @@ ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
 	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
 	-L@top_srcdir@/TreeParam -L@top_srcdir@/Fits \
 	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
-	-lpub -g -Wl,"-rpath=($prefix)/lib"
+	 -g -Wl,"-rpath=($prefix)/lib"
 
 #
 #  At install time, in order to make this open ended we:
@@ -163,7 +163,7 @@ unittest_LDFLAGS = $(Main_Objects) $(CPPUNIT_LDFLAGS) \
 	-L@top_srcdir@/Filter -lFilter \
 	-L@top_srcdir@/TreeParam -lTreeParam \
 	-L@top_srcdir@/Analysis -lBufferAnalysis  \
-	-L@top_srcdir@/Fits     -lFits  -lpub       \
+	-L@top_srcdir@/Fits     -lFits         \
 	$(TCL_LDFLAGS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
 
 
