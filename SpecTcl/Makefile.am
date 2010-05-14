@@ -92,7 +92,7 @@ SpecTcl_LDFLAGS = -lTclGrammerCommands -lXplus -lGates -lAnalysis \
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
 	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam \
 	-L../Fits -L@top_srcdir@/DecoderRing	\
-	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas -lpub  @TCL_LDFLAGS@ @XLIBSW@
+	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas  @TCL_LDFLAGS@ @XLIBSW@
 
 
 man_MANS = spectclapi.3
