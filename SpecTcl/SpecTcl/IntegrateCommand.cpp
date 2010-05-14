@@ -38,6 +38,15 @@ extern "C" {
   void memswap(void* block1, void* block2, size_t n);
 }
 
+static void swapdbl(double& d1, double& d2)
+{
+  double tmp;
+  tmp = d1;
+  d1  = d2;
+  d2  = tmp;
+  
+}
+
 static const double fwhmgamma(2.354); // sigma*fwhmgamma = fwhm for gaussians.
 
 ///////////////////////////////////////////////////////////////////////////
@@ -403,7 +412,7 @@ CIntegrateCommand::limitsFromList(CTCLInterpreter&  interp,
     double low = list[0];
     double hi  = list[1];
 
-    if (low > hi) memswap(&hi, &low, sizeof(double));
+    if (low > hi) swapdbl(hi, low);
 
     // Fill result now:
 
