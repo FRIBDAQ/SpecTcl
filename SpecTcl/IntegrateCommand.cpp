@@ -32,11 +32,6 @@
 
 using namespace std;
 
-// this is in publib but nowadays its header can conflict with string:
-
-extern "C" {
-  void memswap(void* block1, void* block2, size_t n);
-}
 
 static void swapdbl(double& d1, double& d2)
 {
