@@ -34,8 +34,11 @@ using namespace std;
 
 // this is in publib but nowadays its header can conflict with string:
 
-extern "C" {
-  void memswap(void* block1, void* block2, size_t n);
+static inline void dblswap(double &d1, double& d2)
+{
+  double t = d1;
+  d1       = d2;
+  d2       = d1;
 }
 
 static const double fwhmgamma(2.354); // sigma*fwhmgamma = fwhm for gaussians.
@@ -403,7 +406,7 @@ CIntegrateCommand::limitsFromList(CTCLInterpreter&  interp,
     double low = list[0];
     double hi  = list[1];
 
-    if (low > hi) memswap(&hi, &low, sizeof(double));
+    if (low > hi) dblswap(hi, low);
 
     // Fill result now:
 
