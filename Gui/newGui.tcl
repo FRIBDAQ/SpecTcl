@@ -876,11 +876,16 @@ proc spectrumUsage {} {
 
 	set axes [lindex $spectrum 4]
 	set dtype [lindex $spectrum 5]
+	set stype [lindex $spectrum 2]
 
 
 	set xChannels [lindex [lindex $axes 0] 2]
 	if {[llength $axes] == 1} {
 	    set channels $xChannels
+	    if {$stype == "s"} {
+		set paramcount [llength [lindex $spectrum 3]]
+		set channels [expr $paramcount * $xChannels]
+	    }
 	} else {
 	    set yChannels [lindex [lindex $axes 1] 2]
 	    set channels [expr $xChannels * $yChannels]

@@ -856,3 +856,6 @@ May 6, 2010  - Update Gri to 3.12.20 and get it to compile on g++-4.3.2
 May 14, 2010 - Remove usage of memswap
              - Remove -lpub from all makefile like artifacts.
              - fixed BZ 404 overflow in griprint.cc (buffer overflow that is).
+3.2-008
+May 18, 2010 - Fixed error in gui spectrumUsage proc. Was miscalculating
+               summary spectrum usage.
