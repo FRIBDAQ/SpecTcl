@@ -20,6 +20,7 @@
 #include "CNADC2530Unpacker.h"
 #include "CMADC32Unpacker.h"
 #include "CV1x90Unpacker.h"
+#include "CV977Unpacker.h"
 #include "CParamMapCommand.h"
 #include "CStackMapCommand.h"
 
@@ -47,6 +48,7 @@ static C785Unpacker       unpack785;
 static CNADC2530Unpacker  unpackNADC2530;
 static CMADC32Unpacker    unpackMADC32;
 static CV1x90Unpacker     unpackV1x90;
+static CV977Unpacker      unpackV977;
 
 // table of unpackers for each type of module.
 
@@ -55,7 +57,8 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
     &unpack785, 
     &unpackNADC2530,
     &unpackMADC32,
-    &unpackV1x90
+    &unpackV1x90,
+    &unpackV977
 };
 
 //////////////////////////////////////////////////////////////////////////////////
