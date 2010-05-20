@@ -42,11 +42,11 @@
 
 # Define the device types so the decoder can be selected:
 
-set typeCAEN  0;			# CAEN V775,785,792,862
-set typeHYTEC 1;			# Hytec NADC 2530.
-set typeMADC32 2;			# Mesytec MADC 32.
+set typeCAEN    0;			# CAEN V775,785,792,862
+set typeHYTEC   1;			# Hytec NADC 2530.
+set typeMADC32  2;			# Mesytec MADC 32.
 set typeTDC1x90 3;                      # CAEN V1x90.
-
+set typeV977    4;                      # CAEN V977 input register.
 
 #  We create as well spectra for each single parameter, and corresponding
 #  pairs of n's.
@@ -106,6 +106,26 @@ proc adcConfig tail {
 	    set ::adcConfiguration($name) $value
 	}
     }
+}
+
+#------------------------------------------------------------------
+#
+# v977 - Processes the v977 command, dispatches to the create/config
+#        commands.  
+#
+proc v977 args {
+    set subcommand [lindex $args 0]
+    set tail       [lrange $args 1 end]
+    set name       [lindex $tail 0]
+    
+    if {$subcommand eq "create"} {
+	adcCreate $tail
+    }
+    if {$subcommand eq "config"} {
+	adcConfig $tail
+    }
+    set ::readoutDeviceType($name) $::typeV977
+
 }
 #-------------------------------------------------------------------
 # adc - processes the adc command dispatches to the create/config

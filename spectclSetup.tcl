@@ -26,6 +26,30 @@
 # parameters/spectra appropriately given the depth for each
 #        TDC channel
 
+#
+#  For testing outside of SpecTcl
+# 
+
+if {[info globals SpecTclHome] eq ""} {
+    proc paramMap args {
+	puts "paramMap $args"
+    }
+    
+    proc spectrum args {
+	puts "spectrum $args"
+    }
+    proc parameter args {
+	puts "parameter $args"
+    }
+    proc stackMap args {
+	puts "stackMap $args"
+    }
+    proc sbind args  {
+	puts "sbind $args"
+    }
+}
+
+
 puts "In SpecTcl Setup"
 
 set here [file dirname [info script]]
@@ -47,6 +71,7 @@ set channelCount($typeCAEN)   4096
 set channelCount($typeHYTEC)  8192
 set channelCount($typeMADC32) 4096;	# Currently only 12 chans.
 set channelCount($typeTDC1x90) 16384;   # for now this is the # of channels in a tdc spec
+set channelCount($typeV977)    16;      # for a bit mask spec
 
 #-----------------------------------------------------------------------------
 # Creates a 1-d spectrum.
@@ -130,6 +155,39 @@ proc buildV1x90Maps {baseparam name} {
     paramMap $name $::readoutDeviceType($name) $vsn [list]
     return $baseparam
 }
+#---------------------------------------------------------------------------
+# Build the channel maps and spectrum for a V977
+# We're going to build a parameter map with only one parameter
+# and a bit map spectrum for the device.
+# Parameters:
+#    param   - Number of the first usable parameter.
+#    name    - module name
+# Returns:
+#    Number of next usable parameter.
+#
+proc buildv977Map {param module} {
+
+    puts {IN buildv977map}
+
+    # Create the parameter:
+
+    set channels $::adcChannels($module)
+
+    set parameterName [lindex $channels 0]
+    parameter $param $parameterName
+    incr param
+
+    # and it's mapping.
+
+    paramMap $module $::readoutDeviceType($module) 0  $channels
+
+
+    # and the spectrum , a 16 bit bitmask spectrum.
+
+    spectrum $parameterName b $parameterName {{0 15 16}}
+
+    return $param
+}
 #----------------------------------------------------------------------------
 # Build the channel maps, spectcl parameters and raw spectra from 
 # the adcConfigurtion, readoutDeviceType and adcChannels information.
@@ -142,7 +200,17 @@ proc buildChannelMaps param {
     puts "Building channel maps"
     foreach module [array names ::adcChannels] {
 	puts "Processing $module"
-	if {$::readoutDeviceType($module) ne $::typeTDC1x90} { 
+	if {$::readoutDeviceType($module) eq $::typeTDC1x90} { 
+	    puts "V1x90 $module"
+	    set param [buildV1x90Maps $param $module]
+
+	} elseif {$::readoutDeviceType($module) eq $::typeV977} {
+
+	    puts "V977 $module"
+	    set param [buildv977Map $param $module]
+
+	    #  Give SpecTcl the parameter map for the module:
+	} else {
 	    set vsn        $::adcConfiguration($module)
 	    set type       $::readoutDeviceType($module)
 	    set resolution $::channelCount($type)
@@ -156,11 +224,6 @@ proc buildChannelMaps param {
 		makeSpectrum $parameter $resolution
 	    }
 	    paramMap $module $type $vsn $channels
-
-	    #  Give SpecTcl the parameter map for the module:
-	} else {
-	    puts "V1x90 $module"
-	    set param [buildV1x90Maps $param $module]
 	}
     }
 }
