@@ -325,4 +325,4 @@ source [file join ~ config spectclSetup.tcl]
 puts "done"
 
 
-parameter event 0;    #  just true when there's an event ;-)..for rates.
+.gui.b update
