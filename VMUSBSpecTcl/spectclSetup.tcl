@@ -174,12 +174,15 @@ proc buildv977Map {param module} {
     set channels $::adcChannels($module)
 
     set parameterName [lindex $channels 0]
-    parameter $param $parameterName
+    puts "Setting parameter $param -> $parameterName"
+    parameter  $parameterName $param
     incr param
 
     # and it's mapping.
 
+    echo "Param map $module $::readoutDeviceType($module) 0 $channels"
     paramMap $module $::readoutDeviceType($module) 0  $channels
+    echo "Parammap done"
 
 
     # and the spectrum , a 16 bit bitmask spectrum.
