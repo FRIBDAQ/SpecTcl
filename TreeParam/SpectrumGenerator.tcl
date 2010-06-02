@@ -1366,6 +1366,7 @@ proc DependsOnDeleted gate {
 		}  
 	    }
 	}
+	return false
     }  
 }
 

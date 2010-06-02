@@ -1,4 +1,3 @@
-]
 2.1-006 - Incorporate fix 113 - low level cutoffs lead to corrupted
           1-d displays.
         - Have build procedures clean any pre-built Gri prior to 
@@ -859,3 +858,7 @@ May 14, 2010 - Remove usage of memswap
 3.2-008
 May 18, 2010 - Fixed error in gui spectrumUsage proc. Was miscalculating
                summary spectrum usage.
+June 2, 2010 - Fixed two errors in the old tree parameter GUI:
+               * mclistbox.tcl - needs -state defined to work in Tcl 8.5
+               * Gate dependencies not correctly calculated causing
+                 saves to fail if there was only one gate defined.
