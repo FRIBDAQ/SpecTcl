@@ -906,3 +906,6 @@ May 14, 2010- Remove memswap usage in CIntegrateCommand.cpp.
 pre7:
 May 18, 2010 - Fix error in GUI spectrum usage calculation. Was under
               calcluating summary spectrum usage.
+             - Fix treegui problems:
+               * Gate dependencies not calculated right if only one gate.
+               * mclistbox now clean for tcl 8.5
