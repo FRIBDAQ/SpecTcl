@@ -110,6 +110,7 @@ proc ::mclistbox::Init {} {
 	    -selectforeground    {selectForeground    Background} \
 	    -selectmode          {selectMode          SelectMode} \
 	    -setgrid             {setGrid             SetGrid} \
+	    -state               {state               State} \
 	    -takefocus           {takeFocus           TakeFocus} \
 	    -width               {width               Width} \
 	    -xscrollcommand      {xScrollCommand      ScrollCommand} \
@@ -1098,6 +1099,7 @@ proc ::mclistbox::MassageIndex {w index} {
 proc ::mclistbox::WidgetProc {w command args} {
     variable widgetOptions
 
+
     upvar ::mclistbox::${w}::widgets   widgets
     upvar ::mclistbox::${w}::options   options
     upvar ::mclistbox::${w}::misc      misc
@@ -1309,6 +1311,7 @@ proc ::mclistbox::WidgetProc {w command args} {
 	    if {[llength $args] != 1} {
 		error "wrong # args: should be $w cget option"
 	    }
+
 	    set opt [::mclistbox::Canonize $w option [lindex $args 0]]
 
 	    set result $options($opt)
@@ -1775,6 +1778,7 @@ proc ::mclistbox::Canonize {w object opt} {
     variable columnCommands
     variable labelCommands
 
+
     switch $object {
 	command {
 	    if {[lsearch -exact $widgetCommands $opt] >= 0} {
@@ -1831,6 +1835,7 @@ proc ::mclistbox::Canonize {w object opt} {
 	    }
 	    set list [array names widgetOptions]
 	    set matches [array names widgetOptions ${opt}*]
+		
 	}
 
 	{column option} {
@@ -2453,6 +2458,7 @@ proc ::mclistbox::ResizeEvent {w type widget x X Y} {
     upvar ::mclistbox::${w}::options       options
     upvar ::mclistbox::${w}::misc          misc
     upvar ::mclistbox::${w}::columnID      columnID
+
 
     # if the widget doesn't allow resizable cursors, there's
     # nothing here to do...

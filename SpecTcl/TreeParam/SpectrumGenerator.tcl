@@ -596,7 +596,6 @@ proc CreateSpectrum {SpectrumList Name ParameterList ResolutionList} {
 	
 	if {[lsearch $SpectrumList $Name] == -1} {
 		spectrum $Name $spectrumType $ParameterList $ResolutionList $spectrumDatatype
-		puts "Spectrum $Name created"
 	} else {
 #		if {[string match [tk_messageBox -icon warning -message "The spectrum $Name already exists.  Do you want to overwrite it?" \
 		-title Warning -type yesno -parent .gui] yes]} {
@@ -606,7 +605,7 @@ proc CreateSpectrum {SpectrumList Name ParameterList ResolutionList} {
 			if {![string equal $gate -TRUE-]} {
 				apply $gate $Name
 			}
-			puts "Spectrum $Name replaced"
+
 #		}
 	}
 }
@@ -1378,6 +1377,7 @@ proc DependsOnDeleted gate {
 		}  
 	    }
 	}
+	return false
     }  
 }
 
