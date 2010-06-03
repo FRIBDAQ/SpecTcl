@@ -129,5 +129,74 @@ public:
     return m_Value; 
   }
 };
+/*!
+   Class that implements a valid value with an associated index and dope
+   vector.  This allows one to maintain a dope vector of
+   the valid values in a vector that have been assigned a value.
+*/
+#ifndef __DOPEVECTOR_H
+#include "DopeVector.h"
+#endif
+template <class T>
+class DopedValidValue : public CValidValue<T>
+{
+  // data:
+private:
+  DopeVector&  m_dope;		// Dope vector to fill in.
+  unsigned int m_index;		// My index to set in the dope vector.
+  
+  // Canonicals
+public:
+  DopedValidValue(DopeVector& dope, unsigned int index) :
+    CValidValue<T>(),
+    m_dope(dope),
+    m_index(index) {}
+
+  DopedValidValue(DopeVector& dope, unsigned int index,
+		  T& initValue, Bool_t isValid = kfFALSE) :
+    CValidValue<T>(initValue, isValid),
+    m_dope(dope),
+    m_index(index) {}
+
+  DopedValidValue(DopeVector& dope, unsigned int index, 
+		  ULong_t* sharedSerial) :
+    CValidValue<T>(sharedSerial),
+    m_dope(dope),
+    m_index(index) {}
+
+  DopedValidValue(const DopedValidValue& rhs) :
+    CValidValue<T>(rhs),
+    m_dope(rhs.m_dope),
+    m_index(rhs.m_index) {}
+
+  DopedValidValue& operator=(const DopedValidValue& rhs) {
+    m_dope = rhs.m_dope;
+    m_index = rhs.m_index;
+    return *this;
+  }
+
+
+  int operator==(const DopedValidValue& rhs) const {
+    return (m_dope == rhs.m_dope) &&
+      (m_index == rhs.m_index)    &&
+      CValidValue<T>::operator==(rhs);
+  }
+  int operator!=(const DopedValidValue& rhs) const {
+    return !(*this == rhs);
+  }
+
+public:
+  DopedValidValue<T>& operator=(const T& rhs) {
+    // add to dope vector if not yet set:
+
+    if (!CValidValue<T>::isValid()) {
+      m_dope.append(m_index);
+    }
+    return reinterpret_cast<DopedValidValue&>(CValidValue<T>::operator=(rhs));
+  }
+
+
+};
+
 
 #endif
