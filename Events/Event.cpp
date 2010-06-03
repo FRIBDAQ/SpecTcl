@@ -63,7 +63,7 @@ fill(vector<Int_t>& rv, UInt_t n, Int_t value)
 //
 CEvent::CEvent()
   :  m_rvParameters(),
-     m_nSize(m_rvParameters.size()),
+     m_nSize(0),
      m_nSerial(0)
 {}
 
@@ -79,7 +79,9 @@ CEvent::CEvent()
 //                   vector(size, value) seems to recurse and
 //                   exhaust memory.
 CEvent::CEvent(UInt_t nInitialSize) 
-  : m_rvParameters()
+  : m_rvParameters(),
+    m_nSize(0),
+    m_nSerial(0)
 {
   Resize(nInitialSize);
   m_nSize = m_rvParameters.size();
@@ -213,10 +215,10 @@ CEvent::ExpandGranule()
 {
   // Expands the size of an array by knExpandSize
 
-  CParameterValue undefined(&m_nSerial); // Enlarge pointing to common serial no.
 
   for(UInt_t i = 0; i < knExpandSize; i++) {
-    m_rvParameters.push_back(undefined);
+    int index = m_nSize + i;
+    m_rvParameters.push_back(CParameterValue(m_dopeVector, index, &m_nSerial));
   }
   m_nSize = m_rvParameters.size();
 }
