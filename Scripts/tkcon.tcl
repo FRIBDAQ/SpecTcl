@@ -41,7 +41,7 @@ exec wish "$0" ${1+"$@"}
 if {$tcl_version < 8.0} {
     return -code error "tkcon requires at least Tcl/Tk8"
 } else {
-    package require Tk $tcl_version
+    package require Tk 
 }
 
 catch {package require bogus-package-name}
