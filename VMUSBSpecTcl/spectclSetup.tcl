@@ -72,6 +72,7 @@ set channelCount($typeHYTEC)  8192
 set channelCount($typeMADC32) 4096;	# Currently only 12 chans.
 set channelCount($typeTDC1x90) 16384;   # for now this is the # of channels in a tdc spec
 set channelCount($typeV977)    16;      # for a bit mask spec
+set channelCount($typeMase)    8192;    # Spectrum channels for MASE.
 
 #-----------------------------------------------------------------------------
 # Creates a 1-d spectrum.
@@ -167,20 +168,17 @@ proc buildV1x90Maps {baseparam name} {
 #
 proc buildv977Map {param module} {
 
-    puts {IN buildv977map}
 
     # Create the parameter:
 
     set channels $::adcChannels($module)
 
     set parameterName [lindex $channels 0]
-    puts "Setting parameter $param -> $parameterName"
     parameter  $parameterName $param
     incr param
 
     # and it's mapping.
 
-    echo "Param map $module $::readoutDeviceType($module) 0 $channels"
     paramMap $module $::readoutDeviceType($module) 0  $channels
     echo "Parammap done"
 
@@ -191,6 +189,58 @@ proc buildv977Map {param module} {
 
     return $param
 }
+#----------------------------------------------------------------------------
+# Build the channel maps and spectra for a MASE module.
+# This module can have a large number of channels.. so we are not going
+# to build a full parameter map.
+# Global variable used:
+#   maseCOBCount($name)   - Number of Cobs for this module.
+#   maseCHBCounts($name)  - Number of CHB's for each COB.
+#   adcChannels($name)    - The base name for the parameters we are going to make.
+# For each CHB we generate the full complement of 32 parameters/raw spectra.
+#   adcChannels($name)    - the basename for those parameters.  e.g. 
+#                           if adcChannels($name) is 'george'
+# we'll generate parameters/spectra of the form:
+#    george.cob.chb.chan  
+# Parameters:
+#    param - The number of the first available parameter.
+#    module- Nameo f the module being configured.
+# Returns:
+#    Number of the next usable parameter.
+#
+proc buildMaseMap {param module} {
+
+    puts "In Mase"
+    set basename $::adcChannels($module)
+    set cobcount $::maseCOBCount($module)
+    set chblist  $::maseCHBCounts($module)
+    set channels $::channelCount($::typeMase)
+
+    puts "$basename : $cobcount $chblist $channels"
+
+    #  We're going to be a bit tricky;  The parameter map will be named by the
+    # parameter _basename_ that will allow the unpacker to locate the parameter
+    # and build itself an appropriate sparse set of tree parameters.
+    # there won't actually be a parameter map in the parammap (empty parameter list).
+
+    paramMap $basename $::readoutDeviceType($module) 0 [list]
+
+    # now build the parameters/spectra
+
+    for {set cob 0} {$cob < $cobcount} {incr cob} {
+	set chbcount [lindex $chblist $cob]
+	for {set chb 0} {$chb < $chbcount} {incr chb} {
+	    for {set chan 0} {$chan < 32} {incr chan} {
+		set parameterName [format $basename.%02d.%02d.%02d $cob $chb $chan]
+		parameter $parameterName $param
+		incr param
+		makeSpectrum $parameterName $channels
+	    }
+	}
+    }
+    return $param
+}
+
 #----------------------------------------------------------------------------
 # Build the channel maps, spectcl parameters and raw spectra from 
 # the adcConfigurtion, readoutDeviceType and adcChannels information.
@@ -213,6 +263,9 @@ proc buildChannelMaps param {
 	    set param [buildv977Map $param $module]
 
 	    #  Give SpecTcl the parameter map for the module:
+	} elseif {$::readoutDeviceType($module) eq $::typeMase} {
+	    puts "MASE module"
+	    set param [buildMaseMap $param $module]
 	} else {
 	    set vsn        $::adcConfiguration($module)
 	    set type       $::readoutDeviceType($module)

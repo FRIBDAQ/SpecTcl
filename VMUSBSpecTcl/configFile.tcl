@@ -47,6 +47,7 @@ set typeHYTEC   1;			# Hytec NADC 2530.
 set typeMADC32  2;			# Mesytec MADC 32.
 set typeTDC1x90 3;                      # CAEN V1x90.
 set typeV977    4;                      # CAEN V977 input register.
+set typeMase    5;                      # MASE XLM subsystem.
 
 #  We create as well spectra for each single parameter, and corresponding
 #  pairs of n's.
@@ -163,6 +164,22 @@ proc hytec args {
 	incr idindex
 	set ::adcConfiguration($name) [lindex $args $idindex]
     }
+}
+#--------------------------------------------------------------
+#
+#  The mase command processes the creation and configuration 
+#  commands for the mase command.
+#  This device has no geographical address.
+#
+proc mase args {
+    set subcommand [lindex $args 0]
+    set name       [lindex $args 1]
+
+    set ::readoutDeviceType($name)  $::typeMase
+    set ::adcConfiguration($name)   -1;	# no geo.
+
+    # at this point we are not interested in the set of configuration 
+    # options that may have been set.
 }
 
 #---------------------------------------------------------------
