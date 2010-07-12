@@ -302,10 +302,11 @@ CFilterBufferDecoder::TranslateBuffer(CXdrInputStream& xdr,
   m_pTranslator = new NonSwappingBufferTranslator(m_pTranslated);
 
   // Look at the first item in the buffer, and handle it if it's
-  // a header.
+  // a header
 
   xdr >> itemtype;
   if(itemtype == string("header")) {
+    m_isSingle = dataWidth(nBytes, xdr.getBuffer());
     ProcessHeader(xdr, rAnalyzer);
     xdr >> itemtype;		// Setup for what's to come...
     if (itemtype != string("event")) {
@@ -313,7 +314,6 @@ CFilterBufferDecoder::TranslateBuffer(CXdrInputStream& xdr,
       cerr << "Event source does not appear to be a filter file!! ending\n";
       return;
     }
-    m_isSingle = dataWidth(nBytes, xdr.getBuffer());
 
     
   }
