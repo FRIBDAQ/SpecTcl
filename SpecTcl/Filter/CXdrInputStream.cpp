@@ -292,7 +292,7 @@ CXdrInputStream::operator>>(char& c)
 CXdrInputStream&
 CXdrInputStream::operator>>(char* c)
 {
-  Get(&c, (xdrproc_t)xdr_wrapstring);
+  xdr_string(&m_Xdr, &c, m_nBuffersize);
   return *this;
 }
 /*!
