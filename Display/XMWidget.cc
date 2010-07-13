@@ -135,6 +135,7 @@ XMWidget::~XMWidget()
   }
   // std::list can clean up after itself now.
 
+  m_callbacks.clear();
 }
 
 Widget
@@ -143,8 +144,11 @@ XMWidget::getid() { return id; }
 Widget
 XMWidget::getparent() { return XtParent(id); }
 
-char*
-XMWidget::getname() { return name; }
+const char*
+XMWidget::getname() const
+{ 
+   return name; 
+}
 
 void
 XMWidget::SetAttribute(String attribute, XtArgVal value) 
@@ -209,6 +213,8 @@ XMWidget::RemoveCallback(String reason,
 
 	XMRemoveCallback(cbd);	// This deletes cbd and the string
 	m_callbacks.erase(i);	// Get rid of the list element.
+	delete []cbd->reason;
+	delete cbd;		// Get rid of the dynamic storage.
 	return;
 
       }
@@ -242,7 +248,7 @@ XMWidget::Create(const char *n, WidgetClass cl, Widget parent,
 		 ArgList l, Cardinal num_args)
 {
   strcpy(name,n);
-  id = XtCreateWidget(const_cast<char*>(name), cl, parent, l, num_args);
+  id = XtCreateWidget(name, cl, parent, l, num_args);
 }
 
 /*
@@ -250,20 +256,19 @@ XMWidget::Create(const char *n, WidgetClass cl, Widget parent,
 */
 
 XMManagedWidget::XMManagedWidget(const char *n) :
-  XMWidget(const_cast<char*>(n))
+  XMWidget(n)
 { /* Null default constructor to allow full override */ }
 
 XMManagedWidget::XMManagedWidget(const char *n, WidgetClass cl, Widget parent,
 				 ArgList l, Cardinal num_args) :
-  XMWidget(const_cast<char*>(n), cl, parent, l, num_args)
+  XMWidget(n, cl, parent, l, num_args)
 { 
   Manage();
 }
 
-XMManagedWidget::XMManagedWidget(const char *n, 
-				 WidgetClass cl, XMWidget &parent,
+XMManagedWidget::XMManagedWidget(const char *n, WidgetClass cl, XMWidget &parent,
 				 ArgList l, Cardinal num_args) :
-  XMWidget(const_cast<char*>(n), cl, parent, l, num_args)
+  XMWidget(n, cl, parent, l, num_args)
 {
   Manage();
 }

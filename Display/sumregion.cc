@@ -422,8 +422,8 @@ AcceptSummingRegion::Delete_relay(XMWidget *w, XtPointer ud, XtPointer cd) /* De
 **   char **help_text:
 **      Pointer to the list of help strings.
 */
-AcceptSummingRegion::AcceptSummingRegion(char *name, XMWidget *parent,
-					 char **help_text) :
+AcceptSummingRegion::AcceptSummingRegion(const char *name, XMWidget *parent,
+					 const char **help_text) :
        ObjectInput(parent, name, help_text) 
 {
   /* Build the widgets that will live in the point_prompts form: */
@@ -433,7 +433,7 @@ AcceptSummingRegion::AcceptSummingRegion(char *name, XMWidget *parent,
 				    this);
   DeleteLast->Label(const_cast<char*>("Delete Last"));
   NextLabel      = new XMLabel(name, *point_prompts, const_cast<char*>("Next Point:"));
-  NextPoint      = new XMTextField(name, *point_prompts);
+  NextPoint      = new XMTextField(const_cast<char*>(name), *point_prompts);
 
   object = NULL;		/* Null out the object so that Rebuild works.  */
 
@@ -955,8 +955,8 @@ void Xamine_AcceptSummingRegion(XMWidget *w, XtPointer ud, XtPointer cd)
   /* If the dialog does not exist, then we build it. */
 
   if(dialog == NULL) {
-    dialog = new AcceptSummingRegion(const_cast<char*>("Summing region"),
-				     w, const_cast<char**>(help_text));
+    dialog = new AcceptSummingRegion("Summing region",
+				     w, help_text);
     dialog->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			(XtPointer)&dialog);
     dialog->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput,

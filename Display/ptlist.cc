@@ -355,10 +355,10 @@ static const char *default_help[] =
 AcceptPointList::AcceptPointList(char *name, XMWidget *parent, 
 				 int minpts, int maxpts,
 				 char **help_text) :
-		 AcceptSummingRegion(name, parent, 
+  AcceptSummingRegion(const_cast<const char*>(name), parent, 
 				     help_text == NULL ? 
-				     const_cast<char**>(default_help) :
-				     help_text)
+				     const_cast<const char**>(default_help) :
+				     const_cast<const char**>(help_text))
 {
   if(minpts > 0) min_pts = minpts;
   else           min_pts = 1;

@@ -862,3 +862,5 @@ June 2, 2010 - Fixed two errors in the old tree parameter GUI:
                * mclistbox.tcl - needs -state defined to work in Tcl 8.5
                * Gate dependencies not correctly calculated causing
                  saves to fail if there was only one gate defined.
+
+3.2-009   - Fix some memory double deallocation errors found by Coupland.

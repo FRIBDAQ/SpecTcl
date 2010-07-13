@@ -377,7 +377,7 @@ class AcceptMarker : public ObjectInput {
 
   /* Class constructors and destructors. */
 
-  AcceptMarker(XMWidget *parent, char *name, char **hlp_text);
+  AcceptMarker(XMWidget *parent, const char *name, const char **hlp_text);
   ~AcceptMarker() {
     if(object != NULL) delete object;
     delete point;
@@ -633,7 +633,7 @@ void AcceptMarker::RebuildObject()
 **         type of marker.
 ** Formal Parameters: (all passed to parent types).
 */
-AcceptMarker::AcceptMarker(XMWidget *parent, char *name, char **hlp_text) :
+AcceptMarker::AcceptMarker(XMWidget *parent, const char *name, const char **hlp_text) :
        ObjectInput(parent, name, hlp_text)
 {
   /* Build the appropriate graphical object: */
@@ -970,7 +970,7 @@ void Xamine_AddMarker(XMWidget *wid, XtPointer ud, XtPointer cd)
   ** instantiate it now and set up the invariant behavior.
   */
   if(dialog == NULL) {
-    dialog = new AcceptMarker(wid, const_cast<char*>("Define_Marker"), const_cast<char**>(help_text));
+    dialog = new AcceptMarker(wid, "Define_Marker", help_text);
 
     dialog->AddOkCallback(&AcceptMarker::Marker_ok, (XtPointer)dialog);
     dialog->AddCancelCallback(&AcceptMarker::Marker_cancel, (XtPointer)dialog);

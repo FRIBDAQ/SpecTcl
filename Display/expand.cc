@@ -368,7 +368,7 @@ class Expand : public GraphicalInput, public Xamine_Select2 {
  public:
   /* Constructors and destructors: */
 
-  Expand(XMWidget *parent, char *name, char **help_text = NULL);
+  Expand(XMWidget *parent, const char *name, const char **help_text = NULL);
   virtual ~Expand() { }			/* Get the hierarchy destroyed. */
 
   /* The following functions replace the virtual function set that
@@ -456,7 +456,7 @@ Expand::OkCallback_relay(XMWidget *w, XtPointer u, XtPointer c)
 **    by the parent constructors.  We just have to clear the internal state
 **    and dialogs.
 */
-Expand::Expand(XMWidget *parent, char *name, char **help_text) :
+Expand::Expand(XMWidget *parent, const char *name, const char **help_text) :
        GraphicalInput(parent, name, help_text),
        Xamine_Select2(this, *work_area)
 {
@@ -1270,8 +1270,8 @@ void Xamine_Expand(XMWidget *w, XtPointer user_data, XtPointer call_data)
   /* If the dialog does not exist, then instantiate it.  */
 
   if(dialog == NULL) {
-    dialog = new Expand(w, const_cast<char*>("Expand"), 
-			const_cast<char**>(help_text));
+    dialog = new Expand(w, "Expand", 
+			help_text);
 
     dialog->SetPoint1Label(const_cast<char*>("Limit 1"));
     dialog->SetPoint2Label(const_cast<char*>("Limit 2"));

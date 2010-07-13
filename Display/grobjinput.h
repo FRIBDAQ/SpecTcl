@@ -325,7 +325,7 @@ class ObjectInput : public GraphicalInput {
  public:
   /* Constructors and destructors: */
 
-  ObjectInput(XMWidget *parent, char *name, char **help_text = NULL);
+  ObjectInput(XMWidget *parent, const char *name, const char **help_text = NULL);
   ~ObjectInput() {
     delete name_prompt;
     delete name_label;

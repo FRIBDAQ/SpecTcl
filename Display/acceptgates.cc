@@ -213,7 +213,7 @@ AcceptBand     *bandin = NULL;
 **     Help text pointer, or NULL If help is not available for the dialog.
 */
 AcceptCut::AcceptCut(char* name, XMWidget* parent, char** help_text) :
-       AcceptSummingRegion(name, parent, help_text) 
+  AcceptSummingRegion(const_cast<const char*>(name), parent, const_cast<const char**>(help_text)) 
 {
   object = (grobj_generic *)new grobj_cut1d;
 }
@@ -232,7 +232,7 @@ AcceptCut::AcceptCut(char* name, XMWidget* parent, char** help_text) :
 **      Help text if present or NULL if there is no help.
 */
 AcceptContour::AcceptContour(char *name, XMWidget *parent, char **help_text) :
-       AcceptSummingRegion(name, parent, help_text)
+  AcceptSummingRegion(const_cast<const char*>(name), parent, const_cast<const char**>(help_text))
 {
   object = (grobj_generic *) new grobj_contour;
 }
@@ -250,7 +250,7 @@ AcceptContour::AcceptContour(char *name, XMWidget *parent, char **help_text) :
 **      Help text if any, NULL If none.
 */
 AcceptBand::AcceptBand(char *name, XMWidget *parent, char **help_text) :
-     AcceptSummingRegion(name, parent, help_text)
+  AcceptSummingRegion(const_cast<const char*>(name), parent, const_cast<const char**>(help_text))
 {
   object = (grobj_generic *)new grobj_band;
 }
