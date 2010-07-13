@@ -654,7 +654,10 @@ void GraphicalInput::CancelCallback(XtPointer call_d)
   ClearState();
   ClearDialog();
   ClearStandardCallbacks();
-  UnManage();
+  XtCallCallbacks(getid(), XmNpopdownCallback, call_d);
+
+  //   UnManage();
+  
 }
 
 /*
@@ -683,10 +686,7 @@ void GraphicalInput::ApplyCallback(XtPointer call_d)
 void GraphicalInput::OkCallback(XtPointer call_d)
 {
   if(DoAccept()) {
-    ClearDialog();
-    ClearState();
-    ClearStandardCallbacks();
-    UnManage();
+    CancelCallback(call_d);
   }
 }
 
@@ -755,7 +755,7 @@ Xamine_DestroyGraphicalInput(XMWidget* pWidget,
   pInput->RemoveCallback(XmNpopdownCallback, Xamine_DestroyGraphicalInput,
 			 pClientData);
 
-  pInput->CancelCallback(NULL);	// Doing this here prevents recursion.
+  //  pInput->CancelCallback(NULL);	// Doing this here prevents recursion.
 
 
   NullPointer(pWidget, pClientData, pEvent);
