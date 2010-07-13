@@ -402,8 +402,9 @@ void XMRemoveCallback(Callback_data *cbd)
   ** Then delete the callback data structure since it was the source of
   ** memory leaks else where.
   */
-  delete [] cbd->reason;
-  delete cbd;			/* Prevent memory leaks. */
+  // Fuzzy thinking will eventually get deleted by XMWidget's destructor.
+  //  delete [] cbd->reason;
+  // delete cbd;			/* Prevent memory leaks. */
 
 }
 

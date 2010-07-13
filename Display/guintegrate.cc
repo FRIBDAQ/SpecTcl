@@ -91,6 +91,7 @@ class IntegrationDisplay : public XMCustomDialog {
   ~IntegrationDisplay() {
     XMRemoveCallback(cd);
     delete text;
+    text = 0;
   }
   /* Manipulation: */
 

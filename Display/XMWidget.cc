@@ -135,6 +135,7 @@ XMWidget::~XMWidget()
   }
   // std::list can clean up after itself now.
 
+  m_callbacks.clear();
 }
 
 Widget
@@ -212,6 +213,8 @@ XMWidget::RemoveCallback(String reason,
 
 	XMRemoveCallback(cbd);	// This deletes cbd and the string
 	m_callbacks.erase(i);	// Get rid of the list element.
+	delete []cbd->reason;
+	delete cbd;		// Get rid of the dynamic storage.
 	return;
 
       }
