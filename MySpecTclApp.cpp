@@ -94,6 +94,7 @@ void
 CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)  
 { 
   RegisterEventProcessor(*(new CStackUnpacker), "adc-data");
+  RegisterEventProcessor(*(new CScalerProcessor), "Scalers");
   //  RegisterEventProcessor(*(new CRateEventProcessor), "rate-stripchart");
   
 }  
@@ -214,6 +215,11 @@ CMySpecTclApp::SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer
 { 
   CTclGrammerApp::SelectDisplayer(nDisplaySize, rHistogrammer);
 
+  CXamineEventHandler* pEventHandler = getXamineEvents();
+  CButtonBoxSetup*     pSetup        = new CButtonBoxSetup;
+  pEventHandler->addRestartHandler(*pSetup);
+  
+  (*pSetup)();			// Get it set up the first time.
 
 
 
@@ -299,8 +305,9 @@ void
 CMySpecTclApp::AddCommands(CTCLInterpreter& rInterp)  
 { 
   CTclGrammerApp::AddCommands(rInterp);
-  new CParamMapCommand(rInterp);
-  new CStackMapCommand(rInterp);
+  new CParamMapCommand(rInterp); // Map parameters for a stack.
+  new CStackMapCommand(rInterp); // Map stacks -> parameters.
+  new CRateCommand(rInterp);	 // Allow computation of spectrum increment rates.
 
 }  
 

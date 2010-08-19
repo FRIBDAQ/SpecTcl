@@ -72,11 +72,53 @@ foreach edef $parameters {
     set enum  [lindex [split $ename .] 1]
     set tname t.$enum
 
-    puts "spectrum 2d.$enum 2 [list $ename $tname] {{0 8192 512} {0 8192 512}}"
-    spectrum 2d.$enum 2 [list $ename $tname] {{0 8192 512} {0 8192 512}}}
-
+    spectrum 2d.$enum 2 [list $ename $tname] {{0 8192 512} {0 8192 512}}
 }
 
 sbind -all
 
 .gui.b update
+
+#
+#  Integrate the scaler display:
+#
+puts  -nonewline "Starting scaler display.."
+set scalerWin [toplevel .scalers]
+source /usr/opt/daq/current/TclLibs/ScalerDisplay/scaler.tcl
+if {[file exists [file join ~/config scalerdisplay.tcl]]} {
+    source [file join ~/config scalerdisplay.tcl]
+}
+puts " done"
+
+#
+# Adding the rates GUi to the scaler display and folder GUI:
+#
+
+puts -nonewline "Adding rates GUI "
+set here [file dirname [info script]]
+source [file join $here ratesGui.tcl]
+puts Done.
+
+#
+#  Loading the rates.tcl file from ~/config if it exists:
+#
+
+set ratesFile [file join ~ config rates.tcl]
+if {[file exists $ratesFile]} {
+    puts -nonewline "Found rates file $ratesFile restoring it "
+    source $ratesFile
+    puts Done.
+}
+#
+#  Load the projection gui
+#
+puts -nonewline "Loading projection GUI"
+source [file join $here project.tcl]
+puts " Done"
+
+#
+#  Load the figure of merit tcl code:
+#
+puts -nownewline "Loading FOM Tcl Scripts "
+source [file join $here fom.tcl]
+puts  Done
