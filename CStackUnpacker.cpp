@@ -69,7 +69,12 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
 
 // The ones we have ar no-ops.
 
-CStackUnpacker::CStackUnpacker() {}
+CStackUnpacker::CStackUnpacker()  :
+  m_state(CStackUnpacker::Initial),
+  m_size(0),
+  m_offset(0)
+{
+}
 CStackUnpacker::~CStackUnpacker() {}
 
 
@@ -104,56 +109,97 @@ CStackUnpacker::operator()(const Address_t pEvent,
 {
   CTclAnalyzer&    analyzer(dynamic_cast<CTclAnalyzer&>(rAnalyzer));
   TranslatorPointer<UShort_t> p(*(rDecoder.getBufferTranslator()), pEvent);
-  vector<uint16_t> event;
   StackInfo        info;
 
-  info        = assembleEvent(p, event);
-  int stackId = info.s_stackNumber;
-  analyzer.SetEventSize((info.s_stackSize)*sizeof(uint16_t)); // +1 for the header.
 
-
-  // Get our stack map:
-
-  const CStackMapCommand::stackMap& myMap(CStackMapCommand::getMap(stackId));
-
-  // Unpack each module in the stack:
-
-  unsigned int offset = 0;
-
-
-
-  for (int i = 0; i < myMap.size(); i++) {
-    CParamMapCommand::AdcMapping* pMap = myMap[i];
-    int moduleType = pMap->type;
-    CModuleUnpacker* pUnpacker = m_unpackers[moduleType];
-    offset = (*pUnpacker)(rEvent, event, offset, pMap);
+  switch (m_state) {
+  case Initial:			// Need to fetch a new event from the data...
+    info        = assembleEvent(p,  m_event);
+    m_offset    = 0;
+    m_size      = info.s_stackSize;
+    m_state     = Internal;
+    m_stack     = info.s_stackNumber;
+  case Internal:
+    unpackEvent(rEvent);
+    break;
+  default:
+    throw string("Invalid state in CStackUnpacker::operator()");
   }
 
 
-  // Burn up any remaining 0xfff's at the end of the event:
+  // What we do now depends on whether or not there is data left in the megaevent:
+  // note that m_size includes the header which is not in the megaevent:
 
-  while(offset < event.size()) {
-    if (event[offset] == 0xffff) {
-      offset++;
-    }
-    else {
-      break;
-    }
+  if (m_offset < (m_size-1)) {
+    // More data in superevent; stay in the internal state..
+
+    analyzer.entityNotDone();
+    analyzer.SetEventSize(0);
+  }
+  else {
+    // No data left in the superevent, transition to the Initial state:
+
+    analyzer.SetEventSize(m_size*sizeof(uint16_t));
+    m_state  = Initial;
   }
 
-  // Something went wrong if we didn't burn up the entire event:
-
-  if (offset != event.size()) {
-    cerr << "**WARNING** Event not entirely decoded by unpackers\n";
-    cerr << "            Event will not be histogrammed, proceeding with next event\n";
-    return kfFALSE;
-  }
- 
-
-  
   return kfTRUE;
 
+
 }
+/**
+ ** Unpack a single module:
+ ** Parameters:
+ **   rEvent - Reference to the event 'vector' we are filling with parameters.
+ ** Implicit Inputs:
+ **  m_event - Current superevent (vector<uint16_t>).
+ **  m_offset - offset into the current superevent
+ **  m_stack  - Our stack number.
+ ** The stack maps.
+ **
+ ** We are actually going to iterate over all modules unless we run out of data first.
+ */
+void
+CStackUnpacker::unpackEvent(CEvent& rEvent)
+{
+  // The stackmap command contains data structures that map the event parameters to
+  // parameter ids in the rEvent:
+
+  try {
+    const CStackMapCommand::stackMap& myMap(CStackMapCommand::getMap(m_stack));
+    
+    // Give each module a chance:
+    
+    size_t offset = m_offset;
+    for (int i =0; i < myMap.size(); i++) {
+      CParamMapCommand::AdcMapping* pMap = myMap[i];
+      int moduleType = pMap->type;
+      CModuleUnpacker* pUnpacker = m_unpackers[moduleType];
+      m_offset = (*pUnpacker)(rEvent, m_event, m_offset, pMap);
+      
+      // Done if we finished with the available data too:
+      
+      
+      
+      if(m_offset >= (m_size - 1)) break;
+    }
+    if (offset == m_offset) {
+      cerr << "Processing the event did not result in progress through the buffer\n";
+      cerr << "skipping on to the next superevent\n";
+      m_offset = m_size;
+    }
+  }
+  catch(string msg) {
+    cerr << "Event unpacker found an unrecoverable problem: "
+	 << msg << endl;
+    cerr << "skipping on to the next superevent\n";
+    m_offset = m_size;
+  }
+
+}
+
+
+
 //////////////////////////////////////////////////////////////////////////////////
 // Utilties
 
@@ -170,6 +216,9 @@ CStackUnpacker::assembleEvent(TranslatorPointer<UShort_t>&p,
   bool done    = false;
   int  stackId = -1;
   size_t totalSize = 0;
+  uint16_t datum;
+  event.clear();
+
   while(!done) {
     // Decode the header:
 
@@ -186,12 +235,19 @@ CStackUnpacker::assembleEvent(TranslatorPointer<UShort_t>&p,
     // Append the fragment to the event vector
 
     for (int i=0; i < fragmentSize; i++) {
-      uint16_t datum = *p; ++p;
+      datum = *p; ++p;
       event.push_back(datum);
     }
     totalSize += fragmentSize;	// Words in the fragment...
   }
-  
+
+  // The event is terminated with the 0xffffffff of the BERR.. 
+  // remove that from the assembled event:
+
+  if (datum == 0xffff) {
+    event.pop_back();
+    event.pop_back();
+  }
   result.s_stackNumber = stackId;
   result.s_stackSize   = totalSize;
   return result;

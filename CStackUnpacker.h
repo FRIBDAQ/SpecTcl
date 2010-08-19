@@ -83,9 +83,25 @@ private:
     size_t      s_stackSize;
   } StackInfo;
 
+  typedef enum _UnpackState {
+    Initial,
+    Internal,
+  } UnpackState;
+
   // static data:
 
   static CModuleUnpacker* m_unpackers[];
+
+
+  // Per object data (though likely there's only one instance of that).
+  // These data keep track of the fact that we are dealing with megaevents
+  // of multiple singles events.
+
+  UnpackState             m_state;      // Unpacking state (need data or processing data)
+  std::vector<uint16_t>   m_event;	// mega event data.
+  size_t                  m_size;	// Total size of the mega-event in words.
+  size_t                  m_offset;	// Current location in the mega event.
+  int                     m_stack;      // stack nmber.
 
   // Canonicals:
 public:
@@ -105,6 +121,7 @@ public:
   // Utilties:
 
 private:
+  void unpackEvent(CEvent& rEvent);
   static StackInfo assembleEvent(TranslatorPointer<UShort_t>& p, std::vector<uint16_t>& event);
 };
 

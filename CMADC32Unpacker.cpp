@@ -154,19 +154,15 @@ CMADC32Unpacker::operator()(CEvent&                       rEvent,
   // The datum should be the trailer.. verify this.. If so,
   // then save the count field ans parameter 32.
 
+  uint32_t timestamp;
   if (((datum & ALL_TYPEMASK) >> ALL_TYPESHFT) == TYPE_TRAILER) {
-    uint32_t value = datum & TRAILER_COUNTMASK;
-    int      id    = pMap->map[32];
-    if (id != -1) {
-      rEvent[id] = value;
-    }
+    timestamp = datum & TRAILER_COUNTMASK;
   }
   else {
-    longsRead--;		// Really should not happen!!
-  }
-    
-  // There will be a 0xffffffff longword for the BERR at the end of the
-  // readout.
+    // Sometimes I see wonky events...missing trailers... data with the top 1/2 filled with only 1's.
+    // I'm going to pop an exeption out so that the caller can move on to the next event/supervevent
 
-  return offset + 2;
+    throw string("MADC Unpacker did not see a trailer at the end of an MADC32 event");
+  }
+  return offset;
 }

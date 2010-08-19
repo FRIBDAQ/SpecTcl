@@ -315,24 +315,44 @@ proc tdc1x90 args {
     
 }
 
-
+#--------------------------------------------------------------
+#
+#  Common code for CBLT readout chains:
+# Parameters:
+#   name - module name.
+#   params - The full set of command arguments to the chain's config command.
+#
+#  - Extract the chain name.
+#  - If the params contains -modules extract the next list item
+#    and use it as the value for the chain's chainOrder entry.
+#
+proc chain {name params} {
+    set modIndex [lsearch -exact $params "-modules"]
+    if {$modIndex != -1} {
+	incr modIndex
+	set ::chainOrder($name) [lindex $params $modIndex]
+    }
+}
 #---------------------------------------------------------------
 #  We need to use this command to fill in the chainOrder array of 
 #  the order of modules in the chain.  This allows the stack command
 #  to accurately figure out the module order in the presence of
 #  chains that aggregate several V785 readout 
 #
-#  - Extract the chain name.
-#  - If the args contains -modules extract the next list item
-#    and use it as the value for the chain's chainOrder entry.
-#
+
 proc caenchain args {
     set name     [lindex $args 1]
-    set modIndex [lsearch -exact $args "-modules"]
-    if {$modIndex != -1} {
-	incr modIndex
-	set ::chainOrder($name) [lindex $args $modIndex]
-    }
+    chain $name $args
+
+}
+#--------------------------------------------------------------
+#
+# define an madcchain command.. really this is identical
+# to the caenchain command:
+#
+proc madcchain args {
+    set name [lindex $args 1]
+    chain $name $args
 }
 #---------------------------------------------------------------
 #

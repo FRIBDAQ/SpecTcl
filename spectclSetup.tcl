@@ -61,7 +61,7 @@ configClear
 
 puts "Configuration cleared"
 
-if {[catch {configRead [file join $here daqconfig.tcl]} msg]} {
+if {[catch {configRead [file join ~ config daqconfig.tcl]} msg]} {
     puts "Error in configuration file read: $msg"
 }
 
