@@ -275,9 +275,11 @@ proc buildChannelMaps param {
 	    # Make the parameters and spectra:
 	    
 	    foreach parameter $channels {
-		parameter $parameter $param
-		incr param
-		makeSpectrum $parameter $resolution
+		if {$parameter ne ""} {
+		    parameter $parameter $param
+		    incr param
+		    makeSpectrum $parameter $resolution
+		}
 	    }
 	    paramMap $module $type $vsn $channels
 	}
