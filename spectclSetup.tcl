@@ -69,7 +69,7 @@ puts "Configuration read"
 
 set channelCount($typeCAEN)   4096
 set channelCount($typeHYTEC)  8192
-set channelCount($typeMADC32) 4096;	# Currently only 12 chans.
+set channelCount($typeMADC32) 2048;	# Currently only 12 chans.
 set channelCount($typeTDC1x90) 16384;   # for now this is the # of channels in a tdc spec
 set channelCount($typeV977)    16;      # for a bit mask spec
 set channelCount($typeMase)    8192;    # Spectrum channels for MASE.

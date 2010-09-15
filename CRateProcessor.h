@@ -53,8 +53,8 @@ class CRateProcessor  : public CEventProcessor
 {
 private:
   CSpectrum* m_pSpectrum;
-  uint64_t   m_totalCounts;
-  uint64_t   m_increments;
+  uint32_t   m_totalCounts;
+  uint32_t   m_increments;
 public:
   // Construtors and cannonicals.
 
@@ -69,8 +69,8 @@ public:
   // Selectors
 
   CSpectrum* getSpectrum();
-  uint64_t   getTotals()     const;
-  uint64_t   getIncrements() const;
+  uint32_t   getTotals()     const;
+  uint32_t   getIncrements() const;
   
   // Virtual function overrides:
   
@@ -83,8 +83,8 @@ private:
   void     disable();
   void     adjustSpectrum();
   void     clear();
-  uint64_t sum1d();
-  uint64_t sum2d();
+  uint32_t sum1d();
+  uint32_t sum2d();
 };
 
 

@@ -558,7 +558,6 @@ proc UserUpdate {} {
 
 	set rates  [expr $rates*$LastSequence/$BuffersAnalyzed]
 	set totals [expr $totals*$LastSequence/$BuffersAnalyzed]
-
 	set totalCounts [expr $totalCounts + $totals]
 	set totalRates  [expr $totalRates  + $rates]
 

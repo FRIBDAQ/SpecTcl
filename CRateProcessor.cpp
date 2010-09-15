@@ -108,7 +108,7 @@ CRateProcessor::getSpectrum()
 /*!
    Return the total counts value.
 */
-uint64_t
+uint32_t
 CRateProcessor::getTotals() const
 {
   return m_totalCounts;
@@ -116,7 +116,7 @@ CRateProcessor::getTotals() const
 /*!
   Return the increments value.
 */
-uint64_t
+uint32_t
 CRateProcessor::getIncrements() const
 {
   return m_increments;
@@ -179,7 +179,7 @@ CRateProcessor::OnOther(UInt_t nType, CAnalyzer& analyzer, CBufferDecoder& decod
   // Now sum based on the spectrum dimensionality:
 
   UInt_t numDims = m_pSpectrum->Dimensionality();
-  uint64_t sum;
+  uint32_t sum;
 
   if (numDims == 1) {
     sum = sum1d();
@@ -252,11 +252,11 @@ CRateProcessor::clear()
 }
 /*   Update the rates for a 1-d spectrum.  */
 
-uint64_t 
+uint32_t 
 CRateProcessor::sum1d()
 {
   UInt_t    dim = m_pSpectrum->Dimension(0);
-  uint64_t  sum = 0;
+  uint32_t  sum = 0;
 
   for(UInt_t i =0; i < dim; i++) {
     sum += (*m_pSpectrum)[&i];
@@ -265,12 +265,12 @@ CRateProcessor::sum1d()
 }
 /*    Update rates for 2-d spectrum */
 
-uint64_t
+uint32_t
 CRateProcessor::sum2d()
 {
   UInt_t dimx  = m_pSpectrum->Dimension(0);
   UInt_t dimy  = m_pSpectrum->Dimension(1);
-  uint64_t sum = 0;
+  uint32_t sum = 0;
   for (int y = 0; y < dimy; y++) {
     for(int x = 0; x < dimx; x++) {
       UInt_t indices[2];

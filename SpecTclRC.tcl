@@ -52,13 +52,15 @@ puts "Adding SpecTcl exec directory to auto_path"
 set llnlSpecTcl [file dirname $argv0]
 lappend auto_path $llnlSpecTcl
 
+set here $llnlSpecTcl
+
 puts "done"
 
 tk appname SpecTcl-[exec hostname]-[pid]
 
 puts "Sourcing histogram config file"
 
-set here [file dirname [info script]]
+
 source [file join $here  spectclSetup.tcl]
 puts "done"
 
@@ -72,15 +74,16 @@ foreach edef $parameters {
     set enum  [lindex [split $ename .] 1]
     set tname t.$enum
 
-    spectrum 2d.$enum 2 [list $ename $tname] {{0 8192 512} {0 8192 512}}
+    spectrum 2d.$enum 2 [list $ename $tname] {{0 4095 512} {0 4095 512}}
 }
+
 
 sbind -all
 
 .gui.b update
 
 #
-#  Integrate the scaler display:
+
 #
 puts  -nonewline "Starting scaler display.."
 set scalerWin [toplevel .scalers]
@@ -95,7 +98,7 @@ puts " done"
 #
 
 puts -nonewline "Adding rates GUI "
-set here [file dirname [info script]]
+puts "Loading scripts from $here"
 source [file join $here ratesGui.tcl]
 puts Done.
 
@@ -119,6 +122,6 @@ puts " Done"
 #
 #  Load the figure of merit tcl code:
 #
-puts -nownewline "Loading FOM Tcl Scripts "
+puts -nonewline "Loading FOM Tcl Scripts "
 source [file join $here fom.tcl]
 puts  Done

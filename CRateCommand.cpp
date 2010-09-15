@@ -22,7 +22,7 @@
 
 #include "CRateList.h"
 #include "CRateProcessor.h"
-
+#include <iostream>
 #include <stdint.h>
 
 #ifdef HAVE_STD_NAMESPACE
@@ -263,8 +263,13 @@ CRateCommand::listRates(CTCLInterpreter& interp,
 
     result  += element;
 
+
+
     i++;
   }
+  string sresult = result;
+  //  cerr << "Rate list returning '" << sresult << "'\n";
+
   interp.setResult(result);
   return TCL_OK;
 }
