@@ -922,6 +922,8 @@ proc spectrumUsage {} {
 # Parameters:
 #   nms   - Number of ms between updates.
 #
+set updateCount 0
+global spectrumMemory
 proc updateStatus nms {
     global RunTitle
     global RunNumber
@@ -929,7 +931,8 @@ proc updateStatus nms {
     global BuffersAnalyzed
     global LastSequence
     global LargestSource
-    
+    global updateCount
+    global spectrumMemory
 
 
     # It's always possible the user destroyed the window so conditionalize
@@ -940,8 +943,18 @@ proc updateStatus nms {
         after $nms [list updateStatus $nms];           # Reschedule.
 
 
-	set spectrumMemory [spectrumUsage]
-	set spectrumMemory [expr $spectrumMemory/(1024*1024)]
+	#  The spectrum memory part takes a bit of time to update, and only rarely changes
+	# so only do that part every now and then.
+
+	if {$updateCount == 0} {
+
+	    set spectrumMemory [spectrumUsage]
+	    set spectrumMemory [expr $spectrumMemory/(1024*1024)]
+	}
+	incr updateCount
+	if {$updateCount >= 10} {
+	    set updateCount 0
+	}
 	set outOf          ""
 	if {[info globals DisplayMegabytes] ne ""} {
 	    set outOf "/$::DisplayMegabytes"
