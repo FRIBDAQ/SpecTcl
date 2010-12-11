@@ -24,6 +24,7 @@
 #include "CParamMapCommand.h"
 #include "CStackMapCommand.h"
 #include "CMASE.h"
+#include "CHINP.h"
 
 #include <Event.h>
 #include <TCLAnalyzer.h>
@@ -51,6 +52,7 @@ static CMADC32Unpacker    unpackMADC32;
 static CV1x90Unpacker     unpackV1x90;
 static CV977Unpacker      unpackV977;
 static CMASE              unpackMase;
+static CHINP              unpackHINP;
 
 // table of unpackers for each type of module.
 
@@ -61,7 +63,9 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
     &unpackMADC32,
     &unpackV1x90,
     &unpackV977,
-    &unpackMase
+    &unpackMase,
+    &unpack785,			// CAEN Dual range placeholder
+    &unpackHINP
 };
 
 //////////////////////////////////////////////////////////////////////////////////

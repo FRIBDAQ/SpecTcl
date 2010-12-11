@@ -49,6 +49,7 @@ set typeTDC1x90 3;                      # CAEN V1x90.
 set typeV977    4;                      # CAEN V977 input register.
 set typeMase    5;                      # MASE XLM subsystem.
 set typeCAENDual 6;			# CAEN dual range modules.
+set typeHINP     7;			# HINP XLM module.
 
 #  We create as well spectra for each single parameter, and corresponding
 #  pairs of n's.
@@ -128,6 +129,20 @@ proc v977 args {
     }
     set ::readoutDeviceType($name) $::typeV977
 
+}
+#------------------------------------------------------------------
+# hinp   Process the hinp command which configures the HINP XLM
+#        firmware/chip front end devices.
+#
+proc hinp args {
+    set subcommand [lindex $args 0]
+    set tail       [lrange $args 1 end]
+
+    if {$subcommand eq "create"} {
+	set name [lindex $tail 0]
+	set ::adcConfiguration($name) 0; # Change this to the -id later.
+	set ::readoutDeviceType($name) $::typeHINP
+    }
 }
 #-------------------------------------------------------------------
 #

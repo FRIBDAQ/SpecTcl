@@ -1,4 +1,4 @@
-INSTDIR=/usr/opt/spectcl/3.3pre7
+INSTDIR=/usr/opt/spectcl/current
 
 # Skeleton makefile for 3.3
 
@@ -29,7 +29,7 @@ OBJECTS=MySpecTclApp.o CParamMapCommand.o	\
 	CRateProcessor.o CRateList.o CRateCommand.o CFitButton.o \
 	CStackMapCommand.o CModuleUnpacker.o C785Unpacker.o CNADC2530Unpacker.o \
 	CStackUnpacker.o CMADC32Unpacker.o CRateEventProcessor.o	\
-	CV1x90Unpacker.o CV977Unpacker.o CMASE.o
+	CV1x90Unpacker.o CV977Unpacker.o CMASE.o CHINP.o
 
 
 #

@@ -61,7 +61,7 @@ configClear
 
 puts "Configuration cleared"
 
-if {[catch {configRead [file join $here daqconfig.tcl]} msg]} {
+if {[catch {configRead [file join ~ config  daqconfig.tcl]} msg]} {
     puts "Error in configuration file read: $msg"
 }
 
@@ -73,6 +73,7 @@ set channelCount($typeMADC32) 4096;	# Currently only 12 chans.
 set channelCount($typeTDC1x90) 16384;   # for now this is the # of channels in a tdc spec
 set channelCount($typeV977)    16;      # for a bit mask spec
 set channelCount($typeMase)    8192;    # Spectrum channels for MASE.
+set channelCount($typeHINP)    16384;	# No channels in a default HINP spectrum.
 
 #-----------------------------------------------------------------------------
 # Creates a 1-d spectrum.
@@ -240,6 +241,37 @@ proc buildMaseMap {param module} {
     }
     return $param
 }
+#
+#   Hinp's unpacker takes a base name from 
+#   adcChannels and takes the chip mapping from 
+#   HINPChips
+#
+proc buildHINPMap {param module} {
+    set basename $::adcChannels($module)
+    set chipMap  $::HINPChips($module)
+    set chanSize $::channelCount($::typeHINP)
+    incr chanSize -1
+    set channels $::channelCount($::typeHINP)
+
+    paramMap $basename $::typeHINP 0 [list]
+    foreach chip $chipMap {
+	for {set i 0} {$i < 16} {incr i} {
+	    set EParamName \
+		[format "%s.e.%02d.%02d" $basename $chip $i]
+	    set TParamName \
+		[format "%s.t.%02d.%02d" $basename $chip $i]
+	    parameter $EParamName $param
+	    incr param
+	    parameter $TParamName $param
+	    incr param
+
+	    spectrum $EParamName 1 $EParamName "{0 $chanSize  $channels}"
+	    spectrum $TParamName 1 $TParamName "{0 $chanSize  $channels}"
+
+	}
+    }
+    return $param
+}
 #----------------------------------------------------------------------------
 #
 #  Build channels and maps for a CAEN Dual range module.
@@ -258,6 +290,8 @@ proc buildCAENDualMap {param name} {
     
     set parameterList [list]
 
+
+
     foreach parameter $channels {
 	parameter $parameter.h $param
 	makeSpectrum $parameter.h $resolution
@@ -273,6 +307,7 @@ proc buildCAENDualMap {param name} {
 
     return $param
 }
+
 #----------------------------------------------------------------------------
 # Build the channel maps, spectcl parameters and raw spectra from 
 # the adcConfigurtion, readoutDeviceType and adcChannels information.
@@ -300,6 +335,8 @@ proc buildChannelMaps param {
 	    set param [buildMaseMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeCAENDual} {
 	    set param [buildCAENDualMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeHINP} {
+	    set param [buildHINPMap $param $module]
 	} else {
 	    set vsn        $::adcConfiguration($module)
 	    set type       $::readoutDeviceType($module)
