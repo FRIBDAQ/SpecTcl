@@ -1,0 +1,3 @@
+#!/bin/sh
+\
+tclsh8.5 tcltests

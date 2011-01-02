@@ -1,0 +1,40 @@
+#
+#  Tests for the spetcl::expopen command.
+#
+
+package require tcltest
+
+load .libs/libSpecTclExperiment.so
+
+namespace import ::tcltest::*
+
+test fail_1 {Command requires a handle be supplied} \
+    -body {
+	catch {::spectcl::expclose}
+    }  \
+    -result 1
+
+test fail_2 {Handle must be an open database handle} \
+    -body {
+	catch {::spectcl::expclose experiment_0}; # even make it look like it might be one.
+    }    \
+    -result 1
+
+test close_1 {Handle to an open database can be closed ..but not twice} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [spectcl::expcreate $dbfile]
+    }  \
+    -body {
+	set r1 [catch {::spectcl::expclose $handle}]
+	set r2 [catch {::spectcl::expclose $handle}]
+	list $r1 $r2
+	
+    }  \
+    -cleanup {
+	file delete $dbfile
+    }  \
+    -result {0 1}
+
+cleanupTests

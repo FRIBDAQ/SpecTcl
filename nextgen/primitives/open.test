@@ -1,0 +1,74 @@
+#
+#  Tests for the spetcl::expopen command.
+#
+
+package require tcltest
+load .libs/libSpecTclExperiment.so
+
+namespace import ::tcltest::*
+
+test fail_1   {Need to supply a database name to open} \
+    -body {
+	catch {::spectcl::expopen} 
+    }                                  \
+    -result 1
+
+test fail_2 {Need to supply an _existing- database name to open} \
+    -body {
+	catch {::spectcl::expopen [file join this database does not exist.db]}
+    } \
+    -result 1
+
+test faile_3 {Any old file is not an experiment database} \
+    -setup {
+	set fake [makeFile {} junk.db]
+    }   \
+    -body {
+	catch {::spectcl::expopen $fake}
+    }   \
+    -cleanup {
+	removeFile junk.db
+    }   \
+    -result 1
+
+test open_1 {Create and open a database success} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	spectcl::expcreate $dbfile
+    }          \
+    -body {
+	set handle [::spectcl::expopen $dbfile]
+	
+    }            \
+    -cleanup {
+	catch {::spectcl::expclose $handle}
+	file delete $dbfile
+    }          \
+    -result {experiment_1}
+
+test open_2 {Create/open a database relative to ~} \
+     -constraints unix \
+    -setup {
+	set name [expr rand()]
+	set dbname [file join ~ rand]
+	append dbname .db
+
+    }      \
+    -cleanup {
+	catch {close $handle}
+	file delete $dbname
+    }      \
+     -body {
+	 set handle [::spectcl::expcreate $dbname]
+	 set h      [::spectcl::expopen $dbname]
+	 set subhand [string range $h 0 [string length "experiment"]]
+     } \
+    -cleanup {
+	catch {::spectcl::expclose $handle}
+	catch {::spectcl::expclose $h}
+	catch {file delete $dbname}
+    }     \
+    -result {experiment_}
+
+cleanupTests

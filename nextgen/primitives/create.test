@@ -1,0 +1,65 @@
+#
+#  Tests for the spectcl::expcreate command.
+#
+
+package require tcltest
+load .libs/libSpecTclExperiment.so
+
+namespace import ::tcltest::*
+
+test fail_1   {Don't supply the right number of parameters} \
+    -body {
+	catch {::spectcl::expcreate}
+    }   \
+    -result 1
+
+test fail_2 {Can't make database in nonexistent directory} \
+    -body {
+	catch {::spectcl::expcreate [file join no such directory as this very likely test.db]}
+    }           \
+    -result 1
+
+test create_1 {Create database via command} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+    }                                \
+    -body {
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+	set exists [file exists $dbfile]
+	set subhand [string range $handle 0 [string length "experiment"]]
+
+	set result [list $exists $subhand]
+	
+    }                                 \
+    -cleanup {
+	file delete $dbfile
+	removeDirectory databases
+    }                                  \
+    -result {1 experiment_}
+
+
+
+test create_2 {Should be able to create via ~/stuff} \
+     -constraints unix \
+    -setup {
+	set name [expr rand()]
+	set dbname [file join ~ rand]
+	append dbname .db
+
+    }      \
+    -cleanup {
+	catch {close $handle}
+	file delete $dbname
+    }      \
+     -body {
+	 set handle [::spectcl::expcreate $dbname]
+	 set exists [file exists $dbname]
+	 set subhand [string range $handle 0 [string length "experiment"]]
+	 
+	 set result [list $exists $subhand]
+	 
+     } -result {1 experiment_}
+
+
+cleanupTests

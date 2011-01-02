@@ -1,0 +1,264 @@
+#
+#  Tests for the spectcl::parameter command.
+#
+
+package require tcltest
+load .libs/libSpecTclExperiment.so
+
+namespace import ::tcltest::*
+
+test fail_1 {Parameter command must have a subcommand} \
+    -body {
+	catch {spectcl::parameter}
+    }       \
+    -result 1
+
+
+test fail_2 {Parameter command must have a valid subcommand} \
+    -body {
+	catch {spectcl::parameter unrecognized-sub-command}
+    } \
+    -result 1
+
+test list_fail_1 {parameter list must have a database handle} \
+    -body {
+	catch {spectcl::parameter list}
+    }   \
+    -result 1
+test list_fail_2 {parameter list's database handle must be valid} \
+    -body  {
+	catch {spectcl::parameter list experiment_0}
+    } \
+    -result 1
+
+test list_empty {listing parameters on an empty database should give us nothing} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+    } \
+    -body {
+	set result [::spectcl::parameter list $handle]
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -result {}
+
+test create_fail_1 {parameter create - requires a database handle} \
+    -body {
+	catch {::spectcl::parameter create}
+    } \
+    -result 1
+
+test create_fail_2 {parameter create - requires a valid database handle} \
+    -body {
+	catch {::spectcl::parameter create experiment_0}
+    } \
+    -result 1
+
+
+test create_simple {successful creation of a parameter returns name:} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	set result [spectcl::parameter create $handle a]
+
+    } \
+    -result {a}
+test create_fail3 {Must use valid option switches on the paramter create} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	catch {::spectcl::parameter create $handle a -junk b}
+    } \
+    -result 1
+
+test list_simple {Should be able to list simple created parameter} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	spectcl::parameter create $handle a
+	set result [spectcl::parameter list $handle]
+    } \
+    -result {{a {} {} {}}}
+
+test create_full {Should be able to create/list a parameter with all elements} \
+ -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	::spectcl::parameter create $handle a -units mm -low -1.0 -hi 1.0
+	set result [::spectcl::parameter list $handle]
+    } \
+    -result {{a mm -1.0 1.0}}
+
+test list_pattern {Should be able to selectively list parameter that match patterns} \
+ -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+    	::spectcl::parameter create $handle a -units mm -low -1.0 -hi 1.0
+	::spectcl::parameter create $handle b
+	::spectcl::parameter create $handle c
+
+	set result [::spectcl::parameter list $handle a*]
+    } \
+    -result {{a mm -1.0 1.0}}
+
+test alter_fail1 {Altering parameters requires database handle} \
+    -body {
+	catch {::spectcl::parameter alter}
+    }	  \
+    -result 1
+
+test alter_fail2 {alter requires a _valid_ database handle} \
+    -body {
+	catch {::spectcl::parameter alter experiment_0}
+    }	  \
+    -result 1
+
+test alter_fail3 {alter requires a parameter that exists} \
+ -setup {
+     set tmpdir [makeDirectory databases]
+     set dbfile [file join $tmpdir test.db]
+     set handle [::spectcl::expcreate $dbfile]
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	catch {::spectcl::parameter alter $handle no_such_parameter}
+    } \
+    -result 1
+
+test alter_fail4 {Alter may not use the -units option} \
+ -setup {
+     set tmpdir [makeDirectory databases]
+     set dbfile [file join $tmpdir test.db]
+     set handle [::spectcl::expcreate $dbfile]
+     ::spectcl::parameter create $handle a; # Simple parmaeter to mess with.
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	catch {::spectcl::parameter alter $handle a -units mm}
+    } \
+    -result 1
+test alter_fail5 {alter must use legal parameters} \
+     -setup {
+     set tmpdir [makeDirectory databases]
+     set dbfile [file join $tmpdir test.db]
+     set handle [::spectcl::expcreate $dbfile]
+     ::spectcl::parameter create $handle a; # Simple parmaeter to mess with.
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	catch {::spectcl::parameter alter $handle  a -low -1.0 -junk test}
+    } \
+    -result 1
+
+test alter_1 {Altering the low limit should succeed} \
+     -setup {
+     set tmpdir [makeDirectory databases]
+     set dbfile [file join $tmpdir test.db]
+     set handle [::spectcl::expcreate $dbfile]
+     ::spectcl::parameter create $handle a; # Simple parmaeter to mess with.
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	spectcl::parameter alter $handle a -low -1.0
+	spectcl::parameter list $handle a
+    } \
+    -result {{a {} -1.0 {}}}
+
+test alter_2 {Altering the hi limit should succeed too} \
+     -setup {
+     set tmpdir [makeDirectory databases]
+     set dbfile [file join $tmpdir test.db]
+     set handle [::spectcl::expcreate $dbfile]
+     ::spectcl::parameter create $handle a; # Simple parmaeter to mess with.
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	spectcl::parameter alter $handle a -hi 1.0
+	spectcl::parameter list $handle a
+    } \
+    -result {{a {} {} 1.0}}
+
+test alter_3 {Altering both high and low should work too} \
+     -setup {
+     set tmpdir [makeDirectory databases]
+     set dbfile [file join $tmpdir test.db]
+     set handle [::spectcl::expcreate $dbfile]
+     ::spectcl::parameter create $handle a; # Simple parmaeter to mess with.
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	spectcl::parameter alter $handle a -hi 1.0 -low -1.0
+	spectcl::parameter list $handle a
+    } \
+    -result {{a {} -1.0 1.0}}
+ 
+cleanupTests 

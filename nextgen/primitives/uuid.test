@@ -1,0 +1,156 @@
+#
+#  Tests for the spectcl::uuid command:
+#
+package require tcltest
+package require uuid
+package require sqlite3
+
+load .libs/libSpecTclExperiment.so
+
+namespace import ::tcltest::*
+
+#
+#  Factored stuff
+
+#  Get the UUID of a databas given the sqlite3 handle
+#
+proc getuuid dbhandle {
+    $dbhandle eval {SELECT config_value FROM configuration_values WHERE config_item = 'uuid'}
+}
+
+#-------------------- The tests -------------------------
+
+# General failures of the expuuid command with too few or bad parameters.
+
+test expuuid_fail1 {UUID command requires a subcommand} \
+    -body {
+	catch {::spectcl::expuuid}
+    } -result 1
+
+test expuuid_fail2 {UUID subcommand must be valid} \
+    -body {
+	catch {::spectcl::expuuid junk-command}
+    } -result 1
+
+
+# tests specific to get:
+
+test get_fail1 {get subcommand requires database handle} \
+    -body {
+	catch {::spectcl::expuuid get}
+    } -result 1
+
+test get_fail2 {get subcommand requires a handle that is valid too} \
+    -body {
+	catch {::spectcl::expuuid get experiment_0}
+    } -result 1
+
+test get {Get subcommand should return the uuid of the database} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+	sqlite3 db $dbfile
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	db close
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	set uuid [::spectcl::expuuid get $handle]
+	set tableuuid [getuuid db]
+	if {$tableuuid eq $uuid} {
+	    set result 1
+	} else {
+	    set result 0
+	}
+	set result
+    } \
+    -result 1
+
+## Tests specific to ccheck:
+
+test check_fail1 {check subcommand requies a database handle} \
+    -body {
+	catch {::spectcl::expuuid check}
+    } -result 1
+
+test check_fail2 {check subcommand requires a valid database handle} \
+    -body {
+	catch {::spectcl::expuuid check experiment_0}
+    } -result 1
+
+test check_fail3 {check subcommand requires a uuid text value} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+	sqlite3 db $dbfile
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	db close
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	catch {::spectcl::expuuid check $handle}
+    } -result 1
+test check_fail4 {Check command's uuid text value must be a uuid} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+	sqlite3 db $dbfile
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	db close
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	catch {::spectcl::expuuid check $handle this-is-not-a-uuid}
+    } -result 1
+
+test check_mismatch {Check command should not match an arbitrary uuid generated just now} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+	sqlite3 db $dbfile
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	db close
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	set baduuid [::uuid::uuid generate]
+	::spectcl::expuuid check $handle $baduuid
+    } -result 0
+
+test check_match {Check command should match the uuid fished out of the database} \
+    -setup {
+	set tmpdir [makeDirectory databases]
+	set dbfile [file join $tmpdir test.db]
+	set handle [::spectcl::expcreate $dbfile]
+	sqlite3 db $dbfile
+    } \
+    -cleanup {
+	::spectcl::expclose $handle
+	db close
+	file delete $dbfile
+	removeDirectory databases
+    } \
+    -body {
+	set gooduuid [getuuid db]
+	::spectcl::expuuid check $handle $gooduuid
+    } -result 1
+
+
+#---------------------  Report test results --------------
+cleanupTests
