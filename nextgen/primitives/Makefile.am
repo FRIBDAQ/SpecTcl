@@ -11,11 +11,12 @@ libExperiment_la_SOURCES = spectcl_experiment.c \
 	spectcl_runs.c		\
 	spectcl_uuid.c			\
 	spectcl_errors.c		\
-	spectcl_experimentInternal.c
+	spectcl_experimentInternal.c	\
+	spectcl_events.c
 
 libExperiment_la_LIBADD=-lsqlite3 -luuid
 
-include_HEADERS=spectcl_experiment.h
+include_HEADERS=spectcl_experiment.h 
 noinst_HEADERS=spectcl_experimentInternal.h \
 	handleManager.h Asserts.h TclCreate.h TclOpen.h	\
 	TclClose.h TclParameter.h TclRuns.h TclDBCommand.h \
@@ -36,13 +37,14 @@ libSpecTclExperiment_la_LIBADD=@top_builddir@/TclPlus/libtclPlus.la \
 
 INCLUDES = -I. -I@top_srcdir@/NSCLException
 
-TESTS=  tcltestrunner \
+TESTS=  c_eventstest	\
 	c_exptests  c_runtests c_uuidtests c_paramtests \
-	handletests tclcreatetests
+	handletests tclcreatetests tcltestrunner
 
 EXTRA_DIST=*.test tcltests
 
-check_PROGRAMS=c_exptests c_paramtests c_runtests c_uuidtests handletests tclcreatetests
+check_PROGRAMS=c_exptests c_paramtests c_runtests c_uuidtests handletests tclcreatetests \
+	c_eventstest
 
 c_exptests_SOURCES=spectcl_experiment_check.c
 c_exptests_CFLAGS=@CHECK_CFLAGS@
@@ -59,6 +61,10 @@ c_runtests_LDADD=@CHECK_LIBS@ libExperiment.la
 c_uuidtests_SOURCES=spectcl_uuidtest.c
 c_uuidtests_CFLAGS=@CHECK_CFLAGS@
 c_uuidtests_LDADD=@CHECK_LIBS@ libExperiment.la
+
+c_eventstest_SOURCES=eventstest.c
+c_eventstest_CFLAGS=@CHECK_CFLAGS@
+c_eventstest_LDADD=@CHECK_LIBS@ libExperiment.la
 
 
 handletests_SOURCES=handletests.cpp handleManager.cpp

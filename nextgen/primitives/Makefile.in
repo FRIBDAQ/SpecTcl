@@ -35,12 +35,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-TESTS = tcltestrunner c_exptests$(EXEEXT) c_runtests$(EXEEXT) \
+TESTS = c_eventstest$(EXEEXT) c_exptests$(EXEEXT) c_runtests$(EXEEXT) \
 	c_uuidtests$(EXEEXT) c_paramtests$(EXEEXT) \
-	handletests$(EXEEXT) tclcreatetests$(EXEEXT)
+	handletests$(EXEEXT) tclcreatetests$(EXEEXT) tcltestrunner
 check_PROGRAMS = c_exptests$(EXEEXT) c_paramtests$(EXEEXT) \
 	c_runtests$(EXEEXT) c_uuidtests$(EXEEXT) handletests$(EXEEXT) \
-	tclcreatetests$(EXEEXT)
+	tclcreatetests$(EXEEXT) c_eventstest$(EXEEXT)
 subdir = primitives
 DIST_COMMON = $(include_HEADERS) $(noinst_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -81,7 +81,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libExperiment_la_DEPENDENCIES =
 am_libExperiment_la_OBJECTS = spectcl_experiment.lo \
 	spectcl_parameter.lo spectcl_runs.lo spectcl_uuid.lo \
-	spectcl_errors.lo spectcl_experimentInternal.lo
+	spectcl_errors.lo spectcl_experimentInternal.lo \
+	spectcl_events.lo
 libExperiment_la_OBJECTS = $(am_libExperiment_la_OBJECTS)
 libSpecTclExperiment_la_DEPENDENCIES =  \
 	@top_builddir@/TclPlus/libtclPlus.la \
@@ -102,6 +103,12 @@ libSpecTclExperiment_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_c_eventstest_OBJECTS = c_eventstest-eventstest.$(OBJEXT)
+c_eventstest_OBJECTS = $(am_c_eventstest_OBJECTS)
+c_eventstest_DEPENDENCIES = libExperiment.la
+c_eventstest_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(c_eventstest_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_c_exptests_OBJECTS = c_exptests-spectcl_experiment_check.$(OBJEXT)
 c_exptests_OBJECTS = $(am_c_exptests_OBJECTS)
 c_exptests_DEPENDENCIES = libExperiment.la
@@ -167,15 +174,15 @@ CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libExperiment_la_SOURCES) \
-	$(libSpecTclExperiment_la_SOURCES) $(c_exptests_SOURCES) \
-	$(c_paramtests_SOURCES) $(c_runtests_SOURCES) \
-	$(c_uuidtests_SOURCES) $(handletests_SOURCES) \
-	$(tclcreatetests_SOURCES)
+	$(libSpecTclExperiment_la_SOURCES) $(c_eventstest_SOURCES) \
+	$(c_exptests_SOURCES) $(c_paramtests_SOURCES) \
+	$(c_runtests_SOURCES) $(c_uuidtests_SOURCES) \
+	$(handletests_SOURCES) $(tclcreatetests_SOURCES)
 DIST_SOURCES = $(libExperiment_la_SOURCES) \
-	$(libSpecTclExperiment_la_SOURCES) $(c_exptests_SOURCES) \
-	$(c_paramtests_SOURCES) $(c_runtests_SOURCES) \
-	$(c_uuidtests_SOURCES) $(handletests_SOURCES) \
-	$(tclcreatetests_SOURCES)
+	$(libSpecTclExperiment_la_SOURCES) $(c_eventstest_SOURCES) \
+	$(c_exptests_SOURCES) $(c_paramtests_SOURCES) \
+	$(c_runtests_SOURCES) $(c_uuidtests_SOURCES) \
+	$(handletests_SOURCES) $(tclcreatetests_SOURCES)
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -317,10 +324,11 @@ libExperiment_la_SOURCES = spectcl_experiment.c \
 	spectcl_runs.c		\
 	spectcl_uuid.c			\
 	spectcl_errors.c		\
-	spectcl_experimentInternal.c
+	spectcl_experimentInternal.c	\
+	spectcl_events.c
 
 libExperiment_la_LIBADD = -lsqlite3 -luuid
-include_HEADERS = spectcl_experiment.h
+include_HEADERS = spectcl_experiment.h 
 noinst_HEADERS = spectcl_experimentInternal.h \
 	handleManager.h Asserts.h TclCreate.h TclOpen.h	\
 	TclClose.h TclParameter.h TclRuns.h TclDBCommand.h \
@@ -349,6 +357,9 @@ c_runtests_LDADD = @CHECK_LIBS@ libExperiment.la
 c_uuidtests_SOURCES = spectcl_uuidtest.c
 c_uuidtests_CFLAGS = @CHECK_CFLAGS@
 c_uuidtests_LDADD = @CHECK_LIBS@ libExperiment.la
+c_eventstest_SOURCES = eventstest.c
+c_eventstest_CFLAGS = @CHECK_CFLAGS@
+c_eventstest_LDADD = @CHECK_LIBS@ libExperiment.la
 handletests_SOURCES = handletests.cpp handleManager.cpp
 handletests_CXXFLAGS = @CPPUNIT_CFLAGS@
 handletests_LDADD = @CPPUNIT_LIBS@ 
@@ -436,6 +447,9 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+c_eventstest$(EXEEXT): $(c_eventstest_OBJECTS) $(c_eventstest_DEPENDENCIES) 
+	@rm -f c_eventstest$(EXEEXT)
+	$(c_eventstest_LINK) $(c_eventstest_OBJECTS) $(c_eventstest_LDADD) $(LIBS)
 c_exptests$(EXEEXT): $(c_exptests_OBJECTS) $(c_exptests_DEPENDENCIES) 
 	@rm -f c_exptests$(EXEEXT)
 	$(c_exptests_LINK) $(c_exptests_OBJECTS) $(c_exptests_LDADD) $(LIBS)
@@ -461,6 +475,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/c_eventstest-eventstest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/c_exptests-spectcl_experiment_check.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/c_paramtests-spectcl_paramtests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/c_runtests-spectcl_runstest.Po@am__quote@
@@ -477,6 +492,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-handleManager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-packageStartup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_errors.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_events.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_experiment.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_experimentInternal.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_parameter.Plo@am__quote@
@@ -507,6 +523,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+
+c_eventstest-eventstest.o: eventstest.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(c_eventstest_CFLAGS) $(CFLAGS) -MT c_eventstest-eventstest.o -MD -MP -MF $(DEPDIR)/c_eventstest-eventstest.Tpo -c -o c_eventstest-eventstest.o `test -f 'eventstest.c' || echo '$(srcdir)/'`eventstest.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/c_eventstest-eventstest.Tpo $(DEPDIR)/c_eventstest-eventstest.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='eventstest.c' object='c_eventstest-eventstest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(c_eventstest_CFLAGS) $(CFLAGS) -c -o c_eventstest-eventstest.o `test -f 'eventstest.c' || echo '$(srcdir)/'`eventstest.c
+
+c_eventstest-eventstest.obj: eventstest.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(c_eventstest_CFLAGS) $(CFLAGS) -MT c_eventstest-eventstest.obj -MD -MP -MF $(DEPDIR)/c_eventstest-eventstest.Tpo -c -o c_eventstest-eventstest.obj `if test -f 'eventstest.c'; then $(CYGPATH_W) 'eventstest.c'; else $(CYGPATH_W) '$(srcdir)/eventstest.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/c_eventstest-eventstest.Tpo $(DEPDIR)/c_eventstest-eventstest.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='eventstest.c' object='c_eventstest-eventstest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(c_eventstest_CFLAGS) $(CFLAGS) -c -o c_eventstest-eventstest.obj `if test -f 'eventstest.c'; then $(CYGPATH_W) 'eventstest.c'; else $(CYGPATH_W) '$(srcdir)/eventstest.c'; fi`
 
 c_exptests-spectcl_experiment_check.o: spectcl_experiment_check.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(c_exptests_CFLAGS) $(CFLAGS) -MT c_exptests-spectcl_experiment_check.o -MD -MP -MF $(DEPDIR)/c_exptests-spectcl_experiment_check.Tpo -c -o c_exptests-spectcl_experiment_check.o `test -f 'spectcl_experiment_check.c' || echo '$(srcdir)/'`spectcl_experiment_check.c

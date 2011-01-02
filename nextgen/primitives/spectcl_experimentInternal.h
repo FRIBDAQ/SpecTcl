@@ -22,10 +22,12 @@
  ** and should not be invoked from outside the library.  The implementor
  ** reserves the right to change these interfaces at whim and will and without
  ** notice or pity.
+ **
+ ** NOTE: you must include <sqlite3.h> prior to including this. 
  */
 
 
-static char* getfirst(sqlite3* db, const char* table, 
+char* getfirst(sqlite3* db, const char* table, 
 		      const char* field, const char* matchfield, const char* key);
 int   isExperimentDatabase(sqlite3* db);
 

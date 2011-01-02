@@ -30,6 +30,8 @@ static const char* errorMessages[] = {
 };
 
 static const char* catchAll = "BADCODE - Bad error code passed to spectcl_experiment_error_msg";
+static const char* unimp    = "UNIMP   - Function not yet implemented completely";
+
 static const nMessages = sizeof(errorMessages)/sizeof(const char*);
 
 /**
@@ -43,6 +45,7 @@ const char*
 spectcl_experiment_error_msg(int reason)
 {
   if (reason < 0) return catchAll;
+  if (reason == SPEXP_UNIMPLEMENTED) return unimp;
   if (reason >= nMessages) return catchAll;
   return errorMessages[reason];
 }

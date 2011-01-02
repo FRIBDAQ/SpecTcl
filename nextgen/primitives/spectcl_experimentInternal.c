@@ -40,7 +40,7 @@
    @param  matchfield - Name of the field to match fromt he table.
    @param  key  - value we want the match field to have.
 */
-static char* 
+char* 
 getfirst(sqlite3* db, const char* table, 
 		     const char* field, const char* matchfield, const char* key)
 {

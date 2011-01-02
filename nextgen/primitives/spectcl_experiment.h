@@ -26,6 +26,12 @@
 #endif
 #endif
 
+#ifndef _STDINT_H
+#include <stdint.h>
+#ifndef _STDINT_H
+#define _STDINT_H
+#endif
+#endif
 
 /**
  **  This file contains inteface functions to the SpecTcl nextgen experiment
@@ -49,6 +55,7 @@
 #define SPEXP_NOMEM           6 /* memory allocation failed. */
 #define SPEXP_SQLFAIL         7 /* SQL operation failed */
 #define SPEXP_NOSUCH          8 /* No such object */
+#define SPEXP_UNIMPLEMENTED   100 /* for testing */
 
 /**
  * Data type definitinos.
@@ -60,6 +67,8 @@
 #endif
 
 typedef void *spectcl_experiment; /* Handle to a spectcl experiment database. */
+typedef void *spectcl_events;	/* Handle to events database  */
+
 
 /* What you get for a parameter definition */
 
@@ -89,6 +98,13 @@ typedef struct _run_info {
 
 typedef pRunInfo*  run_list;
 
+typedef struct _ParameterData_ {
+  uint32_t s_trigger;
+  int      s_parameter;
+  double   s_value;
+} ParameterData, *pParameterData;
+
+typedef  pParameterData   (AugmentCallback)(const pParameterData, void*);
 /**
  ** Function definitions; and globals:
  */
@@ -132,6 +148,7 @@ extern "C" {
 		      const time_t* endTime);
   run_list spectcl_run_list(spectcl_experiment experiment);
   void     spectcl_free_run_list(run_list list);
+  void     spectcl_free_run_info(pRunInfo* pInfo); /* TODO: */
   
   /* Functions that operate on UUIDS */
 
@@ -141,6 +158,28 @@ extern "C" {
   /*  Error handling */
 
   const char* spectcl_experiment_error_msg(int reason);
+
+  /* Manipulation of  experiment databases.  */
+
+  spectcl_events spectcl_events_create(spectcl_experiment pExpHandle, int run , const char* path);
+  spectcl_events spectcl_events_open(const char* path);
+  int            spectcl_events_close(spectcl_events pExpHandle);
+
+  /* Associating events with an open experiment database:  */
+
+  int spectcl_events_attach(spectcl_experiment pExpHandle, const char* path, const char* name);
+  int spectcl_events_detach(spectcl_experiment pExpHandle, const char* name);
+
+  /* Loading data into the events table; */
+
+  int spectcl_events_load(spectcl_experiment pExperiment, size_t nEvents, const pParameterData* pData);
+  int spectcl_evets_augment(spectcl_experiment pExperiment, AugmentCallback* pCallback, void* pClientData);
+
+  /* Inquiries: */
+
+  int      spectcl_events_run(spectcl_events pHandle);
+  pRunInfo spectcl_experiment_eventsrun(spectcl_experiment pHandle);
+  int      spectcl_events_uuid(spectcl_events pHandle);
 
 #ifdef __cplusplus
 }
