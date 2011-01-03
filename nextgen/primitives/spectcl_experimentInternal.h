@@ -30,9 +30,12 @@
 char* getfirst(sqlite3* db, const char* table, 
 		      const char* field, const char* matchfield, const char* key);
 int   isExperimentDatabase(sqlite3* db);
+int   isEventsDatabase(sqlite3* db);
 
 char* copyString(const unsigned char* s);
 char* getTextField(sqlite3_stmt* stmt, int field);
 char* getOptionalTextField(sqlite3_stmt* stmt, int field);
+void  do_non_select(sqlite3* db, const char* statement);
+int   insertConfig(sqlite3* db, const char* which, const char* what);
 
 #endif

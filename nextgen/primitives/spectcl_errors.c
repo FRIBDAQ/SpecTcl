@@ -26,7 +26,9 @@ static const char* errorMessages[] = {
   "EXISTS - Item already exists",
   "NOMEM - Unable to allocated dynamic memory",
   "SQLFAIL - An SQL query failed",
-  "NOSUCH - Item could not be found"
+  "NOSUCH - Item could not be found",
+  "NOT_EVENTSDATABASE - Database is not an events database",
+  "WRONGEXPERIMENT  - Attempting to attach database from another experiment"
 };
 
 static const char* catchAll = "BADCODE - Bad error code passed to spectcl_experiment_error_msg";

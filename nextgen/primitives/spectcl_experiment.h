@@ -55,6 +55,8 @@
 #define SPEXP_NOMEM           6 /* memory allocation failed. */
 #define SPEXP_SQLFAIL         7 /* SQL operation failed */
 #define SPEXP_NOSUCH          8 /* No such object */
+#define SPEXP_NOT_EVENTSDATABASE 9
+#define SPEXP_WRONGEXPERIMENT  10
 #define SPEXP_UNIMPLEMENTED   100 /* for testing */
 
 /**
@@ -159,7 +161,7 @@ extern "C" {
 
   const char* spectcl_experiment_error_msg(int reason);
 
-  /* Manipulation of  experiment databases.  */
+  /* Manipulation of  events databases.  */
 
   spectcl_events spectcl_events_create(spectcl_experiment pExpHandle, int run , const char* path);
   spectcl_events spectcl_events_open(const char* path);
@@ -172,8 +174,9 @@ extern "C" {
 
   /* Loading data into the events table; */
 
-  int spectcl_events_load(spectcl_experiment pExperiment, size_t nEvents, const pParameterData* pData);
-  int spectcl_evets_augment(spectcl_experiment pExperiment, AugmentCallback* pCallback, void* pClientData);
+
+  int spectcl_events_load(spectcl_events pEvents, size_t nParameters, const pParameterData* pData);
+  int spectcl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback, void* pClientData);
 
   /* Inquiries: */
 

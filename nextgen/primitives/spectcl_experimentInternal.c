@@ -30,7 +30,47 @@
 #define TRUE (0==0)
 #endif
 
+/**
+ ** Static function to determine if a database is of a specific type.
+ ** - require that there is a configuratin_values table.
+ ** - require that table have an entry type which matches the input.
+ ** - require that table have a uuid which can have any value.
+ ** @param db    sqlite3 handle open on the database.
+ ** @param type  desired database type string.
+ ** @return int
+ ** @retval TRUE - If this is the right database type.
+ ** @retval FALSE - if this is not the right database type.
+ */
 
+static int
+isDatabaseType(sqlite3* db, const char* typeString)
+{
+  char* uuid;
+  char* type = getfirst(db, "configuration_values", "config_value", 
+			"config_item", "type");
+  /**
+   ** check type of database
+   */
+
+  if (!type) {
+    return FALSE;
+  }
+  if (strcmp(type, typeString) != 0) {
+    free(type);
+    return FALSE;
+  }
+  free(type);
+
+  /** Ensure there's a uuid entry:
+   */
+  uuid = getfirst(db, "configuration_values", "config_value",
+		  "config_item", "uuid");
+  if (!uuid) {
+    return FALSE;
+  }
+  free(uuid);
+  return TRUE;
+}
 
 /* Static function to get a  char* to a value from a field that matches select
    parameterized by table, field and value
@@ -66,9 +106,7 @@ getfirst(sqlite3* db, const char* table,
   if (status != SQLITE_ROW) {
     return NULL;
   }
-  column = sqlite3_column_text(statement, 0);
-  result = malloc(strlen(column) + 1);
-  strcpy(result, column);
+  result = getTextField(statement, 0);
   
   sqlite3_finalize(statement);
 
@@ -92,33 +130,25 @@ getfirst(sqlite3* db, const char* table,
 int
 isExperimentDatabase(sqlite3* db)
 {
-  char* uuid;
-  char* type = getfirst(db, "configuration_values", "config_value", 
-			"config_item", "type");
-  /**
-   ** check type of database
-   */
-
-  if (!type) {
-    return FALSE;
-  }
-  if (strcmp(type, "experiment") != 0) {
-    free(type);
-    return FALSE;
-  }
-  free(type);
-
-  /** Ensure there's a uuid entry:
-   */
-  uuid = getfirst(db, "configuration_values", "config_value",
-		  "config_item", "uuid");
-  if (!uuid) {
-    return FALSE;
-  }
-  free(uuid);
-  return TRUE;
-
+  return isDatabaseType(db, "experiment");
 }
+
+/** 
+ ** Determins if an sqlite3 database is in fact an events database.
+ ** Requrie that there be  configuration_values table and that it has
+ ** a 'type' entry with the value "run-data"..and that there is a UUID which could have any
+ ** value.
+ **
+ ** @param db - sqlite3 handle for the database.
+ ** @return int
+ ** @retval FALSE - not an experiment database.
+ ** @retval TRUE  - Is an experiment database.
+ */
+int isEventsDatabase(sqlite3* db)
+{
+  return isDatabaseType(db, "run-data");
+}
+
 
 /**
  ** Copy a string to a dynamically allocated string and return that.
@@ -172,4 +202,69 @@ char* getOptionalTextField(sqlite3_stmt* stmt, int field)
   else {
     return NULL;
   }
+}
+
+/**
+ ** sqlite function to execute a statement that is not a select..and has no bindable parameters.
+ ** @param db         - sqlite3 database handle.
+ ** @param statement  - statement to execute.
+ */
+void
+do_non_select(sqlite3* db, const char* statement)
+{
+  sqlite3_stmt* stmt;
+  int           status;
+
+  status = sqlite3_prepare_v2(db, statement, -1, &stmt, NULL);
+  if (status != SQLITE_OK) {
+    fprintf(stderr, "%s", sqlite3_errmsg(db));
+  }
+  status = sqlite3_step(stmt);
+  if (status != SQLITE_DONE) {
+    fprintf(stderr, "%s", sqlite3_errmsg(db));
+  }
+  sqlite3_finalize(stmt);
+}
+
+/**
+ ** Insert an item into a configuration database table.
+ ** @param db     - Sqlite3 database handle.
+ ** @param which  - Name of configuration item.
+ ** @param what   - Value of configuration item.
+ ** @return int
+ ** @retval SQLITE_OK  - ok completion.
+ ** @retval other      - SQLITE error returned from one of the functions needed to do thisk.
+ **
+ */
+int
+insertConfig(sqlite3* db, const char* which, const char* what)
+{
+  const char* insertSql = "INSERT INTO configuration_values \
+                                (config_item, config_value) \
+                                VALUES (:name, :value)";
+  int          status;
+  sqlite3_stmt* insert;
+
+  status = sqlite3_prepare_v2(db, insertSql, -1, &insert, NULL);
+  if(status != SQLITE_OK) return status;
+
+  status = sqlite3_bind_text(insert, 1, which, -1, SQLITE_STATIC); 
+  if (status != SQLITE_OK) {
+    sqlite3_finalize(insert);
+    return status;
+  }
+  status = sqlite3_bind_text(insert, 2, what,  -1, SQLITE_STATIC);
+  if (status != SQLITE_OK) {
+    sqlite3_finalize(insert);
+    return status;
+  }
+  status = sqlite3_step(insert);
+  if (status != SQLITE_DONE) {
+    sqlite3_finalize(insert);
+    return status;
+  }
+
+
+  return sqlite3_finalize(insert);
+
 }

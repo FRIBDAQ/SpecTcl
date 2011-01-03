@@ -23,48 +23,13 @@
 #include <unistd.h>
 #include <stdio.h>
 #include "spectcl_experiment.h"
+
 #include <sqlite3.h>
+#include "spectcl_experimentInternal.h"
 
 
 
 
-/* Static function to get a const char* to a value from a field that matches select
-   parameterized by table, field and value
-*/
-static char* getfirst(sqlite3* db, const char* table, 
-		     const char* field, const char* matchfield, const char* key)
-{
-  unsigned char* result = NULL;
-  const unsigned char* column;
-  sqlite3_stmt* statement;
-  char query[10000];
-  int status;
-
-  /* Since parameters can only be bound for string literals: */
-
-  sprintf(query, "SELECT %s FROM %s WHERE %s = '%s'", field, table, matchfield, key);
-
-  status = sqlite3_prepare_v2(db,
-			      query,
-			      -1, &statement, NULL);
-
-  if (status != SQLITE_OK) {
-    fail(sqlite3_errmsg(db));
-  }
-
-  status = sqlite3_step(statement);
-  if (status != SQLITE_ROW) {
-    return NULL;
-  }
-  column = sqlite3_column_text(statement, 0);
-  result = malloc(strlen(column) + 1);
-  strcpy(result, column);
-  
-  sqlite3_finalize(statement);
-
-  return result;
-  
-}
 
 
 static char* tmpFile;
