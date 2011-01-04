@@ -1,3 +1,7 @@
+package provide spectclsh 1.0
+
+package require SpecTcl
+
 #    This software is Copyright by the Board of Trustees of Michigan
 #    State University (c) Copyright 2009.
 #
@@ -41,10 +45,14 @@
 #   ./.spectcl, ~/.spectcl, SPECTCL_EXPERIMENT
 #
 #
+package provide spectclsh 1.0
+
+package require SpecTcl
 package require report
 package require struct::matrix
-#  Report styles:
 
+#  Report styles:
+catch {
 ::report::defstyle simpletable {} {
     data set [split "[string repeat "| "   [columns]]|"]
     top set  [split "[string repeat "+ - " [columns]]+"]
@@ -60,7 +68,7 @@ package require struct::matrix
     topcapsep  enable
     tcaption   $n
 }
-
+}
 
 
 set here [file dirname [info script]]
@@ -222,3 +230,6 @@ set tcl_prompt2 {
 puts -nonewline "spectcl>... "
 flush stdout
 }
+
+puts -nonewline ""
+

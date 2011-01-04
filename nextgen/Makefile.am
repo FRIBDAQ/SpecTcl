@@ -9,3 +9,6 @@ install-exec-local:
 	echo 	package ifneeded SpecTcl 1.0 \
 		[list load [file join \$$dir libSpecTclExperiment.so]] \
 		> @libdir@/pkgIndex.tcl
+	echo 	package ifneeded spectclsh 1.0 \
+		[list source [file join \$$dir spectcl.tcl]] \
+		>> @libdir@/pkgIndex.tcl

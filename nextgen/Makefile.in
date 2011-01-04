@@ -737,6 +737,9 @@ install-exec-local:
 	echo 	package ifneeded SpecTcl 1.0 \
 		[list load [file join \$$dir libSpecTclExperiment.so]] \
 		> @libdir@/pkgIndex.tcl
+	echo 	package ifneeded spectclsh 1.0 \
+		[list source [file join \$$dir spectcl.tcl]] \
+		>> @libdir@/pkgIndex.tcl
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
