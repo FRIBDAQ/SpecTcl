@@ -4,7 +4,7 @@ spectcl_SOURCES=spectcl.c
 
 
 spectcl_CFLAGS=@TCL_FLAGS@ -DLIBDIR="\"@libdir@\""
-spectcl_LDADD=@TCL_LDFLAGS@ @top_srcdir@/primitives/libSpecTclExperiment.la
+spectcl_LDADD=@TCL_LDFLAGS@ @top_srcdir@/bindings/tcl/libSpecTclExperiment.la
 
 EXTRA_DIST=spectcl.tcl
 

@@ -14976,7 +14976,7 @@ fi
 # *.am -> *.in.
 #
 
-ac_config_files="$ac_config_files Makefile Utility/Makefile NSCLException/Makefile TclPlus/Makefile primitives/Makefile shell/Makefile"
+ac_config_files="$ac_config_files Makefile Utility/Makefile NSCLException/Makefile TclPlus/Makefile primitives/Makefile bindings/tcl/Makefile shell/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -16052,6 +16052,7 @@ do
     "NSCLException/Makefile") CONFIG_FILES="$CONFIG_FILES NSCLException/Makefile" ;;
     "TclPlus/Makefile") CONFIG_FILES="$CONFIG_FILES TclPlus/Makefile" ;;
     "primitives/Makefile") CONFIG_FILES="$CONFIG_FILES primitives/Makefile" ;;
+    "bindings/tcl/Makefile") CONFIG_FILES="$CONFIG_FILES bindings/tcl/Makefile" ;;
     "shell/Makefile") CONFIG_FILES="$CONFIG_FILES shell/Makefile" ;;
 
   *) as_fn_error "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

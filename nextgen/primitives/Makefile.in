@@ -36,11 +36,9 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 TESTS = c_eventstest$(EXEEXT) c_exptests$(EXEEXT) c_runtests$(EXEEXT) \
-	c_uuidtests$(EXEEXT) c_paramtests$(EXEEXT) \
-	handletests$(EXEEXT) tclcreatetests$(EXEEXT) tcltestrunner
+	c_uuidtests$(EXEEXT) c_paramtests$(EXEEXT)
 check_PROGRAMS = c_exptests$(EXEEXT) c_paramtests$(EXEEXT) \
-	c_runtests$(EXEEXT) c_uuidtests$(EXEEXT) handletests$(EXEEXT) \
-	tclcreatetests$(EXEEXT) c_eventstest$(EXEEXT)
+	c_runtests$(EXEEXT) c_uuidtests$(EXEEXT) c_eventstest$(EXEEXT)
 subdir = primitives
 DIST_COMMON = $(include_HEADERS) $(noinst_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -84,25 +82,6 @@ am_libExperiment_la_OBJECTS = spectcl_experiment.lo \
 	spectcl_errors.lo spectcl_experimentInternal.lo \
 	spectcl_events.lo
 libExperiment_la_OBJECTS = $(am_libExperiment_la_OBJECTS)
-libSpecTclExperiment_la_DEPENDENCIES =  \
-	@top_builddir@/TclPlus/libtclPlus.la \
-	@top_builddir@/NSCLException/libException.la libExperiment.la
-am_libSpecTclExperiment_la_OBJECTS =  \
-	libSpecTclExperiment_la-packageStartup.lo \
-	libSpecTclExperiment_la-handleManager.lo \
-	libSpecTclExperiment_la-TclCreate.lo \
-	libSpecTclExperiment_la-TclOpen.lo \
-	libSpecTclExperiment_la-TclClose.lo \
-	libSpecTclExperiment_la-TclParameter.lo \
-	libSpecTclExperiment_la-TclRuns.lo \
-	libSpecTclExperiment_la-TclDBCommand.lo \
-	libSpecTclExperiment_la-TclUUID.lo
-libSpecTclExperiment_la_OBJECTS =  \
-	$(am_libSpecTclExperiment_la_OBJECTS)
-libSpecTclExperiment_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
 am_c_eventstest_OBJECTS = c_eventstest-eventstest.$(OBJEXT)
 c_eventstest_OBJECTS = $(am_c_eventstest_OBJECTS)
 c_eventstest_DEPENDENCIES = libExperiment.la
@@ -133,24 +112,6 @@ c_uuidtests_DEPENDENCIES = libExperiment.la
 c_uuidtests_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(c_uuidtests_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-am_handletests_OBJECTS = handletests-handletests.$(OBJEXT) \
-	handletests-handleManager.$(OBJEXT)
-handletests_OBJECTS = $(am_handletests_OBJECTS)
-handletests_DEPENDENCIES =
-handletests_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(handletests_CXXFLAGS) \
-	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-am_tclcreatetests_OBJECTS = tclcreatetests-tclcreatetests.$(OBJEXT) \
-	tclcreatetests-TclCreate.$(OBJEXT) \
-	tclcreatetests-TclDBCommand.$(OBJEXT) \
-	tclcreatetests-handleManager.$(OBJEXT)
-tclcreatetests_OBJECTS = $(am_tclcreatetests_OBJECTS)
-tclcreatetests_DEPENDENCIES = @top_builddir@/TclPlus/libtclPlus.la \
-	@top_builddir@/NSCLException/libException.la libExperiment.la
-tclcreatetests_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(tclcreatetests_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -164,25 +125,12 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-LTCXXCOMPILE = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-CXXLD = $(CXX)
-CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-SOURCES = $(libExperiment_la_SOURCES) \
-	$(libSpecTclExperiment_la_SOURCES) $(c_eventstest_SOURCES) \
+SOURCES = $(libExperiment_la_SOURCES) $(c_eventstest_SOURCES) \
 	$(c_exptests_SOURCES) $(c_paramtests_SOURCES) \
-	$(c_runtests_SOURCES) $(c_uuidtests_SOURCES) \
-	$(handletests_SOURCES) $(tclcreatetests_SOURCES)
-DIST_SOURCES = $(libExperiment_la_SOURCES) \
-	$(libSpecTclExperiment_la_SOURCES) $(c_eventstest_SOURCES) \
+	$(c_runtests_SOURCES) $(c_uuidtests_SOURCES)
+DIST_SOURCES = $(libExperiment_la_SOURCES) $(c_eventstest_SOURCES) \
 	$(c_exptests_SOURCES) $(c_paramtests_SOURCES) \
-	$(c_runtests_SOURCES) $(c_uuidtests_SOURCES) \
-	$(handletests_SOURCES) $(tclcreatetests_SOURCES)
+	$(c_runtests_SOURCES) $(c_uuidtests_SOURCES)
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -318,7 +266,7 @@ AM_CFLAGS = -g
 AM_CXXFLAGS = -g
 AM_LDFLAGS = 
 ACLOCAL_AMFLAGS = -I m4
-lib_LTLIBRARIES = libExperiment.la libSpecTclExperiment.la
+lib_LTLIBRARIES = libExperiment.la 
 libExperiment_la_SOURCES = spectcl_experiment.c \
 	spectcl_parameter.c \
 	spectcl_runs.c		\
@@ -329,22 +277,8 @@ libExperiment_la_SOURCES = spectcl_experiment.c \
 
 libExperiment_la_LIBADD = -lsqlite3 -luuid
 include_HEADERS = spectcl_experiment.h 
-noinst_HEADERS = spectcl_experimentInternal.h \
-	handleManager.h Asserts.h TclCreate.h TclOpen.h	\
-	TclClose.h TclParameter.h TclRuns.h TclDBCommand.h \
-	TclUUID.h
-
-libSpecTclExperiment_la_SOURCES = packageStartup.cpp	\
-	handleManager.cpp TclCreate.cpp TclOpen.cpp 	\
-	TclClose.cpp TclParameter.cpp TclRuns.cpp TclDBCommand.cpp \
-	TclUUID.cpp
-
-libSpecTclExperiment_la_CXXFLAGS = @TCL_FLAGS@ -I@top_builddir@/Utility -I@top_builddir@/TclPlus
-libSpecTclExperiment_la_LIBADD = @top_builddir@/TclPlus/libtclPlus.la \
-	@top_builddir@/NSCLException/libException.la libExperiment.la @TCL_LDFLAGS@
-
+noinst_HEADERS = spectcl_experimentInternal.h 
 INCLUDES = -I. -I@top_srcdir@/NSCLException
-EXTRA_DIST = *.test tcltests
 c_exptests_SOURCES = spectcl_experiment_check.c
 c_exptests_CFLAGS = @CHECK_CFLAGS@
 c_exptests_LDADD = @CHECK_LIBS@ libExperiment.la
@@ -360,19 +294,10 @@ c_uuidtests_LDADD = @CHECK_LIBS@ libExperiment.la
 c_eventstest_SOURCES = eventstest.c
 c_eventstest_CFLAGS = @CHECK_CFLAGS@
 c_eventstest_LDADD = @CHECK_LIBS@ libExperiment.la
-handletests_SOURCES = handletests.cpp handleManager.cpp
-handletests_CXXFLAGS = @CPPUNIT_CFLAGS@
-handletests_LDADD = @CPPUNIT_LIBS@ 
-tclcreatetests_SOURCES = tclcreatetests.cpp TclCreate.cpp TclDBCommand.cpp handleManager.cpp
-tclcreatetests_CXXFLAGS = @CPPUNIT_CFLAGS@ @TCL_FLAGS@ -I@top_builddir@/Utility -I@top_builddir@/TclPlus
-tclcreatetests_LDADD = @CPPUNIT_LIBS@ \
-	@top_builddir@/TclPlus/libtclPlus.la \
-	@top_builddir@/NSCLException/libException.la libExperiment.la @TCL_LDFLAGS@
-
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .lo .o .obj
+.SUFFIXES: .c .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -436,8 +361,6 @@ clean-libLTLIBRARIES:
 	done
 libExperiment.la: $(libExperiment_la_OBJECTS) $(libExperiment_la_DEPENDENCIES) 
 	$(LINK) -rpath $(libdir) $(libExperiment_la_OBJECTS) $(libExperiment_la_LIBADD) $(LIBS)
-libSpecTclExperiment.la: $(libSpecTclExperiment_la_OBJECTS) $(libSpecTclExperiment_la_DEPENDENCIES) 
-	$(libSpecTclExperiment_la_LINK) -rpath $(libdir) $(libSpecTclExperiment_la_OBJECTS) $(libSpecTclExperiment_la_LIBADD) $(LIBS)
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -462,12 +385,6 @@ c_runtests$(EXEEXT): $(c_runtests_OBJECTS) $(c_runtests_DEPENDENCIES)
 c_uuidtests$(EXEEXT): $(c_uuidtests_OBJECTS) $(c_uuidtests_DEPENDENCIES) 
 	@rm -f c_uuidtests$(EXEEXT)
 	$(c_uuidtests_LINK) $(c_uuidtests_OBJECTS) $(c_uuidtests_LDADD) $(LIBS)
-handletests$(EXEEXT): $(handletests_OBJECTS) $(handletests_DEPENDENCIES) 
-	@rm -f handletests$(EXEEXT)
-	$(handletests_LINK) $(handletests_OBJECTS) $(handletests_LDADD) $(LIBS)
-tclcreatetests$(EXEEXT): $(tclcreatetests_OBJECTS) $(tclcreatetests_DEPENDENCIES) 
-	@rm -f tclcreatetests$(EXEEXT)
-	$(tclcreatetests_LINK) $(tclcreatetests_OBJECTS) $(tclcreatetests_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -480,17 +397,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/c_paramtests-spectcl_paramtests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/c_runtests-spectcl_runstest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/c_uuidtests-spectcl_uuidtest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/handletests-handleManager.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/handletests-handletests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-TclClose.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-TclCreate.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-TclDBCommand.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-TclOpen.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-TclParameter.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-TclRuns.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-TclUUID.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-handleManager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libSpecTclExperiment_la-packageStartup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_errors.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_events.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_experiment.Plo@am__quote@
@@ -498,10 +404,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_parameter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_runs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spectcl_uuid.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tclcreatetests-TclCreate.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tclcreatetests-TclDBCommand.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tclcreatetests-handleManager.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tclcreatetests-tclcreatetests.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -593,174 +495,6 @@ c_uuidtests-spectcl_uuidtest.obj: spectcl_uuidtest.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='spectcl_uuidtest.c' object='c_uuidtests-spectcl_uuidtest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(c_uuidtests_CFLAGS) $(CFLAGS) -c -o c_uuidtests-spectcl_uuidtest.obj `if test -f 'spectcl_uuidtest.c'; then $(CYGPATH_W) 'spectcl_uuidtest.c'; else $(CYGPATH_W) '$(srcdir)/spectcl_uuidtest.c'; fi`
-
-.cpp.o:
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
-
-.cpp.obj:
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-.cpp.lo:
-@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
-
-libSpecTclExperiment_la-packageStartup.lo: packageStartup.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -MT libSpecTclExperiment_la-packageStartup.lo -MD -MP -MF $(DEPDIR)/libSpecTclExperiment_la-packageStartup.Tpo -c -o libSpecTclExperiment_la-packageStartup.lo `test -f 'packageStartup.cpp' || echo '$(srcdir)/'`packageStartup.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libSpecTclExperiment_la-packageStartup.Tpo $(DEPDIR)/libSpecTclExperiment_la-packageStartup.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='packageStartup.cpp' object='libSpecTclExperiment_la-packageStartup.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -c -o libSpecTclExperiment_la-packageStartup.lo `test -f 'packageStartup.cpp' || echo '$(srcdir)/'`packageStartup.cpp
-
-libSpecTclExperiment_la-handleManager.lo: handleManager.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -MT libSpecTclExperiment_la-handleManager.lo -MD -MP -MF $(DEPDIR)/libSpecTclExperiment_la-handleManager.Tpo -c -o libSpecTclExperiment_la-handleManager.lo `test -f 'handleManager.cpp' || echo '$(srcdir)/'`handleManager.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libSpecTclExperiment_la-handleManager.Tpo $(DEPDIR)/libSpecTclExperiment_la-handleManager.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='handleManager.cpp' object='libSpecTclExperiment_la-handleManager.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -c -o libSpecTclExperiment_la-handleManager.lo `test -f 'handleManager.cpp' || echo '$(srcdir)/'`handleManager.cpp
-
-libSpecTclExperiment_la-TclCreate.lo: TclCreate.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -MT libSpecTclExperiment_la-TclCreate.lo -MD -MP -MF $(DEPDIR)/libSpecTclExperiment_la-TclCreate.Tpo -c -o libSpecTclExperiment_la-TclCreate.lo `test -f 'TclCreate.cpp' || echo '$(srcdir)/'`TclCreate.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libSpecTclExperiment_la-TclCreate.Tpo $(DEPDIR)/libSpecTclExperiment_la-TclCreate.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclCreate.cpp' object='libSpecTclExperiment_la-TclCreate.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -c -o libSpecTclExperiment_la-TclCreate.lo `test -f 'TclCreate.cpp' || echo '$(srcdir)/'`TclCreate.cpp
-
-libSpecTclExperiment_la-TclOpen.lo: TclOpen.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -MT libSpecTclExperiment_la-TclOpen.lo -MD -MP -MF $(DEPDIR)/libSpecTclExperiment_la-TclOpen.Tpo -c -o libSpecTclExperiment_la-TclOpen.lo `test -f 'TclOpen.cpp' || echo '$(srcdir)/'`TclOpen.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libSpecTclExperiment_la-TclOpen.Tpo $(DEPDIR)/libSpecTclExperiment_la-TclOpen.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclOpen.cpp' object='libSpecTclExperiment_la-TclOpen.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -c -o libSpecTclExperiment_la-TclOpen.lo `test -f 'TclOpen.cpp' || echo '$(srcdir)/'`TclOpen.cpp
-
-libSpecTclExperiment_la-TclClose.lo: TclClose.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -MT libSpecTclExperiment_la-TclClose.lo -MD -MP -MF $(DEPDIR)/libSpecTclExperiment_la-TclClose.Tpo -c -o libSpecTclExperiment_la-TclClose.lo `test -f 'TclClose.cpp' || echo '$(srcdir)/'`TclClose.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libSpecTclExperiment_la-TclClose.Tpo $(DEPDIR)/libSpecTclExperiment_la-TclClose.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclClose.cpp' object='libSpecTclExperiment_la-TclClose.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -c -o libSpecTclExperiment_la-TclClose.lo `test -f 'TclClose.cpp' || echo '$(srcdir)/'`TclClose.cpp
-
-libSpecTclExperiment_la-TclParameter.lo: TclParameter.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -MT libSpecTclExperiment_la-TclParameter.lo -MD -MP -MF $(DEPDIR)/libSpecTclExperiment_la-TclParameter.Tpo -c -o libSpecTclExperiment_la-TclParameter.lo `test -f 'TclParameter.cpp' || echo '$(srcdir)/'`TclParameter.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libSpecTclExperiment_la-TclParameter.Tpo $(DEPDIR)/libSpecTclExperiment_la-TclParameter.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclParameter.cpp' object='libSpecTclExperiment_la-TclParameter.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -c -o libSpecTclExperiment_la-TclParameter.lo `test -f 'TclParameter.cpp' || echo '$(srcdir)/'`TclParameter.cpp
-
-libSpecTclExperiment_la-TclRuns.lo: TclRuns.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -MT libSpecTclExperiment_la-TclRuns.lo -MD -MP -MF $(DEPDIR)/libSpecTclExperiment_la-TclRuns.Tpo -c -o libSpecTclExperiment_la-TclRuns.lo `test -f 'TclRuns.cpp' || echo '$(srcdir)/'`TclRuns.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libSpecTclExperiment_la-TclRuns.Tpo $(DEPDIR)/libSpecTclExperiment_la-TclRuns.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclRuns.cpp' object='libSpecTclExperiment_la-TclRuns.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -c -o libSpecTclExperiment_la-TclRuns.lo `test -f 'TclRuns.cpp' || echo '$(srcdir)/'`TclRuns.cpp
-
-libSpecTclExperiment_la-TclDBCommand.lo: TclDBCommand.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -MT libSpecTclExperiment_la-TclDBCommand.lo -MD -MP -MF $(DEPDIR)/libSpecTclExperiment_la-TclDBCommand.Tpo -c -o libSpecTclExperiment_la-TclDBCommand.lo `test -f 'TclDBCommand.cpp' || echo '$(srcdir)/'`TclDBCommand.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libSpecTclExperiment_la-TclDBCommand.Tpo $(DEPDIR)/libSpecTclExperiment_la-TclDBCommand.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclDBCommand.cpp' object='libSpecTclExperiment_la-TclDBCommand.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -c -o libSpecTclExperiment_la-TclDBCommand.lo `test -f 'TclDBCommand.cpp' || echo '$(srcdir)/'`TclDBCommand.cpp
-
-libSpecTclExperiment_la-TclUUID.lo: TclUUID.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -MT libSpecTclExperiment_la-TclUUID.lo -MD -MP -MF $(DEPDIR)/libSpecTclExperiment_la-TclUUID.Tpo -c -o libSpecTclExperiment_la-TclUUID.lo `test -f 'TclUUID.cpp' || echo '$(srcdir)/'`TclUUID.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libSpecTclExperiment_la-TclUUID.Tpo $(DEPDIR)/libSpecTclExperiment_la-TclUUID.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclUUID.cpp' object='libSpecTclExperiment_la-TclUUID.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libSpecTclExperiment_la_CXXFLAGS) $(CXXFLAGS) -c -o libSpecTclExperiment_la-TclUUID.lo `test -f 'TclUUID.cpp' || echo '$(srcdir)/'`TclUUID.cpp
-
-handletests-handletests.o: handletests.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(handletests_CXXFLAGS) $(CXXFLAGS) -MT handletests-handletests.o -MD -MP -MF $(DEPDIR)/handletests-handletests.Tpo -c -o handletests-handletests.o `test -f 'handletests.cpp' || echo '$(srcdir)/'`handletests.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/handletests-handletests.Tpo $(DEPDIR)/handletests-handletests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='handletests.cpp' object='handletests-handletests.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(handletests_CXXFLAGS) $(CXXFLAGS) -c -o handletests-handletests.o `test -f 'handletests.cpp' || echo '$(srcdir)/'`handletests.cpp
-
-handletests-handletests.obj: handletests.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(handletests_CXXFLAGS) $(CXXFLAGS) -MT handletests-handletests.obj -MD -MP -MF $(DEPDIR)/handletests-handletests.Tpo -c -o handletests-handletests.obj `if test -f 'handletests.cpp'; then $(CYGPATH_W) 'handletests.cpp'; else $(CYGPATH_W) '$(srcdir)/handletests.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/handletests-handletests.Tpo $(DEPDIR)/handletests-handletests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='handletests.cpp' object='handletests-handletests.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(handletests_CXXFLAGS) $(CXXFLAGS) -c -o handletests-handletests.obj `if test -f 'handletests.cpp'; then $(CYGPATH_W) 'handletests.cpp'; else $(CYGPATH_W) '$(srcdir)/handletests.cpp'; fi`
-
-handletests-handleManager.o: handleManager.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(handletests_CXXFLAGS) $(CXXFLAGS) -MT handletests-handleManager.o -MD -MP -MF $(DEPDIR)/handletests-handleManager.Tpo -c -o handletests-handleManager.o `test -f 'handleManager.cpp' || echo '$(srcdir)/'`handleManager.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/handletests-handleManager.Tpo $(DEPDIR)/handletests-handleManager.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='handleManager.cpp' object='handletests-handleManager.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(handletests_CXXFLAGS) $(CXXFLAGS) -c -o handletests-handleManager.o `test -f 'handleManager.cpp' || echo '$(srcdir)/'`handleManager.cpp
-
-handletests-handleManager.obj: handleManager.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(handletests_CXXFLAGS) $(CXXFLAGS) -MT handletests-handleManager.obj -MD -MP -MF $(DEPDIR)/handletests-handleManager.Tpo -c -o handletests-handleManager.obj `if test -f 'handleManager.cpp'; then $(CYGPATH_W) 'handleManager.cpp'; else $(CYGPATH_W) '$(srcdir)/handleManager.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/handletests-handleManager.Tpo $(DEPDIR)/handletests-handleManager.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='handleManager.cpp' object='handletests-handleManager.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(handletests_CXXFLAGS) $(CXXFLAGS) -c -o handletests-handleManager.obj `if test -f 'handleManager.cpp'; then $(CYGPATH_W) 'handleManager.cpp'; else $(CYGPATH_W) '$(srcdir)/handleManager.cpp'; fi`
-
-tclcreatetests-tclcreatetests.o: tclcreatetests.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -MT tclcreatetests-tclcreatetests.o -MD -MP -MF $(DEPDIR)/tclcreatetests-tclcreatetests.Tpo -c -o tclcreatetests-tclcreatetests.o `test -f 'tclcreatetests.cpp' || echo '$(srcdir)/'`tclcreatetests.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/tclcreatetests-tclcreatetests.Tpo $(DEPDIR)/tclcreatetests-tclcreatetests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='tclcreatetests.cpp' object='tclcreatetests-tclcreatetests.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -c -o tclcreatetests-tclcreatetests.o `test -f 'tclcreatetests.cpp' || echo '$(srcdir)/'`tclcreatetests.cpp
-
-tclcreatetests-tclcreatetests.obj: tclcreatetests.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -MT tclcreatetests-tclcreatetests.obj -MD -MP -MF $(DEPDIR)/tclcreatetests-tclcreatetests.Tpo -c -o tclcreatetests-tclcreatetests.obj `if test -f 'tclcreatetests.cpp'; then $(CYGPATH_W) 'tclcreatetests.cpp'; else $(CYGPATH_W) '$(srcdir)/tclcreatetests.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/tclcreatetests-tclcreatetests.Tpo $(DEPDIR)/tclcreatetests-tclcreatetests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='tclcreatetests.cpp' object='tclcreatetests-tclcreatetests.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -c -o tclcreatetests-tclcreatetests.obj `if test -f 'tclcreatetests.cpp'; then $(CYGPATH_W) 'tclcreatetests.cpp'; else $(CYGPATH_W) '$(srcdir)/tclcreatetests.cpp'; fi`
-
-tclcreatetests-TclCreate.o: TclCreate.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -MT tclcreatetests-TclCreate.o -MD -MP -MF $(DEPDIR)/tclcreatetests-TclCreate.Tpo -c -o tclcreatetests-TclCreate.o `test -f 'TclCreate.cpp' || echo '$(srcdir)/'`TclCreate.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/tclcreatetests-TclCreate.Tpo $(DEPDIR)/tclcreatetests-TclCreate.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclCreate.cpp' object='tclcreatetests-TclCreate.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -c -o tclcreatetests-TclCreate.o `test -f 'TclCreate.cpp' || echo '$(srcdir)/'`TclCreate.cpp
-
-tclcreatetests-TclCreate.obj: TclCreate.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -MT tclcreatetests-TclCreate.obj -MD -MP -MF $(DEPDIR)/tclcreatetests-TclCreate.Tpo -c -o tclcreatetests-TclCreate.obj `if test -f 'TclCreate.cpp'; then $(CYGPATH_W) 'TclCreate.cpp'; else $(CYGPATH_W) '$(srcdir)/TclCreate.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/tclcreatetests-TclCreate.Tpo $(DEPDIR)/tclcreatetests-TclCreate.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclCreate.cpp' object='tclcreatetests-TclCreate.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -c -o tclcreatetests-TclCreate.obj `if test -f 'TclCreate.cpp'; then $(CYGPATH_W) 'TclCreate.cpp'; else $(CYGPATH_W) '$(srcdir)/TclCreate.cpp'; fi`
-
-tclcreatetests-TclDBCommand.o: TclDBCommand.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -MT tclcreatetests-TclDBCommand.o -MD -MP -MF $(DEPDIR)/tclcreatetests-TclDBCommand.Tpo -c -o tclcreatetests-TclDBCommand.o `test -f 'TclDBCommand.cpp' || echo '$(srcdir)/'`TclDBCommand.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/tclcreatetests-TclDBCommand.Tpo $(DEPDIR)/tclcreatetests-TclDBCommand.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclDBCommand.cpp' object='tclcreatetests-TclDBCommand.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -c -o tclcreatetests-TclDBCommand.o `test -f 'TclDBCommand.cpp' || echo '$(srcdir)/'`TclDBCommand.cpp
-
-tclcreatetests-TclDBCommand.obj: TclDBCommand.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -MT tclcreatetests-TclDBCommand.obj -MD -MP -MF $(DEPDIR)/tclcreatetests-TclDBCommand.Tpo -c -o tclcreatetests-TclDBCommand.obj `if test -f 'TclDBCommand.cpp'; then $(CYGPATH_W) 'TclDBCommand.cpp'; else $(CYGPATH_W) '$(srcdir)/TclDBCommand.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/tclcreatetests-TclDBCommand.Tpo $(DEPDIR)/tclcreatetests-TclDBCommand.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='TclDBCommand.cpp' object='tclcreatetests-TclDBCommand.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -c -o tclcreatetests-TclDBCommand.obj `if test -f 'TclDBCommand.cpp'; then $(CYGPATH_W) 'TclDBCommand.cpp'; else $(CYGPATH_W) '$(srcdir)/TclDBCommand.cpp'; fi`
-
-tclcreatetests-handleManager.o: handleManager.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -MT tclcreatetests-handleManager.o -MD -MP -MF $(DEPDIR)/tclcreatetests-handleManager.Tpo -c -o tclcreatetests-handleManager.o `test -f 'handleManager.cpp' || echo '$(srcdir)/'`handleManager.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/tclcreatetests-handleManager.Tpo $(DEPDIR)/tclcreatetests-handleManager.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='handleManager.cpp' object='tclcreatetests-handleManager.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -c -o tclcreatetests-handleManager.o `test -f 'handleManager.cpp' || echo '$(srcdir)/'`handleManager.cpp
-
-tclcreatetests-handleManager.obj: handleManager.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -MT tclcreatetests-handleManager.obj -MD -MP -MF $(DEPDIR)/tclcreatetests-handleManager.Tpo -c -o tclcreatetests-handleManager.obj `if test -f 'handleManager.cpp'; then $(CYGPATH_W) 'handleManager.cpp'; else $(CYGPATH_W) '$(srcdir)/handleManager.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/tclcreatetests-handleManager.Tpo $(DEPDIR)/tclcreatetests-handleManager.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='handleManager.cpp' object='tclcreatetests-handleManager.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tclcreatetests_CXXFLAGS) $(CXXFLAGS) -c -o tclcreatetests-handleManager.obj `if test -f 'handleManager.cpp'; then $(CYGPATH_W) 'handleManager.cpp'; else $(CYGPATH_W) '$(srcdir)/handleManager.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1085,14 +819,6 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 	tags uninstall uninstall-am uninstall-includeHEADERS \
 	uninstall-libLTLIBRARIES
 
-
-tcltestrunner:
-	echo "#!/bin/sh" >tcltestrunner
-	echo "\\"        >> tcltestrunner
-	echo @TCLSH_CMD@ tcltests >> tcltestrunner
-	chmod a+x tcltestrunner
-
-.PHONY: tcltestrunner
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

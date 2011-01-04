@@ -238,6 +238,7 @@ AC_CONFIG_FILES([Makefile
 		NSCLException/Makefile
 		TclPlus/Makefile
 		primitives/Makefile
+		bindings/tcl/Makefile
 		shell/Makefile])
 
 AC_OUTPUT

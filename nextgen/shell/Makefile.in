@@ -53,7 +53,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_spectcl_OBJECTS = spectcl-spectcl.$(OBJEXT)
 spectcl_OBJECTS = $(am_spectcl_OBJECTS)
 spectcl_DEPENDENCIES =  \
-	@top_srcdir@/primitives/libSpecTclExperiment.la
+	@top_srcdir@/bindings/tcl/libSpecTclExperiment.la
 spectcl_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(spectcl_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
@@ -202,7 +202,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 spectcl_SOURCES = spectcl.c
 spectcl_CFLAGS = @TCL_FLAGS@ -DLIBDIR="\"@libdir@\""
-spectcl_LDADD = @TCL_LDFLAGS@ @top_srcdir@/primitives/libSpecTclExperiment.la
+spectcl_LDADD = @TCL_LDFLAGS@ @top_srcdir@/bindings/tcl/libSpecTclExperiment.la
 EXTRA_DIST = spectcl.tcl
 all: all-am
 
