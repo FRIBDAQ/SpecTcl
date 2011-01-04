@@ -19,6 +19,7 @@
 #include "TclCreate.h"
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
+#include <Exception.h>
 
 using namespace std;
 
@@ -76,6 +77,13 @@ CTclRuns::operator()(CTCLInterpreter& interp,
   }
   catch (string msg) {
     interp.setResult(msg);
+    return TCL_ERROR;
+  }
+  catch (CException& e) {
+    interp.setResult(e.ReasonText());
+    return TCL_ERROR;
+  }
+  catch (...) {
     return TCL_ERROR;
   }
 

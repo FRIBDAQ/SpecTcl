@@ -141,7 +141,10 @@ CTCLObjectProcessor:: getParameter(CTCLInterpreter& interp,
     return result;
   }
   catch (CException &except) {
-    throw std::string(except.ReasonText());
+    std::string msg = except.ReasonText();
+    msg += " ";
+    msg += except.WasDoing();
+    throw msg;
   }
 }
 

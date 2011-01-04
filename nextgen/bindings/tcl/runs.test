@@ -75,6 +75,8 @@ test create_fail5 {Duplicate run should fail} \
 	catch {::spectcl::run create $handle 1 should-fail}
     } -result 1
 
+
+
 test list_fail1 {The list command requires a database handle} \
     -body {
 	catch {::spectcl::run list}
