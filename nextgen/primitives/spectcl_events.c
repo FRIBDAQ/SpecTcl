@@ -462,3 +462,55 @@ spectcl_events_load(spectcl_events pEvents, size_t nParameters,   pParameterData
 
   return status;
 }
+
+/**
+ ** Function that allows one to augment the data in an events database
+ ** to be augmented.  This is normally done to compute a pseudo parameter
+ ** on existing data. The data for each trigger in the events table is
+ ** passed to a callback which can supply additional data that will be
+ ** inserted into the database tables.  The entire insertion operation is done
+ ** within a transaction and is therefore an all or nothing operation.
+ ** @param pEvents   - Handle to an experiment database.
+ ** @param pCallback - Callabck function to compute the additional parameter sets
+ **                    see the notes below for more information about the call
+ **                    and return requirements of that function.
+ ** @param pClientData- This is additional data that is passed wthout interpretation
+ **                     to the callback.
+ ** @return int
+ ** @retval SPEXP_OK - Everything went ok.
+ ** @retval SPEXP_NOTEVENTSDATABSE - pEvents is not open on an events database.
+ ** @retval SPEXP_SQLFAIL - the SQL operation failed.
+ **
+ ** @note The callback receives three parameters.  
+ **       - the first is the number of parameters associated with the trigger
+ **         being passed in.
+ **       - The second is a pointer to an array of ParameterData items
+ **         that describe each parameter.  Each element of this array
+ **         has fields:
+ **         - uint32_t s_trigger - the trigger number.
+ **         - int      s_parameter - the id of the parameter in the associated
+ **                                experiment database's parameter definition table.
+ **         - double   s_value   - The value of the parameter.
+ **      The callback is expected to return a pointer to an AugmentResult
+ **      structure.  This structure has the following fields:
+ **      - size_t s_numParameers - the number of generated parameters.
+ **      - spectcl_StorageType - s_destructMechanism describes how this
+ **                              struct and its s_pData element were created.
+ **                              - st_static means no deallocation is required.
+ **                              - st_dynamic means that s_pData and the 
+ **                                 AugmentResult will be free'd by the caller.
+ **     - pParameterData s_pData - Points to the set of generated parameters.
+ **                                in general, s_trigger should match the
+ **                                trigger of the data passed in
+ **                                s_parameter shouild be the parameter id of
+ **                                a parameter that does not yet exist for this
+ **                                trigger (unless you want to replace a parameter
+ **                                value), and s_value the computed value of the
+ **                                item.
+ */
+int
+speccl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback,
+		      void* pClientData)
+{
+  return SPEXP_UNIMPLEMENTED;
+}

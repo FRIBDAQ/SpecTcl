@@ -106,7 +106,18 @@ typedef struct _ParameterData_ {
   double   s_value;
 } ParameterData, *pParameterData;
 
-typedef  pParameterData   (AugmentCallback)(const pParameterData, void*);
+typedef enum _spectcl_storageType {
+  st_static,
+  st_dynamic,
+} spectcl_StorageType;
+
+typedef struct _AugmentResult_ {
+  size_t              s_numParameters; 
+  spectcl_StorageType s_destructMechanism;
+  pParameterData      s_pData;
+} AugmentResult, pAugmentResult;
+
+typedef  pAugmentResult   (AugmentCallback)(size_t, pParameterData, void*);
 /**
  ** Function definitions; and globals:
  */
@@ -176,7 +187,8 @@ extern "C" {
 
 
   int spectcl_events_load(spectcl_events pEvents, size_t nParameters,  pParameterData pData);
-  int spectcl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback, void* pClientData);
+  int spectcl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback, 
+			     void* pClientData);
 
   /* Inquiries: */
 
