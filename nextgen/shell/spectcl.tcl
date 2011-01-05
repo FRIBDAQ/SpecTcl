@@ -51,6 +51,8 @@ package require SpecTcl
 package require report
 package require struct::matrix
 
+set unEncapsulableCommands [list expcreate expclose expopen]
+
 #  Report styles:
 catch {
 ::report::defstyle simpletable {} {
@@ -137,7 +139,10 @@ proc unqualifiedCommands {} {
     foreach q $qualifiedCommands {
 	set lastsep [string last :: $q]
 	incr lastsep 2
-	lappend unqualified [string range $q $lastsep end]
+	set uq [string range $q $lastsep end]
+	if {[lsearch $::unEncapsulableCommands $uq] == -1} {
+	    lappend unqualified $uq
+	}
     }
     return $unqualified
 }
@@ -150,7 +155,8 @@ proc unqualifiedCommands {} {
 #  command.
 #
 proc experiment-command {name} {
-    if {[info command ::spectcl::$name] eq ""} {
+    if {([info command ::spectcl::$name] eq "")    ||
+	([lsearch $::unEncapsulableCommands $name] != -1)} {
 	set cmds [unqualifiedCommands]
 	error "$name is not a valid spectcl command use one of '$cmds'"
     }
