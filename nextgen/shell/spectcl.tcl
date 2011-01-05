@@ -127,6 +127,20 @@ proc openExperiment arglist {
     }
     return $arglist
 }
+#
+#  Return a list of the unqualified SpecTcl command names...these are the valid
+#  commands you can pass to experiment-command
+#
+proc unqualifiedCommands {} {
+    set qualifiedCommands [info command ::spectcl::*]
+    set unqualified [list]
+    foreach q $qualifiedCommands {
+	set lastsep [string last :: $q]
+	incr lastsep 2
+	lappend unqualified [string range $q $lastsep end]
+    }
+    return $unqualified
+}
 #-------------------------------------------------------------------------------
 #  Simple wrappers for Spectcl commands..which hide the need for a handle:
 #
@@ -136,6 +150,10 @@ proc openExperiment arglist {
 #  command.
 #
 proc experiment-command {name} {
+    if {[info command ::spectcl::$name] eq ""} {
+	set cmds [unqualifiedCommands]
+	error "$name is not a valid spectcl command use one of '$cmds'"
+    }
     proc $name args {
 	set command [info level 0]
 	set command [lindex $command 0]
