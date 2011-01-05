@@ -509,8 +509,56 @@ spectcl_events_load(spectcl_events pEvents, size_t nParameters,   pParameterData
  **                                item.
  */
 int
-speccl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback,
+spectcl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback,
 		      void* pClientData)
 {
-  return SPEXP_UNIMPLEMENTED;
+  /* The order ensures that parameters that make up a single event are together.
+   */
+  const char*   sql = "SELECT trigger, param_id, value FROM events ORDER BY trigger";
+  sqlite3_stmt* statement;
+  int           status;
+  int           first = 1;
+  int           lasttrigger;
+  /* Ensure we have the right sort of database handle */
+
+  if (!isEventsDatabase(pEvents)) {
+    return SPEXP_NOT_EVENTSDATABASE;
+  }
+
+  status = sqlite3_prepare_v2(pEvents,
+			      sql, -1, &statement, NULL);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    return SPEXP_SQLFAIL;
+  }
+
+  /* Loop over all data, accumulating the data for each trigger into
+  ** a 'clump' for which we then invoke the callback.
+  */
+
+  while((status = sqlite3_step(statement)) == SQLITE_ROW) {
+    int trigger = sqlite3_column_int(statement, 0);
+    if(first) {
+      lasttrigger = trigger;
+      first = 0;
+    }
+    if (trigger != lasttrigger) {
+      (*pCallback)(0, NULL, pClientData);
+      lasttrigger = trigger;
+    }
+  }
+  sqlite3_finalize(statement);
+
+  /* IF all is successful, we also have a last trigger to dispatch */;
+
+  if (status == SQLITE_DONE) {
+    (*pCallback)(0, NULL, pClientData);
+    status = SPEXP_OK;
+  }
+  else {
+    spectcl_experiment_errno = status;
+    status = SPEXP_SQLFAIL;
+  }
+
+  return status;
 }

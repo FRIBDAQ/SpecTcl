@@ -115,7 +115,7 @@ typedef struct _AugmentResult_ {
   size_t              s_numParameters; 
   spectcl_StorageType s_destructMechanism;
   pParameterData      s_pData;
-} AugmentResult, pAugmentResult;
+} AugmentResult, *pAugmentResult;
 
 typedef  pAugmentResult   (AugmentCallback)(size_t, pParameterData, void*);
 /**
