@@ -93,7 +93,7 @@ createConfiguration(sqlite3* pHandle, sqlite3* pEvents, int run)
  ** The database schema is also created and stocked where appropriate.
  ** @param pHandle - Experiment database handle (we use this to get our uuid).
  ** @param run     - Run number we are linked to.
- ** @param path    - Path to the database file to be created.
+_ex ** @param path    - Path to the database file to be created.
  ** @param run     - Run number this database is bound to.
  ** @return spetcl_events - See spectcl_events_create for return values and errors.
  */
@@ -401,9 +401,10 @@ spectcl_events_detach(spectcl_experiment pExperiment, const char* name)
  **       the transaction is rolled back and no events get inserted.
  */
 int
-spectcl_events_load(spectcl_events pEvents, size_t nParameters,  const pParameterData* pData)
+spectcl_events_load(spectcl_events pEvents, size_t nParameters,   pParameterData pData)
 {
-  const char*   insertSql;
+  const char*   insertSql = "INSERT INTO events (trigger, param_id, value) \
+                                    VALUES(:trigger, :id, :value)";
   sqlite3_stmt* insert;
   int           status;
 
@@ -415,5 +416,49 @@ spectcl_events_load(spectcl_events pEvents, size_t nParameters,  const pParamete
 
   if (nParameters == 0) return SPEXP_OK;
 
-  return SPEXP_UNIMPLEMENTED;
+  status = sqlite3_prepare_v2(pEvents,
+			      insertSql, -1, &insert, NULL);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    return SPEXP_SQLFAIL;
+  }
+
+  /* Start the transaction */
+
+  do_non_select(pEvents, "BEGIN TRANSACTION");
+
+  /* Insert the events   ...break from the loop if failure   */
+
+  while (nParameters) {
+    status = sqlite3_bind_int(insert, 1, pData->s_trigger);
+    if (status != SQLITE_OK) break;
+    status = sqlite3_bind_int(insert, 2, pData->s_parameter);
+    if (status != SQLITE_OK) break;
+    status = sqlite3_bind_double(insert, 3, pData->s_value);
+    if (status != SQLITE_OK) break;
+
+    status = sqlite3_step(insert);
+    if (status != SQLITE_DONE) break;
+
+    sqlite3_reset(insert);
+
+    pData++;
+    nParameters--;
+  }
+
+  sqlite3_finalize(insert);
+
+  /* Commit or rollback the transaction depending on the status of the operation */
+
+  if((status != SQLITE_OK)  && (status != SQLITE_DONE)) {
+    do_non_select(pEvents,"ROLLBACK TRANSACTION");
+    spectcl_experiment_errno = status;
+    status = SPEXP_SQLFAIL;
+  }
+  else {
+    do_non_select(pEvents, "COMMIT TRANSACTION");
+    status = SPEXP_OK;
+  }
+
+  return status;
 }

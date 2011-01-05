@@ -175,7 +175,7 @@ extern "C" {
   /* Loading data into the events table; */
 
 
-  int spectcl_events_load(spectcl_events pEvents, size_t nParameters, const pParameterData* pData);
+  int spectcl_events_load(spectcl_events pEvents, size_t nParameters,  pParameterData pData);
   int spectcl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback, void* pClientData);
 
   /* Inquiries: */

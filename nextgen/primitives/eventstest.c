@@ -365,6 +365,96 @@ START_TEST(test_load_zerook)
   fail_if(spectcl_events_load(pEvents, 0, NULL) != SPEXP_OK);
 }
 END_TEST
+/*  
+ * Should be able to load an event and get it back out again.
+ */
+
+int getEvent(pParameterData p, spectcl_events db, int trigger, int param)
+{	
+  /* Utility to get a trigger/param/value triplet */
+
+  int           status;
+  sqlite3_stmt* statement;
+  const char*   sql = "SELECT trigger, param_id, value \
+                              FROM events WHERE trigger = :trigger \
+                                          AND   param_id= :param";
+  sqlite3_prepare_v2(db,
+		     sql,
+		     -1, &statement, NULL);
+  sqlite3_bind_int(statement, 1, trigger);
+  sqlite3_bind_int(statement, 2, param);
+  status = sqlite3_step(statement);
+  if (status == SQLITE_ROW) {
+    p->s_trigger = sqlite3_column_int(statement, 0);
+    p->s_parameter= sqlite3_column_int(statement, 1);
+    p->s_value    = sqlite3_column_double(statement, 2);
+    return 0;
+  }
+  else {
+    return -1;			/* no data. */
+  }
+}
+
+START_TEST(test_load_one)
+{/*
+ ** Data for a single trigger three parameters 1,5,7 value -1.0 0.0 1.0
+ */
+  ParameterData data[] = {
+    {1, 1, -1.0},
+    {1, 5, 0.0},
+    {1, 7, 1.0}
+  };
+  ParameterData item;
+  int status;
+
+  status = spectcl_events_load(pEvents, 3, data);
+  fail_unless(status == SPEXP_OK);
+  status = getEvent(&item, pEvents, 1,1); /* parameter 1. */
+  fail_if(status);
+  fail_unless(item.s_trigger == 1);
+  fail_unless(item.s_parameter == 1);
+  fail_unless(item.s_value  == -1.0);
+
+  status =  getEvent(&item, pEvents, 1, 5); /* paramater 5 */
+  fail_if(status);
+  fail_unless(item.s_trigger == 1);
+  fail_unless(item.s_parameter == 5);
+  fail_unless(item.s_value  == 0.0);
+
+  status = getEvent(&item, pEvents,1, 7); /* parameter 7 */
+  fail_unless(item.s_trigger == 1);
+  fail_unless(item.s_parameter == 7);
+  fail_unless(item.s_value  == 1.0);
+
+}
+END_TEST
+/**
+ ** Load several triggers
+ */
+START_TEST(test_load_multiple)
+{
+  ParameterData data[] = {
+    {1, 1, -1.0},		/* first event */
+    {1, 5, 0.0},
+    {1, 7, 1.0},
+
+    {2, 2, 1.0}, {2,6,5.0},	/* second event. */
+  };
+  ParameterData item;
+  int status;
+  int i;
+
+  status = spectcl_events_load(pEvents, 5, data);
+  fail_unless(status == SPEXP_OK);
+
+  for (i =0; i < 5; i++) {
+    status = getEvent(&item, pEvents, data[i].s_trigger, data[i].s_parameter);
+    fail_unless(item.s_trigger == data[i].s_trigger );
+    fail_unless(item.s_parameter == data[i].s_parameter);
+    fail_unless(item.s_value  == data[i].s_value);
+  }
+}
+END_TEST
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
 {
@@ -424,6 +514,9 @@ int main(void)
 
   tcase_add_test(tc_load,   test_load_notexpdb);
   tcase_add_test(tc_load,   test_load_zerook);
+  tcase_add_test(tc_load,   test_load_one);
+  tcase_add_test(tc_load,   test_load_multiple);
+
   /* Set up the test runner:  */
 
   srunner_set_fork_status(sr, CK_NOFORK);
