@@ -14,14 +14,14 @@ libExperiment_la_SOURCES = spectcl_experiment.c \
 	spectcl_experimentInternal.c	\
 	spectcl_events.c
 
-libExperiment_la_LIBADD=-lsqlite3 -luuid
+libExperiment_la_LIBADD=@SQLITE3_LDFLAGS@ -luuid
 
 include_HEADERS=spectcl_experiment.h 
 noinst_HEADERS=spectcl_experimentInternal.h 
 
 
 
-INCLUDES = -I. -I@top_srcdir@/NSCLException
+INCLUDES = -I. -I@top_srcdir@/NSCLException @SQLITE3_CFLAGS@
 
 TESTS=  c_eventstest	\
 	c_exptests  c_runtests c_uuidtests c_paramtests
@@ -32,23 +32,23 @@ check_PROGRAMS=c_exptests c_paramtests c_runtests c_uuidtests \
 	c_eventstest
 
 c_exptests_SOURCES=spectcl_experiment_check.c
-c_exptests_CFLAGS=@CHECK_CFLAGS@
+c_exptests_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
 c_exptests_LDADD=@CHECK_LIBS@ libExperiment.la
 
 c_paramtests_SOURCES=spectcl_paramtests.c
-c_paramtests_CFLAGS=@CHECK_CFLAGS@
+c_paramtests_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
 c_paramtests_LDADD=@CHECK_LIBS@ libExperiment.la
 
 c_runtests_SOURCES=spectcl_runstest.c
-c_runtests_CFLAGS=@CHECK_CFLAGS@
+c_runtests_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
 c_runtests_LDADD=@CHECK_LIBS@ libExperiment.la
 
 c_uuidtests_SOURCES=spectcl_uuidtest.c
-c_uuidtests_CFLAGS=@CHECK_CFLAGS@
+c_uuidtests_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
 c_uuidtests_LDADD=@CHECK_LIBS@ libExperiment.la
 
 c_eventstest_SOURCES=eventstest.c
-c_eventstest_CFLAGS=@CHECK_CFLAGS@
+c_eventstest_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
 c_eventstest_LDADD=@CHECK_LIBS@ libExperiment.la
 
 
