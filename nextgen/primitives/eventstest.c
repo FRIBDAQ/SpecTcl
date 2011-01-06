@@ -455,6 +455,119 @@ START_TEST(test_load_multiple)
   }
 }
 END_TEST
+/*----------------------- Tests of the event augmentation api ---------------------------------*/
+static void augsetup()
+{
+  /* The parameter data provides the three cases:
+  ** first event, middle event and last event
+  */
+  ParameterData data[] = {
+    {1, 1, -1.0},		/* first event */
+    {1, 5, 0.0},
+    {1, 7, 1.0},
+
+    {2, 1, 1.0}, {2,6,5.0},	/* second event. */
+
+    {3, 1, 1.0}, {3, 7, 3.1416}	/* 3'd event */
+  };
+
+  loadsetup();
+
+  // Add some events to the events file: 
+  
+  spectcl_events_load(pEvents, 7, data);
+
+}
+static void augteardown()
+{
+  loadteardown();
+}
+/* Bad database should fail predictably */
+
+START_TEST(test_augment_baddb) 
+{
+  fail_unless(spectcl_events_augment(db, NULL, NULL) == SPEXP_NOT_EVENTSDATABASE);
+}
+END_TEST
+/*  The number of times we are called back should equal the trigger count. (3) */
+
+static  int cbcount = 0;
+static AugmentResult empty = {
+  0, st_static, NULL
+};
+
+static pAugmentResult
+countCB(size_t nParameters, pParameterData pData, void* cbData)
+{
+  cbcount++;
+  return &empty;
+}
+
+START_TEST(test_augment_count)
+{
+  int status;
+  cbcount = 0;
+  status = spectcl_events_augment(pEvents, countCB, NULL);
+  fail_unless(status == SPEXP_OK);
+  fail_unless(cbcount == 3);	/* Number of events in the test data. */
+}
+END_TEST
+
+/*
+ * Full test of augment, each event has parameter 1, we'll multiply it's value
+ * by our parameter and set it as parameter 10 which is not yet used.
+ */
+
+static ParameterData pseudo = {
+  0, 10, 0.0			/* The parameter number is pre-set just add trigger/value. */
+};
+static AugmentResult one = {
+  1, st_static, &pseudo
+};
+
+static pAugmentResult newMult(size_t nParams, pParameterData pData, void* cbData)
+{
+  int i;
+  double multiplier = *(double*)cbData; /* safest way to pass the double is by pointer */
+
+  for (i=0; i < nParams; i++) {
+    if (pData[i].s_parameter == 1) {
+      pseudo.s_trigger = pData[i].s_trigger;
+      pseudo.s_value   = multiplier * pData[i].s_value;
+      return &one;
+    }
+  }
+}
+
+START_TEST(test_augment_newparams)
+{
+  int           status;
+  ParameterData item;
+  double        mult = 3.0;
+  spectcl_events_augment(pEvents, newMult, &mult);
+
+  /* Assume we know what the events look like in the code below (which we do). */
+
+  /** first triggers hould have -3.0 for parameter 10. */
+
+  status = getEvent(&item, pEvents, 1, 10);
+  fail_if(status);
+  fail_unless(item.s_value == -3.0);
+
+  /* Second triggers should have 3.0 */
+
+  status = getEvent(&item, pEvents, 2, 10);
+  fail_if(status);
+  fail_unless(item.s_value == 3.0);
+
+  /* Third trigger should just have 3*3.1416 */
+
+  status = getEvent(&item, pEvents, 3, 10);
+  fail_if(status);
+  fail_unless(item.s_value == 3*3.1416);
+
+}
+END_TEST
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
 {
@@ -464,14 +577,18 @@ int main(void)
   Suite* sOpen = suite_create("events_open");
   Suite* sAttach= suite_create("events_attach");
   Suite* sLoad  = suite_create("events_load");
+  Suite* sAugment=suite_create("events_augment");
 
   SRunner* sr = srunner_create(s);
+ 
   TCase* tc_experiment = tcase_create("events_database");
   TCase* tc_schema     = tcase_create("events_schema");
   TCase* tc_open       = tcase_create("events_open");
   TCase* tc_attach     = tcase_create("events_attach");
   TCase* tc_load       = tcase_create("events_load");
+  TCase* tc_augment    = tcase_create("evnts_augment");
 
+  srunner_add_suite(sr, sAugment);
   srunner_add_suite(sr, s1);
   srunner_add_suite(sr, sOpen);
   srunner_add_suite(sr, sAttach);
@@ -482,6 +599,7 @@ int main(void)
   tcase_add_checked_fixture(tc_open,   opensetup, openteardown);
   tcase_add_checked_fixture(tc_attach, opensetup, openteardown);
   tcase_add_checked_fixture(tc_load, loadsetup, loadteardown);
+  tcase_add_checked_fixture(tc_augment, augsetup, augteardown);
 
 
   suite_add_tcase(s,     tc_experiment);
@@ -489,6 +607,7 @@ int main(void)
   suite_add_tcase(sOpen, tc_open);
   suite_add_tcase(sAttach, tc_attach);
   suite_add_tcase(sLoad, tc_load);
+  suite_add_tcase(sAugment, tc_augment);
 
   tcase_add_test(tc_experiment, test_runexists);
   tcase_add_test(tc_experiment, test_eventsnooverwrite);
@@ -516,6 +635,10 @@ int main(void)
   tcase_add_test(tc_load,   test_load_zerook);
   tcase_add_test(tc_load,   test_load_one);
   tcase_add_test(tc_load,   test_load_multiple);
+
+  tcase_add_test(tc_augment, test_augment_baddb);
+  tcase_add_test(tc_augment, test_augment_count);
+  tcase_add_test(tc_augment, test_augment_newparams);
 
   /* Set up the test runner:  */
 
