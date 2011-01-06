@@ -44,6 +44,20 @@ AM_PATH_CPPUNIT(1.12.1)
 #  Local tests:
 #
 
+# Need sqlite3:
+
+AC_MSG_CHECKING([Checking for sqlite3])
+AX_LIB_SQLITE3([3.0.0])
+if test "x$SQLITE3_VERSION" = "x" 
+then
+   AC_MSG_ERROR([Missing sqlite3 required use --with-sqlite3 to help me find its installation directory])
+fi
+
+
+# Need libuuid:
+AC_MSG_CHECKING([Checking for uuid.h])
+AC_CHECK_HEADER([uuid/uuid.h],[],[AC_MSG_ERROR([Missing required header uuid/uuid.h])],[])
+AC_CHECK_LIB([uuid],[uuid_generate],[],[AC_MSG_ERROR([Missing required libuuid])],[])
 
 
 # Locate Tcl/Tk and setup compile/link switches for them too:
