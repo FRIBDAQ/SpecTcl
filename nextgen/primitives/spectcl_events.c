@@ -742,3 +742,33 @@ spectcl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback,
 
   return status;
 }
+
+/**
+ ** Return the run number associated with this event database.
+ ** @param run       - Pointer to int in which the run will be stored.
+ ** @param pHandle   - Events database handle.
+ ** @return int status.
+ ** @retval SPEXP_OK - Completed successfully.
+ ** @retval SPEXP_NOT_EVENTSDATABASE - not an events database.
+ ** @retval SPEXP_SQLFAIL - Failed sql alls.
+ */
+int 
+spectcl_events_run(int* run, spectcl_events pHandle)
+{
+  char* runString;
+
+  /* Validate the database: */
+
+  if (!isEventsDatabase(pHandle)) {
+    return SPEXP_NOT_EVENTSDATABASE;
+  }
+  runString = getfirst(pHandle, "configuration_values", 
+		       "config_value", "config_item", "run");
+  if (!runString) {
+    return SPEXP_NOT_EVENTSDATABASE; /* events databases have run numbers dammit */
+  }
+  *run = atoi(runString);
+  free(runString);
+
+  return SPEXP_OK;
+}

@@ -192,9 +192,9 @@ extern "C" {
 
   /* Inquiries: */
 
-  int      spectcl_events_run(spectcl_events pHandle);
-  pRunInfo spectcl_experiment_eventsrun(spectcl_experiment pHandle);
-  int      spectcl_events_uuid(spectcl_events pHandle);
+  int      spectcl_events_run(int* run, spectcl_events pHandle);
+  pRunInfo spectcl_experiment_eventsrun(spectcl_experiment pHandle, const char* attachPoint);
+  uuid_t*   spectcl_events_uuid(spectcl_events pHandle);
 
 #ifdef __cplusplus
 }
@@ -202,3 +202,4 @@ extern "C" {
 
 
 #endif
+

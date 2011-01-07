@@ -613,6 +613,29 @@ START_TEST(test_augment_replace)
 
 }
 END_TEST
+/*----------------------------- Miscellaneous tests -------------------------------------------*/
+/*
+** Can't get thwe run of a databse that's not an event file 
+*/
+START_TEST(test_evrunbadexp)
+{
+  int run;
+  int status = spectcl_events_run(&run, db); /* Experiment not events database */
+  fail_unless(status == SPEXP_NOT_EVENTSDATABASE);
+}
+END_TEST
+/*
+** Get the run of an events database should be ok and give the right value.
+*/
+START_TEST(test_evrunok)
+{
+  int run;
+  int status = spectcl_events_run(&run, pEvents);
+
+  fail_unless(status == SPEXP_OK);
+  fail_unless(run    == 1);
+}
+END_TEST
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
 {
@@ -623,6 +646,7 @@ int main(void)
   Suite* sAttach= suite_create("events_attach");
   Suite* sLoad  = suite_create("events_load");
   Suite* sAugment=suite_create("events_augment");
+  Suite* pMisc   = suite_create("events_misc");
 
   SRunner* sr = srunner_create(s);
  
@@ -632,7 +656,9 @@ int main(void)
   TCase* tc_attach     = tcase_create("events_attach");
   TCase* tc_load       = tcase_create("events_load");
   TCase* tc_augment    = tcase_create("evnts_augment");
+  TCase* tc_misc       = tcase_create("events_misc");
 
+  srunner_add_suite(sr, pMisc);
   srunner_add_suite(sr, sAugment);
   srunner_add_suite(sr, s1);
   srunner_add_suite(sr, sOpen);
@@ -645,8 +671,9 @@ int main(void)
   tcase_add_checked_fixture(tc_attach, opensetup, openteardown);
   tcase_add_checked_fixture(tc_load, loadsetup, loadteardown);
   tcase_add_checked_fixture(tc_augment, augsetup, augteardown);
+  tcase_add_checked_fixture(tc_misc, loadsetup, loadteardown);
 
-
+  suite_add_tcase(pMisc, tc_misc);
   suite_add_tcase(s,     tc_experiment);
   suite_add_tcase(s1,    tc_schema);
   suite_add_tcase(sOpen, tc_open);
@@ -686,6 +713,8 @@ int main(void)
   tcase_add_test(tc_augment, test_augment_newparams);
   tcase_add_test(tc_augment, test_augment_replace);
 
+  tcase_add_test(tc_misc, test_evrunbadexp);
+  tcase_add_test(tc_misc, test_evrunok);
   /* Set up the test runner:  */
 
   srunner_set_fork_status(sr, CK_NOFORK);
