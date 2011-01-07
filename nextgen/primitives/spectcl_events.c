@@ -24,8 +24,143 @@
 #include <unistd.h>
 #include <string.h>
 
+
+/**
+ ** The value below determines the allocation granularity of pParmeterData structs.
+ */
+static const int AllocationUnits = 10;
+
 /*--------------------- private utilities.   ----------------------------*/
 
+/**
+ ** Determine if a specific event has the specified parameter id
+ ** @param id    - Parameter to look for.
+ ** @param n     - Number of paramters
+ ** @param pParams  - Parameters in the event.
+ ** @return int
+ ** @retval 1      - Id exists.
+ ** @retval 0      - Id does not exist.
+ */
+int haveParameter(int id, size_t n, pParameterData pParams)
+{
+  int i;
+  for (i = 0; i < n; i++) {
+    if (id == pParams[i].s_parameter) return 1;
+  }
+  return 0;
+}
+
+/**
+ ** Augment the set of parameters in an event.
+ ** Events that are new will result in an INSERT while those that 
+ ** are already existing will result in just a value change.
+ **
+ ** @param db        - experiment database to modify.
+ ** @param pAugment  - Describes the parameter augmentation.
+ ** @param nParams   - Number of parameters in the initial event.
+ ** @param pParams   - Parameters in the original event.
+ */
+int augmentParameters(spectcl_events db, pAugmentResult pAugment, 
+		      size_t nParams, pParameterData pParams)
+{
+  const char* changeSql = "UPDATE events SET value=:value \
+                                         WHERE trigger = :trigger \
+                                         AND   param_id= :parameter";
+  const char* insertSql = "INSERT INTO events (trigger, param_id, value) \
+                                  VALUES (:trigger, :parameter, :value)";
+  sqlite3_stmt* change;
+  sqlite3_stmt* insert;
+  int status;
+  int i;
+
+  /* Prepare both statements. The one we use depends on if we need to insert or modify */
+
+  status = sqlite3_prepare_v2(db,
+			      changeSql, -1, &change, NULL);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    return SPEXP_SQLFAIL;
+  }
+  status = sqlite3_prepare_v2(db,
+			      insertSql, -1, &insert, NULL);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    return SPEXP_SQLFAIL;
+  }
+ 
+  /*  Iterate through the pAugmentResult data performing the statement that needs performing */
+
+  for (i = 0; i < pAugment->s_numParameters;  i++) {
+    pParameterData p = &(pAugment->s_pData[i]);
+    if (haveParameter(p->s_parameter, nParams, pParams) && (p->s_trigger == pParams->s_trigger)) {
+      /* Modify existing parameter entry: */
+
+      status = sqlite3_bind_double(change, 1, p->s_value);
+      if (status != SQLITE_OK) {
+	spectcl_experiment_errno = status;
+	status = SPEXP_SQLFAIL;
+	break;
+      }
+      status = sqlite3_bind_int(change, 2, p->s_trigger);
+      if (status != SQLITE_OK) {
+	spectcl_experiment_errno = status;
+	status = SPEXP_SQLFAIL;
+	break;
+      }
+      status = sqlite3_bind_int(change, 3, p->s_parameter);
+      if (status != SQLITE_OK) {
+	spectcl_experiment_errno = status;
+	status = SPEXP_SQLFAIL;
+	break;
+      }
+      status = sqlite3_step(change);
+      if (status != SQLITE_DONE) {
+	spectcl_experiment_errno = status;
+	status = SPEXP_SQLFAIL;
+	break;
+      }
+      sqlite3_reset(change);
+    }
+    else {
+      /* Insert */
+
+      status  = sqlite3_bind_int(insert, 1, p->s_trigger);
+      if (status != SQLITE_OK) {
+	spectcl_experiment_errno = status;
+	status = SPEXP_SQLFAIL;
+	break;
+      }
+      status  = sqlite3_bind_int(insert, 2, p->s_parameter);
+      if (status != SQLITE_OK) {
+	spectcl_experiment_errno = status;
+	status = SPEXP_SQLFAIL;
+	break;
+      }
+      status  = sqlite3_bind_double(insert, 3, p->s_value);
+      if (status != SQLITE_OK) {
+	spectcl_experiment_errno = status;
+	status = SPEXP_SQLFAIL;
+	break;
+      }
+      status  = sqlite3_step(insert);
+      if (status != SQLITE_DONE) {
+	spectcl_experiment_errno = status;
+	status = SPEXP_SQLFAIL;
+	break;
+      }
+      sqlite3_reset(insert);
+    }
+    status = SPEXP_OK;
+  }
+
+  /* finalize the statements */
+  
+  sqlite3_finalize(change);
+  sqlite3_finalize(insert);
+  
+  return status;
+
+}
 
 /**
  ** Create the configuration_values table, and stock it accordingly.
@@ -43,9 +178,7 @@ createConfiguration(sqlite3* pHandle, sqlite3* pEvents, int run)
                                 id           INTEGER PRIMARY KEY,\
                                 config_item  VARCHAR(256),       \
                                 config_value VARCHAR(256))";
-  const char* insertSql = "INSERT INTO configuration_values \
-                                (config_item, config_value) \
-                                VALUES (:name, :value)";
+
   int          status;
   sqlite3_stmt* insert;
   char         runText[100];
@@ -519,6 +652,12 @@ spectcl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback,
   int           status;
   int           first = 1;
   int           lasttrigger;
+  pParameterData pInputParams=0;
+  size_t        maxParams=0;	/* Size pInputParams can accomodate now.  */
+  size_t        nParams;	/* number of params currently in the event */
+  int           i;
+  pAugmentResult pAugments;
+
   /* Ensure we have the right sort of database handle */
 
   if (!isEventsDatabase(pEvents)) {
@@ -536,29 +675,70 @@ spectcl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback,
   ** a 'clump' for which we then invoke the callback.
   */
 
+  nParams     = 0;
+  do_non_select(pEvents, "BEGIN TRANSACTION"); 
+
   while((status = sqlite3_step(statement)) == SQLITE_ROW) {
     int trigger = sqlite3_column_int(statement, 0);
+    
+    /* Special first event code */
+
     if(first) {
       lasttrigger = trigger;
       first = 0;
     }
+    /* Decide if we need to invoke the callback */
+
     if (trigger != lasttrigger) {
-      (*pCallback)(0, NULL, pClientData);
+      pAugments = (*pCallback)(nParams, pInputParams, pClientData);
+      status = augmentParameters(pEvents, pAugments, nParams, pInputParams);
+      if (pAugments->s_destructMechanism == st_dynamic) {
+	free(pAugments->s_pData);
+	free(pAugments);
+      }
+      if (status != SPEXP_OK) {
+	do_non_select(pEvents, "ROLLBACK TRANSACTION");
+	sqlite3_finalize(statement);
+	return status;
+      }
       lasttrigger = trigger;
+      nParams     = 0;
+  
     }
+    /* Unpack the event..enlargin pInputParams as needed: */
+
+    i = nParams;
+    nParams++;
+    if (nParams > maxParams) {
+      pInputParams = realloc(pInputParams, AllocationUnits * sizeof(ParameterData));
+      maxParams   += AllocationUnits;
+    }
+    pInputParams[i].s_trigger   = trigger;
+    pInputParams[i].s_parameter = sqlite3_column_int(statement, 1);
+    pInputParams[i].s_value     = sqlite3_column_double(statement, 2); 
+    
+
   }
   sqlite3_finalize(statement);
 
   /* IF all is successful, we also have a last trigger to dispatch */;
 
   if (status == SQLITE_DONE) {
-    (*pCallback)(0, NULL, pClientData);
-    status = SPEXP_OK;
+    (*pCallback)(nParams, pInputParams, pClientData);
+    status = augmentParameters(pEvents,pAugments, nParams, pInputParams);
+    if (status != SPEXP_OK) {
+      do_non_select(pEvents,"ROLLBACK TRANSACTION"); 
+    }
+    else {
+      do_non_select(pEvents, "COMMIT TRANSACTION");
+    }
   }
   else {
+    do_non_select(pEvents, "ROLLBACK TRANSACTION");
     spectcl_experiment_errno = status;
     status = SPEXP_SQLFAIL;
   }
+  free(pInputParams);
 
   return status;
 }

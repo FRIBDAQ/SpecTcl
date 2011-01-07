@@ -476,6 +476,7 @@ static void augsetup()
   // Add some events to the events file: 
   
   spectcl_events_load(pEvents, 7, data);
+  sleep(1);
 
 }
 static void augteardown()
@@ -533,6 +534,7 @@ static pAugmentResult newMult(size_t nParams, pParameterData pData, void* cbData
   for (i=0; i < nParams; i++) {
     if (pData[i].s_parameter == 1) {
       pseudo.s_trigger = pData[i].s_trigger;
+      pseudo.s_parameter = 10;
       pseudo.s_value   = multiplier * pData[i].s_value;
       return &one;
     }
@@ -564,7 +566,50 @@ START_TEST(test_augment_newparams)
 
   status = getEvent(&item, pEvents, 3, 10);
   fail_if(status);
-  fail_unless(item.s_value == 3*3.1416);
+  fail_unless(item.s_value == 3.0);
+
+}
+END_TEST
+static pAugmentResult  replace(size_t nParams, pParameterData pData, void* cbData)
+{
+  int i;
+  double multiplier = *(double*)cbData; /* safest way to pass the double is by pointer */
+  
+  for (i=0; i < nParams; i++) {
+    if (pData[i].s_parameter == 1) {
+      pseudo.s_trigger = pData[i].s_trigger;
+      pseudo.s_parameter = 1;
+      pseudo.s_value   = multiplier * pData[i].s_value;
+      return &one;
+    }
+  }
+}
+START_TEST(test_augment_replace)
+{
+  int           status;
+  ParameterData item;
+  double        mult = 3.0;
+  spectcl_events_augment(pEvents, replace, &mult);
+
+  /* Assume we know what the events look like in the code below (which we do). */
+
+  /** first triggers hould have -3.0 for parameter 10. */
+
+  status = getEvent(&item, pEvents, 1, 1);
+  fail_if(status);
+  fail_unless(item.s_value == -3.0);
+
+  /* Second triggers should have 3.0 */
+
+  status = getEvent(&item, pEvents, 2, 1);
+  fail_if(status);
+  fail_unless(item.s_value == 3.0);
+
+  /* Third trigger should just have 3*3.1416 */
+
+  status = getEvent(&item, pEvents, 3, 1);
+  fail_if(status);
+  fail_unless(item.s_value == 3.0);
 
 }
 END_TEST
@@ -639,6 +684,7 @@ int main(void)
   tcase_add_test(tc_augment, test_augment_baddb);
   tcase_add_test(tc_augment, test_augment_count);
   tcase_add_test(tc_augment, test_augment_newparams);
+  tcase_add_test(tc_augment, test_augment_replace);
 
   /* Set up the test runner:  */
 
