@@ -27,7 +27,7 @@ test create_1 {Create database via command} \
 	set dbfile [file join $tmpdir test.db]
 	set handle [::spectcl::expcreate $dbfile]
 	set exists [file exists $dbfile]
-	set subhand [string range $handle 0 [string length "experiment"]]
+	set subhand [string range $handle 0 [string length "spectcl"]]
 
 	set result [list $exists $subhand]
 	
@@ -36,7 +36,7 @@ test create_1 {Create database via command} \
 	file delete $dbfile
 	removeDirectory databases
     }                                  \
-    -result {1 experiment_}
+    -result {1 spectcl_}
 
 
 
@@ -55,11 +55,11 @@ test create_2 {Should be able to create via ~/stuff} \
      -body {
 	 set handle [::spectcl::expcreate $dbname]
 	 set exists [file exists $dbname]
-	 set subhand [string range $handle 0 [string length "experiment"]]
+	 set subhand [string range $handle 0 [string length "spectcl"]]
 	 
 	 set result [list $exists $subhand]
 	 
-     } -result {1 experiment_}
+     } -result {1 spectcl_}
 
 
 cleanupTests

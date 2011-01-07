@@ -45,7 +45,7 @@ test open_1 {Create and open a database success} \
 	catch {::spectcl::expclose $handle}
 	file delete $dbfile
     }          \
-    -result {experiment_1}
+    -result {spectcl_1}
 
 test open_2 {Create/open a database relative to ~} \
      -constraints unix \
@@ -62,13 +62,13 @@ test open_2 {Create/open a database relative to ~} \
      -body {
 	 set handle [::spectcl::expcreate $dbname]
 	 set h      [::spectcl::expopen $dbname]
-	 set subhand [string range $h 0 [string length "experiment"]]
+	 set subhand [string range $h 0 [string length "spectcl"]]
      } \
     -cleanup {
 	catch {::spectcl::expclose $handle}
 	catch {::spectcl::expclose $h}
 	catch {file delete $dbname}
     }     \
-    -result {experiment_}
+    -result {spectcl_}
 
 cleanupTests

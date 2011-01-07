@@ -87,7 +87,7 @@ CHandleManager*
 CTclDBCommand::getHandleManager()
 {
   if (!m_pHandles) {
-    m_pHandles = new CHandleManager("experiment");
+    m_pHandles = new CHandleManager("spectcl");
   }
   return m_pHandles;
 }
