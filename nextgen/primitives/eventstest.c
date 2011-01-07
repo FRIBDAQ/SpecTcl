@@ -617,7 +617,7 @@ END_TEST
 /*
 ** Can't get thwe run of a databse that's not an event file 
 */
-START_TEST(test_evrunbadexp)
+START_TEST(test_evrunbadevt)
 {
   int run;
   int status = spectcl_events_run(&run, db); /* Experiment not events database */
@@ -636,6 +636,90 @@ START_TEST(test_evrunok)
   fail_unless(run    == 1);
 }
 END_TEST
+/**
+ ** Trying to get the run information via an experiment database that isn't should fail.
+ */
+START_TEST(test_exprunbadexp)
+{
+  pRunInfo pRun = spectcl_experiment_eventsrun(pEvents, NULL);
+  fail_if(pRun != NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOT_EXPDATABASE);
+}
+END_TEST
+/*
+** If no database is attached that should result in SPEXP_UNATTACHED
+*/
+START_TEST(test_exprununattached)
+{
+  pRunInfo pRun = spectcl_experiment_eventsrun(db, NULL);
+  fail_if(pRun != NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_UNATTACHED);
+
+}
+END_TEST
+/*
+** Run had better be findable.. We'll cheat a bit on this one.
+** By modifyning the run in the config db after attachment.
+*/
+
+START_TEST(test_exprunnotfound)
+{
+  pRunInfo      pRun;
+  const char*   pSql = "UPDATE configuration_values SET config_value='2' WHERE config_item = 'run'";
+  int           status;
+
+  status = spectcl_events_attach(db, expName, NULL);
+  fail_unless(status == SPEXP_OK);
+  do_non_select(pEvents, pSql);
+
+  pRun = spectcl_experiment_eventsrun(db, NULL);
+  fail_unless(pRun == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOSUCH);
+
+}
+END_TEST
+/**
+ ** Without diddling we should find the attached db is run 1.
+ */
+START_TEST(test_exprunok)
+{
+  int status = spectcl_events_attach(db, expName, NULL);
+  pRunInfo pRun = spectcl_experiment_eventsrun(db, NULL);
+
+  fail_if(pRun == NULL);
+  fail_unless(pRun->s_id == 1);
+
+  spectcl_free_run_info(pRun);
+
+}
+END_TEST
+/*
+** Same as above but specify the attach point
+*/
+START_TEST(test_exprunok_notdefault)
+{
+  int status = spectcl_events_attach(db, expName, "RONDATA");
+  pRunInfo pRun = spectcl_experiment_eventsrun(db, "RONDATA");
+
+  fail_if(pRun == NULL);
+  fail_unless(pRun->s_id == 1);
+
+  spectcl_free_run_info(pRun);
+
+}
+END_TEST
+
+/*
+** UUID should match that of the database
+*/
+START_TEST(test_uuid)
+{
+  uuid_t* pUUID = spectcl_events_uuid(pEvents);
+  fail_unless(spectcl_correct_experiment(db, pUUID));;
+  free(pUUID);
+}
+END_TEST
+
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
 {
@@ -713,8 +797,15 @@ int main(void)
   tcase_add_test(tc_augment, test_augment_newparams);
   tcase_add_test(tc_augment, test_augment_replace);
 
-  tcase_add_test(tc_misc, test_evrunbadexp);
+  tcase_add_test(tc_misc, test_evrunbadevt);
   tcase_add_test(tc_misc, test_evrunok);
+  tcase_add_test(tc_misc, test_exprunbadexp);
+  tcase_add_test(tc_misc, test_exprununattached);
+  tcase_add_test(tc_misc, test_exprunnotfound);
+  tcase_add_test(tc_misc, test_exprunok);
+  tcase_add_test(tc_misc, test_exprunok_notdefault);
+  tcase_add_test(tc_misc, test_uuid);
+
   /* Set up the test runner:  */
 
   srunner_set_fork_status(sr, CK_NOFORK);

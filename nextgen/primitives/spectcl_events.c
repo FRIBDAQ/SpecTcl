@@ -772,3 +772,88 @@ spectcl_events_run(int* run, spectcl_events pHandle)
 
   return SPEXP_OK;
 }
+/**
+ ** Given an experiment database with events attached, provides information about the
+ ** run associated with the events.
+ ** @param pHandle     - Handle open on an _experiment_ database.
+ ** @param attachPoint - Where the events are attached.  If this pointer is NULL, the
+ **                      default attach point ("EVENTS") is used.
+ ** @return pRunInfo 
+ ** @retval NULL     - Error.
+ ** @retval other    - Pointer to dynamically allocated run information about the event database.
+ **                    in that case the error will be in spectcl_experiment_errno and can have values
+ **                    described below.
+ **
+ ** Errors that can occur:
+ **
+ **  - SPEXP_NOT_EXPDATABASE - pHandle is not an experiment database handle.
+ **  - SPEXP_NOSUCH          - The run defined in the events database does not exist in the
+ **                          experiment database.
+ **  - SPEXP_UNATTACHED      - The preparation of the SQL to join the events to the 
+ **                            experiments failed which usually means there is no events database
+ **                            on the attach point...or the database on the specified attach point
+ **                            is not an events database.
+ */
+pRunInfo
+spectcl_experiment_eventsrun(spectcl_experiment pHandle, const char* attachPoint)
+{
+  const char*   rawsql = "SELECT runs.id, title, start_time, end_time   \
+                             FROM runs				   \
+                             INNER JOIN  %s.configuration_values C \
+                             ON runs.id = C.config_value           \
+                             WHERE C.config_item = 'run'";
+  char          finalSql[1000];
+  const char*   pAttach = "EVENTS";
+  sqlite3_stmt* query;
+  int           status;
+  pRunInfo      result;
+
+  if (!isExperimentDatabase(pHandle)) {
+    spectcl_experiment_errno = SPEXP_NOT_EXPDATABASE;
+    return NULL;
+
+  }
+  /* Prepare the query...*/
+
+  if (attachPoint != NULL) {
+    pAttach = attachPoint;
+  }
+  sprintf(finalSql, rawsql, pAttach);
+  status = sqlite3_prepare_v2(pHandle,
+			      finalSql, -1, &query, NULL);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = SPEXP_UNATTACHED;
+    return NULL;
+  }
+  /* Should get one row result */
+
+  status = sqlite3_step(query);
+  if (status != SQLITE_ROW) {
+    spectcl_experiment_errno = SPEXP_NOSUCH;
+    return NULL;
+  }
+
+  result = marshallRunInfo(query);
+
+  sqlite3_finalize(query);
+
+
+  spectcl_experiment_errno =  SPEXP_OK;
+  return result;
+}
+
+
+/**
+ ** Return the unparsed UUID fromt he event database
+ ** @param db  - events database
+ ** @return uuid_t*
+ ** @retval NULL - Unable to get the UUID, spectcl_experiment_errno has the reason for that.
+ ** @retval other- Pointer to dynamically allocated uuid_t that contains the parsed UUID.
+ */
+uuid_t*
+spectcl_events_uuid(spectcl_events db)
+{
+  return getDBUUID(db);
+
+
+}

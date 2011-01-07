@@ -86,8 +86,8 @@ create_runs(sqlite3* db)
                     (id integer primary key,               \
                      title varchar(80)      NOT NULL,      \
                      start_time varchar(80) NOT NULL,      \
-                     end_time   varchar(80),               \
-                     database   varchar(512))");
+                     end_time   varchar(80))");
+
 }
 /**
  ** Create the initial schema:
@@ -167,3 +167,4 @@ spectcl_experiment_close(spectcl_experiment db)
   int status = sqlite3_close((sqlite3*) db);
   return status == SQLITE_OK ? 0 : SPEXP_CLOSE_FAILED;
 }
+

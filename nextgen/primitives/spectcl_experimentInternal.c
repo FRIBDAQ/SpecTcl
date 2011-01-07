@@ -268,3 +268,68 @@ insertConfig(sqlite3* db, const char* which, const char* what)
   return sqlite3_finalize(insert);
 
 }
+/*
+** Marshall data from a row of the run table into a dynamically allocated pRunInfo struct.
+** @param stmt - Sqlite statement that has just been stepped.
+** @return pRunInfo
+** @retval Pointer to dynamically allocated pRunInfo filled in with the data from the row.
+*/
+pRunInfo
+marshallRunInfo(sqlite3_stmt* stmt)
+{
+  pRunInfo pItem;		/* We'll fill this in. */
+  
+  pItem = calloc(1, sizeof(run_info)); /* Assumes that NULL = (void*) 0 */
+  if (!pItem) return NULL;
+
+  /** the following items are mandatory so we don't bother to check to see if they are null.
+   */
+
+  pItem->s_id         = sqlite3_column_int(stmt, 0); /* id - run number. */
+  pItem->s_pTitle     =  getTextField(stmt, 1);
+  pItem->s_pStartTime =  getTextField(stmt, 2);
+
+  /* The remainder may be null so we need to check: */
+
+  pItem->s_pEndTime = getOptionalTextField(stmt, 3);
+
+  return pItem;
+}
+/*
+ ** Return the unparsed UUID fromt a event database
+ ** @param db  - sqlite3 handle database
+ ** @return uuid_t*
+ ** @retval NULL - Unable to get the UUID, spectcl_experiment_errno has the reason for that.
+ ** @retval other- Pointer to dynamically allocated uuid_t that contains the parsed UUID.
+ */
+uuid_t*
+getDBUUID(sqlite3* db)
+{
+  const char*           pSql = "SELECT config_value FROM configuration_values \
+                                                    WHERE config_item = 'uuid'";
+  sqlite3_stmt*         stmt;
+  int                   status;
+  uuid_t*               result = NULL;
+  uuid_t                uuid;
+  const unsigned char*  uuidText;
+
+  status = sqlite3_prepare_v2(db,
+			      pSql, -1, &stmt, NULL);
+  if(status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    return NULL;
+  }
+  
+  status = sqlite3_step(stmt);
+  if (status != SQLITE_ROW) {
+    spectcl_experiment_errno = status;
+    return NULL;
+  }
+  uuidText = sqlite3_column_text(stmt, 0);
+  result = malloc(sizeof(uuid_t));
+  uuid_parse((char*)uuidText, *result);
+
+  sqlite3_finalize(stmt);
+
+  return result;
+}

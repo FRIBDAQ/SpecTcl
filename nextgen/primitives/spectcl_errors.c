@@ -28,7 +28,8 @@ static const char* errorMessages[] = {
   "SQLFAIL - An SQL query failed",
   "NOSUCH - Item could not be found",
   "NOT_EVENTSDATABASE - Database is not an events database",
-  "WRONGEXPERIMENT  - Attempting to attach database from another experiment"
+  "WRONGEXPERIMENT  - Attempting to attach database from another experiment",
+  "UNATTACHED - There is not attached database"   
 };
 
 static const char* catchAll = "BADCODE - Bad error code passed to spectcl_experiment_error_msg";

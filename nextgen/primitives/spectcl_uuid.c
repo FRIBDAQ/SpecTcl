@@ -18,6 +18,8 @@
 #include <sqlite3.h>
 #include <stdlib.h>
 #include <string.h>
+#include "spectcl_experimentInternal.h"
+
 /**
  * This file implements the UUID specific functions of the spectcl experiment database.
  */
@@ -39,33 +41,8 @@
 uuid_t*
 spectcl_experiment_uuid(spectcl_experiment db)
 {
-  const char*           pSql = "SELECT config_value FROM configuration_values \
-                                                    WHERE config_item = 'uuid'";
-  sqlite3_stmt*         stmt;
-  int                   status;
-  uuid_t*               result = NULL;
-  uuid_t                uuid;
-  const unsigned char*  uuidText;
+  return getDBUUID(db);
 
-  status = sqlite3_prepare_v2(db,
-			      pSql, -1, &stmt, NULL);
-  if(status != SQLITE_OK) {
-    spectcl_experiment_errno = status;
-    return NULL;
-  }
-  
-  status = sqlite3_step(stmt);
-  if (status != SQLITE_ROW) {
-    spectcl_experiment_errno = status;
-    return NULL;
-  }
-  uuidText = sqlite3_column_text(stmt, 0);
-  result = malloc(sizeof(uuid_t));
-  uuid_parse((char*)uuidText, *result);
-
-  sqlite3_finalize(stmt);
-
-  return result;
 }
 /**
  ** Determine if a UUID matches that of the experiment.

@@ -37,5 +37,7 @@ char* getTextField(sqlite3_stmt* stmt, int field);
 char* getOptionalTextField(sqlite3_stmt* stmt, int field);
 void  do_non_select(sqlite3* db, const char* statement);
 int   insertConfig(sqlite3* db, const char* which, const char* what);
+pRunInfo marshallRunInfo(sqlite3_stmt* stmt);
+uuid_t* getDBUUID(sqlite3* db);
 
 #endif

@@ -34,33 +34,6 @@
 /*-------------------------------------------------------------------------------------------
   static utility functinos.
   --------------------------------------------------------------------------------------------*/
-/*
-** Marshall data from a row of the run table into a dynamically allocated pRunInfo struct.
-** @param stmt - Sqlite statement that has just been stepped.
-** @return pRunInfo
-** @retval Pointer to dynamically allocated pRunInfo filled in with the data from the row.
-*/
-static pRunInfo
-marshallRunInfo(sqlite3_stmt* stmt)
-{
-  pRunInfo pItem;		/* We'll fill this in. */
-  
-  pItem = calloc(1, sizeof(run_info)); /* Assumes that NULL = (void*) 0 */
-  if (!pItem) return NULL;
-
-  /** the following items are mandatory so we don't bother to check to see if they are null.
-   */
-
-  pItem->s_id         = sqlite3_column_int(stmt, 0); /* id - run number. */
-  pItem->s_pTitle     =  getTextField(stmt, 1);
-  pItem->s_pStartTime =  getTextField(stmt, 2);
-
-  /* The remainder may be null so we need to check: */
-
-  pItem->s_pEndTime = getOptionalTextField(stmt, 3);
-
-  return pItem;
-}
 
 /**
  ** Check to see if a run already exists
@@ -340,4 +313,13 @@ spectcl_run_end(spectcl_experiment db, unsigned int run, const time_t* endTime)
 
   return SPEXP_OK;
 
+}
+/**
+ ** Free information associated with run
+ ** @param pInfo  - pRunInfo dynamically allocated that will be deleted.
+ */
+void
+spectcl_free_run_info(pRunInfo pInfo)
+{
+  freeRunItem(pInfo);
 }

@@ -57,6 +57,7 @@
 #define SPEXP_NOSUCH          8 /* No such object */
 #define SPEXP_NOT_EVENTSDATABASE 9
 #define SPEXP_WRONGEXPERIMENT  10
+#define SPEXP_UNATTACHED       11
 #define SPEXP_UNIMPLEMENTED   100 /* for testing */
 
 /**
@@ -161,7 +162,7 @@ extern "C" {
 		      const time_t* endTime);
   run_list spectcl_run_list(spectcl_experiment experiment);
   void     spectcl_free_run_list(run_list list);
-  void     spectcl_free_run_info(pRunInfo* pInfo); /* TODO: */
+  void     spectcl_free_run_info(pRunInfo  pInfo); 
   
   /* Functions that operate on UUIDS */
 
