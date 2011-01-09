@@ -103,7 +103,9 @@ getfirst(sqlite3* db, const char* table,
   }
 
   status = sqlite3_step(statement);
-  if (status != SQLITE_ROW) {
+  if (status != SQLITE_ROW) 
+  {
+    sqlite3_finalize(statement);
     return NULL;
   }
   result = getTextField(statement, 0);
