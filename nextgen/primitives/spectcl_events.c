@@ -364,6 +364,9 @@ spectcl_events_open(const char* path)
 int
 spectcl_events_close(spectcl_events db)
 {
+  if (!isEventsDatabase(db)) {
+    return SPEXP_NOT_EVENTSDATABASE;
+  }
   int status = sqlite3_close(db);
   if (status != SQLITE_OK) {
     spectcl_experiment_errno = status;
