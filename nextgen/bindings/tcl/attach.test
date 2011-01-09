@@ -1,0 +1,92 @@
+#
+#  Tests for the ::spectcl::attach command.
+#
+
+package require tcltest
+load .libs/libSpecTclExperiment.so
+
+namespace import ::tcltest::*
+#
+# much of the setup/cleanup is standard...
+# Create an experiment database, and put run 1 in it.
+#
+proc setup {} {
+    set tmpdir  [makeDirectory databases]
+    set expfile [file join $tmpdir exp.db]
+    set evtfile [file join $tmpdir evt.db]
+
+    set exphandle [::spectcl::expcreate $expfile]
+    ::spectcl::run create $exphandle 1 {This is a test title}
+    set evthandle [::spectcl::evtcreate $exphandle 1 $evtfile]
+    ::spectcl::evtclose $evthandle
+
+    return [list $exphandle $expfile $evtfile]
+
+}
+
+proc cleanup {exphandle expfile evtfile} {
+    ::spectcl::expclose $exphandle
+    
+    file delete $expfile
+    file delete $evtfile
+    set dir [file dirname $expfile]
+
+
+}
+#---------------------------------- The tests are here:
+
+test fail_1 {Need to supply an experiment handle} \
+    -body {
+	catch {::spectcl::attach}
+    } -result 1
+
+test fail_2 {Need to supply an actual handle} \
+    -body {
+	catch {::spectcl::attach junk}
+    } -result 1
+
+test fail_3 {need to supply an evtfile.} \
+    -setup {
+	set setupInfo [setup]
+	set exphandle [lindex $setupInfo 0]
+	set expfile   [lindex $setupInfo 1]
+	set evtfile   [lindex $setupInfo 2]
+    } \
+    -cleanup {
+	cleanup $exphandle $expfile $evtfile
+    }  \
+    -body {
+	catch {::spectcl::attach $exphandle}
+    } -result 1
+test fail_4 {need to supply an existing event file} \
+    -setup {
+	set setupInfo [setup]
+	set exphandle [lindex $setupInfo 0]
+	set expfile   [lindex $setupInfo 1]
+	set evtfile   [lindex $setupInfo 2]
+    } \
+    -cleanup {
+	cleanup $exphandle $expfile $evtfile
+    }  \
+    -body {
+	catch {::spectcl::attach $exphandle [file join this file does not exist.db]}
+    } -result 1
+
+test ok {This should work} \
+    -setup {
+	set setupInfo [setup]
+	set exphandle [lindex $setupInfo 0]
+	set expfile   [lindex $setupInfo 1]
+	set evtfile   [lindex $setupInfo 2]
+    } \
+    -cleanup {
+	cleanup $exphandle $expfile $evtfile
+    }  \
+    -body {
+	catch {::spectcl::attach $exphandle $evtfile}
+    } -result 0
+
+#-----------------------------------------------
+
+
+cleanupTests

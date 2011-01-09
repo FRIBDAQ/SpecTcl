@@ -26,6 +26,7 @@
 #include "TclEvtCreate.h"
 #include "TclEvtClose.h"
 #include "TclEvtOpen.h"
+#include "TclAttach.h"
 
 /** Include command processor headers here */
 
@@ -66,6 +67,7 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclEvtCreate(*interp);
   new CTclEvtClose(*interp);
   new CTclEvtOpen(*interp);
+  new CTclAttach(*interp);
 
   return TCL_OK;
 }

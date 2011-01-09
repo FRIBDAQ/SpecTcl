@@ -14,8 +14,8 @@
 	     East Lansing, MI 48824-1321
 */
 
-#ifndef _TCLEXPOPEN_H
-#define _TCLEXPOPEN_H
+#ifndef _TCLEVTOPEN_H
+#define _TCLEVTOPEN_H
 
 
 #ifndef _TCLDBCOMMAND_H
@@ -23,6 +23,15 @@
 #endif
 
 
+/**
+ ** This command opens a previously existing Event database.
+ ** \verbatim
+
+::spectcl::evtopen path
+
+\endverbatim
+**  Where path is the path to the database file.
+*/
 
 class CTclEvtOpen : public CTclDBCommand
 {

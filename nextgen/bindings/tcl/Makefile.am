@@ -15,7 +15,7 @@ libSpecTclExperiment_la_SOURCES= packageStartup.cpp	\
 	handleManager.cpp TclCreate.cpp TclOpen.cpp 	\
 	TclClose.cpp TclParameter.cpp TclRuns.cpp TclDBCommand.cpp \
 	TclUUID.cpp \
-	TclEvtCreate.cpp TclEvtClose.cpp TclEvtOpen.cpp
+	TclEvtCreate.cpp TclEvtClose.cpp TclEvtOpen.cpp TclAttach.cpp
 
 libSpecTclExperiment_la_CXXFLAGS=@TCL_FLAGS@ -I@top_builddir@/Utility -I@top_builddir@/TclPlus
 libSpecTclExperiment_la_LIBADD=@top_builddir@/TclPlus/libtclPlus.la \
