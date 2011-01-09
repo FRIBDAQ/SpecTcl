@@ -23,7 +23,8 @@
 #include "TclParameter.h"
 #include "TclRuns.h"
 #include "TclUUID.h"
-
+#include "TclEvtCreate.h"
+#include "TclEvtClose.h"
 
 /** Include command processor headers here */
 
@@ -61,6 +62,8 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclParameter(*interp);
   new CTclRuns(*interp);
   new CTclUUID(*interp);
+  new CTclEvtCreate(*interp);
+  new CTclEvtClose(*interp);
 
   return TCL_OK;
 }
