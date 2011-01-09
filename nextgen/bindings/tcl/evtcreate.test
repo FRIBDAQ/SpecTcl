@@ -114,3 +114,6 @@ test create_ok {should be able to create this file} \
 	set prefix   [string range $evhandle 0 [string length "spectcl"]]
     } \
     -result spectcl_
+
+
+cleanupTests

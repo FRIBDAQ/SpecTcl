@@ -71,3 +71,6 @@ test evtcloseOk {Close of an event file should work} \
     -body {
 	catch {::spectcl::evtclose $evhandle}
     } -result 0
+
+
+cleanupTests
