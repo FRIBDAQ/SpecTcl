@@ -94,11 +94,14 @@ CPSD::operator()(CEvent& rEvent,
     (*pCs)[channel] = c;
     (*pTs)[channel] = time;
   }
-  //  printf("offset at end = %d\n",offset);
-  // if offset now is even, increment offset by one 16-bit word
-  if ((offset & 0x0001) == 0) offset +=1;
-  offset += 1;     // incr again ??
-  //  printf("final offset = %d\n",offset);
+  //    printf("offset at end = %d\n",offset);
+  // figure out how much garbage to gobble from end of event
+    if ((offset & 0x0001) == 0) {
+      offset +=2;
+    } else {
+      offset += 3;  
+    }
+    //    printf("final offset = %d\n",offset);
 
   return offset;
 }
