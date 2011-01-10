@@ -73,7 +73,8 @@ set channelCount($typeMADC32) 4096;	# Currently only 12 chans.
 set channelCount($typeTDC1x90) 16384;   # for now this is the # of channels in a tdc spec
 set channelCount($typeV977)    16;      # for a bit mask spec
 set channelCount($typeMase)    8192;    # Spectrum channels for MASE.
-set channelCount($typeHINP)    16384;	# No channels in a default HINP spectrum.
+set channelCount($typeHINP)    16384;	# Num channels in a default HINP spectrum.
+set channelCount($typePSD)     8192;	# Num channels in a default PSD spectrum.
 
 #-----------------------------------------------------------------------------
 # Creates a 1-d spectrum.
@@ -272,6 +273,48 @@ proc buildHINPMap {param module} {
     }
     return $param
 }
+
+#
+#   PSD's unpacker takes a base name from 
+#   adcChannels and takes the chip mapping from 
+#   PSDChips
+#
+proc buildPSDMap {param module} {
+    set basename $::adcChannels($module)
+    set chipMap  $::PSDChips($module)
+    set chanSize $::channelCount($::typePSD)
+    incr chanSize -1
+    set channels $::channelCount($::typePSD)
+
+    paramMap $basename $::typePSD 0 [list]
+    foreach chip $chipMap {
+	for {set i 0} {$i < 16} {incr i} {
+	    set AParamName \
+		[format "%s.a.%02d.%02d" $basename $chip $i]
+	    set BParamName \
+		[format "%s.b.%02d.%02d" $basename $chip $i]
+	    set CParamName \
+		[format "%s.c.%02d.%02d" $basename $chip $i]
+	    set TParamName \
+		[format "%s.t.%02d.%02d" $basename $chip $i]
+	    parameter $AParamName $param
+	    incr param
+	    parameter $BParamName $param
+	    incr param
+	    parameter $CParamName $param
+	    incr param
+	    parameter $TParamName $param
+	    incr param
+
+	    spectrum $AParamName 1 $AParamName "{0 $chanSize  $channels}"
+	    spectrum $BParamName 1 $BParamName "{0 $chanSize  $channels}"
+	    spectrum $CParamName 1 $CParamName "{0 $chanSize  $channels}"
+	    spectrum $TParamName 1 $TParamName "{0 $chanSize  $channels}"
+
+	}
+    }
+    return $param
+}
 #----------------------------------------------------------------------------
 #
 #  Build channels and maps for a CAEN Dual range module.
@@ -337,6 +380,8 @@ proc buildChannelMaps param {
 	    set param [buildCAENDualMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeHINP} {
 	    set param [buildHINPMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typePSD} {
+	    set param [buildPSDMap $param $module]
 	} else {
 	    set vsn        $::adcConfiguration($module)
 	    set type       $::readoutDeviceType($module)
