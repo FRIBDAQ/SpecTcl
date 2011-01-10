@@ -4,7 +4,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
-
+#include <string>
 
 
 using namespace std;
@@ -20,14 +20,12 @@ using namespace std;
 class TestTracer : public CVariableTraceCallback
 {
 public:				// for test classes that's ok.
-  char*            m_pName;
-  char*            m_pEle;
+  string            m_pName;
+  string            m_pEle;
   int              m_flags;
   CTCLInterpreter* m_pInterp;
 public:
   TestTracer() :
-    m_pName(0),
-    m_pEle(0),
     m_flags(0),
     m_pInterp(0) {}
 
