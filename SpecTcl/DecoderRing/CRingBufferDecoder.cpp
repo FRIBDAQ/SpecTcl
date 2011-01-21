@@ -547,10 +547,7 @@ CRingBufferDecoder::createPartialEvent()
   pRingItemHeader pHeader = reinterpret_cast<pRingItemHeader>(m_pBufferCursor);
   uint32_t    size    = m_pTranslator->TranslateLong(pHeader->s_size);
 
-  if (size > 512) {
-    cerr << "Size really big!!\n";
-
-  }
+ 
 
   m_pPartialEvent      = reinterpret_cast<uint32_t*>(malloc(size));
   m_nPartialEventSize = size;
