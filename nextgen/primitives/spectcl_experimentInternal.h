@@ -16,7 +16,9 @@
 
 #ifndef __SPECTCL_EXPERIMENT_INTERNAL_H
 #define __SPECTCL_EXPERIMENT_INTERNAL_H
-
+#ifdef __cplusplus 
+extern "C" {
+#endif
 /**
  ** The definitions in this file are considered internal to Spectcl
  ** and should not be invoked from outside the library.  The implementor
@@ -40,4 +42,7 @@ int   insertConfig(sqlite3* db, const char* which, const char* what);
 pRunInfo marshallRunInfo(sqlite3_stmt* stmt);
 uuid_t* getDBUUID(sqlite3* db);
 
+#ifdef __cplusplus
+}
+#endif
 #endif
