@@ -42,6 +42,9 @@ CTclDetach::~CTclDetach()
  * @param interp - Encapsulated interpreter that is running the command.
  * @param objv   - Vector of encapsulated objects that define the command
  *                 words.
+ * @return int
+ * @retval TCL_OK - correct return.
+ * @retval TCL_ERROR - error return.
  */
 int
 CTclDetach::operator()(CTCLInterpreter& interp,

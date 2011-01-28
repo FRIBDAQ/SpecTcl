@@ -24,28 +24,21 @@
 
 
 /**
- ** Thid command detaches an existing events database to an already open experiment
+ ** This command detaches an attached  events database from an already open experiment
  ** database.  The form of the command is:
  **
  \verbatim
-  spectcl::evtdetach handle path ?binding-name?
+  spectcl::detach handle ?binding-name?
 \endverbatim
 **
 ** Where:
 **   - handle is a handle already open on an experiment database.
-**   - path is the path to the events database to detach.
 **   - If supplied, binding-name provides the 'bind point' for the detach.
 **     If not supplied a default bind point is used.
 **     Note that if an existing detach on that bind point has been issued,
 **     that database must be detached first.
 **
-** To understand bind points we must examine the SQL command this executes:
-**
-\verbatim
-  DETACH DATABASE path AS binding-name
-\endverbatim
-**
-** The bind point is the binding-name after the AS keyword.
+
 */
 class CTclDetach : public CTclDBCommand
 {
