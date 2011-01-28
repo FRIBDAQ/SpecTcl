@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-
+#include <errno.h>
 
 /**
  ** The value below determines the allocation granularity of pParmeterData structs.
@@ -306,7 +306,9 @@ spectcl_events spectcl_events_create(spectcl_experiment pExpHandle, int run,
   /* Ensure the events database file does not yet exist */
 
   status  = access(path, F_OK);
+
   if (status == 0) {
+
     spectcl_experiment_errno = SPEXP_EXISTS;
     return NULL;
   }
