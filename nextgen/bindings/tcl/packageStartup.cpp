@@ -28,6 +28,7 @@
 #include "TclEvtOpen.h"
 #include "TclAttach.h"
 #include "TclDetach.h"
+#include "TclLoadEvents.h"
 
 /** Include command processor headers here */
 
@@ -70,6 +71,7 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclEvtOpen(*interp);
   new CTclAttach(*interp);
   new CTclDetach(*interp);
+  new CTclLoadEvents(*interp);
   
   return TCL_OK;
 }

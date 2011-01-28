@@ -1,0 +1,191 @@
+#
+#  Tests for the ::spectcl::loadevents command
+#
+
+package require tcltest
+package require sqlite3
+
+load .libs/libSpecTclExperiment.so
+
+namespace import ::tcltest::*
+
+#
+# much of the setup/cleanup is standard...
+# Create an experiment database, and put run 1 in it.
+#
+#
+# much of the setup/cleanup is standard...
+# Create an experiment database, and put run 1 in it.
+#
+proc setup {} {
+    set tmpdir  [makeDirectory databases]
+    set expfile [file join $tmpdir exp.db]
+    set evtfile [file join $tmpdir evt.db]
+
+    set exphandle [::spectcl::expcreate $expfile]
+    ::spectcl::run create $exphandle 1 {This is a test title}
+    set evthandle [::spectcl::evtcreate $exphandle 1 $evtfile]
+
+    return [list $exphandle $expfile $evthandle $evtfile]
+
+}
+
+proc cleanup {exphandle expfile evthandle evtfile} {
+    catch {::spectcl::expclose $exphandle}
+    catch {::spectcl::evtclose $evthandle}
+    
+    file delete $expfile
+    file delete $evtfile
+    set dir [file dirname $expfile]
+
+
+}
+
+
+#----------------------------  The tests are here.
+
+test load-command-exists {The ::spectcl::loadevents command must exist} \
+    -body {
+	info command ::spectcl::loadevents
+    } -result ::spectcl::loadevents
+
+test load-needsexpdb {Must provide three parameters} \
+    -body {
+	lappend results [catch ::spectcl::loadevents]
+	lappend results [catch {::spectcl::loadevents junk1}]
+	lappend results [catch {::spectcl::loadevents junk1 junk2}]
+    } -result [list 1 1 1]
+
+test load-needknownhandles {must provide database handles that are known} \
+    -body {
+	catch {::spectcl::loadevents junk1 junk2 [list]}
+    } -result 1
+
+test load-needvalidhandles {must provide database handles that are valid experiment and event databases} \
+    -setup {
+	set info [setup]
+	set exphandle [lindex $info 0]
+	set expfile   [lindex $info 1]
+	set evthandle [lindex $info 2]
+	set evtfile   [lindex $info 3]
+    } \
+    -cleanup {
+	cleanup $exphandle $expfile $evthandle $evtfile
+    } \
+    -body {
+	catch {::spectcl::loadevents $evthandle $exphandle [list]}
+    } -result 1
+
+test load-needrelatedhandles {Must provide event database handle with same UUID as experiment} \
+    -setup {
+	set tmpdir  [makeDirectory databases]
+	set expfile [file join $tmpdir exp.db]
+	set badexpfile [file join $tmpdir badexp.db]
+	set evtfile [file join $tmpdir evt.db]
+
+	set exp1 [::spectcl::expcreate $expfile]
+	set exp2 [::spectcl::expcreate $badexpfile]
+	::spectcl::run create $exp1 1 {this is a test run}
+	set evt  [::spectcl::evtcreate $exp1 1 $evtfile]
+    } \
+    -cleanup {
+	::spectcl::expclose $exp1
+	::spectcl::expclose $exp2
+	::spectcl::evtclose $evt
+
+	file delete $expfile
+	file delete $badexpfile
+	file delete $evtfile
+
+    } \
+    -body {
+	catch {::spectcl::loadevents $exp2 $evt [list]}
+    } -result 1
+
+test load-emptyevents {Loading empty events should work just fine} \
+    -setup {
+	set info [setup]
+	set exphandle [lindex $info 0]
+	set expfile   [lindex $info 1]
+	set evthandle [lindex $info 2]
+	set evtfile   [lindex $info 3]
+    } \
+    -cleanup {
+	cleanup $exphandle $expfile $evthandle $evtfile
+    } \
+    -body {
+	::spectcl::loadevents $exphandle $evthandle [list]
+    } -result 0
+
+test load-undefinedparameter {loading an undefined parameter should fail} \
+    -setup {
+	set info [setup]
+	set exphandle [lindex $info 0]
+	set expfile   [lindex $info 1]
+	set evthandle [lindex $info 2]
+	set evtfile   [lindex $info 3]
+    } \
+    -cleanup {
+	cleanup $exphandle $expfile $evthandle $evtfile
+    } \
+    -body {
+	catch {::spectcl::loadevents $exphandle $evthandle [list [list 1 [list george 3.1416]]]}
+    } -result 1
+
+test load-1goodevent {Loading a single simple event should work and be able to retrieve it} \
+    -setup {
+	set info [setup]
+	set exphandle [lindex $info 0]
+	set expfile   [lindex $info 1]
+	set evthandle [lindex $info 2]
+	set evtfile   [lindex $info 3]
+	::spectcl::parameter create $exphandle p1; # id 1
+	::spectcl::parameter create $exphandle p2; # id 2
+    } \
+    -cleanup {
+	cleanup $exphandle $expfile $evthandle $evtfile
+    } \
+    -body {
+
+	set n [::spectcl::loadevents $exphandle $evthandle [list [list 1 [list p1 1.23] [list p2 5.67]]]]
+
+	# pull the parameter info from the database with single explicit queries
+	
+	sqlite3 db $evtfile
+	set p1 [db eval {SELECT value FROM events  WHERE trigger = '1' AND param_id='1'}]
+	set p2 [db eval {SELECT value FROM events  WHERE trigger = '1' AND param_id='2'}]
+	db close
+	set result [list $n $p1 $p2]
+    } \
+    -result [list 1 1.23 5.67]
+
+test load-multievents {Load three events trig 1 has p1, p2, trig 2 has p1 trig 3 has p2} \
+    -setup {
+	set info [setup]
+	set exphandle [lindex $info 0]
+	set expfile   [lindex $info 1]
+	set evthandle [lindex $info 2]
+	set evtfile   [lindex $info 3]
+	::spectcl::parameter create $exphandle p1; # id 1
+	::spectcl::parameter create $exphandle p2; # id 2
+    } \
+    -cleanup {
+	cleanup $exphandle $expfile $evthandle $evtfile
+    } \
+    -body {
+	set n [::spectcl::loadevents $exphandle $evthandle [list [list 1 [list p1 1.23] [list p2 5.67]] \
+							       [list 2 [list p1 555]]      \
+							       [list 3 [list p2 666]]]]
+	sqlite3 db $evtfile
+	set trig1 [db eval {SELECT value FROM events WHERE trigger = '1' ORDER BY param_id ASC}]
+	set trig2 [db eval {SELECT value FROM events WHERE trigger = '2'}]
+	set trig3 [db eval {SELECT value FROM events WHERE trigger = '3'}]
+	db close
+	set result [list $n $trig1 $trig2 $trig3]
+    } \
+    -result [list 3 [list 1.23 5.67] [list 555.0] [list 666.0]]
+	       
+
+# Collect results.
+
+cleanupTests
