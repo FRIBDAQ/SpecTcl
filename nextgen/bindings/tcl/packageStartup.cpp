@@ -27,6 +27,7 @@
 #include "TclEvtClose.h"
 #include "TclEvtOpen.h"
 #include "TclAttach.h"
+#include "TclDetach.h"
 
 /** Include command processor headers here */
 
@@ -68,7 +69,8 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclEvtClose(*interp);
   new CTclEvtOpen(*interp);
   new CTclAttach(*interp);
-
+  new CTclDetach(*interp);
+  
   return TCL_OK;
 }
   void* gpTCLApplication(0);

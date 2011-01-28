@@ -20,6 +20,7 @@
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 #include <spectcl_experiment.h>
+#include <iostream>
 
 /**
  ** Constructor uses the base class to get the real work done.
