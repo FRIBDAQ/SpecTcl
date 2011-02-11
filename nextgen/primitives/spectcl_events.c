@@ -432,7 +432,6 @@ spectcl_events_attach(spectcl_experiment pExpHandle, const char* path, const cha
 			      -1, &statement, NULL
 			      );
   if (status != SQLITE_OK) {
-    fprintf(stderr, "%s", sqlite3_errmsg(pExpHandle));
     spectcl_experiment_errno = status;
     return SPEXP_SQLFAIL;
   }
@@ -495,19 +494,16 @@ spectcl_events_detach(spectcl_experiment pExperiment, const char* name)
   status = sqlite3_prepare_v2(pExperiment, 
 			      pQuery,  -1, &statement, NULL);
   if (status != SQLITE_OK) {
-    fprintf(stderr, "%s\n", sqlite3_errmsg(pExperiment));
     spectcl_experiment_errno = status;
     return SPEXP_SQLFAIL;
   }
   status = sqlite3_bind_text(statement, 1, pName, -1, SQLITE_STATIC);
   if (status != SQLITE_OK) {
-    fprintf(stderr, "%s\n", sqlite3_errmsg(pExperiment));
     spectcl_experiment_errno = status;
     return SPEXP_SQLFAIL;
   }
   status = sqlite3_step(statement);
   if (status != SQLITE_DONE) {
-    fprintf(stderr, "%s\n", sqlite3_errmsg(pExperiment));
     spectcl_experiment_errno = status;
     return SPEXP_SQLFAIL;
   }
@@ -729,13 +725,21 @@ spectcl_events_augment(spectcl_events pEvents, AugmentCallback* pCallback,
   /* IF all is successful, we also have a last trigger to dispatch */;
 
   if (status == SQLITE_DONE) {
-    (*pCallback)(nParams, pInputParams, pClientData);
-    status = augmentParameters(pEvents,pAugments, nParams, pInputParams);
-    if (status != SPEXP_OK) {
-      do_non_select(pEvents,"ROLLBACK TRANSACTION"); 
+    if (pInputParams) {
+      pAugments = (*pCallback)(nParams, pInputParams, pClientData);
+
+
+      status = augmentParameters(pEvents,pAugments, nParams, pInputParams);
+      if (status != SPEXP_OK) {
+	do_non_select(pEvents,"ROLLBACK TRANSACTION"); 
+      }
+      else {
+	do_non_select(pEvents, "COMMIT TRANSACTION");
+      }
     }
     else {
-      do_non_select(pEvents, "COMMIT TRANSACTION");
+	do_non_select(pEvents, "COMMIT TRANSACTION");
+	status = SPEXP_OK;
     }
   }
   else {
