@@ -18,7 +18,10 @@
 #include "TclDBCommand.h"
 #include "handleManager.h"
 #include <TCLInterpreter.h>
+#include <sqlite3.h>
+#include <spectcl_experimentInternal.h>
 #include <tcl.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -116,4 +119,36 @@ CTclDBCommand::normalizePath(string path) throw(string)
     Tcl_DStringFree(&tempBuffer);
     return sresult;
   }
+}
+/**
+ ** Validate an experiment and events handle to esure that
+ ** - the come from right type of databases.
+ ** - they are actually related (events database made for this experiment).
+ ** @param pExp   - Handle on experiment database.
+ ** @param pEvts  - Handle on events database.
+ ** @throws std::string 
+ **               - error message string describing what's wrong with the handles,
+ **                 if an error is detected.
+ */
+void
+CTclDBCommand::validateExpEvtHandles(spectcl_experiment pExp, spectcl_events pEvts)
+{
+    if (!isExperimentDatabase(reinterpret_cast<sqlite3*>(pExp))) {
+      throw std::string("::spectcl::loadevents - First database handle is not an experiment handle");
+    }
+    if(!isEventsDatabase(reinterpret_cast<sqlite3*>(pEvts))) {
+      throw std::string("::spectcl::loadevents - Second database handle is not an events database");
+    }
+    // That we can get UUID's and that they match:
+
+    uuid_t* pEvtUUID = spectcl_events_uuid(pEvts);
+    if (!pEvtUUID) {
+      throw std::string(spectcl_experiment_error_msg(spectcl_experiment_errno));
+    }
+    if (!spectcl_correct_experiment(pExp, pEvtUUID)) {
+      free(pEvtUUID);
+      throw std::string("::spectcl::loadevents - Events database from wrong experiment");
+    }
+    free(pEvtUUID);		// Smokey says only you can prevent memory leaks in C/C++.
+  
 }

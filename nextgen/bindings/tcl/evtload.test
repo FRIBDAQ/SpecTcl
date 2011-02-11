@@ -8,6 +8,7 @@ package require sqlite3
 load .libs/libSpecTclExperiment.so
 
 namespace import ::tcltest::*
+exec rm -rf databases
 
 #
 # much of the setup/cleanup is standard...

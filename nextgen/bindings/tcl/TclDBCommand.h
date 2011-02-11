@@ -57,6 +57,7 @@ public:
   
   static CHandleManager* getHandleManager();
   std::string     normalizePath(std::string path) throw(std::string);
+  static void validateExpEvtHandles(spectcl_experiment pExp, spectcl_events pEvts);
 };
 
 

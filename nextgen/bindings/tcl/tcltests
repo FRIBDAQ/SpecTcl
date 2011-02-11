@@ -1,6 +1,6 @@
 package require tcltest
 
-
+# tcltest::matchFiles [list augment.test]
 
 tcltest::runAllTests
 
