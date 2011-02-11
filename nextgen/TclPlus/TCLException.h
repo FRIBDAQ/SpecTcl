@@ -333,22 +333,11 @@ public:
 
   CTCLException (CTCLInterpreter& am_rInterpreter,  
 		 Int_t am_nReason,
-		 const char* pString) :
-    CTCLInterpreterObject(&am_rInterpreter), 
-    CException(pString),
-    m_nReason(am_nReason)
-  {
-    m_ResultText = std::string(GetResult());
-  }
+		 const char* pString);
+
   CTCLException(CTCLInterpreter& am_rInterpreter,
 		Int_t am_nReason,
-		const std::string& rString) : 
-    CTCLInterpreterObject(&am_rInterpreter),
-    CException(rString),
-    m_nReason(am_nReason)
-  {
-    m_ResultText = std::string(GetResult());
-  }
+		const std::string& rString); 
   virtual ~CTCLException ( ) { }       //Destructor
 	
 			//Copy constructor

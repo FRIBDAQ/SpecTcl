@@ -304,6 +304,29 @@ using namespace std;
 
 // Functions for class CTCLException
 
+// Constrution:
+
+
+CTCLException::CTCLException (CTCLInterpreter& am_rInterpreter,  
+			      Int_t am_nReason,
+			      const char* pString)  :
+  CTCLInterpreterObject(&am_rInterpreter), 
+  CException(pString),
+  m_nReason(am_nReason)
+{
+  m_ResultText = Tcl_GetStringResult(am_rInterpreter.getInterpreter()); //std::string(GetResult());
+}
+
+CTCLException::CTCLException(CTCLInterpreter& am_rInterpreter,
+			     Int_t am_nReason,
+			     const std::string& rString) : 
+  CTCLInterpreterObject(&am_rInterpreter),
+  CException(rString),
+  m_nReason(am_nReason)
+{
+  m_ResultText = Tcl_GetStringResult(am_rInterpreter.getInterpreter()); //std::string(GetResult());
+  
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   

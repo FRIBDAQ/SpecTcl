@@ -112,7 +112,8 @@ CTCLInterpreter::GlobalEval(const char* pScript)
 // Evaluates a script at the global level.
 // See Eval for parameters etc.
 
-  int Status = Tcl_GlobalEval(m_pInterpreter, (char*)pScript);
+  int Status = Tcl_EvalEx(m_pInterpreter, (char*)pScript,
+			   -1, TCL_EVAL_GLOBAL);
   
   if(Status != TCL_OK) {
     CTCLException except(*this,
