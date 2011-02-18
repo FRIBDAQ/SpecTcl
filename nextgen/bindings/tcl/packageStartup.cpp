@@ -31,6 +31,7 @@
 #include "TclLoadEvents.h"
 #include "TclAugment.h"
 #include "TclEvRun.h"
+#include "TclEvtRunInfo.h"
 
 /** Include command processor headers here */
 
@@ -76,7 +77,9 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclLoadEvents(*interp);
   new CTclAugment(*interp);
   new CTclEvRun(*interp);
-  
+  new CTclEvtRunInfo(*interp);
+
+
   return TCL_OK;
 }
   void* gpTCLApplication(0);

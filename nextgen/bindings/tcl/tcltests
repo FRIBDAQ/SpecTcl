@@ -1,6 +1,6 @@
 package require tcltest
 
- tcltest::matchFiles [list evrun.test]
+ tcltest::matchFiles [list evtruninfo.test]
 
 tcltest::runAllTests
 

@@ -28,12 +28,6 @@
 #undef bool
 #endif
 
-#ifndef __STL_MAP
-#include <map>
-#ifndef __STL_MAP
-#define __STL_MAP
-#endif
-#endif
 
 /**
  ** This command allows you to determine the run number associated with a specific
