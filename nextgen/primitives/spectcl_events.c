@@ -500,13 +500,16 @@ spectcl_events_detach(spectcl_experiment pExperiment, const char* name)
   status = sqlite3_bind_text(statement, 1, pName, -1, SQLITE_STATIC);
   if (status != SQLITE_OK) {
     spectcl_experiment_errno = status;
+    sqlite3_finalize(statement);
     return SPEXP_SQLFAIL;
   }
   status = sqlite3_step(statement);
   if (status != SQLITE_DONE) {
+    sqlite3_finalize(statement);
     spectcl_experiment_errno = status;
     return SPEXP_SQLFAIL;
   }
+  sqlite3_finalize(statement);
  
 
   return SPEXP_OK;
@@ -832,6 +835,7 @@ spectcl_experiment_eventsrun(spectcl_experiment pHandle, const char* attachPoint
 			      finalSql, -1, &query, NULL);
   if (status != SQLITE_OK) {
     spectcl_experiment_errno = SPEXP_UNATTACHED;
+    sqlite3_finalize(query);
     return NULL;
   }
   /* Should get one row result */
@@ -839,6 +843,7 @@ spectcl_experiment_eventsrun(spectcl_experiment pHandle, const char* attachPoint
   status = sqlite3_step(query);
   if (status != SQLITE_ROW) {
     spectcl_experiment_errno = SPEXP_NOSUCH;
+    sqlite3_finalize(query);
     return NULL;
   }
 
