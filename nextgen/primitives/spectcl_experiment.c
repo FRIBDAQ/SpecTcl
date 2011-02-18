@@ -165,6 +165,9 @@ int
 spectcl_experiment_close(spectcl_experiment db)
 {
   int status = sqlite3_close((sqlite3*) db);
+  if (status != SQLITE_OK) {
+    fputs(sqlite3_errmsg(db), stderr);
+  }
   return status == SQLITE_OK ? 0 : SPEXP_CLOSE_FAILED;
 }
 
