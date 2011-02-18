@@ -32,6 +32,7 @@
 #include "TclAugment.h"
 #include "TclEvRun.h"
 #include "TclEvtRunInfo.h"
+#include "TclEvtUUID.h"
 
 /** Include command processor headers here */
 
@@ -78,7 +79,7 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclAugment(*interp);
   new CTclEvRun(*interp);
   new CTclEvtRunInfo(*interp);
-
+  new CTclEvtUUID(*interp);
 
   return TCL_OK;
 }
