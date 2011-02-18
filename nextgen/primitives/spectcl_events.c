@@ -867,6 +867,10 @@ spectcl_experiment_eventsrun(spectcl_experiment pHandle, const char* attachPoint
 uuid_t*
 spectcl_events_uuid(spectcl_events db)
 {
+  if (!isEventsDatabase(db)) {
+    spectcl_experiment_errno = SPEXP_NOT_EVENTSDATABASE;
+    return NULL;
+  }
   return getDBUUID(db);
 
 
