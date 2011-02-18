@@ -30,6 +30,7 @@
 #include "TclDetach.h"
 #include "TclLoadEvents.h"
 #include "TclAugment.h"
+#include "TclEvRun.h"
 
 /** Include command processor headers here */
 
@@ -74,6 +75,7 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclDetach(*interp);
   new CTclLoadEvents(*interp);
   new CTclAugment(*interp);
+  new CTclEvRun(*interp);
   
   return TCL_OK;
 }

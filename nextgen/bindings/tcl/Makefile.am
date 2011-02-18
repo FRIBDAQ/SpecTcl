@@ -10,14 +10,16 @@ noinst_HEADERS=  TclCreate.h TclOpen.h	\
 	TclClose.h TclParameter.h TclRuns.h TclDBCommand.h \
 	TclUUID.h  Asserts.h handleManager.h \
 	TclEvtCreate.h TclEvtClose.h TclEvtOpen.h \
-	TclAttach.h TclDetach.h  TclLoadEvents.h TclAugment.h
+	TclAttach.h TclDetach.h  TclLoadEvents.h TclAugment.h \
+	TclEvRun.h
 
 libSpecTclExperiment_la_SOURCES= packageStartup.cpp	\
 	handleManager.cpp TclCreate.cpp TclOpen.cpp 	\
 	TclClose.cpp TclParameter.cpp TclRuns.cpp TclDBCommand.cpp \
 	TclUUID.cpp \
 	TclEvtCreate.cpp TclEvtClose.cpp TclEvtOpen.cpp TclAttach.cpp \
-	TclDetach.cpp TclLoadEvents.cpp TclAugment.cpp
+	TclDetach.cpp TclLoadEvents.cpp TclAugment.cpp \
+	TclEvRun.cpp
 
 libSpecTclExperiment_la_CXXFLAGS=@TCL_FLAGS@ -I@top_builddir@/Utility -I@top_builddir@/TclPlus
 libSpecTclExperiment_la_LIBADD=@top_builddir@/TclPlus/libtclPlus.la \
