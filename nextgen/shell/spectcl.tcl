@@ -254,7 +254,7 @@ proc rlist {} {
 experiment-command evtopen 
 experiment-command evtclose
 experiment-command evtruninfo
-experiment-command augment
+
 
 
 
@@ -342,37 +342,59 @@ proc evtload {evtfile source {progress {}} {triggersPerClump 100}} {
     set events            [list]
     set thisEvent         [list]
     set lastTrigger       -1
-    set evhandle          [::spectcl::evtopen $evtfile]
-    while {![eof $src]} {
+    set evthandle          [::spectcl::evtopen $evtfile]
+    while {1} {
 	set line [gets $src]
 	if {$line ne ""} {
 	    set fields [::csv::split $line]
 	    set trigger [lindex $fields 0]
 	    set name    [lindex $fields 1]
 	    set value   [lindex $fields 2]
-	    
-	    if {($trigger != $lastTrigger) && ($lastTrigger != -1)} {
-		lappend events [list $lastTrigger $thisEvent]
-		set lastTrigger $trigger
+	    if {(($trigger != $lastTrigger) && ($lastTrigger != -1)) || [eof $src]} {
+		lappend events [linsert $thisEvent 0 $lastTrigger]
 		set thisEvent   [list]
 		incr triggersProcessed
-		if {($triggersProcessed % $triggersPerClump) == 0} {
-		    ::spectl::loadEvents $::exphandle $evthandle $events
+		if {(($triggersProcessed % $triggersPerClump) == 0) || [eof $src]} {
+		    ::spectcl::loadevents $::exphandle $evthandle $events
 		    if {$progress ne ""} {
 			uplevel #0 $progress $source $triggersProcessed
 		    }
 		    set events [list]
 		}
 	    }
+	    set lastTrigger $trigger
 	    lappend thisEvent [list $name $value]
 	}
+	if {[eof $src]} break
+    }
+    if {[llength $thisEvent] != 0} {
+	lappend events [linsert $thisEvent 0 $lastTrigger]
+    }
+    if {[llength $events] != 0} {
+	::spectcl::loadevents $::exphandle $evthandle $events
+	if {$progress ne ""} {
+	    uplevel #0 $progress $source $triggersProcessed
+	}	
     }
     close $src
-    ::spectcl::evtclose $evhandle
+    ::spectcl::evtclose $evthandle
     return $triggersProcessed
 
 
 }
+#
+#  Augment the data with a pseudo script
+# parameters:
+#    evtdb    - event databasefile
+#    callback - proc to use to augment.
+#              see the ::spectcl::augment command for more about this.
+#
+proc evtaugment {evtdb callback} {
+    set handle [::spectcl::evtopen $evtdb]
+    ::spectcl::augment $::exphandle $handle $callback
+    ::spectcl::evtclose $handle
+}
+#    
 #
 #   Return the UUID of an event file
 # Parameters:
