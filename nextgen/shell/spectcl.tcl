@@ -78,6 +78,7 @@ set libs [file normalize [file join $here ../lib]]
 lappend auto_path $libs
 
 package require SpecTcl
+package require csv
 global  exphandle;	# Handle open on the SpecTcl database.
 
 #------------------------------------------------------------------------------
@@ -160,6 +161,7 @@ proc experiment-command {name} {
 	set cmds [unqualifiedCommands]
 	error "$name is not a valid spectcl command use one of '$cmds'"
     }
+
     proc $name args {
 	set command [info level 0]
 	set command [lindex $command 0]
@@ -238,6 +240,154 @@ proc rlist {} {
 
     return $result
 }    
+#-----------------------------------------------------------------------------
+# Event database manipulations:
+#
+
+#----------------------------------------------------------------------------
+# 
+
+#  The commands below define event database commands that have, as their first
+#  parameter an experiment databas..and are directly exposed to the user:
+
+
+experiment-command evtopen 
+experiment-command evtclose
+experiment-command evtruninfo
+experiment-command augment
+
+
+
+#
+#  Create an event database.
+# Parameters:
+#    run  - Run  number that must already be defined in the experiment database.
+#    name - Name of the database to be created.
+#
+proc evtcreate {run name} {
+    ::spectcl::evtcreate $::exphandle $run $name
+}
+
+#
+#  Attach an event database to the current experiment.
+#  Parameters:
+#    db      - Name of the database to attach
+#    ?where> - Attachment point (if omitted the default point will be used.
+# 
+proc evtattach {db {where {}}} {
+    if {$where eq ""} {
+	::spectcl::attach $::exphandle $db
+    } else {
+	::spectcl::attach $::exphandle $db $where
+    }
+}
+#
+#  Detaches a run database.
+# Parameters:
+#    ?where?  - If supplied this is the attachment point; otherwise,
+#               the default one is used.
+#
+proc evtdetach {{where {}}} {
+    if {$where eq "" } {
+	::spectcl::detach $::exphandle
+    } else {
+	::spectcl::detach $::exphandle $where
+    }
+}
+
+#
+#  Get information about an event database associated with our experiment database.
+# Parameters:
+#   filename - Event database file about which we want information.
+# Implicit:
+#    global exphandle
+# Returns:
+#   [list run-number title start-time end-time]
+# Note that end-time may be empty if the run end time is not yet known.
+#
+proc evtinfo {filename} {
+    evtattach $filename SPECTCLINTERNAL
+    set result [::spectcl::evtruninfo $::exphandle SPECTCLINTERNAL]
+    evtdetach SPECTCLINTERNAL
+    return $result
+}
+#
+#   Loads data from a csv file into an event database.  The event database
+#   must already have been created.
+# Parameters:
+#   evtfile  - Event database to load.
+#   source   - The csv source.  This can be either a file path or, if the
+#              path starts with the pipe character '|', the remainder is the
+#              name of a program that provides csv  data on stdout.
+#              The fields for each line in the file are:
+#              - trigger number of the event.
+#              - name of a defined parameter.
+#              - value of the parameter for that event.
+#  progress  - Optional command invoked every few triggers to report progress.
+#              This is run at the top level and is invoked as:
+#              $progress $source triggers-processed-so-far
+#  triggersPerClump
+#            - Optional value that is the number of triggers that are atomically 
+#              added to the database.  This also sets the number of triggers between
+#              calls to progress.   Defaults to 100.
+# Implicit inputs:
+#    ::exphandle 
+#
+# Returns:
+#   The number of triggers loaded.
+#
+proc evtload {evtfile source {progress {}} {triggersPerClump 100}} {
+    set src               [open $source r]
+    set triggersProcessed 0
+    set events            [list]
+    set thisEvent         [list]
+    set lastTrigger       -1
+    set evhandle          [::spectcl::evtopen $evtfile]
+    while {![eof $src]} {
+	set line [gets $src]
+	if {$line ne ""} {
+	    set fields [::csv::split $line]
+	    set trigger [lindex $fields 0]
+	    set name    [lindex $fields 1]
+	    set value   [lindex $fields 2]
+	    
+	    if {($trigger != $lastTrigger) && ($lastTrigger != -1)} {
+		lappend events [list $lastTrigger $thisEvent]
+		set lastTrigger $trigger
+		set thisEvent   [list]
+		incr triggersProcessed
+		if {($triggersProcessed % $triggersPerClump) == 0} {
+		    ::spectl::loadEvents $::exphandle $evthandle $events
+		    if {$progress ne ""} {
+			uplevel #0 $progress $source $triggersProcessed
+		    }
+		    set events [list]
+		}
+	    }
+	    lappend thisEvent [list $name $value]
+	}
+    }
+    close $src
+    ::spectcl::evtclose $evhandle
+    return $triggersProcessed
+
+
+}
+#
+#   Return the UUID of an event file
+# Parameters:
+#   file  - The file to get
+# Returns:
+#   Textualized UUID
+#
+proc evtuuid {file} {
+    set handle [::spectcl::evtopen $file]
+    set result [::spectcl::evtuuid $handle]
+    ::spectcl::evtclose $handle
+
+    return $result
+}
+
 
 #------------------------------------------------------------------------------
 #
