@@ -29,7 +29,8 @@ static const char* errorMessages[] = {
   "NOSUCH - Item could not be found",
   "NOT_EVENTSDATABASE - Database is not an events database",
   "WRONGEXPERIMENT  - Attempting to attach database from another experiment",
-  "UNATTACHED - There is not attached database"   
+  "UNATTACHED - There is not attached database",
+  "NOT_WORKSPACE - The database is not a workspace"
 };
 
 static const char* catchAll = "BADCODE - Bad error code passed to spectcl_experiment_error_msg";

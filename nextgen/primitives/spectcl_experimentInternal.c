@@ -335,3 +335,49 @@ getDBUUID(sqlite3* db)
 
   return result;
 }
+/**
+ ** Common code to attache a database to a base database.
+ ** @param db   - Sqlite handle to the base database.
+ ** @param path - Filesystem path to the database to attach.
+ ** @param point- If not null, the database is attached here.
+ ** @param defaultPoint - If point is NULL, the database is attached here.
+ ** @return int
+ ** @retval SPEXP_OK  - Attach ok.
+ ** @retval SPEXP_SQLFAIL - something went wrong... The details are in
+ **                         spectcl_experiment_errno
+ */
+int
+spectcl_attach(sqlite3* db, const char* otherDatabase, const char* point, const char* defaultPoint)
+{
+  char          formattedAttach[100];
+  const char*   attach =  "ATTACH DATABASE :path AS %s";
+  sqlite3_stmt* statement;
+  int           status;
+
+
+
+  sprintf(formattedAttach, attach, point ? point : defaultPoint);
+  status = sqlite3_prepare_v2(db, 
+			      formattedAttach,
+			      -1, &statement, NULL
+			      );
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    return SPEXP_SQLFAIL;
+  }
+  status = sqlite3_bind_text(statement, 1, otherDatabase, -1, SQLITE_STATIC);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    sqlite3_finalize(statement);
+    return SPEXP_SQLFAIL;
+  }
+  status = sqlite3_step(statement);
+  sqlite3_finalize(statement);
+  if(status != SQLITE_DONE) {
+    spectcl_experiment_errno = status;
+    return SPEXP_SQLFAIL;
+  }
+  
+
+  return SPEXP_OK;
+}

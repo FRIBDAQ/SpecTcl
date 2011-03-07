@@ -41,6 +41,8 @@ void  do_non_select(sqlite3* db, const char* statement);
 int   insertConfig(sqlite3* db, const char* which, const char* what);
 pRunInfo marshallRunInfo(sqlite3_stmt* stmt);
 uuid_t* getDBUUID(sqlite3* db);
+int    spectcl_attach(sqlite3* db, const char* otherDatabase, const char* point, const char* defaultPoint);
+
 
 #ifdef __cplusplus
 }

@@ -12,7 +12,8 @@ libExperiment_la_SOURCES = spectcl_experiment.c \
 	spectcl_uuid.c			\
 	spectcl_errors.c		\
 	spectcl_experimentInternal.c	\
-	spectcl_events.c
+	spectcl_events.c		\
+	spectcl_workspace_base.c
 
 libExperiment_la_LIBADD=@SQLITE3_LDFLAGS@ -luuid
 
@@ -23,13 +24,13 @@ noinst_HEADERS=spectcl_experimentInternal.h
 
 INCLUDES = -I. -I@top_srcdir@/NSCLException @SQLITE3_CFLAGS@
 
-TESTS=  c_eventstest	\
+TESTS=   c_workspacebase c_eventstest	\
 	c_exptests  c_runtests c_uuidtests c_paramtests
 
 
 
-check_PROGRAMS=c_exptests c_paramtests c_runtests c_uuidtests \
-	c_eventstest
+check_PROGRAMS=c_workspacebase c_exptests c_paramtests c_runtests c_uuidtests \
+	c_eventstest 
 
 c_exptests_SOURCES=spectcl_experiment_check.c
 c_exptests_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
@@ -50,5 +51,11 @@ c_uuidtests_LDADD=@CHECK_LIBS@ libExperiment.la
 c_eventstest_SOURCES=eventstest.c
 c_eventstest_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
 c_eventstest_LDADD=@CHECK_LIBS@ libExperiment.la
+
+
+c_workspacebase_SOURCES=spectcl_wsbasetest.c
+c_workspacebase_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
+c_workspacebase_LDADD=@CHECK_LIBS@ libExperiment.la
+
 
 

@@ -30,6 +30,8 @@
  */
 static const int AllocationUnits = 10;
 
+#define DEFAULT_ATTACH_POINT "EVENTS"
+
 /*--------------------- private utilities.   ----------------------------*/
 
 /**
@@ -226,7 +228,7 @@ createConfiguration(sqlite3* pHandle, sqlite3* pEvents, int run)
  ** The database schema is also created and stocked where appropriate.
  ** @param pHandle - Experiment database handle (we use this to get our uuid).
  ** @param run     - Run number we are linked to.
-_ex ** @param path    - Path to the database file to be created.
+ ** @param path    - Path to the database file to be created.
  ** @param run     - Run number this database is bound to.
  ** @return spetcl_events - See spectcl_events_create for return values and errors.
  */
@@ -398,13 +400,11 @@ spectcl_events_close(spectcl_events db)
 int
 spectcl_events_attach(spectcl_experiment pExpHandle, const char* path, const char* name)
 {
-  const char*    pDefaultAttachName = "EVENTS";
+
   spectcl_events pEvents;
   sqlite3_stmt*  statement;
   char*          myUuidString;
   uuid_t         myuuid;
-  const char*    attach = "ATTACH DATABASE :path AS %s";
-  char           formattedAttach[100];
   int            status;
 
   /* The best way to check the validity of the database is to just open it: */
@@ -426,30 +426,9 @@ spectcl_events_attach(spectcl_experiment pExpHandle, const char* path, const cha
   /* Try to do the attach.  Note that it's not legal (I think) to parameterize the database
   ** name.. hence the sprintf.
   */
-  sprintf(formattedAttach, attach, name ? name : pDefaultAttachName);
-  status = sqlite3_prepare_v2(pExpHandle, 
-			      formattedAttach,
-			      -1, &statement, NULL
-			      );
-  if (status != SQLITE_OK) {
-    spectcl_experiment_errno = status;
-    return SPEXP_SQLFAIL;
-  }
-  status = sqlite3_bind_text(statement, 1, path, -1, SQLITE_STATIC);
-  if (status != SQLITE_OK) {
-    spectcl_experiment_errno = status;
-    sqlite3_finalize(statement);
-    return SPEXP_SQLFAIL;
-  }
-  status = sqlite3_step(statement);
-  sqlite3_finalize(statement);
-  if(status != SQLITE_DONE) {
-    spectcl_experiment_errno = status;
-    return SPEXP_SQLFAIL;
-  }
-  
 
-  return SPEXP_OK;
+  return  spectcl_attach(pExpHandle, path, name, DEFAULT_ATTACH_POINT);
+
 }
 /**
  ** Detach an event database from the associated experiment database.
@@ -468,7 +447,7 @@ int
 spectcl_events_detach(spectcl_experiment pExperiment, const char* name)
 {
   char* pType;
-  const char*   pName        = "EVENTS";
+  const char*   pName        = DEFAULT_ATTACH_POINT;
   const char*   pQuery = "DETACH DATABASE :dbname";
   char*         tableName;
   size_t        tableNameLen;

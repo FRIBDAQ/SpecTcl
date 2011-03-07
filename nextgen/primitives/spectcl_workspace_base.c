@@ -1,0 +1,312 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2008
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Author:
+             Ron Fox
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
+*/
+
+#include <config.h>
+#include <sqlite3.h>
+
+#include "spectcl_experiment.h"
+#include "spectcl_experimentInternal.h"
+
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#define DEFAULT_ATTACH_POINT  "WORKSPACE"
+
+/*---------------------- private funtions -------------------------*/
+
+/**
+ ** Create and populate the configuration table:
+ ** @param db     - sqlite3* open on the database.
+ ** @param uuid   - uuid_t* that is the UUID with which to populate the
+ **                 uuid element.
+ ** @return int
+ ** @retval 0   - Everything worked.
+ ** @retval -1  - Failed on some insert.
+ **
+ **/
+static int
+create_config_values(sqlite3* db, uuid_t* uuid)
+{
+  char  uuidText[100];
+  int   status;
+
+  uuid_unparse(*uuid, uuidText);
+
+
+  do_non_select(db,
+		"CREATE TABLE configuration_values ( \
+                                id           INTEGER PRIMARY KEY,	\
+                                config_item  VARCHAR(256),		\
+                                config_value VARCHAR(256))");
+
+  status = insertConfig(db, "version", SCHEMA_VERSION);
+  if(status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    return -1;
+  }
+  status = insertConfig(db, "type", "workspace");
+  if(status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    return -1;
+  }
+  status = insertConfig(db, "uuid", uuidText);
+  if(status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    return -1;
+  }
+
+  return 0;
+  
+}
+
+/**
+ ** Determine if an sqlite3 handle is open on a workspace database.
+ ** this requires that we be able to get the 'type' config_item from
+ ** the configuration_values table and that it have the value 'workspace'.
+ ** @param ws   - Handle open on the database to check.
+ ** @return int
+ ** @retval TRUE - Database is a workspace
+ ** @retval FALSE - Database is not a workspace.
+ */
+static int
+isWorkspace(sqlite3* ws)
+{
+  char* result  = getfirst(ws, "configuration_values", "config_value",
+			   "config_item", "type");
+  if (result) {
+    int match = strcmp("workspace", result);
+    free(result);
+    return (match == 0);
+
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/* --------------------- public entries ------------------------------*/
+/**
+ ** Create a workspace database.
+ ** Workspace databases hold analysis artifacts...definitions and instances.
+ ** These include and are not limited to:
+ ** - spectra
+ ** - gates
+ ** - instances of all of the above.
+ **
+ ** The workspace is bound to an experiment database file in order to be sure
+ ** definitions across databases are consistent.  This binding is done by
+ ** writing the uuid of the expermiment into the 
+ ** @param pHandle - handle of an experiment database to which the workspace will
+ **                  be bound.
+ ** @param path    - Filesystem path of the database to create.
+ ** @return int
+ ** @retval SPEXP_OK              - Database properly created.
+ ** @retval SPEXP_NOT_EXPDATABASE - pHandle is not an experiment data base handle.
+ ** @retval SPEXP_CREATE_FAILED   - Unable to create the database file.
+ ** @retval SPEXP_SQLFAIL         -  Failed to create the initial schema.
+ */
+int spectcl_workspace_create(spectcl_experiment pHandle, const char* path)
+{
+  sqlite3* db = (sqlite3*)pHandle;
+  sqlite3* ws;
+  int      status;
+
+  if (!isExperimentDatabase(db)) {
+    return SPEXP_NOT_EXPDATABASE;
+  }
+  
+  /* Now attempt to create the database: */
+  
+  status = sqlite3_open_v2(path, &ws,
+			   SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+			   NULL);
+  if (status != SQLITE_OK) {
+    return SPEXP_CREATE_FAILED;
+  }
+  uuid_t* uuid = spectcl_experiment_uuid(db);
+  status = create_config_values(ws, uuid);
+  free(uuid);
+
+  spectcl_workspace_close(ws);
+
+  if (status) {
+    return SPEXP_SQLFAIL;
+  }
+  
+  return SPEXP_OK;
+}
+/**
+ ** Open an existing workspace.
+ ** @param path  - Path in the filesystem to the workspace.
+ ** @return spectcl_workspace
+ ** @retval not NULL -handle to use in other calls that need a spectcl_workspace.
+ ** @retval NULL     -Open failed.  The spectcl_experiment_errno variable
+ **                   holds the reason for the failure:
+ **      - SPEXP_OPEN_FAILED    - databased does not exist or is not writeable.
+ **      - SPEXP_NOT_WORKSPACE  - The file is not a workspace.
+ **      - SPEXP_SQLFAIL        - Some SQL failued when probing the correctness of the workspace.
+ */
+spectcl_workspace
+spectcl_workspace_open(const char* path)
+{
+  sqlite3*   db;
+  int        status;
+
+  /* The file must be have read/write access */
+
+  if(access(path, R_OK | W_OK)) {
+    spectcl_experiment_errno = SPEXP_OPEN_FAILED;
+    return NULL;
+  }
+  /* Open the database and ensure tha it is a workspace: */
+
+  status = sqlite3_open_v2(path,
+			   &db, SQLITE_OPEN_READWRITE, NULL);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = SPEXP_OPEN_FAILED; /* sqlite couldn't open so ... */
+    return NULL;
+    
+  }
+  if(!isWorkspace(db)) {
+    sqlite3_close(db);
+    spectcl_experiment_errno = SPEXP_NOT_WORKSPACE;
+    return NULL;
+  }
+  
+  return  db;
+}
+/**
+ ** Attach a workspace to an experiment.  To do this we require that:
+ ** - The database being attached is a workspace.
+ ** - The database being attached to is an experiment.
+ ** - The workspace be of the same experiment.
+ ** @param pHandle    - Experiment database to which the attachment will occur.
+ ** @param path       - Filesystem path to the workspace.
+ ** @param attachPoint- The name of the attached database.  If NULL a default
+ **                     attach point is used (WORKSPACE).
+ ** @return int
+ ** @retval SPEXP_OK             - Attach succeeded.
+ ** @retval SPEXP_OPEN_FAILED    - The workspace databasd could not be opened.
+ ** @retval SPEXP_NOT_EXPDATABASE - pHandle is not open on an experiment.
+ ** @retval SPEXP_NOT_WORKSPACE  - path does not represent a workspace.
+ ** @retval SPEXP_WRONGEXPERIMENT- The workspace experiment does not match the
+ **                                experiment open on pHandle.
+ ** @retval SPEXP_SQLFAIL         - Some sql operation failed.
+ */
+int
+spectcl_workspace_attach(spectcl_experiment pHandle, const char* path, const char* attachPoint)
+{
+  spectcl_workspace  ws;
+  uuid_t*            expUuid;
+  uuid_t*            wsUuid;
+  int                status;
+
+  /* ensure pHandle is an experiment database handle */
+
+  if(!isExperimentDatabase(pHandle)) {
+    return SPEXP_NOT_EXPDATABASE;
+  }
+  /* The path must be path that can pass muster with spectcl_workspace_open(). */
+
+  ws = spectcl_workspace_open(path);
+
+  if (!ws) {
+    return spectcl_experiment_errno;
+  }
+  else {
+    /* Check that the workspace UUID matches that of the experiment */
+    
+    expUuid = getDBUUID(pHandle);
+    wsUuid  = getDBUUID(ws);
+    spectcl_workspace_close(ws);		/* TODO: When close is working use that instead. */
+
+    status = uuid_compare(*expUuid, *wsUuid);
+    free(expUuid);
+    free(wsUuid);
+
+    if (status != 0) {
+      return SPEXP_WRONGEXPERIMENT;
+    }
+  }
+  /* We've made all the validity checks... attach the database: */
+
+  return spectcl_attach(pHandle, path, attachPoint, DEFAULT_ATTACH_POINT);
+
+
+}
+/**
+ ** Close an open workspace.
+ ** @param pHandle   - Handle open on a workspace.
+ ** @return int
+ ** @retval SPEXP_OK            - Correct completion.
+ ** @retval SPEXP_NOT_WORKSPACE - Handle not open on a workspace.
+ */
+int
+spectcl_workspace_close(spectcl_workspace pHandle)
+{
+  int status;
+
+
+  if (!isWorkspace(pHandle)) {
+    return SPEXP_NOT_WORKSPACE;
+  }
+  status = sqlite3_close(pHandle);
+
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    status = SPEXP_SQLFAIL;
+    
+  }
+  else {
+    status = SPEXP_OK;
+  }
+
+  return status;
+}
+/**
+ ** Detach a workspace from an experiment.
+ ** @param pHandle     - Experiment database handle from which the detach will be done.
+ ** @param attachPoint - Attach point from which the detach is done, if NULL,
+ **                      the detach is from the default attach point ('WORKSPACE').
+ ** @return int
+ ** @retval SPEXP_OK             - Everything worked.
+ ** @retval SPEXP_NOT_EXPDATABASE - pHandle is not an experiment database.
+ ** @retval SPEXP_NOT_WORKSPACE  - Something is attached there but it's not a workspace.
+ ** @retval SPEXP_UNATTACHED     - the sql to do the detach failed.
+ */
+int
+spectcl_workspace_detach(spectcl_experiment pHandle, const char* attachPoint)
+{
+  char*   attachType;
+  
+
+  if (!isExperimentDatabase(pHandle)) {
+    return SPEXP_NOT_EXPDATABASE;
+  }
+  attachType = getFirst(
+
+  return SPEXP_UNIMPLEMENTED;
+}

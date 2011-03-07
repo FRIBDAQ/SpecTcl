@@ -58,6 +58,7 @@
 #define SPEXP_NOT_EVENTSDATABASE 9
 #define SPEXP_WRONGEXPERIMENT  10
 #define SPEXP_UNATTACHED       11
+#define SPEXP_NOT_WORKSPACE    12
 #define SPEXP_UNIMPLEMENTED   100 /* for testing */
 
 /**
@@ -70,7 +71,8 @@
 #endif
 
 typedef void *spectcl_experiment; /* Handle to a spectcl experiment database. */
-typedef void *spectcl_events;	/* Handle to events database  */
+typedef void *spectcl_events;	  /* Handle to events database  */
+typedef void *spectcl_workspace;  /* handle to a spectcl workspace database. */
 
 
 /* What you get for a parameter definition */
@@ -196,6 +198,27 @@ extern "C" {
   int      spectcl_events_run(int* run, spectcl_events pHandle);
   pRunInfo spectcl_experiment_eventsrun(spectcl_experiment pHandle, const char* attachPoint);
   uuid_t*   spectcl_events_uuid(spectcl_events pHandle);
+
+  /* Workspace functions */
+  /** Generic functions on the workspace as a whole: */
+
+  int               spectcl_workspace_create(spectcl_experiment pHandle, const char* path);
+  spectcl_workspace spectcl_workspace_open(const char* path);
+  int               spectcl_workspace_attach(spectcl_experiment pHandle,
+					     const char*        path, const char* attachPoint);
+  int               spectcl_workspace_close(spectcl_workspace   pHandle);
+  int               spectcl_workspace_detach(spectcl_experiment pHandle, const char* attachPoint);
+
+  /** Functions that operate on the configuration items table: */
+
+  const char*       spectcl_workspace_version(spectcl_workspace ws);
+  uuid_t*           spectcl_workspace_uuid(spectcl_workspace ws);
+  
+  /** Functions used to validate the handle against various conditions */;
+
+  int spectcl_workspace_isWorkspace(spectcl_workspace ws);
+  int spectcl_workspace_isCorrectExperiment(spectcl_experiment expdb,
+					    spectcl_workspace ws);
 
 #ifdef __cplusplus
 }
