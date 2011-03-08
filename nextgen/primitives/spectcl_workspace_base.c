@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
 
 #ifndef TRUE
 #define TRUE 1
@@ -239,17 +240,13 @@ spectcl_workspace_attach(spectcl_experiment pHandle, const char* path, const cha
   else {
     /* Check that the workspace UUID matches that of the experiment */
     
-    expUuid = getDBUUID(pHandle);
-    wsUuid  = getDBUUID(ws);
-    spectcl_workspace_close(ws);		/* TODO: When close is working use that instead. */
-
-    status = uuid_compare(*expUuid, *wsUuid);
-    free(expUuid);
-    free(wsUuid);
-
-    if (status != 0) {
+    if (!spectcl_uuidCheck(pHandle, ws)) {
+      spectcl_workspace_close(ws);
       return SPEXP_WRONGEXPERIMENT;
     }
+
+    spectcl_workspace_close(ws);		/* TODO: When close is working use that instead. */
+
   }
   /* We've made all the validity checks... attach the database: */
 
@@ -296,17 +293,123 @@ spectcl_workspace_close(spectcl_workspace pHandle)
  ** @retval SPEXP_NOT_EXPDATABASE - pHandle is not an experiment database.
  ** @retval SPEXP_NOT_WORKSPACE  - Something is attached there but it's not a workspace.
  ** @retval SPEXP_UNATTACHED     - the sql to do the detach failed.
+ ** @retval SPEXP_NOMEM          - out of memory for some operation.
  */
 int
 spectcl_workspace_detach(spectcl_experiment pHandle, const char* attachPoint)
 {
-  char*   attachType;
-  
+  const char*   whereAttached = DEFAULT_ATTACH_POINT;
+  char          table[1001];	/* Out */
+  char*         attachedDbType;
+  const char*   pQuery = "DETACH DATABASE :dbname";
+  sqlite3_stmt* statement;
+  int           status;
+
+  /* Require pHandle to be an epxeriment database */
 
   if (!isExperimentDatabase(pHandle)) {
     return SPEXP_NOT_EXPDATABASE;
   }
-  attachType = getFirst(
 
-  return SPEXP_UNIMPLEMENTED;
+  /* Figure out the attached point and whether a workspace is attached there. */
+
+
+  if (attachPoint) {
+    whereAttached = attachPoint;
+  }
+  status = spectcl_checkAttached(pHandle, whereAttached, "workspace", SPEXP_NOT_WORKSPACE);
+  if (status != SPEXP_OK) {
+    return status;
+  }
+
+
+  /* Do the detach */
+
+  return spectcl_detach(pHandle, whereAttached);
+
+}
+/**
+ ** Return the schema version of a workspace.
+ ** @param ws   - Workspace handle from spectcl_workspace_open.
+ ** @return char* 
+ ** @retval NULL - Failed in some way, error reason in spectcl_experiment_errno.
+ ** @retval other - Pointer to a dynamically allocated version string.
+ ** 
+ ** Errors:
+ **  - SPEXP_NOT_WORKSPACE   - ws is not a workspace.
+ **  - SPEXP_SQLFAIL         - could not retrieve the version string in some way.
+ */
+char*
+spectcl_workspace_version(spectcl_workspace ws)
+{
+  char* pResult;
+
+  if (!isWorkspace(ws) ) {
+    spectcl_experiment_errno = SPEXP_NOT_WORKSPACE;
+    return NULL;
+  }
+
+  pResult = getfirst(ws, "configuration_values", "config_value", "config_item", "version");
+  if (!pResult) {
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+  }
+  return pResult;
+
+}
+/**
+ ** Return the uuid of the workspace.
+ **  @param ws  - Workspace handle.
+ **  @return uuid_t* (dynamically allocated).
+ **  @retval NULL     - error of some sort.  see below.
+ **  @retval not-null - Pointer to the parsed UUID of the workspace.
+ **                     must be free'd to avoid memory leaks. 
+ **
+ **  Errors (in spectcl_experiment_errno if return is NULL):
+ **     SPEXP_NOT_WORKSPACE - ws is not a workspace.
+ **     SPEXP_SQLFAIL       - Could not get the UUID from the database though it purports to be
+ **                           a workspace.
+ */
+uuid_t*
+spectcl_workspace_uuid(spectcl_workspace ws)
+{
+  uuid_t* uuid;
+
+  if (!isWorkspace(ws)) {
+    spectcl_experiment_errno = SPEXP_NOT_WORKSPACE;
+    return NULL;
+  }
+  
+  uuid = getDBUUID(ws);
+  if (!uuid) {
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+  }
+  return uuid;
+}
+/**
+ ** Determines if a database handle is a workspace handle.
+ ** @param ws  - Alleged workspace handle.
+ ** @return int
+ ** @retval TRUE  - Handle is a workspace.
+ ** @retval FALSE - Handle is not a workspace.
+ */
+int
+spectcl_workspace_isWorkspace(spectcl_workspace ws)
+{
+  return isWorkspace(ws) ? TRUE : FALSE;
+}
+/**
+ ** If both parameters are the proper type of database, returns
+ ** whether or not the workspace belongs to the experiment.
+ ** @param expdb   - Experiment database.
+ ** @param ws      - Worksapce database.
+ ** @return int
+ ** @retval TRUE  expdb is an experiment, and ws is a workspace for that exeriment.
+ ** @retval FALSE (not any of the above).
+ */
+int
+spectcl_workspace_isCorrectExperiment(spectcl_experiment expdb, spectcl_workspace ws)
+{
+  if (!isExperimentDatabase(expdb)) return FALSE;
+  if (!isWorkspace(ws))     return FALSE;
+  return spectcl_uuidCheck(expdb, ws);
 }

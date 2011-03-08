@@ -381,3 +381,110 @@ spectcl_attach(sqlite3* db, const char* otherDatabase, const char* point, const 
 
   return SPEXP_OK;
 }
+
+/**
+ ** Detaches a database at the specified detach point.
+ ** @param db    - sqlite3 handle to the database.
+ ** @param pName - Attach point for the database.
+ ** @return int
+ ** @retval SPEXP_OK - Success.
+ ** @retval SPEXP_SQLFAIL - error prepping or executing the detach statement.
+ */
+int
+spectcl_detach(sqlite3* db, const char* pName)
+{
+  const char*   pQuery = "DETACH DATABASE :dbname";
+  sqlite3_stmt* statement;
+  int           status;
+
+  status = sqlite3_prepare_v2(db, 
+			      pQuery,  -1, &statement, NULL);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    return SPEXP_SQLFAIL;
+  }
+  status = sqlite3_bind_text(statement, 1, pName, -1, SQLITE_STATIC);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = status;
+    sqlite3_finalize(statement);
+    return SPEXP_SQLFAIL;
+  }
+  status = sqlite3_step(statement);
+  if (status != SQLITE_DONE) {
+    sqlite3_finalize(statement);
+    spectcl_experiment_errno = status;
+    return SPEXP_SQLFAIL;
+  }
+  sqlite3_finalize(statement);
+ 
+
+  return SPEXP_OK;
+
+
+
+}
+/**
+ ** Checks that an attach point has the right type of database on it by 
+ ** looking at the configuration_values 'type' entry.
+ ** @param db           - The base database handle to check.
+ ** @param pAttachName  - The Attachment point
+ ** @param type         - Desired database type (e.g. 'events').
+ ** @param incorrectStatus - Desired return if the query worked but the database was wrong.
+ ** @return int
+ ** @retval SPEXP_OK    - All the queries worked and the database was the right type.
+ ** @retval SPEXP_UNATTACHED - got nothing back from the query..so not attached.
+ ** @retval incorrectStatus  - If the type returned did not match the desired type.
+ */
+int 
+spectcl_checkAttached(sqlite3* db, const char* pAttachname, const char* type, int incorrectStatus)
+{
+  char*  pType;
+  char*  tableName;
+  size_t tableNameLen;
+  int    status;
+
+  tableNameLen = strlen(pAttachname) + strlen(".configuration_values ");
+  tableName    = malloc(tableNameLen);
+  if(!tableName) return SPEXP_NOMEM;
+
+  strcpy(tableName, pAttachname);
+  strcat(tableName, ".configuration_values");
+  pType = getfirst(db, tableName, "config_value", "config_item", "type");
+  free(tableName);
+  if (!pType) return SPEXP_UNATTACHED;
+
+  status = strcmp(pType, type) == 0 ? SPEXP_OK : incorrectStatus;
+
+  free(pType);
+
+  return status;
+
+}
+/**
+ ** Determines if the UUID's associated with a pair of databases match.
+ ** @param db1   - First database.
+ ** @param db2   - Second database.
+ ** @return int
+ ** @retval TRUE   - UUID could be retrieved and matched.
+ ** @retval FALSE  - Either one or more UUID's could not be retrieved,
+ **                  or they both could be but did not match.
+ */
+int
+spectcl_uuidCheck(sqlite3* db1, sqlite3* db2)
+{
+  uuid_t*   uuid1;
+  uuid_t*   uuid2;
+  int       retval;
+
+  retval = 0;			/* Assume false. */
+
+  uuid1 = getDBUUID(db1);
+  uuid2 = getDBUUID(db2);
+  if (uuid1 && uuid2) {
+    retval = uuid_compare(*uuid1, *uuid2) == 0;
+  }
+  free(uuid1);
+  free(uuid2);
+
+  return retval;
+}

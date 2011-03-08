@@ -288,7 +288,7 @@ END_TEST
  */
 START_TEST(test_detach_none1)
 {
-  fail_unless(spectcl_events_detach(db, NULL) == SPEXP_NOT_EVENTSDATABASE);
+  fail_unless(spectcl_events_detach(db, NULL) == SPEXP_UNATTACHED);
 }
 END_TEST
 /*
@@ -297,7 +297,7 @@ END_TEST
 START_TEST(test_detach_none2)
 {
   spectcl_events_attach(db, expName, NULL);
-  fail_unless(spectcl_events_detach(db, "NoSuchDatabaseHere") == SPEXP_NOT_EVENTSDATABASE);
+  fail_unless(spectcl_events_detach(db, "NoSuchDatabaseHere") == SPEXP_UNATTACHED);
 }
 END_TEST
 /**

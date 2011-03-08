@@ -415,13 +415,12 @@ spectcl_events_attach(spectcl_experiment pExpHandle, const char* path, const cha
   }
   /* Ensure this event database matches the experiment we are open on. */
 
-  myUuidString = getfirst(pEvents, "configuration_values", "config_value", "config_item", "uuid");
-  uuid_parse(myUuidString, myuuid);
-  free(myUuidString);
-  spectcl_events_close(pEvents); /* don't need the handle for the attach, so close here */
-  if (!spectcl_correct_experiment(pExpHandle, &myuuid)) {
+  if (!spectcl_uuidCheck(pExpHandle, pEvents)) {
+    spectcl_events_close(pEvents);
     return SPEXP_WRONGEXPERIMENT;
   }
+
+  spectcl_events_close(pEvents); /* don't need the handle for the attach, so close here */
   
   /* Try to do the attach.  Note that it's not legal (I think) to parameterize the database
   ** name.. hence the sprintf.
@@ -442,56 +441,36 @@ spectcl_events_attach(spectcl_experiment pExpHandle, const char* path, const cha
  ** @retval SPEXP_NOT_EVENTSDATABASE - there is no events database at that point.
  ** @retval SPEXP_SQLFAIL - The detach sql failed.
  ** @retval SPEXP_NOMEM   - memory allocation failed.
+ ** @retval SPEXP_NOT_EXPDATABASE  - pExperiment is not a n experiment database.
  */
 int
 spectcl_events_detach(spectcl_experiment pExperiment, const char* name)
 {
   char* pType;
   const char*   pName        = DEFAULT_ATTACH_POINT;
-  const char*   pQuery = "DETACH DATABASE :dbname";
   char*         tableName;
   size_t        tableNameLen;
-  sqlite3_stmt* statement;
   int           status;
+
+  /* Ensure pExperiment is what we think it is: */
+
+  if (!isExperimentDatabase(pExperiment)) {
+    return SPEXP_NOT_EXPDATABASE;
+  }
 
   /* Ensure there's a database attached there */
 
   if (name != NULL) {
     pName = name;
   }
-  tableNameLen = strlen(pName) + strlen(".configuration_values ");
-  tableName    = malloc(tableNameLen);
-  if(!tableName) return SPEXP_NOMEM;
 
-  strcpy(tableName, pName);
-  strcat(tableName, ".configuration_values");
-  pType = getfirst(pExperiment, tableName, "config_value", "config_item", "type");
-  free(tableName);
-  if (!pType) return SPEXP_NOT_EVENTSDATABASE;
+  status  = spectcl_checkAttached(pExperiment, pName, "run-data", SPEXP_NOT_EVENTSDATABASE);
+  if (status  != SPEXP_OK) {
+    return status;
+  }
 
+  return spectcl_detach(pExperiment, pName);
   
-  status = sqlite3_prepare_v2(pExperiment, 
-			      pQuery,  -1, &statement, NULL);
-  if (status != SQLITE_OK) {
-    spectcl_experiment_errno = status;
-    return SPEXP_SQLFAIL;
-  }
-  status = sqlite3_bind_text(statement, 1, pName, -1, SQLITE_STATIC);
-  if (status != SQLITE_OK) {
-    spectcl_experiment_errno = status;
-    sqlite3_finalize(statement);
-    return SPEXP_SQLFAIL;
-  }
-  status = sqlite3_step(statement);
-  if (status != SQLITE_DONE) {
-    sqlite3_finalize(statement);
-    spectcl_experiment_errno = status;
-    return SPEXP_SQLFAIL;
-  }
-  sqlite3_finalize(statement);
- 
-
-  return SPEXP_OK;
 }
  
 /**

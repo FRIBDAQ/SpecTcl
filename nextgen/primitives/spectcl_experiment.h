@@ -211,8 +211,8 @@ extern "C" {
 
   /** Functions that operate on the configuration items table: */
 
-  const char*       spectcl_workspace_version(spectcl_workspace ws);
-  uuid_t*           spectcl_workspace_uuid(spectcl_workspace ws);
+  char*       spectcl_workspace_version(spectcl_workspace ws);
+  uuid_t*     spectcl_workspace_uuid(spectcl_workspace ws);
   
   /** Functions used to validate the handle against various conditions */;
 

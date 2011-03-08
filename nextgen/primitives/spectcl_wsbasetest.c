@@ -35,8 +35,12 @@
 static char dbName[PATH_MAX];
 static char expName[PATH_MAX];
 static char wsName[PATH_MAX];
-spectcl_experiment db;
+static char wsName1[PATH_MAX];
 
+spectcl_experiment db;
+spectcl_experiment db1;
+spectcl_workspace  db_ws;
+spectcl_workspace  db1_ws;
 
 /*------------------------------------- fixture code ----------------------------------*/
 
@@ -50,12 +54,40 @@ static void setup()
 
  
 }
+
+static void setupws()
+{
+  setup();
+  strcpy(wsName1, tmpnam(NULL));
+
+  db1 = spectcl_experiment_create(expName);
+
+  spectcl_workspace_create(db, wsName);
+  db_ws = spectcl_workspace_open(wsName);
+
+  spectcl_workspace_create(db1, wsName1);
+  db1_ws = spectcl_workspace_open(wsName1);
+  
+  
+}
+
 static void teardown()
 {
   spectcl_experiment_close(db);
   unlink(dbName);
   unlink(expName);
   unlink(wsName);
+}
+
+static void teardownws()
+{
+  spectcl_experiment_close(db1);
+  spectcl_workspace_close(db_ws);
+  spectcl_workspace_close(db1_ws);
+  unlink(wsName1);
+
+  teardown();
+
 }
 
 /*------------------------------------ The tests ----------------------------------------------*/
@@ -337,6 +369,7 @@ START_TEST(test_detach_notws)
 {
 
   int                status;
+  spectcl_events     pEv;
 
   spectcl_run_create(db, 1, "this is a test run", NULL);
   pEv = spectcl_events_create(db, 1, expName);
@@ -350,6 +383,151 @@ START_TEST(test_detach_notws)
 }
 END_TEST
 
+/**
+ ** Should be able to detach a workspace attached on the default
+ ** attach point
+ */
+START_TEST(test_detachdefault)
+{
+
+  int               status;
+
+  spectcl_workspace_create(db, wsName);
+  spectcl_workspace_attach(db, wsName, NULL);
+  status = spectcl_workspace_detach(db, NULL);
+  fail_unless(status == SPEXP_OK);
+}
+END_TEST
+
+
+/**
+ ** If we ask for the version of an experiment workspace,
+ ** we should not get it and spectcl_experiment_errno = SPEXP_NOT_WORKSPACE
+ */
+START_TEST(test_vsn_notws)
+{
+  char* vsn = spectcl_workspace_version(db);
+  fail_if(vsn != NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOT_WORKSPACE);
+}
+END_TEST
+/**
+ ** Workspace versions should be SCHEMA_VERSION
+ */
+START_TEST(test_vsn_ok)
+{
+  char* vsn;
+  spectcl_workspace ws;
+
+  spectcl_workspace_create(db, wsName);
+  
+
+  ws = spectcl_workspace_open(wsName);
+  vsn = spectcl_workspace_version(ws);
+  spectcl_workspace_close(ws);
+
+  fail_if(vsn == NULL);
+  fail_unless(strcmp(vsn, SCHEMA_VERSION) == 0);
+  free(vsn);
+
+}
+END_TEST
+/**
+ ** uuid but not a workspace should give me NULL and 
+ ** errno of SPEXP_NOT_WORKSPACE.
+ */
+START_TEST(test_uuid_notws)
+{
+  uuid_t* uuid = spectcl_workspace_uuid(db); /* not a worksapce. */
+  fail_if(uuid != NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOT_WORKSPACE);
+}
+END_TEST
+/**
+ ** UUID should be the same as the one used to create the experiment.
+ */
+START_TEST(test_uuid_ok)
+{
+  uuid_t* wsUuid;
+  uuid_t* expUuid;
+  spectcl_workspace ws;
+
+  spectcl_workspace_create(db, wsName);
+  ws  = spectcl_workspace_open(wsName);
+
+  wsUuid = spectcl_workspace_uuid(ws);
+  expUuid= spectcl_experiment_uuid(db);
+  spectcl_workspace_close(ws);
+
+  fail_if(wsUuid == NULL);
+  if (wsUuid) {
+    fail_if(uuid_compare(*wsUuid, *expUuid));
+  }
+  free(wsUuid);
+  free(expUuid);
+
+  
+}
+END_TEST
+
+/*
+** Passing an experiment handle into isWorkspace should give FALSE.
+*/
+START_TEST(test_isws_no)
+{
+  fail_if(spectcl_workspace_isWorkspace(db));
+}
+END_TEST
+/**
+ ** Passing a workspace handle into isWorkspace should give TRUE
+ */
+START_TEST(test_isws_yes)
+{
+  spectcl_workspace ws;
+
+  spectcl_workspace_create(db, wsName);
+  ws = spectcl_workspace_open(wsName);
+  fail_unless(spectcl_workspace_isWorkspace(ws));
+  spectcl_workspace_close(ws);
+}
+END_TEST
+
+/**
+ * isCorrectExperiment will be false if the experiment is isn't one.
+ */
+START_TEST(test_iscorrectexp_notexp)
+{
+  fail_if(spectcl_workspace_isCorrectExperiment(db_ws, db_ws));
+}
+END_TEST
+/*
+  isCorrectExperiment sb. false if the workspace isn't wone.
+ */
+START_TEST(test_iscorrectexp_notws)
+{
+  fail_if(spectcl_workspace_isCorrectExperiment(db, db));
+}
+END_TEST
+
+/*
+  isCorrectExperiment sb false if the workspace doesn't match the experiment
+*/
+START_TEST(test_iscorrectexp_no)
+{
+  fail_if(spectcl_workspace_isCorrectExperiment(db, db1_ws));
+  fail_if(spectcl_workspace_isCorrectExperiment(db1, db_ws));
+}
+END_TEST
+/*
+   isCorrectExperiment sb true if stuff matches:
+*/
+START_TEST(test_iscorrectexp_yes)
+{
+  fail_unless(spectcl_workspace_isCorrectExperiment(db, db_ws));
+  fail_unless(spectcl_workspace_isCorrectExperiment(db1, db1_ws));
+}
+END_TEST
+
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
 {
@@ -360,9 +538,11 @@ int main(void)
   SRunner* sr = srunner_create(s);
 
   TCase*   tc_base = tcase_create("base");
+  TCase*   tc_basews = tcase_create("basews"); /* tests that need a bit more setup. */
 
 
   tcase_add_checked_fixture(tc_base, setup, teardown);
+  tcase_add_checked_fixture(tc_basews, setupws, teardownws);
 
   suite_add_tcase(s, tc_base);
 
@@ -386,8 +566,24 @@ int main(void)
 
   tcase_add_test(tc_base, test_detach_notexp);
   tcase_add_test(tc_base, test_detach_notws);
+  tcase_add_test(tc_base, test_detachdefault);
 
-  srunner_set_fork_status(sr, CK_NOFORK);
+  tcase_add_test(tc_base, test_vsn_notws);
+  tcase_add_test(tc_base, test_vsn_ok);
+
+  tcase_add_test(tc_base, test_uuid_notws);
+  tcase_add_test(tc_base, test_uuid_ok);
+
+  tcase_add_test(tc_base, test_isws_no);
+  tcase_add_test(tc_base, test_isws_yes);
+
+  tcase_add_test(tc_basews, test_iscorrectexp_notexp);
+  tcase_add_test(tc_basews, test_iscorrectexp_notws);
+  tcase_add_test(tc_basews, test_iscorrectexp_no);
+  tcase_add_test(tc_basews, test_iscorrectexp_yes);
+
+
+  /*   srunner_set_fork_status(sr, CK_NOFORK); /*  /* Uncomment for gdb */
 
   
   srunner_run_all(sr, CK_NORMAL);

@@ -42,8 +42,9 @@ int   insertConfig(sqlite3* db, const char* which, const char* what);
 pRunInfo marshallRunInfo(sqlite3_stmt* stmt);
 uuid_t* getDBUUID(sqlite3* db);
 int    spectcl_attach(sqlite3* db, const char* otherDatabase, const char* point, const char* defaultPoint);
-
-
+int    spectcl_detach(sqlite3* db, const char* pName);
+int    spectcl_checkAttached(sqlite3* db, const char* pAttachName, const char* type, int incorrectStatus);
+int    spectcl_uuidCheck(sqlite3* db1, sqlite3* db2);
 #ifdef __cplusplus
 }
 #endif
