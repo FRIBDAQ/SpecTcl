@@ -317,4 +317,24 @@ int           spectcl_workspace_isWorkspace(spectcl_workspace db)
 int           spectcl_workspace_correctExperiment(spectcl_experiment expdb, 
 	                                         spectcl_workspace ws)
 
-Tcl Bindings
+
+Spectrum Type Api:
+
+ 
+typedef struct _spectcl_spectrum_type {
+	const char* s_type;
+	const char* s_typeDescription;
+} spectcl_spectrum_type;
+
+spectcl_workspace_free_typelist(spectcl_spectrum_type** typeList);
+spectcl_spectrum_types** spectcl_workspace_getTypes(spectcl_workspace ws);
+int                      spectcl_workspace_isValidType(spectcl_workspace ws, const char* type);
+const char*              spectcl_workspace_getDescription(spectcl_workspace ws, const char* type);
+
+Note that
+  - Spectrum types are currently considered immutable.
+    The spectrum types table is therefore only there to provide
+    a mechanism to implement menus of spectrum types in a 
+    GUI.
+  - The spectcl_spectrum_types** returned by spectcl_workspace_getTypes 
+    are a null terminated array of spectcl_spectrum_type*
