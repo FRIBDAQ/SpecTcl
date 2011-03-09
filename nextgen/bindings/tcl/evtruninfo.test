@@ -100,4 +100,4 @@ test evtruninfo-ok-otherpoint {Get right info when attached to a nondefault spot
     } -result {1 {This is a test title}}
 #--------------------- reporting results.
 
-cleanupTests
+cleanupTest

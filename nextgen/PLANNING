@@ -279,3 +279,42 @@ spectrum_channels:  Channels of spectra:
    x                : X channel
    y                : Y channel (could be null),.
    counts           : Number of counts in channel x[,y].
+
+Operations:
+
+int spectcl_workspace_create(spectcl_experiment expdb, const char* path)
+  - Creates a new workspace bound to the experiment database open on expdb.
+  - The database will be created at path in the file system.
+  - This creates the schema for the database as well, stocking it as
+    appropriate.
+
+int spectcl_workspace_attach(spectcl_experment expdb, const char* path, const char* at)
+  Attaches a spectcl workspace to an experiment database.  If at is NULL a default
+  attachment point is chosen (specifically SPECTCL_WORKSPACE).  If not null it
+  indicates where the database will be attached e.g
+  ATTACH path AS at.
+
+spectcl_workspace spectcl_workspace_open(const char* path)
+  Opens a spectcl workspace.  Returnys a database handle to the workspace database
+  the handle can be used in subsequent calls to workspace functions.
+
+int spectcl_workspace_close(spectcl_workspace db)
+   Closes a database andle to a spectcl_workspace after first validating that
+   this is what it is.
+
+int spectcl_workspace_detach(spectcl_experiment expdb, const char* at)
+    Detaches a workspace from an experiment. If at is NULL the detach is done
+    from SPECTCL_WORKSPACE otherwas at determines what is detached.
+
+Getting info from the configuration_values table:
+
+const char*   spectcl_workspace_version(spectcl_workspace db)
+const uuid_t* spectcl_workspace_uuid(spectcl_workspace db)
+
+validations:
+
+int           spectcl_workspace_isWorkspace(spectcl_workspace db)
+int           spectcl_workspace_correctExperiment(spectcl_experiment expdb, 
+	                                         spectcl_workspace ws)
+
+Tcl Bindings
