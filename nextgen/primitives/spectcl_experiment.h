@@ -128,6 +128,19 @@ typedef struct _spectcl_spectrum_type {
 } spectcl_spectrum_type;
 
 typedef  pAugmentResult   (AugmentCallback)(size_t, pParameterData, void*);
+
+typedef struct _spectrum_parameter {
+   char* s_name;
+   int         s_dimension;
+} spectrum_parameter;
+
+typedef struct _spectrum_definition  {
+  char*  s_name;
+  int    s_version;
+  char*  s_timestamp;
+  spectrum_paramter** s_parameters;
+} spectrum_definition;
+
 /**
  ** Function definitions; and globals:
  */
@@ -235,6 +248,7 @@ extern "C" {
 						       const char*       type);
   char*                  spectcl_workspace_getDescription(spectcl_workspace ws,
 							  const char*     type);
+  /** Functions used to create spectra and 
 
 
 #ifdef __cplusplus
