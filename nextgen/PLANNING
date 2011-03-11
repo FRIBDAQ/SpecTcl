@@ -338,3 +338,33 @@ Note that
     GUI.
   - The spectcl_spectrum_types** returned by spectcl_workspace_getTypes 
     are a null terminated array of spectcl_spectrum_type*
+
+Spectrum Definition/List API:
+
+typedef struct {
+   char* s_name;
+   int         s_dimension;
+} spectrum_parameter
+
+int spectcl_workspace_create_spectrum(spectcl_experiment exp, const char* pName,
+    							    const spectrum_parameter** pParams,
+							    const char* attachPoint);
+  returns id on success -1 on failure. spectcl_experiment_errno has errors.  There are two success
+  codes:  SPEXP_OK - New spectrum SPEXP_NEWVERSION - existing spectrum created new version.
+
+spectrum_parameter** spectcl_workspace_parameters(spectcl_workspace ws, int id);
+void spectcl_workspace_free_spectrum_parameters(spectrum_parameter** p);
+
+typedef struct {
+  char*  s_name;
+  int    s_version;
+  char*  s_timestamp;
+  spectrum_paramter** s_parameters;
+} spectrum_definition;
+
+void spectcl_workspace_free_spectrum_definitions(spectrum_definition** p);
+spectrum_definition** spectcl_workspace_find_spectra(spectcl_workspace ws,
+                                                      const char* pattern,
+                                                      int         allVersions);
+spectrum_definition*  spectcl_workspace_spectrum_properties(spectcl_workspace ws, int id);
+   
