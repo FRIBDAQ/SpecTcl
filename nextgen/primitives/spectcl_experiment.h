@@ -120,6 +120,13 @@ typedef struct _AugmentResult_ {
   pParameterData      s_pData;
 } AugmentResult, *pAugmentResult;
 
+/* Informatino gotten for a spectrum type: */
+
+typedef struct _spectcl_spectrum_type {
+  char* s_type;
+  char* s_description;
+} spectcl_spectrum_type;
+
 typedef  pAugmentResult   (AugmentCallback)(size_t, pParameterData, void*);
 /**
  ** Function definitions; and globals:
@@ -219,6 +226,16 @@ extern "C" {
   int spectcl_workspace_isWorkspace(spectcl_workspace ws);
   int spectcl_workspace_isCorrectExperiment(spectcl_experiment expdb,
 					    spectcl_workspace ws);
+
+  /** Functions used to query the spectrum types table. */
+
+  void spectcl_workspace_free_typelist(spectcl_spectrum_type** typeList);
+  spectcl_spectrum_type** spectcl_workspace_spectrumTypes(spectcl_workspace ws);
+  int                    spectcl_workspace_isValidType(spectcl_workspace ws,
+						       const char*       type);
+  char*                  spectcl_workspace_getDescription(spectcl_workspace ws,
+							  const char*     type);
+
 
 #ifdef __cplusplus
 }

@@ -84,6 +84,33 @@ create_config_values(sqlite3* db, uuid_t* uuid)
 }
 
 /**
+ ** Create and populate the spectrum types database:
+ ** @param ws  - The workspace database handle
+ ** @return int
+ ** @retval 0   - Everything worked.
+ ** @retval -1  - Something failed.
+ **
+ */
+static
+int createTypesTable(sqlite3* ws)
+{
+  /* Create the table: */
+
+  do_non_select(ws,
+		"CREATE TABLE spectrum_types (       \
+                       id     INTEGER PRIMARY KEY,   \
+                       type   VARCHAR(10),           \
+                       description VARCHAR(256))");
+  
+  /* Insert known spectrum types: */
+
+  do_non_select(ws,
+		"INSERT INTO spectrum_types (type,description)  \
+                             VALUES ('1', '1-D')");
+}
+
+
+/**
  ** Determine if an sqlite3 handle is open on a workspace database.
  ** this requires that we be able to get the 'type' config_item from
  ** the configuration_values table and that it have the value 'workspace'.
@@ -150,6 +177,8 @@ int spectcl_workspace_create(spectcl_experiment pHandle, const char* path)
   uuid_t* uuid = spectcl_experiment_uuid(db);
   status = create_config_values(ws, uuid);
   free(uuid);
+
+  createTypesTable(ws);
 
   spectcl_workspace_close(ws);
 
