@@ -248,7 +248,7 @@ extern "C" {
 						       const char*       type);
   char*                  spectcl_workspace_getDescription(spectcl_workspace ws,
 							  const char*     type);
-  /** Functions used to create spectra and 
+  /** Functions used to create spectra and  */
 
 
 #ifdef __cplusplus
