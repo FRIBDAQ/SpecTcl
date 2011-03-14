@@ -138,7 +138,7 @@ typedef struct _spectrum_definition  {
   char*  s_name;
   int    s_version;
   char*  s_timestamp;
-  spectrum_paramter** s_parameters;
+  spectrum_parameter** s_parameters;
 } spectrum_definition;
 
 /**
