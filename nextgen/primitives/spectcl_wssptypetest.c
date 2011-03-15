@@ -220,7 +220,7 @@ int main(void)
   tcase_add_test(tc_types, test_free_null);
 
 
-  srunner_set_fork_status(sr, CK_NOFORK);
+  /* srunner_set_fork_status(sr, CK_NOFORK); */
 
 
   srunner_run_all(sr, CK_NORMAL);

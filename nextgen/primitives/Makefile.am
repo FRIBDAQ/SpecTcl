@@ -25,14 +25,15 @@ noinst_HEADERS=spectcl_experimentInternal.h
 
 INCLUDES = -I. -I@top_srcdir@/NSCLException @SQLITE3_CFLAGS@
 
-TESTS=   c_workspacesptypes c_workspacebase c_eventstest	\
+TESTS=  c_workspacespectra \
+	 c_workspacesptypes c_workspacebase c_eventstest	\
 	c_exptests  c_runtests c_uuidtests c_paramtests
 
 
 
 check_PROGRAMS=c_workspacesptypes \
 	c_workspacebase c_exptests c_paramtests c_runtests c_uuidtests \
-	c_eventstest 
+	c_eventstest c_workspacespectra
 
 c_exptests_SOURCES=spectcl_experiment_check.c
 c_exptests_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
@@ -60,7 +61,12 @@ c_workspacebase_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
 c_workspacebase_LDADD=@CHECK_LIBS@ libExperiment.la
 
 
-
 c_workspacesptypes_SOURCES=spectcl_wssptypetest.c
 c_workspacesptypes_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
 c_workspacesptypes_LDADD=@CHECK_LIBS@ libExperiment.la
+
+c_workspacespectra_SOURCES=spectcl_wsspectest.c
+c_workspacespectra_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
+c_workspacespectra_LDADD=@CHECK_LIBS@ libExperiment.la
+
+

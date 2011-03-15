@@ -109,7 +109,30 @@ int createTypesTable(sqlite3* ws)
                              VALUES ('1', '1-D')");
 }
 
+/**
+ ** Create tables for spectrum definitions and
+ ** parameters in a spectrum.
+ ** @param ws   - Workspace sqlite3 connection id.
+ **
+ */
+void
+createSpectrumDefTables(sqlite3* ws)
+{
+  do_non_select(ws,
+		"CREATE TABLE spectrum_definitions ( \
+                    id INTEGER PRIMARY KEY,         \
+                    name VARCHAR(256),              \
+                    type_id INTEGER,                 \
+                    version  INTEGER)");
+  do_non_select(ws,
+		"CREATE TABLE spectrum_parameters ( \
+                 id  INTEGER PRIMARY KEY,           \
+                 spectrum_id INTEGER,               \
+                 parameter_id INTEGER,              \
+                 dimension    INTEGER,              \
+                 version      INTEGER)");
 
+}
 /**
  ** Determine if an sqlite3 handle is open on a workspace database.
  ** this requires that we be able to get the 'type' config_item from
@@ -179,6 +202,7 @@ int spectcl_workspace_create(spectcl_experiment pHandle, const char* path)
   free(uuid);
 
   createTypesTable(ws);
+  createSpectrumDefTables(ws);
 
   spectcl_workspace_close(ws);
 
