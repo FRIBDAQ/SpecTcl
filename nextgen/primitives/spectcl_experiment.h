@@ -135,6 +135,7 @@ typedef struct _spectrum_parameter {
 } spectrum_parameter;
 
 typedef struct _spectrum_definition  {
+  int    s_id;
   char*  s_name;
   int    s_version;
   char*  s_timestamp;
@@ -248,7 +249,22 @@ extern "C" {
 						       const char*       type);
   char*                  spectcl_workspace_getDescription(spectcl_workspace ws,
 							  const char*     type);
-  /** Functions used to create spectra and  */
+  /** Functions used to create spectra and get their properties.  */
+
+  int spectcl_workspace__create_spectrum(spectcl_experiment exp,
+					const char* pName,
+					const spectrum_parameter** pParams,
+					const char* attachPoint);
+  spectrum_parameter** spectcl_workspace_parameters(spectcl_workspace ws, 
+						    int id);
+  void spectcl_workspace_free_spectrum_parameters(spectrum_parameter** p);
+  void spectcl_workspace_free_spectrum_definitions(spectrum_definition** p);
+  spectrum_definition** spectcl_workspace_find_spectra(spectcl_workspace ws,
+						       const char* pattern,
+						       int         allVersions);
+  spectrum_definition*  spectcl_workspace_spectrum_properties(spectcl_workspace ws, int id);
+  
+  
 
 
 #ifdef __cplusplus
