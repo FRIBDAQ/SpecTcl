@@ -93,6 +93,38 @@ START_TEST(test_schema)
 }
 END_TEST
 
+/**
+ ** Experiment databases must be experiment
+ ** databases for the create primitive:
+ */
+START_TEST(test_create_notexp)
+{
+  int status = spectrum_workspace_create_spectrum(ws,
+						  NULL,
+						  NULL,
+						  NULL,
+						  NULL);
+  fail_unless(status == -1);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOT_EXPDATABASE);
+					     
+}
+END_TEST
+/**
+ ** There must be an attached workspace for a spectrum
+ ** to be created in it:
+ */
+START_TEST(test_create_notattached)
+{
+  int status = spectrum_workspace_create_spectrum(db,
+						  NULL,
+						  NULL,
+						  NULL,
+						  NULL);
+  fail_unless(status == -1);
+  fail_unless(spectcl_experiment_errno == SPEXP_UNATTACHED);
+
+}
+END_TEST
 /*------------------- Final setup  -----------*/
 int main(void) 
 {
@@ -107,6 +139,8 @@ int main(void)
 
 
   tcase_add_test(tc_spectra, test_schema);
+  tcase_add_test(tc_spectra, test_create_notexp);
+  tcase_add_test(tc_spectra, test_create_notattached);
 
   srunner_set_fork_status(sr, CK_NOFORK);
 

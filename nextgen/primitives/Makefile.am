@@ -14,7 +14,8 @@ libExperiment_la_SOURCES = spectcl_experiment.c \
 	spectcl_experimentInternal.c	\
 	spectcl_events.c		\
 	spectcl_workspace_base.c	\
-	spectcl_workspace_spectypes.c
+	spectcl_workspace_spectypes.c	\
+	spectcl_workspace_spectrum.c
 
 libExperiment_la_LIBADD=@SQLITE3_LDFLAGS@ -luuid
 

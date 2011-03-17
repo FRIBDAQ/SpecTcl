@@ -59,6 +59,7 @@
 #define SPEXP_WRONGEXPERIMENT  10
 #define SPEXP_UNATTACHED       11
 #define SPEXP_NOT_WORKSPACE    12
+#define SPEXP_NEWVERS          13
 #define SPEXP_UNIMPLEMENTED   100 /* for testing */
 
 /**
@@ -130,7 +131,7 @@ typedef struct _spectcl_spectrum_type {
 typedef  pAugmentResult   (AugmentCallback)(size_t, pParameterData, void*);
 
 typedef struct _spectrum_parameter {
-   char* s_name;
+   char*       s_name;
    int         s_dimension;
 } spectrum_parameter;
 
@@ -252,9 +253,10 @@ extern "C" {
   /** Functions used to create spectra and get their properties.  */
 
   int spectcl_workspace__create_spectrum(spectcl_experiment exp,
-					const char* pName,
-					const spectrum_parameter** pParams,
-					const char* attachPoint);
+					 const char* pType,
+					 const char* pName,
+					 const spectrum_parameter** pParams,
+					 const char* attachPoint);
   spectrum_parameter** spectcl_workspace_parameters(spectcl_workspace ws, 
 						    int id);
   void spectcl_workspace_free_spectrum_parameters(spectrum_parameter** p);
