@@ -21,6 +21,7 @@
 #include "spectcl_experimentInternal.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #define DEFAULT_ATTACH_POINT "WORKSPACE"
 
@@ -232,6 +233,50 @@ spectcl_workspace_spectrumTypes(spectcl_workspace ws)
 spectcl_spectrum_type** spectcl_experiment_spectrumTypes(spectcl_experiment exp,
 							  const char* attachPoint)
 {
+  const char* pAttach = DEFAULT_ATTACH_POINT;
+  int status;
+  const char*   statementFormat = "SELECT type,description FROM spectrum_types%s%s";
+  char*         sqlStatement;
+  sqlite3_stmt* stmt;
+  spectcl_spectrum_type** result = NULL;
+  spectcl_spectrum_type*  entry;
+  size_t                  nItems = 0; /* number of types gotten so far. */
+  size_t                  statementSize;
+  
+
+  if(!isExperimentDatabase(exp)) {
+    spectcl_experiment_errno = SPEXP_NOT_EXPDATABASE;
+    return NULL;
+  }
+  /* Figure out the attachment point and if there is a workspace
+  ** attached there.
+  */
+
+  if (attachPoint) {
+    pAttach = attachPoint;
+  }
+  status = spectcl_checkAttached(exp, pAttach, "workspace", SPEXP_UNATTACHED);
+  if (status != SPEXP_OK) {
+    spectcl_experiment_errno = status;
+    return NULL;
+  }
+
+  /* figure out the statement, allocate memory for it, prepare it and free the memory. */
+
+  statementSize = strlen(statementFormat) + strlen(pAttach) + 2;
+  sqlStatement  = malloc(statementSize);
+  if(!sqlStatement) {
+    spectcl_experiment_errno = SPEXP_NOMEM;
+    return NULL;
+  }
+  status = sqlite3_prepare_v2(exp, sqlStatement, -1, &stmt, NULL);
+  free(sqlStatement);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+    return NULL;
+  }
+  
+
   spectcl_experiment_errno = SPEXP_UNIMPLEMENTED;
   return NULL;
 }

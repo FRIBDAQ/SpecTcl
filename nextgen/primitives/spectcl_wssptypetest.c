@@ -196,6 +196,51 @@ END_TEST
 */
 START_TEST(test_espectypes_notexp)
 {
+  spectcl_spectrum_type** pList;
+  pList = spectcl_experiment_spectrumTypes(ws, NULL);
+  fail_unless(pList == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOT_EXPDATABASE);
+
+}
+END_TEST
+
+/*
+** experiment_spectrumTypes must have an attached workspace.
+*/
+
+START_TEST(test_espectypes_noattach)
+{
+ 
+  fail_unless(spectcl_experiment_spectrumTypes(db, NULL) == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_UNATTACHED);
+}
+END_TEST
+/**
+ ** Get the correct set of types on a ws attached in the default place.
+ */
+START_TEST(test_espectypes_okdefault)
+{
+  spectcl_spectrum_type** types;
+
+  spectcl_workspace_attach(db, ws, NULL);
+
+  types = spectcl_experiment_spectrumTypes(db, NULL);
+  fail_if(types == NULL);
+  /*
+  ** First one shouild be "1", "1-D", second one NULL for now.
+  */
+  if (types) {
+    spectcl_spectrum_type* type= *types;
+    fail_unless(strcmp(type->s_type, "1") == 0);
+    fail_unless(strcmp(type->s_description, "1-D") == 0);
+
+    type = types[1];
+    fail_unless(type == NULL);
+
+    /* Free storage */
+
+    spectcl_workspace_free_typelist(types);
+  }
 }
 END_TEST
 /*------------------------------------ final setup ---------------------------------------------*/
@@ -236,7 +281,8 @@ int main(void)
   /** Tests for experiment with workspace attached */
 
   tcase_add_test(tc_exptypes, test_espectypes_notexp);
-
+  tcase_add_test(tc_exptypes, test_espectypes_noattach);
+  tcase_add_test(tc_exptypes, test_espectypes_okdefault); /* default attach point. */
 
   /* srunner_set_fork_status(sr, CK_NOFORK); */
 
