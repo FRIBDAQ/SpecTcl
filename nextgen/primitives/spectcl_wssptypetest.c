@@ -191,18 +191,32 @@ START_TEST(test_free_null)
   spectcl_workspace_free_typelist(types);
 }
 END_TEST
+/*
+*  experiment_spectrumTypes need experiment parameter.
+*/
+START_TEST(test_espectypes_notexp)
+{
+}
+END_TEST
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
 {
   int  failures;
 
   Suite* s = suite_create("spectcl_workspace_spectypes");
+  Suite* se = suite_create("spectgcl_experiment_spectypes");
+
   SRunner* sr = srunner_create(s);
   TCase*   tc_types = tcase_create("spectypes");
+  TCase*   tc_exptypes = tcase_create("exp_spectypes");
+
+  srunner_add_suite(sr, se);
 
   tcase_add_checked_fixture(tc_types, setup, teardown);
   suite_add_tcase(s, tc_types);
 
+  tcase_add_checked_fixture(tc_exptypes, setup, teardown);
+  suite_add_tcase(se, tc_exptypes);
 
   tcase_add_test(tc_types, test_schema);
 
@@ -218,6 +232,10 @@ int main(void)
   tcase_add_test(tc_types, test_list_ok);
 
   tcase_add_test(tc_types, test_free_null);
+
+  /** Tests for experiment with workspace attached */
+
+  tcase_add_test(tc_exptypes, test_espectypes_notexp);
 
 
   /* srunner_set_fork_status(sr, CK_NOFORK); */

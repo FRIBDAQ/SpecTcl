@@ -30,7 +30,9 @@ static const char* errorMessages[] = {
   "NOT_EVENTSDATABASE - Database is not an events database",
   "WRONGEXPERIMENT  - Attempting to attach database from another experiment",
   "UNATTACHED - There is not attached database",
-  "NOT_WORKSPACE - The database is not a workspace"
+  "NOT_WORKSPACE - The database is not a workspace",
+  "NEW_VERS - New version created",
+  "INVTYPE - Invalid type"
 };
 
 static const char* catchAll = "BADCODE - Bad error code passed to spectcl_experiment_error_msg";

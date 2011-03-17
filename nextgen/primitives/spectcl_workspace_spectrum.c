@@ -88,6 +88,7 @@
  **  - SPEXP_BADPARAMS       - The spectrum parameter
  **                            definition is inconsistent
  **                            with the spectrum type.
+ ** - SPEXP_INVTYPE          - Invalid type.
  **
  **/
                             

@@ -22,6 +22,8 @@
 
 #include <stdlib.h>
 
+#define DEFAULT_ATTACH_POINT "WORKSPACE"
+
 /*------------------------ Private functions ----------------------------------*/
 
 /**
@@ -213,4 +215,38 @@ spectcl_workspace_spectrumTypes(spectcl_workspace ws)
   return result;
 
 
+}
+/**
+ ** Returns spectrum type list from a workspace that is attached to an experiment.
+ ** @param exp          - Experiment database handle.
+ ** @param attachPoint  - Attach point NULL means attached to DEFAULT_ATTACH_POINT
+ ** @return same as spectcl_workspace_spectrumTypes
+ **
+ **  Errors are:
+ **   - SPEXP_NOT_EXPDATABASE - exp is not an experiment database.
+ **   - SPEXP_NOMEM           - Out of memewory allocating storage.
+ **   - SPEXP_SQLFAIL         - Some SQL failed.
+ **   - SPEXP_UNATTACHED      - There is no attached workspace.
+ */
+
+spectcl_spectrum_type** spectcl_experiment_spectrumTypes(spectcl_experiment exp,
+							  const char* attachPoint)
+{
+  spectcl_experiment_errno = SPEXP_UNIMPLEMENTED;
+  return NULL;
+}
+/*
+ * Stubs:
+ */
+
+int                     spectcl_experiment_isValidType(spectcl_experiment exp,
+						       const char* attachPoint)
+{
+  return SPEXP_UNIMPLEMENTED;
+}
+char*                   spectcl_expermient_getDescription(spectcl_experiment exp,
+							    const char* attachPoint)
+{
+  spectcl_experiment_errno =  SPEXP_UNIMPLEMENTED;
+  return NULL;
 }

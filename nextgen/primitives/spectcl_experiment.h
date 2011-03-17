@@ -60,6 +60,7 @@
 #define SPEXP_UNATTACHED       11
 #define SPEXP_NOT_WORKSPACE    12
 #define SPEXP_NEWVERS          13
+#define SPEXP_INVTYPE          14  /* Invalid type of somwething */
 #define SPEXP_UNIMPLEMENTED   100 /* for testing */
 
 /**
@@ -250,6 +251,16 @@ extern "C" {
 						       const char*       type);
   char*                  spectcl_workspace_getDescription(spectcl_workspace ws,
 							  const char*     type);
+
+  /** The same functions are needed when the workspace is attached to an experiment: */
+
+  spectcl_spectrum_type** spectcl_experiment_spectrumTypes(spectcl_experiment exp,
+							    const char* attachPoint);
+  int                     spectcl_experiment_isValidType(spectcl_experiment exp,
+							 const char* attachPoint);
+  char*                   spectcl_expermient_getDescription(spectcl_experiment exp,
+							    const char* attachPoint);
+
   /** Functions used to create spectra and get their properties.  */
 
   int spectcl_workspace__create_spectrum(spectcl_experiment exp,
