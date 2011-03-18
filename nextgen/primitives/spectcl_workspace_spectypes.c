@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define DEFAULT_ATTACH_POINT "WORKSPACE"
 
@@ -66,6 +67,96 @@ getTypeRow(sqlite3_stmt* stmt)
 
 }
 
+/**
+ ** Common code to get spectrum types.  This can operate on a 'root' database
+ ** or on a workspace attached to an attach point depending on the parameters:
+ **
+ ** @param db            - An sqlite3 datbase handle.
+ ** @param attachPoint   - If not null, this is the poitn at which the workspace is
+ **                        attached relative to the database root.
+ ** @return spectcl_spectrum_type**
+ ** @retval non-null - Successful completion.
+ ** @retval NULL - Unsuccessful completion with an error in the 
+ **                spectcl_experiment_errno
+ **                global variable.
+ */
+static spectcl_spectrum_type**
+spectrumTypes(sqlite3* db, const char* attachPoint)
+{
+  const char* pSeparator="";
+  const char* pAttachment="";
+  int         status;
+  const char*   statementFormat = "SELECT type,description FROM %s%sspectrum_types";
+  char*         sqlStatement;
+  sqlite3_stmt* stmt;
+  spectcl_spectrum_type** result = NULL;
+  spectcl_spectrum_type*  entry;
+  size_t                  nItems = 0; /* number of types gotten so far. */
+  size_t                  statementSize;
+
+
+  if(attachPoint) {
+    pSeparator = ".";
+    pAttachment= attachPoint;
+    status = spectcl_checkAttached(db, pAttachment, "workspace", SPEXP_UNATTACHED);
+    if (status != SPEXP_OK) {
+      spectcl_experiment_errno = status;
+      return NULL;
+    } 
+  }
+
+  /* figure out the statement, allocate memory for it, prepare it and free the memory. */
+
+  statementSize = strlen(statementFormat) + strlen(pAttachment) + 2;
+  sqlStatement  = malloc(statementSize);
+  if(!sqlStatement) {
+    spectcl_experiment_errno = SPEXP_NOMEM;
+    return NULL;
+  }
+  sprintf(sqlStatement, statementFormat, pAttachment, pSeparator); 
+  status = sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+  free(sqlStatement);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+    return NULL;
+  }
+  
+  while (status = sqlite3_step(stmt)) {
+    if (status != SQLITE_ROW) {
+      break;
+    }
+    entry  = getTypeRow(stmt);	/* get one entry of the type row. */
+    if (!entry) {
+      spectcl_workspace_free_typelist(result);
+      spectcl_experiment_errno = SPEXP_NOMEM;
+      return NULL;
+    }
+    nItems++;
+    result = (spectcl_spectrum_type**)realloc(result,  nItems+1);
+    if (!result) {
+      free(entry);
+      spectcl_workspace_free_typelist(result);
+      spectcl_experiment_errno = SPEXP_NOMEM;
+      return NULL;
+    }
+    result[nItems -1] = entry;	
+    result[nItems]    = NULL;	/* null termination always. */
+  }
+  /* Finalize the statement and then analyze the result */
+
+  sqlite3_finalize(stmt);
+
+  if (status != SQLITE_DONE) {
+    spectcl_workspace_free_typelist(result);
+
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+    return NULL;
+  }
+
+  return result;
+
+  
+}
 /*------------------------- public functions ---------------------------------*/
 
 /**
@@ -161,59 +252,14 @@ spectcl_workspace_free_typelist(spectcl_spectrum_type** pList)
 spectcl_spectrum_type**
 spectcl_workspace_spectrumTypes(spectcl_workspace ws)
 {
-  sqlite3_stmt*           stmt;
-  const char*             sql    = "SELECT type,description FROM spectrum_types"; 
-  spectcl_spectrum_type** result = NULL;
-  spectcl_spectrum_type*  entry;
-  int                     status;
-  size_t                  nItems = 0; /* number of types gotten so far. */
+
+
 
   if(!spectcl_workspace_isWorkspace(ws)) {
     spectcl_experiment_errno = SPEXP_NOT_WORKSPACE;
     return NULL;
   }
-
-  /** Create the statement */
-
-  status = sqlite3_prepare_v2(ws, sql, -1, &stmt, NULL);
-  if(status != SQLITE_OK) {
-    spectcl_experiment_errno = SPEXP_SQLFAIL;
-    return NULL;
-  }
-
-  while (status = sqlite3_step(stmt)) {
-    if (status != SQLITE_ROW) {
-      break;
-    }
-    entry  = getTypeRow(stmt);	/* get one entry of the type row. */
-    if (!entry) {
-      spectcl_workspace_free_typelist(result);
-      spectcl_experiment_errno = SPEXP_NOMEM;
-      return NULL;
-    }
-    nItems++;
-    result = (spectcl_spectrum_type**)realloc(result,  nItems+1);
-    if (!result) {
-      free(entry);
-      spectcl_workspace_free_typelist(result);
-      spectcl_experiment_errno = SPEXP_NOMEM;
-      return NULL;
-    }
-    result[nItems -1] = entry;	
-    result[nItems]    = NULL;	/* null termination always. */
-  }
-  /* Finalize the statement and then analyze the result */
-
-  sqlite3_finalize(stmt);
-
-  if (status != SQLITE_DONE) {
-    spectcl_workspace_free_typelist(result);
-
-    spectcl_experiment_errno = SPEXP_SQLFAIL;
-    return NULL;
-  }
-
-  return result;
+  return spectrumTypes(ws, NULL);
 
 
 }
@@ -234,14 +280,6 @@ spectcl_spectrum_type** spectcl_experiment_spectrumTypes(spectcl_experiment exp,
 							  const char* attachPoint)
 {
   const char* pAttach = DEFAULT_ATTACH_POINT;
-  int status;
-  const char*   statementFormat = "SELECT type,description FROM spectrum_types%s%s";
-  char*         sqlStatement;
-  sqlite3_stmt* stmt;
-  spectcl_spectrum_type** result = NULL;
-  spectcl_spectrum_type*  entry;
-  size_t                  nItems = 0; /* number of types gotten so far. */
-  size_t                  statementSize;
   
 
   if(!isExperimentDatabase(exp)) {
@@ -255,30 +293,8 @@ spectcl_spectrum_type** spectcl_experiment_spectrumTypes(spectcl_experiment exp,
   if (attachPoint) {
     pAttach = attachPoint;
   }
-  status = spectcl_checkAttached(exp, pAttach, "workspace", SPEXP_UNATTACHED);
-  if (status != SPEXP_OK) {
-    spectcl_experiment_errno = status;
-    return NULL;
-  }
+  return spectrumTypes(exp, pAttach);
 
-  /* figure out the statement, allocate memory for it, prepare it and free the memory. */
-
-  statementSize = strlen(statementFormat) + strlen(pAttach) + 2;
-  sqlStatement  = malloc(statementSize);
-  if(!sqlStatement) {
-    spectcl_experiment_errno = SPEXP_NOMEM;
-    return NULL;
-  }
-  status = sqlite3_prepare_v2(exp, sqlStatement, -1, &stmt, NULL);
-  free(sqlStatement);
-  if (status != SQLITE_OK) {
-    spectcl_experiment_errno = SPEXP_SQLFAIL;
-    return NULL;
-  }
-  
-
-  spectcl_experiment_errno = SPEXP_UNIMPLEMENTED;
-  return NULL;
 }
 /*
  * Stubs:

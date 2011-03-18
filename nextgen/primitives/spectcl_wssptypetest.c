@@ -222,7 +222,7 @@ START_TEST(test_espectypes_okdefault)
 {
   spectcl_spectrum_type** types;
 
-  spectcl_workspace_attach(db, ws, NULL);
+  spectcl_workspace_attach(db, wsName, NULL);
 
   types = spectcl_experiment_spectrumTypes(db, NULL);
   fail_if(types == NULL);
@@ -284,7 +284,7 @@ int main(void)
   tcase_add_test(tc_exptypes, test_espectypes_noattach);
   tcase_add_test(tc_exptypes, test_espectypes_okdefault); /* default attach point. */
 
-  /* srunner_set_fork_status(sr, CK_NOFORK); */
+  srunner_set_fork_status(sr, CK_NOFORK); 
 
 
   srunner_run_all(sr, CK_NORMAL);
