@@ -243,13 +243,60 @@ START_TEST(test_espectypes_okdefault)
   }
 }
 END_TEST
+
+/**
+ ** Get correct set of types when ws attachment point is specified.
+ */
+START_TEST(test_espectypes_okspecified)
+{
+  spectcl_spectrum_type** types;
+
+  spectcl_workspace_attach(db, wsName, "TEST");
+
+  types = spectcl_experiment_spectrumTypes(db, "TEST");
+  fail_if(types == NULL);
+  /*
+  ** First one shouild be "1", "1-D", second one NULL for now.
+  */
+  if (types) {
+    spectcl_spectrum_type* type= *types;
+    fail_unless(strcmp(type->s_type, "1") == 0);
+    fail_unless(strcmp(type->s_description, "1-D") == 0);
+
+    type = types[1];
+    fail_unless(type == NULL);
+
+    /* Free storage */
+
+    spectcl_workspace_free_typelist(types);
+  }
+}
+END_TEST
+/**
+ *  experiment_isValidType should give SPEXP_NOT_EXPDATABASE
+ ** if handed a different handle
+ */
+START_TEST(test_evalid_notexp)
+{
+  fail_unless(spectcl_experiment_isValidType(ws,"1",  NULL) == SPEXP_NOT_EXPDATABASE);
+}
+END_TEST
+/*
+** Fail if there's no attached workspace
+*/
+START_TEST(test_evalid_unattached)
+{
+  fail_unless(spectcl_experiment_isValidType(db, "1", NULL) == SPEXP_UNATTACHED);
+}
+
+END_TEST
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
 {
   int  failures;
 
   Suite* s = suite_create("spectcl_workspace_spectypes");
-  Suite* se = suite_create("spectgcl_experiment_spectypes");
+  Suite* se = suite_create("spectcl_experiment_spectypes");
 
   SRunner* sr = srunner_create(s);
   TCase*   tc_types = tcase_create("spectypes");
@@ -283,6 +330,10 @@ int main(void)
   tcase_add_test(tc_exptypes, test_espectypes_notexp);
   tcase_add_test(tc_exptypes, test_espectypes_noattach);
   tcase_add_test(tc_exptypes, test_espectypes_okdefault); /* default attach point. */
+  tcase_add_test(tc_exptypes, test_espectypes_okspecified); /* Specified attach point */
+
+  tcase_add_test(tc_exptypes, test_evalid_notexp);
+  tcase_add_test(tc_exptypes, test_evalid_unattached);
 
   srunner_set_fork_status(sr, CK_NOFORK); 
 

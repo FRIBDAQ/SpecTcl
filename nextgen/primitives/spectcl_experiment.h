@@ -63,6 +63,12 @@
 #define SPEXP_INVTYPE          14  /* Invalid type of somwething */
 #define SPEXP_UNIMPLEMENTED   100 /* for testing */
 
+/*
+** Database default attach points 
+*/
+#define EVENTS_DEFAULT_ATTACH_POINT    "EVENTS"
+#define WORKSPACE_DEFAULT_ATTACH_POINT "WORKSPACE"
+
 /**
  * Data type definitinos.
  */
@@ -257,8 +263,10 @@ extern "C" {
   spectcl_spectrum_type** spectcl_experiment_spectrumTypes(spectcl_experiment exp,
 							    const char* attachPoint);
   int                     spectcl_experiment_isValidType(spectcl_experiment exp,
+							 const char*        type,
 							 const char* attachPoint);
   char*                   spectcl_expermient_getDescription(spectcl_experiment exp,
+							    const char*        type,
 							    const char* attachPoint);
 
   /** Functions used to create spectra and get their properties.  */

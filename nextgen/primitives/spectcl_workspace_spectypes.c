@@ -24,7 +24,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#define DEFAULT_ATTACH_POINT "WORKSPACE"
+#define DEFAULT_ATTACH_POINT WORKSPACE_DEFAULT_ATTACH_POINT
 
 /*------------------------ Private functions ----------------------------------*/
 
@@ -296,18 +296,38 @@ spectcl_spectrum_type** spectcl_experiment_spectrumTypes(spectcl_experiment exp,
   return spectrumTypes(exp, pAttach);
 
 }
+/**
+ ** Determines if a spectrum type is valid for a workspace attached
+ ** to an experiment database
+ ** @param exp         - experiment database.
+ ** @param type        - type to validate.
+ ** @param attachPoint - If not null this is the attachment point
+ **                      If null,DEFAULT_ATTACH_POINT is used instead.
+ ** @return int
+ ** @retval SPEXP_OK           - Valid type.
+ ** @retval SPEXP_NOSUCH       - Invalid type.
+ ** @retval SPEXP_NOT_EXPDATABASE -  exp isn not an experiment database handle.
+ ** @retval SPEXP_UNATTACHED      -  There is not a workspace attached at the specified point.
+ */ 
+int spectcl_experiment_isValidType(spectcl_experiment exp, const char* type,
+				   const char* attachPoint)
+{
+  if (!isExperimentDatabase(exp)) {
+    return SPEXP_NOT_EXPDATABASE;
+  }
+  return SPEXP_UNIMPLEMENTED;
+}
+
 /*
  * Stubs:
  */
 
-int                     spectcl_experiment_isValidType(spectcl_experiment exp,
-						       const char* attachPoint)
-{
-  return SPEXP_UNIMPLEMENTED;
-}
+
 char*                   spectcl_expermient_getDescription(spectcl_experiment exp,
+							  const char*       type,
 							    const char* attachPoint)
 {
   spectcl_experiment_errno =  SPEXP_UNIMPLEMENTED;
   return NULL;
 }
+

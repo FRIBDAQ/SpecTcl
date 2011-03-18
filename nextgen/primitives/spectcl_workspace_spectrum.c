@@ -34,7 +34,7 @@
 #define FALSE 0
 #endif
 
-#define DEFAULT_ATTACH_POINT  "WORKSPACE"
+#define DEFAULT_ATTACH_POINT  WORKSPACE_DEFAULT_ATTACH_POINT
 
 /*---------------------- Private functions -------- */
 

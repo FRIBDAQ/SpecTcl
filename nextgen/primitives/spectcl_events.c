@@ -30,7 +30,7 @@
  */
 static const int AllocationUnits = 10;
 
-#define DEFAULT_ATTACH_POINT "EVENTS"
+#define DEFAULT_ATTACH_POINT EVENTS_DEFAULT_ATTACH_POINT
 
 /*--------------------- private utilities.   ----------------------------*/
 
