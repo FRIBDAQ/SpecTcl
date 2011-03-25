@@ -488,3 +488,38 @@ spectcl_uuidCheck(sqlite3* db1, sqlite3* db2)
 
   return retval;
 }
+/**
+ **common code to take a statement that may need to
+ ** have a single point qualified by a workspace.
+ ** The workspace must be passed in in the form:
+ ** xxxxxx%s%sxxxxx
+ ** Where %s%s is where, if necessary the
+ ** AttachPoint. string will be substituted.
+ **
+ ** @param format - The format string described above
+ **                 for the thing to be qualified.
+ ** @param attachPoint - The attach point or null if there
+ **                      is none.
+ ** @return char*
+ ** @return NULL - Dynamic storage allocation failed.
+ ** @return other - Dynamically allocated result string.
+ */
+char* 
+spectcl_qualifyStatement(const char* format, const char* pAttach)
+{
+  const char* pSeparator="";
+  const char* pAttachment="";
+  size_t      tableLength;
+  char*       table;
+
+  if (pAttach) {
+    pSeparator = ".";
+    pAttachment = pAttach;
+  }
+  tableLength = strlen(format) + 
+    strlen(pAttachment) + strlen(pSeparator) + 2;
+  table = malloc(tableLength);
+  sprintf(table, format, pAttachment, pSeparator);
+
+  return table;
+}

@@ -68,6 +68,44 @@ getTypeRow(sqlite3_stmt* stmt)
 }
 
 /**
+ ** Common code to get a description string for a
+ ** spectrum type given that the workspace may or may not
+ ** be attached somewhere.
+ ** @param db - sqlite3 database handle that could be
+ **             either for an experiment or a workspace.
+ ** @param type - Abbreviated type string.
+ ** @param pAttach - If not null, the workspace database
+ **                  tables must be prefixed by this (.).
+ ** @return char* 
+ ** @retval NULL  - There is no matching spectrum type.
+ ** @retval other - Pointer to the spectrum type 
+ **                 long description string.  This is
+ **                 dynamically allocated and must
+ **                 eventually be free(3)'d.
+ */
+static char*
+typeDescription(sqlite3* db, const char* type, const char* pAttach)
+{
+  const char* pSeparator="";
+  const char* pAttachment="";
+  int         status;
+  char*       result;
+  char*       tableFormat = "%s%sspectrum_types";
+  size_t      tableLength;
+  char*       table;
+  
+  
+  table = spectcl_qualifyStatement(tableFormat, pAttach);
+  result = getfirst(db,table, "description", "type", type);
+  free(table);
+  
+  if (!result) {
+    spectcl_experiment_errno = SPEXP_NOSUCH;
+  }
+  return result;
+
+}
+/**
  ** Common code to get spectrum types.  This can operate on a 'root' database
  ** or on a workspace attached to an attach point depending on the parameters:
  **
@@ -96,24 +134,26 @@ spectrumTypes(sqlite3* db, const char* attachPoint)
 
 
   if(attachPoint) {
-    pSeparator = ".";
-    pAttachment= attachPoint;
+    pAttachment = attachPoint;
     status = spectcl_checkAttached(db, pAttachment, "workspace", SPEXP_UNATTACHED);
     if (status != SPEXP_OK) {
       spectcl_experiment_errno = status;
       return NULL;
-    } 
+    }   
   }
+
+ 
+  sqlStatement = spectcl_qualifyStatement(statementFormat,
+					  attachPoint);
+
 
   /* figure out the statement, allocate memory for it, prepare it and free the memory. */
 
-  statementSize = strlen(statementFormat) + strlen(pAttachment) + 2;
-  sqlStatement  = malloc(statementSize);
   if(!sqlStatement) {
     spectcl_experiment_errno = SPEXP_NOMEM;
     return NULL;
   }
-  sprintf(sqlStatement, statementFormat, pAttachment, pSeparator); 
+
   status = sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
   free(sqlStatement);
   if (status != SQLITE_OK) {
@@ -181,15 +221,8 @@ spectcl_workspace_getDescription(spectcl_workspace ws, const char* type)
     return NULL;
   }
 
-  result = getfirst(ws, "spectrum_types",
-		    "description", "type", type);
-  if (!result) {
-    spectcl_experiment_errno = SPEXP_NOSUCH;
-    return NULL;
-  }
-  else {
-    return result;
-  }
+  return typeDescription(ws, type, NULL);
+
 
 }
 /**
@@ -309,23 +342,58 @@ spectcl_spectrum_type** spectcl_experiment_spectrumTypes(spectcl_experiment exp,
  ** @retval SPEXP_NOT_EXPDATABASE -  exp isn not an experiment database handle.
  ** @retval SPEXP_UNATTACHED      -  There is not a workspace attached at the specified point.
  */ 
-int spectcl_experiment_isValidType(spectcl_experiment exp, const char* type,
+int spectcl_experiment_isValidType(spectcl_experiment exp, 
+				   const char* type,
 				   const char* attachPoint)
 {
+  const char* pAttach = WORKSPACE_DEFAULT_ATTACH_POINT;
+  const char* pDescrip;
+  int status;
+
   if (!isExperimentDatabase(exp)) {
     return SPEXP_NOT_EXPDATABASE;
   }
-  return SPEXP_UNIMPLEMENTED;
+  if (attachPoint) {
+    pAttach = attachPoint;
+  }
+  status = spectcl_checkAttached(exp,
+				 pAttach, "workspace",
+				 SPEXP_UNATTACHED);
+  if (status != SPEXP_OK) {
+    return status;
+  }
+
+  pDescrip = typeDescription(exp, type, pAttach);
+  free(pDescrip);
+  return pDescrip ? SPEXP_OK : SPEXP_NOSUCH;
+
 }
 
-/*
- * Stubs:
+/**
+ * Retrieve the spectrum type description given a spectrum
+ * type code.
+ * @param exp   - Experiment database.
+ * @param type  - Short spectrum type.
+ * @param attachPoint - the point at which the workspace
+ *                      is attached to the experiment
+ *                      database.
+ * @return char*
+ * @retval NULL - Failure with the reason for failure
+ *                stored in spectcl_experiment_errno.
+ * @retval non_null - Pointer to a dynamically allocated
+ *                    text string that contains the
+ *                    spectrum type description.
+ * 
+ * Errors:
+ *
+ ** @retval SPEXP_OK           - Valid type.
+ ** @retval SPEXP_NOSUCH       - Invalid type.
+ ** @retval SPEXP_NOT_EXPDATABASE -  exp isn not an experiment database handle.
+ ** @retval SPEXP_UNATTACHED      -  There is not a workspace attached at the specified point.
  */
-
-
-char*                   spectcl_expermient_getDescription(spectcl_experiment exp,
-							  const char*       type,
-							    const char* attachPoint)
+char*  spectcl_expermient_getDescription(spectcl_experiment exp,
+					 const char*        type,
+					 const char* attachPoint)
 {
   spectcl_experiment_errno =  SPEXP_UNIMPLEMENTED;
   return NULL;

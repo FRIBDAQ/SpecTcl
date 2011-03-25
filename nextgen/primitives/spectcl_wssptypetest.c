@@ -290,6 +290,43 @@ START_TEST(test_evalid_unattached)
 }
 
 END_TEST
+
+/*
+** If attached default can I get a correcty result:
+*/
+START_TEST( test_evalid_okdefault)
+{
+  spectcl_workspace_attach(db, wsName, NULL);
+  fail_unless(spectcl_experiment_isValidType(db, "1", NULL) == SPEXP_OK);
+}
+END_TEST
+/**
+ * IF attached to non default should get a correct answer too:
+ */
+START_TEST(test_evalid_okspecified)
+{
+  spectcl_workspace_attach(db, wsName, "TEST");
+  fail_unless(spectcl_experiment_isValidType(db, "1", "TEST") == SPEXP_OK);
+}
+END_TEST
+/*
+** If we ask about an invalid spectrum type we should find that it is invalid.
+*/
+START_TEST(test_evalid_nosuch)
+{
+  spectcl_workspace_attach(db, wsName, "TEST");
+  fail_unless(spectcl_experiment_isValidType(db, "ZZZ", "TEST") == SPEXP_NOSUCH);
+}
+END_TEST
+
+START_TEST(test_edesc_notexp)
+{
+  fail();
+
+}
+END_TEST
+
+
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
 {
@@ -334,6 +371,11 @@ int main(void)
 
   tcase_add_test(tc_exptypes, test_evalid_notexp);
   tcase_add_test(tc_exptypes, test_evalid_unattached);
+  tcase_add_test(tc_exptypes,  test_evalid_okdefault);
+  tcase_add_test(tc_exptypes,  test_evalid_okspecified);
+  tcase_add_test(tc_exptypes,  test_evalid_nosuch);
+
+  tcase_add_test(tc_exptypes, test_edesc_notexp);
 
   srunner_set_fork_status(sr, CK_NOFORK); 
 
