@@ -347,7 +347,7 @@ int spectcl_experiment_isValidType(spectcl_experiment exp,
 				   const char* attachPoint)
 {
   const char* pAttach = WORKSPACE_DEFAULT_ATTACH_POINT;
-  const char* pDescrip;
+  char* pDescrip;
   int status;
 
   if (!isExperimentDatabase(exp)) {
@@ -386,16 +386,38 @@ int spectcl_experiment_isValidType(spectcl_experiment exp,
  * 
  * Errors:
  *
- ** @retval SPEXP_OK           - Valid type.
- ** @retval SPEXP_NOSUCH       - Invalid type.
- ** @retval SPEXP_NOT_EXPDATABASE -  exp isn not an experiment database handle.
- ** @retval SPEXP_UNATTACHED      -  There is not a workspace attached at the specified point.
+ **  - SPEXP_OK           - Valid type.
+ **  - SPEXP_NOSUCH       - Invalid type.
+ **  - SPEXP_NOT_EXPDATABASE -  exp isn not an experiment database handle.
+ **  - SPEXP_UNATTACHED      -  There is not a workspace attached at the specified point.
  */
-char*  spectcl_expermient_getDescription(spectcl_experiment exp,
+char*  spectcl_experiment_getDescription(spectcl_experiment exp,
 					 const char*        type,
 					 const char* attachPoint)
 {
-  spectcl_experiment_errno =  SPEXP_UNIMPLEMENTED;
-  return NULL;
+  int status;
+  const char* pAttach = WORKSPACE_DEFAULT_ATTACH_POINT;
+
+  /* Require exp be an experiment database: */
+
+  if (!isExperimentDatabase(exp)) {
+    spectcl_experiment_errno = SPEXP_NOT_EXPDATABASE;
+    return NULL;
+  }
+  /* Figure out the attach point and ensure there's a workspace there */
+
+  
+  if (attachPoint != NULL) {
+    pAttach = attachPoint;
+  }
+  status = spectcl_checkAttached(exp,pAttach, "workspace",
+				 SPEXP_UNATTACHED);
+  if(status != SPEXP_OK) {
+    spectcl_experiment_errno = SPEXP_UNATTACHED;
+    return NULL;
+  }
+
+  return typeDescription(exp, type, pAttach);
+
 }
 

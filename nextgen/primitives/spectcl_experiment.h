@@ -265,7 +265,7 @@ extern "C" {
   int                     spectcl_experiment_isValidType(spectcl_experiment exp,
 							 const char*        type,
 							 const char* attachPoint);
-  char*                   spectcl_expermient_getDescription(spectcl_experiment exp,
+  char*                   spectcl_experiment_getDescription(spectcl_experiment exp,
 							    const char*        type,
 							    const char* attachPoint);
 

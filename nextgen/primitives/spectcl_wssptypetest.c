@@ -319,13 +319,59 @@ START_TEST(test_evalid_nosuch)
 }
 END_TEST
 
+/*
+** getDescription should return NOT_EXPDATABASE if workspace is handed.
+*/
 START_TEST(test_edesc_notexp)
 {
-  fail();
+  fail_unless(spectcl_experiment_getDescription(ws, "1", NULL) == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOT_EXPDATABASE);
 
 }
 END_TEST
+/**
+ * getDescription should return UNATTACHED if exp has no workspace attachyed,
+ */
+START_TEST(test_edesc_unatt)
+{
+  fail_unless(spectcl_experiment_getDescription(db, "1", NULL) == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_UNATTACHED);
+}
+END_TEST
 
+/**
+ * Test that we can get the correct description fromthe default attach point.
+ */
+START_TEST(test_edesc_okdefault)
+{
+  char* pDesc;
+  spectcl_workspace_attach(db, wsName, NULL);
+  pDesc  = spectcl_experiment_getDescription(db, "1", NULL);
+
+  fail_if(pDesc == NULL);
+  if (pDesc) {
+    fail_unless(strcmp(pDesc, "1-D") == 0);
+    free(pDesc);
+  }
+}
+END_TEST
+
+/**
+ ** test that we can get a correct description from a specified attach point.
+ */
+START_TEST(test_edesc_okspecified)
+{
+  char* pDesc;
+  spectcl_workspace_attach(db, wsName, "TEST");
+  pDesc  = spectcl_experiment_getDescription(db, "1", "TEST");
+
+  fail_if(pDesc == NULL);
+  if (pDesc) {
+    fail_unless(strcmp(pDesc, "1-D") == 0);
+    free(pDesc);
+  }
+}
+END_TEST
 
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
@@ -376,6 +422,9 @@ int main(void)
   tcase_add_test(tc_exptypes,  test_evalid_nosuch);
 
   tcase_add_test(tc_exptypes, test_edesc_notexp);
+  tcase_add_test(tc_exptypes, test_edesc_unatt);
+  tcase_add_test(tc_exptypes, test_edesc_okdefault);
+  tcase_add_test(tc_exptypes, test_edesc_okspecified);
 
   srunner_set_fork_status(sr, CK_NOFORK); 
 
