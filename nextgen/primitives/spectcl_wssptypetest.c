@@ -373,6 +373,17 @@ START_TEST(test_edesc_okspecified)
 }
 END_TEST
 
+START_TEST(test_edesc_nosuch)
+{
+  char* pDesc;
+  spectcl_workspace_attach(db, wsName, NULL);
+  pDesc = spectcl_experiment_getDescription(db, "XYZZY", NULL);
+  fail_unless(pDesc == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOSUCH);
+
+}
+END_TEST
+
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
 {
@@ -425,6 +436,7 @@ int main(void)
   tcase_add_test(tc_exptypes, test_edesc_unatt);
   tcase_add_test(tc_exptypes, test_edesc_okdefault);
   tcase_add_test(tc_exptypes, test_edesc_okspecified);
+  tcase_add_test(tc_exptypes, test_edesc_nosuch);
 
   srunner_set_fork_status(sr, CK_NOFORK); 
 

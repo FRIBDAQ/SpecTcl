@@ -125,6 +125,48 @@ START_TEST(test_create_notattached)
 
 }
 END_TEST
+
+/*
+  Ensure spectrum type must be valid:
+*/
+START_TEST(test_create_badtype)
+{
+  int status;
+  spectcl_workspace_attach(db, wsName, NULL);
+  status = spectrum_workspace_create_spectrum(db,
+					      "XYZZY",
+					      NULL, 
+					      NULL,
+					      NULL);
+  fail_unless(status == -1);
+  fail_unless(spectcl_experiment_errno == SPEXP_INVTYPE);
+
+}
+END_TEST
+
+START_TEST(test_create_badparam)
+{
+  spectrum_parameter p1 = {
+    "param1",
+    1
+  };
+  spectrum_parameter* params[2]  = {
+    &p1, NULL
+  };
+
+  int status;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  status = spectrum_workspace_create_spectrum(db,
+					      "1",
+					      "spectrum.test",
+					      params,
+					      NULL);
+  fail_unless(status == -1);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOSUCH);
+  
+}
+END_TEST
 /*------------------- Final setup  -----------*/
 int main(void) 
 {
@@ -141,6 +183,8 @@ int main(void)
   tcase_add_test(tc_spectra, test_schema);
   tcase_add_test(tc_spectra, test_create_notexp);
   tcase_add_test(tc_spectra, test_create_notattached);
+  tcase_add_test(tc_spectra, test_create_badtype);
+  tcase_add_test(tc_spectra, test_create_badparam);
 
   srunner_set_fork_status(sr, CK_NOFORK);
 

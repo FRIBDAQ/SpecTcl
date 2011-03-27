@@ -37,8 +37,37 @@
 #define DEFAULT_ATTACH_POINT  WORKSPACE_DEFAULT_ATTACH_POINT
 
 /*---------------------- Private functions -------- */
-
-/*-------------------- public fucntions ----------*/
+/**
+ ** Determine if all spectrum parameters exist for
+ ** a spectrum.
+ ** @param db  - Experiment database that has the
+ **              parameter definitions.
+ ** @param ppParams - Parameter definitions to check for.
+ ** @return int
+ ** @retval TRUE - All parameters are defined.
+ ** @retval FALSE - At least one parameters is not defined.
+ */
+int
+allParametersExist(spectcl_experiment db, 
+		   const spectrum_parameter** ppParams)
+{
+  parameter_list list;
+  parameter_info* pInfo;
+  while (*ppParams) {
+    list = spectcl_parameter_list(db, (*ppParams)->s_name);
+    if (!list) {		/* Unforeseen problem. */
+      return FALSE;
+    }
+    pInfo = list[0];
+    spectcl_free_parameter_list(list);
+    if(!pInfo) {		/* No matching spectrum. */
+      return FALSE;
+    }
+    ppParams++;
+  }
+  return TRUE;
+}
+/*--------------------- public fucntions ----------*/
 /**
  ** Create a new spectrum definition.
  ** Once a spectrum has been created it can be instantiated
@@ -119,7 +148,19 @@ int spectrum_workspace_create_spectrum(spectcl_experiment experiment,
     spectcl_experiment_errno = status;
     return -1;
   }
+  /*  Ensure the spectrum type is valid */
 
+  if (spectcl_experiment_isValidType(experiment,
+				      pType,
+				      attachPoint) != SPEXP_OK) {
+    spectcl_experiment_errno = SPEXP_INVTYPE;
+    return -1;
+  }
+  if(!allParametersExist(experiment,  ppParams)) {
+    spectcl_experiment_errno = SPEXP_NOSUCH;
+    return -1;
+  }
   spectcl_experiment_errno = SPEXP_UNIMPLEMENTED;
   return -1;
 }
+
