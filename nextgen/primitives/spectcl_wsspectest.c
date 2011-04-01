@@ -99,7 +99,7 @@ END_TEST
  */
 START_TEST(test_create_notexp)
 {
-  int status = spectrum_workspace_create_spectrum(ws,
+  int status = spectcl_workspace_create_spectrum(ws,
 						  NULL,
 						  NULL,
 						  NULL,
@@ -115,7 +115,7 @@ END_TEST
  */
 START_TEST(test_create_notattached)
 {
-  int status = spectrum_workspace_create_spectrum(db,
+  int status = spectcl_workspace_create_spectrum(db,
 						  NULL,
 						  NULL,
 						  NULL,
@@ -133,7 +133,7 @@ START_TEST(test_create_badtype)
 {
   int status;
   spectcl_workspace_attach(db, wsName, NULL);
-  status = spectrum_workspace_create_spectrum(db,
+  status = spectcl_workspace_create_spectrum(db,
 					      "XYZZY",
 					      NULL, 
 					      NULL,
@@ -143,7 +143,9 @@ START_TEST(test_create_badtype)
 
 }
 END_TEST
-
+/*
+** Parameter must be ok.
+*/
 START_TEST(test_create_badparam)
 {
   spectrum_parameter p1 = {
@@ -157,7 +159,7 @@ START_TEST(test_create_badparam)
   int status;
 
   spectcl_workspace_attach(db, wsName, NULL);
-  status = spectrum_workspace_create_spectrum(db,
+  status = spectcl_workspace_create_spectrum(db,
 					      "1",
 					      "spectrum.test",
 					      params,
@@ -165,6 +167,89 @@ START_TEST(test_create_badparam)
   fail_unless(status == -1);
   fail_unless(spectcl_experiment_errno == SPEXP_NOSUCH);
   
+}
+END_TEST
+/*
+** 1-d spectrum - only dimension 1 is allowed
+*/
+START_TEST(test_create_1dbaddim)
+{
+  spectrum_parameter p1 = {
+    "param1",
+    2				/* Illegal dim number for 1d. */
+  };
+  spectrum_parameter* params[2]  = {
+    &p1, NULL
+  };
+
+  int status;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+
+  status = spectcl_workspace_create_spectrum(db,
+					     "1", "spectrum.test",
+					     params, NULL);
+  fail_unless(status == -1);
+  fail_unless(spectcl_experiment_errno == SPEXP_BADPARAMS);
+
+}
+END_TEST
+
+/**
+ * 1-d spectrum - only one parameter is allowed:
+ */
+START_TEST(test_create_1dbadcount)
+{
+  spectrum_parameter p1 = {
+    "param1",
+    1				/* Illegal dim number for 1d. */
+  };
+  spectrum_parameter p2 = {
+    "param2",
+    1
+  };
+  spectrum_parameter* params[3] = {
+    &p1, &p2, NULL
+  };
+  int status;
+
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+  spectcl_parameter_create(db, "param2", "arb", NULL, NULL);
+
+  status = spectcl_workspace_create_spectrum(db,
+					     "1", "spectrum.test",
+					     params, NULL);
+  fail_unless(status == -1);
+  fail_unless(spectcl_experiment_errno == SPEXP_BADPARAMS);
+}
+END_TEST
+
+/*
+** Test that the first creation of a spectrum produces the correct results:
+** - return value > 0, and SPEXP_OK
+*/
+START_TEST(test_create_1dgood1st)
+{
+  spectrum_parameter p1 = {
+    "param1",
+    1				/* Illegal dim number for 1d. */
+  };
+  spectrum_parameter* params[3] = {
+    &p1, NULL
+  };
+  int status;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+
+   status = spectcl_workspace_create_spectrum(db,
+					     "1", "spectrum.test",
+					     params, NULL);
+   fail_if(status <= 0);
+   fail_unless(spectcl_experiment_errno == SPEXP_OK);
 }
 END_TEST
 /*------------------- Final setup  -----------*/
@@ -185,6 +270,10 @@ int main(void)
   tcase_add_test(tc_spectra, test_create_notattached);
   tcase_add_test(tc_spectra, test_create_badtype);
   tcase_add_test(tc_spectra, test_create_badparam);
+  tcase_add_test(tc_spectra, test_create_1dbaddim);
+  tcase_add_test(tc_spectra, test_create_1dbadcount);
+  tcase_add_test(tc_spectra, test_create_1dgood1st);
+  /* tcase_add_test(tc_spectra, test_create_1dgoodnewvers); */
 
   srunner_set_fork_status(sr, CK_NOFORK);
 

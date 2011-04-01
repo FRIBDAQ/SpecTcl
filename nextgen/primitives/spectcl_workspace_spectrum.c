@@ -36,6 +36,55 @@
 
 #define DEFAULT_ATTACH_POINT  WORKSPACE_DEFAULT_ATTACH_POINT
 
+/*--------------------- Local data structures ------*/
+
+typedef int (*validate_parameters)(const spectrum_parameter**);
+
+typedef struct _spectrum_driver_entry {
+  const char*         s_type;
+  validate_parameters s_pParameterValidator;
+} spectrum_driver_entry, *pspectrum_driver_entry;
+
+
+
+/*--------------------- 1D spectrum driver functions --------------*/
+/** This section should probably be spun off into another module  */
+
+/*
+** Validate 1d parameters.  We require that:
+** - There's only one parameter in the list.
+** - The parameter that is present is for dimension 1
+** @note The caller is assumed to already have determined that the parameter
+**       name(s) actually exist.
+** @param ppParams  - List of parameter definition pointers (null terminated).
+** @return int
+** @retval TRUE  - The parameters pass validation.
+** @retval FALSE - The parameters fail validation
+*/
+static int 
+validate1dParameters(const spectrum_parameter** ppParams)
+{
+  int count = 0;
+  while (*ppParams) {
+    if ((*ppParams)->s_dimension != 1) return FALSE; /* Bad dimension number. */
+    ppParams++;
+    count++;
+  }
+  if (count != 1) return FALSE;
+  return TRUE;
+}
+
+/*
+** Local data - consiting of the spectrum driver switch table.
+*/
+spectrum_driver_entry spectrumTypeSwitchTable[] = 
+{
+  {"1", validate1dParameters}
+};
+static const int spectrumTypeCount = 
+  sizeof(spectrumTypeSwitchTable)/sizeof(spectrum_driver_entry);
+
+
 /*---------------------- Private functions -------- */
 /**
  ** Determine if all spectrum parameters exist for
@@ -47,7 +96,7 @@
  ** @retval TRUE - All parameters are defined.
  ** @retval FALSE - At least one parameters is not defined.
  */
-int
+static int
 allParametersExist(spectcl_experiment db, 
 		   const spectrum_parameter** ppParams)
 {
@@ -67,7 +116,161 @@ allParametersExist(spectcl_experiment db,
   }
   return TRUE;
 }
-/*--------------------- public fucntions ----------*/
+/**
+ * Validate that the parameters in a spectrum definition are
+ * valid for that spectrum type.  This is done by locating
+ * the appropriate spectrum driver and calling its s_pParameterValidator
+ * entry.
+ * The spectrum type is already supposed to have been validated, but as an
+ * added safety net, not finding the driver makes the list automatically 
+ * invalid.
+ * @param pType    - Type string for the spectrum.
+ * @param ppParams - Parameter definitions.
+ * @return int
+ * @retval TRUE    - Valid parameter list for spectrum type.
+ * @retval FALSE   - Invalid parameter list for spectrum type.
+ */
+static int
+validateParameters(const char* pType, const spectrum_parameter** ppParams)
+{
+  int                             i;
+  pspectrum_driver_entry driver = NULL;
+  /* locate the spectrum driver. */
+
+  for(i =0; i < spectrumTypeCount; i++) {
+    if (strcmp(pType, spectrumTypeSwitchTable[i].s_type) == 0) {
+      driver = &(spectrumTypeSwitchTable[i]);
+    }
+  }
+  if(!driver) return FALSE;
+
+  return  (*(driver->s_pParameterValidator))(ppParams);
+
+}
+/**
+ ** Release storage associated with a spectrum definition.
+ ** @param pDef - Pointer to the dymamically allocated spectrum storage.
+ ** @retun void 
+ */
+static void
+freeSpectrumDefinition(spectrum_definition* pDef)
+{
+}
+/**
+ ** Locate the most recent version of a spectrum, or determine that there are
+ ** no versions of the specified spectrum.
+ ** @param db    - Sqlite handle to the experiment data base.
+ ** @param pName - Name of the spectrum.
+ ** @param atPoint - Where the spectrum database is attached to the
+ **                  experiment database (used to create the table names).
+ ** @return spectrum_definition*
+ ** @retval NULL - pName has never been defined.
+ ** @retval non-null -Spectrum definition for the most recent spectrum 
+ **                   definition with that name.
+ */
+static spectrum_definition*
+findLastDefinition(sqlite3* db, const char* pName, const char* atPoint)
+{
+  /* There's a bit of dirt here  the %%s.spectrum_parameters  after
+     passing through the first run of qualify statement will turn into
+     %s.spectrum_parameters for the next round of substitution. 
+  */
+
+  const char* sqlFormat = "SELECT * FROM %s.spectrum_definitions sd \
+                                    INNER JOIN %%s.spectrum_parameters sp \
+                                    ON         sd.id = sp.spectrum_id  \
+                                    WHERE      sd.name  = :spname      \
+                                    AND        sd.version = sp.version \
+                                    ORDER BY   sd.version DESC";
+  char* sql1;		/* used to build the statments.  */
+  char* sql;
+  sqlite3_stmt* stmt;
+  int status;
+  spectrum_definition* result = NULL;
+
+  /* Build the full statment into sql */
+
+  sql1 = spectcl_qualifyStatement(sqlFormat, atPoint);
+  if (!sql1) {
+    return NULL;
+  }
+  sql = spectcl_qualifyStatement(sql1, atPoint);
+  free(sql1);
+  if (!sql) {
+    return NULL;
+  }
+  
+  /* parse and bind:  */
+
+  status = sqlite3_prepare_v2(db,
+			      sql, -1, &stmt, NULL);
+  if (status != SQLITE_OK) {
+    return NULL;		/* Complete failure. */
+  }
+  status = sqlite3_bind_text(stmt, 1, pName, -1, SQLITE_STATIC);
+  if(status != SQLITE_OK) {
+    sqlite3_finalize(stmt);
+  }
+
+  /* First step will either be done (no matching statement)
+     or will provide the spectrum definition and the first parameter definition.
+  */
+  status = sqlite3_step(stmt);
+  if (status == SQLITE_ROW) {
+    result = malloc(sizeof(spectrum_definition));
+    if (!result) goto done;
+
+  } 
+ done:
+  sqlite3_finalize(stmt);
+  return result;
+} 
+/**
+ ** Allocate a spectrum version number for a given spectrum name.
+ ** @param db      - Experiment database
+ ** @param pName   - Spectrum name for which we need a version.
+ ** @param atPoint - Where the workspace is attached to the experiment.
+ ** @return int 
+ ** @retval The version number to use for a spectrum with this name.
+ ** @note if no spectrum named pName exists, then
+ **       1 is returned, if one does exist, one larger than the highest
+ **       version number is returned.
+ */
+static int
+allocateVersion(sqlite3* db, const char*pName, const char* atPoint)
+{
+  spectrum_definition* pLastOne;
+  int                  version;
+
+  pLastOne = findLastDefinition(db, pName, atPoint);
+  if(!pLastOne) return 1;
+
+  version = pLastOne->s_version + 1;
+
+  freeSpectrumDefinition(pLastOne);
+
+  return version;
+
+}
+/**
+ ** Create a spectrum using the specific spectrum type driver
+ ** @param db   - Experiment database.
+ ** @param pName - Name of the new spectrum.
+ ** @param pType - Spectrum type.
+ ** @param ppParams - Parmeter definitions.
+ ** @param version  - Version number for the spectrum.
+ ** @param atpoint  - Where the workspace is attached to the experiment database.
+ ** @return int
+ ** @retval primary key of the created spectrum in the spectrum_definitions table.
+ */
+int
+createSpectrum(sqlite3* db, const char* pName, const char* pType,
+	       const spectrum_parameter** ppParams, int version, const char* atPoint)
+{
+  return 1;
+}
+
+/*--------------------- public functions ----------*/
 /**
  ** Create a new spectrum definition.
  ** Once a spectrum has been created it can be instantiated
@@ -121,7 +324,7 @@ allParametersExist(spectcl_experiment db,
  **
  **/
                             
-int spectrum_workspace_create_spectrum(spectcl_experiment experiment,
+int spectcl_workspace_create_spectrum(spectcl_experiment experiment,
 				       const char*  pType,
 				       const char*  pName,
 				       const spectrum_parameter** ppParams,
@@ -160,7 +363,15 @@ int spectrum_workspace_create_spectrum(spectcl_experiment experiment,
     spectcl_experiment_errno = SPEXP_NOSUCH;
     return -1;
   }
-  spectcl_experiment_errno = SPEXP_UNIMPLEMENTED;
-  return -1;
+
+  if (!validateParameters(pType, ppParams)) {
+    spectcl_experiment_errno = SPEXP_BADPARAMS;
+    return -1;
+  }
+
+  int version = allocateVersion(experiment, pName, whereAttached);
+  return createSpectrum(experiment, pName, pType, ppParams, version, whereAttached);
+
 }
+
 

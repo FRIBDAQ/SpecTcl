@@ -61,6 +61,7 @@
 #define SPEXP_NOT_WORKSPACE    12
 #define SPEXP_NEWVERS          13
 #define SPEXP_INVTYPE          14  /* Invalid type of somwething */
+#define SPEXP_BADPARAMS        15
 #define SPEXP_UNIMPLEMENTED   100 /* for testing */
 
 /*
