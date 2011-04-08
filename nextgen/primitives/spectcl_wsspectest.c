@@ -258,7 +258,7 @@ int main(void)
   int  failures;
 
   Suite* s = suite_create("spectcl_workspace_spectra");
-  SRunner* sr = srunner_create(s);3
+  SRunner* sr = srunner_create(s);
   TCase*   tc_spectra = tcase_create("spectra");
 
   tcase_add_checked_fixture(tc_spectra, setup, teardown);
