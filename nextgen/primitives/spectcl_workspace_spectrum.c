@@ -46,6 +46,11 @@ typedef struct _spectrum_driver_entry {
 } spectrum_driver_entry, *pspectrum_driver_entry;
 
 
+typedef struct _rawparameter_info {
+  int     s_id;			/* Id of parameter in definition table. */
+  int     s_dimension;		/* Parameter dimension number. */
+} rawparameter_info, *pRawparameter_info, **ppRawParameterInfo;
+
 
 /*--------------------- 1D spectrum driver functions --------------*/
 /** This section should probably be spun off into another module  */
@@ -253,7 +258,59 @@ allocateVersion(sqlite3* db, const char*pName, const char* atPoint)
 
 }
 /**
- ** Create a spectrum using the specific spectrum type driver
+   Fill in a rawparameter_info struct with information about the
+   parameters in the requested spectrum.
+   @param db       - Experiment database handle (checked by caller).
+   @param ppParams - Null terminated arrayw of spectrum parameter descriptors.
+   @return pRawparameter_info
+   @retval NULL - if failure.
+   @retval pointer to a null terminated array of pointers to rawoarameter_info structs.
+*/ 
+static ppRawParameterInfo
+getRawParameterInfo(sqlite3* db, const spectrum_parameter** ppParams)
+{
+  parameter_list      pParameter;
+  ppRawParameterInfo  result = NULL;
+  pRawparameter_info  aParameter;
+  int                 nResults = 0;
+
+  while(ppParams) {
+    pParameter  = spectcl_parameter_list(db, (*ppParams)->s_name);
+    if (!pParameter) {
+      /* TODO: Free result */
+
+      return NULL;
+    }
+    aParameter = malloc(sizeof(rawparameter_info));
+    if (!aParameter) {
+      /* TODO: Free result */
+      
+      return NULL;
+    }
+    /* TODO: Finish this!!! */
+
+    ppParams++;
+  }
+  return result;
+
+}
+
+
+/**
+ ** Create a spectrum using the specific spectrum type driver.
+ ** Note that at this point everything has been validated and
+ ** I think spectrum creation is not spectrum type dependent.
+ ** I must:
+ **  - Look up the parameter ids for each parameter.
+ **  - Add the spectrum definition to the spectrum_definitions table.
+ **  - Get the id of the spectrum I've added.
+ **  - Add the parameters to the spectrum_parameters table linked to the
+ **    spectrum, and version.
+ ** All of this is done in a transaction so that:
+ ** - Nobody can stomp on my gettingthe rowid.
+ ** - I can rollback in case of failure or commit atomically in case of success.
+ **
+ ** 
  ** @param db   - Experiment database.
  ** @param pName - Name of the new spectrum.
  ** @param pType - Spectrum type.
@@ -262,11 +319,21 @@ allocateVersion(sqlite3* db, const char*pName, const char* atPoint)
  ** @param atpoint  - Where the workspace is attached to the experiment database.
  ** @return int
  ** @retval primary key of the created spectrum in the spectrum_definitions table.
+ ** @retval -1      - Failed creation.
  */
 int
 createSpectrum(sqlite3* db, const char* pName, const char* pType,
 	       const spectrum_parameter** ppParams, int version, const char* atPoint)
 {
+  ppRawParameterInfo pParameterInfo = getRawParameterInfo(db, ppParams);
+
+  if (!pParameterInfo) {
+    return -1;
+  }
+  
+  do_non_select(db, "BEGIN TRANSACTION");
+
+  do_non_select(db, "COMMIT TRANSACTION");
   return 1;
 }
 
@@ -332,6 +399,8 @@ int spectcl_workspace_create_spectrum(spectcl_experiment experiment,
 {
   const char* whereAttached = DEFAULT_ATTACH_POINT;
   int         status;
+  int         version;
+  int         spectrumId;
 
   /* Ensure experiment is an experiment handle */
 
@@ -369,8 +438,15 @@ int spectcl_workspace_create_spectrum(spectcl_experiment experiment,
     return -1;
   }
 
-  int version = allocateVersion(experiment, pName, whereAttached);
-  return createSpectrum(experiment, pName, pType, ppParams, version, whereAttached);
+  version    = allocateVersion(experiment, pName, whereAttached);
+  spectrumId = createSpectrum(experiment, pName, pType, ppParams, version, whereAttached);
+  if (spectrumId < 0) {
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+    return -1;
+  }
+
+  spectcl_experiment_errno = (version == 1) ? SPEXP_OK : SPEXP_NEWVERS;
+  return spectrumId;
 
 }
 

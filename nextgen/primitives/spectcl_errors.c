@@ -33,7 +33,8 @@ static const char* errorMessages[] = {
   "NOT_WORKSPACE - The database is not a workspace",
   "NEW_VERS - New version created",
   "INVTYPE - Invalid type",
-  "BADPARAMS - Bad parameter definitions for spectrum type"
+  "BADPARAMS - Bad parameter definitions for spectrum type",
+
 };
 
 static const char* catchAll = "BADCODE - Bad error code passed to spectcl_experiment_error_msg";
