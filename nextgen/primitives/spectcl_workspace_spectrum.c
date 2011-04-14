@@ -274,7 +274,7 @@ getRawParameterInfo(sqlite3* db, const spectrum_parameter** ppParams)
   pRawparameter_info  aParameter;
   int                 nResults = 0;
 
-  while(ppParams) {
+  while(*ppParams) {
     pParameter  = spectcl_parameter_list(db, (*ppParams)->s_name);
     if (!pParameter) {
       /* TODO: Free result */
