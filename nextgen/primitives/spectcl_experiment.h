@@ -146,8 +146,8 @@ typedef struct _spectrum_parameter {
 typedef struct _spectrum_definition  {
   int    s_id;
   char*  s_name;
+  char*  s_type;
   int    s_version;
-  char*  s_timestamp;
   spectrum_parameter** s_parameters;
 } spectrum_definition;
 
@@ -277,14 +277,17 @@ extern "C" {
 					 const char* pName,
 					 const spectrum_parameter** pParams,
 					 const char* attachPoint);
-  spectrum_parameter** spectcl_workspace_parameters(spectcl_workspace ws, 
-						    int id);
+  spectrum_parameter** spectcl_workspace_parameters(spectcl_experiment exp, 
+						    int id,
+						    const char* attachPoint);
   void spectcl_workspace_free_spectrum_parameters(spectrum_parameter** p);
   void spectcl_workspace_free_spectrum_definitions(spectrum_definition** p);
-  spectrum_definition** spectcl_workspace_find_spectra(spectcl_workspace ws,
+  spectrum_definition** spectcl_workspace_find_spectra(spectcl_experiment db,
 						       const char* pattern,
-						       int         allVersions);
-  spectrum_definition*  spectcl_workspace_spectrum_properties(spectcl_workspace ws, int id);
+						       int         allVersions,
+						       const char* attachPoint);
+  spectrum_definition*  spectcl_workspace_spectrum_properties(spectcl_experiment db, int id,
+							      const char* attachPoint);
   
   
 

@@ -129,8 +129,7 @@ createSpectrumDefTables(sqlite3* ws)
                  id  INTEGER PRIMARY KEY,           \
                  spectrum_id INTEGER,               \
                  parameter_id INTEGER,              \
-                 dimension    INTEGER,              \
-                 version      INTEGER)");
+                 dimension    INTEGER)");
 
 }
 /**

@@ -40,6 +40,10 @@ static char wsName1[PATH_MAX];
 spectcl_experiment db;
 spectcl_workspace  ws;
 
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 /*----------------------------------- fixture code ----------------------------------------*/
 
 static void setup()
@@ -252,6 +256,81 @@ START_TEST(test_create_1dgood1st)
    fail_unless(spectcl_experiment_errno == SPEXP_OK);
 }
 END_TEST
+
+/**
+ ** If I create a new spectrum that already exists I should get a new version
+ */
+START_TEST(test_create_1dgoodnewvers)
+{
+  spectrum_parameter p1 = {
+    "param1",
+    1				/* Illegal dim number for 1d. */
+  };
+  spectrum_parameter* params[3] = {
+    &p1, NULL
+  };
+  int status;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+
+  spectcl_workspace_create_spectrum(db,
+				   "1", "spectrum.test",
+				   params, NULL);
+  status = spectcl_workspace_create_spectrum(db,
+					    "1", "spectrum.test",
+					    params, NULL);
+  fail_unless(status == 2);	/* second spectrum id is 2. */
+  fail_unless(spectcl_experiment_errno == SPEXP_NEWVERS);
+}
+END_TEST
+
+/*------------------ Test find_spectra ------*/
+
+/* Must pass an experiment database: */
+
+START_TEST(test_find_notexp)
+{
+  spectrum_definition** ppDefs = spectcl_workspace_find_spectra(ws,
+								NULL,
+								FALSE,
+								NULL);
+  fail_unless(ppDefs == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOT_EXPDATABASE);
+}
+END_TEST
+
+/* Experiment database must have a workspace attached: */
+
+START_TEST(test_find_notattached)
+{
+  spectrum_definition** ppDefs = spectcl_workspace_find_spectra(db,
+								NULL,
+								FALSE,
+								NULL);
+  fail_unless(ppDefs == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_UNATTACHED);
+ 
+							       
+}
+END_TEST
+/*  Finding with no spectra defined should give an empty result list. */
+
+START_TEST(test_find_emptyresult)
+{
+  spectrum_definition** ppDefs;
+  spectcl_workspace_attach(db, wsName, NULL); /* Default location is fine. */
+  ppDefs = spectcl_workspace_find_spectra(db,
+					  NULL,
+					  FALSE,
+					  NULL);
+  fail_if(ppDefs == NULL);
+  if (ppDefs) {
+    fail_unless(ppDefs[0] == NULL);
+  }
+
+}
+END_TEST
 /*------------------- Final setup  -----------*/
 int main(void) 
 {
@@ -264,8 +343,12 @@ int main(void)
   tcase_add_checked_fixture(tc_spectra, setup, teardown);
   suite_add_tcase(s, tc_spectra);
 
+  /* Schema test(s) */
 
   tcase_add_test(tc_spectra, test_schema);
+
+  /* Spectrum creation tests */
+
   tcase_add_test(tc_spectra, test_create_notexp);
   tcase_add_test(tc_spectra, test_create_notattached);
   tcase_add_test(tc_spectra, test_create_badtype);
@@ -273,7 +356,13 @@ int main(void)
   tcase_add_test(tc_spectra, test_create_1dbaddim);
   tcase_add_test(tc_spectra, test_create_1dbadcount);
   tcase_add_test(tc_spectra, test_create_1dgood1st);
-  /* tcase_add_test(tc_spectra, test_create_1dgoodnewvers); */
+  tcase_add_test(tc_spectra, test_create_1dgoodnewvers);
+
+  /* Spectrum listing tests   */
+
+  tcase_add_test(tc_spectra, test_find_notexp);
+  tcase_add_test(tc_spectra, test_find_notattached);
+  tcase_add_test(tc_spectra, test_find_emptyresult);
 
   srunner_set_fork_status(sr, CK_NOFORK);
 

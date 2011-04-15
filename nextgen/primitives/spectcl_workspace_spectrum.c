@@ -55,7 +55,7 @@ typedef struct _rawparameter_info {
 /*--------------------- 1D spectrum driver functions --------------*/
 /** This section should probably be spun off into another module  */
 
-/*
+/**
 ** Validate 1d parameters.  We require that:
 ** - There's only one parameter in the list.
 ** - The parameter that is present is for dimension 1
@@ -91,6 +91,21 @@ static const int spectrumTypeCount =
 
 
 /*---------------------- Private functions -------- */
+/**
+ ** Free a set of raw parameter info records.
+ ** @param pInfo - pointer to a null terminated array of records to 
+ **                free
+ */
+static void freeRawParameterInfo(ppRawParameterInfo pInfo)
+{
+  if (pInfo) {
+    while (*pInfo) {
+      free(*pInfo);
+      pInfo++;
+    }
+    free(pInfo);
+  }
+}
 /**
  ** Determine if all spectrum parameters exist for
  ** a spectrum.
@@ -155,11 +170,100 @@ validateParameters(const char* pType, const spectrum_parameter** ppParams)
 /**
  ** Release storage associated with a spectrum definition.
  ** @param pDef - Pointer to the dymamically allocated spectrum storage.
- ** @retun void 
+ ** @return void 
  */
 static void
 freeSpectrumDefinition(spectrum_definition* pDef)
 {
+  if (!pDef) {
+    /* First free the spectrum parameter definitions too */
+
+    spectrum_parameter** pParams = pDef->s_parameters;
+    while (*pParams) {
+      free((*pParams)->s_name);
+      free(*pParams);
+      pParams++;
+    }
+    free(pDef->s_name);
+    free(pDef->s_type);
+    free(pDef);
+  }
+}
+/**
+ ** Given the first row of a result set from a spectrum definition
+ ** selection joined to the corresponding parameter definitions, and parameter
+ ** definitions (from the experiment database).
+ ** Fills in the spectrum definition struct for that spectrum.
+ ** @param pDef - Pointer to storage allocated fro the top level spectrum_definition.
+ **               no storage has been allocated for s_parameters yet.
+ **               and we should not assume anything about the
+ **               vale of s_parameters.
+ ** @param stmt - Sqlite statement context.
+ ** @return void
+ ** @note - side effects: 
+ **     - pDef is filled in.
+ **     - stmt is stepped until either there are no more rows or
+ **       until we are at the first definition of the next spectrum.
+ **
+ ** @note - Not sure at this point how to deal with out of memory conditions.
+ ** @note Assumptions on column order (sd - spectrum_definitions,
+ **       sp - spectrum_parameters, p - parameters):
+ **      - sd.id
+ **      - sd.name
+ **      - sd.type_id
+ **      - sd.version
+ **      - sp.dimension
+ **      - p.name
+ */
+static void
+fillSpectrumDefinition(spectrum_definition* pDef,
+		       sqlite3_stmt*        stmt)
+{
+  int status;
+  int paramCount  = 0;
+  spectrum_parameter* pParam;
+  int                 paramId;
+
+  /* Pull out information for the top level part of the def */
+  
+  pDef->s_id   = sqlite3_column_int(stmt, 0);              /* Spectrum id */
+  pDef->s_name = copyString(sqlite3_column_text(stmt, 1)); /* Spectrum name. */
+  pDef->s_type = copyString(sqlite3_column_text(stmt, 2)); /* Spectrum type */
+  pDef->s_version = sqlite3_column_int(stmt, 3);	   /* object version.  */
+
+
+
+  /*  Now the parameter stuff.    */
+
+  pDef->s_parameters = malloc(sizeof(spectrum_parameter*));
+  (pDef->s_parameters)[0]  = NULL; /* Empty list. */
+
+
+  do {
+    /*  Only can fill stuff in if the sp.id is not null -- indicating there
+        is a join row.. This allows for pathalogical spectrum types that don't
+        need parameters.
+    */
+
+    if (sqlite3_column_type(stmt, 4) != SQLITE_NULL) {
+      realloc(pDef->s_parameters, sizeof(spectrum_parameter*) + 2);
+      pParam = malloc(sizeof(spectrum_parameter));
+      (pDef->s_parameters)[paramCount] = pParam;
+
+      pParam->s_dimension = sqlite3_column_int(stmt, 4);
+      pParam->s_name      = copyString(sqlite3_column_text(stmt, 5));
+
+      paramCount++;
+      (pDef->s_parameters)[paramCount] = NULL;
+    }
+
+    /* Next row... if there are none then break the loop as well. */
+
+    status = sqlite3_step(stmt);
+    if (status != SQLITE_ROW) break;
+  } while (sqlite3_column_int(stmt, 0) == pDef->s_id);  /* done when spectrum changes. */
+  
+  
 }
 /**
  ** Locate the most recent version of a spectrum, or determine that there are
@@ -181,12 +285,14 @@ findLastDefinition(sqlite3* db, const char* pName, const char* atPoint)
      %s.spectrum_parameters for the next round of substitution. 
   */
 
-  const char* sqlFormat = "SELECT * FROM %s.spectrum_definitions sd \
-                                    INNER JOIN %%s.spectrum_parameters sp \
+  const char* sqlFormat = "SELECT sd.id, sd.name, sd.type_id, sd.version, sp.dimension, p.name \
+                                    FROM %s%sspectrum_definitions sd \
+                                    LEFT JOIN %%s%%sspectrum_parameters sp \
                                     ON         sd.id = sp.spectrum_id  \
+                                    INNER JOIN parameters p             \
+                                    ON         p.id = sp.parameter_id   \
                                     WHERE      sd.name  = :spname      \
-                                    AND        sd.version = sp.version \
-                                    ORDER BY   sd.version DESC";
+                                    ORDER BY   sd.id, sd.version DESC";
   char* sql1;		/* used to build the statments.  */
   char* sql;
   sqlite3_stmt* stmt;
@@ -224,6 +330,7 @@ findLastDefinition(sqlite3* db, const char* pName, const char* atPoint)
   if (status == SQLITE_ROW) {
     result = malloc(sizeof(spectrum_definition));
     if (!result) goto done;
+    fillSpectrumDefinition(result, stmt);
 
   } 
  done:
@@ -274,20 +381,35 @@ getRawParameterInfo(sqlite3* db, const spectrum_parameter** ppParams)
   pRawparameter_info  aParameter;
   int                 nResults = 0;
 
+  result = malloc(sizeof(pRawparameter_info));
+  if (!result) {
+    return NULL;
+  }
+  *result = NULL;		/* Empty list. */
+
   while(*ppParams) {
     pParameter  = spectcl_parameter_list(db, (*ppParams)->s_name);
     if (!pParameter) {
-      /* TODO: Free result */
+      freeRawParameterInfo(result);
 
       return NULL;
     }
     aParameter = malloc(sizeof(rawparameter_info));
     if (!aParameter) {
-      /* TODO: Free result */
-      
+      spectcl_free_parameter_list(pParameter);
+      freeRawParameterInfo(result);
       return NULL;
     }
-    /* TODO: Finish this!!! */
+    aParameter->s_id        = pParameter[0]->s_id;
+    aParameter->s_dimension = (*ppParams)->s_dimension; 
+    spectcl_free_parameter_list(pParameter);
+    result                  = realloc(result,(nResults+2)*sizeof(pRawparameter_info));
+    if(!result) {
+      return NULL;
+    }
+    result[nResults] = aParameter;
+    nResults++;
+    result[nResults] = NULL;
 
     ppParams++;
   }
@@ -297,7 +419,8 @@ getRawParameterInfo(sqlite3* db, const spectrum_parameter** ppParams)
 
 
 /**
- ** Create a spectrum using the specific spectrum type driver.
+ ** Create a spectrum. Because of the nature of the spectrum
+ ** definition, this is not spectrum type dependent.
  ** Note that at this point everything has been validated and
  ** I think spectrum creation is not spectrum type dependent.
  ** I must:
@@ -325,16 +448,116 @@ int
 createSpectrum(sqlite3* db, const char* pName, const char* pType,
 	       const spectrum_parameter** ppParams, int version, const char* atPoint)
 {
+  const char*    specInsertSqlTemplate = "INSERT INTO %s%sspectrum_definitions \
+                                 (name,type_id,version)                     \
+                                 VALUES (:name, :type_id, :version)";
+  const char*    paramInsertSqlTemplate = "INSERT INTO %s%sspectrum_parameters \
+                                      (spectrum_id, parameter_id, dimension)                                   \
+                                      VALUES (:specid, :paramid, :dim)";
+  char*          pQualifiedSql = NULL;
+  sqlite3_stmt*  pStatement = NULL;
+  int            status;
+  int            spectrumId= -1;
+
   ppRawParameterInfo pParameterInfo = getRawParameterInfo(db, ppParams);
+  ppRawParameterInfo pPs            = pParameterInfo;
 
   if (!pParameterInfo) {
     return -1;
   }
   
-  do_non_select(db, "BEGIN TRANSACTION");
 
+  /* First create the spectrum definition and get its rowid: */
+  /* Much of this work can be done outside the transaction   */
+
+  pQualifiedSql = spectcl_qualifyStatement(specInsertSqlTemplate, atPoint);
+  
+  if (!pQualifiedSql) {
+    return -1;
+  }
+  status = sqlite3_prepare_v2(db, pQualifiedSql, -1, &pStatement, NULL);
+  if (status != SQLITE_OK) {	/* Hopefully errors don't change pStatement: */
+    goto non_trans_error;
+  }
+  status = sqlite3_bind_text(pStatement, 1, pName, -1, SQLITE_STATIC);
+  if(status != SQLITE_OK) goto non_trans_error;
+
+  status = sqlite3_bind_text(pStatement, 2, pType, -1, SQLITE_STATIC);
+  if (status != SQLITE_OK) goto non_trans_error;
+  
+  status = sqlite3_bind_int(pStatement, 3, version);
+  if (status != SQLITE_OK) goto non_trans_error;
+
+  
+  do_non_select(db, "BEGIN TRANSACTION");
+  {
+    /* execute the insert and get the rowid: */
+    
+    status = sqlite3_step(pStatement);
+    if (status != SQLITE_DONE) goto error;
+
+    sqlite3_finalize(pStatement);
+    pStatement = NULL;
+
+    spectrumId = sqlite3_last_insert_rowid(db);
+    if (spectrumId <= 0) goto error;
+    free(pQualifiedSql);
+    pQualifiedSql = NULL;
+
+    /* Now we need to form the parameter insertion SQL statement
+       and use it to insert all the parameters the spectrum needs 
+    */
+    
+    pQualifiedSql = spectcl_qualifyStatement(paramInsertSqlTemplate, atPoint);
+    if (!pQualifiedSql) goto error;
+
+    status = sqlite3_prepare_v2(db, pQualifiedSql, -1, &pStatement, NULL);
+    if (status != SQLITE_OK) goto error;
+
+    /* Bind the values that are not parameter dependent */
+    
+    status = sqlite3_bind_int(pStatement, 1, spectrumId);
+    if(status != SQLITE_OK) goto error;
+ 
+
+    /* Loop over the insertions of all parametesr */
+
+    while (*pPs) {
+      pRawparameter_info  p = *pPs;
+
+      status = sqlite3_bind_int(pStatement, 2, p->s_id);
+      if(status != SQLITE_OK) goto error;
+
+      status = sqlite3_bind_int(pStatement, 3, p->s_dimension);
+      if(status != SQLITE_OK) goto error;
+
+      status = sqlite3_step(pStatement);
+      if (status != SQLITE_DONE) goto error;
+
+      sqlite3_reset(pStatement); /* Now can rebind and keep going. */
+
+      pPs++;
+    }
+    
+    
+  }
   do_non_select(db, "COMMIT TRANSACTION");
-  return 1;
+  sqlite3_finalize(pStatement);
+  return spectrumId;
+
+
+ error:
+  /* TODO: Free pParameterInfo here and non_trans_error */
+  freeRawParameterInfo(pParameterInfo);
+  do_non_select(db, "ROLLBACK TRANSACTION");
+
+ non_trans_error:
+  if (pStatement) {
+    sqlite3_finalize(pStatement);
+  }
+  free(pQualifiedSql);
+  freeRawParameterInfo(pParameterInfo);
+  return -1;
 }
 
 /*--------------------- public functions ----------*/
@@ -451,3 +674,78 @@ int spectcl_workspace_create_spectrum(spectcl_experiment experiment,
 }
 
 
+/**
+ ** Get information about spectrum definitions.
+ ** @param db          - Experiment database.
+ ** @param pattern     - Glob pattern to match against spectrum name.
+ **                      If NULL "*" is used.
+ ** @param allVersions - If false, only the most recent version of the spectrum is 
+ **                      fetched, otherwise, all spectrum versions are fetched.
+ ** @param attachpoint - Point at which the workspace is attached to the experiment database.
+ **                      If NULL, WORKSPACE_DEFAULT_ATTACH_POINT is assumed.
+ ** @return spectrum_definition**
+ ** @retval not null   - A pointer to a null terminated list of pointers to spectrum_definition
+ **                      structs.  This s dynamically allocated and should be deleted via
+ **                      a call to spectcl_workspace_free_spectrum_definitions.
+ **                      if there are no matching spectra, it is perfectly fine for
+ **                      the list to be empty.
+ ** @retval NULL       - Some sort of failure occured.  The actual failure reason is in 
+ **                      spectcl_experiment_errno and is probably one of the following:
+ **                      - SPEXP_NOT_EXPDATABASE - db is not an experiment database handle.
+ **                      - SPEXP_UNATTACHED - No workspace can be found attached to the specified
+ **                        location.
+ **                      - SPEXP_SQLFAIL - Some uncategorized SQL error.
+ */
+spectrum_definition**
+spectcl_workspace_find_spectra(spectcl_experiment db,
+			       const char*        pattern,
+			       int                allVersions,
+			       const char*        attachPoint)
+{
+  const char* whereAttached = DEFAULT_ATTACH_POINT;
+  int         status;
+  const char* pActualPattern = "*";
+  const char* sqlTemplate = "SELECT sd.id, sd.name, sd.type_id, sd.version, sp.dimension, p.name \
+                                    FROM %s%sspectrum_definitions sd \
+                                    LEFT JOIN %%s%%sspectrum_parameters sp \
+                                    ON         sd.id = sp.spectrum_id  \
+                                    INNER JOIN parameters p             \
+                                    ON         p.id = sp.parameter_id   \
+                                    WHERE      sd.name  GLOB :pattern      \
+                                    ORDER BY   sd.id, sd.version DESC";
+
+  char* sql1;		/* used to build the statments.  */
+  char* sql;
+ 
+
+  spectrum_definition** pDefs = NULL;
+
+
+  /* Ensure experiment is an experiment handle */
+
+  if (!isExperimentDatabase(db)) {
+    spectcl_experiment_errno = SPEXP_NOT_EXPDATABASE;
+    return NULL;
+  }
+
+  /* Figure out the attachment point and determine if there is a workspace
+     attached to that point
+  */
+  if(attachPoint) {
+    whereAttached = attachPoint;
+  }
+  status = spectcl_checkAttached(db, whereAttached, "workspace", SPEXP_UNATTACHED);
+  if (status != SPEXP_OK) {
+    spectcl_experiment_errno = status;
+    return NULL;
+  }  
+  /* Figure out our name match pattern: */
+
+  if(pattern) {
+    pActualPattern = pattern;
+  }
+
+
+  spectcl_experiment_errno = SPEXP_UNIMPLEMENTED;
+  return NULL;
+}
