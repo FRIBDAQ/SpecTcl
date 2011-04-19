@@ -17,7 +17,7 @@
 #include "CC1205Unpacker.h"
 #include <Event.h>
 #include <vector>
-
+#include <stdint.h>
 using namespace std;
 
 /*
