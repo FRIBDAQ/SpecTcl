@@ -12,6 +12,7 @@
 #include <config.h>
 #include "CCalibratedParameter.h"    				
 #include "CFit.h"
+#include <stdlib.h>
 
 #include <Event.h>                 // Required to set/get event values.
 
