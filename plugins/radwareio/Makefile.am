@@ -13,8 +13,6 @@ libradwareio_la_SOURCES		= 	cask.c 			\
 noinst_HEADERS			= 	util.h CRWWrite.h CRWRead.h
 
 
-libradwareio_la_LIBADD  	= -lpub
-
 
 INCLUDES		= -I. $(SPECTCLCCSW) \
 				$(TCLCCSW) 

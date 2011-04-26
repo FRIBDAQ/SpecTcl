@@ -34,11 +34,7 @@
 using namespace std;
 #endif
 
-// Need to do the following due to string and publib conflicts:
 
-extern "C" {
-  char* strrtrim(char* s);
-}
 
 static const int defaultMaxChans=8*1024;
 
@@ -157,10 +153,11 @@ CRWRead::operator()(CTCLInterpreter& interp,
 
   SpecTcl& api(*(SpecTcl::getInstance()));
   int    uniquifier  = 1;
-  string spectclName = strrtrim(specname);
+  string spectclName = specname;
+  spectclName.erase(spectclName.find_last_not_of(" \n\r\t") + 1);
   while (api.FindSpectrum(spectclName)) {
     char spectclNamecz[100];
-    sprintf(spectclNamecz, "%s_%d", strrtrim(specname), uniquifier);
+    sprintf(spectclNamecz, "%s_%d", spectclName.c_str(), uniquifier);
     spectclName = spectclNamecz;
     uniquifier++;
   }
