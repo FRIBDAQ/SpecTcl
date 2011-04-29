@@ -962,3 +962,106 @@ spectcl_ws_free_specdefs(spectrum_definition** ppDefs)
   }
   free(ppDefs);
 }
+
+/**
+ * Given a spectrum's id, return the definition of that spectrum.
+ * Depends on.  
+ *  @param exp    - Handle to an experiment database to which the worksopace is
+ *                  attached.
+ *  @param id     - ID (primary key) of the spectrum about which we are querying.
+ *  @param attachPoint
+ *                - If not null this describes where the workspace is attached to the
+ *                  experiment database.  If null, a default attach point is used.
+ *  @return spectrum_definitionh*
+ *  @retval NULL - Some error occured The reason for the error is in
+ *                 spectcl_experiment_errno.  See below for possible values.
+ * @retval other - A pointer to a spectrum definition for that spectrum.
+ *
+ * @note Errors:
+ *    - SPEXP_NOT_EXPDATABASE - exp is not an experiment database handle.
+ *    - SPEXP_UNATTACHED      - The attach point does not have a workspace.
+ *    - SPEXP_SQLFAIL         - some SQL failure.
+ *    - SPEXP_NOSUCH          - id does not identify a spectrum.
+ *    - SPEXP_NOMEM           - Memory allocation failed.
+ */
+spectrum_definition*
+spectcl_ws_spectrum_properties(spectcl_experiment exp, 
+			       int id,
+			       const char* attachPoint)
+{
+  const char*         whereAttached = DEFAULT_ATTACH_POINT;
+  int                 status;
+  const char*         pSqlTemplate = "SELECT sd.id, sd.name, sd.type_id, sd.version, sp.dimension, p.name \
+                                    FROM %s%sspectrum_definitions sd	\
+                                    LEFT JOIN %%s%%sspectrum_parameters sp \
+                                    ON         sd.id = sp.spectrum_id	\
+                                    INNER JOIN parameters p             \
+                                    ON         p.id = sp.parameter_id   \
+                                    WHERE      sd.id = :id";
+  char*                pSql1;
+  char*                pSql2;
+  spectrum_definition* pDef;
+  sqlite3_stmt*        pStatement;
+
+  /* Validate the database is an exp one */
+
+  if (!isExperimentDatabase(exp)) {
+    spectcl_experiment_errno = SPEXP_NOT_EXPDATABASE;
+    return NULL;
+  }
+  /* Validate the attachment point */
+
+  if (attachPoint) {
+    whereAttached = attachPoint;
+  }
+  status = spectcl_checkAttached(exp, whereAttached, "workspace", SPEXP_UNATTACHED);
+  if (status != SPEXP_OK) {
+    spectcl_experiment_errno = status;
+    return NULL;
+  }    
+  /* set up for the query:  */
+
+  pSql1  = spectcl_qualifyStatement(pSqlTemplate, whereAttached);
+  pSql2  = spectcl_qualifyStatement(pSql1,        whereAttached);
+  free(pSql1);
+
+
+  status = sqlite3_prepare_v2(exp, pSql2, -1, &pStatement, NULL);
+  free(pSql2);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+    return NULL;
+  }
+  status = sqlite3_bind_int(pStatement, 1, id);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+    return NULL;
+  }
+  /* Step the statement to get things going: */
+
+  status = sqlite3_step(pStatement);
+  if (status == SQLITE_DONE) {
+    spectcl_experiment_errno = SPEXP_NOSUCH;
+    goto error;
+  }
+  /*  We should now be able to get the data on this spectrum: */
+
+  pDef = malloc(sizeof(spectrum_definition));
+  if (!pDef) {
+    spectcl_experiment_errno = SPEXP_NOMEM;
+    goto error;
+  }
+  status = fillSpectrumDefinition(pDef, pStatement);
+  if (status != SQLITE_DONE) {
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+    goto error;
+
+  }
+  sqlite3_finalize(pStatement);
+
+  return pDef;
+
+ error:
+  sqlite3_finalize(pStatement);
+  return NULL;
+}

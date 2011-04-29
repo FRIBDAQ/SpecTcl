@@ -642,6 +642,86 @@ START_TEST(test_find_specific)
 }
 END_TEST
 
+/*------------------ Tests for spectcl_ws_spectrum_properties -------*/
+
+/*
+  Should pass an experiment database.
+*/
+START_TEST(test_prop_notexp)
+{
+  spectrum_definition* pDef = spectcl_ws_spectrum_properties(ws, 0, NULL);
+  fail_unless(pDef == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOT_EXPDATABASE);
+}
+END_TEST
+/*
+ * Should fail with UNATTACHED if the workspace has not yet
+ * been attached.
+ */
+START_TEST(test_prop_nows)
+{
+  spectrum_definition* pDef = spectcl_ws_spectrum_properties(db, 0, NULL);
+  fail_unless(pDef == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_UNATTACHED);
+}
+END_TEST
+/*
+ * Evenr if everything is set up right asking for a
+ * spectrum that does not exist should fail with
+ * SPEXP_NOSUCH
+ */
+START_TEST(test_prop_nosuch)
+{
+  spectrum_definition* pDef;
+  spectcl_workspace_attach(db, wsName, NULL);
+  pDef = spectcl_ws_spectrum_properties(db, 0, NULL);
+
+  fail_unless(pDef == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOSUCH);
+}
+END_TEST
+/*
+ *  Should be able to find the spectrum if I only created one..
+ */
+START_TEST(test_prop_1)
+{
+  spectrum_definition* pDef;
+  spectrum_parameter p1 = {
+    "param1",
+    1				
+  };
+  spectrum_parameter* params[3] = {
+    &p1, NULL
+  };
+  int  id;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+
+  id = spectcl_workspace_create_spectrum(db,
+					 "1", "spectrum.test",
+					 params, NULL);
+  pDef = spectcl_ws_spectrum_properties(db, id, NULL);
+
+  fail_unless(pDef != NULL);
+  if (pDef) {
+    fail_unless(pDef->s_id == 1); 
+    fail_unless(strcmp(pDef->s_name, "spectrum.test") == 0);
+    fail_unless(strcmp(pDef->s_type, "1") == 0);
+    fail_unless(pDef->s_version == 1);
+    fail_if(pDef->s_parameters == NULL);
+    if(pDef->s_parameters) {
+      spectrum_parameter* pParam = pDef->s_parameters[0];
+      
+      fail_unless(strcmp(pParam->s_name, "param1") == 0);
+      fail_unless(pParam->s_dimension == 1);
+      
+    }
+    
+    spectcl_ws_free_specdef(pDef);
+  }
+}
+END_TEST
 /*------------------- Final setup  -----------*/
 int main(void) 
 {
@@ -653,6 +733,8 @@ int main(void)
 
   tcase_add_checked_fixture(tc_spectra, setup, teardown);
   suite_add_tcase(s, tc_spectra);
+
+
 
   /* Schema test(s) */
 
@@ -680,6 +762,13 @@ int main(void)
   tcase_add_test(tc_spectra, test_find_multiversion);
   tcase_add_test(tc_spectra, test_find_specific);
 
+  /* Tests for spectcl_ws_spectrum_properties */
+
+  tcase_add_test(tc_spectra, test_prop_notexp);
+  tcase_add_test(tc_spectra, test_prop_nows);
+  tcase_add_test(tc_spectra, test_prop_nosuch);
+  tcase_add_test(tc_spectra, test_prop_1);
+  
 
   srunner_set_fork_status(sr, CK_NOFORK);
 
