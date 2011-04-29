@@ -199,7 +199,11 @@ freeSpectrumDefinition(spectrum_definition* pDef)
  **               and we should not assume anything about the
  **               vale of s_parameters.
  ** @param stmt - Sqlite statement context.
- ** @return void
+ ** @return int
+ ** @retval SQLITE_ROW - We finished by getting the next
+ **                      spectrum in the query.
+ ** @retval SQLITE_DONE - We finished by exhausting the result set.
+ **
  ** @note - side effects: 
  **     - pDef is filled in.
  **     - stmt is stepped until either there are no more rows or
@@ -215,7 +219,7 @@ freeSpectrumDefinition(spectrum_definition* pDef)
  **      - sp.dimension
  **      - p.name
  */
-static void
+static int
 fillSpectrumDefinition(spectrum_definition* pDef,
 		       sqlite3_stmt*        stmt)
 {
@@ -262,7 +266,7 @@ fillSpectrumDefinition(spectrum_definition* pDef,
     status = sqlite3_step(stmt);
     if (status != SQLITE_ROW) break;
   } while (sqlite3_column_int(stmt, 0) == pDef->s_id);  /* done when spectrum changes. */
-  
+  return status;
   
 }
 /**
@@ -659,10 +663,11 @@ getSpectrumDefinitions(sqlite3* db, const char* pQueryTemplate, char* const* pNa
       status = sqlite3_bind_text(pStatement, 1, *pNames, 
 				 -1, SQLITE_STATIC);       /* pNames is caller's problem */
       if (status == SQLITE_OK) {
-	while (sqlite3_step(pStatement) == SQLITE_ROW) {
+	status = sqlite3_step(pStatement);
+	while (status  == SQLITE_ROW) {
 	  spectrum_definition* pDef;
 	  pDef = malloc(sizeof(spectrum_definition));
-	  fillSpectrumDefinition(pDef, pStatement);
+	  status = fillSpectrumDefinition(pDef, pStatement); /* Will leave us at next spectrum. */
 	  result = realloc(result, sizeof(spectrum_definition*)*(defCount+2));
 	  result[defCount] = pDef;
 	  defCount++;
@@ -850,7 +855,7 @@ spectcl_workspace_find_spectra(spectcl_experiment db,
                                     INNER JOIN parameters p             \
                                     ON         p.id = sp.parameter_id   \
                                     WHERE      sd.name  = :spname      \
-                                    ORDER BY   sd.id ASC, VERSION DESC";
+                                    ORDER BY    sd.version DESC";
   const char* pSelectTemplate;
   char*       qSql1;
   char*       qSql2;

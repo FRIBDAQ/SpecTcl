@@ -547,6 +547,62 @@ START_TEST(test_find_mostrecent)
 }
 END_TEST
 
+/*
+ * Should be able to ask for all versions of a spectrum and get it
+ * in low to high version order
+ */
+START_TEST(test_find_multiversion)
+{
+  spectrum_definition** ppDefs;
+  spectrum_parameter p1 = {
+    "param1",
+    1				
+  };
+  spectrum_parameter p2 = {
+    "param2",
+    1				
+  };
+  spectrum_parameter* params[3] = {
+    &p1, NULL
+  };
+  spectrum_parameter* pspec2[2] = {
+    &p2, NULL
+  };
+  int status;
+  int i;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+  spectcl_parameter_create(db, "param2", "stuff", NULL, NULL);
+
+  spectcl_workspace_create_spectrum(db,
+				    "1", "spectrum.test",
+				    params, NULL);
+  spectcl_workspace_create_spectrum(db, "1", "spectrum.test",
+				    pspec2, NULL); /* version 2. */
+
+  ppDefs = spectcl_workspace_find_spectra(db,
+					  NULL, TRUE,
+					  NULL);
+  fail_if(ppDefs == NULL);
+  if (ppDefs) {
+    fail_if(ppDefs[0] == NULL);
+    if (ppDefs[0]) {		/* TODO: free memory. */
+      spectrum_definition* pDef = ppDefs[0];
+      fail_unless(pDef->s_version == 2);
+      fail_if(ppDefs[1] == NULL);
+      if (ppDefs[1]) {
+	pDef = ppDefs[1];
+	fail_unless(pDef->s_version == 1);
+	fail_unless(ppDefs[2] == NULL);
+      }
+    }
+
+  }
+  
+}
+END_TEST
+
 /*------------------- Final setup  -----------*/
 int main(void) 
 {
@@ -582,6 +638,7 @@ int main(void)
   tcase_add_test(tc_spectra, test_find_oneresult);
   tcase_add_test(tc_spectra, test_find_multiple);
   tcase_add_test(tc_spectra, test_find_mostrecent);
+  tcase_add_test(tc_spectra, test_find_multiversion);
 
 
   srunner_set_fork_status(sr, CK_NOFORK);
