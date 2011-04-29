@@ -603,6 +603,61 @@ START_TEST(test_find_multiversion)
 }
 END_TEST
 
+/*
+ * should be able to use patterns to search only for specific spectra.
+ */
+START_TEST(test_find_specific)
+{
+  spectrum_definition** ppDefs;
+  spectrum_parameter p1 = {
+    "param1",
+    1				
+  };
+  spectrum_parameter p2 = {
+    "param2",
+    1				
+  };
+  spectrum_parameter* params[3] = {
+    &p1, NULL
+  };
+  spectrum_parameter* pspec2[2] = {
+    &p2, NULL
+  };
+  const char* specNames[2] = {"spectrum.test", "another_Spectrum"};
+  const char* parNames[2]  = {"param1", "param2"};
+  int status;
+  int i;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+  spectcl_parameter_create(db, "param2", "stuff", NULL, NULL);
+
+  spectcl_workspace_create_spectrum(db,
+				    "1", specNames[0],
+				    params, NULL);
+  spectcl_workspace_create_spectrum(db, "1", specNames[1],
+				    pspec2, NULL);
+  ppDefs = spectcl_workspace_find_spectra(db,
+					  "another*",
+					  TRUE, NULL);
+
+  /* Should only get another_Spectrum back */
+
+  fail_if(ppDefs == NULL);
+  if (ppDefs) {
+    /* TODO: Memory mangement */
+
+    fail_if(ppDefs[0] == NULL);
+    if (ppDefs[0]) {
+      /* By now I'm confident the right data are hooked up with the right'
+	 spectra so just check that the name is correct */
+     
+      fail_unless(strcmp(ppDefs[0]->s_name, "another_Spectrum") == 0);
+    }
+  }
+}
+END_TEST
+
 /*------------------- Final setup  -----------*/
 int main(void) 
 {
@@ -639,6 +694,7 @@ int main(void)
   tcase_add_test(tc_spectra, test_find_multiple);
   tcase_add_test(tc_spectra, test_find_mostrecent);
   tcase_add_test(tc_spectra, test_find_multiversion);
+  tcase_add_test(tc_spectra, test_find_specific);
 
 
   srunner_set_fork_status(sr, CK_NOFORK);
