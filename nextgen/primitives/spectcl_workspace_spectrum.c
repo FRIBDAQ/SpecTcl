@@ -575,8 +575,8 @@ static char**
 getMatchingSpectra(sqlite3* db, const char* pattern, const char* ap)
 {
   const char* sqlTemplate = 
-    "SELECT name FROM %s%sspectrum_definitions \
-                 WHERE name GLOB :pattern";
+    "SELECT DISTINCT name FROM %s%sspectrum_definitions \
+                 WHERE name GLOB :pattern ORDER BY id ASC";
   char*         pSql;
   int           status;
   char*         item;
@@ -840,7 +840,7 @@ spectcl_workspace_find_spectra(spectcl_experiment db,
                                     INNER JOIN parameters p             \
                                     ON         p.id = sp.parameter_id   \
                                     WHERE      sd.name  = :spname      \
-                                    ORDER BY   sd.id, sd.version DESC\
+                                    ORDER BY   sd.version DESC\
                                     LIMIT 1";
   const char* allTemplate =
      "SELECT sd.id, sd.name, sd.type_id, sd.version, sp.dimension, p.name \
@@ -850,7 +850,7 @@ spectcl_workspace_find_spectra(spectcl_experiment db,
                                     INNER JOIN parameters p             \
                                     ON         p.id = sp.parameter_id   \
                                     WHERE      sd.name  = :spname      \
-                                    ORDER BY   sd.id, sd.version DESC";
+                                    ORDER BY   sd.id ASC, VERSION DESC";
   const char* pSelectTemplate;
   char*       qSql1;
   char*       qSql2;

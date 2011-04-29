@@ -44,6 +44,10 @@ spectcl_workspace  ws;
 #define FALSE 0
 #endif
 
+
+#ifndef TRUE
+#define TRUE 1
+#endif
 /*----------------------------------- fixture code ----------------------------------------*/
 
 static void setup()
@@ -293,7 +297,7 @@ START_TEST(test_find_notexp)
 {
   spectrum_definition** ppDefs = spectcl_workspace_find_spectra(ws,
 								NULL,
-								FALSE,
+								TRUE,
 								NULL);
   fail_unless(ppDefs == NULL);
   fail_unless(spectcl_experiment_errno == SPEXP_NOT_EXPDATABASE);
@@ -306,7 +310,7 @@ START_TEST(test_find_notattached)
 {
   spectrum_definition** ppDefs = spectcl_workspace_find_spectra(db,
 								NULL,
-								FALSE,
+								TRUE,
 								NULL);
   fail_unless(ppDefs == NULL);
   fail_unless(spectcl_experiment_errno == SPEXP_UNATTACHED);
@@ -322,7 +326,7 @@ START_TEST(test_find_emptyresult)
   spectcl_workspace_attach(db, wsName, NULL); /* Default location is fine. */
   ppDefs = spectcl_workspace_find_spectra(db,
 					  NULL,
-					  FALSE,
+					  TRUE,
 					  NULL);
   fail_if(ppDefs == NULL);
   if (ppDefs) {
@@ -357,7 +361,7 @@ START_TEST(test_find_oneresult)
   if (status != SPEXP_OK) return;
 
   ppDefs = spectcl_workspace_find_spectra(db,
-					  NULL, FALSE,
+					  NULL, TRUE,
 					  NULL);
   fail_if(ppDefs == NULL);
 
@@ -394,6 +398,154 @@ START_TEST(test_find_oneresult)
   }
 }
 END_TEST
+/*
+ * Defining several spectra should allow me to see both of them.
+ * Since the spectra are ordered by id I shouild get them in definition order.
+ */
+START_TEST(test_find_multiple) 
+{
+  spectrum_definition** ppDefs;
+  spectrum_parameter p1 = {
+    "param1",
+    1				
+  };
+  spectrum_parameter p2 = {
+    "param2",
+    1				
+  };
+  spectrum_parameter* params[3] = {
+    &p1, NULL
+  };
+  spectrum_parameter* pspec2[2] = {
+    &p2, NULL
+  };
+  const char* specNames[2] = {"spectrum.test", "another_Spectrum"};
+  const char* parNames[2]  = {"param1", "param2"};
+  int status;
+  int i;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+  spectcl_parameter_create(db, "param2", "stuff", NULL, NULL);
+
+  spectcl_workspace_create_spectrum(db,
+				    "1", specNames[0],
+				    params, NULL);
+  spectcl_workspace_create_spectrum(db, "1", specNames[1],
+				    pspec2, NULL);
+
+  ppDefs = spectcl_workspace_find_spectra(db,
+					  NULL, TRUE,
+					  NULL);
+  fail_if(ppDefs == NULL);
+
+  if (ppDefs) {			/* Should be two defs. */
+    for ( i = 0; i < 2; i++) {
+      spectrum_definition* pDef = ppDefs[i];
+      if (!pDef) {
+	fail();
+	return;
+      }
+      fail_unless(pDef->s_id == (i+1));
+      fail_unless(strcmp(pDef->s_name, specNames[i]) == 0);
+      fail_unless(strcmp(pDef->s_type, "1") == 0);
+      fail_unless(pDef->s_version == 1); /* both unique so version 1. */
+      fail_if(pDef->s_parameters == NULL);
+      if (pDef->s_parameters) {
+	spectrum_parameter* pParam = pDef->s_parameters[0];
+	fail_unless(strcmp(pParam->s_name, parNames[i]) == 0);
+	fail_unless(pParam->s_dimension == 1);
+
+	free(pParam->s_name);
+	free(pParam);
+
+      }
+      free(pDef->s_name);
+      free(pDef->s_type);
+      free(pDef);
+      
+    }
+  }
+  fail_unless(ppDefs[2] == NULL);
+  free(ppDefs);
+
+
+
+}
+END_TEST
+/*
+ *  If there are several versions of a spectrum I should
+ *  be able to get the most recent one if that's what I ask
+ *  for
+ */
+START_TEST(test_find_mostrecent)
+{
+  spectrum_definition** ppDefs;
+  spectrum_parameter p1 = {
+    "param1",
+    1				
+  };
+  spectrum_parameter p2 = {
+    "param2",
+    1				
+  };
+  spectrum_parameter* params[3] = {
+    &p1, NULL
+  };
+  spectrum_parameter* pspec2[2] = {
+    &p2, NULL
+  };
+  int status;
+  int i;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+  spectcl_parameter_create(db, "param2", "stuff", NULL, NULL);
+
+  spectcl_workspace_create_spectrum(db,
+				    "1", "spectrum.test",
+				    params, NULL);
+  spectcl_workspace_create_spectrum(db, "1", "spectrum.test",
+				    pspec2, NULL); /* version 2. */
+
+  ppDefs = spectcl_workspace_find_spectra(db,
+					  NULL, FALSE,
+					  NULL);
+  fail_if(ppDefs == NULL);
+  if (ppDefs) {
+    spectrum_definition* pDef = ppDefs[0];
+    
+    fail_if(ppDefs[0] == NULL);
+    if(ppDefs[0]) {
+      fail_if(ppDefs[1] != NULL);
+      
+      fail_unless(pDef->s_id == 2); 
+      fail_unless(strcmp(pDef->s_name, "spectrum.test") == 0);
+      fail_unless(strcmp(pDef->s_type, "1") == 0);
+      fail_unless(pDef->s_version == 2);
+      fail_if(pDef->s_parameters == NULL);
+      if(pDef->s_parameters) {
+	spectrum_parameter* pParam = pDef->s_parameters[0];
+	
+	fail_unless(strcmp(pParam->s_name, "param2") == 0);
+	fail_unless(pParam->s_dimension == 1);
+	
+	free(pParam->s_name);
+	free(pParam);
+      }
+      free(pDef->s_name);
+      free(pDef->s_type);
+      free(pDef);
+    }
+
+
+
+
+    free(ppDefs);
+  }
+  
+}
+END_TEST
 
 /*------------------- Final setup  -----------*/
 int main(void) 
@@ -428,6 +580,9 @@ int main(void)
   tcase_add_test(tc_spectra, test_find_notattached);
   tcase_add_test(tc_spectra, test_find_emptyresult);
   tcase_add_test(tc_spectra, test_find_oneresult);
+  tcase_add_test(tc_spectra, test_find_multiple);
+  tcase_add_test(tc_spectra, test_find_mostrecent);
+
 
   srunner_set_fork_status(sr, CK_NOFORK);
 
