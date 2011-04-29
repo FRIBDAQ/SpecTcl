@@ -913,3 +913,52 @@ spectcl_workspace_find_spectra(spectcl_experiment db,
   spectcl_experiment_errno = SPEXP_UNIMPLEMENTED;
   return result;
 }
+/**
+ ** Free the storage associated with a single spectrum definition.
+ * @param pDef   - A spectrum_definition* pointing to a dynamically allocated
+ *                 spectrum definition.
+ * @return void
+ */
+void
+spectcl_ws_free_specdef(spectrum_definition* pDef)
+{
+  spectrum_parameter** pParams;
+
+  if (!pDef) return;		/* NO-OP. */
+
+  /* First free the parameter storage: */
+
+  pParams = pDef->s_parameters;
+  while(*pParams) {
+    free((*pParams)->s_name);
+    free(*pParams);
+    pParams++;
+  }
+  free(pDef->s_parameters);
+
+  /* Free the dynamic storage in the top level struct and the struct itself: */
+
+  free(pDef->s_name);
+  free(pDef->s_type);
+  free(pDef);
+  
+}
+/**
+ ** Free a null terminated array of spectrum definitions
+ ** @param ppDefs  spectrum_definition** which is a dynamically allocated array
+ **                of pointers to spectrum_definitions each of which is 
+ **                itself dynamically allocatedi.
+ ** @return void
+ */
+void
+spectcl_ws_free_specdefs(spectrum_definition** ppDefs)
+{
+  spectrum_definition** p = ppDefs;
+  if (!p) return;		/* no-op. */
+
+  while(*p) {
+    spectcl_ws_free_specdef(*p);
+    p++;
+  }
+  free(ppDefs);
+}

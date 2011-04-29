@@ -277,16 +277,19 @@ extern "C" {
 					 const char* pName,
 					 const spectrum_parameter** pParams,
 					 const char* attachPoint);
-  spectrum_parameter** spectcl_workspace_parameters(spectcl_experiment exp, 
-						    int id,
-						    const char* attachPoint);
-  void spectcl_workspace_free_spectrum_parameters(spectrum_parameter** p);
-  void spectcl_workspace_free_spectrum_definitions(spectrum_definition** p);
   spectrum_definition** spectcl_workspace_find_spectra(spectcl_experiment db,
 						       const char* pattern,
 						       int         allVersions,
 						       const char* attachPoint);
-  spectrum_definition*  spectcl_workspace_spectrum_properties(spectcl_experiment db, int id,
+  void spectcl_ws_free_specdef(spectrum_definition* pDef);
+  void spectcl_ws_free_specdefs(spectrum_definition** ppDefs);
+
+  spectrum_parameter** spectcl_ws_parameters(spectcl_experiment exp, 
+						    int id,
+						    const char* attachPoint);
+  void spectcl_ws_free_spec_pars(spectrum_parameter** p);
+
+  spectrum_definition*  spectcl_ws_spectrum_properties(spectcl_experiment db, int id,
 							      const char* attachPoint);
   
   

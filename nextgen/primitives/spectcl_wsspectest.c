@@ -331,7 +331,7 @@ START_TEST(test_find_emptyresult)
   fail_if(ppDefs == NULL);
   if (ppDefs) {
     fail_unless(ppDefs[0] == NULL);
-    free(ppDefs);		/* That's enough to free stuff. */
+    spectcl_ws_free_specdefs(ppDefs);
   }
 
 }
@@ -383,18 +383,12 @@ START_TEST(test_find_oneresult)
 	fail_unless(strcmp(pParam->s_name, "param1") == 0);
 	fail_unless(pParam->s_dimension == 1);
 	
-	free(pParam->s_name);
-	free(pParam);
       }
-      free(pDef->s_name);
-      free(pDef->s_type);
-      free(pDef);
+
     }
 
 
-
-
-    free(ppDefs);
+    spectcl_ws_free_specdefs(ppDefs);
   }
 }
 END_TEST
@@ -456,20 +450,14 @@ START_TEST(test_find_multiple)
 	fail_unless(strcmp(pParam->s_name, parNames[i]) == 0);
 	fail_unless(pParam->s_dimension == 1);
 
-	free(pParam->s_name);
-	free(pParam);
 
       }
-      free(pDef->s_name);
-      free(pDef->s_type);
-      free(pDef);
       
     }
   }
   fail_unless(ppDefs[2] == NULL);
-  free(ppDefs);
 
-
+  spectcl_ws_free_specdefs(ppDefs);
 
 }
 END_TEST
@@ -530,18 +518,12 @@ START_TEST(test_find_mostrecent)
 	fail_unless(strcmp(pParam->s_name, "param2") == 0);
 	fail_unless(pParam->s_dimension == 1);
 	
-	free(pParam->s_name);
-	free(pParam);
       }
-      free(pDef->s_name);
-      free(pDef->s_type);
-      free(pDef);
+
     }
 
 
-
-
-    free(ppDefs);
+    spectcl_ws_free_specdefs(ppDefs);
   }
   
 }
@@ -587,7 +569,7 @@ START_TEST(test_find_multiversion)
   fail_if(ppDefs == NULL);
   if (ppDefs) {
     fail_if(ppDefs[0] == NULL);
-    if (ppDefs[0]) {		/* TODO: free memory. */
+    if (ppDefs[0]) {	
       spectrum_definition* pDef = ppDefs[0];
       fail_unless(pDef->s_version == 2);
       fail_if(ppDefs[1] == NULL);
@@ -600,6 +582,7 @@ START_TEST(test_find_multiversion)
 
   }
   
+  spectcl_ws_free_specdefs(ppDefs);
 }
 END_TEST
 
@@ -655,6 +638,7 @@ START_TEST(test_find_specific)
       fail_unless(strcmp(ppDefs[0]->s_name, "another_Spectrum") == 0);
     }
   }
+  spectcl_ws_free_specdefs(ppDefs);
 }
 END_TEST
 
