@@ -523,3 +523,18 @@ spectcl_qualifyStatement(const char* format, const char* pAttach)
 
   return table;
 }
+/**
+ ** Given a null termianted list of pointer to dynamically allocated simple pointers:
+ * - free the storage pointed by each pointer.
+ * - free the entire list.
+ * @param pList   - Pointer to the list to free.
+ */
+void
+spectcl_freePtrList(void** p)
+{
+  void** pList = p;
+  while (*p) {
+    free(*p);
+  }
+  free(pList);
+}

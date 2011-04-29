@@ -246,7 +246,7 @@ fillSpectrumDefinition(spectrum_definition* pDef,
     */
 
     if (sqlite3_column_type(stmt, 4) != SQLITE_NULL) {
-      realloc(pDef->s_parameters, sizeof(spectrum_parameter*) + 2);
+      pDef->s_parameters = realloc(pDef->s_parameters, sizeof(spectrum_parameter*) + 2);
       pParam = malloc(sizeof(spectrum_parameter));
       (pDef->s_parameters)[paramCount] = pParam;
 
@@ -560,6 +560,126 @@ createSpectrum(sqlite3* db, const char* pName, const char* pType,
   return -1;
 }
 
+/**
+ * Return the set of known spectra that match a specific
+ * pattern
+ * @param db      - Experiment database (must be verfied by caller)
+ * @param pattern - glob pattern of spectra to match.
+ * @param ap      - Attach point of the workspace to the experiment
+ *                  (verified by caller).
+ * @return char**
+ * @retval - Null terminated set of strings of spectrum names that match
+ *           the pattern (could be that [0] is null if there are no matches.
+ */
+static char**
+getMatchingSpectra(sqlite3* db, const char* pattern, const char* ap)
+{
+  const char* sqlTemplate = 
+    "SELECT name FROM %s%sspectrum_definitions \
+                 WHERE name GLOB :pattern";
+  char*         pSql;
+  int           status;
+  char*         item;
+  char**        result;
+  int           nMatches = 0;
+  sqlite3_stmt* pStatement;
+
+  /* set up the result. */
+
+  result = malloc(sizeof(char*));
+  *result = NULL;		/* Start with an empty list. */
+
+  /* Prepare the statement and bind the glob pattern: */
+
+  pSql = spectcl_qualifyStatement(sqlTemplate, ap);
+  status = sqlite3_prepare_v2(db, pSql, -1, &pStatement, NULL);
+  free(pSql);
+  if (status == SQLITE_OK) {
+    status = sqlite3_bind_text(pStatement, 1, pattern, -1, SQLITE_STATIC);
+    if (status == SQLITE_OK) {
+      while ((status = sqlite3_step(pStatement)) == SQLITE_ROW) {
+	item = copyString(sqlite3_column_text(pStatement, 0));
+	result = realloc(result, (nMatches+1)*sizeof(char*));
+	result[nMatches] = item;
+	nMatches++;
+	result[nMatches] = NULL;
+      }
+    }
+    sqlite3_finalize(pStatement);
+  }
+
+
+  return result;
+}
+
+/**
+ * Return spectrum definitions givena query and the set of spectra
+ * to query within.  The query is assumed to require
+ * two attach point substitutions, and one binding for a spectrum
+ * name.
+ *
+ * @param db             - Experiment database to do the query on.
+ * @param pQueryTemplate - Pointer to the query template. 
+ * @param pNames         - Spectrum names to successively bind to the query.
+ * @param pAttach        - Attach point of the workspace.
+ * @return spectrum_definition**
+ * @retval definitions of any spectra matching the query.
+ */
+static spectrum_definition**
+getSpectrumDefinitions(sqlite3* db, const char* pQueryTemplate, char* const* pNames,  const char* pAttach)
+{
+  char*          pSub1;
+  char*          pSub2;
+  sqlite3_stmt*  pStatement;
+  int            status;
+  spectrum_definition** result;
+  int            defCount = 0;
+
+  /* Make an empty result: */
+  
+  result = malloc(sizeof(spectrum_definition*));
+  result[0] = NULL;
+
+  /* Do the workspace substitutions */
+
+  pSub1 = spectcl_qualifyStatement(pQueryTemplate, pAttach);
+  pSub2 = spectcl_qualifyStatement(pSub1, pAttach);
+  free(pSub1);
+
+  /* prepare the statement for execution:  */
+
+  status = sqlite3_prepare_v2(db, pSub2, -1, &pStatement, NULL);
+  free(pSub2);			/* Make sure we don't leak this... */
+  if(status == SQLITE_OK) {
+    /* We have to bind each of the parameter names to the query and step it until
+       it's done:
+       TODO:  Out of memory handling:
+    */
+    while (*pNames) {
+      status = sqlite3_bind_text(pStatement, 1, *pNames, 
+				 -1, SQLITE_STATIC);       /* pNames is caller's problem */
+      if (status == SQLITE_OK) {
+	while (sqlite3_step(pStatement) == SQLITE_ROW) {
+	  spectrum_definition* pDef;
+	  pDef = malloc(sizeof(spectrum_definition));
+	  fillSpectrumDefinition(pDef, pStatement);
+	  result = realloc(result, sizeof(spectrum_definition*)*(defCount+2));
+	  result[defCount] = pDef;
+	  defCount++;
+	  result[defCount] = NULL; /* Maintain null termination. */
+	}
+      }
+      /* Prep the statment for the next binding: */
+
+      sqlite3_reset(pStatement);
+      pNames++;
+    }
+  }
+
+  sqlite3_finalize(pStatement);
+  return result;
+}
+
 /*--------------------- public functions ----------*/
 /**
  ** Create a new spectrum definition.
@@ -705,18 +825,36 @@ spectcl_workspace_find_spectra(spectcl_experiment db,
   const char* whereAttached = DEFAULT_ATTACH_POINT;
   int         status;
   const char* pActualPattern = "*";
-  const char* sqlTemplate = "SELECT sd.id, sd.name, sd.type_id, sd.version, sp.dimension, p.name \
+  char**      pMatchingNames;
+  spectrum_definition**   result;
+
+  /*  Two Sqlite templates are used, one for the case of wanting the most recent version only
+   *  the other for wanting all versions:
+   */
+
+  const char* mostRecentTemplate =
+    "SELECT sd.id, sd.name, sd.type_id, sd.version, sp.dimension, p.name \
                                     FROM %s%sspectrum_definitions sd \
                                     LEFT JOIN %%s%%sspectrum_parameters sp \
                                     ON         sd.id = sp.spectrum_id  \
                                     INNER JOIN parameters p             \
                                     ON         p.id = sp.parameter_id   \
-                                    WHERE      sd.name  GLOB :pattern      \
+                                    WHERE      sd.name  = :spname      \
+                                    ORDER BY   sd.id, sd.version DESC\
+                                    LIMIT 1";
+  const char* allTemplate =
+     "SELECT sd.id, sd.name, sd.type_id, sd.version, sp.dimension, p.name \
+                                    FROM %s%sspectrum_definitions sd \
+                                    LEFT JOIN %%s%%sspectrum_parameters sp \
+                                    ON         sd.id = sp.spectrum_id  \
+                                    INNER JOIN parameters p             \
+                                    ON         p.id = sp.parameter_id   \
+                                    WHERE      sd.name  = :spname      \
                                     ORDER BY   sd.id, sd.version DESC";
-
-  char* sql1;		/* used to build the statments.  */
-  char* sql;
- 
+  const char* pSelectTemplate;
+  char*       qSql1;
+  char*       qSql2;
+                     
 
   spectrum_definition** pDefs = NULL;
 
@@ -744,8 +882,29 @@ spectcl_workspace_find_spectra(spectcl_experiment db,
   if(pattern) {
     pActualPattern = pattern;
   }
+  /* Get the list of spectra that match our pattern.
+   * What happens next depends on the state of the allVersions flag
+   */
+  pMatchingNames = getMatchingSpectra(db, pActualPattern, whereAttached); 
+
+  /*  If there are no matches we are done...return an empty result */
+
+  if (!pMatchingNames || (pMatchingNames[0] == NULL)) {
+    free(pMatchingNames);	/* Nothing pointed at by pointers. */
+    result = malloc(sizeof(spectrum_definition*));
+    result[0] = NULL;
+    return result;
+    
+  }
+  /* We have to pick out the correct query and ask for the matching definitions
+    given the names we have:
+  */
+  result = getSpectrumDefinitions(db, 
+				  allVersions ? allTemplate : mostRecentTemplate,
+				  pMatchingNames,
+				  whereAttached);
 
 
   spectcl_experiment_errno = SPEXP_UNIMPLEMENTED;
-  return NULL;
+  return result;
 }

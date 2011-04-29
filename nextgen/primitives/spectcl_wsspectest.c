@@ -239,7 +239,7 @@ START_TEST(test_create_1dgood1st)
 {
   spectrum_parameter p1 = {
     "param1",
-    1				/* Illegal dim number for 1d. */
+    1				
   };
   spectrum_parameter* params[3] = {
     &p1, NULL
@@ -327,10 +327,74 @@ START_TEST(test_find_emptyresult)
   fail_if(ppDefs == NULL);
   if (ppDefs) {
     fail_unless(ppDefs[0] == NULL);
+    free(ppDefs);		/* That's enough to free stuff. */
   }
 
 }
 END_TEST
+/*  Finding when a single spectrum is defined. */
+
+START_TEST(test_find_oneresult)
+{
+  spectrum_definition** ppDefs;
+  spectrum_parameter p1 = {
+    "param1",
+    1				
+  };
+  spectrum_parameter* params[3] = {
+    &p1, NULL
+  };
+  int status;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+
+  status = spectcl_workspace_create_spectrum(db,
+					     "1", "spectrum.test",
+					     params, NULL);
+  status= spectcl_experiment_errno;
+  fail_unless(status == SPEXP_OK);
+  if (status != SPEXP_OK) return;
+
+  ppDefs = spectcl_workspace_find_spectra(db,
+					  NULL, FALSE,
+					  NULL);
+  fail_if(ppDefs == NULL);
+
+  if (ppDefs) {
+    spectrum_definition* pDef = ppDefs[0];
+    
+    fail_if(ppDefs[0] == NULL);
+    if(ppDefs[0]) {
+      fail_if(ppDefs[1] != NULL);
+      
+      fail_unless(pDef->s_id == 1); 
+      fail_unless(strcmp(pDef->s_name, "spectrum.test") == 0);
+      fail_unless(strcmp(pDef->s_type, "1") == 0);
+      fail_unless(pDef->s_version == 1);
+      fail_if(pDef->s_parameters == NULL);
+      if(pDef->s_parameters) {
+	spectrum_parameter* pParam = pDef->s_parameters[0];
+	
+	fail_unless(strcmp(pParam->s_name, "param1") == 0);
+	fail_unless(pParam->s_dimension == 1);
+	
+	free(pParam->s_name);
+	free(pParam);
+      }
+      free(pDef->s_name);
+      free(pDef->s_type);
+      free(pDef);
+    }
+
+
+
+
+    free(ppDefs);
+  }
+}
+END_TEST
+
 /*------------------- Final setup  -----------*/
 int main(void) 
 {
@@ -363,6 +427,7 @@ int main(void)
   tcase_add_test(tc_spectra, test_find_notexp);
   tcase_add_test(tc_spectra, test_find_notattached);
   tcase_add_test(tc_spectra, test_find_emptyresult);
+  tcase_add_test(tc_spectra, test_find_oneresult);
 
   srunner_set_fork_status(sr, CK_NOFORK);
 
