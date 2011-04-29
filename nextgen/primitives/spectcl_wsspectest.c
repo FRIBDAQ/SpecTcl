@@ -628,7 +628,6 @@ START_TEST(test_find_specific)
 
   fail_if(ppDefs == NULL);
   if (ppDefs) {
-    /* TODO: Memory mangement */
 
     fail_if(ppDefs[0] == NULL);
     if (ppDefs[0]) {
@@ -722,6 +721,62 @@ START_TEST(test_prop_1)
   }
 }
 END_TEST
+/*
+ * If I have defined seveal spectra I should be able to pick
+ * the right one out by id.
+ */
+START_TEST(test_prop_specific)
+{
+  spectrum_definition* pDef;
+  spectrum_parameter p1 = {
+    "param1",
+    1				
+  };
+  spectrum_parameter p2 = {
+    "param2",
+    1				
+  };
+  spectrum_parameter* params[3] = {
+    &p1, NULL
+  };
+  spectrum_parameter* pspec2[2] = {
+    &p2, NULL
+  };
+  const char* specNames[2] = {"spectrum.test", "another_Spectrum"};
+  const char* parNames[2]  = {"param1", "param2"};
+  int status;
+  int id;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+  spectcl_parameter_create(db, "param2", "stuff", NULL, NULL);
+
+  id = spectcl_workspace_create_spectrum(db,
+				    "1", specNames[0],
+				    params, NULL);
+  spectcl_workspace_create_spectrum(db, "1", specNames[1],
+				    pspec2, NULL);
+  pDef = spectcl_ws_spectrum_properties(db, id, NULL);
+  
+  fail_unless(pDef != NULL);
+  if (pDef != NULL) {
+
+    fail_unless(pDef->s_id == 1); 
+    fail_unless(strcmp(pDef->s_name, "spectrum.test") == 0);
+    fail_unless(strcmp(pDef->s_type, "1") == 0);
+    fail_unless(pDef->s_version == 1);
+    fail_if(pDef->s_parameters == NULL);
+    if(pDef->s_parameters) {
+      spectrum_parameter* pParam = pDef->s_parameters[0];
+      
+      fail_unless(strcmp(pParam->s_name, "param1") == 0);
+      fail_unless(pParam->s_dimension == 1);
+      
+    }
+    spectcl_ws_free_specdef(pDef);
+  }
+}
+END_TEST
 /*------------------- Final setup  -----------*/
 int main(void) 
 {
@@ -768,6 +823,7 @@ int main(void)
   tcase_add_test(tc_spectra, test_prop_nows);
   tcase_add_test(tc_spectra, test_prop_nosuch);
   tcase_add_test(tc_spectra, test_prop_1);
+  tcase_add_test(tc_spectra, test_prop_specific);
   
 
   srunner_set_fork_status(sr, CK_NOFORK);
