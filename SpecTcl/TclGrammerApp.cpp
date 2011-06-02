@@ -697,7 +697,7 @@ void CTclGrammerApp::UpdateUInt(CTCLVariable& rVar, UInt_t& rValue) {
 
   const char* pValue(rVar.Get(TCL_LEAVE_ERR_MSG|TCL_GLOBAL_ONLY));
   if(pValue) {
-    if(sscanf(pValue, "%ud", &nResult) > 0) {
+    if(sscanf(pValue, "%d", &nResult) > 0) {
       rValue = nResult;
     }
     else {			// Value not unsigned complain and no update

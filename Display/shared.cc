@@ -470,7 +470,7 @@ static spec_shared *mapmemory(char *name, unsigned int size)
 static void 
 PrintOffsets()
 {
-  spec_shared *pShape(0);
+  spec_shared *pShape(0);	// dirty way to get offests.
   printf("(Xamine) offsets into shared mem: \n");
   printf("  dsp_xy      = %x\n", pShape->dsp_xy);
   printf("  dsp_titles  = %x\n", pShape->dsp_titles);

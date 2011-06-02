@@ -447,7 +447,7 @@ int spec_shared::getspecid(char *name) volatile
   search[sizeof(search)-1] = '\0';
   upcase(search);		/* Make an upper case version of the name */
   
-  for(id = 0; id < XAMINE_MAXSPEC; id++) {
+  for (id = 0; id < XAMINE_MAXSPEC; id++) {
     if(dsp_types[id] != undefined) {
       cvttitle(current, dsp_titles[id], 1);
       if(strncmp(current, search, sizeof(spec_title)) == 0) return id+1;

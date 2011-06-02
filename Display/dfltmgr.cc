@@ -171,7 +171,8 @@ void Xamine_Construct1dDefaultProperties(win_1d *properties)
   win_1d *p = new win_1d(GenericDefaults);
 
   p->setrend(rend1d);
-  memcpy(properties, p, sizeof(win_1d));
+  //  memcpy(properties, p, sizeof(win_1d));
+  properties = p;		// instead of the memcpy above.
   properties->setmapped(GenericDefaults.ismapped());
   delete p;
 } 
@@ -188,7 +189,8 @@ void Xamine_Construct2dDefaultProperties(win_2d *properties)
   win_2d *p = new win_2d(GenericDefaults);
 
   p->setrend(rend2d);
-  memcpy(properties, p, sizeof(win_2d));
+  //   memcpy(properties, p, sizeof(win_2d));
+  properties = p;		//  instead of memcpy above.
   properties->setmapped(GenericDefaults.ismapped());
   delete p;
 }

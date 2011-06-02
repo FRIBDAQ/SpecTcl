@@ -760,7 +760,7 @@ static char*
 FormatGateInfo(int specno)
 {
   char *result;
-  char element[20];
+  char element[100];
   int  nobjects  = Xamine_GetSpectrumGateCount(specno);
   
   grobj_generic** objects = new grobj_generic*[nobjects];

@@ -536,6 +536,9 @@ CNSCLAsciiSpectrumFormatter::WriteValues
     Delimeter = ' ';
   }
   rStream << ") -1\n";
+  delete []pLows;
+  delete []pHis;
+  delete []pIdx;
 }
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -749,7 +752,7 @@ CNSCLAsciiSpectrumFormatter::ReadHeader(istream&  rStream,
   DecodeParenList(strString, Dims);
   for(UInt_t i = 0; i < Dims.size(); i++) {
     UInt_t idim;
-    if(sscanf(Dims[i].c_str(), "%d", &idim) != 1) {
+    if(sscanf(Dims[i].c_str(), "%u", &idim) != 1) {
       throw CSpectrumFormatError(CSpectrumFormatError::InvalidHeader,
 				 "Decoding a spectrum dimension");
     }
@@ -1026,7 +1029,7 @@ CNSCLAsciiSpectrumFormatter::ReadBody(istream&   rfStream,
 	  delete [] IndexArray;
 	  return; // End of the data.
 	}
-	if(sscanf(IndexList[i].c_str(), "%d", &n) != 1) {	// File format corrupt
+	if(sscanf(IndexList[i].c_str(), "%u", &n) != 1) {	// File format corrupt
 	  throw CSpectrumFormatError(CSpectrumFormatError::FileFormatCorrupt,
 				     "Decoding index string");
 	}
@@ -1052,7 +1055,7 @@ CNSCLAsciiSpectrumFormatter::ReadBody(istream&   rfStream,
     }
   }
   catch (...) {
-    delete []IndexArray;
+    return;
   }
     // If control passes here we hit the eof prior to the end of the data.
 
