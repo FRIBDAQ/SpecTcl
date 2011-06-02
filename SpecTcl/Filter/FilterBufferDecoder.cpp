@@ -581,7 +581,7 @@ CFilterBufferDecoder::dataWidth(UInt_t nBytes, void* pBuffer)
 
   string type;
   xdr >> type;			// 'header'
-  ProcessHeader(xdr, *(reinterpret_cast<CAnalyzer*>(NULL)));	// Skip the header.
+  ProcessHeader(xdr, *(reinterpret_cast<CAnalyzer*>(NULL)));	// Skip the header. legal null deref.
   xdr >> type;                  // 'event'
   int nBitmasks = numBitmasks(m_nParamCount);
 

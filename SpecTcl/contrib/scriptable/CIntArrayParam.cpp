@@ -519,7 +519,7 @@ CIntArrayParam::SetValue(CTCLInterpreter& rInterp,
       nLong = strtoll(values[i].c_str(), (char**) NULL, 0);
       if( (nLong == 0) && (errno == EINVAL) ) {
 	char value[100];
-	sprintf(value, "%d", Values[i]);
+	sprintf(value, "%ld", Values[i]);
 	rResult  += "Configuration parameter array : ";
 	rResult += getSwitch();
 	rResult += " element: ";
@@ -530,7 +530,7 @@ CIntArrayParam::SetValue(CTCLInterpreter& rInterp,
       if(m_fCheckRange) {
         if((nLong < m_nLow) || (nLong > m_nHigh)) {
 	  char value[100];
-	  sprintf(value, "%d", Values[i]);
+	  sprintf(value, "%ld", Values[i]);
           rResult   += "Array configuration parameter ";
           rResult  += getSwitch();
           rResult  += " Parameter ";

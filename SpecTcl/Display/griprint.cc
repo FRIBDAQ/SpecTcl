@@ -1642,7 +1642,11 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       waitpid(-1, &x, WNOHANG);
     }
     else {
-      system(GriCmd);
+      int status = system(GriCmd);
+      if (status == -1) {
+	perror("Unable to execute gri command in child process!");
+	exit(-1);
+      }
       printf("Finished\n");     
       exit(0);
     }

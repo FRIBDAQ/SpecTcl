@@ -1369,7 +1369,7 @@ CSpectrumPackage::GetChannel(CTCLResult& rResult, const string& rName,
     //
 
     char sChan[20];
-    sprintf(sChan, "%u", nChan);
+    sprintf(sChan, "%lu", nChan);
     rResult += sChan;
 
   }
@@ -1425,7 +1425,7 @@ CSpectrumPackage::SetChannel(CTCLResult& rResult, const string& rName,
     // Result code will be the old value.
     
     char sValue[20];
-    sprintf(sValue, "%d", nOldValue);
+    sprintf(sValue, "%ld", nOldValue);
     rResult += sValue;
 
   }

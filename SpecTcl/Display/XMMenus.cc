@@ -104,14 +104,18 @@ void XMPulldown::BuildMenu(Cardinal max_items, Widget parent,
   ** the XmNsubMenuId resource.
   */
   pd_button = new XMCascadeButton(name, parent);
-  pd_button->Label(name);
-  pd_button->SetAssociatedMenu(id);
-  pd_button->SetMnemonic(name[0]);
-			
   if(pd_button == NULL) {
     fprintf(stderr,
          "XMPulldown constructor error...Could not make new cascade button\n");
+    
   }
+  else {
+
+    pd_button->Label(name);
+    pd_button->SetAssociatedMenu(id);
+    pd_button->SetMnemonic(name[0]);
+  }
+
 }
 
 /*

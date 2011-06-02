@@ -914,5 +914,10 @@ June 3, 2010
              - WO 2529-005-CP-005 - Add an extra layer of indirection
                (parameter scoreboarding) to improve the performance
                of histogramming when spectra and parameters are sparse.
-pre8:
+
 July 13, 2010 - Fix some memory double deallocations found by Coupland.
+
+3.3-002
+	- Fixes pointed out by cppcheck static analyzer.
+	- Misc. warning removals.
+	- Use mkstemp rather than tmpnam in wsyswig printing.

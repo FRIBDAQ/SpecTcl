@@ -104,7 +104,7 @@ static void MemGone()
   int a;
   fprintf(stderr, "Xamine -- Memory allocation failed... coredumping\n");
   fflush(stderr);		// Ensure we see the output.
-  a = *(int *)(NULL);
+  a = *(int *)(NULL);		// This error is supposed to be here...it forces the core dump.
 }
 
 /*

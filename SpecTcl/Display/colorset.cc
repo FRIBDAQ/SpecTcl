@@ -838,9 +838,14 @@ int ReadColorTable(FILE *fp)
   for(i = 0; i < entries; i ++) {
     XColor        colorcell;
 
-    fscanf(fp, "%d %d %d %d %d\n", 
-	   &button_table[i].low, &button_table[i].hi,
-	   &button_table[i].red, &button_table[i].green, &button_table[i].blue);
+    int status = fscanf(fp, "%d %d %d %d %d\n", 
+			&button_table[i].low, &button_table[i].hi,
+			&button_table[i].red, &button_table[i].green, &button_table[i].blue);
+    if (status != 5) {
+      fprintf(stderr, "%s",
+	      "Unable to read the color from button table\n");
+      exit (-1);
+    }
     sprintf(button_label, "%d\n\n%d", button_table[i].hi, button_table[i].low);
     button_table[i].button->Label(button_label);
     colorcell.red = pcttored(button_table[i].red);

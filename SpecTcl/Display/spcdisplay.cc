@@ -171,7 +171,7 @@ dump(int spno)
   printf("  Spectrum: %d\n", spno);
   printf("   xdim   = %d\n", xamine_shared->dsp_xy[spno].xchans);
   printf("   ydim   = %d\n", xamine_shared->dsp_xy[spno].ychans);
-  printf("   offset = %d\n", offset);
+  printf("   offset = %ld\n", offset);
 
 
 
