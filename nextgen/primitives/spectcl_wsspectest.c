@@ -777,6 +777,88 @@ START_TEST(test_prop_specific)
   }
 }
 END_TEST
+
+/*----------------  Tests for _ws_parameters ---*/
+
+/*
+ *  have to pas an exp database as the first parameter.
+ */
+START_TEST(test_param_notexp)
+{
+  spectrum_parameter** pParams = spectcl_ws_parameters(ws, 0, NULL);
+  fail_unless(pParams == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOT_EXPDATABASE);
+}
+END_TEST
+/**
+ * Test that if I don't have a workspace attached that is detectable.
+ */
+START_TEST(test_param_nows)
+{
+  spectrum_parameter** pParams  = spectcl_ws_parameters(db, 0, NULL);
+  fail_unless(pParams == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_UNATTACHED);
+
+}
+END_TEST
+/**
+ * Test that if I ask for parameters from a spectrum that does not exist
+ * I get nothing.
+ *
+ */
+START_TEST(test_param_nosuch)
+{
+  spectrum_parameter** pParams;
+  spectcl_workspace_attach(db, wsName, NULL);
+  pParams = spectcl_ws_parameters(db, 0, NULL);
+
+  fail_unless(pParams == NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOSUCH);
+  
+}
+END_TEST
+/**
+ * 1-d spectra should give me correct parameter definitions.
+ */
+START_TEST(test_param_got1)
+{
+  spectrum_parameter p1 = {
+    "param1",
+    1				
+  };
+
+  spectrum_parameter* params[3] = {
+    &p1, NULL
+  };
+
+  const char* specNames[2] = {"spectrum.test", "another_Spectrum"};
+  const char* parNames[2]  = {"param1", "param2"};
+  int status;
+  int id;
+  spectrum_parameter** pParams;
+
+  spectcl_workspace_attach(db, wsName, NULL);
+  spectcl_parameter_create(db, "param1", "arb", NULL, NULL);
+
+  id = spectcl_workspace_create_spectrum(db,
+				    "1", "spectrum.test",
+				    params, NULL);
+  
+
+  pParams = spectcl_ws_parameters(db, id, NULL);
+
+  fail_if(pParams == NULL);
+  if (pParams) {
+    fail_unless(strcmp(pParams[0]->s_name, "param1") == 0);
+    fail_unless(pParams[0]->s_dimension == 1);
+    fail_if(pParams[1] != NULL);
+
+    /* TODO:  Memory management */
+    spectcl_ws_free_spec_pars(pParams);
+  }
+
+}
+END_TEST
 /*------------------- Final setup  -----------*/
 int main(void) 
 {
@@ -824,7 +906,13 @@ int main(void)
   tcase_add_test(tc_spectra, test_prop_nosuch);
   tcase_add_test(tc_spectra, test_prop_1);
   tcase_add_test(tc_spectra, test_prop_specific);
-  
+
+  /* Tests for spectcl_ws_parameters  */
+
+  tcase_add_test(tc_spectra, test_param_notexp);
+  tcase_add_test(tc_spectra, test_param_nows);
+  tcase_add_test(tc_spectra, test_param_nosuch);
+  tcase_add_test(tc_spectra, test_param_got1);
 
   srunner_set_fork_status(sr, CK_NOFORK);
 

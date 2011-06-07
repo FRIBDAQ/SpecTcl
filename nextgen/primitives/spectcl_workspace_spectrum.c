@@ -1065,3 +1065,134 @@ spectcl_ws_spectrum_properties(spectcl_experiment exp,
   sqlite3_finalize(pStatement);
   return NULL;
 }
+/**
+ * Given a spectrum id, this function returns the set of parameters that are used
+ * by that spectrum. 
+ * @param exp         - Experiment database with a workspace attached.
+ * @param id          - Id of the spectrum about which to retrieve information.
+ * @param attachPoint - If not NULL, this is the attachment point of the workspace.
+ *                      if NULL, the WORKSPACE_DEFAULT_ATTACH_POINT is used instead.
+ * @return spectrum_parameter**
+ * @retval not null - A NULL terminated array of pointers that point to 
+ *                   spectrum_parameter structs.  Fields in this struct are:
+ *                   - s_name   - Name of one of the parameters.
+ *                   - s_dimension - The dimensino number the parameter is on (e.g. for a
+ *                     2-d spectrum this will be either 1 or 2).
+ * @retval NULL - An error prevented this function from completing.  The error code is stored in
+ *                spectcl_experiment_errno and is one of the following:
+ *                - SPEXP_NOMEM  - Ran out of dynamic memory attempting to fulfil the request.
+ *                - SPEXP_SQLFAIL - Some SQL failed in some way.
+ *                - SPEXP_NOSUCH  - No such spectrum defined.
+ *                - SPEXP_NOT_EXPDATABASE - exp is not an expermient database.
+ *                - SPEXP_NOT_ATTACHED - There is no workspace at the claimed attachment ponit.
+ */
+spectrum_parameter** spectcl_ws_parameters(spectcl_experiment exp,
+					   int                id,
+					   const char*        attachPoint)
+{
+  int         status;
+  const char* pWhereAttached = DEFAULT_ATTACH_POINT;
+  const char* pSqlTemplate = "                                  \
+    SELECT sp.dimension, p.name FROM %s%sspectrum_parameters sp \
+           INNER JOIN parameters p ON p.id = sp.parameter_id    \
+           WHERE sp.spectrum_id = :id";
+  char* pSql;
+  sqlite3_stmt* pStatement;
+  spectrum_parameter*   pParam = NULL;
+  spectrum_parameter** pResult = NULL;
+  int                  nPars   = 0;
+
+  /* Validate the database is an exp one */
+
+  if (!isExperimentDatabase(exp)) {
+    spectcl_experiment_errno = SPEXP_NOT_EXPDATABASE;
+    return NULL;
+  }
+  /* figure out the attach point and ensure there is a worksapce attached there. */
+
+  if(attachPoint) {
+    pWhereAttached = attachPoint;
+  }
+  status =  spectcl_checkAttached(exp, pWhereAttached, "workspace", SPEXP_UNATTACHED);
+  if (status != SPEXP_OK) {
+    spectcl_experiment_errno = status;
+    return NULL;
+  }
+
+  /* Set up to perform the query  */
+
+  
+  pSql = spectcl_qualifyStatement(pSqlTemplate, pWhereAttached);
+  status = sqlite3_prepare_v2(exp, pSql, -1, &pStatement, NULL);
+  free(pSql);
+  if (status != SQLITE_OK) {
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+    return NULL;
+  }
+  sqlite3_bind_int( pStatement, 1, id);
+
+  /* Pull the data out of the rows: */
+
+
+  while ((status = sqlite3_step(pStatement)) == SQLITE_ROW) {
+    
+    /* Allocate storage for the parameter data: */
+
+    pParam = malloc(sizeof(spectrum_parameter));
+    if (!pParam) {
+      spectcl_experiment_errno = SPEXP_NOMEM;
+      goto error;
+    }
+    pParam->s_dimension = sqlite3_column_int(pStatement, 0);
+    pParam->s_name      = getTextField(pStatement, 1);
+
+    // Expand the result, set the last element to null and
+    // put pParam in the next to last element:
+
+    nPars++;
+    pResult = realloc(pResult, (nPars + 1)*sizeof(spectrum_parameter*));
+    pResult[nPars] = NULL;
+    pResult[nPars-1] = pParam;
+
+  }
+
+  if ((status == SQLITE_DONE) && (nPars == 0)) {
+    spectcl_experiment_errno = SPEXP_NOSUCH;
+    goto error;
+  }
+  if ((status != SQLITE_DONE)) {
+    spectcl_experiment_errno = SPEXP_SQLFAIL;
+    goto error;
+  }
+  
+  return pResult;
+
+ error:
+  spectcl_ws_free_spec_pars(pResult);
+  sqlite3_finalize(pStatement);
+  return NULL;
+}
+/**
+ * Frees storage in spectrum_parameter** that was returned from
+ * spectcl_ws_parameters. 
+ * @param pParams - Value returned from spectcl_ws_parameters
+ *                  If this is a NULL, the function is a no-op.
+ *
+ */
+void
+spectcl_ws_free_spec_pars(spectrum_parameter** pParams)
+{
+  if (pParams) {
+    spectrum_parameter** p = pParams;
+
+    /* Free the individual elements: */
+
+    while (*p) {
+      free((*p)->s_name);
+      free(*p);
+      p++;
+    }
+
+    free(pParams);		/* Free the pointers. */
+  }
+}

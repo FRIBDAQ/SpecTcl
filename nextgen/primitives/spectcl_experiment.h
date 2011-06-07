@@ -197,7 +197,7 @@ extern "C" {
   void     spectcl_free_run_info(pRunInfo  pInfo); 
   
   /* Functions that operate on UUIDS */
-
+  
   bool spectcl_correct_experiment(spectcl_experiment experiment, uuid_t* uuid);
   uuid_t* spectcl_experiment_uuid(spectcl_experiment experiment);
 
@@ -283,15 +283,16 @@ extern "C" {
 						       const char* attachPoint);
   void spectcl_ws_free_specdef(spectrum_definition* pDef);
   void spectcl_ws_free_specdefs(spectrum_definition** ppDefs);
+  spectrum_definition*  spectcl_ws_spectrum_properties(spectcl_experiment db, int id,
+							      const char* attachPoint);
+ 
 
   spectrum_parameter** spectcl_ws_parameters(spectcl_experiment exp, 
 						    int id,
 						    const char* attachPoint);
   void spectcl_ws_free_spec_pars(spectrum_parameter** p);
 
-  spectrum_definition*  spectcl_ws_spectrum_properties(spectcl_experiment db, int id,
-							      const char* attachPoint);
-  
+ 
   
 
 
