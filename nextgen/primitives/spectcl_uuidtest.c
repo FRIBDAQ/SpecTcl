@@ -64,6 +64,29 @@ START_TEST(test_mismatch)
 
 }
 END_TEST
+
+/* An arbitrary sqlite database should fail with SPEXP_NOT_EXPDATABASE
+ */
+
+
+START_TEST(test_uuid_notexpdb) 
+{
+  const char* pdbname = tmpnam(NULL);
+  sqlite3*    pDatabase;
+  uuid_t*     puuid;
+
+  sqlite3_open(pdbname, &pDatabase);
+
+  puuid = spectcl_experiment_uuid(pDatabase);
+  sqlite3_close(pDatabase);
+
+  fail_if(puuid != NULL);
+  fail_unless(spectcl_experiment_errno == SPEXP_NOT_EXPDATABASE);
+
+  
+}
+END_TEST
+
 /*------------------------------------ final setup ---------------------------------------------*/
 int main(void) 
 {
@@ -76,6 +99,7 @@ int main(void)
   tcase_add_test(tc_experiment, test_haveuuid);
   tcase_add_test(tc_experiment, test_matchself);
   tcase_add_test(tc_experiment, test_mismatch);
+  tcase_add_test(tc_experiment, test_uuid_notexpdb);
 
 
 

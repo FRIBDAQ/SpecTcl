@@ -132,7 +132,7 @@ START_TEST(test_config)
   fail_unless(strcmp(pType, "run-data") == 0);
 
   uuid_parse(pUuid, uuid);
-  fail_unless(spectcl_correct_experiment(pHandle, &uuid));
+  fail_unless(spectcl_correct_experiment(db, &uuid)); /* uuid should match the experiment's. */
 
   
   free(pRun);

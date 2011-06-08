@@ -286,7 +286,7 @@ int main(void)
   tcase_add_test(tc_experiment, test_create_config_table);
   tcase_add_test(tc_experiment, test_create_parameters_table);
   tcase_add_test(tc_experiment, test_create_runs_table);
-  
+
   tcase_add_test(tc_experiment, test_good_open);
   tcase_add_test(tc_experiment, test_bad_open);
   tcase_add_test(tc_experiment, test_good_close);
@@ -298,6 +298,8 @@ int main(void)
 
 
   /* Set up the test runner:  */
+
+  srunner_set_fork_status(sr, CK_NOFORK);
 
   srunner_run_all(sr, CK_NORMAL);
   failures = srunner_ntests_failed(sr);

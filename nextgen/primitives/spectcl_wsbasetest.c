@@ -583,7 +583,7 @@ int main(void)
   tcase_add_test(tc_basews, test_iscorrectexp_yes);
 
 
-  /*   srunner_set_fork_status(sr, CK_NOFORK); /*  /* Uncomment for gdb */
+  srunner_set_fork_status(sr, CK_NOFORK); /*  /* Uncomment for gdb */
 
   
   srunner_run_all(sr, CK_NORMAL);

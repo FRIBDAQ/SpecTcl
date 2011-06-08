@@ -32,8 +32,9 @@ TESTS=  c_workspacespectra \
 
 
 
-check_PROGRAMS=c_workspacesptypes \
-	c_workspacebase c_exptests c_paramtests c_runtests c_uuidtests \
+check_PROGRAMS= c_exptests\
+	c_workspacesptypes \
+	c_workspacebase  c_paramtests c_runtests c_uuidtests \
 	c_eventstest c_workspacespectra
 
 c_exptests_SOURCES=spectcl_experiment_check.c

@@ -41,6 +41,10 @@
 uuid_t*
 spectcl_experiment_uuid(spectcl_experiment db)
 {
+  if (!isExperimentDatabase(db)) {
+    spectcl_experiment_errno = SPEXP_NOT_EXPDATABASE;
+    return NULL;
+  }
   return getDBUUID(db);
 
 }
