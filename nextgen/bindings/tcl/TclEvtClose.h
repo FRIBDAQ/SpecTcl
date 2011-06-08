@@ -31,7 +31,7 @@
  ** holds event data for a specific run in an experiment.
  ** the syntax is:
  ** \verbatim
-::spectcl::evtclose exphandle run path
+::spectcl::evtclose evthandle
     \endverbatim
  **
  ** Where:

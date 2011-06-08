@@ -11,7 +11,8 @@ noinst_HEADERS=  TclCreate.h TclOpen.h	\
 	TclUUID.h  Asserts.h handleManager.h \
 	TclEvtCreate.h TclEvtClose.h TclEvtOpen.h \
 	TclAttach.h TclDetach.h  TclLoadEvents.h TclAugment.h \
-	TclEvRun.h TclEvtRunInfo.h TclEvtUUID.h
+	TclEvRun.h TclEvtRunInfo.h TclEvtUUID.h 
+	TclWsCreate.h
 
 libSpecTclExperiment_la_SOURCES= packageStartup.cpp	\
 	handleManager.cpp TclCreate.cpp TclOpen.cpp 	\
@@ -19,7 +20,8 @@ libSpecTclExperiment_la_SOURCES= packageStartup.cpp	\
 	TclUUID.cpp \
 	TclEvtCreate.cpp TclEvtClose.cpp TclEvtOpen.cpp TclAttach.cpp \
 	TclDetach.cpp TclLoadEvents.cpp TclAugment.cpp \
-	TclEvRun.cpp TclEvtRunInfo.cpp TclEvtUUID.cpp
+	TclEvRun.cpp TclEvtRunInfo.cpp TclEvtUUID.cpp \
+	TclWsCreate.cpp
 
 libSpecTclExperiment_la_CXXFLAGS=@TCL_FLAGS@ -I@top_builddir@/Utility -I@top_builddir@/TclPlus
 libSpecTclExperiment_la_LIBADD=@top_builddir@/TclPlus/libtclPlus.la \

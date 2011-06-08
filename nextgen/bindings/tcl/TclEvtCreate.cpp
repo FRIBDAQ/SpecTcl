@@ -51,7 +51,7 @@ CTclEvtCreate::operator()(CTCLInterpreter& interp,
   // Require an experiment handle:
 
   try {
-    spectcl_experiment expHandle = getDatabaseHandle(interp, objv, 1, "spectcl::evtopen");
+    spectcl_experiment expHandle = getDatabaseHandle(interp, objv, 1, "spectcl::evtcreate");
     int                run       = getParameter<int>(interp, objv, 2);
     std::string        path      = getParameter<std::string>(interp, objv, 3);
 

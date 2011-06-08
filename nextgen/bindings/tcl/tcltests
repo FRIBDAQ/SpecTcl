@@ -1,6 +1,6 @@
 package require tcltest
 
-# tcltest::matchFiles [list evtuuid.test]
+ tcltest::matchFiles [list wscreate.test]
 
 tcltest::runAllTests
 

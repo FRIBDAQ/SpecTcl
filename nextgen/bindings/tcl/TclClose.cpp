@@ -55,7 +55,7 @@ CTclClose::operator()(CTCLInterpreter& interp,
 
     // Marshall the handle
 
-    spectcl_experiment pExperiment = getDatabaseHandle(interp, objv, 1, "::spectcl::close");
+    spectcl_experiment pExperiment = getDatabaseHandle(interp, objv, 1, "::spectcl::expclose");
     objv[1].Bind(interp);						       
     string handle = objv[1];	// Must exist.
 
