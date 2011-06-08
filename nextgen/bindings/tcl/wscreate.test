@@ -81,7 +81,7 @@ test fail_4 {wsCreate fails with ok handle but no path.} \
 	list $status $msg
     } -result [list 1  "Incorrect number of command line parameters"]
 
-test ok {wsCreat should create a database if everything is good} \
+test ok {wsCreate should create a database if everything is good} \
     -setup {
 	setup
 	file delete ./ws.db

@@ -34,6 +34,7 @@
 #include "TclEvtRunInfo.h"
 #include "TclEvtUUID.h"
 #include "TclWsCreate.h"
+#include "TclWsAttach.h"
 
 /** Include command processor headers here */
 
@@ -82,7 +83,7 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclEvtRunInfo(*interp);
   new CTclEvtUUID(*interp);
   new CTclWsCreate(*interp);
-  
+  new CTclWsAttach(*interp);
   return TCL_OK;
 }
   void* gpTCLApplication(0);
