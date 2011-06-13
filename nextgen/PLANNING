@@ -306,6 +306,16 @@ int spectcl_workspace_detach(spectcl_experiment expdb, const char* at)
     Detaches a workspace from an experiment. If at is NULL the detach is done
     from SPECTCL_WORKSPACE otherwas at determines what is detached.
 
+
+Workspace commands:
+  wsCreate     exphandle path
+  wsAttach     exphandle path ?where?
+  wsDetach     exphandle ?where?
+  wsOpen       path
+  wsClose      wsHandle
+
+
+
 Getting info from the configuration_values table:
 
 const char*   spectcl_workspace_version(spectcl_workspace db)
@@ -317,6 +327,8 @@ int           spectcl_workspace_isWorkspace(spectcl_workspace db)
 int           spectcl_workspace_correctExperiment(spectcl_experiment expdb, 
 	                                         spectcl_workspace ws)
 
+ wsUuid    wsHandle
+ wsVersion wsHandle 
 
 Spectrum Type Api:
 
@@ -339,6 +351,11 @@ Note that
   - The spectcl_spectrum_types** returned by spectcl_workspace_getTypes 
     are a null terminated array of spectcl_spectrum_type*
 
+wsSpecTypes       wsHandle
+wsValidSpecType   wsHandle type-name
+wsSpecTypeInfo    wsHandle type-name
+
+
 Spectrum Definition/List API:
 
 typedef struct {
@@ -351,6 +368,8 @@ int spectcl_workspace_create_spectrum(spectcl_experiment exp, const char* pName,
 							    const char* attachPoint);
   returns id on success -1 on failure. spectcl_experiment_errno has errors.  There are two success
   codes:  SPEXP_OK - New spectrum SPEXP_NEWVERSION - existing spectrum created new version.
+
+
 
 spectrum_parameter** spectcl_workspace_parameters(spectcl_workspace ws, int id);
 void spectcl_workspace_free_spectrum_parameters(spectrum_parameter** p);

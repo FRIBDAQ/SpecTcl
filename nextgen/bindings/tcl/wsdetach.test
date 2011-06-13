@@ -1,0 +1,153 @@
+#
+#   Tests for the spectcl::wsDetach command
+#
+package require tcltest
+
+
+load    .libs/libSpecTclExperiment.so
+
+namespace import ::tcltest::*
+
+#--- Fixture code:
+
+
+
+proc setup {} {
+    global exphandle
+    global runHandle 
+
+    file delete ./expdb.db;	# Destroy anything that might be hanging on.
+    file delete ./run1.db
+    file delete ./ws.db
+    
+    set exphandle [::spectcl::expcreate ./expdb.db]
+    ::spectcl::run create $exphandle 1 "This is a test"
+    set runHandle [::spectcl::evtcreate $exphandle 1 ./run1.db]
+
+    ::spectcl::wsCreate $exphandle ./ws.db
+  
+
+
+}
+
+proc cleanup {} {
+    global exphandle
+    global runHandle
+
+    ::spectcl::expclose $exphandle
+    ::spectcl::evtclose $runHandle
+    
+    file delete ./expdb.db
+    file delete ./run1.db
+    file delete ./ws.db
+    
+}
+#--------------------------------- The tests ----------------
+
+test exists {wsDetach the command must exist} \
+     -body {
+	 info commands ::spectcl::wsDetach
+     } -result ::spectcl::wsDetach
+
+test fail_1 {wsDetach requires a database parameter} \
+     -body {
+	 set status [catch ::spectcl::wsDetach msg]
+	 list $status $msg
+     } -result [list 1 "Incorrect number of command line parameters"]
+
+test fail_2 {wsDetach, database handle must be known} \
+     -body {
+	 set status [catch [list ::spectcl::wsDetach no-such-handle] msg]
+	 list $status $msg
+     } -result [list 1 "spectcl::wsDetach - invalid database handle no-such-handle"]
+
+test fail_3 {wsDetach; databas handle must be for an experiment} \
+    -setup {
+	setup
+    }   \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	set status [catch [list ::spectcl::wsDetach $runHandle] msg]
+	list $status $msg
+
+    } -result [list 1 "NOT_EXPDATABASE - Database is not an experiment database"]
+
+
+test fail_4 {wsDetach; requires an attached datbase} \
+    -setup {
+	setup
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	set status [catch [list ::spectcl::wsDetach $exphandle] msg]
+	list $status $msg
+    } -result [list 1  "UNATTACHED - There is not attached database"]
+
+test ok_1 {wsDetach works with default database attached} \
+    -setup {
+	setup
+    } \
+    -cleanup {
+	cleanup
+    }  \
+    -body {
+	::spectcl::wsAttach $exphandle ./ws.db
+	set status [catch {::spectcl::wsDetach $exphandle} msg]
+	if {$status} {
+	    lappend status $msg
+	} else {
+	    set status
+	}
+    }  -result 0
+
+test fail_5 {wsDetach requires the database be attached on the right attach point } \
+    -setup  {
+	setup
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	::spectcl::wsAttach $exphandle ./ws.db george
+	set status [catch {::spectcl::wsDetach $exphandle} msg]
+	list $status $msg
+    } -result  [list 1  "UNATTACHED - There is not attached database"]
+
+test ok_2 {wsDetach on non default attach point} \
+    -setup  {
+	setup
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	::spectcl::wsAttach $exphandle ./ws.db george
+	set status [catch {::spectcl::wsDetach $exphandle george} msg]
+	if {$status} {
+	    lappend status $msg
+	} else {
+	    set status
+	}
+    } -result 0
+
+test fail_6 {wsDetach - too many command line parameters} \
+     -setup  {
+	setup
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	::spectcl::wsAttach $exphandle ./ws.db george
+	set status [catch {::spectcl::wsDetach $exphandle george harry} msg]
+	if {$status} {
+	    lappend status $msg
+	} else {
+	    set status
+	}
+    } -result   [list 1 "Incorrect number of command line parameters"] 
+cleanupTests

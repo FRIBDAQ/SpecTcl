@@ -56,8 +56,11 @@ public:
 					      std::string subcommand) throw(std::string);
   
   static CHandleManager* getHandleManager();
+protected:
   std::string     normalizePath(std::string path) throw(std::string);
-  static void validateExpEvtHandles(spectcl_experiment pExp, spectcl_events pEvts);
+  static void     validateExpEvtHandles(spectcl_experiment pExp, spectcl_events pEvts);
+
+
 };
 
 

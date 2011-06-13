@@ -1,6 +1,6 @@
 package require tcltest
 
- tcltest::matchFiles [list wsattach.test]
+tcltest::matchFiles [list wsdetach.test]
 
 tcltest::runAllTests
 

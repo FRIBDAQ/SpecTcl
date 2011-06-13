@@ -110,6 +110,8 @@ private:
   static int commandRelay(ClientData pObject, Tcl_Interp* pInterp,
 			  int objc, Tcl_Obj* const* objv);
   static void unregisterRelay(ClientData pObject);
+
+
   
 };
 
@@ -134,7 +136,7 @@ CTCLObjectProcessor:: getParameter(CTCLInterpreter& interp,
 {
   try {
     if (objv.size() <= which) {
-      throw std::string("spectcl::parameter - incorrect number of command line parameters");
+      throw std::string("Incorrect number of command line parameters");
     }
     objv[which].Bind(interp);
     retType result = (retType)(objv[which]); // This can throw a CTCLException.
