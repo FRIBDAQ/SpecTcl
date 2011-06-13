@@ -36,6 +36,8 @@
 #include "TclWsCreate.h"
 #include "TclWsAttach.h"
 #include "TclWsDetach.h"
+#include "TclWsOpen.h"
+#include "TclWsClose.h"
 
 /** Include command processor headers here */
 
@@ -86,6 +88,8 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclWsCreate(*interp);
   new CTclWsAttach(*interp);
   new CTclWsDetach(*interp);
+  new CTclWsOpen(*interp);
+  new CTclWsClose(*interp);
   return TCL_OK;
 }
   void* gpTCLApplication(0);
