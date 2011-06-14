@@ -307,7 +307,7 @@ int spectcl_workspace_detach(spectcl_experiment expdb, const char* at)
     from SPECTCL_WORKSPACE otherwas at determines what is detached.
 
 
-Workspace commands:
+Workspace Tcl commands :
   wsCreate     exphandle path
   wsAttach     exphandle path ?where?
   wsDetach     exphandle ?where?
@@ -326,6 +326,8 @@ validations:
 int           spectcl_workspace_isWorkspace(spectcl_workspace db)
 int           spectcl_workspace_correctExperiment(spectcl_experiment expdb, 
 	                                         spectcl_workspace ws)
+
+validations Tcl commands.
 
  wsUuid    wsHandle
  wsVersion wsHandle 
@@ -351,6 +353,8 @@ Note that
   - The spectcl_spectrum_types** returned by spectcl_workspace_getTypes 
     are a null terminated array of spectcl_spectrum_type*
 
+Spectrum type query Tcl commands.
+
 wsSpecTypes       wsHandle
 wsValidSpecType   wsHandle type-name
 wsSpecTypeInfo    wsHandle type-name
@@ -364,14 +368,21 @@ typedef struct {
 } spectrum_parameter
 
 int spectcl_workspace_create_spectrum(spectcl_experiment exp, const char* pName,
+    							    const char*  pType
     							    const spectrum_parameter** pParams,
 							    const char* attachPoint);
   returns id on success -1 on failure. spectcl_experiment_errno has errors.  There are two success
   codes:  SPEXP_OK - New spectrum SPEXP_NEWVERSION - existing spectrum created new version.
 
+Spectrum Creation Tcl Command
 
+wsCreateSpectrum expHandle name type [list param1 ..] ?attachpoint?
 
 spectrum_parameter** spectcl_workspace_parameters(spectcl_workspace ws, int id);
+
+
+
+
 void spectcl_workspace_free_spectrum_parameters(spectrum_parameter** p);
 
 typedef struct {
@@ -384,6 +395,11 @@ typedef struct {
 void spectcl_workspace_free_spectrum_definitions(spectrum_definition** p);
 spectrum_definition** spectcl_workspace_find_spectra(spectcl_workspace ws,
                                                       const char* pattern,
-                                                      int         allVersions);
+                                                     int         allVersions);
 spectrum_definition*  spectcl_workspace_spectrum_properties(spectcl_workspace ws, int id);
    
+Spectrum query Tcl Commands.
+
+wsSpectrumParameters ws id 
+wsFindSpectra wshandle ?pattern? ?allversions?
+wsSpectrumProperties wsHandle id
