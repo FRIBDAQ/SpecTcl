@@ -1,6 +1,11 @@
 package require tcltest
 
- tcltest::matchFiles [list wsspectypes.test]
+#
+#  This can be uncommented /modified
+#  to only run a specific set of targeted tests e.g.
+#  when working on a specific module:
+#
+# tcltest::matchFiles [list wsspectypes.test]
 
 tcltest::runAllTests
 
