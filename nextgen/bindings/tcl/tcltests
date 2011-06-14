@@ -1,6 +1,6 @@
 package require tcltest
 
- tcltest::matchFiles [list wsclose.test]
+ tcltest::matchFiles [list wsuuid.test]
 
 tcltest::runAllTests
 

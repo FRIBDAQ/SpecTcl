@@ -38,6 +38,7 @@
 #include "TclWsDetach.h"
 #include "TclWsOpen.h"
 #include "TclWsClose.h"
+#include "TclWsUUID.h"
 
 /** Include command processor headers here */
 
@@ -90,6 +91,8 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclWsDetach(*interp);
   new CTclWsOpen(*interp);
   new CTclWsClose(*interp);
+  new CTclWsUUID(*interp);
+
   return TCL_OK;
 }
   void* gpTCLApplication(0);
