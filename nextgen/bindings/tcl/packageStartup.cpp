@@ -39,6 +39,8 @@
 #include "TclWsOpen.h"
 #include "TclWsClose.h"
 #include "TclWsUUID.h"
+#include "TclWsSpecTypes.h"
+
 
 /** Include command processor headers here */
 
@@ -92,6 +94,7 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclWsOpen(*interp);
   new CTclWsClose(*interp);
   new CTclWsUUID(*interp);
+  new CTclWsSpecTypes(*interp);
 
   return TCL_OK;
 }

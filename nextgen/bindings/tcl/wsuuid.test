@@ -9,7 +9,7 @@ namespace import ::tcltest::*
 
 #-------------------------- The tests ----------------
 
-test fail_1 {wsUUID needs a database handle} \
+test exists {wsUUID command must exist} \
     -body {
 	info commands ::spectcl::wsUUID
     } -result ::spectcl::wsUUID
