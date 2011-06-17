@@ -152,3 +152,20 @@ CTclDBCommand::validateExpEvtHandles(spectcl_experiment pExp, spectcl_events pEv
     free(pEvtUUID);		// Smokey says only you can prevent memory leaks in C/C++.
   
 }
+/**
+ ** If the database handle passed in is not an experiment handle, throw 
+ ** an exception indicating the problem.
+ ** @param expHandle - The alleged experiment datbase handle.
+ ** @throw std::string on failure.
+ */
+void
+CTclDBCommand::throwIfNotExpHandle(spectcl_experiment expHandle)
+{
+    uuid_t* uuid = spectcl_experiment_uuid(expHandle);
+    if (!uuid) {
+      throw std::string(spectcl_experiment_error_msg(spectcl_experiment_errno));
+    } 
+    else {
+      free(uuid);
+    }
+}

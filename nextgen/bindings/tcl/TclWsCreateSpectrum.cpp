@@ -73,13 +73,8 @@ CTclWsCreateSpectrum::operator()(CTCLInterpreter& interp,
     // Get the experiment database handle and validate it:
 
     spectcl_experiment expHandle = getDatabaseHandle(interp, objv, 1, "::spectcl::wsCreateSpectrum");
-    uuid_t* uuid                 = spectcl_experiment_uuid(expHandle);
-    if (!uuid) {
-      throw std::string(spectcl_experiment_error_msg(spectcl_experiment_errno));
-    } 
-    else {
-      free(uuid);
-    }
+    throwIfNotExpHandle(expHandle);
+
     std::string spectrumName = getParameter<std::string>(interp, objv, 2);
     std::string spectrumType = getParameter<std::string>(interp, objv, 3);
     std::string parameterList= getParameter<std::string>(interp, objv, 4);

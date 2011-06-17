@@ -56,16 +56,7 @@ CTclWsCreate::operator()(CTCLInterpreter& interp,
   try {
     spectcl_experiment expHandle = getDatabaseHandle(interp, objv, 1, "spectcl::wsCreate");
 
-    /* this little dodge determines if the handle is one for an experiment: */
-
-    uuid_t* pUuid  = spectcl_experiment_uuid(expHandle);
-    if (!pUuid)
-    {
-      throw std::string(spectcl_experiment_error_msg(SPEXP_NOT_EXPDATABASE));
-    }
-    else {
-      free(pUuid);
-    }
+    throwIfNotExpHandle(expHandle);
 
     /* Get the new database path and create the workspace. */
 

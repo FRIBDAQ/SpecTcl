@@ -59,13 +59,9 @@ CTclWsAttach::operator()(CTCLInterpreter& interp,
       throw std::string("::spectcl::wsAttach - too many command parameters");
     }
     spectcl_experiment expdb = getDatabaseHandle(interp, objv, 1, "spectcl::wsAttach");
-    uuid_t*            puuid = spectcl_experiment_uuid(expdb);
-    if (!puuid) {
-      throw std::string(spectcl_experiment_error_msg(spectcl_experiment_errno));
-    }
-    else {
-      free(puuid);
-    }
+    
+    throwIfNotExpHandle(expdb);
+
     std::string workspacePath = getParameter<std::string>(interp, objv, 2);
 
     const char* attachPoint = NULL;

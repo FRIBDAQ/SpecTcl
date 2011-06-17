@@ -61,13 +61,8 @@ CTclWsDetach::operator()(CTCLInterpreter& interp,
 
   try {
     spectcl_experiment expDb = getDatabaseHandle(interp, objv, 1, "spectcl::wsDetach");
-
-    // See if this is really an expdb handle:
-
-    uuid_t*            puuid = spectcl_experiment_uuid(expDb);
-    if (!puuid) {
-      throw std::string(spectcl_experiment_error_msg(spectcl_experiment_errno));
-    }
+    throwIfNotExpHandle(expDb);
+    
     // Figure out what th pass as the attach point:
 
     const char* pAttachPoint = NULL;

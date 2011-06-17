@@ -1,0 +1,48 @@
+#
+#  Tests for ::spectcl::wsFindSpectra command.
+#
+package require tcltest
+
+load .libs/libSpecTclExperiment.so
+namespace import ::tcltest::*
+
+
+#-------------------- The tests -----------------------------
+
+test exists {wsFindSpectra - the command must exist} \
+     -body {
+	 info command ::spectcl::wsFindSpectra
+     } -result ::spectcl::wsFindSpectra
+
+test fail_1 {wsFindSpectra - must have a handle parameter} \
+    -body {
+	set status [catch ::spectcl::wsFindSpectra msg]
+	list $status $msg
+    } -result [list 1 "Incorrect number of command line parameters"]
+
+
+# I'm assuming by now we've tested getDatabaseHandle sufficiently.
+# on to checking the type of database we were passed.
+
+
+test fail_2 {wsFindSpectra - must be an experiment handle} \
+    -setup {
+	file delete ./exp.db
+	file delete ./ws.db
+
+	set expHandle [::spectcl::expcreate ./exp.db]
+	::spectcl::wsCreate $expHandle ./ws.db
+
+	set wsHandle [::spectcl::wsOpen ./ws.db]
+    } \
+    -cleanup {
+	::spectcl::expclose $expHandle
+	::spectcl::wsClose  $wsHandle
+
+	file delete ./exp.db
+	file delete ./ws.db
+    } \
+    -body {
+	set status [catch [list ::spectcl::wsFindSpectra $wsHandle] msg]
+	list $status $msg
+    } -result [list 1  "NOT_EXPDATABASE - Database is not an experiment database"]

@@ -41,6 +41,7 @@
 #include "TclWsUUID.h"
 #include "TclWsSpecTypes.h"
 #include "TclWsCreateSpectrum.h"
+#include "TclWsFindSpectra.h"
 
 /** Include command processor headers here */
 
@@ -96,6 +97,9 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclWsUUID(*interp);
   new CTclWsSpecTypes(*interp);
   new CTclWsCreateSpectrum(*interp);
+  new CTclWsFindSpectra(*interp);
+
+
 
   return TCL_OK;
 }
