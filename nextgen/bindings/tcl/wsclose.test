@@ -63,7 +63,7 @@ test ok {wsClose should work if all parameters are right} \
 	} else {
 	    set result $status
 	}
-	set statusu
+	set status
     } -result 0
 
 cleanupTests
