@@ -29,12 +29,16 @@
 #endif
 #endif
 
-#ifndef _SPECTL_EXPERIMENT_H
-#include "spectcl_experiment.h"
-#endif
+
+
+// forward definitions
+
 
 class CHandleManager;
 class CTCLInterpreter;
+
+typedef void*  spectcl_experiment;
+typedef void*  spectcl_events;
 
 /**
  ** This abstract base class provides utilities for database using

@@ -7,6 +7,31 @@ load .libs/libSpecTclExperiment.so
 namespace import ::tcltest::*
 
 
+#------------------ harness procs-----------------------
+
+proc setup {} {
+    global expHandle
+    global wsHandle
+
+    file delete ./exp.db
+    file delete ./ws.db
+    
+    set expHandle [::spectcl::expcreate ./exp.db]
+    ::spectcl::wsCreate $expHandle ./ws.db
+    
+    set wsHandle [::spectcl::wsOpen ./ws.db]
+}
+proc cleanup {} {
+    global expHandle
+    global wsHandle
+
+
+    ::spectcl::expclose $expHandle
+    ::spectcl::wsClose  $wsHandle
+    
+    file delete ./exp.db
+    file delete ./ws.db
+}
 #-------------------- The tests -----------------------------
 
 test exists {wsFindSpectra - the command must exist} \
@@ -27,22 +52,125 @@ test fail_1 {wsFindSpectra - must have a handle parameter} \
 
 test fail_2 {wsFindSpectra - must be an experiment handle} \
     -setup {
-	file delete ./exp.db
-	file delete ./ws.db
-
-	set expHandle [::spectcl::expcreate ./exp.db]
-	::spectcl::wsCreate $expHandle ./ws.db
-
-	set wsHandle [::spectcl::wsOpen ./ws.db]
+	setup
     } \
     -cleanup {
-	::spectcl::expclose $expHandle
-	::spectcl::wsClose  $wsHandle
+	cleanup
 
-	file delete ./exp.db
-	file delete ./ws.db
     } \
     -body {
 	set status [catch [list ::spectcl::wsFindSpectra $wsHandle] msg]
 	list $status $msg
     } -result [list 1  "NOT_EXPDATABASE - Database is not an experiment database"]
+
+test ok_1 {wsFindSpectra - works if there is a spectrum and the db handle is an experiment} \
+    -setup {
+	setup
+	::spectcl::parameter create $expHandle p1
+	::spectcl::wsAttach $expHandle ./ws.db
+	::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]]
+
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	::spectcl::wsFindSpectra $expHandle
+    } -result [list [list 1 test-spectrum 1 1 [list [list 1 p1]]]]
+
+test ok_2 {wsFindSpectra - with a pattern that won't match should return an empty list} \
+    -setup {
+	setup
+	::spectcl::parameter create $expHandle p1
+	::spectcl::wsAttach $expHandle ./ws.db
+	::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]]
+
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	::spectcl::wsFindSpectra $expHandle g*
+    } -result [list]
+
+test ok_3 {wsFindSpectra -- with all versions off, and a version 2 we should just get vsn 2} \
+    -setup {
+	setup
+	::spectcl::parameter create $expHandle p1
+	::spectcl::parameter create $expHandle p2
+	::spectcl::wsAttach $expHandle ./ws.db
+	::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]]
+	::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]]
+
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	::spectcl::wsFindSpectra $expHandle * false
+    } -result  [list [list 2 test-spectrum 1 2 [list [list 1 p1]]]]
+
+test ok_4 {wsFindSpectra -- with all versions on, howver wwe should get both versions} \
+    -setup {
+	setup
+	::spectcl::parameter create $expHandle p1
+	::spectcl::parameter create $expHandle p2
+	::spectcl::wsAttach $expHandle ./ws.db
+	::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]]
+	::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]]
+
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	set result [::spectcl::wsFindSpectra $expHandle * true]
+	# Sort asc by version:
+
+	lsort -increasing -integer -index 3  $result 
+    } -result  [list [list 1 test-spectrum 1 1 [list [list 1 p1]]] \
+		     [list 2 test-spectrum 1 2 [list [list 1 p1]]] ]
+
+test fail_3 {wsFindSpectra - If the all versions selector is not a bool, that's an error} \
+    -setup {
+	setup
+	::spectcl::parameter create $expHandle p1
+	::spectcl::parameter create $expHandle p2
+	::spectcl::wsAttach $expHandle ./ws.db
+	::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]]
+	::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]]
+
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	set status [catch  [list ::spectcl::wsFindSpectra $expHandle * invalid-bool] msg]
+	list $status $msg
+
+    } -result [list 1  {expected boolean value but got "invalid-bool"}]
+
+
+test ok_5 {wsFindSpectra - should locate spectra if attached on non-default attach point} \
+    -setup {
+	setup
+	::spectcl::parameter create $expHandle p1
+	::spectcl::parameter create $expHandle p2
+	::spectcl::wsAttach $expHandle ./ws.db NotDefault
+	::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]] NotDefault
+	::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]] NotDefault
+
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	puts stderr "Starting ok_5"
+	set result [::spectcl::wsFindSpectra $expHandle * true  NotDefault]
+	# Sort asc by version:
+
+	lsort -increasing -integer -index 3  $result 
+    } -result  [list [list 1 test-spectrum 1 1 [list [list 1 p1]]] \
+		     [list 2 test-spectrum 1 2 [list [list 1 p1]]] ]
+
+cleanupTests

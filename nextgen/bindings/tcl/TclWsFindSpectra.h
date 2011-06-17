@@ -22,6 +22,11 @@
 #endif
 
 
+// forward definitions:
+
+typedef struct _spectrum_definition spectrum_definition;
+typedef struct _spectrum_parameter  spectrum_parameter;
+class CTCLObject;
 
 /**
  * Implement the spectcl::wsFindspectra command.
@@ -82,6 +87,13 @@ private:
 public:
   int  operator()(CTCLInterpreter& interp,
 		  std::vector<CTCLObject>& objv);
- 
+
+
+  /* Private utilities: */
+
+private:
+  std::string definitionsToList(CTCLInterpreter& interp, spectrum_definition** ppDefinitions);
+  CTCLObject  spectrumDefToList(CTCLInterpreter& interp, spectrum_definition*  pDefinition);
+  CTCLObject  parameterDefsToList(CTCLInterpreter& interp, spectrum_parameter** ppParams);
 };
 #endif

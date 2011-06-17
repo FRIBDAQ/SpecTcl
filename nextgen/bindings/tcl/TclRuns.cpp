@@ -20,6 +20,7 @@
 #include <TCLInterpreter.h>
 #include <TCLObject.h>
 #include <Exception.h>
+#include <spectcl_experiment.h>
 
 using namespace std;
 

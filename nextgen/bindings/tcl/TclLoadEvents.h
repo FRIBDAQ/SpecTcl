@@ -23,8 +23,8 @@
 #include "TclDBCommand.h"
 #endif
 
-struct _ParameterData_;
-typedef _ParameterData_ ParameterData, *pParmeterData;
+
+typedef struct _ParameterData_ ParameterData, *pParameterData;
 
 /**
  * This command loads an event database with new events.

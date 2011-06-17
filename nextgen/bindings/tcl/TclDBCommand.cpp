@@ -19,6 +19,7 @@
 #include "handleManager.h"
 #include <TCLInterpreter.h>
 #include <sqlite3.h>
+#include <spectcl_experiment.h>
 #include <spectcl_experimentInternal.h>
 #include <tcl.h>
 #include <stdlib.h>
