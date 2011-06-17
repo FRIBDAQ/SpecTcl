@@ -13,7 +13,8 @@ noinst_HEADERS=  TclCreate.h TclOpen.h	\
 	TclAttach.h TclDetach.h  TclLoadEvents.h TclAugment.h \
 	TclEvRun.h TclEvtRunInfo.h TclEvtUUID.h 
 	TclWsCreate.h TclWsAttach.h TclWsDetach.h TclWsOpen.h \
-	TclWsClose.h TclWsUUID.h TclWsSpecTypes.h
+	TclWsClose.h TclWsUUID.h TclWsSpecTypes.h \
+	TclWsCreateSpectrum.h
 
 libSpecTclExperiment_la_SOURCES= packageStartup.cpp	\
 	handleManager.cpp TclCreate.cpp TclOpen.cpp 	\
@@ -23,7 +24,8 @@ libSpecTclExperiment_la_SOURCES= packageStartup.cpp	\
 	TclDetach.cpp TclLoadEvents.cpp TclAugment.cpp \
 	TclEvRun.cpp TclEvtRunInfo.cpp TclEvtUUID.cpp \
 	TclWsCreate.cpp TclWsAttach.cpp TclWsDetach.cpp TclWsOpen.cpp \
-	TclWsClose.cpp TclWsUUID.cpp TclWsSpecTypes.cpp
+	TclWsClose.cpp TclWsUUID.cpp TclWsSpecTypes.cpp \
+	TclWsCreateSpectrum.cpp
 
 libSpecTclExperiment_la_CXXFLAGS=@TCL_FLAGS@ -I@top_builddir@/Utility -I@top_builddir@/TclPlus
 libSpecTclExperiment_la_LIBADD=@top_builddir@/TclPlus/libtclPlus.la \

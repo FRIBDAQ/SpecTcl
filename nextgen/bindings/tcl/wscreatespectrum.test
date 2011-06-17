@@ -1,0 +1,175 @@
+#
+#  Tests for the ::spectcl::wsCreateSpectrum command.
+#
+
+package require tcltest
+
+load .libs/libSpecTclExperiment.so
+namespace import ::tcltest::*
+
+#--------------- harnesses ----------------
+
+proc setup {} {
+     global expHandle
+     global wsHandle
+    file delete ./exp.db
+    file	  delete ./ws.db
+    
+    set expHandle [::spectcl::expcreate ./exp.db]
+    ::spectcl::wsCreate $expHandle ./ws.db
+    set wsHandle [::spectcl::wsOpen ./ws.db]	
+    
+}
+
+
+proc cleanup {} {
+    global expHandle
+    global wsHandle
+
+    ::spectcl::expclose $expHandle
+    ::spectcl::wsClose $wsHandle
+    
+    file delete ./exp.db
+    file delete ./ws.db
+}
+#------------------ The tests ---------------------
+
+test exists {wsCreateSpectrum must exist as a command} \
+     -body {
+	 info commands ::spectcl::wsCreateSpectrum
+     } -result ::spectcl::wsCreateSpectrum
+
+test fail_1 {wsCreateSpectrum must be passed a handle as its first parameter} \
+    -body {
+	set status [catch ::spectcl::wsCreateSpectrum msg]
+	list $status $msg
+    } -result [list 1 "Incorrect number of command line parameters"]
+
+
+test fail_2 {wsCreateSpectrum must be passed a known handle} \
+    -body {
+	set status [catch  [list ::spectcl::wsCreateSpectrum no-such-handle] msg]
+	list $status $msg
+    } -result [list 1 "::spectcl::wsCreateSpectrum - invalid database handle no-such-handle"]
+
+test fail_3 {wsCreateSpectrum must be passed a handle for an experiment database} \
+    -setup {
+	setup
+
+    } \
+    -cleanup {
+
+    } \
+    -body {
+	set status [catch [list ::spectcl::wsCreateSpectrum $wsHandle] msg]
+	list $status $msg
+    } -result [list 1  "NOT_EXPDATABASE - Database is not an experiment database"]
+
+
+test fail_4 {wsCreateSpectrum needs a spectrum name parameter} \
+    -setup {
+	setup
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	set status [catch [list ::spectcl::wsCreateSpectrum $expHandle] msg]
+	list $status $msg
+    } -result [list 1 "Incorrect number of command line parameters"]
+
+
+
+test fail_5 {wsCreateSpectrum There must be a spectrum type parameter} \
+    -setup {
+	setup
+    } \
+    -cleanup {
+	cleanup 
+    } \
+    -body {
+	set status [catch [list ::spectcl::wsCreateSpectrum $expHandle test-spectrum] msg]
+	list $status $msg
+
+    } -result [list 1 "Incorrect number of command line parameters"]
+
+test fail_5 {wsCreateSpectrum there must also be a parameter list} \
+     -setup {
+	setup
+    } \
+    -cleanup {
+	cleanup 
+    } \
+    -body {
+	set status [catch [list ::spectcl::wsCreateSpectrum $expHandle test-spectrum 1] msg]
+	list $status $msg
+
+    } -result [list 1 "Incorrect number of command line parameters"]
+  
+
+test fail_6 {wsCreateSpectrum the parameter list must be made of two element sublists} \
+    -setup {
+	setup
+    } \
+    -cleanup {
+	cleanup
+    } \
+    -body {
+	set parameters [list [list 1 ok] [list bad] [list]]
+	set status [catch [list ::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 $parameters] msg ]
+	list $status $msg
+    } -result [list 1 "Invalid format for wsCreateSpectrum parameter list"]
+
+#
+#  Not going to test stuff that's tested in spectcl_workspace_create_spectrum..so we should
+#  have success if all the stuff is passed in right:
+#
+test ok_1 {wsCreateSpectrum success on default attach point} \
+    -setup {
+	setup
+	::spectcl::wsAttach $expHandle ./ws.db
+	::spectcl::parameter create $expHandle p1; # Make a parameter we can reference.
+    } \
+    -cleanup {
+	::spectcl::wsDetach $expHandle
+	cleanup
+    } \
+    -body {
+	set id [::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]]]
+    } -result 1
+
+
+test ok_2 {wsCreateSpectrum success on non-default attach point} \
+    -setup {
+	setup
+	::spectcl::wsAttach $expHandle ./ws.db george
+	::spectcl::parameter create $expHandle p1; # Make a parameter we can reference.
+    } \
+    -cleanup {
+	::spectcl::wsDetach $expHandle george
+	cleanup
+    } \
+    -body {
+	set id [::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]] george]
+    } -result 1
+
+
+
+test faile_7 {wsCreateSpectrum -- too many parameters should fail too} \
+    -setup {
+	setup
+	::spectcl::wsAttach $expHandle ./ws.db george
+	::spectcl::parameter create $expHandle p1; # Make a parameter we can reference.
+    } \
+    -cleanup {
+	::spectcl::wsDetach $expHandle george
+	cleanup
+    } \
+    -body {
+	set result [catch [list ::spectcl::wsCreateSpectrum $expHandle test-spectrum 1 [list [list 1 p1]] george extra] msg]
+	list $result $msg
+    } -result [list 1 "Incorrect number of command line parameters"]
+
+#--------------------------------------
+
+cleanupTests

@@ -40,7 +40,7 @@
 #include "TclWsClose.h"
 #include "TclWsUUID.h"
 #include "TclWsSpecTypes.h"
-
+#include "TclWsCreateSpectrum.h"
 
 /** Include command processor headers here */
 
@@ -95,6 +95,7 @@ Spectclexperiment_Init(Tcl_Interp* pInterp)
   new CTclWsClose(*interp);
   new CTclWsUUID(*interp);
   new CTclWsSpecTypes(*interp);
+  new CTclWsCreateSpectrum(*interp);
 
   return TCL_OK;
 }
