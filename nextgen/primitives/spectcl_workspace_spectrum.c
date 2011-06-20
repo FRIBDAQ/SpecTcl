@@ -603,7 +603,7 @@ getMatchingSpectra(sqlite3* db, const char* pattern, const char* ap)
     if (status == SQLITE_OK) {
       while ((status = sqlite3_step(pStatement)) == SQLITE_ROW) {
 	item = copyString(sqlite3_column_text(pStatement, 0));
-	result = realloc(result, (nMatches+1)*sizeof(char*));
+	result = realloc(result, (nMatches+2)*sizeof(char*));
 	result[nMatches] = item;
 	nMatches++;
 	result[nMatches] = NULL;

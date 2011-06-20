@@ -160,7 +160,7 @@ START_TEST(test_create_badparam)
     "param1",
     1
   };
-  spectrum_parameter* params[2]  = {
+  const spectrum_parameter* params[2]  = {
     &p1, NULL
   };
 
@@ -186,7 +186,7 @@ START_TEST(test_create_1dbaddim)
     "param1",
     2				/* Illegal dim number for 1d. */
   };
-  spectrum_parameter* params[2]  = {
+  const spectrum_parameter* params[2]  = {
     &p1, NULL
   };
 
@@ -217,7 +217,7 @@ START_TEST(test_create_1dbadcount)
     "param2",
     1
   };
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, &p2, NULL
   };
   int status;
@@ -245,7 +245,7 @@ START_TEST(test_create_1dgood1st)
     "param1",
     1				
   };
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, NULL
   };
   int status;
@@ -270,7 +270,7 @@ START_TEST(test_create_1dgoodnewvers)
     "param1",
     1				/* Illegal dim number for 1d. */
   };
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, NULL
   };
   int status;
@@ -345,7 +345,7 @@ START_TEST(test_find_oneresult)
     "param1",
     1				
   };
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, NULL
   };
   int status;
@@ -407,10 +407,10 @@ START_TEST(test_find_multiple)
     "param2",
     1				
   };
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, NULL
   };
-  spectrum_parameter* pspec2[2] = {
+  const spectrum_parameter* pspec2[2] = {
     &p2, NULL
   };
   const char* specNames[2] = {"spectrum.test", "another_Spectrum"};
@@ -477,10 +477,10 @@ START_TEST(test_find_mostrecent)
     "param2",
     1				
   };
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, NULL
   };
-  spectrum_parameter* pspec2[2] = {
+  const spectrum_parameter* pspec2[2] = {
     &p2, NULL
   };
   int status;
@@ -544,10 +544,10 @@ START_TEST(test_find_multiversion)
     "param2",
     1				
   };
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, NULL
   };
-  spectrum_parameter* pspec2[2] = {
+  const spectrum_parameter* pspec2[2] = {
     &p2, NULL
   };
   int status;
@@ -600,10 +600,10 @@ START_TEST(test_find_specific)
     "param2",
     1				
   };
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, NULL
   };
-  spectrum_parameter* pspec2[2] = {
+  const spectrum_parameter* pspec2[2] = {
     &p2, NULL
   };
   const char* specNames[2] = {"spectrum.test", "another_Spectrum"};
@@ -641,6 +641,116 @@ START_TEST(test_find_specific)
 }
 END_TEST
 
+/*
+ *  Make many parameters and a spectrum for each of them.
+ * This has been known to fail with a heap corruption in 
+ * some contexts.
+ */
+
+START_TEST(test_list_many_spectra) 
+{
+  const char* parameters[] = {
+    "s800.fp.crdc1.x",
+    "s800.fp.crdc2.x",
+    "s800.fp.crdc1.y",
+    "s800.fp.crdc2.y",
+    "s800.fp.crdc1.calc.x_gravity",
+    "s800.fp.crdc2.calc.x_gravity",
+    "s800.fp.crdc1.tac",
+    "s800.fp.crdc2.tac",
+    "s800.fp.crdc1.anode",
+    "s800.fp.crdc2.anode",
+    "s800.fp.ic.de",
+    "s800.fp.ic.sum",
+    "s800.fp.e1.de",
+    "s800.fp.e1.de_up",
+    "s800.fp.e1.de_down",
+    "s800.fp.e1.time",
+    "s800.fp.e1.time_dow",
+    "s800.fp.e1.time_up",
+    "s800.fp.e2.de",
+    "s800.fp.e2.de_up",
+    "s800.fp.e2.de_down",
+    "s800.fp.e2.time",
+    "s800.fp.e2.time_down",
+    "s800.fp.e2.time_up",
+    "s800.tof.rf",
+    "s800.trigger.external1",
+    "s800.trigger.external2",
+    "s800.trigger.registr",
+    "s800.trigger.s800",
+    "s800.trigger.secondary",
+NULL
+  };
+  spectrum_parameter p = {
+    NULL, 1
+  };
+
+  spectrum_parameter* pardefs[] = {
+    &p, NULL
+  };
+
+  spectrum_definition** pDefs;
+  const char** pParameters = parameters;
+  int n = 0;
+  int defs = 0;
+  int pars = 0;
+  parameter_list ppParameters;
+  parameter_list  plist;
+
+  /* Attach the workspace: */
+
+  spectcl_workspace_attach(db, wsName, NULL);
+
+  /* Create the parameters: */
+
+  while(*pParameters) {
+    spectcl_parameter_create(db, *pParameters, NULL, NULL, NULL);
+    pParameters++;
+    n++;			/* count how many we have. */
+  }
+  /* Get parameter descriptions */
+
+  ppParameters  = spectcl_parameter_list(db, "*");
+  fail_unless((int)ppParameters);
+  if (ppParameters) {
+    plist = ppParameters;
+    while(*plist) {
+      pars++;
+      plist++;
+    }
+    fail_unless(pars == n);
+  }
+
+  
+  spectcl_free_parameter_list(ppParameters); 
+
+  /* Make the spectra (same name as the spectra): */
+
+  pParameters = parameters;
+  while (*pParameters) {
+    p.s_name = *pParameters;
+    spectcl_workspace_create_spectrum(db, "1", *pParameters,
+				      pardefs, NULL);
+    pParameters++;
+  }
+  /*  Now get the descriptions. */
+
+  pDefs = spectcl_workspace_find_spectra(db, NULL, FALSE, NULL);
+  fail_unless((int)pDefs);
+  if (pDefs) {
+    while (*pDefs) {
+      defs++;
+      pDefs++;
+    }
+    fail_unless(n == defs);
+  }
+
+  
+
+  
+}
+END_TEST
 /*------------------ Tests for spectcl_ws_spectrum_properties -------*/
 
 /*
@@ -689,7 +799,7 @@ START_TEST(test_prop_1)
     "param1",
     1				
   };
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, NULL
   };
   int  id;
@@ -736,10 +846,10 @@ START_TEST(test_prop_specific)
     "param2",
     1				
   };
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, NULL
   };
-  spectrum_parameter* pspec2[2] = {
+  const spectrum_parameter* pspec2[2] = {
     &p2, NULL
   };
   const char* specNames[2] = {"spectrum.test", "another_Spectrum"};
@@ -827,7 +937,7 @@ START_TEST(test_param_got1)
     1				
   };
 
-  spectrum_parameter* params[3] = {
+  const spectrum_parameter* params[3] = {
     &p1, NULL
   };
 
@@ -898,6 +1008,7 @@ int main(void)
   tcase_add_test(tc_spectra, test_find_mostrecent);
   tcase_add_test(tc_spectra, test_find_multiversion);
   tcase_add_test(tc_spectra, test_find_specific);
+  tcase_add_test(tc_spectra, test_list_many_spectra);
 
   /* Tests for spectcl_ws_spectrum_properties */
 

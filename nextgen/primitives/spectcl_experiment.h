@@ -74,9 +74,10 @@
  * Data type definitinos.
  */
 
-
+#ifndef __cplusplus
 #ifndef bool 
 #define bool int
+#endif
 #endif
 
 typedef void *spectcl_experiment; /* Handle to a spectcl experiment database. */
@@ -272,7 +273,7 @@ extern "C" {
 
   /** Functions used to create spectra and get their properties.  */
 
-  int spectcl_workspace__create_spectrum(spectcl_experiment exp,
+  int spectcl_workspace_create_spectrum(spectcl_experiment exp,
 					 const char* pType,
 					 const char* pName,
 					 const spectrum_parameter** pParams,
