@@ -69,6 +69,6 @@ c_workspacesptypes_LDADD=@CHECK_LIBS@ libExperiment.la
 
 c_workspacespectra_SOURCES=spectcl_wsspectest.c
 c_workspacespectra_CFLAGS=@CHECK_CFLAGS@  @SQLITE3_CFLAGS@
-c_workspacespectra_LDADD=@CHECK_LIBS@ libExperiment.la -lefence
+c_workspacespectra_LDADD=@CHECK_LIBS@ libExperiment.la
 
 
