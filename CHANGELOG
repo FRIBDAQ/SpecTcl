@@ -915,9 +915,13 @@ June 3, 2010
                (parameter scoreboarding) to improve the performance
                of histogramming when spectra and parameters are sparse.
 
-July 13, 2010 - Fix some memory double deallocations found by Coupland.
+June 13, 2011 - Fix some memory double deallocations found by Coupland.
 
 3.3-002
 	- Fixes pointed out by cppcheck static analyzer.
 	- Misc. warning removals.
 	- Use mkstemp rather than tmpnam in wsyswig printing.
+3.3-003
+June 30, 2011
+       - Fix error in CRingBufferDecoder - premature free of glued buffer.
+       
