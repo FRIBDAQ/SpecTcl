@@ -23,9 +23,14 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include <buftypes.h>
 #include <map>
+
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 
 
 using namespace std;
@@ -37,6 +42,43 @@ static const Int_t   UNSWAPPED_LONGSIG(0x01020304);
 
 static const Short_t SWAPPED_SHORTSIG(0x0201);
 static const Int_t   SWAPPED_LONGSIG(0x04030201);
+
+
+// local function to dump data to an ostream:
+// o - the stream to dump to (reference)
+// p - Pointer to the data to dump
+// s - Number of bytes to dump.
+//
+static void
+dump(ostream& o, void* p, size_t s)
+{
+
+  ios::fmtflags   oldFlags = o.flags();
+  streamsize oldWidth = o.width();
+  char       oldFill  = o.fill();
+  o << hex;
+  o << right << setw(4) << setfill('0'); 
+
+  
+  
+
+  uint16_t* pout = reinterpret_cast<uint16_t*>(p);
+
+  o << 0 << ' ';
+  for (int i =0; i < s; i++) {
+    o << *pout++ <<  ' ';
+    if (((i+1) % 8) == 0) {
+      o << endl;
+    }
+  }
+  o << endl;
+  
+
+  o << dec;
+  o.flags(oldFlags);
+  o.width(oldWidth);
+  o.fill(oldFill);
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -95,16 +137,22 @@ CRingBufferDecoder::operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAna
   // they've already been created.
   //
   
-  if (!m_pPartialEvent && !m_pGluedBuffer) {
-    createTranslator();
+  try {
+    if (!m_pPartialEvent && !m_pGluedBuffer) {
+      createTranslator();
+    }
+    else {
+      m_pTranslator->newBuffer(m_pBuffer);
+    }
+    
+    // Now work on the data we got.
+    
+    processBuffer();
   }
-  else {
-    m_pTranslator->newBuffer(m_pBuffer);
+  catch (...) {
+    cerr << "SpecTcl exiting due to buffer decoder exception\n";
+    exit(EXIT_FAILURE);
   }
-
-  // Now work on the data we got.
-
-  processBuffer();
 }
 
 /*!
@@ -319,7 +367,7 @@ CRingBufferDecoder::processBuffer()
     UInt_t remaining = m_nPartialEventSize - m_nPartialEventBytes;
     UInt_t append    = m_nBufferSize >= remaining ? remaining : m_nBufferSize;
 
-    uint8_t* p      = reinterpret_cast<uint8_t*>(m_pPartialEvent) + m_nPartialEventBytes;
+   uint8_t* p      = reinterpret_cast<uint8_t*>(m_pPartialEvent) + m_nPartialEventBytes;
     memcpy(p, m_pBufferCursor, append);
 
     m_nPartialEventBytes += append;
@@ -365,6 +413,34 @@ CRingBufferDecoder::processBuffer()
 
       pRingItemHeader pItemHeader = reinterpret_cast<pRingItemHeader>(m_pBufferCursor);
       uint32_t size = m_pTranslator->TranslateLong(pItemHeader->s_size);
+      if (size == 0) {
+	cerr << "For some reason I think the size of an event  is 0\n";
+	cerr << "Debugging information in SpecTcl-debug.txt\n";
+	ofstream debug("SpecTcl-debugt.txt");
+	
+	debug << "----- m_pBuffer contents\n";
+	dump(debug, m_pBuffer, m_nBufferSize);
+	debug << "Residual: "<< m_nResidual <<endl;
+	if (m_pPartialEvent) {
+	  debug << "--- there's a partial event buffer of size " << m_nPartialEventSize;
+	  debug << "    already processed " << m_nPartialEventBytes <<endl;
+	  dump(debug, m_pPartialEvent, m_nPartialEventSize);
+
+	}
+	debug << "--- Most recent event body delivered was:\n";
+	dump(debug, m_pBody, m_nBodySize);
+	debug << " Last good item type: " << m_nCurrentItemType << endl;
+	debug << " entity count " << m_nEntityCount << endl;
+	
+	if (m_pGluedBuffer) {
+	  debug << "---n Glued buffer exists size " << m_nGlueSize << "\n";
+	  dump(debug, m_pGluedBuffer, m_nGlueSize);
+	}
+	  
+
+	throw "Failed";
+
+      }
       
       if (size > m_nResidual) {
 	// Full event does not fit in the remainder of the buffer..
@@ -385,7 +461,7 @@ CRingBufferDecoder::processBuffer()
 
 	// If we've used up the buffer, kill off any glue buffer:
 	// Else hell will break loose on the next buffer.
-	if (m_pGluedBuffer) {
+	if (m_pGluedBuffer && !m_nResidual) {
 	  free(m_pGluedBuffer);
 	  m_pGluedBuffer = 0;
 	}
