@@ -67,9 +67,21 @@ class CMASE : public CModuleUnpacker
 private:
   // internal data structures/typedefs:
 
-  typedef std::vector<CTreeParameterArray*>  CHBVector;   // Vector of tree parameter arrays.
+  typedef struct _chbParams {
+    CTreeParameterArray*  pEnergies;
+    CTreeParameterArray*  pTimes;
+  } chbParams, *pchbParams;
+  typedef std::vector<pchbParams>  CHBVector;   // Vector of tree parameter arrays.
   typedef std::vector<CHBVector*>            COBVector;   // Vector of COBs.
+  typedef enum _state {
+    initial,			// First words are size field.s
+    internal			// First words are data.
+  } state;
 
+  // Internal data:
+private:
+  state      m_state;
+  uint32_t   m_longsRemaining;
 public:
   // Supported anonicals.
 

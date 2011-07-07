@@ -36,13 +36,18 @@ using std::cerr;
 
 static const int CHB_CHANNELS = 32;
 
+
+
 ////////////////////////////////////////////////////////////////////////////
 // Implemented canonicals.
 //
 /**
  * Construction is a no-op for now.
  */
-CMASE::CMASE() {}
+CMASE::CMASE() :
+  m_state(CMASE::initial),
+  m_longsRemaining(0)
+ {}
 /**
  * Destruction is a chain to the base class:
  */
@@ -59,7 +64,7 @@ CMASE::~CMASE() {}
  *  Byte 0 = COB number.
  *  Byte 1 = CHB number.
  *  Byte 2 = Channel number
- *  Byte 3 = 0.
+ *  Byte 3 = Trigger number(?).
  *  Channel values contain a time in the least significant 16 bits and
  *  energy in the most significant 16 bits.
  *
@@ -77,20 +82,81 @@ CMASE::operator()(CEvent&                       rEvent,
 				  unsigned int                  offset,
 				  CParamMapCommand::AdcMapping* pMap)
 {
+ 
   COBVector& trees = getInfo(pMap);
-  int        words = getLong(event, offset);
-  offset++;
-  for (int c = 0; c < offset; c++) {
+  //
+  // In the initial state we need to get the number of words 
+  // in the block of triggers we have..then transition to the internal state
+  // where we remain until the end of that block is encountered.
+  //
+  
+  int goodsize = 0;
+  
+  if (m_state == initial) {
+
+    int        words = getLong(event, offset);
+    offset += 2;
+    
+    
+    if (words == 0) {		// Empty mase event.
+      return offset;
+    }
+//02/16/2001 -- SH : no extra pointer....
+//     words            = getLong(event, offset); // Read twice!
+//     offset += 2;
+    
+    
+//    cout << "2nd w " << words << "\t";
+    
+    m_longsRemaining = words;
+    m_state = internal;
+//02/16/2001 -- SH : no extra pointer....
+//     m_longsRemaining--;		// Size is self inclusive.
+    
+  }
+  bool haveTriggerNumber(false); // Process until triggers no longer are the same as
+  int  triggerNumber(-1);	 // this trigger....
+  
+  while ((m_longsRemaining > 0) && (offset < event.size())) {
+
     int chDesignator = getLong(event, offset);
+    offset += 2;
+    m_longsRemaining--;
+    
     int chValues     = getLong(event, offset);
-    offset          += 2;
-
-    int cob        = chDesignator & 0xff;
+    offset += 2;
+    m_longsRemaining--;
+    
+    
+    int chan        = chDesignator & 0xff;
     int chb        = (chDesignator >> 8)  & 0xff;
-    int chan       = (chDesignator >> 16) & 0xff;
+    int cob       = (chDesignator >> 16) & 0xff;
+    
+    int trigger    = (chDesignator >> 24) & 0xff;
 
-    int t          = chValues & 0xffff; // For when we use the times.
+    int t          = chValues & 0xffff; // For when we use the times.q
     int e          = (chValues >> 16) & 0xffff;
+    
+    
+    //printf("0x%08x\t",chDesignator);
+    //printf("0x%08x\n",chValues);
+    
+    if (m_longsRemaining < 0) {
+      throw string("Got an incomplete MASE event: channel designator without value e.g.");
+    }
+
+//    if (haveTriggerNumber && (trigger != triggerNumber)) {
+//      // This pair is part of the next event:
+//
+////       cout << "Different trigger number" << endl;
+//       
+//      m_longsRemaining += 2;
+//      return offset - 4;
+//    }
+//    else {
+//      triggerNumber     = trigger;
+//      haveTriggerNumber = true;
+//    }
 
     // get the tree parameter vector.. or ignore the data if not 
     // defined.
@@ -98,19 +164,23 @@ CMASE::operator()(CEvent&                       rEvent,
     if (cob < trees.size()) {
       CHBVector* pCHB = trees[cob];
       if(chb < pCHB->size()) {
-	CTreeParameterArray* pTree = (*pCHB)[chb];
+	pchbParams pTree = (*pCHB)[chb];
 	
 	// Channel numbers are gauranteed to be < 32 and each tree param array
 	// is 32 chans long so:
 
-	(*pTree)[chan] = e;
+	(*(pTree->pEnergies))[chan] = e;
+	(*(pTree->pTimes))[chan]    = t;
       }
     }
 
     
 
   }
+  
+  // If we fell through the loop we're done with this block of triggers too:
 
+  m_state = initial;
   return offset;
 }
 
@@ -138,6 +208,7 @@ CMASE::getInfo(CParamMapCommand::AdcMapping* pMap)
   if (pMap->extraData == 0) {
     COBVector* parameters = createCOBVector(pMap->name);
     pMap->extraData = parameters;
+    CTreeParameter::BindParameters(); // Also need to bind the new tree parameters to parameter ids.
   }
   return *reinterpret_cast<COBVector*>(pMap->extraData);
 }
@@ -173,7 +244,7 @@ CMASE::createCOBVector(string baseName)
 
   // Get an array of CHB counts for each COB:
 
-  CTCLVariable maseCHBCounts("maseCBHCounts", false);
+  CTCLVariable maseCHBCounts("maseCHBCounts", false);
   maseCHBCounts.Bind(*pInterp);
   const char* pCHBCounts = maseCHBCounts.Get(TCL_GLOBAL_ONLY,
 					     const_cast<char*>(baseName.c_str()));
@@ -198,7 +269,7 @@ CMASE::createCOBVector(string baseName)
 }
    
 /**
- * Create a vectoro of the parameterse for a single COB.  This is a vector
+ * Create a vector of the parameterse for a single COB.  This is a vector
  * of CHB's each with 32 channels.  The names of these parameters 
  * are basename.cobNumber.chbnumber.0..31
  *
@@ -227,16 +298,27 @@ CMASE::createCHBVector(string basename, int cobNumber, int chbCount)
   CHBVector* pResult = new CHBVector;
 
   for (int chb =0; chb < chbCount; chb++) {
-    char chbNumber[5];
-    sprintf(chbNumber, "%02d", chb);
-    string treeName = parameterBase;
-    treeName       += chbNumber;
+    char chbNumber[100];
+    sprintf(chbNumber, "%02d.e", chb);
+    string eTreeName = parameterBase;
+    eTreeName       += chbNumber;
+    string tTreeName = parameterBase;
+    sprintf(chbNumber, "%02d.t", chb);
+    tTreeName       += chbNumber;
  
-    CTreeParameterArray *pArray = new CTreeParameterArray(treeName,
+    CTreeParameterArray *pEArray = new CTreeParameterArray(eTreeName,
 							  8192,
 							  32,
 							  0);
-    pResult->push_back(pArray);
+    CTreeParameterArray *pTArray = new CTreeParameterArray(tTreeName,
+							   8192, 32, 0);
+    pchbParams pParams = new chbParams;
+    pParams->pEnergies = pEArray;
+    pParams->pTimes    = pTArray;
+
+    // have to bind it too..
+    
+    pResult->push_back(pParams);
   }
 
   return pResult;
