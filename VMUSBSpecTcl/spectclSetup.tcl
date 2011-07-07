@@ -61,7 +61,7 @@ configClear
 
 puts "Configuration cleared"
 
-if {[catch {configRead [file join ~ config  daqconfig.tcl]} msg]} {
+if {[catch {configRead [file join ~ config daqconfig.tcl]} msg]} {
     puts "Error in configuration file read: $msg"
 }
 
@@ -69,12 +69,10 @@ puts "Configuration read"
 
 set channelCount($typeCAEN)   4096
 set channelCount($typeHYTEC)  8192
-set channelCount($typeMADC32) 4096;	# Currently only 12 chans.
+set channelCount($typeMADC32) 2048;	# Currently only 12 chans.
 set channelCount($typeTDC1x90) 16384;   # for now this is the # of channels in a tdc spec
 set channelCount($typeV977)    16;      # for a bit mask spec
 set channelCount($typeMase)    8192;    # Spectrum channels for MASE.
-set channelCount($typeHINP)    16384;	# Num channels in a default HINP spectrum.
-set channelCount($typePSD)     8192;	# Num channels in a default PSD spectrum.
 
 #-----------------------------------------------------------------------------
 # Creates a 1-d spectrum.
@@ -233,121 +231,20 @@ proc buildMaseMap {param module} {
 	set chbcount [lindex $chblist $cob]
 	for {set chb 0} {$chb < $chbcount} {incr chb} {
 	    for {set chan 0} {$chan < 32} {incr chan} {
-		set parameterName [format $basename.%02d.%02d.%02d $cob $chb $chan]
-		parameter $parameterName $param
+		set ename [format $basename.%02d.%02d.e.%02d $cob $chb $chan]
+		set tname [format $basename.%02d.%02d.t.%02d $cob $chb $chan]
+
+		parameter $ename $param
 		incr param
-		makeSpectrum $parameterName $channels
+		parameter $tname $param
+		incr param
+
+		makeSpectrum $ename $channels
+		makeSpectrum $tname $channels
+
 	    }
 	}
     }
-    return $param
-}
-#
-#   Hinp's unpacker takes a base name from 
-#   adcChannels and takes the chip mapping from 
-#   HINPChips
-#
-proc buildHINPMap {param module} {
-    set basename $::adcChannels($module)
-    set chipMap  $::HINPChips($module)
-    set chanSize $::channelCount($::typeHINP)
-    incr chanSize -1
-    set channels $::channelCount($::typeHINP)
-
-    paramMap $basename $::typeHINP 0 [list]
-    foreach chip $chipMap {
-	for {set i 0} {$i < 16} {incr i} {
-	    set EParamName \
-		[format "%s.e.%02d.%02d" $basename $chip $i]
-	    set TParamName \
-		[format "%s.t.%02d.%02d" $basename $chip $i]
-	    parameter $EParamName $param
-	    incr param
-	    parameter $TParamName $param
-	    incr param
-
-	    spectrum $EParamName 1 $EParamName "{0 $chanSize  $channels}"
-	    spectrum $TParamName 1 $TParamName "{0 $chanSize  $channels}"
-
-	}
-    }
-    return $param
-}
-
-#
-#   PSD's unpacker takes a base name from 
-#   adcChannels and takes the chip mapping from 
-#   PSDChips
-#
-proc buildPSDMap {param module} {
-    set basename $::adcChannels($module)
-    set chipMap  $::PSDChips($module)
-    set chanSize $::channelCount($::typePSD)
-    incr chanSize -1
-    set channels $::channelCount($::typePSD)
-
-    paramMap $basename $::typePSD 0 [list]
-    foreach chip $chipMap {
-	for {set i 0} {$i < 16} {incr i} {
-	    set AParamName \
-		[format "%s.a.%02d.%02d" $basename $chip $i]
-	    set BParamName \
-		[format "%s.b.%02d.%02d" $basename $chip $i]
-	    set CParamName \
-		[format "%s.c.%02d.%02d" $basename $chip $i]
-	    set TParamName \
-		[format "%s.t.%02d.%02d" $basename $chip $i]
-	    parameter $AParamName $param
-	    incr param
-	    parameter $BParamName $param
-	    incr param
-	    parameter $CParamName $param
-	    incr param
-	    parameter $TParamName $param
-	    incr param
-
-	    spectrum $AParamName 1 $AParamName "{0 $chanSize  $channels}"
-	    spectrum $BParamName 1 $BParamName "{0 $chanSize  $channels}"
-	    spectrum $CParamName 1 $CParamName "{0 $chanSize  $channels}"
-	    spectrum $TParamName 1 $TParamName "{0 $chanSize  $channels}"
-
-	}
-    }
-    return $param
-}
-#----------------------------------------------------------------------------
-#
-#  Build channels and maps for a CAEN Dual range module.
-#  the adc parameters give the base names for parameters .h and .l for
-#  high and low ranges respectively.
-# Parameters:
-#   param   - First parameter number to use.
-#   name    - Name of the module.
-# Returns:
-#   next unused parameter number.
-#
-proc buildCAENDualMap {param name} {
-    set vsn        $::adcConfiguration($name)
-    set resolution $::channelCount($::typeCAEN)
-    set channels   $::adcChannels($name)
-    
-    set parameterList [list]
-
-
-
-    foreach parameter $channels {
-	parameter $parameter.h $param
-	makeSpectrum $parameter.h $resolution
-	lappend parameterList $parameter.h
-	incr param
-
-	parameter $parameter.l $param
-	makeSpectrum $parameter.l $resolution
-	lappend parameterList $parameter.l
-	incr param
-    }
-    paramMap $name $::typeCAEN $vsn $parameterList
-
     return $param
 }
 
@@ -376,12 +273,6 @@ proc buildChannelMaps param {
 	} elseif {$::readoutDeviceType($module) eq $::typeMase} {
 	    puts "MASE module"
 	    set param [buildMaseMap $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typeCAENDual} {
-	    set param [buildCAENDualMap $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typeHINP} {
-	    set param [buildHINPMap $param $module]
-	} elseif {$::readoutDeviceType($module) eq $::typePSD} {
-	    set param [buildPSDMap $param $module]
 	} else {
 	    set vsn        $::adcConfiguration($module)
 	    set type       $::readoutDeviceType($module)
@@ -391,9 +282,11 @@ proc buildChannelMaps param {
 	    # Make the parameters and spectra:
 	    
 	    foreach parameter $channels {
-		parameter $parameter $param
-		incr param
-		makeSpectrum $parameter $resolution
+		if {$parameter ne ""} {
+		    parameter $parameter $param
+		    incr param
+		    makeSpectrum $parameter $resolution
+		}
 	    }
 	    paramMap $module $type $vsn $channels
 	}
