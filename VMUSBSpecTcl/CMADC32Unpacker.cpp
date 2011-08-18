@@ -43,7 +43,7 @@ static const uint32_t HDR_IDSHFT(16);
 
 // Fields in the data words:
 
-static const uint32_t DATA_VALUEMASK(0xfff);
+static const uint32_t DATA_VALUEMASK(0x1fff);
 
 static const uint32_t DATA_ISOVERFLOW(0x4000);
 
