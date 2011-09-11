@@ -29,7 +29,7 @@ OBJECTS=MySpecTclApp.o CParamMapCommand.o	\
 	CRateProcessor.o CRateList.o CRateCommand.o CFitButton.o \
 	CStackMapCommand.o CModuleUnpacker.o C785Unpacker.o CNADC2530Unpacker.o \
 	CStackUnpacker.o CMADC32Unpacker.o CRateEventProcessor.o	\
-	CV1x90Unpacker.o CV977Unpacker.o CMASE.o CHINP.o CPSD.o
+	CV1x90Unpacker.o CV977Unpacker.o CMASE.o CHINP.o CPSD.o CV1729Unpacker.o
 
 
 #

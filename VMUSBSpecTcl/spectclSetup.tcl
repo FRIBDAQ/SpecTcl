@@ -247,7 +247,34 @@ proc buildMaseMap {param module} {
     }
     return $param
 }
+#---------------------------------------------------------------------------
+#
+#  Build channel maps for the V1729
+#  In this case, the channels are really place holders for 
+#  spectra.
+# parameters:
+#    param - Number of first available parametr.
+#    name  - Name of the module we are managing.
+# Returns:
+#    next available parameter number.
+#
+proc buildV1729Map {param name} {
+    global v1729channelMasks;	# has the masks of which channels are used.
+    global adcChannels;		# Has parameter names.
 
+    # Make a parameter and 2048 2K spectra for each parameter.
+
+    foreach paramName $adcChannels($name) {
+	parameter $paramName $param
+	for {set i 0} {$i < 2048} {incr i} { 
+	    set spectrumName [format %s.%04d $paramName $i]
+	    spectrum $spectrumName 1 $paramName {{0 2047 2048}}
+	}
+	incr param
+    }
+    paramMap $$name $::typeV1729 $v1729channelMasks($name) $adcChannels($name)
+    return $param
+}
 #----------------------------------------------------------------------------
 # Build the channel maps, spectcl parameters and raw spectra from 
 # the adcConfigurtion, readoutDeviceType and adcChannels information.
@@ -273,6 +300,9 @@ proc buildChannelMaps param {
 	} elseif {$::readoutDeviceType($module) eq $::typeMase} {
 	    puts "MASE module"
 	    set param [buildMaseMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeV1729} {
+	    puts "CAEN V1729 FADC"
+	    set param [buildV1729Map $param $module]
 	} else {
 	    set vsn        $::adcConfiguration($module)
 	    set type       $::readoutDeviceType($module)

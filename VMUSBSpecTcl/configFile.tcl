@@ -51,6 +51,7 @@ set typeMase    5;                      # MASE XLM subsystem.
 set typeCAENDual 6;			# CAEN dual range modules.
 set typeHINP     7;			# HINP XLM module.
 set typePSD      8;			# PSD XLM module.
+set typeV1729    9;			# CAEN V1729 FADC.
 
 #  We create as well spectra for each single parameter, and corresponding
 #  pairs of n's.
@@ -61,6 +62,7 @@ package provide configFile 1.0
 # array will be indexed by adc name.  Each array will contain the
 # geo address assigned to the adc.
 
+array set adcConfiguration [list]; # empty array.
 
 #-----------------------------------------------------------------
 #
@@ -69,7 +71,8 @@ package provide configFile 1.0
 #
 proc configClear {} {
     global adcConfiguration
-    catch {unset adcConfiguration}
+    array set adcConfiguration [list]
+
 }
 #------------------------------------------------------------------
 #  Read a configuration file.  This is just a source.
@@ -110,6 +113,59 @@ proc adcConfig tail {
 	    set ::adcConfiguration($name) $value
 	}
     }
+}
+#----------------------------------------------------------------
+#
+#  Configures a v1729 FADC.  We're just looking for the
+#  -chanmask parameter which we'll put in this module's
+#  v1729channelMasks variable.
+#  
+proc v1729config args {
+    globval v1729channelMasks
+    
+    set name [lindex $args 0]
+    set options [lrange $args 1 end]
+    foreach {optname optval} $args {
+	if {$optname eq "-chanmask"} {
+	    set v1729channelMasks($name) $optval
+	}
+    }
+}
+
+#-----------------------------------------------------------------
+#
+#  Create a v1729 and then process the configuration parameters.
+#
+proc v1729create args {
+    global readoutDeviceType
+    global v1729channelMasks
+
+    set name [lindex $args 0]
+    set readoutDeviceType($name) ::$typeV1729
+    set v1729channelMasks($name) 0xf
+    v1729config $args
+}
+
+#------------------------------------------------------------------
+#
+# v1729 - processes the V1729 command.  This requires additional
+#         data. Specifically we need to know the channel enables
+#         mask which will go into the global atrray
+#         v1729channelMasks(name).  This is initialized the first time
+#         a module is seen to 0xf which enables all 4 channels.
+#         but can be modified by the -chnmask configuration switch.
+#
+proc v1729 args {
+    set subcommand [lindex $args 0]
+    set tail       [lrange $args 1 end]
+
+    if {$subcommand eq "create"} {
+	v1729create $tail
+    }
+    if {$subcommand eq "config"} {
+	v1729config $tail
+    }
+
 }
 
 #------------------------------------------------------------------
