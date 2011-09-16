@@ -26,6 +26,7 @@
 #include "CMASE.h"
 #include "CHINP.h"
 #include "CPSD.h"
+#include "CV1729Unpacker.h"
 
 #include <Event.h>
 #include <TCLAnalyzer.h>
@@ -55,6 +56,7 @@ static CV977Unpacker      unpackV977;
 static CMASE              unpackMase;
 static CHINP              unpackHINP;
 static CPSD               unpackPSD;
+static CV1729Unpacker     unpackV1729;
 
 // table of unpackers for each type of module.
 
@@ -68,7 +70,8 @@ CModuleUnpacker* CStackUnpacker::m_unpackers[] =
     &unpackMase,
     &unpack785,			// CAEN Dual range placeholder
     &unpackHINP,
-    &unpackPSD
+    &unpackPSD,
+    &unpackV1729
 };
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -200,6 +203,6 @@ CStackUnpacker::assembleEvent(TranslatorPointer<UShort_t>&p,
   }
   
   result.s_stackNumber = stackId;
-  result.s_stackSize   = totalSize;
+  result.s_stackSize   = totalSize; // pEvent words consumed.
   return result;
 }
