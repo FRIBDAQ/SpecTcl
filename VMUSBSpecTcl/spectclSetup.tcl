@@ -259,7 +259,7 @@ proc buildMaseMap {param module} {
 #    next available parameter number.
 #
 proc buildV1729Map {param name} {
-    global v1729channelMasks;	# has the masks of which channels are used.
+    global v1729postTriggers;	# Post trigger value for time reorder.
     global adcChannels;		# Has parameter names.
 
     # Make a parameter and 2048 2K spectra for each parameter.
@@ -272,7 +272,7 @@ proc buildV1729Map {param name} {
 	}
 	incr param
     }
-    paramMap $$name $::typeV1729 $v1729channelMasks($name) $adcChannels($name)
+    paramMap $name $::typeV1729 $v1729postTriggers($name) $adcChannels($name)
     return $param
 }
 #----------------------------------------------------------------------------

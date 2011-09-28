@@ -21,12 +21,19 @@
 #include <Parameter.h>
 #include <SpecTcl.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <string>
 
 using namespace std;
 
-static const int numSamples = 2560;
+static const int numSamples = 2048; // That's how many we care about.
+static const int channelOrder[4] = {2,3,0,1};
+
+// Taken a word at a time, here's the order of the channels
+// in the data:
+//
+
 
 /////////////////////////////////////////////////////////////////////
 // Canonicals..
@@ -48,9 +55,9 @@ CV1729Unpacker::~CV1729Unpacker() {}
 /**
  * Perform the unpack.  The data format is as follows:
  *  +------------------------------------+
- *  |   Interrupt register. (16)         |
+ *  |   Interrupt register. (32)         |
  *  +------------------------------------+
- *  |   Trigger column number            |
+ *  |   Trigger column number  (32)      |
  *  +------------------------------------+
  *  |  Digitizer data as defined in      |
  *  |  4.7 of the manual.                |
@@ -83,108 +90,78 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
 			    CParamMapCommand::AdcMapping* pMap)
 {
   Info& info = *(findSpectra(*pMap));
-  next(info);
   
   // get the two header words:
 
-  uint16_t irqRegister = event[offset++];
-  uint16_t triggerCol  = event[offset++];
+  uint32_t irqRegister = event[offset++]; offset++;
+  uint32_t triggerCol  = event[offset++]; offset++;
 
+
+  irqRegister &= 1;
+  triggerCol  &= 0x7f;
   if(irqRegister) {
 
-    // Have data
+    int sampleBegin = offset + 3*4; // Skip the header.
+    int sampleEnd   = sampleBegin + 128*20*4; // Just off the end of the sample block.
 
-    // Figure out how many channels we have and which ones from the 'vsn' just in case the
-    // user was perverse and defined the wrong parameter names relative to the mask.
-    // TOO: Factor this out into findSpectra?
+    // We need to locate the first sample in time in accordance with 2.4.2 of the manual.
+    // since I never udnerstood the values of the verniers, and  since only signal
+    // shape is important we'll only go for column resolution
+    // for the start.  The trigger col is relative to the last column.  The post trigger must
+    // be added back in as well:
 
-    uint16_t channelMask        = pMap->vsn;
-    int      numChannels        = 0;
-    bool     channelsPresent[4] = {false, false, false, false};
-    for (int i = 0; i < 4; i++) {
-      if (channelMask & (1 << i)) {
-	channelsPresent[i] = true;
-	numChannels++;
-      }
+    /*
+    triggerCol =  128-triggerCol; // start column numbered from 0.
+    int startCol   = triggerCol +  pMap->vsn; // we stored the post there.
+    if (startCol >= 128) {
+      startCol -= 128;
     }
 
-    // Skip the first conversions word.
-
-    offset += numChannels;
-
-    // Get the verniers associated with each present channel
-
-    uint16_t verniers[4];
-    for (int i =3; i >= 0; i++) {
-      if (channelsPresent[i]) {
-	verniers[i] = event[offset++];
-      }
-    }
-    // Skip the baseline reset:
-
-    offset += numChannels;
-
-    /* Turn the verniers into the location of the first sample for
-       each of the channels present.  Each column represents 20 samples
-       the vernier ther sample within the column.  We're assuming the data are read
-       down the column.
-       When this loop is done verniers + offset is the first channel sample.
-       and firstSampleNum is the sample number. for the first sample.
-       (used to know when to wrap the buffer.
+    int startSample= startCol*20;	    // 20 samples/column.
     */
-    int firstSampleNum[4];
-    int chan = numChannels;	// offset from sample set.
+    int startCol = (pMap->vsn - triggerCol) % 128;
+    int startSample = startCol*20;
 
-    for (int i =0; i < 4; i++) {
-      if(channelsPresent[i]) {
-	firstSampleNum[i] = 20*triggerCol + verniers[i];
-	verniers[i] =  firstSampleNum[i] * numChannels + chan;
-	chan--;
-      }
+    // Compute the0 start positions for the 4 channels.  the channels are stored
+    // last to first:
+
+    int dataOffsets[4];
+    int o = 0;
+    for (int i = 0; i < 4; i++) {
+      dataOffsets[i] = sampleBegin + startSample + channelOrder[i];
+      o++;
     }
-    // Locate the spectra to fill
+    // Get our spectra:
 
+    next(info);			// advance to next spectrum:
     CSpectrum* pSpectra[4];
     for (int i = 0; i < 4; i++) {
-      if (channelsPresent[i]) {
-	pSpectra[i] = info.s_Spectra[i][info.s_spectrumIndex];
-      }
-      else {
-	pSpectra[i] = 0;
+      pSpectra[i] = info.s_Spectra[i][info.s_spectrumIndex];
+      if (pSpectra[i]) {
+	pSpectra[i]->Clear();
       }
     }
+    // Now start untangling the data:
 
-    // Channels are high number to low number.
-
-
-    for (UInt_t s =0; s < numSamples; s++) {
-      for(int i =0; i < 4; i++) {
-	if (channelsPresent[i] && pSpectra[i]) {
-	  (pSpectra[i])->set(&s, event[firstSampleNum[i]]);
-	  firstSampleNum[i] += numChannels;
-	  if(firstSampleNum[i] > numSamples*numChannels) {
-	    firstSampleNum[i] = 0 + (i-numChannels+1);
-	  }
+    for (unsigned int s = 0; s < numSamples; s++) {
+      for (int c =0; c < 4; c++) {
+	int sample = event[dataOffsets[c]];
+	dataOffsets[c] += 4;
+	if (dataOffsets[c] >= sampleEnd) {
+	  dataOffsets[c] = channelOrder[c] + sampleBegin;
 	}
-
+	if (pSpectra[c] && (s < pSpectra[c]->Dimension(0))) {
+	  pSpectra[c]->set(&s, sample);
+	}
       }
     }
 
-    // Now unpack the data into the first 2048 channels of each spectrum...for each
-    // channel.
-
-
-
-    // Set the offset correctly.
-
-    offset += numSamples*numChannels;	// There are this many samples.
-
-
   }
-  else {
-    // TODO: Look at data to see how to adjust offset
-  }
+  offset += 128*20*4;		// Sample data...
+  offset += 3*4;		// Header data...
+  offset += 2*2;		// trailer data.
   
+  return offset;		// Next chunk of data.
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -258,7 +235,7 @@ CV1729Unpacker::next(CV1729Unpacker::Info& rInfo)
     for (int c = 0; c < 4; c++) {
       for (int s = 0; s < 2048; s++) {
 	if (rInfo.s_Spectra[c][s]) {
-	  //	  rInfo.s_Spectra[c][s]->Clear(); // For now don't clear..
+	  rInfo.s_Spectra[c][s]->Clear(); // For now don't clear..
 	}
 
       }

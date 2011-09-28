@@ -321,7 +321,8 @@ tk appname SpecTcl-[exec hostname]-[pid]
 
 puts "Sourcing histogram config file"
 
-source [file join ~ config spectclSetup.tcl]
+set here [file dirname [info script]]
+source [file join $here spectclSetup.tcl]
 puts "done"
 
 

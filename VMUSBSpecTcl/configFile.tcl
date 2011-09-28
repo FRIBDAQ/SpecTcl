@@ -120,14 +120,14 @@ proc adcConfig tail {
 #  -chanmask parameter which we'll put in this module's
 #  v1729channelMasks variable.
 #  
-proc v1729config args {
-    globval v1729channelMasks
+proc v1729config tail {
+    global v1729channelMasks
     
-    set name [lindex $args 0]
-    set options [lrange $args 1 end]
-    foreach {optname optval} $args {
-	if {$optname eq "-chanmask"} {
-	    set v1729channelMasks($name) $optval
+    set name [lindex $tail 0]
+    set options [lrange $tail 1 end]
+    foreach {optname optval} $tail {
+	if {$optname eq "-posttrigger"} {
+	    set ::v1729postTriggers($name) $optval
 	}
     }
 }
@@ -136,14 +136,15 @@ proc v1729config args {
 #
 #  Create a v1729 and then process the configuration parameters.
 #
-proc v1729create args {
+proc v1729create tail {
     global readoutDeviceType
     global v1729channelMasks
 
-    set name [lindex $args 0]
-    set readoutDeviceType($name) ::$typeV1729
-    set v1729channelMasks($name) 0xf
-    v1729config $args
+    set name [lindex $tail 0]
+
+    set ::readoutDeviceType($name) $::typeV1729
+    set ::v1729postTriggers($name) 64
+    v1729config $tail
 }
 
 #------------------------------------------------------------------
@@ -155,7 +156,7 @@ proc v1729create args {
 #         a module is seen to 0xf which enables all 4 channels.
 #         but can be modified by the -chnmask configuration switch.
 #
-proc v1729 args {
+proc v1729a args {
     set subcommand [lindex $args 0]
     set tail       [lrange $args 1 end]
 
