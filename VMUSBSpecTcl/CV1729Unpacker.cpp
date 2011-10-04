@@ -27,7 +27,8 @@
 
 using namespace std;
 
-static const int numSamples = 2048; // That's how many we care about.
+static const int numSamples = 2048; // That's how many we care about..that's the spectrum width.
+static const int numCells   = 128*20;
 static const int channelOrder[4] = {2,3,0,1};
 
 // Taken a word at a time, here's the order of the channels
@@ -103,34 +104,6 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
 
     int sampleBegin = offset + 3*4; // Skip the header.
     int sampleEnd   = sampleBegin + 128*20*4; // Just off the end of the sample block.
-
-    // We need to locate the first sample in time in accordance with 2.4.2 of the manual.
-    // since I never udnerstood the values of the verniers, and  since only signal
-    // shape is important we'll only go for column resolution
-    // for the start.  The trigger col is relative to the last column.  The post trigger must
-    // be added back in as well:
-
-    /*
-    triggerCol =  128-triggerCol; // start column numbered from 0.
-    int startCol   = triggerCol +  pMap->vsn; // we stored the post there.
-    if (startCol >= 128) {
-      startCol -= 128;
-    }
-
-    int startSample= startCol*20;	    // 20 samples/column.
-    */
-    int startCol = (pMap->vsn - triggerCol) % 128;
-    int startSample = startCol*20;
-
-    // Compute the0 start positions for the 4 channels.  the channels are stored
-    // last to first:
-
-    int dataOffsets[4];
-    int o = 0;
-    for (int i = 0; i < 4; i++) {
-      dataOffsets[i] = sampleBegin + startSample + channelOrder[i];
-      o++;
-    }
     // Get our spectra:
 
     next(info);			// advance to next spectrum:
@@ -141,21 +114,20 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
 	pSpectra[i]->Clear();
       }
     }
-    // Now start untangling the data:
-
-    for (unsigned int s = 0; s < numSamples; s++) {
-      for (int c =0; c < 4; c++) {
-	int sample = event[dataOffsets[c]];
-	dataOffsets[c] += 4;
-	if (dataOffsets[c] >= sampleEnd) {
-	  dataOffsets[c] = channelOrder[c] + sampleBegin;
-	}
-	if (pSpectra[c] && (s < pSpectra[c]->Dimension(0))) {
-	  pSpectra[c]->set(&s, sample);
+    // Adapted from V1729.c generously handed to me for examination by CAEN
+    // Thanks Massimo.
+    // 
+    int end_cell = (20*(128 - triggerCol) + pMap->vsn + 1) % numCells;
+    for (UInt_t i = 0; i < numSamples; i++) {
+      UInt_t j = (2560 + i  + end_cell) % numCells;
+      for (int d = 0; d < 4; d++) {
+	int ch   = channelOrder[d];
+	int data = event[sampleBegin + 4*j + d];
+	if (pSpectra[ch]) {
+	  pSpectra[ch]->set(&i, data);
 	}
       }
     }
-
   }
   offset += 128*20*4;		// Sample data...
   offset += 3*4;		// Header data...
