@@ -267,7 +267,7 @@ proc buildV1729Map {param name} {
     foreach paramName $adcChannels($name) {
 	parameter $paramName $param
 	for {set i 0} {$i < 2048} {incr i} { 
-	    set spectrumName [format %s.%04d $paramName $i]
+	    set spectrumName [format %04d.%s $i $paramName]
 	    spectrum $spectrumName 1 $paramName {{0 2047 2048}}
 	}
 	incr param

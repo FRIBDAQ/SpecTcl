@@ -122,10 +122,12 @@ proc adcConfig tail {
 #  
 proc v1729config tail {
     global v1729channelMasks
+    global v1729postTriggers
     
     set name [lindex $tail 0]
     set options [lrange $tail 1 end]
-    foreach {optname optval} $tail {
+    puts "Tail: $options"
+    foreach {optname optval} $options {
 	if {$optname eq "-posttrigger"} {
 	    set ::v1729postTriggers($name) $optval
 	}

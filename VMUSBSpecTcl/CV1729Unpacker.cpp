@@ -22,6 +22,9 @@
 #include <SpecTcl.h>
 #include <stdio.h>
 #include <string.h>
+#include <TCLInterpreter.h>
+#include <tcl.h>
+
 
 #include <string>
 
@@ -31,10 +34,33 @@ static const int numSamples = 2048; // That's how many we care about..that's the
 static const int numCells   = 128*20;
 static const int channelOrder[4] = {2,3,0,1};
 
+static       int  freeze;	// if non zero, creating new waveforms is disabled.
+static       bool first = true;
+
+
+
+
+
 // Taken a word at a time, here's the order of the channels
 // in the data:
 //
 
+
+/**
+ * Static local function binds the freeze variable to the Tcl Variable:
+ * freezeFadcSpectra.. and sets it to false.
+ */
+static void bindVariable()
+{
+  SpecTcl* pApi = SpecTcl::getInstance();
+
+  // Do this old school because I'm lazy:
+
+  CTCLInterpreter* pInterp = pApi->getInterpreter();
+  Tcl_Interp*      pActualInterp = pInterp->getInterpreter();
+  Tcl_LinkVar(pActualInterp, "freezeFadcSpectra", reinterpret_cast<char*>(&freeze), TCL_LINK_INT);
+  freeze = 0;
+}
 
 /////////////////////////////////////////////////////////////////////
 // Canonicals..
@@ -49,6 +75,9 @@ CV1729Unpacker::CV1729Unpacker() {}
    Destruction is a no-op.
 */
 CV1729Unpacker::~CV1729Unpacker() {}
+
+
+
 
 //////////////////////////////////////////////////////////////////////
 //  Virtual function overrides.
@@ -90,6 +119,11 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
 			    unsigned int                  offset,
 			    CParamMapCommand::AdcMapping* pMap)
 {
+  if (first) {
+    bindVariable();
+    first = false;
+  }
+
   Info& info = *(findSpectra(*pMap));
   
   // get the two header words:
@@ -100,7 +134,7 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
 
   irqRegister &= 1;
   triggerCol  &= 0x7f;
-  if(irqRegister) {
+  if(irqRegister && !freeze) {
 
     int sampleBegin = offset + 3*4; // Skip the header.
     int sampleEnd   = sampleBegin + 128*20*4; // Just off the end of the sample block.
@@ -109,9 +143,14 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
     next(info);			// advance to next spectrum:
     CSpectrum* pSpectra[4];
     for (int i = 0; i < 4; i++) {
-      pSpectra[i] = info.s_Spectra[i][info.s_spectrumIndex];
-      if (pSpectra[i]) {
-	pSpectra[i]->Clear();
+      if (info.s_spectrumIndex < 2048) {
+	pSpectra[i] = info.s_Spectra[i][info.s_spectrumIndex];
+	if (pSpectra[i]) {
+	  pSpectra[i]->Clear();
+	}
+      }
+      else {
+	pSpectra[i] = 0;
       }
     }
     // Adapted from V1729.c generously handed to me for examination by CAEN
@@ -129,6 +168,10 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
       }
     }
   }
+  if(freeze) {
+    info.s_spectrumIndex = 2047; // reset next  spectrum to 0.
+  }
+
   offset += 128*20*4;		// Sample data...
   offset += 3*4;		// Header data...
   offset += 2*2;		// trailer data.
@@ -154,6 +197,7 @@ CV1729Unpacker::findSpectra(CParamMapCommand::AdcMapping& rMap)
   if (! rMap.extraData) {
     pInfo pSpectra = new Info;
 
+
     pSpectra->s_spectrumIndex = -1; // start with the first (assuming unpack starts with a next()).
     
     
@@ -176,7 +220,7 @@ CV1729Unpacker::findSpectra(CParamMapCommand::AdcMapping& rMap)
 	  string baseName = pParam->getName();
 	  for (int i = 0; i < 2048; i++) {
 	    char spectrumName[2048];
-	    snprintf(spectrumName, sizeof(spectrumName), "%s.%04d", baseName.c_str(), i);
+	    snprintf(spectrumName, sizeof(spectrumName), "%04d.%s",i, baseName.c_str());
 	    CSpectrum* pSpec = pApi->FindSpectrum(spectrumName);
 	    pSpectra->s_Spectra[chan][i] = pSpec; // Correct thing to do even if there's no match.
 	  }
@@ -202,16 +246,7 @@ void
 CV1729Unpacker::next(CV1729Unpacker::Info& rInfo)
 {
   rInfo.s_spectrumIndex++;
-  if (rInfo.s_spectrumIndex >= 2048) { // Need to reset/clear.
-    rInfo.s_spectrumIndex = 0;
-    for (int c = 0; c < 4; c++) {
-      for (int s = 0; s < 2048; s++) {
-	if (rInfo.s_Spectra[c][s]) {
-	  rInfo.s_Spectra[c][s]->Clear(); // For now don't clear..
-	}
+  rInfo.s_spectrumIndex = rInfo.s_spectrumIndex % 2048;
 
-      }
-    }
 
-  }
 }
