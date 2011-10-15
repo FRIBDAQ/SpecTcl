@@ -156,7 +156,7 @@ CV1729Unpacker::operator()(CEvent&                       rEvent,
     // Adapted from V1729.c generously handed to me for examination by CAEN
     // Thanks Massimo.
     // 
-    int end_cell = (20*(128 - triggerCol) + pMap->vsn + 1) % numCells;
+    int end_cell = (20*(128 - triggerCol + pMap->vsn +1 ) ) % numCells;
     for (UInt_t i = 0; i < numSamples; i++) {
       UInt_t j = (2560 + i  + end_cell) % numCells;
       for (int d = 0; d < 4; d++) {
