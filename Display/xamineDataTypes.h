@@ -67,7 +67,7 @@
 
 
 
-#define XAMINE_MAXSPEC 5000	/* Maximum spectrum count. */
+#define XAMINE_MAXSPEC 10000	/* Maximum spectrum count. */
 #ifndef XAMINE_SPECBYTES
 #define XAMINE_SPECBYTES 8*MEG	/* Default number of bytes in spectra. */
 #endif
