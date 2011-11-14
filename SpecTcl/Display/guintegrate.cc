@@ -67,7 +67,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Constants:
 */
 #define GAMMA  2.354		/* Number of sigmas in FWHM for Gaussian. */
-#define SCROLL_WINDOW_CHARS 5000 /* Max chars allowed in scrolled window. */
+#define SCROLL_WINDOW_CHARS 50000 /* Max chars allowed in scrolled window. */
 /*
 ** External References: 
 */

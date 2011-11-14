@@ -923,5 +923,9 @@ June 13, 2011 - Fix some memory double deallocations found by Coupland.
 	- Use mkstemp rather than tmpnam in wsyswig printing.
 3.3-003
 June 30, 2011
-       - Fix error in CRingBufferDecoder - premature free of glued buffer.
+       - Fix error in CRingBufferDecoder - premature free of glued buffer
+3.3-004
+November 14, 2011
+       - Increase the capacity of the integration widget in Xamine to
+         50,000 chars (Carpino request).
        
