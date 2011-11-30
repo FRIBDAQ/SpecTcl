@@ -51,7 +51,8 @@ snit::widget treeParameterEditor {
 
 
     ##
-    # Constructor 
+    # Constructor -- see the summary comments above the class.
+    # @param args - an option/value list.
     #
 
     constructor args {
@@ -84,4 +85,26 @@ snit::widget treeParameterEditor {
 	    incr col
 	}
     }
+    ##
+    # Dispatch a button push to the approprate option command.
+    # prior to dispatch all occurences of %W in the command are replaced by
+    # $win (our top level widgte name).  The callback is executed at global level 
+    # (uplevel #0).
+    #
+    # @param optionName -name of the option holding the script to execute.
+    #
+    method callback optionName {
+	set script $options($optionName)
+	
+	# empty scripts are no-ops.
+
+	if {$script ne ""} {
+	    
+	    # Substitute for %W:
+
+	    regsub -all {%W} $script $win script
+	    uplevel #0 $script
+	}
+    }
+
 }
