@@ -54,13 +54,16 @@ package provide treeParametersContainer 1.0
 #                  [list name low high units]
 #    load n name low high units
 #                - Loads the contents of selection n if n is 'current' the selected editor is loaded.
+#    loadcurrent name low high unts
+#                - Load the one selected by the radio button set.
 #
 #  ACTION SCRIPT SUBSITUTIONS:
-#     %W  - provides the widget that invoked the action.  This is the menu hierarhcy for
-#           -choosecmd and the specific editor widget for load/set/change scripts.
-#     %F  -  provides our widget name
+#     %W  - provides our widget name.
+#     %I  -  provides the widget name of the menu name for
+##           -choosecmd and the specific editor widget for load/set/change scripts.
 #     %L  -  only for -choosecmd  provides the terminal label.
 #     %N  -  only for -choosecmd  provides the path to the terminal label selected.
+#     %S  - Provides the slot for the button clicks.
 #
 snit::widget treeParametersContainer {
     hulltype ttk::frame
@@ -79,6 +82,7 @@ snit::widget treeParametersContainer {
     #  Construct the widget:
     #  @args - a list of name value options pairs.
     constructor args {
+	puts $selfns
 
 	# Create the widgets along the to of the container.  These are 
 	# the menubutton, the titles and the array check box.
@@ -102,11 +106,15 @@ snit::widget treeParametersContainer {
 		incr editorRow -1
 	    }
 	    ttk::frame $win.b$i -relief ridge -borderwidth 1
-	    ttk::radiobutton $win.b$i.b$i -variable ${selfns}::option(-current) \
+	    ttk::radiobutton $win.b$i.b$i -variable ${selfns}::options(-current) \
 		-value $i
 	    pack $win.b$i.b$i
 
-	    treeParameterEditor $win.e$i -title $title
+	    treeParameterEditor $win.e$i -title $title \
+		-loadcmd    [mymethod ButtonClicked %W $i -loadcmd] \
+		-setcmd     [mymethod ButtonClicked %W $i -set]     \
+		-changecmd  [mymethod ButtonClicked %W $i -change]
+
 	    grid $win.b$i -row $i -column 0 -sticky ew -pady 0
 	    grid $win.e$i -row $editorRow -column 1 -rowspan $rowspan -sticky ewns -pady 0
 	}
@@ -130,6 +138,8 @@ snit::widget treeParametersContainer {
 
     }
 
+    # Public methods:
+
     # configuration methods:
 
 
@@ -145,13 +155,126 @@ snit::widget treeParametersContainer {
 
 	destroy $menuButton.pulldown
 
-	treeMenu $menuButton.pulldown -items $value -splitchar . -command [mymethod ParameterChosen %W %L %N]
+	treeMenu $menuButton.pulldown -items $value -splitchar . \
+	    -command [mymethod ParameterChosen %W %L %N]
 
     }
 
     # Private methods
-    
-    method ParameterChosen {widget label path} {}
 
+    ##
+    # Get the contents of an entry from the widget.
+    # @param n (default blank) if provided this is the slot to fetch.
+    #          if not, the current slot is fetched.
+    # @return list
+    # @retval [list name low high unit]
+    #
+    # Assumptions: the editor $i is named $win.e$i
+    #
+    method get {args} {
+	set slot $options(-current); # Default slot
+	if {[llength $args] > 0} {
+	    set slot [lindex $args 0];	# overridden if provided.
+	}
+	# Compute the editor name and fetch out the values:
+
+	set editor $win.e$slot
+	return [list [$editor cget -name] [$editor cget -low] \
+		    [$editor cget -high] [$editor cget -units]]
+    }
+
+    ##
+    # Set the contents of an entry in the widget.
+    # @param slot - The slot to set.
+    # @param name - The name to set there.
+    # @param low  - The low value.
+    # @param hi   - The high value.
+    # @param units - The units field.
+    #
+    method load {slot name low hi units} {
+	# Compute the editor widget name from the slot number:
+
+	set editor $win.e$slot
+	
+	# Load the values:
+
+	$editor configure -name $name -low $low -high $hi -units $units
+    }
+    ##
+    # Same as load above except that the currently seleted slot is the one that is
+    # loaded:
+    # 
+    # @param name - The name to set there.
+    # @param low  - The low value.
+    # @param hi   - The high value.
+    # @param units - The units field.
+    #
+
+    method loadcurrent {name low hi units} {
+	set slot $options(-current)
+	$self load $slot $name $low $hi $units
+    }
+    
+    ##
+    # Event handler for choosing a parameter.  This dispatches to the script in the -choosecmd
+    # option.  The following substitutions are handled:
+    #  - %W -> win
+    #  - %I -> Menu widget name
+    #  - %L -> Menu label.
+    #  - %N -> Full path to menu item.
+    #
+    # @param widget - Menu widget name.
+    # @param label  - Label on menu that was chosen.
+    # @param path   - Full path to menu label.
+    #
+    method ParameterChosen {widget label path} {
+	set script $options(-chooscmd)
+
+	# Only dispatch if, in fact, there is a nonempty script
+
+	if {$script ne ""} {
+
+	    set script [Substitute $script [list %W %I %L %N] [list $win $widget $label $path]]
+	    uplevel #0 $script
+	}
+    }
+
+    ##
+    #  event handler for any button click in an editor.
+    #  The following substitutions are handled:
+    #   %W -> $win
+    #   %I -> The editor that was clicked (initiator).
+    #   %S -> The slot whosse button was clicked (1 - -number).
+    # @param editor widget name.
+    # @param slot   Number of the editor that was clicked.
+    # @param option that has the script to which we must dispatch:
+    #
+    method ButtonClicked   {editor slot option} {
+	set script $options($option)
+
+	if {$script ne ""} {
+	    set script [Substitute $script [list %W %S %I] [list $win $slot $editor]]
+	    uplevel #0 $script
+	}
+    }
+
+    # Utiltity procs:
+   
+    ## 
+    # Substitute a bunch of strings with a bunch of other stuff.
+    # @param in       - The string in which substitutions will be done.
+    # @param patterns - The regexp patterns that will be substituted.
+    # @param subs     - The substrings that will be subtstituted.
+    # @return string
+    # @retval The string with all substitutions performed.
+    #
+    proc Substitute {in patterns subs} {
+	foreach pattern $patterns replacement $subs {
+	    # The [list] below ensure proper quoting of the replacement string:
+
+	    regsub -all $pattern $in  [list $replacement] in
+	}
+	return $in
+    }
 
 }
