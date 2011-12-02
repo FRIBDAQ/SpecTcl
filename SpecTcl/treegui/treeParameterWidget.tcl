@@ -17,6 +17,8 @@
 package require Tk
 package require snit
 
+package provide treeParameterEditor 1.0
+
 ##
 #  Provide a snit megawidget that allows for the display of a single
 #  tree parameter.
@@ -41,6 +43,8 @@ package require snit
 #
 
 snit::widget treeParameterEditor {
+    hulltype ttk::frame
+
     option -name
     option -low
     option -high
@@ -48,6 +52,7 @@ snit::widget treeParameterEditor {
     option -loadcmd   [list]
     option -setcmd    [list]
     option -changecmd [list]
+    option -title     false;	# If true titles are put above the text entries.
 
 
     ##
@@ -60,12 +65,23 @@ snit::widget treeParameterEditor {
 
 	# Build the widgets:
 
+	set editorRow 0
+	if {$options(-title)} {
+	    ttk::label $win.n -text Name -borderwidth 3
+	    ttk::label $win.l -text Low  -borderwidth 3
+	    ttk::label $win.h -text High -borderwidth 3
+	    ttk::label $win.u -text Units -borderwidth 3
+
+	    grid $win.n $win.l $win.h $win.u
+	    set editorRow 1
+	}
+
 	# First the labels:
 
 	foreach label [list .name .low .high .unit] optionname [list -name -low -high -units] \
 	    width [list 32 5 5 10] {
 	    ::ttk::label $win$label -textvariable ${selfns}::options($optionname) -relief sunken \
-		-width $width -borderwidth 3 -anchor w
+		-width $width -borderwidth 1 -anchor w
 	}
 
 	# then the buttons:
@@ -80,8 +96,10 @@ snit::widget treeParameterEditor {
 	#  Now grid them from left to right:
 	
 	set col 0
+
+
 	foreach widget [list .name .low .high .unit .load .set .changespectra] {
-	    grid $win$widget -row 0 -column $col
+	    grid $win$widget -row $editorRow -column $col -sticky ns
 	    incr col
 	}
     }
