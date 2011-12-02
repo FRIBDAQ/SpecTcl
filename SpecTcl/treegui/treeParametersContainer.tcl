@@ -82,7 +82,6 @@ snit::widget treeParametersContainer {
     #  Construct the widget:
     #  @args - a list of name value options pairs.
     constructor args {
-	puts $selfns
 
 	# Create the widgets along the to of the container.  These are 
 	# the menubutton, the titles and the array check box.
