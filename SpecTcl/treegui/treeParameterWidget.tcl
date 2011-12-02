@@ -80,8 +80,8 @@ snit::widget treeParameterEditor {
 
 	foreach label [list .name .low .high .unit] optionname [list -name -low -high -units] \
 	    width [list 32 5 5 10] {
-	    ::ttk::label $win$label -textvariable ${selfns}::options($optionname) -relief sunken \
-		-width $width -borderwidth 1 -anchor w
+	    ::ttk::entry $win$label -textvariable ${selfns}::options($optionname) \
+		-width $width
 	}
 
 	# then the buttons:
