@@ -70,7 +70,7 @@ snit::widget treeParametersContainer {
     option -number     -default 20
     option -current    -default 1
     option -parameters -default [list] -configuremethod updateParameterMenu
-    option -chooscmd   -default [list]
+    option -choosecmd   -default [list]
     option -loadcmd    -default [list]
     option -set        -default [list]
     option -change     -default [list]
@@ -227,7 +227,7 @@ snit::widget treeParametersContainer {
     # @param path   - Full path to menu label.
     #
     method ParameterChosen {widget label path} {
-	set script $options(-chooscmd)
+	set script $options(-choosecmd)
 
 	# Only dispatch if, in fact, there is a nonempty script
 
