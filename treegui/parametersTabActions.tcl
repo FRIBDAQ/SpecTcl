@@ -73,24 +73,6 @@ package provide parametersTabActions 1.0
 	}
     } 
 
-    ## 
-    # Method to prompt for spectrum changes:
-    # @param spectra list of spectra to prompt for.
-    # @return bool
-    # @retval true if change is approved false if not.
-    # @note false is the default so that we can't accidently kill stuff as easily.
-    #
-    private method promptChangeOk spectra {
-	set spectra [join $spectra {, }]
-	set message "The following spectra wil be erased and replaced: \n$spectra\n"
-	append message "Do you wish to continue?"
-
-	set answer [tk_messageBox -type yesno -default no \
-			-icon warning -message $message -parent $widget -title {Confirm Change}]
-	
-	return [expr $answer eq "no"]
-
-    }
 
 
     ##
@@ -111,6 +93,36 @@ package provide parametersTabActions 1.0
 	    }
 	}
 	return $result
+    }
+
+    #-----------------------------------------------------------------------------
+    #  Dialogs:
+
+    ## 
+    # Method to prompt for spectrum changes:
+    # @param spectra list of spectra to prompt for.
+    # @return bool
+    # @retval true if change is approved false if not.
+    # @note false is the default so that we can't accidently kill stuff as easily.
+    #
+    private method promptChangeOk spectra {
+	set spectra [join $spectra {, }]
+	set message "The following spectra wil be erased and replaced: \n$spectra\n"
+	append message "Do you wish to continue?"
+
+	set answer [tk_messageBox -type yesno -default no \
+			-icon warning -message $message -parent $widget -title {Confirm Change}]
+	
+	return [expr $answer eq "no"]
+
+    }
+
+    ##
+    # Method to indicate there are no affected spectra:
+    #
+    private method notifyNoMatches {} {
+	tk_messageBox -type ok -icon info -message "No spectra use this parameter" -title {No Matches}
+
     }
 
     #-------------------------------------------------------------------------------
@@ -233,7 +245,6 @@ package provide parametersTabActions 1.0
 		    modifySpectra $spectra $path $bins $low $hi
 		}
 	    } else {
-		return
 		notifyNoMatches
 	    }
 	}
