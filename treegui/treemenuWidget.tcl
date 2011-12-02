@@ -16,6 +16,8 @@
 package require Tk
 package require snit
 
+package provide treemenuWidget 1.0
+
 ##
 #  Provide a snit megawidget that can represent a menu of a tree of names.
 #  The hull of this is the top level menu.  This allows the menu to be
@@ -143,7 +145,7 @@ snit::widgetadaptor treeMenu {
 			lappend cascade $path
 		    }
 		}
-		# If cascade is ot empty, create the submenu and add a cascade for it:
+		# If cascade is not empty, create the submenu and add a cascade for it:
 
 		if {[llength $cascade] > 0} {
 		    set submenuName $widget.c$submenu
@@ -158,7 +160,7 @@ snit::widgetadaptor treeMenu {
 	    if {$options(-pullright) } {
 		bind $widget <Motion> [list $widget postcascade @%y]
 	    }
-	}
+	} 
     }
     
 }
