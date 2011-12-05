@@ -35,6 +35,7 @@ package provide parametersTabActions 1.0
     public variable widget ""
     public variable lines 20
 
+    private variable changeableSpectra [list 1 2 g1 g2 s m2 gd b X gs]
     #-------------------------------------------------------------------------------
     # Private Methods:
     # 
@@ -85,8 +86,10 @@ package provide parametersTabActions 1.0
 	set result [list]
 	foreach spectrum [spectrum -list] {
 	    set paramLists [lindex $spectrum 3]
+	    set specType   [lindex $spectrum 2]
 	    foreach paramList $paramLists {
-		if {[lsearch -exact $paramList $parameter] != -1} {
+		if {([lsearch -exact $paramList $parameter] != -1) &&
+		($specType in $changeableSpectra) } {
 		    lappend result [lindex $spectrum 1]
 		    break
 		}
@@ -94,8 +97,133 @@ package provide parametersTabActions 1.0
 	}
 	return $result
     }
+    ##
+    # Given an axis specification, return  a new specification with the specified axis modified.
+    #
+    # @param axes - axis specification list.
+    # @param which - Index of axis to modify.
+    # @param low   - New low value.
+    # @param hi    - New high values.
+    #
+    # @return list
+    # @retval modified axis list.
+    #
+    private method changeAxisLimits {axes which low hi} {
+	set axis [lindex $axes $which]
+	set axis [lreplace $axis 0 1 $low $hi]
+	set axes [lreplace $axes $which $which $axis]
 
+	return $axes
+    }
 
+    ##
+    #  Modify spectra that depend on a parameter to match the new parameter specification.
+    #  what is changed is the parameter range not the current number of bins.
+    #  Which axis is affected depends on the type of the spectrum as follows:
+    #  - 1, 2 - The axis on which the parameter lives is the axis modified.
+    #  - g1, g2, s - All axes are modified for these spectra.
+    #  - m2 - Even , gs matches modify x and odd matches modify y...both axes may be modified.
+    #  - gd - Matches in the first list modify x matches in the second list modify y.
+    #         both axes may be modified.
+    #  - b - low and high are determined by log2 of low/high values..any log <= 0 => 0.
+    #  - S - strip chart spectra are never modified.
+    #
+    # @param spectra   - the set of spectra that might be modified.
+    # @param parameter - The parameter whose definition changed.
+    # @param low       - New low limit on the parameter.
+    # @param hi        - New high limit on the parameter.
+    #
+    # @note The bin count comes from the current axis specification.
+
+    private method modifySpectra {spectra parameter low hi} {
+
+	foreach spectrum $spectra {
+	    set definition [lindex [spectrum -list $spectrum] 0]
+	    set name [lindex $definition 1]
+	    set type [lindex $definition 2]
+	    set parameters [lindex $definition 3]
+	    set axes       [lindex $definition 4]
+	    set dataType   [lindex $definition 5]
+
+	    # All spectra have at least one parameter list and an axis specification:
+
+	    set xParams [lindex $parameters 0]
+	    set xAxis   [lindex $axes       0]
+
+	    # What happens next is type dependent:
+
+	    switch -exact -- $type {
+		1 - 2 {
+		    set which [lsearch -exact $parameters $parameter]
+
+		    # require a match...then change the specified axis.
+
+		    if {$which >= 0} {
+			set axes [changeAxisLimits $axes $which $low $hi]
+		    }
+		}
+		g1 - g2 - s - gs {
+		    # We would not be here if there wasn't a match.
+		    #
+		    for {set i 0} {$i < [llength $axes]} {incr i} {
+			set axes [changeAxisLimits $axes $i $low $hi]
+		    }
+		}
+		m2 {
+		    set matchList [lsearch -exact -all  $parameters $parameter]
+		    
+		    array set matchArray [list]
+
+		    # Build an array of elements whose indices are the axis numbers to modify.
+
+		    foreach index $matchList {
+			if {$index % 2} {
+			    set matchArray(1) 1; # Odd parameter match.
+			} else {
+			    set matchArray(0) 1; # Even parameter match.
+			}
+		    }
+		    # Modify the axes.
+
+		    foreach axisNum [array names matchArray] {
+			set axes [changeAxisLimits $axes $axisNum $low $hi]
+		    }
+		}
+		gd {
+		    if {[lsearch -exact $xParams $parameter] != -1}  {
+			set axes [changeAxisLimits $axes 0 $low $hi]
+		    }
+		    if {[lsearch -exact [lindex $parameters 1] $parameter] != -1} {
+			set axes [changeAxisLimits $axes 1 $low $hi]
+		    }
+
+		}
+		b {
+		    if {$low <= 0} {
+			set l 0
+		    } else {
+			set l [expr {int(log($low)/log(2))}]; # change of base property to get log2
+		    }
+		    if {$hi <= 0} {
+			set h 0
+		    } else {
+			set h [expr {int(log($hi)/log(2))}]
+		    }
+		    set axes [changeAxisLimits $axes 0 $l $h]
+		}
+	    }
+	    
+
+	    # Kill off the old spectrum, define the new and 
+	    # sbind it to the display
+
+	    spectrum -delete $name
+	    spectrum $name $type $parameters $axes $dataType
+	    sbind $name
+
+	}
+    }
+    
 
     #-----------------------------------------------------------------------------
     #  Dialogs:
@@ -115,7 +243,7 @@ package provide parametersTabActions 1.0
 	set answer [tk_messageBox -type yesno -default no \
 			-icon warning -message $message -parent $widget -title {Confirm Change}]
 	
-	return [expr $answer eq "no"]
+	return [expr $answer eq "yes"]
 
     }
 
@@ -244,7 +372,7 @@ package provide parametersTabActions 1.0
 	    if {[llength $spectra] > 0} {
 		if {[promptChangeOk $spectra]} {
 
-		    modifySpectra $spectra $path $bins $low $hi
+		    modifySpectra $spectra $path $low $hi
 		}
 	    } else {
 		notifyNoMatches
