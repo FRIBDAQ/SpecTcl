@@ -168,12 +168,12 @@ void Xamine_SetDefault2DRendition(rendition_2d rend)
 */
 void Xamine_Construct1dDefaultProperties(win_1d *properties)
 {
-  win_1d *p = new win_1d(GenericDefaults);
+  win_1d* p = new win_1d(GenericDefaults);
+  memcpy(properties, p, sizeof(win_1d));
 
-  p->setrend(rend1d);
-  //  memcpy(properties, p, sizeof(win_1d));
-  properties = p;		// instead of the memcpy above.
+  properties->setrend(rend1d);
   properties->setmapped(GenericDefaults.ismapped());
+
   delete p;
 } 
 /*
@@ -186,11 +186,11 @@ void Xamine_Construct1dDefaultProperties(win_1d *properties)
 */
 void Xamine_Construct2dDefaultProperties(win_2d *properties)
 {
-  win_2d *p = new win_2d(GenericDefaults);
+  win_2d* p  = new win_2d(GenericDefaults);
+  memcpy (properties, p, sizeof(win_2d));
 
-  p->setrend(rend2d);
-  //   memcpy(properties, p, sizeof(win_2d));
-  properties = p;		//  instead of memcpy above.
+
+  properties->setrend(rend2d);
   properties->setmapped(GenericDefaults.ismapped());
   delete p;
 }

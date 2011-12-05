@@ -928,4 +928,17 @@ June 30, 2011
 November 14, 2011
        - Increase the capacity of the integration widget in Xamine to
          50,000 chars (Carpino request).
+
+3.3-005
+December 5, 2011 
+	 - TR 6912 - undo changes in dfltmgr.cc suggested by cppcheck specifically:
+           - assignment operator of win_*d infinitely recurses
+	   - use memcpy instead which causes ccpcheck to complain about memcpy-ing objects
+             circumventing assignment.  Must still see why the recursion occurs.
+           - The earlier assignment was ill motivated and did not actually change the caller's
+             win_xd for Xamine_CreatexdDefault.... functions as it just did pointer assignment
+             rather than actually transferring the attributes to the caller.  This resulted in 
+             unconditionally using a scatter plot rendition rather than the more usual color.
+
+
        

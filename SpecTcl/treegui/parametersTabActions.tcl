@@ -95,6 +95,8 @@ package provide parametersTabActions 1.0
 	return $result
     }
 
+
+
     #-----------------------------------------------------------------------------
     #  Dialogs:
 
@@ -241,7 +243,7 @@ package provide parametersTabActions 1.0
 
 	    if {[llength $spectra] > 0} {
 		if {[promptChangeOk $spectra]} {
-		    return
+
 		    modifySpectra $spectra $path $bins $low $hi
 		}
 	    } else {

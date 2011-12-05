@@ -37,6 +37,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <sys/types.h>
 #include <fcntl.h>
@@ -199,6 +200,9 @@ XMWidget* Xamine_TopLevel;	// Point to the top level widget.
 
 int main(int argc, char **argv)
 {
+
+  //  sleep(30);			// 30 seconds to attach a debugger.
+
   XMApplication top("Xamine", reinterpret_cast<Cardinal*>(&argc), argv); /* Top level/init ap. */
   XMMainWindow main_win("MainWindow", top, NULL, 0); /* Main window widget. */
   XMForm       work_area("WorkArea", main_win);
