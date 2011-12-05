@@ -67,6 +67,7 @@ class win_geometry {
 		   public:
 		      win_geometry(int nx=1, int ny=1)
 			{ setgeometry(nx,ny); }
+		      virtual ~win_geometry() {}
 		      int nx() {return win_nx;}
 		      int ny() {return win_ny;}
 		      void setx(int nx) { win_nx = nx; }
