@@ -223,7 +223,36 @@ package provide parametersTabActions 1.0
 
 	}
     }
-    
+    ##
+    # List the parameters that match a parameter array given a sample parameter in the array.
+    # We require that the suffixes on the parameter be numeric.
+    # @param sampleName - An element of the array.
+    # @return list
+    # @retval Parameters in the array...if this is empty, sampleName was not an array element.
+    #
+    private method listArrayElements sampleName {
+
+	# So happens that the last element in the path looks like a file extension so
+	# we can use [file rootname] to get the rest of it.
+	set prefix [file rootname $sampleName]
+	set prefixlen [llength [split $prefix .]]
+	append prefix .
+
+	set candidates [treeparameter -list $prefix*]; # list only the stuff that starts out right.
+
+	# For matching purposes we need to 
+
+	set result [list]
+	foreach candidate $candidates {
+	    set name [lindex $candidate 0]
+	    set end [join [lrange [split $name .] $prefixlen end]]
+
+	    if {[regexp -- {^\.([0-9])+$} .$end]} {
+		lappend result $name
+	    }
+	}
+	return  $result
+    }
 
     #-----------------------------------------------------------------------------
     #  Dialogs:
@@ -319,6 +348,7 @@ package provide parametersTabActions 1.0
     public method setParameter {slot} {
 	set contents [$widget get $slot]
 	set path     [lindex $contents 0]
+
 
 	# If there is no tree parameter by this name, we don't need
 	# to do anything:
