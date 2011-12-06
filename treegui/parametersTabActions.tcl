@@ -254,6 +254,38 @@ package provide parametersTabActions 1.0
 	return  $result
     }
 
+    ##
+    # Get the parameters list affected if an array checkbox might expand the list:
+    # @param path - the path of the parameter we are possibly expanding.
+    # @return list
+    # @retval actual set of affected parameters.
+    # @note the -array configuration option of the editor widget determines
+    #       whether or not we can expand the list.
+    # @note If array is checked but the parameter is not an array element the parameter
+    #       itself is returned.
+    #
+    private method getTargetParameters path {
+	    # 
+	    #  If the array button is checked we need to do
+	    #  This for a bunch of parameters potentially
+	    #
+
+	    if {[$widget cget -array]} {
+		set parameters [listArrayElements $path]
+
+		# If the list is empty, then treat this as if the
+		# parameter is not an array and it's as if the array checkbox was
+		# not selected:
+
+		if {[llength $parameters] == 0} {
+		    set parameters [list $path]
+		}
+	    } else {
+		set parameters [list $path]
+	    }
+	    return $parameters
+    }
+
     #-----------------------------------------------------------------------------
     #  Dialogs:
 
@@ -367,7 +399,16 @@ package provide parametersTabActions 1.0
 
 	    set inc [expr {(1.0*$hi - $low)/$bins}]
 
-	    treeparameter -set $path $bins $low $hi $inc $units
+	    # Enumerate the paths to set.  If the
+	    # array checkbutton is checked we must treat this as
+	    # an array.
+
+	    set parameters [getTargetParameters $path]
+
+	    
+	    foreach parameter $parameters {
+		treeparameter -set $parameter $bins $low $hi $inc $units
+	    }
 	    
 	}
     }
@@ -395,14 +436,38 @@ package provide parametersTabActions 1.0
 	    set low  [lindex $currentInfo 2]
 	    set hi   [lindex $currentInfo 3]
 
-	    set spectra [listDependentSpectra $path]
+	    # Potentially expand the parameter list:
+
+	    set parameters [getTargetParameters $path]
+
+	    # We need to figure out
+	    # - The set of spectra that depend on each parameter in the list.
+	    # - The merged set of spectra we'll modify.
+	    # This will be done by creating an array indexed by spectrum to be
+	    # modified with a list of parameters that cause the spectrum to be modified
+	    # as the value:
+	    #
+	    array set spectraModified [list]
+	    foreach parameter $parameters {
+		set spectra [listDependentSpectra $parameter]
+		foreach spectrum $spectra {
+		    lappend spectraModified($spectrum) $parameter
+		}
+	    }
+	    # The list of specta modified is therefore:
+
+	    set spectra [array names spectraModified]
 
 	    # Get confirmation:
 
 	    if {[llength $spectra] > 0} {
 		if {[promptChangeOk $spectra]} {
 
-		    modifySpectra $spectra $path $low $hi
+		    foreach spectrum [array names spectraModified] {
+			foreach parameter $spectraModified($spectrum) {
+			    modifySpectra $spectrum $parameter $low $hi
+			}
+		    }
 		}
 	    } else {
 		notifyNoMatches
