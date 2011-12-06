@@ -55,10 +55,10 @@ snit::widget gateSelBar {
 
 	#  Create the widgets...where possible ttk widgets are used.
 	#
-	ttk::button $win.update -text "Update Gate List" -command [mymethod dispatch -updatecmd]
+	ttk::button $win.update  -text "Update Gate List" -command [mymethod dispatch -updatecmd]
 	ttk::label  $win.masklbl -text "Gate Mask"
-	ttk::entry  $win.mask   -width 32 
-	ttk::button $win.clear -text Clear -command [mymethod clearMask]
+	ttk::entry  $win.mask    -width 32 
+	ttk::button $win.clear   -text Clear -command [mymethod clearMask]
 
 	# All key releases in the mask dispatch to -maskcmd.
 
