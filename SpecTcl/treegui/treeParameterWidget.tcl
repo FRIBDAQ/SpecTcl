@@ -39,6 +39,12 @@ package provide treeParameterEditor 1.0
 #
 # METHODS:
 #   resetChanged   - Turn off changed flag (this can be done by save).
+# BINDINGS
+#   <Tab> Moves focus forward to the next field (ring style).
+#   <Shift-Tab> Moves the focus forward to the next field.
+#   <Return> Moves the focus forward to the next field.
+#   <Right>   Moves focus forward to the next field.
+#   <Left>    Moves focus back to the prior field.
 #
 #
 
@@ -53,6 +59,14 @@ snit::widget treeParameterEditor {
     option -setcmd    [list]
     option -changecmd [list]
     option -title     false;	# If true titles are put above the text entries.
+
+    # The variable below is the focus order ring:
+    # It allows us to build methods focusLeft and focusRight that shift focus
+    # the appropriate direction around the ring.
+    # Note that $win is not necessarily defined here so we just put the widget
+    # name tails:
+
+    variable focusRing [list .name .low .high .unit]
 
 
     ##
@@ -76,14 +90,25 @@ snit::widget treeParameterEditor {
 	    set editorRow 1
 	}
 
-	# First the labels:
+	# First the entries... set the bindings on them as well:
 
-	foreach label [list .name .low .high .unit] optionname [list -name -low -high -units] \
+	foreach entry [list .name .low .high .unit] optionname [list -name -low -high -units] \
 	    width [list 32 5 5 10] {
-	    ::ttk::entry $win$label -textvariable ${selfns}::options($optionname) \
-		-width $width
-	}
+		::ttk::entry $win$entry -textvariable ${selfns}::options($optionname) \
+		    -width $width
+		
+            # Bindings that move focus right:
 
+	    foreach binding [list <Tab> <Return> <Right>] {
+		bind $win$entry $binding [list after 2 [mymethod focusRight $entry]]
+	    }
+	    # Bindings that move focus left:
+
+	    foreach binding [list <Shift-Tab> <Left> <ISO_Left_Tab>] {
+		bind $win$entry $binding [list after 2 [mymethod focusLeft $entry]]
+	    }
+	}
+	
 	# then the buttons:
 
 	foreach button [list .load .set .changespectra] \
@@ -125,4 +150,27 @@ snit::widget treeParameterEditor {
 	}
     }
 
+    ##
+    # Change focus to the  next widget in the ring.
+    # @param tail tail of current widgetname... actual widget is $win.$tail
+    #
+    method focusRight tail {
+	set currentIndex [lsearch -exact $focusRing $tail]
+	set nextIndex    [expr {($currentIndex+1) % [llength $focusRing]}]
+	set nextWidget   $win[lindex $focusRing $nextIndex]
+
+	focus $nextWidget
+    }
+    ##
+    # Change the focus to the prior widget in the focus ring.
+    # @param tail 
+    #
+    method focusLeft tail {
+	set currentIndex [lsearch -exact $focusRing $tail]
+	set nextIndex    [expr {($currentIndex-1) % [llength $focusRing]}]
+	set nextWidget   $win[lindex $focusRing $nextIndex]
+
+	focus $nextWidget
+
+    }
 }
