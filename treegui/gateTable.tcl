@@ -131,6 +131,27 @@ snit::widget gateTable {
 	bind $win.t <Double-1> [mymethod onDoubleClick %x %y]
 				
     }
+
+    #----------------------------------------------------
+    #
+    # Public methods:
+
+    ##
+    # Gets the names of the gates that are currently
+    # selected.
+    # @return list
+    # @retval possibly empty list consisting of the names
+    #         of the selected gates.
+    #
+    method getsel {} {
+	set result [list]
+	set items [$win.t selection]
+	foreach item $items {
+	    lappend result [lindex [$win.t item $item -values] 0]
+	}
+	return $result
+    }
+
     #---------------------------------------------------------------------------------
     # Event handling for internal callbacks.
     
