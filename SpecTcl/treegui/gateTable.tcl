@@ -79,7 +79,12 @@ snit::widget gateTable {
     variable uparrow
     variable downarrow
 
- 
+    # Variables used to keep track of mouse motion.
+    #
+    variable lastX    0
+    variable lastY    0
+    variable lastItem [list]
+
     
 
 
@@ -129,6 +134,10 @@ snit::widget gateTable {
 	# Add the bindings:
 
 	bind $win.t <Double-1> [mymethod onDoubleClick %x %y]
+
+	bind $win.t <ButtonPress-1>   [mymethod StartDrag %x %y]
+ 	bind $win.t <B1-Motion>       [mymethod DragTo %x %y]
+
 				
     }
 
@@ -218,6 +227,70 @@ snit::widget gateTable {
 	# schedule a tree update.
 
 	$self ScheduleUpdate
+    }
+
+    ##
+    # Invoked as a result of a button-1 down.
+    # This establishes the starting point of a drag
+    # Specifically, lastX, lastY are set as is lastItem
+    # @param x - widget relative x position of pointer.
+    # @param y - widget relative y position of the pointer
+
+    method StartDrag {x y} {
+	set lastX $x
+	set lastY $y
+	set lastItem [$win.t identify row $x $y]
+    }
+    ##
+    # Invoked as a result of a button 1 drag.
+    # How the selection changes depends on a bunch-o-stuff.
+    # Changes in general happen when we enter a new item.
+    # - If we are entering a selected item and the item
+    #   away from the direction of motion after the left item
+    #   was not selected, we unselect the last item.
+    # - Otherwise we add the entered item to the selection.
+    # 
+    # Regardless, lastX, lastY, lastItem are updated.
+    #
+    # @param x,y - widget relative position of the pointer.
+    #
+    method DragTo {x y} {
+	
+	set item [$win.t identify row $x $y]
+	if {$item ne $lastItem} {
+
+	    # figure out which direction we're moving.
+
+	    set dy [expr $y - $lastY]
+	    if {$dy < 0} {
+		set direction up
+	    } else {
+		set direction down
+	    }
+	    # if the new item is not in the selection
+	    # it should be added:
+
+	    set selection [$win.t selection]
+	    if {$item ni $selection} {
+		$win.t selection add $item
+	    } else {
+		# Figure out if lastItem needs to be
+		# deselected
+
+		if {$direction eq "up"} {
+		    set op next
+		} else {
+		    set op prev
+		}
+		set awayItem [$win.t $op $lastItem]
+		if {$awayItem ni $selection} {
+		    $win.t selection remove $lastItem
+		}
+	    }
+	}
+	set lastX $x
+	set lastY $y
+	set lastItem $item
     }
 
     #---------------------------------------------------------------------------------
