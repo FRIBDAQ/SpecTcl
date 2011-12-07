@@ -50,7 +50,7 @@ package provide gateTable 1.0
 snit::widget gateTable {
     option -gates         -default [list] -configuremethod SetGates
     option -sortfield     -default name   -configuremethod SetSortField
-    option -sortdirection ascending
+    option -sortdirection -default ascending -configuremethod SetSortDirection
     option -command       [list]
 
     delegate option * to tree
@@ -90,13 +90,16 @@ snit::widget gateTable {
     # @param args - option name value pairs that configure the widget.
 
     constructor args {
-	
-	set img [image create photo -file uparrow.gif]
+
+	set dirname [file dirname [info script]]
+	set img [image create photo \
+		     -file [file join $dirname uparrow.gif]]
 	set uparrow   [image create photo]
 	$uparrow copy $img -subsample 40 40
 	image  delete $img
 
-	set img [image create photo -file downarrow.gif]
+	set img [image create photo \
+		     -file [file join $dirname downarrow.gif]]
 	set downarrow [image create photo]
 	$downarrow copy $img -subsample 40 40
 	image delete $img
@@ -211,7 +214,7 @@ snit::widget gateTable {
 	$self ScheduleUpdate
     }
     ##
-    # Called to set a new sort field value programmaticall.
+    # Called to set a new sort field value programmatically.
     # - options(-sortfield) is updated to match.
     # - The  appropriate column is given a sorting glyph.
     # - A display update is schduled.
@@ -223,7 +226,7 @@ snit::widget gateTable {
 
 	# Be sure this a valid column name:
 
-	if {[lsearch [list name type definition] $value] == -1} {
+	if {$value ni [list name type definition]} {
 	    error "Invalid sortcolumn $value"
 	}
 
@@ -236,6 +239,26 @@ snit::widget gateTable {
 
 	$self ScheduleUpdate
     }
+    ##
+    # Called to set a new sort direction programatically
+    # - options(-sortdirection) is updated.
+    # - the appropriate columns sort glyph is modified.
+    # - an update is scheduled.
+    #
+    method SetSortDirection {option value} {
+
+	# be sure the sort direction is valid:
+	
+	if {$value ni [list ascending descending]} {
+	    error "Invalid sort direction $value"
+	}
+	# Now everything should work just fine:
+
+	set options($option) $value
+	$self MarkSortColumn $options(-sortfield) $value
+	$self ScheduleUpdate
+    }
+
 
     #---------------------------------------------------------------------------------
     # Internal methods
