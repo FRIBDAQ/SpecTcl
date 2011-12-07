@@ -49,19 +49,12 @@ package provide gateTable 1.0
 # 
 snit::widget gateTable {
     option -gates         -default [list] -configuremethod SetGates
-    option -sortfield     name
+    option -sortfield     -default name   -configuremethod SetSortField
     option -sortdirection ascending
     option -command       [list]
 
     delegate option * to tree
-
-    # Several options can schedule a repopulation of the tree.
-    # Rather than do all of those operations, updates are scheduled
-    # and this variable is non-zero if an upate is already scheduled.
-    # zero if it is
-
-    variable updatePending 0;	# True if an update has been scheduled.
-
+    delegate method * to tree
     #  This variable is an array that maps field names to gate indices:
 
     typevariable fieldMap -array {
@@ -74,6 +67,19 @@ snit::widget gateTable {
 	descending -decreasing
     }
 
+    # Several options can schedule a repopulation of the tree.
+    # Rather than do all of those operations, updates are scheduled
+    # and this variable is non-zero if an upate is already scheduled.
+    # zero if it is
+
+    variable updatePending 0;	# True if an update has been scheduled.
+    
+    #Images used to label the column sort order
+
+    variable uparrow
+    variable downarrow
+
+ 
     
 
 
@@ -85,16 +91,27 @@ snit::widget gateTable {
 
     constructor args {
 	
+	set img [image create photo -file uparrow.gif]
+	set uparrow   [image create photo]
+	$uparrow copy $img -subsample 40 40
+	image  delete $img
+
+	set img [image create photo -file downarrow.gif]
+	set downarrow [image create photo]
+	$downarrow copy $img -subsample 40 40
+	image delete $img
+
+
 	# Build the widgets.
 	set headings [list Name Type Definition]
 	install tree using ttk::treeview $win.t -columns $headings -selectmode extended -show headings \
 	    -yscrollcommand [list $win.s set]
 	foreach column $headings {
-	    $win.t heading $column -text $column -command [mymethod changeSort $column] -anchor w
+	    $win.t heading $column -text $column  -command [mymethod changeSort $column] -anchor w
 	}
 	ttk::scrollbar $win.s -command [list $win.t yview]
-xc
 
+	$win.t heading Name -image $uparrow
 
 	# Lay them out
 
@@ -106,11 +123,42 @@ xc
 
 	$self configurelist $args
 
+	# Add the bindings:
+
+	bind $win.t <Double-1> [mymethod onDoubleClick %x %y]
+				
     }
     #---------------------------------------------------------------------------------
     # Event handling for internal callbacks.
+    
+    
+    ##
+    # Handle double clicks of the mouse.
+    # We only need to do something if there is a callback
+    # script.  In that case;
+    # - figure out the name of the item that was clicked.
+    # - If necessary substitute it into the script for 
+    #   %N occurences.
+    # - invoke the script at level 0.
+    # @param x - window relative x position of the click.
+    # @param y - window relative y positinoof the click.
     #
+    method onDoubleClick {x y} {
+	set script $options(-command)
 
+	if {$script ne ""} {
+	    set item [$win.t identify row  $x $y]
+	    if {$item ne ""} {
+		set data [$win.t item $item -values]
+		set name [lindex $data 0]
+
+		regsub "%N" $script $name script
+		uplevel #0 $script
+	    }
+	}
+    }
+    
+    
     ##
     # Change the sort field/order and schedule an update.
     # This method is called in response to a click on a column header.
@@ -141,7 +189,7 @@ xc
 
 	# Mark the sort column with the appropriate indicator.
 	
-	# $self MarkSortColumn
+        $self MarkSortColumn $field $options(-sortdirection)
 
 	# schedule a tree update.
 
@@ -159,6 +207,32 @@ xc
     #
     method SetGates {option value} {
 	set options($option) $value
+
+	$self ScheduleUpdate
+    }
+    ##
+    # Called to set a new sort field value programmaticall.
+    # - options(-sortfield) is updated to match.
+    # - The  appropriate column is given a sorting glyph.
+    # - A display update is schduled.
+    # @param option - name of the configuration option.
+    #        this must be -sortfield.
+    # @param value - new value of the option
+    # 
+    method SetSortField {option value} {
+
+	# Be sure this a valid column name:
+
+	if {[lsearch [list name type definition] $value] == -1} {
+	    error "Invalid sortcolumn $value"
+	}
+
+	# no error so save the option, mark the column
+	# and update the widget.
+
+	set options($option) $value
+
+	$self MarkSortColumn $value $options(-sortdirection)
 
 	$self ScheduleUpdate
     }
@@ -212,5 +286,31 @@ xc
 	set sortIndex $fieldMap($options(-sortfield))
 	set sortDirection $sortMap($options(-sortdirection))
 	return [lsort $sortDirection -index $sortIndex -ascii $options(-gates)]
+    }
+    ##
+    #
+    # - Remove all sorting glyphs from all columns.
+    # - Mark the sorting column with the proper glyph.
+    # @param col - Colum that is being sorted.
+    # @param dir - Sort direction (ascending, descending)
+    #
+    method MarkSortColumn {col dir} {
+	
+	# Select the glyph:
+	
+	if {$dir eq "ascending"} {
+	    set image $uparrow
+	} else {
+	    set image $downarrow
+	}
+	foreach column [list Name Type Definition] {
+	    set c [string tolower $column]
+	    if {$c eq $col} {
+		$win.t heading $column -image $image
+	    } else {
+		$win.t heading $column -image [list]
+	    }
+	}
+
     }
 }   
