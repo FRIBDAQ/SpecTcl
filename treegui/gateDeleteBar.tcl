@@ -45,7 +45,7 @@ snit::widget gateDeleteBar {
 	ttk::button $win.delall -text "Delete All" \
 	    -command [mymethod Dispatch -deleteall]
 
-	grid $win.delsel $win.delall -sticky ew
+	grid $win.delsel $win.delall -sticky w
     }
 
     ##
