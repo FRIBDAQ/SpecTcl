@@ -30,6 +30,7 @@ package provide gateSelBar 1.0
 #  OPTIONS
 #     -updatecmd  - Script to run when the "Update Gate List" button is clicked.
 #     -maskcmd    - Script to run when the gate mask changes.
+#     -mask       - Current value of the mask.
 #
 #  Note that if the Clear button is clicked it will set the Gate mask to
 #  * autonomously and invoke the -maskcmd script.
@@ -43,6 +44,7 @@ snit::widget gateSelBar {
 
     option -updatecmd [list]
     option -maskcmd   [list]
+    option -mask -readonly true -cgetmethod GetMask
 
 
     ##
@@ -73,7 +75,17 @@ snit::widget gateSelBar {
 
 	$win.mask insert 0 *
     }
+    #------------------------------------------------------------------------
+    # Configuration management.
 
+    ##
+    # Retrieve the current value of the mask
+    #
+    # @param option - the option to retrieve ..must be -mask
+    #
+    method GetMask option {
+	return [$win.mask get]
+    }
     #--------------------------------------------------------------------------
     #  Event handlers:
 
@@ -87,7 +99,7 @@ snit::widget gateSelBar {
 
 	if {$script ne ""} {
 	    
-	    regsub "%M" $script [$win.mask get] script
+	    regsub "%M" $script [list [$win.mask get]] script
 	    uplevel #0 $script
 	}
     }
