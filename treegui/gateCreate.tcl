@@ -18,7 +18,7 @@ package require Tk
 package require snit
 package require treemenuWidget
 
-package provide gateCreate
+package provide gateCreate 1.0
 
 ##
 # Provides a megawidget for creating gates.
@@ -58,8 +58,8 @@ snit::widget gateCreate {
     option -createcmd
     option -gatename
     option -definition
-    option -type
-    option -typename
+    option -type  -configuremethod SetTypename
+    option -typename -configuremethod SetType
     option -gates -configuremethod SetGates 
 
     # Dictionary whose keys populate the gate type menu
@@ -172,6 +172,41 @@ snit::widget gateCreate {
 
 	destroy $win.gatesel.gates
 	treeMenu $win.gatesel.gates -command [mymethod AddDependency %N] -items $value
+    }
+    ## Modify the -typename option this option is coupled to the -tyep option
+    # Via the gateTypes dict.
+    #
+    # @param option - the option being modified: -typename.
+    # @param value  - the new value.
+    #
+    method SetType {option value} {
+	# Ensure the value is legal:
+
+	if {![dict exists $gateTypes $value]} {
+	    error "$value is not a valid gate type string"
+	}
+
+	set options($option) $value
+	set optinos(-type)   [dict get $gateTypes $value]
+    }
+    ##
+    # Modify the -type option.  This option is coupled to the -typename option
+    # via the gateTypes dict
+    # -type are values and -typename s are keys to that dict.
+    # 
+    # @param option - the option being modified (-type).
+    # @param value - new value.
+    #
+    method SetTypename {option value} {
+	#
+	# The value must exist in the dict:
+
+	set subdict [dict filter $gateTypes value $value]
+	if {[llength $subdict] == 0} {
+	    error "$value is not a valid SpecTcl gate type"
+	}
+	set options($option) $value
+	set options(-typename) [lindex [dict keys $subdict] 0]
     }
 
     #--------------------------------------------------------------------

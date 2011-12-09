@@ -118,7 +118,17 @@ snit::widget gateTable {
 	    $win.t heading $column -text $column  -command [mymethod changeSort $column] -anchor w
 	}
 	ttk::scrollbar $win.s -command [list $win.t yview]
+	#
+	# Make the gate type column thin an set the Definition column to stretch
+	# Put the additional pixels into the definition column
 
+	set originalDef [$win.t column Definition -width]
+	set typeWidth   [$win.t column Type -width]
+	incr originalDef [expr {$typeWidth - 50}]
+
+	$win.t column Type -width 50; # Too bad this can't be in chars.
+	$win.t column Definition -stretch true -width $originalDef
+	
 	$win.t heading Name -image $uparrow
 
 	# Lay them out
@@ -416,9 +426,9 @@ snit::widget gateTable {
 	# Select the glyph:
 	
 	if {$dir eq "ascending"} {
-	    set image $uparrow
-	} else {
 	    set image $downarrow
+	} else {
+	    set image $uparrow
 	}
 	foreach column [list Name Type Definition] {
 	    set c [string tolower $column]

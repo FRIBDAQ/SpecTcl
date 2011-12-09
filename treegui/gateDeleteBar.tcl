@@ -15,7 +15,7 @@
 package require Tk
 package require snit
 
-package provide gateDeleteBar
+package provide gateDeleteBar 1.0
 
 ##
 # Provides a megawidget that contains the 
@@ -27,6 +27,7 @@ package provide gateDeleteBar
 #
 # 
 snit::widget gateDeleteBar {
+    hulltype ttk::frame
     option -deleteselected -default [list]
     option -deleteall      -default [list]
 
@@ -45,7 +46,8 @@ snit::widget gateDeleteBar {
 	ttk::button $win.delall -text "Delete All" \
 	    -command [mymethod Dispatch -deleteall]
 
-	grid $win.delsel $win.delall -sticky w
+	grid $win.delsel -sticky w
+	grid $win.delall -row 0 -column 1 -sticky e
     }
 
     ##
