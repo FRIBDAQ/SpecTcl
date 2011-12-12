@@ -67,6 +67,7 @@ itcl::class variableTabActions {
 	}
     }
 
+
     #--------------------------------------------------------------------
     # public interface
 
@@ -82,7 +83,8 @@ itcl::class variableTabActions {
 	}
 
 	treeVariableContainer $widget -lines $lines  -selectcmd [list $this LoadVariable %N %I] \
-	    -variables [$this treeVariableNames]
+	    -variables [$this treeVariableNames] \
+	    -loadcmd   [list $this LoadVariable %N %I]
     }
 
 

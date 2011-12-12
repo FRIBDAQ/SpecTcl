@@ -46,6 +46,12 @@ package provide treeVariableEditor 1.0
 #                  a variable.  Substitutions include the normal substitutions available to 
 #                  tree menu widgets (%W - which is our widget, however, %L  menu label.
 #                  %N full path to the menu as well as %I - Currently selected editor line.
+#    -loadcmd    - script that is invoked when the load button is clicked.
+#                  Substitutions include:
+#                    -  %N name of widget loaded into the editor.
+#                    -  %I Index of the editor that invoked this.
+#                    -  %W $win.
+#
 # METHODS:
 #   loadEditor - Loads the contents of a specific editor.
 
@@ -55,6 +61,7 @@ snit::widget treeVariableEditor {
     option -lines     -default 20
     option -current   -default 1
     option -selectcmd -default [list]
+    option -loadcmd   -default [list]
 
     ##
     #Create/layout the widgets and set up the callbacks and bindings.
@@ -83,7 +90,7 @@ snit::widget treeVariableEditor {
 	    ttk::entry       $win.name$row  -width 32
 	    ttk::entry       $win.value$row -width 10
 	    ttk::entry       $win.units$row -width 10
-	    ttk::button      $win.load$row  -text Load
+	    ttk::button      $win.load$row  -text Load -command [mymethod ReloadDispatch $row]
 	    ttk::button      $win.set$row   -text Set
 
 	    grid $win.radio$row $win.name$row $win.value$row $win.units$row $win.load$row $win.set$row
@@ -143,6 +150,21 @@ snit::widget treeVariableEditor {
 	$self Dispatch $script [list %W %L %N %I] [list $win $label $path $options(-current)]
     }
     
+    ##
+    # ReloadDispatch - dispatches the -loadcmd.  See the comment header for the set of 
+    # substitutions supported.
+    #
+    #  @param row - Number of the selected editor.
+    #
+    method ReloadDispatch row {
+	set name [$win.name$row get]
+
+	# Only dispatch if there's a non-empty name:
+
+	if {$name ne ""} {
+	    $self Dispatch $options(-loadcmd) [list %W %N %I] [list $win $name $row]
+	}
+    }
     #---------------------------------------------------------------------
     # Private utilities.
     #
