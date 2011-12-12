@@ -46,7 +46,8 @@ package provide treeVariableEditor 1.0
 #                  a variable.  Substitutions include the normal substitutions available to 
 #                  tree menu widgets (%W - which is our widget, however, %L  menu label.
 #                  %N full path to the menu as well as %I - Currently selected editor line.
-#
+# METHODS:
+#   loadEditor - Loads the contents of a specific editor.
 
 snit::widget treeVariableEditor {
     hulltype ttk::frame
@@ -87,8 +88,27 @@ snit::widget treeVariableEditor {
 
 	    grid $win.radio$row $win.name$row $win.value$row $win.units$row $win.load$row $win.set$row
 	}
-
     }
+    #------------------------------------------------------------------------------
+    #  Public methods:
+
+    ##
+    # Load an editor with a tree parameter:
+    # @param editor - index of the specific editor.
+    # @param name   - Name of the tree variable.
+    # @param value  - Value of the tree variable.
+    # @param units  - Units of the tree variable.
+    #
+
+    method loadEditor {editor name value units} {
+	foreach widget [list $win.name$editor $win.value$editor $win.units$editor] \
+	    value  [list $name $value $units] {
+	   $widget delete 0 end
+	   $widget insert 0 $value
+	}
+    }
+
+
     #-------------------------------------------------------------------------------
     #
     #  Configuration handlers:

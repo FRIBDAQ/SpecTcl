@@ -38,6 +38,8 @@ snit::widget treeVariableContainer {
     delegate option -current   to editors
     delegate option -selectcmd to editors
 
+    delegate method loadEditor to editors
+    
     ##
     # install the components and lay them out.
     #
