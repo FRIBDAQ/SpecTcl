@@ -15,6 +15,7 @@
 package require Tk
 package require Itcl
 package require treeParametersContainer
+package require treeUtilities
 
 package provide parametersTabActions 1.0
 
@@ -40,19 +41,6 @@ package provide parametersTabActions 1.0
     # Private Methods:
     # 
 
-    ##
-    # Get a list of the tree parameter names:
-    #
-    private method parameterList {} {
-	set treeParameters [treeparameter -list]
-	set result [list]
-
-	foreach param $treeParameters {
-	    lappend result [lindex $param 0]
-	}
-	
-	return $result
-    }
 
     ##
     # Load a specific parameter slot with data:
@@ -232,26 +220,8 @@ package provide parametersTabActions 1.0
     #
     private method listArrayElements sampleName {
 
-	# So happens that the last element in the path looks like a file extension so
-	# we can use [file rootname] to get the rest of it.
-	set prefix [file rootname $sampleName]
-	set prefixlen [llength [split $prefix .]]
-	append prefix .
+	return [::treeutility::listArrayElements $sampleName [list $this parameterList]]
 
-	set candidates [treeparameter -list $prefix*]; # list only the stuff that starts out right.
-
-	# For matching purposes we need to 
-
-	set result [list]
-	foreach candidate $candidates {
-	    set name [lindex $candidate 0]
-	    set end [join [lrange [split $name .] $prefixlen end]]
-
-	    if {[regexp -- {^\.([0-9])+$} .$end]} {
-		lappend result $name
-	    }
-	}
-	return  $result
     }
 
     ##
@@ -474,6 +444,19 @@ package provide parametersTabActions 1.0
 	    }
 	}
 
+    }
+    ##
+    # Get a list of the tree parameter names:
+    #
+    public method parameterList {{pattern *}} {
+	set treeParameters [treeparameter -list $pattern]
+	set result [list]
+
+	foreach param $treeParameters {
+	    lappend result [lindex $param 0]
+	}
+	
+	return $result
     }
 }
 

@@ -48,9 +48,17 @@ package provide treeVariableEditor 1.0
 #                  %N full path to the menu as well as %I - Currently selected editor line.
 #    -loadcmd    - script that is invoked when the load button is clicked.
 #                  Substitutions include:
-#                    -  %N name of widget loaded into the editor.
+#                    -  %N name of variable loaded into the editor.
 #                    -  %I Index of the editor that invoked this.
 #                    -  %W $win.
+#    -setcmd     - Script that is invoked when the Set button is clicked. The following substitutions
+#                  are supported:
+#                    %N - name loaded into the editor.
+#                    %V - Value loaded into the editor.
+#                    %U - Units loaded into the editor.
+#                    %I - Index of the selected editor.
+#                    %W - Widget of the selected editor.
+#    -array      - 0 if the array check button is off 1 otherwise.
 #
 # METHODS:
 #   loadEditor - Loads the contents of a specific editor.
@@ -62,6 +70,8 @@ snit::widget treeVariableEditor {
     option -current   -default 1
     option -selectcmd -default [list]
     option -loadcmd   -default [list]
+    option -setcmd    -default [list]
+    option -array     -default 0
 
     ##
     #Create/layout the widgets and set up the callbacks and bindings.
@@ -77,7 +87,8 @@ snit::widget treeVariableEditor {
 	ttk::label $win.name -text  Name
 	ttk::label $win.value -text Value
 	ttk::label $win.units -text Units
-	ttk::checkbutton $win.array -offvalue 0 -onvalue 1 -text Array
+	ttk::checkbutton $win.array -offvalue 0 -onvalue 1 -text Array -variable \
+	    ${selfns}::options(-array)
 
 	$self configurelist $args
 
@@ -91,7 +102,7 @@ snit::widget treeVariableEditor {
 	    ttk::entry       $win.value$row -width 10
 	    ttk::entry       $win.units$row -width 10
 	    ttk::button      $win.load$row  -text Load -command [mymethod ReloadDispatch $row]
-	    ttk::button      $win.set$row   -text Set
+	    ttk::button      $win.set$row   -text Set  -command [mymethod SetVariable $row]
 
 	    grid $win.radio$row $win.name$row $win.value$row $win.units$row $win.load$row $win.set$row
 	}
@@ -163,6 +174,18 @@ snit::widget treeVariableEditor {
 
 	if {$name ne ""} {
 	    $self Dispatch $options(-loadcmd) [list %W %N %I] [list $win $name $row]
+	}
+    }
+    ##
+    # Dispatch the -setcmd script.  See the header comments for the supported substitutions.
+    # @param index - Index of the editor that was involved.
+    #
+    method SetVariable index {
+	set name [$win.name$index get]
+	if {$name ne ""} {
+	    set value [$win.value$index get]
+	    set units [$win.units$index get]
+	    $self Dispatch $options(-setcmd) [list %N %V %U %I %W] [list $name $value $units $index $win]
 	}
     }
     #---------------------------------------------------------------------

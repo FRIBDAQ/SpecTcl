@@ -31,23 +31,8 @@ itcl::class variableTabActions {
     public variable widget 
     public variable lines 20
     
-    #------------------------------------------------------------------
-    # Private support functions.
 
-    ##
-    # Return a list of the tree  variable names.
-    # @return list
-    # @retval list of tree variable names.
 
-    private method treeVariableNames {} {
-	set result [list]
-
-	foreach variable [treevariable -list] {
-	    lappend result [lindex $variable 0]
-	}
-
-	return $result
-    }
 
     #-------------------------------------------------------------------
     # Callbacks (note these must be public to work
@@ -67,7 +52,50 @@ itcl::class variableTabActions {
 	}
     }
 
+    ##
+    # Set new tree variable specifications.
+    # @param name  - Name of the tree variable.
+    # @param value - New value.
+    # @param units - New units.
+    #
+    method SetVariable {name value units} {
+	# Get the correct set of variables to modify depending o the state of the array checkbox.
 
+	if {[$widget cget -array]} {
+
+	    set names [::treeutility::listArrayElements $name [list $this treeVariableNames]]
+	} else {
+	    set names [list $name]
+
+	}
+
+	# Loop over the names we need to process.
+
+	foreach name $names {
+
+	    # The tree parameter must exist:
+	    set definition [treevariable -list $name]
+	    if {[llength $definition] != 0} {
+		treevariable -set $name $value $units
+		treevariable -firetraces $name
+	    }
+	}
+    }
+    ##
+    # Return a list of the tree  variable names.
+    # @return list
+    # @retval list of tree variable names.
+
+    public method treeVariableNames {{pattern *}} {
+	set result [list]
+
+	foreach variable [treevariable -list $pattern] {
+	    lappend result [lindex $variable 0]
+	}
+
+	return $result
+    }
+    
     #--------------------------------------------------------------------
     # public interface
 
@@ -84,7 +112,8 @@ itcl::class variableTabActions {
 
 	treeVariableContainer $widget -lines $lines  -selectcmd [list $this LoadVariable %N %I] \
 	    -variables [$this treeVariableNames] \
-	    -loadcmd   [list $this LoadVariable %N %I]
+	    -loadcmd   [list $this LoadVariable %N %I] \
+	    -setcmd    [list $this SetVariable %N %V %U]
     }
 
 
