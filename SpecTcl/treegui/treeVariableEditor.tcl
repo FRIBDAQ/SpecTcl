@@ -118,7 +118,6 @@ snit::widget treeVariableEditor {
     # @param path  - Path to the selected item.
     #
     method SelectVariable {label path} {
-	puts "SelectVariable"
 	set script $options(-selectcmd)
 
 	$self Dispatch $script [list %W %L %N %I] [list $win $label $path $options(-current)]
@@ -136,13 +135,10 @@ snit::widget treeVariableEditor {
     # @pram  values - For each element of substs a value that can be plugged into the script
     #
     method Dispatch {script substs values} {
-	puts Dispatch
 	if {$script ne ""} {
-	    puts non-null
 	    foreach subst $substs value $values {
 		regsub -all  $subst $script $value script
 	    }
-	    puts $script
 	    uplevel #0 $script
 	}
     }
