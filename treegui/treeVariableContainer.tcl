@@ -38,6 +38,8 @@ snit::widget treeVariableContainer {
     delegate option -current   to editors
     delegate option -selectcmd to editors
     delegate option -loadcmd   to editors
+    delegate option -setcmd    to editors
+    delegate option -array     to editors
 
     delegate method loadEditor to editors
     
