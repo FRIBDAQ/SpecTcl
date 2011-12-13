@@ -62,6 +62,10 @@ package provide treeVariableEditor 1.0
 #
 # METHODS:
 #   loadEditor - Loads the contents of a specific editor.
+# AUTONOMOUS ACTIONS:
+#   Tab, Return, Right  navigates circularly on the editor in focus to the right
+#   Shift-Tab, Left ISO_Left_Tab navigates circularly on the editor in focus to the left.
+#   
 
 snit::widget treeVariableEditor {
     hulltype ttk::frame
@@ -105,6 +109,23 @@ snit::widget treeVariableEditor {
 	    ttk::button      $win.set$row   -text Set  -command [mymethod SetVariable $row]
 
 	    grid $win.radio$row $win.name$row $win.value$row $win.units$row $win.load$row $win.set$row
+
+	    # Bindings for this row as well:
+
+	    foreach binding [list <Tab> <Return> <Right> ] {
+		foreach \
+		    widget [list $win.name$row $win.value$row $win.units$row] \
+		    nextwidget [list $win.value$row $win.units$row $win.name$row] {
+			bind $widget $binding [list after 2  focus $nextwidget]
+		    }
+	    }
+	    foreach binding [list  <Shift-Tab> <Left> <ISO_Left_Tab> ] {
+		foreach \
+		    widget [list $win.name$row $win.value$row $win.units$row] \
+		    prior  [list $win.units$row $win.name$row $win.value$row] {
+			bind $widget $binding [list after 2  focus $prior]
+		    }
+	    }
 	}
     }
     #------------------------------------------------------------------------------
