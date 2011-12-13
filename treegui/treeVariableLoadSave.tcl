@@ -14,7 +14,7 @@
 
 package require Tk
 package require snit
-
+package require treeUtilities
 
 package provide treeVariableLoadSave 1.0
 
@@ -142,12 +142,6 @@ snit::widget treeVariableLoadSave {
     # @param filename - The filename which substitutes for any %F's.
     #
     method Dispatch {option filename} {
-	set script $options($option)
-	
-	if {$script ne ""} {
-	    regsub -all -- {%F} $script $filename script
-	    regsub -all -- {%W} $script $win script
-	    uplevel #0 $script
-	}
+	::treeutility::dispatch $options($option) [list %F %W] [list $filename $win]
     }
 }

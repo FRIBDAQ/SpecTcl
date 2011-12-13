@@ -15,6 +15,7 @@
 
 package require Tk
 package require snit
+package require treeUtilities
 
 package provide treemenuWidget 1.0
 
@@ -76,24 +77,8 @@ snit::widgetadaptor treeMenu {
     #                the elements of the path list with -splitchar.
     #               
     method dispatch {label path} {
-	set script $options(-command)
+	::treeutility::dispatch $options(-command) [list %W %L %N] [list $win [list $label] [list $path]]
 
-
-
-	# Only bother if the user supplied a -command
-
-	if {$script ne ""} {
-	    
-	    # Do the %xyz substitutions:
-
-	    foreach substring [list %W %L %N] replstring [list $win [list $label] [list $path]] {
-		regsub -all $substring $script $replstring script
-	    }
-
-	    # Execute the resulting script at global level.
-
-	    uplevel #0 $script
-	}
     }
     ##
     # private method, this is a recursive proc that builds the menu hierarchy.

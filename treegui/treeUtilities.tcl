@@ -53,3 +53,24 @@ proc ::treeutility::listArrayElements {sampleName generator} {
     }
     return  $result
 }
+##
+#  Dispatch to a script with substitutions.
+#  @param script - The script to dispatch.
+#  @param substs - list of substitution patterns.  These are treated as regexps.
+#  @param values - List of corresponding values to substitute for each match.
+#
+# @note - the script is run at the global level.
+#
+proc ::treeutility::dispatch {script substs values} {
+    if {$script ne ""} {
+
+	# Do the substitutions:
+
+	foreach pattern $substs value $values {
+	    regsub -all -- $pattern $script $value script
+	}
+	# Run the resulting script script:
+
+	uplevel #0 $script
+    }
+}

@@ -16,6 +16,7 @@
 
 package require Tk
 package require snit
+package require treeUtilities
 
 package provide gateSelBar 1.0
 
@@ -95,13 +96,7 @@ snit::widget gateSelBar {
     # @param option The name of the option that holds the script we are dispatching.
     #
     method dispatch option {
-	set script $options($option)
-
-	if {$script ne ""} {
-	    
-	    regsub "%M" $script [list [$win.mask get]] script
-	    uplevel #0 $script
-	}
+	::treeutility::dispatch $options($option) %M [list [list [$win.mask get]]]
     }
     ##
     # Called when the clear button is clicked.  Clears the mask back to "*" and
