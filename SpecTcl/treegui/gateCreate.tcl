@@ -17,6 +17,7 @@
 package require Tk
 package require snit
 package require treemenuWidget
+package require treeUtilities
 
 package provide gateCreate 1.0
 
@@ -144,18 +145,8 @@ snit::widget gateCreate {
     # See the class header for information about the substitutions we support.
     #
     method Dispatch option {
-	set script $options($option)
-
-	if {$script ne ""} {
-
-	    # Do the % substitutions:
-
-	    foreach pattern {%G %T %D} \
-		value [list [list $options(-gatename)] [list $options(-type)] [list $options(-definition)]] {
-		    regsub -all $pattern $script $value script
-	    }
-	    uplevel #0 $script
-	}
+	::treeutility::dispatch $options($option) [list %G %T %D] \
+	    [list [list $options(-gatename)] [list $options(-type)] [list $options(-definition)]]
     }
 
     #-------------------------------------------------------------------

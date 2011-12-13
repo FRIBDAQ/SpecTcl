@@ -17,6 +17,7 @@
 package require Tk
 package require snit
 package require treemenuWidget
+package require treeUtilities
 
 package provide treeVariableEditor 1.0
 
@@ -221,12 +222,7 @@ snit::widget treeVariableEditor {
     # @pram  values - For each element of substs a value that can be plugged into the script
     #
     method Dispatch {script substs values} {
-	if {$script ne ""} {
-	    foreach subst $substs value $values {
-		regsub -all  $subst $script $value script
-	    }
-	    uplevel #0 $script
-	}
+	::treeutility::dispatch $script $substs $values
     }
     
 }

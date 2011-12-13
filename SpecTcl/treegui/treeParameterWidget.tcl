@@ -16,6 +16,7 @@
 
 package require Tk
 package require snit
+package require treeUtilities
 
 package provide treeParameterEditor 1.0
 
@@ -137,17 +138,7 @@ snit::widget treeParameterEditor {
     # @param optionName -name of the option holding the script to execute.
     #
     method callback optionName {
-	set script $options($optionName)
-	
-	# empty scripts are no-ops.
-
-	if {$script ne ""} {
-	    
-	    # Substitute for %W:
-
-	    regsub -all {%W} $script $win script
-	    uplevel #0 $script
-	}
+	::treeutility::dispatch $options($optionName) %W $win
     }
 
     ##

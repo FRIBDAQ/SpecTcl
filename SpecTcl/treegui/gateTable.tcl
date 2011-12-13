@@ -16,6 +16,7 @@
 
 package require Tk
 package require snit
+package require treeUtilities
 
 package provide gateTable 1.0
 
@@ -187,18 +188,15 @@ snit::widget gateTable {
     # @param y - window relative y positinoof the click.
     #
     method onDoubleClick {x y} {
-	set script $options(-command)
 
-	if {$script ne ""} {
-	    set item [$win.t identify row  $x $y]
-	    if {$item ne ""} {
-		set data [$win.t item $item -values]
-		set name [lindex $data 0]
-
-		regsub "%N" $script $name script
-		uplevel #0 $script
-	    }
+	set item [$win.t identify row  $x $y]
+	if {$item ne ""} {
+	    set data [$win.t item $item -values]
+	    set name [lindex $data 0]
+	    
+	    ::treeutility::dispatch $options(-command) %N $name
 	}
+
     }
     
     

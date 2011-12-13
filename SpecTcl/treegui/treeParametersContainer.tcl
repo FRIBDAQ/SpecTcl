@@ -16,6 +16,7 @@ package require Tk
 package require snit
 package require treemenuWidget
 package require treeParameterEditor
+package require treeUtilities
 
 package provide treeParametersContainer 1.0
 
@@ -227,15 +228,8 @@ snit::widget treeParametersContainer {
     # @param path   - Full path to menu label.
     #
     method ParameterChosen {widget label path} {
-	set script $options(-choosecmd)
+	::treeutility::dispatch $options(-choosecmd) [list %W %I %L %N] [list $win $widget $label $path]
 
-	# Only dispatch if, in fact, there is a nonempty script
-
-	if {$script ne ""} {
-
-	    set script [Substitute $script [list %W %I %L %N] [list $win $widget $label $path]]
-	    uplevel #0 $script
-	}
     }
 
     ##
@@ -249,31 +243,8 @@ snit::widget treeParametersContainer {
     # @param option that has the script to which we must dispatch:
     #
     method ButtonClicked   {editor slot option} {
-	set script $options($option)
-
-	if {$script ne ""} {
-	    set script [Substitute $script [list %W %S %I] [list $win $slot $editor]]
-	    uplevel #0 $script
-	}
+	::treeutility::dispatch $options($option) [list %W %S %I] [list $win $slot $editor]
     }
 
-    # Utiltity procs:
-   
-    ## 
-    # Substitute a bunch of strings with a bunch of other stuff.
-    # @param in       - The string in which substitutions will be done.
-    # @param patterns - The regexp patterns that will be substituted.
-    # @param subs     - The substrings that will be subtstituted.
-    # @return string
-    # @retval The string with all substitutions performed.
-    #
-    proc Substitute {in patterns subs} {
-	foreach pattern $patterns replacement $subs {
-	    # The [list] below ensure proper quoting of the replacement string:
-
-	    regsub -all $pattern $in  [list $replacement] in
-	}
-	return $in
-    }
 
 }
