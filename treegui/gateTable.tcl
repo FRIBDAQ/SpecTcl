@@ -20,6 +20,10 @@ package require treeUtilities
 
 package provide gateTable 1.0
 
+namespace eval gateTable:: {
+    set dirname [file dirname [info script]]
+}
+
 ##
 #  provides a table that lists gate information.
 #  This is just a wrapped ttk::treeview and scrollbar pair.
@@ -97,7 +101,9 @@ snit::widget gateTable {
 
     constructor args {
 
-	set dirname [file dirname [info script]]
+	set dirname $gateTable::dirname
+	puts $dirname 
+
 	set img [image create photo \
 		     -file [file join $dirname uparrow.gif]]
 	set uparrow   [image create photo]
