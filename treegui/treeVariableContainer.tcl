@@ -17,6 +17,7 @@
 package require Tk
 package require snit
 package require treeVariableEditor
+package require treeVariableLoadSave
 
 package provide treeVariableContainer 1.0
 
@@ -41,6 +42,10 @@ snit::widget treeVariableContainer {
     delegate option -setcmd    to editors
     delegate option -array     to editors
 
+    delegate option -loadfile   to loadsave as -loadcmd
+    delegate option -savefile   to loadsave as -savecmd
+    delegate option -filename   to loadsave
+
     delegate method loadEditor to editors
     
     ##
@@ -51,12 +56,13 @@ snit::widget treeVariableContainer {
     #
     constructor args {
 
-	install editors as treeVariableEditor $win.editors
-
+	install editors  as treeVariableEditor   $win.editors
+	install loadsave as treeVariableLoadSave $win.loadsave
 	$self configurelist $args
 
 
-	grid $win.editors
+	grid $win.editors  -sticky ew
+	grid $win.loadsave -sticky ew
 	
     }
 }
