@@ -15,6 +15,7 @@
 package require Tk
 package require Itcl
 package require treeVariableContainer
+package require guistate;	# From 'folder gui'.
 
 package provide variableTabActions 1.0
 
@@ -95,7 +96,31 @@ itcl::class variableTabActions {
 
 	return $result
     }
-    
+    ##
+    # Save the tree parameters to file.
+    # @param name - nameof file in which to save the tree parameters.
+    #
+    public method SaveVariables name {
+	set fd [open $name w]
+	
+	# Put a timestamp in and then invoke writeTreeVariables to do the rest.
+
+	puts $fd "# File written [clock format [clock seconds]]"
+	::writeTreeVariables $fd
+
+	close $fd
+    }
+    ##
+    # Restore the tree parameters.  This is really sourcing a tcl script.
+    # The script is sourced at the global level.
+    # @param name -name of the file to restore.
+    # @note  as with the prior gui implementation, this does not reload the values
+    #        of any of the editor slots.
+    #
+    public method RestoreVariables name {
+	uplevel #0 source $name
+    }
+
     #--------------------------------------------------------------------
     # public interface
 
@@ -113,7 +138,9 @@ itcl::class variableTabActions {
 	treeVariableContainer $widget -lines $lines  -selectcmd [list $this LoadVariable %N %I] \
 	    -variables [$this treeVariableNames] \
 	    -loadcmd   [list $this LoadVariable %N %I] \
-	    -setcmd    [list $this SetVariable %N %V %U]
+	    -setcmd    [list $this SetVariable %N %V %U] \
+	    -savefile  [list $this SaveVariables %F] \
+	    -loadfile  [list $this RestoreVariables %F]
     }
 
 
