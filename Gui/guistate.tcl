@@ -446,9 +446,7 @@ proc writePseudoParameters fd {
 
 }
 # writeTreeVariables fd
-#       Write out the tree variables that have been modified
-#       since we started.  The tree variables themeselves keep
-#       track of whether or not they've been modified.
+#       Write out the tree variables.
 # Parameters:
 #   fd    - The file descriptor gotten from the [open] on the output file.
 #
@@ -459,9 +457,7 @@ proc writeTreeVariables fd {
         set name  [lindex $variable 0]
         set value [lindex $variable 1]
         set units [lindex $variable 2]
-        if {[treevariable -check $name]} {
-            puts $fd "treevariable -set [list $name] $value [list $units]"
-        }
+	puts $fd "treevariable -set [list $name] $value [list $units]"
     }
 }
 # writeSpectrumDefinitions fd
