@@ -40,16 +40,6 @@ snit::widget treeVariableLoadSave {
     option -loadcmd  -default [list]
     option -savecmd  -default [list]
 
-    # File types for the file box prompts.  We probably have two more
-    # than actually needed.
-    
-    typevariable fileTypes {
-	{{Tcl Scripts} {.tcl}  }
-	{{Text files}  {.txt}  }
-	{{Tree variable files} {.tv} }
-	{{All Files}     * }
-    }
-
     ##
     # Construct the widgets, lay them out and connect them to our
     # local action handlers.
@@ -83,7 +73,8 @@ snit::widget treeVariableLoadSave {
 	
 	# Prompt the user for the file.  If it's empty the user cancelled:
 
-	set filename [tk_getOpenFile -defaultextension .tcl -filetypes $fileTypes \
+	set filename [tk_getOpenFile -defaultextension .tcl \
+			  -filetypes [::treeutility::getFileTypes] \
 			  -initialdir [lindex $defaults 0] \
 			  -initialfile [lindex $defaults 1]  \
 			  -parent $win \
@@ -106,7 +97,8 @@ snit::widget treeVariableLoadSave {
 	
 	# Prompt the user for the file.  If it's empty the user cancelled:
 
-	set filename [tk_getSaveFile -defaultextension .tcl -filetypes $fileTypes \
+	set filename [tk_getSaveFile -defaultextension .tcl \
+			  -filetypes [::treeutility::getFileTypes] \
 			  -initialdir [lindex $defaults 0] \
 			  -initialfile [lindex $defaults 1]  \
 			  -parent $win \
