@@ -74,3 +74,18 @@ proc ::treeutility::dispatch {script substs values} {
 	uplevel #0 $script
     }
 }
+
+##
+# Return the file types used for configuration file dialogs:
+# @return list
+# @retval see the tk_getOpenfile/tk_getSaveFile documents to see the format of this.
+#
+proc ::treeutility::getFileTypes {} {
+    return  {
+	{{Tcl Scripts} {.tcl}  }
+	{{Text files}  {.txt}  }
+	{{Tree variable files} {.tv} }
+	{{All Files}     * }
+    }
+}
+
