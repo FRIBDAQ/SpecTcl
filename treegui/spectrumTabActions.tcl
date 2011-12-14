@@ -82,6 +82,56 @@ itcl::class spectrumTabActions {
 	
 	
     }
+    ##
+    # Load the list of spectra from the current mask 
+    # @param mask - glob pattern that determines the set of spectra to load.
+    #
+    public method LoadSpectra mask {
+	set spectra [spectrum -list -showgate $mask]
+	set spectrumList [list]; # Build up the data here:
+
+	# Pull each definition apart and add it to spectrumList.
+	
+	foreach spectrum $spectra {
+	    set name [lindex $spectrum 1]
+	    set type [lindex $spectrum 2]
+	    set parameters [lindex $spectrum 3]
+	    set axes       [lindex $spectrum 4]
+	    set gate       [lindex $spectrum 6]
+	    
+	    # Ungated true gate -> ""
+	    if {$gate eq "-TRUE-"} {
+		set gate ""
+	    }
+
+	    set xparam [lindex [lindex $parameters 0] 0]
+	    set yparam [lindex [lindex $parameters 1] 0]
+
+	    set xaxis [lindex $axes 0]
+	    set xlow [lindex $xaxis 0]
+	    set xhi  [lindex $xaxis 1]
+	    set xbins [lindex $xaxis 2]
+
+	    set yaxis [lindex $axes 1]
+	    if {[llength $yaxis] > 0} {
+		set ylow [lindex $yaxis 0]
+		set yhi  [lindex $yaxis 1]
+		set ybins [lindex $yaxis 2]
+		
+	    } else {
+		set ylow ""
+		set yhi  ""
+		set ybins ""
+	    }
+
+	    lappend spectrumList [list $name $type              \
+				      $xparam $xlow $xhi $xbins \
+				      $yparam $ylow $yhi $ybins \
+				      $gate]
+
+	}
+	$widget configure -spectra $spectrumList
+    }
     #---------------------------------------------------------------------------
     # True public interface.  There are other public methods but they
     # require that exposure to be used as callbacks.
@@ -100,6 +150,9 @@ itcl::class spectrumTabActions {
 
 	spectrumContainer $widget \
 	    -savecmd [list $this SaveConfiguration %N] \
-	    -loadcmd [list $this ReadConfiguration %N %W]
+	    -loadcmd [list $this ReadConfiguration %N %W] \
+	    -updatecmd [list $this LoadSpectra %M]
+
+	LoadSpectra [$widget cget -mask]
     }
 }
