@@ -20,7 +20,7 @@ package require treeUtilities
 
 package provide gateTable 1.0
 
-namespace eval gateTable:: {
+namespace eval ::gateTable {
     set dirname [file dirname [info script]]
 }
 
@@ -60,17 +60,17 @@ snit::widget gateTable {
 
     delegate option * to tree
     delegate method * to tree
+
+    #Images used to label the column sort order
+
+    typevariable uparrow
+    typevariable downarrow
+
     #  This variable is an array that maps field names to gate indices:
 
-    typevariable fieldMap -array {
-	name 0
-	type 2
-	definition 3
-    }
-    typevariable sortMap -array {
-	ascending -increasing
-	descending -decreasing
-    }
+
+    typevariable fieldMap 
+    typevariable sortMap 
 
     # Several options can schedule a repopulation of the tree.
     # Rather than do all of those operations, updates are scheduled
@@ -79,28 +79,19 @@ snit::widget gateTable {
 
     variable updatePending 0;	# True if an update has been scheduled.
     
-    #Images used to label the column sort order
-
-    variable uparrow
-    variable downarrow
 
     # Variables used to keep track of mouse motion.
     #
     variable lastX    0
     variable lastY    0
     variable lastItem [list]
-
-    
-
+    #-----------------------------------------------------------------------------
+    # Constructors.
 
     ##
-    # Build the widget, and establish the bindings that lead to 
-    # callbacks and internally autonomous behavior.
+    # Load the up/down arrow images:
     #
-    # @param args - option name value pairs that configure the widget.
-
-    constructor args {
-
+    typeconstructor {
 	set dirname $gateTable::dirname
 	puts $dirname 
 
@@ -115,6 +106,28 @@ snit::widget gateTable {
 	set downarrow [image create photo]
 	$downarrow copy $img -subsample 40 40
 	image delete $img
+
+	array set fieldMap {
+	    name 0
+	    type 2
+	    definition 3
+	}
+	array set sortMap  {
+	    ascending -increasing
+	    descending -decreasing
+	}
+    }
+
+
+    ##
+    # Build the widget, and establish the bindings that lead to 
+    # callbacks and internally autonomous behavior.
+    #
+    # @param args - option name value pairs that configure the widget.
+
+    constructor args {
+
+
 
 
 	# Build the widgets.

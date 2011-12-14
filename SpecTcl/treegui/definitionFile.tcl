@@ -80,6 +80,8 @@ snit::widget definitionFileWidget {
 	grid $win.load $win.save
 	grid $win.accumulate $win.failsafe
 
+	grid columnconfigure $win all -weight 1
+
 	# configure the widget components:
 
 	$self configurelist $args
