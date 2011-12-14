@@ -238,6 +238,8 @@ snit::widget saveDefPrompt {
 namespace eval guistate {
     variable gatestatus
     variable pseudostatus
+
+    variable writeDeletes 1;	# If true commands are emitted to delete spectra.
 }
 
 # getDependentGates description
@@ -477,8 +479,10 @@ proc writeSpectrumDefinitions fd {
         set type       [lindex $spectrum 2]
         set parameters [lindex $spectrum 3]
         set axes       [lindex $spectrum 4]
-
-        puts $fd "catch {spectrum -delete [list $name]}"
+	
+	if {$::guistate::writeDeletes} {
+	    puts $fd "catch {spectrum -delete [list $name]}"
+	}
         puts $fd "spectrum [list $name] $type [list $parameters] [list $axes]"
 
     }
