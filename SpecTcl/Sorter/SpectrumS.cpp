@@ -423,10 +423,12 @@ CSpectrumS::Increment(const CEvent& rE)
   if(rTime.isValid() && rParam.isValid()) {  // Only increment if params present.
     Int_t nChannel = (Int_t)ParameterToAxis(0, rTime)- m_nOffset;
 
-    if (nChannel > m_nChannels ) {
-      ShiftDataDown (static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels));
-      m_nOffset = static_cast<int>(m_nOffset + nChannel + (.25 * m_nChannels) - m_nChannels) +1;
-      nChannel = nChannel - m_nOffset;
+    int shift = nChannel;
+    if (nChannel >= m_nChannels ) {
+      shift = static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels);
+      ShiftDataDown(shift);
+      m_nOffset = static_cast<int>(m_nOffset + shift);
+      nChannel = nChannel - shift;
     }else if (nChannel < 0) {
       ShiftDataUp(nChannel);
       m_nOffset =m_nOffset + nChannel;
@@ -584,7 +586,7 @@ CSpectrumS::ShiftDataDown(int nShift)
     for (int i = 0; i < m_nChannels-nShift; i++) {
       p[i] = p[i+nShift];
     }
-    for (int i =  m_nChannels-nShift; i <= m_nChannels; i++) {
+    for (int i =  m_nChannels-nShift; i < m_nChannels; i++) {
       p[i] = 0;
     }
 }
@@ -601,7 +603,7 @@ CSpectrumS::ShiftDataUp(int nShift)
       return;
 
     }
-    for (int i =  m_nChannels ; i >= (nShift * -1); i--) {
+    for (int i =  m_nChannels-1 ; i >= (nShift * -1); i--) {
       p[i] = p[i+nShift];
     }
     for (int i = (nShift * -1) ; i >=0 ; i--) {
