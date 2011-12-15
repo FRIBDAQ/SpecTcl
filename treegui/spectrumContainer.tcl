@@ -15,8 +15,10 @@
 package require Tk
 package require snit
 package require definitionFileWidget
+package require spectrumManipulation
 package require spectrumMaskWidget
 package require spectrumTable
+
 
 package provide spectrumContainer 1.0
 
@@ -51,10 +53,16 @@ snit::widget spectrumContainer {
     delegate option -mask     to mask
     delegate option -updatecmd to mask
 
-    # Spectrum table optinos.
+    # Spectrum table options and methods.
 
     delegate option -spectra   to table
     delegate option -selectcmd to table
+    delegate method getSelection to table
+
+    # Spectrum manipulation options
+
+    delegate option -all       to spectrum
+    delegate option -clearcmd  to spectrum
 
     ##
     # Construction is just  installing and laying out the components.
@@ -62,14 +70,15 @@ snit::widget spectrumContainer {
     # @param args - configuration option/names.
     #
     constructor args {
-	install fileio using definitionFileWidget $win.fileio
-	install table  using spectrumTable        $win.table -height 15
-	install mask   using spectrumMaskWidget   $win.mask
+	install fileio   using definitionFileWidget $win.fileio
+	install table    using spectrumTable        $win.table -height 15
+	install mask     using spectrumMaskWidget   $win.mask
+	install spectrum using spectrumManipulation $win.spectrum
 
-
-	grid $fileio -sticky ew
-	grid $table  -sticky ew
-	grid $mask   -sticky ew
+	grid $fileio   -sticky ew
+	grid $spectrum -sticky ew
+	grid $table    -sticky ew
+	grid $mask     -sticky ew
 
 	grid columnconfigure $win all -weight 1
 

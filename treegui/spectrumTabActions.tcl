@@ -132,6 +132,20 @@ itcl::class spectrumTabActions {
 	}
 	$widget configure -spectra $spectrumList
     }
+    ##
+    # Called in response to the button to clear spectra.
+    # If the -all option is true we clear all of the spectra otherwise
+    # only the spectra selected in the spectrum table are cleared.
+    #
+    public method ClearSpectra {} {
+	if {[$widget cget -all]} {
+	    clear -all
+	} else {
+	    foreach name [$widget getSelection] {
+		clear $name
+	    }
+	}
+    }
     #---------------------------------------------------------------------------
     # True public interface.  There are other public methods but they
     # require that exposure to be used as callbacks.
@@ -149,9 +163,10 @@ itcl::class spectrumTabActions {
 	}
 
 	spectrumContainer $widget \
-	    -savecmd [list $this SaveConfiguration %N] \
-	    -loadcmd [list $this ReadConfiguration %N %W] \
-	    -updatecmd [list $this LoadSpectra %M]
+	    -savecmd   [list $this SaveConfiguration %N] \
+	    -loadcmd   [list $this ReadConfiguration %N %W] \
+	    -updatecmd [list $this LoadSpectra %M]  \
+	    -clearcmd  [list $this ClearSpectra]
 
 	LoadSpectra [$widget cget -mask]
     }

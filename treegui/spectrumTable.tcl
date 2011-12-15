@@ -171,7 +171,8 @@ snit::widget spectrumTable {
 
 	$self configurelist $args
 	grid $tree $win.s -sticky nsew
-	grid columnconfigure $win all -weight 1
+	grid columnconfigure $win 0 -weight 1
+	grid columnconfigure $win 1 -weight 0; # Should keep the scroll bar from scaling.
 
 	# Event bindings:
 
