@@ -27,6 +27,11 @@ package provide spectrumTabActions 1.0
 
 itcl::class spectrumTabActions {
     public variable widget;	# spectrumContainer widget option.
+
+    private variable gateAddChain
+    private variable gateDeleteChain
+    private variable gateChangeChain
+
     #-------------------------------------------------------------------------
     # Private utility methods
 
@@ -265,6 +270,48 @@ itcl::class spectrumTabActions {
 	}
 
     }
+    ## 
+    #  Gate traces...these are separated to support
+    #  chaining.
+    #  @param name - the name of the gate affected.
+
+    public method gateAdded name {
+	LoadGateMenu
+	if {$gateAddChain ne ""} {
+	    uplevel #0 $gateAddChain $name
+	}
+    }
+    public method gateDeleted name {
+	LoadGateMenu
+	if {$gateDeleteChain ne ""} {
+	    uplevel #0 $gateDeleteChain $name
+	}
+    }
+    public method gateChanged name {
+	LoadGateMenu
+	if {$gateChangeChain ne ""} {
+	    uplevel #0 $gateChangeChain $name
+	}
+    }
+
+    ##
+    # Called to refresh the contents of the gate menu.
+    #
+    public method LoadGateMenu {} {
+	set gates [list]
+	foreach gate [gate -list] {
+	    lappend gates [lindex $gate 0]
+	}
+	$widget configure -gates $gates
+    }
+    ## 
+    # Whenever a gate is selected its full path is put in the entry below the menu:
+    # @param name - full name of the gate.
+    #
+    public method Selectgate name {
+	$widget configure -gate $name
+    }
+    
     #---------------------------------------------------------------------------
     # True public interface.  There are other public methods but they
     # require that exposure to be used as callbacks.
@@ -289,8 +336,20 @@ itcl::class spectrumTabActions {
 	    -clearcmd  [list $this ClearSpectra]            \
 	    -deletecmd [list $this DeleteSpectra]           \
 	    -dupcmd    [list $this DupSpectra]              \
-	    -ungatecmd [list $this UngateSpectra]
+	    -ungatecmd [list $this UngateSpectra]           \
+	    -gateselectcmd [list $this Selectgate %N]
 
 	LoadSpectra [$widget cget -mask]
+
+	# Load the gate menu and set it up to reload each time gates change in any way:
+
+	LoadGateMenu
+
+	set gateAddChain    [gate -trace add    [list $this gateAdded]]
+	set gateDeleteChain [gate -trace delete [list $this gateDeleted]]
+	set gateChangeChain [gate -trace change [list $this getChanged]]
+
+
+	
     }
 }

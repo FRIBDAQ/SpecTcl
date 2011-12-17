@@ -61,11 +61,14 @@ snit::widget spectrumContainer {
 
     # Spectrum manipulation options
 
-    delegate option -all       to spectrum
-    delegate option -clearcmd  to spectrum
-    delegate option -deletecmd to spectrum
-    delegate option -dupcmd    to spectrum
-    delegate option -ungatecmd to spectrum
+    delegate option -all          to spectrum
+    delegate option -clearcmd     to spectrum
+    delegate option -deletecmd    to spectrum
+    delegate option -dupcmd       to spectrum
+    delegate option -ungatecmd    to spectrum
+    delegate option -gates        to spectrum
+    delegate option -gateselectcmd to spectrum
+    delegate option -gate         to spectrum
 
     ##
     # Construction is just  installing and laying out the components.
