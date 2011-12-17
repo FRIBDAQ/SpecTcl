@@ -48,8 +48,11 @@ package provide spectrumManipulation 1.0
 snit::widget spectrumManipulation {
     hulltype ttk::frame
 
-    option -clearcmd -default [list]
-    option -all      -default 0
+    option -clearcmd  -default [list]
+    option -all       -default 0
+    option -deletecmd -default [list]
+    option -dupcmd    -default [list]
+    option -ungatecmd -default [list]
 
     ##
     # Construct the widget and lay it out.  
@@ -77,15 +80,33 @@ snit::widget spectrumManipulation {
 
 	# Layout the top frame now:
 
+	# Spectrum operations.
+	
 	ttk::button       $win.top.spectra.clear -text Clear -command [mymethod Dispatch -clearcmd]
 	ttk::checkbutton  $win.top.spectra.all   -text All   -variable ${selfns}::options(-all)
+	ttk::button       $win.top.spectra.delete -text Delete -command [mymethod Dispatch -deletecmd]
+	ttk::button       $win.top.spectra.duplicate -text Duplicate -command [mymethod Dispatch -dupcmd]
+
+
+	# Gate operations:
+
+	ttk::button       $win.top.gates.ungate -text Ungate -command [mymethod Dispatch -ungatecmd]
+
+
 
 	# Layout the widgets:
 
-	grid $win.top.spectra.clear -row 0 -column 2 -sticky nsew
-	grid $win.top.spectra.all   -row 1 -column 2 -sticky nsew
+	grid $win.top.spectra.clear     -row 0 -column 2 -sticky nsew 
+	grid $win.top.spectra.delete    -row 0 -column 3 -sticky nsew 
+	
+	grid $win.top.spectra.all       -row 1 -column 2 -sticky nsew 
+	grid $win.top.spectra.duplicate -row 1 -column 3 -sticky nsew 
+
+	grid $win.top.gates.ungate -sticky nsew 
+
 	grid columnconfigure $win.top.spectra 0 -weight 2
 	grid columnconfigure $win.top.spectra [list 1 2 3] -weight 1
+
 
 
 	grid $win.top.spectra $win.top.gates -sticky nsew
