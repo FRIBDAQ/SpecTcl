@@ -15,6 +15,7 @@
 package require Tk
 package require snit
 package require treeUtilities
+package require treemenuWidget
 
 package provide spectrumManipulation 1.0
 
@@ -41,6 +42,8 @@ package provide spectrumManipulation 1.0
 #  -clearcmd    - Script that is invoked when the Clear button is clicked on the top frame.
 #                 %W Substitutes for the widget name.
 #  -all         - The boolean state of the 'All' checkbutton.
+# TODO:
+#   Add the rest of the option docs.
 #
 # METHODS:
 #
@@ -48,11 +51,14 @@ package provide spectrumManipulation 1.0
 snit::widget spectrumManipulation {
     hulltype ttk::frame
 
-    option -clearcmd  -default [list]
-    option -all       -default 0
-    option -deletecmd -default [list]
-    option -dupcmd    -default [list]
-    option -ungatecmd -default [list]
+    option -clearcmd       -default [list]
+    option -all            -default 0
+    option -deletecmd      -default [list]
+    option -dupcmd         -default [list]
+    option -ungatecmd      -default [list]
+    option -gates          -default [list] -configuremethod NewGates
+    option -gateselectcmd  -default [list]
+    option -gate           -default [list]
 
     ##
     # Construct the widget and lay it out.  
@@ -61,7 +67,6 @@ snit::widget spectrumManipulation {
     # @args - The option name/values that configure this widget at construction time
     #
     constructor args {
-	$self configurelist $args
 
 	#
 	# Set up the frame hierarchy.
@@ -80,6 +85,11 @@ snit::widget spectrumManipulation {
 
 	# Layout the top frame now:
 
+	# Stock the menus now.
+
+	$self configurelist $args
+
+
 	# Spectrum operations.
 	
 	ttk::button       $win.top.spectra.clear -text Clear -command [mymethod Dispatch -clearcmd]
@@ -90,6 +100,9 @@ snit::widget spectrumManipulation {
 
 	# Gate operations:
 
+	ttk::menubutton   $win.top.gates.gatesel -text Gate -menu $win.top.gates.gatesel.gates
+	treeMenu          $win.top.gates.gatesel.gates -command [mymethod MenuDispatch -gateselectcmd %L %N]
+	ttk::entry        $win.top.gates.gateentry -width 12 -textvariable ${selfns}::options(-gate)
 	ttk::button       $win.top.gates.ungate -text Ungate -command [mymethod Dispatch -ungatecmd]
 
 
@@ -102,7 +115,8 @@ snit::widget spectrumManipulation {
 	grid $win.top.spectra.all       -row 1 -column 2 -sticky nsew 
 	grid $win.top.spectra.duplicate -row 1 -column 3 -sticky nsew 
 
-	grid $win.top.gates.ungate -sticky nsew 
+	grid $win.top.gates.gatesel
+	grid $win.top.gates.gateentry $win.top.gates.ungate -sticky nsew 
 
 	grid columnconfigure $win.top.spectra 0 -weight 2
 	grid columnconfigure $win.top.spectra [list 1 2 3] -weight 1
@@ -134,5 +148,35 @@ snit::widget spectrumManipulation {
     #
     method Dispatch option {
 	::treeutility::dispatch $options($option) [list %W] [list $self]
+    }
+    ## 
+    # Dispatch a menu selection from a tree menu.
+    # This differs from Dispatch in that %L %N are also substituted for.
+    # @param option - the option to dispatch.
+    # @param label  - Menu label clicked.
+    # @param path   - Full menu path clicked.
+    #
+    method MenuDispatch {option label path} {
+
+	# The extra [list] commands below allow for paths and labels with spaces and other
+	# special characters.
+
+	::treeutility::dispatch $options($option) [list %W %L %N] [list $self [list $label] [list $path]]
+    }
+
+    #-------------------------------------------------------------------------------------
+    #  Configuration management
+
+    ##
+    #  Configuration of the -gates option changed...destroy and recreate the tree menu.
+    #  @param option - name of the option that was modified.
+    #  @param value  - list of the gates to display.
+    #
+    method NewGates {option value} {
+	set options($option) $value
+
+	destroy  $win.top.gates.gatesel.gates
+
+	treeMenu $win.top.gates.gatesel.gates -items $value -command [mymethod MenuDispatch -gateselectcmd %L %N]
     }
 }

@@ -34,6 +34,10 @@ package provide gateTabActions 1.0
 ::itcl::class gateTabActions {
     public variable widget ""
 
+    private variable gateAddChain;	# prior gate add trace.
+    private variable gateDeleteChain;	# prior gate delete trace.
+    private variable gateChangeChain;   	# prior gate change trace.
+
     #------------------------------------------------------------------------------
     # Private methods:
 
@@ -97,10 +101,34 @@ package provide gateTabActions 1.0
 	$widget configure -gates $gates
     }
 
+    ## 
+    #  The methods below 
+    #  Are required to support chaining to prior traces:
+    # in all of them:
+    #  @name is the name of the gate that fired the trace.
+    #
+    public method gateAdded name {
+	loadGateMenu
+	if {$gateAddChain ne ""} {
+	    uplevel #0 $gateAddChain $name
+	}
+    }
+    public method gateDeleted name {
+	loadGateMenu
+	if {$gateDeleteChain ne ""} {
+	    uplevel #0 $gateDeleteChain $name
+	}
+    }
+    public method gateChanged name {
+	loadGateMenu
+	if {$gateChangeChain ne ""} {
+	    uplevel #0 $gateChangeChain $name
+	}
+    }
     ##
     # Load the gate menu with the names of all of the gates:
-    # @param args - I get passed parameters by the gate trace callback which I want to ignore.
-    public method loadGateMenu {args} {
+    #
+    public method loadGateMenu {} {
 	set gates [gate -list]
 	set names [list]
 	foreach gate $gates {
@@ -109,6 +137,8 @@ package provide gateTabActions 1.0
 	    }
 	}
 	$widget configure -menugates $names
+
+	# If the name was supplied we chain to any 
     }
 
     
@@ -231,13 +261,15 @@ package provide gateTabActions 1.0
 	    -createcmd        [list $this createGate %G %T %D]
 
 	loadGateTable *
-	loadGateMenu
+	loadGateMenu 
 
 	# Set up a gate add/delete trace to reload the gate menu:
 
-	gate -trace add    [list $this loadGateMenu]
-	gate -trace delete [list $this loadGateMenu]
-	gate -trace change [list $this loadGateMenu]; # in case change was type -> false.
+
+	set gateAddChain    [gate -trace add    [list $this gateAdded]]
+	set gateDeleteChain [gate -trace delete [list $this gateDeleted]]
+	set gateChangeChain [gate -trace change [list $this gateChanged]]
+
 
     }
 }
