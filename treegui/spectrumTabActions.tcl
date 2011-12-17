@@ -27,6 +27,66 @@ package provide spectrumTabActions 1.0
 
 itcl::class spectrumTabActions {
     public variable widget;	# spectrumContainer widget option.
+    #-------------------------------------------------------------------------
+    # Private utility methods
+
+    # Get either selected or all spectra depending on the state of the all button.
+    # @return list
+    # @retval if all is checked a list of all spectrum names.
+    # @retval if all is not checked a list of the names of spectr that are selected
+    #         in the spectrum table.
+    #
+    private method getSelectedSpectra {} {
+	if {[$widget cget -all]} {
+	    set result [list]
+	    foreach spectrum [spectrum -list] {
+		lappend result [lindex $spectrum 1]
+	    }
+	    return $result
+	} else {
+	    return [$widget getSelection]
+	}
+    }
+    # Generate a new spectrum name based on an existing one.
+    # There is an assumption we will make... That already duplicated spectra
+    # will be of the form name_integer.  There fore if a spectrum breask up into
+    # a list of _ separated components with size > 1, and the last element is an integer
+    # we should generate the spectra by incrementing the digits until we come up with one that
+    # results in a spectrum name that is not yet used.  Otherwise just append _1 to the 
+    # initial name...incrementing that until we get uniqueness.
+    #
+    #
+    # @param baseName - The initial name of the spectrum.
+    # @return string
+    # @retval - a spectrum name  that is not yet in use.
+    #
+    private method generateUniqueSpectrumName baseName {
+	
+	# Figure out what the base part of the name is and the 
+	# trailing integer should start with.
+	#
+	set baseList [split $baseName _]
+	if {([llength $baseList] > 1) && ([string is integer [lindex $baseList end]])} {
+	    set counter [lindex $baseList end]
+	    set baseList [lrange $baseList 0 end-1]; #  lop off the last element.
+	    incr counter;			     # and start hunting with the next integer.
+	} else {
+	    set counter 1
+	}
+	# Now hunt for a unique name by successively incrementing counter
+
+	while 1 {
+	    set candidateName [join [concat $baseList $counter] _]
+	    set info [spectrum -list $candidateName]
+	    if {[llength $info] == 0} {
+		return $candidateName
+	    } else {
+		incr counter
+	    }
+	}
+	
+	
+    }
 
     #--------------------------------------------------------------------------
     # Call back methods.  These are, by necesity public thought not really part of
@@ -100,7 +160,7 @@ itcl::class spectrumTabActions {
 	    set gate       [lindex $spectrum 6]
 	    
 	    # Ungated true gate -> ""
-	    if {$gate eq "-TRUE-"} {
+	    if {$gate eq "-TRUE-" || $gate eq "-Ungated-"} {
 		set gate ""
 	    }
 
@@ -141,15 +201,75 @@ itcl::class spectrumTabActions {
 	if {[$widget cget -all]} {
 	    clear -all
 	} else {
-	    foreach name [$widget getSelection] {
-		clear $name
-	    }
+	    ::treeutility::for_each clear [$widget getSelection]
 	}
+    }
+    ##
+    # Called in response to the button to delete spectra.
+    #
+    public method DeleteSpectra {} {
+	if {[$widget cget -all]} {
+	    spectrum -delete -all
+	} else {
+	    ::treeutility::for_each [list spectrum -delete] [$widget getSelection]
+	}
+	LoadSpectra [$widget cget -mask]
+    }
+    # Duplicate a spectrum:
+    # - Assign a  unique name that starts like the existing spectrum.
+    # - Get the spectrum defintion.
+    # - Create the new spectrum
+    # - bind it to the display.
+    # @param name - Name of the existing spectrum to duplicate.
+    #
+    public method duplicateSpectrum name {
+	set newName [generateUniqueSpectrumName $name]
+	set def     [spectrum -list $name]
+
+	# bypass everything if there are no matching spectra.  This can happen if the
+	# spectrum was deleted bu tthe display not updated.
+	#
+	if {[llength $def] > 0} {
+	    set def [lindex $def 0]; # The actual definition.
+
+	    set type     [lindex $def 2]
+	    set param    [lindex $def 3]
+	    set axes     [lindex $def 4]
+	    set dataType [lindex $def 5]
+
+	    spectrum $newName $type $param $axes $dataType
+	}
+    }
+    ##
+    #  Called in response to the button to duplicate spectra.
+    #  We're going to use the following private methods:
+    #  getSelectedSpectra - Gets the list of spectra to operate on.
+    #  duplicateSpectrum - Duplicates a single spetrum.
+    #
+    public method DupSpectra {} {
+
+	::treeutility::for_each [list $this duplicateSpectrum] [getSelectedSpectra]
+	LoadSpectra [$widget cget -mask]
+    }
+
+    ##
+    # Called in response to the ungate button.  Ungates either the selected
+    # or all spectra depending on the state of the all checkbutton.
+    #
+    public method UngateSpectra {} {
+	set spectra [getSelectedSpectra]
+	if {[llength $spectra] != 0} {
+	    ungate {*}$spectra
+	    LoadSpectra [$widget cget -mask]
+
+	}
+
     }
     #---------------------------------------------------------------------------
     # True public interface.  There are other public methods but they
     # require that exposure to be used as callbacks.
     #
+ 
 
     ##
     # Construct the object and view:
@@ -162,11 +282,14 @@ itcl::class spectrumTabActions {
 	    error "The -widget option is mandatory"
 	}
 
-	spectrumContainer $widget \
-	    -savecmd   [list $this SaveConfiguration %N] \
+	spectrumContainer $widget                           \
+	    -savecmd   [list $this SaveConfiguration %N]    \
 	    -loadcmd   [list $this ReadConfiguration %N %W] \
-	    -updatecmd [list $this LoadSpectra %M]  \
-	    -clearcmd  [list $this ClearSpectra]
+	    -updatecmd [list $this LoadSpectra %M]          \
+	    -clearcmd  [list $this ClearSpectra]            \
+	    -deletecmd [list $this DeleteSpectra]           \
+	    -dupcmd    [list $this DupSpectra]              \
+	    -ungatecmd [list $this UngateSpectra]
 
 	LoadSpectra [$widget cget -mask]
     }
