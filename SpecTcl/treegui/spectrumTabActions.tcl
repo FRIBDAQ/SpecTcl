@@ -81,6 +81,21 @@ itcl::class spectrumTabActions {
 	}
     }
     ##
+    # Determine if any of a list of items is null.
+    # @param list - list of items
+    # @return boolean
+    # @return true - if at least one item is null.
+    # @return false - if no items are null.
+    #
+    private method anyNulls list {
+	foreach item $list {
+	    if {$item eq ""} {
+		return 1
+	    }
+	}
+	return 0
+    }
+    ##
     # Generate a new spectrum name based on an existing one.
     # There is an assumption we will make... That already duplicated spectra
     # will be of the form name_integer.  There fore if a spectrum breask up into
@@ -120,6 +135,27 @@ itcl::class spectrumTabActions {
 	}
 	
 	
+    }
+    ##
+    # True if the user says its ok to replace a spectrum:
+    # @param name - the spectrum name.
+    # @return bool
+    # @retval true if the user accepts.
+    #
+    private method okToReplaceSpectrum name {
+	if {[llength [spectrum -list $name]] > 0} {
+	    if {[tk_messageBox -default cancel -icon warning -parent $widget \
+		     -title Overwite -type okcancel \
+		     -message "$name already exists replace?"] eq "ok"} {
+		return 1
+	    } else {
+		return 0
+	    }
+	} else {
+	    # It's always ok to replace a nonexistent spectrum:
+
+	    return 1
+	}
     }
 
     #--------------------------------------------------------------------------
@@ -390,7 +426,7 @@ itcl::class spectrumTabActions {
 
 	    $widget configure -xunits [getUnits $xParam]
 
-	    if {[llength $axes] > 1} {
+	    if {[llength $params] > 1} {
 		set yparam [lindex $params 1]
 		set yaxis  [lindex $axes 1]
 		set ylow   [lindex $yaxis 0]
@@ -455,15 +491,90 @@ itcl::class spectrumTabActions {
     }
     ##
     #  The spectrum type changed..figure out what the state of the y axis should be.
-    #  only if it's 2 should we enable it:
+    #  only if it's 2, or S (stripchart) should we enable it:
     #
     public method ChangeSpectype {} {
 	set type [$widget cget -spectrumtype]
-	if {$type eq 2} {
+	if {($type eq 2) || ($type eq "S")} {
 	    $widget configure -ystate normal
 	} else {
 	    $widget configure -ystate disabled
 	}
+    }
+    ## Invoked to create a spectrum.
+    #
+    public method CreateSpectrum {} {
+	# If the spectrum exists prompt for redef:
+
+	#
+	#  We must have at least the following:
+	# - spectrum name
+	# - spectrum type
+	# - Xaxis.   The rest depends on the type of spectrum.
+
+	set type     [$widget cget -spectrumtype]
+	set datatype [$widget cget -datatype]
+	set name     [$widget cget -spectrumname]
+
+	set xname    [$widget cget -xparameter]
+	set xlow     [$widget cget -xlow]
+	set xhi      [$widget cget -xhi]
+	set xbins    [$widget cget -xbins]
+
+	# Do nothing if any of the above are empty:
+
+	if {[anyNulls [list $type $datatype $name $xname $xlow $xhi $xbins]]} {
+	    return
+	}
+
+
+	# What happens next depends entirely on the spectrum type
+	# Bitmask and 1d define essentially the same.
+	# 2d and Stripchart need different defs.
+	#
+
+	switch -exact -- $type {
+	    1 - b {
+		if {[okToReplaceSpectrum $name]} {
+		    catch {spectrum -delete $name}; # get rid of any prior spectrum.
+		    spectrum $name $type $xname [list [list $xlow $xhi $xbins]] $datatype
+		}
+	    }
+	    S {
+		# Need a y parameter too:
+		
+		set yname [$widget cget -yparameter]
+
+		if {($yname ne "") && [okToReplaceSpectrum $name]} {
+		    catch {spectrum -delete $name}
+		    spectrum $name $type [list $xname $yname]  [list [list $xlow $xhi $xbins]] $datatype
+		    sbind $name
+		}
+	    }
+	    2 {
+		# Need y parameter and axis definitions.
+
+		set yname [$widget cget -yparameter]
+		set ylow  [$widget cget -ylow]
+		set yhi   [$widget cget -yhi]
+		set ybins [$widget cget -ybins]
+
+		if {![anyNulls [list $yname $ylow $yhi $ybins]] && [okToReplaceSpectrum $name]} {
+		    catch {spectrum -delete $name}
+		    spectrum $name $type [list $xname $yname] \
+			[list [list $xlow $xhi $xbins] [list $ylow $yhi $ybins]] $datatype
+		    sbind $name
+		}
+	    }
+	    default {
+		tk_messageBox -type ok -icon error -title {Can't make this spectrum} \
+		    -parent $widget \
+		    -message "The tree gui does not know how to create spectra of type: $type"
+		    sbind $name
+	    }
+	}
+		      
+	LoadSpectra [$widget cget -mask]	  
     }
 
     #---------------------------------------------------------------------------
@@ -497,7 +608,8 @@ itcl::class spectrumTabActions {
 	    -selectcmd     [list $this SelectSpectrum %N]   \
 	    -typechanged   [list $this ChangeSpectype]      \
 	    -xparamselected [list $this LoadParameter x %N]    \
-	    -yparamselected [list $this LoadParameter y %N] 
+	    -yparamselected [list $this LoadParameter y %N] \
+	    -createcmd      [list $this CreateSpectrum]
 
 
 	LoadParameters 
