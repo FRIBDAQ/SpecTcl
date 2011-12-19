@@ -69,6 +69,7 @@ snit::widget spectrumContainer {
     delegate option -gates        to spectrum
     delegate option -gateselectcmd to spectrum
     delegate option -gate         to spectrum
+    delegate option -applycmd     to spectrum
 
     ##
     # Construction is just  installing and laying out the components.

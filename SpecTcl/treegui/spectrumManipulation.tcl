@@ -59,6 +59,7 @@ snit::widget spectrumManipulation {
     option -gates          -default [list] -configuremethod NewGates
     option -gateselectcmd  -default [list]
     option -gate           -default [list]
+    option -applycmd       -default [list]
 
     ##
     # Construct the widget and lay it out.  
@@ -102,8 +103,9 @@ snit::widget spectrumManipulation {
 
 	ttk::menubutton   $win.top.gates.gatesel -text Gate -menu $win.top.gates.gatesel.gates
 	treeMenu          $win.top.gates.gatesel.gates -command [mymethod MenuDispatch -gateselectcmd %L %N]
-	ttk::entry        $win.top.gates.gateentry -width 12 -textvariable ${selfns}::options(-gate)
-	ttk::button       $win.top.gates.ungate -text Ungate -command [mymethod Dispatch -ungatecmd]
+	ttk::button       $win.top.gates.apply   -text Apply  -command [mymethod Dispatch -applycmd]
+	ttk::entry        $win.top.gates.gateentry -width 12  -textvariable ${selfns}::options(-gate)
+	ttk::button       $win.top.gates.ungate -text Ungate  -command [mymethod Dispatch -ungatecmd]
 
 
 
@@ -115,17 +117,19 @@ snit::widget spectrumManipulation {
 	grid $win.top.spectra.all       -row 1 -column 2 -sticky nsew 
 	grid $win.top.spectra.duplicate -row 1 -column 3 -sticky nsew 
 
-	grid $win.top.gates.gatesel
-	grid $win.top.gates.gateentry $win.top.gates.ungate -sticky nsew 
+	grid $win.top.gates.gatesel   -row 0 -column 0  -sticky nsw
+	grid  $win.top.gates.apply    -row 0 -column 1  -sticky nse
+	grid $win.top.gates.gateentry -row 1 -column 0  -sticky nsw
+	grid $win.top.gates.ungate    -row 1 -column 1  -sticky nse
 
-	grid columnconfigure $win.top.spectra 0 -weight 2
+	grid columnconfigure $win.top.spectra 0 -weight 3
 	grid columnconfigure $win.top.spectra [list 1 2 3] -weight 1
 
 
 
 	grid $win.top.spectra $win.top.gates -sticky nsew
 
-	grid columnconfigure $win.top 0 -weight 5
+	grid columnconfigure $win.top 0 -weight 9
 	grid columnconfigure $win.top 1 -weight 1
 
 	grid $win.top    -sticky nsew

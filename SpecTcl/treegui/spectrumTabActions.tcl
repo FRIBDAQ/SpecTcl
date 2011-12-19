@@ -312,6 +312,18 @@ itcl::class spectrumTabActions {
 	$widget configure -gate $name
     }
     
+    ##
+    #  Apply gates to spectra.
+    #
+    public method ApplyGates {} {
+	set spectra [getSelectedSpectra]
+	set gate    [$widget cget -gate]
+	if {[llength $spectra] != 0} {
+	    apply $gate {*}$spectra
+	}
+	LoadSpectra [$widget cget -mask]
+    }
+
     #---------------------------------------------------------------------------
     # True public interface.  There are other public methods but they
     # require that exposure to be used as callbacks.
@@ -337,7 +349,8 @@ itcl::class spectrumTabActions {
 	    -deletecmd [list $this DeleteSpectra]           \
 	    -dupcmd    [list $this DupSpectra]              \
 	    -ungatecmd [list $this UngateSpectra]           \
-	    -gateselectcmd [list $this Selectgate %N]
+	    -gateselectcmd [list $this Selectgate %N]       \
+	    -applycmd      [list $this ApplyGates]
 
 	LoadSpectra [$widget cget -mask]
 
