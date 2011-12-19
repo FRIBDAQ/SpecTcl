@@ -50,6 +50,8 @@ snit::widget definitionFileWidget {
     option -loadcmd      -default [list]
     option -savecmd      -default [list]
 
+    delegate option -relief to hull
+    delegate option -borderwidth to hull
 
     ##
     # Construct the widget.
@@ -75,10 +77,10 @@ snit::widget definitionFileWidget {
 
 	# Lay them out on the frame:
 
-	grid $win.fnamelabel -columnspan 2 
-	grid $win.filename   -columnspan 2 
-	grid $win.load $win.save
-	grid $win.accumulate $win.failsafe
+	grid $win.fnamelabel -columnspan 2 -padx 5
+	grid $win.filename   -columnspan 2 -padx 5
+	grid $win.load $win.save           -padx 5
+	grid $win.accumulate $win.failsafe -padx 5
 
 	grid columnconfigure $win all -weight 1
 
