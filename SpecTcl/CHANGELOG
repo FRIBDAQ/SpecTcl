@@ -941,4 +941,12 @@ December 5, 2011
              unconditionally using a scatter plot rendition rather than the more usual color.
 
 
-       
+3.3-006
+November 30-?? 2011
+	- Added flag to guistate.tcl so that new/treegui can ask it to
+	  save without spectrum -delete and thus support the 'cumulate'
+	  (sic) checkbutton.
+	- Fix errors in Stripchart spectrum shifting and channel caculation.
+    	- Fix case in spectrum definition where we might ask Tcl to delete
+          storage we never allocated.
+

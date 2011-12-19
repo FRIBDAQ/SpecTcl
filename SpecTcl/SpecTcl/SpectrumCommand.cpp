@@ -448,8 +448,8 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 	rResult += "\n";
 	Usage(rResult);
 	
-	Tcl_Free((char*)ppAxisElements);
-	Tcl_Free((char*)ppListElements);
+	if (*ppAxisElements) Tcl_Free((char*)ppAxisElements);
+	if (*ppListElements) Tcl_Free((char*)ppListElements);
 	return TCL_ERROR;		       
 	
       }
