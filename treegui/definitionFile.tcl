@@ -67,7 +67,7 @@ snit::widget definitionFileWidget {
 	ttk::button $win.load -text Load -command [mymethod DispatchLoad]
 	ttk::button $win.save -text Save -command [mymethod DispatchSave]
 	
-	ttk::checkbutton $win.accumulate -text Cumulate \
+	ttk::checkbutton $win.accumulate -text Cumulative \
 	    -onvalue 1 -offvalue 0                      \
 	    -variable ${selfns}::options(-accumulate)
 
