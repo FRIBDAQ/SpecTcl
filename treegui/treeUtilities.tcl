@@ -93,7 +93,7 @@ proc ::treeutility::getFileTypes {} {
 # Perform a command with each element of a list appended to it
 # Sort of like an STL for_each
 # @param cmd - the command to run.
-# @param list - The list oif parameters to apply.
+# @param list - The list of parameters to apply.
 #
 proc ::treeutility::for_each {cmd list} {
     foreach element $list {

@@ -34,7 +34,35 @@ itcl::class spectrumTabActions {
 
     #-------------------------------------------------------------------------
     # Private utility methods
+    
+    ## Given a parameter name get the units:
+    # @param name - parameter name
+    # @return string 
+    # @retval possibly empty string containing parameter units.
+    #
+    private method getUnits name {
+	set def [parameter -list $name]
+	if {[llength $def] > 0} {
+	    set def [lindex $def 0]
+	    set paramInfo [lindex $def 3]
+	    return [lindex $paramInfo 2]
 
+	}
+	return {}
+    }
+
+    ##
+    # Load the parameter names into the parameter menus.
+    # 
+    private method LoadParameters {} {
+	set parameters [list]
+	foreach parameter [parameter -list] {
+	    lappend parameters [lindex $parameter 0]
+	}
+	$widget configure -parameters $parameters
+    }
+
+    ##
     # Get either selected or all spectra depending on the state of the all button.
     # @return list
     # @retval if all is checked a list of all spectrum names.
@@ -52,6 +80,7 @@ itcl::class spectrumTabActions {
 	    return [$widget getSelection]
 	}
     }
+    ##
     # Generate a new spectrum name based on an existing one.
     # There is an assumption we will make... That already duplicated spectra
     # will be of the form name_integer.  There fore if a spectrum breask up into
@@ -324,6 +353,119 @@ itcl::class spectrumTabActions {
 	LoadSpectra [$widget cget -mask]
     }
 
+    ##
+    # Select a spectrum and load it into the spectrum definition fields.
+    #
+    # @param name - The name of the spectrum.
+    #
+    public method SelectSpectrum name {
+	set def [spectrum -list $name]
+
+	# If the spectrum became undefined do nothing:
+
+	if {[llength $def] > 0} {
+	    set def      [lindex $def 0]
+	    set name     [lindex $def 1]
+	    set type     [lindex $def 2]
+	    set params   [lindex $def 3]
+	    set axes     [lindex $def 4]
+	    set datatype [lindex $def 5]
+
+	    set xParam [lindex $params 0]
+	    set xAxis  [lindex $axes 0]
+	    set xlow [lindex $xAxis 0]
+	    set xhi  [lindex $xAxis 1]
+	    set xbins [lindex $xAxis 2]
+
+
+	    $widget configure -spectrumtype $type \
+		-datatype $datatype               \
+		-spectrumname $name               \
+		-xparameter $xParam               \
+		-xlow       $xlow                 \
+		-xhi        $xhi                  \
+		-xbins      $xbins
+
+	    # Figure out units
+
+	    $widget configure -xunits [getUnits $xParam]
+
+	    if {[llength $axes] > 1} {
+		set yparam [lindex $params 1]
+		set yaxis  [lindex $axes 1]
+		set ylow   [lindex $yaxis 0]
+		set yhi    [lindex $yaxis 1]
+		set ybins  [lindex $yaxis 2]
+
+		$widget configure -yparameter $yparam \
+		    -ylow $ylow -yhi $yhi -ybins $ybins \
+		    -yunits [getUnits $yparam] -ystate normal
+	    } else {
+		$widget configure -ystate disabled
+	    }
+
+	}
+    }
+    ##
+    # Load a parameter into one of the axis widgets along with the suggested
+    # values (if this is a tree parameter).
+    # @param which - x or y - selects which of the  parameter widgets to load.
+    # @param name           - Name of the parameter.
+    #
+    public method LoadParameter {which name} {
+	#
+	# If there's a tree parameter by that name use it:
+
+        set tdef [treeparameter -list $name]
+	if {[llength $tdef] > 0} {
+	    set tdef [lindex $tdef 0]
+	    set bins [lindex $tdef 1]
+	    set lo   [lindex $tdef 2]
+	    set hi   [lindex $tdef 3]
+	    set units [lindex $tdef 5]
+	    
+
+	} else {
+	    # Otherwise if there's a parameter by that name use what we can from it:
+	    
+	    set pdef [parameter -list $name]
+	    if {[llength $pdef] > 0} {
+		set pdef [lindex $pdef 0]
+		set info [lindex $pdef 3]
+		set bins [list]
+		set lo   [lindex $info 0]
+		set hi   [lindex $info 1]
+		set units [lindex $info 2]
+
+	    } else {
+		# no such parameter so exit out:
+		return
+	    }
+	}
+	# If we got here the name, lo, hi, bins and units are set:
+
+	$widget configure \
+	    -${which}parameter $name \
+	    -${which}low       $lo   \
+	    -${which}hi        $hi   \
+	    -${which}bins      $bins \
+	    -${which}units     $units 
+
+
+    }
+    ##
+    #  The spectrum type changed..figure out what the state of the y axis should be.
+    #  only if it's 2 should we enable it:
+    #
+    public method ChangeSpectype {} {
+	set type [$widget cget -spectrumtype]
+	if {$type eq 2} {
+	    $widget configure -ystate normal
+	} else {
+	    $widget configure -ystate disabled
+	}
+    }
+
     #---------------------------------------------------------------------------
     # True public interface.  There are other public methods but they
     # require that exposure to be used as callbacks.
@@ -342,6 +484,7 @@ itcl::class spectrumTabActions {
 	}
 
 	spectrumContainer $widget                           \
+	    -ystate disabled                                \
 	    -savecmd   [list $this SaveConfiguration %N]    \
 	    -loadcmd   [list $this ReadConfiguration %N %W] \
 	    -updatecmd [list $this LoadSpectra %M]          \
@@ -350,7 +493,14 @@ itcl::class spectrumTabActions {
 	    -dupcmd    [list $this DupSpectra]              \
 	    -ungatecmd [list $this UngateSpectra]           \
 	    -gateselectcmd [list $this Selectgate %N]       \
-	    -applycmd      [list $this ApplyGates]
+	    -applycmd      [list $this ApplyGates]          \
+	    -selectcmd     [list $this SelectSpectrum %N]   \
+	    -typechanged   [list $this ChangeSpectype]      \
+	    -xparamselected [list $this LoadParameter x %N]    \
+	    -yparamselected [list $this LoadParameter y %N] 
+
+
+	LoadParameters 
 
 	LoadSpectra [$widget cget -mask]
 
@@ -361,7 +511,7 @@ itcl::class spectrumTabActions {
 	set gateAddChain    [gate -trace add    [list $this gateAdded]]
 	set gateDeleteChain [gate -trace delete [list $this gateDeleted]]
 	set gateChangeChain [gate -trace change [list $this getChanged]]
-
+	
 
 	
     }

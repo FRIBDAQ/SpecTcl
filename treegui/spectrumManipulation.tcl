@@ -16,6 +16,7 @@ package require Tk
 package require snit
 package require treeUtilities
 package require treemenuWidget
+package require spectrumAxis
 
 package provide spectrumManipulation 1.0
 
@@ -61,6 +62,31 @@ snit::widget spectrumManipulation {
     option -gate           -default [list]
     option -applycmd       -default [list]
 
+    option -spectrumname   -default [list]
+    option -parameters     -default [list] -configuremethod SetParameters
+
+    # Delegations for the axes:
+
+    #    X:
+
+    delegate option -xparameter to xaxis as -parameter
+    delegate option -xlow       to xaxis as -low
+    delegate option -xhi        to xaxis as -high
+    delegate option -xunits     to xaxis as -units
+    delegate option -xbins      to xaxis as -bins
+    delegate option -xparamselected to xaxis as -command
+    
+    #    Y:
+
+    delegate option -yparameter to yaxis as -parameter
+    delegate option -ylow       to yaxis as -low
+    delegate option -yhi        to yaxis as -high
+    delegate option -yunits     to yaxis as -units
+    delegate option -ybins      to yaxis as -bins
+    delegate option -yparamselected to yaxis as -command 
+    delegate option -ystate     to yaxis as -state
+
+
     ##
     # Construct the widget and lay it out.  
     # We also connect the events, bindings etc. to scripts.
@@ -92,11 +118,15 @@ snit::widget spectrumManipulation {
 
 
 	# Spectrum operations.
+
+	ttk::label       $win.top.spectra.label  -text {SpectrumName}
+	ttk::entry       $win.top.spectra.name   -textvariable ${selfns}::options(-spectrumname)
 	
 	ttk::button       $win.top.spectra.clear -text Clear -command [mymethod Dispatch -clearcmd]
 	ttk::checkbutton  $win.top.spectra.all   -text All   -variable ${selfns}::options(-all)
 	ttk::button       $win.top.spectra.delete -text Delete -command [mymethod Dispatch -deletecmd]
 	ttk::button       $win.top.spectra.duplicate -text Duplicate -command [mymethod Dispatch -dupcmd]
+
 
 
 	# Gate operations:
@@ -107,9 +137,18 @@ snit::widget spectrumManipulation {
 	ttk::entry        $win.top.gates.gateentry -width 12  -textvariable ${selfns}::options(-gate)
 	ttk::button       $win.top.gates.ungate -text Ungate  -command [mymethod Dispatch -ungatecmd]
 
+	# The two axis widgets:
+
+
+	install xaxis using spectrumAxis     $win.bottom.x.axis
+	install yaxis using spectrumAxis     $win.bottom.y.axis
 
 
 	# Layout the widgets:
+
+
+	grid $win.top.spectra.label     -row 0 -column 0 -sticky nsew
+	grid $win.top.spectra.name      -row 1 -column 0 -sticky nsew
 
 	grid $win.top.spectra.clear     -row 0 -column 2 -sticky nsew 
 	grid $win.top.spectra.delete    -row 0 -column 3 -sticky nsew 
@@ -133,6 +172,9 @@ snit::widget spectrumManipulation {
 	grid columnconfigure $win.top 1 -weight 1
 
 	grid $win.top    -sticky nsew
+
+	grid $win.bottom.x.axis 
+	grid $win.bottom.y.axis
 
 	grid $win.bottom.x $win.bottom.y -sticky nsew
 	grid columnconfigure $win.bottom all -weight 1
@@ -182,5 +224,17 @@ snit::widget spectrumManipulation {
 	destroy  $win.top.gates.gatesel.gates
 
 	treeMenu $win.top.gates.gatesel.gates -items $value -command [mymethod MenuDispatch -gateselectcmd %L %N]
+    }
+    ##
+    # Configure the parameters into the two parameter pull downs.
+    # @param option - name of option (-parameters)
+    # @param value  - New value of the option.
+    #
+    method SetParameters {option value} {
+	set options($option) $value
+	
+
+	$xaxis configure -parameters $value
+	$yaxis configure -parameters $value
     }
 }
