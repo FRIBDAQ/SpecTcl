@@ -100,3 +100,36 @@ proc ::treeutility::for_each {cmd list} {
 	{*}$cmd $element
     }
 }
+##
+# Get a list of the tree parameter names:
+# @param pattern - optional glob pattern the parameter must match .. defaults to *
+# @return list
+# @retval list of parameter names that match the pattern.
+#
+proc ::treeutility::parameterList {{pattern *}} {
+    set treeParameters [treeparameter -list $pattern]
+    set result [list]
+    
+    foreach param $treeParameters {
+	lappend result [lindex $param 0]
+    }
+    
+    return $result
+}
+##
+#  Prompt about replacing a list of spectra:
+# @param spectra - names of spectra to replace.
+# @return bool
+# @retval true if the user confirms, false otherwise.
+#
+proc ::treeutility::okToReplaceSpectra spectra {
+
+    set spectra [join $spectra {, }]
+    set message "The following spectra wil be erased and replaced: \n$spectra\n"
+    append message "Do you wish to continue?"
+    
+    set answer [tk_messageBox -type yesno -default no \
+		    -icon warning -message $message  -title {Confirm Change}]
+    
+    return [expr $answer eq "yes"]
+}

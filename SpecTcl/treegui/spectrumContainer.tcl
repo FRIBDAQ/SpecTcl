@@ -94,6 +94,7 @@ snit::widget spectrumContainer {
     delegate option -parameters to spectrum
     delegate option -createcmd  to spectrum
     delegate option -array      to spectrum
+    delegate option -arraystate to spectrum
 
     # Options for the spectrum type widget:
 

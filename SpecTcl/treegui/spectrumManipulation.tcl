@@ -66,6 +66,7 @@ snit::widget spectrumManipulation {
     option -parameters     -default [list] -configuremethod SetParameters
     option -createcmd      -default [list]
     option -array          -default 0
+   
 
     # Delegations for the axes:
 
@@ -87,6 +88,8 @@ snit::widget spectrumManipulation {
     delegate option -ybins      to yaxis as -bins
     delegate option -yparamselected to yaxis as -command 
     delegate option -ystate     to yaxis as -state
+
+    delegate option -arraystate to array as -state
 
 
     ##
@@ -125,7 +128,7 @@ snit::widget spectrumManipulation {
 	ttk::entry       $win.top.spectra.name   -textvariable ${selfns}::options(-spectrumname)
 
 	ttk::button      $win.top.spectra.create -text Create/Replace -command [mymethod Dispatch -createcmd]
-	ttk::checkbutton $win.top.spectra.array  -text Array -onvalue 1 -offvalue 0 \
+	install array using ttk::checkbutton $win.top.spectra.array  -text Array -onvalue 1 -offvalue 0 \
 	    -variable ${selfns}::options(-array)
 	
 	ttk::button       $win.top.spectra.clear -text Clear -command [mymethod Dispatch -clearcmd]
