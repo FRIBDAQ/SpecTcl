@@ -117,8 +117,8 @@ snit::widget gateCreate {
 	$win.type configure -width $labelLen
 
 
-	ttk::entry $win.name        -textvariable ${selfns}::options(-gatename)
-	ttk::entry $win.definition  -textvariable ${selfns}::options(-definition)  -width 32
+	ttk::entry $win.name        -textvariable ${selfns}::options(-gatename) -takefocus 1
+	ttk::entry $win.definition  -textvariable ${selfns}::options(-definition)  -width 32 -takefocus 1
 
 	#
 	#  Layout the widget.
