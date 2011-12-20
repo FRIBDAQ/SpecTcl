@@ -157,7 +157,9 @@ itcl::class spectrumTabActions {
 	    return 1
 	}
     }
-
+    ##
+    # True if its ok to replace a list of spectra:
+    #
     #--------------------------------------------------------------------------
     # Call back methods.  These are, by necesity public thought not really part of
     # the public interface.
@@ -496,9 +498,9 @@ itcl::class spectrumTabActions {
     public method ChangeSpectype {} {
 	set type [$widget cget -spectrumtype]
 	if {($type eq 2) || ($type eq "S")} {
-	    $widget configure -ystate normal
+	    $widget configure -ystate normal -arraystate disabled
 	} else {
-	    $widget configure -ystate disabled
+	    $widget configure -ystate disabled -arraystate normal
 	}
     }
     ## Invoked to create a spectrum.
@@ -535,9 +537,43 @@ itcl::class spectrumTabActions {
 
 	switch -exact -- $type {
 	    1 - b {
-		if {[okToReplaceSpectrum $name]} {
-		    catch {spectrum -delete $name}; # get rid of any prior spectrum.
-		    spectrum $name $type $xname [list [list $xlow $xhi $xbins]] $datatype
+		#
+		# 1d and bitmask spectra support the array checkbutton:
+		#
+		if {[$widget cget -array]} {
+		    #  Get the names of the parameters and the corresponding spectrum names:
+
+		    set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
+		    set spectrumList  [list]; # List of spectra to create
+		    set existingSpectra [list];	# List of previously existing spectra:
+
+		    foreach parameter $parameterList {
+			set tail [lindex [split $parameter .] end]
+			lappend spectrumList $name.$tail
+			set currentInfo [spectrum -list $name.$tail]
+			if {[llength $currentInfo] != 0} {
+			    lappend existingSpectra [lindex [lindex $currentInfo 0] 1]
+			}
+
+		    }
+		    #
+		    # Be sure it's ok to re-define the existing spectra
+		    #
+		    if {([llength $existingSpectra] == 0) ||
+			[::treeutility::okToReplaceSpectra $existingSpectra]} {
+			foreach parameter $parameterList spectrum $spectrumList {
+			    catch {spectrum -delete $spectrum}
+			    spectrum $spectrum $type $parameter \
+				[list [list $xlow $xhi $xbins]] $datatype
+			    sbind $spectrum
+			}
+		    }
+		} else {
+		    if {[okToReplaceSpectrum $name]} {
+			catch {spectrum -delete $name}; # get rid of any prior spectrum.
+			spectrum $name $type $xname [list [list $xlow $xhi $xbins]] $datatype
+			sbind $name
+		    }
 		}
 	    }
 	    S {
@@ -595,7 +631,7 @@ itcl::class spectrumTabActions {
 	}
 
 	spectrumContainer $widget                           \
-	    -ystate disabled                                \
+	    -ystate disabled -arraystate normal             \
 	    -savecmd   [list $this SaveConfiguration %N]    \
 	    -loadcmd   [list $this ReadConfiguration %N %W] \
 	    -updatecmd [list $this LoadSpectra %M]          \
@@ -610,6 +646,7 @@ itcl::class spectrumTabActions {
 	    -xparamselected [list $this LoadParameter x %N]    \
 	    -yparamselected [list $this LoadParameter y %N] \
 	    -createcmd      [list $this CreateSpectrum]
+	    
 
 
 	LoadParameters 

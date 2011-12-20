@@ -220,7 +220,7 @@ package provide parametersTabActions 1.0
     #
     private method listArrayElements sampleName {
 
-	return [::treeutility::listArrayElements $sampleName [list $this parameterList]]
+	return [::treeutility::listArrayElements $sampleName treeutility::parameterList]
 
     }
 
@@ -267,15 +267,7 @@ package provide parametersTabActions 1.0
     # @note false is the default so that we can't accidently kill stuff as easily.
     #
     private method promptChangeOk spectra {
-	set spectra [join $spectra {, }]
-	set message "The following spectra wil be erased and replaced: \n$spectra\n"
-	append message "Do you wish to continue?"
-
-	set answer [tk_messageBox -type yesno -default no \
-			-icon warning -message $message -parent $widget -title {Confirm Change}]
-	
-	return [expr $answer eq "yes"]
-
+	return [::treeutility::okToReplaceSpectra $spectra]
     }
 
     ##
@@ -300,7 +292,7 @@ package provide parametersTabActions 1.0
 	    error "The -widget option is mandatory for parametersTabActions"
 	}
 
-	treeParametersContainer $widget -number $lines -parameters [parameterList] \
+	treeParametersContainer $widget -number $lines -parameters [treeutility::parameterList] \
 	    -choosecmd [list $this loadCurrentEditor %N] \
 	    -loadcmd   [list $this reloadEditor  %S]         \
 	    -set       [list $this setParameter  %S]         \
@@ -445,18 +437,6 @@ package provide parametersTabActions 1.0
 	}
 
     }
-    ##
-    # Get a list of the tree parameter names:
-    #
-    public method parameterList {{pattern *}} {
-	set treeParameters [treeparameter -list $pattern]
-	set result [list]
 
-	foreach param $treeParameters {
-	    lappend result [lindex $param 0]
-	}
-	
-	return $result
-    }
 }
 
