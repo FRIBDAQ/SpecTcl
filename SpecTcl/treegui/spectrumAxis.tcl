@@ -71,7 +71,7 @@ snit::widget spectrumAxis {
 
 	# Top row of stuff:
 
-	ttk::menubutton $win.parametermenubutton -text "Parameter" -menu $win.parametermenu
+	ttk::menubutton $win.parametermenubutton -text "Parameter" -menu $win.parametermenu -takefocus 0
 	treeMenu        $win.parametermenu -command [mymethod Dispatch -command %L %N]
 	ttk::label      $win.lowlabel      -text Low
 	ttk::label      $win.highlabel     -text High
@@ -80,13 +80,17 @@ snit::widget spectrumAxis {
 
 	# Bottom row of stuff:
 
-	ttk::entry      $win.parameter    -textvariable ${selfns}::options(-parameter)
+	ttk::entry      $win.parameter    -textvariable ${selfns}::options(-parameter)  \
+	    -takefocus 1
 	ttk::entry      $win.low          -textvariable ${selfns}::options(-low) \
-	    -validate key -validatecommand [mymethod ValidNumber %P] -width 7
+	    -validate key -validatecommand [mymethod ValidNumber %P] -width 7 \
+	    -takefocus 1
 	ttk::entry      $win.high         -textvariable ${selfns}::options(-high) \
-	    -validate key -validatecommand [mymethod ValidNumber %P] -width 7
+	    -validate key -validatecommand [mymethod ValidNumber %P] -width 7  \
+	    -takefocus 1
 	ttk::entry      $win.bins         -textvariable ${selfns}::options(-bins) \
-	    -validate key -validatecommand [mymethod ValidNumber %P] -width 7
+	    -validate key -validatecommand [mymethod ValidNumber %P] -width 7  \
+	    -takefocus 1
 	ttk::label      $win.units        -textvariable ${selfns}::options(-units) -width 8
 
 	# Grid the elements:
@@ -123,8 +127,12 @@ snit::widget spectrumAxis {
     method StateChange {option value} {
 	set options($option) $value
 
+	# Disable/enable focus taking appropriately:
+
+	set focus [expr {($value eq "normal") ? 1 : 0}]
+
 	foreach widget [list $win.parameter $win.parametermenubutton $win.low $win.high $win.bins] {
-	    $widget configure -state $value
+	    $widget configure -state $value -takefocus $focus
 	}
     }
 

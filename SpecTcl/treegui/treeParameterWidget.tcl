@@ -61,13 +61,7 @@ snit::widget treeParameterEditor {
     option -changecmd [list]
     option -title     false;	# If true titles are put above the text entries.
 
-    # The variable below is the focus order ring:
-    # It allows us to build methods focusLeft and focusRight that shift focus
-    # the appropriate direction around the ring.
-    # Note that $win is not necessarily defined here so we just put the widget
-    # name tails:
 
-    variable focusRing [list .name .low .high .unit]
 
 
     ##
@@ -96,17 +90,17 @@ snit::widget treeParameterEditor {
 	foreach entry [list .name .low .high .unit] optionname [list -name -low -high -units] \
 	    width [list 32 5 5 10] {
 		::ttk::entry $win$entry -textvariable ${selfns}::options($optionname) \
-		    -width $width
+		    -width $width -takefocus 1
 		
-            # Bindings that move focus right:
+            # Bindings that move focus right.. note that tab is a next focus anyway.
 
-	    foreach binding [list <Tab> <Return> <Right>] {
-		bind $win$entry $binding [list after 2 [mymethod focusRight $entry]]
+	    foreach binding [list <Return> <Right>] {
+		bind $win$entry $binding  [list after 2 [mymethod focusRight %W]]; #  $entry]]
 	    }
-	    # Bindings that move focus left:
+	    # Bindings that move focus left:..note that shift-tab moves focus anyway.
 
-	    foreach binding [list <Shift-Tab> <Left> <ISO_Left_Tab>] {
-		bind $win$entry $binding [list after 2 [mymethod focusLeft $entry]]
+	    foreach binding [list  <Left>] {
+		bind $win$entry $binding [list after 2 [mymethod focusLeft %W]];#  $entry]]
 	    }
 	}
 	
@@ -146,22 +140,13 @@ snit::widget treeParameterEditor {
     # @param tail tail of current widgetname... actual widget is $win.$tail
     #
     method focusRight tail {
-	set currentIndex [lsearch -exact $focusRing $tail]
-	set nextIndex    [expr {($currentIndex+1) % [llength $focusRing]}]
-	set nextWidget   $win[lindex $focusRing $nextIndex]
-
-	focus $nextWidget
+	focus [tk_focusNext $tail]
     }
     ##
     # Change the focus to the prior widget in the focus ring.
     # @param tail 
     #
     method focusLeft tail {
-	set currentIndex [lsearch -exact $focusRing $tail]
-	set nextIndex    [expr {($currentIndex-1) % [llength $focusRing]}]
-	set nextWidget   $win[lindex $focusRing $nextIndex]
-
-	focus $nextWidget
-
+	focus [tk_focusPrev $tail]
     }
 }

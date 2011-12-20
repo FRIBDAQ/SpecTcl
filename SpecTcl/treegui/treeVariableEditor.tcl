@@ -103,28 +103,26 @@ snit::widget treeVariableEditor {
 
 	for {set row 1} {$row <= $options(-lines)} {incr row} {
 	    ttk::radiobutton $win.radio$row -value $row -variable ${selfns}::options(-current)
-	    ttk::entry       $win.name$row  -width 32
-	    ttk::entry       $win.value$row -width 10
-	    ttk::entry       $win.units$row -width 10
+	    ttk::entry       $win.name$row  -width 32 -takefocus 1
+	    ttk::entry       $win.value$row -width 10 -takefocus 1
+	    ttk::entry       $win.units$row -width 10 -takefocus 1
 	    ttk::button      $win.load$row  -text Load -command [mymethod ReloadDispatch $row]
 	    ttk::button      $win.set$row   -text Set  -command [mymethod SetVariable $row]
 
 	    grid $win.radio$row $win.name$row $win.value$row $win.units$row $win.load$row $win.set$row
 
-	    # Bindings for this row as well:
+	    # Bindings for this row as well.. note that tab/shift tab normally change focus.
 
-	    foreach binding [list <Tab> <Return> <Right> ] {
+	    foreach binding [list  <Return> <Right> ] {
 		foreach \
-		    widget [list $win.name$row $win.value$row $win.units$row] \
-		    nextwidget [list $win.value$row $win.units$row $win.name$row] {
-			bind $widget $binding [list after 2  focus $nextwidget]
+		    widget [list $win.name$row $win.value$row $win.units$row] {
+			bind $widget $binding [mymethod changeFocus tk_focusNext %W]
 		    }
 	    }
-	    foreach binding [list  <Shift-Tab> <Left> <ISO_Left_Tab> ] {
+	    foreach binding [list  <Left>] {
 		foreach \
-		    widget [list $win.name$row $win.value$row $win.units$row] \
-		    prior  [list $win.units$row $win.name$row $win.value$row] {
-			bind $widget $binding [list after 2  focus $prior]
+		    widget [list $win.name$row $win.value$row $win.units$row] {
+			bind $widget $binding [mymethod changeFocus tk_focusPrev %W]
 		    }
 	    }
 	}
@@ -213,6 +211,17 @@ snit::widget treeVariableEditor {
     #---------------------------------------------------------------------
     # Private utilities.
     #
+    ## 
+    # Change the focus:
+    #    @param nextcmd - command that determines the next widget given the current widget.
+    #    @param widget  - Current widget.
+    #
+    method changeFocus {nextcmd widget} {
+
+	# after since entry widgets do immediate focus games with some chars.
+
+	after 2 {focus [$nextcmd $widget]}; 
+    }
 
     ## 
     # Dispatch to a script at the global level with substitutions:
