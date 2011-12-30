@@ -10,6 +10,7 @@ install-exec-local:
 
 
 EXTRA_DIST = 2dGate.html \
+folderGui.tcl \
 Browser.html \
 C2Gate.html \
 Concepts.html \
