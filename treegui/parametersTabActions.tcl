@@ -292,11 +292,13 @@ package provide parametersTabActions 1.0
 	    error "The -widget option is mandatory for parametersTabActions"
 	}
 
+
 	treeParametersContainer $widget -number $lines -parameters [treeutility::parameterList] \
 	    -choosecmd [list $this loadCurrentEditor %N] \
 	    -loadcmd   [list $this reloadEditor  %S]         \
 	    -set       [list $this setParameter  %S]         \
-	    -change    [list $this changeSpectra %S]
+	    -change    [list $this changeSpectra %S]        \
+	    -namechanged [list $this nameChanged %S]
 
     }
 
@@ -437,6 +439,24 @@ package provide parametersTabActions 1.0
 	}
 
     }
+    ##
+    # Invoked if the name of a parameter widget changed.
+    # - fetch the name.
+    # - If the name corresponds to a treeparameter name load the editor.
+    # - IF not put ? in the entries that contain the parameter information.
+    #
+    # @param slot - slot that changed.
+    #
+    public method nameChanged slot {
+	set name [lindex  [$widget get $slot] 0]
+	set paramInfo [treeparameter -list $name]
+	if {[llength $paramInfo] > 0} {
+	    loadSlot $slot $name
+	} else {
+	    $widget load $slot $name ? ? ?
+	}
 
+
+    }
 }
 
