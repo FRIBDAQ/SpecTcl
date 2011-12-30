@@ -923,5 +923,7 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	 SpecTcl/Makefile \
 	 contrib/Makefile contrib/scriptable/Makefile \
 	 TestFiles/Makefile \
-	 Gui/Makefile splash/Makefile filtsplit/Makefile doc/Makefile \
+	 Gui/Makefile splash/Makefile \
+	 treegui/Makefile \
+	 filtsplit/Makefile doc/Makefile \
 	 calibratedparams/Makefile)

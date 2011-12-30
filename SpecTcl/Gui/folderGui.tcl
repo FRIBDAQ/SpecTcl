@@ -1114,12 +1114,16 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     pack $parent.b -fill both -expand 1
 
 
-    label $parent.statusline1 -justify left -text {Title:  N/A     Run Number: N/A}
-    label $parent.statusline2 -justify left -text {Data Source:  Test (inactive)   0 buffers analyzed  100% efficient}
-    pack $parent.statusline1 -fill x -expand 0 -anchor w
-    pack $parent.statusline2 -fill x -expand 0 -anchor w
-
+    if {$top eq ""} {
+	
+	label $parent.statusline1 -justify left -text {Title:  N/A     Run Number: N/A}
+	label $parent.statusline2 -justify left -text {Data Source:  Test (inactive)   0 buffers analyzed  100% efficient}
+	pack $parent.statusline1 -fill x -expand 0 -anchor w
+	pack $parent.statusline2 -fill x -expand 0 -anchor w
+	
+	updateStatus 1000
+    }
     set ::SpecTclIODwellMax 100
-    updateStatus 1000
+
     preferences::readPrefs
 }
