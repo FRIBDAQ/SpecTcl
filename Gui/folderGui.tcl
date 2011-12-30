@@ -1046,8 +1046,8 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     .topmenu.filemenu add command -label {Read Spectrum File...}      -command readSpectrumFile
     .topmenu.filemenu add command -label {Source Tcl Script...} \
                                                 -command sourceScript
-    .topmenu.filemenu add separator
-    .topmenu.filemenu add command -label Exit... -command exitProgram
+#    .topmenu.filemenu add separator
+#    .topmenu.filemenu add command -label Exit... -command exitProgram
 
     menu .topmenu.edit -tearoff 0
     .topmenu.edit add command -label Preferences.. -command editPrefs
