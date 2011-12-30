@@ -59,3 +59,4 @@ $treenotebook add $treenotebook.gates -text Gates -sticky new
 $treenotebook add $::FolderGui::folderGuiBrowser -text Folders -sticky nsew
 
 pack $treenotebook -expand 1 -fill both
+pack $::FolderGui::folderGuiStatusFrame -expand 1 -fill x

@@ -41,6 +41,7 @@ set LargestSource 50
 
 namespace eval ::FolderGui {
     variable folderGuiParent     {}
+    variable folderGuiStatusFrame {}
     variable folderGuiBrowser {}
 
 }
@@ -945,8 +946,8 @@ proc updateStatus nms {
     # It's always possible the user destroyed the window so conditionalize
     # the update on the window's existence.
 
-    if {[winfo exists $::FolderGui::folderGuiParent.statusline1] 
-	&& [winfo exists $::FolderGui::folderGuiParent.statusline2]} {
+    if {[winfo exists $::FolderGui::folderGuiStatusFrame.statusline1] 
+	&& [winfo exists $::FolderGui::folderGuiStatusFrame.statusline2]} {
 
         after $nms [list updateStatus $nms];           # Reschedule.
 
@@ -969,7 +970,7 @@ proc updateStatus nms {
 	}
 
 			    
-        $::FolderGui::folderGuiParent.statusline1 configure -text \
+        $::FolderGui::folderGuiStatusFrame.statusline1 configure -text \
             [format "Display memory: %s%s MB   Title %s Run Number: %s" $spectrumMemory $outOf $RunTitle $RunNumber]
         set source  [attach -list]
         if  {$LastSequence > 0} {
@@ -1002,7 +1003,7 @@ proc updateStatus nms {
 
 
 
-        $::FolderGui::folderGuiParent.statusline2 configure -text \
+        $::FolderGui::folderGuiStatusFrame.statusline2 configure -text \
             [format "Data Source: %s (%s) %d Buffers Analyzed %.2f%% efficient" $source $state $BuffersAnalyzed $efficiency]
         }
 
@@ -1022,15 +1023,16 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     if {$top eq ""} {
 	toplevel .gui -menu .topmenu
 	set parent .gui
-
+	set ::FolderGui::folderGuiStatusFrame $parent
     } else {
 	if {$parent eq ""} {
 	    error "folderGUI - providing a top level requires a parent as well"
 	} 
 	$top configure -menu .topmenu
+	set ::FolderGui::folderGuiStatusFrame [ttk::frame $top.spectclstatus]
     }
 
-    set ::FolderGui::folderGuiParent     $parent
+    set ::FolderGui::folderGuiParent  $parent
     set ::FolderGui::folderGuiBrowser $parent.b
 
 
@@ -1114,15 +1116,16 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     pack $parent.b -fill both -expand 1
 
 
-    if {$top eq ""} {
+    
+    ttk::label $::FolderGui::folderGuiStatusFrame.statusline1 \
+	-justify left -text {Title:  N/A     Run Number: N/A}
+    ttk::label $::FolderGui::folderGuiStatusFrame.statusline2 \
+	-justify left -text {Data Source:  Test (inactive)   0 buffers analyzed  100% efficient}
+
+    pack $::FolderGui::folderGuiStatusFrame.statusline1 -fill x -expand 0 -anchor w
+    pack $::FolderGui::folderGuiStatusFrame.statusline2 -fill x -expand 0 -anchor w
 	
-	label $parent.statusline1 -justify left -text {Title:  N/A     Run Number: N/A}
-	label $parent.statusline2 -justify left -text {Data Source:  Test (inactive)   0 buffers analyzed  100% efficient}
-	pack $parent.statusline1 -fill x -expand 0 -anchor w
-	pack $parent.statusline2 -fill x -expand 0 -anchor w
-	
-	updateStatus 1000
-    }
+    updateStatus 1000
     set ::SpecTclIODwellMax 100
 
     preferences::readPrefs
