@@ -48,6 +48,7 @@ package provide treeParametersContainer 1.0
 #    -set        - Command script to run when a set button is clicked.
 #    -change     - Command script to run when a Change Spectra button is clicked.
 #    -array      - Boolean that indicates/changes the array checkbutton.
+#    -namechanged - The name in a parameter editor changed.
 #
 #  METHODS
 #    get ?n?     - Returns the contents of the editor widget  n or if omitted
@@ -61,7 +62,7 @@ package provide treeParametersContainer 1.0
 #  ACTION SCRIPT SUBSITUTIONS:
 #     %W  - provides our widget name.
 #     %I  -  provides the widget name of the menu name for
-##           -choosecmd and the specific editor widget for load/set/change scripts.
+##           -choosecmd and the specific editor widget for load/set/change/namechanged scripts.
 #     %L  -  only for -choosecmd  provides the terminal label.
 #     %N  -  only for -choosecmd  provides the path to the terminal label selected.
 #     %S  - Provides the slot for the button clicks.
@@ -76,6 +77,7 @@ snit::widget treeParametersContainer {
     option -set        -default [list]
     option -change     -default [list]
     option -array      -default false
+    option -namechanged -default [list]
 
     variable menuButton;	# The button that is attached to the hierarchy menu.
 
@@ -113,7 +115,8 @@ snit::widget treeParametersContainer {
 	    treeParameterEditor $win.e$i -title $title \
 		-loadcmd    [mymethod ButtonClicked %W $i -loadcmd] \
 		-setcmd     [mymethod ButtonClicked %W $i -set]     \
-		-changecmd  [mymethod ButtonClicked %W $i -change]
+		-changecmd  [mymethod ButtonClicked %W $i -change] \
+		-namechanged [mymethod ButtonClicked %W $i -namechanged]
 
 	    grid $win.b$i -row $i -column 0 -sticky ew -pady 0
 	    grid $win.e$i -row $editorRow -column 1 -rowspan $rowspan -sticky ewns -pady 0

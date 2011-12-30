@@ -46,6 +46,7 @@ package provide treeParameterEditor 1.0
 #   <Return> Moves the focus forward to the next field.
 #   <Right>   Moves focus forward to the next field.
 #   <Left>    Moves focus back to the prior field.
+#   <Key>(name only) Calls -namechanged script.
 #
 #
 
@@ -60,6 +61,7 @@ snit::widget treeParameterEditor {
     option -setcmd    [list]
     option -changecmd [list]
     option -title     false;	# If true titles are put above the text entries.
+    option -namechanged [list]
 
 
 
@@ -103,6 +105,11 @@ snit::widget treeParameterEditor {
 		bind $win$entry $binding [list after 2 [mymethod focusLeft %W]];#  $entry]]
 	    }
 	}
+
+	# The after here is used to ensure the entry got updated by the key
+	# before invoking the callback.
+
+	bind $win.name <Key> +[list after 1 [mymethod callback -namechanged]]
 	
 	# then the buttons:
 
