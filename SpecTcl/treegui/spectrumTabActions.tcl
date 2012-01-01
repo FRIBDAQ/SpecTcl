@@ -18,6 +18,8 @@ package require Itcl
 package require spectrumContainer
 package require guistate
 
+package require autosave
+
 package provide spectrumTabActions 1.0
 
 
@@ -212,6 +214,7 @@ itcl::class spectrumTabActions {
 	#
 	uplevel #0 source $name
 	
+	[autoSave::getInstance] failsafeSave
 	
     }
     ##
@@ -286,6 +289,7 @@ itcl::class spectrumTabActions {
 	    ::treeutility::for_each [list spectrum -delete] [$widget getSelection]
 	}
 	LoadSpectra [$widget cget -mask]
+	[autoSave::getInstance]  failsafeSave
     }
     # Duplicate a spectrum:
     # - Assign a  unique name that starts like the existing spectrum.
@@ -310,6 +314,7 @@ itcl::class spectrumTabActions {
 	    set dataType [lindex $def 5]
 
 	    spectrum $newName $type $param $axes $dataType
+	    
 	}
     }
     ##
@@ -322,6 +327,8 @@ itcl::class spectrumTabActions {
 
 	::treeutility::for_each [list $this duplicateSpectrum] [getSelectedSpectra]
 	LoadSpectra [$widget cget -mask]
+	[autoSave::getInstance]  failsafeSave
+
     }
 
     ##
@@ -335,6 +342,7 @@ itcl::class spectrumTabActions {
 	    LoadSpectra [$widget cget -mask]
 
 	}
+	[autoSave::getInstance]  failsafeSave
 
     }
     ## 
@@ -389,6 +397,8 @@ itcl::class spectrumTabActions {
 	    apply $gate {*}$spectra
 	}
 	LoadSpectra [$widget cget -mask]
+	[autoSave::getInstance]  failsafeSave
+
     }
 
     ##
@@ -611,6 +621,23 @@ itcl::class spectrumTabActions {
 	}
 		      
 	LoadSpectra [$widget cget -mask]	  
+	[autoSave::getInstance]  failsafeSave
+
+    }
+    ##
+    # Called when the failsafe button has changed;
+    # Get the state of the button and set the auotsave singleton accordingly.
+    #
+    #
+    public method ChangeFailsafe {} {
+	set state [$widget cget -makefailsafe]
+	set autosave [autoSave::getInstance]
+
+	if {$state} {
+	    $autosave enableFailsafe
+	} else {
+	    $autosave disableFailsafe
+	}
     }
 
     #---------------------------------------------------------------------------
@@ -645,7 +672,8 @@ itcl::class spectrumTabActions {
 	    -typechanged   [list $this ChangeSpectype]      \
 	    -xparamselected [list $this LoadParameter x %N]    \
 	    -yparamselected [list $this LoadParameter y %N] \
-	    -createcmd      [list $this CreateSpectrum]
+	    -createcmd      [list $this CreateSpectrum]     \
+	    -failsafechanged [list $this ChangeFailsafe]
 	    
 
 

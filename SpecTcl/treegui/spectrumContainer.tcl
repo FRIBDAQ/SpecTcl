@@ -49,6 +49,7 @@ snit::widget spectrumContainer {
     delegate option -makefailsafe to fileio
     delegate option -loadcmd      to fileio
     delegate option -savecmd      to fileio
+    delegate option -failsafechanged to fileio
 
     # Spectrum mask options:
 
