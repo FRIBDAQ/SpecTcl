@@ -41,6 +41,7 @@ snit::widget treeVariableContainer {
     delegate option -loadcmd   to editors
     delegate option -setcmd    to editors
     delegate option -array     to editors
+    delegate option -namechanged to editors
 
     delegate option -loadfile   to loadsave as -loadcmd
     delegate option -savefile   to loadsave as -savecmd
