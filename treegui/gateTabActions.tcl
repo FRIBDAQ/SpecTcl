@@ -192,6 +192,7 @@ package provide gateTabActions 1.0
 	    gate -delete $gate
 	}
 	updateGates
+	[autoSave::getInstance] failsafeSave
     }
     ##
     # Prompt for confirmation and, if we get it, delete all  of the 
@@ -211,7 +212,9 @@ package provide gateTabActions 1.0
 		}
 	    }
 	    updateGates
+	    [autoSave::getInstance] failsafeSave
 	}
+
     }
     ##
     # Callback invoked to create/modify a gate.
@@ -233,6 +236,8 @@ package provide gateTabActions 1.0
 		updateGates
 	    }
 	}
+	[autoSave::getInstance] failsafeSave
+	
     }
     #-------------------------------------------------------------------------------
     #  Public interfaces

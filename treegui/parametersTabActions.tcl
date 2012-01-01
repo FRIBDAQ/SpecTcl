@@ -102,6 +102,7 @@ package provide parametersTabActions 1.0
 	set axes [lreplace $axes $which $which $axis]
 
 	return $axes
+
     }
 
     ##
@@ -375,6 +376,8 @@ package provide parametersTabActions 1.0
 	    }
 	    
 	}
+	[autoSave::getInstance] failsafeSave
+
     }
 
     ##
@@ -431,11 +434,13 @@ package provide parametersTabActions 1.0
 			foreach parameter $spectraModified($spectrum) {
 			    modifySpectra $spectrum $parameter $low $hi
 			}
+			[autoSave::getInstance] failsafeSave; # Only if we modify spectra.
 		    }
 		}
 	    } else {
 		notifyNoMatches
 	    }
+
 	}
 
     }

@@ -19,6 +19,7 @@ package require guistate;	# From 'folder gui'.
 
 package provide variableTabActions 1.0
 
+
 ##
 #  Provides the behavior associated with the tree variables editor tab.
 #  OPTIONS
@@ -81,6 +82,8 @@ itcl::class variableTabActions {
 		treevariable -firetraces $name
 	    }
 	}
+	[autoSave::getInstance] failsafeSave
+
     }
     ##
     # Return a list of the tree  variable names.
@@ -119,6 +122,8 @@ itcl::class variableTabActions {
     #
     public method RestoreVariables name {
 	uplevel #0 source $name
+	[autoSave::getInstance] failsafeSave
+
     }
     ##
     # A tree variable name field has changed.  If the current value matches

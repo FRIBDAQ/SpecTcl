@@ -34,6 +34,7 @@ package provide definitionFileWidget 1.0
 #   -makefailsafe - The state of the Failsafe checkbutton.
 #   -loadcmd      - Script that is called when the Load button is clicked.
 #   -savecmd      - Script that is called whenthe Save button is clicked.
+#   -failsafechanged - Script called if failsafe checkbutton changes.
 #
 # SUBSTITUTIONS:
 #   Callbacks support the following susbitutions:
@@ -49,6 +50,7 @@ snit::widget definitionFileWidget {
     option -makefailsafe -default 1
     option -loadcmd      -default [list]
     option -savecmd      -default [list]
+    option -failsafechanged -default [list]
 
     delegate option -relief to hull
     delegate option -borderwidth to hull
@@ -73,7 +75,8 @@ snit::widget definitionFileWidget {
 
 	ttk::checkbutton $win.failsafe   -text Failsafe \
 	    -onvalue 1 -offvalue 0                      \
-	    -variable ${selfns}::options(-makefailsafe)
+	    -variable ${selfns}::options(-makefailsafe) \
+	    -command [mymethod DispatchFsChanged]
 
 	# Lay them out on the frame:
 
@@ -111,6 +114,15 @@ snit::widget definitionFileWidget {
     }
     #----------------------------------------------------------------------
     # Action handlers for the user interface.
+
+    ##
+    # Dispatch the change of the failsafe button:
+    # Substitutions:
+    #    %W -widget
+    #
+    method DispatchFsChanged {} {
+	::treeutility::dispatch $options(-failsafechanged) [list %W] [list $self]
+    }
 
     ##
     # Handle the Save button.  This dispatches to the -savecmd after first
