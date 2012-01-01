@@ -60,6 +60,7 @@ package provide treeVariableEditor 1.0
 #                    %I - Index of the selected editor.
 #                    %W - Widget of the selected editor.
 #    -array      - 0 if the array check button is off 1 otherwise.
+#    -namechanged - Script invoked if the name field of one of the editors changed.
 #
 # METHODS:
 #   loadEditor - Loads the contents of a specific editor.
@@ -77,6 +78,7 @@ snit::widget treeVariableEditor {
     option -loadcmd   -default [list]
     option -setcmd    -default [list]
     option -array     -default 0
+    option -namechanged -default [list]
 
     ##
     #Create/layout the widgets and set up the callbacks and bindings.
@@ -125,6 +127,10 @@ snit::widget treeVariableEditor {
 			bind $widget $binding [mymethod changeFocus tk_focusPrev %W]
 		    }
 	    }
+	    # The after in this binding allows the entry to change so a get
+	    # of the value reflects the contents after the keystroke.
+	    #
+	    bind $win.name$row <Key> [list after 1 [mymethod Keystroke $row]]
 	}
     }
     #------------------------------------------------------------------------------
@@ -223,6 +229,21 @@ snit::widget treeVariableEditor {
 	after 2 {focus [$nextcmd $widget]}; 
     }
 
+    ##
+    #  Dispatch a name change callback:
+    # @param row - The row of the editor that had a name change.
+    #
+    # Substitutions:
+    #    - %W  - This megawidget.
+    #    - %I  - The row of the widget that was modified.
+    #    - %N  - The contents of the name after the stubstition.
+    #
+    method Keystroke row {
+	set entryWidget $win.name$row
+
+	$self Dispatch $options(-namechanged) [list %W %I %N] [list $win $row [list [$win.name$row get]]]
+    }
+
     ## 
     # Dispatch to a script at the global level with substitutions:
     #
@@ -233,5 +254,5 @@ snit::widget treeVariableEditor {
     method Dispatch {script substs values} {
 	::treeutility::dispatch $script $substs $values
     }
-    
+
 }

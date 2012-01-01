@@ -120,6 +120,27 @@ itcl::class variableTabActions {
     public method RestoreVariables name {
 	uplevel #0 source $name
     }
+    ##
+    # A tree variable name field has changed.  If the current value matches
+    # a known tree variable the editor is loaded with its current value
+    # and units..otherwise the value/units are loaded with ?'s.
+    #
+    # @param index - Index of the editor that changed.
+    # @param name  - New value of the name field.
+    #
+    public method NameChanged {index name} {
+	set info [treevariable -list $name]
+	if {[llength $info] > 0} {
+	    set info [lindex $info 0]
+	    set value [lindex $info 1]
+	    set units [lindex $info 2]
+
+	    $widget loadEditor $index $name $value $units
+	} else {
+	    $widget loadEditor $index $name ? ?
+	}
+    }
+
 
     #--------------------------------------------------------------------
     # public interface
@@ -140,7 +161,8 @@ itcl::class variableTabActions {
 	    -loadcmd   [list $this LoadVariable %N %I] \
 	    -setcmd    [list $this SetVariable %N %V %U] \
 	    -savefile  [list $this SaveVariables %F] \
-	    -loadfile  [list $this RestoreVariables %F]
+	    -loadfile  [list $this RestoreVariables %F] \
+	    -namechanged [list $this NameChanged %I %N]
     }
 
 
