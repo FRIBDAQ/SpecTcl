@@ -19,6 +19,7 @@ package require spectrumContainer
 package require guistate
 
 package require autosave
+package require restore
 
 package provide spectrumTabActions 1.0
 
@@ -212,7 +213,8 @@ itcl::class spectrumTabActions {
 	}
 	# Now we can read the file:
 	#
-	uplevel #0 source $name
+	
+	[Restore::getInstance] restore $name
 	
 	[autoSave::getInstance] failsafeSave
 	
