@@ -240,6 +240,8 @@ namespace eval guistate {
     variable pseudostatus
 
     variable writeDeletes 1;	# If true commands are emitted to delete spectra.
+    variable observers;         # List of scripts that are executed during saves.`
+    array set observers [list];	#    Initialized to empty.
 }
 
 # getDependentGates description
@@ -592,6 +594,12 @@ proc writeAll fd {
     writeGateDefinitions     $fd
     writeGateApplications    $fd
     writeFilters             $fd
+
+    #  Now execute the observers at the global level:
+
+    foreach observerName [array names ::guistate::observers] {
+	uplevel #0 $::guistate::observers($observerName) $fd
+    }
 }
 
 #
@@ -700,5 +708,30 @@ proc writeVariables {} {
         set fd $msg
         writeTreeVariables $fd
         close $fd
+    }
+}
+#-----------------------------------------------------------------------
+#
+#  Observer management code:
+#
+
+##
+# Add a save state observer.  These are run in arbitrary order 
+# after the main state is saved.
+# @param name   - Name of the observer (should be unique).
+# @param script - Script to run.  The file descriptor to which the
+#                 save is being done is  appended to the script.
+#
+proc addSaveObserver {name script} {
+    set ::guistate::observers($name) $script
+}
+##
+# Remove a save state observer. 
+# @name - Name of the observer to remove.  It is a no-op to remove an
+#         observer that does not exist (not an error).
+#
+proc removeSaveObserver name {
+    if {[array names ::guistate::observers $name] eq $name} {
+	array unset ::guistate::observers $name
     }
 }

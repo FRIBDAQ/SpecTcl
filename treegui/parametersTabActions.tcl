@@ -16,6 +16,7 @@ package require Tk
 package require Itcl
 package require treeParametersContainer
 package require treeUtilities
+package require restore
 
 package provide parametersTabActions 1.0
 
@@ -301,6 +302,15 @@ package provide parametersTabActions 1.0
 	    -change    [list $this changeSpectra %S]        \
 	    -namechanged [list $this nameChanged %S]
 
+	# Register an observer for the save so that we can
+	# Save our state too:
+
+	addSaveObserver parameterTabLayout [list $this saveLayout]
+
+
+	# Register an observer to restore the state of the editors etc.:
+
+	[Restore::getInstance] addObserver ParameterTab [list $this restoreLayout]
     }
 
 
@@ -309,6 +319,95 @@ package provide parametersTabActions 1.0
     #  Internal callbacks.
     #  NOTE: itcl requires these to be public but they are not part of the class 
     #        interface.
+
+    ##
+    # Restore the layout after a read from file.
+    # See saveLayout for how the layout is saved.
+    #
+    public method restoreLayout {} {
+	
+	#  First load the layout, clearing any unset slots:
+
+
+	set lines [$widget cget -number]
+	for {set i 1} {$i <= $lines} {incr i} {
+	    
+	    set name  ""
+	    set low   ""
+	    set hi    ""
+	    set units ""
+	    
+	    # Fill the slot if it has values.. assume the file is well formed:
+
+	    if {[array names ::parameter Name$i] eq "Name$i"} {
+		set name $::parameter(Name$i)
+		set low  $::parameter(Start$i)
+		set hi   $::parameter(Stop$i)
+		set units $::parameter(Unit$i)
+	    }
+	    $widget load $i $name $low $hi $units
+
+	}
+	    # Set the array/selection:
+
+	if {[array names ::parameter select] eq "select"} {
+	    $widget configure -current $::parameter(select)
+	}
+	
+	# Set the array checkbox:
+
+	if {[array names ::parameter Array] eq "Array"} {
+	    # Ensure we get the exact value right even for old files:
+
+	    if {$::parameter(Array) } {
+		set value true
+	    } else {
+		set value false
+	    }
+	    $widget configure -array $value
+	}
+
+	
+    }
+
+    ##
+    # Save the layout of the tab to a save file.
+    # This is done by adding a bunch of 'set parameter' elements.
+    # - Namei - the name of the parameter in the i'th line if not empty.
+    # - Starti - The low limit of the i'th line if not empty.
+    # - Stopi  - The high limit of the i'th line if not empty.
+    # - Uniti  - The units of the i'th line if not empty.
+    # - select - The index of the selected line (radio button).
+    # - Array  - State of the array check button.
+    #
+    # @param fd - File descriptor open on the save file.
+    #
+    public method saveLayout fd {
+	set lines [$widget cget -number]; # Number of parameter lines to interrogate/save:
+
+	puts $fd "#  - Parameter tab layout: "
+
+	# Contents of the editors:
+
+	for {set i 1} {$i <= $lines} {incr i} {
+	    set lineInfo [$widget get $i]
+	    set name [lindex $lineInfo 0]
+	    if {$name ne ""} {
+		set low [lindex $lineInfo 1]
+		set hi  [lindex $lineInfo 2]
+		set units [lindex $lineInfo 3]
+		foreach index [list Name Start Stop Unit] value [list $name $low $hi $units] {
+		    puts $fd "set parameter($index$i) [list $value]"; # list does quoting if needed
+		}
+	    }
+	}
+	# Selection and array values:
+	
+	puts $fd "set parameter(select) [$widget cget -current]"
+	puts $fd "set parameter(Array)  [$widget cget -array]"
+	
+	    
+    }
 
     ##
     # Load the currently selected editor with a specific tree parameter

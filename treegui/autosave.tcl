@@ -12,8 +12,9 @@
 #	     Michigan State University
 #	     East Lansing, MI 48824-1321
 
-package require treeUtilities
 package require Itcl
+package require guistate
+
 
 package provide autosave 1.0
 
@@ -74,6 +75,9 @@ itcl::class autoSave {
     # In the singleton pattern, the construtor is labeled private
     # so that it can only be invoked, if needed by the getInstance
     # common method.
+    # Unfortunately itcl does not honor private restrictions on constructors.
+    # hence the check for instance below.
+    #
     private constructor {} {
 	if {$instance ne [list]} {
 	    error "Singleton-ness violated for autoSave"
