@@ -296,30 +296,29 @@ package provide parametersTabActions 1.0
 
 
 	treeParametersContainer $widget -number $lines -parameters [treeutility::parameterList] \
-	    -choosecmd [list $this loadCurrentEditor %N] \
-	    -loadcmd   [list $this reloadEditor  %S]         \
-	    -set       [list $this setParameter  %S]         \
-	    -change    [list $this changeSpectra %S]        \
-	    -namechanged [list $this nameChanged %S]
+	    -choosecmd [itcl::code $this loadCurrentEditor %N] \
+	    -loadcmd   [itcl::code $this reloadEditor  %S]         \
+	    -set       [itcl::code $this setParameter  %S]         \
+	    -change    [itcl::code $this changeSpectra %S]        \
+	    -namechanged [itcl::code $this nameChanged %S]
 
 	# Register an observer for the save so that we can
 	# Save our state too:
 
-	addSaveObserver parameterTabLayout [list $this saveLayout]
+	addSaveObserver parameterTabLayout [itcl::code $this saveLayout]
 
 
 	# Register an observer to restore the state of the editors etc.:
 
 	[Restore::getInstance] addPreObserver ParameterTab [itcl::code clearLayoutVariables]
-	[Restore::getInstance] addObserver ParameterTab [list $this restoreLayout]
+	[Restore::getInstance] addObserver ParameterTab [itcl::code $this restoreLayout]
     }
 
 
 
     #----------------------------------------------------------------------------
     #  Internal callbacks.
-    #  NOTE: itcl requires these to be public but they are not part of the class 
-    #        interface.
+
     
     ##
     # unset the ::parameter array prior to reloading a configuration file.
@@ -334,7 +333,7 @@ package provide parametersTabActions 1.0
     # Restore the layout after a read from file.
     # See saveLayout for how the layout is saved.
     #
-    public method restoreLayout {} {
+    private method restoreLayout {} {
 	
 	#  First load the layout, clearing any unset slots:
 
@@ -392,7 +391,7 @@ package provide parametersTabActions 1.0
     #
     # @param fd - File descriptor open on the save file.
     #
-    public method saveLayout fd {
+    private method saveLayout fd {
 	set lines [$widget cget -number]; # Number of parameter lines to interrogate/save:
 
 	puts $fd "\n#  - Parameter tab layout: \n"
@@ -427,7 +426,7 @@ package provide parametersTabActions 1.0
     #
     # @note - if the tree parameter does not exist, this is a no-op for now.
     #
-    public method loadCurrentEditor path {
+    private method loadCurrentEditor path {
 
 	loadSlot [$widget cget -current] $path
 
@@ -438,7 +437,7 @@ package provide parametersTabActions 1.0
     # @param slot  - the slot whose load button was clicked.
     #
     #
-    public method reloadEditor {slot} {
+    private method reloadEditor {slot} {
 	set contents [$widget get $slot]
 	set path     [lindex $contents 0]
 
@@ -451,7 +450,7 @@ package provide parametersTabActions 1.0
     #
     # @param slot - the slot to modify.
     #
-    public method setParameter {slot} {
+    private method setParameter {slot} {
 	set contents [$widget get $slot]
 	set path     [lindex $contents 0]
 
@@ -498,7 +497,7 @@ package provide parametersTabActions 1.0
     #
     # @param slot - The slot whose change button was clicked.
     # 
-    public method changeSpectra {slot} {
+    private method changeSpectra {slot} {
 	set contents [$widget get $slot]
 	set path     [lindex $contents 0]
 
@@ -561,7 +560,7 @@ package provide parametersTabActions 1.0
     #
     # @param slot - slot that changed.
     #
-    public method nameChanged slot {
+    private method nameChanged slot {
 	set name [lindex  [$widget get $slot] 0]
 	set paramInfo [treeparameter -list $name]
 	if {[llength $paramInfo] > 0} {

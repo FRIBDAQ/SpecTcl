@@ -121,7 +121,6 @@ snit::widget gateContainer {
     # @param args option name value pairs list.
     #
     constructor args {
-	puts gateSelBar
 	install  gatemask  using gateSelBar $win.gatesel
 	install  gatetable using gateTable $win.gatetable
 	install  gatedelete using gateDeleteBar $win.gatedelete
