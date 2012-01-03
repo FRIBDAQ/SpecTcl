@@ -132,7 +132,7 @@ snit::widget treeVariableEditor {
 	    # The after in this binding allows the entry to change so a get
 	    # of the value reflects the contents after the keystroke.
 	    #
-	    bind $win.name$row <Key> [list after 1 [mymethod Keystroke $row]]
+	    bind $win.name$row <Key> [list after idle  [mymethod Keystroke $row]]
 	}
     }
     #------------------------------------------------------------------------------
@@ -242,7 +242,7 @@ snit::widget treeVariableEditor {
 
 	# after since entry widgets do immediate focus games with some chars.
 
-	after 2 {focus [$nextcmd $widget]}; 
+	after idle  [list focus [$nextcmd $widget]]
     }
 
     ##
