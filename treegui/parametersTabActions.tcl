@@ -310,6 +310,7 @@ package provide parametersTabActions 1.0
 
 	# Register an observer to restore the state of the editors etc.:
 
+	[Restore::getInstance] addPreObserver ParameterTab [itcl::code clearLayoutVariables]
 	[Restore::getInstance] addObserver ParameterTab [list $this restoreLayout]
     }
 
@@ -319,7 +320,16 @@ package provide parametersTabActions 1.0
     #  Internal callbacks.
     #  NOTE: itcl requires these to be public but they are not part of the class 
     #        interface.
-
+    
+    ##
+    # unset the ::parameter array prior to reloading a configuration file.
+    #
+    private proc clearLayoutVariables {} {
+	if {[array exists ::parameter]} {
+	    unset ::parameter
+	}
+    }
+    
     ##
     # Restore the layout after a read from file.
     # See saveLayout for how the layout is saved.
@@ -385,7 +395,7 @@ package provide parametersTabActions 1.0
     public method saveLayout fd {
 	set lines [$widget cget -number]; # Number of parameter lines to interrogate/save:
 
-	puts $fd "#  - Parameter tab layout: "
+	puts $fd "\n#  - Parameter tab layout: \n"
 
 	# Contents of the editors:
 

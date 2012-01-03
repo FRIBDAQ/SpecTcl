@@ -20,6 +20,8 @@ package provide restore 1.0
 #
 # Public methods provided are:
 #   - getInstance  - Get the singleton instance
+#   - addPreObserver - Adds an observer called prior to state restor.
+#   - removePreobserver - Removes a pre-observer.
 #   - addObserver  - Adds an observer that is called after the state restore.
 #   - removeObserver - Remove an observer that has been added via addObserver.
 #   - restore        - Restore state of the software.
@@ -29,6 +31,25 @@ package provide restore 1.0
 itcl::class Restore {
     private common    instance [list]
     private variable  observers 
+    private variable  preObservers
+    
+    #-----------------------------------------------------------------
+    #
+    # Private utilities
+
+
+    ##
+    # Invoke a set of observers.
+    # 
+    # @param observerList the result of an [array get] on an observers array.
+    #                     this is a list of the form index1 value1 index2 value2...
+    #
+    private method invokeObservers observerList {
+
+	foreach [list name value] $observerList {
+	    uplevel #0 $value
+	}
+    }
 
     #--------------------------------------------------------------------
     #
@@ -50,10 +71,33 @@ itcl::class Restore {
 
     private constructor {} {
 	if {$instance ne [list]} {
-	    error "Singleton-ness violated for autoSave"
+	    error "Singleton-ness violated for restore"
 	}
 	array set observers [list]
+	array set preObservers [list]
 	set instance $this
+    }
+    ## Add an observer invoked prior to state restore.  If state is saved
+    # in global variables this gives an observing object a chance to clear
+    # that state first.
+    #
+    # @param name - name identifying the observer.  This is in a namespace
+    #               distinct from the (post)observer namespace.
+    # @param script - Script to run when the observer is triggered.
+    #
+    public method addPreObserver {name script} {
+	set preObservers($name) $script
+    }
+    ##
+    # Remove a pre restore observer
+    # 
+    # @param name - Name of the observer to delete.
+    #               This is a no-op if no observer by that name was established.]
+    #
+    public method removePreObserver name {
+	if {[array names preObservers $name] eq $name} {
+	    array unset preObservers $name
+	}
     }
 
     ##
@@ -83,11 +127,13 @@ itcl::class Restore {
     # @param name - filename to be sourced.
     #
     public method restore name {
+
+	invokeObservers [array get preObservers]
+
 	uplevel #0 source $name
 
-	foreach observerName [array names observers] {
-	    uplevel #0 $observers($observerName)
-	}
+	invokeObservers [array get  observers]
+
     }
 
 }
