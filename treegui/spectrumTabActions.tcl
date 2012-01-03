@@ -37,6 +37,25 @@ itcl::class spectrumTabActions {
 
     #-------------------------------------------------------------------------
     # Private utility methods
+
+    ## Given a number if it turns out the number is an integer,
+    #  just return the integerized string.  If not trailing 0's
+    #  are trimmed from the fp string (assuming not 1.0E10 notation).
+    #
+    #  @param value  - Value to modify
+    #
+    #  @return string 
+    #  @retval value prettied up for display.
+    #
+    private proc niceDisplay value {
+	set intValue [expr int($value)]
+	if {$intValue == $value} {
+	    return $intValue
+	}
+
+	
+	return [string trimright $value 0]
+    }
     
     ## Given a parameter name get the units:
     # @param name - parameter name
@@ -160,19 +179,51 @@ itcl::class spectrumTabActions {
 	    return 1
 	}
     }
-    ##
-    # True if its ok to replace a list of spectra:
+    # Duplicate a spectrum:
+    # - Assign a  unique name that starts like the existing spectrum.
+    # - Get the spectrum defintion.
+    # - Create the new spectrum
+    # - bind it to the display.
+    # @param name - Name of the existing spectrum to duplicate.
     #
+    private method duplicateSpectrum name {
+	set newName [generateUniqueSpectrumName $name]
+	set def     [spectrum -list $name]
+
+	# bypass everything if there are no matching spectra.  This can happen if the
+	# spectrum was deleted bu tthe display not updated.
+	#
+	if {[llength $def] > 0} {
+	    set def [lindex $def 0]; # The actual definition.
+
+	    set type     [lindex $def 2]
+	    set param    [lindex $def 3]
+	    set axes     [lindex $def 4]
+	    set dataType [lindex $def 5]
+
+	    spectrum $newName $type $param $axes $dataType
+	    
+	}
+    }
+    ##
+    # Called to refresh the contents of the gate menu.
+    #
+    private method LoadGateMenu {} {
+	set gates [list]
+	foreach gate [gate -list] {
+	    lappend gates [lindex $gate 0]
+	}
+	$widget configure -gates $gates
+    }
     #--------------------------------------------------------------------------
-    # Call back methods.  These are, by necesity public thought not really part of
-    # the public interface.
+    # Call back methods.  (private)
     #
 
     ##
     # Save the configuration
     # @param file   - name of the file to save it to.
     #
-    public method SaveConfiguration {file} {
+    private method SaveConfiguration {file} {
 	set fd [open $file w]
 
 	# MC Gui does not emit spectrum deletes....
@@ -198,7 +249,7 @@ itcl::class spectrumTabActions {
     # @param widget - the defintionFile widget (has the -accumulate option we can query)
     #                 that triggered this.
     #
-    public method ReadConfiguration {name widget} {
+    private method ReadConfiguration {name widget} {
 	set noclear [$widget cget -accumulate]
 
 	# If noclear is not set we need to destroy the spectra as redefinition
@@ -223,7 +274,7 @@ itcl::class spectrumTabActions {
     # Load the list of spectra from the current mask 
     # @param mask - glob pattern that determines the set of spectra to load.
     #
-    public method LoadSpectra mask {
+    private method LoadSpectra mask {
 	set spectra [spectrum -list -showgate $mask]
 	set spectrumList [list]; # Build up the data here:
 
@@ -245,15 +296,15 @@ itcl::class spectrumTabActions {
 	    set yparam [lindex [lindex $parameters 1] 0]
 
 	    set xaxis [lindex $axes 0]
-	    set xlow [lindex $xaxis 0]
-	    set xhi  [lindex $xaxis 1]
-	    set xbins [lindex $xaxis 2]
+	    set xlow [niceDisplay [lindex $xaxis 0]]
+	    set xhi  [niceDisplay [lindex $xaxis 1]]
+	    set xbins [niceDisplay [lindex $xaxis 2]]
 
 	    set yaxis [lindex $axes 1]
 	    if {[llength $yaxis] > 0} {
-		set ylow [lindex $yaxis 0]
-		set yhi  [lindex $yaxis 1]
-		set ybins [lindex $yaxis 2]
+		set ylow [niceDisplay [lindex $yaxis 0]]
+		set yhi  [niceDisplay [lindex $yaxis 1]]
+		set ybins [niceDisplay [lindex $yaxis 2]]
 		
 	    } else {
 		set ylow ""
@@ -274,7 +325,7 @@ itcl::class spectrumTabActions {
     # If the -all option is true we clear all of the spectra otherwise
     # only the spectra selected in the spectrum table are cleared.
     #
-    public method ClearSpectra {} {
+    private method ClearSpectra {} {
 	if {[$widget cget -all]} {
 	    clear -all
 	} else {
@@ -284,7 +335,7 @@ itcl::class spectrumTabActions {
     ##
     # Called in response to the button to delete spectra.
     #
-    public method DeleteSpectra {} {
+    private method DeleteSpectra {} {
 	if {[$widget cget -all]} {
 	    spectrum -delete -all
 	} else {
@@ -293,41 +344,16 @@ itcl::class spectrumTabActions {
 	LoadSpectra [$widget cget -mask]
 	[autoSave::getInstance]  failsafeSave
     }
-    # Duplicate a spectrum:
-    # - Assign a  unique name that starts like the existing spectrum.
-    # - Get the spectrum defintion.
-    # - Create the new spectrum
-    # - bind it to the display.
-    # @param name - Name of the existing spectrum to duplicate.
-    #
-    public method duplicateSpectrum name {
-	set newName [generateUniqueSpectrumName $name]
-	set def     [spectrum -list $name]
 
-	# bypass everything if there are no matching spectra.  This can happen if the
-	# spectrum was deleted bu tthe display not updated.
-	#
-	if {[llength $def] > 0} {
-	    set def [lindex $def 0]; # The actual definition.
-
-	    set type     [lindex $def 2]
-	    set param    [lindex $def 3]
-	    set axes     [lindex $def 4]
-	    set dataType [lindex $def 5]
-
-	    spectrum $newName $type $param $axes $dataType
-	    
-	}
-    }
     ##
     #  Called in response to the button to duplicate spectra.
     #  We're going to use the following private methods:
     #  getSelectedSpectra - Gets the list of spectra to operate on.
     #  duplicateSpectrum - Duplicates a single spetrum.
     #
-    public method DupSpectra {} {
+    private method DupSpectra {} {
 
-	::treeutility::for_each [list $this duplicateSpectrum] [getSelectedSpectra]
+	::treeutility::for_each [itcl::code $this duplicateSpectrum] [getSelectedSpectra]
 	LoadSpectra [$widget cget -mask]
 	[autoSave::getInstance]  failsafeSave
 
@@ -337,7 +363,7 @@ itcl::class spectrumTabActions {
     # Called in response to the ungate button.  Ungates either the selected
     # or all spectra depending on the state of the all checkbutton.
     #
-    public method UngateSpectra {} {
+    private method UngateSpectra {} {
 	set spectra [getSelectedSpectra]
 	if {[llength $spectra] != 0} {
 	    ungate {*}$spectra
@@ -352,47 +378,38 @@ itcl::class spectrumTabActions {
     #  chaining.
     #  @param name - the name of the gate affected.
 
-    public method gateAdded name {
+    private method gateAdded name {
 	LoadGateMenu
 	if {$gateAddChain ne ""} {
 	    uplevel #0 $gateAddChain $name
 	}
     }
-    public method gateDeleted name {
+    private method gateDeleted name {
 	LoadGateMenu
 	if {$gateDeleteChain ne ""} {
 	    uplevel #0 $gateDeleteChain $name
 	}
     }
-    public method gateChanged name {
+    private method gateChanged name {
 	LoadGateMenu
 	if {$gateChangeChain ne ""} {
 	    uplevel #0 $gateChangeChain $name
 	}
     }
 
-    ##
-    # Called to refresh the contents of the gate menu.
-    #
-    public method LoadGateMenu {} {
-	set gates [list]
-	foreach gate [gate -list] {
-	    lappend gates [lindex $gate 0]
-	}
-	$widget configure -gates $gates
-    }
+
     ## 
     # Whenever a gate is selected its full path is put in the entry below the menu:
     # @param name - full name of the gate.
     #
-    public method Selectgate name {
+    private method Selectgate name {
 	$widget configure -gate $name
     }
     
     ##
     #  Apply gates to spectra.
     #
-    public method ApplyGates {} {
+    private method ApplyGates {} {
 	set spectra [getSelectedSpectra]
 	set gate    [$widget cget -gate]
 	if {[llength $spectra] != 0} {
@@ -408,7 +425,7 @@ itcl::class spectrumTabActions {
     #
     # @param name - The name of the spectrum.
     #
-    public method SelectSpectrum name {
+    private method SelectSpectrum name {
 	set def [spectrum -list $name]
 
 	# If the spectrum became undefined do nothing:
@@ -462,7 +479,7 @@ itcl::class spectrumTabActions {
     # @param which - x or y - selects which of the  parameter widgets to load.
     # @param name           - Name of the parameter.
     #
-    public method LoadParameter {which name} {
+    private method LoadParameter {which name} {
 	#
 	# If there's a tree parameter by that name use it:
 
@@ -507,7 +524,7 @@ itcl::class spectrumTabActions {
     #  The spectrum type changed..figure out what the state of the y axis should be.
     #  only if it's 2, or S (stripchart) should we enable it:
     #
-    public method ChangeSpectype {} {
+    private method ChangeSpectype {} {
 	set type [$widget cget -spectrumtype]
 	if {($type eq 2) || ($type eq "S")} {
 	    $widget configure -ystate normal -arraystate disabled
@@ -517,7 +534,7 @@ itcl::class spectrumTabActions {
     }
     ## Invoked to create a spectrum.
     #
-    public method CreateSpectrum {} {
+    private method CreateSpectrum {} {
 	# If the spectrum exists prompt for redef:
 
 	#
@@ -535,10 +552,18 @@ itcl::class spectrumTabActions {
 	set xhi      [$widget cget -xhi]
 	set xbins    [$widget cget -xbins]
 
+	    
+
 	# Do nothing if any of the above are empty:
 
 	if {[anyNulls [list $type $datatype $name $xname $xlow $xhi $xbins]]} {
 	    return
+	}
+
+	# Bins must be integers:
+
+	if {![string is integer $xbins]} {
+	    error "The number of bins on the x axis must be an integer was: $xbins"
 	}
 
 
@@ -608,6 +633,9 @@ itcl::class spectrumTabActions {
 		set ybins [$widget cget -ybins]
 
 		if {![anyNulls [list $yname $ylow $yhi $ybins]] && [okToReplaceSpectrum $name]} {
+		    if {![string is integer $ybins]} {
+			error "Bins on y axis must be an integer was: $ybins"
+		    }
 		    catch {spectrum -delete $name}
 		    spectrum $name $type [list $xname $yname] \
 			[list [list $xlow $xhi $xbins] [list $ylow $yhi $ybins]] $datatype
@@ -631,7 +659,7 @@ itcl::class spectrumTabActions {
     # Get the state of the button and set the auotsave singleton accordingly.
     #
     #
-    public method ChangeFailsafe {} {
+    private method ChangeFailsafe {} {
 	set state [$widget cget -makefailsafe]
 	set autosave [autoSave::getInstance]
 
@@ -646,7 +674,7 @@ itcl::class spectrumTabActions {
     # True public interface.  There are other public methods but they
     # require that exposure to be used as callbacks.
     #
- 
+
 
     ##
     # Construct the object and view:
@@ -661,21 +689,21 @@ itcl::class spectrumTabActions {
 
 	spectrumContainer $widget                           \
 	    -ystate disabled -arraystate normal             \
-	    -savecmd   [list $this SaveConfiguration %N]    \
-	    -loadcmd   [list $this ReadConfiguration %N %W] \
-	    -updatecmd [list $this LoadSpectra %M]          \
-	    -clearcmd  [list $this ClearSpectra]            \
-	    -deletecmd [list $this DeleteSpectra]           \
-	    -dupcmd    [list $this DupSpectra]              \
-	    -ungatecmd [list $this UngateSpectra]           \
-	    -gateselectcmd [list $this Selectgate %N]       \
-	    -applycmd      [list $this ApplyGates]          \
-	    -selectcmd     [list $this SelectSpectrum %N]   \
-	    -typechanged   [list $this ChangeSpectype]      \
-	    -xparamselected [list $this LoadParameter x %N]    \
-	    -yparamselected [list $this LoadParameter y %N] \
-	    -createcmd      [list $this CreateSpectrum]     \
-	    -failsafechanged [list $this ChangeFailsafe]
+	    -savecmd   [itcl::code $this SaveConfiguration %N]    \
+	    -loadcmd   [itcl::code $this ReadConfiguration %N %W] \
+	    -updatecmd [itcl::code $this LoadSpectra %M]          \
+	    -clearcmd  [itcl::code $this ClearSpectra]            \
+	    -deletecmd [itcl::code $this DeleteSpectra]           \
+	    -dupcmd    [itcl::code $this DupSpectra]              \
+	    -ungatecmd [itcl::code $this UngateSpectra]           \
+	    -gateselectcmd [itcl::code $this Selectgate %N]       \
+	    -applycmd      [itcl::code $this ApplyGates]          \
+	    -selectcmd     [itcl::code $this SelectSpectrum %N]   \
+	    -typechanged   [itcl::code $this ChangeSpectype]      \
+	    -xparamselected [itcl::code $this LoadParameter x %N]    \
+	    -yparamselected [itcl::code $this LoadParameter y %N] \
+	    -createcmd      [itcl::code $this CreateSpectrum]     \
+	    -failsafechanged [itcl::code $this ChangeFailsafe]
 	    
 
 
@@ -687,9 +715,9 @@ itcl::class spectrumTabActions {
 
 	LoadGateMenu
 
-	set gateAddChain    [gate -trace add    [list $this gateAdded]]
-	set gateDeleteChain [gate -trace delete [list $this gateDeleted]]
-	set gateChangeChain [gate -trace change [list $this getChanged]]
+	set gateAddChain    [gate -trace add    [itcl::code $this gateAdded]]
+	set gateDeleteChain [gate -trace delete [itcl::code $this gateDeleted]]
+	set gateChangeChain [gate -trace change [itcl::code $this gateChanged]]
 	
 
 	

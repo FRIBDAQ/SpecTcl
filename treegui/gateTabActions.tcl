@@ -81,7 +81,7 @@ package provide gateTabActions 1.0
 
     #-------------------------------------------------------------------------------
     #
-    # Callbacks.. These must be public as they're called at global level:
+    # Callbacks (private)
     #
 
     ##
@@ -91,7 +91,7 @@ package provide gateTabActions 1.0
     #
     # @note false gates are not listed as they are assumed to represent deleted gates
     #
-    public method loadGateTable mask {
+    private method loadGateTable mask {
 	set gates [list]
 	foreach gate [gate -list $mask] {
 	    if {[gateType $gate] ne "F"} {
@@ -107,19 +107,19 @@ package provide gateTabActions 1.0
     # in all of them:
     #  @name is the name of the gate that fired the trace.
     #
-    public method gateAdded name {
+    private method gateAdded name {
 	loadGateMenu
 	if {$gateAddChain ne ""} {
 	    uplevel #0 $gateAddChain $name
 	}
     }
-    public method gateDeleted name {
+    private method gateDeleted name {
 	loadGateMenu
 	if {$gateDeleteChain ne ""} {
 	    uplevel #0 $gateDeleteChain $name
 	}
     }
-    public method gateChanged name {
+    private method gateChanged name {
 	loadGateMenu
 	if {$gateChangeChain ne ""} {
 	    uplevel #0 $gateChangeChain $name
@@ -128,7 +128,7 @@ package provide gateTabActions 1.0
     ##
     # Load the gate menu with the names of all of the gates:
     #
-    public method loadGateMenu {} {
+    private method loadGateMenu {} {
 	set gates [gate -list]
 	set names [list]
 	foreach gate $gates {
@@ -147,7 +147,7 @@ package provide gateTabActions 1.0
     # Ths loads the gate specification into the gate creation widget.
     # @param name - gate name.
     #
-    public method loadGateSpec name {
+    private method loadGateSpec name {
 	set gateSpec [gate -list $name]
 
 	if {([llength $gateSpec] != 0)} {
@@ -186,7 +186,7 @@ package provide gateTabActions 1.0
     # Delete the gate(s) that are currently selected in the table.
     # An update using the current mask is also forced.
     #
-    public method deleteSelected {} {
+    private method deleteSelected {} {
 	set gates [$widget getsel]
 	foreach gate $gates {
 	    gate -delete $gate
@@ -198,7 +198,7 @@ package provide gateTabActions 1.0
     # Prompt for confirmation and, if we get it, delete all  of the 
     # gates
     #
-    public method deleteAll {} {
+    private method deleteAll {} {
 	set confirmation [tk_messageBox -type yesno -icon warning \
 			      -message "Are you sure you want to delete all the gate definitions?" \
 			      -default no]
@@ -223,7 +223,7 @@ package provide gateTabActions 1.0
     # @param definition - Gate definition string.
     #
     #
-    public method createGate {name gateType definition} {
+    private method createGate {name gateType definition} {
 
 	# Require that the gate name, type and definition are not null.
 	#
@@ -258,12 +258,12 @@ package provide gateTabActions 1.0
 	}
 
 	gateContainer $widget -height 20 \
-	    -maskcmd          [list $this loadGateTable %M] \
-	    -updatecmd        [list $this loadGateTable %M] \
-	    -command          [list $this loadGateSpec  %N] \
-	    -deleteselected   [list $this deleteSelected]   \
-	    -deleteall        [list $this deleteAll]        \
-	    -createcmd        [list $this createGate %G %T %D]
+	    -maskcmd          [itcl::code $this loadGateTable %M] \
+	    -updatecmd        [itcl::code $this loadGateTable %M] \
+	    -command          [itcl::code $this loadGateSpec  %N] \
+	    -deleteselected   [itcl::code $this deleteSelected]   \
+	    -deleteall        [itcl::code $this deleteAll]        \
+	    -createcmd        [itcl::code $this createGate %G %T %D]
 
 	loadGateTable *
 	loadGateMenu 
@@ -271,9 +271,9 @@ package provide gateTabActions 1.0
 	# Set up a gate add/delete trace to reload the gate menu:
 
 
-	set gateAddChain    [gate -trace add    [list $this gateAdded]]
-	set gateDeleteChain [gate -trace delete [list $this gateDeleted]]
-	set gateChangeChain [gate -trace change [list $this gateChanged]]
+	set gateAddChain    [gate -trace add    [itcl::code $this gateAdded]]
+	set gateDeleteChain [gate -trace delete [itcl::code $this gateDeleted]]
+	set gateChangeChain [gate -trace change [itcl::code $this gateChanged]]
 
 
     }

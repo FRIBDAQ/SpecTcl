@@ -118,7 +118,6 @@ snit::widget spectrumTable {
 	set resampleFactor 40
 
 	set dirname $spectrumTable::dirname
-	puts $dirname 
 
 	set img [image create photo \
 		     -file [file join $dirname uparrow.gif]]

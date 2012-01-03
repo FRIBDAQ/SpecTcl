@@ -93,7 +93,6 @@ snit::widget gateTable {
     #
     typeconstructor {
 	set dirname $gateTable::dirname
-	puts $dirname 
 
 	set img [image create photo \
 		     -file [file join $dirname uparrow.gif]]

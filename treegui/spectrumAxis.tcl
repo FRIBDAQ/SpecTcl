@@ -83,13 +83,13 @@ snit::widget spectrumAxis {
 	ttk::entry      $win.parameter    -textvariable ${selfns}::options(-parameter)  \
 	    -takefocus 1
 	ttk::entry      $win.low          -textvariable ${selfns}::options(-low) \
-	    -validate key -validatecommand [mymethod ValidNumber %P] -width 7 \
+	    -validate key -validatecommand [list string is double %P] -width 7 \
 	    -takefocus 1
 	ttk::entry      $win.high         -textvariable ${selfns}::options(-high) \
-	    -validate key -validatecommand [mymethod ValidNumber %P] -width 7  \
+	    -validate key -validatecommand [list string is double  %P] -width 7  \
 	    -takefocus 1
 	ttk::entry      $win.bins         -textvariable ${selfns}::options(-bins) \
-	    -validate key -validatecommand [mymethod ValidNumber %P] -width 7  \
+	    -validate key -validatecommand [list string is integer  %P] -width 7  \
 	    -takefocus 1
 	ttk::label      $win.units        -textvariable ${selfns}::options(-units) -width 8
 
@@ -138,13 +138,9 @@ snit::widget spectrumAxis {
 
     #--------------------------------------------------------------------------------------
     #  Action handlers
+    
 
     ##
-    #  Called to validate that a entry contains a number.
-    #  @param value - Value we are attempting to put in the entry.
-    method ValidNumber {value} {
-	return [string is double $value]
-    }
     ##
     # Called to dispatch a substituted command
     # @param option -the option contaning the script to run.

@@ -38,7 +38,7 @@ itcl::class variableTabActions {
 
 
     #-------------------------------------------------------------------
-    # Callbacks (note these must be public to work
+    # Callbacks 
 
 
     ##
@@ -120,7 +120,7 @@ itcl::class variableTabActions {
     # @param index - Current editor number.
 
 
-    public method LoadVariable {path index} {
+    private method LoadVariable {path index} {
 	set definition [treevariable -list $path]
 	if {[llength $definition] != 0} {
 	    set definition [lindex $definition 0]
@@ -134,12 +134,12 @@ itcl::class variableTabActions {
     # @param value - New value.
     # @param units - New units.
     #
-    method SetVariable {name value units} {
+    private method SetVariable {name value units} {
 	# Get the correct set of variables to modify depending o the state of the array checkbox.
 
 	if {[$widget cget -array]} {
 
-	    set names [::treeutility::listArrayElements $name [list $this treeVariableNames]]
+	    set names [::treeutility::listArrayElements $name [itcl::code $this treeVariableNames]]
 	} else {
 	    set names [list $name]
 
@@ -164,7 +164,7 @@ itcl::class variableTabActions {
     # @return list
     # @retval list of tree variable names.
 
-    public method treeVariableNames {{pattern *}} {
+    private method treeVariableNames {{pattern *}} {
 	set result [list]
 
 	foreach variable [treevariable -list $pattern] {
@@ -177,7 +177,7 @@ itcl::class variableTabActions {
     # Save the tree parameters to file.
     # @param name - nameof file in which to save the tree parameters.
     #
-    public method SaveVariables name {
+    private method SaveVariables name {
 	set fd [open $name w]
 	
 	# Put a timestamp in and then invoke writeTreeVariables to do the rest.
@@ -194,7 +194,7 @@ itcl::class variableTabActions {
     # @note  as with the prior gui implementation, this does not reload the values
     #        of any of the editor slots.
     #
-    public method RestoreVariables name {
+    private method RestoreVariables name {
 	uplevel #0 source $name
 	[autoSave::getInstance] failsafeSave
 
@@ -207,7 +207,7 @@ itcl::class variableTabActions {
     # @param index - Index of the editor that changed.
     # @param name  - New value of the name field.
     #
-    public method NameChanged {index name} {
+    private method NameChanged {index name} {
 	set info [treevariable -list $name]
 	if {[llength $info] > 0} {
 	    set info [lindex $info 0]
@@ -237,11 +237,11 @@ itcl::class variableTabActions {
 
 	treeVariableContainer $widget -lines $lines  -selectcmd [list $this LoadVariable %N %I] \
 	    -variables [$this treeVariableNames] \
-	    -loadcmd   [list $this LoadVariable %N %I] \
-	    -setcmd    [list $this SetVariable %N %V %U] \
-	    -savefile  [list $this SaveVariables %F] \
-	    -loadfile  [list $this RestoreVariables %F] \
-	    -namechanged [list $this NameChanged %I %N]
+	    -loadcmd   [itcl::code $this LoadVariable %N %I] \
+	    -setcmd    [itcl::code $this SetVariable %N %V %U] \
+	    -savefile  [itcl::code $this SaveVariables %F] \
+	    -loadfile  [itcl::code $this RestoreVariables %F] \
+	    -namechanged [itcl::code $this NameChanged %I %N]
 
 	# Add observers for save and restore so that we can 
 	# save our gui state.
