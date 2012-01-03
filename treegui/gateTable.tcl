@@ -387,7 +387,8 @@ snit::widget gateTable {
     ##
     # ScheduleUpdate
     #   Schedules a repaint of the gates in the widget...this is done via an after 2
-    #   but only if $udpatePending is not true.
+    #   but only if $updatePending is not true.  The effect is to only need to repaint
+    #   once when several updates are requested.
     #
     method ScheduleUpdate {} {
 	if {!$updatePending} {

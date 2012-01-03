@@ -97,19 +97,19 @@ snit::widget treeParameterEditor {
             # Bindings that move focus right.. note that tab is a next focus anyway.
 
 	    foreach binding [list <Return> <Right>] {
-		bind $win$entry $binding  [list after 2 [mymethod focusRight %W]]; #  $entry]]
+		bind $win$entry $binding  [list after idle [mymethod focusRight %W]]; #  $entry]]
 	    }
 	    # Bindings that move focus left:..note that shift-tab moves focus anyway.
 
 	    foreach binding [list  <Left>] {
-		bind $win$entry $binding [list after 2 [mymethod focusLeft %W]];#  $entry]]
+		bind $win$entry $binding [list after idle [mymethod focusLeft %W]];#  $entry]]
 	    }
 	}
 
 	# The after here is used to ensure the entry got updated by the key
 	# before invoking the callback.
 
-	bind $win.name <Key> +[list after 1 [mymethod callback -namechanged]]
+	bind $win.name <Key> +[list after idle  [mymethod callback -namechanged]]
 	
 	# then the buttons:
 
