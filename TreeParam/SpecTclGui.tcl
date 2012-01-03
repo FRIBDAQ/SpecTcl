@@ -53,6 +53,9 @@ File $f is missing in directory $TreeParameterHome"
 }
 set answer 0;				# In case we never prompt.
 
+source $SpecTclHome/Script/treeGui.tcl
+if {0} {
+
 if {![info exists NoPromptForNewGui] || (!$NoPromptForNewGui)} {
     set answer [tk_dialog .newgui "New Gui"  \
 		    {This is the old SpecTcl GUI.  If you want to use the new GUI, click "New (folder) otherwise click Old(multicolored)" below} \
@@ -124,3 +127,4 @@ trace variable spectrumMask w DynamicSpectrumList
 trace variable gateMask w DynamicGateList
 puts "SpecTcl GUI loaded."
 
+}
