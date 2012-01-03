@@ -25,6 +25,7 @@ package provide treeVariableContainer 1.0
 # Contains tree variables editors and the load/save strip at the bottom of that widget.
 #
 # OPTIONS:
+#   TODO: update the options and describe them.
 #   -variables - Delegated to treeVariableEditor.
 #   -lines     - Delegated to treeVariableEditor.
 #   -current   - Delegated to treeVariableEditor.
@@ -48,6 +49,7 @@ snit::widget treeVariableContainer {
     delegate option -filename   to loadsave
 
     delegate method loadEditor to editors
+    delegate method getEditor  to editors
     
     ##
     # install the components and lay them out.

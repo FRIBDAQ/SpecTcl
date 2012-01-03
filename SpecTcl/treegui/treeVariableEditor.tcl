@@ -64,6 +64,8 @@ package provide treeVariableEditor 1.0
 #
 # METHODS:
 #   loadEditor - Loads the contents of a specific editor.
+#   getEditor  - Get the contents of a specific editor.
+#
 # AUTONOMOUS ACTIONS:
 #   Tab, Return, Right  navigates circularly on the editor in focus to the right
 #   Shift-Tab, Left ISO_Left_Tab navigates circularly on the editor in focus to the left.
@@ -150,6 +152,20 @@ snit::widget treeVariableEditor {
 	   $widget delete 0 end
 	   $widget insert 0 $value
 	}
+    }
+    ##
+    # Return a list of the values in a specific editor:
+    #
+    # @param editor - index of the editor.
+    #
+    # @return list
+    # @retval [list name value units] 
+    #
+    method getEditor editor {
+	foreach widget [list $win.name$editor $win.value$editor $win.units$editor] {
+	    lappend result [$widget get]
+	}
+	return $result
     }
 
 

@@ -16,6 +16,7 @@ package require Tk
 package require Itcl
 package require treeVariableContainer
 package require guistate;	# From 'folder gui'.
+package require restore
 
 package provide variableTabActions 1.0
 
@@ -38,6 +39,79 @@ itcl::class variableTabActions {
 
     #-------------------------------------------------------------------
     # Callbacks (note these must be public to work
+
+
+    ##
+    # Observer method to save the layout of the editors.
+    # This is called as part of the process of writing a configuration file.
+    #
+    # @param fd - file descriptor open on the configuration file.
+    #
+    # @note The layout is saved in an array named variable with the following indices:
+    #       - Namei  - The name in the i'th slot of the editor.
+    #       - Valuei - The value in the i'th slot  of the editor.
+    #       - Uniti  - The untis of the i'th slot of the editor.
+    #       - Arraty - The state of the array checkbutton.
+    #       - select - The editor line that is currently selected.
+    #
+    private method saveLayout fd {
+
+	puts $fd "\n#-- Variable tab layout\n";
+	
+	# Save the lines that have a non-blank name:
+
+	set lines [$widget cget -lines]
+	for {set i 1} {$i <= $lines} {incr i} {
+	    set info [$widget getEditor $i]
+	    set name [lindex $info 0]
+	    if {$name ne ""} {
+		set value [lindex $info 1]
+		set units [lindex $info 2]
+
+		puts $fd "set variable(Name$i) [list $name]"; # List will handle names with spaces etc.
+		puts $fd "set variable(Value$i) $value"
+		puts $fd "set variable(Unit$i) [list $units]"; # Handles e.g. m / s as well as m/s.
+		
+	    }
+	}
+	# Now the selected and array states:
+
+	puts $fd "set variable(select) [$widget cget -current]"
+	puts $fd "set variable(Array)  [$widget cget -array]"
+    }
+
+    ##
+    # Clear any layout variables that are lying around prior to a restore.
+    #
+    private proc clearLayoutVariables {} {
+	if {[array exists ::variable]} {
+	    unset ::variable
+	}
+    }
+    ##
+    # Observer called after a save file is restored.  This
+    # restores the layout from the variable array.
+    # See saveLayout for the indices in that array.
+    #
+    private method restoreLayout {} {
+	
+	# First restore the contents of the editors:
+
+	set lines [$widget cget -lines]
+	for {set i 1} {$i <= $lines} {incr i} {
+	    if {[array name ::variable Name$i] eq "Name$i"} {
+		$widget loadEditor $i $::variable(Name$i) $::variable(Value$i) $::variable(Unit$i)
+	    } else {
+		$widget loadEditor $i "" "" "";	# Empty the line.
+	    }
+	}
+	# Set the selection and the array checkbox. 
+	# Being lazy here using catch in case the array elements don't exist.
+
+	catch {$widget configure -current $::variable(select)}
+	catch {$widget configure -array   $::variable(Array)}
+	
+    }
 
     ##
     # Called when a variable is selected from the tree menu,
@@ -168,6 +242,13 @@ itcl::class variableTabActions {
 	    -savefile  [list $this SaveVariables %F] \
 	    -loadfile  [list $this RestoreVariables %F] \
 	    -namechanged [list $this NameChanged %I %N]
+
+	# Add observers for save and restore so that we can 
+	# save our gui state.
+
+	addSaveObserver variableTabLayout [itcl::code $this saveLayout]
+	[Restore::getInstance] addPreObserver variableTabLayout [itcl::code clearLayoutVariables]
+	[Restore::getInstance] addObserver    variableTabLayout [itcl::code $this restoreLayout]
     }
 
 
