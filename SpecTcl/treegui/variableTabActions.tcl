@@ -235,8 +235,8 @@ itcl::class variableTabActions {
 	    error "The -widget option is mandatory"
 	}
 
-	treeVariableContainer $widget -lines $lines  -selectcmd [list $this LoadVariable %N %I] \
-	    -variables [$this treeVariableNames] \
+	treeVariableContainer $widget -lines $lines  -selectcmd [itcl::code $this LoadVariable %N %I] \
+	    -variables [treeVariableNames] \
 	    -loadcmd   [itcl::code $this LoadVariable %N %I] \
 	    -setcmd    [itcl::code $this SetVariable %N %V %U] \
 	    -savefile  [itcl::code $this SaveVariables %F] \

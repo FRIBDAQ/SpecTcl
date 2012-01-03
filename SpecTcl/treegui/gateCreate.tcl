@@ -81,6 +81,8 @@ snit::widget gateCreate {
 			    {Mask Equal}     em          \
 			    {Mask And}       am          \
 			    {Mask Not Equal} nm          \
+			    {Always True}    T           \
+			    {Always False}   F
 			   ]
 
     ##
