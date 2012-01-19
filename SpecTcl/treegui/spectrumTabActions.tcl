@@ -34,7 +34,12 @@ itcl::class spectrumTabActions {
     private variable gateAddChain
     private variable gateDeleteChain
     private variable gateChangeChain
+    private variable spectrumTypeNames
 
+    private variable promptSpectrumOverwrite 0
+   
+				 
+				 
     #-------------------------------------------------------------------------
     # Private utility methods
 
@@ -165,17 +170,25 @@ itcl::class spectrumTabActions {
     # @retval true if the user accepts.
     #
     private method okToReplaceSpectrum name {
-	if {[llength [spectrum -list $name]] > 0} {
-	    if {[tk_messageBox -default cancel -icon warning -parent $widget \
-		     -title Overwite -type okcancel \
-		     -message "$name already exists replace?"] eq "ok"} {
-		return 1
+
+	# If prompting is turned off, it's always ok:
+
+	if {$promptSpectrumOverwrite} {
+
+	    if {[llength [spectrum -list $name]] > 0} {
+		if {[tk_messageBox -default cancel -icon warning -parent $widget \
+			 -title Overwite -type okcancel \
+			 -message "$name already exists replace?"] eq "ok"} {
+		    return 1
+		} else {
+		    return 0
+		}
 	    } else {
-		return 0
+		# It's always ok to replace a nonexistent spectrum:
+		
+		return 1
 	    }
 	} else {
-	    # It's always ok to replace a nonexistent spectrum:
-
 	    return 1
 	}
     }
@@ -211,7 +224,10 @@ itcl::class spectrumTabActions {
     private method LoadGateMenu {} {
 	set gates [list]
 	foreach gate [gate -list] {
-	    lappend gates [lindex $gate 0]
+	    if {[lindex $gate 2] ne "F"} { # Only show non-false gates (issue 352).
+
+		lappend gates [lindex $gate 0]
+	    }
 	}
 	$widget configure -gates $gates
     }
@@ -246,11 +262,11 @@ itcl::class spectrumTabActions {
     # Read the configuration the 'cumulate' sic checkbutton is used to determine
     # if the current defintions are wiped out first.
     # @param name   - filename from which the configuration is loaded.
-    # @param widget - the defintionFile widget (has the -accumulate option we can query)
+    # @param defwidget - the defintionFile widget (has the -accumulate option we can query)
     #                 that triggered this.
     #
-    private method ReadConfiguration {name widget} {
-	set noclear [$widget cget -accumulate]
+    private method ReadConfiguration {name defwidget} {
+	set noclear [$defwidget cget -accumulate]
 
 	# If noclear is not set we need to destroy the spectra as redefinition
 	# is an error:
@@ -268,6 +284,10 @@ itcl::class spectrumTabActions {
 	[Restore::getInstance] restore $name
 	
 	[autoSave::getInstance] failsafeSave
+
+	sbind -all;		# Make spectra visible to Xamine.
+	LoadSpectra [$widget cget -mask]
+	
 	
     }
     ##
@@ -301,7 +321,7 @@ itcl::class spectrumTabActions {
 	    set xbins [niceDisplay [lindex $xaxis 2]]
 
 	    set yaxis [lindex $axes 1]
-	    if {[llength $yaxis] > 0} {
+	    if {[llength $yaxis] > 0 && [is2DSpectrum $type] && ($type ne "g2")} {
 		set ylow [niceDisplay [lindex $yaxis 0]]
 		set yhi  [niceDisplay [lindex $yaxis 1]]
 		set ybins [niceDisplay [lindex $yaxis 2]]
@@ -310,6 +330,13 @@ itcl::class spectrumTabActions {
 		set ylow ""
 		set yhi  ""
 		set ybins ""
+	    }
+
+	    # If there's a mapping from spectrum type to something more readable
+	    #  in spectrumTypeNames use it instead of the type:
+
+	    if {[array names spectrumTypeNames $type] ne ""} {
+		set type $spectrumTypeNames($type)
 	    }
 
 	    lappend spectrumList [list $name $type              \
@@ -419,6 +446,18 @@ itcl::class spectrumTabActions {
 	[autoSave::getInstance]  failsafeSave
 
     }
+    ##
+    # Determines if a spectrum type is really a 2d spectrum from the poin of view
+    # of the way the parameters are displayed in the tab:
+    #
+    # @param type  - spectrum type.
+    #
+    # @return boolean 
+    # @retval true if a y parameter should be displayed/loaded.
+    #
+    private method is2DSpectrum type {
+	return [expr {$type in [list 2 S m2 gd]}]
+    }
 
     ##
     # Select a spectrum and load it into the spectrum definition fields.
@@ -449,23 +488,28 @@ itcl::class spectrumTabActions {
 		-datatype $datatype               \
 		-spectrumname $name               \
 		-xparameter $xParam               \
-		-xlow       $xlow                 \
-		-xhi        $xhi                  \
-		-xbins      $xbins
+		-xlow       [niceDisplay $xlow]   \
+		-xhi        [niceDisplay $xhi]    \
+		-xbins      [niceDisplay $xbins]
 
 	    # Figure out units
 
 	    $widget configure -xunits [getUnits $xParam]
 
-	    if {[llength $params] > 1} {
+	    
+
+	    if {[llength $params] > 1 && [is2DSpectrum $type] && $type ne "gd"} {
+		
 		set yparam [lindex $params 1]
 		set yaxis  [lindex $axes 1]
 		set ylow   [lindex $yaxis 0]
 		set yhi    [lindex $yaxis 1]
 		set ybins  [lindex $yaxis 2]
-
+		
 		$widget configure -yparameter $yparam \
-		    -ylow $ylow -yhi $yhi -ybins $ybins \
+		    -ylow [niceDisplay $ylow] \
+		    -yhi [niceDisplay $yhi] \
+		    -ybins [niceDisplay $ybins] \
 		    -yunits [getUnits $yparam] -ystate normal
 	    } else {
 		$widget configure -ystate disabled
@@ -523,13 +567,28 @@ itcl::class spectrumTabActions {
     ##
     #  The spectrum type changed..figure out what the state of the y axis should be.
     #  only if it's 2, or S (stripchart) should we enable it:
+    # 
+    #  If 2d spectrum then we can enable byte data types other wise
+    #  disable and, if the current datatype is byte set it to long.
     #
     private method ChangeSpectype {} {
 	set type [$widget cget -spectrumtype]
-	if {($type eq 2) || ($type eq "S")} {
+	if { $type in [list 2 S ] } {
 	    $widget configure -ystate normal -arraystate disabled
+	} elseif {$type in [list s g2]} {
+	    $widget configure -ystate disabled -arraystate disabled
 	} else {
 	    $widget configure -ystate disabled -arraystate normal
+	}
+	# Handle the radio button enables etc.
+
+	if {$type eq 2} {
+	    $widget enableDataType byte
+	} else {
+	    $widget disableDataType byte
+	    if {[$widget cget -datatype] eq "byte"} {
+		$widget configure -datatype long
+	    }
 	}
     }
     ## Invoked to create a spectrum.
@@ -642,6 +701,29 @@ itcl::class spectrumTabActions {
 		    sbind $name
 		}
 	    }
+	    s - g1 {
+		# Summary spectra, gamma 1d treat the parameters like an array instance:
+		
+		if {[okToReplaceSpectrum $name]} {
+		    set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
+		    catch {spectrum -delete $name}
+		    spectrum $name $type $parameterList [list [list $xlow $xhi $xbins]]
+		    sbind $name
+		}
+	    }
+	    g2 {
+		# Gamma 2 needs to make ay axis definitions that is identical to the X
+
+		if {[okToReplaceSpectrum $name]} {
+
+		    set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
+		    catch {spectrum -delete $name}
+		    spectrum $name $type $parameterList \
+			[list [list $xlow $xhi $xbins] [list $xlow $xhi $xbins]]
+		    sbind $name
+		}
+
+	    }
 	    default {
 		tk_messageBox -type ok -icon error -title {Can't make this spectrum} \
 		    -parent $widget \
@@ -683,6 +765,10 @@ itcl::class spectrumTabActions {
     constructor args {
 	configure {*}$args
 
+	array set spectrumTypeNames [list \
+					 1 1d 2 2d s sum b bit \
+					 S stp]
+
 	if {$widget eq ""} {
 	    error "The -widget option is mandatory"
 	}
@@ -710,6 +796,9 @@ itcl::class spectrumTabActions {
 	LoadParameters 
 
 	LoadSpectra [$widget cget -mask]
+
+	$widget disableDataType byte
+	$widget configure -datatype long -spectrumtype 1
 
 	# Load the gate menu and set it up to reload each time gates change in any way:
 

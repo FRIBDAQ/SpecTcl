@@ -140,7 +140,7 @@ snit::widgetadaptor treeMenu {
 		    incr submenu
 		}
 	    }
-	    # If this is a pull right cascade bind <Motion> to post the closest cascde:
+	    # If this is a pull right cascade bind <Motion> to post the closest cascade:
 
 	    if {$options(-pullright) } {
 		bind $widget <Motion> [list $widget postcascade @%y]

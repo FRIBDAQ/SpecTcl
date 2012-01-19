@@ -135,6 +135,16 @@ itcl::class variableTabActions {
     # @param units - New units.
     #
     private method SetVariable {name value units} {
+
+	# Require the value to be a double:
+
+	if {![string is double -strict $value]} {
+	    tk_messageBox -icon error \
+		-message "Attempted to set $name to  '$value', value must be a valid number" \
+		-type ok
+	    return
+	}
+
 	# Get the correct set of variables to modify depending o the state of the array checkbox.
 
 	if {[$widget cget -array]} {
@@ -229,7 +239,7 @@ itcl::class variableTabActions {
     # @param args - set of optino values to use in constructing us.
     #
     constructor args {
-	eval configure $args;	# set the widget name and lines.
+	eval configure {*}$args;	# set the widget name and lines.
 
 	if {$widget eq ""} {
 	    error "The -widget option is mandatory"

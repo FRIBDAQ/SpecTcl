@@ -63,6 +63,8 @@ snit::widget treeParameterEditor {
     option -title     false;	# If true titles are put above the text entries.
     option -namechanged [list]
 
+    delegate option * to hull
+
 
 
 
@@ -90,9 +92,9 @@ snit::widget treeParameterEditor {
 	# First the entries... set the bindings on them as well:
 
 	foreach entry [list .name .low .high .unit] optionname [list -name -low -high -units] \
-	    width [list 32 5 5 10] {
+	    width [list 32 5 5 5] {
 		::ttk::entry $win$entry -textvariable ${selfns}::options($optionname) \
-		    -width $width -takefocus 1
+		    -takefocus 1 -width $width
 		
             # Bindings that move focus right.. note that tab is a next focus anyway.
 
@@ -115,8 +117,8 @@ snit::widget treeParameterEditor {
 
 	foreach button [list .load .set .changespectra] \
 	    label [list Load Set "Change Spectra"]  \
-	    option [list -loadcmd -setcmd -changecmd] width [list 6 6 14] {
-		::ttk::button $win$button -text $label -width $width \
+	    option [list -loadcmd -setcmd -changecmd] {
+		::ttk::button $win$button -text $label  \
 		    -command [mymethod callback $option]
 	}
 
@@ -126,8 +128,12 @@ snit::widget treeParameterEditor {
 
 
 	foreach widget [list .name .low .high .unit .load .set .changespectra] {
-	    grid $win$widget -row $editorRow -column $col -sticky ns
+	    grid $win$widget -row $editorRow -column $col -sticky nsew
 	    incr col
+	}
+
+	foreach col [list 0 1 2 3 4 5 6] weight [list 10 1 1 1 0 0 0] {
+	    grid columnconfigure  $win $col -weight $weight
 	}
     }
     ##

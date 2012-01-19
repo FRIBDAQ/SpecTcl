@@ -50,6 +50,8 @@ snit::widget treeVariableContainer {
 
     delegate method loadEditor to editors
     delegate method getEditor  to editors
+
+    delegate option * to hull
     
     ##
     # install the components and lay them out.
@@ -61,11 +63,13 @@ snit::widget treeVariableContainer {
 
 	install editors  as treeVariableEditor   $win.editors
 	install loadsave as treeVariableLoadSave $win.loadsave
+
 	$self configurelist $args
 
-
 	grid $win.editors  -sticky ew
-	grid $win.loadsave -sticky ew
+	grid $win.loadsave -sticky ws
+	grid columnconfigure $win all -weight 1
+
 	
     }
 }

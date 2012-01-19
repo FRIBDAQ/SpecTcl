@@ -153,6 +153,9 @@ snit::widget gateTable {
 	# Lay them out
 
 	grid $win.t $win.s -sticky nsew
+	grid columnconfigure $win 0 -weight 1
+	grid columnconfigure $win 1 -weight 0
+	grid rowconfigure    $win 0 -weight 1
 
 	# Process the options last.  This will schedule an update to populate the
 	# tree if necessary.  If not necesary there's nothing to display so no need

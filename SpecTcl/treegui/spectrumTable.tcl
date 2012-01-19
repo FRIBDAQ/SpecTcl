@@ -65,7 +65,9 @@ snit::widget spectrumTable {
     #
     # Let the user configure the tree:
     #
-
+    
+    delegate option -relief to hull
+    delegate option -borderwidth to hull
     delegate option * to tree
     delegate method * to tree
 
@@ -172,12 +174,15 @@ snit::widget spectrumTable {
 	grid $tree $win.s -sticky nsew
 	grid columnconfigure $win 0 -weight 1
 	grid columnconfigure $win 1 -weight 0; # Should keep the scroll bar from scaling.
+	grid rowconfigure $win all -weight 1
 
 	# Event bindings:
 
 	bind $tree <Double-1>      [mymethod OnDoubleClick %x %y]
 	bind $tree <ButtonPress-1> [mymethod StartDrag %x %y]
 	bind $tree <B1-Motion>     [mymethod DragTo %x %y]
+
+	$win configure -relief groove -borderwidth 3
 
     }
     #------------------------------------------------------------------
