@@ -82,6 +82,8 @@ snit::widget treeVariableEditor {
     option -array     -default 0
     option -namechanged -default [list]
 
+    delegate option * to hull
+
     ##
     #Create/layout the widgets and set up the callbacks and bindings.
     #
@@ -113,7 +115,8 @@ snit::widget treeVariableEditor {
 	    ttk::button      $win.load$row  -text Load -command [mymethod ReloadDispatch $row]
 	    ttk::button      $win.set$row   -text Set  -command [mymethod SetVariable $row]
 
-	    grid $win.radio$row $win.name$row $win.value$row $win.units$row $win.load$row $win.set$row
+	    grid $win.radio$row $win.name$row $win.value$row $win.units$row $win.load$row $win.set$row \
+		-sticky new
 
 	    # Bindings for this row as well.. note that tab/shift tab normally change focus.
 
@@ -134,6 +137,10 @@ snit::widget treeVariableEditor {
 	    #
 	    bind $win.name$row <Key> [list after idle  [mymethod Keystroke $row]]
 	}
+	foreach column [list 0 1 2 3 4 5] weight [list 0 20 1 1 0 0] {
+	    grid columnconfigure $win $column -weight $weight
+	}
+
     }
     #------------------------------------------------------------------------------
     #  Public methods:
@@ -227,7 +234,8 @@ snit::widget treeVariableEditor {
 	if {$name ne ""} {
 	    set value [$win.value$index get]
 	    set units [$win.units$index get]
-	    $self Dispatch $options(-setcmd) [list %N %V %U %I %W] [list $name $value $units $index $win]
+	    $self Dispatch $options(-setcmd) [list %N %V %U %I %W] \
+		[list $name [list $value] [list $units] $index $win]
 	}
     }
     #---------------------------------------------------------------------

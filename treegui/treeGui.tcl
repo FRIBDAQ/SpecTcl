@@ -42,21 +42,25 @@ set treenotebook [ttk::notebook .treegui.notebook]
 # First the MC Rewrite widgets:
 
 spectrumTabActions spectrum_tab -widget $treenotebook.spectra
-$treenotebook add $treenotebook.spectra -text Spectra -sticky new
+$treenotebook add $treenotebook.spectra -text Spectra -sticky nsew
 
-parametersTabActions parametesr -widget $treenotebook.parameters
-$treenotebook add $treenotebook.parameters -text Parameters -sticky new
+parametersTabActions parameters -widget $treenotebook.parameters
+$treenotebook add $treenotebook.parameters -text Parameters -sticky nsew
 
 variableTabActions variables -widget $treenotebook.variables
-$treenotebook add $treenotebook.variables -text Variables -sticky new
+$treenotebook add $treenotebook.variables -text Variables -sticky nsew
 
 gateTabActions gates -widget $treenotebook.gates
-$treenotebook add $treenotebook.gates -text Gates -sticky new
+$treenotebook add $treenotebook.gates -text Gates -sticky nsew
 
 #  Now the folder gui as a new tab:
 
 ::FolderGui::startFolderGui .treegui $treenotebook
 $treenotebook add $::FolderGui::folderGuiBrowser -text Folders -sticky nsew
 
-pack $treenotebook -expand 1 -fill both
-pack $::FolderGui::folderGuiStatusFrame -expand 1 -fill x
+grid $treenotebook -sticky nsew
+grid $::FolderGui::folderGuiStatusFrame -sticky sew
+
+grid columnconfigure .treegui all -weight 1
+grid rowconfigure    .treegui  0   -weight 1
+grid rowconfigure    .treegui  1   -weight 0

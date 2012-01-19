@@ -102,6 +102,10 @@ snit::widget spectrumContainer {
     delegate option -spectrumtype to spectype
     delegate option -datatype     to spectype
     delegate option -typechanged  to spectype as -command
+    delegate method enableDataType to spectype
+    delegate method  disableDataType to spectype
+
+    delegate option * to hull
 
     ##
     # Construction is just  installing and laying out the components.
@@ -117,19 +121,26 @@ snit::widget spectrumContainer {
 	install spectrum using spectrumManipulation $win.spectrum
 
 
+	
 	grid $spectype -column 0 -row 0 -sticky nsw
-	grid $fileio -sticky ew -column 1 -row 0 -sticky e
+	grid $fileio -sticky ew -column 1 -row 0 -sticky ens
 	grid columnconfigure $win.topmost 0 -weight 5
 	grid columnconfigure $win.topmost 1 -weight 1
-	grid $win.topmost -sticky ew
-
-	grid $spectrum -sticky ew
-	grid $table    -sticky ew
-	grid $mask     -sticky ew
-
-	grid columnconfigure $win all -weight 1
+	grid $win.topmost -sticky ewn
+	
+	grid $spectrum -sticky ewn
+	grid $table    -sticky nsew
+	grid $mask     -sticky ews
+	
+	grid columnconfigure $win all -weight 1 
+	grid rowconfigure    $win 0   -weight 0
+	grid rowconfigure    $win 1   -weight 0 
+	grid rowconfigure    $win 2   -weight 1 
+	grid rowconfigure    $win 3   -weight 0 
+	
 
 	$self configurelist $args
+
 
     }
     #----------------------------------------------------------------------

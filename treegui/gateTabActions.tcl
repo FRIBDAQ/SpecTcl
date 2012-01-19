@@ -226,12 +226,15 @@ package provide gateTabActions 1.0
     private method createGate {name gateType definition} {
 
 	# Require that the gate name, type and definition are not null.
-	#
-	if {($name eq "" ) || ($gateType eq "") || ($definition eq "")} {
+	# ..though definition can be null for T/F gates:
+	if {($name eq "" ) || ($gateType eq "") 
+	    || (($definition eq "") && $gateType ni [list T F]) } {
 	    tk_messageBox -type ok -message "Gate is not completely defined" -icon error
 	} else {
-	    if {[catch {gate $name $gateType $definition}]} {
-		tk_messageBox -type ok -message "Incorrect gate definition for gate type" -icon error
+	    if {[catch {gate $name $gateType $definition} msg] } {
+		tk_messageBox -type ok \
+		    -message "Incorrect gate definition for gate type $gateType $msg" \
+		    -icon error
 	    } else {
 		updateGates
 	    }

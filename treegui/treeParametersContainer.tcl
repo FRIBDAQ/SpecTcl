@@ -79,6 +79,8 @@ snit::widget treeParametersContainer {
     option -array      -default false
     option -namechanged -default [list]
 
+    delegate option * to hull
+
     variable menuButton;	# The button that is attached to the hierarchy menu.
 
     ##
@@ -119,7 +121,11 @@ snit::widget treeParametersContainer {
 		-namechanged [mymethod ButtonClicked %W $i -namechanged]
 
 	    grid $win.b$i -row $i -column 0 -sticky ew -pady 0
-	    grid $win.e$i -row $editorRow -column 1 -rowspan $rowspan -sticky ewns -pady 0
+	    grid $win.e$i -row $editorRow -column 1 -rowspan $rowspan -sticky ew -pady 0 \
+		-columnspan 2
+
+	    grid columnconfigure $win 0 -weight 1
+	    grid columnconfigure $win 1 -weight 10
 	}
 
 	#  This next bit is rather dirty. We want to insert the array check button
@@ -129,7 +135,7 @@ snit::widget treeParametersContainer {
 	ttk::frame       $win.e1.arrayframe -relief ridge -borderwidth 2
 	ttk::checkbutton $win.e1.arrayframe.array -text Array \
 	    -offvalue false -onvalue true -variable ${selfns}::options(-array) 
-	pack $win.e1.arrayframe.array
+	pack $win.e1.arrayframe.array -fill x -expand 1
 	grid $win.e1.arrayframe -row 0 -column 6 -sticky e
 
 

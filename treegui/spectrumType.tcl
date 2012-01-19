@@ -41,6 +41,12 @@ package provide spectrumType 1.0
 #   -datatype       - Value of data type radio button.  In addition to the
 #                     SpecTcl types of word and long, this could possibly
 #                     have the value of 'byte' 
+#   -command        - Script invoked on radio button changes of the spectrum type
+#                     button.
+# METHODS:
+#   enableDataType datatypeName - Turns on the specified data type radio button.
+#   disableDatatype datatypename - Turns off the specified data type radio button.
+#
 # 
 # @note currently all types of spectra support all data types, so there's
 #       no need to couple the data types to the spectrum types.  Note as well
@@ -69,7 +75,8 @@ snit::widget spectrumType {
 	#  The radio button set for spectrum types
 
 	ttk::label $win.spectypes.typelabel -text "Spectrum Type"
-	foreach type [list 1 2 S b] label [list 1D 2D Stripchart Bitmask] {
+	foreach type [list 1 2 s S b g1 g2] \
+	    label [list 1D 2D Summary Stripchart Bitmask Gamma1D Gamma2D] {
 	    ttk::radiobutton $win.spectypes.t$type -text $label \
 		-variable ${selfns}::options(-spectrumtype) -value $type \
 		-command [mymethod dispatch]
@@ -77,7 +84,7 @@ snit::widget spectrumType {
 	# The radio button set for data types:
 
 	ttk::label $win.datatypes.datatypelabel -text "Data Type"
-	foreach type [list word long] label [list "Word (16 bits)" "Long (32 bits)"] {
+	foreach type [list byte word long] label [list "Byte (8 bits)" "Word (16 bits)" "Long (32 bits)"] {
 	    ttk::radiobutton $win.datatypes.d$type -text $label -value $type \
 		-variable ${selfns}::options(-datatype)
 	}
@@ -85,17 +92,47 @@ snit::widget spectrumType {
 	# Layout the widgets and frame:
 
 	grid $win.spectypes.typelabel -columnspan 2
-	grid $win.spectypes.t1 $win.spectypes.tS -sticky nsw -padx 15 -pady 5
-	grid $win.spectypes.t2 $win.spectypes.tb -sticky nsw -padx 15 -pady 5
+	grid $win.spectypes.t1 $win.spectypes.tb -sticky nsw -padx 15 -pady 5
+	grid $win.spectypes.t2 $win.spectypes.tg1 -sticky nsw -padx 15 -pady 5
+	grid $win.spectypes.ts $win.spectypes.tg2 -sticky nsw -padx 15 -pady 5
+	grid $win.spectypes.tS
 
-	grid $win.datatypes.datatypelabel 
-	grid $win.datatypes.dword -sticky nsw -pady 5 -padx 15
-	grid $win.datatypes.dlong -sticky nsw -pady 5 -padx 15
+	grid $win.datatypes.datatypelabel
+	grid $win.datatypes.dword -sticky nsw -pady 5 -padx 15 -row  1 -column 0
+	grid $win.datatypes.dlong -sticky nsw -pady 5 -padx 15 -row  2 -column 0
+	grid $win.datatypes.dbyte -sticky nsw -pady 5 -padx 15 -row  3 -column 0
 
 	grid $win.spectypes -row 0 -column 0 -sticky nsw
 	grid $win.datatypes -row 0 -column 1 -sticky nse
-	
+
     }
+
+    #---------------------------------------------------------------------------------
+    # Public methods:
+
+    ##
+    # Enable a data type radio button.  The corresponding radio button is configured
+    # so that -state => normal
+    # 
+    # @param typename - The name of the type to modify (e.g. byte, word, long).
+    #
+    method enableDataType typename {
+	$win.datatypes.d$typename configure -state normal
+    }
+    ##
+    # Disable a data type radio button.  The corresponding radio button is configured
+    # so that -state => disabled.
+    #
+    # @param typename - name of the type to modify (e.g. byte, word, long).
+    #
+    method disableDataType typename {
+	$win.datatypes.d$typename configure -state disabled
+    }
+
+
+    #----------------------------------------------------------------------------------
+    # Private methods:
+
     #----------------------------------------------------------------------------------
     #  Configuration mangement
 

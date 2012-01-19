@@ -112,6 +112,7 @@ snit::widget gateContainer {
     # Methods delegated to gateTable:
 
     delegate method getsel to gatetable
+    delegate method * to hull
 
 
     ##
@@ -127,10 +128,16 @@ snit::widget gateContainer {
 	install  gatecreate using gateCreate $win.gatecreate
 
 
-	grid $win.gatecreate -sticky ew
-	grid $win.gatedelete -sticky ew
-	grid $win.gatetable  -sticky ew
-	grid $win.gatesel    -sticky ew
+	grid $win.gatecreate -sticky ewn
+	grid $win.gatedelete -sticky ewn
+	grid $win.gatetable  -sticky nsew
+	grid $win.gatesel    -sticky ews
+	
+	grid columnconfigure $win all -weight 1
+	grid rowconfigure    $win 0   -weight 0
+	grid rowconfigure    $win 1   -weight 0
+	grid rowconfigure    $win 2   -weight 1
+	grid rowconfigure    $win 3   -weight 0
 
 
 	$self configurelist $args

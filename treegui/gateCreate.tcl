@@ -130,6 +130,11 @@ snit::widget gateCreate {
 	grid $win.name        -row 1 -column 0 -sticky w -padx 3px
 	grid $win.definition  -row 1 -column 1 -columnspan 3 -sticky ew
 
+	grid columnconfigure $win 0 -weight 0
+	grid columnconfigure $win 1 -weight 1
+	grid columnconfigure $win 2 -weight 0
+	grid columnconfigure $win 3 -weight 1
+
 
 	# Configure the args which in turn will configure some of the widget contents.
 

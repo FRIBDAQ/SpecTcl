@@ -53,7 +53,7 @@ snit::widget treeVariableLoadSave {
 	ttk::label  $win.cfile -text " Current File: "
 	ttk::label  $win.filename -textvariable ${selfns}::options(-filename) -width 60
 
-	grid $win.load $win.save $win.cfile $win.filename
+	grid $win.load $win.save $win.cfile $win.filename -sticky w
     }
     #-----------------------------------------------------------------------------
     #  Action handlers.
