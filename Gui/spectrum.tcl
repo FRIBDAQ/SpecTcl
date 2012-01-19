@@ -913,9 +913,7 @@ proc addSpectrum widget {
 }
 
 proc addSpectrumDestroyWidget widget {
-    puts "will destroy $widget [winfo exists $widget]"
-    catch {addSpectrum $widget} msg
-    puts "back from addSpectrum $msg"
+    addSpectrum $widget
     destroy $widget
 }
 
