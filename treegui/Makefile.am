@@ -39,5 +39,6 @@ treeVariableContainer.tcl \
 treeVariableEditor.tcl \
 treeVariableLoadSave.tcl \
 variableTabActions.tcl \
+scrollingMenu.tcl \
 downarrow.gif \
 uparrow.gif
