@@ -16,6 +16,7 @@
 package require Tk
 package require snit
 package require treeUtilities
+package require scrollingMenu
 
 package provide treemenuWidget 1.0
 
@@ -57,7 +58,7 @@ snit::widgetadaptor treeMenu {
 
 
     constructor args {
-	installhull using menu -tearoff 0
+	installhull using scrollingMenu -tearoff 0
 	$self configurelist $args
 
 
@@ -134,7 +135,7 @@ snit::widgetadaptor treeMenu {
 
 		if {[llength $cascade] > 0} {
 		    set submenuName $widget.c$submenu
-		    menu $submenuName -tearoff 0
+		    scrollingMenu $submenuName -tearoff 0
 		    $self BuildMenus $submenuName $recurseLength $cascade
 		    $widget add cascade -label $label -menu $submenuName
 		    incr submenu
