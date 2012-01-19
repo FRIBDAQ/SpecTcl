@@ -891,8 +891,10 @@ proc spectrumUsage {} {
     set multiplier(word)  2
     set multiplier(byte)  1
 
+    if {[catch {::spectrum -list} spectra]} {
+	set spectra [list]
+    }
 
-    set spectra [spectrum -list]
     set usage 0
 
     foreach spectrum $spectra {
@@ -941,6 +943,7 @@ proc updateStatus nms {
     global LargestSource
     global updateCount
     global spectrumMemory
+
 
 
     # It's always possible the user destroyed the window so conditionalize
