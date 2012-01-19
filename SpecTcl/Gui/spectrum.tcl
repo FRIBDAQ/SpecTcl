@@ -26,6 +26,7 @@ package require editGammaSummary
 package require guiutilities
 package require Iwidgets
 package require guihelp
+package require SpecTclGui
 
 #  spectrumGui implements a dialog that can edit
 #  spectrum definitions.  It uses a technique
@@ -906,13 +907,15 @@ proc addSpectrum widget {
 
         }
     }
-    .gui.b update
+    ::FolderGui::updateBrowser
     $widget reinit
     failsafeWrite
 }
 
 proc addSpectrumDestroyWidget widget {
-    addSpectrum $widget
+    puts "will destroy $widget [winfo exists $widget]"
+    catch {addSpectrum $widget} msg
+    puts "back from addSpectrum $msg"
     destroy $widget
 }
 
@@ -955,7 +958,7 @@ proc deleteSpectrum  name {
         spectrum -delete $name
         failsafeWrite
     }
-    .gui.b update
+    ::FolderGui::updateBrowser
 }
 # writeSpectrum name
 #     Writes the indicated spectrum to file after prompting for
@@ -1187,7 +1190,7 @@ to the spectrum selection dialog."]
             spectrum -delete $spectrum
         }
         failsafeWrite
-        .gui.b update
+        ::FolderGui::folderGuiBrowser update
         destroy $widget
     }
 
@@ -1286,7 +1289,7 @@ proc readSpectrumFile {} {
             }
         }
         failsafeWrite
-        .gui.b update
+	::FolderGui::updateBrowser
         destroy .readmany
     }
 }
