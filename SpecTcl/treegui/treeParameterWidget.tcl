@@ -44,8 +44,6 @@ package provide treeParameterEditor 1.0
 #   <Tab> Moves focus forward to the next field (ring style).
 #   <Shift-Tab> Moves the focus forward to the next field.
 #   <Return> Moves the focus forward to the next field.
-#   <Right>   Moves focus forward to the next field.
-#   <Left>    Moves focus back to the prior field.
 #   <Key>(name only) Calls -namechanged script.
 #
 #
@@ -96,15 +94,17 @@ snit::widget treeParameterEditor {
 		::ttk::entry $win$entry -textvariable ${selfns}::options($optionname) \
 		    -takefocus 1 -width $width
 		
-            # Bindings that move focus right.. note that tab is a next focus anyway.
+	    # Bindings that move focus right.. note that tab is a next focus anyway.
 
-	    foreach binding [list <Return> <Right>] {
-		bind $win$entry $binding  [list after idle [mymethod focusRight %W]]; #  $entry]]
+	    foreach binding [list <Return>] {
+		bind $win$entry $binding  [list after idle [mymethod focusRight %W]];
 	    }
-	    # Bindings that move focus left:..note that shift-tab moves focus anyway.
-
-	    foreach binding [list  <Left>] {
-		bind $win$entry $binding [list after idle [mymethod focusLeft %W]];#  $entry]]
+		# Bindings that move focus left:..note that shift-tab moves focus anyway.
+		# Currently no extra bindings there but adding to the empty list below can
+	    # change that.
+		
+	    foreach binding [list] {
+		bind $win$entry $binding [list after idle [mymethod focusLeft %W]];
 	    }
 	}
 

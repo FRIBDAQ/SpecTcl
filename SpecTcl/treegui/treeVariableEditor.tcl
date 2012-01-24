@@ -120,13 +120,16 @@ snit::widget treeVariableEditor {
 
 	    # Bindings for this row as well.. note that tab/shift tab normally change focus.
 
-	    foreach binding [list  <Return> <Right> ] {
+	    foreach binding [list  <Return> ] {
 		foreach \
 		    widget [list $win.name$row $win.value$row $win.units$row] {
 			bind $widget $binding [mymethod changeFocus tk_focusNext %W]
 		    }
 	    }
-	    foreach binding [list  <Left>] {
+	    # Currently no left movement bindings other than the default, however
+	    # if someone suggests them they can be added to the list here.
+	    #
+	    foreach binding [list] {
 		foreach \
 		    widget [list $win.name$row $win.value$row $win.units$row] {
 			bind $widget $binding [mymethod changeFocus tk_focusPrev %W]
@@ -156,8 +159,7 @@ snit::widget treeVariableEditor {
     method loadEditor {editor name value units} {
 	foreach widget [list $win.name$editor $win.value$editor $win.units$editor] \
 	    value  [list $name $value $units] {
-	   $widget delete 0 end
-	   $widget insert 0 $value
+	   setEntryValue $widget $value
 	}
     }
     ##
@@ -277,6 +279,32 @@ snit::widget treeVariableEditor {
     #
     method Dispatch {script substs values} {
 	::treeutility::dispatch $script $substs $values
+    }
+    ##
+    # Utility to set the text of an entry widget while preserving the 
+    # cursor position
+    #
+    # @param widget  - Text widget.
+    # @param text    - New text.
+    #
+    # @note if the text is shorter than the current cursor position, the cursor
+    #       will be put at the end of the text.
+    #
+    proc setEntryValue  {widget text} {
+	
+	#  Get the current cursor position:
+
+	set cursorPosition [$widget index insert]
+	$widget delete 0 end
+	$widget insert 0 $text
+
+	# Figure out if the cursor position needs to be limited by the text:
+
+	set textLength [string length $text]
+	if {$cursorPosition > $textLength} {
+	    set cursorPosition $textLength
+	}
+	$widget icursor $cursorPosition
     }
 
 }
