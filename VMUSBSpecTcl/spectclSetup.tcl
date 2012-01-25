@@ -276,6 +276,39 @@ proc buildV1729Map {param name} {
     return $param
 }
 #----------------------------------------------------------------------------
+#
+#  Build channels and maps for a CAEN Dual range module.
+#  the adc parameters give the base names for parameters .h and .l for
+#  high and low ranges respectively.
+# Parameters:
+#   param   - First parameter number to use.
+#   name    - Name of the module.
+# Returns:
+#   next unused parameter number.
+#
+proc buildCAENDualMap {param name} {
+    set vsn        $::adcConfiguration($name)
+    set resolution $::channelCount($::typeCAEN)
+    set channels   $::adcChannels($name)
+    
+    set parameterList [list]
+
+    foreach parameter $channels {
+	parameter $parameter.h $param
+	makeSpectrum $parameter.h $resolution
+	lappend parameterList $parameter.h
+	incr param
+
+	parameter $parameter.l $param
+	makeSpectrum $parameter.l $resolution
+	lappend parameterList $parameter.l
+	incr param
+    }
+    paramMap $name $::typeCAEN $vsn $parameterList
+
+    return $param
+}
+#----------------------------------------------------------------------------
 # Build the channel maps, spectcl parameters and raw spectra from 
 # the adcConfigurtion, readoutDeviceType and adcChannels information.
 # This will all be driven by the adcCahnnels array.
@@ -303,6 +336,8 @@ proc buildChannelMaps param {
 	} elseif {$::readoutDeviceType($module) eq $::typeV1729} {
 	    puts "CAEN V1729 FADC"
 	    set param [buildV1729Map $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeCAENDual} {
+	    set param [buildCAENDualMap $param $module]
 	} else {
 	    set vsn        $::adcConfiguration($module)
 	    set type       $::readoutDeviceType($module)
