@@ -431,6 +431,7 @@ itcl::class spectrumTabActions {
     #
     private method Selectgate name {
 	$widget configure -gate $name
+	ApplyGates;		# Apply gates to selected spectra.
     }
     
     ##
