@@ -215,7 +215,7 @@ itcl::class spectrumTabActions {
 	    set dataType [lindex $def 5]
 
 	    spectrum $newName $type $param $axes $dataType
-	    
+	    sbind $newName;	# Put it into Xamine.
 	}
     }
     ##
