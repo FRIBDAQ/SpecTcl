@@ -78,6 +78,7 @@ snit::widget spectrumManipulation {
     delegate option -xunits     to xaxis as -units
     delegate option -xbins      to xaxis as -bins
     delegate option -xparamselected to xaxis as -command
+    delegate option -xchanged   to xaxis as -changed
     
     #    Y:
 
@@ -88,6 +89,7 @@ snit::widget spectrumManipulation {
     delegate option -ybins      to yaxis as -bins
     delegate option -yparamselected to yaxis as -command 
     delegate option -ystate     to yaxis as -state
+    delegate option -ychanged   to yaxis as -changed
 
     delegate option -arraystate to array as -state
 

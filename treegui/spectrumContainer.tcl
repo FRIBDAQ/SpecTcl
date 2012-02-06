@@ -82,6 +82,8 @@ snit::widget spectrumContainer {
     delegate option -xbins      to spectrum
     delegate option -xunits     to spectrum
     delegate option -xparamselected to spectrum
+    delegate option -xchanged   to spectrum 
+    delegate option -ychanged   to spectrum
 
 
     delegate option -yparameter to spectrum

@@ -37,13 +37,15 @@ package provide spectrumAxis 1.0
 #   -units      - Units of the parameter.
 #   -state      - State of the Parameter, low, high and bins entries.
 #   -command    - Script executed when a parameter is selected from the menu.
+#   -changed    - Script executed when the parameter name has changed (typing).
 #
 # @note   The low, high, bins are constrained to hold either an empty string
 #   or a valid integer (e.g. string isvalid must hold).
 # @note substitutions are:
 #   - %W - widget ($self)
-#   - %L - Label of menu item clicked.
-#   - %N - Full path to the item selected in the menu hierarchy.
+#   - %L - Label of menu item clicked. [-command]
+#   - %N - Full path to the item selected in the menu hierarchy. [-command]
+#   - %T - Value of parameter name entry [-changed]
 #
 
 snit::widget spectrumAxis {
@@ -58,6 +60,7 @@ snit::widget spectrumAxis {
     option -state        -default normal -configuremethod StateChange
 
     option -command      -default [list]
+    option -changed      -default [list]
 
     ##
     #  Construct and layout the component widgets.
@@ -83,10 +86,10 @@ snit::widget spectrumAxis {
 	ttk::entry      $win.parameter    -textvariable ${selfns}::options(-parameter)  \
 	    -takefocus 1
 	ttk::entry      $win.low          -textvariable ${selfns}::options(-low) \
-	    -validate key -validatecommand [list string is double %P] -width 7 \
+	    -validate key -validatecommand [mymethod validateAxis %P] -width 7 \
 	    -takefocus 1
 	ttk::entry      $win.high         -textvariable ${selfns}::options(-high) \
-	    -validate key -validatecommand [list string is double  %P] -width 7  \
+	    -validate key -validatecommand [mymethod validateAxis  %P] -width 7  \
 	    -takefocus 1
 	ttk::entry      $win.bins         -textvariable ${selfns}::options(-bins) \
 	    -validate key -validatecommand [list string is integer  %P] -width 7  \
@@ -100,6 +103,8 @@ snit::widget spectrumAxis {
 	    
 
 	$self configurelist $args
+
+	bind $win.parameter <Key> [list after idle [mymethod Keystroke]]
     }
     #---------------------------------------------------------------------------------
     # Configuration management
@@ -139,6 +144,12 @@ snit::widget spectrumAxis {
     #--------------------------------------------------------------------------------------
     #  Action handlers
     
+    ##
+    # Called in response to a keystroke in the parameter name entry widget:
+    #
+    method Keystroke {} {
+	::treeutility::dispatch $options(-changed) [list %W %T] [list $self [$win.parameter get]]
+    }
 
     ##
     ##
@@ -151,5 +162,22 @@ snit::widget spectrumAxis {
 	::treeutility::dispatch $options($option) [list %W %L %N] [list $self [list $label] [list $name]]
     }
 
+    ##
+    # Validation command for axes...a leading minus is allowed as well as a floating point.
+    # just a minus is allowed since someone might type in order -1.234
+    #
+    # @param value - Current value of the entry.
+    #
+    # @return int
+    # @retval 0 - invalid value
+    # @retval 1 - valid value.
+    #
+    method validateAxis value {
+	set value [string trim $value]
+	if {$value eq "-"} {
+	    return 1
+	}
+	return [string is double $value]
+    }
     
 }
