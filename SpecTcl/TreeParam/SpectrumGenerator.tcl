@@ -912,7 +912,7 @@ proc DuplicateSpectra {} {
 	Modified
 }
 
-proc GenerateGateMenu {parent command} {
+proc GenerateGateMenu  {parent command} {
 # Generate a menu containing all available gates and attaches it to the parent widget
 	destroy $parent.menu
 	set wymax [winfo vrootheight .]

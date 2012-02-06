@@ -38,8 +38,29 @@ package provide gateTabActions 1.0
     private variable gateDeleteChain;	# prior gate delete trace.
     private variable gateChangeChain;   	# prior gate change trace.
 
+    private variable menuUpdateAfterId -1;    #  after item for scheduling a load request.
+
     #------------------------------------------------------------------------------
     # Private methods:
+
+    ## 
+    # Schedule an execution of the loadMenu command for .5 seconds from now.
+    # if the update is already scheduled don't schedule again
+    #
+
+    private method scheduleLoadUpdate {} {
+	if {$menuUpdateAfterId == -1} {
+	    set menuUpdateAfterId [after 500 [itcl::code $this doScheduledLoadUpdate]]
+	}
+    }
+
+    ##
+    # Called to do a scheduled loadUpdate...resets the menuUpdateAfterId to -1 again
+    #
+    private method doScheduledLoadUpdate {} {
+	set menuUpdateAfterId -1
+	loadGateMenu
+    }
 
     ##
     # Return the type code of a gate:
@@ -108,21 +129,33 @@ package provide gateTabActions 1.0
     #  @name is the name of the gate that fired the trace.
     #
     private method gateAdded name {
-	loadGateMenu
+	set status [catch {
+	scheduleLoadUpdate
 	if {$gateAddChain ne ""} {
-	    uplevel #0 $gateAddChain $name
+	    uplevel #0 [list $gateAddChain $name]
+	}} msg] 
+	if {$status} {
+	    puts "gateAdded failed: $msg $name"
 	}
     }
     private method gateDeleted name {
-	loadGateMenu
+	set status [catch {
+	scheduleLoadUpdate
 	if {$gateDeleteChain ne ""} {
-	    uplevel #0 $gateDeleteChain $name
+	    uplevel #0 [list $gateDeleteChain $name]
+	}} msg]
+	if {$status} {
+	    puts "gateDeleted failed: $msg $name"
 	}
     }
     private method gateChanged name {
-	loadGateMenu
+	set status [catch {
+	scheduleLoadUpdate
 	if {$gateChangeChain ne ""} {
-	    uplevel #0 $gateChangeChain $name
+	    uplevel #0 [list $gateChangeChain $name]
+	}} msg]
+	if {$status} {
+	    puts "gateChanged failed: $msg $status"
 	}
     }
     ##

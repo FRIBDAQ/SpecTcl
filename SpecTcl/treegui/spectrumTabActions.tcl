@@ -38,10 +38,28 @@ itcl::class spectrumTabActions {
 
     private variable promptSpectrumOverwrite 0
    
-				 
+    private variable gatesUpdateAfterId -1; # after id for scheduling a re-pop of the gate menu.
 				 
     #-------------------------------------------------------------------------
     # Private utility methods
+
+    ##
+    # Schedule an update of the gate menu .5 seconds from now.  
+    # addtional schedule prior the execution are no-op.
+    #
+    private method scheduleGateUpdate {} {
+	if {$gatesUpdateAfterId == -1} {
+	    set gatesUpdateAfterId [after 500 [itcl::code $this doScheduledGateUpdate]]
+	}
+    }
+    ##
+    # Perform a scheduled gate update operation:
+    #
+    private method doScheduledGateUpdate {} {
+	puts "In spectrum gate update function"
+	set gatesUpdateAfterId -1
+	LoadGateMenu
+    }
 
     ## Given a number if it turns out the number is an integer,
     #  just return the integerized string.  If not trailing 0's
@@ -406,24 +424,62 @@ itcl::class spectrumTabActions {
     #  @param name - the name of the gate affected.
 
     private method gateAdded name {
-	LoadGateMenu
+	set status [catch {
+	scheduleGateUpdate
 	if {$gateAddChain ne ""} {
-	    uplevel #0 $gateAddChain $name
+	    uplevel #0 [list $gateAddChain $name]
+	}} msg]
+	if {$status} {
+	    puts "gateAdded failed: $msg $name"
 	}
     }
     private method gateDeleted name {
-	LoadGateMenu
+	set status [catch {
+	scheduleGateUpdate
 	if {$gateDeleteChain ne ""} {
-	    uplevel #0 $gateDeleteChain $name
+	    uplevel #0 [list $gateDeleteChain $name]
+	}} msg]
+	if {$status} {
+	    puts "gateDeleted failed: $msg $name"
 	}
     }
     private method gateChanged name {
-	LoadGateMenu
+	set status [catch {
+	scheduleGateUpdate
 	if {$gateChangeChain ne ""} {
-	    uplevel #0 $gateChangeChain $name
+	    uplevel #0 [list $gateChangeChain $name]
+	}} msg]
+	puts "gateChanged failed: $msg $name"
+    }
+    ## 
+    # For a given spectrum return the applied gate or an empty string if no gate is applied.
+    #
+    # @param name - spectrum name
+    #
+    # @return string
+    # @retval possibly empty string of the applied gate.
+    #
+    private method AppliedGate name {
+	set list [apply -list $name]
+	if {[llength $list] != 0} {
+	    set applied [lindex $list 0]
+	    return [lindex [lindex $applied 1] 0]; # gate name.
+	} else {
+	    return ""
 	}
     }
-
+    ##
+    # Given a spectrum name and a gate name, apply the gate the the spectrum.
+    # If the gate name is an empty string, this is a no-op.
+    #
+    # @param specName - spectrum name.
+    # @param gate - Gate name.
+    #
+    private method ApplyGate {specName gate} {
+	if {$gate ne ""} {
+	    apply $gate $specName
+	}
+    }
 
     ## 
     # Whenever a gate is selected its full path is put in the entry below the menu:
@@ -613,19 +669,32 @@ itcl::class spectrumTabActions {
 	set xbins    [$widget cget -xbins]
 
 	    
-
+	
 	# Do nothing if any of the above are empty:
 
 	if {[anyNulls [list $type $datatype $name $xname $xlow $xhi $xbins]]} {
 	    return
 	}
 
+	if {![string is double -strict  $xlow] ||
+	    ![string is double -strict  $xhi]} {
+	    ::treeutility::errorMessage \
+		"Invalid X axis specification. Both low and high must be valid floats were: $xlow $xhi"
+	    return
+	}
+	    
+
+
 	# Bins must be integers:
 
 	if {![string is integer $xbins]} {
-	    error "The number of bins on the x axis must be an integer was: $xbins"
+	    ::treeutility::errorMessage "The number of bins on the x axis must be an integer was: $xbins"
+	    return
 	}
-
+	if {$xbins < 0} {
+	    ::treeutility::errorMessage "The number of bins on the x axis must be positive was $xbins"
+	    return
+	}
 
 	# What happens next depends entirely on the spectrum type
 	# Bitmask and 1d define essentially the same.
@@ -659,16 +728,20 @@ itcl::class spectrumTabActions {
 		    if {([llength $existingSpectra] == 0) ||
 			[::treeutility::okToReplaceSpectra $existingSpectra]} {
 			foreach parameter $parameterList spectrum $spectrumList {
+			    set gateName [AppliedGate $spectrum]
 			    catch {spectrum -delete $spectrum}
 			    spectrum $spectrum $type $parameter \
 				[list [list $xlow $xhi $xbins]] $datatype
+			    ApplyGate $spectrum $gateName
 			    sbind $spectrum
 			}
 		    }
 		} else {
 		    if {[okToReplaceSpectrum $name]} {
+			set gateName [AppliedGate $name]
 			catch {spectrum -delete $name}; # get rid of any prior spectrum.
 			spectrum $name $type $xname [list [list $xlow $xhi $xbins]] $datatype
+			ApplyGate $name $gateName
 			sbind $name
 		    }
 		}
@@ -679,8 +752,10 @@ itcl::class spectrumTabActions {
 		set yname [$widget cget -yparameter]
 
 		if {($yname ne "") && [okToReplaceSpectrum $name]} {
+		    set gateName [AppliedGate $name]
 		    catch {spectrum -delete $name}
 		    spectrum $name $type [list $xname $yname]  [list [list $xlow $xhi $xbins]] $datatype
+		    ApplyGate $name $gateName
 		    sbind $name
 		}
 	    }
@@ -694,11 +769,25 @@ itcl::class spectrumTabActions {
 
 		if {![anyNulls [list $yname $ylow $yhi $ybins]] && [okToReplaceSpectrum $name]} {
 		    if {![string is integer $ybins]} {
-			error "Bins on y axis must be an integer was: $ybins"
+			::treeutility::errorMessage  "Bins on y axis must be an integer was: $ybins"
+			return
 		    }
+		    if {$ybins < 0} {
+			::treeutility::errorMessage  "Y bins must be a positive integer, was: $ybins"
+			return
+		    }
+		    if {![string is double -strict  $ylow] ||
+			![string is double -strict  $yhi]} {
+			::treeutility::errorMessage \
+			    "Invalid Y axis specification. Both low and high must be valid floats were: $ylow $yhi"
+			return
+		    }
+		    
+		    set gate [AppliedGate $name]
 		    catch {spectrum -delete $name}
 		    spectrum $name $type [list $xname $yname] \
 			[list [list $xlow $xhi $xbins] [list $ylow $yhi $ybins]] $datatype
+		    ApplyGate $name $gate
 		    sbind $name
 		}
 	    }
@@ -707,8 +796,10 @@ itcl::class spectrumTabActions {
 		
 		if {[okToReplaceSpectrum $name]} {
 		    set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
+		    set gate [AppliedGate $name]
 		    catch {spectrum -delete $name}
 		    spectrum $name $type $parameterList [list [list $xlow $xhi $xbins]]
+		    ApplyGate $name $gate
 		    sbind $name
 		}
 	    }
@@ -718,9 +809,11 @@ itcl::class spectrumTabActions {
 		if {[okToReplaceSpectrum $name]} {
 
 		    set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
+		    set gate [AppliedGate $name]
 		    catch {spectrum -delete $name}
 		    spectrum $name $type $parameterList \
 			[list [list $xlow $xhi $xbins] [list $xlow $xhi $xbins]]
+		    ApplyGate $name $gate
 		    sbind $name
 		}
 
@@ -750,6 +843,30 @@ itcl::class spectrumTabActions {
 	    $autosave enableFailsafe
 	} else {
 	    $autosave disableFailsafe
+	}
+    }
+
+    ## 
+    # Called when a parameter name has been typed into in an axis
+    # If the new entry field defines a parameter,  its low/high/bins/units are
+    # loaded into the widget otherwise, ?'s are put in those field.s
+    #
+    # @param wid - spectrumAxis widget that changed.
+    # @param name - New value of the parameter.
+    #
+    private method SetParameterInfo {wid name} {
+	set info [treeparameter -list $name]
+
+
+	if {[llength $info] == 0} {
+	    $wid configure -low ? -high ? -bins ? -units ?
+	} else {
+	    set info [lindex $info 0]; # hopefully no wildcards in the name..if so get the first match.
+
+	    $wid configure -low [lindex $info 2] \
+		-high [lindex $info 3] \
+		-bins [lindex $info 1] \
+		-units [lindex $info 5]
 	}
     }
 
@@ -790,7 +907,9 @@ itcl::class spectrumTabActions {
 	    -xparamselected [itcl::code $this LoadParameter x %N]    \
 	    -yparamselected [itcl::code $this LoadParameter y %N] \
 	    -createcmd      [itcl::code $this CreateSpectrum]     \
-	    -failsafechanged [itcl::code $this ChangeFailsafe]
+	    -failsafechanged [itcl::code $this ChangeFailsafe]    \
+	    -xchanged        [itcl::code $this SetParameterInfo %W %T]  \
+	    -ychanged        [itcl::code $this SetParameterInfo %W %T]
 	    
 
 

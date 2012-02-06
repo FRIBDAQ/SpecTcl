@@ -133,3 +133,11 @@ proc ::treeutility::okToReplaceSpectra spectra {
     
     return [expr $answer eq "yes"]
 }
+##
+# Report an error message via tk_messageBox:
+#
+# @param message
+#
+proc ::treeutility::errorMessage message {
+    tk_messageBox -type ok -icon error -message $message -title ERROR
+}
