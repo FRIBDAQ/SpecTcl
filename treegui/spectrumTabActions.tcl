@@ -56,7 +56,6 @@ itcl::class spectrumTabActions {
     # Perform a scheduled gate update operation:
     #
     private method doScheduledGateUpdate {} {
-	puts "In spectrum gate update function"
 	set gatesUpdateAfterId -1
 	LoadGateMenu
     }
@@ -449,7 +448,9 @@ itcl::class spectrumTabActions {
 	if {$gateChangeChain ne ""} {
 	    uplevel #0 [list $gateChangeChain $name]
 	}} msg]
-	puts "gateChanged failed: $msg $name"
+	if {$status} {
+	    puts "gateChanged failed: $msg $name"
+	}
     }
     ## 
     # For a given spectrum return the applied gate or an empty string if no gate is applied.
@@ -476,7 +477,7 @@ itcl::class spectrumTabActions {
     # @param gate - Gate name.
     #
     private method ApplyGate {specName gate} {
-	if {$gate ne ""} {
+	if {[llength [gate -list $gate]] > 0} {
 	    apply $gate $specName
 	}
     }

@@ -138,9 +138,9 @@ snit::widget treeVariableEditor {
 	    # The after in this binding allows the entry to change so a get
 	    # of the value reflects the contents after the keystroke.
 	    #
-	    bind $win.name$row <Key> [list after idle  [mymethod Keystroke $row]]
+	    bind $win.name$row <Key> +[list after idle  [mymethod Keystroke $row %K]]
 	}
-	foreach column [list 0 1 2 3 4 5] weight [list 0 20 1 1 0 0] {
+	;foreach column [list 0 1 2 3 4 5] weight [list 0 20 1 1 0 0] {
 	    grid columnconfigure $win $column -weight $weight
 	}
 
@@ -264,7 +264,7 @@ snit::widget treeVariableEditor {
     #    - %I  - The row of the widget that was modified.
     #    - %N  - The contents of the name after the stubstition.
     #
-    method Keystroke row {
+    method Keystroke {row key} {
 	set entryWidget $win.name$row
 
 	$self Dispatch $options(-namechanged) [list %W %I %N] [list $win $row [list [$win.name$row get]]]
@@ -291,12 +291,25 @@ snit::widget treeVariableEditor {
     #       will be put at the end of the text.
     #
     proc setEntryValue  {widget text} {
-	
+
 	#  Get the current cursor position:
 
 	set cursorPosition [$widget index insert]
+
+	# Similarly with the selection range:
+
+	if {[$widget selection present]} {
+	    set selFirst [$widget index sel.first]
+	    set selLast  [$widget index sel.last]
+	    set restoreSelection 1
+	} else {
+	    set restoreSelection 0
+	}
+	# Set the new text:
+
 	$widget delete 0 end
 	$widget insert 0 $text
+
 
 	# Figure out if the cursor position needs to be limited by the text:
 
@@ -305,6 +318,9 @@ snit::widget treeVariableEditor {
 	    set cursorPosition $textLength
 	}
 	$widget icursor $cursorPosition
+	if {$restoreSelection} {
+	    $widget selection range $selFirst $selLast
+	}
     }
 
 }
