@@ -1,4 +1,4 @@
-INSTDIR=/usr/opt/spectcl/current
+INSTDIR=/usr/opt/spectcl/3.3
 
 # Skeleton makefile for 3.3
 

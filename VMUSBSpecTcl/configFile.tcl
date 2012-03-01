@@ -92,6 +92,7 @@ proc configRead filename {
 #   presumably, the  adcConfig will override this value later.
 #
 proc adcCreate tail {
+    puts "adcCreate $tail"
     global adcConfiguration
 
     set name [lindex $tail 0]
@@ -246,15 +247,25 @@ proc caenv965 args {
 #       commands.  All other subcommands are no-ops.
 #
 proc adc args {
+    puts "adc $args"
     set subcommand [lindex $args 0]
     set tail       [lrange $args 1 end]
+    puts "Subcommand $subcommand tail: $tail"
     if {$subcommand eq "create"} {
+	puts "Create"
 	adcCreate $tail
     }    
     if {$subcommand eq "config"} {
+	puts "config"
 	adcConfig $tail
     }
+    puts "done"
 }
+
+proc caenv792 args {
+    adc {*}$args
+}
+
 
 #----------------------------------------------------------------
 #  The hytec command processes creation and configuration commands
