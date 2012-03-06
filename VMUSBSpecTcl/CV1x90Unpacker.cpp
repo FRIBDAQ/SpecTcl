@@ -158,6 +158,7 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
 
   bool done = false;
   uint32_t    referenceTime = 0;
+  int         totalHits     = 0;
   while((offset < maxoffset) && !done) {
     uint32_t datum = getLong(event, offset);
     if (datum == 0xffffffff) break; // premature end of event.
@@ -186,6 +187,7 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
       uint32_t channel = (datum & info.s_chanmask) >> info.s_chanshift;
       uint32_t time    = datum & info.s_datamask;
       rawTimes[channel].push_back(time);
+      totalHits++;
       break;
       
     }
@@ -195,42 +197,46 @@ CV1x90Unpacker::operator() (CEvent&                      rEvent,
 
   if(getLong(event, offset) == 0xffffffff) offset += 2;
 
-  // 
-  // Two cases to consider.  If the reference channel number is -1
-  // there's no reference channel..otherwised there is:
-  //
-  int32_t reftime = 0;		// Default to no reference chhanel:
-  if (info.s_refchannel >= 0) {	//  Reference channel used:
+  // If we got no hits (just tdc headers/trailers don't do anything.
+
+  if (totalHits > 0) {
+
+    // 
+    // Two cases to consider.  If the reference channel number is -1
+    // there's no reference channel..otherwised there is:
+    //
+    int32_t reftime = 0;		// Default to no reference chhanel:
+    if (info.s_refchannel >= 0) {	//  Reference channel used:
 
 
-    if (rawTimes[info.s_refchannel].size() > 0) {
-      reftime = rawTimes[info.s_refchannel][0];
+      if (rawTimes[info.s_refchannel].size() > 0) {
+	reftime = rawTimes[info.s_refchannel][0];
+      }
+      else {
+	std::cerr << "-- TDC data with no hits in reference time discarded from vsn: ";
+	std::cerr << pMap->vsn << std::endl;
+	return offset;
+      }
     }
-    else {
-      std::cerr << "-- TDC data with no hits in reference time discarded from vsn: ";
-      std::cerr << pMap->vsn << std::endl;
-      return offset;
-    }
-  }
 
-  // The reftime defaults to zero which essentially does not adjust the times
-  // if no reference channel is specified.
+    // The reftime defaults to zero which essentially does not adjust the times
+    // if no reference channel is specified.
 
-  for (int i = 0; i < info.s_channelCount; i++) {
-    int hits = rawTimes[i].size();
-    if (hits > info.s_depth) hits = info.s_depth;
-    CTreeParameterArray* pArray = info.s_parameters[i];
-    if (pArray) {		// No parameter defined.
-      CTreeParameterArray&  Array(*pArray);
-      for (int hit =0; hit < hits; hit++) {
-	double triggerRelative = static_cast<double>(rawTimes[i][hit] - reftime);
-	triggerRelative        = triggerRelative*info.s_chansToNs;
+    for (int i = 0; i < info.s_channelCount; i++) {
+      int hits = rawTimes[i].size();
+      if (hits > info.s_depth) hits = info.s_depth;
+      CTreeParameterArray* pArray = info.s_parameters[i];
+      if (pArray) {		// No parameter defined.
+	CTreeParameterArray&  Array(*pArray);
+	for (int hit =0; hit < hits; hit++) {
+	  double triggerRelative = static_cast<double>(rawTimes[i][hit] - reftime);
+	  triggerRelative        = triggerRelative*info.s_chansToNs;
 	
-	Array[hit] = triggerRelative;	// common stop assumption.
-	  }
+	  Array[hit] = triggerRelative;	// common stop assumption.
+	}
+      }
     }
-  }
-
+  } // Have some hits.
 
 
   return offset;
