@@ -18,7 +18,6 @@ package require snit
 package require browser
 package require guiutilities
 package require Iwidgets
-package require Tktable
 
 #  Returns the state of a named filter.
 #
@@ -143,26 +142,27 @@ snit::widget filterenables {
     variable hidden {}
 
     constructor args {
-        table      $win.filters -cols 7 -rows 1 -titlerows 1 -yscrollcommand [list $win.scroll set] \
-                                -justify left -cache 1 -resizeborders both
-        scrollbar  $win.scroll  -orient vertical -command [list $win.filters yview]
+	iwidgets::scrolledframe $win.filters -hscrollmode none \
+	    -vscrollmode dynamic -width 400
+
+
 
         button $win.ok     -text Ok     -command [mymethod onOk]
         button $win.cancel -text Cancel -command [mymethod onCancel]
         button $win.help   -text Help   -command [list spectclGuiDisplayHelpTopic filterEnables]
 
-        grid $win.filters    -row 0 -column 0 -sticky nsew
-        grid $win.scroll     -row 0 -column 1 -sticky nsw
+        grid $win.filters    -row 0 -column 0 -columnspan 3 -sticky nsew
+
         grid $win.ok $win.cancel $win.help
 
-        $self fillTable $win.filters
+        $self fillTable [$win.filters childsite]
 
         $self configurelist $args
     }
     #  fillTable widget
     #            Fills the filter table.
     # Parameters:
-    #    widget    - the table widget.
+    #    widget    - the frame in which the widgets get put.
     #
     method fillTable widget {
 
@@ -170,13 +170,14 @@ snit::widget filterenables {
 
         set col 0
         foreach title {Enable Name Gate File Parameters  State Format} {
-            $widget set 0,$col $title
+	    ttk::label $widget.title$col -text $title
+	    grid $widget.title$col -row 0 -column $col -sticky ew
             incr col
         }
         #  Now the filters
 
         set row 1
-        $widget tag configure invariant -state disabled
+
 
         set maxname 0
         set maxgate 0
@@ -203,28 +204,32 @@ snit::widget filterenables {
             set state [lindex $filter 4]
 	    
 	    set format [lindex $filter 5]
-
-            $widget insert rows end
-            $widget height $row $height
-            $widget set row $row,1 [list $name $gate $file $parameters $state $format]
-
-            checkbutton $widget.enable$name
+	    
+	    ttk::label $widget.name$row \
+		-text $name -relief groove -borderwidth 1
+	    ttk::label $widget.gate$row \
+		-text $gate -relief groove -borderwidth 1
+	    ttk::label $widget.file$row \
+		-text $file -relief groove -borderwidth 1
+	    ttk::label $widget.par$row  \
+		-text $parameters -relief groove -borderwidth 1
+	    ttk::label $widget.state$row \
+		-text $state -relief groove -borderwidth 1
+	    ttk::label $widget.fmt$row \
+		-text $format -relief groove -borderwidth 1
+            checkbutton $widget.enable$name -relief groove -borderwidth 1
             if {$state == "enabled"} {
                 $widget.enable$name select
             } else {
                 $widget.enable$name deselect
             }
-            $widget window configure $row,0 -window $widget.enable$name
+	    grid $widget.enable$name $widget.name$row $widget.gate$row \
+		$widget.file$row $widget.par$row $widget.state$row \
+		$widget.fmt$row  -sticky ew
 
-            for {set col 1} {$col < 6} {incr col} {
-                $widget tag cell invariant $row,$col
-            }
             incr row
         }
-        $widget width 1 $maxname
-        $widget width 2 $maxgate
-        $widget width 3 $maxfile
-        $widget width 4 $maxparam
+
     }
     #  onOk
     #       Called when the ok command is clicked. invoke the use script and,
