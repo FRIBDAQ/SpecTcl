@@ -123,9 +123,11 @@ static inline void skipwhite(istream& rStream)
   char c;
   while(!rStream.eof()) {
     rStream.read(&c,1);
-    if(!isspace(c) || (c == '\n')) {
-      rStream.putback(c);
-      reseteof(rStream);
+    if(!(isspace(c) || (c == '\n'))) {
+      if(!rStream.eof()) {
+	rStream.putback(c);
+	reseteof(rStream);
+      }
       return;
     }
   }
@@ -1209,6 +1211,7 @@ CNSCLAsciiSpectrumFormatter::DecodeListOfParenLists(
     char   c;
     string List;		// One item.
     rStream.read(&c,1);		// Should be a paren...
+    if (rStream.eof()) break;	// In some C++ get eof after read.
     ThrowStreamError(rStream,"Reading what should be a paren");
     if(c != paren) {	   
       throw

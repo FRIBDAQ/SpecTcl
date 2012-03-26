@@ -51,6 +51,13 @@
 
 #include <Xamine.h>
 
+#ifndef __STDINT_H
+#include <stdint.h>
+#ifndef __STDINT_H
+#define __STDINT_H
+#endif
+#endif
+
 #define BUTTON_LABELSIZE  16
 #define BUTTON_PROMPTSIZE 80
 #define BUTTON_MAXTEXT    256
@@ -166,7 +173,7 @@ typedef struct {
 
 typedef struct {		/* Describe a button. */
 
-                 int         button_code; /* Code to return on activation. */
+                 uint64_t         button_code; /* Code to return on activation. */
 		 ButtonTitle label;       /* Text written in button        */
 		 ButtonType  type;        /* Type of button.               */
 		 Logical     state;       /* Initial toggle state          */
