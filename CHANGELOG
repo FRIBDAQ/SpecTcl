@@ -949,4 +949,7 @@ November 30-?? 2011
 	- Fix errors in Stripchart spectrum shifting and channel caculation.
     	- Fix case in spectrum definition where we might ask Tcl to delete
           storage we never allocated.
+        - Remove use of TkTable which disappears eventually in Tcl.
+3.3-007 
+??      - Ensure this all works on ring buffers.
 
