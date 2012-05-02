@@ -477,8 +477,13 @@ snit::widget spectrumGui {
 }
 # saveSpectrumDialog
 #      This dialog allows the user to save a bunch of spectra.
-#      The dialog is divided into a file selector from iwidgets
-#      and a spectrum selector using the browser and a list box.
+#      The dialog consists of a spectrum selector using the browser 
+#      and a list box.
+#      Once the users selects the spectra, they can 
+#      - Ok - which prompts for a filename and when one is provided 
+#             invokes the -okcommand else if that's cancelled, the -cancelcommand.
+#      - Cancel -which invoke the -cancelcommand.
+#
 #  Layout:
 #  Options:
 #      - All those for ::iwidgets::fileselectionbox
@@ -486,25 +491,21 @@ snit::widget spectrumGui {
 #      -okcommand
 #      -cancelcommand
 #  methods:
-#      get,filter    - delegated to the fileselectionbox.
+#      get    - Get the selected filename.
 #
 #
 #
 snit::widget saveSpectrumDialog {
     hulltype toplevel
 
-    delegate method get    to filebox
-    delegate method filter to filebox
-    delegate option *      to filebox
-
     option -spectra
     option -okcommand
     option -cancelcommand
 
     variable hidden {}
+    variable filename ""
 
     constructor args {
-        install filebox using ::iwidgets::fileselectionbox $win.fbox -mask *.spec
 
         label   $win.speclabel -text {Spectra to Write}
         listbox $win.spectra     -yscrollcommand [list $win.scrollbar set]
@@ -519,7 +520,6 @@ snit::widget saveSpectrumDialog {
         button $win.command.cancel  -text Cancel -command [mymethod onCancel]
         button $win.command.help    -text Help   -command [list spectclGuiDisplayHelpTopic savespectrum]
 
-        grid $win.fbox                -                       -
         grid $win.b                   x                       x
         grid   ^                      $win.speclabel          x              -sticky s
         grid   ^                      $win.spectra            $win.scrollbar -sticky ns
@@ -549,14 +549,23 @@ snit::widget saveSpectrumDialog {
     #       Called when the Ok Button is clicked.
     #
     method onOk {} {
-        set script $options(-okcommand)
-        if {$script != ""} {
-            eval $script
-        }
-        if {$hidden != ""} {
-            destroy $hidden
-            set hidden {}
-        }
+	set filename [tk_getSaveFile -defaultextension .spec \
+			  -parent $win \
+			  -filetypes [list   \
+					  [list "Spectrum Files" .spec] \
+					  [list "All Files"       *]]]
+	if {$filename eq ""} {
+	    $self onCancel
+	} else {
+	    set script $options(-okcommand)
+	    if {$script != ""} {
+		eval $script
+	    }
+	    if {$hidden != ""} {
+		destroy $hidden
+		set hidden {}
+	    }
+	}
 
     }
     # onCancel
@@ -564,7 +573,7 @@ snit::widget saveSpectrumDialog {
     #
     method onCancel {} {
         $self configure -spectra {}
-        setEntry $win.fbox.selection {}
+
 
          set script $options(-cancelcommand)
         if {$script != ""} {
@@ -575,6 +584,12 @@ snit::widget saveSpectrumDialog {
             set hidden {}
         }
 
+    }
+    #
+    # Return the selected filename.
+    #
+    method get {} {
+	return $filename
     }
     # spectrumFilter
     #         Works with the browser to ensure that only the unselected
@@ -610,12 +625,6 @@ snit::widget saveSpectrumDialog {
         set index [$win.spectra index @$x,$y]
         $win.spectra delete $index
         $win.b update
-    }
-    # getFilter
-    #      Returns the current value of the filebox filter string.
-    #
-    method getFilter {} {
-        return [$win.fbox.filter get]
     }
     # configure -spectra list
     #     Sets the current set of spectra selected to the

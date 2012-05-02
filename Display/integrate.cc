@@ -697,19 +697,20 @@ Integrate_2dl::Perform()
   for(int l = 0; l < nlines; l++) { /* Loop over scan lines. */
     MergeEdgeTable(&active, e, l); /* Merge with next scan line.       */
     for(int j = 0; j < active.num_edges; j += 2) { /* scan over all pairs  */
-      int lo = (int)active.bases[j].xnow;
-      int hi = (int)active.bases[j+1].xnow; /* sum limits. */
-      unsigned int *s = line + lo;
-      for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
-	double xchannel = XChannel(k);
-	double ychannel = YChannel(y);
-	float  ch       = (float)*s++;
-	sum     += ch;
-	xsum    += ch * xchannel;
-	ysum    += ch * ychannel;
-	xsqsum  += ch * (xchannel*xchannel);
-	ysqsum  += ch * (ychannel*ychannel);
-
+      if (j+1 < active.num_edges) {		   // Deal with stuff coming to a point.
+	int lo = (int)active.bases[j].xnow;
+	int hi = (int)active.bases[j+1].xnow; /* sum limits. */
+	unsigned int *s = line + lo;
+	for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
+	  double xchannel = XChannel(k);
+	  double ychannel = YChannel(y);
+	  float  ch       = (float)*s++;
+	  sum     += ch;
+	  xsum    += ch * xchannel;
+	  ysum    += ch * ychannel;
+	  xsqsum  += ch * (xchannel*xchannel);
+	  ysqsum  += ch * (ychannel*ychannel);
+	}
       }				/* Sum over one interior region. */
     }				/* Scan over all pairs.          */
     /* Now on to the next scan line:  */
