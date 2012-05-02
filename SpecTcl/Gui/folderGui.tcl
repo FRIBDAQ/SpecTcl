@@ -1024,6 +1024,9 @@ proc updateStatus nms {
 
 proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     if {$top eq ""} {
+	if {[winfo exists .gui]} {
+	    return;		# Don't start twice.
+	}
 	toplevel .gui -menu .topmenu
 	set parent .gui
 	set ::FolderGui::folderGuiStatusFrame $parent
@@ -1031,6 +1034,9 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
 	if {$parent eq ""} {
 	    error "folderGUI - providing a top level requires a parent as well"
 	} 
+	if {[winfo exists $parent.b]} {
+	    return;		# Don't start twice.
+	}
 	$top configure -menu .topmenu
 	set ::FolderGui::folderGuiStatusFrame [ttk::frame $top.spectclstatus]
     }

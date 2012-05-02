@@ -654,9 +654,13 @@ public:
               ((float)m_xTop - (float)m_xBottom);
   }
 
+  // Use the point slope form to locate the x position of
+  // a point on the edge specifically:
+  // y-y0 = m(x-x0) => x = (y-y0)/m + x0 Arbitrarily use m_xTop,m_yTop as x0/y0.
+
   virtual void addEdgePoint(vector<int>& existingPoints, int height) {
     if ((height >= m_yBottom) && (height <= m_yTop)) {
-      int point = (int)(m_xBottom + m_slope*(height - m_xBottom));
+      int point = (int)(m_xTop + (height - m_yTop)/m_slope);
       existingPoints.push_back(point);
     }
   }

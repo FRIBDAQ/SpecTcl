@@ -28,39 +28,42 @@ package require gateTabActions
 package require spectrumTabActions
 package require SpecTclGui
 
-#
-# Build the top level and a notebook:
-#
-toplevel .treegui
-set treenotebook [ttk::notebook .treegui.notebook]
-
-#
-#  Now builds and load the widgets into the  notebook:
-#
-
-
-# First the MC Rewrite widgets:
-
-spectrumTabActions spectrum_tab -widget $treenotebook.spectra
-$treenotebook add $treenotebook.spectra -text Spectra -sticky nsew
-
-parametersTabActions parameters -widget $treenotebook.parameters
-$treenotebook add $treenotebook.parameters -text Parameters -sticky nsew
-
-variableTabActions variables -widget $treenotebook.variables
-$treenotebook add $treenotebook.variables -text Variables -sticky nsew
-
-gateTabActions gates -widget $treenotebook.gates
-$treenotebook add $treenotebook.gates -text Gates -sticky nsew
-
-#  Now the folder gui as a new tab:
-
-::FolderGui::startFolderGui .treegui $treenotebook
-$treenotebook add $::FolderGui::folderGuiBrowser -text Folders -sticky nsew
-
-grid $treenotebook -sticky nsew
-grid $::FolderGui::folderGuiStatusFrame -sticky sew
-
-grid columnconfigure .treegui all -weight 1
-grid rowconfigure    .treegui  0   -weight 1
-grid rowconfigure    .treegui  1   -weight 0
+if {![winfo exists .treegui]}  {	# Don't do it twice!
+    
+    #
+    # Build the top level and a notebook:
+    #
+    toplevel .treegui
+    set treenotebook [ttk::notebook .treegui.notebook]
+    
+    #
+    #  Now builds and load the widgets into the  notebook:
+    #
+    
+    
+    # First the MC Rewrite widgets:
+    
+    spectrumTabActions spectrum_tab -widget $treenotebook.spectra
+    $treenotebook add $treenotebook.spectra -text Spectra -sticky nsew
+    
+    parametersTabActions parameters -widget $treenotebook.parameters
+    $treenotebook add $treenotebook.parameters -text Parameters -sticky nsew
+    
+    variableTabActions variables -widget $treenotebook.variables
+    $treenotebook add $treenotebook.variables -text Variables -sticky nsew
+    
+    gateTabActions gates -widget $treenotebook.gates
+    $treenotebook add $treenotebook.gates -text Gates -sticky nsew
+    
+    #  Now the folder gui as a new tab:
+    
+    ::FolderGui::startFolderGui .treegui $treenotebook
+    $treenotebook add $::FolderGui::folderGuiBrowser -text Folders -sticky nsew
+    
+    grid $treenotebook -sticky nsew
+    grid $::FolderGui::folderGuiStatusFrame -sticky sew
+    
+    grid columnconfigure .treegui all -weight 1
+    grid rowconfigure    .treegui  0   -weight 1
+    grid rowconfigure    .treegui  1   -weight 0
+}
