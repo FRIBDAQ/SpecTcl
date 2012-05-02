@@ -398,12 +398,38 @@ snit::widget formatChooser {
     # Construct the helper program for ring buffers.
     # We are going to assum the current user is the
     # owner of the target ring.
-
+    #
+    # The following strategy is used to locate ringselector:
+    # - Look for it in /usr/opt/daq/current/bin : if present use that one.
+    # - Look for it in /usr/opt/daq/1*.* sorted descdending and take the first one.
+    #
     method ring {host} {
 	set url "tcp://$host/$::tcl_platform(user)"
 	set selection "--sample=PHYSICS_EVENT"
 
-	return "/usr/opt/daq/10.0/bin/ringselector --source=$url $selection"
+	set ringselector /usr/opt/daq/current/bin/ringselector
+	if {![file executable $ringselector]} {
+	    set ringselector ""
+	    set dirs [glob -directory /usr/opt/daq 1*.*]; # These are full dirnames.
+	    foreach dir $dirs {
+		lappend dirtails [file tail $dir]
+	    }
+	    set dirtail [lsort -decreasing -real $dirtails]; # sorted by decreasing version...
+	    foreach dir $dirtail {
+		set ringselector [file join /usr/opt/daq $dir bin ringselector]
+		if {[file executable $ringselector]} {
+		    break
+		}
+	    }
+	}
+	if {$ringselector eq ""} {
+	    tk_messageBox -title "No Ringdaq" -icon error \
+		-message {Unable to find an installation of NSCL ringdaq - contact your sysadmin.}
+
+	    return "";		# ensure stuff fails.
+	} else {
+	    return "$ringselector --source=$url $selection"
+	}
     }
 
 }
