@@ -4,7 +4,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 3.3-007)
+AM_INIT_AUTOMAKE(SpecTcl, 3.3-008)
 
 
 AC_EXEEXT
@@ -221,7 +221,7 @@ fi
 #   
 
 libexts=".so .dylib .a"        # prefer shared libs to static.
-motiflibdirs="/usr/X11/lib /usr/X11R6/lib  /sw/lib /usr/local/lesstif/lib"
+motiflibdirs="/usr/X11/lib /usr/X11R6/lib  /sw/lib /usr/local/lesstif/lib /usr/lib"
 motif_libdir=""
 motif_lib_found="no"
 
