@@ -1,3 +1,5 @@
+package provide ccusbconfig 1.0
+
 #
 #  For testing outside of SpecTcl
 # 
@@ -43,8 +45,9 @@ if {[info globals SpecTclHome] eq ""} {
 #                   by convention all modules provide id = 0 if not configured.
 # 
 
-
-set daqconfig [file join ~ config daqconfig.tcl]
+if {[info globals daqconfig] eq ""} {
+    set daqconfig [file join ~ config daqconfig.tcl]
+}
 
 #
 # Module type numbers, extend this table as needed.
@@ -285,9 +288,10 @@ proc createMapAndSpectra modules {
     }
 }
 
-
-source $daqconfig
-
-set modules [getModuleList]
-createMapAndSpectra  $modules
+proc configureSpecTcl {} {
+    uplevel #0 {source $::daqconfig}
+    
+    set ::modules [getModuleList]
+    createMapAndSpectra  $::modules
+}
 

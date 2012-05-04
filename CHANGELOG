@@ -960,3 +960,5 @@ November 30-?? 2011
           on small screens better.
         - issue 973 Do a smart search for the ring buffer clients in data source tcl.
         - issue 866 Protect GUIs (folder standalone and tree) from multiple startups.
+
+3.3-009

@@ -4,7 +4,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 3.3-008)
+AM_INIT_AUTOMAKE(SpecTcl, 3.3-009)
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_EXEEXT
@@ -926,4 +926,5 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	 Gui/Makefile splash/Makefile \
 	 treegui/Makefile \
 	 filtsplit/Makefile doc/Makefile \
-	 calibratedparams/Makefile)
+	 calibratedparams/Makefile \
+	 ccusb/Makefile ccusb/MakefileSkel)

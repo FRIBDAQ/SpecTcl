@@ -65,7 +65,7 @@ if {$tcl_platform(os) != "Windows NT"} {
 splash::progress $splash {Loading SpecTcl Tree Gui} 1
 
 puts -nonewline "Starting treeparamgui..."
-source $SpecTclHome/Script/newGui.tcl
+source $SpecTclHome/Script/SpecTclGui.tcl
 puts " Done"
 
 
@@ -73,12 +73,14 @@ splash::progress $splash {SpecTcl ready for use} 1
 
 splash::config $splash -delay 2000
 
-
 #
-#  set up the paramter map hard for now:
+#  Figure out where the packages are and requrie the ccusbconfig
+#  package to get the configuration done:
 #
+lappend auto_path $SpecTclHome/TclLibs
+package require ccusbconfig 
+configureSpecTcl
 
-source [file join ~ config spectclconfig.tcl]
 sbind -all
 
-.gui.b update
+#.gui.b update
