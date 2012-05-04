@@ -520,7 +520,7 @@ elements 1 and 2 and putting the result into element 0.
 void 
 CMySpecTclApp::CreateAnalysisPipeline(CAnalyzer& rAnalyzer)  
 { 
-  RegisterEventProcessor(*(new CCUSBUnpacker), "CCUSB-Phillips");
+  RegisterEventProcessor(*(new CCUSBUnpacker), "CCUSB");
 }  
 
 // Constructors, destructors and other replacements for compiler cannonicals:
