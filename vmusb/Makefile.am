@@ -86,7 +86,8 @@ install-exec-local: docs_built
 	$(INSTALL_DATA) *.cpp *.h        @prefix@/VMUSBSkel
 	$(INSTALL_DATA) MakefileSkel     @prefix@/VMUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/vmusb
-	$(INSTALL_DATA) *.tcl @prefix@/TclLibs/vmusb
+	$(INSTALL_DATA) spectclSetup.tcl configFile.tcl constants.tcl  @prefix@/TclLibs/vmusb
+	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | $(TCLSH_CMD)
 
 
 EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp 

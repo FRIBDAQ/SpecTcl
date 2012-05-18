@@ -1,3 +1,6 @@
+package provide vmusbsetup 1.0
+package require vmusbconstants
+package require vmusbconfigfile 
 #
 #   Setup SpecTcl's unpacking.
 #    This script sets up SpecTcl's auto unpack system for data
@@ -50,35 +53,17 @@ if {[info globals SpecTclHome] eq ""} {
 }
 
 
-puts "In SpecTcl Setup"
+#puts "In SpecTcl Setup"
+#
+#set here [file dirname [info script]]
+#source [file join $here configFile.tcl]
 
-set here [file dirname [info script]]
-source [file join $here configFile.tcl]
-
-puts "configFile sourced"
+#puts "configFile sourced"
 
 configClear
 
-puts "Configuration cleared"
 
-if {[info var configFile] eq ""} {
-    set configFile [file join ~ config daqconfig.tcl]
-}
 
-if {[catch {configRead $configFile} msg]} {
-    puts "Error in configuration file read: $msg"
-}
-
-puts "Configuration read"
-
-set channelCount($typeCAEN)   4096
-set channelCount($typeHYTEC)  8192
-set channelCount($typeMADC32) 4096;	# Currently only 12 chans.
-set channelCount($typeTDC1x90) 16384;   # for now this is the # of channels in a tdc spec
-set channelCount($typeV977)    16;      # for a bit mask spec
-set channelCount($typeMase)    8192;    # Spectrum channels for MASE.
-set channelCount($typeHINP)    16384;	# Num channels in a default HINP spectrum.
-set channelCount($typePSD)     8192;	# Num channels in a default PSD spectrum.
 
 #-----------------------------------------------------------------------------
 # Creates a 1-d spectrum.
@@ -428,14 +413,21 @@ proc buildStackMaps {} {
 #  Setup SpecTcl
 #
 
+proc vmusbConfig filename {
+    configRead $filename
 
-puts "Building channel maps"
-buildChannelMaps 20
-puts "Building stack maps"
+    puts "Building channel maps"
+    catch {buildChannelMaps 20} msg
+    puts $msg
 
-buildStackMaps
-puts "Binding spectra to Xamine"
+    puts "Building stack maps"
+    
+    catch {buildStackMaps} msg
+    puts $msg
 
-sbind -all
+    puts "Binding spectra to Xamine"
+    
+    sbind -all
+}
 
 

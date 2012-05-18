@@ -40,23 +40,13 @@
 #
 #
 
-# Define the device types so the decoder can be selected:
+package provide vmusbconfigfile 1.0
+package require vmusbconstants
 
-set typeCAEN    0;			# CAEN V775,785,792,862
-set typeHYTEC   1;			# Hytec NADC 2530.
-set typeMADC32  2;			# Mesytec MADC 32.
-set typeTDC1x90 3;                      # CAEN V1x90.
-set typeV977    4;                      # CAEN V977 input register.
-set typeMase    5;                      # MASE XLM subsystem.
-set typeCAENDual 6;			# CAEN dual range modules.
-set typeHINP     7;			# HINP XLM module.
-set typePSD      8;			# PSD XLM module.
-set typeV1729    9;			# CAEN V1729 FADC.
 
 #  We create as well spectra for each single parameter, and corresponding
 #  pairs of n's.
 
-package provide configFile 1.0
 
 # we will be maintaining a global array
 # array will be indexed by adc name.  Each array will contain the
@@ -145,6 +135,7 @@ proc v1729create tail {
 
     set name [lindex $tail 0]
 
+    set ::adcConfiguration($name)   -1
     set ::readoutDeviceType($name) $::typeV1729
     set ::v1729postTriggers($name) 64
     v1729config $tail
@@ -522,4 +513,8 @@ proc v830 args {
 proc marker args {
 }
 proc sis3804 args {
+}
+
+proc addtcldriver name {
+    proc $name args {}
 }

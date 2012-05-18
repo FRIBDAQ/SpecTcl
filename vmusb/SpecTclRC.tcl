@@ -37,13 +37,23 @@ puts "done"
 
 tk appname SpecTcl-[exec hostname]-[pid]
 
-puts "Sourcing histogram config file"
+##
+# Configure the VM-USB unpacker software:
+#
+# You should probably change the code below to 
+# load the configuration file of your choice.
+#
+
+set daqconfig [file join ~ config daqconfig.tcl]; # default config file.
+
+lappend auto_path [file join $SpecTclHome TclLibs]
+package require vmusbsetup
+
+vmusbConfig $daqconfig
 
 
-puts "Configuration file: $configFile"
-
-source [file join $llnlSpecTcl spectclSetup.tcl]
-puts "done"
+##
+# Start the main GUI.
 
 puts -nonewline "Starting treeparamgui..."
 source $SpecTclHome/Script/SpecTclGui.tcl
