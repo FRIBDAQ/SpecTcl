@@ -1,0 +1,65 @@
+INSTDIR=@prefix@
+
+
+include $(INSTDIR)/etc/SpecTcl_Makefile.include
+
+#  If you have any switches that need to be added to the default c++ compilation
+# rules, add them to the definition below:
+
+USERCXXFLAGS=
+
+#  If you have any switches you need to add to the default c compilation rules,
+#  add them to the defintion below:
+
+USERCCFLAGS=$(USERCXXFLAGS)
+
+#  If you have any switches you need to add to the link add them below:
+
+USERLDFLAGS=
+
+#
+#   Append your objects to the definitions below:
+#
+
+OBJECTS= C785Unpacker.o \
+CFitButton.o \
+CHINP.o \
+CMADC32Unpacker.o \
+CMASE.o \
+CModuleUnpacker.o \
+CNADC2530Unpacker.o \
+CParamMapCommand.o \
+CPSD.o \
+CRateCommand.o \
+CRateEventProcessor.o \
+CRateEventProcssor.o \
+CRateList.o \
+CRateProcessor.o \
+CStackMapCommand.o \
+CStackUnpacker.o \
+CV1729Unpacker.o \
+CV1x90Unpacker.o \
+CV977Unpacker.o \
+LICENCE.o \
+MySpecTclApp.o 
+
+#
+#  Finally the makefile targets.
+#
+
+
+SpecTcl: $(OBJECTS)
+	$(CXXLD)  -o SpecTcl $(OBJECTS) $(USERLDFLAGS) \
+	$(LDFLAGS) 
+
+
+clean:
+	rm -f $(OBJECTS) SpecTcl
+
+depend:
+	makedepend $(USERCXXFLAGS) *.o *.c
+
+help:
+	echo "make                 - Build customized SpecTcl"
+	echo "make clean           - Remove objects from previous builds"
+	echo "make depend          - Add dependencies to the Makefile. "

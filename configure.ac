@@ -927,4 +927,5 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	 treegui/Makefile \
 	 filtsplit/Makefile doc/Makefile \
 	 calibratedparams/Makefile \
-	 ccusb/Makefile ccusb/MakefileSkel)
+	 ccusb/Makefile ccusb/MakefileSkel \
+	 vmusb/Makefile vmusb/MakefileSkel)
