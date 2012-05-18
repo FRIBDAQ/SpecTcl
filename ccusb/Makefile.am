@@ -1,6 +1,6 @@
-bin_PROGRAMS=VMUSBSpecTcl
+bin_PROGRAMS=CCUSBSpecTcl
 
-VMUSBSpecTcl_SOURCES=CC1205Unpacker.cpp \
+CCUSBSpecTcl_SOURCES=CC1205Unpacker.cpp \
 	CCCUSBPacket.cpp \
 	CCUSBUnpacker.cpp \
 	CFixedSizedUnpacker.cpp \
@@ -27,7 +27,7 @@ INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/TreeParam \
 	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
-VMUSBSpecTcl_LDFLAGS = ../Events/libAnalysis.la \
+CCUSBSpecTcl_LDFLAGS = ../Events/libAnalysis.la \
 	../Fits/libFits.la \
 	../TCL/libtclPlus.la \
 	../Analysis/libBufferAnalysis.la \
@@ -57,7 +57,7 @@ VMUSBSpecTcl_LDFLAGS = ../Events/libAnalysis.la \
 #  SpecTclRC.tcl script is pushed there as we're going to put the
 #  other scripts where they can be found in TclLibs.
 #
-install-exec-local:
+install-exec-local:	docs_built
 	$(mkinstalldirs) @prefix@/CCUSBSkel
 	$(INSTALL_DATA) *.cpp @prefix@/CCUSBSkel
 	$(INSTALL_DATA) *.h   @prefix@/CCUSBSkel
@@ -66,8 +66,26 @@ install-exec-local:
 	$(mkinstalldirs) @prefix@/TclLibs/ccusb
 	$(INSTALL_DATA)  spectclconfig.tcl @prefix@/TclLibs/ccusb
 	echo pkg_mkIndex @prefix@/TclLibs/ccusb *.tcl | $(TCLSH_CMD)
+	$(mkinstalldirs) @prefix@/share/ccusb
+	$(INSTALL_DATA)  *.html @prefix@/share/ccusb
+	$(INSTALL_DATA)  *.pdf  @prefix@/share/ccusb
+	-for s in {1..8} ; do		\
+		$(mkinstalldirs) @prefix@/share/man/man$$s; \
+		for f in *.$$s*; do  \
+			$(INSTALL_DATA) $$f @prefix@/share/man/man$$s; \
+		done \
+	done
+
 
 EXTRA_DIST=MakefileSkel.in \
 	spectclconfig.tcl  \
 	SpecTclRC.tcl
+
+docs_built: ccusbSpecTcl.xml
+	-$(MANDOCBOOK) man $< 2>/dev/null
+	$(HTMLDOCBOOK) $<
+	$(HCDOCBOOK) $<
+	dvipdf       ccusbSpecTcl.pdf
+	touch docs_built
+
 

@@ -962,3 +962,4 @@ November 30-?? 2011
         - issue 866 Protect GUIs (folder standalone and tree) from multiple startups.
 
 3.3-009
+	- May 4, 2012 - Added cusbSpecTcl to the build.
