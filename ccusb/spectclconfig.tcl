@@ -270,6 +270,13 @@ proc createMapAndSpectra modules {
 	set axis [list 0 [expr $channels-1] $channels]
 	set axisspec [list $axis]
 
+	if {[array names parameters $module] eq ""} {
+	    tk_messageBox -icon error -title {Missing parameters} \
+		-message "Missing parameters array entry for $module" \
+		-type  ok
+	    exit -1
+	}
+
 	#  The 1205 module is special because it creates 3 parameters
 	#  for each of the 16 channels... looking like a tree array per channel.
 	#
@@ -277,11 +284,9 @@ proc createMapAndSpectra modules {
 	    mapC1205Channels $id $moduleNumber $type $parameters($module)
 	} else {
 
-	    if {[array names parameters $module] ne ""} {
-		parammap -add $moduleNumber $type $id  $parameters($module)
-		foreach parameter $parameters($module) {
-		    spectrum $parameter 1 $parameter $axisspec
-		}
+	    parammap -add $moduleNumber $type $id  $parameters($module)
+	    foreach parameter $parameters($module) {
+		spectrum $parameter 1 $parameter $axisspec
 	    }
 	}
 	incr moduleNumber

@@ -79,13 +79,13 @@ install-exec-local:	docs_built
 
 EXTRA_DIST=MakefileSkel.in \
 	spectclconfig.tcl  \
-	SpecTclRC.tcl
+	SpecTclRC.tcl ccusbSpecTcl.xml
 
 docs_built: ccusbSpecTcl.xml
 	-$(MANDOCBOOK) man $< 2>/dev/null
 	$(HTMLDOCBOOK) $<
 	$(HCDOCBOOK) $<
-	dvipdf       ccusbSpecTcl.pdf
+	dvipdf       ccusbSpecTcl.dvi
 	touch docs_built
 
 

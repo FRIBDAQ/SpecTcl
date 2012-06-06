@@ -88,10 +88,25 @@ install-exec-local: docs_built
 	$(mkinstalldirs) @prefix@/TclLibs/vmusb
 	$(INSTALL_DATA) spectclSetup.tcl configFile.tcl constants.tcl  @prefix@/TclLibs/vmusb
 	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | $(TCLSH_CMD)
+	$(mkinstalldirs) @prefix@/share/vmusb
+	$(INSTALL_DATA)  *.html @prefix@/share/vmusb
+	$(INSTALL_DATA)  *.pdf  @prefix@/share/vmusb
+	-for s in {1..8} ; do		\
+		$(mkinstalldirs) @prefix@/share/man/man$$s; \
+		for f in *.$$s*; do  \
+			$(INSTALL_DATA) $$f @prefix@/share/man/man$$s; \
+		done \
+	done
 
 
-EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp 
+EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp  vmusb.xml
 
 
 
-docs_built: 
+docs_built: vmusb.xml
+	-$(MANDOCBOOK) man $< 2>/dev/null
+	$(HTMLDOCBOOK) $<
+	$(HCDOCBOOK) $<
+	dvipdf       vmusb.dvi
+	touch docs_built
+

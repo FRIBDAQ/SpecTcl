@@ -530,8 +530,9 @@ void CMyUnpacker::lookupVariables()
         
         m_param2.Initialize("param2");         <co id='tree_2' />
         m_param2.Bind();
-        
+        m_initialized = true;
     }
+
 }
         </programlisting>
     </example>
@@ -735,7 +736,7 @@ configureSpecTcl                                  <co id='configure' />
       </refmeta>
       <refnamediv>
          <refname>ccusbSpecTcl</refname>
-         <refpurpose>Sstarting the CCUSB SpecTcl.</refpurpose>
+         <refpurpose>Starting the CCUSB SpecTcl.</refpurpose>
       </refnamediv>
       
       <refsynopsisdiv>
