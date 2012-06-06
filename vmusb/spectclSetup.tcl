@@ -339,11 +339,59 @@ proc buildCAENDualMap {param name} {
 
     return $param
 }
+#--------------------------------------------------------------------------
+#
+#  build spectra and channel maps for MADC32's the only hink here is that
+#  if it's set the madcResolutions($name) array element overrides
+#  channelCount($typeMADC32).
+#
+# Parameters:
+#   param  - First free parameter.
+#   name   - module name.
+# Returns:
+#   next available parameter.
+#
+proc buildMADC32Map {param name} {
+    array set resolutions [list 2k 2048 4k 4096 4khires 4096 \
+			       8k 8192 8khires 8192]
+    set resolution $::channelCount($::typeMADC32); # default resolution.
+
+    if {[array names ::madcResolutions $name] ne ""} {
+	set resolution $resolutions($::madcResolutions($name))
+    }
+    return [makeParamsSpectraAndMap $param $name $::typeMADC32 $::adcChannels($name)  $resolution ]
+}
+#------------------------------------------------------------------
+#
+# Build a simple parameter/spectrum set and channel maps:
+#
+# Parameters:
+#   param   - first free parameter.
+#   name    - Name of module.
+#   type    - Module type.
+#   channels - Names of channels.
+#   resolution - Spectrum channel count. 
+#
+proc makeParamsSpectraAndMap {param name type channels resolution} {
+    set vsn        $::adcConfiguration($name)
+
+    
+    # Make the parameters and spectra:
+    
+    foreach parameter $channels {
+	parameter $parameter $param
+	incr param
+	makeSpectrum $parameter $resolution
+    }
+    paramMap $name $type $vsn $channels
+    return $param
+    
+}
 
 #----------------------------------------------------------------------------
-# Build the channel maps, spectcl parameters and raw spectra from 
+# build the channel maps, spectcl parameters and raw spectra from 
 # the adcConfigurtion, readoutDeviceType and adcChannels information.
-# This will all be driven by the adcCahnnels array.
+# This will all be driven by the adcChannels array.
 #
 # Parameters:
 #   param  - the number of the first parameter.
@@ -371,20 +419,28 @@ proc buildChannelMaps param {
 	    set param [buildHINPMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typePSD} {
 	    set param [buildPSDMap $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeMADC32} {
+	    set param [buildMADC32Map $param $module]
+
 	} else {
+	    
 	    set vsn        $::adcConfiguration($module)
 	    set type       $::readoutDeviceType($module)
 	    set resolution $::channelCount($type)
 	    set channels   $::adcChannels($module)
-	    
+
+	    set param [makeParamsSpectraAndMap $param $module $type $channels $resolution]
+
+	    if 0 {
 	    # Make the parameters and spectra:
 	    
-	    foreach parameter $channels {
-		parameter $parameter $param
-		incr param
-		makeSpectrum $parameter $resolution
+		foreach parameter $channels {
+		    parameter $parameter $param
+		    incr param
+		    makeSpectrum $parameter $resolution
+		}
+		paramMap $module $type $vsn $channels
 	    }
-	    paramMap $module $type $vsn $channels
 	}
     }
 }

@@ -315,6 +315,13 @@ proc madc args {
 	    incr ididx
 	    set ::adcConfiguration($name) [lindex $args $ididx]
 	}
+	# Save the -resolution parameter in madcResolutions(name)
+	
+	set residx [lsearch -exact $args "-resolution"]
+	if {$residx != -1} {
+	    incr residx
+	    set ::madcResolutions($name) [lindex $args $residx]
+	}
     }
 }
 #---------------------------------------------------------------
