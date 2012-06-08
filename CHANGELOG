@@ -966,3 +966,6 @@ November 30-?? 2011
         - June 6, 2012 - Added vmusbSpecTcl to the build.
 	- June 6, 2012 Tell user about missing parameters array elements.
         - June 6, 2012 VMUSBSpecTcl - process madc -resolution config option.
+3.3-010
+	- June 8, 2012 Branched the development repository and upped the
+                       configure.ac version to 3.3-010
