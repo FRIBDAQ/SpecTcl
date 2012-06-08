@@ -514,7 +514,8 @@ proc sis3820 args {
 proc v830 args {
 }
 
-
+proc v1495sc args {
+}
 
 
 proc marker args {
@@ -525,3 +526,5 @@ proc sis3804 args {
 proc addtcldriver name {
     proc $name args {}
 }
+
+

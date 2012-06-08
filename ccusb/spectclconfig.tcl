@@ -201,7 +201,7 @@ proc getType name {
     return $::moduleTypes($name)
 }
 
-#  The CANE C1205 module requires special handling because it provides 3
+#  The CAEN C1205 module requires special handling because it provides 3
 #  potential channels of data for each of the input channels.  This is because
 #  it provides 3 ranges of value per channel.   We are going to take the parameters
 #  passed in as a base name from which a 3 element 'treearray' will be built.
@@ -283,8 +283,8 @@ proc createMapAndSpectra modules {
 	if {$type eq $::moduleTypeCodes(c1205)} {
 	    mapC1205Channels $id $moduleNumber $type $parameters($module)
 	} else {
-
 	    parammap -add $moduleNumber $type $id  $parameters($module)
+
 	    foreach parameter $parameters($module) {
 		spectrum $parameter 1 $parameter $axisspec
 	    }

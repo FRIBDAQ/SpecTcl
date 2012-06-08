@@ -74,6 +74,7 @@ proc makeSpectrum {paramname channels} {
     set high [expr $channels-1]
 
     spectrum $paramname 1 $paramname  [list [list $low $high $channels]]
+    treeparameter -create $paramname $low $high $channels ""; #  we don't know the units.
 }
 
 
@@ -141,6 +142,7 @@ proc buildV1x90Maps {baseparam name} {
 	    parameter $pname $baseparam
 	    incr baseparam
 	    spectrum $pname 1 $pname "{[list $low $hi $chans]}"
+	    treeparameter -create $pname $low $high $chans ""
 	}
 	
     }
@@ -177,6 +179,7 @@ proc buildv977Map {param module} {
     # and the spectrum , a 16 bit bitmask spectrum.
 
     spectrum $parameterName b $parameterName {{0 15 16}}
+    treeparameter -create $parameterName 0 15 16 ""
 
     return $param
 }
@@ -226,6 +229,7 @@ proc buildMaseMap {param module} {
 		parameter $parameterName $param
 		incr param
 		makeSpectrum $parameterName $channels
+
 	    }
 	}
     }
