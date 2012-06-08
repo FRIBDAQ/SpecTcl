@@ -9,4 +9,7 @@ May 22,2008
 	Make this compatible with older versions of root which
 	don't have that additional root dir under lib and include.
 	
+Version 1.0-003
+	- Use configure.ac instead of configure.in and up version to
+	1.0-003 in a branch.
 	
