@@ -34,6 +34,7 @@
 
 
 class TNtuple;
+class TFile;
 
 /*!
    This class accumulates root ntpules and writes them to file.
@@ -45,6 +46,7 @@ class CRootNtupleAccumulator
 {
 private:
   TNtuple*          m_pNtuple;
+  TFile*            m_pFile;
   std::string       m_filename;
   
 public:
@@ -67,7 +69,7 @@ public:
   void close();
   void createNtuple(std::string ntupleName,
 		    std::vector<std::string> parameterNames);
-  void accumulate(std::vector<float> event);
+  void accumulate(std::vector<double> event);
 };
 
 
