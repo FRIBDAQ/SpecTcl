@@ -62,16 +62,6 @@ if {$tcl_platform(os) != "Windows NT"} {
 	puts "Done."
 }
 
-splash::progress $splash {Loading SpecTcl Tree Gui} 1
-
-puts -nonewline "Starting treeparamgui..."
-source $SpecTclHome/Script/SpecTclGui.tcl
-puts " Done"
-
-
-splash::progress $splash {SpecTcl ready for use} 1
-
-splash::config $splash -delay 2000
 
 #
 #  Figure out where the packages are and requrie the ccusbconfig
@@ -82,5 +72,15 @@ package require ccusbconfig
 configureSpecTcl
 
 sbind -all
+puts "Configured"
 
-#.gui.b update
+splash::progress $splash {Loading SpecTcl Tree Gui} 1
+
+puts -nonewline "Starting treeparamgui..."
+source $SpecTclHome/Script/SpecTclGui.tcl
+puts " Done"
+
+
+splash::progress $splash {SpecTcl ready for use} 1
+
+splash::config $splash -delay 2000
