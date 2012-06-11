@@ -968,4 +968,9 @@ November 30-?? 2011
         - June 6, 2012 VMUSBSpecTcl - process madc -resolution config option.
 3.3-010
 	- June 8, 2012 Branched the development repository and upped the
-                       configure.ac version to 3.3-010
+                       configure.ac version to 3.3-010 
+	- June 11, 2012 Issue #1089 fix order of gui startup with respect
+	               to config file processing.
+	- June 11, 2012 Issue #1087 correct handling when saving gates for
+	               gates that have spaces in their name.
+	
