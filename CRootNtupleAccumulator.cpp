@@ -50,6 +50,7 @@ void
 CRootNtupleAccumulator::open(const char* pFilename)
 {
   m_filename = pFilename;
+  
   if (!m_pFile) {
     m_pFile = new TFile(pFilename, "RECREATE");
   }
@@ -63,7 +64,8 @@ CRootNtupleAccumulator::close()
 {
 
   if(m_pFile) {
-    m_pFile->Flush();
+    m_pNtuple->Write();
+    //    m_pFile->Write();
     m_pFile->Close();
     m_pFile = 0;
     m_pNtuple = 0;
