@@ -12,4 +12,4 @@ May 22,2008
 Version 1.0-003
 	- Use configure.ac instead of configure.in and up version to
 	1.0-003 in a branch.
-	
+	- Write ntuples direct t file, Issue #1091
