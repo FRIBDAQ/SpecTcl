@@ -301,6 +301,11 @@ DAMAGES.
 #include "TCLResult.h"
 #endif
 
+
+#ifndef __TCLINTERPRETER_H
+#include "TCLInterpreter.h"
+#endif
+
                                //Required for base classes
 #ifndef __EXCEPTION_H
 #include "Exception.h"
@@ -316,6 +321,7 @@ DAMAGES.
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
 #endif
+
 
                                
 class CTCLException  : public CTCLInterpreterObject ,public CException
@@ -338,7 +344,7 @@ public:
     CException(pString),
     m_nReason(am_nReason)
   {
-    m_ResultText = STD(string)(GetResult());
+    m_ResultText = Tcl_GetStringResult(getInterpreter()->getInterpreter());
   }
   CTCLException(CTCLInterpreter& am_rInterpreter,
 		Int_t am_nReason,
@@ -347,7 +353,8 @@ public:
     CException(rString),
     m_nReason(am_nReason)
   {
-    m_ResultText = STD(string)(GetResult());
+    m_ResultText = Tcl_GetStringResult(getInterpreter()->getInterpreter());
+
   }
   virtual ~CTCLException ( ) { }       //Destructor
 	

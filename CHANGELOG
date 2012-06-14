@@ -975,4 +975,5 @@ November 30-?? 2011
 	               gates that have spaces in their name.
 	- June 14, 2012 Issue #1008 Provide error information and exit if SpecTclRC.tcl
                         or SpecTclInit.tcl failed.
+        - June 14, 2012 Issue #1070 Provide error information for failing Pseudo params.
 

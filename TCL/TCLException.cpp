@@ -125,6 +125,7 @@ CTCLException::ReasonText() const
   // Get the stack trace.
 
   Tcl_Interp* pInterp = getInterpreter()->getInterpreter();
+
   Tcl_Obj* options = Tcl_GetReturnOptions(pInterp, TCL_ERROR);
   Tcl_Obj* key     = Tcl_NewStringObj("-errorinfo", -1);
   Tcl_Obj* stackTrace;
