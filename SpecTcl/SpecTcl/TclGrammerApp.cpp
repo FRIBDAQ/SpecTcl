@@ -54,6 +54,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CTreeVariableCommand.h>
 #include <CTreeParameter.h>
 #include <CTreeVariable.h>
+#include <TCLException.h>
+
 #include "CFoldCommand.h"
 #include "CFitCommand.h"
 
@@ -72,6 +74,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
@@ -253,32 +258,38 @@ void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter) {
   //   $SpecTclHome/Scripts
   //   ~
   //   .
-  try {				// Try from SpecTcl library dir.
-    string  AppFilename(kpInstalledBase);
-    AppFilename += kpAppInitSubDir;
-    AppFilename += kpAppInitFile;
-    rInterpreter.EvalFile(AppFilename);
+
+  string  AppFilename(kpInstalledBase);
+  AppFilename += kpAppInitSubDir;
+  AppFilename += kpAppInitFile;
+  std::string result = SourceOptionalFile(rInterpreter, AppFilename);
+  if (result != "") {
+    std::cerr << result << std::endl;
+    exit(-1);
   }
-  catch(...) {			// Errors are silently ignored.
-  }
+
 
   if(getenv("HOME")) {		// Need home env variable.
-    try {				// Try from user's home dir:
-      string AppFilename(getenv("HOME"));
-      AppFilename += kpAppInitFile;
-      rInterpreter.EvalFile(AppFilename);
+
+    string AppFilename(getenv("HOME"));
+    AppFilename += kpAppInitFile;
+    result = SourceOptionalFile(rInterpreter, AppFilename);
+    if (result != "") {
+      std::cerr << result << std::endl;
+      exit(-1);
     }
-    catch(...) {
-    }
+
   }
 
-  try {				// Try the cwd.
-    string AppFilename(".");
-    AppFilename += kpAppInitFile;
-    rInterpreter.EvalFile(AppFilename);
+
+  AppFilename = ".";
+  AppFilename += kpAppInitFile;
+  result = SourceOptionalFile(rInterpreter, AppFilename);
+  if (result != "") {
+    std::cerr << result << std::endl;
+    exit(-1);
   }
-  catch(...) {
-  }
+
 }  
 
 //  Function:
@@ -573,23 +584,27 @@ void CTclGrammerApp::SetupRunControl() {
   
 */
 void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
-  try {				// First run the ~ script:
-    if(getenv("HOME")) {
-      string RCFilename(getenv("HOME"));
-      RCFilename += kpUserInitFile;
-      rInterp.EvalFile(RCFilename);
+  std::string result;
+  if(getenv("HOME")) {
+    string RCFilename(getenv("HOME"));
+    RCFilename += kpUserInitFile;
+    result = SourceOptionalFile(rInterp, RCFilename);
+    if (result != "") {
+      std::cerr << result << std::endl;
+      exit(-1);
     }
   }
-  catch (...) {
-  }
 
-  try {
-    string RCFilename(".");
-    RCFilename += kpUserInitFile;
-    rInterp.EvalFile(RCFilename);
+
+
+  string RCFilename(".");
+  RCFilename += kpUserInitFile;
+  result = SourceOptionalFile(rInterp, RCFilename);
+  if (result != "") {
+    std::cerr << result << std::endl;
+    exit(-1);
   }
-  catch (...) {
-  }
+    
 }
 
 //  Function:
@@ -709,4 +724,63 @@ void CTclGrammerApp::UpdateUInt(CTCLVariable& rVar, UInt_t& rValue) {
     }
   }
   // No update.
+}
+/**
+ * Utility funtion that sources Tcl optional sript. The script is optional in the sense
+ * that file not found errors are not reported.  What is reported are:
+ * - File not readable (exists but no read access).
+ * - Errors from the script itself.
+ * 
+ * @param rInterp - Reference to the Tcl interpreter that should source the file.
+ * @param filename -name of the script to check.
+ * 
+ * @return std::string
+ * @retval  empty string if no error or file not found.
+ * @retval  reason for the error if there was one.
+ */
+std::string
+CTclGrammerApp::SourceOptionalFile(CTCLInterpreter& rInterp, std::string filename) 
+{
+  // Probe existence and return empty if not found.
+
+  int stat = access(filename.c_str(), F_OK);
+  if (stat && (errno == ENOENT)) {
+    return std::string("");
+  }
+  if (stat) {
+    std::string reason = string(strerror(errno));
+    std::string error = "Existence check for ";
+    error += filename;
+    error += " failed: ";
+    error += reason;
+    return error;
+  }
+
+  // Probe readabilty and return an error if not readable.
+
+  if (access(filename.c_str(), R_OK)) {
+    std::string reason = std::string(strerror(errno));
+    std::string error = "Readability check failed for ";
+    error += filename;
+    error += " : ";
+    error += reason;
+    return error;
+  }
+
+  // Source the script converting an exception in to an error messasge.
+  // error message will include the error info too.
+
+  try {
+    rInterp.EvalFile(filename);
+    return std::string("");    
+  }
+  catch (CTCLException& e) {
+    std::string reason = e.ReasonText();
+    std::string error  = "Error processing file: ";
+    error += filename;
+    error += " ";
+    error += reason;
+    return error;
+  }
+  
 }

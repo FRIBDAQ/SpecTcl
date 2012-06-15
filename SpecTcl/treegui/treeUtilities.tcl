@@ -113,7 +113,7 @@ proc ::treeutility::parameterList {{pattern *}} {
     foreach param $treeParameters {
 	lappend result [lindex $param 0]
     }
-    
+
     return $result
 }
 ##

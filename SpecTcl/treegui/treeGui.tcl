@@ -29,7 +29,6 @@ package require spectrumTabActions
 package require SpecTclGui
 
 if {![winfo exists .treegui]}  {	# Don't do it twice!
-    
     #
     # Build the top level and a notebook:
     #
@@ -42,22 +41,36 @@ if {![winfo exists .treegui]}  {	# Don't do it twice!
     
     
     # First the MC Rewrite widgets:
-    
-    spectrumTabActions spectrum_tab -widget $treenotebook.spectra
+    set time [time {
+	spectrumTabActions spectrum_tab -widget $treenotebook.spectra} 1
+	      ]
     $treenotebook add $treenotebook.spectra -text Spectra -sticky nsew
     
-    parametersTabActions parameters -widget $treenotebook.parameters
+
+    set time [time {
+	parametersTabActions parameters -widget $treenotebook.parameters} 1
+	     ]
+
     $treenotebook add $treenotebook.parameters -text Parameters -sticky nsew
     
-    variableTabActions variables -widget $treenotebook.variables
+    set time [time {
+	variableTabActions variables -widget $treenotebook.variables} 1
+	      ]
+
     $treenotebook add $treenotebook.variables -text Variables -sticky nsew
-    
-    gateTabActions gates -widget $treenotebook.gates
+
+    set time [time {
+	gateTabActions gates -widget $treenotebook.gates} 1
+	      ]
+
     $treenotebook add $treenotebook.gates -text Gates -sticky nsew
     
     #  Now the folder gui as a new tab:
     
-    ::FolderGui::startFolderGui .treegui $treenotebook
+    set time [time {
+	::FolderGui::startFolderGui .treegui $treenotebook} 1
+	      ]
+
     $treenotebook add $::FolderGui::folderGuiBrowser -text Folders -sticky nsew
     
     grid $treenotebook -sticky nsew

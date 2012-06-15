@@ -297,7 +297,7 @@ proc writeGate {fd description} {
     if {!$::guistate::gatestatus($name)} {
         set dependencies [getDependentGates $description]
         foreach dependency $dependencies {
-            set depname [lindex $dependency 0]
+            set depname $dependency
             if {!$::guistate::gatestatus($depname)} {
                 writeGate $fd [lindex [gate -list $dependency] 0]
             }
