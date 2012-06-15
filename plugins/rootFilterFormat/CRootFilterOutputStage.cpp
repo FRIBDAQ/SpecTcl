@@ -80,7 +80,7 @@ CRootFilterOutputStage::DescribeEvent(vector<string> parameterNames,
 void
 CRootFilterOutputStage::operator()(CEvent& event)
 {
-  vector<float>  vEvent;
+  vector<double>  vEvent;
   for (int i=0; i < m_parameterIds.size(); i++) {
     UInt_t id = m_parameterIds[i];
     if (event[id].isValid()) {
