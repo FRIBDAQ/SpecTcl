@@ -26,7 +26,8 @@ using namespace std;
   is empty as it normally is.
 */
 CRootNtupleAccumulator::CRootNtupleAccumulator() :
-  m_pNtuple(0)
+  m_pNtuple(0),
+  m_pFile(0)
 {
   
 }
@@ -49,6 +50,10 @@ void
 CRootNtupleAccumulator::open(const char* pFilename)
 {
   m_filename = pFilename;
+  
+  if (!m_pFile) {
+    m_pFile = new TFile(pFilename, "RECREATE");
+  }
 }
 /*!
    Closing the file means that if the ntuple exists it will be written to
@@ -57,11 +62,13 @@ CRootNtupleAccumulator::open(const char* pFilename)
 void
 CRootNtupleAccumulator::close()
 {
-  if (m_pNtuple) {
-    TFile outputFile(m_filename.c_str(), "RECREATE"); 
-    outputFile.WriteTObject(m_pNtuple);
-    delete m_pNtuple;
-    m_pNtuple = reinterpret_cast<TNtuple*>(0);
+
+  if(m_pFile) {
+    m_pNtuple->Write();
+    //    m_pFile->Write();
+    m_pFile->Close();
+    m_pFile = 0;
+    m_pNtuple = 0;
   }
 }
 /*!
@@ -83,7 +90,8 @@ CRootNtupleAccumulator::createNtuple(string ntupleName,
     description += parameterNames[i];
     separator    = ":";
   }
-  close();			// Close the ntuple.
+
+
   m_pNtuple = new TNtuple(ntupleName.c_str(), "SpecTcl _> root output stage", description.c_str());
 }
 /*!
@@ -92,14 +100,14 @@ CRootNtupleAccumulator::createNtuple(string ntupleName,
 
 */
 void
-CRootNtupleAccumulator::accumulate(vector<float> event)
+CRootNtupleAccumulator::accumulate(vector<double> event)
 {
   // Can't do any of this if the ntuple does not exist.
 
   if (m_pNtuple) {
     Float_t* pEvent = new Float_t[event.size()];
     for (int i =0; i < event.size(); i++) {
-      pEvent[i] = event[i];
+      pEvent[i] = (Float_t)event[i];
     }
     m_pNtuple->Fill(pEvent);
     delete []pEvent;

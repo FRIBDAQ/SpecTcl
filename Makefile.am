@@ -30,3 +30,6 @@ docs: rootFilterFormat.pdf
 
 EXTRA_DIST=rootFilterFormat.xml selectFilterFormat.tcl \
 	selectiondialog.gif selectiondialog.eps
+
+
+ACLOCAL_AMFLAGS=-I m4
