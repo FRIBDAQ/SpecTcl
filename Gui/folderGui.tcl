@@ -1110,7 +1110,7 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
 
 
 
-
+    set timing [time {
     browser $parent.b -spectrumfoldercommand   spectrumFolderContextMenu  \
                    -parameterfoldercommand  parameterFolderContextMenu \
                    -gatefoldercommand       gateFolderContextMenu      \
@@ -1122,6 +1122,8 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
                    -spectrumrightclick      spectrumContextMenu        \
                    -parameterrightclick     parameterContextMenu        \
                    -gaterightclick          gateContextMenu
+    } 1]
+
     pack $parent.b -fill both -expand 1
 
 
