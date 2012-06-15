@@ -93,9 +93,10 @@ CTCLInterpreter::EvalFile(const char* pFilename)
 
   int Status = Tcl_EvalFile(m_pInterpreter, (char*)pFilename);
   if(Status != TCL_OK) {
+    
     throw CTCLException(*this,
 			Status,
-			"CTCLInterpreter::EvalFile - Evaluating file script");;
+			"CTCLInterpreter::EvalFile - Evaluating file script: ");
   }
   return std::string(Tcl_GetStringResult(m_pInterpreter));
 }

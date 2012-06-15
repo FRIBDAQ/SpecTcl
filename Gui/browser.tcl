@@ -221,8 +221,9 @@ image create photo ::browser::pseudoicon   -format gif \
 
         # Fill the subfolders (we're hog wild assuming this is SpecTcl
 
-        $self fillAllFolders
-        $self fillAllFolders;     # Second time shakes the unparented guys after the folders.
+        set timing [time {$self fillAllFolders} 1]
+
+
 
         #  Event bindings for elements:
 
@@ -320,6 +321,7 @@ image create photo ::browser::pseudoicon   -format gif \
     #
     method fillParameterFolder {} {
         catch {$win.tree delete parameter}
+	set timing [time {
         foreach parameter [parameter -list] {
             if {$options(-filterparameters) != ""} {
                 if {![eval $options(-filterparameters) [list $parameter]]} {
@@ -332,12 +334,12 @@ image create photo ::browser::pseudoicon   -format gif \
 	    set parentPath [split $name .]
 	    set parentPath [lrange $parentPath 0 end-1]
 	    set parentPath [join $parentPath .]
-	    if {[catch {set parentPaths($parentPath)}] } {
+	    if {[array names parentPaths $parentPath)] eq "" } {
 		$self makeParents $name
 	    }
 
             set id [$win.tree insert end $name]
-            $win.tree entry configure $id -icons {::browser::paramicon ::browser::paramicon} \
+            $win.tree entry configure $id -icons {::browser::paramicon ::browser::paramicon}  \
                                           -activeicons {::browser::paramicon ::browser::paramicon}
             $win.tree tag add parameter $id
             $win.tree entry configure $id -bindtags [list parameter all]
@@ -364,7 +366,8 @@ image create photo ::browser::pseudoicon   -format gif \
                     }
                 }
             }
-        }
+        }} 1]
+
     }
     # fillVariableFolder
     #      Fills the variable folder with the set of treevariables that are now defined.
@@ -1180,6 +1183,9 @@ image create photo ::browser::pseudoicon   -format gif \
     #
     proc nameToPath {prefix name} {
 	set path $prefix
+	append path .  [regsub {\.} $name _BLTFOLDER.]
+	return $path
+
 	set nameList [split $name .]
 	foreach folder [lrange $nameList 0 end-1] {
 	    append path  .  $folder _BLTFOLDER
