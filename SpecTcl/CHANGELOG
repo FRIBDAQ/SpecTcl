@@ -981,3 +981,5 @@ November 30-?? 2011
 	  * Allow user to specify ring name.
 
         - June 15, 2012 Issue #1063 Improve new gui startup time.
+3.3-011 - July 2, 2012  Issue # 1191 Save spectrum channel type (byte word longword e.g.)
+          when doing a save of failsafe write.
