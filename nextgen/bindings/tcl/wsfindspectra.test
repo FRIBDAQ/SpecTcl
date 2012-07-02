@@ -165,7 +165,6 @@ test ok_5 {wsFindSpectra - should locate spectra if attached on non-default atta
 	cleanup
     } \
     -body {
-	puts stderr "Starting ok_5"
 	set result [::spectcl::wsFindSpectra $expHandle * true  NotDefault]
 	# Sort asc by version:
 

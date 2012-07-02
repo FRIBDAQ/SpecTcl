@@ -400,6 +400,6 @@ spectrum_definition*  spectcl_workspace_spectrum_properties(spectcl_workspace ws
    
 Spectrum query Tcl Commands.
 
-wsSpectrumParameters ws id 
-wsFindSpectra wshandle ?pattern? ?allversions?
-wsSpectrumProperties wsHandle id
+* wsSpectrumParameters exp id 
+wsFindSpectra exp ?pattern? ?allversions? ?attach-point?
+wsSpectrumProperties exp id ?attach-point?

@@ -11,7 +11,7 @@ noinst_HEADERS=  TclCreate.h TclOpen.h	\
 	TclUUID.h  Asserts.h handleManager.h \
 	TclEvtCreate.h TclEvtClose.h TclEvtOpen.h \
 	TclAttach.h TclDetach.h  TclLoadEvents.h TclAugment.h \
-	TclEvRun.h TclEvtRunInfo.h TclEvtUUID.h 
+	TclEvRun.h TclEvtRunInfo.h TclEvtUUID.h \
 	TclWsCreate.h TclWsAttach.h TclWsDetach.h TclWsOpen.h \
 	TclWsClose.h TclWsUUID.h TclWsSpecTypes.h \
 	TclWsCreateSpectrum.h TclWsFindSpectra.h
