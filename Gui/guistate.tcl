@@ -481,11 +481,12 @@ proc writeSpectrumDefinitions fd {
         set type       [lindex $spectrum 2]
         set parameters [lindex $spectrum 3]
         set axes       [lindex $spectrum 4]
-	
+	set datatype       [lindex $spectrum 5]
+
 	if {$::guistate::writeDeletes} {
 	    puts $fd "catch {spectrum -delete [list $name]}"
 	}
-        puts $fd "spectrum [list $name] $type [list $parameters] [list $axes]"
+        puts $fd "spectrum [list $name] $type [list $parameters] [list $axes] $datatype"
 
     }
 }
