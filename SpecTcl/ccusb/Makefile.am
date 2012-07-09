@@ -25,9 +25,10 @@ INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Analysis \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	-I@top_srcdir@/TreeParam \
-	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+	@TCL_FLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@
 
-CCUSBSpecTcl_LDFLAGS = ../Events/libAnalysis.la \
+CCUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
+	 ../Events/libAnalysis.la \
 	../Fits/libFits.la \
 	../TCL/libtclPlus.la \
 	../Analysis/libBufferAnalysis.la \
@@ -41,14 +42,13 @@ CCUSBSpecTcl_LDFLAGS = ../Events/libAnalysis.la \
 	../Filter/libFilter.la \
 	../SpectrumIO/libSpecio.la \
 	../TreeParam/libTreeParam.la \
-	../SpecTcl/libTclGrammerCommands.la \
 	../DecoderRing/libDecoderRing.la \
 	../NSCLException/libException.la \
 	../Display/libXamine.la          \
-	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
+	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\
 	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
-	 -g -Wl,"-rpath=($prefix)/lib"
+	 -g -Wl,"-rpath=@libdir@"
 
 
 #
@@ -58,7 +58,7 @@ CCUSBSpecTcl_LDFLAGS = ../Events/libAnalysis.la \
 #  other scripts where they can be found in TclLibs.
 #
 install-exec-local:	docs_built
-	$(mkinstalldirs) @prefix@/CCUSBSkel
+	$(mkinstalldirs) @prefix@/CCUSBSkel @prefis@/share/ccusb 
 	$(INSTALL_DATA) *.cpp @prefix@/CCUSBSkel
 	$(INSTALL_DATA) *.h   @prefix@/CCUSBSkel
 	$(INSTALL_DATA) SpecTclRC.tcl @prefix@/CCUSBSkel
@@ -82,9 +82,9 @@ EXTRA_DIST=MakefileSkel.in \
 	SpecTclRC.tcl ccusbSpecTcl.xml
 
 docs_built: ccusbSpecTcl.xml
-	-$(MANDOCBOOK) man $< 2>/dev/null
-	$(HTMLDOCBOOK) $<
-	$(HCDOCBOOK) $<
+	-@MANDOCBOOK@ man $< 2>/dev/null
+	@HTMLDOCBOOK@ $<
+	@HCDOCBOOK@ $<
 	dvipdf       ccusbSpecTcl.dvi
 	touch docs_built
 

@@ -55,7 +55,7 @@ INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	-I@top_srcdir@/TreeParam \
 	-I@top_srcdir@/Fits  -I@top_srcdir@/factories    \
-	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+	@TCL_FLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@
 
 VMUSBSpecTcl_LDFLAGS =  ../Events/libAnalysis.la \
 	../Fits/libFits.la \
@@ -75,19 +75,19 @@ VMUSBSpecTcl_LDFLAGS =  ../Events/libAnalysis.la \
 	../DecoderRing/libDecoderRing.la \
 	../NSCLException/libException.la \
 	../Display/libXamine.la          \
-	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
+	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\
 	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
-	 -g -Wl,"-rpath=($prefix)/lib"
+	 -g -Wl,"-rpath=@libdir@"
 
 
 install-exec-local: docs_built
-	$(mkinstalldirs) @prefix@/VMUSBSkel
+	$(mkinstalldirs) @prefix@/VMUSBSkel @prefix@/share/vmusb
 	$(INSTALL_DATA) *.cpp *.h        @prefix@/VMUSBSkel
 	$(INSTALL_DATA) MakefileSkel     @prefix@/VMUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/vmusb
 	$(INSTALL_DATA) spectclSetup.tcl configFile.tcl constants.tcl  @prefix@/TclLibs/vmusb
-	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | $(TCLSH_CMD)
+	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | @TCLSH_CMD@
 	$(mkinstalldirs) @prefix@/share/vmusb
 	$(INSTALL_DATA)  *.html @prefix@/share/vmusb
 	$(INSTALL_DATA)  *.pdf  @prefix@/share/vmusb
@@ -104,9 +104,9 @@ EXTRA_DIST = MakefileSkel.in configFile.tcl spectclSetup.tcl CLLNLUnpacker.cpp  
 
 
 docs_built: vmusb.xml
-	-$(MANDOCBOOK) man $< 2>/dev/null
-	$(HTMLDOCBOOK) $<
-	$(HCDOCBOOK) $<
+	-@MANDOCBOOK@ man $< 2>/dev/null
+	@HTMLDOCBOOK@ $<
+	@HCDOCBOOK@ $<
 	dvipdf       vmusb.dvi
 	touch docs_built
 

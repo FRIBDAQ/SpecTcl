@@ -359,7 +359,7 @@ snit::widget formatChooser {
 	after 1 [list $win.$initialFormat select]; # Not sure why this must be scheduled(?)
     }
     destructor {
-	error "Destroying formatchooser"
+
     }
 	    
     #
