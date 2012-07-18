@@ -57,7 +57,8 @@ INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Fits  -I@top_srcdir@/factories    \
 	@TCL_FLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@
 
-VMUSBSpecTcl_LDFLAGS =  ../Events/libAnalysis.la \
+VMUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
+	  ../Events/libAnalysis.la \
 	../Fits/libFits.la \
 	../TCL/libtclPlus.la \
 	../Analysis/libBufferAnalysis.la \
@@ -71,7 +72,6 @@ VMUSBSpecTcl_LDFLAGS =  ../Events/libAnalysis.la \
 	../Filter/libFilter.la \
 	../SpectrumIO/libSpecio.la \
 	../TreeParam/libTreeParam.la \
-	../SpecTcl/libTclGrammerCommands.la \
 	../DecoderRing/libDecoderRing.la \
 	../NSCLException/libException.la \
 	../Display/libXamine.la          \
