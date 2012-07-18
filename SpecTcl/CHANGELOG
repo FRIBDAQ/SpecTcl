@@ -984,4 +984,4 @@ November 30-?? 2011
 3.3-011 - July 2, 2012  Issue # 1191 Save spectrum channel type (byte word longword e.g.)
           when doing a save of failsafe write.
         - July 9, 2012 Issue #1152, Issue #1150, Issue #1151, Issue #1153 - Get clean builds
-          on Ubuntu Precise Pangolin..
+          on Ubuntu Precise Pangolin.. 
