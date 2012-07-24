@@ -122,7 +122,7 @@ typedef struct _StateChangeItem {
   RingItemHeader  s_header;
   uint32_t        s_runNumber;
   uint32_t        s_timeOffset;
-  time_t          s_Timestamp;
+  uint32_t          s_Timestamp;
   char            s_title[TITLE_MAXSIZE+1];
 } StateChangeItem, *pStateChangeItem;
 
@@ -134,7 +134,7 @@ typedef struct _ScalerItem {
   RingItemHeader  s_header;
   uint32_t        s_intervalStartOffset;
   uint32_t        s_intervalEndOffset;
-  time_t          s_timestamp;
+  uint32_t          s_timestamp;
   uint32_t        s_scalerCount;
   uint32_t        s_scalers[1];
 } ScalerItem, *pScalerItem;
@@ -147,7 +147,7 @@ typedef struct _ScalerItem {
 typedef struct _TextItem {
   RingItemHeader s_header;
   uint32_t       s_timeOffset;
-  time_t         s_timestamp;
+  uint32_t         s_timestamp;
   uint32_t       s_stringCount;
   char           s_strings[1];
 } TextItem, *pTextItem;
@@ -169,7 +169,7 @@ typedef struct _PhysicsEventItem {
 typedef struct __PhysicsEventCountItem {
   RingItemHeader s_header;
   uint32_t       s_timeOffset;
-  time_t         s_timestamp;
+  uint32_t         s_timestamp;
   uint64_t       s_eventCount;	/* Maybe 4Gevents is too small ;-) */
 } PhysicsEventCountItem, *pPhysicsEventCountItem;
 
