@@ -987,3 +987,4 @@ November 30-?? 2011
           on Ubuntu Precise Pangolin.. 
         - July 24, 2012 - Use 64bit clean DataFormat.h (time_t -> uint32_t).
 3.3-012
+       - Issue #1322 - Add product name to VERSION file e.g. SpecTcl-
