@@ -1,13 +1,41 @@
 PKGDEST    = $(prefix)/TclLibs/treeGui
 SCRIPTDEST = $(prefix)/Script
 
+PKGScripts= autosave.tcl \
+definitionFile.tcl \
+gateContainer.tcl \
+gateCreate.tcl \
+gateDeleteBar.tcl \
+gateSelBar.tcl \
+gateTabActions.tcl \
+gateTable.tcl \
+parametersTabActions.tcl \
+restore.tcl \
+scrollingMenu.tcl \
+spectrumAxis.tcl \
+spectrumContainer.tcl \
+spectrumManipulation.tcl \
+spectrumMask.tcl \
+spectrumTabActions.tcl \
+spectrumTable.tcl \
+spectrumType.tcl \
+treeGui.tcl \
+treemenuWidget.tcl \
+treeParametersContainer.tcl \
+treeParameterWidget.tcl \
+treeUtilities.tcl \
+treeVariableContainer.tcl \
+treeVariableEditor.tcl \
+treeVariableLoadSave.tcl \
+variableTabActions.tcl 
+
+
 install-exec-local:
 	$(mkinstalldirs) $(PKGDEST)
-	$(INSTALL_PROGRAM) $(srcdir)/*.tcl $(PKGDEST)
+	$(INSTALL_PROGRAM) $(srcdir)/$(PKGScripts) $(PKGDEST)
 	$(INSTALL_DATA)    $(srcdir)/*.gif $(PKGDEST)
-
-	$(INSTALL_PROGRAM) $(srcdir)/treeGui.tcl $(SCRIPTDEST)
-	(cd $(PKGDEST); echo 	pkg_mkIndex . *.tcl |tclsh)
+	$(INSTALL_PROGRAM) $(srcdir)/treeGui.tcl  $(SCRIPTDEST)
+	(cd $(PKGDEST); echo 	pkg_mkIndex . *.tcl  |tclsh)
 
 
 EXTRA_DIST = autosave.tcl \
