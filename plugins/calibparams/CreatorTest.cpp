@@ -8,8 +8,8 @@ using namespace std;
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
-#include <CLinearFitCreator.h>
-#include <CFit.h>
+#include <./CLinearFitCreator.h>
+#include <./CCalibFit.h>
 
 #include <iostream>
 
@@ -49,7 +49,7 @@ void CreatorTest::Create()
   cerr << "CreatorTest\n";
   CLinearFitCreator creator;
 
-  CFit* pFit = creator();
+  CCalibFit* pFit = creator();
 
-  EQ(CFit::Accepting, pFit->GetState());
+  EQ(CCalibFit::Accepting, pFit->GetState());
 }

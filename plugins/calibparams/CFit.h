@@ -46,7 +46,7 @@
 
 
 
-class CFit : public  CNamedItem     
+class CCalibFit : public  CNamedItem     
 {
   // Public data types.
 public:
@@ -88,12 +88,12 @@ public:
     //  and the visibility esp. if you cannot
     // implement assignment/copy construction.
     // safely.
-  CFit ();		//!< Constructor.
-  virtual  ~ CFit ( ); //!< Destructor.
-  CFit (const CFit& rSource ); //!< Copy construction.
-  CFit& operator= (const CFit& rhs); //!< Assignment.
-  int operator== (const CFit& rhs) const; //!< == comparison.
-  int operator!= (const CFit& rhs) const { //!< != comparison.
+  CCalibFit ();		//!< Constructor.
+  virtual  ~ CCalibFit ( ); //!< Destructor.
+  CCalibFit (const CCalibFit& rSource ); //!< Copy construction.
+  CCalibFit& operator= (const CCalibFit& rhs); //!< Assignment.
+  int operator== (const CCalibFit& rhs) const; //!< == comparison.
+  int operator!= (const CCalibFit& rhs) const { //!< != comparison.
     return !(operator==(rhs));
   }
     
@@ -124,7 +124,7 @@ public:
   // Pure virtual functions must be implemented by
   // subclasses.
 
-  virtual CFit* clone() = 0;
+  virtual CCalibFit* clone() = 0;
   virtual   void Perform ()   = 0 ; 
   virtual  double operator() (double x)  =0 ; 
   virtual  FitParameterList GetParameters () =0  ; 
@@ -132,7 +132,7 @@ public:
  
 
 private:
-  void CopyIn(const CFit& rhs);	//!< Isolate copy in operation.
+  void CopyIn(const CCalibFit& rhs);	//!< Isolate copy in operation.
 
 };
 

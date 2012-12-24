@@ -67,8 +67,8 @@ Expected Results
 void CalibratedParameterTest::ConstructTest() {
   // 1. Construct the initial calibrated parameter.
 
-  CLinearFit  line;		// The fit I'm using.
-  CFit::Point   pt;
+  CCalibLinearFit  line;		// The fit I'm using.
+  CCalibFit::Point   pt;
   pt.x = 0.0; pt.y = 0.0;
   line.AddPoint(pt);
   pt.x = 1.0; pt.y = 2.0;
@@ -83,9 +83,9 @@ void CalibratedParameterTest::ConstructTest() {
   EQMSG("Target id", 1, p1.getTargetId());
   EQMSG("Raw id", 0, p1.getRawId());
   EQMSG("Fitname", string("TestFit"), p1.getFitName());
-  const CFit* pFit = p1.getFit();
+  const CCalibFit* pFit = p1.getFit();
 
-  if(line != *(const CLinearFit*)pFit) {
+  if(line != *(const CCalibLinearFit*)pFit) {
     FAIL("Fits not equal");
   }
 
@@ -99,7 +99,7 @@ void CalibratedParameterTest::ConstructTest() {
 
   // 5. And their fits must be equal:
 
-  const CFit* pFit2 = p2.getFit();
+  const CCalibFit* pFit2 = p2.getFit();
   ASSERT(*pFit == *pFit2);
 
   // 6. Create a different calibrated parameter.
@@ -133,8 +133,8 @@ Expected Results
 void
 CalibratedParameterTest::FunctionCall()
 {
-  CLinearFit line;
-  CFit::Point pt;
+  CCalibLinearFit line;
+  CCalibFit::Point pt;
 
   pt.x = 0.0; pt.y = 1.0;
   line.AddPoint(pt);
@@ -185,8 +185,8 @@ CalibratedParameterTest::FitChange()
 {
   // 1. create initial parameter.
 
-  CLinearFit line;
-  CFit::Point pt;
+  CCalibLinearFit line;
+  CCalibFit::Point pt;
 
   pt.x = 0.0; pt.y = 1.0;
   line.AddPoint(pt);
@@ -200,7 +200,7 @@ CalibratedParameterTest::FitChange()
 
   // Make a secod fit and repalce the parameter's fit.
 
-  CLinearFit line2;		// This will be y = 3x-5.
+  CCalibLinearFit line2;		// This will be y = 3x-5.
 
   pt.x = 0.0; pt.y = -5.0;
   line2.AddPoint(pt);
@@ -208,11 +208,11 @@ CalibratedParameterTest::FitChange()
   line2.AddPoint(pt);
   line2.Perform();
 
-  CFit* pOldFit = Param.ReplaceFit(line2);
+  CCalibFit* pOldFit = Param.ReplaceFit(line2);
 
   // 4 - check against old fit.
 
-  if(line != *(CLinearFit*)pOldFit) {
+  if(line != *(CCalibLinearFit*)pOldFit) {
     FAIL("Replaced fit != line");
   }
   delete pOldFit;

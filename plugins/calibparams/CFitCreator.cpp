@@ -8,67 +8,67 @@
 // Include files required:
 
 #include <config.h>
-#include "CFitCreator.h"    				
+#include "./CFitCreator.h"    				
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
 
 /*!
-    Create an object of type CFitCreator
+    Create an object of type CCalibFitCreator
 */
-CFitCreator::CFitCreator ()
+CCalibFitCreator::CCalibFitCreator ()
  
 { 
 } 
 
 /*!
-    Called to destroy an instance of CFitCreator
+    Called to destroy an instance of CCalibFitCreator
 */
- CFitCreator::~CFitCreator ( )
+ CCalibFitCreator::~CCalibFitCreator ( )
 {
 }
 /*!
-   Called to create an instance of CFitCreator that is a
+   Called to create an instance of CCalibFitCreator that is a
    functional duplicate of another instance.
-   \param rSource (const CFitCreator& ):
+   \param rSource (const CCalibFitCreator& ):
       The object that we will dupliate.
 */
-CFitCreator::CFitCreator (const CFitCreator& aCFitCreator ) 
+CCalibFitCreator::CCalibFitCreator (const CCalibFitCreator& aCCalibFitCreator ) 
 {
 } 
 /*!
   Assign to *this from rhs so that *this becomes a functional
   duplicate of rhs.
-  \param rhs (const CFitCreator& rhs ):
+  \param rhs (const CCalibFitCreator& rhs ):
      The object that will be functionally copied to *this.
  */
-CFitCreator& CFitCreator::operator= (const CFitCreator& rhs)
+CCalibFitCreator& CCalibFitCreator::operator= (const CCalibFitCreator& rhs)
 { 
 
   return *this;
 }
 /*!
   Compare *this for functional equality with another object of
-  type CFitCreator.
-  \param rhs (const CFitCreator& rhs ):
+  type CCalibFitCreator.
+  \param rhs (const CCalibFitCreator& rhs ):
      The object to be compared with *this.
 
  */
 int 
-CFitCreator::operator== (const CFitCreator& rhs) const
+CCalibFitCreator::operator== (const CCalibFitCreator& rhs) const
 {
   return true;
 }
 /*!
    Compare *this for functional inequality with another object
-   of type CFitCreator.  Functional inequality is defined as
+   of type CCalibFitCreator.  Functional inequality is defined as
    the boolean inverse of functional equality.
-   \param rhs (const CFitCreator& rhs ):
+   \param rhs (const CCalibFitCreator& rhs ):
       The object to compare with *this.
 */
 int
-CFitCreator::operator!= (const CFitCreator& rhs) const
+CCalibFitCreator::operator!= (const CCalibFitCreator& rhs) const
 {
   return !(*this == rhs);
 }

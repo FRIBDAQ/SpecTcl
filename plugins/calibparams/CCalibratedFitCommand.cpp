@@ -9,9 +9,9 @@
 
 #include <config.h>
 #include "CCalibratedFitCommand.h"    				
-#include "CFitFactory.h"
-#include "CFit.h"
-#include "CFitCreator.h"
+#include "./CFitFactory.h"
+#include "./CFit.h"
+#include "./CFitCreator.h"
 
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
@@ -63,11 +63,11 @@ private:
 public:
   CreateListResult(string sPattern, CTCLString& result);
 
-  bool operator()(pair<string, CFit*> Item);
+  bool operator()(pair<string, CCalibFit*> Item);
   string GetResult();
-  static string FormatFit(string sName, CFit* pFit);
-  static string FormatPoints(CFit* pFit);
-  static string FormatParameters(CFit* pFit);
+  static string FormatFit(string sName, CCalibFit* pFit);
+  static string FormatPoints(CCalibFit* pFit);
+  static string FormatParameters(CCalibFit* pFit);
   
 };
 /*!
@@ -84,7 +84,7 @@ CreateListResult::CreateListResult(string sPattern,
   If pattern is matched, add the fit to the listing:
 */
 
-bool CreateListResult::operator()(pair<string, CFit*> Item)
+bool CreateListResult::operator()(pair<string, CCalibFit*> Item)
 {
   CTCLString name(Item.first);
   if(name.Match(m_sPattern)) {
@@ -117,12 +117,12 @@ CreateListResult::GetResult()
 
 */
 string 
-CreateListResult::FormatFit(string sName, CFit* pFit)
+CreateListResult::FormatFit(string sName, CCalibFit* pFit)
 {
   CTCLString Info;
   Info.AppendElement(sName);
   Info.AppendElement(pFit->Type());
-  Info.AppendElement((pFit->GetState() == CFit::Accepting) ?
+  Info.AppendElement((pFit->GetState() == CCalibFit::Accepting) ?
 		                   "accepting" : "performed");
   // The points.
   Info.AppendElement(FormatPoints(pFit));
@@ -140,14 +140,14 @@ CreateListResult::FormatFit(string sName, CFit* pFit)
 }
 /*!
    Return a TCL formatted list of fit points.
-   \param pFit (CFit*)
+   \param pFit (CCalibFit*)
     Pointer to the fit object.
 */
 string
-CreateListResult::FormatPoints(CFit* pFit)
+CreateListResult::FormatPoints(CCalibFit* pFit)
 {
   CTCLString Info;
-  CFit::PointIterator i = pFit->begin();
+  CCalibFit::PointIterator i = pFit->begin();
   while(i != pFit->end()) {
     char aPoint[100];
     sprintf(aPoint, "%g %g ", i->x, i->y);
@@ -158,17 +158,17 @@ CreateListResult::FormatPoints(CFit* pFit)
 }
 /*!
    Format the Fit parameters into a TCL proper list.
-   \param pFit (CFit*)
+   \param pFit (CCalibFit*)
     Pointer to the fit object.
 */
 string
-CreateListResult::FormatParameters(CFit* pFit)
+CreateListResult::FormatParameters(CCalibFit* pFit)
 {
   CTCLString Info;
 
-  if(pFit->GetState() == CFit::Performed) { // Otherwise no params.
-    CFit::FitParameterList params = pFit->GetParameters();
-    CFit::FitParameterIterator i = params.begin();
+  if(pFit->GetState() == CCalibFit::Performed) { // Otherwise no params.
+    CCalibFit::FitParameterList params = pFit->GetParameters();
+    CCalibFit::FitParameterIterator i = params.begin();
     while(i != params.end()) {
       Info.StartSublist();
       {
@@ -377,7 +377,7 @@ CCalibratedFitCommand::Create_parse(CTCLInterpreter& rInterp,
   char* pType = argv[0];
   char* pName = argv[1];
 
-  if(CFitFactory::FindFit(string(pName)) != CFitFactory::end()) {
+  if(CCalibFitFactory::FindFit(string(pName)) != CCalibFitFactory::end()) {
     rResult  = "Fit: ";
     rResult += pName;
     rResult += " already exists";
@@ -387,7 +387,7 @@ CCalibratedFitCommand::Create_parse(CTCLInterpreter& rInterp,
   // Try to create the fit.  Any failure is assumed to be because
   // the fit type was invalid at this point:
 
-  CFit* pFit = CFitFactory::Create(string(pType), string(pName));
+  CCalibFit* pFit = CCalibFitFactory::Create(string(pType), string(pName));
   if(pFit) {
     rResult = pName;
     return TCL_OK;
@@ -467,7 +467,7 @@ CCalibratedFitCommand::List_parse(CTCLInterpreter& rInterp,
   CTCLString  listing;
   CreateListResult listPredicate(Pattern, listing);
 
-  for_each(CFitFactory::begin(), CFitFactory::end(), listPredicate);
+  for_each(CCalibFitFactory::begin(), CCalibFitFactory::end(), listPredicate);
 
   rResult = listPredicate.GetResult();
   return TCL_OK;
@@ -511,9 +511,9 @@ CCalibratedFitCommand::Delete_parse(CTCLInterpreter& rInterp,
   // To delete a gate requires that it first exist:
   //
   string sFitName(*argv);
-  CFitFactory::FitIterator pFit = CFitFactory::FindFit(sFitName);
-  if(pFit != CFitFactory::end()) {
-    if(CFitFactory::Delete(sFitName)) {	// Deleted ok.
+  CCalibFitFactory::FitIterator pFit = CCalibFitFactory::FindFit(sFitName);
+  if(pFit != CCalibFitFactory::end()) {
+    if(CCalibFitFactory::Delete(sFitName)) {	// Deleted ok.
       rResult = sFitName;
       return TCL_OK;
     }
@@ -565,12 +565,12 @@ CCalibratedFitCommand::Perform_parse(CTCLInterpreter& rInterp,
 
   // The fit must exist:
 
-  CFitFactory::FitIterator pFit = CFitFactory::FindFit(sFitName);
-  if(pFit !=  CFitFactory::end()) { // Fit exists.
+  CCalibFitFactory::FitIterator pFit = CCalibFitFactory::FindFit(sFitName);
+  if(pFit !=  CCalibFitFactory::end()) { // Fit exists.
     // The fit must perform with no error:
 
-    if(CFitFactory::Perform(sFitName)) {
-      CFit* p = pFit->second;
+    if(CCalibFitFactory::Perform(sFitName)) {
+      CCalibFit* p = pFit->second;
       rResult = CreateListResult::FormatParameters(p);
       return TCL_OK;
     }
@@ -633,8 +633,8 @@ CCalibratedFitCommand::AddPoints_parse(CTCLInterpreter& rInterp,
   // The fit must exist:
 
   string sFitName(*argv);
-  CFitFactory::FitIterator p = CFitFactory::FindFit(sFitName);
-  if(p == CFitFactory::end()) {
+  CCalibFitFactory::FitIterator p = CCalibFitFactory::FindFit(sFitName);
+  if(p == CCalibFitFactory::end()) {
     rResult  = "Fit: ";
     rResult += sFitName;
     rResult += " does not exist";
@@ -660,7 +660,7 @@ CCalibratedFitCommand::AddPoints_parse(CTCLInterpreter& rInterp,
   // Now we have enough stuff to ask for the points to be
   // added:
 
-  if(CFitFactory::AddPoints(sFitName, vPoints)) { // OK!
+  if(CCalibFitFactory::AddPoints(sFitName, vPoints)) { // OK!
     rResult = sFitName;
     return TCL_OK;
   }
@@ -728,7 +728,7 @@ CCalibratedFitCommand::Evaluate_parse(CTCLInterpreter& rInterp,
 
   
   try {
-    DFloat_t dResult = CFitFactory::Evaluate(sFitName, dPoint);
+    DFloat_t dResult = CCalibFitFactory::Evaluate(sFitName, dPoint);
     char     sResult[100];
     sprintf(sResult, "%g", dResult);
     rResult = sResult;
@@ -791,9 +791,9 @@ CCalibratedFitCommand::Usage()
   sUsage     += "   `x'   Is a value to evaluate with the calibrationfit function\n";
   sUsage     += "\n";
   sUsage     += "And the valid calibrationfit types are:\n";
-  CFitFactory::FitCreatorIterator i = CFitFactory::beginCreators();
-  while(i != CFitFactory::endCreators()) {
-    CFitCreator* pCreator = i->second;
+  CCalibFitFactory::FitCreatorIterator i = CCalibFitFactory::beginCreators();
+  while(i != CCalibFitFactory::endCreators()) {
+    CCalibFitCreator* pCreator = i->second;
     sUsage   += "   ";
     sUsage   += i->first;
     sUsage   += " - ";

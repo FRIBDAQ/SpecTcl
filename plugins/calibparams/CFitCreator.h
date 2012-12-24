@@ -33,29 +33,29 @@
 
 // Forward class definitions.
 
-class CFit;
+class CCalibFit;
 
 // The class definition.
 
-class CFitCreator      
+class CCalibFitCreator      
 {
 
 public:
   /// Constructors and other canonical operations.
 
-  CFitCreator ();		//!< Constructor.
-  virtual  ~ CFitCreator ( ); //!< Destructor.
-  CFitCreator (const CFitCreator& rSource ); //!< Copy construction.
-  CFitCreator& operator= (const CFitCreator& rhs); //!< Assignment.
-  int operator== (const CFitCreator& rhs) const; //!< == comparison.
-  int operator!= (const CFitCreator& rhs) const; //!< != comparison.
+  CCalibFitCreator ();		//!< Constructor.
+  virtual  ~ CCalibFitCreator ( ); //!< Destructor.
+  CCalibFitCreator (const CCalibFitCreator& rSource ); //!< Copy construction.
+  CCalibFitCreator& operator= (const CCalibFitCreator& rhs); //!< Assignment.
+  int operator== (const CCalibFitCreator& rhs) const; //!< == comparison.
+  int operator!= (const CCalibFitCreator& rhs) const; //!< != comparison.
   
   
   // Class operations:
   
 public:
   
-  virtual   CFit* operator() ()   = 0 ; 
+  virtual   CCalibFit* operator() ()   = 0 ; 
   virtual   STD(string) DescribeFit()  = 0;
 };
 

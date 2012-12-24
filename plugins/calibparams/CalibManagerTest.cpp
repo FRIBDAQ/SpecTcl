@@ -83,8 +83,8 @@ void CalibManager::AddTest()
 {
   // 1.  Make the pair of parameters 
 
-  CLinearFit line1;
-  CLinearFit::Point pt;
+  CCalibLinearFit line1;
+  CCalibLinearFit::Point pt;
   pt.x = 0.0; pt.y = 0.1;
   line1.AddPoint(pt);
   pt.x = 1.0; pt.y = 2.2;
@@ -93,7 +93,7 @@ void CalibManager::AddTest()
 
   CCalibratedParameter param1(1, 0, "line1", &line1);
 
-  CLinearFit line2;
+  CCalibLinearFit line2;
   pt.x = 0.0; pt.y = -1.0;
   line2.AddPoint(pt);
   pt.x = 5.0; pt.y = 15.0;
@@ -169,8 +169,8 @@ void CalibManager::DeleteTest()
 {
   // 1.  Make the pair of parameters and add them.
 
-  CLinearFit line1;
-  CLinearFit::Point pt;
+  CCalibLinearFit line1;
+  CCalibLinearFit::Point pt;
   pt.x = 0.0; pt.y = 0.1;
   line1.AddPoint(pt);
   pt.x = 1.0; pt.y = 2.2;
@@ -179,7 +179,7 @@ void CalibManager::DeleteTest()
 
   CCalibratedParameter param1(1, 0, "line1", &line1);
 
-  CLinearFit line2;
+  CCalibLinearFit line2;
   pt.x = 0.0; pt.y = -1.0;
   line2.AddPoint(pt);
   pt.x = 5.0; pt.y = 15.0;
@@ -233,8 +233,8 @@ void CalibManager::STLJacketTest()
 {
   // 1.  Make the pair of parameters and add them.
 
-  CLinearFit line1;
-  CLinearFit::Point pt;
+  CCalibLinearFit line1;
+  CCalibLinearFit::Point pt;
   pt.x = 0.0; pt.y = 0.1;
   line1.AddPoint(pt);
   pt.x = 1.0; pt.y = 2.2;
@@ -243,7 +243,7 @@ void CalibManager::STLJacketTest()
 
   CCalibratedParameter param1(1, 0, "line1", &line1);
 
-  CLinearFit line2;
+  CCalibLinearFit line2;
   pt.x = 0.0; pt.y = -1.0;
   line2.AddPoint(pt);
   pt.x = 5.0; pt.y = 15.0;
@@ -307,8 +307,8 @@ void CalibManager::EvalTest()
   CCalibratedParameterManager manager; // need an object now.
   // 1.  Make the pair of parameters and add them.
 
-  CLinearFit line1;
-  CLinearFit::Point pt;
+  CCalibLinearFit line1;
+  CCalibLinearFit::Point pt;
   pt.x = 0.0; pt.y = 0.0;
   line1.AddPoint(pt);
   pt.x = 1.0; pt.y = 2.0;
@@ -317,7 +317,7 @@ void CalibManager::EvalTest()
 
   CCalibratedParameter param1(1, 0, "line1", &line1);
 
-  CLinearFit line2;
+  CCalibLinearFit line2;
   pt.x = 0.0; pt.y = 5.0;
   line2.AddPoint(pt);
   pt.x = 1.0; pt.y = 7;		// y = 2x+5

@@ -9,12 +9,12 @@ using namespace std;
 #include <cppunit/Asserter.h>
 #include "Asserts.h"
 
-#include <CLinearFitCreator.h>
-#include <CFitFactory.h>
+#include <./CLinearFitCreator.h>
+#include <./CFitFactory.h>
 
 #include <iostream>
 
-extern void CheckLinearFit(CFit* pFit);
+extern void CheckLinearFit(CCalibFit* pFit);
 
 
 class FactoryTest : public CppUnit::TestFixture {
@@ -47,9 +47,9 @@ Test Objective
      Ensure that functions on the creator list operate correctly.
 Test Description	
 1.	Check number of fit creators. (sizecreators).
-2.	Add a CLinearFitCreator to the factory.
+2.	Add a CCalibLinearFitCreator to the factory.
 3.	Check # fit creators4.	iterate through the fit creators.
-5.	Find the CLinearFitCreator.
+5.	Find the CCalibLinearFitCreator.
 Test Conditions	
 Expected Results	
 1.	0
@@ -63,17 +63,17 @@ void FactoryTest::CreatorList()
 {
   cerr << "Factory test\n";
 
-  CLinearFitCreator* pCreator = new CLinearFitCreator();
+  CCalibLinearFitCreator* pCreator = new CCalibLinearFitCreator();
 
-  EQ(0, CFitFactory::sizeCreators());
-  CFitFactory::AddFitType("linear", pCreator);
-  EQ(1, CFitFactory::sizeCreators());
+  EQ(0, CCalibFitFactory::sizeCreators());
+  CCalibFitFactory::AddFitType("linear", pCreator);
+  EQ(1, CCalibFitFactory::sizeCreators());
 
-  CFitFactory::FitCreatorIterator c = CFitFactory::FindFitCreator("linear");
+  CCalibFitFactory::FitCreatorIterator c = CCalibFitFactory::FindFitCreator("linear");
 
-  ASSERT(c != CFitFactory::endCreators());
+  ASSERT(c != CCalibFitFactory::endCreators());
 
-  EQMSG("pointer compare", (CFitCreator*)pCreator, c->second);
+  EQMSG("pointer compare", (CCalibFitCreator*)pCreator, c->second);
   
 }
 /*
@@ -101,23 +101,23 @@ Expected Results
  */
 void FactoryTest::FitCreation()
 {
-  CFit* pFit = CFitFactory::Create("linear", "testfit");
+  CCalibFit* pFit = CCalibFitFactory::Create("linear", "testfit");
   ASSERT(pFit);
 
-  EQMSG("1 fit", 1, CFitFactory::size());
+  EQMSG("1 fit", 1, CCalibFitFactory::size());
 
-  CFitFactory::FitIterator f = CFitFactory::begin();
-  ASSERT(f != CFitFactory::end());
+  CCalibFitFactory::FitIterator f = CCalibFitFactory::begin();
+  ASSERT(f != CCalibFitFactory::end());
   EQMSG("fit in factory map", pFit, f->second);
   f++;
-  ASSERT( f ==  CFitFactory::end());
+  ASSERT( f ==  CCalibFitFactory::end());
 
-  f = CFitFactory::FindFit("testfit");
-  ASSERT(f != CFitFactory::end());
+  f = CCalibFitFactory::FindFit("testfit");
+  ASSERT(f != CCalibFitFactory::end());
   EQMSG("Fit found is mine", pFit, f->second);
-  ASSERT(CFitFactory::Delete("testfit"));
+  ASSERT(CCalibFitFactory::Delete("testfit"));
 
-  EQMSG("Fit factory empty", 0, CFitFactory::size());
+  EQMSG("Fit factory empty", 0, CCalibFitFactory::size());
 
 	 
 }
@@ -146,8 +146,8 @@ test is factored out into CheckLinearFit.
 */
 void FactoryTest::FitManipulation()
 {
-  CFit* pFit = CFitFactory::Create("linear", "testfit");
+  CCalibFit* pFit = CCalibFitFactory::Create("linear", "testfit");
   CheckLinearFit(pFit);
-  CFitFactory::Delete("testfit");
+  CCalibFitFactory::Delete("testfit");
   
 }

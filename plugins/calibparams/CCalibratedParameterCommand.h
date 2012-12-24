@@ -43,7 +43,7 @@
 #endif
 
 #ifndef __CFITFACTORY_H
-#include <CFitFactory.h>
+#include <./CFitFactory.h>
 #endif
 
 #ifndef __STL_STRING
@@ -100,7 +100,7 @@ public:
      STD(string) List (STD(string) pattern)   ; 
      int Delete (STD(string)& Result, STD(string) parameter)   ; 
      void Update (STD(string) pattern)   ; 
-     CFit* FindFit (STD(string) sName)   ; 
+     CCalibFit* FindFit (STD(string) sName)   ; 
      STD(string) Usage ()   ; 
 
 	// Utilities available to derived and helper classes:

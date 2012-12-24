@@ -12,7 +12,7 @@ using namespace std;
 #include <TCLList.h>
 #include <TCLResult.h>
 #include <CFitCommand.h>
-#include <CFitFactory.h>
+#include <./CFitFactory.h>
 #include <CFit.h>
 
 #include <vector>		// STL Vector.
@@ -53,7 +53,7 @@ private:
   Tcl_Interp*        m_pInterpreter;
   CTCLInterpreter*   m_pInterp;
   CTCLResult*        m_pResult;
-  CFitCommand*       m_pFitCommand;
+  CCalibFitCommand*       m_pFitCommand;
 
 
 public:
@@ -80,7 +80,7 @@ public:
     
     // Create and register the fit command:
 
-    m_pFitCommand = new CFitCommand(m_pInterp);	// defines "fit".
+    m_pFitCommand = new CCalibFitCommand(m_pInterp);	// defines "fit".
 
     // Create a result object bound to the interp:
 
@@ -100,7 +100,7 @@ public:
 
     //    Tcl_DeleteInterp(m_pInterpreter);
 
-    m_pFitCommand = (CFitCommand*)NULL;
+    m_pFitCommand = (CCalibFitCommand*)NULL;
     m_pInterp     = (CTCLInterpreter*)NULL;
     m_pInterpreter= (Tcl_Interp*)NULL;
     m_pResult     = (CTCLResult*)NULL;
@@ -116,12 +116,12 @@ Test Name	 CreateTest
 Test Objective	 Check ability to create a fit via command parse
 Test Description	
 1.	Create TCL interpreter/object (setup)
-2.	Create CFitCommand object registered on interp (setup)
+2.	Create CCalibFitCommand object registered on interp (setup)
 3.	Invoke Create_parse with new fit name.
 4.	Search for fit directly from factory.
 5.	Create a duplicate fit.
 6.	Delete fit from factory
-7.	Destroy CFitCommand (teardown)
+7.	Destroy CCalibFitCommand (teardown)
 8.	Destroy TCL Interpreter/object) (teardown).
 
 Expected Results	
@@ -148,8 +148,8 @@ void CommandTest::CreateTest()
 					   create_count, create_args);
   EQMSG("Create_parse return", TCL_OK, status);
 
-  CFitFactory::FitIterator i = CFitFactory::FindFit("testfit");
-  ASSERT(i != CFitFactory::end());
+  CCalibFitFactory::FitIterator i = CCalibFitFactory::FindFit("testfit");
+  ASSERT(i != CCalibFitFactory::end());
 
   // Now go for a duplicate fit:
 
@@ -157,7 +157,7 @@ void CommandTest::CreateTest()
 				       create_count, create_args);
   EQMSG("Duplicate create", TCL_ERROR, status);	// should have failed.
 
-  CFitFactory::Delete("testfit"); // This cleanup is not done in teardown.
+  CCalibFitFactory::Delete("testfit"); // This cleanup is not done in teardown.
 }
 
 
@@ -194,7 +194,7 @@ void CommandTest::DeleteTest()
 				       delete_count, delete_args);
   EQMSG("Delete_parse return", TCL_OK, status);
 
-  ASSERT(CFitFactory::FindFit("testfit") == CFitFactory::end());
+  ASSERT(CCalibFitFactory::FindFit("testfit") == CCalibFitFactory::end());
 
   status = m_pFitCommand->Delete_parse(*m_pInterp, *m_pResult,
 				       delete_count, delete_args);
@@ -246,9 +246,9 @@ void CommandTest::ListTest()
 {
   // Create the fits:
 
-  CFitFactory::Create("linear", "fit1");
-  CFitFactory::Create("linear", "fit2");
-  CFitFactory::Create("linear", "george");
+  CCalibFitFactory::Create("linear", "fit1");
+  CCalibFitFactory::Create("linear", "fit2");
+  CCalibFitFactory::Create("linear", "george");
 
   // List all fits:
 
@@ -299,9 +299,9 @@ void CommandTest::ListTest()
 
   // Delete the fits:
 
-  CFitFactory::Delete("fit1");
-  CFitFactory::Delete("fit2");
-  CFitFactory::Delete("george");
+  CCalibFitFactory::Delete("fit1");
+  CCalibFitFactory::Delete("fit2");
+  CCalibFitFactory::Delete("george");
 }
 /*
 Test Name/#	 AddPoints 
@@ -329,16 +329,16 @@ Expected Results
 
  */
 
-static CFit::Point testPoints[] = {
+static CCalibFit::Point testPoints[] = {
   {1.0, 2.5},
   {3.5, 7.25}
 };
 
-static int ntestPoints = sizeof(testPoints)/sizeof(CFit::Point);
+static int ntestPoints = sizeof(testPoints)/sizeof(CCalibFit::Point);
 
 void CommandTest::AddPoints()
 {
-  CFit* pFit = CFitFactory::Create("linear", "test"); // easiest way.
+  CCalibFit* pFit = CCalibFitFactory::Create("linear", "test"); // easiest way.
 
   // Create the command string, we'll later split it:
 
@@ -364,7 +364,7 @@ void CommandTest::AddPoints()
   EQMSG("add status", TCL_OK, status);
   EQMSG("fit point count", (size_t)2, pFit->size());
 
-  CFit::PointIterator pPoint = pFit->begin();
+  CCalibFit::PointIterator pPoint = pFit->begin();
   int pt = 0;
   while(pPoint != pFit->end()) {
     EQMSG("x: ", testPoints[pt].x, pPoint->x);
@@ -373,7 +373,7 @@ void CommandTest::AddPoints()
     pt++;
   }
 
-  CFitFactory::Delete("test");
+  CCalibFitFactory::Delete("test");
 
 }
 
@@ -411,11 +411,11 @@ static double tolerance = 0.1;
 
 int CommandTest::PerformUtility(char* name)
 {
-  CFitFactory::FitIterator p = CFitFactory::FindFit(name);
-  CFit*       pFit = p->second;
+  CCalibFitFactory::FitIterator p = CCalibFitFactory::FindFit(name);
+  CCalibFit*       pFit = p->second;
 
   for(int i =0; i < 10; i++) {	// We'll use 10 points.
-    CFit::Point pt;
+    CCalibFit::Point pt;
     pt.x = (double)i;
     pt.y = m*pt.x + b;		// This is the unjitter y.
     pt.y += jitter * (drand48() - 0.5); // jitter it.
@@ -433,7 +433,7 @@ int CommandTest::PerformUtility(char* name)
 void CommandTest::Perform()
 {
   char* name = "test";
-  CFit* pFit = CFitFactory::Create("linear", name);
+  CCalibFit* pFit = CCalibFitFactory::Create("linear", name);
 
   int status = PerformUtility(name);
 
@@ -472,7 +472,7 @@ void CommandTest::Perform()
   }
   EQMSG("All params", 2, found);
 
-  CFitFactory::Delete(name);
+  CCalibFitFactory::Delete(name);
 }
 /*
 Test Name/#	 Evaluate
@@ -498,7 +498,7 @@ Expected Results
 void CommandTest::Evaluate()
 {
   char* name = "test";
-  CFit* pFit = CFitFactory::Create("linear", "test");
+  CCalibFit* pFit = CCalibFitFactory::Create("linear", "test");
   
   PerformUtility(name);
 

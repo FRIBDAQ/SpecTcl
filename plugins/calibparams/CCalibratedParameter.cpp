@@ -11,7 +11,7 @@
 
 #include <config.h>
 #include "CCalibratedParameter.h"    				
-#include "CFit.h"
+#include "./CFit.h"
 #include <stdlib.h>
 
 #include <Event.h>                 // Required to set/get event values.
@@ -35,7 +35,7 @@ using namespace DesignByContract;
     \post The target parameter id member is positive.
 */
 CCalibratedParameter::CCalibratedParameter (int nTargetId, int nRawId, 
-					    string sFitName, CFit* pFit)
+					    string sFitName, CCalibFit* pFit)
    : m_nParameterId(nRawId),
    m_nTargetParameterId(nTargetId),
    m_sFitName(sFitName),
@@ -59,7 +59,7 @@ CCalibratedParameter::CCalibratedParameter (int nTargetId, int nRawId,
 {
 	REQUIRE(m_pFit, "Fit pointer became null somehow");
 	delete m_pFit;
-	m_pFit = (CFit*)NULL;
+	m_pFit = (CCalibFit*)NULL;
 }
 /*!
    Called to create an instance of CCalibratedParameter that is a
@@ -95,7 +95,7 @@ CCalibratedParameter::operator= (const CCalibratedParameter& rhs)
 	m_nTargetParameterId = rhs.m_nTargetParameterId;
 	m_sFitName           = rhs.m_sFitName;
 	delete m_pFit;
-	m_pFit               = (CFit*)NULL;
+	m_pFit               = (CCalibFit*)NULL;
 	m_pFit               = rhs.m_pFit->clone();
   }
   return *this;
@@ -149,7 +149,7 @@ Calcluates the resulting parameter
 from the corresponding raw parameter
 
 
-\pre m_pFit != (CFit*)NULL
+\pre m_pFit != (CCalibFit*)NULL
 \pre m_nParameterId is positive.
 \pre m_nTargetParameterId is positive.
 
@@ -177,7 +177,7 @@ CCalibratedParameter::operator()(CEvent& rEvent) const
 	REQUIRE(m_nTargetParameterId >= 0," Target parameter id negative");
 	
 	if(rEvent[m_nParameterId].isValid() && 
-	   (m_pFit->GetState() == CFit::Performed)) {
+	   (m_pFit->GetState() == CCalibFit::Performed)) {
 	  double input = (double)(rEvent[m_nParameterId]) + 
 	                           (drand48() - 0.5); // undescretize the input.
 	    rEvent[m_nTargetParameterId] = (ParamType)(*m_pFit)(input);
@@ -200,10 +200,10 @@ compute the parameter.
 
 Parameters:
 
-\param rNewFit (const CFit&)
+\param rNewFit (const CCalibFit&)
    Reference to the new fit.
 
-\return CFit*
+\return CCalibFit*
 
 \throw  
 
@@ -211,18 +211,18 @@ Pseudo code:
 
 \verbatim
 temp <- m_pFit
-m_pFit = clone CFit(rNewFit)
+m_pFit = clone CCalibFit(rNewFit)
 return temp
 \endverbatim
 
 */
-CFit* 
-CCalibratedParameter::ReplaceFit(CFit& rFit)  
+CCalibFit* 
+CCalibratedParameter::ReplaceFit(CCalibFit& rFit)  
 { 
 	REQUIRE(m_pFit, "My fit pointer became null");
 	
-	CFit* pFit = m_pFit;
-	m_pFit     = (CFit*)NULL;           // Safety.
+	CCalibFit* pFit = m_pFit;
+	m_pFit     = (CCalibFit*)NULL;           // Safety.
 	m_pFit     = rFit.clone();
 
 	ENSURE(m_pFit, "My fit pointer cloned to null");
