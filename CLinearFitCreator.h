@@ -24,7 +24,7 @@
 
                                //Required for base classes
 #ifndef __CFITCREATOR_H     //CFitCreator
-#include "CFitCreator.h"
+#include "./CFitCreator.h"
 #endif
 
 #ifndef __STL_STRING
@@ -34,24 +34,24 @@
 #endif
 #endif
  
-class CLinearFitCreator  : public CFitCreator        
+class CCalibLinearFitCreator  : public CCalibFitCreator        
 {
 public:
     //  Constructors and other canonical operations.
 
-    CLinearFitCreator ();		//!< Constructor.
-    virtual  ~ CLinearFitCreator ( ); //!< Destructor.
-    CLinearFitCreator (const CLinearFitCreator& rSource ); //!< Copy construction.
-    CLinearFitCreator& operator= (const CLinearFitCreator& rhs); //!< Assignment.
-    int operator== (const CLinearFitCreator& rhs) const; //!< == comparison.
-    int operator!= (const CLinearFitCreator& rhs) const; //!< != comparison.
+    CCalibLinearFitCreator ();		//!< Constructor.
+    virtual  ~ CCalibLinearFitCreator ( ); //!< Destructor.
+    CCalibLinearFitCreator (const CCalibLinearFitCreator& rSource ); //!< Copy construction.
+    CCalibLinearFitCreator& operator= (const CCalibLinearFitCreator& rhs); //!< Assignment.
+    int operator== (const CCalibLinearFitCreator& rhs) const; //!< == comparison.
+    int operator!= (const CCalibLinearFitCreator& rhs) const; //!< != comparison.
 
 
 // Class operations:
 
 public:
 
-  virtual   CFit* operator() () ; 
+  virtual   CCalibFit* operator() () ; 
   virtual   STD(string) DescribeFit();
 
 };

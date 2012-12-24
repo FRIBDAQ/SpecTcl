@@ -18,10 +18,10 @@
 #include <SpecTcl.h>
 #include <tcl.h>
 #include <TCLInterpreter.h>
-#include "CCalibratedFitCommand.h"
-#include "CCalibratedParameterCommand.h"
-#include "CCalibratedParameterManager.h"
-#include "CLinearFitCreator.h"
+#include "./CCalibratedFitCommand.h"
+#include "./CCalibratedParameterCommand.h"
+#include "./CCalibratedParameterManager.h"
+#include "./CLinearFitCreator.h"
 
 
 const static char* version = "1.0";
@@ -84,8 +84,8 @@ extern "C" {
 
     // Register the fit types:
 
-    CLinearFitCreator* pLinearCreator = new CLinearFitCreator;
-    CFitFactory::AddFitType("linear", pLinearCreator);
+    CCalibLinearFitCreator* pLinearCreator = new CCalibLinearFitCreator;
+    CCalibFitFactory::AddFitType("linear", pLinearCreator);
 
     // Make the GUI available for incorporation.
     // This is done by requiring the package CalibrationGUI

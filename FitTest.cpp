@@ -13,8 +13,8 @@ using namespace std;
 #include <iostream>
 
 #include <DesignByContract.h>
-#include <CFit.h>
-#include <CLinearFit.h>
+#include <./CFit.h>
+#include <./CLinearFit.h>
 #include <math.h>
 
 class FitTest : public CppUnit::TestFixture {
@@ -26,10 +26,10 @@ class FitTest : public CppUnit::TestFixture {
 
 
 private:
-  CLinearFit* m_pFit;
+  CCalibLinearFit* m_pFit;
 public:
   void setUp() {
-    m_pFit = new CLinearFit;
+    m_pFit = new CCalibLinearFit;
     
   }
   void tearDown() {
@@ -56,7 +56,7 @@ Ensure initial state is correct
 void FitTest::Construction() 
 {
   cerr << "FitTest\n";
-  EQMSG("Fit state: ", CFit::Accepting, m_pFit->GetState());
+  EQMSG("Fit state: ", CCalibFit::Accepting, m_pFit->GetState());
   EQMSG("# points:  ", (size_t)0, m_pFit->size());
  
   /*
@@ -77,19 +77,19 @@ void FitTest::Construction()
   ASSERT(ok);
 
 
-  CFit::FitParameterList params;
+  CCalibFit::FitParameterList params;
   EXCEPTION(params = m_pFit->GetParameters(), 
 	    DesignByContract::DesignByContractException&);
 }
 
 
-static CFit::Point dummypoints[] = {
+static CCalibFit::Point dummypoints[] = {
   {1, 2},
   {2, 3},
   {3, 4},
   {10, 42}
 };
-static const int numdummypoints = sizeof(dummypoints)/sizeof(CFit::Point);
+static const int numdummypoints = sizeof(dummypoints)/sizeof(CCalibFit::Point);
 
 /*
 Test Name	AddPoints
@@ -119,7 +119,7 @@ void FitTest::AddPoints()
   //
 
   int i = 0;
-  CFit::PointIterator p = m_pFit->begin();
+  CCalibFit::PointIterator p = m_pFit->begin();
   while(p != m_pFit->end()) {
     EQMSG("Xcompare: ", dummypoints[i].x, p->x);
     EQMSG("Ycompare: ", dummypoints[i].y, p->y);
@@ -156,9 +156,9 @@ static const int    dataPoints    = 10;
 static const double tolerance     = 0.1; // fraction of value.
 static const double jitter        = 0.01; // jitter on data points.
 
-void CheckLinearFit(CFit* pFit)
+void CheckLinearFit(CCalibFit* pFit)
 {
-  CFit::Point pt;
+  CCalibFit::Point pt;
   for(int i = 0; i < dataPoints; i++) {
     double x = (double)i;
     double y = x*testSlope + testIntercept; // exact value.
@@ -172,16 +172,16 @@ void CheckLinearFit(CFit* pFit)
 
   pFit->Perform();
 
-  EQMSG("state",CFit::Performed,  pFit->GetState());
+  EQMSG("state",CCalibFit::Performed,  pFit->GetState());
 
-  CFit::FitParameterList params = pFit->GetParameters();
+  CCalibFit::FitParameterList params = pFit->GetParameters();
 
   // there are three parameters named: slope, offset, chisquare.
   // We are only interested in slope and offset.
 
   EQ((size_t)3, params.size());
   
-  CFit::FitParameterIterator p  = params.begin();
+  CCalibFit::FitParameterIterator p  = params.begin();
   double slope;
   double intercept;
   int found = 0;

@@ -52,25 +52,25 @@
 
 // Forward class definitions (convert to includes if required):
 
-class CFitCreator;
-class CFit;
+class CCalibFitCreator;
+class CCalibFit;
 
 // The class itself.
 
-class CFitFactory 
+class CCalibFitFactory 
 {
   // Public data types:
 public:
   // Note that the iterators below will
   // 'point' to a pair<STD(string),T*>.
   // e.g. a FitCreatorIterator points to a 
-  // pair<STD(string), CFitCreator*>
+  // pair<STD(string), CCalibFitCreator*>
   //
 
-  typedef STD(map)<STD(string), CFitCreator*> FitCreatorMap;
+  typedef STD(map)<STD(string), CCalibFitCreator*> FitCreatorMap;
   typedef FitCreatorMap::iterator  FitCreatorIterator;
 
-  typedef STD(map)<STD(string), CFit*>        FitMap;
+  typedef STD(map)<STD(string), CCalibFit*>        FitMap;
   typedef FitMap::iterator          FitIterator;
 
   
@@ -87,8 +87,8 @@ private:
 public:
 
 
-  static void AddFitType (const STD(string) & rType, CFitCreator* pCreator)   ; 
-  static CFit* Create (STD(string) sFitType, STD(string) sFitName)   ; 
+  static void AddFitType (const STD(string) & rType, CCalibFitCreator* pCreator)   ; 
+  static CCalibFit* Create (STD(string) sFitType, STD(string) sFitName)   ; 
   static bool Delete (STD(string) sName)   ; 
   static bool Perform (STD(string) sName)   ; 
   static bool AddPoints (STD(string) sName,

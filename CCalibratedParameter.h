@@ -43,7 +43,7 @@
 
 // Forward class definitions (convert to includes if required):
 
-class CFit;
+class CCalibFit;
 class CEvent;
 
 // The class interface
@@ -57,14 +57,14 @@ private:
     int    m_nTargetParameterId;  //!<  Id of resulting parameter.  
     STD(string) m_sFitName;            //!<  Name of fit that's set on us.  
    
-    CFit*  m_pFit;                //!< 1:1 association object data member 
+    CCalibFit*  m_pFit;                //!< 1:1 association object data member 
 
 public:
     //  Constructors and other canonical operations.
     CCalibratedParameter (int nTargetId,
     					  int nRawId,
     					  STD(string) sFitName,
-    					  CFit*  pFit);		//!< Constructor.
+    					  CCalibFit*  pFit);		//!< Constructor.
     virtual  ~ CCalibratedParameter ( ); //!< Destructor.
     CCalibratedParameter (const CCalibratedParameter& rSource ); //!< Copy construction.
     CCalibratedParameter& 
@@ -84,14 +84,14 @@ public:
 	STD(string) getFitName() const {
 		return m_sFitName;
 	}
-	const CFit* getFit() const {
+	const CCalibFit* getFit() const {
 		return m_pFit;
 	}
 
 public:
 
 	void operator() (CEvent& rEvent) const   ; //!< Evaluate the calibration
-	CFit* ReplaceFit (CFit& rFit)   ;          //!< Set a new fit (name is fixed).
+	CCalibFit* ReplaceFit (CCalibFit& rFit)   ;          //!< Set a new fit (name is fixed).
 };
 
 #endif

@@ -16,7 +16,7 @@
 // Include files required:
 
 #include <config.h>
-#include "CFit.h"    				
+#include "./CFit.h"    				
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -24,38 +24,38 @@ using namespace std;
 
 
 /*!
-    Create an object of type CFit
+    Create an object of type CCalibFit
 */
-CFit::CFit (): 
+CCalibFit::CCalibFit (): 
   m_eState(Accepting)
 { 
 } 
 
 /*!
-    Called to destroy an instance of CFit
+    Called to destroy an instance of CCalibFit
 */
-CFit::~CFit ( )
+CCalibFit::~CCalibFit ( )
 {
 }
 /*!
-   Called to create an instance of CFit that is a
+   Called to create an instance of CCalibFit that is a
    functional duplicate of another instance.
 
-   \param rSource (const CFit& ):
+   \param rSource (const CCalibFit& ):
       The object that we will dupliate.
 */
-CFit::CFit (const CFit& aCFit ) 
+CCalibFit::CCalibFit (const CCalibFit& aCCalibFit ) 
 {
-  CopyIn(aCFit);
+  CopyIn(aCCalibFit);
 
 } 
 /*!
   Assign to *this from rhs so that *this becomes a functional
   duplicate of rhs.
-  \param rhs (const CFit& rhs ):
+  \param rhs (const CCalibFit& rhs ):
      The object that will be functionally copied to *this.
  */
-CFit& CFit::operator= (const CFit& rhs)
+CCalibFit& CCalibFit::operator= (const CCalibFit& rhs)
 { 
   if(this != &rhs) {
     CopyIn(rhs);		// See why we bothered?
@@ -65,8 +65,8 @@ CFit& CFit::operator= (const CFit& rhs)
 }
 /*!
   Compare *this for functional equality with another object of
-  type CFit.
-  \param rhs (const CFit& rhs ):
+  type CCalibFit.
+  \param rhs (const CCalibFit& rhs ):
      The object to be compared with *this.
   \return int
   \retval 0   Not equal
@@ -74,14 +74,14 @@ CFit& CFit::operator= (const CFit& rhs)
 
  */
 int 
-CFit::operator== (const CFit& rhs) const
+CCalibFit::operator== (const CCalibFit& rhs) const
 {
   return ((m_eState    == rhs.m_eState)   &&
 	  (m_afpPoints == rhs.m_afpPoints));
 }
 
 
-// Functions for class CFit
+// Functions for class CCalibFit
 
 /*! 
 
@@ -99,7 +99,7 @@ Parameters:
 
 */
 void 
-CFit::AddPoint(CFit::Point p)  
+CCalibFit::AddPoint(CCalibFit::Point p)  
 { 
   SetFitState(Accepting);		// This puts us back to accepting.
   m_afpPoints.push_back(p);	// Add the point.
@@ -116,8 +116,8 @@ Returns an iterator to the first point in m_afpPoints.
 \retval iterator to the beginning of m_afpPoints
 
 */
-CFit::PointIterator 
-CFit::begin()  
+CCalibFit::PointIterator 
+CCalibFit::begin()  
 {
   return m_afpPoints.begin();
 }  
@@ -134,8 +134,8 @@ checking.
 
 
 */
-CFit::PointIterator 
-CFit::end()  
+CCalibFit::PointIterator 
+CCalibFit::end()  
 {
   return m_afpPoints.end();
 }  
@@ -153,7 +153,7 @@ Parameters:
 
 */
 size_t 
-CFit::size()  
+CCalibFit::size()  
 {
   return m_afpPoints.size();
 }  
@@ -173,8 +173,8 @@ Parameters:
 
 
 */
-CFit::FitState 
-CFit::GetState()  const
+CCalibFit::FitState 
+CCalibFit::GetState()  const
 {
   return m_eState;
 }  
@@ -182,11 +182,11 @@ CFit::GetState()  const
 
 /*!
   Copy from rhs to this.
-  \param rhs (const CFit&)
+  \param rhs (const CCalibFit&)
     The object we copy to this.
 */
 void
-CFit::CopyIn(const CFit& rhs)
+CCalibFit::CopyIn(const CCalibFit& rhs)
 {
   m_afpPoints = rhs.m_afpPoints;
   m_eState    = rhs.m_eState;

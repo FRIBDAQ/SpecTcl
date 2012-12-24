@@ -8,8 +8,8 @@
 // Include files required:
 
 #include <config.h>
-#include "CLinearFitCreator.h"    				
-#include "CLinearFit.h"
+#include "./CLinearFitCreator.h"    				
+#include "./CLinearFit.h"
 
 
 #ifdef HAVE_STD_NAMESPACE
@@ -18,97 +18,97 @@ using namespace std;
 
 
 /*!
-    Create an object of type CLinearFitCreator
+    Create an object of type CCalibLinearFitCreator
 */
-CLinearFitCreator::CLinearFitCreator () 
+CCalibLinearFitCreator::CCalibLinearFitCreator () 
 { 
 } 
 
 /*!
-    Called to destroy an instance of CLinearFitCreator
+    Called to destroy an instance of CCalibLinearFitCreator
 */
- CLinearFitCreator::~CLinearFitCreator ( )
+ CCalibLinearFitCreator::~CCalibLinearFitCreator ( )
 {
 }
 /*!
-   Called to create an instance of CLinearFitCreator that is a
+   Called to create an instance of CCalibLinearFitCreator that is a
    functional duplicate of another instance.
-   \param rSource (const CLinearFitCreator& ):
+   \param rSource (const CCalibLinearFitCreator& ):
       The object that we will dupliate.
 */
-CLinearFitCreator::CLinearFitCreator (const CLinearFitCreator& aCLinearFitCreator ) 
-  : CFitCreator (aCLinearFitCreator) 
+CCalibLinearFitCreator::CCalibLinearFitCreator (const CCalibLinearFitCreator& aCCalibLinearFitCreator ) 
+  : CCalibFitCreator (aCCalibLinearFitCreator) 
 {
 } 
 /*!
   Assign to *this from rhs so that *this becomes a functional
   duplicate of rhs.
-  \param rhs (const CLinearFitCreator& rhs ):
+  \param rhs (const CCalibLinearFitCreator& rhs ):
      The object that will be functionally copied to *this.
  */
-CLinearFitCreator& 
-CLinearFitCreator::operator= (const CLinearFitCreator& rhs)
+CCalibLinearFitCreator& 
+CCalibLinearFitCreator::operator= (const CCalibLinearFitCreator& rhs)
 { 
   if(this != &rhs) {
-    CFitCreator::operator=(rhs);
+    CCalibFitCreator::operator=(rhs);
   }
   return *this;
 
 }
 /*!
   Compare *this for functional equality with another object of
-  type CLinearFitCreator.
-  \param rhs (const CLinearFitCreator& rhs ):
+  type CCalibLinearFitCreator.
+  \param rhs (const CCalibLinearFitCreator& rhs ):
      The object to be compared with *this.
 
  */
 int 
-CLinearFitCreator::operator== (const CLinearFitCreator& rhs) const
+CCalibLinearFitCreator::operator== (const CCalibLinearFitCreator& rhs) const
 {
-  return CFitCreator::operator==(rhs);
+  return CCalibFitCreator::operator==(rhs);
 }
 /*!
    Compare *this for functional inequality with another object
-   of type CLinearFitCreator.  Functional inequality is defined as
+   of type CCalibLinearFitCreator.  Functional inequality is defined as
    the boolean inverse of functional equality.
-   \param rhs (const CLinearFitCreator& rhs ):
+   \param rhs (const CCalibLinearFitCreator& rhs ):
       The object to compare with *this.
 */
 int
-CLinearFitCreator::operator!= (const CLinearFitCreator& rhs) const
+CCalibLinearFitCreator::operator!= (const CCalibLinearFitCreator& rhs) const
 {
   return !(*this == rhs);
 }
 
-// Functions for class CLinearFitCreator
+// Functions for class CCalibLinearFitCreator
 
 /*! 
 
 Description:
 
-Creates and returns a newly constructeed CLinearFit
+Creates and returns a newly constructeed CCalibLinearFit
 object in the AccumulatingPoints state.
 
 
 
 Parameters:
 
-\return CFit*
+\return CCalibFit*
 \retval 0 - Object could not be created for whatever reason.
 \retval !=0 Pointer to the newly created fit object.
 
 
 */
-CFit* 
-CLinearFitCreator::operator()()  
+CCalibFit* 
+CCalibLinearFitCreator::operator()()  
 { 
-  return new CLinearFit;
+  return new CCalibLinearFit;
 }
 /*!
    Return a description of the type of fit we create:
 */
 string
-CLinearFitCreator::DescribeFit()
+CCalibLinearFitCreator::DescribeFit()
 {
   return string("Linear (straight line) fit");
 }

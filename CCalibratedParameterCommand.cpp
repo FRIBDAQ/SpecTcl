@@ -14,8 +14,8 @@
 #include "CCalibratedParameterCommand.h"  
 #include "CCalibratedParameterManager.h"
 #include "CCalibratedParameter.h"
-#include "CFit.h"
-#include "CFitFactory.h"
+#include "./CFit.h"
+#include "./CFitFactory.h"
 
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
@@ -85,12 +85,12 @@ public:
 		REQUIRE(entry.second, "Null parameter in map entry");
 		if(Tcl_StringMatch(entry.first.c_str(), m_Pattern.c_str())) {
 			CCalibratedParameter*      pParam = entry.second;
-			CFitFactory::FitIterator   
-							 pF   = CFitFactory::FindFit(pParam->getFitName());
-			if(pF != CFitFactory::end()) {
-				CFit* pFit = 		 pF->second;
-				if(pFit->GetState() == CFit::Performed) {
-					CFit* p = pParam->ReplaceFit(*pFit);
+			CCalibFitFactory::FitIterator   
+							 pF   = CCalibFitFactory::FindFit(pParam->getFitName());
+			if(pF != CCalibFitFactory::end()) {
+				CCalibFit* pFit = 		 pF->second;
+				if(pFit->GetState() == CCalibFit::Performed) {
+					CCalibFit* p = pParam->ReplaceFit(*pFit);
 					delete p;
 				}
 			}
@@ -654,7 +654,7 @@ CCalibratedParameterCommand::Create(string& Result, string name,
 	}
 	// The fit must also exists.
 	
-	CFit* pFit = FindFit(fitname);
+	CCalibFit* pFit = FindFit(fitname);
 	if(!pFit) {
 		Result  = "The fit ";
 		Result += fitname;
@@ -827,8 +827,8 @@ Pseudo code:
 \verbatim
 for_each name,pParameter {
    if name matches pattern {
-       pFit = CFitFactory::FindFit(pParameter.getFitname())
-       if pFit = CFitFactory::end()  {
+       pFit = CCalibFitFactory::FindFit(pParameter.getFitname())
+       if pFit = CCalibFitFactory::end()  {
              // Last known fit is used.
        }
        else {
@@ -856,7 +856,7 @@ CCalibratedParameterCommand::Update(string pattern)
 
 Description:
 
-Local function to locate a fit in the CFitFactory.
+Local function to locate a fit in the CCalibFitFactory.
 
 
 \pre 
@@ -869,11 +869,11 @@ Parameters:
     The name of the fit to look for.
 
 
-\return CFitFactory::FitIterator
-\return CFitFactory::FitIterator
-  \retval CFitFactory::end()  - Fit not found.
+\return CCalibFitFactory::FitIterator
+\return CCalibFitFactory::FitIterator
+  \retval CCalibFitFactory::end()  - Fit not found.
   \retval other                      - Fit found and this an iterator that 'points' to the 
-                                             name, CFit* pair.
+                                             name, CCalibFit* pair.
 
 
 \throw  
@@ -885,15 +885,15 @@ Pseudo code:
 \endverbatim
 
 */
-CFit*
+CCalibFit*
 CCalibratedParameterCommand::FindFit(string sName)  
 { 
-	CFitFactory::FitIterator i = CFitFactory::FindFit(sName);
-	if(i != CFitFactory::end()) {
+	CCalibFitFactory::FitIterator i = CCalibFitFactory::FindFit(sName);
+	if(i != CCalibFitFactory::end()) {
 		return i->second;
 	}
 	else {
-		return (CFit*)NULL;
+		return (CCalibFit*)NULL;
 	}
 }  
 
@@ -1048,7 +1048,7 @@ CCalibratedParameterCommand::FormatParameter(string  sParamName,
 		rawname = "-deleted-";
 	}
 	fitname = rParam.getFitName();
-	if(CFitFactory::FindFit(fitname) == CFitFactory::end()) {
+	if(CCalibFitFactory::FindFit(fitname) == CCalibFitFactory::end()) {
 		fitname += " (deleted)";
 	}
 	result.AppendElement(name);

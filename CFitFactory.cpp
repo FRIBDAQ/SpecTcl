@@ -1,8 +1,8 @@
    
 
 /*
-	Implementation file for CFitFactory for a description of the
-	class see CFitFactory.h
+	Implementation file for CCalibFitFactory for a description of the
+	class see CCalibFitFactory.h
 */
 
 ////////////////////////// FILE_NAME.cpp ///////////////////////////
@@ -11,9 +11,9 @@
 
 #include <config.h>
 
-#include "CFitFactory.h"    				
-#include "CFit.h"
-#include "CFitCreator.h"
+#include "./CFitFactory.h"    				
+#include "./CFit.h"
+#include "./CFitCreator.h"
 
 #include <DesignByContract.h>
 
@@ -23,18 +23,18 @@ using namespace std;
 
 using namespace DesignByContract;
 
-// Static attribute storage and initialization for CFitFactory
+// Static attribute storage and initialization for CCalibFitFactory
 
-// m_mapCreators is a <string, CFitCreator*> map that
+// m_mapCreators is a <string, CCalibFitCreator*> map that
 // contains creators for all the fit types we support.
 // 
-CFitFactory::FitCreatorMap CFitFactory::m_mapCreators;
+CCalibFitFactory::FitCreatorMap CCalibFitFactory::m_mapCreators;
 
 // m_mapDefinedFits is a map of all the fits that
 // have been created by this factory and are still
 // in existence.
 
-CFitFactory::FitMap        CFitFactory::m_mapDefinedFits;
+CCalibFitFactory::FitMap        CCalibFitFactory::m_mapDefinedFits;
 
 
 
@@ -44,8 +44,8 @@ Description:
 
 Adds a new fit creator to m_mapFitTypes.  
 Fit creators associate a fit type (e.g. "linear") with
-a creational object (CLinearFit) 
-for fits of that type (e.g. CLinearFit).  This 
+a creational object (CCalibLinearFit) 
+for fits of that type (e.g. CCalibLinearFit).  This 
 mechanism allows the set of fit types to be 
 extensible by both the SpecTcl programming team
 and user application programmers.
@@ -58,7 +58,7 @@ and user application programmers.
 \param sType  (const string& [in])
     The name of the fit type (e.g. "linear").
 
-\param pCreator (CFitCreator* [in]):
+\param pCreator (CCalibFitCreator* [in]):
     Pointer to the fit creational object.
 
 
@@ -67,7 +67,7 @@ and user application programmers.
 
 */
 void 
-CFitFactory::AddFitType(const string & rType, CFitCreator* pCreator)  
+CCalibFitFactory::AddFitType(const string & rType, CCalibFitCreator* pCreator)  
 {
   // Check preconditions
   REQUIRE((FindFitCreator(rType) == endCreators()),
@@ -98,15 +98,15 @@ Parameters:
    The name of the fit to be created e.g. "calibration1"
 
 
-\return CFit*
-\return CFit*
+\return CCalibFit*
+\return CCalibFit*
 \retval NULL    - Indicates the fit could not be created.
                           this is usually because the fit type is illegal.
 \retval !NULL  - Pointer to the created fit.
 
 */
-CFit* 
-CFitFactory::Create(string sFitType, string sFitName)  
+CCalibFit* 
+CCalibFitFactory::Create(string sFitType, string sFitName)  
 {
 
   // Check precondition:
@@ -118,10 +118,10 @@ CFitFactory::Create(string sFitType, string sFitName)
 
   FitCreatorIterator i = FindFitCreator(sFitType);
   if(i == endCreators()) {	// no creator.
-    return (CFit*)NULL;
+    return (CCalibFit*)NULL;
   }
-  CFitCreator* pCreator = i->second;
-  CFit* pFit = (*pCreator)();
+  CCalibFitCreator* pCreator = i->second;
+  CCalibFit* pFit = (*pCreator)();
   CHECK(pFit, "Null Fit created");
 
   m_mapDefinedFits[sFitName] = pFit;
@@ -158,7 +158,7 @@ Parameters:
 
 */
 bool 
-CFitFactory::Delete(string sName)  
+CCalibFitFactory::Delete(string sName)  
 {
 
 
@@ -192,14 +192,14 @@ Parameters:
 
 */
 bool
-CFitFactory::Perform(string sName)  
+CCalibFitFactory::Perform(string sName)  
 { 
   // The fit can only be performed if it can be found:
 
   FitIterator pFitPair = FindFit(sName);
   if(pFitPair != end()) {
     try {
-      CFit* p = pFitPair->second;
+      CCalibFit* p = pFitPair->second;
       CHECK(p, "Null fit pointer");
       p->Perform();
       return true;
@@ -230,16 +230,16 @@ Add some points to the fit data.
 \retval false- fit failed.
 */
 bool
-CFitFactory::AddPoints(string sName,  vector<FPoint> vPoints)
+CCalibFitFactory::AddPoints(string sName,  vector<FPoint> vPoints)
 { 
   // First locate the fit:
 
   FitIterator pFit = FindFit(sName);
 
   if(pFit != end()) {
-    CFit* p    = pFit->second;	// Pointer to the fit.
+    CCalibFit* p    = pFit->second;	// Pointer to the fit.
     CHECK(p, "Null fit pointer");
-    CFit::Point Pt;		// CFit::AddPoint requires one of these.
+    CCalibFit::Point Pt;		// CCalibFit::AddPoint requires one of these.
     for(int i =0; i < vPoints.size(); i++) {
       Pt.x = vPoints[i].X();
       Pt.y = vPoints[i].Y();
@@ -278,7 +278,7 @@ is thrown.
 
 */
 double 
-CFitFactory::Evaluate(string sName, double x)  
+CCalibFitFactory::Evaluate(string sName, double x)  
 {
   // Precondition: the fit must exist:
 
@@ -288,9 +288,9 @@ CFitFactory::Evaluate(string sName, double x)
   
   // Fit state must be "Performed":
 
-  CFit* p = pFit->second;
+  CCalibFit* p = pFit->second;
   CHECK(p, "Null fit pointer");
-  CHECK(p->GetState() == CFit::Performed,
+  CHECK(p->GetState() == CCalibFit::Performed,
 	"Fit not yet performed on this data set");
 
   // Now we can be assured of a good eval:
@@ -304,16 +304,16 @@ CFitFactory::Evaluate(string sName, double x)
   \return FitCreatorIterator
 
  */
-CFitFactory::FitCreatorIterator 
-CFitFactory::beginCreators()
+CCalibFitFactory::FitCreatorIterator 
+CCalibFitFactory::beginCreators()
 {
   return m_mapCreators.begin();
 }
 /*!
   Return an end of iteration iterator to the fit creator map.
 */
-CFitFactory::FitCreatorIterator 
-CFitFactory::endCreators()
+CCalibFitFactory::FitCreatorIterator 
+CCalibFitFactory::endCreators()
 {
   return m_mapCreators.end();
 }
@@ -321,7 +321,7 @@ CFitFactory::endCreators()
   Return the number of fit creators that are defined.
 */
 int    
-CFitFactory::sizeCreators()
+CCalibFitFactory::sizeCreators()
 {
   return m_mapCreators.size();
 }
@@ -342,8 +342,8 @@ Locates the fit creator associated with a specific type.
 
 
 */
-CFitFactory::FitCreatorIterator
-CFitFactory::FindFitCreator(string sType)  
+CCalibFitFactory::FitCreatorIterator
+CCalibFitFactory::FindFitCreator(string sType)  
 {
   // This assumes the fit creators are in a map.
 
@@ -365,7 +365,7 @@ m_mapDefinedFits map.
 
 */
 int 
-CFitFactory::size()  
+CCalibFitFactory::size()  
 {
   return m_mapDefinedFits.size();
 }  
@@ -383,8 +383,8 @@ map.
 \endverbatim
 
 */
-CFitFactory::FitIterator 
-CFitFactory::begin()  
+CCalibFitFactory::FitIterator 
+CCalibFitFactory::begin()  
 { 
   return m_mapDefinedFits.begin();
 }  
@@ -400,8 +400,8 @@ Returns an end of fit iterator to m_mapDefinedFits
 
 
 */
-CFitFactory::FitIterator 
-CFitFactory::end()  
+CCalibFitFactory::FitIterator 
+CCalibFitFactory::end()  
 {
   return m_mapDefinedFits.end();
 }  
@@ -419,12 +419,12 @@ Locate a specific, named fit.
 \return FitIterator
 \retval end() if the named fit does not exist.
 \retval other If the named fit does exist, the iterator will point to the 
-     pair<string, CFit*> of the fit.
+     pair<string, CCalibFit*> of the fit.
 
 
 */
-CFitFactory::FitIterator 
-CFitFactory::FindFit(string sName)  
+CCalibFitFactory::FitIterator 
+CCalibFitFactory::FindFit(string sName)  
 {
   if(m_mapDefinedFits.empty()) {
     return m_mapDefinedFits.end();

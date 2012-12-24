@@ -28,10 +28,10 @@
 
                                //Required for base classes
 #ifndef __CFIT_H     //CFit
-#include "CFit.h"
+#include "./CFit.h"
 #endif
  
-class CLinearFit  : public CFit        
+class CCalibLinearFit  : public CCalibFit        
 {
 private:
   
@@ -47,12 +47,12 @@ public:
     //  and the visibility esp. if you cannot
     // implement assignment/copy construction.
     // safely.
-    CLinearFit ();		 //!< Constructor.
-    virtual  ~ CLinearFit ( );   //!< Destructor.
-    CLinearFit (const CLinearFit& rSource ); //!< Copy construction.
-    CLinearFit& operator= (const CLinearFit& rhs); //!< Assignment.
-    int operator== (const CLinearFit& rhs) const; //!< == comparison.
-    int operator!= (const CLinearFit& rhs) const; //!< != comparison.
+    CCalibLinearFit ();		 //!< Constructor.
+    virtual  ~ CCalibLinearFit ( );   //!< Destructor.
+    CCalibLinearFit (const CCalibLinearFit& rSource ); //!< Copy construction.
+    CCalibLinearFit& operator= (const CCalibLinearFit& rhs); //!< Assignment.
+    int operator== (const CCalibLinearFit& rhs) const; //!< == comparison.
+    int operator!= (const CCalibLinearFit& rhs) const; //!< != comparison.
 
   // class functions.
 
@@ -60,14 +60,14 @@ public:
 
   virtual   void Perform ()   ; 
   virtual   double operator() (double x)   ; 
-  virtual   CFit::FitParameterList GetParameters ()   ; 
+  virtual   CCalibFit::FitParameterList GetParameters ()   ; 
   virtual   STD(string) Type() const {
     return STD(string)("linear");
   }
 
   // Overrides for virtual base class functions:
   
-  virtual CFit* clone();
+  virtual CCalibFit* clone();
 
 
 };

@@ -11,7 +11,7 @@
 
 #include <config.h>
 
-#include "CLinearFit.h"    				
+#include "./CLinearFit.h"    				
 #include <DesignByContract.h>
 
 #include <gsl/gsl_fit.h>
@@ -24,12 +24,12 @@ using namespace DesignByContract;
 
 
 
-// Static attribute storage and initialization for CLinearFit
+// Static attribute storage and initialization for CCalibLinearFit
 
 /*!
-    Create an object of type CLinearFit
+    Create an object of type CCalibLinearFit
 */
-CLinearFit::CLinearFit ()
+CCalibLinearFit::CCalibLinearFit ()
    : m_fSlope(0),
    m_fOffset(0),
    m_fChiSquare(0)
@@ -38,38 +38,38 @@ CLinearFit::CLinearFit ()
 } 
 
 /*!
-    Called to destroy an instance of CLinearFit
+    Called to destroy an instance of CCalibLinearFit
 */
- CLinearFit::~CLinearFit ( )
+ CCalibLinearFit::~CCalibLinearFit ( )
 {
 }
 /*!
-   Called to create an instance of CLinearFit that is a
+   Called to create an instance of CCalibLinearFit that is a
    functional duplicate of another instance.
-   \param rSource (const CLinearFit& ):
+   \param rSource (const CCalibLinearFit& ):
       The object that we will dupliate.
 */
-CLinearFit::CLinearFit (const CLinearFit& aCLinearFit ) 
-  : CFit (aCLinearFit),
-    m_fSlope(aCLinearFit.m_fSlope),
-    m_fOffset(aCLinearFit.m_fOffset),
-    m_fChiSquare(aCLinearFit.m_fChiSquare)
+CCalibLinearFit::CCalibLinearFit (const CCalibLinearFit& aCCalibLinearFit ) 
+  : CCalibFit (aCCalibLinearFit),
+    m_fSlope(aCCalibLinearFit.m_fSlope),
+    m_fOffset(aCCalibLinearFit.m_fOffset),
+    m_fChiSquare(aCCalibLinearFit.m_fChiSquare)
 {
 } 
 /*!
   Assign to *this from rhs so that *this becomes a functional
   duplicate of rhs.
 
-  \param rhs (const CLinearFit& rhs ):
+  \param rhs (const CCalibLinearFit& rhs ):
      The object that will be functionally copied to *this.
-  \return CLinearFit&
+  \return CCalibLinearFit&
   \retval *this
 
  */
-CLinearFit& CLinearFit::operator= (const CLinearFit& rhs)
+CCalibLinearFit& CCalibLinearFit::operator= (const CCalibLinearFit& rhs)
 { 
   if(this != &rhs) {
-    CFit::operator=(rhs);
+    CCalibFit::operator=(rhs);
     m_fSlope     = rhs.m_fSlope;
     m_fOffset    = rhs.m_fOffset;
     m_fChiSquare = rhs.m_fChiSquare;
@@ -79,20 +79,20 @@ CLinearFit& CLinearFit::operator= (const CLinearFit& rhs)
 }
 /*!
   Compare *this for functional equality with another object of
-  type CLinearFit.
-  \param rhs (const CLinearFit& rhs ):
+  type CCalibLinearFit.
+  \param rhs (const CCalibLinearFit& rhs ):
      The object to be compared with *this.
 
  */
 int 
-CLinearFit::operator== (const CLinearFit& rhs) const
+CCalibLinearFit::operator== (const CCalibLinearFit& rhs) const
 {
-  if(!CFit::operator==(rhs)) return false;
+  if(!CCalibFit::operator==(rhs)) return false;
 
   // Note that state equality is presumably a requirement of
-  // CFit::operator==
+  // CCalibFit::operator==
 
-  if(GetState() == CFit::Performed) { // fit params are valid.
+  if(GetState() == CCalibFit::Performed) { // fit params are valid.
     return ((m_fSlope     == rhs.m_fSlope)           &&
 	    (m_fOffset    == rhs.m_fOffset)          &&
 	    (m_fChiSquare == rhs.m_fChiSquare));
@@ -103,18 +103,18 @@ CLinearFit::operator== (const CLinearFit& rhs) const
 }
   /*!
    Compare *this for functional inequality with another object
-   of type CLinearFit.  Functional inequality is defined as
+   of type CCalibLinearFit.  Functional inequality is defined as
    the boolean inverse of functional equality.
-   \param rhs (const CLinearFit& rhs ):
+   \param rhs (const CCalibLinearFit& rhs ):
       The object to compare with *this.
 */
 int
-CLinearFit::operator!= (const CLinearFit& rhs) const
+CCalibLinearFit::operator!= (const CCalibLinearFit& rhs) const
 {
   return !(*this == rhs);
 }
 
-// Functions for class CLinearFit
+// Functions for class CCalibLinearFit
 
 /*! 
 
@@ -141,16 +141,16 @@ Parameters:
 
 */
 void 
-CLinearFit::Perform()  
+CCalibLinearFit::Perform()  
 {
 
   // Check the preconditions..
 
   REQUIRE(size() >= 2, "At least 2 points must have been accepted");
   if(size() ==2) {		// We're not going to check for 3..
-    CFit::PointIterator p = begin();
-    CFit::Point p1  = *p++;	// first point
-    CFit::Point p2  = *p;	// second point
+    CCalibFit::PointIterator p = begin();
+    CCalibFit::Point p1  = *p++;	// first point
+    CCalibFit::Point p2  = *p;	// second point
     REQUIRE(p1.x != p2.x, "2 points are on a vertical line!!");
   }
   // Marshall the points into x/y arrays as required by GSL's fit
@@ -159,9 +159,9 @@ CLinearFit::Perform()
   int    nPoints = size();
   double* x = new double[nPoints];
   double* y = new double[nPoints];
-  CFit::PointIterator p = begin();
+  CCalibFit::PointIterator p = begin();
   for(int i =0; i < nPoints; i++) {
-    CFit::Point point = *p++;
+    CCalibFit::Point point = *p++;
     x[i] = point.x;
     y[i] = point.y;
   }
@@ -175,7 +175,7 @@ CLinearFit::Perform()
 
   // Indicate the fit was done:
 
-  SetFitState(CFit::Performed);
+  SetFitState(CCalibFit::Performed);
   delete []x;
   delete []y;
 }  
@@ -204,11 +204,11 @@ Parameters:
 
 */
 double 
-CLinearFit::operator()(double x)  
+CCalibLinearFit::operator()(double x)  
 {
   // Evaluate the precondition:
 
-  REQUIRE(GetState() == CFit::Performed,
+  REQUIRE(GetState() == CCalibFit::Performed,
 	  "Fit not yet performed");
   return (m_fSlope*x) + m_fOffset;
 }  
@@ -221,7 +221,7 @@ Returns the current fit parameters.  The parameters
 are returned in a FitParameterList.  A FitParameterList
 is an STL container of Pair<string, double> where string
 is a description of the parameter and double is the value. 
-The strings CLinearFit produces are:
+The strings CCalibLinearFit produces are:
 - slope   - slope of the line.
 - offset   - Intercept of the line with the Y axis.
 - chisquare - The chi square goodness of the fit.
@@ -238,29 +238,29 @@ Parameters:
 
 
 */
-CFit::FitParameterList 
-CLinearFit::GetParameters()  
+CCalibFit::FitParameterList 
+CCalibLinearFit::GetParameters()  
 { 
-  REQUIRE(GetState() == CFit::Performed,
+  REQUIRE(GetState() == CCalibFit::Performed,
 	  "Fit not yet performed!");
 
 
-  CFit::FitParameterList aParameters;
+  CCalibFit::FitParameterList aParameters;
 
-  aParameters.push_back(CFit::FitParameter("slope"    , m_fSlope));
-  aParameters.push_back(CFit::FitParameter("offset"   , m_fOffset));
-  aParameters.push_back(CFit::FitParameter("chisquare", m_fChiSquare));
+  aParameters.push_back(CCalibFit::FitParameter("slope"    , m_fSlope));
+  aParameters.push_back(CCalibFit::FitParameter("offset"   , m_fOffset));
+  aParameters.push_back(CCalibFit::FitParameter("chisquare", m_fChiSquare));
 
   return aParameters;
 }
 /*!
    Clone ourselves.  Clone provides polymorphic copy construction.
-   \return CFit*
+   \return CCalibFit*
    \retval A pointer to an exact duplicate of this dynamically allocated.
    
  */
- CFit*
- CLinearFit::clone()
+ CCalibFit*
+ CCalibLinearFit::clone()
  {
- 	return new CLinearFit(*this);
+ 	return new CCalibLinearFit(*this);
  }
