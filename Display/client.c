@@ -349,11 +349,11 @@ PrintOffsets()
 {
   Xamine_shared *pShape = 0;
   printf("(client) offsets into shared mem: \n");
-  printf("  dsp_xy      = %x\n", pShape->dsp_xy);
-  printf("  dsp_titles  = %x\n", pShape->dsp_titles);
-  printf("  dsp_types   = %x\n", pShape->dsp_types);
-  printf("  dsp_map     = %x\n", pShape->dsp_map);
-  printf("  dsp_spectra = %x\n", &(pShape->dsp_spectra));
+  printf("  dsp_xy      = %lx\n", (unsigned long)pShape->dsp_xy);
+  printf("  dsp_titles  = %lx\n", (unsigned long)pShape->dsp_titles);
+  printf("  dsp_types   = %lx\n", (unsigned long)pShape->dsp_types);
+  printf("  dsp_map     = %lx\n", (unsigned long)pShape->dsp_map);
+  printf("  dsp_spectra = %lx\n", (unsigned long)&(pShape->dsp_spectra));
   printf("  Total size  = %d\n", sizeof(Xamine_shared));
 
 }
