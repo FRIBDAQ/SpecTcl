@@ -17,10 +17,6 @@ AC_OBJEXT
 
 SOVERSION="3:2"
 #
-#  This symbol describes where the bundled Gri graphics package lives.
-#  Gri is used to help Xamine do printing.
-#
-MYGRIDIR="gri-2.12.20"
 
 # Checks for programs.
 
@@ -744,13 +740,6 @@ if test $gri_found = "no" ; then
 	[gri_dir="/usr/local/bin";
 	gri_found="yes"])
 fi
-  # Installed with SpecTcl:
-
-if test $gri_found = "no" ; then
-   AC_CHECK_FILE([$prefix/share/gri],
-	         [gri_dir=$prefix/bin;
-	         gri_found="yes"])
-fi
 
   # I give up at this point, if necessary the Gri packaged with SpecTcl is
   # configured here and built.
@@ -759,28 +748,8 @@ if test $gri_found = "yes" ; then
    mygri="no"
    GRI=""
 else
-   #
-   #  Configure GRI and build it into SpecTcl's directories:
-   AC_MSG_NOTICE([Cannot find GRI so I'll build my copy of it])
-   #
-
-   # this so CXX etc. propagates at the risk we wind up stranded
-   # in the Gri directory on failure or ^C
-   #
-	
-   (cd ${MYGRIDIR}; \
-    rm -f Makefile; \
-    ./configure --prefix=$prefix                      ; \
-    make                                            ;\
-    make install			           ;\
-   )
-   AC_MSG_NOTICE([Now that GRI is build I know where I put stuff])
-   
-   gri_dir=$prefix/bin
-   mygri="yes"
-   gri_found="yes"
-   GRI=""
-
+   AC_MSG_WARNING([Can't find installed gri. If it's installed use --with-gri-dir to tell me where it is
+Without gri, you will not be able to generate printed/postscript spectra])
 fi
 
 
