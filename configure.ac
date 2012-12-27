@@ -748,7 +748,7 @@ if test $gri_found = "yes" ; then
    mygri="no"
    GRI=""
 else
-   AC_MSG_WARNING([Can't find installed gri. If it's installed use --with-gri-dir to tell me where it is
+   AC_MSG_WARN([Can't find installed gri. If it's installed use --with-gri-dir to tell me where it is
 Without gri, you will not be able to generate printed/postscript spectra])
 fi
 
