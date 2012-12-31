@@ -60,6 +60,13 @@
 #endif				
 #endif
 
+#ifndef __CRT_STDINT_H
+#include <stdint.h>
+#ifndef __CRT_STDINT_H
+#define __CRT_STDINT_H
+#endif
+#endif
+
 #ifndef PAGESIZE		/* Still didn't find a pagesize... */
 #define PAGESIZE 8192
 #endif
@@ -82,9 +89,9 @@
 
 /* #pragma pack(1) */
 typedef union {
-                unsigned char  XAMINE_b[XAMINE_SPECBYTES];
-		unsigned short XAMINE_w[XAMINE_WORDS];
-		unsigned int  XAMINE_l[XAMINE_LONGS];
+                uint8_t   XAMINE_b[XAMINE_SPECBYTES];
+		uint16_t  XAMINE_w[XAMINE_WORDS];
+		uint32_t  XAMINE_l[XAMINE_LONGS];
 	      } spec_spectra; /* Spectrum storage type. */
 
 

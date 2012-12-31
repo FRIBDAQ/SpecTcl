@@ -1,7 +1,7 @@
 bin_PROGRAMS = Xamine colorset
 
 HOMEDEF = -DHOME='"$(prefix)"'
-GRIFLAGS = -DGRI_DIR='"@gri_dir@"' -DGRI_CMD_DIR='"@gri_cmd_dir@"'
+GRIFLAGS = -DGRI_DIR='"@gri_dir@"' -DGRI_CMD_DIR='"@gri_dir@"'
 LEXOUT = lex.yy.c
 MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
