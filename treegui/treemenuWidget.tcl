@@ -99,7 +99,7 @@ snit::widgetadaptor treeMenu {
 	# this is handled correctly (by having a terminal and a cascade node with the same labels.
 	#
 
-	# Step 1 - create an array whose indices are the set of meny items we must have at this
+	# Step 1 - create an array whose indices are the set of menu items we must have at this
 	#          level and whose elements are the entries at and below this node.
 	#
 
