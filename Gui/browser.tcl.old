@@ -1,4 +1,4 @@
-
+L
 #    This software is Copyright by the Board of Trustees of Michigan
 #    State University (c) Copyright 2005.
 #
@@ -115,7 +115,7 @@ image create photo ::browser::pseudoicon   -format gif \
     option -variablerightclick     {}
     option -gaterightclick        {}
 
-    option -restrict   {spectra parameters gates variables}
+    option -restrict   -default [list spectra parameters gates variables]
     option -detail     1
     option -showcolumns {type gate low high bins value units}
     option -filtergates {}
@@ -334,7 +334,7 @@ image create photo ::browser::pseudoicon   -format gif \
 	    set parentPath [split $name .]
 	    set parentPath [lrange $parentPath 0 end-1]
 	    set parentPath [join $parentPath .]
-	    if {[array names parentPaths $parentPath)] eq "" } {
+	    if {[array names parentPaths $parentPath] eq "" } {
 		$self makeParents $name
 	    }
 

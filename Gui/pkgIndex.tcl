@@ -10,7 +10,7 @@
 
 package ifneeded SpecTclGui 1.0 [list source [file join $dir folderGui.tcl]]
 package ifneeded applygate 1.0 [list source [file join $dir applygate.tcl]]
-package ifneeded browser 1.0 [list source [file join $dir browser.tcl]]
+package ifneeded browser 2.0 [list source [file join $dir ttkbrowser.tcl]]
 package ifneeded c2band 1.0 [list source [file join $dir c2band.tcl]]
 package ifneeded compoundgate 1.0 [list source [file join $dir compoundgate.tcl]]
 package ifneeded datasource 1.0 [list source [file join $dir datasource.tcl]]
