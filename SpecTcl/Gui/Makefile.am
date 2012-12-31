@@ -7,7 +7,7 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(srcdir)/*.tcl   $(SCRIPTDEST)
 	$(INSTALL_DATA)    $(srcdir)/*.html  $(HELPDEST)
 	$(INSTALL_DATA)    $(srcdir)/*.gif   $(ICONDEST)
-
+	$(INSTALL_DATA)    $(srcdir)/*.png   $(ICONDEST)
 
 EXTRA_DIST = 2dGate.html \
 folderGui.tcl \
@@ -27,7 +27,7 @@ applyThisGateOnSpectra.html \
 applygate.tcl \
 attachPipe.html \
 axisicon.gif \
-browser.tcl \
+ttkbrowser.tcl \
 c2band.tcl \
 compoundGate.html \
 compoundgate.tcl \
@@ -94,4 +94,5 @@ prefs.tcl \
 editGammaDeluxe.tcl \
 editGammaDeluxehelp.html \
 editgsummary.tcl    \
-gammasummary.html
+gammasummary.html \
+folder.png

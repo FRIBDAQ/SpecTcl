@@ -4,7 +4,7 @@ AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 3.3-012)
+AM_INIT_AUTOMAKE(SpecTcl, 3.3-013)
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_EXEEXT
@@ -15,12 +15,8 @@ AC_OBJEXT
 #  define the version information in shared
 #  images.
 
-SOVERSION="3:2"
+SOVERSION="3:3"
 #
-#  This symbol describes where the bundled Gri graphics package lives.
-#  Gri is used to help Xamine do printing.
-#
-MYGRIDIR="gri-2.12.20"
 
 # Checks for programs.
 
@@ -119,6 +115,8 @@ AC_LANG_POP(C++)
 # Locate the X11 header files and the X11 library archive. Try the
 # ac_path_x macro first, but if it doesn't find the X stuff then check
 # a list of possible directories.
+#  Assume that if the stuff is in the 'normal places' it doesn't need any
+#  -rpath-ing.
 
 AC_PATH_X
 AC_PATH_XTRA
@@ -173,7 +171,7 @@ fi
 #      /sw/include             (Darwin lesstif).
 #      /usr/local/include      (default lesstif installation).
 #
-
+#
 #  If in /usr/include we don't need anything:
 
 
@@ -218,12 +216,16 @@ fi
 #   /usr/lib                 (e.g. OSF1).
 #   /sw/lib                  (Darwin lesstif installation).
 #   /usr/local/lesstif/lib   (normal lesstif install wo links?).
+#
+#  In this case assume we need an -rpath unless the extension is .dylib in which case 
+#  it's OS-X which doesn't require that sort of frippery.
 #   
 
 libexts=".so .dylib .a"        # prefer shared libs to static.
 motiflibdirs="/usr/X11/lib /usr/X11R6/lib  /sw/lib /usr/local/lesstif/lib /usr/lib"
 motif_libdir=""
 motif_lib_found="no"
+Motif_Rpath=""
 
 AC_MSG_CHECKING([for libXm])
 AC_ARG_WITH(motif-lib,
@@ -234,35 +236,49 @@ AC_ARG_WITH(motif-lib,
 
 #  If necessary, try in $x_libraries:
 
+
 for ext in $libexts
 do
-   if test $motif_lib_found = "no"
-   then
-      if "$x_libraries" != ""
-      then
+     if test "$x_libraries" != ""
+     then
          AC_CHECK_FILE([$x_libraries/libXm${ext}],
-x	               [motif_lib_found="yes"])
+	               [motif_lib_found="yes"])
       else
 	AC_CHECK_FILE([/usr/lib/libXm${ext}],
 	               [motif_lib_found="yes"])
-      fi
+      fi	       
+
+     # If found break from the loop:
+
+   if test $motif_lib_found = "yes"
+   then
+      break
    fi
 done
 
 #  If necessary  try in the list of good directories:
+#  Note that .so's require -rpath.
 
+if test $motif_lib_found = "no"
+then
 for lib in $motiflibdirs
 do
   for ext in $libexts
   do
-     if test $motif_lib_found = "no"
-     then
 	AC_CHECK_FILE([$lib/libXm${ext}],
 	             [motif_lib_found="yes"
 	              motif_libdir="$lib"])
+     if test $motif_lib_found = "yes"
+     then
+        if test $ext = ".so"
+        then
+           Motif_Rpath="-Wl,\"-rpath=$lib\""
+        fi
+        break
      fi
   done
 done
+fi
 
 #  If found  set MOTIF_LIBSW accordingly.  Note this will be
 #  empty if found in with the x libraries.
@@ -275,7 +291,7 @@ then
 	AC_MSG_RESULT([Found libXm in $x_libraries])
     else
         AC_MSG_RESULT([Found libXm in $motif_libdir])
-	MOTIF_LIBSW="-L$motif_libdir"
+	MOTIF_LIBSW="-L$motif_libdir $Motif_Rpath"
     fi
 else
    AC_MSG_ERROR([Can't fine libXm give me a hand with --with-motif-lib])
@@ -568,6 +584,7 @@ fi
 #                                    searched first.
 # ASSUMPTIONS:  libtcl and libtk will have the same naming conventions.
 #
+#  If the extension ofthe library is .so, always put in an -rpath directive.
 
 tcl_libsearchpath=""
 tcl_libfound="no"
@@ -594,21 +611,32 @@ do
   for file in ${tcl_libfiles}
   do
     fname=$dir/$file
-    if test $tcl_libfound = "no" 
-    then
       AC_CHECK_FILE($fname,
 	[tcl_libdir=$dir
          tcl_libname=$file
 	 tcl_libfound="yes"
 	])
+    if test $tcl_libfound = "yes" 
+    then
+      break
     fi
   done
 done
 
 if test $tcl_libfound = "yes" ; then
-  # Find the lib basename:
+  #
+  #  We need an -rpath if the library is a .so:
 
-  
+  base=$(basename "$tcl_libname")
+  ext="${base##*.}"
+  Tcl_Rpath=""
+
+  if test $ext = "so"
+  then
+    Tcl_Rpath="-Wl,\"-rpath=${tcl_libdir}\""
+  fi
+
+  # Find the lib basename
 
   tcl_libname=$(echo $tcl_libname|cut -c 4- )  # trim off lib 
   
@@ -620,7 +648,9 @@ if test $tcl_libfound = "yes" ; then
   # just replace the tcl with tk.
 
   tk_libname=tk$(echo $tcl_libname|cut -c 4-)   # trim off tc...and use tk
-  TCL_LDFLAGS="-L${tcl_libdir} -l${tk_libname} -l${tcl_libname}"
+
+
+  TCL_LDFLAGS="-L${tcl_libdir} -l${tk_libname} -l${tcl_libname} ${Tcl_Rpath}"
   AC_MSG_RESULT([Using directory $tcl_libdir])
   
 else
@@ -694,6 +724,13 @@ then
    if test -e $gdlibdir/libgd.a
    then
 	GDLDSW="-L$gdlibdir -lgd"
+        
+        # if there's an .so then we'll ned an -rpath:
+
+        if test -e $gdlibdir/libgd.so
+        then
+	   GDLDSW="${GDLDSW} -Wl,\"-rpath=${gdlibdir}\""
+        fi
    else
 	AC_MSG_ERROR([ User provided --with-gd-libdir=$gdlibdir does not contain libgd.a])
    fi
@@ -744,13 +781,6 @@ if test $gri_found = "no" ; then
 	[gri_dir="/usr/local/bin";
 	gri_found="yes"])
 fi
-  # Installed with SpecTcl:
-
-if test $gri_found = "no" ; then
-   AC_CHECK_FILE([$prefix/share/gri],
-	         [gri_dir=$prefix/bin;
-	         gri_found="yes"])
-fi
 
   # I give up at this point, if necessary the Gri packaged with SpecTcl is
   # configured here and built.
@@ -759,28 +789,8 @@ if test $gri_found = "yes" ; then
    mygri="no"
    GRI=""
 else
-   #
-   #  Configure GRI and build it into SpecTcl's directories:
-   AC_MSG_NOTICE([Cannot find GRI so I'll build my copy of it])
-   #
-
-   # this so CXX etc. propagates at the risk we wind up stranded
-   # in the Gri directory on failure or ^C
-   #
-	
-   (cd ${MYGRIDIR}; \
-    rm -f Makefile; \
-    ./configure --prefix=$prefix                      ; \
-    make                                            ;\
-    make install			           ;\
-   )
-   AC_MSG_NOTICE([Now that GRI is build I know where I put stuff])
-   
-   gri_dir=$prefix/bin
-   mygri="yes"
-   gri_found="yes"
-   GRI=""
-
+   AC_MSG_WARN([Can't find installed gri. If it's installed use --with-gri-dir to tell me where it is
+Without gri, you will not be able to generate printed/postscript spectra])
 fi
 
 
