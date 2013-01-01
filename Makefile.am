@@ -21,7 +21,7 @@ AUX_DIST = $(ac_aux_dir)/config.guess \
 EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl \
 	bootstrap $(MYGRIDIR) LICENSE  \
 	 doc build.cygwin Directories.include CompilationRules.include \
-	CHANGELOG
+	CHANGELOG gri-2.12.20
 
 dist-hook:
 	mkdir -p $(distdir)/config
