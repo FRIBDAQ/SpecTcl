@@ -1,0 +1,163 @@
+Geometry 4,8
+# /scratch/fox/SpecTcl/nsclspectcl/trunk/VMUSBSpecTcl/test.win Written by @(#)dispwind.cc	2.2 1/28/94  at Fri Jul  3 09:14:26 2009
+
+Window  0,0,"ADC.00"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  1,0,"ADC.01"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  2,0,"ADC.02"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  3,0,"ADC.03"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  0,1,"ADC.04"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  1,1,"ADC.05"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  2,1,"ADC.06"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  3,1,"ADC.07"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  0,2,"ADC.08"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  1,2,"ADC.09"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  2,2,"ADC.10"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  3,2,"ADC.11"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  0,3,"ADC.12"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  1,3,"ADC.13"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  2,3,"ADC.14"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  3,3,"ADC.15"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  0,4,"ADC.16"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  1,4,"ADC.17"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  2,4,"ADC.18"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  3,4,"ADC.19"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  0,5,"ADC.20"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  1,5,"ADC.21"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  2,5,"ADC.22"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  3,5,"ADC.23"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  0,6,"ADC.24"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  1,6,"ADC.25"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  2,6,"ADC.26"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  3,6,"ADC.27"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  0,7,"ADC.28"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  1,7,"ADC.29"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  2,7,"ADC.30"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
+Window  3,7,"ADC.31"
+  LABEL PEAK
+   SCALE  AUTO
+   MAPPED 1
+Endwindow
