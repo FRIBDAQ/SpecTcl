@@ -1005,3 +1005,7 @@ November 30-?? 2011
         - Fixed various compile warnings in anticipation of compiler versions
           that will treat these as errors (finally solved the callbacks
           as data in Xt casting problem).
+3.3-015
+        * Fix error in griprint.cc - buffer overflow for printing spectra with
+          numbers above 99.  Thanks to Dave Caussyn at FSU for finding this one.
+          

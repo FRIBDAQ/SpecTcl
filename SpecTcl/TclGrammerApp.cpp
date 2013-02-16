@@ -687,9 +687,10 @@ int CTclGrammerApp::operator()() {
   cerr << "    - Kevin Carnes James R. Macdonald Laboratory Kansas State University\n";
   cerr << "      for many good functionality suggestions and for catching some of my stupidities\n";
   cerr << "    - Dirk Weisshaar NSCL for many suggestions for performance and functional improvements\n";
+  cerr << "    - Dave Caussyn at Florida State University for comments and defect fixes\n";
   cerr << " If your name should be on this list and is not, my apologies, please contact\n";
-  cerr << "   fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
-  cerr << "   the list of credits.\n";
+  cerr << " fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
+  cerr << " the list of credits.\n";
 
   // Finally run the version script:
 
