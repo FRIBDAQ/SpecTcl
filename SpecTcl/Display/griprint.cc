@@ -2068,8 +2068,8 @@ Xamine_GetSpectrumTitle(int r, int c)
 
   // Add spectrum number...
   if(pAttributed->shownum()) {
-    char szBuf[6];
-    sprintf(szBuf, "[%d] ", nSpectrum);
+    char szBuf[1024];                       // Don't ever let it overflow.
+    snprintf(szBuf, sizeof(szBuf), "[%d] ", nSpectrum);
     Title += szBuf;
   }
   // Add spectrum name...
