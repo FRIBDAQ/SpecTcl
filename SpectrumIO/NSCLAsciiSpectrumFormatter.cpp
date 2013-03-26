@@ -411,10 +411,10 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
     Delimeter = '(';
     for (UInt_t i = 0; i < Parameters.size(); i++) {
       FindById p(Parameters[i]);
-      ParameterDictionaryIterator i = rDict.FindMatch(p);
+      ParameterDictionaryIterator pD = rDict.FindMatch(p);
       string name;
-      if (i != rDict.end()) {
-	name =  i->second.getName();
+      if (pD != rDict.end()) {
+	name =  pD->second.getName();
       }
       else {
 	name = "*UNKNOWN*";
@@ -427,10 +427,10 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
     for (UInt_t i = 0; i < spectrumDef.vyParameters.size(); i++) {
       UInt_t   pnum = spectrumDef.vyParameters[i];
       FindById p(pnum);
-      ParameterDictionaryIterator i = rDict.FindMatch(p);
+      ParameterDictionaryIterator pD = rDict.FindMatch(p);
       string name;
-      if (i != rDict.end()) {
-	name =  i->second.getName();
+      if (pD != rDict.end()) {
+	name =  pD->second.getName();
       }
       else {
 	name = "*UNKNOWN*";
@@ -445,9 +445,9 @@ CNSCLAsciiSpectrumFormatter::Write(ostream& rStream, CSpectrum& rSpectrum,
     for(UInt_t i = 0; i < Parameters.size(); i++) {
       UInt_t pnum = Parameters[i];
       FindById p(pnum);
-      ParameterDictionaryIterator i = rDict.FindMatch(p);
-      if(i != rDict.end()) {
-	rStream << Delimeter << Quote << (*i).second.getName() << Quote;
+      ParameterDictionaryIterator pD = rDict.FindMatch(p);
+      if(pD != rDict.end()) {
+	rStream << Delimeter << Quote << (*pD).second.getName() << Quote;
       }
       else {
 	rStream << Delimeter << (pnum == UINT_MAX ? Quote+Quote : "*UNKNOWN*");

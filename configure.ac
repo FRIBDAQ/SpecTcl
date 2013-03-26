@@ -175,6 +175,7 @@ fi
 #  If in /usr/include we don't need anything:
 
 
+
 if test $motif_h_found = no
 then
    motif_header_dirs="/usr/include/X11 /usr/include/X11R6 /usr/X11/include /usr/X11R6/include /usr/include /sw/include /usr/local/include"
@@ -216,13 +217,35 @@ fi
 #   /usr/lib                 (e.g. OSF1).
 #   /sw/lib                  (Darwin lesstif installation).
 #   /usr/local/lesstif/lib   (normal lesstif install wo links?).
+#      Architecture specific place in linux.
 #
 #  In this case assume we need an -rpath unless the extension is .dylib in which case 
 #  it's OS-X which doesn't require that sort of frippery.
-#   
+#
+libsysdir=""
+if test "$host_os" == "linux-gnu"
+then
+   kernel_full_version="$(uname -r)"
+   kernel_version="$(echo $kernel_full_version | cut -f1,2 -d.)"
+   AC_MSG_RESULT([Building on $host_os kernel $kernel_version])  
+
+   arch="$(uname -m)"
+   case $arch in
+       i[[3456]]86)
+           libsysdir="/usr/lib/i386-linux-gnu"
+           ;;
+       x86_64)
+           libsysdir="/usr/lib/x86_64-linux-gnu"
+           ;;
+       *)
+
+           ;;
+   esac
+fi
+   
 
 libexts=".so .dylib .a"        # prefer shared libs to static.
-motiflibdirs="/usr/X11/lib /usr/X11R6/lib  /sw/lib /usr/local/lesstif/lib /usr/lib"
+motiflibdirs="/usr/X11/lib /usr/X11R6/lib  /sw/lib /usr/local/lesstif/lib /usr/lib $libsysdir"
 motif_libdir=""
 motif_lib_found="no"
 Motif_Rpath=""
