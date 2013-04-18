@@ -165,15 +165,15 @@ class CAnalyzer {
     return m_nParametersInEvent;
   }
 
-  const CEventList& getEventList() const {
+  CEventList& getEventList()  {
     return m_EventList;
   }
 
-  const CBufferDecoder* getDecoder() const {
+ CBufferDecoder* getDecoder() {
     return m_pDecoder;
   }
 
-  const CEventSink* getSink() const {
+  CEventSink* getSink() {
     return m_pSink;
   }
 

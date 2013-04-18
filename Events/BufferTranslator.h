@@ -30,6 +30,13 @@
 #include <histotypes.h>
 #endif
 
+#ifndef __STDC_STDINT_H
+#include <stdint.h>
+#ifndef __STDC_STDINT_H
+#define __STDC_STDINT_H
+#endif
+#endif
+
 #include <Iostream.h>
 
 /*-----------------------------------------------------------------------------
@@ -64,6 +71,7 @@ public:
 
     return answer;
   }
+  virtual uint64_t getQuad(uint64_t value) = 0;
 };
 
 /*-----------------------------------------------------------------------------
@@ -80,7 +88,7 @@ class SwappingBufferTranslator: public BufferTranslator
 
   // Accessor functions
   virtual void GetBlock( const Address_t, int, int );
-
+  virtual uint64_t getQuad(uint64_t value);
 };
 
 /*-----------------------------------------------------------------------------
@@ -97,7 +105,7 @@ class NonSwappingBufferTranslator: public BufferTranslator
 
   // Accessor functions
   virtual void GetBlock( const Address_t, int, int );
-
+  virtual uint64_t getQuad(uint64_t value);
 };
 
 /*-----------------------------------------------------------------------------

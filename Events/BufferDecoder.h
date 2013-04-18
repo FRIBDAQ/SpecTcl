@@ -137,6 +137,12 @@ public:
   virtual void OnAttach(CAnalyzer& rAnalyzer);
   virtual void OnDetach(CAnalyzer& rAnalyzer);
   virtual bool blockMode();	// True if data source must deliver fixed sized blocks.
+  
+  // Data source events:
+  
+  virtual void OnSourceAttach();
+  virtual void OnSourceDetach();
+  virtual void OnEndFile();
 
   // Utilities available to derived classes:
  protected:

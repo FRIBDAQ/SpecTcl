@@ -37,7 +37,8 @@
 #endif
 
 class BufferTranslator;
-
+class CRingFormatHelper;
+class CRingFormatHelperFactory;
 /*!
    This class defines a buffer decoder that knows how to take data from
    the NSCL DAQ Ring buffer distribution system.  This includes event
@@ -76,8 +77,13 @@ private:
   uint32_t*    m_pGluedBuffer;  // Buffer glued together from last and current buffer.
   uint32_t     m_nGlueSize;     // # bytes in the glued buffer when first made.
 
-  CAnalyzer*   m_pAnalyzer;
+  CAnalyzer*         m_pAnalyzer;       // Pointer to the associated analyzer.
+  CRingFormatHelper* m_pCurrentHelper;  // Pointer to the current format helper.
+  CRingFormatHelper* m_pDefaultHelper;  // Pointer to a default format helper.
+  CRingFormatHelper* m_pFallbackHelper;  // 'hard coded' format helper.
+  void*              m_pCurrentRingItem; // Item the access methods work on.
 
+  CRingFormatHelperFactory* m_pFactory;
 
   // Canonical operations:
 
@@ -109,7 +115,25 @@ public:
   virtual BufferTranslator* getBufferTranslator();
 
   virtual bool blockMode();	// True if data source must deliver fixed sized blocks.
+  
+  // Format helpers and stuff that gets you at what they know.
+  
 
+  bool  hasBodyHeader();
+  void* getBodyHeaderPointer();
+  void* getItemPointer();
+
+  void  setFormatHelper(CRingFormatHelper* pHelper);
+  void  setDefaultFormatHelper(CRingFormatHelper* pHelper);
+  CRingFormatHelper* getCurrentFormatHelper();
+  CRingFormatHelper* getDefaultFormatHelper();
+  
+  // Members called that can invalidate the format helper:
+  
+  virtual void OnSourceAttach();
+  virtual void OnSourceDetach();
+  virtual void OnEndFile();
+  
 
 
 private:
@@ -119,6 +143,8 @@ private:
   void dispatchEvent(void* pEvent);
   UInt_t mapType(UInt_t type);
   void createPartialEvent();
+  CRingFormatHelper* getFormatHelper();
+  void invalidateCurrentHelper();
 };
 
 

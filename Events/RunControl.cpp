@@ -34,7 +34,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2006, Al
 // Header Files:
 
 #include <config.h>
-#include "RunControl.h"                               
+#include "RunControl.h"
+#include "Analyzer.h"
+#include "BufferDecoder.h"
+#include <SpecTcl.h>
 #include <assert.h>
 
 #ifdef HAVE_STD_NAMESPACE
@@ -92,8 +95,20 @@ CFile* CRunControl::Attach(CFile* pNewFile) {
   // Returns:
   //    CFile* Pointer to the previous event source file.
   //
+  
+  /*
+   * We need to let the current buffer decoder know about this.
+   * OnSourceDetach happens prior disconnecting and OnSourceAttach
+   * after connection is complete:
+   */
+  
+  CBufferDecoder* pDecoder = SpecTcl::getInstance()->GetAnalyzer()->getDecoder();
+  if (pDecoder) pDecoder->OnSourceDetach();
+  
   CFile* pPrior = m_pEventSource;
   m_pEventSource= pNewFile;
+  
+  if (pDecoder) pDecoder->OnSourceAttach();
   return pPrior;
 }
 

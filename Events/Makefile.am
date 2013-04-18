@@ -3,6 +3,11 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/Utility \
 	-I@top_srcdir@/NSCLException -I@top_srcdir@/EventSource \
 	-I@top_srcdir@/TCL \
 	-I@top_srcdir@/SpecTcl  -I@top_srcdir@/Filter \
+        -I@top_srcdir@/Xamine \
+        -I@top_srcdir@/Sorter \
+        -I@top_srcdir@/factories \
+        -I@top_srcdir@/Display    \
+        -I@top_srcdir@/Gates \
 	@TCL_FLAGS@ @XINCLUDES@ 
 LDADD = @TCL_LDFLAGS@
 # AM_LDFLAGS = @TCL_LDFLAGS@
