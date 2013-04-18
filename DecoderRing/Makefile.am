@@ -1,6 +1,6 @@
 lib_LTLIBRARIES	= libDecoderRing.la
 
-libDecoderRing_la_SOURCES	=	CRingBufferDecoder.cpp RingFormatHelper.cpp RingFormatHelper10.cpp
+libDecoderRing_la_SOURCES	=	CRingBufferDecoder.cpp RingFormatHelper.cpp RingFormatHelper10.cpp \
 					RingFormatHelper11.cpp RingFormatHelperFactory.cpp \
                                         RingFormatHelperCreator.cpp RingFormatHelper10Creator.cpp \
                                         RingFormatHelper11Creator.cpp

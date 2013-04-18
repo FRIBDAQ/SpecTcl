@@ -46,9 +46,9 @@ CRingFormatHelperFactory::CRingFormatHelperFactory(
     const CRingFormatHelperFactory& rhs
 )
 {
-    CreatorMap::iterator p = rhs.m_Creators.begin();
+    CreatorMap::const_iterator p = rhs.m_Creators.begin();
     while(p != rhs.m_Creators.end()) {
-        m_Creators[p->first]  = p->second.clone();
+        m_Creators[p->first]  = p->second->clone();
         p++;
     }
 }
@@ -86,7 +86,7 @@ CRingFormatHelperFactory::create(uint32_t major, uint32_t minor)
 {
     CreatorMap::iterator p = m_Creators.find(MajorMinorVersion(major, minor));
     if (p == m_Creators.end()) {
-        return reinterpret_cast<CRingFormatHelper*>(0)
+        return reinterpret_cast<CRingFormatHelper*>(0);
     } else {
         return p->second->create();
     }
@@ -101,11 +101,12 @@ CRingFormatHelperFactory::create(uint32_t major, uint32_t minor)
  *
  */
 CRingFormatHelper*
-CRingHelperFactory::create(void* pItem)
+CRingFormatHelperFactory::create(void* pItem)
 {
     pDataFormat p = reinterpret_cast<pDataFormat>(pItem);
     
     // TODO: Figure out what to do if p->s_header.s_type is not RING_FORMAT
+    // TODO: Need to use a translator here because these may need swapping!
     
     return create(p->s_majorVersion, p->s_minorVersion);
 }
@@ -121,7 +122,7 @@ CRingHelperFactory::create(void* pItem)
  */
 void
 CRingFormatHelperFactory::addCreator(
-    uint32_t major, uint32_t minor, CRingFormatHelperCreator& creator
+    uint32_t major, uint32_t minor, const CRingFormatHelperCreator& creator
 )
 {
     removeCreator(major, minor);   // In case this is a replacement.

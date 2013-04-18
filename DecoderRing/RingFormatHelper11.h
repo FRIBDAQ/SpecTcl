@@ -43,24 +43,24 @@ public:
     
     // Methods specific to state transitions:
     
-    virtual std::string getTitle(void* pItem) = 0;
+    virtual std::string getTitle(void* pItem);
     virtual unsigned    getRunNumber(
-        void* pItem, BufferTranslator* pTranslator) = 0;
+        void* pItem, BufferTranslator* pTranslator);
     
     // Methods specific to string lists:
     
     virtual unsigned getStringCount(
-        void* pItem, BufferTranslator* pTranslator) = 0;
+        void* pItem, BufferTranslator* pTranslator);
     
     // Methods specific to scaler items:
     
     virtual unsigned getScalerCount(
-        void*  pItem, BufferTranslator* pTranslator) = 0;
+        void*  pItem, BufferTranslator* pTranslator);
     
     // Methods specific to trigger count items
     
     virtual uint64_t getTriggerCount(
-        void* pItem, BufferTranslator* pTranslator) = 0;
+        void* pItem, BufferTranslator* pTranslator);
 private:
     bool isStateTransition(void* pItem);
     bool isTextItem(void* pItem);

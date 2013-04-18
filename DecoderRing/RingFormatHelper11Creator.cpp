@@ -41,7 +41,7 @@ CRingFormatHelper11Creator::clone() const
  *
  * @return CRingFormatHelper11*
  */
-CRingFormatHelper11*
+CRingFormatHelper*
 CRingFormatHelper11Creator::create()
 {
     return new CRingFormatHelper11;

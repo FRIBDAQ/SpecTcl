@@ -19,6 +19,7 @@
  * @brief mostly placeholder in case common base class functionality ever
  *        gets added.
  */
+#include "RingFormatHelperCreator.h"
 
 /**
  *  Copy constructor

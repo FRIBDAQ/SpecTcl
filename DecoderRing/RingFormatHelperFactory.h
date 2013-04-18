@@ -68,11 +68,11 @@ private:
     public:
         MajorMinorVersion(uint32_t major, uint32_t minor) :
             m_major(major), m_minor(minor) {}
-        int operator<(const MajorMinorVersion& rhs) {
+        int operator<( const MajorMinorVersion& rhs) const {
             if (m_major < rhs.m_major) return 1;
             return(m_minor < rhs.m_minor);
         }
-        int operator==(const MajorMinorVersion& rhs) {
+        int operator==(const MajorMinorVersion& rhs) const {
             return (m_major == rhs.m_major) && (m_minor == rhs.m_minor);
         }
     };

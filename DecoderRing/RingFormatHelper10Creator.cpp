@@ -25,7 +25,7 @@
 /**
  * Copy constructor -- placeholder for now
  */
-CRingFormatHelper10Creator::CRingFormatHelper10Creator(constructorCRingFormatHelper10Creator& rhs)
+CRingFormatHelper10Creator::CRingFormatHelper10Creator(const CRingFormatHelper10Creator& rhs)
 {}
 
 /**

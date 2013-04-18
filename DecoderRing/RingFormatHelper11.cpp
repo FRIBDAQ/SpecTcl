@@ -19,6 +19,7 @@
  */
 #include "RingFormatHelper11.h"
 #include "DataFormat.h"
+#include <BufferTranslator.h>
 
 
 /**
@@ -35,11 +36,11 @@
  * @retval false - the item has no body header data.
  */
  bool
- CRingFormatHelper11::hasBodyHeader(void* pItem)
+ CRingFormatHelper11::hasBodyHeader(void* pItem) const
  {
     pRingItem p = reinterpret_cast<pRingItem>(pItem);
     
-    return (p->u_noBodyHeader.s_mbz != 0);
+    return (p->s_body.u_noBodyHeader.s_mbz != 0);
  }
  /**
   * getBodyPointer
@@ -58,9 +59,9 @@
 
     
     if (hasBodyHeader(pItem)) {
-        return reinterpret_cast<void*>(p->u_hasBodyHeader.s_body);
+        return reinterpret_cast<void*>(p->s_body.u_hasBodyHeader.s_body);
     } else {
-        return reinterpret_cast<void*>(p->u_noBodyHeader.s_body);
+        return reinterpret_cast<void*>(p->s_body.u_noBodyHeader.s_body);
     }
  }
  /**
@@ -80,7 +81,7 @@
     pRingItem  p = reinterpret_cast<pRingItem>(pItem);
     
     if (hasBodyHeader(pItem)) {
-        return reinterpret_cast<void*>(&(p->u_hasBodyHeader.s_bodyHeader));
+        return reinterpret_cast<void*>(&(p->s_body.u_hasBodyHeader.s_bodyHeader));
     } else {
         return reinterpret_cast<void*>(0);
     }
@@ -105,7 +106,7 @@ CRingFormatHelper11::getTitle(void* pItem)
 {
     if (isStateTransition(pItem)) {
         pStateChangeItemBody p =
-            reinterpret_cast<pStateChangeItemBody>(getBodyPointer());
+            reinterpret_cast<pStateChangeItemBody>(getBodyPointer(pItem));
         return std::string(p->s_title);
     } else {
         throw std::string("CRingFormatHelper11::getTitle - not state transition");
@@ -148,7 +149,7 @@ unsigned
 CRingFormatHelper11::getStringCount(void* pItem, BufferTranslator* pTranslator)
 {
     if (isTextItem(pItem)) {
-        pTextItemBody p = reinterpret_cast<pTextitemBody>(pItem);
+        pTextItemBody p = reinterpret_cast<pTextItemBody>(pItem);
         return pTranslator->TranslateLong(p->s_stringCount);
     } else {
         throw std::string("CRingFormatHelper11::getStringCount - not a text item.");
@@ -257,7 +258,7 @@ CRingFormatHelper11::isScalerItem(void* pItem)
  * @return bool - true if the item is a PHYSICS_EVENT_COUNT item.
  */
 bool
-CRingFormatHelper11::isTriggerItem(void* pItem)
+CRingFormatHelper11::isTriggerCountItem(void* pItem)
 {
     return itemType(pItem) == PHYSICS_EVENT_COUNT;
 }
