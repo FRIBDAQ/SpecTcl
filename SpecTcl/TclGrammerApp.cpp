@@ -667,6 +667,12 @@ int CTclGrammerApp::operator()() {
   // to run.  By the time these are run, SpecTcl is essentially completely
   // set up.
   SourceFunctionalScripts(*gpInterpreter);
+  
+  // Now that SpecTcl is essentially set up, we can initialize the analyzer
+  
+  SpecTcl*      pApi      = SpecTcl::getInstance();
+  CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
+  pAnalyzer->OnInitialize();
 
   // Additional credits.
 

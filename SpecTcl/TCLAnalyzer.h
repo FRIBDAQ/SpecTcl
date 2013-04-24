@@ -123,6 +123,7 @@ private:
   STD(vector)<Int_t*>     m_vStatisticsInts;
 
   UInt_t        m_nSequence;	//!< Anonymous naming sequence #.
+  bool          m_initialized;
 
 public:
   CTclAnalyzer(CTCLInterpreter& rInterp, UInt_t nP, UInt_t nBunch);
@@ -152,6 +153,7 @@ public:
   virtual void OnEnd(CBufferDecoder*   rDecoder);
   virtual void OnPause(CBufferDecoder* rDecoder);
   virtual void OnResume(CBufferDecoder* rDecoder);
+  virtual void OnInitialize();
 
 
 

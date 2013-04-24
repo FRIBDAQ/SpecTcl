@@ -291,6 +291,14 @@ void CAnalyzer::OnEndFile() {
   
   m_pDecoder->OnEndFile();
 }
+/**
+ * OnInitialize
+ *
+ * This is called after all SpecTcl initialization is completed.
+ * No_op for us.
+ */
+void
+CAnalyzer::OnInitialize() {}
 
 //////////////////////////////////////////////////////////////////////////
 //

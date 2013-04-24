@@ -215,6 +215,8 @@ class CAnalyzer {
   virtual void OnScaler(CBufferDecoder& rDecoder);
   virtual void OnOther(UInt_t nType, CBufferDecoder& rDecoder);
   virtual void OnEndFile();
+  virtual void OnInitialize();
+  
   CBufferDecoder* AttachDecoder(CBufferDecoder& rDecoder);
   CBufferDecoder* DetachDecoder();
   CEventSink*     AttachSink(CEventSink& rSink);
