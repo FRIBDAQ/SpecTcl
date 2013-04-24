@@ -128,6 +128,8 @@ public:
   CRingFormatHelper* getCurrentFormatHelper();
   CRingFormatHelper* getDefaultFormatHelper();
   
+  CRingFormatHelperFactory* getFormatFactory();
+  
   // Members called that can invalidate the format helper:
   
   virtual void OnSourceAttach();

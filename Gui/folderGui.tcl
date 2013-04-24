@@ -1067,7 +1067,7 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     .topmenu.help add command -label About.. -command aboutMeDialog
 
     menu .topmenu.source -tearoff 0
-    .topmenu.source add command -label {Online (spectrodaq)...} -command attachOnline
+    .topmenu.source add command -label {Online...} -command attachOnline
     .topmenu.source add command -label {File...}                -command attachFile
     .topmenu.source add command -label {Pipe...}                -command attachPipe
     .topmenu.source add separator

@@ -1012,4 +1012,11 @@ November 30-?? 2011
 
 3.4
         * Provide support code for NSCLDAQ-11/10 ring item decoding.
-        
+        * Issue # 1713, Issue# 1712 Support ringformat specification in
+          all data source dialogs.  In addtion add the format selection
+          to the bottom of data source prompters that did not originally
+          have them.
+        * Issue #1659 Provide mechanisms for ring buffer analyzers
+          to fish data out of the event body header if it exists.
+        * Issue #1658  Add ability for CRingBufferDecoder to autoselect
+          the format helper if a ring format item is seen in the input data.

@@ -23,7 +23,7 @@ package require guiutilities
 namespace eval datasource {
     variable daqroot         [list /usr/opt/daq/current /usr/opt/daq/8.1 /usr/opt/daq/8.0  /usr/opt/daq];   # Where the DAQ software is installed.
     variable lasthost        localhost;  # Most recent online host.
-    variable lastformat      nscl
+    variable lastformat      ring10
     variable lasteventfile   {}
     variable lastpipecommand {}
     variable lastpipeargs    {}
@@ -33,6 +33,27 @@ namespace eval datasource {
     variable lastFilterFile {}
     variable actualSpecTclDaq {}
     variable lastring      $::tcl_platform(user)
+    variable clustersize   8192
+}
+
+
+##
+# defaultFormat
+#
+#   Determines the default format to use for a data source.
+#   In  most cases, this is just ::datasource::lastformat, however
+#   since this can come from the preferences file and that may just have an
+#   an unqualified 'ring'  'ring' gets mapped to 'ring10'....which is stored
+#   back into ::datasource::lastformat
+#
+# @return string - default data format.
+#
+proc defaultFormat {} {
+    
+    if {$::datasource::lastformat eq "ring"} {
+        set ::datasource::lastformat ring10
+    }
+    return $::datasource::lastformat
 }
 
 # datasource::findSpecTclDaq
@@ -75,6 +96,57 @@ proc datasource::findSpecTclDaq {} {
 
 
 }
+##
+# attachDataSource
+#   Perform the actual attach.  This factors out the following actions:
+#   *  Shutting down the previous data source (if active)
+#   *  Providing the value to the -format switch from  a parameter.
+#   *  Performing the actual attach command.
+#   *  If necessary/possible performing a ringformat command to hint at what
+#      format data might be in for ring buffer data sources.
+#   *  starts analysis.
+#
+# @param format     - Data format e.g. spectrodaq, ring10, ring11...
+# @param size       - -size parameter.
+# @param sourcetype - An attach source type switch (e.g. -pipe or -file.)
+# @param sourcespec - Source specification.  Note that this parameter
+#                     will be {*}'d when passed to attach so it can be a multiword
+#                     command for -pipe data sources.
+#
+proc attachDataSource {format size sourcetype sourcespec} {
+    catch stop
+    
+    # Collapse the format for ring* -> ring
+    
+    if {[string match ring* $format]} {
+        set dataFormat ring
+    } else {
+        set dataFormat $format
+    }
+    
+    #  Attach the data source.
+    
+    set command [list \
+        attach -size $size -format $dataFormat $sourcetype {*}$sourcespec
+    ]
+    {*}$command
+    
+    #  Figure out if ringformat must be used:
+    
+    if {[string match ring* $format]} {
+        if {$format eq "ring10"} {
+            ringformat 10.0
+        } elseif {$format eq "ring11"} {
+            ringformat 11.0
+        }
+        # Any other format CRingBufferDecoder will have to do its best to
+        # sort things out.
+    }
+    #  start analysis:
+    
+    start
+}
+
 #
 # attachOnline
 #      Attach to an online data source.
@@ -85,32 +157,30 @@ proc datasource::findSpecTclDaq {} {
 #
 proc attachOnline {} {
     hostprompt .hostprompt -host $::datasource::lasthost \
-	-format ::datasource::lastformat                \
+	-format [defaultFormat]                          \
 	-buffersize $::GuiPrefs::preferences(defaultBuffersize)  \
 	-ringname   $::datasource::lastring
     .hostprompt modal
     if {[winfo exists .hostprompt]} {
         set host [.hostprompt cget -host]
 
-        if {$host != ""} {
+        if {$host != ""} {            
 	    set format [.hostprompt cget -format]
 	    set additionalInfo {}
-	    if {$format eq "ring"} {
+
+	    if {[string match ring* $format]} {
 		set additionalInfo [.hostprompt cget -ringname]
-		set ::datasource::lastring $additionalInfo
-	    }
-
+                set ::datasource::lastring $additionalInfo
+            }
+            set size [.hostprompt cget -buffersize]
+    
             set ::datasource::lasthost     $host
-	    set ::datasource::lastformat   $format
-
-	    set size [.hostprompt cget -buffersize]
-	    
+	    set ::datasource::lastformat   $format            
+	    set ::GuiPrefs::preferences(defaultBuffersize) $size
+            
 	    set helper [.hostprompt onlinehelper $host $additionalInfo]
 
-	    catch stop
-	    attach -format $format  -size $size -pipe $helper
-	    set ::GuiPrefs::preferences(defaultBuffersize) $size
-	    start
+            attachDataSource $format $size -pipe $helper
         }
         destroy .hostprompt
     }
@@ -119,17 +189,13 @@ proc attachOnline {} {
 #       Prompts for an event file to attach to and does the deed.
 #
 proc attachFile {} {
-#    set file [tk_getOpenFile  -defaultextension .evt                                   \
-#                              -initialfile [file tail $::datasource::lasteventfile]    \
-#                             -initialdir  [file dirname $::datasource::lasteventfile] \
-#                            -filetypes [list [list "Event files" .evt]]]
 
     attachfile .prompt                                               \
 	-defaultextension .evt                                       \
 	-initialfile  $::datasource::lasteventfile                   \
 	-initialdir   [file dirname $::datasource::lasteventfile]   \
 	-buffersize   $::GuiPrefs::preferences(defaultBuffersize)   \
-	-format $::datasource::lastformat
+	-format [defaultFormat]
     .prompt modal
     set file [.prompt cget -initialfile]
     set size [.prompt cget -buffersize]
@@ -138,15 +204,15 @@ proc attachFile {} {
 	
     if {$file != ""} {
         if {[file readable $file]} {
-            catch stop
-            attach -size $size -format $format -file $file
+           set isRing 0
 	    set ::GuiPrefs::preferences(defaultBuffersize) $size
-            start
             set ::datasource::lasteventfile $file
 	    set ::datasource::lastformat $format
+            
+            attachDataSource $format $size -file $file
         } else {
             tk_messageBox -icon error  -title {Can't read file} \
-                          -message "Could not read the file $file permission problem or file does not exist"
+                -message "Could not read the file $file permission problem or file does not exist"
         }
     }
 }
@@ -166,22 +232,19 @@ proc attachPipe {} {
     if {[winfo exists .attachpipe]} {
         set command    [.attachpipe cget -command]
         set arguments  [.attachpipe cget -arguments]
+
         if {$command != "" } {
             if {[file executable $command]} {
-                catch stop
+
 		set size [.attachpipe cget -buffersize]
-                if {![catch {eval attach -size $size -pipe $command $arguments} msg] } {
-		    set ::GuiPrefs::preferences(defaultBuffersize) $size
-                    start
-                    set ::datasource::lastpipecommand $command
-                    set ::datasource::lastpipeargs    $arguments
-                } else {
-                    tk_messageBox -icon error -title "Can't attach" \
-                        -message "The `attach -pipe $command $arguments' failed because: $msg"
-                }
+                set format [.attachpipe cget -format]
+                set ::GuiPrefs::preferences(defaultBuffersize) $size
+                set ::datasource::lastpipecommand $command
+                set ::datasource::lastpipeargs    $arguments
+                attachDataSource $format $size -pipe "$command $arguments"
             } else {
                 tk_messageBox -icon error -title "Can't execute file" \
-                    -message {You do not have execute access to $command}
+                    -message {You do not have execute access to the pipe source program file: $command }
             }
         }
         destroy .attachpipe
@@ -194,10 +257,26 @@ proc attachPipe {} {
 #        from active -> inactive on analysis (this is determined
 #        by tracing RunState.
 proc attachRunList {} {
-    set runlist [tk_getOpenFile -defaultextension .clu                                  \
-                              -initialfile [file tail $::datasource::lastrunlist]    \
-                              -initialdir  [file dirname $::datasource::lastrunlist] \
-                              -filetypes [list [list "Cluster files" .clu]]]
+    
+    # Prompt for the filename, buffering and the format of the input files
+    # At this time, all cluster files must have the same format!
+    
+    attachfile .clusterchooser \
+        -defaultextension .clu -initialfile $::datasource::lastrunlist \
+        -initialdir [file dirname $::datasource::lastrunlist]   \
+        -buffersize $::GuiPrefs::preferences(defaultBuffersize) \
+        -format [defaultFormat]
+    
+    .clusterchooser modal
+    
+    # Fish the stuff out of the dialog:
+    
+    set runlist [.clusterchooser cget -initialfile]
+    set size   [.clusterchooser cget -buffersize]
+    set format [.clusterchooser cget -format]
+    
+    destroy .clusterchooser
+    
     if {$runlist != ""} {
         if {$datasource::runlistFiles != ""} {
             set answer [tk_messageBox -icon question -title {stop current runlist}       \
@@ -216,9 +295,13 @@ proc attachRunList {} {
         }
         set files   [read $msg]
         set datasource::runlistFiles [split $files "\n"]
-        catch stop
+        set datasource::lastrunlist $runlist
+        set datasource::lastformat  $format
+        set datasource::clustersize $size
+        
         trace add variable ::RunState write nextFileInRunlist
         set ::RunState 0;             # Start the next file...
+        
     }
 
 }
@@ -289,11 +372,11 @@ proc nextFileInRunlist {varname index op} {
         set file [lindex $::datasource::runlistFiles 0]
         set ::datasource::runlistFiles [lrange $::datasource::runlistFiles 1 end]
         if {$file != ""} {
-            catch stop
-	    set size $::GuiPrefs::preferences(defaultBuffersize)
-            if {![catch {attach -size $size -file $file} msg]} {
-                catch start
-            } else {
+            set status [catch \
+                {attachDataSource $::datasource::lastformat $::datasource::clustersize \
+                -file $file} msg]
+    
+            if {$status} {
                 set answer [tk_messageBox -icon error -title {attach failed} \
                             -type okcancel                                   \
                             -message "Failed to attach file $file because: $msg Ok to continue processing or cancel?"]
@@ -323,7 +406,8 @@ proc detach {} {
 #  choices:
 #   nscl  -  NSCL standard buffers with event sizes < 32K and buffersize < 32K
 #   jumbo -  NSCL standard buffers with events/buffers sizes potentially > 32k
-#   ring  -  Data from NSCLDAQ 10.0 and later (ringbuffer data).
+#   ring10 -  Data from NSCLDAQ 10.x
+#   ring   - Data from NSCLDAQ 11.x
 #
 
 #  
@@ -340,8 +424,8 @@ proc detach {} {
 #
 
 snit::widget formatChooser {
-    variable formats {nscl jumbo ring};     # Valid options
-    option   -format nscl;        # Default option.
+    variable formats {nscl jumbo ring10 ring11};     # Valid options
+    option   -format ring10;        # Default option.
     option   -command [list];	  # Command to call if format changes.
 
     constructor args {
@@ -369,7 +453,8 @@ snit::widget formatChooser {
 	append result "Format   Meaning\n"
 	append result "nscl     nscl buffers/events < 32K words (< 10.0)\n" 
 	append result "jumbo    nscl buffers/events >= 32KWords (< 10.0)\n"
-	append result "ring     Ring buffer data from nscldaq 10.0 and later\n"
+	append result "ring10   Ring buffer data from nscldaq 10.x\n"
+        append result "ring11   Ring buffer data from nscldaq 11.x+\n"
 
 	return $result
     }
@@ -442,7 +527,7 @@ snit::widget formatChooser {
 	    foreach dir $dirs {
 		lappend dirtails [file tail $dir]
 	    }
-	    set dirtail [lsort -decreasing -real $dirtails]; # sorted by decreasing version...
+	    set dirtail [lsort -decreasing  $dirtails]; # sorted by decreasing version...
 	    foreach dir $dirtail {
 		set ringselector [file join /usr/opt/daq $dir bin ringselector]
 		if {[file executable $ringselector]} {
@@ -458,6 +543,15 @@ snit::widget formatChooser {
 	} else {
 	    return "$ringselector --source=$url $selection"
 	}
+    }
+    ##
+    # ring10, ring11 - are all ring sources
+    #
+    method ring10 {host {ringname ""}} {
+        return [$self ring $host $ringname]
+    }
+    method ring11 {host {ringname ""}} {
+        return [$self ring $host $ringname]
     }
 
 }
@@ -491,7 +585,7 @@ snit::widget hostprompt {
 	$win.buffersize set $options(-buffersize)
 
 	label         $win.fmtlabel -text {Data format}
-	install format using formatChooser $win.fmt -command [mymethod formatChanged] -format ring
+	install format using formatChooser $win.fmt -command [mymethod formatChanged] -format ring10
         button $win.ok     -text Ok     -command [mymethod onOk]
         button $win.cancel -text Cancel -command [mymethod onCancel]
         button $win.help   -text Help   -command [list spectclGuiDisplayHelpTopic  hostPrompt]
@@ -595,7 +689,7 @@ snit::widget hostprompt {
     # enable the ring label/entry...otherwise disable them
     #
     method formatChanged newFormat {
-	if {$newFormat eq "ring"} {
+	if {[string match ring* $newFormat]} {
 	    $win.ringlabel configure -state normal
 	    $win.ring      configure -state normal
 	} else {
@@ -621,6 +715,8 @@ snit::widget attachpipe {
     option -okcommand     {}
     option -cancelcommand {}
     option -buffersize    8192
+    
+    delegate option -format to format
 
     variable hidden       {}
 
@@ -629,7 +725,7 @@ snit::widget attachpipe {
 
         ::iwidgets::fileselectionbox $win.fsb -directory $options(-initialdir)    \
                                     -filesearchcommand [mymethod filterFiles]    \
-                                    -selectioncommand  [mymethod onOk]
+                                    -selectioncommand  [mymethod onOk] 
         setEntry $win.fsb.selection $options(-initialfile)
 
         label $win.argslabel -text {Parameters: }
@@ -644,10 +740,13 @@ snit::widget attachpipe {
         button $win.ok     -text Ok     -command [mymethod onOk]
         button $win.cancel -text Cancel -command [mymethod onCancel]
         button $win.help   -text Help   -command [list spectclGuiDisplayHelpTopic attachPipe]
+        
+        install format using formatChooser $win.format -format ring10
 
         grid $win.fsb           -
         grid $win.argslabel  $win.args
 	grid $win.sizelbl    $win.size
+        grid $win.format  -columnspan 2
         grid $win.ok         $win.cancel  $win.help
 
     }
@@ -681,7 +780,7 @@ snit::widget attachpipe {
                 lappend result [file tail $file]
             }
         }
-        return $result
+        return [lsort -increasing $result]
     }
     # onOk
     #     Accepts the dialog results;  Calls -okcommand if defined.

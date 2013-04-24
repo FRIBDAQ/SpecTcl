@@ -43,7 +43,7 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
 	DocumentationException.cpp DocumentationCallback.cpp \
 	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp \
-	IntegrateCommand.cpp
+	IntegrateCommand.cpp RingFormatCommand.cpp
 
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
@@ -59,6 +59,9 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	DocumentationException.h DocumentationCallback.h \
 	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
 	IntegrateCommand.h
+
+        
+
 
 
 
@@ -112,7 +115,12 @@ if CPPUNIT
 
 noinst_PROGRAMS =  scalertests docbuftests
 
-noinst_HEADERS = Asserts.h
+
+# TODO: Could probably add quite a few more headers above to this.
+#       maybe *Command.h and *Package.h(?)
+
+
+noinst_HEADERS = Asserts.h RingFormatCommand.h
 
 scalertests_SOURCES = TestRunner.cpp \
 	scalercallbacktests.cpp 	\

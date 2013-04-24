@@ -455,6 +455,17 @@ CRingBufferDecoder::getDefaultFormatHelper()
     return m_pDefaultHelper;
 }
 
+/**
+ * getFormatFactory
+ *
+ * @return CRingFormatHelperFactory* - pointer to the factory we used and
+ *                                     in which all our creators are intalled.
+ */
+CRingFormatHelperFactory*
+CRingBufferDecoder::getFormatFactory()
+{
+    return m_pFactory;
+}
 
 /*----------------------------------------------------------------------------
  * Callbacks during data analysis:
@@ -687,15 +698,13 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   uint32_t         type  = m_pTranslator->TranslateLong(pItem->s_header.s_type);
   m_pTranslator->newBuffer(pItem);
 
-  m_nBodySize            = size - sizeof(RingItemHeader);
-  m_nCurrentItemType     = mapType(type);
+
   
   // If we have a ring format item that gives us the current helper:
   
   if (type == RING_FORMAT) {
     invalidateCurrentHelper();
-    CRingFormatHelperFactory fact;
-    m_pCurrentHelper = fact.create(pItem);
+    m_pCurrentHelper = m_pFactory->create(pItem);
   }
   // Now get the correct helper to use:
   
@@ -706,9 +715,13 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   m_pCurrentRingItem = pItem;    // So that callbacks can do stuff.
   m_pBody            = pHelper->getBodyPointer(pItem);
   
+  m_nBodySize =
+    size
+    - (reinterpret_cast<uint8_t*>(m_pBody) - reinterpret_cast<uint8_t*>(pItem));
+  
   // The remainder of this is item type dependent:
 
-
+  m_nCurrentItemType     = mapType(type);
   switch (type) {
   case BEGIN_RUN:
   case END_RUN:

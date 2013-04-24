@@ -57,7 +57,7 @@ class CRingFormatHelperCreator;
  * 
  */
 class CRingFormatHelperFactory {
-private:
+public:
     // Inner classes:
     
     class MajorMinorVersion {     // Encapsulates a major/minor version level.
@@ -76,8 +76,8 @@ private:
             return (m_major == rhs.m_major) && (m_minor == rhs.m_minor);
         }
     };
+
     // Internal types:
-    
 private:    
     typedef std::map<MajorMinorVersion,  CRingFormatHelperCreator*> CreatorMap;
     

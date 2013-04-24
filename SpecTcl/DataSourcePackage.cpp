@@ -41,6 +41,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "DataSourcePackage.h"                               
 #include "AttachCommand.h"
 #include "TapeCommand.h"
+#include "RingFormatCommand.h"
 #include "TCLInterpreter.h"
 #include "TCLResult.h"
 #include "TKRunControl.h"
@@ -50,6 +51,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "MultiTestSource.h"
 #include "Globals.h"
 #include "Exception.h"
+
 
 #include <SpecTcl.h>
 
@@ -136,10 +138,14 @@ CDataSourcePackage::CDataSourcePackage(CTCLInterpreter* pInterp) :
   CTCLCommandPackage(pInterp, Copyright),
   m_eSourceType(CDataSourcePackage::kTestSource),
   m_pTape(new CTapeCommand(pInterp, *this)),
-  m_pAttach(new CAttachCommand(pInterp, *this))
+  m_pAttach(new CAttachCommand(pInterp, *this)),
+  m_pRingFormat(new CRingFormatCommand(pInterp, *this))
+  
 {
   AddProcessor(m_pTape);
   AddProcessor(m_pAttach);
+  AddProcessor(m_pRingFormat);
+  
 
   // install the buffer decoder creators for the default set
   // of buffer format types:

@@ -312,6 +312,7 @@
 // Forward Class reference:
 class CTapeCommand;
 class CAttachCommand;
+class CRingFormatCommand;
 class CTCLInterpreter;
 class CTCLResult;
 
@@ -328,9 +329,11 @@ class CDataSourcePackage : public CTCLCommandPackage {
   };
  private:
   // Attributes:
-  SourceType_t    m_eSourceType; // Type of data source connected
-  CTapeCommand*   m_pTape;
-  CAttachCommand* m_pAttach;
+  SourceType_t        m_eSourceType; // Type of data source connected
+  CTapeCommand*       m_pTape;
+  CAttachCommand*     m_pAttach;
+  CRingFormatCommand* m_pRingFormat;
+  
  public:
   // Default constructor
   CDataSourcePackage(CTCLInterpreter* pInterp);

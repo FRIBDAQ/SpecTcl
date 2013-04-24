@@ -84,6 +84,7 @@ CRingFormatHelperFactory::~CRingFormatHelperFactory()
 CRingFormatHelper*
 CRingFormatHelperFactory::create(uint32_t major, uint32_t minor)
 {
+
     CreatorMap::iterator p = m_Creators.find(MajorMinorVersion(major, minor));
     if (p == m_Creators.end()) {
         return reinterpret_cast<CRingFormatHelper*>(0);
