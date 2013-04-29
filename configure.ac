@@ -10,6 +10,9 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_EXEEXT
 AC_OBJEXT
 
+# we use libtool, thus we need to include it
+LT_INIT
+
 #  This should track the version in
 #  AM_INIT_AUTOMAKE it will be used to
 #  define the version information in shared
@@ -97,7 +100,7 @@ AC_CHECK_HEADER(typeinfo, [AC_DEFINE([HAVE_HLESS_TYPEINFO],1,[<typeinfo> exists]
 
 #   Is there an std namespace to import from?
 
-AC_COMPILE_IFELSE([using namespace std;], [AC_DEFINE([HAVE_STD_NAMESPACE],[1],[1 if std namespace defined])])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([using namespace std;])], [AC_DEFINE([HAVE_STD_NAMESPACE],[1],[1 if std namespace defined])])
 AH_VERBATIM([VHAVE_STD_NAMESPACE],[
 /* Define STD macro according to HAVE_STD_NAMESPACE value */
 #ifdef HAVE_STD_NAMESPACE
