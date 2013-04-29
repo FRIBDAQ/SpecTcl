@@ -23,6 +23,8 @@
 
 #include "RingFormatHelper.h"
 #include "DataFormatPre11.h"
+#include <unistd.h>
+
 
 /**
  * constructor - default
