@@ -13,7 +13,7 @@ noinst_HEADERS=cmdline.h
 INCLUDES=-I@top_srcdir@/Filter
 
 
-cmdline.c: filtsplit.ggo
+cmdline.c cmdline.h: filtsplit.ggo
 	gengetopt --unamed-opts <filtsplit.ggo
 
 EXTRA_DIST=filtsplit.ggo  filtsplit.xml
