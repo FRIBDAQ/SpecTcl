@@ -1022,4 +1022,5 @@ November 30-?? 2011
           the format helper if a ring format item is seen in the input data.
         * Issue #1633 Provide event processors with a post SpecTclRC.tcl
           initialization hook.
+        * Much more documentation on how to build event processors etc.
           

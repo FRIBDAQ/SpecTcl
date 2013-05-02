@@ -118,7 +118,10 @@ CRingBufferDecoder::CRingBufferDecoder() :
     CRingFormatHelper11Creator create11;
     
     m_pFactory->addCreator(10, 0, create10);
-    m_pFactory->addCreator(11, 0, create11);
+    m_pFactory->addCreator(10, 1, create10);  // 10.x are all the same.
+    m_pFactory->addCreator(10, 2, create10);
+    
+    m_pFactory->addCreator(11, 0, create11);  // 11.x has body headers.
 }
 /*!
    Destructor  IF ther's a buffer assembly in process, its storage should
