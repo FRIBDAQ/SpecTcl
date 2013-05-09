@@ -21,6 +21,10 @@ dnl > Checking for Tcl first puts -lm before -lkrb on the library list.
 dnl
 
 dnl Check for some information from the user on what the world looks like
+
+dnl TCL locational arguments:
+
+
 AC_ARG_WITH(tclconfig,[  --with-tclconfig=PATH   use tclConfig.sh from PATH
                           (configure gets Tcl configuration from here)],
         dnl trim tclConfig.sh off the end so we can add it back on later.
@@ -30,6 +34,22 @@ AC_ARG_WITH(tcl,      [  --with-tcl=PATH         use Tcl from PATH],
 AC_ARG_WITH(tclsh,    [  --with-tclsh=TCLSH      use TCLSH as the tclsh program
                           (let configure find Tcl using this program)],
 	TCLSH="${withval}")
+
+dnl Tk/wish locational arguments:
+
+AC_ARG_WITH(tkconfig, [  --with-tkconfig=PATH use tkConfig.sh from PATH
+		      	   (configure gets Tk configuration from here)],
+            TkLibBase=`echo ${withval} | sed s/tkConfig.sh\$//`)
+
+AC_ARG_WITH(tk        [ --with-tk=PATH       USe Tk from PATH],
+            TkLibBase="${withval}/lib")
+
+AC_ARG_WITH(wish,     [--with-wish=WISH   use WISH as the wish program
+                         (let cofigure find wish using this program)],
+            WISH="${withval}")     
+               
+
+
 
 if test "$TCLSH" = "no" -o "$with_tclconfig" = "no" ; then
   AC_MSG_WARN([Tcl disabled because tclsh or tclconfig specified as "no"])
@@ -148,6 +168,59 @@ AC_SUBST(TCL_DEFS)
 AC_SUBST(TCL_LIBS)
 AC_SUBST(TCL_CPPFLAGS)
 AC_SUBST(TCLSH)
+
+#
+#   TK/Wish  If WISH is not define find it:
+#
+
+if test -z ${WISH}; then
+   AC_MSG_CHECKING([wish interpreter])
+   AC_PATH_PROGS(WISH, [wish8.6 wish8.5 wish8.4 wish8.3 wish8.2 wish8.1 wish8.0 wish], "unknown")   
+   if test "${WISH}" = "unknown"; then
+      AC_MSG_ERROR([Unable to find wish, help me out with --with-wish])
+   else
+      AC_MSG_RESULT([${WISH}])
+   fi
+fi
+
+version=`echo puts \\\$tcl_version | ${TCLSH}`
+
+# We can't use wish to find tkConfig.sh since it requires an X11 server to run.
+# we're going to assume that it's either ../tk or ../tk${version} relative to
+# TclLibBase...unless of course we've been handed it by the --with switches.
+
+if test -z ${TkLibBase}; then   
+   AC_MSG_CHECKING([tkConfig.sh])
+   guesses="${TclLibBase}/../tk${version} ${TclLibBase}/../tk"
+   for guess  in $guesses; do
+       if test -r ${guess}/tkConfig.sh; then
+       	  TkLibBase=${guess}
+	  AC_MSG_RESULT([${TkLibBase}])
+	  break
+       fi
+   done
+fi
+
+# Still not defined is an error:
+
+if test -z ${TkLibBase}; then
+   AC_MSG_ERROR([Can't find tkConfig.sh, use one of the -with-tk flags to help me out])
+fi
+
+
+# Source the config file
+
+. ${TkLibBase}/tkConfig.sh
+
+# Figure out and set the syms:
+
+TK_LIBS="${TK_LD_SEARCH_FLAGS} ${TK_LIB_SPEC} ${TK_LIBS}"
+TK_CPPFLAGS="${TK_INCLUDE_SPEC}"
+
+AC_SUBST(WISH)
+AC_SUBST(TK_DEFS)
+AC_SUBST(TK_LIBS)
+AC_SUBST(TK_CPPFLAGS)
 
 # --- END CMU_TCL ---
 ]) dnl CMU_TCL
