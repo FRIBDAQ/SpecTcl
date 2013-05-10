@@ -66,3 +66,6 @@ install-exec-local:
 	$(INSTALL_DATA) VERSION $(prefix)/VERSION
 	$(INSTALL_DATA) CHANGELOG $(prefix)
 	$(MANDB) $(prefix)/man
+
+check-TESTS:
+	- for d in $(SUBDIRS); do (cd $$d; make check-TESTS); done

@@ -31,7 +31,7 @@ public:
     m_flags(0),
     m_pInterp(0) {}
 
-  virtual char* operator()(CTCLInterpreter* pInterp,
+  virtual const char* operator()(CTCLInterpreter* pInterp,
 			   char* pVariable,
 			   char* pElement, 
 			   int flags) {

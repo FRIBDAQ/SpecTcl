@@ -657,40 +657,9 @@ fi
 
 
 
-
-#  If cppunit is available we can try to bundle some tests.
-#  CPPUNIT will be defined to makefiles and CPPUNIT_INCLUDES
-#  CPPUNIT_LDFLAGS will be about what you'd expect  them to be.
-
-
-AC_ARG_ENABLE(cppunit,
-		AS_HELP_STRING([--enable-cppunit],[build cppunit based tests]),
-		[havecppunit="check"], [havecppunit="no"])
-
-if test "$havecppunit" != "no" 
-then
-	AC_LANG_PUSH(C++)
-	AC_MSG_CHECKING([for cppunit unit testing framework])
-
-	AC_CHECK_HEADERS([cppunit/Test.h], [havecppunit="yes"], [havecppunit="no"])
-	AC_MSG_RESULT([$havecppunit])
-	if test "$havecppunit" == "yes"
-	then
-		CPPUNIT_INCLUDES=""
-		CPPUNIT_LDFLAGS="-lcppunit"
-		AC_SUBST(CPPUNIT_INCLUDES)
-		AC_SUBST(CPPUNIT_LDFLAGS)
-         fi
-
-AC_LANG_POP(C++)
-
-# We also want the 'check' package for C language unit tests.
-
-# AM_PATH_CHECK()
-
-fi
-
-AM_CONDITIONAL(CPPUNIT, test $havecppunit == "yes")
+AM_PATH_CPPUNIT
+AM_CONDITIONAL([CPPUNIT], [test -n "${CPPUNIT_LIBS}"] )
+AM_CONDITIONAL([THIS_IS_NOT_DEFINED], [test -n ""])
 
 
 # We use mandb to index the man pages if it exists... not sure what the 

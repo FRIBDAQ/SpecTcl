@@ -49,9 +49,9 @@ noinst_PROGRAMS=TestRunner
 
 TestRunner_SOURCES=TestRunner.cpp TestDictObservers.cpp
 
-TestRunner_CXXFLAGS=$(CPPUNIT_INCLUDES)
+TestRunner_CXXFLAGS=@CPPUNIT_CFLAGS@
 
-TestRunner_LDADD = $(CPPUNIT_LDFLAGS)
+TestRunner_LDADD = @CPPUNIT_LIBS@
 
 noinst_HEADERS = Asserts.h
 

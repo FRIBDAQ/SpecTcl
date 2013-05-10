@@ -146,24 +146,27 @@ noinst_PROGRAMS = unittest
 unittest_SOURCES = SegUnpackerTest.cpp ModuleTest.cpp PacketTest.cpp CreatorTest.cpp \
 	UnpackerTest.cpp TestRunner.cpp
 
+uinttest_CXXFLAGS=@CPPUNIT_CFLAGS@
+
 unittest_DEPENDENCIES = $(Main_Objects)
 
-unittest_LDFLAGS = $(Main_Objects) $(CPPUNIT_LDFLAGS) \
-	-L@top_srcdir@/SpecTcl -lTclGrammerCommands \
-	-L@top_srcdir@/Sorter -lSorting \
-	-L@top_srcdir@/Xamine -lXplus  \
-	-L@top_srcdir@/Gates -lGates   \
-	-L@top_srcdir@/Events -lAnalysis \
-	-L@top_srcdir@/EventSource -lEventSource \
-	-L@top_srcdir@/SpectrumIO -lSpecio \
-	-L@top_srcdir@/TCL -ltclPlus   \
-	-L@top_srcdir@/NSCLException -lException \
-	-L@top_srcdir@/Display -lXamine  \
-	-L@top_srcdir@/Tape -ltape       \
-	-L@top_srcdir@/Filter -lFilter \
-	-L@top_srcdir@/TreeParam -lTreeParam \
-	-L@top_srcdir@/Analysis -lBufferAnalysis  \
-	-L@top_srcdir@/Fits     -lFits         \
+unittest_LDFLAGS = $(Main_Objects) @CPPUNIT_LIBS@ \
+	@top_builddir@/SpecTcl/libTclGrammerCommands.la \
+	@top_builddir@/Sorter/libSorting.la \
+	@top_builddir@/Xamine/libXplus.la \
+	@top_builddir@/Gates/libGates.la \
+	@top_builddir@/Events/libAnalysis.la \
+	@top_builddir@/EventSource/libEventSource.la \
+	@top_builddir@/SpectrumIO/libSpecio.la \
+	@top_builddir@/TCL/libtclPlus.la \
+	@top_builddir@/NSCLException/libException.la \
+	@top_builddir@/Display/libXamine.la \
+	@top_builddir@/Filter/libFilter.la \
+	@top_builddir@/TreeParam/libTreeParam.la \
+	@top_builddir@/Analysis/libBufferAnalysis.la \
+	@top_builddir@/Fits/libFits.la \
+	@top_builddir@/DecoderRing/libDecoderRing.la \
+	@top_builddir@/Tape/libtape.la \
 	$(TCL_LDFLAGS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
 
 

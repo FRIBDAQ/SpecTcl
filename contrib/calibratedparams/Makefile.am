@@ -77,11 +77,13 @@ noinst_PROGRAMS = unittests
 unittests_SOURCES = CommandTest.cpp FitTest.cpp CreatorTest.cpp FactoryTest.cpp \
 	CalibParamTest.cpp CalibManagerTest.cpp TestRunner.cpp
 
+unittests_CXXFLAGS=@CPPUNIT_CFLAGS@
+
 unittests_DEPENDENCIES = $(MainObjects)
 
 TestObjects=@top_srcdir@/Events/Event.lo @top_srcdir@/SpecTcl/EventProcessor.lo
 
-unittests_LDFLAGS = $(TestObjects) $(unittests_DEPENDENCIES) $(CPPUNIT_LDFLAGS) -L@top_srcdir@/TCL -ltclPlus  \
+unittests_LDFLAGS = $(TestObjects) $(unittests_DEPENDENCIES) @CPPUNIT_LIBS@ -L@top_srcdir@/TCL -ltclPlus  \
 	-L@top_srcdir@/NSCLException -lException \
 	-lgsl -lgslcblas -lm $(TCL_LDFLAGS)
 

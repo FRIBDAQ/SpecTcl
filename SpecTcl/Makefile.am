@@ -114,6 +114,8 @@ if CPPUNIT
 
 noinst_PROGRAMS =  scalertests docbuftests
 
+scalertests_CXXFLAGS=@CPPUNIT_CFLAGS@
+docbuftests_CXXFLAGS=@CPPUNIT_CFLAGS@
 
 # TODO: Could probably add quite a few more headers above to this.
 #       maybe *Command.h and *Package.h(?)
@@ -135,11 +137,19 @@ docbuftests_DEPENDENCIES = DocumentationException.o  \
 	DocumentationCallback.o
 
 
-commonTestLdFlags= -L@top_srcdir@/Events -lAnalysis \
-	-L@top_srcdir@/TCL -ltclPlus \
-	-L@top_srcdir@/NSCLException -lException \
-	-L@top_srcdir@/Analysis -lBufferAnalysis \
-	$(CPPUNIT_LDFLAGS) $(TCL_LDFLAGS)
+commonTestLdFlags= @top_builddir@/Events/libAnalysis.la \
+	@top_builddir@/TCL/libtclPlus.la \
+	@top_builddir@/NSCLException/libException.la \
+	@top_builddir@/Analysis/libBufferAnalysis.la \
+	@top_builddir@/SpecTcl/libTclGrammerCommands.la \
+	@top_builddir@/Filter/libFilter.la	\
+	@top_builddir@/Sorter/libSorting.la \
+	@top_builddir@/TreeParam/libTreeParam.la \
+	@top_builddir@/Fits/libFits.la \
+	@top_builddir@/DecoderRing/libDecoderRing.la \
+	@top_builddir@/Tape/libtape.la \
+	@top_builddir@/SpectrumIO/libSpecio.la \
+	@CPPUNIT_LIBS@ @TK_LIBS@ @TCL_LIBS@
 
 scalertests_LDFLAGS= ScalerProcessorCallbacks.o $(commonTestLdFlags)
 

@@ -41,7 +41,7 @@ AC_ARG_WITH(tkconfig, [  --with-tkconfig=PATH use tkConfig.sh from PATH
 		      	   (configure gets Tk configuration from here)],
             TkLibBase=`echo ${withval} | sed s/tkConfig.sh\$//`)
 
-AC_ARG_WITH(tk        [ --with-tk=PATH       USe Tk from PATH],
+AC_ARG_WITH(tk,        [ --with-tk=PATH       Use Tk from PATH],
             TkLibBase="${withval}/lib")
 
 AC_ARG_WITH(wish,     [--with-wish=WISH   use WISH as the wish program
