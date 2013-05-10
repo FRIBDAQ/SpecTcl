@@ -17,7 +17,7 @@ libradwareio_la_LIBADD  	=
 
 
 INCLUDES		= -I. -I@top_builddir@ 		\
-				$(TCL_FLAGS) -I@top_builddir@/TCL \
+				$(TCL_CPPFLAGS) -I@top_builddir@/TCL \
 				-I@top_builddir@/Utility 	\
 				-I@top_builddir@/SpecTcl	\
 				-I@top_builddir@/Events		\

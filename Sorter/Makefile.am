@@ -1,5 +1,5 @@
 INCLUDES = -I. -I../Utility -I../NSCLException -I../Xamine -I../Gates \
-	   -I../Events -I../Display @TCL_FLAGS@ -I.. -I@top_srcdir@/Fits 
+	   -I../Events -I../Display @TCL_CPPFLAGS@ -I.. -I@top_srcdir@/Fits 
 
 libSorting_la_LIBADD =  @top_srcdir@/Xamine/libXplus.la 	\
 			@top_srcdir@/Gates/libGates.la 		\
@@ -9,7 +9,7 @@ libSorting_la_LIBADD =  @top_srcdir@/Xamine/libXplus.la 	\
 			@top_srcdir@/NSCLException/libException.la 	\
 			@top_srcdir@/Display/libXamine.la	
 
-# AM_LDFLAGS = -L. @TCL_LDFLAGS@ @XTLIBSW@ @XLIBSW@
+
 
 lib_LTLIBRARIES = libSorting.la
 libSorting_la_LDFLAGS = -version-info $(SOVERSION):0 \

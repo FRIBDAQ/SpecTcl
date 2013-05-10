@@ -25,7 +25,7 @@ INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Analysis \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	-I@top_srcdir@/TreeParam \
-	@TCL_FLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@
+	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@
 
 CCUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
 	 ../Events/libAnalysis.la \
@@ -47,7 +47,7 @@ CCUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
 	../Display/libXamine.la          \
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\
-	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
 	 -g -Wl,"-rpath=@libdir@"
 
 
@@ -65,7 +65,7 @@ install-exec-local:	docs_built
 	$(INSTALL_DATA) MakefileSkel @prefix@/CCUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/ccusb
 	$(INSTALL_DATA)  spectclconfig.tcl @prefix@/TclLibs/ccusb
-	echo pkg_mkIndex @prefix@/TclLibs/ccusb *.tcl | $(TCLSH_CMD)
+	echo pkg_mkIndex @prefix@/TclLibs/ccusb *.tcl | @TCLSH@
 	$(mkinstalldirs) @prefix@/share/ccusb
 	$(INSTALL_DATA)  *.html @prefix@/share/ccusb
 	$(INSTALL_DATA)  *.pdf  @prefix@/share/ccusb

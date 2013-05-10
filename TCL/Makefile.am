@@ -13,14 +13,14 @@ SUFFIXES =  .xml .3
 	touch $@
 
 DEFS = @WCHAR_T_DEF@
-INCLUDES = -I.. -I. @TCL_FLAGS@ -I../Utility -I../NSCLException @XINCLUDES@
-LDADD = -ltclPlus -lException -lXt -lX11 $(X11EXTRA_LDFLAGS) -L. @TCL_LDFLAGS@
+INCLUDES = -I.. -I. @TCL_CPPFLAGS@ @TK_CPPFLAGS@ -I../Utility -I../NSCLException @XINCLUDES@
+LDADD = -ltclPlus -lException -lXt -lX11 $(X11EXTRA_LDFLAGS) -L. @TK_LIBS@ @TCL_LIBS@
 
 
 lib_LTLIBRARIES = libtclPlus.la
 
 libtclPlus_la_LDFLAGS = -version-info $(SOVERSION):0 \
-	-Wl,"-rpath-link=$(libdir)" @TCL_LDFLAGS@
+	-Wl,"-rpath-link=$(libdir)" @TK_LIBS@ @TCL_LIBS@
 
 testableSources = TCLInterpreter.cpp TCLProcessor.cpp  \
 	TCLVariable.cpp TCLString.cpp  \
@@ -108,7 +108,7 @@ tracetests_SOURCES = TestRunner.cpp \
 tracetests_DEPENDENCIES = $(testableObjects)
 
 TestLdflags = $(testableObjects) $(CPPUNIT_LDFLAGS) $(X11EXTRA_LDFLAGS) \
-	-L@top_srcdir@/NSCLException -lException @TCL_LDFLAGS@
+	-L@top_srcdir@/NSCLException -lException @TK_LIBS@ @TCL_LIBS@
 
 
 tracetests_LDADD = $(TestLdflags)

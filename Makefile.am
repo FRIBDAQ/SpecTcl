@@ -49,8 +49,8 @@ install-exec-local:
 	ln -s $(prefix)/include $(prefix)/Include
 	ln -s $(prefix)/etc     $(prefix)/Etc
 	tar czf - doc |(cd $(prefix); tar xzf -)
-	echo  TCLINCLUDES=$(TCL_FLAGS)          > Directories.temp
-	echo  TCLLIBS    =$(TCL_LDFLAGS) -lm -ldl  >> Directories.temp 
+	echo  TCLINCLUDES=$(TCL_CPPFLAGS)          > Directories.temp
+	echo  TCLLIBS    =@TK_LIBS@ @TCL_LIBS@ -lm -ldl  >> Directories.temp 
 	echo  X11INCLUDES=$(X11INCLUDES)       >> Directories.temp
 	echo  X11LIBS    =$(XLIBSW) $(MOTIF_LIBSW) -lXm -lXt -lX11 >> Directories.temp
 	cat   Directories.include              >> Directories.temp

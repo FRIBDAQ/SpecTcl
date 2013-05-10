@@ -27,12 +27,12 @@ INCLUDES = 	-I@top_srcdir@/Utility	\
 		-I@top_srcdir@/Filter	\
 		-I@top_srcdir@/TCL	\
 		-I@top_srcdir@/factories \
-		$(TCL_FLAGS)
+		@TCL_CPPFLAGS@ @TK_CPPFLAGS@
 
 
 lib_LTLIBRARIES=libFits.la
 libFits_la_LDFLAGS = -version-info $(SOVERSION):0  \
-	-Wl,"-rpath-link=$(libdir)" $(TCL_LDFLAGS) \
+	-Wl,"-rpath-link=$(libdir)" @TK_LIBS@ @TCL_LIBS@ \
 	-lgsl -lgslcblas -lm
 
 libFits_la_SOURCES = 	CFit.cpp		\

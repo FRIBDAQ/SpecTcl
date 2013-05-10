@@ -1,4 +1,4 @@
-initLDFLAGS=@TCL_LDFLAGS@
+initLDFLAGS=@TK_LIBS@ @TCL_LIBS@
 
 INCLUDES = -I. -I@top_srcdir@/Utility -I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/Xamine -I@top_srcdir@/TCL \
@@ -7,7 +7,7 @@ INCLUDES = -I. -I@top_srcdir@/Utility -I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/Filter -I@top_srcdir@/Gates       \
 	-I@top_srcdir@/Xamine -I@top_srcdir@/Display      \
 	-I@top_srcdir@/factories			\
-	@TCL_FLAGS@ \
+	@TCL_CPPFLAGS@ \
 	-D_DEBUG -DCHECK_ALL -DDESIGN_BY_CONTRACT
 
 
@@ -51,6 +51,6 @@ install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs/calibration
 	$(INSTALL_SCRIPT) *.tcl $(prefix)/TclLibs/calibration
 	$(INSTALL_PROGRAM) .libs/libCalibrations.* $(prefix)/TclLibs/calibration
-	$(TCLSH_CMD)  packages.tcl $(prefix)/TclLibs/calibration
+	@TCLSH@  packages.tcl $(prefix)/TclLibs/calibration
 	echo "package ifneeded Calibrations 1.0 [list load [file join \$$dir libCalibrations.so]]" >> 				\
 	$(prefix)/TclLibs/calibration/pkgIndex.tcl

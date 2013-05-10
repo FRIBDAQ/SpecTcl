@@ -9,7 +9,7 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Fits                               \
 	-I@top_srcdir@/factories			\
 	-I@top_srcdir@/DecoderRing			\
-	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+	@TCL_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/etc
@@ -60,7 +60,6 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
 	IntegrateCommand.h
 
-        
 
 
 
@@ -95,7 +94,7 @@ SpecTcl_LDFLAGS = -lTclGrammerCommands -lXplus -lGates -lAnalysis \
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
 	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam \
 	-L../Fits -L@top_srcdir@/DecoderRing	\
-	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas  @TCL_LDFLAGS@ @XLIBSW@
+	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas  @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
 
 
 man_MANS = spectclapi.3

@@ -1,5 +1,5 @@
 INCLUDES= -I. -I../EventSource -I../TCL -I../NSCLException \
-	-I../Utility @TCL_FLAGS@ -I../Tape
+	-I../Utility @TCL_CPPFLAGS@ -I../Tape
 
 LDADD = -lEventSource -lException -ltape \
 	 -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \

@@ -8,9 +8,9 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/Utility \
         -I@top_srcdir@/factories \
         -I@top_srcdir@/Display    \
         -I@top_srcdir@/Gates \
-	@TCL_FLAGS@ @XINCLUDES@ 
-LDADD = @TCL_LDFLAGS@
-# AM_LDFLAGS = @TCL_LDFLAGS@
+	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ @XINCLUDES@ 
+LDADD = @TK_LIBS@ @TCL_LIBS@
+
 
 lib_LTLIBRARIES = libAnalysis.la
 libAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0 \

@@ -6,7 +6,7 @@ INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Analysis \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
-	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 bin_PROGRAMS=ScriptedSpecTcl
 lib_LTLIBRARIES=libScripted.la
@@ -97,7 +97,7 @@ ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
 	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \
 	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
 	-L@top_srcdir@/TreeParam -L@top_srcdir@/Fits \
-	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
 	 -g -Wl,"-rpath=($prefix)/lib"
 
 #

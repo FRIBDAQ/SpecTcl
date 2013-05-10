@@ -82,7 +82,7 @@ INCLUDES = -I@top_srcdir@/TCL \
 	-I@top_srcdir@/Gates \
 	-I@top_srcdir@/Filter \
 	-I@top_srcdir@/factories \
-	$(TCL_FLAGS)
+	@TCL_CPPFLAGS@
 
 
 libTreeParam_la_LDFLAGS = -version-info $(SOVERSION):0
@@ -109,7 +109,7 @@ TestRunner_DEPENDENCIES = $(LibraryObjects)
 TestRunner_LDFLAGS = $(LibraryObjects) -L@top_srcdir@/TCL -ltclPlus \
 	 -L@top_srcdir@/NSCLException -lException \
 	-L@top_srcdir@/Events -lAnalysis \
-	$(TCL_LDFLAGS) $(CPPUNIT_LDFLAGS)
+	@TK_LIBS@ @TCL_LIBS@ $(CPPUNIT_LDFLAGS)
 
 noinst_HEADERS = Asserts.h
 
