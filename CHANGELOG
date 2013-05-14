@@ -1023,4 +1023,5 @@ November 30-?? 2011
         * Issue #1633 Provide event processors with a post SpecTclRC.tcl
           initialization hook.
         * Much more documentation on how to build event processors etc.
-          
+        * Extract the tcl++ and exception libs so they can be centrally
+          maintained.

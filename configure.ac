@@ -716,7 +716,7 @@ then
 	AC_MSG_RESULT([Found in  system libraries])
 else
 	AC_MSG_RESULT([Need to build local tagged copy])
-	(cd libtcl; ./configure --prefix=${prefix}; make install)
+	(cd libtcl; ./configure --prefix=${prefix}; make clean install)
 	LIBTCLPLUS_CFLAGS="-I${prefix}/include"
 	LIBTCLPLUS_LDFLAGS=-"L${prefix}/lib -ltclPlus -lException -Wl,\"-rpath=${prefix}/lib\""
 
