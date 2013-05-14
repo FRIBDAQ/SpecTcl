@@ -94,7 +94,7 @@ ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
 	@top_srcdir@/DecoderRing/libDecoderRing.la		\
 	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
 	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
-	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \
+	-L@top_srcdir@/Events   \
 	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
 	-L@top_srcdir@/TreeParam -L@top_srcdir@/Fits \
 	@LIBTCLPLUS_LDFLAGS@

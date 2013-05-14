@@ -781,9 +781,9 @@ AC_SUBST(MANDOCBOOK)
 
 AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
         factories/Makefile					      \
-	Display/Makefile NSCLException/Makefile  \
+	Display/Makefile 
 	Xamine/Makefile Tape/Makefile \
-	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
+	EventSource/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	Analysis/Makefile \
 	DecoderRing/Makefile \
