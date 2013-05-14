@@ -18,4 +18,6 @@ INCLUDES			= 	-I@top_srcdir@/Utility	\
 					-I@top_srcdir@/Events	\
 					-I@top_srcdir@/NSCLException \
 					-I@top_srcdir@/Filter	\
-					-I@top_srcdir@/SpecTcl
+					-I@top_srcdir@/SpecTcl @LIBTCLPLUS_CFLAGS@
+
+libDecoderRing_la_LDFLAGS	= @LIBTCLPLUS_LDFLAGS@

@@ -1,8 +1,9 @@
 DEFS = @WCHAR_T_DEF@
 INCLUDES = -I.. -I. \
-	-I../SpecTcl -I../Sorter -I../Utility -I../TCL -I../NSCLException \
-	-I../Xamine -I../Events -I../Gates -I../Display @TCL_CPPFLAGS@
-LDADD = -ltclPlus -lException -lXt -lX11 -L. @TK_LIBS@ @TCL_LIBS@
+	-I../SpecTcl -I../Sorter -I../Utility \
+	-I../Xamine -I../Events -I../Gates -I../Display @TCL_CPPFLAGS@ \
+	@LIBTCLPLUS_CFLAGS@
+LDADD =  @LIBTCLPLUS_LDFLAGS@ -lXt -lX11 -L. @TK_LIBS@ @TCL_LIBS@
 # AM_LDFLAGS = -L. @TK_LIBS@ @TCL_LIBS@
 
 lib_LTLIBRARIES = libSpecio.la

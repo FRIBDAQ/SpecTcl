@@ -1,10 +1,12 @@
-INCLUDES= -I. -I../EventSource -I../TCL -I../NSCLException \
+INCLUDES= -I. -I../EventSource \
+	@LIBTCLPLUS_CFLAGS@	\
 	-I../Utility @TCL_CPPFLAGS@ -I../Tape
 
-LDADD = -lEventSource -lException -ltape \
-	 -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
+LDADD = -lEventSource  -ltape \
+	 -L. -L../Events -L../EventSource  \
 	-L../Tape \
-	-L../Filter -L../SpecTcl 
+	-L../Filter -L../SpecTcl \
+	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
 
 
 

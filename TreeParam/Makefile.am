@@ -71,12 +71,11 @@ EXTRA_DIST = GateGenerator.tcl \
 	server.tcl \
 	tabnbook.tcl
 
-INCLUDES = -I@top_srcdir@/TCL \
+INCLUDES = @LIBTCLPLUS_CFLAGS@ \
 	-I@top_srcdir@/Sorter \
 	-I@top_srcdir@/Events \
 	-I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Utility \
-	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/Xamine \
 	-I@top_srcdir@/Display \
 	-I@top_srcdir@/Gates \
@@ -126,8 +125,8 @@ TestRunner_LDADD = @top_builddir@/SpecTcl/libTclGrammerCommands.la \
 	@top_builddir@/Tape/libtape.la \
 	@top_builddir@/Analysis/libBufferAnalysis.la
 
-TestRunner_LDFLAGS = $(LibraryObjects) -L@top_srcdir@/TCL -ltclPlus \
-	 -L@top_srcdir@/NSCLException -lException \
+TestRunner_LDFLAGS = $(LibraryObjects) \
+	 @LIBTCLPLUS_LDFLAGS@	\
 	@TK_LIBS@ @TCL_LIBS@ @CPPUNIT_LIBS@
 
 noinst_HEADERS = Asserts.h

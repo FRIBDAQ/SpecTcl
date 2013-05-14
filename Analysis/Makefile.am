@@ -19,9 +19,9 @@ include_HEADERS = CBufferCallback.h \
 INCLUDES = -I@top_srcdir@/Events \
 	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/Utility   \
-	-I. 
+	-I.  @LIBTCLPLUS_CFLAGS@
 
-libBufferAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0
+libBufferAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0 @LIBTCLPLUS_LDFLAGS@
 
 
 man_MANS = BufferAnalysis.3 CBufferProcessor.3 CBufferCallback.3

@@ -7,14 +7,14 @@ INCLUDES = -I. -I@top_srcdir@/Utility -I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/Filter -I@top_srcdir@/Gates       \
 	-I@top_srcdir@/Xamine -I@top_srcdir@/Display      \
 	-I@top_srcdir@/factories			\
-	@TCL_CPPFLAGS@ \
+	@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ \
 	-D_DEBUG -DCHECK_ALL -DDESIGN_BY_CONTRACT
 
 
 lib_LTLIBRARIES=libCalibrations.la
 
 libCalibrations_la_LDFLAGS = -version-info $(SOVERSION):0 \
-	-Wl,"-rpath-link=$(libdir)"
+	@LIBTCLPLUS_LDFLAGS@ -Wl,"-rpath-link=$(libdir)"
 
 libCalibrations_la_SOURCES =	CalibrationPackage.cpp		\
 				CCalibratedParameterCommand.cpp	\

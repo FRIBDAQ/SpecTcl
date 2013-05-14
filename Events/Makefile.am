@@ -8,8 +8,8 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/Utility \
         -I@top_srcdir@/factories \
         -I@top_srcdir@/Display    \
         -I@top_srcdir@/Gates \
-	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ @XINCLUDES@ 
-LDADD = @TK_LIBS@ @TCL_LIBS@
+	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ @XINCLUDES@ @LIBTCLPLUS_CFLAGS@
+LDADD = @LIBTCLPLUS+LDFLAGS@ @TK_LIBS@ @TCL_LIBS@
 
 
 lib_LTLIBRARIES = libAnalysis.la

@@ -21,5 +21,7 @@ URL="$baseURL/$tag"
 
 echo $URL
 
-svn co $URL libtcl
+svn export $URL libtcl
+
+(cd libtcl; autoreconf -i)
 

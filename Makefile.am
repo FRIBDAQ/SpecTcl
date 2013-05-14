@@ -1,6 +1,6 @@
 SUBDIRS =  Replace Scripts Utility factories Display \
-	NSCLException Xamine Tape EventSource \
-	TCL Events Gates Sorter SpectrumIO Filter Analysis\
+	 Xamine Tape EventSource \
+	 Events Gates Sorter SpectrumIO Filter Analysis\
 	DecoderRing  TreeParam \
 	Fits SpecTcl \
 	contrib TestFiles Gui splash filtsplit calibratedparams treegui ccusb vmusb
@@ -21,6 +21,7 @@ AUX_DIST = $(ac_aux_dir)/config.guess \
 EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl \
 	bootstrap $(MYGRIDIR) LICENSE  \
 	 doc build.cygwin Directories.include CompilationRules.include \
+	libtcl \
 	CHANGELOG
 
 dist-hook:
@@ -60,6 +61,8 @@ install-exec-local:
 	echo CC=$(CC)                        >> CompilationRules.temp
 	echo CXXLD=$(CXX)                  >> CompilationRules.temp
 	echo CCLD=$(CC)                    >> CompilationRules.temp
+	echo LIBTCLPLUS_CLFLAGS=@LIBTCLPLUS_CFLAGS@ >> CompilationRules.temp
+	echo LIBTCLPLUS_LDFLAGS=@LIBTCLPLUS_LDFLAGS@ >> CompilationRules.temp
 	cat  CompilationRules.include        >> CompilationRules.temp
 	$(INSTALL_DATA) CompilationRules.temp $(sysconfdir)/CompilationRules.include
 	echo "Version: " SpecTcl-$(VERSION) build on `hostname` `date` >VERSION

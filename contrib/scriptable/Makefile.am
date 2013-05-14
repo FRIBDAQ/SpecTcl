@@ -1,12 +1,12 @@
 DEFS = @WCHAR_T_DEF@
-INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
+INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
 	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Analysis \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
-	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@ \
+	@LIBTCLPLUS_CFLAGS@
 
 bin_PROGRAMS=ScriptedSpecTcl
 lib_LTLIBRARIES=libScripted.la
@@ -87,7 +87,7 @@ ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
 	-lSorting -lXplus \
 	-lGates -lAnalysis \
-	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lBufferAnalysis \
+	-lFilter -lEventSource -lSpecio  -lBufferAnalysis \
 	-lXamine  -lTreeParam -lFits \
 	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
 	-lgsl -lgslcblas					\
@@ -97,6 +97,7 @@ ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
 	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \
 	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
 	-L@top_srcdir@/TreeParam -L@top_srcdir@/Fits \
+	@LIBTCLPLUS_LDFLAGS@
 	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
 	 -g -Wl,"-rpath=($prefix)/lib"
 
@@ -158,8 +159,6 @@ unittest_LDFLAGS = $(Main_Objects) @CPPUNIT_LIBS@ \
 	@top_builddir@/Events/libAnalysis.la \
 	@top_builddir@/EventSource/libEventSource.la \
 	@top_builddir@/SpectrumIO/libSpecio.la \
-	@top_builddir@/TCL/libtclPlus.la \
-	@top_builddir@/NSCLException/libException.la \
 	@top_builddir@/Display/libXamine.la \
 	@top_builddir@/Filter/libFilter.la \
 	@top_builddir@/TreeParam/libTreeParam.la \
@@ -167,6 +166,7 @@ unittest_LDFLAGS = $(Main_Objects) @CPPUNIT_LIBS@ \
 	@top_builddir@/Fits/libFits.la \
 	@top_builddir@/DecoderRing/libDecoderRing.la \
 	@top_builddir@/Tape/libtape.la \
+	@LIBTCLPLUS_LDFLAGS@ \
 	$(TCL_LDFLAGS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
 
 

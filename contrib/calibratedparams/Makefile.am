@@ -1,12 +1,12 @@
 initLDFLAGS=@TK_LIBS@ @TCL_LIBS@
 
-INCLUDES = -I. -I@top_srcdir@/Utility -I@top_srcdir@/NSCLException \
-	-I@top_srcdir@/Xamine -I@top_srcdir@/TCL \
+INCLUDES = -I. -I@top_srcdir@/Utility 
+	-I@top_srcdir@/Xamine \
 	-I@top_srcdir@/Events -I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Sorter -I@top_srcdir@/EventSource \
 	-I@top_srcdir@/Filter -I@top_srcdir@/Gates       \
 	-I@top_srcdir@/Xamine -I@top_srcdir@/Display      \
-	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ \
+	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ @LIBTCLPLUS_CFLAGS @\
 	-D_DEBUG -DCHECK_ALL -DDESIGN_BY_CONTRACT
 
 
@@ -84,7 +84,7 @@ unittests_DEPENDENCIES = $(MainObjects)
 TestObjects=@top_srcdir@/Events/Event.lo @top_srcdir@/SpecTcl/EventProcessor.lo
 
 unittests_LDFLAGS = $(TestObjects) $(unittests_DEPENDENCIES) @CPPUNIT_LIBS@ -L@top_srcdir@/TCL -ltclPlus  \
-	-L@top_srcdir@/NSCLException -lException \
+	@LIBTCLPLUS_LDFLAGS@	\
 	-lgsl -lgslcblas -lm $(TCL_LDFLAGS)
 
 

@@ -371,3 +371,4 @@ int main(Int_t argc, Char_t** pArgs)
   close(fd);
 }
 void* gpEventSource;
+void* gpTCLApplication(0);

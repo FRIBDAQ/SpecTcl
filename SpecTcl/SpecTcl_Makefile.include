@@ -16,7 +16,7 @@ include $(INSTDIR)/etc/Directories.include
 
 #  Build up the compilation flags:
 
-CXXFLAGS=-g  -I. -I$(SPECINCS) $(TCLINCLUDES)
+CXXFLAGS=-g  -I. -I$(SPECINCS) $(TCLINCLUDES) $(LIBTCLPLUS_CFLAGS)
 
 # The c compilation flags for now are just the same as the c++ flags:
 
@@ -31,8 +31,7 @@ LDFLAGS=-L$(SPECLIBS) -lTclGrammerCommands \
 	-lAnalysis    \
 	-lEventSource \
 	-lSpecio      \
-	-ltclPlus     \
-	-lException   \
+	$(LIBTCLPLUS_LDFLAGS) \
 	-lXamine      \
 	-ltape        \
 	-lFilter      \
@@ -41,9 +40,12 @@ LDFLAGS=-L$(SPECLIBS) -lTclGrammerCommands \
 	-lFits		\
 	-lDecoderRing	\
 	-lgsl -lgslcblas	\
-	$(TCLLIBS)    \
+	$(LIBTCLPLUS_LDFLAGS) \
 	$(X11LIBS)    \
 	-Wl,"-rpath=$(SPECLIBS)"
+
+# Removed: 	$(TCLLIBS)   
+# included in libtclplus and caused double defs in -lieee :-(
 
 
 include $(SPECETC)/CompilationRules.include

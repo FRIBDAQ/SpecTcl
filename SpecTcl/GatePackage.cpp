@@ -640,7 +640,7 @@ std::string CGatePackage::GateToString(CGateContainer* pGate)
     UInt_t id;
     Float_t low, hi;		// because constituents have 'too much data'.
     char param[100];
-    sscanf(GateInfo.c_str(), "%d %f %f", &id, &low, &hi);
+    sscanf(GateInfo.c_str(), "%u %f %f", &id, &low, &hi);
     sprintf(param,"%f %f", low, hi);
     Result.AppendElement(param);
 

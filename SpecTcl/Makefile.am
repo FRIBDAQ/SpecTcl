@@ -1,7 +1,6 @@
 DEFS = @WCHAR_T_DEF@
-INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
+INCLUDES = -I@top_srcdir@ -I.  -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates -I@top_srcdir@/SpectrumIO \
 	-I@top_srcdir@/Xamine \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
@@ -9,7 +8,8 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Fits                               \
 	-I@top_srcdir@/factories			\
 	-I@top_srcdir@/DecoderRing			\
-	@TCL_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+	@TCL_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@ \
+	@LIBTCLPLUS_CFLAGS@
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/etc
@@ -84,16 +84,17 @@ SpecTcl_SOURCES = MySpecTclApp.cpp \
 AM_CXXFLAGS = -g
 
 SpecTcl_LDFLAGS = -lTclGrammerCommands -lXplus -lGates -lAnalysis \
-	-lFilter -lBufferAnalysis -lEventSource -lSpecio -ltclPlus \
-	-lException -lTreeParam -lXamine  -ltape -lFits \
+	-lFilter -lBufferAnalysis -lEventSource -lSpecio  \
+	-lTreeParam -lXamine  -ltape -lFits \
 	@top_srcdir@/Sorter/libSorting.la		\
 	@top_srcdir@/DecoderRing/libDecoderRing.la	\
 	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)  \
 	-L. -L../SpectrumIO \
 	-L../Tape -L../Sorter \
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
-	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam \
+	-L../Filter -L../Analysis -L../TreeParam \
 	-L../Fits -L@top_srcdir@/DecoderRing	\
+	@LIBTCLPLUS_LDFLAGS@	\
 	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas  @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
 
 
@@ -138,8 +139,6 @@ docbuftests_DEPENDENCIES = DocumentationException.o  \
 
 
 commonTestLdFlags= @top_builddir@/Events/libAnalysis.la \
-	@top_builddir@/TCL/libtclPlus.la \
-	@top_builddir@/NSCLException/libException.la \
 	@top_builddir@/Analysis/libBufferAnalysis.la \
 	@top_builddir@/SpecTcl/libTclGrammerCommands.la \
 	@top_builddir@/Filter/libFilter.la	\
@@ -149,6 +148,7 @@ commonTestLdFlags= @top_builddir@/Events/libAnalysis.la \
 	@top_builddir@/DecoderRing/libDecoderRing.la \
 	@top_builddir@/Tape/libtape.la \
 	@top_builddir@/SpectrumIO/libSpecio.la \
+	@LIBTCLPLUS_LDFLAGS@ \
 	@CPPUNIT_LIBS@ @TK_LIBS@ @TCL_LIBS@
 
 scalertests_LDFLAGS= ScalerProcessorCallbacks.o $(commonTestLdFlags)

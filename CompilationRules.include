@@ -29,17 +29,17 @@
 #
 
 .cpp.o:
-	$(CXX) -g -c  $(CXXFLAGS) $(USERCXXFLAGS) $<
+	$(CXX) -g -c  $(CXXFLAGS) $(LIBTCLPLUS_CFLAGS) $(USERCXXFLAGS) $<
 
 .cxx.o:
-	$(CXX) -g -c  $(CXXFLAGS) $(USERCXXFLAGS) $<
+	$(CXX) -g -c  $(CXXFLAGS) $(LIBTCLPLUS_CFLAGS) $(USERCXXFLAGS) $<
 
 .cc.o:
-	$(CXX) -g -c  $(CXXFLAGS) $(USERCXXFLAGS) $<
+	$(CXX) -g -c  $(CXXFLAGS) $(LIBTCLPLUS_CFLAGS) $(USERCXXFLAGS) $<
 
 #
 #  C compilation(s) if more are aded the build rules should be identical.
 
 .c.o:
-	$(CC)  -g -c  $(CCFLAGS) $(USERCCFLAGS) $<
+	$(CC)  -g -c  $(CCFLAGS) $(LIBTCLPLUS_CFLAGS) $(USERCCFLAGS) $<
 

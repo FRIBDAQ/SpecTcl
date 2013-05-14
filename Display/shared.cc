@@ -472,11 +472,11 @@ PrintOffsets()
 {
   spec_shared *pShape(0);	// dirty way to get offests.
   printf("(Xamine) offsets into shared mem: \n");
-  printf("  dsp_xy      = %x\n", pShape->dsp_xy);
-  printf("  dsp_titles  = %x\n", pShape->dsp_titles);
-  printf("  dsp_types   = %x\n", pShape->dsp_types);
-  printf("  dsp_map     = %x\n", pShape->dsp_map);
-  printf("  dsp_spectra = %x\n", &(pShape->dsp_spectra));
+  printf("  dsp_xy      = %p\n", (void*)pShape->dsp_xy);
+  printf("  dsp_titles  = %p\n", (void*)pShape->dsp_titles);
+  printf("  dsp_types   = %p\n", (void*)pShape->dsp_types);
+  printf("  dsp_map     = %p\n", (void*)pShape->dsp_map);
+  printf("  dsp_spectra = %p\n", (void*)&(pShape->dsp_spectra));
   printf("  Total size  = %d\n", sizeof(spec_shared));
 }
 

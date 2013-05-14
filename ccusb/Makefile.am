@@ -17,20 +17,19 @@ noinst_HEADERS=CC1205Unpacker.h \
 	ParamMapCommand.h
 
 
-INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
+INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
 	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Analysis \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	-I@top_srcdir@/TreeParam \
-	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@
+	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
+	@LIBTCLPLUS_CFLAGS@
 
 CCUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
 	 ../Events/libAnalysis.la \
 	../Fits/libFits.la \
-	../TCL/libtclPlus.la \
 	../Analysis/libBufferAnalysis.la \
 	../EventSource/libEventSource.la \
 	../Tape/libtape.la \
@@ -43,8 +42,8 @@ CCUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
 	../SpectrumIO/libSpecio.la \
 	../TreeParam/libTreeParam.la \
 	../DecoderRing/libDecoderRing.la \
-	../NSCLException/libException.la \
 	../Display/libXamine.la          \
+	@LIBTCLPLUS_LDFLAGS@	\
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\
 	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \

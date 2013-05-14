@@ -78,6 +78,8 @@ AC_CHECK_LIB(m, logb)
 AC_CHECK_FUNCS([strdup strstr strtol tzset mktime strtod timezone])
 
 
+
+
 #  The following are needed for strict ANSI c++ compilers The major features
 #  are whether or not there are .h -less headers and if there's an std
 #  namespace we'll need to import.
@@ -684,6 +686,44 @@ then
 else  
      AC_MSG_RESULT(no)
 fi
+
+#
+#   libTclPlus and libException could have been installed from 
+#   Ryan's Deb or I might need to install my own versions which
+#   get exported into the build tree from a tag of the repository
+#   into the libtcl subdirectory of this tree.
+#    
+#  Produce:
+#     LIBTCLPLUS_CFLAGS - Compilation flags required to build against the
+#                         appropriate one.
+#     LIBTCLPLUS_LDFLAGS - Appropriate linker flags.
+#
+# 
+
+AC_CHECK_LIB(Tcl_AppInit, tclPlus, [systemtcl="yes"], [systemtcl="no"])
+
+
+#
+#  IF systemtcl is yes we're pretty much done.. otherwise
+#  we need to configure/build/install libtcl into prefix and then set
+#  the flags:
+
+AC_MSG_CHECKING([Checking for libtclPlus])
+if test $systemtcl = "yes"
+then
+	LIBTCLPLUS_CFLAGS=
+	LIBTCLPLUS_LDFLAGS=-ltclPlus -lException
+	AC_MSG_RESULT([Found in  system libraries])
+else
+	AC_MSG_RESULT([Need to build local tagged copy])
+	(cd libtcl; ./configure --prefix=${prefix}; make install)
+	LIBTCLPLUS_CFLAGS="-I${prefix}/include"
+	LIBTCLPLUS_LDFLAGS=-"L${prefix}/lib -ltclPlus -lException -Wl,\"-rpath=${prefix}/lib\""
+
+fi
+
+AC_SUBST(LIBTCLPLUS_CFLAGS)
+AC_SUBST(LIBTCLPLUS_LDFLAGS)
 
 # mandb:
 

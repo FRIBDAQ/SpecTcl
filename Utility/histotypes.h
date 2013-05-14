@@ -90,57 +90,18 @@
 #define __STL_STRING
 #endif
 
-
+#ifndef __CRT_MATH_H
 #include <math.h>
+#define __CRT_MATH_H
+#endif
 
-typedef int Int_t;
-typedef unsigned int UInt_t;
-
-typedef short Short_t;
-typedef unsigned short UShort_t;
-
-typedef long Long_t;
-typedef unsigned long ULong_t;
-
-typedef float Float_t;
-typedef double DFloat_t;
+#ifndef _DAQTYPES_H
+#include <daqdatatypes.h>
+#endif
 
 
 
-typedef char Char_t;
-typedef unsigned char UChar_t;
 
-typedef char (*Textsz_t);             // Null terminated string.
-typedef UInt_t Size_t;
-
-typedef void (*Address_t);           // Typical pointer.
-
-static const Address_t kpNULL = (Address_t)0;  // Null pointer.
-
-typedef enum {                    // State of a file.
-	           kfsOpen,
-		   kfsClosed
-} FileState_t;
-
-typedef enum {
-  kacRead   = 1,		// Read access
-  kacWrite  = 2,		// Write access
-  kacCreate = 4,		// Create if needed.
-  kacAppend = 8			// Append before writes.
-
-} Access_t;
-
-#define kACTIONSIZE 1024 // Size of action message.
-
-
-typedef UChar_t Bool_t;
-static const Bool_t kfTRUE = 0xff; // TRUE boolean.
-static const Bool_t kfFALSE= 0;	  // FALSE boolean. 
-
-typedef struct {
-  UShort_t month,day, year;	//  date.
-  UShort_t hours, min, sec;	// time in day.
-} Time_t, *pTime_t;
 
 typedef enum _Datatype_t {
   keByte,			// Data type is byte.
@@ -338,8 +299,6 @@ operator>>(STD(istream)& in, SpectrumType_t& t)
   return in;
 }
 
-static const UInt_t kn1K                  = 1024;
-static const UInt_t kn1M                  = kn1K*kn1K;
 
 // Default buffer size:
 
