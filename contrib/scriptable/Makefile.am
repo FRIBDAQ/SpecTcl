@@ -97,7 +97,7 @@ ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
 	-L@top_srcdir@/Events   \
 	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
 	-L@top_srcdir@/TreeParam -L@top_srcdir@/Fits \
-	@LIBTCLPLUS_LDFLAGS@
+	@LIBTCLPLUS_LDFLAGS@ \
 	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
 	 -g -Wl,"-rpath=($prefix)/lib"
 
@@ -167,7 +167,7 @@ unittest_LDFLAGS = $(Main_Objects) @CPPUNIT_LIBS@ \
 	@top_builddir@/DecoderRing/libDecoderRing.la \
 	@top_builddir@/Tape/libtape.la \
 	@LIBTCLPLUS_LDFLAGS@ \
-	$(TCL_LDFLAGS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
+	$(TCL_LIBS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
 
 
 TESTS = ./unittest
