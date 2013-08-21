@@ -1,0 +1,160 @@
+<html><head>
+<title>httpd::config - Tcl Web Server</title>
+<style type="text/css"><!--
+    HTML {
+	background: 	#FFFFFF;
+	color: 		black;
+    }
+    BODY {
+	background: 	#FFFFFF;
+	color:	 	black;
+    }
+    DIV.doctools {
+	margin-left:	10%;
+	margin-right:	10%;
+    }
+    DIV.doctools H1,DIV.doctools H2 {
+	margin-left:	-5%;
+    }
+    H1, H2, H3, H4 {
+	margin-top: 	1em;
+	font-family:	sans-serif;
+	font-size:	large;
+	color:		#005A9C;
+	background: 	transparent;
+	text-align:		left;
+    }
+    H1.title {
+	text-align: center;
+    }
+    UL,OL {
+	margin-right: 0em;
+	margin-top: 3pt;
+	margin-bottom: 3pt;
+    }
+    UL LI {
+	list-style: disc;
+    }
+    OL LI {
+	list-style: decimal;
+    }
+    DT {
+	padding-top: 	1ex;
+    }
+    UL.toc,UL.toc UL, UL.toc UL UL {
+	font:		normal 12pt/14pt sans-serif;
+	list-style:	none;
+    }
+    LI.section, LI.subsection {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding: 	0em;
+    }
+    PRE {
+	display: 	block;
+	font-family:	monospace;
+	white-space:	pre;
+	margin:		0%;
+	padding-top:	0.5ex;
+	padding-bottom:	0.5ex;
+	padding-left:	1ex;
+	padding-right:	1ex;
+	width:		100%;
+    }
+    PRE.example {
+	color: 		black;
+	background: 	#f5dcb3;
+	border:		1px solid black;
+    }
+    UL.requirements LI, UL.syntax LI {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding:	0em;
+    }
+    DIV.synopsis {
+	color: 		black;
+	background: 	#80ffff;
+	border:		1px solid black;
+	font-family:	serif;
+	margin-top: 	1em;
+	margin-bottom: 	1em;
+    }
+    UL.syntax {
+	margin-top: 	1em;
+	border-top:	1px solid black;
+    }
+    UL.requirements {
+	margin-bottom: 	1em;
+	border-bottom:	1px solid black;
+    }
+--></style>
+</head>
+<! -- Generated from file '' by tcllib/doctools with format 'html'
+   -->
+<! -- Copyright &copy; 2003 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
+   -->
+<! -- CVS: $Id$ httpd::config.n
+   -->
+<body><div class="doctools">
+<h1 class="title">httpd::config(n) 1.0  &quot;Tcl Web Server&quot;</h1>
+<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<p>httpd::config - Configuration management</p>
+</div>
+<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="toc">
+<li class="section"><a href="#toc">Table Of Contents</a></li>
+<li class="section"><a href="#synopsis">Synopsis</a></li>
+<li class="section"><a href="#section1">Description</a></li>
+<li class="section"><a href="#section2">Public API</a></li>
+<li class="section"><a href="#see-also">See Also</a></li>
+<li class="section"><a href="#keywords">Keywords</a></li>
+<li class="section"><a href="#copyright">Copyright</a></li>
+</ul>
+</div>
+<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="synopsis">
+<ul class="requirements">
+<li>package require <b class="pkgname">httpd::config <span class="opt">?1.0?</span></b></li>
+</ul>
+<ul class="syntax">
+<li><a href="#1"><b class="cmd">config::init</b> <i class="arg">config</i> <i class="arg">aname</i></a></li>
+<li><a href="#2"><b class="cmd">config::cget</b> <i class="arg">index</i></a></li>
+<li><a href="#3"><b class="cmd">config::setValue</b> (<i class="arg">key</i> <i class="arg">value</i>)...</a></li>
+</ul>
+</div>
+</div>
+<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<p>The package <b class="package">httpd::config</b> is a core module providing all
+other modules of the web server with commands to define and read
+global configuration data.</p>
+</div>
+<div id="section2" class="section"><h2><a name="section2">Public API</a></h2>
+<dl class="definitions">
+<dt><a name="1"><b class="cmd">config::init</b> <i class="arg">config</i> <i class="arg">aname</i></a></dt>
+<dd><p>Retrieves a list of resources from disk, specifically the
+file <i class="arg">config</i>. The array variable <i class="arg">aname</i> contains the default
+configuration values to use, and the new, current values after the
+processing of the configuration file has completed.</p></dd>
+<dt><a name="2"><b class="cmd">config::cget</b> <i class="arg">index</i></a></dt>
+<dd><p>Returns the value for configuration key/variable <i class="arg">index</i>.  The
+empty string will be returned if there is no such configuration
+variable.</p></dd>
+<dt><a name="3"><b class="cmd">config::setValue</b> (<i class="arg">key</i> <i class="arg">value</i>)...</a></dt>
+<dd><p>Goes through the specified configuration keys, assigns them the given
+values, and then stores the changed information back to disk.  This
+call will fail if <b class="cmd">config::init</b> has not been called before.</p></dd>
+</dl>
+</div>
+<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<p>httpd</p>
+</div>
+<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
+<p>configuration, web server</p>
+</div>
+<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<p>Copyright &copy; 2003 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
+</div>
+</div></body></html>
+

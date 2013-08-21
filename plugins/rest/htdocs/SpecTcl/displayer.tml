@@ -1,0 +1,208 @@
+[::SpecTcl::loadD3]
+
+<script type='text/javascript'>
+
+
+
+/*  Demo of ability to put a histogram in the
+   displayer pane using d3
+*/
+
+var plotWidth  = 1024;
+var plotHeight = 500;
+
+/*
+ * Pull the channel number out of an object
+ */
+function channel(d) {
+    return d.xchan;
+}
+/*
+ * pull the height out of an object:
+ */
+function height(d) {
+    return d.value;
+}
+
+function maxHeight(c) {
+    var max = 0;
+    for (i in c) {
+	if (max < c\[i\].value) {
+	    max = c\[i\].value;
+	}
+    }
+    return max;
+}
+function makeDomain(low, hi) {
+    result = new Array();
+    for ( i = low; i < hi; i++) {
+	result.push(i);
+    }
+    return result;
+}
+
+var x;
+var y;
+/*
+ * Add this svg histogram using d3:
+ *  @param - the dom selector into which the SVG is put.
+ *  @param - Name of the histogram (title?).
+ *  @param - channels object from the ajax return.
+ */
+function addHistogram(domSelector, name, channels, xmax)
+{
+    // Put an <h2> title in the div with the spectrum name:
+
+    var html = "<h2>" + name + ": <h2>";
+    jQuery("#vis").empty();
+    jQuery(html).prependTo("#vis");
+
+    // Create the svg area:
+    
+    var fullScaleY = maxHeight(channels);
+    if (xmax > plotWidth) {
+	alert("Too many channels for the svg width plot may look funky");
+	xmax = plotWidth;
+    }
+
+    var svg = d3.select("#vis")
+	.append("svg")
+	.attr("width", plotWidth)
+	.attr("height", plotHeight);
+
+
+    x         = d3.scale.ordinal()
+	.domain(makeDomain(0,xmax))
+	.rangeRoundBands(\[0, plotWidth\]); // Figure out the x channels/scale.
+    y         = d3.scale.linear()
+	.domain(\[0, fullScaleY\])
+		.range(\[0, plotHeight\]); // Figure out the y scale.
+
+
+    var channelWidth = x.rangeBand();
+
+    svg.selectAll("rect")
+	.data(channels)
+	.enter().append("rect")
+	.attr("width", channelWidth)
+	.attr("x", function(d) {return x(channel(d))} )
+	.attr("y", function(d) { return plotHeight - y(height(d)); })
+	.attr("height",function(d) {return y(height(d));});
+     
+}
+// Called if ajax failed.
+
+function ajaxFailed(jqXHR, textStatus, errorThrown) {
+    alert(textStatus);
+}
+
+
+// Called on ajax success, data is the JSON return marshalled into an object.
+    
+function plotHistogram(data)     {
+    var a=1;
+    var status  = data.status;
+    if (status != "OK") {
+	alert("Bad status");
+	return;
+    }
+    var context = this.valueOf();
+    addHistogram("#vis", context.name, data.detail, context.xmax);
+    
+}
+function requestSpectrumContents(spectrumName, channels)
+{
+    var data = {
+	name:   spectrumName
+    };
+    jQuery.ajax({
+	    url:       "/spectcl/spectrum/contents",
+		success:       plotHistogram,
+		dataType:  "json",
+		error:     ajaxFailed,
+		type:      "POST",
+		data:    data,
+		context: {name: spectrumName, xmax: channels}
+		});
+}
+
+
+function processSpectrumProperties(result)
+{
+    if (result.status != "OK") {
+	alert("Bad status from property request");
+    }
+   var data = result.detail;
+   if (data.length != 1) {
+	alert("Needed one spectrum info got " + data.length);
+	return;
+    }
+   // for now only 1d spectra;
+   var properties = data\[0\];
+   if ((properties.axes.length != 1) || (properties.type == "s")) {
+       alert("Only able to do 1-d spetra for now");
+       return;
+   }
+   
+
+
+    // We got the properties now we need to make the contents request:
+    // 
+  
+    var context = this.valueOf();
+    requestSpectrumContents(context.name, properties.axes\[0\].bins);
+}
+
+function requestSpectrum(spectrumName) {
+    var data = {
+	filter: spectrumName
+    };
+    jQuery.ajax({
+	    url: "/spectcl/spectrum/list",
+		success: processSpectrumProperties,
+		dataType: "json",
+		error:    ajaxFailed,
+		type:     "POST",
+		data:     data,
+		context: {name: spectrumName}
+ 
+	});
+
+    requestSpectrumContents(spectrumName, 1024);
+}
+
+function selectSpectrum() {
+    requestSpectrum(jQuery(this).text());
+
+}
+
+/* Make a jQuery Ajax request for event.raw.00 
+   When that completes we'll add the svg to the vis div
+   and plot the histogram in it.
+*/
+
+jQuery(document).ready(function() {
+  [::SpecTcl::highlightTableRows #spectable data white]
+    jQuery('span.gatedef').hide();
+    [::SpecTcl::hoverHighlight tr.data highlight]
+
+    /* Add a click handler to the spectrum names in the table: */
+
+    jQuery(".spectrumName").click(selectSpectrum);
+
+    });
+
+
+
+    
+
+</script>
+
+<!-- d3 playpen -->
+
+<div id="vis"></div>
+
+<div id="spectable">
+    [::SpecTcl::spectable]    
+</div>
+

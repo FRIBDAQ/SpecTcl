@@ -1,0 +1,2468 @@
+
+
+# bwise, non-commercial use permitted when leaving author name readable
+# permission from theover@tiscali.nl is needed for commercial use.
+
+set rmbut "<Button-3>"   
+                              # second mouse button, can set to -2
+# File organisation is simple: all what follows are procedures, 
+# and at the end of this script startup calls.
+
+proc set_procvanilla_nofile {  } {
+global defaultprocs
+# puts "This routine should be called when only the startup\m"
+# puts "procedures are present to make the file 'defaultprocs.tcl'"
+	set defaultprocs {}
+	foreach i [info procs] {
+		if {[string match {tk*} $i] == 1 || 
+		  [string match {tcl*} $i] == 1} {
+			append defaultprocs "$i "
+		}
+	}
+}
+
+set_procvanilla_nofile       
+                             # Little exception to the rule: a function call..
+                             # make sure the procedure list doesn't 
+                             # contain system procs
+# alternative for instance when loading another package first:
+# set defaultprocs [info procs]
+
+proc allspaces { {s }  } {
+   foreach i [split $s {}] {
+       if {$i != " "} {return 0 } ;
+    } ;
+    return 1
+}
+
+proc array2list { {na  {cname}} {va  {ccontent}} {names  {cvars}}  } {
+   upvar  #0 $na n  $va v
+   set list {}
+   if {$names == {}} { set nam [array names n] } {
+      upvar #0 $names nam
+   }
+   foreach i $nam {
+      set l {}
+      lappend l $n($i)
+      if {[info exists v($i)] == 1} {lappend l $v($i); };
+      if {"$i" != "$n($i)"} { lappend l $i };
+      lappend list $l
+   }
+   return $list
+}
+
+proc bdo { {f } {t }  } { 
+   global mc 
+  switch $f  Eval {global mc;  uplevel #0 eval $\{[blockfunc $t]\}  }   Propagate {global mc;  run $t}  Transfer {global mc;  transfer $t}  Run {global mc; uplevel #0 eval $\{[blockfunc $t]\}; run $t}  Init {global mc; uplevel #0 eval $\{[blockfunc $t]_init\}; }
+}
+
+proc bdol { {l }  } { 
+   foreach {f t} $l {
+puts $f,$t
+      switch $f   E {global mc;  uplevel #0 eval $\{[blockfunc $t]\}  }  P {global mc;  run $t}   T {global mc;  transfer $t}  R {global mc; uplevel #0 eval $\{[blockfunc $t]\}; run $t}  I {global mc; uplevel #0 eval $\{[blockfunc $t]_init\};}
+   }
+}
+
+proc block_del { {n }  } {
+    global mc;
+    foreach i [$mc find withtag $n] {
+       if {[lindex [ $mc itemcget $i -tag ] 0] == $n}  {$mc del $i}
+    }
+}
+
+proc block_get_pinnames { {block } {pintype  {}}  } {
+    global mc;
+    set o {};
+    foreach i [eval "tag_and {$block pin $pintype}"] {
+       lappend o [lindex [$mc itemcget $i -tags] 3]
+    };
+    return $o
+}
+
+proc block_name_fromid { {id }  } {
+    global mc
+    eval return [lindex [$mc itemcget $id -tags] 0]
+}
+
+proc block_prev { {b } {d  {1000}}  } {
+   set o {};
+   foreach p [block_get_pinnames $b typein] {
+      foreach op [otherpins $b $p] {
+	 append o "{$b $p [lindex $op 0] [lindex $op 1]} "
+      }
+   }
+   if {$d > 0} {foreach j $o {append o [block_prev [lindex $j 2]  [expr $d-1]]} }
+   return $o
+}
+
+proc blockbinds {  } {
+    global mc
+    $mc bind all <ButtonPress-1> {  global hx hy hl mc; set hx %X; set hy %Y;  set hl [lindex [$mc gettags current] 0];  bind $mc <Motion> {  global hx hy hl mc;  foreach i [$mc find withtag "$hl"] {  if {[lindex [$mc itemcget $i -tags] 0 ] == "$hl"}  {$mc move  $i  [expr %%X-$hx] [expr %%Y-$hy]}  };  wire_update $hl ; set hx %%X; set hy %%Y;  }  } ;
+    bind $mc <ButtonRelease-1> {global mc; bind $mc <Motion> {}} ;
+    $mc bind block <Double-ButtonPress-1> {   if { [llength  [listunion  [$mc find withtag  [lindex [$mc itemcget current -tags] 0]  ] [  $mc find withtag bbox  ]  ]  ] == 0  }  { cbbox [lindex [$mc itemcget current -tags] 0] selection0}  { eval $mc del  [listunion [$mc find withtag bbox]  [$mc find withtag [lindex [$mc itemcget current -tags] 0] ]]} ;  }
+    $mc bind pin <ButtonPress-1> {
+       togglepinsel current
+    }
+    $mc bind wire <ButtonPress-1> {
+       togglepinsel [tag_and [ concat [lrange   [$mc itemcget current -tags] 3 4]  pin]];
+       togglepinsel [tag_and [ concat [lrange   [$mc itemcget current -tags] 5 6]  pin]] }
+    $mc bind  drumbol <ButtonPress-1> {
+       global mc;
+       if {[$mc itemcget current -outline] == {}}  {$mc itemco current -outline purple -width 2}   {$mc itemco current -outline {}}
+       }
+}
+
+proc blockclear { {blocks }  } {
+   foreach block $blocks {
+      set v [blockfunc $block init];
+      global $v ; set $v {}
+      set v [blockfunc $block];
+      global $v ; set $v {}
+      foreach pin [block_get_pinnames $block] {
+	 set p [pinvar $block $pin]
+	 global $p
+	 set $p {}
+      }
+   }
+}
+
+proc blockfunc { {block } {type  {}}  } {
+   set o {}
+   if {$type != {} } {set type _$type};
+   append o  $block . bfunc $type ;
+   return $o
+}
+
+proc bvar { {block } {var } {val  {}}  } {
+   set v \{$block.$var\}
+   #puts $v
+   #puts $vv
+      if {$val == {}} {
+	 eval upvar #0 $v vv
+	 return $vv
+      } {
+	 uplevel #0 set $v $val
+      }
+}
+
+proc bwise { {rmw  {mw}}  } {
+   global rmbut
+   uplevel #0 {if {![info exists mw]} { set mw {} 
+   set bcount 0
+   set scopeindex 0
+   set wireindex 0
+   set shellindex 0
+   set drumindex 0 
+   set ident 0
+    }
+ }
+   global mw mc
+   set mc $mw.c 
+ 
+  
+
+
+############################ MAIN CODE  ################################# 
+  
+   mainbuttons $mw
+   main_window $mw Main 
+   blockbinds
+   canmenu
+   bind $mc  $rmbut {mnewmenu %X %Y %x %y} 
+   history keep 1000 
+}
+
+proc canbwin { {b }  } {
+   global tt
+   set bn {} ; append bn ".$b" "info" ; set bn [string tolower $bn]
+   catch "destroy $bn"
+   toplevel $bn
+   set bs $b*
+   uplevel #0 "eval {set tt \[info var $bs\]} "
+   set j 0
+   foreach i [lsort -dict $tt]  {
+      set il [string tolower $i]
+      frame $bn.n$j ; pack $bn.n$j -side top -expand n -fill x
+      label $bn.n$j.l -text $i -width 8 -anchor e
+      pack $bn.n$j.l -side left -expand n -fill x
+      entry $bn.n$j.e -textvar $i
+      pack $bn.n$j.e -side left -expand y -fill x
+      incr j
+   }
+    frame $bn.n$j ; pack $bn.n$j -side bottom -expand n -fill none
+    button $bn.n$j.c -text Close -command "destroy $bn"
+    pack $bn.n$j.c -side left  -expand n -fill none
+    button $bn.n$j.e -text Eval -command "uplevel #0 eval \$\\{[blockfunc $b]\\}"
+    pack $bn.n$j.e -side left  -expand n -fill none
+    incr j
+}
+
+proc canmenu {  } { 
+   global rmbut
+   global mc 
+   catch "destroy $mc.pm" 
+   menu $mc.pm -tearoff 0 
+   $mc.pm insert 1 command  -label {none} -state disabled 
+   $mc.pm insert 2 command -label "Eval" -command {global mc; set t "[$mc.pm entrycget 0 -label]" ; uplevel #0 eval $\{[blockfunc $t]\}  } 
+   $mc.pm insert 3 command -label "Data" -command {global mc; set t "[$mc.pm entrycget 0 -label]" ; canbwin $t } 
+   $mc.pm insert 4 command -label "Propagate" -command {global mc; set t "[$mc.pm entrycget 0 -label]" ; run $t} 
+   $mc.pm insert 5 command -label "Transfer" -command {global mc; set t "[$mc.pm entrycget 0 -label]" ; transfer $t} 
+   $mc.pm insert 6 command -label "Run" -command {global mc; set t "[$mc.pm entrycget 0 -label]" ;uplevel #0 eval $\{[blockfunc $t]\}; run $t} 
+   $mc.pm insert 7 command -label "Init" -command {global mc; set t "[$mc.pm entrycget 0 -label]" ;uplevel #0 eval $\{[blockfunc $t]_init\}; } 
+   $mc.pm insert 8 command -label "Funprop" -command {global mc; set t "[$mc.pm entrycget 0 -label]" ; net_funprop $t}
+
+#   $mc.pm insert 5 command -label "Info" -command {global mc; set t "[$mc.pm entrycget 0 -label]" ; set infoline "$t [block_get_pinnames $t]"; eval set befunc "\${$t.bfunc}" } 
+   $mc bind all $rmbut {global mc; $mc.pm entryco 0 -label [block_name_fromid current]; tk_popup $mc.pm [expr %X-0] %Y 1} 
+}
+
+proc cbbox { {name  {all}} {selection  {selection0}}  } {
+    global mc;
+    set tl {};
+    foreach i [$mc find withtag $name] {  if {[lsearch -exact [$mc itemcget $i -tags] wire ] < 0}  {lappend tl $i} 
+    };
+    set t [eval $mc create rect [eval $mc bbox $tl]  -fill red -tags "{$name bbox $selection}" ];
+    $mc lower $t;set lx [$mc coords $t];
+    eval $mc create text [expr ([ lindex $lx 0 ]+[ lindex $lx 2 ])/2 ]  [expr [lindex $lx 3]+1] -text $name  -tags "{$name bb blockname bbox $selection}"   -anchor n -fill red -font "{helvetica 12 bold}"
+}
+
+proc clength { {c }  } {
+   set r [lindex $c 0] ;
+   set c [lindex $c 1] ;
+   set l [expr sqrt ($r*$r + $c*$c) ]
+    return $l
+}
+
+proc cmul { {a } {b }  } {
+   set ar [lindex $a 0]
+   set ac [lindex $a 1]
+   set br [lindex $b 0]
+   set bc [lindex $b 1]
+   set cr [expr $ar*$br - $ac*$bc]
+   set cc [expr $ar*$bc + $ac*$br]
+   set c [list $cr $cc]
+   return $c
+}
+
+proc connect { {wire } {name1 } {pin1 } {name2 } {pin2 }  } {
+    global mc wireindex
+    #puts $wire,$name1,$pin1,$name2,$pin2
+    set i1 [eval tag_and "{$name1 $pin1 pin}"]
+    set i2 [eval tag_and "{$name2 $pin2 pin}"]
+ #   set i1 [find2l $name1 $pin1];
+ #   set i2 [find2l $name2 $pin2];
+    #puts $i1,$i2;  
+    set x1 [lindex [$mc coords $i1] 0];
+    set y1 [lindex [$mc coords $i1] 1];
+    set x2 [lindex [$mc coords $i2] 0];
+    set y2 [lindex [$mc coords $i2] 1];
+    #puts $x1,$y1,$x2,$y2;
+    set match {}
+    set t1 "{[lsort [list [list $name1 $pin1] [list $name2 $pin2]]]}"
+    foreach i [$mc find withtag wire] {
+       set t2 "{[lsort [list [lrange [$mc itemcget $i -tags] 3 4] [lrange [$mc itemcget $i -tags] 5 6] ] ]}"
+       #puts "$t1,$t2"
+       if { $t1 == $t2 } {
+	  lappend match [lindex [$mc itemcget $i -tags] 0]
+       }
+    }
+ #   puts $match
+    if {$match == {}} {
+       if {$wire == ""} {
+	  set wire wire$wireindex
+	  set wireindex [expr $wireindex+1]
+       }
+       eval $mc create line $x1 $y1 $x2 $y2 -fill darkblue  -tags "{$wire connect wire $name1 $pin1 $name2 $pin2}"
+       set i [eval tag_and "{$name1 $pin1 pin}"]
+       $mc itemco $i -fill darkblue
+       $mc dtag $i selectedpin
+       set i [eval tag_and "{$name2 $pin2 pin}"]
+       $mc itemco $i -fill darkblue
+       $mc dtag $i selectedpin
+    } {
+	  foreach i $match { $mc del $i}
+    }
+}
+
+proc connect1 { {wire } {name1 } {pin1 } {name2 } {pin2 }  } {
+    global mc wireindex
+    #puts $wire,$name1,$pin1,$name2,$pin2
+    set i1 [eval tag_and "{$name1 $pin1 pin}"]
+    set i2 [eval tag_and "{$name2 $pin2 pin}"]
+ #   set i1 [find2l $name1 $pin1];
+ #   set i2 [find2l $name2 $pin2];
+    #puts $i1,$i2;  
+    set x1 [lindex [$mc coords $i1] 0];
+    set y1 [lindex [$mc coords $i1] 1];
+    set x2 [lindex [$mc coords $i2] 0];
+    set y2 [lindex [$mc coords $i2] 1];
+    #puts $x1,$y1,$x2,$y2;
+    set match {}
+    set t1 "{[lsort [list [list $name1 $pin1] [list $name2 $pin2]]]}"
+    foreach i [$mc find withtag wire] {
+       set t2 "{[lsort [list [lrange [$mc itemcget $i -tags] 3 4] [lrange [$mc itemcget $i -tags] 5 6] ] ]}"
+       #puts "$t1,$t2"
+       if { $t1 == $t2 } {
+	  lappend match [lindex [$mc itemcget $i -tags] 0]
+       }
+    }
+ #   puts $match
+    if {$match == {}} {
+       if {$wire == ""} {
+	  set wire wire$wireindex
+	  set wireindex [expr $wireindex+1]
+       }
+       eval $mc create line $x1 $y1 $x2 $y2 -fill darkblue  -tags "{$wire connect wire $name1 $pin1 $name2 $pin2}"
+       set i [eval tag_and "{$name1 $pin1 pin}"]
+       $mc itemco $i -fill darkblue
+       $mc dtag $i selectedpin
+       set i [eval tag_and "{$name2 $pin2 pin}"]
+       $mc itemco $i -fill darkblue
+       $mc dtag $i selectedpin
+    } {
+	  foreach i $match { $mc del $i}
+    }
+}
+
+proc connectc { {wire } {name1 } {pin1 } {name2 } {pin2 }  } {
+    global mc wireindex
+    #puts $wire,$name1,$pin1,$name2,$pin2
+    set i1 [eval tag_and "{$name1 $pin1 pin}"]
+    set i2 [eval tag_and "{$name2 $pin2 pin}"]
+ #   set i1 [find2l $name1 $pin1];
+ #   set i2 [find2l $name2 $pin2];
+    #puts $i1,$i2;  
+    set x1 [lindex [$mc coords $i1] 0];
+    set y1 [lindex [$mc coords $i1] 1];
+    set x2 [lindex [$mc coords $i2] 0];
+    set y2 [lindex [$mc coords $i2] 1];
+    #puts $x1,$y1,$x2,$y2;
+    set match {}
+    set t1 "{[lsort [list [list $name1 $pin1] [list $name2 $pin2]]]}"
+    foreach i [$mc find withtag wire] {
+       set t2 "{[lsort [list [lrange [$mc itemcget $i -tags] 3 4] [lrange [$mc itemcget $i -tags] 5 6] ] ]}"
+       #puts "$t1,$t2"
+       if { $t1 == $t2 } {
+	  lappend match [lindex [$mc itemcget $i -tags] 0]
+       }
+    }
+ #   puts $match
+    if {$match == {}} {
+       if {$wire == ""} {
+	  set wire wire$wireindex
+	  set wireindex [expr $wireindex+1]
+       }
+       eval $mc create line $x1 $y1 [expr ($x1+$x2)/2] [expr ($y1+$y2)/2] $x2 $y2 -fill darkblue  -tags "{$wire connect wire $name1 $pin1 $name2 $pin2}"
+       set i [eval tag_and "{$name1 $pin1 pin}"]
+       $mc itemco $i -fill darkblue
+       $mc dtag $i selectedpin
+       set i [eval tag_and "{$name2 $pin2 pin}"]
+       $mc itemco $i -fill darkblue
+       $mc dtag $i selectedpin
+    } {
+	  foreach i $match { $mc del $i}
+    }
+}
+
+proc createscope { {name  {scope}}  } {
+    global mc scopeindex
+    
+    if {$name == "scope"} {set name $name$scopeindex;
+       set scopeindex [expr $scopeindex+1]
+    }
+    global $name.bfunc_init $name.bfunc $name.in
+    newblock $name 0 0 200 120 {in trigger}
+    frame $mc.$name
+    eval $mc create window 20 10 -anchor nw -height 100 -width 170  -tags "{$name crb scopewindow}" -window $mc.$name
+ 
+    canvas $mc.$name.c -height 10 -width 10 -bg gray10
+    pack $mc.$name.c -expand y -fill both
+    $mc.$name.c create line 0 40 170 40 -fill gray30
+    set $name.bfunc_init "\$mc.$name.c del channel1 ;  for {set i 1} {\$i<1000} {incr i} {  eval \$mc.$name.c create line \[expr \$i-1\]  \[expr 40-0\] \$i  \[expr 40-0 \] -fill lightblue -tags \"{$name createscope channel1 p\$i}\"} ; set $name.x 2"
+    uplevel #0  "eval \${$name.bfunc_init}"
+#    for {set i 1} {$i<1000} {set i [expr $i+1]} {  eval $mc.$name.c create line [expr $i-1]  [expr 40-(40/($i/100.0))*sin(2*3.1415*($i-1)/30 )] $i  [expr 40-(40/($i/100.0))*sin(2*3.1415*$i/30 ) ] -fill lightblue -tags "{$name createscope channel1}" }
+    eval scrollbar  $mc.$name.s -orient horiz -command "{$mc.$name.c xview}"
+    eval $mc.$name.c conf -xscrollcommand "{$mc.$name.s set}" -scrollregion  "{0 0 1000 100}"
+    pack $mc.$name.s -side bottom -expand 0 -fill x
+    set $name.in 0
+    set $name.bfunc "foreach {a b c d} \[\$mc.$name.c coords p\${$name.x} \] {\$mc.$name.c coords p\${$name.x} \$a \[lindex \[\$mc.$name.c coords p\[expr \${$name.x}-1\]\] 3\] \$c \[expr 40-\${$name.in}\] } ; incr $name.x"
+}
+
+# New naming convention would be newshell
+proc createshell { {name  {shell}}  } {
+    global mc shellindex
+    
+    if {$name == "shell"} {set name $name$shellindex;
+       set shellindex [expr $shellindex+1]
+    }
+    global $name.bfunc_init $name.bfunc
+    newblock $name 0 0 200 120 {command trig} {out}
+    frame $mc.$name ;
+    eval $mc create window 20 10 -anchor nw -height 100 -width 170  -tags "{$name crb shellwindow}" -window $mc.$name
+ 
+    set t $name; append t .command
+    entry $mc.$name.e -textvar $t
+    eval set ttt   "{$mc.$name.t insert end \"\\n\${$t}\\n\" tred; set {$name.out} \"\[eval \${$t}\]\" ;  $mc.$name.t insert end  \${$name.out} tnavy; $mc.$name.t see end; $mc.$name.e selection range 0 end}"
+ #   puts ,$ttt,
+    button $mc.$name.b -text Eval -command  "$ttt"  -borderw 0 -padx 0 -pady 0
+ #      "$mc.$name.t insert end \n\\\$$t\\n tred;  $mc.$name.t insert end  [eval \\\$$t]; $mc.$name.t see end; $mc.$name.e select 0 end"  # '{eval \$name"_entry}"
+    pack $mc.$name.e -side bottom -anchor s -expand n -fill x
+    pack $mc.$name.b -side bottom -anchor s -expand n -fill x
+    text $mc.$name.t
+    pack $mc.$name.t -side top -anchor n -expand n -fill both
+    $mc.$name.t tag configure  tred  -foreground red -font "helvetica 8"
+    $mc.$name.t tag configure  tnavy  -foreground navy -font "helvetica 8"
+    bind $mc.$name.e <Return> "eval  $mc.$name.b invoke"
+    set $name.bfunc "eval  $mc.$name.b invoke"
+    set $name.bfunc_init "$mc.$name.t del 0.0 end"
+    $mc.$name.t insert 0.0 "Type tcl commands\nBelow."
+}
+
+proc dbaccess { {title  {New Database}} {file  {tdb.tcl}} {fields  {{Name name} {Data "Data field"}}} {adbvar  {dbvar}}  } {
+   global dbcurrent $adbvar currententry newcurrententry;
+   if {[file exists $file] == 1} {
+      set f [open $file r]; set dbvar [read $f]; close $f
+   };
+   set currententry 0
+   set newcurrententry $currententry
+   set dbcurrent [lindex $dbvar $currententry]; 
+
+   if {[winfo exists .tc] == 0} {
+      toplevel .tc; canvas .tc.c ; pack .tc.c  -expand y -fill both; 
+   }
+   dbform $dbcurrent; 
+}
+
+proc dbcontrol { {n }  } {
+   global dbname
+   toplevel .dbc
+   wm title .dbc "Database Control"
+   set dbname $n
+   set w .dbc
+      frame $w.f      
+      entry $w.f.e -textvar dbname -width 30
+      button $w.f.s -text Save -command {
+	 global dbname currententry dbvar;
+	 display_entry $currententry
+	 set f [open $dbname w];
+	 puts $f $dbvar; close $f
+      }
+      button $w.f.l -text Load -command {
+	 global dbname
+	 dbaccess [lindex [file split [file rootname $dbname]] end] $dbname
+      }
+      bind $w.f.e <Double-Button> {
+	 set textname [tk_getOpenFile]
+      }
+      pack $w.f -side bottom -expand n -fill x      
+      pack $w.f.e -side left -expand y -fill x      
+      pack $w.f.s -side right      
+      pack $w.f.l -side right      
+      button $w.bnew -text "New Entry" -command {
+      global dbvar newcurrententry
+	 set tt [lindex $dbvar $currententry]
+	 append dbvar " {"
+	 foreach i $tt {
+	    append dbvar [list [list [lindex $i 0] {}]] \ 
+	 }
+	 append dbvar "}"
+	 set newcurrententry [expr [llength $dbvar]-1]
+	 eval [bind .dbf.wb.ee <Return>]
+   }
+   pack $w.bnew
+}
+
+proc dbform { {fields } {title  {Data Form}} {window  {.dbf}} {fw  {20}} {ew  {20}}  } {
+   global dbcurrent ccontent  cname cvars currententry
+   global searchstring searchfields
+   if {[winfo exists $window] == 0}  {toplevel $window}  {foreach i [winfo children $window] {destroy $i} };
+   $window conf -bg white;
+   label $window.t -text $title -font "helvetica 20" -bg yellow -fg blue;
+   pack $window.t -anchor n -padx 2 -pady 2;
+
+   list2array $fields
+
+   foreach i $cvars {
+      set wn [string tolower $i]; 
+#      onefield $window.$wn $cname($i) ccontent($i) $fw $ew;
+      onefield $window.$wn $i ccontent($i) $fw $ew;
+   }
+   global currententry newcurrententry
+   frame $window.wb; pack $window.wb -side bottom -anchor s -fill x -expand n
+   button $window.wb.ne -text Next -command {
+      global newcurrententry dbvar
+      if {$newcurrententry < [expr [llength $dbvar] -1]} {incr newcurrententry}
+      display_entry $newcurrententry
+   }
+   pack $window.wb.ne -side right
+   button $window.wb.pre -text Previous -command {
+      global newcurrententry
+      incr newcurrententry -1
+      if {$newcurrententry < 0} {set newcurrententry 0}
+      display_entry $newcurrententry
+   }
+   entry $window.wb.ee  -width 5 -textvar newcurrententry
+   pack $window.wb.ee -side right
+   bind $window.wb.ee <Return> {
+      global newcurrententry currententry dbvar
+      if {$newcurrententry > [expr [llength $dbvar] -1]} {
+	  set newcurrententry $currententry }
+      if {$newcurrententry < 0 } { set newcurrententry $currententry }
+      display_entry $newcurrententry
+   }
+   pack $window.wb.pre -side right
+   frame $window.ws; pack $window.ws -side bottom -anchor s -fill x -expand n
+   label $window.ws.l -text "Search string, fields" -font "helvetica 12"
+   pack $window.ws.l -side left
+   entry $window.ws.es -textvar searchstring -width 16
+   pack $window.ws.es -side right
+   entry $window.ws.ef -textvar searchfields -width 10
+   pack $window.ws.ef -side right
+   bind $window.ws.es <Return> {
+      global newcurrententry;
+      set newcurrententry [lindex [lindex [dbsearch $searchstring $searchfields [list [expr $newcurrententry+1] end]] 0] 0];
+      set t [bind .dbf.wb.ee <Return>];
+      eval $t 
+   }
+}
+
+proc dbimcan { {s }  } {
+   global mc
+   foreach i [$mc find withtag dbimages] {
+      image del [lindex [$mc itemcget $i -tags ] 0]
+   }
+   $mc del dbimages dbtext
+   set c 0
+   foreach i $s {
+      if {[catch "image create photo -file [lindex $i 2]" im] == 0}  {
+	 puts $im; 
+	 set m [$mc create image [expr 85+170*($c%5)] [expr 85+175*($c/5)] -anchor c -image $im -tag "$im dbimages"]
+	$mc bind $m <Double-Button-1> "global newcurrententry
+	set newcurrententry [lindex $i 0]
+	eval {[bind .dbf.wb.ee <Return>]} " 
+     }
+     $mc create text [expr 85+170*($c%5)] [expr 166+175*($c/5)] -text [lindex $i 2] -font "helvetica 12 bold" -anchor n -tags "$im dbtext" ; 
+     incr c
+   }
+   $mc raise dbtext 
+}
+
+proc dbsearch { {pattern } {fieldnames  {}} {range  {0 end}}  } {
+   global dbvar
+   set r {}
+   set i [lindex $range 0]
+   foreach d [eval "lrange [list $dbvar] $range"]  {
+      foreach e $d {
+	 if {$fieldnames != {}} {
+	  foreach f $fieldnames {
+	     if [string match $f [lindex $e 0]] {
+		if [string match $pattern [lindex $e 1]] {
+		    append r [list [list $i [lindex $e 0] [lindex $e 1] ]] \n
+		}
+	     }
+	  }
+	 } {
+	    if [string match $pattern [lindex $e 1]] {
+		append r [list [list $i [lindex $e 0] [lindex $e 1] ]] \n
+	    }
+	 }
+      }
+      incr i
+   }
+   return $r
+}
+
+proc delete_selblocks {  } {
+    global mc;
+    foreach i [listunion [$mc find withtag selection0] [$mc find withtag bb] ] {  foreach j [lindex [$mc itemcget $i -tags] 0] {
+	   block_del $j ;
+	   foreach k [$mc find withtag wire] {
+	      if {[lsearch [$mc itemcget $k -tag] $j] > 0} {
+		 $mc del $k
+	      }
+	   }
+	}
+     }
+}
+
+proc dfind { {p  {}} {g  {*}}  } {
+#   only use from current directory with absolute path name
+   set r {};
+   if {$p == ""} {
+      set p [pwd]
+   } 
+   set od [pwd];
+   if {[file pathtype $p] == "absolute"} {
+      set cb $p
+   } else {
+      set cb [pwd]
+   }
+   cd $p;
+   if {[catch {glob *} l] == 0} {
+#      puts \---$l
+      foreach a [lsort -dict $l] {
+	if {[string first \~ $a] < 0} {
+	 if [file isdir $a] {
+	     cd $cb
+	    if {[string first \~ $a] < 0} {
+	     append r "[dfind [file join $p $a] $g] "
+	    }
+	 }
+       }
+     }
+      if {[catch "glob $g" f] == 0} {
+	 foreach j $f {
+	    if [file isfile $j] { 
+	       append r "[list [file join $p $j]] " ;
+	    }
+	 }
+      }
+   } ;
+   cd $od;
+   return $r
+}
+
+proc diarydate {  } {    
+# insert the date as level 3 html heading    
+   .di.t insert insert "<h3>[clock format [clock seconds]]</h3>\n"    
+}
+
+proc diarygen {  } {
+   global diarynr
+# find next page number    
+   foreach n [lsort -incr -dict [glob {[d,D]iary*.htm*} ]] {    
+puts $n    
+   }    
+   set n [lindex [lsort -incr -dict [glob {[d,D]iary*.htm*} ]] end]    
+   if {$n == {}} return    
+   set n [string range $n [expr [ string first iary $n] +4 ] [ expr [ string first "." $n] -1] ]    
+#  set f [open $n w]    
+   puts "diary[expr $n+1].htm"    
+    
+# generate page    
+   set t {}  
+   set f [open dihead.txt r]  
+   while {[eof $f] == 0} {  
+      eval append t \"[gets $f]\n\"   
+   }  
+   close $f  
+   .di.t insert 0.0 $t  
+   set diarynr  [expr $n+1];
+}
+
+proc diarysave {  } {
+   global diarynr;
+   set f [open "diary$diarynr.htm" "w"]
+   puts $f [.di.t get 0.0 end]
+   close $f
+}
+
+proc diarywin {  } {    
+   global diarynr
+   toplevel .di 
+   text .di.t -width 60 -height 10 -font {{MS Sans Serif} 12} 
+   pack .di.t -side bottom -expand y -fill both 
+   button .di.gp -text "Generate page header" -command diarygen 
+   button .di.date -text {Insert date heading} -command diarydate 
+   button .di.save -text "Save Page" -command diarysave
+   pack .di.gp -expand n -fill x -side left 
+   pack .di.date -expand n -fill x -side left 
+   pack .di.save -expand n -fill x -side left 
+   diarydate 
+   bind .di.t <F1> diarydate 
+   bind .di.t <F2> { .di.t insert insert "<h4></h4>\n" }    
+   bind .di.t <F8> { .di.t insert insert "<P>\n" }    
+   bind .di.t <F9> { .di.t insert insert "<P>\n<pre>\n</pre>\n<P>\n" }    
+   set diarynr 999
+}
+
+proc display_entry { {n }  } {
+    global dbcurrent currententry dbvar
+    set dbcurrent [array2list]
+    update_entry
+    set currententry $n
+    set dbcurrent [lindex $dbvar $currententry]
+    set pf [focus -lastfor .dbf]
+    dbform $dbcurrent
+    set t "focus $pf" ;  catch $t
+    update
+    set t "$pf selection range 0 end" ; catch $t
+    update
+    set t "$pf icursor end" ; catch $t
+}
+
+proc Display_func { {l  {}}  } {
+   global mc Display.In 
+   eval { $mc itemconf [$mc find withtag text] -text ${Display.In} };
+   #puts InDisplay
+   return ok
+}
+
+proc drumscan { {bl  {drum0}} {tr  {bd hho hhc sd}}  } {
+    global mc
+    set maxi 0
+    foreach k [listunion [$mc find withtag drumbol] [$mc find withtag $bl] ]  {
+       if {[$mc itemcget $k -outline] != {}} {
+	   eval lappend outlist \{  [string range [lindex [$mc itemcget $k -tag] 2]  4 end]  [string range [lindex [$mc itemcget $k -tag] 3]  4 end] \}
+       }
+       set ii [string range [lindex [$mc itemcget $k -tag] 3]  4 end]
+       if {$ii > $maxi} {set maxi $ii}
+    }
+    set outlist [lsort -index 1 -int $outlist]
+    
+    set argi "len [expr 1000+(1000/8)*$maxi] 0 0\n"
+    foreach i $outlist {
+       append argi "s_[lindex $i 0] [expr [lindex $i end] * 2000.0 / 16]"
+       switch [lindex $i 0] {
+	  bd    {append argi " 200 0.9"}
+	  sd    {append argi " 300 0.7"}
+	  hhc   {append argi " 100 0.3"}
+	  hho   {append argi " 200 0.15"}
+	  ride  {append argi " 300 0.8"}
+	  crash {append argi " 300 0.8"}
+	  tamb  {append argi " 100 0.3"}
+	   default   {append argi " 200 0.3"}
+       }
+       append argi "\n"
+    }
+ #   set f [open $bl.txt w]
+ #      puts $f "len 2000"
+ #      foreach i $outlist {
+ #         puts $f "s_[lindex $i 0] [expr [lindex $i end] * 2000.0 / 16]"
+ #      }
+ #   close $f
+    return $argi
+}
+
+proc dtree { {p  {}} {i  {0}}  } {
+   set r {};
+   if {$p == ""} {
+      set p [pwd]
+   };
+   set od [pwd]; 
+   cd $p;
+   if {[catch {glob *} l] == 0} {
+      foreach a [lsort $l] {
+	 if [file isdir $a] {
+	    for {set j 0} {$j < [expr 3*$i]} {incr j} {
+	       puts -nonewline " "; append r " "
+	    };
+	    puts $a;append r "$a\n" ;
+	    append r [dtree [file join $p $a] [expr $i+1]]
+	 }
+      }
+   } ;
+   cd $od;
+   return $r
+}
+
+proc fac { {f }  } {if {$f >1} {
+     return [expr [fac [expr $f-1]] * $f]
+  } {
+      return $f
+   }
+}
+
+proc files { {d }  } {
+   if [catch {glob $d/*} r] {return {}} {return $r}
+}
+
+proc find { {p  {.}} {s  {*}}  } {
+   set r {} ; 
+   foreach i [glob $s] {
+      if {[file isdir $i] == 0} {
+	  append r [file join $p $i] " "
+      }
+   }
+}
+
+proc find2l { {l1 } {l2 }  } {
+    global mc
+    foreach i [$mc find withtag $l1] {  if {[lsearch [$mc itemcget $i -tags]  $l2 ] >= 0}  {return $i}
+    } 
+}
+
+proc fire { {b }  } {
+ eval "b_eval" 
+}
+
+proc firefull {  } {
+   global mc
+   set o {};
+   foreach i [tag_and block] {
+      lappend o [lindex [$mc itemcget $i -tags] 0]
+   }
+   firelist $o
+}
+
+proc firelist { {l }  } {
+   global bfunc t
+   #puts "lenght: [llength $l]"
+   set m [llength $l]
+   for {set i 0} {$i < $m} {incr i} {
+      #puts "i=$i"
+      foreach n $l {
+	 #puts *********$n**********
+	 transfer $l
+	 set f {}
+	 append f  [blockfunc $n {}] 
+	 global $f
+	 #puts 1,$f
+	 eval set fc \$\{$f\}
+	 #puts 2,$f,$fc
+	 set t $fc
+	 #puts \[\[\[$t\]\]\]
+	 #puts "executing: $f,$fc,$$f,$t"
+	 uplevel #0  $t ;
+	 #puts *********************
+      }
+   }
+}
+
+proc flood { {block } {pin }  } {
+    global mc;
+    set delay 1000;
+    if {$block == {} && $pin == {} } {return {}};
+    showactive $block $pin red; update;
+    foreach w [pin_get_wirenames $block $pin] {
+       set nb [lindex [wire_other $w $block $pin] 0];
+       foreach o [block_get_pinnames $nb typeout] {
+	  eval "after $delay {flood $nb $o}"
+       }
+    };
+    eval "after $delay showactive $block $pin navy"; update
+}
+
+proc gen_drumtrack { {bl  {drum}} {tr  {bd hho hhc sd ride crash tamb}} {steps  {16}}  } {
+    global mc drumindex
+    
+    if {$bl == "drum"} {set bl $bl$drumindex;
+       set drumindex [expr $drumindex+1]
+    }
+    
+ #   newblock $bl 0 0 220 120 {trigger_in trigger_out command}
+ #   $mc create rect 10 10 210 110 -fill white -tags "$bl newblock workp"
+    set ym [expr [llength $tr]-1]
+    newblock $bl 0 0 [expr 36+8*($steps)] [expr 60+$ym*20 ] {trigger_in trigger_out command}
+    $mc create rect 10 10 [expr 36+8*($steps)-10] [expr 60+$ym*20-10 ] -fill white -tags "$bl newblock workp"
+ 
+    set j 0
+       for {set i 0} {$i < $steps} {set i [expr $i+4]} {
+	   $mc create line [expr 21 + 8*$i] 10  [expr 21 + 8*$i]  [expr 60+$ym*20-10 ] -fill blue  -tags "$bl sepa"
+       }
+    foreach n $tr {
+       $mc create line 10 [expr $j*20+30] [expr 36+8*($steps)-10] [expr $j*20+30] -fill red -tags "$bl workp $n"
+       $mc create text 10 [expr 20*$j+27] -text "$n" -tags "$bl workp  text$n"  -fill blue -anchor sw
+       for {set i 0} {$i < $steps} {set i [expr $i+1]} {  $mc create oval [expr 18 + 8*$i] [expr 20*$j+27]  [expr 24 +8*$i] [expr 20*$j+33] -fill red -outline {}  -tags "$bl drumbol drtr$n drtr$i" ;  }
+       set j [expr $j+1]
+    }
+}
+
+proc gen_html_page { {title } {body }  } {
+   set o {}
+   append o <html> \n <title> $title </title> \n
+   append o <body> \n
+   append o <h2> $title </h2> \n  <p> \n
+   append o $body
+   append o </body>
+   append o \n </html>
+   return $o
+}
+
+proc gen_netlist {  } {
+    global mc
+    set o ""
+    foreach w [tag_and wire] {
+       append o "connect [lindex [$mc itemcget $w -tags] 0] [lrange [$mc itemcget $w -tags] 3 6] \n"
+    }
+    return $o
+}
+
+proc genadd { {a } {b } {c } {d }  } {
+#  {f {}} {name {}} {in {in}} {out {out}} {width {40}} {height {}} {tags {}} {x {10}} {y {10}} 
+
+   set n add11
+   newproc "set $n.o \[expr \${$n.a} + \${$n.b}\]" $n {a b} o 40 {} {add} 
+   set n add12
+   newproc "set $n.o \[expr \${$n.a} + \${$n.b}\]" $n {a b} o 40 {} {add} 
+   set n add13
+   newproc "set $n.o \[expr \${$n.a} + \${$n.b}\]" $n {a b} o 40 {} {add} 
+   connect wa10 add11 a  $a $b
+   connect wa11 add11 b  $c $d
+   connect wa12 add12 a  $a $b
+   connect wa13 add12 b  $c $d
+   connect wa14 add13 a  $a $b
+   connect wa15 add13 b  $c $d
+
+   set n add21
+   newproc "set $n.o \[expr \${$n.a} + \${$n.b}\]" $n {a b} o 40 {} {add} 
+   set n add22
+   newproc "set $n.o \[expr \${$n.a} + \${$n.b}\]" $n {a b} o 40 {} {add} 
+   connect wa1 add11 o add21 a 
+   connect wa2 add12 o add21 b 
+   connect wa3 add13 o add22 b 
+   connect wa4 add12 o add22 a 
+
+   set n add31
+   newproc "set $n.o \[expr \${$n.a} + \${$n.b}\]" $n {a b} o 40 {} {add} 
+   connect wa5 add21 o add31 a 
+   connect wa6 add22 o add31 b 
+}
+
+proc genwire {  } {
+    global mc
+    set t [lrange [$mc find withtag selectedpin] 0 1]
+    if {[llength $t] == 2} { 
+	  connect {}    [lindex [$mc itemcget [lindex $t 0] -tags] 0]  [lindex [$mc itemcget [lindex $t 0] -tags] 3]  [lindex [$mc itemcget [lindex $t 1] -tags] 0]  [lindex [$mc itemcget [lindex $t 1] -tags] 3]
+    }
+}
+
+proc get_procvanilla {  } {
+   global defaultprocs ;
+   set f [open defaultprocs.tcl r];
+   if {$f == {}} {return -1}
+   set defaultprocs [ read $f ] ;
+   close $f
+   return 0
+}
+
+proc get_varvanilla {  } {
+   global defaultvars ;
+   set f [open defaultvars.tcl r];
+   if {$f == {}} {return -1}
+   set defaultvars [ read $f ] ;
+   close $f
+   return 0
+}
+
+proc grep { {a } {fs  {*}}  } {
+   set o {}
+   foreach n [lsort -incr -dict [glob $fs]] {
+    if {[file isfile $n]} {
+      set f [open $n r]
+      set c 0
+      set new 1
+      while {[eof $f] == 0} {
+	 set l [gets $f]
+	 incr c
+	 if {[string first $a $l] > -1} {
+	    if {$new == 1} {set new 0; append o "*** $n:" \n}
+	    append o "$c:$l" \n
+	 }
+      }
+      close $f
+    }
+   }
+   return $o
+}
+
+proc ilist { {begin  {.}} {listf  {winfo children}} {maxdepth  {100}} {ident  {0}}  } {
+   if {$maxdepth <1} return
+   set de {}; set o {}
+   for {set i 0} {$i < $ident} {incr i} {append de "   "}
+   foreach i [eval "$listf $begin"] {
+       append o "$i "
+       puts "$de $i"
+       append o [ilist $i $listf [expr $maxdepth-1] [expr $ident +1]]
+   }
+   return $o
+}
+
+proc l { {n  {*}}  } {
+set r {} ; foreach f [lsort -dict [glob $n]] {if {[file isdir $f] == 0} {append r $f \t } {append r $f \\ \t }} ; return $r 
+}
+
+proc list2array { {list } {na  {cname}} {va  {ccontent}} {names  {cvars}}  } {
+   upvar  #0 $na n  $va v 
+   if {$names != {}} {upvar #0 $names x}
+   if {[info exists n] == 1} {unset n}
+   if {[info exists v] == 1} {unset v}
+   set x {}
+   foreach i $list {
+      set a [lindex $i 0]; set b [lindex $i 1]; set c [lindex $i 2]
+      if {$c == {}} {set c $a}
+      lappend x $c
+      set n($c) $a; set v($c) $b
+   }
+}
+
+proc listunion { {a } {b }  } {
+    global mc
+    set l {}; 
+    foreach i $a  {  if {[lsearch -exact $b $i] >= 0}  {lappend l $i}  } ;
+    return $l
+}
+
+proc loaddb { {fn  {dbtab.txt}}  } {
+   global db
+   set db {}
+   set f [open $fn r]
+   while {[eof $f] ==0} {append db \{ [gets $f] \} \n}
+   close $f
+}
+
+proc loadvfs { {dll }  } {
+    global auto_path
+    if {![file exists $dll]} { return }
+    set dir [file dirname $dll]
+    if {[lsearch -exact $auto_path $dir] == -1} {
+	lappend auto_path $dir
+    }
+    load $dll
+}
+
+proc main_window { {root } {lproject }  } {
+    global mw mc project
+    set mw $root.mw
+    set mc $mw.c
+    set project $lproject
+    
+    catch {destroy $mw [winfo children $mw]}
+    if {$root == ""} {
+       wm title . Bwise
+       wm geometry . 500x350
+    }
+    frame $mw -width 400 -height 300;
+       pack $mw -side bottom  -expand y -fill both -anchor s
+    scrollbar $mw.hscroll -orient horiz -command "$mc xview"
+    scrollbar $mw.vscroll -command "$mc yview"
+    canvas $mc -width 1600 -height 1200 -bg gray80  -scrollregion {0 0 1600 1200}  -xscrollcommand "$mw.hscroll set"  -yscrollcommand "$mw.vscroll set"
+    pack $mw.vscroll -side right -fill y
+    pack $mw.hscroll -side bottom -fill x
+    pack $mc -side right -expand n -fill both
+}
+
+proc mainbuttons { {root }  } {
+    global mw bwisepath
+    set mb $root.fb
+    catch {destroy $mb}
+    frame $mb 
+       pack $mb -side top -fill x -expand y -anchor n
+    button $mb.bnewb -text "New Block" -command {newblock {} }
+    pack $mb.bnewb -side left -fill none -expand n
+    if {$root == ""}  {global tcl_interative; button $mb.quit -text "Quit" -command {eval destroy [winfo children .];  if {$tcl_interactive == 0} {destroy .}  }  }  {button $mb.quit -text "Quit" -command "eval destroy [winfo children $root]" }
+    pack $mb.quit -side right -fill none -expand n
+    
+#    image create photo paperim -file $bwisepath/paper.gif
+    image create photo paperim -data \
+ "R0lGODlhJAAfAPcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgAQEBPz8BHx8
+BLy8vHx8fPz8/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDAwP8AAAD/
+AP//AAAA//8A/wD//////ywAAAAAJAAfAEAI/wAX4Bu4oKDBgwgTKjSIT+AC
+BA0aSlxwoEGCixgTQNTIwOFEfAwOIHAI8SNFixlTJhiAoOPHkCMblvRIEYHN
+mzhxuvQIk2REmgODCvVI0OQBBjEf/pxYUWVKljsl9pS5VCC+pk4xQgU69SGD
+r2DDih1LFmxSiA3Sql3Ltq3bBiJ9Gn1r06XJhkfPVsWLMmXOllzjUp2bVSvg
+l4KVEi688jDPxDMlXu2bdSvimPgiA918l2ZezqA7i7ba8OHf06hTW1UsNChn
+162D5iVYsvWB27hvI2VQNPZVpLQj2qaMEYHGA6RtAx883Klxiy19z2YuFKvK
+AdgVIDgQezrr6sRVakbnrhxB8O7hU47vvvy77PQZ15c/35yx/Orta7u2nvW+
+7PzCCcWAAgQWaGCB27FnHnXV5eaggwoG9+CEFFK4nEypZajhAgEBADs="
+
+    button $mb.p -image paperim -borderw 0 -padx 0 -pady 0 -relief flat -command createshell
+    pack $mb.p -side left
+    button $mb.bwire -text "Wire" -command genwire -fg green
+       pack $mb.bwire -side left -fill none -expand n
+    
+    button $mb.bcdrum -text "Drum" -command gen_drumtrack
+    button $mb.bcscope -text "Scope" -command createscope
+    pack $mb.bcdrum -side left
+    pack $mb.bcscope -side left
+    button $mb.bscan -text "Scan Drum" -command  {exec drumip.exe drum0.wav << [drumscan] &}
+    pack $mb.bscan -side right -fill none -expand 0
+    button $mb.bdel -text "Del Sel" -command delete_selblocks
+    pack $mb.bdel -side right -expand n -fill none
+    button $mb.bsave -text "Save" -command save_canvas
+    pack $mb.bsave -side right -fill none -expand 0
+    button $mb.bload -text "Load" -command {reload_canvas}
+    pack $mb.bload -side right -fill none -expand 0
+}
+
+proc matdiag { {n  {3}} {e  {1}}  } {
+   set a "\{ " ; set a {}
+   for {set i 0} {$i<$n} {incr i} {
+      set r "\{ "; 
+      for {set j 0} {$j<$n} {incr j} {
+	 #puts $i,$j
+	 if {$i == $j} {
+	    append r " $e"
+	 } {
+	    append r " 0"
+	 }
+      } ; 
+      append r " \} ";
+      append a $r
+   } ; 
+   #append a " \}"; 
+   return $a
+}
+
+proc matmul { {a } {b }  } {
+   set r {}
+   set n [llength $a]
+   foreach s $b {
+      for {set i 0} {$i<$n} {incr i} {
+	 set t 0
+	 for {set j 0} {$j < $n} {incr j} {
+	    set t [expt $t+]
+	 }
+	 append r 
+      }
+   }
+}
+
+proc matprint { {a }  } {
+   foreach r $a {
+      puts "$r"
+   }
+}
+
+proc matsweep { {a } {b }  } {
+   #incomplete
+   set x {}
+   for {set i 0} {$i < [llength $b]} {incr i} {append x "0 "}
+   for { set i [llength $a] } {$i >= 0} {incr i -1} {
+      set r [lindex $a $i]
+      puts $r
+      set w {}
+
+      set d [expr [lindex $r 0] / [lindex $b i]
+      foreach {set j 0} {$j < [llength b]} {incr j} {
+	  append w " [expr []-[lindex $r $j]/$d]" 
+      }
+   }
+   return $x
+}
+
+proc mnewinst { {p } {x } {y }  } {
+global mc
+#set x [$mc canvasx $x]
+#set y [$mc canvasy $y]
+   set tt [pro_args $p "{x $x} {y $y}"]
+   puts $tt
+   eval  "$tt"
+}
+
+proc mnewmenu { {X } {Y } {x } {y }  } {
+global mc
+set x [$mc canvasx $x]
+set y [$mc canvasy $y]
+   if {[llength [$mc find overlapping [expr $x-2] [expr $y-2] [expr $x+2] [expr $y+2] ] ] < 1}  {
+      set pp [$mc find overlapping [expr $x-2] [expr $y-2] [expr $x+2] [expr $y+2] ]
+# puts $x,$y,$pp,
+      catch {destroy $mc.m}; menu $mc.m; $mc.m del 0 end
+      foreach i [lsort -dict [info proc new*]] {$mc.m add command -label [string range $i 3 end] -command "mnewinst $i $x $y"}
+      tk_popup $mc.m $X $Y
+   }
+}
+
+proc net_allleft { {lastblock }  } {
+   set o {}
+   set bl $lastblock
+   set count 0;
+   set all {}
+#puts "i,bl,  l, lefts"
+#puts "--------------"
+   while {$bl != {}} {
+      set i [lindex $bl 0]
+      set bl [lrange $bl 1 end]
+      set l [net_left $i]
+      append all " " $i
+#puts "$i,$bl,   $l"
+      if {$l != {}} {
+         append bl " $l"
+      }
+      incr count
+      if {$count>1000 || [llength $bl] >100} {
+          puts "too many invocalations of function $l." 
+          return {}
+      }
+   }
+#puts $count
+   set sbl [lsort -dict $all]
+   set prev {}
+   foreach i $sbl {
+      if {$i != $prev} {
+         append bl " " $i
+      }
+      set prev $i
+   }
+   return $bl
+}
+
+proc net_funct { {lastblock }  } {
+   set o {}
+   set lefts {}
+   set bl $lastblock
+   set count 0;
+#puts "i,bl,  l, lefts"
+#puts "--------------"
+   while {$bl != {}} {
+      set i [lindex $bl 0]
+      set bl [lrange $bl 1 end]
+      set l [net_left $i]
+#puts "$i,$bl,   $l, $lefts"
+      if {$l == {}} {
+         append lefts " " $i
+      } else {
+         append bl " $l"
+      }
+      incr count
+      if {$count>4000 || [llength $bl] >1000} {
+          puts "too many invocalations of function $l." 
+          return {}
+      }
+   }
+#puts $count
+   set slefts [lsort $lefts]
+   set lefts {}
+   set prev {}
+   foreach i $slefts {
+      if {$i != $prev} {
+         append lefts " " $i
+      }
+      set prev $i
+   }
+   return $lefts
+}
+
+proc net_funprop { {in }  } {
+   global propst fireready
+   set circle $in
+   set in [lindex $in 0]
+   set fireready {}
+
+   uplevel #0 eval $\{[blockfunc $in]\}  
+   transfer $in
+   catch {unset propst($in)}
+   foreach bl [net_right $in] {
+#puts "bl: $bl"
+      if {![info exists propst($bl)] || [lsearch $propst($bl) $in] < 0} {
+         eval lappend propst($bl) $in
+      }
+#puts "propst: [array get propst]"
+      if  {[lsort [net_left $bl]] == [lsort $propst($bl)]} {
+            if {[lsearch $fireready $bl] < 0 && $bl != $circle} {lappend fireready $bl}
+      }
+   }
+#puts "todo: $todo"
+#puts "fireready: $fireready"
+#puts "propst: [array get propst]"
+#puts "---"
+
+   while {[llength $fireready] > 0} {
+      set in [lindex $fireready 0]
+      set fireready [lrange $fireready 1 end]
+      
+      uplevel #0 eval $\{[blockfunc $in]\}
+      transfer $in
+#puts $in
+      catch {unset propst($in)}
+      foreach bl [net_right $in] {
+#puts "bl: $bl"
+         if {![info exists propst($bl)] || [lsearch $propst($bl) $in] < 0} {
+            eval lappend propst($bl) $in
+         } else {
+#puts *
+         }
+#puts "propst: [array get propst]"
+         if  {[lsort [net_left $bl]] == [lsort $propst($bl)]} {
+            if {[lsearch $fireready $bl] < 0 && $bl != $circle} {lappend fireready $bl}
+         }
+      }
+#puts "in: $in"
+#puts "fireready: $fireready"
+#puts "propst: [array get propst]"
+   }
+   return [array names propst]
+}
+
+proc net_funprop2p {  } {
+    global propst fireready circle in fireready
+      set in [lindex $fireready 0]
+      set fireready [lrange $fireready 1 end]
+      
+      uplevel #0 eval $\{[blockfunc $in]\}
+      transfer $in
+#puts $in
+      catch {unset propst($in)}
+      foreach bl [net_right $in] {
+#puts "bl: $bl"
+         if {![info exists propst($bl)] || [lsearch $propst($bl) $in] < 0} {
+            eval lappend propst($bl) $in
+         } else {
+#puts *
+         }
+#puts "propst: [array get propst]"
+         if  {[lsort [net_left $bl]] == [lsort $propst($bl)]} {
+            if {[lsearch $fireready $bl] < 0 && $bl != $circle} {lappend fireready $bl}
+         }
+      }
+#puts "in: $in"
+#puts "fireready: $fireready"
+#puts "propst: [array get propst]"
+    if {[llength $fireready] > 0} {after 1000 net_funprop2p }
+}
+
+proc net_funpropc { {in }  } {
+   global propst fireready
+   set circle $in
+   set in [lindex $in 0]
+   set fireready {}
+
+#   intended for circular use where 'self' gets fired after the circle
+#   uplevel #0 eval $\{[blockfunc $in]\}  
+   transfer $in
+   catch {unset propst($in)}
+   foreach bl [net_right $in] {
+#puts "bl: $bl"
+      if {![info exists propst($bl)] || [lsearch $propst($bl) $in] < 0} {
+         eval lappend propst($bl) $in
+      }
+#puts "propst: [array get propst]"
+      if  {[lsort [net_left $bl]] == [lsort $propst($bl)]} {
+            if {[lsearch $fireready $bl] < 0 && $bl != $circle} {lappend fireready $bl}
+      }
+   }
+#puts "todo: $todo"
+#puts "fireready: $fireready"
+#puts "propst: [array get propst]"
+#puts "---"
+
+   while {[llength $fireready] > 0} {
+      set in [lindex $fireready 0]
+      set fireready [lrange $fireready 1 end]
+      
+      uplevel #0 eval $\{[blockfunc $in]\}
+      transfer $in
+#puts $in
+      catch {unset propst($in)}
+      foreach bl [net_right $in] {
+#puts "bl: $bl"
+         if {![info exists propst($bl)] || [lsearch $propst($bl) $in] < 0} {
+            eval lappend propst($bl) $in
+         } else {
+#puts *
+         }
+#puts "propst: [array get propst]"
+         if  {[lsort [net_left $bl]] == [lsort $propst($bl)]} {
+            if {[lsearch $fireready $bl] < 0} {
+               if {$bl != $circle} {lappend fireready $bl} else {
+                  uplevel #0 eval $\{[blockfunc $bl]\}  
+               }
+            }
+         }
+      }
+#puts "in: $in"
+#puts "fireready: $fireready"
+#puts "propst: [array get propst]"
+   }
+   return [array names propst]
+}
+
+proc net_left { {block }  } {
+   set o {}
+   foreach pin [block_get_pinnames $block typein] {
+      foreach wire [pin_get_wirenames $block $pin] {
+         set ot [wire_other $wire $block $pin];
+#         foreach i $ot {
+#            set i [lindex $i 0]
+#            if {[lsearch $o $i] <0} {append o " " $i}
+#         }
+         if {$ot != {}} {
+            set ot [lindex $ot 0]
+            if {[lsearch $o $ot] <0} {lappend o  $ot}
+         }
+      }
+   }
+   return $o
+}
+
+proc net_right { {block }  } {
+   set o {}
+   foreach pin [block_get_pinnames $block typeout] {
+      foreach wire [pin_get_wirenames $block $pin] {
+         set ot [wire_other $wire $block $pin];
+         if {$ot != {}} {
+            set ot [lindex $ot 0]
+            if {[lsearch $o $ot] <0} {lappend o  $ot}
+         }
+      }
+   }
+   return $o
+}
+
+proc netlistout { {tag  {}}  } {
+    set o {};
+    foreach id [eval tag_and "{block $tag}"] {
+       set bl [block_name_fromid $id];
+       foreach pin [block_get_pinnames $bl typeout] {
+	  foreach wire [pin_get_wirenames $bl $pin] {
+	     set ot [wire_other $wire $bl $pin];
+	     if {$ot != {}} {
+		lappend o "$bl $pin $ot"
+		# puts "$bl $pin $ot"
+	     }
+	  }
+       }
+    }
+    return $o;
+}
+
+proc newadd { {nin } {name }  } {
+   set in "\{"
+   set f  "\{set $name.out \[ expr "
+   for {set i 0} {$i < $nin} {incr i} {
+      append in " in$i"
+      append f  " + \$\{$name.in$i\}"
+   }
+   append f  " \]\}"
+   append in " trig \} "
+   eval newproc "$f $name $in"
+}
+
+proc newarray { {nx  {3}} {ny  {3}} {bn  {array}} {fs  {}} {ib  {}} {ipi  {}} {jb  {}} {jpi  {}} {x  {100}} {y  {120}}  } {
+   for {set i 0} {$i < $nx} {incr i} {
+      for {set j 0} {$j < $ny} {incr j} {
+	 if {$fs == {}} {eval  "set f \{ set $bn${i}_$j.o {} ; append \{$bn${i}_$j.o\} \$\{$bn${i}_$j.i1\} \$\{$bn${i}_$j.i2\}  \}"}
+	 newproc $f $bn${i}_$j {i1 i2} {o} {40} {} {array a${i}_$j}  [expr $x + 90 * $i] [expr $y + 65 * $j]
+	 set ip [expr $i -1] ; set jp [expr $j -1]
+	 if {$i>0} { connect ${bn}1_${i}_$j $bn${ip}_$j o $bn${i}_$j i1}  {if {$ib != {}} {connect ${bn}1${i}_$j $ib $ipi $bn${i}_$j i1} }
+	 if {$j>0} { connect ${bn}2_${i}_$j $bn${i}_$jp o $bn${i}_$j i2}  {if {$jb != {}} {connect ${bn}2${i}_$j $jb $jpi $bn${i}_$j i2} }
+      }
+   }
+}
+
+proc newblock { {name  {}} {x  {0}} {y  {0}} {w  {50}} {h  {50}} {pinsin  {in1 in2}} {pinsout  {}} {moretags  {}}  } {
+    global bcount mw mc
+    if {$name == ""} {set name "block$bcount" ; set bcount [expr $bcount +1]}
+    eval $mc create rect $x $y [expr $x+$w] [expr $y+$h]  -tags "{$name newblock block $moretags}" -fill yellow -outline darkblue
+    eval $mc create text  [expr $x+$w/2] [expr $y+$h]  -anchor n -text $name -fill darkblue -tags "{$name crb label $moretags}"
+    set ii 0
+    foreach i $pinsin {
+       eval $mc create text [expr $x-1] [expr $y+19+$ii]  -anchor se -text $i -tags "{$name crb pinname $i $moretags}"
+       eval $mc create line  [expr $x-20] [expr $y+20+$ii] [expr $x+0] [expr $y+20+$ii]  -width 2 -fill darkblue  -tags "{$name newblock pin $i typein $moretags}"
+       set ii [expr $ii+15]
+    }
+    set ii 0
+    foreach i $pinsout {
+       eval $mc create text [expr $x+$w+1] [expr $y+19+$ii]  -anchor sw -text $i -tags "{$name crb pinname $i $moretags}"
+       eval $mc create line  [expr $x+$w+20] [expr $y+20+$ii] [expr $x+$w+0] [expr $y+20+$ii]  -width 2 -fill darkblue  -tags "{$name newblock pin $i typeout $moretags}"
+       set ii [expr $ii+15]
+    }
+}
+
+proc newdisp { {name  {display}} {x  {0}} {y  {0}}  } {
+   global mc $name.bfunc
+   set xx $x; set yy $y
+   newblock $name [expr $x+10] [expr $y+10] 70 90 {in trig}
+   for {set x 0} {$x < 5} {incr x} {
+      for {set y 0} {$y < 7} {incr y} {
+	 $mc create oval [expr $xx+$x*10+22] [expr $yy+$y*10+22] [expr $xx+$x*10+22 +6] [expr $yy+$y*10 + 22 +6] -fill red -tags "$name ll dot x$x y$y"
+      }
+   }
+   blockclear $name
+   set $name.bfunc "for {set x 0} {\$x < 5} {incr x} { for {set y 0} {\$y < 7} {incr y} { \$mc itemco \[tag_and \"$name dot x\$x y\$y\"\] -fill \[lindex \${$name.in} \[expr \$x*7+\$y\]\]  } }"
+}
+
+proc newentry { {width  {60}} {height  {30}} {tags  {}} {name  {}} {x  {0}} {y  {0}} {in  {}} {out  {out}}  } {
+   if {$name == {}} {
+       uplevel #0 {if {[info exists entrycount] == "0"} {set entrycount 0} ;}
+      global entrycount
+      incr entrycount
+      set name Entry$entrycount
+   }
+   set t [blockfunc $name]
+   global mc $t; 
+   #eval "global mc ; set $t {$mc.$name select range 0 end}"
+   newblock $name $x $y $width $height $in $out $tags
+   blockclear $name
+   set lc [string tolower $name]
+   entry $mc.$lc -width 5 -textvar $name.out
+   $mc create window [expr $x+3] [expr $y+5]  -window $mc.$lc   -tags "{$name}" -anchor nw
+   bind $mc.$lc <Return> " uplevel #0 run $name"
+   if {$in == "in"} {
+      set $name.bfunc "set $name.out \${$name.in}"
+   }
+   return $name
+}
+
+proc newimage { {file }  } {
+   global mc
+   set imn [lindex [file split [file rootname $file]] end]
+   set im [image create photo $imn -file $file]
+   set w [image width $im] ; set h [image height $im]
+   newproc {} $im in out $w $h
+   $mc create image 10 10 -image $im -tags "$im newimage block image" -anchor nw
+}
+
+proc newmon { {keep  {0}} {width  {80}} {height  {65}} {tags  {}} {name  {}} {x  {0}} {y  {0}}  } {
+   if {$name == {}} {
+      uplevel #0 {if {[info exists moncount] == "0"} {set moncount 0} ;}
+      global moncount
+      incr moncount
+      set name Mon$moncount
+   }
+   set t [blockfunc $name]
+   global mc $t;
+   #eval "global mc ; set $t {$mc.$name select range 0 end}"
+   newblock $name $x $y $width $height {in trig} {} $tags
+   blockclear $name
+   set lc [string tolower $name]
+   text $mc.$lc -width 12 -height 5 -font "helvetica 7" -borderwidth 1 -border 1
+   $mc create window [expr 4+$x] [expr 4+$y]  -window $mc.$lc   -tags "{$name}" -anchor nw
+   #bind $mc.$lc <Return> " uplevel #0 run $name"
+   if {$keep != 0} {
+      set $t "$mc.$lc insert end \"\$\{$name.in\} \\n\" ; $mc.$lc see end"
+   } {
+      set $t "$mc.$lc del 0.0 end ;$mc.$lc insert end \"\$\{$name.in\} \\n\" ; $mc.$lc see end"
+   }
+   return $name
+}
+
+proc newproc { {f  {}} {name  {}} {in  {in}} {out  {out}} {width  {40}} {height  {}} {tags  {}} {x  {10}} {y  {10}}  } {
+   if {$name == {}} {
+       uplevel #0 {if {[info exists proccount] == "0"} {set proccount 0} ;}
+      global proccount
+      incr proccount
+      set name Proc$proccount
+   }
+   set t [blockfunc $name]
+   global mc $t; 
+   set $t {}
+   if {$height == {}} {
+      if {[llength $in] > [llength $out]} {
+	 set height [expr 15+ 15 * [llength $in]] } {
+	 set height [expr 15+ 15 * [llength $out]]
+      }   
+   }
+   newblock $name $x $y $width $height $in $out $tags
+   blockclear $name
+   if {$f == {}} {
+      eval  "set f \{ set $name.out \$\{$name.in\} \}"
+   }
+   set $t $f
+   return $name
+}
+
+proc newseq { {n  {8}} {name  {}} {del  {500}}  } {
+   if {$name == {}} {
+      uplevel #0 {if {[info exists seqcount] == "0"} {set seqcount 0} ;}
+      global seqcount
+      incr seqcount
+      set name Seq$seqcount
+   }
+   set t [blockfunc $name]
+   global mc $t;
+   set oo {}
+   for {set i 0} {$i < $n} {incr i} {append oo " o$i"}
+#   set ttt "{clkb clka c $oo }"
+#   puts $ttt
+   newproc {} $name {trig} [eval list clkb clka c $oo] 40 {} seq
+   blockclear $name
+   set lc [string tolower $name]
+   set $t "for {set o 0} {\$o < $n} {incr o} { after \[expr int($del*(\$o+1-0.5))\] \"trig $name clkb\" ; after \[expr int($del*(\$o+1))\] \" set $name.c \$o; trig $name o\$o\" ; after \[expr int($del*(\$o+1.5))\] \"trig $name clka\" }"
+   return $name
+}
+
+proc newstack { {name  {}}  } {
+   if {$name == {}} {
+       uplevel #0 {if {[info exists stackcount] == "0"} {set stackcount 0} ;}
+      global stackcount
+      incr stackcount
+      set name Stack$stackcount
+   }
+   set stack $name.stack
+   set t [blockfunc $name]
+   global $stack $t
+   newproc {} $name {in mode trig} {stack out}
+   blockclear $name
+
+set f "
+      global $stack $name.mode $name.in $name.trig $name.out
+      puts \${$name.mode}
+      puts \${$stack},\${$name.mode}
+      switch \${$name.mode}  clear {puts c; set $stack {}}  push  {puts u; append $stack \\ \\\{ \$\{$name.in\} \\\} }  pop   {puts o,\[lrange \$\{$stack\} 0 \[ expr \[llength \{$stack\}\] -1\]\]; set $name.out \[lindex \$\{$stack\} end\];
+		 if {\[llength \${$stack}\] == 1} {puts ---1---; set $stack {}} {
+		 set $stack \[lrange \${$stack} 0 \[ expr \[llength \${$stack}\] -2\]\] }  }  idle  {puts i}  default {puts d};
+   "
+   set $t $f
+   return $name
+}
+
+proc newterm { {name  {term}} {tags  {}} {x  {10}} {y  {10}}  } {
+    global mc termindex
+    
+    if {$name == "term"} {
+       if {![info exists termindex]} {set termindex 0}
+       set name $name$termindex;
+       set termindex [expr $termindex+1]
+    }
+    global $name.bfunc_init $name.bfunc
+    newblock $name $x $y 200 120 {in trig} {out}
+    blockclear $name
+    frame $mc.$name ;
+    eval $mc create window [expr $x+15] [expr $y+10] -anchor nw -height 100 -width 170  -tags "{$name crb shellwindow}" -window $mc.$name
+ 
+    set t $name; append t .out
+    set u $name; append u .in
+    entry $mc.$name.e -textvar $t
+    set ttt "$mc.$name.t insert end \"\\n\${$t}\\n\" tred; $mc.$name.t see end"
+    set uuu  "$mc.$name.t insert end  \${$name.in} tnavy; $mc.$name.t see end; $mc.$name.e selection range 0 end"
+ #   puts ,$ttt,
+    button $mc.$name.b -text Eval -command  "$ttt; net_funpropc $name"  -borderw 0 -padx 0 -pady 0
+ #      "$mc.$name.t insert end \n\\\$$t\\n tred;  $mc.$name.t insert end  [eval \\\$$t]; $mc.$name.t see end; $mc.$name.e select 0 end"  # '{eval \$name"_entry}"
+    pack $mc.$name.e -side bottom -anchor s -expand n -fill x
+    pack $mc.$name.b -side bottom -anchor s -expand n -fill x
+    text $mc.$name.t
+    pack $mc.$name.t -side top -anchor n -expand n -fill both
+    $mc.$name.t tag configure  tred  -foreground red -font "helvetica 8"
+    $mc.$name.t tag configure  tnavy  -foreground navy -font "helvetica 8"
+    bind $mc.$name.e <Return> "eval  $mc.$name.b invoke"
+    set $name.bfunc "$uuu"
+    set $name.bfunc_init "$mc.$name.t del 0.0 end"
+}
+
+proc newtext { {width  {60}} {height  {40}} {tags  {}} {name  {}}  } {
+   if {$name == {}} {
+       uplevel #0 {if {[info exists textcount] == "0"} {set textcount 0} ;}
+      global textcount
+      incr textcount
+      set name Text$textcount
+   }
+   set t [blockfunc $name]
+   global mc $t; 
+   set $t {}
+   #uplevel #0 {if {[info exists textcount] == "0"} {set textcount 0} ;}
+   #global textcount mc 
+   #incr textcount
+   #set name Text$textcount
+   #set t "{$name.bfunc}" ; global $t
+   puts $t
+   newblock $name 0 0 $width $height in {} $tags
+   blockclear $name
+   $mc create text 6 10 -text $name -anchor nw -fill navy  -font "courier 10" -tags "$name textfield"
+   set $t "global mc; \$mc itemco \[tag_and { $name textfield }\] -text \$\{$name.in\} "
+   return $name
+}
+
+proc onefield { {path } {label } {var } {width1  {20}} {width2  {20}}  } {
+   frame $path; pack $path -expand n -fill none;
+   label $path.l -text $label -font "helvetica 15" -bg grey90 -width $width1;
+   pack $path.l -side left;
+   global $var;
+   entry $path.e -textvar $var -font "courier 15" -width $width2;
+   pack $path.e -side left -expand y -fill x 
+   
+   if {$label == "Image"} {
+      global ccontent 
+      eval set file $$var
+      .tc.c del image ; catch "{image delete tcim}"
+      catch "set lim [image create photo tcim -file $file  ] ;
+      .tc.c create image 1 1 -anchor nw -image tcim -tag image"
+   }
+}
+
+proc open_text { {n  {}}  } {
+   global textname
+   if {[winfo exists .tt] == 0} {
+      toplevel .tt
+      set textname $n
+      text .tt.t -width 40 -height 8
+      frame .tt.f
+      entry .tt.f.e -textvar textname -width 30
+      button .tt.f.s -text Save -command {
+	 global textname;  set f [open $textname w];
+	 puts -nonewline $f [.tt.t get 0.0 end]; close $f 
+      }
+      button .tt.f.l -text Load -command {
+	 global textname; .tt.t del 0.0 end; 
+	 set f [open $textname r]; 
+	 while {[eof $f] == 0} {
+	    .tt.t insert end "[gets $f]\n"
+	 }; close $f 
+      }
+      bind .tt.f.e <Double-Button> {
+	 set textname [tk_getOpenFile]
+      }
+      pack .tt.t -expand y -fill both
+      pack .tt.f -side bottom -expand n -fill x
+      pack .tt.f.e -side left -expand y -fill x
+      pack .tt.f.s -side right
+      pack .tt.f.l -side right
+   } {
+      set textname $n
+   }
+   if {$textname != {}} {
+      .tt.f.l invoke
+   }
+}
+
+proc otherpins { {block } {pin }  } {
+ set o {}; foreach w [pin_get_wirenames $block $pin] {lappend o [wire_other $w $block $pin]} ; return $o 
+}
+
+proc pin_get_wirenames { {block } {pin }  } {
+    global mc;
+    set o {}; 
+    foreach i [eval "tag_and {wire $block $pin}"] {
+       eval "set w {[$mc itemcget $i -tags]}";
+       if {[lrange $w 3 4] == [list $block $pin] || [lrange $w 5 6] ==  [list $block $pin]} {
+	  lappend o [lindex $w 0]}
+       }; 
+    return $o
+}
+
+proc pinvar { {block } {pin }  } {
+   append o $block . $pin  ;
+   return $o
+}
+
+proc pro_args { {p } {ar }  } {
+   set o {}
+   set c 0; set maxc -1
+   foreach a [info args $p] {
+      set m {};
+      foreach j $ar {
+         if [string match $a [lindex $j 0]] { 
+            set m 1 
+            set arr [lindex $j 1]
+            set maxc $c
+         }
+      }
+      if {$m == {}} {
+         if { [info default $p $a b] == 1} {
+	      append o " [list $b]" } {
+	      append o  " {}"
+         }
+      } {
+         append o " [list $arr]"
+      }
+      incr c
+   }
+   set o "$p [lrange $o 0 $maxc]"
+   return $o
+}
+
+proc procs_window {  } {
+	   global defaultprocs
+	   if {[info exists defaultprocs] != 1} {
+	      set defaultprocs {}
+	   }
+#	   get_procvanilla
+	   toplevel .f
+           wm title .f "Procedure Window"
+         frame .f.fl ; pack .f.fl -expand n -fill x
+	   listbox .f.fl.l -height 5 -yscroll ".f.fl.s set";
+         pack .f.fl.l -expand y -fill x -side left
+         scrollbar .f.fl.s -command ".f.fl.l yview"
+         pack .f.fl.s -side right -expand n -fill y
+         frame .f.ft ; pack .f.ft -expand y -fill both
+	   pack .f.ft -expand y -fill both
+	   text .f.ft.t -width 20 -height 4 -wrap none -yscroll ".f.ft.s set";;
+	   pack .f.ft.t -expand y -fill both -side left
+         scrollbar .f.ft.s -command ".f.ft.t yview"
+         pack .f.ft.s -side right -expand n -fill y
+	   frame .f.f; pack .f.f -expand n -fill x
+	   button .f.f.b -text {Update Proc} -command {
+	      global procs;
+	      set p [.f.ft.t get 0.0 end];
+	      eval $p;
+	      set procs([lindex $p 1]) $p
+	   }
+	   pack .f.f.b -side right
+	   bind .f.fl.l <Double-Button-1> {
+	      global cf; set cf [selection get];
+	      .f.ft.t del 0.0 end;
+	      .f.ft.t insert end "proc $cf \{"
+	foreach a [info args $cf] {
+	   if { [info default $cf $a b] == 1} {
+	      .f.ft.t insert end " {$a {$b}}" } {
+	      .f.ft.t insert end " {$a}"
+	   }
+	}
+       .f.ft.t insert end " \} \{[info body $cf]\} "
+	   }
+	   button .f.f.b2 -text "Refresh List" -command {
+	      set o {};
+	      foreach i [info procs] {
+		 if {[string match {tk*} $i] == 0 && 
+		 [string match {tcl*} $i] == 0 &&
+		 [lsearch $defaultprocs $i] == -1 } {
+		    lappend o $i
+		 }
+	      };
+	      .f.fl.l del 0 end;
+	      foreach i [lsort $o] {.f.fl.l insert end $i}
+	   };
+	   pack .f.f.b2 -side right
+	   entry .f.f.f -width 15 -textvar procsfile
+	   pack .f.f.f -side left
+	   button .f.f.bs -text {Save Procs} -command {
+	      global procsfile procs
+	      set o {}
+	      foreach i [lsort [array names procs]] {
+		 eval append o { $procs($i) } \n 
+	      }
+	      set f [open $procsfile w];
+	      puts $f $o;
+	      close $f
+	   }
+	   pack .f.f.bs -side left
+   bind .f.fl.l  <F1> [bind .f.fl.l [bind .f.fl.l ]]
+   .f.f.b2 invoke
+   .f.ft.t insert end "Use refresh list when you made a new procedure.\n"
+   .f.ft.t insert end "Double click a procedure name to make it appear \n"
+   .f.ft.t insert end "in the bottom window.\n\n"
+   .f.ft.t insert end "After editing it, press Update to resource the proc.\n\n"
+   .f.ft.t insert end "There is no extra storage except regular tcl procs,\n"
+   .f.ft.t insert end "loading another proc destroys you edits: \nUPDATE FIRST.\n\n"
+   .f.ft.t insert end "Save button saves EDITED procs, \nsee filebox entry on the left.\n"
+   .f.ft.t insert end "Most Bwise regular windows can be resized."
+}
+
+proc readccat {  } {
+   foreach i  [split [lindex [split $w \t] 0] {}] {  set k [lindex [array get ha $i] 1];  if {$k != {} } {if {$k == " "}  {$wt insert insert " "; $wt mark set insert insert-1c}  {eval $bh.b$ha($i) invoke}}
+   }
+}
+
+proc reload_canvas {  } {
+    global mc
+    set t "$mc.pm"
+    set fn [tk_getOpenFile];
+    if {$fn != ""} {
+       $mc del all
+       foreach i [winfo children $mc] {
+          if ![string equal $i $t] {destroy $i}
+       }
+       uplevel #0 "source $fn"
+    }
+}
+
+proc reloadpage { {user  {0}}  } {
+   set o "<html>\n[servhtml $user 0]"
+   append o "<P>\n<a href=\"/reloadpage?user=$user\">Load lastest page update</a>\n</html>\n"
+   return $o
+}
+
+proc remprocnls {  } {
+   set ci 0      
+   foreach cf [.f.l get 0 end] {      
+   #puts $cf,$ci      
+      .f.l see $ci      
+      .tt.t del 0.0 end      
+      .tt.t insert end "proc $cf \{"      
+      foreach a [info args $cf] {      
+	   if { [info default $cf $a b] == 1} {      
+	      .tt.t insert end " {$a {$b}}" } {      
+	      .tt.t insert end " {$a}"      
+	   }      
+      }      
+      .tt.t insert end " \} \{[info body $cf]\} "      
+	    
+      set c 100; while { ( [.tt.t get 2.0 3.0] == "\n" || [.tt.t get 2.0 3.0] == " \n" || [allspaces [.tt.t get 2.0 2.end]] == 1 ) && $c > 0} {.tt.t del 2.0 3.0 ; incr c -1; update}      
+      set c 100; while { ( [.tt.t get end-2line end-1line] == "\n" || [.tt.t get end-2line end-1line] == "\n" || [allspaces [.tt.t get end-2line end-1line-1char]] == 1 ) && $c > 0} {.tt.t del end-2line end-1line ; incr c -1; update}      
+      eval "[.tt.t get 0.0 end]"      
+      incr ci      
+   }      
+}
+
+proc run { {block } {pins  {}} {mode  {}}  } {
+    global mc;
+    set delay 600;
+    global ident ; set idento {}; for {set i 0} {$i < $ident} {incr i} {append idento "     "} ; incr ident +1 ; 
+    #puts "******$block*******,$pins,$mode"
+    if {$block == {}} {return {}};
+    if {$pins == {}} { set pins [block_get_pinnames $block {pin typeout}] }
+    transfer $block
+    foreach pin $pins {
+	#puts -nonewline ^
+       if {$block == {} && $pin == {} } {return {}};
+       if {$mode != ""} {showactive $block $pin red; update; }
+       foreach w [pin_get_wirenames $block $pin] {
+	  #puts $idento,_$w
+	  #puts -nonewline &
+	  set nb [lindex [wire_other $w $block $pin] 0];
+	  #if {$block == "$block"} {puts "$idento$pin,$w,$nb"}
+	   uplevel #0 eval $\{[blockfunc $nb]\}
+	  if {$mode == "delay"} {
+	      #puts ***$nb,$pins,$mode
+	     after $delay uplevel #0 run "$nb {{}} $mode" } {
+	     uplevel  #0 run $nb {{}} $mode
+	  # foreach o [block_get_pinnames $nb typeout] {
+	  #    }
+	  }
+       }
+       if {$mode != ""} {eval "after $delay showactive $block $pin navy"; update };
+    };
+   incr ident -1
+}
+
+proc save_blocks { {file } {blocks }  } {
+   set f [open $file w]
+   foreach b $blocks {
+      
+      puts $f "set $b ${$b.bfunc}"
+   }
+   close $f
+}
+
+proc save_canvas {  } {
+    global mc
+    set o ""
+    set sv {bcount scopeindex wireindex shellindex drumindex entrycount moncount proccount seqcount stackcount termindex textcount}
+    eval global $sv
+    eval {append o global " " $sv \n}
+    foreach i $sv {
+       catch { eval set j $$i ;
+          append o set " " $i " " $j \n 
+       }
+    }
+    foreach in [image names] {
+       if {[$in cget -file] != ""} {
+          append o "image create photo " $in " -file " [$in cget -file] \n
+       }
+    }
+    foreach i [$mc find all] {
+       if {[$mc type $i] != "window" && [$mc type $i] != "menu"} {
+	  append o $mc " " create " " [$mc type $i] " " [$mc coords $i]
+	  foreach k [ $mc itemco $i] {
+	     append o " " [lindex $k 0] " " [list [lindex $k end]]
+	  }
+	 append o \n }
+    }
+   uplevel #0 {
+      set ooo {}
+      foreach bi [tag_and {block}] {
+	set b [block_name_fromid $bi]
+       foreach i [lsort -dict [info vars $b.*]] {
+	 if {[string index $i 0] != "\$" && 
+		 [array exists $i] == 0} {
+	      eval set ttt $\{$i\}
+	      #set uuu "set \{$i\} \{$ttt\} \n"
+	      #eval set uuu $\{$i\}
+	      append ooo "set " $i " " \{ $ttt \} \n
+	  }
+       }
+      }
+   }
+   global ooo
+    set fn [tk_getSaveFile];
+    if {$fn != ""} {
+       set fd [open $fn w];
+       puts $fd $o; puts $fd {# now the block related variables\n}
+       puts $fd $ooo; close $fd 
+    }
+}
+
+proc save_canvasvars { {n }  } {
+   global nnn
+   set nnn $n
+   uplevel #0 {
+      set ooo {}
+      foreach bi [tag_and {block}] {
+	set b [block_name_fromid $bi]
+       foreach i [lsort -dict [info vars $b.*]] {
+	 if {[string index $i 0] != "\$" && 
+		 [array exists $i] == 0} {
+	      eval set ttt $\{$i\}
+	      #set uuu "set \{$i\} \{$ttt\} \n"
+	      #eval set uuu $\{$i\}
+	      append ooo "set " $i " " \{ $ttt \} \n
+	  }
+       }
+      }
+      set f [open $nnn w];
+      puts $f $ooo;
+      close $f
+   }
+}
+
+proc save_procs { {n }  } {
+   global nnn
+   set nnn $n
+   uplevel #0 {
+      set ooo {}
+      foreach i [lsort -dict [info procs]] {
+	 if {[lsearch $defaultprocs $i] == -1 &&
+		 [string index $i 0] != "\$"  &&
+		 ![string match tcl* $i] &&
+                                 ![string match tk* $i] } {
+#              eval set ttt $\{$i\}
+#              set uuu "set \{$i\} \{$ttt\} \n"
+#              eval set uuu {}
+	      #append ooo "set " $ttt " " $uuu \n
+	      append ooo "proc $i { "
+	      foreach a [info args $i] {
+		  set d ""
+		  if {[info default $i $a d]} {set d " {$d}"}
+		  append ooo "{$a $d} "
+	      }
+	      append ooo " } {" [info body $i] "}\n\n"
+	  }
+      }
+      set f [open $nnn w];
+      puts $f $ooo;
+      close $f
+   }
+}
+
+proc save_procs2 { {n }  } {
+   global nnn
+   set nnn $n
+   uplevel #0 {
+      set ooo {}
+      foreach i [lsort -dict [info procs]] {
+	 if {[lsearch $defaultprocs $i] == -1 &&
+		 [string index $i 0] != "\$" } {
+#              eval set ttt $\{$i\}
+#              set uuu "set \{$i\} \{$ttt\} \n"
+#              eval set uuu {}
+	      #append ooo "set " $ttt " " $uuu \n
+	      append ooo "proc $i { "
+	      foreach a [info args $i] {
+		  set d ""
+		  if {[info default $i $a d]} {set d " {$d}"}
+		  append ooo "{$a $d} "
+	      }
+	      append ooo " } {" [info body $i] "}\n\n"
+	  }
+      }
+      set f [open $nnn w];
+      puts $f $ooo;
+      close $f
+   }
+}
+
+proc save_procs_bak { {n }  } {
+   set o {}
+   foreach i [lsort [array names procs]] {
+      eval append o { $procs($i) } \n 
+   };
+#   puts $o
+   set f [open {procs.tcl} w];
+   puts $f $o;
+   close $f
+}
+
+proc save_procs_bak3 { {n }  } {
+      global procsfile procs
+      set o {}
+      foreach i [lsort [array names procs]] {
+	 eval append o { $procs($i) } \n 
+      }
+      set f [open $procsfile w];
+      puts $f $o;
+      close $f
+}
+
+proc save_vars { {n }  } {
+   global nnn
+   set nnn $n
+   uplevel #0 {
+      set ooo {}
+      set defaultvars {defaultvars ooo nnn ttt}
+      foreach i [lsort -dict [info vars]] {
+	 if {[string match {tk*} $i] == 0 && 
+		 [string match {tcl*} $i] == 0 &&
+		 [lsearch $defaultvars $i] == -1 &&
+		 [string index $i 0] != "\$" && 
+		 [array exists $i] == 0} {
+	      eval set ttt $\{$i\}
+	      set uuu "set \{$i\} \{$ttt\} \n"
+	      eval set uuu {}
+	      #append ooo "set " $ttt " " $uuu \n
+	      append ooo  $uuu
+	  }
+      }
+      set f [open $nnn w];
+      puts $f $ooo;
+      close $f
+   }
+}
+
+proc savefile { {wn  {0}}  } {
+   global wt
+   set t [tk_getSaveFile]
+   if {$t == {}} return
+   set fd [open $t w]
+   if {[file writable $t] == 0} {close $fd ; return }
+   puts $fd [$wt($wn) dump -text -image 0.0 end]
+   close $fd
+}
+
+proc savehis { {file }  } {
+    set f [open $file w];
+    puts $f [history];
+    close $f
+}
+
+proc send { {line  {
+}}  } {
+   global sock
+   if {$sock == -1} {
+      log "(failed attempt to send:\n$line)\n"
+      return
+   }
+   puts $sock $line
+   flush $sock
+   log $line\n
+}
+
+proc set_procvanilla {  } {
+global defaultprocs
+puts "This routine should be called when only the startup\m"
+puts "procedures are present to make the file 'defaultprocs.tcl'"
+	set defaultprocs {}
+	foreach i [info procs] {
+		if {[string match {tk*} $i] == 1 || 
+		  [string match {tcl*} $i] == 1} {
+			append defaultprocs "$i "
+		}
+	}
+	set f [open defaultprocs.tcl w]
+	puts $f $defaultprocs
+	close $f
+}
+
+proc set_varvanilla {  } {
+   global defaultvars 
+   set defaultvars [lsort [info procs]]
+}
+
+proc setbfunc { {b } {f } {t  {}}  } {
+   global bfunc
+   
+   set fn [blockfunc $b $t]
+   set $fn $f
+}
+
+proc showactive { {block } {pin } {c }  } {
+    global mc;
+    if {$c == {}} {return};
+    $mc itemco [ eval "tag_and {pin $block $pin}"] -fill $c
+}
+
+proc showentry { {ind  {0}}  } {
+   global db fb de currentid
+   if {[winfo exists .db] == 0} { 
+      toplevel .db
+      frame .db.f1 ; pack .db.f1
+      set fb .db.f1
+   }
+   if {[winfo exists .db.fc] == 0} {
+      frame .db.fc
+      pack .db.fc -side bottom -expand 0 -fill x
+      button .db.fc.bn -text next  -command {global currentid ; incr currentid; 
+	showentry $currentid }
+      pack .db.fc.bn -side right
+      button .db.fc.bp -text Previous -command {
+	  global currentid ; incr currentid -1; 
+	  showentry $currentid } ; 
+      pack .db.fc.bp -side right
+      entry .db.fc.en -textvar currentid -width 4 ;
+      pack .db.fc.en -side right
+      bind .db.fc.en <Return> {global currentid; showentry $currentid}
+   }
+   foreach i [winfo children .db.f1] {destroy  $i}
+   set i 0
+   set de [split [lindex $db $ind] \t]
+   #puts $de
+   foreach d $de {
+     if {$d != {}} {
+      frame $fb.f$i;
+      label $fb.f$i.l -text $i;
+       #puts de$i,$d
+      global de$i
+      set de$i $d;
+      entry $fb.f$i.e -textvar de$i;
+      pack $fb.f$i;
+      pack $fb.f$i.l  $fb.f$i.e -side left;
+    }
+   incr i
+   }
+}
+
+proc sliders { {sl  {{viewx 360} {viewy 360} {viewz 360}}} {w  {.sl}}  } {
+   destroy $w
+   toplevel $w
+   foreach s $sl {
+      set min 0
+      set name [lindex $s 0]
+      if {[llength $s] > 1} {set max  [lindex $s 1]} {set max 120; set min -12}
+      frame $w.$name
+      pack $w.$name -side left -expand y -fill y
+      scale $w.$name.s -orient vertical -from $min -to $max -command "slidsend $name"
+      pack $w.$name.s -side top -expand y -fill both
+      bind $w.$name.s <ButtonRelease-1> slidsendupdate
+      label $w.$name.l -text $name
+      pack $w.$name.l -side bottom -expand n -fill x
+      eval "bind $w.$name.l <ButtonRelease-1> {
+	 global $w,$name,e
+	 pack forget $w.$name.l
+	 entry $w.$name.e -width 6 -textvar $w,$name,e
+	 set $w,$name,e \[$w.$name.l cget -text\]
+	 pack $w.$name.e -side bottom -expand n -fill x
+	 bind $w.$name.e <Return> {
+	     global $w,$name,e
+	     eval $w.$name.l conf -text \$\{$w,$name,e\}
+	     destroy $w.$name.e
+	     pack $w.$name.l -side bottom -expand n -fill x
+	     eval $w.$name.s conf -command \{ \"slidsend \$\{$w,$name,e\}\ \" \}
+	 }
+      }
+      "
+
+   }
+}
+
+proc slidsend { {n } {v }  } {
+  send "$n $v"
+}
+
+proc slidsendupdate {  } {
+   send update
+}
+
+proc stream_connect { {cg  {.cg}} {host  {localhost}} {port  {6543}}  } {
+   global sock
+   puts $cg,$host,$port
+   if {$sock != -1} {
+      log "Connect attempt while already connected: ignored" $cg
+      set sock -1
+      return
+   }
+   if {[catch {set sock [socket $host $port]}] !=0} {
+      set sock -1
+      log "Attempt to connect to $host $port failed.\n" $cg
+      return
+   }
+   fconfigure $sock -blocking 0 -buffering line
+   eval fileevent $sock readable "{
+      global sock in
+      if {\[eof \$sock\] != 0} {
+	 log \"Connection closed.\\n\" $cg
+	 close \$sock ; set sock -1
+      } {
+	 set in \[gets \$sock\]
+	 log \\\[\$in\\\]\\n $cg
+      }
+   }"
+}
+
+proc streamui { {cg  {.cg}} {host  {localhost}} {port  {6543}}  } {
+   catch {destroy $cg}
+   toplevel $cg
+
+   frame $cg.f1
+   pack $cg.f1 -side top -expand n -fill x
+   label $cg.f1.lh -text Host ; pack $cg.f1.lh -side left -expand n -fill none
+   entry $cg.f1.eh -width 12 -textvar $cg.hostname ; pack $cg.f1.eh -side left -expand n -fill x
+   label $cg.f1.lp -text Port; pack $cg.f1.lp -side left -expand n -fill none
+   entry $cg.f1.ep -width 4 -textvar $cg.port ; pack $cg.f1.ep -side left -expand n -fill x
+   uplevel #0 "set $cg.hostname $host; set $cg.port $port"
+   frame $cg.f2
+   pack $cg.f2 -side top -expand n -fill x
+   button $cg.f2.bc -text Connect -command "
+      stream_connect $cg \${$cg.hostname} \${$cg.port}
+   "
+   pack $cg.f2.bc -side left -expand n -fill none
+   text $cg.th -width 32 -height 4 -font "courier 9"
+   pack  $cg.th -side bottom -expand n -fill x
+   entry $cg.el -textvar $cg.line
+   pack $cg.el -side bottom -expand n -fill x
+   bind $cg.el <Return> "
+       global $cg.line
+       send \${$cg.line}
+       $cg.el selection range 0 end
+   "
+   frame $cg.f3
+   pack $cg.f3 -side top -expand n -fill x
+   button $cg.f3.bvx -text Rotx+ -command {
+      global viewx
+      incr viewx 10
+      send "viewx $viewx" ; send update
+   }
+   pack $cg.f3.bvx -side left -expand n -fill none
+}
+
+proc tag_and { {tl }  } {
+    global mc
+    set r [$mc find withtag [lindex $tl 0]]
+    foreach i [lrange $tl 1 end] {
+       set r [listunion $r [$mc find withtag $i] ]
+    }
+    return $r
+}
+
+proc tagbbox { {tags  {}}  } {
+   global mc
+   foreach b [tag_and [eval list block $tags]] {
+      cbbox [lindex [$mc itemcget $b -tags] 0]
+   }
+}
+
+proc to7seg {  } {
+}
+
+proc togglepinsel { {ids }  } {
+    global mc
+    foreach id $ids {
+       if {[$mc itemcget $id -fill] != "green"} {
+	  $mc itemco $id -fill green
+	  $mc addtag selectedpin withtag $id
+       } {
+	  $mc itemco $id -fill darkblue
+	  $mc dtag $id selectedpin
+       }
+    }
+}
+
+proc transfer { {blocks }  } {
+   global togglepinson mc
+   set togglepinson 1
+   #puts *****$blocks
+   foreach bl $blocks {
+      #puts ****$bl,[block_get_pinnames $bl typeout]
+      foreach p [block_get_pinnames $bl typeout] {
+	 #puts ***[pin_get_wirenames $bl $p]
+	 foreach w [pin_get_wirenames $bl $p] {
+	    #puts **$bl,$p,$w
+	    set a $bl.$p;
+	    #puts a=$a
+	    set o [wire_other $w $bl $p];
+	    if {$togglepinson == 1} {
+	       set fromp [eval tag_and \{$bl $p pin\}]
+	       set top [eval tag_and \{[lindex $o 0] [lindex $o 1] pin\}]
+	       togglepinsel $fromp
+	       togglepinsel $top
+	       update
+	    }
+	    #puts $fromp,$top
+	    #puts o=$o
+	    set b [lindex $o 0].[lindex $o 1];
+	    #puts b=$b
+	    global $a $b
+	    eval set $b $\{$a\}
+	    #puts -nonewline "transfering $a,$b --> "; eval puts ,$\{$a\}
+	 }
+      }
+   };
+   if {$togglepinson == 1} {
+      $mc itemco pin  -fill darkblue
+      $mc dtag all selectedpin
+   }
+   return ok
+}
+
+proc trig { {b } {p } {g  {y}}  } {
+   global mc
+   foreach w [pin_get_wirenames $b $p] {
+       set nb [lindex [wire_other $w $b $p] 0];
+       if {$g != "0"} {cbbox $nb ; update}
+       uplevel #0 eval $\{[blockfunc $nb]\}
+       if {$g != "0"} {after 50 "$mc del bbox ; update"}
+       transfer $nb
+   }
+}
+
+proc update_dbvar { {a }  } {
+   global dbvar currententry dbcurrent dbcurrentvars
+   foreach i $dbcurrentvars {
+      if {[eval $$i] != {}} {
+      }
+   }
+}
+
+proc update_entry { {newentryvar  {dbcurrent}} {en  {}} {dbname  {dbvar}}  } {
+   upvar #0 $newentryvar e $dbname db
+   if {$en == {}} {global currententry; set en $currententry}
+   set db [lreplace $db $en $en $e]
+}
+
+proc wire_coord { {name } {pin } {x } {y }  } {
+    global mc
+ #   puts $name,$pin,$x,$y;
+    set w  [ listunion [$mc find withtag $pin] [listunion [$mc find withtag $name]  [$mc find withtag wire]] ] ;
+ #    foreach i [ listunion [$mc find withtag wire] [$mc find withtag $name] ] {
+ #
+ #    }
+     if {$w == {}} { return}
+     foreach ww $w {
+      set t [eval $mc itemcget $ww -tags]
+ #     puts $ww,$t
+      for {set i 3} {$i < [llength $t]} {set i [expr $i+2]} {
+ #       puts $i
+	if {[lindex $t $i] == $name} {
+	   if {[lindex $t [expr $i+1]] == $pin} {
+	      eval $mc coords $ww  "[ lreplace [$mc coords $ww] [expr $i-3] [expr $i+1-3] $x $y]" ; 
+	   } 
+	} ; 
+     } ;
+     }
+}
+
+proc wire_other { {wname } {block } {pin }  } {
+    global mc; set r {}; 
+    set t [$mc itemcget [eval "tag_and {$wname wire}"] -tags]; 
+    if {[lindex $t 3] == $block && [lindex $t 4] == $pin}  {set r [lrange $t 5 6]};
+    if {[lindex $t 5] == $block && [lindex $t 6] == $pin}  {set r [lrange $t 3 4]};
+    return $r
+}
+
+proc wire_update { {name }  } {
+    global mc
+    foreach i [ listunion [$mc find withtag $name] [$mc find withtag pin ] ]  {eval  wire_coord $name [lindex [eval $mc itemcget $i -tags] 3]  [lrange [eval  $mc coords $i] 0 1]  }
+}
+
+proc welcome {} {
+   global mc
+   bind $mc <Button-1> {global mc; $mc del welcome; bind $mc <Button-1> {}}
+   set we {
+   {-fill blue} "   Welcome to Bwise version 0.34"   {} {}
+   {-fill red} "Press left mouse button once in this canvas to delete welcome message!"
+   {} "This canvas can be clicked on to create blocks with the"
+   {} "rigth or middle mouse button menu, see top of source code."
+   {} ""
+   {} "The paper image button creates a tcl shell."
+   {} "Connect blocks by clicking on two pins and press wire."
+   {} "Double click blocks to select them for \\\"delete\\\" button."
+   {} "Saving the canvas doesn't save block entry components (yet)."
+   {} "Right-click block yellow part to get block menu."
+   {} "Use Funprop on first block of a network to 'run' it"
+   }
+   set i 0; 
+   foreach {a t} $we {
+      eval $mc create text 15 [expr 20+20*$i] -font \"helvetica 12\" -anchor nw \
+         -tag welcome $a -text \"$t\"
+      incr i
+   }
+}
+
+
+#console show
+bwise
+procs_window
+update
+
+wm geom . 636x350+9+4
+update
+wm geom .f 355x351+658+4
+.f.fl.l conf -font {{MS Sans Serif} 10}
+.f.ft.t conf -font {{MS Sans Serif} 12}
+
+# comment out when no more need..
+welcome
+
+

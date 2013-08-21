@@ -1,0 +1,30 @@
+.evenrows { 
+            background-color: white;
+ }
+.hidden { 
+          visibility: hidden;
+          width:      100px;
+          font-size:  0%;
+ }
+.shown { 
+         width:       100px;
+ }
+
+.highlight { 
+             background-color: #FAFACD;
+ }
+
+
+#vis {
+    background-color: #f0f0f0;
+}
+rect {
+    fill: white;
+    stroke: black;
+}
+
+line {
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+</style>
