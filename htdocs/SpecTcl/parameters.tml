@@ -1,0 +1,10 @@
+<script>
+jQuery(document).ready(function() {
+  [::SpecTcl::highlightTableRows #paramtable data white]
+  [::SpecTcl::hoverHighlight tr.data highlight]
+});
+</script>
+<h2>Parameters.</h2>
+<div id="paramtable">
+[::SpecTcl::paramtable]
+</div>

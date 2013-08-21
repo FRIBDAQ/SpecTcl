@@ -1,0 +1,13 @@
+<script>
+jQuery(document).ready(function() {
+  [::SpecTcl::highlightTableRows #spectra data white]
+  jQuery('span.gatedef').hide();
+  [::SpecTcl::hoverShow gatename gatedef]
+  [::SpecTcl::hoverHighlight tr.data highlight]
+});
+</script>
+<h2>Spectra</h2>
+<div id="spectra">
+[::SpecTcl::spectable]
+</div>
+

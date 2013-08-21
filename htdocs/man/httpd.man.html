@@ -1,0 +1,587 @@
+<html><head>
+<title>httpd - Tcl Web Server</title>
+<style type="text/css"><!--
+    HTML {
+	background: 	#FFFFFF;
+	color: 		black;
+    }
+    BODY {
+	background: 	#FFFFFF;
+	color:	 	black;
+    }
+    DIV.doctools {
+	margin-left:	10%;
+	margin-right:	10%;
+    }
+    DIV.doctools H1,DIV.doctools H2 {
+	margin-left:	-5%;
+    }
+    H1, H2, H3, H4 {
+	margin-top: 	1em;
+	font-family:	sans-serif;
+	font-size:	large;
+	color:		#005A9C;
+	background: 	transparent;
+	text-align:		left;
+    }
+    H1.title {
+	text-align: center;
+    }
+    UL,OL {
+	margin-right: 0em;
+	margin-top: 3pt;
+	margin-bottom: 3pt;
+    }
+    UL LI {
+	list-style: disc;
+    }
+    OL LI {
+	list-style: decimal;
+    }
+    DT {
+	padding-top: 	1ex;
+    }
+    UL.toc,UL.toc UL, UL.toc UL UL {
+	font:		normal 12pt/14pt sans-serif;
+	list-style:	none;
+    }
+    LI.section, LI.subsection {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding: 	0em;
+    }
+    PRE {
+	display: 	block;
+	font-family:	monospace;
+	white-space:	pre;
+	margin:		0%;
+	padding-top:	0.5ex;
+	padding-bottom:	0.5ex;
+	padding-left:	1ex;
+	padding-right:	1ex;
+	width:		100%;
+    }
+    PRE.example {
+	color: 		black;
+	background: 	#f5dcb3;
+	border:		1px solid black;
+    }
+    UL.requirements LI, UL.syntax LI {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding:	0em;
+    }
+    DIV.synopsis {
+	color: 		black;
+	background: 	#80ffff;
+	border:		1px solid black;
+	font-family:	serif;
+	margin-top: 	1em;
+	margin-bottom: 	1em;
+    }
+    UL.syntax {
+	margin-top: 	1em;
+	border-top:	1px solid black;
+    }
+    UL.requirements {
+	margin-bottom: 	1em;
+	border-bottom:	1px solid black;
+    }
+--></style>
+</head>
+<! -- Generated from file '' by tcllib/doctools with format 'html'
+   -->
+<! -- Copyright &copy; 2003 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
+   -->
+<! -- CVS: $Id$ httpd.n
+   -->
+<body><div class="doctools">
+<h1 class="title">httpd(n) 1.6  &quot;Tcl Web Server&quot;</h1>
+<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<p>httpd - HTTP protocol implementation</p>
+</div>
+<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="toc">
+<li class="section"><a href="#toc">Table Of Contents</a></li>
+<li class="section"><a href="#synopsis">Synopsis</a></li>
+<li class="section"><a href="#section1">Description</a></li>
+<li class="section"><a href="#section2">Server Management</a></li>
+<li class="section"><a href="#section3">Connection Management</a></li>
+<li class="section"><a href="#section4">POST Management and Reading</a></li>
+<li class="section"><a href="#section5">Result Management and Generation</a></li>
+<li class="section"><a href="#see-also">See Also</a></li>
+<li class="section"><a href="#keywords">Keywords</a></li>
+<li class="section"><a href="#copyright">Copyright</a></li>
+</ul>
+</div>
+<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="synopsis">
+<ul class="requirements">
+<li>package require <b class="pkgname">httpd <span class="opt">?1.6?</span></b></li>
+</ul>
+<ul class="syntax">
+<li><a href="#1"><b class="cmd">Httpd_Init</b></a></li>
+<li><a href="#2"><b class="cmd">Httpd_Shutdown</b></a></li>
+<li><a href="#3"><b class="cmd">Httpd_RegisterShutdown</b> <i class="arg">cmd</i></a></li>
+<li><a href="#4"><b class="cmd">Httpd_Server</b> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">ipaddr</i>?</span></a></li>
+<li><a href="#5"><b class="cmd">Httpd_ServerShutdown</b></a></li>
+<li><a href="#6"><b class="cmd">Httpd_SecureServer</b> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">ipaddr</i>?</span></a></li>
+<li><a href="#7"><b class="cmd">Httpd_SecureServerShutdown</b></a></li>
+<li><a href="#8"><b class="cmd">Httpd_CurrentSocket</b> <span class="opt">?<i class="arg">sock</i>?</span></a></li>
+<li><a href="#9"><b class="cmd">Httpd_Webmaster</b> <span class="opt">?<i class="arg">email</i>?</span></a></li>
+<li><a href="#10"><b class="cmd">Httpd_VirtualHost</b> <i class="arg">host file</i></a></li>
+<li><a href="#11"><b class="cmd">Httpd_VirtualHosts</b> <i class="arg">hostNames file</i></a></li>
+<li><a href="#12"><b class="cmd">Httpd_Port</b> <span class="opt">?<i class="arg">sock</i>?</span></a></li>
+<li><a href="#13"><b class="cmd">Httpd_SecurePort</b></a></li>
+<li><a href="#14"><b class="cmd">Httpd_Peername</b> <i class="arg">sock</i></a></li>
+<li><a href="#15"><b class="cmd">Httpd_Protocol</b> <i class="arg">sock</i></a></li>
+<li><a href="#16"><b class="cmd">Httpd_Name</b> <i class="arg">sock</i></a></li>
+<li><a href="#17"><b class="cmd">Httpd_SelfUrl</b> <i class="arg">url</i> <span class="opt">?<i class="arg">sock</i>?</span></a></li>
+<li><a href="#18"><b class="cmd">Httpd_CompletionCallback</b> <i class="arg">sock cmd</i></a></li>
+<li><a href="#19"><b class="cmd">Httpd_SockClose</b> <i class="arg">sock closeit</i> <span class="opt">?<i class="arg">message</i>?</span></a></li>
+<li><a href="#20"><b class="cmd">Httpd_RequestComplete</b> <i class="arg">sock</i></a></li>
+<li><a href="#21"><b class="cmd">Httpd_Suspend</b> <i class="arg">sock</i> <span class="opt">?<i class="arg">timeout</i>?</span></a></li>
+<li><a href="#22"><b class="cmd">Httpd_Resume</b> <i class="arg">sock</i> <span class="opt">?<i class="arg">timeout</i>?</span></a></li>
+<li><a href="#23"><b class="cmd">Httpd_Pair</b> <i class="arg">sock fd</i></a></li>
+<li><a href="#24"><b class="cmd">Httpd_DumpHeaders</b> <i class="arg">sock</i></a></li>
+<li><a href="#25"><b class="cmd">Httpd_PostDataSize</b> <i class="arg">sock</i></a></li>
+<li><a href="#26"><b class="cmd">Httpd_GetPostData</b> <i class="arg">sock varName</i> <span class="opt">?<i class="arg">size</i>?</span></a></li>
+<li><a href="#27"><b class="cmd">Httpd_ReadPostDataAsync</b> <i class="arg">sock cmd</i></a></li>
+<li><a href="#28"><b class="cmd">Httpd_GetPostDataAsync</b> <i class="arg">sock varName blockSize cmd</i></a></li>
+<li><a href="#29"><b class="cmd">Httpd_CopyPostData</b> <i class="arg">sock channel cmd</i></a></li>
+<li><a href="#30"><b class="cmd">Httpd_GetPostChannel</b> <i class="arg">sock sizeName</i></a></li>
+<li><a href="#31"><b class="cmd">Httpd_SetCookie</b> <i class="arg">sock cookie</i> <span class="opt">?<i class="arg">modify</i>?</span></a></li>
+<li><a href="#32"><b class="cmd">Httpd_RemoveCookies</b> <i class="arg">sock pattern</i></a></li>
+<li><a href="#33"><b class="cmd">Httpd_ReturnFile</b> <i class="arg">sock type path</i> <span class="opt">?<i class="arg">offset</i>?</span></a></li>
+<li><a href="#34"><b class="cmd">Httpd_ReturnData</b> <i class="arg">sock type content</i> <span class="opt">?<i class="arg">code</i>?</span> <span class="opt">?<i class="arg">close</i>?</span></a></li>
+<li><a href="#35"><b class="cmd">Httpd_ReturnCacheableData</b> <i class="arg">sock type content date</i> <span class="opt">?<i class="arg">code</i>?</span></a></li>
+<li><a href="#36"><b class="cmd">Httpd_Error</b> <i class="arg">sock code</i> <span class="opt">?<i class="arg">detail</i>?</span></a></li>
+<li><a href="#37"><b class="cmd">Httpd_Redirect</b> <i class="arg">newurl sock</i></a></li>
+<li><a href="#38"><b class="cmd">Httpd_RedirectSelf</b> <i class="arg">newurl sock</i></a></li>
+<li><a href="#39"><b class="cmd">Httpd_RedirectDir</b> <i class="arg">sock</i></a></li>
+<li><a href="#40"><b class="cmd">Httpd_NotModified</b> <i class="arg">sock</i></a></li>
+<li><a href="#41"><b class="cmd">Httpd_RequestAuth</b> <i class="arg">sock type realm</i></a></li>
+</ul>
+</div>
+</div>
+<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<p>The package <b class="package">httpd</b> implements the server side of the HTTP
+protocol and as such can be used as the core of any Tcl based web
+server implementation. One such full-fledged web server is
+<b class="syscmd">tclhttpd</b>.</p>
+<p><em>Note:</em> This package does <em>not</em> provide the ability to
+register a callback when a request was received completely. It
+dispatches all collected requests to the package <b class="package">httpd::url</b>
+instead. This package then provides an interface for the definition
+and usage of a database mapping from urls to implementations,
+i.e. Tcl commands handling them.</p>
+<p>The API is divided into the following four categories, each described in
+its own section.</p>
+</div>
+<div id="section2" class="section"><h2><a name="section2">Server Management</a></h2>
+<p>Operations to handle the server at large.</p>
+<dl class="definitions">
+<dt><a name="1"><b class="cmd">Httpd_Init</b></a></dt>
+<dd><p>Initializes the internal data structures of the package. Has to be
+called before <b class="cmd">Httpd_Server</b> or <b class="cmd">Httpd_SecureServer</b>. Some
+of the others public commands of this package will call this
+command on their own if it had not been called before.</p></dd>
+<dt><a name="2"><b class="cmd">Httpd_Shutdown</b></a></dt>
+<dd><p>A convenience command. It calls <b class="cmd">Httpd_ServerShutdown</b>,
+<b class="cmd">Httpd_SecureServerShutdown</b>, and all callback commands
+registered with the package through <b class="cmd">Httpd_RegisterShutdown</b>.</p>
+<p>The registered callbacks are called before the two shutdown commands
+of this package. Any errors thrown by the callbacks are logged via the
+package <b class="package">httpd::log</b>, but ignored otherwise.</p>
+<p>The result of the command is a boolean value. <b class="const">false</b> signals to
+the caller that at least one of the registered callbacks threw an
+error.</p></dd>
+<dt><a name="3"><b class="cmd">Httpd_RegisterShutdown</b> <i class="arg">cmd</i></a></dt>
+<dd><p>Registers <i class="arg">cmd</i> as a callback which will be called when the server
+is shutdown via <b class="cmd">Httpd_Shutdown</b>. Errors thrown by <i class="arg">cmd</i>
+during its invocation are logged, but otherwise ignored. Any result
+returned by <i class="arg">cmd</i> is ignored]. The <i class="arg">cmd</i> is called without any
+argument.</p></dd>
+<dt><a name="4"><b class="cmd">Httpd_Server</b> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">ipaddr</i>?</span></a></dt>
+<dd><p>Starts the server by listening for connections on the desired
+<i class="arg">port</i>. This may be re-run to re-start the server.</p>
+<p>If no <i class="arg">port</i> was specified it defaults to <b class="const">80</b>. The caller
+can specify the qualified host name returned in the Host field of each
+server response. This defaults to the result of <b class="cmd">info hostname</b>. 
+A non-default interface address can be specified through <i class="arg">ipaddr</i>.
+Otherwise <b class="const">IP_ADDR_ANY</b> is used so the server can accept
+connections from any interface.</p>
+<p>Automatically calls <b class="cmd">Httpd_Init</b> if it has not been
+done manually before.</p>
+<p>The command returns the empty string.</p>
+<p><em>Note:</em> It is possible for the package to have the server listen
+on multiple ports, just call this command more than once.  However
+note that the package remembers only the last port opened for
+listening. This means that a shutdown will stop only connections on
+the last port opened with this command, and nothing else.</p></dd>
+<dt><a name="5"><b class="cmd">Httpd_ServerShutdown</b></a></dt>
+<dd><p>This command closes the listening socket of the server. Existing
+HTTP connections are kept open, but no new connection will be
+possible.</p></dd>
+<dt><a name="6"><b class="cmd">Httpd_SecureServer</b> <span class="opt">?<i class="arg">port</i>?</span> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">ipaddr</i>?</span></a></dt>
+<dd><p>Like <b class="cmd">Httpd_Server</b>, except that additional setup for SSL is
+performed, requiring the package <b class="package">TLS</b>, and that the port
+defaults to <b class="const">443</b>.</p></dd>
+<dt><a name="7"><b class="cmd">Httpd_SecureServerShutdown</b></a></dt>
+<dd><p>Like <b class="cmd">Httpd_ServerShutdown</b>, except that listening socket
+for secure connections is closed.</p></dd>
+<dt><a name="8"><b class="cmd">Httpd_CurrentSocket</b> <span class="opt">?<i class="arg">sock</i>?</span></a></dt>
+<dd><p>If a <i class="arg">sock</i> is specified it is remembered globally as the current
+socket. Otherwise the globally remembered current socket is returned.</p></dd>
+<dt><a name="9"><b class="cmd">Httpd_Webmaster</b> <span class="opt">?<i class="arg">email</i>?</span></a></dt>
+<dd><p>Defines a global <i class="arg">email</i> address for the webmaster. If no address
+was specified the last address set is returned.</p></dd>
+<dt><a name="10"><b class="cmd">Httpd_VirtualHost</b> <i class="arg">host file</i></a></dt>
+<dd><p>Initialize a virtual server.  The file is an alternate
+config file, (e.g., &quot;<b class="file">tclhttpd.rc</b>&quot;).  The pages for each
+virtual server are processed inside their own safe interpreter.</p></dd>
+<dt><a name="11"><b class="cmd">Httpd_VirtualHosts</b> <i class="arg">hostNames file</i></a></dt>
+<dd><p>Like  <b class="cmd">Httpd_VirtualHost</b> except that the first argument
+is a list of host names.  All of these share the same config file.</p></dd>
+<dt><b class="variable">::Httpd</b></dt>
+<dd><p>A global array variable containing global configuration information.</p>
+<dl class="definitions">
+<dt><b class="const">bufsize</b></dt>
+<dd><p>Chunk size for copies. For example POST data.</p></dd>
+<dt><b class="const">initialized</b></dt>
+<dd><p>Exists and true after package was initialized by <b class="cmd">Httpd_Init</b>.</p></dd>
+<dt><b class="const">ipaddr</b></dt>
+<dd><p>Non-default ipaddr for the server (for multiple interfaces).</p></dd>
+<dt><b class="const">library</b></dt>
+<dd><p>Path of the directory containing the Tcl scripts.</p></dd>
+<dt><b class="const">port</b></dt>
+<dd><p>The port this server is serving.</p></dd>
+<dt><b class="const">listen</b></dt>
+<dd><p>The main listening socket id.</p></dd>
+<dt><b class="const">server</b></dt>
+<dd><p>The server ID for the HTTP protocol.</p></dd>
+<dt><b class="const">shutdown</b></dt>
+<dd><p>A list of Tcl callbacks to run when the server shuts down.</p></dd>
+<dt><b class="const">sockblock</b></dt>
+<dd><p>Blocking mode value for sockets (normally this should be 0).</p></dd>
+<dt><b class="const">timeout1</b></dt>
+<dd><p>Time before the server closes a kept-alive socket (msecs).</p></dd>
+<dt><b class="const">timeout2</b></dt>
+<dd><p>Time before the server kills an in-progress transaction (msecs).</p></dd>
+<dt><b class="const">timeout3</b></dt>
+<dd><p>Time allowed to drain extra post data.</p></dd>
+<dt><b class="const">version</b></dt>
+<dd><p>The version number.</p></dd>
+<dt><b class="const">maxused</b></dt>
+<dd><p>Max number of transactions per socket (keep alive).</p></dd>
+</dl></dd>
+</dl>
+</div>
+<div id="section3" class="section"><h2><a name="section3">Connection Management</a></h2>
+<p>Management operations for connections.</p>
+<dl class="definitions">
+<dt><b class="variable">::Httpd<i class="arg">$sock</i></b></dt>
+<dd><p>The state of the open connection is stored in global variables, one
+per connection. These variables are arrays and have the prefix
+<b class="const">Httpd</b>. Their distinguishing suffix is the handle of the
+channel (socket) they belong to. This means that any user code which
+has a connection handle can import the connection state into its
+current scope via a command like</p>
+<pre class="example">
+	upvar #0 Httpd$sock data
+</pre>
+<p>The elements of this array are documented here.  URL implementations
+are free to hang additional state off the data array as long as they
+do not clobber the elements documented below. These keys in the state
+array are semi-public, or &quot;well known&quot;.  There are a few API's to
+access them, but URL implementations can rely on these:</p>
+<dl class="definitions">
+<dt><b class="const">self</b></dt>
+<dd><p>A list of protocol (<b class="const">http</b> or <b class="const">https</b>), name, and port
+that capture the server-side of the socket address. Available through
+the <b class="cmd">Httpd_Protocol</b>, <b class="cmd">Httpd_Name</b>, and <b class="cmd">Httpd_Port</b> API's.</p></dd>
+<dt><b class="const">uri</b></dt>
+<dd><p>The complete URL, including protocol, servername, and query.</p></dd>
+<dt><b class="const">proto</b></dt>
+<dd><p>Either <b class="const">http</b> or <b class="const">https</b>.</p></dd>
+<dt><b class="const">url</b></dt>
+<dd><p>The URL after the server name and before the '?'. In other words,
+the url path.</p></dd>
+<dt><b class="const">query</b></dt>
+<dd><p>The URL after the '?'.</p></dd>
+<dt><b class="const">ipaddr</b></dt>
+<dd><p>The remote client's IP address.</p></dd>
+<dt><b class="const">cert</b></dt>
+<dd><p>Client certificate (The result of <b class="cmd">tls::status</b>). This is
+only relevant to connections coming in over a secure port.</p></dd>
+<dt><b class="const">host</b></dt>
+<dd><p>The host specified in the URL, if any (proxy case).</p></dd>
+<dt><b class="const">port</b></dt>
+<dd><p>The port specified in the URL, if any.</p></dd>
+<dt><b class="const">mime,*</b></dt>
+<dd><p>HTTP header request lines (e.g., mime,content-type).</p></dd>
+<dt><b class="const">count</b></dt>
+<dd><p>Content-Length.</p></dd>
+<dt><b class="const">set-cookie</b></dt>
+<dd><p>List of Set-Cookie headers to stick into the response.
+Use <b class="cmd">Httpd_SetCookie</b> to append to this.</p></dd>
+<dt><b class="const">prefix</b></dt>
+<dd><p>Set by <b class="cmd">Url_Dispatch</b> (in package <b class="package">httpd::url</b>) to be the
+URL domain prefix.</p></dd>
+<dt><b class="const">suffix</b></dt>
+<dd><p>Set by <b class="cmd">Url_Dispatch</b> to be the URL domain suffix.</p></dd>
+<dt><b class="const">auth_type</b></dt>
+<dd><p>Set by the package <b class="package">httpd::auth</b> to &quot;Basic&quot;, etc.</p></dd>
+<dt><b class="const">remote_user</b></dt>
+<dd><p>Set by the package <b class="package">httpd::auth</b> to the
+username from Basic authentication.</p></dd>
+<dt><b class="const">session</b></dt>
+<dd><p>Set by the package <b class="package">httpd::auth</b> to the
+&quot;realm,$username&quot; from Basic auth.
+You can overwrite this session ID with something more useful.</p></dd>
+<dt><b class="const">Internal</b></dt>
+<dd><p>Fields used by this module.</p></dd>
+<dt><b class="const">left</b></dt>
+<dd><p>The number of keep-alive connections allowed.</p></dd>
+<dt><b class="const">cancel</b></dt>
+<dd><p>AfterID of event that will terminate the connection on timeout.</p></dd>
+<dt><b class="const">state</b></dt>
+<dd><p>State of request processing.</p></dd>
+<dt><b class="const">version</b></dt>
+<dd><p>1.0 or 1.1.</p></dd>
+<dt><b class="const">line</b></dt>
+<dd><p>The current line of the HTTP request.</p></dd>
+<dt><b class="const">mimeorder</b></dt>
+<dd><p>List indicating the order of MIME header lines.</p></dd>
+<dt><b class="const">key</b></dt>
+<dd><p>Current header key.</p></dd>
+<dt><b class="const">checkNewLine</b></dt>
+<dd><p>State bit for Netscape SSL newline bug hack.</p></dd>
+<dt><b class="const">callback</b></dt>
+<dd><p>Command to invoke when request has completed.</p></dd>
+<dt><b class="const">file_size</b></dt>
+<dd><p>Size of file returned by <b class="cmd">Httpd_ReturnFile</b>.</p></dd>
+<dt><b class="const">infile</b></dt>
+<dd><p>Open file used by <b class="cmd">fcopy</b> to return a file, or CGI pipe.</p></dd>
+</dl></dd>
+<dt><b class="variable">::env</b></dt>
+<dd><p>During the dispatch of a request the element <b class="const">HTTP_CHANNEL</b>
+contains the channel handle of the connection for that request.</p>
+<p><em>Danger:</em> This is true only until the URL implementation enters
+the event loop on its own. After that this element can be overwritten
+by another request served in parallel. In other words this information
+is not reliable.
+A package using this variable is <b class="package">httpd::cookie</b>, especially
+the command <b class="cmd">Cookie_Get</b>.</p>
+<p>It would have been better to provide a cookie retrieval command
+in this API here.</p></dd>
+<dt><a name="12"><b class="cmd">Httpd_Port</b> <span class="opt">?<i class="arg">sock</i>?</span></a></dt>
+<dd><p>If no socket handle <i class="arg">sock</i> is provided the regular (non-secure)
+listening port is returned. Otherwise the port for the connection
+running over the specified socket is returned.</p></dd>
+<dt><a name="13"><b class="cmd">Httpd_SecurePort</b></a></dt>
+<dd><p>Returns the port number of the secure listening port, if a secure
+server was activated. An empty string will be returned if no secure
+server is running.</p></dd>
+<dt><a name="14"><b class="cmd">Httpd_Peername</b> <i class="arg">sock</i></a></dt>
+<dd><p>Returns the DNS name of the client connected to the server over
+the socket <i class="arg">sock</i>.</p></dd>
+<dt><a name="15"><b class="cmd">Httpd_Protocol</b> <i class="arg">sock</i></a></dt>
+<dd><p>Returns the protocol for the connection.
+Either <b class="const">http</b> or <b class="const">https</b>.
+Used by <b class="cmd">Httpd_SelfUrl</b>.</p></dd>
+<dt><a name="16"><b class="cmd">Httpd_Name</b> <i class="arg">sock</i></a></dt>
+<dd><p>Return the server name for the connection <i class="arg">sock</i>.
+Used by <b class="cmd">Httpd_SelfUrl</b>.</p></dd>
+<dt><a name="17"><b class="cmd">Httpd_SelfUrl</b> <i class="arg">url</i> <span class="opt">?<i class="arg">sock</i>?</span></a></dt>
+<dd><p>This command takes a server-relative <i class="arg">url</i> and returns the
+equivalent absolute url (containing server name, port, etc). The
+connection <i class="arg">sock</i> is required to be able to distinguish between
+regular and secure ports.</p></dd>
+<dt><a name="18"><b class="cmd">Httpd_CompletionCallback</b> <i class="arg">sock cmd</i></a></dt>
+<dd><p>Register a procedure <i class="arg">cmd</i> to be called when an HTTP request is
+completed on the socket <i class="arg">sock</i>, either normally or forcibly
+closed.  This gives a URL implementation a guaranteed callback to
+clean up or log requests.</p>
+<p>The callback will be invoked with two additional arguments, <i class="arg">sock</i>
+and a string, in this order. The string can be empty. If the string is
+not empty it will contain an error message.</p>
+<p>Note that completed here does <em>not</em> mean completion of getting
+all input for the request, but rather that the response to the
+request was completed and sent to the client as well.</p></dd>
+<dt><a name="19"><b class="cmd">Httpd_SockClose</b> <i class="arg">sock closeit</i> <span class="opt">?<i class="arg">message</i>?</span></a></dt>
+<dd><p>&quot;Closes&quot; the connection <i class="arg">sock</i>. <em>Note</em> that the socket
+channel the connection runs over might actually remain open for a
+keep-alive connection.  Calling this means a HTTP transaction is fully
+complete. The optional <i class="arg">message</i> defaults to <b class="const">Close</b>. If the
+boolean flag <i class="arg">closeit</i> is set the socket for the connection is
+closed no matter what type the connection.</p>
+<p>This cleans up all state associated with the connection, including
+after events for timeouts, the data array, and fileevents.</p></dd>
+<dt><a name="20"><b class="cmd">Httpd_RequestComplete</b> <i class="arg">sock</i></a></dt>
+<dd><p>Detect if a request has been sent and completed.  The holder of a
+socket might need to know if the URL request was completed with one of
+the return-data commands, or is still lingering open. The result is a
+boolean value. <b class="const">true</b> signals that the last request was fully
+completed.</p></dd>
+<dt><a name="21"><b class="cmd">Httpd_Suspend</b> <i class="arg">sock</i> <span class="opt">?<i class="arg">timeout</i>?</span></a></dt>
+<dd><p>This command, and its counterpart <b class="cmd">Httpd_Resume</b> can be used by
+the backend handling an url to temporarily disable and re-enable the
+reception of data from the connection <i class="arg">sock</i>. For example if there
+are long-lasting server-side operations to handle the request which
+block and then enter the event loop on their own.</p>
+<p>If a <i class="arg">timeout</i> is set for the suspension the pending request will
+be forcibly aborted with an error reply when the time runs out.</p>
+<p>An example user of this mechanism are the all commands reading posted
+data (see below). They suspend normal operation, take over the socket
+to read the posted data and when reactivate the normal processing.</p></dd>
+<dt><a name="22"><b class="cmd">Httpd_Resume</b> <i class="arg">sock</i> <span class="opt">?<i class="arg">timeout</i>?</span></a></dt>
+<dd><p>See <b class="cmd">Httpd_Suspend</b> above.</p></dd>
+<dt><a name="23"><b class="cmd">Httpd_Pair</b> <i class="arg">sock fd</i></a></dt>
+<dd><p>Connects the connection coming in over <i class="arg">sock</i> with the channel
+<i class="arg">fd</i>. Any data arriving on <i class="arg">sock</i> is copied over to <i class="arg">fd</i>
+and vice versa. If either channel is closed the other will be closed
+too.</p>
+<p>This is the basic mechanism to redirect the internal processing of a
+request to an external application, i.e. for CGI processing, or to a
+a subordinate web server.</p></dd>
+<dt><a name="24"><b class="cmd">Httpd_DumpHeaders</b> <i class="arg">sock</i></a></dt>
+<dd><p>This command returns a dictionary containing the received HTTP
+protocol headers for the connection <i class="arg">sock</i>. The keys are header
+names without the trailing colon and mapped to lower case (e.g.,
+content-type).  The system adds two pseudo-headers: One that contains
+the original request URL; its name is &quot;url&quot;. Another that contains the
+request protocol; its name is &quot;method&quot;. There are no duplications in
+the header keys.  If any headers were repeated, their values were
+combined by separating them with commas.</p></dd>
+</dl>
+</div>
+<div id="section4" class="section"><h2><a name="section4">POST Management and Reading</a></h2>
+<p>The commands listed here technically belong to the section
+<span class="sectref"><a href="#section3">Connection Management</a></span>, but are important enough to
+warrant their own section. They deal with data which was POST'ed as part
+of a request (form data, uploaded files).</p>
+<dl class="definitions">
+<dt><a name="25"><b class="cmd">Httpd_PostDataSize</b> <i class="arg">sock</i></a></dt>
+<dd><p>Returns the amount of post data available in bytes for the current
+request, i.e. sent over the connection associated with the socket
+<i class="arg">sock</i>.</p></dd>
+<dt><a name="26"><b class="cmd">Httpd_GetPostData</b> <i class="arg">sock varName</i> <span class="opt">?<i class="arg">size</i>?</span></a></dt>
+<dd><p>Synchronously reads posted data from the socket <i class="arg">sock</i> and appends
+it to the buffer variable <i class="arg">varName</i>. If <i class="arg">size</i> is not
+specified <b class="variable">Httpd(bufsize)</b> bytes will be read.</p>
+<p>The command returns the total number of bytes accumulated so far.</p></dd>
+<dt><a name="27"><b class="cmd">Httpd_ReadPostDataAsync</b> <i class="arg">sock cmd</i></a></dt>
+<dd><p>Activates the asynchronous reading of posted data from the socket
+<i class="arg">sock</i>, as it arrives. Whenever more posted data arrives on the
+socket <i class="arg">sock</i> the specified command prefix <b class="cmd">cmd</b> will be
+called.
+This is a convenience command wrapped around
+<b class="cmd">Httpd_GetPostDataAsync</b> (see below) setting things up so that
+arriving data is added to the <b class="variable">query</b> component of the status
+variable for the connection.</p></dd>
+<dt><a name="28"><b class="cmd">Httpd_GetPostDataAsync</b> <i class="arg">sock varName blockSize cmd</i></a></dt>
+<dd><p>Activates the asynchronous reading of posted data from the socket
+<i class="arg">sock</i>, as it arrives. Whenever more posted data arrives on the
+socket <i class="arg">sock</i> the data is appended to the specified variable
+(<i class="arg">varName</i>) and specified command prefix <b class="cmd">cmd</b> will be called.
+The data is read in <i class="arg">blocksize</i> chunks.</p>
+<p>The specified command prefix <i class="arg">cmd</i> is called with three additional
+arguments, the <i class="arg">sock</i>, the <i class="arg">varName</i>, and an additional string,
+either empty or containing an error message, in this order.</p></dd>
+<dt><a name="29"><b class="cmd">Httpd_CopyPostData</b> <i class="arg">sock channel cmd</i></a></dt>
+<dd><p>An alternative to <b class="cmd">Httpd_GetPostDataAsync</b>. Sets up the
+asynchronous copying of the data posted to the socket <i class="arg">sock</i> to
+the <i class="arg">channel</i>. The command prefix <i class="arg">cmd</i> is called when the
+copying completed, with two additional argument, <i class="arg">sock</i> and
+<i class="arg">channel</i>, in this order.</p></dd>
+<dt><a name="30"><b class="cmd">Httpd_GetPostChannel</b> <i class="arg">sock sizeName</i></a></dt>
+<dd><p>Returns the socket <i class="arg">sock</i> containing the posted data, as long as
+there is POST data to read for the connection over this socket. If no
+data is present (anymore) an error will be thrown. The number of bytes
+present is written into the variable <i class="arg">sizeName</i>.</p></dd>
+</dl>
+</div>
+<div id="section5" class="section"><h2><a name="section5">Result Management and Generation</a></h2>
+<p>The commands listed here technically belong to the section
+<span class="sectref"><a href="#section3">Connection Management</a></span>, but are important enough to
+warrant their own section. They deal with the generation of replies in
+general, predefined and generic. The latter ones can to be used by the
+packages implementing the handling of urls</p>
+<dl class="definitions">
+<dt><a name="31"><b class="cmd">Httpd_SetCookie</b> <i class="arg">sock cookie</i> <span class="opt">?<i class="arg">modify</i>?</span></a></dt>
+<dd><p>Add the encoded <i class="arg">cookie</i> to the reply for the current request on
+connection <i class="arg">sock</i>. This command has to be called before using
+either <b class="cmd">Httpd_ReturnFile</b> or <b class="cmd">Httpd_ReturnData</b>.</p>
+<p>See <a href="http://wp.netscape.com/newsref/std/cookie_spec.html">http://wp.netscape.com/newsref/std/cookie_spec.html</a>
+for the specification of what cookies are and how they work.</p>
+<p>See package <b class="package">httpd::cookie</b> for commands to help in
+the creation of cookies.</p></dd>
+<dt><a name="32"><b class="cmd">Httpd_RemoveCookies</b> <i class="arg">sock pattern</i></a></dt>
+<dd><p>Remove previously set cookies from the reply for the current request
+on connection <i class="arg">sock</i>. Any cookies that match the glob
+<i class="arg">pattern</i> are removed.  This is useful for expiring a cookie that
+was previously set.</p></dd>
+<dt><a name="33"><b class="cmd">Httpd_ReturnFile</b> <i class="arg">sock type path</i> <span class="opt">?<i class="arg">offset</i>?</span></a></dt>
+<dd><p>Sends the contents of the file with name <i class="arg">path</i> and mime type
+<i class="arg">type</i> as the reply to the current request on the connection
+<i class="arg">sock</i>. If an <i class="arg">offset</i> is specified that number of bytes are
+skipped from the start of the file.</p>
+<p>The request will be completed by the time this command returns.
+This implies that completion callback have been called and that
+<i class="arg">sock</i> has been closed.</p></dd>
+<dt><a name="34"><b class="cmd">Httpd_ReturnData</b> <i class="arg">sock type content</i> <span class="opt">?<i class="arg">code</i>?</span> <span class="opt">?<i class="arg">close</i>?</span></a></dt>
+<dd><p>Like <b class="cmd">Httpd_ReturnFile</b>, except that the content is specified
+directly as an argument to the command. This command also allows the
+specification of an HTTP return code. If none is specified it will
+default to <b class="const">200</b> (Data follows).
+Beyond that the caller can order the command to keep the connection
+<i class="arg">sock</i> open after the data was sent (&quot;<i class="arg">close</i> == 1&quot;). By
+default the connection would be closed, like it is done by
+<b class="cmd">Httpd_ReturnFile</b>.</p></dd>
+<dt><a name="35"><b class="cmd">Httpd_ReturnCacheableData</b> <i class="arg">sock type content date</i> <span class="opt">?<i class="arg">code</i>?</span></a></dt>
+<dd><p>Like <b class="cmd">Httpd_ReturnData</b>, except that a Last-Modified header is
+part of the reply so that proxy servers can cache it. The information
+for this header line is taken from <i class="arg">date</i>. In contrast to 
+<b class="cmd">Httpd_ReturnData</b> the connection is always closed. This is
+like for <b class="cmd">Httpd_ReturnFile</b>.</p></dd>
+<dt><a name="36"><b class="cmd">Httpd_Error</b> <i class="arg">sock code</i> <span class="opt">?<i class="arg">detail</i>?</span></a></dt>
+<dd><p>Send the error message <i class="arg">detail</i> with HTTP response <i class="arg">code</i>, log
+it, and close the connection <i class="arg">sock</i>. This is the most basic error
+response the server can generate. Other packages may generate their
+own error responses. The package <b class="package">httpd::doc</b> is an example of
+this.</p></dd>
+<dt><a name="37"><b class="cmd">Httpd_Redirect</b> <i class="arg">newurl sock</i></a></dt>
+<dd><p>This command generates a redirect to <i class="arg">newurl</i> reply (code 302) and
+then closes the connection <i class="arg">sock</i>. It assumes that <i class="arg">newurl</i>
+contains an absolute url.</p></dd>
+<dt><a name="38"><b class="cmd">Httpd_RedirectSelf</b> <i class="arg">newurl sock</i></a></dt>
+<dd><p>A wrapper around <b class="cmd">Httpd_Redirect</b> for a <i class="arg">newurl</i> which is on
+this server. In other words, this commands expects a server relative
+url, and not an absolute one.</p></dd>
+<dt><a name="39"><b class="cmd">Httpd_RedirectDir</b> <i class="arg">sock</i></a></dt>
+<dd><p>Generate a redirect reply for the connection <i class="arg">sock</i> because the
+trailing slash is not present on a URL that corresponds to a
+directory.</p></dd>
+<dt><a name="40"><b class="cmd">Httpd_NotModified</b> <i class="arg">sock</i></a></dt>
+<dd><p>This command generates a &quot;Not modified&quot; reply (code 304) and
+then closes the connection <i class="arg">sock</i>.</p></dd>
+<dt><a name="41"><b class="cmd">Httpd_RequestAuth</b> <i class="arg">sock type realm</i></a></dt>
+<dd><p>Generates a &quot;Authorization required&quot; reply (code 401) and then closes
+the connection <i class="arg">sock</i>. The type is usually <b class="const">basic</b>. The data
+in <i class="arg">realm</i> is used by browsers to cache credentials.</p></dd>
+</dl>
+</div>
+<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
+<p>http::log, httpd::config, httpd::cookie, httpd::counter, httpd::logstd, httpd::threadmgr, httpd::url, httpd::version</p>
+</div>
+<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
+<p>http, tclhttpd, web server</p>
+</div>
+<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<p>Copyright &copy; 2003 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
+</div>
+</div></body></html>
+

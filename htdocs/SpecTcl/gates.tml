@@ -1,0 +1,10 @@
+<script>
+jQuery(document).ready(function() {
+  [::SpecTcl::highlightTableRows #gates data white]
+  [::SpecTcl::hoverHighlight tr.data highlight]
+});
+</script>
+<h2>Gates</h2>
+<div id="gates">
+[::SpecTcl::gates]
+</div>

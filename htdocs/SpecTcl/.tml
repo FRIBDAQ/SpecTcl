@@ -1,0 +1,17 @@
+package require html
+
+#
+# SpecTcl common template
+#
+Doc_Dynamic;			# Turn off html caching for development.
+namespace eval SpecTcl {
+    variable serverAddress $env(SERVER_NAME)
+    variable serverPort    $env(SERVER_PORT)
+    variable httpBase      http://${serverAddress}:$serverPort
+    variable jquery        [file join js jquery.js]
+    variable jquery-ui     [file join js jquery-ui.js]
+    variable d3            [file join js d3.js]
+    variable dynatree      [file join js jquery-dynatree.js]
+    variable jquerycss     [file join css ui-lightness jquery-ui-1.8.20.custom.css]
+    variable spectclcss   [file join css spectcl.css]
+}  
