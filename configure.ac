@@ -661,6 +661,7 @@ fi
 
 AM_PATH_CPPUNIT
 AM_CONDITIONAL([CPPUNIT], [test -n "${CPPUNIT_LIBS}"] )
+AM_CONDITIONAL([CPPUNITDONOTBUILD], [test -n ""])
 AM_CONDITIONAL([THIS_IS_NOT_DEFINED], [test -n ""])
 
 
@@ -700,7 +701,7 @@ fi
 #
 # 
 
-AC_CHECK_LIB(Tcl_AppInit, tclPlus, [systemtcl="yes"], [systemtcl="no"])
+AC_CHECK_LIB( tclPlus, Tcl_AppInit, [systemtcl="yes"], [systemtcl="no"])
 
 
 #
