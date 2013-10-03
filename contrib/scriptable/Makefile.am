@@ -170,5 +170,5 @@ unittest_LDFLAGS = $(Main_Objects) @CPPUNIT_LIBS@ \
 	$(TCL_LIBS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
 
 
-TESTS = ./unittest
+#TESTS = ./unittest		#Needs Xamine to fire up :-(
 endif
