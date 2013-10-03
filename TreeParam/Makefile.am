@@ -103,6 +103,8 @@ if CPPUNIT
 
 noinst_PROGRAMS=TestRunner
 
+
+
 TestRunner_CXXFLAGS=@CPPUNIT_CFLAGS@
 
 TestRunner_SOURCES = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
@@ -128,7 +130,7 @@ TestRunner_LDFLAGS = $(LibraryObjects) \
 	 @LIBTCLPLUS_LDFLAGS@	\
 	@TK_LIBS@ @TCL_LIBS@ @CPPUNIT_LIBS@
 
-noinst_HEADERS = Asserts.h
+noinst_HEADERS = Asserts.h TreeTestSupport.h
 
 TESTS=./TestRunner
 

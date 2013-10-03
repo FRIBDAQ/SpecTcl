@@ -1,10 +1,10 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl/MySpecTclApp.cpp, 3.4-001, fox@nscl.msu.edu)
+AC_INIT(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 3.4)
+AM_INIT_AUTOMAKE(SpecTcl, 3.4, fox@nscl.msu.edu)
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_EXEEXT
