@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(SpecTcl/MySpecTclApp.cpp)
+AC_INIT(SpecTcl/MySpecTclApp.cpp, 3.4-001, fox@nscl.msu.edu)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
@@ -18,7 +18,7 @@ LT_INIT
 #  define the version information in shared
 #  images.
 
-SOVERSION="3:3"
+SOVERSION="3:4"
 #
 
 # Checks for programs.
@@ -688,6 +688,11 @@ else
      AC_MSG_RESULT(no)
 fi
 
+##
+#  There's a utility that uses gengetopt:
+
+AX_GENGETOPT
+
 #
 #   libTclPlus and libException could have been installed from 
 #   Ryan's Deb or I might need to install my own versions which
@@ -701,28 +706,28 @@ fi
 #
 # 
 
-AC_CHECK_LIB( tclPlus, Tcl_AppInit, [systemtcl="yes"], [systemtcl="no"])
+AC_MSG_CHECKING([libtcl++ installed as package (e.g. .deb)])
 
+AC_CHECK_FILE([/usr/include/TCLInterpreterObject.h], [systemtcl="yes"], [systemtcl="no"])
 
-#
-#  IF systemtcl is yes we're pretty much done.. otherwise
-#  we need to configure/build/install libtcl into prefix and then set
-#  the flags:
-
-AC_MSG_CHECKING([Checking for libtclPlus])
 if test $systemtcl = "yes"
 then
-	LIBTCLPLUS_CFLAGS=
-	LIBTCLPLUS_LDFLAGS=-ltclPlus -lException
+	LIBTCLPLUS_CFLAGS=""
+	LIBTCLPLUS_LDFLAGS="-ltclPlus -lException"
 	AC_MSG_RESULT([Found in  system libraries])
 else
 	AC_MSG_RESULT([Need to build local tagged copy])
-	(cd libtcl; ./configure --prefix=${prefix}; make clean install)
-	LIBTCLPLUS_CFLAGS="-I${prefix}/include"
-	LIBTCLPLUS_LDFLAGS=-"L${prefix}/lib -ltclPlus -lException -Wl,\"-rpath=${prefix}/lib\""
+	AC_CHECK_FILE([./libtcl/configure], [havelibtcldir="yes"], [havelibtcldir="no"])
+	if test $havelibtcldir = "yes"
+	then
+		(cd libtcl; ./configure --prefix=${prefix}; make clean install)
+		LIBTCLPLUS_CFLAGS="-I${prefix}/include"
+		LIBTCLPLUS_LDFLAGS=-"L${prefix}/lib -ltclPlus -lException -Wl,\"-rpath=${prefix}/lib\""
+	else
+		AC_MSG_ERROR([I seem to be missing libtcl, please use tcl++incorp.sh to fill it with a tagged release of libtclplus])
+	fi
 
 fi
-
 AC_SUBST(LIBTCLPLUS_CFLAGS)
 AC_SUBST(LIBTCLPLUS_LDFLAGS)
 

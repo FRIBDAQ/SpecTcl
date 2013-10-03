@@ -94,7 +94,7 @@ defaultfile_lex.o: windfile.l defaultfile.l dispwind.h superpos.h \
 
 
 check_PROGRAMS = Xaminetest
-TESTS = $(check_PROGRAMS)
+# TESTS = $(check_PROGRAMS)	# needs to start Xamine
 
 include_HEADERS = Tab.h allocator.h dispshare.h    helpmenu.h    refreshctl.h\
 TabP.h          axes.h             dispwind.h      info.h        scaling.h\

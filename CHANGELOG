@@ -1025,3 +1025,9 @@ November 30-?? 2011
         * Much more documentation on how to build event processors etc.
         * Extract the tcl++ and exception libs so they can be centrally
           maintained.
+3.4-001
+	* Update AC_INIT to provide version number.
+	* Add some tests to m4 and use them there instead of in
+	configure.ac
+	* Set up to use Jenkins CI server.
+        * Only let the cppunit tests that don't need a display survive.

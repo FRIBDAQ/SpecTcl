@@ -99,7 +99,6 @@ install-exec-local:
 # other folks depend on us first ...including libTclGrammerCommands.
 #
 
-if THIS_IS_NOT_DEFINED
 if CPPUNIT
 
 noinst_PROGRAMS=TestRunner
@@ -133,5 +132,4 @@ noinst_HEADERS = Asserts.h
 
 TESTS=./TestRunner
 
-endif
 endif

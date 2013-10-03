@@ -14,7 +14,7 @@ INCLUDES=-I@top_srcdir@/Filter
 
 
 cmdline.c cmdline.h: filtsplit.ggo
-	gengetopt --unamed-opts <filtsplit.ggo
+	@GENGETOPT@ --unamed-opts <filtsplit.ggo
 
 EXTRA_DIST=filtsplit.ggo  filtsplit.xml
 
