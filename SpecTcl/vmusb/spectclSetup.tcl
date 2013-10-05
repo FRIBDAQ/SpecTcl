@@ -76,6 +76,21 @@ proc makeSpectrum {paramname channels} {
     spectrum $paramname 1 $paramname  [list [list $low $high $channels]]
     treeparameter -create $paramname $low $high $channels ""; #  we don't know the units.
 }
+##
+# createFreezeButton
+#
+#   When the first v1729 is seen in the stack, the freeze button is created:
+#
+proc createFreezeButton {} {
+    if {![winfo exists .freeze]} {
+	set freezeFadcSpectra 0
+	checkbutton .freeze -text "Freeze fadc spectra"\
+	    -variable freezeFadcSpectra \
+	    -onvalue 1 -offvalue 0
+	pack .freeze
+	
+    }
+}
 
 
 #----------------------------------------------------------------------------
@@ -235,6 +250,35 @@ proc buildMaseMap {param module} {
     }
     return $param
 }
+#---------------------------------------------------------------------------
+#
+#  Build channel maps for the V1729
+#  In this case, the channels are really place holders for 
+#  spectra.
+# parameters:
+#    param - Number of first available parametr.
+#    name  - Name of the module we are managing.
+# Returns:
+#    next available parameter number.
+#
+proc buildV1729Map {param name} {
+    global v1729postTriggers;	# Post trigger value for time reorder.
+    global adcChannels;		# Has parameter names.
+
+    # Make a parameter and 2048 2K spectra for each parameter.
+
+    foreach paramName $adcChannels($name) {
+	parameter $paramName $param
+	for {set i 0} {$i < 2048} {incr i} { 
+	    set spectrumName [format %04d.%s $i $paramName]
+	    spectrum $spectrumName 1 $paramName {{0 2047 2048}}
+	}
+	incr param
+    }
+    paramMap $name $::typeV1729 $v1729postTriggers($name) $adcChannels($name)
+    return $param
+}
+
 #
 #   Hinp's unpacker takes a base name from 
 #   adcChannels and takes the chip mapping from 
@@ -425,6 +469,9 @@ proc buildChannelMaps param {
 	    set param [buildPSDMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeMADC32} {
 	    set param [buildMADC32Map $param $module]
+	} elseif {$::readoutDeviceType($module) eq $::typeV1729} {
+	    set param [buildV1729Map $param $module]
+	    createFreezeButton
 
 	} else {
 	    
