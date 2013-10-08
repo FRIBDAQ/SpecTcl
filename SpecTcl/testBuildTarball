@@ -1,0 +1,20 @@
+#!/bin/bash -xe
+
+
+rm -rf /tmp/sptrunk
+
+version=`grep AM_INIT_AUTOMAKE configure.ac | cut -f2 -d" " | sed s/,//`
+
+rm -rf SpecTcl-${version}
+
+tar xzf SpecTcl-${version}.tar.gz
+cd SpecTcl-${version}
+
+./configure --prefix=/tmp/sptrunk
+make clean all
+make install
+make check
+make installcheck
+
+rm -rf SpecTcl-${version}
+rm -rf /tmp/sptrunk

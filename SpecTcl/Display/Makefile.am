@@ -1,5 +1,7 @@
 bin_PROGRAMS = Xamine colorset
 
+noinst_PROGRAMS = Xaminetest
+
 HOMEDEF = -DHOME='"$(prefix)"'
 GRIFLAGS = -DGRI_DIR='"@gri_dir@"' -DGRI_CMD_DIR='"@gri_dir@"'
 LEXOUT = lex.yy.c
@@ -93,8 +95,6 @@ defaultfile_lex.o: windfile.l defaultfile.l dispwind.h superpos.h \
 	$(CC) $(XCCFLAGS)  defaultfile_lex.cc
 
 
-check_PROGRAMS = Xaminetest
-TESTS = $(check_PROGRAMS)
 
 include_HEADERS = Tab.h allocator.h dispshare.h    helpmenu.h    refreshctl.h\
 TabP.h          axes.h             dispwind.h      info.h        scaling.h\

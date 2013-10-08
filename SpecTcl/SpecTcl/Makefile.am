@@ -9,7 +9,7 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Fits                               \
 	-I@top_srcdir@/factories			\
 	-I@top_srcdir@/DecoderRing			\
-	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@ -DVERSION='"@VERSION@"'
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/etc
