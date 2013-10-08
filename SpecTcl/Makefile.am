@@ -9,7 +9,7 @@ INCLUDES = -I@top_srcdir@ -I.  -I@top_srcdir@/Events \
 	-I@top_srcdir@/factories			\
 	-I@top_srcdir@/DecoderRing			\
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@ \
-	@LIBTCLPLUS_CFLAGS@
+	@LIBTCLPLUS_CFLAGS@ -DVERSION='"@VERSION@"'
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/etc
