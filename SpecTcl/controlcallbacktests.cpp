@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include <string>
+#include <unistd.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

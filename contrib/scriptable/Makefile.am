@@ -84,21 +84,23 @@ noinst_HEADERS =  CBoolConfigParam.h \
 
 ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 
-ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
-	-lSorting -lXplus \
-	-lGates -lAnalysis \
-	-lFilter -lEventSource -lSpecio  -lBufferAnalysis \
-	-lXamine  -lTreeParam -lFits \
-	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
+ScriptedSpecTcl_LDFLAGS =   @top_builddir@/contrib/scriptable/libScripted.la \
+	 @top_builddir@/SpecTcl/libTclGrammerCommands.la \
+	@top_builddir@/Sorter/libSorting.la @top_builddir@/Xamine/libXplus.la \
+	@top_builddir@/Gates/libGates.la \
+	@top_builddir@/Events/libAnalysis.la \
+	@top_builddir@/Filter/libFilter.la @top_builddir@/EventSource/libEventSource.la \
+	@top_builddir@/SpectrumIO/libSpecio.la \
+	@top_builddir@/Analysis/libBufferAnalysis.la \
+	@top_builddir@/Display/libXamine.la  \
+	@top_builddir@/TreeParam/libTreeParam.la \
+	@top_builddir@/Fits/libFits.la \
+	@top_builddir@/Tape/libtape.la \
+	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
 	-lgsl -lgslcblas					\
-	@top_srcdir@/DecoderRing/libDecoderRing.la		\
-	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
-	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
-	-L@top_srcdir@/Events   \
-	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
-	-L@top_srcdir@/TreeParam -L@top_srcdir@/Fits \
+	@top_builddir@/DecoderRing/libDecoderRing.la		\
 	@LIBTCLPLUS_LDFLAGS@ \
-	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ \
 	 -g -Wl,"-rpath=($prefix)/lib"
 
 #
