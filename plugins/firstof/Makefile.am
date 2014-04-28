@@ -7,7 +7,7 @@ noinst_HEADERS	=	CFirstofCommand.h 	\
 			CFirstofEventProcessor.h \
 			CBiggestOfEventProcessor.h
 
-INCLUDES=$(SPECTCLCCSW) $(TCLCCSW)
+AM_CPPFLAGS=$(SPECTCLCCSW) $(TCLCCSW)
 
 
 install-exec-local:

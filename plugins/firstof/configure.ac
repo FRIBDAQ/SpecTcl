@@ -1,9 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.61)
 AC_INIT(firstof, 1.0, fox@nscl.msu.edu)
-
+AC_CONFIG_AUX_DIR(config)
 
 AC_CONFIG_SRCDIR([CFirstofEventProcessor.h])
 AC_CONFIG_HEADER([configure.h])
