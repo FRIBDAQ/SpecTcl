@@ -9,7 +9,7 @@ noinst_HEADERS = 	CConstCommand.h  \
 			CConstData.h  \
 			CConstProcessor.h
 
-INCLUDES		= -I. $(SPECTCLCCSW) \
+AM_CPPFLAGS		= -I. $(SPECTCLCCSW) \
 				$(TCLCCSW) 
 
 
