@@ -14,7 +14,7 @@ noinst_HEADERS			= 	util.h CRWWrite.h CRWRead.h
 
 
 
-INCLUDES		= -I. $(SPECTCLCCSW) \
+AM_CPPFLAGS		= -I. $(SPECTCLCCSW) \
 				$(TCLCCSW) 
 
 
