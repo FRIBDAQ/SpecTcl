@@ -1,7 +1,7 @@
 lib_LTLIBRARIES=librootfilterformat.la
 librootfilterformat_la_LIBADD=$(ROOTLDSW)
 
-INCLUDES=$(SPECTCLCCSW) $(ROOTCCSW) $(TCLCCSW)
+AM_CPPFLAGS=$(SPECTCLCCSW) $(ROOTCCSW) $(TCLCCSW)
 
 librootfilterformat_la_SOURCES	=	CRootFilterOutputStage.cpp	\
 					CRootNtupleAccumulator.cpp	\
