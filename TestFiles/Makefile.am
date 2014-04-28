@@ -1,4 +1,4 @@
-INCLUDES= -I. -I../EventSource \
+AM_CPPFLAGS= -I. -I../EventSource \
 	@LIBTCLPLUS_CFLAGS@	\
 	-I../Utility @TCL_CPPFLAGS@ -I../Tape
 
@@ -23,5 +23,5 @@ testfile_SOURCES = testfile.cpp
 
 ltwrite_SOURCES = ltwrite.cpp
 
-testfile_LDFLAGS=-Wl,"-rpath=$(libdir)"
-ltwrite_LDFLAGS=-Wl,"-rpath=$(libdir)"
+testfile_LDFLAGS= @LIBTCLPLUS_LDFLAGS@ -Wl,"-rpath=$(libdir)"
+ltwrite_LDFLAGS = @LIBTCLPLUS_LDFLAGS@ -Wl,"-rpath=$(libdir)"
