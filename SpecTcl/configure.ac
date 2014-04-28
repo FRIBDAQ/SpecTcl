@@ -602,7 +602,9 @@ fi
 #     We look for the following
 #        /sw/lib
 #       /usr/lib/libtcl.{so,dylib,a}      -  link to a default  lib.
+#       /usr/lib/x86_64-linux-gnu/libtcl<version>.{so,dylib,a}
 #       /usr/lib/libtcl<version>.{so,dylib,a} -  link to a specific lib.
+#       /usr/lib/i386-linux-gnu
 #      If --with-tcl-libdir=dir      is supplied, that directory is 
 #                                    searched first.
 # ASSUMPTIONS:  libtcl and libtk will have the same naming conventions.
@@ -619,7 +621,7 @@ AC_ARG_WITH(tcl-libdir,
 	[  --with-tcl-libdir=dir Specify where the tcl libraries live.],
 	[tcl_libsearchpath=$withval])
 
-tcl_libsearchpath="$tcl_libsearchpath /sw/lib /usr/lib /usr/local/lib"
+tcl_libsearchpath="$tcl_libsearchpath /sw/lib /usr/lib/x86_64-linux-gnu /usr/lib /usr/local/lib /usr/lib/i386-linux-gnu "
 
 tcl_libfiles=""
 for v in ${tcl_versions}
