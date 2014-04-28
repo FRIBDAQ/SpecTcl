@@ -1,6 +1,6 @@
 initLDFLAGS=@TCL_LDFLAGS@
 
-INCLUDES = -I. 						\
+AM_CPPFLAGS = -I. 						\
 	@SPECTCLCCSW@					\
 	@TCLCCSW@
 
