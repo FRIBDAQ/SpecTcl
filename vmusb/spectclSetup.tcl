@@ -157,7 +157,7 @@ proc buildV1x90Maps {baseparam name} {
 	    parameter $pname $baseparam
 	    incr baseparam
 	    spectrum $pname 1 $pname "{[list $low $hi $chans]}"
-	    treeparameter -create $pname $low $high $chans ""
+	    treeparameter -create $pname $low $hi $chans ""
 	}
 	
     }

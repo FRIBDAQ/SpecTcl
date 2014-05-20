@@ -1033,4 +1033,4 @@ November 30-?? 2011
         * Only let the cppunit tests that don't need a display survive.
         * Properly integrate the V1729 FADC in VMUSB's spectclSetup.tcl
           file.
-
+        * Fix error in vmusb spectclSetup.tcl typo on V1x90 configuration
