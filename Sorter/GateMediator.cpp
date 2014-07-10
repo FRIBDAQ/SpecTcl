@@ -116,10 +116,44 @@ CGateMediator::mediate2d()
     return kfFALSE;
   }
 }
+/**
+ * mediate2dMultiple
+ *
+ *   Gates display on a 2d sum spectra iff they are a contour
+ *   or a band and the X/Y parameters of those gates are an X/Y
+ *   parameter that is used by the spectrum.
+ *   
+ *  @note it's not enough for the parameters to be in use, they must
+ *        be on the appropriate axism, or their flips in a matching pair.
+ */
 Bool_t 
 CGateMediator::mediate2dMultiple()
 {
-  return false;			// for now it is false.. tough tofigure out.
+  // Gate characteristics:
+
+  string gType = m_rGate->Type();
+  UInt_t xParameter;
+  UInt_t yParameter;
+  if ((gType == "b")  || (gType == "c")) {
+    CPointListGate& rPLGate = (CPointListGate&)(*m_rGate);
+    xParameter = rPLGate.getxId();
+    yParameter = rPLGate.getyId();
+
+    std::vector<UInt_t> spectrumParams;
+    m_pSpec->GetParameterIds(spectrumParams);
+    for (int i = 0; i < spectrumParams.size(); i+= 2) {
+      if ((xParameter == spectrumParams[i]) && (yParameter == spectrumParams[i+1])) {
+	return true;		// there's a matching x/y pair.
+      }
+      if ((yParameter == spectrumParams[i]) && (xParameter == spectrumParams[i+1])) {
+	return true;
+      }
+    }
+    return false;		// No x/y match.
+    
+  } else {
+    return false;	
+  }
 }
 /**
  *  Determine if a gate is displayable on 1-d gamma spectrum.

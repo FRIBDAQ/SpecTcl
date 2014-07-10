@@ -1377,6 +1377,7 @@ CHistogrammer::GatesToDisplay(const std::string& rSpectrum)
   //   Contour (type = 'c')
   //   Band    (type = 'b')
   //   Cut     (type = 's')
+  //   Sum2d   {type = 'm2'}
   //   GammaContour   (type = 'gc')
   //   GammaBand      (type = 'gb')
   //   GammaCut       (type = 'gs')
@@ -1697,17 +1698,24 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
 
   if((pSpectrum->getSpectrumType() == ke2D)   ||
      (pSpectrum->getSpectrumType() == keG2D)  ||
+     (pSpectrum->getSpectrumType() == ke2Dm)  ||
      (pSpectrum->getSpectrumType() == keG2DD)) {
     
 
     CPointListGate& rSpecTclGate = (CPointListGate&)rGate.operator*();
     vector<FPoint> pts = rSpecTclGate.getPoints();
-    vector<UInt_t> Params;
-    pSpectrum->GetParameterIds(Params);
+    //    vector<UInt_t> Params;
+    //    pSpectrum->GetParameterIds(Params);
+
+    // If necessary flip the x/y coordinates of the gate.
+    // note that gamma gates never need flipping.
+    //
     
-    
-    if((rSpecTclGate.getxId() != Params[0]) &&
-       ((rSpecTclGate.Type())[0] != 'g')) {
+    //    if((rSpecTclGate.getxId() != Params[0]) &&
+    //   ((rSpecTclGate.Type())[0] != 'g')) {
+
+    if ((rSpecTclGate.Type()[0] != 'g') && 
+	flip2dGatePoints(pSpectrum, rSpecTclGate.getxId())) {
       for(UInt_t i = 0; i < pts.size(); i++) {	// Flip pts to match spectrum.
 	Float_t x = pts[i].X();
 	Float_t y = pts[i].Y();
@@ -1717,9 +1725,11 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     // The index of the X axis transform is easy.. it's 0, but the
     // y axis transform index depends on spectrum type sincd gammas
     // have all x transforms first then y and so on:
+    //
     int nYIndex;
-    if((pSpectrum->getSpectrumType() == ke2D)  ||
-       (pSpectrum->getSpectrumType() == keG2DD)) {
+    if((pSpectrum->getSpectrumType() == ke2D)   ||
+       (pSpectrum->getSpectrumType() == keG2DD) ||
+       (pSpectrum->getSpectrumType() == ke2Dm)) {
       nYIndex = 1;
     }
     else {
@@ -2058,4 +2068,33 @@ CHistogrammer::createListObservers()
 
   m_pSpectrumLists = new CSpectrumByParameter;
   addSpectrumDictionaryObserver(m_pSpectrumLists);
+}
+/**
+ * flip2dGatePoints
+ *   Determine if the gate point coordinates must be flipped.  This happens
+ *   for e.g. a gate on p1, p2 displayed on a spectrum with axes p2, p1
+ *
+ *  There's an implicit assumption that the gate is displayable on this spectrum
+ *  because all we do is see if the X parameter is a match for a spectrum x parameter
+ *  and, if not, flip.
+ *
+ * @param pSpectrum - pointer to the target spectrum.
+ * @param gXparam   - Id of the x parameter of the spectrum.
+ *
+ * @return bool - true if it's necessary to flip axes.
+ *
+ */
+bool
+CHistogrammer::flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam)
+{
+  std::vector<UInt_t> params;
+  pSpectrum->GetParameterIds(params);
+  if (pSpectrum->getSpectrumType() != ke2Dm) {
+    for (int i = 0; i < params.size(); i += 2) {
+      if (gXparam == params[i]) return false;
+    }
+    return true;
+  } else {
+    return gXparam != params[0];
+  }
 }

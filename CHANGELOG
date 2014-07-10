@@ -1036,3 +1036,5 @@ November 30-?? 2011
         * Fix error in vmusb spectclSetup.tcl typo on V1x90 configuration
 3.4-002
 	* Bug #2100 - gates on m2 spectra incorrectly convert their points.
+        * Issue #2101 - Axis definitions for m2 and gd spectra are not clear.
+        * Feature #2102 Want to display gates on m2 spectra.
