@@ -1038,3 +1038,6 @@ November 30-?? 2011
 	* Bug #2100 - gates on m2 spectra incorrectly convert their points.
         * Issue #2101 - Axis definitions for m2 and gd spectra are not clear.
         * Feature #2102 Want to display gates on m2 spectra.
+3.4-003
+	* Feature #2103 - Allow users to hide the gates on displayed spectra
+          Spectra->Hide Gates and then refresh the menu is a toggle button.
