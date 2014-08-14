@@ -23,7 +23,7 @@ EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl \
 	bootstrap $(MYGRIDIR) LICENSE  \
 	 doc build.cygwin Directories.include CompilationRules.include \
 	libtcl \
-	CHANGELOG
+	CHANGELOG m4
 
 dist-hook:
 	mkdir -p $(distdir)/config

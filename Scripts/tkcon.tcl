@@ -1,3 +1,4 @@
+package require history 8.5;	# 8.6 history relies on apply command.
 package require tkcon
 set tkcon::PRIV(showOnStartup) 0
 set tkcon::PRIV(root)          .console
