@@ -11,14 +11,14 @@ tarball=SpecTcl-${amversion}.tar.gz
 version=${amversion}
 if test ! -e ${tarball}
 then
-   tarball=SpecTcl-${acversion}.tar.gz
+   tarball=spectcl-${acversion}.tar.gz
    version=${acversion}
 fi
-echo $tarball
+echo ${tarball}
 
 
-tar xzf SpecTcl-${version}.tar.gz
-cd SpecTcl-${version}
+tar xzf ${tarball}
+cd `basename ${tarball} .tar.gz`
 
 ./configure --prefix=${WORKSPACE}/3.4
 make clean all
@@ -26,5 +26,5 @@ make install
 make check
 make installcheck
 
-rm -rf SpecTcl-${version}
+rm -rf `basename ${tarball} .tar.gz`
 rm -rf ${WORKSPACE}/3.4
