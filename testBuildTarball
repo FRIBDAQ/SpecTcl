@@ -3,9 +3,19 @@
 
 rm -rf ${WORKSPACE}/3.4
 
-version=`grep AM_INIT_AUTOMAKE configure.ac | cut -f2 -d" " | sed s/,//`
+amversion=`grep AM_INIT_AUTOMAKE configure.ac | cut -f2 -d" " | sed s/,//`
+acversion=`grep AC_INIT configure.ac | cut -f2 -d" " | sed s/,//`
+rm -rf SpecTcl-${amversion} SpecTcl-${acversion}
 
-rm -rf SpecTcl-${version}
+tarball=SpecTcl-${amversion}.tar.gz
+version=${amversion}
+if test ! -e ${tarball}
+then
+   tarball=SpecTcl-${acversion}.tar.gz
+   version=${acversion}
+fi
+echo $tarball
+
 
 tar xzf SpecTcl-${version}.tar.gz
 cd SpecTcl-${version}
