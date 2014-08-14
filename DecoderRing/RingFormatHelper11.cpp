@@ -127,7 +127,7 @@ unsigned
 CRingFormatHelper11::getRunNumber(void* pItem, BufferTranslator* pTranslator)
 {
     if (isStateTransition(pItem)) {
-        pStateChangeItemBody p = reinterpret_cast<pStateChangeItemBody>(pItem);
+      pStateChangeItemBody p = reinterpret_cast<pStateChangeItemBody>(getBodyPointer(pItem));
         return pTranslator->TranslateLong(p->s_runNumber);
     } else {
         throw std::string("CRingFormatHelper11::getRunNumber - not state Transition");
@@ -149,7 +149,7 @@ unsigned
 CRingFormatHelper11::getStringCount(void* pItem, BufferTranslator* pTranslator)
 {
     if (isTextItem(pItem)) {
-        pTextItemBody p = reinterpret_cast<pTextItemBody>(pItem);
+      pTextItemBody p = reinterpret_cast<pTextItemBody>(getBodyPointer(pItem));
         return pTranslator->TranslateLong(p->s_stringCount);
     } else {
         throw std::string("CRingFormatHelper11::getStringCount - not a text item.");
@@ -171,7 +171,8 @@ unsigned
 CRingFormatHelper11::getScalerCount(void* pItem, BufferTranslator* pTranslator)
 {
     if (isScalerItem(pItem)) {
-        
+      pScalerItemBody p = reinterpret_cast<pScalerItemBody>(getBodyPointer(pItem));
+      return p->s_scalerCount;
     } else {
         throw std::string(
             "CRingFormatHelper11::getScalerCount - not a scaler item."
