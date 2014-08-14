@@ -16,7 +16,7 @@
 #
 
 
-INCLUDES = 	-I@top_srcdir@/Utility	\
+AM_CPPFLAGS = 	-I@top_srcdir@/Utility	\
 	  	-I@top_srcdir@/Xamine	\
 		-I@top_srcdir@/NSCLException \
 		-I@top_srcdir@/Sorter    \

@@ -1,4 +1,4 @@
-INCLUDES = -g  -I. -I@top_srcdir@/Sorter -I@top_srcdir@/Events \
+AM_CPPFLAGS = -g  -I. -I@top_srcdir@/Sorter -I@top_srcdir@/Events \
 	 -I@top_srcdir@/Utility -I@top_srcdir@/Gates \
 	-I@top_srcdir@/SpecTcl -I@top_srcdir@/Xamine \
 	-I@top_srcdir@/NSCLException -I@top_srcdir@/TCL \

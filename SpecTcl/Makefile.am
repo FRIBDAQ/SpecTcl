@@ -1,5 +1,5 @@
 DEFS = @WCHAR_T_DEF@
-INCLUDES = -I@top_srcdir@ -I.  -I@top_srcdir@/Events \
+AM_CPPFLAGS = -I@top_srcdir@ -I.  -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates -I@top_srcdir@/SpectrumIO \
 	-I@top_srcdir@/Xamine \

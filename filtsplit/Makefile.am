@@ -10,7 +10,7 @@ filtsplit_SOURCES=cmdline.c filtsplit.cpp
 
 noinst_HEADERS=cmdline.h
 
-INCLUDES=-I@top_srcdir@/Filter
+AM_CPPFLAGS =-I@top_srcdir@/Filter
 
 
 cmdline.c cmdline.h: filtsplit.ggo

@@ -1,4 +1,4 @@
-INCLUDES = -I. -I../Utility @LIBTCLPLUS_CFLAGS@ -I../Xamine -I../Gates \
+AM_CPPFLAGS = -I. -I../Utility @LIBTCLPLUS_CFLAGS@ -I../Xamine -I../Gates \
 	   -I../Events -I../Display @TCL_CPPFLAGS@ -I.. -I@top_srcdir@/Fits 
 
 libSorting_la_LIBADD =  @top_srcdir@/Xamine/libXplus.la 	\

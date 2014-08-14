@@ -1,5 +1,5 @@
 DEFS = @WCHAR_T_DEF@
-INCLUDES = -I.. -I. \
+AM_CPPFLAGS = -I.. -I. \
 	-I../SpecTcl -I../Sorter -I../Utility \
 	-I../Xamine -I../Events -I../Gates -I../Display @TCL_CPPFLAGS@ \
 	@LIBTCLPLUS_CFLAGS@

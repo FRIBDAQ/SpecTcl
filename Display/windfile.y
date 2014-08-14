@@ -71,7 +71,6 @@ void windfileerror(char *c);
 %token GEOMETRY
 %token ZOOMED
 %token WINDOW
-%token  ZOOMED
 %token AXES
 %token NOAXES
 %token  TICKS

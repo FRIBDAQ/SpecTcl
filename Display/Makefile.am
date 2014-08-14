@@ -6,7 +6,7 @@ LEXOUT = lex.yy.c
 MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
 
-INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
+AM_CPPFLAGS = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 	-I@top_srcdir@/Utility $(GDINCLUDES)
 # AM_LDFLAGS = -g $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
 

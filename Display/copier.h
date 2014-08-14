@@ -313,7 +313,7 @@ class Copier_Form {
  public:
   /* Constructors and Desctructors: */
 
-  Copier_Form(XMForm *Parent, char *leftlbl = "From", char *rightlbl = "To");
+  Copier_Form(XMForm *Parent, const char *leftlbl = "From", const char *rightlbl = "To");
   virtual ~Copier_Form() {
     delete left_l;
     delete right_l;

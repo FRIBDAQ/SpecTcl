@@ -1,4 +1,4 @@
-INCLUDES = -I. -I../Utility -I../Events -I../Xamine  -I@top_srcdir@/Sorter \
+AM_CPPFLAGS = -I. -I../Utility -I../Events -I../Xamine  -I@top_srcdir@/Sorter \
 	-I@top_srcdir@/NSCLException @LIBTCLPLUS_CFLAGS@
 
 LDADD = -lTclGrammerCommands -lSorting -lXplus -lAnalysis -lEventSource \

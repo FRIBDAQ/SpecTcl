@@ -71,7 +71,7 @@ EXTRA_DIST = GateGenerator.tcl \
 	server.tcl \
 	tabnbook.tcl
 
-INCLUDES = @LIBTCLPLUS_CFLAGS@ \
+AM_CPPFLAGS = @LIBTCLPLUS_CFLAGS@ \
 	-I@top_srcdir@/Sorter \
 	-I@top_srcdir@/Events \
 	-I@top_srcdir@/SpecTcl \

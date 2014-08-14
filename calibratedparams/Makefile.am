@@ -1,6 +1,6 @@
 initLDFLAGS=@TK_LIBS@ @TCL_LIBS@
 
-INCLUDES = -I. -I@top_srcdir@/Utility -I@top_srcdir@/NSCLException \
+AM_CPPFLAGS = -I. -I@top_srcdir@/Utility -I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/Xamine -I@top_srcdir@/TCL \
 	-I@top_srcdir@/Events -I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Sorter -I@top_srcdir@/EventSource \

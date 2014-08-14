@@ -16,7 +16,7 @@ include_HEADERS = CBufferCallback.h \
 	SRunContext.h	            \
 	BufferAnalysis.h
 
-INCLUDES = -I@top_srcdir@/Events \
+AM_CPPFLAGS = -I@top_srcdir@/Events \
 	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/Utility   \
 	-I.  @LIBTCLPLUS_CFLAGS@

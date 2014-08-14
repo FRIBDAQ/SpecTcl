@@ -1,4 +1,4 @@
-INCLUDES = -I. -I../Utility -I../NSCLException  -I../Tape -I../SpecTcl \
+AM_CPPFLAGS = -I. -I../Utility -I../NSCLException  -I../Tape -I../SpecTcl \
 	-I../Events -I../TCL -I../Filter @TCL_CPPFLAGS@ @LIBTCLPLUS_CFLAGS@
 
 LDADD=-L. @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @TK_LIBS@

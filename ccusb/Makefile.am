@@ -17,7 +17,7 @@ noinst_HEADERS=CC1205Unpacker.h \
 	ParamMapCommand.h
 
 
-INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
+AM_CPPFLAGS =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
 	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \

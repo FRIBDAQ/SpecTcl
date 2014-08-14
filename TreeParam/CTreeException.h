@@ -63,6 +63,11 @@
  * @version 1.0
  * @created 30-Mar-2005 11:03:49 AM
  */
+
+#ifndef __HISTOTYPES_H
+#include <histotypes.h>
+#endif
+
 class CTreeException : public CException
 {
   // Data types:

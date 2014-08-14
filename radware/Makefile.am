@@ -16,7 +16,7 @@ noinst_HEADERS			= 	util.h CRWWrite.h CRWRead.h
 libradwareio_la_LIBADD  	= 
 
 
-INCLUDES		= -I. -I@top_builddir@ 		\
+AM_CPPFLAGS		= -I. -I@top_builddir@ 		\
 				$(TCL_CPPFLAGS) -I@top_builddir@/TCL \
 				-I@top_builddir@/Utility 	\
 				-I@top_builddir@/SpecTcl	\

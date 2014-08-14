@@ -14,7 +14,7 @@ include_HEADERS			=	CRingBufferDecoder.h RingFormatHelper.h RingFormatHelper10.h
                                         RingFormatHelper11Creator.h
 
 
-INCLUDES			= 	-I@top_srcdir@/Utility	\
+AM_CPPFLAGS			= 	-I@top_srcdir@/Utility	\
 					-I@top_srcdir@/Events	\
 					-I@top_srcdir@/NSCLException \
 					-I@top_srcdir@/Filter	\
