@@ -58,7 +58,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <sys/socket.h>
 #include <sys/select.h>		// Posix.
 
-
+#include <signal.h>
 
 #include <sys/un.h>
 
@@ -75,7 +75,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <Xm/Xm.h>
 #include "messages.h"
 
-
+bool MessageQueue::pipeSigBlocked = false;
 
 /*
 ** The pages below implement the MessageQueue.  On Unix systems this is
@@ -94,6 +94,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 MessageQueue::MessageQueue(char *name, int flags)
 {
+
+  if (!pipeSigBlocked) {
+    blockPipesig();
+    pipeSigBlocked = true;
+  }
   /* A message queue is an AF_UNIX socket.  We are a client for each of the
   ** sockets
   */
@@ -317,12 +322,35 @@ int MessageQueue::unblockedread(void *buf,unsigned int bytes)
   */
   int nread = ::read(fid, buf, bytes);
   fcntl(fid, F_SETFL, fdflags);	/* Restore the control flag settings. */
-  if(nread >= 0) return nread;	/* Successful read. */
+  if (nread == 0) return -1;	// EOF
+  if(nread > 0) return nread;	/* Successful read. */
 
   if( (errno == EWOULDBLOCK) || (errno == EAGAIN)) return 0;
   return -1;
   
 }
+
+
+/**
+ * blockPipesig
+ *   Message queue code relies on SIGPIPE being blocked.
+ *   This function is called on the first MessageQueue constructor
+ *   invocation and blocks SIGPIPE for the process.
+ */
+
+void MessageQueue::blockPipesig()
+{
+  struct sigaction action;
+  action.sa_handler = 0;
+  sigemptyset(&action.sa_mask);
+  sigaddset(&action.sa_mask, SIGPIPE);
+  action.sa_flags = 0;
+
+  struct sigaction oldAction;
+
+  sigaction(SIGPIPE, &action, &oldAction);
+}
+
 
 /*
 ** The code on the pages that follow is all system indpendent in that
