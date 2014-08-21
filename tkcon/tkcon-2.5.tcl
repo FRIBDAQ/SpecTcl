@@ -1466,8 +1466,8 @@ proc ::tkcon::InitMenus {w title} {
 		-command ::tkcon::DeleteTab -state disabled
 	$m add command -label "Close Console"	-underline 0 -accel Ctrl-w \
 		-command ::tkcon::Destroy
-	$m add command -label "Clear Console"	-underline 1 -accel Ctrl-l \
-		-command { clear; ::tkcon::Prompt }
+#	$m add command -label "Clear Console"	-underline 1 -accel Ctrl-l \
+#		-command { clear; ::tkcon::Prompt }
 	if {[string match unix $tcl_platform(platform)]} {
 	    $m add separator
 	    $m add command -label "Make Xauth Secure" -und 5 \
@@ -3914,7 +3914,9 @@ proc echo args { puts stdout [concat $args] }
 ## clear - clears the buffer of the console (not the history though)
 ## This is executed in the parent interpreter
 ## 
-proc clear {{pcnt 100}} {
+
+
+proc tkcon_clear {{pcnt 100}} {
     if {![regexp {^[0-9]*$} $pcnt] || $pcnt < 1 || $pcnt > 100} {
 	return -code error \
 		"invalid percentage to clear: must be 1-100 (100 default)"

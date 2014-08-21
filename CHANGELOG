@@ -1043,3 +1043,5 @@ November 30-?? 2011
           Spectra->Hide Gates and then refresh the menu is a toggle button.
         * Feature #1484 - Make work with Tcl 8.6.
 	* Fix error in 11 ring format helper - was not getting the runnumber properly.
+        * Remove clear command from new Tkcon so it does not interfere with 
+          SpecTcl's.
