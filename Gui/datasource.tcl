@@ -510,6 +510,7 @@ snit::widget formatChooser {
     # owner of the target ring.
     #
     # The following strategy is used to locate ringselector:
+    # - Look for it in the default daqroot in the preferences dialog.
     # - Look for it in /usr/opt/daq/current/bin : if present use that one.
     # - Look for it in /usr/opt/daq/1*.* sorted descdending and take the first one.
     #
@@ -520,29 +521,72 @@ snit::widget formatChooser {
 	set url "tcp://$host/$ringname"
 	set selection "--sample=PHYSICS_EVENT"
 
-	set ringselector /usr/opt/daq/current/bin/ringselector
-	if {![file executable $ringselector]} {
-	    set ringselector ""
-	    set dirs [glob -directory /usr/opt/daq 1*.*]; # These are full dirnames.
-	    foreach dir $dirs {
-		lappend dirtails [file tail $dir]
-	    }
-	    set dirtail [lsort -decreasing  $dirtails]; # sorted by decreasing version...
-	    foreach dir $dirtail {
-		set ringselector [file join /usr/opt/daq $dir bin ringselector]
-		if {[file executable $ringselector]} {
-		    break
-		}
+	set firstDirs [list]
+
+	if {[array names GuiPrefs::preferences defaultDaqRoot] eq "defaultDaqRoot"} {
+	    if {$GuiPrefs::preferences(defaultDaqRoot) ne ""} {
+		lappend firstDirs [file tail $GuiPrefs::preferences(defaultDaqRoot)]
 	    }
 	}
+	lappend firstDirs current
+
+	
+	set ringselector ""
+	lappend dirs {*}[glob -directory /usr/opt/daq 1*.*]; # These are full dirnames.
+	foreach dir $dirs {
+	    lappend dirtails [file tail $dir]
+	}
+	set dirtail [lsort -decreasing  $dirtails]; # sorted by decreasing version...
+	set dirtails [list {*}$firstDirs {*}$dirtail]
+	foreach dir $dirtails {
+	    set ringselector [file join /usr/opt/daq $dir bin ringselector]
+	    if {[file executable $ringselector]} {
+		break
+	    }
+	}
+    
 	if {$ringselector eq ""} {
 	    tk_messageBox -title "No Ringdaq" -icon error \
 		-message {Unable to find an installation of NSCL ringdaq - contact your sysadmin.}
 
 	    return "";		# ensure stuff fails.
 	} else {
+	    # see if we can use the --non-blocking switch:
+
+	    set ringselector [file normalize $ringselector]
+	    set rootdir [file join [file dirname $ringselector] ..]
+	    if {[$self hasNonBlocking $rootdir]} {
+		append ringselector " --non-blocking"
+	    }
 	    return "$ringselector --source=$url $selection"
+
 	}
+    }
+    ##
+    # hasNonBlocking
+    #    If the VERSION file indicates the version is > 11.0-rc14
+    #    ringselector has the --non-blocking flag.
+    #
+    # @param rootdir - Top level directory of the daq install.
+    #
+    method hasNonBlocking rootdir {
+	set fd [open [file join $rootdir VERSION]]
+	set versionString [gets $fd]
+	close $fd
+
+	set version [lindex $versionString 1]
+	set splitVersion [split $version '-']
+	set majorMinor [lindex $splitVersion 1]
+	set rc         [string range [lindex $splitVersion 2] 2 end]
+
+	if {$majorMinor > 11.0} {
+	    return 1
+	}
+	if {($majorMinor == 11.0) && ($rc >= 14)} {
+	    return 1
+	}
+	return 0
+
     }
     ##
     # ring10, ring11 - are all ring sources
