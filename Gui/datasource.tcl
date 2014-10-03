@@ -577,11 +577,36 @@ snit::widget formatChooser {
 	set version [lindex $versionString 1]
 	set splitVersion [split $version '-']
 	set majorMinor [lindex $splitVersion 1]
-	set rc         [string range [lindex $splitVersion 2] 2 end]
 
 	if {$majorMinor > 11.0} {
 	    return 1
 	}
+	# The edit level  is a bit tricky.  It can be of the form:
+	# rcn where n is a counting number and rc means this is a release
+	# candidate or mmm a three digit number with leading zeroes that is
+	# the edit level of a production release.  production releases
+	# are always considered later than release candidates.
+	#
+
+	set editLevel [lindex $splitVersion 2]
+      
+	if {[string range $editLevel 0 1] eq "rc"} {
+	    set isRc 1
+	    set level [string range $editLevel 2 end]
+	} else {
+	    set isRc 0
+	    set level $editLevel
+	}
+	# we only need to worry about tie breakders (11.0 versions < rc14):
+
+	if {$majorMinor eq "11.0"} {
+	    if {$isRc && ($level < 14)} { # rc's less than 14 can't
+		return 0
+	    } else {		# anything else can.
+		return 1
+	    }
+	}
+
 	if {($majorMinor == 11.0) && ($rc >= 14)} {
 	    return 1
 	}
