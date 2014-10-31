@@ -4,5 +4,6 @@ install-data-local:
 	$(INSTALL_SCRIPT) tkcon-2.5.tcl @prefix@/TclLibs/tkcon
 	$(INSTALL_SCRIPT) history.tcl @prefix@/TclLibs/tkcon
 	echo pkg_mkIndex @prefix@/TclLibs/tkcon "*.tcl" | @TCLSH@
+	echo "package ifneeded tkcon 3.0 [list source [file join \$$dir tkcon-2.5.tcl]]" >> @prefix@/TclLibs/tkcon/pkgIndex.tcl
 
 EXTRA_DIST=tkcon-2.5.tcl history.tcl

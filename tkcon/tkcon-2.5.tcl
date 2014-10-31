@@ -2,6 +2,8 @@
 # \
 exec wish "$0" ${1+"$@"}
 
+puts "Got the right tkcon!!!"
+
 #
 ## tkcon.tcl
 ## Enhanced Tk Console, part of the VerTcl system
@@ -75,7 +77,7 @@ foreach cmd {SetCursor UpDownLine Transpose ScrollPages} {
 namespace eval ::tkcon {
     # when modifying this line, make sure that the auto-upgrade check
     # for version still works.
-    variable VERSION "2.5"
+    variable VERSION "3.0"
     # The OPT variable is an array containing most of the optional
     # info to configure.  COLOR has the color data.
     variable OPT
@@ -188,7 +190,7 @@ proc ::tkcon::Init {args} {
 	protocol	exit
 	showOnStartup	1
 	slaveprocs	{
-	    alias clear dir dump echo idebug lremove
+	    alias dir dump echo idebug lremove
 	    tkcon_puts tkcon_gets observe observe_var unalias which what
 	}
 	RCS		{RCS: @(#) $Id: tkcon.tcl,v 1.102 2008/02/07 21:02:53 hobbs Exp $}
@@ -3915,7 +3917,7 @@ proc echo args { puts stdout [concat $args] }
 ## This is executed in the parent interpreter
 ## 
 
-
+if 0 {
 proc tkcon_clear {{pcnt 100}} {
     if {![regexp {^[0-9]*$} $pcnt] || $pcnt < 1 || $pcnt > 100} {
 	return -code error \
@@ -3926,6 +3928,7 @@ proc tkcon_clear {{pcnt 100}} {
 	set tmp [expr {$pcnt/100.0*[tkcon console index end]}]
 	tkcon console delete 1.0 "$tmp linestart"
     }
+}
 }
 
 ## alias - akin to the csh alias command
