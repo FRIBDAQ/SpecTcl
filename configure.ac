@@ -542,7 +542,7 @@ AC_ARG_WITH(gd-headerdir,
 	   [gdheaderdir=$withval],
 	   [gdheaderdir=""])
 AC_ARG_WITH(gd-libdir,
-	   [   --with-gd-headerdir=path Path to libgd],
+	   [   --with-gd-libdir=path Path to libgd],
 	   [gdlibdir=$withval],
 	   [gdlibdri=""])
 
