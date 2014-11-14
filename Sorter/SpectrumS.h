@@ -348,7 +348,7 @@ class CSpectrumS  : public CSpectrum
   Int_t m_nChannels;	      //!< Number of channels.
   UInt_t m_nChannel;          //!< Time channel
   UInt_t m_nParameter;	      //!< Count to add to channel
-  UInt_t m_nOffset;           //!< Spectrum channel Offest
+  int    m_nOffset;           //!< Spectrum channel Offest
 
   
 public:
@@ -398,6 +398,14 @@ public:
   virtual SpectrumType_t getSpectrumType() {
     return keStrip;
   }
+
+  int getOffset() const {
+    return m_nOffset;
+  }
+  UInt_t getChannels() const {
+    return m_nChannels;
+  }
+
   // Mutators (available to derived classes:
 
 protected:
