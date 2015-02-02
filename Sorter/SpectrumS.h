@@ -329,7 +329,7 @@ DAMAGES.
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
 #endif
-
+#include <stdint.h>
 
 
 //  Foward Class definitions:
@@ -431,8 +431,8 @@ public:
 
   virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
   virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
-  void ShiftDataUp (int nShift);
-  void ShiftDataDown(int nShift);
+  void ShiftDataUp (int64_t nShift);
+  void ShiftDataDown(int64_t nShift);
 
 
   // Utility functions:
