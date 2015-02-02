@@ -1052,3 +1052,5 @@ November 30-?? 2011
         * Make strip chart spectra able to do 64 bit shifts.
         * Fix error in displaying gates on 2dsum spectra: was the case that all but
           gates on the first two parameters were displayed flipped.
+        * Fix error in compound get visual editor - was calling a deprecated browser
+          method.

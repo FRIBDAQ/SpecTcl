@@ -205,6 +205,8 @@ image create photo ::browser::foldericon   -format png \
     #------------------------------------------------------------------------------------
     # Public methods:
 
+    
+
     ##
     # update
     #   Updates the contents of the browser:
