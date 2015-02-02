@@ -2089,7 +2089,7 @@ CHistogrammer::flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam)
 {
   std::vector<UInt_t> params;
   pSpectrum->GetParameterIds(params);
-  if (pSpectrum->getSpectrumType() != ke2Dm) {
+  if (pSpectrum->getSpectrumType() == ke2Dm) {
     for (int i = 0; i < params.size(); i += 2) {
       if (gXparam == params[i]) return false;
     }
