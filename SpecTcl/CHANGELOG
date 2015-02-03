@@ -1011,4 +1011,7 @@ November 30-?? 2011
         * Fix redef errors in NSCLAsciiFormatter..
 3.3-016
 	* Properly integrate the V1729 FADC with SpecTcl.
-  
+        * Fix error in vmusb/spectclSetup.tcl - typo in V1x90 setup.
+
+3.3-017
+        * Fix error with m2d gates - Only the first point was correct.

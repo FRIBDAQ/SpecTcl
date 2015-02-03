@@ -690,8 +690,8 @@ CXamineEventHandler::scaleSumSpectrumPoints(CSpectrum* pSpectrum,
   vector<FPoint>     result;
 
   for (int i =0; i < rawPoints.size(); i++) {
-    Float_t x = a[i].AxisToParameter(rawPoints[i].X());
-    Float_t y = a[i+1].AxisToParameter(rawPoints[i].Y());
+    Float_t x = a[firstAxis].AxisToParameter(rawPoints[i].X());
+    Float_t y = a[firstAxis+1].AxisToParameter(rawPoints[i].Y());
     
     result.push_back(FPoint(x,y));
   }
