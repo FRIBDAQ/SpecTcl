@@ -42,10 +42,8 @@ LDFLAGS=-L$(SPECLIBS) -lTclGrammerCommands \
 	-lgsl -lgslcblas	\
 	$(LIBTCLPLUS_LDFLAGS) \
 	$(X11LIBS)    \
-	-Wl,"-rpath=$(SPECLIBS)"
+	-Wl,"-rpath=$(SPECLIBS)" $(TCLLIBS)   
 
-# Removed: 	$(TCLLIBS)   
-# included in libtclplus and caused double defs in -lieee :-(
 
 
 include $(SPECETC)/CompilationRules.include
