@@ -1049,3 +1049,6 @@ November 30-?? 2011
 	* Factor in the daqroot preference in finding ringselector.
 	* Figure out if ringselector supports --non-blocking and
           if so turn it on.
+        * Add TCLLIBS back into the compilation includes but use sed to
+	  remove the -lieee to prevent the double def of _LIB_VERSION
+	

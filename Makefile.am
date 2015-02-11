@@ -56,7 +56,8 @@ install-exec-local:
 	echo  X11INCLUDES=$(X11INCLUDES)       >> Directories.temp
 	echo  X11LIBS    =$(XLIBSW) $(MOTIF_LIBSW) -lXm -lXt -lX11 >> Directories.temp
 	cat   Directories.include              >> Directories.temp
-	$(INSTALL_DATA) Directories.temp $(sysconfdir)/Directories.include
+	sed  -e 's/-lieee//g'  Directories.temp >Directories.edited
+	$(INSTALL_DATA) Directories.edited $(sysconfdir)/Directories.include
 	$(INSTALL_DATA) LICENSE    $(prefix)
 	echo CXX=$(CXX)                       > CompilationRules.temp
 	echo CC=$(CC)                        >> CompilationRules.temp
