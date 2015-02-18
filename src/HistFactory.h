@@ -6,9 +6,7 @@
 #include <iosfwd>
 #include <memory>
 #include <TH1.h>
-
-class AxisInfo;
-class HistInfo;
+#include "HistInfo.h"
 
 namespace Json {
   class Value;
@@ -19,13 +17,13 @@ namespace SpJs
 
   class HistFactory {
     public:
-    std::unique_ptr<TH1> create(const char* jsonByteRep);
-    std::unique_ptr<TH1> create(const Json::Value& value);
+      std::unique_ptr<TH1> create(const char* jsonByteRep);
+      std::unique_ptr<TH1> create(const Json::Value& value);
+
+    private:
+      ChanType mapChanType(const std::string& type);
   };
 
 }
-
-std::ostream& operator<<(std::ostream& stream, AxisInfo& info);
-std::ostream& operator<<(std::ostream& stream, HistInfo& info);
 
 #endif

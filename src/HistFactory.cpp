@@ -9,51 +9,15 @@
 #include <memory>
 #include <stdexcept>
 #include "HistFactory.h"
+#include "HistInfo.h"
 
 using namespace std;
-
-enum ChanType { Short=0, Long=1 };
-
-struct AxisInfo {
-  double s_low;
-  double s_high;
-  int s_nbins;
-};
-
-struct HistInfo {
-  std::string s_name;
-  int s_type;
-  std::vector<std::string> s_params;
-  std::vector<AxisInfo> s_axes;
-  ChanType s_chanType; 
-};
-
-std::ostream& operator<<(std::ostream& stream, AxisInfo& info) {
-
-  stream << "{" << info.s_low << ", ";
-  stream << info.s_high << ", ";
-  stream << info.s_nbins << "}";
-  return stream;
-}
-std::ostream& operator<<(std::ostream& stream, HistInfo& info) {
-
-  stream << "name=" << info.s_name;
-  stream << "\ntype=" << info.s_type;
-  stream << "\nparams:";
-  for (auto param : info.s_params) {
-    stream << "\n  " << param;
-  }
-  stream << "\nparams:";
-  for (auto ainfo : info.s_axes) {
-    stream << "\n  " << ainfo;
-  }
-  return stream;
-}
 
 namespace SpJs
 {
 
-  ChanType mapChanType(const std::string& type) {
+  ChanType HistFactory::mapChanType(const std::string& type) 
+  {
     ChanType index = ChanType::Short;
     if (type == "short") {
       index = ChanType::Short;
