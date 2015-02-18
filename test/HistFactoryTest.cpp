@@ -6,6 +6,10 @@
 #include <json/json.h>
 #include <fstream>
 #include <string>
+#include <iostream>
+#include <sstream>
+
+#include "config.h"
 
 #define private public
 #define protected public
@@ -39,7 +43,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(HistFactoryTest);
 // has been tested to work.
 void HistFactoryTest::createTH1_0()
 {
-  std::ifstream file("json/list1d.json");
+  stringstream path;
+  path << JSON_TEST_DIR << "/list1d.json";
+  std::ifstream file(path.str());
   Json::Value value;
   file >> value;
 
@@ -56,7 +62,9 @@ void HistFactoryTest::createTH1_0()
 // has been tested to work.
 void HistFactoryTest::createTH2_0()
 {
-  std::ifstream file("json/list2d.json");
+  stringstream path;
+  path << JSON_TEST_DIR << "/list2d.json";
+  std::ifstream file(path.str());
   Json::Value value;
   file >> value;
 

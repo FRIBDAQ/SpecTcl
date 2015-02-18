@@ -10,23 +10,12 @@
 #include <stdexcept>
 #include "HistFactory.h"
 #include "HistInfo.h"
+#include "JsonParser.h"
 
 using namespace std;
 
 namespace SpJs
 {
-
-  ChanType HistFactory::mapChanType(const std::string& type) 
-  {
-    ChanType index = ChanType::Short;
-    if (type == "short") {
-      index = ChanType::Short;
-    } else if (type=="long") {
-      index = ChanType::Long; 
-    }
-    return index;
-  }
-
 
   std::unique_ptr<TH1> HistFactory::create(const char* jsonByteRep) 
   {
@@ -35,38 +24,20 @@ namespace SpJs
 
   std::unique_ptr<TH1> HistFactory::create(const Json::Value& value) 
   {
-    using Json::Value;
+    // throws if bad
+    std::vector<HistInfo> infos;
+    try {
+      infos = JsonParser().parseListCmd(value);
+    } catch (std::exception& exc) {
+      return std::unique_ptr<TH1>();
+    }
 
+    // only deals with the first one
+    return create(infos.at(0));
+  }
+
+  std::unique_ptr<TH1> HistFactory::create(const HistInfo& info) {
     std::unique_ptr<TH1> pHist;
-    // fail if we did not retrieve a proper value
-    if (value["status"] != "OK") {
-      return pHist;
-    }
-    
-    HistInfo info;
-
-    const Value& item = value["detail"][0];
-    info.s_name = item["name"].asCString();
-    info.s_type = std::stoi(item["type"].asCString());
-    info.s_chanType = mapChanType(item["chantype"].asCString());
-
-    // load the parameters
-    const Value& params = item["parameters"];
-    for (int iParam=0; iParam<params.size(); ++iParam) {
-      info.s_params.push_back(params[iParam].asCString());
-    }
-
-    // load the axes
-    const Value& axes = item["axes"];
-    size_t size = axes.size();
-    for (int iAxis=0; iAxis<size; ++iAxis) {
-      const Value* axis = &axes[iAxis];
-      AxisInfo axInfo;
-      axInfo.s_low = (*axis)["low"].asFloat();
-      axInfo.s_high = (*axis)["high"].asFloat();
-      axInfo.s_nbins = (*axis)["bins"].asInt();
-      info.s_axes.push_back(axInfo);
-    }
 
     if (info.s_axes.size() == 1) {
       pHist.reset(new TH1D(info.s_name.c_str(), 
@@ -88,7 +59,6 @@ namespace SpJs
     }
     return pHist;
   }
-
 
 //  void fillTH1(const Json::Value& value, TH1& hist)
 //  {

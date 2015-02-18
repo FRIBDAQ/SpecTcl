@@ -2,7 +2,6 @@
 #include <iostream>
 #include "HistInfo.h"
 
-
 bool operator==(const SpJs::AxisInfo& lhs, const SpJs::AxisInfo& rhs)
 {
   return ( (lhs.s_low==rhs.s_low)
@@ -16,13 +15,6 @@ bool operator!=(const SpJs::AxisInfo& lhs, const SpJs::AxisInfo& rhs)
 }
 
 
-std::ostream& operator<<(std::ostream& stream, SpJs::AxisInfo& info) 
-{
-  stream << "{" << info.s_low << ", ";
-  stream << info.s_high << ", ";
-  stream << info.s_nbins << "}";
-  return stream;
-}
 
 bool operator==(const SpJs::HistInfo& lhs, const SpJs::HistInfo& rhs)
 {
@@ -50,18 +42,3 @@ bool operator!=(const SpJs::HistInfo& lhs, const SpJs::HistInfo& rhs)
 {
   return !(lhs==rhs);
 }
-std::ostream& operator<<(std::ostream& stream, SpJs::HistInfo& info) {
-
-  stream << "name=" << info.s_name;
-  stream << "\ntype=" << info.s_type;
-  stream << "\nparams:";
-  for (auto param : info.s_params) {
-    stream << "\n  " << param;
-  }
-  stream << "\nparams:";
-  for (auto ainfo : info.s_axes) {
-    stream << "\n  " << ainfo;
-  }
-  return stream;
-}
-

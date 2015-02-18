@@ -1,5 +1,3 @@
-project(unittests)
-
 pkg_search_module(unittests cppunit)
 
 # include ROOT stuff
@@ -14,13 +12,13 @@ string(STRIP ${_rootLdFlags} ROOT_LDFLAGS)
 # add the include paths
 add_definitions(${ROOT_CXXFLAGS})
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
-add_executable(unittests TestRunner.cpp HistFactoryTest.cpp)
-target_link_libraries(unittests cppunit)
-target_link_libraries(unittests ${ROOT_LDFLAGS})
-target_link_libraries(unittests jsoncpp)
-target_link_libraries(unittests SpecTclJson)
+include_directories(${CMAKE_SOURCE_DIR}/src ${PROJECT_BINARY_DIR})
 
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/json)
-file(GLOB JSON_TESTS ./json/*json)
-file(COPY ${JSON_TESTS} DESTINATION ${PROJECT_BINARY_DIR}/json/)
+add_executable(unittests TestRunner.cpp HistFactoryTest.cpp HistInfoTest.cpp JsonParserTest.cpp)
+target_link_libraries(unittests cppunit ${ROOT_LDFLAGS} jsoncpp LibSpecTclJson)
+
+#file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/json)
+#file(GLOB JSON_TESTS ./json/*json)
+#file(COPY ${JSON_TESTS} DESTINATION ${PROJECT_BINARY_DIR}/json/)
+
+install(TARGETS unittests DESTINATION bin)

@@ -1,7 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
-
-
-project(SpecTclJson)
+# CMakeLists.txt for building the actual SpecTclJson library
 
 # include ROOT stuff
 set(ROOTCONFIGPATH $ENV{ROOTSYS}/bin/root-config)
@@ -15,11 +12,21 @@ string(STRIP ${_rootLdFlags} ROOT_LDFLAGS)
 # add the include paths
 add_definitions(${ROOT_CXXFLAGS})
 
-pkg_search_module(Test jsoncpp)
+pkg_search_module(LibSpecTclJson jsoncpp)
 
+set(libSpecTclJson_INCLUDES HistFactory.h 
+                            HistInfo.h 
+                            JsonParser.h)
+set(libSpecTclJson_SOURCES  HistFactory.cpp 
+                            HistInfo.cpp 
+                            JsonParser.cpp)
 # build
-add_library(SpecTclJson HistFactory.cpp HistFactory.h)
+add_library(LibSpecTclJson STATIC ${libSpecTclJson_INCLUDES}
+                                  ${libSpecTclJson_SOURCES})
+
 
 # we depend on some external libraries
-target_link_libraries(SpecTclJson ${ROOT_LDFLAGS})
-target_link_libraries(SpecTclJson jsoncpp)
+target_link_libraries(LibSpecTclJson ${ROOT_LDFLAGS} jsoncpp)
+
+install(TARGETS LibSpecTclJson DESTINATION lib)
+install(FILES HistFactory.h HistInfo.h JsonParser.h DESTINATION include)

@@ -6,7 +6,6 @@
 #include <iosfwd>
 #include <memory>
 #include <TH1.h>
-#include "HistInfo.h"
 
 namespace Json {
   class Value;
@@ -14,14 +13,18 @@ namespace Json {
 
 namespace SpJs
 {
+  class HistInfo;
 
   class HistFactory {
     public:
+      // Designed to parse json retrieved from list cmd and 
+      // turn into an empty TH1
       std::unique_ptr<TH1> create(const char* jsonByteRep);
       std::unique_ptr<TH1> create(const Json::Value& value);
 
-    private:
-      ChanType mapChanType(const std::string& type);
+      // Given an already parsed list command, create the hist
+      // with no content
+      std::unique_ptr<TH1> create(const HistInfo& info);
   };
 
 }
