@@ -18,13 +18,6 @@
     <item>
      <widget class="QListWidget" name="histList"/>
     </item>
-    <item>
-     <widget class="QPushButton" name="updateButton">
-      <property name="text">
-       <string>Update List</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
  </widget>

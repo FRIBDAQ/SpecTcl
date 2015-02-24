@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QDockWidget>
 #include <HistogramView.h>
+#include "TGo4CreateNewHistogram.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionConnect,SIGNAL(activated()),this,SLOT(onConnect()));
     connect(m_histView,SIGNAL(histSelected(TH1*)),m_view,SLOT(update(TH1*)));
     connect(ui->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
+    connect(ui->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
 }
 
 void MainWindow::onConnect() {
@@ -50,4 +52,11 @@ void MainWindow::dockHistograms()
         addDockWidget(Qt::LeftDockWidgetArea,m_histView);
         m_histView->show();
     }
+}
+
+
+void MainWindow::onNewHistogram()
+{
+    TGo4CreateNewHistogram dialog(0);
+    dialog.exec();
 }

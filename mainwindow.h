@@ -24,6 +24,7 @@ public:
 public slots:
     void onConnect();
     void dockHistograms();
+    void onNewHistogram();
 
 private:
     Ui::MainWindow *ui;

@@ -72,8 +72,15 @@
     </widget>
     <addaction name="menuPanels"/>
    </widget>
+   <widget class="QMenu" name="menuCreate">
+    <property name="title">
+     <string>Create</string>
+    </property>
+    <addaction name="actionNewHistogram"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuWindow"/>
+   <addaction name="menuCreate"/>
   </widget>
   <action name="actionExit">
    <property name="text">
@@ -88,6 +95,11 @@
   <action name="actionHIstograms">
    <property name="text">
     <string>HIstograms</string>
+   </property>
+  </action>
+  <action name="actionNewHistogram">
+   <property name="text">
+    <string>Histogram</string>
    </property>
   </action>
  </widget>

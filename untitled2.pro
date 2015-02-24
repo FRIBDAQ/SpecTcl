@@ -26,7 +26,8 @@ SOURCES += main.cpp\
         SpectrumViewer.cpp \
         GlobalSettings.cpp \
     HistogramView.cpp \
-    ListRequestHandler.cpp
+    ListRequestHandler.cpp \
+    TGo4CreateNewHistogram.cpp
 
 HEADERS  += QRootCanvas.h QRootDialog.h QRootApplication.h QRootWindow.h mainwindow.h ConnectServer.h \
     SpectrumViewer.h \
@@ -35,12 +36,14 @@ HEADERS  += QRootCanvas.h QRootDialog.h QRootApplication.h QRootWindow.h mainwin
     GlobalSettings.h \
     RequestHandler.h \
     HistogramView.h \
-    ListRequestHandler.h
+    ListRequestHandler.h \
+    TGo4CreateNewHistogram.h
 
 FORMS    += mainwindow.ui ConnectServer.ui \
     SpectrumViewer.ui \
     HistogramList.ui \
-    HistogramView.ui
+    HistogramView.ui \
+    TGo4CreateNewHistogram.ui
 
 !exists ($$(ROOTSYS)/include/root/rootcint.pri) {
    message("The Rootcint.pri was not found")

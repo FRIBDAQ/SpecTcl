@@ -7,6 +7,7 @@
 #include <HistInfo.h>
 #include <HistFactory.h>
 #include <HistogramList.h>
+#include <QTimer>
 
 HistogramView::HistogramView(QWidget *parent) :
     QDockWidget(tr("Histograms"),parent),
@@ -16,7 +17,8 @@ HistogramView::HistogramView(QWidget *parent) :
   m_req->setHistogramView(this);
     ui->setupUi(this);
 
-    connect(ui->updateButton,SIGNAL(pressed()),this,SLOT(onUpdate()));
+    QTimer::singleShot(2000,this,SLOT(onUpdate()));
+    //    connect(ui->updateButton,SIGNAL(pressed()),this,SLOT(onUpdate()));
     connect(m_req,SIGNAL(parseCompleted(std::vector<SpJs::HistInfo>)),
             this,SLOT(setList(std::vector<SpJs::HistInfo>)));
 
@@ -69,6 +71,9 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
       ++iter;
     }
 
+    if (isVisible()) {
+        QTimer::singleShot(2000,this,SLOT(onUpdate()));
+    }
 }
 
 void HistogramView::onDoubleClick(QModelIndex index)
