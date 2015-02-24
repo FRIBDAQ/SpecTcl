@@ -14,7 +14,12 @@ add_definitions(${ROOT_CXXFLAGS})
 
 include_directories(${CMAKE_SOURCE_DIR}/src ${PROJECT_BINARY_DIR})
 
-add_executable(unittests TestRunner.cpp HistFactoryTest.cpp HistInfoTest.cpp JsonParserTest.cpp)
+add_executable(unittests
+                TestRunner.cpp 
+                HistFactoryTest.cpp 
+                HistInfoTest.cpp 
+                JsonParserTest.cpp
+                HistFillerTest.cpp)
 target_link_libraries(unittests cppunit ${ROOT_LDFLAGS} jsoncpp LibSpecTclJson)
 
 #file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/json)

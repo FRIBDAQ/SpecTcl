@@ -74,4 +74,43 @@ namespace SpJs
     return index;
   }
 
+  vector<BinInfo> JsonParser::parseContentCmd(const Json::Value& value) 
+  {
+    using Json::Value;
+
+    // throw if the status is not ok
+    if (value["status"].asString() != "OK") {
+      throw std::runtime_error("Json cannot be parsed because status != OK");
+    }
+
+    vector<BinInfo > result;
+
+    // get the detail portion
+    const Value& detail = value["detail"];
+
+    // loop over all entries of the detail list of objects
+    int nPoints = detail.size();
+    for (int index=0; index<nPoints; ++index) {
+      const Value& point = detail[index];
+      BinInfo bin;
+
+      if (point.isMember("xchan")) {
+        bin.s_xbin = point["xchan"].asInt();
+      } 
+
+      if (point.isMember("ychan")) {
+        bin.s_ybin = point["ychan"].asInt();
+      }
+//      if (point.isMember("zchan")) {
+//        bin.s_zbin = point["zchan"].asInt();
+//      }
+
+      bin.s_value = point["value"].asDouble();
+
+      result.push_back(bin);
+    }
+    
+    return result;
+  }
+
 }

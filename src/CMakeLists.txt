@@ -16,10 +16,14 @@ pkg_search_module(LibSpecTclJson jsoncpp)
 
 set(libSpecTclJson_INCLUDES HistFactory.h 
                             HistInfo.h 
-                            JsonParser.h)
+                            JsonParser.h
+                            HistFiller.h
+                            BinInfo.h )
+
 set(libSpecTclJson_SOURCES  HistFactory.cpp 
                             HistInfo.cpp 
-                            JsonParser.cpp)
+                            JsonParser.cpp
+                            HistFiller.cpp)
 # build
 add_library(LibSpecTclJson STATIC ${libSpecTclJson_INCLUDES}
                                   ${libSpecTclJson_SOURCES})
@@ -29,4 +33,4 @@ add_library(LibSpecTclJson STATIC ${libSpecTclJson_INCLUDES}
 target_link_libraries(LibSpecTclJson ${ROOT_LDFLAGS} jsoncpp)
 
 install(TARGETS LibSpecTclJson DESTINATION lib)
-install(FILES HistFactory.h HistInfo.h JsonParser.h DESTINATION include)
+install(FILES ${libSpecTclJson_INCLUDES} DESTINATION include)

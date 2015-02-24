@@ -5,6 +5,7 @@
 
 #include <vector>
 #include "HistInfo.h"
+#include "BinInfo.h"
 
 namespace Json {
   class Value;
@@ -12,11 +13,12 @@ namespace Json {
 
 namespace SpJs
 {
+
   class JsonParser
   {
     public:
       std::vector<HistInfo> parseListCmd(const Json::Value& value);
-//    std::vector<HistInfo> parseContentCmd(const Json::Value& value);
+      std::vector<BinInfo> parseContentCmd(const Json::Value& value);
 //
     private:
       HistInfo  parseListDetail(const Json::Value& value);
