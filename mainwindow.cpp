@@ -1,49 +1,53 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "QRootCanvas.h"
-#include <TH1.h>
-#include <TCanvas.h>
+#include "ConnectServer.h"
+#include "SpectrumViewer.h"
+#include <QDebug>
+#include <QDockWidget>
+#include <HistogramView.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-//    setLayout(ui->verticalLayout);
 
-    QGridLayout* gridLayout = new QGridLayout(ui->frame);
-    m_canvas = new QRootCanvas(ui->frame);
-    gridLayout->addWidget(m_canvas,0,0);
+    m_view = new SpectrumViewer(ui->frame);
+    ui->gridLayout->addWidget(m_view);
 
-    m_canvas->getCanvas()->Resize();
-    m_canvas->getCanvas()->cd();
+    m_histView = new HistogramView(this);
 
-    m_hist = new TH1D("m_hist","The TEST", 10, 0, 10);
-    m_hist->SetBinContent(2,3);
-    m_hist->SetBinContent(5,1);
-    m_hist->SetBinContent(8,6);
-    m_hist->SetDirectory(0);
+    createDockWindows();
 
-    m_hist->Draw();
-    m_canvas->show();
-
-
-    connect(ui->pushButton,SIGNAL(pressed()),this,SLOT(update()));
+    connect(ui->actionConnect,SIGNAL(activated()),this,SLOT(onConnect()));
+    connect(m_histView,SIGNAL(histSelected(TH1*)),m_view,SLOT(update(TH1*)));
+    connect(ui->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
 }
 
-void MainWindow::update()
-{
-    auto bin = ui->spinBox->value();
-    auto incr = ui->spinBox_2->value();
-
-    auto content = m_hist->GetBinContent(bin);
-    m_hist->SetBinContent(bin, content+incr);
-    m_canvas->Modified(1);
-    m_canvas->Update();
+void MainWindow::onConnect() {
+    ConnectDialog dialog;
+    dialog.exec();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete m_hist;
+}
+
+void MainWindow::createDockWindows()
+{
+
+    m_histView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
+
+    addDockWidget(Qt::LeftDockWidgetArea,m_histView);
+}
+
+void MainWindow::dockHistograms()
+{
+    if (m_histView->isVisible()) {
+        return;
+    } else {
+        addDockWidget(Qt::LeftDockWidgetArea,m_histView);
+        m_histView->show();
+    }
 }

@@ -3,9 +3,8 @@
 
 #include <QMainWindow>
 
-class QRootCanvas;
-
-class TH1;
+class SpectrumViewer;
+class HistogramView;
 
 namespace Ui {
 class MainWindow;
@@ -15,18 +14,22 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    QRootCanvas *m_canvas;
-    TH1* m_hist;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void createDockWindows();
+
 public slots:
-    void update();
+    void onConnect();
+    void dockHistograms();
 
 private:
     Ui::MainWindow *ui;
+    SpectrumViewer* m_view;
+    HistogramView* m_histView;
+
 };
 
 #endif // MAINWINDOW_H

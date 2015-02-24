@@ -52,6 +52,7 @@
 #include "QRootApplication.h"
 
 #include <cstring>
+#include <QFrame>
 
 
 QRootCanvas::QRootCanvas(QWidget *parent) :

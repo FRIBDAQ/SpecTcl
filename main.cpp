@@ -1,16 +1,20 @@
 #include "mainwindow.h"
 #include <TQApplication.h>
 #include <TQRootApplication.h>
-#include <TQRootCanvas.h>
-#include <TH1.h>
+#include "GlobalSettings.h"
 
 int main(int argc, char *argv[])
 {
-    TQApplication a("app",&argc, argv);
-    TQRootApplication b(argc, argv,0);
+  QApplication::setGraphicsSystem("native");
 
-    MainWindow w;
-    w.show();
+  TQApplication a("app", &argc, argv);
+  TQRootApplication b(argc, argv, 0);
 
-    return b.exec();
+  MainWindow w;
+  w.show();
+
+  GlobalSettings::getInstance()->setValue("/server/hostname","localhost");
+  GlobalSettings::getInstance()->setValue("/server/port",8000);
+
+  return b.exec();
 }
