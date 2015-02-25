@@ -61,6 +61,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <CProjectionCommand.h>
 #include "IntegrateCommand.h"
+#include "VersionCommand.h"
+#include "SContentsCommand.h"
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -539,6 +541,11 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   CIntegrateCommand* pIntegrate = new CIntegrateCommand(rInterp);
   
   cerr << "integrate command (c) 2007 Written by Ron Fox\n";
+  
+  CVersionCommand* pVersion = new CVersionCommand(rInterp);
+  CSContentsCommand* pContents = new CSContentsCommand(rInterp);
+  
+  cerr << "version, scontents command (c) 2015 Written by Ron Fox\n";
 
   cerr.flush();
 }

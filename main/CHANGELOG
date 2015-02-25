@@ -1054,3 +1054,7 @@ November 30-?? 2011
           gates on the first two parameters were displayed flipped.
         * Fix error in compound get visual editor - was calling a deprecated browser
           method.
+3.4-005
+       * Feature #3531 - add version command.
+       * Feature #3532 - add scontents command.
+
