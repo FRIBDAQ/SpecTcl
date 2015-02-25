@@ -14,5 +14,5 @@ include(${CMAKE_SOURCE_DIR}/build/FindPkgConfig.cmake)
 add_subdirectory(src)
 add_subdirectory(test)
 
-enable_testing()
 
+add_custom_target(test COMMAND unittests)

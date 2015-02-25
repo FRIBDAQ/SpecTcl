@@ -18,12 +18,19 @@ set(libSpecTclJson_INCLUDES HistFactory.h
                             HistInfo.h 
                             JsonParser.h
                             HistFiller.h
-                            BinInfo.h )
+                            BinInfo.h
+                            ParameterInfo.h
+                            GateInfo.h
+                            GateCmdParser.h
+                            ParameterCmdParser.h)
 
 set(libSpecTclJson_SOURCES  HistFactory.cpp 
                             HistInfo.cpp 
                             JsonParser.cpp
-                            HistFiller.cpp)
+                            HistFiller.cpp
+                            ParameterInfo.cpp
+                            GateCmdParser.cpp
+                            ParameterCmdParser.cpp)
 # build
 add_library(LibSpecTclJson STATIC ${libSpecTclJson_INCLUDES}
                                   ${libSpecTclJson_SOURCES})

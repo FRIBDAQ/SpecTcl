@@ -10,6 +10,7 @@
 #include <algorithm>
 #include "HistInfo.h"
 #include "BinInfo.h"
+#include "ParameterInfo.h"
 
 #include "config.h"
 
@@ -41,6 +42,7 @@ protected:
   void parseListCmd_0();
   void parseContentCmd_0();
   void json_0();
+  void parseParameterCmd_0();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(JsonParserTest);
@@ -101,6 +103,7 @@ void JsonParserTest::parseContentCmd_0 ()
   Json::Value value;
   std::ifstream file (ss.str().c_str());
   file >> value;
+  file.close();
 
   auto parsedResult = SpJs::JsonParser().parseContentCmd(value);
 
@@ -122,11 +125,16 @@ void JsonParserTest::parseContentCmd_0 ()
 void JsonParserTest::json_0 () 
 {
 
-  const char* json = 
+    std::string jsonStr(
     "{\n"
     "  \"x\" : 34\n"
-    "}";
+    "}"
+                );
 
-  Json::Value value(json);
+  Json::Value value;
+  Json::Reader reader;
+  reader.parse(jsonStr,value);
+
   CPPUNIT_ASSERT_NO_THROW(value["x"]);
 }
+
