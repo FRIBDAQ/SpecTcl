@@ -59,7 +59,7 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
 	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
-	IntegrateCommand.h VersionCommand.h SContentsCommand.cpp
+	IntegrateCommand.h VersionCommand.h SContentsCommand.h
 
 
 
