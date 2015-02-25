@@ -234,17 +234,32 @@ proc ::SpecTcl::_getSpectrum2 {name axes sample} {
     set ychans [lindex [lindex $axes 1] 2]
 
     set nonZeroChannels [list]
-    for {set y 0} {$y < $ychans} {incr y $sample} {
-	for {set x 0} {$x < $xchans} {incr x $sample} {
-	    set value [channel -get $name [list $x $y]]
-	    if {$value != 0} {
-		lappend nonZeroChannels [json::write object \
-					     xchan $x \
-					     ychan $y  \
-					     value $value]
-	    }
-	}
+    
+    #  How we do this depends on the SpecTcl version.
+    #  If the version command is implemented we have an scontents
+    #  command which will speed up the channel fetch loop:
+    
+    if {[info command version] eq ""} {
+        for {set y 0} {$y < $ychans} {incr y $sample} {
+            for {set x 0} {$x < $xchans} {incr x $sample} {
+                set value [channel -get $name [list $x $y]]
+                if {$value != 0} {
+                    lappend nonZeroChannels [json::write object \
+                                                 xchan $x \
+                                                 ychan $y  \
+                                                 value $value]
+                }
+            }
+        }
+    } else {
+        set data [scontents $name]
+        foreach channel $data {
+            lappend nonZeroChannels [json::write object        \
+                                     xchan [lindex $channel 0] \
+                                     ychan [lindex $channel 1] \
+                                     value [lindex $channel 2] \
+            ]                       
+        }
     }
-
     return [::SpecTcl::_returnObject OK  [json::write array {*}$nonZeroChannels]]
 }
