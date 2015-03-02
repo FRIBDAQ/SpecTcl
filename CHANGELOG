@@ -1057,4 +1057,5 @@ November 30-?? 2011
 3.4-005
        * Feature #3531 - add version command.
        * Feature #3532 - add scontents command.
+       * Feature #3538 - add compress package with deflate/inflate commands.
 

@@ -4,7 +4,7 @@ SUBDIRS =  Replace Scripts Utility factories Display \
 	DecoderRing  TreeParam \
 	Fits SpecTcl \
 	contrib TestFiles Gui splash filtsplit calibratedparams treegui \
-	ccusb vmusb tkcon
+	ccusb vmusb tkcon compress
 
 ACLOCAL_AMFLAGS=-I m4
 
