@@ -694,6 +694,12 @@ fi
 
 AX_GENGETOPT
 
+##
+# Check for zlib for the zip/unzip commands.
+
+AX_CHECK_ZLIB([AC_MSG_RESULT([Have zlib])], [AC_MSG_ERROR([zlib is a prerequisite for this version of SpecTcl])])
+
+
 #
 #   libTclPlus and libException could have been installed from 
 #   Ryan's Deb or I might need to install my own versions which
@@ -805,4 +811,4 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	 calibratedparams/Makefile \
 	 ccusb/Makefile ccusb/MakefileSkel \
 	 vmusb/Makefile vmusb/MakefileSkel \
-	 tkcon/Makefile )
+	 tkcon/Makefile compress/Makefile )
