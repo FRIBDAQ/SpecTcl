@@ -251,7 +251,11 @@ proc ::SpecTcl::_getSpectrum2 {name axes sample} {
                 }
             }
         }
+        return [::SpecTcl::_returnObject OK  [json::write array {*}$nonZeroChannels]]
     } else {
+        # Note that we also have inflate/deflate:
+        package require compress
+        
         set data [scontents $name]
         foreach channel $data {
             lappend nonZeroChannels [json::write object        \
@@ -260,6 +264,15 @@ proc ::SpecTcl::_getSpectrum2 {name axes sample} {
                                      value [lindex $channel 2] \
             ]                       
         }
+        set json [::SpecTcl::_returnObject OK  [json::write array {*}$nonZeroChannels]]
+        set jsonGzip [deflate $json]
+        
+        #  Force content encoding -> gzip.
+        #
+        set sock [Httpd_CurrentSocket]
+        Httpd_AddHeaders $sock Content-Encoding deflate
+        return $jsonGzip
+    
     }
-    return [::SpecTcl::_returnObject OK  [json::write array {*}$nonZeroChannels]]
+        
 }
