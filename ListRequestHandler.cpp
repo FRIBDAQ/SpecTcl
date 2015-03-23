@@ -66,8 +66,7 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
             QMessageBox::warning(0,title,msg);
         }
     } else {
-        QString msg("Failed network request : %1");
-        msg = msg.arg(error);
-        QMessageBox::warning(0,"Network error",msg);
+
+        emit parseCompleted(std::vector<SpJs::HistInfo>());
     }
 }

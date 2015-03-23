@@ -1,12 +1,13 @@
 #ifndef SPECTRUMVIEWER_H
 #define SPECTRUMVIEWER_H
 
+#include "RequestHandler.h"
 #include <QFrame>
+#include <QPair>
 
 // temporary
 class TH1;
 class QRootCanvas;
-class RequestHandler;
 class QString;
 
 namespace Ui {
@@ -22,13 +23,21 @@ public:
     ~SpectrumViewer();
 
 public slots:
-    void update(TH1* hist);
+
+    void requestUpdate();
+
+    void update(const GuardedHist* gHist);
+
+    void onError(int errorCode, const QString& reason);
 
 private:
-    Ui::SpectrumViewer *ui;
-    TH1* m_hist;
-    QRootCanvas* m_canvas;
-    RequestHandler* m_reqHandler;
+    QUrl formUpdateRequest();
+
+private:
+    Ui::SpectrumViewer* ui;
+    TH1*                m_currentHist;
+    QRootCanvas*        m_canvas;
+    RequestHandler      m_reqHandler;
 };
 
 #endif // SPECTRUMVIEWER_H

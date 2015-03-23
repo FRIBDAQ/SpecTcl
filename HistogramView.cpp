@@ -18,7 +18,6 @@ HistogramView::HistogramView(QWidget *parent) :
     ui->setupUi(this);
 
     QTimer::singleShot(2000,this,SLOT(onUpdate()));
-    //    connect(ui->updateButton,SIGNAL(pressed()),this,SLOT(onUpdate()));
     connect(m_req,SIGNAL(parseCompleted(std::vector<SpJs::HistInfo>)),
             this,SLOT(setList(std::vector<SpJs::HistInfo>)));
 
@@ -71,15 +70,13 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
       ++iter;
     }
 
-    if (isVisible()) {
-        QTimer::singleShot(2000,this,SLOT(onUpdate()));
-    }
+    QTimer::singleShot(2000,this,SLOT(onUpdate()));
 }
 
 void HistogramView::onDoubleClick(QModelIndex index)
 {
-    TH1* hist = (TH1*)(index.data(Qt::UserRole).value<void*>());
-    emit histSelected(hist);
+    TH1* hist = reinterpret_cast<TH1*>(index.data(Qt::UserRole).value<void*>());
+    emit histSelected(*hist);
 }
 
 

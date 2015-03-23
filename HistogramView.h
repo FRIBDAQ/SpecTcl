@@ -23,7 +23,7 @@ public:
     ~HistogramView();
 
 signals:
-    void histSelected(TH1* hist);
+    void histSelected(TH1& hist);
 
 public slots:
     void onUpdate();

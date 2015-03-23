@@ -5,7 +5,6 @@
 #-------------------------------------------------
 
 QT       += core gui network
-CONFIG += console
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,7 +26,8 @@ SOURCES += main.cpp\
         GlobalSettings.cpp \
     HistogramView.cpp \
     ListRequestHandler.cpp \
-    TGo4CreateNewHistogram.cpp
+    TGo4CreateNewHistogram.cpp \
+       ParameterList.cpp
 
 HEADERS  += QRootCanvas.h QRootDialog.h QRootApplication.h QRootWindow.h mainwindow.h ConnectServer.h \
     SpectrumViewer.h \
@@ -37,13 +37,15 @@ HEADERS  += QRootCanvas.h QRootDialog.h QRootApplication.h QRootWindow.h mainwin
     RequestHandler.h \
     HistogramView.h \
     ListRequestHandler.h \
-    TGo4CreateNewHistogram.h
+    TGo4CreateNewHistogram.h \
+        ParameterList.h
 
 FORMS    += mainwindow.ui ConnectServer.ui \
     SpectrumViewer.ui \
     HistogramList.ui \
     HistogramView.ui \
     TGo4CreateNewHistogram.ui
+
 
 !exists ($$(ROOTSYS)/include/root/rootcint.pri) {
    message("The Rootcint.pri was not found")
@@ -79,3 +81,4 @@ DEPENDPATH += $$PWD/../../../json/SpecTclJson/oot/include
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../json/SpecTclJson/oot/lib/release/LibSpecTclJson.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../json/SpecTclJson/oot/lib/debug/LibSpecTclJson.lib
 else:unix:!symbian: PRE_TARGETDEPS += $$PWD/../../../json/SpecTclJson/oot/lib/libLibSpecTclJson.a
+CONFIG += console

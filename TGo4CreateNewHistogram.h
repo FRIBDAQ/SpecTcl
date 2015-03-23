@@ -18,8 +18,8 @@
 #include <QDialog>
 #include "ui_TGo4CreateNewHistogram.h"
 
-class QButtonGroup;
-class TH1;
+class QNetworkAccessManager;
+class QNetworkReply;
 
 class TGo4CreateNewHistogram : public QDialog, public Ui::TGo4CreateNewHistogram
  {
@@ -28,19 +28,17 @@ class TGo4CreateNewHistogram : public QDialog, public Ui::TGo4CreateNewHistogram
  public:
    TGo4CreateNewHistogram( QWidget* parent = 0);
 
-   int GetSelectedCmd();
-
-   void MakeHistogram();
-
  public slots:
 
-   virtual void CreateRemoteHist();
+   virtual void createRemoteHist();
+   void showYAxisWidgets(int);
+   void onCreateDone(QNetworkReply*);
 
- protected:
-    int fSelectedCmd;
+private:
+   void encodeRequest();
 
-    QButtonGroup  *HisTypeGrp;
-    QButtonGroup  *HisClassGrp;
+private:
+   QNetworkAccessManager *m_pNAM;
 
  };
 #endif

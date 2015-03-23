@@ -2,10 +2,15 @@
 #define GLOBALSETTINGS_H
 
 #include <QSettings>
+#include <QMutex>
 
-// a singleton class to hold the settings
+/**! Singleton class to hold the settings
+  *  
+  *  This is a convenience wrapper around a QSettings object that
+  */
 class GlobalSettings {
 private:
+    QMutex m_mutex;
     static QSettings* m_instance;
 
     GlobalSettings() = default;
@@ -22,6 +27,12 @@ public:
 
         return m_instance;
     }
+
+    QString getServerHost() const;
+    void setServerHost(const QString& host);
+
+    int getServerPort() const;
+    void setServerPort(int port);
 };
 
 

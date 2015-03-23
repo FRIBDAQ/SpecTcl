@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
   MainWindow w;
   w.show();
 
-  GlobalSettings::getInstance()->setValue("/server/hostname","localhost");
+  GlobalSettings::getInstance()->setValue("/server/hostname","daqdev-wheezy");
   GlobalSettings::getInstance()->setValue("/server/port",8000);
 
   return b.exec();
