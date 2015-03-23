@@ -21,24 +21,26 @@ SOURCES += main.cpp\
         mainwindow.cpp\
         ConnectServer.cpp \
         HistogramList.cpp \
-        RequestHandler.cpp \
+        ContentRequestHandler.cpp \
         SpectrumViewer.cpp \
         GlobalSettings.cpp \
     HistogramView.cpp \
     ListRequestHandler.cpp \
     TGo4CreateNewHistogram.cpp \
-       ParameterList.cpp
+       ParameterList.cpp \
+       Compression.cpp
 
 HEADERS  += QRootCanvas.h QRootDialog.h QRootApplication.h QRootWindow.h mainwindow.h ConnectServer.h \
     SpectrumViewer.h \
     Singleton.h \ 
     HistogramList.h \
     GlobalSettings.h \
-    RequestHandler.h \
+    ContentRequestHandler.h \
     HistogramView.h \
     ListRequestHandler.h \
     TGo4CreateNewHistogram.h \
-        ParameterList.h
+        ParameterList.h \
+       Compression.h
 
 FORMS    += mainwindow.ui ConnectServer.ui \
     SpectrumViewer.ui \

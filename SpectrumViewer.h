@@ -1,7 +1,7 @@
 #ifndef SPECTRUMVIEWER_H
 #define SPECTRUMVIEWER_H
 
-#include "RequestHandler.h"
+#include "ContentRequestHandler.h"
 #include <QFrame>
 #include <QPair>
 
@@ -34,10 +34,10 @@ private:
     QUrl formUpdateRequest();
 
 private:
-    Ui::SpectrumViewer* ui;
-    TH1*                m_currentHist;
-    QRootCanvas*        m_canvas;
-    RequestHandler      m_reqHandler;
+    Ui::SpectrumViewer*   ui;
+    TH1*                  m_currentHist;
+    QRootCanvas*          m_canvas;
+    ContentRequestHandler m_reqHandler;
 };
 
 #endif // SPECTRUMVIEWER_H

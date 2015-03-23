@@ -1,6 +1,6 @@
 #include "SpectrumViewer.h"
-#include <HistogramList.h>
-#include <RequestHandler.h>
+#include "HistogramList.h"
+#include "ContentRequestHandler.h"
 #include "GlobalSettings.h"
 #include "HistogramList.h"
 #include "ui_SpectrumViewer.h"
