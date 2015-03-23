@@ -27,7 +27,6 @@ ConnectDialog::ConnectDialog( QWidget* parent )
 }
 
 void ConnectDialog::cacheServerSettings() {
-  auto* settings = GlobalSettings::getInstance();
-  settings->setServerHostname(ui->HostName->text());
-  settings->setServerPort(ui->PortNumber->value());
+  GlobalSettings::setServerHost(ui->HostName->text());
+  GlobalSettings::setServerPort(ui->PortNumber->value());
 }

@@ -2,20 +2,21 @@
 #include "GlobalSettings.h"
 
 QSettings* GlobalSettings::m_instance = nullptr;
+QMutex GlobalSettings::m_mutex;
 
-QString GlobalSettings::getServerHostname() const
+QString GlobalSettings::getServerHost()
 {
   QMutexLocker lock(&m_mutex);
   return getInstance()->value("/server/hostname").toString();
 }
 
-void GlobalSettings::setServerHostname(const QString& host) 
+void GlobalSettings::setServerHost(const QString& host) 
 {
   QMutexLocker lock(&m_mutex);
   return getInstance()->setValue("/server/hostname",host);
 }
 
-int GlobalSettings::getServerPort() const
+int GlobalSettings::getServerPort()
 {
   QMutexLocker lock(&m_mutex);
   return getInstance()->value("/server/port").toInt();

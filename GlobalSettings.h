@@ -10,7 +10,7 @@
   */
 class GlobalSettings {
 private:
-    QMutex m_mutex;
+    static QMutex m_mutex;
     static QSettings* m_instance;
 
     GlobalSettings() = default;
@@ -28,11 +28,11 @@ public:
         return m_instance;
     }
 
-    QString getServerHost() const;
-    void setServerHost(const QString& host);
+    static QString getServerHost();
+    static void setServerHost(const QString& host);
 
-    int getServerPort() const;
-    void setServerPort(int port);
+    static int getServerPort();
+    static void setServerPort(int port);
 };
 
 
