@@ -1,10 +1,10 @@
 #ifndef HISTOGRAMVIEW_H
 #define HISTOGRAMVIEW_H
 
-#include <QDockWidget>
-#include <QList>
-#include <QListWidget>
+#include "HistogramList.h"
 #include <HistInfo.h>
+#include <QDockWidget>
+#include <QModelIndex>
 #include <vector>
 
 class TH1;
@@ -23,7 +23,7 @@ public:
     ~HistogramView();
 
 signals:
-    void histSelected(TH1& hist);
+    void histSelected(const GuardedHist* hist);
 
 public slots:
     void onUpdate();

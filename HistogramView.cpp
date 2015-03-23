@@ -56,11 +56,12 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
             upHist.release();
             HistogramList::getInstance()->addHist(*pHist);
 
-            QVariant var = QVariant::fromValue((void*)(pHist));
-
+            // Histograms are uniquely named, so we can use the name as the key
             QString name = QString::fromStdString((*iter).s_name);
-            auto item = new QListWidgetItem(name, ui->histList, QListWidgetItem::UserType);
-            item->setData(Qt::UserRole,var);
+            auto item = new QListWidgetItem(name, ui->histList, 
+                                            QListWidgetItem::UserType);
+
+            item->setData(Qt::UserRole,QVariant(name));
 
             QSize geo = ui->histList->size();
             ui->histList->insertItem(geo.height(), item);
@@ -70,13 +71,14 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
       ++iter;
     }
 
-    QTimer::singleShot(2000,this,SLOT(onUpdate()));
+    QTimer::singleShot(1000,this,SLOT(onUpdate()));
 }
 
 void HistogramView::onDoubleClick(QModelIndex index)
 {
-    TH1* hist = reinterpret_cast<TH1*>(index.data(Qt::UserRole).value<void*>());
-    emit histSelected(*hist);
+    QString hname = index.data(Qt::UserRole).toString();
+    GuardedHist gHist = HistogramList::getInstance()->getHist(hname);
+    emit histSelected(&gHist);
 }
 
 
