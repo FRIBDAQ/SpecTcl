@@ -74,13 +74,15 @@ void SpectrumViewer::update(const GuardedHist* pgHist)
 
 QUrl SpectrumViewer::formUpdateRequest()
 {
-    QString name = "raw00Vsraw01";
-    auto host = GlobalSettings::getInstance()->value("/server/hostname").toString();
-    auto port = GlobalSettings::getInstance()->value("/server/port").toInt();
+  if (m_currentHist) {
+    QString name = m_currentHist->GetName();
+    auto host = GlobalSettings::getServerHost();
+    auto port = GlobalSettings::getServerPort();
 
     QString reqUrl("http://%1:%2/spectcl/spectrum/contents?name=%3");
     reqUrl = reqUrl.arg(host).arg(port).arg(name);
     return QUrl(reqUrl);
+  }
 }
 
 void SpectrumViewer::onError(int errorCode, const QString& reason)

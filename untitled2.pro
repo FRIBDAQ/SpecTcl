@@ -24,29 +24,36 @@ SOURCES += main.cpp\
         ContentRequestHandler.cpp \
         SpectrumViewer.cpp \
         GlobalSettings.cpp \
-    HistogramView.cpp \
-    ListRequestHandler.cpp \
-    TGo4CreateNewHistogram.cpp \
-       ParameterList.cpp \
-       Compression.cpp
+        HistogramView.cpp \
+        ListRequestHandler.cpp \
+        TGo4CreateNewHistogram.cpp \
+        ParameterList.cpp \
+        Compression.cpp
 
-HEADERS  += QRootCanvas.h QRootDialog.h QRootApplication.h QRootWindow.h mainwindow.h ConnectServer.h \
-    SpectrumViewer.h \
-    Singleton.h \ 
-    HistogramList.h \
-    GlobalSettings.h \
-    ContentRequestHandler.h \
-    HistogramView.h \
-    ListRequestHandler.h \
-    TGo4CreateNewHistogram.h \
-        ParameterList.h \
-       Compression.h
+HEADERS  += QRootCanvas.h \
+            QRootDialog.h \
+            QRootApplication.h \
+            QRootWindow.h \
+            mainwindow.h \
+            ConnectServer.h \
+            SpectrumViewer.h \
+            Singleton.h \ 
+            HistogramList.h \
+            GlobalSettings.h \
+            ContentRequestHandler.h \
+            HistogramView.h \
+            ListRequestHandler.h \
+            TGo4CreateNewHistogram.h \
+            ParameterList.h \
+            Compression.h \
+            GlobalEnum.h
 
-FORMS    += mainwindow.ui ConnectServer.ui \
-    SpectrumViewer.ui \
-    HistogramList.ui \
-    HistogramView.ui \
-    TGo4CreateNewHistogram.ui
+FORMS    += mainwindow.ui \
+            ConnectServer.ui \
+            SpectrumViewer.ui \
+            HistogramList.ui \
+            HistogramView.ui \
+            TGo4CreateNewHistogram.ui
 
 
 !exists ($$(ROOTSYS)/include/root/rootcint.pri) {

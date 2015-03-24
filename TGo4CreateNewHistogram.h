@@ -15,8 +15,10 @@
 #define TGO4CREATENEWHISTOGRAM_H
 
 
+#include <ParameterInfo.h>
 #include <QDialog>
 #include "ui_TGo4CreateNewHistogram.h"
+#include <vector>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -33,12 +35,19 @@ class TGo4CreateNewHistogram : public QDialog, public Ui::TGo4CreateNewHistogram
    virtual void createRemoteHist();
    void showYAxisWidgets(int);
    void onCreateDone(QNetworkReply*);
+   void updateXParamData(int paramIndex);
+   void updateYParamData(int paramIndex);
 
 private:
    void encodeRequest();
+   std::vector<SpJs::ParameterInfo> updateParameterList();
+   void loadKnownParameters();
+
 
 private:
    QNetworkAccessManager *m_pNAM;
+   QString m_server;
+   std::vector<SpJs::ParameterInfo> m_params;
 
  };
 #endif

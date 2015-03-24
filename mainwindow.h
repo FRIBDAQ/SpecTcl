@@ -30,7 +30,6 @@ private:
     Ui::MainWindow *ui;
     SpectrumViewer* m_view;
     HistogramView* m_histView;
-
 };
 
 #endif // MAINWINDOW_H

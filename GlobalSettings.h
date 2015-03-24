@@ -1,6 +1,7 @@
 #ifndef GLOBALSETTINGS_H
 #define GLOBALSETTINGS_H
 
+#include "GlobalEnum.h"
 #include <QSettings>
 #include <QMutex>
 
@@ -33,6 +34,8 @@ public:
 
     static int getServerPort();
     static void setServerPort(int port);
+
+    static QList<QString> getAxisInfo(Vwr::Axis axis);
 };
 
 

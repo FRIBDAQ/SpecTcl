@@ -171,6 +171,9 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
 {
   QByteArray bytes = reply->readAll();
 
+  auto hdr = reply->header(QNetworkRequest::ContentTypeHeader);
+  std::cout << hdr.toString().toStdString() << std::endl;
+
   try {
     // Read the response in the json
     Json::Reader reader;
