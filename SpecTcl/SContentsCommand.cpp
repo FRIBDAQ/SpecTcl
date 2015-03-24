@@ -23,6 +23,7 @@
 #include "SContentsCommand.h"
 #include <Spectrum.h>
 #include <SpecTcl.h>
+#include <stdio.h>
 
 /**
  * constructor
@@ -59,13 +60,28 @@ CSContentsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& 
     try {
         bindAll(interp, objv);
         
-        // Should have exactly two command words:
+        // Should have at most 3 parameters.
         
-        requireExactly(objv, 2, "Usage\n  scontents spectrum-name");
+        requireAtMost(objv, 3, "Usage\n  scontents ?-json? spectrum-name");
+        bool json = false;
+        int  spectrumIdx = 1;
+        
+        
+        // If 3 parameters the second word must be -json etc. etc.:
+        
+        if (objv.size() == 3) {
+            std::string switchVal = objv[1];
+            if (switchVal != "-json") {
+                throw std::string("Invalid option:\nUsage\n  scontents ?-json? spectrum-name");
+            }
+            json = true;
+            spectrumIdx = 2;
+        }
+        
         
         // Locate the spectrum
         
-        std::string name      = objv[1];
+        std::string name      = objv[spectrumIdx];
         SpecTcl*    api       = SpecTcl::getInstance();
         CSpectrum*  pSpectrum = api->FindSpectrum(name);
         
@@ -82,6 +98,7 @@ CSContentsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& 
         CTCLObject result;
         result.Bind(interp);
         
+        std::string jsonString = "[";                      // Result is an array.
         if (nAxes == 1) {
         
             // 1-d spectrum [list [list x y]].
@@ -89,14 +106,27 @@ CSContentsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& 
             for (UInt_t x = 0; x < xDim; x++) {
                 ULong_t y = (*pSpectrum)[&x];
                 if (y > 0) {
-                    CTCLObject channel;
-                    channel.Bind(interp);
-                    channel += static_cast<int>(x);
-                    channel += static_cast<int>(y);
-                    result  += channel;
+                    if (json) {
+                        char aNumber[100];
+                        jsonString += "\n";
+                        jsonString += "  {";
+                        jsonString += "    \"xchan: ";
+                        sprintf(aNumber, "\"%d\",\n", x);
+                        jsonString += aNumber;
+                        jsonString += "    \"value: ";
+                        sprintf(aNumber, "\"%d\"\n},\n", y);
+                        jsonString += aNumber;
+                    } else {
+                        CTCLObject channel;
+                        channel.Bind(interp);
+                        channel += static_cast<int>(x);
+                        channel += static_cast<int>(y);
+                        result  += channel;                        
+                    }
+
                 }
             }
-            
+                        
         } else {
             // 2-d spectrum:
             
@@ -108,16 +138,43 @@ CSContentsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& 
                     coords[0] = x;
                     ULong_t z = (*pSpectrum)[coords];
                     if (z > 0) {
-                        CTCLObject channel;
-                        channel.Bind(interp);
-                        channel += static_cast<int>(x);
-                        channel += static_cast<int>(y);
-                        channel += static_cast<int>(z);
-                        result  += channel;
+                        if (json) {
+                            char aNumber[100];
+                            jsonString += "\n";
+                            jsonString += "  {";
+                            jsonString += "    \"xchan: ";
+                            sprintf(aNumber, "\"%d\",\n", x);
+                            jsonString += aNumber;
+                            jsonString += "    \"ychan: ";
+                            sprintf(aNumber, "\"%d\",\n", y);
+                            jsonString += aNumber;
+                            jsonString += "    \"value: ";
+                            sprintf(aNumber, "\"%d\"\n},\n", z);
+                            jsonString += aNumber;
+                        } else {
+                            CTCLObject channel;
+                            channel.Bind(interp);
+                            channel += static_cast<int>(x);
+                            channel += static_cast<int>(y);
+                            channel += static_cast<int>(z);
+                            result  += channel;
+                        }
                     }
                 }
             }
         }
+        /* If making JSon we need to:
+             -   Get rid of the last trailing comma in the array
+             -   Close off the array.
+             -   Set the result from the jsonString.
+            */
+        if (json) {
+            jsonString = jsonString.substr(0, jsonString.size() - 2);
+            jsonString += "]";
+            result = jsonString;
+        }
+            
+            
         interp.setResult(result);
         
     }
