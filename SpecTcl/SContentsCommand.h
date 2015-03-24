@@ -33,7 +33,7 @@ class CTCLObject;
  *    This class  will implement the scontents command;  The form of this
  *    command is:
  *\verbatim
- *    scontents spectrum-name
+ *    scontents ?-json? spectrum-name
  *\endverbatim
  *
  *   The return value is the list of non-zero channels from that spectrum
@@ -53,6 +53,13 @@ class CTCLObject;
  * \verbatim
  *  { {1 2 100}, {2 4 1234} ...}
  * \endverbatim
+ *
+ * If -json is specified the output is a JSON array of nonzero channel objects
+ * where the attributes of the object are:
+ *
+ * -  xchan - The X channel coordinate.
+ * -  ychan - The Y channel coordinate (only if 2d).
+ * -  value - The number of counts at that channel.
  */
 class CSContentsCommand : public CTCLObjectProcessor
 {
