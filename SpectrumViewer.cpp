@@ -34,10 +34,13 @@ SpectrumViewer::SpectrumViewer(QWidget *parent) :
     // set up the connections of signals/slots
     connect(ui->updateButton, SIGNAL(pressed()), this, SLOT(requestUpdate()));
 
-    if ( !connect(&m_reqHandler, SIGNAL(parsingComplete(const GuardedHist*)), this, SLOT(update(const GuardedHist*))) ) {
+    if ( !connect(&m_reqHandler, SIGNAL(parsingComplete(const GuardedHist&)),
+                  this, SLOT(update(const GuardedHist&))) ) {
         std::cout << "Failed to connect parsingComplete --> update" << std::endl;
     }
-    if ( !connect(&m_reqHandler, SIGNAL(error(int,const QString&)), this, SLOT(onError(int, const QString&))) ) {
+
+    if ( !connect(&m_reqHandler, SIGNAL(error(int,const QString&)),
+                  this, SLOT(onError(int, const QString&))) ) {
         std::cout << "Failed to connect error --> onError" << std::endl;
     }
 }
@@ -52,20 +55,17 @@ void SpectrumViewer::requestUpdate()
     m_reqHandler.get(formUpdateRequest());
 }
 
-void SpectrumViewer::update(const GuardedHist* pgHist)
+void SpectrumViewer::update(const GuardedHist &gHist)
 {
     m_canvas->cd();
 
-    GuardedHist gHist = *pgHist;
-
     LockGuard<GuardedHist> lock(gHist);
     m_currentHist = gHist.hist();
-    TH1& hist = *(gHist.hist());
 
-    if (hist.InheritsFrom(TH2::Class())) {
-        hist.Draw("colz");
+    if (m_currentHist->InheritsFrom(TH2::Class())) {
+        m_currentHist->Draw("colz");
     } else {
-        hist.Draw();
+        m_currentHist->Draw();
     }
 
     m_canvas->Modified();

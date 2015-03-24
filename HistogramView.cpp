@@ -17,7 +17,7 @@ HistogramView::HistogramView(QWidget *parent) :
   m_req->setHistogramView(this);
     ui->setupUi(this);
 
-    QTimer::singleShot(2000,this,SLOT(onUpdate()));
+    QTimer::singleShot(1000,this,SLOT(onUpdate()));
     connect(m_req,SIGNAL(parseCompleted(std::vector<SpJs::HistInfo>)),
             this,SLOT(setList(std::vector<SpJs::HistInfo>)));
 
@@ -78,7 +78,7 @@ void HistogramView::onDoubleClick(QModelIndex index)
 {
     QString hname = index.data(Qt::UserRole).toString();
     GuardedHist gHist = HistogramList::getInstance()->getHist(hname);
-    emit histSelected(&gHist);
+    emit histSelected(gHist);
 }
 
 

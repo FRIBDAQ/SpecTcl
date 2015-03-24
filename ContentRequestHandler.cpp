@@ -199,7 +199,7 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
     }
 
     // ALL DONE!
-    emit parsingComplete(&guardedHist);
+    emit parsingComplete(guardedHist);
 
     std::cout << "Done parsing... now waiting" << std::endl;
 

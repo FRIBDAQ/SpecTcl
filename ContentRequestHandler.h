@@ -32,7 +32,7 @@ public slots:
 
 
 signals:
-    void parsingComplete(const GuardedHist* gHist);
+    void parsingComplete(const GuardedHist& gHist);
     void error(int code, const QString& message);
 
 

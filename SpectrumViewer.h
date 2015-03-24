@@ -26,7 +26,7 @@ public slots:
 
     void requestUpdate();
 
-    void update(const GuardedHist* gHist);
+    void update(const GuardedHist& gHist);
 
     void onError(int errorCode, const QString& reason);
 

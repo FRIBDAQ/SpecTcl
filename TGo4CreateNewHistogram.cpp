@@ -82,8 +82,16 @@ void TGo4CreateNewHistogram::encodeRequest()
 
    if (dimensionCombo->currentIndex()==0) {
        base += "&type=1";
-       base += "&parameters=event.raw.00";
+       base += "&parameters=";
+       base += XParamCombo->currentText();
        base += QString("&axes={%1 %2 %3}").arg(xmin).arg(xmax).arg(nxbins);
+   } else {
+       base += "&type=2";
+       base += "&parameters=";
+       base += XParamCombo->currentText() + " ";
+       base += YParamCombo->currentText();
+       base += QString("&axes={%1 %2 %3}").arg(xmin).arg(xmax).arg(nxbins);
+       base += QString(" {%1 %2 %3}").arg(ymin).arg(ymax).arg(nybins);
    }
    std::cout << base.toStdString() << std::endl;
    QUrl url (base);
