@@ -211,8 +211,8 @@ proc ::SpecTcl::_getSpectrum1 {name axes sample} {
 	set value [channel -get $name $c]
 	if {$value != 0} {
 	    lappend nonZeroChannels [json::write object \
-				  xchan $c \
-				  value $value]
+				  x $c \
+				  v $value]
 	}
 
     }
@@ -245,9 +245,9 @@ proc ::SpecTcl::_getSpectrum2 {name axes sample} {
                 set value [channel -get $name [list $x $y]]
                 if {$value != 0} {
                     lappend nonZeroChannels [json::write object \
-                                                 xchan $x \
-                                                 ychan $y  \
-                                                 value $value]
+                                                 x $x \
+                                                 y $y  \
+                                                 v $value]
                 }
             }
         }
