@@ -258,7 +258,11 @@ proc ::SpecTcl::_getSpectrum2 {name axes sample} {
         
         set data [scontents -json $name]
 
+	json::write indented 0
+	json::write aligned  0
         set json [::SpecTcl::_returnObject OK  $data]
+	json::write indented 1
+	json::write aligned 1
         set jsonGzip [deflate $json]
         
         #  Force content encoding -> gzip.
