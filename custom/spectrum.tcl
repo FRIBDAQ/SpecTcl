@@ -268,7 +268,8 @@ proc ::SpecTcl::_getSpectrum2 {name axes sample} {
         #  Force content encoding -> gzip.
         #
         set sock [Httpd_CurrentSocket]
-        Httpd_AddHeaders $sock Content-Encoding deflate
+        Httpd_AddHeaders $sock Content-Encoding deflate  \
+	    Uncompressed-Length [string length $json]
         return $jsonGzip
     
     }
