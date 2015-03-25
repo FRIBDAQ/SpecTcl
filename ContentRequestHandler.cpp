@@ -32,7 +32,8 @@ ContentRequestHandler::ContentRequestHandler(QObject *parent) :
     m_mutex(),
     m_cond(),
     m_quit(false)
-{}
+{
+}
 
 ////
 //
@@ -179,20 +180,29 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
     Json::Reader reader;
     Json::Value value;
 
-    QByteArray json = cprs::uncompress(bytes);
+    QByteArray json;
+    if (bytes.at(0)!='{') {
+        json = cprs::uncompress(bytes);
+    } else {
+        json = bytes;
+    }
 
     bool ok = reader.parse(json.constData(),value);
     if (!ok) {
       throw std::runtime_error ("Failed to parse json");
     }
 
+    std::ofstream file("test.out");
+    file << value << endl;
+    file.close();
     // parse the content... this will throw if the json
     // specifies a status other than "ok"
     auto content = SpJs::JsonParser().parseContentCmd(value);
 
+
     // get the name of the hist and update it if it exists.
     auto name = getHistNameFromRequest(reply->request());
-    const auto& guardedHist = HistogramList::getHist(name);
+    auto guardedHist = HistogramList::getHist(name);
     if (guardedHist.hist()) {
       LockGuard<GuardedHist> lock(guardedHist);
       SpJs::HistFiller()(*(guardedHist.hist()), content);
@@ -223,3 +233,4 @@ void ContentRequestHandler::completeJob()
     m_cond.wait(&m_mutex);
   } 
 }
+

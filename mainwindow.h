@@ -5,6 +5,7 @@
 
 class SpectrumViewer;
 class HistogramView;
+class DockableGateManager;
 
 namespace Ui {
 class MainWindow;
@@ -24,12 +25,14 @@ public:
 public slots:
     void onConnect();
     void dockHistograms();
+    void dockGates();
     void onNewHistogram();
 
 private:
     Ui::MainWindow *ui;
     SpectrumViewer* m_view;
     HistogramView* m_histView;
+    DockableGateManager* m_gateView;
 };
 
 #endif // MAINWINDOW_H

@@ -14,6 +14,7 @@
 class QNetworkReply;
 class QUrl;
 class QString;
+class GuardedHist;
 
 class ContentRequestHandler : public QThread
 {
@@ -29,7 +30,6 @@ public:
 
 public slots:
     void updateRequest();
-
 
 signals:
     void parsingComplete(const GuardedHist& gHist);

@@ -16,7 +16,8 @@ SpectrumViewer::SpectrumViewer(QWidget *parent) :
     ui(new Ui::SpectrumViewer),
     m_currentHist(nullptr),
     m_canvas(nullptr),
-    m_reqHandler()
+    m_reqHandler(),
+    m_currentCanvas(nullptr)
 {
 
     ui->setupUi(this);
@@ -24,6 +25,8 @@ SpectrumViewer::SpectrumViewer(QWidget *parent) :
     setFrameShape(QFrame::NoFrame);
 
     m_canvas = new QRootCanvas(this);
+    m_currentCanvas = m_canvas;
+
     ui->gridLayout->addWidget(m_canvas,0,0);
 
     m_canvas->getCanvas()->Resize();
@@ -50,12 +53,16 @@ SpectrumViewer::~SpectrumViewer()
     delete ui;
 }
 
+QRootCanvas* SpectrumViewer::getCurrentFocus() const {
+    return m_currentCanvas;
+}
+
 void SpectrumViewer::requestUpdate()
 {
     m_reqHandler.get(formUpdateRequest());
 }
 
-void SpectrumViewer::update(const GuardedHist &gHist)
+void SpectrumViewer::update(const GuardedHist& gHist)
 {
     m_canvas->cd();
 

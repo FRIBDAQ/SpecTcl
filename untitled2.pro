@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,7 +28,13 @@ SOURCES += main.cpp\
         ListRequestHandler.cpp \
         TGo4CreateNewHistogram.cpp \
         ParameterList.cpp \
-        Compression.cpp
+        Compression.cpp \
+   DockableGateManager.cpp \
+    GateBuilderDialog.cpp \
+    GateList.cpp
+
+
+# GateBuilderTest.cpp 
 
 HEADERS  += QRootCanvas.h \
             QRootDialog.h \
@@ -46,14 +52,19 @@ HEADERS  += QRootCanvas.h \
             TGo4CreateNewHistogram.h \
             ParameterList.h \
             Compression.h \
-            GlobalEnum.h
+            GlobalEnum.h \
+      DockableGateManager.h \
+    GateBuilderDialog.h \
+    GateList.h
 
 FORMS    += mainwindow.ui \
             ConnectServer.ui \
             SpectrumViewer.ui \
             HistogramList.ui \
             HistogramView.ui \
-            TGo4CreateNewHistogram.ui
+            TGo4CreateNewHistogram.ui \
+    DockableGateManager.ui \
+    GateBuilderDialog.ui
 
 
 !exists ($$(ROOTSYS)/include/root/rootcint.pri) {

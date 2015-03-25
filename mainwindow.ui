@@ -69,6 +69,7 @@
       <string>Panels</string>
      </property>
      <addaction name="actionHIstograms"/>
+     <addaction name="actionGates"/>
     </widget>
     <addaction name="menuPanels"/>
    </widget>
@@ -100,6 +101,11 @@
   <action name="actionNewHistogram">
    <property name="text">
     <string>Histogram</string>
+   </property>
+  </action>
+  <action name="actionGates">
+   <property name="text">
+    <string>Gates</string>
    </property>
   </action>
  </widget>

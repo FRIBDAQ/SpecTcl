@@ -9,6 +9,7 @@
 class TH1;
 class QRootCanvas;
 class QString;
+class GuardedHist;
 
 namespace Ui {
 class SpectrumViewer;
@@ -22,8 +23,9 @@ public:
     explicit SpectrumViewer(QWidget *parent = 0);
     ~SpectrumViewer();
 
-public slots:
+    QRootCanvas* getCurrentFocus() const;
 
+public slots:
     void requestUpdate();
 
     void update(const GuardedHist& gHist);
@@ -38,6 +40,7 @@ private:
     TH1*                  m_currentHist;
     QRootCanvas*          m_canvas;
     ContentRequestHandler m_reqHandler;
+    QRootCanvas*          m_currentCanvas;
 };
 
 #endif // SPECTRUMVIEWER_H

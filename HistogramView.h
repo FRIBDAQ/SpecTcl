@@ -9,6 +9,7 @@
 
 class TH1;
 class ListRequestHandler;
+class GuardedHist;
 
 namespace Ui {
 class HistogramView;

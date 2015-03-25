@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QDockWidget>
 #include <HistogramView.h>
+#include <DockableGateManager.h>
 #include "TGo4CreateNewHistogram.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -17,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->gridLayout->addWidget(m_view);
 
     m_histView = new HistogramView(this);
+    m_gateView = new DockableGateManager(*m_view, this);
 
     createDockWindows();
 
@@ -24,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_histView,SIGNAL(histSelected(const GuardedHist&)),m_view,SLOT(update(const GuardedHist&)));
     connect(ui->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
     connect(ui->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
-    
+    connect(ui->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
 }
 
 void MainWindow::onConnect() {
@@ -41,8 +43,10 @@ void MainWindow::createDockWindows()
 {
 
     m_histView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
+    m_gateView->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
 
     addDockWidget(Qt::LeftDockWidgetArea,m_histView);
+    addDockWidget(Qt::LeftDockWidgetArea,m_gateView);
 }
 
 void MainWindow::dockHistograms()
@@ -55,6 +59,15 @@ void MainWindow::dockHistograms()
     }
 }
 
+void MainWindow::dockGates()
+{
+    if (m_gateView->isVisible()) {
+        return;
+    } else {
+        addDockWidget(Qt::LeftDockWidgetArea,m_gateView);
+        m_gateView->show();
+    }
+}
 
 void MainWindow::onNewHistogram()
 {
