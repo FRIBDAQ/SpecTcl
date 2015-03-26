@@ -63,7 +63,44 @@ namespace SpJs
   }; // end of class
 
 
-  /**! \brief Slices are 1d gates on a single parameter
+  /**! \brief Bands are 2d gates on two parameter (open)
+   *
+   */
+  struct Band : public GateInfo
+  {
+  private:
+    std::string s_param0;
+    std::string s_param1;
+    std::vector<std::pair<double,double> > s_points;
+
+  public:
+    Band();
+    Band(const std::string& name,
+            const std::string& param0,
+            const std::string& param1,
+            const std::vector<std::pair<double,double> >& points);
+    virtual ~Band();
+
+    GateType getType() const { return s_type; }
+
+    void setParameter0(const std::string& paramName) { s_param0 = paramName; }
+    std::string getParameter0() const { return s_param0; }
+
+    void setParameter1(const std::string& paramName) { s_param1 = paramName; }
+    std::string getParameter1() const { return s_param1; }
+
+    std::vector<std::pair<double, double> > getPoints() const { return s_points; }
+    std::vector<std::pair<double, double> >& getPoints() { return s_points; }
+    void setPoints(const std::vector<std::pair<double, double> >& points) {
+        s_points = points;
+    }
+
+    virtual bool operator==(const Band& rhs) const;
+    virtual bool operator!=(const Band& rhs) const;
+  }; // end of class
+
+
+  /**! \brief Contours are 2d gates on a two parameters (closed areas)
    *
    */
   struct Contour : public GateInfo

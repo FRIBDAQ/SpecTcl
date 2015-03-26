@@ -21,6 +21,7 @@ namespace SpJs
 
   private:
       std::unique_ptr<GateInfo> parseSlice(const Json::Value& value);
+      std::unique_ptr<GateInfo> parseBand(const Json::Value& value);
       std::unique_ptr<GateInfo> parseContour(const Json::Value& value);
   };
 

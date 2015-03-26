@@ -102,6 +102,41 @@ bool Contour::operator!=(const Contour& rhs) const {
     return !(*this == rhs);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+Band::Band() : Band( "", "", "", {{}})
+{}
+
+Band::Band(const string &name,
+                 const string &parameter0,
+                 const string &parameter1,
+                 const vector<pair<double, double> >& points)
+    : GateInfo(name, BandGate),
+      s_param0(parameter0),
+      s_param1(parameter1),
+      s_points(points)
+{}
+
+Band::~Band() {}
+
+bool Band::operator==(const Band& rhs) const {
+
+    // honor thy parents
+    bool same = GateInfo::operator==(rhs);
+
+    // how about high and low
+    same &= (s_param0 == rhs.s_param0);
+    same &= (s_param1 == rhs.s_param1);
+
+    // are the params the same
+    same &= equal(s_points.begin(), s_points.end(), rhs.s_points.begin());
+
+    return same;
+}
+
+bool Band::operator!=(const Band& rhs) const {
+    return !(*this == rhs);
+}
 
 
 } // end of namespace

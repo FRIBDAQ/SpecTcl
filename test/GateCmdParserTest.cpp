@@ -26,6 +26,7 @@ class GateCmdParserTest : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(GateCmdParserTest);
   CPPUNIT_TEST( parseList_0 );
   CPPUNIT_TEST( parseList_1 );
+  CPPUNIT_TEST( parseList_2 );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -37,6 +38,7 @@ protected:
 
   void parseList_0();
   void parseList_1();
+  void parseList_2();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateCmdParserTest);
@@ -84,11 +86,38 @@ void GateCmdParserTest::parseList_1()
     CPPUNIT_ASSERT_NO_THROW( act = dynamic_cast<Contour&>(*(res.at(0).get())) );
 
     Contour exp("contour_002",
-              "event.raw.00", "event.raw.01",
-              {{324.0, 577.0},
-                {635.0, 619.0},
-                {659.0, 387.0},
-                {419.0, 323.0}});
+                "event.raw.00", "event.raw.01",
+                {{324.0, 577.0},
+                 {635.0, 619.0},
+                 {659.0, 387.0},
+                 {419.0, 323.0}});
+
+
+    CPPUNIT_ASSERT(exp == act);
+
+}
+
+void GateCmdParserTest::parseList_2()
+{
+    using SpJs::Band;
+
+    std::stringstream ss;
+    ss << JSON_TEST_DIR << "/gate2db.json";
+    std::ifstream file(ss.str().c_str());
+
+    Json::Value value;
+    file >> value;
+    file.close();
+
+    auto res = SpJs::GateCmdParser().parseList(value);
+    CPPUNIT_ASSERT_EQUAL(size_t(1),res.size());
+
+    Band act;
+    CPPUNIT_ASSERT_NO_THROW( act = dynamic_cast<Band&>(*(res.at(0).get())) );
+
+    Band exp("band_000",
+             "event.raw.00", "event.raw.01",
+             {{165.0, 464.0}, {611.0, 509.0}, {778.0, 334.0}});
 
 
     CPPUNIT_ASSERT(exp == act);
