@@ -41,6 +41,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(GateCmdParserTest);
 
 void GateCmdParserTest::parseList_0()
 {
+    using SpJs::Slice;
+
     std::stringstream ss;
     ss << JSON_TEST_DIR << "/gate1d.json";
     std::ifstream file(ss.str().c_str());
@@ -51,8 +53,12 @@ void GateCmdParserTest::parseList_0()
 
     auto res = SpJs::GateCmdParser().parseList(value);
     CPPUNIT_ASSERT_EQUAL(size_t(1),res.size());
-    
-    vector<std::unique_ptr<SpJs::GateInfo> > expected;
 
-    CPPUNIT_ASSERT(expected == res);
+    Slice act;
+    CPPUNIT_ASSERT_NO_THROW( act = dynamic_cast<Slice&>(*(res.at(0).get())) );
+
+    Slice exp("test", "event.raw.00", 0.0, 10.0);
+
+    CPPUNIT_ASSERT(exp == act);
+
 }

@@ -20,8 +20,17 @@ add_executable(unittests
                 HistInfoTest.cpp 
                 JsonParserTest.cpp
                 HistFillerTest.cpp
+                GateInfoTest.cpp
                 GateCmdParserTest.cpp
-                ParameterCmdParserTest.cpp)
+                ParameterCmdParserTest.cpp
+                json/content1d.json
+                json/gate1d.json
+                json/list1d_detail.json
+                json/list1d.json
+                json/list2d.json
+                json/paramList.json
+                json/test2.json
+                json/test3.json)
 target_link_libraries(unittests cppunit ${ROOT_LDFLAGS} jsoncpp LibSpecTclJson)
 
 

@@ -28,12 +28,12 @@ namespace SpJs
       const Value& gate = detail[index];
 
       if (gate["type"].asString()=="s") {
-        GateInfo1D* pDerived;
-        pInfo.reset(pDerived = new GateInfo1D());
+        Slice* pDerived;
+        pInfo.reset(pDerived = new Slice());
 
         int nParams = gate["parameters"].size();
         for (int iParam = 0; iParam<nParams; ++iParam) {
-          pDerived->s_params.push_back(gate["parameters"][0].asString());
+          pDerived->s_param = gate["parameters"][0].asString();
         }
         pDerived->s_low = gate["low"].asDouble();
         pDerived->s_high = gate["high"].asDouble();

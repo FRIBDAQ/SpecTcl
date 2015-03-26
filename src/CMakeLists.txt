@@ -29,6 +29,7 @@ set(libSpecTclJson_SOURCES  HistFactory.cpp
                             JsonParser.cpp
                             HistFiller.cpp
                             ParameterInfo.cpp
+                            GateInfo.cpp
                             GateCmdParser.cpp
                             ParameterCmdParser.cpp)
 # build
