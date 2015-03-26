@@ -18,6 +18,10 @@ namespace SpJs
   {
     public:
       std::vector<std::unique_ptr<GateInfo>> parseList(const Json::Value& value);
+
+  private:
+      std::unique_ptr<GateInfo> parseSlice(const Json::Value& value);
+      std::unique_ptr<GateInfo> parseContour(const Json::Value& value);
   };
 
 } // end of namespace

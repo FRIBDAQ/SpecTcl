@@ -27,23 +27,80 @@ namespace SpJs
       unique_ptr<GateInfo> pInfo;
       const Value& gate = detail[index];
 
-      if (gate["type"].asString()=="s") {
-        Slice* pDerived;
-        pInfo.reset(pDerived = new Slice());
+      // parse each gate object
 
-        int nParams = gate["parameters"].size();
-        for (int iParam = 0; iParam<nParams; ++iParam) {
-          pDerived->s_param = gate["parameters"][0].asString();
-        }
-        pDerived->s_low = gate["low"].asDouble();
-        pDerived->s_high = gate["high"].asDouble();
+      auto typeStr = gate["type"].asString();
+      if (typeStr == "s") {
+          pInfo = parseSlice(gate);
+
+      } else if (typeStr == "c") {
+          pInfo = parseContour(gate);
+
+      } else {
+          string err = "Gate type ";
+          err += typeStr;
+          err += " is not understood";
+          throw runtime_error(err);
       }
-
-      pInfo->s_name = gate["name"].asString();
 
       result.push_back(std::move(pInfo));
     }
     
     return result;
+  }
+
+
+  std::unique_ptr<GateInfo> GateCmdParser::parseSlice(const Json::Value &gate)
+  {
+      Slice* pDerived;
+      unique_ptr<GateInfo> pInfo(pDerived = new Slice());
+
+      if (gate["parameters"].size() != 1) {
+          throw runtime_error("Gate type \"s\" expects only "
+                              "1 parameter but a different number were provided");
+      } else {
+          pDerived->setParameter(gate["parameters"][0].asString());
+      }
+
+      pDerived->setLowerLimit( gate["low"].asDouble() );
+      pDerived->setUpperLimit( gate["high"].asDouble() );
+
+      pDerived->setName( gate["name"].asString() );
+
+      return std::move(pInfo);
+  }
+
+
+
+  std::unique_ptr<GateInfo> GateCmdParser::parseContour(const Json::Value &gate)
+  {
+      Contour* pDerived;
+      unique_ptr<GateInfo> pInfo(pDerived = new Contour());
+      int nParams = gate["parameters"].size();
+
+      if (gate["parameters"].size() == 2) {
+          pDerived->setParameter0(gate["parameters"][0].asString());
+          pDerived->setParameter1(gate["parameters"][1].asString());
+      } else {
+          throw runtime_error("Gate type \"c\" expects "
+                              "2 parameters but a different amount were provided");
+      }
+
+      vector<pair<double,double> > points;
+      auto iter = gate["points"].begin();
+      auto end = gate["points"].end();
+      while (iter!=end) {
+            auto& val = *iter;
+            auto x = val["x"].asDouble();
+            auto y = val["y"].asDouble();
+
+            points.push_back({x,y});
+
+            ++iter;
+      }
+      pDerived->setPoints(points);
+      pDerived->setName( gate["name"].asString() );
+
+      return std::move(pInfo);
   }
 }

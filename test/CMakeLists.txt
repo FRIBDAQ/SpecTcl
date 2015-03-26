@@ -30,7 +30,9 @@ add_executable(unittests
                 json/list2d.json
                 json/paramList.json
                 json/test2.json
-                json/test3.json)
+                json/test3.json
+                json/gate2dc.json)
+
 target_link_libraries(unittests cppunit ${ROOT_LDFLAGS} jsoncpp LibSpecTclJson)
 
 

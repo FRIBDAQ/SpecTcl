@@ -1,37 +1,37 @@
 {
     "status" : "OK",
     "detail" : [{
-        "xchan" : 0,
-        "value" : 3
+        "x" : 0,
+        "v" : 3
     },{
-        "xchan" : 1,
-        "value" : 3
+        "x" : 1,
+        "v" : 3
     },{
-        "xchan" : 2,
-        "value" : 1
+        "x" : 2,
+        "v" : 1
     },{
-        "xchan" : 3,
-        "value" : 2
+        "x" : 3,
+        "v" : 2
     },{
-        "xchan" : 4,
-        "value" : 4
+        "x" : 4,
+        "v" : 4
     },{
-        "xchan" : 5,
-        "value" : 2
+        "x" : 5,
+        "v" : 2
     },{
-        "xchan" : 6,
-        "value" : 1
+        "x" : 6,
+        "v" : 1
     },{
-        "xchan" : 7,
-        "value" : 1
+        "x" : 7,
+        "v" : 1
     },{
-        "xchan" : 8,
-        "value" : 5
+        "x" : 8,
+        "v" : 5
     },{
-        "xchan" : 9,
-        "value" : 2
+        "x" : 9,
+        "v" : 2
     },{
-        "xchan" : 10,
-        "value" : 2
+        "x" : 10,
+        "v" : 2
     }]
 }
