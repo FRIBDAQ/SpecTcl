@@ -22,7 +22,7 @@ ConnectDialog::ConnectDialog( QWidget* parent )
    setObjectName("Go4ConnectServer");
    ui->setupUi(this);
 
-   connect(ui->ConnectBtn,SIGNAL(pressed()), this, SLOT(cacheServerSettings));
+   connect(ui->ConnectBtn,SIGNAL(pressed()), this, SLOT(cacheServerSettings()));
    connect(ui->ConnectBtn,SIGNAL(clicked()), this, SLOT(close()));
 }
 
