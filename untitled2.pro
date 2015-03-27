@@ -31,7 +31,8 @@ SOURCES += main.cpp\
         Compression.cpp \
    DockableGateManager.cpp \
     GateBuilderDialog.cpp \
-    GateList.cpp
+    GateList.cpp \
+    HistogramBundle.cpp
 
 
 # GateBuilderTest.cpp 
@@ -55,7 +56,9 @@ HEADERS  += QRootCanvas.h \
             GlobalEnum.h \
       DockableGateManager.h \
     GateBuilderDialog.h \
-    GateList.h
+    GateList.h \
+    HistogramBundle.h \
+    LockGuard.h
 
 FORMS    += mainwindow.ui \
             ConnectServer.ui \
