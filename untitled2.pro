@@ -56,9 +56,8 @@ HEADERS  += QRootCanvas.h \
             GlobalEnum.h \
       DockableGateManager.h \
     GateBuilderDialog.h \
-    GateList.h \
     HistogramBundle.h \
-    LockGuard.h
+    GateList.h
 
 FORMS    += mainwindow.ui \
             ConnectServer.ui \
