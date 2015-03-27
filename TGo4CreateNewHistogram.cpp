@@ -24,6 +24,7 @@
 #include <json/json.h>
 #include <stdexcept>
 #include <iostream>
+#include <memory>
 
 TGo4CreateNewHistogram::TGo4CreateNewHistogram( QWidget* parent)
 : QDialog( parent)
