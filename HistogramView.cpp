@@ -7,6 +7,7 @@
 #include <HistInfo.h>
 #include <HistFactory.h>
 #include <HistogramList.h>
+#include <HistogramBundle.h>
 #include <QTimer>
 
 HistogramView::HistogramView(QWidget *parent) :
@@ -77,7 +78,7 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
 void HistogramView::onDoubleClick(QModelIndex index)
 {
     QString hname = index.data(Qt::UserRole).toString();
-    GuardedHist gHist = HistogramList::getInstance()->getHist(hname);
+    HistogramBundle* gHist = HistogramList::getInstance()->getHist(hname);
     emit histSelected(gHist);
 }
 

@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     createDockWindows();
 
     connect(ui->actionConnect,SIGNAL(activated()),this,SLOT(onConnect()));
-    connect(m_histView,SIGNAL(histSelected(const GuardedHist&)),m_view,SLOT(update(const GuardedHist&)));
+    connect(m_histView,SIGNAL(histSelected(HistogramBundle*)),m_view,SLOT(update(HistogramBundle*)));
     connect(ui->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
     connect(ui->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
     connect(ui->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));

@@ -8,7 +8,7 @@
 
 HistogramList* HistogramList::m_instance = nullptr;
 
-QMap<QString,GuardedHist> HistogramList::m_hists;
+QMap<QString,HistogramBundle> HistogramList::m_hists;
 QMutex HistogramList::m_mutex;
 
 HistogramList::HistogramList(QObject *parent) :
@@ -39,12 +39,12 @@ bool HistogramList::histExists(const QString &name)
 }
 
 
-GuardedHist HistogramList::getHist(const QString &name)
+HistogramBundle* HistogramList::getHist(const QString &name)
 {
     QMutexLocker lock(&m_mutex);
     auto iter = m_hists.find(name);
     if (iter!=m_hists.end()) {
-        return (*iter);
+        return &(*iter);
     } else {
         throw std::runtime_error("Requested histogram not found");
     }
@@ -59,7 +59,7 @@ void HistogramList::addHist(TH1& rHist)
     } else {
         QMutexLocker lock(&m_mutex);
 
-        m_hists.insert(name, GuardedHist(*(new QMutex),rHist));
+        m_hists.insert(name, HistogramBundle(*(new QMutex),rHist));
     }
 }
 

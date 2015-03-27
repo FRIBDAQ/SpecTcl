@@ -14,7 +14,7 @@
 class QNetworkReply;
 class QUrl;
 class QString;
-class GuardedHist;
+class HistogramBundle;
 
 class ContentRequestHandler : public QThread
 {
@@ -32,7 +32,7 @@ public slots:
     void updateRequest();
 
 signals:
-    void parsingComplete(const GuardedHist& gHist);
+    void parsingComplete(HistogramBundle* gHist);
     void error(int code, const QString& message);
 
 

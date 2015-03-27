@@ -24,7 +24,7 @@ public:
     ~HistogramView();
 
 signals:
-    void histSelected(const GuardedHist& hist);
+    void histSelected(HistogramBundle* hist);
 
 public slots:
     void onUpdate();

@@ -1,6 +1,8 @@
 #include "ContentRequestHandler.h"
 #include "GlobalSettings.h"
 #include "HistogramList.h"
+#include "HistogramBundle.h"
+#include "LockGuard.h"
 #include "Compression.h"
 #include <json/json.h>
 #include <HistFiller.h>
@@ -24,6 +26,7 @@
 #include <cstdlib>
 
 namespace cprs = Compress;
+using namespace std;
 
 ContentRequestHandler::ContentRequestHandler(QObject *parent) :
     QThread(parent),
@@ -173,7 +176,6 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
   QByteArray bytes = reply->readAll();
 
   auto hdr = reply->header(QNetworkRequest::ContentTypeHeader);
-  std::cout << hdr.toString().toStdString() << std::endl;
 
   try {
     // Read the response in the json
@@ -181,38 +183,41 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
     Json::Value value;
 
     QByteArray json;
-    if (bytes.at(0)!='{') {
-        json = cprs::uncompress(bytes);
+    QString encoding = reply->rawHeader("Content-Encoding");
+    if (encoding == "deflate") {
+        cout << "uncompress..." << flush;
+        size_t nBytesDecomp = reply->rawHeader("Uncompressed-Length").toInt();
+
+        json = cprs::uncompress(nBytesDecomp, bytes);
+        cout << "done" << endl;
     } else {
         json = bytes;
     }
 
+    cout << "reading json..." << flush;
     bool ok = reader.parse(json.constData(),value);
+    cout << "done" << endl;
     if (!ok) {
       throw std::runtime_error ("Failed to parse json");
     }
 
-    std::ofstream file("test.out");
-    file << value << endl;
-    file.close();
     // parse the content... this will throw if the json
     // specifies a status other than "ok"
+    cout << "parsing json..." << flush;
     auto content = SpJs::JsonParser().parseContentCmd(value);
+    cout << "done" << endl;
 
 
     // get the name of the hist and update it if it exists.
     auto name = getHistNameFromRequest(reply->request());
-    auto guardedHist = HistogramList::getHist(name);
-    if (guardedHist.hist()) {
-      LockGuard<GuardedHist> lock(guardedHist);
-      SpJs::HistFiller()(*(guardedHist.hist()), content);
+    auto histBundle = HistogramList::getHist(name);
+    if (histBundle->hist()) {
+      LockGuard<HistogramBundle> lock(*histBundle);
+      SpJs::HistFiller()(*(histBundle->hist()), content);
     }
 
     // ALL DONE!
-    emit parsingComplete(guardedHist);
-
-    std::cout << "Done parsing... now waiting" << std::endl;
-
+    emit parsingComplete(histBundle);
 
   } catch (std::exception& exc) {
     QString msg("Failed to update hist because : %1");

@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <QMessageBox>
 #include <GlobalSettings.h>
+#include <iostream>
 
 ListRequestHandler::ListRequestHandler(QObject *parent) :
     QObject(parent),
@@ -18,11 +19,12 @@ ListRequestHandler::ListRequestHandler(QObject *parent) :
 
 void ListRequestHandler::get()
 {
-    QString host = GlobalSettings::getInstance()->value("/server/hostname").toString();
-    int port = GlobalSettings::getInstance()->value("/server/port").toInt();
+    QString host = GlobalSettings::getServerHost();
+    int port     = GlobalSettings::getServerPort();
     QString urlStr("http://%1:%2/spectcl/spectrum/list");
     urlStr = urlStr.arg(host).arg(port);
 
+    std::cout << urlStr.toStdString() << std::endl;
     QUrl url(urlStr);
     m_pReply = m_pNAM->get(QNetworkRequest(url));
 }

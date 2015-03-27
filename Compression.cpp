@@ -3,11 +3,12 @@
 #include <QByteArray>
 #include <zlib.h>
 #include <stdexcept>
+#include <iostream>
 
 namespace Compress 
 {
   
-  QByteArray uncompress(const QByteArray& cBuffer) {
+  QByteArray uncompress(int nUCBytes, const QByteArray& cBuffer) {
 
     unsigned          allocationUnit = 2<<20; // start at 4 Mbyte
     int               status = Z_BUF_ERROR;
@@ -17,7 +18,7 @@ namespace Compress
 //    try {
 
       // resize
-      ucBuffer.reserve(uclength);
+      ucBuffer.reserve(nUCBytes);
 
       while(status == Z_BUF_ERROR) {
 
@@ -31,6 +32,7 @@ namespace Compress
         // In case we need to enlarge increase by the original size every time
         uclength += allocationUnit; 
         ucBuffer.reserve(uclength);
+        std::cout << "Had to increase size" << std::endl;
       }
 
       switch (status) {

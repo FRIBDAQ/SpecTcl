@@ -2,7 +2,7 @@
 #include "HistogramList.h"
 #include "ContentRequestHandler.h"
 #include "GlobalSettings.h"
-#include "HistogramList.h"
+#include "LockGuard.h"
 #include "ui_SpectrumViewer.h"
 #include "QRootCanvas.h"
 #include <TH1.h>
@@ -24,21 +24,22 @@ SpectrumViewer::SpectrumViewer(QWidget *parent) :
     setFrameShadow(QFrame::Plain);
     setFrameShape(QFrame::NoFrame);
 
+
     m_canvas = new QRootCanvas(this);
     m_currentCanvas = m_canvas;
+
 
     ui->gridLayout->addWidget(m_canvas,0,0);
 
     m_canvas->getCanvas()->Resize();
     m_canvas->getCanvas()->cd();
-
     m_canvas->show();
 
     // set up the connections of signals/slots
     connect(ui->updateButton, SIGNAL(pressed()), this, SLOT(requestUpdate()));
 
-    if ( !connect(&m_reqHandler, SIGNAL(parsingComplete(const GuardedHist&)),
-                  this, SLOT(update(const GuardedHist&))) ) {
+    if ( !connect(&m_reqHandler, SIGNAL(parsingComplete(const HistogramBundle&)),
+                  this, SLOT(update(const HistogramBundle&))) ) {
         std::cout << "Failed to connect parsingComplete --> update" << std::endl;
     }
 
@@ -57,22 +58,28 @@ QRootCanvas* SpectrumViewer::getCurrentFocus() const {
     return m_currentCanvas;
 }
 
+HistogramBundle* SpectrumViewer::getCurrentHist() const {
+    return m_currentHist;
+}
+
 void SpectrumViewer::requestUpdate()
 {
     m_reqHandler.get(formUpdateRequest());
 }
 
-void SpectrumViewer::update(const GuardedHist& gHist)
+void SpectrumViewer::update(HistogramBundle* gHist)
 {
     m_canvas->cd();
 
-    LockGuard<GuardedHist> lock(gHist);
-    m_currentHist = gHist.hist();
+    // not really good practice... could block main thread
+    // should fix later
+//    LockGuard<HistogramBundle> lock(gHist);
+    m_currentHist = gHist;
 
-    if (m_currentHist->InheritsFrom(TH2::Class())) {
-        m_currentHist->Draw("colz");
+    if (m_currentHist->hist()->InheritsFrom(TH2::Class())) {
+        m_currentHist->draw("colz");
     } else {
-        m_currentHist->Draw();
+        m_currentHist->draw();
     }
 
     m_canvas->Modified();
@@ -81,8 +88,8 @@ void SpectrumViewer::update(const GuardedHist& gHist)
 
 QUrl SpectrumViewer::formUpdateRequest()
 {
-  if (m_currentHist) {
-    QString name = m_currentHist->GetName();
+    if (m_currentHist->hist()) {
+    QString name = m_currentHist->hist()->GetName();
     auto host = GlobalSettings::getServerHost();
     auto port = GlobalSettings::getServerPort();
 

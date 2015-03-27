@@ -5,11 +5,13 @@
 #include <QFrame>
 #include <QPair>
 
+// for HistogramBundle
+#include <HistogramList.h>
+
 // temporary
 class TH1;
 class QRootCanvas;
 class QString;
-class GuardedHist;
 
 namespace Ui {
 class SpectrumViewer;
@@ -24,11 +26,12 @@ public:
     ~SpectrumViewer();
 
     QRootCanvas* getCurrentFocus() const;
+    HistogramBundle* getCurrentHist() const;
 
 public slots:
     void requestUpdate();
 
-    void update(const GuardedHist& gHist);
+    void update(HistogramBundle* gHist);
 
     void onError(int errorCode, const QString& reason);
 
@@ -37,7 +40,7 @@ private:
 
 private:
     Ui::SpectrumViewer*   ui;
-    TH1*                  m_currentHist;
+    HistogramBundle*       m_currentHist;
     QRootCanvas*          m_canvas;
     ContentRequestHandler m_reqHandler;
     QRootCanvas*          m_currentCanvas;
