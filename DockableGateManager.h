@@ -21,6 +21,7 @@ public:
 
 public slots:
     void launchAddGateDialog();
+    void launchEditGateDialog();
     void registerGate(TCutG* pCut);
 
 private:
