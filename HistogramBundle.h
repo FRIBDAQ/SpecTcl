@@ -29,13 +29,14 @@
 
 class TH1;
 class TCutG;
-
+class GSlice;
 
 class HistogramBundle {
 private:
     QMutex* m_pMutex;
     TH1* m_pHist;
     std::vector<TCutG*> m_cuts2d;
+    std::vector<GSlice*> m_cuts1d;
 
 public:
     HistogramBundle();
@@ -53,6 +54,7 @@ public:
         return m_pHist;
     }
 
+    void addCut1D(GSlice* pSlice);
     void addCut2D(TCutG* pCut);
     void draw(const QString& opt = QString());
 };

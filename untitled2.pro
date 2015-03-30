@@ -32,7 +32,10 @@ SOURCES += main.cpp\
    DockableGateManager.cpp \
     GateBuilderDialog.cpp \
     GateList.cpp \
-    HistogramBundle.cpp
+    HistogramBundle.cpp \
+    GateBuilder1DDialog.cpp \
+    SliceTableItem.cpp \
+    GSlice.cpp
 
 
 # GateBuilderTest.cpp 
@@ -57,7 +60,10 @@ HEADERS  += QRootCanvas.h \
       DockableGateManager.h \
     GateBuilderDialog.h \
     HistogramBundle.h \
-    GateList.h
+    GateList.h \
+    GateBuilder1DDialog.h \
+    SliceTableItem.h \
+    GSlice.h
 
 FORMS    += mainwindow.ui \
             ConnectServer.ui \
@@ -66,7 +72,8 @@ FORMS    += mainwindow.ui \
             HistogramView.ui \
             TGo4CreateNewHistogram.ui \
     DockableGateManager.ui \
-    GateBuilderDialog.ui
+    GateBuilderDialog.ui \
+    GateBuilder1DDialog.ui
 
 
 !exists ($$(ROOTSYS)/include/root/rootcint.pri) {
@@ -104,3 +111,6 @@ win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../json/Spec
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../json/SpecTclJson/oot/lib/debug/LibSpecTclJson.lib
 else:unix:!symbian: PRE_TARGETDEPS += $$PWD/../../../json/SpecTclJson/oot/lib/libLibSpecTclJson.a
 CONFIG += console
+
+RESOURCES += \
+    resources.qrc

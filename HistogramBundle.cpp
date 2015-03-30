@@ -22,6 +22,7 @@
 
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "HistogramBundle.h"
+#include "GSlice.h"
 #include <QMutex>
 #include <QMutexLocker>
 #include <QString>
@@ -39,6 +40,11 @@ HistogramBundle::HistogramBundle(QMutex& pMutex, TH1& pHist)
       m_cuts2d()
 {}
 
+void HistogramBundle::addCut1D(GSlice* pSlice) {
+    QMutexLocker lock(m_pMutex);
+    m_cuts1d.push_back(pSlice);
+}
+
 void HistogramBundle::addCut2D(TCutG* pCut) {
     QMutexLocker lock(m_pMutex);
     m_cuts2d.push_back(pCut);
@@ -49,6 +55,10 @@ void HistogramBundle::draw(const QString& opt) {
     m_pMutex->lock();
     m_pHist->Draw(cOpts);
     m_pMutex->unlock();
+
+    for (auto cut : m_cuts1d) {
+        cut->draw();
+    }
 
     for (auto cut : m_cuts2d) {
         cut->Draw("same");

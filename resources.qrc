@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="band-icon.svg">resources/Band_icon_48x48.svg</file>
+        <file alias="contour-icon.svg">resources/Contour_icon_48x48.svg</file>
+        <file alias="slice-icon.svg">resources/Slice_logo.svg</file>
+    </qresource>
+</RCC>

@@ -27,6 +27,7 @@
 
 class SpectrumViewer;
 class TCutG;
+class GSlice;
 
 namespace Ui {
 class DockableGateManager;
@@ -45,6 +46,7 @@ public slots:
     void launchAddGateDialog();
     void launchEditGateDialog();
     void registerGate(TCutG* pCut);
+    void registerSlice(GSlice* pSlice);
 
 private:
     Ui::DockableGateManager *ui;

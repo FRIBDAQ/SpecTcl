@@ -62,7 +62,7 @@ private:
 
 private:
     Ui::SpectrumViewer*   ui;
-    HistogramBundle*       m_currentHist;
+    HistogramBundle*      m_currentHist;
     QRootCanvas*          m_canvas;
     ContentRequestHandler m_reqHandler;
     QRootCanvas*          m_currentCanvas;

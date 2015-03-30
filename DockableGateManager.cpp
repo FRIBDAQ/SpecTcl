@@ -24,13 +24,19 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "DockableGateManager.h"
 #include "ui_DockableGateManager.h"
 #include "GateBuilderDialog.h"
+#include "GateBuilder1DDialog.h"
 #include "SpectrumViewer.h"
 #include "QRootCanvas.h"
+#include "GSlice.h"
+#include "SliceTableItem.h"
 #include <QListWidget>
 #include <QMessageBox>
 #include "TCutG.h"
+#include <TH1.h>
+#include <TH2.h>
 
-DockableGateManager::DockableGateManager(const SpectrumViewer& viewer, QWidget *parent) :
+DockableGateManager::DockableGateManager(const SpectrumViewer& viewer,
+                                         QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockableGateManager),
     m_view(viewer)
@@ -49,15 +55,26 @@ void DockableGateManager::launchAddGateDialog()
 {
     auto pCanvas = m_view.getCurrentFocus();
     auto histPkg = m_view.getCurrentHist();
-    GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg);
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-    connect(dialog,SIGNAL(completed(TCutG*)),this,SLOT(registerGate(TCutG*)));
-    connect(this, SIGNAL(finished(int)), this, SLOT(close()));
+    if (histPkg->hist()->InheritsFrom(TH2::Class())) {
 
-    dialog->show();
-    dialog->raise();
+        GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg);
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
 
+        connect(dialog, SIGNAL(completed(TCutG*)),this,SLOT(registerGate(TCutG*)));
+        connect(dialog, SIGNAL(finished(int)), dialog, SLOT(close()));
+
+        dialog->show();
+        dialog->raise();
+    } else {
+        GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas, *histPkg);
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        connect(dialog, SIGNAL(completed(GSlice*)),
+                this, SLOT(registerSlice(GSlice*)));
+
+        dialog->show();
+        dialog->raise();
+    }
 }
 
 void DockableGateManager::launchEditGateDialog()
@@ -67,17 +84,27 @@ void DockableGateManager::launchEditGateDialog()
 
     auto selection = ui->gateList->selectedItems();
     if (selection.size()==1) {
-        QVariant cut = selection.at(0)->data(Qt::UserRole);
-        TCutG* pCut = reinterpret_cast<TCutG*>(cut.value<void*>());
-        GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg, pCut);
-        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        auto pItem = selection.at(0);
 
-        connect(this, SIGNAL(finished(int)), this, SLOT(close()));
+        if (auto pSlItem = dynamic_cast<SliceTableItem*>(pItem)) {
+            auto pCut = pSlItem->getSlice();
+            GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas, *histPkg, pCut);
+            dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-        dialog->show();
-        dialog->raise();
+            dialog->show();
+            dialog->raise();
+
+        } else {
+            QVariant cut = pItem->data(Qt::UserRole);
+            TCutG* pCut = reinterpret_cast<TCutG*>(cut.value<void*>());
+            GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg, pCut);
+            dialog->setAttribute(Qt::WA_DeleteOnClose);
+
+            dialog->show();
+            dialog->raise();
+        }
     } else {
-        QMessageBox::warning(0,"Invalid selection", "User must select one gate to edit.");
+        QMessageBox::warning(0, "Invalid selection", "User must select one gate to edit.");
     }
 }
 
@@ -90,6 +117,20 @@ void DockableGateManager::registerGate(TCutG* pCut)
     QVariant var = QVariant::fromValue(reinterpret_cast<void*>(pCut));
     pItem->setData(Qt::UserRole, var);
 
+    ui->gateList->addItem(pItem);
+}
+
+
+void DockableGateManager::registerSlice(GSlice *pSlice)
+{
+    Q_ASSERT(pSlice != nullptr);
+
+    QString name = pSlice->getName();
+
+    SliceTableItem* pItem = new SliceTableItem(name,
+                                               ui->gateList,
+                                               Qt::UserRole,
+                                               pSlice);
     ui->gateList->addItem(pItem);
 }
 
