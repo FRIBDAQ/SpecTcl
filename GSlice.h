@@ -14,6 +14,7 @@ class GSlice : public QObject
     Q_OBJECT
 public:
     explicit GSlice(QObject *parent = 0,
+                    const QString& param = QString(),
                     double xLow = 0,
                     double xHigh = 0,
                     QRootCanvas* pCanvas=nullptr);
@@ -22,9 +23,13 @@ public:
 
     GSlice& operator=(const GSlice& rhs);
     
+    double getXLow() const;
+    double getXHigh() const;
+
     TLine* getXLowLine() { return m_pLow; }
     TLine* getXHighLine() { return m_pHigh; }
     QString getName() const { return m_name; }
+    QString getParameter() const { return m_parameter; }
 
 public slots:
     void draw(QRootCanvas* canvas);
@@ -40,6 +45,7 @@ private:
     TLine* m_pLow;
     TLine* m_pHigh;
     QRootCanvas* m_pCanvas;
+    QString m_parameter;
 };
 
 

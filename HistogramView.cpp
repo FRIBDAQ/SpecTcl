@@ -78,7 +78,7 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
             auto upHist = factory.create(info);
             TH1* pHist = upHist.get();
             upHist.release();
-            HistogramList::getInstance()->addHist(*pHist);
+            HistogramList::getInstance()->addHist(*pHist, info);
 
             // Histograms are uniquely named, so we can use the name as the key
             QString name = QString::fromStdString((*iter).s_name);

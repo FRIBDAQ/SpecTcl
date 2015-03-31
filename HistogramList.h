@@ -31,6 +31,10 @@
 class TH1;
 class TCutG;
 
+namespace SpJs {
+    class HistInfo;
+}
+
 class HistogramList : public QObject
 {
     Q_OBJECT
@@ -61,7 +65,7 @@ public slots:
 
     static bool histExists(const QString& name);
     static HistogramBundle* getHist(const QString& name);
-    static void addHist(TH1& hist);
+    static void addHist(TH1& hist, const SpJs::HistInfo& info);
 
 
 private:

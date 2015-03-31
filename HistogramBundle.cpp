@@ -32,12 +32,16 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 HistogramBundle::HistogramBundle()
     : m_pMutex(nullptr),
       m_pHist(nullptr),
-      m_cuts2d()
+      m_cuts2d(),
+      m_cuts1d(),
+      m_hInfo()
 {}
-HistogramBundle::HistogramBundle(QMutex& pMutex, TH1& pHist)
+HistogramBundle::HistogramBundle(QMutex& pMutex, TH1& pHist, const SpJs::HistInfo& info)
     : m_pMutex(&pMutex),
       m_pHist(&pHist),
-      m_cuts2d()
+      m_cuts2d(),
+      m_cuts1d(),
+      m_hInfo(info)
 {}
 
 void HistogramBundle::addCut1D(GSlice* pSlice) {

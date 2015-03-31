@@ -57,6 +57,8 @@ public:
     static int getServerPort();
     static void setServerPort(int port);
 
+    static QString getServer();
+
     static QList<QString> getAxisInfo(Vwr::Axis axis);
 };
 

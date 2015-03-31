@@ -35,8 +35,10 @@ SOURCES += main.cpp\
     HistogramBundle.cpp \
     GateBuilder1DDialog.cpp \
     SliceTableItem.cpp \
-    GSlice.cpp
-
+    GSlice.cpp \
+    SpecTclInterface.cpp \
+    SpecTclRESTInterface.cpp \
+    GateEditComHandler.cpp
 
 # GateBuilderTest.cpp 
 
@@ -63,7 +65,10 @@ HEADERS  += QRootCanvas.h \
     GateList.h \
     GateBuilder1DDialog.h \
     SliceTableItem.h \
-    GSlice.h
+    GSlice.h \
+    SpecTclInterface.h \
+    SpecTclRESTInterface.h \
+    GateEditComHandler.h
 
 FORMS    += mainwindow.ui \
             ConnectServer.ui \

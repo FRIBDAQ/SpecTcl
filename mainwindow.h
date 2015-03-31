@@ -28,6 +28,7 @@
 class SpectrumViewer;
 class HistogramView;
 class DockableGateManager;
+class SpecTclInterface;
 
 namespace Ui {
 class MainWindow;
@@ -55,6 +56,7 @@ private:
     SpectrumViewer* m_view;
     HistogramView* m_histView;
     DockableGateManager* m_gateView;
+    SpecTclInterface* m_pSpecTcl;
 };
 
 #endif // MAINWINDOW_H

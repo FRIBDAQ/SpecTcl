@@ -30,6 +30,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <HistogramView.h>
 #include <DockableGateManager.h>
 #include "TGo4CreateNewHistogram.h"
+#include "SpecTclRESTInterface.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -40,8 +41,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_view = new SpectrumViewer(ui->frame);
     ui->gridLayout->addWidget(m_view);
 
+    m_pSpecTcl = new SpecTclRESTInterface();
+
     m_histView = new HistogramView(this);
-    m_gateView = new DockableGateManager(*m_view, this);
+    m_gateView = new DockableGateManager(*m_view, m_pSpecTcl, this);
 
     createDockWindows();
 

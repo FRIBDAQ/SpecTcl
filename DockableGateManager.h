@@ -26,6 +26,7 @@
 #include <QDockWidget>
 
 class SpectrumViewer;
+class SpecTclInterface;
 class TCutG;
 class GSlice;
 
@@ -39,7 +40,9 @@ class DockableGateManager : public QDockWidget
     Q_OBJECT
     
 public:
-    explicit DockableGateManager(const SpectrumViewer& viewer, QWidget *parent = 0);
+    explicit DockableGateManager(const SpectrumViewer& viewer,
+                                 SpecTclInterface* pSpecTcl,
+                                 QWidget *parent = 0);
     ~DockableGateManager();
 
 public slots:
@@ -47,10 +50,13 @@ public slots:
     void launchEditGateDialog();
     void registerGate(TCutG* pCut);
     void registerSlice(GSlice* pSlice);
+    void editGate(TCutG* pCut);
+    void editSlice(GSlice* pSlice);
 
 private:
     Ui::DockableGateManager *ui;
     const SpectrumViewer& m_view;
+    SpecTclInterface* m_pSpecTcl;
 };
 
 #endif // DOCKABLEGATEBUILDER_H

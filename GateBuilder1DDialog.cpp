@@ -48,7 +48,9 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
         auto xMax = m_histPkg.hist()->GetXaxis()->GetXmax();
         m_histPkg.unlock();
 
-        m_editSlice = GSlice(0, xMin, xMax, &m_canvas);
+        QString paramName = QString::fromStdString( m_histPkg.getInfo().s_params.at(0) );
+
+        m_editSlice = GSlice(0, paramName, xMin, xMax, &m_canvas);
     }
     m_editSlice.draw(&m_canvas);
 

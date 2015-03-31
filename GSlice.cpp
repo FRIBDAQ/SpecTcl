@@ -4,24 +4,18 @@
 #include <TCanvas.h>
 #include <TFrame.h>
 
-GSlice::GSlice(QObject *parent, double xLow, double xHigh,
+GSlice::GSlice(QObject *parent, const QString& param,
+               double xLow, double xHigh,
                QRootCanvas* pCanvas)
     :
     QObject(parent),
     m_name("__slice_in_progress__"),
     m_pLow(new TLine(xLow, 0, xLow, 1)),
     m_pHigh(new TLine(xHigh, 0, xHigh, 1)),
-    m_pCanvas(pCanvas)
+    m_pCanvas(pCanvas),
+    m_parameter(param)
 {
 }
-
-//GSlice::GSlice(const GSlice &rhs)
-//    : QObject(rhs),
-//      m_name(rhs.m_name),
-//      m_pLow(new TLine(*rhs.m_pLow)),
-//      m_pHigh(new TLine(*rhs.m_pHigh)),
-//      m_pCanvas(rhs.m_pCanvas)
-//{}
 
 GSlice::~GSlice()
 {
@@ -47,6 +41,7 @@ GSlice& GSlice::operator=(const GSlice& rhs)
         m_name = rhs.m_name;
 
         m_pCanvas = rhs.m_pCanvas;
+        m_parameter = rhs.m_parameter;
 
     }
     return *this;
@@ -65,6 +60,15 @@ void GSlice::draw(QRootCanvas *pCanvas)
 
 }
 
+double GSlice::getXLow() const
+{
+    return m_pLow->GetX1();
+}
+
+double GSlice::getXHigh() const
+{
+    return m_pHigh->GetX1();
+}
 
 void GSlice::draw()
 {
@@ -109,6 +113,7 @@ void GSlice::frameChanged(TFrame* pFrame)
     m_pHigh->SetY1(yLow);
     m_pHigh->SetY2(yHigh);
 }
+
 void GSlice::nameChanged(const QString &name)
 {
     m_name = name;

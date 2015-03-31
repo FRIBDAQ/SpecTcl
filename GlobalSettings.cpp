@@ -52,6 +52,11 @@ void GlobalSettings::setServerPort(int port)
   return getInstance()->setValue("/server/port",port);
 }
 
+QString GlobalSettings::getServer()
+{
+    return QString("http://%1:%2").arg(getServerHost()).arg(QString::number(getServerPort()));
+}
+
 QList<QString> GlobalSettings::getAxisInfo(Vwr::Axis axis)
 {
   QList<QString> resp;

@@ -73,7 +73,7 @@ HistogramBundle* HistogramList::getHist(const QString &name)
     }
 }
 
-void HistogramList::addHist(TH1& rHist)
+void HistogramList::addHist(TH1& rHist, const SpJs::HistInfo& info)
 {
     QString name(rHist.GetName());
 
@@ -82,7 +82,7 @@ void HistogramList::addHist(TH1& rHist)
     } else {
         QMutexLocker lock(&m_mutex);
 
-        m_hists.insert(name, HistogramBundle(*(new QMutex),rHist));
+        m_hists.insert(name, HistogramBundle(*(new QMutex),rHist, info));
     }
 }
 

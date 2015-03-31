@@ -25,6 +25,7 @@
 
 #include <QMutex>
 #include <QString>
+#include <HistInfo.h>
 #include <vector>
 
 class TH1;
@@ -37,10 +38,11 @@ private:
     TH1* m_pHist;
     std::vector<TCutG*> m_cuts2d;
     std::vector<GSlice*> m_cuts1d;
+    SpJs::HistInfo m_hInfo;
 
 public:
     HistogramBundle();
-    HistogramBundle(QMutex& pMutex, TH1& pHist);
+    HistogramBundle(QMutex& pMutex, TH1& pHist, const SpJs::HistInfo& info);
 
     void lock() const {
         m_pMutex->lock();
@@ -52,6 +54,10 @@ public:
 
     TH1* hist() const {
         return m_pHist;
+    }
+
+    SpJs::HistInfo getInfo() const {
+        return m_hInfo;
     }
 
     void addCut1D(GSlice* pSlice);

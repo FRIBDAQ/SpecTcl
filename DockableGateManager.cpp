@@ -26,6 +26,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "GateBuilderDialog.h"
 #include "GateBuilder1DDialog.h"
 #include "SpectrumViewer.h"
+#include "SpecTclInterface.h"
 #include "QRootCanvas.h"
 #include "GSlice.h"
 #include "SliceTableItem.h"
@@ -36,10 +37,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <TH2.h>
 
 DockableGateManager::DockableGateManager(const SpectrumViewer& viewer,
+                                         SpecTclInterface* pSpecTcl,
                                          QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockableGateManager),
-    m_view(viewer)
+    m_view(viewer),
+    m_pSpecTcl(pSpecTcl)
 {
     ui->setupUi(this);
     connect(ui->addButton,SIGNAL(clicked()),this, SLOT(launchAddGateDialog()));
@@ -90,6 +93,8 @@ void DockableGateManager::launchEditGateDialog()
             auto pCut = pSlItem->getSlice();
             GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas, *histPkg, pCut);
             dialog->setAttribute(Qt::WA_DeleteOnClose);
+            connect(dialog, SIGNAL(completed(GSlice*)),
+                    this, SLOT(editSlice(GSlice*)));
 
             dialog->show();
             dialog->raise();
@@ -99,6 +104,8 @@ void DockableGateManager::launchEditGateDialog()
             TCutG* pCut = reinterpret_cast<TCutG*>(cut.value<void*>());
             GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg, pCut);
             dialog->setAttribute(Qt::WA_DeleteOnClose);
+            connect(dialog, SIGNAL(completed(TCutG*)),
+                    this, SLOT(editGate(TCutG*)));
 
             dialog->show();
             dialog->raise();
@@ -118,6 +125,10 @@ void DockableGateManager::registerGate(TCutG* pCut)
     pItem->setData(Qt::UserRole, var);
 
     ui->gateList->addItem(pItem);
+
+    if (m_pSpecTcl) {
+        m_pSpecTcl->addGate(*pCut);
+    }
 }
 
 
@@ -132,6 +143,30 @@ void DockableGateManager::registerSlice(GSlice *pSlice)
                                                Qt::UserRole,
                                                pSlice);
     ui->gateList->addItem(pItem);
+
+    if (m_pSpecTcl) {
+        m_pSpecTcl->addGate(*pSlice);
+    }
+}
+
+
+void DockableGateManager::editGate(TCutG* pCut)
+{
+    Q_ASSERT(pCut!=nullptr);
+
+    if (m_pSpecTcl) {
+        m_pSpecTcl->editGate(*pCut);
+    }
+}
+
+
+void DockableGateManager::editSlice(GSlice *pSlice)
+{
+    Q_ASSERT(pSlice != nullptr);
+
+    if (m_pSpecTcl) {
+        m_pSpecTcl->editGate(*pSlice);
+    }
 }
 
 
