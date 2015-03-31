@@ -16,6 +16,10 @@ public:
     QUrl toUrl();
 
 private:
+
+    bool isBand(const TCutG& cut);
+
+private:
     QString m_reqStr;
 };
 

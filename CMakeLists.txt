@@ -12,5 +12,14 @@ find_package(Qt4 REQUIRED)
 set(CMAKE_UTILS_DIR ${CMAKE_SOURCE_DIR}/cmake_utils)
 include(${CMAKE_UTILS_DIR}/FindPkgConfig.cmake)
 
+
+#enable_testing()
+
 add_subdirectory(src)
-#add_subdirectory(test)
+add_subdirectory(test)
+
+add_custom_target(test COMMAND untitled2test)
+
+
+
+

@@ -1,5 +1,7 @@
+### untitled2 executable
+
 set(untitled2_SOURCES 
-  main.cpp
+  #  main.cpp
   QRootCanvas.cpp
   QRootDialog.cpp
   QRootApplication.cpp
@@ -71,8 +73,12 @@ set(untitled2_FORMS
 set(untitled2_RESOURCES
     resources.qrc)
 
-set(QT_USE_QTNETWORK TRUE)
+## ------ QT BUILDING STUFF --------------------------------------------
+#
+# Module enabling
+# uis, mocs, rccs
 
+set(QT_USE_QTNETWORK TRUE)
 
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
@@ -84,7 +90,7 @@ qt4_wrap_ui(untitled2_FORMS_HEADERS ${untitled2_FORMS})
 qt4_add_resources(untitled2_RESOURCES ${untitled2_RESOURCES})
 
 
-## ----   SPECTCLJSON 
+## ----   SPECTCLJSON ------------------------------------------------- 
 
 # add the SpecTclJson to this
 include(ExternalProject)
@@ -108,7 +114,8 @@ add_library(libSpecTclJson UNKNOWN IMPORTED)
 set_property(TARGET libSpecTclJson 
              PROPERTY IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/libLibSpecTclJson.a)
 
-#### ----- ROOT 
+#### ----- ROOT -------------------------------------------------------- 
+
 set(ROOTCONFIGPATH $ENV{ROOTSYS}/bin/root-config)
 execute_process(COMMAND ${ROOTCONFIGPATH} --cflags OUTPUT_VARIABLE _rootCFlags)
 execute_process(COMMAND ${ROOTCONFIGPATH} --glibs OUTPUT_VARIABLE _rootLdFlags RESULT_VARIABLE _res)
@@ -119,27 +126,43 @@ string(STRIP ${_rootLdFlags} ROOT_LDFLAGS)
 
 # add the include paths
 add_definitions(${ROOT_CXXFLAGS})
+
+
+## ------- JSONCPP -----------------------------------------------------
+
+
 pkg_search_module(LibSpecTclJson jsoncpp)
 
-add_executable(untitled2 
+
+
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR}
+                     ${SPECTCLJSON_INCLUDE_DIRS})
+
+########################################################################
+
+# ADD EXECUTABLE
+add_library(Untitled2 
   ${untitled2_SOURCES} 
   ${untitled2_HEADERS_MOC}
   ${untitled2_FORMS_HEADERS}
   ${untitled2_RESOURCES}) 
-add_dependencies(untitled2 SpecTclJson)
+#add_executable(untitled2 
+#  ${untitled2_SOURCES} 
+#  ${untitled2_HEADERS_MOC}
+#  ${untitled2_FORMS_HEADERS}
+#  ${untitled2_RESOURCES}) 
+add_dependencies(Untitled2 SpecTclJson)
 
 # we depend on some external libraries
-target_link_libraries(untitled2 
+target_link_libraries(Untitled2 
   ${QT_LIBRARIES}
   libSpecTclJson
   jsoncpp
   ${ROOT_LDFLAGS} -lQtGSI)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${SPECTCLJSON_INCLUDE_DIRS})
 
-
-#GateEditRequestTest.cpp 
-
-
+add_executable(untitled2 main.cpp)
+target_link_libraries(untitled2 Untitled2)
 
 
