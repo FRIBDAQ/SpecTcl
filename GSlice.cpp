@@ -4,17 +4,21 @@
 #include <TCanvas.h>
 #include <TFrame.h>
 
-GSlice::GSlice(QObject *parent, const QString& param,
+GSlice::GSlice(QObject *parent, const QString &name,
+               const QString& param,
                double xLow, double xHigh,
                QRootCanvas* pCanvas)
     :
     QObject(parent),
-    m_name("__slice_in_progress__"),
+    m_name(name),
     m_pLow(new TLine(xLow, 0, xLow, 1)),
     m_pHigh(new TLine(xHigh, 0, xHigh, 1)),
     m_pCanvas(pCanvas),
     m_parameter(param)
 {
+    if (m_name.isEmpty()) {
+        m_name = "__slice_in_progress__";
+    }
 }
 
 GSlice::~GSlice()

@@ -14,6 +14,7 @@ class GSlice : public QObject
     Q_OBJECT
 public:
     explicit GSlice(QObject *parent = 0,
+                    const QString& name = QString(),
                     const QString& param = QString(),
                     double xLow = 0,
                     double xHigh = 0,

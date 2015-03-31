@@ -50,7 +50,7 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
 
         QString paramName = QString::fromStdString( m_histPkg.getInfo().s_params.at(0) );
 
-        m_editSlice = GSlice(0, paramName, xMin, xMax, &m_canvas);
+        m_editSlice = GSlice(0, "__cut_in_progress__", paramName, xMin, xMax, &m_canvas);
     }
     m_editSlice.draw(&m_canvas);
 
