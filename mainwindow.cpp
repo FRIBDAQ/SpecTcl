@@ -25,12 +25,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "ui_mainwindow.h"
 #include "ConnectServer.h"
 #include "SpectrumViewer.h"
-#include <QDebug>
-#include <QDockWidget>
-#include <HistogramView.h>
-#include <DockableGateManager.h>
+#include "HistogramView.h"
+#include "DockableGateManager.h"
 #include "TGo4CreateNewHistogram.h"
 #include "SpecTclRESTInterface.h"
+#include <QDebug>
+#include <QDockWidget>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

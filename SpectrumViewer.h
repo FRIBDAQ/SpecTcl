@@ -27,11 +27,7 @@
 #include <QFrame>
 #include <QPair>
 
-// for HistogramBundle
-#include <HistogramList.h>
-
-// temporary
-class TH1;
+class HistogramBundle;
 class QRootCanvas;
 class QString;
 

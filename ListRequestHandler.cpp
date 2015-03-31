@@ -22,12 +22,15 @@
 
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "ListRequestHandler.h"
+#include "GlobalSettings.h"
+
 #include <QtNetwork>
-#include <json/json.h>
-#include <JsonParser.h>
-#include <stdexcept>
 #include <QMessageBox>
-#include <GlobalSettings.h>
+
+#include <JsonParser.h>
+#include <json/json.h>
+
+#include <stdexcept>
 #include <iostream>
 
 ListRequestHandler::ListRequestHandler(QObject *parent) :

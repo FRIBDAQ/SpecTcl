@@ -23,7 +23,8 @@
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "GateBuilderDialog.h"
 #include "ui_GateBuilderDialog.h"
-#include <QRootCanvas.h>
+#include "QRootCanvas.h"
+
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegExp>
@@ -33,6 +34,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <TCutG.h>
 #include <TList.h>
 #include <TH1.h>
+
 #include <iostream>
 using namespace std;
 

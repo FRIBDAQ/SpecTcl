@@ -38,7 +38,10 @@ SOURCES += main.cpp\
     GSlice.cpp \
     SpecTclInterface.cpp \
     SpecTclRESTInterface.cpp \
-    GateEditComHandler.cpp
+    GateEditComHandler.cpp \
+    GateEditRequest.cpp \
+    GateEditRequestTest.cpp \
+    testmain.cpp
 
 # GateBuilderTest.cpp 
 
@@ -68,7 +71,8 @@ HEADERS  += QRootCanvas.h \
     GSlice.h \
     SpecTclInterface.h \
     SpecTclRESTInterface.h \
-    GateEditComHandler.h
+    GateEditComHandler.h \
+    GateEditRequest.h
 
 FORMS    += mainwindow.ui \
             ConnectServer.ui \

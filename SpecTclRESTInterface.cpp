@@ -2,6 +2,7 @@
 #include "GlobalSettings.h"
 #include "GSlice.h"
 #include "GateEditComHandler.h"
+#include "GateEditRequest.h"
 
 #include <QString>
 #include <QUrl>
@@ -23,17 +24,9 @@ void SpecTclRESTInterface::addGate(const GSlice &slice)
 
 void SpecTclRESTInterface::editGate(const GSlice &slice)
 {
+    GateEditRequest req(slice);
 
-    QString server = GlobalSettings::getServer();
-
-    QString cmd = server + "/spectcl/gate/edit";
-    cmd += QString("?name=") + slice.getName();
-    cmd += QString("&type=s&low=") + QString::number(slice.getXLow());
-    cmd += QString("&high=") + QString::number(slice.getXHigh());
-    cmd += QString("&parameter=") + slice.getParameter();
-    std::cout << cmd.toStdString() << std::endl;
-
-    m_pGateEditCmd->makeRequest(QUrl(cmd));
+    m_pGateEditCmd->makeRequest(req.toUrl());
 }
 
 
@@ -43,4 +36,19 @@ void SpecTclRESTInterface::addGate(const TCutG &slice)
 }
 
 void SpecTclRESTInterface::editGate(const TCutG &slice)
-{}
+{
+
+
+
+//    QString server = GlobalSettings::getServer();
+
+//    QString cmd = server + "/spectcl/gate/edit";
+//    cmd += QString("?name=") + slice.getName();
+//    cmd += QString("&type=s&low=") + QString::number(slice.getXLow());
+//    cmd += QString("&high=") + QString::number(slice.getXHigh());
+//    cmd += QString("&parameter=") + slice.getParameter();
+//    std::cout << cmd.toStdString() << std::endl;
+
+//    m_pGateEditCmd->makeRequest(QUrl(cmd));
+
+}

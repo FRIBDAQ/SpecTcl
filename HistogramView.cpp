@@ -23,15 +23,19 @@
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "HistogramView.h"
 #include "ui_HistogramView.h"
-#include <ListRequestHandler.h>
-#include <TH1.h>
-#include <QList>
-#include <vector>
+#include "ListRequestHandler.h"
+#include "HistogramList.h"
+#include "HistogramBundle.h"
+
 #include <HistInfo.h>
 #include <HistFactory.h>
-#include <HistogramList.h>
-#include <HistogramBundle.h>
+
+#include <TH1.h>
+
 #include <QTimer>
+#include <QList>
+
+#include <vector>
 
 HistogramView::HistogramView(QWidget *parent) :
     QDockWidget(tr("Histograms"),parent),
