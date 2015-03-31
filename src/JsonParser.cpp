@@ -94,19 +94,17 @@ namespace SpJs
       const Value& point = detail[index];
       BinInfo bin;
 
-      if (point.isMember("xchan")) {
-        bin.s_xbin = point["xchan"].asInt();
+      if (point.isMember("x")) {
+        bin.s_xbin = point["x"].asInt();
       } 
 
-      if (point.isMember("ychan")) {
-        bin.s_ybin = point["ychan"].asInt();
+      if (point.isMember("y")) {
+        bin.s_ybin = point["y"].asInt();
       }
-//      if (point.isMember("zchan")) {
-//        bin.s_zbin = point["zchan"].asInt();
-//      }
 
-      bin.s_value = point["value"].asDouble();
+      bin.s_value = point["v"].asDouble();
 
+//      cout << bin.s_xbin << "  " << bin.s_ybin << "  " << bin.s_value << endl;
       result.push_back(bin);
     }
     
