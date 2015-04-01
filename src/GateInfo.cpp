@@ -30,6 +30,27 @@ bool GateInfo::operator!=(const GateInfo& rhs) const {
 
 
 
+GateInfo2D::GateInfo2D(const string &name, GateType type)
+    : GateInfo(name, type)
+{}
+
+GateInfo2D::GateInfo2D(const GateInfo2D &rhs)
+    : GateInfo(rhs)
+{}
+
+GateInfo2D::~GateInfo2D()
+{}
+
+bool GateInfo2D::operator==(const GateInfo2D& rhs) const
+{
+    return GateInfo::operator==(rhs);
+}
+
+bool GateInfo2D::operator!=(const GateInfo2D& rhs) const
+{
+    return !(GateInfo2D::operator==(rhs));
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 Slice::Slice()
@@ -90,14 +111,14 @@ Contour::Contour(const string &name,
                  const string &parameter0,
                  const string &parameter1,
                  const vector<pair<double, double> >& points)
-    : GateInfo(name, ContourGate),
+    : GateInfo2D(name, ContourGate),
       s_param0(parameter0),
       s_param1(parameter1),
       s_points(points)
 {}
 
 Contour::Contour(const Contour& rhs)
-    : GateInfo(rhs),
+    : GateInfo2D(rhs),
       s_param0(rhs.s_param0),
       s_param1(rhs.s_param1),
       s_points(rhs.s_points)
@@ -108,7 +129,7 @@ Contour::~Contour() {}
 bool Contour::operator==(const Contour& rhs) const {
 
     // honor thy parents
-    bool same = GateInfo::operator==(rhs);
+    bool same = GateInfo2D::operator==(rhs);
 
     // how about high and low
     same &= (s_param0 == rhs.s_param0);
@@ -137,14 +158,14 @@ Band::Band(const string &name,
                  const string &parameter0,
                  const string &parameter1,
                  const vector<pair<double, double> >& points)
-    : GateInfo(name, BandGate),
+    : GateInfo2D(name, BandGate),
       s_param0(parameter0),
       s_param1(parameter1),
       s_points(points)
 {}
 
 Band::Band(const Band& rhs)
-    : GateInfo(rhs),
+    : GateInfo2D(rhs),
       s_param0(rhs.s_param0),
       s_param1(rhs.s_param1),
       s_points(rhs.s_points)
@@ -155,7 +176,7 @@ Band::~Band() {}
 bool Band::operator==(const Band& rhs) const {
 
     // honor thy parents
-    bool same = GateInfo::operator==(rhs);
+    bool same = GateInfo2D::operator==(rhs);
 
     // how about high and low
     same &= (s_param0 == rhs.s_param0);

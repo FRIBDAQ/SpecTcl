@@ -35,6 +35,25 @@ namespace SpJs
   }; // end of GateInfo class
 
 
+  struct GateInfo2D : public GateInfo
+  {
+    public:
+      GateInfo2D(const std::string& name, GateType type);
+      GateInfo2D(const GateInfo2D& rhs);
+      virtual ~GateInfo2D();
+      bool operator==(const GateInfo2D& rhs) const;
+      bool operator!=(const GateInfo2D& rhs) const;
+
+      virtual GateType getType() const = 0;
+      virtual std::unique_ptr<GateInfo> clone() const = 0;
+
+      virtual std::vector<std::pair<double, double> > getPoints() const = 0;
+      virtual std::vector<std::pair<double, double> >& getPoints() = 0;
+
+      virtual std::string getParameter0() const = 0;
+      virtual std::string getParameter1() const = 0;
+  };
+
   /**! \brief Slices are 1d gates on a single parameter
    *
    */
@@ -72,12 +91,12 @@ namespace SpJs
   /**! \brief Bands are 2d gates on two parameter (open)
    *
    */
-  struct Band : public GateInfo
+  struct Band : public GateInfo2D
   {
   private:
     std::string s_param0;
     std::string s_param1;
-    std::vector<std::pair<double,double> > s_points;
+    std::vector<std::pair<double, double> > s_points;
 
   public:
     Band();
@@ -111,7 +130,7 @@ namespace SpJs
   /**! \brief Contours are 2d gates on a two parameters (closed areas)
    *
    */
-  struct Contour : public GateInfo
+  struct Contour : public GateInfo2D
   {
   private:
     std::string s_param0;
