@@ -124,6 +124,13 @@ Contour::Contour(const Contour& rhs)
       s_points(rhs.s_points)
 {}
 
+Contour::Contour(const GateInfo2D& rhs)
+    : GateInfo2D(rhs.getName(), ContourGate),
+      s_param0(rhs.getParameter0()),
+      s_param1(rhs.getParameter1()),
+      s_points(rhs.getPoints())
+{}
+
 Contour::~Contour() {}
 
 bool Contour::operator==(const Contour& rhs) const {
@@ -151,7 +158,7 @@ unique_ptr<GateInfo> Contour::clone() const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-Band::Band() : Band( "", "", "", {{}})
+Band::Band() : Band("", "", "", {{}})
 {}
 
 Band::Band(const string &name,
@@ -169,6 +176,13 @@ Band::Band(const Band& rhs)
       s_param0(rhs.s_param0),
       s_param1(rhs.s_param1),
       s_points(rhs.s_points)
+{}
+
+Band::Band(const GateInfo2D& rhs)
+    : GateInfo2D(rhs.getName(), BandGate),
+      s_param0(rhs.getParameter0()),
+      s_param1(rhs.getParameter1()),
+      s_points(rhs.getPoints())
 {}
 
 Band::~Band() {}

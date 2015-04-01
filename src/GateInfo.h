@@ -32,6 +32,10 @@ namespace SpJs
 
     virtual bool operator==(const GateInfo& rhs) const;
     virtual bool operator!=(const GateInfo& rhs) const;
+
+  protected:
+
+    void setType(GateType type) { s_type = type; }
   }; // end of GateInfo class
 
 
@@ -53,6 +57,11 @@ namespace SpJs
       virtual std::string getParameter0() const = 0;
       virtual std::string getParameter1() const = 0;
   };
+
+  // Forward declarations of classes
+  class Slice;
+  class Band;
+  class Contour;
 
   /**! \brief Slices are 1d gates on a single parameter
    *
@@ -104,6 +113,7 @@ namespace SpJs
             const std::string& param0,
             const std::string& param1,
             const std::vector<std::pair<double,double> >& points);
+    Band(const GateInfo2D& contour);
     Band(const Band& rhs);
     virtual ~Band();
 
@@ -143,6 +153,7 @@ namespace SpJs
             const std::string& param0,
             const std::string& param1,
             const std::vector<std::pair<double,double> >& points);
+    Contour(const GateInfo2D& band);
     Contour(const Contour& rhs);
     virtual ~Contour();
 
@@ -164,7 +175,6 @@ namespace SpJs
     virtual bool operator==(const Contour& rhs) const;
     virtual bool operator!=(const Contour& rhs) const;
   }; // end of class
-
 
 } // end of namespace
 

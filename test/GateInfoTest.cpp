@@ -22,6 +22,9 @@ class GateInfoTest : public CppUnit::TestFixture {
   CPPUNIT_TEST( copyContour_0 );
   CPPUNIT_TEST( compareContour_0 );
   CPPUNIT_TEST( compareSlice_0 );
+
+  CPPUNIT_TEST( contourFromBand_0 );
+  CPPUNIT_TEST( bandFromContour_0 );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -37,6 +40,8 @@ protected:
   void compareSlice_0();
   void compareContour_0();
 
+  void contourFromBand_0();
+  void bandFromContour_0();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateInfoTest);
@@ -134,5 +139,37 @@ void GateInfoTest::compareContour_0()
     gate1.setParameter1(gate1.getParameter0());
     gate1.setPoints({{0,0}});
     CPPUNIT_ASSERT( gate0 != gate1 );
+
+}
+
+void GateInfoTest::contourFromBand_0()
+{
+    using SpJs::Band;
+    using SpJs::Contour;
+
+    Band gate0("band", "a", "b", {{1,1}} );
+    Contour cont(gate0);
+
+    CPPUNIT_ASSERT_EQUAL( SpJs::ContourGate, cont.getType());
+    CPPUNIT_ASSERT_EQUAL( gate0.getName(), cont.getName());
+    CPPUNIT_ASSERT_EQUAL( gate0.getParameter0(), cont.getParameter0());
+    CPPUNIT_ASSERT_EQUAL( gate0.getParameter1(), cont.getParameter1());
+    CPPUNIT_ASSERT( gate0.getPoints() == cont.getPoints());
+
+}
+
+void GateInfoTest::bandFromContour_0()
+{
+    using SpJs::Band;
+    using SpJs::Contour;
+
+    Contour gate0("band", "a", "b", {{1,1}} );
+    Band cont(gate0);
+
+    CPPUNIT_ASSERT_EQUAL( SpJs::BandGate, cont.getType());
+    CPPUNIT_ASSERT_EQUAL( gate0.getName(), cont.getName());
+    CPPUNIT_ASSERT_EQUAL( gate0.getParameter0(), cont.getParameter0());
+    CPPUNIT_ASSERT_EQUAL( gate0.getParameter1(), cont.getParameter1());
+    CPPUNIT_ASSERT( gate0.getPoints() == cont.getPoints());
 
 }
