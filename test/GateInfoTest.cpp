@@ -17,7 +17,9 @@ using namespace std;
 class GateInfoTest : public CppUnit::TestFixture {
   public:
   CPPUNIT_TEST_SUITE(GateInfoTest);
-
+  CPPUNIT_TEST( copySlice_0 );
+  CPPUNIT_TEST( copyBand_0 );
+  CPPUNIT_TEST( copyContour_0 );
   CPPUNIT_TEST( compareContour_0 );
   CPPUNIT_TEST( compareSlice_0 );
   CPPUNIT_TEST_SUITE_END();
@@ -28,14 +30,55 @@ public:
   void tearDown() {
   }
 protected:
-
+  void copySlice_0();
+  void copyBand_0();
+  void copyContour_0();
 
   void compareSlice_0();
   void compareContour_0();
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateInfoTest);
 
+void GateInfoTest::copySlice_0()
+{
+    using SpJs::Slice;
+
+    Slice gate0 ("gate0", "a", 1, 2);
+    Slice gate1(gate0);
+
+    CPPUNIT_ASSERT_EQUAL(gate0.getParameter(), gate1.getParameter());
+    CPPUNIT_ASSERT_EQUAL(gate0.getLowerLimit(), gate1.getLowerLimit());
+    CPPUNIT_ASSERT_EQUAL(gate0.getUpperLimit(), gate1.getUpperLimit());
+    CPPUNIT_ASSERT_EQUAL(gate0.getType(), gate1.getType());
+}
+
+void GateInfoTest::copyBand_0()
+{
+    using SpJs::Band;
+
+    Band gate0 ("gate0", "a", "b", {{0, 1}, {1, 2}});
+    Band gate1(gate0);
+
+    CPPUNIT_ASSERT_EQUAL(gate0.getParameter0(), gate1.getParameter0());
+    CPPUNIT_ASSERT_EQUAL(gate0.getParameter1(), gate1.getParameter1());
+    CPPUNIT_ASSERT(gate0.getPoints() == gate1.getPoints());
+    CPPUNIT_ASSERT_EQUAL(gate0.getType(), gate1.getType());
+}
+
+void GateInfoTest::copyContour_0()
+{
+    using SpJs::Contour;
+
+    Contour gate0 ("gate0", "a", "b", {{0, 1}, {1, 2}});
+    Contour gate1(gate0);
+
+    CPPUNIT_ASSERT_EQUAL(gate0.getParameter0(), gate1.getParameter0());
+    CPPUNIT_ASSERT_EQUAL(gate0.getParameter1(), gate1.getParameter1());
+    CPPUNIT_ASSERT(gate0.getPoints() == gate1.getPoints());
+    CPPUNIT_ASSERT_EQUAL(gate0.getType(), gate1.getType());
+}
 
 void GateInfoTest::compareSlice_0()
 {

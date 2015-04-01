@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace SpJs
 {
@@ -19,9 +20,12 @@ namespace SpJs
 
   public:
     GateInfo(const std::string& name, GateType type);
+    GateInfo(const GateInfo& rhs);
+
     virtual ~GateInfo();
 
     virtual GateType getType() const = 0;
+    virtual std::unique_ptr<GateInfo> clone() const = 0;
 
     void setName(const std::string& name) { s_name = name; }
     std::string getName() const { return s_name; }
@@ -44,9 +48,11 @@ namespace SpJs
   public:
     Slice();
     Slice(const std::string& name, const std::string& parameter, double low, double high);
+    Slice(const Slice& rhs);
     virtual ~Slice();
 
     GateType getType() const { return s_type; }
+    std::unique_ptr<GateInfo> clone() const;
 
     void setParameter(const std::string& paramName) { s_param = paramName; }
     std::string getParameter() const { return s_param; }
@@ -79,9 +85,11 @@ namespace SpJs
             const std::string& param0,
             const std::string& param1,
             const std::vector<std::pair<double,double> >& points);
+    Band(const Band& rhs);
     virtual ~Band();
 
     GateType getType() const { return s_type; }
+    std::unique_ptr<GateInfo> clone() const;
 
     void setParameter0(const std::string& paramName) { s_param0 = paramName; }
     std::string getParameter0() const { return s_param0; }
@@ -116,9 +124,11 @@ namespace SpJs
             const std::string& param0,
             const std::string& param1,
             const std::vector<std::pair<double,double> >& points);
+    Contour(const Contour& rhs);
     virtual ~Contour();
 
     GateType getType() const { return s_type; }
+    std::unique_ptr<GateInfo> clone() const;
 
     void setParameter0(const std::string& paramName) { s_param0 = paramName; }
     std::string getParameter0() const { return s_param0; }

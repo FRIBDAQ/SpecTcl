@@ -12,6 +12,9 @@ GateInfo::GateInfo(const string &name, GateType type)
     : s_name(name), s_type(type)
 {}
 
+GateInfo::GateInfo(const GateInfo &rhs)
+    : s_name(rhs.s_name), s_type(rhs.s_type)
+{}
 
 GateInfo::~GateInfo()
 {}
@@ -44,6 +47,13 @@ Slice::Slice(const string &name,
       s_high(high)
 {}
 
+Slice::Slice(const Slice &rhs)
+    : GateInfo(rhs),
+      s_param(rhs.s_param),
+      s_low(rhs.s_low),
+      s_high(rhs.s_high)
+{}
+
 Slice::~Slice() {}
 
 bool Slice::operator==(const Slice& rhs) const {
@@ -66,6 +76,11 @@ bool Slice::operator!=(const Slice& rhs) const {
 }
 
 
+unique_ptr<GateInfo> Slice::clone() const
+{
+    return unique_ptr<GateInfo>(new Slice(*this));
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 Contour::Contour() : Contour( "", "", "", {{}})
@@ -79,6 +94,13 @@ Contour::Contour(const string &name,
       s_param0(parameter0),
       s_param1(parameter1),
       s_points(points)
+{}
+
+Contour::Contour(const Contour& rhs)
+    : GateInfo(rhs),
+      s_param0(rhs.s_param0),
+      s_param1(rhs.s_param1),
+      s_points(rhs.s_points)
 {}
 
 Contour::~Contour() {}
@@ -102,6 +124,10 @@ bool Contour::operator!=(const Contour& rhs) const {
     return !(*this == rhs);
 }
 
+unique_ptr<GateInfo> Contour::clone() const {
+    return unique_ptr<GateInfo>(new Contour(*this));
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 Band::Band() : Band( "", "", "", {{}})
@@ -115,6 +141,13 @@ Band::Band(const string &name,
       s_param0(parameter0),
       s_param1(parameter1),
       s_points(points)
+{}
+
+Band::Band(const Band& rhs)
+    : GateInfo(rhs),
+      s_param0(rhs.s_param0),
+      s_param1(rhs.s_param1),
+      s_points(rhs.s_points)
 {}
 
 Band::~Band() {}
@@ -138,6 +171,9 @@ bool Band::operator!=(const Band& rhs) const {
     return !(*this == rhs);
 }
 
+unique_ptr<GateInfo> Band::clone() const {
+    return unique_ptr<GateInfo>(new Band(*this));
+}
 
 } // end of namespace
 
