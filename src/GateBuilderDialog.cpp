@@ -24,12 +24,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "GateBuilderDialog.h"
 #include "ui_GateBuilderDialog.h"
 #include "QRootCanvas.h"
+#include "GGate.h"
 
 #include <QMessageBox>
 #include <QPushButton>
-#include <QRegExp>
-#include <QRegExpValidator>
 
+#include <GateInfo.h>
+
+#include <TList.h>
 #include <TCanvas.h>
 #include <TCutG.h>
 #include <TList.h>
@@ -40,13 +42,14 @@ using namespace std;
 
 GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
                                      HistogramBundle& histPkg,
-                                     TCutG* pCut,
+                                     GGate* pCut,
                                      QWidget *parent) :
     QDialog(parent),
     ui(new Ui::GateBuilderDialog),
     m_canvas(rCanvas),
     m_histPkg(histPkg),
-    m_pCut(pCut),
+    m_pEditCut(new GGate("__gate_in_progress__", SpJs::Band())),
+    m_pOldCut(pCut),
     m_radioButtons(this),
     m_matchLast(false)
 {
@@ -61,29 +64,43 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
     ui->dataTable->setColumnCount(2);
     ui->dataTable->setHorizontalHeaderLabels(headers);
 
+    // disable the ok button
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
     // Group the type buttons
     m_radioButtons.addButton(ui->bandButton, 0);
     m_radioButtons.addButton(ui->contourButton, 1);
 
-    connect(&m_canvas, SIGNAL(PadClicked(TPad*)), this, SLOT(newPoint(TPad*)));
-    connect(ui->gateNameEdit,SIGNAL(textChanged(QString)), this, SLOT(onNameChanged(QString)));
+    if (m_pOldCut) {
+      // set up the dialog to reflect state of an existing GGate
+        hideOldCut(*m_pOldCut);
 
-    connect(&m_radioButtons,SIGNAL(buttonClicked(int)),this, SLOT(onTypeChanged(int)));
+        *m_pEditCut = *m_pOldCut;
 
-    if (m_pCut) {
-        setCutName(QString(m_pCut->GetName()));
-        fillTableWithData(pCut);
+        setCutName(QString(m_pEditCut->getName()));
+        fillTableWithData(*m_pEditCut);
+
     } else {
-        m_pCut = new TCutG("__cut_in_progress__",0);
+      // user is starting fresh, use the histogram bundle to access what
+      // parameters are to be by the cut... we also default to beginning this
+      // as a band
+      auto xParam = m_histPkg.getInfo().s_params.at(0);
+      auto yParam = m_histPkg.getInfo().s_params.at(1);
+
+        m_pEditCut->setInfo(SpJs::Band("__gate_in_progress", xParam, yParam, {}));
     }
 
     m_canvas.cd();
-    m_pCut->Draw();
+    m_pEditCut->draw();
 
-    cout << "Gatebuilderdialog" << endl;
-}
+    // Connect up the various components
+    connect(&m_canvas, SIGNAL(PadClicked(TPad*)), this, SLOT(newPoint(TPad*)));
+    connect(ui->gateNameEdit, SIGNAL(textChanged(const QString&)),
+            this, SLOT(onNameChanged(const QString&)));
+
+    connect(&m_radioButtons,SIGNAL(buttonClicked(int)),this, SLOT(onTypeChanged(int)));
+
+    }
 
 GateBuilderDialog::~GateBuilderDialog()
 {
@@ -100,20 +117,30 @@ void GateBuilderDialog::accept()
         return;
     }
 
-    // update the name of the cut
-    m_pCut->SetName(ui->gateNameEdit->text().toAscii().constData());
+    if (m_pOldCut == nullptr) {
+        m_pOldCut = new GGate("", SpJs::Band("", "", "", {}));
+    }
 
-
-    m_histPkg.addCut2D(m_pCut);
-
-    // encode the request
-    // encodeRequest(m_pCut);
-
+    *m_pOldCut = *m_pEditCut;
+    m_histPkg.addCut2D(m_pOldCut);
 
     // this will(or should) transfer ownership to the gate manager
-    emit completed(m_pCut);
+    emit completed(m_pOldCut);
 
-    close();
+    QDialog::accept();
+}
+
+void GateBuilderDialog::reject()
+{
+    // user did not want the changes... get rid of the new ones
+    hideOldCut(*m_pEditCut);
+
+    // redraw the old changes
+    if ( m_pOldCut != nullptr) {
+        m_pOldCut->draw();
+    }
+
+    QDialog::reject();
 }
 
 void GateBuilderDialog::setCutName(const QString& name)
@@ -136,27 +163,23 @@ void GateBuilderDialog::newPoint(TPad *pad)
         ensureLastPointDiffersFromFirst();
     }
 
-    insertNewPoint(x, y);
+    appendPointToTable(x, y);
     appendPointToCut(x,y);
 
     if (m_matchLast) {
         ensureLastPointMatchesFirst();
     }
 
-}
-
-void GateBuilderDialog::appendPointToCut(double x, double y)
-{
-
-    int nPoints =m_pCut->GetN();
-    m_pCut->Set(nPoints+1);
-    m_pCut->SetPoint(nPoints, x, y);
-
     m_canvas.Modified();
     m_canvas.Update();
 }
 
-void GateBuilderDialog::insertNewPoint(double x, double y)
+void GateBuilderDialog::appendPointToCut(double x, double y)
+{
+    m_pEditCut->appendPoint(x, y);
+}
+
+void GateBuilderDialog::appendPointToTable(double x, double y)
 {
     auto xEntry = new QTableWidgetItem(QString::number(x,'f',1));
     auto yEntry = new QTableWidgetItem(QString::number(y,'f',1));
@@ -168,30 +191,33 @@ void GateBuilderDialog::insertNewPoint(double x, double y)
 
 }
 
-void GateBuilderDialog::fillTableWithData(TCutG *pCut)
+void GateBuilderDialog::fillTableWithData(GGate& rCut)
 {
-    int n = pCut->GetN();
-    double* pX = pCut->GetX();
-    double* pY = pCut->GetY();
+    auto points = rCut.getPoints();
 
-    for (int entry=0; entry<n ; ++entry) {
-        insertNewPoint(pX[entry], pY[entry]);
+    for (auto point : points) {
+        appendPointToTable(point.first, point.second);
     }
 }
 
 void GateBuilderDialog::onNameChanged(const QString &name)
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled( !name.isEmpty() );
-}
 
-void GateBuilderDialog::encodeRequest(const TCutG &cut) {
-
+    m_pEditCut->setName(name);
 }
 
 void GateBuilderDialog::onTypeChanged(int id)
 {
+    SpJs::GateType type;
     if (id==0) {
-        // band
+        type = SpJs::BandGate;
+    } else {
+        type = SpJs::ContourGate;
+    }
+
+    m_pEditCut->setType(type);
+    if (type == SpJs::BandGate) {
         ensureLastPointDiffersFromFirst();
         m_matchLast = false;
     } else {
@@ -199,6 +225,9 @@ void GateBuilderDialog::onTypeChanged(int id)
         ensureLastPointMatchesFirst();
         m_matchLast = true;
     }
+
+    m_canvas.Modified();
+    m_canvas.Update();
 }
 
 void GateBuilderDialog::ensureLastPointDiffersFromFirst()
@@ -219,7 +248,7 @@ void GateBuilderDialog::ensureLastPointDiffersFromFirst()
 
         ui->dataTable->removeRow(nrows-1);
 
-        m_pCut->RemovePoint(nrows-1);
+        m_pEditCut->popBackPoint();
 
         m_canvas.Modified();
         m_canvas.Update();
@@ -242,8 +271,15 @@ void GateBuilderDialog::ensureLastPointMatchesFirst()
 
     if ((firstX != lastX) || (firstY != lastY)) {
 
-        insertNewPoint(firstX, firstY);
+        appendPointToTable(firstX, firstY);
         appendPointToCut(firstX, firstY);
 
     }
+}
+
+
+void GateBuilderDialog::hideOldCut(GGate& gate)
+{
+    auto pList = m_canvas.getCanvas()->GetListOfPrimitives();
+    pList->Remove(gate.getGraphicObject());
 }

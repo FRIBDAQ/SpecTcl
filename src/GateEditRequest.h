@@ -5,19 +5,20 @@
 #include <QUrl>
 
 class GSlice;
+class GGate;
 class TCutG;
 
 class GateEditRequest
 {
 public:
-    GateEditRequest(TCutG &cut);
+    GateEditRequest(const GGate &cut);
     GateEditRequest(const GSlice& cut);
 
     QUrl toUrl();
 
 private:
 
-    bool isBand(const TCutG& cut);
+    bool isBand(const GGate& cut);
 
 private:
     QString m_reqStr;

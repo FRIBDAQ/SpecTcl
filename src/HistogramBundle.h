@@ -29,14 +29,14 @@
 #include <vector>
 
 class TH1;
-class TCutG;
+class GGate;
 class GSlice;
 
 class HistogramBundle {
 private:
     QMutex* m_pMutex;
     TH1* m_pHist;
-    std::vector<TCutG*> m_cuts2d;
+    std::vector<GGate*> m_cuts2d;
     std::vector<GSlice*> m_cuts1d;
     SpJs::HistInfo m_hInfo;
 
@@ -61,7 +61,7 @@ public:
     }
 
     void addCut1D(GSlice* pSlice);
-    void addCut2D(TCutG* pCut);
+    void addCut2D(GGate* pCut);
     void draw(const QString& opt = QString());
 };
 

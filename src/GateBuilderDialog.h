@@ -31,7 +31,7 @@
 #include <QButtonGroup>
 
 class TPad;
-class TCutG;
+class GGate;
 class QRootCanvas;
 
 namespace Ui {
@@ -45,29 +45,32 @@ class GateBuilderDialog : public QDialog
 public:
     explicit GateBuilderDialog(QRootCanvas& viewer,
                                HistogramBundle& hist,
-                               TCutG* pCut=nullptr,
+                               GGate* pCut=nullptr,
                                QWidget *parent = 0);
     ~GateBuilderDialog();
 
     void setCutName(const QString& name);
-    void setCut(TCutG* pCut);
+    void setCut(GGate* pCut);
 
 public slots:
     virtual void accept();
+    virtual void reject();
+
     void newPoint(TPad* pad);
     void onNameChanged(const QString& name);
     void onTypeChanged(int type);
 
 signals:
-    void completed(TCutG* pCut);
+    void completed(GGate* pCut);
 
 private:
-    void encodeRequest(const TCutG& cut);
-    void insertNewPoint(double x, double y);
-    void fillTableWithData(TCutG* pCut);
+    void hideOldCut(GGate& gate);
+    void appendPointToTable(double x, double y);
+    void appendPointToCut(double x, double y);
+    void fillTableWithData(GGate& rCut);
     void ensureLastPointDiffersFromFirst();
     void ensureLastPointMatchesFirst();
-    void appendPointToCut(double x, double y);
+
 
 
 private:
@@ -75,7 +78,8 @@ private:
     QRootCanvas& m_canvas;
     HistogramBundle& m_histPkg;
     QString m_name;
-    TCutG* m_pCut;
+    std::unique_ptr<GGate> m_pEditCut;
+    GGate* m_pOldCut;
     QButtonGroup m_radioButtons;
     bool m_matchLast;
 };

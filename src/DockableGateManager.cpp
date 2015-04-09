@@ -29,10 +29,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "SpecTclInterface.h"
 #include "QRootCanvas.h"
 #include "GSlice.h"
+#include "GGate.h"
 #include "SliceTableItem.h"
+#include "GateListItem.h"
 #include <QListWidget>
 #include <QMessageBox>
-#include "TCutG.h"
 #include <TH1.h>
 #include <TH2.h>
 
@@ -64,7 +65,7 @@ void DockableGateManager::launchAddGateDialog()
         GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg);
         dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-        connect(dialog, SIGNAL(completed(TCutG*)),this,SLOT(registerGate(TCutG*)));
+        connect(dialog, SIGNAL(completed(GGate*)),this,SLOT(registerGate(GGate*)));
         connect(dialog, SIGNAL(finished(int)), dialog, SLOT(close()));
 
         dialog->show();
@@ -100,12 +101,12 @@ void DockableGateManager::launchEditGateDialog()
             dialog->raise();
 
         } else {
-            QVariant cut = pItem->data(Qt::UserRole);
-            TCutG* pCut = reinterpret_cast<TCutG*>(cut.value<void*>());
-            GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg, pCut);
+            auto pGateItem = dynamic_cast<GateListItem*>(pItem);
+            auto pGate = pGateItem->getGate();
+            GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg, pGate);
             dialog->setAttribute(Qt::WA_DeleteOnClose);
-            connect(dialog, SIGNAL(completed(TCutG*)),
-                    this, SLOT(editGate(TCutG*)));
+            connect(dialog, SIGNAL(completed(GGate*)),
+                    this, SLOT(editGate(GGate*)));
 
             dialog->show();
             dialog->raise();
@@ -115,14 +116,14 @@ void DockableGateManager::launchEditGateDialog()
     }
 }
 
-void DockableGateManager::registerGate(TCutG* pCut)
+void DockableGateManager::registerGate(GGate* pCut)
 {
     Q_ASSERT(pCut!=nullptr);
 
-    QListWidgetItem* pItem = new QListWidgetItem(QString(pCut->GetName()),
-                                                 ui->gateList,Qt::UserRole);
-    QVariant var = QVariant::fromValue(reinterpret_cast<void*>(pCut));
-    pItem->setData(Qt::UserRole, var);
+    GateListItem* pItem = new GateListItem(QString(pCut->getName()),
+                                           ui->gateList,
+                                           Qt::UserRole,
+                                           pCut);
 
     ui->gateList->addItem(pItem);
 
@@ -150,7 +151,7 @@ void DockableGateManager::registerSlice(GSlice *pSlice)
 }
 
 
-void DockableGateManager::editGate(TCutG* pCut)
+void DockableGateManager::editGate(GGate* pCut)
 {
     Q_ASSERT(pCut!=nullptr);
 

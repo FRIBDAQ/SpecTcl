@@ -27,7 +27,7 @@
 
 class SpectrumViewer;
 class SpecTclInterface;
-class TCutG;
+class GGate;
 class GSlice;
 
 namespace Ui {
@@ -48,9 +48,9 @@ public:
 public slots:
     void launchAddGateDialog();
     void launchEditGateDialog();
-    void registerGate(TCutG* pCut);
+    void registerGate(GGate* pCut);
     void registerSlice(GSlice* pSlice);
-    void editGate(TCutG* pCut);
+    void editGate(GGate* pCut);
     void editSlice(GSlice* pSlice);
 
 private:

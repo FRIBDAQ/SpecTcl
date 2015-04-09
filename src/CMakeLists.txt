@@ -23,7 +23,9 @@ set(untitled2_SOURCES
   HistogramBundle.cpp 
   GateBuilder1DDialog.cpp 
   SliceTableItem.cpp 
+  GateListItem.cpp
   GSlice.cpp 
+  GGate.cpp
   SpecTclInterface.cpp 
   SpecTclRESTInterface.cpp 
   GateEditComHandler.cpp 
@@ -53,7 +55,9 @@ set(untitled2_HEADERS
   GateList.h 
   GateBuilder1DDialog.h 
   SliceTableItem.h 
-  GSlice.h 
+  GateListItem.h
+  GSlice.h
+  GGate.h
   SpecTclInterface.h 
   SpecTclRESTInterface.h 
   GateEditComHandler.h 
@@ -79,6 +83,7 @@ set(untitled2_RESOURCES
 # uis, mocs, rccs
 
 set(QT_USE_QTNETWORK TRUE)
+set(QT_USE_QTTEST TRUE)
 
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
@@ -97,7 +102,8 @@ include(ExternalProject)
 set(USE_PROJECT_CMAKE_MODULE_PATH "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
 ExternalProject_ADD(SpecTclJson
   GIT_REPOSITORY  http://github.com/jrtomps/SpecTclJson.git
-  UPDATE_COMMAND ""
+  GIT_TAG master
+  #  UPDATE_COMMAND ${GIT_EXECUTABLE} pull
   TEST_COMMAND ""
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
@@ -147,11 +153,7 @@ add_library(Untitled2
   ${untitled2_HEADERS_MOC}
   ${untitled2_FORMS_HEADERS}
   ${untitled2_RESOURCES}) 
-#add_executable(untitled2 
-#  ${untitled2_SOURCES} 
-#  ${untitled2_HEADERS_MOC}
-#  ${untitled2_FORMS_HEADERS}
-#  ${untitled2_RESOURCES}) 
+
 add_dependencies(Untitled2 SpecTclJson)
 
 # we depend on some external libraries
@@ -166,3 +168,11 @@ add_executable(untitled2 main.cpp)
 target_link_libraries(untitled2 Untitled2)
 
 
+### TESTLIB .... sample
+set(test2_SOURCES testqstring.cpp)
+set(test2_HEADERS testqstring.h)
+qt4_wrap_cpp(test2_HEADERS_MOC ${test2_HEADERS})
+add_executable(test2 ${test2_SOURCES} ${test2_HEADERS_MOC})
+target_link_libraries(test2  ${QT_LIBRARIES})
+
+add_test(TEST2 test2)

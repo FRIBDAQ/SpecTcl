@@ -22,17 +22,23 @@
 
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "SpectrumViewer.h"
+#include "ui_SpectrumViewer.h"
 #include "HistogramList.h"
 #include "ContentRequestHandler.h"
 #include "GlobalSettings.h"
 #include "LockGuard.h"
-#include "ui_SpectrumViewer.h"
 #include "QRootCanvas.h"
+
+#include <QMessageBox>
+
 #include <TH1.h>
 #include <TH2.h>
 #include <TCanvas.h>
+
 #include <iostream>
-#include <QMessageBox>
+#include <stdexcept>
+
+using namespace std;
 
 SpectrumViewer::SpectrumViewer(QWidget *parent) :
     QFrame(parent),
@@ -96,13 +102,20 @@ void SpectrumViewer::update(HistogramBundle* gHist)
 
     // not really good practice... could block main thread
     // should fix later
-//    LockGuard<HistogramBundle> lock(gHist);
     m_currentHist = gHist;
 
-    if (m_currentHist->hist()->InheritsFrom(TH2::Class())) {
+    // The draw operation can throw, so we need to protect ourselves
+    // against that...
+    try {
+
+      if (m_currentHist->hist()->InheritsFrom(TH2::Class())) {
         m_currentHist->draw("colz");
-    } else {
+      } else {
         m_currentHist->draw();
+      }
+
+    } catch (const exception& exc) {
+      QMessageBox::warning(nullptr, "Drawing error", exc.what());
     }
 
     m_canvas->Modified();

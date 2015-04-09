@@ -16,8 +16,8 @@ public:
     void addGate(const GSlice& slice);
     void editGate(const GSlice& slice);
 
-    void addGate(const TCutG& slice);
-    void editGate(const TCutG& slice);
+    void addGate(const GGate& slice);
+    void editGate(const GGate& slice);
 
 private:
     std::unique_ptr<GateEditComHandler> m_pGateEditCmd;

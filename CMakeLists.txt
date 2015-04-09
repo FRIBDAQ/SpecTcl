@@ -13,7 +13,7 @@ set(CMAKE_UTILS_DIR ${CMAKE_SOURCE_DIR}/cmake_utils)
 include(${CMAKE_UTILS_DIR}/FindPkgConfig.cmake)
 
 
-#enable_testing()
+enable_testing()
 
 add_subdirectory(src)
 add_subdirectory(test)

@@ -38,12 +38,10 @@ namespace Compress
     unsigned long     uclength = allocationUnit;
     QByteArray        ucBuffer;
 
-//    try {
+    // resize
+    ucBuffer.reserve(nUCBytes);
 
-      // resize
-      ucBuffer.reserve(nUCBytes);
-
-      while(status == Z_BUF_ERROR) {
+    while(status == Z_BUF_ERROR) {
 
         uclength = ucBuffer.capacity();
         auto* pucBuffer = reinterpret_cast<unsigned char*>(ucBuffer.data());
@@ -53,25 +51,21 @@ namespace Compress
         if (status == Z_OK) break;
 
         // In case we need to enlarge increase by the original size every time
-        uclength += allocationUnit; 
+        uclength += allocationUnit;
         ucBuffer.reserve(uclength);
         std::cout << "Had to increase size" << std::endl;
-      }
+    }
 
-      switch (status) {
-        case Z_OK:
-          break;
-        case Z_DATA_ERROR:
-          throw std::runtime_error("Input was not compressed with 'deflate'");
-        case Z_MEM_ERROR:
-          throw std::runtime_error("Zlib internal memory allocation failed");
-        default:
-          throw std::runtime_error("Unanticipated error from zlib uncompress function");
-      }
-//    }
-//    catch (const std::exception& msg) {
-//      std::cout << msg.what() << std::endl;
-//    }
+    switch (status) {
+    case Z_OK:
+        break;
+    case Z_DATA_ERROR:
+        throw std::runtime_error("Input was not compressed with 'deflate'");
+    case Z_MEM_ERROR:
+        throw std::runtime_error("Zlib internal memory allocation failed");
+    default:
+        throw std::runtime_error("Unanticipated error from zlib uncompress function");
+    }
 
     return ucBuffer;
   };

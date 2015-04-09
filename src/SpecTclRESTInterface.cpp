@@ -10,6 +10,8 @@
 #include <TLine.h>
 #include <iostream>
 
+using namespace std;
+
 SpecTclRESTInterface::SpecTclRESTInterface()
     : m_pGateEditCmd(new GateEditComHandler)
 {
@@ -30,15 +32,18 @@ void SpecTclRESTInterface::editGate(const GSlice &slice)
 }
 
 
-void SpecTclRESTInterface::addGate(const TCutG &slice)
+void SpecTclRESTInterface::addGate(const GGate &gate)
 {
-    editGate(slice);
+    editGate(gate);
 }
 
-void SpecTclRESTInterface::editGate(const TCutG &slice)
+void SpecTclRESTInterface::editGate(const GGate &gate)
 {
 
+  GateEditRequest req(gate);
 
+  cout << req.toUrl().toString().toStdString() << endl;
+  m_pGateEditCmd->makeRequest(req.toUrl());
 
 //    QString server = GlobalSettings::getServer();
 

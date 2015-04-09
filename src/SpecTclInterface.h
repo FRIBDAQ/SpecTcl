@@ -2,7 +2,7 @@
 #define SPECTCLINTERFACE_H
 
 class GSlice;
-class TCutG;
+class GGate;
 
 class SpecTclInterface
 {
@@ -11,8 +11,8 @@ public:
 
     virtual void addGate(const GSlice& slice) = 0;
     virtual void editGate(const GSlice& slice) = 0;
-    virtual void addGate(const TCutG& slice) = 0;
-    virtual void editGate(const TCutG& slice) = 0;
+    virtual void addGate(const GGate& slice) = 0;
+    virtual void editGate(const GGate& slice) = 0;
 
 };
 
