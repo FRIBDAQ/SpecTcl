@@ -7,6 +7,25 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -g")
 set(CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "-std=c++11")
 
+## Test for C++11 Support
+# Taken from http://stackoverflow.com/questions/10984442/how-to-detect-c11-support-of-a-compiler-with-cmake
+# response by Matthias Valentin.
+#
+# Compiler-specific C++11 activation.
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+    execute_process(
+        COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+    if (NOT (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7))
+        message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.7 or greater.")
+    endif ()
+elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+else ()
+    message(FATAL_ERROR "Your C++ compiler does not support C++11.")
+endif ()
+############## end of stackoverflow solution
+
+# create config file
 configure_file("${PROJECT_SOURCE_DIR}/config.h.in" "${PROJECT_BINARY_DIR}/config.h")
 
 #--------------------------------------------------------
