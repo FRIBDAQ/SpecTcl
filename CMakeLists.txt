@@ -2,12 +2,24 @@ cmake_minimum_required(VERSION 2.6)
 
 project(SpecTclJson)
 
+## Enable C++ 11 support
 set(CMAKE_CXX_FLAGS "-std=c++11 -g")
 set(CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "-std=c++11")
 
 configure_file("${PROJECT_SOURCE_DIR}/config.h.in" "${PROJECT_BINARY_DIR}/config.h")
 
+#--------------------------------------------------------
+# include ROOT stuff
+set(ROOTCONFIGPATH $ENV{ROOTSYS}/bin/root-config)
+execute_process(COMMAND ${ROOTCONFIGPATH} --cflags OUTPUT_VARIABLE _rootCFlags)
+execute_process(COMMAND ${ROOTCONFIGPATH} --libs OUTPUT_VARIABLE _rootLdFlags RESULT_VARIABLE _res)
+
+# get rid of trailing and leading whitespace
+string(STRIP ${_rootCFlags} ROOT_CXXFLAGS)
+string(STRIP ${_rootLdFlags} ROOT_LDFLAGS)
+
+# --------------------------------------------------------
 # pkg-config search
 include(${CMAKE_SOURCE_DIR}/build/FindPkgConfig.cmake)
 

@@ -1,14 +1,5 @@
 pkg_search_module(unittests cppunit)
 
-# include ROOT stuff
-set(ROOTCONFIGPATH $ENV{ROOTSYS}/bin/root-config)
-execute_process(COMMAND ${ROOTCONFIGPATH} --cflags OUTPUT_VARIABLE _rootCFlags)
-execute_process(COMMAND ${ROOTCONFIGPATH} --libs OUTPUT_VARIABLE _rootLdFlags RESULT_VARIABLE _res)
-
-# get rid of trailing and leading whitespace
-string(STRIP ${_rootCFlags} ROOT_CXXFLAGS)
-string(STRIP ${_rootLdFlags} ROOT_LDFLAGS)
-
 # add the include paths
 add_definitions(${ROOT_CXXFLAGS})
 
