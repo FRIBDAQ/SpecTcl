@@ -11,6 +11,35 @@ configure_file("${PROJECT_SOURCE_DIR}/config.h.in" "${PROJECT_BINARY_DIR}/config
 # pkg-config search
 include(${CMAKE_SOURCE_DIR}/build/FindPkgConfig.cmake)
 
+pkg_search_module(JSONCPP jsoncpp)
+if(${JSONCPP_FOUND})
+  message("Found jsoncpp in pkg-config")
+  set(JSONCPP_INCLUDE_DIRS ${JSONCPP_INCLUDE_DIRS})
+else(${JSONCPP_FOUND})
+  message("Failed to find jsoncpp in pkg-config... retrieving and building")
+  include(ExternalProject)
+  set(USE_PROJECT_CMAKE_MODULE_PATH "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
+  ExternalProject_Add(JSONCPP 
+    GIT_REPOSITORY https://github.com/open-source-parsers/jsoncpp.git
+    GIT_TAG 0.10.1
+    UPDATE_COMMAND ""
+    TEST_COMMAND ""
+    CMAKE_ARGS
+      -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+      -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+      -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+      -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      ${USE_PROJECT_CMAKE_MODULE_PATH}
+  )
+
+  set(JSONCPP_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include)
+  
+  add_library(jsoncpp UNKNOWN IMPORTED)
+  set_property(TARGET jsoncpp
+             PROPERTY IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/libjsoncpp.a)
+endif(${JSONCPP_FOUND})
+
+
 add_subdirectory(src)
 add_subdirectory(test)
 

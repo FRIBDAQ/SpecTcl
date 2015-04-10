@@ -12,8 +12,6 @@ string(STRIP ${_rootLdFlags} ROOT_LDFLAGS)
 # add the include paths
 add_definitions(${ROOT_CXXFLAGS})
 
-pkg_search_module(LibSpecTclJson jsoncpp)
-
 set(libSpecTclJson_INCLUDES HistFactory.h 
                             HistInfo.h 
                             JsonParser.h
@@ -36,6 +34,7 @@ set(libSpecTclJson_SOURCES  HistFactory.cpp
 add_library(LibSpecTclJson STATIC ${libSpecTclJson_INCLUDES}
                                   ${libSpecTclJson_SOURCES})
 
+include_directories(${JSONCPP_INCLUDE_DIRS})
 
 # we depend on some external libraries
 target_link_libraries(LibSpecTclJson ${ROOT_LDFLAGS} jsoncpp)
