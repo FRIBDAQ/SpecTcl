@@ -299,7 +299,7 @@ proc SpecTcl_Gate/edit {args} {
 	return [::SpecTcl::_returnObject "command failed" [json::write string $msg]]
     }
  
-    return [::SpecTcl::_returnObject]
+    return [::SpecTcl::_returnObject ]
 }
 
 #--------------------------------------------------------------------------------
@@ -392,7 +392,7 @@ proc ::SpecTcl::_jsonStringArray strings {
 #
 proc ::SpecTcl::_returnObject {{status OK} {detail ""}} {
     if {($status eq "OK") && ($detail eq "")} {
-	return [json::write object status $status]
+	return [json::write object status [json::write string $status]]
     }
     return [json::write object \
 		status [json::write string $status] detail $detail]
