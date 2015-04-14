@@ -111,8 +111,6 @@ GateBuilderDialog::~GateBuilderDialog()
                this, SLOT(newPoint(TPad*)));
 
     delete ui;
-
-    std::cout << "GateBuilderDialog::~GateBuildeDialog()" << std::endl;
 }
 
 void GateBuilderDialog::accept()
@@ -124,13 +122,10 @@ void GateBuilderDialog::accept()
     }
 
     if (m_pOldCut == nullptr) {
-      cout << "Creating new cut for m_pOldCut" << endl;
         m_pOldCut = new GGate("", SpJs::Band("", "", "", {}));
     }
 
-    cout << "About to assign" << endl;
     *m_pOldCut = *m_pEditCut;
-    cout << "Done assigning" << endl;
     m_histPkg.addCut2D(m_pOldCut);
 
     // this will (or should) transfer ownership to the gate manager
@@ -159,7 +154,6 @@ void GateBuilderDialog::setCutName(const QString& name)
 
 void GateBuilderDialog::newPoint(TPad *pad)
 {
-    cout << "Gatebuilderdialog::newPoint" << endl;
     Q_ASSERT(pad!=nullptr);
 
     double x, y;
