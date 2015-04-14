@@ -53,6 +53,7 @@ namespace SpJs
 
       virtual std::vector<std::pair<double, double> > getPoints() const = 0;
       virtual std::vector<std::pair<double, double> >& getPoints() = 0;
+      virtual void setPoints(const std::vector<std::pair<double, double> >& points) = 0;
 
       virtual std::string getParameter0() const = 0;
       virtual std::string getParameter1() const = 0;
