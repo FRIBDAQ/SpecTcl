@@ -15,7 +15,6 @@ set(untitled2_SOURCES
   HistogramView.cpp 
   ListRequestHandler.cpp 
   TGo4CreateNewHistogram.cpp 
-  ParameterList.cpp 
   Compression.cpp 
   DockableGateManager.cpp 
   GateBuilderDialog.cpp 
@@ -46,7 +45,6 @@ set(untitled2_HEADERS
   HistogramView.h 
   ListRequestHandler.h 
   TGo4CreateNewHistogram.h 
-  ParameterList.h 
   Compression.h 
   GlobalEnum.h 
   DockableGateManager.h 

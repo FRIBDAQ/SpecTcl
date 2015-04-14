@@ -35,6 +35,9 @@ namespace SpJs {
     class HistInfo;
 }
 
+/*! \brief Owner of all the HistogramBundles in the application
+ *
+ */
 class HistogramList : public QObject
 {
     Q_OBJECT
@@ -58,8 +61,8 @@ public:
     }
 
     static QList<QString> histNames() { return m_hists.keys(); }
-    static QMap<QString,HistogramBundle>::iterator begin() { return m_hists.begin();}
-    static QMap<QString,HistogramBundle>::iterator end() { return m_hists.end();}
+    static QMap<QString, HistogramBundle>::iterator begin() { return m_hists.begin();}
+    static QMap<QString, HistogramBundle>::iterator end() { return m_hists.end();}
 
 public slots:
 

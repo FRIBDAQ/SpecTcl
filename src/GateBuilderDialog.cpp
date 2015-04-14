@@ -77,7 +77,7 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
 
         *m_pEditCut = *m_pOldCut;
 
-        setCutName(QString(m_pEditCut->getName()));
+        onNameChanged(QString(m_pEditCut->getName()));
         fillTableWithData(*m_pEditCut);
 
     } else {
@@ -103,7 +103,8 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
     connect(&m_radioButtons, SIGNAL(buttonClicked(int)), 
             this, SLOT(onTypeChanged(int)));
 
-    }
+}
+
 
 GateBuilderDialog::~GateBuilderDialog()
 {
@@ -113,6 +114,9 @@ GateBuilderDialog::~GateBuilderDialog()
     delete ui;
 }
 
+
+
+// Decorate the accept behavior
 void GateBuilderDialog::accept()
 {
     if (ui->gateNameEdit->text() == "") {
@@ -131,8 +135,11 @@ void GateBuilderDialog::accept()
     // this will (or should) transfer ownership to the gate manager
     emit completed(m_pOldCut);
 
+    // honor thy parents and let them have a say
     QDialog::accept();
 }
+
+
 
 void GateBuilderDialog::reject()
 {
@@ -152,16 +159,21 @@ void GateBuilderDialog::setCutName(const QString& name)
     ui->gateNameEdit->setText(name);
 }
 
+
+/// Handle new click
 void GateBuilderDialog::newPoint(TPad *pad)
 {
     Q_ASSERT(pad!=nullptr);
 
+    // convert between pixels and actual coordinates for cut
     double x, y;
     pad->AbsPixeltoXY(pad->GetEventX(), pad->GetEventY(), x, y);
 
+    // create table entries
     auto xEntry = new QTableWidgetItem(QString::number(x,'f',1));
     auto yEntry = new QTableWidgetItem(QString::number(y,'f',1));
 
+    // add points to  cut and handle differences between band and contour
     if (m_matchLast) {
         ensureLastPointDiffersFromFirst();
     }

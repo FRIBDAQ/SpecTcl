@@ -45,6 +45,17 @@
 class QNetworkAccessManager;
 class QNetworkReply;
 
+/*! Dialog for creating a new histogram
+ *
+ * This actually requests a list of all known parameters from SpecTcl
+ * and then uses those to fill the combo box widgets. The user can then
+ * create a histogram using the existing parameters. This also handles the
+ * actual interaction with the SpecTcl REST interface for creating a histogram.
+ * So it is kind of 
+ * beast at the moment and could use some refactoring. Ideally, the interaction
+ * with the REST interface would be stuck into the SpecTclInterface.
+ *
+ */
 class TGo4CreateNewHistogram : public QDialog, public Ui::TGo4CreateNewHistogram
  {
      Q_OBJECT
@@ -53,16 +64,31 @@ class TGo4CreateNewHistogram : public QDialog, public Ui::TGo4CreateNewHistogram
    TGo4CreateNewHistogram( QWidget* parent = 0);
 
  public slots:
-
+    /*! Creates the remote histogram by calling encodeRequest */
    virtual void createRemoteHist();
    void showYAxisWidgets(int);
+
+   /*! Called when SpecTcl completes reply */
    void onCreateDone(QNetworkReply*);
+
    void updateXParamData(int paramIndex);
    void updateYParamData(int paramIndex);
 
 private:
+   /*! \brief Creates a request url and then initialiates the transaction with
+    *  SpecTcl.
+    * 
+    * This uses the user's settings to build the request.
+    */
    void encodeRequest();
+
+   /*! \brief Queries SpecTcl for a all parameters and returns them parsed
+    *
+    *  \return list of parsed parameter objects
+    */
    std::vector<SpJs::ParameterInfo> updateParameterList();
+
+   /*! \brief Fills combo boxes with parameters */
    void loadKnownParameters();
 
 

@@ -8,6 +8,9 @@ class TCutG;
 class GSlice;
 class GateEditComHandler;
 
+/*! \brief Implementation of the SpecTcl facade for the REST server plugin
+ *
+ */
 class SpecTclRESTInterface : public SpecTclInterface
 {
 public:

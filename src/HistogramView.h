@@ -37,6 +37,8 @@ namespace Ui {
 class HistogramView;
 }
 
+/*! Graphical list of histograms
+ */
 class HistogramView : public QDockWidget
 {
     Q_OBJECT

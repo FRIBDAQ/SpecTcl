@@ -38,29 +38,72 @@ namespace Ui {
 class GateBuilderDialog;
 }
 
+
+
+/*! Dialog for editing 2d gates
+ *
+ *
+ * This maintains 1 GGate object that it owns for editing. While
+ * the user edits, they are actually interacting with the local 
+ * edit version of the gate. In the beginning, the user may or may 
+ * not provide a cut to edit. If they prvided a cut for editing, the 
+ * state of that cut is copied into the editable version. Only if the
+ * the user accepts the changes they make to the cut will the changes
+ * made to the editable cut be committed to the orginal cut. If the user
+ * rejects the changes, then the changes are not committed back to it.
+ *
+ *
+ */ 
 class GateBuilderDialog : public QDialog
 {
     Q_OBJECT
     
 public:
+    /*! Constructor
+     *
+     * Creates the ui.
+     * Creates an editable cut
+     * If provided a cut, hides original and draws editable
+     * Initializes dialog based on cut
+     * Connects the signals and slots for dialog.
+     * 
+     * \param viewer    the current canvas in focus
+     * \param hist      the histogram in we are editing a gate for
+     * \param pCut      cut to edit (if it exists)
+     * \param parent    owner of this dialog widget
+     */
     explicit GateBuilderDialog(QRootCanvas& viewer,
                                HistogramBundle& hist,
                                GGate* pCut = nullptr,
                                QWidget *parent = nullptr);
-    ~GateBuilderDialog();
 
+    /*! Destrcutor */
+    virtual ~GateBuilderDialog();
+
+    /*! Update name of the cut */
     void setCutName(const QString& name);
-    void setCut(GGate* pCut);
 
+    ////////// SLOTS ///////////////////
 public slots:
+    /*! Commit edits to cut for returning
+     *
+     */
     virtual void accept();
+
+    /*!  If needed, redraws original cut */
     virtual void reject();
 
+    /*! Slot for receiving click events */
     void newPoint(TPad* pad);
+
+    /*! Checks for state of text and update accept button state */
     void onNameChanged(const QString& name);
+
+    /*! Slot for gate type radio buttons */
     void onTypeChanged(int type);
 
 signals:
+    /*! Signal emitted when changes accepted */
     void completed(GGate* pCut);
 
 private:
@@ -68,18 +111,20 @@ private:
     void appendPointToTable(double x, double y);
     void appendPointToCut(double x, double y);
     void fillTableWithData(GGate& rCut);
+
+    // utility methods for handling whether cut is closed or open
     void ensureLastPointDiffersFromFirst();
     void ensureLastPointMatchesFirst();
 
 
 
 private:
-    Ui::GateBuilderDialog *ui;
-    QRootCanvas& m_canvas;
+    Ui::GateBuilderDialog *ui;          //!< the ui
+    QRootCanvas& m_canvas;              
     HistogramBundle& m_histPkg;
     QString m_name;
-    std::unique_ptr<GGate> m_pEditCut;
-    GGate* m_pOldCut;
+    std::unique_ptr<GGate> m_pEditCut;  //!< editiable cut
+    GGate* m_pOldCut;                   //!< "original" cut
     QButtonGroup m_radioButtons;
     bool m_matchLast;
 };

@@ -32,6 +32,19 @@ class TH1;
 class GGate;
 class GSlice;
 
+
+/*! \brief Collection of a histogram and its cuts
+ *
+ * We have a histogram centric view of the world here. 
+ * User's can associate an arbitrary number of cuts to a 
+ * histogram, though you are limited to 2d cuts on 2d histograms
+ * and 1d cuts on 1d histograms.
+ *
+ * Histogram bundles are thread safe and own a mutex that is to
+ * be used as a synchronization mechanism. There are convenience
+ * methods that allow you to lock the bundle and unlock it.
+ *
+ */
 class HistogramBundle {
 private:
     QMutex* m_pMutex;
@@ -44,24 +57,19 @@ public:
     HistogramBundle();
     HistogramBundle(QMutex& pMutex, TH1& pHist, const SpJs::HistInfo& info);
 
-    void lock() const {
-        m_pMutex->lock();
-    }
+    // Mutex methods
+    void lock() const { m_pMutex->lock(); }
+    void unlock() const { m_pMutex->unlock(); }
 
-    void unlock() const {
-        m_pMutex->unlock();
-    }
+    // Getters
+    TH1* hist() const { return m_pHist; }
+    SpJs::HistInfo getInfo() const { return m_hInfo; }
 
-    TH1* hist() const {
-        return m_pHist;
-    }
-
-    SpJs::HistInfo getInfo() const {
-        return m_hInfo;
-    }
-
+    // Add cuts
     void addCut1D(GSlice* pSlice);
     void addCut2D(GGate* pCut);
+
+    // Draw the histogram.
     void draw(const QString& opt = QString());
 };
 

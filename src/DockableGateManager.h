@@ -34,22 +34,55 @@ namespace Ui {
 class DockableGateManager;
 }
 
+
+
+/*! \brief Graphical object that owns all gates 
+ *
+ * THis is a dockable widget. It provides buttons for the user
+ * to select a gate to edit and also delete. It then also enables
+ * the user to create new gates for the histogram in focus.
+ *
+ */
 class DockableGateManager : public QDockWidget
 {
-
     Q_OBJECT
     
 public:
+    /*! Constructor
+     *  \param viewer     the histogram view manager
+     *  \param pSpecTcl   the interface object for communicating with SpecTcl
+     *  \param parent     parent widget
+     */
     explicit DockableGateManager(const SpectrumViewer& viewer,
                                  SpecTclInterface* pSpecTcl,
                                  QWidget *parent = 0);
-    ~DockableGateManager();
 
+    /*! Destructor */
+    virtual ~DockableGateManager();
+
+    //////// SLOTS /////////////
 public slots:
+    /*! \brief Slot for opening a gate builder dialog */
     void launchAddGateDialog();
+
+    /*! \brief Slot for opening a gate builder dialog for editing */
     void launchEditGateDialog();
+
+    /*! \brief Slot for adding gate to list of managed gates
+     * 
+     * This wraps pCut in a GateListItem that will own it and that 
+     * GateListItem is then owned by this.
+     */
     void registerGate(GGate* pCut);
+
+    /*! \brief Slot for adding slice to list of manage gates
+     *
+     * This wraps pSlice in a GateListItem that will own it and that 
+     * SliceListItem is then owned by this.
+     */
     void registerSlice(GSlice* pSlice);
+
+    /*! Makes a call to SpecTcl interface to edit the gate */
     void editGate(GGate* pCut);
     void editSlice(GSlice* pSlice);
 

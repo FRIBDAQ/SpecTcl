@@ -30,17 +30,24 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
     // Set the low entry to focus
     m_editFocus = ui->lowEdit;
 
+    // Handle if the user is editing an existing slice
     if (m_pOldSlice) {
+
+        // We want the user to see the lines we are editing
         removeOldLines(*m_pOldSlice);
+
+        // Copy the state of the old slice to the editable slice
         m_editSlice = *m_pOldSlice;
 
+        // Update 
         double xLow = m_editSlice.getXLowLine()->GetX1();
         double xHigh = m_editSlice.getXHighLine()->GetX1();
 
         updateLow(xLow);
         updateHigh(xHigh);
 
-        ui->gateNameEdit->setText(m_editSlice.getName());
+//        ui->gateNameEdit->setText(m_editSlice.getName());
+        nameChanged(m_editSlice.getName());
 
     } else {
         m_histPkg.lock();
@@ -54,8 +61,7 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
     }
     m_editSlice.draw(&m_canvas);
 
-    // the ui editor set this up already
-
+    // Connect
     connect(&m_canvas, SIGNAL(PadClicked(TPad*)), this, SLOT(onClick(TPad*)));
     connect(ui->gateNameEdit, SIGNAL(textChanged(QString)),
             &m_editSlice, SLOT(nameChanged(QString)));
@@ -91,8 +97,10 @@ void GateBuilder1DDialog::accept()
 
     m_histPkg.addCut1D(m_pOldSlice);
 
+    // send the slice to the outside world!
     emit completed( m_pOldSlice );
 
+    // Call the parent's accept() so it accepts as it normally does.
     QDialog::accept();
 }
 
@@ -106,13 +114,18 @@ void GateBuilder1DDialog::reject()
         m_pOldSlice->draw(&m_canvas);
     }
 
+    // Call the parent's reject() so it accepts as it normally does.
     QDialog::reject();
 }
 
+
+
+// Handle user's click
 void GateBuilder1DDialog::onClick(TPad *pad)
 {
     int px = pad->GetEventX();
 
+    // convert pixel position to the appropriate gate value
     double x = pad->AbsPixeltoX(px);
 
     if (m_editFocus == ui->lowEdit) {

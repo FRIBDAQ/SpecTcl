@@ -75,9 +75,8 @@ TGo4CreateNewHistogram::TGo4CreateNewHistogram( QWidget* parent)
 
   adjustSize();
 
-  // update the parameters
+  //  get list of parameters from SpecTcl and fill the gui with them
   m_params = updateParameterList();
-
   loadKnownParameters();
 
   connect(dimensionCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(showYAxisWidgets(int)));
@@ -100,7 +99,6 @@ void TGo4CreateNewHistogram::encodeRequest()
 
    double ymin = Ymin->text().toDouble();
    double ymax = Ymax->text().toDouble();
-
 
    QString base = QString("%1/spectcl/spectrum/create?name=%3").arg(m_server).arg(bname);
 
@@ -138,6 +136,7 @@ void TGo4CreateNewHistogram::showYAxisWidgets(int index)
     adjustSize();
 }
 
+// Called when SpecTcl has completed its actions
 void TGo4CreateNewHistogram::onCreateDone(QNetworkReply *reply)
 {
     auto  error = reply->error();
@@ -145,7 +144,7 @@ void TGo4CreateNewHistogram::onCreateDone(QNetworkReply *reply)
         QByteArray bytes = reply->readAll();
         QString str = QString::fromUtf8(bytes.data(), bytes.size());
 
-        QMessageBox::information(0,"",str);
+//        QMessageBox::information(0,"",str);
     } else {
         QMessageBox::warning(0,"","Failed to read reply for request");
     }
@@ -156,6 +155,7 @@ std::vector<SpJs::ParameterInfo> TGo4CreateNewHistogram::updateParameterList()
 {
   QString updateUrl = m_server + ("/spectcl/parameter/list");
 
+  // Request the list of parameters and block until SpecTcl gives them to you.
   QEventLoop loop;
   QObject::connect(m_pNAM, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
   std::unique_ptr<QNetworkReply> reply(m_pNAM->get(QNetworkRequest(QUrl(updateUrl))));
@@ -181,6 +181,9 @@ std::vector<SpJs::ParameterInfo> TGo4CreateNewHistogram::updateParameterList()
     throw std::runtime_error ("Network error while updating parameters");
   }
 }
+
+
+
 
 void TGo4CreateNewHistogram::loadKnownParameters()
 {
