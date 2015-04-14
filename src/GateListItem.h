@@ -13,7 +13,9 @@ class GateListItem : public QListWidgetItem
                            int type = 0,
                            GGate* pCut = nullptr);
 
-    virtual ~GateListItem() {}
+    virtual ~GateListItem() { 
+      delete m_pGate;
+    }
 
     GGate* getGate() { return m_pGate; }
     

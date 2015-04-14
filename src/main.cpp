@@ -28,6 +28,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 int main(int argc, char *argv[])
 {
+  Q_INIT_RESOURCE(resources);
   QApplication::setGraphicsSystem("native");
 
   TQApplication a("app", &argc, argv);

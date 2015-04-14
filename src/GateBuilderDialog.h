@@ -45,8 +45,8 @@ class GateBuilderDialog : public QDialog
 public:
     explicit GateBuilderDialog(QRootCanvas& viewer,
                                HistogramBundle& hist,
-                               GGate* pCut=nullptr,
-                               QWidget *parent = 0);
+                               GGate* pCut = nullptr,
+                               QWidget *parent = nullptr);
     ~GateBuilderDialog();
 
     void setCutName(const QString& name);

@@ -29,6 +29,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <QString>
 #include <TH1.h>
 
+#include <iostream>
+using namespace std;
 
 HistogramBundle::HistogramBundle()
     : m_pMutex(nullptr),
@@ -47,11 +49,15 @@ HistogramBundle::HistogramBundle(QMutex& pMutex, TH1& pHist, const SpJs::HistInf
 
 void HistogramBundle::addCut1D(GSlice* pSlice) {
     QMutexLocker lock(m_pMutex);
+    cout << "Adding gate " << pSlice->getName().toStdString() 
+         << " (@" << (void*)pSlice << ") to " << m_hInfo.s_name << endl;
     m_cuts1d.push_back(pSlice);
 }
 
 void HistogramBundle::addCut2D(GGate* pCut) {
     QMutexLocker lock(m_pMutex);
+    cout << "Adding gate " << pCut->getName().toStdString() 
+      << " (tcutg @" << (void*)pCut->getGraphicObject() << ") to " << m_hInfo.s_name << endl;
     m_cuts2d.push_back(pCut);
 }
 

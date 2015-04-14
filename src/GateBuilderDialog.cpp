@@ -94,19 +94,25 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
     m_pEditCut->draw();
 
     // Connect up the various components
-    connect(&m_canvas, SIGNAL(PadClicked(TPad*)), this, SLOT(newPoint(TPad*)));
+    connect(&m_canvas, SIGNAL(PadClicked(TPad*)), 
+            this, SLOT(newPoint(TPad*)));
+
     connect(ui->gateNameEdit, SIGNAL(textChanged(const QString&)),
             this, SLOT(onNameChanged(const QString&)));
 
-    connect(&m_radioButtons,SIGNAL(buttonClicked(int)),this, SLOT(onTypeChanged(int)));
+    connect(&m_radioButtons, SIGNAL(buttonClicked(int)), 
+            this, SLOT(onTypeChanged(int)));
 
     }
 
 GateBuilderDialog::~GateBuilderDialog()
 {
-    disconnect(&m_canvas, SIGNAL(PadClicked(TPad*)), this, SLOT(newPoint(TPad*)));
+    disconnect(&m_canvas, SIGNAL(PadClicked(TPad*)), 
+               this, SLOT(newPoint(TPad*)));
 
     delete ui;
+
+    std::cout << "GateBuilderDialog::~GateBuildeDialog()" << std::endl;
 }
 
 void GateBuilderDialog::accept()
@@ -118,13 +124,16 @@ void GateBuilderDialog::accept()
     }
 
     if (m_pOldCut == nullptr) {
+      cout << "Creating new cut for m_pOldCut" << endl;
         m_pOldCut = new GGate("", SpJs::Band("", "", "", {}));
     }
 
+    cout << "About to assign" << endl;
     *m_pOldCut = *m_pEditCut;
+    cout << "Done assigning" << endl;
     m_histPkg.addCut2D(m_pOldCut);
 
-    // this will(or should) transfer ownership to the gate manager
+    // this will (or should) transfer ownership to the gate manager
     emit completed(m_pOldCut);
 
     QDialog::accept();

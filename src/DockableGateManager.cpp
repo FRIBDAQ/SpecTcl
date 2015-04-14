@@ -65,8 +65,8 @@ void DockableGateManager::launchAddGateDialog()
         GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg);
         dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-        connect(dialog, SIGNAL(completed(GGate*)),this,SLOT(registerGate(GGate*)));
-        connect(dialog, SIGNAL(finished(int)), dialog, SLOT(close()));
+        connect(dialog, SIGNAL(completed(GGate*)), 
+                this, SLOT(registerGate(GGate*)));
 
         dialog->show();
         dialog->raise();
@@ -92,7 +92,8 @@ void DockableGateManager::launchEditGateDialog()
 
         if (auto pSlItem = dynamic_cast<SliceTableItem*>(pItem)) {
             auto pCut = pSlItem->getSlice();
-            GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas, *histPkg, pCut);
+            GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas, 
+                                                                  *histPkg, pCut);
             dialog->setAttribute(Qt::WA_DeleteOnClose);
             connect(dialog, SIGNAL(completed(GSlice*)),
                     this, SLOT(editSlice(GSlice*)));
@@ -118,13 +119,18 @@ void DockableGateManager::launchEditGateDialog()
 
 void DockableGateManager::registerGate(GGate* pCut)
 {
-    Q_ASSERT(pCut!=nullptr);
+    Q_ASSERT(pCut != nullptr);
 
     GateListItem* pItem = new GateListItem(QString(pCut->getName()),
                                            ui->gateList,
                                            Qt::UserRole,
                                            pCut);
 
+    if (pCut->getType() == SpJs::BandGate) {
+      pItem->setIcon(QIcon(":/icons/band-icon.png"));
+    } else {
+      pItem->setIcon(QIcon(":/icons/contour-icon.png"));
+    }
     ui->gateList->addItem(pItem);
 
     if (m_pSpecTcl) {
@@ -143,6 +149,7 @@ void DockableGateManager::registerSlice(GSlice *pSlice)
                                                ui->gateList,
                                                Qt::UserRole,
                                                pSlice);
+    pItem->setIcon(QIcon(":/icons/slice-icon.png"));
     ui->gateList->addItem(pItem);
 
     if (m_pSpecTcl) {

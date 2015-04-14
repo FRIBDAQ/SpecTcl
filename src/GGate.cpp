@@ -17,7 +17,7 @@ GGate::GGate(const QString& name,
     :
       m_name(name),
       m_info(),
-      m_pCut(new TCutG("__empty__", 1)),
+      m_pCut(new MyCutG("__empty__", 1)),
       QObject(parent)
 {
     // setting the info also resets the cut
@@ -29,10 +29,9 @@ GGate& GGate::operator=(const GGate& rhs)
     if (this != &rhs) {
         m_name = rhs.m_name;
         setInfo(*rhs.m_info);
-        int n = rhs.m_pCut->GetN();
-        m_pCut.reset(new TCutG("", n, rhs.m_pCut->GetX(), rhs.m_pCut->GetY()));
+//        int n = rhs.m_pCut->GetN();
+//        m_pCut.reset(new MyCutG("", n, rhs.m_pCut->GetX(), rhs.m_pCut->GetY()));
 
-        // cant copy QObject, but we can set the parent
         setParent(rhs.parent());
     }
 
@@ -73,17 +72,17 @@ std::vector<std::pair<double, double> > GGate::getPoints() const
 
 void GGate::setInfo(const SpJs::GateInfo2D &info)
 {
+    // copy the actual gate,
+    // this deletes the previous gate and stores the copy
     m_info.reset(dynamic_cast<SpJs::GateInfo2D*>(info.clone().release()));
 
     auto points = m_info->getPoints();
     size_t nPoints = points.size();
 
-    if (m_pCut == nullptr) {
-      m_pCut.reset(new TCutG(info.getName().c_str(), nPoints));
-    } else {
-      m_pCut->Set(nPoints);
-    }
+    // resize current cut
+    m_pCut->Set(nPoints);
 
+    // fill the entries of the grphical cut
     for (size_t i=0; i<nPoints; ++i) {
         auto& point = points.at(i);
         m_pCut->SetPoint(i, point.first, point.second);
@@ -118,14 +117,8 @@ void GGate::setType(SpJs::GateType type)
 void GGate::appendPoint(double x, double y)
 {
     int nPoints = m_pCut->GetN();
-    cout << "cut n=" << nPoints << endl;
-//    if (nPoints==1 && QString(m_pCut->GetName())=="__empty__") {
-//        m_pCut->SetPoint(0, x, y);
-//        m_pCut->SetName("__not_empty__");
-//    } else {
     m_pCut->Set(nPoints+1);
     m_pCut->SetPoint(nPoints, x, y);
-//    }
 
     m_info->getPoints().push_back(std::make_pair(x, y));
 
@@ -149,6 +142,6 @@ void GGate::draw()
   if (m_pCut) {
     m_pCut->Draw("same");
   } else {
-    throw runtime_error("Cannot draw gate because it is a null ptr");
+    throw runtime_error("Cannot draw gate because it is a nullptr");
   }
 }
