@@ -147,6 +147,11 @@ void DockableGateManager::registerGate(GGate* pCut)
     if (m_pSpecTcl) {
         m_pSpecTcl->addGate(*pCut);
     }
+
+    auto histPkg = m_view.getCurrentHist();
+    if (histPkg) {
+      histPkg->draw();
+    }
 }
 
 
@@ -166,6 +171,11 @@ void DockableGateManager::registerSlice(GSlice *pSlice)
     if (m_pSpecTcl) {
         m_pSpecTcl->addGate(*pSlice);
     }
+
+    auto histPkg = m_view.getCurrentHist();
+    if (histPkg) {
+      histPkg->draw();
+    }
 }
 
 
@@ -176,6 +186,11 @@ void DockableGateManager::editGate(GGate* pCut)
     if (m_pSpecTcl) {
         m_pSpecTcl->editGate(*pCut);
     }
+
+    auto histPkg = m_view.getCurrentHist();
+    if (histPkg) {
+      histPkg->draw();
+    }
 }
 
 
@@ -185,6 +200,11 @@ void DockableGateManager::editSlice(GSlice *pSlice)
 
     if (m_pSpecTcl) {
         m_pSpecTcl->editGate(*pSlice);
+    }
+
+    auto histPkg = m_view.getCurrentHist();
+    if (histPkg) {
+      histPkg->draw();
     }
 }
 
@@ -203,8 +223,11 @@ void DockableGateManager::deleteGate()
     if (pSlItem) {
       HistogramList::removeSlice(*pSlItem->getSlice());
     } else {
+      GateListItem* pGItem = dynamic_cast<GateListItem*>(pItem);
+      Q_ASSERT( pGItem != nullptr );
 
-      //HistogramList::removeGate(pItem->getSlice());
+      HistogramList::removeGate(*pGItem->getGate());
+
     }
 
     // Remove the row
@@ -214,5 +237,11 @@ void DockableGateManager::deleteGate()
 
 
   }
+
+  auto histPkg = m_view.getCurrentHist();
+  if (histPkg) {
+    histPkg->draw();
+  }
+
 }
 

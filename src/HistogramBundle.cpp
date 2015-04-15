@@ -28,6 +28,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <QMutexLocker>
 #include <QString>
 #include <TH1.h>
+#include <TH2.h>
 
 #include <utility>
 #include <iostream>
@@ -66,7 +67,15 @@ void HistogramBundle::addCut2D(GGate* pCut) {
 }
 
 void HistogramBundle::draw(const QString& opt) {
-    const char* cOpts = opt.toAscii().constData();
+
+  QString opts(opt);
+    if (opts.isNull()) {
+      if ( dynamic_cast<TH2*>(m_pHist.get()) ) {
+        opts = "colz";
+      }
+    }
+    const char* cOpts = opts.toAscii().constData();
+
     m_pMutex->lock();
     m_pHist->Draw(cOpts);
     m_pMutex->unlock();

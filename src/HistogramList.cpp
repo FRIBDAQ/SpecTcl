@@ -132,4 +132,22 @@ void HistogramList::removeSlice(const GSlice& slice)
 
 void HistogramList::removeGate(const GGate& gate)
 {
+  auto it = begin();
+  auto it_end = end();
+
+  auto name = gate.getName();
+
+  while ( it != it_end ) {
+    
+    auto& cuts = it->second->getCut2Ds();
+
+    // check if the cut exists and remove it if it does
+    auto it_match = cuts.find(name);
+    if ( it_match != cuts.end() ) {
+      cuts.erase(it_match);
+    }
+    
+    // update iterator 
+    ++it;
+  }
 }
