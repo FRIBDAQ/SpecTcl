@@ -28,7 +28,9 @@ set(untitled2_SOURCES
   SpecTclInterface.cpp 
   SpecTclRESTInterface.cpp 
   GateEditComHandler.cpp 
-  GateEditRequest.cpp)
+  GateEditRequest.cpp
+  GateDeleteRequest.cpp
+  CommonResponseHandler.cpp)
 
 set(untitled2_HEADERS 
   QRootCanvas.h 
@@ -59,7 +61,9 @@ set(untitled2_HEADERS
   SpecTclInterface.h 
   SpecTclRESTInterface.h 
   GateEditComHandler.h 
-  GateEditRequest.h)
+  GateEditRequest.h
+  GateDeleteRequest.h
+  CommonResponseHandler.h)
 
 set(untitled2_FORMS
   mainwindow.ui 
@@ -166,11 +170,11 @@ add_executable(untitled2 main.cpp)
 target_link_libraries(untitled2 Untitled2)
 
 
-### TESTLIB .... sample
-set(test2_SOURCES testqstring.cpp)
-set(test2_HEADERS testqstring.h)
-qt4_wrap_cpp(test2_HEADERS_MOC ${test2_HEADERS})
-add_executable(test2 ${test2_SOURCES} ${test2_HEADERS_MOC})
-target_link_libraries(test2  ${QT_LIBRARIES})
-
-add_test(TEST2 test2)
+#### TESTLIB .... sample
+#set(test2_SOURCES testqstring.cpp)
+#set(test2_HEADERS testqstring.h)
+#qt4_wrap_cpp(test2_HEADERS_MOC ${test2_HEADERS})
+#add_executable(test2 ${test2_SOURCES} ${test2_HEADERS_MOC})
+#target_link_libraries(test2  ${QT_LIBRARIES})
+#
+#add_test(TEST2 test2)

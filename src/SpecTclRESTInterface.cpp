@@ -3,6 +3,8 @@
 #include "GSlice.h"
 #include "GateEditComHandler.h"
 #include "GateEditRequest.h"
+#include "GateDeleteRequest.h"
+#include "CommonResponseHandler.h"
 
 #include <QString>
 #include <QUrl>
@@ -13,7 +15,8 @@
 using namespace std;
 
 SpecTclRESTInterface::SpecTclRESTInterface()
-    : m_pGateEditCmd(new GateEditComHandler)
+    : m_pGateEditCmd(new GateEditComHandler),
+    m_pCommonHandler(new CommonResponseHandler)
 {
 
 }
@@ -31,6 +34,13 @@ void SpecTclRESTInterface::editGate(const GSlice &slice)
     m_pGateEditCmd->makeRequest(req.toUrl());
 }
 
+void SpecTclRESTInterface::deleteGate(const GSlice &slice)
+{
+  GateDeleteRequest req(slice);
+
+  cout << req.toUrl().toString().toStdString() << endl;
+  m_pCommonHandler->makeRequest(req.toUrl());
+}
 
 void SpecTclRESTInterface::addGate(const GGate &gate)
 {
@@ -44,16 +54,21 @@ void SpecTclRESTInterface::editGate(const GGate &gate)
 
   cout << req.toUrl().toString().toStdString() << endl;
   m_pGateEditCmd->makeRequest(req.toUrl());
+}
 
-//    QString server = GlobalSettings::getServer();
+void SpecTclRESTInterface::deleteGate(const GGate &slice)
+{
+  GateDeleteRequest req(slice);
 
-//    QString cmd = server + "/spectcl/gate/edit";
-//    cmd += QString("?name=") + slice.getName();
-//    cmd += QString("&type=s&low=") + QString::number(slice.getXLow());
-//    cmd += QString("&high=") + QString::number(slice.getXHigh());
-//    cmd += QString("&parameter=") + slice.getParameter();
-//    std::cout << cmd.toStdString() << std::endl;
+  cout << req.toUrl().toString().toStdString() << endl;
+  m_pCommonHandler->makeRequest(req.toUrl());
+}
 
-//    m_pGateEditCmd->makeRequest(QUrl(cmd));
+void SpecTclRESTInterface::deleteGate(const QString& name) 
+{
+  GateDeleteRequest req(name);
+
+  cout << req.toUrl().toString().toStdString() << endl;
+  m_pCommonHandler->makeRequest(req.toUrl());
 
 }

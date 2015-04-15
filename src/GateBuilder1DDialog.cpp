@@ -3,7 +3,10 @@
 #include "QRootCanvas.h"
 #include "HistogramBundle.h"
 #include "GSlice.h"
+
 #include <QMessageBox>
+#include <QPushButton>
+
 #include <TPad.h>
 #include <TCanvas.h>
 #include <TFrame.h>
@@ -46,9 +49,10 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
         updateLow(xLow);
         updateHigh(xHigh);
 
-//        ui->gateNameEdit->setText(m_editSlice.getName());
-        nameChanged(m_editSlice.getName());
+        onNameChanged(m_editSlice.getName());
 
+        // at the moment users cant change the name of a gate once created
+        ui->gateNameEdit->setDisabled(true);
     } else {
         m_histPkg.lock();
         auto xMin = m_histPkg.hist()->GetXaxis()->GetXmin();
@@ -58,13 +62,15 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
         QString paramName = QString::fromStdString( m_histPkg.getInfo().s_params.at(0) );
 
         m_editSlice = GSlice(0, "__cut_in_progress__", paramName, xMin, xMax, &m_canvas);
+        onNameChanged("");
     }
     m_editSlice.draw(&m_canvas);
 
     // Connect
-    connect(&m_canvas, SIGNAL(PadClicked(TPad*)), this, SLOT(onClick(TPad*)));
+    connect(&m_canvas, SIGNAL(PadClicked(TPad*)),
+            this, SLOT(onClick(TPad*)));
     connect(ui->gateNameEdit, SIGNAL(textChanged(QString)),
-            &m_editSlice, SLOT(nameChanged(QString)));
+            this, SLOT(onNameChanged(QString)));
 
 }
 
@@ -184,3 +190,14 @@ void GateBuilder1DDialog::removeOldLines(GSlice &rSlice)
     pList->Remove(rSlice.getXLowLine());
     pList->Remove(rSlice.getXHighLine());
 }
+
+void GateBuilder1DDialog::onNameChanged(QString name)
+{
+
+    m_editSlice.setName(name);
+    ui->gateNameEdit->setText(name);
+
+    bool empty = name.isEmpty();
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled( !empty );
+}
+

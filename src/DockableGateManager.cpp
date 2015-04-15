@@ -36,6 +36,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <QMessageBox>
 #include <TH1.h>
 #include <TH2.h>
+#include <iostream>
+
+using namespace std;
 
 DockableGateManager::DockableGateManager(const SpectrumViewer& viewer,
                                          SpecTclInterface* pSpecTcl,
@@ -46,8 +49,12 @@ DockableGateManager::DockableGateManager(const SpectrumViewer& viewer,
     m_pSpecTcl(pSpecTcl)
 {
     ui->setupUi(this);
-    connect(ui->addButton,SIGNAL(clicked()),this, SLOT(launchAddGateDialog()));
-    connect(ui->editButton,SIGNAL(clicked()),this, SLOT(launchEditGateDialog()));
+    connect(ui->addButton, SIGNAL(clicked()), 
+            this, SLOT(launchAddGateDialog()));
+    connect(ui->editButton, SIGNAL(clicked()), 
+            this, SLOT(launchEditGateDialog()));
+    connect(ui->deleteButton, SIGNAL(clicked()), 
+            this, SLOT(deleteGate()));
 }
 
 DockableGateManager::~DockableGateManager()
@@ -104,6 +111,10 @@ void DockableGateManager::launchEditGateDialog()
         } else {
             auto pGateItem = dynamic_cast<GateListItem*>(pItem);
             auto pGate = pGateItem->getGate();
+
+            // make sure that state is updated if user moved the cut via the gui
+            pGate->synchronize(GGate::GUI);
+
             GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg, pGate);
             dialog->setAttribute(Qt::WA_DeleteOnClose);
             connect(dialog, SIGNAL(completed(GGate*)),
@@ -160,7 +171,7 @@ void DockableGateManager::registerSlice(GSlice *pSlice)
 
 void DockableGateManager::editGate(GGate* pCut)
 {
-    Q_ASSERT(pCut!=nullptr);
+    Q_ASSERT( pCut != nullptr );
 
     if (m_pSpecTcl) {
         m_pSpecTcl->editGate(*pCut);
@@ -177,4 +188,31 @@ void DockableGateManager::editSlice(GSlice *pSlice)
     }
 }
 
+void DockableGateManager::deleteGate()
+{
+  auto selected = ui->gateList->selectedItems();
+  for ( auto pItem : selected ) {
+    // tell SpecTcl to delete the gate
+    cout << pItem->text().toStdString() << " @ " << (void*)pItem << endl;
+    if (m_pSpecTcl) {
+      m_pSpecTcl->deleteGate(pItem->text());
+    }
+  
+    // remove item from every histogram
+    SliceTableItem* pSlItem = dynamic_cast<SliceTableItem*>(pItem);
+    if (pSlItem) {
+      HistogramList::removeSlice(*pSlItem->getSlice());
+    } else {
+
+      //HistogramList::removeGate(pItem->getSlice());
+    }
+
+    // Remove the row
+    auto row = ui->gateList->row(pItem);
+    ui->gateList->takeItem(row);
+    delete pItem;
+
+
+  }
+}
 

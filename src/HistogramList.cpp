@@ -22,6 +22,9 @@
 
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "HistogramList.h"
+#include "GSlice.h"
+#include "GGate.h"
+
 #include <memory>
 #include <TH1.h>
 #include <QString>
@@ -29,9 +32,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <QMutexLocker>
 #include <stdexcept>
 
+#include <memory>
+#include <algorithm>
+
+using namespace std;
+
 HistogramList* HistogramList::m_instance = nullptr;
 
-QMap<QString,HistogramBundle> HistogramList::m_hists;
+map<QString, unique_ptr<HistogramBundle> > HistogramList::m_hists;
 QMutex HistogramList::m_mutex;
 
 HistogramList::HistogramList(QObject *parent) :
@@ -39,20 +47,22 @@ HistogramList::HistogramList(QObject *parent) :
 {}
 
 HistogramList::~HistogramList()
+{}
+
+QList<QString> HistogramList::histNames()
 {
-    // free all of the hists
-    for (auto pair : m_hists) {
+  QList<QString> retList;
 
-        // do not delete a hist if it is being used.
-        pair.lock();
-        delete pair.hist();
-        pair.unlock();
+  for (auto& item : m_hists) {
+    retList.push_back(item.first);
+  }
 
-        // delete the hist's mutex
-        delete pair.hist();
-    }
+  return retList;
 }
 
+void HistogramList::clear() {
+  m_hists.clear();
+}
 
 bool HistogramList::histExists(const QString &name)
 {
@@ -67,22 +77,59 @@ HistogramBundle* HistogramList::getHist(const QString &name)
     QMutexLocker lock(&m_mutex);
     auto iter = m_hists.find(name);
     if (iter!=m_hists.end()) {
-        return &(*iter);
+        return iter->second.get();
     } else {
         throw std::runtime_error("Requested histogram not found");
     }
 }
 
-void HistogramList::addHist(TH1& rHist, const SpJs::HistInfo& info)
+void HistogramList::addHist(std::unique_ptr<TH1> pHist, const SpJs::HistInfo& info)
 {
-    QString name(rHist.GetName());
+    QString name(pHist->GetName());
 
     if (histExists(name)) {
         return;
     } else {
         QMutexLocker lock(&m_mutex);
+        unique_ptr<HistogramBundle> pBundle(new HistogramBundle(unique_ptr<QMutex>(new QMutex), 
+                                                                std::move(pHist), 
+                                                                info));
 
-        m_hists.insert(name, HistogramBundle(*(new QMutex),rHist, info));
+        m_hists.insert(make_pair(name, std::move(pBundle)));
     }
 }
 
+void HistogramList::addHist(unique_ptr<HistogramBundle> pHist) 
+{
+  QString name = pHist->getName();
+  QMutexLocker lock(&m_mutex);
+
+  // this is kind of clunky but it i cannot use insert or assignment
+  m_hists[name].reset(pHist.release());
+}
+
+void HistogramList::removeSlice(const GSlice& slice)
+{
+  auto it = begin();
+  auto it_end = end();
+
+  auto name = slice.getName();
+
+  while ( it != it_end ) {
+    
+    auto& cuts = it->second->getCut1Ds();
+
+    // check if the cut exists and remove it if it does
+    auto it_match = cuts.find(name);
+    if ( it_match != cuts.end() ) {
+      cuts.erase(it_match);
+    }
+    
+    // update iterator 
+    ++it;
+  }
+}
+
+void HistogramList::removeGate(const GGate& gate)
+{
+}

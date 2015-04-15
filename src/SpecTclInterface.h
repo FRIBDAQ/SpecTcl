@@ -3,7 +3,7 @@
 
 class GSlice;
 class GGate;
-
+class QString;
 
 /*! \brief A facade for the actual interaction with SpecTcl
  *
@@ -21,9 +21,13 @@ public:
 
     virtual void addGate(const GSlice& slice) = 0;
     virtual void editGate(const GSlice& slice) = 0;
+    virtual void deleteGate(const GSlice& slice) = 0;
+
     virtual void addGate(const GGate& slice) = 0;
     virtual void editGate(const GGate& slice) = 0;
+    virtual void deleteGate(const GGate& slice) = 0;
 
+    virtual void deleteGate(const QString& name) = 0;
 };
 
 #endif // SPECTCLINTERFACE_H

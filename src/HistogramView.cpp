@@ -80,9 +80,7 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
             // this should  get a unique ptr, we want to get the raw pointer
             // and strip the unique_ptr of its ownership (i.e. release())
             auto upHist = factory.create(info);
-            TH1* pHist = upHist.get();
-            upHist.release();
-            HistogramList::getInstance()->addHist(*pHist, info);
+            HistogramList::getInstance()->addHist(std::move(upHist), info);
 
             // Histograms are uniquely named, so we can use the name as the key
             QString name = QString::fromStdString((*iter).s_name);

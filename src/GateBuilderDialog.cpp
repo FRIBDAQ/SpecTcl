@@ -78,7 +78,14 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
         *m_pEditCut = *m_pOldCut;
 
         onNameChanged(QString(m_pEditCut->getName()));
+        // users cannot change a name once created
+        ui->gateNameEdit->setDisabled(true);
+
         fillTableWithData(*m_pEditCut);
+
+        // User's cannot change the type once created
+        ui->bandButton->setDisabled(true);
+        ui->contourButton->setDisabled(true);
 
     } else {
       // user is starting fresh, use the histogram bundle to access what

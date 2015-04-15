@@ -233,14 +233,14 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
 
     // get the name of the hist and update it if it exists.
     auto name = getHistNameFromRequest(reply->request());
-    auto histBundle = HistogramList::getHist(name);
-    if (histBundle->hist()) {
-      LockGuard<HistogramBundle> lock(*histBundle);
-      SpJs::HistFiller()(*(histBundle->hist()), content);
+    auto pHistBundle = HistogramList::getHist(name);
+    if (pHistBundle->hist()) {
+      LockGuard<HistogramBundle> lock(pHistBundle);
+      SpJs::HistFiller()(*(pHistBundle->hist()), content);
     }
 
     // ALL DONE!
-    emit parsingComplete(histBundle);
+    emit parsingComplete(pHistBundle);
 
   } catch (std::exception& exc) {
     QString msg("Failed to update hist because : %1");

@@ -47,7 +47,10 @@ public:
     TLine* getXHighLine() { return m_pHigh; }
 
     QString getName() const { return m_name; }
+    void setName(const QString& name) { m_name = name; }
+
     QString getParameter() const { return m_parameter; }
+    void setParameter(const QString& param) { m_parameter = param; }
 
 public slots:
     //! Draw 

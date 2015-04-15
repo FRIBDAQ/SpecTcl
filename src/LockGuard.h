@@ -26,11 +26,13 @@
 template<class T> class LockGuard
 {
 private:
-    T m_lock;
+    T& m_lock;
 public:
-    LockGuard(T obj) : m_lock(obj) {
+    LockGuard(T& obj) : m_lock(obj) {
         m_lock.lock();
     }
+
+    LockGuard(T* obj) : LockGuard(*obj) {}
 
     ~LockGuard() {
         m_lock.unlock();

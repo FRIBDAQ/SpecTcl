@@ -56,7 +56,12 @@ class MyCutG : public TCutG
  */
 class GGate : public QObject
 {
+
     Q_OBJECT
+
+public:
+    enum DataSource { SpecTcl, GUI };
+
 public:
     /*! \brief Constructor
      *
@@ -94,8 +99,6 @@ public:
 
     /*! \brief Get the name of the parameter for y-axis */
     QString getParameterY() const;
-
-
 
 
     /*! \brief Retrieve list of point defining cut 
@@ -149,6 +152,10 @@ public:
      *  \param type   either SpJs::BandGate or SpJs::ContourGate
      */
     void setType(SpJs::GateType type);
+
+
+    void synchronize(DataSource targ);
+
 
 public slots:
    /*! */

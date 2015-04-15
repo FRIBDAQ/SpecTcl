@@ -3,6 +3,9 @@
 set(untitled2test_SOURCES 
   TestRunner.cpp
   GateEditRequestTest.cpp 
+  GateDeleteRequestTest.cpp 
+  GGateTest.cpp
+  HistogramListTest.cpp
   ${PROGRAM_SOURCES} )
 
 set(untitled2test_HEADERS "")

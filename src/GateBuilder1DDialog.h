@@ -49,6 +49,9 @@ public slots:
     virtual void reject();
     virtual void onClick(TPad* pad);
 
+    /*! Set the name and also update the accept button */
+    void onNameChanged(QString name);
+
 private:
 
     // Update lines and text

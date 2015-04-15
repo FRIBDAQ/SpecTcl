@@ -76,6 +76,8 @@ void GGate::setInfo(const SpJs::GateInfo2D &info)
     // this deletes the previous gate and stores the copy
     m_info.reset(dynamic_cast<SpJs::GateInfo2D*>(info.clone().release()));
 
+    m_pCut->SetName(m_info->getName().c_str());
+
     auto points = m_info->getPoints();
     size_t nPoints = points.size();
 
@@ -144,4 +146,37 @@ void GGate::draw()
   } else {
     throw runtime_error("Cannot draw gate because it is a nullptr");
   }
+}
+
+void GGate::synchronize(GGate::DataSource targ)
+{
+    if (targ == SpecTcl) {
+        auto points = m_info->getPoints();
+        size_t nPoints = points.size();
+
+        // resize current cut
+        m_pCut->Set(nPoints);
+
+        // fill the entries of the grphical cut
+        for (size_t i=0; i<nPoints; ++i) {
+            auto& point = points.at(i);
+            m_pCut->SetPoint(i, point.first, point.second);
+        }
+    } else {
+        // resize current cut
+        int nPoints = m_pCut->GetN();
+
+        vector<pair<double, double> > points;
+        points.reserve(nPoints);
+
+        auto* pX = m_pCut->GetX();
+        auto* pY = m_pCut->GetY();
+
+        // fill the entries of the grphical cut
+        for (size_t i=0; i<nPoints; ++i) {
+            points.push_back(make_pair(pX[i], pY[i]));
+        }
+
+        m_info->setPoints(points);
+    }
 }

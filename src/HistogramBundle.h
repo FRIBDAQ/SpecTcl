@@ -26,7 +26,9 @@
 #include <QMutex>
 #include <QString>
 #include <HistInfo.h>
-#include <vector>
+#include <map>
+
+#include <memory>
 
 class TH1;
 class GGate;
@@ -47,27 +49,33 @@ class GSlice;
  */
 class HistogramBundle {
 private:
-    QMutex* m_pMutex;
-    TH1* m_pHist;
-    std::vector<GGate*> m_cuts2d;
-    std::vector<GSlice*> m_cuts1d;
-    SpJs::HistInfo m_hInfo;
+  std::unique_ptr<QMutex> m_pMutex;
+  std::unique_ptr<TH1> m_pHist;
+  std::map<QString, GGate*> m_cuts2d;
+  std::map<QString, GSlice*> m_cuts1d;
+  SpJs::HistInfo m_hInfo;
 
 public:
     HistogramBundle();
-    HistogramBundle(QMutex& pMutex, TH1& pHist, const SpJs::HistInfo& info);
+    HistogramBundle(std::unique_ptr<QMutex> pMutex, 
+                    std::unique_ptr<TH1> pHist, const SpJs::HistInfo& info);
 
     // Mutex methods
     void lock() const { m_pMutex->lock(); }
     void unlock() const { m_pMutex->unlock(); }
 
     // Getters
-    TH1* hist() const { return m_pHist; }
+    TH1* hist() const { return m_pHist.get(); }
     SpJs::HistInfo getInfo() const { return m_hInfo; }
+
+    QString getName() const { return QString::fromStdString(m_hInfo.s_name); }
 
     // Add cuts
     void addCut1D(GSlice* pSlice);
     void addCut2D(GGate* pCut);
+
+    std::map<QString, GSlice*>& getCut1Ds() { return m_cuts1d; }
+    std::map<QString, GGate*>& getCut2Ds() { return m_cuts2d; }
 
     // Draw the histogram.
     void draw(const QString& opt = QString());

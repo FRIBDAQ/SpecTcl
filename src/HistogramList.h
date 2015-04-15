@@ -25,8 +25,10 @@
 
 #include "HistogramBundle.h"
 #include <QFrame>
-#include <QMap>
 #include <QString>
+
+#include <memory>
+#include <map>
 
 class TH1;
 class TCutG;
@@ -43,8 +45,8 @@ class HistogramList : public QObject
     Q_OBJECT
     
 public:
-    using iterator       = typename QMap<QString,HistogramBundle>::iterator;
-    using const_iterator = typename QMap<QString,HistogramBundle>::const_iterator;
+    using iterator       = typename std::map<QString, std::unique_ptr<HistogramBundle> >::iterator;
+    using const_iterator = typename std::map<QString, std::unique_ptr<HistogramBundle> >::const_iterator;
 
 private:
     explicit HistogramList(QObject *parent = 0);
@@ -60,21 +62,29 @@ public:
         return m_instance;
     }
 
-    static QList<QString> histNames() { return m_hists.keys(); }
-    static QMap<QString, HistogramBundle>::iterator begin() { return m_hists.begin();}
-    static QMap<QString, HistogramBundle>::iterator end() { return m_hists.end();}
+    static QList<QString> histNames();
+
+    static void clear();
+    static std::map<QString, HistogramBundle>::size_type size() { return m_hists.size(); }
+
+    static iterator begin() { return m_hists.begin();}
+    static iterator end() { return m_hists.end();}
+
+    static void addHist(std::unique_ptr<TH1> hist, const SpJs::HistInfo& info);
+    static void addHist(std::unique_ptr<HistogramBundle> hist);
 
 public slots:
 
     static bool histExists(const QString& name);
     static HistogramBundle* getHist(const QString& name);
-    static void addHist(TH1& hist, const SpJs::HistInfo& info);
 
+    static void removeSlice(const GSlice& slice);
+    static void removeGate(const GGate& gate);
 
 private:
     static HistogramList* m_instance;
 
-    static QMap<QString,HistogramBundle> m_hists;
+    static std::map<QString, std::unique_ptr<HistogramBundle> > m_hists;
     static QMutex m_mutex;
 
 };

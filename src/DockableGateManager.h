@@ -86,6 +86,8 @@ public slots:
     void editGate(GGate* pCut);
     void editSlice(GSlice* pSlice);
 
+    void deleteGate();
+
 private:
     Ui::DockableGateManager *ui;
     const SpectrumViewer& m_view;

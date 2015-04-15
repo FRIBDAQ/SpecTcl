@@ -29,36 +29,40 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <QString>
 #include <TH1.h>
 
+#include <utility>
 #include <iostream>
+
 using namespace std;
 
 HistogramBundle::HistogramBundle()
-    : m_pMutex(nullptr),
+    : m_pMutex(),
       m_pHist(nullptr),
       m_cuts2d(),
       m_cuts1d(),
       m_hInfo()
 {}
-HistogramBundle::HistogramBundle(QMutex& pMutex, TH1& pHist, const SpJs::HistInfo& info)
-    : m_pMutex(&pMutex),
-      m_pHist(&pHist),
+
+HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex, 
+                                 unique_ptr<TH1> pHist, const SpJs::HistInfo& info)
+    : m_pMutex(std::move(pMutex)),
+      m_pHist(std::move(pHist)),
       m_cuts2d(),
       m_cuts1d(),
       m_hInfo(info)
 {}
 
 void HistogramBundle::addCut1D(GSlice* pSlice) {
-    QMutexLocker lock(m_pMutex);
+    QMutexLocker lock(m_pMutex.get());
     cout << "Adding gate " << pSlice->getName().toStdString() 
          << " (@" << (void*)pSlice << ") to " << m_hInfo.s_name << endl;
-    m_cuts1d.push_back(pSlice);
+    m_cuts1d.insert(make_pair(pSlice->getName(), pSlice)) ;
 }
 
 void HistogramBundle::addCut2D(GGate* pCut) {
-    QMutexLocker lock(m_pMutex);
+    QMutexLocker lock(m_pMutex.get());
     cout << "Adding gate " << pCut->getName().toStdString() 
       << " (tcutg @" << (void*)pCut->getGraphicObject() << ") to " << m_hInfo.s_name << endl;
-    m_cuts2d.push_back(pCut);
+    m_cuts2d.insert(make_pair(pCut->getName(), pCut)) ;
 }
 
 void HistogramBundle::draw(const QString& opt) {
@@ -68,10 +72,10 @@ void HistogramBundle::draw(const QString& opt) {
     m_pMutex->unlock();
 
     for (auto cut : m_cuts1d) {
-        cut->draw();
+        cut.second->draw();
     }
 
     for (auto cut : m_cuts2d) {
-        cut->draw();
+        cut.second->draw();
     }
 }
