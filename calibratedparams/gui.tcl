@@ -54,7 +54,7 @@ proc AttachOnline {} {
 		stop
 	}
 	set DataSource "TCP://$DAQHOST:2602/"
-	attach -pipe [file join $::daqdefs/daqbin spectcldaq] $DataSource
+	attach -pipe [file join $::daqdefs::daqbin spectcldaq] $DataSource
 	start
 }
 
