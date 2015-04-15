@@ -18,7 +18,7 @@ enable_testing()
 add_subdirectory(src)
 add_subdirectory(test)
 
-add_custom_target(test COMMAND untitled2test)
+add_custom_target(check COMMAND untitled2test)
 
 
 

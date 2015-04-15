@@ -27,6 +27,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 #include <memory>
 #include <TH1.h>
+#include <TH2.h>
 #include <QString>
 #include <QMap>
 #include <QMutexLocker>
@@ -145,6 +146,27 @@ void HistogramList::removeGate(const GGate& gate)
     auto it_match = cuts.find(name);
     if ( it_match != cuts.end() ) {
       cuts.erase(it_match);
+    }
+    
+    // update iterator 
+    ++it;
+  }
+}
+
+void HistogramList::addSlice(GSlice* pSlice)
+{
+  auto it = begin();
+  auto it_end = end();
+
+  auto name = pSlice->getName();
+
+  while ( it != it_end ) {
+    
+    if ( ! it->second->hist()->InheritsFrom(TH2::Class()) ) {
+      auto& cuts = it->second->getCut1Ds();
+      // check if the cut exists and remove it if it does
+      it->second->addCut1D(pSlice);
+
     }
     
     // update iterator 

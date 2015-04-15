@@ -144,6 +144,7 @@ void DockableGateManager::registerGate(GGate* pCut)
     }
     ui->gateList->addItem(pItem);
 
+
     if (m_pSpecTcl) {
         m_pSpecTcl->addGate(*pCut);
     }
@@ -167,6 +168,8 @@ void DockableGateManager::registerSlice(GSlice *pSlice)
                                                pSlice);
     pItem->setIcon(QIcon(":/icons/slice-icon.png"));
     ui->gateList->addItem(pItem);
+
+    HistogramList::addSlice(pSlice);
 
     if (m_pSpecTcl) {
         m_pSpecTcl->addGate(*pSlice);

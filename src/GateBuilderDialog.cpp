@@ -226,6 +226,7 @@ void GateBuilderDialog::onNameChanged(const QString &name)
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled( !name.isEmpty() );
 
+    ui->gateNameEdit->setText(name);
     m_pEditCut->setName(name);
 }
 

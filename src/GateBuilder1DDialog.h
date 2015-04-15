@@ -10,6 +10,7 @@ class HistogramBundle;
 class TPad;
 
 class QLineEdit;
+class QValidator;
 
 namespace Ui {
 class GateBuilder1DDialog;
@@ -51,6 +52,8 @@ public slots:
 
     /*! Set the name and also update the accept button */
     void onNameChanged(QString name);
+    void lowEditChanged();
+    void highEditChanged();
 
 private:
 
@@ -76,6 +79,6 @@ private:
     GSlice m_editSlice;
     GSlice* m_pOldSlice;
     QLineEdit* m_editFocus;
-
+    QValidator* m_editValidator;
 };
 #endif // GATEBUILDER1DDIALOG_H

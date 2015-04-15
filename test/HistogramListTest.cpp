@@ -42,6 +42,7 @@ class HistogramListTest : public CppUnit::TestFixture
     CPPUNIT_TEST( histNames_0 );
     CPPUNIT_TEST( removeSlice_0 );
     CPPUNIT_TEST( removeGate_0 );
+    CPPUNIT_TEST( addSlice_0 );
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -50,8 +51,11 @@ class HistogramListTest : public CppUnit::TestFixture
 
   protected:
     void histNames_0();
+
     void removeSlice_0();
     void removeGate_0();
+
+    void addSlice_0();
 
 };
 
@@ -77,14 +81,16 @@ void HistogramListTest::setUp()
                                      info1));
 
   unique_ptr<QMutex> mutex2(new QMutex);
-  SpJs::HistInfo info2   = {"hist2", 2, {"xparam", "yparam"}, {{0, 10, 10}}, SpJs::Long};
+  SpJs::HistInfo info2   = {"hist2", 2, {"xparam", "yparam"}, 
+                            {{0, 10, 10}, {0, 10, 10}}, SpJs::Long};
   unique_ptr<TH1> pHist2 = SpJs::HistFactory().create(info2);
   m_pHist2.reset(new HistogramBundle(std::move(mutex2), 
                                      std::move(pHist2), 
                                      info2));
 
   unique_ptr<QMutex> mutex3(new QMutex);
-  SpJs::HistInfo info3   = {"hist3", 2, {"xparam", "yparam"}, {{0, 10, 10}}, SpJs::Long};
+  SpJs::HistInfo info3   = {"hist3", 2, {"yparam", "zparam"}, 
+                            {{0, 10, 10}, {0, 10, 10}}, SpJs::Long};
   unique_ptr<TH1> pHist3 = SpJs::HistFactory().create(info3);
   m_pHist3.reset(new HistogramBundle(std::move(mutex3), 
                                      std::move(pHist3), 
@@ -116,7 +122,6 @@ void HistogramListTest::histNames_0()
   CPPUNIT_ASSERT( expNames == HistogramList::histNames() );
 }
 
-// Test that we can synchronize to the SpecTcl data
 void HistogramListTest::removeSlice_0()
 {
   // creata slice and add it to both of the histogram bundles
@@ -149,7 +154,27 @@ void HistogramListTest::removeSlice_0()
 
 }
 
-// Test that we can synchronize to the SpecTcl data
+void HistogramListTest::addSlice_0()
+{
+
+  HistogramList::addHist( std::move(m_pHist1) );
+  HistogramList::addHist( std::move(m_pHist2) );
+
+  // creata slice and add it 
+  GSlice slice(nullptr, "slice", "xparam");
+
+  HistogramList::addSlice(&slice);
+
+  // make sure we registered the cuts we thought
+  CPPUNIT_ASSERT( 1 == HistogramList::getHist("hist1")->getCut1Ds().size() ); 
+
+  // make sure that our slice did not get registered to a 2d hist
+  CPPUNIT_ASSERT( 0 == HistogramList::getHist("hist2")->getCut1Ds().size() ); 
+
+  CPPUNIT_ASSERT( 2 == HistogramList::size() );
+
+}
+
 void HistogramListTest::removeGate_0()
 {
 
@@ -158,9 +183,6 @@ void HistogramListTest::removeGate_0()
   m_pHist2->addCut2D(&gate);
   m_pHist3->addCut2D(&gate);
   
-  // Add these to the Histogram List... this copies the histograms
-  // so that from here on out we are dealing with different objects
-  // than were created above
   HistogramList::addHist( std::move(m_pHist2) );
   HistogramList::addHist( std::move(m_pHist3) );
 

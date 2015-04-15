@@ -6,6 +6,7 @@
 
 #include <QMessageBox>
 #include <QPushButton>
+#include <QDoubleValidator>
 
 #include <TPad.h>
 #include <TCanvas.h>
@@ -24,11 +25,16 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
     m_histPkg(hist),
     m_editSlice(),
     m_pOldSlice(pSlice),
-    m_editFocus(nullptr)
+    m_editFocus(nullptr),
+    m_editValidator(new QDoubleValidator(this))
 {
     ui->setupUi(this);
 
     ui->gateNameEdit->setPlaceholderText("Enter name of slice");
+    
+    // only let the user enter doubles into the line edit
+    ui->lowEdit->setValidator(m_editValidator);
+    ui->highEdit->setValidator(m_editValidator);
 
     // Set the low entry to focus
     m_editFocus = ui->lowEdit;
@@ -72,6 +78,10 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
     connect(ui->gateNameEdit, SIGNAL(textChanged(QString)),
             this, SLOT(onNameChanged(QString)));
 
+    connect(ui->lowEdit, SIGNAL(editingFinished()), 
+            this, SLOT(lowEditChanged()));
+    connect(ui->highEdit, SIGNAL(editingFinished()), 
+            this, SLOT(highEditChanged()));
 }
 
 
@@ -101,7 +111,7 @@ void GateBuilder1DDialog::accept()
     // store new values
    *m_pOldSlice = m_editSlice;
 
-    m_histPkg.addCut1D(m_pOldSlice);
+   // m_histPkg.addCut1D(m_pOldSlice);
 
     // send the slice to the outside world!
     emit completed( m_pOldSlice );
@@ -201,3 +211,18 @@ void GateBuilder1DDialog::onNameChanged(QString name)
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled( !empty );
 }
 
+void GateBuilder1DDialog::lowEditChanged()
+{
+    m_editSlice.setXLow(ui->lowEdit->text().toDouble());
+
+    m_canvas.Modified();
+    m_canvas.Update();
+}
+
+void GateBuilder1DDialog::highEditChanged()
+{
+    m_editSlice.setXHigh(ui->lowEdit->text().toDouble());
+
+    m_canvas.Modified();
+    m_canvas.Update();
+}
