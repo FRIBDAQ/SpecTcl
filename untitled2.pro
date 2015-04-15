@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,7 +28,22 @@ SOURCES += main.cpp\
         ListRequestHandler.cpp \
         TGo4CreateNewHistogram.cpp \
         ParameterList.cpp \
-        Compression.cpp
+        Compression.cpp \
+   DockableGateManager.cpp \
+    GateBuilderDialog.cpp \
+    GateList.cpp \
+    HistogramBundle.cpp \
+    GateBuilder1DDialog.cpp \
+    SliceTableItem.cpp \
+    GSlice.cpp \
+    SpecTclInterface.cpp \
+    SpecTclRESTInterface.cpp \
+    GateEditComHandler.cpp \
+    GateEditRequest.cpp \
+    GateEditRequestTest.cpp \
+    testmain.cpp
+
+# GateBuilderTest.cpp 
 
 HEADERS  += QRootCanvas.h \
             QRootDialog.h \
@@ -46,14 +61,28 @@ HEADERS  += QRootCanvas.h \
             TGo4CreateNewHistogram.h \
             ParameterList.h \
             Compression.h \
-            GlobalEnum.h
+            GlobalEnum.h \
+      DockableGateManager.h \
+    GateBuilderDialog.h \
+    HistogramBundle.h \
+    GateList.h \
+    GateBuilder1DDialog.h \
+    SliceTableItem.h \
+    GSlice.h \
+    SpecTclInterface.h \
+    SpecTclRESTInterface.h \
+    GateEditComHandler.h \
+    GateEditRequest.h
 
 FORMS    += mainwindow.ui \
             ConnectServer.ui \
             SpectrumViewer.ui \
             HistogramList.ui \
             HistogramView.ui \
-            TGo4CreateNewHistogram.ui
+            TGo4CreateNewHistogram.ui \
+    DockableGateManager.ui \
+    GateBuilderDialog.ui \
+    GateBuilder1DDialog.ui
 
 
 !exists ($$(ROOTSYS)/include/root/rootcint.pri) {
@@ -91,3 +120,6 @@ win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../json/Spec
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../json/SpecTclJson/oot/lib/debug/LibSpecTclJson.lib
 else:unix:!symbian: PRE_TARGETDEPS += $$PWD/../../../json/SpecTclJson/oot/lib/libLibSpecTclJson.a
 CONFIG += console
+
+RESOURCES += \
+    resources.qrc
