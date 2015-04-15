@@ -333,7 +333,7 @@ public:
 
 private:
   ChannelCommand (const ChannelCommand& aChannelCommand );
-  Int_t EvalIndex(CTCLInterpreter*, STD(string)&);
+  Int_t EvalIndex(CTCLInterpreter*, std::string&);
 public:
 
    // Operator= Assignment Operator 

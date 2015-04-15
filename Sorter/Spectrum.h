@@ -89,18 +89,18 @@ extern CGateContainer* pDefaultGate; // Gate set by default on a spectrum
 class CSpectrum  : public CNamedItem        
 {
 public:
-  typedef STD(vector)<CAxis>  Axes;
+  typedef std::vector<CAxis>  Axes;
   typedef Axes::iterator  AxisIterator;
   typedef struct {
-    STD(string)             sName;	    //!< Name of spectrum.
+    std::string             sName;	    //!< Name of spectrum.
     UInt_t             nId;	    //!< Id of spectrum.
     SpectrumType_t     eType;       //!< Type of spectrum.
     DataType_t         eDataType;   //!< Data type of channels.
-    STD(vector)<UInt_t>     vParameters; //!< Set of parameters.
-    STD(vector)<UInt_t>     vyParameters; //!< Set of y parameters (G2DDD).
-    STD(vector)<UInt_t>     nChannels;   //!< Explicit channel sizes.
-    STD(vector)<Float_t>    fLows;       //!< Explicit lows.
-    STD(vector)<Float_t>    fHighs;      //!< Explicit highs.
+    std::vector<UInt_t>     vParameters; //!< Set of parameters.
+    std::vector<UInt_t>     vyParameters; //!< Set of y parameters (G2DDD).
+    std::vector<UInt_t>     nChannels;   //!< Explicit channel sizes.
+    std::vector<Float_t>    fLows;       //!< Explicit lows.
+    std::vector<Float_t>    fHighs;      //!< Explicit highs.
   } SpectrumDefinition;		    //!< Returned from GetDefinition
 
 private:
@@ -109,19 +109,19 @@ private:
   CGateContainer* m_pGate;	//!< Pointer to gate on spectrum.
   DataType_t      m_DataType;   //!< Type of underlying data.
   Axes            m_AxisMappings; //!< Mapping information for the axis.
-  STD(vector)<UInt_t>  m_nChannels;    //!< Number of channels on each axis
-  STD(vector)<Float_t> m_fLows;	//!< STD(Vector) of axis low limits.
-  STD(vector)<Float_t> m_fHighs;	//!< STD(vector) of axis high limits.
-  STD(vector)<STD(string)>  m_Units;	//!< Axis units.
+  std::vector<UInt_t>  m_nChannels;    //!< Number of channels on each axis
+  std::vector<Float_t> m_fLows;	//!< std::vector of axis low limits.
+  std::vector<Float_t> m_fHighs;	//!< std::vector of axis high limits.
+  std::vector<std::string>  m_Units;	//!< Axis units.
   static Bool_t   m_Seedrandom;	//!< True if need to seed.
 public:
 			// Constructor
 
-  CSpectrum (const STD(string)& rName,  UInt_t nId,
+  CSpectrum (const std::string& rName,  UInt_t nId,
 	     Axes  Maps,
 	     CGateContainer* pGate = pDefaultGate); //!< Constructor
 
-  CSpectrum(const STD(string)& rName, UInt_t nId,
+  CSpectrum(const std::string& rName, UInt_t nId,
 	    CGateContainer*  pGate = pDefaultGate); //!< No mapping needed.
 
   virtual ~ CSpectrum ( );
@@ -186,7 +186,7 @@ protected:
     m_DataType = dt;
   }
   void AddAxis(UInt_t nChannels, Float_t fLow,
-	       Float_t fHigh, const STD(string)& Units = STD(string)("")) {
+	       Float_t fHigh, const std::string& Units = std::string("")) {
     m_nChannels.push_back(nChannels);
     m_fLows.push_back(fLow);
     m_fHighs.push_back(fHigh);
@@ -213,7 +213,7 @@ public:
     }
     else {
       throw CRangeError(0, m_AxisMappings.size() - 1, nAxis,
-			STD(string)("CSpectrumParameterToAxis"));
+			std::string("CSpectrumParameterToAxis"));
     }
   }
   Float_t AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue);
@@ -225,8 +225,8 @@ public:
   virtual   Bool_t UsesParameter(UInt_t nId) const   = 0;
   virtual   ULong_t operator[] (const UInt_t* pIndices) const  = 0;
   virtual   void set(const UInt_t* pIndices, ULong_t nValue)= 0;
-  virtual   void GetParameterIds(STD(vector)<UInt_t>& rvIds) = 0;
-  virtual   void GetResolutions(STD(vector)<UInt_t>&  rvResolutions) = 0;
+  virtual   void GetParameterIds(std::vector<UInt_t>& rvIds) = 0;
+  virtual   void GetResolutions(std::vector<UInt_t>&  rvResolutions) = 0;
   virtual   void Increment(const CEvent& rEvent) = 0;
   //
   // Functions with default implementation.
@@ -235,7 +235,7 @@ public:
   virtual   UInt_t Dimensionality () const;
   virtual   Float_t GetLow(UInt_t nDimension) const;
   virtual   Float_t GetHigh(UInt_t nDimension) const;
-  virtual   STD(string)  GetUnits(UInt_t nDimension) const;
+  virtual   std::string  GetUnits(UInt_t nDimension) const;
 
   virtual   void Copy(void* pStorage) const;
   virtual   void Clear ()  ;

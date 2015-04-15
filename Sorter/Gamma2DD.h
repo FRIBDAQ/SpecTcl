@@ -85,20 +85,20 @@ class CGamma2DD : public CGammaSpectrum
 private:
   UInt_t m_nXscale;
   UInt_t m_nYscale;
-  STD(vector)<CParameter> m_xParameters;
-  STD(vector)<CParameter> m_yParameters;
+  std::vector<CParameter> m_xParameters;
+  std::vector<CParameter> m_yParameters;
 
 public:
   // Constructors/destructors and canonicals.
 
-  CGamma2DD(const STD(string)& rName, UInt_t nId,
-	     STD(vector)<CParameter>&  xParameters,
-	     STD(vector)<CParameter>&  yParameters,
+  CGamma2DD(const std::string& rName, UInt_t nId,
+	     std::vector<CParameter>&  xParameters,
+	     std::vector<CParameter>&  yParameters,
 	     UInt_t xChannels, UInt_t yChannels);
   
-  CGamma2DD(const STD(string)& rName, UInt_t nId,
-	     STD(vector)<CParameter>& xParameters,
-	     STD(vector)<CParameter>& yParameters,
+  CGamma2DD(const std::string& rName, UInt_t nId,
+	     std::vector<CParameter>& xParameters,
+	     std::vector<CParameter>& yParameters,
 	     UInt_t nXChannels, UInt_t nYChannels,
 	     Float_t xLow, Float_t xHigh,
 	     Float_t yLow, Float_t yHigh);
@@ -116,8 +116,8 @@ public:
 public:
   UInt_t getXScale() const;
   UInt_t getYScale() const;
-  STD(vector)<CParameter> getXParameters() const;
-  STD(vector)<CParameter> getYParameters() const;
+  std::vector<CParameter> getXParameters() const;
+  std::vector<CParameter> getYParameters() const;
   virtual SpectrumType_t getSpectrumType();
 
   // Mutators: Only bother with them if we need them:
@@ -128,21 +128,21 @@ public:
   virtual ULong_t operator[](const UInt_t* pIndices) const;
   virtual void    set(const UInt_t* pIndices, ULong_t value);
   
-  virtual void   GetResolutions(STD(vector)<UInt_t>& rvResolutions);
+  virtual void   GetResolutions(std::vector<UInt_t>& rvResolutions);
   virtual UInt_t Dimension(UInt_t n) const;
   virtual UInt_t Dimensionality() const;
 
-  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rParameters);
-  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rXParameters,
-			 STD(vector)<STD(pair)<UInt_t, Float_t> >& rYParameters);
+  virtual void Increment(std::vector<std::pair<UInt_t, Float_t> >& rParameters);
+  virtual void Increment(std::vector<std::pair<UInt_t, Float_t> >& rXParameters,
+			 std::vector<std::pair<UInt_t, Float_t> >& rYParameters);
 
   virtual CSpectrum::SpectrumDefinition& GetDefinition();
 
 private:
   // Utility functions:
 
-  static CSpectrum::Axes CreateAxisVector(STD(vector)<CParameter> xParams,
-					  STD(vector)<CParameter> yParams,
+  static CSpectrum::Axes CreateAxisVector(std::vector<CParameter> xParams,
+					  std::vector<CParameter> yParams,
 					  UInt_t nXchan, UInt_t nYchan,
 					  Float_t xLow, Float_t xHigh,
 					  Float_t yLow, Float_t yHigh);

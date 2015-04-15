@@ -34,7 +34,7 @@ CTCLTracedVariable - A TCL/Tk variable with traces attached.
 class CTCLTracedVariable : public CTCLVariable
 {
   CTCLTracedVariable(CTCLInterpreter*           pInterp,
-                  STD(string)                Name,
+                  std::string                Name,
                   CVariableTraceCallback&amp;    Trace,
                   int                        flags = (TCL_TRACE_READS  |
                                                       TCL_TRACE_WRITES | 

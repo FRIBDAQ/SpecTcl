@@ -75,16 +75,16 @@ class CEventFilter : public CEventSink {
  
 protected:
    Bool_t m_fEnabled;                           //!< Filter only works when enabled.
-   STD(string)              m_sFileName;        //!< Name of output file.
-   STD(vector)<STD(string)> m_vParameterNames;  //!< Names of parameters in output.
-   STD(vector)<UInt_t>      m_vParameterIds;    //!< Ids of params in output stream.
+   std::string              m_sFileName;        //!< Name of output file.
+   std::vector<std::string> m_vParameterNames;  //!< Names of parameters in output.
+   std::vector<UInt_t>      m_vParameterIds;    //!< Ids of params in output stream.
    CFilterOutputStage*      m_pOutput;          //!< Output stage (formatter).
 
  public:
       // Constructors and other canonical operations.
  
   CEventFilter();
-  CEventFilter(STD(string)& rFileName);
+  CEventFilter(std::string& rFileName);
   virtual ~CEventFilter();
 
  // Copies etc. are not allowed:
@@ -99,16 +99,16 @@ protected:
   // Selectors.
 public:
    
-  STD(vector)<STD(string)> getParameterNames() const {
+  std::vector<std::string> getParameterNames() const {
     return m_vParameterNames;
   }
-  STD(vector)<UInt_t> getParameterIds() const {
+  std::vector<UInt_t> getParameterIds() const {
       return m_vParameterIds;
    }
   Bool_t CheckEnabled() const {
       return m_fEnabled;
   }
-  STD(string) getFileName() const {
+  std::string getFileName() const {
       return m_sFileName;
   }
   CFilterOutputStage* getOutputStream() {
@@ -120,12 +120,12 @@ protected:
   // Operations on the class.
 public:
 
-  void setParameterNames(const STD(vector)<STD(string)>& names);
+  void setParameterNames(const std::vector<std::string>& names);
   void setOutputStream(CFilterOutputStage* str);
   
   void Enable();                        //!< Enable the filter.
   void Disable();                       //!< Disable the filter.
-  void setFileName(STD(string)&);       //!< Choose a new filename.
+  void setFileName(std::string&);       //!< Choose a new filename.
   void setOutputFormat(CFilterOutputStage* format);
   std::string outputFormat() const;
 
@@ -140,9 +140,9 @@ protected:
 
 // utilities:
 
-   static STD(string) DefaultFilterFilename();    //!< Return default filter filename.
+   static std::string DefaultFilterFilename();    //!< Return default filter filename.
    void NamesToIds();                       //!< Translate param names -> ids.
-   STD(vector)<STD(string)> IdsToNames() 
+   std::vector<std::string> IdsToNames() 
               throw (CDictionaryException); //!< and back again.
 };
 

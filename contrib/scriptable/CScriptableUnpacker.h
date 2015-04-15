@@ -1,4 +1,20 @@
-   
+/*
+     This software is Copyright by the Board of Trustees of Michigan
+     State University (c) Copyright 2014.
+ 
+     You may use this software under the terms of the GNU public license
+     (GPL).  The terms of this license are described at:
+ 
+      http://www.gnu.org/licenses/gpl.txt
+ 
+      Authors:
+              Ron Fox
+              Jeromy Tompkins
+              NSCL
+              Michigan State University
+              East Lansing, MI 48824-1321
+ 
+ */
 /*!
   \class CScriptableUnpacker
   \file  .h
@@ -74,8 +90,8 @@ private:
   
 
   bool            m_fSetupDone;     //!<  true if Setup done at run start.  
-  STD(string)          m_sCreatorName;   //!< Name of the creator object.
-  STD(string)          m_sTopLevelName;  //!< Name of the top level packet.
+  std::string          m_sCreatorName;   //!< Name of the creator object.
+  std::string          m_sTopLevelName;  //!< Name of the top level packet.
   CPacket*        m_pTopLevel;      //!< Top level event decoder.
   CModuleCommand* m_pModuleCommand; //!< Module command processor.
 
@@ -88,8 +104,8 @@ public:
 public:
     //  Constructors and other canonical operations.
 
-    CScriptableUnpacker (STD(string) CreatorName = STD(string)("module"),
-			 STD(string) TopLevelName= STD(string)("unpack")); //!< Constructor.
+    CScriptableUnpacker (std::string CreatorName = std::string("module"),
+			 std::string TopLevelName= std::string("unpack")); //!< Constructor.
     virtual  ~CScriptableUnpacker ( ); //!< Destructor.
 private:
     CScriptableUnpacker (const CScriptableUnpacker& rSource ); //!< Copy construction.
@@ -130,7 +146,7 @@ public:
 			       CAnalyzer& rAnalyzer, 
 			       CBufferDecoder& rDecoder)   ; //!< For a physics event.
   
-  void RegisterCreator(const STD(string)& rType, CModuleCreator* pCreator);
+  void RegisterCreator(const std::string& rType, CModuleCreator* pCreator);
 protected:
   virtual void RegisterCreators(); //!< Register module creators
 private:

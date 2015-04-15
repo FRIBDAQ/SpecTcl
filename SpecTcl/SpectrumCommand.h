@@ -120,17 +120,17 @@ protected:
   static void   Usage(CTCLResult& rResult);
   static Switch MatchSwitch(const char* pSwitch);
 
-  void          SortSpectraById(STD(vector)<STD(string)>& rvProperties);
-  void          SortSpectraByName(STD(vector)<STD(string)>& rvProperties);
+  void          SortSpectraById(std::vector<std::string>& rvProperties);
+  void          SortSpectraByName(std::vector<std::string>& rvProperties);
 
   static void   VectorToResult(CTCLResult& rResult, 
-			       STD(vector)<STD(string)>& rvStrings);
+			       std::vector<std::string>& rvStrings);
 public:
-  UInt_t      ExtractId(const STD(string)& rProperties);
-  STD(string) ExtractName(const STD(string)& rProperties);
-  void traceAdd(const STD(string)& name,
+  UInt_t      ExtractId(const std::string& rProperties);
+  std::string ExtractName(const std::string& rProperties);
+  void traceAdd(const std::string& name,
 		const CSpectrum* pSpectrum);
-  void traceRemove(const STD(string)& name,
+  void traceRemove(const std::string& name,
 		   const CSpectrum* pSpectrum);
 
 };

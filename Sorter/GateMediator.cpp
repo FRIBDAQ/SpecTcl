@@ -27,7 +27,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CGammaContour.h>
 
 #include "Spectrum.h"
-#include <Iostream.h>
+#include <iostream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

@@ -20,7 +20,7 @@
 #include <buftypes.h>
 #include <string.h>
 #include <Analyzer.h>
-#include <Iostream.h>
+#include <iostream>
 #include <Globals.h>
 
 #ifdef HAVE_STD_NAMESPACE

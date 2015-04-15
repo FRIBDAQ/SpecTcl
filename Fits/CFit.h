@@ -62,11 +62,11 @@ public:
       return !(operator==(rhs));
     }
   };
-  typedef STD(vector)<Point> PointArray; //!< Point array is a STD(vector) of points.
+  typedef std::vector<Point> PointArray; //!< Point array is a std::vector of points.
   typedef PointArray::iterator PointIterator;
 
-  typedef STD(pair)<STD(string), double> FitParameter;
-  typedef STD(vector)<FitParameter> FitParameterList;
+  typedef std::pair<std::string, double> FitParameter;
+  typedef std::vector<FitParameter> FitParameterList;
   typedef FitParameterList::iterator FitParameterIterator;
 
   typedef enum {
@@ -77,7 +77,7 @@ private:
   
   // Private Member data:
 
-  STD(vector)<Point> m_afpPoints;  //!<  //<! Input points.  
+  std::vector<Point> m_afpPoints;  //!<  //<! Input points.  
   FitState m_eState;  //!<  //!< accumulating | performed  
    
 
@@ -88,7 +88,7 @@ public:
     //  and the visibility esp. if you cannot
     // implement assignment/copy construction.
     // safely.
-  CFit (STD(string) name, int id = 0);		//!< Constructor.
+  CFit (std::string name, int id = 0);		//!< Constructor.
   virtual  ~ CFit ( ); //!< Destructor.
   CFit (const CFit& rSource ); //!< Copy construction.
   CFit& operator= (const CFit& rhs); //!< Assignment.
@@ -129,8 +129,8 @@ public:
   virtual   void Perform ()   = 0 ; 
   virtual  double operator() (double x)  =0 ; 
   virtual  FitParameterList GetParameters () =0  ; 
-  virtual  STD(string) Type() const  = 0;
-  virtual  STD(string) makeTclFitScript() = 0;
+  virtual  std::string Type() const  = 0;
+  virtual  std::string makeTclFitScript() = 0;
  
 
 private:

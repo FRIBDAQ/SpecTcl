@@ -85,9 +85,9 @@ CSpectrum2Dm::CSpectrum2Dm(string              name,
       Range covered by y axis.
 
 */
-CSpectrum2Dm:: CSpectrum2Dm(STD(string)              name,
+CSpectrum2Dm:: CSpectrum2Dm(std::string              name,
 			    UInt_t                   id,
-			    STD(vector)<CParameter>& parameters,
+			    std::vector<CParameter>& parameters,
 			    UInt_t                   xchans,
 			    UInt_t                   ychans,
 			    Float_t  xlow, Float_t   xhigh,

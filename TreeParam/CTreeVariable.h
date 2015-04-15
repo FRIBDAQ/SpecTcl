@@ -64,7 +64,7 @@ class CTreeVariable
 {
   // Data types:
 public:
-  typedef STD(map)<STD(string), CTreeVariableProperties*> TreeVariableMap;
+  typedef std::map<std::string, CTreeVariableProperties*> TreeVariableMap;
   typedef TreeVariableMap::iterator                       TreeVariableIterator;
 
   // Member data:
@@ -79,7 +79,7 @@ private:
   mutable CTreeVariableProperties *m_pVariable;
 public:
   CTreeVariable();
-  CTreeVariable(STD(string) name, double value, STD(string) units);
+  CTreeVariable(std::string name, double value, std::string units);
   CTreeVariable(CTreeVariableProperties& properties);
   ~CTreeVariable();
   void Bind();
@@ -95,21 +95,21 @@ public:
   CTreeVariable& operator++();
   double operator--(int dummy);
   CTreeVariable& operator--();
-  STD(string) getName();
+  std::string getName();
   double getValue();
-  STD(string) getUnit();
+  std::string getUnit();
   bool hasChanged();
   bool valueChanged();
   void resetChanged();
-  void Initialize(STD(string) name, double value, STD(string) units);
+  void Initialize(std::string name, double value, std::string units);
   static void BindVariables(CTCLInterpreter& rInterp);
   static TreeVariableIterator begin();
   static TreeVariableIterator end();
-  static TreeVariableIterator find(STD(string) name);
+  static TreeVariableIterator find(std::string name);
   static int size();
   
 private:
-  void LinkProperties(STD(string) name, STD(string) units, double value = 0.0);
+  void LinkProperties(std::string name, std::string units, double value = 0.0);
   CTreeVariableProperties* getBoundVariable() const;
 
   friend class TreeTestSupport;

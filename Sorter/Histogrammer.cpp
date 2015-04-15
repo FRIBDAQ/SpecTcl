@@ -54,8 +54,8 @@
 #include <CSpectrumByParameter.h>
 
 
-#include <Iostream.h>
-#include <Sstream.h>
+#include <iostream>
+#include <sstream>
 
 #include <stdio.h>
 #ifdef HAVE_STD_NAMESPACE

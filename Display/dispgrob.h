@@ -499,7 +499,7 @@ class grobj_Fitline : public grobj_generic
 private:
   int         m_low;
   int         m_high;
-  STD(string) m_evalProc;
+  std::string m_evalProc;
   // constructors.. we can support the full cannonical set too!
 
 public:
@@ -524,12 +524,12 @@ public:
 private:
   void copyIn(const grobj_Fitline& rhs);
 
-  STD(vector)<STD(pair)<int,float> > computePoints(win_attributed* pAttrib);
-  STD(pair)<int,int> computePosition(Xamine_Convert1d& cvt,
+  std::vector<std::pair<int,float> > computePoints(win_attributed* pAttrib);
+  std::pair<int,int> computePosition(Xamine_Convert1d& cvt,
 				     int               channel,
 				     float             height);
   void drawFitline(Display* d, Drawable w, GC& gc, XMWidget* pWindow,
 		   Boolean flipped, Boolean labelit,
-		   STD(vector)<STD(pair)<int, int> >& points);
+		   std::vector<std::pair<int, int> >& points);
 };
 #endif

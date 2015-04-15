@@ -84,7 +84,7 @@ public:
   typedef CCreator<CBufferDecoder>            CDecoderCreator;
   typedef CExtensibleFactory<CBufferDecoder>  CDecoderFactory;
 private:
-  STD(string)    m_AttachedTo;
+  std::string    m_AttachedTo;
   static CDecoderFactory m_decoderFactory;
   
 public:
@@ -112,15 +112,15 @@ public:
   virtual int operator()(CTCLInterpreter& rInterp,
 			 CTCLResult& rResult,
 			 int nArgs, char* pArgs[]);
-  int AttachFile(CTCLResult& rResult, const STD(string)& Connection,
+  int AttachFile(CTCLResult& rResult, const std::string& Connection,
 		 long nBytes);
-  int AttachTape(CTCLResult& rResult,  const STD(string)& Connection,
+  int AttachTape(CTCLResult& rResult,  const std::string& Connection,
 		 long nBytes);
-  int AttachPipe(CTCLResult& rResult,  const STD(string)& Connection,
+  int AttachPipe(CTCLResult& rResult,  const std::string& Connection,
 		 long nBytes);
-  int AttachTest(CTCLResult& rResult,  const STD(string)& Connection,
+  int AttachTest(CTCLResult& rResult,  const std::string& Connection,
 		 long nBytes);
-  int AttachNull(CTCLResult& rResult,  const STD(string)& Connection,
+  int AttachNull(CTCLResult& rResult,  const std::string& Connection,
 		 long nBytes);
 
   static void addDecoderType(std::string type, CDecoderCreator* creator);

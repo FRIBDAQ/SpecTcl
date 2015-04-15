@@ -134,28 +134,28 @@ int GrabPoints2d(int nXLowLimit, int nXHighLimit,
 		 int nFloor, int nCeiling,
 		 int* nXMaxChan, int* nYMaxChan,
 		 int nXRange, int nYRange, int reso,
-		 STD(ofstream)& fStr, win_2d* pAttrib);
+		 std::ofstream& fStr, win_2d* pAttrib);
 int GrabPoints1d(int nLowLimit, int nHighLimit, int* nMaxChan,
 		 int nHighCnt, int nFloor, int nCeiling, 
-		 win_1d* pAttrib, STD(ofstream)& fStr);
+		 win_1d* pAttrib, std::ofstream& fStr);
 static char *ConstructPrintFilename();
 
 void Xamine_PrintSpectrum(XMWidget* w, XtPointer user, 
 			  XtPointer call, win_attributed* pAttributes,
-			  STD(string) sTitle, int nRows=1, int nCols=1, 
+			  std::string sTitle, int nRows=1, int nCols=1, 
 			  int nSpectrumCount=1, int nCurrSpec=1, 
 			  int nPageNum=1, char* cmd_file = (char*) NULL);
 void   Xamine_Print(XMWidget* w, XtPointer user, XtPointer call);
 int    Xamine_getTickInterval(int nRange, int nPixels);
 float  Xamine_getMappedTickInterval(float paramrange, int pixels);
-STD(string) Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int floor,
+std::string Xamine_DrawGraphicalObj1d(int nLowLimit, int nHighLimit, int floor,
 				 int ceiling, win_1d* pAttrib, 
 				 grobj_generic* pObj);
-STD(string) Xamine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
+std::string Xamine_DrawGraphicalObj2d(int nXLowLimit, int nXHighLimit,
 				 int nYLowLimit, int nYHighLimit, int reso,
 				 win_2d* pAttrib, grobj_generic* pObj);
-STD(string) Xamine_GetSpectrumTitle(int r = -1, int c = -1);
-STD(string) Xamine_GetOutputFilename();
+std::string Xamine_GetSpectrumTitle(int r = -1, int c = -1);
+std::string Xamine_GetOutputFilename();
 int    Xamine_SetDfltPrintOpts(XMWidget* w, XtPointer user, XtPointer call);
 int    Xamine_ReadPrintDefaults();
 int    Xamine_WritePrintDefaults(struct DefaultPrintOptions dflts);

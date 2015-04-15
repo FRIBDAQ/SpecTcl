@@ -62,7 +62,7 @@ private:
   
 public:
   virtual ~ListVisitor();
-  ListVisitor(STD(string) pattern, CTCLResult& rResult);
+  ListVisitor(std::string pattern, CTCLResult& rResult);
   virtual void OnMatch(CTreeParameter* parameter);
   
   

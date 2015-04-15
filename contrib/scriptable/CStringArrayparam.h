@@ -1,3 +1,20 @@
+/*
+     This software is Copyright by the Board of Trustees of Michigan
+     State University (c) Copyright 2014.
+ 
+     You may use this software under the terms of the GNU public license
+     (GPL).  The terms of this license are described at:
+ 
+      http://www.gnu.org/licenses/gpl.txt
+ 
+      Authors:
+              Ron Fox
+              Jeromy Tompkins
+              NSCL
+              Michigan State University
+              East Lansing, MI 48824-1321
+ 
+ */
 #ifndef __CSTRINGARRAYPARAM_H  //Required for current class
 #define __CSTRINGARRAYPARAM_H
 
@@ -24,11 +41,11 @@ class CTCLResult;
 class CStringArrayparam  : public CConfigurationParameter        
 {
 private:
-    STD(string)* m_aStrings;
+    std::string* m_aStrings;
     int m_nSize;
 public:
     // Constructors and other 
-    CStringArrayparam (const STD(string)& rKey, int nSize);
+    CStringArrayparam (const std::string& rKey, int nSize);
     virtual ~ CStringArrayparam ( ); 
     CStringArrayparam (const CStringArrayparam& rhs );
     CStringArrayparam& operator= (const CStringArrayparam& rhs);
@@ -41,14 +58,14 @@ public:
 
 public:
 
-    const STD(string)* getStrings() const
+    const std::string* getStrings() const
     { 
 	return m_aStrings;
     }
 
 protected:
 
-    void setStrings (STD(string)* aStrings)
+    void setStrings (std::string* aStrings)
    { 
 	delete []m_aStrings;
 	m_aStrings =aStrings;
@@ -58,10 +75,10 @@ protected:
 
 public:
 
-    STD(string)& operator[] (int n)   ; // 
+    std::string& operator[] (int n)   ; // 
     virtual   int SetValue (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 				    const char* pValue);
-    virtual   STD(string) GetParameterFormat();
+    virtual   std::string GetParameterFormat();
 };
 
 #endif

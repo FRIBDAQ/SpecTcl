@@ -274,10 +274,10 @@ public:
   float         Total(unsigned int channel) const;
   unsigned long lastIntervalStart() const;
   unsigned long lastIntervalEnd() const;
-  STD(string)   Title() const;
+  std::string   Title() const;
   int           runNumber() const;
-  STD(string)   runStartTime() const;
-  STD(string)   runEndTime() const;
+  std::string   runStartTime() const;
+  std::string   runEndTime() const;
 
   void addCallback(unsigned int nBufferType, CBufferCallback& callback);
   void removeCallback(unsigned int nBufferType, CBufferCallback& callback);
@@ -352,7 +352,7 @@ start interval invalid'' is thrown.
 Same as \fBlastIntervalStat()\fR, however the elapsed times returned are those
 until the end of the most recent scaler read interval.
 .TP
-\fB STD(string)   Title() const\fR
+\fB std::string   Title() const\fR
 Retrurns a string that contains the title of the current run.  If no buffers
 with titles have been seen (note the start of run has a title), this will be an
 empty string.  \fBSTD()\fR is a macro which, if necessary prefixes its
@@ -362,11 +362,11 @@ parameter with \fBstd::\fR.
 returns the number of the run currently being processed.  This will be -1 if no
 run has ever been processed.
 .TP
-\fBSTD(string)   runStartTime() const\fR
+\fBstd::string   runStartTime() const\fR
 Returns the time at which this run started.  This will be a string of the form:
 ``Month day,year, hh:mm:ss'', for example ``February 18, 2005, 13:11:15''.
 .TP
-\fB STD(string)   runEndTime() const\fR
+\fB std::string   runEndTime() const\fR
 Once the run has been completely processed, this will return the time the run
 ended as a timestamp string.  The form of the timestamp will be identical to
 that returned by \fBrunStartTime()\fR.   Prior to the end of run, this will
@@ -422,7 +422,7 @@ the data file, prints out the histogram of buffer types with zeroes supressed.
 #include <fcntl.h>
 #include <string.h>
 
-#include <Iostream.h>
+#include <iostream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

@@ -1,3 +1,20 @@
+/*
+     This software is Copyright by the Board of Trustees of Michigan
+     State University (c) Copyright 2014.
+ 
+     You may use this software under the terms of the GNU public license
+     (GPL).  The terms of this license are described at:
+ 
+      http://www.gnu.org/licenses/gpl.txt
+ 
+      Authors:
+              Ron Fox
+              Jeromy Tompkins
+              NSCL
+              Michigan State University
+              East Lansing, MI 48824-1321
+ 
+ */
 // Author:
 //   Ron Fox
 //   NSCL
@@ -44,17 +61,17 @@ private:
   UInt_t m_nBits;		//!  Bits of resolution of the raw parameter.  
   Float_t m_fLow;		//!  Low part of range of mapped parameter.  
   Float_t m_fHigh;		//!  High value of mapped parameter range  
-  STD(string) m_sUnits;		//!  Parameter units or empty if there are none.  
+  std::string m_sUnits;		//!  Parameter units or empty if there are none.  
   
   
 public:
   // Constructors and other canonical operations.
 
-  CParameterMapping (const STD(string)& sUnits=STD(string)(""));		//!< Constructs identity mapping.
+  CParameterMapping (const std::string& sUnits=std::string(""));		//!< Constructs identity mapping.
   CParameterMapping(UInt_t  nBits,
 		    Float_t fLow,
 		    Float_t fHigh,
-		    const STD(string)& sUnits = STD(string)("")); //!< Create mapping.
+		    const std::string& sUnits = std::string("")); //!< Create mapping.
   CParameterMapping(const CParameter& rParam); //!< Construct from param definition.
   ~ CParameterMapping ( );  //!< Destructor
   CParameterMapping (const CParameterMapping& rhs ); //!<  Copy Constructor 
@@ -89,7 +106,7 @@ public:
     return m_fHigh;
   }  
 
-  STD(string) getUnits() const	//!< Selector for m_sUnits
+  std::string getUnits() const	//!< Selector for m_sUnits
   { 
     return m_sUnits;
   }   
@@ -119,7 +136,7 @@ protected:
     m_fHigh = am_fHigh;
   }  
 
-  void setUnits (const STD(string) am_sUnits) //!< Mutator for m_sUnits
+  void setUnits (const std::string am_sUnits) //!< Mutator for m_sUnits
   { 
     m_sUnits = am_sUnits;
   }   

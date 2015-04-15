@@ -355,8 +355,8 @@ CGamma2DW::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 //! deluxe increment on 2dw spectrum is an error:
 
 void
-CGamma2DW:: Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
-			 STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters)
+CGamma2DW:: Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
+			 std::vector<std::pair<UInt_t, Float_t> >& yParameters)
 {
   throw CException("2d deluxe increment called on CGamma2dW");
 }

@@ -38,144 +38,144 @@ public:
   void addBufferDecoder(std::string type, 
                         CAttachCommand::CDecoderCreator* creator);
   UInt_t AssignParameterId();
-  CParameter* AddParameter(STD(string) name, 
+  CParameter* AddParameter(std::string name, 
     UInt_t Id, 
-    STD(string) Units);
-  CParameter* AddParameter(STD(string) name, 
+    std::string Units);
+  CParameter* AddParameter(std::string name, 
     UInt_t id, 
     UInt_t scale);
-  CParameter* AddParameter(STD(string) name, 
+  CParameter* AddParameter(std::string name, 
     UInt_t id, 
     UInt_t scale, 
     Float_t low, Float_t high, 
-    STD(string) units);
-  CParameter* RemoveParameter(STD(string) name);
-  CParameter* FindParameter(STD(string) name);
+    std::string units);
+  CParameter* RemoveParameter(std::string name);
+  CParameter* FindParameter(std::string name);
   CParameter* FindParameter(UInt_t Id);
   ParameterDictionaryIterator BeginParameters();
   ParameterDictionaryIterator EndParameters();
   UInt_t ParameterCount();
-  CSpectrum* CreateSpectrum(STD(string) Name, 
+  CSpectrum* CreateSpectrum(std::string Name, 
      SpectrumType_t type, 
      DataType_t dataType, 
-     STD(vector)&lt;STD(string)&gt; parameters, 
-     STD(vector)&lt;UInt_t&gt; channels, 
-     STD(vector)&lt;Float_t&gt;* pLows, 
-     STD(vector)&lt;Float_t&gt;* pHighs);
-  CSpectrum* Create1D(STD(string) name, 
+     std::vector&lt;std::string&gt; parameters, 
+     std::vector&lt;UInt_t&gt; channels, 
+     std::vector&lt;Float_t&gt;* pLows, 
+     std::vector&lt;Float_t&gt;* pHighs);
+  CSpectrum* Create1D(std::string name, 
        DataType_t dataType, 
        CParameter&amp; parameter, 
        UInt_t channelcount);
-  CSpectrum* Create1D(STD(string) name, 
+  CSpectrum* Create1D(std::string name, 
        DataType_t dataType, 
        CParameter&amp; parameter, 
        UInt_t channels, 
        Float_t lowLimit, Float_t hiLimit);
-  CSpectrum* Create2D(STD(string) name, 
+  CSpectrum* Create2D(std::string name, 
        DataType_t dataType, 
        CParameter&amp; xParameter, 
        CParameter&amp; yParameter, 
        UInt_t xChannels, UInt_t yChannels);
-  CSpectrum* Create2D(STD(string) name, 
+  CSpectrum* Create2D(std::string name, 
        DataType_t dataType, 
        CParameter&amp; xParameter, CParameter&amp; yParameter, 
        UInt_t xChannels, Float_t xLow, Float_t xHigh, 
        UInt_t yChannels, Float_t yLow, Float_t yHigh);
-  CSpectrum* CreateG1D(STD(string) name, 
+  CSpectrum* CreateG1D(std::string name, 
         DataType_t dataType,
-        STD(vector)&lt;CParameter&gt; parameters, 
+        std::vector&lt;CParameter&gt; parameters, 
         UInt_t channels);
-  CSpectrum* CreateG1D(STD(string) name, 
+  CSpectrum* CreateG1D(std::string name, 
         DataType_t dataType, 
-        STD(vector)&lt;CParameter&gt; parameters, 
+        std::vector&lt;CParameter&gt; parameters, 
         UInt_t channels, 
         Float_t lowLimit, 
         Float_t hiLimit);
-  CSpectrum* CreateG2D(STD(string) name, 
+  CSpectrum* CreateG2D(std::string name, 
         DataType_t dataType, 
-        STD(vector)&lt;CParameter&gt; parameters, 
+        std::vector&lt;CParameter&gt; parameters, 
         UInt_t xChannels, UInt_t yChannels);
-  CSpectrum* CreateG2D(STD(string) name, 
+  CSpectrum* CreateG2D(std::string name, 
         DataType_t dataType, 
-        STD(vector)&lt;CParameter&gt; parameters, 
+        std::vector&lt;CParameter&gt; parameters, 
         UInt_t xChannels, Float_t xLow, Float_t xHigh, 
         UInt_t yChannels, Float_t yLow, Float_t yHigh);
-  CSpectrum* CreateBit(STD(string) name, 
+  CSpectrum* CreateBit(std::string name, 
         DataType_t dataType, 
         CParameter&amp; parameter, 
         UInt_t channels);
-  CSpectrum* CreateBit(STD(string) name, 
+  CSpectrum* CreateBit(std::string name, 
         DataType_t dataType, 
         CParameter&amp; parameter, 
         UInt_t channels, UInt_t lowBit);
-  CSpectrum* CreateSummary(STD(string) name, 
+  CSpectrum* CreateSummary(std::string name, 
     DataType_t dataType, 
-    STD(vector)&lt;CParameter&gt; parameters, 
+    std::vector&lt;CParameter&gt; parameters, 
     UInt_t channels);
-  CSpectrum* CreateSummary(STD(string) name, 
+  CSpectrum* CreateSummary(std::string name, 
     DataType_t dataType, 
-    STD(vector)&lt;CParameter&gt; parameters, 
+    std::vector&lt;CParameter&gt; parameters, 
     UInt_t nChannels, Float_t low, Float_t high);
   void AddSpectrum(CSpectrum&amp; spectrum);
-  CSpectrum* RemoveSpectrum(STD(string) name);
-  CSpectrum* FindSpectrum(STD(string) name);
+  CSpectrum* RemoveSpectrum(std::string name);
+  CSpectrum* FindSpectrum(std::string name);
   CSpectrum* FindSpectrum(UInt_t id);
   SpectrumDictionaryIterator SpectrumBegin();
   SpectrumDictionaryIterator SpectrumEnd();
   UInt_t SpectrumCount();
-  void ClearSpectrum(STD(string) name);
+  void ClearSpectrum(std::string name);
   void ClearAllSpectra();
   CGate* CreateGate(CGateFactory::GateType gateType, 
-     STD(vector)&lt;STD(string)&gt; names);
+     std::vector&lt;std::string&gt; names);
   CGate* CreateGate(CGateFactory::GateType gateType, 
-     STD(vector)&lt;STD(string)&gt; parameters, 
-     STD(vector)&lt;FPoint&gt; points);
+     std::vector&lt;std::string&gt; parameters, 
+     std::vector&lt;FPoint&gt; points);
   CGate* CreateGate(CGateFactory::GateType   gateType,
-     STD(vector)&lt;FPoint&gt;      points,
-     STD(vector)&lt;STD(string)&gt; spectra);
+     std::vector&lt;FPoint&gt;      points,
+     std::vector&lt;std::string&gt; spectra);
   CGate* CreateTrueGate();
   CGate* CreateFalseGate();
-  CGate* CreateBand(STD(string) xparameter, STD(string) yparameter, 
-     STD(vector)&lt;FPoint&gt; points);
-  CGate* CreateContour(STD(string) xParameter, STD(string) yParameter, 
-        STD(vector)&lt;FPoint&gt; points);
-  CGate* CreateBandContour(STD(string) firstBand, STD(string) secondBand);
-  CGate* CreateNotGate(STD(string) name);
-  CGate* CreateAndGate(STD(vector)&lt;STD(string)&gt; gateNames);
-  CGate* CreateOrGate(STD(vector)&lt;STD(string)&gt; gateNames);
-  CGate* CreateCut(STD(string) parameter, Float_t low, Float_t high);
-  CGate* CreateGammaCut(Float_t low, Float_t high, STD(vector)&lt;STD(string)&gt; constituents);
-  CGate* CreateGammaBand(STD(vector)&lt;FPoint&gt; points, 
-  STD(vector)&lt;STD(string)&gt; constituents);
-  CGate* CreateGammaContour(STD(vector)&lt;FPoint&gt; points, 
-     STD(vector)&lt;STD(string)&gt; constituents);
-  void AddGate(STD(string) name, CGate* gate);
-  void DeleteGate(STD(string) gateName);
-  void ReplaceGate(STD(string) gateName, CGate&amp; newGate);
-  CGateContainer* FindGate(STD(string) gateName);
+  CGate* CreateBand(std::string xparameter, std::string yparameter, 
+     std::vector&lt;FPoint&gt; points);
+  CGate* CreateContour(std::string xParameter, std::string yParameter, 
+        std::vector&lt;FPoint&gt; points);
+  CGate* CreateBandContour(std::string firstBand, std::string secondBand);
+  CGate* CreateNotGate(std::string name);
+  CGate* CreateAndGate(std::vector&lt;std::string&gt; gateNames);
+  CGate* CreateOrGate(std::vector&lt;std::string&gt; gateNames);
+  CGate* CreateCut(std::string parameter, Float_t low, Float_t high);
+  CGate* CreateGammaCut(Float_t low, Float_t high, std::vector&lt;std::string&gt; constituents);
+  CGate* CreateGammaBand(std::vector&lt;FPoint&gt; points, 
+  std::vector&lt;std::string&gt; constituents);
+  CGate* CreateGammaContour(std::vector&lt;FPoint&gt; points, 
+     std::vector&lt;std::string&gt; constituents);
+  void AddGate(std::string name, CGate* gate);
+  void DeleteGate(std::string gateName);
+  void ReplaceGate(std::string gateName, CGate&amp; newGate);
+  CGateContainer* FindGate(std::string gateName);
   CGateDictionaryIterator GateBegin();
   CGateDictionaryIterator GateEnd();
   UInt_t GateCount();
-  void ApplyGate(STD(string) gateName, STD(string) spectrumName);
+  void ApplyGate(std::string gateName, std::string spectrumName);
   void AddEventProcessor(CEventProcessor&amp; eventProcessor, 
   const char* name = 0);
-  CTclAnalyzer::EventProcessorIterator FindEventProcessor(STD(string) name);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name);
   CTclAnalyzer::EventProcessorIterator FindEventProcessor(CEventProcessor&amp; processor);
   void InsertEventProcessor(CEventProcessor&amp; processor,
      CTclAnalyzer::EventProcessorIterator where, 
      const char*  name = 0);
-  void RemoveEventProcessor(STD(string) name);
+  void RemoveEventProcessor(std::string name);
   void RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here);
   UInt_t ProcessingPipelineSize();
   CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();
   CTclAnalyzer::EventProcessorIterator ProcessingPipelineEnd();
-  void AddSpectrumFormatter(STD(string) name, CSpectrumFormatter&amp; formatter);
+  void AddSpectrumFormatter(std::string name, CSpectrumFormatter&amp; formatter);
   void AddEventSink(CEventSink&amp; sink, const char* name = 0);
-  CEventSinkPipeline::EventSinkIterator FindEventSink(STD(string) sinkName);
+  CEventSinkPipeline::EventSinkIterator FindEventSink(std::string sinkName);
   CEventSinkPipeline::EventSinkIterator FindEventSink(CEventSink&amp; sink);
   void InsertEventSink(CEventSink&amp; sink, CEventSinkPipeline::EventSinkIterator here,
         const char* name = 0);
-  CEventSink* RemoveEventSink(STD(string) name);
+  CEventSink* RemoveEventSink(std::string name);
   CEventSink* RemoveEventSink(CEventSinkPipeline::EventSinkIterator here);
   UInt_t EventSinkPipelineSize();
   CEventSinkPipeline::EventSinkIterator EventSinkPipelineBegin();
@@ -442,18 +442,18 @@ coordinates or with channels labelled in this real coordinate space.
 <DT><B>UInt_t AssignParameterId();</B><DD>
 Returns an unsed parameter id.  This function can be used to provide the
 <I>Id</I> parameter of many of the functions in this section.
-<DT><B>CParameter* AddParameter(STD(string) </B><I>name</I><B>, UInt_t </B><I>Id</I><B>, STD(string) </B><I>Units</I><B>);</B><DD>
+<DT><B>CParameter* AddParameter(std::string </B><I>name</I><B>, UInt_t </B><I>Id</I><B>, std::string </B><I>Units</I><B>);</B><DD>
 Adds a floating point parameter to the parameter dictionary.  Floating point
 parameters are never scaled when they are histogrammed. Instead, the histogram
 must be defined to cover a specific range of the parameter space.
 <I>name</I> and <I>id</I> must be unique or the function will throw a
 <B>CDictionaryException</B>.
-<DT><B>CParameter* AddParameter(STD(string) </B><I>name</I><B>, UInt_t </B><I>Id</I><B>, UInt_t </B><I>scale</I><B>);</B><DD>
+<DT><B>CParameter* AddParameter(std::string </B><I>name</I><B>, UInt_t </B><I>Id</I><B>, UInt_t </B><I>scale</I><B>);</B><DD>
 Creates an integer parameter.  The parameter is assumed to have a range of
 values from [0..2**<I>scale</I>).
 <I>name</I> and <I>id</I> must be unique or the function will throw a
 <B>CDictionaryException</B>.
-<DT>CParameter* AddParameter(STD(string) <I>name</I><B>, UInt_t </B><I>Id</I><B>, UInt_t </B><I>scale</I><B>, Float_t </B><I>low</I><B>, Float_t </B><I>high</I><B>, STD(string) </B><I>Units</I><B>);</B><DD>
+<DT>CParameter* AddParameter(std::string <I>name</I><B>, UInt_t </B><I>Id</I><B>, UInt_t </B><I>scale</I><B>, Float_t </B><I>low</I><B>, Float_t </B><I>high</I><B>, std::string </B><I>Units</I><B>);</B><DD>
 Creates a new integer parameter.  The integer parameter also defines ``mapped''
 parameter space.  The mapped parameter space runs from
 [<I>low</I>..<I>high</I>).  Thhe mapped parameter space also can have physical
@@ -461,7 +461,7 @@ parameter space.  The mapped parameter space runs from
 are created on this parameter.
 <I>name</I> and <I>id</I> must be unique or the function will throw a
 <B>CDictionaryException</B>.
-<DT><B>CParameter* RemoveParameter(STD(string) </B><I>name</I><B>);</B><DD>
+<DT><B>CParameter* RemoveParameter(std::string </B><I>name</I><B>);</B><DD>
 Removes the parameter named <I>name</I> from the parameter dictionary.
 A dynamically allocated pointer to the removed parameter is returned. It is the
 caller's responsibility to <B>delete</B> this parameter.  If there is no
@@ -480,7 +480,7 @@ delete on a <B>NULL</B> is a no-op, the following is legal and safe:
 </DL>
 
 
-<DT><B>CParameter* FindParameter(STD(string) </B><I>name</I><B>);</B><DD>
+<DT><B>CParameter* FindParameter(std::string </B><I>name</I><B>);</B><DD>
 Locates the parameter named <I>name</I> in the parameter dictionary and returns
 a pointer to it.  Note that the pointer returned is a pointer to the object in
 the parameter dictionary, not a copy.  Any  modifications you make to the
@@ -859,10 +859,10 @@ The number of the lowest bit that will appear in a bit mask spectrum.
 <P>
 
 <DL COMPACT>
-<DT><B>CSpectrum* CreateSpectrum(STD(string) </B><I>Name</I><B>,SpectrumType_t </B><I>type</I><B>,<DD>
-DataType_t </B><I>dataType</I><B>,STD(vector)&lt;STD(string)&gt; </B><I>parameters</I><B>,
-STD(vector)&lt;UInt_t&gt; </B><I>channels</I><B>, 
-STD(vector)&lt;Float_t&gt;* </B><I>pLows</I><B>, STD(vector)&lt;Float_t&gt;* </B><I>pHighs</I><B>);</B>
+<DT><B>CSpectrum* CreateSpectrum(std::string </B><I>Name</I><B>,SpectrumType_t </B><I>type</I><B>,<DD>
+DataType_t </B><I>dataType</I><B>,std::vector&lt;std::string&gt; </B><I>parameters</I><B>,
+std::vector&lt;UInt_t&gt; </B><I>channels</I><B>, 
+std::vector&lt;Float_t&gt;* </B><I>pLows</I><B>, std::vector&lt;Float_t&gt;* </B><I>pHighs</I><B>);</B>
 
 This general spectrum creation function can create any spectrum type supported
 by SpecTcl.  The type of spectrum created is selectec by the <I>type</I>
@@ -870,12 +870,12 @@ parameter. The other parameters must be sufficient in number and type to
 support the creation of the desired spectrum or else a
 <B>CSpectrumFactoryException</B> will be thrown.  A pointer to the new spectrum
 (dynamically created) will be returned.  
-<DT><B>CSpectrum* Create1D(STD(string) </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, CParameter&amp; </B><I>parameter</I><B>, UInt_t </B><I>channels</I><B>);</B><DD>
+<DT><B>CSpectrum* Create1D(std::string </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, CParameter&amp; </B><I>parameter</I><B>, UInt_t </B><I>channels</I><B>);</B><DD>
 Creates a 1D spectrum. A pointer to the new spectrum is returned.  The
 <I>channels</I> parameter not only determines the number of channels on the X
 axis, but the range of values of <I>parameter</I> covered by this spectrum is
 defined by it as [0..<I>channels).
-<DT></I><B>CSpectrum* Create1D(STD(string) </B><I>name</I><B>,DataType_t </B><I>dataType</I><B>, CParameter&amp; </B><I>parameter</I><B>, UInt_t </B><I>channels</I><B>, <DD>
+<DT></I><B>CSpectrum* Create1D(std::string </B><I>name</I><B>,DataType_t </B><I>dataType</I><B>, CParameter&amp; </B><I>parameter</I><B>, UInt_t </B><I>channels</I><B>, <DD>
 Float_t </B><I>lowLimit</I><B>, Float_t </B><I>hiLimit</I><B>);</B>
 
 Creates a 1D spectrum a pointer to the new spectrum is returned.   The
@@ -898,7 +898,7 @@ spectrum creations below are essentially identical:
 </DL>
 
 
-<DT><B>CSpectrum* Create2D(STD(string) </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, <DD>
+<DT><B>CSpectrum* Create2D(std::string </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, <DD>
 CParameter&amp; </B><I>xParameter</I><B>, CParameter&amp; </B><I>yParameter</I><B>,
 UInt_t </B><I>xChannels</I><B>, UInt_t </B><I>yChannels</I><B>);</B>
 
@@ -908,7 +908,7 @@ axis.  The X axis will have <I>xChannels</I> channels, and the Y axis
 <I>yChannels</I>.   The range of the parameters covered on each axis is
 determined by the number of channels on that axis.  For example, the X axis
 will cover the range [0..<I>xChannels</I>-1] in parameter space.
-<DT><B>CSpectrum* Create2D(STD(string) </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, <DD>
+<DT><B>CSpectrum* Create2D(std::string </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, <DD>
 CParameter&amp; </B><I>xParameter</I><B>0, CParameter&amp; </B><I>yParameter</I><B>, 
 UInt_t </B><I>xChannels</I><B>, Float_t </B><I>xLow</I><B>, Float_t </B><I>xHigh</I><B>, 
 UInt_t </B><I>yChannels</I><B>, Float_t </B><I>yLow, Float_t </I><B>yHigh);</B>
@@ -918,22 +918,22 @@ of channels on each axis is determined by <I>xChannels</I> and
 IyChannels.  The range of parameter space covered by the X axis is
 [<I>xLow</I>..<I>xHigh</I>].  The range of parameter space covered by the Y axis
 is [<I>yLow</I>..<I>yHigh</I>].
-<DT><B>CSpectrum* CreateG1D(STD(string) </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>,<DD>
-STD(vector)&lt;CParameter&gt; </B><I>parameters</I><B>, UInt_t </B><I>channels</I><B>);</B>
+<DT><B>CSpectrum* CreateG1D(std::string </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>,<DD>
+std::vector&lt;CParameter&gt; </B><I>parameters</I><B>, UInt_t </B><I>channels</I><B>);</B>
 Creates a 1-d Gamma spectrum.   Gamma spectra are multiply incremented
 spectra.  For each valid parameter specified by <I>parameters</I>, the spectrum
 is incremented as described by the value of that parameter.  Note that
 <I>channels</I> not only specifies the number of channesl on the X axis of the
 spectrum, but also specifies the range of the parameter covered by the X axis
 as [0..<I>channels]fR-1].
-<DT></I><B>CSpectrum* CreateG1D(STD(string) </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, STD(vector)&lt;CParameter&gt; </B><I>parameters</I><B>, <DD>
+<DT></I><B>CSpectrum* CreateG1D(std::string </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, std::vector&lt;CParameter&gt; </B><I>parameters</I><B>, <DD>
 UInt_t </B><I>channels</I><B>, Float_t </B><I>lowLimit</I><B>, Float_t </B><I>hiLimit</I><B>);</B>
 
 Creates a 1-d gamma spectrum.  Returns a pointer to the spectrum to the
 caller. The X axis is defined as having <I>channels</I> channels that cover the
 range [<I>lowLimit</I>..<I>hiLimit</I>] in parameter space.
-<DT><B>CSpectrum* CreateG2D(STD(string) </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>,<DD>
-STD(vector)&lt;CParameter&gt; </B><I>parameters</I><B>, 
+<DT><B>CSpectrum* CreateG2D(std::string </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>,<DD>
+std::vector&lt;CParameter&gt; </B><I>parameters</I><B>, 
 UInt_t </B><I>xChannels</I><B>, UInt_t </B><I>yChannels</I><B>);</B>
 
 Creates a 2-d gamma spectrum.  For each pair of parameters described by
@@ -942,7 +942,7 @@ event, this spectrum will be incremented as described by that ordered pair.
 The X axis has <I>xChannels&nbsp;channels that cover the range
 [0..xChannels</I>-1] in parameter space. Similarly, the Y axis has
 <I>yChannels</I> covering [0..<I>yChannels</I>-1].
-<DT>CSpectrum* CreateG2D(STD(string) <I>name</I><B>, DataType_t </B><I>dataType</I><B>, STD(vector)&lt;CParameter&gt; </B><I>parameters</I><B>, <DD>
+<DT>CSpectrum* CreateG2D(std::string <I>name</I><B>, DataType_t </B><I>dataType</I><B>, std::vector&lt;CParameter&gt; </B><I>parameters</I><B>, <DD>
 UInt_t </B><I>xChannels</I><B>, Float_t </B><I>xLow</I><B>, Float_t </B><I>xHigh</I><B>, 
 UInt_t </B><I>yChannels</I><B>, Float_t </B><I>yLow</I><B>, Float_t </B><I>yHigh</I><B>);</B>
 
@@ -950,25 +950,25 @@ Creates a 2-d gamma spectrum that is incremented for each ordered pair of valid
 parameters in <I>parameters</I>.  The X axis is has <I>xChannels</I> channels
 that cover the range [<I>xLow</I>, <I>xHigh</I>] in parameter space, and
 similarly for the Y axis using <I>yChannels</I>, <I>yLow</I>, and <I>yHigh</I>.
-<DT><B>CSpectrum* CreateBit(STD(string) </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, CParameter&amp; </B><I>parameter</I><B>, UInt_t </B><I>channels</I><B>);</B><DD>
+<DT><B>CSpectrum* CreateBit(std::string </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, CParameter&amp; </B><I>parameter</I><B>, UInt_t </B><I>channels</I><B>);</B><DD>
 Creates a  bit mask spectrum  For each bit set in the parameter for each event,
 the corresponding channel is incremented for example, if the integerized
 parameter value is 10 (decimal), channels 1 and 3 will be incremented.
-<DT><B>CSpectrum* CreateBit(STD(string) </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, CParameter&amp; </B><I>parameter</I><B>,<DD>
+<DT><B>CSpectrum* CreateBit(std::string </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, CParameter&amp; </B><I>parameter</I><B>,<DD>
 <BR>&nbsp;UInt_t&nbsp;</B><I>channels</I><B>,&nbsp;UInt_t&nbsp;lowBit</B><I>);</I>
 
 Creates a bitmask spectrum.  lowBit determines the bit represented by
 channel 0.  If, for example, <I>channels</I> is 16, and <I>lowBit</I> is 4, the
 spectrum will display the increments in bits 4 through 19 of the integerized
 parameter value.
-<DT><B>CSpectrum* CreateSummary(STD(string) </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, STD(vector)&lt;CParameter&gt; </B><I>parameters</I><B>, UInt_t </B><I>channels</I><B>);</B><DD>
+<DT><B>CSpectrum* CreateSummary(std::string </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, std::vector&lt;CParameter&gt; </B><I>parameters</I><B>, UInt_t </B><I>channels</I><B>);</B><DD>
 Creates a summary spectrum.  Summary spectra allow you to look at several
 supposedly identical detector channels in a detector array for anomalies such
 as gain mis-matches or dead channels.  A summary spectrum is essentially an
 array of 1-d spectra put into a 2-d spectrum.  Each parameter gets a channel on
 the X axis and increments its 1-d spectrum along the y axis.  This version of
 the function histograms the range [0..<I>channels</I>-1] for each parameter.
-<DT><B>CSpectrum* CreateSummary(STD(string) </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, STD(vector)&lt;CParameter&gt; </B><I>parameters</I><B>, <DD>
+<DT><B>CSpectrum* CreateSummary(std::string </B><I>name</I><B>, DataType_t </B><I>dataType</I><B>, std::vector&lt;CParameter&gt; </B><I>parameters</I><B>, <DD>
 UInt_t </B><I>nChannels</I><B>, Float_t </B><I>low</I><B>, Float_t </B><I>high</I><B>);</B>
 
 Creates a summary spectrum.  The parameter range histogrammed is determined by
@@ -1085,7 +1085,7 @@ SpecTcl's commands will become aware of the spectrum.
 These commands include <B>spectrum</B>, <B>channel</B>, <B>sbind</B>, <B>sread</B>,
 and <B>swrite</B> among others.  Adding a spectrum to the Spectrum dictionary
 does not imply that the dictionary will manage its storage, however.
-<DT><B>CSpectrum* RemoveSpectrum(STD(string) </B><I>name</I><B>);</B><DD>
+<DT><B>CSpectrum* RemoveSpectrum(std::string </B><I>name</I><B>);</B><DD>
 Removes the spectrum named <I>name</I> from the spectrum dictionary.  The
 function returns a pointer to the spectrum that was removed or <B>NULL</B> if
 the spectrum does not exist.  Since the API's spectrum creation interface
@@ -1108,7 +1108,7 @@ destroy the spectrum:
 </DL>
 
 
-<DT><B>CSpectrum* FindSpectrum(STD(string) </B><I>name</I><B>);</B><DD>
+<DT><B>CSpectrum* FindSpectrum(std::string </B><I>name</I><B>);</B><DD>
 Locates a spectrum in the spectrum dictionary and returns a pointer to it.  If
 the spectrum does not exist, then <B>NULL</B> is returned.
 Note that since the spectrum lives in the spectrum dictionary, you must not use
@@ -1198,7 +1198,7 @@ is the name of the spectrum to clear.
 <P>
 
 <DL COMPACT>
-<DT><B>void ClearSpectrum(STD(string) </B><I>name</I><B>);</B><DD>
+<DT><B>void ClearSpectrum(std::string </B><I>name</I><B>);</B><DD>
 If the spectrum <I>name</I> exists in the spectrum dictionary it is cleared.
 If the spectrum does not exist, then a CDictionaryException is thrown.
 <DT><BR>&nbsp;<B>void&nbsp;ClearAllSpectra();</B><DD>
@@ -1419,18 +1419,18 @@ The names of the two bands that will be used to create a contour.
 <P>
 
 <DL COMPACT>
-<DT><B>CGate* CreateGate(CGateFactory::GateType </B><I>gateType</I><B>, STD(vector)&lt;STD(string)&gt; </B><I>gateNames</I><B>);</B><DD>
+<DT><B>CGate* CreateGate(CGateFactory::GateType </B><I>gateType</I><B>, std::vector&lt;std::string&gt; </B><I>gateNames</I><B>);</B><DD>
 Creates a compound gate of the type selected by <I>gateType</I>.  The gate will
 be composed of the gates named by the vector <I>gateNames</I> all of the gates
 in <I>gateNames</I><B> must have been entered in the gate dictionary either by
 SpecTcl or application software.
 <DT><BR>&nbsp;CGate*&nbsp;CreateGate(CGateFactory::GateType</B><DD>
-<I>gateType</I><B>,STD(vector)&lt;STD(string)&gt; </B><I>parameters</I><B>, 
-STD(vector)&lt;FPoint&gt;</B><I>points</I><B>);</B>
+<I>gateType</I><B>,std::vector&lt;std::string&gt; </B><I>parameters</I><B>, 
+std::vector&lt;FPoint&gt;</B><I>points</I><B>);</B>
 Creates a primitive gate of the type described by <I>gateType</I>.  The gate
 is defined on the set of <I>points</I> set on the <I>parameters</I>.
-<DT><BR>&nbsp;<B>CGate*&nbsp;CreateGate(CGateFactory::GateType&nbsp;</B><I>gateType</I><B>,&nbsp;STD(vector)&lt;FPoint&gt;&nbsp;</B><I>points</I><B>,<DD>
-STD(vector)&lt;STD(string)&gt; </B><I>spectra</I><B>);</B>
+<DT><BR>&nbsp;<B>CGate*&nbsp;CreateGate(CGateFactory::GateType&nbsp;</B><I>gateType</I><B>,&nbsp;std::vector&lt;FPoint&gt;&nbsp;</B><I>points</I><B>,<DD>
+std::vector&lt;std::string&gt; </B><I>spectra</I><B>);</B>
 
 Creates a gamma gate of the type described by <I>gateType</I>. The coordinates
 of the points that make up the gate are in <I>points</I> and the gate is defined
@@ -1442,7 +1442,7 @@ semantics is necessary to meet the analysis needs of SpecTcl's user community.
 Creates a gate that is always true when checked.
 <DT><B>CGate* CreateFalseGate();</B><DD>
 Creates a gate that is always false when checked.
-<DT><B>CGate* CreateBand(STD(string) </B><I>xParameter</I><B>, STD(string) </B><I>yParameter</I><B>, STD(vector)&lt;FPoint&gt; </B><I>points</I><B>);</B><DD>
+<DT><B>CGate* CreateBand(std::string </B><I>xParameter</I><B>, std::string </B><I>yParameter</I><B>, std::vector&lt;FPoint&gt; </B><I>points</I><B>);</B><DD>
 Creates a band gate defined on <I>xParameter</I> and <I>yParameter</I>.   The
 points of the band are in <I>points</I>.  A band gate is an open polyline that
 connects the gate points.  The gate is <B>true</B> if the <I>xParameter</I>, and
@@ -1452,7 +1452,7 @@ with pathalogical bands, including those that have switchbacks and loops.  For
 these gates, imagine that vertical lines extend downward from the end points of
 the gate and are joined at infinity to form a contour.  Insidedness as defined
 for contour gates makes the band true.
-<DT><B>CGate* CreateContour(STD(string) </B><I>xParameter</I><B>, STD(string) </B><I>yParameter</I><B>, STD(vector)&lt;FPoint&gt; </B><I>points</I><B>);</B><DD>
+<DT><B>CGate* CreateContour(std::string </B><I>xParameter</I><B>, std::string </B><I>yParameter</I><B>, std::vector&lt;FPoint&gt; </B><I>points</I><B>);</B><DD>
 Creates a contour.  Parameters have identical meanings as for
 <B>CreateBand</B>, however the points define a closed polygon.  Events whose
 <I>xParameter</I> and <I>yParameter</I> are inside the polygon make the gate
@@ -1463,7 +1463,7 @@ inside the polygon if a line extended to infinity in any direction crosses an
 odd number of polygon boundaries.  Note that for practical purposes, the gate
 is checked by extending a horizontal line segment from the point to the left end of the
 polygon's bounding box and counting the boundary crossings of that line segment.
-<DT><B>CGate* CreateBandContour(STD(string) </B><I>firstBand</I><B>, STD(string) </B><I>secondBand</I><B>);</B><DD>
+<DT><B>CGate* CreateBandContour(std::string </B><I>firstBand</I><B>, std::string </B><I>secondBand</I><B>);</B><DD>
 Creates a band contour.  A band contour is a contour that is formed by joining
 the leftmost and right most points of the bands <I>firstBand</I> and
 <I>secondBand</I>.  While the resulting gate is something very much like the AND
@@ -1474,18 +1474,18 @@ in the deltaE-E plot of an Si detector (e.g.), with bands and the from those
 bands, produce contours around the individual particle species.  Note that this
 implies that if one of the constituent bands is modified, the bandcontour is
 <I>not</I> modified.
-<DT><B>CGate* CreateNotGate(STD(string) </B><I>name</I><B>);</B><DD>
+<DT><B>CGate* CreateNotGate(std::string </B><I>name</I><B>);</B><DD>
 Creates a gate that is true whenever the gate <I>name</I> is not true, and vica-versa.
-<DT><B>CGate* CreateAndGate(STD(vector)&lt;STD(string)&gt; </B><I>gateNames</I><B>);</B><DD>
+<DT><B>CGate* CreateAndGate(std::vector&lt;std::string&gt; </B><I>gateNames</I><B>);</B><DD>
 Creates a gate that is true only when all of the gates in the list
 <I>gateNames</I> are true.
-<DT><B>CGate* CreateOrGate(STD(vector)&lt;STD(string)&gt; </B><I>gateNames</I><B>);</B><DD>
+<DT><B>CGate* CreateOrGate(std::vector&lt;std::string&gt; </B><I>gateNames</I><B>);</B><DD>
 Creates a gate that is true whenever at least one gate in the list
 <I>gateNames</I> is true.
-<DT><B>CGate* CreateCut(STD(string) </B><I>parameter</I><B>, Float_t </B><I>low</I><B>, Float_t </B><I>high</I><B>);</B><DD>
+<DT><B>CGate* CreateCut(std::string </B><I>parameter</I><B>, Float_t </B><I>low</I><B>, Float_t </B><I>high</I><B>);</B><DD>
 Creates a gate that is a cut on <I>parameter</I><B>.  The gate is true for every
 event where </B><I>parameter</I><B> is in the range [</B><I>low</I>..<I>high</I>].
-<DT><B>CGate* CreateGammaCut(Float_t </B><I>low</I><B>, Float_t </B><I>high</I><B>,STD(vector)&lt;STD(string)&gt; </B><I>spectra</I><B>);</B><DD>
+<DT><B>CGate* CreateGammaCut(Float_t </B><I>low</I><B>, Float_t </B><I>high</I><B>,std::vector&lt;std::string&gt; </B><I>spectra</I><B>);</B><DD>
 Creates a gamma cut.  Gamma cuts are applied to gamma spectra.  They act as
 folds.  For each parameter that is in the gate, the spectrum is incremented for
 all other parameters.  
@@ -1498,7 +1498,7 @@ API, however we feel that the changes anticipated will better serve the needs
 of the SpecTcl user community.  For now <I>spectra</I> is a list of spectra on
 which to display this cut.
 <DL COMPACT>
-<DT><B>Gate* CreateGammaBand(STD(vector)&lt;FPoint&gt; </B><I>points</I><B>, STD(vector)&lt;STD(string)&gt; </B><I>spectra</I><B>);</B><DD>
+<DT><B>Gate* CreateGammaBand(std::vector&lt;FPoint&gt; </B><I>points</I><B>, std::vector&lt;std::string&gt; </B><I>spectra</I><B>);</B><DD>
 Creates a gamma band gate.  The points that define the band are in
 <I>points</I>.   The spectra that this band should display on are in
 <I>spectra</I><B>.  Gamma bands can only be applied to gamma spectra.  If any pair
@@ -1513,7 +1513,7 @@ API, however we feel that the changes anticipated will better serve the needs
 of the SpecTcl user community.  For now </B><I>spectra</I> is a list of spectra on
 which to display this cut.
 <DL COMPACT>
-<DT><B>CGate* CreateGammaContour(STD(vector)&lt;FPoint&gt; </B><I>points</I><B>, STD(vector)&lt;STD(string)&gt; </B><I>spectra</I><B>);</B><DD>
+<DT><B>CGate* CreateGammaContour(std::vector&lt;FPoint&gt; </B><I>points</I><B>, std::vector&lt;std::string&gt; </B><I>spectra</I><B>);</B><DD>
 Creates a gamma contour.  Gamma contours are handled identically to gamma
 bands (see above.. including the warning about gate semantics), however the
 spectra gated is incremented when parameters are inside the contour.
@@ -1635,7 +1635,7 @@ CGateContainer*&gt;.
 <P>
 
 <DL COMPACT>
-<DT><B>void AddGate(STD(string) </B><I>name</I><B>, CGate* </B><I>gate</I><B>);</B><DD>
+<DT><B>void AddGate(std::string </B><I>name</I><B>, CGate* </B><I>gate</I><B>);</B><DD>
 Adds a gate to the gate dictionary.  The <I>gate</I> will be given the <I>name</I> as
 its name.  Gate names must be unique,  therefore a CDictionaryException is
 thrown if you attempt to create a gate with a name that is already in the
@@ -1645,15 +1645,15 @@ Once added, gates will be checked by SpecTcl for each event as
 needed.  In addition, gates in the gate dictionary will be visible to SpecTcl's
 gate commands such as <B>gate</B>, and <B>apply</B>.  SpecTcl will ensure that
 gates that are in the dictionary are displayed on ``appropriate'' spectra.
-<DT><B>void DeleteGate(STD(string) </B><I>gateName</I><B>);</B><DD>
+<DT><B>void DeleteGate(std::string </B><I>gateName</I><B>);</B><DD>
 Deletes the gate named <I>gateName</I>.  If the gate does not exist, a
 CDictionaryException is thrown.
-<DT><B>void ReplaceGate(STD(string) </B><I>gateName</I><B>, CGate&amp; </B><I>newGate</I><B>);</B><DD>
+<DT><B>void ReplaceGate(std::string </B><I>gateName</I><B>, CGate&amp; </B><I>newGate</I><B>);</B><DD>
 The definition of the gate <I>gateName</I> is replaced by that of
 <I>newGate</I>.  Since internally all SpecTcl gate references are through gate
 containers, this change is immediately visible.  If the gate <I>gateName</I>
 does not exist, a CDictionaryException is thrown.
-<DT>CGateContainer* FindGate(STD(string) <I>gateName</I><B>);</B><DD>
+<DT>CGateContainer* FindGate(std::string <I>gateName</I><B>);</B><DD>
 Locates the gate container that is the invariant pointer to the gate
 <I>gateName</I>. A pointer to the gate container is returned.  Note that if the
 gate does not exist, a CDictionaryException is thrown.  The following
@@ -1704,7 +1704,7 @@ the names of all the gates:
 Returns an end of iteration iterator to the gate dictionary.
 <DT><B>UInt_t GateCount();</B><DD>
 Returns the number of gates in the gate dictionary.
-<DT><B>void ApplyGate(STD(string) </B><I>gateName</I><B>, STD(string) </B><I>spectrumName</I><B>);</B><DD>
+<DT><B>void ApplyGate(std::string </B><I>gateName</I><B>, std::string </B><I>spectrumName</I><B>);</B><DD>
 Applies a the gate <I>gateName</I> to the spectrum <I>spectrumName</I><B>  if either
 the gate or the spectrum don't exist, a CDictionaryException will be thrown.
 The effect of applying the gate is immediate. Note as well that the gate is
@@ -1861,7 +1861,7 @@ Appends an event processor to the end of the event processor pipeline.  This
 will cause the event processor's <I>OnAttach</I> member to be called, notifying
 it of the addition to the event pipeline.   If the <I>name</I> parameter is
 omitted, a unique non-obvious name is assigned.
-<DT><B>CTclAnalyzer::EventProcessorIterator FindEventProcessor(STD(string) </B><I>sname</I><B>);</B><DD>
+<DT><B>CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string </B><I>sname</I><B>);</B><DD>
 Returns an iterator to the event processor named <I>sname</I>.  If the event
 processor does not exist, the iterator returned is an end of iteration iterator
 (compares as equal to <B>ProcessingPipelineEnd()</B>).  Recall that the iterator
@@ -1952,7 +1952,7 @@ event processor indicated by the iterator.  The following code is equivalent to
 </DL>
 
 
-<DT><B>void RemoveEventProcessor(STD(string) </B><I>sname</I><B>);</B><DD>
+<DT><B>void RemoveEventProcessor(std::string </B><I>sname</I><B>);</B><DD>
 Removes the event  processor named <I>sname</I>.  If the event processor does
 not exist, this is a no-op at this time.  In the future, we reserve the right
 to throw a CDictionaryException.
@@ -2083,7 +2083,7 @@ A pointer to an event sink.
 <DT><B>void AddEventSink(CEventSink&amp; </B><I>sink</I><B>, const char* </B><I>name</I><B> = 0);</B><DD>
 Appends an event sink to the event sink pipeline.  Once appended, the event
 sink's <B>OnAttach</B> member is called.
-<DT><B>CEventSinkPipeline::EventSinkIterator FindEventSink(STD(string) </B><I>sinkName</I><B>);</B><DD>
+<DT><B>CEventSinkPipeline::EventSinkIterator FindEventSink(std::string </B><I>sinkName</I><B>);</B><DD>
 Locates the iterator that corresponds to the event sink <I>sinkName</I>.  If the
 sink is not found, an end of iteration iterator is returned.
 <DT><B>CEventSinkPipeline::EventSinkIterator FindEventSink(CEventSink&amp; </B><I>sink</I><B>);</B><DD>
@@ -2127,7 +2127,7 @@ below is equivalent to call to <B>AddEventSink</B>.
 </DL>
 
 
-<DT><BR>&nbsp;<B>CEventSink*&nbsp;RemoveEventSink(STD(string)&nbsp;</B><I>name</I><B>);</B><DD>
+<DT><BR>&nbsp;<B>CEventSink*&nbsp;RemoveEventSink(std::string&nbsp;</B><I>name</I><B>);</B><DD>
 Removes the sink <I>name&nbsp;from the event sink pipeline and returns a pointer to
 it.  If the sink does not exist, a </I><B>NULL</B> pointer is returned.  The
 <B>OnDetach</B> member of the sink is called to notify it that it is being
@@ -2171,7 +2171,7 @@ the pipeline:
 <BR>&nbsp;&nbsp;This&nbsp;section&nbsp;describes&nbsp;API&nbsp;member&nbsp;functions&nbsp;that&nbsp;don't&nbsp;fit&nbsp;nicely&nbsp;into&nbsp;any&nbsp;of
 the function groups described above.
 <DL COMPACT>
-<DT><B>void AddSpectrumFormatter(STD(string) </B><I>name</I><B>, CSpectrumFormatter&amp; </B><I>formatter</I><B>);</B><DD>
+<DT><B>void AddSpectrumFormatter(std::string </B><I>name</I><B>, CSpectrumFormatter&amp; </B><I>formatter</I><B>);</B><DD>
 SpecTcl's <B>sread</B> and <B>swrite</B> commands accept a swtich
 (<B>-format</B>) that specifies the format of the spectrum file that is being
 read or written.  The set of formats recognized by these commands is

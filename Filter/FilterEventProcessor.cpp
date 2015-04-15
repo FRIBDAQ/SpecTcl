@@ -26,6 +26,7 @@
 #include <EventFormatError.h>
 #include <TCLAnalyzer.h>
 #include <string.h>
+#include <stdint.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -243,7 +244,7 @@ CFilterEventProcessor::operator()(const Address_t pEvent,
 			      "Bit mask Parameter id too big",
 			      (UInt_t*)pEvent, 
 			      15,
-			      (ULong_t)pHere - (ULong_t)pEvent);
+			      (uint8_t*)pHere - (uint8_t*)pEvent);
 	  
 	}
       }
@@ -263,7 +264,7 @@ CFilterEventProcessor::operator()(const Address_t pEvent,
   }
   // Calcluate the size of the event:
 
-  rAna.SetEventSize((ULong_t)pHere - (ULong_t)pEvent);
+  rAna.SetEventSize((uint8_t*)pHere - (uint8_t*)pEvent);
 
   return kfTRUE;
   
@@ -306,7 +307,7 @@ CFilterEventProcessor::GetInt(void* p, Int_t& result)
 {
   memcpy(&result, p, sizeof(Int_t));
   
-  return (void*)((ULong_t)p + sizeof(Int_t));
+  return (void*)((uint8_t*)p + sizeof(Int_t));
 }
 /*!
   Get a float value from an input buffer.
@@ -321,5 +322,5 @@ void*
 CFilterEventProcessor::GetFloat(void* p, DFloat_t& result)
 {
   memcpy(&result, p, sizeof(DFloat_t));
-  return (void*)((ULong_t)p + sizeof(DFloat_t));
+  return (void*)((uint8_t*)p + sizeof(DFloat_t));
 }

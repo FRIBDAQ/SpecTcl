@@ -309,8 +309,8 @@ class CXamineMap2D
   Float_t m_nYLow;        // The low limit of the y-transform
   Float_t m_nXHigh;       // The high limit of the x-transformation
   Float_t m_nYHigh;       // The high limit of the y-transform
-  STD(string) m_sXUnits;  // The units to label the mapped x-axis
-  STD(string) m_sYUnits;  // The units to label the mapped y-axis
+  std::string m_sXUnits;  // The units to label the mapped x-axis
+  std::string m_sYUnits;  // The units to label the mapped y-axis
   
 public:
   
@@ -327,7 +327,7 @@ public:
 
   CXamineMap2D(Float_t am_nXLow, Float_t am_nYLow,
 	       Float_t am_nXHigh, Float_t am_nYHigh,
-	       const STD(string)& am_sXUnits, const STD(string)& am_sYUnits) :
+	       const std::string& am_sXUnits, const std::string& am_sYUnits) :
     m_nXLow(am_nXLow),
     m_nYLow(am_nYLow),
     m_nXHigh(am_nXHigh),
@@ -395,11 +395,11 @@ public:
     {
       return m_nYHigh;
     }
-  STD(string) getXUnits() const
+  std::string getXUnits() const
     {
       return m_sXUnits;
     } 
-  STD(string) getYUnits() const
+  std::string getYUnits() const
     {
       return m_sYUnits;
     }

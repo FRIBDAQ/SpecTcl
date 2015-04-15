@@ -92,8 +92,8 @@ private:
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
   virtual   Bool_t UsesParameter (UInt_t nId) const;
 
-  virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
-  virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
+  virtual void GetParameterIds(std::vector<UInt_t>& rvIds);
+  virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
   virtual UInt_t Dimension(UInt_t n) const;
   virtual UInt_t Dimensionality() const;
   virtual CSpectrum::SpectrumDefinition& GetDefinition();

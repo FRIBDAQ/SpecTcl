@@ -66,7 +66,7 @@ private:
   
 public:
   virtual ~SetChannelsVisitor();
-  SetChannelsVisitor(STD(string) pattern, UInt_t channels);
+  SetChannelsVisitor(std::string pattern, UInt_t channels);
   virtual void OnMatch(CTreeParameter* pParam);
   
 };

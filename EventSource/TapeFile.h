@@ -316,16 +316,16 @@ DAMAGES.
                                
 class CTapeFile  : public CFile        
 {
-  STD(string) m_sDevice;  //  Name of the tape device (e.g. /dev/rmt0h
+  std::string m_sDevice;  //  Name of the tape device (e.g. /dev/rmt0h
   UInt_t m_nBlocksize;    //  Bytes in block on tape (set by open),
                           //  used to set size on Open.
   CRefcountedPtr<volume> m_pVcb;// Shared volume context between all CTapeFile
 				// objects for the same tape file.
-  STD(string) m_sFilename;	// File name when one is open.
+  std::string m_sFilename;	// File name when one is open.
 public:
 			//Constructor with arguments
 
-  CTapeFile (const STD(string)& am_sDevice);
+  CTapeFile (const std::string& am_sDevice);
   virtual ~ CTapeFile ( );          //Destructor
 	
 			//Copy constructor
@@ -352,7 +352,7 @@ public:
   {
     return m_nBlocksize;
   }
-  STD(string) getDevice() const
+  std::string getDevice() const
   {
     return m_sDevice;
   }
@@ -360,7 +360,7 @@ public:
   {
     return m_pVcb.operator->();
   }
-  STD(string) getFilename() const
+  std::string getFilename() const
   {
     AssertOpen();
     return m_sFilename;
@@ -382,7 +382,7 @@ public:
   // Mutating (Write) selectors:
 protected:
 
-  void setDevice (const STD(string)& am_sDevice)
+  void setDevice (const std::string& am_sDevice)
   { 
     m_sDevice = am_sDevice;
   }
@@ -392,7 +392,7 @@ protected:
 //    m_pVcb = CRefcountedPtr<volume>(*pVCB) 
 //				// Point to new Volume control block.
 //  }
-  void setFilename(const STD(string)& sName)
+  void setFilename(const std::string& sName)
   {
     m_sFilename = sName;
   }
@@ -402,17 +402,17 @@ protected:
 public:                   
   virtual   int Read (Address_t pBuffer, UInt_t nBytes)  ;
   virtual   Int_t Write (const Address_t pBuffer, UInt_t  nBytes)  ;
-  virtual   void Open (const STD(string)&  rsFilename, UInt_t nAccess)  ;
+  virtual   void Open (const std::string&  rsFilename, UInt_t nAccess)  ;
   virtual   void Close ()  ;
-  static void      Initialize(const STD(string)& device, // Initialize tape 
-			      const STD(string)& label); // volume.
+  static void      Initialize(const std::string& device, // Initialize tape 
+			      const std::string& label); // volume.
 
   //  Utility functions:
 
 protected:
   void DoAssign(const CTapeFile& rhs);
-  void TapeCreate(const STD(string)& name);
-  void TapeOpen(const STD(string)& name);
+  void TapeCreate(const std::string& name);
+  void TapeOpen(const std::string& name);
 };
 
 

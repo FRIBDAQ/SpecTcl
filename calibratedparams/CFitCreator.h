@@ -56,7 +56,7 @@ public:
 public:
   
   virtual   CFit* operator() ()   = 0 ; 
-  virtual   STD(string) DescribeFit()  = 0;
+  virtual   std::string DescribeFit()  = 0;
 };
 
 #endif

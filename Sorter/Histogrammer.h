@@ -115,20 +115,20 @@ typedef DictionaryObserver<CGateContainer>      GateDictionaryObserver;
 */
 class CGateObserver : public GateDictionaryObserver {
 public:
-  virtual void onChange(STD(string) name, CGateContainer& gateContainer) = 0;
+  virtual void onChange(std::string name, CGateContainer& gateContainer) = 0;
 };
 
 
 // Display binding management types:
-typedef STD(vector)<STD(string)>                     DisplayBindings;
+typedef std::vector<std::string>                     DisplayBindings;
 typedef DisplayBindings::iterator               DisplayBindingsIterator;
 
 class CHistogrammer : public CEventSink {
-  typedef STD(pair)<int, STD(string)> BoundFitline;
-  typedef STD(list)<BoundFitline>     FitlineList;
-  typedef STD(vector)<FitlineList>    FitlineBindings;
+  typedef std::pair<int, std::string> BoundFitline;
+  typedef std::list<BoundFitline>     FitlineList;
+  typedef std::vector<FitlineList>    FitlineBindings;
 
-  typedef STD(list)<CGateObserver*>   GateObserverList;
+  typedef std::list<CGateObserver*>   GateObserverList;
 
   CXamine*            m_pDisplayer;          // Points to displayer object.
   DisplayBindings     m_DisplayBindings;     // Display id to spectrum name map.
@@ -206,18 +206,18 @@ class CHistogrammer : public CEventSink {
   virtual void operator() (CEventList& rEventList);
 
   // Parameter dictionary manipulation:
-  CParameter* AddParameter (const STD(string)& sName,
+  CParameter* AddParameter (const std::string& sName,
 			    UInt_t nId,
 			    const char* pUnits);
-  CParameter* AddParameter (const STD(string)& sName,
+  CParameter* AddParameter (const std::string& sName,
 			    UInt_t nId,
 			    UInt_t  nScale);
-  CParameter* AddParameter (const STD(string)& sName,
+  CParameter* AddParameter (const std::string& sName,
 			    UInt_t nId, UInt_t nScale,
 			    Float_t nLow, Float_t nHi,
-			    const STD(string)& sUnits);
-  CParameter* RemoveParameter (const STD(string)& sName);
-  CParameter* FindParameter (const STD(string)& rName);
+			    const std::string& sUnits);
+  CParameter* RemoveParameter (const std::string& sName);
+  CParameter* FindParameter (const std::string& rName);
   CParameter* FindParameter (UInt_t nPar);
   ParameterDictionaryIterator ParameterBegin();
   ParameterDictionaryIterator ParameterEnd();
@@ -225,10 +225,10 @@ class CHistogrammer : public CEventSink {
 
   // Spectrum dictionary manipulation.
   void AddSpectrum(CSpectrum& rSpectrum);
-  CSpectrum* RemoveSpectrum(const STD(string) sName);
-  void ClearSpectrum(const STD(string)& rsName);
+  CSpectrum* RemoveSpectrum(const std::string sName);
+  void ClearSpectrum(const std::string& rsName);
   void ClearAllSpectra();
-  CSpectrum* FindSpectrum(const STD(string)& rName);
+  CSpectrum* FindSpectrum(const std::string& rName);
   CSpectrum* FindSpectrum(UInt_t id);
   SpectrumDictionaryIterator SpectrumBegin();
   SpectrumDictionaryIterator SpectrumEnd();
@@ -236,23 +236,23 @@ class CHistogrammer : public CEventSink {
   void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
   void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
 
-  void UnGate(const STD(string)& rSpectrum); // Remove gate from spectrum
+  void UnGate(const std::string& rSpectrum); // Remove gate from spectrum
 
   // Manipulate display bindings:
-  UInt_t BindToDisplay (const STD(string)& rsName);
+  UInt_t BindToDisplay (const std::string& rsName);
   void UnBindFromDisplay (UInt_t nSpec);
   DisplayBindingsIterator DisplayBindingsBegin();
   DisplayBindingsIterator DisplayBindingsEnd();
-  Int_t  findDisplayBinding(STD(string) name);
+  Int_t  findDisplayBinding(std::string name);
   UInt_t DisplayBindingsSize();
   CSpectrum* DisplayBinding(UInt_t xid);
 
   // Manipulate the gate dictionary:
-  void AddGate(const STD(string)& rName, UInt_t nId, CGate& rGate);
-  void DeleteGate(const STD(string)& rGateName);
-  void ReplaceGate(const STD(string)& rGateName, CGate& rGate);
-  void ApplyGate(const STD(string)& rGateName,  const STD(string)& rSpectrum);
-  CGateContainer* FindGate(const STD(string)& rGate);
+  void AddGate(const std::string& rName, UInt_t nId, CGate& rGate);
+  void DeleteGate(const std::string& rGateName);
+  void ReplaceGate(const std::string& rGateName, CGate& rGate);
+  void ApplyGate(const std::string& rGateName,  const std::string& rSpectrum);
+  CGateContainer* FindGate(const std::string& rGate);
   CGateContainer* FindGate(UInt_t nId);
   CGateDictionaryIterator GateBegin();
   CGateDictionaryIterator GateEnd();
@@ -269,17 +269,17 @@ class CHistogrammer : public CEventSink {
   // Utility Functions:
  protected:
   CDisplayGate* GateToXamineGate(UInt_t nBindingId, CGateContainer& rGate);
-  STD(vector)<CGateContainer> GatesToDisplay(const STD(string)& rSpectrum);
+  std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum);
   void AddGateToBoundSpectra(CGateContainer& rGate);
   void RemoveGateFromBoundSpectra(CGateContainer& rGate);
-  STD(string) createTrialTitle(STD(string) type, 
-			       STD(vector)<STD(string)>      axes,
-			       STD(vector)<STD(string)>      parameters,
-			       STD(vector)<STD(string)>      yparameters,
-			       STD(string)                   gate);
-  STD(string) createTitle(CSpectrum* pSpectrum, UInt_t     maxLength);
+  std::string createTrialTitle(std::string type, 
+			       std::vector<std::string>      axes,
+			       std::vector<std::string>      parameters,
+			       std::vector<std::string>      yparameters,
+			       std::string                   gate);
+  std::string createTitle(CSpectrum* pSpectrum, UInt_t     maxLength);
 
-  void invokeGateChangedObservers(STD(string) name, CGateContainer& gate);
+  void invokeGateChangedObservers(std::string name, CGateContainer& gate);
   void createListObservers();
   bool flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam);
 		

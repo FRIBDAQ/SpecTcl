@@ -50,7 +50,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>                           
-#include <Iostream.h>
+#include <iostream>
 #include <stdio.h>
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>

@@ -48,14 +48,14 @@ class CXdrOutputStream {
   char* m_pBuffer;		//!< Data are xdr'd into this buffer.
   int   m_nFd;			//!< File descriptor to output file.
   bool  m_fisOpen;		//!< True if file is currently open.
-  STD(string) m_Filename;		//!< Filename if one has been supplied.
+  std::string m_Filename;		//!< Filename if one has been supplied.
   XDR   m_Xdr;			//!< XDR stream to buffer.
   size_t m_nBlocks;             //!< Size of output file so far.
 
 public:
   CXdrOutputStream(int nBuffersize=8192);
-  CXdrOutputStream(const STD(string)& rName, int nBuffersize=8192)
-    throw (STD(string)&);
+  CXdrOutputStream(const std::string& rName, int nBuffersize=8192)
+    throw (std::string&);
   ~CXdrOutputStream();
 private:
   CXdrOutputStream(const CXdrOutputStream& rhs);
@@ -80,7 +80,7 @@ public:
   int getBuffersize() const {	//!< # bytes of buffering.
     return m_nBuffersize;
   }
-  STD(string) getFilename() const {	//!< filename or empty if stream closed.
+  std::string getFilename() const {	//!< filename or empty if stream closed.
     return m_Filename;
   }
   size_t getBlocks() const {
@@ -91,9 +91,9 @@ public:
 
   // Class operations.
 
-  void Open(const STD(string)& rName) throw (STD(string)&);
-  void Close() throw (STD(string)&);
-  void Put(void* object, xdrproc_t converter) throw (STD(string)&);
+  void Open(const std::string& rName) throw (std::string&);
+  void Close() throw (std::string&);
+  void Put(void* object, xdrproc_t converter) throw (std::string&);
   void Require(int nBytes);
 
   // Sizers (sizeof is no good in xdr as it does not have to match
@@ -119,7 +119,7 @@ public:
 
   CXdrOutputStream& operator<<(char c);
   CXdrOutputStream& operator<<(const char* c);
-  CXdrOutputStream& operator<<(const STD(string)& s) 
+  CXdrOutputStream& operator<<(const std::string& s) 
     {return ((*this) << s.c_str());}
 
   CXdrOutputStream& operator<<(bool b);

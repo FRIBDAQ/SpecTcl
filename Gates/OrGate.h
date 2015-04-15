@@ -334,8 +334,8 @@ public:
 
   COrGate ()  
   { }
-  COrGate(STD(list)<CGateContainer*>& rGates);
-  COrGate(STD(vector)<CGateContainer*>& rGates) :
+  COrGate(std::list<CGateContainer*>& rGates);
+  COrGate(std::vector<CGateContainer*>& rGates) :
     CCompoundGate(rGates)
   {}
   COrGate(UInt_t nGates, CGateContainer** ppGates) :
@@ -370,8 +370,8 @@ public:
 
 public:                       
   virtual   CGate* clone ()  ;
-  virtual   STD(string) Type ()  const; 
-  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
+  virtual   std::string Type ()  const; 
+  virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params);
   virtual   Bool_t inGate(CEvent& rEvent);
 };
 

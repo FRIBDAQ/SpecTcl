@@ -1,4 +1,4 @@
-SUBDIRS =  Replace Scripts Utility factories Display \
+SUBDIRS =  daq Replace Scripts Utility factories Display \
 	 Xamine Tape EventSource \
 	 Events Gates Sorter SpectrumIO Filter Analysis\
 	DecoderRing  TreeParam \

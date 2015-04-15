@@ -57,7 +57,7 @@ class CSpectrumFit;
 class CFitDictionary {
   // Data Types:
 public:
-  typedef STD(map)<STD(string), CSpectrumFit*> FitMap;
+  typedef std::map<std::string, CSpectrumFit*> FitMap;
   typedef FitMap::iterator      iterator;
 
 
@@ -72,7 +72,7 @@ public:
 
   };
 
-  typedef STD(list)<CObserver*> ObserverList;
+  typedef std::list<CObserver*> ObserverList;
 
   // Data:
 private:
@@ -99,18 +99,18 @@ public:
 public:
   void add(CSpectrumFit& fit);
   void addOrReplace(CSpectrumFit& fit);
-  void Delete(STD(string) name);
+  void Delete(std::string name);
 
   // iteration etc. through the fit dictionary:
 
   iterator begin();
   iterator end();
   size_t   size();
-  iterator find(STD(string) name);
+  iterator find(std::string name);
   void     erase(iterator here);
   void     erase(iterator first, iterator last);
 
-  void updateFits(STD(string) name=STD(string)("*")); 
+  void updateFits(std::string name=std::string("*")); 
 
 
   // functions operating on the observers:

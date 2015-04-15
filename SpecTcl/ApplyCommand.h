@@ -361,7 +361,7 @@ public:
   // Utility functions.
  
 protected:
-  static STD(string) Usage();	// Produces usage information.
+  static std::string Usage();	// Produces usage information.
 };
 
 #endif

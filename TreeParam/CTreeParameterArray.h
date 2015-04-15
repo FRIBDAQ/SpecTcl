@@ -80,54 +80,54 @@ private:
    * negative BTW).
    */
   int m_nFirstIndex;  
-  STD(vector)<CTreeParameter*> m_Parameters;
+  std::vector<CTreeParameter*> m_Parameters;
   
 public:
   /**
    * Vector of parameter pointers.
    */
   CTreeParameterArray();
-  CTreeParameterArray(STD(string) baseName, 
+  CTreeParameterArray(std::string baseName, 
 		      UInt_t resolution, UInt_t numElements, Int_t baseIndex);
-  CTreeParameterArray(STD(string) baseName, 
+  CTreeParameterArray(std::string baseName, 
 		      UInt_t resolution, 
 		      double lowLimit, double highOrWidth, 
-		      STD(string) units, bool widthOrHighGiven, 
+		      std::string units, bool widthOrHighGiven, 
 		      UInt_t elements, Int_t firstIndex);
-  CTreeParameterArray(STD(string) baseName, UInt_t elements, Int_t baseIndex);
-  CTreeParameterArray(STD(string) baseName, STD(string) units, 
+  CTreeParameterArray(std::string baseName, UInt_t elements, Int_t baseIndex);
+  CTreeParameterArray(std::string baseName, std::string units, 
 		      UInt_t elements, Int_t firstIndex);
-  CTreeParameterArray(STD(string) baseName, 
-		      double low, double high, STD(string) units, 
+  CTreeParameterArray(std::string baseName, 
+		      double low, double high, std::string units, 
 		      UInt_t elements, Int_t firstIndex);
-  CTreeParameterArray(STD(string) baseName, UInt_t channels, 
-		      double low, double high, STD(string)units, 
+  CTreeParameterArray(std::string baseName, UInt_t channels, 
+		      double low, double high, std::string units, 
 		      UInt_t elements, Int_t firstIndex);
   ~CTreeParameterArray();
 
   CTreeParameter& operator[](Int_t nIndex);
   void Reset();
-  void Initialize(STD(string) baseName, UInt_t resolution, 
+  void Initialize(std::string baseName, UInt_t resolution, 
 		  UInt_t elements, Int_t baseIndex);
-  void Initialize(STD(string) baseName, UInt_t resolution, 
+  void Initialize(std::string baseName, UInt_t resolution, 
 		  double lowLimit, double widthOrHeight,
-		  STD(string) units, bool widthOrHeightGiven, 
+		  std::string units, bool widthOrHeightGiven, 
 		  UInt_t elements, Int_t firstIndex);
-  void Initialize(STD(string) baseName, UInt_t elements, Int_t firstIndex);
-  void Initialize(STD(string) baseName, STD(string) units, UInt_t elements, 
+  void Initialize(std::string baseName, UInt_t elements, Int_t firstIndex);
+  void Initialize(std::string baseName, std::string units, UInt_t elements, 
 		  Int_t firstIndex);
-  void Initialize(STD(string) baseName, double lowLimit, double highLimit, 
-		  STD(string) units, UInt_t elements, Int_t firstIndex);
-  void Initialize(STD(string) baseName, UInt_t channels, 
-		  double lowLimit, double highLimit, STD(string) units, 
+  void Initialize(std::string baseName, double lowLimit, double highLimit, 
+		  std::string units, UInt_t elements, Int_t firstIndex);
+  void Initialize(std::string baseName, UInt_t channels, 
+		  double lowLimit, double highLimit, std::string units, 
 		  UInt_t elements, Int_t firstIndex);
-  STD(vector)<CTreeParameter*>::iterator begin();
-  STD(vector)<CTreeParameter*>::iterator end();
+  std::vector<CTreeParameter*>::iterator begin();
+  std::vector<CTreeParameter*>::iterator end();
   UInt_t size();
   Int_t lowIndex();
   
 protected:
-  void CreateParameters(STD(string) baseName, 
+  void CreateParameters(std::string baseName, 
 			UInt_t size, CTreeParameter& Template);
   void DeleteParameters();
   

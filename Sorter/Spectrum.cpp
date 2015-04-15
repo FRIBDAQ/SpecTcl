@@ -84,7 +84,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GateContainer.h"
 #include "TrueGate.h"
 #include <string.h>
-#include <Iostream.h>
+#include <iostream>
 #include <CAxis.h>
 #include <RangeError.h>
 #include <stdlib.h>

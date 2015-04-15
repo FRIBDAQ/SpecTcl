@@ -114,7 +114,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <SpecTcl.h>
 #include <GateContainer.h>
 
-#include <Iostream.h>
+#include <iostream>
 
 #include <stdio.h>
 #include <assert.h>
@@ -917,7 +917,7 @@ CGateCommand::traceGates(CTCLInterpreter& rInterp,
      Name of the added gate.
 */
 void
-CGateCommand::invokeAddScript(STD(string) name)
+CGateCommand::invokeAddScript(std::string name)
 {
   invokeAScript(m_pAddScript, name);
 }
@@ -928,7 +928,7 @@ CGateCommand::invokeAddScript(STD(string) name)
       Name of the deleted gate.
 */
 void
-CGateCommand::invokeDeleteScript(STD(string) name)
+CGateCommand::invokeDeleteScript(std::string name)
 {
   invokeAScript(m_pDeleteScript, name);
 }
@@ -938,7 +938,7 @@ CGateCommand::invokeDeleteScript(STD(string) name)
      Name of the modified gate.
 */
 void
-CGateCommand::invokeChangedScript(STD(string) name)
+CGateCommand::invokeChangedScript(std::string name)
 {
   invokeAScript(m_pChangeScript, name);
 }

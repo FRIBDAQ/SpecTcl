@@ -2,7 +2,7 @@
 #include <cppunit/TextTestResult.h>
 #include <cppunit/TestSuite.h>
 
-#include <Iostream.h>
+#include <iostream>
 #include "CParameterMappingTest.h"
 #include "CAxisTests.h"
 

@@ -4,7 +4,7 @@
 #include "CAxisTests.h"
 #include "CParameterMapping.h"
 #include <string>
-#include <Iostream.h>
+#include <iostream>
 #include <stdlib.h>
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

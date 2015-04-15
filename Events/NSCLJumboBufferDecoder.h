@@ -49,7 +49,7 @@
 // in the 14'th word of the buffer.
 //
 class CNSCLJumboBufferDecoder : public CBufferDecoder {
-  STD(string) m_sTitle;
+  std::string m_sTitle;
  public:
   // Constructors:
   CNSCLJumboBufferDecoder() : CBufferDecoder() {} // Default Constructor.
@@ -74,7 +74,7 @@ public:
   virtual UInt_t getPatternCount();
   virtual UInt_t getBufferType();
   virtual void getByteOrder(Short_t& Signature16, Int_t& Signature32);
-  virtual STD(string) getTitle();
+  virtual std::string getTitle();
 
 
   virtual void operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAnalyzer);

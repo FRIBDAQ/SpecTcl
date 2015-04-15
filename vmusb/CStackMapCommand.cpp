@@ -84,7 +84,7 @@ CStackMapCommand::getMap(int number)
 
 int
 CStackMapCommand::operator()(CTCLInterpreter& interp,
-			     STD(vector)<CTCLObject>& objv)
+			     std::vector<CTCLObject>& objv)
 {
   // We need exactly 3 command words including the command:
 

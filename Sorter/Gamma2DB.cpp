@@ -353,8 +353,8 @@ CGamma2DB::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 //! Increment for 2d deluxe is an error:
 
 void
-CGamma2DB::Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
-		     STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters)
+CGamma2DB::Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
+		     std::vector<std::pair<UInt_t, Float_t> >& yParameters)
 {
   throw CException("2D Gamma Deluxe increment called for CGamma2DB");
 

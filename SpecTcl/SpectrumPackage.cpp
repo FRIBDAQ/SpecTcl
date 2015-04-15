@@ -272,11 +272,11 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
 int
 CSpectrumPackage::CreateSpectrum(CTCLResult& rResult, const char* pName,
 		     const char* pSpecType,
-		     STD(vector)<STD(string)> xParameterNames,
-		     STD(vector)<STD(string)> yParameterNames,
+		     std::vector<std::string> xParameterNames,
+		     std::vector<std::string> yParameterNames,
 		     vector<UInt_t>           vChannels,
-		     STD(vector)<Float_t>     fLows,
-		     STD(vector)<Float_t>     fHighs,
+		     std::vector<Float_t>     fLows,
+		     std::vector<Float_t>     fHighs,
 		     const char*              pDataType)
 {
 

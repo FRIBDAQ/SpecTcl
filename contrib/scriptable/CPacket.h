@@ -1,4 +1,21 @@
 
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2014.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Ron Fox
+             Jeromy Tompkins
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
+
+ */
 /*!
   \class CPacket
   \file  .h
@@ -69,7 +86,7 @@ class CPacket  : public CSegmentUnpacker
   // Publicly available types:
 
 public:
-  typedef  STD(list)<CSegmentUnpacker*>    SegmentList;
+  typedef  std::list<CSegmentUnpacker*>    SegmentList;
   typedef  SegmentList::iterator      ModuleIterator;
 private:
   
@@ -92,7 +109,7 @@ public:
     //  and the visibility esp. if you cannot
     // implement assignment/copy construction.
     // safely.
-    CPacket (const STD(string)&      rName,
+    CPacket (const std::string&      rName,
 	     CTCLInterpreter&   rInterp,
 	     CModuleDictionary* pDictionary);		//!< Constructor.
     virtual  ~ CPacket ( ); //!< Destructor.
@@ -130,7 +147,7 @@ public:
 					       CEvent& rEvent, 
 					       CAnalyzer& rAnalyzer, 
 					       CBufferDecoder& rDecoder)   ; 
-  virtual STD(string) getType() const; //!<    Return the 'unpacker type'.
+  virtual std::string getType() const; //!<    Return the 'unpacker type'.
 
   // Non-virtual functions:
 
@@ -154,9 +171,9 @@ public:
   // Utility member functions.
 
 protected:
-  virtual   STD(string) Usage ()   ;                       //!< print usage. 
+  virtual   std::string Usage ()   ;                       //!< print usage. 
 
-  ModuleIterator FindDecoder(const STD(string)& name); 
+  ModuleIterator FindDecoder(const std::string& name); 
   int            NumDecoders() const;
   ModuleIterator BeginDecoders();
   ModuleIterator EndDecoders();

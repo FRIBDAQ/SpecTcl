@@ -109,20 +109,20 @@ public:
 
 			//Constructor(s) with arguments
 
-  CGamma2DL(const STD(string)& rName, UInt_t nId,
-	       STD(vector)<CParameter>& rParameters,
+  CGamma2DL(const std::string& rName, UInt_t nId,
+	       std::vector<CParameter>& rParameters,
 	       UInt_t nXScale, UInt_t nYScale);
 
-  CGamma2DL(const STD(string)& rName, UInt_t nId,
-	    STD(vector)<CParameter>& rParameters,
+  CGamma2DL(const std::string& rName, UInt_t nId,
+	    std::vector<CParameter>& rParameters,
 	    UInt_t nXScale, UInt_t nYScale,
 	    Float_t xLow, Float_t xHigh,
 	    Float_t yLow, Float_t yHigh);
 
 
   // Constuctor for use by derived classes
-  //  CGamma2DL(const STD(string)& rName, UInt_t nId,
-  //    STD(vector)<CParameter>& rParameter);
+  //  CGamma2DL(const std::string& rName, UInt_t nId,
+  //    std::vector<CParameter>& rParameter);
 
   virtual  ~ CGamma2DL( ) { }       //Destructor	
 private:
@@ -179,18 +179,18 @@ public:
   virtual   ULong_t operator[](const UInt_t* pIndices) const;
   virtual   void    set(const UInt_t* pIndices, ULong_t nValue);
 
-  virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
+  virtual void GetResolutions(std::vector<UInt_t>&  rvResolutions);
   virtual   UInt_t Dimension (UInt_t n) const;
 
   virtual   UInt_t Dimensionality () const {
     return 2;
   }
 
-  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rParameters);
-  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
-			 STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters);
+  virtual void Increment(std::vector<std::pair<UInt_t, Float_t> >& rParameters);
+  virtual void Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
+			 std::vector<std::pair<UInt_t, Float_t> >& yParameters);
  private:
-  static CSpectrum::Axes CreateAxisVector(STD(vector)<CParameter>& rParams,
+  static CSpectrum::Axes CreateAxisVector(std::vector<CParameter>& rParams,
 					  UInt_t nXchan, UInt_t nYchan,
 					  Float_t xLow, Float_t xHigh,
 					  Float_t yLow, Float_t yHigh);

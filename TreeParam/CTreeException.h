@@ -90,9 +90,9 @@ private:
   /**
    * Provides a properly scoped value from which to return reason texts.
    */
-  mutable STD(string) m_sLastReasonText;	// This makes us thread-unsafe!!!!
+  mutable std::string m_sLastReasonText;	// This makes us thread-unsafe!!!!
 public:
-  CTreeException(TreeErrorReason reason, STD(string) doing);
+  CTreeException(TreeErrorReason reason, std::string doing);
   virtual         ~CTreeException();
   CTreeException(const CTreeException&);
   CTreeException& operator=(const CTreeException&);
@@ -102,7 +102,7 @@ public:
   virtual const  char*   ReasonText() const;
   virtual Int_t   ReasonCode() const;
   static TreeErrorReason ReasonToCode(Int_t nReason);
-  STD(string)          ReasonValueToText(TreeErrorReason eReason) const;
+  std::string          ReasonValueToText(TreeErrorReason eReason) const;
   
   
 };

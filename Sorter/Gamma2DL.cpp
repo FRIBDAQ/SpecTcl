@@ -368,8 +368,8 @@ CGamma2DL::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 //! Incrementing with 2d deluxe increment is ann error:
 
 void
-CGamma2DL::Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
-		     STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters)
+CGamma2DL::Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
+		     std::vector<std::pair<UInt_t, Float_t> >& yParameters)
 {
   throw CException("Gamma 2d Deluxe increment called on CGamma2DL");
 }

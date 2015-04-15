@@ -1,3 +1,20 @@
+ /*
+  This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2014.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Ron Fox
+             Jeromy Tompkins
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
+*/
+
 //  CMSpectrum1DL.cpp
 // Encapsulates the mapped (coordinate transformed) 1-d Spectrum.  
 // The spectrum is a singly incremented
@@ -20,7 +37,7 @@
 
 #include <config.h>
 #include <stdlib.h>
-#include <Iostream.h>
+#include <iostream>
 #include <limits.h>
 #include "MSpectrum1DL.h"
 #include "Parameter.h"                               

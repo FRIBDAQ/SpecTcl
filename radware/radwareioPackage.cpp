@@ -17,7 +17,7 @@
 #include <config.h>
 #include <tcl.h>
 #include <TCLInterpreter.h>
-#include <Iostream.h>
+#include <iostream>
 
 #include "CRWWrite.h"
 #include "CRWRead.h"

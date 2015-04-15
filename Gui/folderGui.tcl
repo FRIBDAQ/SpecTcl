@@ -36,6 +36,7 @@ package require applygate
 package require datasource
 package require filtercontrol
 package require preferences
+package require daqdefs
 
 set LargestSource 50
 
@@ -67,7 +68,7 @@ namespace eval GuiPrefs {
 
 set GuiPrefs::preferences(defaultXChannels)   1024
 set GuiPrefs::preferences(defaultYChannels)   1024
-set GuiPrefs::preferences(defaultDaqRoot)    /usr/opt/daq/current
+set GuiPrefs::preferences(defaultDaqRoot)    $::daqdefs::daqroot
 set GuiPrefs::preferences(defaultBuffersize)  8192
 
 

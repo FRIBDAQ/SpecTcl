@@ -114,13 +114,13 @@ class CFilterCommand : public CTCLProcessor {
   Int_t List(CTCLInterpreter& rInterp, CTCLResult& rResult, int nArgs, char* pArgs[]);
   Int_t Format(CTCLInterpreter& rInterp, CTCLResult& rResult, int Nargs, char* pArgs[]);
 
-  STD(string) ListFilter(const STD(string)& rName,
+  std::string ListFilter(const std::string& rName,
 		    CGatedEventFilter* pFilter);
-  STD(string) ListFilter(const STD(string)& rName);
+  std::string ListFilter(const std::string& rName);
  protected:
   static eSwitches MatchSwitch(const char* pSwitch);
-  static STD(string) Usage();
-  static STD(string) SinkName(STD(string) filterName);
+  static std::string Usage();
+  static std::string SinkName(std::string filterName);
 };
 
 #endif

@@ -149,23 +149,23 @@ protected:
   // Actions provided by the class:
 
 public:                   
-  CSpectrum* CreateSpectrum (const STD(string)& rName,
+  CSpectrum* CreateSpectrum (const std::string& rName,
 			     SpectrumType_t eSpecType, 
 			     DataType_t eDataType, 
-			     STD(vector)<STD(string)>& rParameters, 
-			     STD(vector)<UInt_t>&  rChannels,
-			     STD(vector)<Float_t>* pLows  = (STD(vector)<Float_t>*)kpNULL,
-			     STD(vector)<Float_t>* pHighs = (STD(vector)<Float_t>*)kpNULL);
+			     std::vector<std::string>& rParameters, 
+			     std::vector<UInt_t>&  rChannels,
+			     std::vector<Float_t>* pLows  = (std::vector<Float_t>*)kpNULL,
+			     std::vector<Float_t>* pHighs = (std::vector<Float_t>*)kpNULL);
 
   CSpectrum* CreateSpectrum (const char* pName,
 			     SpectrumType_t eSpecType, 
-			     STD(vector)<STD(string)>& rParameters,
+			     std::vector<std::string>& rParameters,
 			     DataType_t eDataType, 
-			     STD(vector)<UInt_t>&  rChannels,
-			     STD(vector)<Float_t>* pLows = (STD(vector)<Float_t>*)kpNULL,
-			     STD(vector)<Float_t>* pHighs= (STD(vector)<Float_t>*)kpNULL)
+			     std::vector<UInt_t>&  rChannels,
+			     std::vector<Float_t>* pLows = (std::vector<Float_t>*)kpNULL,
+			     std::vector<Float_t>* pHighs= (std::vector<Float_t>*)kpNULL)
     {
-      return CreateSpectrum(STD(string)(pName),
+      return CreateSpectrum(std::string(pName),
 			    eSpecType, eDataType, rParameters, rChannels,
 			    pLows, pHighs);
     }
@@ -174,15 +174,15 @@ public:
   // gamma 2d deluxe (the only current type):
   //
 
-  CSpectrum* CreateSpectrum(const STD(string)& rName,
+  CSpectrum* CreateSpectrum(const std::string& rName,
 			    SpectrumType_t eSpecType,
 			    DataType_t     eDataType,
-			    STD(vector)<STD(string)>   xParameters,
-			    STD(vector)<STD(string)>   yParameters,
+			    std::vector<std::string>   xParameters,
+			    std::vector<std::string>   yParameters,
 			    UInt_t                     xChannels,
 			    UInt_t                     yChannels,
-			    STD(vector)<Float_t>*      pLows = (STD(vector)<Float_t>*)kpNULL,
-			    STD(vector)<Float_t>*      pHighs= (STD(vector)<Float_t>*)kpNULL);
+			    std::vector<Float_t>*      pLows = (std::vector<Float_t>*)kpNULL,
+			    std::vector<Float_t>*      pHighs= (std::vector<Float_t>*)kpNULL);
 
 
 
@@ -199,10 +199,10 @@ public:
 
   // Create a gamma 2d deluxe spectrum:
 
-  CSpectrum* CreateG2dDeluxe(STD(string) name,
+  CSpectrum* CreateG2dDeluxe(std::string name,
 			     DataType_t        eType,
-			     STD(vector)<CParameter>& rxParameters,
-			     STD(vector)<CParameter>& ryParameters,
+			     std::vector<CParameter>& rxParameters,
+			     std::vector<CParameter>& ryParameters,
 			     UInt_t  xChannels, 
 			     Float_t xLow, Float_t xHigh,
 			     UInt_t  yChannels,
@@ -212,27 +212,27 @@ public:
 
   // Create 1d spectrum:
 
-  CSpectrum* Create1D (const STD(string)& rName, DataType_t eType, 
+  CSpectrum* Create1D (const std::string& rName, DataType_t eType, 
 		       CParameter Param, UInt_t  nChannels)  ;
-  CSpectrum* Create1D (const STD(string)& rName, DataType_t eType,
+  CSpectrum* Create1D (const std::string& rName, DataType_t eType,
 		       CParameter Param, UInt_t  nChannels,
 		       Float_t fxLow, Float_t fxHigh);
   
   // Create StripChart spectrum:
 
-  CSpectrum* CreateStrip (const STD(string)& rName, DataType_t eType, 
+  CSpectrum* CreateStrip (const std::string& rName, DataType_t eType, 
 		       CParameter Param, CParameter Time, UInt_t  nChannels)  ;
-  CSpectrum* CreateStrip (const STD(string)& rName, DataType_t eType,
+  CSpectrum* CreateStrip (const std::string& rName, DataType_t eType,
 		       CParameter Param,CParameter Time, UInt_t  nChannels,
 		       Float_t fxLow, Float_t fxHigh);
   
 
   // Create 2d Spectra:
 
-  CSpectrum* Create2D (const STD(string)& rName, DataType_t eType,
+  CSpectrum* Create2D (const std::string& rName, DataType_t eType,
 		       CParameter xParam, CParameter yParam,
 		       UInt_t nXChannels, UInt_t nYChannels);
-  CSpectrum* Create2D (const STD(string)& rName, DataType_t eType, 
+  CSpectrum* Create2D (const std::string& rName, DataType_t eType, 
 		       CParameter xParam, CParameter yParam, 
 		       UInt_t nXChannels, 
 		       Float_t fXLow, Float_t fXHigh,
@@ -240,34 +240,34 @@ public:
 		       Float_t fYLow, Float_t fYHigh)  ;
 
 
-  CSpectrum* CreateG1D (const STD(string)& rName, DataType_t eType,
-			STD(vector)<CParameter>& rvParameters, UInt_t nResolution);
-  CSpectrum* CreateG1D(const STD(string)& rName, DataType_t eType,
-		       STD(vector)<CParameter>& rvParameters, UInt_t nChannels,
+  CSpectrum* CreateG1D (const std::string& rName, DataType_t eType,
+			std::vector<CParameter>& rvParameters, UInt_t nResolution);
+  CSpectrum* CreateG1D(const std::string& rName, DataType_t eType,
+		       std::vector<CParameter>& rvParameters, UInt_t nChannels,
 		       Float_t fxLow, Float_t fxHigh);
 
-  CSpectrum* CreateG2D (const STD(string)& rName, DataType_t eType,
-			STD(vector)<CParameter>& rvParameters, UInt_t nXRes, 
+  CSpectrum* CreateG2D (const std::string& rName, DataType_t eType,
+			std::vector<CParameter>& rvParameters, UInt_t nXRes, 
 			UInt_t nYRes);
-  CSpectrum* CreateG2D(const STD(string)& rName, DataType_t eType,
-		       STD(vector)<CParameter>& rvParameters, 
+  CSpectrum* CreateG2D(const std::string& rName, DataType_t eType,
+		       std::vector<CParameter>& rvParameters, 
 		       UInt_t nXChannels, 
 		       Float_t fxLow, Float_t fxHigh,
 		       UInt_t nYChannels,
 		       Float_t fyLow, Float_t fyHigh);
 
-  CSpectrum* CreateBit (const STD(string)& rName, DataType_t eType, 
+  CSpectrum* CreateBit (const std::string& rName, DataType_t eType, 
 			CParameter Param, UInt_t nResolution)  ;
-  CSpectrum* CreateBit(const STD(string)& rName, DataType_t eType, 
+  CSpectrum* CreateBit(const std::string& rName, DataType_t eType, 
 		       CParameter Param, UInt_t nLow, UInt_t nHigh);
 
-  CSpectrum* CreateSummary (const STD(string)& rName, DataType_t eType, 
-			    STD(vector)<CParameter>& rParameters, UInt_t nYRes)  ;
-  CSpectrum* CreateSummary(const STD(string)& rName, DataType_t eType, 
-			   STD(vector)<CParameter>& rParameters, UInt_t nyChannels,
+  CSpectrum* CreateSummary (const std::string& rName, DataType_t eType, 
+			    std::vector<CParameter>& rParameters, UInt_t nYRes)  ;
+  CSpectrum* CreateSummary(const std::string& rName, DataType_t eType, 
+			   std::vector<CParameter>& rParameters, UInt_t nyChannels,
 			   Float_t fyLow, Float_t fyHigh);
-  CSpectrum* Create2DMultiple(STD(string) name, DataType_t eType,
-			      STD(vector)<CParameter>& parameters, 
+  CSpectrum* Create2DMultiple(std::string name, DataType_t eType,
+			      std::vector<CParameter>& parameters, 
 			      UInt_t  xChans,
 			      Float_t xLow, Float_t xHigh,
 			      UInt_t  yChans,
@@ -289,20 +289,20 @@ public:
   }
 
 protected:
-  STD(vector)<CParameter> ParameterArray(STD(vector)<STD(string)>& rParameters) ;
+  std::vector<CParameter> ParameterArray(std::vector<std::string>& rParameters) ;
   static void Require(DataType_t          dType,
 		      SpectrumType_t      sType,
-		      const STD(string)&  rName,
-		      STD(vector)<CParameter>& rparams, // Needs all this extra
-		      STD(vector)<UInt_t>&     rResolutions,	// junk to throw.
+		      const std::string&  rName,
+		      std::vector<CParameter>& rparams, // Needs all this extra
+		      std::vector<UInt_t>&     rResolutions,	// junk to throw.
 		      UInt_t              nParams, 
 		      UInt_t              nResolutions);
   static void MappedRequire(DataType_t         dType,
 			    SpectrumType_t     sType,
-			    const STD(string)& rName,
-			    STD(vector)<Float_t>&   rTransform,
-			    STD(vector)<UInt_t>&    rChannels,
-			    STD(vector)<CParameter>& ParameterList,
+			    const std::string& rName,
+			    std::vector<Float_t>&   rTransform,
+			    std::vector<UInt_t>&    rChannels,
+			    std::vector<CParameter>& ParameterList,
 			    UInt_t             nCoords,
 			    UInt_t             nChans);
   static Float_t  DefaultAxisLength(UInt_t nChannels, 

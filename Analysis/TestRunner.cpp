@@ -1,5 +1,5 @@
 #include <config.h>
-#include <Iostream.h>
+#include <iostream>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <string>

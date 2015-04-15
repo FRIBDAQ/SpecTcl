@@ -326,7 +326,7 @@ class CMGamma1DL : public CGamma1DL
     UInt_t  nScale;
     Float_t nLow;
     Float_t nHigh;
-    STD(string) sUnits;
+    std::string sUnits;
     int operator==(const MParameterDef& r) const {
       return ((nParameter == r.nParameter) && (nScale == r.nScale) &&
 	      (nLow == r.nLow) && (nHigh == r.nHigh) && (sUnits == r.sUnits));
@@ -335,13 +335,13 @@ class CMGamma1DL : public CGamma1DL
   Float_t m_nLow;                 // Low limit to use on the mapping
   Float_t m_nHigh;                // Upper limit to use on the mapping
   UInt_t  m_nChannels;            // Number of bins
-  STD(vector)<MParameterDef> m_vParameters;       // STD(Vector) of parameters
+  std::vector<MParameterDef> m_vParameters;       // std::vector of parameters
 
  public:
 
   //Constructor(s) with arguments
 
-  CMGamma1DL(const STD(string)& rName, UInt_t nId, STD(vector)<CParameter> rrParameters,
+  CMGamma1DL(const std::string& rName, UInt_t nId, std::vector<CParameter> rrParameters,
 	     Float_t nLow, Float_t nHigh, UInt_t nChannels);
 
   virtual ~CMGamma1DL( ) { }      //Destructor
@@ -392,7 +392,7 @@ class CMGamma1DL : public CGamma1DL
     {
       return keMG1D;
     }
-  STD(string) getUnits() const
+  std::string getUnits() const
     {
       return m_vParameters[0].sUnits;
     }
@@ -413,7 +413,7 @@ class CMGamma1DL : public CGamma1DL
     {
       m_nChannels = am_nChannels;
     }
-  void setParameters(STD(vector)<MParameterDef>& am_vParameters) 
+  void setParameters(std::vector<MParameterDef>& am_vParameters) 
     {
       m_vParameters = am_vParameters;
     }
@@ -424,7 +424,7 @@ class CMGamma1DL : public CGamma1DL
 
   virtual void   Increment (const CEvent& rEvent);
   virtual void   GammaGateIncrement(const CEvent& rEvent, 
-				    STD(string) sGateType);
+				    std::string sGateType);
   UInt_t Dimension(UInt_t n) const {
     return ((n == 0) ? m_nChannels : 0);
   }

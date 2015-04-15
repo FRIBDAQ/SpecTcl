@@ -57,9 +57,9 @@ class CVariableTraceCallback;
 class CDocumentationCallback : public CBufferCallback
 {
 public:
-  typedef STD(list)<CTCLTracedVariable*>     CallbackList;
+  typedef std::list<CTCLTracedVariable*>     CallbackList;
   typedef CallbackList::iterator        CallbackListIterator;
-  typedef STD(map)<STD(string), CallbackList>     CallbackMap;
+  typedef std::map<std::string, CallbackList>     CallbackMap;
   typedef CallbackMap::iterator         TraceIterator;
 private:
 
@@ -84,10 +84,10 @@ public:
 
   // Class operations:
 
-  STD(string) getValue(STD(string) name) const;
-  STD(string) getElementValue(STD(string) name, STD(string) element) const;
-  void addChangeHandler(STD(string) name, CVariableTraceCallback& callback);
-  void removeChangeHandler(STD(string) name, CVariableTraceCallback& callback);
+  std::string getValue(std::string name) const;
+  std::string getElementValue(std::string name, std::string element) const;
+  void addChangeHandler(std::string name, CVariableTraceCallback& callback);
+  void removeChangeHandler(std::string name, CVariableTraceCallback& callback);
 
   //!< Access to the callbacks.  Note TraceIterator points to a list<> of callbacks.
 

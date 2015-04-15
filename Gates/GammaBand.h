@@ -336,14 +336,14 @@ DAMAGES.
 
 class CGammaBand : public CBand
 {
-  STD(vector)<STD(string)> m_vSpecs;  // STD(vector) of spectrum Ids to display gate on
+  std::vector<std::string> m_vSpecs;  // std::vector of spectrum Ids to display gate on
 
  public:
 
   //! Default Constructor
-  CGammaBand (const STD(vector)<FPoint>& rPoints);
-  CGammaBand (const STD(vector)<FPoint>& rPoints, 
-	      const STD(vector)<STD(string)> rSpecs);
+  CGammaBand (const std::vector<FPoint>& rPoints);
+  CGammaBand (const std::vector<FPoint>& rPoints, 
+	      const std::vector<std::string> rSpecs);
 
   CGammaBand (UInt_t nPts, FPoint* pPoints);
   CGammaBand (UInt_t nPts, Float_t* pX, Float_t* pY);
@@ -372,14 +372,14 @@ class CGammaBand : public CBand
 
  public:  // Get accessor functions
 
-  virtual STD(vector)<STD(string)> getSpecs() const
+  virtual std::vector<std::string> getSpecs() const
     {
       return m_vSpecs;
     }
 
  protected:  // Set mutator functions
   
-  void setm_vSpecs (STD(vector)<STD(string)>& rSpecs) 
+  void setm_vSpecs (std::vector<std::string>& rSpecs) 
     {
       m_vSpecs = rSpecs;
     }
@@ -388,8 +388,8 @@ class CGammaBand : public CBand
 
   virtual Bool_t operator() (CEvent& rEvent) { return kfTRUE; }
   virtual CGate* clone ();
-  virtual STD(string) Type () const;
-  virtual Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
+  virtual std::string Type () const;
+  virtual Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params);
 };
 
 #endif

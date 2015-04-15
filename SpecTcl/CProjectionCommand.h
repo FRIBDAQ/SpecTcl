@@ -94,7 +94,7 @@ protected:
   void projectY(CSpectrum* sourceSpectrum, CSpectrum* targetSpectrum, 
 		CGateContainer* gate);
   
-  STD(string) Usage();
+  std::string Usage();
 
   static CROI* selectROI(CSpectrum* pSource, CGateContainer* pGate);
   static void  parameterOrder(int* orderArray, CSpectrum* pSource, CGateContainer* pGate);

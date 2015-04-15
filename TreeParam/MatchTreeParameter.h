@@ -53,7 +53,7 @@ public:
     m_pMatchThis(pParam)
   {}
 
-  bool operator()(STD(pair)<STD(string), CTreeParameter*> Item) {
+  bool operator()(std::pair<std::string, CTreeParameter*> Item) {
     return (Item.second == m_pMatchThis);
   }
 };

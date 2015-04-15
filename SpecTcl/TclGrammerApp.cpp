@@ -67,7 +67,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <histotypes.h>
 #include <buftypes.h>
 #include <string>
-#include <Iostream.h>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>

@@ -47,7 +47,7 @@ public:
     //  and the visibility esp. if you cannot
     // implement assignment/copy construction.
     // safely.
-    CLinearFit (STD(string) name, int id=0);		 //!< Constructor.
+    CLinearFit (std::string name, int id=0);		 //!< Constructor.
     virtual  ~ CLinearFit ( );   //!< Destructor.
     CLinearFit (const CLinearFit& rSource ); //!< Copy construction.
     CLinearFit& operator= (const CLinearFit& rhs); //!< Assignment.
@@ -61,10 +61,10 @@ public:
   virtual   void Perform ()   ; 
   virtual   double operator() (double x)   ; 
   virtual   CFit::FitParameterList GetParameters ()   ; 
-  virtual   STD(string) Type() const {
-    return STD(string)("linear");
+  virtual   std::string Type() const {
+    return std::string("linear");
   }
-  virtual  STD(string) makeTclFitScript();
+  virtual  std::string makeTclFitScript();
 
 
   // Overrides for virtual base class functions:

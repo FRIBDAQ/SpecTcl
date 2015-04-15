@@ -95,8 +95,8 @@ protected:
   int FireTraces(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		 int argc, char** argv);
 
-  STD(string) FormatVariable(CTreeVariableProperties* pProperties);
-  STD(string) Usage();
+  std::string FormatVariable(CTreeVariableProperties* pProperties);
+  std::string Usage();
   
 };
 

@@ -65,7 +65,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <stdlib.h>
 #include <list>
 
-#include <Iostream.h>
+#include <iostream>
 #include <stdio.h>
 
 #ifdef HAVE_STD_NAMESPACE

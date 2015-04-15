@@ -293,8 +293,8 @@ CGamma1DW::Increment(vector<pair<UInt_t, Float_t> >& rParams)
 //! This is for g2dd only so we throw:
 
 void
-CGamma1DW::Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
-			 STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters)
+CGamma1DW::Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
+			 std::vector<std::pair<UInt_t, Float_t> >& yParameters)
 {
   throw CException("Gamma 2d Deluxe increment called for CGamma1DW");
 }

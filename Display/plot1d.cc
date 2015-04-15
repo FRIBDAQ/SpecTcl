@@ -48,7 +48,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "panemgr.h"
 #include "dispshare.h"
 #include "dispwind.h"
-#include <Iostream.h>
+#include <iostream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

@@ -140,6 +140,19 @@ else
   XLIBSW=""
 fi
 
+#
+#  By default nscldaq will be in /usr/opt/daq/current
+#  This can be overidden with --with-nscldaq-root.
+#  We're not going to check to see if there really is an nscldaq since it's valid
+#  to install SpecTcl on a daq-less system for analysis.
+
+AC_ARG_WITH([nscldaq-root],
+    [  --with-nscldaq-root=path Path to the NSCLDAQ installation (default=/usr/opt/daq/current)],
+    [daqroot="$withval"], [daqroot="/usr/opt/daq/current"])
+
+DAQROOT=$daqroot
+
+AC_SUBST(DAQROOT)
 
 #
 #   Locate motif headers and libraries.  (Xm.h and libXm.{so,dylib,a}).
@@ -792,7 +805,8 @@ AC_SUBST(MANDOCBOOK)
 # create output files.
 
 
-AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
+AC_OUTPUT(Makefile daq/Makefile daq/daqdefs.h daq/daqdefs.tcl \
+        Replace/Makefile Scripts/Makefile Utility/Makefile \
         factories/Makefile					      \
 	Display/Makefile 
 	Xamine/Makefile Tape/Makefile \

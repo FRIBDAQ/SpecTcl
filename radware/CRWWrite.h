@@ -54,7 +54,7 @@ class CRWWrite : public CTCLObjectProcessor
 
 public:
   virtual int operator()(CTCLInterpreter& interp,
-			 STD(vector)<CTCLObject>& objv);
+			 std::vector<CTCLObject>& objv);
 
 
 };

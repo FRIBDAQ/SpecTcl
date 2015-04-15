@@ -334,8 +334,8 @@ public:
 			//Default constructor
 
   CAndGate () : CCompoundGate() { } 
-  CAndGate(STD(list)<CGateContainer*>& rGates); 
-  CAndGate(STD(vector)<CGateContainer*>& rGates) :
+  CAndGate(std::list<CGateContainer*>& rGates); 
+  CAndGate(std::vector<CGateContainer*>& rGates) :
     CCompoundGate(rGates)
   {}
   CAndGate(UInt_t nGates, CGateContainer** ppGates) :
@@ -367,7 +367,7 @@ private:
 public:
 
   virtual   CGate* clone ()  ;
-  virtual   STD(string) Type ()  const;
+  virtual   std::string Type ()  const;
   virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params );
   virtual   Bool_t inGate(CEvent& rEvent);
 

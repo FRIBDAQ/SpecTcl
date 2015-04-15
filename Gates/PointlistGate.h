@@ -364,13 +364,13 @@ class CPointListGate  : public CGate
   UInt_t m_nxId;  //!< Parameter Id of the gate's X parameter.
   UInt_t m_nyId;  //!< Parameter id of the Y parameter of the gate.
   
-  STD(vector)<FPoint> m_aConstituents; //!< The points themselves.
+  std::vector<FPoint> m_aConstituents; //!< The points themselves.
   
 public:
 
-  //!< Constructor with STD(vector) of points.
+  //!< Constructor with std::vector of points.
   CPointListGate (UInt_t nXId, UInt_t nYId,
-		  const STD(vector)<FPoint>& Points) :
+		  const std::vector<FPoint>& Points) :
     m_nxId(nXId),
     m_nyId(nYId),
     m_aConstituents(Points)
@@ -424,20 +424,20 @@ public:
     return m_nyId;
   }
        
-  STD(vector)<FPoint> getPoints() const
+  std::vector<FPoint> getPoints() const
   {
     return m_aConstituents;
   }
 
-  STD(vector)<FPoint>::iterator getBegin() {
+  std::vector<FPoint>::iterator getBegin() {
     return m_aConstituents.begin();
   }
-  STD(vector)<FPoint>::iterator getEnd() {
+  std::vector<FPoint>::iterator getEnd() {
     return m_aConstituents.end();
   }
 
-  virtual STD(vector)<STD(string)> getSpecs() const { 
-    STD(vector)<STD(string)> empty;
+  virtual std::vector<std::string> getSpecs() const { 
+    std::vector<std::string> empty;
     return empty;
   };
 
@@ -453,7 +453,7 @@ protected:
   { 
     m_nyId = am_nyId;
   }
-  void setPoints(STD(vector)<FPoint>& rPoints) 
+  void setPoints(std::vector<FPoint>& rPoints) 
   {
     m_aConstituents = rPoints;
   }
@@ -464,15 +464,15 @@ public:
   virtual   CConstituentIterator Begin ()  ;
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
-  virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)  ;
-  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params) 
+  virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
+  virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params) 
     { }
   virtual  Bool_t inGate(CEvent& rEvent);
   virtual  Bool_t Inside(Float_t x, Float_t y) = 0;
 protected:
   int       Crosses(Float_t x, Float_t y, 
-		    STD(vector)<FPoint>::iterator f,
-		    STD(vector)<FPoint>::iterator s); 
+		    std::vector<FPoint>::iterator f,
+		    std::vector<FPoint>::iterator s); 
 
 };
 

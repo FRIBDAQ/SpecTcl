@@ -57,7 +57,7 @@ private:
   /**
    * Units of measure to give the parameter.
    */
-  STD(string) m_units;
+  std::string m_units;
   /**
    * Number of default channels.
    */
@@ -74,8 +74,8 @@ private:
 public:
 
   virtual ~SetAllVisitor();
-  SetAllVisitor(STD(string) pattern, int channels, 
-		double low, double high, STD(string) units);
+  SetAllVisitor(std::string pattern, int channels, 
+		double low, double high, std::string units);
   virtual void OnMatch(CTreeParameter* parameter);
 };
 

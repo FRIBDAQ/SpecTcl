@@ -310,7 +310,7 @@ class CXamineConfirmPrompt  : public CXamineButtonPrompt
   
 public:
 
-  CXamineConfirmPrompt (const STD(string)& rPrompt ) :
+  CXamineConfirmPrompt (const std::string& rPrompt ) :
     CXamineButtonPrompt(rPrompt)
     { }        
   CXamineConfirmPrompt(const char* pPrompt) :

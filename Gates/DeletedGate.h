@@ -340,7 +340,7 @@ public:
 private:
   int operator== (const CDeletedGate& aCDeletedGate);
                        
-  virtual   STD(string) Type ()  ;
+  virtual   std::string Type ()  ;
  
 
 };

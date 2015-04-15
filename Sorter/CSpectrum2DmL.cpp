@@ -44,9 +44,9 @@ using namespace std;
   \param xscale, yscale : UInt_t
      Number of channels on the X axis and y axis respectively.
 */
-CSpectrum2DmL::CSpectrum2DmL(STD(string)              name,
+CSpectrum2DmL::CSpectrum2DmL(std::string              name,
 			     UInt_t                   id,
-			     STD(vector)<CParameter>& parameters,
+			     std::vector<CParameter>& parameters,
 			     UInt_t                   xscale,
 			     UInt_t                   yscale) :
   CSpectrum2Dm(name, id, parameters, xscale, yscale)
@@ -72,9 +72,9 @@ CSpectrum2DmL::CSpectrum2DmL(STD(string)              name,
       Range covered by y axis.
 
 */
-CSpectrum2DmL::CSpectrum2DmL(STD(string)              name,
+CSpectrum2DmL::CSpectrum2DmL(std::string              name,
 			     UInt_t                   id,
-			     STD(vector)<CParameter>& parameters,
+			     std::vector<CParameter>& parameters,
 			     UInt_t                   xchans,
 			     UInt_t                   ychans,
 			     Float_t  xlow, Float_t   xhigh,

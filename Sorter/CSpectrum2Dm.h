@@ -58,8 +58,8 @@ class CSpectrum2Dm : public CSpectrum
 {
   // Data types:
 public:
-  typedef STD(vector)<UInt_t>  Parameters;
-  typedef STD(vector)<CAxis>   Axes;
+  typedef std::vector<UInt_t>  Parameters;
+  typedef std::vector<CAxis>   Axes;
   
   
   // We're going to expose a few of our data structures to the
@@ -75,14 +75,14 @@ protected:
 
   // Construtors and other Canonicals:
 public:
-  CSpectrum2Dm(STD(string)              name,
+  CSpectrum2Dm(std::string              name,
 	       UInt_t                   id,
-	       STD(vector)<CParameter>& parameters,
+	       std::vector<CParameter>& parameters,
 	       UInt_t                   xscale,
 	       UInt_t                   yscale);
-  CSpectrum2Dm(STD(string)              name,
+  CSpectrum2Dm(std::string              name,
 	       UInt_t                   id,
-	       STD(vector)<CParameter>& parameters,
+	       std::vector<CParameter>& parameters,
 	       UInt_t                   xchans,
 	       UInt_t                   ychans,
 	       Float_t  xlow, Float_t   xhigh,
@@ -108,8 +108,8 @@ public:
   //
 public:
   virtual Bool_t UsesParameter(UInt_t nId) const;
-  virtual void   GetParameterIds(STD(vector)<UInt_t>& rvIds);
-  virtual void   GetResolutions(STD(vector)<UInt_t>& rvResolutions);
+  virtual void   GetParameterIds(std::vector<UInt_t>& rvIds);
+  virtual void   GetResolutions(std::vector<UInt_t>& rvResolutions);
   virtual CSpectrum::SpectrumDefinition& GetDefinition();
   virtual SpectrumType_t getSpectrumType();
   virtual Bool_t needParameter() const;
@@ -129,7 +129,7 @@ private:
 				   UInt_t      nyChannels,
 				   Float_t     fyLow, Float_t fyHigh);
 
-  void  CreateMappings(STD(vector)<CParameter>& parameters, 
+  void  CreateMappings(std::vector<CParameter>& parameters, 
 		      Float_t xlow, Float_t xhigh,
 		      Float_t ylow, Float_t yhigh);
 };

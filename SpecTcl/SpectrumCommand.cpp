@@ -31,7 +31,7 @@
 #include <Exception.h>
 #include <SpecTcl.h>
 #include <Histogrammer.h>
-#include <Iostream.h>
+#include <iostream>
 
 
 #include <tcl.h>

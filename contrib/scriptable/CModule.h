@@ -1,3 +1,20 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2014.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Ron Fox
+             Jeromy Tompkins
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
+
+*/
 /*!
   This is an abstract base class that is the base
   class for individual readout modules.
@@ -53,13 +70,13 @@ class CModule  : public CSegmentUnpacker
 private:
   
 
-    STD(vector)<int> m_ParameterMap;  //!<  Maps channel # -> parameter id.  
+    std::vector<int> m_ParameterMap;  //!<  Maps channel # -> parameter id.  
    
 
 public:
     //  Constructors and other canonical operations.
 
-    CModule (const STD(string)& rName,CTCLInterpreter& rInterp); //!< Constructor.
+    CModule (const std::string& rName,CTCLInterpreter& rInterp); //!< Constructor.
     ~CModule ( ); //!< Destructor.
 private:
     CModule (const CModule& rSource ); //!< Copy construction.
@@ -72,7 +89,7 @@ public:
  public:
     
     void CreateMap (int nMapSize)   ;                    //!< Define an empty map.
-    void MapElement (int nChannel, const STD(string)& sName)   ; //!< Make a  mapping.
+    void MapElement (int nChannel, const std::string& sName)   ; //!< Make a  mapping.
     int Id (int nChannel)   ; 	                         //!< Translate map. 
     
 

@@ -337,7 +337,7 @@ public:
 			   int nArgs, char* pArgs[])    ;
  
 protected:
-  static STD(string) Usage();
+  static std::string Usage();
 
 };
 

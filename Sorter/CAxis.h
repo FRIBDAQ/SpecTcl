@@ -76,11 +76,11 @@ public:
   // Constructors and other canonical functions.
 
   CAxis (UInt_t nChannels,
-	 STD(string) sUnits = STD(string)(""));	//!< idendtity tansform for [0,nChannels-1].
+	 std::string sUnits = std::string(""));	//!< idendtity tansform for [0,nChannels-1].
   CAxis (Float_t fLow,
 	 Float_t fHigh,
 	 UInt_t  nChannels,
-	 STD(string) sUnits = STD(string)(""));	//!< Unmapped real parameter in [fLow, fHigh].
+	 std::string sUnits = std::string(""));	//!< Unmapped real parameter in [fLow, fHigh].
   CAxis(Float_t fLow,
 	Float_t fHigh,
 	UInt_t  nChannels,

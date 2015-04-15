@@ -41,7 +41,7 @@ class CMSpectrum2DB  : public CSpectrum2DB
     UInt_t  nScale;
     Float_t nLow;
     Float_t nHigh;
-    STD(string) sUnits;
+    std::string sUnits;
     int operator== (const MParameterDef& r) const {
       return ((nLow == r.nLow) && (nHigh == r.nHigh) && 
 	      (nScale == r.nScale) && (sUnits == r.sUnits));
@@ -59,7 +59,7 @@ class CMSpectrum2DB  : public CSpectrum2DB
 public:
 
   //Constructor(s) with arguments
-  CMSpectrum2DB(const STD(string)& rName, UInt_t nId,
+  CMSpectrum2DB(const std::string& rName, UInt_t nId,
 		const CParameter& rXParameter,
 		const CParameter& rYParameter,
 		Float_t nXLow, Float_t nYLow, Float_t nXHigh, Float_t nYHigh,
@@ -119,10 +119,10 @@ private:
   MParameterDef getYParameterDef() const {
     return m_YParameter;
   }
-  STD(string) getXUnits() const {
+  std::string getXUnits() const {
     return m_XParameter.sUnits;
   }
-  STD(string) getYUnits() const {
+  std::string getYUnits() const {
     return m_YParameter.sUnits;
   }
   virtual SpectrumType_t getSpectrumType() {

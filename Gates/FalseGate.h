@@ -89,10 +89,10 @@ public:
   virtual   CConstituentIterator Begin ()  ;
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
-  virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)  ;
+  virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
   virtual   CGate* clone ()  ;
-  virtual   STD(string) Type () const;
-  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
+  virtual   std::string Type () const;
+  virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params);
   virtual Bool_t inGate(CEvent& rEvent);
   virtual   Bool_t caches();
 };

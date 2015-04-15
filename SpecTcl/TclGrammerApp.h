@@ -101,7 +101,7 @@ class CTclGrammerApp : public CTCLApplication {
  public:
   //Default constructor alternative to compiler provided default constructor
   //Ensure correct initial values
-  //Initialization STD(list) has members in the order declared
+  //Initialization std::list has members in the order declared
   //Association object data member pointers initialized to null association object
   CTclGrammerApp();
   virtual ~CTclGrammerApp();
