@@ -50,7 +50,7 @@ void ListRequestHandler::get()
     QString urlStr("http://%1:%2/spectcl/spectrum/list");
     urlStr = urlStr.arg(host).arg(port);
 
-    std::cout << urlStr.toStdString() << std::endl;
+//    std::cout << urlStr.toStdString() << std::endl;
     QUrl url(urlStr);
     m_pReply = m_pNAM->get(QNetworkRequest(url));
 }

@@ -158,17 +158,52 @@ void HistogramList::addSlice(GSlice* pSlice)
   auto it = begin();
   auto it_end = end();
 
-  auto name = pSlice->getName();
+  auto name = pSlice->getParameter();
 
   while ( it != it_end ) {
     
-    if ( ! it->second->hist()->InheritsFrom(TH2::Class()) ) {
-      auto& cuts = it->second->getCut1Ds();
-      // check if the cut exists and remove it if it does
-      it->second->addCut1D(pSlice);
+    auto& pHist = it->second;
+    // only apply to 1d hists
+    if ( ! pHist->hist()->InheritsFrom(TH2::Class()) ) {
+
+      auto histParam = QString::fromStdString(pHist->getInfo().s_params.at(0));
+
+      // only apply if parameter is matched
+      if ( name == histParam ) {
+        it->second->addCut1D(pSlice);
+      }
 
     }
     
+    // update iterator 
+    ++it;
+  }
+}
+
+void HistogramList::addGate(GGate* pGate)
+{
+  auto it = begin();
+  auto it_end = end();
+
+  auto nameX = pGate->getParameterX();
+  auto nameY = pGate->getParameterY();
+
+  while ( it != it_end ) {
+    
+    auto& pHist = it->second;
+    // only apply to 2d hists
+    if ( pHist->hist()->InheritsFrom(TH2::Class()) ) {
+
+      auto histParamX = QString::fromStdString(pHist->getInfo().s_params.at(0));
+      auto histParamY = QString::fromStdString(pHist->getInfo().s_params.at(1));
+
+      // only apply if parameter is matched
+      if ( (nameX == histParamX) && (nameY == histParamY) ) {
+        pHist->addCut2D(pGate);
+      }
+
+    }
+
     // update iterator 
     ++it;
   }

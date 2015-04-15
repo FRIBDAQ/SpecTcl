@@ -82,6 +82,7 @@ public slots:
     static void removeGate(const GGate& gate);
 
     static void addSlice(GSlice* slice);
+    static void addGate(GGate* gate);
 
 private:
     static HistogramList* m_instance;

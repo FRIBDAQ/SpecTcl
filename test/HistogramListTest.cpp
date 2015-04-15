@@ -43,6 +43,7 @@ class HistogramListTest : public CppUnit::TestFixture
     CPPUNIT_TEST( removeSlice_0 );
     CPPUNIT_TEST( removeGate_0 );
     CPPUNIT_TEST( addSlice_0 );
+    CPPUNIT_TEST( addGate_0 );
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -56,6 +57,7 @@ class HistogramListTest : public CppUnit::TestFixture
     void removeGate_0();
 
     void addSlice_0();
+    void addGate_0();
 
 };
 
@@ -74,7 +76,7 @@ void HistogramListTest::setUp()
                                      info0));
 
   unique_ptr<QMutex> mutex1(new QMutex);
-  SpJs::HistInfo info1   = {"hist1", 1, {"xparam"}, {{0, 10, 10}}, SpJs::Long};
+  SpJs::HistInfo info1   = {"hist1", 1, {"yparam"}, {{0, 10, 10}}, SpJs::Long};
   unique_ptr<TH1> pHist1 = SpJs::HistFactory().create(info1);
   m_pHist1.reset(new HistogramBundle(std::move(mutex1), 
                                      std::move(pHist1), 
@@ -154,27 +156,6 @@ void HistogramListTest::removeSlice_0()
 
 }
 
-void HistogramListTest::addSlice_0()
-{
-
-  HistogramList::addHist( std::move(m_pHist1) );
-  HistogramList::addHist( std::move(m_pHist2) );
-
-  // creata slice and add it 
-  GSlice slice(nullptr, "slice", "xparam");
-
-  HistogramList::addSlice(&slice);
-
-  // make sure we registered the cuts we thought
-  CPPUNIT_ASSERT( 1 == HistogramList::getHist("hist1")->getCut1Ds().size() ); 
-
-  // make sure that our slice did not get registered to a 2d hist
-  CPPUNIT_ASSERT( 0 == HistogramList::getHist("hist2")->getCut1Ds().size() ); 
-
-  CPPUNIT_ASSERT( 2 == HistogramList::size() );
-
-}
-
 void HistogramListTest::removeGate_0()
 {
 
@@ -205,6 +186,54 @@ void HistogramListTest::removeGate_0()
 
     ++it;
   }
+
+}
+
+
+void HistogramListTest::addSlice_0()
+{
+
+  HistogramList::addHist( std::move(m_pHist0) );
+  HistogramList::addHist( std::move(m_pHist1) );
+  HistogramList::addHist( std::move(m_pHist2) );
+
+  // creata slice and add it 
+  GSlice slice(nullptr, "slice", "xparam");
+
+  HistogramList::addSlice(&slice);
+
+  // make sure we registered the cuts we thought
+  CPPUNIT_ASSERT( 1 == HistogramList::getHist("hist0")->getCut1Ds().size() ); 
+  CPPUNIT_ASSERT( 0 == HistogramList::getHist("hist1")->getCut1Ds().size() ); 
+
+  // make sure that our slice did not get registered to a 2d hist
+  CPPUNIT_ASSERT( 0 == HistogramList::getHist("hist2")->getCut1Ds().size() ); 
+
+  CPPUNIT_ASSERT( 3 == HistogramList::size() );
+
+}
+
+void HistogramListTest::addGate_0()
+{
+
+  HistogramList::addHist( std::move(m_pHist1) );
+  HistogramList::addHist( std::move(m_pHist2) );
+  HistogramList::addHist( std::move(m_pHist3) );
+
+  // creata slice and add it 
+  GGate gate(nullptr, 
+             SpJs::Band("theGate", "xparam", "yparam", {{0,1}, {1,2}, {2,3}}) );
+
+  HistogramList::addGate(&gate);
+
+  // make sure we registered the cuts we thought
+  CPPUNIT_ASSERT( 0 == HistogramList::getHist("hist1")->getCut2Ds().size() ); 
+
+  // make sure that our slice did not get registered to a 2d hist
+  CPPUNIT_ASSERT( 1 == HistogramList::getHist("hist2")->getCut2Ds().size() ); 
+  CPPUNIT_ASSERT( 0 == HistogramList::getHist("hist3")->getCut2Ds().size() ); 
+
+  CPPUNIT_ASSERT( 3 == HistogramList::size() );
 
 }
 
