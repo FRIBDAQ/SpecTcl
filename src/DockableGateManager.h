@@ -34,6 +34,10 @@ namespace Ui {
 class DockableGateManager;
 }
 
+namespace SpJs {
+  class GateInfo;
+}
+
 
 
 /*! \brief Graphical object that owns all gates 
@@ -87,6 +91,9 @@ public slots:
     void editSlice(GSlice* pSlice);
 
     void deleteGate();
+
+    /*! Update to list */
+    void onGateListChanged(std::vector<SpJs::GateInfo*> gates);
 
 private:
     Ui::DockableGateManager *ui;

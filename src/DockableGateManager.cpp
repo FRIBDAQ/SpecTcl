@@ -36,6 +36,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <QMessageBox>
 #include <TH1.h>
 #include <TH2.h>
+
 #include <iostream>
 
 using namespace std;
@@ -55,6 +56,9 @@ DockableGateManager::DockableGateManager(const SpectrumViewer& viewer,
             this, SLOT(launchEditGateDialog()));
     connect(ui->deleteButton, SIGNAL(clicked()), 
             this, SLOT(deleteGate()));
+
+    connect(pSpecTcl, SIGNAL(gateListChanged(std::vector<SpJs::GateInfo*>)),
+            this, SLOT(onGateListChanged(std::vector<SpJs::GateInfo*>)));
 }
 
 DockableGateManager::~DockableGateManager()
@@ -67,6 +71,8 @@ void DockableGateManager::launchAddGateDialog()
     auto pCanvas = m_view.getCurrentFocus();
     auto histPkg = m_view.getCurrentHist();
 
+    // determine whether this is a 1d or 2d hist and 
+    // open to appropriate dialog
     if (histPkg->hist()->InheritsFrom(TH2::Class())) {
 
         GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg);
@@ -97,6 +103,8 @@ void DockableGateManager::launchEditGateDialog()
     if (selection.size()==1) {
         auto pItem = selection.at(0);
 
+        // determine whether this is a 1d or 2d gate and 
+        // open to appropriate dialog
         if (auto pSlItem = dynamic_cast<SliceTableItem*>(pItem)) {
             auto pCut = pSlItem->getSlice();
             GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas, 
@@ -251,3 +259,11 @@ void DockableGateManager::deleteGate()
 
 }
 
+void DockableGateManager::onGateListChanged(vector<SpJs::GateInfo*> gates)
+{
+  cout << "Update gates!" << endl;
+  for (auto gate : gates) {
+    cout << gate->getName() << endl;
+    delete gate;
+  }
+}

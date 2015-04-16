@@ -1,9 +1,17 @@
 #ifndef SPECTCLINTERFACE_H
 #define SPECTCLINTERFACE_H
 
+#include <QObject>
+
+#include <vector> 
+
 class GSlice;
 class GGate;
 class QString;
+
+namespace SpJs {
+  class GateInfo;
+}
 
 /*! \brief A facade for the actual interaction with SpecTcl
  *
@@ -14,8 +22,10 @@ class QString;
  * or something else.
  *
  */
-class SpecTclInterface
+class SpecTclInterface : public QObject
 {
+  Q_OBJECT
+
 public:
     SpecTclInterface();
 
@@ -28,6 +38,11 @@ public:
     virtual void deleteGate(const GGate& slice) = 0;
 
     virtual void deleteGate(const QString& name) = 0;
+
+    virtual void enableGatePolling(bool enable) = 0;
+   
+  signals:
+    void gateListChanged(std::vector<SpJs::GateInfo*> gates);
 };
 
 #endif // SPECTCLINTERFACE_H

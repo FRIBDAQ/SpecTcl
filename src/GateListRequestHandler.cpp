@@ -21,42 +21,51 @@
 //    East Lansing, MI 48824-1321
 
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
-#include "ListRequestHandler.h"
+#include "GateListRequestHandler.h"
 #include "GlobalSettings.h"
 
 #include <QtNetwork>
 #include <QMessageBox>
 
-#include <JsonParser.h>
+#include <GateCmdParser.h>
 #include <json/json.h>
 
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
-ListRequestHandler::ListRequestHandler(QObject *parent) :
+using namespace std;
+
+GateListRequestHandler::GateListRequestHandler(QObject *parent) :
     QObject(parent),
     m_pReply(nullptr),
     m_pNAM(new QNetworkAccessManager),
     m_view(nullptr)
 {
 
-    connect(m_pNAM, SIGNAL(finished(QNetworkReply*)), 
-            this, SLOT(finishedSlot(QNetworkReply*)));
 }
 
-void ListRequestHandler::get()
+void GateListRequestHandler::get()
 {
     QString host = GlobalSettings::getServerHost();
     int port     = GlobalSettings::getServerPort();
-    QString urlStr("http://%1:%2/spectcl/spectrum/list");
+    QString urlStr("http://%1:%2/spectcl/gate/list");
     urlStr = urlStr.arg(host).arg(port);
 
-//    std::cout << urlStr.toStdString() << std::endl;
+    cout << urlStr.toStdString() << endl;
     QUrl url(urlStr);
+
+    // this "should" be very fast so allow it to block
+    QEventLoop evtlp;
+    connect(m_pNAM, SIGNAL(finished(QNetworkReply*)), 
+            &evtlp, SLOT(quit()));
+
     m_pReply = m_pNAM->get(QNetworkRequest(url));
+    evtlp.exec();
+
+    finishedSlot(m_pReply);
 }
 
-void ListRequestHandler::finishedSlot(QNetworkReply *reply)
+void GateListRequestHandler::finishedSlot(QNetworkReply *reply)
 {
     auto  error = reply->error();
     if (error == QNetworkReply::NoError) {
@@ -65,30 +74,22 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
 
         int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-        // some debugging stuff
-        QFile file("out.txt");
-        if (!file.open(QIODevice::WriteOnly|QIODevice::Text)) {
-            throw 1;
-        }
-        file.write(str.toAscii());
-        file.close();
-
         try {
             // Read the response in the json
             Json::Reader reader;
             Json::Value value;
-            bool ok = reader.parse(str.toAscii().constData(),value);
+            bool ok = reader.parse(str.toAscii().constData(), value);
             if (!ok) {
-                throw std::runtime_error ("Failed to parse json");
+                throw runtime_error ("Failed to parse json");
             }
 
-            auto content = SpJs::JsonParser().parseListCmd(value);
+            auto uniqueContent = SpJs::GateCmdParser().parseList(value);
 
+            auto notUniqueContent = deuniquify_vector_contents(uniqueContent);
 
+            emit parseCompleted(notUniqueContent);
 
-            emit parseCompleted(content);
-
-        } catch (std::exception& exc) {
+        } catch (exception& exc) {
             QString title("Update request failure");
             QString msg("Failed to update hist because : %1");
             msg = msg.arg(QString(exc.what()));
@@ -96,6 +97,26 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
         }
     } else {
 
-        emit parseCompleted(std::vector<SpJs::HistInfo>());
+        emit parseCompleted(vector<SpJs::GateInfo*>());
     }
+}
+
+// Steal the pointers of the argument
+vector<SpJs::GateInfo*> 
+GateListRequestHandler::deuniquify_vector_contents(vector<unique_ptr<SpJs::GateInfo> >& unq_content)
+{
+  vector<SpJs::GateInfo*> retList;
+
+  retList.reserve(unq_content.size());
+
+  auto it = unq_content.begin();
+  auto it_end = unq_content.end();
+  while (it != it_end) {
+    
+    retList.push_back(it->release());
+
+    ++it;
+  }
+
+  return retList;
 }
