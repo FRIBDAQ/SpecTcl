@@ -178,3 +178,6 @@ target_link_libraries(untitled2 Untitled2)
 #target_link_libraries(test2  ${QT_LIBRARIES})
 #
 #add_test(TEST2 test2)
+
+install(TARGETS untitled2 DESTINATION bin)
+install(TARGETS Untitled2 DESTINATION lib)

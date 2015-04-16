@@ -221,7 +221,7 @@ void GateBuilder1DDialog::lowEditChanged()
 
 void GateBuilder1DDialog::highEditChanged()
 {
-    m_editSlice.setXHigh(ui->lowEdit->text().toDouble());
+    m_editSlice.setXHigh(ui->highEdit->text().toDouble());
 
     m_canvas.Modified();
     m_canvas.Update();
