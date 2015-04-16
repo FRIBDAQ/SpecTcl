@@ -27,6 +27,7 @@ class GateCmdParserTest : public CppUnit::TestFixture {
   CPPUNIT_TEST( parseList_0 );
   CPPUNIT_TEST( parseList_1 );
   CPPUNIT_TEST( parseList_2 );
+  CPPUNIT_TEST( parseList_3 );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -39,6 +40,7 @@ protected:
   void parseList_0();
   void parseList_1();
   void parseList_2();
+  void parseList_3();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GateCmdParserTest);
@@ -120,6 +122,32 @@ void GateCmdParserTest::parseList_2()
              {{165.0, 464.0}, {611.0, 509.0}, {778.0, 334.0}});
 
 
+    CPPUNIT_ASSERT(exp == act);
+
+}
+
+void GateCmdParserTest::parseList_3()
+{
+  // assume we have a F gate (produced when deleted)
+  // we should just ignore it.
+
+    std::stringstream ss;
+    ss << JSON_TEST_DIR << "/gatef.json";
+    std::ifstream file(ss.str().c_str());
+
+    Json::Value value;
+    file >> value;
+    file.close();
+
+    vector<unique_ptr<SpJs::GateInfo>> res;
+
+    CPPUNIT_ASSERT_NO_THROW(res = SpJs::GateCmdParser().parseList(value));
+    CPPUNIT_ASSERT_EQUAL(size_t(1), res.size());
+
+    SpJs::False act;
+    CPPUNIT_ASSERT_NO_THROW( act = dynamic_cast<SpJs::False&>(*(res.at(0).get())) );
+
+    SpJs::False exp("test");
     CPPUNIT_ASSERT(exp == act);
 
 }

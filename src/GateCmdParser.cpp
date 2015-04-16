@@ -39,6 +39,10 @@ namespace SpJs
       } else if (typeStr == "c") {
           pInfo = parseContour(gate);
 
+      } else if (typeStr == "F") {
+          pInfo = parseFalse(gate);
+
+
       } else {
           string err = "Gate type ";
           err += typeStr;
@@ -137,4 +141,18 @@ namespace SpJs
 
       return std::move(pInfo);
   }
-}
+
+  std::unique_ptr<GateInfo> GateCmdParser::parseFalse(const Json::Value& gate)
+  {
+    False* pDerived;
+    unique_ptr<GateInfo> pInfo(pDerived = new False());
+
+    // there is only one element... the name
+    pInfo->setName(gate["name"].asString());
+
+    return std::move(pInfo);
+  }
+
+} // end of namespace
+
+

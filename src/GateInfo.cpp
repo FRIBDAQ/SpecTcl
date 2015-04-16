@@ -53,6 +53,15 @@ bool GateInfo2D::operator!=(const GateInfo2D& rhs) const
 
 //////////////////////////////////////////////////////////////////////////////
 
+False::False(const string& name) : GateInfo(name, FalseGate)  {}
+False::False() : False("") {}
+
+unique_ptr<GateInfo> False::clone() const { 
+  return unique_ptr<GateInfo>(new False(*this));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 Slice::Slice()
     : Slice( "", "", 0, 0)
 
