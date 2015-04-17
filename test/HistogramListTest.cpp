@@ -160,7 +160,7 @@ void HistogramListTest::removeGate_0()
 {
 
   // creata slice and add it to both of the histogram bundles
-  GGate gate("gate", SpJs::Band());
+  GGate gate(SpJs::Band("band", "xparam", "yparam", {}));
   m_pHist2->addCut2D(&gate);
   m_pHist3->addCut2D(&gate);
   
@@ -221,8 +221,7 @@ void HistogramListTest::addGate_0()
   HistogramList::addHist( std::move(m_pHist3) );
 
   // creata slice and add it 
-  GGate gate(nullptr, 
-             SpJs::Band("theGate", "xparam", "yparam", {{0,1}, {1,2}, {2,3}}) );
+  GGate gate(SpJs::Band("theGate", "xparam", "yparam", {{0,1}, {1,2}, {2,3}}) );
 
   HistogramList::addGate(&gate);
 

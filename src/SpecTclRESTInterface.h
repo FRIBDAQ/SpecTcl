@@ -10,11 +10,11 @@ namespace SpJs {
   class GateInfo;
 }
 
-class TCutG;
 class GSlice;
 #include "GateEditComHandler.h"
 #include "CommonResponseHandler.h"
 #include "GateListRequestHandler.h"
+#include "GateList.h"
 
 /*! \brief Implementation of the SpecTcl facade for the REST server plugin
  *
@@ -37,11 +37,14 @@ public:
 
     void enableGatePolling(bool enable);
 
+    GateList* getGateList() { return m_pGateList.get(); }
+
 public slots:
     void listGates();
     void onGateListReceived(std::vector<SpJs::GateInfo*> gates);
 
 private:
+    std::unique_ptr<GateList> m_pGateList;
     std::unique_ptr<GateEditComHandler> m_pGateEditCmd;
     std::unique_ptr<CommonResponseHandler> m_pCommonHandler;
     std::unique_ptr<GateListRequestHandler> m_pGateListCmd;

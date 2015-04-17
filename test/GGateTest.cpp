@@ -23,6 +23,7 @@ class GGateTest : public CppUnit::TestFixture
 {
   public:
     CPPUNIT_TEST_SUITE( GGateTest );
+    CPPUNIT_TEST( construct_0 );
     CPPUNIT_TEST( synchronize_0 );
     CPPUNIT_TEST( synchronize_1 );
     CPPUNIT_TEST_SUITE_END();
@@ -34,6 +35,7 @@ class GGateTest : public CppUnit::TestFixture
     }
 
   protected:
+    void construct_0();
     void synchronize_0();
     void synchronize_1();
 
@@ -43,12 +45,31 @@ CPPUNIT_TEST_SUITE_REGISTRATION(GGateTest);
 
 #endif
 
+void GGateTest::construct_0()
+{
+  SpJs::Band band0("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}});
+
+  GGate gate(band0);
+  auto pCut = gate.getGraphicObject();
+  CPPUNIT_ASSERT( QString("mycut") == gate.getName() );
+  CPPUNIT_ASSERT( QString("x") == gate.getParameterX() );
+  CPPUNIT_ASSERT( QString("y") == gate.getParameterY() );
+
+
+  double x[3] = {0, 1, 2};
+  double y[3] = {1, 2, 3};
+  CPPUNIT_ASSERT( 3 == pCut->GetN() );
+  CPPUNIT_ASSERT( std::equal(x, x+3, pCut->GetX()) );
+  CPPUNIT_ASSERT( std::equal(y, y+3, pCut->GetY()) );
+  
+}
+
 // Test that we can synchronize to the SpecTcl data
 void GGateTest::synchronize_0()
 {
   SpJs::Band band0("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}});
 
-  GGate gate("mycut", band0);
+  GGate gate(band0);
   auto pCut = gate.getGraphicObject();
   pCut->RemovePoint(0);
   CPPUNIT_ASSERT( 2 == pCut->GetN() );
@@ -69,7 +90,7 @@ void GGateTest::synchronize_1()
 {
   SpJs::Band band0("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}});
 
-  GGate gate("mycut", band0);
+  GGate gate(band0);
   auto pCut = gate.getGraphicObject();
   pCut->Set(4);
   pCut->SetPoint(0, 4, 4);

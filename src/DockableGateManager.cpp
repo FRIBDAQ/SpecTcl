@@ -30,6 +30,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "QRootCanvas.h"
 #include "GSlice.h"
 #include "GGate.h"
+#include "GateList.h"
+
 #include "SliceTableItem.h"
 #include "GateListItem.h"
 #include <QListWidget>
@@ -57,8 +59,8 @@ DockableGateManager::DockableGateManager(const SpectrumViewer& viewer,
     connect(ui->deleteButton, SIGNAL(clicked()), 
             this, SLOT(deleteGate()));
 
-    connect(pSpecTcl, SIGNAL(gateListChanged(std::vector<SpJs::GateInfo*>)),
-            this, SLOT(onGateListChanged(std::vector<SpJs::GateInfo*>)));
+    connect(pSpecTcl, SIGNAL(gateListChanged()),
+            this, SLOT(onGateListChanged()));
 }
 
 DockableGateManager::~DockableGateManager()
@@ -136,8 +138,9 @@ void DockableGateManager::launchEditGateDialog()
     }
 }
 
-void DockableGateManager::registerGate(GGate* pCut)
+void DockableGateManager::addGateToList(GGate* pCut)
 {
+
     Q_ASSERT(pCut != nullptr);
 
     GateListItem* pItem = new GateListItem(QString(pCut->getName()),
@@ -155,18 +158,23 @@ void DockableGateManager::registerGate(GGate* pCut)
     // add the gate to all related histograms
     HistogramList::addGate(pCut);
 
-    if (m_pSpecTcl) {
-        m_pSpecTcl->addGate(*pCut);
-    }
-
     auto histPkg = m_view.getCurrentHist();
     if (histPkg) {
       histPkg->draw();
     }
 }
 
+void DockableGateManager::registerGate(GGate* pCut)
+{
+    addGateToList(pCut);
 
-void DockableGateManager::registerSlice(GSlice *pSlice)
+    if (m_pSpecTcl) {
+        m_pSpecTcl->addGate(*pCut);
+    }
+
+}
+
+void DockableGateManager::addSliceToList(GSlice* pSlice)
 {
     Q_ASSERT(pSlice != nullptr);
 
@@ -182,13 +190,20 @@ void DockableGateManager::registerSlice(GSlice *pSlice)
     // add the slice to all related histograms
     HistogramList::addSlice(pSlice);
 
-    if (m_pSpecTcl) {
-        m_pSpecTcl->addGate(*pSlice);
-    }
 
     auto histPkg = m_view.getCurrentHist();
     if (histPkg) {
-      histPkg->draw();
+        histPkg->draw();
+    }
+}
+
+
+void DockableGateManager::registerSlice(GSlice *pSlice)
+{
+    addSliceToList(pSlice);
+
+    if (m_pSpecTcl) {
+        m_pSpecTcl->addGate(*pSlice);
     }
 }
 
@@ -232,24 +247,7 @@ void DockableGateManager::deleteGate()
       m_pSpecTcl->deleteGate(pItem->text());
     }
   
-    // remove item from every histogram
-    SliceTableItem* pSlItem = dynamic_cast<SliceTableItem*>(pItem);
-    if (pSlItem) {
-      HistogramList::removeSlice(*pSlItem->getSlice());
-    } else {
-      GateListItem* pGItem = dynamic_cast<GateListItem*>(pItem);
-      Q_ASSERT( pGItem != nullptr );
-
-      HistogramList::removeGate(*pGItem->getGate());
-
-    }
-
-    // Remove the row
-    auto row = ui->gateList->row(pItem);
-    ui->gateList->takeItem(row);
-    delete pItem;
-
-
+    removeGate(pItem);
   }
 
   auto histPkg = m_view.getCurrentHist();
@@ -259,11 +257,49 @@ void DockableGateManager::deleteGate()
 
 }
 
-void DockableGateManager::onGateListChanged(vector<SpJs::GateInfo*> gates)
+void DockableGateManager::clearList()
 {
-  cout << "Update gates!" << endl;
-  for (auto gate : gates) {
-    cout << gate->getName() << endl;
-    delete gate;
+  while ( ui->gateList->count() > 0 ) {
+    auto pItem = ui->gateList->item(0);
+    cout << (void*) pItem << endl;
+    removeGate(pItem);
   }
+}
+
+void DockableGateManager::onGateListChanged()
+{
+  clearList();
+
+  cout << "Update gates!" << endl;
+
+  auto list = m_pSpecTcl->getGateList();
+
+  auto it_1d = list->begin1d();
+  auto itend_1d = list->end1d();
+  while ( it_1d != itend_1d ) {
+      cout << (void*) it_1d->get() << endl;
+    HistogramList::addSlice(it_1d->get());
+    addSliceToList(it_1d->get());
+    ++it_1d;
+  }
+  
+  auto it_2d = list->begin2d();
+  auto itend_2d = list->end2d();
+  while ( it_2d != itend_2d ) {
+      cout << (void*) it_2d->get() << endl;
+    HistogramList::addGate(it_2d->get());
+    addGateToList(it_2d->get());
+    ++it_2d;
+  }
+}
+
+
+  
+void DockableGateManager::removeGate(QListWidgetItem* pItem) 
+{
+  // Remove the row
+  auto row = ui->gateList->row(pItem);
+  ui->gateList->takeItem(row);
+  delete pItem;
+
 }

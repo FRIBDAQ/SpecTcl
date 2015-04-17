@@ -12,6 +12,5 @@ GateListItem::GateListItem(const QString& name,
 
 GateListItem::~GateListItem()
 {
-    delete m_pGate;
 }
 

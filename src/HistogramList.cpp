@@ -208,3 +208,16 @@ void HistogramList::addGate(GGate* pGate)
     ++it;
   }
 }
+
+void HistogramList::clearCuts()
+{
+  auto it = begin();
+  auto it_end = end();
+
+  while ( it != it_end ) {
+    it->second->clearCut1Ds();
+    it->second->clearCut2Ds();
+
+    ++it;
+  }
+}

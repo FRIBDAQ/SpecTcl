@@ -38,7 +38,7 @@ namespace SpJs {
   class GateInfo;
 }
 
-
+class QListWidgetItem;
 
 /*! \brief Graphical object that owns all gates 
  *
@@ -63,6 +63,7 @@ public:
 
     /*! Destructor */
     virtual ~DockableGateManager();
+
 
     //////// SLOTS /////////////
 public slots:
@@ -93,7 +94,15 @@ public slots:
     void deleteGate();
 
     /*! Update to list */
-    void onGateListChanged(std::vector<SpJs::GateInfo*> gates);
+    void onGateListChanged();
+
+public:
+    void removeGate(QListWidgetItem* pItem);
+    void clearList();
+
+private:
+    void addSliceToList(GSlice* pSlice);
+    void addGateToList(GGate* pGate);
 
 private:
     Ui::DockableGateManager *ui;

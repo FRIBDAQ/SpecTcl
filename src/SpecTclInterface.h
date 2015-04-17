@@ -7,6 +7,7 @@
 
 class GSlice;
 class GGate;
+class GateList;
 class QString;
 
 namespace SpJs {
@@ -40,9 +41,11 @@ public:
     virtual void deleteGate(const QString& name) = 0;
 
     virtual void enableGatePolling(bool enable) = 0;
+
+    virtual GateList* getGateList() = 0;
    
   signals:
-    void gateListChanged(std::vector<SpJs::GateInfo*> gates);
+    void gateListChanged();
 };
 
 #endif // SPECTCLINTERFACE_H

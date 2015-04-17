@@ -22,31 +22,98 @@
 
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "GateList.h"
+#include "GSlice.h"
+#include "GGate.h"
+
+#include <GateInfo.h>
+
 #include <algorithm>
-#include <TCutG.h>
 
 using namespace std;
 
+bool GateList::Compare1D::operator()(const std::unique_ptr<GSlice>& lhs,
+                                    const std::unique_ptr<GSlice>& rhs) const 
+{
+  return (lhs->getName().compare(rhs->getName()))<0;
+}
+
+bool GateList::Compare2D::operator()(const std::unique_ptr<GGate>& lhs,
+                                      const std::unique_ptr<GGate>& rhs) const 
+{
+  return (lhs->getName().compare(rhs->getName()))<0;
+}
+
 GateList::GateList()
-    : m_gates()
+    : m_cuts1d(),
+    m_cuts2d()
 {
 }
 
-
-void GateList::addGate(std::unique_ptr<TCutG> cut)
+void GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
 {
-    // the unique ptr give pretty strong assurance that there
-    // is no copy in the list already (it is still possible but if
-    // we managed to do that, we have major issues)
-    m_gates.push_back(std::move(cut));
+  m_cuts1d.clear();
+  m_cuts2d.clear();
+
+  for (auto pGate : gates) {
+    
+    SpJs::GateType type = pGate->getType();
+    if (type == SpJs::SliceGate) {
+
+      addCut1D(*pGate);
+
+    } else if ( type == SpJs::BandGate || type == SpJs::ContourGate ) {
+
+      SpJs::GateInfo2D& g2d = dynamic_cast<SpJs::GateInfo2D&>(*pGate);
+
+      addCut2D(g2d);
+    }
+  }
 }
 
-GateList::iterator GateList::getGate(const QString &name)
+void GateList::addCut1D(const SpJs::GateInfo& slice)
 {
-    return find_if(m_gates.begin(),
-                   m_gates.end(),
-                   [&](const unique_ptr<TCutG>& cut) -> bool {
-                      QString cname = cut->GetName();
-                      return (cname==name);
-                   });
+  const SpJs::Slice& jsSlice = dynamic_cast<const SpJs::Slice&>(slice);
+
+  unique_ptr<GSlice> gsl(new GSlice(jsSlice));
+  
+  addCut1D( move(gsl) );
+}
+
+void GateList::addCut1D(unique_ptr<GSlice> slice)
+{
+  m_cuts1d.insert( move(slice) );
+}
+
+void GateList::addCut2D(const SpJs::GateInfo2D& gate)
+{
+  unique_ptr<GGate> ggate(new GGate(gate));
+  
+  addCut2D( move(ggate) );
+}
+
+void GateList::addCut2D(unique_ptr<GGate> gate)
+{
+  m_cuts2d.insert( move(gate) );
+}
+
+size_t GateList::size() const 
+{
+  return m_cuts1d.size() + m_cuts2d.size();
+}
+
+
+GateList::iterator1d GateList::find1D(const QString& name)
+{
+  return find_if(m_cuts1d.begin(), m_cuts1d.end(), 
+                  [&name](const unique_ptr<GSlice>& slice) {
+                    return (name == slice->getName());
+                  });
+}
+
+GateList::iterator2d GateList::find2D(const QString& name)
+{
+  return find_if(m_cuts2d.begin(), m_cuts2d.end(), 
+                  [&name](const unique_ptr<GGate>& slice) {
+                    return (name == slice->getName());
+                  });
 }

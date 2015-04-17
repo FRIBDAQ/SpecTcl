@@ -71,9 +71,10 @@ public:
      * \param info    spectcl gate information
      * \param parent  parent object that would own this.
      */
-    explicit GGate(const QString& name,
-                   const SpJs::GateInfo2D& info,
+    explicit GGate(const SpJs::GateInfo2D& info,
                    QObject* parent = nullptr);
+
+    virtual ~GGate();
     
     /*! \brief Assignment operator
      *
@@ -168,7 +169,6 @@ public slots:
 
     /// Member data 
 private:
-    QString m_name;
     std::unique_ptr<TCutG> m_pCut;
     std::unique_ptr<SpJs::GateInfo2D> m_info;
 

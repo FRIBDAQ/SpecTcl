@@ -6,6 +6,7 @@
 #include "GateDeleteRequest.h"
 #include "CommonResponseHandler.h"
 #include "GateListRequestHandler.h"
+#include "HistogramList.h"
 
 #include <QString>
 #include <QTimer>
@@ -18,6 +19,7 @@ using namespace std;
 
 SpecTclRESTInterface::SpecTclRESTInterface()
     : SpecTclInterface(),
+    m_pGateList(new GateList),
     m_pGateEditCmd(new GateEditComHandler),
     m_pCommonHandler(new CommonResponseHandler),
     m_pGateListCmd(new GateListRequestHandler),
@@ -86,19 +88,25 @@ void SpecTclRESTInterface::deleteGate(const QString& name)
 void SpecTclRESTInterface::listGates() 
 {
   m_pGateListCmd->get(); 
-
-
 }
 
 void 
 SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 {
+  HistogramList::clearCuts();
+  
+  m_pGateList->synchronize(gates);
 
-  emit gateListChanged(gates);
+  // free the gates... they have done their job
+  for (auto ptr : gates) { delete ptr; }
+
+  emit gateListChanged();
+
 
   if (pollGates) {
      QTimer::singleShot(2000, this, SLOT(listGates()));
   }
+
 }
 
 void SpecTclRESTInterface::enableGatePolling(bool enable)

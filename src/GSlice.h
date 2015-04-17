@@ -9,6 +9,11 @@ class TLine;
 class TFrame;
 class QRootCanvas;
 
+namespace SpJs 
+{
+  class Slice;
+}
+
 /*! Graphical Slice
  *
  * This bundles together two lines and the SpecTcl information
@@ -20,6 +25,8 @@ class GSlice : public QObject
 {
     Q_OBJECT
 public:
+    explicit GSlice(const SpJs::Slice& info);
+
     /*! Constructor
      */
     explicit GSlice(QObject *parent = 0,

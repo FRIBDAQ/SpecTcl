@@ -73,6 +73,8 @@ public:
     static void addHist(std::unique_ptr<TH1> hist, const SpJs::HistInfo& info);
     static void addHist(std::unique_ptr<HistogramBundle> hist);
 
+    static void clearCuts();
+
 public slots:
 
     static bool histExists(const QString& name);
