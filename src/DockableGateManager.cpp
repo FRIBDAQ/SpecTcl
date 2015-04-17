@@ -75,6 +75,10 @@ void DockableGateManager::launchAddGateDialog()
     auto pCanvas = m_view.getCurrentFocus();
     auto histPkg = m_view.getCurrentHist();
 
+    if (m_pSpecTcl) {
+        m_pSpecTcl->enableGatePolling(false);
+    }
+
     // determine whether this is a 1d or 2d hist and 
     // open to appropriate dialog
     if (histPkg->hist()->InheritsFrom(TH2::Class())) {
@@ -102,6 +106,10 @@ void DockableGateManager::launchEditGateDialog()
 {
     auto pCanvas = m_view.getCurrentFocus();
     auto histPkg = m_view.getCurrentHist();
+
+    if (m_pSpecTcl) {
+        m_pSpecTcl->enableGatePolling(false);
+    }
 
     auto selection = ui->gateList->selectedItems();
     if (selection.size()==1) {
@@ -172,7 +180,9 @@ void DockableGateManager::registerGate(GGate* pCut)
 
     if (m_pSpecTcl) {
         m_pSpecTcl->addGate(*pCut);
+        m_pSpecTcl->enableGatePolling(true);
     }
+
 
 }
 
@@ -206,6 +216,7 @@ void DockableGateManager::registerSlice(GSlice *pSlice)
 
     if (m_pSpecTcl) {
         m_pSpecTcl->addGate(*pSlice);
+        m_pSpecTcl->enableGatePolling(true);
     }
 }
 
@@ -284,7 +295,7 @@ void DockableGateManager::onGateListChanged()
 
   // remove any items in listwidget that are no longer in the view
   auto nRows = ui->gateList->count();
-  for (int row=0; row<nRows; ++row) {
+  for (int row=nRows-1; row>=0; --row) {
     auto pItem = ui->gateList->item(row); 
     auto it1d = find_if(list->begin1d(), list->end1d(), 
                       bind(pred1d, _1, pItem->text())); 
@@ -343,7 +354,17 @@ void DockableGateManager::onGateListChanged()
   
 }
 
+QListWidgetItem* DockableGateManager::findItem(const QString &name)
+{
+    QListWidgetItem* pItem = nullptr;
+    auto list = ui->gateList->findItems(name, Qt::MatchExactly);
 
+    if ( list.size() != 0 ) {
+        pItem = list.at(0);
+    }
+
+    return pItem;
+}
   
 void DockableGateManager::removeGate(QListWidgetItem* pItem) 
 {

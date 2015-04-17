@@ -97,6 +97,8 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
   
   m_pGateList->synchronize(gates);
 
+  HistogramList::synchronize(*m_pGateList);
+
   // free the gates... they have done their job
   for (auto ptr : gates) { delete ptr; }
 

@@ -26,7 +26,7 @@
 
 class QByteArray;
 
-namespace Compress
+namespace Compression
 {
 
   extern QByteArray uncompress(int nBytesUC, const QByteArray& comprData);

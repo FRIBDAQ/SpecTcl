@@ -22,6 +22,7 @@
 
 static const char* Copyright = "(C) Copyright Michigan State University 2015, All rights reserved";
 #include "HistogramList.h"
+#include "GateList.h"
 #include "GSlice.h"
 #include "GGate.h"
 
@@ -151,6 +152,64 @@ void HistogramList::removeGate(const GGate& gate)
     // update iterator 
     ++it;
   }
+}
+
+void HistogramList::synchronize(const GateList& list)
+{
+    synchronize1d(list.begin1d(), list.end1d());
+    synchronize2d(list.begin2d(), list.end2d());
+}
+
+void HistogramList::synchronize1d(GateList::iterator1d b, GateList::iterator1d e)
+{
+    auto it = begin();
+    auto it_end = end();
+
+    // histogram bundles just own a reference to the cuts so we don't care
+    // about clear their cut cache...
+    while ( it != it_end ) {
+        auto& pHist = it->second;
+
+        // only operate on 1d hists
+        if ( ! pHist->hist()->InheritsFrom(TH2::Class()) ) {
+            pHist->getCut1Ds().clear();
+        }
+        ++it;
+    }
+
+    auto it1d = b;
+    while ( it1d != e ) {
+        // it1d points to a unique_ptr<GSlice>
+        addSlice( it1d->get() );
+        ++it1d;
+    }
+
+}
+
+void HistogramList::synchronize2d(GateList::iterator2d b, GateList::iterator2d e)
+{
+    auto it = begin();
+    auto it_end = end();
+
+    // histogram bundles just own a reference to the cuts so we don't care
+    // about clear their cut cache...
+    while ( it != it_end ) {
+        auto& pHist = it->second;
+
+        // only operate on 1d hists
+        if ( pHist->hist()->InheritsFrom(TH2::Class()) ) {
+            pHist->getCut1Ds().clear();
+        }
+        ++it;
+    }
+
+    auto it2d = b;
+    while ( it2d != e ) {
+        // it2d points to a unique_ptr<GGate>
+        addGate( it2d->get() );
+        ++it2d;
+    }
+
 }
 
 void HistogramList::addSlice(GSlice* pSlice)

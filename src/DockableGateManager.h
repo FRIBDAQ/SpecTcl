@@ -98,6 +98,7 @@ public slots:
     void onGateListChanged();
 
 public:
+    QListWidgetItem* findItem(const QString& name);
     void removeGate(QListWidgetItem* pItem);
     void clearList();
     std::vector<QListWidgetItem*> getItems() const;

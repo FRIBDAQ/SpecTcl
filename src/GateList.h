@@ -67,6 +67,9 @@ public:
     void addCut2D(const SpJs::GateInfo2D& gate);
     void addCut2D(std::unique_ptr<GGate> gate);
 
+    void removeCut1D(const QString& name);
+    void removeCut2D(const QString& name);
+
     size_t size() const;
 
     iterator1d find1D(const QString& name);

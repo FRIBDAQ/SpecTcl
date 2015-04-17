@@ -14,6 +14,7 @@
 #include "GlobalSettings.h"
 #include "GSlice.h"
 #include "GGate.h"
+#include "GateList.h"
 
 #include <GateInfo.h>
 #include <HistInfo.h>
@@ -44,6 +45,7 @@ class HistogramListTest : public CppUnit::TestFixture
     CPPUNIT_TEST( removeGate_0 );
     CPPUNIT_TEST( addSlice_0 );
     CPPUNIT_TEST( addGate_0 );
+    CPPUNIT_TEST( synchronize_0 );
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -58,6 +60,8 @@ class HistogramListTest : public CppUnit::TestFixture
 
     void addSlice_0();
     void addGate_0();
+
+    void synchronize_0();
 
 };
 
@@ -236,3 +240,31 @@ void HistogramListTest::addGate_0()
 
 }
 
+void HistogramListTest::synchronize_0()
+{
+    // populate our gate list
+    GateList list;
+    list.addCut1D(SpJs::Slice("slice", "xparam", 0, 1));
+    list.addCut2D(SpJs::Contour("gate", "xparam", "yparam", {{0, 1}, {1, 2}, {2, 3}}));
+
+    // populate the hist list
+    HistogramList::addHist( move(m_pHist0) );
+    HistogramList::addHist( move(m_pHist1) );
+    HistogramList::addHist( move(m_pHist2) );
+    HistogramList::addHist( move(m_pHist3) );
+
+    // synchronize
+    HistogramList::synchronize(list);
+
+    // this is ugly...
+    map<QString, GSlice*> exp1d = { {QString("slice"), (*list.find1D("slice")).get()} };
+    map<QString, GGate*> exp2d = { {QString("gate"), (*list.find2D("gate")).get()} };
+    map<QString, GSlice*> empty1d;
+    map<QString, GGate*> empty2d;
+
+    CPPUNIT_ASSERT( exp1d == HistogramList::getHist("hist0")->getCut1Ds() );
+    CPPUNIT_ASSERT( empty1d == HistogramList::getHist("hist1")->getCut1Ds() );
+    CPPUNIT_ASSERT( exp2d == HistogramList::getHist("hist2")->getCut2Ds() );
+    CPPUNIT_ASSERT( empty2d == HistogramList::getHist("hist3")->getCut2Ds() );
+
+}

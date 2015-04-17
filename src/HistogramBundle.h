@@ -51,8 +51,8 @@ class HistogramBundle {
 private:
   std::unique_ptr<QMutex> m_pMutex;
   std::unique_ptr<TH1> m_pHist;
-  std::map<QString, GGate*> m_cuts2d;
   std::map<QString, GSlice*> m_cuts1d;
+  std::map<QString, GGate*> m_cuts2d;
   SpJs::HistInfo m_hInfo;
 
 public:

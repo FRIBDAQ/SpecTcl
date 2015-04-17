@@ -21,7 +21,7 @@
  *  specials immediately after they have been created.
  *
  */ 
-class MyCutG : public TCutG 
+class MyCutG : public TCutG
 {
   public:
 
@@ -45,6 +45,8 @@ class MyCutG : public TCutG
   virtual ~MyCutG()
   {
   }
+
+
 };
 
 /*! A Graphical Gate

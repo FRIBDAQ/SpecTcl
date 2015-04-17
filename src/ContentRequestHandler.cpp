@@ -27,6 +27,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "HistogramBundle.h"
 #include "LockGuard.h"
 #include "Compression.h"
+
 #include <json/json.h>
 #include <HistFiller.h>
 #include <JsonParser.h>
@@ -48,7 +49,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <zlib.h>
 #include <cstdlib>
 
-namespace cprs = Compress;
+namespace cprs = Compression;
 using namespace std;
 
 ContentRequestHandler::ContentRequestHandler(QObject *parent) :

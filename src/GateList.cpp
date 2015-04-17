@@ -51,23 +51,66 @@ GateList::GateList()
 
 void GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
 {
-  m_cuts1d.clear();
-  m_cuts2d.clear();
-
-  for (auto pGate : gates) {
+ // make sure that we add all non existing gates to the this
+ for (auto pGate : gates) {
     
     SpJs::GateType type = pGate->getType();
     if (type == SpJs::SliceGate) {
 
-      addCut1D(*pGate);
+        auto it = find1D(QString::fromStdString(pGate->getName()));
+
+        // if we did not find it, then add it
+        if ( it == end1d() ) {
+            addCut1D(*pGate);
+        }
 
     } else if ( type == SpJs::BandGate || type == SpJs::ContourGate ) {
 
-      SpJs::GateInfo2D& g2d = dynamic_cast<SpJs::GateInfo2D&>(*pGate);
+        auto it = find2D(QString::fromStdString(pGate->getName()));
 
-      addCut2D(g2d);
+        // if we did not find it, then add it
+        if (it == end2d() ) {
+            SpJs::GateInfo2D& g2d = dynamic_cast<SpJs::GateInfo2D&>(*pGate);
+            addCut2D(g2d);
+        }
     }
   }
+
+
+  // remove all gates in gate list that are no longer is spectcl
+
+  // 1d cuts first
+  auto it_1d = begin1d();
+  auto itend_1d = end1d();
+  while ( it_1d != itend_1d ) {
+    QString name = (*it_1d)->getName();
+    auto it = find_if(gates.begin(), gates.end(), [&name](SpJs::GateInfo* pInfo) {
+                      return (name == QString::fromStdString(pInfo->getName()));
+                      });
+    if ( it == gates.end() ) {
+      removeCut1D(name);
+    }
+
+    // increment!
+    ++it_1d;
+  }
+
+  // 2d cuts next
+  auto it_2d = begin2d();
+  auto itend_2d = end2d();
+  while ( it_2d != itend_2d ) {
+    QString name = (*it_2d)->getName();
+    auto it = find_if(gates.begin(), gates.end(), [&name](SpJs::GateInfo* pInfo) {
+                        return (name == QString::fromStdString(pInfo->getName()));
+                      });
+  if ( it == gates.end() ) {
+      removeCut2D(name);
+    }
+
+    // increment
+    ++it_2d;
+  }
+
 }
 
 void GateList::addCut1D(const SpJs::GateInfo& slice)
@@ -101,6 +144,17 @@ size_t GateList::size() const
   return m_cuts1d.size() + m_cuts2d.size();
 }
 
+
+void GateList::removeCut1D(const QString& name)
+{
+  auto it = find1D(name);
+  if (it != m_cuts1d.end()) {
+    m_cuts1d.erase(it);
+  }
+}
+
+void GateList::removeCut2D(const QString& name)
+{}
 
 GateList::iterator1d GateList::find1D(const QString& name)
 {
