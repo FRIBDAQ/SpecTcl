@@ -65,7 +65,8 @@ set(untitled2_HEADERS
   GateEditRequest.h
   GateDeleteRequest.h
   CommonResponseHandler.h
-  GateListRequestHandler.h)
+  GateListRequestHandler.h
+  Utility.h)
 
 set(untitled2_FORMS
   mainwindow.ui 

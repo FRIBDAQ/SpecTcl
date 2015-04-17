@@ -36,10 +36,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "GateListItem.h"
 #include <QListWidget>
 #include <QMessageBox>
+
 #include <TH1.h>
 #include <TH2.h>
 
 #include <iostream>
+#include <functional>
 
 using namespace std;
 
@@ -268,29 +270,77 @@ void DockableGateManager::clearList()
 
 void DockableGateManager::onGateListChanged()
 {
-  clearList();
-
+  using namespace std::placeholders;
   cout << "Update gates!" << endl;
 
   auto list = m_pSpecTcl->getGateList();
 
+  auto pred1d = [](const unique_ptr<GSlice>& pItem, const QString& name) {
+    return (pItem->getName() == name);
+  };
+  auto pred2d = [](const unique_ptr<GGate>& pItem, const QString& name) {
+    return (pItem->getName() == name);
+  };
+
+  // remove any items in listwidget that are no longer in the view
+  auto nRows = ui->gateList->count();
+  for (int row=0; row<nRows; ++row) {
+    auto pItem = ui->gateList->item(row); 
+    auto it1d = find_if(list->begin1d(), list->end1d(), 
+                      bind(pred1d, _1, pItem->text())); 
+    auto it2d = find_if(list->begin2d(), list->end2d(), 
+                      bind(pred2d, _1, pItem->text())); 
+    if (it1d == list->end1d() && it2d == list->end2d()) {
+      removeGate(pItem);
+    }
+  }
+
+  // ensure that all gates in gatelist are represented
+  // in listwidget
+  // deal with 1d gates
   auto it_1d = list->begin1d();
   auto itend_1d = list->end1d();
   while ( it_1d != itend_1d ) {
-      cout << (void*) it_1d->get() << endl;
-    HistogramList::addSlice(it_1d->get());
-    addSliceToList(it_1d->get());
+    cout << (void*) it_1d->get() << endl;
+
+    int row = 0;
+    auto nRows = ui->gateList->count();
+    while ( row < nRows ) {
+      QListWidgetItem* pItem = ui->gateList->item(row);
+      if (pItem->text() == (*it_1d)->getName()) {
+        break;
+      }
+      ++row;
+    }
+    if (row == nRows) {
+      addSliceToList(it_1d->get());
+    }
+
     ++it_1d;
   }
-  
+
+  /// deal with 2d gates
   auto it_2d = list->begin2d();
   auto itend_2d = list->end2d();
   while ( it_2d != itend_2d ) {
-      cout << (void*) it_2d->get() << endl;
-    HistogramList::addGate(it_2d->get());
-    addGateToList(it_2d->get());
+    cout << (void*) it_2d->get() << endl;
+
+    int row = 0;
+    auto nRows = ui->gateList->count();
+    while ( row < nRows ) {
+      QListWidgetItem* pItem = ui->gateList->item(row);
+      if (pItem->text() == (*it_2d)->getName()) {
+        break;
+      }
+      ++row;
+    }
+    if (row == nRows) {
+      addGateToList(it_2d->get());
+    }
     ++it_2d;
   }
+
+  
 }
 
 
@@ -302,4 +352,16 @@ void DockableGateManager::removeGate(QListWidgetItem* pItem)
   ui->gateList->takeItem(row);
   delete pItem;
 
+}
+
+vector<QListWidgetItem*> DockableGateManager::getItems() const
+{
+  vector<QListWidgetItem*> items;
+
+  auto nRows = ui->gateList->count();
+  for (int row=0; row<nRows; ++row) {
+    items.push_back(ui->gateList->item(row));
+  }
+
+  return items;
 }

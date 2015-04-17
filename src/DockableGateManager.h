@@ -24,6 +24,7 @@
 #define DOCKABLEGATEMANAGER_H
 
 #include <QDockWidget>
+#include <vector>
 
 class SpectrumViewer;
 class SpecTclInterface;
@@ -99,6 +100,7 @@ public slots:
 public:
     void removeGate(QListWidgetItem* pItem);
     void clearList();
+    std::vector<QListWidgetItem*> getItems() const;
 
 private:
     void addSliceToList(GSlice* pSlice);

@@ -8,6 +8,7 @@ set(untitled2test_SOURCES
   GGateTest.cpp
   HistogramListTest.cpp
   GateListTest.cpp
+  DockableGateManagerTest.cpp
   ${PROGRAM_SOURCES} )
 
 set(untitled2test_HEADERS "")
