@@ -198,7 +198,7 @@ void HistogramList::synchronize2d(GateList::iterator2d b, GateList::iterator2d e
 
         // only operate on 1d hists
         if ( pHist->hist()->InheritsFrom(TH2::Class()) ) {
-            pHist->getCut1Ds().clear();
+            pHist->getCut2Ds().clear();
         }
         ++it;
     }

@@ -86,8 +86,13 @@ void GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
     QString name = (*it_1d)->getName();
     auto it = find_if(gates.begin(), gates.end(), [&name](SpJs::GateInfo* pInfo) {
                       return (name == QString::fromStdString(pInfo->getName()));
-                      });
-    if ( it == gates.end() ) {
+    });
+
+    if ( it != gates.end() ) {
+        if ( (*it)->getType() == SpJs::FalseGate ) {
+          removeCut1D(name);
+        }
+    } else {
       removeCut1D(name);
     }
 
@@ -103,7 +108,12 @@ void GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
     auto it = find_if(gates.begin(), gates.end(), [&name](SpJs::GateInfo* pInfo) {
                         return (name == QString::fromStdString(pInfo->getName()));
                       });
-  if ( it == gates.end() ) {
+    if ( it != gates.end() ) {
+      if ( (*it)->getType() == SpJs::FalseGate ) {
+        removeCut2D(name);
+      }
+    } else {
+      cout << "about to remove " << name.toStdString() << endl;
       removeCut2D(name);
     }
 
@@ -154,7 +164,12 @@ void GateList::removeCut1D(const QString& name)
 }
 
 void GateList::removeCut2D(const QString& name)
-{}
+{
+  auto it = find2D(name);
+  if (it != m_cuts2d.end()) {
+    m_cuts2d.erase(it);
+  }
+}
 
 GateList::iterator1d GateList::find1D(const QString& name)
 {

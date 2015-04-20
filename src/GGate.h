@@ -21,31 +21,25 @@
  *  specials immediately after they have been created.
  *
  */ 
-class MyCutG : public TCutG
+class MyCutG : public QObject, public TCutG
 {
+  Q_OBJECT 
+
   public:
 
   //! \brief Construct from name and number of point
-  MyCutG(const char* name, int n) 
-   : TCutG(name, n) 
-  {
-    auto pSpecials = gROOT->GetListOfSpecials();
-    pSpecials->Remove(pSpecials->FindObject(name));
-  }
+  MyCutG(const char* name, int n);
 
   //! \brief Construct from name and number of points and data
-  MyCutG(const char* name, int n, double *x, double *y) 
-   : TCutG(name, n, x, y) 
-  {
-    auto pSpecials = gROOT->GetListOfSpecials();
-    pSpecials->Remove(pSpecials->FindObject(name));
-  }
+  MyCutG(const char* name, int n, double *x, double *y);
 
   //! \brief Destructor
-  virtual ~MyCutG()
-  {
-  }
+  virtual ~MyCutG();
 
+  virtual void Paint(Option_t* opt = "");
+
+signals:
+  void modified(std::vector<std::pair<double, double> > points);
 
 };
 
@@ -111,6 +105,13 @@ public:
     std::vector<std::pair<double, double> > getPoints() const;
 
 
+    bool isEditable() const {
+      return m_pCut->GetEditable();
+    }
+
+    void setEditable(bool editable) {
+      m_pCut->SetEditable(editable);
+    }
 
     /*! \brief Sets the state according to new gate information
      *

@@ -93,8 +93,6 @@ void SpecTclRESTInterface::listGates()
 void 
 SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 {
-  HistogramList::clearCuts();
-  
   m_pGateList->synchronize(gates);
 
   HistogramList::synchronize(*m_pGateList);
@@ -106,7 +104,7 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 
 
   if (pollGates) {
-     QTimer::singleShot(2000, this, SLOT(listGates()));
+     QTimer::singleShot(1000, this, SLOT(listGates()));
   }
 
 }
@@ -116,9 +114,10 @@ void SpecTclRESTInterface::enableGatePolling(bool enable)
   // don't double schedule... only start the polling if it has not already been
   // started.
   if (pollGates != enable) {
-    if (enable) {
-      listGates();
-    }
+      pollGates = enable;
+      if (enable) {
+          listGates();
+        }
   }
-    pollGates = enable;
+
 }

@@ -98,6 +98,15 @@ void GateListTest::synchronize_0()
   CPPUNIT_ASSERT( pGate == m_pGateList->find2D("test") );
   CPPUNIT_ASSERT( m_pGateList->find2D("test1") != m_pGateList->end2d() );
 
+  auto pGate1 = m_pGateList->find2D("test1");
+ 
+  m_pGateList->synchronize(gates);
+
+  CPPUNIT_ASSERT( 2 == m_pGateList->size() );
+  CPPUNIT_ASSERT( pGate == m_pGateList->find2D("test") );
+  CPPUNIT_ASSERT( pGate1== m_pGateList->find2D("test1") );
+
+
 }
 
 
@@ -109,17 +118,31 @@ void GateListTest::removeCut1D_0()
   m_pGateList->addCut1D(*pSlice);
   CPPUNIT_ASSERT( 1 == m_pGateList->size() );
   CPPUNIT_ASSERT( m_pGateList->find1D("test") != m_pGateList->end1d() );
+  CPPUNIT_ASSERT( m_pGateList->find2D("test") == m_pGateList->end2d() );
 
   // pass a new set of gates to the gate list...
   m_pGateList->removeCut1D("test");
 
   // this takes ownership
   CPPUNIT_ASSERT( 0 == m_pGateList->size() );
+  CPPUNIT_ASSERT( m_pGateList->find1D("test") == m_pGateList->end1d() );
   CPPUNIT_ASSERT( m_pGateList->find2D("test") == m_pGateList->end2d() );
-
-  
 }
 
 void GateListTest::removeCut2D_0() {
+  using SpJs::Band;
+  Band* pGate(new Band("test", "xparam", "yparam", {{0, 1}, {1, 2}, {2, 3}}));
 
+  m_pGateList->addCut2D(*pGate);
+  CPPUNIT_ASSERT( 1 == m_pGateList->size() );
+  CPPUNIT_ASSERT( m_pGateList->find1D("test") == m_pGateList->end1d() );
+  CPPUNIT_ASSERT( m_pGateList->find2D("test") != m_pGateList->end2d() );
+
+  // pass a new set of gates to the gate list...
+  m_pGateList->removeCut2D("test");
+
+  // this takes ownership
+  CPPUNIT_ASSERT( 0 == m_pGateList->size() );
+  CPPUNIT_ASSERT( m_pGateList->find1D("test") == m_pGateList->end1d() );
+  CPPUNIT_ASSERT( m_pGateList->find2D("test") == m_pGateList->end2d() );
 }

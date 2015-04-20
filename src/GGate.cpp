@@ -11,6 +11,28 @@
 
 using namespace std;
 
+MyCutG::MyCutG(const char* name, int n)
+ : TCutG(name, n)
+{
+  auto pSpecials = gROOT->GetListOfSpecials();
+  pSpecials->Remove(pSpecials->FindObject(name));
+}
+
+  MyCutG::MyCutG(const char* name, int n, double *x, double *y) 
+: TCutG(name, n, x, y) 
+{
+  auto pSpecials = gROOT->GetListOfSpecials();
+  pSpecials->Remove(pSpecials->FindObject(name));
+}
+
+MyCutG::~MyCutG()
+{
+}
+
+void MyCutG::Paint(Option_t* opt) {
+  TCutG::Paint(opt);
+}
+
 GGate::GGate( const SpJs::GateInfo2D& info, QObject* parent)
     :
       m_info(),

@@ -227,6 +227,7 @@ void DockableGateManager::editGate(GGate* pCut)
 
     if (m_pSpecTcl) {
         m_pSpecTcl->editGate(*pCut);
+        m_pSpecTcl->enableGatePolling(true);
     }
 
     auto histPkg = m_view.getCurrentHist();
@@ -242,6 +243,7 @@ void DockableGateManager::editSlice(GSlice *pSlice)
 
     if (m_pSpecTcl) {
         m_pSpecTcl->editGate(*pSlice);
+        m_pSpecTcl->enableGatePolling(true);
     }
 
     auto histPkg = m_view.getCurrentHist();
@@ -286,9 +288,12 @@ void DockableGateManager::onGateListChanged()
 
   auto list = m_pSpecTcl->getGateList();
 
+  // predicate for matching 1d spectra by name
   auto pred1d = [](const unique_ptr<GSlice>& pItem, const QString& name) {
     return (pItem->getName() == name);
   };
+
+  // predicate for matching 2d spectra by name
   auto pred2d = [](const unique_ptr<GGate>& pItem, const QString& name) {
     return (pItem->getName() == name);
   };
@@ -301,8 +306,10 @@ void DockableGateManager::onGateListChanged()
                       bind(pred1d, _1, pItem->text())); 
     auto it2d = find_if(list->begin2d(), list->end2d(), 
                       bind(pred2d, _1, pItem->text())); 
-    if (it1d == list->end1d() && it2d == list->end2d()) {
-      removeGate(pItem);
+    if (it1d == list->end1d() ) {
+      if ( it2d == list->end2d()) {
+         removeGate(pItem);
+      }
     }
   }
 
