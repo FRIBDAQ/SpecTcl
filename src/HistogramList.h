@@ -24,6 +24,8 @@
 #define HISTOGRAMLIST_H
 
 #include "HistogramBundle.h"
+#include "GateList.h"
+
 #include <QFrame>
 #include <QString>
 
@@ -32,6 +34,7 @@
 
 class TH1;
 class TCutG;
+
 
 namespace SpJs {
     class HistInfo;
@@ -72,6 +75,12 @@ public:
 
     static void addHist(std::unique_ptr<TH1> hist, const SpJs::HistInfo& info);
     static void addHist(std::unique_ptr<HistogramBundle> hist);
+
+    static void clearCuts();
+
+    static void synchronize(const GateList& pList);
+    static void synchronize1d(GateList::iterator1d begin, GateList::iterator1d end);
+    static void synchronize2d(GateList::iterator2d begin, GateList::iterator2d end);
 
 public slots:
 

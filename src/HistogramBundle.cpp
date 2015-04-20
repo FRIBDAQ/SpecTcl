@@ -38,8 +38,8 @@ using namespace std;
 HistogramBundle::HistogramBundle()
     : m_pMutex(),
       m_pHist(nullptr),
-      m_cuts2d(),
       m_cuts1d(),
+      m_cuts2d(),
       m_hInfo()
 {}
 
@@ -47,8 +47,8 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
                                  unique_ptr<TH1> pHist, const SpJs::HistInfo& info)
     : m_pMutex(std::move(pMutex)),
       m_pHist(std::move(pHist)),
-      m_cuts2d(),
       m_cuts1d(),
+      m_cuts2d(),
       m_hInfo(info)
 {}
 

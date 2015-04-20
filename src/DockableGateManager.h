@@ -24,6 +24,7 @@
 #define DOCKABLEGATEMANAGER_H
 
 #include <QDockWidget>
+#include <vector>
 
 class SpectrumViewer;
 class SpecTclInterface;
@@ -34,7 +35,11 @@ namespace Ui {
 class DockableGateManager;
 }
 
+namespace SpJs {
+  class GateInfo;
+}
 
+class QListWidgetItem;
 
 /*! \brief Graphical object that owns all gates 
  *
@@ -59,6 +64,7 @@ public:
 
     /*! Destructor */
     virtual ~DockableGateManager();
+
 
     //////// SLOTS /////////////
 public slots:
@@ -87,6 +93,19 @@ public slots:
     void editSlice(GSlice* pSlice);
 
     void deleteGate();
+
+    /*! Update to list */
+    void onGateListChanged();
+
+public:
+    QListWidgetItem* findItem(const QString& name);
+    void removeGate(QListWidgetItem* pItem);
+    void clearList();
+    std::vector<QListWidgetItem*> getItems() const;
+
+private:
+    void addSliceToList(GSlice* pSlice);
+    void addGateToList(GGate* pGate);
 
 private:
     Ui::DockableGateManager *ui;

@@ -17,8 +17,6 @@ SliceTableItem::SliceTableItem(const QString& text,
 
 SliceTableItem::~SliceTableItem()
 {
-    delete m_pSlice;
-    m_pSlice = nullptr;
 }
 
 

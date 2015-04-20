@@ -11,11 +11,30 @@
 
 using namespace std;
 
-GGate::GGate(const QString& name,
-                   const SpJs::GateInfo2D& info,
-                   QObject* parent)
+MyCutG::MyCutG(const char* name, int n)
+ : TCutG(name, n)
+{
+  auto pSpecials = gROOT->GetListOfSpecials();
+  pSpecials->Remove(pSpecials->FindObject(name));
+}
+
+  MyCutG::MyCutG(const char* name, int n, double *x, double *y) 
+: TCutG(name, n, x, y) 
+{
+  auto pSpecials = gROOT->GetListOfSpecials();
+  pSpecials->Remove(pSpecials->FindObject(name));
+}
+
+MyCutG::~MyCutG()
+{
+}
+
+void MyCutG::Paint(Option_t* opt) {
+  TCutG::Paint(opt);
+}
+
+GGate::GGate( const SpJs::GateInfo2D& info, QObject* parent)
     :
-      m_name(name),
       m_info(),
       m_pCut(new MyCutG("__empty__", 1)),
       QObject(parent)
@@ -24,10 +43,13 @@ GGate::GGate(const QString& name,
     setInfo(info);
 }
 
+GGate::~GGate()
+{
+  cout << "GGate::~GGate() @ " << (void*)this << endl;
+}
 GGate& GGate::operator=(const GGate& rhs)
 {
     if (this != &rhs) {
-        m_name = rhs.m_name;
         setInfo(*rhs.m_info);
 //        int n = rhs.m_pCut->GetN();
 //        m_pCut.reset(new MyCutG("", n, rhs.m_pCut->GetX(), rhs.m_pCut->GetY()));

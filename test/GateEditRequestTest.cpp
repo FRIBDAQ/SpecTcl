@@ -43,8 +43,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(GateEditRequestTest);
 void GateEditRequestTest::fromGGate_0()
 {
     // test construction for a band
-    GGate testCut("cut",
-                  SpJs::Band("cut","xparam", "yparam", {{1, 2}, {2, 3}, {3, 4}}));
+    GGate testCut(SpJs::Band("cut","xparam", "yparam", {{1, 2}, {2, 3}, {3, 4}}));
 
     GlobalSettings::setServerHost("localhost");
     GlobalSettings::setServerPort(1);

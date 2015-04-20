@@ -4,8 +4,11 @@ set(untitled2test_SOURCES
   TestRunner.cpp
   GateEditRequestTest.cpp 
   GateDeleteRequestTest.cpp 
+  GSliceTest.cpp
   GGateTest.cpp
   HistogramListTest.cpp
+  GateListTest.cpp
+  DockableGateManagerTest.cpp
   ${PROGRAM_SOURCES} )
 
 set(untitled2test_HEADERS "")

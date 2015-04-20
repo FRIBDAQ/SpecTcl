@@ -24,26 +24,65 @@
 #define GATELIST_H
 
 #include <QString>
-#include <vector>
+#include <set>
 #include <memory>
-class TCutG;
+
+namespace SpJs
+{
+  class GateInfo;
+  class GateInfo2D;
+}
+
+#include "GGate.h"
+#include "GSlice.h"
 
 class GateList
 {
-public:
-    using iterator = std::vector<std::unique_ptr<TCutG> >::iterator;
+  public:
+    struct Compare1D {
+      bool operator()(const std::unique_ptr<GSlice>& lhs,
+                      const std::unique_ptr<GSlice>& rhs) const;
+    };
+
+    struct Compare2D {
+      bool operator()(const std::unique_ptr<GGate>& lhs,
+                      const std::unique_ptr<GGate>& rhs) const;
+    };
+
+  public:
+    using container1d_type = std::set<std::unique_ptr<GSlice>, Compare1D>;
+    using iterator1d = typename container1d_type::iterator;
+
+    using container2d_type = std::set<std::unique_ptr<GGate>, Compare2D>;
+    using iterator2d = typename container2d_type::iterator;
 
 public:
     GateList();
 
-    void addGate(std::unique_ptr<TCutG> cut);
-    iterator getGate(const QString& name);
+    void synchronize(std::vector<SpJs::GateInfo*> gates);
 
-    iterator begin() { return m_gates.begin(); }
-    iterator end() { return m_gates.end(); }
+    void addCut1D(const SpJs::GateInfo& slice);
+    void addCut1D(std::unique_ptr<GSlice> slice);
 
+    void addCut2D(const SpJs::GateInfo2D& gate);
+    void addCut2D(std::unique_ptr<GGate> gate);
+
+    void removeCut1D(const QString& name);
+    void removeCut2D(const QString& name);
+
+    size_t size() const;
+
+    iterator1d find1D(const QString& name);
+    iterator2d find2D(const QString& name);
+
+    iterator1d begin1d() const { return m_cuts1d.begin(); }
+    iterator1d end1d() const { return m_cuts1d.end(); }
+
+    iterator2d begin2d() const { return m_cuts2d.begin(); }
+    iterator2d end2d() const { return m_cuts2d.end(); }
 private:
-    std::vector<std::unique_ptr<TCutG> > m_gates;
+    container1d_type m_cuts1d;
+    container2d_type m_cuts2d;
 };
 
 #endif // GATELIST_H

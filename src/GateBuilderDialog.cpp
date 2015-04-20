@@ -48,7 +48,7 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
     ui(new Ui::GateBuilderDialog),
     m_canvas(rCanvas),
     m_histPkg(histPkg),
-    m_pEditCut(new GGate("__gate_in_progress__", SpJs::Band())),
+    m_pEditCut(new GGate(SpJs::Band())),
     m_pOldCut(pCut),
     m_radioButtons(this),
     m_matchLast(false)
@@ -133,7 +133,7 @@ void GateBuilderDialog::accept()
     }
 
     if (m_pOldCut == nullptr) {
-        m_pOldCut = new GGate("", SpJs::Band("", "", "", {}));
+        m_pOldCut = new GGate(SpJs::Band("", "", "", {}));
     }
 
     *m_pOldCut = *m_pEditCut;

@@ -10,4 +10,7 @@ GateListItem::GateListItem(const QString& name,
 {
 }
 
+GateListItem::~GateListItem()
+{
+}
 

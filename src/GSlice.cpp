@@ -4,6 +4,8 @@
 #include <TCanvas.h>
 #include <TFrame.h>
 
+#include <GateInfo.h>
+
 GSlice::GSlice(QObject *parent, const QString &name,
                const QString& param,
                double xLow, double xHigh,
@@ -19,6 +21,19 @@ GSlice::GSlice(QObject *parent, const QString &name,
     if (m_name.isEmpty()) {
         m_name = "__slice_in_progress__";
     }
+}
+
+GSlice::GSlice(const SpJs::Slice& info)
+: GSlice(nullptr, 
+          QString::fromStdString(info.getName()), 
+          QString::fromStdString(info.getParameter()), 
+          info.getLowerLimit(), 
+          info.getUpperLimit(), 
+          nullptr)
+{
+  if (m_name.isEmpty()) {
+    m_name = "__slice_in_progress__";
+  }
 }
 
 GSlice::~GSlice()

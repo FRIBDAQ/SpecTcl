@@ -20,18 +20,41 @@
 //    Michigan State University
 //    East Lansing, MI 48824-1321
 
+#ifndef GATELISTREQUESTHANDLER_H
+#define GATELISTREQUESTHANDLER_H
 
-#ifndef COMPRESSION_H
-#define COMPRESSION_H
+#include <GateInfo.h>
 
-class QByteArray;
+#include <QObject>
 
-namespace Compression
+#include <vector>
+#include <memory>
+
+class QNetworkReply;
+class QNetworkAccessManager;
+class HistogramView;
+
+class GateListRequestHandler : public QObject
 {
+    Q_OBJECT
+public:
+    explicit GateListRequestHandler(QObject *parent = 0);
+    
 
-  extern QByteArray uncompress(int nBytesUC, const QByteArray& comprData);
-//  extern QByteArray compress(const QByteArray& uncomprData);
+public slots:
+    void get();
+    void finishedSlot(QNetworkReply* reply);
 
-}
+signals:
+    void parseCompleted(std::vector<SpJs::GateInfo*> gateList);
 
-#endif
+private:
+    std::vector<SpJs::GateInfo*> 
+      deuniquify_vector_contents(std::vector<std::unique_ptr<SpJs::GateInfo>>& vect);
+
+    QNetworkReply*         m_pReply;
+    QNetworkAccessManager* m_pNAM;
+    HistogramView*         m_view;
+};
+
+#endif // GATELISTREQUESTHANDLER_H
