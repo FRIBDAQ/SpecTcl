@@ -1,6 +1,9 @@
 
 #include "QTLine.h"
 
+#include <TFrame.h>
+#include <TPad.h>
+
 #include <ostream>
 
 using namespace std;
@@ -14,7 +17,7 @@ QTLine::QTLine()
     m_lastX2(0),
     m_lastY2(0)
 {
-  SetHorizontal(true);
+  SetVertical(true);
 }
 
 QTLine::QTLine(double x1, double y1, double x2, double y2)
@@ -42,6 +45,10 @@ QTLine& QTLine::operator=(const QTLine& rhs) {
 }
 
 void QTLine::Paint(Option_t* opt) {
+
+  // update the y1 and y2
+  updateYValues();
+
 
   if ( ! m_editable ) {
       // if you cannot edit it, then get rid of changes...
@@ -71,7 +78,20 @@ void QTLine::setEditable(bool enable) {
 
 bool QTLine::isEditable() const {
   return m_editable;
+
 }
+
+void QTLine::updateYValues()
+{
+  auto pFrame = gPad->GetFrame();
+
+  SetY1( pFrame->GetY1() );
+  SetY2( pFrame->GetY2() );
+
+  m_lastY1 = GetY1();
+  m_lastY2 = GetY2();
+}
+
 
 ostream& operator<<(ostream& stream, const QTLine& line)
 {

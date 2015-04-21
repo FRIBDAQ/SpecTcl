@@ -22,6 +22,7 @@ class QTLine : public QObject, virtual public TLine
 
     void setEditable(bool enable);
     bool isEditable() const;
+    void updateYValues();
 
 signals:
     void valuesChanged(double x1, double y1, double x2, double y2);
