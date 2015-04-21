@@ -41,6 +41,14 @@ class MyCutG : public QObject, public TCutG
 signals:
   void modified(std::vector<std::pair<double, double> > points);
 
+  private:
+  std::vector<std::pair<double, double> > marshallData(const double* x, 
+                                                       const double* y, 
+                                                       size_t n);
+
+  private:
+  std::vector<double> m_pXValues;
+  std::vector<double> m_pYValues;
 };
 
 /*! A Graphical Gate
@@ -132,8 +140,9 @@ public:
     void popBackPoint();
 
 
+    void setPoint(int index, double x, double y);
 
-    TCutG* getGraphicObject() { return m_pCut.get(); }
+    MyCutG* getGraphicObject() { return dynamic_cast<MyCutG*>(m_pCut.get()); }
 
     /*! \brief Draw on the current TPad */
     void draw();

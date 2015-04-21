@@ -8,6 +8,9 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
+#include <vector>
+#include <utility>
 
 using namespace std;
 
@@ -30,8 +33,48 @@ MyCutG::~MyCutG()
 }
 
 void MyCutG::Paint(Option_t* opt) {
+
   TCutG::Paint(opt);
+  
+  // check if this has changed... alert others if it has 
+  if ( m_pXValues.size() != GetN() ) {
+
+    emit modified( marshallData( GetX(), GetY(), GetN()) );
+
+  } else if ( ! equal( m_pXValues.begin(), m_pXValues.end(),
+                      GetX() ) ) {
+    emit modified( marshallData( GetX(), GetY(), GetN()) );
+
+  } else if ( ! equal( m_pYValues.begin(), m_pYValues.end(),
+                       GetY() ) ) {
+    emit modified( marshallData( GetX(), GetY(), GetN()) );
+
+  }
+
+  // update the cached values
+  m_pXValues.clear();
+  m_pXValues.insert( m_pXValues.begin(), GetX(), GetX() + GetN() );
+
+  m_pYValues.clear();
+  m_pYValues.insert( m_pYValues.begin(), GetY(), GetY() + GetN() );
 }
+
+vector<pair<double, double> > 
+MyCutG::marshallData( const double* x, const double* y, size_t n)
+{
+  vector<pair<double, double> > result;
+  result.reserve(n);
+
+  for (size_t index=0; index<n; ++index) {
+    result.push_back( make_pair(x[index], y[index]) );
+  }
+
+  return result;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 
 GGate::GGate( const SpJs::GateInfo2D& info, QObject* parent)
     :
@@ -45,15 +88,11 @@ GGate::GGate( const SpJs::GateInfo2D& info, QObject* parent)
 
 GGate::~GGate()
 {
-  cout << "GGate::~GGate() @ " << (void*)this << endl;
 }
 GGate& GGate::operator=(const GGate& rhs)
 {
     if (this != &rhs) {
         setInfo(*rhs.m_info);
-//        int n = rhs.m_pCut->GetN();
-//        m_pCut.reset(new MyCutG("", n, rhs.m_pCut->GetX(), rhs.m_pCut->GetY()));
-
         setParent(rhs.parent());
     }
 
@@ -164,7 +203,7 @@ void GGate::popBackPoint()
 void GGate::draw()
 {
   if (m_pCut) {
-    m_pCut->Draw("same");
+    m_pCut->Draw("same lp");
   } else {
     throw runtime_error("Cannot draw gate because it is a nullptr");
   }
@@ -201,4 +240,9 @@ void GGate::synchronize(GGate::DataSource targ)
 
         m_info->setPoints(points);
     }
+}
+
+void GGate::setPoint(int index, double x, double y)
+{
+  m_pCut->SetPoint(index, x, y);
 }

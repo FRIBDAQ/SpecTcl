@@ -51,7 +51,9 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
     m_pEditCut(new GGate(SpJs::Band())),
     m_pOldCut(pCut),
     m_radioButtons(this),
-    m_matchLast(false)
+    m_matchLast(false),
+    m_isMoveEvent(false),
+    m_lastMousePressPos()
 {
     ui->setupUi(this);
     ui->gateNameEdit->setPlaceholderText("Enter name of gate");
@@ -98,11 +100,24 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
     }
 
     m_canvas.cd();
+
+    m_pEditCut->setEditable(true);
+
+    m_pEditCut->getGraphicObject()->SetMarkerStyle(20);
     m_pEditCut->draw();
 
+    m_canvas.Modified();
+    m_canvas.Update();
+
     // Connect up the various components
-    connect(&m_canvas, SIGNAL(PadClicked(TPad*)), 
-            this, SLOT(newPoint(TPad*)));
+    connect(&m_canvas, SIGNAL(PadMoveEvent(TPad*)), 
+            this, SLOT(gateMoved(TPad*)));
+
+    connect(&m_canvas, SIGNAL(mousePressed(TPad*)), 
+            this, SLOT(onMousePress(TPad*)));
+
+    connect(&m_canvas, SIGNAL(mouseReleased(TPad*)), 
+            this, SLOT(onMouseRelease(TPad*)));
 
     connect(ui->gateNameEdit, SIGNAL(textChanged(const QString&)),
             this, SLOT(onNameChanged(const QString&)));
@@ -110,15 +125,19 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
     connect(&m_radioButtons, SIGNAL(buttonClicked(int)), 
             this, SLOT(onTypeChanged(int)));
 
+    connect(m_pEditCut->getGraphicObject(),
+            SIGNAL(modified(std::vector<std::pair<double, double> >)),
+            this,
+            SLOT(onValuesChanged(std::vector<std::pair<double, double> >)));
+
+    connect(ui->dataTable, SIGNAL(cellChanged(int,int)),
+            this, SLOT(valueChanged(int, int)));
 }
 
 
 GateBuilderDialog::~GateBuilderDialog()
 {
-    disconnect(&m_canvas, SIGNAL(PadClicked(TPad*)), 
-               this, SLOT(newPoint(TPad*)));
-
-    delete ui;
+  delete ui;
 }
 
 
@@ -136,8 +155,12 @@ void GateBuilderDialog::accept()
         m_pOldCut = new GGate(SpJs::Band("", "", "", {}));
     }
 
+    // we have edited the MyCutG but not the SpJs::GateInfo2D object...
+    // resync those.
+    m_pEditCut->synchronize(GGate::GUI);
+
     *m_pOldCut = *m_pEditCut;
-    m_histPkg.addCut2D(m_pOldCut);
+//    m_histPkg.addCut2D(m_pOldCut);
 
     // this will (or should) transfer ownership to the gate manager
     emit completed(m_pOldCut);
@@ -166,10 +189,42 @@ void GateBuilderDialog::setCutName(const QString& name)
     ui->gateNameEdit->setText(name);
 }
 
+void GateBuilderDialog::onMousePress(TPad *pad) 
+{
+  m_lastMousePressPos = make_pair(pad->GetEventX(), pad->GetEventY());
+}
+
+void GateBuilderDialog::onMouseRelease(TPad *pad) {
+  int pXNew = pad->GetEventX(); 
+  int pYNew = pad->GetEventY(); 
+
+  int deltaX = pXNew - m_lastMousePressPos.first;
+  int deltaY = pYNew - m_lastMousePressPos.second;
+
+  cout << "dX=" << deltaX << "\tdY=" << deltaY << endl;
+
+  if ( (deltaX > -2 || deltaX < 2) || (deltaY > -2 || deltaY < 2) ) {
+    newPoint(pad);
+  } else {
+    // do nothing because the 2d cut will tell us its updated position
+  }
+
+}
 
 /// Handle new click
 void GateBuilderDialog::newPoint(TPad *pad)
 {
+  if ( m_isMoveEvent ) {
+    m_isMoveEvent = false;
+    return;
+  } else {
+    cout << "click event " << endl;
+  }
+
+  // disconnect cell changed signal because we are actually changing it
+  disconnect(ui->dataTable, SIGNAL(cellChanged(int,int)),
+          this, SLOT(valueChanged(int, int)));
+
     Q_ASSERT(pad!=nullptr);
 
     // convert between pixels and actual coordinates for cut
@@ -194,12 +249,20 @@ void GateBuilderDialog::newPoint(TPad *pad)
 
     m_canvas.Modified();
     m_canvas.Update();
+
+    // reconnect the cellChanged signal..
+    connect(ui->dataTable, SIGNAL(cellChanged(int,int)),
+            this, SLOT(valueChanged(int, int)));
 }
+
+
 
 void GateBuilderDialog::appendPointToCut(double x, double y)
 {
     m_pEditCut->appendPoint(x, y);
 }
+
+
 
 void GateBuilderDialog::appendPointToTable(double x, double y)
 {
@@ -213,14 +276,35 @@ void GateBuilderDialog::appendPointToTable(double x, double y)
 
 }
 
+
+
+void GateBuilderDialog::clearTable()
+{
+  while ( ui->dataTable->rowCount() > 0 ) {
+    ui->dataTable->removeRow(0);
+  }
+}
+
+
+
 void GateBuilderDialog::fillTableWithData(GGate& rCut)
 {
     auto points = rCut.getPoints();
 
-    for (auto point : points) {
-        appendPointToTable(point.first, point.second);
-    }
+    fillTableWithData( points );
 }
+
+
+
+void
+GateBuilderDialog::fillTableWithData(const vector<pair<double, double> >& points)
+{
+  for (auto& point : points) {
+      appendPointToTable(point.first, point.second);
+  }
+}
+
+
 
 void GateBuilderDialog::onNameChanged(const QString &name)
 {
@@ -229,6 +313,8 @@ void GateBuilderDialog::onNameChanged(const QString &name)
     ui->gateNameEdit->setText(name);
     m_pEditCut->setName(name);
 }
+
+
 
 void GateBuilderDialog::onTypeChanged(int id)
 {
@@ -252,6 +338,8 @@ void GateBuilderDialog::onTypeChanged(int id)
     m_canvas.Modified();
     m_canvas.Update();
 }
+
+
 
 void GateBuilderDialog::ensureLastPointDiffersFromFirst()
 {
@@ -279,6 +367,8 @@ void GateBuilderDialog::ensureLastPointDiffersFromFirst()
 
 }
 
+
+
 void GateBuilderDialog::ensureLastPointMatchesFirst()
 {
     int nrows = ui->dataTable->rowCount();
@@ -305,4 +395,45 @@ void GateBuilderDialog::hideOldCut(GGate& gate)
 {
     auto pList = m_canvas.getCanvas()->GetListOfPrimitives();
     pList->Remove(gate.getGraphicObject());
+}
+
+
+
+void GateBuilderDialog::gateMoved(TPad* pad) 
+{
+  m_isMoveEvent = true;
+  cout << "Move event " << endl;
+}
+
+
+
+void GateBuilderDialog::onValuesChanged(vector<pair<double, double> > points)
+{
+  cout << "onValuesChanged" << endl;
+
+  disconnect(ui->dataTable, SIGNAL(cellChanged(int,int)),
+          this, SLOT(valueChanged(int, int)));
+
+  clearTable();
+  fillTableWithData(points);
+
+  connect(ui->dataTable, SIGNAL(cellChanged(int,int)),
+          this, SLOT(valueChanged(int, int)));
+}
+
+
+
+void GateBuilderDialog::valueChanged(int row, int col)
+{
+  cout << "changed (" << row << ", " << col << ")" << endl;
+  auto pItemX = ui->dataTable->item(row, 0);
+  auto pItemY = ui->dataTable->item(row, 1);
+
+  double x = pItemX->text().toDouble();
+  double y = pItemY->text().toDouble();
+
+  m_pEditCut->setPoint(row, x, y);
+
+  m_canvas.Modified();
+  m_canvas.Update();
 }

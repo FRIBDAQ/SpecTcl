@@ -31,7 +31,8 @@ set(untitled2_SOURCES
   GateEditRequest.cpp
   GateDeleteRequest.cpp
   CommonResponseHandler.cpp
-  GateListRequestHandler.cpp)
+  GateListRequestHandler.cpp
+  QTLine.cpp)
 
 set(untitled2_HEADERS 
   QRootCanvas.h 
@@ -66,7 +67,8 @@ set(untitled2_HEADERS
   GateDeleteRequest.h
   CommonResponseHandler.h
   GateListRequestHandler.h
-  Utility.h)
+  Utility.h
+  QTLine.h)
 
 set(untitled2_FORMS
   mainwindow.ui 

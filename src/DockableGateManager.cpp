@@ -178,6 +178,8 @@ void DockableGateManager::registerGate(GGate* pCut)
 {
     addGateToList(pCut);
 
+    pCut->setEditable(false);
+
     if (m_pSpecTcl) {
         m_pSpecTcl->addGate(*pCut);
         m_pSpecTcl->enableGatePolling(true);
@@ -214,6 +216,8 @@ void DockableGateManager::registerSlice(GSlice *pSlice)
 {
     addSliceToList(pSlice);
 
+    pSlice->setEditable(false);
+
     if (m_pSpecTcl) {
         m_pSpecTcl->addGate(*pSlice);
         m_pSpecTcl->enableGatePolling(true);
@@ -229,6 +233,8 @@ void DockableGateManager::editGate(GGate* pCut)
         m_pSpecTcl->editGate(*pCut);
         m_pSpecTcl->enableGatePolling(true);
     }
+
+    pCut->setEditable(false);
 
     auto histPkg = m_view.getCurrentHist();
     if (histPkg) {
@@ -246,6 +252,8 @@ void DockableGateManager::editSlice(GSlice *pSlice)
         m_pSpecTcl->enableGatePolling(true);
     }
 
+    pSlice->setEditable(false);
+
     auto histPkg = m_view.getCurrentHist();
     if (histPkg) {
       histPkg->draw();
@@ -256,8 +264,7 @@ void DockableGateManager::deleteGate()
 {
   auto selected = ui->gateList->selectedItems();
   for ( auto pItem : selected ) {
-    // tell SpecTcl to delete the gate
-    cout << pItem->text().toStdString() << " @ " << (void*)pItem << endl;
+
     if (m_pSpecTcl) {
       m_pSpecTcl->deleteGate(pItem->text());
     }
@@ -284,7 +291,6 @@ void DockableGateManager::clearList()
 void DockableGateManager::onGateListChanged()
 {
   using namespace std::placeholders;
-  cout << "Update gates!" << endl;
 
   auto list = m_pSpecTcl->getGateList();
 
@@ -319,8 +325,6 @@ void DockableGateManager::onGateListChanged()
   auto it_1d = list->begin1d();
   auto itend_1d = list->end1d();
   while ( it_1d != itend_1d ) {
-    cout << (void*) it_1d->get() << endl;
-
     int row = 0;
     auto nRows = ui->gateList->count();
     while ( row < nRows ) {
@@ -341,8 +345,6 @@ void DockableGateManager::onGateListChanged()
   auto it_2d = list->begin2d();
   auto itend_2d = list->end2d();
   while ( it_2d != itend_2d ) {
-    cout << (void*) it_2d->get() << endl;
-
     int row = 0;
     auto nRows = ui->gateList->count();
     while ( row < nRows ) {

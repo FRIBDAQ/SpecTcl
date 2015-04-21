@@ -54,15 +54,11 @@ HistogramBundle::HistogramBundle(unique_ptr<QMutex> pMutex,
 
 void HistogramBundle::addCut1D(GSlice* pSlice) {
     QMutexLocker lock(m_pMutex.get());
-    cout << "Adding gate " << pSlice->getName().toStdString() 
-         << " (@" << (void*)pSlice << ") to " << m_hInfo.s_name << endl;
     m_cuts1d.insert(make_pair(pSlice->getName(), pSlice)) ;
 }
 
 void HistogramBundle::addCut2D(GGate* pCut) {
     QMutexLocker lock(m_pMutex.get());
-    cout << "Adding gate " << pCut->getName().toStdString() 
-      << " (tcutg @" << (void*)pCut->getGraphicObject() << ") to " << m_hInfo.s_name << endl;
     m_cuts2d.insert(make_pair(pCut->getName(), pCut)) ;
 }
 

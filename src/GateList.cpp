@@ -134,6 +134,7 @@ void GateList::addCut1D(const SpJs::GateInfo& slice)
 
 void GateList::addCut1D(unique_ptr<GSlice> slice)
 {
+  slice->setEditable(false);
   m_cuts1d.insert( move(slice) );
 }
 
@@ -146,6 +147,7 @@ void GateList::addCut2D(const SpJs::GateInfo2D& gate)
 
 void GateList::addCut2D(unique_ptr<GGate> gate)
 {
+  gate->setEditable(false);
   m_cuts2d.insert( move(gate) );
 }
 

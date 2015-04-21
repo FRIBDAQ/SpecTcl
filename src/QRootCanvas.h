@@ -108,8 +108,11 @@ class QRootCanvas : public QWidget {
         * via clicking the mid-mouse button (M. al-Turany) */
       void              SelectedPadChanged(TPad*);
 
+      void              PadMoveEvent(TPad* );
+
       /** signal emitted when mouse clicks on pad  */
-      void              PadClicked(TPad*);
+      void              mousePressed(TPad*);
+      void              mouseReleased(TPad*);
 
       /** signal emitted when user produce left mouse doubleclick on pad  */
       void              PadDoubleClicked(TPad*);

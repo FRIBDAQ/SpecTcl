@@ -104,24 +104,27 @@ void SpectrumViewer::update(HistogramBundle* gHist)
     // not really good practice... could block main thread
     // should fix later
     m_currentHist = gHist;
-    if ( ! m_currentHist ) return;
-    if ( ! m_currentHist->hist() ) return;
+    if ( ! m_currentHist ) {
+      return;
+    } else {
+      if ( ! m_currentHist->hist() ) return;
 
-    // The draw operation can throw, so we need to protect ourselves
-    // against that...
-    try {
+      // The draw operation can throw, so we need to protect ourselves
+      // against that...
+      try {
 
-      if (m_currentHist->hist()->InheritsFrom(TH2::Class())) {
-        m_currentHist->draw("colz");
-      } else {
-        m_currentHist->draw();
+        if (m_currentHist->hist()->InheritsFrom(TH2::Class())) {
+          m_currentHist->draw("colz");
+        } else {
+          m_currentHist->draw();
+        }
+
+      } catch (const exception& exc) {
+        QMessageBox::warning(nullptr, "Drawing error", exc.what());
       }
 
-    } catch (const exception& exc) {
-      QMessageBox::warning(nullptr, "Drawing error", exc.what());
+      m_canvas->Update();
     }
-
-    m_canvas->Update();
   
 }
 

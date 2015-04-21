@@ -51,7 +51,6 @@ void GateListRequestHandler::get()
     QString urlStr("http://%1:%2/spectcl/gate/list");
     urlStr = urlStr.arg(host).arg(port);
 
-    cout << urlStr.toStdString() << endl;
     QUrl url(urlStr);
 
     // this "should" be very fast so allow it to block

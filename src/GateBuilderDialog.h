@@ -24,11 +24,16 @@
 #define GATEBUILDERDIALOG_H
 
 #include "HistogramBundle.h"
+
 #include <QDialog>
 #include <QString>
-#include <TCutG.h>
-#include <memory>
 #include <QButtonGroup>
+
+#include <TCutG.h>
+
+#include <memory>
+#include <vector>
+#include <utility>
 
 class TPad;
 class GGate;
@@ -93,8 +98,11 @@ public slots:
     /*!  If needed, redraws original cut */
     virtual void reject();
 
+    virtual void onMousePress(TPad* pad);
+    virtual void onMouseRelease(TPad* pad);
+
     /*! Slot for receiving click events */
-    void newPoint(TPad* pad);
+    void gateMoved(TPad* pad);
 
     /*! Checks for state of text and update accept button state */
     void onNameChanged(const QString& name);
@@ -102,15 +110,21 @@ public slots:
     /*! Slot for gate type radio buttons */
     void onTypeChanged(int type);
 
+    void onValuesChanged(std::vector<std::pair<double, double> > points);
+    void valueChanged(int row, int col);
+
 signals:
     /*! Signal emitted when changes accepted */
     void completed(GGate* pCut);
 
 private:
+    void newPoint(TPad* pad);
+    void clearTable();
     void hideOldCut(GGate& gate);
     void appendPointToTable(double x, double y);
     void appendPointToCut(double x, double y);
     void fillTableWithData(GGate& rCut);
+    void fillTableWithData(const std::vector<std::pair<double, double> >& points);
 
     // utility methods for handling whether cut is closed or open
     void ensureLastPointDiffersFromFirst();
@@ -127,6 +141,9 @@ private:
     GGate* m_pOldCut;                   //!< "original" cut
     QButtonGroup m_radioButtons;
     bool m_matchLast;
+    bool m_isMoveEvent;
+
+    std::pair<int, int> m_lastMousePressPos;
 };
 
 #endif // GATEBUILDERDIALOG_H

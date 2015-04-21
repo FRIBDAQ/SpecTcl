@@ -5,7 +5,7 @@
 #include <QString>
 #include <QMetaType>
 
-class TLine;
+class QTLine;
 class TFrame;
 class QRootCanvas;
 
@@ -23,6 +23,9 @@ namespace SpJs
  */
 class GSlice : public QObject
 {
+public:
+  enum DataSource { SpecTcl, GUI };
+
     Q_OBJECT
 public:
     explicit GSlice(const SpJs::Slice& info);
@@ -50,8 +53,8 @@ public:
     double getXHigh() const;
 
     // Get the graphical lines
-    TLine* getXLowLine() { return m_pLow; }
-    TLine* getXHighLine() { return m_pHigh; }
+    const QTLine* getXLowLine() const { return m_pLow; }
+    const QTLine* getXHighLine() const { return m_pHigh; }
 
     QString getName() const { return m_name; }
     void setName(const QString& name) { m_name = name; }
@@ -74,10 +77,13 @@ public slots:
 
     void nameChanged(const QString& name);
 
+    void setEditable(bool enable);
+    bool isEditable() const;
+
 private:
     QString m_name;
-    TLine* m_pLow;
-    TLine* m_pHigh;
+    QTLine* m_pLow;
+    QTLine* m_pHigh;
     QRootCanvas* m_pCanvas;
     QString m_parameter;
 };

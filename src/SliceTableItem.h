@@ -7,6 +7,8 @@
 
 class QString;
 
+class QTLine;
+
 
 class SliceTableItem : public QListWidgetItem
 {
@@ -19,11 +21,11 @@ public:
                             GSlice* pSlice = nullptr);
     virtual ~SliceTableItem();
 
-    TLine* getLowLine() {
+    const QTLine* getLowLine() const {
         return m_pSlice->getXLowLine();
     }
 
-    TLine* getHighLine() {
+    const QTLine* getHighLine() const {
 
         return m_pSlice->getXHighLine();
     }

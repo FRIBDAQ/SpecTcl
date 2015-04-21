@@ -137,10 +137,12 @@ void QRootCanvas::mouseMoveEvent(QMouseEvent *e)
 {
   //TGo4LockGuard threadlock(0,true);
   if (fCanvas!=0) {
-     if (e->buttons() & Qt::LeftButton)
+     if (e->buttons() & Qt::LeftButton) {
         fCanvas->HandleInput(kButton1Motion, e->x(), e->y());
-     else
+        emit PadMoveEvent(fCanvas);
+     } else {
         fCanvas->HandleInput(kMouseMotion, e->x(), e->y());
+     }
   }
 
   if(fxShowEventStatus) {
@@ -176,7 +178,7 @@ void QRootCanvas::mousePressEvent( QMouseEvent *e )
    switch(e->button()) {
      case Qt::LeftButton :
         fCanvas->HandleInput(kButton1Down, e->x(), e->y());
-        emit PadClicked(pad);
+        emit mousePressed(pad);
         break;
      case Qt::RightButton : {
         TString selectedOpt("");
@@ -256,6 +258,7 @@ void QRootCanvas::mouseReleaseEvent( QMouseEvent *e )
    switch(e->button()) {
       case Qt::LeftButton :
          fCanvas->HandleInput(kButton1Up, e->x(), e->y());
+        emit mouseReleased(fCanvas);
          break;
       case Qt::RightButton :
          fCanvas->HandleInput(kButton3Up, e->x(), e->y());

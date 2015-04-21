@@ -1,6 +1,6 @@
 #include "GSlice.h"
 #include "QRootCanvas.h"
-#include <TLine.h>
+#include "QTLine.h"
 #include <TCanvas.h>
 #include <TFrame.h>
 
@@ -13,8 +13,8 @@ GSlice::GSlice(QObject *parent, const QString &name,
     :
     QObject(parent),
     m_name(name),
-    m_pLow(new TLine(xLow, 0, xLow, 1)),
-    m_pHigh(new TLine(xHigh, 0, xHigh, 1)),
+    m_pLow(new QTLine(xLow, 0, xLow, 1)),
+    m_pHigh(new QTLine(xHigh, 0, xHigh, 1)),
     m_pCanvas(pCanvas),
     m_parameter(param)
 {
@@ -49,11 +49,13 @@ GSlice::~GSlice()
 GSlice& GSlice::operator=(const GSlice& rhs)
 {
     if (this != &rhs) {
-        auto pTemp = new TLine(*rhs.m_pLow);
+        auto pTemp = new QTLine();
+        *pTemp = *(rhs.getXLowLine());
         delete m_pLow;
         m_pLow = pTemp;
 
-        pTemp = new TLine(*rhs.m_pHigh);
+        pTemp = new QTLine();
+        *pTemp = *(rhs.getXHighLine());
         delete m_pHigh;
         m_pHigh = pTemp;
 
@@ -136,4 +138,15 @@ void GSlice::frameChanged(TFrame* pFrame)
 void GSlice::nameChanged(const QString &name)
 {
     m_name = name;
+}
+
+void GSlice::setEditable(bool enable) 
+{
+  m_pLow->setEditable(enable);
+  m_pHigh->setEditable(enable);
+}
+
+bool GSlice::isEditable() const 
+{
+  return (m_pLow->isEditable() && m_pHigh->isEditable());
 }

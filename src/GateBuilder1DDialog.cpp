@@ -3,6 +3,7 @@
 #include "QRootCanvas.h"
 #include "HistogramBundle.h"
 #include "GSlice.h"
+#include "QTLine.h"
 
 #include <QMessageBox>
 #include <QPushButton>
@@ -13,7 +14,8 @@
 #include <TFrame.h>
 #include <TH1.h>
 #include <TList.h>
-#include <TLine.h>
+
+using namespace std;
 
 GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
                                          HistogramBundle& hist,
@@ -70,18 +72,36 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
         m_editSlice = GSlice(0, "__cut_in_progress__", paramName, xMin, xMax, &m_canvas);
         onNameChanged("");
     }
+
+    // make sure we can edit the slice
+    m_editSlice.setEditable(true);
     m_editSlice.draw(&m_canvas);
 
+    m_canvas.Modified();
+    m_canvas.Update();
+
     // Connect
-    connect(&m_canvas, SIGNAL(PadClicked(TPad*)),
-            this, SLOT(onClick(TPad*)));
+    connect(&m_canvas, SIGNAL(mousePressed(TPad*)),
+            this, SLOT(onMousePress(TPad*)));
+
+    connect(&m_canvas, SIGNAL(mouseReleased(TPad*)),
+            this, SLOT(onMouseRelease(TPad*)));
+
     connect(ui->gateNameEdit, SIGNAL(textChanged(QString)),
             this, SLOT(onNameChanged(QString)));
 
     connect(ui->lowEdit, SIGNAL(editingFinished()), 
             this, SLOT(lowEditChanged()));
+
     connect(ui->highEdit, SIGNAL(editingFinished()), 
             this, SLOT(highEditChanged()));
+
+    connect(m_editSlice.getXLowLine(), SIGNAL(valuesChanged(double,double,double,double)),
+            this, SLOT(onLowChanged(double,double,double,double)));
+
+    connect(m_editSlice.getXHighLine(), SIGNAL(valuesChanged(double,double,double,double)),
+            this, SLOT(onHighChanged(double,double,double,double)));
+
 }
 
 
@@ -109,9 +129,12 @@ void GateBuilder1DDialog::accept()
     }
 
     // store new values
-   *m_pOldSlice = m_editSlice;
+    *m_pOldSlice = m_editSlice;
 
-   // m_histPkg.addCut1D(m_pOldSlice);
+    cout << *(m_pOldSlice->getXLowLine()) << endl;
+    cout << *(m_pOldSlice->getXHighLine()) << endl;
+    cout << *(m_editSlice.getXLowLine()) << endl;
+    cout << *(m_editSlice.getXHighLine()) << endl;
 
     // send the slice to the outside world!
     emit completed( m_pOldSlice );
@@ -128,12 +151,34 @@ void GateBuilder1DDialog::reject()
     // redraw the old changes
     if ( m_pOldSlice != nullptr) {
         m_pOldSlice->draw(&m_canvas);
+        m_canvas.Modified();
+        m_canvas.Update();
     }
 
     // Call the parent's reject() so it accepts as it normally does.
     QDialog::reject();
 }
 
+
+void GateBuilder1DDialog::onMousePress(TPad *pad)
+{
+  m_lastMousePressPos = make_pair(pad->GetEventX(), pad->GetEventY());
+}
+
+void GateBuilder1DDialog::onMouseRelease(TPad *pad)
+{
+  int newXPos = pad->GetEventX();
+  int newYPos = pad->GetEventY();
+
+  int deltaX = newXPos - m_lastMousePressPos.first;
+  int deltaY = newYPos - m_lastMousePressPos.second;
+
+  // only treat this as a click if the user did not move the mouse with the button
+  // held down
+  if ( ( deltaX > -2 && deltaX < 2 ) && ( deltaY > -2 && deltaY < 2 ) ) {
+      onClick(pad);
+  }
+}
 
 
 // Handle user's click
@@ -197,8 +242,8 @@ bool GateBuilder1DDialog::focusIsLow()
 void GateBuilder1DDialog::removeOldLines(GSlice &rSlice)
 {
     auto pList = m_canvas.getCanvas()->GetListOfPrimitives();
-    pList->Remove(rSlice.getXLowLine());
-    pList->Remove(rSlice.getXHighLine());
+    pList->Remove( const_cast<QTLine*>(rSlice.getXLowLine()) );
+    pList->Remove( const_cast<QTLine*>(rSlice.getXHighLine()) );
 }
 
 void GateBuilder1DDialog::onNameChanged(QString name)
@@ -225,4 +270,16 @@ void GateBuilder1DDialog::highEditChanged()
 
     m_canvas.Modified();
     m_canvas.Update();
+}
+
+void GateBuilder1DDialog::onLowChanged(double x1, double y1,
+                                          double x2, double y2)
+{
+  updateLow(x1);
+}
+
+void GateBuilder1DDialog::onHighChanged(double x1, double y1,
+                                        double x2, double y2)
+{
+  updateHigh(x1);
 }

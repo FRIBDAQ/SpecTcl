@@ -34,7 +34,6 @@ class GSliceTest : public CppUnit::TestFixture
 
   protected:
     void construct_0();
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GSliceTest);

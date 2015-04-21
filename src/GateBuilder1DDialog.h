@@ -4,6 +4,8 @@
 #include "GSlice.h"
 #include <QDialog>
 
+#include <utility>
+
 class QRootCanvas;
 class HistogramBundle;
 
@@ -48,12 +50,16 @@ signals:
 public slots:
     virtual void accept();
     virtual void reject();
+    virtual void onMousePress(TPad* pad);
+    virtual void onMouseRelease(TPad* pad);
     virtual void onClick(TPad* pad);
 
     /*! Set the name and also update the accept button */
     void onNameChanged(QString name);
     void lowEditChanged();
     void highEditChanged();
+    void onLowChanged(double x1, double y1, double x2, double y2);
+    void onHighChanged(double x1, double y1, double x2, double y2);
 
 private:
 
@@ -80,5 +86,6 @@ private:
     GSlice* m_pOldSlice;
     QLineEdit* m_editFocus;
     QValidator* m_editValidator;
+    std::pair<int, int> m_lastMousePressPos;
 };
 #endif // GATEBUILDER1DDIALOG_H
