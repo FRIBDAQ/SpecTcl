@@ -317,7 +317,11 @@ void GateBuilderDialog::onNameChanged(const QString &name)
 
 
 void GateBuilderDialog::onTypeChanged(int id)
-{
+{  
+  // disconnect cell changed signal because we are actually changing it
+  disconnect(ui->dataTable, SIGNAL(cellChanged(int,int)),
+          this, SLOT(valueChanged(int, int)));
+
     SpJs::GateType type;
     if (id==0) {
         type = SpJs::BandGate;
@@ -337,6 +341,10 @@ void GateBuilderDialog::onTypeChanged(int id)
 
     m_canvas.Modified();
     m_canvas.Update();
+
+    // disconnect cell changed signal because we are actually changing it
+    connect(ui->dataTable, SIGNAL(cellChanged(int,int)),
+              this, SLOT(valueChanged(int, int)));
 }
 
 
@@ -419,8 +427,8 @@ void GateBuilderDialog::onValuesChanged(vector<pair<double, double> > points)
 
   connect(ui->dataTable, SIGNAL(cellChanged(int,int)),
           this, SLOT(valueChanged(int, int)));
-}
 
+}
 
 
 void GateBuilderDialog::valueChanged(int row, int col)
