@@ -1,6 +1,3 @@
-# libBufferAnalysis.la - Old style nscldaq 8.x and earlier only.
-# libAnalysis.la       - Analysis framework for 8.x and earlier or 10.x and later
-
 lib_LTLIBRARIES = libBufferAnalysis.la
 
 libBufferAnalysis_la_SOURCES = CBufferCallbackList.cpp \
