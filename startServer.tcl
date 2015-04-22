@@ -101,7 +101,7 @@ Config SSL_CIPHERS ""
 # is created and logged per invocation of the server
 # If Auth is defined (even if empty, it is considered authoritative and
 # no default passwords are generated.
-#Config Auth {}
+Config Auth {}
 
 # Default password file - used if .htaccess doesn't specify AuthUserFile
 # this defaults to the authentication array authdefault()
