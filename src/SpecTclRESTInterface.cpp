@@ -17,6 +17,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 SpecTclRESTInterface::SpecTclRESTInterface()
     : SpecTclInterface(),
     m_pGateList(new GateList),
@@ -121,3 +124,6 @@ void SpecTclRESTInterface::enableGatePolling(bool enable)
   }
 
 }
+
+} // end of namespace
+

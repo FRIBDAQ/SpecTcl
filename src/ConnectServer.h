@@ -38,6 +38,10 @@
 
 #include <QDialog>
 
+
+namespace Viewer
+{
+
 // forward declare
 namespace Ui {
     class ConnectDialog;
@@ -57,5 +61,6 @@ private:
     Ui::ConnectDialog* ui;
 };
 
+} // end of namespace
 
 #endif

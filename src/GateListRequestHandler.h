@@ -32,6 +32,10 @@
 
 class QNetworkReply;
 class QNetworkAccessManager;
+
+namespace Viewer
+{
+
 class HistogramView;
 
 class GateListRequestHandler : public QObject
@@ -56,5 +60,7 @@ private:
     QNetworkAccessManager* m_pNAM;
     HistogramView*         m_view;
 };
+
+} // end of namespace
 
 #endif // GATELISTREQUESTHANDLER_H

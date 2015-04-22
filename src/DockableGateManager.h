@@ -31,15 +31,21 @@ class SpecTclInterface;
 class GGate;
 class GSlice;
 
-namespace Ui {
-class DockableGateManager;
-}
-
 namespace SpJs {
   class GateInfo;
 }
 
 class QListWidgetItem;
+
+
+namespace Viewer
+{
+
+namespace Ui {
+class DockableGateManager;
+}
+
+
 
 /*! \brief Graphical object that owns all gates 
  *
@@ -112,5 +118,7 @@ private:
     const SpectrumViewer& m_view;
     SpecTclInterface* m_pSpecTcl;
 };
+
+} // end of namespace
 
 #endif // DOCKABLEGATEBUILDER_H

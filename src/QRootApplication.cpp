@@ -62,6 +62,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 #include <X11/Xlib.h>
 
+namespace Viewer
+{
+
 static int qt_x11_errhandler( Display *dpy, XErrorEvent *err )
 {
   // special for modality usage: XGetWindowProperty + XQueryTree()
@@ -179,3 +182,5 @@ bool QRootApplication::IsRootCanvasMenuEnabled()
 {
    return fRootCanvasMenusEnabled;
 }
+
+} // end of namespace

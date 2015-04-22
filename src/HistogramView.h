@@ -30,12 +30,16 @@
 #include <vector>
 
 class TH1;
-class ListRequestHandler;
-class GuardedHist;
 
 namespace Ui {
 class HistogramView;
 }
+
+namespace Viewer 
+{
+
+class ListRequestHandler;
+class GuardedHist;
 
 /*! Graphical list of histograms
  */
@@ -63,5 +67,7 @@ private:
     Ui::HistogramView *ui;
     ListRequestHandler* m_req;
 };
+
+} // end of namespace
 
 #endif // HISTOGRAMVIEW_H

@@ -36,18 +36,24 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 #include "TGo4CreateNewHistogram.h"
 
-
 #include "GlobalSettings.h"
 #include "HistogramList.h"
 #include "ParameterCmdParser.h"
 #include "ParameterInfo.h"
+
 #include <QtNetwork>
 #include <QMessageBox>
 #include <QFile>
+
 #include <json/json.h>
+
 #include <stdexcept>
 #include <iostream>
 #include <memory>
+
+namespace Viewer
+{
+
 
 TGo4CreateNewHistogram::TGo4CreateNewHistogram( QWidget* parent)
 : QDialog( parent)
@@ -217,3 +223,5 @@ void TGo4CreateNewHistogram::updateYParamData(int paramIndex)
     Ymax->setText(QString("%1").arg(QString::number(iter->s_high,'f',2)));
 
 }
+
+} // end of namespace

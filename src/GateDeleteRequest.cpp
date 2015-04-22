@@ -7,6 +7,9 @@
 
 #include <iostream>
 
+namespace Viewer
+{
+
 GateDeleteRequest::GateDeleteRequest(const QString& name) 
  : m_reqStr()
 {
@@ -38,3 +41,5 @@ QUrl GateDeleteRequest::toUrl()
 {
     return QUrl(m_reqStr);
 }
+
+} // end of namespace

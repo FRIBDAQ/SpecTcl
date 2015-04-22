@@ -77,6 +77,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <cstring>
 #include <QFrame>
 
+namespace Viewer
+{
 
 QRootCanvas::QRootCanvas(QWidget *parent) :
    QWidget(parent),
@@ -968,3 +970,5 @@ void QRootCanvas::executeMenu(int id)
    delete fMenuMethods;
    fMenuMethods = 0;
 }
+
+} // end of namespace

@@ -45,6 +45,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 using namespace std;
 
+namespace Viewer
+{
+
 DockableGateManager::DockableGateManager(const SpectrumViewer& viewer,
                                          SpecTclInterface* pSpecTcl,
                                          QWidget *parent) :
@@ -395,3 +398,5 @@ vector<QListWidgetItem*> DockableGateManager::getItems() const
 
   return items;
 }
+
+} // end of namespace

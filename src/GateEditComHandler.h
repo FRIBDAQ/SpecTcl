@@ -9,6 +9,9 @@ class QString;
 class QNetworkReply;
 class QUrl;
 
+namespace Viewer
+{
+
 class GateEditComHandler : public QObject
 {
     Q_OBJECT
@@ -33,4 +36,7 @@ private:
     std::unique_ptr<QNetworkAccessManager> m_pNAM;
 };
 
+} // end of namespace
+
 #endif // GATEEDITCOMHANDLER_H
+

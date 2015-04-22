@@ -8,6 +8,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 QTLine::QTLine()
   : QObject(),
     TLine(),
@@ -104,3 +107,5 @@ ostream& operator<<(ostream& stream, const QTLine& line)
 
   return stream;
 }
+
+} // end of namespace

@@ -67,6 +67,9 @@
 class QTimer;
 class TTimer;
 
+namespace Viewer
+{
+
 class QRootApplication : public QApplication {
    Q_OBJECT
 
@@ -97,4 +100,5 @@ class QRootApplication : public QApplication {
      static bool fRootCanvasMenusEnabled;
 };
 
+} // end of namespace
 #endif

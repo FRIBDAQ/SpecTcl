@@ -24,15 +24,17 @@
 #ifndef GLOBALENUM_H
 #define GLOBALENUM_H
 
-namespace Vwr 
+namespace Viewer
 {
-  enum Axis {
-    XAxis,
-    YAxis,
-    ZAxis
-  };
+  namespace Vwr {
+    enum Axis {
+      XAxis,
+      YAxis,
+      ZAxis
+    };
     
+  } // end of Vwr namespace
 
-}
+} // end of Viewer namespace
 
 #endif

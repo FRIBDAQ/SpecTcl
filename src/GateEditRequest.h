@@ -4,9 +4,11 @@
 #include <QString>
 #include <QUrl>
 
+namespace Viewer
+{
+
 class GSlice;
 class GGate;
-class TCutG;
 
 class GateEditRequest
 {
@@ -24,4 +26,7 @@ private:
     QString m_reqStr;
 };
 
+} // end of namespace
+
 #endif // GATEEDITREQUEST_H
+

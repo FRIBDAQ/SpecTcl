@@ -79,6 +79,9 @@ class QMenu;
 class QAction;
 class QTimer;
 
+namespace Viewer
+{
+
 /** This canvas uses Qt eventloop to handle user input
   *   @short Graphic Qt Widget based Canvas
   *
@@ -238,6 +241,8 @@ class QRootCanvas : public QWidget {
       TList*            fMenuMethods;  // list of menu methods
       bool              fxShowEventStatus;
 };
+
+} // end of namespace
 
 #endif
 

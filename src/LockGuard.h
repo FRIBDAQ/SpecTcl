@@ -23,6 +23,9 @@
 #ifndef LOCKGUARD_H
 #define LOCKGUARD_H
 
+namespace Viewer
+{
+
 template<class T> class LockGuard
 {
 private:
@@ -42,5 +45,7 @@ public:
 template<class T> LockGuard<T> makeLockGuard(const T& obj) {
     return LockGuard<T>(obj);
 }
+
+} // end of namespace
 
 #endif // LOCKGUARD_H

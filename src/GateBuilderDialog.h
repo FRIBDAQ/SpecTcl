@@ -36,14 +36,17 @@
 #include <utility>
 
 class TPad;
-class GGate;
-class QRootCanvas;
 
 namespace Ui {
 class GateBuilderDialog;
 }
 
 
+namespace Viewer
+{
+
+class GGate;
+class QRootCanvas;
 
 /*! Dialog for editing 2d gates
  *
@@ -145,5 +148,7 @@ private:
 
     std::pair<int, int> m_lastMousePressPos;
 };
+
+} // end of namespace
 
 #endif // GATEBUILDERDIALOG_H

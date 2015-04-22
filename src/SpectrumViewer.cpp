@@ -40,6 +40,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 using namespace std;
 
+namespace Viewer
+{
+
 SpectrumViewer::SpectrumViewer(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::SpectrumViewer),
@@ -149,3 +152,5 @@ void SpectrumViewer::onError(int errorCode, const QString& reason)
 {
     QMessageBox::warning(nullptr,"Error during update",reason);
 }
+
+} // end of namespace

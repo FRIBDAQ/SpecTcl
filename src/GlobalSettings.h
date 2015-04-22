@@ -27,6 +27,9 @@
 #include <QSettings>
 #include <QMutex>
 
+namespace Viewer
+{
+
 /**! Singleton class to hold the settings
   *  
   *  This is a convenience wrapper around a QSettings object that
@@ -62,5 +65,6 @@ public:
     static QList<QString> getAxisInfo(Vwr::Axis axis);
 };
 
+} // end of namespace
 
 #endif // GLOBALSETTINGS_H

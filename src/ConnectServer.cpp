@@ -38,6 +38,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "ui_ConnectServer.h"
 #include "GlobalSettings.h"
 
+namespace Viewer
+{
+
 ConnectDialog::ConnectDialog( QWidget* parent )
    : QDialog( parent ),
    ui(new Ui::ConnectDialog)
@@ -56,3 +59,5 @@ void ConnectDialog::cacheServerSettings() {
   GlobalSettings::setServerHost(ui->HostName->text());
   GlobalSettings::setServerPort(ui->PortNumber->value());
 }
+
+} // end of namepsace

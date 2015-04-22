@@ -2,6 +2,10 @@
 #define SPECTCLRESTINTERFACE_H
 
 #include "SpecTclInterface.h"
+#include "GateEditComHandler.h"
+#include "CommonResponseHandler.h"
+#include "GateListRequestHandler.h"
+#include "GateList.h"
 
 #include <memory>
 #include <vector>
@@ -10,11 +14,10 @@ namespace SpJs {
   class GateInfo;
 }
 
+namespace Viewer
+{
+
 class GSlice;
-#include "GateEditComHandler.h"
-#include "CommonResponseHandler.h"
-#include "GateListRequestHandler.h"
-#include "GateList.h"
 
 /*! \brief Implementation of the SpecTcl facade for the REST server plugin
  *
@@ -50,5 +53,7 @@ private:
     std::unique_ptr<GateListRequestHandler> m_pGateListCmd;
     bool pollGates;
 };
+
+} // end of namespace
 
 #endif // SPECTCLRESTINTERFACE_H

@@ -14,6 +14,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 MyCutG::MyCutG(const char* name, int n)
  : TCutG(name, n)
 {
@@ -246,3 +249,5 @@ void GGate::setPoint(int index, double x, double y)
 {
   m_pCut->SetPoint(index, x, y);
 }
+
+} // end of namespace

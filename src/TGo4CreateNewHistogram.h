@@ -45,6 +45,9 @@
 class QNetworkAccessManager;
 class QNetworkReply;
 
+namespace Viewer
+{
+
 /*! Dialog for creating a new histogram
  *
  * This actually requests a list of all known parameters from SpecTcl
@@ -98,4 +101,6 @@ private:
    std::vector<SpJs::ParameterInfo> m_params;
 
  };
+
+} // end of namespace
 #endif

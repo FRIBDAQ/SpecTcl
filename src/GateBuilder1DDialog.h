@@ -6,18 +6,22 @@
 
 #include <utility>
 
-class QRootCanvas;
-class HistogramBundle;
-
 class TPad;
 
 class QLineEdit;
 class QValidator;
 
+
 namespace Ui {
 class GateBuilder1DDialog;
 }
 
+
+namespace Viewer
+{
+
+class QRootCanvas;
+class HistogramBundle;
 
 
 /*! Dialog for editing 1D gates (aka slices)
@@ -88,4 +92,8 @@ private:
     QValidator* m_editValidator;
     std::pair<int, int> m_lastMousePressPos;
 };
+
+} // end of namespace
+
 #endif // GATEBUILDER1DDIALOG_H
+

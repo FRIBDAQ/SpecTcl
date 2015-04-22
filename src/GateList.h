@@ -36,6 +36,9 @@ namespace SpJs
 #include "GGate.h"
 #include "GSlice.h"
 
+namespace Viewer
+{
+
 class GateList
 {
   public:
@@ -84,5 +87,7 @@ private:
     container1d_type m_cuts1d;
     container2d_type m_cuts2d;
 };
+
+} // end of namespace
 
 #endif // GATELIST_H

@@ -35,6 +35,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 using namespace std;
 
+namespace Viewer
+{
+
 HistogramBundle::HistogramBundle()
     : m_pMutex(),
       m_pHist(nullptr),
@@ -84,3 +87,5 @@ void HistogramBundle::draw(const QString& opt) {
         cut.second->draw();
     }
 }
+
+} // end of namespace

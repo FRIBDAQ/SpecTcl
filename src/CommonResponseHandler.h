@@ -9,6 +9,9 @@ class QString;
 class QNetworkReply;
 class QUrl;
 
+namespace Viewer
+{
+
 class CommonResponseHandler : public QObject
 {
     Q_OBJECT
@@ -32,5 +35,7 @@ private:
 private:
     std::unique_ptr<QNetworkAccessManager> m_pNAM;
 };
+
+} // end namespace
 
 #endif // GATEEDITCOMHANDLER_H

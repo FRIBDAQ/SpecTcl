@@ -25,6 +25,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "GlobalSettings.h"
 #include <stdexcept>
 
+namespace Viewer
+{
+
 QSettings* GlobalSettings::m_instance = nullptr;
 QMutex GlobalSettings::m_mutex;
 
@@ -81,3 +84,5 @@ QList<QString> GlobalSettings::getAxisInfo(Vwr::Axis axis)
 
   return resp;
 }
+
+} // end of namespace

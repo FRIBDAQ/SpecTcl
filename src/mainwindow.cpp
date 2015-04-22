@@ -32,6 +32,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <QDebug>
 #include <QDockWidget>
 
+namespace Viewer
+{
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -100,3 +103,5 @@ void MainWindow::onNewHistogram()
     TGo4CreateNewHistogram dialog(0);
     dialog.exec();
 }
+
+} // end of namespace

@@ -3,6 +3,9 @@
 
 #include <QListWidgetItem>
 
+namespace Viewer
+{
+
 class GGate;
 
 class GateListItem : public QListWidgetItem
@@ -20,5 +23,7 @@ class GateListItem : public QListWidgetItem
 private:
     GGate* m_pGate;
 };
+
+} // end of namespace
 
 #endif // GATELISTITEM_H

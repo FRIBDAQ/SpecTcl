@@ -49,8 +49,12 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <zlib.h>
 #include <cstdlib>
 
-namespace cprs = Compression;
 using namespace std;
+
+namespace Viewer
+{
+
+namespace cprs = Compression;
 
 ContentRequestHandler::ContentRequestHandler(QObject *parent) :
     QThread(parent),
@@ -263,3 +267,4 @@ void ContentRequestHandler::completeJob()
   } 
 }
 
+}

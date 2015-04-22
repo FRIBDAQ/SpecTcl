@@ -5,14 +5,18 @@
 #include <QString>
 #include <QMetaType>
 
-class QTLine;
 class TFrame;
-class QRootCanvas;
 
 namespace SpJs 
 {
   class Slice;
 }
+
+namespace Viewer
+{
+
+class QTLine;
+class QRootCanvas;
 
 /*! Graphical Slice
  *
@@ -88,5 +92,6 @@ private:
     QString m_parameter;
 };
 
+} // end of namespace
 
 #endif // GSLICE_H

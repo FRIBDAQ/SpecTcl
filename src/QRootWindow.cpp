@@ -46,6 +46,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <QtGui/QCloseEvent>
 #include <QtGui/QPaintEvent>
 
+namespace Viewer
+{
+
 //#include "TGo4LockGuard.h"
 
 /** Pseudo root mainframe to wrap root composite frames like TGedEditor */
@@ -247,3 +250,5 @@ TGCompositeFrame* QRootWindow::GetRootFrame()
 {
    return fxRootwindow;
 }
+
+} // end of namespace

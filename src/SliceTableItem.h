@@ -7,6 +7,9 @@
 
 class QString;
 
+namespace Viewer
+{
+
 class QTLine;
 
 
@@ -37,5 +40,7 @@ private:
 };
 
 Q_DECLARE_METATYPE(SliceTableItem)
+
+} // end of namespace
 
 #endif // SLICETABLEITEM_H

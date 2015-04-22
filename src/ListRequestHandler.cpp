@@ -33,6 +33,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <stdexcept>
 #include <iostream>
 
+namespace Viewer
+{
+
 ListRequestHandler::ListRequestHandler(QObject *parent) :
     QObject(parent),
     m_pReply(nullptr),
@@ -99,3 +102,5 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
         emit parseCompleted(std::vector<SpJs::HistInfo>());
     }
 }
+
+} // end of namespace

@@ -54,6 +54,9 @@
 class QLineEdit;
 class QVBoxLayout;
 
+namespace Viewer
+{
+
 /**
 * QRootDialog
 *
@@ -84,4 +87,5 @@ class QRootDialog: public QDialog {
       QVector<QLineEdit*> fArgs;
 };
 
+} // end of namespace
 #endif

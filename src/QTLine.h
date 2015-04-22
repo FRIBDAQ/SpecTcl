@@ -8,6 +8,9 @@
 
 #include <iosfwd>
 
+namespace Viewer
+{
+
 class QTLine : public QObject, virtual public TLine
 {
   Q_OBJECT 
@@ -36,5 +39,7 @@ signals:
 };
 
 extern std::ostream& operator<<(std::ostream& stream, const QTLine& line);
+
+} // end of namespace
 
 #endif

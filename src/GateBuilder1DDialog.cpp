@@ -17,6 +17,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
                                          HistogramBundle& hist,
                                          GSlice *pSlice,
@@ -283,3 +286,5 @@ void GateBuilder1DDialog::onHighChanged(double x1, double y1,
 {
   updateHigh(x1);
 }
+
+} // end of namespace

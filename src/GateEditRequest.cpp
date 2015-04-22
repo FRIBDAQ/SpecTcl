@@ -3,9 +3,11 @@
 #include "GlobalSettings.h"
 #include "GSlice.h"
 #include "GGate.h"
-#include <TCutG.h>
 
 #include <iostream>
+
+namespace Viewer
+{
 
 GateEditRequest::GateEditRequest(const GGate& cut)
     : m_reqStr()
@@ -56,4 +58,6 @@ QUrl GateEditRequest::toUrl()
 bool GateEditRequest::isBand(const GGate& cut)
 {
     return (cut.getType() == SpJs::BandGate );
+}
+
 }

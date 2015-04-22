@@ -25,14 +25,17 @@
 
 #include <QMainWindow>
 
+namespace Ui {
+class MainWindow;
+}
+
+namespace Viewer
+{
+
 class SpectrumViewer;
 class HistogramView;
 class DockableGateManager;
 class SpecTclInterface;
-
-namespace Ui {
-class MainWindow;
-}
 
 class MainWindow : public QMainWindow
 {
@@ -59,4 +62,5 @@ private:
     SpecTclInterface* m_pSpecTcl;
 };
 
+} // end of namespace
 #endif // MAINWINDOW_H

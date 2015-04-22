@@ -35,7 +35,12 @@
 class QNetworkReply;
 class QUrl;
 class QString;
+
+namespace Viewer
+{
+
 class HistogramBundle;
+
 
 class ContentRequestHandler : public QThread
 {
@@ -70,5 +75,8 @@ private:
     QWaitCondition m_cond;
     bool m_quit;
 };
+
+
+} // end of namespace
 
 #endif // ContentRequestHandler_H

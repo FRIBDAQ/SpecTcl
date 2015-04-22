@@ -12,6 +12,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 CommonResponseHandler::CommonResponseHandler(QObject *parent) :
     QObject(parent),
     m_pNAM(new QNetworkAccessManager)
@@ -81,5 +84,5 @@ void CommonResponseHandler::processFailure(QNetworkReply *reply)
 
 
 
-
+} // end of namespace
 

@@ -34,11 +34,11 @@ int main(int argc, char *argv[])
   TQApplication a("app", &argc, argv);
   TQRootApplication b(argc, argv, 0);
 
-  MainWindow w;
+  Viewer::MainWindow w;
   w.show();
 
-  GlobalSettings::setServerHost("localhost");
-  GlobalSettings::setServerPort(8000);
+  Viewer::GlobalSettings::setServerHost("localhost");
+  Viewer::GlobalSettings::setServerPort(8000);
 
   return b.exec();
 }

@@ -2,6 +2,9 @@
 #include "GSlice.h"
 #include <QString>
 
+namespace Viewer
+{
+
 SliceTableItem::SliceTableItem(QListWidget *parent)
     : QListWidgetItem(parent),
       m_pSlice(nullptr)
@@ -19,4 +22,4 @@ SliceTableItem::~SliceTableItem()
 {
 }
 
-
+} // end of namespace

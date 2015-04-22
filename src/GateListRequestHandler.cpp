@@ -35,6 +35,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 using namespace std;
 
+namespace Viewer
+{
+
 GateListRequestHandler::GateListRequestHandler(QObject *parent) :
     QObject(parent),
     m_pReply(nullptr),
@@ -119,3 +122,6 @@ GateListRequestHandler::deuniquify_vector_contents(vector<unique_ptr<SpJs::GateI
 
   return retList;
 }
+
+
+} // end of namespace

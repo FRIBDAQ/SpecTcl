@@ -5,14 +5,19 @@
 
 #include <vector> 
 
-class GSlice;
-class GGate;
-class GateList;
 class QString;
 
 namespace SpJs {
   class GateInfo;
 }
+
+namespace Viewer
+{
+
+class GSlice;
+class GGate;
+class GateList;
+
 
 /*! \brief A facade for the actual interaction with SpecTcl
  *
@@ -47,5 +52,7 @@ public:
   signals:
     void gateListChanged();
 };
+
+} // end of namespace
 
 #endif // SPECTCLINTERFACE_H

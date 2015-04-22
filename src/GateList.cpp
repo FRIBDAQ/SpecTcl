@@ -31,6 +31,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 using namespace std;
 
+namespace Viewer
+{
+
 bool GateList::Compare1D::operator()(const std::unique_ptr<GSlice>& lhs,
                                     const std::unique_ptr<GSlice>& rhs) const 
 {
@@ -188,3 +191,5 @@ GateList::iterator2d GateList::find2D(const QString& name)
                     return (name == slice->getName());
                   });
 }
+
+} // end of namespace

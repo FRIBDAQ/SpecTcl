@@ -6,6 +6,9 @@
 
 #include <GateInfo.h>
 
+namespace Viewer
+{
+
 GSlice::GSlice(QObject *parent, const QString &name,
                const QString& param,
                double xLow, double xHigh,
@@ -150,3 +153,5 @@ bool GSlice::isEditable() const
 {
   return (m_pLow->isEditable() && m_pHigh->isEditable());
 }
+
+} // end of namespace

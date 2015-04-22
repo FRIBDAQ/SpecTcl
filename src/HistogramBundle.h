@@ -31,9 +31,12 @@
 #include <memory>
 
 class TH1;
+
+namespace Viewer
+{
+
 class GGate;
 class GSlice;
-
 
 /*! \brief Collection of a histogram and its cuts
  *
@@ -84,5 +87,6 @@ public:
     void draw(const QString& opt = QString());
 };
 
+} // end of namespace
 
 #endif // HISTOGRAMBUNDLE_H

@@ -12,6 +12,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 GateEditComHandler::GateEditComHandler(QObject *parent) :
     QObject(parent),
     m_pNAM(new QNetworkAccessManager)
@@ -79,7 +82,4 @@ void GateEditComHandler::processFailure(QNetworkReply *reply)
 //    emit error (reply->error(), errMsg);
 }
 
-
-
-
-
+} // end of namespace

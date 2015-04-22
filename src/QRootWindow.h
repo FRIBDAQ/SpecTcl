@@ -48,6 +48,9 @@ class TQRootFrame;
 class TGFrame;
 class TGCompositeFrame;
 
+namespace Viewer
+{
+
 /** Qt widget wrapper for ROOT TGWindow class.
   * @author J.Adamczewski */
 
@@ -103,4 +106,5 @@ class QRootWindow : public QWidget {
       Bool_t fbResizeOnPaint;
 };
 
+} // end of namespace
 #endif

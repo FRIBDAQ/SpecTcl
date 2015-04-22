@@ -55,6 +55,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
 
+namespace Viewer
+{
 
 QRootDialog::QRootDialog() : QDialog()
 {
@@ -102,3 +104,5 @@ QString QRootDialog::getArg(int n)
    if ((n<0) || (n>=fArgs.size())) return QString("");
    return fArgs[n]->text();
 }
+
+} // end of namespace

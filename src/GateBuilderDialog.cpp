@@ -40,6 +40,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <iostream>
 using namespace std;
 
+namespace Viewer
+{
+
 GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
                                      HistogramBundle& histPkg,
                                      GGate* pCut,
@@ -445,3 +448,5 @@ void GateBuilderDialog::valueChanged(int row, int col)
   m_canvas.Modified();
   m_canvas.Update();
 }
+
+} // end of namespace

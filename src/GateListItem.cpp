@@ -1,5 +1,8 @@
 #include "GateListItem.h"
 
+namespace Viewer
+{
+
 GateListItem::GateListItem(const QString& name,
                              QListWidget* parent,
                              int type,
@@ -14,3 +17,5 @@ GateListItem::~GateListItem()
 {
 }
 
+
+} // end of namespace

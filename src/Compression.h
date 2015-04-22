@@ -26,12 +26,16 @@
 
 class QByteArray;
 
+namespace Viewer
+{
+
 namespace Compression
 {
 
   extern QByteArray uncompress(int nBytesUC, const QByteArray& comprData);
 //  extern QByteArray compress(const QByteArray& uncomprData);
 
-}
+} // end of Compression namespace
 
+} // end of Viewer namespace
 #endif

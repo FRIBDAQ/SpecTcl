@@ -37,6 +37,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 #include <vector>
 
+namespace Viewer
+{
+
 HistogramView::HistogramView(QWidget *parent) :
     QDockWidget(tr("Histograms"),parent),
     ui(new Ui::HistogramView),
@@ -130,3 +133,4 @@ void HistogramView::deleteHists()
     }
 }
 
+} // end of namespace

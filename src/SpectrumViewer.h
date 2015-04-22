@@ -27,13 +27,18 @@
 #include <QFrame>
 #include <QPair>
 
-class HistogramBundle;
-class QRootCanvas;
 class QString;
 
 namespace Ui {
 class SpectrumViewer;
 }
+
+
+namespace Viewer
+{
+
+class HistogramBundle;
+class QRootCanvas;
 
 class SpectrumViewer : public QFrame
 {
@@ -63,5 +68,7 @@ private:
     ContentRequestHandler m_reqHandler;
     QRootCanvas*          m_currentCanvas;
 };
+
+} // end of namespace
 
 #endif // SPECTRUMVIEWER_H

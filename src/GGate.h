@@ -13,6 +13,10 @@
 #include <TCutG.h>
 #include <iostream>
 
+namespace Viewer
+{
+
+
 /**! Make a TCutG un-special in the eyes of ROOT
  *
  *  ROOT tries to own TCutG objects and will automatically
@@ -185,5 +189,7 @@ private:
     std::unique_ptr<SpJs::GateInfo2D> m_info;
 
 };
+
+} // end of namespace
 
 #endif // GGATE_H

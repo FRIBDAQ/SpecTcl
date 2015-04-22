@@ -33,12 +33,13 @@
 #include <map>
 
 class TH1;
-class TCutG;
-
 
 namespace SpJs {
     class HistInfo;
 }
+
+namespace Viewer
+{
 
 /*! \brief Owner of all the HistogramBundles in the application
  *
@@ -100,5 +101,7 @@ private:
     static QMutex m_mutex;
 
 };
+
+} // end of namespace
 
 #endif // HISTOGRAMLIST_H
