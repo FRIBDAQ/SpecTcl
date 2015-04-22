@@ -16,6 +16,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 class GateEditRequestTest : public CppUnit::TestFixture
 {
   public:
@@ -82,3 +85,4 @@ void GateEditRequestTest::fromGSlice_0()
     CPPUNIT_ASSERT(QUrl(exp) == req.toUrl());
 }
 
+} // end of namespcae

@@ -16,6 +16,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 class GateDeleteRequestTest : public CppUnit::TestFixture
 {
   public:
@@ -86,3 +89,4 @@ void GateDeleteRequestTest::fromName_0()
     CPPUNIT_ASSERT(QUrl(exp) == req.toUrl());
 }
 
+} // end of namespace

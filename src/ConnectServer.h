@@ -39,13 +39,14 @@
 #include <QDialog>
 
 
-namespace Viewer
-{
 
 // forward declare
 namespace Ui {
     class ConnectDialog;
 }
+
+namespace Viewer
+{
 
 class ConnectDialog : public QDialog
 {

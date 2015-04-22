@@ -19,6 +19,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 class GGateTest : public CppUnit::TestFixture
 {
   public:
@@ -107,3 +110,5 @@ void GGateTest::synchronize_1()
   CPPUNIT_ASSERT( points == gate.getPoints() );
   
 }
+
+} // end of namespace

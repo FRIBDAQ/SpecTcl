@@ -28,6 +28,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <stdexcept>
 #include <iostream>
 
+namespace Viewer
+{
+
 namespace Compression
 {
   
@@ -71,4 +74,6 @@ namespace Compression
   };
 
 
-}
+} // end of Compression namespace
+
+} // end of Viewer namespace

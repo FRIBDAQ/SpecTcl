@@ -44,12 +44,13 @@ class QMouseEvent;
 class QPaintEvent;
 class TGLayoutHints;
 class Event_t;
-class TQRootFrame;
 class TGFrame;
 class TGCompositeFrame;
 
 namespace Viewer
 {
+
+class TQRootFrame;
 
 /** Qt widget wrapper for ROOT TGWindow class.
   * @author J.Adamczewski */

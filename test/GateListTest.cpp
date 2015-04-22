@@ -20,6 +20,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 class GateListTest : public CppUnit::TestFixture
 {
   private:
@@ -146,3 +149,5 @@ void GateListTest::removeCut2D_0() {
   CPPUNIT_ASSERT( m_pGateList->find1D("test") == m_pGateList->end1d() );
   CPPUNIT_ASSERT( m_pGateList->find2D("test") == m_pGateList->end2d() );
 }
+
+} // end of namespace

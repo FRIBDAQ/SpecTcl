@@ -39,8 +39,9 @@ private:
     GSlice* m_pSlice;
 };
 
-Q_DECLARE_METATYPE(SliceTableItem)
-
 } // end of namespace
+
+Q_DECLARE_METATYPE(Viewer::SliceTableItem)
+
 
 #endif // SLICETABLEITEM_H

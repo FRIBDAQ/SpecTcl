@@ -26,11 +26,6 @@
 #include <QDockWidget>
 #include <vector>
 
-class SpectrumViewer;
-class SpecTclInterface;
-class GGate;
-class GSlice;
-
 namespace SpJs {
   class GateInfo;
 }
@@ -38,13 +33,17 @@ namespace SpJs {
 class QListWidgetItem;
 
 
-namespace Viewer
-{
-
 namespace Ui {
 class DockableGateManager;
 }
 
+namespace Viewer
+{
+
+class SpectrumViewer;
+class SpecTclInterface;
+class GGate;
+class GSlice;
 
 
 /*! \brief Graphical object that owns all gates 

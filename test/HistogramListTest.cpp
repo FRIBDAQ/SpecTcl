@@ -30,6 +30,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 class HistogramListTest : public CppUnit::TestFixture
 {
   private:
@@ -268,3 +271,5 @@ void HistogramListTest::synchronize_0()
     CPPUNIT_ASSERT( empty2d == HistogramList::getHist("hist3")->getCut2Ds() );
 
 }
+
+} // end of namespace

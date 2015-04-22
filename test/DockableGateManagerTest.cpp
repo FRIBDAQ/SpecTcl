@@ -24,6 +24,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 class DockableGateManagerTest : public CppUnit::TestFixture
 {
   public:
@@ -142,3 +145,4 @@ void DockableGateManagerTest::onGateListChanged_1()
   // Makes sure we have the same items...
 }
 
+} // end of namespace

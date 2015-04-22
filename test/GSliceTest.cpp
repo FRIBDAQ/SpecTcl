@@ -19,6 +19,9 @@
 
 using namespace std;
 
+namespace Viewer
+{
+
 class GSliceTest : public CppUnit::TestFixture
 {
   public:
@@ -55,3 +58,4 @@ void GSliceTest::construct_0()
 
 }
 
+} // end of namespace

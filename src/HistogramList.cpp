@@ -39,6 +39,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 using namespace std;
 
+namespace Viewer
+{
+
 HistogramList* HistogramList::m_instance = nullptr;
 
 map<QString, unique_ptr<HistogramBundle> > HistogramList::m_hists;
@@ -280,3 +283,5 @@ void HistogramList::clearCuts()
     ++it;
   }
 }
+
+} // end of namespace
