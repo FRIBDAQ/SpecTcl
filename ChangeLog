@@ -1060,3 +1060,6 @@ November 30-?? 2011
         * Bug #1746 Remove fixed paths to /usr/opt/daq in SpecTcl - configure
           them in with a default.
         * Feature #2760 - new analysis framework to replace the 8.0 version.  
+	* Feature #3479 (change to existing functionality) Make
+	spectra/displays from [low, hi) with nchan binning.
+	

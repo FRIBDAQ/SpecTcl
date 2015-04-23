@@ -242,7 +242,7 @@ static void DrawLinearXTicks(Display *disp, Window win, GC gc,
 
   XSegmentBatch ticks(disp, win, gc);
 
-  value_interval = (float)ComputeLinearTickInterval(hi-low + 1, (nx-xbase+1));
+  value_interval = (float)ComputeLinearTickInterval(hi-low, (nx-xbase+1));
 
   interval       = ((float)(nx-xbase) * (float)value_interval)/
                     ((float)(hi - low ));
@@ -549,7 +549,7 @@ static void DrawLinearYTicks(Display *disp, Window win, GC gc,
   value_represented = (float)low;
   last_value        = 0xffffffff;	/* Make sure first tick is drawn. */
 
-  value_interval = (float)ComputeLinearTickInterval(hi - low +1, (ybase+1));
+  value_interval = (float)ComputeLinearTickInterval(hi - low, (ybase+1));
 
 
   interval       = ((float)((ybase ) * value_interval))/ 

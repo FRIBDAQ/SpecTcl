@@ -36,7 +36,7 @@ CAxisTests::testIdentityConstructor()
   // check out the construction of the object. itself...
 
   CPPUNIT_ASSERT(m_Identity.getLow() == 0.0);
-  CPPUNIT_ASSERT(m_Identity.getHigh() == (Float_t)(m_Identity.getChannels()-1));
+  CPPUNIT_ASSERT(m_Identity.getHigh() == (Float_t)(m_Identity.getChannels()));
 
   // Check out construction of the parameter map:
 
@@ -63,7 +63,7 @@ void CAxisTests::testUnmappedUnitConstructor()
 }
 void CAxisTests::testMappedUnitConstructor()
 {
-  cerr << "Testing constructor for [-1,1] mapped param -> [0,1]\n";
+  cerr << "Testing constructor for [-1,1) mapped param -> [0,1)\n";
 
   CPPUNIT_ASSERT(m_MappedUnit.getLow() == 0.0);
   CPPUNIT_ASSERT(m_MappedUnit.getHigh() == 1.0);
