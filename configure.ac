@@ -116,6 +116,21 @@ AH_VERBATIM([VHAVE_STD_NAMESPACE],[
 
 AC_LANG_POP(C++)
 
+#
+#  By default nscldaq will be in /usr/opt/daq/current
+#  This can be overidden with --with-nscldaq-root.
+#  We're not going to check to see if there really is an nscldaq since it's valid
+#  to install SpecTcl on a daq-less system for analysis.
+
+AC_ARG_WITH([nscldaq-root],
+    [  --with-nscldaq-root=path Path to the NSCLDAQ installation (default=/usr/opt/daq/current)],
+    [daqroot="$withval"], [daqroot="/usr/opt/daq/current"])
+
+DAQROOT=$daqroot
+
+AC_SUBST(DAQROOT)
+
+
 # -------------------- X11 tests
 
 # Locate the X11 header files and the X11 library archive. Try the
@@ -140,19 +155,7 @@ else
   XLIBSW=""
 fi
 
-#
-#  By default nscldaq will be in /usr/opt/daq/current
-#  This can be overidden with --with-nscldaq-root.
-#  We're not going to check to see if there really is an nscldaq since it's valid
-#  to install SpecTcl on a daq-less system for analysis.
 
-AC_ARG_WITH([nscldaq-root],
-    [  --with-nscldaq-root=path Path to the NSCLDAQ installation (default=/usr/opt/daq/current)],
-    [daqroot="$withval"], [daqroot="/usr/opt/daq/current"])
-
-DAQROOT=$daqroot
-
-AC_SUBST(DAQROOT)
 
 #
 #   Locate motif headers and libraries.  (Xm.h and libXm.{so,dylib,a}).

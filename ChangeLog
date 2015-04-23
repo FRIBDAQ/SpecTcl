@@ -1059,4 +1059,4 @@ November 30-?? 2011
         * Feature #3503 Fix autoconf warnings.
         * Bug #1746 Remove fixed paths to /usr/opt/daq in SpecTcl - configure
           them in with a default.
-          
+        * Feature #2760 - new analysis framework to replace the 8.0 version.  

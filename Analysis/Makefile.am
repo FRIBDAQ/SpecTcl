@@ -30,9 +30,22 @@ libBufferAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0 @LIBTCLPLUS_LDFLAGS@
 
 
 
+install-exec-local: docs_built
+	$(mkinstalldirs) @prefix@/share @prefix@/share/analysis
+	$(mkinstalldirs) @prefix@/share/images
+	$(INSTALL_DATA) @builddir@/*.html @prefix@/share/analysis
+	cat @srcdir@/images.tar.gz | (cd @prefix@/share/images; tar xzf -)
+
+
 man_MANS = BufferAnalysis.3 CBufferProcessor.3 CBufferCallback.3
 
 
 
 
-EXTRA_DIST = $(man_MANS)
+EXTRA_DIST = $(man_MANS) analysis.xml images.tar.gz
+
+docs_built: analysis.xml
+	@HTMLDOCBOOK@ $<
+	touch docs_built
+
+
