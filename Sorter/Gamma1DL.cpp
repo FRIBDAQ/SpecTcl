@@ -249,7 +249,7 @@ CGamma1DL::CreateStorage()
   UInt_t* pStorage = new UInt_t[nBytes/sizeof(UInt_t)];
   ReplaceStorage(pStorage);
   Clear();
-
+  createStatArrays(1);
 }
 
 /*!
@@ -294,8 +294,12 @@ CGamma1DL::Increment(vector<pair<UInt_t, Float_t> >& rParams)
   for(int i =0; i < rParams.size(); i++) {
     UInt_t   nParameter = rParams[i].first;
     Float_t  fValue     = rParams[i].second;
-    UInt_t   y          = (UInt_t)ParameterToAxis(0, fValue);
-    if (y < m_nScale) {
+    Int_t   y          = (Int_t)ParameterToAxis(0, fValue);
+    if (y < 0) {
+        logUnderflow(0);
+    } else if (y > m_nScale) {
+        logOverflow(0);
+    } else  {
       pStorage[y]++;
     }
     

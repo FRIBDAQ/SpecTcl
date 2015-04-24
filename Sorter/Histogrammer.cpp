@@ -685,7 +685,7 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
   //  supported by Xamine.
   UInt_t nSpectrum;       
   CSpectrum*       pSpectrum = (*iSpectrum).second;
-  CXamineSpectrum* pXSpectrum;
+  CXamineSpectrum* pXSpectrum(0);
   try {
     switch(pSpectrum->Dimensionality()) {
     case 1:			// 1-d spectrum.
@@ -714,7 +714,7 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
 	case keByte:		// 2db
 	  dataType = 1;
 	  break;
-	case 2:			// 2dL
+	case keLong:			// (was 2).  2dL
 	  dataType = 2;
 	  break;
 	default:
@@ -757,7 +757,7 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
     m_DisplayBindings[nSpectrum] = pSpectrum->getName();
     delete pXSpectrum;		// Destroy the XamineSpectrum.
   }
-  catch (...) {		// In case DefineSpectrum throws e.g.
+  catch (...) {		// In case of throw after CXamine2D created.
     delete pXSpectrum;
     throw;
   }

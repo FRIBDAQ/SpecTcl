@@ -153,8 +153,12 @@ CGammaSummarySpectrum<T>::Increment(const CEvent& e)
     for(int i =0; i < params.size(); i++) {
       UInt_t paramId = params[i];
       if (paramId < event.size() && event[paramId].isValid()) {
-	UInt_t chan = static_cast<UInt_t>(m_Axes[x].ParameterToAxis(event[paramId]));
-	if (chan < m_nYChannels) {
+	Int_t chan = static_cast<Int_t>(m_Axes[x].ParameterToAxis(event[paramId]));
+        if (chan < 0) {
+            logUnderflow(0);
+        } else if (chan > m_nYChannels) {
+            logOverflow(0);
+        } else {
 	  p[chan*m_nXChannels]++;
 	}
       }
@@ -431,7 +435,7 @@ CGammaSummarySpectrum<T>::CreateStorage()
   case (sizeof(UShort_t)): 
     setStorageType(keWord);
     break;
-  case (sizeof(ULong_t)):
+  case (sizeof(UInt_t)):
     setStorageType(keLong);
     break;
   default:
@@ -442,6 +446,8 @@ CGammaSummarySpectrum<T>::CreateStorage()
   T* pStorage = new T[StorageNeeded()/sizeof(T)];
   ReplaceStorage(pStorage);
   Clear();
+  
+  createStatArrays(1);
 }
 
 /*

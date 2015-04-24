@@ -209,12 +209,11 @@ CSpectrum2DmW::IncPair(const CEvent& rEvent, UInt_t nx, UInt_t ny, int i)
   Float_t y = const_cast<CEvent&>(rEvent)[ny];
 
   Int_t ix = (Int_t)m_axisMappings[i].MappedParameterToAxis(x);
-  if ((ix >= m_xChannels) || (ix < 0)) return;
-
   Int_t iy = (Int_t)m_axisMappings[i+1].MappedParameterToAxis(y);
-  if ((ix < 0) || (iy >= m_yChannels)) return;
-
-  UShort_t* p = static_cast<UShort_t*>(getStorage());
-  p[coordsToIndex(ix, iy)]++;
+  
+  if(canIncrement(ix, iy, m_xChannels, m_yChannels)) {
+    UShort_t* p = static_cast<UShort_t*>(getStorage());
+    p[coordsToIndex(ix, iy)]++;  
+  }
     
 }

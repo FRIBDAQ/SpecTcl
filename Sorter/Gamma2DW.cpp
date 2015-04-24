@@ -245,6 +245,7 @@ CGamma2DW::CreateStorage()
 
   ReplaceStorage(pStorage);
   Clear();
+  createStatArrays(2);
 }
 
 /*!
@@ -342,10 +343,24 @@ CGamma2DW::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 	
 	// transform -> Spectrum coordinates and increment.
 	
-	UInt_t x = (UInt_t)ParameterToAxis(0, xval);
-	UInt_t y = (UInt_t)ParameterToAxis(1, yval);
-	
-	if((x < m_nXScale) && (y < m_nYScale)) {
+	Int_t x = (Int_t)ParameterToAxis(0, xval);
+	Int_t y = (Int_t)ParameterToAxis(1, yval);
+	bool increment = true;
+        if(x < 0) {
+            logUnderflow(0);
+            increment = false;
+        } else if (x >= m_nXScale) {
+            logOverflow(0);
+            increment = false;
+        }
+        if (y <0) {
+            logUnderflow(1);
+            increment = false;
+        } else if (y >= m_nYScale) {
+            logOverflow(1);
+            increment = false;
+        }
+	if (increment) {
 	  pStorage[x + y*m_nXScale]++;
 	}
       }

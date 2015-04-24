@@ -220,8 +220,22 @@ CSpectrum2DB::Increment(const CEvent& rE)
        rEvent[m_nYParameter].isValid()) {
       Int_t nx = Randomize(ParameterToAxis(0, rEvent[m_nXParameter]));
       Int_t ny = Randomize(ParameterToAxis(1, rEvent[m_nYParameter]));
-      if( (nx >= 0)   && (nx < m_nXScale)     &&
-	  (ny >= 0)   && (ny < m_nYScale)) {
+      bool increment = true;
+      if (nx < 0) {
+        logUnderflow(0);
+        increment = false;
+      } else if (nx >= m_nXScale) {
+        logOverflow(0);
+        increment = false;
+      }
+      if (ny < 0) {
+        logUnderflow(1);
+        increment  = false;
+      } else if (ny >= m_nYScale) {
+        logOverflow(1);
+        increment  = false;
+      }
+      if(increment) {
 	
 	UChar_t* pSpec = (UChar_t*)getStorage();
 	pSpec[nx + (ny * m_nXScale)]++;
@@ -369,6 +383,8 @@ CSpectrum2DB::CreateStorage()
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
+  
+  createStatArrays(2);
 }
 /*!
    Create an axis vector for the spectrum constructor.  

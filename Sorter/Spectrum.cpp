@@ -648,3 +648,85 @@ CSpectrum::needParameter() const
 {
   return kfTRUE;
 }
+
+/*---------------------------------------------------------------------------
+ * Statistics:
+ */
+
+/**
+ * createStatArrays
+ *   Create new statistics arrays for a spectrum.  Statistics arrays maintain
+ *   counters for under/overflow events on each axis.
+ *
+ * @param nAxes - number of axes desired.
+ * @note If the statistics arrays already exist they are first totally detroyed.
+ */
+void
+CSpectrum::createStatArrays(unsigned nAxes)
+{
+    // If need be destroy the counters:
+    if (!m_underflowCounters.empty()) {
+      m_underflowCounters.clear();
+    }
+    if (!m_overflowCounters.empty()) {
+         m_overflowCounters.clear();
+    }
+    
+    m_overflowCounters.insert(m_overflowCounters.begin(), nAxes, 0);
+    m_underflowCounters.insert(m_underflowCounters.begin(), nAxes, 0);
+}
+/**
+ * clearStatArrays
+ *    Replaces all counters with zero.
+ *    This is actually done by recreating the arrays using their
+ *    current sizes.
+ */
+void
+CSpectrum::clearStatArrays()
+{
+    size_t nAxes = m_overflowCounters.size();
+    createStatArrays(nAxes);               // They start zeroed.
+}
+/**
+ * logOverflow
+ *    Increment an overflow counter.
+ *
+ * @param axis    - Axis number.
+ * @param inc     - Amount to increment by (defaults to 1).
+ */
+void
+CSpectrum::logOverflow(unsigned axis, unsigned increment)
+{
+    m_overflowCounters.at(axis) += increment;
+}
+/**
+ * logUnderflow
+ *    Increment an underflow counter.
+ *
+ * @param axis - axis number.
+ * @param inc  - amount to increment by (defaults to 1).
+ */
+void
+CSpectrum::logUnderflow(unsigned axis, unsigned increment)
+{
+    m_underflowCounters.at(axis) += increment;
+}
+
+/**
+ * getUnderflows
+ *   @return std::vector<unsigned> - Underflow counters.
+ */
+std::vector<unsigned>
+CSpectrum::getUnderflows() const
+{
+    return m_underflowCounters;
+}
+/**
+ * getOverflows
+ *  @return std::vector<unsigned> - overflow counters
+ */
+std::vector<unsigned>
+CSpectrum::getOverflows() const
+{
+    return m_overflowCounters;
+}

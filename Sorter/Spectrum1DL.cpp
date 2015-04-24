@@ -185,8 +185,12 @@ CSpectrum1DL::Increment(const CEvent& rE)
     Int_t nChannel =
    (Int_t)ParameterToAxis(0, rParam);
     
-    if((nChannel < (m_nChannels)) &&
-       (nChannel >= 0)) {  // 
+    if (nChannel < 0) {
+        logUnderflow(0);
+    } else if (nChannel >= m_nChannels) {
+        logOverflow(0);
+    } else {
+        
       UInt_t* p = (UInt_t*)getStorage();
       assert(p != (UInt_t*)kpNULL);    // Spectrum storage must exist!!
       p[nChannel]++;		      // Increment the histogram.
@@ -313,4 +317,5 @@ CSpectrum1DL::CreateChannels()
   UInt_t* pStorage = new UInt_t[m_nChannels];
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
+  createStatArrays(1);
 }

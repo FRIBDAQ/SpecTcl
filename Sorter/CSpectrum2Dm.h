@@ -116,6 +116,9 @@ public:
 
 
 protected:
+    bool canIncrement(Int_t x, Int_t y, int nx, int ny);
+    
+    
   CSpectrum::SpectrumDefinition GetCommonDefinition();
   UInt_t coordsToIndex(UInt_t x, UInt_t y) const {
     return (y*m_xChannels) + x;

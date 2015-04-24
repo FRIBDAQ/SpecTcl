@@ -176,6 +176,45 @@ CSpectrum2Dm::getSpectrumType()
 ///////////////////// protected utilities //////////////////////////
 ////////////////////////////////////////////////////////////////////
 
+/**
+ * canIncrement
+ *    Determines if the spectrum can be incremented given a x/y
+ *    channel coordinate pair.  If not, the appropriate over/underflow
+ *    logging is done.
+ *
+ *    @param ix - integer x parameter
+ *    @param iy - integer y parameter
+ *    @param nx - # x channels.
+ *    @param ny - # y channels.
+ *
+ *    @return bool - true if both parameters are in range false otherwise.
+ */
+bool
+CSpectrum2Dm::canIncrement(Int_t ix, Int_t iy, int nx, int ny)
+{
+  bool result = true;
+  
+  if (ix < 0) {
+    logUnderflow(0);
+    result = false;
+  }
+  if (ix >= nx) {
+    logOverflow(0);
+    result = false;
+  }
+  if (iy < 0) {
+    logUnderflow(1);
+    result = false;
+  }
+  if (iy >= ny) {
+    logOverflow(1);
+    result = false;
+  }
+  
+  return result;
+}
+
+
 /*!
   This function fills in a spectrum definition with the exception
   of the spectrum data type... which is not known to this base class.
@@ -267,6 +306,7 @@ CSpectrum2Dm::CreateMappings(vector<CParameter>& parameters,
 	       CParameterMapping(parameters[i+1]));
     m_axisMappings.push_back(ymap);
   }
+  createStatArrays(2);
 }
 /*!
    This spectrum should not be classified as needing

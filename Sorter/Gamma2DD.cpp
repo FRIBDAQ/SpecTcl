@@ -281,14 +281,25 @@ CGamma2DD<T>::Increment(std::vector<std::pair<UInt_t, Float_t> >& rXParameters,
 
 	// Transform x/yval -> Spectrum channel coordinates:
 
-	UInt_t x  = (UInt_t)ParameterToAxis(0, xval);
-	UInt_t y  = (UInt_t)ParameterToAxis(1, yval);
-
-	// If the point is in the spectrum bounds, increment:
-
-	if ((x < m_nXscale) && (y < m_nYscale)) {
-	  T* pStorage = static_cast<T*>(getStorage());
-
+	Int_t x = (Int_t)ParameterToAxis(0, xval);
+	Int_t y = (Int_t)ParameterToAxis(1, yval);
+	bool increment = true;
+        if(x < 0) {
+            logUnderflow(0);
+            increment = false;
+        } else if (x >= m_nXscale) {
+            logOverflow(0);
+            increment = false;
+        }
+        if (y <0) {
+            logUnderflow(1);
+            increment = false;
+        } else if (y >= m_nYscale) {
+            logOverflow(1);
+            increment = false;
+        }
+	if (increment) {
+	  T* pStorage =(T*)getStorage();
 	  pStorage[x + y*m_nXscale]++;
 	}
       }
@@ -376,6 +387,7 @@ CGamma2DD<T>::CreateStorage()
 
   ReplaceStorage(pStorage);
   Clear();
+  createStatArrays(2);
 }
 
 // Create the axis vector for the spectrum given the parameters.

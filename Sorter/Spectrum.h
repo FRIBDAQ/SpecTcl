@@ -114,6 +114,8 @@ private:
   std::vector<Float_t> m_fHighs;	//!< std::vector of axis high limits.
   std::vector<std::string>  m_Units;	//!< Axis units.
   static Bool_t   m_Seedrandom;	//!< True if need to seed.
+  std::vector<unsigned> m_underflowCounters;  //!< one per axis.
+  std::vector<unsigned> m_overflowCounters;   //!< one per axis.
 public:
 			// Constructor
 
@@ -219,6 +221,15 @@ public:
   Float_t AxisToParameter(UInt_t nAxis, UInt_t  nAxisValue);
   Float_t  MappedToAxis(UInt_t nAxis, Float_t fParameterValue);
   Float_t AxisToMapped(UInt_t nAxis, UInt_t nAxisValue);
+  
+  // Statistics methods:
+  
+  void createStatArrays(unsigned nAxes);
+  void clearStatArrays();
+  void logOverflow(unsigned axis, unsigned increment = 1);
+  void logUnderflow(unsigned axis, unsigned increment = 1);
+  std::vector<unsigned> getUnderflows() const;
+  std::vector<unsigned> getOverflows() const;
 
   // Pure virtual members:
 

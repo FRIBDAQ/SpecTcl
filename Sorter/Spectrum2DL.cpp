@@ -155,11 +155,26 @@ CSpectrum2DL::Increment(const CEvent& rE)
      yParam.isValid()) {
     Int_t nx = (Int_t)ParameterToAxis(0, xParam);
     Int_t ny = (Int_t)ParameterToAxis(1, yParam);
-    if( (nx >= 0)   && (nx < m_nXScale)     &&
-	(ny >= 0)   && (ny < m_nYScale)) {
-      UInt_t* pSpec = (UInt_t*)getStorage();
-      pSpec[nx + (ny * m_nXScale)]++;
-    }
+    bool increment = true;
+      if (nx < 0) {
+        logUnderflow(0);
+        increment = false;
+      } else if (nx >= m_nXScale) {
+        logOverflow(0);
+        increment = false;
+      }
+      if (ny < 0) {
+        logUnderflow(1);
+        increment  = false;
+      } else if (ny >= m_nYScale) {
+        logOverflow(1);
+        increment  = false;
+      }
+      if(increment) {
+	
+	UInt_t* pSpec = (UInt_t*)getStorage();
+	pSpec[nx + (ny * m_nXScale)]++;
+      }
   }
 }
 //////////////////////////////////////////////////////////////////////////
@@ -302,6 +317,7 @@ CSpectrum2DL::CreateStorage()
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
+  createStatArrays(2);
 }
 /*!
    Create an axis vector for the spectrum constructor.  

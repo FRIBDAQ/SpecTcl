@@ -206,7 +206,15 @@ CSummarySpectrumL::Increment(const CEvent& rE)
 	UInt_t y = Randomize(ParameterToAxis(xChan,
 					     rawParam));
 	
-	if((y >= 0)   && (y < m_nYScale)) {
+	bool increment = true;
+        if (y < 0) {
+            logUnderflow(0);
+            increment = false;
+        } else if (y >= m_nYScale) {
+            logOverflow(0);
+            increment = false;
+        }
+	if(increment) {
 	  pStorage[xChan + y*m_nXChannels]++;
 	}
       }
@@ -365,6 +373,7 @@ CSummarySpectrumL::CreateStorage()
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
+  createStatArrays(1);          // only y axis overflows.
 }
 /*!
    Overrides the base class spectrum definition fetching 
