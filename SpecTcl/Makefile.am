@@ -44,7 +44,7 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	DocumentationException.cpp DocumentationCallback.cpp \
 	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp \
 	IntegrateCommand.cpp RingFormatCommand.cpp VersionCommand.cpp \
-	SContentsCommand.cpp
+	SContentsCommand.cpp CSpectrumStatsCommand.cpp 
 
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
@@ -59,7 +59,8 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
 	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
-	IntegrateCommand.h VersionCommand.h SContentsCommand.h
+	IntegrateCommand.h VersionCommand.h SContentsCommand.h \
+	CSpectrumStatsCommand.h
 
 
 

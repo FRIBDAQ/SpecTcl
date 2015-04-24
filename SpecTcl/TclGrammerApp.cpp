@@ -42,6 +42,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "GatePackage.h"
 #include "FilterCommand.h"
 #include "EventSinkPipeline.h"
+#include "CSpectrumStatsCommand.h"
 
 
 #include "TCLAnalyzer.h"
@@ -546,6 +547,10 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   CSContentsCommand* pContents = new CSContentsCommand(rInterp);
   
   cerr << "version, scontents command (c) 2015 Written by Ron Fox\n";
+  
+  new CSpectrumStatsCommand(rInterp);
+  
+  cerr << "specstats - spectrum statistics command (c) 2015 Written by Ron Fox\n";
 
   cerr.flush();
 }
