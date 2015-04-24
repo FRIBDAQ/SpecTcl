@@ -15,8 +15,8 @@ namespace SpJs
   {
 
   protected:
-    std::string s_name;
-    GateType    s_type;
+    std::string m_name;
+    GateType    m_type;
 
   public:
     GateInfo(const std::string& name, GateType type);
@@ -27,15 +27,15 @@ namespace SpJs
     virtual GateType getType() const = 0;
     virtual std::unique_ptr<GateInfo> clone() const = 0;
 
-    void setName(const std::string& name) { s_name = name; }
-    std::string getName() const { return s_name; }
+    void setName(const std::string& name) { m_name = name; }
+    std::string getName() const { return m_name; }
 
     virtual bool operator==(const GateInfo& rhs) const;
     virtual bool operator!=(const GateInfo& rhs) const;
 
   protected:
 
-    void setType(GateType type) { s_type = type; }
+    void setType(GateType type) { m_type = type; }
   }; // end of GateInfo class
 
 
@@ -53,7 +53,9 @@ namespace SpJs
 
       virtual std::vector<std::pair<double, double> > getPoints() const = 0;
       virtual std::vector<std::pair<double, double> >& getPoints() = 0;
+      virtual std::pair<double, double> getPoint(size_t index) const = 0;
       virtual void setPoints(const std::vector<std::pair<double, double> >& points) = 0;
+      virtual void setPoint(size_t index, double x, double y) = 0;
 
       virtual std::string getParameter0() const = 0;
       virtual std::string getParameter1() const = 0;
@@ -72,7 +74,7 @@ namespace SpJs
     False();
     False(const std::string& name);
 
-    GateType getType() const { return s_type; }
+    GateType getType() const { return m_type; }
     std::unique_ptr<GateInfo> clone() const;
   };
 
@@ -82,9 +84,9 @@ namespace SpJs
   struct Slice : public GateInfo
   {
   private:
-    std::string s_param;
-    double s_low;   
-    double s_high;   
+    std::string m_param;
+    double m_low;
+    double m_high;
 
   public:
     Slice();
@@ -92,17 +94,17 @@ namespace SpJs
     Slice(const Slice& rhs);
     virtual ~Slice();
 
-    GateType getType() const { return s_type; }
+    GateType getType() const { return m_type; }
     std::unique_ptr<GateInfo> clone() const;
 
-    void setParameter(const std::string& paramName) { s_param = paramName; }
-    std::string getParameter() const { return s_param; }
+    void setParameter(const std::string& paramName) { m_param = paramName; }
+    std::string getParameter() const { return m_param; }
 
-    void setLowerLimit(double value) { s_low = value; }
-    double getLowerLimit() const { return s_low; }
+    void setLowerLimit(double value) { m_low = value; }
+    double getLowerLimit() const { return m_low; }
 
-    void setUpperLimit(double value) { s_high = value; }
-    double getUpperLimit() const { return s_high; }
+    void setUpperLimit(double value) { m_high = value; }
+    double getUpperLimit() const { return m_high; }
 
 
     virtual bool operator==(const Slice& rhs) const;
@@ -116,9 +118,9 @@ namespace SpJs
   struct Band : public GateInfo2D
   {
   private:
-    std::string s_param0;
-    std::string s_param1;
-    std::vector<std::pair<double, double> > s_points;
+    std::string m_param0;
+    std::string m_param1;
+    std::vector<std::pair<double, double> > m_points;
 
   public:
     Band();
@@ -130,20 +132,24 @@ namespace SpJs
     Band(const Band& rhs);
     virtual ~Band();
 
-    GateType getType() const { return s_type; }
+    GateType getType() const { return m_type; }
     std::unique_ptr<GateInfo> clone() const;
 
-    void setParameter0(const std::string& paramName) { s_param0 = paramName; }
-    std::string getParameter0() const { return s_param0; }
+    void setParameter0(const std::string& paramName) { m_param0 = paramName; }
+    std::string getParameter0() const { return m_param0; }
 
-    void setParameter1(const std::string& paramName) { s_param1 = paramName; }
-    std::string getParameter1() const { return s_param1; }
+    void setParameter1(const std::string& paramName) { m_param1 = paramName; }
+    std::string getParameter1() const { return m_param1; }
 
-    std::vector<std::pair<double, double> > getPoints() const { return s_points; }
-    std::vector<std::pair<double, double> >& getPoints() { return s_points; }
+    std::vector<std::pair<double, double> > getPoints() const { return m_points; }
+    std::vector<std::pair<double, double> >& getPoints() { return m_points; }
+    std::pair<double, double> getPoint(size_t index) const
+    { return m_points.at(index); }
+
     void setPoints(const std::vector<std::pair<double, double> >& points) {
-        s_points = points;
+        m_points = points;
     }
+    void setPoint(size_t index, double x, double y);
 
     virtual bool operator==(const Band& rhs) const;
     virtual bool operator!=(const Band& rhs) const;
@@ -156,9 +162,9 @@ namespace SpJs
   struct Contour : public GateInfo2D
   {
   private:
-    std::string s_param0;
-    std::string s_param1;
-    std::vector<std::pair<double,double> > s_points;
+    std::string m_param0;
+    std::string m_param1;
+    std::vector<std::pair<double,double> > m_points;
 
   public:
     Contour();
@@ -170,20 +176,24 @@ namespace SpJs
     Contour(const Contour& rhs);
     virtual ~Contour();
 
-    GateType getType() const { return s_type; }
+    GateType getType() const { return m_type; }
     std::unique_ptr<GateInfo> clone() const;
 
-    void setParameter0(const std::string& paramName) { s_param0 = paramName; }
-    std::string getParameter0() const { return s_param0; }
+    void setParameter0(const std::string& paramName) { m_param0 = paramName; }
+    std::string getParameter0() const { return m_param0; }
 
-    void setParameter1(const std::string& paramName) { s_param1 = paramName; }
-    std::string getParameter1() const { return s_param1; }
+    void setParameter1(const std::string& paramName) { m_param1 = paramName; }
+    std::string getParameter1() const { return m_param1; }
 
-    std::vector<std::pair<double, double> > getPoints() const { return s_points; }
-    std::vector<std::pair<double, double> >& getPoints() { return s_points; }
+    std::vector<std::pair<double, double> > getPoints() const { return m_points; }
+    std::vector<std::pair<double, double> >& getPoints() { return m_points; }
+    std::pair<double, double> getPoint(size_t index) const
+    { return m_points.at(index); }
+
     void setPoints(const std::vector<std::pair<double, double> >& points) {
-        s_points = points;
+        m_points = points;
     }
+    void setPoint(size_t index, double x, double y);
 
     virtual bool operator==(const Contour& rhs) const;
     virtual bool operator!=(const Contour& rhs) const;

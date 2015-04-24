@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <ostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -9,11 +10,11 @@ namespace SpJs
 {
 
 GateInfo::GateInfo(const string &name, GateType type)
-    : s_name(name), s_type(type)
+    : m_name(name), m_type(type)
 {}
 
 GateInfo::GateInfo(const GateInfo &rhs)
-    : s_name(rhs.s_name), s_type(rhs.s_type)
+    : m_name(rhs.m_name), m_type(rhs.m_type)
 {}
 
 GateInfo::~GateInfo()
@@ -21,7 +22,7 @@ GateInfo::~GateInfo()
 
 bool GateInfo::operator==(const GateInfo& rhs) const {
 
-    return ((s_name == rhs.s_name) && (s_type == rhs.s_type));
+    return ((m_name == rhs.m_name) && (m_type == rhs.m_type));
 }
 
 bool GateInfo::operator!=(const GateInfo& rhs) const {
@@ -72,16 +73,16 @@ Slice::Slice(const string &name,
              double low,
              double high)
     : GateInfo(name, SliceGate),
-      s_param(parameter),
-      s_low(low),
-      s_high(high)
+      m_param(parameter),
+      m_low(low),
+      m_high(high)
 {}
 
 Slice::Slice(const Slice &rhs)
     : GateInfo(rhs),
-      s_param(rhs.s_param),
-      s_low(rhs.s_low),
-      s_high(rhs.s_high)
+      m_param(rhs.m_param),
+      m_low(rhs.m_low),
+      m_high(rhs.m_high)
 {}
 
 Slice::~Slice() {}
@@ -92,11 +93,11 @@ bool Slice::operator==(const Slice& rhs) const {
     bool same = GateInfo::operator==(rhs);
 
     // are the params the same
-    same &= equal(s_param.begin(), s_param.end(), rhs.s_param.begin());
+    same &= equal(m_param.begin(), m_param.end(), rhs.m_param.begin());
 
     // how about high and low
-    same &= (s_low == rhs.s_low);
-    same &= (s_high == rhs.s_high);
+    same &= (m_low == rhs.m_low);
+    same &= (m_high == rhs.m_high);
 
     return same;
 }
@@ -121,23 +122,23 @@ Contour::Contour(const string &name,
                  const string &parameter1,
                  const vector<pair<double, double> >& points)
     : GateInfo2D(name, ContourGate),
-      s_param0(parameter0),
-      s_param1(parameter1),
-      s_points(points)
+      m_param0(parameter0),
+      m_param1(parameter1),
+      m_points(points)
 {}
 
 Contour::Contour(const Contour& rhs)
     : GateInfo2D(rhs),
-      s_param0(rhs.s_param0),
-      s_param1(rhs.s_param1),
-      s_points(rhs.s_points)
+      m_param0(rhs.m_param0),
+      m_param1(rhs.m_param1),
+      m_points(rhs.m_points)
 {}
 
 Contour::Contour(const GateInfo2D& rhs)
     : GateInfo2D(rhs.getName(), ContourGate),
-      s_param0(rhs.getParameter0()),
-      s_param1(rhs.getParameter1()),
-      s_points(rhs.getPoints())
+      m_param0(rhs.getParameter0()),
+      m_param1(rhs.getParameter1()),
+      m_points(rhs.getPoints())
 {}
 
 Contour::~Contour() {}
@@ -148,13 +149,26 @@ bool Contour::operator==(const Contour& rhs) const {
     bool same = GateInfo2D::operator==(rhs);
 
     // how about high and low
-    same &= (s_param0 == rhs.s_param0);
-    same &= (s_param1 == rhs.s_param1);
+    same &= (m_param0 == rhs.m_param0);
+    same &= (m_param1 == rhs.m_param1);
 
     // are the params the same
-    same &= equal(s_points.begin(), s_points.end(), rhs.s_points.begin());
+    same &= equal(m_points.begin(), m_points.end(), rhs.m_points.begin());
 
     return same;
+}
+
+void Contour::setPoint(size_t index, double x, double y)
+{
+    if (index >= m_points.size()) {
+        string msg("Contour::setPoint(size_t, x, y) ::");
+        msg += "Cannot set a point that does not exist";
+        throw out_of_range(msg);
+    } else {
+        auto& point = m_points.at(index);
+        point.first = x;
+        point.second = y;
+    }
 }
 
 bool Contour::operator!=(const Contour& rhs) const {
@@ -175,23 +189,23 @@ Band::Band(const string &name,
                  const string &parameter1,
                  const vector<pair<double, double> >& points)
     : GateInfo2D(name, BandGate),
-      s_param0(parameter0),
-      s_param1(parameter1),
-      s_points(points)
+      m_param0(parameter0),
+      m_param1(parameter1),
+      m_points(points)
 {}
 
 Band::Band(const Band& rhs)
     : GateInfo2D(rhs),
-      s_param0(rhs.s_param0),
-      s_param1(rhs.s_param1),
-      s_points(rhs.s_points)
+      m_param0(rhs.m_param0),
+      m_param1(rhs.m_param1),
+      m_points(rhs.m_points)
 {}
 
 Band::Band(const GateInfo2D& rhs)
     : GateInfo2D(rhs.getName(), BandGate),
-      s_param0(rhs.getParameter0()),
-      s_param1(rhs.getParameter1()),
-      s_points(rhs.getPoints())
+      m_param0(rhs.getParameter0()),
+      m_param1(rhs.getParameter1()),
+      m_points(rhs.getPoints())
 {}
 
 Band::~Band() {}
@@ -202,13 +216,26 @@ bool Band::operator==(const Band& rhs) const {
     bool same = GateInfo2D::operator==(rhs);
 
     // how about high and low
-    same &= (s_param0 == rhs.s_param0);
-    same &= (s_param1 == rhs.s_param1);
+    same &= (m_param0 == rhs.m_param0);
+    same &= (m_param1 == rhs.m_param1);
 
     // are the params the same
-    same &= equal(s_points.begin(), s_points.end(), rhs.s_points.begin());
+    same &= equal(m_points.begin(), m_points.end(), rhs.m_points.begin());
 
     return same;
+}
+
+void Band::setPoint(size_t index, double x, double y)
+{
+    if (index >= m_points.size()) {
+        string msg("Contour::setPoint(size_t, x, y) ::");
+        msg += "Cannot set a point that does not exist";
+        throw out_of_range(msg);
+    } else {
+        auto& point = m_points.at(index);
+        point.first = x;
+        point.second = y;
+    }
 }
 
 bool Band::operator!=(const Band& rhs) const {
