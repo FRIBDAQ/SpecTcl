@@ -5,6 +5,8 @@
 #include <QString>
 #include <QMetaType>
 
+#include <iosfwd>
+
 class TFrame;
 
 namespace SpJs 
@@ -32,6 +34,9 @@ public:
 
     Q_OBJECT
 public:
+
+    /*! Construct from SpJs::Slice
+    */
     explicit GSlice(const SpJs::Slice& info);
 
     /*! Constructor
@@ -52,6 +57,12 @@ public:
      */
     GSlice& operator=(const GSlice& rhs);
     
+    bool operator==(const GSlice& rhs);
+
+    bool operator!=(const GSlice& rhs) {
+      return ! (this->operator==(rhs));
+    }
+
     // Get values of low and high 
     double getXLow() const;
     double getXHigh() const;
@@ -93,5 +104,7 @@ private:
 };
 
 } // end of namespace
+
+extern std::ostream& operator<<(std::ostream& stream, const Viewer::GSlice& line);
 
 #endif // GSLICE_H

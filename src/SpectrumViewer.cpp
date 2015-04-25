@@ -28,6 +28,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "GlobalSettings.h"
 #include "LockGuard.h"
 #include "QRootCanvas.h"
+#include "SpecTclInterface.h"
 
 #include <QMessageBox>
 
@@ -43,13 +44,15 @@ using namespace std;
 namespace Viewer
 {
 
-SpectrumViewer::SpectrumViewer(QWidget *parent) :
+SpectrumViewer::SpectrumViewer(SpecTclInterface* pSpecTcl, QWidget *parent) :
     QFrame(parent),
     ui(new Ui::SpectrumViewer),
     m_currentHist(nullptr),
     m_canvas(nullptr),
     m_reqHandler(),
-    m_currentCanvas(nullptr)
+    m_currentCanvas(nullptr),
+    m_pSpecTcl(pSpecTcl),
+    m_canvasList()
 {
 
     ui->setupUi(this);
@@ -58,6 +61,7 @@ SpectrumViewer::SpectrumViewer(QWidget *parent) :
 
 
     m_canvas = new QRootCanvas(this);
+    m_canvasList.insert(m_canvas);
     m_currentCanvas = m_canvas;
 
 
@@ -79,6 +83,12 @@ SpectrumViewer::SpectrumViewer(QWidget *parent) :
                   this, SLOT(onError(int, const QString&))) ) {
         std::cout << "Failed to connect error --> onError" << std::endl;
     }
+
+    if ( !connect(m_pSpecTcl, SIGNAL(gateListChanged()),
+                  this, SLOT(refresh())) ) {
+        std::cout << "Failed to connect error --> onError" << std::endl;
+    }
+
 }
 
 SpectrumViewer::~SpectrumViewer()
@@ -129,6 +139,11 @@ void SpectrumViewer::update(HistogramBundle* gHist)
       m_canvas->Update();
     }
   
+}
+
+void SpectrumViewer::refresh()
+{
+  m_canvas->Update();
 }
 
 QUrl SpectrumViewer::formUpdateRequest()

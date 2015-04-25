@@ -97,6 +97,12 @@ public:
      */
     GGate& operator=(const GGate& rhs);
 
+    bool operator==(const GGate& rhs);
+    bool operator!=(const GGate& rhs)
+    {
+      return !(this->operator==(rhs));
+    }
+
     // Get/Set name
     QString getName() const;
     void setName(const QString& name);
@@ -116,6 +122,16 @@ public:
      */
     std::vector<std::pair<double, double> > getPoints() const;
 
+    /*!
+     * \brief Retrieve a point
+     * \return the x, y value of the requested point (x, y)
+     *
+     * \throws std::out_of_range when index is invalid
+     */
+    std::pair<double, double> getPoint(size_t index) const;
+
+    //
+    void setPoints(const std::vector<std::pair<double, double> >& points);
 
     bool isEditable() const {
       return m_pCut->GetEditable();
@@ -164,7 +180,7 @@ public:
 
     /*! \brief Changes the type of the gate
      *
-     *  THis actually changes the type of the gate information.
+     *  This actually changes the type of the gate information.
      *
      *  \param type   either SpJs::BandGate or SpJs::ContourGate
      */
@@ -186,7 +202,7 @@ public slots:
     /// Member data 
 private:
     std::unique_ptr<TCutG> m_pCut;
-    std::unique_ptr<SpJs::GateInfo2D> m_info;
+    std::unique_ptr<SpJs::GateInfo2D> m_pInfo;
 
 };
 

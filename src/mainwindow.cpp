@@ -41,10 +41,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_view = new SpectrumViewer(ui->frame);
-    ui->gridLayout->addWidget(m_view);
 
     m_pSpecTcl = new SpecTclRESTInterface();
+
+    m_view = new SpectrumViewer(m_pSpecTcl, ui->frame);
+    ui->gridLayout->addWidget(m_view);
 
     m_histView = new HistogramView(this);
     m_gateView = new DockableGateManager(*m_view, m_pSpecTcl, this);

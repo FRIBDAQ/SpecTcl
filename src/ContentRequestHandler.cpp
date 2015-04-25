@@ -214,7 +214,20 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
     QString encoding = reply->rawHeader("Content-Encoding");
     if (encoding == "deflate") {
         cout << "uncompress..." << flush;
-        size_t nBytesDecomp = reply->rawHeader("Uncompressed-Length").toInt();
+
+        // default uncompressed size to try
+        size_t nBytesDecomp = 2<<20;
+
+        // see if we can get a better number to use for our uncompressed size
+        if (reply->hasRawHeader("Uncompressed-Length")) {
+          // this is when we were told by spectcl
+          nBytesDecomp = reply->rawHeader("Uncompressed-Length").toInt();
+        } else if (reply->hasRawHeader("Content-Length")) {
+            // we can guess based on the compressed size that maybe there was
+            // a 7x compression. that seems about right from my experience
+            nBytesDecomp = reply->rawHeader("Content-Length").toInt();
+            nBytesDecomp *= 7;
+        }
 
         json = cprs::uncompress(nBytesDecomp, bytes);
         cout << "done" << endl;

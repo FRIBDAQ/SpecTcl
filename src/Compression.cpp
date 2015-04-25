@@ -44,6 +44,7 @@ namespace Compression
     // resize
     ucBuffer.reserve(nUCBytes);
 
+    std::cout << "initial size = " << nUCBytes << std::endl;
     while(status == Z_BUF_ERROR) {
 
         uclength = ucBuffer.capacity();
@@ -70,6 +71,7 @@ namespace Compression
         throw std::runtime_error("Unanticipated error from zlib uncompress function");
     }
 
+    std::cout << "final size = " << ucBuffer.size() << std::endl;
     return ucBuffer;
   };
 

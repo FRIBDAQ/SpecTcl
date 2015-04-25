@@ -9,6 +9,7 @@ set(untitled2test_SOURCES
   HistogramListTest.cpp
   GateListTest.cpp
   DockableGateManagerTest.cpp
+  QTLineTest.cpp
   ${PROGRAM_SOURCES} )
 
 set(untitled2test_HEADERS "")

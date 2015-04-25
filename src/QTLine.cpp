@@ -4,34 +4,26 @@
 #include <TFrame.h>
 #include <TPad.h>
 
-#include <ostream>
+#include <iostream>
 
 using namespace std;
 
 namespace Viewer
 {
 
-QTLine::QTLine()
-  : QObject(),
-    TLine(),
-    m_editable(false),
-    m_lastX1(0),
-    m_lastY1(0),
-    m_lastX2(0),
-    m_lastY2(0)
-{
-  SetVertical(true);
-}
+QTLine::QTLine() : QTLine(0,0,0,0)
+{}
 
 QTLine::QTLine(double x1, double y1, double x2, double y2)
   : QObject(),
-    TLine(x1, y2, x2, y2),
+    TLine(x1, y1, x2, y2),
     m_editable(false),
     m_lastX1(x1),
     m_lastY1(y1),
     m_lastX2(x2),
     m_lastY2(y2)
-{}
+{
+}
 
 QTLine& QTLine::operator=(const QTLine& rhs) {
   if (this != &rhs) {
@@ -42,6 +34,7 @@ QTLine& QTLine::operator=(const QTLine& rhs) {
       m_lastX2 = rhs.m_lastX2;
       m_lastY2 = rhs.m_lastY2;
 
+
       TLine::operator=(rhs);
     }
   return *this;
@@ -51,7 +44,6 @@ void QTLine::Paint(Option_t* opt) {
 
   // update the y1 and y2
   updateYValues();
-
 
   if ( ! m_editable ) {
       // if you cannot edit it, then get rid of changes...
@@ -96,16 +88,15 @@ void QTLine::updateYValues()
 }
 
 
-ostream& operator<<(ostream& stream, const QTLine& line)
+} // end of namespace
+
+ostream& operator<<(ostream& stream, const Viewer::QTLine& line)
 {
   stream << "QTLine @ " << (void*) &line;
-  stream << "\n  x0 = " << line.GetX1();
-  stream << "\n  y0 = " << line.GetY1();
-  stream << "\n  x1 = " << line.GetX2();
-  stream << "\n  y1 = " << line.GetY2();
-  stream << endl;
+  stream << " (" << line.GetX1() << ", " <<line.GetY1() << ") --> ";
+  stream << "(" << line.GetX2() << ", " << line.GetY2() << ")" << endl;
+  stream << "\t(" << line.fX1 << ", " << line.fY1 << ") --> ";
+  stream << "(" << line.fX2 << ", " << line.fY2 << ")";
 
   return stream;
 }
-
-} // end of namespace

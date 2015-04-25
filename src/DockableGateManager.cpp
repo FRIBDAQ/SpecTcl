@@ -57,15 +57,8 @@ DockableGateManager::DockableGateManager(const SpectrumViewer& viewer,
     m_pSpecTcl(pSpecTcl)
 {
     ui->setupUi(this);
-    connect(ui->addButton, SIGNAL(clicked()), 
-            this, SLOT(launchAddGateDialog()));
-    connect(ui->editButton, SIGNAL(clicked()), 
-            this, SLOT(launchEditGateDialog()));
-    connect(ui->deleteButton, SIGNAL(clicked()), 
-            this, SLOT(deleteGate()));
 
-    connect(pSpecTcl, SIGNAL(gateListChanged()),
-            this, SLOT(onGateListChanged()));
+    connectSignals();
 }
 
 DockableGateManager::~DockableGateManager()
@@ -239,10 +232,6 @@ void DockableGateManager::editGate(GGate* pCut)
 
     pCut->setEditable(false);
 
-    auto histPkg = m_view.getCurrentHist();
-    if (histPkg) {
-      histPkg->draw();
-    }
 }
 
 
@@ -257,10 +246,6 @@ void DockableGateManager::editSlice(GSlice *pSlice)
 
     pSlice->setEditable(false);
 
-    auto histPkg = m_view.getCurrentHist();
-    if (histPkg) {
-      histPkg->draw();
-    }
 }
 
 void DockableGateManager::deleteGate()
@@ -278,6 +263,10 @@ void DockableGateManager::deleteGate()
   auto histPkg = m_view.getCurrentHist();
   if (histPkg) {
     histPkg->draw();
+
+    auto pPad = m_view.getCurrentFocus();
+    pPad->Modified();
+    pPad->Update();
   }
 
 }
@@ -363,7 +352,6 @@ void DockableGateManager::onGateListChanged()
     ++it_2d;
   }
 
-  
 }
 
 QListWidgetItem* DockableGateManager::findItem(const QString &name)
@@ -397,6 +385,21 @@ vector<QListWidgetItem*> DockableGateManager::getItems() const
   }
 
   return items;
+}
+
+void DockableGateManager::connectSignals()
+{
+  connect(ui->addButton, SIGNAL(clicked()),
+          this, SLOT(launchAddGateDialog()));
+
+  connect(ui->editButton, SIGNAL(clicked()),
+          this, SLOT(launchEditGateDialog()));
+
+  connect(ui->deleteButton, SIGNAL(clicked()),
+          this, SLOT(deleteGate()));
+
+  connect(m_pSpecTcl, SIGNAL(gateListChanged()),
+          this, SLOT(onGateListChanged()));
 }
 
 } // end of namespace

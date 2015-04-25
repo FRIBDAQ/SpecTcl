@@ -83,27 +83,7 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
     m_canvas.Modified();
     m_canvas.Update();
 
-    // Connect
-    connect(&m_canvas, SIGNAL(mousePressed(TPad*)),
-            this, SLOT(onMousePress(TPad*)));
-
-    connect(&m_canvas, SIGNAL(mouseReleased(TPad*)),
-            this, SLOT(onMouseRelease(TPad*)));
-
-    connect(ui->gateNameEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(onNameChanged(QString)));
-
-    connect(ui->lowEdit, SIGNAL(editingFinished()), 
-            this, SLOT(lowEditChanged()));
-
-    connect(ui->highEdit, SIGNAL(editingFinished()), 
-            this, SLOT(highEditChanged()));
-
-    connect(m_editSlice.getXLowLine(), SIGNAL(valuesChanged(double,double,double,double)),
-            this, SLOT(onLowChanged(double,double,double,double)));
-
-    connect(m_editSlice.getXHighLine(), SIGNAL(valuesChanged(double,double,double,double)),
-            this, SLOT(onHighChanged(double,double,double,double)));
+    connectSignals();
 
 }
 
@@ -131,13 +111,23 @@ void GateBuilder1DDialog::accept()
         m_pOldSlice = new GSlice;
     }
 
+    cout << "Accept() : editSlice" << endl;
+    cout << m_editSlice << endl;
+
     // store new values
     *m_pOldSlice = m_editSlice;
 
-    cout << *(m_pOldSlice->getXLowLine()) << endl;
-    cout << *(m_pOldSlice->getXHighLine()) << endl;
-    cout << *(m_editSlice.getXLowLine()) << endl;
-    cout << *(m_editSlice.getXHighLine()) << endl;
+    cout << "Accept() : m_pOldSlice after assignment" << endl;
+    cout << *m_pOldSlice << endl;
+
+    // get rid of the editable version of the slice
+    removeOldLines(m_editSlice);
+
+    // draw the real slice if it still exists
+    if (m_pOldSlice) {
+        cout << "Accept() : draw oldslice" << endl;
+        m_pOldSlice->draw(&m_canvas);
+    }
 
     // send the slice to the outside world!
     emit completed( m_pOldSlice );
@@ -153,9 +143,7 @@ void GateBuilder1DDialog::reject()
 
     // redraw the old changes
     if ( m_pOldSlice != nullptr) {
-        m_pOldSlice->draw(&m_canvas);
-        m_canvas.Modified();
-        m_canvas.Update();
+        m_pOldSlice->draw(&m_canvas);  
     }
 
     // Call the parent's reject() so it accepts as it normally does.
@@ -285,6 +273,33 @@ void GateBuilder1DDialog::onHighChanged(double x1, double y1,
                                         double x2, double y2)
 {
   updateHigh(x1);
+}
+
+void GateBuilder1DDialog::connectSignals()
+{
+
+  // Connect
+  connect(&m_canvas, SIGNAL(mousePressed(TPad*)),
+          this, SLOT(onMousePress(TPad*)));
+
+  connect(&m_canvas, SIGNAL(mouseReleased(TPad*)),
+          this, SLOT(onMouseRelease(TPad*)));
+
+  connect(ui->gateNameEdit, SIGNAL(textChanged(QString)),
+          this, SLOT(onNameChanged(QString)));
+
+  connect(ui->lowEdit, SIGNAL(editingFinished()),
+          this, SLOT(lowEditChanged()));
+
+  connect(ui->highEdit, SIGNAL(editingFinished()),
+          this, SLOT(highEditChanged()));
+
+  connect(m_editSlice.getXLowLine(), SIGNAL(valuesChanged(double,double,double,double)),
+          this, SLOT(onLowChanged(double,double,double,double)));
+
+  connect(m_editSlice.getXHighLine(), SIGNAL(valuesChanged(double,double,double,double)),
+          this, SLOT(onHighChanged(double,double,double,double)));
+
 }
 
 } // end of namespace

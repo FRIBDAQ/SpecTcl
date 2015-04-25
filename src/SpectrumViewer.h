@@ -27,6 +27,8 @@
 #include <QFrame>
 #include <QPair>
 
+#include <set>
+
 class QString;
 
 namespace Ui {
@@ -39,13 +41,14 @@ namespace Viewer
 
 class HistogramBundle;
 class QRootCanvas;
+class SpecTclInterface;
 
 class SpectrumViewer : public QFrame
 {
     Q_OBJECT
     
 public:
-    explicit SpectrumViewer(QWidget *parent = 0);
+    explicit SpectrumViewer(SpecTclInterface* pSpecTcl, QWidget *parent = 0);
     ~SpectrumViewer();
 
     QRootCanvas* getCurrentFocus() const;
@@ -55,6 +58,7 @@ public slots:
     void requestUpdate();
 
     void update(HistogramBundle* gHist);
+    void refresh();
 
     void onError(int errorCode, const QString& reason);
 
@@ -67,6 +71,8 @@ private:
     QRootCanvas*          m_canvas;
     ContentRequestHandler m_reqHandler;
     QRootCanvas*          m_currentCanvas;
+    SpecTclInterface*     m_pSpecTcl;
+    std::set<QRootCanvas*> m_canvasList;
 };
 
 } // end of namespace

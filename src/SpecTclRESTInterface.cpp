@@ -96,19 +96,30 @@ void SpecTclRESTInterface::listGates()
 void 
 SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 {
-  m_pGateList->synchronize(gates);
 
-  HistogramList::synchronize(*m_pGateList);
+  if (! pollGates) return;
+
+  // synchronize our list of gates to the list that we are being passed
+  // from SpecTcl
+  bool gatesChanged = m_pGateList->synchronize(gates);
+
+  // only update everything else if something actually changed.
+  if (gatesChanged) {
+
+      // now update the histograms so that we know they only reference gates
+      // that exist after the synchronization
+      HistogramList::synchronize(*m_pGateList);
+
+      // tell the world that things have changed.
+      emit gateListChanged();
+
+  }
+
+  // schedule the next update
+  QTimer::singleShot(1000, this, SLOT(listGates()));
 
   // free the gates... they have done their job
   for (auto ptr : gates) { delete ptr; }
-
-  emit gateListChanged();
-
-
-  if (pollGates) {
-     QTimer::singleShot(1000, this, SLOT(listGates()));
-  }
 
 }
 

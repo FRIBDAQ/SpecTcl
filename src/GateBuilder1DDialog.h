@@ -81,6 +81,7 @@ private:
     // Hides the original lines
     void removeOldLines(GSlice& pSlice);
 
+    void connectSignals();
 
 private:
     Ui::GateBuilder1DDialog *ui;

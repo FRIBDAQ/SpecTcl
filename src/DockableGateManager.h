@@ -111,6 +111,7 @@ public:
 private:
     void addSliceToList(GSlice* pSlice);
     void addGateToList(GGate* pGate);
+    void connectSignals();
 
 private:
     Ui::DockableGateManager *ui;

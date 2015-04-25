@@ -8,10 +8,16 @@
 
 #include <iosfwd>
 
+namespace Viewer {
+class QTLine;
+}
+
+extern std::ostream& operator<<(std::ostream& stream, const Viewer::QTLine& line);
+
 namespace Viewer
 {
 
-class QTLine : public QObject, virtual public TLine
+class QTLine : public QObject, public TLine
 {
   Q_OBJECT 
 
@@ -27,6 +33,7 @@ class QTLine : public QObject, virtual public TLine
     bool isEditable() const;
     void updateYValues();
 
+    friend std::ostream& ::operator<<(std::ostream&, const QTLine&);
 signals:
     void valuesChanged(double x1, double y1, double x2, double y2);
 
@@ -38,8 +45,7 @@ signals:
     double m_lastY2;
 };
 
-extern std::ostream& operator<<(std::ostream& stream, const QTLine& line);
-
 } // end of namespace
+
 
 #endif

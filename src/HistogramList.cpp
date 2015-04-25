@@ -163,13 +163,17 @@ void HistogramList::synchronize(const GateList& list)
     synchronize2d(list.begin2d(), list.end2d());
 }
 
+
+// The HistogramBundles don't own the cuts and only maintain a cache of pointers to
+// the gates in the GateList. So we can essentially just clear their caches
+// and then repopulate them.
 void HistogramList::synchronize1d(GateList::iterator1d b, GateList::iterator1d e)
 {
     auto it = begin();
     auto it_end = end();
 
     // histogram bundles just own a reference to the cuts so we don't care
-    // about clear their cut cache...
+    // about clearing their cut cache...
     while ( it != it_end ) {
         auto& pHist = it->second;
 
@@ -189,6 +193,9 @@ void HistogramList::synchronize1d(GateList::iterator1d b, GateList::iterator1d e
 
 }
 
+// The HistogramBundles don't own the cuts and only maintain a cache of pointers to
+// the gates in the GateList. So we can essentially just clear their caches
+// and then repopulate them.
 void HistogramList::synchronize2d(GateList::iterator2d b, GateList::iterator2d e)
 {
     auto it = begin();
@@ -212,7 +219,6 @@ void HistogramList::synchronize2d(GateList::iterator2d b, GateList::iterator2d e
         addGate( it2d->get() );
         ++it2d;
     }
-
 }
 
 void HistogramList::addSlice(GSlice* pSlice)

@@ -81,7 +81,7 @@ MyCutG::marshallData( const double* x, const double* y, size_t n)
 
 GGate::GGate( const SpJs::GateInfo2D& info, QObject* parent)
     :
-      m_info(),
+      m_pInfo(),
       m_pCut(new MyCutG("__empty__", 1)),
       QObject(parent)
 {
@@ -95,20 +95,37 @@ GGate::~GGate()
 GGate& GGate::operator=(const GGate& rhs)
 {
     if (this != &rhs) {
-        setInfo(*rhs.m_info);
+        setInfo(*rhs.m_pInfo);
         setParent(rhs.parent());
     }
 
     return *this;
 }
 
+// we consider equality with the spectcl state... the gui state may differ
+// momentarily before being synchronized.
+bool GGate::operator==(const GGate& rhs)
+{
+  if ( m_pInfo->getType() == SpJs::BandGate ) {
+      auto& info = dynamic_cast<SpJs::Band&>(*m_pInfo);
+      return ( info == *rhs.m_pInfo );
+    } else {
+      auto& info = dynamic_cast<SpJs::Contour&>(*m_pInfo);
+      return ( info == *rhs.m_pInfo );
+    }
+
+  // we should never ever ever get here.
+  Q_ASSERT( false );
+
+}
+
 QString GGate::getName() const
 {
-    return QString::fromStdString(m_info->getName());
+    return QString::fromStdString(m_pInfo->getName());
 }
 
 void GGate::setName(const QString& name) {
-    return m_info->setName(name.toStdString());
+    return m_pInfo->setName(name.toStdString());
 }
 
 void GGate::onNameChanged(const QString &name)
@@ -121,28 +138,28 @@ void GGate::onPointChanged(int index, double x, double y)
 
 QString GGate::getParameterX() const
 {
-    return QString::fromStdString(m_info->getParameter0());
+    return QString::fromStdString(m_pInfo->getParameter0());
 }
 
 QString GGate::getParameterY() const
 {
-    return QString::fromStdString(m_info->getParameter1());
+    return QString::fromStdString(m_pInfo->getParameter1());
 }
 
 std::vector<std::pair<double, double> > GGate::getPoints() const
 {
-    return m_info->getPoints();
+    return m_pInfo->getPoints();
 }
 
 void GGate::setInfo(const SpJs::GateInfo2D &info)
 {
     // copy the actual gate,
     // this deletes the previous gate and stores the copy
-    m_info.reset(dynamic_cast<SpJs::GateInfo2D*>(info.clone().release()));
+    m_pInfo.reset(dynamic_cast<SpJs::GateInfo2D*>(info.clone().release()));
 
-    m_pCut->SetName(m_info->getName().c_str());
+    m_pCut->SetName(m_pInfo->getName().c_str());
 
-    auto points = m_info->getPoints();
+    auto points = m_pInfo->getPoints();
     size_t nPoints = points.size();
 
     // resize current cut
@@ -157,23 +174,23 @@ void GGate::setInfo(const SpJs::GateInfo2D &info)
 
 SpJs::GateType GGate::getType() const
 {
-    return m_info->getType();
+    return m_pInfo->getType();
 }
 
 void GGate::setType(SpJs::GateType type)
 {
     // we are already the proper type
-    if (m_info->getType()==type) {
+    if (m_pInfo->getType()==type) {
         return;
     }
 
     // we are now going to change the type by swapping out
     // the SpJs::GateInfo2D object we own
     if (type == SpJs::BandGate) {
-        SpJs::Band band(*m_info);
+        SpJs::Band band(*m_pInfo);
         setInfo(band);
     } else if (type == SpJs::ContourGate){
-        SpJs::Contour contour(*m_info);
+        SpJs::Contour contour(*m_pInfo);
         setInfo(contour);
     } else {
         throw runtime_error("Cannot convert 2D gate to a slice");
@@ -186,9 +203,9 @@ void GGate::appendPoint(double x, double y)
     m_pCut->Set(nPoints+1);
     m_pCut->SetPoint(nPoints, x, y);
 
-    m_info->getPoints().push_back(std::make_pair(x, y));
+    m_pInfo->getPoints().push_back(std::make_pair(x, y));
 
-    auto points = m_info->getPoints();
+    auto points = m_pInfo->getPoints();
     for (auto point : points) {
         cout << point.first << "\t" << point.second << endl;
     }
@@ -200,7 +217,12 @@ void GGate::popBackPoint()
     int nPoints = m_pCut->GetN();
     m_pCut->RemovePoint(nPoints-1);
 
-    m_info->getPoints().pop_back();
+    m_pInfo->getPoints().pop_back();
+}
+
+std::pair<double, double> GGate::getPoint(size_t index) const
+{
+  return m_pInfo->getPoint(index);
 }
 
 void GGate::draw()
@@ -215,7 +237,7 @@ void GGate::draw()
 void GGate::synchronize(GGate::DataSource targ)
 {
     if (targ == SpecTcl) {
-        auto points = m_info->getPoints();
+        auto points = m_pInfo->getPoints();
         size_t nPoints = points.size();
 
         // resize current cut
@@ -241,7 +263,7 @@ void GGate::synchronize(GGate::DataSource targ)
             points.push_back(make_pair(pX[i], pY[i]));
         }
 
-        m_info->setPoints(points);
+        m_pInfo->setPoints(points);
     }
 }
 

@@ -52,8 +52,10 @@ GateList::GateList()
 {
 }
 
-void GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
+bool GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
 {
+ bool somethingChanged=false;
+
  // make sure that we add all non existing gates to the this
  for (auto pGate : gates) {
     
@@ -65,6 +67,18 @@ void GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
         // if we did not find it, then add it
         if ( it == end1d() ) {
             addCut1D(*pGate);
+            somethingChanged = true;
+        } else {
+            // we found it, so make sure its state is updated to reflect
+            // the new state
+
+            auto& existingSlice = *(*it);
+            GSlice newSlice(dynamic_cast<SpJs::Slice&>(*pGate));
+            if ( existingSlice != newSlice ) {
+                cout << "GateList::syncrhonizing" << std::endl;
+                existingSlice = newSlice;
+                somethingChanged = true;
+            }
         }
 
     } else if ( type == SpJs::BandGate || type == SpJs::ContourGate ) {
@@ -75,7 +89,17 @@ void GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
         if (it == end2d() ) {
             SpJs::GateInfo2D& g2d = dynamic_cast<SpJs::GateInfo2D&>(*pGate);
             addCut2D(g2d);
-        }
+            somethingChanged = true;
+        } else {
+            // we found it, so make sure its state is updated to reflect
+            // the new state
+            auto& existingGate = *(*it);
+            GGate newGate(dynamic_cast<SpJs::GateInfo2D&>(*pGate));
+            if (existingGate != newGate) {
+              existingGate = newGate;
+              somethingChanged = true;
+            }
+          }
     }
   }
 
@@ -94,9 +118,11 @@ void GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
     if ( it != gates.end() ) {
         if ( (*it)->getType() == SpJs::FalseGate ) {
           removeCut1D(name);
+          somethingChanged = true;
         }
     } else {
       removeCut1D(name);
+      somethingChanged = true;
     }
 
     // increment!
@@ -114,16 +140,19 @@ void GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
     if ( it != gates.end() ) {
       if ( (*it)->getType() == SpJs::FalseGate ) {
         removeCut2D(name);
+        somethingChanged = true;
       }
     } else {
       cout << "about to remove " << name.toStdString() << endl;
       removeCut2D(name);
+      somethingChanged = true;
     }
 
     // increment
     ++it_2d;
   }
 
+  return somethingChanged;
 }
 
 void GateList::addCut1D(const SpJs::GateInfo& slice)

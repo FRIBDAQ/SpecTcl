@@ -5,6 +5,9 @@
 #include <TFrame.h>
 
 #include <GateInfo.h>
+#include <iostream>
+
+using namespace std;
 
 namespace Viewer
 {
@@ -52,15 +55,8 @@ GSlice::~GSlice()
 GSlice& GSlice::operator=(const GSlice& rhs)
 {
     if (this != &rhs) {
-        auto pTemp = new QTLine();
-        *pTemp = *(rhs.getXLowLine());
-        delete m_pLow;
-        m_pLow = pTemp;
-
-        pTemp = new QTLine();
-        *pTemp = *(rhs.getXHighLine());
-        delete m_pHigh;
-        m_pHigh = pTemp;
+        *m_pLow = *rhs.getXLowLine();
+        *m_pHigh = *rhs.getXHighLine();
 
         m_name = rhs.m_name;
 
@@ -69,6 +65,13 @@ GSlice& GSlice::operator=(const GSlice& rhs)
 
     }
     return *this;
+}
+
+bool GSlice::operator ==(const GSlice& rhs)
+{
+
+  return ((m_name == rhs.m_name) && (getXLow() == rhs.getXLow())
+          && (getXHigh() == rhs.getXHigh()) && (getParameter() == rhs.getParameter()));
 }
 
 void GSlice::draw(QRootCanvas *pCanvas)
@@ -96,6 +99,7 @@ double GSlice::getXHigh() const
 
 void GSlice::draw()
 {
+  std::cout << "GSlice::draw()" << std::endl;
     TFrame* pFrame = gPad->GetFrame();
 
     m_pLow->Draw("same");
@@ -155,3 +159,12 @@ bool GSlice::isEditable() const
 }
 
 } // end of namespace
+
+ostream& operator<<(ostream& stream, const Viewer::GSlice& slice)
+{
+  stream << "GSlice @ " << (void*) &slice;
+  stream << "\nlow = " << slice.getXLow();
+  stream << "\thigh = " << slice.getXHigh();
+
+  return stream;
+}

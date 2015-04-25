@@ -22,6 +22,13 @@ using namespace std;
 namespace Viewer
 {
 
+  // ensure that pair can be printed
+  ostream& operator<<(ostream& stream, const pair<double, double>& p)
+  {
+    stream << "(" << p.first << ", " << p.second << ")";
+    return stream;
+  }
+
 class GGateTest : public CppUnit::TestFixture
 {
   public:
@@ -29,6 +36,12 @@ class GGateTest : public CppUnit::TestFixture
     CPPUNIT_TEST( construct_0 );
     CPPUNIT_TEST( synchronize_0 );
     CPPUNIT_TEST( synchronize_1 );
+    CPPUNIT_TEST( getPoint_0 );
+    CPPUNIT_TEST( equality_0 );
+    CPPUNIT_TEST( inequality_0 );
+    CPPUNIT_TEST( inequality_1 );
+    CPPUNIT_TEST( inequality_2 );
+    CPPUNIT_TEST( inequality_3 );
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -41,7 +54,12 @@ class GGateTest : public CppUnit::TestFixture
     void construct_0();
     void synchronize_0();
     void synchronize_1();
-
+    void getPoint_0();
+    void equality_0();
+    void inequality_0();
+    void inequality_1();
+    void inequality_2();
+    void inequality_3();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GGateTest);
@@ -111,4 +129,54 @@ void GGateTest::synchronize_1()
   
 }
 
+void GGateTest::getPoint_0()
+{
+  using dpair = pair<double, double>;
+  // create a band gate and enable access to the points...
+  SpJs::Band band0("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}});
+  GGate gate(band0);
+  CPPUNIT_ASSERT( dpair(0, 1) == gate.getPoint(0) );
+  CPPUNIT_ASSERT( dpair(1, 2) == gate.getPoint(1) );
+  CPPUNIT_ASSERT( dpair(2, 3) == gate.getPoint(2) );
+}
+
+void GGateTest::equality_0()
+{
+  GGate g0(SpJs::Band("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}}));
+  GGate g1(SpJs::Band("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}}));
+
+  CPPUNIT_ASSERT_MESSAGE( "Gates should be equal", g0 == g1 );
+}
+
+void GGateTest::inequality_0()
+{
+  GGate g0(SpJs::Band("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}}));
+  GGate g1(SpJs::Band("mycut2", "x", "y", {{0, 1}, {1, 2}, {2, 3}}));
+
+  CPPUNIT_ASSERT_MESSAGE( "Gates with different names are not equal", g0 != g1 );
+}
+
+  void GGateTest::inequality_1()
+  {
+    GGate g0(SpJs::Band("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}}));
+    GGate g1(SpJs::Band("mycut", "x1", "y", {{0, 1}, {1, 2}, {2, 3}}));
+
+  CPPUNIT_ASSERT_MESSAGE( "Gates with different x parameters are not equal", g0 != g1 );
+  }
+
+  void GGateTest::inequality_2()
+  {
+    GGate g0(SpJs::Band("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}}));
+    GGate g1(SpJs::Band("mycut", "x", "y2", {{0, 1}, {1, 2}, {2, 3}}));
+
+  CPPUNIT_ASSERT_MESSAGE( "Gates with different y parameters are not equal", g0 != g1 );
+  }
+
+  void GGateTest::inequality_3()
+  {
+    GGate g0(SpJs::Band("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}}));
+  GGate g1(SpJs::Band("mycut", "x", "y", {{1, 2}, {2, 3}}));
+
+  CPPUNIT_ASSERT_MESSAGE( "Gates with different points are not equal", g0 != g1 );
+  }
 } // end of namespace

@@ -62,7 +62,7 @@ class GateList
 public:
     GateList();
 
-    void synchronize(std::vector<SpJs::GateInfo*> gates);
+    bool synchronize(std::vector<SpJs::GateInfo*> gates);
 
     void addCut1D(const SpJs::GateInfo& slice);
     void addCut1D(std::unique_ptr<GSlice> slice);
