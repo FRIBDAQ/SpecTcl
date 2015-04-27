@@ -172,7 +172,7 @@ void DockableGateManager::addGateToList(GGate* pCut)
 
 void DockableGateManager::registerGate(GGate* pCut)
 {
-    addGateToList(pCut);
+  Q_ASSERT( pCut != nullptr );
 
     pCut->setEditable(false);
 
@@ -210,7 +210,7 @@ void DockableGateManager::addSliceToList(GSlice* pSlice)
 
 void DockableGateManager::registerSlice(GSlice *pSlice)
 {
-    addSliceToList(pSlice);
+  Q_ASSERT( pSlice != nullptr );
 
     pSlice->setEditable(false);
 
@@ -258,15 +258,6 @@ void DockableGateManager::deleteGate()
     }
   
     removeGate(pItem);
-  }
-
-  auto histPkg = m_view.getCurrentHist();
-  if (histPkg) {
-    histPkg->draw();
-
-    auto pPad = m_view.getCurrentFocus();
-    pPad->Modified();
-    pPad->Update();
   }
 
 }

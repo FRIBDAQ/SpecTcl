@@ -84,7 +84,6 @@ GateBuilder1DDialog::GateBuilder1DDialog(QRootCanvas& canvas,
     m_canvas.Update();
 
     connectSignals();
-
 }
 
 
@@ -122,14 +121,6 @@ void GateBuilder1DDialog::accept()
 
     // get rid of the editable version of the slice
     removeOldLines(m_editSlice);
-
-    // the next update from SpecTcl will schedule a redraw
-    //
-//    // draw the real slice if it still exists
-//    if (m_pOldSlice) {
-//        cout << "Accept() : draw oldslice" << endl;
-//        m_pOldSlice->draw(&m_canvas);
-//    }
 
     // send the slice to the outside world!
     emit completed( m_pOldSlice );
@@ -240,6 +231,8 @@ void GateBuilder1DDialog::removeOldLines(GSlice &rSlice)
     auto pList = m_canvas.getCanvas()->GetListOfPrimitives();
     pList->Remove( const_cast<QTLine*>(rSlice.getXLowLine()) );
     pList->Remove( const_cast<QTLine*>(rSlice.getXHighLine()) );
+    m_canvas.Modified();
+    m_canvas.Update();
 }
 
 void GateBuilder1DDialog::onNameChanged(QString name)
