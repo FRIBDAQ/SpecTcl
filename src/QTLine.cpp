@@ -69,6 +69,14 @@ void QTLine::Paint(Option_t* opt) {
 
 void QTLine::setEditable(bool enable) {
   m_editable = enable;
+  // line should show up thick and dashed if editable
+  if (m_editable) {
+      SetLineWidth(2);
+      SetLineStyle(2);
+  } else {
+      SetLineWidth(1);
+      SetLineStyle(1);
+  }
 }
 
 bool QTLine::isEditable() const {
