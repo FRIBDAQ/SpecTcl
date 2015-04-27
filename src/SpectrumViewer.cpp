@@ -144,7 +144,7 @@ void SpectrumViewer::update(HistogramBundle* gHist)
 
 void SpectrumViewer::refresh()
 {
-  m_canvas->Update();
+  update(m_currentHist);
 }
 
 QUrl SpectrumViewer::formUpdateRequest()
