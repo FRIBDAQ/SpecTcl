@@ -42,6 +42,7 @@ class GGateTest : public CppUnit::TestFixture
     CPPUNIT_TEST( inequality_1 );
     CPPUNIT_TEST( inequality_2 );
     CPPUNIT_TEST( inequality_3 );
+    CPPUNIT_TEST( closeContour_0 );
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -60,6 +61,8 @@ class GGateTest : public CppUnit::TestFixture
     void inequality_1();
     void inequality_2();
     void inequality_3();
+
+    void closeContour_0();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(GGateTest);
@@ -179,4 +182,23 @@ void GGateTest::inequality_0()
 
   CPPUNIT_ASSERT_MESSAGE( "Gates with different points are not equal", g0 != g1 );
   }
+
+  void GGateTest::closeContour_0() 
+{
+
+  // if we pass in info without the data points forming a closed entity,
+  // the graphical object should be closed
+    GGate g0(SpJs::Contour("mycut", "x", "y", {{0, 1}, {1, 2}, {2, 3}}));
+    auto pCut = g0.getGraphicObject();
+
+    int nPoints = pCut->GetN();
+    auto pX = pCut->GetX();
+    auto pY = pCut->GetY();
+
+    CPPUNIT_ASSERT_EQUAL_MESSAGE( "First and last x values should be equal",
+                                    pX[0], pX[nPoints-1] );
+    CPPUNIT_ASSERT_EQUAL_MESSAGE( "First and last y values should be equal",
+                                    pY[0], pY[nPoints-1] );
+}
+
 } // end of namespace

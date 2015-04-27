@@ -170,6 +170,23 @@ void GGate::setInfo(const SpJs::GateInfo2D &info)
         auto& point = points.at(i);
         m_pCut->SetPoint(i, point.first, point.second);
     }
+
+    // spectcl may not have closed the contour so we need to make sure
+    // it gets closed.
+    if ( info.getType() == SpJs::ContourGate ) {
+      double firstX = 0;
+      double firstY = 0;
+      double lastX = 0;
+      double lastY = 0;
+
+      m_pCut->GetPoint(0, firstX, firstY);
+      m_pCut->GetPoint(nPoints-1, lastX, lastY);
+
+      if ( firstX != lastX || firstY != lastY ) {
+        m_pCut->Set(nPoints+1);
+        m_pCut->SetPoint(nPoints, firstX, firstY);
+      }
+    }
 }
 
 SpJs::GateType GGate::getType() const
