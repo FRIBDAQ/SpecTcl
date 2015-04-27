@@ -29,8 +29,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "DockableGateManager.h"
 #include "TGo4CreateNewHistogram.h"
 #include "SpecTclRESTInterface.h"
+
 #include <QDebug>
 #include <QDockWidget>
+#include <QMessageBox>
 
 namespace Viewer
 {
@@ -105,8 +107,14 @@ void MainWindow::dockGates()
 
 void MainWindow::onNewHistogram()
 {
+  try {
     TGo4CreateNewHistogram dialog(0);
     dialog.exec();
+  } catch (std::exception& exc) {
+
+    QString errmsg(exc.what());
+    QMessageBox::warning(this, "Unable to create histograms", errmsg);
+  }
 }
 
 } // end of namespace
