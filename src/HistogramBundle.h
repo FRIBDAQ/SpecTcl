@@ -90,7 +90,7 @@ public:
     // Draw the histogram.
     void draw(const QString& opt = QString());
 
-    bool synchronizeGates(GateList* pGateList);
+    bool synchronizeGates(const GateList* pGateList);
 };
 
 } // end of namespace

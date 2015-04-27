@@ -92,7 +92,7 @@ void HistogramBundle::draw(const QString& opt) {
     }
 }
 
-bool HistogramBundle::synchronizeGates(GateList* pGateList)
+bool HistogramBundle::synchronizeGates(const GateList* pGateList)
 {
   bool somethingChanged = false;
 
@@ -117,26 +117,9 @@ bool HistogramBundle::synchronizeGates(GateList* pGateList)
       auto& localParams = m_hInfo.s_params;
       if ( (QString::fromStdString(localParams.at(0)) == param0 )
           && (QString::fromStdString(localParams.at(1))  == param1) ) {
-        // parameter matches. see if this exists already
 
-//        auto itFound = find_if( m_cuts2d.begin(), m_cuts2d.end(), 
-//            [&name](const pair<QString, GGate*>& pGate) {
-//            return ( pGate.second->getName() == name );
-//            });
-//        if ( itFound != m_cuts2d.end() ) {
-//          // gate exists... update it
-//          GGate& localGate = *(itFound->second);
-//          GGate& externGate = *pExtGate;
-//
-//          if (localGate != externGate) {
-//            // gates differ, need to update local gate
-//            somethingChanged = true;
-//          }
-//        } else {
-//          // gate did not exist... add it
-//          somethingChanged = true;
-//        }
-//
+          // parameter matches. we want this in our new list
+
         tempList[pExtGate->getName()] = pExtGate.get();
 
       } 
@@ -147,8 +130,16 @@ bool HistogramBundle::synchronizeGates(GateList* pGateList)
     if ( distance(m_cuts2d.begin(), m_cuts2d.end()) != distance(tempList.begin(), tempList.end()) ) {
       somethingChanged = true;
     } else {
-      if ( ! equal(m_cuts2d.begin(), m_cuts2d.end(), tempList.end() ) ) {
-        somethingChanged = true;
+
+        // predicate to compare the object referred to by the ptrs rather
+        // rather than the pointers
+        auto compareObjects = [](const pair<QString, GGate*>& lhs,
+                                 const pair<QString, GGate*>& rhs) {
+            return *(lhs.second) == *(rhs.second);
+          };
+
+        if ( ! equal(m_cuts2d.begin(), m_cuts2d.end(), tempList.begin(), compareObjects) ) {
+             somethingChanged = true;
       }
     }
     swap( m_cuts2d, tempList);
@@ -171,25 +162,6 @@ bool HistogramBundle::synchronizeGates(GateList* pGateList)
 
       if ( QString::fromStdString(m_hInfo.s_params.at(0)) == param ) {
         // parameter matches. see if this exists already
-//
-//        auto itFound = find_if( m_cuts1d.begin(), m_cuts1d.end(), 
-//            [&name](const pair<QString, GSlice*>& pSlice) {
-//            return ( pSlice.second->getName() == name );
-//            });
-//
-//        if ( itFound != m_cuts1d.end() ) {
-//          // gate exists... update it
-//          GSlice& localSlice = *(itFound->second);
-//          GSlice& externSlice = *pExtSlice;
-//
-//          if (localSlice != externSlice) {
-//            // gates differ, need to update local gate
-//            somethingChanged = true;
-//          }
-//        } else {
-//          // gate did not exist... add it
-//          somethingChanged = true;
-//        }
 
         tempList[pExtSlice->getName()] = pExtSlice.get();
 
@@ -201,7 +173,14 @@ bool HistogramBundle::synchronizeGates(GateList* pGateList)
     if ( distance(m_cuts1d.begin(), m_cuts1d.end()) != distance(tempList.begin(), tempList.end()) ) {
       somethingChanged = true;
     } else {
-      if ( ! equal(m_cuts1d.begin(), m_cuts1d.end(), tempList.end() ) ) {
+      // predicate to compare the object referred to by the ptrs rather
+      // rather than the pointers
+      auto compareObjects = [](const pair<QString, GSlice*>& lhs,
+                             const pair<QString, GSlice*>& rhs) {
+        return *(lhs.second) == *(rhs.second);
+      };
+
+      if ( ! equal(m_cuts1d.begin(), m_cuts1d.end(), tempList.begin(), compareObjects) ) {
         somethingChanged = true;
       }
     }
