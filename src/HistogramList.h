@@ -74,8 +74,8 @@ public:
     static iterator begin() { return m_hists.begin();}
     static iterator end() { return m_hists.end();}
 
-    static void addHist(std::unique_ptr<TH1> hist, const SpJs::HistInfo& info);
-    static void addHist(std::unique_ptr<HistogramBundle> hist);
+    static HistogramBundle* addHist(std::unique_ptr<TH1> hist, const SpJs::HistInfo& info);
+    static HistogramBundle* addHist(std::unique_ptr<HistogramBundle> hist);
 
     static void clearCuts();
 

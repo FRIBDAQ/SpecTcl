@@ -26,13 +26,11 @@ SpecTclRESTInterface::SpecTclRESTInterface()
     m_pGateEditCmd(new GateEditComHandler),
     m_pCommonHandler(new CommonResponseHandler),
     m_pGateListCmd(new GateListRequestHandler),
-    pollGates(true)
+    pollGates(false)
 {
 
   connect(m_pGateListCmd.get(), SIGNAL(parseCompleted(std::vector<SpJs::GateInfo*>)),
       this, SLOT(onGateListReceived(std::vector<SpJs::GateInfo*>)));
-
-  listGates();
 }
 
 void SpecTclRESTInterface::addGate(const GSlice &slice)

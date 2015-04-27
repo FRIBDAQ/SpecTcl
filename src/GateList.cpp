@@ -188,6 +188,12 @@ size_t GateList::size() const
   return m_cuts1d.size() + m_cuts2d.size();
 }
 
+void GateList::clear()
+{
+  m_cuts1d.clear(); 
+  m_cuts2d.clear();
+}
+
 
 void GateList::removeCut1D(const QString& name)
 {

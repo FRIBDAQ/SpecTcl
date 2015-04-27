@@ -88,29 +88,36 @@ HistogramBundle* HistogramList::getHist(const QString &name)
     }
 }
 
-void HistogramList::addHist(std::unique_ptr<TH1> pHist, const SpJs::HistInfo& info)
+HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist, const SpJs::HistInfo& info)
 {
-    QString name(pHist->GetName());
+  HistogramBundle* pHistBundle = nullptr;
+
+  QString name(pHist->GetName());
 
     if (histExists(name)) {
-        return;
+        pHistBundle = getHist(name);
     } else {
         QMutexLocker lock(&m_mutex);
         unique_ptr<HistogramBundle> pBundle(new HistogramBundle(unique_ptr<QMutex>(new QMutex), 
                                                                 std::move(pHist), 
                                                                 info));
 
-        m_hists.insert(make_pair(name, std::move(pBundle)));
+        auto itHist = m_hists.insert(make_pair(name, std::move(pBundle)));
+        pHistBundle = itHist.first->second.get();
     }
+
+    return pHistBundle;
 }
 
-void HistogramList::addHist(unique_ptr<HistogramBundle> pHist) 
+HistogramBundle* HistogramList::addHist(unique_ptr<HistogramBundle> pHist) 
 {
   QString name = pHist->getName();
   QMutexLocker lock(&m_mutex);
 
   // this is kind of clunky but it i cannot use insert or assignment
   m_hists[name].reset(pHist.release());
+
+  return m_hists[name].get();
 }
 
 void HistogramList::removeSlice(const GSlice& slice)

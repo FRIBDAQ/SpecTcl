@@ -122,6 +122,7 @@ void SpectrumViewer::update(HistogramBundle* gHist)
     } else {
       if ( ! m_currentHist->hist() ) return;
 
+      std::cout << *m_currentHist << std::endl;
       // The draw operation can throw, so we need to protect ourselves
       // against that...
       try {

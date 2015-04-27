@@ -123,11 +123,13 @@ void GateBuilder1DDialog::accept()
     // get rid of the editable version of the slice
     removeOldLines(m_editSlice);
 
-    // draw the real slice if it still exists
-    if (m_pOldSlice) {
-        cout << "Accept() : draw oldslice" << endl;
-        m_pOldSlice->draw(&m_canvas);
-    }
+    // the next update from SpecTcl will schedule a redraw
+    //
+//    // draw the real slice if it still exists
+//    if (m_pOldSlice) {
+//        cout << "Accept() : draw oldslice" << endl;
+//        m_pOldSlice->draw(&m_canvas);
+//    }
 
     // send the slice to the outside world!
     emit completed( m_pOldSlice );
@@ -145,6 +147,9 @@ void GateBuilder1DDialog::reject()
     if ( m_pOldSlice != nullptr) {
         m_pOldSlice->draw(&m_canvas);  
     }
+
+    m_canvas.Modified();
+    m_canvas.Update();
 
     // Call the parent's reject() so it accepts as it normally does.
     QDialog::reject();

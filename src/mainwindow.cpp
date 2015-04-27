@@ -47,8 +47,12 @@ MainWindow::MainWindow(QWidget *parent) :
     m_view = new SpectrumViewer(m_pSpecTcl, ui->frame);
     ui->gridLayout->addWidget(m_view);
 
-    m_histView = new HistogramView(this);
+    m_histView = new HistogramView(m_pSpecTcl, this);
     m_gateView = new DockableGateManager(*m_view, m_pSpecTcl, this);
+
+
+    // with everything set up that depends on gates, start gate polling.
+    m_pSpecTcl->enableGatePolling(true);
 
     createDockWindows();
 

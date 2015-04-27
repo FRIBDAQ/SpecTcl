@@ -37,6 +37,7 @@ namespace Viewer
 
 class GGate;
 class GSlice;
+class GateList;
 
 /*! \brief Collection of a histogram and its cuts
  *
@@ -81,12 +82,20 @@ public:
     void clearCut2Ds() { m_cuts2d.clear(); }
 
     std::map<QString, GSlice*>& getCut1Ds() { return m_cuts1d; }
+    std::map<QString, GSlice*> getCut1Ds() const { return m_cuts1d; }
+
     std::map<QString, GGate*>& getCut2Ds() { return m_cuts2d; }
+    std::map<QString, GGate*> getCut2Ds() const { return m_cuts2d; }
 
     // Draw the histogram.
     void draw(const QString& opt = QString());
+
+    bool synchronizeGates(GateList* pGateList);
 };
 
 } // end of namespace
+
+
+extern std::ostream& operator<<(std::ostream& stream, const Viewer::HistogramBundle& hist);
 
 #endif // HISTOGRAMBUNDLE_H

@@ -38,6 +38,7 @@ class HistogramView;
 namespace Viewer 
 {
 
+class SpecTclInterface;
 class ListRequestHandler;
 class GuardedHist;
 
@@ -48,7 +49,7 @@ class HistogramView : public QDockWidget
     Q_OBJECT
     
 public:
-    explicit HistogramView(QWidget *parent = 0);
+    explicit HistogramView(SpecTclInterface* pSpecTcl, QWidget *parent = 0);
     ~HistogramView();
 
 signals:
@@ -66,6 +67,7 @@ private:
 private:
     Ui::HistogramView *ui;
     ListRequestHandler* m_req;
+    SpecTclInterface* m_pSpecTcl;
 };
 
 } // end of namespace

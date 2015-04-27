@@ -26,6 +26,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "ListRequestHandler.h"
 #include "HistogramList.h"
 #include "HistogramBundle.h"
+#include "SpecTclRESTInterface.h"
 
 #include <HistInfo.h>
 #include <HistFactory.h>
@@ -40,10 +41,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 namespace Viewer
 {
 
-HistogramView::HistogramView(QWidget *parent) :
+HistogramView::HistogramView(SpecTclInterface* pSpecTcl, QWidget *parent) :
     QDockWidget(tr("Histograms"),parent),
     ui(new Ui::HistogramView),
-    m_req(new ListRequestHandler(this))
+    m_req(new ListRequestHandler(this)),
+    m_pSpecTcl(pSpecTcl)
 {
   m_req->setHistogramView(this);
     ui->setupUi(this);
@@ -70,7 +72,7 @@ void HistogramView::onUpdate()
 void HistogramView::setList(std::vector<SpJs::HistInfo> names)
 {
     SpJs::HistFactory factory;
-//    ui->histList->clear();
+
     auto iter = names.begin();
     auto end = names.end();
 
@@ -83,7 +85,11 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
             // this should  get a unique ptr, we want to get the raw pointer
             // and strip the unique_ptr of its ownership (i.e. release())
             auto upHist = factory.create(info);
-            HistogramList::getInstance()->addHist(std::move(upHist), info);
+
+            auto pHist = HistogramList::getInstance()->addHist(std::move(upHist), info);
+
+            // a new hist needs to find the necessary
+            pHist->synchronizeGates(m_pSpecTcl->getGateList());
 
             // Histograms are uniquely named, so we can use the name as the key
             QString name = QString::fromStdString((*iter).s_name);
@@ -94,6 +100,8 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
 
             QSize geo = ui->histList->size();
             ui->histList->insertItem(geo.height(), item);
+
+
 
         }
 

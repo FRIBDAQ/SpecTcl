@@ -74,6 +74,7 @@ public:
     void removeCut2D(const QString& name);
 
     size_t size() const;
+    void clear();
 
     iterator1d find1D(const QString& name);
     iterator2d find2D(const QString& name);
