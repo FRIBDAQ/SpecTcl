@@ -40,6 +40,7 @@ namespace Viewer
 {
 
 class HistogramBundle;
+class HistogramList;
 
 
 class ContentRequestHandler : public QThread
@@ -47,7 +48,7 @@ class ContentRequestHandler : public QThread
     Q_OBJECT
 
 public:
-    explicit ContentRequestHandler(QObject *parent = 0);
+    explicit ContentRequestHandler(HistogramList* pHistList, QObject *parent = 0);
     virtual ~ContentRequestHandler();
 
     void get (const QUrl& url);
@@ -69,6 +70,7 @@ private:
     void completeJob();
 
 private:
+    HistogramList* m_pHistList;
     QNetworkAccessManager m_nam;
     QList<QNetworkRequest> m_requests;
     QMutex m_mutex;

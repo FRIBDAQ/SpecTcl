@@ -86,7 +86,8 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
             // and strip the unique_ptr of its ownership (i.e. release())
             auto upHist = factory.create(info);
 
-            auto pHist = HistogramList::getInstance()->addHist(std::move(upHist), info);
+            auto pHistList = m_pSpecTcl->getHistogramList();
+            auto pHist = pHistList->addHist(std::move(upHist), info);
 
             // a new hist needs to find the necessary
             pHist->synchronizeGates(m_pSpecTcl->getGateList());
@@ -114,7 +115,8 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
 void HistogramView::onDoubleClick(QModelIndex index)
 {
     QString hname = index.data(Qt::UserRole).toString();
-    HistogramBundle* gHist = HistogramList::getInstance()->getHist(hname);
+    auto pHistList = m_pSpecTcl->getHistogramList();
+    HistogramBundle* gHist = pHistList->getHist(hname);
     emit histSelected(gHist);
 }
 

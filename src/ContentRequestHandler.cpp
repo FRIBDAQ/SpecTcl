@@ -56,8 +56,9 @@ namespace Viewer
 
 namespace cprs = Compression;
 
-ContentRequestHandler::ContentRequestHandler(QObject *parent) :
+ContentRequestHandler::ContentRequestHandler(HistogramList* pHistList, QObject *parent) :
     QThread(parent),
+    m_pHistList(pHistList),
     m_nam(),
     m_requests(),
     m_mutex(),
@@ -163,7 +164,7 @@ void ContentRequestHandler::updateRequest()
     QString reqStrTemplate("http://%1:%2/spectcl/spectrum/contents?name=");
     reqStrTemplate = reqStrTemplate.arg(host).arg(port);
 
-    auto names = HistogramList::histNames();
+    auto names = m_pHistList->histNames();
     auto iter = names.begin();
     auto end  = names.end();
     while (iter!=end) {
@@ -251,7 +252,7 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
 
     // get the name of the hist and update it if it exists.
     auto name = getHistNameFromRequest(reply->request());
-    auto pHistBundle = HistogramList::getHist(name);
+    auto pHistBundle = m_pHistList->getHist(name);
     if (pHistBundle->hist()) {
       LockGuard<HistogramBundle> lock(pHistBundle);
       SpJs::HistFiller()(*(pHistBundle->hist()), content);

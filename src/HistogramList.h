@@ -52,53 +52,41 @@ public:
     using iterator       = typename std::map<QString, std::unique_ptr<HistogramBundle> >::iterator;
     using const_iterator = typename std::map<QString, std::unique_ptr<HistogramBundle> >::const_iterator;
 
-private:
     explicit HistogramList(QObject *parent = 0);
     HistogramList(const HistogramList&) = delete;
     ~HistogramList();
 
-public:
-    static HistogramList* getInstance()
-    {
-        if (m_instance == nullptr) {
-            m_instance = new HistogramList;
-        }
-        return m_instance;
-    }
+    QList<QString> histNames();
 
-    static QList<QString> histNames();
+    void clear();
+    std::map<QString, HistogramBundle>::size_type size() { return m_hists.size(); }
 
-    static void clear();
-    static std::map<QString, HistogramBundle>::size_type size() { return m_hists.size(); }
+    iterator begin() { return m_hists.begin();}
+    iterator end() { return m_hists.end();}
 
-    static iterator begin() { return m_hists.begin();}
-    static iterator end() { return m_hists.end();}
+    HistogramBundle* addHist(std::unique_ptr<TH1> hist, const SpJs::HistInfo& info);
+    HistogramBundle* addHist(std::unique_ptr<HistogramBundle> hist);
 
-    static HistogramBundle* addHist(std::unique_ptr<TH1> hist, const SpJs::HistInfo& info);
-    static HistogramBundle* addHist(std::unique_ptr<HistogramBundle> hist);
+    void clearCuts();
 
-    static void clearCuts();
-
-    static void synchronize(const GateList& pList);
-    static void synchronize1d(GateList::iterator1d begin, GateList::iterator1d end);
-    static void synchronize2d(GateList::iterator2d begin, GateList::iterator2d end);
+    void synchronize(const GateList& pList);
+    void synchronize1d(GateList::iterator1d begin, GateList::iterator1d end);
+    void synchronize2d(GateList::iterator2d begin, GateList::iterator2d end);
 
 public slots:
 
-    static bool histExists(const QString& name);
-    static HistogramBundle* getHist(const QString& name);
+    bool histExists(const QString& name);
+    HistogramBundle* getHist(const QString& name);
 
-    static void removeSlice(const GSlice& slice);
-    static void removeGate(const GGate& gate);
+    void removeSlice(const GSlice& slice);
+    void removeGate(const GGate& gate);
 
-    static void addSlice(GSlice* slice);
-    static void addGate(GGate* gate);
+    void addSlice(GSlice* slice);
+    void addGate(GGate* gate);
 
 private:
-    static HistogramList* m_instance;
-
-    static std::map<QString, std::unique_ptr<HistogramBundle> > m_hists;
-    static QMutex m_mutex;
+    std::map<QString, std::unique_ptr<HistogramBundle> > m_hists;
+    QMutex m_mutex;
 
 };
 

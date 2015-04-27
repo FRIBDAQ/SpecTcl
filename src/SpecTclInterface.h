@@ -17,7 +17,7 @@ namespace Viewer
 class GSlice;
 class GGate;
 class GateList;
-
+class HistogramList;
 
 /*! \brief A facade for the actual interaction with SpecTcl
  *
@@ -48,6 +48,7 @@ public:
     virtual void enableGatePolling(bool enable) = 0;
 
     virtual GateList* getGateList() = 0;
+    virtual HistogramList* getHistogramList() = 0;
    
   signals:
     void gateListChanged();

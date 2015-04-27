@@ -42,13 +42,10 @@ using namespace std;
 namespace Viewer
 {
 
-HistogramList* HistogramList::m_instance = nullptr;
-
-map<QString, unique_ptr<HistogramBundle> > HistogramList::m_hists;
-QMutex HistogramList::m_mutex;
-
 HistogramList::HistogramList(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    m_hists(),
+    m_mutex()
 {}
 
 HistogramList::~HistogramList()

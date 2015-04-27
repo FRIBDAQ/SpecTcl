@@ -36,6 +36,7 @@ namespace Viewer
 class HistogramListTest : public CppUnit::TestFixture
 {
   private:
+    unique_ptr<HistogramList> m_pHistList;
     unique_ptr<HistogramBundle> m_pHist0;
     unique_ptr<HistogramBundle> m_pHist1;
     unique_ptr<HistogramBundle> m_pHist2;
@@ -74,6 +75,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(HistogramListTest);
 
 void HistogramListTest::setUp() 
 {
+  m_pHistList.reset(new HistogramList);
+
   // create histogram bundles
   unique_ptr<QMutex> mutex0(new QMutex);
   SpJs::HistInfo info0   = {"hist0", 1, {"xparam"}, {{0, 10, 10}}, SpJs::Long};
@@ -109,18 +112,18 @@ void HistogramListTest::setUp()
 
 void HistogramListTest::tearDown() 
 {
-  HistogramList::clear();
+  m_pHistList->clear();
 
 }
 
 void HistogramListTest::histNames_0()
 {
-  HistogramList::addHist( std::move(m_pHist0) );
-  HistogramList::addHist( std::move(m_pHist1) ); 
-  HistogramList::addHist( std::move(m_pHist2) ); 
-  HistogramList::addHist( std::move(m_pHist3) ); 
+  m_pHistList->addHist( std::move(m_pHist0) );
+  m_pHistList->addHist( std::move(m_pHist1) ); 
+  m_pHistList->addHist( std::move(m_pHist2) ); 
+  m_pHistList->addHist( std::move(m_pHist3) ); 
 
-  CPPUNIT_ASSERT( 4 == HistogramList::size() );
+  CPPUNIT_ASSERT( 4 == m_pHistList->size() );
 
   QList<QString> expNames;
   expNames.push_back("hist0");
@@ -128,7 +131,7 @@ void HistogramListTest::histNames_0()
   expNames.push_back("hist2");
   expNames.push_back("hist3");
 
-  CPPUNIT_ASSERT( expNames == HistogramList::histNames() );
+  CPPUNIT_ASSERT( expNames == m_pHistList->histNames() );
 }
 
 void HistogramListTest::removeSlice_0()
@@ -138,22 +141,22 @@ void HistogramListTest::removeSlice_0()
   m_pHist0->addCut1D(&slice);
   m_pHist1->addCut1D(&slice);
 
-  HistogramList::addHist(std::move(m_pHist0));
-  HistogramList::addHist(std::move(m_pHist1));
+  m_pHistList->addHist(std::move(m_pHist0));
+  m_pHistList->addHist(std::move(m_pHist1));
 
   // make sure we have some cuts registered
-  CPPUNIT_ASSERT( 1 == HistogramList::getHist("hist0")->getCut1Ds().size() ); 
-  CPPUNIT_ASSERT( 1 == HistogramList::getHist("hist1")->getCut1Ds().size() ); 
+  CPPUNIT_ASSERT( 1 == m_pHistList->getHist("hist0")->getCut1Ds().size() ); 
+  CPPUNIT_ASSERT( 1 == m_pHistList->getHist("hist1")->getCut1Ds().size() ); 
 
-  CPPUNIT_ASSERT( 2 == HistogramList::size() );
+  CPPUNIT_ASSERT( 2 == m_pHistList->size() );
 
   // remove the slice
-  HistogramList::removeSlice(slice);
+  m_pHistList->removeSlice(slice);
 
   // Check whether the histogram list owned object contain their
   // gates
-  auto it = HistogramList::begin();
-  auto it_end = HistogramList::end();
+  auto it = m_pHistList->begin();
+  auto it_end = m_pHistList->end();
   while (it != it_end ) {
 
     CPPUNIT_ASSERT( 0 == it->second->getCut1Ds().size() ); 
@@ -171,22 +174,22 @@ void HistogramListTest::removeGate_0()
   m_pHist2->addCut2D(&gate);
   m_pHist3->addCut2D(&gate);
   
-  HistogramList::addHist( std::move(m_pHist2) );
-  HistogramList::addHist( std::move(m_pHist3) );
+  m_pHistList->addHist( std::move(m_pHist2) );
+  m_pHistList->addHist( std::move(m_pHist3) );
 
   // make sure we have some cuts registered
-  CPPUNIT_ASSERT( 1 == HistogramList::getHist("hist2")->getCut2Ds().size() ); 
-  CPPUNIT_ASSERT( 1 == HistogramList::getHist("hist3")->getCut2Ds().size() ); 
+  CPPUNIT_ASSERT( 1 == m_pHistList->getHist("hist2")->getCut2Ds().size() ); 
+  CPPUNIT_ASSERT( 1 == m_pHistList->getHist("hist3")->getCut2Ds().size() ); 
 
-  CPPUNIT_ASSERT( 2 == HistogramList::size() );
+  CPPUNIT_ASSERT( 2 == m_pHistList->size() );
 
   // remove the slice
-  HistogramList::removeGate(gate);
+  m_pHistList->removeGate(gate);
 
   // Check whether the histogram list owned object contain their
   // gates
-  auto it = HistogramList::begin();
-  auto it_end = HistogramList::end();
+  auto it = m_pHistList->begin();
+  auto it_end = m_pHistList->end();
   while (it != it_end ) {
 
     CPPUNIT_ASSERT( 0 == it->second->getCut2Ds().size() ); 
@@ -200,46 +203,46 @@ void HistogramListTest::removeGate_0()
 void HistogramListTest::addSlice_0()
 {
 
-  HistogramList::addHist( std::move(m_pHist0) );
-  HistogramList::addHist( std::move(m_pHist1) );
-  HistogramList::addHist( std::move(m_pHist2) );
+  m_pHistList->addHist( std::move(m_pHist0) );
+  m_pHistList->addHist( std::move(m_pHist1) );
+  m_pHistList->addHist( std::move(m_pHist2) );
 
   // creata slice and add it 
   GSlice slice(nullptr, "slice", "xparam");
 
-  HistogramList::addSlice(&slice);
+  m_pHistList->addSlice(&slice);
 
   // make sure we registered the cuts we thought
-  CPPUNIT_ASSERT( 1 == HistogramList::getHist("hist0")->getCut1Ds().size() ); 
-  CPPUNIT_ASSERT( 0 == HistogramList::getHist("hist1")->getCut1Ds().size() ); 
+  CPPUNIT_ASSERT( 1 == m_pHistList->getHist("hist0")->getCut1Ds().size() ); 
+  CPPUNIT_ASSERT( 0 == m_pHistList->getHist("hist1")->getCut1Ds().size() ); 
 
   // make sure that our slice did not get registered to a 2d hist
-  CPPUNIT_ASSERT( 0 == HistogramList::getHist("hist2")->getCut1Ds().size() ); 
+  CPPUNIT_ASSERT( 0 == m_pHistList->getHist("hist2")->getCut1Ds().size() ); 
 
-  CPPUNIT_ASSERT( 3 == HistogramList::size() );
+  CPPUNIT_ASSERT( 3 == m_pHistList->size() );
 
 }
 
 void HistogramListTest::addGate_0()
 {
 
-  HistogramList::addHist( std::move(m_pHist1) );
-  HistogramList::addHist( std::move(m_pHist2) );
-  HistogramList::addHist( std::move(m_pHist3) );
+  m_pHistList->addHist( std::move(m_pHist1) );
+  m_pHistList->addHist( std::move(m_pHist2) );
+  m_pHistList->addHist( std::move(m_pHist3) );
 
   // creata slice and add it 
   GGate gate(SpJs::Band("theGate", "xparam", "yparam", {{0,1}, {1,2}, {2,3}}) );
 
-  HistogramList::addGate(&gate);
+  m_pHistList->addGate(&gate);
 
   // make sure we registered the cuts we thought
-  CPPUNIT_ASSERT( 0 == HistogramList::getHist("hist1")->getCut2Ds().size() ); 
+  CPPUNIT_ASSERT( 0 == m_pHistList->getHist("hist1")->getCut2Ds().size() ); 
 
   // make sure that our slice did not get registered to a 2d hist
-  CPPUNIT_ASSERT( 1 == HistogramList::getHist("hist2")->getCut2Ds().size() ); 
-  CPPUNIT_ASSERT( 0 == HistogramList::getHist("hist3")->getCut2Ds().size() ); 
+  CPPUNIT_ASSERT( 1 == m_pHistList->getHist("hist2")->getCut2Ds().size() ); 
+  CPPUNIT_ASSERT( 0 == m_pHistList->getHist("hist3")->getCut2Ds().size() ); 
 
-  CPPUNIT_ASSERT( 3 == HistogramList::size() );
+  CPPUNIT_ASSERT( 3 == m_pHistList->size() );
 
 }
 
@@ -251,13 +254,13 @@ void HistogramListTest::synchronize_0()
     list.addCut2D(SpJs::Contour("gate", "xparam", "yparam", {{0, 1}, {1, 2}, {2, 3}}));
 
     // populate the hist list
-    HistogramList::addHist( move(m_pHist0) );
-    HistogramList::addHist( move(m_pHist1) );
-    HistogramList::addHist( move(m_pHist2) );
-    HistogramList::addHist( move(m_pHist3) );
+    m_pHistList->addHist( move(m_pHist0) );
+    m_pHistList->addHist( move(m_pHist1) );
+    m_pHistList->addHist( move(m_pHist2) );
+    m_pHistList->addHist( move(m_pHist3) );
 
     // synchronize
-    HistogramList::synchronize(list);
+    m_pHistList->synchronize(list);
 
     // this is ugly...
     map<QString, GSlice*> exp1d = { {QString("slice"), (*list.find1D("slice")).get()} };
@@ -265,10 +268,10 @@ void HistogramListTest::synchronize_0()
     map<QString, GSlice*> empty1d;
     map<QString, GGate*> empty2d;
 
-    CPPUNIT_ASSERT( exp1d == HistogramList::getHist("hist0")->getCut1Ds() );
-    CPPUNIT_ASSERT( empty1d == HistogramList::getHist("hist1")->getCut1Ds() );
-    CPPUNIT_ASSERT( exp2d == HistogramList::getHist("hist2")->getCut2Ds() );
-    CPPUNIT_ASSERT( empty2d == HistogramList::getHist("hist3")->getCut2Ds() );
+    CPPUNIT_ASSERT( exp1d == m_pHistList->getHist("hist0")->getCut1Ds() );
+    CPPUNIT_ASSERT( empty1d == m_pHistList->getHist("hist1")->getCut1Ds() );
+    CPPUNIT_ASSERT( exp2d == m_pHistList->getHist("hist2")->getCut2Ds() );
+    CPPUNIT_ASSERT( empty2d == m_pHistList->getHist("hist3")->getCut2Ds() );
 
 }
 

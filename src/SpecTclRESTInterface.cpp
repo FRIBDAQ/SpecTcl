@@ -23,6 +23,7 @@ namespace Viewer
 SpecTclRESTInterface::SpecTclRESTInterface()
     : SpecTclInterface(),
     m_pGateList(new GateList),
+    m_pHistList(new HistogramList),
     m_pGateEditCmd(new GateEditComHandler),
     m_pCommonHandler(new CommonResponseHandler),
     m_pGateListCmd(new GateListRequestHandler),
@@ -111,7 +112,7 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 
       // now update the histograms so that we know they only reference gates
       // that exist after the synchronization
-      HistogramList::synchronize(*m_pGateList);
+      m_pHistList->synchronize(*m_pGateList);
 
       // tell the world that things have changed.
       emit gateListChanged();

@@ -6,6 +6,7 @@
 #include "CommonResponseHandler.h"
 #include "GateListRequestHandler.h"
 #include "GateList.h"
+#include "HistogramList.h"
 
 #include <memory>
 #include <vector>
@@ -41,6 +42,7 @@ public:
     void enableGatePolling(bool enable);
 
     GateList* getGateList() { return m_pGateList.get(); }
+    HistogramList* getHistogramList() { return m_pHistList.get(); }
 
 public slots:
     void listGates();
@@ -48,6 +50,7 @@ public slots:
 
 private:
     std::unique_ptr<GateList> m_pGateList;
+    std::unique_ptr<HistogramList> m_pHistList;
     std::unique_ptr<GateEditComHandler> m_pGateEditCmd;
     std::unique_ptr<CommonResponseHandler> m_pCommonHandler;
     std::unique_ptr<GateListRequestHandler> m_pGateListCmd;

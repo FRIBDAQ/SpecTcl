@@ -49,7 +49,7 @@ SpectrumViewer::SpectrumViewer(SpecTclInterface* pSpecTcl, QWidget *parent) :
     ui(new Ui::SpectrumViewer),
     m_currentHist(nullptr),
     m_canvas(nullptr),
-    m_reqHandler(),
+    m_reqHandler(pSpecTcl->getHistogramList()),
     m_currentCanvas(nullptr),
     m_pSpecTcl(pSpecTcl),
     m_canvasList()

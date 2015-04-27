@@ -162,7 +162,7 @@ void DockableGateManager::addGateToList(GGate* pCut)
     ui->gateList->addItem(pItem);
 
     // add the gate to all related histograms
-    HistogramList::addGate(pCut);
+    m_pSpecTcl->getHistogramList()->addGate(pCut);
 
     auto histPkg = m_view.getCurrentHist();
     if (histPkg) {
@@ -198,7 +198,7 @@ void DockableGateManager::addSliceToList(GSlice* pSlice)
     ui->gateList->addItem(pItem);
 
     // add the slice to all related histograms
-    HistogramList::addSlice(pSlice);
+    m_pSpecTcl->getHistogramList()->addSlice(pSlice);
 
 
     auto histPkg = m_view.getCurrentHist();
