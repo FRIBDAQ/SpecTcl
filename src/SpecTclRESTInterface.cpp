@@ -95,7 +95,12 @@ void
 SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 {
 
-  if (! pollGates) return;
+  if (! pollGates) {
+      // free the gates... they have done their job
+      for (auto ptr : gates) { delete ptr; }
+
+      return;
+  }
 
   // synchronize our list of gates to the list that we are being passed
   // from SpecTcl
