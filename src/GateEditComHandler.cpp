@@ -4,6 +4,7 @@
 #include <QUrl>
 #include <QNetworkAccessManager>
 #include <QByteArray>
+#include <QEventLoop>
 #include <QMessageBox>
 #include <json/json.h>
 #include <stdexcept>
@@ -19,14 +20,21 @@ GateEditComHandler::GateEditComHandler(QObject *parent) :
     QObject(parent),
     m_pNAM(new QNetworkAccessManager)
 {
-    connect(m_pNAM.get(), SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(processReply(QNetworkReply*)));
+
 }
 
 
 void GateEditComHandler::makeRequest(const QUrl &req)
 {
-    m_pNAM->get(QNetworkRequest(req));
+
+    // this "should" be very fast so allow it to block
+    QEventLoop evtlp;
+    connect(m_pNAM.get(), SIGNAL(finished(QNetworkReply*)),
+            &evtlp, SLOT(quit()));
+    auto pReply = m_pNAM->get(QNetworkRequest(req));
+    evtlp.exec();
+
+    processReply(pReply);
 }
 
 
