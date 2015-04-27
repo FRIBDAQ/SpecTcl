@@ -166,8 +166,9 @@ void HistogramList::removeGate(const GGate& gate)
 
 void HistogramList::synchronize(const GateList& list)
 {
-    synchronize1d(list.begin1d(), list.end1d());
-    synchronize2d(list.begin2d(), list.end2d());
+  for (auto& bundlePair : m_hists) {
+      bundlePair.second->synchronizeGates(&list);
+  }
 }
 
 
