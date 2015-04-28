@@ -47,7 +47,6 @@ HistogramView::HistogramView(SpecTclInterface* pSpecTcl, QWidget *parent) :
     m_req(new ListRequestHandler(this)),
     m_pSpecTcl(pSpecTcl)
 {
-  m_req->setHistogramView(this);
     ui->setupUi(this);
 
     QTimer::singleShot(1000, this, SLOT(onUpdate()));

@@ -27,11 +27,16 @@ SpecTclRESTInterface::SpecTclRESTInterface()
     m_pGateEditCmd(new GateEditComHandler),
     m_pCommonHandler(new CommonResponseHandler),
     m_pGateListCmd(new GateListRequestHandler),
-    pollGates(false)
+    m_pHistListCmd(new ListRequestHandler),
+    pollGates(false),
+    pollHistInfo(false)
 {
 
   connect(m_pGateListCmd.get(), SIGNAL(parseCompleted(std::vector<SpJs::GateInfo*>)),
       this, SLOT(onGateListReceived(std::vector<SpJs::GateInfo*>)));
+
+  connect(m_pGateListCmd.get(), SIGNAL(parseCompleted(std::vector<SpJs::HistInfo*>)),
+      this, SLOT(onHistogramListReceived(std::vector<SpJs::HistInfo*>)));
 }
 
 void SpecTclRESTInterface::addGate(const GSlice &slice)
@@ -92,6 +97,11 @@ void SpecTclRESTInterface::listGates()
   m_pGateListCmd->get(); 
 }
 
+void SpecTclRESTInterface::listHistogramInfo()
+{
+  m_pHistListCmd->get();
+}
+
 void 
 SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
 {
@@ -139,6 +149,51 @@ void SpecTclRESTInterface::enableGatePolling(bool enable)
   }
 
 }
+
+void SpecTclRESTInterface::enableHistogramInfoPolling(bool enable)
+{
+  // don't double schedule... only start the polling if it has not already been
+  // started.
+  if (pollHistInfo != enable) {
+      pollHistInfo = enable;
+      if (enable) {
+          listHistogramInfo();
+      }
+  }
+
+}
+
+void
+SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo*> hists)
+{
+
+  if (! pollHistInfo) {
+      // free the gates... they have done their job
+      for (auto ptr : hists) { delete ptr; }
+
+      return;
+  }
+
+  // synchronize our list of gates to the list that we are being passed
+  // from SpecTcl
+  bool histInfoChanged = m_pHistList->update(hists);
+
+  // only update everything else if something actually changed.
+  if (histInfoChanged) {
+
+      // tell the world that things have changed.
+      emit histogramListChanged();
+
+  }
+
+  // schedule the next update
+  QTimer::singleShot(1000, this, SLOT(listHistogramInfo()));
+
+  // free the gates... they have done their job
+  for (auto ptr : hists) { delete ptr; }
+
+}
+
 
 } // end of namespace
 

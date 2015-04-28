@@ -48,10 +48,14 @@ public:
     virtual void enableGatePolling(bool enable) = 0;
 
     virtual GateList* getGateList() = 0;
+
+    virtual void enableHistogramInfoPolling(bool enable) = 0;
+
     virtual HistogramList* getHistogramList() = 0;
    
   signals:
     void gateListChanged();
+    void histogramListChanged();
 };
 
 } // end of namespace

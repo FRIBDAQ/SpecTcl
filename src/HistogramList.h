@@ -73,6 +73,8 @@ public:
     void synchronize1d(GateList::iterator1d begin, GateList::iterator1d end);
     void synchronize2d(GateList::iterator2d begin, GateList::iterator2d end);
 
+    bool update(const std::vector<SpJs::HistInfo*>& hists);
+
 public slots:
 
     bool histExists(const QString& name);

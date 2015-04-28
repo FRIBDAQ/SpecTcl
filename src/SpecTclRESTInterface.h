@@ -7,6 +7,7 @@
 #include "GateListRequestHandler.h"
 #include "GateList.h"
 #include "HistogramList.h"
+#include "ListRequestHandler.h"
 
 #include <memory>
 #include <vector>
@@ -40,13 +41,16 @@ public:
     void deleteGate(const QString& name);
 
     void enableGatePolling(bool enable);
+    void enableHistogramInfoPolling(bool enable);
 
     GateList* getGateList() { return m_pGateList.get(); }
     HistogramList* getHistogramList() { return m_pHistList.get(); }
 
 public slots:
     void listGates();
+    void listHistogramInfo();
     void onGateListReceived(std::vector<SpJs::GateInfo*> gates);
+    void onHistogramListReceived(std::vector<SpJs::HistInfo*> hists);
 
 private:
     std::unique_ptr<GateList> m_pGateList;
@@ -54,7 +58,9 @@ private:
     std::unique_ptr<GateEditComHandler> m_pGateEditCmd;
     std::unique_ptr<CommonResponseHandler> m_pCommonHandler;
     std::unique_ptr<GateListRequestHandler> m_pGateListCmd;
+    std::unique_ptr<ListRequestHandler> m_pHistListCmd;
     bool pollGates;
+    bool pollHistInfo;
 };
 
 } // end of namespace

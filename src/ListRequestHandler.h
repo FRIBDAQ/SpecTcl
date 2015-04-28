@@ -44,10 +44,6 @@ public:
     
     void get();
 
-    void setHistogramView(HistogramView* view) {
-      m_view = view;
-    }
-
 public slots:
     void finishedSlot(QNetworkReply* reply);
 
@@ -57,7 +53,6 @@ signals:
 private:
     QNetworkReply*         m_pReply;
     QNetworkAccessManager* m_pNAM;
-    HistogramView*         m_view;
 };
 
 } // end of namespace 

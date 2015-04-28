@@ -39,8 +39,7 @@ namespace Viewer
 ListRequestHandler::ListRequestHandler(QObject *parent) :
     QObject(parent),
     m_pReply(nullptr),
-    m_pNAM(new QNetworkAccessManager),
-    m_view(nullptr)
+    m_pNAM(new QNetworkAccessManager)
 {
 
     connect(m_pNAM, SIGNAL(finished(QNetworkReply*)), 
@@ -54,7 +53,6 @@ void ListRequestHandler::get()
     QString urlStr("http://%1:%2/spectcl/spectrum/list");
     urlStr = urlStr.arg(host).arg(port);
 
-//    std::cout << urlStr.toStdString() << std::endl;
     QUrl url(urlStr);
     m_pReply = m_pNAM->get(QNetworkRequest(url));
 }
@@ -87,8 +85,6 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
 
             auto content = SpJs::JsonParser().parseListCmd(value);
 
-
-
             emit parseCompleted(content);
 
         } catch (std::exception& exc) {
@@ -97,10 +93,11 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
             msg = msg.arg(QString(exc.what()));
             QMessageBox::warning(0,title,msg);
         }
-    } else {
-
-        emit parseCompleted(std::vector<SpJs::HistInfo>());
     }
+//    else {
+
+//        emit parseCompleted(std::vector<SpJs::HistInfo>());
+//    }
 }
 
 } // end of namespace

@@ -226,6 +226,11 @@ void HistogramList::synchronize2d(GateList::iterator2d b, GateList::iterator2d e
     }
 }
 
+bool HistogramList::update(const vector<SpJs::HistInfo*>& hists)
+{
+  return false;
+}
+
 void HistogramList::addSlice(GSlice* pSlice)
 {
   auto it = begin();
