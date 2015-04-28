@@ -132,6 +132,7 @@ class CHistogrammer : public CEventSink {
 
   CXamine*            m_pDisplayer;          // Points to displayer object.
   DisplayBindings     m_DisplayBindings;     // Display id to spectrum name map.
+  std::vector<CSpectrum*> m_boundSpectra;        // Spectrum if bound.
   FitlineBindings     m_FitlineBindings;     // Fitlines bound to displayer.
   ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
@@ -265,7 +266,12 @@ class CHistogrammer : public CEventSink {
 
   void addFit(CSpectrumFit& fit);
   void deleteFit(CSpectrumFit& fit);
+  
+  // Update Xamine statistics.
+  
+  void updateStatistics();
 
+  
   // Utility Functions:
  protected:
   CDisplayGate* GateToXamineGate(UInt_t nBindingId, CGateContainer& rGate);
@@ -282,6 +288,8 @@ class CHistogrammer : public CEventSink {
   void invokeGateChangedObservers(std::string name, CGateContainer& gate);
   void createListObservers();
   bool flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam);
+  
+  
 		
 };
 

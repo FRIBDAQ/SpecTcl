@@ -142,7 +142,8 @@ CTclGrammerApp::CTclGrammerApp() :
   m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
   m_TclParameterCount(string("ParameterCount"), kfFALSE),
   m_TclEventListSize(string("EventListSize"),   kfFALSE),
-  m_pMultiTestSource((CMultiTestSource*)kpNULL)
+  m_pMultiTestSource((CMultiTestSource*)kpNULL),
+  m_nUpdateRate(1000)                              // Seconds between periodic events.
 {
   if(gpEventSource != (CFile*)kpNULL) {
     if(gpEventSource->getState() == kfsOpen) {
@@ -685,6 +686,10 @@ int CTclGrammerApp::operator()() {
   SpecTcl*      pApi      = SpecTcl::getInstance();
   CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
   pAnalyzer->OnInitialize();
+  
+  // Set up the first incantaion of TimedUpdates.
+  
+  Tcl_CreateTimerHandler(m_nUpdateRate, CTclGrammerApp::TimedUpdates, this);
 
   // Additional credits.
 
@@ -802,4 +807,22 @@ CTclGrammerApp::SourceOptionalFile(CTCLInterpreter& rInterp, std::string filenam
     return error;
   }
   
+}
+/**
+ * TimedUpdate  [static]
+ *    Called as a timer event
+ *    - Update Xamine spectrum statistics
+ *    - Reschedule execution
+ *
+ * @param d - actually a pointer to the object that scheduled us.
+ */
+void
+CTclGrammerApp::TimedUpdates(ClientData d)
+{
+    CTclGrammerApp*  pObject = reinterpret_cast<CTclGrammerApp*>(d);
+    
+    CHistogrammer* pHistogrammer = pObject->m_pHistogrammer;
+    pHistogrammer->updateStatistics();
+    
+    Tcl_CreateTimerHandler(pObject->m_nUpdateRate, CTclGrammerApp::TimedUpdates, d);
 }

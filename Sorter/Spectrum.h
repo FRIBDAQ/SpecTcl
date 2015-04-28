@@ -195,6 +195,7 @@ protected:
     m_Units.push_back(Units);
 
   }
+  bool checkRange(int channel, int nChans, int axis);
   //
   // Operations:
   //                   

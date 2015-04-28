@@ -395,10 +395,10 @@ UInt_t CTestFile::FormatEvent(Address_t pBuffer) {
   // returns:
   //    The number of bytes put in the buffer.
   //
-  UShort_t* pW = (UShort_t*)pBuffer;
+  Short_t* pW = (Short_t*)pBuffer;
   *pW++ = EventSize()/sizeof(UShort_t);
   for(CDistributionIterator p = begin(); p != end(); p++) {
-    *pW++ = (UShort_t)((**p)());
+    *pW++ = (Short_t)((**p)());
   }
   return EventSize();
 }

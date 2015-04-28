@@ -46,11 +46,19 @@ EXTRA_DIST = Sorter.WC Sorter.omt
 if CPPUNIT
 noinst_PROGRAMS=TestRunner
 
-TestRunner_SOURCES=TestRunner.cpp TestDictObservers.cpp
+TestRunner_SOURCES=TestRunner.cpp TestDictObservers.cpp \
+	Test1d.cpp  Test2d.cpp TestSummary.cpp \
+	CParameterMapping.cpp
 
 TestRunner_CXXFLAGS=@CPPUNIT_CFLAGS@
 
-TestRunner_LDADD = @CPPUNIT_LIBS@
+TestRunner_LDADD =   Spectrum.lo Spectrum1DL.lo Spectrum1DW.lo \
+	Spectrum2DB.lo Spectrum2DW.lo Spectrum2DL.lo \
+	SummarySpectrumB.lo SummarySpectrumW.lo SummarySpectrumL.lo \
+	Parameter.lo CAxis.lo \
+	@top_builddir@/Events/libAnalysis.la  \
+	@top_builddir@/Gates/libGates.la  \
+	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @CPPUNIT_LIBS@
 
 noinst_HEADERS = Asserts.h
 

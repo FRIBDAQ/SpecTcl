@@ -752,9 +752,12 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
     m_pDisplayer->setInfo(createTitle(pSpectrum, 
 				      m_pDisplayer->getTitleSize()), nSpectrum);
     pSpectrum->ReplaceStorage(pStorage, kfFALSE);
-    while(m_DisplayBindings.size() <= nSpectrum) 
+    while(m_DisplayBindings.size() <= nSpectrum) {
       m_DisplayBindings.push_back("");
+      m_boundSpectra.push_back(0);
+    }
     m_DisplayBindings[nSpectrum] = pSpectrum->getName();
+    m_boundSpectra[nSpectrum]    = pSpectrum;
     delete pXSpectrum;		// Destroy the XamineSpectrum.
   }
   catch (...) {		// In case of throw after CXamine2D created.
@@ -840,6 +843,7 @@ void CHistogrammer::UnBindFromDisplay(UInt_t nSpec) {
     pSpectrum->ReplaceStorage(new char[pSpectrum->StorageNeeded()],
 			      kfTRUE);
     m_DisplayBindings[nSpec] = "";
+    m_boundSpectra[nSpec]    = 0;
     m_pDisplayer->FreeSpectrum(nSpec);
 
   }
@@ -1170,7 +1174,7 @@ CSpectrum* CHistogrammer::DisplayBinding(UInt_t xid) {
   if(xid >= DisplayBindingsSize()) 
     return (CSpectrum*)kpNULL;
 
-  return FindSpectrum(m_DisplayBindings[xid]);
+  return m_boundSpectra[xid];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1591,6 +1595,24 @@ CHistogrammer::deleteFit(CSpectrumFit& fit)
     // Falling through here means no matching fit lines...which is a no-op.
     
   }
+}
+
+/**
+ * updateStatistics
+ *    Update the Xamine statistics for each bound spectrum.
+ */
+void
+CHistogrammer::updateStatistics()
+{
+    for (int i =0; i < m_boundSpectra.size(); i++) {
+        CSpectrum* pSpec = m_boundSpectra[i];
+        if (pSpec) {
+            std::vector<unsigned> stats = pSpec->getUnderflows();
+            m_pDisplayer->setUnderflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
+            stats = pSpec->getOverflows();
+            m_pDisplayer->setOverflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////

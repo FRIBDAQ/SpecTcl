@@ -58,6 +58,8 @@
 #include <Analyzer.h>
 #endif
 
+#include <tcl.h>
+
 class CTCLInterpreter;
 class CAnalyzer;
 class CTCLHistogrammer;
@@ -97,6 +99,8 @@ class CTclGrammerApp : public CTCLApplication {
   CTCLVariable m_TclParameterCount;
   CTCLVariable m_TclEventListSize;
   CMultiTestSource* m_pMultiTestSource;
+  
+  int m_nUpdateRate;
 
  public:
   //Default constructor alternative to compiler provided default constructor
@@ -257,6 +261,7 @@ class CTclGrammerApp : public CTCLApplication {
     m_TclEventListSize = am_TclEventListSize;
   }
 
+
   // Class operations:
  public:
   void RegisterEventProcessor(CEventProcessor& rEventProcessor,
@@ -279,6 +284,8 @@ class CTclGrammerApp : public CTCLApplication {
  protected:  
   static void UpdateUInt(CTCLVariable& rVar, UInt_t& rValue);
   static std::string SourceOptionalFile(CTCLInterpreter& rInterp, std::string filename);
+private:
+    static void TimedUpdates(ClientData d);
 };
 
 #endif

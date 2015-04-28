@@ -167,6 +167,12 @@ public:
   UInt_t getTitleSize()  const;
   void setTitle(std::string name, UInt_t slot);
   void setInfo(std::string  name, UInt_t slot);
+  
+  // Spectrum statistics.
+  
+  void setOverflows(unsigned slot, unsigned x, unsigned y);
+  void setUnderflows(unsigned slot, unsigned x, unsigned y);
+  void clearStatistics(unsigned slot);
 
   // Utility Functions:
 

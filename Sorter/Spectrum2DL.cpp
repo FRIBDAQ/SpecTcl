@@ -159,14 +159,14 @@ CSpectrum2DL::Increment(const CEvent& rE)
       if (nx < 0) {
         logUnderflow(0);
         increment = false;
-      } else if (nx >= m_nXScale) {
+      } else if (nx >= (int)m_nXScale) {
         logOverflow(0);
         increment = false;
       }
       if (ny < 0) {
         logUnderflow(1);
         increment  = false;
-      } else if (ny >= m_nYScale) {
+      } else if (ny >= (int)m_nYScale) {
         logOverflow(1);
         increment  = false;
       }

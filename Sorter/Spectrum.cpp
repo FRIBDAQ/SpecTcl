@@ -730,3 +730,29 @@ CSpectrum::getOverflows() const
 {
     return m_overflowCounters;
 }
+/**
+ * checkRange
+ *    Check the value of a datum against the number of channels in
+ *    a spectrum.  Log over/underflow as needed and let the caller
+ *    know if it's safe to increment:
+ *
+ *  @param c    - The channel to check.
+ *  @param n    - Number of channels in the spectrum.
+ *  @param a    - Axis number to pass to logXXflow.
+ *  @return bool - True if it's safe to increment.
+ */
+bool
+CSpectrum::checkRange(int c, int n, int a)
+{
+    bool result = true;
+    
+    if (c < 0) {
+        result = false;
+        logUnderflow(a);
+    }
+    if (c >= n) {
+        result = false;
+        logOverflow(a);
+    }
+    return result;
+}

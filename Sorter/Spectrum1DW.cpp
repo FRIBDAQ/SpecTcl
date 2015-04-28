@@ -215,11 +215,8 @@ CSpectrum1DW::Increment(const CEvent& rE)
     if(rEvent[m_nParameter].isValid()) {  // Only increment if param present.
         Int_t nChannel = Randomize(ParameterToAxis(0, 
 						 rEvent[m_nParameter]));
-        if (nChannel < 0) {
-            logUnderflow(0);
-        } else if (nChannel >= m_nChannels) {
-            logOverflow(0);
-        } else {
+        
+        if(checkRange(nChannel, m_nChannels, 0)) {
             
           UShort_t* p = (UShort_t*)getStorage();
           assert(p != (UShort_t*)kpNULL);    // Spectrum storage must exist!!

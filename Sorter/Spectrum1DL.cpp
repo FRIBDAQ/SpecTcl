@@ -185,11 +185,8 @@ CSpectrum1DL::Increment(const CEvent& rE)
     Int_t nChannel =
    (Int_t)ParameterToAxis(0, rParam);
     
-    if (nChannel < 0) {
-        logUnderflow(0);
-    } else if (nChannel >= m_nChannels) {
-        logOverflow(0);
-    } else {
+    
+    if(checkRange(nChannel, m_nChannels, 0)) {
         
       UInt_t* p = (UInt_t*)getStorage();
       assert(p != (UInt_t*)kpNULL);    // Spectrum storage must exist!!

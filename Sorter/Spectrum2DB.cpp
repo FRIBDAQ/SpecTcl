@@ -220,22 +220,13 @@ CSpectrum2DB::Increment(const CEvent& rE)
        rEvent[m_nYParameter].isValid()) {
       Int_t nx = Randomize(ParameterToAxis(0, rEvent[m_nXParameter]));
       Int_t ny = Randomize(ParameterToAxis(1, rEvent[m_nYParameter]));
-      bool increment = true;
-      if (nx < 0) {
-        logUnderflow(0);
-        increment = false;
-      } else if (nx >= m_nXScale) {
-        logOverflow(0);
-        increment = false;
-      }
-      if (ny < 0) {
-        logUnderflow(1);
-        increment  = false;
-      } else if (ny >= m_nYScale) {
-        logOverflow(1);
-        increment  = false;
-      }
-      if(increment) {
+      
+      // Got to use temps as otherwise short circuit && in if can lose
+      // unders/overs  in y if x is not ok.
+      
+      bool xok = checkRange(nx, m_nXScale, 0);
+      bool yok = checkRange(ny, m_nYScale, 1);
+      if(xok && yok) {
 	
 	UChar_t* pSpec = (UChar_t*)getStorage();
 	pSpec[nx + (ny * m_nXScale)]++;
