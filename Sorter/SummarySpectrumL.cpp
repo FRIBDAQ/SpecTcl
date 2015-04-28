@@ -206,15 +206,7 @@ CSummarySpectrumL::Increment(const CEvent& rE)
 	UInt_t y = Randomize(ParameterToAxis(xChan,
 					     rawParam));
 	
-	bool increment = true;
-        if (y < 0) {
-            logUnderflow(0);
-            increment = false;
-        } else if (y >= m_nYScale) {
-            logOverflow(0);
-            increment = false;
-        }
-	if(increment) {
+	if(checkRange(y, m_nYScale, 0)) {
 	  pStorage[xChan + y*m_nXChannels]++;
 	}
       }
