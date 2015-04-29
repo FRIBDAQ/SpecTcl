@@ -3,5 +3,7 @@
         <file alias="band-icon.png">resources/Band_icon_48x48.png</file>
         <file alias="contour-icon.png">resources/Contour_icon_48x48.png</file>
         <file alias="slice-icon.png">resources/Slice_logo.png</file>
+        <file alias="spectrum1d-icon.png">resources/spectrum1d_48x48.png</file>
+        <file alias="spectrum2d-icon.png">resources/spectrum2d_48x48.png</file>
     </qresource>
 </RCC>

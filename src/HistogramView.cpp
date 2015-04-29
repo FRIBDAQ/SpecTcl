@@ -85,6 +85,7 @@ void HistogramView::onHistogramListChanged()
           // store a point to the histogram bundle
           item->setData(Qt::UserRole,
                         QVariant::fromValue<void*>(reinterpret_cast<void*>(it->second.get())));
+          setIcon(item);
 
           QSize geo = ui->histList->size();
           ui->histList->insertItem(geo.height(), item);
@@ -129,7 +130,12 @@ void HistogramView::onHistogramListChanged()
 
 void HistogramView::setIcon(QListWidgetItem *pItem)
 {
-  return;
+  auto pBundle = reinterpret_cast<HistogramBundle*>(pItem->data(Qt::UserRole).value<void*>());
+  if ( pBundle->getInfo().s_type == 1 ) {
+    pItem->setIcon(QIcon(":/icons/spectrum1d-icon.png"));
+  } else {
+    pItem->setIcon(QIcon(":/icons/spectrum2d-icon.png"));
+  }
 }
 
 void HistogramView::setList(std::vector<SpJs::HistInfo> names)
