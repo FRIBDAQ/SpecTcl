@@ -296,7 +296,7 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
 
               somethingChanged = true;
 
-              emit histogramAboutToBeRemoved( pOldHist );
+              emit histogramRemoved( pOldHist );
           } else {
               // this was the same info so we do not do anything
           }
@@ -329,7 +329,7 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
         m_hists.erase(itLocal++);
         somethingChanged = true;
 
-        emit histogramAboutToBeRemoved( pHist );
+        emit histogramRemoved( pHist );
 
       } else {
        ++itLocal;

@@ -89,7 +89,7 @@ public slots:
     void addGate(GGate* gate);
 
 signals:
-    void histogramAboutToBeRemoved(HistogramBundle*);
+    void histogramRemoved(HistogramBundle*);
 
 private:
     std::map<QString, std::unique_ptr<HistogramBundle> > m_hists;

@@ -84,9 +84,9 @@ SpectrumViewer::SpectrumViewer(SpecTclInterface* pSpecTcl, QWidget *parent) :
             this, SLOT(refresh()));
 
     connect(m_pSpecTcl->getHistogramList(),
-            SIGNAL(histogramAboutToBeRemoved(HistogramBundle*)),
+            SIGNAL(histogramRemoved(HistogramBundle*)),
             this,
-            SLOT(onHistogramAboutToBeRemoved(HistogramBundle*)));
+            SLOT(onHistogramRemoved(HistogramBundle*)));
 
 //    connect(m_pSpecTcl,
 //            SIGNAL(histogramListChanged()),
@@ -108,7 +108,7 @@ HistogramBundle* SpectrumViewer::getCurrentHist() const {
     return m_currentHist;
 }
 
-void SpectrumViewer::onHistogramAboutToBeRemoved(HistogramBundle *pHistBundle)
+void SpectrumViewer::onHistogramRemoved(HistogramBundle *pHistBundle)
 {
   if ( pHistBundle == getCurrentHist() ) {
       // shoot they are deleting the histogram we are viewing out from under us
