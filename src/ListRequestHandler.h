@@ -23,10 +23,11 @@
 #ifndef LISTREQUESTHANDLER_H
 #define LISTREQUESTHANDLER_H
 
+#include "QHistInfo.h"
+
 #include <QObject>
 #include <QList>
 #include <vector>
-#include <HistInfo.h>
 
 class QNetworkReply;
 class QNetworkAccessManager;

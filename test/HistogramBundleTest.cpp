@@ -17,7 +17,7 @@
 #include "GateList.h"
 
 #include <GateInfo.h>
-#include <HistInfo.h>
+#include <QHistInfo.h>
 #include <HistFactory.h>
 
 #include <QList>

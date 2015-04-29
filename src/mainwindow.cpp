@@ -52,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_histView = new HistogramView(m_pSpecTcl, this);
     m_gateView = new DockableGateManager(*m_view, m_pSpecTcl, this);
 
+    // start polling for  histogram information
+    m_pSpecTcl->enableHistogramInfoPolling(true);
 
     // with everything set up that depends on gates, start gate polling.
     m_pSpecTcl->enableGatePolling(true);

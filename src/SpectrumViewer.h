@@ -55,6 +55,8 @@ public:
     HistogramBundle* getCurrentHist() const;
 
 public slots:
+    void onHistogramAboutToBeRemoved(HistogramBundle* pHistBundle);
+    void onHistogramListChanged();
     void requestUpdate();
 
     void update(HistogramBundle* gHist);

@@ -68,7 +68,8 @@ set(untitled2_HEADERS
   CommonResponseHandler.h
   GateListRequestHandler.h
   Utility.h
-  QTLine.h)
+  QTLine.h
+  QHistInfo.h)
 
 set(untitled2_FORMS
   mainwindow.ui 

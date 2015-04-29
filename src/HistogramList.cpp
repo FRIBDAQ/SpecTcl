@@ -25,15 +25,19 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "GateList.h"
 #include "GSlice.h"
 #include "GGate.h"
+#include "SpecTclInterface.h"
 
-#include <memory>
+#include <HistFactory.h>
+#include <HistInfo.h>
+
 #include <TH1.h>
 #include <TH2.h>
+
 #include <QString>
 #include <QMap>
 #include <QMutexLocker>
-#include <stdexcept>
 
+#include <stdexcept>
 #include <memory>
 #include <algorithm>
 
@@ -42,10 +46,11 @@ using namespace std;
 namespace Viewer
 {
 
-HistogramList::HistogramList(QObject *parent) :
+HistogramList::HistogramList(SpecTclInterface* pSpecTcl, QObject *parent) :
     QObject(parent),
     m_hists(),
-    m_mutex()
+    m_mutex(),
+    m_pSpecTcl(pSpecTcl)
 {}
 
 HistogramList::~HistogramList()
@@ -111,7 +116,7 @@ HistogramBundle* HistogramList::addHist(unique_ptr<HistogramBundle> pHist)
   QString name = pHist->getName();
   QMutexLocker lock(&m_mutex);
 
-  // this is kind of clunky but it i cannot use insert or assignment
+  // this is kind of clunky but i cannot use insert or assignment
   m_hists[name].reset(pHist.release());
 
   return m_hists[name].get();
@@ -119,6 +124,7 @@ HistogramBundle* HistogramList::addHist(unique_ptr<HistogramBundle> pHist)
 
 void HistogramList::removeSlice(const GSlice& slice)
 {
+
   auto it = begin();
   auto it_end = end();
 
@@ -226,10 +232,113 @@ void HistogramList::synchronize2d(GateList::iterator2d b, GateList::iterator2d e
     }
 }
 
-bool HistogramList::update(const vector<SpJs::HistInfo*>& hists)
+bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
 {
-  return false;
+//  QMutexLocker lock(&m_mutex);
+
+  bool somethingChanged = false;
+
+
+  auto it = hists.begin();
+  auto it_end = hists.end();
+
+  // go through and add or update current histograms
+  while (it != it_end) {
+
+      const SpJs::HistInfo& info = (*it);
+      QString name = QString::fromStdString(info.s_name);
+
+      auto equalNameOnly = [&name](const pair<const QString, unique_ptr<HistogramBundle> >& item) {
+          return (item.first == name);
+      };
+
+      auto itFound = find_if(begin(), end(), equalNameOnly);
+
+      if (itFound == end()) {
+          // there was no previous histogram... we need to create it
+
+          SpJs::HistFactory factory;
+
+          // returns a unique_ptr
+          auto upHist = factory.create(info);
+
+          // take ownership
+          auto pHist = addHist(std::move(upHist), info);
+
+          // a new hist needs to be told what gates it should
+          // know about
+          pHist->synchronizeGates(m_pSpecTcl->getGateList());
+
+          somethingChanged = true;
+        } else {
+          // check for if it is the same
+          if ( itFound->second->getInfo() != info ) {
+            // if not the same, then we need to replace the existing histogram
+            // with a new one. This is basically a histogram that has changed
+            // its type or axis or something else.
+
+              SpJs::HistFactory factory;
+
+              // returns a unique_ptr
+              auto upHist = factory.create(info);
+
+              auto pOldHist = itFound->second.get();
+
+              // get rid of the old hist
+              m_hists.erase(itFound);
+
+              // take ownership of the new hist
+              auto pHist = addHist(std::move(upHist), info);
+
+              // a new hist needs to be told what gates it should
+              // know about
+              pHist->synchronizeGates(m_pSpecTcl->getGateList());
+
+              somethingChanged = true;
+
+              emit histogramAboutToBeRemoved( pOldHist );
+          } else {
+              // this was the same info so we do not do anything
+          }
+        }
+
+      ++it;
+  }
+
+  // remove any defunct histograms
+  auto nameNotInList = [&hists](const pair<const QString, unique_ptr<HistogramBundle> >& hBundle) {
+      const QString& name = hBundle.first;
+      auto itFound = find_if( hists.begin(), hists.end(),
+                              [&name](const SpJs::HistInfo& info) {
+                                return (QString::fromStdString(info.s_name) == name);
+                             });
+      // was the histogram not found in the list?
+      return itFound == hists.end();
+  };
+
+  // The following little algorithm structure was shamelessly stolen from
+  // http://stackoverflow.com/questions/800955/remove-if-equivalent-for-stdmap
+  // by Steve Folly (12/15/2010)
+  auto itLocal = m_hists.begin();
+  auto itLocal_end = m_hists.end();
+  while ( itLocal != itLocal_end ) {
+    if (nameNotInList(*itLocal)) {
+
+        auto pHist = itLocal->second.get();
+
+        m_hists.erase(itLocal++);
+        somethingChanged = true;
+
+        emit histogramAboutToBeRemoved( pHist );
+
+      } else {
+       ++itLocal;
+      }
+  }
+
+  return somethingChanged;
 }
+
 
 void HistogramList::addSlice(GSlice* pSlice)
 {

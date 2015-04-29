@@ -17,7 +17,7 @@
 #include "GateList.h"
 
 #include <GateInfo.h>
-#include <HistInfo.h>
+#include <QHistInfo.h>
 #include <HistFactory.h>
 
 #include <QList>
@@ -75,7 +75,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(HistogramListTest);
 
 void HistogramListTest::setUp() 
 {
-  m_pHistList.reset(new HistogramList);
+  m_pHistList.reset(new HistogramList(nullptr));
 
   // create histogram bundles
   unique_ptr<QMutex> mutex0(new QMutex);

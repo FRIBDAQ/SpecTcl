@@ -27,16 +27,20 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "HistogramList.h"
 #include "HistogramBundle.h"
 #include "SpecTclRESTInterface.h"
+#include "QHistInfo.h"
 
-#include <HistInfo.h>
 #include <HistFactory.h>
 
 #include <TH1.h>
 
 #include <QTimer>
 #include <QList>
+#include <QListWidgetItem>
 
 #include <vector>
+#include <iostream>
+
+using namespace std;
 
 namespace Viewer
 {
@@ -49,9 +53,9 @@ HistogramView::HistogramView(SpecTclInterface* pSpecTcl, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QTimer::singleShot(1000, this, SLOT(onUpdate()));
-    connect(m_req,SIGNAL(parseCompleted(std::vector<SpJs::HistInfo>)),
-            this,SLOT(setList(std::vector<SpJs::HistInfo>)));
+
+    connect(m_pSpecTcl, SIGNAL(histogramListChanged()),
+            this, SLOT(onHistogramListChanged()));
 
     connect(ui->histList,SIGNAL(doubleClicked(QModelIndex)),
             this,SLOT(onDoubleClick(QModelIndex)));
@@ -59,13 +63,73 @@ HistogramView::HistogramView(SpecTclInterface* pSpecTcl, QWidget *parent) :
 
 HistogramView::~HistogramView()
 {
-    deleteHists();
-    delete ui;
+  delete ui;
 }
 
-void HistogramView::onUpdate()
+void HistogramView::onHistogramListChanged()
 {
-    m_req->get();
+  auto pHistList = m_pSpecTcl->getHistogramList();
+
+  auto it = pHistList->begin();
+  auto itend = pHistList->end();
+
+  // add new histograms if they have changed
+  while (it!=itend) {
+
+      const QString& name = it->first;
+      if (! histExists(name)) {
+          // Histograms are uniquely named, so we can use the name as the key
+          auto item = new QListWidgetItem(name, ui->histList,
+                                          QListWidgetItem::UserType);
+
+          // store a point to the histogram bundle
+          item->setData(Qt::UserRole,
+                        QVariant::fromValue<void*>(reinterpret_cast<void*>(it->second.get())));
+
+          QSize geo = ui->histList->size();
+          ui->histList->insertItem(geo.height(), item);
+      } else {
+          // the value already exists...get the ListWidgetItem associated with it
+          auto items = ui->histList->findItems(name, Qt::MatchExactly);
+          // make sure we found something
+          if ( items.size() == 1 ) {
+              // get the first and only item found
+              auto pItem = items.at(0);
+
+              pItem->setData(Qt::UserRole,
+                             QVariant::fromValue<void*>(reinterpret_cast<void*>(it->second.get())));
+              setIcon(pItem);
+          }
+      }
+
+    ++it;
+  }
+
+  // now remove stale items
+
+  int nRows = ui->histList->count();
+  for (int row=nRows-1; row>=0; --row) {
+
+      auto pItem = ui->histList->item(row);
+
+      auto text = pItem->text();
+
+      auto compareName = [&text](const pair<const QString, unique_ptr<HistogramBundle> >& prBundle) {
+                            return (text == prBundle.second->getName());
+                          };
+
+      auto itFound = find_if( pHistList->begin(), pHistList->end(), compareName );
+      if ( itFound == pHistList->end() ) {
+          delete (ui->histList->takeItem(row));
+      }
+  }
+
+  cout << "HistogramView::onHistogramListChanged()" << endl;
+}
+
+void HistogramView::setIcon(QListWidgetItem *pItem)
+{
+  return;
 }
 
 void HistogramView::setList(std::vector<SpJs::HistInfo> names)
@@ -101,22 +165,17 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
             QSize geo = ui->histList->size();
             ui->histList->insertItem(geo.height(), item);
 
-
-
         }
 
       ++iter;
     }
 
-    QTimer::singleShot(1000,this,SLOT(onUpdate()));
 }
 
 void HistogramView::onDoubleClick(QModelIndex index)
 {
-    QString hname = index.data(Qt::UserRole).toString();
-    auto pHistList = m_pSpecTcl->getHistogramList();
-    HistogramBundle* gHist = pHistList->getHist(hname);
-    emit histSelected(gHist);
+    auto pHistBundle = reinterpret_cast<HistogramBundle*>(index.data(Qt::UserRole).value<void*>());
+    emit histSelected(pHistBundle);
 }
 
 

@@ -24,11 +24,14 @@
 #define HISTOGRAMVIEW_H
 
 #include "HistogramList.h"
-#include <HistInfo.h>
+#include "QHistInfo.h"
+
 #include <QDockWidget>
 #include <QModelIndex>
+
 #include <vector>
 
+class QListWidgetItem;
 class TH1;
 
 namespace Ui {
@@ -56,13 +59,14 @@ signals:
     void histSelected(HistogramBundle* hist);
 
 public slots:
-    void onUpdate();
     void setList(std::vector<SpJs::HistInfo> list);
     void onDoubleClick(QModelIndex index);
+    void onHistogramListChanged();
 
 private:
     bool histExists(const QString& name);
     void deleteHists();
+    void setIcon(QListWidgetItem* pItem);
 
 private:
     Ui::HistogramView *ui;

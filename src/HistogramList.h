@@ -41,6 +41,8 @@ namespace SpJs {
 namespace Viewer
 {
 
+  class SpecTclInterface;
+
 /*! \brief Owner of all the HistogramBundles in the application
  *
  */
@@ -52,7 +54,7 @@ public:
     using iterator       = typename std::map<QString, std::unique_ptr<HistogramBundle> >::iterator;
     using const_iterator = typename std::map<QString, std::unique_ptr<HistogramBundle> >::const_iterator;
 
-    explicit HistogramList(QObject *parent = 0);
+    explicit HistogramList(SpecTclInterface* pSpecTcl, QObject *parent = 0);
     HistogramList(const HistogramList&) = delete;
     ~HistogramList();
 
@@ -73,7 +75,7 @@ public:
     void synchronize1d(GateList::iterator1d begin, GateList::iterator1d end);
     void synchronize2d(GateList::iterator2d begin, GateList::iterator2d end);
 
-    bool update(const std::vector<SpJs::HistInfo*>& hists);
+    bool update(const std::vector<SpJs::HistInfo>& hists);
 
 public slots:
 
@@ -86,9 +88,13 @@ public slots:
     void addSlice(GSlice* slice);
     void addGate(GGate* gate);
 
+signals:
+    void histogramAboutToBeRemoved(HistogramBundle*);
+
 private:
     std::map<QString, std::unique_ptr<HistogramBundle> > m_hists;
     QMutex m_mutex;
+    SpecTclInterface* m_pSpecTcl;
 
 };
 

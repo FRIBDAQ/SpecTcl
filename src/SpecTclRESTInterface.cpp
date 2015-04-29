@@ -23,7 +23,7 @@ namespace Viewer
 SpecTclRESTInterface::SpecTclRESTInterface()
     : SpecTclInterface(),
     m_pGateList(new GateList),
-    m_pHistList(new HistogramList),
+    m_pHistList(new HistogramList(this)),
     m_pGateEditCmd(new GateEditComHandler),
     m_pCommonHandler(new CommonResponseHandler),
     m_pGateListCmd(new GateListRequestHandler),
@@ -35,8 +35,8 @@ SpecTclRESTInterface::SpecTclRESTInterface()
   connect(m_pGateListCmd.get(), SIGNAL(parseCompleted(std::vector<SpJs::GateInfo*>)),
       this, SLOT(onGateListReceived(std::vector<SpJs::GateInfo*>)));
 
-  connect(m_pGateListCmd.get(), SIGNAL(parseCompleted(std::vector<SpJs::HistInfo*>)),
-      this, SLOT(onHistogramListReceived(std::vector<SpJs::HistInfo*>)));
+  connect(m_pHistListCmd.get(), SIGNAL(parseCompleted(std::vector<SpJs::HistInfo>)),
+      this, SLOT(onHistogramListReceived(std::vector<SpJs::HistInfo>)));
 }
 
 void SpecTclRESTInterface::addGate(const GSlice &slice)
@@ -164,12 +164,10 @@ void SpecTclRESTInterface::enableHistogramInfoPolling(bool enable)
 }
 
 void
-SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo*> hists)
+SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo> hists)
 {
 
   if (! pollHistInfo) {
-      // free the gates... they have done their job
-      for (auto ptr : hists) { delete ptr; }
 
       return;
   }
@@ -188,9 +186,6 @@ SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo*> hists
 
   // schedule the next update
   QTimer::singleShot(1000, this, SLOT(listHistogramInfo()));
-
-  // free the gates... they have done their job
-  for (auto ptr : hists) { delete ptr; }
 
 }
 

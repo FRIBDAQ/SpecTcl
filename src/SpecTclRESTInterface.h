@@ -50,7 +50,7 @@ public slots:
     void listGates();
     void listHistogramInfo();
     void onGateListReceived(std::vector<SpJs::GateInfo*> gates);
-    void onHistogramListReceived(std::vector<SpJs::HistInfo*> hists);
+    void onHistogramListReceived(std::vector<SpJs::HistInfo> hists);
 
 private:
     std::unique_ptr<GateList> m_pGateList;

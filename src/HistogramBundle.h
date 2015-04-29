@@ -23,9 +23,10 @@
 #ifndef HISTOGRAMBUNDLE_H
 #define HISTOGRAMBUNDLE_H
 
+#include "QHistInfo.h"
+
 #include <QMutex>
 #include <QString>
-#include <HistInfo.h>
 #include <map>
 
 #include <memory>

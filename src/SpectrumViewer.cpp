@@ -74,20 +74,24 @@ SpectrumViewer::SpectrumViewer(SpecTclInterface* pSpecTcl, QWidget *parent) :
     // set up the connections of signals/slots
     connect(ui->updateButton, SIGNAL(pressed()), this, SLOT(requestUpdate()));
 
-    if ( !connect(&m_reqHandler, SIGNAL(parsingComplete(HistogramBundle*)),
-                  this, SLOT(update(HistogramBundle*))) ) {
-        std::cout << "Failed to connect parsingComplete --> update" << std::endl;
-    }
+    connect(&m_reqHandler, SIGNAL(parsingComplete(HistogramBundle*)),
+            this, SLOT(update(HistogramBundle*)));
 
-    if ( !connect(&m_reqHandler, SIGNAL(error(int,const QString&)),
-                  this, SLOT(onError(int, const QString&))) ) {
-        std::cout << "Failed to connect error --> onError" << std::endl;
-    }
+    connect(&m_reqHandler, SIGNAL(error(int,const QString&)),
+            this, SLOT(onError(int, const QString&)));
 
-    if ( !connect(m_pSpecTcl, SIGNAL(gateListChanged()),
-                  this, SLOT(refresh())) ) {
-        std::cout << "Failed to connect error --> onError" << std::endl;
-    }
+    connect(m_pSpecTcl, SIGNAL(gateListChanged()),
+            this, SLOT(refresh()));
+
+    connect(m_pSpecTcl->getHistogramList(),
+            SIGNAL(histogramAboutToBeRemoved(HistogramBundle*)),
+            this,
+            SLOT(onHistogramAboutToBeRemoved(HistogramBundle*)));
+
+//    connect(m_pSpecTcl,
+//            SIGNAL(histogramListChanged()),
+//            this,
+//            SLOT(onHistogramListChanged()));
 
 }
 
@@ -102,6 +106,42 @@ QRootCanvas* SpectrumViewer::getCurrentFocus() const {
 
 HistogramBundle* SpectrumViewer::getCurrentHist() const {
     return m_currentHist;
+}
+
+void SpectrumViewer::onHistogramAboutToBeRemoved(HistogramBundle *pHistBundle)
+{
+  if ( pHistBundle == getCurrentHist() ) {
+      // shoot they are deleting the histogram we are viewing out from under us
+
+      // let's switch to viewing the first histogram in the list
+      auto pHistList = m_pSpecTcl->getHistogramList();
+      if (pHistList->size() != 0) {
+          auto itFirstHist = m_pSpecTcl->getHistogramList()->begin();
+
+          update(itFirstHist->second.get());
+      } else {
+          update(nullptr);
+      }
+
+  }
+}
+
+void SpectrumViewer::onHistogramListChanged()
+{
+  auto pHistList = m_pSpecTcl->getHistogramList();
+
+  auto histPtrEqual = [this](const pair<const QString, unique_ptr<HistogramBundle>>& bundlePair) {
+      return bundlePair.second.get() == this->m_currentHist;
+  };
+
+  auto it = find_if( pHistList->begin(), pHistList->end(), histPtrEqual);
+  if ( it == pHistList->end() ) {
+    // current histogram was deleted.
+    update(nullptr);
+  } else {
+    // current histogram still valid
+    refresh();
+  }
 }
 
 void SpectrumViewer::requestUpdate()
