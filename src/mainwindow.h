@@ -36,6 +36,7 @@ class SpectrumViewer;
 class HistogramView;
 class DockableGateManager;
 class SpecTclInterface;
+class ControlPanel;
 
 class MainWindow : public QMainWindow
 {
@@ -60,6 +61,7 @@ private:
     HistogramView* m_histView;
     DockableGateManager* m_gateView;
     SpecTclInterface* m_pSpecTcl;
+    ControlPanel* m_pControls;
 };
 
 } // end of namespace

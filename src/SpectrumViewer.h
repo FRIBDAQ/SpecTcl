@@ -56,7 +56,6 @@ public:
 
 public slots:
     void onHistogramRemoved(HistogramBundle* pHistBundle);
-    void onHistogramListChanged();
     void requestUpdate();
 
     void update(HistogramBundle* gHist);

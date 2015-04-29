@@ -59,20 +59,18 @@ SpectrumViewer::SpectrumViewer(SpecTclInterface* pSpecTcl, QWidget *parent) :
     setFrameShadow(QFrame::Plain);
     setFrameShape(QFrame::NoFrame);
 
-
     m_canvas = new QRootCanvas(this);
     m_canvasList.insert(m_canvas);
     m_currentCanvas = m_canvas;
 
-
-    ui->gridLayout->addWidget(m_canvas,0,0);
+    auto pTab = ui->pTabWidget->currentWidget();
+    QGridLayout* pLayout = new QGridLayout;
+    pLayout->addWidget(m_canvas);
+    pTab->setLayout(pLayout);
 
     m_canvas->getCanvas()->Resize();
     m_canvas->getCanvas()->cd();
     m_canvas->show();
-
-    // set up the connections of signals/slots
-    connect(ui->updateButton, SIGNAL(pressed()), this, SLOT(requestUpdate()));
 
     connect(&m_reqHandler, SIGNAL(parsingComplete(HistogramBundle*)),
             this, SLOT(update(HistogramBundle*)));
@@ -87,11 +85,6 @@ SpectrumViewer::SpectrumViewer(SpecTclInterface* pSpecTcl, QWidget *parent) :
             SIGNAL(histogramRemoved(HistogramBundle*)),
             this,
             SLOT(onHistogramRemoved(HistogramBundle*)));
-
-//    connect(m_pSpecTcl,
-//            SIGNAL(histogramListChanged()),
-//            this,
-//            SLOT(onHistogramListChanged()));
 
 }
 
@@ -123,24 +116,6 @@ void SpectrumViewer::onHistogramRemoved(HistogramBundle *pHistBundle)
           update(nullptr);
       }
 
-  }
-}
-
-void SpectrumViewer::onHistogramListChanged()
-{
-  auto pHistList = m_pSpecTcl->getHistogramList();
-
-  auto histPtrEqual = [this](const pair<const QString, unique_ptr<HistogramBundle>>& bundlePair) {
-      return bundlePair.second.get() == this->m_currentHist;
-  };
-
-  auto it = find_if( pHistList->begin(), pHistList->end(), histPtrEqual);
-  if ( it == pHistList->end() ) {
-    // current histogram was deleted.
-    update(nullptr);
-  } else {
-    // current histogram still valid
-    refresh();
   }
 }
 

@@ -29,6 +29,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "DockableGateManager.h"
 #include "TGo4CreateNewHistogram.h"
 #include "SpecTclRESTInterface.h"
+#include "ControlPanel.h"
 
 #include <QDebug>
 #include <QDockWidget>
@@ -47,7 +48,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pSpecTcl = new SpecTclRESTInterface();
 
     m_view = new SpectrumViewer(m_pSpecTcl, ui->frame);
+    m_pControls = new ControlPanel(ui->frame);
+
     ui->gridLayout->addWidget(m_view);
+    ui->gridLayout->addWidget(m_pControls);
 
     m_histView = new HistogramView(m_pSpecTcl, this);
     m_gateView = new DockableGateManager(*m_view, m_pSpecTcl, this);
@@ -65,6 +69,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
     connect(ui->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
     connect(ui->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
+
+    connect(m_pControls, SIGNAL(updateSelected()), m_view, SLOT(requestUpdate()));
 }
 
 void MainWindow::onConnect() {

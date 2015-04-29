@@ -32,7 +32,9 @@ set(untitled2_SOURCES
   GateDeleteRequest.cpp
   CommonResponseHandler.cpp
   GateListRequestHandler.cpp
-  QTLine.cpp)
+  QTLine.cpp
+  ControlPanel.cpp
+  GeometrySelector.cpp)
 
 set(untitled2_HEADERS 
   QRootCanvas.h 
@@ -69,7 +71,9 @@ set(untitled2_HEADERS
   GateListRequestHandler.h
   Utility.h
   QTLine.h
-  QHistInfo.h)
+  QHistInfo.h
+  ControlPanel.h
+  GeometrySelector.h)
 
 set(untitled2_FORMS
   mainwindow.ui 
@@ -80,7 +84,8 @@ set(untitled2_FORMS
   TGo4CreateNewHistogram.ui 
   DockableGateManager.ui 
   GateBuilderDialog.ui 
-  GateBuilder1DDialog.ui)
+  GateBuilder1DDialog.ui
+  ControlPanel.ui)
 
 set(untitled2_RESOURCES
     resources.qrc)
@@ -150,6 +155,7 @@ pkg_search_module(LibSpecTclJson jsoncpp)
 
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}
+                    ${CMAKE_CURRENT_SOURCE_DIR}
                      ${SPECTCLJSON_INCLUDE_DIRS})
 
 ########################################################################
