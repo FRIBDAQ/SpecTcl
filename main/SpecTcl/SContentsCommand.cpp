@@ -107,15 +107,9 @@ CSContentsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& 
                 ULong_t y = (*pSpectrum)[&x];
                 if (y > 0) {
                     if (json) {
-                        char aNumber[100];
-                        jsonString += "\n";
-                        jsonString += "  {";
-                        jsonString += "    \"xchan: ";
-                        sprintf(aNumber, "\"%d\",\n", x);
-                        jsonString += aNumber;
-                        jsonString += "    \"value: ";
-                        sprintf(aNumber, "\"%d\"\n},\n", y);
-                        jsonString += aNumber;
+                        char aChannel[200];
+                        sprintf(aChannel, "{\"x:\"%d, \"v\":%d},\n", x, y);
+                        jsonString += aChannel;
                     } else {
                         CTCLObject channel;
                         channel.Bind(interp);
@@ -139,18 +133,9 @@ CSContentsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& 
                     ULong_t z = (*pSpectrum)[coords];
                     if (z > 0) {
                         if (json) {
-                            char aNumber[100];
-                            jsonString += "\n";
-                            jsonString += "  {";
-                            jsonString += "    \"xchan: ";
-                            sprintf(aNumber, "\"%d\",\n", x);
-                            jsonString += aNumber;
-                            jsonString += "    \"ychan: ";
-                            sprintf(aNumber, "\"%d\",\n", y);
-                            jsonString += aNumber;
-                            jsonString += "    \"value: ";
-                            sprintf(aNumber, "\"%d\"\n},\n", z);
-                            jsonString += aNumber;
+                            char aChannel[200];
+                            sprintf(aChannel, "{\"x\":%d, \"y\": %d, \"v\": %d},\n", x, y, z);
+                            jsonString += aChannel;
                         } else {
                             CTCLObject channel;
                             channel.Bind(interp);
