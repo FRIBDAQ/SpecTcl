@@ -108,7 +108,7 @@ CSContentsCommand::operator()(CTCLInterpreter& interp, std::vector<CTCLObject>& 
                 if (y > 0) {
                     if (json) {
                         char aChannel[200];
-                        sprintf(aChannel, "{\"x:\"%d, \"v\":%d},\n", x, y);
+                        sprintf(aChannel, "{\"x\": %d, \"v\":%d},\n", x, y);
                         jsonString += aChannel;
                     } else {
                         CTCLObject channel;
