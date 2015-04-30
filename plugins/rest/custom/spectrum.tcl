@@ -216,7 +216,28 @@ proc ::SpecTcl::_getSpectrum1 {name axes sample} {
 	}
 
     }
-    return [::SpecTcl::_returnObject OK [json::write array {*}$nonZeroChannels]]
+    set detail [json::write array {*}$nonZeroChannels]
+    if {[info command version] ne ""} {
+	set v [version]
+        puts "Version $v"
+	set major [lindex [split $v .] 0]
+        puts "Major $major"
+	if {$major != 3} {
+            puts "Including statistics"
+	    # 4.0 or later includes statistics. detail divided into channels and statistics.
+
+	    set statistics [lindex [specstats $name] 0]
+            puts $statistics
+	    set over [dict get $statistics overflows]
+	    set under [dict get $statistics underflows]
+	    
+	    set statObj [::json::write object xunderflow $under xoverflow $over]
+	    set detail [::json::write object statistics $statObj channels  $detail]
+	       
+	}
+
+    }
+    return [::SpecTcl::_returnObject OK $detail]
 }
 
 
@@ -258,6 +279,28 @@ proc ::SpecTcl::_getSpectrum2 {name axes sample} {
         
         set data [scontents -json $name]
 
+	if {[info command version] ne ""} {
+	    set v [version]
+            puts "Version $v"
+	    set major [lindex [split $v .] 0]
+            puts "Major $major"
+	    if {$major != 3} {
+                puts "Including stats"
+		# 4.0 or later includes statistics. detail divided into channels and statistics.
+		
+		set statistics [lindex [specstats $name] 0]
+		set over [dict get $statistics overflows]
+		set under [dict get $statistics underflows]
+
+		set stats [json::write object \
+			       xunderflow [lindex $under 0] \
+			       yunderflow [lindex $under 1] \
+			       xoverflow  [lindex $over 0] \
+			       yoverflow  [lindex $over 1]]
+		set data [json::write object statistics $stats channels $data]
+			       
+	    }
+	}
 	json::write indented 0
 	json::write aligned  0
         set json [::SpecTcl::_returnObject OK  $data]
