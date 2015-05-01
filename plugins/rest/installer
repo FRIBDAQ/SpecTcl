@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+#  installer prefix
+
+prefix=$1
+mkdir -p $prefix
+tar czf - bin lib custom htdocs htdocs_2 startServer.tcl pkgIndex.tcl | \
+    (cd $prefix; tar xzf -)
+
