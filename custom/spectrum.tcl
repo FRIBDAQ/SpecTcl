@@ -129,7 +129,6 @@ proc SpecTcl_Spectrum/create {{name ""} {type ""} {parameters ""} {axes ""} {cha
 #  Get spectrum contents
 #  
 #   @param name - spectrum name
-#   @param sample - stride between channel selections.
 #  
 #   @return JSON object on success the details are an array of 
 #        - xchan - Xchannel number
@@ -141,7 +140,7 @@ proc SpecTcl_Spectrum/create {{name ""} {type ""} {parameters ""} {axes ""} {cha
 #    - missing parameter - name is not supplied.
 #
 
-proc SpecTcl_Spectrum/contents {{name ""} {sample 1}} {
+proc SpecTcl_Spectrum/contents {{name ""}} {
     set ::SpecTcl_Spectrum/contents application/json
 
     if {$name eq ""} {
@@ -151,7 +150,7 @@ proc SpecTcl_Spectrum/contents {{name ""} {sample 1}} {
     set def [spectrum -list $name]
 
     if {[llength $def] == 0} {
-	return [::SpecTcl::_returnObject "not found"] [json::write string $name]]
+	return [::SpecTcl::_returnObject "not found" [json::write string $name]]
     }
     # With the exception of sumary spectra, the axes tell me both the dimension
     # and the bins.. for summary spectrum the y bins are the number of parameters in the def.
@@ -178,7 +177,7 @@ proc SpecTcl_Spectrum/contents {{name ""} {sample 1}} {
 
     # Return the appropriate guy:
     
-    return [::SpecTcl::_getSpectrum$dims $name $axes $sample]
+    return [::SpecTcl::_getSpectrum$dims $name $axes]
     
 }
 ##
@@ -200,14 +199,13 @@ proc SpecTcl_Spectrum/zero {{pattern *}} {
 #  Return the contents of a 1-d spectrum as JSON with good status
 #   @param name - spectrum name.
 #   @param axes - axis specifications.
-#   @param sample - stride between channel selections.
 #
 #  @return - array of non zero channels, see SpecTcl_Spectrum/contents.
 #
-proc ::SpecTcl::_getSpectrum1 {name axes sample} {
+proc ::SpecTcl::_getSpectrum1 {name axes} {
     set channels [lindex [lindex $axes 0] 2]
     set nonZeroChannels [list]
-    for {set c 0} {$c < $channels} {incr c $sample} {
+    for {set c 0} {$c < $channels} {incr c} {
 	set value [channel -get $name $c]
 	if {$value != 0} {
 	    lappend nonZeroChannels [json::write object \
@@ -219,15 +217,13 @@ proc ::SpecTcl::_getSpectrum1 {name axes sample} {
     set detail [json::write array {*}$nonZeroChannels]
     if {[info command version] ne ""} {
 	set v [version]
-        puts "Version $v"
 	set major [lindex [split $v .] 0]
-        puts "Major $major"
 	if {$major != 3} {
-            puts "Including statistics"
+
 	    # 4.0 or later includes statistics. detail divided into channels and statistics.
 
 	    set statistics [lindex [specstats $name] 0]
-            puts $statistics
+
 	    set over [dict get $statistics overflows]
 	    set under [dict get $statistics underflows]
 	    
@@ -246,11 +242,10 @@ proc ::SpecTcl::_getSpectrum1 {name axes sample} {
 #
 # @param name -spectrum name
 # @param axes  spectrum axes
-# @param sample - stride between channel selections.
 #
 #  See SpecTcl_Spectrurm/contents
 #
-proc ::SpecTcl::_getSpectrum2 {name axes sample} {
+proc ::SpecTcl::_getSpectrum2 {name axes} {
     set xchans [lindex [lindex $axes 0 ] 2]
     set ychans [lindex [lindex $axes 1] 2]
 
@@ -261,8 +256,8 @@ proc ::SpecTcl::_getSpectrum2 {name axes sample} {
     #  command which will speed up the channel fetch loop:
     
     if {[info command version] eq ""} {
-        for {set y 0} {$y < $ychans} {incr y $sample} {
-            for {set x 0} {$x < $xchans} {incr x $sample} {
+        for {set y 0} {$y < $ychans} {incr y} {
+            for {set x 0} {$x < $xchans} {incr x} {
                 set value [channel -get $name [list $x $y]]
                 if {$value != 0} {
                     lappend nonZeroChannels [json::write object \
@@ -281,11 +276,11 @@ proc ::SpecTcl::_getSpectrum2 {name axes sample} {
 
 	if {[info command version] ne ""} {
 	    set v [version]
-            puts "Version $v"
+
 	    set major [lindex [split $v .] 0]
-            puts "Major $major"
+
 	    if {$major != 3} {
-                puts "Including stats"
+
 		# 4.0 or later includes statistics. detail divided into channels and statistics.
 		
 		set statistics [lindex [specstats $name] 0]
