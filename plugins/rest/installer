@@ -3,7 +3,15 @@
 #  installer prefix
 
 prefix=$1
-mkdir -p $prefix
+pkgdir=$prefix/TclLibs/rest
+docdir=$prefix/share/rest
+
+mkdir -p $pkgdir
+
 tar czf - bin lib custom htdocs htdocs_2 startServer.tcl pkgIndex.tcl | \
-    (cd $prefix; tar xzf -)
+    (cd $pkgdir; tar xzf -)
+
+mkdir -p $docdir
+
+docbook2pdf -o $docdir  restdocs.xml 
 

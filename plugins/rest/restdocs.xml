@@ -1,0 +1,1323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+                      "file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd
+"
+>
+<book>
+    <bookinfo>
+      <title>SpecTcl REST plugin</title>
+      <author><firstname>Ron</firstname><surname>Fox</surname></author>
+      <revhistory>
+          <revision>
+             <revnumber>1.0</revnumber>
+             <date>May 1, 2015</date>
+             <authorinitials>RF</authorinitials>
+             <revremark>Original Release</revremark>
+          </revision>
+      </revhistory>
+    </bookinfo>
+    <chapter>
+        <title>Introduction</title>
+        <para>
+            This plugin provides a REST-like method to obtain information from
+            SpecTcl.  The plugin can be used to build remote control panels,
+            web browser based interfaces to SpecTcl and alternative spectrum
+            viewers.
+        </para>
+        <para>
+            This document describes
+        </para>
+        <itemizedlist>
+            <listitem><para>
+                How to incorporate the plugin into your SpecTcl at run time
+                (in the <filename>SpecTclRC.tcl</filename> file).
+            </para></listitem>
+            <listitem><para>
+                How to make requests of the REST interface and what to
+                expect in return.
+            </para></listitem>
+        </itemizedlist>
+        <para>
+            A few notes are important:
+        </para>
+        <itemizedlist>
+            <listitem><para>
+                The REST plugin is stateless, that is it has no concept of a
+                client session.
+            </para></listitem>
+            <listitem><para>
+                The REST plugin responses are returned in JavaScript Object Notation
+                (JSON) format.  If you
+                intend to write a client, this document assumes you are
+                familiar with JSON.
+            </para></listitem>
+            <listitem><para>
+                The REST plugin is built on top of the tclhttpd pure Tcl web server.
+            </para></listitem>
+            
+        </itemizedlist>
+        <para>
+            How you format, issue and obtaint the response to REST operations
+            depends on the language you program in.  For example in a shell
+            script you can use the <literal>curl</literal> command.
+            In Tcl, the rest package and so on.
+        </para>
+    </chapter>
+    <chapter>
+        <title>Incorporating the REST plugin</title>
+        <para>
+            This chapter assumes that the REST plugin has been installed
+            in the SpecTcl installation directory tree, or at least is installed
+            somewhere in the Tcl package load path (<literal>auto_path</literal>).
+            At the NSCL, the REST plugin is normally installed in:
+            <filename>$SpecTclHome/TclLibs/rest</filename>.
+        </para>
+        <para>
+            In this chapter we will see Tcl code that you can incorporate
+            in your <filename>SpecTclRC.tcl</filename> script.
+            This code will:
+        </para>
+        <itemizedlist>
+            <listitem><para>Load the REST plugin</para></listitem>
+            <listitem><para>Select a port on which the REST server will listen for client requests</para></listitem>
+            <listitem><para>Start the REST server.</para></listitem>
+        </itemizedlist>
+        <para>
+            If the REST plugin was installed in the <filename>$SpecTclHome/TclLibs</filename>
+            directory tree, SpecTcl will ensure that it is visible to the
+            Tcl package auto load path.  If not you will need to make an approprate
+            addition to <varname>auto_path</varname>.
+        </para>
+        <example>
+            <title>Incorporating and starting the REST server</title>
+            <programlisting>
+package require SpecTclHttpdServer          <co id='require' />
+set port [::SpecTcl::findFreePort 8000]     <co id='getport' />
+startSpecTclHttpdServer $port               <co id='start' />
+....
+<computeroutput>Starting 8080 charlie.nscl.msu.edu</computeroutput>           <co id='output' />
+
+            </programlisting>
+        </example>
+        <calloutlist>
+            <callout arearefs='require' >
+                <para>
+                    The <literal>SpecTclHttpdServer</literal> package contains
+                    the REST interface.  Since REST is a web-based protocol,
+                    the REST plugin is built on top of a Tcl web server called
+                    tclhttpd that has custom, active pages that implement the
+                    interface.
+                </para>
+            </callout>
+            <callout arearefs='getport'>
+                <para>
+                    A system can run several instances of SpecTcl.  Each REST
+                    server, however must listen for connections on a
+                    distinct TCP/IP port.  The package provides a proc
+                    <literal>::SpecTcl::findFreePort</literal> that probes
+                    for an unused port starting at a base port.
+                </para>
+                <para>
+                    This line locates the first unused port above port number
+                    <literal>8000</literal>, and returns that port number.
+                    You can display the port number you used at stdout or
+                    in a custom user interface so that you know how to
+                    point your clients at the server.
+                </para>
+            </callout>
+            <callout arearefs='start'>
+                <para>
+                    Starts the REST server.  Once this has been done
+                    REST requests can be made of the server.
+                </para>
+            </callout>
+            <callout arearefs='output'>
+                <para>
+                    As the server starts it outputs a few lines of text on
+                    Tcl's stdout file (in most cases for SpecTcl this is redirected
+                    to the <literal>TkCon</literal> window.
+                    As this line shows, one of the bits of output identifies the
+                    port and host on which the server is running.
+                </para>
+            </callout>
+        </calloutlist>
+    </chapter>
+    <chapter>
+        <title>REST requests supproted.</title>
+        <section>
+            <title>General Request format</title>
+            <para>
+                Rest requests are made by performing an httpd GET operation.
+                The actual request is a combination of the URL and the query
+                parameters added to the end of the URL.  
+            </para>
+            <para>
+                You can think of the URL as being made up of the following components:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>Connection information</term>
+                    <listitem>
+                        <para>
+                            This consists of the protocol (<literal>http:</literal>),
+                            the name of the host in which SpecTcl is running and
+                            the port on which its REST server is oeprating.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Application name</term>
+                    <listitem>
+                        <para>
+                            The tclhttpd server is extensible and, although this
+                            will not be described, you could add additional services
+                            to it.  The application name identifies a bundle of
+                            services that are logically related (in this
+                            case the SpecTcl REST services).
+                        </para>
+                        <para>
+                            The application name is the first element of the
+                            URL's path and, for the REST plugin is always
+                            <literal>spectcl</literal>
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Service group</term>
+                    <listitem>
+                        <para>
+                            The services offered by the REST server are grouped
+                            in logically related operations.  For example,
+                            there is a <literal>spectrum</literal> group
+                            which offers operations and queries on spectra.
+                        </para>
+                        <para>
+                            The service group is the path element that immediately
+                            follows the application name. The remaining sections
+                            of this chapter describe each service group.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Operation</term>
+                    <listitem>
+                        <para>
+                            Each service group offers a set of operations.
+                            For example the
+                            <literal>spectrum</literal> service group offers
+                            an operation called <literal>list</literal>.
+                            This
+                            is encoded in the path element of the URL immediately
+                            following the service group.  
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Query parameters</term>
+                    <listitem>
+                        <para>
+                            If you think of each operation as a function in a
+                            programming language, you can think of the
+                            query parameters as the arguments to that function
+                            In a URL, query parameters are introduced with a
+                            <literal>?</literal> character and consist of a set
+                            of <literal>parameter=value</literal> strings that
+                            are separated by the <literal>&amp;</literal> character.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>
+                Suppose for example, you want to list all spectra whose names
+                begin with <literal>raw</literal>.
+                Assuming that the SpecTcl REST server is running on port 8080 in
+                the host charlie.nscl.msu.edu,
+                a GET operation on the following URL will return that information:
+            </para>
+            <informalexample>
+                <literallayout>
+http://charlie.nscl.msu.edu:8080/spectcl/spectrum/list?pattern=raw*
+                </literallayout>
+            </informalexample>
+            <para>
+                Information returned from the REST request is formatted as a
+                JavaScript Object Notation (JSON) object.  All of these objects
+                have an attribute named <literal>status</literal>.  If the
+                value of this attribute is <literal>OK</literal>, the request
+                succeeded.  If not the operation failed and the
+                <literal>status</literal>
+                value is a short reason for the failure.
+            </para>
+            <para>
+                Almost all returned objects also include a
+                <literal>detail</literal> attribute.  On failures,
+                this can contain more detailed information about the failure.
+                For success, this is where data associated with the request
+                is returned.  The contents of the <literal>detail</literal>
+                attribute will be described with the description of each REST
+                request.
+            </para>
+            
+        </section>
+        <section>
+            <title>Parameter requests</title>
+            <para>
+                The <literal>parameter</literal> service group provides
+                services related to SpecTcl parameters and tree parameters.
+                The base URL for this service group is like:
+            </para>
+            <informalexample>
+                <programlisting>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/parameter
+                </programlisting>
+
+            </informalexample>
+            <para>
+                The remainder of this section describes the operations provided by
+                this service goup.
+            </para>
+            <section>
+                <title>list</title>
+                <para>
+                    Lists the SpecTcl raw parameters and their properties.
+                    If the parameter is also defined as a tree parameter
+                    the tree parameter properties are supplied.
+                </para>
+                <para>
+                    The <literal>filter</literal> query parameter
+                    accepts a glob pattern.  If it is not provided it defaults
+                    to <literal>*</literal> which matches all parametrs.
+                </para>
+                <para>
+                    On success, the <literal>detail</literal> attribute
+                    of the returned JSON object is an array of objects,
+                    one for each parameter whose name matches the
+                    <literal>filter</literal>
+                </para>
+                <para>
+                    Each object in the array has the following attributes:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>name</literal></term>
+                        <listitem>
+                            <para>
+                                The parameter name
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>id</literal></term>
+                        <listitem>
+                            <para>
+                                The parameter id.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>bins</literal> (tree parameters only)</term>
+                        <listitem>
+                            <para>
+                                Number of suggested bins an axis of this parameter
+                                should have.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>low</literal> (tree parameters only)</term>
+                        <listitem>
+                            <para>
+                                Recommended low limit for an axis of this parameter.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>hi</literal> (tree parameters only)</term>
+                        <listitem>
+                            <para>
+                                Recommended high limit for an axis of thsi parameter.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>units</literal> (tree parameters only)</term>
+                        <listitem>
+                            <para>
+                                Units of measure this parameter is in.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    
+                </variablelist>
+                
+            </section>
+            <section>
+                <title>edit</title>
+                <para>
+                    Modifies the properites of a tree parameter.  This
+                    operation has the following query parameters:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>name</literal></term>
+                        <listitem>
+                            <para>
+                                Name of the tree parameter.  The value of this
+                                parameter defaults to empty which won't usually
+                                match a tree parameter.  The value of
+                                <literal>name</literal> must be the name
+                                of a currently defined tree parameter.
+                            </para>
+                            <para>
+                                If the name is not a tree parameter
+                                a <literal>status</literal> of
+                                <literal>not found</literal> is returned
+                                with a <literal>detail</literal> that is
+                                the value of the <literal>name</literal>
+                                parameter.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>bins</literal></term>
+                        <listitem>
+                            <para>
+                                If supplied the tree parameter's bins property
+                                will be modified to the value of this parameter.
+                                If not supplied, that attribute will not be changed.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>low</literal></term>
+                        <listitem>
+                            <para>
+                                If supplied the tree parameter's low limit property
+                                will be modified to the value of ths parameter.
+                                If not supplied, that property will not be modified.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>high</literal></term>
+                        <listitem>
+                            <para>
+                                If supplied, the tree parameter's high limit property
+                                will be modified to the value of this parameter.
+                                If not supplied, that property will remain unchanged.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>units</literal></term>
+                        <listitem>
+                            <para>
+                                If supplied, the tree parameter's units property will
+                                be modified to the value of this parameter.  If not
+                                supplied, that property will remain unchanged.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    
+                </variablelist>
+                <para>
+                    On success the return has a <literal>status</literal> of
+                    <literal>Ok</literal> and an empty <literal>detail</literal>.
+                    Several errors are possible and detected:
+                    <literal>not found</literal> indicates the tree parameter
+                    was not found. <literal>command failed</literal> indicates
+                    that a <command>treeparameter</command> failed.
+                </para>
+            </section>
+            <section>
+                <title>promote</title>
+                <para>
+                    This operation promotes a simple, raw SpecTcl prameter to
+                    a tree parameter.  The difference between a parameter and
+                    a tree parameter from the point of view of the REST
+                    interface is that tree parameters have additional properties
+                    that can assist you in choosing good axis limits an binning
+                    when creating spectra.
+                </para>
+                <para>
+                    The following query parameters are recognized by
+                    the <literal>promote</literal> operation.  Note that
+                    most of them are mandator and an error is returned if
+                    mandatory parameters are not supplied.
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>name</literal> (mandatory)</term>
+                        <listitem>
+                            <para>
+                                Name of the parameter.   This parameter must
+                                already exist but must also not be a tree parameter.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>low</literal> (mandatory)</term>
+                        <listitem>
+                            <para>
+                                Sets the low limit property of the parameter.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>high</literal> (mandatory)</term>
+                        <listitem>
+                            <para>
+                                Sets the high limit property of the parameter
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>bins</literal> (mandatory)</term>
+                        <listitem>
+                            <para>
+                                Sets the bins property of the parameter.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>units</literal> (optional)</term>
+                        <listitem>
+                            <para>
+                                Sets the units of measure of the parameter.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    
+                </variablelist>
+                <para>
+                    On success, the <literal>detail</literal> attribute
+                    of the returned object is empty. Several error returns
+                    are possible (<literal>status</literal> not <literal>Ok</literal>):
+                </para>
+                <formalpara>
+                    <title><literal>missing parameter</literal></title>
+                    <para>
+                        If one or more of the mandatory parameters is not
+                        present.  In that case the <literal>detail</literal>
+                        field is the name of one of the missing parameters.
+                    </para>
+                </formalpara>
+                <formalpara>
+                    <title><literal>not found</literal></title>
+                    <para>
+                        If the <literal>name</literal> parameter value
+                        does not correspond to an existing parameter.
+                        The <literal>detail</literal> is the name of the
+                        parameter.
+                    </para>
+                </formalpara>
+                <formalpara>
+                    <title>already treeparameter</title>
+                    <para>
+                        If the parameter named is already a tree parameter.
+                        The <literal>detail</literal> is the name of the
+                        parameter.
+                    </para>
+                </formalpara>
+                <formalpara>
+                    <title>command failed</title>
+                    <para>
+                        If the <command>treeparameter -create</command>
+                        command failed.  The <literal>detail</literal>
+                        field is the error message emitted by the
+                        failing command.
+                    </para>
+                </formalpara>
+            </section>
+        </section>
+        <section>
+            <title>spectrum requests</title>
+            <para>
+                The <literal>spectrum</literal> service group provides
+                operations that revolve around spectra in SpecTcl.
+                This service group allows you to request information
+                about spectra, create and delete spectra.
+            </para>
+            <para>
+                The base URL for this service group is
+            </para>
+            <informalexample>
+                <programlisting>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/spectrum                    
+                </programlisting>
+            </informalexample>
+            <section>
+                <title>list</title>
+                <para>
+                    Produces information about the spectra whose
+                    names match a pattern with glob wildcards characters.
+                    The <literal>filter</literal> optional parameter
+                    provides the value of this pattern.  If not
+                    supplied it defaults to <literal>*</literal>
+                    which matches all spectra.
+                </para>
+                <para>
+                    The <literal>detail</literal> attribute of the
+                    returned object is an array of objects, one object
+                    for each matching spectrum.  Each of these objects
+                    has the following fields that, taken together, describe
+                    the spectrum:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>name</literal></term>
+                        <listitem>
+                            <para>
+                                The spectrum name.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>type</literal></term>
+                        <listitem>
+                            <para>
+                                The SpecTcl spectrum type code.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>params</literal></term>
+                        <listitem>
+                            <para>
+                                The SpecTcl spectrum parameter definitions.
+                                This is provided as an array of strings.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>axes</literal></term>
+                        <listitem>
+                            <para>
+                                This is an array of objects that
+                                describe the SpecTcl axes.  Each object
+                                has the attributes <literal>low</literal> for
+                                the axis low limit, <literal>high</literal>
+                                for the axis high limit and <literal>bins</literal>
+                                for the number of bins on that axis.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>chantype</literal></term>
+                        <listitem>
+                            <para>
+                                The SpecTcl channel type code (e.g. <literal>long</literal>).
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    
+                </variablelist>
+            </section>
+            <section>
+                <title>delete</title>
+                <para>
+                    Deletes a single spectrum.  The <literal>name</literal>
+                    parameter provides the name of the spectrum to delete.
+                </para>
+                <para>
+                    On success the <literal>detail</literal> field is empty.
+                    The non success returns include:
+                </para>
+                <formalpara>
+                    <title>missing parameter</title>
+                    <para>
+                        The <literal>name</literal> parameter was not supplied.
+                    </para>
+                </formalpara>
+                <formalpara>
+                    <title>not found</title>
+                    <para>
+                        There was no spectrum with the name provided.
+                    </para>
+                </formalpara>
+                <formalpara>
+                    <title>command failed</title>
+                    <para>
+                        The <command>spectrum -delete</command> command failed.
+                        <literal>detail</literal> contains the error message returned
+                        by the command.
+                    </para>
+                </formalpara>
+            </section>
+            <section>
+                <title>create</title>
+                <para>
+                    Creates a new spectrum.  The  spectrumto be created is
+                    defined by the query parameters, most of which are mandatory:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>name</literal> (mandatory)</term>
+                        <listitem>
+                            <para>
+                                The name of the new spectrum.  This must not
+                                be the name of an existing spectrum.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>type</literal> (mandatory)</term>
+                        <listitem>
+                            <para>
+                                The spectrum type code e.g. <literal>1</literal>
+                                for a 1-d spectrum.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>parameters</literal> (mandatory)</term>
+                        <listitem>
+                            <para>
+                                The parameters expressed as a space separated list. 
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>axes</literal> (mandatory)</term>
+                        <listitem>
+                            <para>
+                                The axis specifications.  This is a space separated
+                                list of SpecTcl axis specifications e.g.:
+                                <literal>{0 1023 100} {0 1023 200}</literal>.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>chantype</literal> (optional)</term>
+                        <listitem>
+                            <para>
+                                The spectrum channel type, defaults to
+                                <literal>long</literal>.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>
+                        On success, the <literal>detail</literal> field of the
+                        returned objexct is empty.  Several types of failures are
+                        directly tested for:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>missing parameter</literal></term>
+                        <listitem>
+                            <para>
+                                A mandatory parameter was not supplied.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>command failed</term>
+                        <listitem>
+                            <para>
+                                The <command>spectrum -create</command>
+                                command failed.  <literal>detail</literal>
+                                is the error message from that command.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    
+                </variablelist>
+            </section>
+            <section>
+                <title>clear</title>
+                <para>
+                    Clears the counts in a set of spectra. The
+                    <literal>pattern</literal> parameter supplies
+                    a glob patternt hat the cleared spectra match.
+                    <literal>pattern</literal> defaults to <literal>*</literal>
+                    which clears all spectra
+                </para>
+                <para>
+                    This operation has no failure returns.  The worst thing
+                    it can do is to clear nothing (no matching patter).
+                    The <literal>detail</literal> attribute of the returned
+                    objetct is also empty
+                </para>
+                
+            </section>
+            <section>
+                <title>contents</title>
+                <para>
+                    Returns the contents of the a spectrum.  The contents of a
+                    spectrum are sufficient to reconstruct the spectrum channels
+                    and overflow statistics.
+                    The only parameter is the mandatory <literal>name</literal>
+                    parameter which is the name of the spectrum to return.
+                </para>
+                <para>
+                    There are some significant differences in what can be returned.
+                    These differences depend on the underlyng spectrum type
+                    (1 or 2d) and the version of SpecTcl the REST server is running
+                    on (4.0 or earlier). 
+                </para>
+                <para>
+                    Prior to SpecTcl 4.0, spectra did not maintain over/undeflow
+                    statistics.  The REST interface for those version of SpecTcl
+                    produced an array of channel objects for the channels with
+                    non-zero counts as the value of the <literal>detail</literal>
+                    attribute:
+                </para>
+                <para>
+                    Channel objects have the following attributes:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>x</literal></term>
+                        <listitem>
+                            <para>
+                                The X channel number.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>y</literal> (2-d spectra only)</term>
+                        <listitem>
+                            <para>
+                                The Y channel number.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>v</literal></term>
+                        <listitem>
+                            <para>
+                                The number of counts at that channel.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    
+                </variablelist>
+                <para>
+                    Beginning with SpecTcl version 4.0, the <literal>detail</literal>
+                    attribute became an object with the attributes
+                    <literal>channels</literal> and <literal>statistics</literal>.
+                    The <literal>channels</literal> attribute contains the array
+                    of channel objects and the <literal>statistics</literal> attribute
+                    contains an object that describes the over/underflow statistics
+                    for the spectrum.  Its attributes are:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>xunderflow</literal></term>
+                        <listitem>
+                            <para>
+                                The number of times an X parameter value was below
+                                the X axis low limit.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>yunderflow</literal> (2-d only)</term>
+                        <listitem>
+                            <para>
+                                The numer of times a Y parameter value was below the
+                                Y axis low limit.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>xoverflow</literal></term>
+                        <listitem>
+                            <para>
+                                The number of times an x parameter was above the
+                                X axis high limit.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>yoverflow</literal> (2-d only)</term>
+                        <listitem>
+                            <para>
+                                The number of times a Y parameter value was above
+                                the Y axis high limit.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    
+                    
+                </variablelist>
+                <para>
+                    Two optimizations are performed.  Channel objects are only
+                    present for non-zerof channels.  2d spectra may be emitted with
+                    the <literal>Content-encoding deflate</literal>.  In that
+                    case the special header <literal>Uncompressed-Length</literal>
+                    provides the number of bytes required to hold the uncompressed
+                    JSON after defation.
+                </para>
+            </section>
+            
+        </section>
+        <section>
+            <title>gate requests</title>
+            <para>
+                This service group provides operations on Gates. The base URI of
+                this service group is:
+            </para>
+            <informalexample>
+                <cmdsynopsis><command>
+http://<replaceable>host.name:port-num</replaceable>/spectcl/gate                    
+                </command></cmdsynopsis>
+            </informalexample>
+        </section>
+        <section>
+            <title>list</title>
+            <para>
+                List the definitions of gates whose names match a pattern
+                with glob wildcards.  The <literal>pattern</literal>
+                parameter provides the pattern.  If <literal>pattern</literal>
+                is not specified, it defaults to <literal>*</literal>
+                which matches all gate names.
+            </para>
+            <para>
+                The <literal>detail</literal> field of the reply is
+                an array of objects.  Each objects describes a
+                gate who's name matches the <literal>pattern</literal>.
+                The actual shape of the objects can vary quite a bit depending
+                on the gate type.
+            </para>
+            <para>
+                All gate types have the following attributes in their objects:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term><literal>name</literal></term>
+                    <listitem>
+                        <para>
+                            Name of the gate.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><literal>type</literal></term>
+                    <listitem>
+                        <para>
+                            Gate type code.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                
+            </variablelist>
+            <para>
+                The remaining attributes depend on the value of
+                the <literal>type</literal> attribute.
+            </para>
+            <section>
+                <title>Compound gates (<literal>+ * -</literal>)</title>
+                <para>
+                    Compound gates are gates that are formed from other
+                    gates.  The gates a compound gate is formed from are
+                    called <firstterm>component gates</firstterm>.
+                    The <literal>+</literal> gate is true
+                    when any of the components is true.  <literal>+</literal>
+                    means <literal>Or</literal>.
+                    The <literal>*</literal> get by contrast is an
+                    <literal>And</literal> gate; it reuires all of its
+                    component gates to be true.  Finally the
+                    <literal>-</literal>, or <literal>Not</literal>
+                    gate has only a single component gate and is true
+                    when that gate is false (logical complement).
+                </para>
+                <para>
+                    The remaining attribute of a compound gate is
+                    called <literal>gates</literal> and consists of
+                    an array of gate name strings.
+                </para>
+            </section>
+            <section>
+                <title>Slice (<literal>s</literal>)</title>
+                <para>
+                    Slice gates check a single parameter against
+                    a low and high limit and are true for events
+                    when the parameter is inside the limits.
+                    The <literal>parameters</literal> attribute
+                    is an array that contains the name of the single parameter.
+                    The plural and array are used so that we can have some
+                    uniformity for gates that depend on parameters.
+                </para>
+                <para>
+                    The <literal>low</literal> and
+                    <literal>high</literal> attributes are the low
+                    and high limits of the slice.
+                </para>
+                <para>
+                    Below is the JSON that might be returned for a slice gate
+                    named <literal>cut</literal>:
+                </para>
+                <informalexample>
+                    <programlisting>
+{
+    "status" : "OK",
+    "detail" : [{
+        "name"       : "cut",
+        "type"       : "s",
+        "parameters" : ["event.raw.00"],
+        "low"        : 29.710001,
+        "high"       : 52.480003
+    }]
+}                        
+                    </programlisting>
+                </informalexample>
+                <para>
+                    Note that even though only one gate has matched
+                    <literal>detail</literal> is an array.  Similarl
+                    note that <literal>parameters</literal> is an array.
+                </para>
+            </section>
+            <section>
+                <title>Gamma slice (<literal>gs</literal>) </title>
+                <para>
+                    A gamma slice gate is much like a slice gate.  Gamma slice gates,
+                    however have several parameters and are true whenever one of those
+                    parameters is in the gate.  When used as gates they are very much
+                    like an or of a bunch of identical slice gates, one on each parameter.
+                    Their value, however, is when used as folds in a gamma spectrum.
+                </para>
+                <para>
+                    The format of this gate is identical to that of a slice gate, however
+                    there really is more than one parameter in the
+                    <literal>parameters</literal> array for example:
+                </para>
+                <informalexample>
+                    <programlisting>
+{
+    "status" : "OK",
+    "detail" : [{
+        "name"       : "gs",
+        "type"       : "gs",
+        "parameters" : ["event.raw.00","event.raw.01","event.raw.02","event.raw.03"],
+        "low"        : 194.369995,
+        "high"       : 368.279999
+    }]
+}                        
+                    </programlisting>
+                </informalexample>
+            </section>
+            <section>
+                <title>Simple 2-d gates (<literal>b c</literal>)</title>
+                <para>
+                    Simple 2-d gates are <firstterm>band</firstterm>
+                    and <firstterm>contour</firstterm> gates.  These gates
+                    are defined on two parameters and have an array of points
+                    that define an area in the two dimensional space defined
+                    by those parameters.
+                </para>
+                <para>
+                    The <literal>parameters</literal> field contains the name
+                    of the x followed by the name of the y parameter.
+                    The the <literal>points</literal> attribute contains an array
+                    of objects that contain <literal>x</literal> and <literal>y</literal>
+                    attributes:
+                </para>
+                <informalexample>
+                    <programlisting>
+{
+    "status" : "OK",
+    "detail" : [{
+        "name"       : "c",
+        "type"       : "c",
+        "parameters" : ["event.raw.00","event.raw.01"],
+        "points"     : [{
+            "x" : 182.821289,
+            "y" : 280.725586
+        },{
+            "x" : 512.499023,
+            "y" : 180.823242
+        },{
+            "x" : 675.339844,
+            "y" : 340.666992
+        },{
+            "x" : 665.349609,
+            "y" : 514.497070
+        }]
+    }]
+}                        
+                    </programlisting>
+                </informalexample>
+                <para>
+                    The name of this gate is <literal>c</literal> and it is
+                    a contour (<literal>type</literal> = "c").  If this were a
+                    band, the <literal>type</literal> would be "b".  The only
+                    difference between a band an a contour is what the points mean.
+                    In a contour, the points define a closed figure and the gate is
+                    true when the x/y parameters are both present and inside the figure.
+                    For a band, the gate is true when both x/y parameters are present
+                    and the point is below the figure defined by the points.
+                </para>
+                <para>
+                    Contours have an implied last point that is the same as the first point.
+                    That is the last point in the contour connects to the first point to
+                    close the contour.
+                </para>
+            </section>
+            <section>
+                <title>Gamma bands and contours (<literal>gb gc</literal></title>
+                <para>
+                    These gates are like bands and contours however they have more than
+                    two parameters.  All combinations are tried against the gate and if
+                    any are true the gate is true.  Once more these are more valuable
+                    when used to define a fold.
+                </para>
+                <para>
+                    The JSON is pretty much the same as for bands and contours, however
+                    there will can be more than two <literal>parameters</literal>:
+                </para>
+                <informalexample>
+                    <programlisting>
+{
+    "status" : "OK",
+    "detail" : [{
+        "name"       : "gammacont",
+        "type"       : "gc",
+        "parameters" : ["event.raw.00","event.raw.01","event.raw.02","event.raw.03","event.raw.04"],
+        "points"     : [{
+            "x" : 122.879997,
+            "y" : 409.600006
+        },{
+            "x" : 440.320007,
+            "y" : 204.800003
+        },{
+            "x" : 860.159973,
+            "y" : 450.559998
+        },{
+            "x" : 696.320007,
+            "y" : 665.599976
+        }]
+    }]
+}
+                    </programlisting>
+                </informalexample>
+            </section>
+            <section>
+                <title>Bit mask gates (<literal>em am nm</literal>)</title>
+                <para>
+                    These gates are defined on a single parameter that is assumed
+                    to contain integer.  The <literal>em</literal> (equal mask)
+                    is true when the parameter is equal to the mask.
+                    The <literal>am</literal> (and mask) is true when the
+                    parameter, bit-wised anded with the mask is equal to th emask
+                    (all the bits set in the mask are set in the parameter).
+                    The <literal>nm</literal> is true if the parameter bit-wise anded
+                    with the bit-wise complemnt of the mask is equal to the mask.
+                </para>
+                <para>
+                    In addition to the <literal>parameters</literal>
+                    attribute the description contains <literal>value</literal>
+                    which is the value of the mask:
+                </para>
+                <informalexample>
+                    <programlisting>
+  {
+    "status" : "OK",
+    "detail" : [{
+        "name"       : "mask",
+        "type"       : "em",
+        "parameters" : ["event.raw.00"],
+        "value"      : 0X1234
+    }]
+}                      
+                    </programlisting>
+                </informalexample>
+            </section>
+        </section>
+        <section>
+            <title>delete</title>
+            <para>
+                Deletes a gate named by the <literal>name</literal>
+                parameter.  The <literal>name</literal> parameter
+                is required and must name an existing gate.
+            </para>
+            <para>
+                The <literal>detail</literal> attribute of the
+                returned object is empty.  Note that in SpecTcl,
+                gates are never actualyl deleted, the are turned into
+                gates that are always <literal>false</literal>
+                instead.  This allows you to know and reason about the
+                behavior of gates that depend on the deleted gates.
+            </para>
+        </section>
+        <section>
+            <title>edit</title>
+            <para>
+                This operation creates or re-defines (edits) an existing gate.
+                The <literal>name</literal> parameter specifies the name of the
+                gate.  If the gate does not exist it will be created.
+                Gates can not only be edited to change their points. Any aspect
+                of a gate can be modified (except the name of the gate).
+            </para>
+            <para>
+                The <literal>type</literal> parameter determines the new
+                type of the gate.
+                The remaining parameters depend on the value of this type.
+            </para>
+            <section>
+                <title>Compound gates (<literal>* + -</literal>)</title>
+                <para>
+                    These gates only require a <literal>gate</literal>
+                    parameter whose value is a Tcl list of component gates.
+                </para>
+            </section>
+            <section>
+                <title>Constant gates (<literal>T F</literal>)</title>
+                <para>
+                    These are gates that are either always TRUE or always
+                    FALSE.  They are normally used as placeholders.  For
+                    example SpecTcl itself replaces a deleted gate with a
+                    FALSE gate in order to ensure that any dependent
+                    gates will continue to function in a predictable manner.
+                </para>
+                <para>
+                    These gates do not require any additional parameters.
+                </para>
+            </section>
+            <section>
+                <title>Bands and Contours (<literal>b c</literal>)</title>
+                <para>
+                    These gates need both an <literal>xparameter</literal> and
+                    a <literal>yparameter</literal> value to describe the X and
+                    Y parameters to check against the definition.  In addtion, these
+                    gates need several instances of <literal>xcoord</literal>
+                    parameters (x position of gate points) and
+                    <literal>ycoord</literal> parameters (y position of gate points).
+                </para>
+                <para>
+                    If there are differing number of x and y coordinates
+                    (you really should avoid that), only those points for which
+                    the x/y coordinates were both specified will be used.
+                    A band must have a minimum of two points while a contour
+                    requires at least three points.  For contours, there is an
+                    additional implied line segment joining the last and first points
+                    to close the figure.
+                </para>
+            </section>
+            <section>
+                <title>Bit mask gates (<literal>em am nm</literal>)</title>
+                <para>
+                    Bit mask gates require a <literal>parameter</literal> and
+                    a <literal>value</literal> parameter.   The
+                    <literal>parameter</literal> indicates which event
+                    parameter will be checked againts the <literal>value</literal>
+                    which is a bitmask.
+                </para>
+            </section>
+            <section>
+                <title>Slice gates (<literal>s</literal>)</title>
+                <para>
+                    Slice gates require three query parameters:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>parameter</literal></term>
+                        <listitem>
+                            <para>
+                                Provides the name of the parameter checked
+                                against the slice.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>low</literal></term>
+                        <listitem>
+                            <para>
+                                Low limit of the slice.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>high</literal></term>
+                        <listitem>
+                            <para>
+                                High limit of the slice.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    
+                </variablelist>
+                <para>
+                    Note that if <literal>low</literal> is larger
+                    than <literal>high</literal>, SpecTcl will
+                    reverse these parameters to create a sensible gate.
+                </para>
+            </section>
+            <section>
+                <title>Gamma 2d gates (<literal>gb gc</literal></title>
+                <para>
+                    These neewd the follwoing additional parametrs:
+                </para>
+                <variablelist>
+                    <varlistentry>
+                        <term><literal>parametrer</literal></term>
+                        <listitem>
+                            <para>
+                                Must appear t least twice and can appear
+                                several times. Each appearance adds a
+                                parameter to the list of parameters
+                                the gate will be checked against.
+                            </para>
+                            <para>
+                                Gamma gates are true for each pair of parameters
+                                that are in the gate.  They are more useful
+                                as folds than as actual gates.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>xcoord</literal></term>
+                        <listitem>
+                            <para>
+                                Provides an X coordinate for a gate point.
+                                These are orderd and will be matched up with
+                                <literal>ycoord</literal> values (see below).
+                                A band requires at least two of these and a
+                                contour at least three.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><literal>ycoord</literal></term>
+                        <listitem>
+                            <para>
+                                Provides the y coordinate for a gate point.
+                                These are ordered and will be matched up with
+                                corresponding <literal>xcoord</literal> values.
+                                If there is an excess of either <literal>xcoord</literal>
+                                or <literal>ycoord</literal> values, the excess
+                                is discarded.
+                            </para>
+                            <para>
+                                A band requires at least two points while a contour
+                                requires at least three.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    
+                </variablelist>
+            </section>
+            <section>
+                <title>Gamma slice (<literal>gs</literal>)</title>
+                <para>
+                    As for a slice gate a <literal>high</literal> and
+                    <literal>low</literal> parameter are required to set
+                    the limits for the gate.  For Gammma slice gates, however
+                    you can have more than one <literal>parameter</literal>
+                    query option.  Each <literal>parameter</literal> adds
+                    another parameter to the list of parameters checked
+                    against the gate.
+                </para>
+                <para>
+                    Gamma slice gates are true if any of the parameters
+                    are within the slice.  As such, they are more useful
+                    as folds where they can cut down the set of parameters
+                    that can actually increment spectra.
+                </para>
+            </section>
+        </section>
+        
+
+    </chapter>
+</book>
