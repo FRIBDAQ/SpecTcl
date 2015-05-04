@@ -283,22 +283,10 @@ CGamma2DD<T>::Increment(std::vector<std::pair<UInt_t, Float_t> >& rXParameters,
 
 	Int_t x = (Int_t)ParameterToAxis(0, xval);
 	Int_t y = (Int_t)ParameterToAxis(1, yval);
-	bool increment = true;
-        if(x < 0) {
-            logUnderflow(0);
-            increment = false;
-        } else if (x >= m_nXscale) {
-            logOverflow(0);
-            increment = false;
-        }
-        if (y <0) {
-            logUnderflow(1);
-            increment = false;
-        } else if (y >= m_nYscale) {
-            logOverflow(1);
-            increment = false;
-        }
-	if (increment) {
+	
+        bool xok = checkRange(x, m_nXscale, 0);
+        bool yok = checkRange(y, m_nYscale, 1);
+	if (xok && yok) {
 	  T* pStorage =(T*)getStorage();
 	  pStorage[x + y*m_nXscale]++;
 	}

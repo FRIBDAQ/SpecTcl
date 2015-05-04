@@ -1,0 +1,81 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<title>specstats command</title>
+</head>
+
+<body>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <th width="9%" nowrap><a href="http://www.nscl.msu.edu"><img
+        src="../images/nscl_logo_small.gif"
+        alt="nscl_logo_small.gif (2463 bytes)" width="63" height="52"></a></th>
+        <td width="79%"><h1>SpecTcl commands</h1>
+        </td>
+        <td width="12%"><a href="../index.htm"><img
+        src="../images/hh00706_.jpg"
+        alt="HH00706_.wmf (6530 bytes)" width="192" height="84"></a></td>
+    </tr>
+</table>
+
+<p>
+    <a href='../index.htm'>SpecTcl Home</a>
+    <a href='../general_information.htm'>General Information</a>
+    <a href='../users_guide.htm'>User Guide</a>
+    <a href='../programmers_guide.htm'>Programmer's Guide</a>
+    
+</p>
+<h2>Syntax</h2>
+
+<pre>
+    specstats ?pattern?
+</pre>
+
+<h2>Synopsis</h2>
+<p>
+    Provides information about the spectrum under and overflows for spectra.
+</p>
+<h2>Detailed Description</h2>
+<p>
+    If <tt>pattern</tt> is provided information is restricted to spectra whose
+    name match that pattern, which can include glob wildcard characters.  If
+    <tt>pattern</tt> is not present on the command line, information is
+    provided for all spectra (as if the pattern were <tt>*</tt>).
+</p>
+    The command returns a list of Tcl dicts.  Each dict contains overflow
+    and underflow statistics for a single spectrum.
+</p>
+<p>
+    By overflow we mean the number
+    of times a parameter has been too large to increment the spectrum. Similarly
+    by underflow we mean the number of times a parameter has been too small
+    to increment a spectrum.
+</p>
+<p>
+    Each dict has the following keys:
+</p>
+<table border='1'>
+    <tr>
+        <th>Key </th><th>Value</th>
+    </tr>
+    <tr>
+        <td>name</td><td>Name of the spectrum.</td>
+    </tr>
+    <tr>
+        <td>underflows </td><td>Either the number of underflows or a 2 element
+            list containing the number of x and y underflows</td>
+    </tr>
+    <tr>
+        <td>overflows</td><td>Either the number of overflows or a 2 element
+            list containing the number of x and y overflows</td>
+    </tr>
+</table>
+<p>
+    Note that if you are using the Xamine displayer the <tt>Info</tt> button
+    will provide you with the over/underflow data.  If you use the root
+    displayer, this information will be displayed in the title box on the spectrum.
+</p>

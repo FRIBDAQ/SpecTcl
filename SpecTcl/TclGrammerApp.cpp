@@ -104,6 +104,9 @@ static const char* printVersionScript =
    puts [exec cat [file join $SpecTclHome VERSION]]           \
 }";
 
+static const char* tclLibScript = "lappend auto_path [file join $SpecTclHome TclLibs]\n";
+
+
 
 
 // File scoped unbound variables:
@@ -230,6 +233,10 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   m_TclDisplaySize.Bind(rInterp);
   m_TclParameterCount.Bind(rInterp);
   m_TclEventListSize.Bind(rInterp);
+  
+  // Append TclLibs to the auto_path:
+  
+  rInterp.GlobalEval(tclLibScript);
 }
 
 //  Function:
@@ -638,6 +645,7 @@ int CTclGrammerApp::operator()() {
 
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
+  
 
   // Bind any variables to Tcl:
   BindTCLVariables(*gpInterpreter);

@@ -326,8 +326,9 @@ static void DrawMappedXTicks(Display *disp, Window win, GC gc,
 
   if ((hi - low) == 0) return;	// If no range then no ticks.
 
-  last_value        = -1.1111111111;	/* (not a nice value) */
+  
   value_represented = low;
+  last_value        = low - 100; // Make it different than low.
 
   XSegmentBatch ticks(disp, win, gc);
 

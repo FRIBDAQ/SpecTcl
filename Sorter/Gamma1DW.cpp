@@ -283,11 +283,8 @@ CGamma1DW::Increment(vector<pair<UInt_t, Float_t> >& rParams)
     UInt_t   nParameter = rParams[i].first;
     Float_t  fValue     = rParams[i].second;
     Int_t   y          = (Int_t)ParameterToAxis(0, fValue);
-    if (y < 0) {
-        logUnderflow(0);
-    } else if (y > m_nScale) {
-        logOverflow(0);
-    } else  {
+  
+    if(checkRange(y, m_nScale, 0)) {
       pStorage[y]++;
     }
     

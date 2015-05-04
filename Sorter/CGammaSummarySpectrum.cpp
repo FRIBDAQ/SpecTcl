@@ -83,7 +83,7 @@ CGammaSummarySpectrum<T>::CGammaSummarySpectrum(string              name,
   CreateStorage();
   fillParameterArray(*pParameters,
 		     nXChannels);
-  CreateAxes(pParameters,
+  CreateAxes(*pParameters,
 	     nXChannels,
 	     nYChannels,
 	     0, nYChannels - 1);
@@ -154,11 +154,7 @@ CGammaSummarySpectrum<T>::Increment(const CEvent& e)
       UInt_t paramId = params[i];
       if (paramId < event.size() && event[paramId].isValid()) {
 	Int_t chan = static_cast<Int_t>(m_Axes[x].ParameterToAxis(event[paramId]));
-        if (chan < 0) {
-            logUnderflow(0);
-        } else if (chan > m_nYChannels) {
-            logOverflow(0);
-        } else {
+        if(checkRange(chan, m_nYChannels, 0)) {
 	  p[chan*m_nXChannels]++;
 	}
       }

@@ -192,26 +192,11 @@ CSpectrum2Dm::getSpectrumType()
 bool
 CSpectrum2Dm::canIncrement(Int_t ix, Int_t iy, int nx, int ny)
 {
-  bool result = true;
+
+  bool xok = checkRange(ix, nx, 0);
+  bool yok = checkRange(iy, ny, 1);
   
-  if (ix < 0) {
-    logUnderflow(0);
-    result = false;
-  }
-  if (ix >= nx) {
-    logOverflow(0);
-    result = false;
-  }
-  if (iy < 0) {
-    logUnderflow(1);
-    result = false;
-  }
-  if (iy >= ny) {
-    logOverflow(1);
-    result = false;
-  }
-  
-  return result;
+  return xok && yok;
 }
 
 

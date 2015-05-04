@@ -142,13 +142,13 @@ CBitSpectrumW::CBitSpectrumW(const std::string& rName, UInt_t nId,
 	    CSpectrum::Axes(1, 
 			    CAxis((Float_t) nLow,
 				  (Float_t) nHigh,
-				  (nHigh - nLow + 1),
+				  (nHigh - nLow),
 				  CParameterMapping(rParameter)))),
-  m_nChannels(nHigh - nLow + 1),
+  m_nChannels(nHigh - nLow),
   m_nParameter(rParameter.getNumber()),
   m_PDescription(rParameter)
 {
-  AddAxis((nHigh - nLow) + 1, (Float_t)nLow, (Float_t)nHigh);
+  AddAxis((nHigh - nLow), (Float_t)nLow, (Float_t)nHigh);
   CreateStorage();
 }
 
@@ -203,8 +203,9 @@ CBitSpectrumW::Increment(const CEvent& rE)
                 logOverflow(0);
             }
             nParam &= ~bit;
-            bit = bit << 1;
+            
         }
+        bit = bit << 1;
       }
     }
   }

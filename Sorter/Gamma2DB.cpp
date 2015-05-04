@@ -342,22 +342,10 @@ CGamma2DB::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 	
 	Int_t x = (Int_t)ParameterToAxis(0, xval);
 	Int_t y = (Int_t)ParameterToAxis(1, yval);
-	bool increment = true;
-        if(x < 0) {
-            logUnderflow(0);
-            increment = false;
-        } else if (x >= m_nXScale) {
-            logOverflow(0);
-            increment = false;
-        }
-        if (y <0) {
-            logUnderflow(1);
-            increment = false;
-        } else if (y >= m_nYScale) {
-            logOverflow(1);
-            increment = false;
-        }
-	if (increment) {
+	bool xok = checkRange(x, m_nXScale, 0);
+        bool yok = checkRange(y, m_nYScale, 1);
+        
+	if (xok && yok) {
 	  pStorage[x + y*m_nXScale]++;
 	}
       }

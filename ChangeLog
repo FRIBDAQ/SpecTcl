@@ -1062,4 +1062,9 @@ November 30-?? 2011
         * Feature #2760 - new analysis framework to replace the 8.0 version.  
 	* Feature #3479 (change to existing functionality) Make
 	spectra/displays from [low, hi) with nchan binning.
+	* Feature #3922 - provide over/underflow statistics for spectra.
+	* Feature #382 - Add a parameter selection menu button to the tree
+	  parameter classic gate tab to aid in generating gates.
+	* Feature #3527 - Add C++ startup code to put $SpecTclHome/TclLibs
+	  in auto_path so scripts don't have to worry about it.
 	

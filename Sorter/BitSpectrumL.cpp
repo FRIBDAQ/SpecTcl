@@ -151,13 +151,13 @@ CBitSpectrumL::CBitSpectrumL(const std::string& rName, UInt_t nId,
 	    Axes(1, 
 		 CAxis((Float_t) nLow,
 		       (Float_t) nHigh,
-		       (nHigh - nLow + 1),
+		       (nHigh - nLow),
 		       CParameterMapping(rParameter)))),
-  m_nChannels(nHigh - nLow + 1),
+  m_nChannels(nHigh - nLow),
   m_nParameter(rParameter.getNumber()),
   m_PDescription(rParameter)
 {
-  AddAxis((nHigh - nLow) + 1, 
+  AddAxis((nHigh - nLow), 
 	  (Float_t)nLow, (Float_t)nHigh); // bits are unitless.
   CreateStorage();
 }

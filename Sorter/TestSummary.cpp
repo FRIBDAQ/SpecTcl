@@ -40,9 +40,9 @@ private:
     std::pair<std::vector<unsigned>, std::vector<unsigned> >
         fillB(std::vector<int> chans, unsigned n);
     std::pair<std::vector<unsigned>, std::vector<unsigned> >
-        fillW(std::vector<int> chans, unsigne n);
+        fillW(std::vector<int> chans, unsigned n);
     std::pair<std::vector<unsigned>, std::vector<unsigned> >
-        fillL(std::vector<int> chans, unsigne n);
+        fillL(std::vector<int> chans, unsigned n);
 
 public:
   void setUp() {
