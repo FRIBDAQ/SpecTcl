@@ -9,6 +9,7 @@ class ControlPanel;
 
 namespace Viewer
 {
+  class GeometrySelector;
 
 class ControlPanel : public QWidget
 {
@@ -30,6 +31,7 @@ signals:
 
 private:
     Ui::ControlPanel *ui;
+    GeometrySelector* pGeoSelector;
 };
 
 } // end of namespace

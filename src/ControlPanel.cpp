@@ -1,4 +1,5 @@
 #include "ControlPanel.h"
+#include "GeometrySelector.h"
 #include "ui_ControlPanel.h"
 
 namespace Viewer
@@ -6,12 +7,16 @@ namespace Viewer
 
 ControlPanel::ControlPanel(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ControlPanel)
+    ui(new Ui::ControlPanel),
+    pGeoSelector(new GeometrySelector(this))
 {
     ui->setupUi(this);
 
     connect(ui->pUpdateSelected, SIGNAL(clicked()), this, SLOT(onUpdateSelected()));
     connect(ui->pUpdateAll, SIGNAL(clicked()), this, SLOT(onUpdateAll()));
+
+    ui->horizontalLayout->insertWidget(0, pGeoSelector, 0, Qt::AlignLeft);
+
 }
 
 ControlPanel::~ControlPanel()

@@ -2,45 +2,33 @@
 #define GEOMETRYSELECTOR_H
 
 #include <QWidget>
-#include <QPushButton>
-#include <QTableWidget>
 
-class QEvent;
-class QMouseEvent;
+namespace Ui {
+class GeometrySelector;
+}
+
+namespace Viewer
+{
 
 class GeometrySelector : public QWidget
 {
     Q_OBJECT
+    
 public:
     explicit GeometrySelector(QWidget *parent = 0);
+    ~GeometrySelector();
     
+    int getRowCount() const;
+    int getColumnCount() const;
+
 signals:
-    
-public slots:
-    void onButtonPress();
-    
+    int rowCountChanged(int nRows);
+    int columnCountChanged(int nColumns);
 private:
-    void fillTableWithSquares();
-
-    QPushButton  m_button;
-
-    int m_nRows;
-    int m_nColumns;
-
-    QTableWidget m_table;
+    Ui::GeometrySelector *ui;
 };
 
-class HighlightableBox : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit HighlightableBox(QWidget *parent = 0);
 
-private:
-    void enterEvent(QEvent *pEvent);
-    void leaveEvent(QEvent* pEvent);
-    void moveEvent(QMoveEvent *pEvent);
-
-};
+} // end of namespace
 
 #endif // GEOMETRYSELECTOR_H

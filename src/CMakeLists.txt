@@ -85,7 +85,8 @@ set(untitled2_FORMS
   DockableGateManager.ui 
   GateBuilderDialog.ui 
   GateBuilder1DDialog.ui
-  ControlPanel.ui)
+  ControlPanel.ui
+  GeometrySelector.ui)
 
 set(untitled2_RESOURCES
     resources.qrc)
