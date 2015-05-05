@@ -21,9 +21,14 @@ public:
     int getRowCount() const;
     int getColumnCount() const;
 
+public slots:
+    void onRowCountChanged(int nRows);
+    void onColumnCountChanged(int nColumns);
+
 signals:
-    int rowCountChanged(int nRows);
-    int columnCountChanged(int nColumns);
+    void rowCountChanged(int nRows);
+    void columnCountChanged(int nColumns);
+
 private:
     Ui::GeometrySelector *ui;
 };

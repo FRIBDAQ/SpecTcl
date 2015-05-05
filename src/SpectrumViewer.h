@@ -55,6 +55,7 @@ public:
     HistogramBundle* getCurrentHist() const;
 
 public slots:
+    void onGeometryChanged(int nRows, int nColumns);
     void onHistogramRemoved(HistogramBundle* pHistBundle);
     void requestUpdate();
 

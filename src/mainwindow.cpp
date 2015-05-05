@@ -71,6 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
 
     connect(m_pControls, SIGNAL(updateSelected()), m_view, SLOT(requestUpdate()));
+    connect(m_pControls, SIGNAL(geometryChanged(int, int)), m_view, SLOT(onGeometryChanged(int, int)));
 }
 
 void MainWindow::onConnect() {

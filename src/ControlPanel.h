@@ -22,12 +22,13 @@ public:
 public slots:
     void onUpdateSelected();
     void onUpdateAll();
-    void onUpdateGeometry();
+    void onColumnCountChanged(int);
+    void onRowCountChanged(int);
 
 signals:
     void updateSelected();
     void updateAll();
-    void updateGeometry(int nRows, int nCols);
+    void geometryChanged(int nRows, int nCols);
 
 private:
     Ui::ControlPanel *ui;

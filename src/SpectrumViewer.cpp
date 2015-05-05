@@ -101,6 +101,12 @@ HistogramBundle* SpectrumViewer::getCurrentHist() const {
     return m_currentHist;
 }
 
+void SpectrumViewer::onGeometryChanged(int nRows, int nColumns)
+{
+  cout << "nRows = " << nRows << endl;
+  cout << "nCols = " << nColumns << endl;
+}
+
 void SpectrumViewer::onHistogramRemoved(HistogramBundle *pHistBundle)
 {
   if ( pHistBundle == getCurrentHist() ) {

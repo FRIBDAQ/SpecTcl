@@ -17,6 +17,11 @@ ControlPanel::ControlPanel(QWidget *parent) :
 
     ui->horizontalLayout->insertWidget(0, pGeoSelector, 0, Qt::AlignLeft);
 
+    // at the moment we will deal with these independently... ultimately the user should
+    // accept their
+    connect(pGeoSelector, SIGNAL(rowCountChanged(int)), this, SLOT(onRowCountChanged(int)));
+    connect(pGeoSelector, SIGNAL(columnCountChanged(int)), this, SLOT(onColumnCountChanged(int)));
+
 }
 
 ControlPanel::~ControlPanel()
@@ -35,11 +40,20 @@ void ControlPanel::onUpdateAll()
     emit updateAll();
 }
 
-void ControlPanel::onUpdateGeometry()
+//void ControlPanel::onUpdateGeometry()
+//{
+//     // no op
+//}
+
+void ControlPanel::onRowCountChanged(int nRows)
 {
-     // no op
+  emit geometryChanged(nRows, pGeoSelector->getColumnCount());
+}
+
+void ControlPanel::onColumnCountChanged(int nColumns)
+{
+  emit geometryChanged(pGeoSelector->getRowCount(), nColumns);
 }
 
 
-}
- // end of namespace
+} // end of namespace
