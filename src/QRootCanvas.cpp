@@ -108,6 +108,7 @@ QRootCanvas::QRootCanvas(QWidget *parent) :
    fRootWindowId = gVirtualX->AddWindow((ULong_t)fQtWindowId, 100, 30);
 
    fCanvas = new TCanvas("Canvas", width(), height(), fRootWindowId);
+   fCanvas->ToggleEditor();
 
    // create the context menu
    fMousePosX = 0;
@@ -141,7 +142,7 @@ void QRootCanvas::mouseMoveEvent(QMouseEvent *e)
   if (fCanvas!=0) {
      if (e->buttons() & Qt::LeftButton) {
         fCanvas->HandleInput(kButton1Motion, e->x(), e->y());
-        emit PadMoveEvent(fCanvas);
+        emit PadMoveEvent(this);
      } else {
         fCanvas->HandleInput(kMouseMotion, e->x(), e->y());
      }
@@ -180,7 +181,7 @@ void QRootCanvas::mousePressEvent( QMouseEvent *e )
    switch(e->button()) {
      case Qt::LeftButton :
         fCanvas->HandleInput(kButton1Down, e->x(), e->y());
-        emit mousePressed(pad);
+        emit mousePressed(this);
         break;
      case Qt::RightButton : {
         TString selectedOpt("");
@@ -260,7 +261,7 @@ void QRootCanvas::mouseReleaseEvent( QMouseEvent *e )
    switch(e->button()) {
       case Qt::LeftButton :
          fCanvas->HandleInput(kButton1Up, e->x(), e->y());
-        emit mouseReleased(fCanvas);
+        emit mouseReleased(this);
          break;
       case Qt::RightButton :
          fCanvas->HandleInput(kButton3Up, e->x(), e->y());
@@ -396,6 +397,20 @@ void QRootCanvas::dropEvent( QDropEvent *event )
 
 /////////////////////////////////////End Drag and drop Support (Mohammad Al-Turany)
 
+double QRootCanvas::AbsPixeltoX(int px)
+{
+  return fCanvas->AbsPixeltoX(px);
+}
+
+double QRootCanvas::AbsPixeltoY(int py)
+{
+  return fCanvas->AbsPixeltoY(py);
+}
+
+void QRootCanvas::AbsPixeltoXY(int px, int py, double &x, double &y)
+{
+  fCanvas->AbsPixeltoXY(px, py, x, y);
+}
 
 void      QRootCanvas::cd(Int_t subpadnumber)
 {

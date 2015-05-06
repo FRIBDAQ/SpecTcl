@@ -10,13 +10,15 @@ class ControlPanel;
 namespace Viewer
 {
   class GeometrySelector;
+  class SpecTclInterface;
+  class SpectrumView;
 
 class ControlPanel : public QWidget
 {
     Q_OBJECT
     
 public:
-    explicit ControlPanel(QWidget *parent = 0);
+    explicit ControlPanel(SpecTclInterface* pSpecTcl, SpectrumView* pView, QWidget *parent = 0);
     ~ControlPanel();
 
 public slots:
@@ -32,7 +34,9 @@ signals:
 
 private:
     Ui::ControlPanel *ui;
-    GeometrySelector* pGeoSelector;
+    GeometrySelector* m_pGeoSelector;
+    SpecTclInterface* m_pSpecTcl;
+    SpectrumView* m_pView;
 };
 
 } // end of namespace

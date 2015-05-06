@@ -25,9 +25,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "ui_DockableGateManager.h"
 #include "GateBuilderDialog.h"
 #include "GateBuilder1DDialog.h"
-#include "SpectrumViewer.h"
+#include "SpectrumView.h"
 #include "SpecTclInterface.h"
 #include "QRootCanvas.h"
+#include "HistogramList.h"
 #include "GSlice.h"
 #include "GGate.h"
 #include "GateList.h"
@@ -48,12 +49,12 @@ using namespace std;
 namespace Viewer
 {
 
-DockableGateManager::DockableGateManager(const SpectrumViewer& viewer,
+DockableGateManager::DockableGateManager(SpectrumView& view,
                                          SpecTclInterface* pSpecTcl,
                                          QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockableGateManager),
-    m_view(viewer),
+    m_view(view),
     m_pSpecTcl(pSpecTcl)
 {
     ui->setupUi(this);
@@ -68,8 +69,9 @@ DockableGateManager::~DockableGateManager()
 
 void DockableGateManager::launchAddGateDialog()
 {
-    auto pCanvas = m_view.getCurrentFocus();
-    auto histPkg = m_view.getCurrentHist();
+    auto pCanvas = m_view.getCurrentCanvas();
+    auto hists = SpectrumView::getAllHists(pCanvas);
+    auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
 
     if (m_pSpecTcl) {
         m_pSpecTcl->enableGatePolling(false);
@@ -100,8 +102,9 @@ void DockableGateManager::launchAddGateDialog()
 
 void DockableGateManager::launchEditGateDialog()
 {
-    auto pCanvas = m_view.getCurrentFocus();
-    auto histPkg = m_view.getCurrentHist();
+    auto pCanvas = m_view.getCurrentCanvas();
+    auto hists = SpectrumView::getAllHists(pCanvas);
+    auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
 
     if (m_pSpecTcl) {
         m_pSpecTcl->enableGatePolling(false);
@@ -164,9 +167,15 @@ void DockableGateManager::addGateToList(GGate* pCut)
     // add the gate to all related histograms
     m_pSpecTcl->getHistogramList()->addGate(pCut);
 
-    auto histPkg = m_view.getCurrentHist();
-    if (histPkg) {
-      histPkg->draw();
+    auto pCanvas = m_view.getCurrentCanvas();
+    try {
+      auto hists = SpectrumView::getAllHists(pCanvas);
+      auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
+      if (histPkg) {
+        histPkg->draw();
+      }
+    } catch (std::exception& exc) {
+      cout << "Caught exception : " << exc.what() << endl;
     }
 }
 
@@ -201,9 +210,15 @@ void DockableGateManager::addSliceToList(GSlice* pSlice)
     m_pSpecTcl->getHistogramList()->addSlice(pSlice);
 
 
-    auto histPkg = m_view.getCurrentHist();
-    if (histPkg) {
+    auto pCanvas = m_view.getCurrentCanvas();
+    try {
+      auto hists = SpectrumView::getAllHists(pCanvas);
+      auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
+      if (histPkg) {
         histPkg->draw();
+      }
+    } catch (std::exception& exc) {
+      cout << "Caught exception : " << exc.what() << endl;
     }
 }
 

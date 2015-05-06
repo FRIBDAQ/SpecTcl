@@ -147,12 +147,12 @@ void GateBuilder1DDialog::reject()
 }
 
 
-void GateBuilder1DDialog::onMousePress(TPad *pad)
+void GateBuilder1DDialog::onMousePress(QRootCanvas *pad)
 {
   m_lastMousePressPos = make_pair(pad->GetEventX(), pad->GetEventY());
 }
 
-void GateBuilder1DDialog::onMouseRelease(TPad *pad)
+void GateBuilder1DDialog::onMouseRelease(QRootCanvas *pad)
 {
   int newXPos = pad->GetEventX();
   int newYPos = pad->GetEventY();
@@ -169,7 +169,7 @@ void GateBuilder1DDialog::onMouseRelease(TPad *pad)
 
 
 // Handle user's click
-void GateBuilder1DDialog::onClick(TPad *pad)
+void GateBuilder1DDialog::onClick(QRootCanvas *pad)
 {
     int px = pad->GetEventX();
 
@@ -277,11 +277,11 @@ void GateBuilder1DDialog::connectSignals()
 {
 
   // Connect
-  connect(&m_canvas, SIGNAL(mousePressed(TPad*)),
-          this, SLOT(onMousePress(TPad*)));
+  connect(&m_canvas, SIGNAL(mousePressed(QRootCanvas*)),
+          this, SLOT(onMousePress(QRootCanvas*)));
 
-  connect(&m_canvas, SIGNAL(mouseReleased(TPad*)),
-          this, SLOT(onMouseRelease(TPad*)));
+  connect(&m_canvas, SIGNAL(mouseReleased(QRootCanvas*)),
+          this, SLOT(onMouseRelease(QRootCanvas*)));
 
   connect(ui->gateNameEdit, SIGNAL(textChanged(QString)),
           this, SLOT(onNameChanged(QString)));

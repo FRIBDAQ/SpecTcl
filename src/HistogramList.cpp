@@ -90,6 +90,11 @@ HistogramBundle* HistogramList::getHist(const QString &name)
     }
 }
 
+HistogramBundle* HistogramList::getHist(const TH1* pHist)
+{
+  return getHist(QString(pHist->GetName()));
+}
+
 HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist, const SpJs::HistInfo& info)
 {
   HistogramBundle* pHistBundle = nullptr;

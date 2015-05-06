@@ -45,19 +45,16 @@ namespace Viewer
 {
 
 SpectrumViewer::SpectrumViewer(SpecTclInterface* pSpecTcl, QWidget *parent) :
-    QFrame(parent),
+    SpectrumView(parent),
     ui(new Ui::SpectrumViewer),
     m_currentHist(nullptr),
     m_canvas(nullptr),
-    m_reqHandler(pSpecTcl->getHistogramList()),
     m_currentCanvas(nullptr),
     m_pSpecTcl(pSpecTcl),
     m_canvasList()
 {
 
     ui->setupUi(this);
-    setFrameShadow(QFrame::Plain);
-    setFrameShape(QFrame::NoFrame);
 
     m_canvas = new QRootCanvas(this);
     m_canvasList.insert(m_canvas);
@@ -69,17 +66,12 @@ SpectrumViewer::SpectrumViewer(SpecTclInterface* pSpecTcl, QWidget *parent) :
     pTab->setLayout(pLayout);
 
     m_canvas->getCanvas()->Resize();
-    m_canvas->getCanvas()->cd();
+    m_canvas->getCanvas()->Divide(1,1);
+    m_canvas->getCanvas()->cd(1);
     m_canvas->show();
 
-    connect(&m_reqHandler, SIGNAL(parsingComplete(HistogramBundle*)),
-            this, SLOT(update(HistogramBundle*)));
-
-    connect(&m_reqHandler, SIGNAL(error(int,const QString&)),
-            this, SLOT(onError(int, const QString&)));
-
     connect(m_pSpecTcl, SIGNAL(gateListChanged()),
-            this, SLOT(refresh()));
+            this, SLOT(refreshAll()));
 
     connect(m_pSpecTcl->getHistogramList(),
             SIGNAL(histogramRemoved(HistogramBundle*)),
@@ -93,23 +85,35 @@ SpectrumViewer::~SpectrumViewer()
     delete ui;
 }
 
-QRootCanvas* SpectrumViewer::getCurrentFocus() const {
+QRootCanvas* SpectrumViewer::getCurrentCanvas()
+{
     return m_currentCanvas;
 }
 
-HistogramBundle* SpectrumViewer::getCurrentHist() const {
-    return m_currentHist;
-}
 
 void SpectrumViewer::onGeometryChanged(int nRows, int nColumns)
 {
   cout << "nRows = " << nRows << endl;
   cout << "nCols = " << nColumns << endl;
+
+  m_currentCanvas->Clear();
+  m_currentCanvas->getCanvas()->Divide(nRows, nColumns);
+  m_currentCanvas->cd(1);
+  if (m_currentHist) {
+    m_currentHist->draw();
+  }
+
+  m_currentCanvas->Modified();
+  m_currentCanvas->Update();
+
+
+  m_currentNRows = nRows;
+  m_currentNColumns = nColumns;
 }
 
 void SpectrumViewer::onHistogramRemoved(HistogramBundle *pHistBundle)
 {
-  if ( pHistBundle == getCurrentHist() ) {
+  if ( pHistBundle == m_currentHist ) {
       // shoot they are deleting the histogram we are viewing out from under us
 
       // let's switch to viewing the first histogram in the list
@@ -125,15 +129,9 @@ void SpectrumViewer::onHistogramRemoved(HistogramBundle *pHistBundle)
   }
 }
 
-void SpectrumViewer::requestUpdate()
-{
-    m_reqHandler.get(formUpdateRequest());
-}
 
 void SpectrumViewer::update(HistogramBundle* gHist)
 {
-    m_canvas->cd();
-
 
     // not really good practice... could block main thread
     // should fix later
@@ -158,31 +156,23 @@ void SpectrumViewer::update(HistogramBundle* gHist)
         QMessageBox::warning(nullptr, "Drawing error", exc.what());
       }
 
-      m_canvas->Update();
+      refreshAll();
     }
   
 }
 
-void SpectrumViewer::refresh()
+void SpectrumViewer::refreshAll()
 {
-  update(m_currentHist);
-}
-
-QUrl SpectrumViewer::formUpdateRequest()
-{
-    if (m_currentHist) {
-      if (m_currentHist->hist()) {
-        QString name = m_currentHist->hist()->GetName();
-        auto host = GlobalSettings::getServerHost();
-        auto port = GlobalSettings::getServerPort();
-
-        QString reqUrl("http://%1:%2/spectcl/spectrum/contents?name=%3");
-        reqUrl = reqUrl.arg(host).arg(port).arg(name);
-        return QUrl(reqUrl);
-      }
+  TIter it(m_currentCanvas->getCanvas()->GetListOfPrimitives());
+  TObject *pObject = nullptr;
+  while (( pObject = it.Next() )) {
+      if (pObject->InheritsFrom(TPad::Class())) {
+          auto pPad = dynamic_cast<TPad*>(pObject);
+          pPad->Modified();
+        }
     }
 
-    return QUrl();
+  m_currentCanvas->Update();
 }
 
 void SpectrumViewer::onError(int errorCode, const QString& reason)

@@ -113,14 +113,14 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
     m_canvas.Update();
 
     // Connect up the various components
-    connect(&m_canvas, SIGNAL(PadMoveEvent(TPad*)), 
-            this, SLOT(gateMoved(TPad*)));
+    connect(&m_canvas, SIGNAL(PadMoveEvent(QRootCanvas*)),
+            this, SLOT(gateMoved(QRootCanvas*)));
 
-    connect(&m_canvas, SIGNAL(mousePressed(TPad*)), 
-            this, SLOT(onMousePress(TPad*)));
+    connect(&m_canvas, SIGNAL(mousePressed(QRootCanvas*)),
+            this, SLOT(onMousePress(QRootCanvas*)));
 
-    connect(&m_canvas, SIGNAL(mouseReleased(TPad*)), 
-            this, SLOT(onMouseRelease(TPad*)));
+    connect(&m_canvas, SIGNAL(mouseReleased(QRootCanvas*)),
+            this, SLOT(onMouseRelease(QRootCanvas*)));
 
     connect(ui->gateNameEdit, SIGNAL(textChanged(const QString&)),
             this, SLOT(onNameChanged(const QString&)));
@@ -192,14 +192,14 @@ void GateBuilderDialog::setCutName(const QString& name)
     ui->gateNameEdit->setText(name);
 }
 
-void GateBuilderDialog::onMousePress(TPad *pad) 
+void GateBuilderDialog::onMousePress(QRootCanvas *pad)
 {
   m_lastMousePressPos = make_pair(pad->GetEventX(), pad->GetEventY());
 }
 
-void GateBuilderDialog::onMouseRelease(TPad *pad) {
-  int pXNew = pad->GetEventX(); 
-  int pYNew = pad->GetEventY(); 
+void GateBuilderDialog::onMouseRelease(QRootCanvas* pCanvas) {
+  int pXNew = pCanvas->GetEventX();
+  int pYNew = pCanvas->GetEventY();
 
   int deltaX = pXNew - m_lastMousePressPos.first;
   int deltaY = pYNew - m_lastMousePressPos.second;
@@ -207,7 +207,7 @@ void GateBuilderDialog::onMouseRelease(TPad *pad) {
   cout << "dX=" << deltaX << "\tdY=" << deltaY << endl;
 
   if ( (deltaX > -2 || deltaX < 2) || (deltaY > -2 || deltaY < 2) ) {
-    newPoint(pad);
+    newPoint(pCanvas);
   } else {
     // do nothing because the 2d cut will tell us its updated position
   }
@@ -215,7 +215,7 @@ void GateBuilderDialog::onMouseRelease(TPad *pad) {
 }
 
 /// Handle new click
-void GateBuilderDialog::newPoint(TPad *pad)
+void GateBuilderDialog::newPoint(QRootCanvas *pad)
 {
   if ( m_isMoveEvent ) {
     m_isMoveEvent = false;
@@ -410,10 +410,10 @@ void GateBuilderDialog::hideOldCut(GGate& gate)
 
 
 
-void GateBuilderDialog::gateMoved(TPad* pad) 
+void GateBuilderDialog::gateMoved(QRootCanvas* pad)
 {
   m_isMoveEvent = true;
-  cout << "Move event " << endl;
+  //cout << "Move event " << endl;
 }
 
 

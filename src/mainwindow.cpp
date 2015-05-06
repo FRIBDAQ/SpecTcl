@@ -24,6 +24,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ConnectServer.h"
+#include "MultiSpectrumView.h"
 #include "SpectrumViewer.h"
 #include "HistogramView.h"
 #include "DockableGateManager.h"
@@ -47,14 +48,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pSpecTcl = new SpecTclRESTInterface();
 
-    m_view = new SpectrumViewer(m_pSpecTcl, ui->frame);
-    m_pControls = new ControlPanel(ui->frame);
+    m_pView = new MultiSpectrumView(m_pSpecTcl, ui->frame);
+    m_pControls = new ControlPanel(m_pSpecTcl, m_pView, ui->frame);
 
-    ui->gridLayout->addWidget(m_view);
+    ui->gridLayout->addWidget(m_pView);
     ui->gridLayout->addWidget(m_pControls);
 
     m_histView = new HistogramView(m_pSpecTcl, this);
-    m_gateView = new DockableGateManager(*m_view, m_pSpecTcl, this);
+    m_gateView = new DockableGateManager(*m_pView, m_pSpecTcl, this);
 
     // start polling for  histogram information
     m_pSpecTcl->enableHistogramInfoPolling(true);
@@ -65,13 +66,15 @@ MainWindow::MainWindow(QWidget *parent) :
     createDockWindows();
 
     connect(ui->actionConnect,SIGNAL(activated()),this,SLOT(onConnect()));
-    connect(m_histView,SIGNAL(histSelected(HistogramBundle*)),m_view,SLOT(update(HistogramBundle*)));
+    connect(m_histView,SIGNAL(histSelected(HistogramBundle*)),m_pView,SLOT(update(HistogramBundle*)));
     connect(ui->actionHIstograms,SIGNAL(triggered()),this,SLOT(dockHistograms()));
     connect(ui->actionNewHistogram,SIGNAL(triggered()),this,SLOT(onNewHistogram()));
     connect(ui->actionGates,SIGNAL(triggered()),this,SLOT(dockGates()));
 
-    connect(m_pControls, SIGNAL(updateSelected()), m_view, SLOT(requestUpdate()));
-    connect(m_pControls, SIGNAL(geometryChanged(int, int)), m_view, SLOT(onGeometryChanged(int, int)));
+    connect(m_pControls, SIGNAL(geometryChanged(int, int)), 
+            m_pView, SLOT(onGeometryChanged(int, int)));
+    connect(m_pSpecTcl, SIGNAL(histogramContentUpdated(HistogramBundle*)),
+            m_pView, SLOT(update(HistogramBundle*)));
 }
 
 void MainWindow::onConnect() {

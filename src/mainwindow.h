@@ -32,7 +32,7 @@ class MainWindow;
 namespace Viewer
 {
 
-class SpectrumViewer;
+class SpectrumView;
 class HistogramView;
 class DockableGateManager;
 class SpecTclInterface;
@@ -57,7 +57,7 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
-    SpectrumViewer* m_view;
+    SpectrumView* m_pView;
     HistogramView* m_histView;
     DockableGateManager* m_gateView;
     SpecTclInterface* m_pSpecTcl;

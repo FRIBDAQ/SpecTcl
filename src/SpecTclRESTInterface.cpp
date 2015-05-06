@@ -28,18 +28,25 @@
 #include "CommonResponseHandler.h"
 #include "GateListRequestHandler.h"
 #include "HistogramList.h"
+#include "QRootCanvas.h"
 
 #include <QString>
 #include <QTimer>
 #include <QUrl>
 
 #include <TLine.h>
+#include <TCanvas.h>
+#include <TList.h>
+#include <TH1.h>
+
 #include <iostream>
 
 using namespace std;
 
+
 namespace Viewer
 {
+
 
 SpecTclRESTInterface::SpecTclRESTInterface()
     : SpecTclInterface(),
@@ -49,6 +56,7 @@ SpecTclRESTInterface::SpecTclRESTInterface()
     m_pCommonHandler(new CommonResponseHandler),
     m_pGateListCmd(new GateListRequestHandler),
     m_pHistListCmd(new ListRequestHandler),
+    m_pHistContentCmd(new ContentRequestHandler(m_pHistList.get())),
     pollGates(false),
     pollHistInfo(false)
 {
@@ -58,6 +66,9 @@ SpecTclRESTInterface::SpecTclRESTInterface()
 
   connect(m_pHistListCmd.get(), SIGNAL(parseCompleted(std::vector<SpJs::HistInfo>)),
       this, SLOT(onHistogramListReceived(std::vector<SpJs::HistInfo>)));
+
+  connect(m_pHistContentCmd.get(), SIGNAL(parsingComplete(HistogramBundle*)),
+          this, SLOT(onHistogramContentUpdated(HistogramBundle*)));
 }
 
 void SpecTclRESTInterface::addGate(const GSlice &slice)
@@ -184,6 +195,48 @@ void SpecTclRESTInterface::enableHistogramInfoPolling(bool enable)
 
 }
 
+void SpecTclRESTInterface::requestHistContentUpdate(QRootCanvas* pCanvas)
+{
+
+  Q_ASSERT( pCanvas != nullptr );
+
+  // update all histograms in this canvas
+  requestHistContentUpdate(pCanvas->getCanvas());
+}
+
+void SpecTclRESTInterface::requestHistContentUpdate(TPad* pPad)
+{
+
+  Q_ASSERT( pPad != nullptr );
+
+  int padCount = 0;
+  // update all histograms in this canvas
+  auto pList = pPad->GetListOfPrimitives();
+  TObject *pObject = nullptr;
+  TIter it(pList);
+  while (( pObject = it.Next() )) {
+      if (pObject->InheritsFrom(TPad::Class()) && padCount < 1) {
+          requestHistContentUpdate(dynamic_cast<TPad*>(pObject));
+          ++padCount;
+      } else if (pObject->InheritsFrom(TH1::Class())) {
+          auto pHist = dynamic_cast<TH1*>(pObject);
+
+          requestHistContentUpdate(QString(pHist->GetName()));
+      }
+  }
+}
+
+void SpecTclRESTInterface::requestHistContentUpdate(const QString& name)
+{
+  auto host = GlobalSettings::getServerHost();
+  auto port = GlobalSettings::getServerPort();
+
+  QString reqUrl("http://%1:%2/spectcl/spectrum/contents?name=%3");
+  auto reqUrlTmp = reqUrl.arg(host).arg(port).arg(name);
+
+  m_pHistContentCmd->get(QUrl(reqUrlTmp));
+}
+
 void
 SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo> hists)
 {
@@ -210,6 +263,11 @@ SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo> hists)
 
 }
 
+void
+SpecTclRESTInterface::onHistogramContentUpdated(HistogramBundle *pBundle)
+{
+  emit histogramContentUpdated(pBundle);
+}
 
 } // end of namespace
 

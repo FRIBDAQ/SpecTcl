@@ -77,10 +77,11 @@ public:
 
     bool update(const std::vector<SpJs::HistInfo>& hists);
 
-public slots:
-
-    bool histExists(const QString& name);
+    HistogramBundle* getHist(const TH1* hist);
     HistogramBundle* getHist(const QString& name);
+
+public slots:
+    bool histExists(const QString& name);
 
     void removeSlice(const GSlice& slice);
     void removeGate(const GGate& gate);

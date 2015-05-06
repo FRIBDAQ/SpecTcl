@@ -24,7 +24,7 @@
 #define SPECTRUMVIEWER_H
 
 #include "ContentRequestHandler.h"
-#include <QFrame>
+#include "SpectrumView.h"
 #include <QPair>
 
 #include <set>
@@ -43,7 +43,19 @@ class HistogramBundle;
 class QRootCanvas;
 class SpecTclInterface;
 
-class SpectrumViewer : public QFrame
+
+/*!
+ * \brief The SpectrumViewer class
+ *
+ * An implementation of the SpectrumView interface that uses the subpad mechanism
+ * native to a TCanvas (i.e. QRootCanvas) for establishing a grid of panes. This also
+ * contains a tabbed widget.
+ *
+ * It is merely responsible for managing a single canvas. That is dividing it into
+ * subpads and updating it.
+ *
+ */
+class SpectrumViewer : public SpectrumView
 {
     Q_OBJECT
     
@@ -51,30 +63,79 @@ public:
     explicit SpectrumViewer(SpecTclInterface* pSpecTcl, QWidget *parent = 0);
     ~SpectrumViewer();
 
-    QRootCanvas* getCurrentFocus() const;
-    HistogramBundle* getCurrentHist() const;
+  /*!
+     * \brief getCurrentCanvas
+     * \return the canvas this manages
+     */
+    QRootCanvas* getCurrentCanvas();
+
+    /*!
+     * \brief setCurrentCanvas
+     * \param pCanvas - not used
+     *
+     * This is not used because there is one and only one canvas managed by this
+     * class.
+     */
+    void setCurrentCanvas(QRootCanvas *pCanvas) {};
+
+    /*!
+     * \brief getRowCount
+     * \return number of rows the canvas has been divided into
+     */
+    int getRowCount() const { return m_currentNRows; }
+
+    /*!
+     * \brief getColumnCount
+     * \return number of columns the canvas has been divided into
+     */
+    int getColumnCount() const { return m_currentNColumns; }
 
 public slots:
-    void onGeometryChanged(int nRows, int nColumns);
-    void onHistogramRemoved(HistogramBundle* pHistBundle);
-    void requestUpdate();
 
+    /*!
+     * \brief onGeometryChanged
+     * \param nRows
+     * \param nColumns
+     *
+     * Divides the canvas into subpads so into a geometry of nRows x nColumns.
+     */
+    void onGeometryChanged(int nRows, int nColumns);
+
+    /*!
+     * \brief onHistogramRemoved
+     * \param pHistBundle address of a hist that was recently deleted
+     *
+     * DO NOT DEREFERENCE the argument! This is to compare with canvases
+     * for the purpose of seeing if they reference that histogram that USED
+     * to live at the address.
+     */
+    void onHistogramRemoved(HistogramBundle* pHistBundle);
+
+    /*!
+     * \brief update
+     * \param gHist - histogram to draw
+     *
+     * Draw the histogrma in the current pad
+     */
     void update(HistogramBundle* gHist);
-    void refresh();
+
+    /*!
+     * \brief Redraw all subpads
+     *
+     */
+    void refreshAll();
 
     void onError(int errorCode, const QString& reason);
-
-private:
-    QUrl formUpdateRequest();
 
 private:
     Ui::SpectrumViewer*   ui;
     HistogramBundle*      m_currentHist;
     QRootCanvas*          m_canvas;
-    ContentRequestHandler m_reqHandler;
     QRootCanvas*          m_currentCanvas;
     SpecTclInterface*     m_pSpecTcl;
     std::set<QRootCanvas*> m_canvasList;
+    int m_currentNRows = 1;
+    int m_currentNColumns = 1;
 };
 
 } // end of namespace

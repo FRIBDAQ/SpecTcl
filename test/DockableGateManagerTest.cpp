@@ -13,7 +13,7 @@
 
 
 #include "SpecTclRESTInterface.h"
-#include "SpectrumViewer.h"
+#include "MultiSpectrumView.h"
 #include "GSlice.h"
 #include "GGate.h"
 #include "Utility.h"
@@ -75,7 +75,7 @@ void DockableGateManagerTest::onGateListChanged_0()
   pList->addCut1D( move(pSlice) );
   pList->addCut2D( move(pGate) );
 
-  SpectrumViewer viewer(pSpecTcl);
+  MultiSpectrumView viewer(pSpecTcl);
   DockableGateManager manager(viewer, pSpecTcl);
 
   // first populate
@@ -116,7 +116,7 @@ void DockableGateManagerTest::onGateListChanged_1()
   pList->addCut1D( move(pSlice) );
   pList->addCut2D( move(pGate) );
 
-  SpectrumViewer viewer(pSpecTcl);
+  MultiSpectrumView viewer(pSpecTcl);
   DockableGateManager manager(viewer, pSpecTcl);
 
   // first populate

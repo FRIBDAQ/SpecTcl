@@ -34,7 +34,9 @@ set(untitled2_SOURCES
   GateListRequestHandler.cpp
   QTLine.cpp
   ControlPanel.cpp
-  GeometrySelector.cpp)
+  GeometrySelector.cpp
+  SpectrumView.cpp
+  MultiSpectrumView.cpp)
 
 set(untitled2_HEADERS 
   QRootCanvas.h 
@@ -73,7 +75,9 @@ set(untitled2_HEADERS
   QTLine.h
   QHistInfo.h
   ControlPanel.h
-  GeometrySelector.h)
+  GeometrySelector.h
+  SpectrumView.h
+  MultiSpectrumView.h)
 
 set(untitled2_FORMS
   mainwindow.ui 

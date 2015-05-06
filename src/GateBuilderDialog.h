@@ -101,11 +101,11 @@ public slots:
     /*!  If needed, redraws original cut */
     virtual void reject();
 
-    virtual void onMousePress(TPad* pad);
-    virtual void onMouseRelease(TPad* pad);
+    virtual void onMousePress(QRootCanvas* pad);
+    virtual void onMouseRelease(QRootCanvas* pad);
 
     /*! Slot for receiving click events */
-    void gateMoved(TPad* pad);
+    void gateMoved(QRootCanvas* pad);
 
     /*! Checks for state of text and update accept button state */
     void onNameChanged(const QString& name);
@@ -121,7 +121,7 @@ signals:
     void completed(GGate* pCut);
 
 private:
-    void newPoint(TPad* pad);
+    void newPoint(QRootCanvas* fCanvas);
     void clearTable();
     void hideOldCut(GGate& gate);
     void appendPointToTable(double x, double y);

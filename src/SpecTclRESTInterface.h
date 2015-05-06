@@ -29,6 +29,7 @@
 #include "GateList.h"
 #include "HistogramList.h"
 #include "ListRequestHandler.h"
+#include "ContentRequestHandler.h"
 
 #include <memory>
 #include <vector>
@@ -37,10 +38,13 @@ namespace SpJs {
   class GateInfo;
 }
 
+class TPad;
+
 namespace Viewer
 {
 
 class GSlice;
+class QRootCanvas;
 
 /*! \brief Implementation of the SpecTcl facade for the REST server plugin
  *
@@ -67,11 +71,16 @@ public:
     GateList* getGateList() { return m_pGateList.get(); }
     HistogramList* getHistogramList() { return m_pHistList.get(); }
 
+    void requestHistContentUpdate(QRootCanvas *pView);
+    void requestHistContentUpdate(TPad *pPad);
+    void requestHistContentUpdate(const QString& hName);
+
 public slots:
     void listGates();
     void listHistogramInfo();
     void onGateListReceived(std::vector<SpJs::GateInfo*> gates);
     void onHistogramListReceived(std::vector<SpJs::HistInfo> hists);
+    void onHistogramContentUpdated(HistogramBundle* pBundle);
 
 private:
     std::unique_ptr<GateList> m_pGateList;
@@ -80,6 +89,7 @@ private:
     std::unique_ptr<CommonResponseHandler> m_pCommonHandler;
     std::unique_ptr<GateListRequestHandler> m_pGateListCmd;
     std::unique_ptr<ListRequestHandler> m_pHistListCmd;
+    std::unique_ptr<ContentRequestHandler> m_pHistContentCmd;
     bool pollGates;
     bool pollHistInfo;
 };

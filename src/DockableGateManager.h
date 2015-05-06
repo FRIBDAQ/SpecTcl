@@ -40,7 +40,7 @@ class DockableGateManager;
 namespace Viewer
 {
 
-class SpectrumViewer;
+class SpectrumView;
 class SpecTclInterface;
 class GGate;
 class GSlice;
@@ -63,7 +63,7 @@ public:
      *  \param pSpecTcl   the interface object for communicating with SpecTcl
      *  \param parent     parent widget
      */
-    explicit DockableGateManager(const SpectrumViewer& viewer,
+    explicit DockableGateManager(SpectrumView& viewer,
                                  SpecTclInterface* pSpecTcl,
                                  QWidget *parent = 0);
 
@@ -115,7 +115,7 @@ private:
 
 private:
     Ui::DockableGateManager *ui;
-    const SpectrumViewer& m_view;
+    SpectrumView& m_view;
     SpecTclInterface* m_pSpecTcl;
 };
 

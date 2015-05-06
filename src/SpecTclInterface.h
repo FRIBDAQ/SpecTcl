@@ -28,6 +28,8 @@
 
 class QString;
 
+class TPad;
+
 namespace SpJs {
   class GateInfo;
 }
@@ -39,6 +41,8 @@ class GSlice;
 class GGate;
 class GateList;
 class HistogramList;
+class QRootCanvas;
+class HistogramBundle;
 
 /*! \brief A facade for the actual interaction with SpecTcl
  *
@@ -74,9 +78,14 @@ public:
 
     virtual HistogramList* getHistogramList() = 0;
    
+    virtual void requestHistContentUpdate(QRootCanvas* pCanvas) = 0;
+    virtual void requestHistContentUpdate(TPad* pPad) = 0;
+    virtual void requestHistContentUpdate(const QString& hName) = 0;
+
   signals:
     void gateListChanged();
     void histogramListChanged();
+    void histogramContentUpdated(HistogramBundle* pBundle);
 };
 
 } // end of namespace

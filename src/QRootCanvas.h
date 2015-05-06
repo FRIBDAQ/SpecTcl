@@ -104,6 +104,7 @@ class QRootCanvas : public QWidget {
       void              setMaskDoubleClick(bool on=true) { fMaskDoubleClick = on; }
 
       bool              showEventStatus() const;
+      bool              showEditor() const;
       void              setShowEventStatus(bool s);
 
    signals:
@@ -111,11 +112,11 @@ class QRootCanvas : public QWidget {
         * via clicking the mid-mouse button (M. al-Turany) */
       void              SelectedPadChanged(TPad*);
 
-      void              PadMoveEvent(TPad* );
+      void              PadMoveEvent(QRootCanvas* );
 
       /** signal emitted when mouse clicks on pad  */
-      void              mousePressed(TPad*);
-      void              mouseReleased(TPad*);
+      void              mousePressed(QRootCanvas*);
+      void              mouseReleased(QRootCanvas*);
 
       /** signal emitted when user produce left mouse doubleclick on pad  */
       void              PadDoubleClicked(TPad*);
@@ -132,6 +133,9 @@ class QRootCanvas : public QWidget {
 
    public slots:
 
+      double            AbsPixeltoX(int px);
+      double            AbsPixeltoY(int py);
+      void              AbsPixeltoXY(int px, int py, double& x, double& y);
       void              cd(Int_t subpadnumber=0);
       virtual void      Browse(TBrowser *b);
       void              Clear(Option_t *option="");
