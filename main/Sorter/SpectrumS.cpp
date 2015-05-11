@@ -405,7 +405,7 @@ CSpectrumS::CSpectrumS(const std::string&        rName,
   m_nChannel(nchannel.getNumber()),
   m_nParameter(rParameter.getNumber())
 {
-  AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
+  AddAxis(nChannels, fLow, fHigh, nchannel.getUnits());
   CreateChannels();
   m_nOffset=0;
 }
