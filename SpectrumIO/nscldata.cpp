@@ -48,7 +48,7 @@ void spcbin::reporterror(nscloperror *err) {
 }
 
 template <class T>
-muintemplate<T>::muintemplate(int x, int y = 1): xlength(x), ylength(y) {
+muintemplate<T>::muintemplate(int x, int y): xlength(x), ylength(y) {
   if (ylength == 0) ylength = 1;
   if ((xlength>0) && (ylength >0)) {
     data = new T[xlength * ylength];
