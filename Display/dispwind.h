@@ -348,7 +348,6 @@ class win_1d : public win_attributed
                  SuperpositionList additional_spectra;
               public:
                  // Constructors
-
                  win_1d()  { set_defaults(); }
                  win_1d(int spnum): win_attributed(spnum) { set_defaults(); }
                  win_1d(win_attributed &generics) {
