@@ -1063,7 +1063,7 @@ caddr_t Xamine_Allocate2d(int *spno, int xdim, int ydim, char *title, int type)
   /* Allocate the spectrum storage: */
 
   if(type==0) s_amount = s_amount * sizeof(short); /* Number of bytes of storage. */
-  if(type==2) s_amount = s_amount * sizeof(long);
+  if(type==2) s_amount = s_amount * sizeof(int);
 
   storage = Xamine_AllocMemory(s_amount);
   if(storage == NULL) return NULL;
