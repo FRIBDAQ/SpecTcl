@@ -87,7 +87,7 @@
         </para>
         <para>
             The primary bit of metadata required by VMUSBSpecTcl is  Tcl array
-            named <varname>adcParameters</varname>.  This array is indexed by
+            named <varname>adcChannels</varname>.  This array is indexed by
             module name  and each element contains a list of the parameter names
             to be associated with the input channels of the digitizer.
             If a channel is unused, use an empty string (<literal>""</literal>).
@@ -111,7 +111,7 @@
             <title>Using a loop to create parameters</title>
             <programlisting>
 for {set i 0} {$i &lt; 32} {incr i} {
-    lappend adcParameters(adc) [format adc.%02d $i]
+    lappend adcChannels(adc) [format adc.%02d $i]
 }
             </programlisting>
         </example>
@@ -120,12 +120,12 @@ for {set i 0} {$i &lt; 32} {incr i} {
             work to write.  Something like this may be needed, however if your
             parameter names don't occur in sets with some regular pattern
             (remember that you could have several for or foreach loops all
-            lappending to the same <varname>adcParameters</varname> element).
+            lappending to the same <varname>adcChannels</varname> element).
         </para>
         <example>
             <title>Creating parameter names the long way</title>
             <programlisting>
-set adcParameters(adc) [list adc.00 adc.01 adc.02 adc.03 adc.04 \
+set adcChannels(adc) [list adc.00 adc.01 adc.02 adc.03 adc.04 \
                              adc.05 adc.06 adc.07 adc.08 adc.09 \
                              adc.10 adc.11 adc.12 adc.13 adc.14 \
                              adc.15 adc.16 adc.17 adc.18 adc.19 \
@@ -142,7 +142,7 @@ set adcParameters(adc) [list adc.00 adc.01 adc.02 adc.03 adc.04 \
         <example>
             <title>Unused parameters in the middle</title>
             <programlisting>
-set adcParameters(adc) [list adc.00 adc.01 adc.02 adc.03 adc.04 \
+set adcChannels(adc) [list adc.00 adc.01 adc.02 adc.03 adc.04 \
                              ""     ""     ""     ""     ""     \
                              adc.10 adc.11 adc.12 adc.13 adc.14 \
                              adc.15 adc.16 adc.17 adc.18 adc.19 \
@@ -160,7 +160,7 @@ set adcParameters(adc) [list adc.00 adc.01 adc.02 adc.03 adc.04 \
             <title>Onl using the first few channels</title>
             <programlisting>
 for {set i 0} {$i &lt; 8} {incr i} {
-    lappend adcParameters(adc) [format adc.%02d $i]
+    lappend adcChannels(adc) [format adc.%02d $i]
 }
             </programlisting>
         </example>
@@ -593,7 +593,7 @@ set adcChannels(<replaceable>moduleName</replaceable>) <replaceable>channel-list
                    </title>
                    <para>
                     Some modules do not fit the model described above in
-                    DESCRIPTION.  For these modules, the <varname>adcParameters</varname>
+                    DESCRIPTION.  For these modules, the <varname>adcChannels</varname>
                     array element is still used, however it may be interpreted
                     differently or even coupled with additional metadata.
                    </para>
@@ -721,9 +721,9 @@ set adcChannels(<replaceable>moduleName</replaceable>) <replaceable>channel-list
                             of the form:
                             <replaceable>base-name</replaceable>.abct.<replaceable>chip-address</replaceable>.<replaceable>nn</replaceable>
                             Where; <replaceable>base-name</replaceable> is the
-                            value in <varname>adcParameters</varname> for the module,
+                            value in <varname>adcChannels</varname> for the module,
                             <literal>abct</literal> is one of a,b,c,t where
-                            a,b,c represent an integrationintervale and t the time
+                            a,b,c represent an integrationinterval and t the time
                             parameter.  <replaceable>chip-address</replaceable> is the
                             address of the chip and <replaceable>nn</replaceable> the
                             two digit channel number within the chip from
