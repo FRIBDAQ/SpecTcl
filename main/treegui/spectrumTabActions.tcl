@@ -322,7 +322,10 @@ itcl::class spectrumTabActions {
 	    set type [lindex $spectrum 2]
 	    set parameters [lindex $spectrum 3]
 	    set axes       [lindex $spectrum 4]
+	    set dtype     [string range [lindex $spectrum 5] 0 0]
 	    set gate       [lindex $spectrum 6]
+	    
+	    append type " $dtype"
 	    
 	    # Ungated true gate -> ""
 	    if {$gate eq "-TRUE-" || $gate eq "-Ungated-"} {
