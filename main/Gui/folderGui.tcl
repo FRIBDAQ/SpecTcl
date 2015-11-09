@@ -891,13 +891,24 @@ proc spectrumUsage {} {
     set multiplier(word)  2
     set multiplier(byte)  1
 
-    if {[catch {::spectrum -list} spectra]} {
-	set spectra [list]
+    # Since we're talking about display memory, this should only reflect
+    # spectra in the sbind list:
+    
+    if {[catch {sbind -list}]} {
+	set boundSpectra [list]
+    } else {
+	set boundSpectra [sbind -list]
+
+    }
+    set spectrumNames [list]
+    foreach spectrum $boundSpectra {
+	lappend spectrumNames [lindex $spectrum 1]
     }
 
     set usage 0
 
-    foreach spectrum $spectra {
+    foreach name $spectrumNames {
+	set spectrum [lindex [spectrum -list $name] 0]
 	
 	# Figure out the channel count for the spectrum:
 
