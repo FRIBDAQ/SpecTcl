@@ -876,7 +876,7 @@ itcl::class spectrumTabActions {
     # @param wid - spectrumAxis widget that changed.
     # @param name - New value of the parameter.
     #
-    private method SetParameterInfo {wid name} {
+    private method SetParameterInfo {wid {name ""}} {
 	set info [treeparameter -list $name]
 
 

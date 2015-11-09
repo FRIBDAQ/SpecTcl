@@ -64,14 +64,17 @@ proc ::treeutility::listArrayElements {sampleName generator} {
 proc ::treeutility::dispatch {script substs values} {
     if {$script ne ""} {
 
-	# Do the substitutions:
-
+	# Do the substitutions -- build the map:
+	
+	set map [list]
 	foreach pattern $substs value $values {
-	    regsub -all -- $pattern $script $value script
+	    lappend map $pattern $value
 	}
+	set finalscript [string map $map $script]
+
 	# Run the resulting script script:
 
-	uplevel #0 $script
+	uplevel #0 $finalscript
     }
 }
 

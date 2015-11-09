@@ -148,7 +148,7 @@ snit::widget spectrumAxis {
     # Called in response to a keystroke in the parameter name entry widget:
     #
     method Keystroke {} {
-	::treeutility::dispatch $options(-changed) [list %W %T] [list $self [$win.parameter get]]
+	::treeutility::dispatch $options(-changed) [list %W %T]  [list $self [$win.parameter get]]
     }
 
     ##

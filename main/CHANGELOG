@@ -1070,4 +1070,5 @@ November 30-?? 2011
         *  If there are previously defined spectra with the same name, 
            re-create them.
       * Bug #4858 - Indicate width of channel in tree gui.
-
+      * Bug #4861 - Fix error that happens when one blansk out the parameter
+        field.
