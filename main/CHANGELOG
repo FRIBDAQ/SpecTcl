@@ -1059,3 +1059,8 @@ November 30-?? 2011
        * Feature #3532 - add scontents command.
        * Feature #3538 - add compress package with deflate/inflate commands.
 
+3.4-006
+      * Feature #4192, Bug #4897 - All variables that can be set in 
+        SpecTclInit.tcl now have traces established on them that make it a
+        Tcl script error to modify them after SpecTclInit.tcl has been 
+        run.

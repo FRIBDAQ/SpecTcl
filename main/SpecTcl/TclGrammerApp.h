@@ -279,6 +279,9 @@ class CTclGrammerApp : public CTCLApplication {
  protected:  
   static void UpdateUInt(CTCLVariable& rVar, UInt_t& rValue);
   static std::string SourceOptionalFile(CTCLInterpreter& rInterp, std::string filename);
+
+private:
+  void protectVariable(CTCLInterpreter* pInterp, const char* pVarName);
 };
 
 #endif
