@@ -53,7 +53,9 @@ File $f is missing in directory $TreeParameterHome"
 }
 set answer 0;				# In case we never prompt.
 
-source $SpecTclHome/Script/treeGui.tcl
+puts " Sourcing treeGui: "
+puts [time {source $SpecTclHome/Script/treeGui.tcl}]
+
 if {0} {
 
 if {![info exists NoPromptForNewGui] || (!$NoPromptForNewGui)} {
