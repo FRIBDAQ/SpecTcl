@@ -322,7 +322,10 @@ itcl::class spectrumTabActions {
 	    set type [lindex $spectrum 2]
 	    set parameters [lindex $spectrum 3]
 	    set axes       [lindex $spectrum 4]
+	    set dtype     [string range [lindex $spectrum 5] 0 0]
 	    set gate       [lindex $spectrum 6]
+	    
+	    append type " $dtype"
 	    
 	    # Ungated true gate -> ""
 	    if {$gate eq "-TRUE-" || $gate eq "-Ungated-"} {
@@ -649,6 +652,7 @@ itcl::class spectrumTabActions {
 	    }
 	}
     }
+
     ## Invoked to create a spectrum.
     #
     private method CreateSpectrum {} {
@@ -734,16 +738,22 @@ itcl::class spectrumTabActions {
 			    spectrum $spectrum $type $parameter \
 				[list [list $xlow $xhi $xbins]] $datatype
 			    ApplyGate $spectrum $gateName
-			    sbind $spectrum
+			    if {[catch {sbind $spectrum}]} {
+				bindFailed $spectrumList $existingSpectra $gateName
+				break;             # Rollback or kill all.
+			    }
 			}
 		    }
 		} else {
 		    if {[okToReplaceSpectrum $name]} {
 			set gateName [AppliedGate $name]
+			set prior [spectrum -list $name];    # For rollback.
 			catch {spectrum -delete $name}; # get rid of any prior spectrum.
 			spectrum $name $type $xname [list [list $xlow $xhi $xbins]] $datatype
 			ApplyGate $name $gateName
-			sbind $name
+			if {[catch {sbind $name}]} {
+			    bindFailed $name $prior $gateName
+			}
 		    }
 		}
 	    }
@@ -753,11 +763,14 @@ itcl::class spectrumTabActions {
 		set yname [$widget cget -yparameter]
 
 		if {($yname ne "") && [okToReplaceSpectrum $name]} {
+		    set priorSpectra [spectrum -list $name]
 		    set gateName [AppliedGate $name]
 		    catch {spectrum -delete $name}
 		    spectrum $name $type [list $xname $yname]  [list [list $xlow $xhi $xbins]] $datatype
 		    ApplyGate $name $gateName
-		    sbind $name
+		    if {[catch {sbind $name}]} {
+			bindFailed $name $priorSpectrum $gateName
+		    }
 		}
 	    }
 	    2 {
@@ -785,11 +798,14 @@ itcl::class spectrumTabActions {
 		    }
 		    
 		    set gate [AppliedGate $name]
+		    set prior [spectrum -list $name]
 		    catch {spectrum -delete $name}
 		    spectrum $name $type [list $xname $yname] \
 			[list [list $xlow $xhi $xbins] [list $ylow $yhi $ybins]] $datatype
 		    ApplyGate $name $gate
-		    sbind $name
+		    if {[catch {sbind $name}]} {
+			bindFailed $name $prior $gate
+		    }
 		}
 	    }
 	    s - g1 {
@@ -798,10 +814,13 @@ itcl::class spectrumTabActions {
 		if {[okToReplaceSpectrum $name]} {
 		    set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
 		    set gate [AppliedGate $name]
+		    set prior [spectrum -list $name]
 		    catch {spectrum -delete $name}
 		    spectrum $name $type $parameterList [list [list $xlow $xhi $xbins]]
 		    ApplyGate $name $gate
-		    sbind $name
+		    if {[catch {sbind $name}]} {
+			bindFailed $name $prior $gate
+		    }
 		}
 	    }
 	    g2 {
@@ -811,11 +830,14 @@ itcl::class spectrumTabActions {
 
 		    set parameterList [::treeutility::listArrayElements $xname ::treeutility::parameterList]
 		    set gate [AppliedGate $name]
+		    set prior [spectrum -list $name]
 		    catch {spectrum -delete $name}
 		    spectrum $name $type $parameterList \
 			[list [list $xlow $xhi $xbins] [list $xlow $xhi $xbins]]
 		    ApplyGate $name $gate
-		    sbind $name
+		    if {[catch {sbind $name}]} {
+			bindFailed $name $prior $gate
+		    }
 		}
 
 	    }
@@ -823,7 +845,6 @@ itcl::class spectrumTabActions {
 		tk_messageBox -type ok -icon error -title {Can't make this spectrum} \
 		    -parent $widget \
 		    -message "The tree gui does not know how to create spectra of type: $type"
-		    sbind $name
 	    }
 	}
 		      
@@ -855,7 +876,7 @@ itcl::class spectrumTabActions {
     # @param wid - spectrumAxis widget that changed.
     # @param name - New value of the parameter.
     #
-    private method SetParameterInfo {wid name} {
+    private method SetParameterInfo {wid {name ""}} {
 	set info [treeparameter -list $name]
 
 
@@ -870,7 +891,39 @@ itcl::class spectrumTabActions {
 		-units [lindex $info 5]
 	}
     }
-
+    ##
+    # bindFailed
+    #    Called when the bind of a single spectrum failed.
+    #    -  Notify the user of the problem.
+    #    -  Delete the spectra created so far.
+    #    -  Restore any spectra deleted prior to this.
+    #
+    # @param - names - names of spectra that need deleting.
+    # @param - prior - Prior spectrum definitions that need creating.
+    # @param - gate  - Gate applied to spectrum.
+    private method bindFailed {names prior gate} {
+	tk_messageBox					\
+	    -icon error -title "Bind Failed" -type ok \
+	    -message "Unable to bind a spectrum to shared memory - deleting the created spectra and restoring any deleted definitions"
+	
+	# delete the spectra- note not all names might have been created yet:
+	
+	foreach name $names {
+	    catch {spectrum -delete $name}
+	}
+	# Restore any prior definitions.
+	
+	foreach spectrum $prior {
+	    set name [lindex $spectrum 1]
+	    set type [lindex $spectrum 2]
+	    set params [lindex $spectrum 3]
+	    set axes   [lindex $spectrum 4]
+	    set dtype [lindex $spectrum 5]
+	    
+	    spectrum $name $type $params $axes $dtype
+	    ApplyGate $name $gate
+	}
+    }
     #---------------------------------------------------------------------------
     # True public interface.  There are other public methods but they
     # require that exposure to be used as callbacks.
