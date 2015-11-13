@@ -1122,7 +1122,7 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
 
 
     }]
-    puts "Preliminaries: $time"
+    # puts "Preliminaries: $time"
     set timing [time {
     browser $parent.b -spectrumfoldercommand   spectrumFolderContextMenu  \
                    -parameterfoldercommand  parameterFolderContextMenu \
@@ -1136,7 +1136,7 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
                    -parameterrightclick     parameterContextMenu        \
                    -gaterightclick          gateContextMenu
     } 1]
-    puts "Browser creation $timing"
+    # puts "Browser creation $timing"
     pack $parent.b -fill both -expand 1
 
 
@@ -1152,11 +1152,11 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     set timing [time {	
     updateStatus 1000
     }]
-    puts "Status update $timing"
+    # puts "Status update $timing"
     set ::SpecTclIODwellMax 100
     
     set timing [time {
     preferences::readPrefs
     }]
-    puts "Read prefs $timing"
+    # puts "Read prefs $timing"
 }
