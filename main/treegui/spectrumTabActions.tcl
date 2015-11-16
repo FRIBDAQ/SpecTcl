@@ -517,6 +517,7 @@ itcl::class spectrumTabActions {
     # @retval true if a y parameter should be displayed/loaded.
     #
     private method is2DSpectrum type {
+	set type [lindex $type 0]; # Pull out the type from the type dtype list
 	return [expr {$type in [list 2 S m2 gd]}]
     }
 
