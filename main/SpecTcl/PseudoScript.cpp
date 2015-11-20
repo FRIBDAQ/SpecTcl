@@ -73,7 +73,7 @@ using namespace std;
 #endif
 
 
-static const char* pCopyrightNotice = 
+static char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved PseudoScript.cpp \n";
 
 

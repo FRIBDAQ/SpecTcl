@@ -288,27 +288,19 @@ snit::widget edit2d {
         set name [::pathToName $name]
 
         set info [treeparameter -list $name]
-	if {$currentParameter eq "x"} {
-	    set index defaultXChannels
-	} else {
-	    set index defaultYChannels
-	}
         if {[llength $info] != 0} {
             set info [lindex $info 0]
             set low  [lindex $info 2]
             set high [lindex $info 3]
             set bins [lindex $info 1]
-	    if {$bins > $::GuiPrefs::preferences($index)} {
-		set bins $::GuiPrefs::preferences($index)
-	    }
             set units [lindex $info 5]
 
        } else {
-	   set low   0   
-	   set high   [expr $::GuiPrefs::preferences($index) - 1]
-	   set bins  $::GuiPrefs::preferences($index)
-	   set units {}
-       }
+            set low   {}
+            set high  {}
+            set bins  {}
+            set units {}
+        }
 
         $self loadParameterInfo $currentParameter $name \
                 $low $high $bins $units

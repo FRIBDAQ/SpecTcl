@@ -557,7 +557,7 @@ CheckList::~CheckList()
 **   char *string:
 **      New string.  If null, we supply a blank.
 */
-void CheckList::SetButtonString(int num, const char *string)
+void CheckList::SetButtonString(int num, const  char *string)
 {
   /* Do nothing for out of range button number */
 

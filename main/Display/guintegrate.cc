@@ -61,13 +61,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "grobjmgr.h"
 #include "panemgr.h"
 #include "mapcoord.h"
-#include "superpos.h"
-
 /*
 ** Constants:
 */
 #define GAMMA  2.354		/* Number of sigmas in FWHM for Gaussian. */
-#define SCROLL_WINDOW_CHARS 50000 /* Max chars allowed in scrolled window. */
+#define SCROLL_WINDOW_CHARS 5000 /* Max chars allowed in scrolled window. */
 /*
 ** External References: 
 */
@@ -91,7 +89,6 @@ class IntegrationDisplay : public XMCustomDialog {
   ~IntegrationDisplay() {
     XMRemoveCallback(cd);
     delete text;
-    text = 0;
   }
   /* Manipulation: */
 
@@ -111,17 +108,6 @@ class IntegrationDisplay : public XMCustomDialog {
 */
 static IntegrationDisplay *dialog = NULL;
 
-
-/*
-  Add text and, if needed log, to the integration display:
-*/
-static void addAndLog(IntegrationDisplay* d, char* pText)
-{
-  d->AddText(pText);
-  if(Xamine_logging) {
-    Xamine_log.LogMessage(pText);
-  }
-}
 
 
 /*
@@ -231,8 +217,10 @@ static void Format1d(IntegrationDisplay *d, grobj_generic *g,
 	  g->getid(),
 	  g->getname(n),
 	  centroid, fwhm, area);
-  addAndLog(d, txt);
-
+  d->AddText(txt);		/* Add to the dialog. */
+  if(Xamine_logging) {
+    Xamine_log.ContinueMessage(txt);
+  }
 }
 
 /*
@@ -272,8 +260,13 @@ static void Format2d(IntegrationDisplay *d, grobj_generic *g,
 
   /* Add the line to the dialog: */
 
-  addAndLog(d, txt);
+  d->AddText(txt);
 
+  /* If logging is on then also log: */
+
+  if(Xamine_logging) {
+    Xamine_log.ContinueMessage(txt);
+  }
 }
 
 /*
@@ -380,7 +373,6 @@ static void Integrate(IntegrationDisplay *d, grobj_generic *g,
     return;
   }
 }
-
 
 /*
 ** Functional Description:
@@ -412,9 +404,10 @@ static void FormatIntegrationText(IntegrationDisplay *d)
   int nobjects = Xamine_GetSpectrumObjectCount(specno);
   int ngates  =  Xamine_GetSpectrumGateCount(specno);
   int nints;
-
-  nints = nobjects+ngates;
-
+  if(att->is1d()) 
+    nints = nobjects+ngates;
+  else
+    nints = nobjects+ngates;
 
   if(nints == 0) {
     return;
@@ -431,9 +424,10 @@ static void FormatIntegrationText(IntegrationDisplay *d)
 	  spname,
   " Id           Name                   Centroid       FWHM          Area\n",
   "Summing regions: \n");
-
-  addAndLog(d, buffer);
-
+  if(Xamine_logging) {
+    Xamine_log.LogMessage(buffer);
+  }
+  d->AddText(buffer);
 
   // grobj_generic *objects[GROBJ_MAXOBJECTS];
 
@@ -448,96 +442,39 @@ static void FormatIntegrationText(IntegrationDisplay *d)
     for( i = 0; i < nobjects; i++) {
       if( (objects[i]->type() == summing_region_1d) ||
 	  (objects[i]->type() == summing_region_2d)) {
-	Integrate(d, objects[i], specno, spectype);
+	Integrate(dialog, objects[i], specno, spectype);
       }
     }
-
-
     delete []objects;
 
   }
-  if(ngates > 0) {
-    grobj_generic** objects = new grobj_generic*[ngates];    
-    Xamine_GetSpectrumGates(specno, objects, ngates, True);
+  nobjects = Xamine_GetSpectrumGateCount(specno);
+  if(nobjects > 0) {
+    grobj_generic** objects = new grobj_generic*[nobjects];    
+    Xamine_GetSpectrumGates(specno, objects, nobjects, True);
     grobj_type matching;
     
     if(!att->is1d()) {
       sprintf(buffer,"Contours:\n");
-      addAndLog(d, buffer);
+      if(Xamine_logging)
+	Xamine_log.LogMessage(buffer);
+      d->AddText(buffer);
       matching = contour_2d;
     }
     else {
       sprintf(buffer, "Cuts: \n");
-      addAndLog(d, buffer);
+      if(Xamine_logging)
+	Xamine_log.LogMessage(buffer);
+      d->AddText(buffer);
       matching = cut_1d;
       
     }      
-    for(int i = 0; i < ngates; i++) {
+    for(int i = 0; i < nobjects; i++) {
       if(objects[i]->type() == matching) {
-	Integrate(d, objects[i], specno, spectype);
+	Integrate(dialog, objects[i], specno, spectype);
       }
     }
     delete []objects;
-  }
-
-  // If the spectrum is 1-d we should also do the superpositions.
-  // this gets done by re-getting the objects cloning them and applying
-  // them to the superimposed spectra.  We don't attempt to figure out
-  // the grobjs defined on the superpositions as they aren't even being
-  // displayed.
-
-  if (att->is1d()) {
-    win_1d* att1 = reinterpret_cast<win_1d*>(att);
-    SuperpositionList& superimposed(att1->GetSuperpositions());
-    if (superimposed.Count() == 0) return; // nothing superimposed.
-
-    SuperpositionListIterator sp(superimposed);
-    addAndLog(d, const_cast<char*>("Superpositions:\n"));
-
-    grobj_generic** objects = new grobj_generic*[nobjects];
-    grobj_generic** gates   = new grobj_generic*[ngates];
-
-    Xamine_GetSpectrumObjects(specno, objects, nobjects, True);
-    Xamine_GetSpectrumGates(specno, gates, ngates, True);
-    
-    while(!sp.Last()) {
-      Superposition super(sp.Next());
-      int spectrum = super.Spectrum();
-      xamine_shared->getname(spname, spectrum);
-      sprintf(buffer, 
-	      " Integrations for spectrum %s (Superposition)\n\n%s%s",
-	      spname,
-	      " Id           Name                   Centroid       FWHM          Area\n",
-	      "Summing regions: \n");
-      
-      addAndLog(d, buffer);
-      
-      // Summing regions note that only 1-ds can have superpositions...
-      
-      for (int i=0; i < nobjects; i++) {
-	if ((objects[i]->type() == summing_region_1d)) {
-	  grobj_generic* copy = objects[i]->clone();
-	  copy->setspectrum(spectrum);
-	  Integrate(d, copy, spectrum, xamine_shared->gettype(spectrum));
-	  delete copy;
-	}
-      }
-      // cuts:
-      
-      addAndLog(d, const_cast<char*>("Cuts\n"));
-      
-      for (int i=0; i < ngates; i++) {
-	if ((gates[i]->type() == cut_1d)) {
-	  grobj_generic* copy = gates[i]->clone();
-	  copy->setspectrum(spectrum);
-	  Integrate(d, copy, spectrum, xamine_shared->gettype(spectrum));
-	  delete copy;
-	}
-    }
-      // Delete the copies of the objects and spectra:
-    }
-    delete []objects;
-    delete []gates;
   }
 
 }

@@ -142,7 +142,8 @@ static const char *open_help_text[] = {
 **    truncation will occur.
 */
 #define MAX_SEARCHMASK 132
-const char *Xamine_GetSearchMask(const char *envstr, const char *fallbackdir, const char *mask)
+char *Xamine_GetSearchMask(const char *envstr, const char *fallbackdir, 
+			   const char *mask)
 {
   static char searchmask[MAX_SEARCHMASK+1];
   memset(searchmask, 0, sizeof(searchmask));
@@ -280,7 +281,7 @@ void Xamine_Open_window_file(XMWidget *w, XtPointer client_data,
   Xamine_winopen_client_data *open_data = 
     (Xamine_winopen_client_data *)client_data; /* Convert client data struct */
 
-  const char *full;
+  char *full;
 
 
   /* If necessary create the dialog otherwise just manage it: */

@@ -15,7 +15,6 @@
 */
 
 #include <config.h>
-#include <stdlib.h>
 
 #include "wysiwygPrint.h"
 
@@ -33,7 +32,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
-#include <limits.h>
+#include <sys/param.h>		// for PATH_MAX
 
 #include <gd.h>
 
@@ -485,14 +484,7 @@ printCapture(XtPointer userd, XtIntervalId* id)
   //
 
   char filebase[PATH_MAX+1];
-  strcpy(filebase, "SpecTclPNGFILEXXXXXX");
-  int fd = mkstemp(filebase);
-  if (fd == -1) {
-    perror("Could not create output filename via mkstemp");
-    return;
-  } 
-  close(fd);			// we just wanted the name of the file.
-  string pngFile(filebase);
+  string pngFile(tmpnam(filebase));
   string psFile = pngFile;
   pngFile += ".png";
   psFile  += ".ps";

@@ -32,19 +32,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*!
   Change log:
     $Log$
-    Revision 1.5  2007/03/02 00:38:09  ron-fox
-    fix type Int-t -> Uint_t
-
-    Revision 1.4  2007/03/02 00:26:04  ron-fox
-    Get allthe ULong_t's right
-
-    Revision 1.3  2007/03/02 00:12:22  ron-fox
-    Get the size 64bit clean in Gamma2DD and Gamma2Dl, for some reason
-    Gamma2DL did not track when this was fixed for 3.1
-
-    Revision 1.2  2007/02/23 20:38:18  ron-fox
-    BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
-    parameter lists).
+    Revision 1.1.2.1  2006/06/22 17:11:23  ron-fox
+    Defect 209: Some other 64 bit uncleanliness that needed mopping up.
 
     Revision 1.1  2006/04/17 12:46:26  ron-fox
     Add files missing found by doing a build from checkout rather than
@@ -83,8 +72,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <config.h>
 #include "Gamma2DL.h"
 #include "Parameter.h"
-#include <Exception.h>
-#include <RangeError.h>
+#include "RangeError.h"
 #include "Event.h"
 #include "GateContainer.h"
 #include "Gate.h"
@@ -363,13 +351,4 @@ CGamma2DL::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
       }
     }
   }
-}
-
-//! Incrementing with 2d deluxe increment is ann error:
-
-void
-CGamma2DL::Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
-		     STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters)
-{
-  throw CException("Gamma 2d Deluxe increment called on CGamma2DL");
 }

@@ -1,6 +1,5 @@
-AM_CPPFLAGS = -g -I. -I../Utility -I../Display @LIBTCLPLUS_CFLAGS@
-LDADD = -lXplus	 -lXamine @LIBTCLPLUS_LDFLAGS@ -L.
-# AM_LDFLAGS = -L.
+INCLUDES = -g -I. -I../Utility -I../Display -I../NSCLException
+LDADD = -lXplus	-lException -lXamine -L.
 
 lib_LTLIBRARIES = libXplus.la
 

@@ -324,7 +324,7 @@ extern volatile spec_shared *xamine_shared;
 
 class AttributeDialog : public XMCustomDialog, public AttributeForm {
  public:
-  AttributeDialog(char *name, XMWidget &parent, char *title) :
+  AttributeDialog(const char *name, XMWidget &parent, const char *title) :
     XMCustomDialog(name, parent, title),
     AttributeForm(name, *work_area) {
       Apply->Label("Apply To All");
@@ -337,7 +337,7 @@ class AttributeDialog : public XMCustomDialog, public AttributeForm {
 */
 static AttributeDialog *dialog = NULL;	/* Caches pointer to the dialog. */
 
-static const char *help_text[] = {
+static const  char *help_text[] = {
   "   This dialog is prompting you to set the default attributes for spectra\n",
   "default attributes affect some aspects of how spectra placed in panes\n",
   "will look. Default attributes do not affect the appearance of spectra\n",
@@ -686,8 +686,7 @@ static void ActionCallback(XMWidget *w, XtPointer user_d, XtPointer call_d)
 void Xamine_SetDefaultAttributes(XMWidget *w, XtPointer user_d, XtPointer cd)
 {
   if(dialog == NULL) {		/* Instantiate the dialog and set callbacks */
-    dialog = new AttributeDialog(const_cast<char*>("Attribute_Prompt"), *w, 
-				 const_cast<char*>("Default Attributes"));
+    dialog = new AttributeDialog("Attribute_Prompt", *w, "Default Attributes");
 
     /* Handle the buttons in the action area. */
 

@@ -335,7 +335,7 @@ class XMPromptGeometry : public XMCustomDialog {
  public:
   /*  Constructors and destructors: */
 
-  XMPromptGeometry(const char *name, XMWidget *parent, const char *title);
+  XMPromptGeometry(char *name, XMWidget *parent, char *title);
   ~XMPromptGeometry() {
     delete rowlabel;
     delete collabel;
@@ -410,7 +410,7 @@ static Xamine_help_client_data geometry_help = { "Geometry_help",
 **   char *title:
 **    Title of the widget.
 */
-XMPromptGeometry::XMPromptGeometry(const char *name, XMWidget *parent, const char *title) :
+XMPromptGeometry::XMPromptGeometry(char *name, XMWidget *parent, char *title) :
        XMCustomDialog(name, *parent, title)
 {
   Arg chars[10];		/* Characteristics. */
@@ -607,9 +607,9 @@ void Xamine_request_geometry(XMWidget *w, XtPointer cd, XtPointer cb)
   /* Otherwise it just needs to be managed:                               */
 
   if(!geometry_prompt) {
-    geometry_prompt = new XMPromptGeometry("Geometry_Prompt",
+    geometry_prompt = new XMPromptGeometry(const_cast<char*>("Geometry_Prompt"),
 					   w,
-					   "Pane Geometry");
+					   const_cast<char*>("Pane Geometry"));
     geometry_prompt->AddDoCallback(SetWindows, geometry_prompt);
     geometry_prompt->AddCancelCallback(SetWindows, geometry_prompt);
     geometry_prompt->AddHelpCallback(Xamine_display_help, &geometry_help);

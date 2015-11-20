@@ -435,7 +435,7 @@ void SuperPrompt::SetList()
 
   typedef spec_title *spec_titlep;
   spec_title name;
-  spec_titlep* name_list = new spec_titlep[compatibles];
+  spec_titlep *name_list = new spec_titlep[compatibles];
   for(i = 0; i < compatibles; i++) name_list[i] = NULL;
 
   /* Now we only allow spectra that are compatible and that have not already
@@ -464,8 +464,7 @@ void SuperPrompt::SetList()
     Hide();
   }
   else {
-    SetSelectionList((Cardinal)slots_filled, 
-		     const_cast<const char**>(reinterpret_cast<char**>(name_list)));
+    SetSelectionList((Cardinal)slots_filled, (char **)name_list);
   }
 
   /* Free storage.   */
@@ -530,7 +529,7 @@ void Xamine_GetSuperposition(XMWidget *parent, XtPointer u, XtPointer c)
 
   if(dialog == NULL) {
     theParent = parent;
-    dialog = new SuperPrompt( const_cast<char*>("Superpose"), *parent);
+    dialog = new SuperPrompt(const_cast<char*>("Superpose"), *parent);
   }
   /* Compute the list of spectra and display the dialog:*/
 
@@ -550,7 +549,7 @@ void Xamine_GetSuperposition(XMWidget *parent, XtPointer u, XtPointer c)
 **        and setup the list.
 */
 UnSuperPrompt::UnSuperPrompt(char *n, XMWidget &parent) :
-   XMSelector(n, parent, "Remove Superposition of: ")
+  XMSelector(n, parent, const_cast<char*>("Remove Superposition of: "))
 {
   RestrictChoices();		// Require choice from list.
   SetupList();
@@ -586,12 +585,12 @@ void UnSuperPrompt::SetupList()
     
     /* set them in the little list window. */
     
-    SetSelectionList(ns, const_cast<const char **>(names));
+    SetSelectionList(ns, (char **)names);
     for(i = 0; i < MAX_SUPERPOSITIONS; i++)
       if(names[i]) delete []names[i];
   }
   else {			// Pane has no superpositions...
-    SetSelectionList(ns, reinterpret_cast<const char **>(0));
+    SetSelectionList(ns, (char **)NULL);
   }
   
 }
@@ -716,7 +715,7 @@ Boolean UnSuperPrompt::Perform(XMWidget *wid, XtPointer cd, int reason,
       Superposition s = iter.Next();
       spno = s.Spectrum();
 
-      XmStitle = XmStringCreate((char*)xamine_shared->getname(title, spno),
+      XmStitle = XmStringCreate(const_cast<char*>(xamine_shared->getname(title, spno)),
 				const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
       if(XmStringCompare(XmStitle, value)) { // Bingo, a match.
 	XmStringFree(XmStitle);		     // Free string storage.
@@ -779,7 +778,7 @@ void UnSuperPrompt::ApplyCb(XMWidget *wid, XtPointer userd, XtPointer cd)
 void Xamine_UnSuperimpose(XMWidget *wid, XtPointer u, XtPointer c)
 {
   if(!undialog) {
-    undialog = new UnSuperPrompt( const_cast<char*>("UnSuperimpose"), *wid);
+    undialog = new UnSuperPrompt(const_cast<char*>("UnSuperimpose"), *wid);
   }
   undialog->SetupList();
   undialog->Manage();

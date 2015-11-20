@@ -51,12 +51,8 @@ CGateMediator::operator() ()
     return mediate2d();
   case keG1D:
     return mediateGamma1();
-  case keG2DD:
-    return mediateGamma2Deluxe();
   case keG2D:
     return mediateGamma2();
-  case ke2Dm:
-    return mediate2dMultiple();
   
     // No other spectrum types can display gates.
   default:
@@ -114,45 +110,6 @@ CGateMediator::mediate2d()
   }
   else {
     return kfFALSE;
-  }
-}
-/**
- * mediate2dMultiple
- *
- *   Gates display on a 2d sum spectra iff they are a contour
- *   or a band and the X/Y parameters of those gates are an X/Y
- *   parameter that is used by the spectrum.
- *   
- *  @note it's not enough for the parameters to be in use, they must
- *        be on the appropriate axism, or their flips in a matching pair.
- */
-Bool_t 
-CGateMediator::mediate2dMultiple()
-{
-  // Gate characteristics:
-
-  string gType = m_rGate->Type();
-  UInt_t xParameter;
-  UInt_t yParameter;
-  if ((gType == "b")  || (gType == "c")) {
-    CPointListGate& rPLGate = (CPointListGate&)(*m_rGate);
-    xParameter = rPLGate.getxId();
-    yParameter = rPLGate.getyId();
-
-    std::vector<UInt_t> spectrumParams;
-    m_pSpec->GetParameterIds(spectrumParams);
-    for (int i = 0; i < spectrumParams.size(); i+= 2) {
-      if ((xParameter == spectrumParams[i]) && (yParameter == spectrumParams[i+1])) {
-	return true;		// there's a matching x/y pair.
-      }
-      if ((yParameter == spectrumParams[i]) && (xParameter == spectrumParams[i+1])) {
-	return true;
-      }
-    }
-    return false;		// No x/y match.
-    
-  } else {
-    return false;	
   }
 }
 /**
@@ -214,14 +171,4 @@ CGateMediator::mediateGamma2()
     return kfFALSE;
   }
   return kfFALSE;
-}
-/**
-   Determine if the gate is displayable on a 2-d gamma deluxe spectrum.
-   To be displayable it must be a 2-d gamma gate (gb, gc), and 
-   involve all X/Y parameters.
-*/
-Bool_t
-CGateMediator::mediateGamma2Deluxe()
-{
-  return mediateGamma2();
 }

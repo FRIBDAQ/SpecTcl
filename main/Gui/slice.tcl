@@ -108,7 +108,6 @@ snit::widget sliceEditor {
         $win.parameters delete 0 end
         $win.limits.low delete 0 end
         $win.limits.high delete 0 end
-	$win.browser update
     }
     # getDescription:
     #     Return the gate description string.

@@ -365,7 +365,7 @@ CXamineGateException::ReasonText()  const
     
     m_fReasonProduced = kfTRUE;
   }
-  static string result = m_ReasonStream.str();
+  string result = m_ReasonStream.str();
   return result.c_str();
 
 }

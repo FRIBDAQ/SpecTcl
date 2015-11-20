@@ -34,11 +34,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
-   Revision 5.3  2006/11/17 16:08:38  ron-fox
-   Defect 228 fix: Printer defaults could wind up only partially
-   initialized.. this resulted in bad Xamine.Default files and
-   could cause printing to fail or crash Xamine.
-
    Revision 5.2.2.1  2006/11/17 14:41:54  ron-fox
    Defect 228 - Xamine can make bad Xamine.Default files which can cause printing
    to fail because the print defauts can be set to whacky values.
@@ -168,12 +163,11 @@ void Xamine_SetDefault2DRendition(rendition_2d rend)
 */
 void Xamine_Construct1dDefaultProperties(win_1d *properties)
 {
-  win_1d* p = new win_1d(GenericDefaults);
+  win_1d *p = new win_1d(GenericDefaults);
+
+  p->setrend(rend1d);
   memcpy(properties, p, sizeof(win_1d));
-
-  properties->setrend(rend1d);
   properties->setmapped(GenericDefaults.ismapped());
-
   delete p;
 } 
 /*
@@ -186,11 +180,10 @@ void Xamine_Construct1dDefaultProperties(win_1d *properties)
 */
 void Xamine_Construct2dDefaultProperties(win_2d *properties)
 {
-  win_2d* p  = new win_2d(GenericDefaults);
-  memcpy (properties, p, sizeof(win_2d));
+  win_2d *p = new win_2d(GenericDefaults);
 
-
-  properties->setrend(rend2d);
+  p->setrend(rend2d);
+  memcpy(properties, p, sizeof(win_2d));
   properties->setmapped(GenericDefaults.ismapped());
   delete p;
 }
@@ -293,7 +286,7 @@ int Xamine_ReadDefaultProperties()
 
 
   dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
-  if(!dir) dir =  const_cast<char*>("");		// If no env var, use current dir.
+  if(!dir) dir = const_cast<char*>("");		// If no env var, use current dir.
 
   char *filename = ConstructFilename(dir);
   int stat =  Xamine_ReadDefaultFile(filename);
@@ -322,7 +315,7 @@ void defaultfilerestart(FILE *config)
 */
 int Xamine_SaveDefaultProperties()
 {
-  char *filename;
+  const char *filename;
   FILE *fp;
 
   /* Construct the filename and open the file for write: */

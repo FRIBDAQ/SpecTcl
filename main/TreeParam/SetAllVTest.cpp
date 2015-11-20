@@ -14,7 +14,6 @@
 #include "CTreeParameterArray.h"
 #include "SetAllVisitor.h"
 #include "TreeTestSupport.h"
-#include <algorithm>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -50,7 +49,7 @@ SetAllVTest::SetArray()
   CTreeParameterArray array("george", 10, 0);    // Defaults...
 
   SetAllVisitor visitor("*", 200, 0, 200, "cm");
-  std::for_each(CTreeParameter::begin(), CTreeParameter::end(), visitor);
+  for_each(CTreeParameter::begin(), CTreeParameter::end(), visitor);
 
   for (int i = 0; i < 10; i++) {
     string name = MakeElementName("george", 0, 10, i);

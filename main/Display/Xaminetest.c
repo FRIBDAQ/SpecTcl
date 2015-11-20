@@ -22,9 +22,6 @@
 
 /* #include "clientops.h" */
 
-/* A quadratic fitline:  */
-
-static char* script=  "proc fitline x {return [expr ($x-20)*($x-20) + 10.0]}";
 
 
 /*
@@ -114,7 +111,7 @@ static void setupspectra(volatile Xamine_shared *sp)
       *spec_w++ = (unsigned short)value; 
     }
   }
-  /* Same as above but a longword spectrum to test the new stuff: */
+  // Same as above but a longword spectrum to test the new stuff:
 
   spec = Xamine_Allocate2d(&spn, 512, 512,
 			   "Gaussian c=(256,240), s=(40,20) -longs", 2);
@@ -200,7 +197,6 @@ int
 main(int argc, char* argv[])
 {
   volatile Xamine_shared *spectra;
-  char c;
   char junk[100];
   int id = 0;			/* Gate Id serial number */
   int  deleted = 0;
@@ -372,14 +368,6 @@ main(int argc, char* argv[])
     exit(errno);
   }
   AnalyzeButton(&binfo);
-
-  printf("Hit enter to enter the fitline on spectrum 0");
-  scanf("%c", &c);
-  stat = Xamine_EnterFitline(1, 1, "Test Fitline",
-			     10, 50, script);
-  if (stat != 0) {
-    printf("Fitline entry failed with status %d\n", stat);
-  }
 
   printf("To Exit, select Exit from the Xamine menu\n");
   while(Xamine_Alive()) {

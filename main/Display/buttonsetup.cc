@@ -53,7 +53,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "acceptgates.h"
 #include "trackcursor.h"
 #include "properties.h"
-
+#include <string>
 /*
 ** Module static storage:
 */

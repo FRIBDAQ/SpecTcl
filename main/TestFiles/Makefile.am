@@ -1,21 +1,19 @@
-AM_CPPFLAGS= -I. -I../EventSource \
-	@LIBTCLPLUS_CFLAGS@	\
-	-I../Utility @TCL_CPPFLAGS@ -I../Tape
-
-LDADD = -lEventSource  -ltape \
-	 -L. -L../Events -L../EventSource  \
-	-L../Tape \
-	-L../Filter -L../SpecTcl \
-	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
-
-
-
-#AM_LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
-#	-L../Tape \
-#	-L../Filter -L../SpecTcl -Wl,"-rpath=$(libdir)"
-
+INCLUDES= -I. -I../EventSource -I../TCL -I../NSCLException \
+	-I../Utility @TCL_FLAGS@ -I../Tape
 
 bin_PROGRAMS = testfile ltwrite
+
+testfile_LDFLAGS= -Wl,"-rpath=$(libdir)"
+
+testfile_LDADD= -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
+	-L../Tape \
+	-L../Filter -L../SpecTcl -lEventSource -lException -ltape
+
+ltwrite_LDFLAGS= -Wl,"-rpath=$(libdir)"
+ltwrite_LDADD= -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
+	-L../Tape \
+	-L../Filter -L../SpecTcl -lEventSource -lException -ltape
+
 
 testfile_SOURCES = testfile.cpp
 
@@ -23,5 +21,3 @@ testfile_SOURCES = testfile.cpp
 
 ltwrite_SOURCES = ltwrite.cpp
 
-testfile_LDFLAGS= @LIBTCLPLUS_LDFLAGS@ -Wl,"-rpath=$(libdir)"
-ltwrite_LDFLAGS = @LIBTCLPLUS_LDFLAGS@ -Wl,"-rpath=$(libdir)"

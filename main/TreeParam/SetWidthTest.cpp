@@ -16,8 +16,6 @@
 #include "SetWidthVisitor.h"
 #include "TreeTestSupport.h"
 
-#include <algorithm>
-
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -49,7 +47,7 @@ void SetWidthTest::Set() {
   CTreeParameterArray  g("george", 10, 0);
   SetWidthVisitor      v("g*", 0.2);
 
-  std::for_each(CTreeParameter::begin(), CTreeParameter::end(), v);
+  for_each(CTreeParameter::begin(), CTreeParameter::end(), v);
   
   for(int i =0 ; i < 10; i++) {
     string name= MakeElementName("george", 0, 10, i);

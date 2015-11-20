@@ -113,7 +113,7 @@ struct spec_shared : Xamine_shared
   unsigned int getchannel(int id, int ix) volatile;
   unsigned int getchannel(int id, int ix, int iy) volatile;
   volatile unsigned int *getbase(int id) volatile;
-  const char *getversion() volatile;
+  char *getversion() volatile;
 };
 
 void Xamine_initspectra();

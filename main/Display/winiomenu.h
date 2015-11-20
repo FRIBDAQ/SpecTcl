@@ -332,6 +332,7 @@ void Xamine_Write_window_file(XMWidget *w,
 			      XtPointer callback_data);
 
 char *Xamine_GetLastWindowFile();
-const char *Xamine_GetSearchMask(const char *envstr, const char *fallbackdir, 
+char *Xamine_GetSearchMask(const char *envstr, 
+			   const char *fallbackdir, 
 			   const char *mask);
 #endif

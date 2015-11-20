@@ -52,9 +52,6 @@
 
 class CGatePackage;		// Forward class definition.
 class CTCLInterpreter;		// Forward class definition
-class CTCLObject;
-class CGateObserver;
-
 /*!
   \para Functionality:
  Implements the gate command.
@@ -77,29 +74,10 @@ class CGateObserver;
   <BR>
   gate -delete [-id] gatelist<BR>
        Replaces gate with deleted gate.
-\verbatim
-   gate -trace add    ?script?
-   gate -trace delete ?script?
-   gate -trace change ?script?
-
-\endverbatim
-  Where ?script? is a script to run whenthe associated action happens
-to the gate dictionary.  The script will have the name of the affected gate
-appended to its invocation (yes it should be a proc typically).  If ?script?
-is not supplied, the current script is displayed as the command result. 
-If ?script? is empty, no  script is associated with the action.
 
 */
 class CGateCommand  : public CTCLPackagedCommand        
-{
-private:
-  // Script handlers.
-
-  CTCLObject*     m_pAddScript;
-  CTCLObject*     m_pDeleteScript;
-  CTCLObject*     m_pChangeScript;
-  CGateObserver*  m_pObserver;
-
+{                       
 public:				// Data types:
   enum Switches {		//!< Set of command line switches.
     newgate,
@@ -107,7 +85,6 @@ public:				// Data types:
     listgates,
     id,
     byid,
-    trace,
     notswitch
   };
   struct GateFactoryTable {	//!< Drives the decoding of gate definition strings.
@@ -122,8 +99,11 @@ public:
 
    // Constructor 
 
-  CGateCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPack);
-  ~CGateCommand ( );	// Destructor.
+  CGateCommand (CTCLInterpreter* pInterp, CTCLCommandPackage& rPack):
+    CTCLPackagedCommand("gate", pInterp, rPack)
+  {  } 
+
+   ~CGateCommand ( ) { }	// Destructor.
 
   //Copy constructor alternative to compiler provided default copy constructor
   // Copy construction is illegal:
@@ -147,11 +127,7 @@ public:
 
  virtual   int operator() (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			   int nArgs, char* pArgs[])    ;
-  void   invokeAddScript(STD(string) name);
-  void   invokeDeleteScript(STD(string) name);
-  void   invokeChangedScript(STD(string) name);
-
-
+ 
 protected:
 
     Int_t NewGate (CTCLInterpreter& rInterp, CTCLResult& rResult, 
@@ -163,18 +139,9 @@ protected:
     Int_t DeleteGates (CTCLInterpreter& rInterp, CTCLResult& rRestul, 
 		       UInt_t nArgs, char* pArgs[])   ;
 
-
 protected:
-  Int_t  traceGates(CTCLInterpreter& rInterp,
-		    CTCLResult&      rResult,
-		    UInt_t           nArgs,
-		    char*            pArgs[]);
-  void   invokeAScript(CTCLObject* pScript,
-		       STD(string) parameter);
-
   static Switches MatchSwitches(char* pKey);
   static STD(string)   Usage();
   static GateFactoryTable* MatchGateType(const char* pGateType);
-
 };
 #endif

@@ -257,7 +257,6 @@ static void DrawLinearXTicks(Display *disp, Window win, GC gc,
     sprintf(label, "%u", hi);	/* Biggest string we can represent. */
     font = Xamine_SelectFont(disp, label, labelwidth, labelheight);
   }
-  if (!font) return;		// Can't get a font so forget it.
 
 
   while(xbase < nx) {
@@ -358,7 +357,6 @@ static void DrawMappedXTicks(Display *disp, Window win, GC gc,
       sprintf(label, "%.0f", hi);
     font = Xamine_SelectFont(disp, label, labelwidth, labelheight);
   }
-  if (!font) return;
 
   // Draw the ticks until we run out of space on the spectrum
   while(xbase < nx) {
@@ -474,8 +472,6 @@ static void DrawLogXTicks(Display *disp, Window win, GC gc,
     sprintf(label, "1E%d", high_decade);
     font = Xamine_SelectFont(disp, label, labelwidth, labelheight);
   }
-  if (!font) return;
-
   for(i = low_decade; i <= high_decade; i++) {
     ticks.draw(tick, ybase+2, tick, ybase-height);
     if(label_ticks && (font != NULL)) {
@@ -566,7 +562,6 @@ static void DrawLinearYTicks(Display *disp, Window win, GC gc,
     sprintf(label, "%u", hi);
     font = Xamine_SelectFont(disp, label, labelwidth, labelheight);
   }
-  if (!font) return;
   while(ybase > 0) {
     if(last_value != (unsigned int)value_represented) {
       last_value = (unsigned int)value_represented;
@@ -653,7 +648,6 @@ static void DrawMappedYTicks(Display *disp, Window win, GC gc,
       sprintf(label, "%.0f", hi);
     font = Xamine_SelectFont(disp, label, labelwidth, labelheight);
   }
-  if (!font) return;
   while(ybase > 0) {
     if(last_value != value_represented) {
       last_value = value_represented;
@@ -767,8 +761,6 @@ static void DrawLogYTicks(Display *disp, Window win, GC gc,
     sprintf(label, "1E%d", high_decade);
     font = Xamine_SelectFont(disp, label, labelwidth, labelheight);
   }
-  if (!font) return;
-
   for(i = low_decade; i <= high_decade; i++) {
     ticks.draw(xbase-2, tick, xbase+height,tick);
     if(label_axes && (font != NULL)) {

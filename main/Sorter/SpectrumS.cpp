@@ -405,7 +405,7 @@ CSpectrumS::CSpectrumS(const std::string&        rName,
   m_nChannel(nchannel.getNumber()),
   m_nParameter(rParameter.getNumber())
 {
-  AddAxis(nChannels, fLow, fHigh, nchannel.getUnits());
+  AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
   CreateChannels();
   m_nOffset=0;
 }
@@ -420,15 +420,13 @@ CSpectrumS::Increment(const CEvent& rE)
   CParameterValue& rParam(rEvent[m_nParameter]);
 
 
-  if(rTime.isValid() && rParam.isValid()) {  // Only increment if params present.
-    int64_t nChannel = (int64_t)ParameterToAxis(0, rTime)- m_nOffset;
+  if(rTime.isValid()) {  // Only increment if param present.
+    Int_t nChannel = (Int_t)ParameterToAxis(0, rTime)- m_nOffset;
 
-    int64_t shift = nChannel;
-    if (nChannel >= m_nChannels ) {
-      shift = static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels);
-      ShiftDataDown(shift);
-      m_nOffset = static_cast<int>(m_nOffset + shift);
-      nChannel = nChannel - shift;
+    if (nChannel > m_nChannels ) {
+      ShiftDataDown (static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels));
+      m_nOffset = static_cast<int>(m_nOffset + nChannel + (.25 * m_nChannels) - m_nChannels);
+      nChannel = nChannel - m_nOffset;
     }else if (nChannel < 0) {
       ShiftDataUp(nChannel);
       m_nOffset =m_nOffset + nChannel;
@@ -559,7 +557,7 @@ CSpectrumS::CreateChannels()
   // management:
 
   setStorageType(keLong);
-  UInt_t* pStorage = new UInt_t[m_nChannels];
+  ULong_t* pStorage = new ULong_t[m_nChannels];
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
 }
@@ -568,42 +566,28 @@ CSpectrumS::CreateChannels()
 /*!
   Is called when the Strip chart data goes off the rightt end of 
   the time axis.  All data is shifted to the left by nChannel's
-  If the shift is greater than the spectrum size the spectrum is just cleared.
-
 */
 
 void
-CSpectrumS::ShiftDataDown(int64_t nShift) 
+CSpectrumS::ShiftDataDown(int nShift) 
 {
     UInt_t* p = (UInt_t*)getStorage();
-
-    if (nShift >= m_nChannels) {
-      Clear();
-      return;
-    }
-
     assert(p != (UInt_t*)kpNULL);
     for (int i = 0; i < m_nChannels-nShift; i++) {
       p[i] = p[i+nShift];
     }
-    for (int i =  m_nChannels-nShift; i < m_nChannels; i++) {
+    for (int i =  m_nChannels-nShift; i <= m_nChannels; i++) {
       p[i] = 0;
     }
 }
 
 
 void 
-CSpectrumS::ShiftDataUp(int64_t nShift)
+CSpectrumS::ShiftDataUp(int nShift)
 {
     UInt_t* p = (UInt_t*)getStorage();
     assert(p != (UInt_t*)kpNULL);
-
-    if (m_nChannels <=  (-nShift)) {
-      Clear();
-      return;
-
-    }
-    for (int i =  m_nChannels-1 ; i >= (nShift * -1); i--) {
+    for (int i =  m_nChannels ; i >= (nShift * -1); i--) {
       p[i] = p[i+nShift];
     }
     for (int i = (nShift * -1) ; i >=0 ; i--) {

@@ -14,7 +14,6 @@
 	     East Lansing, MI 48824-1321
 */
 
-
 /*
 ** Facility:
 **   Xamine C++ Support for motif.
@@ -148,7 +147,7 @@ XMScrolledText::XMScrolledText(const char *n, XMWidget &parent, int rows,
 			       int columns,
 			       ArgList args, Cardinal arg_count) :
   XMText(n) {		/* Use no-op constructor for base class */
-  id       = XmCreateScrolledText(parent.getid(),  const_cast<char*>(n), args, arg_count);
+  id       = XmCreateScrolledText(parent.getid(), const_cast<char*>(n), args, arg_count);
   scroller = XtParent(id);
   SetColumns(columns);
   SetRows(rows);
@@ -160,7 +159,7 @@ XMScrolledText::XMScrolledText(const char *n, Widget parent, int rows,
 			       int columns,
 			       ArgList args, Cardinal arg_count) :
   XMText(n) {		/* Use no-op constructor for base class */
-  id       = XmCreateScrolledText(parent,  const_cast<char*>(n), args, arg_count);
+  id       = XmCreateScrolledText(parent, const_cast<char*>(n), args, arg_count);
   scroller = XtParent(id);
   SetColumns(columns);
   SetRows(rows);
@@ -174,13 +173,12 @@ XMScrolledText::SetMaxLength(int maxlen) { max_text_length = maxlen; }
 void
 XMScrolledText::ClearText() {
   text_length = 0;
-  XmTextSetString(id, 
-		  const_cast<char*>(""));	/* Set text value to empty string. */
+  XmTextSetString(id, const_cast<char*>(""));	/* Set text value to empty string. */
 }
 
 void
 XMScrolledText:: AddText(const char *pstring) {
-  XmTextInsert(id, text_length,  const_cast<char*>(pstring));
+  XmTextInsert(id, text_length, const_cast<char*>(pstring));
   text_length += strlen(pstring);
   if( (max_text_length > 0) && (text_length > max_text_length)) {
     int rmlen;

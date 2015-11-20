@@ -634,7 +634,7 @@ void FontChooser::SetFont(int newidx)
 
     font_index = newidx;
     sprintf(font, "Font%d", newidx);
-    labelstring = XmStringCreateLtoR( const_cast<char*>("Sample Label"), font);
+    labelstring = XmStringCreateLtoR(const_cast<char*>("Sample Label"), font);
     label->SetLabel(labelstring);
     XmStringFree(labelstring);
   }
@@ -720,7 +720,7 @@ void FontChooser::SetGhosting()
 void Xamine_SetGrobjLblFont(XMWidget *w, XtPointer ud, XtPointer cd)
 {
   if(!dialog) {
-    dialog = new FontChooser(w,  const_cast<char*>("Object_Fonts"));
+    dialog = new FontChooser(w, const_cast<char*>("Object_Fonts"));
     dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 

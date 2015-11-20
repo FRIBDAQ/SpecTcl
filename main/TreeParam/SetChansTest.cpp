@@ -16,8 +16,6 @@
 #include "SetChannelsVisitor.h"
 #include "TreeTestSupport.h"
 
-#include <algorithm>
-
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -48,7 +46,7 @@ void SetChanTest::SetChans() {
   SetChannelsVisitor v("*", 200);
   
   double inc = g[0].getInc();
-  std::for_each(CTreeParameter::begin(), CTreeParameter::end(), v);
+  for_each(CTreeParameter::begin(), CTreeParameter::end(), v);
 
   inc  = inc /2.0;
   for(int i =0; i < 10; i++) {

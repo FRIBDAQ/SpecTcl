@@ -291,9 +291,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
    Change Log
    $Log$
-   Revision 5.3  2006/06/22 17:28:37  ron-fox
-   Defect 209 : more 64bit unclean issues.
-
    Revision 5.2.2.1  2006/06/22 17:11:23  ron-fox
    Defect 209: Some other 64 bit uncleanliness that needed mopping up.
 

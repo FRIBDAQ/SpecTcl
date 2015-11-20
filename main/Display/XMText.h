@@ -14,7 +14,6 @@
 	     East Lansing, MI 48824-1321
 */
 
-
 /*
 ** Facility:
 **   Xamine C++ Support for motif.
@@ -105,16 +104,16 @@ class XMScrolledText : public XMText {
 
   /* Constructors: */
 
-  XMScrolledText(const char *n, XMWidget &parent, int rows = 20, int columns = 40,
+  XMScrolledText(const char* n, XMWidget &parent, int rows = 20, int columns = 40,
 		 ArgList args = NULL, Cardinal arg_count = 0);
-  XMScrolledText(const char *n, Widget parent, int rows = 20, int columns = 40,
+  XMScrolledText(const char* n, Widget parent, int rows = 20, int columns = 40,
 		 ArgList args = NULL, Cardinal arg_count = 0);
 
   /* Manipulators:  */
 
   void SetMaxLength(int maxlen);
   void ClearText();
-  void AddText(const char *string);
+  void AddText(const char* string);
   Widget Scroller();
 };
 #endif

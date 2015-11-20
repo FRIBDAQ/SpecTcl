@@ -1,15 +1,12 @@
 DEFS = @WCHAR_T_DEF@
-AM_CPPFLAGS = -I@top_srcdir@ -I.  -I@top_srcdir@/Events \
+INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
+	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates -I@top_srcdir@/SpectrumIO \
 	-I@top_srcdir@/Xamine \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	-I@top_srcdir@/Analysis -I@top_srcdir@/TreeParam \
-	-I@top_srcdir@/Fits                               \
-	-I@top_srcdir@/factories			\
-	-I@top_srcdir@/DecoderRing			\
-	@TCL_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@ \
-	@LIBTCLPLUS_CFLAGS@ -DVERSION='"@VERSION@"'
+	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/etc
@@ -42,10 +39,7 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	Globals.cpp FilterCommand.cpp \
 	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
 	DocumentationException.cpp DocumentationCallback.cpp \
-	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp \
-	IntegrateCommand.cpp RingFormatCommand.cpp VersionCommand.cpp \
-	SContentsCommand.cpp
-
+	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
@@ -58,12 +52,7 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	FilterCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
-	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
-	IntegrateCommand.h VersionCommand.h SContentsCommand.h
-
-
-
-
+	SpecTcl.h CFoldCommand.h CProjectionCommand.h
 
 bin_PROGRAMS = SpecTcl
 
@@ -84,19 +73,15 @@ SpecTcl_SOURCES = MySpecTclApp.cpp \
 
 AM_CXXFLAGS = -g
 
-SpecTcl_LDFLAGS = -lTclGrammerCommands -lXplus -lGates -lAnalysis \
-	-lFilter -lBufferAnalysis -lEventSource -lSpecio  \
-	-lTreeParam -lXamine  -ltape -lFits \
-	@top_srcdir@/Sorter/libSorting.la		\
-	@top_srcdir@/DecoderRing/libDecoderRing.la	\
+SpecTcl_LDFLAGS = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis \
+	-lFilter -lBufferAnalysis -lEventSource -lSpecio -ltclPlus \
+	-lException -lTreeParam -lXamine  -ltape \
 	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)  \
 	-L. -L../SpectrumIO \
 	-L../Tape -L../Sorter \
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
-	-L../Filter -L../Analysis -L../TreeParam \
-	-L../Fits -L@top_srcdir@/DecoderRing	\
-	@LIBTCLPLUS_LDFLAGS@	\
-	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas  @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
+	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam \
+	-g -Wl,"-rpath=$(libdir)"  @TCL_LDFLAGS@ @XLIBSW@
 
 
 man_MANS = spectclapi.3
@@ -110,21 +95,13 @@ EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
 
 
 # Unit tests.
-#
-#  Need to figure out why these don't link right
-if CPPUNITDONOTBUILD
+
+if CPPUNIT
 
 
 noinst_PROGRAMS =  scalertests docbuftests
 
-scalertests_CXXFLAGS=@CPPUNIT_CFLAGS@
-docbuftests_CXXFLAGS=@CPPUNIT_CFLAGS@
-
-# TODO: Could probably add quite a few more headers above to this.
-#       maybe *Command.h and *Package.h(?)
-
-
-noinst_HEADERS = Asserts.h RingFormatCommand.h
+noinst_HEADERS = Asserts.h
 
 scalertests_SOURCES = TestRunner.cpp \
 	scalercallbacktests.cpp 	\
@@ -140,18 +117,11 @@ docbuftests_DEPENDENCIES = DocumentationException.o  \
 	DocumentationCallback.o
 
 
-commonTestLdFlags= @top_builddir@/Events/libAnalysis.la \
-	@top_builddir@/Analysis/libBufferAnalysis.la \
-	@top_builddir@/SpecTcl/libTclGrammerCommands.la \
-	@top_builddir@/Filter/libFilter.la	\
-	@top_builddir@/Sorter/libSorting.la \
-	@top_builddir@/TreeParam/libTreeParam.la \
-	@top_builddir@/Fits/libFits.la \
-	@top_builddir@/DecoderRing/libDecoderRing.la \
-	@top_builddir@/Tape/libtape.la \
-	@top_builddir@/SpectrumIO/libSpecio.la \
-	@LIBTCLPLUS_LDFLAGS@ \
-	@CPPUNIT_LIBS@ @TK_LIBS@ @TCL_LIBS@
+commonTestLdFlags= -L@top_srcdir@/Events -lAnalysis \
+	-L@top_srcdir@/TCL -ltclPlus \
+	-L@top_srcdir@/NSCLException -lException \
+	-L@top_srcdir@/Analysis -lBufferAnalysis \
+	$(CPPUNIT_LDFLAGS)
 
 scalertests_LDFLAGS= ScalerProcessorCallbacks.o $(commonTestLdFlags)
 

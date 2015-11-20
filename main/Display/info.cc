@@ -345,7 +345,7 @@ class InfoDisplay : public XMCustomDialog {
  protected:
   XMText *text;			/* The text display region. */
  public:
-  InfoDisplay(char *name, XMWidget *parent);
+  InfoDisplay(const char *name, XMWidget *parent);
   ~InfoDisplay() {
     delete text;
   }
@@ -370,7 +370,7 @@ static InfoDisplay *dialog_widget = NULL; /* Dialog widget handle.  */
 **       information dialog, but a possibly longlived window so no dialog
 **       class symbol is shown.
 */
-InfoDisplay::InfoDisplay(char *name, XMWidget *parent) :
+InfoDisplay::InfoDisplay(const char *name, XMWidget *parent) :
        XMCustomDialog(name, *parent, name)
 {
   /* First unmanage all of the buttons we don't need: */
@@ -395,7 +395,8 @@ InfoDisplay::InfoDisplay(char *name, XMWidget *parent) :
   XtSetArg(scrollargs[4], XmNcursorPositionVisible, False);
 
   Widget text_wd = XmCreateScrolledText(work_area->getid(),
-					const_cast<char*>("InfoText"), scrollargs, 5);
+					const_cast<char*>("InfoText"), 
+					scrollargs, 5);
   text = (XMText *)(new XMWidget(text_wd));
 
 
@@ -446,11 +447,11 @@ char *FormatSpectrumInfo(const int specno)
   assert(twodbyte == 1);
 
   static const char *spctype[] = { "Undefined", /* String names for each spec type */
-			     "2-d Byte per channel",
-			     "1-d Word per channel",
-			     "2-d Word per channel",
-			     "1-d Longword per channel",
-			     "2-d Longword per channel"
+				   "2-d Byte per channel",
+				   "1-d Word per channel",
+				   "2-d Word per channel",
+				   "1-d Longword per channel",
+				   "2-d Longword per channel"
 			     };
   static int spcmult[]   = { 0, 1, 2, 
 			       2, 4, 4 }; /* Bytes per chan for spectypes */
@@ -760,7 +761,7 @@ static char*
 FormatGateInfo(int specno)
 {
   char *result;
-  char element[100];
+  char element[20];
   int  nobjects  = Xamine_GetSpectrumGateCount(specno);
   
   grobj_generic** objects = new grobj_generic*[nobjects];
@@ -842,6 +843,7 @@ static const char *FormatInfo()
   ** currently selected spectrum.  This has a lot of stuff in it,
   ** like the current spectrum which are needed in subsequent subinfo calls.
   */
+
   const char *t = " Pane does not contain a spectrum ";
 
   win_attributed *att = Xamine_GetSelectedDisplayAttributes();
@@ -945,7 +947,8 @@ void Xamine_DisplayInfo(XMWidget *parent, XtPointer client_d, XtPointer call_d)
   */
 
   if(!dialog_widget) {
-    dialog_widget = new InfoDisplay(const_cast<char*>("Info_Display"), parent);
+    dialog_widget = new InfoDisplay("Info_Display", 
+				    parent);
     dialog_widget->AddOkCallback(UnManage, dialog_widget); /* OK unmanages. */
     dialog_widget->AddCallback(XtNdestroyCallback, NullPointer, 
 			       (XtPointer)&dialog_widget);

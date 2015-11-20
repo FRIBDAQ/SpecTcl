@@ -71,17 +71,17 @@ EXTRA_DIST = GateGenerator.tcl \
 	server.tcl \
 	tabnbook.tcl
 
-AM_CPPFLAGS = @LIBTCLPLUS_CFLAGS@ \
+INCLUDES = -I@top_srcdir@/TCL \
 	-I@top_srcdir@/Sorter \
 	-I@top_srcdir@/Events \
 	-I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Utility \
+	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/Xamine \
 	-I@top_srcdir@/Display \
 	-I@top_srcdir@/Gates \
 	-I@top_srcdir@/Filter \
-	-I@top_srcdir@/factories \
-	@TCL_CPPFLAGS@
+	$(TCL_FLAGS)
 
 
 libTreeParam_la_LDFLAGS = -version-info $(SOVERSION):0
@@ -92,21 +92,9 @@ install-exec-local:
 	$(INSTALL_PROGRAM) *.tcl $(SCRIPTDEST)
 
 
-##
-# For now circular dependencies prevent this from being done until I get smarter
-# and figure out how to build this in the check-TESTS target.. or until I separate this
-# out into a separate test dir...because this depends on libTclGrammerCommands but
-# other folks depend on us first ...including libTclGrammerCommands.
-#
-
-if THIS_IS_NOT_DEFINED
 if CPPUNIT
 
 noinst_PROGRAMS=TestRunner
-
-
-
-TestRunner_CXXFLAGS=@CPPUNIT_CFLAGS@
 
 TestRunner_SOURCES = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
 	MatchTest.cpp      TestRunner.cpp            TreeVariableArrayTests.cpp \
@@ -117,23 +105,13 @@ TestRunner_SOURCES = ListTest.cpp       SetWidthTest.cpp          TreeParameterT
 
 TestRunner_DEPENDENCIES = $(LibraryObjects)
 
-TestRunner_LDADD = @top_builddir@/SpecTcl/libTclGrammerCommands.la \
-	@top_builddir@/Sorter/libSorting.la   \
-	@top_builddir@/Fits/libFits.la  \
-	@top_builddir@/Filter/libFilter.la \
-	@top_builddir@/DecoderRing/libDecoderRing.la \
-	@top_builddir@/Events/libAnalysis.la \
-	@top_builddir@/SpectrumIO/libSpecio.la \
-	@top_builddir@/Tape/libtape.la \
-	@top_builddir@/Analysis/libBufferAnalysis.la
+TestRunner_LDFLAGS = $(LibraryObjects) -L@top_srcdir@/TCL -ltclPlus \
+	 -L@top_srcdir@/NSCLException -lException \
+	-L@top_srcdir@/Events -lAnalysis \
+	$(TCL_LDFLAGS) $(CPPUNIT_LDFLAGS)
 
-TestRunner_LDFLAGS = $(LibraryObjects) \
-	 @LIBTCLPLUS_LDFLAGS@	\
-	@TK_LIBS@ @TCL_LIBS@ @CPPUNIT_LIBS@
-
-noinst_HEADERS = Asserts.h TreeTestSupport.h
+noinst_HEADERS = Asserts.h
 
 TESTS=./TestRunner
 
-endif
 endif

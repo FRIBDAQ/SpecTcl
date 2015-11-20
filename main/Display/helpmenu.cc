@@ -330,7 +330,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Static local declarations of the help strings and associated dialogs. 
 */
 
-static const char *About[]
+static const  char *About[]
   = { "Xamine -- The NSCL X/Motif histogram display program\n",
       "               Author: Ron Fox\n",
       "                       NSCL\n",
@@ -381,7 +381,7 @@ static const char *Help[]
       NULL
       };
 
-static const char *overname = "Help_Overview";
+static const  char *overname = "Help_Overview";
 Xamine_help_client_data Xamine_Help_Overview = {overname,  NULL, Help };
 
 

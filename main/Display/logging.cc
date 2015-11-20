@@ -431,7 +431,7 @@ int LogFile::ContinueMessage(const char *txt)
 ** of the log file.  In particular the log file name.  This is prompted
 ** for using a Prompt dialog.
 */
-static const char *help_text[] = {
+static const  char *help_text[] = {
   "  This dialog is prompting you for the name of a new log file.  If the\n",
   "file specified already exists, it will be renamed to to it's old name \n",
   "followed by _SAVED.  A new empty log file will be created.\n",

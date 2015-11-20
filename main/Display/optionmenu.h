@@ -353,7 +353,7 @@ class AxisForm
   /*
   ** Constructors:
   */
-  AxisForm(char *name, XMForm &parent);
+  AxisForm(const char *name, XMForm &parent);
   /*
   ** Destructors.
   */
@@ -402,7 +402,8 @@ class AxisForm
 
 };
 
-/*** AttributeForm fills in the parent form with prompts for the 
+/*
+** AttributeForm fills in the parent form with prompts for the 
 ** spectrum attributes.
 */
 class AttributeForm

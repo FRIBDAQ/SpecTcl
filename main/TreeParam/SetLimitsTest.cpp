@@ -17,7 +17,6 @@
 #include "CTreeParameterArray.h"
 #include "SetLimitsVisitor.h"
 #include "TreeTestSupport.h"
-#include <algorithm>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -47,7 +46,7 @@ void SetLimitsTest::limits() {
   CTreeParameterArray g("george", 10, 0);
   SetLimitsVisitor v("*", 1.0, 200.0);
   double inc = g[0].getInc();
-  std::for_each(CTreeParameter::begin(), CTreeParameter::end(), v);
+  for_each(CTreeParameter::begin(), CTreeParameter::end(), v);
 
 
   for(int i=0; i< 10; i++) {

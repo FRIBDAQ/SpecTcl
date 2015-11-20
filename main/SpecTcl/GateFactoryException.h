@@ -375,8 +375,7 @@ public:
   }
                        
   const char**  getReasonTexts()
-  { 
-    return m_svReasonTexts;
+  { return m_svReasonTexts;
   }
                        
 // Mutators:
@@ -390,7 +389,7 @@ protected:
   { m_eGateType = am_eGateType;
   }
        
-  static void setReasonTexts (const  char**  am_svReasonTexts)
+  static void setReasonTexts (const char**  am_svReasonTexts)
   { m_svReasonTexts = am_svReasonTexts;
   }
                        
@@ -398,7 +397,7 @@ public:
   
   virtual   const char*  ReasonText ()   const ;
   virtual   Int_t ReasonCode ()    ;
-  static    const char*  ReasonCodeToText (GateFactoryExceptionReason eReason)    ;
+  static    char*  ReasonCodeToText (GateFactoryExceptionReason eReason)    ;
  
 protected:
 

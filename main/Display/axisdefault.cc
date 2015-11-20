@@ -309,7 +309,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 class AxisDialog : public XMCustomDialog, public AxisForm {
  public:
-  AxisDialog(char *name, XMWidget &parent, char *title) : 
+  AxisDialog(const char *name, XMWidget &parent, const char *title) : 
     XMCustomDialog(name, parent, title),
     AxisForm(name, *work_area)
   {
@@ -324,7 +324,7 @@ class AxisDialog : public XMCustomDialog, public AxisForm {
 */
 static AxisDialog *dialog = NULL; /* Dialog widget */
 
-static const char *(help_text[]) = {
+static const  char *(help_text[]) = {
   "  This dialog is prompting you for the default axis labelling\n",
   "attributes.  The attributes you can set are as follows:\n\n",
   "     Show Axes       - Enables and disables the display of axes\n",
@@ -358,7 +358,7 @@ static Xamine_help_client_data help = { "Axis_help", NULL, help_text };
 **    XMForm &parent:
 **       Form widget which contains the axis prompt region..
 */
-AxisForm::AxisForm(char *name, XMForm &parent) 
+AxisForm::AxisForm(const char *name, XMForm &parent) 
 {
   /* The show axes toggle is attached to the form except for the bottom which
   ** floats free
@@ -526,8 +526,7 @@ void Xamine_SetDefaultAxis(XMWidget *w, XtPointer user, XtPointer call)
   /*  If the widget has not yet been created, then we must create it */
   /*  and set the callbacks.                                         */
   if(dialog == NULL) {
-    dialog = new AxisDialog(  const_cast<char*>("Axis_defaults"), *w,  
-			      const_cast<char*>("Axis Label Defaults"));
+    dialog = new AxisDialog( "Axis_defaults", *w, "Axis Label Defaults");
     dialog->AddOkCallback(ActionAreaCallback, dialog);
     dialog->AddApplyCallback(ActionAreaCallback,  dialog);
     dialog->AddCancelCallback(ActionAreaCallback, dialog);

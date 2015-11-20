@@ -1,12 +1,15 @@
-AM_CPPFLAGS = -I. -I../Utility -I../NSCLException  -I../Tape -I../SpecTcl \
-	-I../Events -I../TCL -I../Filter @TCL_CPPFLAGS@ @LIBTCLPLUS_CFLAGS@
+INCLUDES = -I. -I../Utility -I../NSCLException  -I../Tape -I../SpecTcl \
+	-I../Events -I../TCL -I../Filter @TCL_FLAGS@
 
-LDADD=-L. @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @TK_LIBS@
 
 
 lib_LTLIBRARIES = libEventSource.la
 libEventSource_la_LDFLAGS = -version-info $(SOVERSION):0 \
-	-Wl,"-rpath-link=$(libdir)" -L. @LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @TK_LIBS@
+	-Wl,"-rpath-link=$(libdir)"
+
+
+libEventSource_la_LIBADD=-L. @TCL_LDFLAGS@
+
 
 libEventSource_la_SOURCES = File.cpp GaussianDistribution.cpp \
 	TapeException.cpp TapeFile.cpp TestFile.cpp PipeFile.cpp  \

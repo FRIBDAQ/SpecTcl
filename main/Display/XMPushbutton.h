@@ -13,6 +13,7 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
+
 /*
 ** Facility:
 **   Xamine MOTIF support for C++
@@ -81,9 +82,6 @@ class XMButton : public XMManagedWidget
 */
 class XMPushButton : public XMButton
 {
-private:
-  void Initialize( void (*cb)(XMWidget *, XtPointer, XtPointer),
-		   XtPointer cd );
  public:
   /* Constructors... make the widget */
   
@@ -110,11 +108,6 @@ private:
 
 class XMCascadeButton : public XMButton
 {
-private:
-  void Initialize(void (*cb)(XMWidget *, 
-			     XtPointer, 
-			     XtPointer) ,
-		  XtPointer cd);
  public:
   /* Describe associated cascaded menus: */
   
@@ -149,10 +142,6 @@ private:
 */
 class XMToggleButton: public XMButton
 {
-private:
-  void
-  Initialize(void (*cb)(XMWidget *, XtPointer, XtPointer) ,
-			    XtPointer cd);
  public:
   /* Constructors: */
   
@@ -191,9 +180,6 @@ private:
 */
 class XMArrowButton : public XMButton
 {
-private:
-  void Initialize(void (*cb)(XMWidget *, XtPointer, XtPointer) ,
-		   XtPointer cd );
  public:
   /* Constructors/destructors */
 
@@ -218,7 +204,7 @@ private:
   /* Overrides of virtual functions in the base class */
 
   virtual void Label(XmString label);
-  virtual void Label(const char*  label);
+  virtual void Label(const char* label);
   virtual void SetMnemonic(KeySym k);
 };
 #endif

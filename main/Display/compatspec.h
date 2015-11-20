@@ -302,15 +302,15 @@ DAMAGES.
 class CompatibleSpectrumList : public  XMForm
 {
  public:
-  CompatibleSpectrumList(char *name, XMWidget *parent, 
-			 char *title_string,
+  CompatibleSpectrumList(const char *name, XMWidget *parent, 
+			 const char *title_string,
 			 int spectrum_number);
   virtual ~CompatibleSpectrumList();
 
   virtual void Clear();
   virtual void Update();
   virtual void NewSpectrum(int newspec);
-  void TitleString(char *title);
+  void TitleString(const char *title);
 
   void Manage();
   void UnManage();
@@ -340,9 +340,9 @@ class DisplayedCompatibleSpectrumList : public CompatibleSpectrumList
 
   /* We need these to relay the call to our parent constructors.
   */
-  DisplayedCompatibleSpectrumList(char *name,
+  DisplayedCompatibleSpectrumList(const char *name,
 				XMWidget *parent,
-				char *title_string,
+				const char *title_string,
 				int spectrum_number);
   virtual ~DisplayedCompatibleSpectrumList();
 

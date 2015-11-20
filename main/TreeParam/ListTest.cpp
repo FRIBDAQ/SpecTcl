@@ -19,7 +19,6 @@
 #include <TCLList.h>
 #include <vector>
 #include <string>
-#include <algorithm>
 
 #include "TreeTestSupport.h"
 
@@ -65,7 +64,7 @@ void ListTests::ListAll() {
   CTreeParameter::BindParameters();
 
   ListVisitor listAll("*", *m_pResult);
-  std::for_each(CTreeParameter::begin(), CTreeParameter::end(), listAll);
+  for_each(CTreeParameter::begin(), CTreeParameter::end(), listAll);
 
   CTCLList List(m_pInterp, string((*m_pResult)));
   StringArray list;
@@ -81,7 +80,7 @@ ListTests::ListOne()
   CTreeParameter::BindParameters();
 
   ListVisitor listAll("*.00", *m_pResult);
-  std::for_each(CTreeParameter::begin(), CTreeParameter::end(), listAll);
+  for_each(CTreeParameter::begin(), CTreeParameter::end(), listAll);
 
   CTCLList List(m_pInterp, string((*m_pResult)));
   StringArray list;

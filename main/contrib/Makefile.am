@@ -15,7 +15,5 @@ install-exec-local:
 EXTRA_DIST = multiread/AAREADME.txt multiread/selectscript.tcl treeparam/*.tcl \
 		treeparam/*.h Grace/*.tcl
 
-SUBDIRS=scriptable
+SUBDIRS=scriptable calibratedparams
 
-check-TESTS:
-	- for d in $(SUBDIRS); do (cd $$d; make check-TESTS); done

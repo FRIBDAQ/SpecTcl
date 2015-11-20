@@ -1,19 +1,3 @@
-/*
-    This software is Copyright by the Board of Trustees of Michigan
-    State University (c) Copyright 2005.
-
-    You may use this software under the terms of the GNU public license
-    (GPL).  The terms of this license are described at:
-
-     http://www.gnu.org/licenses/gpl.txt
-
-     Author:
-             Ron Fox
-	     NSCL
-	     Michigan State University
-	     East Lansing, MI 48824-1321
-*/
-
 
 /*
   EventFilter.cpp
@@ -30,9 +14,8 @@ static const char* Copyright =
 #include "Parameter.h"
 #include "Event.h"
 #include "EventList.h"
-#include "CFilterOutputStage.h"
+#include "CXdrOutputStream.h"
 #include "Globals.h"
-#include "StateException.h"
 #include "DictionaryException.h"
 
 #include <vector>
@@ -65,7 +48,7 @@ static const char* eventlabel  = "event";
 CEventFilter::CEventFilter() :
   m_fEnabled(kfFALSE),
   m_sFileName(CEventFilter::DefaultFilterFilename()), // Initialized to default.
-  m_pOutput(0)
+  m_pOutputEventStream((CXdrOutputStream*)kpNULL)
 {
 
 }
@@ -85,7 +68,7 @@ CEventFilter::CEventFilter() :
 CEventFilter::CEventFilter(string& rFileName) :
   m_fEnabled(kfFALSE),
   m_sFileName(rFileName),
-  m_pOutput(0)
+  m_pOutputEventStream((CXdrOutputStream*)kpNULL)
 {
 }
 
@@ -96,7 +79,10 @@ CEventFilter::CEventFilter(string& rFileName) :
    note that destruction implies file flush and close.
 */
 CEventFilter::~CEventFilter() {
-     delete m_pOutput;
+  if(m_pOutputEventStream) {
+      
+     delete m_pOutputEventStream;
+  }
 }
 
 
@@ -117,39 +103,30 @@ CEventFilter::~CEventFilter() {
 */
 void 
 CEventFilter::Enable() {
-  // The format of the event stream must have been set (m_pOutput must not be null):
-
-  if (!m_pOutput) {
-    throw CStateException("not-set", "set",
-			  "CEventFilter::Enable needs to have the formatter set");
-  }
 
    if(m_fEnabled) {
      Disable();               // Close any existing output file and
+
    }                          // ensure we're disabled on failure.
 
-
    NamesToIds();              // Translate the names.
-   m_pOutput->open(m_sFileName);
-   m_pOutput->DescribeEvent(m_vParameterNames, m_vParameterIds);
-
+   m_pOutputEventStream = new CXdrOutputStream(m_sFileName);
+   FormatEventDescription();  // First record of each filter file.
    m_fEnabled = kfTRUE;
 }
 
 /*!
    Disable the filter.  This involves:
-   - Closing the output file
+   - Destroying any existing filter file stream.
+   - Setting the filter file stream pointer to null.
    - Setting the enable flag false.
 
 */
 void 
 CEventFilter::Disable() { // Must be consecutively callable.
-  if (!m_pOutput) {
-    throw CStateException("not-set", "set",
-			  "CEventFilter::Enable needs to have formatter set");
-  }
-  m_pOutput->close();
-  m_fEnabled = kfFALSE;                     // We're disabled.
+   delete m_pOutputEventStream;              // No-OP if pointer is already null
+   m_pOutputEventStream = (CXdrOutputStream*)kpNULL;  // Mark no stream.
+   m_fEnabled = kfFALSE;                     // We're disabled.
 }
 
 /*!
@@ -167,37 +144,7 @@ CEventFilter::setFileName(string& rFileName) {
    m_sFileName = rFileName;	// Set the new filename.
 
 }
-/*!
-  Set the output format.. this can only be done when the filter
-  is disabled.  Existing filter output stages will be destroyed.
-  \param format - new output stage formatter.
-  \throw CStateException  if the filter is enabled.
-*/
-void
-CEventFilter::setOutputFormat(CFilterOutputStage* format)
-{
-  if (m_fEnabled) {
-    throw CStateException("enabled", "disabled",
-			  "CEventFileter::setOutputFormat - can only be done when filter is disabled");
-  }
-  delete m_pOutput;
-  m_pOutput = format;
-  m_pOutput->onAttach(*this);
 
-}
-/*!
-  Return the output format .. if non is attached, the value "--" is returned.
-*/
-string
-CEventFilter::outputFormat() const
-{
-  if (m_pOutput) {
-    return m_pOutput->type();
-  }
-  else {
-    return string("--");
-  }
-}
 /*!
    Function call operator with a list of events.
    This overridable member provides the default behavior
@@ -211,19 +158,16 @@ CEventFilter::outputFormat() const
 void
 CEventFilter::operator()(CEventList& rEvents) 
 {
-
-  if (m_fEnabled) {		// Don't execute if disabled!!
-    CEventListIterator i;
-    CEventListIterator e = rEvents.end();
-    for(i = rEvents.begin(); i != e; i++) {
+   CEventListIterator i;
+   CEventListIterator e = rEvents.end();
+   for(i = rEvents.begin(); i != e; i++) {
       CEvent* pEvent = *i;
       if(pEvent) {
-	operator()(*pEvent);
+         operator()(*pEvent);
       } else {
 	break;
       }
-    }
-  }
+   }
 }
 /*!
    Function Call operator.  This function call operator processes a single event.
@@ -241,11 +185,134 @@ CEventFilter::operator()(CEventList& rEvents)
 void
 CEventFilter::operator()(CEvent& rEvent)
 {
-  if(CheckCondition(rEvent)) {
-    (*m_pOutput)(rEvent);
-  }
+   if(CheckCondition(rEvent)) {
+      FormatOutputEvent(rEvent);
+   }
 }
+/*!
+    Format the description of an event.  This overridable interacts with
+   the output event stream and produces the event description record.
+   The event Description record describes the contents of events in the output
+   file.  This record can be used to drive a general purpose unpacker for
+   filtered data.
+     Note that we can only format the information for parameters that exist.
+   The format of a header is the following:
 
+   \verbatim
+      +---------------------+
+      | "header"            |
+      +---------------------+
+      | NumParams           |
+      +---------------------+
+      | Name string(1)      |
+      +---------------------+
+      | ...                 |
+      +---------------------+
+      |Name string(NumParams| 
+      +---------------------+
+   \endverbatim
+*/
+void
+CEventFilter::FormatEventDescription()
+{
+
+   if(!m_pOutputEventStream) return;     // No stream so give up.
+   vector<string> Names = IdsToNames();  // Get names for ids that exist.
+   *m_pOutputEventStream << headerlabel; // Indicate this is a header.
+   *m_pOutputEventStream  << (Names.size());
+   for(int i =0; i < Names.size(); i++) {
+      *m_pOutputEventStream << (Names[i]); // The name to match with inbound.
+   }
+
+}
+/*!
+   Format an event into the output stream.  This overridable interacts with the
+   output event stream and produces an event record.  The Event record
+   contains a single event.  It has the following format:
+
+   \verbatim
+      +-------------------------+
+      |   "event"               |
+      +-------------------------+
+      |NumParams bits of bitmask|
+      +-------------------------+
+      |Param for lowest setbit  |
+      +-------------------------+
+      |        ...              |
+      +-------------------------+
+      |Param for highest setbit |
+      +-------------------------+
+
+   \endverbatim
+
+   \param rEvent (in):
+      Reference to the event to output.
+*/
+void
+CEventFilter::FormatOutputEvent(CEvent& rEvent)
+{
+   if(!m_pOutputEventStream) return;
+   
+
+   int nParams = m_vParameterIds.size();
+   int nBitmaskwords = ((nParams + sizeof(unsigned)*8 - 1) /
+			(sizeof(unsigned)*8)); // Assumes 8 bits/byte
+   unsigned* Bitmask = new unsigned[nBitmaskwords];
+
+   for(int i = 0; i < nBitmaskwords; i++) {
+     Bitmask[i] = 0;
+   }
+   
+   // Figure out the bit mask:  A bit is set for each valid parameter:
+   
+   int nValid = 0;
+   for(int i =0; i < nParams; i++) {
+      if(rEvent[m_vParameterIds[i]].isValid()) {
+         setBit(Bitmask, i);
+         nValid++;
+      }
+   }
+
+   // No point in writing an event that has no valid parameters in the 
+   // selected subset.
+   //
+   if(!nValid) {
+     delete []Bitmask;
+     return;
+   }
+
+   // Declare required freespace to allow the output stream to close:
+   // the buffer if this event doesn't fit.
+   
+   size_t intsize   = m_pOutputEventStream->sizeofInt();
+   size_t floatsize = m_pOutputEventStream->sizeofFloat();
+   size_t hdrsize   = m_pOutputEventStream->sizeofString(eventlabel);
+
+
+   m_pOutputEventStream->Require((nBitmaskwords*intsize +
+                                 nValid*floatsize       +
+                                 hdrsize)); // Fudge??
+   
+   // Write the header:
+   
+   *m_pOutputEventStream << (eventlabel);
+
+   
+   // Write the bitmask:
+   
+   for(int i =0; i < nBitmaskwords; i++) {
+      *m_pOutputEventStream << Bitmask[i];
+   }
+
+   // Write the valid parameters:
+   
+   for(int i =0; i < nParams; i++) {
+      if(rEvent[m_vParameterIds[i]].isValid()) {
+         *m_pOutputEventStream << rEvent[m_vParameterIds[i]];
+      }
+   }
+   delete []Bitmask;
+}
 /*!
    Return the default name of a filter file.  This is ~/filter.flt
    Since we are not a shell, ~ must be obtained by translating HOME
@@ -318,7 +385,17 @@ CEventFilter::IdsToNames() throw (CDictionaryException)
    
    return names;
 }
-
+/*!
+   Set a bit in a bit vector.  The bit is assumed to fit in the vector.
+*/
+inline void
+CEventFilter::setBit(unsigned* bits, unsigned offset)
+{
+		// The code below assumes 8 bits per byte ...
+   int element = offset/(sizeof(unsigned)*8);
+   int mask    = 1 << (offset % (sizeof(unsigned)*8));
+   bits[element] |= mask;
+}
 /*!
    Set the parameter names:
    - Replace the vector m_vParameterNames 

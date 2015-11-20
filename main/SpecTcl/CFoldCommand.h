@@ -29,17 +29,12 @@ class CGateContainer;
 class CSpectrum;
 
 /**
- * Implements the fold command.  The fold command has the following forms: 
-\verbatim
- fold -apply  gate spectrum ... Applies a gamma gate to a gamma spectrum as a fold.
- fold -list ?pattern?    For all gamma spectra that match pattern (* if omitted),
-                         lists the spectra with folds and the folds applied to
-                         them in the form of a  list containing elements of 
-			 the form {name fold}. 
-  fold -remove spectrum  For the
-                         gamma spectrum 'spectrum' removes  the fold that is 
-			 applied to it.
-\endverbatim
+ * Implements the fold command.  The fold command has the following forms:  fold -
+ * apply  gate spectrum ... Applies a gamma gate to a gamma spectrum as a fold.
+ * fold -list ?pattern? For all gamma spectra that match pattern (* if omitted),
+ * lists the spectra with folds and the folds applied to them in the form of a
+ * list containing elements of the form {name fold}. fold -remove spectrum For the
+ * gamma spectrum 'spectrum' removes  the fold that is applied to it.
  * @created 22-Apr-2005 12:54:15 PM
  * @author Ron Fox
   * @version 1.0

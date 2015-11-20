@@ -970,8 +970,7 @@ void Xamine_AddMarker(XMWidget *wid, XtPointer ud, XtPointer cd)
   ** instantiate it now and set up the invariant behavior.
   */
   if(dialog == NULL) {
-    dialog = new AcceptMarker(wid, const_cast<char*>("Define_Marker"), 
-			      help_text);
+    dialog = new AcceptMarker(wid, "Define_Marker", help_text);
 
     dialog->AddOkCallback(&AcceptMarker::Marker_ok, (XtPointer)dialog);
     dialog->AddCancelCallback(&AcceptMarker::Marker_cancel, (XtPointer)dialog);

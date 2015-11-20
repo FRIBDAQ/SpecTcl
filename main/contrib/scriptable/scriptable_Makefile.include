@@ -42,8 +42,6 @@ LDFLAGS=-L$(SPECLIBS) -L$(SPECCONTRIB)/scriptable \
 	-lFilter             \
 	-lBufferAnalysis     \
 	-lTreeParam	\
-	-lFits          \
-	-lDecoderRing	\
 	$(TCLLIBS)           \
 	$(X11LIBS)           \
 	-Wl,"-rpath=$(SPECLIBS)"

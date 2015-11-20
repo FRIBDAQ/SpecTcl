@@ -140,7 +140,8 @@ XMListBaseClass::AddSingleSelectionCallback(void (*callback)(XMWidget *,
 void
 XMListBaseClass::AddItem(const char *item, int position) 
 {
-  XmString s = XmStringCreateLtoR(const_cast<char*>(item), const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
+  XmString s = XmStringCreateLtoR(const_cast<char*>(item), 
+				  const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   XmListAddItem(id, s, position);
   XmStringFree(s);
 }
@@ -151,7 +152,8 @@ XMListBaseClass::ClearItems() { XmListDeleteAllItems(id); }
 void
 XMListBaseClass::DeleteItem(const char *item) 
 {
-  XmString s = XmStringCreateLtoR(const_cast<char*>(item), const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
+  XmString s = XmStringCreateLtoR(const_cast<char*>(item), 
+				  const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   XmListDeleteItem(id, s);
   XmStringFree(s);
 }
@@ -173,7 +175,8 @@ XMListBaseClass::DeselectAll() {
 
 void
 XMListBaseClass::DeselectItem(const char *item) {
-  XmString s = XmStringCreateLtoR(const_cast<char*>(item), const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
+  XmString s = XmStringCreateLtoR(const_cast<char*>(item), 
+				  const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   XmListDeselectItem(id, s);
   XmStringFree(s);
 }

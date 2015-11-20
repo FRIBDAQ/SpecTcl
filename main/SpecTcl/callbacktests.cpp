@@ -65,7 +65,7 @@ public:
   string m_element;
   int    m_flags;
 
-  virtual  char* operator()(CTCLInterpreter* pInterp,
+  virtual char* operator()(CTCLInterpreter* pInterp,
 			 char* pVariable,
 			 char* pElement,
 			 int   flags) { 

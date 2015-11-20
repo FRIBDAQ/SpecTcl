@@ -315,7 +315,7 @@ extern spec_shared *xamine_shared;
 /*
 ** Help text for the widgets:
 */
-static const char *ChooserHelp[] =
+static const  char *ChooserHelp[] =
 {
   " This dialog is prompting you for a spectrum.  There are several ways to\n",
   "specify a spectrum: \n\n",
@@ -349,7 +349,7 @@ static const char *ChooserHelp[] =
 **   XtPointer cbd:
 **     Callback data that's passed in to the perform functions.
 */
-SpectrumChooser::SpectrumChooser(char *name, Widget parent, char *prompt,
+SpectrumChooser::SpectrumChooser(const char *name, Widget parent, const char *prompt,
 				 XtPointer cbd) :
 		 XMSelector(name, parent, prompt, cbd)
 {
@@ -357,7 +357,7 @@ SpectrumChooser::SpectrumChooser(char *name, Widget parent, char *prompt,
   RestrictChoices();
   SetHelpText(ChooserHelp);
 }
-SpectrumChooser::SpectrumChooser(char *name, XMWidget &parent, char *prompt,
+SpectrumChooser::SpectrumChooser(const char *name, XMWidget &parent, const char *prompt,
 				 XtPointer cbd) :
                  XMSelector(name, parent, prompt, cbd)
 {
@@ -406,7 +406,7 @@ void SpectrumChooser::SetupList()
 
   /* Set the final list: */
 
-  SetSelectionList(accepted,   const_cast<const char**>(dispspec));
+  SetSelectionList(accepted, dispspec);
 }
 
 /*

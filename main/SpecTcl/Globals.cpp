@@ -292,8 +292,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //     July 12, 1999 Ron FOx
 //        Added gpVersion and set it to be 0.2
 //   $Log$
-//   Revision 5.3  2007/02/17 02:34:59  ron-fox
-//   BZ292 - Synch the VERSION in config.h with gpVersion
+//   Revision 5.2.2.1  2007/02/17 02:37:46  ron-fox
+//   BZ292 - Synch gpVersion with VERSION in config.h
 //
 //   Revision 5.2  2005/06/03 15:19:26  ron-fox
 //   Part of breaking off /merging branch to start 3.1 development
@@ -318,7 +318,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //
 
 
-static const char* pCopyright=
+static char* pCopyright=
   "Globals.cpp (c) Copyright 1999 NSCL, All rights reserved.";
 
 #include <config.h>
@@ -389,4 +389,4 @@ CRunControl* gpRunControl = (CRunControl*)kpNULL;
 CAnalyzer* gpAnalyzer   = (CAnalyzer*)kpNULL;
 
 // SpecTcl also retains a version text string.
-const char* gpVersion = VERSION;
+const char* gpVersion = VERSION; 

@@ -314,7 +314,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 class TitleDialog : public XMCustomDialog, public TitleForm
 {
  public:
-  TitleDialog(char *name, XMWidget &parent, char *title) :
+  TitleDialog(const char *name, XMWidget &parent, const char *title) :
     XMCustomDialog(name, parent, title),
     TitleForm(name, *work_area) {
       Apply->Label("Apply To All");
@@ -522,8 +522,7 @@ static void ActionCallback(XMWidget *w, XtPointer user_d, XtPointer client_d)
 void Xamine_SetDefaultTitling(XMWidget *w, XtPointer user, XtPointer call)
 {
   if(dialog == NULL) {
-    dialog = new TitleDialog(const_cast<char*>("TitleDefaults"), *w, 
-			     const_cast<char*>("Title Defaults"));
+    dialog = new TitleDialog("TitleDefaults", *w, "Title Defaults");
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddApplyCallback(ActionCallback, dialog);
     dialog->AddCancelCallback(ActionCallback, dialog);

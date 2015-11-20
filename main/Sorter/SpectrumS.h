@@ -329,7 +329,7 @@ DAMAGES.
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
 #endif
-#include <stdint.h>
+
 
 
 //  Foward Class definitions:
@@ -348,7 +348,7 @@ class CSpectrumS  : public CSpectrum
   Int_t m_nChannels;	      //!< Number of channels.
   UInt_t m_nChannel;          //!< Time channel
   UInt_t m_nParameter;	      //!< Count to add to channel
-  int    m_nOffset;           //!< Spectrum channel Offest
+  UInt_t m_nOffset;           //!< Spectrum channel Offest
 
   
 public:
@@ -398,14 +398,6 @@ public:
   virtual SpectrumType_t getSpectrumType() {
     return keStrip;
   }
-
-  int getOffset() const {
-    return m_nOffset;
-  }
-  UInt_t getChannels() const {
-    return m_nChannels;
-  }
-
   // Mutators (available to derived classes:
 
 protected:
@@ -431,8 +423,8 @@ public:
 
   virtual void GetParameterIds(STD(vector)<UInt_t>& rvIds);
   virtual void GetResolutions(STD(vector)<UInt_t>&  rvResolutions);
-  void ShiftDataUp (int64_t nShift);
-  void ShiftDataDown(int64_t nShift);
+  void ShiftDataUp (int nShift);
+  void ShiftDataDown(int nShift);
 
 
   // Utility functions:

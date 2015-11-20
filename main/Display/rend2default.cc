@@ -312,7 +312,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 class Rend2dDialog : public XMCustomDialog, public Rend2dForm {
  public:
-  Rend2dDialog(char *name, XMWidget *parent, char *title) :
+  Rend2dDialog(const char *name, XMWidget *parent, const char *title) :
     XMCustomDialog(name, *parent, title),
     Rend2dForm(name, *work_area)
       {
@@ -329,7 +329,7 @@ class Rend2dDialog : public XMCustomDialog, public Rend2dForm {
 */
 static Rend2dDialog *dialog = NULL;	/* Dialog handle. */
 
-static const char *help_text[] = {
+static const  char *help_text[] = {
   "  This dialog prompts you for the default 2-d histogram rendition\n",
   "The following renditions are supported:\n\n",
   "     Color    - Each channel is represented by a Color which indicates\n",
@@ -527,8 +527,7 @@ static void ActionCallback(XMWidget *w, XtPointer user_d, XtPointer call_d)
 void Xamine_Set2dDefaultRendition(XMWidget *w, XtPointer p, XtPointer q)
 {
   if(dialog == NULL) {		/* Need to instantiate dialog.  */
-    dialog = new Rend2dDialog(const_cast<char*>("Rend_2d"), w, 
-			      const_cast<char*>("Select 2d default rendition"));
+    dialog = new Rend2dDialog("Rend_2d", w, "Select 2d default rendition");
 
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddApplyCallback(ActionCallback, dialog);

@@ -14,7 +14,6 @@
 #include "UncheckVisitor.h"
 #include "SetUnitsVisitor.h"
 #include "TreeTestSupport.h"
-#include <algorithm>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -51,11 +50,11 @@ void UncheckTest::theTest()
 
   // First get them all changed:
 
-  std::for_each(CTreeParameter::begin(), CTreeParameter::end(), vu);
+  for_each(CTreeParameter::begin(), CTreeParameter::end(), vu);
 
   // Now reset the change flags:
 
-  std::for_each(CTreeParameter::begin(), CTreeParameter::end(), v);
+  for_each(CTreeParameter::begin(), CTreeParameter::end(), v);
 
   for(int i=0; i < 10; i++) {
     ASSERT(!(g[i].hasChanged()));

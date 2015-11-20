@@ -15,7 +15,6 @@
 #include "CTreeParameterArray.h"
 #include "SetUnitsVisitor.h"
 #include "TreeTestSupport.h"
-#include <algorithm>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -45,7 +44,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(SetUnitsTest);
 void SetUnitsTest::Units() {
   CTreeParameterArray g("george", 10, 0);
   SetUnitsVisitor v("*", "cm");
-  std::for_each(CTreeParameter::begin(), CTreeParameter::end(), v);
+  for_each(CTreeParameter::begin(), CTreeParameter::end(), v);
 
   for(int i =0; i < 10; i++) {
     string name = MakeElementName("george", 0, 10, i);

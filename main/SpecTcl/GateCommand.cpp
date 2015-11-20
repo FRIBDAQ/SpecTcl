@@ -48,9 +48,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 /*
   Change Log:
   $Log$
-  Revision 5.4  2007/05/16 15:41:32  ron-fox
-  Debugged gate tracing
-
   Revision 5.3  2005/09/22 12:40:37  ron-fox
   Port in the bitmask spectra
 
@@ -109,12 +106,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLResult.h>
 #include <Exception.h>
 #include <SpecTcl.h>
-#include <TCLObject.h>
-#include <Histogrammer.h>
-#include <SpecTcl.h>
-#include <GateContainer.h>
-
-#include <Iostream.h>
 
 #include <stdio.h>
 #include <assert.h>
@@ -126,31 +117,8 @@ using namespace std;
 #endif
 
 
-static const  char* pCopyrightNotice = 
+static const char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved GateCommand.cpp \\n";
-
-// Local class:
-
-class CMyGateObserver : public CGateObserver
-{
-private:
-  CGateCommand*  m_pCommand;
-public:
-  CMyGateObserver(CGateCommand* command) :
-    m_pCommand(command) {}
-  virtual void onAdd(string name, CGateContainer& item) {
-    m_pCommand->invokeAddScript(name);
-  }
-  virtual void onRemove(string name, CGateContainer& item) {
-    m_pCommand->invokeDeleteScript(name);
-  }
-  virtual void onChange(string name, CGateContainer& item) {
-    m_pCommand->invokeChangedScript(name);
-  }
-};
-
-
-
 
 // Static/local definitions:
 //
@@ -159,7 +127,7 @@ public:
    Maps between switches on the command line and the CGateCommand::Switches
    enum
 */
-struct SwitchList {
+const struct SwitchList {
   const char* pName;
   CGateCommand::Switches eValue;
 } SwitchTable[] = {
@@ -167,8 +135,7 @@ struct SwitchList {
   { "-delete", CGateCommand::deletegate },
   { "-list"  , CGateCommand::listgates },
   { "-id"    , CGateCommand::id } ,
-  { "-byid"  , CGateCommand::byid },
-  { "-trace" , CGateCommand::trace}
+  { "-byid"  , CGateCommand::byid }
 };
 
 static const UInt_t nSwitches = sizeof(SwitchTable) / 
@@ -203,45 +170,12 @@ static const  char* pUsage[] = {
   "Usage:\n"
   "     gate [-new] name type { description }\n",
   "     gate -delete [-id] Gate1 [Gate2 ... }\n",
-  "     gate -list [-byid] [pattern]\n",
-  "     gate -trace add|delete|change ?script?\n"
+  "     gate -list [-byid] [pattern]\n"
 };
 static const UInt_t nUsageLines = (sizeof(pUsage) / sizeof(char*));
 
 // Functions for class CGateCommand
 
-/*!
-  Construct the object.
-  \param pInterp   - Points to the interpreter object on which the command
-                     will be registered
-  \param pack      - The command package in which we belong.
-*/
-CGateCommand::CGateCommand(CTCLInterpreter*      pInterp,
-			   CTCLCommandPackage&  rPack) :
-  CTCLPackagedCommand("gate", pInterp, rPack),
-  m_pAddScript(0),
-  m_pDeleteScript(0),
-  m_pChangeScript(0),
-  m_pObserver(0)
-{
-  m_pObserver = new CMyGateObserver(this);
-  SpecTcl* pApi = SpecTcl::getInstance();
-  pApi->addGateDictionaryObserver(m_pObserver);
-}
-
-/*!
-  Destroy the item.. release all dynamic storage.
-*/
-CGateCommand::~CGateCommand()
-{
-  SpecTcl* pApi = SpecTcl::getInstance();
-  pApi->removeGateDictionaryObserver(m_pObserver);
-  delete m_pAddScript;
-  delete m_pDeleteScript;
-  delete m_pChangeScript;
-  delete m_pObserver;
-
-}
 //////////////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
@@ -289,10 +223,6 @@ CGateCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     nArgs--;
     pArgs++;
     return ListGates(rInterp, rResult, nArgs, pArgs);
-  case trace:
-    nArgs--;
-    pArgs++;
-    return traceGates(rInterp, rResult, nArgs, pArgs);
   default:
     rResult = Usage();
     return TCL_ERROR;		// Bad switch in context.
@@ -424,7 +354,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	  (string(pType) == string("nm")))
 	{
 	  long Compare ;
-	  sscanf(PointString[0].c_str(), "%lx", &Compare);
+	  sscanf(PointString[0].c_str(), "%x", &Compare);
           pGate = api.CreateGate(Item.eGateType, Parameters, Compare);
 	  if(rPackage.AddGate(rResult, string(pName), pGate)) {
 	    return TCL_OK;
@@ -832,149 +762,4 @@ CGateCommand::MatchGateType(const char* pGateType)
   }
 
   return (GateFactoryTable*)kpNULL;
-}
-
-
-/// Process the gate -trace command and its subcommands.
-///
-// Parameters:
-//    rInterp - Reference to the interpreter object that is running the command.
-//    rResult - Reference to the result object.
-//    nArgs   - Numberof remaining parameters on the line.
-//              should be one  or two
-//    pArgs   - The arguments themselves.. should be at most one,
-//              and that would be what to trace and the script.
-// Returns:
-//   TCL_OK    - Everything ok and the previous script in the result.
-//   TCL_ERROR - some failure, with result an error message.
-Int_t 
-CGateCommand::traceGates(CTCLInterpreter& rInterp,
-			 CTCLResult&      rResult,
-			 UInt_t           nArgs,
-			 char*            args[])
-{
-  // Must be no more than 2 but at least one parameter:
-  if ((nArgs) > 2  || (nArgs < 1)){
-    rResult = "Too many or too few command line parameters\n";
-    rResult += Usage();
-    return TCL_ERROR;
-  }
-  // The first parameter will fetch determine which pointer we're
-  // playing with.
-
-  CTCLObject** ppScript(0)
-;
-  string       scriptSelector(args[0]);
-  if (scriptSelector == string("add")) {
-    ppScript = &m_pAddScript;
-  }
-  if (scriptSelector == string("delete")) {
-    ppScript = &m_pDeleteScript;
-  }
-  if (scriptSelector == string("change")) {
-    ppScript = &m_pChangeScript;
-  }
-  if (!ppScript) {
-    rResult = "Incorrect trace type selector must be 'add' 'delete' or 'change'\n";
-    rResult += Usage();
-    return TCL_ERROR;
-  }
-  // Create the old script string; empty if there is no object else the contents
-  // of the script string.
-  string oldScript;
-  if (*ppScript) {
-    oldScript = string(**ppScript);
-  } 
-  else {
-    oldScript =  "";
-  }
-
-  // If there is a new script replace the old one:
-
-  if (nArgs == 2) {
-    string newScript(args[1]);
-    delete *ppScript;
-    *ppScript = (CTCLObject*)NULL;
-
-    if (newScript != string("")) {
-      CTCLObject* pNewObject = new CTCLObject();
-      pNewObject->Bind(rInterp);
-      (*pNewObject) = newScript;
-      *ppScript = pNewObject;
-    }
-  }
-
-  // Return the old script and OK:
-
-  rResult = oldScript;
-  return TCL_OK;
-
-}
-
-/*!
-   Invoke the add script if it's defined.
-   Parameters:
-     Name of the added gate.
-*/
-void
-CGateCommand::invokeAddScript(STD(string) name)
-{
-  invokeAScript(m_pAddScript, name);
-}
-
-/*!
-   Invoke the delete script if it's defined.
-   Parameters:
-      Name of the deleted gate.
-*/
-void
-CGateCommand::invokeDeleteScript(STD(string) name)
-{
-  invokeAScript(m_pDeleteScript, name);
-}
-/*!
-  Invoke the gate changed script if it's defined.
-  Parameter:
-     Name of the modified gate.
-*/
-void
-CGateCommand::invokeChangedScript(STD(string) name)
-{
-  invokeAScript(m_pChangeScript, name);
-}
-/*!
-  Invoke some script object
-  Parameters:
-    Pointer to the script object.
-    Parameter to append to the script.
-
-*/
-void
-CGateCommand::invokeAScript(CTCLObject* pScript,
-			    string      parameter)
-{
-  // Do nothing if there's no script defined:
-
-  if (pScript) {
-    CTCLObject fullScript(*pScript);
-    fullScript.Bind(getInterpreter());
-    fullScript += parameter;
-
-    try {
-      fullScript();
-    }
-    catch (CException& e) {
-      cerr << "Gate trace script failed: " << e.ReasonText() << endl;
-    }
-    catch (string msg) {
-      cerr << "Gate trace script faield: " << msg << endl;
-    }
-    catch (const char* msg) {
-      cerr << "Gate trace script failed: " << msg << endl;
-    }
-    catch (...) {
-      cerr << "Gate trace script failed with an un-anticipated exception type\n";
-    }
-
-  }
 }

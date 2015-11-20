@@ -61,7 +61,7 @@ protected:
 
 
 public:
-  XMApplication(const char *cl, Cardinal *argc, char **argv,
+  XMApplication(const char *cl, Cardinal *argc, const char **argv,
 		XrmOptionDescList options = NULL, 
 		Cardinal noptions = 0,
 		const char **fallback_resources = NULL,
@@ -111,11 +111,11 @@ public:
 		  
   Widget getid();
   Widget getparent();
-  const char *getname() const ;
+  const char *getname();
 		  
   /* Get/Modify X resources: */
-  void SetAttribute(String attribute, XtArgVal value);
-  void SetAttribute(String attribute, void *value);
+  void SetAttribute(const char*  attribute, XtArgVal value);
+  void SetAttribute(const char* attribute, void *value);
   void GetAttribute(String attribute, void *value);
   void GetAttribute(String attribute, XtArgVal value);
 		  
@@ -134,7 +134,6 @@ public:
   void UnManage();
   void Realize();
   void UnRealize();
-
 		  
 };
 

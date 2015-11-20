@@ -39,6 +39,10 @@ using namespace std;
 /*
   Change log:
   $Log$
+  Revision 5.2.2.1  2007/05/30 19:37:09  ron-fox
+  Backport new gate handling (exclusive of right limit) to 3.1
+  from the 3.2 branch of the development.
+
   Revision 5.3  2007/05/30 15:51:40  ron-fox
   - Set 1d gates to be exclusive of the right side.
   - Fix up input so r.h. point is at right side of channel.

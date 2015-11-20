@@ -302,9 +302,7 @@ DAMAGES.
 #define __STL_STRING
 #endif
 #endif               
-#ifndef __HISTOTTYPES_H
-#include <histotypes.h>
-#endif                       
+                               
 class CTapeException  : public CException        
 {
   UInt_t m_nTapeError;	    // Snapshot of the mtaccess error code at the time
@@ -374,7 +372,7 @@ protected:
   // Operations in the CException Interface:
   //
 public:             
-  virtual   const  char* ReasonText () const  ;
+  virtual   const char* ReasonText () const  ;
   virtual   Int_t ReasonCode () const  ;
  
 };

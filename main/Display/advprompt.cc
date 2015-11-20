@@ -322,7 +322,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Below is the help definition for the dialog
 */
 
-static const char *help_text[] = {
+static const  char *help_text[] = {
   "   This dialog allows you to set the selection advance value.  This is\n",
   "number of panes by which the selection will advance on completing a\n",
   "successful `Display +'.  Type in a numeric value other than zero\n",

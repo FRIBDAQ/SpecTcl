@@ -323,7 +323,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** that we'll be building.
 */
 
-static const char *help_text[] = {
+const char *help_text[] = {
   "  This dialog allows you to select an expansion region for the selected\n",
   "spectrum.  Points can be accepted by either clicking in the spectrum, or\n",
   "by typing them into the slots below.  If you click on a different spectrum\n",
@@ -644,17 +644,16 @@ void Expand::ClearPoints(XMWidget *pane,
 */
 void Expand::AddPoint(point &pt)
 {
+  /* Get the display attributes since they determine if we need to 
+  ** use a 1-d or 2-d format for the display
+  */
   win_attributed *att = Xamine_GetDisplayAttributes(row, col);
+  float fpx1, fpx2, fpy1, fpy2;
+  int specno = att->spectrum();
   if(att == NULL) {		/* If the window nulled out on us. */
     CancelCallback(NULL);	/* Treat it like the user cancelled. */
     return;
   }
-  /* Get the display attributes since they determine if we need to 
-  ** use a 1-d or 2-d format for the display
-  */
-  float fpx1, fpx2, fpy1, fpy2;
-  int specno = att->spectrum();
-
   if(pt1_accepted) {
     pt2 = pt;
     pt2_accepted = True;
@@ -1273,8 +1272,8 @@ void Xamine_Expand(XMWidget *w, XtPointer user_data, XtPointer call_data)
   if(dialog == NULL) {
     dialog = new Expand(w, "Expand", help_text);
 
-    dialog->SetPoint1Label(const_cast<char*>("Limit 1"));
-    dialog->SetPoint2Label(const_cast<char*>("Limit 2"));
+    dialog->SetPoint1Label("Limit 1");
+    dialog->SetPoint2Label("Limit 2");
 
     dialog->AddPt1Callback(AddPt1);
     dialog->AddPt2Callback(AddPt2);

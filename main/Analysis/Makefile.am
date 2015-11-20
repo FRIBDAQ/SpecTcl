@@ -16,12 +16,12 @@ include_HEADERS = CBufferCallback.h \
 	SRunContext.h	            \
 	BufferAnalysis.h
 
-AM_CPPFLAGS = -I@top_srcdir@/Events \
+INCLUDES = -I@top_srcdir@/Events \
 	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/Utility   \
-	-I.  @LIBTCLPLUS_CFLAGS@
+	-I. 
 
-libBufferAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0 @LIBTCLPLUS_LDFLAGS@
+libBufferAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0
 
 
 man_MANS = BufferAnalysis.3 CBufferProcessor.3 CBufferCallback.3

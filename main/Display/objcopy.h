@@ -311,8 +311,8 @@ class Copy_Multiselect : public Copier_Form
   /* Instantiators  and destructors: */
 
   Copy_Multiselect(XMForm *top, XMForm *bottom, 
-		   const char *left_lbl = "Left:",
-		   const char *right_lbl = "Right:");
+		   char *left_lbl = "Left:",
+		   char *right_lbl = "Right:");
   virtual ~Copy_Multiselect() {
     delete SelectLeft;
     delete SelectRight;

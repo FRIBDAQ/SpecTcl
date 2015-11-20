@@ -16,7 +16,6 @@
 package provide editvariable 1.0
 package require snit
 package require guiutilities
-package require SpecTclGui
 
 #    Supplies an editor for treevariables.
 #    The form of the editor is quite simple:
@@ -100,7 +99,7 @@ snit::widget editvariable {
                 treevariable -set $name $value $units
 
             }
-	    ::FolderGui::updateBrowser
+            .gui.b update
         }
         set script $options(-updatecommand)
         if {$script != ""} {

@@ -92,7 +92,7 @@ extern volatile spec_shared *xamine_shared;
 ** The text below is the help text for the dialog that accepts summing
 ** regions:
 */
-static const  char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog prompts you to enter the points that make up a gate.\n",
   "Gates are graphical objects which are passed to Xamine's client program\n",
   "and interpreted by the client. \n\n",
@@ -156,7 +156,8 @@ class AcceptContour : public AcceptSummingRegion
 
   /* Constructors and destructors: */
 
-  AcceptContour(const char *name, XMWidget *parent, const char **help_text = NULL);
+  AcceptContour(const char *name, XMWidget *parent, 
+		const char **help_text = NULL);
   virtual ~AcceptContour();
 
   /* Replacements for virtual functions in AcceptSummingRegion: */
@@ -700,7 +701,8 @@ void Xamine_AcceptGate(XMWidget *w, XtPointer clientd, XtPointer calld)
   switch (object_type) {
   case cut_1d:
     if(cutin == NULL) {
-      cutin = new AcceptCut("Slice_Prompt", w, help_text);
+      cutin = new AcceptCut("Slice_Prompt", w, 
+			    help_text);
       cutin->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			 (XtPointer)&cutin);
       cutin->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput,
@@ -711,7 +713,8 @@ void Xamine_AcceptGate(XMWidget *w, XtPointer clientd, XtPointer calld)
     break;
   case contour_2d:
     if(contin == NULL) {
-      contin = new AcceptContour("Contour_prompt", w, help_text);
+      contin = new AcceptContour("Contour_prompt", w, 
+				 help_text);
       contin->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			  (XtPointer)&contin);
       contin->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput,
@@ -721,7 +724,8 @@ void Xamine_AcceptGate(XMWidget *w, XtPointer clientd, XtPointer calld)
     break;
   case band:
     if(bandin == NULL) {
-      bandin = new AcceptBand("Band input", w, help_text);
+      bandin = new AcceptBand("Band input", w, 
+			      help_text);
       bandin->AddCallback(XtNdestroyCallback, Xamine_DestroyGraphicalInput, 
 			  (XtPointer)&bandin);
       bandin->AddCallback(XtNpopdownCallback, Xamine_DestroyGraphicalInput,

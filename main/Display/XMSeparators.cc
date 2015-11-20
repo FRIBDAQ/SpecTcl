@@ -1,19 +1,19 @@
+
 /*
-    This software is Copyright by the Board of Trustees of Michigan
-    State University (c) Copyright 2008
-
-    You may use this software under the terms of the GNU public license
-    (GPL).  The terms of this license are described at:
-
-     http://www.gnu.org/licenses/gpl.txt
-
-     Author:
-             Ron Fox
-	     NSCL
-	     Michigan State University
-	     East Lansing, MI 48824-1321
+/*
+** Facility:
+**    Xamine C++ support for motif.
+** Abstract:
+**    XMSCale.h  - This file defines the XMScale widget class.  The XMScale
+**                 widget class implements the Motif Scale widget which is
+**                 essentially a value slider.
+** Author:
+**   Ron Fox
+**   NSCL
+**   Michigan State University
+**   East Lansing, MI 48824-1321
+**   @(#)XMScale.h	8.1 6/23/95 
 */
-
 /*
 ** Facility:
 **   C++ class support for motif widgets.

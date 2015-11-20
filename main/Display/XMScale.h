@@ -13,7 +13,6 @@
 	     Michigan State University
 	     East Lansing, MI 48824-1321
 */
-
 /*
 ** Facility:
 **    Xamine C++ support for motif.

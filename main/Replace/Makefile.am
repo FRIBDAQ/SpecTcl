@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I. -I..
+INCLUDES = -I. -I..
 
 lib_LTLIBRARIES = libreplace.la
 libreplace_la_LDFLAGS = -version-info  $(SOVERSION):0 \

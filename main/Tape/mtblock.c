@@ -472,7 +472,7 @@ void panic(string)
 char *string;
 #endif
 {
-  fprintf(stderr, "%s", string);
+   fprintf(stderr, string);
    exit(-1);
 }
 /*

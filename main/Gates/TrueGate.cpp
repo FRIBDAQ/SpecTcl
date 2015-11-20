@@ -446,11 +446,3 @@ CTrueGate::Type() const
 
   return std::string("T");
 }
-/*!
-    True gates don't cache so:
-*/
-Bool_t
-CTrueGate::caches()
-{
-  return kfFALSE;
-}

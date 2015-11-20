@@ -1,14 +1,15 @@
 DEFS = @WCHAR_T_DEF@
-AM_CPPFLAGS = -I.. -I. \
-	-I../SpecTcl -I../Sorter -I../Utility \
-	-I../Xamine -I../Events -I../Gates -I../Display @TCL_CPPFLAGS@ \
-	@LIBTCLPLUS_CFLAGS@
-LDADD =  @LIBTCLPLUS_LDFLAGS@ -lXt -lX11 -L. @TK_LIBS@ @TCL_LIBS@
-# AM_LDFLAGS = -L. @TK_LIBS@ @TCL_LIBS@
+INCLUDES = -I.. -I. \
+	-I../SpecTcl -I../Sorter -I../Utility -I../TCL -I../NSCLException \
+	-I../Xamine -I../Events -I../Gates -I../Display @TCL_FLAGS@
+LDADD = -ltclPlus -lException -lXt -lX11
+
 
 lib_LTLIBRARIES = libSpecio.la
 
 libSpecio_la_LDFLAGS = $(SOVERSION):0 -Wl,"-rpath=$(libdir)"
+
+libSpecio_la_LIBADD = -L. @TCL_LDFLAGS@
 
 libSpecio_la_SOURCES = SpectrumFormatter.cpp \
 	SpectrumFormatterFactory.cpp \

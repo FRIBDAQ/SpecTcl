@@ -63,11 +63,6 @@
  * @version 1.0
  * @created 30-Mar-2005 11:03:49 AM
  */
-
-#ifndef __HISTOTYPES_H
-#include <histotypes.h>
-#endif
-
 class CTreeException : public CException
 {
   // Data types:
@@ -99,7 +94,7 @@ public:
   int operator==(const CTreeException& rhs);
   int operator!=(const CTreeException& rhs);
 
-  virtual const  char*   ReasonText() const;
+  virtual const char*   ReasonText() const;
   virtual Int_t   ReasonCode() const;
   static TreeErrorReason ReasonToCode(Int_t nReason);
   STD(string)          ReasonValueToText(TreeErrorReason eReason) const;

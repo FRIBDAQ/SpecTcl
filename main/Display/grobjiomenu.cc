@@ -362,7 +362,7 @@ static XMInformationDialog *help = NULL;
 static Callback_data *ok  = NULL, 
                      *nomatch = NULL;
 
-static const char *confirm_help_text[] = {
+static const  char *confirm_help_text[] = {
   "  The file name that you selected for a write graphical objects operation already\n",
   "exists.  If you click on the \"Cancel\" button then the graphical object file will\n",
   "NOT be written out to that file.  If you click on the \"Confirm\" button\n",
@@ -484,7 +484,7 @@ void Xamine_Open_grobj_file(XMWidget *w, XtPointer client_data,
   Xamine_grobjopen_client_data *open_data = 
     (Xamine_grobjopen_client_data *)client_data; /* Convert client data struct */
 
-  const char *full;
+  char *full;
 
 
 

@@ -171,7 +171,7 @@ dump(int spno)
   printf("  Spectrum: %d\n", spno);
   printf("   xdim   = %d\n", xamine_shared->dsp_xy[spno].xchans);
   printf("   ydim   = %d\n", xamine_shared->dsp_xy[spno].ychans);
-  printf("   offset = %ld\n", offset);
+  printf("   offset = %d\n", offset);
 
 
 
@@ -440,20 +440,20 @@ void Xamine_SetSelectedFlip(int onoff)
 */
 void Xamine_SetSelectedReduction(reduction_mode mode)
 {
-  char *new_mode;
+  const char *new_mode;
 
   switch(mode) {
   case sampled:
-    new_mode = const_cast<char*>("Sampled");
+    new_mode = "Sampled";
     break;
   case summed:
-    new_mode = const_cast<char*>("Summed");
+    new_mode = "Summed";
     break;
   case averaged:
-    new_mode = const_cast<char*>("Averaged");
+    new_mode = "Averaged";
     break;
   default:
-    new_mode = const_cast<char*>("Ill Defined");
+    new_mode = "Ill Defined[216z";
     break;
   }
   fprintf(stderr, "Setting selected reduction mode to %s\n", new_mode);

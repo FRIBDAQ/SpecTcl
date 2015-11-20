@@ -267,22 +267,10 @@ snit::widget editmulti {
             set low   [lindex $info 2]
             set high  [lindex $info 3]
             set units [lindex $info 5]
-        } else {
-	    set xmax $::GuiPrefs::preferences(defaultXChannels)
-	    set ymax $::GuiPrefs::preferences(defaultXChannels)
-	    set max $xmax
-	    if {$max < $ymax} {
-		set max $ymax
-	    }
-	    set low 0
-	    set high [expr $max - 1]
-	    set bins $max
-	    set units ""
-	}
-	for {set axis 1} {$axis <= $axisCount} {incr axis} {
-	    $self setAxis $axis $low $high $bins $units
-	}
-	
+            for {set axis 1} {$axis <= $axisCount} {incr axis} {
+                $self setAxis $axis $low $high $bins $units
+           }
+        }
     }
     # setAxis  which low high bins units
     #       Sets an axis definition into the
@@ -296,17 +284,6 @@ snit::widget editmulti {
     #
     method setAxis {which low high bins units} {
         set frame $win.myframe.axis$which
-	if {$which == 1} {
-	    set index defaultXChannels
-	} else {
-	    set index defaultYChannels
-	}
-	set defaultMax $::GuiPrefs::preferences($index)
-	if {$options(-axes) > 1} {
-	    if {$bins > $defaultMax} {
-		set bins $defaultMax
-	    }
-	}
         ::setEntry $frame.low $low
         ::setEntry $frame.high $high
         ::setEntry $frame.bins $bins

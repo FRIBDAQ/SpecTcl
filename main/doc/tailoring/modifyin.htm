@@ -37,24 +37,18 @@ copied from the SpecTcl Skel directory include a Makefile. If you
 have added files (in addition to UserCode.cpp), or changed names,
 modify this Makefile to reflect these changes.</p>
 
-<p>
-    In most cases, tailoring SpecTcl for a data set means:
-    <ol>
-        <li>
-            <a href='eventprocessor.htm'>Writing one or more event processors
-            that convert raw events into
-            parameters.</a>
-        </li>
-        <li>
-            <a HREF='pipeline.htm'>Setting up the event analysis pipeline so that
-            the event processors
-            are run in the appropriate order.</a>
-        </li>
-        <li>
-            <a HREF='make.htm'>Building the tailored SpecTcl.</a>
-        </li>
-    </ol>
-</p>
+<p>To create your version of SpecTcl simply type:</p>
+
+<pre>$ make</pre>
+
+<h4>NOTE:</h4>
+
+<p>The SpecTcl makefile includes a macro which defines the
+location of the SpecTcl installation. Therefore, while you may
+move your sources from system to system unmodified, you should
+either re-copy the Makefile from Skel on the target system when
+you do so or, alternatively, edit the Makefile to reflect the
+correct installation directory for SpecTcl.</p>
 
 <p><a href="#Top">Top</a></p>
 

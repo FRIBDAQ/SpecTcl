@@ -9,7 +9,7 @@
 '\" See the file "license.terms" for information on usage and redistribution
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\" 
-'\" RCS: @(#) $Id$
+'\" RCS: @(#) $Id: spectclapi.3 912 2005-06-03 15:19:37Z ron-fox $
 '\" 
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -72,7 +72,7 @@
 '\" .UL arg1 arg2
 '\"	Print arg1 underlined, then print arg2 normally.
 '\"
-'\" RCS: @(#) $Id$
+'\" RCS: @(#) $Id: spectclapi.3 912 2005-06-03 15:19:37Z ron-fox $
 '\"
 '\"	# Set up traps and other miscellaneous stuff for Tcl/Tk man pages.
 .if t .wh -1.3i ^B
@@ -261,8 +261,6 @@ class SpecTcl
 {
 public:
   static SpecTcl* getInstance();
-  void addBufferDecoder(std::string                      type,
-			CAttachCommand::CDecoderCreator* creator);
   UInt_t AssignParameterId();
   CParameter* AddParameter(STD(string) name, 
 			   UInt_t Id, 
@@ -288,37 +286,6 @@ public:
 			    STD(vector)<UInt_t> channels, 
 			    STD(vector)<Float_t>* pLows, 
 			    STD(vector)<Float_t>* pHighs);
-  CSpectrum* CreateSpectrum(STD(string) Name,
-			    SpectrumType_t type,
-			    DataType_t     dataType,
-			    STD(vector)<STD(string)> xParameters,
-			    STD(vector)<STD(string)> yParameters,
-			    STD(vector)<UInt_t>      channels,
-			    STD(vector)<Float_t>*    pLows,
-			    STD(vector)<Float_t>*    pHighs);
-
-  CSpectrum* CreateSpectrum(std::string           Name,
-			    SpectrumType_t        type,
-			    DataType_t            dataType,
-			    std::vector<std::vector<std::string> > parameters,
-			    std::vector<UInt_t>   channels,
-			    std::vector<Float_t>* lows,
-			    std::vector<Float_t>* highs);
-
-  CSpectrum* CreateGammaSummary(std::string                      Name,
-				DataType_t                       dataType,
-				std::vector<std::vector<std::string> > parameters,
-				UInt_t                           nChannels,
-				std::vector<Float_t>*            low,
-				std::vector<Float_t>*            high);
-
-  CSpectrum* CreateG2DDeluxe(STD(string) Name,
-			DataType_t     dataType,
-			STD(vector)<STD(string)> xParameters,
-			STD(vector)<STD(string)> yParameters,
-			STD(vector)<UInt_t>      channels,
-			STD(vector)<Float_t>*    pLows,
-			STD(vector)<Float_t>*    pHighs);
   CSpectrum* Create1D(STD(string) name, 
 		      DataType_t dataType, 
 		      CParameter& parameter, 
@@ -380,8 +347,6 @@ public:
   SpectrumDictionaryIterator SpectrumBegin();
   SpectrumDictionaryIterator SpectrumEnd();
   UInt_t SpectrumCount();
-  void   addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
-  void   removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
   void ClearSpectrum(STD(string) name);
   void ClearAllSpectra();
   CGate* CreateGate(CGateFactory::GateType gateType, 
@@ -459,12 +424,6 @@ The SpecTcl API
 class supports interfaces to the following subsections of SpecTcl's
 functionality:
 .TP
-The buffer decoder factory.
-New buffer decoders creators can be registered with an extensible factory
-for buffer decoder objects.  This factory is used to select the appropriate
-buffer decoder as specified or implied by the 
-\fBattach\fR command's \fB-format\fR switch.
-.TP
 Parameter Dictionary
 Parameters can be created, searched for, removed and iterated through.
 .TP
@@ -516,27 +475,6 @@ using the object.  For example, the code below adds a new parameter to SpecTcl:
 SpecTcl& api(*(SpecTcl::getInstance()));
 api.AddParameter("someposition", api.AssignParameterId(), "mm");
 .CE
-
-.SH "BUFFER DECODER FACTORY"
-.PP
-SpecTcl's set of buffer decoders is extensible.  The extensible factory pattern
-is used to accomplish this.  The extensible factory pattern requires that
-each specific object type that can be created have a corresponding creator
-object.  The factory provides a mechanism for registering new creators and
-associating them with a keyword.
-.PP
-This interface is abstracted somewhat by the API:
-.TP
-\fBvoid CSpecTcl::addBufferDecoder(std::string type, CAttachCommand::CDecoderCreator* creator)
-Interacts with the extensible decoder factory to add a new decoder type.
-The parameters are as follows:
-.AP std::string type in
-Provides the keyword to be associated witht he creator.  This keyword will be
-matched against the \fB-format\fR switch on the \fBattach\fR command to select
-the desired decoder.
-.AP CAttachCommand::CDecoderCreator* creator in
-Provides a pointer to the object that knows how to create the buffer decoder
-associated with the \fItype\fR string.
 
 .SH "PARAMETER INTERFACE"
 .PP
@@ -727,53 +665,7 @@ by SpecTcl.  The type of spectrum created is selectec by the \fItype\fR
 parameter. The other parameters must be sufficient in number and type to
 support the creation of the desired spectrum or else a
 \fBCSpectrumFactoryException\fR will be thrown.  A pointer to the new spectrum
-(dynamically created) will be returned.
-
-.TP
-\fBCSpectrum* CreateSpectrum(STD(string) \fIName\fB, SpectrumType_t \fItype\fB,
-DataType_t  \fIdataType\fB, STD(vector)<STD(string)> \fIxParameters\fB,
-STD(vector)<STD(string)> \fIyParameters\fB,
-STD(vector)<UInt_t> \fIchannels\fB, STD(vector)<Float_t>* \fIpLows\fB,
-STD(vector)<Float_t>* \fIpHighs\fB);
-
-This spectrum creation function is needed for spectra that require two separable
-lists of parameters.  This is specifically used to create gamma deluxe spectra.
-Paramters are as for the previous creation function howeer the
-\fIxParameters\fB and \fIyParameters\fB parameters are lists of parameters for the
-X and Y axes respectively.
-
-.TP
-CSpectrum* CreateSpectrum(std::string \fIName\fB, SpectrumType_t \fItype\fB,
-DataType_t \fIdataType\fB, std::vector<std::vector<std::string> > \fIparameters\fB,
-std::vector<UInt_t> \fIchannels\fB, std::vector<Float_t>* \fIlows\fB,
-std::vector<Float_t>* \fIhighs\fB);
-
-Creates a spectrum that needs a list of lists of parameters.  Currently this
-means a gamma summary spectrum is created.
-
-.TP
-CSpectrum* CreateGammaSummary(std::string  \fIName\fB, DataType_t \fIdataType\fB,
-std::vector<std::vector<std::string> > \fIparameters\fB, Int_t \fInChannels\fB,
-std::vector<Float_t>* \fIlow\fB, std::vector<Float_t>* \fIhigh\fB);
-
-Creates a gamma summary spectrum.  A gamma summary spectrum is a 2-d spectrum where
-each vertical strip is a gamma 1-d spectrum.  The \fIparameters\fB parameter is
-a vector where each element is the vector of parameters that will be histogrammed
-in that X channel's vertical strip. 
-
-.TP
-CSpectrum* CreateG2DDeluxe(STD(string) \fIName\fB, DataType_t \fIdataType\fB,
-STD(vector)<STD(string)> \fIxParameters\fB, STD(vector)<STD(string)> \fIyParameters\fB,
-STD(vector)<UInt_t> \fBchannels\fI,
-STD(vector)<Float_t>* \fIpLows\fB,
-STD(vector)<Float_t>* \fIpHighs\fB);
-
-Creates a gbamma 2d deluxe spectrum.  This is a spectrum with a pair of
-independent x and y parameter specifications.  This spectrum in incremented for
-all x/y parameter pairs.  The \fIxParameters\fB parameter is a vector of the
-names of the X parameters while \fIyParameters\fB is a vector of the names of the
-y parameters.
-
+(dynamically created) will be returned.  
 .TP
 \fBCSpectrum* Create1D(STD(string) \fIname\fB, DataType_t \fIdataType\fB, CParameter& \fIparameter\fB, UInt_t \fIchannels\fB);\fR
 Creates a 1D spectrum. A pointer to the new spectrum is returned.  The
@@ -976,25 +868,6 @@ to determine when to stop iterating.
 .TP
 \fBUInt_t SpectrumCount();\fR
 Returns the number of spectra that are currently in the spectrum dictionary.
-.TP
-\fBvoid addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
-.TP
-\fBvoid removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
-Adds or removes a spectrum dictionary observer to the histogrammer.  Spectrum dictionary
-observers are classes that have member functions that are invoked
-when spectra are added or removed from the dictionary.
-Spectrum dictionary observer classes have two member functions:
-.CS
-
-  virtual void onAdd(const std::string&    name,  const  CSpectrum*& item) {}
-  virtual void onRemove(const std::string& name,  const  CSpectrum*&  item) {}
-
-.CE
-.PP
-\fBonAdd\fR is called when a spectrum is added and \fbonRemove\fR is called
-when a spectrum is removed from the dictionary.  For both spectra, 
-\fBname\fR is the name of the spectrum that is involved and 
-\fBitem\fR is a reference to a pointer to the spectrum object that is involved.
 .SH "SPECTRUM CLEAR FUNCTIONS"
 .PP
 While each spectrumh has a \fBclear\fR member function, the API provides two clear

@@ -1,19 +1,37 @@
 /*
-    This software is Copyright by the Board of Trustees of Michigan
-    State University (c) Copyright 2005.
+		    GNU GENERAL PUBLIC LICENSE
+		       Version 2, June 1991
 
-    You may use this software under the terms of the GNU public license
-    (GPL).  The terms of this license are described at:
+ Copyright (C) 1989, 1991 Free Software Foundation, Inc.
+                       59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
 
-     http://www.gnu.org/licenses/gpl.txt
+			    Preamble
 
-     Author:
-             Ron Fox
-	     NSCL
-	     Michigan State University
-	     East Lansing, MI 48824-1321
+  The licenses for most software are designed to take away your
+freedom to share and change it.  By contrast, the GNU General Public
+License is intended to guarantee your freedom to share and change free
+software--to make sure the software is free for all its users.  This
+General Public License applies to most of the Free Software
+Foundation's software and to any other program whose authors commit to
+using it.  (Some other Free Software Foundation software is covered by
+the GNU Library General Public License instead.)  You can apply it to
+your programs, too.
+
+  When we speak of free software, we are referring to freedom, not
+price.  Our General Public Licenses are designed to make sure that you
+have the freedom to distribute copies of free software (and charge for
+this service if you wish), that you receive source code or can get it
+if you want it, that you can change the software or use pieces of it
+in new free programs; and that you know you can do these things.
+
+  To protect your rights, we need to make restrictions that forbid
+anyone to deny you these rights or to ask you to surrender the rights.
+These restrictions translate to certain responsibilities for you if you
+distribute c	     END OF TERMS AND CONDITIONS'
+
 */
-
 //
 // ValidValue.h:
 //    Provides a class which contains a value and an indicator that the value
@@ -38,52 +56,33 @@
 template <class T>
 class CValidValue {
 private:
-  T         m_Value;
-  ULong_t   m_nSerial;
-  ULong_t*  m_pSerial;		/* Allows for shared validity generation */
-  ULong_t   m_nLastSerial;      /* Serial number of last set.            */
-
+  T m_Value;
+  Bool_t m_Valid;
 public:
   // Constructors and other cannonicals:
   //
-  CValidValue() : 
-    m_nSerial(1),
-    m_pSerial(&m_nSerial),
-    m_nLastSerial(0)
+  CValidValue() : m_Valid(kfFALSE)
   {
   }
-  CValidValue(T& initValue, Bool_t isValid = kfFALSE) : 
-    m_Value(initValue),
-    m_nSerial(1),
-    m_pSerial(&m_nSerial),
-    m_nLastSerial(isValid ? 0 : 1)
+  CValidValue(T& initValue, Bool_t isValid = kfFALSE) : m_Value(initValue),
+							m_Valid(isValid)
   {
   }
-
-  CValidValue(ULong_t* sharedSerial) :
-    m_pSerial(sharedSerial),
-    m_nLastSerial(*sharedSerial - 1)
-  {
-  }
-
   CValidValue(const CValidValue& rRHS) : 
     m_Value(rRHS.m_Value),
-    m_nSerial(rRHS.m_nSerial),
-    m_pSerial(rRHS.m_pSerial),
-    m_nLastSerial(rRHS.m_nLastSerial)
+    m_Valid(rRHS.m_Valid)
   {
   }
   CValidValue& operator=(const CValidValue& rRHS) {
     if(this != &rRHS) {
-      m_Value        = rRHS.getValue();
+      m_Value = rRHS.getValue();
+      m_Valid = rRHS.m_Valid;
     }
-    m_nLastSerial    = *m_pSerial;
     return *this;
   }
   int operator==(const CValidValue& rRhs) const {
-    if(!isValid() || !rRhs.isValid()) 
-      return 0;			// Both must be valid.
-    return (m_Value == rRhs.m_Value); // and equal.
+    if((!m_Valid) || (!rRhs.m_Valid)) return 0;	// Both must be valid.
+    return (m_Value == rRhs.m_Value);           // and equal.
   }
   int operator!=(const CValidValue& rRhs) const {
     return !operator==(rRhs);
@@ -93,13 +92,13 @@ public:
   //
 public:
   T getValue() const {
-    if(!isValid()) {
+    if(!m_Valid) {
       throw STD(string)("Attempted getValue of unset ValidValue object");
     }
     return m_Value;
   }
   Bool_t isValid() const {
-    return m_nLastSerial == *m_pSerial;
+    return m_Valid;
   }
   //
   // Mutators:
@@ -109,94 +108,23 @@ protected:
     m_Value = rNew;
   }
   void setValid(const Bool_t Valid) {
-    m_nLastSerial = Valid ? *m_pSerial : *m_pSerial - 1;
+    m_Valid = Valid;
   }
   // Object operations.
   //
 public:
-  void clear() {
-    m_nLastSerial = *m_pSerial - 1;
-  }
+  void clear() { m_Valid = kfFALSE; }
   CValidValue& operator=(const T& rRhs) {
     m_Value = rRhs;
-    m_nLastSerial = *m_pSerial;
+    m_Valid = kfTRUE;
     return *this;
   }
   operator T&() { 
-    if(!isValid()) {
+    if(!m_Valid) {
       throw STD(string)("Attempted getValue of unset ValidValue object");
     }
     return m_Value; 
   }
 };
-/*!
-   Class that implements a valid value with an associated index and dope
-   vector.  This allows one to maintain a dope vector of
-   the valid values in a vector that have been assigned a value.
-*/
-#ifndef __DOPEVECTOR_H
-#include "DopeVector.h"
-#endif
-template <class T>
-class DopedValidValue : public CValidValue<T>
-{
-  // data:
-private:
-  DopeVector&  m_dope;		// Dope vector to fill in.
-  unsigned int m_index;		// My index to set in the dope vector.
-  
-  // Canonicals
-public:
-  DopedValidValue(DopeVector& dope, unsigned int index) :
-    CValidValue<T>(),
-    m_dope(dope),
-    m_index(index) {}
-
-  DopedValidValue(DopeVector& dope, unsigned int index,
-		  T& initValue, Bool_t isValid = kfFALSE) :
-    CValidValue<T>(initValue, isValid),
-    m_dope(dope),
-    m_index(index) {}
-
-  DopedValidValue(DopeVector& dope, unsigned int index, 
-		  ULong_t* sharedSerial) :
-    CValidValue<T>(sharedSerial),
-    m_dope(dope),
-    m_index(index) {}
-
-  DopedValidValue(const DopedValidValue& rhs) :
-    CValidValue<T>(rhs),
-    m_dope(rhs.m_dope),
-    m_index(rhs.m_index) {}
-
-  DopedValidValue& operator=(const DopedValidValue& rhs) {
-    m_dope = rhs.m_dope;
-    m_index = rhs.m_index;
-    return *this;
-  }
-
-
-  int operator==(const DopedValidValue& rhs) const {
-    return (m_dope == rhs.m_dope) &&
-      (m_index == rhs.m_index)    &&
-      CValidValue<T>::operator==(rhs);
-  }
-  int operator!=(const DopedValidValue& rhs) const {
-    return !(*this == rhs);
-  }
-
-public:
-  DopedValidValue<T>& operator=(const T& rhs) {
-    // add to dope vector if not yet set:
-
-    if (!CValidValue<T>::isValid()) {
-      m_dope.append(m_index);
-    }
-    return reinterpret_cast<DopedValidValue&>(CValidValue<T>::operator=(rhs));
-  }
-
-
-};
-
 
 #endif

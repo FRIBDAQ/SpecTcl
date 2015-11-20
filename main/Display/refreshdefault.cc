@@ -317,7 +317,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **  context sensitive help.
 */
 
-static const char *help_text[] = {
+static const  char *help_text[] = {
   "  This dialog is prompting for the default spectrum refresh interval.\n",
   "Non-zero refresh intervals cause Xamine to periodically re-draw a pane\n",
   "with current data.  Be careful when setting the default refresh value\n",
@@ -357,7 +357,7 @@ static Xamine_help_client_data help =  { "Refresh_rate",
 
 class RefreshDialog : public XMCustomDialog, public RefreshForm {
    public:
-      RefreshDialog(char *name, XMWidget *parent) :
+      RefreshDialog(const char *name, XMWidget *parent) :
 	XMCustomDialog(name, *parent, "Default Refresh Rate"),
         RefreshForm(name, *work_area) { Apply->Label("Apply To All"); }
       ~RefreshDialog() {}
@@ -483,7 +483,7 @@ void Xamine_SetDefaultRefresh(XMWidget *wid, XtPointer ud, XtPointer cd)
   ** If necessary, we must create the dialog the first time:
   */
   if(!dialog) {
-    dialog = new RefreshDialog( const_cast<char*>("RefreshDefault"), wid);
+    dialog = new RefreshDialog("RefreshDefault", wid);
     dialog->AddOkCallback(SetRefresh); /* Add the completion callback. */
     dialog->AddApplyCallback(SetRefresh);
     dialog->AddCancelCallback(SetRefresh);

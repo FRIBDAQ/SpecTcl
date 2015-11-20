@@ -49,13 +49,7 @@
 #include <GateFactory.h>
 #include <GateFactoryException.h>
 #include <SpectrumFactory.h>
-#include <SpectrumFactoryException.h>
 #include <SpectrumFormatterFactory.h>
-
-#include <FilterDictionary.h>
-#include <CFilterOutputStageFactory.h>
-
-#include <DictionaryException.h>
 
 #include <TCLInterpreter.h>
 
@@ -115,15 +109,6 @@ SpecTcl::getInstance()
 }
 ///////////////////////////// API functions /////////////////////////////
 
-/*!
-  Register the creator for a new type of buffer decoder.
-*/
-void
-SpecTcl::addBufferDecoder(string type,
-			  CAttachCommand::CDecoderCreator* creator)
-{
-  CAttachCommand::addDecoderType(type, creator);
-}
 
 /*!
   Allocate a new parameter id. and return it to the caller.
@@ -359,7 +344,7 @@ SpecTcl::ParameterCount()
 
 
 /*!
-  Creates a new spectrum.  This is a
+  Creates a new spectrum and enters it into the parameter dictionary.  This is a
   front   end to the spectrum factory.  A  pointer to the new spectrum is returned.
   @param Name
     Name of the spectrum to create.
@@ -401,160 +386,6 @@ SpecTcl::CreateSpectrum(string Name,
 }
 
 
-/*!
-   Creates a new spectrum that requires separate x/y axis information.
-   we are a bit more flexible than the spectrum factory method.
-   For all but Gamma 2D Deluxe spectra (keG2DD), we are going to 
-   re-marshal the parameters for a call to the previous CreateSpectrum.
-   For Gamma 2D Delux we will delegate to CreateG2DDeluxe below.
-   @param Name          Name of the spectrum to create.
-   @param type          Type of spectrum to create.
-   @param dataType      Channel datatype for the spectrum.
-   @param xParameters   Names of the parameters on the x axis.
-   @param yParametesr   Names of the paramteers on the y axis.
-   @param channels      Vector of number of channels on the axes.
-   @param pLows         Pointer to low level axis cut offs.
-   @param pHighs        Pointer to high level axis cut offs.
-
-   \return CSpectrum*
-   \retval The spectrum created.  If a spectrum cannot be created,
-      the spectrum factor will throw an exception the caller should catch
-      at some level or else SpecTcl will exit.
-*/
-CSpectrum*
-SpecTcl::CreateSpectrum(STD(string) Name,
-			SpectrumType_t type,
-			DataType_t     dataType,
-			STD(vector)<STD(string)> xParameters,
-			STD(vector)<STD(string)> yParameters,
-			STD(vector)<UInt_t>      channels,
-			STD(vector)<Float_t>*    pLows,
-			STD(vector)<Float_t>*    pHighs)
-{
-  if (type == keG2DD) {
-    return CreateG2DDeluxe(Name, dataType, 
-			    xParameters, yParameters,
-			    channels, pLows, pHighs);
-  }
-  else {
-    // conglomorate the parameters into one set and delegate.
-    
-    xParameters.insert(xParameters.end(),
-		       yParameters.begin(), yParameters.end());
-    return CreateSpectrum(Name, type, dataType, xParameters,
-			  channels, pLows, pHighs);
-  }
-}
-/*!
-  Creates a new spectrum that requires a vector of parameter vectors.
-  For all but gamma summary spectra,the parameters get re-marshalled into
-  a single parameter vector.  Anything else invokes CreateGammaSummary below.
-
-  @param Name           Name of the spectrum to make.
-  @param type           Type of spectrum to create.
-  @param dataType       Datatype for channels.
-  @param parameters     Vector of parameter name vectors.
-  @param channels       Vector of axis channels.
-  @param pLows          Pointer to low values.
-  @pram  pHighs         Pointer to high values.
-
-  \return CSpectrum*
-  \retval Pointer to the newly created spectrum.  If the spectrum cannot be created,
-          in general an exception will be thrown.
-*/
-CSpectrum*
-SpecTcl::CreateSpectrum(std::string           Name,
-			SpectrumType_t        type,
-			DataType_t            dataType,
-			std::vector<std::vector<std::string> > parameters,
-			std::vector<UInt_t>   channels,
-			std::vector<Float_t>* lows,
-			std::vector<Float_t>* highs)
-{
-  if (type == keGSummary) {
-    return CreateGammaSummary(Name, dataType, parameters, channels[0], lows, highs);
-  }
-  else {
-    std::vector<std::string> consolidated;
-    for (int i =0; i < parameters.size(); i++) {
-      std::vector<std::string>& col(parameters[i]);
-      for (int j = 0; j < col.size(); j++) {
-	consolidated.push_back(col[j]);
-      }
-    }
-    return CreateSpectrum(Name, type, dataType, consolidated, channels, lows, highs);
-  }
-}
-
-/*!
-  Create a gamma summary spectrum.  The spectrum is returned to the caller.
-  @param name           Name of the spectrum.
-  @param dataType       Type of data for each channel (e.g. keLong).
-  @param parameters     The names of the parameters in the spectrum.
-  @param nChannels      Number of channels in the y axis of the spectrum.
-  @param low            Null or pointer to vector of lows.
-  @param high           Null or pointer to vector of highs.
-
-  \return CSpectrum*
-  \retval A pointer to the newly created spectrum.
-
-*/
-CSpectrum*
-SpecTcl::CreateGammaSummary(std::string                      Name,
-			    DataType_t                       dataType,
-			    std::vector<std::vector<std::string> > parameters,
-			    UInt_t                           nChannels,
-			    std::vector<Float_t>*            low,
-			    std::vector<Float_t>*            high)
-{
-
-  std::vector<UInt_t> channels;
-  channels.push_back(nChannels);
-  CSpectrumFactory fact;
-  return fact.CreateSpectrum(Name, keGSummary, dataType, parameters,
-			     channels, low, high);
-}
-
-/*!
-  Create a Gamma 2d Deluxe spectrum
-
-   @param Name          Name of the spectrum to create.
-   @param type          Type of spectrum to create.
-   @param dataType      Channel datatype for the spectrum.
-   @param xParameters   Names of the parameters on the x axis.
-   @param yParametesr   Names of the paramteers on the y axis.
-   @param channels      Vector of number of channels on the axes.
-   @param pLows         Pointer to low level axis cut offs.
-   @param pHighs        Pointer to high level axis cut offs.
-
-   \return CSpectrum*
-   \retval The spectrum created.  If a spectrum cannot be created,
-      the spectrum factory will throw an exception the caller should catch
-      at some level or else SpecTcl will exit.
-*/
-
-CSpectrum*
-SpecTcl::CreateG2DDeluxe(STD(string) Name,
-			DataType_t     dataType,
-			STD(vector)<STD(string)> xParameters,
-			STD(vector)<STD(string)> yParameters,
-			STD(vector)<UInt_t>      channels,
-			STD(vector)<Float_t>*    pLows,
-			STD(vector)<Float_t>*    pHighs)
-{
-  if (channels.size() != 2) {
-    throw CSpectrumFactoryException(dataType, keG2DD,
-				    Name,
-				    CSpectrumFactoryException::keBadResolutionCount,
-				    "SpecTcl::CreateG2DDeluxe marshalling arguments");
-  }
-  CSpectrumFactory factory;
-  return factory.CreateSpectrum(Name, keG2DD, dataType,
-				xParameters, yParameters, 
-				channels[0], channels[1],
-				pLows, pHighs);
-
-}
 /*!
   Creates a 1-d spectrum with an x axis that runs from
   0-n in parameter space.
@@ -1000,121 +831,6 @@ SpecTcl::CreateSummary(string name, DataType_t dataType,
 					 nChannels, low, high);
 }
 
-/*!
-   Create a gamma 2d deluxe spectrum.   This is a spectrum with independent
-   X/Y axis parameters.
-   \param name     - Name of the new spectrum.
-   \param dataType - Type of data (defines the channel 'width').
-   \param xParameters - Vector of paramters on the X axis.
-   \param yParameters - Vector of paramters on the y Axis.
-   \param xChannels   - Number of bins on the xAxis.
-   \param xLow        - Low limit of the x axis in parameter coordinates.
-   \param xHigh       - High limit of the y axis in parameter coordinates.
-   \param yChannels   - Number of bins on the yAxis.
-   \param yLow        - Low limit of the y axis in parameter coordinates.
-   \param yHigh       - High limit of the y axis in parameter coordinates.
-
-   \return CSpectrum*
-   \retval Pointer to the newly created spectrum object.
-   \retval NULL  There was a problem with the creation that did not require
-                 an exception (I don't think this actually can happen).
-    \throw CSpectrumFactoryException on a few different errors.
-
-*/
-CSpectrum*
-SpecTcl::CreateGamma2DD(string name, DataType_t dataType, 
-			vector<CParameter> xParameters,
-			vector<CParameter> yParameters,
-			UInt_t xChannels, Float_t xLow, Float_t xHigh,
-			UInt_t yChannels, Float_t yLow, Float_t yHigh)
-{
-  CSpectrumFactory factory;
-  return           factory.CreateG2dDeluxe(name,
-					   dataType,
-					   xParameters, yParameters,
-					   xChannels, xLow, xHigh,
-					   yChannels, yLow, yHigh);
-}
-
-/*!
-   Creates a 2-d multiply incremented spectrum.  Where the Gamma 2d Deluxe
-   spectrum increments for all combinations of x/y pairs, this spectrum only 
-   increments for corresponding pairs of parameters.
-
-   \param name     Name of the new spectrumm.
-   \param dataType Data type for each channel.
-   \param xParameters Vector of x parameters.
-   \param yParameters Vector of y parameters.
-   \param xChans      number of channels on the x axis.
-   \param xLow        low limit of the x axis.
-   \param xHigh       high limit of the x axis.
-   \param yChans      Number of channelson the y axis.
-   \param yLow        Low limit of the y axis.
-   \param yHigh       High limit of the y axis.
-
-   \return CSpectrum*
-   \retval Pointer to the newly created spectrum.
-
-   \throw CSpectrumFactoryException 
-   \throw string - if the number of x and y parameters is not the same.
-*/
-CSpectrum*
-SpecTcl::Create2DSum(string name, DataType_t dataType,
-		     vector<CParameter> xParameters, vector<CParameter> yParameters,
-		     UInt_t xChannels, Float_t xLow, Float_t xHigh,
-		     UInt_t yChannels, Float_t yLow, Float_t yHigh)
-{
-  CSpectrumFactory  factory;
-
-  // Check the parameter counts an marshall the parameters into a single array:
-
-  if (xParameters.size() != yParameters.size()) {
-    throw string("SpecTcl::Create2DSum - number of x/y parameters not equal");
-  }
-  vector<CParameter> parameters;
-  for (int i =0; i < xParameters.size(); i++) {
-    parameters.push_back(xParameters[i]);
-    parameters.push_back(yParameters[i]);
-  }
-
-  return            factory.Create2DMultiple(name, dataType,
-					     parameters,
-					     xChannels, xLow, xHigh,
-					     yChannels, yLow, yHigh);
-}
-/*!
-  Create a stripchart spectrum. Strip charts count some number of things
-  as a function of time.  The user can define a parametre that is presumably
-  (but not required to be) monotonically increasing, as time and another parameter
-  as the number of times some event happens.  For each event that has both parameters,
-  The time is converted to an x channel in the spectrum, and that channel incremented by
-  the value of the other spectrum.
-
-  \param name        - Name of the new spectrum.
-  \param dataType    - Data type of the channels (determines count limits).
-  \param counts      - Parameter that will have the increment count.
-  \param time        - Time parameter.
-  \param channels    - Number of channels on the axis.
-  \param xLow        - Initial low value of the axis (the axis will shift as needed
-                       to ensure that the time is in the spectrum.
-  \param xHigh       - Initial high value of the axis (the axis will shift as needed 
-                       to ensure the time is displayable.
- 
-   \return CSpectrum*
-   \retval Pointer to the newly created spectrum object.
-   \throw CSpectrumFactoryException
-*/
-CSpectrum*
-SpecTcl::CreateStripChart(string name, DataType_t dataType,
-			  CParameter counts, CParameter time,
-			  UInt_t channels,   Float_t xLow, Float_t xHigh)
-{
-  CSpectrumFactory factory;
-  return           factory.CreateStrip(name, dataType,
-				       counts, time,
-				       channels, xLow, xHigh);
-}
-
 
 /*!
   Adds a spectrum to the spectrum dictionary.  The spectrum
@@ -1201,30 +917,7 @@ SpecTcl::SpectrumEnd()
   return         pHistogrammer->SpectrumEnd();
 }
 
-/*!
-   Add an an observer to track changes in the spectrum 
-   dictionary.  Observers get invoked on additions and deletions of
-   spectra.
-   \param observer : SpectrumDictionaryObserver*
-      Pointer to the observer to add.
-*/
-void
-SpecTcl::addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
-{
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->addSpectrumDictionaryObserver(observer);
-}
-/*!
-  Remove an observer from the spectrum dictionary.
-  \param observer : SpectrumDictionaryObserver*
-*/
-void
-SpecTcl::removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
-{
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->removeSpectrumDictionaryObserver(observer);
 
-}
 /*!
   Returns the number of spectra in the spectrum dictionary.
  */
@@ -1916,26 +1609,7 @@ SpecTcl::GateCount()
   return         pHistogrammer->GateCount();
 
 }
-/*!
-   Adds a gate observer to the list:
 
-*/
-void
-SpecTcl::addGateDictionaryObserver(CGateObserver* observer)
-{
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->addGateObserver(observer);
-}
-
-/*!
-   Removes a gate observer:
-*/
-void
-SpecTcl::removeGateDictionaryObserver(CGateObserver* observer)
-{
-  CHistogrammer* pHistogrammer = GetHistogrammer();
-  pHistogrammer->removeGateObserver(observer);
-}
 
 /*!
   Applies the specified gate to the specified histogram.  Once a gate is applied
@@ -2292,145 +1966,12 @@ SpecTcl::EventSinkPipelineBegin()
 
  */
 CEventSinkPipeline::EventSinkIterator 
-SpecTcl::EventSinkPipelineEnd()
+SpecTcl::EventSinkPiplineEnd()
 {
   CEventSinkPipeline* pPipeline = GetEventSinkPipeline();
   return pPipeline->end();
 }
 
-
-/*!
-    Add a new filter to the filter dictionary.  The filter becomes
-    the property of the filter dictionary and cannot be destroyed until
-    it is removed from the filter dictionary by command or by
-    deleteFilter. The filter should be dynamically created in order to allow
-    filter -delete to work correctly.
-
-    \param name     - Name of the event filter.
-    \param pFilter  - pointer to the filter to add.
-
-    \throw CDictionaryException - if the filter already exists.
-
-*/
-void 
-SpecTcl::createFilter(string name, CGatedEventFilter* pFilter)
-{
-  CFilterDictionary* pDict = CFilterDictionary::GetInstance();
-  if (findFilter(name)) {
-    throw CDictionaryException(static_cast<Int_t>(CDictionaryException::knDuplicateKey),
-			       "SpecTcl::createFilter - making a new filter",
-			       name.c_str());
-  }
-  pDict->Enter(name, pFilter);
-
-}
-/*!
-  Find and return a pointer to a filter given its name.  This allow syou to manipulate
-  filters by name.
-
-  \param name  - Name of the filter.
-  \return CGatedEventFilter*
-  \retval NULL - no filter found.
-  \retval other - Pointer to the filter. 
-*/
-CGatedEventFilter*
-SpecTcl::findFilter(string name)
-{
-  CFilterDictionary* pDict    = CFilterDictionary::GetInstance();
-  CFilterDictionaryIterator p = pDict->Lookup(name);
-  if (p == pDict->end()) {
-    return reinterpret_cast<CGatedEventFilter*>(NULL);
-  } 
-  else {
-    return p->second;
-  }
-}
-/*!
-   Determines if a specific filter, by pointer, exists in the dictionary.
-   In means I can find an entry for which the filter object has the same
-   address as pFilter.
-
-   \param pFilter  - Pointer to the filter to fine.
-   \return bool
-   \retval true     - pFilter is in the dictionary.
-   \retval false    - pFilter is not in the dictionary.
-*/
-bool
-SpecTcl::filterExists(CGatedEventFilter* pFilter)
-{
-  CFilterDictionary* pDict   = CFilterDictionary::GetInstance();
-  CFilterDictionaryIterator p= pDict->begin();
-  while(p != pDict->end()) {
-    if (p->second == pFilter) {
-      return true;
-    }
-    p++;
-  }
-  return false;
-}
-/*!
-     Given a pointer to a filter, delete it from the dictionary.
-     this is a no-op if the filter does not exist.
-     \param pFilter - Pointer to the filter to remvoe.
-*/
-void
-SpecTcl::deleteFilter(CGatedEventFilter* pFilter)
-{
-  CFilterDictionary* pDict  = CFilterDictionary::GetInstance();
-  CFilterDictionaryIterator p= pDict->begin();
-  while( p != pDict->end()) {
-    if (p->second == pFilter) {
-      pDict->Remove(p->first);
-      return;
-    }
-  }
-}
-
-/*!
-   Remove a filter by name from the dictionary.
-   if the filter does not exist, this is a silent no-op.
-   \param name - name of the filter to delete.
-
-   \note The storage is not deleted, only the dictionary entry.
-         It is up to the caller to decide if the filter should
-	 be deleted, in which case, typical code will be:
-
-\verbatim
-   CGatedEventFileter* pFilter = api.findFilter(name);
-   if (pFilter) {
-      api.deleteFilter(name);
-      delete pFilter;
-   }
-\endverabtim
-
-*/
-void 
-SpecTcl::deleteFilter(string filterName)
-{
-  CFilterDictionary* pDict   = CFilterDictionary::GetInstance();
-  pDict->Remove(filterName);
-}
-/*!
-   Add an output filter format to the set understood by 
-   the filter subsystem.  This is done by adding a creator
-   which can be consulted by the filter output stage factory
-   when a filter needs to have a specific output format.
-
-   \param creator  - The creator for the format we want to support.
-
-   \note If a format by this name is already supported, then 
-         this creator is registered, but will never be consulted because
-         the previously registered creator will be consulted first.
-
-    \note A clone of the creator you are registering will be created so you
-          can dispose of the parameter as you desire in the caller.
-*/
-void
-SpecTcl::addFilterOutputFormat(CFilterOutputStageCreator& creator)
-{
-  CFilterOutputStageFactory& fact(CFilterOutputStageFactory::getInstance());
-  fact.Register(creator);
-}
 
 /*!
    Get a pointer to the TCLinterpreter.

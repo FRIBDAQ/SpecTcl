@@ -138,9 +138,9 @@ void SelAll_relay(XMWidget *button, XtPointer cd, XtPointer ud)
 **    int spectrum_number:
 **       The spectrum number that we're building compatible spectra of.
 */
-CompatibleSpectrumList::CompatibleSpectrumList(char     *name,
+CompatibleSpectrumList::CompatibleSpectrumList(const char     *name,
 					       XMWidget *parent,
-					       char     *title_string,
+					       const char     *title_string,
 					       int      spectrum_number) :
        XMForm(name, *parent) 
 {
@@ -208,7 +208,7 @@ void CompatibleSpectrumList::NewSpectrum(int newspec)
 **   char *newtitle:
 **     new title string.
 */
-void CompatibleSpectrumList::TitleString(char *newtitle)
+void CompatibleSpectrumList::TitleString(const char *newtitle)
 {
   title->SetLabel(newtitle);
 }
@@ -385,9 +385,9 @@ void CompatibleSpectrumList::SelectAll()
  **    int spectrum_number:
  **      Number of the spectrum for which we're displaying compatible spectra.
  */
- DisplayedCompatibleSpectrumList::DisplayedCompatibleSpectrumList(char *name,
+ DisplayedCompatibleSpectrumList::DisplayedCompatibleSpectrumList(const char *name,
 								  XMWidget *parent,
-								  char *title_string,
+								  const  char *title_string,
 								  int spectrum_number) :
   CompatibleSpectrumList(name, parent, title_string, spectrum_number)
 {

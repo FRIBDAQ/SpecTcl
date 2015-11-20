@@ -97,9 +97,6 @@ public:
   void        setGate(CGateContainer* pGate);
   void        operator()(STD(vector)<STD(pair)<UInt_t, Float_t> >& rEvent, 
                          CGammaSpectrum* pSpectrum);
-  void        operator()(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParams,
-			 STD(vector)<STD(pair)<UInt_t, Float_t> >& yParams,
-			 CGammaSpectrum* pSpectrum);
   
   // Utility member functions.
 protected:

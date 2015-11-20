@@ -292,6 +292,5 @@ DAMAGES.
 #define _TOGGLES_H
 
 void Xamine_SetToggle(XMWidget *w, XtPointer udata, XtPointer cdata);
-void Xamine_ToggleAndRefresh(XMWidget* w, XtPointer udata, XtPointer cdata);
 
 #endif

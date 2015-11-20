@@ -17,9 +17,6 @@
 */
 #ifndef __DOCUMENTATIONEXCEPTION_H
 #define __DOCUMENTATIONEXCETPION_H
-#ifndef __HISTOTYPES_H
-#include <histotypes.h>
-#endif
 
 #ifndef __CEXCEPTION_H
 #include <Exception.h>

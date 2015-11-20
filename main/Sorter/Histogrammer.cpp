@@ -31,7 +31,6 @@
 #include <XamineMap2D.h>
 #endif
 #include <XamineGates.h>
-#include <Xamine.h>
 #include <DisplayGate.h>
 #include <TrueGate.h>
 #include <FalseGate.h>
@@ -47,12 +46,6 @@
 #include <assert.h>
 #include <GateMediator.h>
 #include <Gamma2DW.h>
-#include <CSpectrumFit.h>
-#include "CHistogrammerFitObserver.h"
-#include <CFitDictionary.h>
-#include <CFlattenedGateList.h>
-#include <CSpectrumByParameter.h>
-
 
 #include <Iostream.h>
 #include <Sstream.h>
@@ -76,11 +69,6 @@ static CTrueGate   AlwaysTrue;
 static CDeletedGate  AlwaysFalse;
 static CGateContainer NoGate(U, 0,      AlwaysTrue);
 static CGateContainer Deleted(D, 0, AlwaysFalse);
-
-
-// Static member data:
-
-int CHistogrammer::m_nextFitlineId(1); // Next fitline id assigned.
 
 // Very stupid local function to do parameter scaling: 
 static inline UInt_t scale(UInt_t nValue, Int_t nScale) {
@@ -163,12 +151,6 @@ CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
   srand(time(NULL));
   m_pDisplayer = new CXamine(nSpecbytes);
   m_pDisplayer->Start();
-  m_pFitObserver = new CHistogrammerFitObserver(*this); // Follow changes to fits.
-
-  // Create and register the gate/histogram observer needed to maitain the gate/spectrum
-  // optimized lists:
-
-  createListObservers();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -185,8 +167,6 @@ CHistogrammer::CHistogrammer(const CXamine& rDisplayer) :
   srand(time(NULL)); 
   if(!m_pDisplayer->isAlive())
     m_pDisplayer->Start();
-  m_pFitObserver = new CHistogrammerFitObserver(*this); // Follow changes to fits.
-  createListObservers();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -201,9 +181,6 @@ CHistogrammer::~CHistogrammer() {
     m_pDisplayer->Stop();
 
   delete m_pDisplayer;
-  delete m_pFitObserver;
-  delete m_pGateList;
-  delete m_pSpectrumLists;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -220,8 +197,6 @@ CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
-
-  createListObservers();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -238,8 +213,6 @@ CHistogrammer& CHistogrammer::operator=(const CHistogrammer& rRhs) {
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
-
-  createListObservers();
   return *this;
 }
 
@@ -280,24 +253,28 @@ int CHistogrammer::operator==(const CHistogrammer& rRhs) {
   \par Formal Parameters:
   \param  </TT>rEvent (const CEvent& [in]): </TT>
   References the event to histogram.
-
+  \param  </TT>nSpectra (UInt_t [in]):</TT>
+  Number of spectra defined.
+  \param  </TT>ppSpectra (CSpectrum** ppSpectra)</TT>
+  Array of pointers to defined spectra.
+  \param <TT> nGates (UInt_t [in]):</TT>
+  Number of gates to chekc...
+  \param <TT>ppGates (Uint_t [in]):</TT>
+  Array of pointers to defined gates.
 */
-void CHistogrammer::operator()(const CEvent& rEvent)
+void CHistogrammer::operator()(const CEvent& rEvent,
+			       UInt_t nSpectra, CSpectrum** ppSpectra,
+			       UInt_t nGates,   CGateContainer** ppGates)
 {
   // Reset the gates:
-
-  CGateContainer** gateList = m_pGateList->getList();
-  if (gateList) {
-    while(*gateList) {
-      (**gateList)->Reset();
-      gateList++;
-    }
+  for(int i = 0; i < nGates; i++) {
+    (*ppGates[i])->Reset();	// Invalidate the gate value cache.
   }
 
   // Increment the histograms:
-
-  (*m_pSpectrumLists)(rEvent);
-
+  for(int i = 0; i < nSpectra; i++) {
+    (*ppSpectra[i])(rEvent);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -309,11 +286,36 @@ void CHistogrammer::operator()(const CEvent& rEvent)
 //
 static  int nEvents = 0;
 
-void CHistogrammer::operator()(CEventList& rEvents) 
-{
+void CHistogrammer::operator()(CEventList& rEvents) {
+  //  Profiling demonstrates that it's inefficient to
+  //  traverse the CSpectrum and CGateContainer maps for each event.
+  //  Therefore these are traversed once now and placed in tables.
+  //  This is redone on each batch of events in case the maps get modified.
 
   nEvents = 0;
 
+  //  Flatten the gates map into pGates:
+
+  UInt_t nGates = GateCount();
+  CGateContainer** pGates = new CGateContainer*[nGates]; // Holds pointer to gate containers.
+  CGateDictionaryIterator pg = GateBegin();
+  CGateDictionaryIterator pge= GateEnd();
+  CGateContainer** ppGate = pGates;
+  while(pg != pge) {
+    *ppGate++ = &((*pg).second); 
+    pg++;
+  }
+  // Flatten the Spectra into pSpectra:
+
+  UInt_t nSpectra = SpectrumCount();
+  CSpectrum**      pSpectra = new CSpectrum*[nSpectra]; // Pointers to spectra.
+  CSpectrum**     ppSpectra = pSpectra;
+  SpectrumDictionaryIterator ps = SpectrumBegin();
+  SpectrumDictionaryIterator pse= SpectrumEnd();
+  while(ps != pse) {
+    *ppSpectra++ = (*ps).second;
+    ps++;
+  }
 
   //  Now analyze the events.
   //  the assumption is that the first null
@@ -326,7 +328,9 @@ void CHistogrammer::operator()(CEventList& rEvents)
       CEvent* pEvent = *i;
       if(pEvent) {
 	nEvents++;
-	operator()(*pEvent);
+	operator()(*pEvent,
+		   nSpectra, pSpectra,
+		   nGates, pGates);
       }
       else {
 	break;
@@ -348,7 +352,8 @@ void CHistogrammer::operator()(CEventList& rEvents)
   catch (...) {
     cerr << "Unexpected exception type caught while histogramming events.\n";
   }
-
+  delete []pGates;
+  delete []pSpectra;
 }
 
 /*!
@@ -384,10 +389,8 @@ CParameter* CHistogrammer::AddParameter(const std::string& sName,
 
   // Now add the new parameter to the dictionary:
 
-  CParameter par(sName, nId, pUnits);
-
-  m_ParameterDictionary.Enter(string(sName), 
-			      par);
+  m_ParameterDictionary.Enter(sName, 
+			      CParameter( sName, nId, pUnits));
   return FindParameter(sName);
 }
 
@@ -438,8 +441,8 @@ CParameter* CHistogrammer::AddParameter(const std::string& sName, UInt_t nId,
 
   // Now add the new parameter to the dictionary:
 
-  CParameter par(nScale, sName, nId);
-  m_ParameterDictionary.Enter(string(sName), par);
+  m_ParameterDictionary.Enter(sName, 
+			      CParameter(nScale, sName, nId));
   return FindParameter(sName);
 }
 
@@ -493,9 +496,9 @@ CParameter* CHistogrammer::AddParameter(const std::string& sName, UInt_t nId,
 
   // Now add the new parameter to the dictionary:
 
-  CParameter par(nScale, sName, nId, nLow, nHi, sUnits);
-  m_ParameterDictionary.Enter(string(sName), par);
-					 
+  m_ParameterDictionary.Enter(sName, 
+			      CParameter(nScale, sName, nId, 
+					 nLow, nHi, sUnits));
   return FindParameter(sName);  
 }
 
@@ -547,8 +550,7 @@ void CHistogrammer::AddSpectrum(CSpectrum& rSpectrum) {
   //
   // Now enter the item:
   //
-  CSpectrum*  pSpectrum = &rSpectrum;
-  m_SpectrumDictionary.Enter(rSpectrum.getName(), pSpectrum);
+  m_SpectrumDictionary.Enter(rSpectrum.getName(), &rSpectrum);
 
 }
 
@@ -608,34 +610,6 @@ CSpectrum* CHistogrammer::RemoveSpectrum(const std::string sName) {
   CSpectrum*                 pSpectrum((CSpectrum*)kpNULL);
   if(iSpectrum != m_SpectrumDictionary.end()) {
     pSpectrum = (*iSpectrum).second;
-
-    // I don't like doing this here but I'm really not sure where else to do
-    // it.. in an ideal world I'd have observers on the spectrum dictionary
-    // and the deletion of a spectrum would trigger the deletion of
-    // the corresponding fits... however that sort of internal restruturing
-    // is a 4.0 thing.
-
-    CFitDictionary&          Fits(CFitDictionary::getInstance());
-    CFitDictionary::iterator iFit  = Fits.begin();
-    while (iFit != Fits.end()) {
-      CSpectrumFit* pFit = iFit->second;
-      if (pFit->getName() == sName) {
-
-	Fits.erase(iFit);	// This will also trigger remove from Xamine.
-	delete pFit;
-
-	// The iterator has been invalidated potentially so start again:
-
-	iFit = Fits.begin();
-      } 
-      else {
-	iFit++;
-      }
-    }
-
-
-    // Kill off the spectrum from the dictionary.
-
     m_SpectrumDictionary.Remove(sName);
   }
   return pSpectrum;
@@ -773,20 +747,6 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
     if(pXgate) m_pDisplayer->EnterGate(*pXgate);
     delete pXgate;
   }
-  // same for the fitlines:
-  //
-
-  CFitDictionary& dict(CFitDictionary::getInstance());
-  CFitDictionary::iterator pf = dict.begin();
-
-  while (pf != dict.end()) {
-    CSpectrumFit* pFit = pf->second;
-    if (pFit->getName() == pSpectrum->getName()) {
-      addFit(*pFit);		// not very efficient, but doesn't need to be
-    }
-    pf++;
-  }
-
   return nSpectrum;
 }
 
@@ -1035,30 +995,6 @@ UInt_t CHistogrammer::SpectrumCount() {
   return m_SpectrumDictionary.size();
 }
 
-/*!
-    Add a spectrum dictionary observer so that software can monitor
-    changes to the spectrum dictionary:
-    \param observer : SpectrumDictionaryObserver*
-       Pointer to the observer to add.
-*/
-void
-CHistogrammer::addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer) 
-{
-  m_SpectrumDictionary.addObserver(observer);
-}
-
-/*!
-   Remove an existing spectrum dictionary observer from the spectrum
-   dictionary.  That observer object will no longer be notified of
-   changes in the spectrum dictionary.
-   \param observer : SpectrumDictionaryObserver* 
-         Pointer to the observer to remove.
-*/
-void
-CHistogrammer::removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
-{
-  m_SpectrumDictionary.removeObserver(observer);
-}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -1307,7 +1243,6 @@ void CHistogrammer::ReplaceGate(const std::string& rGateName, CGate& rGate) {
 
   RemoveGateFromBoundSpectra(*pContainer);
   pContainer->setGate(&rGate);
-  invokeGateChangedObservers(rGateName, *pContainer);
   AddGateToBoundSpectra(*pContainer);
 }
 
@@ -1377,7 +1312,6 @@ CHistogrammer::GatesToDisplay(const std::string& rSpectrum)
   //   Contour (type = 'c')
   //   Band    (type = 'b')
   //   Cut     (type = 's')
-  //   Sum2d   {type = 'm2'}
   //   GammaContour   (type = 'gc')
   //   GammaBand      (type = 'gb')
   //   GammaCut       (type = 'gs')
@@ -1466,131 +1400,6 @@ CGateDictionaryIterator CHistogrammer::GateEnd() {
 //
 UInt_t CHistogrammer::GateCount() {
   return m_GateDictionary.size();
-}
-
-/*!
-    Add a gate observer.  The gate observer must be added to both the
-    gate dictionary and our own gate observer list as we need to trigger the
-    gate changed calls ourself.
-    \param observer - Pointer to the gate observer to add to the dictionary
-                     as well as our own list.
-*/
-void
-CHistogrammer::addGateObserver(CGateObserver* observer)
-{
-  m_GateDictionary.addObserver(observer);
-
-  m_gateObservers.push_back(observer);
-}
-
-/*!
-  Remove a gate observer.  This is a no-op if the observer pointed
-  to by the parameter does not exist.
-
-  \param observer - Pointer to tyhe observer to remove. 
-*/
-void
-CHistogrammer::removeGateObserver(CGateObserver* observer)
-{
-  m_GateDictionary.removeObserver(observer);
-
-  GateObserverList::iterator p = m_gateObservers.begin();
-  while (p != m_gateObservers.end()) {
-    if (*p == observer) {
-      m_gateObservers.erase(p);
-      return;
-    }
-    p++;
-  }
-}
-/*!
-   addFit : adds a fit to the Xamine bindings.  We keep track of
-   these fits in m_fitlineBindings.  This is a vector of lists.
-   The index of each vector element is the Xamine 'display slot' fitlines
-   are bound to. Each element is a list of pairs.  Each pair is the fitline
-   id and fitline name.
-   \param fit : CSpectrumFit&
-     Reference to the fit to add.
-*/
-void
-CHistogrammer::addFit(CSpectrumFit& fit)
-{
-  // get the fit name and spectrum name... both of which we'll need to
-  //   ensure we can add/bind the fit.
-
-  string fitName      = fit.fitName();
-  string spectrumName = fit.getName();
-  Int_t  xSpectrumId  = findDisplayBinding(spectrumName);
-  if (xSpectrumId < 0) {
-    // Display is not bound to Xamine.
-
-    return;
-  }
-  // The display is bound... ensure that our fitlines binding array is large
-  // enough.
-
-  while (m_FitlineBindings.size() <=  xSpectrumId) {
-    FitlineList empty;
-    m_FitlineBindings.push_back(empty);
-  }
-
-  // Now we must:
-  //  1. Allocate a fitline id.
-  //  2. Enter the fit line in Xamine.
-  //  3. Add the fitline name/id to our m_FitlineBindings 
-
-  int fitId = m_nextFitlineId++;
-  Xamine_EnterFitline(xSpectrumId+1, fitId,
-		      const_cast<char*>(fitName.c_str()),
-		      fit.low(), fit.high(),
-		      const_cast<char*>(fit.makeTclFitScript().c_str()));
-  pair <int, string> fitInfo(fitId, fitName);
-  m_FitlineBindings[xSpectrumId].push_back(fitInfo);
-
-  
-}
-/*!
-  Remove a fit.  It is  a no-op to delete a fit that does not exist or is
-  on an unbound spectrum. The rough cut of what we will do is
-  - Locate the spectrum id of the binding.
-  - Locate any fit that matches the name of the fit we are given
-    in the fit bindings list assocated with that spectrum.
-  - Ask Xamine to delete that fit (fits are like gates).
-  - Remove this fit from our bindings list.
-  \param fit : CSpectrumFit&
-     referenced to the fit to remove.
-*/
-void
-CHistogrammer::deleteFit(CSpectrumFit& fit)
-{
-  string spectrumName =  fit.getName();
-  string fitName      = fit.fitName();
-  int    xSpectrumId  = findDisplayBinding(spectrumName);
-  if (xSpectrumId >= 0 && ( xSpectrumId <  m_FitlineBindings.size())) {
-
-    // xSpectrumId < 0 means spectrum not bound.
-    // xSpectrumId >= size of the bindings vector means no fitlines on spectrum.
-
-    FitlineList::iterator i = m_FitlineBindings[xSpectrumId].begin();
-    FitlineList::iterator e = m_FitlineBindings[xSpectrumId].end();
-    while (i != e) {
-      if (fitName == i->second) {
-	// found it.. delete this one and return... don't delete all
-	// occurences as 
-	// a. there's only supposed to be one occurence.
-	// b. Depending on the underlying representation of a FitlineList,
-	//    deletion may invalidate i.
-
-	Xamine_RemoveGate(xSpectrumId+1, i->first,
-			  fitline);
-	m_FitlineBindings[xSpectrumId].erase(i);
-	return;
-      }
-      i++;
-    }
-    // Falling through here means no matching fit lines...which is a no-op.
-    
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1697,25 +1506,17 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
   //
 
   if((pSpectrum->getSpectrumType() == ke2D)   ||
-     (pSpectrum->getSpectrumType() == keG2D)  ||
-     (pSpectrum->getSpectrumType() == ke2Dm)  ||
-     (pSpectrum->getSpectrumType() == keG2DD)) {
+     (pSpectrum->getSpectrumType() == keG2D)) {
     
 
     CPointListGate& rSpecTclGate = (CPointListGate&)rGate.operator*();
     vector<FPoint> pts = rSpecTclGate.getPoints();
-    //    vector<UInt_t> Params;
-    //    pSpectrum->GetParameterIds(Params);
-
-    // If necessary flip the x/y coordinates of the gate.
-    // note that gamma gates never need flipping.
-    //
+    vector<UInt_t> Params;
+    pSpectrum->GetParameterIds(Params);
     
-    //    if((rSpecTclGate.getxId() != Params[0]) &&
-    //   ((rSpecTclGate.Type())[0] != 'g')) {
-
-    if ((rSpecTclGate.Type()[0] != 'g') && 
-	flip2dGatePoints(pSpectrum, rSpecTclGate.getxId())) {
+    
+    if((rSpecTclGate.getxId() != Params[0]) &&
+       ((rSpecTclGate.Type())[0] != 'g')) {
       for(UInt_t i = 0; i < pts.size(); i++) {	// Flip pts to match spectrum.
 	Float_t x = pts[i].X();
 	Float_t y = pts[i].Y();
@@ -1725,11 +1526,8 @@ CDisplayGate* CHistogrammer::GateToXamineGate(UInt_t nBindingId,
     // The index of the X axis transform is easy.. it's 0, but the
     // y axis transform index depends on spectrum type sincd gammas
     // have all x transforms first then y and so on:
-    //
     int nYIndex;
-    if((pSpectrum->getSpectrumType() == ke2D)   ||
-       (pSpectrum->getSpectrumType() == keG2DD) ||
-       (pSpectrum->getSpectrumType() == ke2Dm)) {
+    if(pSpectrum->getSpectrumType() == ke2D) {
       nYIndex = 1;
     }
     else {
@@ -1854,8 +1652,6 @@ void CHistogrammer::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
 //          Axis names.
 //     parameters : vector <string>
 //          Names of parameters.
-//     yparameter : vector<string>
-//         vector of y axis parameters (gamma 2d deluxe).
 //     gate : string
 //          Name of gate on spectrum.
 //
@@ -1866,7 +1662,6 @@ void CHistogrammer::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
 string
 CHistogrammer::createTrialTitle(string type, vector<string>      axes,
 				vector<string>      parameters,
-				vector<string>      yparameters,
 				string gate)
 {
   string result;
@@ -1903,16 +1698,6 @@ CHistogrammer::createTrialTitle(string type, vector<string>      axes,
     }
     result += "}";
   }
-  if (yparameters.size() > 0) {
-    string separator = "";
-    result += " {";
-    for (int i = 0; i < yparameters.size(); i++) {
-      result += separator;
-      result += yparameters[i];
-      separator = ", ";
-    }
-    result += "}";
-  }
   
   
   
@@ -1930,10 +1715,9 @@ CHistogrammer::createTrialTitle(string type, vector<string>      axes,
 string
 CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
 {
-  CSpectrum::SpectrumDefinition def = pSpectrum->GetDefinition();
-  string name = def .sName;
+  string name = pSpectrum->getName();
   ostringstream typestream;
-  typestream << def.eType;
+  typestream << pSpectrum->getSpectrumType();
   string type = typestream.str();
 
   // Create the axis vector:
@@ -1956,13 +1740,9 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
   }
   //  Get the parameter names
 
-  vector<UInt_t> ids = def.vParameters;
-  vector<UInt_t> yids= def.vyParameters;
-  vector<string> parameters;;
-  vector<string> yparameters;
-
-  
-
+  vector<UInt_t> ids;
+  vector<string> parameters;
+  pSpectrum->GetParameterIds(ids);
   for (int i =0; i < ids.size(); i++) {
     CParameter* pParam = FindParameter(ids[i]);
     if (pParam) {
@@ -1971,16 +1751,6 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
       parameters.push_back(string("--deleted--"));
     }
   }
-  for (int i = 0; i < yids.size(); i++) {
-    CParameter* pParam = FindParameter(yids[i]);
-    if (pParam) {
-      yparameters.push_back(pParam->getName());
-    }
-    else {
-      yparameters.push_back(string("--deleted--"));
-    }
-  }
-
  
   // Ok now the following variables are set up for the first try:
   //  name       - Name of the spectrum
@@ -1989,34 +1759,25 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
   //  gateName       - name of gateName on spectrum.
   //  parameters - vector of parameter names.
 
-  string trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+  string trialTitle = createTrialTitle(type, axes, parameters, gateName);
   if (trialTitle.size() < maxLength) return trialTitle;
 
   // Didn't fit.one by one drop the parameters..replacing the most recently
   // dropped parameter by "..."
 
-  while (yparameters.size()) {
-    yparameters[yparameters.size()-1] = "...";
-    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
-    if (trialTitle.size() < maxLength) return trialTitle;
-    vector<string>::iterator i = yparameters.end();
-    i--;
-    yparameters.erase(i);
-  }
   while (parameters.size()) {
     parameters[parameters.size()-1] = "..."; // Probably smaller than it was.
-    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+    trialTitle = createTrialTitle(type, axes, parameters, gateName);
     if (trialTitle.size() < maxLength) return trialTitle;
     vector<string>::iterator i = parameters.end();
     i--;
     parameters.erase(i);	// Kill off last parameter.
   }
-
   // Still didn't fit... and there are no more parameters left to drop.
   // now we drop the axis definition...
   
   axes.clear();
-  trialTitle = createTrialTitle(type , axes, parameters, yparameters, gateName);
+  trialTitle = createTrialTitle(type , axes, parameters, gateName);
   if (trialTitle.size() < maxLength) return trialTitle;
 
   // Now compute if we can delete the tail of the spectrum name
@@ -2025,7 +1786,7 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
   if ((trialTitle.size() - (name.size()/2 + 3)) < maxLength) {
     while(trialTitle.size() > maxLength) {
       name = name.assign(name.c_str(), name.size()-4) + string("...");
-      trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+      trialTitle = createTrialTitle(type, axes, parameters, gateName);
     }
     return trialTitle;
   }
@@ -2039,62 +1800,4 @@ CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
 
 
   
-}
-
-//  Invoke the gate observers when a gate has changed.
-// Parameters:
-//   name   - name of the gate that's changing.
-//   gate   - New gate container.
-//
-void
-CHistogrammer::invokeGateChangedObservers(string name, CGateContainer& gate)
-{
-  GateObserverList::iterator p = m_gateObservers.begin();
-  while (p != m_gateObservers.end()) {
-    CGateObserver*  pObserver = (*p);
-    pObserver->onChange(name, gate);
-    p++;
-  }
-}
-//
-// Create and hook in the spectrum and gate observers that ensure we keep our optimized
-// gate and spectrum lists up to date.
-//
-void
-CHistogrammer::createListObservers()
-{
-  m_pGateList = new CFlattenedGateList( this);
-  addGateObserver(m_pGateList);
-
-  m_pSpectrumLists = new CSpectrumByParameter;
-  addSpectrumDictionaryObserver(m_pSpectrumLists);
-}
-/**
- * flip2dGatePoints
- *   Determine if the gate point coordinates must be flipped.  This happens
- *   for e.g. a gate on p1, p2 displayed on a spectrum with axes p2, p1
- *
- *  There's an implicit assumption that the gate is displayable on this spectrum
- *  because all we do is see if the X parameter is a match for a spectrum x parameter
- *  and, if not, flip.
- *
- * @param pSpectrum - pointer to the target spectrum.
- * @param gXparam   - Id of the x parameter of the spectrum.
- *
- * @return bool - true if it's necessary to flip axes.
- *
- */
-bool
-CHistogrammer::flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam)
-{
-  std::vector<UInt_t> params;
-  pSpectrum->GetParameterIds(params);
-  if (pSpectrum->getSpectrumType() == ke2Dm) {
-    for (int i = 0; i < params.size(); i += 2) {
-      if (gXparam == params[i]) return false;
-    }
-    return true;
-  } else {
-    return gXparam != params[0];
-  }
 }

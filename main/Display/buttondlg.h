@@ -376,7 +376,7 @@ typedef Button *pButton, **ppButton;
 
 class ButtonBox {
   public:
-    ButtonBox(XMWidget *parent, String name, Cardinal nrows, Cardinal ncols);
+    ButtonBox(XMWidget *parent, const char* name, Cardinal nrows, Cardinal ncols);
     ~ButtonBox();
 
     void     SetButton(Button *button, Cardinal row, Cardinal col);

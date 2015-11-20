@@ -323,11 +323,11 @@ extern "C" {
 static XMInformationDialog *exit_help_dialog = NULL; /* The help dialog. */
 static XMQuestionDialog *dlg = NULL;
 
-static const char *msg =
+static const  char *msg =
   "If you exit, all changes will be lost.\nAre you sure you want to exit?";
 
 
-static const char *Exit_help[] 
+static const  char *Exit_help[] 
   = { "If you click on the button labelled \"Yes\" Xamine will exit\n",
       "If you click on the button labelled \"No\" Xamine will continue\n\n",
       "If you have graphical objects you have not yet saved, or if you\n"

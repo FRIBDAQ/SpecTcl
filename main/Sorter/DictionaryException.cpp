@@ -311,7 +311,7 @@ using namespace std;
 //  Operation Type:
 //     Selector
 //
-const  char* 
+const char* 
 CDictionaryException::ReasonText() const
 {
 // Returns string describing the reason for the exception.

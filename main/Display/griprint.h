@@ -373,7 +373,7 @@ protected:
   XMToggleButton *one_to_eight;
 
 public:
-  PrintSpectrumDialog(const char *name, XMWidget *w, const char *title);
+  PrintSpectrumDialog(char *name, XMWidget *w, char *title);
   ~PrintSpectrumDialog() {
     /* The tab widgets */
     delete tab; tab = NULL;

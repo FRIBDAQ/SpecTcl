@@ -1536,10 +1536,10 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
     // Now determine what to do with the command file and the resulting
     // postscript. The idea is to create a system command and let the shell
     // interpret it for us.
-    char GriCmd[2048];
-    char printcmd[1024];
-    char buf1[2048];
-    char buf[2048];        // temporary buffer for concatenating to GriCmd
+    char GriCmd[200];
+    char printcmd[1000];
+    char buf1[200];
+    char buf[200];        // temporary buffer for concatenating to GriCmd
     strcpy(printcmd, Xamine_GetPrintCommand());
     if(strcmp(&printcmd[strlen(printcmd)-1], "\n") == 0)
       printcmd[strlen(printcmd)-1] = 0;
@@ -1605,7 +1605,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	      gri_exec,  cmd_file);
       
       // If postscript requested, don't add the following:
-      char buf[1024];
+      char buf[100];
       if(sType != "Postscript (*.ps)") {
 	char convert_path[50];
 #ifdef HAVE_CONVERT
@@ -1622,7 +1622,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
 	sprintf(buf, "mv %s.ps %s; ", cmd_root.c_str(), sFilename.c_str());
       }
       strcat(GriCmd, buf);
-      char tbuf[1024];
+      char tbuf[100];
       snprintf(tbuf, sizeof(tbuf), "rm -f %s; rm -f %s", cmd_file, cmd_root.c_str());
       strcat(GriCmd, tbuf);
     }
@@ -1642,11 +1642,7 @@ Xamine_PrintSpectrum(XMWidget* w, XtPointer User,
       waitpid(-1, &x, WNOHANG);
     }
     else {
-      int status = system(GriCmd);
-      if (status == -1) {
-	perror("Unable to execute gri command in child process!");
-	exit(-1);
-      }
+      system(GriCmd);
       printf("Finished\n");     
       exit(0);
     }
@@ -2068,8 +2064,8 @@ Xamine_GetSpectrumTitle(int r, int c)
 
   // Add spectrum number...
   if(pAttributed->shownum()) {
-    char szBuf[1024];                       // Don't ever let it overflow.
-    snprintf(szBuf, sizeof(szBuf), "[%d] ", nSpectrum);
+    char szBuf[6];
+    sprintf(szBuf, "[%d] ", nSpectrum);
     Title += szBuf;
   }
   // Add spectrum name...

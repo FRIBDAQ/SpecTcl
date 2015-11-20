@@ -111,7 +111,7 @@ using namespace std;
 #endif
 
 
-static const  char* pCopyrightNotice = 
+static const char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved GateFactory.cpp \n";
 
 // Functions for class CGateFactory

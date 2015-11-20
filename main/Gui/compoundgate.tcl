@@ -133,8 +133,9 @@ snit::widget compoundgate {
         set atmost $options(-atmost)
         foreach item $selection {
             set gate [::pathToName $item]
-            if {([gate -list $gate] != "") && ($gate ni [$win.dependencies get 0 end])} {
-                $win.dependencies insert end $gate  
+            if {[gate -list $gate] != ""} {
+                $win.browser remove $item
+                $win.dependencies insert end $gate
                 if {($atmost > 0) && ([$win.dependencies index end] > $atmost) } {
                     # Prune back the oldest..
 

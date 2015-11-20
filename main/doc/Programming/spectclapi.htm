@@ -35,8 +35,6 @@ class SpecTcl
 {
 public:
   static SpecTcl* getInstance();
-  void addBufferDecoder(std::string type, 
-                        CAttachCommand::CDecoderCreator* creator);
   UInt_t AssignParameterId();
   CParameter* AddParameter(STD(string) name, 
     UInt_t Id, 
@@ -210,14 +208,6 @@ The SpecTcl API
 class supports interfaces to the following subsections of SpecTcl's
 functionality:
 <DL COMPACT>
-<DT>Buffer decoder registration</DT>
-<DD>
-New types of buffer decoders can be registered with SpecTcl
-and added to the set of formats understood by
-the <tt>attach</tt> command's <tt>-format</tt>
-switch.
-</DD>
-<DL COMPACT>
 <DT>Parameter Dictionary<DD>
 Parameters can be created, searched for, removed and iterated through.
 <DT>Spectra<DD>
@@ -276,21 +266,6 @@ api.AddParameter(&quot;someposition&quot;, api.AssignParameterId(), &quot;mm&quo
 
 
 </DL>
-
-<H2>Decoder registration</H2>
-<DL>
-<DT><B>void SpecTcl::addBufferDecoder(std::string type,
-CAttachCommand::CDecoderCreator* creator)</B>
-</DT>
-<DD>
-This member function registers a new type of buffer decoder.
-The <pre>type</pre> parameter is the name of the format as it should be
-supplied to the <tt>attach</tt> command's <tt>-format</tt> switch.
-<pre>createor</pre> is a pointer to the decoder cretor object that will create
-that buffer decoder.
-</DD>
-</DL>
-
 <A NAME="lbAF">&nbsp;</A>
 <H2>PARAMETER INTERFACE</H2>
 

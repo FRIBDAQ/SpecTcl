@@ -320,7 +320,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 
 class ReduceDialog : public XMCustomDialog, public ReduceForm {
  public:
-  ReduceDialog(char *name, XMWidget *parent, char *title) :
+  ReduceDialog(const char *name, XMWidget *parent, char *title) :
     XMCustomDialog(name, *parent, title),
     ReduceForm(name, *work_area) {
       Apply->Label("Apply To All");
