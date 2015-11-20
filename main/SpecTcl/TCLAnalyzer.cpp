@@ -72,7 +72,8 @@ CTclAnalyzer::CTclAnalyzer(CTCLInterpreter& rInterp, UInt_t nP,
   m_pRunNumber(0),
   m_pRunTitle(0),
   m_pRunState(0),
-  m_nSequence(0)
+  m_nSequence(0),
+  m_initialized(false)
 {
   m_pBuffersAnalyzed = new CTCLVariable(&rInterp, 
 					string("BuffersAnalyzed"),
@@ -358,7 +359,6 @@ CTclAnalyzer::AddEventProcessor(CEventProcessor& rProcessor,
 
   InsertEventProcessor(rProcessor, end(), name);
 
-
 }
 /*!
   Return an iterator (or end()) corresponding to the event processor requested by
@@ -417,6 +417,10 @@ CTclAnalyzer::InsertEventProcessor(CEventProcessor& processor,
   m_lAnalysisPipeline.insert(here, element);
 
   processor.OnAttach(*this);	// Notify the processor it was attached.
+  
+  // If we're already initialized, init the event processor too:
+  
+  if (m_initialized) processor.OnInitialize();
 
 }
 /*!
@@ -544,6 +548,27 @@ void
 CTclAnalyzer::OnScaler(CBufferDecoder& rDecoder)
 {
   OnOther(rDecoder.getBufferType(), rDecoder);
+}
+/**
+ * OnInitialize
+ *
+ * Called after all SpecTcl initialization is done.
+ * Iterates through the event processors invoking OnInitialize in each.
+ */
+void
+CTclAnalyzer::OnInitialize()
+{
+    SpecTcl* api = SpecTcl::getInstance();
+    
+    CTclAnalyzer::EventProcessorIterator p = api->ProcessingPipelineBegin();
+    m_initialized = true;
+    
+    while (p != api->ProcessingPipelineEnd()) {
+        CEventProcessor* pProcessor = p->second;
+        if (!pProcessor->OnInitialize()) break;
+        
+        p++;
+    }
 }
 
 /*!

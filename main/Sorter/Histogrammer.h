@@ -281,6 +281,7 @@ class CHistogrammer : public CEventSink {
 
   void invokeGateChangedObservers(STD(string) name, CGateContainer& gate);
   void createListObservers();
+  bool flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam);
 		
 };
 

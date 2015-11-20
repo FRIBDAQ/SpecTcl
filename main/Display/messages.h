@@ -136,6 +136,7 @@ struct msg_inquireack {
 ** vms with SYS$CREMBX
 */
 class MessageQueue {
+  static bool pipeSigBlocked;
  public:
   int   XtNotificationOn;  /* True if Xt input source   */
   MessageQueue(char *name, int flags);	             /* Construct msg q. */
@@ -153,6 +154,7 @@ class MessageQueue {
  private:
   int   XtInputHandlerId;  /* Input id from XtAppAddInput */
   int fid;	               /* File id open on the FIFO. */
+  void blockPipesig();
 };
 
 

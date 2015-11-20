@@ -297,6 +297,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <Xm/ToggleB.h>
 #include "XMWidget.h"
 #include "toggles.h"
+#include "refreshctl.h"
+
 
 /*
 ** Functional Description:
@@ -322,3 +324,23 @@ void Xamine_SetToggle(XMWidget *w, XtPointer userd, XtPointer calld)
 
   *variable = (Boolean)why->set;
 }
+
+/**
+ * Xamine_ToggleAndRefresh
+ *   Do a set toggle and then schedule all visible panes for refresh.
+ *
+ * @param w  - the menuwidget that fired.
+ * @param udate - User data, pointer to the global that's toggled.
+ * @param cd    - Pointer to an XmToggleButtonCallbackStruct that tells
+ *                us more about this event
+ */
+void
+Xamine_ToggleAndRefresh(XMWidget* w, XtPointer udata, XtPointer cdata)
+{
+  // Toggle:
+  Xamine_SetToggle(w, udata, cdata);
+
+  // Refresh
+
+  Xamine_UpdateAll(w, udata, cdata);
+} 

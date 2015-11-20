@@ -424,7 +424,7 @@ CGateCommand::NewGate(CTCLInterpreter& rInterp, CTCLResult& rResult,
 	  (string(pType) == string("nm")))
 	{
 	  long Compare ;
-	  sscanf(PointString[0].c_str(), "%x", &Compare);
+	  sscanf(PointString[0].c_str(), "%lx", &Compare);
           pGate = api.CreateGate(Item.eGateType, Parameters, Compare);
 	  if(rPackage.AddGate(rResult, string(pName), pGate)) {
 	    return TCL_OK;

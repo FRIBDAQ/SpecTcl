@@ -1,11 +1,16 @@
 DEFS = @WCHAR_T_DEF@
-INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/Utility \
+AM_CPPFLAGS = -I@top_srcdir@ -I. -I@top_srcdir@/Utility \
 	-I@top_srcdir@/NSCLException -I@top_srcdir@/EventSource \
 	-I@top_srcdir@/TCL \
 	-I@top_srcdir@/SpecTcl  -I@top_srcdir@/Filter \
-	@TCL_FLAGS@ @XINCLUDES@ 
-LDADD = @TCL_LDFLAGS@
-# AM_LDFLAGS = @TCL_LDFLAGS@
+        -I@top_srcdir@/Xamine \
+        -I@top_srcdir@/Sorter \
+        -I@top_srcdir@/factories \
+        -I@top_srcdir@/Display    \
+        -I@top_srcdir@/Gates \
+	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ @XINCLUDES@ @LIBTCLPLUS_CFLAGS@
+LDADD = @LIBTCLPLUS+LDFLAGS@ @TK_LIBS@ @TCL_LIBS@
+
 
 lib_LTLIBRARIES = libAnalysis.la
 libAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0 \

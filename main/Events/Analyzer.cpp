@@ -288,7 +288,17 @@ void CAnalyzer::OnOther(UInt_t nType, CBufferDecoder& rDecoder) {
 void CAnalyzer::OnEndFile() {
   // Called when an end file was encountered on the
   // input file.  The default action is null.
+  
+  m_pDecoder->OnEndFile();
 }
+/**
+ * OnInitialize
+ *
+ * This is called after all SpecTcl initialization is completed.
+ * No_op for us.
+ */
+void
+CAnalyzer::OnInitialize() {}
 
 //////////////////////////////////////////////////////////////////////////
 //

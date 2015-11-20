@@ -25,7 +25,7 @@
 #ifndef _PRINTER_H
 #define _PRINTER_H
 
-#include <Fstream.h>
+#include <fstream>
 #include <dispgrob.h>
 
 #include <string>

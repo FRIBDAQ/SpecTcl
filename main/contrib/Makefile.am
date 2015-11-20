@@ -17,3 +17,5 @@ EXTRA_DIST = multiread/AAREADME.txt multiread/selectscript.tcl treeparam/*.tcl \
 
 SUBDIRS=scriptable
 
+check-TESTS:
+	- for d in $(SUBDIRS); do (cd $$d; make check-TESTS); done

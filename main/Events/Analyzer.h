@@ -165,15 +165,15 @@ class CAnalyzer {
     return m_nParametersInEvent;
   }
 
-  const CEventList& getEventList() const {
+  CEventList& getEventList()  {
     return m_EventList;
   }
 
-  const CBufferDecoder* getDecoder() const {
+ CBufferDecoder* getDecoder() {
     return m_pDecoder;
   }
 
-  const CEventSink* getSink() const {
+  CEventSink* getSink() {
     return m_pSink;
   }
 
@@ -215,6 +215,8 @@ class CAnalyzer {
   virtual void OnScaler(CBufferDecoder& rDecoder);
   virtual void OnOther(UInt_t nType, CBufferDecoder& rDecoder);
   virtual void OnEndFile();
+  virtual void OnInitialize();
+  
   CBufferDecoder* AttachDecoder(CBufferDecoder& rDecoder);
   CBufferDecoder* DetachDecoder();
   CEventSink*     AttachSink(CEventSink& rSink);

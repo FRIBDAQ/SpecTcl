@@ -17,20 +17,19 @@ noinst_HEADERS=CC1205Unpacker.h \
 	ParamMapCommand.h
 
 
-INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
+AM_CPPFLAGS =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
 	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Analysis \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	-I@top_srcdir@/TreeParam \
-	@TCL_FLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@
+	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
+	@LIBTCLPLUS_CFLAGS@
 
 CCUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
 	 ../Events/libAnalysis.la \
 	../Fits/libFits.la \
-	../TCL/libtclPlus.la \
 	../Analysis/libBufferAnalysis.la \
 	../EventSource/libEventSource.la \
 	../Tape/libtape.la \
@@ -43,11 +42,11 @@ CCUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
 	../SpectrumIO/libSpecio.la \
 	../TreeParam/libTreeParam.la \
 	../DecoderRing/libDecoderRing.la \
-	../NSCLException/libException.la \
 	../Display/libXamine.la          \
+	@LIBTCLPLUS_LDFLAGS@	\
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\
-	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
 	 -g -Wl,"-rpath=@libdir@"
 
 
@@ -65,7 +64,7 @@ install-exec-local:	docs_built
 	$(INSTALL_DATA) MakefileSkel @prefix@/CCUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/ccusb
 	$(INSTALL_DATA)  spectclconfig.tcl @prefix@/TclLibs/ccusb
-	echo pkg_mkIndex @prefix@/TclLibs/ccusb *.tcl | $(TCLSH_CMD)
+	echo pkg_mkIndex @prefix@/TclLibs/ccusb *.tcl | @TCLSH@
 	$(mkinstalldirs) @prefix@/share/ccusb
 	$(INSTALL_DATA)  *.html @prefix@/share/ccusb
 	$(INSTALL_DATA)  *.pdf  @prefix@/share/ccusb

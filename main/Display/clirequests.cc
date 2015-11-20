@@ -36,6 +36,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 #include <config.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "acceptgates.h"
 #include "grobjdisplay.h"
@@ -303,8 +304,11 @@ Xamine_ProcessClientRequests(XtPointer client_data,
   grobj_generic *object;
   int spec, id;
   grobj_type type;
-
-  while(Xamine_CheckForCommand(&cmd)) {
+  int stat;
+  while(stat = Xamine_CheckForCommand(&cmd)) {
+    if(stat == -1) {
+      exit(0);			// Pipe broke.
+    }
     switch(cmd.command) {
     case Enter:
       Xamine_ReadGate(&object);

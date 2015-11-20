@@ -224,3 +224,21 @@ CEventProcessor::OnEventSourceEOF()
 {
   return kfTRUE;
 }
+/**
+ * OnInitialize
+ *
+ * Called when SpecTcl initialization is complete.  This allows event
+ * processors to access stuff that may have been set up in OnAttach of other
+ * event processors (e.g. tree parameters/variables) or in the SpecTclInit.tcvl
+ * and SpecTclRC.tcl scripts.
+ *    @return Bool_t
+ *    @retval kfTRUE - continue processing.
+ *    @retval kfFALSE  - abort event processing pipeline.
+ *
+ *    The default action, implemented by this member is a successful no-op.
+ */
+Bool_t
+CEventProcessor::OnInitialize()
+{
+    return kfTRUE;
+}

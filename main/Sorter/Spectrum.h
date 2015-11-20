@@ -114,6 +114,7 @@ private:
   STD(vector)<Float_t> m_fHighs;	//!< STD(vector) of axis high limits.
   STD(vector)<STD(string)>  m_Units;	//!< Axis units.
   static Bool_t   m_Seedrandom;	//!< True if need to seed.
+  std::string     m_description;
 public:
 			// Constructor
 
@@ -168,6 +169,9 @@ public:
   Int_t getAxisMapCount() const {
     return m_AxisMappings.size();
   }
+  std::string getTextDescription() const {
+    return m_description;
+  }
   virtual SpectrumType_t getSpectrumType() = 0;
 
 
@@ -192,6 +196,10 @@ protected:
     m_fHighs.push_back(fHigh);
     m_Units.push_back(Units);
 
+  }
+public:
+  void setTextDescription(std::string d) {
+    m_description = d;
   }
   //
   // Operations:

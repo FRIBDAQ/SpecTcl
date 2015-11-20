@@ -511,7 +511,7 @@ static void SelectRelay(XMWidget *b, XtPointer ud, XtPointer cd)
 **      Pointers to names for the left and right slection columns.
 */
 Copy_Multiselect::Copy_Multiselect(XMForm *top, XMForm *bottom, 
-				   char *left_lbl, char *right_lbl) :
+				   const char *left_lbl, const char *right_lbl) :
      Copier_Form(top, left_lbl, right_lbl)
 {
 

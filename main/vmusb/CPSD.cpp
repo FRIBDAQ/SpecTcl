@@ -167,8 +167,7 @@ CPSD::getTree(CParamMapCommand::AdcMapping* pMap,
     }
     
     CTreeParameter::BindParameters();
+    CTreeParameter::setEvent(rEvent);
   }
-  CTreeParameter::setEvent(rEvent);
-
   return reinterpret_cast<CTreeParameterArray***>(pMap->extraData);
 }

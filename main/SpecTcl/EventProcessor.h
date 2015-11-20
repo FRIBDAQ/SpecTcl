@@ -93,6 +93,7 @@ class CEventProcessor {
 
   virtual Bool_t OnEventSourceOpen(STD(string) name);
   virtual Bool_t OnEventSourceEOF();
+  virtual Bool_t OnInitialize();
 };
 
 #endif

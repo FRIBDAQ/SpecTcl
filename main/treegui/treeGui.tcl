@@ -50,19 +50,16 @@ if {![winfo exists .treegui]}  {	# Don't do it twice!
     set time [time {
 	parametersTabActions parameters -widget $treenotebook.parameters} 1
 	     ]
-
     $treenotebook add $treenotebook.parameters -text Parameters -sticky nsew
     
     set time [time {
 	variableTabActions variables -widget $treenotebook.variables} 1
 	      ]
-
     $treenotebook add $treenotebook.variables -text Variables -sticky nsew
 
     set time [time {
 	gateTabActions gates -widget $treenotebook.gates} 1
 	      ]
-
     $treenotebook add $treenotebook.gates -text Gates -sticky nsew
     
     #  Now the folder gui as a new tab:
@@ -70,7 +67,7 @@ if {![winfo exists .treegui]}  {	# Don't do it twice!
     set time [time {
 	::FolderGui::startFolderGui .treegui $treenotebook} 1
 	      ]
-
+    puts "Time to load folder gui: $time"
     $treenotebook add $::FolderGui::folderGuiBrowser -text Folders -sticky nsew
     
     grid $treenotebook -sticky nsew

@@ -94,6 +94,33 @@ void SwappingBufferTranslator::GetBlock( const Address_t pItem,
   }
 }
 
+/**
+ * SwappingBuferTranslator::getQuad
+ *
+ * Turn a source uint64_t into a local uint64_t
+ * when the byte orders are backwards
+ *
+ * @param value - input quadword.
+ * @return uint64_t - the host orderd word.
+ */
+uint64_t
+SwappingBufferTranslator::getQuad(uint64_t value)
+{
+    // The result is that of swapping the two longs
+    // that make up the quad after swapping their byte orders:
+    
+    uint32_t low = value >> 32;
+    uint32_t high = value & 0xffffffff;
+    
+    low  = TranslateLong(low);
+    high = TranslateLong(high);
+    
+    uint64_t result = high;
+    result = (result << 32) | low;
+    
+    return result;
+    
+}
 /*-----------------------------------------------------------------------------
   Name:  NonSwappingBufferTranslator::GetBlock
 
@@ -150,4 +177,16 @@ Long_t BufferTranslator::GetLongword( UInt_t iOffset )
   Long_t Longword;
   GetBlock(&Longword, sizeof(Long_t), iOffset);
   return (Long_t)(Longword);
+}
+
+/**
+ * NonSwappingBufferTranslator::getQuad
+ *
+ * @param value 64 bits to reorder
+ * @return uint64_t local byte ordering.
+ */
+uint64_t
+NonSwappingBufferTranslator::getQuad(uint64_t value)
+{
+    return value;
 }

@@ -108,6 +108,44 @@ void CBufferDecoder::operator()(UInt_t nBytes, Address_t pBuffer, CAnalyzer& rAn
   m_pBuffer = 0;		// Finally declare the buffer once more invalid
 }
 
+
+void
+CBufferDecoder::OnAttach(CAnalyzer& junk)
+{}
+void
+CBufferDecoder::OnDetach(CAnalyzer& junk)
+{}
+
+bool
+CBufferDecoder::blockMode()
+{
+    return true;
+}
+
+
+/**
+ * OnSourceAttach
+ *   Called just after a new event source was attached.
+ */
+void
+CBufferDecoder::OnSourceAttach()
+{}
+/**
+ * OnSourceDetach
+ *     Called just before an event source is detached.
+ */
+void
+CBufferDecoder::OnSourceDetach()
+{}
+
+/**
+ * OnEndFile
+ *    Called just after a source sensed an end file.
+ */
+void
+CBufferDecoder::OnEndFile()
+{}
+
 ////////////////////////////////////////////////////////////////////////////
 //
 // Function:
@@ -124,32 +162,3 @@ void CBufferDecoder::ThrowIfNoBuffer(const char* pszWhatImDoing) {
     throw e;
   }
 } 
-
-void
-CBufferDecoder::OnAttach(CAnalyzer& junk)
-{}
-void
-CBufferDecoder::OnDetach(CAnalyzer& junk)
-{}
-
-
-/*!
-   Virtual function that is queried to determine if the decoder
-   requires that fixed length buffers be read.  The default is to
-   return true.  Returning false implies that the data source will
-   be read from in non blocking mode, and not be required to fill a full
-   buffer with data before dispatching to the decoder.  
-
-   This is essential for online attachment to stream-like data sources such
-   as the ring buffers system which otherwise could block on a read indefinitely
-   on run ends or run pauses.
-
-   \return bool
-   \retval true
-
-*/
-bool
-CBufferDecoder::blockMode() 
-{
-  return true;
-}

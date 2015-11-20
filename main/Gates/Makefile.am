@@ -1,9 +1,9 @@
-INCLUDES = -I. -I../Utility -I../Events -I../Xamine  -I@top_srcdir@/Sorter \
-	-I@top_srcdir@/NSCLException
+AM_CPPFLAGS = -I. -I../Utility -I../Events -I../Xamine  -I@top_srcdir@/Sorter \
+	-I@top_srcdir@/NSCLException @LIBTCLPLUS_CFLAGS@
+
 LDADD = -lTclGrammerCommands -lSorting -lXplus -lAnalysis -lEventSource \
-	-ltclPlus -lNSCLException -lXamine -ltape -ltk -ltcl -lXt -lX11 -lm \
-	-L. @TCL_LDFLAGS@
-# AM_LDFLAGS = -L. @TCL_LDFLAGS@
+	-ltclPlus -lNSCLException -lXamine @LIBTCLPLUS_LDFLAGS@ -ltape -ltk -ltcl -lXt -lX11 -lm \
+	-L. @TK_LIBS@ @TCL_LIBS@
 
 lib_LTLIBRARIES = libGates.la
 

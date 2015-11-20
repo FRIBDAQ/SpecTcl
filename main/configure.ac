@@ -1,21 +1,25 @@
 # Process this file with autoconf to produce a configure script.
-
-AC_INIT(SpecTcl/MySpecTclApp.cpp)
+AC_INIT(SpecTcl,3.5-001)
+AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
+
+AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
-AM_INIT_AUTOMAKE(SpecTcl, 3.3-018)
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_EXEEXT
 AC_OBJEXT
+
+# we use libtool, thus we need to include it
+LT_INIT
 
 #  This should track the version in
 #  AM_INIT_AUTOMAKE it will be used to
 #  define the version information in shared
 #  images.
 
-SOVERSION="3:3"
+SOVERSION="3:4"
 #
 
 # Checks for programs.
@@ -75,6 +79,8 @@ AC_CHECK_LIB(m, logb)
 AC_CHECK_FUNCS([strdup strstr strtol tzset mktime strtod timezone])
 
 
+
+
 #  The following are needed for strict ANSI c++ compilers The major features
 #  are whether or not there are .h -less headers and if there's an std
 #  namespace we'll need to import.
@@ -97,7 +103,7 @@ AC_CHECK_HEADER(typeinfo, [AC_DEFINE([HAVE_HLESS_TYPEINFO],1,[<typeinfo> exists]
 
 #   Is there an std namespace to import from?
 
-AC_COMPILE_IFELSE([using namespace std;], [AC_DEFINE([HAVE_STD_NAMESPACE],[1],[1 if std namespace defined])])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([using namespace std;])], [AC_DEFINE([HAVE_STD_NAMESPACE],[1],[1 if std namespace defined])])
 AH_VERBATIM([VHAVE_STD_NAMESPACE],[
 /* Define STD macro according to HAVE_STD_NAMESPACE value */
 #ifdef HAVE_STD_NAMESPACE
@@ -507,180 +513,7 @@ esac
 
 # Locate Tcl/Tk and setup compile/link switches for them too:
 
-#  TCL headers:
-#    We know of a few places the headers can live:
-#       /usr/include              redhat linux.
-#       /usr/include/tcl          debian dude that made  link to default tcl.
-#       /usr/include/tcl<version> debian linux
-#       /usr/local/include        default for source based install.
-#       Whatever the user specifies. 
-#        For now, the versions we look for are determined by the
-#        variable tcl_versions  that variable is a list of version 
-#        number specifiers.
-#
-
-tcl_versions="8.5 8.4 8.3 8.2 8.1 8.0"   # First match;  so order new -> old.
-
-
-#  The TCL Shell - used to run tests... must be in path.
-#  First check for a version qualified command:
-#
-
-AC_MSG_CHECKING([for tcl shell command...])
-for version in $tcl_versions
-do
-	name=tclsh${version}
-	AC_CHECK_PROG(TCLSH_CMD, $name, $name)
-done
-
-
-tcl_header_dir=""
-AC_MSG_CHECKING([for tcl header directory])
-
-AC_ARG_WITH(tcl-header-dir,
-	[  --with-tcl-header-dir=path Path to tcl headers],
-	[tcl_header_dir=$withval ;
-	tcl_headers_found="yes"],[tcl_headers_found="no"])
-
-
-#
-#  Look for tcl.h in the following places:
-#  Note that the order is important for Darwin and OSF1.
-	#
-	# /sw/include             (Best for darwin).
-	# /usr/local/tcl/include  (Best for NSCL Cygwin).
-	# /usr/local/include      (Best for NSCL OSF1)
-	# /usr/include            (Best for e.g. Linux).
-	#  
-	# For all of these directories,	
-	#  look for tcl.h in:
-	#    - the directory itself.
-	#    - a tcl subdirectory to the directory.
-	#    - subdirectories of the form tcl${version} where
-	#      version is chosein from tcl_versions.
-	#
-
-tcl_h_testdirs="/sw/include /usr/local/tcl/include /usr/local/include \
-	/usr/include"
-
-if test $tcl_headers_found = "no"
-then
-   for d in $tcl_h_testdirs
-   do
-	for v in ${tcl_versions};
-        do
-	   if test $tcl_headers_found = "no"
-           then
-	      AC_CHECK_FILE([${d}/tcl${v}/tcl.h],
-	                    [tcl_header_dir=${d}/tcl${v}
-	                     tcl_headers_found="yes"])
-           fi
-        done
-	if test $tcl_headers_found = "no"
-	then
-	   AC_CHECK_FILE([${d}/tcl.h],
-	                 [tcl_header_dir=$d
-	                  tcl_headers_found="yes"])
-        fi
-	if test $tcl_headers_found = "no"
-	then
-	   AC_CHECK_FILE([${d}/tcl/tcl.h],
-	                 [tcl_header_dir=${d}/tcl
-	                  tcl_headers_found="yes"])
-	fi
-   done
-fi
-
-if test $tcl_headers_found = "yes"; then
-   TCL_FLAGS=-I${tcl_header_dir}
-   AC_MSG_RESULT(Using path $tcl_header_dir)
-else
-   AC_MSG_ERROR([can't find tcl.h try using --with-tcl-header-dir to help me])
-fi
-
-#  Tcl libraries:
-#     We look for the following
-#        /sw/lib
-#       /usr/lib/libtcl.{so,dylib,a}      -  link to a default  lib.
-#       /usr/lib/x86_64-linux-gnu/libtcl<version>.{so,dylib,a}
-#       /usr/lib/libtcl<version>.{so,dylib,a} -  link to a specific lib.
-#       /usr/lib/i386-linux-gnu
-#      If --with-tcl-libdir=dir      is supplied, that directory is 
-#                                    searched first.
-# ASSUMPTIONS:  libtcl and libtk will have the same naming conventions.
-#
-#  If the extension ofthe library is .so, always put in an -rpath directive.
-
-tcl_libsearchpath=""
-tcl_libfound="no"
-AC_MSG_CHECKING([Tcl/Tk library to use])
-
-	# Does the user want us to look somewhere in particular:
-
-AC_ARG_WITH(tcl-libdir,
-	[  --with-tcl-libdir=dir Specify where the tcl libraries live.],
-	[tcl_libsearchpath=$withval])
-
-tcl_libsearchpath="$tcl_libsearchpath /sw/lib /usr/lib/x86_64-linux-gnu /usr/lib /usr/local/lib /usr/lib/i386-linux-gnu "
-
-tcl_libfiles=""
-for v in ${tcl_versions}
-do
-   tcl_libfiles="$tcl_libfiles  libtcl${v}.so libtcl${v}.dylib libtcl${v}.a"
-done
-tcl_libfiles="$tcl_libfiles libtcl.so libtcl.dylib libtcl.a"
-
-
-for dir in ${tcl_libsearchpath} 
-do
-  for file in ${tcl_libfiles}
-  do
-    fname=$dir/$file
-      AC_CHECK_FILE($fname,
-	[tcl_libdir=$dir
-         tcl_libname=$file
-	 tcl_libfound="yes"
-	])
-    if test $tcl_libfound = "yes" 
-    then
-      break
-    fi
-  done
-done
-
-if test $tcl_libfound = "yes" ; then
-  #
-  #  We need an -rpath if the library is a .so:
-
-  base=$(basename "$tcl_libname")
-  ext="${base##*.}"
-  Tcl_Rpath=""
-
-  if test $ext = "so"
-  then
-    Tcl_Rpath="-Wl,\"-rpath=${tcl_libdir}\""
-  fi
-
-  # Find the lib basename
-
-  tcl_libname=$(echo $tcl_libname|cut -c 4- )  # trim off lib 
-  
-  # The suffix now is either .so, .dylib or .a; basename can get rid of that:
-
-  tcl_libname=$(basename $(basename $(basename $tcl_libname .a) .so) .dylib)
-
-  # Rather than repeat this mess for tk, we require the same version and
-  # just replace the tcl with tk.
-
-  tk_libname=tk$(echo $tcl_libname|cut -c 4-)   # trim off tc...and use tk
-
-
-  TCL_LDFLAGS="-L${tcl_libdir} -l${tk_libname} -l${tcl_libname} ${Tcl_Rpath}"
-  AC_MSG_RESULT([Using directory $tcl_libdir])
-  
-else
-  AC_MSG_ERROR([Unable to find the tcl library, help me out with --with-tcl-libdir])
-fi
+AX_TCL
 
 # Look for image magick convert
 
@@ -709,7 +542,7 @@ AC_ARG_WITH(gd-headerdir,
 	   [gdheaderdir=$withval],
 	   [gdheaderdir=""])
 AC_ARG_WITH(gd-libdir,
-	   [   --with-gd-headerdir=path Path to libgd],
+	   [   --with-gd-libdir=path Path to libgd],
 	   [gdlibdir=$withval],
 	   [gdlibdri=""])
 
@@ -827,40 +660,10 @@ fi
 
 
 
-
-#  If cppunit is available we can try to bundle some tests.
-#  CPPUNIT will be defined to makefiles and CPPUNIT_INCLUDES
-#  CPPUNIT_LDFLAGS will be about what you'd expect  them to be.
-
-
-AC_ARG_ENABLE(cppunit,
-		AS_HELP_STRING([--enable-cppunit],[build cppunit based tests]),
-		[havecppunit="check"], [havecppunit="no"])
-
-if test "$havecppunit" != "no" 
-then
-	AC_LANG_PUSH(C++)
-	AC_MSG_CHECKING([for cppunit unit testing framework])
-
-	AC_CHECK_HEADERS([cppunit/Test.h], [havecppunit="yes"], [havecppunit="no"])
-	AC_MSG_RESULT([$havecppunit])
-	if test "$havecppunit" == "yes"
-	then
-		CPPUNIT_INCLUDES=""
-		CPPUNIT_LDFLAGS="-lcppunit"
-		AC_SUBST(CPPUNIT_INCLUDES)
-		AC_SUBST(CPPUNIT_LDFLAGS)
-         fi
-
-AC_LANG_POP(C++)
-
-# We also want the 'check' package for C language unit tests.
-
-# AM_PATH_CHECK()
-
-fi
-
-AM_CONDITIONAL(CPPUNIT, test $havecppunit == "yes")
+AM_PATH_CPPUNIT
+AM_CONDITIONAL([CPPUNIT], [test -n "${CPPUNIT_LIBS}"] )
+AM_CONDITIONAL([CPPUNITDONOTBUILD], [test -n ""])
+AM_CONDITIONAL([THIS_IS_NOT_DEFINED], [test -n ""])
 
 
 # We use mandb to index the man pages if it exists... not sure what the 
@@ -886,14 +689,58 @@ else
      AC_MSG_RESULT(no)
 fi
 
+##
+#  There's a utility that uses gengetopt:
+
+AX_GENGETOPT
+
+##
+# Check for zlib for the zip/unzip commands.
+
+AX_CHECK_ZLIB([AC_MSG_RESULT([Have zlib])], [AC_MSG_ERROR([zlib is a prerequisite for this version of SpecTcl])])
+
+
+#
+#   libTclPlus and libException could have been installed from 
+#   Ryan's Deb or I might need to install my own versions which
+#   get exported into the build tree from a tag of the repository
+#   into the libtcl subdirectory of this tree.
+#    
+#  Produce:
+#     LIBTCLPLUS_CFLAGS - Compilation flags required to build against the
+#                         appropriate one.
+#     LIBTCLPLUS_LDFLAGS - Appropriate linker flags.
+#
+# 
+
+AC_MSG_CHECKING([libtcl++ installed as package (e.g. .deb)])
+
+AC_CHECK_FILE([/usr/include/TCLInterpreterObject.h], [systemtcl="yes"], [systemtcl="no"])
+
+if test $systemtcl = "yes"
+then
+	LIBTCLPLUS_CFLAGS=""
+	LIBTCLPLUS_LDFLAGS="-ltclPlus -lException"
+	AC_MSG_RESULT([Found in  system libraries])
+else
+	AC_MSG_RESULT([Need to build local tagged copy])
+	AC_CHECK_FILE([./libtcl/configure], [havelibtcldir="yes"], [havelibtcldir="no"])
+	if test $havelibtcldir = "yes"
+	then
+		(cd libtcl; ./configure --prefix=${prefix}; make clean install)
+		LIBTCLPLUS_CFLAGS="-I${prefix}/include"
+		LIBTCLPLUS_LDFLAGS=-"L${prefix}/lib -ltclPlus -lException -Wl,\"-rpath=${prefix}/lib\""
+	else
+		AC_MSG_ERROR([I seem to be missing libtcl, please use tcl++incorp.sh to fill it with a tagged release of libtclplus])
+	fi
+
+fi
+AC_SUBST(LIBTCLPLUS_CFLAGS)
+AC_SUBST(LIBTCLPLUS_LDFLAGS)
+
 # mandb:
 
 AC_SUBST(MANDB)
-
-# tcl/tk
-AC_SUBST(TCL_FLAGS)
-AC_SUBST(TCL_LDFLAGS)
-AC_SUBST(TCLSH_CMD)
 
 # X flags
 
@@ -947,9 +794,9 @@ AC_SUBST(MANDOCBOOK)
 
 AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
         factories/Makefile					      \
-	Display/Makefile NSCLException/Makefile  \
+	Display/Makefile 
 	Xamine/Makefile Tape/Makefile \
-	EventSource/Makefile TCL/Makefile Events/Makefile Gates/Makefile \
+	EventSource/Makefile Events/Makefile Gates/Makefile \
 	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
 	Analysis/Makefile \
 	DecoderRing/Makefile \
@@ -963,4 +810,5 @@ AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
 	 filtsplit/Makefile doc/Makefile \
 	 calibratedparams/Makefile \
 	 ccusb/Makefile ccusb/MakefileSkel \
-	 vmusb/Makefile vmusb/MakefileSkel)
+	 vmusb/Makefile vmusb/MakefileSkel \
+	 tkcon/Makefile compress/Makefile )

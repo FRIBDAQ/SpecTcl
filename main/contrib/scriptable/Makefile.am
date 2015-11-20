@@ -1,12 +1,12 @@
 DEFS = @WCHAR_T_DEF@
-INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
+AM_CPPFLAGS =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
 	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Analysis \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
-	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
+	@TCL_CPPFLAGS@ @TK_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@ \
+	@LIBTCLPLUS_CFLAGS@
 
 bin_PROGRAMS=ScriptedSpecTcl
 lib_LTLIBRARIES=libScripted.la
@@ -84,20 +84,23 @@ noinst_HEADERS =  CBoolConfigParam.h \
 
 ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 
-ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
-	-lSorting -lXplus \
-	-lGates -lAnalysis \
-	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lBufferAnalysis \
-	-lXamine  -lTreeParam -lFits \
-	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
+ScriptedSpecTcl_LDFLAGS =   @top_builddir@/contrib/scriptable/libScripted.la \
+	 @top_builddir@/SpecTcl/libTclGrammerCommands.la \
+	@top_builddir@/Sorter/libSorting.la @top_builddir@/Xamine/libXplus.la \
+	@top_builddir@/Gates/libGates.la \
+	@top_builddir@/Events/libAnalysis.la \
+	@top_builddir@/Filter/libFilter.la @top_builddir@/EventSource/libEventSource.la \
+	@top_builddir@/SpectrumIO/libSpecio.la \
+	@top_builddir@/Analysis/libBufferAnalysis.la \
+	@top_builddir@/Display/libXamine.la  \
+	@top_builddir@/TreeParam/libTreeParam.la \
+	@top_builddir@/Fits/libFits.la \
+	@top_builddir@/Tape/libtape.la \
+	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
 	-lgsl -lgslcblas					\
-	@top_srcdir@/DecoderRing/libDecoderRing.la		\
-	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
-	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
-	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \
-	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
-	-L@top_srcdir@/TreeParam -L@top_srcdir@/Fits \
-	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	@top_builddir@/DecoderRing/libDecoderRing.la		\
+	@LIBTCLPLUS_LDFLAGS@ \
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ \
 	 -g -Wl,"-rpath=($prefix)/lib"
 
 #
@@ -146,26 +149,28 @@ noinst_PROGRAMS = unittest
 unittest_SOURCES = SegUnpackerTest.cpp ModuleTest.cpp PacketTest.cpp CreatorTest.cpp \
 	UnpackerTest.cpp TestRunner.cpp
 
+uinttest_CXXFLAGS=@CPPUNIT_CFLAGS@
+
 unittest_DEPENDENCIES = $(Main_Objects)
 
-unittest_LDFLAGS = $(Main_Objects) $(CPPUNIT_LDFLAGS) \
-	-L@top_srcdir@/SpecTcl -lTclGrammerCommands \
-	-L@top_srcdir@/Sorter -lSorting \
-	-L@top_srcdir@/Xamine -lXplus  \
-	-L@top_srcdir@/Gates -lGates   \
-	-L@top_srcdir@/Events -lAnalysis \
-	-L@top_srcdir@/EventSource -lEventSource \
-	-L@top_srcdir@/SpectrumIO -lSpecio \
-	-L@top_srcdir@/TCL -ltclPlus   \
-	-L@top_srcdir@/NSCLException -lException \
-	-L@top_srcdir@/Display -lXamine  \
-	-L@top_srcdir@/Tape -ltape       \
-	-L@top_srcdir@/Filter -lFilter \
-	-L@top_srcdir@/TreeParam -lTreeParam \
-	-L@top_srcdir@/Analysis -lBufferAnalysis  \
-	-L@top_srcdir@/Fits     -lFits         \
-	$(TCL_LDFLAGS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
+unittest_LDFLAGS = $(Main_Objects) @CPPUNIT_LIBS@ \
+	@top_builddir@/SpecTcl/libTclGrammerCommands.la \
+	@top_builddir@/Sorter/libSorting.la \
+	@top_builddir@/Xamine/libXplus.la \
+	@top_builddir@/Gates/libGates.la \
+	@top_builddir@/Events/libAnalysis.la \
+	@top_builddir@/EventSource/libEventSource.la \
+	@top_builddir@/SpectrumIO/libSpecio.la \
+	@top_builddir@/Display/libXamine.la \
+	@top_builddir@/Filter/libFilter.la \
+	@top_builddir@/TreeParam/libTreeParam.la \
+	@top_builddir@/Analysis/libBufferAnalysis.la \
+	@top_builddir@/Fits/libFits.la \
+	@top_builddir@/DecoderRing/libDecoderRing.la \
+	@top_builddir@/Tape/libtape.la \
+	@LIBTCLPLUS_LDFLAGS@ \
+	$(TCL_LIBS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
 
 
-TESTS = ./unittest
+#TESTS = ./unittest		#Needs Xamine to fire up :-(
 endif

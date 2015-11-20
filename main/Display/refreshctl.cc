@@ -69,12 +69,18 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
  */
      struct coords { int row, col; };
 
+
+// Global data:
+
+Boolean Xamine_hideGates;
+
 /*
  ** Static data:
  */
 static RefreshCallback refresh_callback  = NULL;
 static XtPointer       refresh_user_data = NULL;
 static Queue<Xamine_RefreshContext>  update_list;
+
 /*
  ** External functions referenced:
  */
@@ -853,8 +859,10 @@ Boolean Xamine_Refresh(XtPointer client_data)
       pdb->refresh_state(ctx->row, ctx->column, rfsh_grobjs);
     return False;
   case rfsh_grobjs:		/* Graphic objects, advance to grobj names */
-    pdb->refresh_state(ctx->row, ctx->column, rfsh_axes);
-    Xamine_DrawObjects(ctx, pdb->getdef(ctx->column, ctx->row));
+      pdb->refresh_state(ctx->row, ctx->column, rfsh_axes);
+    if (!Xamine_hideGates) {
+      Xamine_DrawObjects(ctx, pdb->getdef(ctx->column, ctx->row));
+    }
     return False;
   case rfsh_aborting:		/* Clear the window then done. */
     ClearWindow(ctx);

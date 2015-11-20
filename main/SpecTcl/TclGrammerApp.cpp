@@ -61,6 +61,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <CProjectionCommand.h>
 #include "IntegrateCommand.h"
+#include "VersionCommand.h"
+#include "SContentsCommand.h"
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -77,6 +79,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <tcl.h>
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
@@ -113,8 +116,100 @@ static const char* kpAppInitSubDir = "/etc";
 static const char* kpAppInitFile   = "/SpecTclInit.tcl";
 static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 
+static const char* ProtectedVariables[] = {
+  "DisplayMegabytes",
+  "ParameterCount",
+  "EventListSize",
+  "ParameterOverwriteAction",
+  "SpectrumOverwriteAction",
+  "TKConsoleHistory",
+  "TKConsoleBufferSize",
+  "NoPromptForNewGui",
+  "splashImage",
+  0
+};
+
 // Static attribute storage and initialization for CTclGrammerApp
 
+
+// Local classes:
+
+/**
+ * @class CSpecTclInitVar
+ *    Class that handles traces for variables that are set in SpecTclInit.tcl
+ *    -  On construction snapshot the variable value.
+ *    -  If write trace fires and the value is different - restore the value
+ *       and return an error.
+ *    -  If an unset trace fires, return an error.
+ */
+class CSpecTclInitVar : public CTCLVariable
+{
+  std::string m_originalValue;
+  std::string m_errorMessage;
+public:
+  CSpecTclInitVar(CTCLInterpreter* pInterp, const char* pVarName);
+private:
+  ~CSpecTclInitVar() {}                  // Not allowed to destroy.
+public:
+  virtual char* operator()(char* pName, char* pSubscript, int flags);
+  
+};
+
+/**
+ * CSpecTclInitVar constructor
+ *    - Construct with tracing off.
+ *    - Get the current value if defined.
+ *    - turn on write and unset tracing (control over tracing flags is why we
+ *      don't construct with tracing enabled).
+ */
+CSpecTclInitVar::CSpecTclInitVar(CTCLInterpreter* pInterp, const char* pName) :
+  CTCLVariable(pInterp, pName, false)
+{
+  const char* pCurrentValue = Get();
+  if (pCurrentValue) m_originalValue = pCurrentValue;
+  
+  Trace(TCL_TRACE_WRITES | TCL_TRACE_UNSETS);
+}
+/**
+ * operator()
+ *     Called when the trace fires.
+ *     See class docs for action.
+ *
+ *  @param pName      - name of the variable.
+ *  @param pSubscript - subscript of the variable.
+ *  @param flags      - Reason the trace fired.
+ *  @return char*     - Pointer to error message or NULL if set is allowed.
+ */
+char*
+CSpecTclInitVar::operator()(char* pName, char* pSubscript, int flags)
+{
+  char msg[1000];
+  
+  // All unsets are illegal:
+  
+  if (flags & TCL_TRACE_UNSETS) {
+    
+    sprintf(
+      msg, "%s can only be unset in SpecTclInit.tcl", getVariableName().c_str()
+    );
+    m_errorMessage = msg;
+    Set(m_originalValue.c_str());
+    return const_cast<char*>(m_errorMessage.c_str());
+  } else if (flags & TCL_TRACE_WRITES) {
+    
+    // Writes that change the value are illegal.
+    
+    const char* pNewValue = Get();
+    if (m_originalValue != std::string(pNewValue)) {
+      Set(m_originalValue.c_str());
+      sprintf(
+	msg, "%s can only be set in SpecTclInit.tcl", getVariableName().c_str()
+      );
+      m_errorMessage = msg;
+      return const_cast<char*>(m_errorMessage.c_str());
+    }
+  }
+}
 // Constructors, destructors and other replacements for compiler cannonicals:
 /*!
    Constructing a CTclGrammerApp is what glues the library called SpecTcl
@@ -289,7 +384,24 @@ void CTclGrammerApp::SourceLimitScripts(CTCLInterpreter& rInterpreter) {
     std::cerr << result << std::endl;
     exit(-1);
   }
-
+  /**
+     Now that the limit files are source we're going to noisily prevent
+     the user from modifying the following variables:
+     - DisplayMegabytes - Xamine shared memory data size.
+     - ParameterCount   - Initial # of parameters in an event.
+     - EventListSize    - Number of events batched before a histogram pass.
+     - ParameterOverwriteAtion - obsolete - determines action on read of
+                          SpecTcl parameters using an old read in file.
+     - TkConsoleHistory - Number of lines in TkCon history
+     - TkConsoleBufferSize - Number of bytes in the TkCon scrollback.
+     - NoPromptForNewGui - False if prompt for new/old gui.
+     - splashImage       - File containg the Tk Splash image displayed during
+                           SpecTclRC.tcl execution.  Must be a supported
+                           Tk image/photo type.
+  */
+  for (const char** pVarName = ProtectedVariables; *pVarName != 0; pVarName++) {
+    protectVariable(getInterpreter(), *pVarName);
+  }
 }  
 
 //  Function:
@@ -539,6 +651,11 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   CIntegrateCommand* pIntegrate = new CIntegrateCommand(rInterp);
   
   cerr << "integrate command (c) 2007 Written by Ron Fox\n";
+  
+  CVersionCommand* pVersion = new CVersionCommand(rInterp);
+  CSContentsCommand* pContents = new CSContentsCommand(rInterp);
+  
+  cerr << "version, scontents command (c) 2015 Written by Ron Fox\n";
 
   cerr.flush();
 }
@@ -667,6 +784,12 @@ int CTclGrammerApp::operator()() {
   // to run.  By the time these are run, SpecTcl is essentially completely
   // set up.
   SourceFunctionalScripts(*gpInterpreter);
+  
+  // Now that SpecTcl is essentially set up, we can initialize the analyzer
+  
+  SpecTcl*      pApi      = SpecTcl::getInstance();
+  CTclAnalyzer* pAnalyzer = pApi->GetAnalyzer();
+  pAnalyzer->OnInitialize();
 
   // Additional credits.
 
@@ -784,4 +907,21 @@ CTclGrammerApp::SourceOptionalFile(CTCLInterpreter& rInterp, std::string filenam
     return error;
   }
   
+}
+/**
+ * protectVariable
+ *    Called to protect a global variable.
+ *    since this is an application class, the code below only _looks_ like it
+ *    leaks memory.  What the new's below do is ensure that the
+ *    variable remains in scope the lifetime of the application.
+ *    This is used to write protect variables that are defined by the SpecTclInit.tcl
+ *    file from later, misleading, modification.
+ *   
+ *    @param pInterp  - pointer to the interpreter the variable lives in.
+ *    @param pVarName - pointer to the variable name.
+ */
+void
+CTclGrammerApp::protectVariable(CTCLInterpreter* pInterp, const char* pVarName)
+{
+  new CSpecTclInitVar(pInterp, pVarName);
 }

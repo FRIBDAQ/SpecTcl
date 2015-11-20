@@ -405,7 +405,7 @@ CSpectrumS::CSpectrumS(const std::string&        rName,
   m_nChannel(nchannel.getNumber()),
   m_nParameter(rParameter.getNumber())
 {
-  AddAxis(nChannels, fLow, fHigh, rParameter.getUnits());
+  AddAxis(nChannels, fLow, fHigh, nchannel.getUnits());
   CreateChannels();
   m_nOffset=0;
 }
@@ -421,9 +421,9 @@ CSpectrumS::Increment(const CEvent& rE)
 
 
   if(rTime.isValid() && rParam.isValid()) {  // Only increment if params present.
-    Int_t nChannel = (Int_t)ParameterToAxis(0, rTime)- m_nOffset;
+    int64_t nChannel = (int64_t)ParameterToAxis(0, rTime)- m_nOffset;
 
-    int shift = nChannel;
+    int64_t shift = nChannel;
     if (nChannel >= m_nChannels ) {
       shift = static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels);
       ShiftDataDown(shift);
@@ -573,7 +573,7 @@ CSpectrumS::CreateChannels()
 */
 
 void
-CSpectrumS::ShiftDataDown(int nShift) 
+CSpectrumS::ShiftDataDown(int64_t nShift) 
 {
     UInt_t* p = (UInt_t*)getStorage();
 
@@ -593,7 +593,7 @@ CSpectrumS::ShiftDataDown(int nShift)
 
 
 void 
-CSpectrumS::ShiftDataUp(int nShift)
+CSpectrumS::ShiftDataUp(int64_t nShift)
 {
     UInt_t* p = (UInt_t*)getStorage();
     assert(p != (UInt_t*)kpNULL);

@@ -409,7 +409,7 @@ static void Copy_Relay(XMWidget *button, XtPointer userd, XtPointer calld)
 ** NOTE:
 **    The default is a rightward facing arrow.
 */
-Copier_Form::Copier_Form(XMForm *parent, char *leftlbl, char *rightlbl)
+Copier_Form::Copier_Form(XMForm *parent, const char *leftlbl, const char *rightlbl)
 {
   left_label = new XMLabel("Left_Label", *parent, leftlbl);
   right_label= new XMLabel("Right_Label", *parent, rightlbl);

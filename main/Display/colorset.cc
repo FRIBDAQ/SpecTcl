@@ -1229,7 +1229,7 @@ void BuildButtons(int mapsize, XMWidget *manager)
     button_table[i].pixel = pixels[i]; /* Select a pixel. */
 
 
-    sprintf(name, "Button-%d", i);  /* Widget name. */
+    sprintf(name, "Button-%lld", i);  /* Widget name. */
     sprintf(txt,  "%d\n\n%d", 
 	    button_table[i].hi,
 	    button_table[i].low); /* Button label */

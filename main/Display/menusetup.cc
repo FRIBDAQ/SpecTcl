@@ -73,6 +73,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "Tab.h"
 #include "wysiwygPrint.h"
 
+extern Boolean Xamine_hideGates;
+
 
 /*
 ** External references: 
@@ -311,7 +313,14 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
 					     Xamine_DisplayAdvance };
 
 
+
+  
+
   pd = bar->AddPulldown("Spectra", 20);
+  tb = pd->AddMenuToggleButton("Hide Gates");
+  tb->AddCallback(Xamine_ToggleAndRefresh, (XtPointer)(&Xamine_hideGates));
+  Xamine_AddtoBasePackage(tb);
+
   b = pd->AddMenuButton("SMDisplay");
   b->Label("Display Spectrum ...");
   b->SetAccelerator("Meta<Key>D","Alt+D");

@@ -1,15 +1,14 @@
-INCLUDES = -I. -I../Utility -I../NSCLException -I../Xamine -I../Gates \
-	   -I../Events -I../Display @TCL_FLAGS@ -I.. -I@top_srcdir@/Fits 
+AM_CPPFLAGS = -I. -I../Utility @LIBTCLPLUS_CFLAGS@ -I../Xamine -I../Gates \
+	   -I../Events -I../Display @TCL_CPPFLAGS@ -I.. -I@top_srcdir@/Fits 
 
 libSorting_la_LIBADD =  @top_srcdir@/Xamine/libXplus.la 	\
 			@top_srcdir@/Gates/libGates.la 		\
 			@top_srcdir@/Events/libAnalysis.la 	\
 			@top_srcdir@/EventSource/libEventSource.la \
-			@top_srcdir@/TCL/libtclPlus.la   	 \
-			@top_srcdir@/NSCLException/libException.la 	\
+			@LIBTCLPLUS_LDFLAGS@	\
 			@top_srcdir@/Display/libXamine.la	
 
-# AM_LDFLAGS = -L. @TCL_LDFLAGS@ @XTLIBSW@ @XLIBSW@
+
 
 lib_LTLIBRARIES = libSorting.la
 libSorting_la_LDFLAGS = -version-info $(SOVERSION):0 \
@@ -49,9 +48,9 @@ noinst_PROGRAMS=TestRunner
 
 TestRunner_SOURCES=TestRunner.cpp TestDictObservers.cpp
 
-TestRunner_CXXFLAGS=$(CPPUNIT_INCLUDES)
+TestRunner_CXXFLAGS=@CPPUNIT_CFLAGS@
 
-TestRunner_LDADD = $(CPPUNIT_LDFLAGS)
+TestRunner_LDADD = @CPPUNIT_LIBS@
 
 noinst_HEADERS = Asserts.h
 
