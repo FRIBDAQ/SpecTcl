@@ -1,5 +1,9 @@
 *.lo
+*.la
 *.o
-*/.deps
-*/.svn
-*/.libs
+*.deps
+*.svn
+*.libs
+*~
+*.tar.gz
+
