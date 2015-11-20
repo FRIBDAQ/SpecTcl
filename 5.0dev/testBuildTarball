@@ -1,0 +1,19 @@
+#!/bin/bash -xe
+
+
+rm -rf ${WORKSPACE}/5.0
+
+version=`grep AM_INIT_AUTOMAKE configure.ac | cut -f2 -d" " | sed s/,//`
+
+rm -rf SpecTcl-${version}
+
+tar xzf SpecTcl-${version}.tar.gz
+cd SpecTcl-${version}
+
+./configure --prefix=${WORKSPACE}/5.0
+make clean all
+make check
+make install
+# make installcheck
+
+rm -rf ${WORKSPACE}/5.0
