@@ -1,0 +1,9 @@
+*.lo
+*.la
+*.o
+*.deps
+*.svn
+*.libs
+*~
+*.tar.gz
+
