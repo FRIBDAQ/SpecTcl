@@ -85,9 +85,9 @@ CSpectrum2Dm::CSpectrum2Dm(string              name,
       Range covered by y axis.
 
 */
-CSpectrum2Dm:: CSpectrum2Dm(STD(string)              name,
+CSpectrum2Dm:: CSpectrum2Dm(std::string              name,
 			    UInt_t                   id,
-			    STD(vector)<CParameter>& parameters,
+			    std::vector<CParameter>& parameters,
 			    UInt_t                   xchans,
 			    UInt_t                   ychans,
 			    Float_t  xlow, Float_t   xhigh,
@@ -175,6 +175,30 @@ CSpectrum2Dm::getSpectrumType()
 /////////////////////////////////////////////////////////////////////
 ///////////////////// protected utilities //////////////////////////
 ////////////////////////////////////////////////////////////////////
+
+/**
+ * canIncrement
+ *    Determines if the spectrum can be incremented given a x/y
+ *    channel coordinate pair.  If not, the appropriate over/underflow
+ *    logging is done.
+ *
+ *    @param ix - integer x parameter
+ *    @param iy - integer y parameter
+ *    @param nx - # x channels.
+ *    @param ny - # y channels.
+ *
+ *    @return bool - true if both parameters are in range false otherwise.
+ */
+bool
+CSpectrum2Dm::canIncrement(Int_t ix, Int_t iy, int nx, int ny)
+{
+
+  bool xok = checkRange(ix, nx, 0);
+  bool yok = checkRange(iy, ny, 1);
+  
+  return xok && yok;
+}
+
 
 /*!
   This function fills in a spectrum definition with the exception
@@ -267,6 +291,7 @@ CSpectrum2Dm::CreateMappings(vector<CParameter>& parameters,
 	       CParameterMapping(parameters[i+1]));
     m_axisMappings.push_back(ymap);
   }
+  createStatArrays(2);
 }
 /*!
    This spectrum should not be classified as needing

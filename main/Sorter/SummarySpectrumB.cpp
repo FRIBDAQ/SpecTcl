@@ -189,8 +189,8 @@ CSummarySpectrumB::Increment(const CEvent& rEv)
 	Float_t rawParam = rEvent[m_vParameters[xChan]];
 	UInt_t y = Randomize(ParameterToAxis(xChan,
 					     rawParam));
-	
-	if((y >= 0)   && (y < m_nYScale)) {
+    
+	if(checkRange(y, m_nYScale, 0)) {
 	  pStorage[xChan + y*m_nXChannels]++;
 	}
       }
@@ -349,6 +349,8 @@ CSummarySpectrumB::CreateStorage()
 
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
+  
+  createStatArrays(1);        // Can only over/under flow on y.
 }
 /*!
    Creates a spectrum defintion that is suffient to allow the

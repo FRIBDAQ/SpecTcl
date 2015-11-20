@@ -39,10 +39,10 @@ public:
   float         Total(unsigned int channel) const;
   unsigned long lastIntervalStart() const;
   unsigned long lastIntervalEnd() const;
-  STD(string)   Title() const;
+  std::string   Title() const;
   int           runNumber() const;
-  STD(string)   runStartTime() const;
-  STD(string)   runEndTime() const;
+  std::string   runStartTime() const;
+  std::string   runEndTime() const;
 
   void addCallback(unsigned int nBufferType, CBufferCallback&amp; callback);
   void removeCallback(unsigned int nBufferType, CBufferCallback&amp; callback);
@@ -124,18 +124,17 @@ start interval invalid'' is thrown.
 <DT><B>unsigned long lastIntervalEnd() const</B><DD>
 Same as <B>lastIntervalStat()</B>, however the elapsed times returned are those
 until the end of the most recent scaler read interval.
-<DT><B> STD(string)   Title() const</B><DD>
+<DT><B> std::string   Title() const</B><DD>
 Retrurns a string that contains the title of the current run.  If no buffers
 with titles have been seen (note the start of run has a title), this will be an
-empty string.  <B>STD()</B> is a macro which, if necessary prefixes its
-parameter with <B>std::</B>. 
+empty string.  
 <DT><B>int           runNumber() const</B><DD>
 returns the number of the run currently being processed.  This will be -1 if no
 run has ever been processed.
-<DT><B>STD(string)   runStartTime() const</B><DD>
+<DT><B>std::string   runStartTime() const</B><DD>
 Returns the time at which this run started.  This will be a string of the form:
 ``Month day,year, hh:mm:ss'', for example ``February 18, 2005, 13:11:15''.
-<DT><B> STD(string)   runEndTime() const</B><DD>
+<DT><B> std::string   runEndTime() const</B><DD>
 Once the run has been completely processed, this will return the time the run
 ended as a timestamp string.  The form of the timestamp will be identical to
 that returned by <B>runStartTime()</B>.   Prior to the end of run, this will
@@ -195,7 +194,7 @@ the data file, prints out the histogram of buffer types with zeroes supressed.
 #include &lt;<A HREF="file:///usr/include/fcntl.h">fcntl.h</A>&gt;
 #include &lt;<A HREF="file:///usr/include/string.h">string.h</A>&gt;
 
-#include &lt;<A HREF="file:///usr/include/Iostream.h">Iostream.h</A>&gt;
+#include &lt;<A HREF="file:///usr/include/iostream">iostream</A>&gt;
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

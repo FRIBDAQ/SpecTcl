@@ -104,6 +104,11 @@ typedef char spec_title[128];	/* Spectrum name string */
 typedef spec_title spec_label;	/* These two must be the same due to 
                                    the implementation of cvttitle in spectra.cc */
 
+typedef struct _statistics {
+    unsigned int   overflows[2];
+    unsigned int   underflows[2];
+} Statistics, *pStatistics;
+
 typedef enum {
                undefined = 0,
 	       twodlong = 5,
@@ -130,6 +135,7 @@ typedef struct _Xamine_shared {
   unsigned int    dsp_offsets[XAMINE_MAXSPEC];
   spec_type       dsp_types[XAMINE_MAXSPEC];
   spec_map        dsp_map[XAMINE_MAXSPEC];
+  Statistics      dsp_statistics[XAMINE_MAXSPEC];
   spec_spectra    dsp_spectra;
   char            page_pad[PAGESIZE];
 

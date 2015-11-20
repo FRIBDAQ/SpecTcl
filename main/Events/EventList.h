@@ -314,7 +314,7 @@
 #endif
 #endif
 
-typedef STD(vector)<CEvent*>   CEventVector;
+typedef std::vector<CEvent*>   CEventVector;
 typedef CEventVector::iterator CEventListIterator;
 typedef CEvent *pCEvent;
 

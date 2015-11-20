@@ -52,7 +52,7 @@ public:
 public:
 
   virtual   CFit* operator() () ; 
-  virtual   STD(string) DescribeFit();
+  virtual   std::string DescribeFit();
 
 };
 

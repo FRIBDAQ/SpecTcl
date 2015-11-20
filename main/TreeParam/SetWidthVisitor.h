@@ -60,7 +60,7 @@ private:
   
 public:
   virtual ~SetWidthVisitor();
-  SetWidthVisitor(STD(string) pattern, double width);
+  SetWidthVisitor(std::string pattern, double width);
   virtual void OnMatch(CTreeParameter* parameter);
   
 };

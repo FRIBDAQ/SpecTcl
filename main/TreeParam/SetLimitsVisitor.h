@@ -1,3 +1,4 @@
+
 ///////////////////////////////////////////////////////////
 //  SetLimitsVisitor.h
 //  Implementation of the Class SetLimitsVisitor
@@ -66,7 +67,7 @@ private:
 public:
 
   virtual ~SetLimitsVisitor();
-  SetLimitsVisitor(STD(string) pattern, double low, double high);
+  SetLimitsVisitor(std::string pattern, double low, double high);
   virtual void OnMatch(CTreeParameter* parameter);
   
 };

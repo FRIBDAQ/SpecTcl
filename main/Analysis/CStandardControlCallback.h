@@ -64,7 +64,7 @@ public:
 
   // Utilities:
 
-  static STD(string) StringTime(TranslatorPointer<unsigned short> p);
+  static std::string StringTime(TranslatorPointer<unsigned short> p);
 };
 
 #endif

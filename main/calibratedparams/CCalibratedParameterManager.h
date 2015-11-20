@@ -64,8 +64,8 @@ class CCalibratedParameterManager : public CEventProcessor
 {
 	// Data types exported to the world.
 public:
-	typedef STD(pair)<STD(string), CCalibratedParameter*> MapEntry;
-	typedef STD(map)<STD(string), CCalibratedParameter*> CalibratedParameterDictionary;
+	typedef std::pair<std::string, CCalibratedParameter*> MapEntry;
+	typedef std::map<std::string, CCalibratedParameter*> CalibratedParameterDictionary;
 	typedef CalibratedParameterDictionary::iterator CalibratedParameterIterator;
 private:
   
@@ -89,18 +89,18 @@ public:
 	virtual   Bool_t operator() (const Address_t pEvent, CEvent& rEvent, 
 							     CAnalyzer& rAnalyzer, 
 							     CBufferDecoder& rDecoder)   ; 
-    static void AddParameter (STD(string) rName, CCalibratedParameter* pParam)   ; 
-    static CCalibratedParameter* DeleteParameter (STD(string) rName)   ; 
+    static void AddParameter (std::string rName, CCalibratedParameter* pParam)   ; 
+    static CCalibratedParameter* DeleteParameter (std::string rName)   ; 
     static CalibratedParameterIterator begin ()   ; 
     static CalibratedParameterIterator end ()   ; 
     static size_t size ()   ; 
-    static CalibratedParameterIterator FindParameter (STD(string) rName)   ; 
+    static CalibratedParameterIterator FindParameter (std::string rName)   ; 
     
     // Private utilities:
 private:
-    static STD(string) ReportEvaluationException(CalibratedParameterIterator i);
+    static std::string ReportEvaluationException(CalibratedParameterIterator i);
     template <class T> static void
-    OutputEvaluationException(STD(string) prefix,
+    OutputEvaluationException(std::string prefix,
                               T&      rExcept); //!< Output writable exceptions.
 
 };

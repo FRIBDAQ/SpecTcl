@@ -325,8 +325,8 @@ DAMAGES.
                                
 
 
-typedef STD(map)<STD(string), CSpectrumFormatter*>            FormatterMap;
-typedef STD(map)<STD(string), CSpectrumFormatter*>::iterator  FormatterIterator;
+typedef std::map<std::string, CSpectrumFormatter*>            FormatterMap;
+typedef std::map<std::string, CSpectrumFormatter*>::iterator  FormatterIterator;
 
 class CSpectrumFormatterFactory      
 {                       
@@ -383,10 +383,10 @@ protected:
   }
 public:
 
-  static  void AddFormatter (const STD(string)& rKeyword, 
+  static  void AddFormatter (const std::string& rKeyword, 
 			     CSpectrumFormatter* pFormatter)    ;
-  static  CSpectrumFormatter* DeleteFormatter (const STD(string)& rKeyword)    ;
-  static  CSpectrumFormatter* MatchFormatter (const STD(string)& rKeyword)    ;
+  static  CSpectrumFormatter* DeleteFormatter (const std::string& rKeyword)    ;
+  static  CSpectrumFormatter* MatchFormatter (const std::string& rKeyword)    ;
   static  FormatterIterator FormatterBegin ()    ;
   static  FormatterIterator FormatterEnd ()    ;
  
@@ -396,7 +396,7 @@ class CSpectrumStandardFormatters
 {
 public:
   struct RegistrationEntry {
-    STD(string)               Keyword;
+    std::string               Keyword;
     CSpectrumFormatter*  Formatter;
   };
 private:

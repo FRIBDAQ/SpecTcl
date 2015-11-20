@@ -81,8 +81,8 @@ private:
 
   virtual Bool_t operator()(CButtonEvent& event);
 
-  STD(string) spectrumName(CButtonEvent& event);
-  void        invokeScript(STD(string) script);
+  std::string spectrumName(CButtonEvent& event);
+  void        invokeScript(std::string script);
 
 };
 

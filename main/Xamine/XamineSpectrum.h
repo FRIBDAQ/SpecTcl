@@ -59,14 +59,14 @@ class CXamineSpectrum
 {
   Address_t m_pStorage;  // Points to spectrum storage.
   UInt_t m_nSlot;  // Xamine spectrum slot number.
-  STD(string) m_sTitle;  // Name of the spectrum.
+  std::string m_sTitle;  // Name of the spectrum.
   volatile Xamine_shared* m_pXamineMemory;  // Xamine shared memory region.
   
 public:
 
                         // Constructor with parameters:
 
-  CXamineSpectrum(volatile Xamine_shared* pXamine, const STD(string)& rName) :
+  CXamineSpectrum(volatile Xamine_shared* pXamine, const std::string& rName) :
     m_pStorage(kpNULL),
     m_nSlot(0),
     m_sTitle(rName),
@@ -124,7 +124,7 @@ public:
   {
     return m_nSlot;
   }
-  const STD(string)& getTitle() const
+  const std::string& getTitle() const
   {
     return m_sTitle;
   }
@@ -144,7 +144,7 @@ protected:
   { 
     m_nSlot = am_nSlot;
   }
-  void setTitle (const STD(string)& am_sTitle)
+  void setTitle (const std::string& am_sTitle)
   { 
     m_sTitle = am_sTitle;
   }
@@ -159,7 +159,7 @@ public:
     return m_pXamineMemory->dsp_types[m_nSlot];
   }
   Bool_t is1d ()  ;
-  void setInfoString(STD(string) infoString);
+  void setInfoString(std::string infoString);
 
   //
   // Pure virtual member functions:

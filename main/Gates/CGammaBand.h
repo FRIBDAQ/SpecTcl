@@ -51,7 +51,7 @@ class CEvent;
 class CGammaBand : public CBand
 {
 public:
-  typedef STD(vector)<UInt_t> ParameterList;
+  typedef std::vector<UInt_t> ParameterList;
   typedef ParameterList::iterator parameterIterator;
 private:
   /**
@@ -62,14 +62,14 @@ private:
 public:
   CGammaBand();
   virtual ~CGammaBand();
-  CGammaBand(const STD(vector)<FPoint>& rPoints, const ParameterList& rParameters);
+  CGammaBand(const std::vector<FPoint>& rPoints, const ParameterList& rParameters);
   CGammaBand(const CGammaBand& rhs);
   CGammaBand& operator=(const CGammaBand& rhs);
   int operator==(const CGammaBand& rhs) const;
   int operator!=(const CGammaBand& rhs) const;
   ParameterList getParameters() const;
   CGate* clone();
-  STD(string) Type() const;
+  std::string Type() const;
   virtual Bool_t inGate(CEvent& rEvent);
   CGammaBand::parameterIterator parametersBegin();
   CGammaBand::parameterIterator parametersEnd();

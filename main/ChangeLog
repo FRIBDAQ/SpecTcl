@@ -1052,3 +1052,19 @@ November 30-?? 2011
         * Add TCLLIBS back into the compilation includes but use sed to
 	  remove the -lieee to prevent the double def of _LIB_VERSION
 	
+4.0
+        * Feature #1710 Deprecate the headers: Iomanip.h, Typeinfo.h  Fstream.h Istream.h Ostream.h
+          Sstream.h Iostream.h, Applications shouls use instead <iomanip> directly
+          now that this is in the standard.
+        * Feature #3503 Fix autoconf warnings.
+        * Bug #1746 Remove fixed paths to /usr/opt/daq in SpecTcl - configure
+          them in with a default.
+        * Feature #2760 - new analysis framework to replace the 8.0 version.  
+	* Feature #3479 (change to existing functionality) Make
+	spectra/displays from [low, hi) with nchan binning.
+	* Feature #3922 - provide over/underflow statistics for spectra.
+	* Feature #382 - Add a parameter selection menu button to the tree
+	  parameter classic gate tab to aid in generating gates.
+	* Feature #3527 - Add C++ startup code to put $SpecTclHome/TclLibs
+	  in auto_path so scripts don't have to worry about it.
+	

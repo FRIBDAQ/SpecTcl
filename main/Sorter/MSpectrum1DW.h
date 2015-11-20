@@ -42,7 +42,7 @@ class CMSpectrum1DW  : public CSpectrum1DW
     UInt_t  nScale;
     Float_t nLow;
     Float_t nHigh;
-    STD(string) sUnits;
+    std::string sUnits;
     int operator== (const MParameterDef& r) const {
       return ((nLow == r.nLow) && (nHigh == r.nHigh) && (nScale == r.nScale)
 	      && (sUnits == r.sUnits));
@@ -56,7 +56,7 @@ class CMSpectrum1DW  : public CSpectrum1DW
  public:
 
   //Constructor(s) with arguments
-  CMSpectrum1DW(const STD(string)& rName, UInt_t nId,
+  CMSpectrum1DW(const std::string& rName, UInt_t nId,
 		const CParameter& rParameter,
 		Float_t nLow, Float_t nHigh, 
 		UInt_t nChannels);
@@ -101,7 +101,7 @@ class CMSpectrum1DW  : public CSpectrum1DW
     {
       return m_Parameter;
     }
-  STD(string) getUnits() const
+  std::string getUnits() const
     {
       return m_Parameter.sUnits;
     }

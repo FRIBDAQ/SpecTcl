@@ -21,6 +21,5 @@
 lappend auto_path [file dirname [info script]]
 
 package require SpecTclGui
-puts "Starting folder GUI"
-puts [time {::FolderGui::startFolderGui}]
 
+::FolderGui::startFolderGui

@@ -34,7 +34,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "SpecTcl.h"
 #include <buftypes.h>
 #include <CTreeParameter.h>
-#include <Iostream.h>
+#include <iostream>
 
 #include <algorithm>
 #include <stdio.h>

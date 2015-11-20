@@ -46,11 +46,29 @@ EXTRA_DIST = Sorter.WC Sorter.omt
 if CPPUNIT
 noinst_PROGRAMS=TestRunner
 
-TestRunner_SOURCES=TestRunner.cpp TestDictObservers.cpp
+TestRunner_SOURCES=TestRunner.cpp TestDictObservers.cpp \
+	Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
+	TestGammaSummary.cpp TestG2dDeluxe.cpp TestGamma1.cpp   \
+	TestGamma2.cpp TestGammaDeluxe.cpp
 
-TestRunner_CXXFLAGS=@CPPUNIT_CFLAGS@
 
-TestRunner_LDADD = @CPPUNIT_LIBS@
+TestRunner_CXXFLAGS=-I@top_srcdir@/Filter -I@top_srcdir@/SpecTcl \
+	@CPPUNIT_CFLAGS@  
+
+TestRunner_LDADD =   Spectrum.lo Spectrum1DL.lo Spectrum1DW.lo \
+	Spectrum2DB.lo Spectrum2DW.lo Spectrum2DL.lo \
+	SummarySpectrumB.lo SummarySpectrumW.lo SummarySpectrumL.lo \
+	BitSpectrumL.lo BitSpectrumW.lo \
+	CGammaSummarySpectrum.lo	\
+	CSpectrum2Dm.lo CSpectrum2DmB.lo CSpectrum2DmW.lo CSpectrum2DmL.lo \
+	CGammaSpectrum.lo Gamma1DL.lo Gamma1DW.lo \
+	Gamma2DL.lo Gamma2DW.lo Gamma2DB.lo \
+	Gamma2DD.lo				\
+	Parameter.lo CAxis.lo \
+	CParameterMapping.lo \
+	@top_builddir@/Events/libAnalysis.la  \
+	@top_builddir@/Gates/libGates.la  \
+	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ @CPPUNIT_LIBS@
 
 noinst_HEADERS = Asserts.h
 

@@ -102,6 +102,7 @@ snit::widget gateContainer {
 
     delegate option -createcmd  to gatecreate
     delegate option -menugates  to gatecreate as -gates
+    delegate option -menuparams to gatecreate as -parameters
     delegate option -gatename   to gatecreate
     delegate option -definition to gatecreate
     delegate option -type       to gatecreate

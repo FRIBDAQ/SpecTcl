@@ -1049,31 +1049,10 @@ November 30-?? 2011
 	* Factor in the daqroot preference in finding ringselector.
 	* Figure out if ringselector supports --non-blocking and
           if so turn it on.
-        * Make strip chart spectra able to do 64 bit shifts.
-        * Fix error in displaying gates on 2dsum spectra: was the case that all but
-          gates on the first two parameters were displayed flipped.
-        * Fix error in compound get visual editor - was calling a deprecated browser
-          method.
-3.4-005
-       * Feature #3531 - add version command.
-       * Feature #3532 - add scontents command.
-       * Feature #3538 - add compress package with deflate/inflate commands.
-
-3.4-006
-      * Feature #4192, Bug #4897 - All variables that can be set in 
-        SpecTclInit.tcl now have traces established on them that make it a
-        Tcl script error to modify them after SpecTclInit.tcl has been 
-        run.
-      * Bug #4900 - if bind fails in spectrum creation:
-        *  Give meaningful message to the user.
-        *  Delete any spectra the operation may have created
-        *  If there are previously defined spectra with the same name, 
-           re-create them.
-      * Bug #4858 - Indicate width of channel in tree gui.
-      * Bug #4861 - Fix error that happens when one blansk out the parameter
-        field.
-
-3.5-001
-     * Fix Bug #4969 - when I added the data type to the spectrum type column
-       that invalidated the code in spectrumTabActions.tcl's is2dSpectrum 
-       
+        * Add TCLLIBS back into the compilation includes but use sed to
+	  remove the -lieee to prevent the double def of _LIB_VERSION
+	
+4.0
+        * Deprecate the headers: Iomanip.h, Typeinfo.h  Fstream.h Istream.h Ostream.h
+          Sstream.h Iostream.h, Applications shouls use instead <iomanip> directly
+          now that this is in the standard.

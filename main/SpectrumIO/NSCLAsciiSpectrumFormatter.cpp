@@ -57,13 +57,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2009, Al
 #include <SpectrumFormatError.h>
 #include <StreamIOError.h>
 #include <SpectrumFactory.h>
+#include <stdint.h>
 
 #include <math.h>
 #include <limits.h>
 #include <time.h>
 #include <string.h>
 #include <vector>
-#include <Sstream.h>
+#include <sstream>
 #include <ctype.h>
 
 #ifdef HAVE_STD_NAMESPACE
@@ -80,7 +81,7 @@ static const char* HeaderEnding= "--------------------------------------------\n
 // various data types.
 //
 
-static ULong_t Maxima[] = {
+static uint64_t Maxima[] = {
   UCHAR_MAX,			// Largest UChar_t
   USHRT_MAX,			// Largest UShort_t
   ULONG_MAX,			// Largest ULong_t

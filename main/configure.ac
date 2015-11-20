@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(SpecTcl,3.5-001)
+AC_INIT(SpecTcl,4.0-beta)
 AC_CONFIG_SRCDIR(SpecTcl/MySpecTclApp.cpp)
 AC_CONFIG_AUX_DIR(config)
 
@@ -116,6 +116,21 @@ AH_VERBATIM([VHAVE_STD_NAMESPACE],[
 
 AC_LANG_POP(C++)
 
+#
+#  By default nscldaq will be in /usr/opt/daq/current
+#  This can be overidden with --with-nscldaq-root.
+#  We're not going to check to see if there really is an nscldaq since it's valid
+#  to install SpecTcl on a daq-less system for analysis.
+
+AC_ARG_WITH([nscldaq-root],
+    [  --with-nscldaq-root=path Path to the NSCLDAQ installation (default=/usr/opt/daq/current)],
+    [daqroot="$withval"], [daqroot="/usr/opt/daq/current"])
+
+DAQROOT=$daqroot
+
+AC_SUBST(DAQROOT)
+
+
 # -------------------- X11 tests
 
 # Locate the X11 header files and the X11 library archive. Try the
@@ -139,6 +154,7 @@ then
 else
   XLIBSW=""
 fi
+
 
 
 #
@@ -792,7 +808,8 @@ AC_SUBST(MANDOCBOOK)
 # create output files.
 
 
-AC_OUTPUT(Makefile Replace/Makefile Scripts/Makefile Utility/Makefile \
+AC_OUTPUT(Makefile daq/Makefile daq/daqdefs.h daq/daqdefs.tcl \
+        Replace/Makefile Scripts/Makefile Utility/Makefile \
         factories/Makefile					      \
 	Display/Makefile 
 	Xamine/Makefile Tape/Makefile \

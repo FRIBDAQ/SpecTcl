@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
 
-rm -rf ${WORKSPACE}/3.5
+rm -rf ${WORKSPACE}/3.4
 
 amversion=`grep AM_INIT_AUTOMAKE configure.ac | cut -f2 -d" " | sed s/,//`
 acversion=`grep AC_INIT configure.ac | cut -f2 -d"," | sed s/,// | sed s/")"//`

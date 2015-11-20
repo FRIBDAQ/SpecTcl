@@ -39,7 +39,7 @@ class CBufferCallbackList
 {
   // Exported data types;
 public:
-  typedef STD(list)<CBufferCallback*> CallbackList;
+  typedef std::list<CBufferCallback*> CallbackList;
   typedef CallbackList::iterator CallbackIterator;
 
   // Class data:

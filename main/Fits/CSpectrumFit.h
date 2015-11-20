@@ -62,7 +62,7 @@ class CSpectrumFit : public CNamedItem
   // Canonicals.. note that since fits can clone, we can support copy construction.
 
 public:
-  CSpectrumFit(STD(string) spectrumName, int myId,
+  CSpectrumFit(std::string spectrumName, int myId,
 	       int low, int high, 
 	       CFit&    fit);
   CSpectrumFit(const CSpectrumFit& rhs);
@@ -79,9 +79,9 @@ public:
   CFit::FitState      GetState(); // although this should always be CFit::Performed.
   double              operator()(double x);
   CFit::FitParameterList getParameters();
-  STD(string)         fitType();
-  STD(string)         makeTclFitScript();
-  STD(string)         fitName();
+  std::string         fitType();
+  std::string         makeTclFitScript();
+  std::string         fitName();
 
   // Functions that are implemented (not as delegations to m_pFit) in this
   // class:

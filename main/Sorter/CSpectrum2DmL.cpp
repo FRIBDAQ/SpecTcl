@@ -44,9 +44,9 @@ using namespace std;
   \param xscale, yscale : UInt_t
      Number of channels on the X axis and y axis respectively.
 */
-CSpectrum2DmL::CSpectrum2DmL(STD(string)              name,
+CSpectrum2DmL::CSpectrum2DmL(std::string              name,
 			     UInt_t                   id,
-			     STD(vector)<CParameter>& parameters,
+			     std::vector<CParameter>& parameters,
 			     UInt_t                   xscale,
 			     UInt_t                   yscale) :
   CSpectrum2Dm(name, id, parameters, xscale, yscale)
@@ -72,9 +72,9 @@ CSpectrum2DmL::CSpectrum2DmL(STD(string)              name,
       Range covered by y axis.
 
 */
-CSpectrum2DmL::CSpectrum2DmL(STD(string)              name,
+CSpectrum2DmL::CSpectrum2DmL(std::string              name,
 			     UInt_t                   id,
-			     STD(vector)<CParameter>& parameters,
+			     std::vector<CParameter>& parameters,
 			     UInt_t                   xchans,
 			     UInt_t                   ychans,
 			     Float_t  xlow, Float_t   xhigh,
@@ -207,12 +207,11 @@ CSpectrum2DmL::IncPair(const CEvent& rEvent, UInt_t nx, UInt_t ny, int i)
   Float_t y = const_cast<CEvent&>(rEvent)[ny];
 
   Int_t ix = (Int_t)m_axisMappings[i].MappedParameterToAxis(x);
-  if ((ix >= m_xChannels) || (ix < 0)) return;
-
   Int_t iy = (Int_t)m_axisMappings[i+1].MappedParameterToAxis(y);
-  if ((ix < 0) || (iy >= m_yChannels)) return;
-
-  UInt_t* p = static_cast<UInt_t*>(getStorage());
-  p[coordsToIndex(ix, iy)]++;
-    
+  
+  if (canIncrement(ix, iy, m_xChannels, m_yChannels)) {
+    UInt_t* p = static_cast<UInt_t*>(getStorage());
+    p[coordsToIndex(ix, iy)]++;
+  }
+  
 }

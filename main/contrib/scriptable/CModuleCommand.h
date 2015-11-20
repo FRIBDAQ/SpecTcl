@@ -1,5 +1,23 @@
 #ifndef __CMODULECOMMAND_H  //Required for current class
 #define __CMODULECOMMAND_H
+
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2014.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Authors:
+             Ron Fox
+             Jeromy Tompkins
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
+*/
+
 /*!
   \class CModuleCommand
   \file  CModuleCommand.cpp
@@ -51,7 +69,7 @@ class CTCLResult;
 class CModuleCommand : public CTCLProcessor     
 {
 public:
-  typedef STD(map)<STD(string),CModuleCreator*> CreatorCollection;
+  typedef std::map<std::string,CModuleCreator*> CreatorCollection;
   typedef CreatorCollection::iterator CreatorIterator;
 private:
     CreatorCollection 	m_Creators;     //!< Creator objects
@@ -62,7 +80,7 @@ public:
     // Constructor and other canonical functions:
     
     CModuleCommand (CTCLInterpreter&   rInterp, 
-		    const STD(string)&      rCommand,
+		    const std::string&      rCommand,
 		    CModuleDictionary& rDictionary);
     virtual  ~ CModuleCommand ( ); 
 
@@ -104,12 +122,12 @@ public:
     int List (CTCLInterpreter& rInterp, 
 	      CTCLResult& rResult, 
 	      int argc, char** pArgv)   ; 
-    STD(string) Usage ()   ; 
+    std::string Usage ()   ; 
     virtual   int
            ListTypes (CTCLInterpreter& rInterp, 
 		      CTCLResult& rResult, 
 		      int argc, char** argv)   ; 
-    void RegisterCreator(const STD(string)& rType, 
+    void RegisterCreator(const std::string& rType, 
 			 CModuleCreator& rCreator);
 
 };

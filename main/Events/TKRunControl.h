@@ -318,7 +318,7 @@ class CTKRunControl  : public CRunControl
 private:
   CTCLInterpreter*   m_pInterp;
   CTCLRunFileHandler m_FileHandler;
-  STD(string)        m_sEndScript;
+  std::string        m_sEndScript;
   
   // Static attributes:
 

@@ -40,7 +40,7 @@ static const char* Copyright =
 #include <string.h>
 #include <stdlib.h>
 
-#include <Iostream.h>
+#include <iostream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

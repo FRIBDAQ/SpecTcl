@@ -405,9 +405,9 @@ public:				//Get accessor function for attribute
   }
   //!< Return involved spectra (for compatibility with gamma gates.
 
-  virtual STD(vector)<STD(string)> getSpecs() const { 
-    STD(vector)<STD(string)> empty;
-    return         empty;	// Must return an empty STD(vector).
+  virtual std::vector<std::string> getSpecs() const { 
+    std::vector<std::string> empty;
+    return         empty;	// Must return an empty std::vector.
   }
 
   // Mutators.
@@ -438,9 +438,9 @@ public:
   virtual   CConstituentIterator Begin ()  ;
   virtual   CConstituentIterator End ()  ;
   virtual   UInt_t Size ()  ;
-  virtual   STD(string) GetConstituent (CConstituentIterator& rIterator)  ;
-  virtual   STD(string) Type ()  const;
-  virtual   Bool_t inGate(CEvent& rEvent, const STD(vector)<UInt_t>& Params);
+  virtual   std::string GetConstituent (CConstituentIterator& rIterator)  ;
+  virtual   std::string Type ()  const;
+  virtual   Bool_t inGate(CEvent& rEvent, const std::vector<UInt_t>& Params);
   virtual   Bool_t inGate (CEvent& rEvent);
   virtual   Bool_t inGate (Float_t x);
 };

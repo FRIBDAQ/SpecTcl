@@ -64,7 +64,7 @@ class CDisplayGate
 {
   UInt_t      m_nSpectrum;	// Number of spectrum on which gate is set
   UInt_t      m_nId;		// Identifier of the gate
-  STD(string) m_sName;		// Textual name of the gate.
+  std::string m_sName;		// Textual name of the gate.
   GateType_t  m_eGateType;	// Type of gate in object.
   PointArray  m_vPoints;
   
@@ -75,7 +75,7 @@ public:
 
   CDisplayGate(const msg_object& rGateInfo);
   CDisplayGate(UInt_t nSpectrum, UInt_t nId, 
-		const STD(string)& rName);
+		const std::string& rName);
 
   virtual ~CDisplayGate ( ) { }       //Destructor
 
@@ -129,7 +129,7 @@ public:
   {
     return m_nId;
   }
-  STD(string) getName() const
+  std::string getName() const
   {
     return m_sName;
   }
@@ -163,7 +163,7 @@ public:
   { 
     m_nId = am_nId;
   }
-  void setName (STD(string) am_sName)
+  void setName (std::string am_sName)
   { 
     m_sName = am_sName;
   }
@@ -201,7 +201,7 @@ class CDisplayCut : public CDisplayGate {
 public:
   CDisplayCut(const msg_object& rGate) : CDisplayGate(rGate)
   { }
-  CDisplayCut(UInt_t nSpectrum, UInt_t nId, const STD(string)& rName) :
+  CDisplayCut(UInt_t nSpectrum, UInt_t nId, const std::string& rName) :
     CDisplayGate(nSpectrum, nId, rName) 
     {
       setGateType(kgCut1d);
@@ -212,7 +212,7 @@ class CDisplayBand : public CDisplayGate {
 public:
   CDisplayBand(const msg_object& rgate) : CDisplayGate(rgate)
   {}
-  CDisplayBand(UInt_t nSpectrum, UInt_t nId, const STD(string)& rName) :
+  CDisplayBand(UInt_t nSpectrum, UInt_t nId, const std::string& rName) :
     CDisplayGate(nSpectrum, nId, rName)
     {
       setGateType(kgBand2d);
@@ -223,7 +223,7 @@ class CDisplayContour : public CDisplayGate {
 public:
   CDisplayContour(const msg_object& rgate) : CDisplayGate(rgate)
   {}
-  CDisplayContour(UInt_t nSpectrum, UInt_t nId, const STD(string)& rName) :
+  CDisplayContour(UInt_t nSpectrum, UInt_t nId, const std::string& rName) :
     CDisplayGate(nSpectrum, nId, rName)
     {
       setGateType(kgContour2d);

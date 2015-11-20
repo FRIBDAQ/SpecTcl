@@ -62,12 +62,12 @@ class CFitFactory
   // Public data types:
 public:
   // Note that the iterators below will
-  // 'point' to a pair<STD(string),T*>.
+  // 'point' to a pair<std::string,T*>.
   // e.g. a FitCreatorIterator points to a 
-  // pair<STD(string), CFitCreator*>
+  // pair<std::string, CFitCreator*>
   //
 
-  typedef STD(map)<STD(string), CFitCreator*> FitCreatorMap;
+  typedef std::map<std::string, CFitCreator*> FitCreatorMap;
   typedef FitCreatorMap::iterator  FitCreatorIterator;
 
   // Private member data.
@@ -81,13 +81,13 @@ private:
 public:
 
 
-  static void AddFitType (const STD(string) & rType, CFitCreator* pCreator)   ; 
-  static CFit* Create (STD(string) sFitType, STD(string) sFitName, int id =  0)   ; 
+  static void AddFitType (const std::string & rType, CFitCreator* pCreator)   ; 
+  static CFit* Create (std::string sFitType, std::string sFitName, int id =  0)   ; 
 
   static FitCreatorIterator beginCreators();
   static FitCreatorIterator endCreators();
   static int    numberOfCreators();
-  static FitCreatorIterator FindFitCreator (STD(string) sType)   ; 
+  static FitCreatorIterator FindFitCreator (std::string sType)   ; 
 
 };
 

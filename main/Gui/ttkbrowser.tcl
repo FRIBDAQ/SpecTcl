@@ -137,10 +137,6 @@ image create photo ::browser::foldericon   -format png \
 
     delegate option * to tree
     delegate method * to tree
-    
-    variable parameterTerminals -array [list]
-    variable spectrumTerminals  -array [list]
-    variable variableTerminals  -array [list]
 
     #---
     
@@ -166,7 +162,7 @@ image create photo ::browser::foldericon   -format png \
 	    $tree column $colname -stretch 1 -anchor w -width 100
 	}
 	$tree heading #0 -text "Tree"
-        bind $tree <<TreeviewOpen>> [mymethod _openFolder]
+
 	
 	# Force default configuration
 
@@ -178,10 +174,8 @@ image create photo ::browser::foldericon   -format png \
 
 	# Populate the tree:
 
-        #set timing [time {
-	#$self fillAllFolders
-        #}]
-        
+	$self fillAllFolders
+
 
     }
     #----------------------------------------------------------------------------------
@@ -227,52 +221,31 @@ image create photo ::browser::foldericon   -format png \
     #    Destructively restock all folders;
     #
     method fillAllFolders {} {
-        
-        # Unset the terminal look up tables for the unpopulated parts of the
-        # tree.
-        
-        array unset parameterTerminals *
-        array unset spectrumTerminals  *
-        
-        
+
 	# Kill off the top level folders:
 
-        set timing [time {
 	foreach id $topLevelIds {
 	    $tree delete $id
 	}
-        }]
-        
 	set topLevelIds [list]
 
 	# Stock only those in the -restrict list:
 
         if {[lsearch -exact $options(-restrict) spectra] != -1} {
-            set timing [time { 
             $self fillSpectrumFolder
-            }]
-            
         }
         if {[lsearch -exact $options(-restrict) parameters] != -1} {
-            set timing [time {
              $self fillParameterFolder
-             }]
         }
         if {[lsearch -exact $options(-restrict) variables] != -1} {
-            set timing [time {
             $self fillVariableFolder
-            }]
         }
         if {[lsearch -exact $options(-restrict) gates] != -1} {
-            set timing [time {
             $self fillGateFolder
-            }]
         }
 
 	#  Bindings for folders:
 
-        
-        set timing [time {
 	$tree tag bind spectrumFolder <Button-3> \
 	    [mymethod FolderContextDispatch -spectrumfoldercommand %X %Y]
 	$tree tag bind parameterFolder <Button-3> \
@@ -310,8 +283,6 @@ image create photo ::browser::foldericon   -format png \
 	$tree tag bind variable <Double-1>  [mymethod onElementDoubleClick -variablescript %x %y]
 	$tree tag bind variable <Button-3>  [mymethod onElementContext -variablerightclick %x %y %X %Y]
 
-        }]
-        
 
     }
 
@@ -330,39 +301,46 @@ image create photo ::browser::foldericon   -format png \
 				-open 0 -tags spectrumFolder -image ::browser::foldericon]
 	lappend topLevelIds $spectrumFolder
 
+	# Step 1: Create an array indexed by spectrum name whose value is the gate on that
+	#         spectrum "-TRUE-" is filtered out to an empty string:
+	# NOTE: All spectra have a gate applied to them even if it's a -TRUE- gate.
+	#      this is how SpecTcl works.
+	#
+	foreach application [apply -list] {
+	    set name [lindex $application 0]
+	    set gate [lindex [lindex $application 1] 0]
+	    if {$gate eq "-TRUE-"} {
+		set gate ""
+	    }
+	    set applications($name) $gate
+	}
 
 	# Now we're ready to populate the subtree:
 	# Step 2:  Create a list of spectra filtered by any -filterspectra script each element
 	#          itself a list containing:
 	#           name, type, gate, "" "" "" "" ""  definition.
-	#
-        set timing [time {
+	# 
 	set spectrumList [list]
-	foreach definition [spectrum -list -showgate] {
+	foreach definition [spectrum -list] {
 	    if {$options(-filterspectra) ne ""} {
 		if {![uplevel #0 $options(-filterspectra) [list $definition]] } {
 		    continue;	# Skip if filter script rejected.
 		}
 	    }
 	    set name [lindex $definition 1]
-            set gate [lindex $definition end]
-            if {$gate eq "-TRUE-"} {
-                set gate ""
-            }
 	    lappend spectrumList [list \
 				      $name                   \
 				      "[lindex $definition 2] [lindex $definition 5]"  \
-				      $gate     \
+				      $applications($name)    \
 				      "" "" "" "" ""          \
 				      $definition]				  
 	}
-        }]
 
 	# Fill in the spectrum tree:
 
-        set timing  [time {
 	$self fillSpectrumSubtree $spectrumFolder $spectrumList
-        }]
+
+       
 
     }
     # fillParameterFolder
@@ -383,7 +361,6 @@ image create photo ::browser::foldericon   -format png \
 	#  This is a 2 element list of parameter name, parameter definition:
 	#
 
-        set timing [time {
 	set parameterList [list]
         foreach parameter [parameter -list] {
             if {$options(-filterparameters) != ""} {
@@ -393,14 +370,12 @@ image create photo ::browser::foldericon   -format png \
             }
 	    lappend parameterList [list [lindex $parameter 0] $parameter]
 	}
-        }]
+
 
 	# Recursively stock the parameter tree algorithm is pretty much the same as
 	# for fillSpectrumSubtree
 
-        set timing [time {
 	$self fillParameterSubtree $paramFolder $parameterList
-        }]
 
 
    
@@ -504,11 +479,13 @@ image create photo ::browser::foldericon   -format png \
 	    set folderId [$tree insert $id end -text $folderName -image ::browser::foldericon]
 	    $self fillSpectrumSubtree $folderId $folders($folderName)
 	}
-        # remember the terminal nodes for this folder so that we can
-        # populate them on a folder open:
+	# Finally add in the terminal nodes:
 
-        set spectrumTerminals($id) [array get terminals]
-        return	
+	foreach spectrum [lsort [array names terminals]] {
+	    $self addSpectrum $id $terminals($spectrum)
+	}
+
+	
     }
 
     ##
@@ -858,7 +835,7 @@ image create photo ::browser::foldericon   -format png \
             # Add a folder for a channels parameters.
             
             set name Channel$xChannel
-	    set channelId [$tree item $channelId -text $name -image ::browser::foldericon]
+	    set channelId [$tree insert $id end -text $name -image ::browser::foldericon]
 
             
             
@@ -1044,13 +1021,12 @@ image create photo ::browser::foldericon   -format png \
 	    set folderId [$tree insert $id end -text $folder -image ::browser::foldericon]
 	    $self fillParameterSubtree $folderId $folders($folder)
 	}
-        ##
-        #  Maintain the terminals information:
-        #
-        set parameterTerminals($id) [array get terminal];   # Terminals for id.
-        return
 
+	# Create the parameter definitionsL
 
+	foreach param [lsort [array names terminal]] {
+	    $self addParameter $id $param $terminal($param)
+	}
     }
     ##
     # addParameter id name definition
@@ -1154,7 +1130,12 @@ image create photo ::browser::foldericon   -format png \
 	}
 	# Enter the terminal nodes:
 
-        set variableTerminals($id) [array get terminal]
+	foreach variable [lsort [array names terminal]] {
+	    set varInfo  $terminal($variable)
+	    set valueList [list "" "" "" "" "" [lindex $varInfo 1] [lindex $varInfo 2]]
+	    $tree insert $id end -text $variable -image ::browser::varicon \
+		-values $valueList -tags variable
+	}
     }
     ##
     # fillGateSubtree
@@ -1418,7 +1399,7 @@ image create photo ::browser::foldericon   -format png \
     #     (the _BLTFOLDER is removed from intermediate path entries.
     #
     method getSelection {} {
-        set selected [$tree selected];         # These are ID's.
+        set selected [$tree selection];         # These are ID's.
         set names [list]
         foreach id $selected {
             lappend names [$self FullPath $id]
@@ -1502,46 +1483,7 @@ image create photo ::browser::foldericon   -format png \
 	    uplevel #0 $script $name $X $Y
 	}
     }
-    ##
-    # _openFolder
-    #   Open a folder.
-    #   - Figure out the id of the folder being opened.
-    #   - If there are terminal nodes associated with the folder add them
-    #     and delete them.
-    #
-    method _openFolder {} {
-        set id [$tree focus]
-        
-        # If a parameter, add parameter terminals:
-        
-        if {[array names parameterTerminals $id] ne ""} {
-	# Create the parameter definitionsL
-            array set terminal $parameterTerminals($id)
-            foreach param [lsort [array names terminal]] {
-                $self addParameter $id $param $terminal($param)
-            }
-            array unset parameterTerminals $id
-            return
-        }
-        if {[array names spectrumTerminals $id] ne ""} {
-            array set terminals $spectrumTerminals($id)
-            foreach spectrum [lsort [array names terminals]] {
-                $self addSpectrum $id $terminals($spectrum)
-            }
-            array unset spectrumTerminals $id
-            return
-        }
-        if {[array names variableTerminals $id] ne ""} {
-            array set terminal $variableTerminals($id)
-            foreach variable [lsort [array names terminal]] {
-                set varInfo  $terminal($variable)
-                set valueList [list "" "" "" "" "" [lindex $varInfo 1] [lindex $varInfo 2]]
-                $tree insert $id end -text $variable -image ::browser::varicon \
-                    -values $valueList -tags variable
-            }
-            
-        }
-        
-    }
+
+    
 }
 

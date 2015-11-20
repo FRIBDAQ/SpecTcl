@@ -34,7 +34,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2007, Al
 #include "Contour.h"                               
 #include <algorithm>
 #include <histotypes.h>
-#include <Iostream.h>
+#include <iostream>
 #include <assert.h>
 
 #ifdef HAVE_STD_NAMESPACE

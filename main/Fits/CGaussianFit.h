@@ -52,7 +52,7 @@ private:
 
   // Constructors and canonicals
 public:
-  CGaussianFit(STD(string) name, int id = 0);
+  CGaussianFit(std::string name, int id = 0);
   virtual ~CGaussianFit();
   CGaussianFit(const CGaussianFit& rhs);
   CGaussianFit& operator=(const CGaussianFit& rhs);
@@ -65,8 +65,8 @@ public:
   virtual void Perform();
   virtual double operator()(double x);
   virtual CFit::FitParameterList GetParameters();
-  virtual STD(string) Type() const;
-  virtual STD(string) makeTclFitScript();
+  virtual std::string Type() const;
+  virtual std::string makeTclFitScript();
   virtual CFit* clone();
 
   // Private utilities:

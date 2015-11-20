@@ -148,6 +148,6 @@ CParameterMapping::MappedToRaw(Float_t fMapped)
 {
   if(!m_fMapped) return fMapped; // Unmapped don't change.
   fMapped -= m_fLow;		// Translate to 0 - fullscale.
-  Float_t RawMax = (Float_t)((1 << m_nBits) - 1);
+  Float_t RawMax = (Float_t)((1 << m_nBits) );
   return fMapped*RawMax/(m_fHigh - m_fLow);
 }

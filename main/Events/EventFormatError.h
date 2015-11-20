@@ -319,12 +319,12 @@ class CEventFormatError  : public CException
 {
 private:
   Int_t m_nReason;		// Reason for the exception
-  STD(vector)<UShort_t> m_vEventData; // Vector containing data from bad event.
+  std::vector<UShort_t> m_vEventData; // Vector containing data from bad event.
   UInt_t m_nDetectedOffset;	// Offset into m_vEventData where error
 				// was detected.
   UInt_t m_nEventSize;		// If able to determine, actual event size.
   Bool_t m_fSizeAccurate;	// kfTRUE if m_nEventSize is accurate.
-  STD(string) m_sReason;		// Current reason text.
+  std::string m_sReason;		// Current reason text.
 public:
   enum {			// Defined error codes.
     knNoCurrentBuffer,		// Current Buffer not defined.
@@ -371,7 +371,7 @@ public:
   {
     UpdateReasonText();
   }
-  CEventFormatError(Int_t nReason, const STD(string)& rWasDoing,
+  CEventFormatError(Int_t nReason, const std::string& rWasDoing,
 		    UInt_t* pFirstWord, UInt_t nWords,
 		    UInt_t  nOffset,
 		    UInt_t  nEventSize = 0) :
@@ -443,7 +443,7 @@ public:
   {
     return m_nReason;
   }
-  STD(vector)<UShort_t> getEventData() const
+  std::vector<UShort_t> getEventData() const
   {
     return m_vEventData;
   }
@@ -468,14 +468,14 @@ protected:
     m_nReason = am_nReason;    
     UpdateReasonText();
   }
-  void setEventData (STD(vector)<UShort_t> am_vEventData)
+  void setEventData (std::vector<UShort_t> am_vEventData)
   { 
     m_vEventData = am_vEventData;
     UpdateReasonText();
   }
   void setEventData(UShort_t pStart, UInt_t nWords)
   {
-    STD(vector)<UShort_t> v(pStart, pStart + (nWords -1));
+    std::vector<UShort_t> v(pStart, pStart + (nWords -1));
     setEventData(v);
   }
   void setDetectedOffset (UInt_t am_nDetectedOffset)
@@ -503,7 +503,7 @@ public:
   // Functions specific to the subclass of Exception:
   //
 public:
-  STD(vector)<UShort_t>& EventData ()  ;
+  std::vector<UShort_t>& EventData ()  ;
   UInt_t Where ()  ;
   UInt_t EventSize ()  ;
   Bool_t EventSizeOk ()  ;

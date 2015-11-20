@@ -44,6 +44,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+
 struct spec_shared : Xamine_shared 
 {
   void setdim(int id, int xd) volatile {
@@ -114,6 +115,10 @@ struct spec_shared : Xamine_shared
   unsigned int getchannel(int id, int ix, int iy) volatile;
   volatile unsigned int *getbase(int id) volatile;
   const char *getversion() volatile;
+  
+  volatile const Statistics& getStatistics(int spid) volatile const {
+    return dsp_statistics[spid-1];
+  }
 };
 
 void Xamine_initspectra();

@@ -317,7 +317,7 @@ public:
     CException(pDoing),
     m_nTapeError(nTapeError) 
   {}
-  CTapeException(UInt_t nTapeError, const STD(string)& rDoing) :
+  CTapeException(UInt_t nTapeError, const std::string& rDoing) :
     CException(rDoing),
     m_nTapeError(nTapeError)
   {}

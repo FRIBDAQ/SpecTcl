@@ -316,7 +316,7 @@ class CXamineSpectrumPrompt  : public CXamineButtonPrompt
   
 public:
 
-  CXamineSpectrumPrompt (const STD(string)& rPrompt,
+  CXamineSpectrumPrompt (const std::string& rPrompt,
 			 DialogSpectrumType_t am_eSpectrumType = keAny)   :
     CXamineButtonPrompt(rPrompt),
     m_eSpectrumType (am_eSpectrumType)  { } 

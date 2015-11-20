@@ -149,19 +149,19 @@ public:
   // Manipulate the parameter diectionary etc.
 
   UInt_t AssignParameterId();
-  CParameter* AddParameter(STD(string) name, 
+  CParameter* AddParameter(std::string name, 
 			   UInt_t Id, 
-			   STD(string) Units);
-  CParameter* AddParameter(STD(string) name, 
+			   std::string Units);
+  CParameter* AddParameter(std::string name, 
 			   UInt_t id, 
 			   UInt_t scale);
-  CParameter* AddParameter(STD(string) name, 
+  CParameter* AddParameter(std::string name, 
 			   UInt_t id, 
 			   UInt_t scale, 
 			   Float_t low, Float_t high, 
-			   STD(string) units);
-  CParameter* RemoveParameter(STD(string) name);
-  CParameter* FindParameter(STD(string) name);
+			   std::string units);
+  CParameter* RemoveParameter(std::string name);
+  CParameter* FindParameter(std::string name);
   CParameter* FindParameter(UInt_t Id);
   ParameterDictionaryIterator BeginParameters();
   ParameterDictionaryIterator EndParameters();
@@ -170,21 +170,21 @@ public:
 
   // Create spectra.
 
-  CSpectrum* CreateSpectrum(STD(string) Name, 
+  CSpectrum* CreateSpectrum(std::string Name, 
 			    SpectrumType_t type, 
 			    DataType_t dataType, 
-			    STD(vector)<STD(string)> parameters, 
-			    STD(vector)<UInt_t> channels, 
-			    STD(vector)<Float_t>* pLows, 
-			    STD(vector)<Float_t>* pHighs);
-  CSpectrum* CreateSpectrum(STD(string) Name,
+			    std::vector<std::string> parameters, 
+			    std::vector<UInt_t> channels, 
+			    std::vector<Float_t>* pLows, 
+			    std::vector<Float_t>* pHighs);
+  CSpectrum* CreateSpectrum(std::string Name,
 			    SpectrumType_t type,
 			    DataType_t     dataType,
-			    STD(vector)<STD(string)> xParameters,
-			    STD(vector)<STD(string)> yParameters,
-			    STD(vector)<UInt_t>      channels,
-			    STD(vector)<Float_t>*    pLows,
-			    STD(vector)<Float_t>*    pHighs);
+			    std::vector<std::string> xParameters,
+			    std::vector<std::string> yParameters,
+			    std::vector<UInt_t>      channels,
+			    std::vector<Float_t>*    pLows,
+			    std::vector<Float_t>*    pHighs);
 
   CSpectrum* CreateSpectrum(std::string           Name,
 			    SpectrumType_t        type,
@@ -201,83 +201,83 @@ public:
 				std::vector<Float_t>*            low,
 				std::vector<Float_t>*            high);
 
-  CSpectrum* CreateG2DDeluxe(STD(string) Name,
+  CSpectrum* CreateG2DDeluxe(std::string Name,
 			DataType_t     dataType,
-			STD(vector)<STD(string)> xParameters,
-			STD(vector)<STD(string)> yParameters,
-			STD(vector)<UInt_t>      channels,
-			STD(vector)<Float_t>*    pLows,
-			STD(vector)<Float_t>*    pHighs);
+			std::vector<std::string> xParameters,
+			std::vector<std::string> yParameters,
+			std::vector<UInt_t>      channels,
+			std::vector<Float_t>*    pLows,
+			std::vector<Float_t>*    pHighs);
 
-  CSpectrum* Create1D(STD(string) name, 
+  CSpectrum* Create1D(std::string name, 
 		      DataType_t dataType, 
 		      CParameter& parameter, 
 		      UInt_t channels);
-  CSpectrum* Create1D(STD(string) name, 
+  CSpectrum* Create1D(std::string name, 
 		      DataType_t dataType, 
 		      CParameter& parameter, 
 		      UInt_t channels, 
 		      Float_t lowLimit, Float_t hiLimit);
-  CSpectrum* Create2D(STD(string) name, 
+  CSpectrum* Create2D(std::string name, 
 		      DataType_t dataType, 
 		      CParameter& xParameter, 
 		      CParameter& yParmaeter, 
 		      UInt_t xChannels, UInt_t yChannels);
-  CSpectrum* Create2D(STD(string) name, 
+  CSpectrum* Create2D(std::string name, 
 		      DataType_t dataType, 
 		      CParameter& xParameter, CParameter& yParameter, 
 		      UInt_t xChannels, Float_t xLow, Float_t xHigh, 
 		      UInt_t yChannels, Float_t yLow, Float_t yHigh);
-  CSpectrum* CreateG1D(STD(string) name, 
+  CSpectrum* CreateG1D(std::string name, 
 		       DataType_t dataType,
-		       STD(vector)<CParameter> parameters, 
+		       std::vector<CParameter> parameters, 
 		       UInt_t channels);
-  CSpectrum* CreateG1D(STD(string) name, 
+  CSpectrum* CreateG1D(std::string name, 
 		       DataType_t dataType, 
-		       STD(vector)<CParameter> parameters, 
+		       std::vector<CParameter> parameters, 
 		       UInt_t channels, 
 		       Float_t lowLimit, 
 		       Float_t hiLimit);
-  CSpectrum* CreateG2D(STD(string) name, 
+  CSpectrum* CreateG2D(std::string name, 
 		       DataType_t dataType, 
-		       STD(vector)<CParameter> parameters, 
+		       std::vector<CParameter> parameters, 
 		       UInt_t xChannels, UInt_t yChannels);
-  CSpectrum* CreateG2D(STD(string) name, 
+  CSpectrum* CreateG2D(std::string name, 
 		       DataType_t dataType, 
-		       STD(vector)<CParameter> parameters, 
+		       std::vector<CParameter> parameters, 
 		       UInt_t xChannesl, Float_t xLow, Float_t xHigh, 
 		       UInt_t yChannesl, Float_t yLow, Float_t yHigh);
-  CSpectrum* CreateBit(STD(string) name, 
+  CSpectrum* CreateBit(std::string name, 
 		       DataType_t dataType, 
 		       CParameter& parameter, 
 		       UInt_t channels);
-  CSpectrum* CreateBit(STD(string) name, 
+  CSpectrum* CreateBit(std::string name, 
 		       DataType_t dataType, 
 		       CParameter& parameter, 
 		       UInt_t channels, UInt_t lowBit);
-  CSpectrum* CreateSummary(STD(string) name, 
+  CSpectrum* CreateSummary(std::string name, 
 			   DataType_t dataType, 
-			   STD(vector)<CParameter> parameters, 
+			   std::vector<CParameter> parameters, 
 			   UInt_t channels);
-  CSpectrum* CreateSummary(STD(string) name, 
+  CSpectrum* CreateSummary(std::string name, 
 			   DataType_t dataType, 
-			   STD(vector)<CParameter> parameters, 
+			   std::vector<CParameter> parameters, 
 			   UInt_t nChannels, Float_t low, Float_t high);
 
   
-  CSpectrum* CreateGamma2DD(STD(string) name,
+  CSpectrum* CreateGamma2DD(std::string name,
 			    DataType_t dataType,
-			    STD(vector)<CParameter> xParameters,
-			    STD(vector)<CParameter> yParameters,
+			    std::vector<CParameter> xParameters,
+			    std::vector<CParameter> yParameters,
 			    UInt_t xChannels, Float_t xLow, Float_t xHigh,
 			    UInt_t yChannels, Float_t yLow, Float_t yHigh);
-  CSpectrum* Create2DSum(STD(string) name,
+  CSpectrum* Create2DSum(std::string name,
 			 DataType_t  dataType,
-			 STD(vector)<CParameter> xParameters,
-			 STD(vector)<CParameter> yParameters,
+			 std::vector<CParameter> xParameters,
+			 std::vector<CParameter> yParameters,
 			 UInt_t xChans, Float_t xLow, Float_t xHigh,
 			 UInt_t yChans, Float_t yLow, Float_t yHigh);
-  CSpectrum* CreateStripChart(STD(string) name,
+  CSpectrum* CreateStripChart(std::string name,
 			      DataType_t  dataType,
 			      CParameter  counts,
 			      CParameter  time,
@@ -287,8 +287,8 @@ public:
   // Manipulate the spectrum dictionary:
 
   void AddSpectrum(CSpectrum& spectrum);
-  CSpectrum* RemoveSpectrum(STD(string) name);
-  CSpectrum* FindSpectrum(STD(string) name);
+  CSpectrum* RemoveSpectrum(std::string name);
+  CSpectrum* FindSpectrum(std::string name);
   CSpectrum* FindSpectrum(UInt_t id);
   SpectrumDictionaryIterator SpectrumBegin();
   SpectrumDictionaryIterator SpectrumEnd();
@@ -299,52 +299,52 @@ public:
 
   // Misc spectrum utilities:
 
-  void ClearSpectrum(STD(string) name);
+  void ClearSpectrum(std::string name);
   void ClearAllSpectra();
 
   // Create gates of various types:
 
   CGate* CreateGate(CGateFactory::GateType gateType, 
-		    STD(vector)<STD(string)> names);
+		    std::vector<std::string> names);
   CGate* CreateGate(CGateFactory::GateType gateType, 
-		    STD(vector)<STD(string)> parameters, 
-		    STD(vector)<FPoint> points);
+		    std::vector<std::string> parameters, 
+		    std::vector<FPoint> points);
   CGate* CreateGate(CGateFactory::GateType   gateType,
-		    STD(vector)<FPoint>      points,
-		    STD(vector)<UInt_t> parameters);
+		    std::vector<FPoint>      points,
+		    std::vector<UInt_t> parameters);
   CGate* CreateGate(CGateFactory::GateType gateType, 
-		    STD(vector)<STD(string)> rparameters,
+		    std::vector<std::string> rparameters,
 		    long comparison);
   CGate* CreateTrueGate();
   CGate* CreateFalseGate();
-  CGate* CreateBand(STD(string) xparameter, STD(string) yparameter, 
-		    STD(vector)<FPoint> points);
-  CGate* CreateContour(STD(string) xParameter, STD(string) yParameter, 
-		       STD(vector)<FPoint> points);
-  CGate* CreateBandContour(STD(string) firstBand, STD(string) secondBand);
-  CGate* CreateNotGate(STD(string) name);
-  CGate* CreateAndGate(STD(vector)<STD(string)> gateNames);
-  CGate* CreateOrGate(STD(vector)<STD(string)> gateNames);
-  CGate* CreateCut(STD(string) parameter, Float_t low, Float_t high);
-  CGate* CreateGammaCut(Float_t low, Float_t high, STD(vector)<STD(string)> constituents);
-  CGate* CreateGammaBand(STD(vector)<FPoint> points, 
-			 STD(vector)<STD(string)> constituents);
-  CGate* CreateGammaContour(STD(vector)<FPoint> points, 
-			    STD(vector)<STD(string)> constituents);
-  CGate* CreateMaskEqualGate(STD(vector)<STD(string)> rParameterName,
+  CGate* CreateBand(std::string xparameter, std::string yparameter, 
+		    std::vector<FPoint> points);
+  CGate* CreateContour(std::string xParameter, std::string yParameter, 
+		       std::vector<FPoint> points);
+  CGate* CreateBandContour(std::string firstBand, std::string secondBand);
+  CGate* CreateNotGate(std::string name);
+  CGate* CreateAndGate(std::vector<std::string> gateNames);
+  CGate* CreateOrGate(std::vector<std::string> gateNames);
+  CGate* CreateCut(std::string parameter, Float_t low, Float_t high);
+  CGate* CreateGammaCut(Float_t low, Float_t high, std::vector<std::string> constituents);
+  CGate* CreateGammaBand(std::vector<FPoint> points, 
+			 std::vector<std::string> constituents);
+  CGate* CreateGammaContour(std::vector<FPoint> points, 
+			    std::vector<std::string> constituents);
+  CGate* CreateMaskEqualGate(std::vector<std::string> rParameterName,
 			     long Compare);
-  CGate* CreateMaskAndGate(STD(vector)<STD(string)> rParameterName,
+  CGate* CreateMaskAndGate(std::vector<std::string> rParameterName,
 			     long Compare);
-  CGate* CreateMaskNotGate(STD(vector)<STD(string)> rParameterName,
+  CGate* CreateMaskNotGate(std::vector<std::string> rParameterName,
 			     long Compare);
 
 
   // Gate dictionary manipulation:
 
-  void AddGate(STD(string) name, CGate* gate);
-  void DeleteGate(STD(string) gateName);
-  void ReplaceGate(STD(string) gateName, CGate& newGate);
-  CGateContainer* FindGate(STD(string) gateName);
+  void AddGate(std::string name, CGate* gate);
+  void DeleteGate(std::string gateName);
+  void ReplaceGate(std::string gateName, CGate& newGate);
+  CGateContainer* FindGate(std::string gateName);
   CGateDictionaryIterator GateBegin();
   CGateDictionaryIterator GateEnd();
   UInt_t GateCount();
@@ -354,18 +354,18 @@ public:
   
 
 
-  void ApplyGate(STD(string) gateName, STD(string) spectrumName);
+  void ApplyGate(std::string gateName, std::string spectrumName);
 
   // Manipulating the event processor pipeline.
 
   void AddEventProcessor(CEventProcessor& eventProcessor, 
 			 const char* name = 0);
-  CTclAnalyzer::EventProcessorIterator FindEventProcessor(STD(string) name);
+  CTclAnalyzer::EventProcessorIterator FindEventProcessor(std::string name);
   CTclAnalyzer::EventProcessorIterator FindEventProcessor(CEventProcessor& processor);
   void InsertEventProcessor(CEventProcessor& processor,
 			    CTclAnalyzer::EventProcessorIterator where, 
 			    const char*  name = 0);
-  void RemoveEventProcessor(STD(string) name);
+  void RemoveEventProcessor(std::string name);
   void RemoveEventProcessor(CTclAnalyzer::EventProcessorIterator here);
   UInt_t ProcessingPipelineSize();
   CTclAnalyzer::EventProcessorIterator ProcessingPipelineBegin();
@@ -373,17 +373,17 @@ public:
 
   // Spectrum I/O formatting control:
 
-  void AddSpectrumFormatter(STD(string) name, CSpectrumFormatter& formatter);
+  void AddSpectrumFormatter(std::string name, CSpectrumFormatter& formatter);
 
 
   // Event sink pipeline control:
 
   void AddEventSink(CEventSink& sink, const char* name = 0);
-  CEventSinkPipeline::EventSinkIterator FindEventSink(STD(string) sinkName);
+  CEventSinkPipeline::EventSinkIterator FindEventSink(std::string sinkName);
   CEventSinkPipeline::EventSinkIterator FindEventSink(CEventSink& sink);
   void InsertEventSink(CEventSink& sink, CEventSinkPipeline::EventSinkIterator here,
 		       const char* name = 0);
-  CEventSink* RemoveEventSink(STD(string) name);
+  CEventSink* RemoveEventSink(std::string name);
   CEventSink* RemoveEventSink(CEventSinkPipeline::EventSinkIterator here);
   UInt_t EventSinkPipelineSize();
   CEventSinkPipeline::EventSinkIterator EventSinkPipelineBegin();
@@ -393,11 +393,11 @@ public:
 
   // Filter API:
 
-  void               createFilter(STD(string) name, CGatedEventFilter* pFilter);
-  CGatedEventFilter* findFilter(STD(string) name);
+  void               createFilter(std::string name, CGatedEventFilter* pFilter);
+  CGatedEventFilter* findFilter(std::string name);
   bool               filterExists(CGatedEventFilter* pFilter);
   void               deleteFilter(CGatedEventFilter* pFilter);
-  void               deleteFilter(STD(string) filterName);
+  void               deleteFilter(std::string filterName);
   void               addFilterOutputFormat(CFilterOutputStageCreator& creator);
   
 
@@ -408,7 +408,7 @@ public:
   CHistogrammer*      GetHistogrammer();
   CTclAnalyzer*       GetAnalyzer();
   CEventSinkPipeline* GetEventSinkPipeline();
-  STD(vector)<UInt_t>      parameterIds(STD(vector)<STD(string)> names);
+  std::vector<UInt_t>      parameterIds(std::vector<std::string> names);
 
   
 

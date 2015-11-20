@@ -326,7 +326,7 @@ class CGateContainer : public CNamedItem {
  public:
   //Default constructor
   CGateContainer() : m_pGate(0) {} // Default constructor used by stl.
-  CGateContainer (const STD(string)& sName, UInt_t nNumber, 
+  CGateContainer (const std::string& sName, UInt_t nNumber, 
 		  CGate& rGate);  
   virtual ~CGateContainer();
 

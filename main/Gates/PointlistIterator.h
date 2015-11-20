@@ -335,12 +335,12 @@ DAMAGES.
 */                        
 class CPointListIterator  : public CAConstituentIterator        
 {
-  STD(vector)<FPoint>::iterator m_iPoints;  // Point array iterator.
+  std::vector<FPoint>::iterator m_iPoints;  // Point array iterator.
   
 public:
 			// Constructors.
 
-  CPointListIterator (STD(vector)<FPoint>::iterator rStart) : 
+  CPointListIterator (std::vector<FPoint>::iterator rStart) : 
     m_iPoints(rStart)   
   { } 
   virtual  ~ CPointListIterator ( ) { }       //Destructor
@@ -369,7 +369,7 @@ public:
 
 public:
 
-  STD(vector)<FPoint>::iterator getPointIterator() const
+  std::vector<FPoint>::iterator getPointIterator() const
   {
     return m_iPoints;
   }
@@ -379,7 +379,7 @@ public:
 protected:
                        //Set accessor function for attribute
 
-  void setPointIterator (STD(vector)<FPoint>::iterator am_iPoints)
+  void setPointIterator (std::vector<FPoint>::iterator am_iPoints)
   { 
     m_iPoints = am_iPoints;
   }

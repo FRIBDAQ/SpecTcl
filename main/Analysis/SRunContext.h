@@ -41,14 +41,14 @@ typedef struct _SRunContext
 {
   bool s_fScalersThisRun;	/*!< True if scalers were seen this run. */
   int  s_nScalerCount;		/*!< Number of scalers acquired this run.  */
-  STD(vector)<unsigned long> s_Increments; /*!< Most recent increments. */
-  STD(vector)<float>         s_Totals; /*!< The scaler totals as of now. */
+  std::vector<unsigned long> s_Increments; /*!< Most recent increments. */
+  std::vector<float>         s_Totals; /*!< The scaler totals as of now. */
   unsigned long s_IntervalStartTime; /*!< When this scaler interval started */
   unsigned long s_IntervalEndTime;   /*!< When this scaler interval ended. */
-  STD(string)   s_Title;	     /*!< Run title.  */
+  std::string   s_Title;	     /*!< Run title.  */
   int           s_nRunNumber;	     /*!< Run number. */
-  STD(string)   s_RunStarted;	     /*!< Timestamp of run beginning.  */
-  STD(string)   s_RunEnded;	     /*!< Timestamp of run ending.     */
+  std::string   s_RunStarted;	     /*!< Timestamp of run beginning.  */
+  std::string   s_RunEnded;	     /*!< Timestamp of run ending.     */
 } SRunContext;
 
 

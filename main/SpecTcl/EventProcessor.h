@@ -91,7 +91,7 @@ class CEventProcessor {
 			 CAnalyzer& rAnalyzer,
 			 CBufferDecoder& rDecoder); // Unrecognized buftype.
 
-  virtual Bool_t OnEventSourceOpen(STD(string) name);
+  virtual Bool_t OnEventSourceOpen(std::string name);
   virtual Bool_t OnEventSourceEOF();
   virtual Bool_t OnInitialize();
 };

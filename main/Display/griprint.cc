@@ -45,7 +45,7 @@ static const char *sccsinfo="@(#)griprint.cc	4.3 9/23/02 ";
 #include <stdio.h>
 #include <limits.h>
 #include <unistd.h>
-#include <Fstream.h>
+#include <fstream>
 #include <math.h>
 #include <time.h>
 #include <signal.h>

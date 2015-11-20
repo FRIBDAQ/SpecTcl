@@ -84,11 +84,11 @@ private:
   /**
    * Name of the  parameter that will be bound to this object.
    */
-  STD(string) m_sName;
+  std::string m_sName;
   /**
    * Units of the parameter.
    */
-  STD(string) m_sUnits;
+  std::string m_sUnits;
   /**
    * Default low parameter limit on spectrum axes.
    */
@@ -115,7 +115,7 @@ private:
    * Map of tree parameter objects that currently exist. Object register on
    * construction and unregister on destruction.
    */
-  static STD(multimap)<STD(string), CTreeParameter*> m_ObjectRegistry;
+  static std::multimap<std::string, CTreeParameter*> m_ObjectRegistry;
   /**
    * The event that we are unpacking into.
    * The parameter element indicates which element of the Event we will fill in.
@@ -126,7 +126,7 @@ public:
   /**
    * Version of the software.
    */
-  static const STD(string) TreeParameterVersion;
+  static const std::string TreeParameterVersion;
   /**
    *  Set this true for strict units type checking where possible.
    */
@@ -135,30 +135,30 @@ public:
   // Constructors
   
   CTreeParameter();
-  CTreeParameter(STD(string) name);
-  CTreeParameter(STD(string) name, STD(string) units);
-  CTreeParameter(STD(string) name, double lowLimit, double highLimit, 
-		 STD(string) units);
-  CTreeParameter(STD(string) name, UInt_t channels, 
-		 double lowLimit, double highLimit, STD(string) units);
-  CTreeParameter(STD(string) name, UInt_t resolution);
-  CTreeParameter(STD(string) name, UInt_t resolution, 
+  CTreeParameter(std::string name);
+  CTreeParameter(std::string name, std::string units);
+  CTreeParameter(std::string name, double lowLimit, double highLimit, 
+		 std::string units);
+  CTreeParameter(std::string name, UInt_t channels, 
+		 double lowLimit, double highLimit, std::string units);
+  CTreeParameter(std::string name, UInt_t resolution);
+  CTreeParameter(std::string name, UInt_t resolution, 
 		 double lowLimit, double widthOrHigh, 
-		 STD(string) units, bool widthOrHighGiven);
-  CTreeParameter(STD(string) name, const CTreeParameter& Template);
+		 std::string units, bool widthOrHighGiven);
+  CTreeParameter(std::string name, const CTreeParameter& Template);
   CTreeParameter(const CTreeParameter& rhs);
   ~CTreeParameter();
   
   // Initializers that do the real work of construction.
   
-  void Initialize(STD(string) name, UInt_t resolution);
-  void Initialize(STD(string) name, UInt_t resolution, 
-		  double lowLimit, double highOrWidth, STD(string) units, 
+  void Initialize(std::string name, UInt_t resolution);
+  void Initialize(std::string name, UInt_t resolution, 
+		  double lowLimit, double highOrWidth, std::string units, 
 		  bool highOrWidthGiven);
-  void Initialize(STD(string) name);
-  void Initialize(STD(string) name, STD(string) units);
-  void Initialize(STD(string) name, UInt_t channels, 
-		  double lowLimit, double highLimit, STD(string) units);
+  void Initialize(std::string name);
+  void Initialize(std::string name, std::string units);
+  void Initialize(std::string name, UInt_t channels, 
+		  double lowLimit, double highLimit, std::string units);
   
   // Other member functions.
   
@@ -182,7 +182,7 @@ public:
   
   // Selectors and mutators.
   
-  STD(string) getName();
+  std::string getName();
   int    getId();
   double getValue();
   void   setValue(double newValue);
@@ -194,8 +194,8 @@ public:
   void   setStop(double high);
   double getInc();
   void   setInc(double channelWidth);
-  STD(string) getUnit();
-  void   setUnit(STD(string) units);
+  std::string getUnit();
+  void   setUnit(std::string units);
   bool   isValid();
   void   setInvalid();
   void   Reset();
@@ -207,24 +207,24 @@ public:
   
   // Iteration and location.
   
-  static STD(multimap)<STD(string), CTreeParameter*>::iterator begin();
-  static STD(multimap)<STD(string), CTreeParameter*>::iterator end();
-  static STD(multimap)<STD(string), CTreeParameter*>::iterator find(STD(string) name);
+  static std::multimap<std::string, CTreeParameter*>::iterator begin();
+  static std::multimap<std::string, CTreeParameter*>::iterator end();
+  static std::multimap<std::string, CTreeParameter*>::iterator find(std::string name);
   void Bind();
   
   
   // Internal utilities.
   
 protected:
-  STD(multimap)<STD(string), CTreeParameter*>::iterator findRegistration();
+  std::multimap<std::string, CTreeParameter*>::iterator findRegistration();
   bool isRegistered();
   void Register();
   void Unregister();
   
   // Factor out some exception generating logic:
   
-  void ThrowIfNoParameter(STD(string)& doing);
-  void ThrowIfNoEvent(STD(string)& doing);
+  void ThrowIfNoParameter(std::string& doing);
+  void ThrowIfNoEvent(std::string& doing);
   
   // The functions below are inteded to support testability:
   

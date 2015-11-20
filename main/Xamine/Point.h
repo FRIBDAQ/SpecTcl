@@ -117,7 +117,7 @@ protected:
 typedef Point<Int_t> CPoint;
 typedef Point<Float_t> FPoint;
 
-typedef STD(vector)<CPoint> PointArray;
+typedef std::vector<CPoint> PointArray;
 typedef PointArray::iterator PointIterator;
 
 #endif

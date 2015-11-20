@@ -245,6 +245,7 @@ CGamma2DW::CreateStorage()
 
   ReplaceStorage(pStorage);
   Clear();
+  createStatArrays(2);
 }
 
 /*!
@@ -342,10 +343,12 @@ CGamma2DW::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 	
 	// transform -> Spectrum coordinates and increment.
 	
-	UInt_t x = (UInt_t)ParameterToAxis(0, xval);
-	UInt_t y = (UInt_t)ParameterToAxis(1, yval);
-	
-	if((x < m_nXScale) && (y < m_nYScale)) {
+	Int_t x = (Int_t)ParameterToAxis(0, xval);
+	Int_t y = (Int_t)ParameterToAxis(1, yval);
+	bool xok = checkRange(x, m_nXScale, 0);
+        bool yok = checkRange(y, m_nYScale, 1);
+        
+	if (xok && yok) {
 	  pStorage[x + y*m_nXScale]++;
 	}
       }
@@ -355,8 +358,8 @@ CGamma2DW::Increment(vector<pair<UInt_t, Float_t> >& rParameters)
 //! deluxe increment on 2dw spectrum is an error:
 
 void
-CGamma2DW:: Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
-			 STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters)
+CGamma2DW:: Increment(std::vector<std::pair<UInt_t, Float_t> >& xParameters,
+			 std::vector<std::pair<UInt_t, Float_t> >& yParameters)
 {
   throw CException("2d deluxe increment called on CGamma2dW");
 }

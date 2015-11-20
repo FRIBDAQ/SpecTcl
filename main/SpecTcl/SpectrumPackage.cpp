@@ -249,12 +249,6 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
     rResult = rExcept.ReasonText();
     return TCL_ERROR;
   }
-  // pre-compute the description string and set it:
-  
-  pSpec->setTextDescription(DescribeSpectrum(*pSpec, false));
-  
-  // Return the name as the result.
-  
   rResult = pSpec->getName();
   return TCL_OK;
 }
@@ -278,11 +272,11 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult,
 int
 CSpectrumPackage::CreateSpectrum(CTCLResult& rResult, const char* pName,
 		     const char* pSpecType,
-		     STD(vector)<STD(string)> xParameterNames,
-		     STD(vector)<STD(string)> yParameterNames,
+		     std::vector<std::string> xParameterNames,
+		     std::vector<std::string> yParameterNames,
 		     vector<UInt_t>           vChannels,
-		     STD(vector)<Float_t>     fLows,
-		     STD(vector)<Float_t>     fHighs,
+		     std::vector<Float_t>     fLows,
+		     std::vector<Float_t>     fHighs,
 		     const char*              pDataType)
 {
 
@@ -425,29 +419,8 @@ CSpectrumPackage::ListSpectra(std::vector<std::string>& rvProperties,
     const char* name = ((p->second)->getName()).c_str();
     if (Tcl_StringMatch(name, pattern) )
       {
-	// Spectra have pre-computed definition strings that we use if they
-	// are available else we compute/cache one.
-	// The showGates flag gets handled here regardless:
-    
-	
 	CSpectrum* rSpec((*p).second);
-	std::string d =  rSpec->getTextDescription();
-	if (d == "") {
-	  //  Need to compute/cache.
-	   
-	   d = DescribeSpectrum(*rSpec, false);
-	   rSpec->setTextDescription(d);
-	}
-	// If necessary fold in the gate to the definition:
-	
-	if (showGates) {
-	  CTCLString Description(d);
-	  const CGateContainer&  g(*(rSpec->getGate()));
-	  Description.AppendElement(g.getName());
-	  d = std::string((const char*)(Description));
-	}
-	
-	rvProperties.push_back(d);
+	rvProperties.push_back(DescribeSpectrum(*rSpec, showGates));
       }
   }
 }

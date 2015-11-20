@@ -94,7 +94,7 @@ public:
 public:
   T getValue() const {
     if(!isValid()) {
-      throw STD(string)("Attempted getValue of unset ValidValue object");
+      throw std::string("Attempted getValue of unset ValidValue object");
     }
     return m_Value;
   }
@@ -124,7 +124,7 @@ public:
   }
   operator T&() { 
     if(!isValid()) {
-      throw STD(string)("Attempted getValue of unset ValidValue object");
+      throw std::string("Attempted getValue of unset ValidValue object");
     }
     return m_Value; 
   }

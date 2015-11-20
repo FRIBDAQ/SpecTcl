@@ -370,9 +370,9 @@ DAMAGES.
 
 class CPseudoScript  : public CNamedItem        
 {                         
-  STD(list)<STD(string)> m_vParameterNames; //Names of input parameters.
-  STD(list)<UInt_t> m_vParameterIds;  //Paramter Ids which are input to the script.
-  STD(string)       m_sRawScriptText; //Raw text of script.
+  std::list<std::string> m_vParameterNames; //Names of input parameters.
+  std::list<UInt_t> m_vParameterIds;  //Paramter Ids which are input to the script.
+  std::string       m_sRawScriptText; //Raw text of script.
   CTCLObject   m_ScriptProc;	//1:1 aggregation part data member
   CTCLObject   m_CallStub;	//1:1 aggregation part data member        
   CTCLInterpreter* m_pInterpreter; //association object data member      
@@ -381,14 +381,14 @@ public:
 
    // Constructors and other cannonical operations:
   
-  CPseudoScript(const STD(string)& rName, 
+  CPseudoScript(const std::string& rName, 
 		CTCLInterpreter* pInterp,
 		CHistogrammer& rHistogrammer) ;
-  CPseudoScript(const STD(string)& rName,
-		STD(vector)<STD(string)>& rDependentParameters,
+  CPseudoScript(const std::string& rName,
+		STD(vector)<std::string>& rDependentParameters,
 		CHistogrammer& rHistogrammer,
 		CTCLInterpreter* pInterp, 
-		const STD(string)& ScriptText);
+		const std::string& ScriptText);
   ~CPseudoScript ( )  
   { }  
   
@@ -445,16 +445,16 @@ public:
 
 public:
 
-  STD(list)<STD(string)> getParameterNames() const
+  std::list<std::string> getParameterNames() const
   { return m_vParameterNames;
   }
-  STD(list)<UInt_t> getParameterIds() const
+  std::list<UInt_t> getParameterIds() const
   { return m_vParameterIds;
   }
-  STD(string) getRawScriptText() const
+  std::string getRawScriptText() const
   { return m_sRawScriptText;
   }
-  STD(string) getOutputParameter() const
+  std::string getOutputParameter() const
   { return getName();;
   }
   UInt_t getOutputId() const
@@ -479,17 +479,17 @@ public:
 
 protected:
 
-  void setParameterNames (const STD(list)<STD(string)> am_vParameterNames)
+  void setParameterNames (const std::list<std::string> am_vParameterNames)
   { 
     m_vParameterNames = am_vParameterNames;
     RebuildState();
   }
-  void setParameterIds (const STD(list)<UInt_t> am_vParameterIds)
+  void setParameterIds (const std::list<UInt_t> am_vParameterIds)
   { 
     m_vParameterIds = am_vParameterIds;
     RebuildState();
   }
-  void setOutputParameter (const STD(string) am_sOutputParameter)
+  void setOutputParameter (const std::string am_sOutputParameter)
   { 
     setName(am_sOutputParameter);
   }
@@ -508,9 +508,9 @@ protected:
   
   // Public mutators.
 public:
-  void AddDependentParameter(const STD(string)& rName, CHistogrammer& rHisto);
+  void AddDependentParameter(const std::string& rName, CHistogrammer& rHisto);
   void AddDependentParameter(UInt_t        nId,   CHistogrammer& rHisto);
-  void setRawScriptText (const STD(string) am_sRawScriptText)
+  void setRawScriptText (const std::string am_sRawScriptText)
   { 
     m_sRawScriptText = am_sRawScriptText;
     RebuildState();
@@ -521,19 +521,19 @@ public:
 public:
 
   virtual   void operator() (CEvent& rEvent)    ;
-  STD(list)<STD(string)>::iterator ParNamesBegin ()    ;
+  std::list<std::string>::iterator ParNamesBegin ()    ;
   UInt_t ParNamesSize ()    ;
-  STD(list)<STD(string)>::iterator ParNamesEnd ()    ;
-  STD(list)<UInt_t>::iterator ParIdsBegin ()    ;
+  std::list<std::string>::iterator ParNamesEnd ()    ;
+  std::list<UInt_t>::iterator ParIdsBegin ()    ;
   UInt_t ParIdsSize ()    ;
-  STD(list)<UInt_t>::iterator ParIdsEnd ()    ;
+  std::list<UInt_t>::iterator ParIdsEnd ()    ;
   
 protected:
   // Protected utilities.
 
-  void RebuildState();		// Rebuild script and parameter object STD(list).
-				// from raw text and parameter STD(list)s.
-  void BindOutputParameter(const STD(string)& rName, 
+  void RebuildState();		// Rebuild script and parameter object std::list.
+				// from raw text and parameter std::lists.
+  void BindOutputParameter(const std::string& rName, 
 			   CHistogrammer& rHistogrammer);
 };
 

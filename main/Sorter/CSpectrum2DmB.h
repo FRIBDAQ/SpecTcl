@@ -31,14 +31,14 @@ class CEvent;
 class CSpectrum2DmB : public CSpectrum2Dm
 {
 public:
-  CSpectrum2DmB(STD(string)              name,
+  CSpectrum2DmB(std::string              name,
 	       UInt_t                   id,
-	       STD(vector)<CParameter>& parameters,
+	       std::vector<CParameter>& parameters,
 	       UInt_t                   xscale,
 	       UInt_t                   yscale);
-  CSpectrum2DmB(STD(string)              name,
+  CSpectrum2DmB(std::string              name,
 	       UInt_t                   id,
-	       STD(vector)<CParameter>& parameters,
+	       std::vector<CParameter>& parameters,
 	       UInt_t                   xchans,
 	       UInt_t                   ychans,
 	       Float_t  xlow, Float_t   xhigh,

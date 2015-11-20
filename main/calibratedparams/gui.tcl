@@ -1,6 +1,6 @@
 # $Id: gui.tcl 1429 2007-10-27 20:20:25Z ron-fox $
 #
-
+package require daqdefs
 
 if {[catch {set DAQHOST $env(DAQHOST)} result]} {
   set DAQHOST "localhost"
@@ -54,7 +54,7 @@ proc AttachOnline {} {
 		stop
 	}
 	set DataSource "TCP://$DAQHOST:2602/"
-	attach -pipe /usr/opt/daq/Bin/spectcldaq $DataSource
+	attach -pipe [file join $::daqdefs::daqbin spectcldaq] $DataSource
 	start
 }
 

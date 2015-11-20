@@ -424,6 +424,8 @@ InfoDisplay::InfoDisplay(char *name, XMWidget *parent) :
 **      Type:     xxx
 **      Channels  x [by y] using nnnn bytes
 **      Mapping   xlow to xhi X-units [by ylow to yhi Y-units]
+**      Overflows:  x:    y:
+**      Underflows: x:   y:
 ** Formal Parameters:
 **    const int specno:
 **      Number of the spectrum to get information about.
@@ -435,7 +437,7 @@ InfoDisplay::InfoDisplay(char *name, XMWidget *parent) :
 char *FormatSpectrumInfo(const int specno)
 {
   win_attributed *att = Xamine_GetSelectedDisplayAttributes();
-  char *specinfo = (char *)XtMalloc(200); /* 200 chars should be enough. */
+  char *specinfo = (char *)XtMalloc(2000); /* 200 chars should be enough. */
   spec_title     title;
 
   assert(undefined == 0);
@@ -457,6 +459,8 @@ char *FormatSpectrumInfo(const int specno)
 
   if(specinfo == NULL) return specinfo;
 
+  volatile const Statistics& s = xamine_shared->getStatistics(specno);
+  
   switch(xamine_shared->gettype(specno)) {
   case onedlong:
   case onedword:
@@ -464,22 +468,28 @@ char *FormatSpectrumInfo(const int specno)
       spec_label xlabel;
       xamine_shared->getxlabel_map(xlabel, specno);
       sprintf(specinfo,
-	      "Spectrum : %d\nTitle    : %s\nType     : %s\nChannels : %d using %d bytes\nMapping  : %.1f to %.1f %s\n",
+	      "Spectrum : %d\nTitle    : %s\nType     : %s\nChannels : %d using %d bytes\nMapping  : %.1f to %.1f %s\nOverflows  x: %5d\nUnderflows x: %5d\n",
 	      specno, xamine_shared->getname(title, specno),
 	      spctype[xamine_shared->gettype(specno)],
 	      xamine_shared->getxdim(specno),
 	      xamine_shared->getxdim(specno)
 	      *spcmult[xamine_shared->gettype(specno)],
 	      xamine_shared->getxmin_map(specno), 
-	      xamine_shared->getxmax_map(specno), xlabel);
+	      xamine_shared->getxmax_map(specno), xlabel,
+              s.overflows[0], 
+              s.underflows[0]
+              );
     } else {
       sprintf(specinfo,
-	      "Spectrum : %d\nTitle    : %s\nType     : %s\nChannels : %d using %d bytes\n",
+	      "Spectrum : %d\nTitle    : %s\nType     : %s\nChannels : %d using %d bytes\nOverflows  x: %5d \nUnderflows x: %5d \n",
 	      specno, xamine_shared->getname(title, specno),
 	      spctype[xamine_shared->gettype(specno)],
 	      xamine_shared->getxdim(specno),
 	      xamine_shared->getxdim(specno)
-	      *spcmult[xamine_shared->gettype(specno)]);
+	      *spcmult[xamine_shared->gettype(specno)],
+              s.overflows[0],
+              s.underflows[0]
+              );
     }
     break;
   case twodword:
@@ -491,7 +501,7 @@ char *FormatSpectrumInfo(const int specno)
       xamine_shared->getxlabel_map(xlabel, specno);
       xamine_shared->getylabel_map(ylabel, specno);
       sprintf(specinfo,
-	      "Spectrum : %d\nTitle    : %s\nType     : %s\nChannels : %d by %d using %d bytes \nMapping  : %.1f to %.1f %s by %.1f to %.1f %s\n",
+	      "Spectrum : %d\nTitle    : %s\nType     : %s\nChannels : %d by %d using %d bytes \nMapping  : %.1f to %.1f %s by %.1f to %.1f %s\nOverflows  x: %5d y: %5d\nUnderflows x: %5d y: %5d\n",
 	      specno, xamine_shared->getname(title, specno),
 	      spctype[xamine_shared->gettype(specno)],
 	      xamine_shared->getxdim(specno),
@@ -501,16 +511,20 @@ char *FormatSpectrumInfo(const int specno)
 	      xamine_shared->getxmin_map(specno), 
 	      xamine_shared->getxmax_map(specno), xlabel,
 	      xamine_shared->getymin_map(specno),
-	      xamine_shared->getymax_map(specno), ylabel);
+	      xamine_shared->getymax_map(specno), ylabel,
+              s.overflows[0], s.overflows[1],
+              s.underflows[0], s.underflows[1]);
     } else {
       sprintf(specinfo,
-	      "Spectrum : %d\nTitle    : %s\nType     : %s\nChannels : %d by %d using %d bytes \n",
+	      "Spectrum : %d\nTitle    : %s\nType     : %s\nChannels : %d by %d using %d bytes \nOverflows  x: %5d y: %5d\nUnderflows x: %5d y: %5d\n",
 	      specno, xamine_shared->getname(title, specno),
 	      spctype[xamine_shared->gettype(specno)],
 	      xamine_shared->getxdim(specno),
 	      xamine_shared->getydim(specno),
 	      xamine_shared->getxdim(specno)*xamine_shared->getydim(specno)*
-	      spcmult[xamine_shared->gettype(specno)]);
+	      spcmult[xamine_shared->gettype(specno)],
+              s.overflows[0], s.overflows[1],
+              s.underflows[0], s.underflows[1]);
     }
     break;
   default:

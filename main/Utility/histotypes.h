@@ -1,71 +1,18 @@
 /*
     This software is Copyright by the Board of Trustees of Michigan
-    State University (c) Copyright 2005.
+    State University (c) Copyright 2014.
 
     You may use this software under the terms of the GNU public license
     (GPL).  The terms of this license are described at:
 
      http://www.gnu.org/licenses/gpl.txt
 
-     Author:
+     Authors:
              Ron Fox
-	     NSCL
-	     Michigan State University
-	     East Lansing, MI 48824-1321
-*/
-
-
-/*
-   Change log:
-   $Log$
-   Revision 5.7  2007/02/23 20:38:18  ron-fox
-   BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
-   parameter lists).
-
-   Revision 5.6  2006/10/05 11:51:17  ron-fox
-   - Support for computed fitlines in Xamine displays.
-   - Changed a few more files to use short license comment headers
-
-   Revision 5.5  2006/09/28 21:55:09  ron-fox
-   Fix issues with m2 spectra I/O and listing
-
-   Revision 5.4  2006/09/22 11:40:55  ron-fox
-   - Cleaned up license text
-   - Added support for m2 in SpectrumType_t enum and operator <<>>'s.
-
-   Revision 5.3  2006/09/20 10:43:49  ron-fox
-   Just some formatting (replacing licenses etc). stuff.
-
-   Revision 5.2  2005/06/03 15:19:35  ron-fox
-   Part of breaking off /merging branch to start 3.1 development
-
-   Revision 5.1.2.3  2005/05/11 21:26:41  ron-fox
-   - Add -pedantic and deal with the fallout.
-   - Fix long standing issues with sread/swrite -format binary
-   - Merge in Tim's strip chart spectrum and ensure stuff builds
-     correctly.
-
-   Revision 5.1.2.2  2005/05/11 16:56:48  thoagland
-   Added Support for StripChart Spectra
-
-
-   2005/05/05 Tim Hoagland
-   Added support for StripChart Spectra
-   
-
-   Revision 5.1.2.1  2004/12/21 17:51:28  ron-fox
-   Port to gcc 3.x compilers.
-
-   Revision 5.1  2004/11/29 16:56:17  ron-fox
-   Begin port to 3.x compilers calling this 3.0
-
-   Revision 4.5  2003/08/25 16:25:33  ron-fox
-   Initial starting point for merge with filtering -- this probably does not
-   generate a goo spectcl build.
-
-   Revision 4.4  2003/04/01 19:59:49  ron-fox
-   Removed Mapped Spectrum types... Added changelog tag to header comments.
-
+             Jeromy Tompkins
+             NSCL
+             Michigan State University
+             East Lansing, MI 48824-1321
 */
 
 #ifndef __HISTOTYPES_H
@@ -76,7 +23,7 @@
 #endif
 
 #ifndef __CPP_IOSTREAM_H
-#include <Iostream.h>
+#include <iostream>
 #define __CPP_IOSTREAM_H
 #endif
 
@@ -112,8 +59,8 @@ typedef enum _Datatype_t {
   keUnknown_dt
 } DataType_t;
 
-inline STD(ostream)&
-operator<<(STD(ostream)& out, DataType_t t)
+inline std::ostream&
+operator<<(std::ostream& out, DataType_t t)
 {
   switch(t) {
   case keByte:
@@ -138,17 +85,17 @@ operator<<(STD(ostream)& out, DataType_t t)
   }
   return out;
 }
-inline STD(istream)&
-operator>>(STD(istream)& in, DataType_t& t)
+inline std::istream&
+operator>>(std::istream& in, DataType_t& t)
 {
-  STD(string) value;
+  std::string value;
   t = keUnknown_dt;
   in >> value;
-  if(value == STD(string)("byte")) t =  keByte;
-  if(value == STD(string)("word")) t = keWord;
-  if(value == STD(string)("long")) t = keLong;
-  if(value == STD(string)("float"))t =  keFloat;
-  if(value == STD(string)("double"))t = keDouble;
+  if(value == std::string("byte")) t =  keByte;
+  if(value == std::string("word")) t = keWord;
+  if(value == std::string("long")) t = keLong;
+  if(value == std::string("float"))t =  keFloat;
+  if(value == std::string("double"))t = keDouble;
   return in;
 }
 
@@ -198,8 +145,8 @@ typedef enum _SpectrumType_t {
 
 // I/O for spectrum types.
 
-inline STD(ostream)& 
-operator<<(STD(ostream)& out, SpectrumType_t t)
+inline std::ostream& 
+operator<<(std::ostream& out, SpectrumType_t t)
 {
   switch(t) {
   case ke1D:
@@ -241,8 +188,8 @@ operator<<(STD(ostream)& out, SpectrumType_t t)
   return out;
 }
 
-inline STD(istream)& 
-operator>>(STD(istream)& in, SpectrumType_t& t)
+inline std::istream& 
+operator>>(std::istream& in, SpectrumType_t& t)
 {
   char c;
   in >> c;

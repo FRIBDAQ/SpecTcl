@@ -95,7 +95,7 @@ protected:
 public:
   // Class operations:
   //                   
-  virtual   void   Open (const STD(string)& rsConnection, UInt_t nAccess,
+  virtual   void   Open (const std::string& rsConnection, UInt_t nAccess,
 			 bool fullBlocks = true)  ;
 
   virtual   void   Close ()  ;
@@ -105,7 +105,7 @@ public:
   //
 protected:
   void          DoAssign(const CPipeFile& rRhs);
-  static char** MakeArgv(const STD(string)& rConnection);
+  static char** MakeArgv(const std::string& rConnection);
   //
   // Private utilities:
   //

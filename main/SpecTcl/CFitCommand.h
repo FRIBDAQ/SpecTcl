@@ -115,7 +115,7 @@ private:
   static int       m_fitId;
 public:
   CFitCommand(CTCLInterpreter& interp,
-	      STD(string)      name = STD(string)("fit"));
+	      std::string      name = std::string("fit"));
   virtual ~CFitCommand();
 
   // Illegal cannonicals:
@@ -135,7 +135,7 @@ public:
 
 protected:
   virtual int operator()(CTCLInterpreter& interp,
-			 STD(vector)<CTCLObject>& objv);
+			 std::vector<CTCLObject>& objv);
 
 
   // Private subcommand executors.. these are named
@@ -143,18 +143,18 @@ protected:
 
 private:
   int Create(CTCLInterpreter& interp,
-	     STD(vector)<CTCLObject>& objv);
+	     std::vector<CTCLObject>& objv);
   int Update(CTCLInterpreter& interp,
-	     STD(vector)<CTCLObject>& objv);
+	     std::vector<CTCLObject>& objv);
   int Delete(CTCLInterpreter& interp,
-	     STD(vector)<CTCLObject>& objv);
+	     std::vector<CTCLObject>& objv);
   int List(CTCLInterpreter& interp,
-	   STD(vector)<CTCLObject>& objv);
+	   std::vector<CTCLObject>& objv);
   int Proc(CTCLInterpreter& interp,
-	   STD(vector)<CTCLObject>& objv);
+	   std::vector<CTCLObject>& objv);
 
   CTCLObject describeFit(CTCLInterpreter& interp, CSpectrumFit* pFit);
-  STD(string) Usage();
+  std::string Usage();
 };
 
 

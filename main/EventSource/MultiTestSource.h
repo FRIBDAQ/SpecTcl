@@ -26,7 +26,7 @@ class CMultiTestSource : public CFile {
   // Attributes
  private:
   static CMultiTestSource* m_pInstance;
-  STD(map)<STD(string), CTestFile*> m_mTestSources;
+  std::map<std::string, CTestFile*> m_mTestSources;
   CTestFile* m_pDefaultTestSource;
 
  protected:
@@ -36,15 +36,15 @@ class CMultiTestSource : public CFile {
 
  public:
   // Operators:
-  Bool_t operator()(STD(string)); // Uses the requested test source.
+  Bool_t operator()(std::string); // Uses the requested test source.
 
   // Additional functions:
   static CMultiTestSource* GetInstance(); // For the singleton.
 
-  Bool_t addTestSource(STD(string), CTestFile*);
-  CTestFile* getTestSource(STD(string));
+  Bool_t addTestSource(std::string, CTestFile*);
+  CTestFile* getTestSource(std::string);
   CTestFile* getDefaultTestSource();
-  Bool_t useTestSource(STD(string));
+  Bool_t useTestSource(std::string);
   Bool_t useDefaultTestSource();
   void   destroyingTestSource(CTestFile* source);
 }; // CMultiTestSource.

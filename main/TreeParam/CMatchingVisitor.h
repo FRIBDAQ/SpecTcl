@@ -69,13 +69,13 @@ private:
   /**
    * Pattern to match against.
    */
-  STD(string) m_sPattern;
+  std::string m_sPattern;
   
 public:
   CMatchingVisitor();		//!< Matches all (like raw for_each).
   virtual ~CMatchingVisitor();
-  CMatchingVisitor(STD(string) pattern);
-  void operator()(STD(pair)<const STD(string), CTreeParameter*>& element);
+  CMatchingVisitor(std::string pattern);
+  void operator()(std::pair<const std::string, CTreeParameter*>& element);
   virtual void OnMatch(CTreeParameter* pParam) =0;
   
   

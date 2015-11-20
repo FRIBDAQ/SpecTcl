@@ -45,7 +45,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include "pkgmgr.h"
 #include "superpos.h"
 #include "buttonsetup.h"
-#include <Iostream.h>
+#include <iostream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
