@@ -209,7 +209,7 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
   char**  ppListElements;
   Float_t nLow;
   Float_t nHi;
-  char*   pUnits = (char*)kpNULL;
+  const char*   pUnits = (char*)kpNULL;
   
   //  To simplify error handling, the parsing of the id and resolution
   //  values is done within a try catch block with the CTCLResult reference
@@ -279,7 +279,7 @@ CParameterCommand::Create(CTCLInterpreter& rInterp, CTCLResult& rResult,
     }
     nLow   = atof(ppListElements[0]);
     nHi    = atof(ppListElements[1]);
-    pUnits = const_cast<char*>("");
+    pUnits = "";
     if(nListElements == 3) {
       pUnits = ppListElements[2];
     }

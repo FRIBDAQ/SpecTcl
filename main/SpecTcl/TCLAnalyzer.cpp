@@ -77,7 +77,7 @@ CTclAnalyzer::CTclAnalyzer(CTCLInterpreter& rInterp, UInt_t nP,
   m_pBuffersAnalyzed = new CTCLVariable(&rInterp, 
 					string("BuffersAnalyzed"),
 					kfFALSE);
-  ClearVariable(*m_pBuffersAnalyzed);
+  SetVariable(*m_pBuffersAnalyzed,-1);
 
   m_pLastSequence    = new CTCLVariable(&rInterp,
 					string("LastSequence"),
@@ -233,7 +233,7 @@ UInt_t CTclAnalyzer::OnEvent(Address_t pRawData, CEvent& anEvent) {
   7. Clear the appropriate set of counters.
 */
 void CTclAnalyzer::OnBegin(CBufferDecoder* pDecoder) {
-  ClearVariable(*m_pBuffersAnalyzed);
+  SetVariable(*m_pBuffersAnalyzed, -1);
   ClearVariable(*m_pLastSequence);
   m_pRunState->Set("Active");
   SetVariable(*m_pRunNumber, pDecoder->getRun());

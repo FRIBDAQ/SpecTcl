@@ -1,3 +1,4 @@
+]
 2.1-006 - Incorporate fix 113 - low level cutoffs lead to corrupted
           1-d displays.
         - Have build procedures clean any pre-built Gri prior to 
@@ -806,62 +807,211 @@ September 17, 2008
                  - Fixed error in RunState handling.. Set it to
                    "Inactive" on event source EOF.  This is needed to
  		   support batchmode processing of e.g. filter files.
+
+Start on 3.3
+September 17, 2008 
+		- Added extensible factory template class directory
+                  factories.  This can be used both by new factories
+                  and to refactor the code provided by existing factories.
+                - Use extensible factory to generate the buffer decoder
+                  selected by the attach -format switch so that buffer decoders
+                  are extensible.
+September 18, 2008
+                - Registered default decoders with DataSourcePackage
+September 22, 2008 
+                - Added CRingBufferDecoder support so that ring buffer
+                  data can be decoded.
 September 26, 2008
-                 - backport capability to integrate superpositions as well
-                   as the base spectrum.
-3.2-002
-Feb 18, 2009    - Xamine button bar background -> black on test installs.
-March 18, 2009  - tkcon.tcl - rename clear command to tkconclear so it does not
-                  interfere with SpecTcl's clear command.
-3.2-003
-May 1, 2009     - CSpectrum2Dm.{h,cpp}  Ensure these spectra get put in the
+                - Provided mechanisms for buffer decoders to specify they
+                  operate either on fixed sized blocks of data or on streams.
+                  This is needed to ensure SpecTcl's input stage does not
+                  get permanently blocked when data taking pauses or 
+                  a run ends on a stream oriented pipe data source.
+                - Indicated that the CRingBufferDecoder is a stream decoder.
+                - Documented SpecTcl::addBufferDecoder.
+                - Documented new behavior of the -format switch on the
+                  attach command.
+                - Xamine - integrate superimposed spectra as well
+                  as base spectra.
+October 2, 2008 - Add ungate context menu option to new GUI.
+                - Don't write applications if the gate is -Ungated-
+                  (spectrum was ungated).
+                - Correct the count of buffers analyzed to account for the
+                  fact that the first buffer is sequence 0 so we need
+                  the first buffer to increment our buffers analyzed -> 0.
+
+January 5, 2009 - Added gamma summary spectrum.
+January 15, 2009 
+                - Fix Xamine compilation errors with -pedantic.
+                  Need to use reinterpret_cast to cast XtPointer ->
+                  function pointers.
+                - Document gamma summary spectra in the on-board html.
+                - Document GUI gamma summary spectrum creator.
+                - Added API docs for gamma deluxe and gamma summary spectra
+February 18, 2008
+                - Made the background of the button box a clear indicator of whether
+                  or not SpecTcl is in a test system.
+pre2:
+  March 6, 2009  - Make the rEvent array hold doubles not floats.
+  March 18, 2009 - Fix tkcon.tcl so it does not implement a clear command
+                   that interferes with the SpecTcl clear command.
+  March 24, 2009 - Make the delgrob dialog a multiselect.
+  May 1, 2009    - CSpectrum2Dm.{h,cpp}  Ensure these spectra get put in the
                   don't need a parameter list rather than some need a parameter list
                   which causes them to be grossly underincremented.
-May 1, 2009     - Complete a raft of editing so that SpecTcl compiles and runs
-                  with minimal error messages on debian lenny...really 
-		  Debian g++-4.3.2-1.1
-May 20, 2009    - Fix sourcing from new gui.. was stripping newlines from multiline
-                  definintions (e.g. psuedos). which caused them to fail.
-May 27, 2009    - Fix an error in the handling of contours on gamma spectra
+pre3:
+  May   2009     - Port to debian lenny with minimized compiler warnings.
+  May 20,2009    - In source files add back the newline after each lineof
+                   a multiline command to prevent syntax errors on e.g.
+                   pseudo defs.
+  May 27, 2009   - Fix error switch/case for handling gate point scaling.
+                   gamma gates resulted in no points being accepted.
+  August 13, 2009 - Fix error in Strip chart spectrum was not requiring
+                   that target parameter was defined.
+                  - Fix error in strip chart shift.  If shift is larger than spectrum
+                    channel count would segfault.
+  Sep 4, 2009     - Fix BZ 378 - Segfaults can happen when cutting down the
+                    Y parameters of a g2d spectrum to generate the title.
 
-3.2-004
-August 13, 2009 - Fix error in Strip chart spectrum was not requiring y parameter
-                    - Fix error in strip chart shift.  If shift is larger than spectrum
-                    channel count would segfault.that target parameter was defined.
-September 4, 2009 - Fix BZ 378 - CHistogrammer::createTitle had typos in the reduction
-                    of the y parameter list that led to segfaults when g2d spectra 
-                    titles were created.
-3.2-005
-October 14, 2009 - Fix error in strip chart spectrum.  After a slide left, the
-                   offset was off by one causing continuous parameters to have a 
-                   1-channel hole in their spectra.
-3.2-006
-December 3, 2009 - Fix error in XMDialogs.cc XMWarningDialog::XMWarningDialog
-                   references the buttons prior to ensuring their creation.
-December 4, 2009 - BZ 384 provide a list of fallback fonts in case 
-                   adobe courier is missing (e.g. Xming without font pack).
-                   If no fonts in the list of fonts are available, do a popup
-                   error rather than an stderr message before exiting.
-		   BZ384 - Provide a const char* exception handler in main()
-                           when caught displays a modal warning box with the
-                           exception displayed and when dismissed exits Xamine.
-                         - Throw an appropriate const char* exception when
-                           no suitable fonts can be found in text.cc:LoadFonts
+pre4: 
+  October 11, 2009 - BZ 379 when SpecTcl started using double for parameters
+                    in an event, filters broke.  The fix allows both filters
+                    from older and current versions of SpecTcl to be read.
+  October 14, 2009 - Strip chart spectrum was miscalculateing m_nOffset on
+                     shifts to the left leaving gaps in the spectra for
+                     continuously varying parameters.
+  December 4, 2009 - Fix error in XMWarningDialog::Create .. was referencing
+                     button objects prior to ensuring they were created.
+  December 4, 2009 - BZ384 - Provide some fallback fonts in case the adobe-courier
+                     family is not present.
+                     BZ384 - Provide a const char* exception handler in main()
+                             when caught displays a modal warning box with the
+                             exception displayed and when dismissed exits Xamine.
+                           - Throw an appropriate const char* exception when
+                             no suitable fonts can be found in text.cc:LoadFonts
 
-3.2-007
-May 6, 2010   - Remvoe -exact from tkcon's package require of Tcl as
-                that fails in ubuntu 10.04.
-May 6, 2010  - Update Gri to 3.12.20 and get it to compile on g++-4.3.2
-May 14, 2010 - Remove usage of memswap
-             - Remove -lpub from all makefile like artifacts.
-             - fixed BZ 404 overflow in griprint.cc (buffer overflow that is).
-3.2-008
-May 18, 2010 - Fixed error in gui spectrumUsage proc. Was miscalculating
-               summary spectrum usage.
-June 2, 2010 - Fixed two errors in the old tree parameter GUI:
-               * mclistbox.tcl - needs -state defined to work in Tcl 8.5
-               * Gate dependencies not correctly calculated causing
-                 saves to fail if there was only one gate defined.
+February 2, 2010  - Export CRingBufferDecoder.h to the world rather than
+                    hiding it in noinst_HEADERS.
+Feburary 11, 2010 - Modify data source GUI elements to include a data
+                    format selector that includes support for ring so people
+                    can attach to ring buffers or event files from the ring
+                    buffer system.                      
 
-3.2-009   - Fix some memory double deallocation errors found by Coupland.
-3.2-010   - Add additionall lines of text to integration widget.
+pre6:
+May 6, 2010 - Fold in KSU fix for tkcon problems on ubuntu 10.??
+May 6, 2010 - Update to gri-2.12.20
+May 14, 2010- Remove memswap usage in CIntegrateCommand.cpp.
+            - Remove all -lpub's from Makefile.am and includes.
+            - Fix buffer overflow (BZ 404) in griprint.c
+pre7:
+May 18, 2010 - Fix error in GUI spectrum usage calculation. Was under
+              calcluating summary spectrum usage.
+June 2, 2010
+             - Fix treegui problems:
+               * Gate dependencies not calculated right if only one gate.
+               * mclistbox now clean for tcl 8.5
+June 3, 2010
+             - WO 2529-005-CP-005 - Add an extra layer of indirection
+               (parameter scoreboarding) to improve the performance
+               of histogramming when spectra and parameters are sparse.
+
+June 13, 2011 - Fix some memory double deallocations found by Coupland.
+
+3.3-002
+	- Fixes pointed out by cppcheck static analyzer.
+	- Misc. warning removals.
+	- Use mkstemp rather than tmpnam in wsyswig printing.
+3.3-003
+June 30, 2011
+       - Fix error in CRingBufferDecoder - premature free of glued buffer
+3.3-004
+November 14, 2011
+       - Increase the capacity of the integration widget in Xamine to
+         50,000 chars (Carpino request).
+
+3.3-005
+December 5, 2011 
+	 - TR 6912 - undo changes in dfltmgr.cc suggested by cppcheck specifically:
+           - assignment operator of win_*d infinitely recurses
+	   - use memcpy instead which causes ccpcheck to complain about memcpy-ing objects
+             circumventing assignment.  Must still see why the recursion occurs.
+           - The earlier assignment was ill motivated and did not actually change the caller's
+             win_xd for Xamine_CreatexdDefault.... functions as it just did pointer assignment
+             rather than actually transferring the attributes to the caller.  This resulted in 
+             unconditionally using a scatter plot rendition rather than the more usual color.
+
+
+3.3-006
+November 30-?? 2011
+	- Added flag to guistate.tcl so that new/treegui can ask it to
+	  save without spectrum -delete and thus support the 'cumulate'
+	  (sic) checkbutton.
+	- Fix errors in Stripchart spectrum shifting and channel caculation.
+    	- Fix case in spectrum definition where we might ask Tcl to delete
+          storage we never allocated.
+        - Remove use of TkTable which disappears eventually in Tcl.
+3.3-007 
+??      - Ensure this all works on ring buffers.
+
+3.3-008
+	- issue 107 Fix SpecTcl-2d integration command (gives wrong answers)
+	- issue 108 Support Xamine builds if OpenMotif is the motif version installed.
+	- issue 105 In folder gui make spectrum save a 2-step wizard so that it fits
+          on small screens better.
+        - issue 973 Do a smart search for the ring buffer clients in data source tcl.
+        - issue 866 Protect GUIs (folder standalone and tree) from multiple startups.
+
+3.3-009
+	- May 4, 2012 - Added cusbSpecTcl to the build.
+        - June 6, 2012 - Added vmusbSpecTcl to the build.
+	- June 6, 2012 Tell user about missing parameters array elements.
+        - June 6, 2012 VMUSBSpecTcl - process madc -resolution config option.
+3.3-010
+	- June 8, 2012 Branched the development repository and upped the
+                       configure.ac version to 3.3-010 
+	- June 11, 2012 Issue #1089 fix order of gui startup with respect
+	               to config file processing.
+	- June 11, 2012 Issue #1087 correct handling when saving gates for
+	               gates that have spaces in their name.
+	- June 14, 2012 Issue #1008 Provide error information and exit if SpecTclRC.tcl
+                        or SpecTclInit.tcl failed.
+        - June 14, 2012 Issue #1070 Provide error information for failing Pseudo params.
+	- June 15, 2012 Issue #1046:
+	  * Default to ring format if online.
+	  * Allow user to specify ring name.
+
+        - June 15, 2012 Issue #1063 Improve new gui startup time.
+3.3-011 - July 2, 2012  Issue # 1191 Save spectrum channel type (byte word longword e.g.)
+          when doing a save of failsafe write.
+        - July 9, 2012 Issue #1152, Issue #1150, Issue #1151, Issue #1153 - Get clean builds
+          on Ubuntu Precise Pangolin.. 
+        - July 24, 2012 - Use 64bit clean DataFormat.h (time_t -> uint32_t).
+3.3-012
+       - Issue #1322 - Add product name to VERSION file e.g. SpecTcl-
+3.3-013
+	- Issue #1451 - Re cast the Xamine shared memory region in terms of
+          the types in stdint.h - this due to observation that 64bit 
+          shared memory requirements were significantly larger than
+          32 bit systems due to the use of architecture specific types.
+       	- Issue #1328 - Remove SpecTcl's local instance of gri and require gri 
+          be installed on systems using SpecTcl.  Note that lack of gri will
+          result in  warning at configuration/install time.
+        - Issue #1111 Add -rpaths in the case of links to shared libraries
+          that are may not be in the normal places (e.g. provided by --with
+          flags at build time).
+        - Issue #1142 - Remove all dependencies on BLT as this package will
+          likely become unavailable with Tcl 8.6 - which is now out of beta
+          test.
+        - Fixed various compile warnings in anticipation of compiler versions
+          that will treat these as errors (finally solved the callbacks
+          as data in Xt casting problem).
+3.3-015
+        * Fix error in griprint.cc - buffer overflow for printing spectra with
+          numbers above 99.  Thanks to Dave Caussyn at FSU for finding this one.
+        * Fix redef errors in NSCLAsciiFormatter..
+3.3-016
+	* Properly integrate the V1729 FADC with SpecTcl.
+        * Fix error in vmusb/spectclSetup.tcl - typo in V1x90 setup.
+
+3.3-017
+        * Fix error with m2d gates - Only the first point was correct.

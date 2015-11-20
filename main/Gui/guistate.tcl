@@ -238,6 +238,10 @@ snit::widget saveDefPrompt {
 namespace eval guistate {
     variable gatestatus
     variable pseudostatus
+
+    variable writeDeletes 1;	# If true commands are emitted to delete spectra.
+    variable observers;         # List of scripts that are executed during saves.`
+    array set observers [list];	#    Initialized to empty.
 }
 
 # getDependentGates description
@@ -293,7 +297,7 @@ proc writeGate {fd description} {
     if {!$::guistate::gatestatus($name)} {
         set dependencies [getDependentGates $description]
         foreach dependency $dependencies {
-            set depname [lindex $dependency 0]
+            set depname $dependency
             if {!$::guistate::gatestatus($depname)} {
                 writeGate $fd [lindex [gate -list $dependency] 0]
             }
@@ -446,9 +450,7 @@ proc writePseudoParameters fd {
 
 }
 # writeTreeVariables fd
-#       Write out the tree variables that have been modified
-#       since we started.  The tree variables themeselves keep
-#       track of whether or not they've been modified.
+#       Write out the tree variables.
 # Parameters:
 #   fd    - The file descriptor gotten from the [open] on the output file.
 #
@@ -459,9 +461,7 @@ proc writeTreeVariables fd {
         set name  [lindex $variable 0]
         set value [lindex $variable 1]
         set units [lindex $variable 2]
-        if {[treevariable -check $name]} {
-            puts $fd "treevariable -set [list $name] $value [list $units]"
-        }
+	puts $fd "treevariable -set [list $name] $value [list $units]"
     }
 }
 # writeSpectrumDefinitions fd
@@ -481,9 +481,12 @@ proc writeSpectrumDefinitions fd {
         set type       [lindex $spectrum 2]
         set parameters [lindex $spectrum 3]
         set axes       [lindex $spectrum 4]
+	set datatype       [lindex $spectrum 5]
 
-        puts $fd "catch {spectrum -delete [list $name]}"
-        puts $fd "spectrum [list $name] $type [list $parameters] [list $axes]"
+	if {$::guistate::writeDeletes} {
+	    puts $fd "catch {spectrum -delete [list $name]}"
+	}
+        puts $fd "spectrum [list $name] $type [list $parameters] [list $axes] $datatype"
 
     }
 }
@@ -533,7 +536,7 @@ proc writeGateApplications fd {
         set gate     [lindex $application 1]
         set gatename [lindex $gate 0]
         # ungated spectra are actually gated on -TRUE-
-        if {$gatename != "-TRUE-"} {
+        if {$gatename != "-TRUE-" && $gatename != "-Ungated-"} {
             puts $fd "apply [list $gatename]  [list $spectrum]"
         }
     }
@@ -592,6 +595,12 @@ proc writeAll fd {
     writeGateDefinitions     $fd
     writeGateApplications    $fd
     writeFilters             $fd
+
+    #  Now execute the observers at the global level:
+
+    foreach observerName [array names ::guistate::observers] {
+	uplevel #0 $::guistate::observers($observerName) $fd
+    }
 }
 
 #
@@ -700,5 +709,30 @@ proc writeVariables {} {
         set fd $msg
         writeTreeVariables $fd
         close $fd
+    }
+}
+#-----------------------------------------------------------------------
+#
+#  Observer management code:
+#
+
+##
+# Add a save state observer.  These are run in arbitrary order 
+# after the main state is saved.
+# @param name   - Name of the observer (should be unique).
+# @param script - Script to run.  The file descriptor to which the
+#                 save is being done is  appended to the script.
+#
+proc addSaveObserver {name script} {
+    set ::guistate::observers($name) $script
+}
+##
+# Remove a save state observer. 
+# @name - Name of the observer to remove.  It is a no-op to remove an
+#         observer that does not exist (not an error).
+#
+proc removeSaveObserver name {
+    if {[array names ::guistate::observers $name] eq $name} {
+	array unset ::guistate::observers $name
     }
 }

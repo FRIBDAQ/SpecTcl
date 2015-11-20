@@ -360,7 +360,7 @@ CGamma2DD<T>::CreateStorage()
 {
 
   if (sizeof(T) == sizeof(UChar_t)) {
-      setStorageType(keLong);
+      setStorageType(keByte);
   }
   else if (sizeof(T) == sizeof(UShort_t)) {
       setStorageType(keWord);

@@ -28,14 +28,12 @@
 
 
 #include <config.h>
-#include <stdlib.h>
-
 #include "CTreeParameterArray.h"
 #include "CTreeParameter.h"
 #include "CTreeException.h"
 
 #include <stdio.h>
-
+#include <stdlib.h>
 #include <math.h>
 
 #ifdef HAVE_STD_NAMESPACE

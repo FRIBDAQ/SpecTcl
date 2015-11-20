@@ -25,6 +25,7 @@
 #include <string>
 #include <buftypes.h>
 #include <buffer.h>
+#include <stdint.h>
 
 #include <histotypes.h>
 
@@ -72,8 +73,7 @@ CreateTotals(CTCLInterpreter* pInterp, int num)
     char index[100];
     snprintf(index, sizeof(index), "%d", i);
     if(!totals.Get(TCL_GLOBAL_ONLY, index)) {
-      totals.Set(index, 
-		 const_cast<char*>("0"));	// Create if fetch fails.
+      totals.Set(index, const_cast<char*>("0"));	// Create if fetch fails.
     }
   }
 }
@@ -215,7 +215,7 @@ CSpecTclControlBufferCallback::operator()(unsigned int nType, const void* pBuffe
 
   // All the other stuff comes from the buffer:
 
-  SetVariable(RunNumber, "%d", (void*)m_pProcessor->runNumber());
+  SetVariable(RunNumber, "%d", (void*)static_cast<uint64_t>(m_pProcessor->runNumber()));
   SetVariable(RunTitle,  "%s", (void*)m_pProcessor->Title().c_str());
   
 	      

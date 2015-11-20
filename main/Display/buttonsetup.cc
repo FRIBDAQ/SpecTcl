@@ -147,7 +147,7 @@ void Xamine_SetApplyMapSensitivity(Boolean b)
 */
 void Xamine_SetupButtonBar(XMWidget *button_bar)
 {
-  XMRowColumn *manager = new XMRowColumn(const_cast<char*>("Button_rc"), *button_bar);
+  XMRowColumn *manager = new XMRowColumn("Button_rc", *button_bar);
 
   /* Set the characteristics of the manager: */
 
@@ -161,9 +161,9 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   Arg frame_attribs;  
   XtSetArg(frame_attribs, XmNshadowType, XmSHADOW_ETCHED_IN);
 
-  windows = new XMFrame(const_cast<char*>("Windows_f"), *manager, &frame_attribs, 1);
-  spectra = new XMFrame(const_cast<char*>("Spectra_f"), *manager, &frame_attribs, 1);
-  grobs   = new XMFrame(const_cast<char*>("Grobj_f"),   *manager, &frame_attribs, 1);
+  windows = new XMFrame("Windows_f", *manager, &frame_attribs, 1);
+  spectra = new XMFrame("Spectra_f", *manager, &frame_attribs, 1);
+  grobs   = new XMFrame("Grobj_f",   *manager, &frame_attribs, 1);
 
 
 
@@ -171,9 +171,9 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
 
   XMForm *windows_rc, *spectra_rc, *grobs_rc;
 
-  windows_rc = new XMForm(const_cast<char*>("Windows_rc"), *windows);
-  spectra_rc = new XMForm(const_cast<char*>("Spectra_rc"), *spectra);
-  grobs_rc   = new XMForm(const_cast<char*>("Grobj_rc"),   *grobs);
+  windows_rc = new XMForm("Windows_rc", *windows);
+  spectra_rc = new XMForm("Spectra_rc", *spectra);
+  grobs_rc   = new XMForm("Grobj_rc",   *grobs);
 
   // In a test systesm make the background of the button box an ugly black.
 
@@ -196,7 +196,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   windows_rc->SetAttribute(XmNallowOverlap, (XtArgVal)False);
   windows_rc->SetFractionBase(45);
 
-  pb = new XMPushButton(const_cast<char*>("Geometry"), *windows_rc);
+  pb = new XMPushButton("Geometry", *windows_rc);
   pb->AddCallback(Xamine_request_geometry);
   windows_rc->SetLeftAttachment(*pb, XmATTACH_POSITION);
   windows_rc->SetLeftPosition(*pb, 1);
@@ -205,7 +205,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   Xamine_AddtoBasePackage(pb);
   pbt1 = pb;
 
-  tb = new XMToggleButton(const_cast<char*>("Zoom"),   *windows_rc);
+  tb = new XMToggleButton("Zoom",   *windows_rc);
   tb->AddCallback(Xamine_ToggleZoom);
   zoom_button = tb;
   windows_rc->SetLeftAttachment(*tb, XmATTACH_POSITION);
@@ -224,7 +224,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
 					    Xamine_DisplayAdvance
   };
 
-  pb = new XMPushButton(const_cast<char*>("Display"), *windows_rc);
+  pb = new XMPushButton("Display", *windows_rc);
   pb->AddCallback(Xamine_ChooseSpectrum, (XtPointer)&DisplayCb);
   windows_rc->SetLeftAttachment(*pb, XmATTACH_POSITION);
   windows_rc->SetLeftPosition(*pb, 1);
@@ -233,8 +233,8 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   Xamine_AddtoBasePackage(pb);
   pbt1 = pb;
 
-  pb = new XMPushButton(const_cast<char*>("Displayp"), *windows_rc);
-  pb->Label(const_cast<char*>("Display +"));
+  pb = new XMPushButton("Displayp", *windows_rc);
+  pb->Label("Display +");
   pb->AddCallback(Xamine_ChooseSpectrum, (XtPointer)&PlusCb);
   windows_rc->SetLeftAttachment(*pb, XmATTACH_POSITION);
   windows_rc->SetLeftPosition(*pb, 1);
@@ -249,8 +249,8 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   spectra_rc->SetAttribute(XmNallowOverlap, (XtArgVal)False);
   spectra_rc->SetFractionBase(45);
 
-  pb = new XMPushButton(const_cast<char*>("Updall"),  *spectra_rc);
-  pb->Label(const_cast<char*>("Update All"));
+  pb = new XMPushButton("Updall",  *spectra_rc);
+  pb->Label("Update All");
   pb->AddCallback(Xamine_UpdateAll);
   spectra_rc->SetTopAttachment(*pb, XmATTACH_POSITION);
   spectra_rc->SetTopPosition(*pb, 5);
@@ -259,7 +259,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   Xamine_AddtoSpectrumPresentPackage(pb);
   pbt1 = pb;
 
-  pb = new XMPushButton(const_cast<char*>("Expand"),  *spectra_rc);
+  pb = new XMPushButton("Expand",  *spectra_rc);
   pb->AddCallback(Xamine_Expand);
   spectra_rc->SetTopAttachment(*pb, XmATTACH_POSITION);
   spectra_rc->SetTopPosition(*pb, 5);
@@ -268,8 +268,8 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   Xamine_AddtoSpectrumSelectedPackage(pb);
   pbt2 = pb;
 
-  pb = new XMPushButton(const_cast<char*>("Updsel"),  *spectra_rc);
-  pb->Label(const_cast<char*>("Update Selected"));
+  pb = new XMPushButton("Updsel",  *spectra_rc);
+  pb->Label("Update Selected");
   pb->AddCallback(Xamine_Update);
   spectra_rc->SetTopAttachment(*pb, XmATTACH_WIDGET);
   spectra_rc->SetTopWidget(*pb, *pbt1);
@@ -278,7 +278,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   Xamine_AddtoSpectrumSelectedPackage(pb);
   pbt1 = pb;
 
-  pb = new XMPushButton(const_cast<char*>("UnExpand"), *spectra_rc);
+  pb = new XMPushButton("UnExpand", *spectra_rc);
   pb->AddCallback(Xamine_UnExpand);
   spectra_rc->SetTopAttachment(*pb, XmATTACH_WIDGET);
   spectra_rc->SetTopWidget(*pb, *pbt2);
@@ -287,7 +287,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   Xamine_AddtoSpectrumSelectedPackage(pb);
   pbt2 = pb;
 
-  pb = new XMPushButton(const_cast<char*>("Info"),    *spectra_rc);
+  pb = new XMPushButton("Info",    *spectra_rc);
   pb->AddCallback(Xamine_DisplayInfo);
   spectra_rc->SetTopAttachment(*pb, XmATTACH_WIDGET);
   spectra_rc->SetTopWidget(*pb, *pbt1);
@@ -299,7 +299,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
 
   static float mult =     XAMINE_SCALE_MULTIPLIER;
   static float div  = 1.0/XAMINE_SCALE_MULTIPLIER;
-  pb = new XMPushButton(const_cast<char*>("+"), *spectra_rc);
+  pb = new XMPushButton("+", *spectra_rc);
   pb->AddCallback(Xamine_MultiplySelectedScaleCb, 
 		  (XtPointer)&div);
   spectra_rc->SetTopAttachment(*pb, XmATTACH_WIDGET);
@@ -310,7 +310,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   Xamine_AddtoSpectrumSelectedPackage(pb);
   last = pb;
 
-  pb = new XMPushButton(const_cast<char*>("-"), *spectra_rc);
+  pb = new XMPushButton("-", *spectra_rc);
   pb->AddCallback(Xamine_MultiplySelectedScaleCb, 
 		  (XtPointer)&mult);
   spectra_rc->SetTopAttachment(*pb, XmATTACH_WIDGET);
@@ -321,7 +321,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   Xamine_AddtoSpectrumSelectedPackage(pb);
   last = pb;
 
-  log_button = new XMToggleButton(const_cast<char*>("Log"), *spectra_rc);
+  log_button = new XMToggleButton("Log", *spectra_rc);
   log_button->AddCallback(Xamine_ToggleZoomState);
   spectra_rc->SetTopAttachment(*log_button, XmATTACH_WIDGET);
   spectra_rc->SetTopWidget(*log_button, *pbt2);
@@ -331,7 +331,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   spectra_rc->SetBottomAttachment(*log_button, XmATTACH_FORM);
   Xamine_AddtoSpectrumSelectedPackage(log_button);
 
-  mapping_button = new XMToggleButton(const_cast<char*>("Map"), *spectra_rc);
+  mapping_button = new XMToggleButton("Map", *spectra_rc);
   mapping_button->AddCallback(Xamine_ToggleUserMapping);
   spectra_rc->SetLeftAttachment(*mapping_button, XmATTACH_WIDGET);
   spectra_rc->SetLeftWidget(*mapping_button, *log_button);
@@ -346,7 +346,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   grobs_rc->SetAttribute(XmNallowOverlap, (XtArgVal)False);
   grobs_rc->SetFractionBase(45);
 
-  pb = new XMPushButton(const_cast<char*>("Marker"),  *grobs_rc);
+  pb = new XMPushButton("Marker",  *grobs_rc);
   grobs_rc->SetTopAttachment(*pb, XmATTACH_POSITION);
   grobs_rc->SetTopPosition(*pb,   5);
   grobs_rc->SetLeftAttachment(*pb, XmATTACH_POSITION);
@@ -355,7 +355,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   pbt1 = pb;
   Xamine_AddtoSpectrumSelectedPackage(pb);
 
-  pb = new XMPushButton(const_cast<char*>("Cut"),     *grobs_rc);
+  pb = new XMPushButton("Cut",     *grobs_rc);
   pb->AddCallback(Xamine_AcceptGate, (XtPointer)cut_1d);
   grobs_rc->SetTopAttachment(*pb, XmATTACH_POSITION);
   grobs_rc->SetTopPosition(*pb, 5);
@@ -364,8 +364,8 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   pbt2 = pb;
   Xamine_Addto1dSelectedPackage(pb);
 
-  pb = new XMPushButton(const_cast<char*>("Sreg"),  *grobs_rc);
-  pb->Label(const_cast<char*>("Summing Region"));
+  pb = new XMPushButton("Sreg",    *grobs_rc);
+  pb->Label("Summing Region");
   pb->AddCallback(Xamine_AcceptSummingRegion);
   grobs_rc->SetLeftAttachment(*pb, XmATTACH_POSITION);
   grobs_rc->SetLeftPosition(*pb, 1);
@@ -374,7 +374,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   pbt1 = pb;
   Xamine_AddtoSpectrumSelectedPackage(pb);
 
-  pb = new XMPushButton(const_cast<char*>("Band"),    *grobs_rc);
+  pb = new XMPushButton("Band",    *grobs_rc);
   pb->AddCallback(Xamine_AcceptGate, (XtPointer)band);
   grobs_rc->SetLeftAttachment(*pb, XmATTACH_POSITION);
   grobs_rc->SetLeftPosition(*pb, 30);
@@ -383,7 +383,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   pbt2 = pb;
   Xamine_Addto2dSelectedPackage(pb);
 
-  pb = new XMPushButton(const_cast<char*>("Integrate"), *grobs_rc, Xamine_Integrate);
+  pb = new XMPushButton("Integrate", *grobs_rc, Xamine_Integrate);
   grobs_rc->SetLeftAttachment(*pb, XmATTACH_POSITION);
   grobs_rc->SetLeftPosition(*pb, 1);
   grobs_rc->SetTopAttachment(*pb, XmATTACH_WIDGET);
@@ -392,7 +392,7 @@ void Xamine_SetupButtonBar(XMWidget *button_bar)
   pbt1  = pb;
   Xamine_AddtoSpectrumSelectedPackage(pb);
 
-  pb = new XMPushButton(const_cast<char*>("Contour"), *grobs_rc);
+  pb = new XMPushButton("Contour", *grobs_rc);
   pb->AddCallback(Xamine_AcceptGate, (XtPointer)contour_2d);
   grobs_rc->SetLeftAttachment(*pb, XmATTACH_POSITION);
   grobs_rc->SetLeftPosition(*pb, 30);

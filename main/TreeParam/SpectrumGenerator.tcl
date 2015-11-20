@@ -596,7 +596,6 @@ proc CreateSpectrum {SpectrumList Name ParameterList ResolutionList} {
 	
 	if {[lsearch $SpectrumList $Name] == -1} {
 		spectrum $Name $spectrumType $ParameterList $ResolutionList $spectrumDatatype
-		puts "Spectrum $Name created"
 	} else {
 #		if {[string match [tk_messageBox -icon warning -message "The spectrum $Name already exists.  Do you want to overwrite it?" \
 		-title Warning -type yesno -parent .gui] yes]} {
@@ -606,7 +605,7 @@ proc CreateSpectrum {SpectrumList Name ParameterList ResolutionList} {
 			if {![string equal $gate -TRUE-]} {
 				apply $gate $Name
 			}
-			puts "Spectrum $Name replaced"
+
 #		}
 	}
 }
@@ -736,6 +735,18 @@ proc UpdateSpectrumList {} {
 		set lowy ""
 		set highy ""
 		set binsy ""
+	    }
+	    gs {
+		set ltype "GS"
+		set varx [lindex [lindex $parameters 0] 0]
+		set lowx [format %g [lindex [lindex $resolutions 0] 0]]
+		set highx [format %g [lindex [lindex $resolutions 0] 1]]
+		set binx  [format %x [lindex [lindex $resolutions 0] 2]]
+		set vary ""
+		set lowy ""
+		set highy ""
+		set binsy ""
+			  
 	    }
 	    gd {
 		set ltype "GD"
@@ -901,7 +912,7 @@ proc DuplicateSpectra {} {
 	Modified
 }
 
-proc GenerateGateMenu {parent command} {
+proc GenerateGateMenu  {parent command} {
 # Generate a menu containing all available gates and attaches it to the parent widget
 	destroy $parent.menu
 	set wymax [winfo vrootheight .]

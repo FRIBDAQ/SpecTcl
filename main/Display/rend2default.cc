@@ -316,7 +316,7 @@ class Rend2dDialog : public XMCustomDialog, public Rend2dForm {
     XMCustomDialog(name, *parent, title),
     Rend2dForm(name, *work_area)
       {
-	Apply->Label(const_cast<char*>("Apply To All"));
+	Apply->Label("Apply To All");
         Rend2dForm::Manage();
       }
   ~Rend2dDialog() {}
@@ -351,8 +351,7 @@ static const char *help_text[] = {
   NULL
 };
 
-static Xamine_help_client_data help = { const_cast<char*>("Rend2d_help"), NULL, 
-					const_cast<char**>(help_text) };
+static Xamine_help_client_data help = { "Rend2d_help", NULL, help_text };
 
 /*
 ** Method Description:
@@ -368,11 +367,11 @@ static Xamine_help_client_data help = { const_cast<char*>("Rend2d_help"), NULL,
 **   XMForm &work_area:
 **     The form which parents the widgets we create.
 */
- Rend2dForm::Rend2dForm(char *name, XMForm &work_area)
+ Rend2dForm::Rend2dForm(const char *name, XMForm &work_area)
 {
   /* Create the radio box's manager widget and set it up. */
 
-  radio_box = new XMRowColumn(const_cast<char*>("Radio_Box"), work_area);
+  radio_box = new XMRowColumn("Radio_Box", work_area);
   radio_box->RadioMenu();
   radio_box->RadioForceOne();
   radio_box->SetOrientation(XmVERTICAL);
@@ -388,14 +387,14 @@ static Xamine_help_client_data help = { const_cast<char*>("Rend2d_help"), NULL,
 
   /*  Next populate the radio box with toggle buttons: */
 
-  Color = new XMToggleButton(const_cast<char*>("Color"), *radio_box);
-  Color->Label(const_cast<char*>("Intensity to Color"));
+  Color = new XMToggleButton("Color", *radio_box);
+  Color->Label("Intensity to Color");
 
-  Scatter = new XMToggleButton(const_cast<char*>("Scatter"), *radio_box);
-  Scatter->Label(const_cast<char*>("Intensity to Scatter density"));
+  Scatter = new XMToggleButton("Scatter", *radio_box);
+  Scatter->Label("Intensity to Scatter density");
 
-  Boxes = new XMToggleButton(const_cast<char*>("Boxes"), *radio_box);
-  Boxes->Label(const_cast<char*>("Intensity to Box size"));
+  Boxes = new XMToggleButton("Boxes", *radio_box);
+  Boxes->Label("Intensity to Box size");
 
 
 

@@ -298,7 +298,7 @@ using namespace std;
 
 
 
-static const  char* pCopyrightNotice = 
+static const char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved .cpp \n";
 
 static const char* ReasonTexts[] =  {
@@ -316,7 +316,7 @@ static const char* ReasonTexts[] =  {
 
 const char**  CGateFactoryException::m_svReasonTexts = ReasonTexts;
 
-const static char* GateTypeStrings[] = {
+static const  char* GateTypeStrings[] = {
   "And ",
   "Band ",
   "Band-Contour ",
@@ -356,12 +356,12 @@ CGateFactoryException::ReasonText()   const
   //   m_eGateType
   //
 
-  string Text(m_svReasonTexts[m_eReason]);
+  static string Text(m_svReasonTexts[m_eReason]);
   Text   += "\nWhile instantiating a ";
   Text   += GateTypeStrings[m_eGateType];
   Text   += "\n";
 
-  return Text.c_str();
+  return const_cast<char*>(Text.c_str());
 
   
   
@@ -385,10 +385,10 @@ Int_t CGateFactoryException::ReasonCode()
 //     ReasonCodeToText(GateFactory...Reason eReason)
 //  Operation Type: 
 //     Selector
-char*  
+const char*  
 CGateFactoryException::ReasonCodeToText(GateFactoryExceptionReason eReason)  
 {
   // Returns the reason code transated to text.
   //
-  return const_cast<char*>(m_svReasonTexts[(UInt_t)eReason]);
+  return m_svReasonTexts[(UInt_t)eReason];
 }

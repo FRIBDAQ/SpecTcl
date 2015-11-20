@@ -362,8 +362,7 @@ static const char *help_text[] = {
   NULL
   };
 
-static Xamine_help_client_data help = { const_cast<char*>("Spectrum_selection_help"), NULL, 
-					const_cast<char**>(help_text)};
+static Xamine_help_client_data help = { "Spectrum_selection_help", NULL, help_text};
 
 
 /*
@@ -515,7 +514,7 @@ int Xamine_MatchSpecName(char *name)
 void Callback_handler(XMWidget *w, XtPointer userd, XtPointer calld)
 {
   XMSelectionDialog *choice          = (XMSelectionDialog *)w;
-  void  (*usercallback)(int id)      = (void (*)(int))(userd);
+  void  (*usercallback)(int id)      = reinterpret_cast<void (*)(int)>(reinterpret_cast<size_t>(userd));
   XmSelectionBoxCallbackStruct *info = (XmSelectionBoxCallbackStruct *)calld;
   char error_msg[512];
   
@@ -633,9 +632,8 @@ void Xamine_ChooseSpectrum(XMWidget *w, XtPointer clientd, XtPointer calld)
   */
 
   if(!SpectrumChooser) {
-    SpectrumChooser = new XMSelectionDialog(const_cast<char*>("Spectrum_Choice"),
-					    *w, 
-					    const_cast<char*>("Type Spectrum name Here:"));
+    SpectrumChooser = new XMSelectionDialog("Spectrum_Choice",
+					    *w, "Type Spectrum name Here:");
     SpectrumChooser->RestrictChoices();
     SpectrumChooser->SetVisibleItemCount(XAMINE_VISIBLE_SPECTRUM_CHOICES);
     SpectrumChooser->GetHelpButton()->Enable();
@@ -655,7 +653,7 @@ void Xamine_ChooseSpectrum(XMWidget *w, XtPointer clientd, XtPointer calld)
 
   /* Set up the list of spectra: */
 
-  SpectrumChooser->SetSelectionList(num_defined, defined_list);
+  SpectrumChooser->SetSelectionList(num_defined, const_cast<const char**>(defined_list));
   if(num_defined < XAMINE_VISIBLE_SPECTRUM_CHOICES) {
     SpectrumChooser->SetVisibleItemCount(num_defined);
   }
@@ -673,12 +671,12 @@ void Xamine_ChooseSpectrum(XMWidget *w, XtPointer clientd, XtPointer calld)
   }
 typedef void (*cbfunc)(XMWidget *, XtPointer, XtPointer);
   ok = SpectrumChooser->AddDoCallback(Callback_handler, 
-				      (XtPointer)callback_data->displayfunc,
+				      reinterpret_cast<XtPointer>(reinterpret_cast<size_t>(callback_data->displayfunc)),
 				      &apply); /* New Ok/Apply */
   cancel = SpectrumChooser->AddCancelCallback(Callback_handler, 
-				     (XtPointer)callback_data->displayfunc); /* New cancel */
+					      reinterpret_cast<XtPointer>(reinterpret_cast<size_t>(callback_data->displayfunc))); /* New cancel */
   nomatch = SpectrumChooser->AddNoMatchCallback(Callback_handler, 
-				      (XtPointer)callback_data->displayfunc);
+						reinterpret_cast<XtPointer>(reinterpret_cast<size_t>(callback_data->displayfunc)));
 
   /* Show the dialog to the world. */
 

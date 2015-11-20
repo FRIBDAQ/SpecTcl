@@ -151,7 +151,7 @@ CompatibleSpectrumList::CompatibleSpectrumList(char     *name,
   speclist   = new XMScrolledList("List", *this);
   speclist->SetSelectionPolicy(XmEXTENDED_SELECT);
   select_all = new XMPushButton("Button", *this, SelAll_relay, this);
-  select_all->Label(const_cast<char*>("Select All"));
+  select_all->Label("Select All");
 
   speclist->SetRows(10);
 

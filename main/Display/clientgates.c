@@ -584,7 +584,7 @@ Xamine_StartSearch(int spectrum, int *status)
   */
   ctx = (GateContextPtr)malloc(sizeof(GateContext));
   if(ctx == (GateContextPtr)NULL) {
-    *status = CheckErrno;
+    *status = CheckErrno;	/* not a memory leak because malloc failed here. */
     return 0;
   }
   /* If there are no objects, then return NoSuchObject status: */

@@ -335,7 +335,7 @@ class XMPromptGeometry : public XMCustomDialog {
  public:
   /*  Constructors and destructors: */
 
-  XMPromptGeometry(char *name, XMWidget *parent, char *title);
+  XMPromptGeometry(const char *name, XMWidget *parent, const char *title);
   ~XMPromptGeometry() {
     delete rowlabel;
     delete collabel;
@@ -389,9 +389,9 @@ static const char *geometry_help_text[] = {
 
 
 static XMPromptGeometry *geometry_prompt = NULL;
-static Xamine_help_client_data geometry_help = { const_cast<char*>("Geometry_help"),
-						 NULL,
-						 const_cast<char**>(geometry_help_text) };
+static Xamine_help_client_data geometry_help = { "Geometry_help",
+						   NULL,
+						   geometry_help_text };
 
 /*
 ** Method Description:
@@ -410,7 +410,7 @@ static Xamine_help_client_data geometry_help = { const_cast<char*>("Geometry_hel
 **   char *title:
 **    Title of the widget.
 */
-XMPromptGeometry::XMPromptGeometry(char *name, XMWidget *parent, char *title) :
+XMPromptGeometry::XMPromptGeometry(const char *name, XMWidget *parent, const char *title) :
        XMCustomDialog(name, *parent, title)
 {
   Arg chars[10];		/* Characteristics. */
@@ -419,8 +419,7 @@ XMPromptGeometry::XMPromptGeometry(char *name, XMWidget *parent, char *title) :
 
   XtSetArg(chars[0], XmNleftAttachment, XmATTACH_FORM);
   XtSetArg(chars[1], XmNtopAttachment, XmATTACH_FORM);
-  rowlabel = new XMLabel(const_cast<char*>("Rows"), *work_area, 
-			 const_cast<char*>("Rows"), chars, 2);
+  rowlabel = new XMLabel("Rows", *work_area, "Rows", chars, 2);
 
   /* Add the Row manager row/column widget: */
 
@@ -430,7 +429,7 @@ XMPromptGeometry::XMPromptGeometry(char *name, XMWidget *parent, char *title) :
   XtSetArg(chars[4], XmNorientation,   XmVERTICAL);
   XtSetArg(chars[5], XmNradioAlwaysOne, True);
   XtSetArg(chars[6], XmNradioBehavior,  True);
-  row_manager = new XMRowColumn(const_cast<char*>("Row_manager"), *work_area, chars, 7);
+  row_manager = new XMRowColumn("Row_manager", *work_area, chars, 7);
 
   /* Put toggles in the row manager: */
 
@@ -446,14 +445,13 @@ XMPromptGeometry::XMPromptGeometry(char *name, XMWidget *parent, char *title) :
   XtSetArg(chars[1], XmNleftWidget,     row_manager->getid());
   XtSetArg(chars[2], XmNtopAttachment,  XmATTACH_FORM);
   XtSetArg(chars[3], XmNbottomAttachment, XmATTACH_FORM);
-  bar = new XMVerticalSeparator(const_cast<char*>("VBAR"), *work_area, chars, 4);
+  bar = new XMVerticalSeparator("VBAR", *work_area, chars, 4);
 
   /* Put in the column label: */
 
   XtSetArg(chars[1], XmNleftWidget,   bar->getid());
   XtSetArg(chars[3], XmNrightAttachment, XmATTACH_FORM);
-  collabel = new XMLabel(const_cast<char*>("Columns"), *work_area, 
-			 const_cast<char*>("Columns"), chars, 4);
+  collabel = new XMLabel("Columns", *work_area, "Columns", chars, 4);
 
   /* Put in the column manager: */
 
@@ -463,7 +461,7 @@ XMPromptGeometry::XMPromptGeometry(char *name, XMWidget *parent, char *title) :
   XtSetArg(chars[6], XmNradioAlwaysOne, True);
   XtSetArg(chars[7], XmNradioBehavior, True);
   XtSetArg(chars[8], XmNtopWidget,     collabel->getid());
-  column_manager = new XMRowColumn(const_cast<char*>("Column_Manager"), *work_area, chars, 9);
+  column_manager = new XMRowColumn("Column_Manager", *work_area, chars, 9);
 
   /* fill in the column toggles: */
 
@@ -609,9 +607,9 @@ void Xamine_request_geometry(XMWidget *w, XtPointer cd, XtPointer cb)
   /* Otherwise it just needs to be managed:                               */
 
   if(!geometry_prompt) {
-    geometry_prompt = new XMPromptGeometry(const_cast<char*>("Geometry_Prompt"),
+    geometry_prompt = new XMPromptGeometry("Geometry_Prompt",
 					   w,
-					   const_cast<char*>("Pane Geometry"));
+					   "Pane Geometry");
     geometry_prompt->AddDoCallback(SetWindows, geometry_prompt);
     geometry_prompt->AddCancelCallback(SetWindows, geometry_prompt);
     geometry_prompt->AddHelpCallback(Xamine_display_help, &geometry_help);

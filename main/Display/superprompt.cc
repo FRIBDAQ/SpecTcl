@@ -60,7 +60,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 static Arg SuperPromptArgs[1];
 #endif
 
-static const  char *help_text[] = {
+static const char *help_text[] = {
   "  You are being prompted for a spectrum to superimpose on the currently\n",
   "selected spectrum.  The superimposed spectrum must:\n\n",
   "   1. Be another 1-d spectrum\n",
@@ -76,13 +76,13 @@ static const  char *help_text[] = {
   "      HELP   - To display this help message\n",
   NULL
 };
-static Xamine_help_client_data help = { const_cast<char*>("Superposition_help"), 
-					NULL, const_cast<char**>(help_text) };
+static Xamine_help_client_data help = { "Superposition_help", 
+					  NULL, help_text };
 
 /*
 ** Help text for the remove superposition help dialog:
 */
-static const char *remove_help[] = 
+char const *remove_help[] = 
 { "This dialog allows you to remove a superimposed spectrum from \n",
   "the currently selected spectrum.  The spectra superimposed on the base\n",
   "spectrum are displayed in the list box.  Select the spectrum you want to\n",
@@ -435,7 +435,7 @@ void SuperPrompt::SetList()
 
   typedef spec_title *spec_titlep;
   spec_title name;
-  spec_titlep *name_list = new spec_titlep[compatibles];
+  spec_titlep* name_list = new spec_titlep[compatibles];
   for(i = 0; i < compatibles; i++) name_list[i] = NULL;
 
   /* Now we only allow spectra that are compatible and that have not already
@@ -464,7 +464,8 @@ void SuperPrompt::SetList()
     Hide();
   }
   else {
-    SetSelectionList((Cardinal)slots_filled, (char **)name_list);
+    SetSelectionList((Cardinal)slots_filled, 
+		     const_cast<const char**>(reinterpret_cast<char**>(name_list)));
   }
 
   /* Free storage.   */
@@ -491,7 +492,7 @@ void SuperPrompt::SetList()
 */
 SuperPrompt::SuperPrompt(char *name, XMWidget &parent)
 			:
-  XMSelectionDialog(name, parent, const_cast<char*>("Spectrum: "))
+       XMSelectionDialog(name, parent, "Spectrum: ")
 {
 
   /* Plant the callbacks: */
@@ -529,7 +530,7 @@ void Xamine_GetSuperposition(XMWidget *parent, XtPointer u, XtPointer c)
 
   if(dialog == NULL) {
     theParent = parent;
-    dialog = new SuperPrompt(const_cast<char*>("Superpose"), *parent);
+    dialog = new SuperPrompt( const_cast<char*>("Superpose"), *parent);
   }
   /* Compute the list of spectra and display the dialog:*/
 
@@ -549,7 +550,7 @@ void Xamine_GetSuperposition(XMWidget *parent, XtPointer u, XtPointer c)
 **        and setup the list.
 */
 UnSuperPrompt::UnSuperPrompt(char *n, XMWidget &parent) :
-  XMSelector(n, parent, const_cast<char*>("Remove Superposition of: "))
+   XMSelector(n, parent, "Remove Superposition of: ")
 {
   RestrictChoices();		// Require choice from list.
   SetupList();
@@ -585,12 +586,12 @@ void UnSuperPrompt::SetupList()
     
     /* set them in the little list window. */
     
-    SetSelectionList(ns, (char **)names);
+    SetSelectionList(ns, const_cast<const char **>(names));
     for(i = 0; i < MAX_SUPERPOSITIONS; i++)
       if(names[i]) delete []names[i];
   }
   else {			// Pane has no superpositions...
-    SetSelectionList(ns, (char **)NULL);
+    SetSelectionList(ns, reinterpret_cast<const char **>(0));
   }
   
 }
@@ -778,7 +779,7 @@ void UnSuperPrompt::ApplyCb(XMWidget *wid, XtPointer userd, XtPointer cd)
 void Xamine_UnSuperimpose(XMWidget *wid, XtPointer u, XtPointer c)
 {
   if(!undialog) {
-    undialog = new UnSuperPrompt(const_cast<char*>("UnSuperimpose"), *wid);
+    undialog = new UnSuperPrompt( const_cast<char*>("UnSuperimpose"), *wid);
   }
   undialog->SetupList();
   undialog->Manage();

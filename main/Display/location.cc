@@ -320,9 +320,8 @@ void Xamine_Location::CreateLocation()
   SetAttribute(XmNresizePolicy, (XtArgVal)XmRESIZE_NONE);
 
   /* Build and place the spectrum name/number pair: */
-  speclabel = new XMLabel(const_cast<char*>("Speclabel"), id, 
-			  const_cast<char*>("Spectrum"));
-  specnumber= new XMLabel(const_cast<char*>("Specnumbr"), id, const_cast<char*>("   "));
+  speclabel = new XMLabel("Speclabel", id, "Spectrum");
+  specnumber= new XMLabel("Specnumbr", id, "   ");
 
   SetTopAttachment(*speclabel,   XmATTACH_FORM);
   SetLeftAttachment(*speclabel,  XmATTACH_FORM);
@@ -335,8 +334,8 @@ void Xamine_Location::CreateLocation()
 
   /* Build and place the X position/value pair: */
 
-  xposlabel = new XMLabel(const_cast<char*>("Xposlabel"), id, const_cast<char*>("X"));
-  xposvalue = new XMLabel(const_cast<char*>("Xposval"),   id, const_cast<char*>("      "));
+  xposlabel = new XMLabel("Xposlabel", id, "X");
+  xposvalue = new XMLabel("Xposval",   id, "      ");
 
   SetTopAttachment(*xposlabel,   XmATTACH_FORM);
   SetLeftAttachment(*xposlabel,  XmATTACH_POSITION);
@@ -350,8 +349,8 @@ void Xamine_Location::CreateLocation()
 
   /* Build and place the Y position/value pair */
 
-  yposlabel  = new XMLabel(const_cast<char*>("Yposlabel"), id, const_cast<char*>("Y"));
-  yposvalue  = new XMLabel(const_cast<char*>("Yposvalue"), id, const_cast<char*>("       "));
+  yposlabel  = new XMLabel("Yposlabel", id, "Y");
+  yposvalue  = new XMLabel("Yposvalue", id, "       ");
 
   SetTopAttachment(*yposlabel, XmATTACH_FORM);
   SetLeftAttachment(*yposlabel,   XmATTACH_POSITION);
@@ -365,8 +364,8 @@ void Xamine_Location::CreateLocation()
 
   /* Create and position the counts label/value */
 
-  countslabel = new XMLabel(const_cast<char*>("Countslabel"), id, const_cast<char*>("Counts"));
-  countsvalue = new XMLabel(const_cast<char*>("Countsvalue"), id, const_cast<char*>("       "));
+  countslabel = new XMLabel("Countslabel", id, "Counts");
+  countsvalue = new XMLabel("Countsvalue", id, "       ");
 
   SetTopAttachment(*countslabel,    XmATTACH_FORM);
   SetLeftAttachment(*countslabel,   XmATTACH_POSITION);
@@ -378,7 +377,7 @@ void Xamine_Location::CreateLocation()
   SetLeftWidget(*countsvalue,      *countslabel);
   SetBottomAttachment(*countsvalue, XmATTACH_FORM);
 
-  placeholder = new XMLabel(const_cast<char*>("Placeholder"), id, const_cast<char*>("     "));
+  placeholder = new XMLabel("Placeholder", id, "     ");
   SetTopAttachment(*placeholder,   XmATTACH_FORM);
   SetLeftAttachment(*placeholder,  XmATTACH_WIDGET);
   SetLeftWidget(*placeholder,      *countsvalue);

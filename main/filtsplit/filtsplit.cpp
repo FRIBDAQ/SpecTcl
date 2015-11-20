@@ -298,7 +298,7 @@ int main(int argc, char** argv)
 
   if (verbose) {
     fprintf(stderr, "Splitting: %s\n", inputFile.c_str());
-    fprintf(stderr, "Into %d block chunks\n", blocksPerFile);
+    fprintf(stderr, "Into %ld block chunks\n", blocksPerFile);
     fprintf(stderr, "Ouptut filenames of the form %snnn.flt\n", filenameStem.c_str());
   }
 

@@ -173,7 +173,7 @@ protected:
   // overrides:
 
 public:        
-  virtual   const char* ReasonText () const  ;
+  virtual   const  char* ReasonText () const  ;
   virtual   Int_t ReasonCode () const  ;
 
   // Utilities:
@@ -181,7 +181,7 @@ public:
 protected:
   static const char* DataType(DataType_t eType);
   static const char* SpectrumType(SpectrumType_t eType);
-  static const char* MessageText(SpectrumErrorReason_t eReason);
+  const static char* MessageText(SpectrumErrorReason_t eReason);
   void  UpdateMessage();
 
   void CopyToMe(const CSpectrumFactoryException& aCSpectrumFactoryException) {

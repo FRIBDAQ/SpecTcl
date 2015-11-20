@@ -39,10 +39,15 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
+#include <algorithm>
+
 #include <memory.h>
 #include "integrate.h"
 #include "dispshare.h"
 #include "dispgrob.h"
+
+using namespace std;
+
 /*
 ** Some compilers such as ultrix have problems including both math.h
 ** and limits.h
@@ -75,6 +80,14 @@ struct edge_table {
 		   int ybase;	           /* Lowest scan line represented */
 		   edge_list_pointer  *edges;      /* List of edge tables.         */
 		 };
+
+
+// inline utility to determin if a point is inside limits:
+
+bool inside(int pt, int low, int high)
+{
+  return (pt >= low) && (pt <= high);
+}
 
 
 /*
@@ -293,6 +306,7 @@ static edge_table *MakeEdgeTable(grobj_generic *polygon)
 
   int yh = 0;
   int yl = INT_MAX;
+
   grobj_point *pt1 = polygon->firstpt();
   while(pt1 != NULL) {
     int y = pt1->gety();
@@ -300,6 +314,11 @@ static edge_table *MakeEdgeTable(grobj_generic *polygon)
     if(y < yl) yl = y;
     pt1 = polygon->nextpt();
   }
+  // Limit yl,yh to spectrum boundaries: 
+  // Now the edge table will be inside the spectrum.
+
+
+
   /* Next allocate the root of the edge table and the edge list pointers: */
   /* We initialize all of the edges pointers to null.                     */
 
@@ -382,6 +401,15 @@ void Integrate_1dw::Perform()
     hilim    = lolim;
     lolim    = temp;
   }
+  // Limit to spectrum boundaries.
+
+  int specid = sumregion->getspectrum();
+  int spec_xmax   = xamine_shared->getxdim(specid);
+
+  lolim = max(0,lolim);
+  hilim = max(0,hilim);
+  lolim = min(lolim, spec_xmax);
+  hilim = min(hilim, spec_xmax);
 
   /* Hoist the spectrum base pointer to allow efficient pointer usage in the
   ** summing pass..
@@ -440,6 +468,15 @@ void Integrate_1dl::Perform()
     hilim    = lolim;
     lolim    = temp;
   }
+  // Limit to spectrum boundaries.
+
+  int specid = sumregion->getspectrum();
+  int spec_xmax   = xamine_shared->getxdim(specid);
+
+  lolim = max(0,lolim);
+  hilim = max(0,hilim);
+  lolim = min(lolim, spec_xmax);
+  hilim = min(hilim, spec_xmax);
 
   /* Hoist the spectrum base pointer to allow efficient pointer usage in the
   ** summing pass..
@@ -606,6 +643,10 @@ void Integrate_2dw::Perform()
   double ysum   = 0;
   double xsqsum = 0;
   double ysqsum = 0;
+  int    spectrumid = sumregion->getspectrum();
+  int    xdimension = xamine_shared->getxdim(spectrumid) - 1;
+  int    ydimension = xamine_shared->getydim(spectrumid) - 1;
+
   int  y       = e->ybase;	/* Keep track of y coord. */
 
   for(int l = 0; l < nlines; l++) { /* Loop over scan lines. */
@@ -617,13 +658,16 @@ void Integrate_2dw::Perform()
       for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
 	double xchannel = XChannel(k);
 	double ychannel = YChannel(y);
-	float  ch       = (float)*s++;
-	sum     += ch;
-	xsum    += ch * xchannel;
-	ysum    += ch * ychannel;
-	xsqsum  += ch * (xchannel*xchannel);
-	ysqsum  += ch * (ychannel*ychannel);
-
+	if (inside(k, 0, xdimension) && inside(y, 0, ydimension)) {
+	  float  ch       = (float)*s++;
+	  sum     += ch;
+	  xsum    += ch * xchannel;
+	  ysum    += ch * ychannel;
+	  xsqsum  += ch * (xchannel*xchannel);
+	  ysqsum  += ch * (ychannel*ychannel);
+	} else {
+	  s++;
+	}
       }				/* Sum over one interior region. */
     }				/* Scan over all pairs.          */
     /* Now on to the next scan line:  */
@@ -692,24 +736,38 @@ Integrate_2dl::Perform()
   double ysum   = 0;
   double xsqsum = 0;
   double ysqsum = 0;
+  int    spectrumid = sumregion->getspectrum();
+  int    xdimension = xamine_shared->getxdim(spectrumid) - 1;
+  int    ydimension = xamine_shared->getydim(spectrumid) - 1;
+
+
   int  y       = e->ybase;	/* Keep track of y coord. */
 
   for(int l = 0; l < nlines; l++) { /* Loop over scan lines. */
     MergeEdgeTable(&active, e, l); /* Merge with next scan line.       */
     for(int j = 0; j < active.num_edges; j += 2) { /* scan over all pairs  */
-      int lo = (int)active.bases[j].xnow;
-      int hi = (int)active.bases[j+1].xnow; /* sum limits. */
-      unsigned int *s = line + lo;
-      for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
-	double xchannel = XChannel(k);
-	double ychannel = YChannel(y);
-	float  ch       = (float)*s++;
-	sum     += ch;
-	xsum    += ch * xchannel;
-	ysum    += ch * ychannel;
-	xsqsum  += ch * (xchannel*xchannel);
-	ysqsum  += ch * (ychannel*ychannel);
+      if (j+1 < active.num_edges) {		   // Deal with stuff coming to a point.
+	int lo = (int)active.bases[j].xnow;
+	int hi = (int)active.bases[j+1].xnow; /* sum limits. */
+	unsigned int *s = line + lo;
+	for(int k = lo; k <= hi; k ++) { /* Sum over one interior region. */
+	  double xchannel = XChannel(k);
+	  double ychannel = YChannel(y);
 
+	  // Only sum points that are actually in the spectrum:
+
+	  if (inside(k, 0, xdimension) && inside(y, 0, ydimension)) {
+
+	    float  ch       = (float)*s++;
+	    sum     += ch;
+	    xsum    += ch * xchannel;
+	    ysum    += ch * ychannel;
+	    xsqsum  += ch * (xchannel*xchannel);
+	    ysqsum  += ch * (ychannel*ychannel);
+	  } else {
+	    s++;
+	  }
+	}
       }				/* Sum over one interior region. */
     }				/* Scan over all pairs.          */
     /* Now on to the next scan line:  */

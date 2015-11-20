@@ -313,7 +313,7 @@ class AxisDialog : public XMCustomDialog, public AxisForm {
     XMCustomDialog(name, parent, title),
     AxisForm(name, *work_area)
   {
-    Apply->Label(const_cast<char*>("Apply To All"));
+    Apply->Label("Apply To All");
   }
   ~AxisDialog() 
     { }
@@ -344,8 +344,7 @@ static const char *(help_text[]) = {
   "    Help    - Pop up this message\n", 
   NULL
   };
-static Xamine_help_client_data help = { const_cast<char*>("Axis_help"), NULL, 
-					const_cast<char**>(help_text) };
+static Xamine_help_client_data help = { "Axis_help", NULL, help_text };
 
 
 /*
@@ -365,8 +364,8 @@ AxisForm::AxisForm(char *name, XMForm &parent)
   ** floats free
   */
 
-  shwaxes = new XMToggleButton(const_cast<char*>("Show_Axes"), parent);
-  shwaxes->Label(const_cast<char*>("Show Axes"));
+  shwaxes = new XMToggleButton("Show_Axes", parent);
+  shwaxes->Label("Show Axes");
   parent.SetTopAttachment(*shwaxes, XmATTACH_FORM);
   parent.SetLeftAttachment(*shwaxes, XmATTACH_FORM);
   parent.SetRightAttachment(*shwaxes, XmATTACH_FORM);
@@ -377,8 +376,8 @@ AxisForm::AxisForm(char *name, XMForm &parent)
   ** and, free on the bottom and attached to the showaxes widget on the top
   */
 
-  shwticks = new XMToggleButton(const_cast<char*>("Show_Ticks"), parent);
-  shwticks->Label(const_cast<char*>("Show Tick Marks"));
+  shwticks = new XMToggleButton("Show_Ticks", parent);
+  shwticks->Label("Show Tick Marks");
   parent.SetTopAttachment(*shwticks, XmATTACH_WIDGET);
   parent.SetTopWidget(*shwticks, *shwaxes);
   parent.SetLeftAttachment(*shwticks, XmATTACH_FORM);
@@ -389,8 +388,8 @@ AxisForm::AxisForm(char *name, XMForm &parent)
   ** Left and right to the form and bottom to the form as well 
   */
 
-  shwlabels = new XMToggleButton(const_cast<char*>("Show_Labels"), parent);
-  shwlabels->Label(const_cast<char*>("Show Axis Labels"));
+  shwlabels = new XMToggleButton("Show_Labels", parent);
+  shwlabels->Label("Show Axis Labels");
   parent.SetTopAttachment(*shwlabels, XmATTACH_WIDGET);
   parent.SetTopWidget(*shwlabels, *shwticks);
   parent.SetLeftAttachment(*shwlabels, XmATTACH_FORM);
@@ -527,8 +526,8 @@ void Xamine_SetDefaultAxis(XMWidget *w, XtPointer user, XtPointer call)
   /*  If the widget has not yet been created, then we must create it */
   /*  and set the callbacks.                                         */
   if(dialog == NULL) {
-    dialog = new AxisDialog( const_cast<char*>("Axis_defaults"), *w, 
-			     const_cast<char*>("Axis Label Defaults"));
+    dialog = new AxisDialog(  const_cast<char*>("Axis_defaults"), *w,  
+			      const_cast<char*>("Axis Label Defaults"));
     dialog->AddOkCallback(ActionAreaCallback, dialog);
     dialog->AddApplyCallback(ActionAreaCallback,  dialog);
     dialog->AddCancelCallback(ActionAreaCallback, dialog);

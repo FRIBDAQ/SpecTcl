@@ -75,6 +75,7 @@ extern XMWidget* Xamine_TopLevel;
 
 // List of fonts that are acceptable to us:
 
+
 static const char* FontList[] = {
   XAMINE_FONT_FAMILY,
   "*courier-medium-r*",
@@ -82,6 +83,7 @@ static const char* FontList[] = {
   ALTERNATE_XAMINE_FONT_FAMILY,
   NULL
 };
+
 
 
 /*

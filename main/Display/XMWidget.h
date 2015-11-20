@@ -111,7 +111,7 @@ public:
 		  
   Widget getid();
   Widget getparent();
-  const char *getname() const;
+  const char *getname() const ;
 		  
   /* Get/Modify X resources: */
   void SetAttribute(String attribute, XtArgVal value);

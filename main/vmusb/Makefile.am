@@ -46,20 +46,21 @@ CV977Unpacker.h \
 MySpecTclApp.h
 
 
-AM_CPPFLAGS =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
+INCLUDES =  -I. -I@top_srcdir@  -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
+	-I@top_srcdir@/NSCLException \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
 	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Analysis \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	-I@top_srcdir@/TreeParam \
 	-I@top_srcdir@/Fits  -I@top_srcdir@/factories    \
-	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
-	@LIBTCLPLUS_CFLAGS@
+	@TCL_FLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@
 
 VMUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
 	  ../Events/libAnalysis.la \
 	../Fits/libFits.la \
+	../TCL/libtclPlus.la \
 	../Analysis/libBufferAnalysis.la \
 	../EventSource/libEventSource.la \
 	../Tape/libtape.la \
@@ -72,11 +73,11 @@ VMUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
 	../SpectrumIO/libSpecio.la \
 	../TreeParam/libTreeParam.la \
 	../DecoderRing/libDecoderRing.la \
+	../NSCLException/libException.la \
 	../Display/libXamine.la          \
-	@LIBTCLPLUS_LDFLAGS@	\
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\
-	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
 	 -g -Wl,"-rpath=@libdir@"
 
 
@@ -86,7 +87,7 @@ install-exec-local: docs_built
 	$(INSTALL_DATA) MakefileSkel     @prefix@/VMUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/vmusb
 	$(INSTALL_DATA) spectclSetup.tcl configFile.tcl constants.tcl  @prefix@/TclLibs/vmusb
-	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | @TCLSH@
+	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | @TCLSH_CMD@
 	$(mkinstalldirs) @prefix@/share/vmusb
 	$(INSTALL_DATA)  *.html @prefix@/share/vmusb
 	$(INSTALL_DATA)  *.pdf  @prefix@/share/vmusb

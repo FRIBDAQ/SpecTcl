@@ -325,8 +325,7 @@ class Copy_Object : public Copy_Multiselect
 {
  public:
   Copy_Object(XMForm *top, XMForm *bottom) :
-    Copy_Multiselect(top, bottom, const_cast<char*>("Objects"), 
-		     const_cast<char*>("Spectra")) 
+    Copy_Multiselect(top, bottom,  const_cast<char*>("Objects"),  const_cast<char*>("Spectra")) 
                          {
 			   UpdateLeft();
 			   UpdateRight();
@@ -405,7 +404,7 @@ const char *objtype[] = {
 		    "Sum",
 		    "Marker"
                   };
-static const char *help_text[] = {
+static const  char *help_text[] = {
   "This dialog is prompting you to copy objects from the selected spectrum\n",
   "to any compatible spectrum.  To copy an object or set of objects, select\n",
   "the objects you want to copy in the left list, and selecte the set of\n",
@@ -519,10 +518,10 @@ Copy_Multiselect::Copy_Multiselect(XMForm *top, XMForm *bottom,
   /* Instantiate the widgets... */
 
   SelectLeft = new XMPushButton("SelLeft", *bottom, SelectRelay, this);
-  SelectLeft->Label(const_cast<char*>("Select All"));
+  SelectLeft->Label("Select All");
 
   SelectRight = new XMPushButton("SelRight", *bottom, SelectRelay, this);
-  SelectRight->Label(const_cast<char*>("Select All"));
+  SelectRight->Label("Select All");
 
   Update     = new XMPushButton("Update", *bottom, UpdateRelay, this);
 
@@ -929,7 +928,7 @@ CopyObjectDlg_Help_relay(XMWidget *wid, XtPointer cli, XtPointer cd)
 **       The parent widget for this dialog.
 */
 CopyObjectDialog::CopyObjectDialog(XMWidget *parent) :
-  XMCustomDialog("Object_CopierDLG", *parent, const_cast<char*>("Copy Objects"))
+       XMCustomDialog("Object_CopierDLG", *parent, "Copy Objects")
 {
 
   /* First set up the dialog box action area: */
@@ -937,7 +936,7 @@ CopyObjectDialog::CopyObjectDialog(XMWidget *parent) :
   AddDoCallback(CopyObjectDlg_Dismiss_relay, this);
   AddHelpCallback(CopyObjectDlg_Help_relay, this);
   cancel()->UnManage();		/* Don't display the cancel button. */
-  ok()->Label(const_cast<char*>("Dismiss"));	/* The OK button should be labelled Dismiss */
+  ok()->Label("Dismiss");	/* The OK button should be labelled Dismiss */
   apply()->UnManage();		/* Don't display the apply button either. */
 
   /* Now set up the work area to be a Copy_Object dialog: */
@@ -965,9 +964,9 @@ CopyObjectDialog::CopyObjectDialog(XMWidget *parent) :
   ** Set up help text:
   */
 
-  help.name   = const_cast<char*>("Copy_Dialog_help");
+  help.name   = "Copy_Dialog_help";
   help.dialog = (XMInformationDialog *)NULL;
-  help.text   = const_cast<char**>(help_text);
+  help.text   = help_text;
   top->Manage();
   bottom->Manage();
   wa->Manage();

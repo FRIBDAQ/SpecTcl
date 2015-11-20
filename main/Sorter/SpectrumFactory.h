@@ -186,6 +186,17 @@ public:
 
 
 
+  // Create spectra that have arrays of parameter arrays (e.g.
+  // gamma summary spectra.
+
+  CSpectrum* CreateSpectrum(const std::string name,
+			    SpectrumType_t    specType,
+			    DataType_t        dataType,
+			    std::vector<std::vector<std::string> > parameterNames,
+			    std::vector<UInt_t> channels,
+			    std::vector<Float_t>* pLows  = (std::vector<Float_t>*)kpNULL,
+			    std::vector<Float_t>* pHighs = (std::vector<Float_t>*)kpNULL);
+
   // Create a gamma 2d deluxe spectrum:
 
   CSpectrum* CreateG2dDeluxe(STD(string) name,
@@ -261,6 +272,13 @@ public:
 			      Float_t xLow, Float_t xHigh,
 			      UInt_t  yChans,
 			      Float_t yLow, Float_t yHigh);
+
+  CSpectrum* CreateGammaSummary(std::string name, DataType_t eType,
+				std::vector<std::vector<CParameter> > parameters,
+				UInt_t      yChannels,
+				Float_t     yLow,
+				Float_t     yHigh);
+
 
   UInt_t NextId ()  ;
   Bool_t ExceptionMode() const { return m_fExceptions; }

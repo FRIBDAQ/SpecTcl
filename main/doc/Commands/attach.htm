@@ -36,7 +36,7 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 <pre>attach {switches...} connection
   Where:
      Switches are taken from the following:
-     -format filter|nscl  - Choose buffer format
+     -format {formatter}  - Choose buffer format
      -size nBytes - Number of bytes per buffer.
      {sourcetype} which can be only one of:
         -file  when connection is the name of the file
@@ -65,10 +65,35 @@ events and attaches it to a new event source: </p>
         file:filename, or online:url, or tape:devicename</li>
 </ul>
 
-<p>The -format switch selects the buffer decoder.&nbsp; Presently, nscl and
-filter buffer decoders are built into SpecTcl. Tailored SpecTcls also exist to
-decode Xsys and HIMAC data.&nbsp; In the future we plan to integrate these into
-an extensible buffer format list as is done for the sread/swrite commands.</p>
+<p>
+The -format switch selects the buffer decoder.&nbsp;
+Beginning with SpecTcl version 3.3, buffer decoders can be dynamically 
+registered by tailored SpecTcls so that they can be selected via the
+-format switch.
+</p>
+<p>
+The following are the set of <b>-format</b> values that come with
+the stock SpecTcl:
+</p>
+
+<dl>
+  <dt><b>nscl</b></dt>
+  <dd>Decodes standard NSCL buffers.</dd>
+  <dt><b>jumbo</b></td>
+  <dd>Decodes NSCL buffers that are larger than 32Kwords.
+      these buffers also have 32 bit event sizes and
+      32 bit packet sizes.
+  </dd>
+  <dt><b>filter</b></dt>
+  <dd>Decodes buffers written by the event filter.</dd>
+  <dt><b>ring</b></dt>
+  <dd>Decodes data from the NSCL Lord of the Rings system.</dd>
+</dl>
+
+<p>
+It would make sense for additional SpecTcl buffer decoders to be implemented
+as plugins.
+</p>
 
 <p>The -size switch selects the size of each read done on the data file in
 bytes.</p>
@@ -171,8 +196,8 @@ href="../obtaining_and_installing.htm">Obtaining and Installing</a></p>
 <hr>
 
 <p>Last Modified: <!--webbot bot="Timestamp" s-type="EDITED"
-s-format="%B %d, %Y" startspan -->October 28, 2003<!--webbot bot="Timestamp" endspan i-checksum="30351" --> by: <a
+s-format="%B %d, %Y" startspan -->September 26, 2008<!--webbot bot="Timestamp" endspan i-checksum="30351" --> by: <a
 href="mailto:fox@nscl.msu.edu">fox@nscl.msu.edu</a><br>
-<font size="2">© Copyright NSCL 1999, All rights reserved</font></p>
+<font size="2">(C) Copyright NSCL 1999-2008, All rights reserved</font></p>
 </body>
 </html>

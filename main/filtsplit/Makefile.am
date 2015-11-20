@@ -6,12 +6,15 @@ SUFFIXES = .xml .1
 
 bin_PROGRAMS=filtsplit
 
-filtsplit_SOURCES=cmdline.c filtsplit.cpp
+filtsplit_SOURCES= filtsplit.cpp cmdline.c
 
-noinst_HEADERS=cmdline.h
 
 INCLUDES=-I@top_srcdir@/Filter
 
+BUILT_SOURCES = cmdline.h cmdline.c
+
+cmdline.h: filtsplit.ggo
+	gengetopt --unamed-opts <filtsplit.ggo
 
 cmdline.c: filtsplit.ggo
 	gengetopt --unamed-opts <filtsplit.ggo

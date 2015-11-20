@@ -54,7 +54,7 @@ CDocumentationException::ReasonText() const
   result += " while: ";
   result += WasDoing();
 
-  return result.c_str();
+  return const_cast<char*>(result.c_str());
 }
 /*!
    Return the encoded reason for the failure.  This is just an integer cast

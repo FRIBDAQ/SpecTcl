@@ -420,13 +420,15 @@ CSpectrumS::Increment(const CEvent& rE)
   CParameterValue& rParam(rEvent[m_nParameter]);
 
 
-  if(rTime.isValid() && rParam.isValid()) {  // Only increment if param present.
+  if(rTime.isValid() && rParam.isValid()) {  // Only increment if params present.
     Int_t nChannel = (Int_t)ParameterToAxis(0, rTime)- m_nOffset;
 
+    int shift = nChannel;
     if (nChannel >= m_nChannels ) {
-      ShiftDataDown (static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels));
-      m_nOffset = static_cast<int>(m_nOffset + nChannel + (.25 * m_nChannels) - m_nChannels) + 1;
-      nChannel = nChannel - m_nOffset;
+      shift = static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels);
+      ShiftDataDown(shift);
+      m_nOffset = static_cast<int>(m_nOffset + shift);
+      nChannel = nChannel - shift;
     }else if (nChannel < 0) {
       ShiftDataUp(nChannel);
       m_nOffset =m_nOffset + nChannel;
@@ -566,22 +568,25 @@ CSpectrumS::CreateChannels()
 /*!
   Is called when the Strip chart data goes off the rightt end of 
   the time axis.  All data is shifted to the left by nChannel's
+  If the shift is greater than the spectrum size the spectrum is just cleared.
+
 */
 
 void
 CSpectrumS::ShiftDataDown(int nShift) 
 {
     UInt_t* p = (UInt_t*)getStorage();
-    assert(p != (UInt_t*)kpNULL);
 
-    if (nShift >= m_nChannels) { // chase where shift is more than channels
+    if (nShift >= m_nChannels) {
       Clear();
       return;
     }
+
+    assert(p != (UInt_t*)kpNULL);
     for (int i = 0; i < m_nChannels-nShift; i++) {
       p[i] = p[i+nShift];
     }
-    for (int i =  m_nChannels-nShift; i <= m_nChannels; i++) {
+    for (int i =  m_nChannels-nShift; i < m_nChannels; i++) {
       p[i] = 0;
     }
 }
@@ -593,11 +598,12 @@ CSpectrumS::ShiftDataUp(int nShift)
     UInt_t* p = (UInt_t*)getStorage();
     assert(p != (UInt_t*)kpNULL);
 
-    if (m_nChannels <=  (-nShift)) { // Case where shift is more than channels.
+    if (m_nChannels <=  (-nShift)) {
       Clear();
       return;
+
     }
-    for (int i =  m_nChannels ; i >= (nShift * -1); i--) {
+    for (int i =  m_nChannels-1 ; i >= (nShift * -1); i--) {
       p[i] = p[i+nShift];
     }
     for (int i = (nShift * -1) ; i >=0 ; i--) {

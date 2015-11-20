@@ -303,7 +303,6 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   UInt_t yIndex = 1;	// For typcial 2d, this index into the
 
   switch(spType) {
-
   case ke1D:
   case keG1D:
     {
@@ -319,7 +318,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
       }
       //  Note that high is offset by 1 channel to put it on the right side
       // of our channel:
-      //
+      
       Float_t xlow = pSpec->AxisToParameter(0, low);
       Float_t xhigh= pSpec->AxisToParameter(0, high+1);
 
@@ -330,6 +329,9 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     }
     
     break;
+    // 
+    //  Thist must be contiguous with the case for ke2D keG2dd!!!
+    //
   case keG2D:			// For a gamma all x transforms are first.
     {
       CGamma2DW* pGSpectrum = (CGamma2DW*)pSpec;
@@ -338,7 +340,6 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   case ke2D:
   case keG2DD:
     {
-
       Float_t x,y(0.0);
 
 
@@ -371,39 +372,59 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   vector<string> Names;  // vector to hold spectrum name which is passed to
                          // GateFactory on gamma gates
 
-  switch(spType) {
-  case ke1D:
-  case ke2D:
-    for(pid = pIds.begin(); pid != pIds.end(); pid++) {
-      CParameter* pParam = m_pHistogrammer->FindParameter(*pid);
-      if(!pParam) {
-	cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
-	return;
+
+  try {
+    switch(spType) {
+    case ke1D:
+    case ke2D:
+      for(pid = pIds.begin(); pid != pIds.end(); pid++) {
+	CParameter* pParam = m_pHistogrammer->FindParameter(*pid);
+	if(!pParam) {
+	  cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
+	  return;
+	}
+	Parameters.push_back(pParam->getName());    
       }
-      Parameters.push_back(pParam->getName());    
-    }
-    // Use the gate factory creation mechanism to produce a dynamically
-    // allocated SpecTcl gate:
-    pSpecTclGate = Factory.CreateGate(gType, Parameters, ScaledPoints);
-    break;
-  case keG1D:
-  case keG2D:
-  case keG2DD:
-    for(pid = pIds.begin(); pid != pIds.end(); pid++) {
-      CParameter* pParam = m_pHistogrammer->FindParameter(*pid);
-      if(!pParam) {
-	cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
-	return;
+      // Use the gate factory creation mechanism to produce a dynamically
+      // allocated SpecTcl gate:
+      pSpecTclGate = Factory.CreateGate(gType, Parameters, ScaledPoints);
+      break;
+    case keG1D:
+    case keG2D:
+    case keG2DD:
+      for(pid = pIds.begin(); pid != pIds.end(); pid++) {
+	CParameter* pParam = m_pHistogrammer->FindParameter(*pid);
+	if(!pParam) {
+	  cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
+	  return;
+	}
       }
+      pSpecTclGate = Factory.CreateGate(gType, ScaledPoints, pIds);
+      break;
+    default:
+      cerr << "Spectrum type cannot accept a gate!!\n";
+      return;
     }
-    pSpecTclGate = Factory.CreateGate(gType, ScaledPoints, pIds);
-    break;
-  default:
-    cerr << "Spectrum type cannot accept a gate!!\n";
+    
+  }
+  catch (CException& e) {
+    cerr << "Could not create a new gate" <<  e.ReasonText() << endl;
     return;
   }
-  
-  
+  catch (std::string& msg) {
+    cerr << "Exception caught while creating a new gate from Xamine\n";
+    cerr << msg << endl;
+    return;
+  }
+  catch (const char* msg ) {
+    cerr << "An Exception was caught while creating a new gate from Xamine\n";
+    cerr << msg << endl;
+    return;
+  }
+  catch (...) {
+    cerr << "An unexpected exception was caught while creating a new gate from Xamine\n";
+    return;
+  }
   // Now that we have a gate, we must enter it into the histogrammer.
   //
   
@@ -669,8 +690,8 @@ CXamineEventHandler::scaleSumSpectrumPoints(CSpectrum* pSpectrum,
   vector<FPoint>     result;
 
   for (int i =0; i < rawPoints.size(); i++) {
-    Float_t x = a[i].AxisToParameter(rawPoints[i].X());
-    Float_t y = a[i+1].AxisToParameter(rawPoints[i].Y());
+    Float_t x = a[firstAxis].AxisToParameter(rawPoints[i].X());
+    Float_t y = a[firstAxis+1].AxisToParameter(rawPoints[i].Y());
     
     result.push_back(FPoint(x,y));
   }

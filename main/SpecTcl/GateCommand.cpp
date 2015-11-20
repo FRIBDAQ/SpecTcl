@@ -126,7 +126,7 @@ using namespace std;
 #endif
 
 
-static const char* pCopyrightNotice = 
+static const  char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved GateCommand.cpp \\n";
 
 // Local class:
@@ -159,7 +159,7 @@ public:
    Maps between switches on the command line and the CGateCommand::Switches
    enum
 */
-const struct SwitchList {
+struct SwitchList {
   const char* pName;
   CGateCommand::Switches eValue;
 } SwitchTable[] = {

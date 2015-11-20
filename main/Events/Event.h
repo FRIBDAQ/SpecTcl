@@ -47,13 +47,14 @@
 #include <ValidValue.h>
 #endif
 
-typedef Float_t ParamType;
-typedef STD(vector)<CValidValue<ParamType> > CParameterVector;
-typedef CValidValue<ParamType>               CParameterValue;
-typedef CParameterVector::iterator           CEventIterator;
+typedef DFloat_t ParamType;
+typedef STD(vector)<DopedValidValue<ParamType> > CParameterVector;
+typedef DopedValidValue<ParamType>               CParameterValue;
+typedef CParameterVector::iterator               CEventIterator;
 
 class CEvent {
  private:
+  DopeVector       m_dopeVector;
   CParameterVector m_rvParameters; // The data parameters.
   Int_t            m_nSize;        // Current vector size (optimization).
   ULong_t          m_nSerial;      // Serial number for bulk validity.
@@ -90,6 +91,11 @@ class CEvent {
   }
   void clear() {
     m_nSerial++;
+    m_dopeVector.reset();
+  }
+
+  DopeVector& getDopeVector() {
+    return m_dopeVector;
   }
 
   // Utility protected functions:

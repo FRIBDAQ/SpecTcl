@@ -1,7 +1,9 @@
 bin_PROGRAMS = Xamine colorset
 
+noinst_PROGRAMS = Xaminetest
+
 HOMEDEF = -DHOME='"$(prefix)"'
-GRIFLAGS = -DGRI_DIR='"@gri_dir@"' -DGRI_CMD_DIR='"@gri_cmd_dir@"'
+GRIFLAGS = -DGRI_DIR='"@gri_dir@"' -DGRI_CMD_DIR='"@gri_dir@"'
 LEXOUT = lex.yy.c
 MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
@@ -13,7 +15,7 @@ INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 Xamine_LDFLAGS=  -g 
 Xamine_LDADD=  $(PARSEOBJECTS)  @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
 		$(TCL_LDFLAGS) 						\
-	        -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
+	        -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS) 
 # Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
 #  @LD_EXTRA_FLAGS@
@@ -93,8 +95,6 @@ defaultfile_lex.o: windfile.l defaultfile.l dispwind.h superpos.h \
 	$(CC) $(XCCFLAGS)  defaultfile_lex.cc
 
 
-check_PROGRAMS = Xaminetest
-TESTS = $(check_PROGRAMS)
 
 include_HEADERS = Tab.h allocator.h dispshare.h    helpmenu.h    refreshctl.h\
 TabP.h          axes.h             dispwind.h      info.h        scaling.h\
@@ -112,7 +112,8 @@ XMShell.h       compatspec.h       grobfile.tab.h  panemgr.h     toggles.h\
 XMTab.h         convert.h          grobfile_lex.h  pkgmgr.h      trackcursor.h\
 XMText.h        copier.h           grobjdisplay.h  prccheck.h   windfile_lex.h\
 XMWidget.h      copyatr.h          grobjinput.h    printer.h    windfile_tab.h\
-XMWlist.h       defaultfile_lex.h  grobjio.h       procede.h     windio.h\
+XMWlist.h       XMMultiSelectionList.h defaultfile_lex.h        grobjio.h      \
+ procede.h     windio.h\
 Xamine.h        delgrob.h          grobjiomenu.h   properties.h  \
 acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h \
 advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
@@ -129,7 +130,7 @@ libXamine_la_SOURCES = client.c clientgates.c  allocator.c \
 
 Xamine_SOURCES = Xamine.cc XMWidget.cc XMCallback.cc XMMenus.cc XMText.cc \
 XMDialogs.cc XMManagers.cc XMWlist.cc XMShell.cc XMPushbutton.cc XMTab.cc \
-XMLabel.cc XMList.cc XMScale.cc XMSeparators.cc \
+XMLabel.cc XMList.cc XMScale.cc XMSeparators.cc XMMultiSelectionList.cc \
 dispwind.cc menusetup.cc exit.cc helpmenu.cc winiomenu.cc \
 grobjiomenu.cc geometrymenu.cc errormsg.cc logging.cc toggles.cc \
 spectra.cc specchoose.cc spcdisplay.cc advprompt.cc properties.cc \

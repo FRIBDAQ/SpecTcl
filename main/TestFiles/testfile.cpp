@@ -358,7 +358,11 @@ int main(Int_t argc, Char_t** pArgs)
   for(UInt_t block = 0; block < nRecords; block++) {
     Char_t Buffer[nRecordSize];
     fT.Read(Buffer, nRecordSize);
-    write(fd, Buffer, sizeof(Buffer));
+    ssize_t status = write(fd, Buffer, sizeof(Buffer));
+    if (status != sizeof(Buffer)) {
+      perror("Failed to write a block to the test file");
+      exit (-1);
+    }
     if( (block % nProgressCounter) == 0) {
       cout << block << '\r';
       cout.flush();

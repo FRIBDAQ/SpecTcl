@@ -91,6 +91,7 @@ ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
 	-lXamine  -lTreeParam -lFits \
 	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
 	-lgsl -lgslcblas					\
+	@top_srcdir@/DecoderRing/libDecoderRing.la		\
 	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
 	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
 	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \

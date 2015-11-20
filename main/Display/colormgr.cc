@@ -263,7 +263,7 @@ ReadColorMap for a description
 FILE *Xamine_OpenColorTable(unsigned int planes)
 {
   char filename[BUFSIZ];	/* Build up filenames here. */
-  char *fmtstring = const_cast<char*>("%s/Xamine%d.ctbl"); /* Describe how to build up filename */
+  const char *fmtstring = "%s/Xamine%d.ctbl"; /* Describe how to build up filename */
 
   /* First try environment path search: */
  
@@ -292,7 +292,7 @@ FILE *Xamine_OpenColorTable(unsigned int planes)
 #ifndef HOME
   sprintf(filename, fmtstring, XAMINE_DEFAULT_COLOR_DIR, planes);
 #else
-  fmtstring = const_cast<char*>("%s/etc/Xamine%d.ctbl");
+  fmtstring = "%s/etc/Xamine%d.ctbl";
   sprintf(filename, fmtstring, HOME, planes);
   printf("Opening system colortable file %s\n", filename);
   fflush(stdout);
@@ -350,7 +350,12 @@ static void ReadColorMap(Display *d, Colormap cmap, unsigned long *pixels,
   ** match the number of entries implied by the number of planes:
   */
   int entries;
-  fscanf(ctblfile, "%d\n", &entries);
+  int status = fscanf(ctblfile, "%d\n", &entries);
+  if (status != 1) {
+    fprintf(stderr, "%s",
+	    "Scan of color table entry count failed!\n");
+    exit(-1);
+  }
   if(entries != (1 << planes)) {
     fclose(ctblfile);
     fprintf(stderr, 
@@ -600,7 +605,12 @@ static void ReadDirectMap (XStandardColormap *mapinfo)
     // by the plane count.
     //
     int entries;
-    fscanf(fp, "%d\n", &entries);
+    int status = fscanf(fp, "%d\n", &entries);
+    if (status != 1) {
+      fprintf(stderr, "%s",
+	      "Failed to read color table file entry count\n");
+      exit(-1);
+    }
     if (entries != (numcolors))
     {
     	fclose(fp);
@@ -697,7 +707,7 @@ static void SetupDirectColors (Display *d, Window w, XVisualInfo *vis)
     ConvertMask(&mymap.red_max, &mymap.red_mult, vis->red_mask);
     ConvertMask(&mymap.blue_max, &mymap.blue_mult, vis->blue_mask);
     ConvertMask(&mymap.green_max, &mymap.green_mult, vis->green_mask);
-    fprintf(stderr, "red_max = %d blue_max = %d green_max = %d\n",
+    fprintf(stderr, "red_max = %lu blue_max = %lu green_max = %lu\n",
 	    mymap.red_max, mymap.blue_max, mymap.green_max);
     //
     //   Then ReadDirectMap does the remainder of the job:

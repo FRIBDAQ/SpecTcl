@@ -352,14 +352,13 @@ CSpectrumFactoryException:: CSpectrumFactoryException(
 //  Operation Type:
 //     Selector.
 //
-const char* 
+const  char* 
 CSpectrumFactoryException::ReasonText() const
 {
 // Reason for the exception
 // Exceptions:  
 
   return m_pMessage;
-
   
 
 }

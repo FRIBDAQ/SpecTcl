@@ -41,7 +41,7 @@ exec wish "$0" ${1+"$@"}
 if {$tcl_version < 8.0} {
     return -code error "tkcon requires at least Tcl/Tk8"
 } else {
-    package require Tk 
+    package require  Tk 
 }
 
 catch {package require bogus-package-name}
@@ -186,7 +186,7 @@ proc ::tkcon::Init {args} {
 	    alias tkconclear dir dump echo idebug lremove
 	    tkcon_puts tkcon_gets observe observe_var unalias which what
 	}
-	RCS		{RCS: @(#) $Id: tkcon.tcl 1698 2010-06-22 11:52:32Z ron-fox $}
+	RCS		{RCS: @(#) $Id: tkcon.tcl 1696 2010-06-22 11:48:20Z ron-fox $}
 	HEADURL		{http://cvs.sourceforge.net/viewcvs.py/*checkout*/tkcon/tkcon/tkcon.tcl?rev=HEAD}
 
 	docs		"http://tkcon.sourceforge.net/"

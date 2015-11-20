@@ -115,6 +115,15 @@ SpecTcl::getInstance()
 }
 ///////////////////////////// API functions /////////////////////////////
 
+/*!
+  Register the creator for a new type of buffer decoder.
+*/
+void
+SpecTcl::addBufferDecoder(string type,
+			  CAttachCommand::CDecoderCreator* creator)
+{
+  CAttachCommand::addDecoderType(type, creator);
+}
 
 /*!
   Allocate a new parameter id. and return it to the caller.
@@ -435,6 +444,75 @@ SpecTcl::CreateSpectrum(STD(string) Name,
     return CreateSpectrum(Name, type, dataType, xParameters,
 			  channels, pLows, pHighs);
   }
+}
+/*!
+  Creates a new spectrum that requires a vector of parameter vectors.
+  For all but gamma summary spectra,the parameters get re-marshalled into
+  a single parameter vector.  Anything else invokes CreateGammaSummary below.
+
+  @param Name           Name of the spectrum to make.
+  @param type           Type of spectrum to create.
+  @param dataType       Datatype for channels.
+  @param parameters     Vector of parameter name vectors.
+  @param channels       Vector of axis channels.
+  @param pLows          Pointer to low values.
+  @pram  pHighs         Pointer to high values.
+
+  \return CSpectrum*
+  \retval Pointer to the newly created spectrum.  If the spectrum cannot be created,
+          in general an exception will be thrown.
+*/
+CSpectrum*
+SpecTcl::CreateSpectrum(std::string           Name,
+			SpectrumType_t        type,
+			DataType_t            dataType,
+			std::vector<std::vector<std::string> > parameters,
+			std::vector<UInt_t>   channels,
+			std::vector<Float_t>* lows,
+			std::vector<Float_t>* highs)
+{
+  if (type == keGSummary) {
+    return CreateGammaSummary(Name, dataType, parameters, channels[0], lows, highs);
+  }
+  else {
+    std::vector<std::string> consolidated;
+    for (int i =0; i < parameters.size(); i++) {
+      std::vector<std::string>& col(parameters[i]);
+      for (int j = 0; j < col.size(); j++) {
+	consolidated.push_back(col[j]);
+      }
+    }
+    return CreateSpectrum(Name, type, dataType, consolidated, channels, lows, highs);
+  }
+}
+
+/*!
+  Create a gamma summary spectrum.  The spectrum is returned to the caller.
+  @param name           Name of the spectrum.
+  @param dataType       Type of data for each channel (e.g. keLong).
+  @param parameters     The names of the parameters in the spectrum.
+  @param nChannels      Number of channels in the y axis of the spectrum.
+  @param low            Null or pointer to vector of lows.
+  @param high           Null or pointer to vector of highs.
+
+  \return CSpectrum*
+  \retval A pointer to the newly created spectrum.
+
+*/
+CSpectrum*
+SpecTcl::CreateGammaSummary(std::string                      Name,
+			    DataType_t                       dataType,
+			    std::vector<std::vector<std::string> > parameters,
+			    UInt_t                           nChannels,
+			    std::vector<Float_t>*            low,
+			    std::vector<Float_t>*            high)
+{
+
+  std::vector<UInt_t> channels;
+  channels.push_back(nChannels);
+  CSpectrumFactory fact;
+  return fact.CreateSpectrum(Name, keGSummary, dataType, parameters,
+			     channels, low, high);
 }
 
 /*!

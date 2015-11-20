@@ -166,7 +166,7 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
 
   /* Make sure the menu bar got made: */
 
-  bar =  new XMMenuBar(const_cast<char*>("XamineMenuBar"), *parent, 10);
+  bar =  new XMMenuBar("XamineMenuBar", *parent, 10);
   if(bar == NULL) {
     fprintf(stderr, "Xamine -- Unable to create main menu bar");
     exit(-1);
@@ -174,10 +174,9 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
 
   /* Now setup the file menu:   */
 
-  pd = bar->AddPulldown(const_cast<char*>("File"), 10);	/* Add the file pulldown menu */
-  tb = pd->AddMenuToggleButton(const_cast<char*>("Logging"));   /* Enable/disable loggin      */
-  tb->SetAccelerator(const_cast<char*>("Meta<Key>l"), 
-		     const_cast<char*>("Alt+L"));
+  pd = bar->AddPulldown("File", 10);	/* Add the file pulldown menu */
+  tb = pd->AddMenuToggleButton("Logging");   /* Enable/disable loggin      */
+  tb->SetAccelerator("Meta<Key>l", "Alt+L");
   tb->AddCallback(Xamine_SetToggle, (XtPointer)&Xamine_logging);
   Xamine_AddtoBasePackage(tb);
 
@@ -186,13 +185,13 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   pd->AddSeparator();
   sub = pd->AddSubmenu("Save",5);	        /* Save objects/windows */
   b =  sub->AddMenuButton("SVWindows");
-  b->Label( const_cast<char*>("Save Windows..."));
+  b->Label("Save Windows...");
   b->AddCallback(Xamine_Open_window_file,
 		 (XtPointer)&Xamine_Open_win_write);
   Xamine_AddtoBasePackage(b);
 
   b =  sub->AddMenuButton("SVGrobs");
-  b->Label( const_cast<char*>("Save Graphical Objects... "));
+  b->Label("Save Graphical Objects... ");
   b->AddCallback(Xamine_Open_grobj_file,
 		 (XtPointer)&Xamine_Open_grobj_write);
   Xamine_AddtoBasePackage(b);
@@ -200,13 +199,13 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
 
   sub = pd->AddSubmenu("Restore",5);
   b = sub->AddMenuButton("RSWindows");
-  b->Label( const_cast<char*>("Restore Windows..."));
+  b->Label("Restore Windows...");
   b->AddCallback(Xamine_Open_window_file, 
 		 (XtPointer)&Xamine_Open_win_read);
   Xamine_AddtoBasePackage(b);
 
   b = sub->AddMenuButton("RSGrobs");
-  b->Label( const_cast<char*>("Restore Graphical Objects..."));
+  b->Label("Restore Graphical Objects...");
   b->AddCallback(Xamine_Open_grobj_file,
 		 (XtPointer)&Xamine_Open_grobj_read);
   Xamine_AddtoBasePackage(b);
@@ -219,8 +218,7 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
 #else
   b = pd->AddMenuButton("Print...",Xamine_NoGriDialog);
 #endif
-  b->SetAccelerator( const_cast<char*>("Meta<Key>P"), 
-		     const_cast<char*>("Alt+P"));
+  b->SetAccelerator("Meta<Key>P", "Alt+P");
   Xamine_AddtoSpectrumSelectedPackage(b);
 
   /* WYSIWYG printing:  */
@@ -231,40 +229,35 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
 
   pd->AddSeparator();
   b = pd->AddMenuButton("Exit", Xamine_confirm_exit);
-  b->SetAccelerator( const_cast<char*>("Ctrl<Key>X"), 
-		     const_cast<char*>("Ctrl+X"));
+  b->SetAccelerator("Ctrl<Key>X", "Ctrl+X");
   Xamine_AddtoBasePackage(b);
 			
   /* Window Menu */
 
-  pd = bar->AddPulldown( const_cast<char*>("Window"), 20);
+  pd = bar->AddPulldown("Window", 20);
   b = pd->AddMenuButton("Info");
-  b->SetAccelerator( const_cast<char*>("Meta<Key>Q"),
-		     const_cast<char*>("Alt+Q"));
+  b->SetAccelerator("Meta<Key>Q","Alt+Q");
   b->AddCallback(Xamine_DisplayInfo);
   Xamine_AddtoSpectrumSelectedPackage(b);
 
   b = pd->AddMenuButton("WMGeom");
-  b->Label( const_cast<char*>("Geometry ..."));
-  b->SetAccelerator( const_cast<char*>("Meta<Key>G"), 
-		     const_cast<char*>("Alt+G"));
+  b->Label("Geometry ...");
+  b->SetAccelerator("Meta<Key>G", "Alt+G");
   b->AddCallback(Xamine_request_geometry);
   Xamine_AddtoBasePackage(b);
 
   pd->AddSeparator();
   b = pd->AddMenuButton("WMRdconfig");
-  b->Label( const_cast<char*>("Read Configuration..."));
-  b->SetAccelerator( const_cast<char*>("Meta<Key>R"),
-		     const_cast<char*>("Alt+R"));
+  b->Label("Read Configuration...");
+  b->SetAccelerator("Meta<Key>R","Alt+R");
   b->AddCallback(Xamine_Open_window_file, 
 		 (XtPointer)&Xamine_Open_win_read);
   Xamine_AddtoBasePackage(b);
 
 
   b = pd->AddMenuButton("WMWrconfig");
-  b->Label( const_cast<char*>("Write Configuration ..."));
-  b->SetAccelerator( const_cast<char*>("Meta<Key>W"), 
-		     const_cast<char*>("Alt+W"));
+  b->Label("Write Configuration ...");
+  b->SetAccelerator("Meta<Key>W", "Alt+W");
   b->AddCallback(Xamine_Open_window_file,
 		 (XtPointer)&Xamine_Open_win_write);
   Xamine_AddtoBasePackage(b);
@@ -277,14 +270,14 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   Xamine_AddtoBasePackage(b);
 
 
-  tb = pd->AddMenuToggleButton( const_cast<char*>("Zoom"));
+  tb = pd->AddMenuToggleButton("Zoom");
   tb->AddCallback(Xamine_ToggleZoom);
   tb->SetAccelerator("Meta<Key>Z", "Alt+Z");
   Xamine_AddtoBasePackage(tb);
   zoom_toggle = tb;		/* Save the zoom toggle button widget. */
 
   b = pd->AddMenuButton("WMZoomPlus");
-  b->Label( const_cast<char*>("Zoom +"));
+  b->Label("Zoom +");
   b->AddCallback(Xamine_ZoomNext);
   Xamine_AddtoBasePackage(b);
 
@@ -298,13 +291,13 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   pd->AddSeparator();
  
   b = pd->AddMenuButton("SCUP");
-  b->Label( const_cast<char*>("Scale Down"));
+  b->Label("Scale Down");
   b->SetAccelerator("Meta<Key>minus", "Alt+ -");
   b->AddCallback(Xamine_MultiplySelectedScaleCb, (XtPointer)&mult);
   Xamine_AddtoSpectrumSelectedPackage(b);
 
   b = pd->AddMenuButton("SCDN");
-  b->Label( const_cast<char*>("Scale Up"));
+  b->Label("Scale Up");
   b->SetAccelerator("Meta<Key>plus", "Alt+ +");
   b->AddCallback(Xamine_MultiplySelectedScaleCb, (XtPointer)&sdiv);
   Xamine_AddtoSpectrumSelectedPackage(b);
@@ -318,16 +311,16 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
 					     Xamine_DisplayAdvance };
 
 
-  pd = bar->AddPulldown( const_cast<char*>("Spectra"), 20);
+  pd = bar->AddPulldown("Spectra", 20);
   b = pd->AddMenuButton("SMDisplay");
-  b->Label( const_cast<char*>("Display Spectrum ..."));
+  b->Label("Display Spectrum ...");
   b->SetAccelerator("Meta<Key>D","Alt+D");
   b->AddCallback(Xamine_ChooseSpectrum, (XtPointer)&DisplayCb);
   Xamine_AddtoBasePackage(b);
 
   b = pd->AddMenuButton("SMDisplayplus");
   b->SetAccelerator("Meta Shift<Key>D", "Alt+Shift+D");
-  b->Label( const_cast<char*>("Display Spectrum + ..."));
+  b->Label("Display Spectrum + ...");
   b->AddCallback(Xamine_ChooseSpectrum, (XtPointer)&PlusCb);
   Xamine_AddtoBasePackage(b);
 
@@ -337,19 +330,19 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   Xamine_AddtoSpectrumSelectedPackage(b);
 
   b = pd->AddMenuButton("SMAdvance");
-  b->Label( const_cast<char*>("Set Advance ..."));
+  b->Label("Set Advance ...");
   b->SetAccelerator("Ctrl<Key>A", "Control+A");
   b->AddCallback(Xamine_PromptAdvance);
   Xamine_AddtoBasePackage(b);
 
   b = pd->AddMenuButton("SMSuper");
-  b->Label( const_cast<char*>("Superimpose ..."));
+  b->Label("Superimpose ...");
   b->SetAccelerator("Meta<Key>S","Alt+S");
   b->AddCallback(Xamine_GetSuperposition);
   Xamine_Addto1dSelectedPackage(b);
 
   b = pd->AddMenuButton("SMUnSuper");
-  b->Label( const_cast<char*>("UnSuperimpose..."));
+  b->Label("UnSuperimpose...");
   b->AddCallback(Xamine_UnSuperimpose);
   unsuper_button = b;
   Xamine_DisableUnsuperimpose();
@@ -357,13 +350,13 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   pd->AddSeparator();
 
   b = pd->AddMenuButton("SMUpdall");
-  b->Label( const_cast<char*>("Update All"));
+  b->Label("Update All");
   b->SetAccelerator("Ctrl<Key>U", "Ctrl+U");
   b->AddCallback(Xamine_UpdateAll);
   Xamine_AddtoSpectrumPresentPackage(b);
 
   b = pd->AddMenuButton("SMUpdsel");
-  b->Label( const_cast<char*>("Update Selected"));
+  b->Label("Update Selected");
   b->SetAccelerator("Meta<Key>U", "Alt+U");
   b->AddCallback(Xamine_Update);
   Xamine_AddtoSpectrumSelectedPackage(b);
@@ -371,13 +364,13 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   pd->AddSeparator();
 
   b = pd->AddMenuButton("Properties");
-  b->Label( const_cast<char*>("Properties..."));
+  b->Label("Properties...");
   b->SetAccelerator("Meta<Key>O","Alt+O");
   b->AddCallback(Xamine_SetSelectedProperties);
   Xamine_AddtoSpectrumSelectedPackage(b);
 
   b = pd->AddMenuButton("CopyProp");
-  b->Label( const_cast<char*>("Copy Properties..."));
+  b->Label("Copy Properties...");
   b->SetAccelerator("Meta<Key>C", "Alt+C");
   b->AddCallback(Xamine_CopyPaneAttributes);
   Xamine_AddtoSpectrumSelectedPackage(b);
@@ -395,8 +388,8 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   Xamine_AddtoSpectrumSelectedPackage(b);
   pd->AddSeparator();
 
-  tb = pd->AddMenuToggleButton( const_cast<char*>("Project"));
-  tb->Label( const_cast<char*>("Project ..."));
+  tb = pd->AddMenuToggleButton("Project");
+  tb->Label("Project ...");
   tb->AddCallback(UnImplemented);
   Xamine_Addto2dSelectedPackage(tb);
   pd->AddSeparator();
@@ -411,93 +404,93 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
 
   /* Option menu: */
 
-  pd = bar->AddPulldown( const_cast<char*>("Options"), 15);
+  pd = bar->AddPulldown("Options", 15);
 
-  tb = pd->AddMenuToggleButton( const_cast<char*>("ShowSbar"));
+  tb = pd->AddMenuToggleButton("ShowSbar");
   tb->SetAccelerator("Ctrl<Key>S", "Ctrl+S");
-  tb->Label( const_cast<char*>("Show Status Bar"));
+  tb->Label("Show Status Bar");
   tb->AddCallback(Xamine_ToggleStatusBar);
   tb->Set();
 
   b = pd->AddMenuButton("OMCursor");
-  b->Label( const_cast<char*>("Cursor Type ..."));
+  b->Label("Cursor Type ...");
   b->AddCallback(UnImplemented);
   pd->AddSeparator();
   Xamine_AddtoBasePackage(b);
 
   b = pd->AddMenuButton("Updtime");
-  b->Label( const_cast<char*>("Update Rate..."));
+  b->Label("Update Rate...");
   b->SetAccelerator("Meta Shift<Key>U", "Alt+Shift+U");
   b->AddCallback(Xamine_SetDefaultRefresh);
 
   b = pd->AddMenuButton("Axis");
-  b->Label( const_cast<char*>("Axis Labels..."));
+  b->Label("Axis Labels...");
   b->SetAccelerator("Meta Shift<Key>L", "Alt+Shift+L");
   b->AddCallback(Xamine_SetDefaultAxis);
   Xamine_AddtoBasePackage(b);
 
   b = pd->AddMenuButton("Title");
-  b->Label( const_cast<char*>("Spectrum Titles..."));
+  b->Label("Spectrum Titles...");
   b->SetAccelerator("Meta Shift<Key>T", "Alt+Shift+T");
   b->AddCallback(Xamine_SetDefaultTitling);
   Xamine_AddtoBasePackage(b);
 
   b = pd->AddMenuButton("Attributes");
-  b->Label( const_cast<char*>("Spectrum Attributes..."));
+  b->Label("Spectrum Attributes...");
   b->SetAccelerator("Meta Shift<Key>A", "Alt+Shift+A");
   b->AddCallback(Xamine_SetDefaultAttributes);
   Xamine_AddtoBasePackage(b);
 
   b = pd->AddMenuButton("Reduction");
-  b->Label( const_cast<char*>("Spectrum Reduction..."));
+  b->Label("Spectrum Reduction...");
   b->SetAccelerator("Meta Shift<Key>R", "Alt+Shift+R");
   b->AddCallback(Xamine_SetDefaultReduction);
   Xamine_AddtoBasePackage(b);
 
   sub = pd->AddSubmenu("Rendition",5);
   b = sub->AddMenuButton("OMRS1d");
-  b->Label( const_cast<char*>("1-D..."));
+  b->Label("1-D...");
   b->SetAccelerator("Meta Shift<Key>1", "Alt+Shift+1");
   b->AddCallback(Xamine_Set1dDefaultRendition);
   Xamine_AddtoBasePackage(b);
 
   b = sub->AddMenuButton("OMRS2d");
-  b->Label( const_cast<char*>("2-D..."));
+  b->Label("2-D...");
   b->SetAccelerator("Meta Shift<Key>2", "Alt+Shift+2");
   b->AddCallback(Xamine_Set2dDefaultRendition);
   Xamine_AddtoBasePackage(b);
 
   b = pd->AddMenuButton("grobjlblsize");
-  b->Label( const_cast<char*>("Object Label Size.."));
+  b->Label("Object Label Size..");
   b->SetAccelerator("Meta Shift<Key>G", "Alt+Shift+G");
   b->AddCallback(Xamine_SetGrobjLblFont);
   Xamine_AddtoBasePackage(b);
 
   pd->AddSeparator();
   b = pd->AddMenuButton("OMPrsetup");
-  b->Label( const_cast<char*>("Print Setup ..."));
+  b->Label("Print Setup ...");
   b->SetAccelerator("Meta Shift<Key>P", "Alt+Shift+P");
   b->AddCallback(Xamine_SetupPrinter);
   Xamine_AddtoBasePackage(b);
 
   b = pd->AddMenuButton("OMLsetup");
-  b->Label( const_cast<char*>("Logfile setup ..."));
+  b->Label("Logfile setup ...");
   b->SetAccelerator("Meta Shift<Key>F", "Alt+Shift+F");
   b->AddCallback(Xamine_SetupLogFile);
   Xamine_AddtoBasePackage(b);
 
   /* Graphical Objects Menu: */
 
-  pd = bar->AddPulldown( const_cast<char*>("Graph_objects"), 10);
+  pd = bar->AddPulldown("Graph_objects", 10);
   b = pd->AddMenuButton("GMRd");
-  b->Label( const_cast<char*>("Read Objects... "));
+  b->Label("Read Objects... ");
   b->SetAccelerator("Ctrl<Key>R", "Ctrl+R");
   b->AddCallback(Xamine_Open_grobj_file,
 		 (XtPointer)&Xamine_Open_grobj_read);
   Xamine_AddtoBasePackage(b);
 
   b = pd->AddMenuButton("GMWrt");
-  b->Label( const_cast<char*>("Write Objects... "));
+  b->Label("Write Objects... ");
   b->SetAccelerator("Ctrl<Key>W", "Ctrl+W");
   b->AddCallback(Xamine_Open_grobj_file,
 		 (XtPointer)&Xamine_Open_grobj_write);
@@ -507,7 +500,7 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
 
   sub = pd->AddSubmenu("Add", 5);
   b = sub->AddMenuButton("GMASSum");
-  b->Label(const_cast<char*>("Summing Region ..."));
+  b->Label("Summing Region ...");
   b->SetAccelerator("Ctrl<Key>L","Ctrl+L");
   Xamine_AddtoSpectrumSelectedPackage(b);
   b->AddCallback(Xamine_AcceptSummingRegion);
@@ -545,22 +538,22 @@ XMMenuBar *Xamine_setup_menus(XMWidget *parent)
   
 
   b = pd->AddMenuButton("GMCopy");
-  b->Label(const_cast<char*>("Copy Object ..."));
+  b->Label("Copy Object ...");
   b->SetAccelerator("Meta Shift<Key>O", "Alt+Shift+O");
   b->AddCallback(Xamine_CopyObject);
   Xamine_AddtoSpectrumSelectedPackage(b);
 
   /*  Help Menu: */
 
-  pd = bar->AddHelpPulldown(const_cast<char*>("Help"), 2);
+  pd = bar->AddHelpPulldown("Help", 2);
   b = pd->AddMenuButton("HMAbout");
-  b->Label(const_cast<char*>("About ..."));
+  b->Label("About ...");
   b->SetAccelerator("Meta<Key>V", "Alt+V");
   b->AddCallback(Xamine_display_help, (XtPointer)&Xamine_About);
   Xamine_AddtoBasePackage(b);
 
   b = pd->AddMenuButton("Help");
-  b->Label(const_cast<char*>("Help ..."));
+  b->Label("Help ...");
   b->SetAccelerator("Meta<Key>slash", "Alt+?");
   b->AddCallback(Xamine_display_help, (XtPointer)&Xamine_Help_Overview);
   Xamine_AddtoBasePackage(b);

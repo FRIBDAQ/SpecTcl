@@ -77,6 +77,10 @@
 #endif
 
 
+#ifndef __ATTACHCOMMAND_H
+#include <AttachCommand.h>
+#endif
+
 
 // Forward class definitions
 
@@ -135,6 +139,12 @@ public:
   static SpecTcl* getInstance();
 
 
+  // Allow the definition of a new buffer decoder.
+  // This requires that the analyzer is already defined.
+
+  void addBufferDecoder(std::string                      type,
+			CAttachCommand::CDecoderCreator* creator);
+
 
   // Manipulate the parameter diectionary etc.
 
@@ -175,6 +185,21 @@ public:
 			    STD(vector)<UInt_t>      channels,
 			    STD(vector)<Float_t>*    pLows,
 			    STD(vector)<Float_t>*    pHighs);
+
+  CSpectrum* CreateSpectrum(std::string           Name,
+			    SpectrumType_t        type,
+			    DataType_t            dataType,
+			    std::vector<std::vector<std::string> > parameters,
+			    std::vector<UInt_t>   channels,
+			    std::vector<Float_t>* lows,
+			    std::vector<Float_t>* highs);
+
+  CSpectrum* CreateGammaSummary(std::string                      Name,
+				DataType_t                       dataType,
+				std::vector<std::vector<std::string> > parameters,
+				UInt_t                           nChannels,
+				std::vector<Float_t>*            low,
+				std::vector<Float_t>*            high);
 
   CSpectrum* CreateG2DDeluxe(STD(string) Name,
 			DataType_t     dataType,
@@ -385,6 +410,7 @@ public:
   CEventSinkPipeline* GetEventSinkPipeline();
   STD(vector)<UInt_t>      parameterIds(STD(vector)<STD(string)> names);
 
+  
 
   
 };

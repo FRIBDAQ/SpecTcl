@@ -185,7 +185,7 @@ Int_t CTestFile::Write(const Address_t pBuffer, UInt_t nBytes) {
 //  Operation Type:
 //     I/O connection
 //
-void CTestFile::Open(const std::string& rsFilename, UInt_t nAccess) {
+void CTestFile::Open(const std::string& rsFilename, UInt_t nAccess, bool unused) {
   // opens . so that the file has an fd associated with it.
   //
   //  Formal Parameters:

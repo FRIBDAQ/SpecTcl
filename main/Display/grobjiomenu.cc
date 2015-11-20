@@ -372,10 +372,10 @@ static const char *confirm_help_text[] = {
   };
 
 static Xamine_help_client_data confirm_help = {
-  const_cast<char*>("Grobj_overwrite_confirm"),
-  NULL,
-  const_cast<char**>(confirm_help_text)
-};
+                                         "Grobj_overwrite_confirm",
+					 NULL,
+					 confirm_help_text
+					 };
 
 static const char *open_help_text[] = {
   "  This file selection box allows you to choose a graphical object file for the\n",
@@ -443,9 +443,9 @@ static
   XMWidget *help_parent = (XMWidget *)client_data;
 
   if(!help) {
-    help = Xamine_help(const_cast<char*>("Open_Grobj_file_help"),
+    help = Xamine_help("Open_Grobj_file_help",
 		       help_parent,
-		       const_cast<char**>(open_help_text));
+		       open_help_text);
     help->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&help);
   }
   else {
@@ -484,22 +484,21 @@ void Xamine_Open_grobj_file(XMWidget *w, XtPointer client_data,
   Xamine_grobjopen_client_data *open_data = 
     (Xamine_grobjopen_client_data *)client_data; /* Convert client data struct */
 
-  char *full;
+  const char *full;
 
 
 
   /* If necessary create the dialog otherwise just manage it: */
 
   if(!openbox) {
-    openbox = new XMFileListDialog(const_cast<char*>("Open_grobj_file"), *w);
+    openbox = new XMFileListDialog("Open_grobj_file", *w);
     openbox->GetHelpButton()->AddCallback(open_help, (XtPointer)openbox);
     openbox->GetHelpButton()->Enable();
     openbox->AddCancelCallback(XMUnmanageChild);
     /* Build the directory search string */
 
-    full = Xamine_GetSearchMask(const_cast<char*>(XAMINE_GROBJ_ENV), 
-				const_cast<char*>(XMFILE_DEFAULT_DIR),
-				const_cast<char*>(GROBJ_MASK));
+    full = Xamine_GetSearchMask(XAMINE_GROBJ_ENV, XMFILE_DEFAULT_DIR,
+			      GROBJ_MASK);
     openbox->DoSearch(full);
     openbox->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&openbox);
   }
@@ -790,7 +789,7 @@ void Xamine_Write_grobj_file(XMWidget *w, XtPointer client_data,
 	  filename,
 	  "Click \"Overwrite\" to overwrite it or click \"Cancel\" to abort\n"
 	  );
-    overwrite = new  XMWarningDialog(const_cast<char*>("Good_file"), *Xamine_Getpanemgr(), 
+    overwrite = new  XMWarningDialog("Good_file", *Xamine_Getpanemgr(), 
 				   error_msg, write_grobjs, 
 				   (XtPointer)filename);
     overwrite->AddOkCallback(kill_widget); /* After write... kill off dialog */

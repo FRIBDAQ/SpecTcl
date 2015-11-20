@@ -91,6 +91,7 @@ class IntegrationDisplay : public XMCustomDialog {
   ~IntegrationDisplay() {
     XMRemoveCallback(cd);
     delete text;
+    text = 0;
   }
   /* Manipulation: */
 
@@ -163,7 +164,7 @@ static void Dismiss_callback(XMWidget *w, XtPointer ud, XtPointer cd)
 */
 IntegrationDisplay::IntegrationDisplay(char *name, XMWidget &parent,
 				       int rows, int cols):
-  XMCustomDialog(name, parent, const_cast<char*>("Integration Results"))
+       XMCustomDialog(name, parent, "Integration Results")
 {
   /* First create the scrolled text widget and place it in the
   ** work_area form:
@@ -188,7 +189,7 @@ IntegrationDisplay::IntegrationDisplay(char *name, XMWidget &parent,
   Apply->UnManage();
   Cancel->UnManage();
   Help->UnManage();
-  Ok->Label(const_cast<char*>("Dismiss"));
+  Ok->Label("Dismiss");
 
   /* Now attach the callback relay to the Ok button so that 
   ** we have the behavior almost neatly encapsulated in the object.

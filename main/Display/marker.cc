@@ -646,10 +646,10 @@ AcceptMarker::AcceptMarker(XMWidget *parent, const char *name, const char **hlp_
 
   /* Build the widgets...  */
 
-  point = new XMTextField(const_cast<char*>("Point_prompter"), *point_prompts,  PROMPT_WIDTH);
-  pt_label = new XMLabel(const_cast<char*>("Point_Label"),     *point_prompts,
-			 const_cast<char*>("Position"));
-  del_button = new XMPushButton(const_cast<char*>("Delete_point"), *point_prompts);
+  point = new XMTextField("Point_prompter", *point_prompts,  PROMPT_WIDTH);
+  pt_label = new XMLabel("Point_Label",     *point_prompts,
+			 "Position");
+  del_button = new XMPushButton("Delete_point", *point_prompts);
 
   /* Paste up the widgets left to right. inside the point_prompts form: */
 
@@ -744,7 +744,7 @@ void AcceptMarker::DrawPoints(XMWidget *pane,
 */
 void AcceptMarker::ClearDialog()
 {
-  point->SetText(const_cast<char*>(""));
+  point->SetText("");
 }
 
 /*
@@ -814,7 +814,7 @@ void AcceptMarker::DelPoint()
   /* Clear the points if the marker is not already empty. */
 
   object->clrpts();
-  point->SetText(const_cast<char*>(" "));
+  point->SetText(" ");
 }
 
 /*
@@ -970,7 +970,8 @@ void Xamine_AddMarker(XMWidget *wid, XtPointer ud, XtPointer cd)
   ** instantiate it now and set up the invariant behavior.
   */
   if(dialog == NULL) {
-    dialog = new AcceptMarker(wid, "Define_Marker", help_text);
+    dialog = new AcceptMarker(wid, const_cast<char*>("Define_Marker"), 
+			      help_text);
 
     dialog->AddOkCallback(&AcceptMarker::Marker_ok, (XtPointer)dialog);
     dialog->AddCancelCallback(&AcceptMarker::Marker_cancel, (XtPointer)dialog);

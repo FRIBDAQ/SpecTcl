@@ -1,30 +1,20 @@
 #!/bin/bash -xe
 
 
-rm -rf ${WORKSPACE}/3.4
+rm -rf ${WORKSPACE}/sptrunk
 
-amversion=`grep AM_INIT_AUTOMAKE configure.ac | cut -f2 -d" " | sed s/,//`
-acversion=`grep AC_INIT configure.ac | cut -f2 -d"," | sed s/,// | sed s/")"//`
-rm -rf SpecTcl-${amversion} SpecTcl-${acversion}
+version=`grep AM_INIT_AUTOMAKE configure.ac | cut -f2 -d" " | sed -e s/,// | sed -e 's/)//'`
 
-tarball=SpecTcl-${amversion}.tar.gz
-version=${amversion}
-if test ! -e ${tarball}
-then
-   tarball=spectcl-${acversion}.tar.gz
-   version=${acversion}
-fi
-echo ${tarball}
+rm -rf SpecTcl-${version}
 
+tar xzf SpecTcl-${version}.tar.gz
+cd SpecTcl-${version}
 
-tar xzf ${tarball}
-cd `basename ${tarball} .tar.gz`
-
-./configure --prefix=${WORKSPACE}/3.4
+./configure --prefix=${WORKSPACE}/sptrunk
 make clean all
 make install
 make check
 make installcheck
 
-rm -rf `basename ${tarball} .tar.gz`
-rm -rf ${WORKSPACE}/3.4
+rm -rf SpecTcl-${version}
+rm -rf ${WORKSPACE}/sptrunk

@@ -355,7 +355,7 @@ SpectrumChooser::SpectrumChooser(char *name, Widget parent, char *prompt,
 {
   SetupList();
   RestrictChoices();
-  SetHelpText(const_cast<char**>(ChooserHelp));
+  SetHelpText(ChooserHelp);
 }
 SpectrumChooser::SpectrumChooser(char *name, XMWidget &parent, char *prompt,
 				 XtPointer cbd) :
@@ -363,7 +363,7 @@ SpectrumChooser::SpectrumChooser(char *name, XMWidget &parent, char *prompt,
 {
   SetupList();
   RestrictChoices();
-  SetHelpText(const_cast<char**>(ChooserHelp));
+  SetHelpText(ChooserHelp);
 }
 
 /*
@@ -406,7 +406,7 @@ void SpectrumChooser::SetupList()
 
   /* Set the final list: */
 
-  SetSelectionList(accepted, dispspec);
+  SetSelectionList(accepted,   const_cast<const char**>(dispspec));
 }
 
 /*

@@ -317,7 +317,7 @@ class TitleDialog : public XMCustomDialog, public TitleForm
   TitleDialog(char *name, XMWidget &parent, char *title) :
     XMCustomDialog(name, parent, title),
     TitleForm(name, *work_area) {
-    Apply->Label(const_cast<char*>("Apply To All"));
+      Apply->Label("Apply To All");
     }
   ~TitleDialog() {}
   void Manage() { TitleForm::Manage();
@@ -361,8 +361,7 @@ static const char *help_text[] = {
   NULL
   };
 
-static Xamine_help_client_data help = { const_cast<char*>("Title_help"), NULL, 
-					const_cast<char**>(help_text) };
+static Xamine_help_client_data help = { "Title_help", NULL, help_text };
 
 
 /*
@@ -372,7 +371,7 @@ static Xamine_help_client_data help = { const_cast<char*>("Title_help"), NULL,
 **       The work area form is a vertical column of toggle button widgets
 **       with labels describing the options that they control.
 */
-TitleForm::TitleForm(char *name, XMForm &work_area)
+TitleForm::TitleForm(const char *name, XMForm &work_area)
 {
   /*  First instantiate the toggle buttons in the work_area and bind them */
   /*  to positions in the form.  All buttons are bound to the left and right */
@@ -380,42 +379,42 @@ TitleForm::TitleForm(char *name, XMForm &work_area)
   /*  bound to the form and all other buttons bound to the widget above.    */
   /*  The bottom button is also bound at the bottom to the form bottom     */
 
-  showname = new XMToggleButton(const_cast<char*>("Showname"), work_area);
-  showname->Label(const_cast<char*>("Show Spectrum Title"));
+  showname = new XMToggleButton("Showname", work_area);
+  showname->Label("Show Spectrum Title");
   work_area.SetTopAttachment(*showname, XmATTACH_FORM);
   work_area.SetLeftAttachment(*showname, XmATTACH_FORM);
   work_area.SetRightAttachment(*showname, XmATTACH_FORM);
 
-  shownumber = new XMToggleButton(const_cast<char*>("Shownumber"), work_area);
-  shownumber->Label(const_cast<char*>("Show Spectrum Number"));
+  shownumber = new XMToggleButton("Shownumber", work_area);
+  shownumber->Label("Show Spectrum Number");
   work_area.SetTopAttachment(*shownumber, XmATTACH_WIDGET);
   work_area.SetTopWidget(*shownumber, *showname);
   work_area.SetLeftAttachment(*shownumber, XmATTACH_FORM);
   work_area.SetRightAttachment(*shownumber, XmATTACH_FORM);
 
-  showdesc = new XMToggleButton(const_cast<char*>("Showdesc"), work_area);
-  showdesc->Label(const_cast<char*>("Show Spectrum Description"));
+  showdesc = new XMToggleButton("Showdesc", work_area);
+  showdesc->Label("Show Spectrum Description");
   work_area.SetTopAttachment(*showdesc, XmATTACH_WIDGET);
   work_area.SetTopWidget(*showdesc, *shownumber);
   work_area.SetLeftAttachment(*showdesc, XmATTACH_FORM);
   work_area.SetRightAttachment(*showdesc, XmATTACH_FORM);
 
-  showmaxpeak = new XMToggleButton(const_cast<char*>("Showmaxpeak"), work_area);
-  showmaxpeak->Label(const_cast<char*>("Show Maximum Peak Info."));
+  showmaxpeak = new XMToggleButton("Showmaxpeak", work_area);
+  showmaxpeak->Label("Show Maximum Peak Info.");
   work_area.SetTopAttachment(*showmaxpeak, XmATTACH_WIDGET);
   work_area.SetTopWidget(*showmaxpeak, *showdesc);
   work_area.SetLeftAttachment(*showmaxpeak, XmATTACH_FORM);
   work_area.SetRightAttachment(*showmaxpeak, XmATTACH_FORM);
 
-  showupdate = new XMToggleButton(const_cast<char*>("Showupdate"), work_area);
-  showupdate->Label(const_cast<char*>("Show Last Update Time"));
+  showupdate = new XMToggleButton("Showupdate", work_area);
+  showupdate->Label("Show Last Update Time");
   work_area.SetTopAttachment(*showupdate, XmATTACH_WIDGET);
   work_area.SetTopWidget(*showupdate, *showmaxpeak);
   work_area.SetLeftAttachment(*showupdate, XmATTACH_FORM);
   work_area.SetRightAttachment(*showupdate, XmATTACH_FORM);
 
-  showobjects = new XMToggleButton(const_cast<char*>("Showobjects"), work_area);
-  showobjects->Label(const_cast<char*>("Show Graphical Object Labels"));
+  showobjects = new XMToggleButton("Showobjects", work_area);
+  showobjects->Label("Show Graphical Object Labels");
   work_area.SetTopAttachment(*showobjects, XmATTACH_WIDGET);
   work_area.SetTopWidget(*showobjects, *showupdate);
   work_area.SetLeftAttachment(*showobjects, XmATTACH_FORM);

@@ -168,11 +168,12 @@ void Xamine_SetDefault2DRendition(rendition_2d rend)
 */
 void Xamine_Construct1dDefaultProperties(win_1d *properties)
 {
-  win_1d *p = new win_1d(GenericDefaults);
-
-  p->setrend(rend1d);
+  win_1d* p = new win_1d(GenericDefaults);
   memcpy(properties, p, sizeof(win_1d));
+
+  properties->setrend(rend1d);
   properties->setmapped(GenericDefaults.ismapped());
+
   delete p;
 } 
 /*
@@ -185,10 +186,11 @@ void Xamine_Construct1dDefaultProperties(win_1d *properties)
 */
 void Xamine_Construct2dDefaultProperties(win_2d *properties)
 {
-  win_2d *p = new win_2d(GenericDefaults);
+  win_2d* p  = new win_2d(GenericDefaults);
+  memcpy (properties, p, sizeof(win_2d));
 
-  p->setrend(rend2d);
-  memcpy(properties, p, sizeof(win_2d));
+
+  properties->setrend(rend2d);
   properties->setmapped(GenericDefaults.ismapped());
   delete p;
 }
@@ -291,7 +293,7 @@ int Xamine_ReadDefaultProperties()
 
 
   dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
-  if(!dir) dir = const_cast<char*>("");		// If no env var, use current dir.
+  if(!dir) dir =  const_cast<char*>("");		// If no env var, use current dir.
 
   char *filename = ConstructFilename(dir);
   int stat =  Xamine_ReadDefaultFile(filename);
@@ -324,8 +326,8 @@ int Xamine_SaveDefaultProperties()
   FILE *fp;
 
   /* Construct the filename and open the file for write: */
-  char* dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
-  if(!dir) dir = const_cast<char*>("");		// If no env var, use current dir.
+  const char* dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
+  if(!dir) dir = "";		// If no env var, use current dir.
   filename = ConstructFilename(dir); /* Glue together the filename. */
   fp = fopen(filename, "r+");     /* Try to open existing for read/write */
   if(fp) {			  // Deal with filesystems which support
@@ -356,19 +358,19 @@ int Xamine_SaveDefaultProperties()
 
   /* Write the renditions:  */
 
-  char *rend_text;
+  const char *rend_text;
   switch(rend1d) {
   case smoothed:
-    rend_text = const_cast<char*>("Smoothed");
+    rend_text = "Smoothed";
     break;
   case histogram:
-    rend_text = const_cast<char*>("Histogram");
+    rend_text = "Histogram";
     break;
   case points:
-    rend_text = const_cast<char*>("Points");
+    rend_text = "Points";
     break;
   case lines:
-    rend_text = const_cast<char*>("Line");
+    rend_text = "Line";
     break;
   default:
     fprintf(stderr, "BUGBUGBUG>> Invalid 1-d default rendition at write\n");
@@ -381,19 +383,19 @@ int Xamine_SaveDefaultProperties()
 
   switch(rend2d) {
   case scatter:
-    rend_text = const_cast<char*>("Scatter");
+    rend_text = "Scatter";
     break;
   case boxes:
-    rend_text = const_cast<char*>("Box");
+    rend_text = "Box";
     break;
   case color:
-    rend_text = const_cast<char*>("Color");
+    rend_text = "Color";
     break;
   case contour:
-    rend_text = const_cast<char*>("Contour");
+    rend_text = "Contour";
     break;
   case lego:
-    rend_text = const_cast<char*>("Lego");
+    rend_text = "Lego";
     break;
   default:
     fprintf(stderr, "BUGBUGBUG>> Invalid 2-d default rendition at write\n");

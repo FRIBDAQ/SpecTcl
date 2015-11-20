@@ -559,15 +559,13 @@ void Xamine_Select2::Create(XMForm &work_area)
   work_area.SetFractionBase(3);
       /* First build the label column... use default labels for now: */
 
-  pt1_label = new XMLabel(const_cast<char*>("Point1_Label"), work_area, 
-			  const_cast<char*>("Limit 1 : "));
+  pt1_label = new XMLabel("Point1_Label", work_area, "Limit 1 : ");
   work_area.SetTopAttachment(*pt1_label,      XmATTACH_FORM);
   work_area.SetLeftAttachment(*pt1_label,     XmATTACH_FORM);
   work_area.SetRightAttachment(*pt1_label,    XmATTACH_POSITION);
   work_area.SetRightPosition(*pt1_label,      1);
 
-  pt2_label = new XMLabel(const_cast<char*>("Point2_Label"), work_area,
-			  const_cast<char*>("Limit 2 : "));
+  pt2_label = new XMLabel("Point2_Label", work_area, "Limit 2 : ");
   work_area.SetTopAttachment(*pt2_label,      XmATTACH_WIDGET);
   work_area.SetTopWidget(*pt2_label,          *pt1_label);
   work_area.SetLeftAttachment(*pt2_label,     XmATTACH_FORM);
@@ -577,14 +575,14 @@ void Xamine_Select2::Create(XMForm &work_area)
 
   /* Next build the input text field region column. */
 
-  pt1_value = new XMTextField(const_cast<char*>("Point1"), work_area, 6);
+  pt1_value = new XMTextField("Point1", work_area, 6);
   work_area.SetTopAttachment(*pt1_value,      XmATTACH_FORM);
   work_area.SetLeftAttachment(*pt1_value,     XmATTACH_POSITION);
   work_area.SetLeftPosition(*pt1_value,       1);
   work_area.SetRightAttachment(*pt1_value,    XmATTACH_POSITION);
   work_area.SetRightPosition(*pt1_value,      2);
 
-  pt2_value = new XMTextField(const_cast<char*>("Point2"), work_area, 6);
+  pt2_value = new XMTextField("Point2", work_area, 6);
   work_area.SetTopAttachment(*pt2_value,      XmATTACH_WIDGET);
   work_area.SetTopWidget(*pt2_value,          *pt1_value);
   work_area.SetLeftAttachment(*pt2_value,     XmATTACH_POSITION);
@@ -608,7 +606,7 @@ void Xamine_Select2::Create(XMForm &work_area)
 
   /* Build the Delete button column.   */
 
-  pt1_delete = new XMPushButton(const_cast<char*>("Delete1"), work_area, 
+  pt1_delete = new XMPushButton("Delete1", work_area, 
 				Xamine_Select2CommonCallback,
 				&Delete1);
   work_area.SetTopAttachment(*pt1_delete,      XmATTACH_FORM);
@@ -616,7 +614,7 @@ void Xamine_Select2::Create(XMForm &work_area)
   work_area.SetLeftPosition(*pt1_delete,       2);
   work_area.SetRightAttachment(*pt1_delete,    XmATTACH_FORM);
 
-  pt2_delete = new XMPushButton(const_cast<char*>("Delete2"), work_area,
+  pt2_delete = new XMPushButton("Delete2", work_area,
 				Xamine_Select2CommonCallback,
 				&Delete2);
   work_area.SetTopAttachment(*pt2_delete,      XmATTACH_WIDGET);

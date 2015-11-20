@@ -891,24 +891,13 @@ proc spectrumUsage {} {
     set multiplier(word)  2
     set multiplier(byte)  1
 
-    # Since we're talking about display memory, this should only reflect
-    # spectra in the sbind list:
-    
-    if {[catch {sbind -list}]} {
-	set boundSpectra [list]
-    } else {
-	set boundSpectra [sbind -list]
-
-    }
-    set spectrumNames [list]
-    foreach spectrum $boundSpectra {
-	lappend spectrumNames [lindex $spectrum 1]
+    if {[catch {::spectrum -list} spectra]} {
+	set spectra [list]
     }
 
     set usage 0
 
-    foreach name $spectrumNames {
-	set spectrum [lindex [spectrum -list $name] 0]
+    foreach spectrum $spectra {
 	
 	# Figure out the channel count for the spectrum:
 
@@ -1034,7 +1023,6 @@ proc updateStatus nms {
 #              
 
 proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
-    set time [time {
     if {$top eq ""} {
 	if {[winfo exists .gui]} {
 	    return;		# Don't start twice.
@@ -1079,7 +1067,7 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     .topmenu.help add command -label About.. -command aboutMeDialog
 
     menu .topmenu.source -tearoff 0
-    .topmenu.source add command -label {Online...} -command attachOnline
+    .topmenu.source add command -label {Online (spectrodaq)...} -command attachOnline
     .topmenu.source add command -label {File...}                -command attachFile
     .topmenu.source add command -label {Pipe...}                -command attachPipe
     .topmenu.source add separator
@@ -1121,8 +1109,7 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
     .topmenu add cascade -label {Gate}        -menu .topmenu.gate
 
 
-    }]
-    puts "Preliminaries: $time"
+
     set timing [time {
     browser $parent.b -spectrumfoldercommand   spectrumFolderContextMenu  \
                    -parameterfoldercommand  parameterFolderContextMenu \
@@ -1136,7 +1123,7 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
                    -parameterrightclick     parameterContextMenu        \
                    -gaterightclick          gateContextMenu
     } 1]
-    puts "Browser creation $timing"
+
     pack $parent.b -fill both -expand 1
 
 
@@ -1148,15 +1135,9 @@ proc ::FolderGui::startFolderGui {{top {}} {parent {}}} {
 
     pack $::FolderGui::folderGuiStatusFrame.statusline1 -fill x -expand 0 -anchor w
     pack $::FolderGui::folderGuiStatusFrame.statusline2 -fill x -expand 0 -anchor w
-  
-    set timing [time {	
+	
     updateStatus 1000
-    }]
-    puts "Status update $timing"
     set ::SpecTclIODwellMax 100
-    
-    set timing [time {
+
     preferences::readPrefs
-    }]
-    puts "Read prefs $timing"
 }

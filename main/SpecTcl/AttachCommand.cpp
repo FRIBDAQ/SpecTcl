@@ -50,6 +50,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include <histotypes.h>
 #include <Globals.h>
+#include <File.h>
 
 #include "AttachCommand.h"                               
 #include "TCLInterpreter.h"
@@ -71,6 +72,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 using namespace std;
 #endif
 
+
+// Class level members:
+
+CAttachCommand::CDecoderFactory CAttachCommand::m_decoderFactory;
 
 // Static data declarations:
 struct SwitchDef {
@@ -237,10 +242,6 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_ERROR;
   }
 
-  // Select the buffer decoder... for now we just have 2 hardwired
-  // buffer formats.. .later we'll build an extensible set of buffer
-  // decoders like the -format switch on the sread/swrite commands.
-
 
   // Note well, since this mistake was already made once:
   // We can't delete the gpBufferDecoder prior to setting
@@ -249,21 +250,12 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   //
   //
 
-  CBufferDecoder* oldDecoder = gpBufferDecoder;  // for later delete.
-  
-  if (options.Format == string("nscl")) {
- 
-    gpBufferDecoder = new CNSCLBufferDecoder;
 
-  } else  if (options.Format == string("filter")) {
 
-    gpBufferDecoder = new CFilterBufferDecoder;
-  } else if (options.Format == string("unchanged")) {
-    ;				// Leave everything well enough alone!!!
-                                // This is necessary to support 
-                                // external formatters and is the default. 
-  } else {			// Bad format.
-
+  CBufferDecoder* oldDecoder = gpBufferDecoder;
+  CBufferDecoder* pNewDecoder= createDecoder(options.Format);
+  if (!pNewDecoder) 
+  {
     rResult  = "Unrecognized format type: ";
     rResult += options.Format;
     rResult += "\n";
@@ -271,6 +263,9 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     return TCL_ERROR;
 
   }
+
+  gpBufferDecoder = pNewDecoder;
+
   // Can only set a decoder if there's an analyzer
   // and we don't want to thrash decoders if it
   // turned out the logic above did not replace
@@ -313,6 +308,16 @@ int CAttachCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
   case eUnspecified:		// Prior tests should have
   default:			// prevented these cases...
     assert(0);			// Let me know noisily if I'm wrong.
+  }
+
+  // Set the block/nonblock mode on the event source depending on what the
+  // decoder needs:
+
+  if(gpBufferDecoder->blockMode()) {
+    gpEventSource->setFixedRecord();
+  }
+  else {
+    gpEventSource->setVariableRecord();
   }
 
 
@@ -508,6 +513,22 @@ int CAttachCommand::AttachNull(CTCLResult& rResult,
   return TCL_OK;
 }
 
+
+/*!
+   Register a new buffer decoder type to the attach command's decoder
+   factory.
+   \param type    - Name by which the type will be known.
+                    If -format type is used, the registered creator
+                    will be used to create the buffer decoder.
+   \param creator - pointer to a creator that will be used to generate
+                    buffer decoders for that type.
+
+*/
+void
+CAttachCommand::addDecoderType(string type, CAttachCommand::CDecoderCreator* creator)
+{
+  m_decoderFactory.addCreator(type, creator);
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:
@@ -520,7 +541,7 @@ void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "  attach {switches...} connection\n";
   rResult += "  Where:\n";
   rResult += "     Switches are taken from the following:\n";
-  rResult += "     -format filter|nscl  - Choose buffer format\n";
+  rResult += "     -format {format type}\n";
   rResult += "     -size nBytes - Number of bytes per buffer.\n";
   rResult += "     {sourcetype} which can be only one of:\n";
   rResult += "        -file  when connection is the name of the file\n";
@@ -534,6 +555,13 @@ void CAttachCommand::Usage(CTCLResult& rResult) {
   rResult += "               sources\n";
   rResult += "        -null  No events will be made available.\n";
 
+  vector<string> formats = m_decoderFactory.getDescriptions();
+
+  rResult += "Available format types are:\n";
+  for (int i =0; i < formats.size(); i++) {
+    rResult += formats[i];
+    rResult += "\n";
+  }
 }
 
 
@@ -554,3 +582,27 @@ CAttachCommand::ParseSwitch(char* pSwitch) {
 }
 
 
+/////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//    CBufferDecoder* createDecoder(std::string type)
+// Operation Type:
+//    private utility
+// Description:
+//    Given a format type string produces a pointer to the
+//    decoder represented by that typ.
+//    Returns NULL if type does not correspond to a 
+//    known decoder type.
+// 
+//   Note that the special type "unchanged" will return the
+//   value of gpBuferDecoder.
+//
+CBufferDecoder*
+CAttachCommand::createDecoder(string type)
+{
+  if (type == string("unchanged")) {
+    return gpBufferDecoder;
+  }
+
+  return m_decoderFactory.create(type);
+}

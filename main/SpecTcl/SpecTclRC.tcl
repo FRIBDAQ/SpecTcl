@@ -65,7 +65,7 @@ if {$tcl_platform(os) != "Windows NT"} {
 splash::progress $splash {Loading SpecTcl Tree Gui} 1
 
 puts -nonewline "Starting treeparamgui..."
-source $SpecTclHome/Script/newGui.tcl
+source $SpecTclHome/Script/SpecTclGui.tcl
 puts " Done"
 
 

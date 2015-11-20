@@ -305,7 +305,7 @@ static const char* pErrorStrings[] = {
   "The channel subsection has channel values which would cause overflows"
 };
 
-const char**  CSpectrumFormatError::m_svErrorStrings = pErrorStrings; 
+const char** CSpectrumFormatError::m_svErrorStrings = pErrorStrings; 
 
 // Functions for class CSpectrumFormatError
 
@@ -322,7 +322,7 @@ const char* CSpectrumFormatError::ReasonText()  const
   // string is looked up from the m_svErrorStrings.
   //
 
-  return m_svErrorStrings[(Int_t)m_eError];
+  return (m_svErrorStrings[(Int_t)m_eError]);
   
 }
 //////////////////////////////////////////////////////////////////////////////

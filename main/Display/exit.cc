@@ -356,8 +356,8 @@ void exit_display_help(XMWidget *help_gadget, XtPointer client_data,
 		       XtPointer callback_data)
 {
   if(!exit_help_dialog)
-    exit_help_dialog = Xamine_help(const_cast<char*>("Exit_help"), (XMWidget *)dlg, 
-				   (char **)Exit_help);
+    exit_help_dialog = Xamine_help("Exit_help", (XMWidget *)dlg, 
+				   Exit_help);
   else
     exit_help_dialog->Manage();
 }
@@ -404,9 +404,9 @@ void Xamine_confirm_exit(XMWidget *w, XtPointer client_data, XtPointer cbs)
 
   if(!changed) do_exit();	/* No confirmation if no changes. */
   if(!dlg) {
-    dlg = new XMQuestionDialog(const_cast<char*>("Confirm_exit"),
+    dlg = new XMQuestionDialog("Confirm_exit",
 			       *w,
-			       const_cast<char*>(msg),
+			       msg,
 			       (void (*)(XMWidget *,
 					 XtPointer,
 					 XtPointer))do_exit);

@@ -16,15 +16,7 @@
 
 #include <config.h>
 #include "CRingBufferDecoder.h"
-#include "RingFormatHelper.h"
-#include "RingFormatHelper10.h"       // Last chance helper.
-
-#include "RingFormatHelper10Creator.h"
-#include "RingFormatHelper11Creator.h"
-
-#include "RingFormatHelperFactory.h"
 #include "DataFormat.h"
-#include "DataFormatPre11.h"
 
 #include <Analyzer.h>
 #include <BufferTranslator.h>
@@ -104,24 +96,9 @@ CRingBufferDecoder::CRingBufferDecoder() :
   m_pPartialEvent(0),
   m_pTranslator(0),
   m_runNumber((UInt_t)-1),
-  m_pGluedBuffer(0),
-  m_pCurrentHelper(0),
-  m_pDefaultHelper(0),
-  m_pCurrentRingItem(0),
-  m_pFallbackHelper(new CRingFormatHelper10),
-  m_pFactory(new CRingFormatHelperFactory)
+  m_pGluedBuffer(0)
 {
-    // Register the creators we know about:
-    // Adding a creator does a copy so this automatic creation is fine.
-    
-    CRingFormatHelper10Creator create10;
-    CRingFormatHelper11Creator create11;
-    
-    m_pFactory->addCreator(10, 0, create10);
-    m_pFactory->addCreator(10, 1, create10);  // 10.x are all the same.
-    m_pFactory->addCreator(10, 2, create10);
-    
-    m_pFactory->addCreator(11, 0, create11);  // 11.x has body headers.
+
 }
 /*!
    Destructor  IF ther's a buffer assembly in process, its storage should
@@ -130,12 +107,6 @@ CRingBufferDecoder::CRingBufferDecoder() :
 CRingBufferDecoder::~CRingBufferDecoder()
 {
   delete m_pPartialEvent;
-  delete m_pCurrentHelper;
-  delete m_pDefaultHelper;
-  delete m_pFallbackHelper;
-  
-  delete m_pFactory;
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -350,161 +321,6 @@ CRingBufferDecoder::blockMode()
   return false;
 }
 
-/**
- * hasBodyHeader
- *
- * Determine if the current item has a body header.
- *
- * @return bool
- * @retval true - a current item is defined and has a body header.
- * @retval false - A current item is not defined or is defined but has no
- *                 body header.
- */
-bool
-CRingBufferDecoder::hasBodyHeader()
-{
-    if (m_pCurrentRingItem) {
-        CRingFormatHelper* pHelper = getFormatHelper();
-        return pHelper->hasBodyHeader(m_pCurrentRingItem);
-    } else {
-        return false;
-    }
-}
-/**
- * getBodyHeaderPointer
- *
- * Returns a pointer to the current ring items' body header.  See below however.
- *
- * @return void* - Pointer to the item's body pointer.
- * @retval null  - If hasBodyHeader() returns false.
- */
-void*
-CRingBufferDecoder::getBodyHeaderPointer()
-{
-    if (!hasBodyHeader()) return reinterpret_cast<void*>(0);
-    
-    CRingFormatHelper* pHelper  = getFormatHelper();
-    return pHelper->getBodyHeaderPointer(m_pCurrentRingItem);
-}
-/**
- * getItemPointer()
- *    This returns a pointer to the currently dispatched ring item.
- *    If there is no currently dispatched ring item, a null is returned.
- */
-void*
-CRingBufferDecoder::getItemPointer()
-{
-    return m_pCurrentRingItem;
-}
-/**
- * setFormatHelper
- *
- * Sets the currently used format helper.  it is required that the helper have
- * been dynamically allocated.  Note that use of this method is not recommended
- * unless your data is not really coming from NSCL ring buffers...but something
- * close to it.  Better is to use setDefaultFormatHelper This is because when
- * the decoder encounters a RING_FORMAT item, it will replace the format helper
- * with one created from the information in the ring format item.
- *
- * @param pHelper - Pointer to the ring format helper to use.  This must have
- *                  been constructed via new as this will delete it
- */
-void
-CRingBufferDecoder::setFormatHelper(CRingFormatHelper* pHelper)
-{
-    m_pCurrentHelper = pHelper;
-}
-/**
- * setDefaultFormatHelper
- *
- *   Sets the format header to use while we don't know the format of data
- *   from the ring (have not seen a RING_FORMAT item since the last time
- *   we reset the current format helper).
- *
- *   @param pHelper - Pointer to a ring format helper.  This must have been
- *                    constructed with new.
- */
-void
-CRingBufferDecoder::setDefaultFormatHelper(CRingFormatHelper* pHelper)
-{
-    m_pDefaultHelper = pHelper;
-}
-/**
- * getCurrentFormatHelper
- *
- * Returns a pointer to the current format helper.  Note that if there is not
- * one yet, this returns a null.  Receiving a null does not imply that
- * a ring item will cause the decoder to fail as there is also a default helper
- * potentially defined iwth setDefaultFormatHelper and a hardwired fallback
- * helper.  The fallback helper is guaranteed to exist.
- *
- * @return CRingFormatHelper*
- */
-CRingFormatHelper*
-CRingBufferDecoder::getCurrentFormatHelper()
-{
-    return m_pCurrentHelper;
-}
-/**
- * getDefaultHelper
- *
- * Returns a pointer to the default format helper.
- *
- * @return CRingFormatHelper*
- */
-CRingFormatHelper*
-CRingBufferDecoder::getDefaultFormatHelper()
-{
-    return m_pDefaultHelper;
-}
-
-/**
- * getFormatFactory
- *
- * @return CRingFormatHelperFactory* - pointer to the factory we used and
- *                                     in which all our creators are intalled.
- */
-CRingFormatHelperFactory*
-CRingBufferDecoder::getFormatFactory()
-{
-    return m_pFactory;
-}
-
-/*----------------------------------------------------------------------------
- * Callbacks during data analysis:
- */
-
-/**
- * OnSourceAttach
- *    Called when a new data source is being attached.
- */
-void
-CRingBufferDecoder::OnSourceAttach()
-{
-    // A new data source invalidates the current helper:
-    
-   invalidateCurrentHelper();
-}
-/**
- * OnSourceDetach
- *
- * Called when this is being detached from the analyzer.
- */
-void
-CRingBufferDecoder::OnSourceDetach()
-{
-    invalidateCurrentHelper();
-}
-/**
- * OnEndFile
- *
- * Called when we reached the end of an input data source.
- */
-void
-CRingBufferDecoder::OnEndFile()
-{
-    invalidateCurrentHelper();
-}
 
 ///////////////////////////////////////////////////////////////////
 //
@@ -700,40 +516,23 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   uint32_t         size  = m_pTranslator->TranslateLong(pItem->s_header.s_size);
   uint32_t         type  = m_pTranslator->TranslateLong(pItem->s_header.s_type);
   m_pTranslator->newBuffer(pItem);
+  m_pBody                = (pItem->s_body);
+  m_nBodySize            = size - sizeof(RingItemHeader);
+  m_nCurrentItemType     = mapType(type);
 
-
-  
-  // If we have a ring format item that gives us the current helper:
-  
-  if (type == RING_FORMAT) {
-    invalidateCurrentHelper();
-    m_pCurrentHelper = m_pFactory->create(pItem);
-  }
-  // Now get the correct helper to use:
-  
-  CRingFormatHelper* pHelper = getFormatHelper();
-  
-  // From here on in we use pHelper's methods to fish stuff out of the item.
-  
-  m_pCurrentRingItem = pItem;    // So that callbacks can do stuff.
-  m_pBody            = pHelper->getBodyPointer(pItem);
-  
-  m_nBodySize =
-    size
-    - (reinterpret_cast<uint8_t*>(m_pBody) - reinterpret_cast<uint8_t*>(pItem));
   
   // The remainder of this is item type dependent:
 
-  m_nCurrentItemType     = mapType(type);
+
   switch (type) {
   case BEGIN_RUN:
   case END_RUN:
   case PAUSE_RUN:
   case RESUME_RUN:
     {
-      
-      m_title        = pHelper->getTitle(pItem);
-      m_runNumber    = pHelper->getRunNumber(pItem, m_pTranslator);
+      pStateChangeItem pState = reinterpret_cast<pStateChangeItem>(pItem);
+      m_title        = pState->s_title;
+      m_runNumber    = m_pTranslator->TranslateLong(pState->s_runNumber);
       m_nEntityCount = 0;
       m_pAnalyzer->OnStateChange(m_nCurrentItemType, *this);
     }
@@ -742,14 +541,15 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   case PACKET_TYPES:
   case MONITORED_VARIABLES:
     {
-      m_nEntityCount = pHelper->getStringCount(pItem, m_pTranslator);
+      pTextItem pText = reinterpret_cast<pTextItem>(pItem);
+      m_nEntityCount  = m_pTranslator->TranslateLong(pText->s_stringCount);
       m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
     }
     break;
-  case PERIODIC_SCALERS:
+  case INCREMENTAL_SCALERS:
     {
-      
-      m_nEntityCount = pHelper->getScalerCount(pItem, m_pTranslator);
+      pScalerItem pScalers = reinterpret_cast<pScalerItem>(pItem);
+      m_nEntityCount = m_pTranslator->TranslateLong(pScalers->s_scalerCount);
       m_pAnalyzer->OnScaler(*this);
     }
     break;
@@ -763,8 +563,8 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
   case PHYSICS_EVENT_COUNT:
 
     {
-     
-      m_nTriggerCount = pHelper->getTriggerCount(pItem, m_pTranslator);
+      pPhysicsEventCountItem pTriggers = reinterpret_cast<pPhysicsEventCountItem>(pItem);
+      m_nTriggerCount = m_pTranslator->TranslateLong(pTriggers->s_eventCount);
       m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
     }
     break;
@@ -774,7 +574,7 @@ CRingBufferDecoder::dispatchEvent(void* pEvent)
     m_pAnalyzer->OnOther(m_nCurrentItemType, *this);
     break;
   }
-  m_pCurrentRingItem = 0;                    // NO longer have a current item.
+  
 
 }
 
@@ -797,8 +597,7 @@ CRingBufferDecoder::mapType(UInt_t type)
     typeMapping[RESUME_RUN]          = RESUMEBF;
     typeMapping[PACKET_TYPES]        = PKTDOCBF;
     typeMapping[MONITORED_VARIABLES] = RUNVARBF;
-    typeMapping[PERIODIC_SCALERS]    = SCALERBF;
-    typeMapping[NSCLDAQ10::INCREMENTAL_SCALERS] = SCALERBF;
+    typeMapping[INCREMENTAL_SCALERS] = SCALERBF;
     typeMapping[PHYSICS_EVENT]       = DATABF;
       
     mapSetup = true;
@@ -835,36 +634,4 @@ CRingBufferDecoder::createPartialEvent()
   m_nPartialEventBytes  = m_nResidual;
 
 
-}
-/**
- * getFormatHelper
- *
- *   Figure out which format helper to use
- *   * If m_pCurrentHelper is defined use that.
- *   * If not and m_pDefaultHelper is defined use that.
- *   * If all else fails, use m_pFallbackHelper.
- *
- * @return CRingFormatHelper*
- */
-CRingFormatHelper*
-CRingBufferDecoder::getFormatHelper()
-{
-    CRingFormatHelper* pHelper = m_pCurrentHelper;
-    if (!pHelper) pHelper = m_pDefaultHelper;
-    if (!pHelper) pHelper = m_pFallbackHelper;
-    
-    return pHelper;
-}
-
-/**
- * invalidateCurrentHelper
- *
- * Called when an event has occured that casts doubt on the validity of
- * the current helper.
- */
-void
-CRingBufferDecoder::invalidateCurrentHelper()
-{
-    delete m_pCurrentHelper;
-    m_pCurrentHelper = reinterpret_cast<CRingFormatHelper*>(0);
 }

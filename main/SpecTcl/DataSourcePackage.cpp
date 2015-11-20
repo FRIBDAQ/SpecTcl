@@ -51,6 +51,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "Globals.h"
 #include "Exception.h"
 
+#include <SpecTcl.h>
+
+#include <NSCLBufferDecoder.h>
+#include <NSCLJumboBufferDecoder.h>
+#include <CRingBufferDecoder.h>
+#include <FilterBufferDecoder.h>
+
+
 #include <string>
 #include <tcl.h>
 
@@ -58,6 +66,62 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
+
+
+/////////////////////////////////////////////////////////////////////////
+//
+// Code in this section  define  buffer decoders creators
+// used to register the default set of buffer decoders
+// for the attach -format switch.
+//
+
+class CNSCLDecoderCreator : public CAttachCommand::CDecoderCreator
+{
+public:
+  virtual CBufferDecoder* operator()() {
+    return new CNSCLBufferDecoder();
+  }
+  virtual string          describe() const {
+    return string("nscl - NSCL 'standard' buffer format decoder'");
+  }
+};
+
+class CJumboDecoderCreator : public CAttachCommand::CDecoderCreator
+{
+public:
+  virtual CBufferDecoder* operator()() {
+    return new CNSCLJumboBufferDecoder();
+  }
+  virtual string          describe() const {
+    return string("jumbo - NSCL 'standard' buffer format with jumbo sized buffers");
+  }
+};
+
+
+class CFilterDecoderCreator : public CAttachCommand::CDecoderCreator
+{
+public:
+  virtual CBufferDecoder* operator()() {
+    return new CFilterBufferDecoder();
+  }
+  virtual string          describe() const {
+    return string("filter - SpecTcl filter format files.");
+  }
+};
+
+
+class CRingDecoderCreator : public CAttachCommand::CDecoderCreator
+{
+public:
+  virtual CBufferDecoder* operator()() {
+    return new CRingBufferDecoder();
+  }
+  virtual string    describe() const {
+    return string("ring  - NSCL DAQ Ring buffer data acquisition system");
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////
 
 // Functions for class CDataSourcePackage
 
@@ -76,6 +140,16 @@ CDataSourcePackage::CDataSourcePackage(CTCLInterpreter* pInterp) :
 {
   AddProcessor(m_pTape);
   AddProcessor(m_pAttach);
+
+  // install the buffer decoder creators for the default set
+  // of buffer format types:
+
+  SpecTcl* pApi = SpecTcl::getInstance();
+  pApi->addBufferDecoder("nscl", new CNSCLDecoderCreator());
+  pApi->addBufferDecoder("jumbo", new CJumboDecoderCreator());
+  pApi->addBufferDecoder("filter",new CFilterDecoderCreator());
+  pApi->addBufferDecoder("ring",  new CRingDecoderCreator());
+  
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -107,7 +181,9 @@ int CDataSourcePackage::AttachFileSource(CTCLResult& rResult) {
   }
 
   // Disconnect the current event source and connect the new one.
-  CFile* pNew   = new CDiskFile;
+
+  
+  CFile* pNew   = new CDiskFile();
   gpEventSource = pNew;
   CFile* pOld   = gpRunControl->Attach(pNew);
   delete pOld;
@@ -189,7 +265,7 @@ int CDataSourcePackage::AttachPipeSource(CTCLResult& rResult) {
   }
 
   // Disconnect the current event source and connect the new one.
-  CFile* pNew   = new CPipeFile;
+  CFile* pNew   = new CPipeFile();
   gpEventSource = pNew;
   CFile* pOld   = gpRunControl->Attach(pNew);
   delete pOld;
@@ -295,7 +371,8 @@ int CDataSourcePackage::OpenSource(CTCLResult& rResult,
   try {
     if(gpEventSource->getState() == kfsOpen) 
       gpEventSource->Close();
-    gpEventSource->Open(pConnectionString, kacRead);
+    gpEventSource->Open(pConnectionString, kacRead,
+			gpBufferDecoder->blockMode());
     
     // Now the event record size is set.  Either from the parameter, or,
     // if the source was a tape, from the blocksize in the event tape source.

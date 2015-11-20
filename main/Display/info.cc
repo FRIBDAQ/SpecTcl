@@ -349,7 +349,7 @@ class InfoDisplay : public XMCustomDialog {
   ~InfoDisplay() {
     delete text;
   }
-  void SetText(char *t) { text->SetText(t); }
+  void SetText(const char *t) { text->SetText(t); }
 };
 
 /*
@@ -381,7 +381,7 @@ InfoDisplay::InfoDisplay(char *name, XMWidget *parent) :
  
   /* Relabel the ok button so that it's function is a bit clearer */
 
-  Ok->Label(const_cast<char*>(" Dismiss "));
+  Ok->Label(" Dismiss ");
 
   /* Create the work area by filling in the work_area widget with a */
   /* text widget:                                                   */
@@ -760,7 +760,7 @@ static char*
 FormatGateInfo(int specno)
 {
   char *result;
-  char element[20];
+  char element[100];
   int  nobjects  = Xamine_GetSpectrumGateCount(specno);
   
   grobj_generic** objects = new grobj_generic*[nobjects];
@@ -837,12 +837,12 @@ static const char *FormatInfo()
 {
   char *text;
   int  size = 0;
-  static const char *t = " Pane does not contain a spectrum ";
 
   /* First thing we need to do is get the attributes block of the 
   ** currently selected spectrum.  This has a lot of stuff in it,
   ** like the current spectrum which are needed in subsequent subinfo calls.
   */
+  const char *t = " Pane does not contain a spectrum ";
 
   win_attributed *att = Xamine_GetSelectedDisplayAttributes();
   if(att == NULL) {
@@ -939,7 +939,7 @@ static void UnManage(XMWidget *wid, XtPointer user_d, XtPointer call_d)
 */
 void Xamine_DisplayInfo(XMWidget *parent, XtPointer client_d, XtPointer call_d)
 {
-  char *information;
+  const char *information;
   /*
   ** If the dialog widget does not exist, then create it:
   */
@@ -954,7 +954,7 @@ void Xamine_DisplayInfo(XMWidget *parent, XtPointer client_d, XtPointer call_d)
   ** Format the information:
   */
 
-  information = const_cast<char*>(FormatInfo());
+  information = FormatInfo();
   if(information == NULL) {
     Xamine_error_msg(dialog_widget, 
 		     "Could not get any information about the selected pane");
@@ -975,5 +975,5 @@ void Xamine_DisplayInfo(XMWidget *parent, XtPointer client_d, XtPointer call_d)
 
   /* The information string was dynamically allocated, so we free it here */
 
-  XtFree(information);
+  XtFree(const_cast<char*>(information));
 }

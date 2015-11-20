@@ -104,7 +104,8 @@ static const SpecTypes aSpecTypes[] = {
   {"b",    keBitmask},
   {"bitmask", keBitmask},
   {"m2",   ke2Dm},
-  {"gd",   keG2DD}
+  {"gd",   keG2DD},
+  {"gs",   keGSummary}
 
 };
 static const UInt_t nSpecTypes = sizeof(aSpecTypes)/sizeof(SpecTypes);
@@ -314,6 +315,77 @@ CSpectrumPackage::CreateSpectrum(CTCLResult& rResult, const char* pName,
     return TCL_ERROR;
   }
 }
+
+/*!
+   Create a spectrum that requires a vector of a vector of parameters.
+   At present, the only example of this is a gamma summary spectrum.
+
+   \param rResult     - TCL result object.
+   \param pName       - Name of the new spectrum.
+   \param pSpecType   - Pointer to the text string spectrum type.
+   \param parameterNames - Vector of parameter name vectors.
+   \param nChannels   - Vector of # channels in each axis (only one element).
+   \param fLows       - Vector of low values that describe the real coordinates of the axis (only 1 element)
+   \param fHighs      - Vector of high values that describe the real coordinates of the axis (only 1 element).
+   \param  pDataType   - Pointer to text string channel type (e.g. "long").
+   
+   \return int
+   \retval TCL_OK  - Spectrum was created and entered in the spectrum dictionary.
+   \retval TCL_ERROR - a problem was detected either in creating the spectrum or entering it into
+                       the dictionary.
+
+   \note SIDE EFFECTS:
+   - New spectrum is made.
+   - Spectrum dictionary observers will be invoked with creation.
+   - Various exceptions will be caught here and turned into result strings and TCL_ERROR returns.
+
+*/
+int 
+CSpectrumPackage::CreateSpectrum(CTCLResult&                            rResult, 
+				 const char*                            pName,
+				 const char*                            pSpecType,
+				 std::vector<std::vector<std::string> > parameterNames,
+				 std::vector<UInt_t>                    nChannels,
+				 std::vector<Float_t>                   fLows,
+				 std::vector<Float_t>                   fHighs,
+				 const char*                            pDataType)
+{
+  CSpectrum* pSpec(0);
+  SpecTcl*   pApi = SpecTcl::getInstance();
+
+  // Wrap the 'business logic' in a try/catch block so that the
+  // exceptions can be converted to result strings and TCL_ERROR returns:
+
+  try {
+    SpectrumType_t sType = SpectrumType(pSpecType);
+    DataType_t     dType = Datatype(sType, pDataType);
+    
+    pSpec                = pApi->CreateSpectrum(string(pName), sType, dType,
+						parameterNames,
+						nChannels, &fLows, &fHighs);
+    pApi->AddSpectrum(*pSpec);
+    rResult = pSpec->getName();
+
+    return TCL_OK;
+  }
+  catch (CException& except) {
+    rResult = except.ReasonText();
+    return TCL_ERROR;
+  }
+  catch (string& msg) {
+    rResult = msg;
+    return TCL_ERROR;
+  }
+  catch (const char* msg) {
+    rResult = string(msg);
+    return TCL_ERROR;
+  }
+  catch (...) {
+    rResult = string("Unanticipated exception while creating spectrum");
+    return TCL_ERROR;
+  }
+}
+
 
 /*!
  Returns the set of spectrum definitions.  Each
@@ -1297,7 +1369,7 @@ CSpectrumPackage::GetChannel(CTCLResult& rResult, const string& rName,
     //
 
     char sChan[20];
-    sprintf(sChan, "%u", nChan);
+    sprintf(sChan, "%lu", nChan);
     rResult += sChan;
 
   }
@@ -1353,7 +1425,7 @@ CSpectrumPackage::SetChannel(CTCLResult& rResult, const string& rName,
     // Result code will be the old value.
     
     char sValue[20];
-    sprintf(sValue, "%d", nOldValue);
+    sprintf(sValue, "%ld", nOldValue);
     rResult += sValue;
 
   }
@@ -1616,6 +1688,26 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
     }
     Description.EndSublist();
   }
+  else if (Def.eType == keGSummary) {
+    std::vector<UInt_t>::iterator p;
+    bool newSublist = true;
+    for (p = Def.vParameters.begin(); p != Def.vParameters.end(); p++) {
+      if(newSublist) {
+	newSublist = false;
+	Description.StartSublist();
+      }
+      UInt_t id = *p;
+      if (id == UINT_MAX) {
+	Description.EndSublist();
+	newSublist = true;
+      }
+      else {
+	CParameter* pPar = m_pHistogrammer->FindParameter(*p);
+	Description.AppendElement(pPar ? pPar->getName() :
+				  std::string("--Deleted Parameter--"));
+      }
+    }
+  }
   else {
     std::vector<UInt_t>::iterator p = Def.vParameters.begin();
     for(; p != Def.vParameters.end(); p++) {
@@ -1631,7 +1723,14 @@ CSpectrumPackage::DescribeSpectrum(CSpectrum& rSpectrum, bool showGate)
   //   The axis sublist is a list of axis definitions.  Each axis definition
   //   is a triplet list of low high nchannels:
   Description.StartSublist();	// List of axes.
-  for(int i = 0; i < Def.nChannels.size(); i++) {
+
+  // Once more gamma summaries are strange... just use the second element of the description:
+  //
+  int start =0;
+  if (Def.eType == keGSummary) {
+    start = 1;
+  }
+  for(int i = start; i < Def.nChannels.size(); i++) {
     Description.StartSublist();	// Axis definition
 
     sprintf(txtNum, "%f", Def.fLows[i]);
@@ -1944,8 +2043,7 @@ CSpectrumPackage::SpectrumType(const char* pType)
 DataType_t
 CSpectrumPackage::Datatype(SpectrumType_t st, const char* pType)
 {
-  //  If pType is NULL, then we default depending on the type of the
-  //  spectrum.
+  //  If pType is NULL, then we default  to longword channels:
 
   if(!pType) {
     return keLong;

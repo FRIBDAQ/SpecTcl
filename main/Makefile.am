@@ -1,8 +1,11 @@
-SUBDIRS =  Replace Scripts Utility Display \
+SUBDIRS =  Replace Scripts Utility factories Display \
 	NSCLException Xamine Tape EventSource \
-	TCL Events Gates Sorter SpectrumIO Filter Analysis TreeParam \
+	TCL Events Gates Sorter SpectrumIO Filter Analysis\
+	DecoderRing  TreeParam \
 	Fits SpecTcl \
-	contrib TestFiles Gui splash filtsplit calibratedparams
+	contrib TestFiles Gui splash filtsplit calibratedparams treegui ccusb vmusb
+
+ACLOCAL_AMFLAGS=-I m4
 
 # Gri TestFiles need to be figured out still..
 
@@ -59,7 +62,7 @@ install-exec-local:
 	echo CCLD=$(CC)                    >> CompilationRules.temp
 	cat  CompilationRules.include        >> CompilationRules.temp
 	$(INSTALL_DATA) CompilationRules.temp $(sysconfdir)/CompilationRules.include
-	echo "Version: " $(VERSION) build on `hostname` `date` >VERSION
+	echo "Version: " SpecTcl-$(VERSION) build on `hostname` `date` >VERSION
 	$(INSTALL_DATA) VERSION $(prefix)/VERSION
 	$(INSTALL_DATA) CHANGELOG $(prefix)
 	$(MANDB) $(prefix)/man
