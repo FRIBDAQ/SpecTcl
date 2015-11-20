@@ -58,7 +58,7 @@ using namespace std;
 #endif
 
 
-static const char* pCopyrightNotice = 
+static const  char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved ApplyCommand.cpp \\n";
 
 // Functions for class CApplyCommand

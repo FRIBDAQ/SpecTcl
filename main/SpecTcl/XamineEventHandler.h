@@ -32,24 +32,68 @@
 #include <Xamineplus.h>
 #endif
 
+#ifndef __GATEFACTORY_H
+#include "GateFactory.h"
+#endif
+
+#ifndef __POINT_H
+#include <Point.h>
+#endif
+
 #ifndef _TK_H
 #include <tk.h>
 #define _TK_H
 #endif
 
+#ifndef __STL_STRING
+#include <string>
+#ifndef __STL_STRING
+#define __STL_STRING
+#endif
+#endif
+
+#ifndef __STL_VECTOR
+#include <vector>
+#ifndef __STL_VECTOR
+#define __STL_VECTOR
+#endif
+#endif
+
+#ifndef __STL_LIST
+#include <list>
+#ifndef __STL_LIST
+#define __STL_LIST
+#endif
+#endif
+
 
 class CDisplayGate;
 class CButtonEvent;
+class CSpectrum;
 
 // XamineEventHandler class declaration:
                                                                
 class CXamineEventHandler
-{                       
-  CTCLInterpreter* m_pInterp;
-  CHistogrammer* m_pHistogrammer; //1:1 association object data member      
-  int            m_nFd;
-  Tcl_TimerToken  m_Timer;	// Poll timer for read.
-
+{
+  // Base class for button handlers:
+public:
+  class CButtonHandler {
+  public:
+    virtual Bool_t operator()(CButtonEvent& event) = 0;
+  };
+  class CRestartHandler {
+  public:
+    virtual void  operator()() = 0;
+  };
+  typedef STD(list)<CButtonHandler*> ButtonHandlerList;
+  typedef STD(list)<CRestartHandler*> RestartHandlerList;
+private:                       
+  CTCLInterpreter*   m_pInterp;
+  CHistogrammer*     m_pHistogrammer; //1:1 association object data member      
+  int                m_nFd;
+  Tcl_TimerToken     m_Timer;	// Poll timer for read.
+  ButtonHandlerList  m_buttonHandlers; // List of button handlers.
+  RestartHandlerList m_restartHandlers;
 public:
 
    // Constructors and other cannonical operations:
@@ -118,6 +162,13 @@ protected:
     Set();			// Set callback on next fid.
   }
 
+  // User hooks that observer various things can be added here.
+
+public:
+  void addButtonHandler(CButtonHandler& handler);
+  void addRestartHandler(CRestartHandler& handler);
+
+  // Overridable operations.
 public:
 
  virtual   void operator() ()    ;
@@ -129,8 +180,21 @@ protected:
  virtual   void OnButton (CButtonEvent& rButton)    ;
  virtual   UInt_t FindDisplayBinding (const STD(string)& rName);
 
-  static void CallbackRelay(ClientData pObject);
+ static void CallbackRelay(ClientData pObject);
+  // Utilities:
+private:
 
+  void make2dSumgate(STD(string)            gateName,
+		     CGateFactory::GateType componentGateType,
+		     CSpectrum*             pSpectrum,
+		     STD(vector)<CPoint>    rawPoints);
+  STD(string) createComponentGateName(STD(string) baseName,
+				      UInt_t      p1,
+				      UInt_t      p2);
+  STD(vector)<FPoint> scaleSumSpectrumPoints(CSpectrum*          pSpectrum,
+					     UInt_t              firstAxis,
+					     STD(vector)<CPoint> rawPoints);
+		     
 };
 
 #endif

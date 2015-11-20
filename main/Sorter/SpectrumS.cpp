@@ -420,12 +420,12 @@ CSpectrumS::Increment(const CEvent& rE)
   CParameterValue& rParam(rEvent[m_nParameter]);
 
 
-  if(rTime.isValid()) {  // Only increment if param present.
+  if(rTime.isValid() && rParam.isValid()) {  // Only increment if param present.
     Int_t nChannel = (Int_t)ParameterToAxis(0, rTime)- m_nOffset;
 
-    if (nChannel > m_nChannels ) {
+    if (nChannel >= m_nChannels ) {
       ShiftDataDown (static_cast<int>(nChannel + (.25 * m_nChannels) - m_nChannels));
-      m_nOffset = static_cast<int>(m_nOffset + nChannel + (.25 * m_nChannels) - m_nChannels);
+      m_nOffset = static_cast<int>(m_nOffset + nChannel + (.25 * m_nChannels) - m_nChannels) + 1;
       nChannel = nChannel - m_nOffset;
     }else if (nChannel < 0) {
       ShiftDataUp(nChannel);
@@ -557,7 +557,7 @@ CSpectrumS::CreateChannels()
   // management:
 
   setStorageType(keLong);
-  ULong_t* pStorage = new ULong_t[m_nChannels];
+  UInt_t* pStorage = new UInt_t[m_nChannels];
   ReplaceStorage(pStorage);	// Storage now owned by parent.
   Clear();
 }
@@ -573,6 +573,11 @@ CSpectrumS::ShiftDataDown(int nShift)
 {
     UInt_t* p = (UInt_t*)getStorage();
     assert(p != (UInt_t*)kpNULL);
+
+    if (nShift >= m_nChannels) { // chase where shift is more than channels
+      Clear();
+      return;
+    }
     for (int i = 0; i < m_nChannels-nShift; i++) {
       p[i] = p[i+nShift];
     }
@@ -587,6 +592,11 @@ CSpectrumS::ShiftDataUp(int nShift)
 {
     UInt_t* p = (UInt_t*)getStorage();
     assert(p != (UInt_t*)kpNULL);
+
+    if (m_nChannels <=  (-nShift)) { // Case where shift is more than channels.
+      Clear();
+      return;
+    }
     for (int i =  m_nChannels ; i >= (nShift * -1); i--) {
       p[i] = p[i+nShift];
     }

@@ -49,7 +49,7 @@
 using namespace std;
 #endif
 
-static const char* pCopyrightNotice = 
+static const  char* pCopyrightNotice = 
 "(C) Copyright 1999 NSCL, All rights reserved GatePackage.cpp \n";
 
 UInt_t CGatePackage::m_nNextId(1);

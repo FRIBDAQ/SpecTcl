@@ -297,7 +297,7 @@ using namespace std;
 #endif
 
 
-static const  char* pErrorStrings[] = {
+static const char* pErrorStrings[] = {
   "Spectrum section has invalid header",
   "Spectrum section has an incompatible format level",
   "The spectrum section appears to be corrupt",
@@ -305,7 +305,7 @@ static const  char* pErrorStrings[] = {
   "The channel subsection has channel values which would cause overflows"
 };
 
-const char** CSpectrumFormatError::m_svErrorStrings = pErrorStrings; 
+const char**  CSpectrumFormatError::m_svErrorStrings = pErrorStrings; 
 
 // Functions for class CSpectrumFormatError
 

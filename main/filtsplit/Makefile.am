@@ -10,11 +10,11 @@ filtsplit_SOURCES=cmdline.c filtsplit.cpp
 
 noinst_HEADERS=cmdline.h
 
-AM_CPPFLAGS =-I@top_srcdir@/Filter
+INCLUDES=-I@top_srcdir@/Filter
 
 
-cmdline.c cmdline.h: filtsplit.ggo
-	@GENGETOPT@ --unamed-opts <filtsplit.ggo
+cmdline.c: filtsplit.ggo
+	gengetopt --unamed-opts <filtsplit.ggo
 
 EXTRA_DIST=filtsplit.ggo  filtsplit.xml
 

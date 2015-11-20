@@ -29,6 +29,9 @@
 #include "TCLString.h"
 #include <RangeError.h>
 #include <Exception.h>
+#include <SpecTcl.h>
+#include <Histogrammer.h>
+#include <Iostream.h>
 
 
 #include <tcl.h>
@@ -65,7 +68,10 @@ static const SwitchInfo SwitchTable[] = {
   { "-all",    CSpectrumCommand::keAll},
   { "-byid",   CSpectrumCommand::keById},
   { "-showgate",   CSpectrumCommand::keShowGate},
+  { "-trace",      CSpectrumCommand::keTrace}
 };
+
+static const string defaultTrace("proc __defaultSpectrumTrace name {}; __defaultSpectrumTrace");
 
 static const UInt_t SwitchTableSize = sizeof(SwitchTable)/sizeof(SwitchInfo);
 
@@ -92,8 +98,67 @@ public:
     return (strcmp(s1.c_str(), s2.c_str()) < 0);
   }
 };
+
+
+
+// The spectrum observer:
+
+typedef CSpectrum* SpectrumPointer;
+
+class SpectrumTraceObserver : public SpectrumDictionaryObserver
+{
+
+private:
+  CSpectrumCommand*    m_pCommand;
+public:
+  SpectrumTraceObserver(CSpectrumCommand* commandObject) :
+    m_pCommand(commandObject) {}
+  
+  virtual void onAdd(string name, CSpectrum*&  pSpectrum) {
+    m_pCommand->traceAdd(name, pSpectrum);
+  }
+  virtual void onRemove(string name, CSpectrum*&  pSpectrum) {
+    m_pCommand->traceRemove(name, pSpectrum);
+  }
+};
+
 // Functions for class CSpectrumCommand
 
+/*!
+   Construct the command.  We must intialize the base class
+   and set up our member data.  We will also
+   set up a trace observer on the histogrammer.
+*/
+CSpectrumCommand::CSpectrumCommand (CTCLInterpreter* pInterp, 
+				    CTCLCommandPackage& rPackage) :
+
+  CTCLPackagedCommand("spectrum", pInterp, rPackage),
+  m_fTracing(false),
+  m_pObserver(new SpectrumTraceObserver(this))
+  
+{ 
+  Bind(pInterp);
+  m_createTrace = defaultTrace;
+  m_createTrace.Bind(pInterp);
+
+  m_removeTrace = defaultTrace;
+  m_removeTrace.Bind(pInterp);
+  
+  SpecTcl* pApi = SpecTcl::getInstance();
+  pApi->addSpectrumDictionaryObserver(m_pObserver);
+
+}
+
+/*
+   Destroy the command.
+*/
+CSpectrumCommand::~CSpectrumCommand()
+{
+  SpecTcl* pApi = SpecTcl::getInstance();
+  pApi->removeSpectrumDictionaryObserver(m_pObserver);
+  delete m_pObserver;
+
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -155,6 +220,9 @@ CSpectrumCommand::operator()(CTCLInterpreter& rInterpreter,
       return TCL_ERROR;
     }
     return New(rInterpreter, rResult, nArgs, pArgs);
+  case keTrace:
+    nArgs--; pArgs++;		// advance past the -trace switch.
+    return Trace(rInterpreter, rResult, nArgs, pArgs);
   default:			// Invalid switch in context.
     Usage(rResult);
     return TCL_ERROR;
@@ -253,12 +321,50 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
   int                      nListElements;
   char**                   ppListElements;
   vector<string> vParameters;
+  vector<string> vyParameters;
 
   CTCLList lParameters(&rInterpreter, pArgs[2]);
   lParameters.Split(nListElements, &ppListElements);
 
   // Get the parameter name list
-  rPack.GetNameList(vParameters, nListElements, ppListElements);
+  
+  // If the spectrum is a Gamma 2d Deluxe there must be
+  // exactly 2 elements in the list..each of them themselves
+  // a list of x/y parameters.
+  // Otherwise, there's just a single parameter list:
+
+  if (string(pType) == string("gd")) {
+    if (nListElements == 2) {
+      int nxParams;
+      int nyParams;
+      char** pxParams;
+      char** pyParams;
+      CTCLList lxParameters(&rInterpreter, ppListElements[0]);
+      CTCLList lyParameters(&rInterpreter, ppListElements[1]);
+
+      lxParameters.Split(nxParams, &pxParams);
+      lyParameters.Split(nyParams, &pyParams);
+
+      rPack.GetNameList(vParameters, nxParams, pxParams);
+      rPack.GetNameList(vyParameters, nyParams, pyParams);
+
+      Tcl_Free((char*)pxParams);
+      Tcl_Free((char*)pyParams);
+      
+
+    }
+    else {
+      rResult = string("Gamma 2d spectra must have a pair of parameter lists");
+      Usage(rResult);
+      return TCL_ERROR;
+    }
+  }
+  else {
+    rPack.GetNameList(vParameters, nListElements, ppListElements);
+  }
+
+
+  
 
   Tcl_Free((char*)ppListElements);
   
@@ -310,10 +416,16 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
 			    "Selecting channel resolution");
 	}
 	nChannels = 1 << nBits;
+
+	// Let's fix this right here and now.
+	// rather than having a special case later in the code
+	// The axis range represented by this is (while the integerists hold sway)
+	// [0, nChannels-1] with nChannels bins:
+
 	
 	vChannels.push_back((UInt_t)nChannels);
 	vLows.push_back(0.0);	// Indicate there is no high/low for this axis.
-	vHighs.push_back(0.0);
+	vHighs.push_back(static_cast<float>(nChannels-1));
       }
       catch (CException& rExcept) { // Spectrum size invalid.
 	rResult = "Spectrum size "; // Note that TCL Exceptions set Reason!!
@@ -378,10 +490,21 @@ CSpectrumCommand::New(CTCLInterpreter& rInterpreter,
   Tcl_Free((char*)ppListElements);
 
 
-  
-  return rPack.CreateSpectrum(rResult,  pName, pType, vParameters, 
-			      vChannels, vLows, vHighs,
-			      pDataType);
+  if (vyParameters.size() == 0) {
+    
+    return rPack.CreateSpectrum(rResult,  pName, pType, vParameters, 
+				vChannels, vLows, vHighs,
+				pDataType);
+  }
+  else {
+    return rPack.CreateSpectrum(rResult, pName, pType, 
+				vParameters,
+				vyParameters,
+				vChannels,
+				vLows,
+				vHighs,
+				pDataType);
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -577,6 +700,94 @@ CSpectrumCommand::Delete(CTCLInterpreter& rInterp, CTCLResult& rResult,
   return TCL_ERROR;
 
 }
+/*!
+  Establish traces for either the add or delete of spectra in the
+  spectrum dictionary.
+
+  Implements:
+
+\verbatim
+   spectrum -trace add ?script?
+   spectrum -trace delete ?script?
+\endverbatim
+
+   \param rInterp : CTCLInterpreter&
+       Reference to the interpreter that is executing this command.
+   \param rResult : CTCLResult&
+       Reference to the result object for the interpreter.
+   \param argc : int
+       Number of remaining command line parameters (after spectrum -trace).
+   \param argv : char**
+       The remaining command line parameters (after spectrum -trace).
+
+   \return Int_t
+   \retval TCL_OK    - Correct return.
+   \retval TCL_ERROR - Some error occured executing the command which return
+           be the contents of the error variable.
+
+
+
+*/
+Int_t 
+CSpectrumCommand::Trace(CTCLInterpreter& rInterp, 
+			CTCLResult&      rResult,
+			int argc, char** argv)
+{
+  // Need at least one extra argument, the trace operation
+  // which  must be add or delete and just selects the trace object:
+
+  CTCLObject* pTraceScript(0);
+  if (argc < 1) {
+    rResult = "Need a trace op read | write\n";
+    Usage(rResult);
+    return TCL_ERROR;
+  }
+  if (string(argv[0])  == string("add") ) { 
+    pTraceScript = &m_createTrace;
+  }
+  if (string(argv[0]) == string("delete")) {
+    pTraceScript = &m_removeTrace;
+  }
+
+  if (pTraceScript == 0) {
+    rResult = "Invalid trace operation.  Must be add or delete\n";
+    Usage(rResult);
+    return TCL_ERROR;
+  }
+
+  // pTraceScript now represents the trace object we will be doing stuff
+  // to:
+  // If there's no script, then we just list the script as our result.
+
+  argc--;
+  argv++;
+ 
+  // Get the current trace script and map it to ""
+  // in the event it's the default.
+
+  rResult = (string)(*pTraceScript);
+  if ((string)(*pTraceScript) == defaultTrace) {
+    rResult = string("");
+  }
+
+  if (argc < 1) {
+    return TCL_OK;
+  }
+
+  // If there's a script we need to 
+  // map the scrip to the default if it's empty.
+
+  string script(argv[0]);
+  if (script == "") {
+    script = defaultTrace;
+  }
+  *pTraceScript = script;
+
+  return TCL_OK;
+  
+}
+
+  
 //////////////////////////////////////////////////////////////////////////
 //
 // Function:
@@ -599,6 +810,8 @@ CSpectrumCommand::Usage(CTCLResult& rResult)
   rResult += "  spectrum -delete name1 [name2...]\n";
   rResult += "  spectrum -delete -id id1 [id2...]\n";
   rResult += "  spectrum -delete -all\n";
+  rResult += "  spectrum -trace add ?script?\n";
+  rResult += "  spectrum -trace delete ?script?\n";
   rResult += "    In the above, an axsidef has one of the following formats:\n";
   rResult += "         n           - n is the Log(2) the number of channels\n";
   rResult += "         {low hi n}  - Full definition where:\n";
@@ -607,6 +820,8 @@ CSpectrumCommand::Usage(CTCLResult& rResult)
   rResult += "                       n    - Number of channels on the axis.\n";
   rResult += "\n  The spectrum command creates and deletes spectra as well\n";
   rResult += "  as listing their properties.";
+  rResult += " The -trace switch allows the creation, inspection and removal\n";
+  rResult += " of traces on adding and deleting spectra\n";
 
 }
 //////////////////////////////////////////////////////////////////////////
@@ -735,3 +950,67 @@ CSpectrumCommand::ExtractName(const string& rProperties)
   return Result;
 
 }
+
+
+/*!
+   Process spectrum add traces.
+*/
+void
+CSpectrumCommand::traceAdd(const string& name,
+			   const CSpectrum* pSpectrum)
+{
+  if (!m_fTracing) {
+    if (string(m_createTrace) != defaultTrace) {
+      m_fTracing = true;
+      m_createTrace.Bind(getInterpreter());
+      CTCLObject script(m_createTrace);
+      script.Bind(getInterpreter());
+      script += name;
+      CTCLObject result;
+      result.Bind(getInterpreter());
+      int status = TCL_OK;
+      try {
+	result = script();
+      }
+      catch (...) {
+	status = TCL_ERROR;
+      }
+      if (status == TCL_ERROR) {
+	cerr << "Error executing spectrum add trace on " << (string)(script) << endl;
+      }
+      m_fTracing = false;
+    }
+  }
+}
+
+/*!
+   Process spectrum removed traces:
+*/
+void 
+CSpectrumCommand::traceRemove(const string& name,
+			      const CSpectrum* pSpectrum)
+{
+  if (!m_fTracing) {
+    if (string(m_removeTrace) != defaultTrace) {
+      m_fTracing = true;
+      m_createTrace.Bind(getInterpreter());
+      CTCLObject script(m_removeTrace);
+      script.Bind(getInterpreter());
+      script += name;
+      CTCLObject result;
+      result.Bind(getInterpreter());
+      int status = TCL_OK;
+      try {
+	result = script();
+      }
+      catch (...) {
+	status = TCL_ERROR;
+      }
+      if (status == TCL_ERROR) {
+	cerr << "Error executing spectrum remove trace on " << (string)(script) << endl;
+      }
+      m_fTracing = false;
+    }
+  }
+}
+

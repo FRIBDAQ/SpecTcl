@@ -318,8 +318,8 @@ class CheckElement : public XMForm {
   CheckElement(const char *name,	       /* 's name. */
 	       XMWidget *parent,       /* Form's parent. */
 	       Boolean state = False,  /* Button initial state. */
-	       const char *blabel = "Check", /* Button initial label string. */
-	       const char *label = NULL);    /* Button additional label string  */
+	       char *blabel = "Check", /* Button initial label string. */
+	       char *label = NULL);    /* Button additional label string  */
   ~CheckElement();
 
   /* Manipulators: */
@@ -348,18 +348,18 @@ class CheckList : public XMForm {
 
   CheckList(const char *name,		/* Form's name. */
 	    XMWidget *parent,	/* Form's parent widget */
-	    const char *title,	/* Title string at top of form. */
+	    char *title,	/* Title string at top of form. */
 	    int button_count,	/* Number of buttons. */
-	    const char **buttonstrings = NULL,	/* Initial button names */
-	    const char **labelstrings  = NULL);       /* Initial label strings  */
+	    char **buttonstrings = NULL,	/* Initial button names */
+	    char **labelstrings  = NULL);       /* Initial label strings  */
   ~CheckList();
 
   /* Manipulators: */
 
   void SetButtonString(int num, /* Button number from zero. */
-		       const char *str); /* Button title string. */
+		       char *str); /* Button title string. */
   void SetLabelString(int num,	/* Button number from zero. */
-		      const char *str); /* Button extra label string. */
+		      char *str); /* Button extra label string. */
 
   Boolean State(int num);	/* Get state of button num */
   void State(int num,		/* Set state of button num */

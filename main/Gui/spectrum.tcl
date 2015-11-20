@@ -18,8 +18,10 @@ package require snit
 package require browser
 package require edit1d
 package require edit2d
+package require edit2dmulti
 package require editmulti
 package require editstrip
+package require editGammaDeluxe
 package require guiutilities
 package require Iwidgets
 package require guihelp
@@ -72,7 +74,7 @@ snit::widget spectrumGui {
         $self configurelist $args
 
         set spectrumType $emptyString
-        array set spectrumTypeNames [list 1 1-d 2 2-d g1 {gamma 1-d} g2 {gamma 2-d} s Summary b bitmask S {Strip Chart}]
+        array set spectrumTypeNames [list 1 1-d 2 2-d g1 {gamma 1-d} g2 {gamma 2-d} gd {Gamma 2-d x/y} s Summary b bitmask S {Strip Chart} m2 {2d Sum Spectrum}]
 
 
         # Top common contents frame:
@@ -86,6 +88,8 @@ snit::widget spectrumGui {
         $typemenu add separator
         $typemenu add command -label {gamma 1-d}   -command [mymethod startMultiparameterSpectrumEditor g1]
         $typemenu add command -label {gamma 2-d}   -command [mymethod startMultiparameterSpectrumEditor g2]
+	$typemenu add command -label {gamma 2-d x/y} -command [mymethod startGamma2dDeluxeEditor]
+	$typemenu add command -label {2-d Sum}     -command [mymethod start2dSumEditor]
         $typemenu add separator
         $typemenu add command -label {Summary}     -command [mymethod startMultiparameterSpectrumEditor s]
         $typemenu add command -label {bitmask}     -command [mymethod start1dEditor b]
@@ -172,6 +176,10 @@ snit::widget spectrumGui {
                 $self start2dEditor
                 $win.editor.contents load $name
             }
+	    gd {
+		$self startGamma2dDeluxeEditor
+	        $win.editor.contents load $name
+	    }
             g1 -
             g2 -
             s {
@@ -182,6 +190,10 @@ snit::widget spectrumGui {
                 $self startStripchartEditor
                 $win.editor.contents load $name
             }
+	    m2 {
+		$self start2dSumEditor
+		$win.editor.contents load $name
+	    }
             default {
             }
         }
@@ -237,6 +249,23 @@ snit::widget spectrumGui {
         set helpTopic [$win.editor.contents getHelpTopic]
 
     }
+    # startGamma2dDeluxeEditor
+    #     Starts the editor for 2d gamma deluxe spectra.  These are gamma
+    #     spectra that have parameters bound to specific axes.
+    #
+    method startGamma2dDeluxeEditor {} {
+	$self setSpectrumType gd
+
+	set browser [$self createBrowser]
+	destroy $win.editor.contents
+
+	editGammaDeluxe $win.editor.contents -browser $browser
+
+	pack $win.editor.contents -fill x -expand 1
+
+	$browser update
+	set helpTopic [$win.editor.contents getHelpTopic]
+    }
     # startMultiparameterSpectrumEditor stype
     #     Starts a spectrum creating editor for
     #     spectra that allow an unbounded number of parameters.
@@ -263,6 +292,29 @@ snit::widget spectrumGui {
         set helpTopic [$win.editor.contents getHelpTopic]
 
     }
+    #  Start2dSumEditor
+    #    Starts a spectrumeditor for the 2-d sum spectra.
+    #
+    method start2dSumEditor {} {
+	$self setSpectrumType m2
+	destroy $win.editor.contents
+
+	# Can't create the browser using createBrowser 'cause we want spectra too
+	# and -restrict is not dynamic.
+	
+	destroy $win.editor.browser
+        browser $win.editor.browser -gatescript [mymethod selectGate] \
+	    -restrict {parameters gates spectra} \
+	    -showcolumns [list type low high bins units] -width 5in
+	edit2dMulti $win.editor.contents -browser $win.editor.browser
+
+	pack $win.editor.browser $win.editor.contents -fill x -expand 1 -side left
+	$win.editor.browser update
+
+	set helpTopic [$win.editor.contents getHelpTopic]
+
+    }
+
     # startStripchartEditor
     #     Starts the stripchart spectrum editor.
     #     This allows users to create stripchart spectra
@@ -349,6 +401,7 @@ snit::widget spectrumGui {
     method dispatchOption {reason} {
         if {$options($reason) != ""} {
             if {[catch {eval $options($reason)} errorMessage]} {
+		# do nothing as the the thrower is supposed to provide an error dialog.
             }
         }
     }
@@ -709,6 +762,7 @@ proc addSpectrum widget {
     set gate [$widget getGate]
     set array [$widget isArray]
 
+
     #  Ensure the definition is complete:
 
     if {($name == "")       || ($type == "") ||
@@ -728,6 +782,26 @@ proc addSpectrum widget {
     #  Duplicate spectrum?
 
     if {!$array} {
+
+	if {$type eq "m2"} {
+	    set multiparams $parameters
+	    set parameters [list]
+	    foreach pair $multiparams {
+		set x [lindex $pair 0]
+		set y [lindex $pair 1]
+
+		# If there are incomplete coordinate pairs complain and exit
+		if {($x eq "") || ($y eq "")}  {
+		    tk_messageBox -icon error -title {Unbalanced parameters} \
+			-message {2-d sum spectra must have the same number of x and y parameters}
+		    error incomplete
+		}
+		#  Unwrap the pair into the flat paramter list.
+		lappend parameters $x
+		lappend parameters $y
+	    }
+	}
+
         set info [spectrum -list $name]
         if {$info != ""} {
             set keep [tk_dialog .duplicate {Spectrum Exists} \
@@ -740,6 +814,9 @@ proc addSpectrum widget {
         }
         # Make the new spectrum.
 	
+	# Special case code for m2 spectra.. which have parameters in some
+	# funny way:
+
 
         set stat [catch {spectrum $name $type $parameters $axes} msg]
 	if {$stat} {
@@ -1166,7 +1243,13 @@ proc readSpectrumFile {} {
                 set fd $msg
 
                 while {![eof $fd]} {
-                    catch {eval sread -format ascii $switches $fd}
+                    if {[catch {eval sread -format ascii $switches $fd} msg]} {
+			if {![eof $fd]} {
+			    tk_messageBox -icon error -title "Spectrum file read failed"  \
+				-message "Failed to read a spectrum from $file: $msg"
+			    break
+			}
+		    }
                 }
             }
         }

@@ -440,20 +440,20 @@ void Xamine_SetSelectedFlip(int onoff)
 */
 void Xamine_SetSelectedReduction(reduction_mode mode)
 {
-  const char *new_mode;
+  char *new_mode;
 
   switch(mode) {
   case sampled:
-    new_mode = "Sampled";
+    new_mode = const_cast<char*>("Sampled");
     break;
   case summed:
-    new_mode = "Summed";
+    new_mode = const_cast<char*>("Summed");
     break;
   case averaged:
-    new_mode = "Averaged";
+    new_mode = const_cast<char*>("Averaged");
     break;
   default:
-    new_mode = "Ill Defined[216z";
+    new_mode = const_cast<char*>("Ill Defined");
     break;
   }
   fprintf(stderr, "Setting selected reduction mode to %s\n", new_mode);

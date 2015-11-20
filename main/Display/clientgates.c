@@ -1,4 +1,21 @@
 /*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2005.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Author:
+             Ron Fox
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
+*/
+
+
+/*
 ** Facility:
 **   Xamine  - NSCL Display program (client library).
 ** Abstract:
@@ -39,6 +56,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/un.h>
+#include <tcl.h>
 
 #include "clientgates.h"
 
@@ -944,15 +962,104 @@ int f77xamine_enterpeakmarker_(int* nSpectrum,
   free(szNameString);
   return i;
 }
+/*!
+   Enter a  fit line  for a spectrum.
+   \param nSpectrum : int
+       Spectrum slot number in Xamine's description list.
+   \param nId : int
+       Unique 'gate' id for the fitline...this is used to identify the
+       object when deleting or iterating.
+   \param szName : char*
+       Name to give to the fitline.
+   \param low, high : int
+       Channel limits between which the fitline will be drawn.
+   \param szEvalScript : char*
+       Script that defines a proc named 'fitline' that when given a channel
+       int [low, high] as a parameter will evaluate to the height of the line at 
+       that position.
+   \return int
+   \retval Success - Fitline entered.
+   \retval NoProcess - Xamine is not running.
+   \retval CheckErrno - Something happened when entering the gate that is described
+                        in the errno global variable.
+   \retval FitlineOverflow - The fitline sript could not fit into the 
+                             storage available for it in the structure transmitted
+			     to Xamine
+   \retval FitlineEvalError - The trial evaluation of the fitline failed for
+                              at least one point.
+*/
+int
+Xamine_EnterFitline(int nSpectrum, int nId, char* szName,
+		    int low, int high, char* szEvalScript)
+{
+  struct msg_command   cmd =  {EnterFitline};       /* The command */
+  msg_fitline          fitline; 	            /* The data record  */
+  struct msg_enterack  eack;	                    /* Xamine response buffer. */
+  Tcl_Interp*          interp;
+  int                  x;
 
+  /* first format the request, but return an error if the script won't fit
+     in the fitline message.
+  */
+ 
+  fitline.nSpectrum   = nSpectrum;
+  fitline.nId         = nId;
+  fitline.nHasName    = TRUE;
+  if (strlen(szName) < sizeof(grobj_name)) {
+    strcpy (fitline.szName, szName);
+  }
+  else {
+    return NameOverflow;	/* Grobj name won't fit!!! don't overwite. */
+  }
+  fitline.low         = low;
+  fitline.high        = high;
+  if (strlen(szEvalScript) < sizeof(FitProc)) {
+    strcpy(fitline.tclProc, szEvalScript);
+  }
+  else {
+    return FitlineOverflow;
+  }
+  /*  Now we evaluate the fitline at all points between [low, and high]
+      to ensure it will actually work.  We're not interested in the result,
+      only that the status of the eval is TCL_OK.
+  */
+  interp = Tcl_CreateInterp();
+  Tcl_GlobalEval(interp, fitline.tclProc); /* Define the fitline proc. */
+  for (x = fitline.low; x <= fitline.high; x++) {
+    char script[100];
+    int  status;
+    sprintf(script, "fitline %d", x);
+    status = Tcl_GlobalEval(interp, script);
+    if (status != TCL_OK) {
+      Tcl_DeleteInterp(interp);
+      return FitlineEvalError;
+    }
+  }
 
+  Tcl_DeleteInterp(interp);
 
+  /* Now we're ready to start interacting with Xamine to enter the
+     fitline... stilll plenty that can go wrong though. 
+  */
 
+  if (!Xamine_Alive()) {
+    return NoProcess;
+  }
+  /* Send the operation: */
 
+  if(WritePipe(requests, &cmd, sizeof(struct msg_command)) < 0) {
+    return CheckErrno;
+  }
+  /* Send the data packet */
 
+  if (WritePipe(requests, &fitline, sizeof(fitline)) < 0) {
+    return CheckErrno;
+  }
+  /* Get the status from Xamine:    */
 
+  if (ReadPipe(acks, -1, &eack, sizeof(struct msg_enterack)) < 0) {
+    return CheckErrno;
+  }
+  return eack.status;
 
-
-
-
-
+}

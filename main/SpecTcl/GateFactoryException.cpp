@@ -316,7 +316,7 @@ static const char* ReasonTexts[] =  {
 
 const char**  CGateFactoryException::m_svReasonTexts = ReasonTexts;
 
-static const char* GateTypeStrings[] = {
+const static char* GateTypeStrings[] = {
   "And ",
   "Band ",
   "Band-Contour ",

@@ -18,91 +18,6 @@
 static const char* Copyright = "(C) Copyright Michigan State University 2008, All rights reserved";
 // Class: CTclGrammerApp
 
-/*
-  Change Log:
-  $Log$
-  Revision 5.4.2.2  2007/04/02 15:56:21  ron-fox
-  Final commit prior to distro build for APril 2007 shutdown.
-
-  Revision 5.4.2.1  2006/10/10 15:24:56  ron-fox
-  BZ219 - Added printout of VERSION file to tkcon on startup.,
-
-  Revision 5.4  2006/04/24 15:49:15  ron-fox
-  Added a bunch of credits to the SpecTcl signon message.
-
-  Revision 5.3  2005/06/22 18:50:53  ron-fox
-  Add support for projections.
-
-  Revision 5.2  2005/06/03 15:19:28  ron-fox
-  Part of breaking off /merging branch to start 3.1 development
-
-  Revision 5.1.2.4  2005/05/27 17:47:38  ron-fox
-  Re-do of Gamma gates also merged with Tim's prior changes with respect to
-  glob patterns.  Gamma gates:
-  - Now have true/false values and can therefore be applied to spectra or
-    take part in compound gates.
-  - Folds are added (fold command); and these perform the prior function
-      of gamma gates.
-
-  Revision 5.1.2.3  2005/04/16 20:09:47  ron-fox
-  Add treeparameter initialization.
-
-  Revision 5.1.2.2  2005/03/15 17:28:52  ron-fox
-  Add SpecTcl Application programming interface and make use of it
-  in spots.
-
-  Revision 5.1.2.1  2004/12/15 17:24:09  ron-fox
-  - Port to gcc/g++ 3.x
-  - Recast swrite/sread in terms of tcl[io]stream rather than
-    the kludgy thing I had done of decoding the channel fd.
-    This is both necessary due to g++ 3.x's runtime and
-    nicer too!.
-
-  Revision 5.1  2004/11/29 16:56:12  ron-fox
-  Begin port to 3.x compilers calling this 3.0
-
-  Revision 4.16.4.2  2004/09/24 11:43:18  ron-fox
-  - Add member function to get the multitestsource so the user program
-    can add other sources, select different sources than the default etc.
-  - Correct a defect in SetupTestDataSource.. it had created a local
-    m_pMultiTestSource that hid the member data and therefore prevented
-    it from being fetched or used.
-
-  Revision 4.16.4.1  2004/04/12 16:37:32  ron-fox
-  - Use etc for etc stuff with link named Etc rather than the other way around.
-  - Extract all Makefile definitions into separate include files so the user makefile
-    becomes less variable with time.
-
-  Revision 4.16  2003/11/07 22:10:34  ron-fox
-  Remove attempts to include sysinfo.h
-
-  Revision 4.15  2003/08/27 15:45:31  ron-fox
-  - Converted comments to Doxygen
-  - Create the sink pipeline in TclGrammerApp.cpp rather than relying on
-    global construction /initialization to get it done when we want it.
-    (removed frmo Globals.cpp).
-
-  Revision 4.14  2003/08/25 16:25:32  ron-fox
-  Initial starting point for merge with filtering -- this probably does not
-  generate a goo spectcl build.
-
-  Revision 4.13  2003/08/25 16:11:01  ron-fox
-  Get consistent merge with kanayo's development stuff
-
-  Revision 4.12  2003/07/18 15:05:33  kanayo
-  Continuing modifications for event filtering.
-
-  Revision 4.11  2003/07/03 21:24:05  kanayo
-  Continuing modifications for event filtering.
-
-  Revision 4.10  2003/04/16 19:01:44  kanayo
-  Modification for home directory (~) expansion using $HOME.
-
-  Revision 4.9  2003/04/02 18:50:09  ron-fox
-  Uncomment registration of filter command
-
-*/
-
 ////////////////////////// FILE_NAME.cpp /////////////////////////////////////////////////////
 
 #include <config.h>
@@ -140,9 +55,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CTreeParameter.h>
 #include <CTreeVariable.h>
 #include "CFoldCommand.h"
+#include "CFitCommand.h"
 
 #include <CProjectionCommand.h>
-
+#include "IntegrateCommand.h"
 
 #include <histotypes.h>
 #include <buftypes.h>
@@ -172,7 +88,6 @@ void cygwin_conv_to_full_win32_path(const char *path, char *win32_path);
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
-
 
 // TCL Script to print the program version.
 
@@ -215,7 +130,7 @@ CTclGrammerApp::CTclGrammerApp() :
   m_pSpectrumPackage(0),
   m_pDataSourcePackage(0),
   m_pGatePackage(0),
-  m_RCFile(string("tcl_rcFielname"),            kfFALSE),
+  m_RCFile(string("tcl_rcFilename"),            kfFALSE),
   m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
   m_TclParameterCount(string("ParameterCount"), kfFALSE),
   m_TclEventListSize(string("EventListSize"),   kfFALSE),
@@ -604,7 +519,15 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
 
   CProjectionCommand* pProjection = new CProjectionCommand(rInterp);
 
+
   cerr << "project command (c) 2005 NSCL Written by Ron Fox\n";
+
+  CFitCommand *Fit  = new CFitCommand(rInterp);
+  cerr << "fit command (c) 2006 NSCL Written by Ron Fox\n";
+
+  CIntegrateCommand* pIntegrate = new CIntegrateCommand(rInterp);
+  
+  cerr << "integrate command (c) 2007 Written by Ron Fox\n";
 
   cerr.flush();
 }
@@ -743,6 +666,12 @@ int CTclGrammerApp::operator()() {
   cerr << "                  Marty Backe, Michael McLennan, Chad Smith, and Brent B. Welch\n";
   cerr << "    - Tcl/Tk originally by John K. Ousterhout embellished and extended by the Tcl Core Team\n";
   cerr << "    - Daniel Bazin for the concept of TreeParameter and its original GUI\n";
+  cerr << "    - Leilehau Maly and Tony Denault of the NASA IRTF Telescope\n";
+  cerr << "      for the  gaussian fit harnesses to the gsl: fitgsl.{c,h}\n";
+  cerr << "    - Emmanuel Frecon Swedish Institute of Computer Science for the splash package\n";
+  cerr << "    - Kevin Carnes James R. Macdonald Laboratory Kansas State University\n";
+  cerr << "      for many good functionality suggestions and for catching some of my stupidities\n";
+  cerr << "    - Dirk Weisshaar NSCL for many suggestions for performance and functional improvements\n";
   cerr << " If your name should be on this list and is not, my apologies, please contact\n";
   cerr << "   fox@nscl.msu.edu and let me know what your contribution was and I will add you to\n";
   cerr << "   the list of credits.\n";

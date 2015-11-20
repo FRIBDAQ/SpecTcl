@@ -460,15 +460,16 @@ XMPushButton *XMPulldown::AddMenuButton(const char *n,
 	    );
     exit(-1);
   }
-  menu_items[menu_count].item = pb = new XMPushButton(n,
-						      *this,
-						      callback,
-						      client_data);
+  pb = new XMPushButton(const_cast<char*>(n),
+			*this,
+			callback,
+			client_data);
   if(pb == NULL) {
     fprintf(stderr,
 	    "Error in XMPulldown::AddmenuButton - unable to new pushbutton\n");
     exit(-1);
   }
+  menu_items[menu_count].item = pb;
   /*  Set the item list properties: */
 
   for(int i = 0; i < num_args; i++) {
@@ -501,7 +502,7 @@ XMPushButton *XMPulldown::AddMenuButton(const char *n,
 ** Returns:
 **    Pointer to toggle button widget object.
 */
-XMToggleButton *XMPulldown::AddMenuToggleButton(const char *n, 
+XMToggleButton *XMPulldown::AddMenuToggleButton(char *n, 
 						void (*callback)(XMWidget *,
 								 XtPointer,
 								 XtPointer),
@@ -614,14 +615,15 @@ XMPulldown *XMPulldown::AddSubmenu(const char *n, int size, ArgList l, Cardinal 
   }
   /*  Generate the new pulldown: */
 
-  menu_items[menu_count].item = pd = 
-                                new XMPulldown(n, *this, size, l, num_args);
+  pd  =  new XMPulldown(const_cast<char*>(n), *this, size, l, num_args);
+  
   if(pd == NULL) {
     fprintf(stderr,
 	    "Error in XMPulldown::AddSubmenu - new XMPulldown failed\n");
     exit(-1);
 
   }
+  menu_items[menu_count].item = pd;
   /* Set type, increment the size and return the pulldown */
 
   menu_items[menu_count].type = Submenu;
@@ -642,7 +644,7 @@ XMPulldown *XMPulldown::AddSubmenu(const char *n, int size, ArgList l, Cardinal 
 ** Returns:
 **   Pointer to the entry located or
 */
-XMMenuItem *XMPulldown::FindMenuItem(const char *n)
+XMMenuItem *XMPulldown::FindMenuItem(char *n)
 {
   XMMenuItem *here, *found;
 
@@ -790,7 +792,7 @@ XMMenuBar::~XMMenuBar()
 **   with menu entries.
 **/
 
-XMPulldown *XMMenuBar::AddPulldown(const char *n, int max_items,
+XMPulldown *XMMenuBar::AddPulldown(char *n, int max_items,
 				   ArgList l, Cardinal num_args)
 {
   XMPulldown *pd;
@@ -836,7 +838,7 @@ XMPulldown *XMMenuBar::AddPulldown(const char *n, int max_items,
 **   Pointer to the pulldown object created.
 **  
 */
-XMPulldown *XMMenuBar::AddHelpPulldown(const char *n, int max_items,
+XMPulldown *XMMenuBar::AddHelpPulldown(char *n, int max_items,
 				       ArgList l, Cardinal num_args)
 {
   if(help_pulldown) {		/* Attempting second help menu */
@@ -865,7 +867,7 @@ XMPulldown *XMMenuBar::AddHelpPulldown(const char *n, int max_items,
 ** Returns:
 **    Pointer to the pulldown or NULL if there is no match.
 */
-XMPulldown *XMMenuBar::GetPulldown(const char *n)
+XMPulldown *XMMenuBar::GetPulldown(char *n)
 {
   for(int i = 0; i < menu_count; i++) {
     if(strcmp(menu_items[i]->getname(), n) == 0) 
@@ -886,7 +888,7 @@ XMPulldown *XMMenuBar::GetPulldown(const char *n)
 **    there is no match in the menu hierarchy.
 **/
 
-XMMenuItem *XMMenuBar::GetMenuItem(const char *n)
+XMMenuItem *XMMenuBar::GetMenuItem(char *n)
 {
   XMMenuItem *theone;
 
@@ -926,14 +928,14 @@ XMPulldown *XMMenuBar::GetNextPulldown()
 ** make Xamine build on Tru64.
 */
 
-XMPulldown::XMPulldown(const char *n, Widget &parent, Cardinal max_items,
+XMPulldown::XMPulldown(char *n, Widget &parent, Cardinal max_items,
 		       ArgList l, Cardinal num_args) :
   XMManagedWidget(n)
 {
   BuildMenu(max_items, parent, l, num_args);
 }
 
-XMPulldown::XMPulldown(const char *n, XMWidget &parent, Cardinal max_items,
+XMPulldown::XMPulldown(char *n, XMWidget &parent, Cardinal max_items,
 		       ArgList l, Cardinal num_args) :
   XMManagedWidget(n)
 {
@@ -944,7 +946,7 @@ XMPulldown::XMPulldown(const char *n, XMWidget &parent, Cardinal max_items,
 void
 XMPulldown::Label(const char *label) 
 {
-  pd_button->Label(label); 
+  pd_button->Label(const_cast<char*>(label)); 
 }
 
 void
@@ -1008,14 +1010,14 @@ XMPulldown::GetFirstMenuItem()
 ** Implementation of XMMenuBar functions not previously implemented
 */
 
-XMMenuBar::XMMenuBar(const char *n, Widget parent, Cardinal num_menus,
+XMMenuBar::XMMenuBar(char *n, Widget parent, Cardinal num_menus,
 		     ArgList l, Cardinal num_args) :
   XMManagedWidget(n)
 {
   mbCreate(parent, num_menus, l, num_args);
 }
 
-XMMenuBar::XMMenuBar(const char *n, XMWidget &parent, Cardinal num_menus,
+XMMenuBar::XMMenuBar(char *n, XMWidget &parent, Cardinal num_menus,
 		     ArgList l, Cardinal num_args) :
   XMManagedWidget(n)
 {

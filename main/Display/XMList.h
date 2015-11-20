@@ -355,13 +355,13 @@ class XMListBaseClass : public XMWidget {
 
   /*  Behavior that is actually convenience functions for list widget: */
 
-  void AddItem(const char *item, int position = 0);
+  void AddItem(char *item, int position = 0);
   void ClearItems();
-  void DeleteItem(const char *item);
+  void DeleteItem(char *item);
   void DeleteItem(int loc = 0);
   void DeleteItems(int loc, int count = 1);
   void DeselectAll();
-  void DeselectItem(const char *item);
+  void DeselectItem(char *item);
   void DeselectItem(int pos = 0);
   void SetBottomItem(int position = 0);
   void SelectItem(int pos = 0);

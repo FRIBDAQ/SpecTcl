@@ -433,7 +433,7 @@ CFoldCommand::isGammaSpectrum(CSpectrum* pSpectrum)
 {
 
   SpectrumType_t  t = pSpectrum->getSpectrumType();
-  return ((t == keG1D) || (t == keG2D));
+  return ((t == keG1D) || (t == keG2D) || (t == keG2DD));
   
 
 }

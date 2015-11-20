@@ -24,6 +24,7 @@ install-exec-local:
 	$(mkinstalldirs) $(DOCDEST)/tailoring/images/_vti_cnf
 	$(mkinstalldirs) $(DOCDEST)/tailoring/samplecode
 	$(mkinstalldirs) $(DOCDEST)/Programming
+	$(mkinstalldirs) $(DOCDEST)/Plugins
 	$(INSTALL_PROGRAM) $(DOCDIR)/*.* $(DOCDEST)
 	$(INSTALL_PROGRAM) $(DOCDIR)/Programming/*.* $(DOCDEST)/Programming
 	$(INSTALL_PROGRAM) $(DOCDIR)/Commands/*.* $(DOCDEST)/Commands
@@ -44,10 +45,12 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/images/*.* $(DOCDEST)/tailoring/images
 	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/images/_vti_cnf/*.* $(DOCDEST)/tailoring/images/_vti_cnf
 	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/samplecode/*.* $(DOCDEST)/tailoring/samplecode
+	$(INSTALL_PROGRAM) $(DOCDIR)/Plugins/*.* $(DOCDEST)/Plugins
 
 EXTRA_DIST = parameters.htm HH00706_.jpg programmers_guide.htm gates.htm \
 	scripts.htm general_information.htm spectra.htm index.htm users_guide.htm \
-	nscl_logo_small.gif obtaining_and_installing.htm \
+	nscl_logo_small.gif obtaining_and_installing.htm  \
+	whatsnew.htm whatsnew.3.1.htm whatsnew3.2.htm            \
 	Commands/aplist.htm Commands/apply.htm Commands/fold.htm \
 	Commands/project.htm \
 	Commands/attach.htm \
@@ -56,8 +59,11 @@ EXTRA_DIST = parameters.htm HH00706_.jpg programmers_guide.htm gates.htm \
 	Commands/gatelist.htm Commands/loadall.htm Commands/more.htm \
 	Commands/parameter.htm Commands/parlist.htm Commands/pseudo.htm \
 	Commands/saveall.htm Commands/speclist.htm Commands/spectrum.htm \
+	Commands/treevariable.htm Commands/treeparameter.htm \
 	Commands/sread.htm Commands/start.htm Commands/stop.htm Commands/swrite.htm \
 	Commands/tape.htm Commands/unbind.htm Commands/ungate.htm \
+	Commands/fit.htm \
+	Commands/integrate.htm \
 	Commands/_vti_cnf/aplist.htm Commands/_vti_cnf/apply.htm \
 	Commands/_vti_cnf/attach.htm Commands/_vti_cnf/bind.htm \
 	Commands/_vti_cnf/categories.htm Commands/_vti_cnf/channel.htm \
@@ -117,4 +123,6 @@ EXTRA_DIST = parameters.htm HH00706_.jpg programmers_guide.htm gates.htm \
 	Programming/CTracedVariable.htm Programming/CVarialbeTraceCallback.htm \
 	Programming/TracingIntro.htm   Programming/filterread.htm \
 	Programming/scalerinfo.htm Programming/manindex.htm \
-	Programming/spectclapi.htm Programming/varrecovery.htm
+	Programming/spectclapi.htm Programming/varrecovery.htm \
+	Programming/fits.htm Programming/xaminebuttons.htm \
+	Plugins/writing.htm

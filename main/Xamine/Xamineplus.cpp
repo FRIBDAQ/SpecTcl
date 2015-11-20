@@ -52,10 +52,10 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include "XamineSpectrumPrompt.h"
 
 #include "Point.h"
-
 extern "C" {
 #include <Xamine.h>
 #include <clientgates.h>
+
 }
 
 #include <errno.h>
@@ -72,7 +72,7 @@ using namespace std;
 extern "C" {
   Xamine_shared* Xamine_memory;	   // Pointer to shared memory.
 }
-extern  int            Xamine_newgates;  // fd for events. 
+extern   int            Xamine_newgates;  // fd for events. 
 
 
 //
@@ -299,6 +299,9 @@ CXamine::RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType)
   case kgBand2d:
     GateType = Xamine_band;
     break;
+  case kgFitline:
+    GateType = fitline;
+    break;
   default:			// range error from kgCut1d ... kgBand2d
     throw CRangeError(kgCut1d, kgBand2d, eType,
 		      "Xamine::RemoveGate -- Mapping gate types");
@@ -522,8 +525,7 @@ CXamine::DefineSpectrum(CXamineSpectrum& rSpectrum)
 			const_cast<char*>(Xmap.getUnits().c_str()));
       }
       else {
-	Xamine_SetMap1d(nSpectrum, 0.0, 0.0, 
-			const_cast<char*>(""));
+	Xamine_SetMap1d(nSpectrum, 0.0, 0.0, const_cast<char*>(""));
       }
       CXamine1D result(m_pDisplay, nSpectrum-1);
       *p1d  = result;

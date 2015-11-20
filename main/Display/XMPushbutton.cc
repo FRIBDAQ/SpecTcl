@@ -1,20 +1,3 @@
-/*
-    This software is Copyright by the Board of Trustees of Michigan
-    State University (c) Copyright 2008
-
-    You may use this software under the terms of the GNU public license
-    (GPL).  The terms of this license are described at:
-
-     http://www.gnu.org/licenses/gpl.txt
-
-     Author:
-             Ron Fox
-	     NSCL
-	     Michigan State University
-	     East Lansing, MI 48824-1321
-*/
-
-
 #include <config.h>
 #include "XMPushbutton.h"
 
@@ -48,7 +31,7 @@ XMButton::Label(XmString label)
 }
 
 void
-XMButton::Label(const char* label)
+XMButton::Label(const String label)
 {
   XmString s;
   s = XmStringCreateLtoR(const_cast<char*>(label), 
@@ -66,7 +49,7 @@ XMButton::SetMnemonic(KeySym k)
 void
 XMButton::SetAccelerator(const char *translation, const char *prompt)
 {
-  XmString acctext = XmStringCreateSimple(const_cast<char*>(prompt));
+  XmString acctext = XmStringCreateSimple( const_cast<char*>(prompt));
   XtVaSetValues(id,
 		XmNaccelerator, translation,
 		XmNacceleratorText, acctext,
@@ -301,7 +284,7 @@ XMArrowButton::Label(XmString label)
 {}
 
 void
-XMArrowButton::Label(const char* label)
+XMArrowButton::Label(const String label)
 {}
 
 void

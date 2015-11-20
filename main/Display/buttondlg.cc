@@ -326,7 +326,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 **     Cardinal row, col:
 **        Number of rows and columns to create for the shell.
 */
-ButtonBox::ButtonBox(XMWidget *parent, const char* name, Cardinal row, Cardinal col)
+ButtonBox::ButtonBox(XMWidget *parent, String name, Cardinal row, Cardinal col)
 {
 
   /* First the easy stuff... save the number of rows and columns

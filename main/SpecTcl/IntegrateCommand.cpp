@@ -32,14 +32,13 @@
 
 using namespace std;
 
+// this is in publib but nowadays its header can conflict with string:
 
-static void swapdbl(double& d1, double& d2)
+static inline void dblswap(double &d1, double& d2)
 {
-  double tmp;
-  tmp = d1;
-  d1  = d2;
-  d2  = tmp;
-  
+  double t = d1;
+  d1       = d2;
+  d2       = d1;
 }
 
 static const double fwhmgamma(2.354); // sigma*fwhmgamma = fwhm for gaussians.
@@ -407,7 +406,7 @@ CIntegrateCommand::limitsFromList(CTCLInterpreter&  interp,
     double low = list[0];
     double hi  = list[1];
 
-    if (low > hi) swapdbl(hi, low);
+    if (low > hi) dblswap(hi, low);
 
     // Fill result now:
 
@@ -654,13 +653,9 @@ public:
               ((float)m_xTop - (float)m_xBottom);
   }
 
-  // Use the point slope form to locate the x position of
-  // a point on the edge specifically:
-  // y-y0 = m(x-x0) => x = (y-y0)/m + x0 Arbitrarily use m_xTop,m_yTop as x0/y0.
-
   virtual void addEdgePoint(vector<int>& existingPoints, int height) {
     if ((height >= m_yBottom) && (height <= m_yTop)) {
-      int point = (int)(m_xTop + (height - m_yTop)/m_slope);
+      int point = (int)(m_xBottom + m_slope*(height - m_xBottom));
       existingPoints.push_back(point);
     }
   }

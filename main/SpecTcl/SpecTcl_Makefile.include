@@ -38,6 +38,8 @@ LDFLAGS=-L$(SPECLIBS) -lTclGrammerCommands \
 	-lFilter      \
 	-lBufferAnalysis \
 	-lTreeParam \
+	-lFits		\
+	-lgsl -lgslcblas	\
 	$(TCLLIBS)    \
 	$(X11LIBS)    \
 	-Wl,"-rpath=$(SPECLIBS)"

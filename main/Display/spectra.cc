@@ -290,7 +290,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** SCCS information:
 **    @(#)spectra.cc	8.1 6/23/95 
 */
-static const  char *version="@(#)spectra.cc	8.1 6/23/95 ";
+static const char *version="@(#)spectra.cc	8.1 6/23/95 ";
 /*
 ** Include files:
 */

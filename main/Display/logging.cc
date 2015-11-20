@@ -355,7 +355,7 @@ static void stamp(char *ts)
 ** Returns:
 **    Number of characters written or -1 for failure.
 */
-int LogFile::LogMessage(const char *text)
+int LogFile::LogMessage(char *text)
 {
   FILE *fp;
   int  bytes = 0;
@@ -407,7 +407,7 @@ int LogFile::LogMessage(const char *text)
 ** Returns:
 **     Number of bytes written or -1 if error with errno showing why.
 */
-int LogFile::ContinueMessage(const char *txt)
+int LogFile::ContinueMessage(char *txt)
 {
   FILE *fp;
 
@@ -431,7 +431,7 @@ int LogFile::ContinueMessage(const char *txt)
 ** of the log file.  In particular the log file name.  This is prompted
 ** for using a Prompt dialog.
 */
-static const  char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog is prompting you for the name of a new log file.  If the\n",
   "file specified already exists, it will be renamed to to it's old name \n",
   "followed by _SAVED.  A new empty log file will be created.\n",
@@ -447,7 +447,9 @@ static const  char *help_text[] = {
   NULL
   };
 
-static Xamine_help_client_data help = {"Log_file_help", NULL, help_text};
+static Xamine_help_client_data help = {const_cast<char*>("Log_file_help"),
+				       NULL, 
+				       const_cast<char**>(help_text) };
 static XMPromptDialog *dialog = NULL;
 
 
@@ -525,7 +527,8 @@ static void ActionCallback(XMWidget *w, XtPointer user, XtPointer call)
 void Xamine_SetupLogFile(XMWidget *w, XtPointer Userd, XtPointer clientd)
 {
   if(dialog == NULL) {
-    dialog = new XMPromptDialog("LogfilePrompt", *w, "Log File Name:",
+    dialog = new XMPromptDialog(const_cast<char*>("LogfilePrompt"), *w, 
+				const_cast<char*>("Log File Name:"),
 				ActionCallback);
     dialog->GetApplyButton()->UnManage(); /* Don't use apply button. */
     dialog->AddCancelCallback(ActionCallback);

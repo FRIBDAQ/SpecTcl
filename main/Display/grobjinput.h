@@ -335,7 +335,7 @@ class ObjectInput : public GraphicalInput {
 
   /* Manipulators of the text field:  */
 
-  void SetText(const char *text) { name_prompt->SetText(text); }
+  void SetText(char *text) { name_prompt->SetText(text); }
   char *GetText()          { return name_prompt->GetText(); }
 
   /* Management:                      */

@@ -22,6 +22,7 @@ package provide SpecTclGui 1.0
 
 lappend auto_path [file dirname [info script]]
 
+package require snit
 package require browser
 package require pseudo
 package require gate
@@ -34,14 +35,198 @@ package require guistate
 package require applygate
 package require datasource
 package require filtercontrol
+package require preferences
 
 set LargestSource 50
 
 
+#-------------- Global defaults for preferences ------------
+
+# GuiPrefs::preferences is an array that contains
+# the user preferences.  These can be modified
+# by the user's ~/.SpecTcl file at startup time
+# and by the user via Edit->Preferences...
+#
+
+namespace eval GuiPrefs {
+    variable preferences
+}
+
+#   Default x/y channels in a 2-d.
+#
+
+set GuiPrefs::preferences(defaultXChannels)   1024
+set GuiPrefs::preferences(defaultYChannels)   1024
+set GuiPrefs::preferences(defaultDaqRoot)    /usr/opt/daq/current
+set GuiPrefs::preferences(defaultBuffersize)  8192
+
+
+
+
 #--------------- Utility functions -------------------------
 
+# displayScriptErrors filename errors
+#   Displays the errors associated with sourcing a file.
+#   The errors are displayed in a non-modal dialog named
+#   .scriptErrors
+#   Any existing dialog named .scriptErrors is destroyed first.
+#
+# Parameters:
+#    filename   - Name of the file.
+#    errors     - list of errors.  See incrementalSource
+#                 for a description of this parameter..which is just
+#                 the value returned from that function.
+#
+
+proc displayScriptErrors {filename errors} {
+    destroy .scriptErrors
+
+    set top [toplevel .scriptErrors]
+    label  $top.filename -text "$filename had errors: "
+    grid   $top.filename   -     -
+    label  $top.lineHead -text "Line #"
+    label  $top.commandHead  -text "Command"
+    label  $top.errorHead    -text "Error"
+
+    grid $top.lineHead $top.commandHead $top.errorHead
+
+    set errNumber 0
+    foreach error $errors {
+
+
+	set line    [lindex $error 0]
+	set cmd     [lindex $error 1]
+	set message [lindex $error 2]
+
+	label $top.line$errNumber  -text $line  \
+	    -borderwidth 2 -relief groove -justify left
+	label $top.cmd$errNumber   -text $cmd \
+	    -borderwidth 2 -relief groove -justify left
+	label $top.msg$errNumber   -text $message   \
+	    -borderwidth 2 -relief groove -justify left
+
+	grid $top.line$errNumber $top.cmd$errNumber $top.msg$errNumber \
+	    -sticky nsew
+
+	incr errNumber
+    }
+
+    button $top.dismiss -text Dismiss -command [list destroy .scriptErrors]
+   grid   x   $top.dismiss     x
+
+
+}
+# getLine fd
+#     Returns a full line from a file.  This proc deals with lines ending in 
+#     \ as indicating a continuation line.
+#
+#
+proc getLine fd {
+    set line ""
+    set lines 0
+
+    while {![eof $fd]} {
+	gets $fd fragment
+	incr lines
+	if {[regexp {\\$} $fragment]} {
+	    append line [regsub {\\$} $fragment " "]
+	} else {
+	    append line $fragment
+	    return [list $line $lines]
+	}
+    }
+    return [list $line $lines]
+}
+
+
+# incrementalSource file
+#    Executes a Tcl script a command at a time.
+#    If an error occurs, it is caught and appended to a list
+#    of error messages that is returned to the caller.
+#    Each error message list entry is a 3 element list consisting
+#    of:
+#      Line number of start of error.
+#      offending command
+#      error message.
+#
+# Parameters:
+#   filename   - The name of the file to source.
+#                it is the caller's responsibility to ensure this is
+#                a readable file.
+#
+proc incrementalSource filename {
+    set fd [open $filename r]
+    set lineNumber 1
+    set errors [list]
+
+    while {![eof $fd]} {
+
+	# Asssemble a command from fragments:
+
+	set firstLine $lineNumber
+	set info        [getLine $fd]
+	incr lineNumber [lindex $info 1]
+	set  command    [lindex $info 0]
+
+	while {![eof $fd] && ![info complete $command]} {
+	    set info [getLine $fd]
+	    set fragment [lindex $info 0]
+
+	    append command $fragment "\n"
+	    incr lineNumber [lindex $info 1]
+	}
+	# If we got here, the command is complete or we've
+	# run out of file.
+
+
+	if {[catch {eval $command} msg]} {
+	    lappend errors [list $firstLine $command $msg]
+	}
+    }
+
+
+    close $fd
+    return $errors
+}
 
 #------------------- menu action procs -------------------------
+
+
+# editPrefs
+#   Edit the user preferences.
+#   We also save the new preferences for the user.
+proc editPrefs {} {
+    preferences::editPrefs
+    preferences::savePrefs
+}
+
+
+# sourceScriptReportingErrors
+#   Prompt for and source tcl/tk script but report
+#   all the errors by incrementally executing it...
+#   The entire script is run, ignoring errors.
+#   At the end, if errors have occured a dialog box
+#   that shows for each error:
+#     The line number at which the command started,
+#     The offending command.
+#     The error message
+#  
+proc sourceScriptReportingErrors {} {
+    set file [tk_getOpenFile -defaultextension .tcl             \
+                             -filetypes [list                   \
+                                    [list "Tcl Scripts"  .tcl]  \
+                                    [list "Tk Scripts"   .tk]   \
+                                    [list "All files"    *]]    \
+                             -title {Select File to Source}]
+    if {[file readable $file]} {
+	set errors [incrementalSource $file]
+	if {$errors ne ""} {
+	    displayScriptErrors $file $errors
+	}
+        .gui.b update;       # In case the script execution changes something.
+        failsafeWrite
+    }
+}
 
 #sourceScript
 #    Prompt for a tcl/tk script to source into the program.
@@ -658,7 +843,7 @@ proc modifyVariable path {
     .editvariable configure -variable $name
 
 }
-# modifyParameter path
+# modifyParameter paths
 #     Called to allow the user to modify a parameter.
 #     A prompter for the parameter properties is created if
 #     necessary and configured to edit the parameter.
@@ -672,6 +857,50 @@ proc modifyParameter path {
     }
     .editparameter configure -parameter [pathToName $path]
 }
+
+#
+#   Determine how many bytes of display memory are in use:
+#
+proc spectrumUsage {} {
+    set multiplier(long)  4
+    set multiplier(word)  2
+    set multiplier(byte)  1
+
+
+    set spectra [spectrum -list]
+    set usage 0
+
+    foreach spectrum $spectra {
+	
+	# Figure out the channel count for the spectrum:
+
+	set axes [lindex $spectrum 4]
+	set dtype [lindex $spectrum 5]
+	set stype [lindex $spectrum 2]
+
+
+	set xChannels [lindex [lindex $axes 0] 2]
+	if {[llength $axes] == 1} {
+	    set channels $xChannels
+	    if {$stype == "s"} {
+		set paramcount [llength [lindex $spectrum 3]]
+		set channels [expr $paramcount * $xChannels]
+	    }
+	} else {
+	    set yChannels [lindex [lindex $axes 1] 2]
+	    set channels [expr $xChannels * $yChannels]
+	}
+
+	# Multiply depending on the size of each channel:
+
+	set bytes [expr $channels * $multiplier($dtype)]
+
+	set usage [expr $usage + $bytes]
+	
+    }
+    return $usage
+
+}
 # updateStatus nms
 #      Maintains the status line in an updated state.
 # Parameters:
@@ -684,6 +913,8 @@ proc updateStatus nms {
     global BuffersAnalyzed
     global LastSequence
     global LargestSource
+    
+
 
     # It's always possible the user destroyed the window so conditionalize
     # the update on the window's existence.
@@ -692,9 +923,17 @@ proc updateStatus nms {
 
         after $nms [list updateStatus $nms];           # Reschedule.
 
-        .gui.statusline1 configure -text \
-            [format "Title %s Run Number: %s" $RunTitle $RunNumber]
 
+	set spectrumMemory [spectrumUsage]
+	set spectrumMemory [expr $spectrumMemory/(1024*1024)]
+	set outOf          ""
+	if {[info globals DisplayMegabytes] ne ""} {
+	    set outOf "/$::DisplayMegabytes"
+	}
+
+			    
+        .gui.statusline1 configure -text \
+            [format "Display memory: %s%s MB   Title %s Run Number: %s" $spectrumMemory $outOf $RunTitle $RunNumber]
         set source  [attach -list]
         if  {$LastSequence > 0} {
             set efficiency [expr 100.0*$BuffersAnalyzed/$LastSequence]
@@ -724,6 +963,8 @@ proc updateStatus nms {
 
 	# format statusline 2.
 
+
+
         .gui.statusline2 configure -text \
             [format "Data Source: %s (%s) %d Buffers Analyzed %.2f%% efficient" $source $state $BuffersAnalyzed $efficiency]
         }
@@ -742,13 +983,15 @@ proc startGui {} {
     .topmenu.filemenu add command -label {Save TreeVariables...} -command writeVariables
     .topmenu.filemenu add command -label {Save Contents of Spectra...} -command saveSeveralSpectra
     .topmenu.filemenu add separator
-    .topmenu.filemenu add command -label Restore... -command "restoreState; .gui.b update; .gui.b update"
+    .topmenu.filemenu add command -label Load... -command "restoreState; .gui.b update; .gui.b update"
     .topmenu.filemenu add command -label {Read Spectrum File...}      -command readSpectrumFile
     .topmenu.filemenu add command -label {Source Tcl Script...} \
                                                 -command sourceScript
     .topmenu.filemenu add separator
     .topmenu.filemenu add command -label Exit... -command exitProgram
 
+    menu .topmenu.edit -tearoff 0
+    .topmenu.edit add command -label Preferences.. -command editPrefs
 
     menu .topmenu.help -tearoff 0
     .topmenu.help add command -label Topics...  -command spectclGuiHelpTopics
@@ -762,6 +1005,9 @@ proc startGui {} {
     .topmenu.source add separator
     .topmenu.source add command -label {List of runs...}        -command attachRunList
     .topmenu.source add command -label {Filter File...}         -command attachFilter
+    .topmenu.source add separator
+    .topmenu.source add command -label {Detach}                 -command detach
+
 
     menu .topmenu.filter -tearoff 0
     .topmenu.filter add command -label {Filter Wizard...}       -command createFilter
@@ -787,6 +1033,7 @@ proc startGui {} {
     .topmenu.gate add command -label Delete...        -command "selectAndDeleteGates; .gui.b update"
 
     .topmenu add cascade -label File -menu .topmenu.filemenu
+    .topmenu add cascade -label Edit -menu .topmenu.edit
     .topmenu add cascade -label Help -menu .topmenu.help
     .topmenu add cascade -label {Data Source} -menu .topmenu.source
     .topmenu add cascade -label {Filters}     -menu .topmenu.filter
@@ -813,11 +1060,13 @@ proc startGui {} {
 
     label .gui.statusline1 -justify left -text {Title:  N/A     Run Number: N/A}
     label .gui.statusline2 -justify left -text {Data Source:  Test (inactive)   0 buffers analyzed  100% efficient}
-    pack .gui.statusline1 -fill x -expand 1 -anchor w
-    pack .gui.statusline2 -fill x -expand 1 -anchor w
+    pack .gui.statusline1 -fill x -expand 0 -anchor w
+    pack .gui.statusline2 -fill x -expand 0 -anchor w
 
 }
 
 set SpecTclIODwellMax 100
 startGui
 updateStatus 1000
+
+preferences::readPrefs

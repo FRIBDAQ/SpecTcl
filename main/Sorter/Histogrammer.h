@@ -46,6 +46,14 @@
 #endif
 #endif
 
+
+#ifndef __STL_LIST
+#include <list>
+#ifndef __STL_LIST
+#define __STL_LIST
+#endif
+#endif
+
 #ifndef __HISTOTYPES_H
 #include <histotypes.h>
 #define __HISTOTYPES_H
@@ -81,27 +89,63 @@
 #define __GATECONTAINER_H
 #endif
 
+// Forward class definitions (probably should be a lot more of these).
+
+class CSpectrumFit;
+class CHistogrammerFitObserver;
+class CFlattenedGateList;
+class CSpectrumByParameter;
+
 // Typedefs for some of instances of templated classes:
 // Dictionary types:
 typedef CDictionary<CParameter>                 ParameterDictionary;
 typedef ParameterDictionary::DictionaryIterator ParameterDictionaryIterator;
+typedef DictionaryObserver<CParameter>          ParameterDictionaryObserver;
 
 typedef CDictionary<CSpectrum*>                 SpectrumDictionary;
 typedef SpectrumDictionary::DictionaryIterator  SpectrumDictionaryIterator;
+typedef DictionaryObserver<CSpectrum*>          SpectrumDictionaryObserver;
 
 typedef CDictionary<CGateContainer>             CGateDictionary;
 typedef CGateDictionary::DictionaryIterator     CGateDictionaryIterator;
+typedef DictionaryObserver<CGateContainer>      GateDictionaryObserver;
+
+/*!
+   Abstract base class for gate observers:
+*/
+class CGateObserver : public GateDictionaryObserver {
+public:
+  virtual void onChange(STD(string) name, CGateContainer& gateContainer) = 0;
+};
+
 
 // Display binding management types:
 typedef STD(vector)<STD(string)>                     DisplayBindings;
 typedef DisplayBindings::iterator               DisplayBindingsIterator;
 
 class CHistogrammer : public CEventSink {
+  typedef STD(pair)<int, STD(string)> BoundFitline;
+  typedef STD(list)<BoundFitline>     FitlineList;
+  typedef STD(vector)<FitlineList>    FitlineBindings;
+
+  typedef STD(list)<CGateObserver*>   GateObserverList;
+
   CXamine*            m_pDisplayer;          // Points to displayer object.
   DisplayBindings     m_DisplayBindings;     // Display id to spectrum name map.
+  FitlineBindings     m_FitlineBindings;     // Fitlines bound to displayer.
   ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
+  CHistogrammerFitObserver* m_pFitObserver; // Monitor for fit changes.
+  GateObserverList   m_gateObservers; 
+
+
+  static int          m_nextFitlineId;       // Next Xamine fitline id.
+
+  // For maintaining the flattened lists.
+
+  CFlattenedGateList*   m_pGateList;
+  CSpectrumByParameter* m_pSpectrumLists;
 
  public:
   // Constructors.
@@ -158,9 +202,7 @@ class CHistogrammer : public CEventSink {
   // Operations on the object:
  public:
   // Analysis evaluation operators:
-  virtual void operator() (const CEvent&     rEvent,
-			   UInt_t nSpectra, CSpectrum** ppSpectra,
-			   UInt_t nGates,   CGateContainer** ppGates) ;
+  virtual void operator() (const CEvent&     rEvent);
   virtual void operator() (CEventList& rEventList);
 
   // Parameter dictionary manipulation:
@@ -191,6 +233,8 @@ class CHistogrammer : public CEventSink {
   SpectrumDictionaryIterator SpectrumBegin();
   SpectrumDictionaryIterator SpectrumEnd();
   UInt_t SpectrumCount();
+  void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+  void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
 
   void UnGate(const STD(string)& rSpectrum); // Remove gate from spectrum
 
@@ -214,6 +258,14 @@ class CHistogrammer : public CEventSink {
   CGateDictionaryIterator GateEnd();
   UInt_t GateCount();
 
+  void addGateObserver(CGateObserver* observer);
+  void removeGateObserver(CGateObserver* observer);
+
+  // Manipulate the set of fits bound to Xamine:
+
+  void addFit(CSpectrumFit& fit);
+  void deleteFit(CSpectrumFit& fit);
+
   // Utility Functions:
  protected:
   CDisplayGate* GateToXamineGate(UInt_t nBindingId, CGateContainer& rGate);
@@ -223,8 +275,12 @@ class CHistogrammer : public CEventSink {
   STD(string) createTrialTitle(STD(string) type, 
 			       STD(vector)<STD(string)>      axes,
 			       STD(vector)<STD(string)>      parameters,
+			       STD(vector)<STD(string)>      yparameters,
 			       STD(string)                   gate);
   STD(string) createTitle(CSpectrum* pSpectrum, UInt_t     maxLength);
+
+  void invokeGateChangedObservers(STD(string) name, CGateContainer& gate);
+  void createListObservers();
 		
 };
 

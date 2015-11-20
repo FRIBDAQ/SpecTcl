@@ -322,7 +322,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Below is the help definition for the dialog
 */
 
-static const  char *help_text[] = {
+static const char *help_text[] = {
   "   This dialog allows you to set the selection advance value.  This is\n",
   "number of panes by which the selection will advance on completing a\n",
   "successful `Display +'.  Type in a numeric value other than zero\n",
@@ -336,7 +336,8 @@ static const  char *help_text[] = {
   "   Help    - Display this help text\n",
   NULL
   };
-static Xamine_help_client_data help =  {"Advance_help", NULL, help_text};
+static Xamine_help_client_data help =  {const_cast<char*>("Advance_help"), NULL, 
+					const_cast<char**>(help_text)};
 
 /*
 ** This is the prompt widget pointer:
@@ -418,7 +419,8 @@ void Xamine_PromptAdvance(XMWidget *w, XtPointer client_data,
   /* If necessary, then create the dialog: */
 
   if(dialog == NULL) {
-    dialog = new XMPromptDialog("Advance", *w, "Enter Advance Value:",
+    dialog = new XMPromptDialog(const_cast<char*>("Advance"), *w, 
+				const_cast<char*>("Enter Advance Value:"),
 				callback_handler);
     dialog->GetHelpButton()->Enable();
     dialog->GetHelpButton()->AddCallback(Xamine_display_help, (XtPointer)&help);

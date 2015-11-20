@@ -1,3 +1,19 @@
+/*
+    This software is Copyright by the Board of Trustees of Michigan
+    State University (c) Copyright 2005.
+
+    You may use this software under the terms of the GNU public license
+    (GPL).  The terms of this license are described at:
+
+     http://www.gnu.org/licenses/gpl.txt
+
+     Author:
+             Ron Fox
+	     NSCL
+	     Michigan State University
+	     East Lansing, MI 48824-1321
+*/
+
 ///////////////////////////////////////////////////////////
 //  SpecTcl.h
 //  Implementation of the Class SpecTcl
@@ -60,6 +76,8 @@
 #include <EventSinkPipeline.h>
 #endif
 
+
+
 // Forward class definitions
 
 class CParameter;
@@ -73,6 +91,10 @@ class CEventSink;
 class CTclAnalyzer;
 class CEventSinkPipeline;
 class CTCLInterpreter;
+
+class CFilterOutputStageCreator;
+class CGatedEventFilter;
+
 
 /*!
   Top level class that provides the user's application programming interface to
@@ -145,6 +167,23 @@ public:
 			    STD(vector)<UInt_t> channels, 
 			    STD(vector)<Float_t>* pLows, 
 			    STD(vector)<Float_t>* pHighs);
+  CSpectrum* CreateSpectrum(STD(string) Name,
+			    SpectrumType_t type,
+			    DataType_t     dataType,
+			    STD(vector)<STD(string)> xParameters,
+			    STD(vector)<STD(string)> yParameters,
+			    STD(vector)<UInt_t>      channels,
+			    STD(vector)<Float_t>*    pLows,
+			    STD(vector)<Float_t>*    pHighs);
+
+  CSpectrum* CreateG2DDeluxe(STD(string) Name,
+			DataType_t     dataType,
+			STD(vector)<STD(string)> xParameters,
+			STD(vector)<STD(string)> yParameters,
+			STD(vector)<UInt_t>      channels,
+			STD(vector)<Float_t>*    pLows,
+			STD(vector)<Float_t>*    pHighs);
+
   CSpectrum* Create1D(STD(string) name, 
 		      DataType_t dataType, 
 		      CParameter& parameter, 
@@ -200,6 +239,26 @@ public:
 			   STD(vector)<CParameter> parameters, 
 			   UInt_t nChannels, Float_t low, Float_t high);
 
+  
+  CSpectrum* CreateGamma2DD(STD(string) name,
+			    DataType_t dataType,
+			    STD(vector)<CParameter> xParameters,
+			    STD(vector)<CParameter> yParameters,
+			    UInt_t xChannels, Float_t xLow, Float_t xHigh,
+			    UInt_t yChannels, Float_t yLow, Float_t yHigh);
+  CSpectrum* Create2DSum(STD(string) name,
+			 DataType_t  dataType,
+			 STD(vector)<CParameter> xParameters,
+			 STD(vector)<CParameter> yParameters,
+			 UInt_t xChans, Float_t xLow, Float_t xHigh,
+			 UInt_t yChans, Float_t yLow, Float_t yHigh);
+  CSpectrum* CreateStripChart(STD(string) name,
+			      DataType_t  dataType,
+			      CParameter  counts,
+			      CParameter  time,
+			      UInt_t      channels, Float_t xLow, Float_t xHigh);
+			 
+
   // Manipulate the spectrum dictionary:
 
   void AddSpectrum(CSpectrum& spectrum);
@@ -209,6 +268,9 @@ public:
   SpectrumDictionaryIterator SpectrumBegin();
   SpectrumDictionaryIterator SpectrumEnd();
   UInt_t SpectrumCount();
+
+  void addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+  void removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
 
   // Misc spectrum utilities:
 
@@ -228,7 +290,6 @@ public:
   CGate* CreateGate(CGateFactory::GateType gateType, 
 		    STD(vector)<STD(string)> rparameters,
 		    long comparison);
-
   CGate* CreateTrueGate();
   CGate* CreateFalseGate();
   CGate* CreateBand(STD(string) xparameter, STD(string) yparameter, 
@@ -262,6 +323,12 @@ public:
   CGateDictionaryIterator GateBegin();
   CGateDictionaryIterator GateEnd();
   UInt_t GateCount();
+
+  void addGateDictionaryObserver(CGateObserver* observer);
+  void removeGateDictionaryObserver(CGateObserver* observer);
+  
+
+
   void ApplyGate(STD(string) gateName, STD(string) spectrumName);
 
   // Manipulating the event processor pipeline.
@@ -295,18 +362,29 @@ public:
   CEventSink* RemoveEventSink(CEventSinkPipeline::EventSinkIterator here);
   UInt_t EventSinkPipelineSize();
   CEventSinkPipeline::EventSinkIterator EventSinkPipelineBegin();
-  CEventSinkPipeline::EventSinkIterator EventSinkPiplineEnd();
+  CEventSinkPipeline::EventSinkIterator EventSinkPipelineEnd();
 
-  CTCLInterpreter*  getInterpreter();
+
+
+  // Filter API:
+
+  void               createFilter(STD(string) name, CGatedEventFilter* pFilter);
+  CGatedEventFilter* findFilter(STD(string) name);
+  bool               filterExists(CGatedEventFilter* pFilter);
+  void               deleteFilter(CGatedEventFilter* pFilter);
+  void               deleteFilter(STD(string) filterName);
+  void               addFilterOutputFormat(CFilterOutputStageCreator& creator);
   
 
-  // Utility functions:
+  // Expose the guts for the really curious and those who need more
+  // than we can offer.
 
-protected:
+  CTCLInterpreter*    getInterpreter();
   CHistogrammer*      GetHistogrammer();
   CTclAnalyzer*       GetAnalyzer();
   CEventSinkPipeline* GetEventSinkPipeline();
   STD(vector)<UInt_t>      parameterIds(STD(vector)<STD(string)> names);
+
 
   
 };

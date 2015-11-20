@@ -35,6 +35,7 @@ datasource.tcl \
 deleteMultipleGates.html \
 edit1d.tcl \
 edit2d.tcl \
+edit2dmulti.tcl \
 editParameter.html \
 editPseudo.html \
 editmulti.tcl \
@@ -85,4 +86,9 @@ statusLine.html \
 stripchart.html \
 treeparicon.gif \
 treevaricon.gif \
-variableInfo.html
+variableInfo.html \
+edit2dmulti.html  \
+savestatedialog.html \
+prefs.tcl \
+editGammaDeluxe.tcl \
+editGammaDeluxehelp.html

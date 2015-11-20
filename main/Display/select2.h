@@ -452,10 +452,10 @@ class Xamine_Select2 {
   }
 
 
-  void SetPoint1Label(const char *text) {
+  void SetPoint1Label(char *text) {
     pt1_label->SetLabel(text);
   }
-  void SetPoint2Label(const char *text) {
+  void SetPoint2Label(char *text) {
     pt2_label->SetLabel(text);
   }		    
 };

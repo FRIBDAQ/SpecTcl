@@ -97,6 +97,68 @@ CGammaSpectrum::CGammaSpectrum(const STD(string)& rName, UInt_t nId,
   CreateParameterVector(Parameters);
 }
 
+/*!
+  Constructor used by a 2d gamama deluxe spectrum. This spectrum has
+  independent x/y parameters.
+ * Construct a gamma spectrum base class. 
+ *   - The CSpectrum is constructed as directed by the parameter list.
+ *   - The fold is defaulted to a fold containing a true gate.
+ *   - The parameter vectors are both initialized from the x/y parameters.
+ * @param rName
+ *          Name of the spectrum to create.
+ * @param nId
+ *          Id of the spectrum to create.
+ * @param Maps
+ *         Set of maps of parameter/axis transformations.
+ * @param xParameters
+ *         Set of parameters on the X axis.
+ * @param yParameters
+ *         Set of parameters on the Y axis.
+ * @param pGate = pDefaultGate
+ *         THe gate to initially set on the spectrum.  Defaults to a T gate.
+ *
+ *
+ */
+CGammaSpectrum::CGammaSpectrum(const STD(string)& rName, UInt_t nId,  CSpectrum::Axes Maps,
+			       STD(vector)<CParameter>& xParameters,
+			       STD(vector)<CParameter>& yParameters,
+			       CGateContainer* pGate) :
+  CSpectrum(rName, nId, Maps, pGate),
+  m_pFold(new CFold(pDefaultGate))
+{
+  CreateParameterVector(xParameters);
+  CreateYParameterVector(yParameters);
+}
+
+/** * Construct a 2d  gamma deluxe spectrum base class when no coordinate transforms are
+ * specified for the axes:
+ * - The CSpectrum is constructed as directe by most of the parameters.
+ * - The fold is defaulted to a fold containing a true gate.
+ * - both  parameter vectors are initialized from the x/y Parameters arguments.
+ *
+ * @param rName
+ *     The name of the new spectrum.
+ * @param nId
+ *     The id of the spectrum (not really important in SpecTcl).
+ * @param xParameters
+ *     The list of parameters on the x axis.
+ * @param yParameters
+ *     The list of parameters on the y axis.
+ * @param pGate
+ *     The initial gate on the spectrum, defaults to a true gate.
+ *
+ */
+CGammaSpectrum::CGammaSpectrum(const STD(string)& rName, UInt_t nId,
+		 STD(vector)<CParameter>& xParameters,
+		 STD(vector)<CParameter>& yParameters,
+			       CGateContainer* pGate) :
+  CSpectrum(rName, nId, pGate),
+  m_pFold(new CFold(pDefaultGate))
+{
+  CreateParameterVector(xParameters);
+  CreateYParameterVector(yParameters);
+}
+
 /**
  * Increment called by sorter (or rather the base class spectrum) Takes a CEvent
  * as a parameter.
@@ -112,8 +174,17 @@ CGammaSpectrum::Increment(const CEvent& rEvent)
   
   vector<pair<UInt_t, Float_t> >   parameterList;
   CreateParameterList(parameterList, rEvent);
-  
-  (*m_pFold)(parameterList, this); // The fold will take care of  incrementing us.
+
+  // Need to handle the deluxe guy differently:
+
+  if (getSpectrumType() == keG2DD) {
+    vector<pair<UInt_t, Float_t> > yParameterList;
+    CreateYParameterList(yParameterList, rEvent);
+    (*m_pFold)(parameterList, yParameterList, this);
+  }
+  else {
+    (*m_pFold)(parameterList, this); // The fold will take care of  incrementing us.
+  }
 }
 
 /**
@@ -205,6 +276,25 @@ CGammaSpectrum::CreateParameterList(vector<pair<UInt_t, Float_t> >& outList,
     }
   }
 }
+//  Same but for the y parameters.
+
+void
+CGammaSpectrum::CreateYParameterList(vector<pair<UInt_t, Float_t> >& outList,
+				     const CEvent& rrEvent)
+{
+  CEvent& rEvent((CEvent&)rrEvent);         // Lose the const.
+  int nSize = rEvent.size();
+  int pSize = m_yParameters.size();
+  for (int i = 0; i < pSize; i++) {
+    UInt_t pnum = m_yParameters[i];
+    if (pnum < nSize) {
+      if (rEvent[pnum].isValid()) {
+	outList.push_back(pair<UInt_t, Float_t>(pnum, (Float_t)(rEvent[pnum])));
+      }
+    }
+  }
+}
+
 //
 void
 CGammaSpectrum::CreateParameterVector(vector<CParameter>& Parameters) 
@@ -213,15 +303,28 @@ CGammaSpectrum::CreateParameterVector(vector<CParameter>& Parameters)
     m_Parameters.push_back(Parameters[i].getNumber());
   }
 }
+// Same for the Y parameters:
+
+void
+CGammaSpectrum::CreateYParameterVector(vector<CParameter>& Parameters)
+{
+  for (int i=0; i < Parameters.size(); i++) {
+    m_yParameters.push_back(Parameters[i].getNumber());
+  }
+}
 
 /*!
    Returna list of the parameter id's in use by this spectrum.
+   - May not be uniquified.
 */
 void
 CGammaSpectrum::GetParameterIds(STD(vector)<UInt_t>& rvIds)
 {
   for (UInt_t i = 0; i < m_Parameters.size(); i++)
     rvIds.push_back(m_Parameters[i]);
+  for (UInt_t i = 0; i < m_yParameters.size(); i++) {
+    rvIds.push_back(m_yParameters[i]);
+  }
 }
 
 
@@ -236,5 +339,17 @@ CGammaSpectrum::UsesParameter(UInt_t nId) const
     if (m_Parameters[i] == nId)
       return kfTRUE;
   }
+  for (UInt_t i = 0; i < m_yParameters.size(); i++) {
+    if (m_yParameters[i] == nId)
+      return kfTRUE;
+  }
+  return kfFALSE;
+}
+/*!
+  Gamma spectra don't actually need a specific parameter.
+*/
+Bool_t
+CGammaSpectrum::needParameter() const
+{
   return kfFALSE;
 }

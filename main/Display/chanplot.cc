@@ -386,7 +386,7 @@ void Xamine_getsubwindow(XMWidget *pane, win_attributed *att,
 
     /* Factor axis margins into the size and origin of the channel region */
 
-    newnx = (int)((float)*nx *(1.0 - XAMINE_MARGINSIZE) + 1.0);
+    newnx = (int)((float)*nx *(1.0 - XAMINE_MARGINSIZE));
 
     /* If it's a 2d and user mapped, or a 1d and user mapped and flipped, 
        then account for the pushed in margins on the y-axis side 
@@ -398,14 +398,14 @@ void Xamine_getsubwindow(XMWidget *pane, win_attributed *att,
     *orgx = (*nx - newnx);
     *nx   = newnx;
 
-    newny = (int)((float)*ny *(1.0 - XAMINE_MARGINSIZE) + 1.0);
+    newny = (int)((float)*ny *(1.0 - XAMINE_MARGINSIZE));
 
     /* If it's user mapped and not flipped, or a 2d and flipped and user 
        mapped, then account for the pushed in margins on the x-axis side
     */
     if(((at1 != NULL) && (at1->ismapped()) && (!at1->isflipped())) ||
        ((at2 != NULL) && (at2->ismapped()))) {
-      newny = (int)((float)*ny *(1.0 - XAMINE_MAPPED_MARGINSIZE) + 1.0);
+      newny = (int)((float)*ny *(1.0 - XAMINE_MAPPED_MARGINSIZE));
     }
     *orgy = newny;
     *ny   = newny;
@@ -419,10 +419,10 @@ void Xamine_getsubwindow(XMWidget *pane, win_attributed *att,
      att->showupdt()    ||  att->showlbl()) {
     int newny;
 
-    newny = (int)((float)*ny * (1.0 - XAMINE_MARGINSIZE/2.0) + 1.0);
+    newny = (int)((float)*ny * (1.0 - XAMINE_MARGINSIZE/2.0));
     if(((at1 != NULL) && (at1->ismapped())) ||
        ((at2 != NULL) && (at2->ismapped()))) {
-      newny = (int)((float)*ny * (1.0 - XAMINE_MAPPED_MARGINSIZE/2.0)+ 1.0); 
+      newny = (int)((float)*ny * (1.0 - XAMINE_MAPPED_MARGINSIZE/2.0));
     }
     *ny   = newny;
     *orgy = newny;

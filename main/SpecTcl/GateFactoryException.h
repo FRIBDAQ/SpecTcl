@@ -389,7 +389,7 @@ protected:
   { m_eGateType = am_eGateType;
   }
        
-  static void setReasonTexts (const char**  am_svReasonTexts)
+  static void setReasonTexts (const  char**  am_svReasonTexts)
   { m_svReasonTexts = am_svReasonTexts;
   }
                        

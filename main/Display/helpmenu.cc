@@ -363,9 +363,9 @@ static const  char *About[]
 	};
 static const char *aboutname = "About";   /* For VMS C++ compiler bug */
 
-Xamine_help_client_data Xamine_About = { aboutname, NULL, About };
+Xamine_help_client_data Xamine_About = { const_cast<char*>(aboutname), NULL,  const_cast<char**>(About) };
                        
-static const char *Help[] 
+static const  char *Help[] 
   = { "Xamine is the NSCL X/Motif histogram display program\n\n",
       "   The highlighted pane is the \"selected\" pane. All operations\n",
       " that require a pane are performed on that pane. To get a feel\n",
@@ -381,8 +381,8 @@ static const char *Help[]
       NULL
       };
 
-static const  char *overname = "Help_Overview";
-Xamine_help_client_data Xamine_Help_Overview = {overname,  NULL, Help };
+static const char *overname = "Help_Overview";
+Xamine_help_client_data Xamine_Help_Overview = { const_cast<char*>(overname),  NULL,  const_cast<char**>(Help) };
 
 
 
@@ -412,10 +412,10 @@ Xamine_help_client_data Xamine_Help_Overview = {overname,  NULL, Help };
 **    XMInformationDialog *  - Pointer to the created information dialog.
 **    NULL                   - If failed.
 */
-XMInformationDialog *Xamine_help(const char *name, XMWidget *parent, 
-				 const char **help_text)
+XMInformationDialog *Xamine_help(char *name, XMWidget *parent, 
+				 char **help_text)
 {
-  const char **ht;			/* Used to traverse the help text. */
+  char **ht;			/* Used to traverse the help text. */
   int    ht_size;		/* Number of characters of help text. */
   char *help;			/* Points to the concatenated strings. */
   XMInformationDialog *dialog;	/* Will point to the dialog.          */

@@ -31,6 +31,10 @@
 /*
    Change Log:
    $Log$
+   Revision 1.2  2007/02/23 20:38:18  ron-fox
+   BZ291 enhancement... add gamma deluxe spectrum type (independent x/y
+   parameter lists).
+
    Revision 1.1  2006/04/17 12:46:26  ron-fox
    Add files missing found by doing a build from checkout rather than
    from tarball.
@@ -128,7 +132,7 @@ private:
 
 			//Operator= Assignment Operator [illegal] 
 
-  CGamma2DL operator= (const CGamma2DL& aCGamma1D);
+  CGamma2DL& operator= (const CGamma2DL& aCGamma1D);
 
 			//Operator== Equality Operator [Not too useful but:]
 public:
@@ -183,6 +187,8 @@ public:
   }
 
   virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& rParameters);
+  virtual void Increment(STD(vector)<STD(pair)<UInt_t, Float_t> >& xParameters,
+			 STD(vector)<STD(pair)<UInt_t, Float_t> >& yParameters);
  private:
   static CSpectrum::Axes CreateAxisVector(STD(vector)<CParameter>& rParams,
 					  UInt_t nXchan, UInt_t nYchan,

@@ -13,16 +13,14 @@
 #include <config.h>
 #include "XMLabel.h"
 
-XMLabel::XMLabel(const char *n, XMWidget &parent, 
-		 const char *text,
+XMLabel::XMLabel(const char *n, XMWidget &parent, const char *text,
 		 ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmLabelWidgetClass, parent, args, arg_count) 
 {
   SetLabel(text);
 }
 
-XMLabel::XMLabel(const char *n, Widget parent, 
-		 const char *text,
+XMLabel::XMLabel(const char *n, Widget parent, const char *text,
 		 ArgList args, Cardinal arg_count) :
   XMManagedWidget(n, xmLabelWidgetClass, parent, args, arg_count)
 {

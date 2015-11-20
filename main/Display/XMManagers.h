@@ -353,7 +353,7 @@ class XMManager : public XMWidget {
 */
 class XMBulletinBoard : public XMManager {
  protected:
-  XMBulletinBoard(char *n, WidgetClass cl, Widget parent,
+  XMBulletinBoard(const char *n, WidgetClass cl, Widget parent,
 		  ArgList l, Cardinal num_args);
 
  public:
@@ -363,8 +363,7 @@ class XMBulletinBoard : public XMManager {
   XMBulletinBoard(Widget w);
   XMBulletinBoard(const char *n, XMApplication &parent,
 		  ArgList l = NULL, Cardinal num_args = 0);
-  XMBulletinBoard(const char *n, WidgetClass cl, 
-		  Widget parent, 
+  XMBulletinBoard(const char *n, Widget parent, 
 		  ArgList l = NULL, Cardinal num_args=0);
   XMBulletinBoard(const char *n, XMWidget &parent,
 		  ArgList l = NULL, Cardinal num_args = 0);

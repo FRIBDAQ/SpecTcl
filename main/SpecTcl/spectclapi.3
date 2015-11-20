@@ -9,7 +9,7 @@
 '\" See the file "license.terms" for information on usage and redistribution
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\" 
-'\" RCS: @(#) $Id: spectclapi.3 912 2005-06-03 15:19:37Z ron-fox $
+'\" RCS: @(#) $Id: spectclapi.3 1327 2007-05-01 19:03:57Z ron-fox $
 '\" 
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -72,7 +72,7 @@
 '\" .UL arg1 arg2
 '\"	Print arg1 underlined, then print arg2 normally.
 '\"
-'\" RCS: @(#) $Id: spectclapi.3 912 2005-06-03 15:19:37Z ron-fox $
+'\" RCS: @(#) $Id: spectclapi.3 1327 2007-05-01 19:03:57Z ron-fox $
 '\"
 '\"	# Set up traps and other miscellaneous stuff for Tcl/Tk man pages.
 .if t .wh -1.3i ^B
@@ -347,6 +347,8 @@ public:
   SpectrumDictionaryIterator SpectrumBegin();
   SpectrumDictionaryIterator SpectrumEnd();
   UInt_t SpectrumCount();
+  void   addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
+  void   removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer);
   void ClearSpectrum(STD(string) name);
   void ClearAllSpectra();
   CGate* CreateGate(CGateFactory::GateType gateType, 
@@ -868,6 +870,25 @@ to determine when to stop iterating.
 .TP
 \fBUInt_t SpectrumCount();\fR
 Returns the number of spectra that are currently in the spectrum dictionary.
+.TP
+\fBvoid addSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
+.TP
+\fBvoid removeSpectrumDictionaryObserver(SpectrumDictionaryObserver* observer)
+Adds or removes a spectrum dictionary observer to the histogrammer.  Spectrum dictionary
+observers are classes that have member functions that are invoked
+when spectra are added or removed from the dictionary.
+Spectrum dictionary observer classes have two member functions:
+.CS
+
+  virtual void onAdd(const std::string&    name,  const  CSpectrum*& item) {}
+  virtual void onRemove(const std::string& name,  const  CSpectrum*&  item) {}
+
+.CE
+.PP
+\fBonAdd\fR is called when a spectrum is added and \fbonRemove\fR is called
+when a spectrum is removed from the dictionary.  For both spectra, 
+\fBname\fR is the name of the spectrum that is involved and 
+\fBitem\fR is a reference to a pointer to the spectrum object that is involved.
 .SH "SPECTRUM CLEAR FUNCTIONS"
 .PP
 While each spectrumh has a \fBclear\fR member function, the API provides two clear

@@ -1,3 +1,5 @@
+bin_PROGRAMS = Xamine colorset
+
 HOMEDEF = -DHOME='"$(prefix)"'
 GRIFLAGS = -DGRI_DIR='"@gri_dir@"' -DGRI_CMD_DIR='"@gri_cmd_dir@"'
 LEXOUT = lex.yy.c
@@ -6,17 +8,20 @@ MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 
 INCLUDES = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 	-I@top_srcdir@/Utility $(GDINCLUDES)
+# AM_LDFLAGS = -g $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
 
-Xamine_LDFLAGS = -g
-Xamine_LDADD   =  $(PARSEOBJECTS) @XLIBSW@ @GDLDSW@ @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ \
-		-lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
+Xamine_LDFLAGS=  -g 
+Xamine_LDADD=  $(PARSEOBJECTS)  @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
+		$(TCL_LDFLAGS) 						\
+	        -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
+# Xamine_LDADD = $(PARSEOBJECTS) -lXm -lXt -lX11 -lm -lfl $(X11EXTRA_LDFLAGS)
 
 #  @LD_EXTRA_FLAGS@
 
 XCCFLAGS =   -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE 
 
-AM_CXXFLAGS = -g -pedantic
-AM_CFLAGS   = -g -pedantic
+AM_CXXFLAGS = -g -pedantic $(TCL_FLAGS)
+AM_CFLAGS   = -g -pedantic $(TCL_FLAGS)
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/etc
@@ -87,7 +92,6 @@ defaultfile_lex.o: windfile.l defaultfile.l dispwind.h superpos.h \
 	cp defaultfile_lex.h windlex.h
 	$(CC) $(XCCFLAGS)  defaultfile_lex.cc
 
-bin_PROGRAMS = Xamine colorset
 
 check_PROGRAMS = Xaminetest
 TESTS = $(check_PROGRAMS)
@@ -109,7 +113,7 @@ XMTab.h         convert.h          grobfile_lex.h  pkgmgr.h      trackcursor.h\
 XMText.h        copier.h           grobjdisplay.h  prccheck.h   windfile_lex.h\
 XMWidget.h      copyatr.h          grobjinput.h    printer.h    windfile_tab.h\
 XMWlist.h       defaultfile_lex.h  grobjio.h       procede.h     windio.h\
-Xamine.h        delgrob.h          grobjiomenu.h   properties.h  windlex.h\
+Xamine.h        delgrob.h          grobjiomenu.h   properties.h  \
 acceptgates.h   dfltmgr.h          grobjmgr.h      ptlist.h      winiomenu.h \
 advprompt.h     dispgrob.h         guintegrate.h   queue.h       xaminegc.h \
 xamineDataTypes.h wysiwygPrint.h
@@ -158,9 +162,9 @@ Xaminetest_SOURCES = Xaminetest.c
 
 
 
-colorset_LDADD = @MOTIF_LIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
+colorset_LDADD = @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ -lXm -lXt -lX11 -lfl $(X11EXTRA_LDFLAGS)
 
-Xaminetest_LDADD = -lXamine -lm
+Xaminetest_LDADD = -lXamine -lm $(TCL_LDFLAGS)
 
 Xaminetest_LDFLAGS = -L.
 
@@ -181,7 +185,7 @@ Xamine_DEPENDENCIES = windfile_parse.o windfile_lex.o dispwind.o \
 	buttonreq.o buttondlg.o spcchoice.o spccompatchoice.o spclimchoice.o \
 	ptlist.o lexsupport.o xaminegc.o gcmgr.o copier.o gc.o Tab.o \
 	griprint.o mapcoord.o dispgrob.o  grobfile_lex.o grobfile_parse.o \
-	grobjdb.o  XMCallback.o XMMenus.o XMDialogs.o XMManagers.o \
+	grobjdb.o  XMCallback.o XMMenus.o XMDialogs.o XMManagers.o windlex.h \
 	XMWlist.o XMShell.o XMTab.o XMText.o colorset.ico libXamine.la
 
 Xaminetest_DEPENDENCIES = libXamine.la

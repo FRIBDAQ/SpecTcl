@@ -329,15 +329,15 @@ extern spec_shared *xamine_shared;
 **    XtPointer cbd:
 **      Callback data passed without interpretation to the AppPerform Method.
 */
-CompatibleSpectrumChooser::CompatibleSpectrumChooser(const char *name,
+CompatibleSpectrumChooser::CompatibleSpectrumChooser(char *name,
 						     Widget parent,
-						     const char *prompt,
+						     char *prompt,
 						     XtPointer cbd)
                           : SpectrumChooser(name, parent, prompt, cbd)
 { SetupList(); }
-CompatibleSpectrumChooser::CompatibleSpectrumChooser(const char *name,
+CompatibleSpectrumChooser::CompatibleSpectrumChooser(char *name,
 						     XMWidget &parent,
-						     const char *prompt,
+						     char *prompt,
 						     XtPointer cbd)
                           : SpectrumChooser(name, parent, prompt, cbd)
 { SetupList(); }

@@ -375,12 +375,12 @@ DestroyedCallback(XMWidget* pWidget, XtPointer pEvent, XtPointer pClient)
 **    FALSE  - if Cancel accepted.
 */
 
-int Procede(XMWidget *parent, const char *prompt)
+int Procede(XMWidget *parent, char *prompt)
 {
   answer = UNANSWERED;		//  Could use several times.
   XtAppContext app;
 
-  XMQuestionDialog question("Yes_or_no", *parent,
+  XMQuestionDialog question(const_cast<char*>("Yes_or_no"), *parent,
 			    prompt,
 			    PromptCallback,
 			    (XtPointer)&answer); /* Set up the dialog */

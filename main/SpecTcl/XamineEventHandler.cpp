@@ -40,10 +40,14 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <ButtonEvent.h>
 #include <DisplayGate.h>
 #include <Spectrum.h>
+#include <CSpectrum2Dm.h>
+#include <SpecTcl.h>
 #include <XamineEvent.h>
 
 #include <Gamma2DW.h>
 
+
+#include <stdio.h>
 #include <vector>
 #include <string>
 #include <assert.h>
@@ -127,14 +131,27 @@ void CXamineEventHandler::operator()()
 
       cerr << "\n Restarting Xamine...";
       pDisplay->Restart();
-      
+
       // Re-associate ourselves with the input channel:
 
       cerr << "\n Reconnecting with Xamine gate inputs..";
       m_nFd = m_pHistogrammer->getDisplayer()->GetEventFd();
       cerr << "\n";
+
+      // Now that we're all back together we need to let the
+      // restart handlers observer this event (e.g. to re-establish
+      // the button box.
+      //
+
+      RestartHandlerList::iterator i = m_restartHandlers.begin();
+      while (i != m_restartHandlers.end()) {
+	CRestartHandler* pHandler = *i;
+	(*pHandler)();
+	i++;
+      }
     }
   }
+
   Set();			// Re-schedule self.
   
 }
@@ -203,8 +220,11 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   case kgContour2d:
     if((spType == ke2D)) 
       gType = CGateFactory::contour;
-    else if((spType == keG2D))
+    else if((spType == keG2D) || (spType == keG2DD))
       gType = CGateFactory::gammacontour;
+    else if (spType == ke2Dm) {
+      gType = CGateFactory::contour; // will become an or of contours.
+    }
     else {
       cerr << "Contour gate received on a spectrum type that doesn't know"
            << " about contours.\n Consider updating SpecTcl?"
@@ -215,8 +235,11 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   case kgBand2d:
     if((spType == ke2D))	// Ordinary 2d -> Band.
       gType = CGateFactory::band;
-    else if((spType == keG2D))	// Gamma spectrum -> Gamm aband.
+    else if((spType == keG2D) || (spType == keG2DD))	// Gamma spectrum -> Gamma aband.
       gType = CGateFactory::gammaband;
+    else if (spType == ke2Dm) {
+      gType = CGateFactory::band; // will become an or of bands.
+    }
     else {
       cerr << "Band received on a spectrum that type that doesn't know how"
       << " to handle it.\n Consider updating Spectcl."
@@ -234,6 +257,10 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   //
 
   switch(spType) {
+  case  ke2Dm:
+    make2dSumgate(strGateName, gType, pSpec,
+		  GatePoints);
+    return;
   case ke1D:                      // 1-d spectrum must be a cut..
     if(gType != CGateFactory::cut) {
       cerr << "Only cuts can be accepted on 1-d spectra\n";
@@ -255,6 +282,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
       return;
     }
     break;
+  case keG2DD:
   case keG2D:       // 2-d gamma spectrum must be a gammaband or gammacontour..
     if((gType != CGateFactory::band) && 
        (gType != CGateFactory::contour) &&
@@ -275,11 +303,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   UInt_t yIndex = 1;	// For typcial 2d, this index into the
 
   switch(spType) {
-  case keG2D:			// For a gamma all x transforms are first.
-    {
-      CGamma2DW* pGSpectrum = (CGamma2DW*)pSpec;
-      yIndex = pGSpectrum->getnParams();
-    }
+
   case ke1D:
   case keG1D:
     {
@@ -295,7 +319,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
       }
       //  Note that high is offset by 1 channel to put it on the right side
       // of our channel:
-      
+      //
       Float_t xlow = pSpec->AxisToParameter(0, low);
       Float_t xhigh= pSpec->AxisToParameter(0, high+1);
 
@@ -306,7 +330,13 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     }
     
     break;
+  case keG2D:			// For a gamma all x transforms are first.
+    {
+      CGamma2DW* pGSpectrum = (CGamma2DW*)pSpec;
+      yIndex = pGSpectrum->getnParams();
+    }
   case ke2D:
+  case keG2DD:
     {
 
       Float_t x,y(0.0);
@@ -358,6 +388,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     break;
   case keG1D:
   case keG2D:
+  case keG2DD:
     for(pid = pIds.begin(); pid != pIds.end(); pid++) {
       CParameter* pParam = m_pHistogrammer->FindParameter(*pid);
       if(!pParam) {
@@ -395,29 +426,25 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
 
 
 }
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Function:       
-//     OnButton(CXamineButton& rButton)
-//  Operation Type: 
-//     Overridable Action
+/*!
+   Process button events.  This is done by traversing the
+   set of established button handlers.  Each handler is called
+   in turn until true is returned by the handler or 
+   until the end of the list is reached.
+
+   \pram rButton : CButtonEvent&
+       Reference to the button event that triggered us.
+*/
+
 void CXamineEventHandler::OnButton(CButtonEvent& rButton)  
 {
-  // Processes an Xamine Button event.  
-  // At present this is a no-op....later we'll provide
-  // mechanisms for attaching TCL scripts to button
-  // definitions in Xamine.  This is needed in addition to TK
-  // buttons as Xamine buttons can accept points on Xamine
-  // spectra etc, as well as return information about the
-  //  currently selected spectrum.
-  //
-  // Formal Parameters:
-  //      CXamineButton& rButtonEvent:
-  //            Refers to the Xamine button event
-  //            which was just received.
-  //
-  
-  // Currently a no-op.
+  ButtonHandlerList::iterator p = m_buttonHandlers.begin();
+  while (p != m_buttonHandlers.end()) {
+    CButtonHandler* pHandler = *p;
+    if ((*pHandler)(rButton)) return;
+    p++;
+  }
+
 }
 ////////////////////////////////////////////////////////////////////////
 //
@@ -481,6 +508,37 @@ CXamineEventHandler::Clear()
 {
   Tcl_DeleteTimerHandler(m_Timer);
 }
+
+/*!
+   Add a button handler to the list of handlers that are
+   given a chance to deal with button events:
+   \param handler : CXamineEventHandler::CButtonHandler& 
+      Reference to a concrete button handler object (derived from
+      the abstract base class CXamineEventHandler::CButtonHandler).
+
+*/
+void 
+CXamineEventHandler::addButtonHandler(CXamineEventHandler::CButtonHandler& handler)
+{
+  m_buttonHandlers.push_back(&handler);
+}
+/*!
+   Add a restart handler to the restart observer list.
+   This allows application specific operations to be done when
+   Xamine is restarted as a result of a crash/inadvertent exit etc.
+   \param handler : CRestartHandler&
+      Function object derived from CRestartHandler that will be
+      invoked on an Xamine restart, once Xamine is all back up and
+      connected.
+*/
+void
+CXamineEventHandler::addRestartHandler(CRestartHandler& handler)
+{
+  m_restartHandlers.push_back(&handler);
+}
+///////////////////////////////////////////////////////////////////////
+////////////////////// Private utility functions //////////////////////
+///////////////////////////////////////////////////////////////////////
 //
 // Functional Description:
 //    void CallbackRelay(ClientData pObject, int mask)
@@ -494,4 +552,128 @@ CXamineEventHandler::CallbackRelay(ClientData pObject)
   CXamineEventHandler* pThis = (CXamineEventHandler*)pObject;
 
   pThis->operator()();
+}
+
+
+// Create a gate on a sum spectrum.  The gate type will
+// be either a contour or a band.  The gate will be made by
+// creating individual gates for each parameter pair in the
+// spectrum and then creating a gate that will or these together.
+// so the gate is true whenever any pair of parameters falls in it.
+//
+// Parameters:
+//     std::string gateName                        - Name of the final gate to create.
+//     CGateFactory::GateType componentGateType    - Type of component gates.
+//     CSpectrum*             pSpectrum            - Pointer to the spectrum.
+//     std::vector<CPoint>    rawPoints            - Spectrum coordinates points.
+//
+void
+CXamineEventHandler::make2dSumgate(string                 gatename,
+				   CGateFactory::GateType componentGateType,
+				   CSpectrum*             pSpectrum,
+				   vector<CPoint>         rawPoints)
+{
+  vector<string> componentNames; // So that we can create the OR gate.
+  SpecTcl& api(*SpecTcl::getInstance()); // so we can call API members.
+
+  CSpectrum2Dm* pSumSpectrum(dynamic_cast<CSpectrum2Dm*>(pSpectrum));
+  vector<UInt_t> parameterIds;
+  pSumSpectrum->GetParameterIds(parameterIds);
+
+  //  Now we're ready to get what we need to create the component gates.
+
+  for (int i = 0; i < parameterIds.size(); i+=2) {
+    UInt_t xId   = parameterIds[i];
+    UInt_t yId   = parameterIds[i+1];
+    vector<string>  gateParams;
+    CParameter* pX = api.FindParameter(parameterIds[i]);
+    CParameter* pY = api.FindParameter(parameterIds[i+1]);
+
+    gateParams.push_back(pX->getName());
+    gateParams.push_back(pY->getName());
+
+    vector<FPoint> points = scaleSumSpectrumPoints(pSpectrum, 
+						   i,
+						   rawPoints);
+    string         componentName = createComponentGateName(gatename,
+							   xId, yId);
+    CGate* pGate = api.CreateGate(componentGateType,
+				  gateParams, points);
+
+    api.AddGate(componentName, pGate);
+
+    componentNames.push_back(componentName);
+  }
+  // Now create the or gate:
+
+  CGate* orGate = api.CreateOrGate(componentNames);
+
+  if (api.FindGate(gatename)) {
+    api.ReplaceGate(gatename, *orGate);
+  }
+  else {
+    api.AddGate(gatename, orGate);
+  }
+}
+// Create a unique component name for a component of a 
+// gate accepted on a sum spectrum.
+// component names are of the form basename.p1.p2.serial
+// where
+//   basename - the final name of the or gate of which this is a component.
+//   p1       - First parameter id of the gate.
+//   p2       - Second paraemter id of the gate
+//   serial   - Is an unsigned integer that uniquifies any conflicts.
+// 
+// Parameters:
+//   std::string baseName     - Name of the gate being made.
+//   UInt_t p1, p2            - Parameter ids of the component gate.
+//
+string 
+CXamineEventHandler::createComponentGateName(string baseName,
+					     UInt_t p1,
+					     UInt_t p2)
+{
+  UInt_t serial=0;
+  SpecTcl& api(*(SpecTcl::getInstance()));
+
+  while (true) {
+    char gateName[1000];	// hopefully this is large enough...
+    snprintf(gateName, sizeof(gateName), "_%s.%d.%d.%03d",
+	     baseName.c_str(), p1, p2, serial);
+    string strName(gateName);
+    if (!api.FindGate(strName)) {
+      return strName;
+    }
+    serial++;
+  }
+}
+//  Create a set of scaled points for a component gate of ta gate accepted on
+//  as summed 2d spectrum.
+// Parameters:
+//     CSpectrum* pSpectrum           - pointer to the spectrum in which we're 
+//                                      scaling gates.
+//     UInt_t     firstAxis           - Number of the converter for the x point.
+//                                      For the y point it's firstAxis+1.
+//     std::vector<CPoint> rawPoints  - The list of points to convert.
+// Returns:
+//   std::vector<FPoint>     - The converted points.
+//
+vector<FPoint>
+CXamineEventHandler::scaleSumSpectrumPoints(CSpectrum* pSpectrum,
+					  UInt_t     firstAxis,
+					  vector<CPoint> rawPoints)
+{
+  CSpectrum2Dm*      p = dynamic_cast<CSpectrum2Dm*>(pSpectrum);
+  assert(p);
+  CSpectrum2Dm::Axes a = p->getAxisMaps();
+  vector<FPoint>     result;
+
+  for (int i =0; i < rawPoints.size(); i++) {
+    Float_t x = a[i].AxisToParameter(rawPoints[i].X());
+    Float_t y = a[i+1].AxisToParameter(rawPoints[i].Y());
+    
+    result.push_back(FPoint(x,y));
+  }
+  return result;
+
 }

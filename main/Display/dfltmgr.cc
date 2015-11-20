@@ -34,6 +34,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 /*
    Change Log:
    $Log$
+   Revision 5.3  2006/11/17 16:08:38  ron-fox
+   Defect 228 fix: Printer defaults could wind up only partially
+   initialized.. this resulted in bad Xamine.Default files and
+   could cause printing to fail or crash Xamine.
+
    Revision 5.2.2.1  2006/11/17 14:41:54  ron-fox
    Defect 228 - Xamine can make bad Xamine.Default files which can cause printing
    to fail because the print defauts can be set to whacky values.
@@ -315,12 +320,12 @@ void defaultfilerestart(FILE *config)
 */
 int Xamine_SaveDefaultProperties()
 {
-  const char *filename;
+  char *filename;
   FILE *fp;
 
   /* Construct the filename and open the file for write: */
-  const char* dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
-  if(!dir) dir = "";		// If no env var, use current dir.
+  char* dir = getenv(XAMINE_DEFAULTS_DIRECTORY);
+  if(!dir) dir = const_cast<char*>("");		// If no env var, use current dir.
   filename = ConstructFilename(dir); /* Glue together the filename. */
   fp = fopen(filename, "r+");     /* Try to open existing for read/write */
   if(fp) {			  // Deal with filesystems which support
@@ -351,19 +356,19 @@ int Xamine_SaveDefaultProperties()
 
   /* Write the renditions:  */
 
-  const char *rend_text;
+  char *rend_text;
   switch(rend1d) {
   case smoothed:
-    rend_text = "Smoothed";
+    rend_text = const_cast<char*>("Smoothed");
     break;
   case histogram:
-    rend_text = "Histogram";
+    rend_text = const_cast<char*>("Histogram");
     break;
   case points:
-    rend_text = "Points";
+    rend_text = const_cast<char*>("Points");
     break;
   case lines:
-    rend_text = "Line";
+    rend_text = const_cast<char*>("Line");
     break;
   default:
     fprintf(stderr, "BUGBUGBUG>> Invalid 1-d default rendition at write\n");
@@ -376,19 +381,19 @@ int Xamine_SaveDefaultProperties()
 
   switch(rend2d) {
   case scatter:
-    rend_text = "Scatter";
+    rend_text = const_cast<char*>("Scatter");
     break;
   case boxes:
-    rend_text = "Box";
+    rend_text = const_cast<char*>("Box");
     break;
   case color:
-    rend_text = "Color";
+    rend_text = const_cast<char*>("Color");
     break;
   case contour:
-    rend_text = "Contour";
+    rend_text = const_cast<char*>("Contour");
     break;
   case lego:
-    rend_text = "Lego";
+    rend_text = const_cast<char*>("Lego");
     break;
   default:
     fprintf(stderr, "BUGBUGBUG>> Invalid 2-d default rendition at write\n");

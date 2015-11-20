@@ -604,6 +604,8 @@ CScriptableUnpacker::RegisterCreators()
 							 m_pModuleCommand)));
   RegisterCreator("caenv785", (new CCAENDigitizerCreator("caenv785",
 							 m_pModuleCommand)));
+  RegisterCreator("caenv1785",(new CCAENDigitizerCreator("caenv1785",
+							 m_pModuleCommand)));
   RegisterCreator("caenv792", (new CCAENDigitizerCreator("caenv792",
 							 m_pModuleCommand)));
   RegisterCreator("caenv830", (new CCAENV830Creator("caenv830",

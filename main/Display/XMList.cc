@@ -138,10 +138,9 @@ XMListBaseClass::AddSingleSelectionCallback(void (*callback)(XMWidget *,
 }
 
 void
-XMListBaseClass::AddItem(const char *item, int position) 
+XMListBaseClass::AddItem(char *item, int position) 
 {
-  XmString s = XmStringCreateLtoR(const_cast<char*>(item), 
-				  const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
+  XmString s = XmStringCreateLtoR(item, const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   XmListAddItem(id, s, position);
   XmStringFree(s);
 }
@@ -150,10 +149,9 @@ void
 XMListBaseClass::ClearItems() { XmListDeleteAllItems(id); }
 
 void
-XMListBaseClass::DeleteItem(const char *item) 
+XMListBaseClass::DeleteItem(char *item) 
 {
-  XmString s = XmStringCreateLtoR(const_cast<char*>(item), 
-				  const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
+  XmString s = XmStringCreateLtoR(item,  const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   XmListDeleteItem(id, s);
   XmStringFree(s);
 }
@@ -174,9 +172,8 @@ XMListBaseClass::DeselectAll() {
 }
 
 void
-XMListBaseClass::DeselectItem(const char *item) {
-  XmString s = XmStringCreateLtoR(const_cast<char*>(item), 
-				  const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
+XMListBaseClass::DeselectItem(char *item) {
+  XmString s = XmStringCreateLtoR(item,  const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
   XmListDeselectItem(id, s);
   XmStringFree(s);
 }
@@ -238,7 +235,7 @@ XMScrolledList::XMScrolledList(const char *n, XMWidget &parent, int rows ,
 XMScrolledList::XMScrolledList(const char *n, Widget parent, int rows ,
 			       ArgList args , Cardinal arg_count ) :
   XMListBaseClass(n)  { /* Cheat. */
-  id = XmCreateScrolledList(parent, const_cast<char*>(n), args, arg_count);
+  id = XmCreateScrolledList(parent,  const_cast<char*>(n), args, arg_count);
   scrolled_widget = XtParent(id);
   SetRows(rows);
   Manage();

@@ -39,7 +39,7 @@ extern "C" {
   unsigned long LastIncrement(unsigned int n); /*!< increment for a channel */
   float Total(unsigned int n);                 /*!< Totals for a channel    */
   long LastIntervalStart();	               /*!< scaler interval start time   */
-  long LastIntevalEnd();                       /*!< Scaler interval end time */
+  long LastIntervalEnd();                       /*!< Scaler interval end time */
   const char*  Title();                        /*!< Run title. */
   unsigned int RunNumber();                    /*!< Number of current run   */
   const char*  RunStartTime();                 /*!< When the run started.  */

@@ -322,7 +322,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 ** Help text and help data structure for the widget help:
 */
 
-static const char *help_text[] = {
+static const  char *help_text[] = {
   "   This dialog box allows you to set the size of the graphical object label\n",
   "text.  The top area contains a text string and a pair of arrow buttons.\n",
   "Pressing the up arrow button increases the font size, while pressing the\n",
@@ -339,7 +339,8 @@ static const char *help_text[] = {
   NULL
   };
 
-static Xamine_help_client_data help = { "Font_HELP", NULL, help_text };
+static Xamine_help_client_data help = { const_cast<char*>("Font_HELP"), NULL,
+					const_cast<char**>(help_text) };
 
 /*
 ** The class below implements the font selection chooser dialog.
@@ -634,7 +635,7 @@ void FontChooser::SetFont(int newidx)
 
     font_index = newidx;
     sprintf(font, "Font%d", newidx);
-    labelstring = XmStringCreateLtoR(const_cast<char*>("Sample Label"), font);
+    labelstring = XmStringCreateLtoR( const_cast<char*>("Sample Label"), font);
     label->SetLabel(labelstring);
     XmStringFree(labelstring);
   }
@@ -720,7 +721,7 @@ void FontChooser::SetGhosting()
 void Xamine_SetGrobjLblFont(XMWidget *w, XtPointer ud, XtPointer cd)
 {
   if(!dialog) {
-    dialog = new FontChooser(w, const_cast<char*>("Object_Fonts"));
+    dialog = new FontChooser(w,  const_cast<char*>("Object_Fonts"));
     dialog->AddCallback(XtNdestroyCallback, NullPointer, (XtPointer)&dialog);
   }
 

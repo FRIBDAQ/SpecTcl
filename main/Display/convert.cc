@@ -262,12 +262,12 @@ int LogPixel(int counts, int lo, int hi, int npix)
 
   if(low_decade > hi_decade) low_decade = hi_decade;   // Protect divide by 0.
   
-  int position  = (int)Transform(low_decade, hi_decade, 
-				 0, (float)npix-1,
-				 (float)lcounts);
+  // int position  = (int)Transform(low_decade, hi_decade, 
+  //			 0, (float)npix-1,
+  //				 (float)lcounts);
 				 
-  //  int position = (int)( (lcounts * (double)npix)/
-  //		       ((double)(hi_decade-low_decade + 1)));
+    int position = (int)( (lcounts * (double)npix)/
+  		       ((double)(hi_decade-low_decade + 1)));
   return position;
 
 }
@@ -336,7 +336,7 @@ void Xamine_Convert1d::ScreenToSpec(spec_location *loc, int xpix, int ypix)
   }
   if(a->isexpanded()) {
     chanlow = (int)a->lowlimit();
-    chanhi  = (int)a->highlimit() + 1;
+    chanhi  = (int)a->highlimit()+ 1;
   }
   else {
     chanlow = 0;
@@ -460,7 +460,7 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   cntshi = attributes->getfsval();
 
   chanlo = 0;
-  chanhi = spectra->getxdim(specno); // Goes to the end of the last chan.
+  chanhi = spectra->getxdim(specno) ; // Goes to the end of the last chan.
   if(att->isexpanded()) {
     chanlo = att->lowlimit();
     chanhi = att->highlimit() +1; // Goes to end of last channel.
@@ -473,7 +473,7 @@ void Xamine_Convert1d::SpecToScreen(int *xpix, int *ypix, int chan, int counts)
   
 
   chpix = (int)Transform((float)chanlo, (float)(chanhi),
-			 0.0, (float)(chanpix), chan);
+			 0.0, (float)(chanpix), chan); 
 
   /* The counts axis could be log though:  */
   int cpix;

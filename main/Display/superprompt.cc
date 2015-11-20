@@ -60,7 +60,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 static Arg SuperPromptArgs[1];
 #endif
 
-static const char *help_text[] = {
+static const  char *help_text[] = {
   "  You are being prompted for a spectrum to superimpose on the currently\n",
   "selected spectrum.  The superimposed spectrum must:\n\n",
   "   1. Be another 1-d spectrum\n",
@@ -76,13 +76,13 @@ static const char *help_text[] = {
   "      HELP   - To display this help message\n",
   NULL
 };
-static Xamine_help_client_data help = { "Superposition_help", 
-					  NULL, help_text };
+static Xamine_help_client_data help = { const_cast<char*>("Superposition_help"), 
+					NULL, const_cast<char**>(help_text) };
 
 /*
 ** Help text for the remove superposition help dialog:
 */
-char const *remove_help[] = 
+static const char *remove_help[] = 
 { "This dialog allows you to remove a superimposed spectrum from \n",
   "the currently selected spectrum.  The spectra superimposed on the base\n",
   "spectrum are displayed in the list box.  Select the spectrum you want to\n",
@@ -491,7 +491,7 @@ void SuperPrompt::SetList()
 */
 SuperPrompt::SuperPrompt(char *name, XMWidget &parent)
 			:
-       XMSelectionDialog(name, parent, "Spectrum: ")
+  XMSelectionDialog(name, parent, const_cast<char*>("Spectrum: "))
 {
 
   /* Plant the callbacks: */
@@ -715,7 +715,7 @@ Boolean UnSuperPrompt::Perform(XMWidget *wid, XtPointer cd, int reason,
       Superposition s = iter.Next();
       spno = s.Spectrum();
 
-      XmStitle = XmStringCreate(const_cast<char*>(xamine_shared->getname(title, spno)),
+      XmStitle = XmStringCreate((char*)xamine_shared->getname(title, spno),
 				const_cast<char*>(XmSTRING_DEFAULT_CHARSET));
       if(XmStringCompare(XmStitle, value)) { // Bingo, a match.
 	XmStringFree(XmStitle);		     // Free string storage.

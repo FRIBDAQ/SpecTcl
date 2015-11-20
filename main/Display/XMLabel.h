@@ -304,11 +304,9 @@ DAMAGES.
 class XMLabel :public  XMManagedWidget
    {
    public:
-     XMLabel(const char *n, XMWidget &parent, 
-	     const char *text,
+     XMLabel(const char *n, XMWidget &parent, const char *text,
 	     ArgList args = NULL, Cardinal arg_count = 0);
-     XMLabel(const char *n, Widget parent, 
-	     const char *text,
+     XMLabel(const char *n, Widget parent, const char *text,
 	     ArgList args = NULL, Cardinal arg_count = 0);
      XMLabel(const char *n);
      XMLabel(Widget w);

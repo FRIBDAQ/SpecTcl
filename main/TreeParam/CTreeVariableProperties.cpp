@@ -226,7 +226,8 @@ void
 CTreeVariableProperties::setUnits(string units)
 {
   
-  m_sUnits = units.c_str();           // evade string pooling
+  m_sUnits = units;
+  
   m_fDefinitionChanged = true;
 
 

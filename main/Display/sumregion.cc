@@ -431,9 +431,9 @@ AcceptSummingRegion::AcceptSummingRegion(const char *name, XMWidget *parent,
   Points         = new XMScrolledList(name, *point_prompts);
   DeleteLast     = new XMPushButton(name, *point_prompts, Delete_relay,
 				    this);
-  DeleteLast->Label("Delete Last");
-  NextLabel      = new XMLabel(name, *point_prompts, "Next Point:");
-  NextPoint      = new XMTextField(name, *point_prompts);
+  DeleteLast->Label(const_cast<char*>("Delete Last"));
+  NextLabel      = new XMLabel(name, *point_prompts, const_cast<char*>("Next Point:"));
+  NextPoint      = new XMTextField(const_cast<char*>(name), *point_prompts);
 
   object = NULL;		/* Null out the object so that Rebuild works.  */
 
@@ -660,7 +660,7 @@ void AcceptSummingRegion::AddPoint(point &pt)
   }
   Points->AddItem(pstring);
   Points->SetBottomItem();	/* Scroll up if needed to show last item.  */
-  NextPoint->SetText("");  /* Clear the input point.             */
+  NextPoint->SetText(const_cast<char*>(""));  /* Clear the input point.             */
 
 }
 

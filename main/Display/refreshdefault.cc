@@ -345,9 +345,9 @@ static const  char *help_text[] = {
   NULL
 };
 
-static Xamine_help_client_data help =  { "Refresh_rate",
+static Xamine_help_client_data help =  { const_cast<char*>("Refresh_rate"),
 					 NULL,
-					 help_text
+					 const_cast<char**>(help_text)
 					 };
 					   
 /*
@@ -357,9 +357,11 @@ static Xamine_help_client_data help =  { "Refresh_rate",
 
 class RefreshDialog : public XMCustomDialog, public RefreshForm {
    public:
-      RefreshDialog(const char *name, XMWidget *parent) :
-	XMCustomDialog(name, *parent, "Default Refresh Rate"),
-        RefreshForm(name, *work_area) { Apply->Label("Apply To All"); }
+      RefreshDialog(char *name, XMWidget *parent) :
+	XMCustomDialog(name, *parent, const_cast<char*>("Default Refresh Rate")),
+        RefreshForm(const_cast<char*>(name), *work_area) { 
+	Apply->Label(const_cast<char*>("Apply To All")); 
+      }
       ~RefreshDialog() {}
 };
 
@@ -377,11 +379,11 @@ static RefreshDialog *dialog = NULL; /* Dialog pointer */
 **    XMForm &parent:
 **      Parent of the widget... assumed to be a form widget.
 */
-RefreshForm::RefreshForm(const char *name, XMForm &parent) {
+RefreshForm::RefreshForm(char *name, XMForm &parent) {
 
   /* Instantiate a scale widget. */
 
-  interval = new XMScale("RefreshScale", parent);
+  interval = new XMScale(const_cast<char*>("RefreshScale"), parent);
   interval->SetRange(MAXTIME);	/* Set the range 0-3600. */
 
   /* Set the scale's label */
@@ -483,7 +485,7 @@ void Xamine_SetDefaultRefresh(XMWidget *wid, XtPointer ud, XtPointer cd)
   ** If necessary, we must create the dialog the first time:
   */
   if(!dialog) {
-    dialog = new RefreshDialog("RefreshDefault", wid);
+    dialog = new RefreshDialog(const_cast<char*>("RefreshDefault"), wid);
     dialog->AddOkCallback(SetRefresh); /* Add the completion callback. */
     dialog->AddApplyCallback(SetRefresh);
     dialog->AddCancelCallback(SetRefresh);

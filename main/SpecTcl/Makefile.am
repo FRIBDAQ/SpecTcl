@@ -6,6 +6,7 @@ INCLUDES = -I@top_srcdir@ -I. -I@top_srcdir@/TCL -I@top_srcdir@/Events \
 	-I@top_srcdir@/Xamine \
 	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
 	-I@top_srcdir@/Analysis -I@top_srcdir@/TreeParam \
+	-I@top_srcdir@/Fits                               \
 	@TCL_FLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@
 
 install-exec-local:
@@ -39,7 +40,9 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	Globals.cpp FilterCommand.cpp \
 	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
 	DocumentationException.cpp DocumentationCallback.cpp \
-	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp
+	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp \
+	IntegrateCommand.cpp
+
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
@@ -52,7 +55,10 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	FilterCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
-	SpecTcl.h CFoldCommand.h CProjectionCommand.h
+	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
+	IntegrateCommand.h
+
+
 
 bin_PROGRAMS = SpecTcl
 
@@ -75,13 +81,14 @@ AM_CXXFLAGS = -g
 
 SpecTcl_LDFLAGS = -lTclGrammerCommands -lSorting -lXplus -lGates -lAnalysis \
 	-lFilter -lBufferAnalysis -lEventSource -lSpecio -ltclPlus \
-	-lException -lTreeParam -lXamine  -ltape \
+	-lException -lTreeParam -lXamine  -ltape -lFits \
 	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)  \
 	-L. -L../SpectrumIO \
 	-L../Tape -L../Sorter \
 	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
 	-L../TCL -L../NSCLException -L../Filter -L../Analysis -L../TreeParam \
-	-g -Wl,"-rpath=$(libdir)"  @TCL_LDFLAGS@ @XLIBSW@
+	-L../Fits	\
+	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas   @TCL_LDFLAGS@ @XLIBSW@
 
 
 man_MANS = spectclapi.3
@@ -121,7 +128,7 @@ commonTestLdFlags= -L@top_srcdir@/Events -lAnalysis \
 	-L@top_srcdir@/TCL -ltclPlus \
 	-L@top_srcdir@/NSCLException -lException \
 	-L@top_srcdir@/Analysis -lBufferAnalysis \
-	$(CPPUNIT_LDFLAGS)
+	$(CPPUNIT_LDFLAGS) $(TCL_LDFLAGS)
 
 scalertests_LDFLAGS= ScalerProcessorCallbacks.o $(commonTestLdFlags)
 

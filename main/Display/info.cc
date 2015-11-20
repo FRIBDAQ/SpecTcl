@@ -345,11 +345,11 @@ class InfoDisplay : public XMCustomDialog {
  protected:
   XMText *text;			/* The text display region. */
  public:
-  InfoDisplay(const char *name, XMWidget *parent);
+  InfoDisplay(char *name, XMWidget *parent);
   ~InfoDisplay() {
     delete text;
   }
-  void SetText(const char *t) { text->SetText(t); }
+  void SetText(char *t) { text->SetText(t); }
 };
 
 /*
@@ -370,7 +370,7 @@ static InfoDisplay *dialog_widget = NULL; /* Dialog widget handle.  */
 **       information dialog, but a possibly longlived window so no dialog
 **       class symbol is shown.
 */
-InfoDisplay::InfoDisplay(const char *name, XMWidget *parent) :
+InfoDisplay::InfoDisplay(char *name, XMWidget *parent) :
        XMCustomDialog(name, *parent, name)
 {
   /* First unmanage all of the buttons we don't need: */
@@ -381,7 +381,7 @@ InfoDisplay::InfoDisplay(const char *name, XMWidget *parent) :
  
   /* Relabel the ok button so that it's function is a bit clearer */
 
-  Ok->Label(" Dismiss ");
+  Ok->Label(const_cast<char*>(" Dismiss "));
 
   /* Create the work area by filling in the work_area widget with a */
   /* text widget:                                                   */
@@ -395,8 +395,7 @@ InfoDisplay::InfoDisplay(const char *name, XMWidget *parent) :
   XtSetArg(scrollargs[4], XmNcursorPositionVisible, False);
 
   Widget text_wd = XmCreateScrolledText(work_area->getid(),
-					const_cast<char*>("InfoText"), 
-					scrollargs, 5);
+					const_cast<char*>("InfoText"), scrollargs, 5);
   text = (XMText *)(new XMWidget(text_wd));
 
 
@@ -447,11 +446,11 @@ char *FormatSpectrumInfo(const int specno)
   assert(twodbyte == 1);
 
   static const char *spctype[] = { "Undefined", /* String names for each spec type */
-				   "2-d Byte per channel",
-				   "1-d Word per channel",
-				   "2-d Word per channel",
-				   "1-d Longword per channel",
-				   "2-d Longword per channel"
+			     "2-d Byte per channel",
+			     "1-d Word per channel",
+			     "2-d Word per channel",
+			     "1-d Longword per channel",
+			     "2-d Longword per channel"
 			     };
   static int spcmult[]   = { 0, 1, 2, 
 			       2, 4, 4 }; /* Bytes per chan for spectypes */
@@ -838,13 +837,12 @@ static const char *FormatInfo()
 {
   char *text;
   int  size = 0;
+  static const char *t = " Pane does not contain a spectrum ";
 
   /* First thing we need to do is get the attributes block of the 
   ** currently selected spectrum.  This has a lot of stuff in it,
   ** like the current spectrum which are needed in subsequent subinfo calls.
   */
-
-  const char *t = " Pane does not contain a spectrum ";
 
   win_attributed *att = Xamine_GetSelectedDisplayAttributes();
   if(att == NULL) {
@@ -941,14 +939,13 @@ static void UnManage(XMWidget *wid, XtPointer user_d, XtPointer call_d)
 */
 void Xamine_DisplayInfo(XMWidget *parent, XtPointer client_d, XtPointer call_d)
 {
-  const char *information;
+  char *information;
   /*
   ** If the dialog widget does not exist, then create it:
   */
 
   if(!dialog_widget) {
-    dialog_widget = new InfoDisplay("Info_Display", 
-				    parent);
+    dialog_widget = new InfoDisplay(const_cast<char*>("Info_Display"), parent);
     dialog_widget->AddOkCallback(UnManage, dialog_widget); /* OK unmanages. */
     dialog_widget->AddCallback(XtNdestroyCallback, NullPointer, 
 			       (XtPointer)&dialog_widget);
@@ -957,7 +954,7 @@ void Xamine_DisplayInfo(XMWidget *parent, XtPointer client_d, XtPointer call_d)
   ** Format the information:
   */
 
-  information = FormatInfo();
+  information = const_cast<char*>(FormatInfo());
   if(information == NULL) {
     Xamine_error_msg(dialog_widget, 
 		     "Could not get any information about the selected pane");
@@ -978,5 +975,5 @@ void Xamine_DisplayInfo(XMWidget *parent, XtPointer client_d, XtPointer call_d)
 
   /* The information string was dynamically allocated, so we free it here */
 
-  XtFree(const_cast<char*>(information));
+  XtFree(information);
 }

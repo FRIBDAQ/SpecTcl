@@ -443,9 +443,7 @@ void SimpleClientPushButton::ButtonPresscb(XMWidget *xwid,
 class ClientConfirmation : public XMQuestioner
 {
   public:
-     ClientConfirmation(const char *name, 
-			XMWidget &parent, 
-			const char *prompt,
+     ClientConfirmation(char *name, XMWidget &parent, char *prompt,
 		       SimpleClientPushButton *button) :
                        XMQuestioner(name, parent, prompt, (XtPointer *)button) {}
      ~ClientConfirmation() {}
@@ -555,7 +553,7 @@ void ConfirmClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
 
   if(ButtonAvailable(description.whenavailable, sptype)) {
     if(prompter == (ClientConfirmation *)NULL) {
-      prompter = new ClientConfirmation("TextPrompt", *wid,
+      prompter = new ClientConfirmation(const_cast<char*>("TextPrompt"), *wid,
 					description.promptstr,
 					this);
     }
@@ -583,7 +581,7 @@ void ConfirmClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
 */
 class ClientTextPrompter : public XMPrompter {
   public: 
-    ClientTextPrompter(const char *name, XMWidget &parent, const char *prompt,
+    ClientTextPrompter(char *name, XMWidget &parent, char *prompt,
 		       SimpleClientPushButton *button) :
                        XMPrompter(name, parent, prompt, (XtPointer *)button) {}
     ~ClientTextPrompter() {}
@@ -721,7 +719,7 @@ void TextClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
 
   if(ButtonAvailable(description.whenavailable, sptype)) {
     if(prompter == (ClientTextPrompter *)NULL) {
-      prompter = new ClientTextPrompter("TextPrompt", *wid,
+      prompter = new ClientTextPrompter(const_cast<char*>("TextPrompt"), *wid,
 					description.promptstr,
 					this);
     }
@@ -747,8 +745,7 @@ void TextClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
 class  ClientSpectrumChooser : public SpectrumChooser
 {
   public:
-    ClientSpectrumChooser(const char *name, XMWidget &parent, 
-			  const char *prompt,
+    ClientSpectrumChooser(char *name, XMWidget &parent, char *prompt,
 			  XtPointer cbd) : SpectrumChooser(name, parent,
 							   prompt, cbd)
 			    {}
@@ -769,8 +766,7 @@ class  ClientSpectrumChooser : public SpectrumChooser
 class  ClientLimSpectrumChooser : public LimitedSpectrumChooser
 {
   public:
-    ClientLimSpectrumChooser(const char *name, XMWidget &parent, 
-			     const char *prompt,
+    ClientLimSpectrumChooser(char *name, XMWidget &parent, char *prompt,
 			     SpectrumClass limit,
 			     XtPointer cbd) : LimitedSpectrumChooser(name, 
 								     parent,
@@ -795,8 +791,7 @@ class  ClientLimSpectrumChooser : public LimitedSpectrumChooser
 class  ClientCompatSpectrumChooser : public CompatibleSpectrumChooser
 {
   public:
-    ClientCompatSpectrumChooser(const char *name, XMWidget &parent, 
-				const char *prompt,
+    ClientCompatSpectrumChooser(char *name, XMWidget &parent, char *prompt,
 				XtPointer cbd) : 
     CompatibleSpectrumChooser(name, parent, prompt, cbd)
                                            {}
@@ -888,27 +883,27 @@ void SpectrumClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
 		"Invalid spectrum prompt type on button, defaulting to 'Any'");
 
     case Any:
-      prompter = new ClientSpectrumChooser("Spectrum_Choice",
+      prompter = new ClientSpectrumChooser(const_cast<char*>("Spectrum_Choice"),
 					   *wid,
 					   description.promptstr,
 					   (XtPointer)this);
       break;
     case Oned:
-      prompter = new ClientLimSpectrumChooser("Spectrum_Choice",
+      prompter = new ClientLimSpectrumChooser(const_cast<char*>("Spectrum_Choice"),
 					      *wid,
 					      description.promptstr,
 					      oned,
 					      (XtPointer)this);
       break;
     case Twod:
-      prompter = new ClientLimSpectrumChooser("Spectrum_Choice",
+      prompter = new ClientLimSpectrumChooser(const_cast<char*>("Spectrum_Choice"),
 					      *wid,
 					      description.promptstr,
 					      twod,
 					      (XtPointer)this);
       break;
     case Compatible:
-      prompter = new ClientCompatSpectrumChooser("Spectrum_Choice",
+      prompter = new ClientCompatSpectrumChooser(const_cast<char*>("Spectrum_Choice"),
 						 *wid,
 						 description.promptstr,
 						 (XtPointer)this);
@@ -932,9 +927,9 @@ void SpectrumClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
 class ClientFileSelector : public XMFileSelector
 {
   public:
-    ClientFileSelector(const char *n, XMWidget &parent,
+    ClientFileSelector(char *n, XMWidget &parent,
 		       XtPointer ud,
-		       const char *directory = XMFILE_DEFAULT_DIRMASK);
+		       char *directory = XMFILE_DEFAULT_DIRMASK);
     virtual ~ClientFileSelector();
 
   protected:
@@ -974,8 +969,8 @@ class FileClientPushButton : public SimpleClientPushButton
 **      The directory to search, defaults to cwd.
 */
 
-ClientFileSelector::ClientFileSelector(const char *n, XMWidget &parent, XtPointer ud,
-				       const char *directory) :
+ClientFileSelector::ClientFileSelector(char *n, XMWidget &parent, XtPointer ud,
+				       char *directory) :
 		    XMFileSelector(n, parent, ud, directory)
 {
 }
@@ -1098,7 +1093,7 @@ void FileClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
   }
 
   if(prompter == (ClientFileSelector *)NULL) {
-    prompter = new ClientFileSelector("Choose_File",
+    prompter = new ClientFileSelector(const_cast<char*>("Choose_File"),
 				      *wid,
 				      (XtPointer)this);
   }
@@ -1117,11 +1112,11 @@ void FileClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
 class AcceptPointsPrompter : public AcceptPointList // Prompter class.
 {
 public:
-  AcceptPointsPrompter(const char *name, 
+  AcceptPointsPrompter(char *name, 
 		       XMWidget *parent,
 		       SimpleClientPushButton *button,
 		       int minpts, int maxpts, 
-		       const char **help_text= NULL);
+		       char **help_text= NULL);
   ~AcceptPointsPrompter();
 
   virtual Boolean DoAccept();	// Must override accept behavior.
@@ -1169,10 +1164,10 @@ private:
 **      Possible override for help text.  If null, default help text is used.
 */
 
-AcceptPointsPrompter::AcceptPointsPrompter(const char *name, XMWidget *parent,
+AcceptPointsPrompter::AcceptPointsPrompter(char *name, XMWidget *parent,
 					   SimpleClientPushButton *pbutton,
 					   int minpts, int maxpts,
-					   const char **help_text) :
+					   char **help_text) :
 		      AcceptPointList(name, parent, minpts, maxpts,
 				      help_text)
 {
@@ -1364,7 +1359,7 @@ void PointsClientPushButton::ButtonPresscb(XMWidget *wid, XtPointer userd,
   }
 
   if(prompter == (AcceptPointsPrompter *)NULL) {
-    prompter = new AcceptPointsPrompter("User points",
+    prompter = new AcceptPointsPrompter(const_cast<char*>("User points"),
 					wid,
 					this,
 					description.minpts,
@@ -1657,7 +1652,8 @@ static void CreateButtonBox(XMWidget *parent,
 {
   msg_status stat;
   if(buttons == (ButtonBox *)NULL) {		// Doesn't exist yet so make...
-    buttons = new ButtonBox(parent, "Client Buttons", r, c);
+    buttons = new ButtonBox(parent, 
+			    const_cast<char*>("Client Buttons"), r, c);
     buttons->Manage();		// Pop it up
     stat = Success;
   }

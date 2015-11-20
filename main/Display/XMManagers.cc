@@ -427,6 +427,9 @@ XMBulletinBoard::XMBulletinBoard(const char *n, XMApplication &parent,
 				 ArgList l, Cardinal num_args) :
   XMManager(n, xmBulletinBoardWidgetClass, parent, l, num_args) {}
 
+XMBulletinBoard::XMBulletinBoard(const char *n, Widget parent, 
+				 ArgList l, Cardinal num_args) : 
+  XMManager(n, xmBulletinBoardWidgetClass, parent, l, num_args) {}
 
 XMBulletinBoard::XMBulletinBoard(const char *n, XMWidget &parent,
 				 ArgList l, Cardinal num_args) : 

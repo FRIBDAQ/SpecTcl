@@ -88,15 +88,16 @@ ScriptedSpecTcl_LDFLAGS =  -L. -lScripted -lTclGrammerCommands \
 	-lSorting -lXplus \
 	-lGates -lAnalysis \
 	-lFilter -lEventSource -lSpecio -ltclPlus -lException -lBufferAnalysis \
-	-lXamine  -lTreeParam \
+	-lXamine  -lTreeParam -lFits \
 	-ltape -lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
+	-lgsl -lgslcblas					\
 	-L@top_srcdir@/Tape -L@top_srcdir@/Sorter -L@top_srcdir@/Xamine \
 	-L@top_srcdir@/Display -L@top_srcdir@/Gates -L@top_srcdir@/EventSource \
 	-L@top_srcdir@/Events -L@top_srcdir@/TCL -L@top_srcdir@/NSCLException \
 	-L@top_srcdir@/Filter -L@top_srcdir@/SpecTcl -L@top_srcdir@/Analysis \
-	-L@top_srcdir@/TreeParam \
+	-L@top_srcdir@/TreeParam -L@top_srcdir@/Fits \
 	 @TCL_LDFLAGS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
-	-g -Wl,"-rpath=($prefix)/lib"
+	 -g -Wl,"-rpath=($prefix)/lib"
 
 #
 #  At install time, in order to make this open ended we:
@@ -160,8 +161,9 @@ unittest_LDFLAGS = $(Main_Objects) $(CPPUNIT_LDFLAGS) \
 	-L@top_srcdir@/Tape -ltape       \
 	-L@top_srcdir@/Filter -lFilter \
 	-L@top_srcdir@/TreeParam -lTreeParam \
-	-L@top_srcdir@/Analysis -lBufferAnalysis \
-	-ltk -ltcl $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
+	-L@top_srcdir@/Analysis -lBufferAnalysis  \
+	-L@top_srcdir@/Fits     -lFits         \
+	$(TCL_LDFLAGS) $(MOTIF_LIBSW) $(XLIBSW)  -lXt -lX11 -lm
 
 
 TESTS = ./unittest

@@ -1,18 +1,3 @@
-/*
-    This software is Copyright by the Board of Trustees of Michigan
-    State University (c) Copyright 2005.
-
-    You may use this software under the terms of the GNU public license
-    (GPL).  The terms of this license are described at:
-
-     http://www.gnu.org/licenses/gpl.txt
-
-     Author:
-             Ron Fox
-	     NSCL
-	     Michigan State University
-	     East Lansing, MI 48824-1321
-*/
 #include <config.h>
 #include "XMWidget.h"
 using namespace std;
@@ -20,7 +5,7 @@ using namespace std;
 ** Implementation of functions from class XMApplication
 */
 
-XMApplication::XMApplication(const char *cl, Cardinal *argc, const char **argv,
+XMApplication::XMApplication(const char *cl, Cardinal *argc, char **argv,
 			     XrmOptionDescList options , 
 			     Cardinal noptions,
 			     const char **fallback_resources,
@@ -31,10 +16,10 @@ XMApplication::XMApplication(const char *cl, Cardinal *argc, const char **argv,
 				   app_class, options,
 				   noptions,
 				   (int *)
-				   argc, 
-				   const_cast<char**>(argv),
-				   const_cast<char**>(fallback_resources),
-				   (args), num_args);
+				   argc, argv,
+				   (String *)
+				   fallback_resources,
+				   args, num_args);
 }
 
 void
@@ -150,6 +135,7 @@ XMWidget::~XMWidget()
   }
   // std::list can clean up after itself now.
 
+  m_callbacks.clear();
 }
 
 Widget
@@ -159,16 +145,19 @@ Widget
 XMWidget::getparent() { return XtParent(id); }
 
 const char*
-XMWidget::getname() { return name; }
+XMWidget::getname() const
+{ 
+   return name; 
+}
 
 void
-XMWidget::SetAttribute(const char* attribute, XtArgVal value) 
+XMWidget::SetAttribute(String attribute, XtArgVal value) 
 {
   XtVaSetValues(id, attribute, value, NULL);
 }
 
 void
-XMWidget::SetAttribute(const char* attribute, void *value)
+XMWidget::SetAttribute(String attribute, void *value)
 {
   XtVaSetValues(id, attribute, value, NULL);
 }
@@ -224,6 +213,8 @@ XMWidget::RemoveCallback(String reason,
 
 	XMRemoveCallback(cbd);	// This deletes cbd and the string
 	m_callbacks.erase(i);	// Get rid of the list element.
+	delete []cbd->reason;
+	delete cbd;		// Get rid of the dynamic storage.
 	return;
 
       }

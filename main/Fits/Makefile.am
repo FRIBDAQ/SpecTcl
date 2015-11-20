@@ -16,7 +16,7 @@
 #
 
 
-AM_CPPFLAGS = 	-I@top_srcdir@/Utility	\
+INCLUDES = 	-I@top_srcdir@/Utility	\
 	  	-I@top_srcdir@/Xamine	\
 		-I@top_srcdir@/NSCLException \
 		-I@top_srcdir@/Sorter    \
@@ -26,13 +26,12 @@ AM_CPPFLAGS = 	-I@top_srcdir@/Utility	\
 		-I@top_srcdir@/Gates	\
 		-I@top_srcdir@/Filter	\
 		-I@top_srcdir@/TCL	\
-		-I@top_srcdir@/factories \
-		@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @TK_CPPFLAGS@
+		$(TCL_FLAGS)
 
 
 lib_LTLIBRARIES=libFits.la
 libFits_la_LDFLAGS = -version-info $(SOVERSION):0  \
-	-Wl,"-rpath-link=$(libdir)" @LIBTCLPLUS_LDFLAGS@ @TK_LIBS@ @TCL_LIBS@ \
+	-Wl,"-rpath-link=$(libdir)" $(TCL_LDFLAGS) \
 	-lgsl -lgslcblas -lm
 
 libFits_la_SOURCES = 	CFit.cpp		\

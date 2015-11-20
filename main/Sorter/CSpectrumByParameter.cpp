@@ -115,22 +115,12 @@ CSpectrumByParameter::operator()(const CEvent& event)
   // We have to do all lists for which a parameter is present.. until
   // either we run out of parameters or run out of spectrumlists.
 
-
-  DopeVector& dope = e.getDopeVector();
-  unsigned int numParameters = dope.size();
-
-  for (int i =0; i < numParameters; i++) {
-    unsigned int parameterNumber = dope[i];
-    if (parameterNumber < m_spectraByParameter.size()) {
-      SpectrumList *sList = m_spectraByParameter[parameterNumber];
-      if (sList) {
-	CSpectrum** aList = sList->getList();
-	incrementList(event, aList);
-      }
+  for (UInt_t i = 0; (i < event.size()) && (i < m_spectraByParameter.size()); i++) {
+    if (e[i].isValid() && m_spectraByParameter[i]) {
+      CSpectrum** aList = m_spectraByParameter[i]->getList();
+      incrementList(event, aList);
     }
   }
-  
-
 }
 
 /*!

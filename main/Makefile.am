@@ -1,7 +1,8 @@
 SUBDIRS =  Replace Scripts Utility Display \
 	NSCLException Xamine Tape EventSource \
-	TCL Events Gates Sorter SpectrumIO Filter Analysis TreeParam SpecTcl \
-	contrib TestFiles Gui
+	TCL Events Gates Sorter SpectrumIO Filter Analysis TreeParam \
+	Fits SpecTcl \
+	contrib TestFiles Gui splash filtsplit calibratedparams
 
 # Gri TestFiles need to be figured out still..
 
@@ -20,6 +21,8 @@ EXTRA_DIST = fixdos ReleaseNotesNSCL4.0.txt SpecTclRC.tcl \
 	CHANGELOG
 
 dist-hook:
+	mkdir -p $(distdir)/config
+	echo `pwd`
 	for file in $(AUX_DIST) $(AUX_DIST_EXTRA); do \
 	  cp $$file $(distdir)/$$file; \
 	done
@@ -50,7 +53,6 @@ install-exec-local:
 	cat   Directories.include              >> Directories.temp
 	$(INSTALL_DATA) Directories.temp $(sysconfdir)/Directories.include
 	$(INSTALL_DATA) LICENSE    $(prefix)
-	$(INSTALL_DATA) CHANGELOG  $(prefix)
 	echo CXX=$(CXX)                       > CompilationRules.temp
 	echo CC=$(CC)                        >> CompilationRules.temp
 	echo CXXLD=$(CXX)                  >> CompilationRules.temp
@@ -58,5 +60,6 @@ install-exec-local:
 	cat  CompilationRules.include        >> CompilationRules.temp
 	$(INSTALL_DATA) CompilationRules.temp $(sysconfdir)/CompilationRules.include
 	echo "Version: " $(VERSION) build on `hostname` `date` >VERSION
-	$(INSTALL_DATA)   VERSION       $(prefix)/VERSION
+	$(INSTALL_DATA) VERSION $(prefix)/VERSION
+	$(INSTALL_DATA) CHANGELOG $(prefix)
 	$(MANDB) $(prefix)/man

@@ -1,4 +1,3 @@
-]
 2.1-006 - Incorporate fix 113 - low level cutoffs lead to corrupted
           1-d displays.
         - Have build procedures clean any pre-built Gri prior to 
@@ -450,155 +449,419 @@ SpecTcl-3.1-001
    - Try to make the docbook builds more robust even in the presence of missing
      or broken(?) docbook installs.
    - configure for libgd.
-SpecTcl-3.1-002
-   - Fix defect 206 : Bit mask gates don't check parameter
-     validity and therefore can crash.
-   - Fix defect 197 : 2d averaging boxes too large in x.
-   - Fix defect 200 : Gamma 1dL spectrum were not 64 bit clean
-   - Fix defect 209 : More instances of non 64bit clean longword spectra:
-	                BitSpectrumL.cpp
-	               	Gamma1DL.cpp
-			Spectrum1DL.cpp
-			Spectrum2DL.cpp
-			SummarySpectrumL.cpp
-   - Fix defect 210 : Some acceptance of integer input is not 64 bit clean
-                      e.g. sscaning to long but with %d conversion instead of
-                      %ld. 
-   - Find some more 64 bit uncleanliness.. this time in Xamine.
-   - Re-do the GUI to deal with the case where there's an item named a
-     and another named a.b  - big rewrite!!!!
-   - Fix Defect 211 - did not check parameter count on g1 spectrum creation.
-                      if no parameters, spectcl segfaults.
-   - Fix Error in allocator.c - mask for longword alignent incorrectly 
-     calculated.. caused smaller allocations than should have been done.
-     this caused corruption of the Xamine shared memory free list.
-   - Improve performance of GUI parenting.
-   - Mask gates were not checked in a 64 bit pure way.. sign extends could
-     make the check incorrect.
-   - Mask gate editor in gui - work around issue in early tcl 8.4
-     where [string is integer] is false for e.g. 0x80000000
-   - Address defect 213:  When a 1-d spectrum has counts > 0x80000000,
-     with autoscaling turned on, it updating it/displaying it causes Xamine
-     to crash.
-     o Modify refreshctl.cc - Xamine_Refresh.. return from Xamine_ComputeScaling
-       should be unsigned, and further more checking for it to go negative
-       is stupid and should be removed.
-     o dispwind.h - getceiling and get floor modified to return uint.
-     o plot1d.cc  - Plot : base/max changed to be uint and propagated
-                    into PlotLog, PlotLin (range as well in PlotLin?).
-     o plot2d.cc  - DrawLogSegment, DrawSegment floor/ceil
-                    vars -> uint.
-     o axes.cc    - Ensure that counts axes are always + and that
-                    mapped axes will be right for very large +/- values.
-   - Side piece of defect 213... channel command is not rejecting large unsigned
-     channel values e.g. 0x87654321.
-   - Really get mask gates to work correctly.
-   - Fix error in newGUI.tcl - if used with Scaler processing,
-     run number could be non decimal (e.g. UNKNOWN).
-   - Fix error in wysiwyg prints of zoomed panes.
-   - Fix Y height error in plotting linear 1-d channels.. an off by 1 error only
-     visible for a relatively small number of counts.
-   - Enh 194 - print more precision in integration results.
-   - Enh 205 - max the gui status line for tha attach so that it can't
-     make the gui window very very wide.
-   - Deal with the fact that treeview find is >very< slow on 64 bit systems
-     in browser.tcl 
 
-  Released September 21, 2006
+SpecTcl 3.2-pre1 starts.
+  June 20, 2006 defect 206:  Check parameter validity in mask gates.
+                             Catch exceptions while histogramming
+                Defect 197:  Averaging reduction boxes too large by 
+                             1 channel in x.
+                Defect 200:  Gamma 1dL spectrum increments no 64 bit clean
+                Defect 209:  Mor of the same as 200.
+  June 23, 2006 Defect 210:  Problems with scaning ints -> longs.
+  June 28, 2006 Xamine has some 64 bit defects as well, these manifest
+                           on longword 2d spectra
+                Gui has problems if the user makes e.g. a and a.b  fix this.
+                Defect 211 - crash if making g1 spectrum with empty parameter 
+                             list
+  June 29, 2006 Improve performance of terminal parent creation in gui.
+                Fix defect in allocatro.c's alignment mask computation that
+                causes free list corruption on e.g. 64 bit systems.
+  July 5, 2006  Propagate fix for 64 bit problems with mask equal gates.
+                Work around issue with tclsh 8.4 early where
+                string is integer 0x80000000 (e.g.) returns false..
+                makes creation of mask gates fail.
+  July 13, 2006 Forward propagate fix for defect 213 to this version.
+                Took the easy way out copying all of *.cc,*.h from Display
+                and ChanCommand.cpp from SpecTcl.
+  July 17, 2006 Fix bitmask gate inconsistency between mask size in command
+                and in the classes implemebnting the gates....do this
+                by loading the gate mask value into the base class.
+  July 19, 2006 Fix error in newGui.tcl. When used with scaler processing,
+                RunNumber could be >Unknown< when formatting the status
+                line.
+  July 28, 2006 Fix error in wysiwyg printing  for zoomed displays.
+  July 31, 2006 Fix off by one error in scaling.cc - for small scale ranges,
+                and small channel values, the channel height was visibly
+                lower than the corresponding tick mark.
+  August 8, 2006 Enhancement 194 - increase precision in output of 
+                 integrations.
+  August 15,2006 Enhancement 205 - Limited the length of the attach spec on the
+                GUI status line to at most 50 chars with the middle ones
+                replaced by ...  this prevents the window from becoming
+                >very large< for e.g. cluster file analysis.
+  August 16, 2006 Do performance tuning of browser.tcl for 64 bit system.
+	        on those systems, treeview find is terribly slow.
+  August 29, 2006 Added setResult functions to CTCLInterpreter to factor
+               object based result setting into one spot.
+  September 7, 2006 Added support for super-events with 
+                CAnalyzer::entityNotDone() function.
+  Sept 8, 2006b Related to the above, allow event processors to indicate that
+                0 bytes of the event were processed if the event was not complete.
+  Sept 27,2006  Added code to support multiply incremented 2-d sum spectra.
+  Oct. 03, 2006 Gui: Add preferences control panel with ~/.SpecTclDefaults
+                save file.  Use this to default the length of 2-d spectrum
+                axes.
+  Oct 03, 2006 Gui: Prevent status lines from expanding in height.
+  Oct 04, 2006 rwio package - added permissions letter to the cvs and
+               to the distro.
 
-3.1-003
-   - Added -rpath to --with-motif-libdir configuration so that we can be sure we get the
-     right motif.
-   - Added prntout of VERSION to tkcon at startup
-   - Back ported fix for defect BZ 224 (integrations of 2dlong spectra
-     give incorrect centroids on 64 bit systems) from 3.2
-   - Added CHANGELOG to the installation.
-   - Figure out defect 228 - printer defaults can be written with illegal values
-     in Xamine.Defaults file.
-   - Defect 229 - setup.tcl is obsolete now.
-   - CXdrInputStream.cpp - as per D. Caussyn's catch: delete [] m_pBuffer not
-     delete m_pBuffer.
- Released     Jan 15, 2007
+  Oct 05, 2006 Xamine- add support for entering fitlines.
+  Oct 09, 2006 GUI - Bugzilla 207 - Increase the sophistication used
+               by SpecTcl's gui to located spectcldaq.
+  Oct 10, 2006 - GUI - Bugzilla 208 - Enhancement request for File->Save...
+               to support a selective store.
+               - Filter processor Bugzilla 217 - Put a bit of code in the
+               filter event processor to attempt to determine if it has
+	       been pointed at something that is not a filter file.
+               Seems to work for the cases I've tried, so it's 
+ 	       certainly better than it was before.
+  Oct 16, 2006 - Bugzilla 219 : Added code to TclGrammerApp.cpp to output
+	         the VERSION file to tkcon.
+               - BZ 220 Allow user to disable prompt for 
+                 new gui.  If NoPromptForNewGui is defined and true,
+                 prompting will be disabled.
+  Oct 19, 2006 - BZ 224 - 2d long integrations were incorrect on 64 bit plats.
+               - BZ 226 - Added support for attach and eof callouts to
+		 event processors.
+               - Documented new functions in the event processors.
+  Oct 20,2006  - BZ 87 Added basic fitting... still some kinks to work out
+                 in the Xamine display but it does work...also need
+                 to Xamine drive Gui to create the fit.
+  Oct 23, 2006 - Added documentation for the fit command and how to 
+                 extend the fitting subsystem.
+  Oct 24, 2006 - Fixed error in log display of fitlines (actually convert1d error).
+                 Made fitlines solid lines not just dots.
+                 Fixed defect introduced with fitlines - where 1-d objects
+                 got deleted on updates.
+                 Ensured that fitlines get sent in on sbind. 
+                 Added framework for user processing of Xamine buttons in
+                 the Xamine custom button box.
+ Oct 25, 2006  - CXamineEvent::addButtonHandler needs to be public.
+                 Expose ability to get the histogrammer etc. in SpecTcl.h
+                 Expose fit id allocation in CfitCommand.
+                 Added credits for gsl.{cpp,h} and permission grant to the
+ November 1, 2006 - Fix some issues for building from the distro rather than
+                 from CVS.
+                 distribution
+ Nov  2, 2006  - Get the calibrated parameter contrib install to stop polluting
+                 $(prefix)/include with its headers.
+               - Fix wierd issues with make dist on ubuntu edgy edge...
+                 was not putting config dir into the distro.=======
+                 distribution
+ Nov 3, 2006   - Fix error introduced in scaler display by attempt to 
+                 format totals as %u when they are actually floating point
+                 exactly to keep them from overflowing.
+               - Support a default buffersize preference.
+ Nov 8, 2006   - Add Xamine restart handler capability to Xamine interface.
+ Nov 9, 2006   - Install CHANGELOG 
+ Nov 17, 2006  - Fix defect 228 - Xamine.Defaults can get printing defaults
+                 all garbled causing printing to fail or crash Xamine
+               - Fix defect 299 - setup.tcl is obsolete now, don't distribute
+                 in Skel dir.
+December 1, 2006 
+               - Fix defect in edit2dmulti.tcl (pre-release).  If selecting
+		a spectrum and an axis parameter is not a treeparameter,
+		use the source spectrum axis definitions to provide the
+		appropriate axis def for the new spectrum.
+December 7, 2006 
+               - Fix 2 defects:
+                 o Removing fits from xamine via SpecTcl failed due to 
+                   not allowing that 'gate type' to be recognized for 
+                   deletion.
+                 o Deleting a spectrum should delete all fits that are
+                   defined on that spectrum.
+December 19, 2006 
+               - Fix defect per D. Caussyn FSU: CXdrInputStream.cpp was
+                 doing delete m_pBuffer -> delete [] m_pBuffer.
+Decmeber 21,2006 
+               - Ensure that the scriptable makefile also links in 
+		 the fits library.
+Release Jan 15, 2007
 
-3.1-004
-   - Defect 288 the eval apply $gate [list $spectra] did not work as believed.
-     iterate over the list instead.
-3.1-004
-   - Enh 232 : If treeparameter -set is invoked fire traces on that parameter so
-	any GUI elements associated with it are updated.
-   - BZ292 - Synchronize gpVersion with config.h's VERSION symbol.
+Pre 2 starts.
 
-   - BZ 293 - Uniquify tk appname   and remove NSCL copyright notice from the top of
-       tkcon.tcl as it's really Jeff Hobb's work under "bourbonware".
-   - BZ 284 - Ensure SpecTcldoes not crash if the VERSION file is not readable.
+January 18, 2007 - Defect 288 : applygate.tcl did not handle case of
+			multiple target spectra correctly.
+February 12, 2007 - Enh Request 232 : when treevariable -set is invoked,
+		 fire the traces on that variable so that any GUI elements
+		bound to that treevariable are updated
+February 13, 2007 - Defect/enh. 234 : When a configuration is restored,
+                and the config script has an error, keep on trying to
+		execute the script but report all the errors in a dialog...
+		at present, hopefully there are not very many errors as
+		the dialog is not a scrolling dialog.
+February 15,2007 - Synch gpVersion with VERSION symbol in config.h
+Week of Feb 22, 2007 - BZ enhancement request 291 Gamma 2d deluxe 
+                 spectrum.
+Week of Feb 26, 2007 - BZ 292?  Ensure that tk app name is unique
+                so multiple tkcons will open.
+               - Fix inadvertent leaving of Gamma 2d as Ulong_t not
+                 UInt_t and same for gamma deluxe, for 3.1 , Gamma 2dL
+                 was already correct.
+Week of March 5 - Add Splash screen.
+                - Adjust chisquare calculation to be correct for CGaussianFit 
+		  (thanks to Dirk Weisshaar).
+Week of March 12, 2007-
+	- Ensure that SpecTcl does not crash if VERSION not readable.
+	  (BZ 294).
+Week of March 19, 2007
+        - Make CEvent::clear() O(1) time.bg
+Week of April 2, 2007
+        - Add disclaimer to filterread.htm about data beyond the last used
+          position in filter buffers as someone made an assumption that is not
+          true about it.
+        - Added whatsnew3.1.htm page linked to front page that allows
+          users to see what's new in SpecTcl 3.1
 
-Released April 26, 2007
+Pre-released April 26, 2007
 
-3.1-005
-  May  3, 2007 - backport the 3.2 mod to drawing text in Xamine so something
-                 is always drawn.
-               - Fold in the jumbo buffer stuff for real.
-  May 14, 2007 - BZ 297 - Deal with pathalogical case of a single channel on
-                 an axis.
-  May 16, 2007 - Correct error in -state enabled -> -state normal in 
-	TreeParam/SpectrumGenerator.tcl
-  May 16, 2007 - Correct error in TreeParam/SpectrumGenerator.tcl 
-                 Duplicate Spectrum was not correctly retrieving the parameters
-                 of the spectrum being duplicated.
-  May 18, 2007 -  Fix CNSCLJumboBuffer::size32() member, was not correctly 
-                  picking up the buffer revision level.
-  May 28, 2007 - Fix conversion errors in channel -> screens whas moving
-                 the dispay of summing errors around.
-  May 30, 2007 - Fix up gate locations to match the 3.2 branch.
-  June 6, 2007 - Ensure that Xamine superposition prompt messages will display
-                 by making them children of the parent of the dialog rather
-                 than children of the dialog (which gets hidden when
-                 Xamine_error_msg is called).
-  June 11,2007   Get a clean development build on ubuntu edgy eft (e.g. from cvs co).
-  July 2, 2007   Fix error in 2d integration was returning stdevs not
-                 FWHMs.
-  July 12,2007 - Fix jumbo buffer handling in scriptable.
-  Aug. 16,2007 - BZ 318, The Old GUI spectrum listing was showing the
-                wrong gate applications unless the filter string was *
-                because the applied gate used was determined using the wrong
-                index into the application list.
-  Sep 10, 2007 - BZ 318 again.. use hashtables for the gates since indices are
-                 fragile wrt  the insertion of new spectra.
-  Sep 11, 2007 - Use spectrum definition in swrite to get the acutal axis
-                 limits rather than using the conversions in a hokey way.
-                 But remember the summary spectrum's special case.
-3.1-005 released
+Pre-3.
+ 
+Week of April 30, 2007
+        - Added observer capability to all dictionaries types.  This will
+          allow support of traces on e.g. spectrum dictionary.
+        - Added tests for dictionary observers and the observer manager
+          helper classes.
+        - Added capability to add/remove observers from the spectrum dictionary
+          to CHistogrammer.
+        - Added API entries to add/remove spectrum observers.
+        - Added spectrum -trace command.
+        - Added docs for the -trace command.
+        - Made Xamine's Xamine_DrawFittedString also attempt truncation
+          rather than just leaving a string blank if it does not fit.
+          e.g. a title that is:
+          "this is a very long string that does not fit"
+          could get rendered/displayed as:
+          "this is a very lo..."  if that's all the room there is
+        - Port in the jumbo buffer decoder and put it in scriptable unpacker
+            too
+Week of May 7, 2007
+        - BZ 295 - add support for splitting/joining filter files.  Note that
+          cat can join perfectly well, so this reduces to writing a program
+	  filtsplit that can split.  We'll choose to write:
+		filtspilt --size blocks_per_file --output stem_name  input_file
+          blocks_per_file - number of input filter blocks per output file.
+          stem_name       - Is the stem of the split output files which 
+                            will have names like stem_name_nnn.flt
+          input_file      - Is the input file to split.
+       - Changed swrite format level to 3: Make NSCLAsciiFormatter able to read:
+         rev 2,1 and even 2 where summary spectra only have 1 coord.
+       - Fix some issues with Gamma Delux 2d spectrum classes that don't compile
+         on 4.x compilers
+       - get NSCLAsciiFormatter to properly read rev 2,3 and 'malformed rev2'
+         produced by the pre2 version of 3.2.
+       - Make the spectrum file read functions able to correctly report errors in
+         reads (e.g. not a spectrum file).
+Week of May 14, 2007
+       - BZ 297 - Make axis tick marks draw correctly if there's only one channel in 
+        the spectrum (well really just don't draw tick marks at all.
+       - Add code to support gate observers.. for new displayer.
+       - Add -trace subcommand to gate.
+       - Fix error in TreeParameter/SpectrumGenerator.tcl -state normal not
+          -state enabled.
+       - Fix error in TreeParameter/SpectrumGenerator.tcl - Duplicate button
+         did not correctly decode parameters of spectrum being duplicated.
+       - Add docs for the gate -trace subcommand to the web docs.
+       - Fix CNSCLJumboBuffer::size32() member, was not correctly picking up 
+         the buffer revision level.
+Week of May 24, 2007
+       - Only clear gates that are worth clearing.
+Week of May 28,l 2007
+       - Fix channel position to pixel position coversions which had
+         the width of a channel to be too large (too few channels in displayed
+         range.
+       - Do some jiggerypokery with 1-d gates to make them more consistent with
+         their integration:
+         o On acceptance the right point is adjusted to the right by a channel.
+         o Gate checking is now exclusive of the right point.
+         o On entering in the display the adjustment is un-done so that
+           Xamine will display correctly.
+ Week of June 4, 2007
+       - Ensure that Xamine's SuperPrompt::SetList message boxes
+         from Xamine_error_msg() get displayed by making them
+         children of the prompter's parent rather than of the prompter
+         which, after all is hidden.
+ Week of June 11, 2007
+       - Get nice support for ubuntu edgy eft.
+ Week of June 25, 2007
+       - Begin adding the 'integrate' command.
+ Week of July 2, 2007
+       - 2-d integrations in Xamine had displayed standard deviations not
+         fwhm's as advertised.
+       - Add docs for integrate command.
+Week of July 9, 2007
+       - Corrected CPacket.cpp for jumbos in scriptable.
+Week of August 13, 2007
+       - BZ 318 - Old GUI SpectrumGenerator.tcl was not listing  applied
+         gates correctly when the filter mask was not *
+Week of Sept 10,2007
+       - BZ 318 revisited... need to use hash tables for the applied gates
+         rather than lists to be utterly reliable.
+       - Fix error in gamma 2d deluxe where if only one y parameter was specified
+         one of the constructors would segfault because it was mistakenly getting units
+         from y[1] not y[0].
+       - Fix error in swrite NSCLAsciiSpectrumFormatter...get axis limits directly from the
+         spectrum description rather than dorking around to get them from
+         the converter.
+Pre3 released
 
-Oct 11, 2007 3.1-006 development begins.
-  October   15, 2007 - BZ324 - Fixed a bunch of issues with the test data source.
-  November  26, 2007 - BZ327 - Multicolored monster has problems when parameter definitions
-                               are changed and when such changes are asked to modify spectrum
-                               definitions.
-                             - Avoid std::string string pooling as in CTreeParameter::setUnits
-                               as that's not threadsafe.
-February 25, 2008 - Workaround errror in lesstif file prompter dialog box.
-                    If the dialog is reused, the filter mask is replaced
-                    with the last selected file.
-March 21, 2008 - Fix defect in multicolored monster GUI.  Was building lists
-                 with append rather than lappend.  This caused problems
-                 with the units list when unit-less parameters were used,
-		 as their list entries would collapse out of the list.
+October 11, 2007 Pre 4 (or possibly 3.2-001) opened.
 
+October 12, 2007 - Make multicolored monster understand Gamman deluxe spectra.
+October 15, 2007 - Redid a bunch of stuff with the test data sources to 
+            allow attach, re-attach , re-re attach etc.  Don't think there
+            are any memory leaks.
+October 23, 2007 - Add detach menu entry.. really stops processing and does an
+                   attach -file /dev/null 
+                 - added version specific daq locations to search path for
+                   spectcldaq (gui).
 
-March 24, 2008 3.1-007 released
-Started 3.1-008
-March 28, 2008 - BZ 330 Port fix from 3.0, ensure that [X] calls some sort
-                 of callback that deletes the widget.
-               - In support of the above, add easy mechanism to remove
-                 callbacks.
-April 4, 2008  - Ensure that Xamine_DestroyGraphicalInput invokes cancel
-                 after the callbacks have been removed so that
-                 there's no recursion which would double delete the object.
+November  6, 2007 - Convert to svn repository
+November 26, 2007 - BZ 327 - Fix multicolored monster problems with changing spectra
+                    in resopnse to tree parameter range changes.
+December 4,2007   - Correct the Usage member of the calibration fit command so that
+                    it reflects the change in the name of the command.
 
-April 22,2008 - Correct bin width computations in CAxis. Per Thomas Baumaann
+January 3, 2008   - Install splash/license.terms -> $(prefix)/splash.license
+                    to comply with its license terms.
+Finalized Pre-release 4 January 3, 2008
 
-3.1-009
-February 18, 2009 - Modify Xamine's button bar so it's got a black backround when
-                    test software is installed.
-3.1-010
-May 8, 2009          - Port to Debian lenny.
+Start edit level 3.2-pre5 (may change to 3.2-001 midstream.. watch the log below).
+January 7, 2008   - Fixed include license.terms in the build.
+                  - GUI Attach -pipe was failing due to attempts to set
+                    the value of the buffersize widget prior to the creation
+                    of that widget's spinbox.
+January 9, 2008   - Add needParameter virtual to CSpectrum class hierarchy.
+                    this is used to know which list spectra belong in.
+January 10, 2008  - Fix errors in 1d construction.
+          	  - Use spectra organized by parameter to make
+                    increments a bit more efficent.
+		  - Use observers to maintain the flattened gate lists
+                    so there's no increment time overhead.
+January 11, 2008 - Make CFlattenedGateList work even if the gate container
+                   for the gate has changed from the inserted one.. 
+                   that is match the name.
+January 16, 2008 - Separate filter output formatting from the filter
+                   class itself.
+January 17, 2008 - Provide extensible filter format structure.
+                 - Fix error in filter save in gui .. parameter list had
+		   an extra layer of {}'s.
+                 - Add ability to introspect filter format.
+January 18, 2008 - Added support for the newer spectrum types to the API
+                 - Added filter support to the API.
+January 25, 2008 - Debugged filter support API
+                 - Fixed error in gate flattener handling that was preventing
+                   gate from being properly applied.
+February 25,2008 - Work around lesstif file dialog bug..For each re-use of the file selection
+                   dialog, explicitly set the search mask to the dirname of the  mask with
+                   *.win appended.  lesstif has the tendency to store the selected file
+                   in the filter path.
+March 12, 2008   - Cosmetic changes to folder gui file menu and the prompter for the 
+                   which gui to use dialog.
+March 21, 2008   - Fix error in MCM GUI where parameters with empty units could cause
+                   errors in the data structures keeping track of the parameters.
+                   Specifically, the entries in the units list would collapse out of 
+                   that list due to the use of append, rather than lappend to create those lists.
+March 24, 2008   - Add spectrum memory usage to status line of folder GUI per Kevin Carnes 
+                   suggestion.
+
+March 24,2008 tag release of 3.2
+Start work on 3.2-001
+
+March 27, 2008    - Correct error in spectrum observer.  Don't try to enter a spectrum that is
+                    not connected to all its parameters.  This can happen in e.g. sread.
+
+March 28, 2008   - BZ330 (hopefully)
+                    o Added easy ability to remove callbacks.
+                    o Registered all graphical input widgets to call
+                      Xamine_DestroyGraphicalInput on both delete and popdown
+                    o Have Xamine_DestroyGraphicalInput 
+                      * Kill mouse callbacks for graph input.
+                      * Remove the callbacks for delete and popdown.
+
+April 1, 2008    - Stop recycling properties dialog so it gets
+                   properly recreated (lesstif mis-remanages it).
+April 4, 2008    - BZ330 - Don't call cancel callback in
+                    Xamine_DestroyGraphicalInput until the callbacks
+                    are removed so we avoid recursion that will double
+                    destroy the object.
+April 22, 2008   - Fix slight errors in binning in SpecTcl.. correctly
+                   compute the bin width for the integeristas.
+                   Per Thomas Baumann.
+May 7, 2008      - Fix defect in Xamine gate acceptor on m2 spectra.
+                   Needed to select appropriately between adding the gate
+                   and modifying the existing gate, rather than unconditionally
+                   adding the gate.. which can throw an uncaught exception.
+                   Thanks to Kevin Carnes KSU for stepping into this defect
+                   and alerting me to it.
+                 - Added Kevin Carnes and Dirk Weisshaar to the acknowledgements.
+June 5, 2008     - Fix typeo in BufferAnalysis.h
+
+July 11, 2008    - Gui/slice.tcl - re-init the browser on accepting a gate (reinit member)
+                   that restores the parameters used to the list.
+                 - Expose the treeview interface to clients of 
+                   Gui/browser.tcl
+August 18, 2008  - Update to tkcon V2.4
+September 17, 2008 
+                 - Fixed error in RunState handling.. Set it to
+                   "Inactive" on event source EOF.  This is needed to
+ 		   support batchmode processing of e.g. filter files.
+September 26, 2008
+                 - backport capability to integrate superpositions as well
+                   as the base spectrum.
+3.2-002
+Feb 18, 2009    - Xamine button bar background -> black on test installs.
+March 18, 2009  - tkcon.tcl - rename clear command to tkconclear so it does not
+                  interfere with SpecTcl's clear command.
+3.2-003
+May 1, 2009     - CSpectrum2Dm.{h,cpp}  Ensure these spectra get put in the
+                  don't need a parameter list rather than some need a parameter list
+                  which causes them to be grossly underincremented.
+May 1, 2009     - Complete a raft of editing so that SpecTcl compiles and runs
+                  with minimal error messages on debian lenny...really 
+		  Debian g++-4.3.2-1.1
+May 20, 2009    - Fix sourcing from new gui.. was stripping newlines from multiline
+                  definintions (e.g. psuedos). which caused them to fail.
+May 27, 2009    - Fix an error in the handling of contours on gamma spectra
+
+3.2-004
+August 13, 2009 - Fix error in Strip chart spectrum was not requiring y parameter
+                    - Fix error in strip chart shift.  If shift is larger than spectrum
+                    channel count would segfault.that target parameter was defined.
+September 4, 2009 - Fix BZ 378 - CHistogrammer::createTitle had typos in the reduction
+                    of the y parameter list that led to segfaults when g2d spectra 
+                    titles were created.
+3.2-005
+October 14, 2009 - Fix error in strip chart spectrum.  After a slide left, the
+                   offset was off by one causing continuous parameters to have a 
+                   1-channel hole in their spectra.
+3.2-006
+December 3, 2009 - Fix error in XMDialogs.cc XMWarningDialog::XMWarningDialog
+                   references the buttons prior to ensuring their creation.
+December 4, 2009 - BZ 384 provide a list of fallback fonts in case 
+                   adobe courier is missing (e.g. Xming without font pack).
+                   If no fonts in the list of fonts are available, do a popup
+                   error rather than an stderr message before exiting.
+		   BZ384 - Provide a const char* exception handler in main()
+                           when caught displays a modal warning box with the
+                           exception displayed and when dismissed exits Xamine.
+                         - Throw an appropriate const char* exception when
+                           no suitable fonts can be found in text.cc:LoadFonts
+
+3.2-007
+May 6, 2010   - Remvoe -exact from tkcon's package require of Tcl as
+                that fails in ubuntu 10.04.
+May 6, 2010  - Update Gri to 3.12.20 and get it to compile on g++-4.3.2
+May 14, 2010 - Remove usage of memswap
+             - Remove -lpub from all makefile like artifacts.
+             - fixed BZ 404 overflow in griprint.cc (buffer overflow that is).
+3.2-008
+May 18, 2010 - Fixed error in gui spectrumUsage proc. Was miscalculating
+               summary spectrum usage.
+June 2, 2010 - Fixed two errors in the old tree parameter GUI:
+               * mclistbox.tcl - needs -state defined to work in Tcl 8.5
+               * Gate dependencies not correctly calculated causing
+                 saves to fail if there was only one gate defined.
+
+3.2-009   - Fix some memory double deallocation errors found by Coupland.
+3.2-010   - Add additionall lines of text to integration widget.

@@ -33,6 +33,11 @@
 /* 
    Change log:
    $Log$
+   Revision 5.3  2006/11/17 16:08:38  ron-fox
+   Defect 228 fix: Printer defaults could wind up only partially
+   initialized.. this resulted in bad Xamine.Default files and
+   could cause printing to fail or crash Xamine.
+
    Revision 5.2.2.1  2006/11/17 14:41:55  ron-fox
    Defect 228 - Xamine can make bad Xamine.Default files which can cause printing
    to fail because the print defauts can be set to whacky values.

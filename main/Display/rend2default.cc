@@ -312,11 +312,11 @@ static const char* Copyright = "(C) Copyright Michigan State University 1994, Al
 */
 class Rend2dDialog : public XMCustomDialog, public Rend2dForm {
  public:
-  Rend2dDialog(const char *name, XMWidget *parent, const char *title) :
+  Rend2dDialog(char *name, XMWidget *parent, char *title) :
     XMCustomDialog(name, *parent, title),
     Rend2dForm(name, *work_area)
       {
-	Apply->Label("Apply To All");
+	Apply->Label(const_cast<char*>("Apply To All"));
         Rend2dForm::Manage();
       }
   ~Rend2dDialog() {}
@@ -329,7 +329,7 @@ class Rend2dDialog : public XMCustomDialog, public Rend2dForm {
 */
 static Rend2dDialog *dialog = NULL;	/* Dialog handle. */
 
-static const  char *help_text[] = {
+static const char *help_text[] = {
   "  This dialog prompts you for the default 2-d histogram rendition\n",
   "The following renditions are supported:\n\n",
   "     Color    - Each channel is represented by a Color which indicates\n",
@@ -351,7 +351,8 @@ static const  char *help_text[] = {
   NULL
 };
 
-static Xamine_help_client_data help = { "Rend2d_help", NULL, help_text };
+static Xamine_help_client_data help = { const_cast<char*>("Rend2d_help"), NULL, 
+					const_cast<char**>(help_text) };
 
 /*
 ** Method Description:
@@ -367,11 +368,11 @@ static Xamine_help_client_data help = { "Rend2d_help", NULL, help_text };
 **   XMForm &work_area:
 **     The form which parents the widgets we create.
 */
- Rend2dForm::Rend2dForm(const char *name, XMForm &work_area)
+ Rend2dForm::Rend2dForm(char *name, XMForm &work_area)
 {
   /* Create the radio box's manager widget and set it up. */
 
-  radio_box = new XMRowColumn("Radio_Box", work_area);
+  radio_box = new XMRowColumn(const_cast<char*>("Radio_Box"), work_area);
   radio_box->RadioMenu();
   radio_box->RadioForceOne();
   radio_box->SetOrientation(XmVERTICAL);
@@ -387,14 +388,14 @@ static Xamine_help_client_data help = { "Rend2d_help", NULL, help_text };
 
   /*  Next populate the radio box with toggle buttons: */
 
-  Color = new XMToggleButton("Color", *radio_box);
-  Color->Label("Intensity to Color");
+  Color = new XMToggleButton(const_cast<char*>("Color"), *radio_box);
+  Color->Label(const_cast<char*>("Intensity to Color"));
 
-  Scatter = new XMToggleButton("Scatter", *radio_box);
-  Scatter->Label("Intensity to Scatter density");
+  Scatter = new XMToggleButton(const_cast<char*>("Scatter"), *radio_box);
+  Scatter->Label(const_cast<char*>("Intensity to Scatter density"));
 
-  Boxes = new XMToggleButton("Boxes", *radio_box);
-  Boxes->Label("Intensity to Box size");
+  Boxes = new XMToggleButton(const_cast<char*>("Boxes"), *radio_box);
+  Boxes->Label(const_cast<char*>("Intensity to Box size"));
 
 
 
@@ -527,7 +528,8 @@ static void ActionCallback(XMWidget *w, XtPointer user_d, XtPointer call_d)
 void Xamine_Set2dDefaultRendition(XMWidget *w, XtPointer p, XtPointer q)
 {
   if(dialog == NULL) {		/* Need to instantiate dialog.  */
-    dialog = new Rend2dDialog("Rend_2d", w, "Select 2d default rendition");
+    dialog = new Rend2dDialog(const_cast<char*>("Rend_2d"), w, 
+			      const_cast<char*>("Select 2d default rendition"));
 
     dialog->AddOkCallback(ActionCallback, dialog);
     dialog->AddApplyCallback(ActionCallback, dialog);

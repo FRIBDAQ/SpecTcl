@@ -273,7 +273,7 @@ THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
 EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+		     END OF TERMS AND CONDITIONS'
 */
 static const char* Copyright = "(C) Copyright Michigan State University 1994, All rights reserved";
 /*
@@ -324,10 +324,10 @@ extern volatile spec_shared *xamine_shared;
 
 class AttributeDialog : public XMCustomDialog, public AttributeForm {
  public:
-  AttributeDialog(const char *name, XMWidget &parent, const char *title) :
+  AttributeDialog(char *name, XMWidget &parent, char *title) :
     XMCustomDialog(name, parent, title),
     AttributeForm(name, *work_area) {
-      Apply->Label("Apply To All");
+    Apply->Label(const_cast<char*>("Apply To All"));
     }
   ~AttributeDialog() {}
 
@@ -337,7 +337,7 @@ class AttributeDialog : public XMCustomDialog, public AttributeForm {
 */
 static AttributeDialog *dialog = NULL;	/* Caches pointer to the dialog. */
 
-static const  char *help_text[] = {
+static const char *help_text[] = {
   "   This dialog is prompting you to set the default attributes for spectra\n",
   "default attributes affect some aspects of how spectra placed in panes\n",
   "will look. Default attributes do not affect the appearance of spectra\n",
@@ -364,7 +364,8 @@ static const  char *help_text[] = {
   NULL
   };
 
-static Xamine_help_client_data help = {"Attribute_Help", NULL, help_text};
+static Xamine_help_client_data help = {const_cast<char*>("Attribute_Help"), NULL, 
+				       const_cast<char**>(help_text)};
 
 
 
@@ -380,39 +381,39 @@ static Xamine_help_client_data help = {"Attribute_Help", NULL, help_text};
 **   XMWidget *parent:
 **     Parent of the dialog.
 */
-AttributeForm::AttributeForm(const char *name, XMForm &work_area)
+AttributeForm::AttributeForm(char *name, XMForm &work_area)
 {
   /* Create and layout all the widgets as a top to bottom chain.  */
   /* Note that for the text/label pairs, we chain the left to the right */
 
-  flipped = new XMToggleButton("Flipped", work_area);
-  flipped->Label("Flip X and Y Axes");
+  flipped = new XMToggleButton(const_cast<char*>("Flipped"), work_area);
+  flipped->Label(const_cast<char*>("Flip X and Y Axes"));
   work_area.SetTopAttachment(*flipped, XmATTACH_FORM);
   work_area.SetLeftAttachment(*flipped, XmATTACH_FORM);
   work_area.SetRightAttachment(*flipped, XmATTACH_FORM);
 
-  logscale = new XMToggleButton("LogScale", work_area);
-  logscale->Label("Logarithmic Counts Scale");
+  logscale = new XMToggleButton(const_cast<char*>("LogScale"), work_area);
+  logscale->Label(const_cast<char*>("Logarithmic Counts Scale"));
   work_area.SetTopAttachment(*logscale, XmATTACH_WIDGET);
   work_area.SetTopWidget(*logscale, *flipped);
   work_area.SetLeftAttachment(*logscale, XmATTACH_FORM);
   work_area.SetRightAttachment(*logscale, XmATTACH_FORM);
 
-  mapping = new XMToggleButton("Mapped", work_area);
-  mapping->Label("Apply User Coordinate Mapping");
+  mapping = new XMToggleButton(const_cast<char*>("Mapped"), work_area);
+  mapping->Label(const_cast<char*>("Apply User Coordinate Mapping"));
   work_area.SetTopAttachment(*mapping, XmATTACH_WIDGET);
   work_area.SetTopWidget(*mapping, *logscale);
   work_area.SetLeftAttachment(*mapping, XmATTACH_FORM);
   work_area.SetRightAttachment(*mapping, XmATTACH_FORM);
 
-  autoscale = new XMToggleButton("AutoScale", work_area);
+  autoscale = new XMToggleButton(const_cast<char*>("AutoScale"), work_area);
   work_area.SetTopAttachment(*autoscale, XmATTACH_WIDGET);
   work_area.SetTopWidget(*autoscale, *mapping);
   work_area.SetLeftAttachment(*autoscale, XmATTACH_FORM);
   work_area.SetRightAttachment(*autoscale, XmATTACH_FORM);
 
-  fullscale = new XMText("FullScale", work_area, 1, 10);
-  fullscale_label = new XMLabel("FullScaleL", work_area, "Full Scale Value");
+  fullscale = new XMText(const_cast<char*>("FullScale"), work_area, 1, 10);
+  fullscale_label = new XMLabel(const_cast<char*>("FullScaleL"), work_area, const_cast<char*>("Full Scale Value"));
   work_area.SetTopAttachment(*fullscale, XmATTACH_WIDGET);
   work_area.SetTopWidget(*fullscale, *autoscale);
   work_area.SetTopAttachment(*fullscale_label, XmATTACH_WIDGET);
@@ -422,16 +423,17 @@ AttributeForm::AttributeForm(const char *name, XMForm &work_area)
   work_area.SetLeftWidget(*fullscale_label, *fullscale);
   work_area.SetRightAttachment(*fullscale_label, XmATTACH_FORM);
 
-  lowlevel_enable = new XMToggleButton("LowLevelEnable", work_area);
-  lowlevel_enable->Label("Enable Low Level Cutoff");
+  lowlevel_enable = new XMToggleButton(const_cast<char*>("LowLevelEnable"), work_area);
+  lowlevel_enable->Label(const_cast<char*>("Enable Low Level Cutoff"));
   work_area.SetTopAttachment(*lowlevel_enable, XmATTACH_WIDGET);
   work_area.SetTopWidget(*lowlevel_enable, *fullscale);
   work_area.SetLeftAttachment(*lowlevel_enable, XmATTACH_FORM);
   work_area.SetRightAttachment(*lowlevel_enable, XmATTACH_FORM);
 
-  lowlevel = new XMText("LowLevel", work_area, 1,10);
-  lowlevel_label = new XMLabel("LowLevelL", work_area, 
-			       "Low Level Cutoff Value");
+  lowlevel = new XMText(const_cast<char*>("LowLevel"), work_area, 1,10);
+  lowlevel_label = new XMLabel(const_cast<char*>("LowLevelL"),
+			       work_area, 
+			       const_cast<char*>("Low Level Cutoff Value"));
   work_area.SetTopAttachment(*lowlevel, XmATTACH_WIDGET);
   work_area.SetTopWidget(*lowlevel, *lowlevel_enable);
   work_area.SetTopAttachment(*lowlevel_label, XmATTACH_WIDGET);
@@ -441,16 +443,18 @@ AttributeForm::AttributeForm(const char *name, XMForm &work_area)
   work_area.SetLeftWidget(*lowlevel_label, *lowlevel);
   work_area.SetRightAttachment(*lowlevel_label, XmATTACH_FORM);
 
-  hilevel_enable = new XMToggleButton("HiLevelEnable", work_area);
-  hilevel_enable->Label("Enable High Level Cutoff");
+  hilevel_enable = new XMToggleButton(const_cast<char*>("HiLevelEnable"), work_area);
+  hilevel_enable->Label(const_cast<char*>("Enable High Level Cutoff"));
   work_area.SetTopAttachment(*hilevel_enable, XmATTACH_WIDGET);
   work_area.SetTopWidget(*hilevel_enable, *lowlevel);
   work_area.SetLeftAttachment(*hilevel_enable, XmATTACH_FORM);
   work_area.SetRightAttachment(*hilevel_enable, XmATTACH_FORM);
 
-  hilevel = new XMText("HighLevel", work_area, 1,10);
-  hilevel_label = new XMLabel("HighLevelL", work_area,
-			      "High Level Cutoff Value");
+  hilevel = new XMText(const_cast<char*>("HighLevel"),
+		       work_area, 1,10);
+  hilevel_label = new XMLabel(const_cast<char*>("HighLevelL"),
+			      work_area,
+			      const_cast<char*>("High Level Cutoff Value"));
   work_area.SetTopAttachment(*hilevel, XmATTACH_WIDGET);
   work_area.SetTopWidget(*hilevel, *hilevel_enable);
   work_area.SetTopAttachment(*hilevel_label, XmATTACH_WIDGET);
@@ -686,7 +690,9 @@ static void ActionCallback(XMWidget *w, XtPointer user_d, XtPointer call_d)
 void Xamine_SetDefaultAttributes(XMWidget *w, XtPointer user_d, XtPointer cd)
 {
   if(dialog == NULL) {		/* Instantiate the dialog and set callbacks */
-    dialog = new AttributeDialog("Attribute_Prompt", *w, "Default Attributes");
+    dialog = new AttributeDialog(const_cast<char*>("Attribute_Prompt"), 
+				 *w, 
+				 const_cast<char*>("Default Attributes"));
 
     /* Handle the buttons in the action area. */
 

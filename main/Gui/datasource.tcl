@@ -21,7 +21,7 @@ package require guiutilities
 #  Namespace to hold some of the configuration entries.
 #
 namespace eval datasource {
-    variable daqroot         /usr/opt/daq;   # Where the DAQ software is installed.
+    variable daqroot         [list /usr/opt/daq/current /usr/opt/daq/8.1 /usr/opt/daq/8.0  /usr/opt/daq];   # Where the DAQ software is installed.
     variable lasthost        localhost;  # Most recent online host.
     variable lasteventfile   {}
     variable lastpipecommand {}
@@ -30,8 +30,50 @@ namespace eval datasource {
     variable runlistFiles    {}
     variable warnedFilters   0
     variable lastFilterFile {}
+    variable actualSpecTclDaq {}
 }
 
+# datasource::findSpecTclDaq
+#    Locate the atual spectcldaq file.  We try for it in the
+#    nscldaq roots described by daqroot, and if we can't find
+#    it there, we ask the user to browse for it.
+#
+proc datasource::findSpecTclDaq {} {
+    if {$datasource::actualSpecTclDaq ne ""} {
+	return;				# already found.
+    }
+    if {[array names GuiPrefs::preferences defaultDaqRoot] ne ""} {
+	set candidate \
+	    [file join $GuiPrefs::preferences(defaultDaqRoot) bin spectcldaq]
+	if {[file executable $candidate]} {
+	    set datasource::actualSpecTclDaq $candidate
+	    return
+	}
+
+    }
+
+    foreach root $datasource::daqroot {
+	set candidate [file join $root bin spectcldaq]
+	if {[file executable $candidate]} {
+	    set datasource::actualSpecTclDaq $candidate
+	    return
+	}
+    }
+    #  Didn't find one so prompt the user with tk_getOpenFile:
+
+    set datasource::actualSpecTclDaq \
+	[tk_getOpenFile -title {Locate spectcldaq for me please}]
+    if {[file executable $datasource::actualSpecTclDaq]} {
+	return
+    }
+    set datasource::actualSpecTclDaq [list]
+    tk_messageBox -icon info -title {No spectcldaq}   \
+	-message \
+	{Can't locate spectcldaq, and you could not help, cancelling the attach}
+
+
+}
+#
 # attachOnline
 #      Attach to an online data source.
 #      datasource::daqroot is assumed to hold the installation
@@ -40,7 +82,8 @@ namespace eval datasource {
 #      We need to pop up a dialog to request the node from which we take data.
 #
 proc attachOnline {} {
-    hostprompt .hostprompt -host $::datasource::lasthost
+    hostprompt .hostprompt -host $::datasource::lasthost \
+	-buffersize $::GuiPrefs::preferences(defaultBuffersize)
     .hostprompt modal
     if {[winfo exists .hostprompt]} {
         set host [.hostprompt cget -host]
@@ -49,8 +92,12 @@ proc attachOnline {} {
             set url [format "tcp://%s:2602/" $host]
 	    set size [.hostprompt cget -buffersize]
             catch stop;                         # In case analysis is active.
-            attach -size $size -pipe [file join $::datasource::daqroot bin spectcldaq]  $url
-            start
+	    datasource::findSpecTclDaq
+	    if {$datasource::actualSpecTclDaq ne ""} {
+		attach -size $size -pipe $datasource::actualSpecTclDaq  $url
+		set ::GuiPrefs::preferences(defaultBuffersize) $size
+		start
+	    }
         }
         destroy .hostprompt
     }
@@ -67,7 +114,8 @@ proc attachFile {} {
     attachfile .prompt                                               \
 	-defaultextension .evt                                       \
 	-initialfile  $::datasource::lasteventfile                   \
-	-initialdir   [file dirname $::datasource::lasteventfile] 
+	-initialdir   [file dirname $::datasource::lasteventfile]   \
+	-buffersize   $::GuiPrefs::preferences(defaultBuffersize)
     .prompt modal
     set file [.prompt cget -initialfile]
     set size [.prompt cget -buffersize]
@@ -77,6 +125,7 @@ proc attachFile {} {
         if {[file readable $file]} {
             catch stop
             attach -size $size -file $file
+	    set ::GuiPrefs::preferences(defaultBuffersize) $size
             start
             set ::datasource::lasteventfile $file
         } else {
@@ -93,7 +142,9 @@ proc attachFile {} {
 proc attachPipe {} {
     attachpipe .attachpipe -initialdir [file dirname $::datasource::lastpipecommand] \
                            -initialfile  $::datasource::lastpipecommand \
-                           -initialargs $::datasource::lastpipeargs
+                           -initialargs $::datasource::lastpipeargs 
+    .attachpipe configure \
+	                   -buffersize $::GuiPrefs::preferences(defaultBuffersize)
     .attachpipe modal
 
     if {[winfo exists .attachpipe]} {
@@ -104,6 +155,7 @@ proc attachPipe {} {
                 catch stop
 		set size [.attachpipe cget -buffersize]
                 if {![catch {eval attach -size $size -pipe $command $arguments} msg] } {
+		    set ::GuiPrefs::preferences(defaultBuffersize) $size
                     start
                     set ::datasource::lastpipecommand $command
                     set ::datasource::lastpipeargs    $arguments
@@ -222,7 +274,8 @@ proc nextFileInRunlist {varname index op} {
         set ::datasource::runlistFiles [lrange $::datasource::runlistFiles 1 end]
         if {$file != ""} {
             catch stop
-            if {![catch {attach -file $file} msg]} {
+	    set size $::GuiPrefs::preferences(defaultBuffersize)
+            if {![catch {attach -size $size -file $file} msg]} {
                 catch start
             } else {
                 set answer [tk_messageBox -icon error -title {attach failed} \
@@ -239,6 +292,14 @@ proc nextFileInRunlist {varname index op} {
     }
 }
 
+#
+#  Detach from data sources.. well not really, this is actuall stop
+#  and attach -file /dev/null.
+#
+proc detach {} {
+    catch stop
+    attach -file /dev/null
+}
 #
 #  Prompter for a host for the attachonline.
 #

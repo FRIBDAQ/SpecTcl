@@ -305,10 +305,10 @@ DAMAGES.
 class AcceptPointList : public AcceptSummingRegion
 {
 public:
-  AcceptPointList(const char *name, XMWidget *parent, 
+  AcceptPointList(char *name, XMWidget *parent, 
 		  int minpts = 1,
 		  int maxpts = GROBJ_MAXPTS,
-		  const char **help_text = NULL);
+		  char **help_text = NULL);
   virtual ~AcceptPointList() {}	     // No actions required from this level.
   virtual  void AddPoint(point &pt); // Override to range check point count.
   virtual  Boolean DoAccept();	     // Range check but user should override.
