@@ -11,17 +11,14 @@
 #  The idea is that libtcl/libexception could be or not be centrally
 #  installed, but if not, built from the export directory.
 #
-# Last used with libtclplus-v2.0-002
+# Last used with libtclplus-v2.0-000
 
-baseURL="https://svn.code.sf.net/p/nscldaq/code/tags"
+baseURL="git://git.code.sf.net/p/nscldaq/git"
 
 tag="$1"
 
-URL="$baseURL/$tag"
+rm -rf libtcl 
 
-echo $URL
-
-svn export $URL libtcl
-
+git clone $baseURL libtcl
+(cd libtcl; git checkout tags/$1)
 (cd libtcl; autoreconf -i)
-
