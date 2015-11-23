@@ -1,7 +1,8 @@
 #!/bin/bash -xe
 
 
-rm -rf ${WORKSPACE}/3.4
+target=${WORKSPACE}/${GIT_BRANCH}-${BUILD_NUMBER}-fromdist
+rm -rf ${target}
 
 amversion=`grep AM_INIT_AUTOMAKE configure.ac | cut -f2 -d" " | sed s/,//`
 acversion=`grep AC_INIT configure.ac | cut -f2 -d"," | sed s/,// | sed s/")"//`
@@ -20,11 +21,11 @@ echo ${tarball}
 tar xzf ${tarball}
 cd `basename ${tarball} .tar.gz`
 
-./configure --prefix=${WORKSPACE}/3.4
+./configure --prefix=${target}
 make clean all
 make install
 make check
 make installcheck
 
 rm -rf `basename ${tarball} .tar.gz`
-rm -rf ${WORKSPACE}/3.4
+
