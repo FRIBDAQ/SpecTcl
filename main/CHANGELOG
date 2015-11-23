@@ -1,4 +1,3 @@
-]
 2.1-006 - Incorporate fix 113 - low level cutoffs lead to corrupted
           1-d displays.
         - Have build procedures clean any pre-built Gri prior to 
