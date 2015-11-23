@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+       "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+ >
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLObjectProcessor</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLObjectProcessor</refname>
+        <refpurpose>
+            Abstract base class to encapsulate the Tcl object command interface exposed by
+            <function>Tcl_CreateObjCommand</function>.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLObjectProcessor.h&gt;
+...
+class CTCLObjectProcessor : public CTCLInterpreterObject
+{
+public:
+  CTCLObjectProcessor(CTCLInterpreter&amp; interp,
+                      std::string      name,
+                      bool             registerMe=true);
+  virtual ~CTCLObjectProcessor();
+
+  void Register();              // Register command on the interpreter.
+  void unregister();            // Unregister command from the interp.
+  std::string getName() const;  // Return the name of the object.
+  Tcl_CmdInfo getInfo() const;  // Return info about the command.
+
+  virtual int operator()(CTCLInterpreter&amp; interp,
+                         std::vector&lt;CTCLObject&gt;&amp; objv) = 0;
+  virtual void onUnregister();
+
+};
+
+    </programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Tcl supports the addition of commands to the interpreter.  <classname>CTCLObjectProcessor</classname>
+            supports an object oriented encapsulation of this part of the API.
+            To add a command to an interpreter, write a subclass of
+            <classname>CTCLObjectProcessor</classname>.  This subclass should override
+            <function>operator()</function>, and optionally <function>onUnregister</function>.
+            to implement the desired behavior for the new command.
+        </para>
+        <para>
+            Create an instance of this new class and invoke its
+            <function>Register</function>
+            member to add it to the interpreter onto which it is bound.  Whenever a
+            script executes the new command that object's
+            <function>operator()</function> is invoked to process the command.
+            If the interpreter is destroyed, or if the command is ever unregistered,
+            the <function>onUnregister</function> function is called to perform any
+            required global cleanup.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+<function>CTCLObjectProcessor</function>(<type>CTCLInterpreter</type>&amp; <parameter>interp</parameter>,
+                    <type>std::string</type>      <parameter>name</parameter>,
+                    <type>bool</type>             <parameter>registerMe</parameter>=<literal>true</literal>);
+
+        </programlisting>
+        </para>
+        <para>
+            Constructs a new command processor.  <parameter>interp</parameter> is the
+            interpreter on which the command will be registered when the
+            <function>Register</function> member is invoked.
+            <parameter>name</parameter> is the name of the command.
+            If <parameter>registerMe</parameter> is not supplied or is supplied but is
+            <literal>true</literal>, the command will be registered as part of the construction process.
+            If <parameter>registerMe</parameter> is supplied and is <literal>false</literal>,
+            the command is not immediately added, and <function>Register</function> must
+            be called later to incorporate it into the interpreter.
+        </para>
+        <para>
+        <programlisting>
+<type>void</type> <function>Register</function>();
+<type>void</type> <function>unregister</function>();
+        </programlisting>
+        </para>
+        <para>
+            <function>Register</function> incorporates the command into the
+            interpreter.  If the command is already registered, a
+            <classname>CStateException</classname> is thrown.
+        </para>
+        <para>
+            <function>unRegister</function> removes the command from the interpreter.
+            This causes <function>onUnregister</function> to be called.
+            if the command is registered at destruction time, destruction implies a call
+            to <function>unRegister</function> (and therefore <function>onUnregister</function>).
+        </para>
+        <para>
+        <programlisting>
+<type>std::string</type> <function>getName</function>() const;
+<type>Tcl_CmdInfo</type> <function>getInfo</function>() const;
+        </programlisting>
+        </para>
+        <para>
+            <function>getName</function> returns the name of the command
+            that will invoke this object's <function>operator()</function>.
+            If the command has been registered, and subsequently renamed at the
+            script level, this function will reflect the rename.
+        </para>
+        <para>
+            <function>getInfo</function> returns information about the command
+            see <function>Tcl_GetCommandInfo</function> for more information about
+            what is returned and what it means.
+        </para>
+        <para>
+        <programlisting>
+virtual <type>int</type> <function>operator()</function>(<type>CTCLInterpreter</type>&amp; <parameter>interp</parameter>,
+                       <type>std::vector&lt;CTCLObject&gt;</type>&amp; <parameter>objv</parameter>) = 0;
+        </programlisting>
+        </para>
+        <para>
+            This pure virtual function must be overridden in concrete object command processors.
+            The function is called to execute the command that this object is performing.
+            <parameter>interp</parameter> provides a reference to the interpreter on which
+            the command is being run. <parameter>objv</parameter> is a reference to a
+            <type>std::vector&lt;CTCLObject&gt;</type>.
+            Each element of <parameter>objv</parameter> is a <classname>CTCLObject</classname>
+            containing a word of the command line that invoked us.
+        </para>
+        <para>
+            The function should return <literal>TCL_OK</literal> on success and
+            <literal>TCL_ERROR</literal> on failure.  Other return values are possible
+            for e.g. commands that implement new control structures however this is beyond
+            the scope of this manpage.  If the command processor wants to make a result
+            available to the interpreter, it can create a <classname>CTCLResult</classname>
+            object, fill it in and commit it.
+        </para>
+        <para>
+        <programlisting>
+virtual void onUnregister();
+        </programlisting>
+        </para>
+        <para>
+            This function is called when the interpreter is being destroyed or if the
+            command is being unregistered either due to object destruction or a call to
+            <function>unregister</function>.  The default behavior is to do nothing, but
+            this can be overidden in your derived class if desired.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+CTCLCompatibilityProcessor(3),
+CTCLInterpreter(3),
+CTCLInterpreterObject(3),
+CTCLObject(3),
+CTCLProcessor(3),
+CTCLResult(3),
+Tcl_CreateObjCommand(3tcl),
+Tcl_GetCommandInfo(3tcl)
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+                   "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+ >
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLPackagedCommand</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLPackagedCommand</refname>
+        <refpurpose>
+            Base class for a command that lives in a <classname>CTCLCommandPackage</classname>
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLPackagedCommand.h&gt;
+...
+class CTCLPackagedCommand   : public CTCLProcessor
+{
+
+  CTCLPackagedCommand (const std::string&amp; sCommand, CTCLInterpreter* pInterp,
+                       CTCLCommandPackage&amp; rPackage);
+  CTCLPackagedCommand (const char* pCommand, CTCLInterpreter* pInterp,
+                       CTCLCommandPackage&amp; rPackage);
+   ~ CTCLPackagedCommand ( );
+
+  CTCLCommandPackage&amp; getMyPackage();
+
+  void setMyPackage (CTCLCommandPackage&amp; am_rMyPackage);
+
+};
+    </programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Command packages (see CTCLCommandPackage(3)), provide a way to organize
+            a set of related Tcl command processors  around a set of shared services.
+            Objects derived from <classname>CTCLPackagedCommand</classname> are added
+            to an object derived from <classname>CTCLCommandPackage</classname>.
+            The <classname>CTCLCommandPackage</classname> manages bulk registration of
+            all of the commands added to it.  Construcint a
+            <classname>CTCLPackagedCommand</classname> object provides it a
+            reference to its package so
+            that public members of the package can be invoked when the package commands
+            are executing.
+        </para>
+        <para>
+            Note that since <classname>CTCLPackagedCommand</classname> is derived from
+            <classname>CTCLProcessor</classname>, and does not supply a <function>operator()</function>
+            You must derive concrete classes from this class implementing
+            <function>operator()</function> to provide the desired command functionality.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+  <function>CTCLPackagedCommand</function> (const <type>std::string</type>&amp; <parameter>sCommand</parameter>,
+                       <type>CTCLInterpreter</type>* <parameter>pInterp</parameter>,
+                       <type>CTCLCommandPackage</type>&amp; <parameter>rPackage</parameter>);
+  <function>CTCLPackagedCommand></function> (const <type>char</type>* <parameter>pCommand</parameter>,
+                       <type>CTCLInterpreter</type>* <parameter>pInterp</parameter>,
+                       <type>CTCLCommandPackage</type>&amp; <parameter>rPackage</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Constructs a packaged command.
+            <parameter>sCommand</parameter> or
+            <parameter>pCommand</parameter>
+            provide the command name.  <parameter>pInterp</parameter> is a pointer to the
+            interpreter on which the command will be registered.
+            <parameter>rPackage</parameter> is a reference to the package this object will
+            be a member of.
+        </para>
+        <para>
+            <programlisting>
+
+<type>CTCLCommandPackage</type>&amp; <function>getMyPackage()</function>;
+            </programlisting>
+        </para>
+        <para>
+            Returns a reference to the object's package.  This can be cast to the
+            actual type of the package at which point package public members can be
+            accessed.
+        </para>
+        <para>
+            <programlisting>
+  <type>void</type> <function>setMyPackage</function> (<type>CTCLCommandPackage</type>&amp; <parameter>rMyPackage</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Provides a new package for the command.
+        </para>
+        <para>
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+CTCLCommandPackage(3),
+CTCLProcessor(3)
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

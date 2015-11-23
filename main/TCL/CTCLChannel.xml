@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+ "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+ >
+<book>
+<article>
+
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLChannel</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLChannel</refname>
+        <refpurpose>
+            Provide a C++ abstraction wrapper for Tcl Channels.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLChannel.h&gt;
+...
+class CTCLChannel : public CTCLInterpreterObject
+{
+public:
+
+  CTCLChannel(CTCLInterpreter* pInterp,
+              std::string      Filename,
+              const char*      pMode,
+              int              permissions);
+  CTCLChannel(CTCLInterpreter* pInterp,
+              int              argc,
+              const char**           pargv,
+              int              flags);
+  CTCLChannel(CTCLInterpreter* pInterp,
+              int              port,
+              std::string      host)
+  CTCLChannel(CTCLInterpreter* pInterp,
+              int              port,
+              Tcl_TcpAcceptProc* proc,
+              ClientData       AppData);
+  CTCLChannel(CTCLInterpreter* pInterp,
+              Tcl_Channel      Channel);
+  CTCLChannel(const CTCLChannel&amp; rhs);
+  virtual ~CTCLChannel();
+
+  Tcl_Channel getChannel() const;
+  bool ClosesOnDestroy() const;
+
+  int Read( void** pData, int nChars);
+  int Write(const void* pData, int nBytes);
+
+  bool atEof();
+  void Flush();
+  void Close();
+  void Register();
+  void SetEncoding(std::string Name);
+  std::string GetEncoding();
+
+    </programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            The Tcl API supplies an I/O abstraction layer on top of the
+            operating systems I/O subsystem.  This layer makes use of what Tcl documentation
+            refers to a s <firstterm>channels</firstterm>. A channel represents a connection
+            to an I/O endpoint (source or sink of data or both).  The <classname>CTCLChannel</classname>
+            class allows you to wrap a C++ class around a Tcl channel.
+        </para>
+        <para>
+            Using a <classname>CTCLChannel</classname>, rather than direct operating system
+            I/O allows you to improve the portability of your program, as well as allowing
+            I/O from the TCL scripting level to be cleanly mixed with I/O at the C/C++ level.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+  <function>CTCLChannel</function>(<type>CTCLInterpreter</type>* <parameter>pInterp</parameter>,
+              <type>std::string</type>      <parameter>Filename</parameter>,
+              <type>const char</type>*      <parameter>pMode</parameter>,
+              <type>int</type>              <parameter>permissions</parameter>);
+  <function>CTCLChannel</function>(<type>CTCLInterpreter</type>* <parameter>pInterp</parameter>,
+              <type>int</type>              <parameter>argc</parameter>,
+              <type>const char</type>**           <parameter>pargv</parameter>,
+              <type>int</type>              <parameter>flags</parameter>);
+  <function>CTCLChannel</function>(<type>CTCLInterpreter</type>  * <parameter>pInterp</parameter>,
+              <type>int</type>              <parameter>port</parameter>,
+              <type>std::string</type>      <parameter>host</parameter>);
+  <function>CTCLChannel</function>(<type>CTCLInterpreter</type>* <parameter>pInterp</parameter>,
+              <type>int</type>              <parameter>port</parameter>,
+              <type>Tcl_TcpAcceptProc</type>* <parameter>proc</parameter>,
+              <type>ClientData</type>      <parameter>AppData</parameter>);
+  <function>CTCLChannel</function>(<type>CTCLInterpreter</type>* <parameter>pInterp</parameter>,
+              <type>Tcl_Channel</type>      <parameter>Channel</parameter>);
+  <function>CTCLChannel</function>(<type>const CTCLChannel</type>&amp; <parameter>rhs</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            These constructors wrap a <classname>CTCLChannel</classname>
+            object around a Tcl channel.  The variety of constructors reflects the
+            variety of endpoints around which a <type>Tcl_Channel</type> can be
+            wrapped.
+        </para>
+        <para>
+            The first of the constructors attaches the object to a file via
+            <function>Tcl_OpenFileChannel</function>.  <parameter>pInterp</parameter>
+            is the channel the file is associated.  <parameter>Filename</parameter>
+            is the name of the file the channel is connected to. <parameter>pMode</parameter>
+            is the connection mode which can be any of of the mode values for the
+            Tcl <command>open</command> scripting command.   <parameter>permissions</parameter>
+            represents the permissions mask fo rthe file in POSIX format.  See
+            open(2) for information about the possible mode bit values.
+        </para>
+        <para>
+            The second form of the constructor connects a channel that is a pipe to a
+            program.  The program and its command line arguments are specified
+            via the <parameter>argc</parameter> and <parameter>pargv</parameter>
+            parameters. The <parameter>flags</parameter> parameter specifies
+            how the stdio channels of the program are or are not disposed into the
+            channel.   Valid bits are:
+            <literal>TCL_STDIN</literal>,
+            <literal>TCL_STDOUT</literal>,
+            <literal>TCL_STDERR</literal>,
+            <literal>TCL_ENFORCE_MODE</literal>.  See the <function>Tcl_OpenCommandChannel</function>
+            manpage for information about the meaning of these bits.
+        </para>
+        <para>
+            The third form of the constructor constructs a channel that connects to a
+            TCP/IP server, via <function>Tcl_OpenTcpClient</function>.  The
+            <parameter>port</parameter> parameter specifies the port number on which the
+            server is listening, while <parameter>host</parameter> is the name of the
+            host to which the connection should be formed.  The host name can either be a
+            DNS resolvable host name or the textual encoding of the TCP/IP address of the
+            host (e.g. string("spdaq22.nscl.msu.edu") or string("35.9.56.56").
+            This function will block until the connection is accepted by the server.
+        </para>
+        <para>
+            The fourth form of the constructor creates a channel that is a Tcp/IP server.
+            <parameter>port</parameter> is the port number on which the server listens
+            for connections.
+            <parameter>proc</parameter> is a function that will be called when a
+            connection has been accepted by the Tcl event loop.
+            <parameter>AppData</parameter> is application data that is passed, without
+            interpretation to <parameter>proc</parameter>.  See the <function>Tcl_OpenTcpServer</function>
+            manpage for more information about how the <parameter>proc</parameter> is
+            called.
+        </para>
+        <para>
+            The fifth form of the constructor creates a <classname>CTCLChannel</classname>
+            object by wrapping an existing <type>Tcl_Channel</type>; <parameter>Channel</parameter>
+            which has been obtained
+            directly from the Tcl application programming interface.
+        </para>
+        <para>
+            The final form of the constructor copies an existing <classname>CTCLChannel</classname>
+            object so that the two objects refer to the same channel.  The object is created
+            so that it will not close the channel on destruction.  Note however that the
+            source channel may, depending on how it was constructed.  It is up to the
+            application programmer to ensure that channels are closed at appropriate times.
+        </para>
+        <para>
+        <programlisting>
+  <type>Tcl_Channel</type> <function>getChannel</function>() const;
+        </programlisting>
+        </para>
+        <para>
+            Returns the underlying <type>Tcl_Channel</type> this object is
+            wrapped around.  Once this is obtained, it can be usd in any
+            Tcl API call that requires a channel.
+        </para>
+        <para>
+        <programlisting>
+  <type>bool</type> <function>ClosesOnDestroy</function>() const;
+        </programlisting>
+        </para>
+        <para>
+            When a <classname>CTCLChannel</classname> is copy constructed into
+            being it is flagged such that destruction will not close the underlying channel.
+            the return value from this function is <literal>true</literal> if the
+            object will close the underlying channel on destruction and <literal>false</literal>
+            if the object will not close the underlying channel on destruction.
+        </para>
+        <para>
+        <programlisting>
+  <type>int</type> <function>Read</function>( <type>void</type>** <parameter>pData</parameter>,
+           <type>int</type> <parameter>nChars</parameter>);
+  <type>int</type> <function>Write</function>(<type>const void</type>* <parameter>pData</parameter>,
+           <type>int</type> <parameter>nBytes</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            <function>Read</function> transfers data from the channel to the users's buffer;
+            <parameter>pData</parameter>.  <parameter>nChars</parameter> is the number
+            of characters of data that will be transferred.
+            <function>Write</function> transfers <parameter>nBytes</parameter>
+            <firstterm>bytes</firstterm> data to the chnnel from <parameter>pData</parameter>.
+            Both function return the number of characters actually transferred.
+            An important note about the <parameter>nChars</parameter> parameter:  If the
+            channel is not opened as a binary channel, this parameter is the number of
+            UTF-8 characters transferred.  Depending on the characters actually transmitted,
+            this may  not be the same as the number of bytes transmitted.
+            The return value is the number of units (bytes or characters) actually transferred.
+        </para>
+        <para>
+        <programlisting>
+
+  <type>bool</type> <function>atEof</function>();
+        </programlisting>
+        </para>
+        <para>
+            Returns <literal>true</literal> if the underlying channel is at the end of file.
+        </para>
+        <para>
+        <programlisting>
+  <type>void</type> <function>Flush</function>();
+        </programlisting>
+        </para>
+        <para>
+            Tcl channels are internally buffered. The <function>Flush</function> member
+            flushes internal output buffers to the underlying I/O endpoint.
+        </para>
+        <para>
+        <programlisting>
+  <type>void</type> <function>Close</function>();
+        </programlisting>
+        </para>
+        <para>
+            Closes the underlying channel. Note that this is normally done on
+            destruction unless the channel object was created via copy construction.
+            If the channel was registered to be visible to the interpreter, it is
+            unregistered as well.
+        </para>
+        <para>
+        <programlisting>
+  <type>void</type> <function>Register</function>();
+        </programlisting>
+        </para>
+        <para>
+            Makes the channel visible to the interpreter.  This allows the user
+            to return the channel name to the script level at which point it can be
+            used in Tcl script commands that operate on channels.
+        </para>
+        <para>
+        <programlisting>
+  <type>void</type> <function>SetEncoding</function>(<type>std::string</type> <parameter>Name</parameter>);
+  <type>std::string</type> <function>GetEncoding</function>();
+        </programlisting>
+        </para>
+        <para>
+            These functions allow the user to get and set the encoding for the channel.
+            See the <command>fconfigure</command> Tcl man page for more information about this.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+close(3tcl),
+fconfigure(3tcl),
+open(2),
+Tcl_OpenCommandChannel(3tcl),
+Tcl_OpenFileChannel(3tcl),
+Tcl_OpenTcpClient(3tcl),
+Tcl_OpenTcpServer(3tcl)
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+       "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+ >
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLHashTableIterator</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLHashTableIterator</refname>
+        <refpurpose>
+            Iterator for visiting all elements of a <classname>CTCLHashTable</classname>
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+
+#include &gt;TCLHashTableIterator.h&gt;
+...
+template &lt;class T&gt;
+class CTCLHashTableIterator
+{
+
+public:
+  CTCLHashTableIterator (Tcl_HashTable*   pTable);
+  CTCLHashTableIterator (const CTCLHashTableIterator&amp; aCTCLHashTableIterator );
+  virtual ~ CTCLHashTableIterator ( );
+
+  CTCLHashTableIterator operator=
+                     (const CTCLHashTableIterator&amp; aCTCLHashTableIterator);
+  int operator== (const CTCLHashTableIterator&amp; aCTCLHashTableIterator);
+  CTCLHashTableItem&lt;T&gt;* getCurrentEntry() const;
+  Tcl_HashTable* getHashTable() const;
+
+  CTCLHashTableIterator&amp; operator++ ();
+  CTCLHashTableIterator operator++ (int i);
+  CTCLHashTableItem&lt;T&gt;&amp; operator* ();
+  CTCLHashTableItem&lt;T&gt;* operator-&gt;();
+
+};
+
+
+
+    </programlisting>
+
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            <classname>CTCLHashTableIterator</classname> objects are created and returned
+        by <classname>CTCLHashTableIterator</classname>::<function>begin</function>
+        and <classname>CTCLHashTableIterator</classname>::<function>end</function>.
+        These objects are pointer like objects to <classname>CTCLHashTableItem</classname>
+        objects within the hash table.
+        </para>
+        <para>
+            If you imagine that all containers can have an ordering defined on them,
+            iterators are like pointers to elements of this ordering.
+            Dereference operators yield an element of the container, and increment operators
+            make the iterator 'point' to the next element in the container according to the
+            ordering.
+        </para>
+        <para>
+            For more information on both hash tables and iterators see the
+            REFERENCES.  For information about the classes that are related to this,
+            consult manpages pointed to by the SEE ALSO section.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+  <function>CTCLHashTableIterator</function> (<type>Tcl_HashTable</type>* <parameter>pTable</parameter>);
+  <function>CTCLHashTableIterator</function>(const <type>CTCLHashTableIterator</type>&amp; <parameter>rhs</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Construct a hash table iterator.  Normally you will not need to use these
+            constructors directly.  They will be created, instead by
+            <classname>CTCLHashTable</classname>::<function>begin()</function>
+            or <classname>CTCLHashTable</classname>::<function>end()</function>.
+            <parameter>pTable</parameter> is a pointer to an existing <type>Tcl_HashTable</type>
+            created via <function>Tcl_InitHashTable</function>.  <parameter>rhs</parameter>
+            is an existing <classname>CTCLHashTableIterator</classname> object whose state
+            will be used to initialize the object under construction.
+        </para>
+        <para>
+        <programlisting>
+  <type>CTCLHashTableIterator</type> <function>operator=</function>
+                     (const <type>CTCLHashTableIterator</type>&amp; <parameter>rhs</parameter>);
+  <type>int</type> <function>operator==</function>(const <type>CTCLHashTableIterator</type>&amp; <parameter>rhs</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            <function>operator=</function> allows you to assign the state of one <classname>CTCLHashTableIterator</classname>
+            to another.  When the assignment is complete, the left hand side object will
+            be 'pointing' to the same object as the right hand side object but be separately
+            incrementable.
+        </para>
+        <para>
+            <function>operator==</function> allows you to compare two iterators for equality.
+            equality is defined as the two iterators being defined on the same underlying
+            hash table, pointing to the same element, and having the same increment context
+            (e.g. an increment of both iterators will leave them both pointing to the
+            same hash table item (different from the one prior to the increment).
+        </para>
+        <para>
+        <programlisting>
+<type>CTCLHashTableItem&lt;T&gt;</type>* <function>getCurrentEntry</function>() const;
+<type>Tcl_HashTable</type>* <function>getHashTable</function>() const;
+        </programlisting>
+        </para>
+        <para>
+            These two functions get at the information the iterator is encapsulating.
+            <function>getCurrentEntry</function> returns a pointer to the entry that
+            the iterator si currently 'pointing' at.  This is identical to the
+            <function>operator-&gt;</function> function.
+            <function>getHashTable</function> returns a pointer to the underlying
+            <type>Tcl_HashTable</type> created by <function>Tcl_InitHashTable</function>.
+        </para>
+        <para>
+            <programlisting>
+CTCLHashTableIterator&amp; operator++ ();
+CTCLHashTableIterator operator++ (int i);
+            </programlisting>
+        </para>
+        <para>
+            These two function support both pre and post increment operations on an
+            iterator.  There are slight differences in semantics between these
+            operators best illustrated with a sample code fragment.  In the fragment
+            below, i is an <classname>CTCLHashTableIterator</classname>
+            <programlisting>
+CTCLHashTableItem item1 = *i++;   // item 1 is the item pointed to prior to increment
+CTCLHashTableItem item2 = *++i;   // item 2 is the item pointed to after increment.
+            </programlisting>
+        </para>
+        <para>
+            <programlisting>
+<type>CTCLHashTableItem&lt;T&gt;</type>&amp; <function>operator*</function> ();
+<type>CTCLHashTableItem&lt;T&gt;</type>* <function>operator-&gt;</function>();
+        </programlisting>
+        </para>
+        <para>
+            These operators allow <classname>CTCLHashTableIterator</classname> objects
+            to be treated like pointers to <classname>CTCLHashTableItem</classname> objects.
+            <function>operator*</function> provides 'pointer' dereferencing that allows
+            code like:
+            <programlisting>
+                (*i).getItem();
+            </programlisting>
+        </para>
+        <para>
+            <function>operator-&gt;</function> provides a pointer to struct like semantics
+            allowing code like:
+            <programlisting>
+                i->getItem();
+            </programlisting>
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+CTCLHashTable(3),
+CTCLHashTableItem(3),
+Tcl_InitHashTable(3tcl),
+Tcl_FirstHashEntry(3tcl),
+Tcl_NextHashEntry(3tcl)
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>REFERENCES</title>
+        <para>
+        <programlisting>
+Niklaus Wirth <parameter>Algorithms + Data Structures = Programs</parameter>
+Prentice Hall Series in Automatic Computation 1976 See section 4.6
+
+Musser, Derge, Saini: <parameter>STL Tutorial and Reference Guide</parameter>
+Addison-Wesley Professional Computing Series; 2001 ISBN 0-201-37923-6
+        </programlisting>
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

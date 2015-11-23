@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+   "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+ >
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLCommandPackage</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLCommandPackage</refname>
+        <refpurpose>
+            Group several related Tcl command extensions and common services they
+            may require together.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLCommandPackage.h&gt;
+...
+typedef std::list &lt;CTCLProcessor*&gt;   CommandList;
+typedef CommandList::iterator  CommandListIterator;
+
+class CTCLCommandPackage  : public CTCLInterpreterObject
+{
+
+public:
+  CTCLCommandPackage (CTCLInterpreter* pInterp,
+                      const std::string&amp; rSignon=std::string("Unnamed pkg"));
+  CTCLCommandPackage(CTCLInterpreter* pInterp,
+                     const char* pSignon = "Unnamed pkg");
+  virtual ~ CTCLCommandPackage ( );
+  CTCLCommandPackage (const CTCLCommandPackage&amp; aCTCLCommandPackage );
+  CTCLCommandPackage&amp; operator= (const CTCLCommandPackage&amp; aCTCLCommandPackage);
+  int operator== (const CTCLCommandPackage&amp; aCTCLCommandPackage);
+
+  std::string getSignon() const;
+  CommandList getCommandList() const;
+protected:
+  void setSignon (std::string am_sSignon);
+
+public:
+  void Register ()  ;
+  void Unregister ()  ;
+  void AddProcessor (CTCLProcessor* pProcessor);
+  void AddProcessors(CommandList&amp; rList);
+  CommandListIterator begin ();
+  CommandListIterator end ();
+};
+    </programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            Extensions to Tcl often come in a set of related commands.  These commands
+            may require access to a common set of services.  The <classname>CTCLCommandPackage</classname>
+            along with the <classname>CTCLPackagedCommand</classname> provide a pair of base
+            classes that facilitate the construction of such commands.
+        </para>
+        <para>
+            The pattern to follow to derive class from <classname>CTCLCommandPackage</classname>
+            This class defines and implements common services for the related commands.
+            The constructor of the derived class will also create instances of
+            classes derived from <classname>CTCLPackagedCommand</classname>.  These objects
+            define and implement the related commands.  These command processors will be
+            added to the package via <function>AddProcessor</function>, and
+            <function>AddProcessors</function>.
+        </para>
+        <para>
+            When the <classname>CTCLCommandPackage</classname>::<function>Register</function>
+            function is called, all of the commands added to the package will be
+            registered as well.  When a command processor is invoked, it can call its
+            <function>getMyPackage</function> member function to obtain a pointer to the
+            owning package and therefore access to the services this package provides.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+  <function>CTCLCommandPackage</function>(<type>CTCLInterpreter</type>* <parameter>pInterp</parameter>,
+                      <type>const std::string</type>&amp; <parameter>rSignon</parameter>=<type>std::string</type>(<literal>"Unnamed pkg"</literal>));
+  <function>CTCLCommandPackage</function>(<type>CTCLInterpreter</type>* <parameter>pInterp</parameter>,
+                     <type>const char</type>* <parameter>pSignon</parameter> = <literal>"Unnamed pkg"</literal>);
+  <function>CTCLCommandPackage</function> (<type>const CTCLCommandPackage</type>&amp; <parameter>aCTCLCommandPackage</parameter> );
+        </programlisting>
+        </para>
+        <para>
+            Constructs instances of the package.  <parameter>pInterp</parameter> is a pointer
+            to the interpreter object on which these commands will be registered.
+            <parameter>signon</parameter> is a text string that will be emitted to
+            <literal>stderr</literal> when the package is asked to register its commands.
+            This string is typically a credit or copyright notice for the package.  It can
+            be empty if the user desires.
+        </para>
+        <para>
+            The first and second form of the constructor only differ in how the signon message
+            is passed.  The final form of the constructor is a copy constructor.  While
+            copy construction is legal it is anticipated that this will not normally be used
+            as command packages are usually <firstterm>singleton</firstterm> objects.
+        </para>
+        <para>
+        <programlisting>
+  <type>std::string</type> <function>getSignon</function>() const;
+        </programlisting>
+        </para>
+        <para>
+            Retrieves the signon string from the current object.
+        </para>
+        <para>
+            <programlisting>
+  <type>CommandList</type> <function>getCommandList</function>() const;
+            </programlisting>
+        </para>
+        <para>
+            Retrieves the list of commands that are managed by this package.
+        </para>
+        <para>
+        <programlisting>
+  <type>void</type> <function>setSignon</function> (<type>std::string</type> <parameter>am_sSignon</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Allows derived classes to set the signon string after construction is complete.
+        </para>
+        <para>
+        <programlisting>
+  <type>void</type> <function>Register</function> ()  ;
+  <type>void</type> <function>Unregister</function> ()  ;
+        </programlisting>
+        </para>
+        <para>
+            <function>Regsiter</function> registers all of the commands in the package
+            with the package's interpreter.  <function>Unregister</function> unregisters
+            these commands.  It is therefore not advisable to change the set of commands in
+            the package between registration and unregistration.
+        </para>
+        <para>
+        <programlisting>
+  <type>void</type> <function>AddProcessor</function>(<type>CTCLProcessor</type>* <parameter>pProcessor</parameter>);
+  <type>void</type> <function>AddProcessors</function>(<type>CommandList</type>&amp; <parameter>rList</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            These functions add command processors to the package.  Any type of processor
+            can be added to the package, however usually <classname>CTCLPackagedCommand</classname>
+            derived objects are in order to provide a mechanism to access the package services.
+            <parameter>pProcessor</parameter> is a pointer to a single processor while
+            <parameter>rList</parameter> is a reference to a list of such processors.
+        </para>
+        <para>
+        <programlisting>
+  <type>CommandListIterator</type> <function>begin</function> ();
+  <type>CommandListIterator</type> <function>end</function> ();
+        </programlisting>
+        </para>
+        <para>
+            Returns STL list iterators to the beginning and off the end of the
+            set of command packages.
+            List iterators behave roughly like pointers.  In this case, pointers
+            to <classname>CTCLProcessor*</classname>.   Incrementing an interator
+            'points' it to the next item in the list.  A full discussion of STL iterators
+            is well beyond the scope of this man page.  See references below.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+CTCLProcessor(3), CTCLPackagedCommand(3)
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>References</title>
+        <para>
+        <programlisting>
+Musser, Derge, Saini: <parameter>STL Tutorial and Reference Guide</parameter>
+Addison-Wesley Professional Computing Series; 2001 ISBN 0-201-37923-6
+        </programlisting>
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

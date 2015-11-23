@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+ "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<book>
+<article>
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLInterpreter</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLInterpreter</refname>
+        <refpurpose>
+            Encapsulate a Tcl interpreter.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;TCLInterpreter.h&gt;
+
+class CTCLInterpreter
+{
+public:
+  CTCLInterpreter ();
+  CTCLInterpreter (Tcl_Interp* am_pInterpreter  );
+
+  Tcl_Interp* getInterpreter()
+  std::string Eval (const char* pScript) ;
+  std::string Eval(const CTCLString&amp; rScript);
+  std::string Eval(const std::string&amp; rScript);
+
+  std::string EvalFile (const char* pFilename)   ;
+  std::string EvalFile(const CTCLString&amp; rFilename);
+  std::string EvalFile(const std::string&amp; rFilename);
+
+  std::string GlobalEval (const char* pScript)   ;
+  std::string GlobalEval (const CTCLString&amp; rScript) ;
+  std::string GlobalEval(const std::string&amp; rScript) ;
+
+  std::string RecordAndEval (const char* pScript, Bool_t fEval=kfFALSE);
+  std::string RecordAndEval(const CTCLString&amp; rScript,
+                            Bool_t fEval=kfFALSE);
+  std::string RecordAndEval(const std::string&amp; rScript,
+                            Bool_t fEval = kfFALSE);
+
+  std::string ExprString (const char* pExpression)   ;
+  std::string ExprString(const CTCLString&amp; rExpr);
+  std::string ExprString(const std::string&amp; rExpr);
+
+  Long_t ExprLong (const char* pExpression)   ;
+  Long_t ExprLong (std::string&amp; rExpression);
+  Long_t ExprLong (const CTCLString&amp; rExpr);
+
+  DFloat_t ExprDouble (const char* pExpression)   ;
+  DFloat_t ExprDouble (const CTCLString&amp; rExpression);
+  DFloat_t ExprDouble(const std::string&amp; rExpression);
+
+  Bool_t ExprBoolean (const char*  pExpression)   ;
+  Bool_t ExprBoolean (const CTCLString&amp; rExpression);
+  Bool_t ExprBoolean(const std::string&amp; rExpression);
+
+  std::string TildeSubst (const char* pFilename) const  ;
+  std::string TildeSubst (const CTCLString&amp; rName) const;
+  std::string TildeSubst (const std::string&amp; rName) const;
+
+  Tcl_Interp* operator-&gt; ();
+  operator Tcl_Interp* ();
+};
+
+
+
+    </programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            <classname>CTCLInterpreter</classname>
+            encapsulates a <type>Tcl_Interp*</type> in an object.
+            Method invocations on that object provide access to many of the
+            Tcl interpreter. See METHODS below for more information about htis.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+            <function>CTCLInterpreter () </function>
+        </para>
+        <para>
+            <function>CTCLInterpreter</function> (
+                <type>Tcl_Interp</type>* <parameter>pInterp</parameter>)
+        </para>
+        <para>
+            Constructs an interpreter object.  The first form of this
+            constructor creates a new <type>Tcl_Interp*</type> using
+            <function>Tcl_CreateInterp()</function> and wraps the object
+            around it.  All members of the object will operate on that
+            newly created interpreter.  The second form, wraps an object
+            around <parameter>pInterp</parameter>,
+            a previously created <type>Tcl_Interp*</type>.
+            Note that in either case on destruction, <function>Tcl_DeleteInterp()</function>
+            is called on the wrapped interpreter.
+        </para>
+        <para>
+            <type>Tcl_Interp</type>* <function>getInterpreter</function>()
+        </para>
+        <para>
+            Returns the interpreter that is being wrapped by this object.
+            This interpreter can be used as an <parameter>interp</parameter>
+            parameter for any <function>Tcl_xxxxxx</function> call in the Tcl
+            API.
+        </para>
+        <para>
+            <programlisting>
+<type>std::string</type> <function>Eval</function>(<type>const char</type>* <parameter>pScript</parameter>) ;
+<type>std::string</type> <function>Eval</function>(<type>const CTCLString</type>&amp; <parameter>rScript</parameter>);
+<type>std::string</type> <function>Eval</function>(<type>const std::string</type>&amp; <parameter>rScript</parameter>);
+            </programlisting>
+        </para>
+        <para>
+            Evaluates the script passed as a parameter.  The only differences between
+            these functions is the form of the script parameter.  Each function will
+            return the result of the script.  If there is an error in the script,
+            a <classname>CTCLException</classname> will be thrown that will describe
+            what happened.  For example:
+            <programlisting>
+    std::string commands;
+    CTCLInterpreter interp;     // New intepreter.
+    ...
+    // after commands has been built up:
+
+    string result
+    try {
+        result = interp.Eval(commands);
+        cout &lt;&lt; "Eval of " &lt;&lt; commands &lt;&lt; " was "
+             &lt;&lt;  result &lt;&lt; endl;
+    }
+    catch (CTCLException &amp;e) {
+        cerr &lt;&lt; "Eval of " &lt;&lt; commands &lt;&lt; " failed: "
+             &lt;&lt; e.ReasonText() &lt;&lt; endl;
+    }
+    // If no exception, result is usable as the output of the eval.
+
+            </programlisting>
+        </para>
+        <para>
+        <programlisting>
+  <type>std::string</type> <function>EvalFile</function>(<type>const char</type>* <parameter>pFilename</parameter>)   ;
+  <type>std::string</type> <function>EvalFile</function>(<type>const CTCLString</type>&amp; <parameter>rFilename</parameter>);
+  <type>std::string</type> <function>EvalFile</function>(<type>const std::string</type>&amp; <parameter>rFilename</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Sources the specified file in and executes it as a script in the interpreter that
+            is wrapped by the object.  The only difference between these functions is
+            how the name of the file is passed.  The return value is the script result.
+            A <classname>CTCLException</classname> will be thrown in the event the script
+            reports an error.  See the example in
+            <classname>CTCLInterpreter</classname>::<function>Eval</function>
+            to see how to catch and report this kind of exception.
+        </para>
+        <para>
+            <programlisting>
+  <type>std::string</type> <function>GlobalEval</function>(<type>const char</type>* <parameter>pScript</parameter>);
+  <type>std::string</type> <function>GlobalEval</function>(<type>const CTCLString</type>&amp; <parameter>rScript</parameter>);
+  <type>std::string</type> <function>GlobalEval</function>(<type>const std::string</type>&amp; <parameter>rScript</parameter>);
+            </programlisting>
+        </para>
+        <para>
+            This function evaluates a script at the global level.  Note that
+            <classname>CTCLInterpreter</classname>::<function>Eval</function>,
+            and <classname>CTCLInterpreter></classname>::<function>EvalFile</function>
+            evaluates the script at whatever call level the interpreter is currently
+            executing at.
+            The only difference between the methods above is how the script is passed.
+            The functions all return the interpreter result after the script executes.
+            If the script reports an error, a <classname>CTCLException</classname> will
+            be thrown.
+        </para>
+        <para>
+            <programlisting>
+  <type>std::string</type> <function>RecordAndEval</function> (<type>const char</type>* <parameter>pScript</parameter>,
+                       <type>Bool_t</type> <parameter>fEval</parameter>=<literal>kfFALSE</literal>);
+  <type>std::string</type> <function>RecordAndEval</function>(<type>const CTCLString</type>&amp; <parameter>rScript</parameter>,
+                       <type>Bool_t</type> <parameter>fEval</parameter>=<literal>kfFALSE</literal>);
+  <type>std::string</type> <function>RecordAndEval</function>(<type>const std::string</type>&amp; <parameter>rScript</parameter>,
+                      <type>Bool_t</type> <parameter>fEval</parameter>=<literal>kfFALSE</literal>);
+            </programlisting>
+        </para>
+        <para>
+            Records a script in the Tcl interpreter history and, if <parameter>fEval</parameter>
+            is <literal>kfTRUE</literal>, evaluates it as well.  The
+            return value is the interpreter result, which is only meaningful if the
+            script was evalutated.  If the script reports an error, a
+            <classname>CTCLException</classname> is thrown.
+        </para>
+        <para>
+            <programlisting>
+  <type>std::string</type> <function>ExprString</function>(<type>const char</type>* <parameter>pExpression</parameter>);
+  <type>std::string</type> <function>ExprString</function>(<type>const CTCLString</type>&amp; <parameter>rExpr</parameter>);
+  <type>std::string</type> <function>ExprString</function>(<type>const std::string</type>&amp; <parameter>rExpr</parameter>);
+            </programlisting>
+        </para>
+        <para>
+            Evaluates an expression (as if with the <command>expr</command>
+            Tcl command), and returns the result
+            of the evaluation as a string.  If the expression has an error,
+            a <classname>CTCLException</classname> will be thrown.
+            The only difference between these functions is how the expression is passed.
+        </para>
+        <para>
+            <programlisting>
+  <type>Long_t</type> <function>ExprLong</function>(<type>const char</type>* <parameter>pExpression</parameter>)   ;
+  <type>Long_t</type> <function>ExprLong</function>(<type>std::string</type>&amp; <parameter>rExpression</parameter>);
+  <type>Long_t</type> <function>ExprLong</function>(<type>const CTCLString</type>&amp; <parameter>rExpr</parameter>);
+            </programlisting>
+        </para>
+        <para>
+            Evaluates an expression (as if with the <command>expr</command>
+            Tcl command).  If the result
+            can be converted into an integer, it is returned as a <type>Long_t</type>.
+            If the expression either cannot be converted to an integer (e.g. it's a non-numerical
+            expression), or if the expression contains an error, a <classname>CTCLException</classname>
+            will be
+            thrown.
+        </para>
+        <para>
+            <programlisting>
+  <type>DFloat_t</type> <function>ExprDouble</function>(<type>const char</type>* <parameter>pExpression</parameter>)   ;
+  <type>DFloat_t</type> <function>ExprDouble</function>(<type>const CTCLString</type>&amp; <parameter>rExpression</parameter>);
+  <type>DFloat_t</type> <function>ExprDouble</function>(<type>const std::string</type>&amp; <parameter>rExpression</parameter>);
+            </programlisting>
+        </para>
+        <para>
+            Evaluates the parameter as an expression (as if with the <command>expr</command> Tcl command).
+            If the result can be converted to a floating point value it is returned as
+            the function value.  If not, or if there is an error in the expression,
+            a <classname>CTCLException</classname> is thrown.
+        </para>
+        <para>
+            <programlisting>
+  <type>Bool_t</type> <function>ExprBoolean</function>(<type>const char</type>*  <parameter>pExpression</parameter>)   ;
+  <type>Bool_t</type> <function>ExprBoolean</function>(<type>const CTCLString</type>&amp; <parameter>rExpression</parameter>);
+  <type>Bool_t</type> <function>ExprBoolean</function>(<type>const std::string</type>&amp; <parameter>rExpression</parameter>);
+            </programlisting>
+        </para>
+        <para>
+            Evaluates the parameter as an expression (as if with the <command>expr</command>
+            Tcl command).  If the result can be interpreted as a boolean, it is returned
+            as the function value.  If not, or if there is an error in the expression,
+            a <classname>CTCLException</classname> is thrown.
+        </para>
+        <para>
+            <programlisting>
+  <type>std::string</type> <function>TildeSubst</function>(<type>const char</type>* <parameter>pFilename</parameter>) const  ;
+  <type>std::string</type> <function>TildeSubst</function>(<type>const CTCLString</type>&amp; <parameter>rName</parameter>) const;
+  <type>std::string</type> <function>TildeSubst</function>(<type>const std::string</type>&amp; <parameter>rName</parameter>) const;
+            </programlisting>
+        </para>
+        <para>
+            Performs tilde substitution on its parameter.   Tilde substitution means that leading
+            &#152; characters are expanded to the current user's home directory path, while
+            a leading &#152; followed by a word that is a username will be expanded to the
+            home directory path of that user.  The expanded value is returned.
+            Note thatthe use of this member is deprecated as the underlying Tcl library
+            function is also deprecated.
+        </para>
+        <para>
+        <programlisting>
+  <type>Tcl_Interp</type>* <function>operator-&gt;</function>();
+  <function>operator Tcl_Interp* </function>();
+        </programlisting>
+        </para>
+        <para>
+            These two functions allow objects that are <classname>CTCLInterpreter</classname>
+            objects to be treated as if they were <type>Tcl_Interp*</type>'s.
+            <function>operator-&gt;</function> supports dereferncing to fields of the
+            wrapped interpreter (note that this is now deprecated within Tcl itself).
+            <function>operator Tcl_Interp*</function> supports dynamic type conversion from
+            a <classname>CTCLInterpreteter</classname> object and a <type>Tcl_Interp*</type>
+            pointer.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>DEFECTS</title>
+        <para>
+            It is not possible to avoid destroying the interpreter when the
+            object is destroyed.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+        CTCLException, CTCLApplication, CTCLChannel, CTCLCommandPackage,
+        CTCLFileHandler, CTCLList, CTCLObject, CTCLObjectProcessor, CTCLTimer,
+        CTCLVariable
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>

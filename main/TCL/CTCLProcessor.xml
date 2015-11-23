@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD Docbook XML 4.3//EN"
+        "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<book>
+<article>
+
+<refentry>
+    <refmeta>
+        <refentrytitle>CTCLProcessor</refentrytitle>
+        <manvolnum>3</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>CTCLProcessor</refname>
+        <refpurpose>
+            Provide <parameter>argc</parameter>, <parameter>argv</parameter>
+            extension commands to Tcl.
+        </refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+    <programlisting>
+#include &lt;TCLProcessor.h&gt;
+...
+class CTCLProcessor : public CTCLInterpreterObject
+{
+public:
+  CTCLProcessor(const std::string sCommand, CTCLInterpreter* pInterp);
+  CTCLProcessor(const char*       pCommand, CTCLInterpreter* pInterp);
+  virtual ~CTCLProcessor();
+
+  std::string getCommandName() const;
+
+  virtual int operator()(CTCLInterpreter&amp; rInterpreter,
+                         CTCLResult&amp;      rResult,
+                         int argc, char** argv) = 0;
+  virtual void OnDelete();
+
+  void Register();
+  void Unregister();
+
+  static  std::string ConcatenateParameters (int nArguments,
+                                              char* pArguments[])  ;
+  int ParseInt (const char* pString, int* pInteger)  ;
+  int ParseInt (const std::string&amp; rString, int* pInteger)
+
+  int ParseDouble (const char* pString, double* pDouble)  ;
+  int ParseDouble (const std::string&amp; rString, double* pDouble)
+
+  int ParseBoolean (const char* pString, Bool_t* pBoolean)  ;
+  int ParseBoolean (const std::string&amp; rString, Bool_t* pBoolean)
+
+  static int MatchKeyword(std::vector&lt;std::string&gt;&amp; MatchTable,
+                          const std::string&amp; rValue,
+                          int NoMatch = -1);
+
+
+};
+
+    </programlisting>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>DESCRIPTION</title>
+        <para>
+            <parameter>Do not use this for new commands</parameter>
+        </para>
+        <para>
+            The <classname>CTCLProcessor</classname> provides a compatibility
+            interface to the old Tcl style <parameter>argc</parameter>,
+            <parameter>argv</parameter> style of command extension.
+            New commands should be written using the
+            <classname>CTCLObjectProcessor</classname> class instead.
+        </para>
+        <para>
+            To extend the interpreter using this mechanism, you must
+            derive a class from <classname>CTCLProcessor</classname> and
+            minimally override and implement its
+            <function>operator()</function> pure virtual function.  You may optionally
+            overrid its <function>OnDelete</function> member as well.
+            Having written the class, you must create an object of that class and
+            register it on an interpreter.  Once the class is registered,
+            invocations of the command under which it was registered will
+            invoke your <function>operator()</function>.
+        </para>
+        <para>
+            If the interpreter is destroyed or the object destroyed, or unregistered,
+            the <function>OnDelete</function> member will be called.
+            <classname>CTCLProcessor</classname> defines and implements this function
+            with an empty body, so it is only necessary for you to override and implement
+            this if you have some cleanup actions that must be done when the command is
+            deleted.
+        </para>
+        <para>
+            This class is now implemented in terms of a <classname>CTCLObjectProcessor</classname>
+            derived class called a <classname>CTCLCompatibilityProcessor</classname>. It is
+            less efficient to use this class than to use a class derived directly from a
+            <classname>CTCLObjectProcessor</classname>.  This class is therefore not
+            recommended for use with new extensions, but is only provided for
+            compatibility with existing extensions written before
+            <classname>CTCLObjectProcessor</classname> was developed.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>METHODS</title>
+        <para>
+        <programlisting>
+<function>CTCLProcessor</function>(const <type>std::string</type> <command>sCommand</command>,
+             <type>CTCLInterpreter</type>* <parameter>pInterp</parameter>);
+<function>CTCLProcessor</function>(const <type>char</type>*       <parameter>pCommand</parameter>,
+             <type>CTCLInterpreter</type>* <parameter>pInterp</parameter>);
+        </programlisting>
+        </para>
+        <para>
+            Constructs a <classname>CTCLProcessor</classname>.  <parameter>sCommand</parameter>
+            or <parameter>pCommand</parameter> are the initial name of the command.
+            Note that the Tcl interpreter supports command renaming at the script level,
+            so there is no gaurentee that this will always be the name of the command.
+            <parameter>pInterp</parameter> is the interpreter on which the command
+            will be registered when the <function>Register</function> function is called.
+        </para>
+        <para>
+        <programlisting>
+
+<type>std::string</type> <function>getCommandName</function>() const;
+        </programlisting>
+        </para>
+        <para>
+            Returns the initial name of the command.  Unlike
+            <classname>CTCLObjectCommand</classname>::<function>getName</function>()
+            this function does not track changes in the command name.
+        </para>
+        <para>
+        <programlisting>
+
+virtual <type>int</type> <function>operator</function>()(<type>CTCLInterpreter</type>&amp; <parameter>rInterpreter</parameter>,
+                       <type>CTCLResult</type>&amp; <parameter>rResult</parameter>,
+                       <type>int</type> <parameter>argc</parameter>,
+                       <type>char</type>** <parameter>argv</parameter>) = 0;
+virtual <type>void</type> <function>OnDelete</function>();
+        </programlisting>
+        </para>
+        <para>
+            <function>operator()</function> is a pure virtual function and therefore must
+            be overidden and implemented in concrete command implementations.
+            <parameter>rInterpreter</parameter> is a reference to the interpreter that is
+            executing this command. <parameter>rResult</parameter> is a reference to
+            a <classname>CTCLResult</classname> object that represents the result of the
+            interpreter.  Any text stored into this object will be made available to the
+            interpreter as the result of the command. <parameter>argc</parameter>
+            and <parameter>argv</parameter> are the number of words on the command line and
+            a pointer to an array of pointers to the command words respectively.
+        </para>
+        <para>
+            <function>operator()</function> should be written to return
+            <literal>TCL_OK</literal>
+            if it is successful and
+            <literal>TCL_ERROR</literal>
+            if it encounters an error.   Other return values are possible and meaningful
+            for commands that implement flow of control structures, but documenting these
+            is beyond the scope of this manpage.   See the return(3tcl) manpage for
+            more information about these.
+        </para>
+        <para>
+            <function>OnDelete</function> is called whenever the interpreter
+            or the object is being
+            destroyed, or the object's <function>Unregister</function> function has been
+            called.  <classname>CTCLProcessor</classname> provides a default implementation
+            for <function>OnDelete</function> which does nothing.  It is only necessary
+            to override and implement this function if you require specific action when
+            the command is being unregistered.
+        </para>
+        <para>
+        <programlisting>
+<type>void</type> <function>Register</function>();
+<type>void</type> <function>Unregister</function>();
+        </programlisting>
+        </para>
+        <para>
+            These functions register and unregister the command with the intepreter
+            respectively.
+        </para>
+        <para>
+        <programlisting>
+static  <type>std::string</type> <function>ConcatenateParameters</function>(<type>int</type> <parameter>nArguments</parameter>,
+                                           <type>char</type>* <parameter>pArguments</parameter>[])  ;
+        </programlisting>
+        </para>
+        <para>
+            Concatenates all of the <parameter>nArguments</parameter>
+            words in the <parameter>pArguments</parameter> array into a <type>std::string</type>
+            and returns it.  The words are space separated.
+        </para>
+        <para>
+        <programlisting>
+<type>int</type> <function>ParseInt</function>(const <type>char</type>* <parameter>pString</parameter>,
+             <type>int</type>* <parameter>pInteger</parameter>)  ;
+<type>int</type> <function>ParseInt</function>(const <type>std::string</type>&amp; <parameter>rString</parameter>,
+             <type>int</type>* <parameter>pInteger</parameter>)
+        </programlisting>
+        </para>
+        <para>
+            Parses the character string <parameter>pString</parameter> or <parameter>rString</parameter>
+            as a 32 bit signed integer into <parameter>pInteger</parameter>.  Returns
+            <literal>TCL_OK</literal>
+            if successful, or
+            <literal>TCL_ERROR</literal>
+            if the string coult no be parsed.  In that case, the result string
+            of the interpreter will report why the string could not be parsed.
+        </para>
+        <para>
+        <programlisting>
+<type>int</type> <parameter>ParseDouble</parameter>(const <type>char</type>* <parameter>pString</parameter>,
+                <type>double</type>* <parameter>pDouble</parameter>)  ;
+<type>int</type> <function>ParseDouble</function>(const <type>std::string</type>&amp; <parameter>rString</parameter>,
+                <type>double</type>* <parameter>pDouble</parameter>)
+        </programlisting>
+        </para>
+        <para>
+            Parses the input string, either <parameter>pString</parameter> or
+            <parameter>rString</parameter>
+            as a double precision floating point value, storing the result in the
+            double pointed to by <parameter>pDouble</parameter>.
+            On success,
+            <literal>TCL_OK</literal>
+            is returned.  On failure,
+            <literal>TCL_ERROR</literal> and the interpreter result is
+            a textual reason for the failure.
+        </para>
+        <para>
+        <programlisting>
+<type>int</type> <function>ParseBoolean</function>(const <type>char</type>* <parameter>pString</parameter>,
+                 <type>Bool_t</type>* <parameter>pBoolean</parameter>)  ;
+<type>int</type> <function>ParseBoolean</function>(const <type>std::string</type>&amp; <parameter>rString</parameter>,
+                 <type>Bool_t</type>* <function>pBoolean</function>)
+        </programlisting>
+        </para>
+        <para>
+            Parses either <parameter>pString</parameter>
+            or <parameter>rString</parameter> as a boolean value.  The result
+            is stored in boolean pointed to by <parameter>pBoolean</parameter>.
+            <literal>TCL_OK</literal>
+            is returned on success,
+            <literal>TCL_ERROR</literal>
+            on error.  If <literal>TCL_ERROR</literal> was returned, the interpreter
+            result is the textual reason for the failure.
+        </para>
+        <para>
+        <programlisting>
+static <type>int</type> <function>MatchKeyword</function>(<type>std::vector&lt;std::string&gt;</type>&amp; <parameter>MatchTable</parameter>,
+                        const <type>std::string</type>&amp; <parameter>rValue</parameter>,
+                        <type>int</type> <parameter>NoMatch</parameter> = <literal>-1</literal>);
+        </programlisting>
+        </para>
+        <para>
+            Searches for the string <parameter>rValue</parameter> in the vector of strings
+            <parameter>MatchTable</parameter>, and returns the index in the vector at which
+            the match occured.  If no match could be found, the value
+            <parameter>NoMatch</parameter> is returned.
+        </para>
+        <para>
+            Within SpecTcl, this is often used to match command switches.
+        </para>
+    </refsect1>
+    <refsect1>
+        <title>SEE ALSO</title>
+        <para>
+CTCLCompatibilityProcessor(3),
+CTCLObjectProcessor(3),
+CTCLPackagedCommand(3),
+CTCLResult(3),
+return(3tcl)
+        </para>
+    </refsect1>
+</refentry>
+
+
+
+</article>
+</book>
