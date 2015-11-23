@@ -1,0 +1,263 @@
+'\" t
+.\"     Title: CTCLException
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLEXCEPTION" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLException \- Class for reporting exceptional conditions in Tcl applications via the C++ try/catch mechanism\&.
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <TCLException\&.h>
+\&.\&.\&.
+class CTCLException  : public CTCLInterpreterObject ,public CException
+{
+public:
+  CTCLException (CTCLInterpreter& am_rInterpreter,
+                 Int_t am_nReason,
+                 const char* pString);
+  CTCLException(CTCLInterpreter& am_rInterpreter,
+                Int_t am_nReason,
+                const std::string& rString);
+  CTCLException (const CTCLException& aCTCLException );
+  virtual ~CTCLException ( );
+
+  CTCLException operator= (const CTCLException& aCTCLException);
+  int operator== (const CTCLException& aCTCLException);
+
+  void AddErrorInfo (const char* pMessage)  ;
+  void AddErrorInfo(const std::string& rMessage);
+  void AddErrorInfo(const CTCLString& rMessage);
+
+  void SetErrorCode (const char* pMessage,
+                     const char* pMnemonic="???",
+                     const char* pFacility="TCL",
+                     const char* pSeverity="FATAL")  ;
+  void SetErrorCode(const std::string rMessage,
+                    const std::string &rMnemonic=std::string("???"),
+                    const std::string &rFacility=std::string("TCL"),
+                    const std::string &rSeverity=std::string("FATAL"));
+
+  virtual   const char* ReasonText () const;
+  virtual   Int_t ReasonCode () const  ;
+};
+
+    
+.fi
+.SH "DESCRIPTION"
+.PP
+The
+CTCLException
+class allows you to instantiate and throw exceptions that are distinguishable as coming from the TCL library and its extensions\&. In most cases the TclPlus library itself will convert error conditions detected by the Tcl API and intantiate and throw an appropriate exception\&.
+.PP
+The following example shows how to execute code that is aware of these exceptions\&. In this case, the code just reports the error message and continues\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+    try {
+        // In here is TclPlus invoking code\&.
+    }
+    catch (CTCLException& e) {
+        cerr << "TclPlus error caught: " << e\&.ReasonText() << endl;
+    }
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The following example shows a typical code segment that throws a
+CTCLException:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+    int status = Tcl_xxxxxxx(pInterp\->getInterpreter()\&.\&.\&.\&.); // Some Tcl call\&.
+    if (status != TCL_OK) {
+        throw CTCLException(*pInterp, status,
+                            "Call to Tcl_xxxxxx returned an error");
+    }
+                
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Note that constructing a
+CTCLException
+object incorporates the Tcl result string at the time into the text returned by the
+\fBReasonText()\fR
+member function\&.
+.SH "METHODS"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBCTCLException\fR (\fBCTCLInterpreter\fR& \fIrInterpreter\fR,
+                 \fBInt_t\fR \fInReason\fR,
+                 const \fBchar\fR* \fIpString\fR);
+  \fBCTCLException\fR(\fBCTCLInterpreter\fR& \fIrInterpreter\fR,
+                \fBInt_t\fR \fInReason\fR,
+                const \fBstd::string\fR& \fIrString\fR);
+  \fBCTCLException\fR (const \fBCTCLException\fR& \fIaCTCLException\fR );
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+These construct a
+CTCLException\&.
+\fIrInterpreter\fR
+is a reference to the intepreter that was used in the operation that resulted in the error\&. The result string of that interpreter will be saved as part of the text returned by the
+\fBReasonText\fR
+member function\&.
+.PP
+The
+\fInReason\fR
+is a reason for the exception\&. Typically this will be
+TCL_ERROR
+however other error codes can be created and used for application specific problems\&. This is the value that will be returned by the
+\fBReasonCode\fR
+member function\&.
+.PP
+
+\fIrString\fR
+and
+\fIpString\fR
+are intended to provide information about the context of the error, and will be incorporated into the text strin greturned from
+\fBReasonText\fR\&.
+.PP
+
+\fIaCTCLException\fR
+is a reference for the sourc object of the copy constructor\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBCTCLException\fR \fBoperator=\fR (const \fBCTCLException\fR& \fIrhs\fR);
+  \fBint\fR \fBoperator==\fR(const \fBCTCLException\fR& \fIrhs\fR);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+These two functions provide a mechanism to assign exceptions and to compare them for equality\&.
+\fIrhs\fR
+is the object that is the source of the assignment or the object to which
+\fIthis\fR
+is being compared\&. Equality is defined as the two exceptions having the same underlying interpreter, and same reason text\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBvoid\fR \fBAddErrorInfo\fR (const \fBchar\fR* \fIpMessage\fR)  ;
+  \fBvoid\fR \fBAddErrorInfo\fR(const \fBstd::string\fR& \fIrMessage\fR);
+  \fBvoid\fR \fBAddErrorInfo\fR(const \fBCTCLString\fR& \fIrMessage\fR);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+These functions are wrapperf ro the API function
+\fBTcl_AddErrorInfo\fR
+the
+\fIpMessage\fR, and
+\fIrMessage\fR
+parameters provide the message that is added to the
+\fIerrorInfo\fR
+variable\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBvoid\fR \fBSetErrorCode\fR (const \fBchar\fR* \fIpMessage,\fR
+                     const \fBchar\fR* \fIpMnemonic\fR="???",
+                     const \fBchar\fR* \fIpFacility\fR="TCL",
+                     const \fBchar\fR* \fIpSeverity\fR="FATAL")  ;
+  \fBvoid\fR \fBSetErrorCode\fR(const \fBstd::string\fR \fIrMessage\fR,
+                    const \fBstd::string\fR& \fIrMnemonic\fR=\fBstd::string\fR("???"),
+                    const \fBstd::string\fR& \fIrFacility\fR=\fBstd::string\fR("TCL"),
+                    const \fBstd::string\fR& \fIrSeverity\fR=\fBstd::string\fR("FATAL"));
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+These function set the
+\fIerrorCode\fR
+Tcl interpreter variable\&. The convention these function support is to set the error code to a list that consists of a message (\fIpMessage\fR
+and
+\fIrMessage\fR, mnemonic for the message (\fIpMnemonic\fR
+or
+\fIrMnemonic\fR, the Facility (\fIpFacility\fR
+or
+\fIrFacility\fR)that is throwing the error and the severity (\fIpSeverity\fR
+or
+\fIrSeverity\fR) of the error\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+virtual   const \fBchar\fR* \fBReasonText\fR () const;
+virtual   \fBInt_t\fR \fBReasonCode\fR () const  ;
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+These two functions are intended for use by exception catch blocks\&.
+\fBReasonText\fR
+provides human readable text that describes the exception\&.
+\fBReasonCode\fR
+provides a numerical code that describes the exception\&. Often this just has the value
+TCL_ERROR
+.SH "SEE ALSO"
+.PP
+Tcl_AddErrorInfo(3tcl), Tcl_SetErrorCode(3tcl)

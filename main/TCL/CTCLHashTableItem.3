@@ -1,0 +1,190 @@
+'\" t
+.\"     Title: CTCLHashTableItem
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLHASHTABLEITEM" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLHashTableItem \- Encapsulation of an entry in a Tcl Hash table as encapsulated in CTCLHashTable
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <TCLHashTableItem\&.h>
+\&.\&.\&.
+
+template <class T>              // T Must have copy ctor & Assignment defined\&.
+class CTCLHashTableItem
+{
+  CTCLHashTableItem (T am_Item );
+  CTCLHashTableItem (const CTCLHashTableItem& aCTCLHashTableItem );
+  virtual ~CTCLHashTableItem ( );
+
+  CTCLHashTableItem operator= (const CTCLHashTableItem& aCTCLHashTableItem);
+   int operator== (const CTCLHashTableItem& aCTCLHashTableItem);
+  T getItem() const;
+  T* operator\-> ();
+}
+        
+.fi
+.SH ""
+.PP
+Provides an object oriented interface to elements of a hash table\&. See CTCLHashTable(3), and the first REFERENCE below for more information about hash tables\&.
+.PP
+Note that this is a templated class\&. The template parameter is the type of the item to be stored in the hash table\&. Suppose, for example, we have a bunch of named calibration parameters (floating point) that are stored in a hash table\&. A calibration The following code creates the calibration table, and inserts an element named george in it with the initial value of 0\&.0:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+        CTCLHashTable<float>  calibrationTable;
+        CTCLHashTableItem<float> entry(0\&.0);
+        calibrationTable\&.Enter(std::string("george"), entry);
+            
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "METHODS"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBCTCLHashTableItem\fR (\fBT\fR \fIItem\fR );
+\fBCTCLHashTableItem\fR (const \fBCTCLHashTableItem\fR& \fIhashItem\fR );
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Constructs a
+CTCLHashTableItem
+either from the underlying type (\fIItem\fR) or from an existing
+CTCLHashTableItem
+(\fIhashItem\fR)\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBCTCLHashTableItem\fR \fBoperator=\fR(const \fBCTCLHashTableItem\fR& \fIrhs\fR);
+\fBint\fR \fIoperator==\fR (const \fBCTCLHashTableItem\fR& \fBrhs\fR);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+
+\fBoperator=\fR
+allows you to assign the value of one
+CTCLHashTableItem
+to another\&. The underlying templated type must be capable of assignment\&.
+.PP
+
+\fBoperator==\fR
+allows you to compare two
+CTCLHashTableItems to each other\&. The underlying templated type must be capable of equality comparison\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBT\fR \fBgetItem\fR() const;
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Returns the value of the item wrapped by the
+CTCLHashTableItem
+The underlying type must be capable of copy construction\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBT\fR* \fBoperator\->\fR ();       
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Returns the address of the contents of the
+CTCLHashTableItem\&. This is most useful if
+T
+is a structure or class as it can be used to dereference member (data or functions) of the structure or class\&. For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+                struct complex {
+                                 double real;
+                                 double imaginary;
+                                 complex(double r, double i) :
+                                    real(r), imaginary(i) {}
+                                } complex;
+                CTCLHashTableItem<complex> v(1\&.0, 2\&.0);
+                double real = v\->real;             // real = 1\&.0
+                double imag = v\->imaginary;        // imag = 2\&.0
+            
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "SEE ALSO"
+.PP
+CTCLHashTable(3), CTCLHashTableIterator(3)
+.SH "REFERENCES"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Niklaus Wirth \fIAlgorithms + Data Structures = Programs\fR
+Prentice Hall Series in Automatic Computation 1976 See section 4\&.6
+            
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+

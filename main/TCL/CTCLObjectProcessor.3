@@ -1,0 +1,212 @@
+'\" t
+.\"     Title: CTCLObjectProcessor
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLOBJECTPROCESSOR" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLObjectProcessor \- Abstract base class to encapsulate the Tcl object command interface exposed by \fBTcl_CreateObjCommand\fR\&.
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <TCLObjectProcessor\&.h>
+\&.\&.\&.
+class CTCLObjectProcessor : public CTCLInterpreterObject
+{
+public:
+  CTCLObjectProcessor(CTCLInterpreter& interp,
+                      std::string      name,
+                      bool             registerMe=true);
+  virtual ~CTCLObjectProcessor();
+
+  void Register();              // Register command on the interpreter\&.
+  void unregister();            // Unregister command from the interp\&.
+  std::string getName() const;  // Return the name of the object\&.
+  Tcl_CmdInfo getInfo() const;  // Return info about the command\&.
+
+  virtual int operator()(CTCLInterpreter& interp,
+                         std::vector<CTCLObject>& objv) = 0;
+  virtual void onUnregister();
+
+};
+
+    
+.fi
+.SH "DESCRIPTION"
+.PP
+Tcl supports the addition of commands to the interpreter\&.
+CTCLObjectProcessor
+supports an object oriented encapsulation of this part of the API\&. To add a command to an interpreter, write a subclass of
+CTCLObjectProcessor\&. This subclass should override
+\fBoperator()\fR, and optionally
+\fBonUnregister\fR\&. to implement the desired behavior for the new command\&.
+.PP
+Create an instance of this new class and invoke its
+\fBRegister\fR
+member to add it to the interpreter onto which it is bound\&. Whenever a script executes the new command that object\*(Aqs
+\fBoperator()\fR
+is invoked to process the command\&. If the interpreter is destroyed, or if the command is ever unregistered, the
+\fBonUnregister\fR
+function is called to perform any required global cleanup\&.
+.SH "METHODS"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBCTCLObjectProcessor\fR(\fBCTCLInterpreter\fR& \fIinterp\fR,
+                    \fBstd::string\fR      \fIname\fR,
+                    \fBbool\fR             \fIregisterMe\fR=true);
+
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Constructs a new command processor\&.
+\fIinterp\fR
+is the interpreter on which the command will be registered when the
+\fBRegister\fR
+member is invoked\&.
+\fIname\fR
+is the name of the command\&. If
+\fIregisterMe\fR
+is not supplied or is supplied but is
+true, the command will be registered as part of the construction process\&. If
+\fIregisterMe\fR
+is supplied and is
+false, the command is not immediately added, and
+\fBRegister\fR
+must be called later to incorporate it into the interpreter\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBvoid\fR \fBRegister\fR();
+\fBvoid\fR \fBunregister\fR();
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+
+\fBRegister\fR
+incorporates the command into the interpreter\&. If the command is already registered, a
+CStateException
+is thrown\&.
+.PP
+
+\fBunRegister\fR
+removes the command from the interpreter\&. This causes
+\fBonUnregister\fR
+to be called\&. if the command is registered at destruction time, destruction implies a call to
+\fBunRegister\fR
+(and therefore
+\fBonUnregister\fR)\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBstd::string\fR \fBgetName\fR() const;
+\fBTcl_CmdInfo\fR \fBgetInfo\fR() const;
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+
+\fBgetName\fR
+returns the name of the command that will invoke this object\*(Aqs
+\fBoperator()\fR\&. If the command has been registered, and subsequently renamed at the script level, this function will reflect the rename\&.
+.PP
+
+\fBgetInfo\fR
+returns information about the command see
+\fBTcl_GetCommandInfo\fR
+for more information about what is returned and what it means\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+virtual \fBint\fR \fBoperator()\fR(\fBCTCLInterpreter\fR& \fIinterp\fR,
+                       \fBstd::vector<CTCLObject>\fR& \fIobjv\fR) = 0;
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+This pure virtual function must be overridden in concrete object command processors\&. The function is called to execute the command that this object is performing\&.
+\fIinterp\fR
+provides a reference to the interpreter on which the command is being run\&.
+\fIobjv\fR
+is a reference to a
+\fBstd::vector<CTCLObject>\fR\&. Each element of
+\fIobjv\fR
+is a
+CTCLObject
+containing a word of the command line that invoked us\&.
+.PP
+The function should return
+TCL_OK
+on success and
+TCL_ERROR
+on failure\&. Other return values are possible for e\&.g\&. commands that implement new control structures however this is beyond the scope of this manpage\&. If the command processor wants to make a result available to the interpreter, it can create a
+CTCLResult
+object, fill it in and commit it\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+virtual void onUnregister();
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+This function is called when the interpreter is being destroyed or if the command is being unregistered either due to object destruction or a call to
+\fBunregister\fR\&. The default behavior is to do nothing, but this can be overidden in your derived class if desired\&.
+.SH "SEE ALSO"
+.PP
+CTCLCompatibilityProcessor(3), CTCLInterpreter(3), CTCLInterpreterObject(3), CTCLObject(3), CTCLProcessor(3), CTCLResult(3), Tcl_CreateObjCommand(3tcl), Tcl_GetCommandInfo(3tcl)

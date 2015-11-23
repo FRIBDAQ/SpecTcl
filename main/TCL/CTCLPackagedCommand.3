@@ -1,0 +1,135 @@
+'\" t
+.\"     Title: CTCLPackagedCommand
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLPACKAGEDCOMMAND" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLPackagedCommand \- Base class for a command that lives in a CTCLCommandPackage
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <TCLPackagedCommand\&.h>
+\&.\&.\&.
+class CTCLPackagedCommand   : public CTCLProcessor
+{
+
+  CTCLPackagedCommand (const std::string& sCommand, CTCLInterpreter* pInterp,
+                       CTCLCommandPackage& rPackage);
+  CTCLPackagedCommand (const char* pCommand, CTCLInterpreter* pInterp,
+                       CTCLCommandPackage& rPackage);
+   ~ CTCLPackagedCommand ( );
+
+  CTCLCommandPackage& getMyPackage();
+
+  void setMyPackage (CTCLCommandPackage& am_rMyPackage);
+
+};
+    
+.fi
+.SH "DESCRIPTION"
+.PP
+Command packages (see CTCLCommandPackage(3)), provide a way to organize a set of related Tcl command processors around a set of shared services\&. Objects derived from
+CTCLPackagedCommand
+are added to an object derived from
+CTCLCommandPackage\&. The
+CTCLCommandPackage
+manages bulk registration of all of the commands added to it\&. Construcint a
+CTCLPackagedCommand
+object provides it a reference to its package so that public members of the package can be invoked when the package commands are executing\&.
+.PP
+Note that since
+CTCLPackagedCommand
+is derived from
+CTCLProcessor, and does not supply a
+\fBoperator()\fR
+You must derive concrete classes from this class implementing
+\fBoperator()\fR
+to provide the desired command functionality\&.
+.SH "METHODS"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBCTCLPackagedCommand\fR (const \fBstd::string\fR& \fIsCommand\fR,
+                       \fBCTCLInterpreter\fR* \fIpInterp\fR,
+                       \fBCTCLCommandPackage\fR& \fIrPackage\fR);
+  \fBCTCLPackagedCommand>\fR (const \fBchar\fR* \fIpCommand\fR,
+                       \fBCTCLInterpreter\fR* \fIpInterp\fR,
+                       \fBCTCLCommandPackage\fR& \fIrPackage\fR);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Constructs a packaged command\&.
+\fIsCommand\fR
+or
+\fIpCommand\fR
+provide the command name\&.
+\fIpInterp\fR
+is a pointer to the interpreter on which the command will be registered\&.
+\fIrPackage\fR
+is a reference to the package this object will be a member of\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+
+\fBCTCLCommandPackage\fR& \fBgetMyPackage()\fR;
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Returns a reference to the object\*(Aqs package\&. This can be cast to the actual type of the package at which point package public members can be accessed\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBvoid\fR \fBsetMyPackage\fR (\fBCTCLCommandPackage\fR& \fIrMyPackage\fR);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Provides a new package for the command\&.
+.PP
+.SH "SEE ALSO"
+.PP
+CTCLCommandPackage(3), CTCLProcessor(3)

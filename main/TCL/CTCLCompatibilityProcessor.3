@@ -1,0 +1,164 @@
+'\" t
+.\"     Title: CTCLCompatibiltyProcessor
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLCOMPATIBILTYPROC" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLCompatibilityProcessor \- Adaptor between CTCLOjbectProcessor and CTCLProcessor\&.
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <TCLCompatibilityProcessor\&.h>
+\&.\&.\&.
+class CTCLCompatibilityProcessor : public CTCLObjectProcessor
+{
+
+public:
+
+  CTCLCompatibilityProcessor(CTCLProcessor& actualCommand);
+  virtual ~CTCLCompatibilityProcessor();
+
+  virtual int operator()(CTCLInterpreter& interp,
+                         std::vector<CTCLObject>& objv);
+  virtual void onUnregister();
+};
+
+    
+.fi
+.SH "DESCRIPTION"
+.PP
+Note that the information on this page is only to be used to "grandfather" old
+CTCLProcessor
+objects into Tcl\&. New command processors should be based on the CTCLObjectProcessor\&.
+.PP
+A rewrite of the TCL++ library in March 2006 eliminated the use of Tcl functions that are scheduled to be deprecated in the known future of Tcl\&. One set of functions scheduled for deprecation are those that revolve around direct access to the Tcl interpreter result, and command processors that use the
+\fIargc\fR,
+\fIargv\fR
+interfaces\&.
+.PP
+Since a number of existing command extensions are, no doubt built on top of the
+CTCLProcessor
+\fIargc\fR
+\fIargv\fR
+interface, a mechanism that allows the use of existing commands was built as well\&.
+.PP
+The current implementation of a
+CTCLProcessor
+includes as member data a
+CTCLCompatibilityProcessor
+object\&. This object registers itself as a
+CTCLObjectProcessor
+for the command intended by the
+CTCLProcessor
+and serves as an adaptor between these two command types, marshalling command objects into an
+\fIargc\fR,
+\fIargv\fR
+pair, creating and committing a
+CTCLResult
+object\&.
+.PP
+For most users of this library, this is completely transparent, this documentation is provided for completeness, however\&.
+.SH "METHODS"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBCTCLCompatibilityProcessor\fR(\fBCTCLProcessor\fR& \fIactualCommand\fR);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Constructs a compatibility processor that adapts the object based command interface for
+\fIactualCommand\fR\&.
+\fIactualCommand\fR
+must already be bound to an interpreter\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+virtual \fBint\fR \fBoperator()\fR(\fBCTCLInterpreter\fR& \fIinterp\fR,
+                       \fBstd::vector<CTCLObject>\fR& \fIobjv\fR);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Called when the command is executed\&.
+\fIobjv\fR
+is marshalled into an argc, argv pair\&. A
+CTCLResult
+is created and the actual command\*(Aqs
+\fBoperator()\fR
+is called to execute the command\&. On return, the result is committed, and all dynamic storage released prior to returning the status from the command processor\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+virtual \fBvoid\fR \fBonUnregister\fR();
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Called when the command is unregistered\&. The actual command\*(Aqs
+\fBOnDelete\fR
+member is called\&.
+.SH "SEE ALSO"
+.PP
+CTCLObject(3), CTCLObjectProcessor(3), CTCLProcessor(3), CTCLResult(3),
+.SH "REFERENCES"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Gamma, Helm, Johnson, Vlissides \fIDesign Patterns Elements of Reusable
+Object\-Oriented Software\fR
+Addison\-Wesley Professional Computing Series 1995 ISBN 0\-0201\-63361\-2
+See Chapter 4 the Adapter pattern\&.
+            
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+

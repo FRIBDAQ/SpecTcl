@@ -1,0 +1,156 @@
+'\" t
+.\"     Title: CTCLInterpreterObject  3 
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLINTERPRETEROBJEC" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLInterpreterObject \- Base class for objects that are associated with a Tcl Interpreter\&.
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <CTCLInterpreterObject\&.h>
+\&.\&.\&.
+class CTCLInterpreterObject
+{
+public:
+  CTCLInterpreterObject ();
+  CTCLInterpreterObject (CTCLInterpreter* pInterp );
+  CTCLInterpreterObject (const CTCLInterpreterObject& src );
+
+  CTCLInterpreterObject& operator=
+                        (const CTCLInterpreterObject& rhs);
+  int operator== (const CTCLInterpreterObject& rhs) const;
+
+
+  CTCLInterpreter* getInterpreter() const;
+  CTCLInterpreter* Bind (CTCLInterpreter& rBinding);
+  CTCLInterpreter* Bind (CTCLInterpreter* pBinding);
+
+};
+
+
+        
+.fi
+.SH "DESCRIPTION"
+.PP
+
+CTCLInterpreterObject
+is a base class for any object that requires a
+\fBCTCLInterpreter\fR
+(Tcl interpreter) to operate\&. Almost all objects in the Tcl++ library are derived from this base class\&.
+.SH "METHODS"
+.PP
+
+\fBCTCLInterpreterObject()\fR
+.PP
+Constructor for an interpreter object that will be bound to an underlying interpreter at a later time\&. See the
+\fBBind\fR
+functions for more information about binding interpreters\&. More normally, if you already have an interpreter you will construct using that interpreter\&.
+.PP
+
+\fBCTCLInterpreterObject\fR
+(\fBCTCLInterpreter\fR*
+\fIpInterp\fR)
+.PP
+Constructs a
+CTCLInterpreterObject
+given that
+\fIpInterp\fR
+is an existing interpreter encapsulated in a
+CTCLInterpreter\&.
+.PP
+
+\fBCTCLInterpreterObject\fR
+(\fBconst CTCLObject\fR&
+\fIsrc\fR)
+.PP
+Constructs a new
+CTCLInterpreterObject
+that is an exact copy of
+\fIsrc\fR\&.
+.PP
+
+CTCLInterpreterObject&
+\fBoperator=\fR
+(const
+\fBCTCLInterpreterObjectd\fR&
+\fIrhs\fR)
+.PP
+Provides a mechanism for assigning a
+CTCLInterpreterObject
+a copy of the
+\fIrhs\fR
+CTCLInterpreterObject\&. The return value is just a reference to the left hand side of the assignment\&. This permits operator chaining\&.
+.PP
+
+\fBint\fR
+\fBoperator==\fR( const
+\fBCTCLInterpreterObject\fR& rhs)
+.PP
+Compares a
+CTCLInterpreterObject
+to another (\fIrhs\fR)\&. If the underlying interpreters are the same, the objects are said to be equal and
+1
+is returned\&. If not,
+0
+is returned\&.
+.PP
+
+\fBCTCLInterpreter\fR*
+\fBgetInterpreter\fR() const
+.PP
+Returns a pointer to the underlying
+CTCLInterpreter
+object\&. See the
+CTCLInterpreter(3) manpage for more information about the services offered by that class\&.
+.PP
+
+\fBCTCLInterpreter\fR*
+\fBBind\fR(
+\fBCTCLInterpreter\fR&
+\fIrBinding\fR
+)
+.PP
+
+\fBCTCLInterpeter\fR*
+\fBBind\fR(
+\fBCTCLInterpreter\fR*
+\fIpBinding\fR)
+.PP
+Binds the object to a new interpreter\&. Typically this will only be called when the object was constructed without an initial interpreter\&. This is because most objects really are related to some interpreter and cannot be willy\-nilly rebound\&. The return value is a pointer to the
+CTCLInterpreter
+the object was previously bound to\&. This will be
+NULL
+if the object was not initially bound\&.
+.SH "DEFECTS"
+.PP
+No
+\fBoperator!=\fR
+was defined\&.
+.SH "SEE ALSO"
+.PP
+CTCLInterpreter, CTCLApplication, CTCLChannel, CTCLCommandPackage, CTCLFileHandler, CTCLList, CTCLObject, CTCLObjectProcessor, CTCLTimer, CTCLVariable

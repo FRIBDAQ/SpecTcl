@@ -1,0 +1,352 @@
+'\" t
+.\"     Title: CTCLProcessor
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLPROCESSOR" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLProcessor \- Provide \fIargc\fR, \fIargv\fR extension commands to Tcl\&.
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <TCLProcessor\&.h>
+\&.\&.\&.
+class CTCLProcessor : public CTCLInterpreterObject
+{
+public:
+  CTCLProcessor(const std::string sCommand, CTCLInterpreter* pInterp);
+  CTCLProcessor(const char*       pCommand, CTCLInterpreter* pInterp);
+  virtual ~CTCLProcessor();
+
+  std::string getCommandName() const;
+
+  virtual int operator()(CTCLInterpreter& rInterpreter,
+                         CTCLResult&      rResult,
+                         int argc, char** argv) = 0;
+  virtual void OnDelete();
+
+  void Register();
+  void Unregister();
+
+  static  std::string ConcatenateParameters (int nArguments,
+                                              char* pArguments[])  ;
+  int ParseInt (const char* pString, int* pInteger)  ;
+  int ParseInt (const std::string& rString, int* pInteger)
+
+  int ParseDouble (const char* pString, double* pDouble)  ;
+  int ParseDouble (const std::string& rString, double* pDouble)
+
+  int ParseBoolean (const char* pString, Bool_t* pBoolean)  ;
+  int ParseBoolean (const std::string& rString, Bool_t* pBoolean)
+
+  static int MatchKeyword(std::vector<std::string>& MatchTable,
+                          const std::string& rValue,
+                          int NoMatch = \-1);
+
+
+};
+
+    
+.fi
+.SH "DESCRIPTION"
+.PP
+
+\fIDo not use this for new commands\fR
+.PP
+The
+CTCLProcessor
+provides a compatibility interface to the old Tcl style
+\fIargc\fR,
+\fIargv\fR
+style of command extension\&. New commands should be written using the
+CTCLObjectProcessor
+class instead\&.
+.PP
+To extend the interpreter using this mechanism, you must derive a class from
+CTCLProcessor
+and minimally override and implement its
+\fBoperator()\fR
+pure virtual function\&. You may optionally overrid its
+\fBOnDelete\fR
+member as well\&. Having written the class, you must create an object of that class and register it on an interpreter\&. Once the class is registered, invocations of the command under which it was registered will invoke your
+\fBoperator()\fR\&.
+.PP
+If the interpreter is destroyed or the object destroyed, or unregistered, the
+\fBOnDelete\fR
+member will be called\&.
+CTCLProcessor
+defines and implements this function with an empty body, so it is only necessary for you to override and implement this if you have some cleanup actions that must be done when the command is deleted\&.
+.PP
+This class is now implemented in terms of a
+CTCLObjectProcessor
+derived class called a
+CTCLCompatibilityProcessor\&. It is less efficient to use this class than to use a class derived directly from a
+CTCLObjectProcessor\&. This class is therefore not recommended for use with new extensions, but is only provided for compatibility with existing extensions written before
+CTCLObjectProcessor
+was developed\&.
+.SH "METHODS"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBCTCLProcessor\fR(const \fBstd::string\fR \fBsCommand\fR,
+             \fBCTCLInterpreter\fR* \fIpInterp\fR);
+\fBCTCLProcessor\fR(const \fBchar\fR*       \fIpCommand\fR,
+             \fBCTCLInterpreter\fR* \fIpInterp\fR);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Constructs a
+CTCLProcessor\&.
+\fIsCommand\fR
+or
+\fIpCommand\fR
+are the initial name of the command\&. Note that the Tcl interpreter supports command renaming at the script level, so there is no gaurentee that this will always be the name of the command\&.
+\fIpInterp\fR
+is the interpreter on which the command will be registered when the
+\fBRegister\fR
+function is called\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+
+\fBstd::string\fR \fBgetCommandName\fR() const;
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Returns the initial name of the command\&. Unlike
+CTCLObjectCommand::\fBgetName\fR() this function does not track changes in the command name\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+
+virtual \fBint\fR \fBoperator\fR()(\fBCTCLInterpreter\fR& \fIrInterpreter\fR,
+                       \fBCTCLResult\fR& \fIrResult\fR,
+                       \fBint\fR \fIargc\fR,
+                       \fBchar\fR** \fIargv\fR) = 0;
+virtual \fBvoid\fR \fBOnDelete\fR();
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+
+\fBoperator()\fR
+is a pure virtual function and therefore must be overidden and implemented in concrete command implementations\&.
+\fIrInterpreter\fR
+is a reference to the interpreter that is executing this command\&.
+\fIrResult\fR
+is a reference to a
+CTCLResult
+object that represents the result of the interpreter\&. Any text stored into this object will be made available to the interpreter as the result of the command\&.
+\fIargc\fR
+and
+\fIargv\fR
+are the number of words on the command line and a pointer to an array of pointers to the command words respectively\&.
+.PP
+
+\fBoperator()\fR
+should be written to return
+TCL_OK
+if it is successful and
+TCL_ERROR
+if it encounters an error\&. Other return values are possible and meaningful for commands that implement flow of control structures, but documenting these is beyond the scope of this manpage\&. See the return(3tcl) manpage for more information about these\&.
+.PP
+
+\fBOnDelete\fR
+is called whenever the interpreter or the object is being destroyed, or the object\*(Aqs
+\fBUnregister\fR
+function has been called\&.
+CTCLProcessor
+provides a default implementation for
+\fBOnDelete\fR
+which does nothing\&. It is only necessary to override and implement this function if you require specific action when the command is being unregistered\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBvoid\fR \fBRegister\fR();
+\fBvoid\fR \fBUnregister\fR();
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+These functions register and unregister the command with the intepreter respectively\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+static  \fBstd::string\fR \fBConcatenateParameters\fR(\fBint\fR \fInArguments\fR,
+                                           \fBchar\fR* \fIpArguments\fR[])  ;
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Concatenates all of the
+\fInArguments\fR
+words in the
+\fIpArguments\fR
+array into a
+\fBstd::string\fR
+and returns it\&. The words are space separated\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBint\fR \fBParseInt\fR(const \fBchar\fR* \fIpString\fR,
+             \fBint\fR* \fIpInteger\fR)  ;
+\fBint\fR \fBParseInt\fR(const \fBstd::string\fR& \fIrString\fR,
+             \fBint\fR* \fIpInteger\fR)
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Parses the character string
+\fIpString\fR
+or
+\fIrString\fR
+as a 32 bit signed integer into
+\fIpInteger\fR\&. Returns
+TCL_OK
+if successful, or
+TCL_ERROR
+if the string coult no be parsed\&. In that case, the result string of the interpreter will report why the string could not be parsed\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBint\fR \fIParseDouble\fR(const \fBchar\fR* \fIpString\fR,
+                \fBdouble\fR* \fIpDouble\fR)  ;
+\fBint\fR \fBParseDouble\fR(const \fBstd::string\fR& \fIrString\fR,
+                \fBdouble\fR* \fIpDouble\fR)
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Parses the input string, either
+\fIpString\fR
+or
+\fIrString\fR
+as a double precision floating point value, storing the result in the double pointed to by
+\fIpDouble\fR\&. On success,
+TCL_OK
+is returned\&. On failure,
+TCL_ERROR
+and the interpreter result is a textual reason for the failure\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBint\fR \fBParseBoolean\fR(const \fBchar\fR* \fIpString\fR,
+                 \fBBool_t\fR* \fIpBoolean\fR)  ;
+\fBint\fR \fBParseBoolean\fR(const \fBstd::string\fR& \fIrString\fR,
+                 \fBBool_t\fR* \fBpBoolean\fR)
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Parses either
+\fIpString\fR
+or
+\fIrString\fR
+as a boolean value\&. The result is stored in boolean pointed to by
+\fIpBoolean\fR\&.
+TCL_OK
+is returned on success,
+TCL_ERROR
+on error\&. If
+TCL_ERROR
+was returned, the interpreter result is the textual reason for the failure\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+static \fBint\fR \fBMatchKeyword\fR(\fBstd::vector<std::string>\fR& \fIMatchTable\fR,
+                        const \fBstd::string\fR& \fIrValue\fR,
+                        \fBint\fR \fINoMatch\fR = \-1);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Searches for the string
+\fIrValue\fR
+in the vector of strings
+\fIMatchTable\fR, and returns the index in the vector at which the match occured\&. If no match could be found, the value
+\fINoMatch\fR
+is returned\&.
+.PP
+Within SpecTcl, this is often used to match command switches\&.
+.SH "SEE ALSO"
+.PP
+CTCLCompatibilityProcessor(3), CTCLObjectProcessor(3), CTCLPackagedCommand(3), CTCLResult(3), return(3tcl)

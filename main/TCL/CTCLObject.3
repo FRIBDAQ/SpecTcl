@@ -1,0 +1,502 @@
+'\" t
+.\"     Title: CTCLObject
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLOBJECT" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLObject \- Encapsulate Tcl Dual ported objects\&.
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <TCLObject\&.h>
+\&.\&.\&.
+class CTCLObject : public CTCLInterpreterObject
+{
+
+public:
+  CTCLObject ();
+  CTCLObject (Tcl_Obj* am_pObject);
+  CTCLObject (const CTCLObject& aCTCLObject );
+  virtual  ~CTCLObject ( );
+
+  CTCLObject& operator= (const CTCLObject& aCTCLObject);
+  int operator== (const CTCLObject& aCTCLObject) const;
+
+  Tcl_Obj* getObject();
+  const Tcl_Obj* getObject() const;
+
+   CTCLObject& operator= (const std::string& rSource)    ;
+   CTCLObject& operator= (const char* pSource)    ;
+   CTCLObject& operator= (int nSource)    ;
+   CTCLObject& operator= (const CTCLList& rList)    ;
+   CTCLObject& operator= (double dSource)     ;
+   CTCLObject&  operator=(Tcl_Obj* rhs);
+
+  operator std::string ()    ;
+  operator int ()    ;
+  operator CTCLList ()    ;
+  operator double ()    ;
+
+  CTCLObject& operator+= (const CTCLObject& rObject)    ;
+  CTCLObject& operator+= (int nItem)    ;
+  CTCLObject& operator+= (const std::string& rItem)    ;
+  CTCLObject& operator+= (const char* pItem)    ;
+  CTCLObject& operator+= (double  Item)    ;
+
+  CTCLObject clone ()    ;
+
+  CTCLObject operator() ()    ;
+
+  CTCLObject   getRange(int first, int last);
+
+  CTCLObject&  concat(CTCLObject& rhs); // Concat lists\&.
+  std::vector<CTCLObject>  getListElements();
+  CTCLObject&  setList(std::vector<CTCLObject> elements);
+  int          llength();
+  CTCLObject   lindex(int index);
+  CTCLObject&  lreplace(int first, int count, std::vector<CTCLObject> newElements);
+
+};
+
+        
+.fi
+.SH "DESCRIPTION"
+.PP
+Tcl as a scripting language carries a deeply embedded philosophy that everything can be treated as a string\&. Nonetheless, in many cases, entities manipulated by the interpreter are more efficiently manipulated when they have other types of internal representations\&. For example strings which represent floating point numbers in extended computations are more efficiently represented directly as
+\fBfloat\fR
+or
+\fBdouble\fR
+variables\&.
+.PP
+Tcl uses
+dual ported
+objects to capture this efficiently\&. A Tcl object is a thing that has a string representation and at most one other typed representation (e\&.g\&. list, integer, floating point)\&. Conversions from string to this representation are done once and cached as long as possible, so that when an object has been used as a particular type there is essentially no additional conversion cost to use it as that type again\&.
+.PP
+While a
+\fBTcl_Obj\fR
+and therefore a
+CTCLObject
+can exist independent of an interpreter, many member functions require the object be bound to an interpreter, or they will fail with an assertion failure causing the program to abort\&. Use the base class
+\fBBind\fR
+(CTCLInterpreterObject::\fBBind\fR) member to bind the object to an existing interpreter, usually as soon as possible\&.
+.PP
+Tcl objects also can be shared with a lazy copy on write scheme so that overhead associated with duplicating objects (e\&.g\&. when using them as parameters to Tcl commands) is minimized\&.
+.PP
+
+CTCLObject
+exposes an object oriented interface to the Tcl dual ported object\&.
+.SH "METHODS"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBCTCLObject\fR ();
+  \fBCTCLObject\fR (\fBTcl_Obj\fR* \fIpObject\fR);
+  \fBCTCLObject\fR (const \fBCTCLObject\fR& \fIrhs\fR );
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Constructs a Tcl object wrapped in a
+CTCLObject\&.
+\fIpObject\fR
+is an existing
+\fBTcl_Obj\fR
+pointer that will be wrapped\&.
+\fIrhs\fR
+is an existing
+CTCLObject
+that will be used to create another reference to the same underlying object\&. Note that in the last two of these forms, a new
+\fBTcl_Obj\fR
+is not created\&. Instead,
+\fBTcl_IncrRefCount\fR
+is used on the previously existing object to mark it as shared\&. All member functions which modify the underlying object will create a new object (copy on write semantics), and decrement the reference count of the original object\&. Destroying a
+CTCLObject
+invokes
+\fBTcl_DecrRefCount\fR
+on the underlying
+\fBTcl_Obj\fR
+object\&. This may or may not result in destruction of that underlying object depending on the resulting reference count\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+
+  \fBCTCLObject\fR& \fBoperator\fR= (const \fBCTCLObject\fR& \fIrhs\fR);
+  \fBint\fR \fBoperator==\fR (const \fBCTCLObject\fR& \fIrhs\fR) const;
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+These two members provide assignment and equality comparison for
+CTCLObject
+instances with another object
+\fIrhs\fR\&. Assignment operates efficiently by decrementing the reference count on the prior object, incrementing the reference count for
+\fIrhs\fR, and copying its
+\fBTcl_Obj*\fR
+only\&. Equality comparision is true if the underlying objects have the same string representation\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBTcl_Obj\fR* \fBgetObject\fR();
+  const \fBTcl_Obj\fR* \fBgetObject\fR() const;
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Retrieves a mutable or immutable pointer to the underlying object\&. If you intend to retain this pointer for longer than the lifetime of the
+CTCLObject
+object from which it comes or longer than the lifetime of the execution of the calling function you should invoke
+\fBTcl_IncrRefCount\fR
+to mark the object shared and prevent its destruction until you no longer need it, at which point you should invoke
+\fBTcl_DecrRefCount\fR\&.
+.PP
+You should not modify the underlying object as that violates the copy on write semantics expected of
+\fBTcl_Obj\fR
+objects\&. Instead, use
+\fBTcl_DuplicateObj\fR
+to create a new object (decrementing the reference count of the previous object), and modify that one instead\&. The following code snippet shows this:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+        int      len;
+        Tcl_Obj* pObject = someObject\&.getObject();
+        string   value   = string(Tcl_GetStringFromObj(pObject, &len));
+        value           += "new text";
+        pObject          = Tcl_DuplicateObj(pObject); // Split off a new object\&.
+        Tcl_SetStringObj(pObject, (char*)value\&.c_str(), \-1);
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+   \fBCTCLObject\fR& \fBoperator=\fR (const \fBstd::string\fR& \fIrSource\fR)    ;
+   \fBCTCLObject\fR& \fBoperator=\fR (const \fBchar\fR* \fIpSource\fR)    ;
+   \fBCTCLObject\fR& \fBoperator=\fR (\fBint\fR \fInSource\fR)    ;
+   \fBCTCLObject\fR& \fBoperator=\fR (const \fBCTCLList\fR& \fIrList\fR)    ;
+   \fBCTCLObject\fR& \fBoperator=\fR (\fBdouble\fR \fIdSource\fR)     ;
+   \fBCTCLObject\fR& \fBoperator=\fR(\fBTcl_Obj\fR* \fIrhs\fR);
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Assigns a new value to the object\&. The reference count of the previously encapsulated object is decremented and a new object is created into which the right hand side value is loaded\&. This preserves copy on write semantics\&.
+\fIrSource\fR
+and
+\fIpSource\fR
+load the new object with a string valued entity\&. No attempt is made to create another representation for the object (yet)\&.
+\fInSource\fR
+loads the object with an integer value and its string representation\&.
+\fIrList\fR
+loads the object with a list representation and its string representation\&.
+\fIdSource\fR
+loads the object with a double precision floating point value and its string representation\&.
+\fIrhs\fR
+simply copies in the new object pointer and increments its reference count\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+
+  \fBoperator std::string\fR ()    ;
+  \fBoperator int\fR ()    ;
+  \fBoperator CTCLList\fR ()    ;
+  \fBoperator double\fR ()    ;
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+These function provide implicit and explicit type conversions between a
+CTCLObject
+instance and other types\&. The type conversions attempt to extract the appropriately typed value from the underlying object\&. If successful, the value is returned\&. On failure, a
+CTCLException
+is thrown\&. For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+        CTCLObject object = "3\&.14159";  // String rep\&.
+        object\&.Bind(pInterp);           // Some of these need an interp\&.
+        double     pi     = object      // (operator double())\&.
+        object            = "george";   // string rep\&.
+        try {
+           int trash = object;          // fails\&.
+        }
+        catch (CTCLException& e) {
+            // this catch block will execute\&.
+        }
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+
+\fBCTCLObject\fR& \fBoperator+=\fR (const \fBCTCLObject\fR& \fIrObject\fR)    ;
+\fBCTCLObject\fR& \fBoperator+=\fR (\fBint\fR \fInItem\fR)    ;
+\fBCTCLObject\fR& \fBoperator+=\fR (const \fBstd::string\fR& \fIrItem\fR)    ;
+\fBCTCLObject\fR& \fBoperator+=\fR (const \fBchar\fR* \fIpItem\fR)    ;
+\fBCTCLObject\fR& \fBoperator+=\fR (\fBdouble\fR  \fIItem\fR)    ;
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Creates the list representation of the underlying object, converts either
+\fIrObject\fR,
+\fInItem\fR,
+\fIrItem\fR,
+\fIpItem\fR,
+\fIItem\fR
+to its string representation and appends it as a list entry to the object\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+
+  \fBCTCLObject\fR \fBclone\fR ()    ;
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+A wrapper for
+\fBTcl_DuplicateObj\fR\&. The object is duplicated and its duplicate is returned wrapped by a
+CTCLOjbect\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+
+\fBCTCLObject\fR \fBoperator()\fR ()    ;
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The object\*(Aqs string representation is compiled by its bound interpreter to Tcl byte code and executed as a script by that bound interpreter\&. Note that the byte code compilation is cached so that subsequent invocations of the script will not require recompilation unless other references force a different second representation on the object (e\&.g\&. fetching it as a list)\&. The result of the script execution is returned as a new
+CTCLObject
+If script compilation failed, or script execution resulted in an error, a
+CTCLException
+will be thrown describing this\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+
+\fBCTCLObject\fR \fBgetRange\fR(\fBint\fR \fIfirst\fR,
+                   \fBint\fR \fIlast\fR);
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Returns a new object that consists of a subrange of the string representation of the original object\&.
+\fIfirst\fR
+is the index of the first character of the substring returned\&.
+\fIlast\fR
+is the index of the last character of the substring\&. See
+\fBTcl_GetRange\fR
+for more information, note however that some values of
+\fIfirst\fR
+or
+\fIlast\fR
+will be treated specially, and that the underlying string representation operated on is a
+Unicode
+string for which some characters in some languages may require more than one byte\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBCTCLObject\fR&  \fBconcat\fR(\fBCTCLObject\fR& \fIrhs\fR); // Concat lists\&.
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Concatenates the
+\fIrhs\fR
+as a list element to the object\&. A refrence to the new object is returned\&. Copy on write semantics are maintained\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBstd::vector<CTCLObject>\fR  \fBgetListElements\fR();
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Converts the object into its underlying list representation\&. The elements of the list are loaded into a vector of
+CTCLObject
+objects and returned\&. If the underlying string representation does not have a valid list representation, (e\&.g\&. "{this cannot be converted") a
+CTCLException
+is thrown\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+CTCLObject&  setList(std::vector<CTCLObject> elements);
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Loads the object with a string and list representation whose words are the appropriately quoted string representation of
+\fIelements\fR\&. A reference to the new object is returned\&. Copy on write semantics are maintained\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBint\fR \fBllength()\fR;
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+If necessary, converts the object to its list representation and returns the number of elements in that list\&. If it is not possible to convert the string represenation of the object into a valid list, a
+CTCLException
+is thrown\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBCTCLObject\fR \fBlindex\fR(\fBint\fR \fIindex\fR);
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+If necessary, creates the list representation of the object and returns a new object that is element number
+\fIindex\fR
+of that list\&. If the object cannot be converted into a list, a
+CTCLException
+is thrown\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBCTCLObject\fR& \fBlreplace\fR(\fBint\fR \fIfirst\fR,
+                    \fBint\fR \fIcount\fR,
+                    \fBstd::vector<CTCLObject>\fR \fInewElements\fR);
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+If necessary, converts the object to its list representation\&. If that conversion fails a
+CTCLException
+is thrown\&. The set of elements specified by
+\fIfirst\fR
+and
+\fIcount\fR, are replaced by the words held in the vector
+\fInewElements\fR\&.
+\fInewElements\fR
+can, of course, be an empty vector in order to remove
+\fIcount\fR
+elements starting at
+\fIfirst\fR
+from the list\&. A reference to the resulting object is returned\&. Copy on write semantics are enforced\&.
+.SH "SEE ALSO"
+.PP
+CTCLException(3), CTCLInterpreter(3), CTCLInterpreterObject(3), Tcl_DecrRefCount(3tcl), Tcl_DuplicateObj(3tcl), Tcl_GetRange(3tcl), Tcl_IncrRefCount(3tcl), Tcl_NewObj(3tcl), Tcl_SetStringObj(3tcl)

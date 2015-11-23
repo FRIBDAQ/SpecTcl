@@ -1,0 +1,96 @@
+'\" t
+.\"     Title: CTCLApplication 3
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLAPPLICATION 3" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLApplication \- Base class for TCL/Tk applications\&.
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <tcl\&.h>
+#include <TCLApplication\&.h>
+\&.\&.\&.
+class CTCLApplication  : public CTCLInterpreterObject
+{
+public:
+  CTCLApplication ();
+  ~CTCLApplication ( );
+  virtual   int operator() ()  =0;
+};
+        
+.fi
+.SH "DESCRIPTION"
+.PP
+
+CTCLApplication
+is an abstract base class that facilitates the creation of applications that extend the Tcl interpreter\&. The `main program\*(Aq of SpecTcl is derived from this class, for example\&.
+.PP
+Initializing a Tcl application generallly consists of a bunch of boilerplate that initializes the interpreter, and then a bunch of application specific code to register extensions to the interpreter\&.
+CTCLApplication
+provides the main boilerplate\&. It is expected that you derive a class from
+CTCLApplication
+Implement
+\fBoperator()\fR
+to register application specific commands, and then create exactly one instance of your application class named, and a global pointer to that object named gpTCLApplication\&.
+.PP
+For example, suppose you have created a class named MyTclApp:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+// This code is at the global level:
+\&.\&.\&.
+MyTclApp app;                              // Makes an instance of this
+CTCLApplication* gpTCLApplication = &app;  // Pointer expected by framework\&.
+\&.\&.\&.
+            
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Will ensure that the
+\fBoperator()\fR
+of your application object will be called with the interpreter already initialized\&.
+.SH "METHODS"
+.PP
+
+\fBint\fR
+\fBoperator()\fR()
+.PP
+This function is pure virtual and must be overridden by your derived class\&.
+\fBoperator()\fR
+is expected to install all required extensions to the interprter and return to it to start the main event loop\&. The return value from this should be
+TCL_OK
+if the application was successfully initialized or
+TCL_ERROR
+if the program encountered an error that should prevent the interpreter main loop from starting
+.SH "SEE ALSO"
+.PP
+CTCLInterpreter, CTCLInterpreterObject, CTCLObjectProcessor, CTCLVariable

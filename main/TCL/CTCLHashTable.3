@@ -1,0 +1,320 @@
+'\" t
+.\"     Title: CTCLHashTable
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLHASHTABLE" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLHashTable \- Object oriented interface to Tcl\*(Aqs hash table functions\&.
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <TCLHashTable\&.h>
+
+template <class T>
+class CTCLHashTable
+{
+public:
+  CTCLHashTable () ;
+  CTCLHashTable (  Tcl_HashTable am_HashTable  );
+  CTCLHashTable (const CTCLHashTable& aCTCLHashTable );
+  virtual ~CTCLHashTable ( );
+
+  CTCLHashTable operator= (const CTCLHashTable& aCTCLHashTable);
+
+  int operator== (const CTCLHashTable& aCTCLHashTable);
+
+  Tcl_HashTable* getHashTable() const;
+
+  void Enter (const std::string& rKey, rCTCLTHashTableItem rValue);
+  const CTCLTHashTableItem* Find (const std::string& rsKeyword) const;
+  CTCLTHashTableItem* Delete (const std::string& rsKeyword);
+  CTCLTHashTableIterator begin ();
+  CTCLTHashTableIterator end ();
+  std::string Statistics ();
+};
+
+    
+.fi
+.SH "DESCRIPTION"
+.PP
+Hash tables are tables of keyword value pairs that are organized such that the lookup time for any key in the table is
+amortized constant\&. Hash tables operate by running the key through a function called the
+hash function, and storing the key/value pair as an element of an array indexed by the result of that hash function (hash index)\&. Depending on the implementation of the hash table, different methods are used to resolve cases where two keys result in the same hash index\&.
+.PP
+Tcl includes support libraries for hash tables with string keys and arbitrary value types (e\&.g\&. structures, pointers etc\&. etc\&.)\&. One example of the use of this sort of data structure is Tcl\*(Aqs storage of array variables\&. Each array is a hash table indexed by the hash index of the array subscripts\&. In this way Tcl supports subscripts that are arbitrary strings without any search overhead when referencing an element of the array\&.
+.PP
+The
+CTCLHashTable
+and related classes provide an object oriented interface to the Tcl API for hash tables\&. This class is a
+template class\&. The template parameter is the type of data that will be associated with each hash key\&. For example, to create a has key of
+CSpectrum*
+(pointers to SpecTcl Spectra):
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+        CTCLHashTable<CSpectrum*> spectrumHashTable;
+            
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "METHODS"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBCTCLHashTable\fR () ;
+  \fBCTCLHashTable\fR (  \fBTcl_HashTable\fR \fIaHashTable\fR  );
+  \fBCTCLHashTable\fR (const \fBCTCLHashTable\fR& \fIaCTCLHashTable\fR );
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Three methods for creating
+CTCLHashTable
+objects are defined\&. The first of these creates a new, empty hash table\&. The second, takes the handle to an existing hash table;
+\fBTcl_HashTable\fR
+\fIaHashTable\fR
+and wraps a
+CTCLHashTable
+around this existing hash table providing an object oriented interface to that hash table\&. The final constructor, a copy constructor, creates a
+CTCLHashTable
+that refers to the same underlying
+\fBTcl_HashTable\fR
+as the
+\fIaCTCLHashTable\fR
+parameter\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBCTCLHashTable\fR \fBoperator\fR= (const \fBCTCLHashTable\fR& \fIrhs\fR);
+  \fBint\fR \fBoperator==\fR (const \fBCTCLHashTable\fR& \fIrhs\fR);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+
+\fBoperator=\fR
+assigns
+\fIrhs\fR
+to an existing object\&. The semantics of assignment are that followingt assignment,
+\fI*this\fR
+and
+\fIrhs\fR
+will refer to the same underlying hash table\&.
+.PP
+
+\fBoperator==\fR
+compares two hash tables,
+\fI*this\fR
+and
+\fIrhs\fR
+for equality\&. The semantics of equality are that the two
+CTCLHashTable
+objects refer to the same underlying Tcl hash tables\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBTcl_HashTable\fR* \fBgetHashTable\fR() const;
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Gets the underlying
+\fBTcl_HashTable\fR
+that is wrapped by a
+CTCLHashTable
+object\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\fBvoid\fR \fBEnter\fR (const \fBstd::string\fR& \fIrKey\fR,
+            \fBCTCLTHashTableItem<T>\fR \fIrValue\fR);
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Adds an entry to a hash table\&.
+\fIrKey\fR
+is the lookup key that will be associated with the entry\&.
+\fIrValue\fR
+is the data that is associated with that key\&. Note that
+\fBT\fR
+is the template type that was used to create the hashtable\&. E\&.g\&. if the hash table is a
+CTCLHashTable<float>,
+\fIrValue\fR
+must be a
+CTCLHashTableItem<float>\&. Note that Tcl hash tables do not support duplicate keys\&. If a hash table entry with the key
+\fIrKey\fR
+already is in the table it is replaced\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  const \fBCTCLTHashTableItem\fR* \fBFind\fR (const \fBstd::string\fR& \fIrsKeyword\fR) const;
+                
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Looks up a hash table item by key\&. If a hash table item with the key
+\fIrsKeyword\fR
+exists, a pointer to its entry is returned\&. If
+\fIrsKeyword\fR
+has not yet been
+\fBEnter\fRed in the hash table, a
+NULL
+pointer is returned\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBCTCLTHashTableItem\fR* \fBDelete\fR (const \fBstd::string\fR& \fIrsKeyword\fR);
+                
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Removes the hash table entry with the key
+\fIrsKeyword\fR\&. If the item existed, a pointer to it is returned\&. If the item does not exist in the hash table a
+NULL
+pointer is returned\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBCTCLTHashTableIterator\fR \fBbegin\fR ();
+  \fBCTCLTHashTableIterator\fR \fBend\fR ();
+                
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+
+\fBbegin\fR
+returns an
+iterator
+that "points" to the first entry in the hash table\&. dereferencing the iterator yields the pointer to a HashTableItem\&. The iterator can be incremented via ++ so that it advances to the next item in the table\&.
+.PP
+
+\fBend\fRreturns an iterator that points past the end of the table and can be used to determine when iteration is complete\&.
+.PP
+Iterators are pointer like objects\&. See the STL reference below for more information about them\&. The following example Takes a Hash table and counts up the number of elements it contains\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+        CTCLHashTableIterator i = table\&.begin();    // Table a CTCLHashTable
+        int                   n = 0;
+        while (i != table\&.end()) {
+            n++;
+        }
+        // N is a count of elements in the table\&.
+
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBstd::string\fR \fBStatistics\fR ();
+                
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Returns a string that contains statistics about the hash table\&. This is a wrapper for
+\fBTcl_HashStats\fR
+.SH "SEE ALSO"
+.PP
+CTCLHashTableItem(3), CTCLHashTableIterator(3), Tcl_HashStats(3tcl)
+.SH "REFERENCES"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Niklaus Wirth \fIAlgorithms + Data Structures = Programs\fR
+Prentice Hall Series in Automatic Computation 1976 See section 4\&.6
+
+Musser, Derge, Saini: \fISTL Tutorial and Reference Guide\fR
+Addison\-Wesley Professional Computing Series; 2001 ISBN 0\-201\-37923\-6
+        
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+

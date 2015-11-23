@@ -1,0 +1,153 @@
+'\" t
+.\"     Title: CTCLIdleProcess
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/23/2015
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "CTCLIDLEPROCESS" "3" "11/23/2015" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+CTCLIdleProcess \- Allows the establishment of an executable object that can be scheduled to be invoked when the Tcl/Tk intperpreter has no events that require processing\&.
+.SH "SYNOPSIS"
+.sp
+.nf
+#include <TCLIdleProcess\&.h>
+
+class CTCLIdleProcess : protected CTCLTimer
+{
+public:
+  CTCLIdleProcess(CTCLInterpreterObject* pObject);
+  CTCLIdleProcess(CTCLInterpreter* pInterp);
+  virtual ~CTCLIdleProcess();
+
+  void Set();
+  void Clear();
+  virtual void operator()() = 0;
+};
+    
+.fi
+.SH "DESCRIPTION"
+.PP
+While Tcl provides a mechanism for scheduling the execution of a function when the interpreter main loop is idle (no pending events), this is not suitable for processes that may need to be rescheduled\&. Therefore,
+CTCLIdleProcess
+is actually based on a timer dispatch where the delay interval is 0ms\&.
+.PP
+
+CTCLIdleProcess
+provides an abstract base class for creating function like classes that are \*(Aqcalled\*(Aq to run interleaved with the interpreter\&. A function like class is one that implements
+operator()
+(see REFERENCES) below\&. You can create an idle processor by creating a subclass of
+CTCLIdleProcess
+overriding
+operator(), creating an instance of that new class, and invoking the
+\fBSet()\fR
+function to schedule the execution of the
+\fBoperator()\fR\&. Note that It is possible for the code in your
+\fBoperator()\fR
+to reschedule itself by calling
+\fBSet()\fR\&.
+.SH "METHODS"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBCTCLIdleProcess\fR(\fBCTCLInterpreterObject\fR* \fIpObject\fR);
+  \fBCTCLIdleProcess\fR(\fBCTCLInterpreter\fR* \fIpInterp\fR);
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Creates a
+CTCLIdleProcess
+and initializes the timer on which this is based\&.
+\fIpInterp\fR
+is the interpreter that will schedule the object\*(Aqs
+\fBoperator()\fR\&.
+\fIpObject\fR
+points to an interpreter object who\*(Aqs interpreter will schedule the
+\fBoperator()\fR
+to run\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  \fBvoid\fR \fBSet\fR();
+  \fBvoid\fR \fBClear\fR();
+            
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+These function control the scheduling of the
+\fBoperator()\fR
+call\&.
+\fBSet\fR
+schedules the function to be called pretty much the next time the interpreter loop is intered, while
+\fBClear\fR
+cancels a pending schedule\&.
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+  virtual \fBvoid\fR \fBoperator()\fR() = 0;
+        
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+This pure virtual function is overridden by your idle processor to provide the behavior of the idle processor\&.
+.SH "SEE ALSO"
+.PP
+CTCLTimer(3), Tcl_CreateTimerHandler(3tcl), Tcl_DoWhenIdle(3tcl),
+.SH "REFERENCES"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Musser, Derge, Saini: \fISTL Tutorial and Reference Guide\fR
+Addison\-Wesley Professional Computing Series; 2001 ISBN 0\-201\-37923\-6
+See section 2\&.4 for a description and discussion of function objects\&.
+            
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+
