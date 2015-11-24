@@ -7,7 +7,7 @@ rm -rf ${target}
 acversion=`grep AC_INIT configure.ac | cut -f2 -d"," | sed s/,// | sed s/")"//`
 rm -rf  spectcl-${acversion}
 
-tarball=spectcl-${amversion}.tar.gz
+tarball=spectcl-${acversion}.tar.gz
 version=${acversion}
 
 
