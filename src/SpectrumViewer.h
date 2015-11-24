@@ -76,7 +76,7 @@ public:
      * This is not used because there is one and only one canvas managed by this
      * class.
      */
-    void setCurrentCanvas(QRootCanvas *pCanvas) {};
+    void setCurrentCanvas(QWidget *pCanvas) {};
 
     /*!
      * \brief getRowCount

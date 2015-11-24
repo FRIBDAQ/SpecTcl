@@ -74,7 +74,7 @@ public:
      *
      * Useful for setting which pane has the focus
      */
-    virtual void setCurrentCanvas(QRootCanvas* pCanvas) = 0;
+    virtual void setCurrentCanvas(QWidget* pCanvas) = 0;
 
     /*!
      * \brief refreshAll

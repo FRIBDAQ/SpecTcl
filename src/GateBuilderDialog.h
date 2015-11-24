@@ -101,11 +101,11 @@ public slots:
     /*!  If needed, redraws original cut */
     virtual void reject();
 
-    virtual void onMousePress(QRootCanvas* pad);
-    virtual void onMouseRelease(QRootCanvas* pad);
+    virtual void onMousePress(QWidget* pad);
+    virtual void onMouseRelease(QWidget* pad);
 
     /*! Slot for receiving click events */
-    void gateMoved(QRootCanvas* pad);
+    void gateMoved(QWidget* pad);
 
     /*! Checks for state of text and update accept button state */
     void onNameChanged(const QString& name);

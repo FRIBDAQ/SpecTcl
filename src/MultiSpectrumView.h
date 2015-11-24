@@ -9,6 +9,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <utility>
 
 class QMouseEvent;
 
@@ -57,6 +58,10 @@ public:
      */
     QRootCanvas* getCurrentCanvas();
 
+    void paintEvent(QPaintEvent *evt);
+
+    void keyPressEvent(QKeyEvent *);
+
 public slots:
     /*!
      * \brief onGeometryChanged
@@ -80,7 +85,7 @@ public slots:
      * \brief setCurrentCanvas
      * \param pCanvas canvas to take focus
      */
-    void setCurrentCanvas(QRootCanvas* pCanvas);
+    void setCurrentCanvas(QWidget *pCanvas);
 
     /*!
      * \brief update
@@ -98,6 +103,8 @@ public slots:
      * the histograms.
      */
     void refreshAll();
+
+    std::pair<int,int> findLocation(QWidget* pWidget);
 
 private:
     std::unique_ptr<QGridLayout> m_pLayout;

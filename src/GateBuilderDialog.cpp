@@ -113,14 +113,14 @@ GateBuilderDialog::GateBuilderDialog(QRootCanvas& rCanvas,
     m_canvas.Update();
 
     // Connect up the various components
-    connect(&m_canvas, SIGNAL(PadMoveEvent(QRootCanvas*)),
-            this, SLOT(gateMoved(QRootCanvas*)));
+    connect(&m_canvas, SIGNAL(PadMoveEvent(QWidget*)),
+            this, SLOT(gateMoved(QWidget*)));
 
-    connect(&m_canvas, SIGNAL(mousePressed(QRootCanvas*)),
-            this, SLOT(onMousePress(QRootCanvas*)));
+    connect(&m_canvas, SIGNAL(mousePressed(QWidet*)),
+            this, SLOT(onMousePress(QWidget*)));
 
-    connect(&m_canvas, SIGNAL(mouseReleased(QRootCanvas*)),
-            this, SLOT(onMouseRelease(QRootCanvas*)));
+    connect(&m_canvas, SIGNAL(mouseReleased(QWidget*)),
+            this, SLOT(onMouseRelease(QWidget*)));
 
     connect(ui->gateNameEdit, SIGNAL(textChanged(const QString&)),
             this, SLOT(onNameChanged(const QString&)));
@@ -192,12 +192,18 @@ void GateBuilderDialog::setCutName(const QString& name)
     ui->gateNameEdit->setText(name);
 }
 
-void GateBuilderDialog::onMousePress(QRootCanvas *pad)
+void GateBuilderDialog::onMousePress(QWidget *pad)
 {
-  m_lastMousePressPos = make_pair(pad->GetEventX(), pad->GetEventY());
+  auto pPad = dynamic_cast<QRootCanvas*>(pad);
+  if (! pPad) return;
+
+  m_lastMousePressPos = make_pair(pPad->GetEventX(), pPad->GetEventY());
 }
 
-void GateBuilderDialog::onMouseRelease(QRootCanvas* pCanvas) {
+void GateBuilderDialog::onMouseRelease(QWidget *pWidget) {
+  auto pCanvas = dynamic_cast<QRootCanvas*>(pWidget);
+  if (!pCanvas) return;
+
   int pXNew = pCanvas->GetEventX();
   int pYNew = pCanvas->GetEventY();
 
@@ -410,7 +416,7 @@ void GateBuilderDialog::hideOldCut(GGate& gate)
 
 
 
-void GateBuilderDialog::gateMoved(QRootCanvas* pad)
+void GateBuilderDialog::gateMoved(QWidget *pad)
 {
   m_isMoveEvent = true;
   //cout << "Move event " << endl;

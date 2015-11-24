@@ -108,7 +108,7 @@ QRootCanvas::QRootCanvas(QWidget *parent) :
    fRootWindowId = gVirtualX->AddWindow((ULong_t)fQtWindowId, 100, 30);
 
    fCanvas = new TCanvas("Canvas", width(), height(), fRootWindowId);
-   fCanvas->ToggleEditor();
+   fCanvas->SetSupportGL(true);
 
    // create the context menu
    fMousePosX = 0;
