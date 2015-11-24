@@ -115,27 +115,40 @@ qt4_add_resources(untitled2_RESOURCES ${untitled2_RESOURCES})
 
 ## ----   SPECTCLJSON ------------------------------------------------- 
 
-# add the SpecTclJson to this
-include(ExternalProject)
-set(USE_PROJECT_CMAKE_MODULE_PATH "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
-ExternalProject_ADD(SpecTclJson
-  GIT_REPOSITORY  http://github.com/jrtomps/SpecTclJson.git
-  GIT_TAG master
-  TEST_COMMAND ""
-  CMAKE_ARGS
-    -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-    -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-    -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    ${USE_PROJECT_CMAKE_MODULE_PATH}
-)
+if(DEFINED SpecTclJsonPrefix)
+    set(SPECTCLJSON_INCLUDE_DIRS ${SpecTclJsonPrefix}/include)
+    set(SPECTCLJSON_LIBRARY_DIRS ${SpecTclJsonPrefix}/lib)
 
-set(SPECTCLJSON_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include) 
-set(SPECTCLJSON_LIBRARY_DIRS ${CMAKE_BINARY_DIR}/lib)
+else()
+    # add the SpecTclJson to this
+    include(ExternalProject)
+    set(USE_PROJECT_CMAKE_MODULE_PATH "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
+    ExternalProject_ADD(SpecTclJson
+    GIT_REPOSITORY  http://github.com/jrtomps/SpecTclJson.git
+    GIT_TAG master
+    TEST_COMMAND ""
+    CMAKE_ARGS
+	-DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
+	-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+	-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+	-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+	${USE_PROJECT_CMAKE_MODULE_PATH}
+    )
+
+    set(SPECTCLJSON_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include)
+    set(SPECTCLJSON_LIBRARY_DIRS ${CMAKE_BINARY_DIR}/lib)
+
+
+endif()
+
+message("SPECTCLJSON_INCLUDE_DIR",${SPECTCLJSON_INCLUDE_DIRS})
+message("SPECTCLJSON_LIBRARY_DIR",${SPECTCLJSON_LIBRARY_DIRS})
 
 add_library(libSpecTclJson UNKNOWN IMPORTED)
-set_property(TARGET libSpecTclJson 
-             PROPERTY IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/libLibSpecTclJson.a)
+set_property(TARGET libSpecTclJson
+	     PROPERTY IMPORTED_LOCATION ${SPECTCLJSON_LIBRARY_DIRS}/libLibSpecTclJson.a)
+
+
 
 #### ----- ROOT -------------------------------------------------------- 
 

@@ -49,14 +49,15 @@ add_definitions(${ROOT_CXXFLAGS})
 ### ------- SPECTCLJSON -------------------------------------------------
 # add the SpecTclJson to this
 
-set(SPECTCLJSON_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include)
-set(SPECTCLJSON_LIBRARY_DIRS ${CMAKE_BINARY_DIR}/lib)
+if(DEFINED SpecTclJsonPrefix)
+    set(SPECTCLJSON_INCLUDE_DIRS ${SpecTclJsonPrefix}/include)
+    set(SPECTCLJSON_LIBRARY_DIRS ${SpecTclJsonPrefix}/lib)
+endif()
 
 add_library(libSpecTclJson UNKNOWN IMPORTED)
 set_property(TARGET libSpecTclJson
-             PROPERTY IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/libLibSpecTclJson.a)
+	     PROPERTY IMPORTED_LOCATION ${SPECTCLJSON_LIBRARY_DIRS}/libLibSpecTclJson.a)
 
-#set(SPECTCLJSON_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include)
 
 ### ------- CPPUNIT -----------------------------------------------------
 
