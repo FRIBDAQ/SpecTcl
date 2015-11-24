@@ -1,21 +1,16 @@
 #!/bin/bash -xe
 
 
-target=${WORKSPACE}/${GIT_BRANCH}-${BUILD_NUMBER}-fromdist
+target=${WORKSPACE}/SpecTcl-${GIT_BRANCH}-${BUILD_NUMBER}-fromdist
 rm -rf ${target}
 
-amversion=`grep AM_INIT_AUTOMAKE configure.ac | cut -f2 -d" " | sed s/,//`
-acversion=`grep AC_INIT configure.ac | cut -f2 -d"," | sed s/,// | sed s/")"//`
-rm -rf SpecTcl-${amversion} SpecTcl-${acversion}
 
-tarball=SpecTcl-${amversion}.tar.gz
-version=${amversion}
-if test ! -e ${tarball}
-then
-   tarball=spectcl-${acversion}.tar.gz
-   version=${acversion}
-fi
-echo ${tarball}
+acversion=`grep AC_INIT configure.ac | cut -f2 -d"," | sed s/,// | sed s/")"//`
+rm -rf spectcl-${acversion} spectcl-${acversion}
+
+tarball=spectcl-${acversion}.tar.gz
+version=${acversion}
+
 
 
 tar xzf ${tarball}
