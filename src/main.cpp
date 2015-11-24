@@ -25,6 +25,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <TQApplication.h>
 #include <TQRootApplication.h>
 #include "GlobalSettings.h"
+#include <TEnv.h>
+#include <TStyle.h>
 
 #include "QHistInfo.h"
 
@@ -32,6 +34,9 @@ int main(int argc, char *argv[])
 {
   Q_INIT_RESOURCE(resources);
   QApplication::setGraphicsSystem("native");
+
+  gEnv->SetValue("Unix.*.Root.UseTTFonts", false); // TTF are SLOW!
+  gStyle->SetOptStat(0); // this is not useful at the moment. I can do it better using Qt widgets
 
   TQApplication a("app", &argc, argv);
   TQRootApplication b(argc, argv, 0);
