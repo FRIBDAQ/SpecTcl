@@ -4,18 +4,12 @@
 target=${WORKSPACE}/${GIT_BRANCH}-${BUILD_NUMBER}-fromdist
 rm -rf ${target}
 
-amversion=`grep AM_INIT_AUTOMAKE configure.ac | cut -f2 -d" " | sed s/,//`
 acversion=`grep AC_INIT configure.ac | cut -f2 -d"," | sed s/,// | sed s/")"//`
-rm -rf SpecTcl-${amversion} SpecTcl-${acversion}
+rm -rf  spectcl-${acversion}
 
-tarball=SpecTcl-${amversion}.tar.gz
-version=${amversion}
-if test ! -e ${tarball}
-then
-   tarball=spectcl-${acversion}.tar.gz
-   version=${acversion}
-fi
-echo ${tarball}
+tarball=spectcl-${amversion}.tar.gz
+version=${acversion}
+
 
 
 tar xzf ${tarball}
