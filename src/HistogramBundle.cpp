@@ -74,7 +74,7 @@ void HistogramBundle::draw(const QString& opt) {
   QString opts(opt);
     if (opts.isNull()) {
       if ( dynamic_cast<TH2*>(m_pHist.get()) ) {
-        opts = "colz";
+        opts = "col2";
       }
     }
     const char* cOpts = opts.toAscii().constData();
