@@ -26,6 +26,7 @@ public slots:
     void onUpdateAll();
     void onColumnCountChanged(int);
     void onRowCountChanged(int);
+    void onRefresh();
 
 signals:
     void updateSelected();

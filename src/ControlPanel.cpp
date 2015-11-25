@@ -27,6 +27,7 @@ ControlPanel::ControlPanel(SpecTclInterface *pSpecTcl, SpectrumView *pView, QWid
 
     connect(ui->pUpdateSelected, SIGNAL(clicked()), this, SLOT(onUpdateSelected()));
     connect(ui->pUpdateAll, SIGNAL(clicked()), this, SLOT(onUpdateAll()));
+    connect(ui->pRefresh, SIGNAL(clicked()), this, SLOT(onRefresh()));
 }
 
 ControlPanel::~ControlPanel()
@@ -57,6 +58,11 @@ void ControlPanel::onUpdateAll()
       ++it;
     }
   }
+}
+
+void ControlPanel::onRefresh()
+{
+  m_pView->refreshAll();
 }
 
 void ControlPanel::onRowCountChanged(int nRows)
