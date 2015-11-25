@@ -104,6 +104,14 @@ public:
     virtual void update(HistogramBundle* pHist) = 0;
 
     /*!
+     * \brief Draw histogram in pad
+     * \param pHist - histogram to draw
+     *
+     * Draws the argument in the pane with focus.
+     */
+    virtual void drawHistogram(HistogramBundle* pHist) = 0;
+
+    /*!
      * \brief update
      *
      * This is the standard QWidget::update method.

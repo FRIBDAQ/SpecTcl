@@ -24,6 +24,7 @@
 #define HISTOGRAMBUNDLE_H
 
 #include "QHistInfo.h"
+#include "TH1.h"
 
 #include <QMutex>
 #include <QString>
@@ -31,7 +32,7 @@
 
 #include <memory>
 
-class TH1;
+
 
 namespace Viewer
 {

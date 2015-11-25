@@ -149,6 +149,7 @@ class QRootCanvas : public QWidget {
       void              Flush();
       void              UseCurrentStyle();
       void              ForceUpdate();
+      TObject*          findObject(TObject* obj);
       const char       *GetDISPLAY();
       TContextMenu     *GetContextMenu();
       Int_t             GetDoubleBuffer();

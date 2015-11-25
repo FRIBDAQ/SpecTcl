@@ -466,6 +466,11 @@ void      QRootCanvas::ForceUpdate()
 {
    fCanvas->ForceUpdate() ;
 }
+TObject* QRootCanvas::findObject(TObject *obj)
+{
+  return fCanvas->FindObject(obj);
+}
+
 const char  *QRootCanvas::GetDISPLAY()
 {
    return fCanvas->GetDISPLAY() ;

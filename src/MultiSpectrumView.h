@@ -62,6 +62,8 @@ public:
 
     void keyPressEvent(QKeyEvent *);
 
+    virtual void mouseDoubleClickEvent(QMouseEvent* evt);
+
 public slots:
     /*!
      * \brief onGeometryChanged
@@ -95,6 +97,7 @@ public slots:
      */
     void update(HistogramBundle* pHist);
 
+    void drawHistogram(HistogramBundle *pHist);
     /*!
      * \brief refreshAll
      *
@@ -105,6 +108,9 @@ public slots:
     void refreshAll();
 
     std::pair<int,int> findLocation(QWidget* pWidget);
+
+    bool histogramVisible(HistogramBundle* pHist);
+    bool histogramInCanvas(HistogramBundle* pHist, QRootCanvas *pCanvas);
 
 private:
     std::unique_ptr<QGridLayout> m_pLayout;

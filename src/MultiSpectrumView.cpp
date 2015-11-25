@@ -3,6 +3,8 @@
 #include "QRootCanvas.h"
 #include "SpecTclInterface.h"
 
+#include <TPad.h>
+
 #include <QGridLayout>
 #include <QSpacerItem>
 #include <QMouseEvent>
@@ -19,7 +21,6 @@ MultiSpectrumView::MultiSpectrumView(SpecTclInterface* pSpecTcl, QWidget *parent
     SpectrumView(parent),
     m_pLayout(new QGridLayout(this)),
     m_histMap(),
-//    m_canvases(),
     m_pSpecTcl(pSpecTcl),
     m_pCurrentCanvas(new QRootCanvas),
     m_currentNRows(1),
@@ -28,6 +29,7 @@ MultiSpectrumView::MultiSpectrumView(SpecTclInterface* pSpecTcl, QWidget *parent
     setLayout(m_pLayout.get());
 
     m_pLayout->addWidget(m_pCurrentCanvas, 0, 0);
+    m_pCurrentCanvas->cd();
 
     connect(m_pCurrentCanvas, SIGNAL(mousePressed(QWidget*)),
             this, SLOT(setCurrentCanvas(QWidget*)));
@@ -53,7 +55,7 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
         return;
     }
 
-    auto currentCanvasLoc = findLocation(m_pCurrentCanvas);
+    auto prevCanvasLoc = findLocation(m_pCurrentCanvas);
 
     // if different, then figure out how to change
     int currentNRows = m_currentNRows;
@@ -100,23 +102,21 @@ void MultiSpectrumView::onGeometryChanged(int nRows, int nCols)
     m_currentNColumns = nCols;
 
     // update our current canvas
-    int newCurrentCanvasRow = currentCanvasLoc.first;
-    int newCurrentCanvasCol = currentCanvasLoc.second;
+    int newCurrentCanvasRow = prevCanvasLoc.first;
+    int newCurrentCanvasCol = prevCanvasLoc.second;
 
-    if (currentCanvasLoc.first >= m_currentNRows) {
+    if (prevCanvasLoc.first >= m_currentNRows) {
         newCurrentCanvasRow = m_currentNRows-1;
     }
-    if (currentCanvasLoc.second >= m_currentNColumns) {
+    if (prevCanvasLoc.second >= m_currentNColumns) {
         newCurrentCanvasCol = m_currentNColumns-1;
     }
 
-    if ((newCurrentCanvasRow != currentCanvasLoc.first) || (newCurrentCanvasCol != currentCanvasLoc.second)) {
-        auto pItem = m_pLayout->itemAtPosition(newCurrentCanvasRow, newCurrentCanvasCol);
-        setCurrentCanvas(pItem->widget());
-    }
-
+    auto pItem = m_pLayout->itemAtPosition(newCurrentCanvasRow, newCurrentCanvasCol);
+    setCurrentCanvas(pItem->widget());
 
     SpectrumView::update();
+
 }
 
 void MultiSpectrumView::setCurrentCanvas(QWidget *pWidget)
@@ -125,9 +125,9 @@ void MultiSpectrumView::setCurrentCanvas(QWidget *pWidget)
       m_pCurrentCanvas = pCanvas;
       m_pCurrentCanvas->cd();
 
-
+      setFocus();
       QWidget::update();
-    }
+  }
 }
 
 void MultiSpectrumView::keyPressEvent(QKeyEvent *key)
@@ -228,13 +228,35 @@ QRootCanvas* MultiSpectrumView::getCurrentCanvas()
 
 void MultiSpectrumView::update(HistogramBundle* pBundle)
 {
-    if (pBundle) {
-        if (pBundle->hist()) {
+  if (pBundle) {
+      if (pBundle->hist() && histogramInCanvas(pBundle, getCurrentCanvas())) {
             pBundle->draw();
         }
     }
     setFocus();
     refreshAll();
+}
+
+
+void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
+{
+  if (pBundle) {
+      getCurrentCanvas()->cd();
+      if (pBundle->hist()) {
+            pBundle->draw();
+        }
+    }
+    setFocus();
+    refreshAll();
+}
+
+
+void MultiSpectrumView::mouseDoubleClickEvent(QMouseEvent* evt)
+{
+//  auto pWidget = childAt(evt->x(), evt->y());
+ 
+//  setCurrentCanvas(pWidget);
+//  onGeometryChanged(1,1);
 }
 
 void MultiSpectrumView::refreshAll()
@@ -256,11 +278,33 @@ void MultiSpectrumView::refreshAll()
             }
         }
     }
+    m_pCurrentCanvas->cd();
 }
 
 void MultiSpectrumView::onHistogramRemoved(HistogramBundle *pHistBundle)
 {
     std::cout << "Removed hist @ " << static_cast<void*>(pHistBundle) << std::endl;
+}
+
+bool MultiSpectrumView::histogramVisible(HistogramBundle *pHist)
+{
+  for (int row = 0; row<m_pLayout->rowCount(); ++row) {
+      for (int col = 0; col<m_pLayout->columnCount(); ++col) {
+
+          auto pItem = m_pLayout->itemAtPosition(row,col);
+
+          if (histogramInCanvas(pHist, dynamic_cast<QRootCanvas*>(pItem->widget()))) {
+              return true;
+          }
+      }
+  }
+
+  return false;
+}
+
+bool MultiSpectrumView::histogramInCanvas(HistogramBundle* pHist, QRootCanvas* pCanvas)
+{
+  return (pCanvas->findObject(pHist->hist()) != nullptr);
 }
 
 } // end of namespace
