@@ -202,7 +202,8 @@ void MultiSpectrumView::paintEvent(QPaintEvent *evt)
   painter.setPen(pen);
   auto frame = m_pCurrentCanvas->geometry();
 
-  painter.drawRect(frame.x()-2, frame.y()-2, frame.width()+3, frame.height()+3);
+  painter.drawRect(frame.x()-2, frame.y()-2,
+                   frame.width()+3, frame.height()+3);
 
 }
 
