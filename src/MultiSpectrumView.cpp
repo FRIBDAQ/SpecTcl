@@ -143,6 +143,11 @@ void MultiSpectrumView::keyPressEvent(QKeyEvent *key)
     if (keyId == Qt::Key_Up) {
         if (location.first == 0) {
             newRow = m_pLayout->rowCount()-1;
+            if (location.second == 0) {
+              newCol = m_pLayout->columnCount()-1;
+            } else {
+              newCol = location.second - 1;
+            }
         } else {
             newRow = location.first-1;
         }
@@ -158,16 +163,24 @@ void MultiSpectrumView::keyPressEvent(QKeyEvent *key)
             newCol = location.second+1;
         }
     } else if (keyId == Qt::Key_Down) {
-        cout << "down" << endl;
         if (location.first == m_pLayout->rowCount()-1) {
             newRow = 0;
+            if (location.second == m_pLayout->columnCount()-1) {
+              newCol = 0;
+            } else {
+              newCol = location.second + 1;
+            }
         } else {
             newRow = location.first+1;
         }
     } else if (keyId == Qt::Key_Left) {
-        cout << "left" << endl;
         if (location.second == 0) {
             newCol = m_pLayout->columnCount()-1;
+            if (location.first == 0) {
+              newRow = m_pLayout->rowCount()-1;
+            } else {
+              newRow = location.first - 1;
+            }    
         } else {
             newCol = location.second-1;
         }
