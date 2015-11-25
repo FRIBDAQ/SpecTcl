@@ -27,6 +27,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "HistogramBundle.h"
 #include "LockGuard.h"
 #include "Compression.h"
+#include "ConnectionTester.h"
 
 #include <json/json.h>
 #include <HistFiller.h>
@@ -186,13 +187,26 @@ QString ContentRequestHandler::getHistNameFromRequest(const QNetworkRequest &req
 
 std::unique_ptr<QNetworkReply> ContentRequestHandler::doGet(const QNetworkRequest& req)
 {
+  ConnectionTester::Result connectionStatus;
+  do {
+      QString host = GlobalSettings::getInstance()->value("/server/hostname").toString();
+      QString port = GlobalSettings::getInstance()->value("/server/port").toString();
+
+      QString server("http://%1:%2/spectcl/spectrum/list");
+      server = server.arg(host, port);
+      connectionStatus = ConnectionTester::acceptingConnections(server);
+      sleep(1);
+    } while (connectionStatus != ConnectionTester::SUCCESS);
+
   // GET
   std::unique_ptr<QNetworkReply> reply(m_nam.get(req));
+
 
   // Wait for the reply
   QEventLoop eLoop;
   QObject::connect(&m_nam, SIGNAL(finished(QNetworkReply*)),
                    &eLoop, SLOT(quit()));
+  //QObject::connect(&timer, SIGNAL(timeout()), reply.get(), SLOT(abort()));
   eLoop.exec();
 
   // All done ... return reply
