@@ -42,12 +42,12 @@ namespace Compression
     QByteArray        ucBuffer;
 
     // resize
-    ucBuffer.reserve(nUCBytes);
+    ucBuffer.resize(nUCBytes);
 
     std::cout << "initial size = " << nUCBytes << std::endl;
     while(status == Z_BUF_ERROR) {
 
-        uclength = ucBuffer.capacity();
+        uclength = ucBuffer.size();
         auto* pucBuffer = reinterpret_cast<unsigned char*>(ucBuffer.data());
         auto* pcBuffer = reinterpret_cast<const unsigned char*>(cBuffer.data());
         status = ::uncompress(pucBuffer, &uclength, pcBuffer, cBuffer.size());
@@ -56,7 +56,7 @@ namespace Compression
 
         // In case we need to enlarge increase by the original size every time
         uclength += allocationUnit;
-        ucBuffer.reserve(uclength);
+        ucBuffer.resize(uclength);
         std::cout << "Had to increase size" << std::endl;
     }
 
