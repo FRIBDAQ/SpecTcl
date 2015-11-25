@@ -36,7 +36,8 @@ set(untitled2_SOURCES
   ControlPanel.cpp
   GeometrySelector.cpp
   SpectrumView.cpp
-  MultiSpectrumView.cpp)
+  MultiSpectrumView.cpp
+  ConnectionTester.cpp)
 
 set(untitled2_HEADERS 
   QRootCanvas.h 
@@ -77,7 +78,8 @@ set(untitled2_HEADERS
   ControlPanel.h
   GeometrySelector.h
   SpectrumView.h
-  MultiSpectrumView.h)
+  MultiSpectrumView.h
+  ConnectionTester.h)
 
 set(untitled2_FORMS
   mainwindow.ui 
