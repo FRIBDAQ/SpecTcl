@@ -39,11 +39,13 @@ namespace Viewer
 ListRequestHandler::ListRequestHandler(QObject *parent) :
     QObject(parent),
     m_pReply(nullptr),
-    m_pNAM(new QNetworkAccessManager)
+    m_pNAM(new QNetworkAccessManager(this)),
+    m_pTimer(new QTimer(this))
 {
-
     connect(m_pNAM, SIGNAL(finished(QNetworkReply*)), 
             this, SLOT(finishedSlot(QNetworkReply*)));
+
+    connect(m_pTimer, SIGNAL(timeout()), this, SLOT(onTimeout()));
 }
 
 void ListRequestHandler::get()
@@ -55,6 +57,9 @@ void ListRequestHandler::get()
 
     QUrl url(urlStr);
     m_pReply = m_pNAM->get(QNetworkRequest(url));
+
+    connect(m_pReply, SIGNAL(downloadProgress(qint64,qint64)),
+            this, SLOT(onDownloadProgress(qint64,qint64)));
 }
 
 void ListRequestHandler::finishedSlot(QNetworkReply *reply)
@@ -86,6 +91,7 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
             auto content = SpJs::JsonParser().parseListCmd(value);
 
             emit parseCompleted(content);
+            m_pTimer->stop();
 
         } catch (std::exception& exc) {
             QString title("Update request failure");
@@ -94,10 +100,17 @@ void ListRequestHandler::finishedSlot(QNetworkReply *reply)
             QMessageBox::warning(0,title,msg);
         }
     }
-//    else {
+}
 
-//        emit parseCompleted(std::vector<SpJs::HistInfo>());
-//    }
+void ListRequestHandler::onDownloadProgress(qint64, qint64)
+{
+  m_pTimer->stop();
+  m_pTimer->start(5000);
+}
+
+void ListRequestHandler::onTimeout()
+{
+  emit parseCompleted(std::vector<SpJs::HistInfo>());
 }
 
 } // end of namespace

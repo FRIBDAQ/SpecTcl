@@ -27,6 +27,7 @@
 
 #include <QObject>
 #include <QList>
+#include <QTimer>
 #include <vector>
 
 class QNetworkReply;
@@ -47,6 +48,8 @@ public:
 
 public slots:
     void finishedSlot(QNetworkReply* reply);
+    void onDownloadProgress(qint64,qint64);
+    void onTimeout();
 
 signals:
     void parseCompleted(std::vector<SpJs::HistInfo> nameList);
@@ -54,6 +57,7 @@ signals:
 private:
     QNetworkReply*         m_pReply;
     QNetworkAccessManager* m_pNAM;
+    QTimer*                m_pTimer;
 };
 
 } // end of namespace 
