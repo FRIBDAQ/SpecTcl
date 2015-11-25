@@ -245,6 +245,7 @@ void DockableGateManager::editGate(GGate* pCut)
         m_pSpecTcl->enableGatePolling(true);
     }
 
+    pCut->draw();
     pCut->setEditable(false);
 
 }
