@@ -70,7 +70,6 @@ snit::widgetadaptor treeMenu {
 	}
 	}]
 
-	#set time [time {$self BuildMenus $win 0 $separatedNames}]
 	set time [time {$self buildSubMenus $win $separatedNames ""}]
     }
     ##
@@ -83,73 +82,7 @@ snit::widgetadaptor treeMenu {
 	::treeutility::dispatch $options(-command) [list %W %L %N] [list $win [list $label] [list $path]]
 
     }
-    ##
-    # private method, this is a recursive proc that builds the menu hierarchy.
-    # @param widget - The menu we are filling in.
-    # @param level  - the menu level we are building
-    # @param names  - list of names that are represented as lists that are the paths to each
-    #                 menu item.
-    #
-    method BuildMenus {widget level names} {
 
-	set submenu 0
-	
-	# Terminal nodes are those whose list length is the same as level+1.
-	# We must recurse for nodes that have listlength > level+1
-	# There is a nastly little edge case where we could have a node of the form.
-	#  ..  a and nodes of the form .. a b...
-	# this is handled correctly (by having a terminal and a cascade node with the same labels.
-	#
-
-	# Step 1 - create an array whose indices are the set of menu items we must have at this
-	#          level and whose elements are the entries at and below this node.
-	#
-
-	array set a [list];	# If this is empty we are done.
-	set recurseLength [expr {$level + 1}]
-
-	foreach name $names {	   
-	    set indexName [lindex $name $level]
-	    lappend a($indexName) $name
-	}
-
-	# Step 2 if we have any elements in a
-	#        create menu entries for them.
-	#        Specifically:
-	#         - iterate through the list of elements at that index.
-	#         - Make cascade list for all elements that have length > recurseLength.
-	#         - If we come across a list exactly recurseLength long make a command element for it.
-	#         - If we have any elements in the cascade list, create a cascade element
-	#           and recurse to stock it.
-	#
-	if {[array size a] > 0} {
-	    foreach label [lsort [array names a]] {
-		set cascade [list]
-		foreach path $a($label) {
-		    if {[llength $path] == $recurseLength} {
-			$widget add command -label $label \
-			    -command [mymethod dispatch $label [join $path $options(-splitchar)]]
-		    } else {
-			lappend cascade $path
-		    }
-		}
-		# If cascade is not empty, create the submenu and add a cascade for it:
-
-		if {[llength $cascade] > 0} {
-		    set submenuName $widget.c$submenu
-		    scrollingMenu $submenuName -tearoff 0
-		    $self BuildMenus $submenuName $recurseLength $cascade
-		    $widget add cascade -label $label -menu $submenuName
-		    incr submenu
-		}
-	    }
-	    # If this is a pull right cascade bind <Motion> to post the closest cascade:
-
-	    if {$options(-pullright) } {
-		bind $widget <Motion> [list $widget postcascade @%y]
-	    }
-	} 
-    }
     ##
     #  buildSubMenus
     #    Given a menu and a prefix text adds commands and empty cascades to that menu
@@ -242,7 +175,6 @@ snit::widgetadaptor treeMenu {
 
 	if {([llength $cascades] > 0) && $options(-pullright)} {
 	    bind $menu <Motion> [mymethod buildCascades  $cascades $names $cascPrefixes]
-	    # bind $menu <Motion> [mymethod buildSubMenus $cascmenu $names [concat $prefix $child]]
 	    bind $menu <Motion> +[list $cascmenu postcascade @%y]
 	    
 	}
