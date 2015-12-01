@@ -192,7 +192,7 @@ void CAnalyzer::OnPhysics(CBufferDecoder& rDecoder) {
 	if (!m_fPartialEntity) {
 	  nEvents--;
 	}
-	pData     = (Address_t)((ULong_t)pData + nEventSize);
+	pData     = (Address_t)((uint8_t*)pData + nEventSize);
 	nOffset  += nEventSize;
 	if(nEventNo >= m_nEventThreshold) {
 	  if(m_pSink) {		// Flush the event list to the sink.
