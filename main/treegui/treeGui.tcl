@@ -45,7 +45,6 @@ if {![winfo exists .treegui]}  {	# Don't do it twice!
 	spectrumTabActions spectrum_tab -widget $treenotebook.spectra} 1
 	      ]
     $treenotebook add $treenotebook.spectra -text Spectra -sticky nsew
-    
 
     set time [time {
 	parametersTabActions parameters -widget $treenotebook.parameters} 1
@@ -67,7 +66,6 @@ if {![winfo exists .treegui]}  {	# Don't do it twice!
     set time [time {
 	::FolderGui::startFolderGui .treegui $treenotebook} 1
 	      ]
-    puts "Time to load folder gui: $time"
     $treenotebook add $::FolderGui::folderGuiBrowser -text Folders -sticky nsew
     
     grid $treenotebook -sticky nsew
