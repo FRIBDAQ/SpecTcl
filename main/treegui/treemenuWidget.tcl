@@ -62,14 +62,16 @@ snit::widgetadaptor treeMenu {
 	$self configurelist $args
 
 
-	# Take all of the names and convert them into lists that represent the widget path.
+	# Take all of the names and convert them into lists that represent the widget path
 
 	set separatedNames [list]
-	foreach name $options(-items) {
-	    lappend separatedNames [split $name $options(-splitchar)]
+	set time [time {
+	foreach name $options(-items) {	    lappend separatedNames [split $name $options(-splitchar)]
 	}
+	}]
 
-	$self BuildMenus $win 0 $separatedNames
+	#set time [time {$self BuildMenus $win 0 $separatedNames}]
+	set time [time {$self buildSubMenus $win $separatedNames ""}]
     }
     ##
     # public method to dispatch a menu click
@@ -148,5 +150,116 @@ snit::widgetadaptor treeMenu {
 	    }
 	} 
     }
-    
+    ##
+    #  buildSubMenus
+    #    Given a menu and a prefix text adds commands and empty cascades to that menu
+    #    based on the names passed in.
+    #    *   If a name is not a child of the base name, it is ignored.
+    #    *   If a name has no children, it is added as a menu item.
+    #    *   If a name has children, it is added as an empty cascade with a command to build the
+    #        cascade contents on demand.
+    #
+    #
+    #   This is used because for very large menus it can be time consuming to build the menu
+    #   all at once.  This incremental build is very much like the incremental build of the folder
+    #   gui.
+    #
+    #  @param menu  - parent menu widget.
+    #  @param names - The names as a list of path lists.
+    #  @param prefix- The prefix for which the menu is being built (all added items must be
+    #                 for children of prefix.
+    #
+    method buildSubMenus {menu names prefix} {
+	set c 0
+
+	#
+	# If the menu already has stuff in it we can just return.
+	#
+	if {[$menu index end] ne "none"} {
+	    return 
+	}
+
+	set parentLen [llength $prefix]; # 0 if this is top level.
+
+
+	# Compute indices for the prefix, the first element after the prefix
+	# and the tail.  Note that if the prefix is "" the prefix is empty:
+	#
+
+	if {$parentLen == 0} {
+	    set prefStart -1
+	    set prefEnd   -1
+	    set chStart    0
+	    set tailStart  1
+	} else {
+	    incr parentLen -1
+	    set  prefStart 0
+	    set  prefEnd   $parentLen
+	    
+	    incr parentLen
+	    set  chStart $parentLen
+
+	    set tailStart [incr parentLen]
+	}
+	
+	
+	#
+	#  Build an array whose indices are prefix immediate children
+	#  and whose contents are all children of that child.  
+	#
+
+	array set children [list]; # Empty array of children lists:
+
+	foreach path $names {
+	    set head [lrange $path $prefStart $prefEnd]
+	    if {$head eq $prefix} {
+		set child [lindex $path $chStart]
+		set tail  [lrange $path $tailStart end]
+		lappend children($child) $tail
+	    }
+	}
+	#  indices of children must have entries:
+	#  *  Those with only one element in their lists are terminal nodes
+	#  *  Those with more than one element in their lists are parents of the next level:
+	
+	set cascades     [list]
+	set cascPrefixes [list]
+	foreach child [lsort -dictionary -increasing [array names children]] {
+	    if {([llength $children($child)] == 1) && ([lindex $children($child) 0] eq "")} {
+		set path [concat $prefix $child [lindex $children($child) 0]]
+		$menu add command -label $child \
+		    -command [mymethod dispatch $child [join $path $options(-splitchar)]]		
+	    } else {
+		set cascmenu [menu $menu.c[incr c] -tearoff 0]; # New menu for cascade (not yet stuffed);
+		$menu add cascade -menu $cascmenu -label $child -command [mymethod buildSubMenus $cascmenu $names [concat $prefix $child]]
+		lappend cascades $cascmenu
+		lappend cascPrefixes [concat $prefix $child]
+	    }
+	}
+	# If there are cascades we must
+	# - Bind a motion event on this menu so that it builds the contents of the submenus.
+	# - posts any cascade near the pointer.
+
+	if {([llength $cascades] > 0) && $options(-pullright)} {
+	    bind $menu <Motion> [mymethod buildCascades  $cascades $names $cascPrefixes]
+	    # bind $menu <Motion> [mymethod buildSubMenus $cascmenu $names [concat $prefix $child]]
+	    bind $menu <Motion> +[list $cascmenu postcascade @%y]
+	    
+	}
+
+    }
+    ##
+    #  buildCascades
+    #    For a set of cascade menus buid the contents of the submenu.
+    #
+    # @param cascades     - List of cascade menu widgets.
+    # @param names        - The full name set.
+    # @param prefixes       - The prefixes used to populate the children.
+    #
+    method buildCascades {cascades names prefixes} {
+	foreach cascade $cascades prefix $prefixes {
+	    $self buildSubMenus $cascade $names $prefix
+	}
+    }
+
 }
