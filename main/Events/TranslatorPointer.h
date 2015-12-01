@@ -381,7 +381,7 @@ class TranslatorPointer
   // from which to calculate m_nOffset
   TranslatorPointer<T>(BufferTranslator& Translator, Address_t const Addr) :
     m_rUnderlyingBuffer(Translator),
-    m_nOffset(((ULong_t)Addr - (ULong_t)Translator.getBuffer()))
+    m_nOffset(((uint8_t*)Addr - (uint8_t*)Translator.getBuffer()))
     { }
 
   // Constructor from any other type of translator pointer:
