@@ -311,26 +311,28 @@ DAMAGES.
 **  MODIFICATION HISTORY:
 **--
 **/
+#include <stdint.h>
 
-typedef    char		    INT8;
-typedef    unsigned char    UINT8;
-typedef    short	    INT16;
-typedef    unsigned short   UINT16;
-typedef    int		    INT32;
-typedef    unsigned int     UINT32;
+
+typedef    int8_t     INT8;
+typedef    uint8_t    UINT8;
+typedef    int16_t    INT16;
+typedef    uint16_t   UINT16;
+typedef    int32_t    INT32;
+typedef    uint32_t   UINT32;
 
 /*
 ** Below are more traditional type definitions:
 */
 
-typedef  char              byte;
-typedef  unsigned char     ubyte;
-typedef  short             word;
-typedef  unsigned short    uword;
-typedef  unsigned long     ulong;
+typedef  INT8      byte;
+typedef  UINT8     ubyte;
+typedef  INT16     word;
+typedef  UINT16    uword;
+typedef  unsigned long   ulong;
 
 #if OS != LINUX
-typedef  byte *caddr_t;
+typedef  char *caddr_t;
 #endif
 typedef  word *waddr_t;
 typedef  long *laddr_t;
