@@ -116,6 +116,7 @@ private:
   static Bool_t   m_Seedrandom;	//!< True if need to seed.
   std::vector<unsigned> m_underflowCounters;  //!< one per axis.
   std::vector<unsigned> m_overflowCounters;   //!< one per axis.
+  std::string     m_description;
 public:
 			// Constructor
 
@@ -170,6 +171,9 @@ public:
   Int_t getAxisMapCount() const {
     return m_AxisMappings.size();
   }
+  std::string getTextDescription() const {
+    return m_description;
+  }
   virtual SpectrumType_t getSpectrumType() = 0;
 
 
@@ -196,7 +200,10 @@ protected:
 
   }
   bool checkRange(int channel, int nChans, int axis);
-  //
+  public:
+  void setTextDescription(std::string d) {
+    m_description = d;
+  }//
   // Operations:
   //                   
 public:
