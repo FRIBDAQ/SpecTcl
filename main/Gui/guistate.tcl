@@ -343,38 +343,30 @@ proc writeComments fd {
 #     fd   - The return value of the [open] that opened the output file.
 #
 proc writeTreeParameters fd {
-    puts $fd "\n#New Tree Parameters:\n"
+    
 
-    set newTreeParameters [treeparameter -listnew]
-    foreach parameter $newTreeParameters {
-        set info [treeparameter -list $parameter]
-        set info [lindex $info 0]
-        set bins [lindex $info 1]
-        set low  [lindex $info 2]
-        set high [lindex $info 3]
-        set units [lindex $info 5]
-        # The catch is to ensure that the script keeps running if the tree parameter
-        # already exists.
+    puts $fd "\n#Tree params:\n"
 
-        puts $fd "catch {treeparameter -create [list $parameter] $low $high $bins [list $units]}"
-    }
+    set time [time {
+     foreach  info [treeparameter -list] {
+	 set name [lindex $info 0]
+	 set bins [lindex $info 1]
+	 set low  [lindex $info 2]
+	 set high [lindex $info 3]
+	 set units [lindex $info 5]
+	 
+	 # Could be new could be modified....
+	 
+	 puts $fd "catch {treeparameter -create [list $name] $low $high $bins [list $units]}"
+	 puts $fd "treeparameter -setlimits [list $name] $low $high"
+	 puts $fd "treeparameter -setbins   [list $name] $bins"
+	 puts $fd "treeparameter -setunit   $name [list $units]\n"
+     }
+    }]   
 
-    puts $fd "\n#Modified Tree Parameters:\n"
+    return
 
-    foreach  info [treeparameter -list] {
-        set name [lindex $info 0]
-        set bins [lindex $info 1]
-        set low  [lindex $info 2]
-        set high [lindex $info 3]
-        set units [lindex $info 5]
 
-        # Only write the ones that are not new and have changed...
-        if {([lsearch $newTreeParameters $name] == -1) && [treeparameter -check $name]} {
-            puts $fd "treeparameter -setlimits [list $name] $low $high"
-            puts $fd "treeparameter -setbins   [list $name] $bins"
-            puts $fd "treeparameter -setunit   $name [list $units]\n"
-        }
-    }
 
 }
 # writePseudo fd description
@@ -587,20 +579,39 @@ proc writeFilters fd {
 #    fd  - A file desciptor open on the file to write.
 #
 proc writeAll fd {
+    set time [time {
     writeComments            $fd
+    }]
+    set time [time {
     writeTreeParameters      $fd
+    }]
+    set time [time {
     writePseudoParameters    $fd
+    }]
+    set time [time {
     writeTreeVariables       $fd
+    }]
+    set time [time {
     writeSpectrumDefinitions $fd
+    }]
+    set time [time {
     writeGateDefinitions     $fd
+    }]
+    set time [time {
     writeGateApplications    $fd
+    }]
+    set time [time {
     writeFilters             $fd
+    }]
 
     #  Now execute the observers at the global level:
 
+    set time [time {
     foreach observerName [array names ::guistate::observers] {
 	uplevel #0 $::guistate::observers($observerName) $fd
     }
+    }]
+
 }
 
 #

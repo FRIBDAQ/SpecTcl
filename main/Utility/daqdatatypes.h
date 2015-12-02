@@ -39,13 +39,13 @@
 #ifndef __DAQTYPES_H
 
 #include <sys/types.h>
-
-typedef    char		    INT8;
-typedef    unsigned char    UINT8;
-typedef    short	    INT16;
-typedef    unsigned short   UINT16;
-typedef    int		    INT32;
-typedef    unsigned int     UINT32;
+#include <stdint.h>		/* All C headers are legal in all C++'s even c++11 */
+typedef    int8_t     INT8;
+typedef    uint8_t    UINT8;
+typedef    int16_t    INT16;
+typedef    uint16_t   UINT16;
+typedef    int32_t    INT32;
+typedef    uint32_t   UINT32;
 
 
 #define SHORT_SIGNATURE 0x0102	/*	 
@@ -58,14 +58,14 @@ typedef    unsigned int     UINT32;
 
 
 
-typedef int Int_t;
-typedef unsigned int UInt_t;
+typedef int32_t  Int_t;
+typedef uint32_t UInt_t;
 
-typedef short Short_t;
-typedef unsigned short UShort_t;
+typedef int16_t  Short_t;
+typedef uint16_t UShort_t;
 
-typedef long Long_t;
-typedef unsigned long ULong_t;
+typedef int32_t  Long_t;
+typedef uint32_t ULong_t;
 
 typedef float Float_t;
 typedef double DFloat_t;
