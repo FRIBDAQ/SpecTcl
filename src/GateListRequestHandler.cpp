@@ -56,15 +56,11 @@ void GateListRequestHandler::get()
 
     QUrl url(urlStr);
 
-    // this "should" be very fast so allow it to block
-    QEventLoop evtlp;
-    connect(m_pNAM, SIGNAL(finished(QNetworkReply*)), 
-            &evtlp, SLOT(quit()));
-
     m_pReply = m_pNAM->get(QNetworkRequest(url));
-    evtlp.exec();
 
-    finishedSlot(m_pReply);
+    connect(m_pNAM, SIGNAL(finished(QNetworkReply*)), 
+            m_pReply, SLOT(finishedSlot(QNetworkReply*)));
+
 }
 
 void GateListRequestHandler::finishedSlot(QNetworkReply *reply)
