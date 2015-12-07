@@ -29,6 +29,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 #include <HistFactory.h>
 #include <HistInfo.h>
+#include "Benchmark.h"
 
 #include <TH1.h>
 #include <TH2.h>
@@ -40,6 +41,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <stdexcept>
 #include <memory>
 #include <algorithm>
+#include <chrono>
 
 using namespace std;
 
@@ -241,6 +243,7 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
 {
 //  QMutexLocker lock(&m_mutex);
 
+  Benchmark<0, std::chrono::high_resolution_clock> bm;
   bool somethingChanged = false;
 
 
@@ -253,11 +256,11 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
       const SpJs::HistInfo& info = (*it);
       QString name = QString::fromStdString(info.s_name);
 
-      auto equalNameOnly = [&name](const pair<const QString, unique_ptr<HistogramBundle> >& item) {
-          return (item.first == name);
+      auto lessThanNameOnly = [&name](const pair<const QString, unique_ptr<HistogramBundle> >& item) {
+          return (item.first < name);
       };
 
-      auto itFound = find_if(begin(), end(), equalNameOnly);
+      auto itFound = m_hists.find(name);
 
       if (itFound == end()) {
           // there was no previous histogram... we need to create it
@@ -310,15 +313,19 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
       ++it;
   }
 
+  auto byName = [](const SpJs::HistInfo& info1, const SpJs::HistInfo& info2) {
+                    return (info1.s_name < info2.s_name);
+                  };
+
+  Benchmark<11, std::chrono::high_resolution_clock> bm2;
+  auto sortedHists = hists;
+  sort(sortedHists.begin(), sortedHists.end(), byName);
   // remove any defunct histograms
-  auto nameNotInList = [&hists](const pair<const QString, unique_ptr<HistogramBundle> >& hBundle) {
-      const QString& name = hBundle.first;
-      auto itFound = find_if( hists.begin(), hists.end(),
-                              [&name](const SpJs::HistInfo& info) {
-                                return (QString::fromStdString(info.s_name) == name);
-                             });
-      // was the histogram not found in the list?
-      return itFound == hists.end();
+  auto nameInList = [&sortedHists, &byName](const QString& name) {
+      SpJs::HistInfo temp;
+      temp.s_name = name.toStdString();
+      return binary_search(sortedHists.begin(), sortedHists.end(),
+                           temp, byName);
   };
 
   // The following little algorithm structure was shamelessly stolen from
@@ -327,7 +334,7 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
   auto itLocal = m_hists.begin();
   auto itLocal_end = m_hists.end();
   while ( itLocal != itLocal_end ) {
-    if (nameNotInList(*itLocal)) {
+    if (!nameInList(itLocal->first)) {
 
         auto pHist = itLocal->second.get();
 
