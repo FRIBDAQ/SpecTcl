@@ -28,6 +28,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "HistogramBundle.h"
 #include "SpecTclRESTInterface.h"
 #include "QHistInfo.h"
+#include "Benchmark.h"
 
 #include <HistFactory.h>
 
@@ -39,6 +40,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 
 #include <vector>
 #include <iostream>
+#include <chrono>
 
 using namespace std;
 
@@ -68,12 +70,15 @@ HistogramView::~HistogramView()
 
 void HistogramView::onHistogramListChanged()
 {
+  Benchmark<2, std::chrono::high_resolution_clock> bm2;
+
   auto pHistList = m_pSpecTcl->getHistogramList();
 
   auto it = pHistList->begin();
   auto itend = pHistList->end();
 
   // add new histograms if they have changed
+  cout << "start phase1" << endl;
   while (it!=itend) {
 
       const QString& name = it->first;
@@ -106,21 +111,16 @@ void HistogramView::onHistogramListChanged()
     ++it;
   }
 
+  Benchmark<22, std::chrono::high_resolution_clock> bm22;
   // now remove stale items
 
+  cout << "start phase2" << endl;
   int nRows = ui->histList->count();
   for (int row=nRows-1; row>=0; --row) {
 
       auto pItem = ui->histList->item(row);
 
-      auto text = pItem->text();
-
-      auto compareName = [&text](const pair<const QString, unique_ptr<HistogramBundle> >& prBundle) {
-                            return (text == prBundle.second->getName());
-                          };
-
-      auto itFound = find_if( pHistList->begin(), pHistList->end(), compareName );
-      if ( itFound == pHistList->end() ) {
+      if ( ! pHistList->histExists(pItem->text()) ) {
           delete (ui->histList->takeItem(row));
       }
   }
@@ -187,15 +187,25 @@ void HistogramView::onDoubleClick(QModelIndex index)
 
 bool HistogramView::histExists(const QString& name)
 {
-    size_t nRows = ui->histList->count();
-    for(size_t  entry=0; entry<nRows; ++entry) {
-        QListWidgetItem* item = ui->histList->item(entry);
-        if (item->text() == name) {
-            return true;
-        }
-    }
-    return false;
+  size_t nRows = ui->histList->count();
+  return (binarySearch(0, nRows-1, name) != -1);
 }
+
+int HistogramView::binarySearch(int min, int max, const QString& name)
+{
+  int pivot = min + (max-min)/2;
+  if ((max < min) || (min < 0) || (max == min)) return -1;
+
+  if (ui->histList->item(pivot)->text() == name) {
+      return pivot;
+    } else if (ui->histList->item(pivot)->text() < name) {
+      return binarySearch(pivot + 1, max, name);
+    } else {
+      return binarySearch(min, pivot-1, name);
+    }
+
+}
+
 
 void HistogramView::deleteHists()
 {

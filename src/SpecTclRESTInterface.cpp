@@ -126,11 +126,13 @@ void SpecTclRESTInterface::deleteGate(const QString& name)
 
 void SpecTclRESTInterface::listGates() 
 {
+  cout << "list gates" << endl;
   m_pGateListCmd->get(); 
 }
 
 void SpecTclRESTInterface::listHistogramInfo()
 {
+  cout << "list hists" << endl;
   m_pHistListCmd->get();
 }
 
@@ -145,9 +147,11 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
       return;
   }
 
+  cout << "gates received" << endl;
   // synchronize our list of gates to the list that we are being passed
   // from SpecTcl
   bool gatesChanged = m_pGateList->synchronize(gates);
+  cout << "gates changed" << endl;
 
   // only update everything else if something actually changed.
   if (gatesChanged) {
@@ -155,14 +159,14 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
       // now update the histograms so that we know they only reference gates
       // that exist after the synchronization
       m_pHistList->synchronize(*m_pGateList);
-
+      cout << "gates synchronized" << endl;
       // tell the world that things have changed.
       emit gateListChanged();
 
   }
 
   // schedule the next update
-  QTimer::singleShot(1000, this, SLOT(listGates()));
+  QTimer::singleShot(4000, this, SLOT(listGates()));
 
   // free the gates... they have done their job
   for (auto ptr : gates) { delete ptr; }
@@ -241,25 +245,30 @@ void
 SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo> hists)
 {
 
+  cout << "hist list received" << endl;
   if (! pollHistInfo) {
 
       return;
   }
 
+  cout << "hist list updated..." << flush;
   // synchronize our list of gates to the list that we are being passed
   // from SpecTcl
   bool histInfoChanged = m_pHistList->update(hists);
+  cout << "done" << endl;
 
   // only update everything else if something actually changed.
   if (histInfoChanged) {
 
+      cout << "hist list changed..." << flush;
       // tell the world that things have changed.
       emit histogramListChanged();
+      cout << "done" << endl;
 
   }
 
   // schedule the next update
-  QTimer::singleShot(1000, this, SLOT(listHistogramInfo()));
+  QTimer::singleShot(4000, this, SLOT(listHistogramInfo()));
 
 }
 

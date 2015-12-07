@@ -67,6 +67,7 @@ private:
     bool histExists(const QString& name);
     void deleteHists();
     void setIcon(QListWidgetItem* pItem);
+    int binarySearch(int min, int max, const QString& name);
 
 private:
     Ui::HistogramView *ui;
