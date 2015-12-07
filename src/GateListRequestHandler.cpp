@@ -45,6 +45,8 @@ GateListRequestHandler::GateListRequestHandler(QObject *parent) :
     m_view(nullptr)
 {
 
+  connect(m_pNAM, SIGNAL(finished(QNetworkReply*)),
+          this, SLOT(finishedSlot(QNetworkReply*)));
 }
 
 void GateListRequestHandler::get()
@@ -57,10 +59,6 @@ void GateListRequestHandler::get()
     QUrl url(urlStr);
 
     m_pReply = m_pNAM->get(QNetworkRequest(url));
-
-    connect(m_pNAM, SIGNAL(finished(QNetworkReply*)), 
-            m_pReply, SLOT(finishedSlot(QNetworkReply*)));
-
 }
 
 void GateListRequestHandler::finishedSlot(QNetworkReply *reply)
@@ -92,11 +90,15 @@ void GateListRequestHandler::finishedSlot(QNetworkReply *reply)
             QString msg("Failed to update hist because : %1");
             msg = msg.arg(QString(exc.what()));
             QMessageBox::warning(0,title,msg);
+
         }
+
+
     } else {
 
         emit parseCompleted(vector<SpJs::GateInfo*>());
     }
+
 }
 
 // Steal the pointers of the argument
