@@ -230,7 +230,10 @@ void MultiSpectrumView::update(HistogramBundle* pBundle)
 {
   if (pBundle) {
       if (pBundle->hist() && histogramInCanvas(pBundle, getCurrentCanvas())) {
-            pBundle->draw();
+          if (m_pSpecTcl) {
+              pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+          }
+          pBundle->draw();
         }
     }
     setFocus();
@@ -243,7 +246,10 @@ void MultiSpectrumView::drawHistogram(HistogramBundle* pBundle)
   if (pBundle) {
       getCurrentCanvas()->cd();
       if (pBundle->hist()) {
-            pBundle->draw();
+          if (m_pSpecTcl) {
+              pBundle->synchronizeGates(m_pSpecTcl->getGateList());
+          }
+          pBundle->draw();
         }
     }
     setFocus();
