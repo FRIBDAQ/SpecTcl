@@ -46,14 +46,7 @@ int main(int argc, char *argv[])
 
   Viewer::GlobalSettings::setServerHost("localhost");
   Viewer::GlobalSettings::setServerPort(8000);
-
-//  qRegisterMetaType<SpJs::HistInfo>("SpJs::HistInfo");
-//  qRegisterMetaType<SpJs::HistInfo>("HistInfo");
-//  qRegisterMetaType<std::vector<SpJs::HistInfo> >("vector<SpJs::HistInfo>");
-//  qRegisterMetaType<std::vector<SpJs::HistInfo> >("std::vector<SpJs::HistInfo>");
-//  qRegisterMetaType<std::vector<SpJs::HistInfo> >("std::vector<HistInfo>");
-//  qRegisterMetaType<std::vector<SpJs::HistInfo> >("vector<HistInfo>");
-
+  Viewer::GlobalSettings::setPollInterval(5000);
 
   return b.exec();
 }

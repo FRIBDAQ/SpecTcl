@@ -165,7 +165,7 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
   }
 
   // schedule the next update
-  QTimer::singleShot(4000, this, SLOT(listGates()));
+  QTimer::singleShot(GlobalSettings::getPollInterval(), this, SLOT(listGates()));
 
   // free the gates... they have done their job
   for (auto ptr : gates) { delete ptr; }
@@ -267,7 +267,7 @@ SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo> hists)
   }
 
   // schedule the next update
-  QTimer::singleShot(4000, this, SLOT(listHistogramInfo()));
+  QTimer::singleShot(GlobalSettings::getPollInterval(), this, SLOT(listHistogramInfo()));
 
 }
 

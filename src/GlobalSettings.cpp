@@ -85,4 +85,14 @@ QList<QString> GlobalSettings::getAxisInfo(Vwr::Axis axis)
   return resp;
 }
 
+int GlobalSettings::getPollInterval()
+{
+  return getInstance()->value("/server/pollInterval").toInt();
+}
+
+void GlobalSettings::setPollInterval(int milliseconds)
+{
+  return getInstance()->setValue("/server/pollInterval", milliseconds);
+}
+
 } // end of namespace

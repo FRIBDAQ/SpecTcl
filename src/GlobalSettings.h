@@ -63,6 +63,10 @@ public:
     static QString getServer();
 
     static QList<QString> getAxisInfo(Vwr::Axis axis);
+
+
+    static void setPollInterval(int milliseconds);
+    static int getPollInterval();
 };
 
 } // end of namespace
