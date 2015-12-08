@@ -71,6 +71,7 @@ void DockableGateManager::launchAddGateDialog()
 {
     auto pCanvas = m_view.getCurrentCanvas();
     auto hists = SpectrumView::getAllHists(pCanvas);
+
     auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
 
     if (m_pSpecTcl) {
@@ -170,6 +171,7 @@ void DockableGateManager::addGateToList(GGate* pCut)
     auto pCanvas = m_view.getCurrentCanvas();
     try {
       auto hists = SpectrumView::getAllHists(pCanvas);
+      if (hists.empty()) return;
       auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
       if (histPkg) {
         histPkg->draw();
@@ -213,6 +215,9 @@ void DockableGateManager::addSliceToList(GSlice* pSlice)
     auto pCanvas = m_view.getCurrentCanvas();
     try {
       auto hists = SpectrumView::getAllHists(pCanvas);
+
+      if (hists.empty()) return;
+
       auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
       if (histPkg) {
         histPkg->draw();
