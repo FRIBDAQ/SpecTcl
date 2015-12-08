@@ -28,6 +28,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <GateInfo.h>
 
 #include <algorithm>
+#include <chrono>
+#include "Benchmark.h"
 
 using namespace std;
 
@@ -56,6 +58,7 @@ bool GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
 {
  bool somethingChanged=false;
 
+ Benchmark<4, std::chrono::high_resolution_clock> bm4;
  // make sure that we add all non existing gates to the this
  for (auto pGate : gates) {
     
@@ -103,19 +106,27 @@ bool GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
     }
   }
 
-
+  Benchmark<44, std::chrono::high_resolution_clock> bm44;
   // remove all gates in gate list that are no longer is spectcl
+
+  auto byName = [](SpJs::GateInfo* lhs, SpJs::GateInfo* rhs) {
+      return lhs->getName() < rhs->getName();
+  };
 
   // 1d cuts first
   auto it_1d = begin1d();
   auto itend_1d = end1d();
+
+  auto sortedGates = gates;
+  sort(sortedGates.begin(), sortedGates.end(), byName);
+
   while ( it_1d != itend_1d ) {
     QString name = (*it_1d)->getName();
-    auto it = find_if(gates.begin(), gates.end(), [&name](SpJs::GateInfo* pInfo) {
-                      return (name == QString::fromStdString(pInfo->getName()));
-    });
+    SpJs::Slice toFind;
+    toFind.setName(name.toStdString());
+    auto it = lower_bound(sortedGates.begin(), sortedGates.end(), &toFind, byName);
 
-    if ( it != gates.end() ) {
+    if ( it != sortedGates.end() ) {
         if ( (*it)->getType() == SpJs::FalseGate ) {
           removeCut1D(name);
           somethingChanged = true;
@@ -129,6 +140,7 @@ bool GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
     ++it_1d;
   }
 
+  Benchmark<444, std::chrono::high_resolution_clock> bm444;
   // 2d cuts next
   auto it_2d = begin2d();
   auto itend_2d = end2d();
@@ -213,18 +225,17 @@ void GateList::removeCut2D(const QString& name)
 
 GateList::iterator1d GateList::find1D(const QString& name)
 {
-  return find_if(m_cuts1d.begin(), m_cuts1d.end(), 
-                  [&name](const unique_ptr<GSlice>& slice) {
-                    return (name == slice->getName());
-                  });
+  unique_ptr<GSlice> pSlice(new GSlice);
+  pSlice->setName(name);
+  return m_cuts1d.find(pSlice);
 }
 
 GateList::iterator2d GateList::find2D(const QString& name)
 {
-  return find_if(m_cuts2d.begin(), m_cuts2d.end(), 
-                  [&name](const unique_ptr<GGate>& slice) {
-                    return (name == slice->getName());
-                  });
+  unique_ptr<GGate> pGate(new GGate(SpJs::Contour()));
+  pGate->setName(name);
+
+  return m_cuts2d.find(pGate);
 }
 
 } // end of namespace
