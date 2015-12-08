@@ -151,6 +151,7 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
   // synchronize our list of gates to the list that we are being passed
   // from SpecTcl
   bool gatesChanged = m_pGateList->synchronize(gates);
+  cout << "gates changed" << endl;
 
   // only update everything else if something actually changed.
   if (gatesChanged) {
