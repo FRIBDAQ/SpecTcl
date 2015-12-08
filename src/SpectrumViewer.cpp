@@ -146,6 +146,8 @@ void SpectrumViewer::update(HistogramBundle* gHist)
       // against that...
       try {
 
+        m_currentHist->synchronizeGates(m_pSpecTcl->getGateList());
+
         if (m_currentHist->hist()->InheritsFrom(TH2::Class())) {
           m_currentHist->draw("colz");
         } else {

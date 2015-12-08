@@ -278,7 +278,6 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
 
           // a new hist needs to be told what gates it should
           // know about
-          pHist->synchronizeGates(m_pSpecTcl->getGateList());
 
           somethingChanged = true;
         } else {
@@ -303,7 +302,6 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
 
               // a new hist needs to be told what gates it should
               // know about
-              pHist->synchronizeGates(m_pSpecTcl->getGateList());
 
               somethingChanged = true;
 
