@@ -176,6 +176,9 @@ void HistogramList::removeGate(const GGate& gate)
 
 void HistogramList::synchronize(const GateList& list)
 {
+  cout << "hist list synchronizing gates" << endl;
+  Benchmark<5, std::chrono::high_resolution_clock> bm5;
+
   for (auto& bundlePair : m_hists) {
       bundlePair.second->synchronizeGates(&list);
   }
@@ -243,7 +246,7 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
 {
 //  QMutexLocker lock(&m_mutex);
 
-  Benchmark<0, std::chrono::high_resolution_clock> bm;
+  Benchmark<1, std::chrono::high_resolution_clock> bm;
   bool somethingChanged = false;
 
 
