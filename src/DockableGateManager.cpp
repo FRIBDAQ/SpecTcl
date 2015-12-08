@@ -44,6 +44,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include <iostream>
 #include <functional>
 
+#include <chrono>
+#include "Benchmark.h"
+
 using namespace std;
 
 namespace Viewer
@@ -164,6 +167,7 @@ void DockableGateManager::addGateToList(GGate* pCut)
       pItem->setIcon(QIcon(":/icons/contour-icon.png"));
     }
     ui->gateList->addItem(pItem);
+    m_gateRowMap[pCut->getName()] = ui->gateList->row(pItem);
 
     // add the gate to all related histograms
     m_pSpecTcl->getHistogramList()->addGate(pCut);
@@ -207,6 +211,7 @@ void DockableGateManager::addSliceToList(GSlice* pSlice)
                                                pSlice);
     pItem->setIcon(QIcon(":/icons/slice-icon.png"));
     ui->gateList->addItem(pItem);
+    m_gateRowMap[pSlice->getName()] = ui->gateList->row(pItem);
 
     // add the slice to all related histograms
     m_pSpecTcl->getHistogramList()->addSlice(pSlice);
@@ -298,6 +303,8 @@ void DockableGateManager::onGateListChanged()
 
   auto list = m_pSpecTcl->getGateList();
 
+  cout << "onGateListChanged" << endl;
+  Benchmark<6, std::chrono::high_resolution_clock> bm;
   // predicate for matching 1d spectra by name
   auto pred1d = [](const unique_ptr<GSlice>& pItem, const QString& name) {
     return (pItem->getName() == name);
@@ -311,11 +318,10 @@ void DockableGateManager::onGateListChanged()
   // remove any items in listwidget that are no longer in the view
   auto nRows = ui->gateList->count();
   for (int row=nRows-1; row>=0; --row) {
-    auto pItem = ui->gateList->item(row); 
-    auto it1d = find_if(list->begin1d(), list->end1d(), 
-                      bind(pred1d, _1, pItem->text())); 
-    auto it2d = find_if(list->begin2d(), list->end2d(), 
-                      bind(pred2d, _1, pItem->text())); 
+    auto pItem = ui->gateList->item(row);
+
+    auto it1d = list->find1D(pItem->text());
+    auto it2d = list->find2D(pItem->text());
     if (it1d == list->end1d() ) {
       if ( it2d == list->end2d()) {
          removeGate(pItem);
@@ -323,43 +329,29 @@ void DockableGateManager::onGateListChanged()
     }
   }
 
+  Benchmark<66, std::chrono::high_resolution_clock> bm66;
   // ensure that all gates in gatelist are represented
   // in listwidget
   // deal with 1d gates
   auto it_1d = list->begin1d();
   auto itend_1d = list->end1d();
   while ( it_1d != itend_1d ) {
-    int row = 0;
-    auto nRows = ui->gateList->count();
-    while ( row < nRows ) {
-      QListWidgetItem* pItem = ui->gateList->item(row);
-      if (pItem->text() == (*it_1d)->getName()) {
-        break;
-      }
-      ++row;
-    }
-    if (row == nRows) {
+    auto itFound = m_gateRowMap.find((*it_1d)->getName());
+    if (itFound == m_gateRowMap.end()) {
       addSliceToList(it_1d->get());
     }
-
     ++it_1d;
   }
+
+  Benchmark<666, std::chrono::high_resolution_clock> bm666;
 
   /// deal with 2d gates
   auto it_2d = list->begin2d();
   auto itend_2d = list->end2d();
   while ( it_2d != itend_2d ) {
-    int row = 0;
-    auto nRows = ui->gateList->count();
-    while ( row < nRows ) {
-      QListWidgetItem* pItem = ui->gateList->item(row);
-      if (pItem->text() == (*it_2d)->getName()) {
-        break;
-      }
-      ++row;
-    }
-    if (row == nRows) {
-      addGateToList(it_2d->get());
+    auto itFound = m_gateRowMap.find((*it_2d)->getName());
+    if (itFound == m_gateRowMap.end()) {
+        addGateToList(it_2d->get());
     }
     ++it_2d;
   }
@@ -383,6 +375,11 @@ void DockableGateManager::removeGate(QListWidgetItem* pItem)
   // Remove the row
   auto row = ui->gateList->row(pItem);
   ui->gateList->takeItem(row);
+
+  auto it = m_gateRowMap.find(pItem->text());
+  if (it != m_gateRowMap.end()) {
+    m_gateRowMap.erase(it);
+  }
   delete pItem;
 
 }

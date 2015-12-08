@@ -25,6 +25,7 @@
 
 #include <QDockWidget>
 #include <vector>
+#include <map>
 
 namespace SpJs {
   class GateInfo;
@@ -117,6 +118,7 @@ private:
     Ui::DockableGateManager *ui;
     SpectrumView& m_view;
     SpecTclInterface* m_pSpecTcl;
+    std::map<QString, int> m_gateRowMap;
 };
 
 } // end of namespace
