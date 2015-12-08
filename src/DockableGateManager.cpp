@@ -270,6 +270,7 @@ void DockableGateManager::editSlice(GSlice *pSlice)
         m_pSpecTcl->enableGatePolling(true);
     }
 
+    pSlice->draw();
     pSlice->setEditable(false);
 
 }
