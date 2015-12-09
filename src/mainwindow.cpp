@@ -46,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setWindowIcon(QIcon(":/icons/spectra_logo_16x16.png"));
+    setWindowIconText("Spectra");
 
     m_pSpecTcl = new SpecTclRESTInterface();
 

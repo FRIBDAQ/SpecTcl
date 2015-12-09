@@ -5,5 +5,8 @@
         <file alias="slice-icon.png">resources/Slice_logo.png</file>
         <file alias="spectrum1d-icon.png">resources/spectrum1d_48x48.png</file>
         <file alias="spectrum2d-icon.png">resources/spectrum2d_48x48.png</file>
+        <file>resources/spectra_logo_48x48.png</file>
+        <file>resources/spectra_logo_128x128.png</file>
+        <file>resources/spectra_logo_16x16.png</file>
     </qresource>
 </RCC>
