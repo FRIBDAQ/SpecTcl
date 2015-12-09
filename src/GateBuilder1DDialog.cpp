@@ -122,11 +122,12 @@ void GateBuilder1DDialog::accept()
     // get rid of the editable version of the slice
     removeOldLines(m_editSlice);
 
+    // Call the parent's accept() so it accepts as it normally does.
+    QDialog::accept();
+
     // send the slice to the outside world!
     emit completed( m_pOldSlice );
 
-    // Call the parent's accept() so it accepts as it normally does.
-    QDialog::accept();
 }
 
 void GateBuilder1DDialog::reject()
@@ -138,7 +139,6 @@ void GateBuilder1DDialog::reject()
     if ( m_pOldSlice != nullptr) {
         m_pOldSlice->draw(&m_canvas);  
     }
-
     m_canvas.Modified();
     m_canvas.Update();
 
