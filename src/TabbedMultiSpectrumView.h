@@ -39,6 +39,8 @@ public slots:
   virtual void update(HistogramBundle *pHist);
   virtual void drawHistogram(HistogramBundle *pHist);
 
+  void onCurrentChanged(int index);
+
 private:
     Ui::TabbedMultiSpectrumView *ui;
     MultiSpectrumView* m_pCurrentView;
