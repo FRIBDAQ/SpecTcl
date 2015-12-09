@@ -90,7 +90,7 @@ void GateEditComHandler::processSuccess(QNetworkReply *reply)
         }
 
     } catch (exception exc) {
-        QString msg("Failed to update hist because : %1");
+        QString msg("Failed to update gate because : %1");
         msg = msg.arg(QString(exc.what()));
 
         // FAIL....
