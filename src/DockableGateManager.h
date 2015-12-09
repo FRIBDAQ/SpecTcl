@@ -45,6 +45,7 @@ class SpectrumView;
 class SpecTclInterface;
 class GGate;
 class GSlice;
+class GateList;
 
 
 /*! \brief Graphical object that owns all gates 
@@ -113,6 +114,9 @@ private:
     void addSliceToList(GSlice* pSlice);
     void addGateToList(GGate* pGate);
     void connectSignals();
+
+    void populateListWithoutSync(GateList* pList);
+    void populateListWithSync(GateList* pList);
 
 private:
     Ui::DockableGateManager *ui;

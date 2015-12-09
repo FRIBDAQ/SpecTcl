@@ -300,11 +300,45 @@ void DockableGateManager::clearList()
 
 void DockableGateManager::onGateListChanged()
 {
-  using namespace std::placeholders;
-
   auto list = m_pSpecTcl->getGateList();
 
   cout << "onGateListChanged" << endl;
+
+  if (ui->gateList->count() == 0) {
+      populateListWithoutSync(list);
+    } else {
+      populateListWithSync(list);
+
+    }
+}
+
+void DockableGateManager::populateListWithoutSync(GateList *pList)
+{
+  Benchmark<7, std::chrono::high_resolution_clock> bm7;
+  // ensure that all gates in gatelist are represented
+  // in listwidget
+  // deal with 1d gates
+  auto it_1d = pList->begin1d();
+  auto itend_1d = pList->end1d();
+  while ( it_1d != itend_1d ) {
+      addSliceToList(it_1d->get());
+      ++it_1d;
+  }
+
+  Benchmark<77, std::chrono::high_resolution_clock> bm77;
+
+  /// deal with 2d gates
+  auto it_2d = pList->begin2d();
+  auto itend_2d = pList->end2d();
+  while ( it_2d != itend_2d ) {
+    addGateToList(it_2d->get());
+    ++it_2d;
+  }
+
+}
+
+void DockableGateManager::populateListWithSync(GateList *pList)
+{
   Benchmark<6, std::chrono::high_resolution_clock> bm;
   // predicate for matching 1d spectra by name
   auto pred1d = [](const unique_ptr<GSlice>& pItem, const QString& name) {
@@ -321,10 +355,10 @@ void DockableGateManager::onGateListChanged()
   for (int row=nRows-1; row>=0; --row) {
     auto pItem = ui->gateList->item(row);
 
-    auto it1d = list->find1D(pItem->text());
-    auto it2d = list->find2D(pItem->text());
-    if (it1d == list->end1d() ) {
-      if ( it2d == list->end2d()) {
+    auto it1d = pList->find1D(pItem->text());
+    auto it2d = pList->find2D(pItem->text());
+    if (it1d == pList->end1d() ) {
+      if ( it2d == pList->end2d()) {
          removeGate(pItem);
       }
     }
@@ -334,8 +368,8 @@ void DockableGateManager::onGateListChanged()
   // ensure that all gates in gatelist are represented
   // in listwidget
   // deal with 1d gates
-  auto it_1d = list->begin1d();
-  auto itend_1d = list->end1d();
+  auto it_1d = pList->begin1d();
+  auto itend_1d = pList->end1d();
   while ( it_1d != itend_1d ) {
     auto itFound = m_gateRowMap.find((*it_1d)->getName());
     if (itFound == m_gateRowMap.end()) {
@@ -347,8 +381,8 @@ void DockableGateManager::onGateListChanged()
   Benchmark<666, std::chrono::high_resolution_clock> bm666;
 
   /// deal with 2d gates
-  auto it_2d = list->begin2d();
-  auto itend_2d = list->end2d();
+  auto it_2d = pList->begin2d();
+  auto itend_2d = pList->end2d();
   while ( it_2d != itend_2d ) {
     auto itFound = m_gateRowMap.find((*it_2d)->getName());
     if (itFound == m_gateRowMap.end()) {
@@ -358,6 +392,7 @@ void DockableGateManager::onGateListChanged()
   }
 
 }
+
 
 QListWidgetItem* DockableGateManager::findItem(const QString &name)
 {
