@@ -157,12 +157,10 @@ public:
   Number of bytes of displayer memory to reserve.
 
 */
-CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
-  m_pDisplayer(0)
+CHistogrammer::CHistogrammer() :
+  m_pDisplayer(NULL)
 {
   srand(time(NULL));
-  m_pDisplayer = new CXamine(nSpecbytes);
-  m_pDisplayer->Start();
   m_pFitObserver = new CHistogrammerFitObserver(*this); // Follow changes to fits.
 
   // Create and register the gate/histogram observer needed to maitain the gate/spectrum
@@ -174,33 +172,15 @@ CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//    CHistogrammer(const CXamine&  rDisplayer)
-//  Operation Type:
-//    Construtor
-//
-
-CHistogrammer::CHistogrammer(const CXamine& rDisplayer) :
-  m_pDisplayer(new CXamine(rDisplayer))
-{
-  srand(time(NULL)); 
-  if(!m_pDisplayer->isAlive())
-    m_pDisplayer->Start();
-  m_pFitObserver = new CHistogrammerFitObserver(*this); // Follow changes to fits.
-  createListObservers();
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
 //    ~CHistogrammer()
 //  Operation Type:
 //     Destructor.
 //
 CHistogrammer::~CHistogrammer() {
-  if(m_pDisplayer->isAlive())
-    m_pDisplayer->Stop();
-
-  delete m_pDisplayer;
+  if(m_pDisplayer) {
+      if (m_pDisplayer->isAlive()) m_pDisplayer->Stop();
+      delete m_pDisplayer;
+  }
   delete m_pFitObserver;
   delete m_pGateList;
   delete m_pSpectrumLists;
@@ -663,6 +643,9 @@ CSpectrum* CHistogrammer::RemoveSpectrum(const std::string sName) {
   */
 UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
 
+    if (m_pDisplayer == NULL) {
+
+    }
   for(int i = 0; i < m_DisplayBindings.size(); i++) {
     if(rsName == m_DisplayBindings[i])
       return i;
