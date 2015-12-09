@@ -163,12 +163,13 @@ void MultiSpectrumView::keyPressEvent(QKeyEvent *key)
     int newRow = location.first;
     int newCol = location.second;
 
+    cout << "rows=" << m_currentNRows << "  cols=" << m_currentNColumns << endl;
     int keyId = key->key();
     if (keyId == Qt::Key_Up) {
         if (location.first == 0) {
-            newRow = m_pLayout->rowCount()-1;
+            newRow = m_currentNRows-1;
             if (location.second == 0) {
-              newCol = m_pLayout->columnCount()-1;
+              newCol = m_currentNColumns-1;
             } else {
               newCol = location.second - 1;
             }
@@ -176,9 +177,9 @@ void MultiSpectrumView::keyPressEvent(QKeyEvent *key)
             newRow = location.first-1;
         }
     } else if (keyId == Qt::Key_Right) {
-        if (location.second == m_pLayout->columnCount()-1) {
+        if (location.second == m_currentNColumns-1) {
             newCol = 0;
-            if (location.first == m_pLayout->rowCount()-1) {
+            if (location.first == m_currentNRows-1) {
                 newRow = 0;
               } else {
                 newRow = location.first + 1;
@@ -187,9 +188,9 @@ void MultiSpectrumView::keyPressEvent(QKeyEvent *key)
             newCol = location.second+1;
         }
     } else if (keyId == Qt::Key_Down) {
-        if (location.first == m_pLayout->rowCount()-1) {
+        if (location.first == m_currentNRows-1) {
             newRow = 0;
-            if (location.second == m_pLayout->columnCount()-1) {
+            if (location.second == m_currentNColumns-1) {
               newCol = 0;
             } else {
               newCol = location.second + 1;
@@ -199,9 +200,9 @@ void MultiSpectrumView::keyPressEvent(QKeyEvent *key)
         }
     } else if (keyId == Qt::Key_Left) {
         if (location.second == 0) {
-            newCol = m_pLayout->columnCount()-1;
+            newCol = m_currentNColumns-1;
             if (location.first == 0) {
-              newRow = m_pLayout->rowCount()-1;
+              newRow = m_currentNRows-1;
             } else {
               newRow = location.first - 1;
             }    
@@ -253,6 +254,7 @@ QRootCanvas* MultiSpectrumView::getCurrentCanvas()
 void MultiSpectrumView::update(HistogramBundle* pBundle)
 {
   if (pBundle) {
+      getCurrentCanvas()->cd();
       if (pBundle->hist() && histogramInCanvas(pBundle, getCurrentCanvas())) {
           if (m_pSpecTcl) {
               pBundle->synchronizeGates(m_pSpecTcl->getGateList());
