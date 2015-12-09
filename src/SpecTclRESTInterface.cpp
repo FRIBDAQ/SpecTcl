@@ -81,6 +81,10 @@ void SpecTclRESTInterface::editGate(const GSlice &slice)
 {
     GateEditRequest req(slice);
 
+    cout << "edit gate" << endl;
+
+    cout << req.toUrl().toString().toStdString() << endl;
+
     m_pGateEditCmd->makeRequest(req.toUrl());
 }
 
@@ -102,6 +106,8 @@ void SpecTclRESTInterface::editGate(const GGate &gate)
 
   GateEditRequest req(gate);
 
+  cout << "edit gate" << endl;
+
   cout << req.toUrl().toString().toStdString() << endl;
   m_pGateEditCmd->makeRequest(req.toUrl());
 }
@@ -110,6 +116,8 @@ void SpecTclRESTInterface::deleteGate(const GGate &slice)
 {
   GateDeleteRequest req(slice);
 
+  cout << "delete gate" << endl;
+
   cout << req.toUrl().toString().toStdString() << endl;
   m_pCommonHandler->makeRequest(req.toUrl());
 }
@@ -117,6 +125,8 @@ void SpecTclRESTInterface::deleteGate(const GGate &slice)
 void SpecTclRESTInterface::deleteGate(const QString& name) 
 {
   GateDeleteRequest req(name);
+
+  cout << "delete gate" << endl;
 
   cout << req.toUrl().toString().toStdString() << endl;
   m_pCommonHandler->makeRequest(req.toUrl());
