@@ -18,6 +18,8 @@ TabbedMultiSpectrumView::TabbedMultiSpectrumView(SpecTclInterface* pSpecTcl, QWi
     addTab("Tab 2");
     addTab("Tab 3");
 
+    updateCurrentViewToVisibleTab();
+
     connect(ui->pTabWidget, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
 }
 
@@ -29,9 +31,7 @@ TabbedMultiSpectrumView::~TabbedMultiSpectrumView()
 MultiSpectrumView* TabbedMultiSpectrumView::addTab(const QString &title)
 {
 
-  int count = ui->pTabWidget->count();
-
-  ui->pTabWidget->insertTab(count-1, new MultiSpectrumView(m_pSpecTcl, this), title);
+  ui->pTabWidget->addTab(new MultiSpectrumView(m_pSpecTcl, this), title);
 
   auto pView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->currentWidget());
 
@@ -88,9 +88,17 @@ void TabbedMultiSpectrumView::drawHistogram(HistogramBundle *pHist)
     m_pCurrentView->drawHistogram(pHist);
 }
 
+void TabbedMultiSpectrumView::updateCurrentViewToVisibleTab()
+{
+  int index = ui->pTabWidget->currentIndex();
+  m_pCurrentView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->widget(index));
+//  emit visibleGeometryChanged(m_pCurrentView->getRowCount(), m_pCurrentView->getColumnCount());
+}
+
 void TabbedMultiSpectrumView::onCurrentChanged(int index)
 {
   m_pCurrentView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->widget(index));
+//  emit visibleGeometryChanged(m_pCurrentView->getRowCount(), m_pCurrentView->getColumnCount());
 }
 
 }

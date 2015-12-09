@@ -31,6 +31,9 @@ public:
   virtual QRootCanvas* getCurrentCanvas();
   virtual std::vector<QRootCanvas*> getAllCanvases();
 
+signals:
+  void visibleGeometryChanged(int row, int col);
+
 public slots:
   virtual void onGeometryChanged(int row, int col);
   virtual void setCurrentCanvas(QWidget *pCanvas);
@@ -40,6 +43,9 @@ public slots:
   virtual void drawHistogram(HistogramBundle *pHist);
 
   void onCurrentChanged(int index);
+
+private:
+  void updateCurrentViewToVisibleTab();
 
 private:
     Ui::TabbedMultiSpectrumView *ui;
