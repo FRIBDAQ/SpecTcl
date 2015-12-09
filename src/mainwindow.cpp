@@ -31,6 +31,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2015, Al
 #include "TGo4CreateNewHistogram.h"
 #include "SpecTclRESTInterface.h"
 #include "ControlPanel.h"
+#include "TabbedMultiSpectrumView.h"
 
 #include <QDebug>
 #include <QDockWidget>
@@ -48,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pSpecTcl = new SpecTclRESTInterface();
 
-    m_pView = new MultiSpectrumView(m_pSpecTcl, ui->frame);
+    m_pView = new TabbedMultiSpectrumView(m_pSpecTcl, ui->frame);
     m_pControls = new ControlPanel(m_pSpecTcl, m_pView, ui->frame);
 
     ui->gridLayout->addWidget(m_pView);
