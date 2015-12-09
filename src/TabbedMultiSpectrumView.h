@@ -5,6 +5,8 @@
 
 #include <QWidget>
 
+class QPushButton;
+
 namespace Ui {
 class TabbedMultiSpectrumView;
 }
@@ -43,6 +45,8 @@ public slots:
   virtual void drawHistogram(HistogramBundle *pHist);
 
   void onCurrentChanged(int index);
+  void onAddTab();
+  void onTabCloseRequested(int index);
 
 private:
   void updateCurrentViewToVisibleTab();
@@ -51,6 +55,7 @@ private:
     Ui::TabbedMultiSpectrumView *ui;
     MultiSpectrumView* m_pCurrentView;
     SpecTclInterface* m_pSpecTcl;
+    QPushButton*      m_pAddButton;
 };
 
 }

@@ -3,6 +3,12 @@
 #include "MultiSpectrumView.h"
 #include "SpecTclInterface.h"
 
+#include <QPushButton>
+
+#include <iostream>
+
+using namespace std;
+
 namespace Viewer
 {
 
@@ -10,17 +16,25 @@ TabbedMultiSpectrumView::TabbedMultiSpectrumView(SpecTclInterface* pSpecTcl, QWi
     SpectrumView(parent),
     ui(new Ui::TabbedMultiSpectrumView),
     m_pCurrentView(nullptr),
-    m_pSpecTcl(pSpecTcl)
+    m_pSpecTcl(pSpecTcl),
+    m_pAddButton(new QPushButton(this))
 {
     ui->setupUi(this);
 
+    m_pAddButton->setText("Add Tab");
+    connect(m_pAddButton, SIGNAL(clicked()), this, SLOT(onAddTab()));
+
+    ui->pTabWidget->setCornerWidget(m_pAddButton);
+
     addTab("Tab 1");
-    addTab("Tab 2");
-    addTab("Tab 3");
+
+    ui->pTabWidget->setTabsClosable(true);
 
     updateCurrentViewToVisibleTab();
 
     connect(ui->pTabWidget, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
+
+    connect(ui->pTabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequested(int)));
 }
 
 TabbedMultiSpectrumView::~TabbedMultiSpectrumView()
@@ -97,8 +111,24 @@ void TabbedMultiSpectrumView::updateCurrentViewToVisibleTab()
 
 void TabbedMultiSpectrumView::onCurrentChanged(int index)
 {
+  cout << "onCurrentChanged to " << index << endl;
   m_pCurrentView = dynamic_cast<MultiSpectrumView*>(ui->pTabWidget->widget(index));
-//  emit visibleGeometryChanged(m_pCurrentView->getRowCount(), m_pCurrentView->getColumnCount());
+}
+
+void TabbedMultiSpectrumView::onAddTab()
+{
+  int nTabs = ui->pTabWidget->count();
+  addTab(QString("Tab %1").arg(nTabs+1));
+}
+
+void TabbedMultiSpectrumView::onTabCloseRequested(int index)
+{
+  if ((index == 0) && (ui->pTabWidget->count() == 1)) {
+      return;
+  } else {
+      cout << "removing index = " << index << endl;
+      ui->pTabWidget->removeTab(index);
+  }
 }
 
 }
