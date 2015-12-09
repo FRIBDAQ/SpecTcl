@@ -37,7 +37,8 @@ set(untitled2_SOURCES
   GeometrySelector.cpp
   SpectrumView.cpp
   MultiSpectrumView.cpp
-  ConnectionTester.cpp)
+  ConnectionTester.cpp
+  TabbedMultiSpectrumView.cpp)
 
 set(untitled2_HEADERS 
   QRootCanvas.h 
@@ -79,7 +80,8 @@ set(untitled2_HEADERS
   GeometrySelector.h
   SpectrumView.h
   MultiSpectrumView.h
-  ConnectionTester.h)
+  ConnectionTester.h
+  TabbedMultiSpectrumView.h)
 
 set(untitled2_FORMS
   mainwindow.ui 
@@ -92,7 +94,8 @@ set(untitled2_FORMS
   GateBuilderDialog.ui 
   GateBuilder1DDialog.ui
   ControlPanel.ui
-  GeometrySelector.ui)
+  GeometrySelector.ui
+  TabbedMultiSpectrumView.ui)
 
 set(untitled2_RESOURCES
     resources.qrc)
