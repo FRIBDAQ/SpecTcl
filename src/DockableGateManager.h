@@ -115,8 +115,8 @@ private:
     void addGateToList(GGate* pGate);
     void connectSignals();
 
-    void populateListWithoutSync(GateList* pList);
-    void populateListWithSync(GateList* pList);
+    void populateListWithoutSync();
+    void populateListWithSync();
 
 private:
     Ui::DockableGateManager *ui;

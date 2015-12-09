@@ -169,8 +169,8 @@ void DockableGateManager::addGateToList(GGate* pCut)
     ui->gateList->addItem(pItem);
     m_gateRowMap[pCut->getName()] = ui->gateList->row(pItem);
 
-    // add the gate to all related histograms
-    m_pSpecTcl->getHistogramList()->addGate(pCut);
+//    // add the gate to all related histograms
+//    m_pSpecTcl->getHistogramList()->addGate(pCut);
 
     auto pCanvas = m_view.getCurrentCanvas();
     try {
@@ -213,8 +213,8 @@ void DockableGateManager::addSliceToList(GSlice* pSlice)
     ui->gateList->addItem(pItem);
     m_gateRowMap[pSlice->getName()] = ui->gateList->row(pItem);
 
-    // add the slice to all related histograms
-    m_pSpecTcl->getHistogramList()->addSlice(pSlice);
+//    // add the slice to all related histograms
+//    m_pSpecTcl->getHistogramList()->addSlice(pSlice);
 
 
     auto pCanvas = m_view.getCurrentCanvas();
@@ -300,20 +300,21 @@ void DockableGateManager::clearList()
 
 void DockableGateManager::onGateListChanged()
 {
-  auto list = m_pSpecTcl->getGateList();
-
-  cout << "onGateListChanged" << endl;
-
   if (ui->gateList->count() == 0) {
-      populateListWithoutSync(list);
+      // if there are no gates listed in the widget, then
+      // we just have to add all of the gates to it without
+      // trying to sync
+      populateListWithoutSync();
     } else {
-      populateListWithSync(list);
+      populateListWithSync();
 
     }
 }
 
-void DockableGateManager::populateListWithoutSync(GateList *pList)
+void DockableGateManager::populateListWithoutSync()
 {
+  auto pList = m_pSpecTcl->getGateList();
+
   Benchmark<7, std::chrono::high_resolution_clock> bm7;
   // ensure that all gates in gatelist are represented
   // in listwidget
@@ -337,8 +338,10 @@ void DockableGateManager::populateListWithoutSync(GateList *pList)
 
 }
 
-void DockableGateManager::populateListWithSync(GateList *pList)
+void DockableGateManager::populateListWithSync()
 {
+  auto pList = m_pSpecTcl->getGateList();
+
   Benchmark<6, std::chrono::high_resolution_clock> bm;
   // predicate for matching 1d spectra by name
   auto pred1d = [](const unique_ptr<GSlice>& pItem, const QString& name) {
