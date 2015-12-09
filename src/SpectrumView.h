@@ -58,6 +58,7 @@ public:
      */
     virtual QRootCanvas* getCurrentCanvas() = 0;
 
+    virtual std::vector<QRootCanvas*> getAllCanvases() = 0;
     /*!
      * \brief onGeometryChanged
      * \param row  number of rows to establish

@@ -13,7 +13,10 @@
 #include <QColor>
 
 #include <iostream>
+#include <stdexcept>
+
 using namespace std;
+
 namespace Viewer
 {
 
@@ -44,6 +47,27 @@ int MultiSpectrumView::getRowCount() const
 int MultiSpectrumView::getColumnCount() const
 {
     return m_currentNColumns;
+}
+
+vector<QRootCanvas*> MultiSpectrumView::getAllCanvases()
+{
+  vector<QRootCanvas*> canvases;
+
+  for (int col=0; col<m_pLayout->columnCount(); col++) {
+      for (int row=0; row<m_pLayout->rowCount(); row++) {
+          auto pItem = m_pLayout->itemAtPosition(row, col);
+          if (pItem) {
+              auto pCanvas = dynamic_cast<QRootCanvas*>(pItem->widget());
+              if (pCanvas) {
+                  canvases.push_back(pCanvas);
+              } else {
+                  throw runtime_error("MultiSpectrumView::getAllCanvases() Failed to upcast widget to QRootCanvas*");
+              }
+          }
+       }
+    }
+
+  return canvases;
 }
 
 

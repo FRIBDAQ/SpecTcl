@@ -6,6 +6,8 @@
 #include "HistogramBundle.h"
 #include "ui_ControlPanel.h"
 
+using namespace std;
+
 namespace Viewer
 {
 
@@ -47,16 +49,20 @@ void ControlPanel::onUpdateSelected()
 void ControlPanel::onUpdateAll()
 {
   if (m_pSpecTcl) {
-    auto pHistList = m_pSpecTcl->getHistogramList();
+      auto canvases = m_pView->getAllCanvases();
+
 
     // no need for thread sync b/c nothing alters the list in a separate thread
     // only the content of the histograms in the list might be alterred
-    auto it = pHistList->begin();
-    auto it_end = pHistList->end();
-    while ( it != it_end ) {
-      m_pSpecTcl->requestHistContentUpdate(it->first);
-      ++it;
-    }
+      auto it = canvases.begin();
+      auto it_end = canvases.end();
+      while ( it != it_end ) {
+          vector<TH1*> hists = m_pView->getAllHists(*it);
+          for (auto pHist : hists) {
+              m_pSpecTcl->requestHistContentUpdate(QString(pHist->GetName()));
+          }
+          ++it;
+      }
   }
 }
 

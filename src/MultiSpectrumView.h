@@ -52,6 +52,7 @@ public:
      */
     int getColumnCount() const;
 
+    std::vector<QRootCanvas*> getAllCanvases();
     /*!
      * \brief getCurrentCanvas
      * \return the canvas with focus
