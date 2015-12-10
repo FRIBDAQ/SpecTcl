@@ -150,7 +150,8 @@ class CHistogrammer : public CEventSink {
 
  public:
   // Constructors.
-  CHistogrammer();
+  CHistogrammer(UInt_t nSpecbytes = knDefaultSpectrumSize);
+  CHistogrammer(const CXamine& rDisplayer);
   virtual ~CHistogrammer();
   CHistogrammer(const CHistogrammer& aCHistogrammer);
 
@@ -169,6 +170,10 @@ class CHistogrammer : public CEventSink {
     return m_DisplayBindings;
   }
 
+  CXamine* getDisplayer() const {
+    return m_pDisplayer;
+  }
+
   const ParameterDictionary& getParameterDictionary() const {
     return m_ParameterDictionary;
   }
@@ -181,6 +186,10 @@ class CHistogrammer : public CEventSink {
  protected:
   void setDisplayBindings (const DisplayBindings& am_DisplayBindings) { 
     m_DisplayBindings = am_DisplayBindings;
+  }
+
+  void setDisplayer(CXamine* am_Displayer) {
+    m_pDisplayer = am_Displayer;
   }
 
   void setParameterDictionary(const ParameterDictionary& am_ParameterDictionary) { 
