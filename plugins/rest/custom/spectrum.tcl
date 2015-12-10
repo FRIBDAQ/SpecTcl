@@ -9,6 +9,7 @@ namespace eval ::SpecTcl {};	#  for local procs.
 Direct_Url /spectcl/spectrum  SpecTcl_Spectrum
 
 
+
 ##
 # List the spectra that match the specified pattern
 # in Json format.  The return format is the usual object
@@ -62,7 +63,7 @@ proc SpecTcl_Spectrum/list {{filter *}} {
 					 
 					 
     }
-    return [::SpecTcl::_returnObject OK [json::write array {*}$spectrumDefinitionArray] ]
+    return [deflateResponse [::SpecTcl::_returnObject OK [json::write array {*}$spectrumDefinitionArray] ]]
 }
 ##
 #  Delete an existing spectrum.
@@ -301,14 +302,7 @@ proc ::SpecTcl::_getSpectrum2 {name axes} {
         set json [::SpecTcl::_returnObject OK  $data]
 	json::write indented 1
 	json::write aligned 1
-        set jsonGzip [deflate $json]
-        
-        #  Force content encoding -> gzip.
-        #
-        set sock [Httpd_CurrentSocket]
-        Httpd_AddHeaders $sock Content-Encoding deflate  \
-	    Uncompressed-Length [string length $json]
-        return $jsonGzip
+	return [deflateResponses $json]
     
     }
         
