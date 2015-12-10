@@ -302,7 +302,7 @@ proc ::SpecTcl::_getSpectrum2 {name axes} {
         set json [::SpecTcl::_returnObject OK  $data]
 	json::write indented 1
 	json::write aligned 1
-	return [deflateResponses $json]
+	return [deflateResponse $json]
     
     }
         
