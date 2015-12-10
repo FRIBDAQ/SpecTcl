@@ -29,8 +29,8 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __HISTOGRAMMER_H  //Required for current class
-#define __HISTOGRAMMER_H
+#ifndef HISTOGRAMMER_H  //Required for current class
+#define HISTOGRAMMER_H
 
 #ifndef __STL_STRING
 #include <string>
