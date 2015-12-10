@@ -4,7 +4,7 @@
 #include <cppunit/Asserter.h>
 #include <Asserts.h>
 
-#include "DisplayInterface.h"
+#include "Display.h"
 #include "Histogrammer.h"
 #include "Spectrum1DL.h"
 
@@ -15,13 +15,13 @@
 using namespace std;
 
 
-class CFakeDisplayer : public CDisplayInterface {
+class CFakeDisplayer : public CDisplay {
 
 public:
 
     CFakeDisplayer* clone() const { return new CFakeDisplayer(*this); }
 
-    int operator==(const CDisplayInterface& rhs) { return true; }
+    int operator==(const CDisplay& rhs) { return true; }
 
     void Start() {};
     void Stop() {};

@@ -23,7 +23,7 @@
 #include "DictionaryException.h"
 #include "EventList.h"
 
-#include <DisplayInterface.h>
+#include <Display.h>
 #include <Xamineplus.h>
 #include <Xamine1D.h>
 #include <Xamine2D.h>
@@ -181,7 +181,7 @@ CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
 //    Construtor
 //
 
-CHistogrammer::CHistogrammer(const CDisplayInterface &rDisplayer) :
+CHistogrammer::CHistogrammer(const CDisplay &rDisplayer) :
     m_pDisplayer(rDisplayer.clone())
 {
   srand(time(NULL)); 

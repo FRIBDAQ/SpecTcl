@@ -36,7 +36,7 @@
 #ifndef XAMINEPLUS_H  //Required for current class
 #define XAMINEPLUS_H
 
-#include <DisplayInterface.h>
+#include <Display.h>
 
 #ifndef __XAMINE_XAMINE_H
 #include <Xamine.h>
@@ -69,7 +69,7 @@ class CXamineEvent;
 class CXamineSpectrum;
 class CXamineButton;
                                
-class CXamine : public CDisplayInterface
+class CXamine : public CDisplay
 {
    volatile Xamine_shared* m_pDisplay;  //  Pointer to Xamine shared memory region.
    Bool_t         m_fManaged;  //  Set TRUE if memory management started. 
@@ -116,7 +116,7 @@ public:
 	    );
   }
 
-  int operator==(const CDisplayInterface& rhs) {
+  int operator==(const CDisplay& rhs) {
       return (*this == dynamic_cast<const CXamine&>(rhs));
   }
 

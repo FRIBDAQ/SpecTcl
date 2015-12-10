@@ -90,7 +90,7 @@ class CSpectrumFit;
 class CHistogrammerFitObserver;
 class CFlattenedGateList;
 class CSpectrumByParameter;
-class CDisplayInterface;
+class CDisplay;
 class CDisplayGate;
 
 // Typedefs for some of instances of templated classes:
@@ -148,7 +148,7 @@ class CHistogrammer : public CEventSink {
  public:
   // Constructors.
   CHistogrammer(UInt_t nSpecbytes = knDefaultSpectrumSize);
-  CHistogrammer(const CDisplayInterface& rDisplayer);
+  CHistogrammer(const CDisplay& rDisplayer);
   virtual ~CHistogrammer();
   CHistogrammer(const CHistogrammer& aCHistogrammer);
 
