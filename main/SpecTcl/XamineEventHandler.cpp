@@ -52,6 +52,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <string>
 #include <assert.h>
 #include <iostream>
+#include <stdexcept>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -88,7 +89,10 @@ void CXamineEventHandler::operator()()
   //
   //
 
-  CXamine* pDisplay = m_pHistogrammer->getDisplayer();
+  CXamine* pDisplay = dynamic_cast<CXamine*>(m_pHistogrammer->getDisplayer());
+  if (pDisplay == NULL) {
+      throw std::runtime_error("CXamineEventHandler::operator() cannot operate with non-CXamine type.");
+  }
 
   // Poll the event from the displayer:
 

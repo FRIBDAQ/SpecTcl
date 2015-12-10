@@ -79,11 +79,6 @@
 #define __EVENTSINK_H
 #endif
 
-#ifndef __XAMINEPLUS_H
-#include "Xamineplus.h"
-#define __XAMINEPLUS_H
-#endif
-
 #ifndef __GATECONTAINER_H
 #include <GateContainer.h>
 #define __GATECONTAINER_H
@@ -95,6 +90,8 @@ class CSpectrumFit;
 class CHistogrammerFitObserver;
 class CFlattenedGateList;
 class CSpectrumByParameter;
+class CDisplayInterface;
+class CDisplayGate;
 
 // Typedefs for some of instances of templated classes:
 // Dictionary types:
@@ -130,7 +127,7 @@ class CHistogrammer : public CEventSink {
 
   typedef std::list<CGateObserver*>   GateObserverList;
 
-  CXamine*            m_pDisplayer;          // Points to displayer object.
+  CDisplayInterface*  m_pDisplayer;          // Points to displayer object.
   DisplayBindings     m_DisplayBindings;     // Display id to spectrum name map.
   std::vector<CSpectrum*> m_boundSpectra;        // Spectrum if bound.
   FitlineBindings     m_FitlineBindings;     // Fitlines bound to displayer.
@@ -151,7 +148,7 @@ class CHistogrammer : public CEventSink {
  public:
   // Constructors.
   CHistogrammer(UInt_t nSpecbytes = knDefaultSpectrumSize);
-  CHistogrammer(const CXamine& rDisplayer);
+  CHistogrammer(const CDisplayInterface& rDisplayer);
   virtual ~CHistogrammer();
   CHistogrammer(const CHistogrammer& aCHistogrammer);
 
@@ -170,7 +167,7 @@ class CHistogrammer : public CEventSink {
     return m_DisplayBindings;
   }
 
-  CXamine* getDisplayer() const {
+  CDisplayInterface* getDisplayer() const {
     return m_pDisplayer;
   }
 
@@ -188,7 +185,7 @@ class CHistogrammer : public CEventSink {
     m_DisplayBindings = am_DisplayBindings;
   }
 
-  void setDisplayer(CXamine* am_Displayer) {
+  void setDisplayer(CDisplayInterface* am_Displayer) {
     m_pDisplayer = am_Displayer;
   }
 

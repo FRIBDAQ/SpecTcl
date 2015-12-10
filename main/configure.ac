@@ -828,4 +828,5 @@ AC_OUTPUT(Makefile daq/Makefile daq/daqdefs.h daq/daqdefs.tcl \
 	 calibratedparams/Makefile \
 	 ccusb/Makefile ccusb/MakefileSkel \
 	 vmusb/Makefile vmusb/MakefileSkel \
-	 tkcon/Makefile compress/Makefile )
+	 tkcon/Makefile compress/Makefile \
+   SorterTests/Makefile  )

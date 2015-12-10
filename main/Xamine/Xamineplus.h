@@ -33,8 +33,10 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEPLUS_H  //Required for current class
-#define __XAMINEPLUS_H
+#ifndef XAMINEPLUS_H  //Required for current class
+#define XAMINEPLUS_H
+
+#include <DisplayInterface.h>
 
 #ifndef __XAMINE_XAMINE_H
 #include <Xamine.h>
@@ -67,7 +69,7 @@ class CXamineEvent;
 class CXamineSpectrum;
 class CXamineButton;
                                
-class CXamine      
+class CXamine : public CDisplayInterface
 {
    volatile Xamine_shared* m_pDisplay;  //  Pointer to Xamine shared memory region.
    Bool_t         m_fManaged;  //  Set TRUE if memory management started. 
@@ -81,7 +83,6 @@ public:
 				// New Xamine region nbytes of spectrum space
   ~CXamine ( ) { }       //Destructor
 
-	
 				// Copy Constructor.
 
   CXamine (const CXamine& aCXamine ) :
@@ -92,7 +93,9 @@ public:
                 
   }                                     
 
-			//Operator= Assignment Operator
+  CXamine* clone() const { return new CXamine(*this); }
+
+            //Operator= Assignment Operator
 
   CXamine& operator= (const CXamine& aCXamine)
   { 
@@ -111,7 +114,12 @@ public:
     return (
 	    (m_pDisplay == aCXamine.m_pDisplay) 
 	    );
-  }                             
+  }
+
+  int operator==(const CDisplayInterface& rhs) {
+      return (*this == dynamic_cast<const CXamine&>(rhs));
+  }
+
   // Selectors:
 
 public:

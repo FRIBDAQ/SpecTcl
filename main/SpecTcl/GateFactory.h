@@ -38,8 +38,10 @@
 
 
 
-#ifndef __GATEFACTORY_H  //Required for current class
-#define __GATEFACTORY_H
+#ifndef GATEFACTORY_H  //Required for current class
+#define GATEFACTORY_H
+
+#include <config.h>
 
 #ifndef __POINT_H
 #include <Point.h>

@@ -23,6 +23,7 @@
 #include "DictionaryException.h"
 #include "EventList.h"
 
+#include <DisplayInterface.h>
 #include <Xamineplus.h>
 #include <Xamine1D.h>
 #include <Xamine2D.h>
@@ -52,6 +53,7 @@
 #include <CFitDictionary.h>
 #include <CFlattenedGateList.h>
 #include <CSpectrumByParameter.h>
+#include <DisplayInterface.h>
 
 
 #include <iostream>
@@ -174,13 +176,13 @@ CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//    CHistogrammer(const CXamine&  rDisplayer)
+//    CHistogrammer(const CDisplayInterface&  rDisplayer)
 //  Operation Type:
 //    Construtor
 //
 
-CHistogrammer::CHistogrammer(const CXamine& rDisplayer) :
-  m_pDisplayer(new CXamine(rDisplayer))
+CHistogrammer::CHistogrammer(const CDisplayInterface &rDisplayer) :
+    m_pDisplayer(rDisplayer.clone())
 {
   srand(time(NULL)); 
   if(!m_pDisplayer->isAlive())
@@ -214,7 +216,7 @@ CHistogrammer::~CHistogrammer() {
 //    Copy constructor
 //
 CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
-  m_pDisplayer(new CXamine(*rRhs.m_pDisplayer))
+    m_pDisplayer(rRhs.m_pDisplayer->clone())
 {
   m_DisplayBindings     = rRhs.m_DisplayBindings;
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
@@ -233,7 +235,7 @@ CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
 //    Assignment operator.
 // 
 CHistogrammer& CHistogrammer::operator=(const CHistogrammer& rRhs) {
-  m_pDisplayer          = new CXamine(*(rRhs.m_pDisplayer));
+  m_pDisplayer          = rRhs.m_pDisplayer->clone();
   m_DisplayBindings     = rRhs.m_DisplayBindings;
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
@@ -691,7 +693,7 @@ UInt_t CHistogrammer::BindToDisplay(const std::string& rsName) {
     case 1:			// 1-d spectrum.
       {
 	Bool_t           fWord = pSpectrum->StorageType() == keWord;
-	pXSpectrum   = new CXamine1D(m_pDisplayer->getXamineMemory(),
+    pXSpectrum   = new CXamine1D(m_pDisplayer->getXamineMemory(),
 				     rsName,
 				     pSpectrum->Dimension(0),
 				     pSpectrum->GetLow(0),

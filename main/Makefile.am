@@ -3,8 +3,9 @@ SUBDIRS =  daq Replace Scripts Utility factories Display \
 	 Events Gates Sorter SpectrumIO Filter Analysis\
 	DecoderRing  TreeParam \
 	Fits SpecTcl \
+	SorterTests \
 	contrib TestFiles Gui splash filtsplit calibratedparams treegui \
-	ccusb vmusb tkcon compress
+	ccusb vmusb tkcon compress 
 
 ACLOCAL_AMFLAGS=-I m4
 
