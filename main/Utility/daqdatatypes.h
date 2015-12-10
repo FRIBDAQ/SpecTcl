@@ -36,7 +36,7 @@
 **--
 **/
 
-#ifndef DAQTYPES_H
+#ifndef __DAQTYPES_H
 
 #include <sys/types.h>
 #include <stdint.h>		/* All C headers are legal in all C++'s even c++11 */
