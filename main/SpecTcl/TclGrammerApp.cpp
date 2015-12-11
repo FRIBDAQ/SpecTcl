@@ -485,9 +485,9 @@ void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize,
 {
   gpDisplayInterface = new CDisplayInterface;
   // We need to set up the Xamine event handler however:
-  m_pXamineEvents = new CXamineEventHandler(gpInterpreter, 
-                        (CHistogrammer*)gpEventSink,
-                        SpecTcl::getInstance()->GetDisplayInterface());
+//  m_pXamineEvents = new CXamineEventHandler(gpInterpreter,
+//                        (CHistogrammer*)gpEventSink,
+//                        SpecTcl::getInstance()->GetDisplayInterface());
 }
 
 //  Function:
