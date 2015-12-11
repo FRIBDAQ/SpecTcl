@@ -1,5 +1,6 @@
-AM_CPPFLAGS = -I. -I../Utility @LIBTCLPLUS_CFLAGS@ -I../Xamine -I../Gates \
-	   -I../Events -I../Display @TCL_CPPFLAGS@ -I.. -I@top_srcdir@/Fits 
+AM_CPPFLAGS = -I@srcdir@ -I@top_srcdir@/Utility -I@top_srcdir@/Xamine -I@top_srcdir@/Gates \
+	   -I@top_srcdir@ -I@top_srcdir@/Fits \
+	   -I@top_srcdir@/Events -I@top_srcdir@/Display @TCL_CPPFLAGS@  @LIBTCLPLUS_CFLAGS@
 
 libSorting_la_LIBADD =  @top_srcdir@/Xamine/libXplus.la 	\
 			@top_srcdir@/Gates/libGates.la 		\

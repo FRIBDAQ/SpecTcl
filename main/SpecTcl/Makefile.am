@@ -1,5 +1,5 @@
 DEFS = @WCHAR_T_DEF@
-AM_CPPFLAGS = -I@top_srcdir@ -I.  -I@top_srcdir@/Events \
+AM_CPPFLAGS = -I@top_srcdir@ -I@srcdir@  -I@top_srcdir@/Events \
 	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
 	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates -I@top_srcdir@/SpectrumIO \
 	-I@top_srcdir@/Xamine \
@@ -85,19 +85,25 @@ SpecTcl_SOURCES = MySpecTclApp.cpp \
 
 AM_CXXFLAGS = -g
 
-SpecTcl_LDFLAGS = -lTclGrammerCommands -lXplus -lGates -lAnalysis \
-	-lFilter -lBufferAnalysis -lEventSource -lSpecio  \
-	-lTreeParam -lXamine  -ltape -lFits \
-	@top_srcdir@/Sorter/libSorting.la		\
-	@top_srcdir@/DecoderRing/libDecoderRing.la	\
-	-lXt -lX11 $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS)  \
-	-L. -L../SpectrumIO \
-	-L../Tape -L../Sorter \
-	-L../Xamine -L../Display -L../Gates -L../EventSource -L../Events \
-	-L../Filter -L../Analysis -L../TreeParam \
-	-L../Fits -L@top_srcdir@/DecoderRing	\
+SpecTcl_LDADD = @top_builddir@/SpecTcl/libTclGrammerCommands.la \
+	@top_builddir@/Xamine/libXplus.la \
+	@top_builddir@/Gates/libGates.la \
+	@top_builddir@/Events/libAnalysis.la \
+	@top_builddir@/Filter/libFilter.la \
+	@top_builddir@/Analysis/libBufferAnalysis.la \
+	@top_builddir@/EventSource/libEventSource.la \
+	@top_builddir@/SpectrumIO/libSpecio.la  \
+	@top_builddir@/TreeParam/libTreeParam.la \
+	@top_builddir@/Display/libXamine.la \
+	@top_builddir@/Tape/libtape.la \
+	@top_builddir@/Fits/libFits.la \
+	@top_builddir@/Sorter/libSorting.la		\
+	@top_builddir@/DecoderRing/libDecoderRing.la	\
+	-lXt -lX11 -lgsl -lgslcblas
+
+SpecTcl_LDFLAGS = $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
 	@LIBTCLPLUS_LDFLAGS@	\
-	-g -Wl,"-rpath=$(libdir)" -lgsl -lgslcblas  @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
+	-Wl,"-rpath=$(libdir)" @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
 
 
 man_MANS = spectclapi.3
