@@ -15,10 +15,32 @@
 */
 
 #include <DisplayInterface.h>
-#include <DisplayGates.h>
+#include <DisplayGate.h>
 #include <Display.h>
 #include <Histogrammer.h>
+#include <Dictionary.h>
+#include <DictionaryException.h>
+#include <CFitDictionary.h>
+#include <Histogrammer.h>
+#include <CSpectrumFit.h>
+#include <XamineGates.h>
+#include <PointlistGate.h>
+#include <Cut.h>
+#include <Gamma2DW.h>
+#include <GateMediator.h>
 
+#include <Xamine1D.h>
+#include <Xamine2D.h>
+
+#include <string>
+#include <assert.h>
+#include <sstream>
+
+using namespace std;
+
+// Static member data:
+
+int CDisplayInterface::m_nextFitlineId(1); // Next fitline id assigned.
 
 
 CDisplayInterface::CDisplayInterface() {}
@@ -68,8 +90,9 @@ UInt_t CDisplayInterface::BindToDisplay(const std::string& rsName) {
   // The spectrum must exist or a dictionary exception is thrown.
   //
 
-  SpectrumDictionaryIterator iSpectrum = m_SpectrumDictionary.Lookup(rsName);
-  if(iSpectrum == m_SpectrumDictionary.end()) {
+  SpectrumDictionary dictionary = m_pSorter->getSpectrumDictionary();
+  SpectrumDictionaryIterator iSpectrum = dictionary.Lookup(rsName);
+  if(iSpectrum == dictionary.end()) {
     throw CDictionaryException(CDictionaryException::knNoSuchKey,
 			       "CDisplayInterface::BindToDisplay Locating spectrum",
 			       rsName);
@@ -89,7 +112,7 @@ UInt_t CDisplayInterface::BindToDisplay(const std::string& rsName) {
     case 1:			// 1-d spectrum.
       {
 	Bool_t           fWord = pSpectrum->StorageType() == keWord;
-    pXSpectrum   = new CXamine1D(m_pDisplayer->getXamineMemory(),
+    pXSpectrum   = new CXamine1D(m_pDisplay->getXamineMemory(),
 				     rsName,
 				     pSpectrum->Dimension(0),
 				     pSpectrum->GetLow(0),
@@ -119,7 +142,7 @@ UInt_t CDisplayInterface::BindToDisplay(const std::string& rsName) {
 	  throw string("Invalid 2d spectrum type");
 	}
 
-	pXSpectrum = new CXamine2D(m_pDisplayer->getXamineMemory(),
+    pXSpectrum = new CXamine2D(m_pDisplay->getXamineMemory(),
 				   rsName,
 				   pSpectrum->Dimension(0),
 				   pSpectrum->Dimension(1),
@@ -144,11 +167,11 @@ UInt_t CDisplayInterface::BindToDisplay(const std::string& rsName) {
     //   Enter the slot/name correspondence in the m_DisplayBindings table.
     //
 			      
-    Address_t pStorage           = m_pDisplayer->DefineSpectrum(*pXSpectrum);
+    Address_t pStorage           = m_pDisplay->DefineSpectrum(*pXSpectrum);
     nSpectrum                    = pXSpectrum->getSlot();
 
-    m_pDisplayer->setInfo(createTitle(pSpectrum, 
-				      m_pDisplayer->getTitleSize()), nSpectrum);
+    m_pDisplay->setInfo(createTitle(pSpectrum, m_pDisplay->getTitleSize()),
+                        nSpectrum);
     pSpectrum->ReplaceStorage(pStorage, kfFALSE);
     while(m_DisplayBindings.size() <= nSpectrum) {
       m_DisplayBindings.push_back("");
@@ -171,7 +194,7 @@ UInt_t CDisplayInterface::BindToDisplay(const std::string& rsName) {
   UInt_t Size = DisplayGates.size();
   for(UInt_t i = 0; i < DisplayGates.size(); i++) {
     CDisplayGate* pXgate = GateToXamineGate(nSpectrum, DisplayGates[i]);
-    if(pXgate) m_pDisplayer->EnterGate(*pXgate);
+    if(pXgate) m_pDisplay->EnterGate(*pXgate);
     delete pXgate;
   }
   // same for the fitlines:
@@ -206,13 +229,12 @@ void CDisplayInterface::UnBindFromDisplay(UInt_t nSpec) {
   //    UInt_t nSpec:
   //       Display spectrum id to unbind.
 
-  CXamineSpectrum  Spec(m_pDisplayer->getXamineMemory(), nSpec);
+  CXamineSpectrum  Spec(m_pDisplay->getXamineMemory(), nSpec);
   if(Spec.getSpectrumType() != undefined) { // No-op if spectrum not defined
 
-
-    SpectrumDictionaryIterator iSpectrum = 
-      m_SpectrumDictionary.Lookup(m_DisplayBindings[nSpec]);
-    assert(iSpectrum != m_SpectrumDictionary.end());
+    SpectrumDictionary dictionary = m_pSorter->getSpectrumDictionary();
+    SpectrumDictionaryIterator iSpectrum = dictionary.Lookup(m_DisplayBindings[nSpec]);
+    assert(iSpectrum != dictionary.end());
 
     CSpectrum*       pSpectrum = (*iSpectrum).second;
     //
@@ -225,12 +247,12 @@ void CDisplayInterface::UnBindFromDisplay(UInt_t nSpec) {
     
     // Deal with the gates:
     
-    CXamineGates* pGates = m_pDisplayer->GetGates(nSpec);
+    CXamineGates* pGates = m_pDisplay->GetGates(nSpec);
     CDisplayGateVectorIterator pGateIterator = pGates->begin();
     while(pGateIterator != pGates->end()) {
       UInt_t   nGateId   = pGateIterator->getId();
       GateType_t eGateType = pGateIterator->getGateType();
-      m_pDisplayer->RemoveGate(nSpec, nGateId, eGateType);
+      m_pDisplay->RemoveGate(nSpec, nGateId, eGateType);
       pGateIterator++;
     }
 
@@ -242,7 +264,7 @@ void CDisplayInterface::UnBindFromDisplay(UInt_t nSpec) {
 			      kfTRUE);
     m_DisplayBindings[nSpec] = "";
     m_boundSpectra[nSpec]    = 0;
-    m_pDisplayer->FreeSpectrum(nSpec);
+    m_pDisplay->FreeSpectrum(nSpec);
 
   }
 
@@ -349,9 +371,9 @@ CDisplayInterface::updateStatistics()
         CSpectrum* pSpec = m_boundSpectra[i];
         if (pSpec) {
             std::vector<unsigned> stats = pSpec->getUnderflows();
-            m_pDisplayer->setUnderflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
+            m_pDisplay->setUnderflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
             stats = pSpec->getOverflows();
-            m_pDisplayer->setOverflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
+            m_pDisplay->setOverflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
         }
     }
 }
@@ -389,7 +411,7 @@ CDisplayGate* CDisplayInterface::GateToXamineGate(UInt_t nBindingId,
 					      CGateContainer& rGate)
 {
   CDisplayGate* pXGate;
-  CSpectrum*    pSpectrum = FindSpectrum(m_DisplayBindings[nBindingId]);
+  CSpectrum*    pSpectrum = m_pSorter->FindSpectrum(m_DisplayBindings[nBindingId]);
   assert(pSpectrum != (CSpectrum*)kpNULL);
 
   // Summary spectra don't have gates displayed.
@@ -534,13 +556,13 @@ void CDisplayInterface::AddGateToBoundSpectra(CGateContainer& rGate) {
   // The mediator tells us whether the spectrum can display the gate
   for(UInt_t nId = 0; nId < m_DisplayBindings.size(); nId++) {
     if(m_DisplayBindings[nId] != "") { // Spectrum bound.
-      CSpectrum* pSpec = FindSpectrum(m_DisplayBindings[nId]);
+      CSpectrum* pSpec = m_pSorter->FindSpectrum(m_DisplayBindings[nId]);
       assert(pSpec != (CSpectrum*)kpNULL); // Bound spectra must exist!!.
       CGateMediator DisplayableGate(rGate, pSpec);
       if(DisplayableGate()) {
 	CDisplayGate* pDisplayed = GateToXamineGate(nId, rGate);
 	if(pDisplayed)
-	  m_pDisplayer->EnterGate(*pDisplayed);
+      m_pDisplay->EnterGate(*pDisplayed);
 	delete pDisplayed;
       }
     }
@@ -589,7 +611,7 @@ void CDisplayInterface::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
   for(UInt_t nId = 0; nId < m_DisplayBindings.size(); nId++) {
     if(m_DisplayBindings[nId] != "") {
       try {
-	m_pDisplayer->RemoveGate(nId, nGateId, eType);
+    m_pDisplay->RemoveGate(nId, nGateId, eType);
       }
       catch(...) {		// Ignore exceptions.
       }
@@ -625,7 +647,7 @@ CDisplayInterface::GatesToDisplay(const std::string& rSpectrum)
   //
 
   std::vector<CGateContainer> vGates;
-  CSpectrum *pSpec = FindSpectrum(rSpectrum);
+  CSpectrum *pSpec = m_pSorter->FindSpectrum(rSpectrum);
   if(!pSpec) {
     throw CDictionaryException(CDictionaryException::knNoSuchKey,
 			       "No such spectrum CDisplayInterface::GatesToDisplay",
@@ -634,8 +656,8 @@ CDisplayInterface::GatesToDisplay(const std::string& rSpectrum)
   //
   // The mediator tells us whether the spectrum can display the gate:
   //
-  CGateDictionaryIterator pGate = GateBegin();
-  while(pGate != GateEnd()) {
+  CGateDictionaryIterator pGate = m_pSorter->GateBegin();
+  while(pGate != m_pSorter->GateEnd()) {
     CGateMediator DisplayableGate(((*pGate).second), pSpec);
     if(DisplayableGate()) {
       vGates.push_back((*pGate).second);
@@ -725,4 +747,245 @@ CDisplayInterface::findDisplayBinding(string name)
 UInt_t CDisplayInterface::DisplayBindingsSize() {
   // Returns the number of spectra bound to the display.
   return m_DisplayBindings.size();
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Function:
+//   Create a spectrum displayer title from the information in the
+//   spectrum definition.   As needed items will be dropped from the
+//   definition to ensure that this will all fit in the limited
+//   number of characters avaialable to a spectrum title.
+//
+string
+CDisplayInterface::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
+{
+  CSpectrum::SpectrumDefinition def = pSpectrum->GetDefinition();
+  string name = def .sName;
+  ostringstream typestream;
+  typestream << def.eType;
+  string type = typestream.str();
+
+  // Create the axis vector:
+
+  vector<string> axes;
+  for (int i = 0; i < pSpectrum->Dimensionality(); i++) {
+    ostringstream axisstream;
+    axisstream << pSpectrum->GetLow(i) << ", " << pSpectrum->GetHigh(i)
+           << " : " << pSpectrum->Dimension(i);
+    axes.push_back(axisstream.str());
+  }
+  // gate name:
+
+  const CGateContainer& gate(*(pSpectrum->getGate()));
+  string gateName;
+  if (&gate != pDefaultGate) {
+    gateName = gate.getName();
+  } else {
+    gateName = "";
+  }
+  //  Get the parameter names
+
+  vector<UInt_t> ids = def.vParameters;
+  vector<UInt_t> yids= def.vyParameters;
+  vector<string> parameters;;
+  vector<string> yparameters;
+
+
+
+  for (int i =0; i < ids.size(); i++) {
+    CParameter* pParam = m_pSorter->FindParameter(ids[i]);
+    if (pParam) {
+      parameters.push_back(pParam->getName());
+    } else {
+      parameters.push_back(string("--deleted--"));
+    }
+  }
+  for (int i = 0; i < yids.size(); i++) {
+    CParameter* pParam = m_pSorter->FindParameter(yids[i]);
+    if (pParam) {
+      yparameters.push_back(pParam->getName());
+    }
+    else {
+      yparameters.push_back(string("--deleted--"));
+    }
+  }
+
+
+  // Ok now the following variables are set up for the first try:
+  //  name       - Name of the spectrum
+  //  type       - String type of the spectrum
+  //  axes       - Vector of axis definitions.
+  //  gateName       - name of gateName on spectrum.
+  //  parameters - vector of parameter names.
+
+  string trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+  if (trialTitle.size() < maxLength) return trialTitle;
+
+  // Didn't fit.one by one drop the parameters..replacing the most recently
+  // dropped parameter by "..."
+
+  while (yparameters.size()) {
+    yparameters[yparameters.size()-1] = "...";
+    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+    if (trialTitle.size() < maxLength) return trialTitle;
+    vector<string>::iterator i = yparameters.end();
+    i--;
+    yparameters.erase(i);
+  }
+  while (parameters.size()) {
+    parameters[parameters.size()-1] = "..."; // Probably smaller than it was.
+    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+    if (trialTitle.size() < maxLength) return trialTitle;
+    vector<string>::iterator i = parameters.end();
+    i--;
+    parameters.erase(i);	// Kill off last parameter.
+  }
+
+  // Still didn't fit... and there are no more parameters left to drop.
+  // now we drop the axis definition...
+
+  axes.clear();
+  trialTitle = createTrialTitle(type , axes, parameters, yparameters, gateName);
+  if (trialTitle.size() < maxLength) return trialTitle;
+
+  // Now compute if we can delete the tail of the spectrum name
+  // to fit... For this try we drop at most 1/2 of the name.
+
+  if ((trialTitle.size() - (name.size()/2 + 3)) < maxLength) {
+    while(trialTitle.size() > maxLength) {
+      name = name.assign(name.c_str(), name.size()-4) + string("...");
+      trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+    }
+    return trialTitle;
+  }
+
+
+  // nope...drop the gateName and delete the tail of the spectrum name so it fits.
+  //
+
+  name.assign(name.c_str(), maxLength - 3) + string("...");
+  return name;
+
+
+
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+//  Creates a trial spectrum title.  This unconditionally
+//  glues the elements of a title together to form a title.
+//  The string created is of the form:
+//   title : type [low hi chans] x [low hi chans]  Gated on  gatename : {parameters...}
+//  However:
+//    - If there are no axes (size of vector is 0), the axes are omitted.
+//    - If there are no characters in the gate name, the gate is omitted.
+//    - If the parameters vector is size 0 it is omitted too.
+//   The idea is for createTitle to use this to iteratively try to fit
+//   title elements into the number of characters accepted by a displayer.
+// Parameters:
+//     name  : string
+//          Spectrum name
+//     type  : string
+//          type of the spectrum.
+//     axes  : vector<string>
+//          Axis names.
+//     parameters : vector <string>
+//          Names of parameters.
+//     yparameter : vector<string>
+//         vector of y axis parameters (gamma 2d deluxe).
+//     gate : string
+//          Name of gate on spectrum.
+//
+// Returns:
+//    A string that describes the spectrum in standard from from these
+//    elements.
+//
+string
+CDisplayInterface::createTrialTitle(string type, vector<string>      axes,
+                vector<string>      parameters,
+                vector<string>      yparameters,
+                string gate)
+{
+  string result;
+  result += type;
+
+  // If there are axes, put them in:
+
+  if (axes.size() > 0) {
+    string separator = " ";
+    for (int i =0; i < axes.size(); i++) {
+      result += separator;
+      result += "[";
+      result += axes[i];
+      result += "]";
+
+      separator = " X ";
+    }
+  }
+  // If there's a nonempty gate string add that information:
+
+  if (gate != string("")) {
+    result += " Gated on : ";
+    result += gate;
+  }
+  // If there are parameters comma separate them in curlies.
+
+  if(parameters.size() > 0) {
+    string separator = "";
+    result += " {";
+    for (int i = 0; i < parameters.size(); i++) {
+      result += separator;
+      result += parameters[i];
+      separator = ", ";
+    }
+    result += "}";
+  }
+  if (yparameters.size() > 0) {
+    string separator = "";
+    result += " {";
+    for (int i = 0; i < yparameters.size(); i++) {
+      result += separator;
+      result += yparameters[i];
+      separator = ", ";
+    }
+    result += "}";
+  }
+
+  return result;
+}
+/**
+ * flip2dGatePoints
+ *   Determine if the gate point coordinates must be flipped.  This happens
+ *   for e.g. a gate on p1, p2 displayed on a spectrum with axes p2, p1
+ *
+ *  There's an implicit assumption that the gate is displayable on this spectrum
+ *  because all we do is see if the X parameter is a match for a spectrum x parameter
+ *  and, if not, flip.
+ *
+ * @param pSpectrum - pointer to the target spectrum.
+ * @param gXparam   - Id of the x parameter of the spectrum.
+ *
+ * @return bool - true if it's necessary to flip axes.
+ *
+ */
+bool
+CDisplayInterface::flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam)
+{
+  std::vector<UInt_t> params;
+  pSpectrum->GetParameterIds(params);
+  if (pSpectrum->getSpectrumType() == ke2Dm) {
+    for (int i = 0; i < params.size(); i += 2) {
+      if (gXparam == params[i]) return false;
+    }
+    return true;
+  } else {
+    return gXparam != params[0];
+  }
+}
+
+int CDisplayInterface::GetEventFd()
+{
+    m_pDisplay->GetEventFd();
 }

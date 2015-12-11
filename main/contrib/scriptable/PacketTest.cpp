@@ -220,7 +220,7 @@ PacketTest::SetupTest()
 {
   DummyModule* pm1 = new DummyModule("dum1", *m_pInterp);
   DummyModule* pm2 = new DummyModule("dum2", *m_pInterp);
-  gpEventSink   = new CHistogrammer(1024*1024);
+  gpEventSink   = new CHistogrammer();
   CAnalyzer* pan= new CAnalyzer;
 
   m_pTopPacket->AddModule(pm1);
@@ -251,7 +251,7 @@ void
 PacketTest::ConfigTest()
 {
 
-  gpEventSink   = new CHistogrammer(1024*1024);
+  gpEventSink   = new CHistogrammer();
   CAnalyzer* pan= new CAnalyzer;
   
   m_pTopPacket->Setup(*pan, *(CHistogrammer*)gpEventSink);
@@ -368,7 +368,7 @@ PacketTest::TestUnpack(void* buffer, DummyModule* d1, DummyModule* d2)
   CEvent                      Event;
   CNSCLBufferDecoder          Decode;
   CAnalyzer                   Analyzer;  
-  gpEventSink   = new CHistogrammer(1024*1024);
+  gpEventSink   = new CHistogrammer();
 
   try {
     d1->Reset();

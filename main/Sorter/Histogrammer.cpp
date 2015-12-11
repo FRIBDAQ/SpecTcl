@@ -80,9 +80,6 @@ static CGateContainer NoGate(U, 0,      AlwaysTrue);
 static CGateContainer Deleted(D, 0, AlwaysFalse);
 
 
-// Static member data:
-
-int CHistogrammer::m_nextFitlineId(1); // Next fitline id assigned.
 
 // Very stupid local function to do parameter scaling: 
 static inline UInt_t scale(UInt_t nValue, Int_t nScale) {
@@ -149,13 +146,10 @@ public:
 //    Construtor
 //
 
-CHistogrammer::CHistogrammer(CDisplayInterface *pInterface) :
-    m_pDisplayer(pInterface)
+CHistogrammer::CHistogrammer()
 {
   srand(time(NULL)); 
-//  if(!m_pDisplayer->isAlive())
-//    m_pDisplayer->Start();
-  m_pFitObserver = new CHistogrammerFitObserver(*m_pDisplayer); // Follow changes to fits.
+//  m_pFitObserver = new CHistogrammerFitObserver(*m_pDisplayer); // Follow changes to fits.
   createListObservers();
 }
 
@@ -167,9 +161,6 @@ CHistogrammer::CHistogrammer(CDisplayInterface *pInterface) :
 //     Destructor.
 //
 CHistogrammer::~CHistogrammer() {
-//  if(m_pDisplayer->isAlive())
-//    m_pDisplayer->Stop();
-
   delete m_pFitObserver;
   delete m_pGateList;
   delete m_pSpectrumLists;
@@ -182,8 +173,7 @@ CHistogrammer::~CHistogrammer() {
 // Operation Type:
 //    Copy constructor
 //
-CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
-    m_pDisplayer(rRhs.m_pDisplayer)
+CHistogrammer::CHistogrammer(const CHistogrammer& rRhs)
 {
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
@@ -201,7 +191,6 @@ CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
 //    Assignment operator.
 // 
 CHistogrammer& CHistogrammer::operator=(const CHistogrammer& rRhs) {
-  m_pDisplayer          = rRhs.m_pDisplayer;
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
@@ -219,8 +208,7 @@ CHistogrammer& CHistogrammer::operator=(const CHistogrammer& rRhs) {
 //
 int CHistogrammer::operator==(const CHistogrammer& rRhs) {
   return (
-      ( m_pDisplayer          == rRhs.m_pDisplayer)         &&
-	  ( m_ParameterDictionary ==   rRhs.m_ParameterDictionary) &&
+      ( m_ParameterDictionary ==   rRhs.m_ParameterDictionary) &&
 	  ( m_SpectrumDictionary  ==   rRhs.m_SpectrumDictionary)  &&
 	  ( m_GateDictionary      ==   rRhs.m_GateDictionary)
 	  );
@@ -1134,213 +1122,7 @@ CHistogrammer::removeGateObserver(CGateObserver* observer)
     p++;
   }
 }
-///////////////////////////////////////////////////////////////////////////
-//
-//  Creates a trial spectrum title.  This unconditionally
-//  glues the elements of a title together to form a title.
-//  The string created is of the form:
-//   title : type [low hi chans] x [low hi chans]  Gated on  gatename : {parameters...}
-//  However:
-//    - If there are no axes (size of vector is 0), the axes are omitted.
-//    - If there are no characters in the gate name, the gate is omitted.
-//    - If the parameters vector is size 0 it is omitted too.
-//   The idea is for createTitle to use this to iteratively try to fit
-//   title elements into the number of characters accepted by a displayer.
-// Parameters:
-//     name  : string
-//          Spectrum name
-//     type  : string
-//          type of the spectrum.
-//     axes  : vector<string>
-//          Axis names.
-//     parameters : vector <string>
-//          Names of parameters.
-//     yparameter : vector<string>
-//         vector of y axis parameters (gamma 2d deluxe).
-//     gate : string
-//          Name of gate on spectrum.
-//
-// Returns:
-//    A string that describes the spectrum in standard from from these
-//    elements.
-//
-string
-CHistogrammer::createTrialTitle(string type, vector<string>      axes,
-				vector<string>      parameters,
-				vector<string>      yparameters,
-				string gate)
-{
-  string result;
-  result += type;
 
-  // If there are axes, put them in:
-
-  if (axes.size() > 0) {
-    string separator = " ";
-    for (int i =0; i < axes.size(); i++) {
-      result += separator;
-      result += "[";
-      result += axes[i];
-      result += "]";
-
-      separator = " X ";
-    }
-  }
-  // If there's a nonempty gate string add that information:
-  
-  if (gate != string("")) {
-    result += " Gated on : ";
-    result += gate;
-  }
-  // If there are parameters comma separate them in curlies.
-  
-  if(parameters.size() > 0) {
-    string separator = "";
-    result += " {";
-    for (int i = 0; i < parameters.size(); i++) {
-      result += separator;
-      result += parameters[i];
-      separator = ", ";
-    }
-    result += "}";
-  }
-  if (yparameters.size() > 0) {
-    string separator = "";
-    result += " {";
-    for (int i = 0; i < yparameters.size(); i++) {
-      result += separator;
-      result += yparameters[i];
-      separator = ", ";
-    }
-    result += "}";
-  }
-  
-  
-  
-  
-  return result;
-}
-//////////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//   Create a spectrum displayer title from the information in the
-//   spectrum definition.   As needed items will be dropped from the
-//   definition to ensure that this will all fit in the limited
-//   number of characters avaialable to a spectrum title.
-//
-string
-CHistogrammer::createTitle(CSpectrum* pSpectrum, UInt_t maxLength)
-{
-  CSpectrum::SpectrumDefinition def = pSpectrum->GetDefinition();
-  string name = def .sName;
-  ostringstream typestream;
-  typestream << def.eType;
-  string type = typestream.str();
-
-  // Create the axis vector:
-
-  vector<string> axes;
-  for (int i = 0; i < pSpectrum->Dimensionality(); i++) {
-    ostringstream axisstream;
-    axisstream << pSpectrum->GetLow(i) << ", " << pSpectrum->GetHigh(i)
-	       << " : " << pSpectrum->Dimension(i);
-    axes.push_back(axisstream.str());
-  }
-  // gate name:
- 
-  const CGateContainer& gate(*(pSpectrum->getGate()));
-  string gateName;
-  if (&gate != pDefaultGate) {
-    gateName = gate.getName();
-  } else {
-    gateName = "";
-  }
-  //  Get the parameter names
-
-  vector<UInt_t> ids = def.vParameters;
-  vector<UInt_t> yids= def.vyParameters;
-  vector<string> parameters;;
-  vector<string> yparameters;
-
-  
-
-  for (int i =0; i < ids.size(); i++) {
-    CParameter* pParam = FindParameter(ids[i]);
-    if (pParam) {
-      parameters.push_back(pParam->getName());
-    } else {
-      parameters.push_back(string("--deleted--"));
-    }
-  }
-  for (int i = 0; i < yids.size(); i++) {
-    CParameter* pParam = FindParameter(yids[i]);
-    if (pParam) {
-      yparameters.push_back(pParam->getName());
-    }
-    else {
-      yparameters.push_back(string("--deleted--"));
-    }
-  }
-
- 
-  // Ok now the following variables are set up for the first try:
-  //  name       - Name of the spectrum
-  //  type       - String type of the spectrum
-  //  axes       - Vector of axis definitions.
-  //  gateName       - name of gateName on spectrum.
-  //  parameters - vector of parameter names.
-
-  string trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
-  if (trialTitle.size() < maxLength) return trialTitle;
-
-  // Didn't fit.one by one drop the parameters..replacing the most recently
-  // dropped parameter by "..."
-
-  while (yparameters.size()) {
-    yparameters[yparameters.size()-1] = "...";
-    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
-    if (trialTitle.size() < maxLength) return trialTitle;
-    vector<string>::iterator i = yparameters.end();
-    i--;
-    yparameters.erase(i);
-  }
-  while (parameters.size()) {
-    parameters[parameters.size()-1] = "..."; // Probably smaller than it was.
-    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
-    if (trialTitle.size() < maxLength) return trialTitle;
-    vector<string>::iterator i = parameters.end();
-    i--;
-    parameters.erase(i);	// Kill off last parameter.
-  }
-
-  // Still didn't fit... and there are no more parameters left to drop.
-  // now we drop the axis definition...
-  
-  axes.clear();
-  trialTitle = createTrialTitle(type , axes, parameters, yparameters, gateName);
-  if (trialTitle.size() < maxLength) return trialTitle;
-
-  // Now compute if we can delete the tail of the spectrum name
-  // to fit... For this try we drop at most 1/2 of the name.
-
-  if ((trialTitle.size() - (name.size()/2 + 3)) < maxLength) {
-    while(trialTitle.size() > maxLength) {
-      name = name.assign(name.c_str(), name.size()-4) + string("...");
-      trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
-    }
-    return trialTitle;
-  }
-
-  
-  // nope...drop the gateName and delete the tail of the spectrum name so it fits.
-  //
-  
-  name.assign(name.c_str(), maxLength - 3) + string("...");
-  return name;
-
-
-  
-}
 
 //  Invoke the gate observers when a gate has changed.
 // Parameters:
@@ -1369,33 +1151,4 @@ CHistogrammer::createListObservers()
 
   m_pSpectrumLists = new CSpectrumByParameter;
   addSpectrumDictionaryObserver(m_pSpectrumLists);
-}
-/**
- * flip2dGatePoints
- *   Determine if the gate point coordinates must be flipped.  This happens
- *   for e.g. a gate on p1, p2 displayed on a spectrum with axes p2, p1
- *
- *  There's an implicit assumption that the gate is displayable on this spectrum
- *  because all we do is see if the X parameter is a match for a spectrum x parameter
- *  and, if not, flip.
- *
- * @param pSpectrum - pointer to the target spectrum.
- * @param gXparam   - Id of the x parameter of the spectrum.
- *
- * @return bool - true if it's necessary to flip axes.
- *
- */
-bool
-CHistogrammer::flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam)
-{
-  std::vector<UInt_t> params;
-  pSpectrum->GetParameterIds(params);
-  if (pSpectrum->getSpectrumType() == ke2Dm) {
-    for (int i = 0; i < params.size(); i += 2) {
-      if (gXparam == params[i]) return false;
-    }
-    return true;
-  } else {
-    return gXparam != params[0];
-  }
 }

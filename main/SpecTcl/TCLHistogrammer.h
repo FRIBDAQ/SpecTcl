@@ -66,8 +66,7 @@ public:
 
    // Constructors and other cannonical operations:
 
-  CTCLHistogrammer (CTCLInterpreter* m_pInterpreter,
-		    UInt_t nSpecBytes = knDefaultSpectrumSize);
+  CTCLHistogrammer (CTCLInterpreter* m_pInterpreter);
   virtual ~ CTCLHistogrammer ( );  
   
    //Copy constructor 

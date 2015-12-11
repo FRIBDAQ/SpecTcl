@@ -60,9 +60,8 @@ using namespace std;
 // Operation Type:
 //    Constructor
 //
-CTCLHistogrammer::CTCLHistogrammer (CTCLInterpreter* m_pInterpreter,
-				    UInt_t nSpecBytes) :
-  CHistogrammer(nSpecBytes),
+CTCLHistogrammer::CTCLHistogrammer (CTCLInterpreter* m_pInterpreter) :
+  CHistogrammer(),
   m_pIntObject(m_pInterpreter)
 {
   assert(m_pInterpreter != (CTCLInterpreter*)kpNULL);

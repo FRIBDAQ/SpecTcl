@@ -121,15 +121,12 @@ class CHistogrammer : public CEventSink {
 
   typedef std::list<CGateObserver*>   GateObserverList;
 
-  CDisplayInterface*  m_pDisplayer;          // Points to displayer object.
   ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
   CHistogrammerFitObserver* m_pFitObserver; // Monitor for fit changes.
   GateObserverList   m_gateObservers; 
 
-
-  static int          m_nextFitlineId;       // Next Xamine fitline id.
 
   // For maintaining the flattened lists.
 
@@ -138,7 +135,7 @@ class CHistogrammer : public CEventSink {
 
  public:
   // Constructors.
-  CHistogrammer(CDisplayInterface* rDisplayer);
+  CHistogrammer();
   virtual ~CHistogrammer();
   CHistogrammer(const CHistogrammer& aCHistogrammer);
 
@@ -154,11 +151,6 @@ class CHistogrammer : public CEventSink {
   // Selectors:
  public:
 
-
-  CDisplayInterface* getDisplayer() const {
-    return m_pDisplayer;
-  }
-
   const ParameterDictionary& getParameterDictionary() const {
     return m_ParameterDictionary;
   }
@@ -169,10 +161,6 @@ class CHistogrammer : public CEventSink {
 
   // Mutators:
  protected:
-
-  void setDisplayer(CDisplayInterface* am_Displayer) {
-    m_pDisplayer = am_Displayer;
-  }
 
   void setParameterDictionary(const ParameterDictionary& am_ParameterDictionary) { 
     m_ParameterDictionary = am_ParameterDictionary;
@@ -237,16 +225,9 @@ class CHistogrammer : public CEventSink {
   
   // Utility Functions:
  protected:
-  std::string createTrialTitle(std::string type, 
-			       std::vector<std::string>      axes,
-			       std::vector<std::string>      parameters,
-			       std::vector<std::string>      yparameters,
-			       std::string                   gate);
-  std::string createTitle(CSpectrum* pSpectrum, UInt_t     maxLength);
 
   void invokeGateChangedObservers(std::string name, CGateContainer& gate);
   void createListObservers();
-  bool flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam);
   
   
 		

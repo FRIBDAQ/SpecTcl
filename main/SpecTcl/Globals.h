@@ -68,6 +68,8 @@
 #include <Analyzer.h>
 #endif
 
+#include <DisplayInterface.h>
+
 extern CEventUnpacker*     gpUnpacker;          // Current event unpacker.
 extern CBufferDecoder*     gpBufferDecoder;     // Buffer decoder (could be kpNULL).
 extern CEventSinkPipeline* gpEventSinkPipeline; // Analyzed event sink pipeline; Could be kpNULL. (List of event sinks.)
@@ -77,5 +79,6 @@ extern CFile*              gpEventSource;       // Source of data (can be kpNULL
 extern CRunControl*        gpRunControl;        // Run controlling object (could be kpNULL).
 extern CAnalyzer*          gpAnalyzer;          // Points to event analyzer.
 extern const char*         gpVersion;           // SpecTcl version text.
+extern CDisplayInterface*  gpDisplayInterface;  // Display interface
 
 #endif

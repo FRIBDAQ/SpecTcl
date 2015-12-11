@@ -459,8 +459,7 @@ void CTclGrammerApp::SetLimits() {
 */
 void CTclGrammerApp::CreateHistogrammer() {
   gpEventSinkPipeline = new CEventSinkPipeline;
-  m_pHistogrammer     = new CTCLHistogrammer(gpInterpreter, 
-					     m_nDisplaySize*kn1M);
+  m_pHistogrammer     = new CTCLHistogrammer(gpInterpreter);
   gpEventSink = m_pHistogrammer;
   gpEventSinkPipeline->AddEventSink(*m_pHistogrammer, "::Histogrammer");
 }
@@ -482,11 +481,13 @@ void CTclGrammerApp::CreateHistogrammer() {
      A reference to the histogrammer object.
 */
 void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, 
-				     CHistogrammer& rHistogrammer) 
+                                     CHistogrammer& rHistogrammer)
 {
+  gpDisplayInterface = new CDisplayInterface;
   // We need to set up the Xamine event handler however:
   m_pXamineEvents = new CXamineEventHandler(gpInterpreter, 
-					    (CHistogrammer*)gpEventSink);
+                        (CHistogrammer*)gpEventSink,
+                        SpecTcl::getInstance()->GetDisplayInterface());
 }
 
 //  Function:
@@ -616,7 +617,8 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
   cerr << m_pParameterPackage->getSignon() << endl;
 
   m_pSpectrumPackage  = new CSpectrumPackage(&rInterp, 
-					     (CHistogrammer*)gpEventSink);
+                         (CHistogrammer*)gpEventSink,
+                         (CDisplayInterface*)gpDisplayInterface);
   m_pSpectrumPackage->Register();
   cerr << m_pSpectrumPackage->getSignon() << endl;
 
@@ -938,12 +940,12 @@ CTclGrammerApp::SourceOptionalFile(CTCLInterpreter& rInterp, std::string filenam
 void
 CTclGrammerApp::TimedUpdates(ClientData d)
 {
-    CTclGrammerApp*  pObject = reinterpret_cast<CTclGrammerApp*>(d);
+//    CTclGrammerApp*  pObject = reinterpret_cast<CTclGrammerApp*>(d);
     
-    CHistogrammer* pHistogrammer = pObject->m_pHistogrammer;
-    pHistogrammer->updateStatistics();
+//    CHistogrammer* pHistogrammer = pObject->m_pHistogrammer;
+//    pHistogrammer->updateStatistics();
     
-    Tcl_CreateTimerHandler(pObject->m_nUpdateRate, CTclGrammerApp::TimedUpdates, d);
+//    Tcl_CreateTimerHandler(pObject->m_nUpdateRate, CTclGrammerApp::TimedUpdates, d);
 }
 
 /**

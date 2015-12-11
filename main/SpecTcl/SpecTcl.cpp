@@ -60,6 +60,7 @@
 #include <TCLInterpreter.h>
 
 #include <TCLAnalyzer.h>
+#include <DisplayInterface.h>
 
 
 #include <Globals.h>
@@ -2474,6 +2475,13 @@ CEventSinkPipeline* SpecTcl::GetEventSinkPipeline()
   return gpEventSinkPipeline;
 }
 
+/*!
+ *
+ */
+CDisplayInterface* SpecTcl::GetDisplayInterface()
+{
+    return gpDisplayInterface;
+}
 
 /*
    Returns a vector of parameter ids for a list of parameter

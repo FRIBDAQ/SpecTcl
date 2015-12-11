@@ -122,9 +122,9 @@ void CXamineEventHandler::operator()()
     if(!pDisplay->isAlive()) {
       cerr << "Xamine just died....";
       cerr << "\n Unbinding spectra...";
-      SpectrumDictionaryIterator p = m_pDisplay->SpectrumBegin();
+      SpectrumDictionaryIterator p = m_pSorter->SpectrumBegin();
       
-      for(; p != m_pDisplay->SpectrumEnd(); p++) {
+      for(; p != m_pSorter->SpectrumEnd(); p++) {
 	try {
 	  CSpectrum *pSpec = (*p).second;
 	  UInt_t Xid = FindDisplayBinding(pSpec->getName());
@@ -139,7 +139,7 @@ void CXamineEventHandler::operator()()
       // Re-associate ourselves with the input channel:
 
       cerr << "\n Reconnecting with Xamine gate inputs..";
-      m_nFd = m_pDisplay->getDisplayer()->GetEventFd();
+      m_nFd = m_pDisplay->GetEventFd();
       cerr << "\n";
 
       // Now that we're all back together we need to let the
@@ -181,7 +181,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   // 
 
 
-  CGateFactory Factory(m_pDisplay);; // We'll use this to create the
+  CGateFactory Factory(m_pSorter); // We'll use this to create the
 				          // Gate itself.
 
   // Before invoking the factory creation method, we must 
@@ -191,7 +191,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   UInt_t nSpec       = rXamineGate.getSpectrum() - 1; // Numbering is Xamine's.
   string strSpecName = (m_pDisplay->getDisplayBindings())[nSpec];
   string strGateName = rXamineGate.getName();
-  CSpectrum* pSpec   = m_pDisplay->FindSpectrum(strSpecName);
+  CSpectrum* pSpec   = m_pSorter->FindSpectrum(strSpecName);
   if(!pSpec) {
     cerr << "Spectrum in Xamine not defined in SpecTcl, ignoring gate\n";
     return;
@@ -382,7 +382,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     case ke1D:
     case ke2D:
       for(pid = pIds.begin(); pid != pIds.end(); pid++) {
-    CParameter* pParam = m_pDisplay->FindParameter(*pid);
+    CParameter* pParam = m_pSorter->FindParameter(*pid);
 	if(!pParam) {
 	  cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
 	  return;
@@ -397,7 +397,7 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
     case keG2D:
     case keG2DD:
       for(pid = pIds.begin(); pid != pIds.end(); pid++) {
-    CParameter* pParam = m_pDisplay->FindParameter(*pid);
+    CParameter* pParam = m_pSorter->FindParameter(*pid);
 	if(!pParam) {
 	  cerr << "Spectrum parameter " << *pid << "has been deleted!!\n";
 	  return;
@@ -433,12 +433,12 @@ void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)
   //
   
   try {
-    if(m_pDisplay->FindGate(strGateName)) { // Replace existing gate.
+    if(m_pSorter->FindGate(strGateName)) { // Replace existing gate.
       cerr << "Replacing exisiting gate: " << strGateName << endl;
-      m_pDisplay->ReplaceGate(strGateName, *pSpecTclGate);
+      m_pSorter->ReplaceGate(strGateName, *pSpecTclGate);
     } 
     else {			// Add new gate.
-      m_pDisplay->AddGate(strGateName,CGatePackage::AssignId(),
+      m_pSorter->AddGate(strGateName,CGatePackage::AssignId(),
 			       *pSpecTclGate);
     }
   }
@@ -492,7 +492,7 @@ CXamineEventHandler::FindDisplayBinding(const std::string& rName)
   //    CDictionary Exception if the spectrum is not bound.
   // 
   
-  CSpectrum *pSpec = m_pDisplay->FindSpectrum(rName);
+  CSpectrum *pSpec = m_pSorter->FindSpectrum(rName);
   if(!pSpec) {			// the spectrum must exist in fact..
     throw CDictionaryException(CDictionaryException::knNoSuchId,
 			       "Looking up spectrum from name",

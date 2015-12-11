@@ -332,6 +332,7 @@ static const char* pCopyright=
 #include <Analyzer.h>
 #include <histotypes.h>
 #include <NSCLBufferDecoder.h>
+#include <DisplayInterface.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -390,3 +391,7 @@ CAnalyzer* gpAnalyzer   = (CAnalyzer*)kpNULL;
 
 // SpecTcl also retains a version text string.
 const char* gpVersion = VERSION;
+
+//  The interface to the display. Provides simple mechanisms for adding/removing/updating
+//  spectra, gates, fits on the display
+CDisplayInterface* gpDisplayInterface = (CDisplayInterface*)kpNULL;

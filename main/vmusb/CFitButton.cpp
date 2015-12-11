@@ -21,7 +21,7 @@
 #include <CGaussianFit.h>
 #include <CSpectrumFit.h>
 #include <CFitDictionary.h>
-#include <Histogrammer.h>
+#include <DisplayInterface.h>
 #include <SpecTcl.h>
 #include <Spectrum.h>
 #include <CFitCommand.h>
@@ -250,8 +250,8 @@ CFitButton::spectrumName(CButtonEvent& event)
 {
     int            bindId        = event.getPromptedSpectrum();
     SpecTcl*       pApi          = SpecTcl::getInstance();
-    CHistogrammer* pHistogrammer = pApi->GetHistogrammer();
-    CSpectrum*     pSpectrum     = pHistogrammer->DisplayBinding(bindId-1);
+    CDisplayInterface* pDisplay  = pApi->GetDisplayInterface();
+    CSpectrum*     pSpectrum     = pDisplay->DisplayBinding(bindId-1);
     string spectrumName;
     if (pSpectrum) {
       spectrumName  = pSpectrum->getName();

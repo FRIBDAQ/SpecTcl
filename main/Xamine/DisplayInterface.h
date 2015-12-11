@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <list>
 
 class CHistogrammer;
 class CDisplay;
@@ -44,11 +45,13 @@ class CDisplayInterface
     typedef std::vector<FitlineList>    FitlineBindings;
 
 private:
-    CHistogrammer* m_pSorter;
-    CDisplay*      m_pDisplay;
+    CHistogrammer*      m_pSorter;
+    CDisplay*           m_pDisplay;
     DisplayBindings     m_DisplayBindings;     // Display id to spectrum name map.
     std::vector<CSpectrum*> m_boundSpectra;        // Spectrum if bound.
     FitlineBindings     m_FitlineBindings;     // Fitlines bound to displayer.
+
+    static int          m_nextFitlineId;       // Next Xamine fitline id.
 
 public:
     CDisplayInterface();
@@ -62,13 +65,22 @@ public:
       m_DisplayBindings = am_DisplayBindings;
     }
 
+
+    CHistogrammer* getHistogrammer() {
+        return m_pSorter;
+    }
+
+    void setHistogrammer(CHistogrammer* pSorter) {
+        m_pSorter = pSorter;
+    }
+
     DisplayBindingsIterator DisplayBindingsBegin();
     DisplayBindingsIterator DisplayBindingsEnd();
     Int_t findDisplayBinding(std::string name);
     UInt_t DisplayBindingsSize();
 
     UInt_t BindToDisplay(const std::string& rsName);
-    UInt_t UnBindFromDisplay(UInt_t nSpec);
+    void UnBindFromDisplay(UInt_t nSpec);
     void addFit(CSpectrumFit& fit);
     void deleteFit(CSpectrumFit& fit);
     void updateStatistics();
@@ -81,9 +93,19 @@ public:
 
     int GetEventFd();
 
+    std::string createTitle(CSpectrum* pSpectrum, UInt_t maxLength);
 
     CDisplay *getDisplay() const;
     void setDisplay(CDisplay *pDisplay);
+
+    std::string createTrialTitle(std::string type,
+                     std::vector<std::string>      axes,
+                     std::vector<std::string>      parameters,
+                     std::vector<std::string>      yparameters,
+                     std::string                   gate);
+
+    bool flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam);
+
 };
 
 #endif // DISPLAYINTERFACE_H

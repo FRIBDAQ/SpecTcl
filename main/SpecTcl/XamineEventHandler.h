@@ -70,6 +70,7 @@
 
 
 class CDisplayGate;
+class CHistogrammer;
 class CButtonEvent;
 class CSpectrum;
 
@@ -91,7 +92,8 @@ public:
   typedef std::list<CRestartHandler*> RestartHandlerList;
 private:                       
   CTCLInterpreter*   m_pInterp;
-  CDisplayInterface*     m_pDisplay; //1:1 association object data member
+  CHistogrammer*     m_pSorter;
+  CDisplayInterface* m_pDisplay; //1:1 association object data member
   int                m_nFd;
   Tcl_TimerToken     m_Timer;	// Poll timer for read.
   ButtonHandlerList  m_buttonHandlers; // List of button handlers.
@@ -101,8 +103,10 @@ public:
    // Constructors and other cannonical operations:
 
   CXamineEventHandler (CTCLInterpreter* pInterp,
+                       CHistogrammer* pHistogrammer,
                CDisplayInterface*   pDisplay) :
     m_pInterp(pInterp),
+    m_pSorter(pHistogrammer),
     m_pDisplay(pDisplay),
     m_nFd(pDisplay->GetEventFd())
   { 
@@ -115,6 +119,7 @@ public:
 
   CXamineEventHandler (const CXamineEventHandler& rhs ) :
     m_pInterp(rhs.m_pInterp),
+    m_pSorter(rhs.m_pSorter),
     m_pDisplay(rhs.m_pDisplay),
     m_nFd(rhs.m_nFd),
     m_Timer(rhs.m_Timer)
@@ -129,7 +134,8 @@ public:
   CXamineEventHandler& operator= 
   (const CXamineEventHandler& aCXamineEventHandler) {
     if(this != &aCXamineEventHandler) {
-      setDisplayInterface(aCXamineEventHandler.m_pDisplay);
+        m_pSorter = aCXamineEventHandler.m_pSorter;
+        setDisplayInterface(aCXamineEventHandler.m_pDisplay);
     }
     return *this;
   }
@@ -137,10 +143,11 @@ public:
    //Operator== Equality Operator 
 
   int operator== (const CXamineEventHandler& rhs) const {
-    return ( (m_pInterp == rhs.m_pInterp)      &&
-         (m_pDisplay == rhs.m_pDisplay) &&
-	     (m_nFd == rhs.m_nFd)                     &&
-	     (m_Timer == rhs.m_Timer));
+    return ( (m_pInterp == rhs.m_pInterp)    &&
+             (m_pSorter == rhs.m_pSorter)    &&
+             (m_pDisplay == rhs.m_pDisplay)  &&
+             (m_nFd == rhs.m_nFd)            &&
+             (m_Timer == rhs.m_Timer));
   }
 	
 // Selectors:

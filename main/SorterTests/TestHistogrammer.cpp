@@ -59,7 +59,7 @@ public:
     void setUp() {
         m_pParam = new CParameter(1, "test.0",0, 0, 1, "arb");
 
-        m_pHister = new CHistogrammer(CFakeDisplayer());
+        m_pHister = new CHistogrammer();
     }
 
     void tearDown() {

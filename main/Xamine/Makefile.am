@@ -7,7 +7,7 @@ lib_LTLIBRARIES = libXplus.la
 libXplus_la_LDFLAGS = -verson-info $(SOVERSION):0 \
 	-Wl,"-rpath=$(libdir)"
 
-libXplus_la_SOURCES = DisplayGate.cpp Display.cpp \
+libXplus_la_SOURCES = DisplayGate.cpp Display.cpp DisplayInterface.cpp \
 	Xamine1D.cpp Xamine2D.cpp \
 	XamineButton.cpp XamineButtonException.cpp XamineButtonPrompt.cpp \
 	XamineConfirmPrompt.cpp XamineEvent.cpp XamineFilePrompt.cpp \
@@ -17,7 +17,8 @@ libXplus_la_SOURCES = DisplayGate.cpp Display.cpp \
 	XamineSpectrum.cpp XamineSpectrumIterator.cpp \
 	XamineTextPrompt.cpp XamineToggleButton.cpp Xamineplus.cpp
 
-include_HEADERS = ButtonEvent.h DisplayGate.h Display.h Point.h Xamine1D.h Xamine2D.h \
+include_HEADERS = ButtonEvent.h DisplayGate.h Display.h DisplayInterface.h \
+	Point.h Xamine1D.h Xamine2D.h \
 	XamineButton.h XamineButtonException.h XamineButtonPrompt.h \
 	XamineConfirmPrompt.h XamineEvent.h XamineFilePrompt.h \
 	XamineGateException.h XamineGates.h XamineMap1D.h XamineMap2D.h \

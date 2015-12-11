@@ -95,6 +95,7 @@ class CEventSink;
 class CTclAnalyzer;
 class CEventSinkPipeline;
 class CTCLInterpreter;
+class CDisplayInterface;
 
 class CFilterOutputStageCreator;
 class CGatedEventFilter;
@@ -408,6 +409,7 @@ public:
   CHistogrammer*      GetHistogrammer();
   CTclAnalyzer*       GetAnalyzer();
   CEventSinkPipeline* GetEventSinkPipeline();
+  CDisplayInterface*  GetDisplayInterface();
   std::vector<UInt_t>      parameterIds(std::vector<std::string> names);
 
   

@@ -66,7 +66,7 @@ public:
     m_pRawInterpreter = Tcl_CreateInterp();
     m_pInterp         = new CTCLInterpreter(m_pRawInterpreter);
     m_pModule         = new ConcreteModule("Map", *m_pInterp);
-    gpEventSink       = new CHistogrammer(1024*1024);
+    gpEventSink       = new CHistogrammer();
   }
   // Destroy the interpreter and its associated object
   void tearDown() {
