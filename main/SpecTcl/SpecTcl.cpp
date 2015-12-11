@@ -60,7 +60,7 @@
 #include <TCLInterpreter.h>
 
 #include <TCLAnalyzer.h>
-#include <DisplayInterface.h>
+#include <DisplayManager.h>
 
 
 #include <Globals.h>
@@ -2480,7 +2480,7 @@ CEventSinkPipeline* SpecTcl::GetEventSinkPipeline()
  */
 CDisplayInterface* SpecTcl::GetDisplayInterface()
 {
-    return gpDisplayInterface;
+    return gpDisplayManager;
 }
 
 /*

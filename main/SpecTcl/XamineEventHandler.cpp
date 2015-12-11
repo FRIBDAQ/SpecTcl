@@ -72,6 +72,44 @@ static inline UInt_t scale(UInt_t value, Int_t nshift)
 
 // Functions for class CXamineEventHandler
 
+
+CXamineEventHandler::CXamineEventHandler(CTCLInterpreter *pInterp,
+                                         CHistogrammer *pHistogrammer,
+                                         CXamine *pDisplay) :
+   m_pInterp(pInterp),
+   m_pSorter(pHistogrammer),
+   m_pDisplay(pDisplay),
+   m_nFd(pDisplay->GetEventFd())
+ {
+   Set();		// Starts out enabled.
+ }
+
+CXamineEventHandler::CXamineEventHandler (const CXamineEventHandler& rhs ) :
+  m_pInterp(rhs.m_pInterp),
+  m_pSorter(rhs.m_pSorter),
+  m_pDisplay(rhs.m_pDisplay),
+  m_nFd(rhs.m_nFd),
+  m_Timer(rhs.m_Timer)
+{
+}
+
+CXamineEventHandler& CXamineEventHandler::operator=
+(const CXamineEventHandler& aCXamineEventHandler) {
+  if(this != &aCXamineEventHandler) {
+      m_pSorter = aCXamineEventHandler.m_pSorter;
+      setDisplay(aCXamineEventHandler.m_pDisplay);
+  }
+  return *this;
+}
+
+int CXamineEventHandler::operator== (const CXamineEventHandler& rhs) const {
+  return ( (m_pInterp == rhs.m_pInterp)    &&
+           (m_pSorter == rhs.m_pSorter)    &&
+           (m_pDisplay == rhs.m_pDisplay)  &&
+           (m_nFd == rhs.m_nFd)            &&
+           (m_Timer == rhs.m_Timer));
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       
@@ -89,15 +127,10 @@ void CXamineEventHandler::operator()()
   //
   //
 
-  CXamine* pDisplay = dynamic_cast<CXamine*>(m_pDisplay->getDisplay());
-  if (pDisplay == NULL) {
-      throw std::runtime_error("CXamineEventHandler::operator() cannot operate with non-CXamine type.");
-  }
-
   // Poll the event from the displayer:
 
   CXamineEvent Event;
-  int pollstat = pDisplay->PollEvent(0, Event);
+  int pollstat = m_pDisplay->PollEvent(0, Event);
   if(pollstat > 0) {		// Successful poll => something read.
     
     // Determine what kind of beast we got:
@@ -119,7 +152,7 @@ void CXamineEventHandler::operator()()
     }
   }
   else {      // If the poll fails, and Xamine is dead, we need to restart it:
-    if(!pDisplay->isAlive()) {
+    if(!m_pDisplay->isAlive()) {
       cerr << "Xamine just died....";
       cerr << "\n Unbinding spectra...";
       SpectrumDictionaryIterator p = m_pSorter->SpectrumBegin();
@@ -134,7 +167,7 @@ void CXamineEventHandler::operator()()
       }
 
       cerr << "\n Restarting Xamine...";
-      pDisplay->Restart();
+      m_pDisplay->Restart();
 
       // Re-associate ourselves with the input channel:
 
@@ -149,9 +182,9 @@ void CXamineEventHandler::operator()()
 
       RestartHandlerList::iterator i = m_restartHandlers.begin();
       while (i != m_restartHandlers.end()) {
-	CRestartHandler* pHandler = *i;
-	(*pHandler)();
-	i++;
+          CRestartHandler* pHandler = *i;
+          (*pHandler)();
+          i++;
       }
     }
   }

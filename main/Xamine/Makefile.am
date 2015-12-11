@@ -1,13 +1,22 @@
-AM_CPPFLAGS = -g -I. -I../Utility -I../Display @LIBTCLPLUS_CFLAGS@
-LDADD = -lXplus	 -lXamine @LIBTCLPLUS_LDFLAGS@ -L.
-# AM_LDFLAGS = -L.
+AM_CPPFLAGS = -g
 
 lib_LTLIBRARIES = libXplus.la
 
-libXplus_la_LDFLAGS = -verson-info $(SOVERSION):0 \
-	-Wl,"-rpath=$(libdir)"
+libXplus_la_CPPFLAGS = -I@srcdir@ \
+			-I@top_srcdir@/Utility \
+			-I@top_srcdir@/Display \
+			@TCL_CPPFLAGS@ \
+			@LIBTCLPLUS_CFLAGS@
 
-libXplus_la_SOURCES = DisplayGate.cpp Display.cpp DisplayInterface.cpp \
+libXplus_la_LIBADD =	@top_builddir@/Display/libXamine.la
+
+
+libXplus_la_LDFLAGS = -verson-info $(SOVERSION):0 \
+	-Wl,"-rpath=$(libdir)" \
+	@TCL_LIBS@ \
+	@LIBTCLPLUS_LDFLAGS@
+
+libXplus_la_SOURCES = DisplayGate.cpp Display.cpp DisplayManager.cpp \
 	Xamine1D.cpp Xamine2D.cpp \
 	XamineButton.cpp XamineButtonException.cpp XamineButtonPrompt.cpp \
 	XamineConfirmPrompt.cpp XamineEvent.cpp XamineFilePrompt.cpp \
@@ -17,7 +26,7 @@ libXplus_la_SOURCES = DisplayGate.cpp Display.cpp DisplayInterface.cpp \
 	XamineSpectrum.cpp XamineSpectrumIterator.cpp \
 	XamineTextPrompt.cpp XamineToggleButton.cpp Xamineplus.cpp
 
-include_HEADERS = ButtonEvent.h DisplayGate.h Display.h DisplayInterface.h \
+include_HEADERS = ButtonEvent.h DisplayGate.h Display.h DisplayManager.h \
 	Point.h Xamine1D.h Xamine2D.h \
 	XamineButton.h XamineButtonException.h XamineButtonPrompt.h \
 	XamineConfirmPrompt.h XamineEvent.h XamineFilePrompt.h \
@@ -27,3 +36,28 @@ include_HEADERS = ButtonEvent.h DisplayGate.h Display.h DisplayInterface.h \
 	XamineTextPrompt.h XamineToggleButton.h Xamineplus.h
 
 EXTRA_DIST = ClassBreakdown.WC ClassBreakdown.omt
+
+noinst_PROGRAMS=TestRunner
+
+TestRunner_SOURCES=TestRunner.cpp DisplayManagerTests.cpp
+
+TestRunner_CXXFLAGS=-I@top_srcdir@/Events \
+		    -I@top_srcdir@/Utility \
+		    @LIBTCLPLUS_CFLAGS@ \
+		    @CPPUNIT_CFLAGS@
+
+TestRunner_LDADD = @top_builddir@/Xamine/libXplus.la \
+		    @top_builddir@/Sorter/libSorting.la \
+		    @top_builddir@/Fits/libFits.la \
+		    @top_builddir@/Display/libXamine.la \
+		    @top_builddir@/Tape/libtape.la \
+		    @CPPUNIT_LIBS@ \
+		    @TCL_LIBS@
+
+noinst_HEADERS = Asserts.h
+
+check-TESTS:
+	./TestRunner
+
+
+

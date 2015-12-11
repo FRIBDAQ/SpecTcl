@@ -59,8 +59,9 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLInterpreter.h>
 #include <TCLResult.h>
 #include <SpectrumFormatter.h>
-#include "SpecTcl.h"
-#include <DisplayInterface.h>
+#include <SpecTcl.h>
+#include <DisplayManager.h>
+#include <Display.h>
 
 
 
@@ -71,6 +72,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include <sstream>
 
 #include <string>
 
@@ -136,7 +138,7 @@ static const UInt_t nDataTypes = sizeof(aDataTypes)/sizeof(DataTypes);
 //
 CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
                     CHistogrammer*   pHistogrammer,
-                    CDisplayInterface *pDisplay) :
+                    CDisplayManager *pDisplay) :
   CTCLCommandPackage(pInterp, Copyright),
   m_pHistogrammer(pHistogrammer),
   m_pSpectrum(new CSpectrumCommand(pInterp, *this)),
@@ -646,7 +648,10 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
   for(; p != api.SpectrumEnd(); p++) {
     CSpectrum* pSpec = (*p).second;
     try {
-      m_pDisplay->BindToDisplay(pSpec->getName());
+      CDisplay* pDisplay = api.GetDisplayManager()->getCurrentDisplay();
+      if (pDisplay) {
+        pDisplay->BindToDisplay(*pSpec);
+      }
     }
     catch (CException& rExcept) {
       Result.StartSublist();
@@ -691,12 +696,20 @@ CSpectrumPackage::BindList(CTCLResult& rResult,
 
   CTCLString Result;
   Bool_t     Failed = kfFALSE;
-  std::vector<std::string>::iterator p = rvNames.begin();
+  CDisplay*  pDisplay = m_pDisplay->getCurrentDisplay();
 
+  std::vector<std::string>::iterator p = rvNames.begin();
   for(; p != rvNames.end(); p++) {
-    try {
-      m_pDisplay->BindToDisplay(*p);
-    }
+      try {
+          CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
+          if (pSpec) {
+              pDisplay->BindToDisplay(*pSpec);
+          } else {
+              std::ostringstream errmsg;
+              errmsg << *p << " cannot be bound because it doesn't exist.";
+              throw CException(errmsg.str());
+          }
+      }
     catch (CException& rExcept) {
       Failed = kfTRUE;
       Result.StartSublist();
@@ -746,13 +759,15 @@ CSpectrumPackage::BindList(CTCLResult& rResult, std::vector<UInt_t>& rIds)
 
   Bool_t                        Failed = kfFALSE;
   CTCLString                    Result;
+  CDisplay*    pDisplay = m_pDisplay->getCurrentDisplay();
+
   std::vector<UInt_t>::iterator p = rIds.begin();
 
   for(; p != rIds.end(); p++) {
     try {
       CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
       if(pSpec) {
-          m_pDisplay->BindToDisplay(pSpec->getName());
+          pDisplay->BindToDisplay(*pSpec);
       }
       else {
 	char TextId[100];
@@ -814,11 +829,12 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult,
   Bool_t                             Failed = kfFALSE;
   CTCLString                         MyResults;
   std::vector<UInt_t>                vXids;
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
   std::vector<std::string>::iterator p = rvNames.begin();
 
   for(; p != rvNames.end(); p++) {
     try {
-      UInt_t xid = FindDisplayBinding(*p);
+      UInt_t xid = pDisplay->FindDisplayBinding(*p);
       vXids.push_back(xid);
     }
     catch (CException& rException) {
@@ -877,13 +893,14 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
   Bool_t                        Failed = kfFALSE;
   CTCLString                    MyResults;
   std::vector<UInt_t>           vXids;
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
   std::vector<UInt_t>::iterator p = rvIds.begin();
 
   // Build the xid list.. Any failures go into the MyResults string.
   //
   for(; p != rvIds.end(); p++) {
     try {
-      UInt_t Xid = FindDisplayBinding(*p);
+      UInt_t Xid = pDisplay->FindDisplayBinding(*p);
       vXids.push_back(Xid);
     }
     catch (CException& rExcept) {
@@ -939,9 +956,11 @@ CSpectrumPackage::UnbindXidList(CTCLResult& rResult,
 
   // Actually, since unbinding a bad Xid is just an no-op this must work:
 
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+
   std::vector<UInt_t>::iterator p = rvXids.begin();
   for(; p != rvXids.end(); p++) {
-    m_pDisplay->UnBindFromDisplay(*p);
+    pDisplay->UnBindFromDisplay(*p);
   }
   return TCL_OK;
 
@@ -958,12 +977,13 @@ CSpectrumPackage::UnbindAll()
 {
 // Unbinds all spectra from the display
 //
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
   SpectrumDictionaryIterator p = m_pHistogrammer->SpectrumBegin();
 
   for(; p != m_pHistogrammer->SpectrumEnd(); p++) {
     try {
       CSpectrum *pSpec = (*p).second;
-      UInt_t Xid = FindDisplayBinding(pSpec->getName());
+      UInt_t Xid = pDisplay->FindDisplayBinding(pSpec->getName());
       m_pDisplay->UnBindFromDisplay(Xid);
     }
     catch(CException& rException) { } // Some spectra will not be bound.
@@ -1103,6 +1123,8 @@ void
 CSpectrumPackage::DeleteAll() 
 {
   SpecTcl& api(*(SpecTcl::getInstance()));
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+
 // Deletes all spectra known to the
 // histogrammer.
 //
@@ -1117,8 +1139,8 @@ CSpectrumPackage::DeleteAll()
     p = m_pHistogrammer->SpectrumBegin();
     CSpectrum* pSpec = (*p).second;
     try {
-      UInt_t xid = FindDisplayBinding(pSpec->getName());
-      m_pDisplay->UnBindFromDisplay(xid);
+      UInt_t xid = pDisplay->FindDisplayBinding(pSpec->getName());
+      pDisplay->UnBindFromDisplay(xid);
       
     }
     catch (CException& rExcept) { // Exceptions in the find are ignored.
@@ -1226,6 +1248,7 @@ CSpectrumPackage::ListBindings(CTCLResult& rResult,
   SpectrumDictionaryIterator     pS;
   std::vector<UInt_t>::iterator  p = rvIds.begin();
   Bool_t                         fFailed = kfFALSE;
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
   // Each binding is looked up by id and added to the output list.
   // The name from the bindings list is used to lookup the spectrum and
@@ -1233,7 +1256,7 @@ CSpectrumPackage::ListBindings(CTCLResult& rResult,
 
   for(; p != rvIds.end(); p++) {
     try {
-      UInt_t     xid   = FindDisplayBinding(*p);
+      UInt_t     xid   = pDisplay->FindDisplayBinding(*p);
       CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
       if(!pSpec) {
 	char txtid[100];
@@ -1290,9 +1313,10 @@ CSpectrumPackage::ListXidBindings(CTCLResult& rResult,
   CTCLString                    BadList;
   Bool_t                        fFailed = kfFALSE;
   std::vector<UInt_t>::iterator p       = rvXIds.begin();
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
   for(; p != rvXIds.end(); p++) {
-    CSpectrum* pSpec = m_pDisplay->DisplayBinding(*p);
+    CSpectrum* pSpec = pDisplay->DisplayBinding(*p);
     if(pSpec) {
       FormatBinding(GoodList, *p, pSpec);
     }
@@ -1333,7 +1357,8 @@ CSpectrumPackage::ListAllBindings(CTCLResult& rResult, const char* pattern)
 // 
 
   CTCLString ResultList;
-  
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+
   // The strategy is to find the binding for each spectrum.
   // if it exists, then add it to the list.  If not, return the error.
   //
@@ -1342,7 +1367,7 @@ CSpectrumPackage::ListAllBindings(CTCLResult& rResult, const char* pattern)
     try {
       char textId[100];
       CSpectrum *pSpec = (*p).second;
-      UInt_t xid = FindDisplayBinding(pSpec->getName());
+      UInt_t xid = pDisplay->FindDisplayBinding(pSpec->getName());
       const char* name = (pSpec->getName()).c_str();
       if (Tcl_StringMatch(name, pattern))
 	{  

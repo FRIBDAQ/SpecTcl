@@ -67,7 +67,7 @@ class CUnbindCommand;
 class ChannelCommand;
 class CWriteCommand;
 class CReadCommand;
-class CDisplayInterface;
+class CDisplayManager;
                                                                
 class CSpectrumPackage  : public CTCLCommandPackage        
 {
@@ -90,13 +90,13 @@ protected:
   ChannelCommand*    m_pChannel; // Executes the channel command.
   CWriteCommand*     m_pWrite;	// Executes the swrite command.
   CReadCommand*      m_pRead;
-  CDisplayInterface* m_pDisplay;
+  CDisplayManager*   m_pDisplay;
 
 public:
 			//Constructor with arguments
 
   CSpectrumPackage (CTCLInterpreter* pInterp, CHistogrammer* pHistogrammer,
-                    CDisplayInterface* pDisplay);
+                    CDisplayManager* pDisplay);
   virtual ~ CSpectrumPackage ( );       //Destructor
 	
 			//Copy constructor [illegal]

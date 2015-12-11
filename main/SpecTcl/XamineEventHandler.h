@@ -28,8 +28,6 @@
 #include <Histogrammer.h>
 #endif
 
-#include <DisplayInterface.h>
-
 #ifndef __XAMINEPLUS_H
 #include <Xamineplus.h>
 #endif
@@ -93,7 +91,7 @@ public:
 private:                       
   CTCLInterpreter*   m_pInterp;
   CHistogrammer*     m_pSorter;
-  CDisplayInterface* m_pDisplay; //1:1 association object data member
+  CXamine* m_pDisplay; //1:1 association object data member
   int                m_nFd;
   Tcl_TimerToken     m_Timer;	// Poll timer for read.
   ButtonHandlerList  m_buttonHandlers; // List of button handlers.
@@ -104,57 +102,25 @@ public:
 
   CXamineEventHandler (CTCLInterpreter* pInterp,
                        CHistogrammer* pHistogrammer,
-               CDisplayInterface*   pDisplay) :
-    m_pInterp(pInterp),
-    m_pSorter(pHistogrammer),
-    m_pDisplay(pDisplay),
-    m_nFd(pDisplay->GetEventFd())
-  { 
-    Set();		// Starts out enabled.
-  } 
+                       CXamine*   pDisplay);
   virtual  ~ CXamineEventHandler ( )  // Destructor 
      { }  
   
    //Copy constructor 
-
-  CXamineEventHandler (const CXamineEventHandler& rhs ) :
-    m_pInterp(rhs.m_pInterp),
-    m_pSorter(rhs.m_pSorter),
-    m_pDisplay(rhs.m_pDisplay),
-    m_nFd(rhs.m_nFd),
-    m_Timer(rhs.m_Timer)
-  { 
-   
-
-
-  }                                     
+  CXamineEventHandler (const CXamineEventHandler& rhs );
 
    // Operator= Assignment Operator 
-
   CXamineEventHandler& operator= 
-  (const CXamineEventHandler& aCXamineEventHandler) {
-    if(this != &aCXamineEventHandler) {
-        m_pSorter = aCXamineEventHandler.m_pSorter;
-        setDisplayInterface(aCXamineEventHandler.m_pDisplay);
-    }
-    return *this;
-  }
+  (const CXamineEventHandler& aCXamineEventHandler);
  
    //Operator== Equality Operator 
+  int operator== (const CXamineEventHandler& rhs) const;
 
-  int operator== (const CXamineEventHandler& rhs) const {
-    return ( (m_pInterp == rhs.m_pInterp)    &&
-             (m_pSorter == rhs.m_pSorter)    &&
-             (m_pDisplay == rhs.m_pDisplay)  &&
-             (m_nFd == rhs.m_nFd)            &&
-             (m_Timer == rhs.m_Timer));
-  }
-	
 // Selectors:
 
 public:
                        
-  CDisplayInterface* getDisplayInterface() const
+  CXamine* getDisplay() const
   { 
     return m_pDisplay;
   }
@@ -163,7 +129,7 @@ public:
 
 protected:
        
-  void setDisplayInterface (CDisplayInterface* am_pDisplay)
+  void setDisplay (CXamine* am_pDisplay)
   { 
     Clear();			// Disable callback on current fid.
     m_pDisplay = am_pDisplay;

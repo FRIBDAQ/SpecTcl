@@ -394,4 +394,4 @@ const char* gpVersion = VERSION;
 
 //  The interface to the display. Provides simple mechanisms for adding/removing/updating
 //  spectra, gates, fits on the display
-CDisplayInterface* gpDisplayInterface = (CDisplayInterface*)kpNULL;
+CDisplayManager* gpDisplayManager = (CDisplayManager*)kpNULL;

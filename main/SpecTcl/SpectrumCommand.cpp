@@ -29,7 +29,7 @@
 #include "TCLString.h"
 #include <RangeError.h>
 #include <Exception.h>
-#include <SpecTcl.h>
+#include "SpecTcl.h"
 #include <Histogrammer.h>
 #include <iostream>
 

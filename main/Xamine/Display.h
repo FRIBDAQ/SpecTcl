@@ -23,14 +23,27 @@
 #include <xamineDataTypes.h>
 
 #include <string>
+#include <vector>
+#include <list>
 
 class CDisplayGate;
 class CXamineSpectrum;
 class CXamineSpectra;
 class CXamineGates;
+class CSpectrum;
+class CSpectrumFit;
+class CGateContainer;
+
+// Display binding management types:
+typedef std::vector<std::string>   DisplayBindings;
+typedef DisplayBindings::iterator  DisplayBindingsIterator;
 
 class CDisplay
 {
+public:
+    typedef std::pair<int, std::string> BoundFitline;
+    typedef std::list<BoundFitline>     FitlineList;
+    typedef std::vector<FitlineList>    FitlineBindings;
 
 public:
     CDisplay();
@@ -44,18 +57,44 @@ public:
     virtual void Start() = 0;
     virtual void Stop() = 0;
     virtual Bool_t isAlive() = 0;
-    virtual volatile Xamine_shared* getXamineMemory() const = 0;
-    virtual Address_t DefineSpectrum(CXamineSpectrum& rSpectrum) = 0;
+    virtual void Restart() = 0;
+
+    const DisplayBindings&  getDisplayBindings() const;
+    void setDisplayBindings (const DisplayBindings& am_DisplayBindings);
+
+
+
+    virtual UInt_t BindToDisplay(CSpectrum& rSpectrum) = 0;
+    virtual void   UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum) = 0;
+
+    virtual void addFit(CSpectrumFit& fit) = 0;
+    virtual void deleteFit(CSpectrumFit& fit) = 0;
+
+    virtual void updateStatistics() = 0;
+
+    virtual void AddGateToBoundSpectra(CGateContainer& rGate) = 0;
+    virtual void RemoveGateFromBoundSpectra(CGateContainer& rGate) = 0;
+
+    virtual std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum) = 0;
+
+    virtual CSpectrum* DisplayBinding(UInt_t xid) = 0;
+    virtual DisplayBindingsIterator DisplayBindingsBegin() = 0;
+    virtual DisplayBindingsIterator DisplayBindingsEnd() = 0;
+    virtual UInt_t DisplayBindingsSize() = 0;
+    virtual Int_t FindDisplayBinding(std::string name) = 0;
+
     virtual void setInfo(std::string name, UInt_t slot) = 0;
     virtual void setTitle(std::string name, UInt_t slot) = 0;
     virtual UInt_t getTitleSize() const = 0;
+
     virtual void EnterGate(CDisplayGate& rGate) = 0;
     virtual CXamineGates* GetGates(UInt_t nSpectrum) = 0;
     virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) = 0;
+
     virtual void FreeSpectrum(UInt_t nSpectrum) = 0;
+
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y) = 0;
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y) = 0;
-    virtual UInt_t GetEventFd() = 0;
 };
 
 #endif // DISPLAY_H

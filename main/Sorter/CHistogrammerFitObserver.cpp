@@ -16,7 +16,7 @@
 
 #include <config.h>
 #include "CHistogrammerFitObserver.h"
-#include "DisplayInterface.h"
+#include "Display.h"
 #include <CSpectrumFit.h>
 
 
@@ -30,7 +30,7 @@
    by automatically registering ourselves with the dictionary (similarly
    destruction can unregister.).
 */
-CHistogrammerFitObserver::CHistogrammerFitObserver(CDisplayInterface& pDisplay) :
+CHistogrammerFitObserver::CHistogrammerFitObserver(CDisplay& pDisplay) :
   m_pDisplay(&pDisplay)
 {
   CFitDictionary& Dict(CFitDictionary::getInstance());
