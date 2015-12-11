@@ -90,7 +90,7 @@ class CSpectrumFit;
 class CHistogrammerFitObserver;
 class CFlattenedGateList;
 class CSpectrumByParameter;
-class CDisplay;
+class CDisplayInterface;
 class CDisplayGate;
 
 // Typedefs for some of instances of templated classes:
@@ -116,21 +116,12 @@ public:
 };
 
 
-// Display binding management types:
-typedef std::vector<std::string>                     DisplayBindings;
-typedef DisplayBindings::iterator               DisplayBindingsIterator;
 
 class CHistogrammer : public CEventSink {
-  typedef std::pair<int, std::string> BoundFitline;
-  typedef std::list<BoundFitline>     FitlineList;
-  typedef std::vector<FitlineList>    FitlineBindings;
 
   typedef std::list<CGateObserver*>   GateObserverList;
 
   CDisplayInterface*  m_pDisplayer;          // Points to displayer object.
-  DisplayBindings     m_DisplayBindings;     // Display id to spectrum name map.
-  std::vector<CSpectrum*> m_boundSpectra;        // Spectrum if bound.
-  FitlineBindings     m_FitlineBindings;     // Fitlines bound to displayer.
   ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
@@ -147,8 +138,7 @@ class CHistogrammer : public CEventSink {
 
  public:
   // Constructors.
-  CHistogrammer(UInt_t nSpecbytes = knDefaultSpectrumSize);
-  CHistogrammer(const CDisplay& rDisplayer);
+  CHistogrammer(CDisplayInterface* rDisplayer);
   virtual ~CHistogrammer();
   CHistogrammer(const CHistogrammer& aCHistogrammer);
 
@@ -163,9 +153,7 @@ class CHistogrammer : public CEventSink {
 
   // Selectors:
  public:
-  const DisplayBindings&  getDisplayBindings() const {
-    return m_DisplayBindings;
-  }
+
 
   CDisplayInterface* getDisplayer() const {
     return m_pDisplayer;
@@ -181,9 +169,6 @@ class CHistogrammer : public CEventSink {
 
   // Mutators:
  protected:
-  void setDisplayBindings (const DisplayBindings& am_DisplayBindings) { 
-    m_DisplayBindings = am_DisplayBindings;
-  }
 
   void setDisplayer(CDisplayInterface* am_Displayer) {
     m_pDisplayer = am_Displayer;
@@ -236,15 +221,6 @@ class CHistogrammer : public CEventSink {
 
   void UnGate(const std::string& rSpectrum); // Remove gate from spectrum
 
-  // Manipulate display bindings:
-  UInt_t BindToDisplay (const std::string& rsName);
-  void UnBindFromDisplay (UInt_t nSpec);
-  DisplayBindingsIterator DisplayBindingsBegin();
-  DisplayBindingsIterator DisplayBindingsEnd();
-  Int_t  findDisplayBinding(std::string name);
-  UInt_t DisplayBindingsSize();
-  CSpectrum* DisplayBinding(UInt_t xid);
-
   // Manipulate the gate dictionary:
   void AddGate(const std::string& rName, UInt_t nId, CGate& rGate);
   void DeleteGate(const std::string& rGateName);
@@ -258,23 +234,9 @@ class CHistogrammer : public CEventSink {
 
   void addGateObserver(CGateObserver* observer);
   void removeGateObserver(CGateObserver* observer);
-
-  // Manipulate the set of fits bound to Xamine:
-
-  void addFit(CSpectrumFit& fit);
-  void deleteFit(CSpectrumFit& fit);
-  
-  // Update Xamine statistics.
-  
-  void updateStatistics();
-
   
   // Utility Functions:
  protected:
-  CDisplayGate* GateToXamineGate(UInt_t nBindingId, CGateContainer& rGate);
-  std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum);
-  void AddGateToBoundSpectra(CGateContainer& rGate);
-  void RemoveGateFromBoundSpectra(CGateContainer& rGate);
   std::string createTrialTitle(std::string type, 
 			       std::vector<std::string>      axes,
 			       std::vector<std::string>      parameters,

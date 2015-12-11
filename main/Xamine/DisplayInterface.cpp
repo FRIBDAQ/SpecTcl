@@ -15,12 +15,29 @@
 */
 
 #include <DisplayInterface.h>
+#include <DisplayGates.h>
+#include <Display.h>
+#include <Histogrammer.h>
+
+
 
 CDisplayInterface::CDisplayInterface() {}
 
 CDisplayInterface::CDisplayInterface(const CDisplayInterface&) {}
 
 CDisplayInterface::~CDisplayInterface() {}
+
+
+
+CDisplay *CDisplayInterface::getDisplay() const
+{
+    return m_pDisplay;
+}
+
+void CDisplayInterface::setDisplay(CDisplay *pDisplay)
+{
+    m_pDisplay = pDisplay;
+}
 
 
 /*!

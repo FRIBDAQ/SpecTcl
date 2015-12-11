@@ -144,50 +144,18 @@ public:
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:
-//     CHistogrammer(UInt_t nSpecbytes)
-//  Operation Type:
-//     Constructor.
-//
-/*!
-  Constructor:
-
-  Set the numer of bytes of spectrum memory to request.
-  In addition, the randomizer is seeded here (it's a convenient place),
-  and the displayer is started.
-
-  \param <TT>nSpecBytes (UInt_t [in]):</TT>
-  Number of bytes of displayer memory to reserve.
-
-*/
-CHistogrammer::CHistogrammer(UInt_t nSpecbytes) :
-  m_pDisplayer(0)
-{
-  srand(time(NULL));
-  m_pDisplayer = new CXamine(nSpecbytes);
-  m_pDisplayer->Start();
-  m_pFitObserver = new CHistogrammerFitObserver(*this); // Follow changes to fits.
-
-  // Create and register the gate/histogram observer needed to maitain the gate/spectrum
-  // optimized lists:
-
-  createListObservers();
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
 //    CHistogrammer(const CDisplayInterface&  rDisplayer)
 //  Operation Type:
 //    Construtor
 //
 
-CHistogrammer::CHistogrammer(const CDisplay &rDisplayer) :
-    m_pDisplayer(rDisplayer.clone())
+CHistogrammer::CHistogrammer(CDisplayInterface *pInterface) :
+    m_pDisplayer(pInterface)
 {
   srand(time(NULL)); 
-  if(!m_pDisplayer->isAlive())
-    m_pDisplayer->Start();
-  m_pFitObserver = new CHistogrammerFitObserver(*this); // Follow changes to fits.
+//  if(!m_pDisplayer->isAlive())
+//    m_pDisplayer->Start();
+  m_pFitObserver = new CHistogrammerFitObserver(*m_pDisplayer); // Follow changes to fits.
   createListObservers();
 }
 
@@ -199,10 +167,9 @@ CHistogrammer::CHistogrammer(const CDisplay &rDisplayer) :
 //     Destructor.
 //
 CHistogrammer::~CHistogrammer() {
-  if(m_pDisplayer->isAlive())
-    m_pDisplayer->Stop();
+//  if(m_pDisplayer->isAlive())
+//    m_pDisplayer->Stop();
 
-  delete m_pDisplayer;
   delete m_pFitObserver;
   delete m_pGateList;
   delete m_pSpectrumLists;
@@ -216,9 +183,8 @@ CHistogrammer::~CHistogrammer() {
 //    Copy constructor
 //
 CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
-    m_pDisplayer(rRhs.m_pDisplayer->clone())
+    m_pDisplayer(rRhs.m_pDisplayer)
 {
-  m_DisplayBindings     = rRhs.m_DisplayBindings;
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
@@ -235,8 +201,7 @@ CHistogrammer::CHistogrammer(const CHistogrammer& rRhs) :
 //    Assignment operator.
 // 
 CHistogrammer& CHistogrammer::operator=(const CHistogrammer& rRhs) {
-  m_pDisplayer          = rRhs.m_pDisplayer->clone();
-  m_DisplayBindings     = rRhs.m_DisplayBindings;
+  m_pDisplayer          = rRhs.m_pDisplayer;
   m_ParameterDictionary = rRhs.m_ParameterDictionary;
   m_SpectrumDictionary  = rRhs.m_SpectrumDictionary;
   m_GateDictionary      = rRhs.m_GateDictionary;
@@ -254,8 +219,7 @@ CHistogrammer& CHistogrammer::operator=(const CHistogrammer& rRhs) {
 //
 int CHistogrammer::operator==(const CHistogrammer& rRhs) {
   return (
-	  (*m_pDisplayer          == *(rRhs.m_pDisplayer))         &&
-	  ( m_DisplayBindings     ==   rRhs.m_DisplayBindings)     &&
+      ( m_pDisplayer          == rRhs.m_pDisplayer)         &&
 	  ( m_ParameterDictionary ==   rRhs.m_ParameterDictionary) &&
 	  ( m_SpectrumDictionary  ==   rRhs.m_SpectrumDictionary)  &&
 	  ( m_GateDictionary      ==   rRhs.m_GateDictionary)
@@ -915,12 +879,12 @@ void CHistogrammer::UnGate(const std::string& rSpectrum) {
   }
   else {
     pSpectrum->ApplyGate(&NoGate);
-    Int_t b  = findDisplayBinding(pSpectrum->getName());
-    if (b >= 0) {
-      m_pDisplayer->setTitle(pSpectrum->getName(), b);
-      m_pDisplayer->setInfo(createTitle(pSpectrum,
-					 m_pDisplayer->getTitleSize()), b);
-    }
+//    Int_t b  = findDisplayBinding(pSpectrum->getName());
+//    if (b >= 0) {
+//      m_pDisplayer->setTitle(pSpectrum->getName(), b);
+//      m_pDisplayer->setInfo(createTitle(pSpectrum,
+//					 m_pDisplayer->getTitleSize()), b);
+//    }
     
   }
 }
@@ -966,7 +930,7 @@ void CHistogrammer::AddGate(const std::string& rName, UInt_t nId, CGate& rGate) 
   // Now add the gate:
   CGateContainer& aGate(*(new CGateContainer((string&)rName, nId, rGate)));
   m_GateDictionary.Enter(rName, aGate);
-  AddGateToBoundSpectra(aGate);
+//  AddGateToBoundSpectra(aGate);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1020,10 +984,10 @@ void CHistogrammer::ReplaceGate(const std::string& rGateName, CGate& rGate) {
   // We must remove the old gate from the displays, replace with the
   // new gate and Add back.
 
-  RemoveGateFromBoundSpectra(*pContainer);
+  //RemoveGateFromBoundSpectra(*pContainer);
   pContainer->setGate(&rGate);
   invokeGateChangedObservers(rGateName, *pContainer);
-  AddGateToBoundSpectra(*pContainer);
+//  AddGateToBoundSpectra(*pContainer);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1065,13 +1029,13 @@ void CHistogrammer::ApplyGate(const std::string& rGateName,
 
   SpectrumType_t spType = pSpectrum->getSpectrumType();
   pSpectrum->ApplyGate(pGateContainer);
-  Int_t b =  findDisplayBinding(rSpectrum);
-  if(b >= 0) {
-    m_pDisplayer->setTitle(pSpectrum->getName(), b);
-    m_pDisplayer->setInfo(createTitle(pSpectrum,
-				      m_pDisplayer->getTitleSize()),
-			  b);
-  }
+//  Int_t b =  findDisplayBinding(rSpectrum);
+//  if(b >= 0) {
+//    m_pDisplayer->setTitle(pSpectrum->getName(), b);
+//    m_pDisplayer->setInfo(createTitle(pSpectrum,
+//				      m_pDisplayer->getTitleSize()),
+//			  b);
+//  }
 }
 /////////////////////////////////////////////////////////////////////////
 //

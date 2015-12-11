@@ -28,6 +28,8 @@
 #include <Histogrammer.h>
 #endif
 
+#include <DisplayInterface.h>
+
 #ifndef __XAMINEPLUS_H
 #include <Xamineplus.h>
 #endif
@@ -89,7 +91,7 @@ public:
   typedef std::list<CRestartHandler*> RestartHandlerList;
 private:                       
   CTCLInterpreter*   m_pInterp;
-  CHistogrammer*     m_pHistogrammer; //1:1 association object data member      
+  CDisplayInterface*     m_pDisplay; //1:1 association object data member
   int                m_nFd;
   Tcl_TimerToken     m_Timer;	// Poll timer for read.
   ButtonHandlerList  m_buttonHandlers; // List of button handlers.
@@ -99,10 +101,10 @@ public:
    // Constructors and other cannonical operations:
 
   CXamineEventHandler (CTCLInterpreter* pInterp,
-		       CHistogrammer*   pHistogrammer) :
+               CDisplayInterface*   pDisplay) :
     m_pInterp(pInterp),
-    m_pHistogrammer(pHistogrammer),
-    m_nFd(pHistogrammer->getDisplayer()->GetEventFd())
+    m_pDisplay(pDisplay),
+    m_nFd(pDisplay->GetEventFd())
   { 
     Set();		// Starts out enabled.
   } 
@@ -113,7 +115,7 @@ public:
 
   CXamineEventHandler (const CXamineEventHandler& rhs ) :
     m_pInterp(rhs.m_pInterp),
-    m_pHistogrammer(rhs.m_pHistogrammer),
+    m_pDisplay(rhs.m_pDisplay),
     m_nFd(rhs.m_nFd),
     m_Timer(rhs.m_Timer)
   { 
@@ -127,7 +129,7 @@ public:
   CXamineEventHandler& operator= 
   (const CXamineEventHandler& aCXamineEventHandler) {
     if(this != &aCXamineEventHandler) {
-      setHistogrammer(aCXamineEventHandler.m_pHistogrammer);
+      setDisplayInterface(aCXamineEventHandler.m_pDisplay);
     }
     return *this;
   }
@@ -136,7 +138,7 @@ public:
 
   int operator== (const CXamineEventHandler& rhs) const {
     return ( (m_pInterp == rhs.m_pInterp)      &&
-	     (m_pHistogrammer == rhs.m_pHistogrammer) &&
+         (m_pDisplay == rhs.m_pDisplay) &&
 	     (m_nFd == rhs.m_nFd)                     &&
 	     (m_Timer == rhs.m_Timer));
   }
@@ -145,20 +147,20 @@ public:
 
 public:
                        
-  CHistogrammer* getHistogrammer() const
+  CDisplayInterface* getDisplayInterface() const
   { 
-    return m_pHistogrammer;
+    return m_pDisplay;
   }
                        
 // Mutators:
 
 protected:
        
-  void setHistogrammer (CHistogrammer* am_pHistogrammer)
+  void setDisplayInterface (CDisplayInterface* am_pDisplay)
   { 
     Clear();			// Disable callback on current fid.
-    m_pHistogrammer = m_pHistogrammer;
-    m_nFd = (m_pHistogrammer->getDisplayer()->GetEventFd()); // Update file id.
+    m_pDisplay = am_pDisplay;
+    m_nFd = (m_pDisplay->GetEventFd()); // Update file id.
     Set();			// Set callback on next fid.
   }
 

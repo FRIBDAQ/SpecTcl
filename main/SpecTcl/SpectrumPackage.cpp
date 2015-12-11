@@ -60,6 +60,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLResult.h>
 #include <SpectrumFormatter.h>
 #include "SpecTcl.h"
+#include <DisplayInterface.h>
 
 
 
@@ -134,7 +135,8 @@ static const UInt_t nDataTypes = sizeof(aDataTypes)/sizeof(DataTypes);
 //   Constructor.
 //
 CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
-				    CHistogrammer*   pHistogrammer) :
+                    CHistogrammer*   pHistogrammer,
+                    CDisplayInterface *pDisplay) :
   CTCLCommandPackage(pInterp, Copyright),
   m_pHistogrammer(pHistogrammer),
   m_pSpectrum(new CSpectrumCommand(pInterp, *this)),
@@ -143,7 +145,8 @@ CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
   m_pUnbind(new CUnbindCommand(pInterp, *this)),
   m_pChannel(new ChannelCommand(pInterp, *this)),
   m_pWrite(new CWriteCommand(pInterp, *this)),
-  m_pRead(new CReadCommand(pInterp, *this))
+  m_pRead(new CReadCommand(pInterp, *this)),
+  m_pDisplay(pDisplay)
 {
   AddProcessor(m_pSpectrum);
   AddProcessor(m_pClear);
@@ -643,7 +646,7 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
   for(; p != api.SpectrumEnd(); p++) {
     CSpectrum* pSpec = (*p).second;
     try {
-      m_pHistogrammer->BindToDisplay(pSpec->getName());
+      m_pDisplay->BindToDisplay(pSpec->getName());
     }
     catch (CException& rExcept) {
       Result.StartSublist();
@@ -692,7 +695,7 @@ CSpectrumPackage::BindList(CTCLResult& rResult,
 
   for(; p != rvNames.end(); p++) {
     try {
-      m_pHistogrammer->BindToDisplay(*p);
+      m_pDisplay->BindToDisplay(*p);
     }
     catch (CException& rExcept) {
       Failed = kfTRUE;
@@ -749,7 +752,7 @@ CSpectrumPackage::BindList(CTCLResult& rResult, std::vector<UInt_t>& rIds)
     try {
       CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
       if(pSpec) {
-	m_pHistogrammer->BindToDisplay(pSpec->getName());
+          m_pDisplay->BindToDisplay(pSpec->getName());
       }
       else {
 	char TextId[100];
@@ -938,7 +941,7 @@ CSpectrumPackage::UnbindXidList(CTCLResult& rResult,
 
   std::vector<UInt_t>::iterator p = rvXids.begin();
   for(; p != rvXids.end(); p++) {
-    m_pHistogrammer->UnBindFromDisplay(*p);
+    m_pDisplay->UnBindFromDisplay(*p);
   }
   return TCL_OK;
 
@@ -961,7 +964,7 @@ CSpectrumPackage::UnbindAll()
     try {
       CSpectrum *pSpec = (*p).second;
       UInt_t Xid = FindDisplayBinding(pSpec->getName());
-      m_pHistogrammer->UnBindFromDisplay(Xid);
+      m_pDisplay->UnBindFromDisplay(Xid);
     }
     catch(CException& rException) { } // Some spectra will not be bound.
   }
@@ -1115,7 +1118,7 @@ CSpectrumPackage::DeleteAll()
     CSpectrum* pSpec = (*p).second;
     try {
       UInt_t xid = FindDisplayBinding(pSpec->getName());
-      m_pHistogrammer->UnBindFromDisplay(xid);
+      m_pDisplay->UnBindFromDisplay(xid);
       
     }
     catch (CException& rExcept) { // Exceptions in the find are ignored.
@@ -1289,7 +1292,7 @@ CSpectrumPackage::ListXidBindings(CTCLResult& rResult,
   std::vector<UInt_t>::iterator p       = rvXIds.begin();
 
   for(; p != rvXIds.end(); p++) {
-    CSpectrum* pSpec = m_pHistogrammer->DisplayBinding(*p);
+    CSpectrum* pSpec = m_pDisplay->DisplayBinding(*p);
     if(pSpec) {
       FormatBinding(GoodList, *p, pSpec);
     }
@@ -1587,7 +1590,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
       //
       try {
 	UInt_t xid = FindDisplayBinding(pSpectrum->getName());
-	m_pHistogrammer->UnBindFromDisplay(xid);
+    m_pDisplay->UnBindFromDisplay(xid);
       }
       catch (...) {
       }
@@ -1615,7 +1618,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
     }
 
     if(fFlags & fBind) {	// Bind it if requested.
-	m_pHistogrammer->BindToDisplay(pSpectrum->getName());
+    m_pDisplay->BindToDisplay(pSpectrum->getName());
     }
   }
   catch (CException& rExcept) {	// All exceptions drop here.
@@ -1817,8 +1820,8 @@ CSpectrumPackage::FindDisplayBinding(const string& rName)
 			       rName);
   }
 
-  for(UInt_t i = 0; i < m_pHistogrammer->DisplayBindingsSize(); i++) {
-    CSpectrum* pBoundSpec = m_pHistogrammer->DisplayBinding(i);
+  for(UInt_t i = 0; i < m_pDisplay->DisplayBindingsSize(); i++) {
+    CSpectrum* pBoundSpec = m_pDisplay->DisplayBinding(i);
     if(pBoundSpec) {
       if(rName == pBoundSpec->getName()) 
 	return i;

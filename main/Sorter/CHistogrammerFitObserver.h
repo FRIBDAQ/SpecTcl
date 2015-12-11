@@ -24,7 +24,7 @@
 
 
 class CSpectrumFit;
-class CHistogrammer;
+class CDisplayInterface;
 
 /*!
    The CHistogrammerFitObserver class is an observer that the
@@ -41,9 +41,9 @@ class CHistogrammer;
 */
 class CHistogrammerFitObserver : public CFitDictionary::CObserver
 {
-  CHistogrammer*  m_pHistogrammer; // We are monitoring on behalf of this.
+  CDisplayInterface*  m_pDisplay; // We are monitoring on behalf of this.
 public:
-  CHistogrammerFitObserver(CHistogrammer& histogrammer);
+  CHistogrammerFitObserver(CDisplayInterface &histogrammer);
   virtual ~CHistogrammerFitObserver();
   // 
   // Since observers only have purpose when registered on the fit dictionary,

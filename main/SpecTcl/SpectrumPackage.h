@@ -67,6 +67,7 @@ class CUnbindCommand;
 class ChannelCommand;
 class CWriteCommand;
 class CReadCommand;
+class CDisplayInterface;
                                                                
 class CSpectrumPackage  : public CTCLCommandPackage        
 {
@@ -80,20 +81,22 @@ public:
   // Attributes and relations:
 
 protected:
-  static UInt_t     m_nNextId;	  // Next spectrum ident.
-  CHistogrammer*    m_pHistogrammer; // Histogrammer with spectra. 
-  CSpectrumCommand* m_pSpectrum; // Executes spectrum cmd.
-  CClearCommand*    m_pClear;	// Executes clear command.
-  CBindCommand*     m_pBind;	// Executes bind command.
-  CUnbindCommand*   m_pUnbind;	// Executes the unbind command.
-  ChannelCommand*   m_pChannel; // Executes the channel command.
-  CWriteCommand*    m_pWrite;	// Executes the swrite command.
-  CReadCommand*     m_pRead;
+  static UInt_t      m_nNextId;	  // Next spectrum ident.
+  CHistogrammer*     m_pHistogrammer; // Histogrammer with spectra.
+  CSpectrumCommand*  m_pSpectrum; // Executes spectrum cmd.
+  CClearCommand*     m_pClear;	// Executes clear command.
+  CBindCommand*      m_pBind;	// Executes bind command.
+  CUnbindCommand*    m_pUnbind;	// Executes the unbind command.
+  ChannelCommand*    m_pChannel; // Executes the channel command.
+  CWriteCommand*     m_pWrite;	// Executes the swrite command.
+  CReadCommand*      m_pRead;
+  CDisplayInterface* m_pDisplay;
 
 public:
 			//Constructor with arguments
 
-  CSpectrumPackage (CTCLInterpreter* pInterp, CHistogrammer* pHistogrammer);
+  CSpectrumPackage (CTCLInterpreter* pInterp, CHistogrammer* pHistogrammer,
+                    CDisplayInterface* pDisplay);
   virtual ~ CSpectrumPackage ( );       //Destructor
 	
 			//Copy constructor [illegal]

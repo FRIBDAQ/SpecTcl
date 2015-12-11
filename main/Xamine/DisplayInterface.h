@@ -23,17 +23,49 @@
 #include <xamineDataTypes.h>
 
 #include <string>
+#include <vector>
+#include <utility>
 
+class CHistogrammer;
+class CDisplay;
+class CSpectrum;
 class CSpectrumFit;
+class CDisplayGate;
+class CGateContainer;
+
+// Display binding management types:
+typedef std::vector<std::string>   DisplayBindings;
+typedef DisplayBindings::iterator  DisplayBindingsIterator;
 
 class CDisplayInterface
 {
+    typedef std::pair<int, std::string> BoundFitline;
+    typedef std::list<BoundFitline>     FitlineList;
+    typedef std::vector<FitlineList>    FitlineBindings;
 
+private:
+    CHistogrammer* m_pSorter;
+    CDisplay*      m_pDisplay;
+    DisplayBindings     m_DisplayBindings;     // Display id to spectrum name map.
+    std::vector<CSpectrum*> m_boundSpectra;        // Spectrum if bound.
+    FitlineBindings     m_FitlineBindings;     // Fitlines bound to displayer.
 
 public:
     CDisplayInterface();
     CDisplayInterface(const CDisplayInterface&);
     virtual ~CDisplayInterface();
+
+    const DisplayBindings&  getDisplayBindings() const {
+      return m_DisplayBindings;
+    }
+    void setDisplayBindings (const DisplayBindings& am_DisplayBindings) {
+      m_DisplayBindings = am_DisplayBindings;
+    }
+
+    DisplayBindingsIterator DisplayBindingsBegin();
+    DisplayBindingsIterator DisplayBindingsEnd();
+    Int_t findDisplayBinding(std::string name);
+    UInt_t DisplayBindingsSize();
 
     UInt_t BindToDisplay(const std::string& rsName);
     UInt_t UnBindFromDisplay(UInt_t nSpec);
@@ -46,8 +78,12 @@ public:
     void RemoveGateFromBoundSpectra(CGateContainer& rGate);
     std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum);
     CSpectrum* DisplayBinding(UInt_t xid);
-    Display
-    
+
+    int GetEventFd();
+
+
+    CDisplay *getDisplay() const;
+    void setDisplay(CDisplay *pDisplay);
 };
 
 #endif // DISPLAYINTERFACE_H
