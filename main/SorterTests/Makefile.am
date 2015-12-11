@@ -21,6 +21,7 @@ TestRunner_LDADD = @CPPUNIT_LIBS@ \
 
 noinst_HEADERS = Asserts.h
 
-TESTS=./TestRunner
+check-TESTS:
+	./TestRunner
 
 endif
