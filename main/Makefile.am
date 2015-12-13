@@ -1,8 +1,8 @@
 SUBDIRS =  daq Replace Scripts Utility factories Display \
-	 Xamine Tape EventSource \
+	 Tape EventSource \
 	 Events Gates Sorter SpectrumIO Filter Analysis\
 	DecoderRing  TreeParam \
-	Fits SpecTcl \
+	Fits Xamine SpecTcl \
 	SorterTests \
 	contrib TestFiles Gui splash filtsplit calibratedparams treegui \
 	ccusb vmusb tkcon compress 

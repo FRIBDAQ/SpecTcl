@@ -174,6 +174,7 @@ public:
   DisplayBindingsIterator DisplayBindingsEnd();
   UInt_t DisplayBindingsSize();
   Int_t FindDisplayBinding(std::string name);
+  Int_t FindDisplayBinding(CSpectrum& rSpectrum);
 
   const DisplayBindings&  getDisplayBindings() const {
     return m_DisplayBindings;

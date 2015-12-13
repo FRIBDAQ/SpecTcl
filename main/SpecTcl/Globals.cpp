@@ -332,7 +332,7 @@ static const char* pCopyright=
 #include <Analyzer.h>
 #include <histotypes.h>
 #include <NSCLBufferDecoder.h>
-#include <DisplayInterface.h>
+#include <DisplayManager.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;

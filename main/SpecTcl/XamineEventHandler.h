@@ -91,7 +91,7 @@ public:
 private:                       
   CTCLInterpreter*   m_pInterp;
   CHistogrammer*     m_pSorter;
-  CXamine* m_pDisplay; //1:1 association object data member
+  CXamine*           m_pDisplay; //1:1 association object data member
   int                m_nFd;
   Tcl_TimerToken     m_Timer;	// Poll timer for read.
   ButtonHandlerList  m_buttonHandlers; // List of button handlers.

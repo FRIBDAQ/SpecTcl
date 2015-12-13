@@ -161,7 +161,7 @@ void CXamineEventHandler::operator()()
 	try {
 	  CSpectrum *pSpec = (*p).second;
 	  UInt_t Xid = FindDisplayBinding(pSpec->getName());
-      m_pDisplay->UnBindFromDisplay(Xid);
+      m_pDisplay->UnBindFromDisplay(Xid, *pSpec);
 	}
 	catch(...) { } // Some spectra will not be bound.
       }

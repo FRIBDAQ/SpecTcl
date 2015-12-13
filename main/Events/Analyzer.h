@@ -58,10 +58,10 @@
 #define __HISTOTYPES_H
 #endif
 
-#ifndef __FILTEREVENTPROCESSOR_H
-#include <FilterEventProcessor.h>
-#define __FILTEREVENTPROCESSOR_H
-#endif
+//#ifndef __FILTEREVENTPROCESSOR_H
+//#include <FilterEventProcessor.h>
+//#define __FILTEREVENTPROCESSOR_H
+//#endif
 
 // Forward class declaration:
 class CFilterEventProcessor;

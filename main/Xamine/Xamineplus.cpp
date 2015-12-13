@@ -1798,6 +1798,12 @@ CXamine::FindDisplayBinding(string name)
   }
   return -1;
 }
+
+Int_t
+CXamine::FindDisplayBinding(CSpectrum& rSpectrum)
+{
+    return FindDisplayBinding(rSpectrum.getName());
+}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:

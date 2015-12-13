@@ -2478,7 +2478,7 @@ CEventSinkPipeline* SpecTcl::GetEventSinkPipeline()
 /*!
  *
  */
-CDisplayInterface* SpecTcl::GetDisplayInterface()
+CDisplayManager* SpecTcl::GetDisplayManager()
 {
     return gpDisplayManager;
 }

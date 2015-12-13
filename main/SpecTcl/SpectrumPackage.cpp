@@ -829,12 +829,11 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult,
   Bool_t                             Failed = kfFALSE;
   CTCLString                         MyResults;
   std::vector<UInt_t>                vXids;
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
   std::vector<std::string>::iterator p = rvNames.begin();
 
   for(; p != rvNames.end(); p++) {
     try {
-      UInt_t xid = pDisplay->FindDisplayBinding(*p);
+      UInt_t xid = FindDisplayBinding(*p);
       vXids.push_back(xid);
     }
     catch (CException& rException) {
@@ -893,14 +892,13 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
   Bool_t                        Failed = kfFALSE;
   CTCLString                    MyResults;
   std::vector<UInt_t>           vXids;
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
   std::vector<UInt_t>::iterator p = rvIds.begin();
 
   // Build the xid list.. Any failures go into the MyResults string.
   //
   for(; p != rvIds.end(); p++) {
     try {
-      UInt_t Xid = pDisplay->FindDisplayBinding(*p);
+      UInt_t Xid = FindDisplayBinding(*p);
       vXids.push_back(Xid);
     }
     catch (CException& rExcept) {
@@ -960,7 +958,10 @@ CSpectrumPackage::UnbindXidList(CTCLResult& rResult,
 
   std::vector<UInt_t>::iterator p = rvXids.begin();
   for(; p != rvXids.end(); p++) {
-    pDisplay->UnBindFromDisplay(*p);
+    CSpectrum* pSpectrum = pDisplay->DisplayBinding(*p);
+    if (pSpectrum) {
+        pDisplay->UnBindFromDisplay(*p, *pSpectrum);
+    }
   }
   return TCL_OK;
 
@@ -977,14 +978,14 @@ CSpectrumPackage::UnbindAll()
 {
 // Unbinds all spectra from the display
 //
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
   SpectrumDictionaryIterator p = m_pHistogrammer->SpectrumBegin();
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
   for(; p != m_pHistogrammer->SpectrumEnd(); p++) {
     try {
       CSpectrum *pSpec = (*p).second;
-      UInt_t Xid = pDisplay->FindDisplayBinding(pSpec->getName());
-      m_pDisplay->UnBindFromDisplay(Xid);
+      UInt_t Xid = FindDisplayBinding(pSpec->getName());
+      pDisplay->UnBindFromDisplay(Xid, *pSpec);
     }
     catch(CException& rException) { } // Some spectra will not be bound.
   }
@@ -1123,7 +1124,6 @@ void
 CSpectrumPackage::DeleteAll() 
 {
   SpecTcl& api(*(SpecTcl::getInstance()));
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
 // Deletes all spectra known to the
 // histogrammer.
@@ -1133,14 +1133,15 @@ CSpectrumPackage::DeleteAll()
   // Note that since deletion invalidates iterators, we repeatedly 
   // delete the front element.
   // 
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
   SpectrumDictionaryIterator p;
   while(m_pHistogrammer->SpectrumCount()) {
     p = m_pHistogrammer->SpectrumBegin();
     CSpectrum* pSpec = (*p).second;
     try {
-      UInt_t xid = pDisplay->FindDisplayBinding(pSpec->getName());
-      pDisplay->UnBindFromDisplay(xid);
+      UInt_t xid = FindDisplayBinding(pSpec->getName());
+      pDisplay->UnBindFromDisplay(xid, *pSpec);
       
     }
     catch (CException& rExcept) { // Exceptions in the find are ignored.
@@ -1248,7 +1249,6 @@ CSpectrumPackage::ListBindings(CTCLResult& rResult,
   SpectrumDictionaryIterator     pS;
   std::vector<UInt_t>::iterator  p = rvIds.begin();
   Bool_t                         fFailed = kfFALSE;
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
   // Each binding is looked up by id and added to the output list.
   // The name from the bindings list is used to lookup the spectrum and
@@ -1256,7 +1256,7 @@ CSpectrumPackage::ListBindings(CTCLResult& rResult,
 
   for(; p != rvIds.end(); p++) {
     try {
-      UInt_t     xid   = pDisplay->FindDisplayBinding(*p);
+      UInt_t     xid   = FindDisplayBinding(*p);
       CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
       if(!pSpec) {
 	char txtid[100];
@@ -1357,7 +1357,6 @@ CSpectrumPackage::ListAllBindings(CTCLResult& rResult, const char* pattern)
 // 
 
   CTCLString ResultList;
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
   // The strategy is to find the binding for each spectrum.
   // if it exists, then add it to the list.  If not, return the error.
@@ -1367,7 +1366,7 @@ CSpectrumPackage::ListAllBindings(CTCLResult& rResult, const char* pattern)
     try {
       char textId[100];
       CSpectrum *pSpec = (*p).second;
-      UInt_t xid = pDisplay->FindDisplayBinding(pSpec->getName());
+      UInt_t xid = FindDisplayBinding(pSpec->getName());
       const char* name = (pSpec->getName()).c_str();
       if (Tcl_StringMatch(name, pattern))
 	{  
@@ -1596,6 +1595,8 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
   CSpectrum*           pSpectrum(0);
   CSpectrum*           pOld(0);              // Will hold old spectrum.
 
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+
   // First thing to try to do is to get the spectrum formatter to read the
   // spectrum from file.  We'll get a  pointer to a newly allocated 
   // filled in spectrum.  The flags will determine if we are to wrap
@@ -1608,24 +1609,24 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
     // overwrite an existing spectrum or if we must uniquify the name.
     //
     if((fFlags & fReplace) == 0) { // Must uniquify name:
-      UniquifyName(pSpectrum);
+        UniquifyName(pSpectrum);
     }
     else {			// If spectrum already exists must delete
-      // If the spectrum is bound we must remove it:
-      //
-      try {
-	UInt_t xid = FindDisplayBinding(pSpectrum->getName());
-    m_pDisplay->UnBindFromDisplay(xid);
-      }
-      catch (...) {
-      }
-      pOld = api.RemoveSpectrum(pSpectrum->getName());
+        // If the spectrum is bound we must remove it:
+        //
+        try {
+            UInt_t xid = FindDisplayBinding(pSpectrum->getName());
+            pDisplay->UnBindFromDisplay(xid, *pSpectrum);
+        }
+        catch (...) {
+        }
+        pOld = api.RemoveSpectrum(pSpectrum->getName());
     }
     //  Process the Live flag: This determines if we need to wrap the
     //  spectrum around a snapshot spectrum container:
     //
     if( !((fFlags & fLive) && AllParamsExist(pSpectrum))) {  // Must wrap
-      pSpectrum = new CSnapshotSpectrum(*pSpectrum, kfTRUE);
+        pSpectrum = new CSnapshotSpectrum(*pSpectrum, kfTRUE);
     }
     //  We now have a viable spectrum.  The spectrum is entered into the
     //  dictionary.
@@ -1643,7 +1644,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
     }
 
     if(fFlags & fBind) {	// Bind it if requested.
-    m_pDisplay->BindToDisplay(pSpectrum->getName());
+    pDisplay->BindToDisplay(*pSpectrum);
     }
   }
   catch (CException& rExcept) {	// All exceptions drop here.
@@ -1845,8 +1846,9 @@ CSpectrumPackage::FindDisplayBinding(const string& rName)
 			       rName);
   }
 
-  for(UInt_t i = 0; i < m_pDisplay->DisplayBindingsSize(); i++) {
-    CSpectrum* pBoundSpec = m_pDisplay->DisplayBinding(i);
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+  for(UInt_t i = 0; i < pDisplay->DisplayBindingsSize(); i++) {
+    CSpectrum* pBoundSpec = pDisplay->DisplayBinding(i);
     if(pBoundSpec) {
       if(rName == pBoundSpec->getName()) 
 	return i;
