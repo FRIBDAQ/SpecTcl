@@ -47,27 +47,21 @@ include_HEADERS = ButtonEvent.h DisplayGate.h Display.h DisplayManager.h \
 
 EXTRA_DIST = ClassBreakdown.WC ClassBreakdown.omt
 
-noinst_PROGRAMS=TestRunner
+#noinst_PROGRAMS=TestRunner
 
-TestRunner_SOURCES=TestRunner.cpp DisplayManagerTests.cpp
+#TestRunner_SOURCES=TestRunner.cpp DisplayManagerTests.cpp
 
-TestRunner_CXXFLAGS=-I@top_srcdir@/Events \
-		    -I@top_srcdir@/Utility \
-		    @LIBTCLPLUS_CFLAGS@ \
-		    @CPPUNIT_CFLAGS@
+#TestRunner_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ \
+#		    @CPPUNIT_CFLAGS@
 
-TestRunner_LDADD = @top_builddir@/Xamine/libXplus.la \
-		    @top_builddir@/Sorter/libSorting.la \
-		    @top_builddir@/Fits/libFits.la \
-				@top_builddir@/Display/libXamine.la \
-		    @top_builddir@/Tape/libtape.la \
-		    @CPPUNIT_LIBS@ \
-		    @TCL_LIBS@
+#TestRunner_LDADD = @top_builddir@/Xamine/libXplus.la \
+#		    @CPPUNIT_LIBS@ \
+#		    @TCL_LIBS@
 
-noinst_HEADERS = Asserts.h
+#noinst_HEADERS = Asserts.h
 
-check-TESTS:
-	./TestRunner
+#check-TESTS:
+#	./TestRunner
 
 
 

@@ -90,7 +90,6 @@ class CSpectrumFit;
 class CHistogrammerFitObserver;
 class CFlattenedGateList;
 class CSpectrumByParameter;
-class CDisplayInterface;
 class CDisplayGate;
 
 // Typedefs for some of instances of templated classes:

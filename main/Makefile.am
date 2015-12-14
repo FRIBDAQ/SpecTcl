@@ -1,11 +1,34 @@
-SUBDIRS =  daq Replace Scripts Utility factories Display \
-	 Tape EventSource \
-	 Events Gates Sorter SpectrumIO Filter Analysis\
-	DecoderRing  TreeParam \
-	Fits Xamine SpecTcl \
+SUBDIRS =  daq \
+	Replace \
+	Scripts \
+	Utility \
+	factories \
+	Display \
+	Tape \
+	EventSource \
+	Events \
+	Gates \
+	Sorter \
+	SpectrumIO \
+	Filter \
+	Analysis\
+	DecoderRing \
+	TreeParam \
+	Fits \
+	Xamine \
+	SpecTcl \
 	SorterTests \
-	contrib TestFiles Gui splash filtsplit calibratedparams treegui \
-	ccusb vmusb tkcon compress 
+	contrib \
+	TestFiles \
+	Gui \
+	splash \
+	filtsplit \
+	calibratedparams \
+	treegui \
+	ccusb \
+	vmusb \
+	tkcon \
+	compress
 
 ACLOCAL_AMFLAGS=-I m4
 

@@ -23,38 +23,15 @@
 #include "DictionaryException.h"
 #include "EventList.h"
 
-#include <Display.h>
-#include <Xamineplus.h>
-#include <Xamine1D.h>
-#include <Xamine2D.h>
-#ifdef USE_MAPPED_SPECTRA
-#include <XamineMap1D.h>
-#include <XamineMap2D.h>
-#endif
-#include <XamineGates.h>
-#include <Xamine.h>
-#include <DisplayGate.h>
-#include <TrueGate.h>
-#include <FalseGate.h>
-#include <DeletedGate.h>
-#include <Cut.h>
-#include <Band.h>
-#include <Contour.h>
-#include <Point.h>
-#include <PointlistGate.h>
-#include <CGammaCut.h>
-#include <CGammaBand.h>
-#include <CGammaContour.h>
 #include <assert.h>
 #include <GateMediator.h>
-#include <Gamma2DW.h>
-#include <CSpectrumFit.h>
 #include "CHistogrammerFitObserver.h"
 #include <CFitDictionary.h>
 #include <CFlattenedGateList.h>
 #include <CSpectrumByParameter.h>
-#include <DisplayInterface.h>
-
+#include <CSpectrumFit.h>
+#include <TrueGate.h>
+#include <DeletedGate.h>
 
 #include <iostream>
 #include <sstream>
