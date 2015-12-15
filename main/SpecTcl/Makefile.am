@@ -119,10 +119,10 @@ EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
 # Unit tests.
 #
 #  Need to figure out why these don't link right
-if CPPUNITDONOTBUILD
+#if CPPUNITDONOTBUILD
 
 
-noinst_PROGRAMS =  scalertests docbuftests
+noinst_PROGRAMS =  scalertests docbuftests unittests
 
 scalertests_CXXFLAGS=@CPPUNIT_CFLAGS@
 docbuftests_CXXFLAGS=@CPPUNIT_CFLAGS@
@@ -146,6 +146,7 @@ docbuftests_SOURCES = TestRunner.cpp \
 docbuftests_DEPENDENCIES = DocumentationException.o  \
 	DocumentationCallback.o
 
+unittests_SOURCES = TestRunner.cpp SpectrumPackageTests.cpp
 
 commonTestLdFlags= @top_builddir@/Events/libAnalysis.la \
 	@top_builddir@/Analysis/libBufferAnalysis.la \
@@ -157,14 +158,21 @@ commonTestLdFlags= @top_builddir@/Events/libAnalysis.la \
 	@top_builddir@/DecoderRing/libDecoderRing.la \
 	@top_builddir@/Tape/libtape.la \
 	@top_builddir@/SpectrumIO/libSpecio.la \
+	@top_builddir@/Xamine/libXplus.la \
 	@LIBTCLPLUS_LDFLAGS@ \
-	@CPPUNIT_LIBS@ @TK_LIBS@ @TCL_LIBS@
+	@CPPUNIT_LIBS@ \
+	@TK_LIBS@ \
+	@TCL_LIBS@
 
 scalertests_LDFLAGS= ScalerProcessorCallbacks.o $(commonTestLdFlags)
 
 docbuftests_LDFLAGS = DocumentationException.o DocumentationCallback.o \
 	$(commonTestLdFlags)
 
-TESTS = ./scalertests ./docbuftests
+unittests_LDADD = $(commonTestLdFlags)
 
-endif
+check-TESTS:
+	./unittests
+#	./scalertests ./docbuftests ./unittests
+
+#endif
