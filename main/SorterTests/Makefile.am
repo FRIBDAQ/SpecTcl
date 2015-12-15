@@ -22,7 +22,9 @@ TestRunner_CXXFLAGS=@CPPUNIT_CFLAGS@
 TestRunner_LDADD = @CPPUNIT_LIBS@ \
 		    @top_builddir@/Fits/libFits.la \
 		    @top_builddir@/Sorter/libSorting.la \
-		    @top_builddir@/Tape/libtape.la
+				@top_builddir@/Tape/libtape.la \
+				@LIBTCLPLUS_LDFLAGS@ \
+				@TCL_LIBS@
 
 noinst_HEADERS = Asserts.h
 

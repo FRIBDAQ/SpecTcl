@@ -23,7 +23,7 @@ class SpectrumPackageTests : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(SpectrumPackageTests);
     CPPUNIT_TEST(create_0);
-    CPPUNIT_TEST(bindAll_0);
+//    CPPUNIT_TEST(bindAll_0);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -73,8 +73,8 @@ public:
 
     }
 
-    void bindAll_1 () {
-
+    void bindAll_0 () {
+       CTCLResult result(m_pInterp, true);
     }
 };
 
