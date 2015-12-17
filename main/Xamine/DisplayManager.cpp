@@ -54,3 +54,5 @@ void CDisplayManager::setCurrentDisplay(CDisplay* pDisplay)
         m_current = found;
     }
 }
+
+////////////////////////////////////////////////////////////////////////

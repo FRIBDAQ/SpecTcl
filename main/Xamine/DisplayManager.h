@@ -5,6 +5,7 @@
 
 class CDisplay;
 
+
 class CDisplayManager
 {
 
@@ -24,5 +25,6 @@ public:
     CDisplay* getCurrentDisplay() const;
     void setCurrentDisplay(CDisplay* pDisplay);
 };
+
 
 #endif // DISPLAYMANAGER_H

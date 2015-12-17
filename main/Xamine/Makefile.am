@@ -26,8 +26,8 @@ libXplus_la_LDFLAGS = -verson-info $(SOVERSION):0 \
 	@TCL_LIBS@ \
 	@LIBTCLPLUS_LDFLAGS@
 
-libXplus_la_SOURCES = DisplayGate.cpp Display.cpp DisplayManager.cpp \
-	Xamine1D.cpp Xamine2D.cpp \
+libXplus_la_SOURCES = DisplayGate.cpp Display.cpp DisplayFactory.cpp DisplayManager.cpp \
+	NullDisplay.cpp Xamine1D.cpp Xamine2D.cpp \
 	XamineButton.cpp XamineButtonException.cpp XamineButtonPrompt.cpp \
 	XamineConfirmPrompt.cpp XamineEvent.cpp XamineFilePrompt.cpp \
 	XamineGateException.cpp XamineGates.cpp \
@@ -36,8 +36,8 @@ libXplus_la_SOURCES = DisplayGate.cpp Display.cpp DisplayManager.cpp \
 	XamineSpectrum.cpp XamineSpectrumIterator.cpp \
 	XamineTextPrompt.cpp XamineToggleButton.cpp Xamineplus.cpp
 
-include_HEADERS = ButtonEvent.h DisplayGate.h Display.h DisplayManager.h \
-	Point.h Xamine1D.h Xamine2D.h \
+include_HEADERS = ButtonEvent.h DisplayGate.h Display.h DisplayFactory.h DisplayManager.h \
+	NullDisplay.h Point.h Xamine1D.h Xamine2D.h \
 	XamineButton.h XamineButtonException.h XamineButtonPrompt.h \
 	XamineConfirmPrompt.h XamineEvent.h XamineFilePrompt.h \
 	XamineGateException.h XamineGates.h XamineMap1D.h XamineMap2D.h \
