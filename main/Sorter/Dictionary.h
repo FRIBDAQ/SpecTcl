@@ -182,7 +182,15 @@ class CDictionary
     return m_Map.begin();
   }
 
+  ConstDictionaryIterator begin() const {
+    return m_Map.begin();
+  }
+
   DictionaryIterator end() {
+    return m_Map.end();
+  }
+
+  ConstDictionaryIterator end() const {
     return m_Map.end();
   }
 

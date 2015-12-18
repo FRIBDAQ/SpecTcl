@@ -100,6 +100,7 @@ typedef DictionaryObserver<CParameter>          ParameterDictionaryObserver;
 
 typedef CDictionary<CSpectrum*>                 SpectrumDictionary;
 typedef SpectrumDictionary::DictionaryIterator  SpectrumDictionaryIterator;
+typedef SpectrumDictionary::ConstDictionaryIterator  ConstSpectrumDictIterator;
 typedef DictionaryObserver<CSpectrum*>          SpectrumDictionaryObserver;
 
 typedef CDictionary<CGateContainer>             CGateDictionary;
