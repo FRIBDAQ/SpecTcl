@@ -37,7 +37,7 @@ EXTRA_DIST = ClassBreakdown.WC ClassBreakdown.omt
 
 noinst_PROGRAMS=TestRunner
 
-TestRunner_SOURCES=TestRunner.cpp DisplayCollectionTests.cpp
+TestRunner_SOURCES=TestRunner.cpp DisplayCollectionTests.cpp DisplayFactoryTests.cpp
 
 TestRunner_CPPFLAGS=-I@top_srcdir@/Utility \
 		    @LIBTCLPLUS_CFLAGS@ \
