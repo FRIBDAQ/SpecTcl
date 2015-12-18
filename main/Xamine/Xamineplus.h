@@ -36,7 +36,7 @@
 #ifndef XAMINEPLUS_H  //Required for current class
 #define XAMINEPLUS_H
 
-#include <Display.h>
+#include "Display.h"
 
 #ifndef __XAMINE_XAMINE_H
 #include <Xamine.h>
@@ -59,7 +59,7 @@
 #include "XamineSpectrumIterator.h"
 #endif
 
-#include <DisplayFactory.h>
+#include "DisplayFactory.h"
 
 //
 //  forward references to classes:
@@ -70,7 +70,6 @@ class CXamineEvent;
 class CXamineSpectrum;
 class CXamineButton;
 class CSpectrum;
-
 
 
 
@@ -180,7 +179,7 @@ public:
   CSpectrum* DisplayBinding(UInt_t xid);
   DisplayBindingsIterator DisplayBindingsBegin();
   DisplayBindingsIterator DisplayBindingsEnd();
-  UInt_t DisplayBindingsSize();
+  UInt_t DisplayBindingsSize() const;
   Int_t FindDisplayBinding(std::string name);
   Int_t FindDisplayBinding(CSpectrum& rSpectrum);
 
@@ -287,6 +286,8 @@ public:
     void setDisplayBytes(UInt_t nBytes) { m_nDisplayBytes = nBytes; }
     UInt_t getDisplayBytes() const { return m_nDisplayBytes; }
 };
+
+
 
 
 #endif

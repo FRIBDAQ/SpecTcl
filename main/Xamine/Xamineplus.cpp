@@ -1825,7 +1825,7 @@ CXamine::FindDisplayBinding(CSpectrum& rSpectrum)
 //  Operation Type:
 //
 //
-UInt_t CXamine::DisplayBindingsSize() {
+UInt_t CXamine::DisplayBindingsSize() const {
   // Returns the number of spectra bound to the display.
   return m_DisplayBindings.size();
 }

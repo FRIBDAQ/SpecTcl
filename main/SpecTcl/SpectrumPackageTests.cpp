@@ -5,11 +5,11 @@
 #include <config.h>
 
 #include <SpectrumPackage.h>
-#include <DisplayManager.h>
+#include <DisplayInterface.h>
 #include <Histogrammer.h>
 #include <SpecTcl.h>
 #include <TCLResult.h>
-#include <NullDisplay.h>
+#include <TestDisplay.h>
 #include <Globals.h>
 #include <SpecTclDisplayManager.h>
 
@@ -39,7 +39,9 @@ public:
         m_pSorter = new CHistogrammer;
         gpEventSink = m_pSorter;
         m_pDM     = new CSpecTclDisplayInterface;
-        m_pDM->setCurrentDisplay("none");
+        m_pDM->getFactory().addCreator("test", *(new CTestDisplayCreator));
+        m_pDM->createDisplay("test", "test");
+        m_pDM->setCurrentDisplay("test");
         gpDisplayInterface = m_pDM;
         m_pPkg    = new CSpectrumPackage(m_pInterp, m_pSorter, m_pDM);
     }
@@ -99,6 +101,12 @@ public:
 
         ASSERT(test1Id != -1);
         ASSERT(test2Id != -1);
+    }
+
+
+    void bindList_0 () {
+
+
     }
 };
 

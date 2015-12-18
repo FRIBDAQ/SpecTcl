@@ -1,25 +1,37 @@
-#ifndef NULLDISPLAY_H
-#define NULLDISPLAY_H
+#ifndef TESTDISPLAY_H
+#define TESTDISPLAY_H
 
 #include "Display.h"
 #include "DisplayFactory.h"
 
+class CSpectrum;
 
-
-class CNullDisplay : public CDisplay
+class CTestDisplay : public CDisplay
 {
-public:
-    CNullDisplay();
-    CNullDisplay(const CNullDisplay& rhs);
+    bool                    m_alive;
+    DisplayBindings         m_DisplayBindings;
+    std::vector<CSpectrum*> m_boundSpectra;        // Spectrum if bound.
+    FitlineBindings         m_FitlineBindings;     // Fitlines bound to displayer.
 
-    virtual CNullDisplay* clone() const;
+    static int              m_nextFitlineId;       // Next Xamine fitline id.
+
+
+public:
+    CTestDisplay();
+
+    virtual ~CTestDisplay();
 
     virtual int operator==(const CDisplay&);
+
+    virtual CTestDisplay* clone() const;
 
     virtual void Start();
     virtual void Stop();
     virtual Bool_t isAlive();
     virtual void Restart();
+
+    const DisplayBindings&  getDisplayBindings() const;
+    void setDisplayBindings (const DisplayBindings& am_DisplayBindings);
 
     virtual UInt_t BindToDisplay(CSpectrum& rSpectrum);
     virtual void   UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum);
@@ -32,8 +44,10 @@ public:
     virtual std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum);
 
     virtual CSpectrum* DisplayBinding(UInt_t xid);
+    DisplayBindingsIterator DisplayBindingsBegin();
+    DisplayBindingsIterator DisplayBindingsEnd();
+    UInt_t DisplayBindingsSize() const;
     virtual Int_t FindDisplayBinding(std::string name);
-    virtual UInt_t DisplayBindingsSize() const;
 
     virtual void setInfo(std::string name, UInt_t slot);
     virtual void setTitle(std::string name, UInt_t slot);
@@ -44,12 +58,15 @@ public:
 
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y);
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y);
+
 };
 
 
-class CNullDisplayCreator : public CDisplayCreator
+
+class CTestDisplayCreator : public CDisplayCreator
 {
-    CNullDisplay* create();
+public:
+    CTestDisplay* create();
 };
 
-#endif // NULLDISPLAY_H
+#endif // TESTDISPLAY_H

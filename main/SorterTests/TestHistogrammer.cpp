@@ -27,13 +27,11 @@ public:
     void Stop() {};
     Bool_t isAlive() { return true; }
     void Restart() { };
-//    Address_t DefineSpectrum(CXamineSpectrum& rSpectrum) {return NULL; }
     void setInfo(std::string name, UInt_t slot) {}
     void setTitle(std::string name, UInt_t slot) {}
     UInt_t getTitleSize() const {return 0;}
     void EnterGate(CDisplayGate& rGate) {}
     void RemoveGate(UInt_t, UInt_t, GateType_t) {}
-    void FreeSpectrum(UInt_t) {}
     void setOverflows(unsigned, unsigned, unsigned) {}
     void setUnderflows(unsigned, unsigned, unsigned) {}
     UInt_t GetEventFd() {}
@@ -42,14 +40,10 @@ public:
     void addFit(CSpectrumFit &fit) {}
     void deleteFit(CSpectrumFit &fit) {}
     void updateStatistics() {}
-    void AddGateToBoundSpectra(CGateContainer&) {}
-    void RemoveGateFromBoundSpectra(CGateContainer&) {}
     vector<CGateContainer> GatesToDisplay(const string &rSpectrum) { return vector<CGateContainer>();}
-    DisplayBindingsIterator DisplayBindingsBegin() { return DisplayBindingsIterator(); }
-    DisplayBindingsIterator DisplayBindingsEnd() { return DisplayBindingsIterator(); }
-    UInt_t DisplayBindingsSize() { return 0; }
     Int_t FindDisplayBinding(std::string) { return 0;}
     CSpectrum* DisplayBinding(UInt_t xid);
+    UInt_t DisplayBindingsSize() const { return 0; }
 
 
 

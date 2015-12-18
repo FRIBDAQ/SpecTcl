@@ -58,8 +58,6 @@ public:
     const DisplayBindings&  getDisplayBindings() const;
     void setDisplayBindings (const DisplayBindings& am_DisplayBindings);
 
-
-
     virtual UInt_t BindToDisplay(CSpectrum& rSpectrum) = 0;
     virtual void   UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum) = 0;
 
@@ -68,16 +66,11 @@ public:
 
     virtual void updateStatistics() = 0;
 
-    virtual void AddGateToBoundSpectra(CGateContainer& rGate) = 0;
-    virtual void RemoveGateFromBoundSpectra(CGateContainer& rGate) = 0;
-
     virtual std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum) = 0;
 
     virtual CSpectrum* DisplayBinding(UInt_t xid) = 0;
-    virtual DisplayBindingsIterator DisplayBindingsBegin() = 0;
-    virtual DisplayBindingsIterator DisplayBindingsEnd() = 0;
-    virtual UInt_t DisplayBindingsSize() = 0;
     virtual Int_t FindDisplayBinding(std::string name) = 0;
+    virtual UInt_t DisplayBindingsSize() const = 0;
 
     virtual void setInfo(std::string name, UInt_t slot) = 0;
     virtual void setTitle(std::string name, UInt_t slot) = 0;
@@ -85,8 +78,6 @@ public:
 
     virtual void EnterGate(CDisplayGate& rGate) = 0;
     virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) = 0;
-
-    virtual void FreeSpectrum(UInt_t nSpectrum) = 0;
 
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y) = 0;
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y) = 0;

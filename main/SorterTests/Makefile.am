@@ -6,6 +6,7 @@ AM_CPPFLAGS = -I@srcdir@ \
 	-I@top_srcdir@/Events \
 	-I@top_srcdir@/Filter \
 	-I@top_srcdir@/Display \
+	-I@top_srcdir@/DisplayInterface \
 	-I@top_srcdir@/SpecTcl \
 	-I@top_srcdir@/Fits \
 	@TCL_CPPFLAGS@ \

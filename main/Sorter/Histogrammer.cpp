@@ -25,7 +25,6 @@
 
 #include <assert.h>
 #include <GateMediator.h>
-#include "CHistogrammerFitObserver.h"
 #include <CFitDictionary.h>
 #include <CFlattenedGateList.h>
 #include <CSpectrumByParameter.h>

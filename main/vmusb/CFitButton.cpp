@@ -21,7 +21,7 @@
 #include <CGaussianFit.h>
 #include <CSpectrumFit.h>
 #include <CFitDictionary.h>
-#include <DisplayManager.h>
+#include <DisplayInterface.h>
 #include <SpecTcl.h>
 #include <Spectrum.h>
 #include <CFitCommand.h>

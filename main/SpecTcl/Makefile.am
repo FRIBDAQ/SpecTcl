@@ -1,13 +1,21 @@
 DEFS = @WCHAR_T_DEF@
+
 AM_CPPFLAGS = -I@top_srcdir@/Events \
-	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates -I@top_srcdir@/SpectrumIO \
+	-I@top_srcdir@/Utility \
+	-I@top_srcdir@/Sorter  \
+	-I@top_srcdir@/EventSource \
+	-I@top_srcdir@/Gates \
+	-I@top_srcdir@/SpectrumIO \
 	-I@top_srcdir@/Xamine \
-	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
-	-I@top_srcdir@/Analysis -I@top_srcdir@/TreeParam \
-	-I@top_srcdir@/Fits                               \
-	-I@top_srcdir@/factories			\
-	-I@top_srcdir@/DecoderRing			\
+	-I@top_srcdir@/Display \
+	-I@top_srcdir@/DisplayInterface \
+	-I@top_srcdir@/Tape \
+	-I@top_srcdir@/Filter \
+	-I@top_srcdir@/Analysis \
+	-I@top_srcdir@/TreeParam \
+	-I@top_srcdir@/Fits \
+	-I@top_srcdir@/factories \
+	-I@top_srcdir@/DecoderRing \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@ -DVERSION='"@VERSION@"'
 
