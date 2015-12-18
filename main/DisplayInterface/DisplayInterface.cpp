@@ -1,4 +1,5 @@
 #include "DisplayInterface.h"
+#include "Display.h"
 
 using namespace std;
 
@@ -37,6 +38,9 @@ CDisplayInterface::createDisplay(const std::string &name, const std::string &typ
             m_displays[name] = pDisp;
             m_collection.addDisplay(pDisp);
             retVal = SUCCESS;
+            if (m_displays.size() == 1) {
+                setCurrentDisplay(name);
+            }
         } else {
             retVal = NO_CREATOR;
         }
