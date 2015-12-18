@@ -32,7 +32,6 @@ public:
     void setTitle(std::string name, UInt_t slot) {}
     UInt_t getTitleSize() const {return 0;}
     void EnterGate(CDisplayGate& rGate) {}
-    CXamineGates* GetGates(UInt_t nSpectrum) { return NULL; }
     void RemoveGate(UInt_t, UInt_t, GateType_t) {}
     void FreeSpectrum(UInt_t) {}
     void setOverflows(unsigned, unsigned, unsigned) {}
