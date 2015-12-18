@@ -28,6 +28,8 @@ class SpectrumPackageTests : public CppUnit::TestFixture
     CPPUNIT_TEST(bindAll_0);
     CPPUNIT_TEST(bindList_0);
     CPPUNIT_TEST(bindList_1);
+    CPPUNIT_TEST(unBindList_0);
+    CPPUNIT_TEST(unBindList_1);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -147,6 +149,45 @@ public:
         ASSERT(test1Id != -1);
         ASSERT(test2Id == -1);
     }
+
+    void unBindList_0 () {
+        CTCLResult result(m_pInterp);
+
+        m_pPkg->BindAll(result);
+
+        std::vector<string> names(1);
+        names[0] = "test1";
+
+        m_pPkg->UnbindList(result, names);
+
+        CDisplay* pDisplay = m_pDM->getCurrentDisplay();
+        int test1Id = pDisplay->FindDisplayBinding("test1");
+        int test2Id = pDisplay->FindDisplayBinding("test2");
+
+        ASSERT(test1Id == -1);
+        ASSERT(test2Id != -1);
+    }
+
+    void unBindList_1 () {
+        CTCLResult result(m_pInterp);
+
+        m_pPkg->BindAll(result);
+
+        CSpectrum* pSpec1 = m_pSorter->FindSpectrum("test1");
+        std::vector<UInt_t> ids(1);
+        ids[0] = pSpec1->getNumber();
+
+        m_pPkg->UnbindList(result, ids);
+
+        CDisplay* pDisplay = m_pDM->getCurrentDisplay();
+        int test1Id = pDisplay->FindDisplayBinding("test1");
+        int test2Id = pDisplay->FindDisplayBinding("test2");
+
+        ASSERT(test1Id == -1);
+        ASSERT(test2Id != -1);
+    }
+
+
 
 };
 
