@@ -26,6 +26,7 @@
 #include <Spectrum.h>
 #include <CFitCommand.h>
 #include <TCLInterpreter.h>
+#include <DisplayInterface.h>
 
 #include <clientops.h>
 #include <string>
@@ -250,7 +251,7 @@ CFitButton::spectrumName(CButtonEvent& event)
 {
     int            bindId        = event.getPromptedSpectrum();
     SpecTcl*       pApi          = SpecTcl::getInstance();
-    CDisplayManager* pDispManager  = pApi->GetDisplayManager();
+    CDisplayInterface* pDispManager  = pApi->GetDisplayInterface();
     CSpectrum*     pSpectrum     = pDispManager->getCurrentDisplay()->DisplayBinding(bindId-1);
     string spectrumName;
     if (pSpectrum) {

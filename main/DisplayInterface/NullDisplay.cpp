@@ -3,6 +3,17 @@
 #include "GateContainer.h"
 #include "Spectrum.h"
 
+// Functions for CNullDisplayCreator
+//////////////////////////////////////////////////////////////////////////
+
+CNullDisplay* CNullDisplayCreator::create()
+{
+    return new CNullDisplay();
+}
+
+// Functions for CNullDisplay
+//////////////////////////////////////////////////////////////////////////
+
 CNullDisplay::CNullDisplay()
 {
 }
@@ -57,7 +68,6 @@ void CNullDisplay::setTitle(std::string name, UInt_t slot) {}
 UInt_t CNullDisplay::getTitleSize() const { return 0; }
 
 void CNullDisplay::EnterGate(CDisplayGate &rGate) {}
-CXamineGates* CNullDisplay::GetGates(UInt_t nSpectrum) { return static_cast<CXamineGates*>(kpNULL); }
 void CNullDisplay::RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) {}
 
 void CNullDisplay::FreeSpectrum(UInt_t nSpectrum) {}

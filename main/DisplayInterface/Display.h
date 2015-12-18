@@ -20,16 +20,12 @@
 
 #include <daqdatatypes.h>
 #include <histotypes.h>
-#include <xamineDataTypes.h>
 
 #include <string>
 #include <vector>
 #include <list>
 
 class CDisplayGate;
-class CXamineSpectrum;
-class CXamineSpectra;
-class CXamineGates;
 class CSpectrum;
 class CSpectrumFit;
 class CGateContainer;
@@ -88,7 +84,6 @@ public:
     virtual UInt_t getTitleSize() const = 0;
 
     virtual void EnterGate(CDisplayGate& rGate) = 0;
-    virtual CXamineGates* GetGates(UInt_t nSpectrum) = 0;
     virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) = 0;
 
     virtual void FreeSpectrum(UInt_t nSpectrum) = 0;

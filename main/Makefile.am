@@ -15,6 +15,7 @@ SUBDIRS =  daq \
 	DecoderRing \
 	TreeParam \
 	Fits \
+	DisplayInterface \
 	Xamine \
 	SpecTcl \
 	SorterTests \

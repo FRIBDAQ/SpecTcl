@@ -2,6 +2,9 @@
 #define NULLDISPLAY_H
 
 #include "Display.h"
+#include "DisplayFactory.h"
+
+
 
 class CNullDisplay : public CDisplay
 {
@@ -42,13 +45,18 @@ public:
     virtual UInt_t getTitleSize() const;
 
     virtual void EnterGate(CDisplayGate& rGate);
-    virtual CXamineGates* GetGates(UInt_t nSpectrum);
     virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType);
 
     virtual void FreeSpectrum(UInt_t nSpectrum);
 
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y);
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y);
+};
+
+
+class CNullDisplayCreator : public CDisplayCreator
+{
+    CNullDisplay* create();
 };
 
 #endif // NULLDISPLAY_H

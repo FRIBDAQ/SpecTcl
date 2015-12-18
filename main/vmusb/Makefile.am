@@ -57,22 +57,25 @@ AM_CPPFLAGS =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@
 
-VMUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
-	  ../Events/libAnalysis.la \
-	../Fits/libFits.la \
-	../Analysis/libBufferAnalysis.la \
-	../EventSource/libEventSource.la \
-	../Tape/libtape.la \
-	../Gates/libGates.la \
-	../Replace/libreplace.la \
-	../Xamine/libXplus.la \
-	../calibratedparams/libCalibrations.la \
-	../Sorter/libSorting.la \
-	../Filter/libFilter.la \
-	../SpectrumIO/libSpecio.la \
-	../TreeParam/libTreeParam.la \
-	../DecoderRing/libDecoderRing.la \
-	../Display/libXamine.la          \
+VMUSBSpecTcl_LDADD = @top_builddir@/SpecTcl/libTclGrammerCommands.la \
+		    @top_builddir@/Events/libAnalysis.la \
+		    @top_builddir@/Fits/libFits.la \
+		    @top_builddir@/Analysis/libBufferAnalysis.la \
+		    @top_builddir@/EventSource/libEventSource.la \
+		    @top_builddir@/Tape/libtape.la \
+		    @top_builddir@/Gates/libGates.la \
+		    @top_builddir@/Replace/libreplace.la \
+		    @top_builddir@/Xamine/libXplus.la \
+		    @top_builddir@/calibratedparams/libCalibrations.la \
+		    @top_builddir@/Sorter/libSorting.la \
+		    @top_builddir@/Filter/libFilter.la \
+		    @top_builddir@/SpectrumIO/libSpecio.la \
+		    @top_builddir@/TreeParam/libTreeParam.la \
+		    @top_builddir@/DecoderRing/libDecoderRing.la \
+		    @top_builddir@/Display/libXamine.la          \
+		    @top_builddir@/DisplayInterface/libDisplayInterface.la
+
+VMUSBSpecTcl_LDFLAGS = 	\
 	@LIBTCLPLUS_LDFLAGS@	\
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\

@@ -47,7 +47,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 
 #include "TCLAnalyzer.h"
 
-#include "DisplayManager.h"
+#include "SpecTclDisplayManager.h"
 #include "XamineEventHandler.h"
 
 #include "SpecTcl.h"
@@ -484,7 +484,7 @@ void CTclGrammerApp::CreateHistogrammer() {
 void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, 
                                      CHistogrammer& rHistogrammer)
 {
-  gpDisplayManager = new CDisplayManager;
+  gpDisplayInterface = new CSpecTclDisplayInterface;
   // We need to set up the Xamine event handler however:
 //  m_pXamineEvents = new CXamineEventHandler(gpInterpreter,
 //                        (CHistogrammer*)gpEventSink,
@@ -619,7 +619,7 @@ void CTclGrammerApp::AddCommands(CTCLInterpreter& rInterp) {
 
   m_pSpectrumPackage  = new CSpectrumPackage(&rInterp, 
                          (CHistogrammer*)gpEventSink,
-                         (CDisplayManager*)gpDisplayManager);
+                         gpDisplayInterface);
   m_pSpectrumPackage->Register();
   cerr << m_pSpectrumPackage->getSignon() << endl;
 

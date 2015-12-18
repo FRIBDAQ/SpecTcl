@@ -332,7 +332,7 @@ static const char* pCopyright=
 #include <Analyzer.h>
 #include <histotypes.h>
 #include <NSCLBufferDecoder.h>
-#include <DisplayManager.h>
+#include <DisplayInterface.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -394,4 +394,4 @@ const char* gpVersion = VERSION;
 
 //  The interface to the display. Provides simple mechanisms for adding/removing/updating
 //  spectra, gates, fits on the display
-CDisplayManager* gpDisplayManager = (CDisplayManager*)kpNULL;
+CDisplayInterface* gpDisplayInterface = (CDisplayInterface*)kpNULL;

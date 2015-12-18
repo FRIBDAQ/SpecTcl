@@ -9,6 +9,9 @@
 #include <Histogrammer.h>
 #include <SpecTcl.h>
 #include <TCLResult.h>
+#include <NullDisplay.h>
+#include <Globals.h>
+#include <SpecTclDisplayManager.h>
 
 #include <Asserts.h>
 
@@ -16,8 +19,6 @@
 #include <string>
 
 using namespace std;
-
-extern CHistogrammer* gpEventSink;
 
 class SpectrumPackageTests : public CppUnit::TestFixture
 {
@@ -30,14 +31,16 @@ private:
     CSpectrumPackage* m_pPkg;
     CHistogrammer*    m_pSorter;
     CTCLInterpreter*  m_pInterp;
-    CDisplayManager*  m_pDM;
+    CDisplayInterface*  m_pDM;
 
 public:
     void setUp() {
         m_pInterp = new CTCLInterpreter();
         m_pSorter = new CHistogrammer;
         gpEventSink = m_pSorter;
-        m_pDM     = new CDisplayManager;
+        m_pDM     = new CSpecTclDisplayInterface;
+        m_pDM->setCurrentDisplay("none");
+        gpDisplayInterface = m_pDM;
         m_pPkg    = new CSpectrumPackage(m_pInterp, m_pSorter, m_pDM);
     }
 
@@ -73,8 +76,29 @@ public:
 
     }
 
-    void bindAll_1 () {
+    void bindAll_0 () {
+        CTCLResult result(m_pInterp);
 
+        m_pSorter->AddParameter("test.0", 0, 1, 0, 100., "arb");
+
+        vector<string> params(1); params[0] = "test.0";
+        vector<UInt_t> nbins(1); nbins[0] = 100;
+        vector<Float_t> lows(1); lows[0] = 0;
+        vector<Float_t> highs(1); highs[0] = 100;
+
+        m_pPkg->CreateSpectrum(result, "test1", "1",
+                               params, nbins, lows, highs, "long");
+        m_pPkg->CreateSpectrum(result, "test2", "1",
+                               params, nbins, lows, highs, "long");
+
+        m_pPkg->BindAll(result);
+
+        CDisplay* pDisplay = m_pDM->getCurrentDisplay();
+        int test1Id = pDisplay->FindDisplayBinding("test1");
+        int test2Id = pDisplay->FindDisplayBinding("test2");
+
+        ASSERT(test1Id != -1);
+        ASSERT(test2Id != -1);
     }
 };
 

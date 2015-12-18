@@ -60,7 +60,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <TCLResult.h>
 #include <SpectrumFormatter.h>
 #include <SpecTcl.h>
-#include <DisplayManager.h>
+#include <DisplayInterface.h>
 #include <Display.h>
 
 
@@ -138,7 +138,7 @@ static const UInt_t nDataTypes = sizeof(aDataTypes)/sizeof(DataTypes);
 //
 CSpectrumPackage::CSpectrumPackage (CTCLInterpreter* pInterp,
                     CHistogrammer*   pHistogrammer,
-                    CDisplayManager *pDisplay) :
+                    CDisplayInterface *pDisplay) :
   CTCLCommandPackage(pInterp, Copyright),
   m_pHistogrammer(pHistogrammer),
   m_pSpectrum(new CSpectrumCommand(pInterp, *this)),
@@ -648,7 +648,7 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
   for(; p != api.SpectrumEnd(); p++) {
     CSpectrum* pSpec = (*p).second;
     try {
-      CDisplay* pDisplay = api.GetDisplayManager()->getCurrentDisplay();
+      CDisplay* pDisplay = api.GetDisplayInterface()->getCurrentDisplay();
       if (pDisplay) {
         pDisplay->BindToDisplay(*pSpec);
       }

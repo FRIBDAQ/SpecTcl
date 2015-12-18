@@ -138,7 +138,7 @@ CHistogrammer::CHistogrammer()
 //     Destructor.
 //
 CHistogrammer::~CHistogrammer() {
-  delete m_pFitObserver;
+//  delete m_pFitObserver;
   delete m_pGateList;
   delete m_pSpectrumLists;
 }

@@ -5,6 +5,7 @@ lib_LTLIBRARIES = libXplus.la
 libXplus_la_CPPFLAGS = -I@srcdir@ \
 			-I@top_srcdir@/Utility \
 			-I@top_srcdir@/Display \
+			-I@top_srcdir@/DisplayInterface \
 			-I@top_srcdir@/Sorter \
 			-I@top_srcdir@/Events \
 			-I@top_srcdir@/Gates \
@@ -13,12 +14,13 @@ libXplus_la_CPPFLAGS = -I@srcdir@ \
 			@TCL_CPPFLAGS@ \
 			@LIBTCLPLUS_CFLAGS@
 
-libXplus_la_LIBADD =	@top_builddir@/Display/libXamine.la \
-											@top_builddir@/Sorter/libSorting.la \
-											@top_builddir@/Events/libAnalysis.la \
-											@top_builddir@/Gates/libGates.la \
-											@top_builddir@/Fits/libFits.la \
-											@top_builddir@/Filter/libFilter.la
+libXplus_la_LIBADD =	@top_builddir@/DisplayInterface/libDisplayInterface.la \
+			@top_builddir@/Display/libXamine.la \
+			@top_builddir@/Sorter/libSorting.la \
+			@top_builddir@/Events/libAnalysis.la \
+			@top_builddir@/Gates/libGates.la \
+			@top_builddir@/Fits/libFits.la \
+			@top_builddir@/Filter/libFilter.la
 
 
 libXplus_la_LDFLAGS = -verson-info $(SOVERSION):0 \
@@ -26,8 +28,7 @@ libXplus_la_LDFLAGS = -verson-info $(SOVERSION):0 \
 	@TCL_LIBS@ \
 	@LIBTCLPLUS_LDFLAGS@
 
-libXplus_la_SOURCES = DisplayGate.cpp Display.cpp DisplayFactory.cpp DisplayManager.cpp \
-	NullDisplay.cpp Xamine1D.cpp Xamine2D.cpp \
+libXplus_la_SOURCES = DisplayGate.cpp Xamine1D.cpp Xamine2D.cpp \
 	XamineButton.cpp XamineButtonException.cpp XamineButtonPrompt.cpp \
 	XamineConfirmPrompt.cpp XamineEvent.cpp XamineFilePrompt.cpp \
 	XamineGateException.cpp XamineGates.cpp \
@@ -36,8 +37,7 @@ libXplus_la_SOURCES = DisplayGate.cpp Display.cpp DisplayFactory.cpp DisplayMana
 	XamineSpectrum.cpp XamineSpectrumIterator.cpp \
 	XamineTextPrompt.cpp XamineToggleButton.cpp Xamineplus.cpp
 
-include_HEADERS = ButtonEvent.h DisplayGate.h Display.h DisplayFactory.h DisplayManager.h \
-	NullDisplay.h Point.h Xamine1D.h Xamine2D.h \
+include_HEADERS = ButtonEvent.h DisplayGate.h Point.h Xamine1D.h Xamine2D.h \
 	XamineButton.h XamineButtonException.h XamineButtonPrompt.h \
 	XamineConfirmPrompt.h XamineEvent.h XamineFilePrompt.h \
 	XamineGateException.h XamineGates.h XamineMap1D.h XamineMap2D.h \
@@ -46,22 +46,6 @@ include_HEADERS = ButtonEvent.h DisplayGate.h Display.h DisplayFactory.h Display
 	XamineTextPrompt.h XamineToggleButton.h Xamineplus.h
 
 EXTRA_DIST = ClassBreakdown.WC ClassBreakdown.omt
-
-#noinst_PROGRAMS=TestRunner
-
-#TestRunner_SOURCES=TestRunner.cpp DisplayManagerTests.cpp
-
-#TestRunner_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ \
-#		    @CPPUNIT_CFLAGS@
-
-#TestRunner_LDADD = @top_builddir@/Xamine/libXplus.la \
-#		    @CPPUNIT_LIBS@ \
-#		    @TCL_LIBS@
-
-#noinst_HEADERS = Asserts.h
-
-#check-TESTS:
-#	./TestRunner
 
 
 

@@ -59,6 +59,7 @@
 #include "XamineSpectrumIterator.h"
 #endif
 
+#include <DisplayFactory.h>
 
 //
 //  forward references to classes:
@@ -69,7 +70,14 @@ class CXamineEvent;
 class CXamineSpectrum;
 class CXamineButton;
 class CSpectrum;
-                               
+
+
+
+
+////
+////
+
+
 class CXamine : public CDisplay
 {
    volatile Xamine_shared* m_pDisplay;  //  Pointer to Xamine shared memory region.
@@ -260,5 +268,25 @@ protected:
                   std::vector<std::string>      yparameters,
                   std::string gate);
 };
+
+
+/**
+ * @brief The CXamineCreator class
+ *
+ */
+class CXamineCreator : public CDisplayCreator
+{
+private:
+    UInt_t m_nDisplayBytes;
+
+public:
+    CXamineCreator(UInt_t nDisplayBytes);
+
+    CXamine* create();
+
+    void setDisplayBytes(UInt_t nBytes) { m_nDisplayBytes = nBytes; }
+    UInt_t getDisplayBytes() const { return m_nDisplayBytes; }
+};
+
 
 #endif

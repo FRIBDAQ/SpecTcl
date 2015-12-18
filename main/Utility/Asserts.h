@@ -9,6 +9,7 @@
 #define EQMSG(msg, a, b)   CPPUNIT_ASSERT_EQUAL_MESSAGE(msg,a,b)
 #define EQ(a,b)            CPPUNIT_ASSERT_EQUAL(a,b)
 #define ASSERT(expr)       CPPUNIT_ASSERT(expr)
+#define ASSERTMSG(msg, expr) CPPUNIT_ASSERT_MESSAGE(msg, expr)
 #define FAIL(msg)          CPPUNIT_FAIL(msg)
 
 // Macro to test for exceptions:

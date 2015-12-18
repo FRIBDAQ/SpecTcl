@@ -810,7 +810,8 @@ AC_SUBST(MANDOCBOOK)
 
 AC_OUTPUT(Makefile daq/Makefile daq/daqdefs.h daq/daqdefs.tcl \
         Replace/Makefile Scripts/Makefile Utility/Makefile \
-        factories/Makefile					      \
+        factories/Makefile
+        DisplayInterface/Makefile \
 	Display/Makefile 
 	Xamine/Makefile Tape/Makefile \
 	EventSource/Makefile Events/Makefile Gates/Makefile \

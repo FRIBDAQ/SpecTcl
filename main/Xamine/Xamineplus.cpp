@@ -101,6 +101,20 @@ int CXamine::m_nextFitlineId(1); // Next fitline id assigned.
  static CXamineNoPrompt none;
 
 
+
+ // Functions for CXamineCreator
+ ////////////////////////////////////////////////////////////////////////
+
+ CXamineCreator::CXamineCreator(UInt_t nDisplayBytes)
+     :  m_nDisplayBytes(nDisplayBytes)
+ {}
+
+ CXamine* CXamineCreator::create()
+ {
+     return new CXamine(m_nDisplayBytes);
+ }
+
+
 // Functions for class CXamine
 //////////////////////////////////////////////////////////////////////////
 //

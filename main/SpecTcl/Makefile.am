@@ -44,7 +44,7 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	DocumentationException.cpp DocumentationCallback.cpp \
 	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp \
 	IntegrateCommand.cpp RingFormatCommand.cpp VersionCommand.cpp \
-	SContentsCommand.cpp CSpectrumStatsCommand.cpp 
+	SContentsCommand.cpp CSpectrumStatsCommand.cpp SpecTclDisplayManager.cpp
 
 
 include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
@@ -60,7 +60,7 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	DocumentationException.h DocumentationCallback.h \
 	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
 	IntegrateCommand.h VersionCommand.h SContentsCommand.h \
-	CSpectrumStatsCommand.h
+	CSpectrumStatsCommand.h SpecTclDisplayManager.h
 
 
 
@@ -159,6 +159,7 @@ commonTestLdFlags= @top_builddir@/Events/libAnalysis.la \
 	@top_builddir@/Tape/libtape.la \
 	@top_builddir@/SpectrumIO/libSpecio.la \
 	@top_builddir@/Xamine/libXplus.la \
+	@top_builddir@/DisplayInterface/libDisplayInterface.la \
 	@LIBTCLPLUS_LDFLAGS@ \
 	@CPPUNIT_LIBS@ \
 	@TK_LIBS@ \

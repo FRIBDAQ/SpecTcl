@@ -123,7 +123,7 @@ class CHistogrammer : public CEventSink {
   ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
-  CHistogrammerFitObserver* m_pFitObserver; // Monitor for fit changes.
+//  CHistogrammerFitObserver* m_pFitObserver; // Monitor for fit changes.
   GateObserverList   m_gateObservers; 
 
 
