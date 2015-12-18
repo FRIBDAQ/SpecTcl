@@ -120,6 +120,7 @@ class CDictionary
  public:
   typedef  std::map<std::string,  T> Dictionary;
   typedef typename  Dictionary::iterator DictionaryIterator;
+  typedef typename  Dictionary::const_iterator ConstDictionaryIterator;
 
  private:
   Dictionary     m_Map;
@@ -149,10 +150,19 @@ class CDictionary
     return m_Map.find(sName);
   }
 
+  ConstDictionaryIterator Lookup(std::string sName) const {
+    return m_Map.find(sName);
+  }
+
   template<class Predicate>
     DictionaryIterator FindMatch(Predicate p) {
-    return find_if(begin(), end(), p);
+    return find_if(m_Map.begin(), m_Map.end(), p);
   }
+
+    template<class Predicate>
+    ConstDictionaryIterator FindMatch(Predicate p) const {
+        return find_if(m_Map.begin(), m_Map.end(), p);
+    }
 
   // Note: Enter will overwrite any existing with key sName.
   void Enter(std::string sName, T& Item) {
@@ -176,7 +186,7 @@ class CDictionary
     return m_Map.end();
   }
 
-  UInt_t size() {
+  UInt_t size() const {
     return m_Map.size();
   }
   void addObserver(DictionaryObserver<T>* observer) {
