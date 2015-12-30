@@ -1051,4 +1051,7 @@ November 30-?? 2011
           if so turn it on.
         * Add TCLLIBS back into the compilation includes but use sed to
 	  remove the -lieee to prevent the double def of _LIB_VERSION
+3.4-007 
+	*  Perfromance improvements in GUi startup and handling.
+	*  Add support in VMUSBSpecTcl for parameter-less vmusb module.
 	
