@@ -123,7 +123,6 @@ proc createFreezeButton {} {
 #       next free parameter number.
 #                     
 proc buildV1x90Maps {baseparam name} {
-    puts "BuildV1x90Maps"
     set tdcInfo    $::CAENV1x90($name)
     set tdcRes     $::V1x90Windows($name)
     set vsn        $::adcConfiguration($name)
@@ -135,12 +134,10 @@ proc buildV1x90Maps {baseparam name} {
     set offset [lindex $tdcRes 1]
     set res    [lindex $tdcRes 2]
 
-    puts "List : $tdcRes"
 
     set low $offset
     set hi  [expr $offset + $width - 1.0]
     set chans [expr int($width/$res)]
-    puts "Spectrum: $low $hi $chans"
 
     # Pull out the stuff we need from the CAENV1x90 list:
 
@@ -219,13 +216,11 @@ proc buildv977Map {param module} {
 #
 proc buildMaseMap {param module} {
 
-    puts "In Mase"
     set basename $::adcChannels($module)
     set cobcount $::maseCOBCount($module)
     set chblist  $::maseCHBCounts($module)
     set channels $::channelCount($::typeMase)
 
-    puts "$basename : $cobcount $chblist $channels"
 
     #  We're going to be a bit tricky;  The parameter map will be named by the
     # parameter _basename_ that will allow the unpacker to locate the parameter
@@ -445,21 +440,24 @@ proc makeParamsSpectraAndMap {param name type channels resolution} {
 #   param  - the number of the first parameter.
 
 proc buildChannelMaps param {
-    puts "Building channel maps"
     foreach module [array names ::adcChannels] {
-	puts "Processing $module"
+	## Null modules have nothing done with them:
+	
+	if {$::readoutDeviceType($module) eq "null"} {
+	    break
+	}
+
+	
 	if {$::readoutDeviceType($module) eq $::typeTDC1x90} { 
-	    puts "V1x90 $module"
 	    set param [buildV1x90Maps $param $module]
 
 	} elseif {$::readoutDeviceType($module) eq $::typeV977} {
 
-	    puts "V977 $module"
 	    set param [buildv977Map $param $module]
 
 	    #  Give SpecTcl the parameter map for the module:
 	} elseif {$::readoutDeviceType($module) eq $::typeMase} {
-	    puts "MASE module"
+
 	    set param [buildMaseMap $param $module]
 	} elseif {$::readoutDeviceType($module) eq $::typeCAENDual} {
 	    set param [buildCAENDualMap $param $module]
@@ -495,7 +493,40 @@ proc buildChannelMaps param {
 	}
     }
 }
+#------------------------------------------------------------------------
+# firstNullIndex
+#   Determine the index of the first null device in a stack order list
+#
+# @param so       - stack order list.
+# @return integer - index of the first device that is null.
+# @retval -1      - there are no null devices.
+#
+proc firstNullIndex so {
+    set i 0
+    foreach module $so {
+	if {$::readoutDeviceType($module) eq "null"} {
+	    return $i
+	} else {
+	    incr i
+	}
 
+    }
+    return -1
+}
+#-------------------------------------------------------------------------
+# removeNullModules
+#   Remove any modules that have a null type from a stack order list.
+#
+# @param so - stack order list.
+# @return list - modified list (possibly identical to the input list)
+#
+proc removeNullModules so {
+    while {[firstNullIndex $so] != -1} {
+	set i [firstNullIndex $so]
+	set so [lreplace $so $i $i]
+    }
+    return $so
+}
 
 #--------------------------------------------------------------------------
 # Build the stack order maps.  These define, for each stack,
@@ -503,13 +534,18 @@ proc buildChannelMaps param {
 # The assumption is that stack 1 is a scaler stack always if used at all.
 #
 proc buildStackMaps {} {
-    puts "In buildStackMaps!!"
+
 
     foreach stack [array names ::stackNumber] {
-	
+	#
+	#  If there arem odules in the stack with a null device type they are
+	#  removed since they contribute no data.
+	#
+
+	set ::stackOrder($stack) [removeNullModules $::stackOrder($stack)]
+
 	set stackno $::stackNumber($stack)
 	if {$stackno != 1} {
-	    puts "Stackmap for $stack : $stackno list: $::stackOrder($stack)"
 	    stackMap $stackno  $::stackOrder($stack)
 	}
     }

@@ -12,6 +12,7 @@ set typeCAENDual 6;			# CAEN dual range modules.
 set typeHINP     7;			# HINP XLM module.
 set typePSD      8;			# PSD XLM module.
 set typeV1729    9;			# CAEN V1729 FADC.
+set typeVMUSB    null;                  # Used to flag this makes no data.
 
 set channelCount($typeCAEN)   4096
 set channelCount($typeHYTEC)  8192
