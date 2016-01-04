@@ -35,7 +35,8 @@ libXplus_la_SOURCES = DisplayGate.cpp Xamine1D.cpp Xamine2D.cpp \
 	XamineNoPrompt.cpp XaminePointsPrompt.cpp \
 	XamineSpectrumPrompt.cpp  XaminePushButton.cpp \
 	XamineSpectrum.cpp XamineSpectrumIterator.cpp \
-	XamineTextPrompt.cpp XamineToggleButton.cpp Xamineplus.cpp
+	XamineTextPrompt.cpp XamineToggleButton.cpp Xamineplus.cpp \
+	XamineEventHandler.cpp
 
 include_HEADERS = ButtonEvent.h DisplayGate.h Point.h Xamine1D.h Xamine2D.h \
 	XamineButton.h XamineButtonException.h XamineButtonPrompt.h \
@@ -43,7 +44,8 @@ include_HEADERS = ButtonEvent.h DisplayGate.h Point.h Xamine1D.h Xamine2D.h \
 	XamineGateException.h XamineGates.h XamineMap1D.h XamineMap2D.h \
 	XamineNoPrompt.h XaminePointsPrompt.h XaminePushButton.h \
 	XamineSpectrum.h XamineSpectrumIterator.h XamineSpectrumPrompt.h \
-	XamineTextPrompt.h XamineToggleButton.h Xamineplus.h
+	XamineTextPrompt.h XamineToggleButton.h Xamineplus.h \
+	XamineEventHandler.h
 
 EXTRA_DIST = ClassBreakdown.WC ClassBreakdown.omt
 

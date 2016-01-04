@@ -44,7 +44,7 @@ libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	UnbindCommand.cpp SpectrumCommand.cpp DataSourcePackage.cpp \
 	AttachCommand.cpp TapeCommand.cpp GateCommand.cpp ApplyCommand.cpp \
 	UngateCommand.cpp GatePackage.cpp GateFactory.cpp \
-	GateFactoryException.cpp XamineEventHandler.cpp TCLHistogrammer.cpp \
+	GateFactoryException.cpp TCLHistogrammer.cpp \
 	PseudoCommand.cpp PseudoScript.cpp ChanCommand.cpp WriteCommand.cpp \
 	ReadCommand.cpp TCLAnalyzer.cpp EventProcessor.cpp TclGrammerApp.cpp \
 	Globals.cpp FilterCommand.cpp \
@@ -62,7 +62,7 @@ include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
 	PseudoCommand.h PseudoScript.h ReadCommand.h RunControlPackage.h \
 	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
 	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h \
-	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h \
+	UnbindCommand.h UngateCommand.h WriteCommand.h \
 	FilterCommand.h \
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
@@ -86,7 +86,7 @@ SpecTcl_SOURCES = MySpecTclApp.cpp \
 	PseudoCommand.h PseudoScript.h ReadCommand.h RunControlPackage.h \
 	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
 	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h \
-	UnbindCommand.h UngateCommand.h WriteCommand.h XamineEventHandler.h  \
+	UnbindCommand.h UngateCommand.h WriteCommand.h \
 	CFoldCommand.h
 
 
