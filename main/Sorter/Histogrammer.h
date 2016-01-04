@@ -86,7 +86,6 @@
 
 // Forward class definitions (probably should be a lot more of these).
 
-class CSpectrumFit;
 class CFlattenedGateList;
 class CSpectrumByParameter;
 class CDisplayGate;
@@ -123,7 +122,6 @@ class CHistogrammer : public CEventSink {
   ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
-//  CHistogrammerFitObserver* m_pFitObserver; // Monitor for fit changes.
   GateObserverList   m_gateObservers; 
 
 

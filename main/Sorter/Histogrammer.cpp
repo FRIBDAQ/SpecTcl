@@ -25,10 +25,8 @@
 
 #include <assert.h>
 #include <GateMediator.h>
-#include <CFitDictionary.h>
 #include <CFlattenedGateList.h>
 #include <CSpectrumByParameter.h>
-#include <CSpectrumFit.h>
 #include <TrueGate.h>
 #include <DeletedGate.h>
 
@@ -125,7 +123,6 @@ public:
 CHistogrammer::CHistogrammer()
 {
   srand(time(NULL)); 
-//  m_pFitObserver = new CHistogrammerFitObserver(*m_pDisplayer); // Follow changes to fits.
   createListObservers();
 }
 
@@ -137,7 +134,6 @@ CHistogrammer::CHistogrammer()
 //     Destructor.
 //
 CHistogrammer::~CHistogrammer() {
-//  delete m_pFitObserver;
   delete m_pGateList;
   delete m_pSpectrumLists;
 }

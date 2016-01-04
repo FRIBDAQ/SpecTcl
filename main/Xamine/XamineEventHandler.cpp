@@ -73,10 +73,8 @@ static inline UInt_t scale(UInt_t value, Int_t nshift)
 // Functions for class CXamineEventHandler
 
 
-CXamineEventHandler::CXamineEventHandler(CTCLInterpreter *pInterp,
-                                         CHistogrammer *pHistogrammer,
+CXamineEventHandler::CXamineEventHandler(CHistogrammer *pHistogrammer,
                                          CXamine *pDisplay) :
-   m_pInterp(pInterp),
    m_pSorter(pHistogrammer),
    m_pDisplay(pDisplay),
    m_nFd(pDisplay->GetEventFd())
@@ -85,7 +83,6 @@ CXamineEventHandler::CXamineEventHandler(CTCLInterpreter *pInterp,
  }
 
 CXamineEventHandler::CXamineEventHandler (const CXamineEventHandler& rhs ) :
-  m_pInterp(rhs.m_pInterp),
   m_pSorter(rhs.m_pSorter),
   m_pDisplay(rhs.m_pDisplay),
   m_nFd(rhs.m_nFd),
@@ -103,8 +100,7 @@ CXamineEventHandler& CXamineEventHandler::operator=
 }
 
 int CXamineEventHandler::operator== (const CXamineEventHandler& rhs) const {
-  return ( (m_pInterp == rhs.m_pInterp)    &&
-           (m_pSorter == rhs.m_pSorter)    &&
+  return ( (m_pSorter == rhs.m_pSorter)    &&
            (m_pDisplay == rhs.m_pDisplay)  &&
            (m_nFd == rhs.m_nFd)            &&
            (m_Timer == rhs.m_Timer));

@@ -89,7 +89,6 @@ public:
   typedef std::list<CButtonHandler*> ButtonHandlerList;
   typedef std::list<CRestartHandler*> RestartHandlerList;
 private:                       
-  CTCLInterpreter*   m_pInterp;
   CHistogrammer*     m_pSorter;
   CXamine*           m_pDisplay; //1:1 association object data member
   int                m_nFd;
@@ -100,8 +99,7 @@ public:
 
    // Constructors and other cannonical operations:
 
-  CXamineEventHandler (CTCLInterpreter* pInterp,
-                       CHistogrammer* pHistogrammer,
+  CXamineEventHandler (CHistogrammer* pHistogrammer,
                        CXamine*   pDisplay);
   virtual  ~ CXamineEventHandler ( )  // Destructor 
      { }  

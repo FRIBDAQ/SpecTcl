@@ -71,7 +71,7 @@ class CXamineSpectrum;
 class CXamineButton;
 class CSpectrum;
 
-
+class CXamineEventHandler;
 
 ////
 ////
@@ -88,6 +88,7 @@ class CXamine : public CDisplay
    FitlineBindings         m_FitlineBindings;     // Fitlines bound to displayer.
 
    static int              m_nextFitlineId;       // Next Xamine fitline id.
+   CXamineEventHandler*    m_pEventHandler;
 
 public:
   // Constructors:

@@ -490,10 +490,6 @@ void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize,
 {
   m_pDisplayInterface = new CSpecTclDisplayInterface;
   gpDisplayInterface = m_pDisplayInterface;
-  // We need to set up the Xamine event handler however:
-//  m_pXamineEvents = new CXamineEventHandler(gpInterpreter,
-//                        (CHistogrammer*)gpEventSink,
-//                        SpecTcl::getInstance()->GetDisplayInterface());
 
   CDisplayCreator* pCreator = gpDisplayInterface->getFactory().getCreator("xamine");
   CXamineCreator* pXCreator = dynamic_cast<CXamineCreator*>(pCreator);
@@ -504,7 +500,12 @@ void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize,
   }
   gpDisplayInterface->createDisplay("default", "xamine");
   gpDisplayInterface->setCurrentDisplay("default");
-  gpDisplayInterface->getCurrentDisplay()->Start();
+  CDisplay* pDisplay = gpDisplayInterface->getCurrentDisplay();
+
+  // We need to set up the Xamine event handler however:
+  m_pXamineEvents = new CXamineEventHandler(static_cast<CHistogrammer*>(gpEventSink),
+                                            dynamic_cast<CXamine*>(pDisplay));
+  pDisplay->Start();
 }
 
 //  Function:

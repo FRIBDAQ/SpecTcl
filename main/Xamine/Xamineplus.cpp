@@ -50,6 +50,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include "XaminePointsPrompt.h"
 #include "XamineTextPrompt.h"
 #include "XamineSpectrumPrompt.h"
+#include "XamineEventHandler.h"
 
 #include <DisplayGate.h>
 #include <Display.h>
