@@ -46,6 +46,7 @@ void CTestDisplay::Restart() { m_alive = true; }
 UInt_t CTestDisplay::BindToDisplay(CSpectrum &rSpectrum)
 {
     m_DisplayBindings.push_back(rSpectrum.getName());
+    m_boundSpectra.push_back(&rSpectrum);
 
     return m_DisplayBindings.size()-1;
 }
@@ -53,6 +54,7 @@ UInt_t CTestDisplay::BindToDisplay(CSpectrum &rSpectrum)
 void CTestDisplay::UnBindFromDisplay(UInt_t nSpec, CSpectrum &rSpectrum)
 {
     m_DisplayBindings.at(nSpec) = "";
+    m_boundSpectra.at(nSpec) = static_cast<CSpectrum*>(kpNULL);
 }
 
 void CTestDisplay::addFit(CSpectrumFit &fit) {
