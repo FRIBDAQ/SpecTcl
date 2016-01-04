@@ -44,7 +44,8 @@ libFits_la_SOURCES = 	CFit.cpp		\
 			CFitDictionary.cpp	\
 			fitgsl.c		\
 			CGaussianFit.cpp	\
-			CGaussianFitCreator.cpp
+			CGaussianFitCreator.cpp \
+			SpectrumDictionaryFitObserver.cpp
 
 include_HEADERS	=	CFit.h			\
 			CFitCreator.h		\
@@ -55,6 +56,7 @@ include_HEADERS	=	CFit.h			\
 			CFitDictionary.h	\
 			fitgsl.h		\
 			CGaussianFit.h		\
-			CGaussianFitCreator.h
+			CGaussianFitCreator.h	\
+			SpectrumDictionaryFitObserver.h
 
 EXTRA_DIST=permission.txt

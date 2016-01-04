@@ -820,6 +820,7 @@ AC_OUTPUT(Makefile daq/Makefile daq/daqdefs.h daq/daqdefs.tcl \
 	DecoderRing/Makefile \
 	TreeParam/Makefile \
 	Fits/Makefile	   \
+	FitsTests/Makefile \
 	 SpecTcl/Makefile \
 	 contrib/Makefile contrib/scriptable/Makefile \
 	 TestFiles/Makefile \

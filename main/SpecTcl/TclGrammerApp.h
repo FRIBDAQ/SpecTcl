@@ -78,6 +78,7 @@ class CGatePackage;
 class CEventProcessor;
 class CNSCLBufferDecoder;
 class CMultiTestSource;
+class CDisplayInterface;
 
 class CTclGrammerApp : public CTCLApplication {
   // Private Member data:
@@ -99,6 +100,7 @@ class CTclGrammerApp : public CTCLApplication {
   CTCLVariable m_TclParameterCount;
   CTCLVariable m_TclEventListSize;
   CMultiTestSource* m_pMultiTestSource;
+  CDisplayInterface* m_pDisplayInterface;
   
   int m_nUpdateRate;
 

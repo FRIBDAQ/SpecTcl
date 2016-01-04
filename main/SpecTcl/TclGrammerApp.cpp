@@ -43,6 +43,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "FilterCommand.h"
 #include "EventSinkPipeline.h"
 #include "CSpectrumStatsCommand.h"
+#include "SpectrumDictionaryFitObserver.h"
 
 
 #include "TCLAnalyzer.h"
@@ -81,6 +82,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <stdexcept>
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
@@ -463,6 +465,8 @@ void CTclGrammerApp::CreateHistogrammer() {
   m_pHistogrammer     = new CTCLHistogrammer(gpInterpreter);
   gpEventSink = m_pHistogrammer;
   gpEventSinkPipeline->AddEventSink(*m_pHistogrammer, "::Histogrammer");
+
+  SpecTcl::getInstance()->addSpectrumDictionaryObserver(new SpectrumDictionaryFitObserver);
 }
 
 //  Function:
@@ -484,11 +488,23 @@ void CTclGrammerApp::CreateHistogrammer() {
 void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, 
                                      CHistogrammer& rHistogrammer)
 {
-  gpDisplayInterface = new CSpecTclDisplayInterface;
+  m_pDisplayInterface = new CSpecTclDisplayInterface;
+  gpDisplayInterface = m_pDisplayInterface;
   // We need to set up the Xamine event handler however:
 //  m_pXamineEvents = new CXamineEventHandler(gpInterpreter,
 //                        (CHistogrammer*)gpEventSink,
 //                        SpecTcl::getInstance()->GetDisplayInterface());
+
+  CDisplayCreator* pCreator = gpDisplayInterface->getFactory().getCreator("xamine");
+  CXamineCreator* pXCreator = dynamic_cast<CXamineCreator*>(pCreator);
+  if (pXCreator != NULL) {
+      pXCreator->setDisplayBytes(nDisplaysize*1024*1024);
+  } else {
+      throw std::runtime_error("Failed to cast to a CXamineCreator");
+  }
+  gpDisplayInterface->createDisplay("default", "xamine");
+  gpDisplayInterface->setCurrentDisplay("default");
+  gpDisplayInterface->getCurrentDisplay()->Start();
 }
 
 //  Function:
@@ -941,12 +957,12 @@ CTclGrammerApp::SourceOptionalFile(CTCLInterpreter& rInterp, std::string filenam
 void
 CTclGrammerApp::TimedUpdates(ClientData d)
 {
-//    CTclGrammerApp*  pObject = reinterpret_cast<CTclGrammerApp*>(d);
-    
-//    CHistogrammer* pHistogrammer = pObject->m_pHistogrammer;
-//    pHistogrammer->updateStatistics();
-    
-//    Tcl_CreateTimerHandler(pObject->m_nUpdateRate, CTclGrammerApp::TimedUpdates, d);
+    CTclGrammerApp*  pObject = reinterpret_cast<CTclGrammerApp*>(d);
+
+    CDisplayInterface* pDisplayInterface = pObject->m_pDisplayInterface;
+    pDisplayInterface->getCurrentDisplay()->updateStatistics();
+
+    Tcl_CreateTimerHandler(pObject->m_nUpdateRate, CTclGrammerApp::TimedUpdates, d);
 }
 
 /**

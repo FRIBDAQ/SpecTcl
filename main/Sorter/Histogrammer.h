@@ -87,7 +87,6 @@
 // Forward class definitions (probably should be a lot more of these).
 
 class CSpectrumFit;
-class CHistogrammerFitObserver;
 class CFlattenedGateList;
 class CSpectrumByParameter;
 class CDisplayGate;

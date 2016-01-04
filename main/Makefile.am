@@ -18,6 +18,7 @@ SUBDIRS =  daq \
 	DisplayInterface \
 	Xamine \
 	SpecTcl \
+	FitsTests \
 	SorterTests \
 	contrib \
 	TestFiles \
