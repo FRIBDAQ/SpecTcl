@@ -38,6 +38,21 @@ lib_LTLIBRARIES = libTclGrammerCommands.la
 libTclGrammerCommands_la_LDFLAGS = -version-info $(SOVERSION):0 \
 	-Wl,"-rpath-link=$(libdir)"
 
+libTclGrammerCommands_la_LIBADD = \
+	@top_builddir@/Xamine/libXplus.la \
+	@top_builddir@/Gates/libGates.la \
+	@top_builddir@/Events/libAnalysis.la \
+	@top_builddir@/Filter/libFilter.la \
+	@top_builddir@/Analysis/libBufferAnalysis.la \
+	@top_builddir@/EventSource/libEventSource.la \
+	@top_builddir@/SpectrumIO/libSpecio.la  \
+	@top_builddir@/TreeParam/libTreeParam.la \
+	@top_builddir@/Display/libXamine.la \
+	@top_builddir@/Tape/libtape.la \
+	@top_builddir@/Fits/libFits.la \
+	@top_builddir@/Sorter/libSorting.la		\
+	@top_builddir@/DecoderRing/libDecoderRing.la
+
 libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
 	RunControlPackage.cpp ParameterPackage.cpp ParameterCommand.cpp \
 	SpectrumPackage.cpp ClearCommand.cpp BindCommand.cpp \
