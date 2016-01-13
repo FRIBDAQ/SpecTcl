@@ -84,6 +84,8 @@
 #define __GATECONTAINER_H
 #endif
 
+#include <GatingObserver.h>
+
 // Forward class definitions (probably should be a lot more of these).
 
 class CFlattenedGateList;
@@ -118,12 +120,13 @@ public:
 class CHistogrammer : public CEventSink {
 
   typedef std::list<CGateObserver*>   GateObserverList;
+  typedef std::list<CGatingObserver*> GatingObserverList;
 
   ParameterDictionary m_ParameterDictionary; // Dictionary of parameters.
   SpectrumDictionary  m_SpectrumDictionary;  // Dictionary of Spectra.
   CGateDictionary     m_GateDictionary;      // Dictionary of Gates.
-  GateObserverList   m_gateObservers; 
-
+  GateObserverList    m_gateObservers;       // Observers of gate dict
+  GatingObserverList  m_gatingObservers;     // Observers of applyGate/ungate
 
   // For maintaining the flattened lists.
 
@@ -219,6 +222,10 @@ class CHistogrammer : public CEventSink {
 
   void addGateObserver(CGateObserver* observer);
   void removeGateObserver(CGateObserver* observer);
+
+  void addGatingObserver(CGatingObserver* observer);
+  void removeGatingObserver(CGatingObserver* observer);
+
   
   // Utility Functions:
  protected:
@@ -226,7 +233,9 @@ class CHistogrammer : public CEventSink {
   void invokeGateChangedObservers(std::string name, CGateContainer& gate);
   void createListObservers();
   
-  
+  void observeApplyGate(CGateContainer& rGate, CSpectrum& rSpectrum);
+  void observeRemoveGate(CGateContainer& rGate, CSpectrum& rSpectrum);
+
 		
 };
 

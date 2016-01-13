@@ -65,6 +65,7 @@ CSpectrum* CNullDisplay::DisplayBinding(UInt_t xid) { return static_cast<CSpectr
 Int_t CNullDisplay::FindDisplayBinding(std::string name) { return -1;}
 UInt_t CNullDisplay::DisplayBindingsSize() const { return 0; }
 
+std::string CNullDisplay::createTitle(CSpectrum& pSpectrum, UInt_t maxLength) { return "null";}
 void CNullDisplay::setInfo(std::string name, UInt_t slot) {}
 void CNullDisplay::setTitle(std::string name, UInt_t slot) {}
 UInt_t CNullDisplay::getTitleSize() const { return 0; }

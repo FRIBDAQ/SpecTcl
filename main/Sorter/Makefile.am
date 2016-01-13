@@ -32,7 +32,8 @@ libSorting_la_SOURCES = DictionaryException.cpp Histogrammer.cpp Spectrum.cpp \
 	Spectrum2DL.cpp Gamma2DL.cpp  SummarySpectrumL.cpp \
 	CSpectrum2Dm.cpp CSpectrum2DmL.cpp CSpectrum2DmW.cpp CSpectrum2DmB.cpp \
 	Gamma2DD.cpp CFlattenedGateList.cpp CSpectrumByParameter.cpp \
-	CGammaSummarySpectrum.cpp
+	CGammaSummarySpectrum.cpp \
+	GatingObserver.cpp
 
 include_HEADERS = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	DictionaryException.h Gamma1DL.h Gamma1DW.h Gamma2DB.h Gamma2DW.h \
@@ -45,7 +46,8 @@ include_HEADERS = BitSpectrumL.h BitSpectrumW.h Dictionary.h \
 	Spectrum2DL.h  Gamma2DL.h SummarySpectrumL.h \
 	CSpectrum2Dm.h CSpectrum2DmL.h CSpectrum2DmW.h CSpectrum2DmB.h \
 	Gamma2DD.h DynamicList.h DynamicList.cpp \
-	CFlattenedGateList.h CSpectrumByParameter.h CGammaSummarySpectrum.h
+	CFlattenedGateList.h CSpectrumByParameter.h CGammaSummarySpectrum.h \
+	GatingObserver.h
 
 EXTRA_DIST = Sorter.WC Sorter.omt
 

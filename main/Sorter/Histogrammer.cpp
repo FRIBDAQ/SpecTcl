@@ -794,7 +794,7 @@ UInt_t CHistogrammer::ParameterCount() {
 //     void UnGate(const std::string& rSpectrum);
 // Operation Type:
 //     Mutator.
-void CHistogrammer::UnGate(const std::string& rSpectrum) {
+void CHistogrammer::UnGate(const std::string& spectrumName) {
   // Removes a gate from the indicated spectrum.
   // Note that the gate is really replaced with a
   // pointer to the noGate container.  That container holds a pointer to
@@ -807,15 +807,16 @@ void CHistogrammer::UnGate(const std::string& rSpectrum) {
   //     CDictionaryException  if the spectrum does not exist.
   //
 
-  CSpectrum *pSpectrum = FindSpectrum(rSpectrum);
+  CSpectrum *pSpectrum = FindSpectrum(spectrumName);
   if(!pSpectrum) {
     throw CDictionaryException(CDictionaryException::knNoSuchKey,
 			       "Looking up spectrum in CHistogrammer::UnGate",
-			       rSpectrum);
+                   spectrumName);
   }
   else {
     pSpectrum->ApplyGate(&NoGate);
-//    Int_t b  = findDisplayBinding(pSpectrum->getName());
+    observeApplyGate(NoGate, *pSpectrum);
+    //    Int_t b  = findDisplayBinding(pSpectrum->getName());
 //    if (b >= 0) {
 //      m_pDisplayer->setTitle(pSpectrum->getName(), b);
 //      m_pDisplayer->setInfo(createTitle(pSpectrum,
@@ -965,6 +966,7 @@ void CHistogrammer::ApplyGate(const std::string& rGateName,
 
   SpectrumType_t spType = pSpectrum->getSpectrumType();
   pSpectrum->ApplyGate(pGateContainer);
+  observeApplyGate(*pGateContainer, *pSpectrum);
 //  Int_t b =  findDisplayBinding(rSpectrum);
 //  if(b >= 0) {
 //    m_pDisplayer->setTitle(pSpectrum->getName(), b);
@@ -1071,6 +1073,36 @@ CHistogrammer::removeGateObserver(CGateObserver* observer)
   }
 }
 
+/*!
+    Add a gating observer.  This will be triggered whenever a gating operation
+    occurs like applyGate or Ungate.
+    \param observer - Pointer to the gating observer to add to the dictionary
+                     as well as our own list. (Caller maintains ownership)
+*/
+void
+CHistogrammer::addGatingObserver(CGatingObserver* observer)
+{
+  m_gatingObservers.push_back(observer);
+}
+
+/*!
+  Remove a gating observer.  This is a no-op if the observer pointed
+  to by the parameter does not exist.
+
+  \param observer - Pointer to the observer to remove.
+*/
+void
+CHistogrammer::removeGatingObserver(CGatingObserver* observer)
+{
+  GatingObserverList::iterator p = m_gatingObservers.begin();
+  while (p != m_gatingObservers.end()) {
+    if (*p == observer) {
+      m_gatingObservers.erase(p);
+      return;
+    }
+    p++;
+  }
+}
 
 //  Invoke the gate observers when a gate has changed.
 // Parameters:
@@ -1099,4 +1131,25 @@ CHistogrammer::createListObservers()
 
   m_pSpectrumLists = new CSpectrumByParameter;
   addSpectrumDictionaryObserver(m_pSpectrumLists);
+}
+
+
+void CHistogrammer::observeApplyGate(CGateContainer &rGate, CSpectrum &rSpectrum)
+{
+    GatingObserverList::iterator it = m_gatingObservers.begin();
+    GatingObserverList::iterator end = m_gatingObservers.end();
+    while (it != end) {
+        (*it)->onApply(rGate, rSpectrum);
+        ++it;
+    }
+}
+
+void CHistogrammer::observeRemoveGate(CGateContainer &rGate, CSpectrum &rSpectrum)
+{
+    GatingObserverList::iterator it = m_gatingObservers.begin();
+    GatingObserverList::iterator end = m_gatingObservers.end();
+    while (it != end) {
+        (*it)->onRemove(rGate, rSpectrum);
+        ++it;
+    }
 }

@@ -221,6 +221,11 @@ Int_t CTestDisplay::FindDisplayBinding(std::string name) {
     return -1;
 }
 
+std::string CTestDisplay::createTitle(CSpectrum& rSpectrum, UInt_t maxLength)
+{
+    return rSpectrum.getName();
+}
+
 void CTestDisplay::setInfo(std::string name, UInt_t slot) {}
 void CTestDisplay::setTitle(std::string name, UInt_t slot) {}
 UInt_t CTestDisplay::getTitleSize() const { return 0; }

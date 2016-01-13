@@ -30,7 +30,8 @@ libDisplayInterface_la_SOURCES = Display.cpp \
 			NullDisplay.cpp \
 			TestDisplay.cpp \
 			CHistogrammerFitObserver.cpp \
-			GateBinderObserver.cpp
+			GateBinderObserver.cpp \
+			GatingDisplayObserver.cpp
 
 include_HEADERS = Display.h \
 		    DisplayFactory.h \
@@ -39,7 +40,8 @@ include_HEADERS = Display.h \
 		    NullDisplay.h \
 		    TestDisplay.h \
 		    CHistogrammerFitObserver.h \
-		    GateBinderObserver.h
+		    GateBinderObserver.h \
+		    GatingDisplayObserver.h
 
 EXTRA_DIST = ClassBreakdown.WC ClassBreakdown.omt
 
