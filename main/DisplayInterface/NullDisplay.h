@@ -31,6 +31,8 @@ public:
 
     virtual std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum);
 
+    DisplayBindings getDisplayBindings() const;
+    void setDisplayBindings(const DisplayBindings &am_DisplayBindings);
     virtual CSpectrum* DisplayBinding(UInt_t xid);
     virtual Int_t FindDisplayBinding(std::string name);
     virtual UInt_t DisplayBindingsSize() const;
@@ -39,9 +41,9 @@ public:
     virtual void setTitle(std::string name, UInt_t slot);
     virtual UInt_t getTitleSize() const;
 
+    virtual CDisplayGate* GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate);
     virtual void EnterGate(CDisplayGate& rGate);
     virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType);
-
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y);
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y);
 };

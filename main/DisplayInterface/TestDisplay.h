@@ -30,7 +30,7 @@ public:
     virtual Bool_t isAlive();
     virtual void Restart();
 
-    const DisplayBindings&  getDisplayBindings() const;
+    DisplayBindings  getDisplayBindings() const;
     void setDisplayBindings (const DisplayBindings& am_DisplayBindings);
 
     virtual UInt_t BindToDisplay(CSpectrum& rSpectrum);
@@ -53,6 +53,7 @@ public:
     virtual void setTitle(std::string name, UInt_t slot);
     virtual UInt_t getTitleSize() const;
 
+    virtual CDisplayGate* GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate);
     virtual void EnterGate(CDisplayGate& rGate);
     virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType);
 

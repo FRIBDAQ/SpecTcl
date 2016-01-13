@@ -16,9 +16,4 @@
 
 #include <Display.h>
 
-CDisplay::CDisplay() {}
-
-CDisplay::CDisplay(const CDisplay&) {}
-
 CDisplay::~CDisplay() {}
-

@@ -71,10 +71,8 @@ class CXamineSpectrum;
 class CXamineButton;
 class CSpectrum;
 
-class CXamineEventHandler;
-
-////
-////
+//
+//
 
 
 class CXamine : public CDisplay
@@ -88,7 +86,6 @@ class CXamine : public CDisplay
    FitlineBindings         m_FitlineBindings;     // Fitlines bound to displayer.
 
    static int              m_nextFitlineId;       // Next Xamine fitline id.
-   CXamineEventHandler*    m_pEventHandler;
 
 public:
   // Constructors:
@@ -184,12 +181,8 @@ public:
   Int_t FindDisplayBinding(std::string name);
   Int_t FindDisplayBinding(CSpectrum& rSpectrum);
 
-  const DisplayBindings&  getDisplayBindings() const {
-    return m_DisplayBindings;
-  }
-  void setDisplayBindings (const DisplayBindings& am_DisplayBindings) {
-    m_DisplayBindings = am_DisplayBindings;
-  }
+  DisplayBindings  getDisplayBindings() const;
+  void setDisplayBindings (const DisplayBindings& am_DisplayBindings);
 
 
 
@@ -242,7 +235,7 @@ protected:
   DialogSpectrumType_t MaptoSpec_t(ButtonDialogSpectrumType t);
   Xamine_gatetype      MapFromGate_t(GateType_t type);
 
-  CDisplayGate* GateToXamineGate(CSpectrum& rSpectrum, CGateContainer& rGate);
+  CDisplayGate* GateToDisplayGate(CSpectrum& rSpectrum, CGateContainer& rGate);
 
   /**
    * flip2dGatePoints

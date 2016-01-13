@@ -159,6 +159,16 @@ std::vector<CGateContainer> CTestDisplay::GatesToDisplay(const std::string &rSpe
       return vGates;
 }
 
+DisplayBindings CTestDisplay::getDisplayBindings() const
+{
+    return m_DisplayBindings;
+}
+
+void CTestDisplay::setDisplayBindings(const DisplayBindings &am_DisplayBindings)
+{
+    m_DisplayBindings = am_DisplayBindings;
+}
+
 CSpectrum* CTestDisplay::DisplayBinding(UInt_t xid)
 {
     // Returns  a pointer to a spectrum which is bound on a particular
@@ -214,6 +224,11 @@ Int_t CTestDisplay::FindDisplayBinding(std::string name) {
 void CTestDisplay::setInfo(std::string name, UInt_t slot) {}
 void CTestDisplay::setTitle(std::string name, UInt_t slot) {}
 UInt_t CTestDisplay::getTitleSize() const { return 0; }
+
+CDisplayGate* CTestDisplay::GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate)
+{
+    return NULL;
+}
 
 void CTestDisplay::EnterGate(CDisplayGate &rGate) {}
 void CTestDisplay::RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) {}

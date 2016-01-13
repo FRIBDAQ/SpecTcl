@@ -410,6 +410,7 @@ public:
   CTclAnalyzer*       GetAnalyzer();
   CEventSinkPipeline* GetEventSinkPipeline();
   CDisplayInterface *GetDisplayInterface();
+  void SetDisplayInterface(CDisplayInterface& rInterface);
   std::vector<UInt_t>      parameterIds(std::vector<std::string> names);
 
   

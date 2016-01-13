@@ -2483,6 +2483,11 @@ CDisplayInterface* SpecTcl::GetDisplayInterface()
     return gpDisplayInterface;
 }
 
+void SpecTcl::SetDisplayInterface(CDisplayInterface &rInterface)
+{
+    gpDisplayInterface = &rInterface;
+}
+
 /*
    Returns a vector of parameter ids for a list of parameter
    names.  Throws a string exception of the name of the failing parameter

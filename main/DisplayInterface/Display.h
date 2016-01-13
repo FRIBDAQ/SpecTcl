@@ -42,8 +42,6 @@ public:
     typedef std::vector<FitlineList>    FitlineBindings;
 
 public:
-    CDisplay();
-    CDisplay(const CDisplay&);
     virtual ~CDisplay();
 
     virtual int operator==(const CDisplay&) = 0;
@@ -55,8 +53,8 @@ public:
     virtual Bool_t isAlive() = 0;
     virtual void Restart() = 0;
 
-    const DisplayBindings&  getDisplayBindings() const;
-    void setDisplayBindings (const DisplayBindings& am_DisplayBindings);
+    virtual DisplayBindings getDisplayBindings() const = 0;
+    virtual void setDisplayBindings (const DisplayBindings& am_DisplayBindings) = 0;
 
     virtual UInt_t BindToDisplay(CSpectrum& rSpectrum) = 0;
     virtual void   UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum) = 0;
@@ -76,6 +74,7 @@ public:
     virtual void setTitle(std::string name, UInt_t slot) = 0;
     virtual UInt_t getTitleSize() const = 0;
 
+    virtual CDisplayGate* GateToDisplayGate(CSpectrum& rSpectrum, CGateContainer& rGate) = 0;
     virtual void EnterGate(CDisplayGate& rGate) = 0;
     virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) = 0;
 

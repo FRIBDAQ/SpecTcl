@@ -30,6 +30,7 @@ public:
     void setInfo(std::string name, UInt_t slot) {}
     void setTitle(std::string name, UInt_t slot) {}
     UInt_t getTitleSize() const {return 0;}
+    CDisplayGate* GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate) { return NULL;}
     void EnterGate(CDisplayGate& rGate) {}
     void RemoveGate(UInt_t, UInt_t, GateType_t) {}
     void setOverflows(unsigned, unsigned, unsigned) {}
@@ -42,6 +43,8 @@ public:
     void updateStatistics() {}
     vector<CGateContainer> GatesToDisplay(const string &rSpectrum) { return vector<CGateContainer>();}
     Int_t FindDisplayBinding(std::string) { return 0;}
+    DisplayBindings getDisplayBindings() const { return DisplayBindings();}
+    void setDisplayBindings(const DisplayBindings &am_DisplayBindings) {}
     CSpectrum* DisplayBinding(UInt_t xid);
     UInt_t DisplayBindingsSize() const { return 0; }
 

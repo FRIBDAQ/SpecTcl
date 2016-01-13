@@ -44,6 +44,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "EventSinkPipeline.h"
 #include "CSpectrumStatsCommand.h"
 #include "SpectrumDictionaryFitObserver.h"
+#include "GateBinderObserver.h"
 
 
 #include "TCLAnalyzer.h"
@@ -466,7 +467,8 @@ void CTclGrammerApp::CreateHistogrammer() {
   gpEventSink = m_pHistogrammer;
   gpEventSinkPipeline->AddEventSink(*m_pHistogrammer, "::Histogrammer");
 
-  SpecTcl::getInstance()->addSpectrumDictionaryObserver(new SpectrumDictionaryFitObserver);
+  SpecTcl& api = *(SpecTcl::getInstance());
+  api.addSpectrumDictionaryObserver(new SpectrumDictionaryFitObserver);
 }
 
 //  Function:
@@ -488,8 +490,14 @@ void CTclGrammerApp::CreateHistogrammer() {
 void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, 
                                      CHistogrammer& rHistogrammer)
 {
+  SpecTcl& api = *(SpecTcl::getInstance());
+
   m_pDisplayInterface = new CSpecTclDisplayInterface;
-  gpDisplayInterface = m_pDisplayInterface;
+  api.SetDisplayInterface(*m_pDisplayInterface);
+
+  api.addGateDictionaryObserver(new CGateBinderObserver(*m_pDisplayInterface,
+                                                       *m_pHistogrammer));
+
 
   CDisplayCreator* pCreator = gpDisplayInterface->getFactory().getCreator("xamine");
   CXamineCreator* pXCreator = dynamic_cast<CXamineCreator*>(pCreator);
@@ -498,14 +506,17 @@ void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize,
   } else {
       throw std::runtime_error("Failed to cast to a CXamineCreator");
   }
-  gpDisplayInterface->createDisplay("default", "xamine");
-  gpDisplayInterface->setCurrentDisplay("default");
-  CDisplay* pDisplay = gpDisplayInterface->getCurrentDisplay();
+  m_pDisplayInterface->createDisplay("default", "xamine");
+  m_pDisplayInterface->setCurrentDisplay("default");
+
+
+  CDisplay* pDisplay = m_pDisplayInterface->getCurrentDisplay();
 
   // We need to set up the Xamine event handler however:
-  m_pXamineEvents = new CXamineEventHandler(static_cast<CHistogrammer*>(gpEventSink),
+  m_pXamineEvents = new CXamineEventHandler(static_cast<CHistogrammer*>(api.GetHistogrammer()),
                                             dynamic_cast<CXamine*>(pDisplay));
   pDisplay->Start();
+
 }
 
 //  Function:

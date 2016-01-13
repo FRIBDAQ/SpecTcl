@@ -50,7 +50,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include "XaminePointsPrompt.h"
 #include "XamineTextPrompt.h"
 #include "XamineSpectrumPrompt.h"
-#include "XamineEventHandler.h"
 
 #include <DisplayGate.h>
 #include <Display.h>
@@ -1270,7 +1269,7 @@ UInt_t CXamine::BindToDisplay(CSpectrum &rSpectrum) {
 
   UInt_t Size = DisplayGates.size();
   for(UInt_t i = 0; i < DisplayGates.size(); i++) {
-    CDisplayGate* pXgate = GateToXamineGate(rSpectrum, DisplayGates[i]);
+    CDisplayGate* pXgate = GateToDisplayGate(rSpectrum, DisplayGates[i]);
     if(pXgate) EnterGate(*pXgate);
     delete pXgate;
   }
@@ -1481,7 +1480,7 @@ CXamine::updateStatistics()
   the client.
 
 */
-CDisplayGate* CXamine::GateToXamineGate(CSpectrum& rSpectrum,
+CDisplayGate* CXamine::GateToDisplayGate(CSpectrum& rSpectrum,
                           CGateContainer& rGate)
 {
   CDisplayGate* pXGate;
@@ -1629,14 +1628,14 @@ void CXamine::AddGateToBoundSpectra(CGateContainer& rGate) {
   //       be treated as if they were pointers to gates.
     //
 
-//    // The mediator tells us whether the spectrum can display the gate
+    // The mediator tells us whether the spectrum can display the gate
 //    for(UInt_t nId = 0; nId < m_DisplayBindings.size(); nId++) {
 //        if(m_DisplayBindings[nId] != "") { // Spectrum bound.
 //            CSpectrum* pSpec = m_pSorter->FindSpectrum(m_DisplayBindings[nId]);
 //            assert(pSpec != (CSpectrum*)kpNULL); // Bound spectra must exist!!.
 //            CGateMediator DisplayableGate(rGate, pSpec);
 //            if(DisplayableGate()) {
-//                CDisplayGate* pDisplayed = GateToXamineGate(*pSpec, rGate);
+//                CDisplayGate* pDisplayed = GateToDisplayGate(*pSpec, rGate);
 //                if(pDisplayed)
 //                    EnterGate(*pDisplayed);
 //                delete pDisplayed;
@@ -1742,6 +1741,16 @@ CXamine::GatesToDisplay(const std::string& rSpectrum)
 //  }
 
   return vGates;
+}
+
+DisplayBindings CXamine::getDisplayBindings() const
+{
+   return m_DisplayBindings;
+}
+
+void CXamine::setDisplayBindings(const DisplayBindings &am_DisplayBindings)
+{
+    m_DisplayBindings = am_DisplayBindings;
 }
 
 //////////////////////////////////////////////////////////////////////
