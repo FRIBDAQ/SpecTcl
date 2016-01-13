@@ -45,7 +45,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "CSpectrumStatsCommand.h"
 #include "SpectrumDictionaryFitObserver.h"
 #include "GateBinderObserver.h"
-
+#include "GatingDisplayObserver.h"
 
 #include "TCLAnalyzer.h"
 
@@ -243,7 +243,8 @@ CTclGrammerApp::CTclGrammerApp() :
   m_TclParameterCount(string("ParameterCount"), kfFALSE),
   m_TclEventListSize(string("EventListSize"),   kfFALSE),
   m_pMultiTestSource((CMultiTestSource*)kpNULL),
-  m_nUpdateRate(1000)                              // Seconds between periodic events.
+  m_nUpdateRate(1000),                              // Seconds between periodic events.
+  m_pGatingObserver(NULL)
 {
   if(gpEventSource != (CFile*)kpNULL) {
     if(gpEventSource->getState() == kfsOpen) {
@@ -261,7 +262,7 @@ CTclGrammerApp::CTclGrammerApp() :
    We'll try not deleting any of the members.
 */
 CTclGrammerApp::~CTclGrammerApp() {
-
+    delete m_pGatingObserver;
 }
 
 // Functions for class CTclGrammerApp
@@ -516,6 +517,9 @@ void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize,
   m_pXamineEvents = new CXamineEventHandler(static_cast<CHistogrammer*>(api.GetHistogrammer()),
                                             dynamic_cast<CXamine*>(pDisplay));
   pDisplay->Start();
+
+  m_pGatingObserver = new CGatingDisplayObserver(m_pDisplayInterface);
+  api.GetHistogrammer()->addGatingObserver(m_pGatingObserver);
 
 }
 

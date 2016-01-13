@@ -1850,7 +1850,7 @@ UInt_t CXamine::DisplayBindingsSize() const {
 //   number of characters avaialable to a spectrum title.
 //
 string
-CXamine::createTitle(CSpectrum& rSpectrum, UInt_t maxLength)
+CXamine::createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer& pSorter)
 {
   CSpectrum::SpectrumDefinition def = rSpectrum.GetDefinition();
   string name = def .sName;

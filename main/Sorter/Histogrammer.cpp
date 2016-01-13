@@ -1143,13 +1143,3 @@ void CHistogrammer::observeApplyGate(CGateContainer &rGate, CSpectrum &rSpectrum
         ++it;
     }
 }
-
-void CHistogrammer::observeRemoveGate(CGateContainer &rGate, CSpectrum &rSpectrum)
-{
-    GatingObserverList::iterator it = m_gatingObservers.begin();
-    GatingObserverList::iterator end = m_gatingObservers.end();
-    while (it != end) {
-        (*it)->onRemove(rGate, rSpectrum);
-        ++it;
-    }
-}

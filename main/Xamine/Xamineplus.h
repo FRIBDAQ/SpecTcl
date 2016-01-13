@@ -186,7 +186,7 @@ public:
 
 
 
-  std::string createTitle(CSpectrum& pSpectrum, UInt_t maxLength);
+  std::string createTitle(CSpectrum& pSpectrum, UInt_t maxLength, CHistogrammer &pSorter);
   UInt_t getTitleSize()  const;
   void setTitle(std::string name, UInt_t slot);
   void setInfo(std::string  name, UInt_t slot);

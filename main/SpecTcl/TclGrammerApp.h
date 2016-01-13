@@ -79,6 +79,7 @@ class CEventProcessor;
 class CNSCLBufferDecoder;
 class CMultiTestSource;
 class CDisplayInterface;
+class CGatingDisplayObserver;
 
 class CTclGrammerApp : public CTCLApplication {
   // Private Member data:
@@ -101,6 +102,7 @@ class CTclGrammerApp : public CTCLApplication {
   CTCLVariable m_TclEventListSize;
   CMultiTestSource* m_pMultiTestSource;
   CDisplayInterface* m_pDisplayInterface;
+  CGatingDisplayObserver* m_pGatingObserver;
   
   int m_nUpdateRate;
 

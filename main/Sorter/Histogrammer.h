@@ -234,7 +234,6 @@ class CHistogrammer : public CEventSink {
   void createListObservers();
   
   void observeApplyGate(CGateContainer& rGate, CSpectrum& rSpectrum);
-  void observeRemoveGate(CGateContainer& rGate, CSpectrum& rSpectrum);
 
 		
 };
