@@ -29,6 +29,7 @@ class CDisplayGate;
 class CSpectrum;
 class CSpectrumFit;
 class CGateContainer;
+class CHistogrammer;
 
 // Display binding management types:
 typedef std::vector<std::string>   DisplayBindings;
@@ -70,7 +71,7 @@ public:
     virtual Int_t FindDisplayBinding(std::string name) = 0;
     virtual UInt_t DisplayBindingsSize() const = 0;
 
-    virtual std::string createTitle(CSpectrum& pSpectrum, UInt_t maxLength) = 0;
+    virtual std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer& rSorter) = 0;
     virtual void setInfo(std::string name, UInt_t slot) = 0;
     virtual void setTitle(std::string name, UInt_t slot) = 0;
     virtual UInt_t getTitleSize() const = 0;

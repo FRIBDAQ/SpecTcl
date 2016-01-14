@@ -37,7 +37,7 @@ public:
     virtual Int_t FindDisplayBinding(std::string name);
     virtual UInt_t DisplayBindingsSize() const;
 
-    virtual std::string createTitle(CSpectrum& pSpectrum, UInt_t maxLength);
+    virtual std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer& rSorter);
     virtual void setInfo(std::string name, UInt_t slot);
     virtual void setTitle(std::string name, UInt_t slot);
     virtual UInt_t getTitleSize() const;

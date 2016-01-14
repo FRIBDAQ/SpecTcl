@@ -18,7 +18,8 @@ void CGatingDisplayObserver::onApply(const CGateContainer &rGate, CSpectrum &rSp
       if(b >= 0) {
         pDisplay->setTitle(rSpectrum.getName(), b);
         pDisplay->setInfo(pDisplay->createTitle(rSpectrum,
-                                                pDisplay->getTitleSize()),
+                                                pDisplay->getTitleSize(),
+                                                rSorter),
                             b);
       }
 }

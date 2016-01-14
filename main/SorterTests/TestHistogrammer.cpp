@@ -30,7 +30,7 @@ public:
     void Stop() {};
     Bool_t isAlive() { return true; }
     void Restart() { };
-    std::string createTitle(CSpectrum& pSpectrum, UInt_t maxLength) { return "fake";}
+    std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer&) { return "fake";}
     void setInfo(std::string name, UInt_t slot) {}
     void setTitle(std::string name, UInt_t slot) {}
     UInt_t getTitleSize() const {return 0;}

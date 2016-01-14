@@ -1850,117 +1850,114 @@ UInt_t CXamine::DisplayBindingsSize() const {
 //   number of characters avaialable to a spectrum title.
 //
 string
-CXamine::createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer& pSorter)
+CXamine::createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer& rSorter)
 {
   CSpectrum::SpectrumDefinition def = rSpectrum.GetDefinition();
   string name = def .sName;
-//  ostringstream typestream;
-//  typestream << def.eType;
-//  string type = typestream.str();
+  ostringstream typestream;
+  typestream << def.eType;
+  string type = typestream.str();
 
-//  // Create the axis vector:
+  // Create the axis vector:
 
-//  vector<string> axes;
-//  for (int i = 0; i < rSpectrum.Dimensionality(); i++) {
-//    ostringstream axisstream;
-//    axisstream << rSpectrum.GetLow(i) << ", " << rSpectrum.GetHigh(i)
-//           << " : " << rSpectrum.Dimension(i);
-//    axes.push_back(axisstream.str());
-//  }
-//  // gate name:
+  vector<string> axes;
+  for (int i = 0; i < rSpectrum.Dimensionality(); i++) {
+    ostringstream axisstream;
+    axisstream << rSpectrum.GetLow(i) << ", " << rSpectrum.GetHigh(i)
+           << " : " << rSpectrum.Dimension(i);
+    axes.push_back(axisstream.str());
+  }
+  // gate name:
 
-//  const CGateContainer& gate(*(rSpectrum.getGate()));
-//  string gateName;
-//  if (&gate != pDefaultGate) {
-//    gateName = gate.getName();
-//  } else {
-//    gateName = "";
-//  }
-//  //  Get the parameter names
+  const CGateContainer& gate(*(rSpectrum.getGate()));
+  string gateName;
+  if (&gate != pDefaultGate) {
+    gateName = gate.getName();
+  } else {
+    gateName = "";
+  }
+  //  Get the parameter names
 
-//  vector<UInt_t> ids = def.vParameters;
-//  vector<UInt_t> yids= def.vyParameters;
-//  vector<string> parameters;;
-//  vector<string> yparameters;
-
-
-
-//  for (int i =0; i < ids.size(); i++) {
-//    CParameter* pParam = m_pSorter->FindParameter(ids[i]);
-//    if (pParam) {
-//      parameters.push_back(pParam->getName());
-//    } else {
-//      parameters.push_back(string("--deleted--"));
-//    }
-//  }
-//  for (int i = 0; i < yids.size(); i++) {
-//    CParameter* pParam = m_pSorter->FindParameter(yids[i]);
-//    if (pParam) {
-//      yparameters.push_back(pParam->getName());
-//    }
-//    else {
-//      yparameters.push_back(string("--deleted--"));
-//    }
-//  }
+  vector<UInt_t> ids = def.vParameters;
+  vector<UInt_t> yids= def.vyParameters;
+  vector<string> parameters;;
+  vector<string> yparameters;
 
 
-//  // Ok now the following variables are set up for the first try:
-//  //  name       - Name of the spectrum
-//  //  type       - String type of the spectrum
-//  //  axes       - Vector of axis definitions.
-//  //  gateName       - name of gateName on spectrum.
-//  //  parameters - vector of parameter names.
 
-//  string trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
-//  if (trialTitle.size() < maxLength) return trialTitle;
-
-//  // Didn't fit.one by one drop the parameters..replacing the most recently
-//  // dropped parameter by "..."
-
-//  while (yparameters.size()) {
-//    yparameters[yparameters.size()-1] = "...";
-//    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
-//    if (trialTitle.size() < maxLength) return trialTitle;
-//    vector<string>::iterator i = yparameters.end();
-//    i--;
-//    yparameters.erase(i);
-//  }
-//  while (parameters.size()) {
-//    parameters[parameters.size()-1] = "..."; // Probably smaller than it was.
-//    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
-//    if (trialTitle.size() < maxLength) return trialTitle;
-//    vector<string>::iterator i = parameters.end();
-//    i--;
-//    parameters.erase(i);	// Kill off last parameter.
-//  }
-
-//  // Still didn't fit... and there are no more parameters left to drop.
-//  // now we drop the axis definition...
-
-//  axes.clear();
-//  trialTitle = createTrialTitle(type , axes, parameters, yparameters, gateName);
-//  if (trialTitle.size() < maxLength) return trialTitle;
-
-//  // Now compute if we can delete the tail of the spectrum name
-//  // to fit... For this try we drop at most 1/2 of the name.
-
-//  if ((trialTitle.size() - (name.size()/2 + 3)) < maxLength) {
-//    while(trialTitle.size() > maxLength) {
-//      name = name.assign(name.c_str(), name.size()-4) + string("...");
-//      trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
-//    }
-//    return trialTitle;
-//  }
+  for (int i =0; i < ids.size(); i++) {
+    CParameter* pParam = rSorter.FindParameter(ids[i]);
+    if (pParam) {
+      parameters.push_back(pParam->getName());
+    } else {
+      parameters.push_back(string("--deleted--"));
+    }
+  }
+  for (int i = 0; i < yids.size(); i++) {
+    CParameter* pParam = rSorter.FindParameter(yids[i]);
+    if (pParam) {
+      yparameters.push_back(pParam->getName());
+    }
+    else {
+      yparameters.push_back(string("--deleted--"));
+    }
+  }
 
 
-//  // nope...drop the gateName and delete the tail of the spectrum name so it fits.
-//  //
+  // Ok now the following variables are set up for the first try:
+  //  name       - Name of the spectrum
+  //  type       - String type of the spectrum
+  //  axes       - Vector of axis definitions.
+  //  gateName       - name of gateName on spectrum.
+  //  parameters - vector of parameter names.
 
-//  name.assign(name.c_str(), maxLength - 3) + string("...");
+  string trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+  if (trialTitle.size() < maxLength) return trialTitle;
+
+  // Didn't fit.one by one drop the parameters..replacing the most recently
+  // dropped parameter by "..."
+
+  while (yparameters.size()) {
+    yparameters[yparameters.size()-1] = "...";
+    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+    if (trialTitle.size() < maxLength) return trialTitle;
+    vector<string>::iterator i = yparameters.end();
+    i--;
+    yparameters.erase(i);
+  }
+  while (parameters.size()) {
+    parameters[parameters.size()-1] = "..."; // Probably smaller than it was.
+    trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+    if (trialTitle.size() < maxLength) return trialTitle;
+    vector<string>::iterator i = parameters.end();
+    i--;
+    parameters.erase(i);	// Kill off last parameter.
+  }
+
+  // Still didn't fit... and there are no more parameters left to drop.
+  // now we drop the axis definition...
+
+  axes.clear();
+  trialTitle = createTrialTitle(type , axes, parameters, yparameters, gateName);
+  if (trialTitle.size() < maxLength) return trialTitle;
+
+  // Now compute if we can delete the tail of the spectrum name
+  // to fit... For this try we drop at most 1/2 of the name.
+
+  if ((trialTitle.size() - (name.size()/2 + 3)) < maxLength) {
+    while(trialTitle.size() > maxLength) {
+      name = name.assign(name.c_str(), name.size()-4) + string("...");
+      trialTitle = createTrialTitle(type, axes, parameters, yparameters, gateName);
+    }
+    return trialTitle;
+  }
+
+
+  // nope...drop the gateName and delete the tail of the spectrum name so it fits.
+  //
+
+  name.assign(name.c_str(), maxLength - 3) + string("...");
   return name;
-
-
-
 }
 
 ///////////////////////////////////////////////////////////////////////////

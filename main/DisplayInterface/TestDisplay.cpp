@@ -230,7 +230,8 @@ void CTestDisplay::setInfo(std::string name, UInt_t slot) {}
 void CTestDisplay::setTitle(std::string name, UInt_t slot) {}
 UInt_t CTestDisplay::getTitleSize() const { return 0; }
 
-CDisplayGate* CTestDisplay::GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate)
+CDisplayGate* CTestDisplay::GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate,
+                                              CHistogrammer &rSorter)
 {
     return NULL;
 }
