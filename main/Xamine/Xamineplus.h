@@ -172,7 +172,8 @@ public:
 //  void AddGateToBoundSpectra(CGateContainer& rGate);
 //  void RemoveGateFromBoundSpectra(CGateContainer& rGate);
 
-  std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum);
+  std::vector<CGateContainer> GatesToDisplay(const std::string& spectrumName,
+                                             CHistogrammer& rSorter);
 
   CSpectrum* DisplayBinding(UInt_t xid);
   DisplayBindingsIterator DisplayBindingsBegin();

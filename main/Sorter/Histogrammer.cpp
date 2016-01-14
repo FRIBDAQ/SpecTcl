@@ -816,13 +816,6 @@ void CHistogrammer::UnGate(const std::string& spectrumName) {
   else {
     pSpectrum->ApplyGate(&NoGate);
     observeApplyGate(NoGate, *pSpectrum);
-    //    Int_t b  = findDisplayBinding(pSpectrum->getName());
-//    if (b >= 0) {
-//      m_pDisplayer->setTitle(pSpectrum->getName(), b);
-//      m_pDisplayer->setInfo(createTitle(pSpectrum,
-//					 m_pDisplayer->getTitleSize()), b);
-//    }
-    
   }
 }
 
@@ -867,7 +860,6 @@ void CHistogrammer::AddGate(const std::string& rName, UInt_t nId, CGate& rGate) 
   // Now add the gate:
   CGateContainer& aGate(*(new CGateContainer((string&)rName, nId, rGate)));
   m_GateDictionary.Enter(rName, aGate);
-//  AddGateToBoundSpectra(aGate);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -921,10 +913,8 @@ void CHistogrammer::ReplaceGate(const std::string& rGateName, CGate& rGate) {
   // We must remove the old gate from the displays, replace with the
   // new gate and Add back.
 
-  // RemoveGateFromBoundSpectra()
   pContainer->setGate(&rGate);
   invokeGateChangedObservers(rGateName, *pContainer);
-  // AddGateToBoundSpectra()
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -967,13 +957,6 @@ void CHistogrammer::ApplyGate(const std::string& rGateName,
   SpectrumType_t spType = pSpectrum->getSpectrumType();
   pSpectrum->ApplyGate(pGateContainer);
   observeApplyGate(*pGateContainer, *pSpectrum);
-//  Int_t b =  findDisplayBinding(rSpectrum);
-//  if(b >= 0) {
-//    m_pDisplayer->setTitle(pSpectrum->getName(), b);
-//    m_pDisplayer->setInfo(createTitle(pSpectrum,
-//				      m_pDisplayer->getTitleSize()),
-//			  b);
-//  }
 }
 /////////////////////////////////////////////////////////////////////////
 //

@@ -65,7 +65,7 @@ public:
 
     virtual void updateStatistics() = 0;
 
-    virtual std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum) = 0;
+    virtual std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum, CHistogrammer& rSorter) = 0;
 
     virtual CSpectrum* DisplayBinding(UInt_t xid) = 0;
     virtual Int_t FindDisplayBinding(std::string name) = 0;

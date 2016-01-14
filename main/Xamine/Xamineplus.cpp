@@ -1181,113 +1181,114 @@ UInt_t CXamine::BindToDisplay(CSpectrum &rSpectrum, CHistogrammer &rSorter) {
   //  and StorageType (determines how to construct it among other things).
   //  asserts are used to enforce restrictions on the types of spectra
   //  supported by Xamine.
-  UInt_t nSpectrum;
-  CXamineSpectrum* pXSpectrum(0);
-  try {
-    switch(rSpectrum.Dimensionality()) {
-    case 1:			// 1-d spectrum.
-      {
-    Bool_t           fWord = rSpectrum.StorageType() == keWord;
-    pXSpectrum   = new CXamine1D(getXamineMemory(),
-                                 rSpectrum.getName(),
-                                 rSpectrum.Dimension(0),
-                                 rSpectrum.GetLow(0),
-                                 rSpectrum.GetHigh(0),
-                                 rSpectrum.GetUnits(0),
-                                 fWord);
+    UInt_t nSpectrum;
+    CXamineSpectrum* pXSpectrum(0);
+    try {
+        switch(rSpectrum.Dimensionality()) {
+        case 1:			// 1-d spectrum.
+        {
+            Bool_t           fWord = rSpectrum.StorageType() == keWord;
+            pXSpectrum   = new CXamine1D(getXamineMemory(),
+                                         rSpectrum.getName(),
+                                         rSpectrum.Dimension(0),
+                                         rSpectrum.GetLow(0),
+                                         rSpectrum.GetHigh(0),
+                                         rSpectrum.GetUnits(0),
+                                         fWord);
 
 
-    break;
-      }
-    case 2:			// 2-d spectrum.
-      {
-    // 2d spectra can now have any data type so:
+            break;
+        }
+        case 2:			// 2-d spectrum.
+        {
+            // 2d spectra can now have any data type so:
 
-    int dataType;
-    switch (rSpectrum.StorageType()) {
-    case keWord:			// 2dW
-      dataType = 0;
-      break;
-    case keByte:		// 2db
-      dataType = 1;
-      break;
-    case keLong:			// (was 2).  2dL
-      dataType = 2;
-      break;
-    default:
-      throw string("Invalid 2d spectrum type");
+            int dataType;
+            switch (rSpectrum.StorageType()) {
+            case keWord:			// 2dW
+                dataType = 0;
+                break;
+            case keByte:		// 2db
+                dataType = 1;
+                break;
+            case keLong:			// (was 2).  2dL
+                dataType = 2;
+                break;
+            default:
+                throw string("Invalid 2d spectrum type");
+            }
+
+            pXSpectrum = new CXamine2D(getXamineMemory(),
+                                       rSpectrum.getName(),
+                                       rSpectrum.Dimension(0),
+                                       rSpectrum.Dimension(1),
+                                       rSpectrum.GetLow(0),
+                                       rSpectrum.GetLow(1),
+                                       rSpectrum.GetHigh(0),
+                                       rSpectrum.GetHigh(1),
+                                       rSpectrum.GetUnits(0),
+                                       rSpectrum.GetUnits(1),
+                                       dataType);
+
+            break;
+        }
+        default:			// Unrecognized dimensionality.
+                assert(kfFALSE);
+        }
+        // pXSpectrum points to a spectrum which can be 'defined' in Xamine:
+        // pSpectrum  points to a spectrum dictionary entry.
+        // What's left to do is:
+        //   Define the spectrum to Xamine (allocating slot and storage).
+        //   Replace the spectrum's storage with Xamine's.
+        //   Enter the slot/name correspondence in the m_DisplayBindings table.
+        //
+
+        Address_t pStorage           = DefineSpectrum(*pXSpectrum);
+        nSpectrum                    = pXSpectrum->getSlot();
+
+        setInfo(createTitle(rSpectrum, getTitleSize(), rSorter),
+                nSpectrum);
+        rSpectrum.ReplaceStorage(pStorage, kfFALSE);
+        while(m_DisplayBindings.size() <= nSpectrum) {
+            m_DisplayBindings.push_back("");
+            m_boundSpectra.push_back(0);
+        }
+
+        m_DisplayBindings[nSpectrum] = rSpectrum.getName();
+        m_boundSpectra[nSpectrum]    = &rSpectrum;
+        delete pXSpectrum;		// Destroy the XamineSpectrum.
     }
-
-    pXSpectrum = new CXamine2D(getXamineMemory(),
-                               rSpectrum.getName(),
-                               rSpectrum.Dimension(0),
-                               rSpectrum.Dimension(1),
-                               rSpectrum.GetLow(0),
-                               rSpectrum.GetLow(1),
-                               rSpectrum.GetHigh(0),
-                               rSpectrum.GetHigh(1),
-                               rSpectrum.GetUnits(0),
-                               rSpectrum.GetUnits(1),
-                               dataType);
-
-    break;
-      default:			// Unrecognized dimensionality.
-    assert(kfFALSE);
-      }
+    catch (...) {		// In case of throw after CXamine2D created.
+        delete pXSpectrum;
+        throw;
     }
-    // pXSpectrum points to a spectrum which can be 'defined' in Xamine:
-    // pSpectrum  points to a spectrum dictionary entry.
-    // What's left to do is:
-    //   Define the spectrum to Xamine (allocating slot and storage).
-    //   Replace the spectrum's storage with Xamine's.
-    //   Enter the slot/name correspondence in the m_DisplayBindings table.
+    // We must locate all of the gates which are relevant to this spectrum
+    // and enter them as well:
     //
 
-    Address_t pStorage           = DefineSpectrum(*pXSpectrum);
-    nSpectrum                    = pXSpectrum->getSlot();
+    vector<CGateContainer> DisplayGates = GatesToDisplay(rSpectrum.getName(), rSorter);
 
-    setInfo(createTitle(rSpectrum, getTitleSize(), rSorter),
-                        nSpectrum);
-    rSpectrum.ReplaceStorage(pStorage, kfFALSE);
-    while(m_DisplayBindings.size() <= nSpectrum) {
-      m_DisplayBindings.push_back("");
-      m_boundSpectra.push_back(0);
+    UInt_t Size = DisplayGates.size();
+    for(UInt_t i = 0; i < DisplayGates.size(); i++) {
+        CDisplayGate* pXgate = GateToDisplayGate(rSpectrum, DisplayGates[i]);
+        if(pXgate) EnterGate(*pXgate);
+        delete pXgate;
     }
-    m_DisplayBindings[nSpectrum] = rSpectrum.getName();
-    m_boundSpectra[nSpectrum]    = &rSpectrum;
-    delete pXSpectrum;		// Destroy the XamineSpectrum.
-  }
-  catch (...) {		// In case of throw after CXamine2D created.
-    delete pXSpectrum;
-    throw;
-  }
-  // We must locate all of the gates which are relevant to this spectrum
-  // and enter them as well:
-  //
+    // same for the fitlines:
+    //
 
-  vector<CGateContainer> DisplayGates = GatesToDisplay(rSpectrum.getName());
+    CFitDictionary& dict(CFitDictionary::getInstance());
+    CFitDictionary::iterator pf = dict.begin();
 
-  UInt_t Size = DisplayGates.size();
-  for(UInt_t i = 0; i < DisplayGates.size(); i++) {
-    CDisplayGate* pXgate = GateToDisplayGate(rSpectrum, DisplayGates[i]);
-    if(pXgate) EnterGate(*pXgate);
-    delete pXgate;
-  }
-  // same for the fitlines:
-  //
-
-  CFitDictionary& dict(CFitDictionary::getInstance());
-  CFitDictionary::iterator pf = dict.begin();
-
-  while (pf != dict.end()) {
-    CSpectrumFit* pFit = pf->second;
-    if (pFit->getName() == rSpectrum.getName()) {
-      addFit(*pFit);		// not very efficient, but doesn't need to be
+    while (pf != dict.end()) {
+        CSpectrumFit* pFit = pf->second;
+        if (pFit->getName() == rSpectrum.getName()) {
+            addFit(*pFit);		// not very efficient, but doesn't need to be
+        }
+        pf++;
     }
-    pf++;
-  }
 
-  return nSpectrum;
+    return nSpectrum;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1704,7 +1705,7 @@ CDisplayGate* CXamine::GateToDisplayGate(CSpectrum& rSpectrum,
 //    Protected utility.
 //
 std::vector<CGateContainer>
-CXamine::GatesToDisplay(const std::string& rSpectrum)
+CXamine::GatesToDisplay(const std::string& spectrumName, CHistogrammer &rSorter)
 {
   // Returns a vector of gates which can be displayed on the spectrum.
   // Gates are considered displayable on a spectrum iff the gate parameter set
@@ -1722,23 +1723,23 @@ CXamine::GatesToDisplay(const std::string& rSpectrum)
   //
 
   std::vector<CGateContainer> vGates;
-//  CSpectrum *pSpec = m_pSorter->FindSpectrum(rSpectrum);
-//  if(!pSpec) {
-//    throw CDictionaryException(CDictionaryException::knNoSuchKey,
-//                   "No such spectrum CXamine::GatesToDisplay",
-//                   rSpectrum);
-//  }
-//  //
-//  // The mediator tells us whether the spectrum can display the gate:
-//  //
-//  CGateDictionaryIterator pGate = m_pSorter->GateBegin();
-//  while(pGate != m_pSorter->GateEnd()) {
-//    CGateMediator DisplayableGate(((*pGate).second), pSpec);
-//    if(DisplayableGate()) {
-//      vGates.push_back((*pGate).second);
-//    }
-//    pGate++;
-//  }
+  CSpectrum *pSpec = rSorter.FindSpectrum(spectrumName);
+  if(!pSpec) {
+    throw CDictionaryException(CDictionaryException::knNoSuchKey,
+                   "No such spectrum CXamine::GatesToDisplay",
+                   spectrumName);
+  }
+  //
+  // The mediator tells us whether the spectrum can display the gate:
+  //
+  CGateDictionaryIterator pGate = rSorter.GateBegin();
+  while(pGate != rSorter.GateEnd()) {
+    CGateMediator DisplayableGate(((*pGate).second), pSpec);
+    if(DisplayableGate()) {
+      vGates.push_back((*pGate).second);
+    }
+    pGate++;
+  }
 
   return vGates;
 }

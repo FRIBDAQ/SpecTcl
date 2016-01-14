@@ -119,7 +119,8 @@ void CTestDisplay::deleteFit(CSpectrumFit &fit) {
 void CTestDisplay::updateStatistics() {}
 
 
-std::vector<CGateContainer> CTestDisplay::GatesToDisplay(const std::string &rSpectrum)
+std::vector<CGateContainer> CTestDisplay::GatesToDisplay(const std::string &rSpectrum,
+                                                         CHistogrammer &rSorter)
 {
 
       // Returns a vector of gates which can be displayed on the spectrum.

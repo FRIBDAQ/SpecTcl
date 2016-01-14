@@ -48,7 +48,7 @@ void CNullDisplay::deleteFit(CSpectrumFit &fit) {}
 
 void CNullDisplay::updateStatistics() {}
 
-std::vector<CGateContainer> CNullDisplay::GatesToDisplay(const std::string &rSpectrum)
+std::vector<CGateContainer> CNullDisplay::GatesToDisplay(const std::string &rSpectrum, CHistogrammer &rSorter)
 {
     return std::vector<CGateContainer>();
 }

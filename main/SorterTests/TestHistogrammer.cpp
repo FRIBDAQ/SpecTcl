@@ -45,7 +45,8 @@ public:
     void addFit(CSpectrumFit &fit) {}
     void deleteFit(CSpectrumFit &fit) {}
     void updateStatistics() {}
-    vector<CGateContainer> GatesToDisplay(const string &rSpectrum) { return vector<CGateContainer>();}
+    vector<CGateContainer> GatesToDisplay(const string &rSpectrum, CHistogrammer&)
+    { return vector<CGateContainer>();}
     Int_t FindDisplayBinding(std::string) { return 0;}
     DisplayBindings getDisplayBindings() const { return DisplayBindings();}
     void setDisplayBindings(const DisplayBindings &am_DisplayBindings) {}

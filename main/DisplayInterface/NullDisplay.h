@@ -29,7 +29,8 @@ public:
 
     virtual void updateStatistics();
 
-    virtual std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum);
+    virtual std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum,
+                                                       CHistogrammer& rSorter);
 
     DisplayBindings getDisplayBindings() const;
     void setDisplayBindings(const DisplayBindings &am_DisplayBindings);
