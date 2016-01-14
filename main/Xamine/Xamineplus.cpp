@@ -1311,26 +1311,26 @@ void CXamine::UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum) {
 
 
     CSpectrum*       pSpectrum = &rSpectrum;
-//    //
-//    //  What we need to do is:
-//    //    0. Remove the gates which are being displayed.
-//    //    1. Provide local storage for the spectrum data.
-//    //    2. Remove the spectrum from the bindings table.
-//    //    3. Tell Xamine to free the slot and spectrum.
-//    //
+    //
+    //  What we need to do is:
+    //    0. Remove the gates which are being displayed.
+    //    1. Provide local storage for the spectrum data.
+    //    2. Remove the spectrum from the bindings table.
+    //    3. Tell Xamine to free the slot and spectrum.
+    //
 
-//    // Deal with the gates:
+    // Deal with the gates:
 
-//    CXamineGates* pGates = m_pDisplay->GetGates(nSpec);
-//    CDisplayGateVectorIterator pGateIterator = pGates->begin();
-//    while(pGateIterator != pGates->end()) {
-//      UInt_t   nGateId   = pGateIterator->getId();
-//      GateType_t eGateType = pGateIterator->getGateType();
-//      m_pDisplay->RemoveGate(nSpec, nGateId, eGateType);
-//      pGateIterator++;
-//    }
+    CXamineGates* pGates = GetGates(nSpec);
+    CDisplayGateVectorIterator pGateIterator = pGates->begin();
+    while(pGateIterator != pGates->end()) {
+      UInt_t   nGateId   = pGateIterator->getId();
+      GateType_t eGateType = pGateIterator->getGateType();
+      RemoveGate(nSpec, nGateId, eGateType);
+      pGateIterator++;
+    }
 
-//    delete pGates;
+    delete pGates;
 
     // Deal with the spectrum:
 

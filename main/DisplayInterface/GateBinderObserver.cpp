@@ -15,7 +15,6 @@ CGateBinderObserver::CGateBinderObserver(CDisplayInterface &rInterface, CHistogr
 void CGateBinderObserver::onAdd(std::string name, CGateContainer &rGate)
 {
 
-    std::cout << "CGateBinderObserver::onAdd " << name << " " << rGate.getName() << std::endl;
     CDisplay* pDisp = m_pInterface->getCurrentDisplay();
 
     // The mediator tells us whether the spectrum can display the gate
@@ -39,7 +38,6 @@ void CGateBinderObserver::onAdd(std::string name, CGateContainer &rGate)
 
 void CGateBinderObserver::onRemove(std::string name, CGateContainer &rGate)
 {
-    std::cout << "CGateBinderObserver::onRemove " << name << " " << rGate.getName() << std::endl;
     // Removes a gate that is just about to be destroyed from
     // the appropriate set of Xamine bound spectra.
     //
@@ -88,7 +86,6 @@ void CGateBinderObserver::onRemove(std::string name, CGateContainer &rGate)
 
 void CGateBinderObserver::onChange(std::string name, CGateContainer &rGate)
 {
-    std::cout << "CGateBinderObserver::onChange " << name << " " << rGate.getName() << std::endl;
     // assumes that the new gate and old gate have the same index
     onRemove(name, rGate);
     onAdd(name, rGate);

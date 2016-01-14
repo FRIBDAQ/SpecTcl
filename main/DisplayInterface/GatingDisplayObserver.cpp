@@ -18,8 +18,6 @@ void CGatingDisplayObserver::onApply(const CGateContainer &rGate,
                                      CSpectrum &rSpectrum,
                                      CHistogrammer &rSorter)
 {
-    std::cout << "CGatingDisplayObserver::onApply " << rGate.getName() << " "
-                                                    << rSpectrum.getName() << std::endl;
 
     CDisplay* pDisplay = m_pInterface->getCurrentDisplay();
     Int_t b =  pDisplay->FindDisplayBinding(rSpectrum.getName());
