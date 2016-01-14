@@ -2,8 +2,11 @@
 
 #include "Spectrum.h"
 #include "GateContainer.h"
+#include "Histogrammer.h"
 #include "Display.h"
 #include "DisplayInterface.h"
+
+#include <iostream>
 
 CGatingDisplayObserver::CGatingDisplayObserver(CDisplayInterface *pInterface)
     : m_pInterface(pInterface)
@@ -11,8 +14,13 @@ CGatingDisplayObserver::CGatingDisplayObserver(CDisplayInterface *pInterface)
 
 }
 
-void CGatingDisplayObserver::onApply(const CGateContainer &rGate, CSpectrum &rSpectrum)
+void CGatingDisplayObserver::onApply(const CGateContainer &rGate,
+                                     CSpectrum &rSpectrum,
+                                     CHistogrammer &rSorter)
 {
+    std::cout << "CGatingDisplayObserver::onApply " << rGate.getName() << " "
+                                                    << rSpectrum.getName() << std::endl;
+
     CDisplay* pDisplay = m_pInterface->getCurrentDisplay();
     Int_t b =  pDisplay->FindDisplayBinding(rSpectrum.getName());
       if(b >= 0) {
@@ -24,3 +32,9 @@ void CGatingDisplayObserver::onApply(const CGateContainer &rGate, CSpectrum &rSp
       }
 }
 
+
+void CGatingDisplayObserver::onRemove(const CGateContainer &rGate,
+                                      CSpectrum &rSpectrum, CHistogrammer &rSorter)
+{
+
+}

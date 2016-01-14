@@ -13,8 +13,9 @@ private:
 public:
     CGatingDisplayObserver(CDisplayInterface* pInterface);
 
-    void onApply(const CGateContainer &rGate, CSpectrum &rSpectrum);
+    void onApply(const CGateContainer &rGate, CSpectrum &rSpectrum, CHistogrammer& rSorter);
 
+    void onRemove(const CGateContainer &rGate, CSpectrum &rSpectrum, CHistogrammer& rSorter);
 };
 
 #endif // GATINGDISPLAYOBSERVER_H

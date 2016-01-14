@@ -40,7 +40,7 @@ public:
     void setOverflows(unsigned, unsigned, unsigned) {}
     void setUnderflows(unsigned, unsigned, unsigned) {}
     UInt_t GetEventFd() {}
-    UInt_t BindToDisplay(CSpectrum&) {}
+    UInt_t BindToDisplay(CSpectrum&, CHistogrammer&) {return 0;}
     void  UnBindFromDisplay(UInt_t nSpec, CSpectrum &rSpectrum) {}
     void addFit(CSpectrumFit &fit) {}
     void deleteFit(CSpectrumFit &fit) {}
@@ -62,11 +62,13 @@ private:
     std::vector<std::string> m_record;
 
 public:
-    void onApply(const CGateContainer &rGate, CSpectrum &rSpectrum) {
+    void onApply(const CGateContainer &rGate, CSpectrum &rSpectrum, CHistogrammer&) {
         ostringstream record;
         record << "apply:" << rGate.getName() << ":" << rSpectrum.getName();
         m_record.push_back(record.str());
     }
+
+    void onRemove(const CGateContainer &rGate, CSpectrum &rSpectrum, CHistogrammer &rSorter) {}
 
     std::vector<std::string> getRecord() { return m_record; }
 };

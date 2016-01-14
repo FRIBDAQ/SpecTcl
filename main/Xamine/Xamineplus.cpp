@@ -1173,7 +1173,7 @@ CXamine::setInfo(string info, UInt_t slot)
 
 
   */
-UInt_t CXamine::BindToDisplay(CSpectrum &rSpectrum) {
+UInt_t CXamine::BindToDisplay(CSpectrum &rSpectrum, CHistogrammer &rSorter) {
 
   // From the spectrum we must construct an Xamine spectrum which desribes
   // what we're trying to create.  There are two variables to worry about
@@ -1246,7 +1246,7 @@ UInt_t CXamine::BindToDisplay(CSpectrum &rSpectrum) {
     Address_t pStorage           = DefineSpectrum(*pXSpectrum);
     nSpectrum                    = pXSpectrum->getSlot();
 
-    setInfo(createTitle(rSpectrum, getTitleSize()),
+    setInfo(createTitle(rSpectrum, getTitleSize(), rSorter),
                         nSpectrum);
     rSpectrum.ReplaceStorage(pStorage, kfFALSE);
     while(m_DisplayBindings.size() <= nSpectrum) {
@@ -1618,7 +1618,7 @@ CDisplayGate* CXamine::GateToDisplayGate(CSpectrum& rSpectrum,
 // Operation Type:
 //   protected utility
 //
-void CXamine::AddGateToBoundSpectra(CGateContainer& rGate) {
+//void CXamine::AddGateToBoundSpectra(CGateContainer& rGate) {
   // Takes a (presumably) newly created gate, and enters it into the
   // appropriate set of spectra bound to Xamine.
   //
@@ -1642,7 +1642,7 @@ void CXamine::AddGateToBoundSpectra(CGateContainer& rGate) {
 //            }
 //        }
 //    }
-}
+//}
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -1651,48 +1651,48 @@ void CXamine::AddGateToBoundSpectra(CGateContainer& rGate) {
 // Operation Type:
 //    Protected Utility
 //
-void CXamine::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
-  // Removes a gate which is just about to be destroyed from
-  // the appropriate set of Xamine bound spectra.
-  //
-  // Formal Paramters:
-  //    CGateContainer& rGate:
-  //       Reference to the container which holds the gate about to be
-  //       destroyed.  Note that for most purposes, a gate container
-  //       can be treated as if it was a pointer to a gate.
-  //
-  UInt_t nGateId = rGate.getNumber();
-  GateType_t eType;
-  if(rGate->Type() == "c" || rGate->Type() == "gc") {
-    eType = kgContour2d;
-  }
-  else if(rGate->Type() == "b" || rGate->Type() == "gb") {
-    eType = kgBand2d;
-  }
-  else if (rGate->Type() == "s" || rGate->Type() == "gs") {
-    eType = kgCut1d;
-  }
-  else {
-    return;			// Non -primitive gates won't be displayed.
-  }
+//void CXamine::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
+//  // Removes a gate which is just about to be destroyed from
+//  // the appropriate set of Xamine bound spectra.
+//  //
+//  // Formal Paramters:
+//  //    CGateContainer& rGate:
+//  //       Reference to the container which holds the gate about to be
+//  //       destroyed.  Note that for most purposes, a gate container
+//  //       can be treated as if it was a pointer to a gate.
+//  //
+//  UInt_t nGateId = rGate.getNumber();
+//  GateType_t eType;
+//  if(rGate->Type() == "c" || rGate->Type() == "gc") {
+//    eType = kgContour2d;
+//  }
+//  else if(rGate->Type() == "b" || rGate->Type() == "gb") {
+//    eType = kgBand2d;
+//  }
+//  else if (rGate->Type() == "s" || rGate->Type() == "gs") {
+//    eType = kgCut1d;
+//  }
+//  else {
+//    return;			// Non -primitive gates won't be displayed.
+//  }
 
-  // This function is quite simple since gates entered in Xamine on our
-  // behalf will have this id and name.   Therefore we just need
-  // to remove gates with id == nGateId from all spectra bound.
-  //
-  // Note that CXamine::RemoveGate throws on error, and therefore
-  // we must catch and ignore exceptions at the removal.
+//  // This function is quite simple since gates entered in Xamine on our
+//  // behalf will have this id and name.   Therefore we just need
+//  // to remove gates with id == nGateId from all spectra bound.
+//  //
+//  // Note that CXamine::RemoveGate throws on error, and therefore
+//  // we must catch and ignore exceptions at the removal.
 
-  for(UInt_t nId = 0; nId < m_DisplayBindings.size(); nId++) {
-    if(m_DisplayBindings[nId] != "") {
-      try {
-            RemoveGate(nId, nGateId, eType);
-      }
-      catch(...) {		// Ignore exceptions.
-      }
-    }
-  }
-}
+//  for(UInt_t nId = 0; nId < m_DisplayBindings.size(); nId++) {
+//    if(m_DisplayBindings[nId] != "") {
+//      try {
+//            RemoveGate(nId, nGateId, eType);
+//      }
+//      catch(...) {		// Ignore exceptions.
+//      }
+//    }
+//  }
+//}
 
 
 
@@ -1957,6 +1957,7 @@ CXamine::createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer& rSor
   //
 
   name.assign(name.c_str(), maxLength - 3) + string("...");
+
   return name;
 }
 

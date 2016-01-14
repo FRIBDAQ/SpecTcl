@@ -161,7 +161,7 @@ public:
   void Stop ()  ;
   void Restart();
 
-  UInt_t BindToDisplay(CSpectrum& rSpectrum);
+  UInt_t BindToDisplay(CSpectrum& rSpectrum, CHistogrammer& rSorter);
   void   UnBindFromDisplay(UInt_t nSpec, CSpectrum &rSpectrum);
 
   void addFit(CSpectrumFit& fit);
@@ -169,8 +169,8 @@ public:
 
   void updateStatistics();
 
-  void AddGateToBoundSpectra(CGateContainer& rGate);
-  void RemoveGateFromBoundSpectra(CGateContainer& rGate);
+//  void AddGateToBoundSpectra(CGateContainer& rGate);
+//  void RemoveGateFromBoundSpectra(CGateContainer& rGate);
 
   std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum);
 
@@ -200,7 +200,7 @@ public:
  // end CDisplay interface
 
   void EnterGate (CDisplayGate& rGate)  ;
-  void RemoveGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType)  ;
+  void RemoveGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType);
   void EnterPeakMarker (UInt_t nSpectrum, 
                         UInt_t nId,
                         const std::string& rsName,

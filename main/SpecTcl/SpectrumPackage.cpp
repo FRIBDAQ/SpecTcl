@@ -650,7 +650,7 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
     try {
       CDisplay* pDisplay = api.GetDisplayInterface()->getCurrentDisplay();
       if (pDisplay) {
-        pDisplay->BindToDisplay(*pSpec);
+        pDisplay->BindToDisplay(*pSpec, *api.GetHistogrammer());
       }
     }
     catch (CException& rExcept) {
@@ -697,13 +697,14 @@ CSpectrumPackage::BindList(CTCLResult& rResult,
   CTCLString Result;
   Bool_t     Failed = kfFALSE;
   CDisplay*  pDisplay = m_pDisplay->getCurrentDisplay();
+  SpecTcl& api = *(SpecTcl::getInstance());
 
   std::vector<std::string>::iterator p = rvNames.begin();
   for(; p != rvNames.end(); p++) {
       try {
           CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
           if (pSpec) {
-              pDisplay->BindToDisplay(*pSpec);
+              pDisplay->BindToDisplay(*pSpec, *(api.GetHistogrammer()));
           } else {
               std::ostringstream errmsg;
               errmsg << *p << " cannot be bound because it doesn't exist.";
@@ -760,6 +761,7 @@ CSpectrumPackage::BindList(CTCLResult& rResult, std::vector<UInt_t>& rIds)
   Bool_t                        Failed = kfFALSE;
   CTCLString                    Result;
   CDisplay*    pDisplay = m_pDisplay->getCurrentDisplay();
+  SpecTcl& api = *(SpecTcl::getInstance());
 
   std::vector<UInt_t>::iterator p = rIds.begin();
 
@@ -767,7 +769,7 @@ CSpectrumPackage::BindList(CTCLResult& rResult, std::vector<UInt_t>& rIds)
     try {
       CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
       if(pSpec) {
-          pDisplay->BindToDisplay(*pSpec);
+          pDisplay->BindToDisplay(*pSpec, *(api.GetHistogrammer()));
       }
       else {
 	char TextId[100];
@@ -1644,7 +1646,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
     }
 
     if(fFlags & fBind) {	// Bind it if requested.
-    pDisplay->BindToDisplay(*pSpectrum);
+        pDisplay->BindToDisplay(*pSpectrum, *(api.GetHistogrammer()));
     }
   }
   catch (CException& rExcept) {	// All exceptions drop here.

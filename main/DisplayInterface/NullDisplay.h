@@ -21,7 +21,7 @@ public:
     virtual Bool_t isAlive();
     virtual void Restart();
 
-    virtual UInt_t BindToDisplay(CSpectrum& rSpectrum);
+    virtual UInt_t BindToDisplay(CSpectrum& rSpectrum, CHistogrammer& rSorter);
     virtual void   UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum);
 
     virtual void addFit(CSpectrumFit& fit);

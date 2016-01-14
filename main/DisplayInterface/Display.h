@@ -57,7 +57,7 @@ public:
     virtual DisplayBindings getDisplayBindings() const = 0;
     virtual void setDisplayBindings (const DisplayBindings& am_DisplayBindings) = 0;
 
-    virtual UInt_t BindToDisplay(CSpectrum& rSpectrum) = 0;
+    virtual UInt_t BindToDisplay(CSpectrum& rSpectrum, CHistogrammer& rSorter) = 0;
     virtual void   UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum) = 0;
 
     virtual void addFit(CSpectrumFit& fit) = 0;

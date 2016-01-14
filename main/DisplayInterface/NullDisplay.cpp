@@ -38,7 +38,7 @@ void CNullDisplay::Stop() {}
 Bool_t CNullDisplay::isAlive() { return true;}
 void CNullDisplay::Restart() {}
 
-UInt_t CNullDisplay::BindToDisplay(CSpectrum &rSpectrum)
+UInt_t CNullDisplay::BindToDisplay(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 { return 0;}
 
 void CNullDisplay::UnBindFromDisplay(UInt_t nSpec, CSpectrum &rSpectrum) {}

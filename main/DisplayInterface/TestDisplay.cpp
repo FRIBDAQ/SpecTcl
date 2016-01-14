@@ -43,7 +43,7 @@ void CTestDisplay::Stop() { m_alive = false; }
 Bool_t CTestDisplay::isAlive() { return m_alive;}
 void CTestDisplay::Restart() { m_alive = true; }
 
-UInt_t CTestDisplay::BindToDisplay(CSpectrum &rSpectrum)
+UInt_t CTestDisplay::BindToDisplay(CSpectrum &rSpectrum, CHistogrammer&)
 {
     m_DisplayBindings.push_back(rSpectrum.getName());
     m_boundSpectra.push_back(&rSpectrum);
@@ -221,7 +221,7 @@ Int_t CTestDisplay::FindDisplayBinding(std::string name) {
     return -1;
 }
 
-std::string CTestDisplay::createTitle(CSpectrum& rSpectrum, UInt_t maxLength)
+std::string CTestDisplay::createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer&)
 {
     return rSpectrum.getName();
 }
@@ -230,8 +230,7 @@ void CTestDisplay::setInfo(std::string name, UInt_t slot) {}
 void CTestDisplay::setTitle(std::string name, UInt_t slot) {}
 UInt_t CTestDisplay::getTitleSize() const { return 0; }
 
-CDisplayGate* CTestDisplay::GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate,
-                                              CHistogrammer &rSorter)
+CDisplayGate* CTestDisplay::GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 {
     return NULL;
 }

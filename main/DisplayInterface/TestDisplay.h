@@ -33,7 +33,7 @@ public:
     DisplayBindings  getDisplayBindings() const;
     void setDisplayBindings (const DisplayBindings& am_DisplayBindings);
 
-    virtual UInt_t BindToDisplay(CSpectrum& rSpectrum);
+    virtual UInt_t BindToDisplay(CSpectrum& rSpectrum, CHistogrammer& rSorter);
     virtual void   UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum);
 
     virtual void addFit(CSpectrumFit& fit);
@@ -49,13 +49,12 @@ public:
     UInt_t DisplayBindingsSize() const;
     virtual Int_t FindDisplayBinding(std::string name);
 
-    virtual std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength);
+    virtual std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer &);
     virtual void setInfo(std::string name, UInt_t slot);
     virtual void setTitle(std::string name, UInt_t slot);
     virtual UInt_t getTitleSize() const;
 
-    virtual CDisplayGate* GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate,
-                                            CHistogrammer& rSorter);
+    virtual CDisplayGate* GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate);
     virtual void EnterGate(CDisplayGate& rGate);
     virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType);
 

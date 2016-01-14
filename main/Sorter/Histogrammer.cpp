@@ -921,10 +921,10 @@ void CHistogrammer::ReplaceGate(const std::string& rGateName, CGate& rGate) {
   // We must remove the old gate from the displays, replace with the
   // new gate and Add back.
 
-  //RemoveGateFromBoundSpectra(*pContainer);
+  // RemoveGateFromBoundSpectra()
   pContainer->setGate(&rGate);
   invokeGateChangedObservers(rGateName, *pContainer);
-//  AddGateToBoundSpectra(*pContainer);
+  // AddGateToBoundSpectra()
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1139,7 +1139,7 @@ void CHistogrammer::observeApplyGate(CGateContainer &rGate, CSpectrum &rSpectrum
     GatingObserverList::iterator it = m_gatingObservers.begin();
     GatingObserverList::iterator end = m_gatingObservers.end();
     while (it != end) {
-        (*it)->onApply(rGate, rSpectrum);
+        (*it)->onApply(rGate, rSpectrum, *this);
         ++it;
     }
 }
