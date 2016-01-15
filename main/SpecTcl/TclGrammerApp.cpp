@@ -522,10 +522,6 @@ void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize,
   m_pGatingObserver = new CGatingDisplayObserver(m_pDisplayInterface);
   api.GetHistogrammer()->addGatingObserver(m_pGatingObserver);
 
-  CHistogrammerFitObserver* pFitObserver = new CHistogrammerFitObserver(*pDisplay);
-  CFitDictionary& fitDict = CFitDictionary::getInstance();
-  fitDict.addObserver(*pFitObserver);
-
 }
 
 //  Function:
