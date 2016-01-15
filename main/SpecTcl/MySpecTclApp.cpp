@@ -619,23 +619,45 @@ CMySpecTclApp::CreateHistogrammer()
 { CTclGrammerApp::CreateHistogrammer();
 }  
 
+/*! \brief Create custom displays
+ *
+ * If a user creates their own custom display that they want to use,
+ * they can create it here by adding it to the DisplayInterface. You could
+ * also use this to override certain parameters in the provided displays.
+ */
+void
+CMySpecTclApp::CreateDisplays()
+{
+    CTclGrammerApp::CreateDisplays();
+}
+
 //  Function: 	
-//    void SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer) 
+//    void SelectDisplayer()
 //  Operation Type:
 //     Override.
 /*  
 Purpose: 	
 
-Select a displayer object and link it to the
-histogrammer.  The default code will link Xamine
-to the displayer, and set up the Xamine event handler
-to deal with gate objects accepted by Xamine interaction.
-
+Select a displayer object. The implementation in the base class
+chooses the display and starts it. There is not a whole lot of
+reason you would want to change this behavior.
 */
 void 
-CMySpecTclApp::SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer)  
-{ CTclGrammerApp::SelectDisplayer(nDisplaySize, rHistogrammer);
+CMySpecTclApp::SelectDisplayer()
+{
+    CTclGrammerApp::SelectDisplayer();
 }  
+
+/*! \brief Set up a displays
+ *
+ * This is typically used to add observer objects to the displays
+ * that connect SpecTcl actions with the current display.
+ */
+void
+CMySpecTclApp::SetUpDisplay()
+{
+    CTclGrammerApp::SetUpDisplay();
+}
 
 //  Function: 	
 //    void SetupTestDataSource() 

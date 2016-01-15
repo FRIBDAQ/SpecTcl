@@ -229,6 +229,7 @@ CTclGrammerApp::CTclGrammerApp() :
   m_nDisplaySize(knDisplaySize),
   m_nParams(knParameterCount),
   m_nListSize(knEventListSize),
+  m_displayType("xamine"),
   m_pAnalyzer(0),
   m_pHistogrammer(0),
   m_pDecoder(0),
@@ -243,6 +244,7 @@ CTclGrammerApp::CTclGrammerApp() :
   m_TclDisplaySize(string("DisplayMegabytes"),  kfFALSE),
   m_TclParameterCount(string("ParameterCount"), kfFALSE),
   m_TclEventListSize(string("EventListSize"),   kfFALSE),
+  m_TclDisplayType(string("DisplayType"),       kfFALSE),
   m_pMultiTestSource((CMultiTestSource*)kpNULL),
   m_nUpdateRate(1000),                              // Seconds between periodic events.
   m_pGatingObserver(NULL)
@@ -309,6 +311,7 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   // m_TclDisplaySize - Number of megabytes of display storage.
   // m_ParameterCount - Guess at largest parameter number which will be stuffed
   // m_TclEventListSize - Number of event batched for analysis.
+  // m_TclDisplayType-  Type of display to use
 
   CTCLVariable HomeDir(string("SpecTclHome"), kfFALSE);
   HomeDir.Bind(rInterp);
@@ -332,7 +335,8 @@ void CTclGrammerApp::BindTCLVariables(CTCLInterpreter& rInterp) {
   m_TclDisplaySize.Bind(rInterp);
   m_TclParameterCount.Bind(rInterp);
   m_TclEventListSize.Bind(rInterp);
-  
+  m_TclDisplayType.Bind(rInterp);
+
   // Append TclLibs to the auto_path:
   
   rInterp.GlobalEval(tclLibScript);
@@ -447,6 +451,8 @@ void CTclGrammerApp::SetLimits() {
   UpdateUInt(m_TclDisplaySize,   m_nDisplaySize);
   UpdateUInt(m_TclParameterCount, m_nParams);
   UpdateUInt(m_TclEventListSize, m_nListSize);
+
+  UpdateString(m_TclDisplayType, m_displayType);
 }
 
 //  Function:
@@ -473,55 +479,78 @@ void CTclGrammerApp::CreateHistogrammer() {
   api.addSpectrumDictionaryObserver(new SpectrumDictionaryFitObserver);
 }
 
-//  Function:
-//    void SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogrammer)
-//  Operation Type:
-//     Behavior
-/*!
-
-  Selects the displayer and hooks it into the histogrammer.
-  Note:  In the current architecture, this selection is hardwired, however
-  in the future, we will support turning on and off displayers, null
-  displayers and so on and this member function will be useful
-  at that time.
-  \param nDisplaySize (in)
-     The size of the display shared memory in mbytes.
-  \param rHistogrammer (in)
-     A reference to the histogrammer object.
+/*! Function:
+* void CreateDisplays()
+*
+*  This creates the various displays that could be used during the session.
+*  Prestart configuration of the displays should be done within this
+*  method.
 */
-void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize, 
-                                     CHistogrammer& rHistogrammer)
+void CTclGrammerApp::CreateDisplays()
 {
-  SpecTcl& api = *(SpecTcl::getInstance());
+    SpecTcl& api = *(SpecTcl::getInstance());
 
-  m_pDisplayInterface = new CSpecTclDisplayInterface;
-  api.SetDisplayInterface(*m_pDisplayInterface);
+    m_pDisplayInterface = new CSpecTclDisplayInterface;
+    api.SetDisplayInterface(*m_pDisplayInterface);
 
-  api.addGateDictionaryObserver(new CGateBinderObserver(*m_pDisplayInterface,
-                                                       *m_pHistogrammer));
+    // Set up the Xamine display to use the appropriate display size
+    CDisplayCreator* pCreator = gpDisplayInterface->getFactory().getCreator("xamine");
+    CXamineCreator* pXCreator = dynamic_cast<CXamineCreator*>(pCreator);
+    if (pXCreator != NULL) {
+        pXCreator->setDisplayBytes(m_nDisplaySize*1024*1024);
+    } else {
+        throw std::runtime_error("Failed to cast to a CXamineCreator");
+    }
 
+    // Create the displays so they can chosen.
+    m_pDisplayInterface->createDisplay("xamine", "xamine");
+    m_pDisplayInterface->createDisplay("batch", "null");
+}
 
-  CDisplayCreator* pCreator = gpDisplayInterface->getFactory().getCreator("xamine");
-  CXamineCreator* pXCreator = dynamic_cast<CXamineCreator*>(pCreator);
-  if (pXCreator != NULL) {
-      pXCreator->setDisplayBytes(nDisplaysize*1024*1024);
-  } else {
-      throw std::runtime_error("Failed to cast to a CXamineCreator");
-  }
-  m_pDisplayInterface->createDisplay("default", "xamine");
-  m_pDisplayInterface->setCurrentDisplay("default");
+/*! \brief CTclGrammerApp::SelectDisplayer()
+*   Operation type:
+*    Behavior
+*
+* Selects the displayer to use and starts it if it exists.
+*
+* \throws std::runtime_error if user specified display that doesn't exist
+*/
+void CTclGrammerApp::SelectDisplayer()
+{
+    SpecTcl* pApi = SpecTcl::getInstance();
 
+    m_pDisplayInterface->setCurrentDisplay(m_displayType);
 
-  CDisplay* pDisplay = m_pDisplayInterface->getCurrentDisplay();
+    CDisplay* pDisplay = m_pDisplayInterface->getCurrentDisplay();
+    if (pDisplay) {
+        pDisplay->Start();
+    } else {
+        std::string error("User specified display type does not exist.");
+        throw std::runtime_error(error);
+    }
+}
 
-  // We need to set up the Xamine event handler however:
-  m_pXamineEvents = new CXamineEventHandler(static_cast<CHistogrammer*>(api.GetHistogrammer()),
-                                            dynamic_cast<CXamine*>(pDisplay));
-  pDisplay->Start();
+/*!
+ * \brief CTclGrammerApp::SetUpDisplay
+ *
+ *  This is primarily useful for adding observers to the displays. For example,
+ *  the GateBinderObserver and the CXamineEventHandler need to be registered here.
+ *  These are responsible for monitoring changes in the
+ */
+void CTclGrammerApp::SetUpDisplay()
+{
+    SpecTcl* pApi = SpecTcl::getInstance();
+    pApi->addGateDictionaryObserver(new CGateBinderObserver(*m_pDisplayInterface,
+                                                              *m_pHistogrammer));
 
-  m_pGatingObserver = new CGatingDisplayObserver(m_pDisplayInterface);
-  api.GetHistogrammer()->addGatingObserver(m_pGatingObserver);
+    m_pGatingObserver = new CGatingDisplayObserver(m_pDisplayInterface);
+    pApi->GetHistogrammer()->addGatingObserver(m_pGatingObserver);
 
+    if (m_displayType == "xamine") {
+        // We need to set up the Xamine event handler however:
+        m_pXamineEvents = new CXamineEventHandler(static_cast<CHistogrammer*>(pApi->GetHistogrammer()),
+                                                  dynamic_cast<CXamine*>(m_pDisplayInterface->getDisplay("xamine")));
+    }
 }
 
 //  Function:
@@ -806,8 +835,14 @@ int CTclGrammerApp::operator()() {
   // Create the histogrammer event sink:
   CreateHistogrammer();
 
+  // Create the available displays
+  CreateDisplays();
+
   // Setup the histogram displayer:
-  SelectDisplayer(m_nDisplaySize, *((CHistogrammer*)gpEventSink));
+  SelectDisplayer();
+
+  // Set up the display that was picked
+  SetUpDisplay();
 
   // Setup the test data source:
   SetupTestDataSource(); // No longer done. By default, no source is to be set so that users aren't mistakenly fooled by test data.
@@ -904,6 +939,21 @@ void CTclGrammerApp::UpdateUInt(CTCLVariable& rVar, UInt_t& rValue) {
   }
   // No update.
 }
+
+// Function:
+//   static void UpdateString(CTCLVariable& rVar, std::string& rValue)
+// Operation Type:
+//   Utility.
+void CTclGrammerApp::UpdateString(CTCLVariable& rVar, std::string& rValue) {
+
+  const char* pValue(rVar.Get(TCL_LEAVE_ERR_MSG|TCL_GLOBAL_ONLY));
+  if(pValue) {
+      rValue = pValue;
+  }
+  // No update.
+}
+
+
 /**
  * Utility funtion that sources Tcl optional sript. The script is optional in the sense
  * that file not found errors are not reported.  What is reported are:

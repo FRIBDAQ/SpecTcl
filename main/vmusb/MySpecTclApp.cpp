@@ -210,13 +210,9 @@ to deal with gate objects accepted by Xamine interaction.
 
 */
 void 
-CMySpecTclApp::SelectDisplayer(UInt_t nDisplaySize, CHistogrammer& rHistogrammer)  
+CMySpecTclApp::SelectDisplayer()
 { 
-  CTclGrammerApp::SelectDisplayer(nDisplaySize, rHistogrammer);
-
-
-
-
+  CTclGrammerApp::SelectDisplayer();
 }  
 
 //  Function: 	

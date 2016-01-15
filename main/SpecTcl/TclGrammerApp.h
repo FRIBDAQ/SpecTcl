@@ -86,6 +86,7 @@ class CTclGrammerApp : public CTCLApplication {
   UInt_t m_nDisplaySize;
   UInt_t m_nParams;
   UInt_t m_nListSize;
+  std::string m_displayType;
   CAnalyzer* m_pAnalyzer;
   CTCLHistogrammer* m_pHistogrammer;
   CBufferDecoder* m_pDecoder; // Formerly declared as only an NSCL Buffer Decoder.
@@ -100,6 +101,7 @@ class CTclGrammerApp : public CTCLApplication {
   CTCLVariable m_TclDisplaySize;
   CTCLVariable m_TclParameterCount;
   CTCLVariable m_TclEventListSize;
+  CTCLVariable m_TclDisplayType;
   CMultiTestSource* m_pMultiTestSource;
   CDisplayInterface* m_pDisplayInterface;
   CGatingDisplayObserver* m_pGatingObserver;
@@ -274,7 +276,9 @@ class CTclGrammerApp : public CTCLApplication {
   virtual void SourceLimitScripts(CTCLInterpreter& rInterpreter); // Source variable definition scripts.
   virtual void SetLimits(); // Finalize limit variables.
   virtual void CreateHistogrammer(); // Link Histogramer sink to SpecTcl.
-  virtual void SelectDisplayer(UInt_t nDisplaysize, CHistogrammer& rHistogrammer); // Link Histogrammer to Displayer
+  virtual void CreateDisplays(); // Create the displays that can be used.
+  virtual void SelectDisplayer(); // Link Histogrammer to Displayer
+  virtual void SetUpDisplay(); // Add observers to the displayer
   virtual void SetupTestDataSource(); // Set up test data source.
   virtual void CreateAnalyzer(CEventSink* pSink); // Create the event analyzer.
   virtual void SelectDecoder(CAnalyzer& rAnalyzer); // Select Buffer Decoder.
@@ -287,6 +291,7 @@ class CTclGrammerApp : public CTCLApplication {
   // Utilities:
  protected:  
   static void UpdateUInt(CTCLVariable& rVar, UInt_t& rValue);
+  static void UpdateString(CTCLVariable& rVar, std::string& rString);
   static std::string SourceOptionalFile(CTCLInterpreter& rInterp, std::string filename);
 private:
   static void TimedUpdates(ClientData d);

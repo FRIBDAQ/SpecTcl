@@ -326,8 +326,9 @@ class CMySpecTclApp : public CTclGrammerApp {
   virtual void SourceLimitScripts(CTCLInterpreter& rInterpreter);
   virtual void SetLimits();
   virtual void CreateHistogrammer();
-  virtual void SelectDisplayer(UInt_t nDisplaySize,
-			       CHistogrammer& rHistogrammer);
+  virtual void CreateDisplays();
+  virtual void SelectDisplayer();
+  virtual void SetUpDisplay();
   virtual void SetupTestDataSource();
   virtual void CreateAnalyzer(CEventSink* pSink);
   virtual void SelectDecoder(CAnalyzer& rAnalyzer);
