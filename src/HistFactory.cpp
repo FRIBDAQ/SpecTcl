@@ -45,7 +45,8 @@ namespace SpJs
                            info.s_axes.at(0).s_nbins,
                            info.s_axes.at(0).s_low, 
                            info.s_axes.at(0).s_high));
-      pHist->SetDirectory(0);
+      pHist->GetXaxis()->SetTitle(info.s_params.at(0).c_str());
+      pHist->GetYaxis()->SetTitle("Counts");
     } else if (info.s_axes.size() == 2) {
       pHist.reset(new TH2D(info.s_name.c_str(), 
                            info.s_name.c_str(), 
@@ -55,9 +56,11 @@ namespace SpJs
                            info.s_axes.at(1).s_nbins,
                            info.s_axes.at(1).s_low, 
                            info.s_axes.at(1).s_high));
-      pHist->SetDirectory(0);
+      pHist->GetXaxis()->SetTitle(info.s_params.at(0).c_str());
+      pHist->GetYaxis()->SetTitle(info.s_params.at(1).c_str());
     }
-    return pHist;
+    pHist->SetDirectory(0);
+    return std::move(pHist);
   }
 
 }

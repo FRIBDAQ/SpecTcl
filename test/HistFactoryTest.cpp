@@ -57,6 +57,8 @@ void HistFactoryTest::createTH1_0()
   CPPUNIT_ASSERT_EQUAL(1.0,   pX->GetXmin());
   CPPUNIT_ASSERT_EQUAL(100.0, pX->GetXmax());
   CPPUNIT_ASSERT_EQUAL(100,   pX->GetNbins());
+  CPPUNIT_ASSERT_EQUAL(string("event.raw.00"),string(pHist->GetXaxis()->GetTitle()));
+  CPPUNIT_ASSERT_EQUAL(string("Counts"),string(pHist->GetYaxis()->GetTitle()));
 }
 
 // has been tested to work.
@@ -80,4 +82,7 @@ void HistFactoryTest::createTH2_0()
   CPPUNIT_ASSERT_EQUAL(0.0,   pY->GetXmin());
   CPPUNIT_ASSERT_EQUAL(200.0, pY->GetXmax());
   CPPUNIT_ASSERT_EQUAL(200,   pY->GetNbins());
+  CPPUNIT_ASSERT_EQUAL(string("event.raw.00"),string(pHist->GetXaxis()->GetTitle()));
+  CPPUNIT_ASSERT_EQUAL(string("event.raw.01"),string(pHist->GetYaxis()->GetTitle()));
+
 }

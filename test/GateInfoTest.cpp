@@ -29,7 +29,9 @@ class GateInfoTest : public CppUnit::TestFixture {
   CPPUNIT_TEST( copySlice_0 );
   CPPUNIT_TEST( copyBand_0 );
   CPPUNIT_TEST( copyContour_0 );
+
   CPPUNIT_TEST( compareContour_0 );
+  CPPUNIT_TEST( compareBand_0 );
   CPPUNIT_TEST( compareSlice_0 );
 
   CPPUNIT_TEST( contourFromBand_0 );
@@ -42,6 +44,7 @@ class GateInfoTest : public CppUnit::TestFixture {
 
   CPPUNIT_TEST( bandGetPointOutOfRange_0 );
   CPPUNIT_TEST( contourGetPointOutOfRange_0 );
+
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -56,6 +59,8 @@ protected:
 
   void compareSlice_0();
   void compareContour_0();
+  void compareBand_0();
+  template<class T> void compareGate2D(T& g0, T& g1);
 
   void contourFromBand_0();
   void bandFromContour_0();
@@ -146,25 +151,42 @@ void GateInfoTest::compareContour_0()
     Contour gate1("gate0", "a", "b", {{1,1}} );
     CPPUNIT_ASSERT(gate0 == gate0 );
 
+    compareGate2D(gate0, gate1);
+}
+
+void GateInfoTest::compareBand_0()
+{
+    using SpJs::Band;
+    Band gate0("gate0", "a", "b", {{1,1}} );
+    Band gate1("gate0", "a", "b", {{1,1}} );
+
+    compareGate2D(gate0, gate1);
+}
+
+template<class T>
+void GateInfoTest::compareGate2D(T& g0, T& g1)
+{
+
+    CPPUNIT_ASSERT(g0 == g0 );
+
     // different name
-    gate1.setName("gate1");
-    CPPUNIT_ASSERT(gate0 != gate1 );
+    g1.setName("g1");
+    CPPUNIT_ASSERT(g0 != g1 );
 
     // different first param
-    gate1.setName("gate0");
-    gate1.setParameter0("b");
-    CPPUNIT_ASSERT( gate1 != gate0 );
+    g1.setName("g0");
+    g1.setParameter0("b");
+    CPPUNIT_ASSERT( g1 != g0 );
 
     // different second param
-    gate1.setParameter0(gate0.getParameter0());
-    gate1.setParameter1("c");
-    CPPUNIT_ASSERT( gate1 != gate0 );
+    g1.setParameter0(g0.getParameter0());
+    g1.setParameter1("c");
+    CPPUNIT_ASSERT( g1 != g0 );
 
     // different lower limit
-    gate1.setParameter1(gate1.getParameter0());
-    gate1.setPoints({{0,0}});
-    CPPUNIT_ASSERT( gate0 != gate1 );
-
+    g1.setParameter1(g1.getParameter0());
+    g1.setPoints({{0,0}});
+    CPPUNIT_ASSERT( g0 != g1 );
 }
 
 void GateInfoTest::contourFromBand_0()

@@ -19,7 +19,7 @@ namespace SpJs
   {
     public:
       std::vector<HistInfo>      parseListCmd(const Json::Value& value);
-      std::vector<BinInfo>       parseContentCmd(const Json::Value& value);
+      HistContent                parseContentCmd(const Json::Value& value);
       std::vector<ParameterInfo> parseParameterCmd(const Json::Value& value);
 
     private:

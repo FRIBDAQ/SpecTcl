@@ -15,6 +15,7 @@ add_executable(unittests
                 GateCmdParserTest.cpp
                 ParameterCmdParserTest.cpp
                 json/content1d.json
+                json/content2d.json
                 json/gate1d.json
                 json/list1d_detail.json
                 json/list1d.json

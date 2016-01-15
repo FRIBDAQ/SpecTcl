@@ -9,7 +9,7 @@
 namespace SpJs
 {
 
-  enum GateType { SliceGate, ContourGate, BandGate, FalseGate };
+  enum GateType { SliceGate, ContourGate, BandGate, FalseGate, TrueGate };
 
   struct GateInfo 
   {
@@ -62,10 +62,21 @@ namespace SpJs
   };
 
   // Forward declarations of classes
+  class True;
   class False;
   class Slice;
   class Band;
   class Contour;
+
+  struct True : public GateInfo
+  {
+    public:
+    True();
+    True(const std::string& name);
+
+    GateType getType() const { return m_type; }
+    std::unique_ptr<GateInfo> clone() const;
+  };
 
 
   struct False : public GateInfo

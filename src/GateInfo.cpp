@@ -54,6 +54,16 @@ bool GateInfo2D::operator!=(const GateInfo2D& rhs) const
 
 //////////////////////////////////////////////////////////////////////////////
 
+True::True(const string& name) : GateInfo(name, TrueGate)  {}
+True::True() : True("") {}
+
+unique_ptr<GateInfo> True::clone() const {
+  return unique_ptr<GateInfo>(new True(*this));
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 False::False(const string& name) : GateInfo(name, FalseGate)  {}
 False::False() : False("") {}
 

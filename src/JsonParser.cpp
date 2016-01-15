@@ -74,7 +74,7 @@ namespace SpJs
     return index;
   }
 
-  vector<BinInfo> JsonParser::parseContentCmd(const Json::Value& value) 
+  HistContent JsonParser::parseContentCmd(const Json::Value& value)
   {
     using Json::Value;
 
@@ -83,15 +83,28 @@ namespace SpJs
       throw std::runtime_error("Json cannot be parsed because status != OK");
     }
 
+    HistContent content;
     vector<BinInfo > result;
 
     // get the detail portion
     const Value& detail = value["detail"];
 
+    const Value& stats  = detail["statistics"];
+    content.setUnderflow(0, stats["xunderflow"].asDouble());
+    content.setOverflow(0, stats["xoverflow"].asDouble());
+
+    if (stats.isMember("yunderflow")) {
+        content.setUnderflow(1, stats["yunderflow"].asDouble());
+    }
+    if (stats.isMember("yoverflow")) {
+        content.setOverflow(1, stats["yoverflow"].asDouble());
+    }
+
+    const Value& values = detail["channels"];
     // loop over all entries of the detail list of objects
-    int nPoints = detail.size();
+    int nPoints = values.size();
     for (int index=0; index<nPoints; ++index) {
-      const Value& point = detail[index];
+      const Value& point = values[index];
       BinInfo bin;
 
       if (point.isMember("x")) {
@@ -104,11 +117,12 @@ namespace SpJs
 
       bin.s_value = point["v"].asDouble();
 
-//      cout << bin.s_xbin << "  " << bin.s_ybin << "  " << bin.s_value << endl;
       result.push_back(bin);
     }
+
+    content.setValues(result);
     
-    return result;
+    return content;
   }
 
   vector<ParameterInfo> JsonParser::parseParameterCmd(const Json::Value& value)
