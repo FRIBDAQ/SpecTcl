@@ -19,7 +19,6 @@ void CGateBinderObserver::onAdd(std::string name, CGateContainer &rGate)
 
     // The mediator tells us whether the spectrum can display the gate
     const DisplayBindings& bindings = pDisp->getDisplayBindings();
-    std::cout << "number of bindings = " << bindings.size() << std::endl;
     for(UInt_t nId = 0; nId < bindings.size(); nId++) {
         if(bindings[nId] != "") { // Spectrum bound.
             CSpectrum* pSpec = m_pSorter->FindSpectrum(bindings[nId]);
