@@ -33,9 +33,6 @@
 CHistogrammerFitObserver::CHistogrammerFitObserver(CDisplay& pDisplay) :
   m_pDisplay(&pDisplay)
 {
-  CFitDictionary& Dict(CFitDictionary::getInstance());
-
-  Dict.addObserver(*this);
 }
 /*!
   Destroy  ourselves... we automatically unregister us from the 

@@ -29,7 +29,8 @@ void SpectrumDictionaryFitObserver::onRemove(std::string name, CSpectrum *&item)
             delete pFit;
 
             // The iterator has been invalidated potentially so start again:
-            // JRT - not sure if this is needed because the fit dict is an associative
+            //
+            // JRT comment  starts: - not sure if this is needed because the fit dict is an associative
             // container... leaving it here for now. Could potentially be removed after
             // successful testing.
             iFit = Fits.begin();

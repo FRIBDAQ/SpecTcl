@@ -46,6 +46,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "SpectrumDictionaryFitObserver.h"
 #include "GateBinderObserver.h"
 #include "GatingDisplayObserver.h"
+#include "CHistogrammerFitObserver.h"
 
 #include "TCLAnalyzer.h"
 
@@ -520,6 +521,10 @@ void CTclGrammerApp::SelectDisplayer(UInt_t nDisplaysize,
 
   m_pGatingObserver = new CGatingDisplayObserver(m_pDisplayInterface);
   api.GetHistogrammer()->addGatingObserver(m_pGatingObserver);
+
+  CHistogrammerFitObserver* pFitObserver = new CHistogrammerFitObserver(*pDisplay);
+  CFitDictionary& fitDict = CFitDictionary::getInstance();
+  fitDict.addObserver(*pFitObserver);
 
 }
 
