@@ -199,6 +199,11 @@ class CTclGrammerApp : public CTCLApplication {
     return m_pMultiTestSource;
   }
 
+  CDisplayInterface* getDisplayInterface() {
+      return m_pDisplayInterface;
+  }
+
+
   // Attribute mutators:
  protected:
   //Set accessor function for non-static attribute data member
@@ -265,6 +270,13 @@ class CTclGrammerApp : public CTCLApplication {
   //Set accessor function for non-static attribute data member
   void setTclEventListSize (const CTCLVariable am_TclEventListSize) {
     m_TclEventListSize = am_TclEventListSize;
+  }
+
+  // Set the display interface, this should not be called after SelectDisplayer
+  // or SetUpDisplay(). It is primarily useful for derived types to gain access
+  // to the m_DisplayInterface
+  void setDisplayInterface(CDisplayInterface* pInterface) {
+      m_pDisplayInterface = pInterface;
   }
 
 

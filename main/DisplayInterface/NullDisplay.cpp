@@ -57,10 +57,6 @@ DisplayBindings CNullDisplay::getDisplayBindings() const {
     return DisplayBindings();
 }
 
-void CNullDisplay::setDisplayBindings(const DisplayBindings &am_DisplayBindings)
-{
-}
-
 CSpectrum* CNullDisplay::DisplayBinding(UInt_t xid) { return static_cast<CSpectrum*>(kpNULL); }
 Int_t CNullDisplay::FindDisplayBinding(std::string name) { return -1;}
 UInt_t CNullDisplay::DisplayBindingsSize() const { return 0; }

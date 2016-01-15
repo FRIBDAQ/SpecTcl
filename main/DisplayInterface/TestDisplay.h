@@ -31,7 +31,6 @@ public:
     virtual void Restart();
 
     DisplayBindings  getDisplayBindings() const;
-    void setDisplayBindings (const DisplayBindings& am_DisplayBindings);
 
     virtual UInt_t BindToDisplay(CSpectrum& rSpectrum, CHistogrammer& rSorter);
     virtual void   UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum);

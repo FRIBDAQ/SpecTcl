@@ -183,9 +183,6 @@ public:
   Int_t FindDisplayBinding(CSpectrum& rSpectrum);
 
   DisplayBindings  getDisplayBindings() const;
-  void setDisplayBindings (const DisplayBindings& am_DisplayBindings);
-
-
 
   std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer &rSorter);
   UInt_t getTitleSize()  const;

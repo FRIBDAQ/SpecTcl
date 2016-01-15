@@ -49,7 +49,6 @@ public:
     { return vector<CGateContainer>();}
     Int_t FindDisplayBinding(std::string) { return 0;}
     DisplayBindings getDisplayBindings() const { return DisplayBindings();}
-    void setDisplayBindings(const DisplayBindings &am_DisplayBindings) {}
     CSpectrum* DisplayBinding(UInt_t xid);
     UInt_t DisplayBindingsSize() const { return 0; }
 

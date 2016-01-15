@@ -33,7 +33,6 @@ public:
                                                        CHistogrammer& rSorter);
 
     DisplayBindings getDisplayBindings() const;
-    void setDisplayBindings(const DisplayBindings &am_DisplayBindings);
     virtual CSpectrum* DisplayBinding(UInt_t xid);
     virtual Int_t FindDisplayBinding(std::string name);
     virtual UInt_t DisplayBindingsSize() const;

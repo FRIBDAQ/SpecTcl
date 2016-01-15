@@ -535,13 +535,14 @@ void CTclGrammerApp::SelectDisplayer()
  *
  *  This is primarily useful for adding observers to the displays. For example,
  *  the GateBinderObserver and the CXamineEventHandler need to be registered here.
- *  These are responsible for monitoring changes in the
+ *  These are responsible for monitoring the gate dict and also an application of
+ *  a gate to a spectrum. These cause changes in the display.
  */
 void CTclGrammerApp::SetUpDisplay()
 {
     SpecTcl* pApi = SpecTcl::getInstance();
     pApi->addGateDictionaryObserver(new CGateBinderObserver(*m_pDisplayInterface,
-                                                              *m_pHistogrammer));
+                                                             *m_pHistogrammer));
 
     m_pGatingObserver = new CGatingDisplayObserver(m_pDisplayInterface);
     pApi->GetHistogrammer()->addGatingObserver(m_pGatingObserver);

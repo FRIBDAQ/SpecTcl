@@ -165,12 +165,7 @@ DisplayBindings CTestDisplay::getDisplayBindings() const
     return m_DisplayBindings;
 }
 
-void CTestDisplay::setDisplayBindings(const DisplayBindings &am_DisplayBindings)
-{
-    m_DisplayBindings = am_DisplayBindings;
-}
-
-CSpectrum* CTestDisplay::DisplayBinding(UInt_t xid)
+Spectrum* CTestDisplay::DisplayBinding(UInt_t xid)
 {
     // Returns  a pointer to a spectrum which is bound on a particular
     // xid.

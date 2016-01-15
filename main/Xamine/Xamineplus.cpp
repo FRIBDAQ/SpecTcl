@@ -1749,11 +1749,6 @@ DisplayBindings CXamine::getDisplayBindings() const
    return m_DisplayBindings;
 }
 
-void CXamine::setDisplayBindings(const DisplayBindings &am_DisplayBindings)
-{
-    m_DisplayBindings = am_DisplayBindings;
-}
-
 //////////////////////////////////////////////////////////////////////
 //
 // Function:
