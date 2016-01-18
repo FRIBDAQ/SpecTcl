@@ -81,9 +81,9 @@ void SpecTclRESTInterface::editGate(const GSlice &slice)
 {
     GateEditRequest req(slice);
 
-    cout << "edit gate" << endl;
+//    cout << "edit gate" << endl;
 
-    cout << req.toUrl().toString().toStdString() << endl;
+    //cout << req.toUrl().toString().toStdString() << endl;
 
     m_pGateEditCmd->makeRequest(req.toUrl());
 }
@@ -92,7 +92,7 @@ void SpecTclRESTInterface::deleteGate(const GSlice &slice)
 {
   GateDeleteRequest req(slice);
 
-  cout << req.toUrl().toString().toStdString() << endl;
+//  cout << req.toUrl().toString().toStdString() << endl;
   m_pCommonHandler->makeRequest(req.toUrl());
 }
 
@@ -106,9 +106,9 @@ void SpecTclRESTInterface::editGate(const GGate &gate)
 
   GateEditRequest req(gate);
 
-  cout << "edit gate" << endl;
+//  cout << "edit gate" << endl;
 
-  cout << req.toUrl().toString().toStdString() << endl;
+//  cout << req.toUrl().toString().toStdString() << endl;
   m_pGateEditCmd->makeRequest(req.toUrl());
 }
 
@@ -116,9 +116,9 @@ void SpecTclRESTInterface::deleteGate(const GGate &slice)
 {
   GateDeleteRequest req(slice);
 
-  cout << "delete gate" << endl;
+//  cout << "delete gate" << endl;
 
-  cout << req.toUrl().toString().toStdString() << endl;
+//  cout << req.toUrl().toString().toStdString() << endl;
   m_pCommonHandler->makeRequest(req.toUrl());
 }
 
@@ -126,9 +126,9 @@ void SpecTclRESTInterface::deleteGate(const QString& name)
 {
   GateDeleteRequest req(name);
 
-  cout << "delete gate" << endl;
+//  cout << "delete gate" << endl;
 
-  cout << req.toUrl().toString().toStdString() << endl;
+//  cout << req.toUrl().toString().toStdString() << endl;
   m_pCommonHandler->makeRequest(req.toUrl());
 
 }
@@ -136,13 +136,13 @@ void SpecTclRESTInterface::deleteGate(const QString& name)
 
 void SpecTclRESTInterface::listGates() 
 {
-  cout << "list gates" << endl;
+//  cout << "list gates" << endl;
   m_pGateListCmd->get(); 
 }
 
 void SpecTclRESTInterface::listHistogramInfo()
 {
-  cout << "list hists" << endl;
+//  cout << "list hists" << endl;
   m_pHistListCmd->get();
 }
 
@@ -157,19 +157,19 @@ SpecTclRESTInterface::onGateListReceived(std::vector<SpJs::GateInfo*> gates)
       return;
   }
 
-  cout << "gates received" << endl;
+//  cout << "gates received" << endl;
   // synchronize our list of gates to the list that we are being passed
   // from SpecTcl
   bool gatesChanged = m_pGateList->synchronize(gates);
-  cout << "gates changed" << endl;
+//  cout << "gates changed" << endl;
 
   // only update everything else if something actually changed.
   if (gatesChanged) {
-      cout << "gates changed" << endl;
+//      cout << "gates changed" << endl;
 
       // now update the histograms so that we know they only reference gates
       // that exist after the synchronization
-      cout << "gates synchronized" << endl;
+//      cout << "gates synchronized" << endl;
       // tell the world that things have changed.
       emit gateListChanged();
 
@@ -255,25 +255,25 @@ void
 SpecTclRESTInterface::onHistogramListReceived(std::vector<SpJs::HistInfo> hists)
 {
 
-  cout << "hist list received" << endl;
+//  cout << "hist list received" << endl;
   if (! pollHistInfo) {
 
       return;
   }
 
-  cout << "hist list updated..." << flush;
+//  cout << "hist list updated..." << flush;
   // synchronize our list of gates to the list that we are being passed
   // from SpecTcl
   bool histInfoChanged = m_pHistList->update(hists);
-  cout << "done" << endl;
+//  cout << "done" << endl;
 
   // only update everything else if something actually changed.
   if (histInfoChanged) {
 
-      cout << "hist list changed..." << flush;
+//      cout << "hist list changed..." << flush;
       // tell the world that things have changed.
       emit histogramListChanged();
-      cout << "done" << endl;
+//      cout << "done" << endl;
 
   }
 
