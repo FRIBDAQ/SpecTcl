@@ -246,7 +246,7 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
 {
 //  QMutexLocker lock(&m_mutex);
 
-  Benchmark<1, std::chrono::high_resolution_clock> bm;
+//  Benchmark<1, std::chrono::high_resolution_clock> bm;
   bool somethingChanged = false;
 
 
@@ -318,7 +318,7 @@ bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
                     return (info1.s_name < info2.s_name);
                   };
 
-  Benchmark<11, std::chrono::high_resolution_clock> bm2;
+//  Benchmark<11, std::chrono::high_resolution_clock> bm2;
   auto sortedHists = hists;
   sort(sortedHists.begin(), sortedHists.end(), byName);
   // remove any defunct histograms
