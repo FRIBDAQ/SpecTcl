@@ -342,7 +342,7 @@ void DockableGateManager::populateListWithSync()
 {
   auto pList = m_pSpecTcl->getGateList();
 
-  Benchmark<6, std::chrono::high_resolution_clock> bm;
+  //Benchmark<6, std::chrono::high_resolution_clock> bm;
   // predicate for matching 1d spectra by name
   auto pred1d = [](const unique_ptr<GSlice>& pItem, const QString& name) {
     return (pItem->getName() == name);
@@ -367,7 +367,7 @@ void DockableGateManager::populateListWithSync()
     }
   }
 
-  Benchmark<66, std::chrono::high_resolution_clock> bm66;
+  //Benchmark<66, std::chrono::high_resolution_clock> bm66;
   // ensure that all gates in gatelist are represented
   // in listwidget
   // deal with 1d gates
@@ -381,7 +381,7 @@ void DockableGateManager::populateListWithSync()
     ++it_1d;
   }
 
-  Benchmark<666, std::chrono::high_resolution_clock> bm666;
+  //Benchmark<666, std::chrono::high_resolution_clock> bm666;
 
   /// deal with 2d gates
   auto it_2d = pList->begin2d();
