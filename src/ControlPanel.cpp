@@ -5,6 +5,7 @@
 #include "HistogramList.h"
 #include "HistogramBundle.h"
 #include "ui_ControlPanel.h"
+#include <set>
 
 using namespace std;
 
@@ -54,10 +55,16 @@ void ControlPanel::onUpdateAll()
       // this needs thread synchronization
       auto it = canvases.begin();
       auto it_end = canvases.end();
+      std::set<TH1*> requestHistory;
       while ( it != it_end ) {
           vector<TH1*> hists = m_pView->getAllHists(*it);
           for (auto pHist : hists) {
-              m_pSpecTcl->requestHistContentUpdate(QString(pHist->GetName()));
+              // try to insert into the request history.. if the hist already
+              // lives in the request history, the second element of the
+              // returned pair will be false
+              if ( requestHistory.insert(pHist).second == true ) {
+                m_pSpecTcl->requestHistContentUpdate(QString(pHist->GetName()));
+              }
           }
           ++it;
       }
