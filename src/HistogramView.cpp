@@ -70,22 +70,20 @@ HistogramView::~HistogramView()
 
 void HistogramView::onHistogramListChanged()
 {
-  Benchmark<2, std::chrono::high_resolution_clock> bm2;
 
   auto pHistList = m_pSpecTcl->getHistogramList();
+
+  // Synchronize access to the histogram list
+  QMutexLocker lock(pHistList->getMutex());
 
   auto it = pHistList->begin();
   auto itend = pHistList->end();
 
   // add new histograms if they have changed
-  cout << "start phase1" << endl;
   while (it!=itend) {
 
       const QString& name = it->first;
-      cout << name.toStdString()  << "... ";
       if (! histExists(name)) {
-
-          cout << "doesn't exist" << endl;
 
           // Histograms are uniquely named, so we can use the name as the key
           auto item = new QListWidgetItem(name, ui->histList,
@@ -99,8 +97,6 @@ void HistogramView::onHistogramListChanged()
           QSize geo = ui->histList->size();
           ui->histList->insertItem(geo.height(), item);
       } else {
-
-          cout << "exists" << endl;
 
           // the value already exists...get the ListWidgetItem associated with it
           auto items = ui->histList->findItems(name, Qt::MatchExactly);
@@ -118,10 +114,8 @@ void HistogramView::onHistogramListChanged()
     ++it;
   }
 
-  Benchmark<22, std::chrono::high_resolution_clock> bm22;
   // now remove stale items
 
-  cout << "start phase2" << endl;
   int nRows = ui->histList->count();
   for (int row=nRows-1; row>=0; --row) {
 
@@ -132,7 +126,6 @@ void HistogramView::onHistogramListChanged()
       }
   }
 
-  cout << "HistogramView::onHistogramListChanged()" << endl;
 }
 
 void HistogramView::setIcon(QListWidgetItem *pItem)
@@ -163,14 +156,23 @@ void HistogramView::setList(std::vector<SpJs::HistInfo> names)
             auto upHist = factory.create(info);
 
             auto pHistList = m_pSpecTcl->getHistogramList();
+
+            // Synchronization for list
+            QMutexLocker listLock(pHistList->getMutex());
+
             auto pHist = pHistList->addHist(std::move(upHist), info);
+
+            // Synchronization for histogram
+            QMutexLocker histLock(pHist->getMutex());
 
             // a new hist needs to find the necessary
             pHist->synchronizeGates(m_pSpecTcl->getGateList());
 
             // Histograms are uniquely named, so we can use the name as the key
             QString name = QString::fromStdString((*iter).s_name);
-            auto item = new QListWidgetItem(name, ui->histList, 
+
+            auto item = new QListWidgetItem(name,
+                                            ui->histList,
                                             QListWidgetItem::UserType);
 
             item->setData(Qt::UserRole,QVariant(name));

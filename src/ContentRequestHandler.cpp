@@ -266,11 +266,18 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
 
     // get the name of the hist and update it if it exists.
     auto name = getHistNameFromRequest(reply->request());
-    auto pHistBundle = m_pHistList->getHist(name);
-    if (pHistBundle->hist()) {
-      LockGuard<HistogramBundle> lock(pHistBundle);
-      SpJs::HistFiller()(*(pHistBundle->hist()), content.getValues());
-    }
+
+    HistogramBundle* pHistBundle = nullptr;
+    {
+      QMutexLocker listLock(m_pHistList->getMutex());
+      pHistBundle = m_pHistList->getHist(name);
+
+      if (pHistBundle->hist()) {
+        LockGuard<HistogramBundle> lock(pHistBundle);
+        SpJs::HistFiller()(*(pHistBundle->hist()), content.getValues());
+      }
+    } // scoping to make sure that the list lock is released
+      // b4 passing control to some unknown process.
 
     // ALL DONE!
     emit parsingComplete(pHistBundle);

@@ -75,17 +75,28 @@ void DockableGateManager::launchAddGateDialog()
     auto pCanvas = m_view.getCurrentCanvas();
     auto hists = SpectrumView::getAllHists(pCanvas);
 
-    auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
+
+    auto pHistList = m_pSpecTcl->getHistogramList();
+    HistogramBundle* pHistPkg = nullptr;
+    {
+      QMutexLocker lock(pHistList->getMutex());
+      pHistPkg = pHistList->getHist(hists.at(0));
+    }
 
     if (m_pSpecTcl) {
         m_pSpecTcl->enableGatePolling(false);
     }
 
+    bool isTH2 = false;
+    {
+      QMutexLocker lock(pHistPkg->getMutex());
+      isTH2 = pHistPkg->hist()->InheritsFrom(TH2::Class());
+    }
     // determine whether this is a 1d or 2d hist and 
     // open to appropriate dialog
-    if (histPkg->hist()->InheritsFrom(TH2::Class())) {
+    if (isTH2) {
 
-        GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg);
+        GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *pHistPkg);
         dialog->setAttribute(Qt::WA_DeleteOnClose);
 
         connect(dialog, SIGNAL(completed(GGate*)), 
@@ -94,7 +105,7 @@ void DockableGateManager::launchAddGateDialog()
         dialog->show();
         dialog->raise();
     } else {
-        GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas, *histPkg);
+        GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas, *pHistPkg);
         dialog->setAttribute(Qt::WA_DeleteOnClose);
         connect(dialog, SIGNAL(completed(GSlice*)),
                 this, SLOT(registerSlice(GSlice*)));
@@ -108,7 +119,13 @@ void DockableGateManager::launchEditGateDialog()
 {
     auto pCanvas = m_view.getCurrentCanvas();
     auto hists = SpectrumView::getAllHists(pCanvas);
-    auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
+    auto pHistList = m_pSpecTcl->getHistogramList();
+
+    HistogramBundle* pHistPkg = nullptr;
+    {
+      QMutexLocker lock(pHistList->getMutex());
+      pHistPkg = pHistList->getHist(hists.at(0));
+    }
 
     if (m_pSpecTcl) {
         m_pSpecTcl->enableGatePolling(false);
@@ -123,7 +140,7 @@ void DockableGateManager::launchEditGateDialog()
         if (auto pSlItem = dynamic_cast<SliceTableItem*>(pItem)) {
             auto pCut = pSlItem->getSlice();
             GateBuilder1DDialog* dialog = new GateBuilder1DDialog(*pCanvas, 
-                                                                  *histPkg, pCut);
+                                                                  *pHistPkg, pCut);
             dialog->setAttribute(Qt::WA_DeleteOnClose);
             connect(dialog, SIGNAL(completed(GSlice*)),
                     this, SLOT(editSlice(GSlice*)));
@@ -138,7 +155,7 @@ void DockableGateManager::launchEditGateDialog()
             // make sure that state is updated if user moved the cut via the gui
             pGate->synchronize(GGate::GUI);
 
-            GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *histPkg, pGate);
+            GateBuilderDialog* dialog = new GateBuilderDialog(*pCanvas, *pHistPkg, pGate);
             dialog->setAttribute(Qt::WA_DeleteOnClose);
             connect(dialog, SIGNAL(completed(GGate*)),
                     this, SLOT(editGate(GGate*)));
@@ -168,9 +185,6 @@ void DockableGateManager::addGateToList(GGate* pCut)
     }
     ui->gateList->addItem(pItem);
     m_gateRowMap[pCut->getName()] = ui->gateList->row(pItem);
-
-//    // add the gate to all related histograms
-//    m_pSpecTcl->getHistogramList()->addGate(pCut);
 
     auto pCanvas = m_view.getCurrentCanvas();
     try {
@@ -223,10 +237,17 @@ void DockableGateManager::addSliceToList(GSlice* pSlice)
 
       if (hists.empty()) return;
 
-      auto histPkg = m_pSpecTcl->getHistogramList()->getHist(hists.at(0));
-      if (histPkg) {
-        histPkg->draw();
+      HistogramBundle* pHistPkg = nullptr;
+      {
+        auto pHistList = m_pSpecTcl->getHistogramList();
+        QMutexLocker lock(pHistList->getMutex());
+        pHistPkg = pHistList->getHist(hists.at(0));
       }
+
+      if (pHistPkg) {
+        pHistPkg->draw();
+      }
+
     } catch (std::exception& exc) {
       cout << "Caught exception : " << exc.what() << endl;
     }

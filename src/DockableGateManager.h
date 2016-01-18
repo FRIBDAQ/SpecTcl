@@ -119,10 +119,10 @@ private:
     void populateListWithSync();
 
 private:
-    Ui::DockableGateManager *ui;
-    SpectrumView& m_view;
-    SpecTclInterface* m_pSpecTcl;
-    std::map<QString, int> m_gateRowMap;
+    Ui::DockableGateManager*  ui;
+    SpectrumView&             m_view;
+    SpecTclInterface*         m_pSpecTcl;
+    std::map<QString, int>    m_gateRowMap;
 };
 
 } // end of namespace

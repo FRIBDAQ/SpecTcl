@@ -75,7 +75,6 @@ void HistogramList::clear() {
 
 bool HistogramList::histExists(const QString &name)
 {
-    QMutexLocker lock(&m_mutex);
     auto iter = m_hists.find(name);
     return (iter!=m_hists.end());
 }
@@ -83,7 +82,6 @@ bool HistogramList::histExists(const QString &name)
 
 HistogramBundle* HistogramList::getHist(const QString &name)
 {
-    QMutexLocker lock(&m_mutex);
     auto iter = m_hists.find(name);
     if (iter!=m_hists.end()) {
         return iter->second.get();
@@ -121,7 +119,6 @@ HistogramBundle* HistogramList::addHist(std::unique_ptr<TH1> pHist, const SpJs::
 HistogramBundle* HistogramList::addHist(unique_ptr<HistogramBundle> pHist) 
 {
   QString name = pHist->getName();
-  QMutexLocker lock(&m_mutex);
 
   // this is kind of clunky but i cannot use insert or assignment
   m_hists[name].reset(pHist.release());
@@ -176,8 +173,6 @@ void HistogramList::removeGate(const GGate& gate)
 
 void HistogramList::synchronize(const GateList& list)
 {
-  cout << "hist list synchronizing gates" << endl;
-  Benchmark<5, std::chrono::high_resolution_clock> bm5;
 
   for (auto& bundlePair : m_hists) {
       bundlePair.second->synchronizeGates(&list);
@@ -244,7 +239,6 @@ void HistogramList::synchronize2d(GateList::iterator2d b, GateList::iterator2d e
 
 bool HistogramList::update(const vector<SpJs::HistInfo>& hists)
 {
-//  QMutexLocker lock(&m_mutex);
 
 //  Benchmark<1, std::chrono::high_resolution_clock> bm;
   bool somethingChanged = false;

@@ -67,6 +67,7 @@ public:
                     std::unique_ptr<TH1> pHist, const SpJs::HistInfo& info);
 
     // Mutex methods
+    QMutex* getMutex() { return m_pMutex.get(); }
     void lock() const { m_pMutex->lock(); }
     void unlock() const { m_pMutex->unlock(); }
 

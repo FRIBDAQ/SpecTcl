@@ -114,10 +114,14 @@ void SpectrumViewer::onGeometryChanged(int nRows, int nColumns)
 void SpectrumViewer::onHistogramRemoved(HistogramBundle *pHistBundle)
 {
   if ( pHistBundle == m_currentHist ) {
-      // shoot they are deleting the histogram we are viewing out from under us
+      // a currently visible histogram is being deleted
 
       // let's switch to viewing the first histogram in the list
       auto pHistList = m_pSpecTcl->getHistogramList();
+
+      // lock the histogram list
+      QMutexLocker lock(pHistList->getMutex());
+
       if (pHistList->size() != 0) {
           auto itFirstHist = m_pSpecTcl->getHistogramList()->begin();
 
