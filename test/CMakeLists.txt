@@ -1,6 +1,6 @@
-### untitled2 executable
+### spectra executable
 
-set(untitled2test_SOURCES 
+set(spectratest_SOURCES 
   TestRunner.cpp
   GateEditRequestTest.cpp 
   GateDeleteRequestTest.cpp 
@@ -13,7 +13,7 @@ set(untitled2test_SOURCES
   HistogramBundleTest.cpp
   ${PROGRAM_SOURCES} )
 
-set(untitled2test_HEADERS "")
+set(spectratest_HEADERS "")
 
 ## ------ QT BUILDING STUFF --------------------------------------------
 #
@@ -28,9 +28,9 @@ add_definitions(${QT_DEFINITIONS})
 #
 #
 # buld mocs, uis and rccs
-#qt4_wrap_cpp(untitled2test_HEADERS_MOC ${untitled2test_HEADERS})
-#qt4_wrap_ui(untitled2test_FORMS_HEADERS ${untitled2test_FORMS})
-#qt4_add_resources(untitled2test_RESOURCES ${untitled2test_RESOURCES})
+#qt4_wrap_cpp(spectratest_HEADERS_MOC ${spectratest_HEADERS})
+#qt4_wrap_ui(spectratest_FORMS_HEADERS ${spectratest_FORMS})
+#qt4_add_resources(spectratest_RESOURCES ${spectratest_RESOURCES})
 
 ### ----- ROOT -------------------------------------------------------- 
 
@@ -61,7 +61,7 @@ set_property(TARGET libSpecTclJson
 
 ### ------- CPPUNIT -----------------------------------------------------
 
-pkg_search_module(untitled2test cppunit)
+pkg_search_module(spectratest cppunit)
 
 ### ------- JSONCPP -----------------------------------------------------
 #
@@ -75,12 +75,12 @@ pkg_search_module(untitled2test cppunit)
 # ADD EXECUTABLE
 
 
-add_executable(untitled2test
-  ${untitled2test_SOURCES} )
+add_executable(spectratest
+  ${spectratest_SOURCES} )
 
 # we depend on some external libraries
-target_link_libraries(untitled2test 
-  Untitled2
+target_link_libraries(spectratest 
+  Spectra
   cppunit
   libSpecTclJson
   ${QT_LIBRARIES}
