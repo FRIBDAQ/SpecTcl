@@ -58,7 +58,7 @@ bool GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
 {
  bool somethingChanged=false;
 
- Benchmark<4, std::chrono::high_resolution_clock> bm4;
+ //Benchmark<4, std::chrono::high_resolution_clock> bm4;
  // make sure that we add all non existing gates to the this
  for (auto pGate : gates) {
     
@@ -106,7 +106,7 @@ bool GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
     }
   }
 
-  Benchmark<44, std::chrono::high_resolution_clock> bm44;
+  //Benchmark<44, std::chrono::high_resolution_clock> bm44;
   // remove all gates in gate list that are no longer is spectcl
 
   auto byName = [](SpJs::GateInfo* lhs, SpJs::GateInfo* rhs) {
@@ -140,7 +140,7 @@ bool GateList::synchronize(std::vector<SpJs::GateInfo*> gates)
     ++it_1d;
   }
 
-  Benchmark<444, std::chrono::high_resolution_clock> bm444;
+  //Benchmark<444, std::chrono::high_resolution_clock> bm444;
   // 2d cuts next
   auto it_2d = begin2d();
   auto itend_2d = end2d();
