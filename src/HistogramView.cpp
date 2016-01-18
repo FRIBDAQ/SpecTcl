@@ -82,7 +82,11 @@ void HistogramView::onHistogramListChanged()
   while (it!=itend) {
 
       const QString& name = it->first;
+      cout << name.toStdString()  << "... ";
       if (! histExists(name)) {
+
+          cout << "doesn't exist" << endl;
+
           // Histograms are uniquely named, so we can use the name as the key
           auto item = new QListWidgetItem(name, ui->histList,
                                           QListWidgetItem::UserType);
@@ -95,6 +99,9 @@ void HistogramView::onHistogramListChanged()
           QSize geo = ui->histList->size();
           ui->histList->insertItem(geo.height(), item);
       } else {
+
+          cout << "exists" << endl;
+
           // the value already exists...get the ListWidgetItem associated with it
           auto items = ui->histList->findItems(name, Qt::MatchExactly);
           // make sure we found something
@@ -194,14 +201,17 @@ bool HistogramView::histExists(const QString& name)
 int HistogramView::binarySearch(int min, int max, const QString& name)
 {
   int pivot = min + (max-min)/2;
-  if ((max < min) || (min < 0) || (max == min)) return -1;
+  if ((max < min) || (min < 0)) return -1;
 
-  if (ui->histList->item(pivot)->text() == name) {
+  auto pivotName = ui->histList->item(pivot)->text();
+  if (pivotName == name) {
       return pivot;
-    } else if (ui->histList->item(pivot)->text() < name) {
-      return binarySearch(pivot + 1, max, name);
-    } else {
+    } else if (pivotName < name) {
+      return binarySearch(pivot+1, max, name);
+    } else if (pivotName > name) {
       return binarySearch(min, pivot-1, name);
+    } else {
+      return -1;
     }
 
 }
