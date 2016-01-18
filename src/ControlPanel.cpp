@@ -51,9 +51,7 @@ void ControlPanel::onUpdateAll()
   if (m_pSpecTcl) {
       auto canvases = m_pView->getAllCanvases();
 
-
-    // no need for thread sync b/c nothing alters the list in a separate thread
-    // only the content of the histograms in the list might be alterred
+      // this needs thread synchronization
       auto it = canvases.begin();
       auto it_end = canvases.end();
       while ( it != it_end ) {
