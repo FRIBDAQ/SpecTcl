@@ -269,7 +269,7 @@ void ContentRequestHandler::processReply(const std::unique_ptr<QNetworkReply>& r
     auto pHistBundle = m_pHistList->getHist(name);
     if (pHistBundle->hist()) {
       LockGuard<HistogramBundle> lock(pHistBundle);
-      SpJs::HistFiller()(*(pHistBundle->hist()), content);
+      SpJs::HistFiller()(*(pHistBundle->hist()), content.getValues());
     }
 
     // ALL DONE!
