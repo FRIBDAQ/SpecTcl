@@ -1,6 +1,6 @@
-### untitled2 executable
+### spectra executable
 
-set(untitled2_SOURCES 
+set(spectra_SOURCES
   #  main.cpp
   QRootCanvas.cpp
   QRootDialog.cpp
@@ -38,9 +38,10 @@ set(untitled2_SOURCES
   SpectrumView.cpp
   MultiSpectrumView.cpp
   ConnectionTester.cpp
-  TabbedMultiSpectrumView.cpp)
+  TabbedMultiSpectrumView.cpp
+  Benchmarker.cpp)
 
-set(untitled2_HEADERS 
+set(spectra_HEADERS
   QRootCanvas.h 
   QRootDialog.h 
   QRootApplication.h 
@@ -81,9 +82,10 @@ set(untitled2_HEADERS
   SpectrumView.h
   MultiSpectrumView.h
   ConnectionTester.h
-  TabbedMultiSpectrumView.h)
+  TabbedMultiSpectrumView.h
+  Benchmarker.h)
 
-set(untitled2_FORMS
+set(spectra_FORMS
   mainwindow.ui 
   ConnectServer.ui 
   SpectrumViewer.ui 
@@ -97,7 +99,7 @@ set(untitled2_FORMS
   GeometrySelector.ui
   TabbedMultiSpectrumView.ui)
 
-set(untitled2_RESOURCES
+set(spectra_RESOURCES
     resources.qrc)
 
 ## ------ QT BUILDING STUFF --------------------------------------------
@@ -113,9 +115,9 @@ add_definitions(${QT_DEFINITIONS})
 
 
 # buld mocs, uis and rccs
-qt4_wrap_cpp(untitled2_HEADERS_MOC ${untitled2_HEADERS})
-qt4_wrap_ui(untitled2_FORMS_HEADERS ${untitled2_FORMS})
-qt4_add_resources(untitled2_RESOURCES ${untitled2_RESOURCES})
+qt4_wrap_cpp(spectra_HEADERS_MOC ${spectra_HEADERS})
+qt4_wrap_ui(spectra_FORMS_HEADERS ${spectra_FORMS})
+qt4_add_resources(spectra_RESOURCES ${spectra_RESOURCES})
 
 
 ## ----   SPECTCLJSON ------------------------------------------------- 
@@ -184,24 +186,24 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}
 ########################################################################
 
 # ADD EXECUTABLE
-add_library(Untitled2 
-  ${untitled2_SOURCES} 
-  ${untitled2_HEADERS_MOC}
-  ${untitled2_FORMS_HEADERS}
-  ${untitled2_RESOURCES}) 
+add_library(Spectra
+  ${spectra_SOURCES}
+  ${spectra_HEADERS_MOC}
+  ${spectra_FORMS_HEADERS}
+  ${spectra_RESOURCES})
 
-add_dependencies(Untitled2 SpecTclJson)
+add_dependencies(Spectra SpecTclJson)
 
 # we depend on some external libraries
-target_link_libraries(Untitled2 
+target_link_libraries(Spectra
   ${QT_LIBRARIES}
   libSpecTclJson
   jsoncpp
   ${ROOT_LDFLAGS} -lQtGSI)
 
 
-add_executable(untitled2 main.cpp)
-target_link_libraries(untitled2 Untitled2)
+add_executable(spectra main.cpp)
+target_link_libraries(spectra Spectra)
 
 
 #### TESTLIB .... sample
@@ -213,5 +215,5 @@ target_link_libraries(untitled2 Untitled2)
 #
 #add_test(TEST2 test2)
 
-install(TARGETS untitled2 DESTINATION bin)
-install(TARGETS Untitled2 DESTINATION lib)
+install(TARGETS spectra DESTINATION bin)
+install(TARGETS Spectra DESTINATION lib)
