@@ -60,6 +60,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <CTreeParameter.h>
 #include <CTreeVariable.h>
 #include <TCLException.h>
+#include <TCLLiveEventLoop.h>
 
 #include "CFoldCommand.h"
 #include "CFitCommand.h"
@@ -124,7 +125,6 @@ static const char* kpAppInitSubDir = "/etc";
 static const char* kpAppInitFile   = "/SpecTclInit.tcl";
 static const char* kpUserInitFile  = "/SpecTclRC.tcl";
 
-
 static const char* ProtectedVariables[] = {
   "DisplayMegabytes",
   "ParameterCount",
@@ -140,12 +140,16 @@ static const char* ProtectedVariables[] = {
 
 // Static attribute storage and initialization for CTclGrammerApp
 
+CTclGrammerApp* CTclGrammerApp::m_pInstance = NULL;
+char** CTclGrammerApp::m_pArgV = NULL;
+int CTclGrammerApp::m_argc = 0;
+
 // Local classes:
 
 /**
  * @class CSpecTclInitVar
  *    Class that handles traces for variables that are set in SpecTclInit.tcl
- *    -  On construction snapshot the variable value.
+ *    -  On construction snapshot the variabkle value.
  *    -  If write trace fires and the value is different - restore the value
  *       and return an error.
  *    -  If an unset trace fires, return an error.
@@ -225,7 +229,6 @@ CSpecTclInitVar::operator()(char* pName, char* pSubscript, int flags)
    into the program called SpecTcl.
 */
 CTclGrammerApp::CTclGrammerApp() :
-  CTCLApplication(),
   m_nDisplaySize(knDisplaySize),
   m_nParams(knParameterCount),
   m_nListSize(knEventListSize),
@@ -819,7 +822,7 @@ void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
 */
 int CTclGrammerApp::operator()() {
 
-
+    cerr << "operator()()" << endl;
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
   
@@ -917,6 +920,11 @@ int CTclGrammerApp::operator()() {
 
   return TCL_OK;
 }
+
+CTCLInterpreter* CTclGrammerApp::getInterpreter() {
+    return gpInterpreter;
+}
+
 
 // Function:
 //   static void UpdateUInt(CTCLVariable& rVar, UInt_t& rValue)
@@ -1050,3 +1058,63 @@ CTclGrammerApp::protectVariable(CTCLInterpreter* pInterp, const char* pVarName)
 {
   new CSpecTclInitVar(pInterp, pVarName);
 }
+
+
+
+int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
+{
+
+    cerr << "AppInit" << endl;
+    // do basic set up stuff for the interpreter
+    if (Tcl_Init(pInterp) == TCL_ERROR) {
+        return TCL_ERROR;
+    }
+
+    gpInterpreter = new CTCLInterpreter(pInterp);
+    assert(gpInterpreter != NULL);
+
+
+    cerr << "event loop started" << endl;
+    CTclGrammerApp* pInstance = CTclGrammerApp::getInstance();
+
+    if (pInstance == NULL) {
+        throw std::string("CTclGrammerApp::m_pInstance does not point to object.");
+    }
+
+    pInstance->operator()();
+
+    CTCLLiveEventLoop* pEventLoop = CTCLLiveEventLoop::getInstance();
+    pEventLoop->start(gpInterpreter);
+
+    return TCL_OK;
+}
+
+void CTclGrammerApp::run()
+{
+    Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::AppInit);
+}
+
+int main(int argc, char* argv[]) {
+
+    try {
+        CTclGrammerApp::m_argc = argc;
+        CTclGrammerApp::m_pArgV = argv;
+        CTclGrammerApp::getInstance()->run();
+
+        return 0;
+    } catch (std::string msg) {
+        cerr << "An unhandled string exception was caught: " << msg << endl;
+        return -1;
+    }
+    catch (const char* msg) {
+        cerr << "An unhandled char* exception was caught: " << msg << endl;
+        return -1;
+    }
+    catch(...) {
+        cerr << "Unhandled exception\n";
+        return -1;
+    }
+
+    return 0;
+}
+

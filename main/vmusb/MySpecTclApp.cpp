@@ -44,8 +44,8 @@ using namespace std;
 
 // Create the appliation:
 CMySpecTclApp   myApp;
-CTclGrammerApp& app(myApp);	// Create an instance of me.
-CTCLApplication* gpTCLApplication=&app;  // Findable by the Tcl/tk framework.
+CTclGrammerApp* CTclGrammerApp::m_pInstance = &myApp;	// Create an instance of me.
+int gpTCLApplication(0);  // Satisfy the build by defining this
 
 
 // Local class that is responsible for setting up our application

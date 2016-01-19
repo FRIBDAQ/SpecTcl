@@ -297,14 +297,12 @@
 //
 // Copyright 
 
-#ifndef __MYSPECTCLAPP_H  //Required for current class
-#define __MYSPECTCLAPP_H
+#ifndef MYSPECTCLAPP_H  //Required for current class
+#define MYSPECTCLAPP_H
 
 // Include files:
 // Required for base classes
-#ifndef __TCLGRAMMERAPP_H     //CTclGrammerApp
 #include "TclGrammerApp.h"
-#endif
 
 class CMySpecTclApp : public CTclGrammerApp {
  public:

@@ -16,8 +16,8 @@ the first two parameters in an event.
 //
 // Copyright 
 
-#ifndef __MYSPECTCLAPP_H  //Required for current class
-#define __MYSPECTCLAPP_H
+#ifndef MYSPECTCLAPP_H  //Required for current class
+#define MYSPECTCLAPP_H
 
 //
 // Include files:

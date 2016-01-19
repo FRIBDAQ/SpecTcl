@@ -29,12 +29,8 @@
 //
 // Copyright 
 
-#ifndef __TCLGRAMMERAPP_H  //Required for current class
-#define __TCLGRAMMERAPP_H
-
-#ifndef __TCLAPPLICATION_H
-#include <TCLApplication.h>
-#endif
+#ifndef TCLGRAMMERAPP_H  //Required for current class
+#define TCLGRAMMERAPP_H
 
 #ifndef __STL_LIST
 #include <list>
@@ -81,7 +77,10 @@ class CMultiTestSource;
 class CDisplayInterface;
 class CGatingDisplayObserver;
 
-class CTclGrammerApp : public CTCLApplication {
+class CTclGrammerApp;
+
+class CTclGrammerApp {
+private:
   // Private Member data:
   UInt_t m_nDisplaySize;
   UInt_t m_nParams;
@@ -300,14 +299,28 @@ class CTclGrammerApp : public CTCLApplication {
   virtual void SourceFunctionalScripts(CTCLInterpreter& rInterp); // Do functional Tcl initialization.
   virtual int operator()(); // SpecTcl entry point.
 
+  virtual void run(); // enter Tcl_Main
+
+  CTCLInterpreter* getInterpreter();
+
+  static CTclGrammerApp* getInstance() { return m_pInstance; }
+
+  // Program variables
+ public:
+  static CTclGrammerApp* m_pInstance;
+  static int             m_argc;
+  static char**          m_pArgV;
+
   // Utilities:
- protected:  
+protected:
   static void UpdateUInt(CTCLVariable& rVar, UInt_t& rValue);
   static void UpdateString(CTCLVariable& rVar, std::string& rString);
   static std::string SourceOptionalFile(CTCLInterpreter& rInterp, std::string filename);
 private:
   static void TimedUpdates(ClientData d);
   void protectVariable(CTCLInterpreter* pInterp, const char* pVarName);
+
+  static int AppInit(Tcl_Interp* pInterp);
 };
 
 #endif
