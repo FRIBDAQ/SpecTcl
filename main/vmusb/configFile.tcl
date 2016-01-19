@@ -105,6 +105,9 @@ proc adcConfig tail {
 	}
     }
 }
+
+
+
 #----------------------------------------------------------------
 #
 #  Configures a v1729 FADC.  We're just looking for the
@@ -139,6 +142,18 @@ proc v1729create tail {
     set ::readoutDeviceType($name) $::typeV1729
     set ::v1729postTriggers($name) 64
     v1729config $tail
+}
+#---------------------------------------------------------------
+# Support the vmusb dummy module type.  We support it
+# unless it's scalers are being read:
+#
+proc vmusb args {
+    # Name of the modules is always after the subcommand:
+
+    set name [lindex $args 1]
+    set ::adcConfiguration($name) -1
+    set ::readoutDeviceType($name) $::typeVMUSB
+    
 }
 
 #------------------------------------------------------------------
