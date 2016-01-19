@@ -32,29 +32,13 @@
 #ifndef TCLGRAMMERAPP_H  //Required for current class
 #define TCLGRAMMERAPP_H
 
-#ifndef __STL_LIST
-#include <list>
-#ifndef __STL_LIST
-#define __STL_LIST
-#endif
-#endif
-
-#ifndef __STL_STRING
-#include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __TCLVARIABLE_H
 #include <TCLVariable.h>
-#endif
-
-#ifndef __ANALYZER_H
 #include <Analyzer.h>
-#endif
 
 #include <tcl.h>
+
+#include <list>
+#include <string>
 
 class CTCLInterpreter;
 class CAnalyzer;
@@ -77,33 +61,48 @@ class CMultiTestSource;
 class CDisplayInterface;
 class CGatingDisplayObserver;
 
-class CTclGrammerApp;
-
+/*!
+ * \brief The CTclGrammerApp class
+ *
+ * This is the base implementation of the SpecTcl program. Users should
+ * derive a class from this that is specific to their needs. Their derived
+ * instance should be created in global scope and then passed to this
+ * class using the static member m_pInstance.
+ *
+ * \code
+ *  CMySpecTclApp app;
+ *  CTclGrammerApp* CTclGrammerApp::m_pInstance = &app;
+ * \endcode
+ *
+ * The main function (provided in the source file for this class), will use
+ * their instance in SpecTcl.
+ */
 class CTclGrammerApp {
+
 private:
   // Private Member data:
-  UInt_t m_nDisplaySize;
-  UInt_t m_nParams;
-  UInt_t m_nListSize;
-  std::string m_displayType;
-  CAnalyzer* m_pAnalyzer;
-  CTCLHistogrammer* m_pHistogrammer;
-  CBufferDecoder* m_pDecoder; // Formerly declared as only an NSCL Buffer Decoder.
-  CTKRunControl* m_pRunControl;
-  CXamineEventHandler* m_pXamineEvents;
-  CRunControlPackage* m_pRunControlPackage;
-  CParameterPackage* m_pParameterPackage;
-  CSpectrumPackage* m_pSpectrumPackage;
-  CDataSourcePackage* m_pDataSourcePackage;
-  CGatePackage* m_pGatePackage;
-  CTCLVariable m_RCFile;
-  CTCLVariable m_TclDisplaySize;
-  CTCLVariable m_TclParameterCount;
-  CTCLVariable m_TclEventListSize;
-  CTCLVariable m_TclDisplayType;
-  CMultiTestSource* m_pMultiTestSource;
-  CDisplayInterface* m_pDisplayInterface;
-  CGatingDisplayObserver* m_pGatingObserver;
+  UInt_t                    m_nDisplaySize;
+  UInt_t                    m_nParams;
+  UInt_t                    m_nListSize;
+  std::string               m_displayType;
+  CAnalyzer*                m_pAnalyzer;
+  CTCLHistogrammer*         m_pHistogrammer;
+  CBufferDecoder*           m_pDecoder; // Formerly declared as only an NSCL Buffer Decoder.
+  CTKRunControl*            m_pRunControl;
+  CXamineEventHandler*      m_pXamineEvents;
+  CRunControlPackage*       m_pRunControlPackage;
+  CParameterPackage*        m_pParameterPackage;
+  CSpectrumPackage*         m_pSpectrumPackage;
+  CDataSourcePackage*       m_pDataSourcePackage;
+  CGatePackage*             m_pGatePackage;
+  CTCLVariable              m_RCFile;
+  CTCLVariable              m_TclDisplaySize;
+  CTCLVariable              m_TclParameterCount;
+  CTCLVariable              m_TclEventListSize;
+  CTCLVariable              m_TclDisplayType;
+  CMultiTestSource*         m_pMultiTestSource;
+  CDisplayInterface*        m_pDisplayInterface;
+  CGatingDisplayObserver*   m_pGatingObserver;
   
   int m_nUpdateRate;
 
@@ -278,7 +277,6 @@ private:
       m_pDisplayInterface = pInterface;
   }
 
-
   // Class operations:
  public:
   void RegisterEventProcessor(CEventProcessor& rEventProcessor,
@@ -299,17 +297,37 @@ private:
   virtual void SourceFunctionalScripts(CTCLInterpreter& rInterp); // Do functional Tcl initialization.
   virtual int operator()(); // SpecTcl entry point.
 
-  virtual void run(); // enter Tcl_Main
+  /*!
+   * \brief run
+   *
+   * The base implementation for this method calls Tcl_Main with
+   * CTclGrammerApp::AppInit as the AppInit arguments.
+   */
+  virtual void run();
 
+  /*!
+   * \brief getInterpreter
+   *
+   * \return current value of gpInterpreter
+   */
   CTCLInterpreter* getInterpreter();
 
+  /*!
+   * \brief getInstance
+   *
+   * This is not a singleton pattern. The method is used to access
+   * the derived SpecTcl instance.
+   *
+   * \return the instance of CTclGrammerApp to use for the program
+   */
   static CTclGrammerApp* getInstance() { return m_pInstance; }
+
 
   // Program variables
  public:
-  static CTclGrammerApp* m_pInstance;
-  static int             m_argc;
-  static char**          m_pArgV;
+  static CTclGrammerApp* m_pInstance;  ///!< The instance of SpecTcl
+  static int             m_argc;       ///!< stored argc value
+  static char**          m_pArgV;      ///!< stored argv value
 
   // Utilities:
 protected:
@@ -320,6 +338,17 @@ private:
   static void TimedUpdates(ClientData d);
   void protectVariable(CTCLInterpreter* pInterp, const char* pVarName);
 
+  /*!
+   * \brief AppInit - Set up application
+   *
+   *  This iimplementation of AppInit :
+   *  1. wraps the tcl interpreter and stores it as gpInterpreter
+   *  2. calls the m_pInstance->operator()()
+   *  3. Starts the tcl event loop that the program live in for the rest of its life
+   *
+   * \param pInterp - the main tcl interpreter
+   * \return TCL_OK
+   */
   static int AppInit(Tcl_Interp* pInterp);
 };
 

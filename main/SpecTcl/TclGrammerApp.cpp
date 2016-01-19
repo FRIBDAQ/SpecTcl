@@ -822,7 +822,6 @@ void CTclGrammerApp::SourceFunctionalScripts(CTCLInterpreter& rInterp) {
 */
 int CTclGrammerApp::operator()() {
 
-    cerr << "operator()()" << endl;
   // Fetch and setup the interpreter member/global pointer.
   gpInterpreter = getInterpreter();
   
@@ -1060,11 +1059,18 @@ CTclGrammerApp::protectVariable(CTCLInterpreter* pInterp, const char* pVarName)
 }
 
 
-
+/*!
+ * \brief CTclGrammerApp::AppInit
+ *
+ * The AppInit to use for Tcl_Main. This sets up the global interpreter,
+ * runs the start up procedures for CTclGrammerApp (or derived types),
+ * and then run the event loop. This eventually sets
+ * \param pInterp
+ * \return
+ */
 int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
 {
 
-    cerr << "AppInit" << endl;
     // do basic set up stuff for the interpreter
     if (Tcl_Init(pInterp) == TCL_ERROR) {
         return TCL_ERROR;
@@ -1073,14 +1079,13 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
     gpInterpreter = new CTCLInterpreter(pInterp);
     assert(gpInterpreter != NULL);
 
-
-    cerr << "event loop started" << endl;
     CTclGrammerApp* pInstance = CTclGrammerApp::getInstance();
 
     if (pInstance == NULL) {
         throw std::string("CTclGrammerApp::m_pInstance does not point to object.");
     }
 
+    // This is the virtual method that sets up all of SpecTcl.
     pInstance->operator()();
 
     CTCLLiveEventLoop* pEventLoop = CTCLLiveEventLoop::getInstance();
@@ -1089,11 +1094,26 @@ int CTclGrammerApp::AppInit(Tcl_Interp *pInterp)
     return TCL_OK;
 }
 
+/*!
+ * \brief CTclGrammerApp::run - start the Tcl_Main with our AppInit
+ */
 void CTclGrammerApp::run()
 {
     Tcl_Main(m_argc, m_pArgV, &CTclGrammerApp::AppInit);
 }
 
+
+/*!
+ * \brief main
+ *
+ * Here is our hidden/controlled main function. Derived instances of
+ * SpecTcl must use our main and only have control over the methods they
+ * override.
+ *
+ * \param argc
+ * \param argv
+ * \return
+ */
 int main(int argc, char* argv[]) {
 
     try {
