@@ -186,7 +186,7 @@ public:
     virtual CSpectrum* getSpectrum(UInt_t xid) = 0;
 
     /*!
-     * \brief FindDisplayBinding
+     * \brief spectrumExists
      *
      * Look up the display binding by the spectrum name
      *
@@ -196,7 +196,7 @@ public:
      * \retval >=0 if binding exists
      * \retval -1  binding does not exist
      */
-    virtual Int_t FindDisplayBinding(std::string name) = 0;
+    virtual bool spectrumBound(CSpectrum& rSpectrum) = 0;
 
     /*!
      * \brief DisplayBindingsSize
@@ -222,20 +222,20 @@ public:
      *
      * Sets the info line for a spectrum identified by slot
      *
+     * \param rSpectrum the spectrum to assign to
      * \param name - the text to use
-     * \param slot - slot (i.e. display binding) containing spectrum of interest
      */
-    virtual void setInfo(std::string name, UInt_t slot) = 0;
+    virtual void setInfo(CSpectrum& rSpectrum, std::string name) = 0;
 
     /*!
      * \brief setTitle
      *
      * Sets the title of the spectrum at a certain slot (i.e. display binding)
      *
+     * \param rSpectrum - the spectrum to apply this to
      * \param name - text to set the title to
-     * \param slot - slot identifying the spectrum
      */
-    virtual void setTitle(std::string name, UInt_t slot) = 0;
+    virtual void setTitle(CSpectrum& rSpectrum, std::string name) = 0;
 
     /*!
      * \brief getTitleSize

@@ -28,58 +28,18 @@
 
 // Headers required:
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __EVENTPROCESSOR_H
 #include <EventProcessor.h>
-#endif
-
-#ifndef __EVENTSINK_H
 #include <EventSink.h>
-#endif
-
-#ifndef __POINT_H
 #include <Point.h>
-#endif
-
-
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
-
-#ifndef __HISTOGRAMMER_H
 #include <Histogrammer.h>
-#endif
-
-#ifndef __GATEFACTORY_H
 #include <GateFactory.h>
-#endif
-
-#ifndef __TCLANALYZER_H
 #include <TCLAnalyzer.h>
-#endif
-
-#ifndef __EVENTSINKPIPELINE
 #include <EventSinkPipeline.h>
-#endif
-
-
-#ifndef __ATTACHCOMMAND_H
 #include <AttachCommand.h>
-#endif
 
 
 // Forward class definitions

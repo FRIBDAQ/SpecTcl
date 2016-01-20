@@ -4,6 +4,8 @@
 #include "CSpectrumFit.h"
 
 #include <iostream>
+#include <algorithm>
+#include <iterator>
 
 using namespace std;
 
@@ -63,6 +65,7 @@ void CTestDisplay::addFit(CSpectrumFit &fit) {
 
     string fitName      = fit.fitName();
     string spectrumName = fit.getName();
+
     Int_t  xSpectrumId  = FindDisplayBinding(spectrumName);
     if (xSpectrumId < 0) {
       // Display is not bound to Xamine.
@@ -199,22 +202,28 @@ UInt_t CTestDisplay::DisplayBindingsSize() const
 }
 
 /*!
-    Find the bindings for a spectrum by name.
-   \param name  : string
-       Name of the spectrum
-   \return
-   \retval -1   - Spectrum has no binding.
-   \retval >= 0 - The binding index (xamine slot).
+    Test that the spectrum is bound to the display
+   \param rSpectrum  : CSpectrum&
+       The spectrum
+   \return boolean
+   \retval false   - Spectrum has no binding.
+   \retval true    - Spectrum has binding
 
 */
-Int_t CTestDisplay::FindDisplayBinding(std::string name) {
+bool CTestDisplay::spectrumBound(CSpectrum& rSpectrum) {
+    vector<CSpectrum*>::iterator found = std::find(m_boundSpectra.begin(), m_boundSpectra.end(), &rSpectrum);
+    return (found != m_boundSpectra.end());
+}
 
-    for (int i = 0; i < DisplayBindingsSize(); i++) {
-      if (name == m_DisplayBindings[i]) {
-        return i;
-      }
+Int_t CTestDisplay::FindDisplayBinding(const std::string& spectrumName)
+{
+    DisplayBindings::iterator found = std::find(m_DisplayBindings.begin(), m_DisplayBindings.end(),
+                            spectrumName);
+    if (found == m_DisplayBindings.end()) {
+        return -1;
+    } else {
+        return std::distance(m_DisplayBindings.begin(), found);
     }
-    return -1;
 }
 
 std::string CTestDisplay::createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer&)
@@ -222,8 +231,8 @@ std::string CTestDisplay::createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CH
     return rSpectrum.getName();
 }
 
-void CTestDisplay::setInfo(std::string name, UInt_t slot) {}
-void CTestDisplay::setTitle(std::string name, UInt_t slot) {}
+void CTestDisplay::setInfo(CSpectrum &rSpectrum, string name) {}
+void CTestDisplay::setTitle(CSpectrum &rSpectrum, string name) {}
 UInt_t CTestDisplay::getTitleSize() const { return 0; }
 
 void CTestDisplay::addGate(CSpectrum &rSpectrum, CGateContainer &rGate) {}

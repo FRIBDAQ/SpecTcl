@@ -177,12 +177,15 @@ public:
   UInt_t DisplayBindingsSize() const;
   Int_t FindDisplayBinding(std::string name);
   Int_t FindDisplayBinding(CSpectrum& rSpectrum);
+  bool spectrumBound(CSpectrum &rSpectrum);
 
   DisplayBindings  getDisplayBindings() const;
 
   std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer &rSorter);
   UInt_t getTitleSize()  const;
+  void setTitle(CSpectrum& rSpectrum, std::string name);
   void setTitle(std::string name, UInt_t slot);
+  void setInfo(CSpectrum& rSpectrum, std::string name);
   void setInfo(std::string  name, UInt_t slot);
 
   // Spectrum statistics.

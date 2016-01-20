@@ -58,12 +58,12 @@ DisplayBindings CNullDisplay::getDisplayBindings() const {
 }
 
 CSpectrum* CNullDisplay::getSpectrum(UInt_t xid) { return static_cast<CSpectrum*>(kpNULL); }
-Int_t CNullDisplay::FindDisplayBinding(std::string name) { return -1;}
+bool CNullDisplay::spectrumBound(CSpectrum& rSpec) { return false;}
 UInt_t CNullDisplay::DisplayBindingsSize() const { return 0; }
 
 std::string CNullDisplay::createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer &rSorter) { return "null";}
-void CNullDisplay::setInfo(std::string name, UInt_t slot) {}
-void CNullDisplay::setTitle(std::string name, UInt_t slot) {}
+void CNullDisplay::setInfo(CSpectrum& rSpec, std::string name) {}
+void CNullDisplay::setTitle(CSpectrum& rSpec, std::string name) {}
 UInt_t CNullDisplay::getTitleSize() const { return 0; }
 
 void CNullDisplay::addGate(CSpectrum &rSpectrum, CGateContainer &rGate) {}

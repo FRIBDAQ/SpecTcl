@@ -80,6 +80,8 @@ extern "C" {
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdexcept>
+
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
 #endif
@@ -1147,6 +1149,23 @@ CXamine::getTitleSize() const
 {
   return sizeof(spec_title);
 }
+
+/*!
+   Set the title of a specific slot in Xamine memory.
+   The title will be truncated to the size of the spec_title if
+   necessary
+*/
+void
+CXamine::setTitle(CSpectrum& rSpectrum, string name)
+{
+  Int_t slot = FindDisplayBinding(rSpectrum);
+  if (slot >= 0) {
+      setTitle(name, slot);
+  } else {
+      throw std::runtime_error("CXamine::setTitle() Cannot set title on unbound spectrum.");
+  }
+}
+
 /*!
    Set the title of a specific slot in Xamine memory.
    The title will be truncated to the size of the spec_title if
@@ -1158,6 +1177,18 @@ CXamine::setTitle(string name, UInt_t slot)
   memset((void*)m_pDisplay->dsp_titles[slot], 0, getTitleSize());
   strncpy((char*)m_pDisplay->dsp_titles[slot], name.c_str(), getTitleSize() -1);
 }
+
+void
+CXamine::setInfo(CSpectrum &rSpectrum, std::string name)
+{
+    Int_t slot = FindDisplayBinding(rSpectrum);
+    if (slot >= 0) {
+        setInfo(name, slot);
+    } else {
+        throw std::runtime_error("CXamine::setInfo() Cannot set info on unbound spectrum.");
+    }
+}
+
 /*!
   Set the info string of a specific slot in xamine memory.
   the info string will be truncated to spec_title size if needed.
@@ -1726,6 +1757,15 @@ DisplayBindingsIterator CXamine::DisplayBindingsEnd() {
   // Returns an iterator which can be used to determin
   // if the end of the display bindings set has been iterated through.
   return m_DisplayBindings.end();
+}
+
+
+/*!
+ *
+ */
+bool CXamine::spectrumBound(CSpectrum &rSpectrum)
+{
+    return (FindDisplayBinding(rSpectrum) >= 0);
 }
 
 /*!

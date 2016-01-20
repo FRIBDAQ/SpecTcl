@@ -47,11 +47,12 @@ public:
     DisplayBindingsIterator DisplayBindingsBegin();
     DisplayBindingsIterator DisplayBindingsEnd();
     UInt_t DisplayBindingsSize() const;
-    virtual Int_t FindDisplayBinding(std::string name);
+    virtual bool spectrumBound(CSpectrum& rSpectrum);
+    Int_t FindDisplayBinding(const std::string& spectrumName);
 
     virtual std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer &);
-    virtual void setInfo(std::string name, UInt_t slot);
-    virtual void setTitle(std::string name, UInt_t slot);
+    virtual void setInfo(CSpectrum& rSpectrum, std::string name);
+    virtual void setTitle(CSpectrum& rSpectrum, std::string name);
     virtual UInt_t getTitleSize() const;
 
     virtual void addGate(CSpectrum& rSpectrum, CGateContainer& rGate);
