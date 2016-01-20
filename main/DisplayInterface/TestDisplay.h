@@ -30,10 +30,11 @@ public:
     virtual Bool_t isAlive();
     virtual void restart();
 
-    DisplayBindings  getDisplayBindings() const;
+    SpectrumContainer getBoundSpectra() const;
 
     virtual UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
     virtual void   removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum);
+    virtual void   removeSpectrum(CSpectrum& rSpectrum);
 
     virtual void addFit(CSpectrumFit& fit);
     virtual void deleteFit(CSpectrumFit& fit);
@@ -56,7 +57,7 @@ public:
     virtual UInt_t getTitleSize() const;
 
     virtual void addGate(CSpectrum& rSpectrum, CGateContainer& rGate);
-    virtual void removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType);
+    virtual void removeGate(CSpectrum &rSpectrum, CGateContainer &rGate);
 
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y);
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y);

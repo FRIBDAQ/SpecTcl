@@ -23,6 +23,7 @@ public:
 
     virtual UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
     virtual void   removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum);
+    virtual void   removeSpectrum(CSpectrum& rSpectrum);
 
     virtual void addFit(CSpectrumFit& fit);
     virtual void deleteFit(CSpectrumFit& fit);
@@ -32,7 +33,7 @@ public:
     virtual std::vector<CGateContainer> getAssociatedGates(const std::string& rSpectrum,
                                                        CHistogrammer& rSorter);
 
-    DisplayBindings getDisplayBindings() const;
+    SpectrumContainer getBoundSpectra() const;
     virtual CSpectrum* getSpectrum(UInt_t xid);
     virtual bool spectrumBound(CSpectrum& rSpectrum);
     virtual UInt_t DisplayBindingsSize() const;
@@ -43,7 +44,7 @@ public:
     virtual UInt_t getTitleSize() const;
 
     virtual void addGate(CSpectrum& rSpectrum, CGateContainer& rGate);
-    virtual void removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType);
+    virtual void removeGate(CSpectrum &rSpectrum, CGateContainer &rGate);
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y);
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y);
 };

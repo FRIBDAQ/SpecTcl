@@ -3,7 +3,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/Asserter.h>
 
-#include "Asserts.h""
+#include "Asserts.h"
 
 #include "NullDisplay.h"
 #include "DisplayCollection.h"

@@ -42,6 +42,7 @@ UInt_t CNullDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 { return 0;}
 
 void CNullDisplay::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum) {}
+void CNullDisplay::removeSpectrum(CSpectrum &rSpectrum) {}
 
 void CNullDisplay::addFit(CSpectrumFit &fit) {}
 void CNullDisplay::deleteFit(CSpectrumFit &fit) {}
@@ -53,8 +54,9 @@ std::vector<CGateContainer> CNullDisplay::getAssociatedGates(const std::string &
     return std::vector<CGateContainer>();
 }
 
-DisplayBindings CNullDisplay::getDisplayBindings() const {
-    return DisplayBindings();
+SpectrumContainer CNullDisplay::getBoundSpectra() const
+{
+    return SpectrumContainer();
 }
 
 CSpectrum* CNullDisplay::getSpectrum(UInt_t xid) { return static_cast<CSpectrum*>(kpNULL); }
@@ -67,7 +69,7 @@ void CNullDisplay::setTitle(CSpectrum& rSpec, std::string name) {}
 UInt_t CNullDisplay::getTitleSize() const { return 0; }
 
 void CNullDisplay::addGate(CSpectrum &rSpectrum, CGateContainer &rGate) {}
-void CNullDisplay::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) {}
+void CNullDisplay::removeGate(CSpectrum &rSpectrum, CGateContainer& rGate) {}
 
 void CNullDisplay::setOverflows(unsigned slot, unsigned x, unsigned y) {}
 void CNullDisplay::setUnderflows(unsigned slot, unsigned x, unsigned y) {}

@@ -59,6 +59,18 @@ void CTestDisplay::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
     m_boundSpectra.at(nSpec) = static_cast<CSpectrum*>(kpNULL);
 }
 
+void CTestDisplay::removeSpectrum(CSpectrum &rSpectrum)
+{
+    SpectrumContainer::iterator it = std::find(m_boundSpectra.begin(),
+                                               m_boundSpectra.end(),
+                                               &rSpectrum);
+    if (it != m_boundSpectra.end()) {
+        *it = NULL;
+        size_t index = std::distance(m_boundSpectra.begin(), it);
+        m_DisplayBindings.at(index) = "";
+    }
+}
+
 void CTestDisplay::addFit(CSpectrumFit &fit) {
     // get the fit name and spectrum name... both of which we'll need to
     //   ensure we can add/bind the fit.
@@ -163,9 +175,9 @@ std::vector<CGateContainer> CTestDisplay::getAssociatedGates(const std::string &
       return vGates;
 }
 
-DisplayBindings CTestDisplay::getDisplayBindings() const
+SpectrumContainer CTestDisplay::getBoundSpectra() const
 {
-    return m_DisplayBindings;
+    return m_boundSpectra;
 }
 
 CSpectrum* CTestDisplay::getSpectrum(UInt_t xid)
@@ -236,7 +248,7 @@ void CTestDisplay::setTitle(CSpectrum &rSpectrum, string name) {}
 UInt_t CTestDisplay::getTitleSize() const { return 0; }
 
 void CTestDisplay::addGate(CSpectrum &rSpectrum, CGateContainer &rGate) {}
-void CTestDisplay::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) {}
+void CTestDisplay::removeGate(CSpectrum &rSpectrum, CGateContainer& rGate) {}
 
 void CTestDisplay::setOverflows(unsigned slot, unsigned x, unsigned y) {}
 void CTestDisplay::setUnderflows(unsigned slot, unsigned x, unsigned y) {}

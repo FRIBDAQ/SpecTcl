@@ -151,16 +151,23 @@ void CXamineEventHandler::operator()()
     if(!m_pDisplay->isAlive()) {
       cerr << "Xamine just died....";
       cerr << "\n Unbinding spectra...";
-      SpectrumDictionaryIterator p = m_pSorter->SpectrumBegin();
-      
-      for(; p != m_pSorter->SpectrumEnd(); p++) {
-	try {
-	  CSpectrum *pSpec = (*p).second;
-	  UInt_t Xid = FindDisplayBinding(pSpec->getName());
-      m_pDisplay->removeSpectrum(Xid, *pSpec);
-	}
-	catch(...) { } // Some spectra will not be bound.
-      }
+//      SpectrumDictionaryIterator p = m_pSorter->SpectrumBegin();
+
+        SpectrumContainer spectra = m_pDisplay->getBoundSpectra();
+        for (size_t slot = 0; slot<spectra.size(); ++slot) {
+            CSpectrum* pSpectrum = spectra.at(slot);
+            if (pSpectrum) {
+                m_pDisplay->removeSpectrum(*pSpectrum);
+            }
+        }
+//      for(; p != m_pSorter->SpectrumEnd(); p++) {
+//          try {
+//              CSpectrum *pSpec = (*p).second;
+//              UInt_t Xid = FindDisplayBinding(pSpec->getName());
+//              m_pDisplay->removeSpectrum(Xid, *pSpec);
+//          }
+//          catch(...) { } // Some spectra will not be bound.
+//      }
 
       cerr << "\n Restarting Xamine...";
       m_pDisplay->restart();

@@ -314,6 +314,36 @@ void CXamine::addGate(CXamineGate& rGate)
   ThrowGateStatus(nStatus, rGate, 
 		  "Xamine::EnterGate -- Failed to enter gate");
 }
+
+void
+CXamine::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
+{
+    // Removes a gate that is just about to be destroyed from
+    // the appropriate set of Xamine bound spectra.
+    //
+    // Formal Paramters:
+    //    CGateContainer& rGate:
+    //       Reference to the container which holds the gate about to be
+    //       destroyed.  Note that for most purposes, a gate container
+    //       can be treated as if it was a pointer to a gate.
+    //
+    UInt_t nGateId = rGate.getNumber();
+    GateType_t eType;
+    if(rGate->Type() == "c" || rGate->Type() == "gc") {
+      eType = kgContour2d;
+    }
+    else if(rGate->Type() == "b" || rGate->Type() == "gb") {
+      eType = kgBand2d;
+    }
+    else if (rGate->Type() == "s" || rGate->Type() == "gs") {
+      eType = kgCut1d;
+    }
+    else {
+      return;			// Non -primitive gates won't be displayed.
+    }
+
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -1337,6 +1367,14 @@ UInt_t CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter) {
     return nSpectrum;
 }
 
+void CXamine::removeSpectrum(CSpectrum &rSpectrum)
+{
+    Int_t slot = FindDisplayBinding(rSpectrum);
+    if (slot >=0) {
+        removeSpectrum(slot, rSpectrum);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:
@@ -1702,6 +1740,11 @@ CXamine::getAssociatedGates(const std::string& spectrumName, CHistogrammer &rSor
   }
 
   return vGates;
+}
+
+SpectrumContainer CXamine::getBoundSpectra() const
+{
+    return m_boundSpectra;
 }
 
 DisplayBindings CXamine::getDisplayBindings() const

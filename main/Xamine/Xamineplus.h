@@ -159,6 +159,7 @@ public:
 
   UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
   void   removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum);
+  void   removeSpectrum(CSpectrum &rSpectrum);
 
   void addFit(CSpectrumFit& fit);
   void deleteFit(CSpectrumFit& fit);
@@ -180,6 +181,7 @@ public:
   bool spectrumBound(CSpectrum &rSpectrum);
 
   DisplayBindings  getDisplayBindings() const;
+  SpectrumContainer getBoundSpectra() const;
 
   std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer &rSorter);
   UInt_t getTitleSize()  const;
@@ -198,7 +200,9 @@ public:
 
   void addGate (CSpectrum& rSpectrum, CGateContainer& rGate)  ;
   void addGate (CXamineGate& rGate)  ;
+  void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate);
   void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType);
+
   void EnterPeakMarker (UInt_t nSpectrum, 
                         UInt_t nId,
                         const std::string& rsName,

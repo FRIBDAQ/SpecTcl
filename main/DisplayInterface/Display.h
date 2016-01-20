@@ -34,6 +34,7 @@ class CHistogrammer;
 // Display binding management types:
 typedef std::vector<std::string>   DisplayBindings;
 typedef DisplayBindings::iterator  DisplayBindingsIterator;
+typedef std::vector<CSpectrum*>    SpectrumContainer;
 
 /*!
  * \brief The CDisplay class
@@ -106,7 +107,7 @@ public:
      *
      * \return DisplayBindings - the names of graphical entities bound to the display
      */
-    virtual DisplayBindings getDisplayBindings() const = 0;
+    virtual SpectrumContainer getBoundSpectra() const = 0;
 
     /*!
      * \brief addSpectrum
@@ -130,47 +131,11 @@ public:
      *
      * \param nSpec     - display binding of the spectrum to remove
      * \param rSpectrum - SpecTcl spectrum being unbound
+     *
+     * \todo Get rid of any need for the first version of this.
      */
-    virtual void   removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum) = 0;
-
-    /*!
-     * \brief addFit
-     *
-     * Similarly to the BindToDisplay, the addFit method binds a fit to a display.
-     *
-     * \param fit - the fit
-     */
-    virtual void addFit(CSpectrumFit& fit) = 0;
-
-    /*!
-     * \brief deleteFit
-     *
-     * Removes a fit from the display
-     *
-     * \param fit - fit to remove
-     */
-    virtual void deleteFit(CSpectrumFit& fit) = 0;
-
-    /*!
-     * \brief updateStatistics
-     *
-     * Causes the statistics for the display to be updated.
-     */
-    virtual void updateStatistics() = 0;
-
-    /*!
-     * \brief getAssociatedGates
-     *
-     * Retrieves the list of all displayable gates for a certain spectrum. The histogrammer is necessary
-     * to have access to the gate and spectrum dictionaries.
-     *
-     * \param spectrumName - the name of the spectrum
-     * \param rSorter      - the histogrammer
-     *
-     * \return vector of gates that can be displayed on the spectrum
-     */
-    virtual std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
-                                                           CHistogrammer& rSorter) = 0;
+    virtual void removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum) = 0;
+    virtual void removeSpectrum(CSpectrum& rSpectrum) = 0;
 
     /*!
      * \brief getSpectrum
@@ -182,6 +147,8 @@ public:
      * \return CSpectrum*
      * \retval pointer to the spectrum
      * \retval NULL if xid out of range or does not map to spectrum
+     *
+     * \todo Get rid of any need for this.
      */
     virtual CSpectrum* getSpectrum(UInt_t xid) = 0;
 
@@ -197,6 +164,60 @@ public:
      * \retval -1  binding does not exist
      */
     virtual bool spectrumBound(CSpectrum& rSpectrum) = 0;
+
+    /*!
+     * \brief addFit
+     *
+     * Similarly to the addGate, the addFit method binds a fit to a display.
+     *
+     * \param fit - the fit
+     */
+    virtual void addFit(CSpectrumFit& fit) = 0;
+
+    /*!
+     * \brief deleteFit
+     *
+     * Removes a fit from the display
+     *
+     * \param fit - fit to remove
+     */
+    virtual void deleteFit(CSpectrumFit& fit) = 0;
+
+
+    /*!
+     * \brief addGate
+     *
+     * Add a display gate to the display
+     *
+     * \param rGate - the gate to be added
+     */
+    virtual void addGate(CSpectrum& rSpectrum, CGateContainer& rGate) = 0;
+
+    /*!
+     * \brief removeGate
+     *
+     * Remove the gate from the spectrum identified.
+     *
+     * \param rSpectrum - Spectrum to remove gate from
+     * \param rGate     - the gate to remove
+     */
+    virtual void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate) = 0;
+
+
+    /*!
+     * \brief getAssociatedGates
+     *
+     * Retrieves the list of all displayable gates for a certain spectrum. The histogrammer is necessary
+     * to have access to the gate and spectrum dictionaries.
+     *
+     * \param spectrumName - the name of the spectrum
+     * \param rSorter      - the histogrammer
+     *
+     * \return vector of gates that can be displayed on the spectrum
+     */
+    virtual std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
+                                                           CHistogrammer& rSorter) = 0;
+
 
     /*!
      * \brief DisplayBindingsSize
@@ -215,7 +236,8 @@ public:
      * \param rSorter   - histogrammer to gain access to the dictionaries
      * \return
      */
-    virtual std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer& rSorter) = 0;
+    virtual std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength,
+                                    CHistogrammer& rSorter) = 0;
 
     /*!
      * \brief setInfo
@@ -247,24 +269,11 @@ public:
     virtual UInt_t getTitleSize() const = 0;
 
     /*!
-     * \brief addGate
+     * \brief updateStatistics
      *
-     * Add a display gate to the display
-     *
-     * \param rGate - the gate to be added
+     * Causes the statistics for the display to be updated.
      */
-    virtual void addGate(CSpectrum& rSpectrum, CGateContainer& rGate) = 0;
-
-    /*!
-     * \brief removeGate
-     *
-     * Remove the gate from the spectrum identified.
-     *
-     * \param nSpectrum - Number of spectra from which remove the gate
-     * \param nId       - Identification of the spectrum
-     * \param eType     - Type of the gate to remove
-     */
-    virtual void removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) = 0;
+    virtual void updateStatistics() = 0;
 
     /*!
      * \brief setOverflows
