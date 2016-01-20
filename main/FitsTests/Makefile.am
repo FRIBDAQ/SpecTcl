@@ -23,12 +23,15 @@ AM_CPPFLAGS = 	-I@top_srcdir@/Fits\
 		-I@top_srcdir@/Sorter    \
 		-I@top_srcdir@/SpecTcl	\
 		-I@top_srcdir@/Events	\
+		-I@top_srcdir@/EventSource \
 		-I@top_srcdir@/Display	\
 		-I@top_srcdir@/Gates	\
 		-I@top_srcdir@/Filter	\
 		-I@top_srcdir@/TCL	\
 		-I@top_srcdir@/factories \
-		@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@ @TK_CPPFLAGS@
+		@LIBTCLPLUS_CFLAGS@ \
+		@TCL_CPPFLAGS@ \
+		@TK_CPPFLAGS@
 
 if CPPUNIT
 noinst_PROGRAMS=TestRunner

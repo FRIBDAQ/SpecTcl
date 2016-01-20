@@ -33,40 +33,17 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef __GLOBALS_H
-#define __GLOBALS_H
+#ifndef GLOBALS_H
+#define GLOBALS_H
 
-#ifndef __EVENTUNPACKER_H
 #include <EventUnpacker.h>
-#endif
-
-#ifndef __BUFFERDECODER_H
 #include <BufferDecoder.h>
-#endif
-
-#ifndef __EVENTSINKPIPELINE_H
 #include <EventSinkPipeline.h>
-#endif
-
-#ifndef __EVENTSINK_H
 #include <EventSink.h>
-#endif
-
-#ifndef __TCLINTERPRETER_H
 #include <TCLInterpreter.h>
-#endif
-
-#ifndef __FILE_H
 #include <File.h>
-#endif
-
-#ifndef __RUNCONTROL_H
 #include <RunControl.h>
-#endif
-
-#ifndef __ANALYZER_H
 #include <Analyzer.h>
-#endif
 
 class CDisplayInterface;
 
@@ -79,6 +56,6 @@ extern CFile*              gpEventSource;       // Source of data (can be kpNULL
 extern CRunControl*        gpRunControl;        // Run controlling object (could be kpNULL).
 extern CAnalyzer*          gpAnalyzer;          // Points to event analyzer.
 extern const char*         gpVersion;           // SpecTcl version text.
-extern CDisplayInterface*    gpDisplayInterface;  // Display interface
+extern CDisplayInterface*  gpDisplayInterface;  // Display interface
 
 #endif
