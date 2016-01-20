@@ -29,23 +29,16 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEGATES_H  //Required for current class
-#define __XAMINEGATES_H
+#ifndef XAMINEGATES_H  //Required for current class
+#define XAMINEGATES_H
                                
                                //Required for 1:M associated classes
-#ifndef __DISPLAYGATE_H
-#include "DisplayGate.h"
-#endif                                                               
+#include "XamineGate.h"
 
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
 
-typedef std::vector<CDisplayGate> CXamineGateVector;
+typedef std::vector<CXamineGate> CXamineGateVector;
 typedef CXamineGateVector::iterator CDisplayGateVectorIterator;
  
 class CXamineGates      
@@ -87,7 +80,7 @@ public:
 public:
     CDisplayGateVectorIterator begin ()  ;
     CDisplayGateVectorIterator end ()  ;
-    CDisplayGate& operator[] (UInt_t n)  ;
+    CXamineGate& operator[] (UInt_t n)  ;
     UInt_t size ()  ;
  
 };

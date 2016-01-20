@@ -246,21 +246,21 @@ public:
      */
     virtual UInt_t getTitleSize() const = 0;
 
-    /*!
-     * \brief GateToDisplayGate
-     *
-     * Convert a SpecTcl gate into a gate that can be displayed on the given display.
-     * If the spectrum is not bound to the display, then this will blow up via an
-     * assert().
-     *
-     * \param rSpectrum - the spectrum to create the gate for
-     * \param rGate     - the gate to add
-     *
-     * \retval kpNULL -- if the gate not convertable
-     *
-     * \note the gate is dynamically allocated and therefore must be deleted by the client
-     */
-    virtual CDisplayGate* GateToDisplayGate(CSpectrum& rSpectrum, CGateContainer& rGate) = 0;
+//    /*!
+//     * \brief GateToDisplayGate
+//     *
+//     * Convert a SpecTcl gate into a gate that can be displayed on the given display.
+//     * If the spectrum is not bound to the display, then this will blow up via an
+//     * assert().
+//     *
+//     * \param rSpectrum - the spectrum to create the gate for
+//     * \param rGate     - the gate to add
+//     *
+//     * \retval kpNULL -- if the gate not convertable
+//     *
+//     * \note the gate is dynamically allocated and therefore must be deleted by the client
+//     */
+//    virtual CDisplayGate* GateToDisplayGate(CSpectrum& rSpectrum, CGateContainer& rGate) = 0;
 
     /*!
      * \brief EnterGate
@@ -269,7 +269,7 @@ public:
      *
      * \param rGate - the gate to be added
      */
-    virtual void EnterGate(CDisplayGate& rGate) = 0;
+    virtual void EnterGate(CSpectrum& rSpectrum, CGateContainer& rGate) = 0;
 
     /*!
      * \brief RemoveGate

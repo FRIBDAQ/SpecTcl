@@ -4,7 +4,6 @@
 #include <cppunit/Asserter.h>
 #include <Asserts.h>
 
-#include "Display.h"
 #include "Histogrammer.h"
 #include "GatingObserver.h"
 #include "Spectrum1DL.h"
@@ -14,47 +13,8 @@
 #include <string>
 #include <sstream>
 
-
 using namespace std;
 
-
-class CFakeDisplayer : public CDisplay {
-
-public:
-
-    CFakeDisplayer* clone() const { return new CFakeDisplayer(*this); }
-
-    int operator==(const CDisplay& rhs) { return true; }
-
-    void Start() {};
-    void Stop() {};
-    Bool_t isAlive() { return true; }
-    void Restart() { };
-    std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer&) { return "fake";}
-    void setInfo(std::string name, UInt_t slot) {}
-    void setTitle(std::string name, UInt_t slot) {}
-    UInt_t getTitleSize() const {return 0;}
-    CDisplayGate* GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate) { return NULL;}
-    void EnterGate(CDisplayGate& rGate) {}
-    void RemoveGate(UInt_t, UInt_t, GateType_t) {}
-    void setOverflows(unsigned, unsigned, unsigned) {}
-    void setUnderflows(unsigned, unsigned, unsigned) {}
-    UInt_t GetEventFd() {}
-    UInt_t BindToDisplay(CSpectrum&, CHistogrammer&) {return 0;}
-    void  UnBindFromDisplay(UInt_t nSpec, CSpectrum &rSpectrum) {}
-    void addFit(CSpectrumFit &fit) {}
-    void deleteFit(CSpectrumFit &fit) {}
-    void updateStatistics() {}
-    vector<CGateContainer> GatesToDisplay(const string &rSpectrum, CHistogrammer&)
-    { return vector<CGateContainer>();}
-    Int_t FindDisplayBinding(std::string) { return 0;}
-    DisplayBindings getDisplayBindings() const { return DisplayBindings();}
-    CSpectrum* DisplayBinding(UInt_t xid);
-    UInt_t DisplayBindingsSize() const { return 0; }
-
-
-
-};
 
 class CTestObserver : public CGatingObserver
 {

@@ -66,10 +66,7 @@ void CNullDisplay::setInfo(std::string name, UInt_t slot) {}
 void CNullDisplay::setTitle(std::string name, UInt_t slot) {}
 UInt_t CNullDisplay::getTitleSize() const { return 0; }
 
-CDisplayGate* CNullDisplay::GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate)
-{ return NULL; }
-
-void CNullDisplay::EnterGate(CDisplayGate &rGate) {}
+void CNullDisplay::EnterGate(CSpectrum &rSpectrum, CGateContainer &rGate) {}
 void CNullDisplay::RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) {}
 
 void CNullDisplay::setOverflows(unsigned slot, unsigned x, unsigned y) {}

@@ -297,7 +297,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2011, Al
 
 #include <config.h>
 #include "XamineEvent.h"                               
-#include "DisplayGate.h"
+#include "XamineGate.h"
 #include "ButtonEvent.h"
 #include <histotypes.h>
 #include <Xamine.h>
@@ -329,7 +329,7 @@ CXamineEvent::operator==(const CXamineEvent& rRhs)
 //  Operation Type:
 //     Typesafe Cast.
 //
-CDisplayGate* 
+CXamineGate* 
 CXamineEvent::GateCast() 
 {
 //    If the XamineEvent m_EventData member is a 
@@ -352,8 +352,8 @@ CXamineEvent::GateCast()
 // Exceptions:  
 
   return ((m_EventData.event == Gate) ?  
-	                      new CDisplayGate(m_EventData.data.gate)
-	                      : (CDisplayGate*)kpNULL); 
+	                      new CXamineGate(m_EventData.data.gate)
+	                      : (CXamineGate*)kpNULL); 
                   
 }
 //////////////////////////////////////////////////////////////////////////

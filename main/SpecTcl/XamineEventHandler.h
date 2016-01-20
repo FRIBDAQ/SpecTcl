@@ -149,7 +149,7 @@ public:
  virtual   void Clear();
 
 protected:
- virtual   void OnGate (CDisplayGate& rXamineGate)    ;
+ virtual   void OnGate (CXamineGate& rXamineGate)    ;
  virtual   void OnButton (CButtonEvent& rButton)    ;
  virtual   UInt_t FindDisplayBinding (const std::string& rName);
 

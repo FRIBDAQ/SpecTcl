@@ -36,7 +36,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2011, Al
 //
 
 #include <config.h>
-#include "DisplayGate.h"                               
+#include "XamineGate.h"
 #include "RangeError.h"
 #include <string.h>
 #include <assert.h>
@@ -54,7 +54,7 @@ using namespace std;
 // Operation Type:
 //    Constructor
 //
-CDisplayGate::CDisplayGate(const msg_object& rGateInfo) :
+CXamineGate::CXamineGate(const msg_object& rGateInfo) :
   m_nSpectrum(rGateInfo.spectrum),
   m_nId(rGateInfo.id)
 {
@@ -94,7 +94,7 @@ CDisplayGate::CDisplayGate(const msg_object& rGateInfo) :
 // Operation Type:
 //     Constructor
 //
-CDisplayGate::CDisplayGate(UInt_t nSpectrum, UInt_t nId, 
+CXamineGate::CXamineGate(UInt_t nSpectrum, UInt_t nId, 
 			   const std::string& rName) :
   m_nSpectrum(nSpectrum),
   m_nId(nId),
@@ -125,7 +125,7 @@ CDisplayGate::CDisplayGate(UInt_t nSpectrum, UInt_t nId,
 //     selector
 //
 PointIterator 
-CDisplayGate::begin() 
+CXamineGate::begin() 
 {
 // Returns a point vector iterator corresponding
 // to the first point in the gate.
@@ -144,7 +144,7 @@ CDisplayGate::begin()
 //     Selector
 //
 PointIterator 
-CDisplayGate::end() 
+CXamineGate::end() 
 {
 // Returns an iterator representing the end
 // of the points vector.
@@ -160,7 +160,7 @@ CDisplayGate::end()
 //     Selector
 //
 UInt_t 
-CDisplayGate::size() const
+CXamineGate::size() const
 {
 // Returns the number of points in the gate.
 // Exceptions:  
@@ -175,7 +175,7 @@ CDisplayGate::size() const
 //     Selector
 //
 CPoint& 
-CDisplayGate::operator[](UInt_t n) 
+CXamineGate::operator[](UInt_t n) 
 {
 // Returns a reference to the n'th point
 // in the gate array.  If n >= size(), then 
@@ -201,7 +201,7 @@ CDisplayGate::operator[](UInt_t n)
 //     Mutator
 //
 void 
-CDisplayGate::AddPoint(const CPoint& rPoint) 
+CXamineGate::AddPoint(const CPoint& rPoint) 
 {
 // Adds a point to the end of the gate point array
 //
@@ -220,7 +220,7 @@ CDisplayGate::AddPoint(const CPoint& rPoint)
 //     Mutator
 //
 void 
-CDisplayGate::RemovePoints(UInt_t n) 
+CXamineGate::RemovePoints(UInt_t n) 
 {
 // Delete's the last n points from the point list.
 // Throws a CRangeError if asked to delete past
@@ -247,7 +247,7 @@ CDisplayGate::RemovePoints(UInt_t n)
 //     Type safe cast.
 //
 CDisplayCut* 
-CDisplayGate::Cut() 
+CXamineGate::Cut() 
 {
 // Returns this cast to a CCut* if the 
 // gate is in fact a cut.
@@ -266,7 +266,7 @@ CDisplayGate::Cut()
 //     Type safe cast.
 //
 CDisplayBand* 
-CDisplayGate::Band() 
+CXamineGate::Band() 
 {
 // Returns this cast as a Band. or NULL if it isn't a band.
 
@@ -283,7 +283,7 @@ CDisplayGate::Band()
 //     Type safe cast.
 //
 CDisplayContour* 
-CDisplayGate::Contour() 
+CXamineGate::Contour() 
 {
 // Returns this cast as  a CDisplayContour if
 // gate is a contour or NULL if not.
@@ -300,7 +300,7 @@ CDisplayGate::Contour()
 //     Adaptor (to Xamine's C-API
 //
 void
-CDisplayGate::FormatMessageBlock(msg_object& rMsg) const
+CXamineGate::FormatMessageBlock(msg_object& rMsg) const
 {
   rMsg.spectrum = m_nSpectrum;
   rMsg.id       = m_nId;

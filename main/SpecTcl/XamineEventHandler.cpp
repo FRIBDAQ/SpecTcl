@@ -38,7 +38,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <DictionaryException.h>
 #include <Point.h>
 #include <ButtonEvent.h>
-#include <DisplayGate.h>
+#include <XamineGate.h>
 #include <Spectrum.h>
 #include <CSpectrum2Dm.h>
 #include <SpecTcl.h>
@@ -131,7 +131,7 @@ void CXamineEventHandler::operator()()
     
     // Determine what kind of beast we got:
 
-    CDisplayGate* pGate   = Event.GateCast();
+    CXamineGate* pGate   = Event.GateCast();
     CButtonEvent* pButton = Event.ButtonCast();
     
     // Not allowed to be both:
@@ -194,7 +194,7 @@ void CXamineEventHandler::operator()()
 //     OnGate(CDisplayGate& rXamineGate)
 //  Operation Type: 
 //     Overridable action
-void CXamineEventHandler::OnGate(CDisplayGate& rXamineGate)  
+void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
 {
   // Decodes an Xamine gate and enters it
   // (if possible) into the SpecTcl gate dictionary

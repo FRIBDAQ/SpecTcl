@@ -64,16 +64,12 @@
 //
 //  forward references to classes:
 //
+class CXamineGate;
 class CXamineGates;		// Forward reference.
-class CDisplayGate;
 class CXamineEvent;
 class CXamineSpectrum;
 class CXamineButton;
 class CSpectrum;
-
-//
-//
-
 
 class CXamine : public CDisplay
 {
@@ -197,7 +193,8 @@ public:
 
  // end CDisplay interface
 
-  void EnterGate (CDisplayGate& rGate)  ;
+  void EnterGate (CSpectrum& rSpectrum, CGateContainer& rGate)  ;
+  void EnterGate (CXamineGate& rGate)  ;
   void RemoveGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType);
   void EnterPeakMarker (UInt_t nSpectrum, 
                         UInt_t nId,
@@ -226,14 +223,14 @@ public:
   // Utility Functions:
 
 protected:
-  void ThrowGateStatus(Int_t nStatus, const CDisplayGate& rGate, 
+  void ThrowGateStatus(Int_t nStatus, const CXamineGate& rGate,
 			      const std::string& doing);
   void ThrowButtonStatus(Int_t nStatus, const CXamineButton& rButton,
 				const std::string& doing);
   DialogSpectrumType_t MaptoSpec_t(ButtonDialogSpectrumType t);
   Xamine_gatetype      MapFromGate_t(GateType_t type);
 
-  CDisplayGate* GateToDisplayGate(CSpectrum& rSpectrum, CGateContainer& rGate);
+  CXamineGate* GateToXamineGate(CSpectrum& rSpectrum, CGateContainer& rGate);
 
   /**
    * flip2dGatePoints

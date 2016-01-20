@@ -25,10 +25,7 @@ void CGateBinderObserver::onAdd(std::string name, CGateContainer &rGate)
             assert(pSpec != (CSpectrum*)kpNULL); // Bound spectra must exist!!.
             CGateMediator DisplayableGate(rGate, pSpec);
             if(DisplayableGate()) {
-                CDisplayGate* pDisplayed = pDisp->GateToDisplayGate(*pSpec, rGate);
-                if(pDisplayed)
-                    pDisp->EnterGate(*pDisplayed);
-                delete pDisplayed;
+                pDisp->EnterGate(*pSpec, rGate);
             }
         }
     }

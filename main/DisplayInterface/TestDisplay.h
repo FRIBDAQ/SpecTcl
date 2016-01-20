@@ -54,8 +54,7 @@ public:
     virtual void setTitle(std::string name, UInt_t slot);
     virtual UInt_t getTitleSize() const;
 
-    virtual CDisplayGate* GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate);
-    virtual void EnterGate(CDisplayGate& rGate);
+    virtual void EnterGate(CSpectrum& rSpectrum, CGateContainer& rGate);
     virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType);
 
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y);

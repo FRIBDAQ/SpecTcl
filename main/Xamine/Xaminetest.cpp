@@ -371,7 +371,7 @@ main()
   while(Display.isAlive()) {
     CXamineEvent Event;
     if(Display.PollEvent(-1, Event)) {
-      if(CDisplayGate* pGate = Event.GateCast()) {
+      if(CXamineGate* pGate = Event.GateCast()) {
 	Display.EnterGate(*pGate);
 	delete pGate;
       }

@@ -29,47 +29,28 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __XAMINEGATEEXCEPTION_H  //Required for current class
-#define __XAMINEGATEEXCEPTION_H
+#ifndef XAMINEGATEEXCEPTION_H  //Required for current class
+#define XAMINEGATEEXCEPTION_H
                                //Required for base classes
-#ifndef __EXCEPTION_H
 #include "Exception.h"
-#endif
-
-#ifndef __DISPLAYGATE_H
-#include "DisplayGate.h"
-#endif
-            
-#ifndef __XAMINE_XAMINE_H                   
+#include "XamineGate.h"
 #include <Xamine.h>   //Required for include files, eg <CList.h>
-#define __XAMINE_XAMINE_H
-#endif
-
-#ifndef __STL_STRING
-#include <string>
-#define __STL_STRING
-#endif
-
-#ifndef __CXX_STSSTREAM_H
-#include <sstream>
-#define __CXX_STRSTREAM_H
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
+
+#include <string>
+#include <sstream>
 
 class CXamineGateException  : public CException        
 {
   Int_t        m_nError;	// Xamine gate manipulation error code
-  CDisplayGate m_Gate;		// Gate which caused the problem.
+  CXamineGate m_Gate;		// Gate which caused the problem.
   mutable std::stringstream    m_ReasonStream;	// Reason for error.
   mutable Bool_t       m_fReasonProduced; // kfTRUE if m_ReasonStream accurate.
   
 public:
 
   CXamineGateException (Int_t am_nError,  
-			const CDisplayGate& am_Gate,
+			const CXamineGate& am_Gate,
 			const std::string& rDoing)  :
     CException(rDoing),
     m_nError(am_nError),
@@ -120,7 +101,7 @@ public:
   {
     return m_nError;
   }
-  const CDisplayGate& getGate() const
+  const CXamineGate& getGate() const
   {
     return m_Gate;
   }
@@ -132,7 +113,7 @@ protected:
   { 
     m_nError = am_nError;
   }
-  void setGate (CDisplayGate am_Gate)
+  void setGate (CXamineGate am_Gate)
   { 
     m_Gate = am_Gate;
   }

@@ -338,7 +338,7 @@ CXamineGates::CXamineGates(UInt_t spec)
   gate.hasname = 0;		// No names passed through this interface.
   while(Xamine_NextGate(context, (Int_t*)&(gate.id), &(gate.type),
 			&(gate.npts), (Xamine_point*)gate.points)) {
-    m_vGates.push_back(CDisplayGate(gate));
+    m_vGates.push_back(CXamineGate(gate));
   }
   Xamine_EndSearch(context); 
 }
@@ -389,7 +389,7 @@ CXamineGates::end()
 //  Operation Type:
 //     selector.
 //
-CDisplayGate& 
+CXamineGate&
 CXamineGates::operator[](UInt_t n) 
 {
 // Returns the n'th element of the gate array or throws a 

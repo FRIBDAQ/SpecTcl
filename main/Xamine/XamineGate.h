@@ -14,9 +14,9 @@
 	     East Lansing, MI 48824-1321
 */
 
-//  CDisplayGate.h:
+//  CXamineGate.h:
 //
-//    This file defines the CDisplayGate class.
+//    This file defines the CXamineGate class.
 //
 // Author:
 //    Ron Fox
@@ -29,27 +29,15 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __DISPLAYGATE_H  //Required for current class
-#define __DISPLAYGATE_H
+#ifndef XAMINEGATE_H  //Required for current class
+#define XAMINEGATE_H
 
                                //Required for 1:M associated classes
-#ifndef __POINT_H
+
 #include "Point.h"
-#endif
-
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __STL_STRING
 #include <string>
-#define __STL_STRING
-#endif
-#ifndef __XAMINE_XAMINE_H
 #include <Xamine.h>
-#define __XAMINE_XAMINE_H
-#endif
-
 
 // 
 // Forward references.
@@ -60,7 +48,7 @@ class CDisplayContour;
 
 //
 
-class CDisplayGate      
+class CXamineGate
 {
   UInt_t      m_nSpectrum;	// Number of spectrum on which gate is set
   UInt_t      m_nId;		// Identifier of the gate
@@ -73,15 +61,15 @@ public:
 
 			//Constructors with arguments
 
-  CDisplayGate(const msg_object& rGateInfo);
-  CDisplayGate(UInt_t nSpectrum, UInt_t nId, 
+  CXamineGate(const msg_object& rGateInfo);
+  CXamineGate(UInt_t nSpectrum, UInt_t nId,
 		const std::string& rName);
 
-  virtual ~CDisplayGate ( ) { }       //Destructor
+  virtual ~CXamineGate ( ) { }       //Destructor
 
 			//Copy constructor
 			//Update to access 1:M associated class attributes      
-  CDisplayGate (const CDisplayGate& aCDisplayGate ) 
+  CXamineGate (const CXamineGate& aCDisplayGate )
   {   
     m_nSpectrum = aCDisplayGate.m_nSpectrum;
     m_nId       = aCDisplayGate.m_nId;
@@ -93,7 +81,7 @@ public:
 
 			//Operator= Assignment Operator
 
-  CDisplayGate& operator= (const CDisplayGate& aCDisplayGate)
+  CXamineGate& operator= (const CXamineGate& aCDisplayGate)
   { 
     if (this == &aCDisplayGate) return *this;          
     
@@ -107,7 +95,7 @@ public:
 
 			//Operator== Equality Operator
 
-  int operator== (const CDisplayGate& aCDisplayGate) const
+  int operator== (const CXamineGate& aCDisplayGate) const
   { 
     return (
 	    
@@ -197,34 +185,34 @@ public:
 //  The following are specific types of gates:
 //
 
-class CDisplayCut : public CDisplayGate {
+class CDisplayCut : public CXamineGate {
 public:
-  CDisplayCut(const msg_object& rGate) : CDisplayGate(rGate)
+  CDisplayCut(const msg_object& rGate) : CXamineGate(rGate)
   { }
   CDisplayCut(UInt_t nSpectrum, UInt_t nId, const std::string& rName) :
-    CDisplayGate(nSpectrum, nId, rName) 
+    CXamineGate(nSpectrum, nId, rName)
     {
       setGateType(kgCut1d);
     }
 };
 
-class CDisplayBand : public CDisplayGate {
+class CDisplayBand : public CXamineGate {
 public:
-  CDisplayBand(const msg_object& rgate) : CDisplayGate(rgate)
+  CDisplayBand(const msg_object& rgate) : CXamineGate(rgate)
   {}
   CDisplayBand(UInt_t nSpectrum, UInt_t nId, const std::string& rName) :
-    CDisplayGate(nSpectrum, nId, rName)
+    CXamineGate(nSpectrum, nId, rName)
     {
       setGateType(kgBand2d);
     }
 };
 
-class CDisplayContour : public CDisplayGate {
+class CDisplayContour : public CXamineGate {
 public:
-  CDisplayContour(const msg_object& rgate) : CDisplayGate(rgate)
+  CDisplayContour(const msg_object& rgate) : CXamineGate(rgate)
   {}
   CDisplayContour(UInt_t nSpectrum, UInt_t nId, const std::string& rName) :
-    CDisplayGate(nSpectrum, nId, rName)
+    CXamineGate(nSpectrum, nId, rName)
     {
       setGateType(kgContour2d);
     }

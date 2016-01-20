@@ -300,7 +300,7 @@ DAMAGES.
 
 // Forward definitions:
 
-class CDisplayGate;
+class CXamineGate;
 class CButtonEvent;
 
 //
@@ -358,7 +358,7 @@ protected:
     m_EventData = am_EventData;
   }
 public:                       
-    CDisplayGate* GateCast ()  ;
+    CXamineGate* GateCast ()  ;
     CButtonEvent* ButtonCast ()  ;
  
 };

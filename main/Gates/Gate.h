@@ -31,34 +31,15 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __GATE_H  //Required for current class
-#define __GATE_H
+#ifndef GATE_H  //Required for current class
+#define GATE_H
 
-#ifndef __CONSTITUENTITERATOR_H
 #include "ConstituentIterator.h"
-#endif
 
-
-#ifndef __HISTOTYPES_H                        
 #include <histotypes.h>   //Required for include files, eg <CList.h>
-#endif
-
-#ifndef __EVENT_H
 #include <Event.h>        //Required for include files, eg <CList.h>
-#endif
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
-
-#ifndef __STL_VECTOR
 #include <vector>
-#ifndef __STL_VECTOR
-#define __STL_VECTOR
-#endif
-#endif
 
                                                                
 class CGate      

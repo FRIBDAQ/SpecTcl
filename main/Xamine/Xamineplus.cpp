@@ -50,8 +50,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include "XaminePointsPrompt.h"
 #include "XamineTextPrompt.h"
 #include "XamineSpectrumPrompt.h"
+#include <XamineGate.h>
 
-#include <DisplayGate.h>
 #include <Display.h>
 #include <Histogrammer.h>
 #include <Dictionary.h>
@@ -259,12 +259,27 @@ CXamine::Stop()
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
-//    void EnterGate (DisplayGate& rGate )
+//    void EnterGate (CSpectrum& rSpectrum, CGateContainer& rGate )
 //  Operation Type:
 //     mutator
 //
 void 
-CXamine::EnterGate(CDisplayGate& rGate) 
+CXamine::EnterGate(CSpectrum &rSpectrum, CGateContainer &rGate)
+{
+    CXamineGate* pDisplayed = GateToXamineGate(rSpectrum, rGate);
+    if(pDisplayed)
+        EnterGate(*pDisplayed);
+    delete pDisplayed;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  Function:
+//    void EnterGate (CDisplayGate& rGate )
+//  Operation Type:
+//     mutator
+//
+void CXamine::EnterGate(CXamineGate& rGate)
 {
 // Adds a gate graphical object to the
 // display subsystem.
@@ -349,7 +364,7 @@ CXamine::RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType)
  msg.type     = GateType;
  msg.hasname  = kfFALSE;
  msg.npts     = 0;
- ThrowGateStatus(nStatus, CDisplayGate(msg),
+ ThrowGateStatus(nStatus, CXamineGate(msg),
 		 "Xamine::RemoveGate - Removing the gate");
 
 }
@@ -402,7 +417,7 @@ CXamine::EnterPeakMarker(UInt_t nSpectrum,
     msg.npts        = 2;
     msg.points[0].x = (int)fCentroid;
     msg.points[1].x = (int)fWidth;
-    ThrowGateStatus(nStatus, CDisplayGate(msg), 
+    ThrowGateStatus(nStatus, CXamineGate(msg),
 		    "CXamine::EnterPeakMarker - Entering the marker");
   }
 
@@ -1027,7 +1042,7 @@ CXamine::end()
 //    Protected utility.
 //
 void
-CXamine::ThrowGateStatus(Int_t nStatus, const CDisplayGate& rGate,
+CXamine::ThrowGateStatus(Int_t nStatus, const CXamineGate& rGate,
 			 const std::string& doing)
 {
   // Maps Xamine gate maniplation status into either the appropriate
@@ -1270,7 +1285,7 @@ UInt_t CXamine::BindToDisplay(CSpectrum &rSpectrum, CHistogrammer &rSorter) {
 
     UInt_t Size = DisplayGates.size();
     for(UInt_t i = 0; i < DisplayGates.size(); i++) {
-        CDisplayGate* pXgate = GateToDisplayGate(rSpectrum, DisplayGates[i]);
+        CXamineGate* pXgate = GateToXamineGate(rSpectrum, DisplayGates[i]);
         if(pXgate) EnterGate(*pXgate);
         delete pXgate;
     }
@@ -1464,15 +1479,14 @@ CXamine::updateStatistics()
   entry in the Xamine display program.
 
   Formal Parameters:
-  \param <TT> nBindingId: (UInt_t [in]): </TT>
-  The Xamine binding identifier of the spectrum (xamine spectrum
-  slot number.
+  \param <TT> rSpectrum (CSpectrum& [in]): </TT>
+  The spectrum that is associated with the gate
   \param <TT> rGate (CGateContainer& [in]): </TT>
   The container which holds the gate to convert.  Note that
   gate containers can be treated as if they were pointers to
   gates.
 
-  \retval    CDisplayGate*  kpNULL -- if the gate is not convertable,
+  \retval    CXamineGate*  kpNULL -- if the gate is not convertable,
   e.g. it is not a gate directly suported
   by Xamine.
   other  -- Pointer to the gate which was created.
@@ -1481,221 +1495,136 @@ CXamine::updateStatistics()
   the client.
 
 */
-CDisplayGate* CXamine::GateToDisplayGate(CSpectrum& rSpectrum,
-                          CGateContainer& rGate)
+CXamineGate* CXamine::GateToXamineGate(CSpectrum& rSpectrum,
+                                       CGateContainer& rGate)
 {
-  CDisplayGate* pXGate;
-  UInt_t nBindingId = FindDisplayBinding(rSpectrum.getName());
-  assert(nBindingId != -1); // make sure the thing was found
+    CXamineGate* pXGate;
+    UInt_t nBindingId = FindDisplayBinding(rSpectrum.getName());
+    assert(nBindingId != -1); // make sure the thing was found
 
-  CSpectrum* pSpectrum = &rSpectrum;
+    CSpectrum* pSpectrum = &rSpectrum;
 
-  // Summary spectra don't have gates displayed.
+    // Summary spectra don't have gates displayed.
 
-  if(pSpectrum->getSpectrumType() == keSummary) { // Summary spectrum.
-    return (CDisplayGate*)(kpNULL);
-  }
-
-  if((rGate->Type() == std::string("s")) ||
-     (rGate->Type() == std::string("gs"))) {	// Slice gate
-    CDisplayCut* pCut = new CDisplayCut(nBindingId,
-                    rGate.getNumber(),
-                    rGate.getName());
-    // There are two points, , (low,0), (high,0)
-
-    CCut& rCut = (CCut&)(*rGate);
-
-    switch(pSpectrum->getSpectrumType()) {
-    case ke1D:
-    case keG1D:
-      {
-    // Produce the nearest channel to the gate points.
-    // then add them to the display gate.
-    //
-    int x1 = (int)(pSpectrum->ParameterToAxis(0, rCut.getLow()));
-    int x2 = (int)(pSpectrum->ParameterToAxis(0, rCut.getHigh()));
-    pCut->AddPoint(x1,
-               0);
-    // The weirdness below is all about dealing with a special boundary
-    // case when we try to get the right side of the cut to land
-    // on the right side of the channel on which it's set.
-    // ..all this in the presence of gates accepted on fractional parameters.
-    //(consider a fine spectrum (e.g. 400-401 with 100 bins and a coarse
-    // spectrum, of the same parameter (e.g. 0-1023 1024 bins)..with
-    // the gate set on 400.5, 400.51 and you'll see the thing I'm trying
-    // to deal with here.
-    //
-    pCut->AddPoint(x1 == x2 ? x2 : x2 - 1,
-               0);
-    return pCut;
-    break;
-      }
-
+    if(pSpectrum->getSpectrumType() == keSummary) { // Summary spectrum.
+        return (CXamineGate*)(kpNULL);
     }
-  }
-  else if ((rGate->Type() == std::string("b")) ||
-       (rGate->Type() == std::string("gb"))) { // Band gate.
-    pXGate = new CDisplayBand(nBindingId,
-                  rGate.getNumber(),
-                  rGate.getName());
-  }
-  else if ((rGate->Type() == std::string("c")) ||
-       (rGate->Type() == std::string("gc"))) { // Contour gate
-    pXGate = new CDisplayContour(nBindingId,
-                 rGate.getNumber(),
-                 rGate.getName());
-  }
-  else {			// Other.
-    return (CDisplayGate*)kpNULL;
-  }
-  // Control falls through here if 2-d and we just need
-  // to insert the points.  We know this is a point list gate:
 
-  assert((rGate->Type() == "b") || (rGate->Type() == "c") ||
-     (rGate->Type() == "gb") || (rGate->Type() == "gc"));
+    if((rGate->Type() == std::string("s")) ||
+            (rGate->Type() == std::string("gs"))) {	// Slice gate
+        CDisplayCut* pCut = new CDisplayCut(nBindingId,
+                                            rGate.getNumber(),
+                                            rGate.getName());
+        // There are two points, , (low,0), (high,0)
 
-  // If the spectrum is not 2-d the gate can't be displayed:
-  //
+        CCut& rCut = (CCut&)(*rGate);
 
-  if((pSpectrum->getSpectrumType() == ke2D)   ||
-     (pSpectrum->getSpectrumType() == keG2D)  ||
-     (pSpectrum->getSpectrumType() == ke2Dm)  ||
-     (pSpectrum->getSpectrumType() == keG2DD)) {
+        switch(pSpectrum->getSpectrumType()) {
+        case ke1D:
+        case keG1D:
+        {
+            // Produce the nearest channel to the gate points.
+            // then add them to the display gate.
+            //
+            int x1 = (int)(pSpectrum->ParameterToAxis(0, rCut.getLow()));
+            int x2 = (int)(pSpectrum->ParameterToAxis(0, rCut.getHigh()));
+            pCut->AddPoint(x1,
+                           0);
+            // The weirdness below is all about dealing with a special boundary
+            // case when we try to get the right side of the cut to land
+            // on the right side of the channel on which it's set.
+            // ..all this in the presence of gates accepted on fractional parameters.
+            //(consider a fine spectrum (e.g. 400-401 with 100 bins and a coarse
+            // spectrum, of the same parameter (e.g. 0-1023 1024 bins)..with
+            // the gate set on 400.5, 400.51 and you'll see the thing I'm trying
+            // to deal with here.
+            //
+            pCut->AddPoint(x1 == x2 ? x2 : x2 - 1,
+                           0);
+            return pCut;
+            break;
+        }
 
-
-    CPointListGate& rSpecTclGate = (CPointListGate&)rGate.operator*();
-    vector<FPoint> pts = rSpecTclGate.getPoints();
-    //    vector<UInt_t> Params;
-    //    pSpectrum->GetParameterIds(Params);
-
-    // If necessary flip the x/y coordinates of the gate.
-    // note that gamma gates never need flipping.
-    //
-
-    //    if((rSpecTclGate.getxId() != Params[0]) &&
-    //   ((rSpecTclGate.Type())[0] != 'g')) {
-
-    if ((rSpecTclGate.Type()[0] != 'g') &&
-    flip2dGatePoints(pSpectrum, rSpecTclGate.getxId())) {
-      for(UInt_t i = 0; i < pts.size(); i++) {	// Flip pts to match spectrum.
-    Float_t x = pts[i].X();
-    Float_t y = pts[i].Y();
-    pts[i] = FPoint(y,x);
-      }
+        }
     }
-    // The index of the X axis transform is easy.. it's 0, but the
-    // y axis transform index depends on spectrum type sincd gammas
-    // have all x transforms first then y and so on:
+    else if ((rGate->Type() == std::string("b")) ||
+             (rGate->Type() == std::string("gb"))) { // Band gate.
+        pXGate = new CDisplayBand(nBindingId,
+                                  rGate.getNumber(),
+                                  rGate.getName());
+    }
+    else if ((rGate->Type() == std::string("c")) ||
+             (rGate->Type() == std::string("gc"))) { // Contour gate
+        pXGate = new CDisplayContour(nBindingId,
+                                     rGate.getNumber(),
+                                     rGate.getName());
+    }
+    else {			// Other.
+        return (CXamineGate*)kpNULL;
+    }
+    // Control falls through here if 2-d and we just need
+    // to insert the points.  We know this is a point list gate:
+
+    assert((rGate->Type() == "b") || (rGate->Type() == "c") ||
+           (rGate->Type() == "gb") || (rGate->Type() == "gc"));
+
+    // If the spectrum is not 2-d the gate can't be displayed:
     //
-    int nYIndex;
+
     if((pSpectrum->getSpectrumType() == ke2D)   ||
-       (pSpectrum->getSpectrumType() == keG2DD) ||
-       (pSpectrum->getSpectrumType() == ke2Dm)) {
-      nYIndex = 1;
+            (pSpectrum->getSpectrumType() == keG2D)  ||
+            (pSpectrum->getSpectrumType() == ke2Dm)  ||
+            (pSpectrum->getSpectrumType() == keG2DD)) {
+
+
+        CPointListGate& rSpecTclGate = (CPointListGate&)rGate.operator*();
+        vector<FPoint> pts = rSpecTclGate.getPoints();
+        //    vector<UInt_t> Params;
+        //    pSpectrum->GetParameterIds(Params);
+
+        // If necessary flip the x/y coordinates of the gate.
+        // note that gamma gates never need flipping.
+        //
+
+        //    if((rSpecTclGate.getxId() != Params[0]) &&
+        //   ((rSpecTclGate.Type())[0] != 'g')) {
+
+        if ((rSpecTclGate.Type()[0] != 'g') &&
+                flip2dGatePoints(pSpectrum, rSpecTclGate.getxId())) {
+            for(UInt_t i = 0; i < pts.size(); i++) {	// Flip pts to match spectrum.
+                Float_t x = pts[i].X();
+                Float_t y = pts[i].Y();
+                pts[i] = FPoint(y,x);
+            }
+        }
+        // The index of the X axis transform is easy.. it's 0, but the
+        // y axis transform index depends on spectrum type sincd gammas
+        // have all x transforms first then y and so on:
+        //
+        int nYIndex;
+        if((pSpectrum->getSpectrumType() == ke2D)   ||
+                (pSpectrum->getSpectrumType() == keG2DD) ||
+                (pSpectrum->getSpectrumType() == ke2Dm)) {
+            nYIndex = 1;
+        }
+        else {
+            CGamma2DW* pGSpectrum = (CGamma2DW*)pSpectrum;
+            nYIndex               = pGSpectrum->getnParams();
+        }
+
+        for(UInt_t i = 0; i < pts.size(); i++) {
+
+            CPoint pt((int)pSpectrum->ParameterToAxis(0, pts[i].X()),
+                      (int)pSpectrum->ParameterToAxis(nYIndex, pts[i].Y()));
+            pXGate->AddPoint(pt);
+
+        }
+    } else {
+        return (CXamineGate*)kpNULL;
     }
-    else {
-      CGamma2DW* pGSpectrum = (CGamma2DW*)pSpectrum;
-      nYIndex               = pGSpectrum->getnParams();
-    }
 
-    for(UInt_t i = 0; i < pts.size(); i++) {
-
-      CPoint pt((int)pSpectrum->ParameterToAxis(0, pts[i].X()),
-        (int)pSpectrum->ParameterToAxis(nYIndex, pts[i].Y()));
-      pXGate->AddPoint(pt);
-
-    }
-  } else {
-    return (CDisplayGate*)kpNULL;
-  }
-
-  return pXGate;
+    return pXGate;
 }
-
-////////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//   void AddGateToBoundSpectra(CGateContainer& rGate)
-// Operation Type:
-//   protected utility
-//
-//void CXamine::AddGateToBoundSpectra(CGateContainer& rGate) {
-  // Takes a (presumably) newly created gate, and enters it into the
-  // appropriate set of spectra bound to Xamine.
-  //
-  // Formal Parameters:
-  //    CGateContainer& rGate:
-  //       Container which holds the gate.  Note that gate containers can
-  //       be treated as if they were pointers to gates.
-    //
-
-    // The mediator tells us whether the spectrum can display the gate
-//    for(UInt_t nId = 0; nId < m_DisplayBindings.size(); nId++) {
-//        if(m_DisplayBindings[nId] != "") { // Spectrum bound.
-//            CSpectrum* pSpec = m_pSorter->FindSpectrum(m_DisplayBindings[nId]);
-//            assert(pSpec != (CSpectrum*)kpNULL); // Bound spectra must exist!!.
-//            CGateMediator DisplayableGate(rGate, pSpec);
-//            if(DisplayableGate()) {
-//                CDisplayGate* pDisplayed = GateToDisplayGate(*pSpec, rGate);
-//                if(pDisplayed)
-//                    EnterGate(*pDisplayed);
-//                delete pDisplayed;
-//            }
-//        }
-//    }
-//}
-
-////////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//    void RemoveGateFromBoundSpectra(CGateContainer& rGate)
-// Operation Type:
-//    Protected Utility
-//
-//void CXamine::RemoveGateFromBoundSpectra(CGateContainer& rGate) {
-//  // Removes a gate which is just about to be destroyed from
-//  // the appropriate set of Xamine bound spectra.
-//  //
-//  // Formal Paramters:
-//  //    CGateContainer& rGate:
-//  //       Reference to the container which holds the gate about to be
-//  //       destroyed.  Note that for most purposes, a gate container
-//  //       can be treated as if it was a pointer to a gate.
-//  //
-//  UInt_t nGateId = rGate.getNumber();
-//  GateType_t eType;
-//  if(rGate->Type() == "c" || rGate->Type() == "gc") {
-//    eType = kgContour2d;
-//  }
-//  else if(rGate->Type() == "b" || rGate->Type() == "gb") {
-//    eType = kgBand2d;
-//  }
-//  else if (rGate->Type() == "s" || rGate->Type() == "gs") {
-//    eType = kgCut1d;
-//  }
-//  else {
-//    return;			// Non -primitive gates won't be displayed.
-//  }
-
-//  // This function is quite simple since gates entered in Xamine on our
-//  // behalf will have this id and name.   Therefore we just need
-//  // to remove gates with id == nGateId from all spectra bound.
-//  //
-//  // Note that CXamine::RemoveGate throws on error, and therefore
-//  // we must catch and ignore exceptions at the removal.
-
-//  for(UInt_t nId = 0; nId < m_DisplayBindings.size(); nId++) {
-//    if(m_DisplayBindings[nId] != "") {
-//      try {
-//            RemoveGate(nId, nGateId, eType);
-//      }
-//      catch(...) {		// Ignore exceptions.
-//      }
-//    }
-//  }
-//}
-
-
 
 /////////////////////////////////////////////////////////////////////////////
 //

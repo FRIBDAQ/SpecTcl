@@ -226,12 +226,7 @@ void CTestDisplay::setInfo(std::string name, UInt_t slot) {}
 void CTestDisplay::setTitle(std::string name, UInt_t slot) {}
 UInt_t CTestDisplay::getTitleSize() const { return 0; }
 
-CDisplayGate* CTestDisplay::GateToDisplayGate(CSpectrum &rSpectrum, CGateContainer &rGate)
-{
-    return NULL;
-}
-
-void CTestDisplay::EnterGate(CDisplayGate &rGate) {}
+void CTestDisplay::EnterGate(CSpectrum &rSpectrum, CGateContainer &rGate) {}
 void CTestDisplay::RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) {}
 
 void CTestDisplay::setOverflows(unsigned slot, unsigned x, unsigned y) {}
