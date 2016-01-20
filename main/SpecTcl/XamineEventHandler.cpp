@@ -157,13 +157,13 @@ void CXamineEventHandler::operator()()
 	try {
 	  CSpectrum *pSpec = (*p).second;
 	  UInt_t Xid = FindDisplayBinding(pSpec->getName());
-      m_pDisplay->UnBindFromDisplay(Xid, *pSpec);
+      m_pDisplay->removeSpectrum(Xid, *pSpec);
 	}
 	catch(...) { } // Some spectra will not be bound.
       }
 
       cerr << "\n Restarting Xamine...";
-      m_pDisplay->Restart();
+      m_pDisplay->restart();
 
       // Re-associate ourselves with the input channel:
 
@@ -529,7 +529,7 @@ CXamineEventHandler::FindDisplayBinding(const std::string& rName)
   }
 
   for(UInt_t i = 0; i < m_pDisplay->DisplayBindingsSize(); i++) {
-    CSpectrum* pBoundSpec = m_pDisplay->DisplayBinding(i);
+    CSpectrum* pBoundSpec = m_pDisplay->getSpectrum(i);
     if(pBoundSpec) {
       if(rName == pBoundSpec->getName()) 
 	return i;

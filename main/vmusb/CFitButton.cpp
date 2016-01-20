@@ -252,7 +252,7 @@ CFitButton::spectrumName(CButtonEvent& event)
     int            bindId        = event.getPromptedSpectrum();
     SpecTcl*       pApi          = SpecTcl::getInstance();
     CDisplayInterface* pDispManager  = pApi->GetDisplayInterface();
-    CSpectrum*     pSpectrum     = pDispManager->getCurrentDisplay()->DisplayBinding(bindId-1);
+    CSpectrum*     pSpectrum     = pDispManager->getCurrentDisplay()->getSpectrum(bindId-1);
     string spectrumName;
     if (pSpectrum) {
       spectrumName  = pSpectrum->getName();

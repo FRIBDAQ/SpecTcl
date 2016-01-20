@@ -43,7 +43,6 @@ include_HEADERS = Display.h \
 		    GateBinderObserver.h \
 		    GatingDisplayObserver.h
 
-EXTRA_DIST = ClassBreakdown.WC ClassBreakdown.omt
 
 noinst_PROGRAMS=TestRunner
 

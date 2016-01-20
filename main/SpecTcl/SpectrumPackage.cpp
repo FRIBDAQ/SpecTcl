@@ -650,7 +650,7 @@ CSpectrumPackage::BindAll(CTCLResult& rResult)
     try {
       CDisplay* pDisplay = api.GetDisplayInterface()->getCurrentDisplay();
       if (pDisplay) {
-        pDisplay->BindToDisplay(*pSpec, *api.GetHistogrammer());
+        pDisplay->addSpectrum(*pSpec, *api.GetHistogrammer());
       }
     }
     catch (CException& rExcept) {
@@ -704,7 +704,7 @@ CSpectrumPackage::BindList(CTCLResult& rResult,
       try {
           CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
           if (pSpec) {
-              pDisplay->BindToDisplay(*pSpec, *(api.GetHistogrammer()));
+              pDisplay->addSpectrum(*pSpec, *(api.GetHistogrammer()));
           } else {
               std::ostringstream errmsg;
               errmsg << *p << " cannot be bound because it doesn't exist.";
@@ -769,7 +769,7 @@ CSpectrumPackage::BindList(CTCLResult& rResult, std::vector<UInt_t>& rIds)
     try {
       CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
       if(pSpec) {
-          pDisplay->BindToDisplay(*pSpec, *(api.GetHistogrammer()));
+          pDisplay->addSpectrum(*pSpec, *(api.GetHistogrammer()));
       }
       else {
 	char TextId[100];
@@ -960,9 +960,9 @@ CSpectrumPackage::UnbindXidList(CTCLResult& rResult,
 
   std::vector<UInt_t>::iterator p = rvXids.begin();
   for(; p != rvXids.end(); p++) {
-    CSpectrum* pSpectrum = pDisplay->DisplayBinding(*p);
+    CSpectrum* pSpectrum = pDisplay->getSpectrum(*p);
     if (pSpectrum) {
-        pDisplay->UnBindFromDisplay(*p, *pSpectrum);
+        pDisplay->removeSpectrum(*p, *pSpectrum);
     }
   }
   return TCL_OK;
@@ -987,7 +987,7 @@ CSpectrumPackage::UnbindAll()
     try {
       CSpectrum *pSpec = (*p).second;
       UInt_t Xid = FindDisplayBinding(pSpec->getName());
-      pDisplay->UnBindFromDisplay(Xid, *pSpec);
+      pDisplay->removeSpectrum(Xid, *pSpec);
     }
     catch(CException& rException) { } // Some spectra will not be bound.
   }
@@ -1143,7 +1143,7 @@ CSpectrumPackage::DeleteAll()
     CSpectrum* pSpec = (*p).second;
     try {
       UInt_t xid = FindDisplayBinding(pSpec->getName());
-      pDisplay->UnBindFromDisplay(xid, *pSpec);
+      pDisplay->removeSpectrum(xid, *pSpec);
       
     }
     catch (CException& rExcept) { // Exceptions in the find are ignored.
@@ -1318,7 +1318,7 @@ CSpectrumPackage::ListXidBindings(CTCLResult& rResult,
   CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
   for(; p != rvXIds.end(); p++) {
-    CSpectrum* pSpec = pDisplay->DisplayBinding(*p);
+    CSpectrum* pSpec = pDisplay->getSpectrum(*p);
     if(pSpec) {
       FormatBinding(GoodList, *p, pSpec);
     }
@@ -1618,7 +1618,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
         //
         try {
             UInt_t xid = FindDisplayBinding(pSpectrum->getName());
-            pDisplay->UnBindFromDisplay(xid, *pSpectrum);
+            pDisplay->removeSpectrum(xid, *pSpectrum);
         }
         catch (...) {
         }
@@ -1646,7 +1646,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
     }
 
     if(fFlags & fBind) {	// Bind it if requested.
-        pDisplay->BindToDisplay(*pSpectrum, *(api.GetHistogrammer()));
+        pDisplay->addSpectrum(*pSpectrum, *(api.GetHistogrammer()));
     }
   }
   catch (CException& rExcept) {	// All exceptions drop here.
@@ -1850,7 +1850,7 @@ CSpectrumPackage::FindDisplayBinding(const string& rName)
 
   CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
   for(UInt_t i = 0; i < pDisplay->DisplayBindingsSize(); i++) {
-    CSpectrum* pBoundSpec = pDisplay->DisplayBinding(i);
+    CSpectrum* pBoundSpec = pDisplay->getSpectrum(i);
     if(pBoundSpec) {
       if(rName == pBoundSpec->getName()) 
 	return i;

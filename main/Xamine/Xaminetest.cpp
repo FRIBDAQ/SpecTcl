@@ -353,7 +353,7 @@ void DeleteGates(CXamine& Display, UInt_t nSpec)
   CXamineGates* pGates = Display.GetGates(nSpec);
   for(CDisplayGateVectorIterator p = pGates->begin(); 
       p != pGates->end(); p++) {
-    Display.RemoveGate(p->getSpectrum(), p->getId(), p->getGateType());
+    Display.removeGate(p->getSpectrum(), p->getId(), p->getGateType());
   }
 }
 
@@ -362,7 +362,7 @@ main()
   int istat;
   CXamine Display(1024*1024);
 
-  Display.Start();
+  Display.start();
   CreateSpectra(Display);
   CreateButtons(Display);
 
@@ -372,7 +372,7 @@ main()
     CXamineEvent Event;
     if(Display.PollEvent(-1, Event)) {
       if(CXamineGate* pGate = Event.GateCast()) {
-	Display.EnterGate(*pGate);
+	Display.addGate(*pGate);
 	delete pGate;
       }
       if(CButtonEvent* pButton = Event.ButtonCast()) {

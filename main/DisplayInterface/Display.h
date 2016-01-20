@@ -65,18 +65,18 @@ public:
     virtual CDisplay* clone() const = 0;
 
     /*!
-     * \brief Start
+     * \brief start
      *
      * This method should be used to cause the display to start functioning
      */
-    virtual void Start() = 0;
+    virtual void start() = 0;
 
     /*!
-     * \brief Stop
+     * \brief stop
      *
      * This should cause the display to stop functioning.
      */
-    virtual void Stop() = 0;
+    virtual void stop() = 0;
 
     /*!
      * \brief isAlive
@@ -90,12 +90,12 @@ public:
     virtual Bool_t isAlive() = 0;
 
     /*!
-     * \brief Restart
+     * \brief restart
      *
      * Causes the display to stop and then start. There may be some logic that
      * needs to be done between the stop and start depending on the display.
      */
-    virtual void Restart() = 0;
+    virtual void restart() = 0;
 
     /*!
      * \brief getDisplayBindings
@@ -109,7 +109,7 @@ public:
     virtual DisplayBindings getDisplayBindings() const = 0;
 
     /*!
-     * \brief BindToDisplay
+     * \brief addSpectrum
      *
      *  Adds a spectrum to the list of graphical entities managed by the display.
      *  Binding the spectrum may involve processing the display to create a displayable
@@ -119,19 +119,19 @@ public:
      * \param rSorter   - the histogrammer to gain access to parameter, gate, spectrum dicts
      * \return integer - display binding
      */
-    virtual UInt_t BindToDisplay(CSpectrum& rSpectrum, CHistogrammer& rSorter) = 0;
+    virtual UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter) = 0;
 
     /*!
-     * \brief UnBindFromDisplay
+     * \brief removeSpectrum
      *
-     * Accomplishes the opposite of the BindToDisplay method. A spectrum is removed from the
+     * Accomplishes the opposite of the addSpectrum method. A spectrum is removed from the
      * list of display binding. THe spectrum is required because in  the Xamine display,
      * the memory associated with bin contents is swapped out.
      *
      * \param nSpec     - display binding of the spectrum to remove
      * \param rSpectrum - SpecTcl spectrum being unbound
      */
-    virtual void   UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum) = 0;
+    virtual void   removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum) = 0;
 
     /*!
      * \brief addFit
@@ -159,7 +159,7 @@ public:
     virtual void updateStatistics() = 0;
 
     /*!
-     * \brief GatesToDisplay
+     * \brief getAssociatedGates
      *
      * Retrieves the list of all displayable gates for a certain spectrum. The histogrammer is necessary
      * to have access to the gate and spectrum dictionaries.
@@ -169,11 +169,11 @@ public:
      *
      * \return vector of gates that can be displayed on the spectrum
      */
-    virtual std::vector<CGateContainer> GatesToDisplay(const std::string& spectrumName,
-                                                       CHistogrammer& rSorter) = 0;
+    virtual std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
+                                                           CHistogrammer& rSorter) = 0;
 
     /*!
-     * \brief DisplayBinding
+     * \brief getSpectrum
      *
      * Retrieve the spectrum by means of the display binding.
      *
@@ -183,7 +183,7 @@ public:
      * \retval pointer to the spectrum
      * \retval NULL if xid out of range or does not map to spectrum
      */
-    virtual CSpectrum* DisplayBinding(UInt_t xid) = 0;
+    virtual CSpectrum* getSpectrum(UInt_t xid) = 0;
 
     /*!
      * \brief FindDisplayBinding
@@ -246,33 +246,17 @@ public:
      */
     virtual UInt_t getTitleSize() const = 0;
 
-//    /*!
-//     * \brief GateToDisplayGate
-//     *
-//     * Convert a SpecTcl gate into a gate that can be displayed on the given display.
-//     * If the spectrum is not bound to the display, then this will blow up via an
-//     * assert().
-//     *
-//     * \param rSpectrum - the spectrum to create the gate for
-//     * \param rGate     - the gate to add
-//     *
-//     * \retval kpNULL -- if the gate not convertable
-//     *
-//     * \note the gate is dynamically allocated and therefore must be deleted by the client
-//     */
-//    virtual CDisplayGate* GateToDisplayGate(CSpectrum& rSpectrum, CGateContainer& rGate) = 0;
-
     /*!
-     * \brief EnterGate
+     * \brief addGate
      *
      * Add a display gate to the display
      *
      * \param rGate - the gate to be added
      */
-    virtual void EnterGate(CSpectrum& rSpectrum, CGateContainer& rGate) = 0;
+    virtual void addGate(CSpectrum& rSpectrum, CGateContainer& rGate) = 0;
 
     /*!
-     * \brief RemoveGate
+     * \brief removeGate
      *
      * Remove the gate from the spectrum identified.
      *
@@ -280,7 +264,7 @@ public:
      * \param nId       - Identification of the spectrum
      * \param eType     - Type of the gate to remove
      */
-    virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) = 0;
+    virtual void removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) = 0;
 
     /*!
      * \brief setOverflows

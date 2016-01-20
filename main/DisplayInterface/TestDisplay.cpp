@@ -36,14 +36,14 @@ CTestDisplay* CTestDisplay::clone() const
 int CTestDisplay::operator==(const CDisplay& disp)
 { return 1; }
 
-void CTestDisplay::Start() { m_alive = true;}
-void CTestDisplay::Stop() { m_alive = false; }
+void CTestDisplay::start() { m_alive = true;}
+void CTestDisplay::stop() { m_alive = false; }
 
 // By definition, Test displays are alive. They never turn off.
 Bool_t CTestDisplay::isAlive() { return m_alive;}
-void CTestDisplay::Restart() { m_alive = true; }
+void CTestDisplay::restart() { m_alive = true; }
 
-UInt_t CTestDisplay::BindToDisplay(CSpectrum &rSpectrum, CHistogrammer&)
+UInt_t CTestDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer&)
 {
     m_DisplayBindings.push_back(rSpectrum.getName());
     m_boundSpectra.push_back(&rSpectrum);
@@ -51,7 +51,7 @@ UInt_t CTestDisplay::BindToDisplay(CSpectrum &rSpectrum, CHistogrammer&)
     return m_DisplayBindings.size()-1;
 }
 
-void CTestDisplay::UnBindFromDisplay(UInt_t nSpec, CSpectrum &rSpectrum)
+void CTestDisplay::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
 {
     m_DisplayBindings.at(nSpec) = "";
     m_boundSpectra.at(nSpec) = static_cast<CSpectrum*>(kpNULL);
@@ -119,7 +119,7 @@ void CTestDisplay::deleteFit(CSpectrumFit &fit) {
 void CTestDisplay::updateStatistics() {}
 
 
-std::vector<CGateContainer> CTestDisplay::GatesToDisplay(const std::string &rSpectrum,
+std::vector<CGateContainer> CTestDisplay::getAssociatedGates(const std::string &rSpectrum,
                                                          CHistogrammer &rSorter)
 {
 
@@ -165,7 +165,7 @@ DisplayBindings CTestDisplay::getDisplayBindings() const
     return m_DisplayBindings;
 }
 
-CSpectrum* CTestDisplay::DisplayBinding(UInt_t xid)
+CSpectrum* CTestDisplay::getSpectrum(UInt_t xid)
 {
     // Returns  a pointer to a spectrum which is bound on a particular
     // xid.
@@ -226,8 +226,8 @@ void CTestDisplay::setInfo(std::string name, UInt_t slot) {}
 void CTestDisplay::setTitle(std::string name, UInt_t slot) {}
 UInt_t CTestDisplay::getTitleSize() const { return 0; }
 
-void CTestDisplay::EnterGate(CSpectrum &rSpectrum, CGateContainer &rGate) {}
-void CTestDisplay::RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) {}
+void CTestDisplay::addGate(CSpectrum &rSpectrum, CGateContainer &rGate) {}
+void CTestDisplay::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) {}
 
 void CTestDisplay::setOverflows(unsigned slot, unsigned x, unsigned y) {}
 void CTestDisplay::setUnderflows(unsigned slot, unsigned x, unsigned y) {}

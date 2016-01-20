@@ -228,7 +228,7 @@ CXamine::isAlive()
 //     Initialization
 //
 void 
-CXamine::Start() 
+CXamine::start()
 {
 // Starts the autonomous display subsystem.
 
@@ -246,7 +246,7 @@ CXamine::Start()
 //     Finalization
 //
 void 
-CXamine::Stop() 
+CXamine::stop()
 {
 // Stops the autonomous display subsystem.
 
@@ -264,11 +264,11 @@ CXamine::Stop()
 //     mutator
 //
 void 
-CXamine::EnterGate(CSpectrum &rSpectrum, CGateContainer &rGate)
+CXamine::addGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 {
     CXamineGate* pDisplayed = GateToXamineGate(rSpectrum, rGate);
     if(pDisplayed)
-        EnterGate(*pDisplayed);
+        addGate(*pDisplayed);
     delete pDisplayed;
 }
 
@@ -279,7 +279,7 @@ CXamine::EnterGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 //  Operation Type:
 //     mutator
 //
-void CXamine::EnterGate(CXamineGate& rGate)
+void CXamine::addGate(CXamineGate& rGate)
 {
 // Adds a gate graphical object to the
 // display subsystem.
@@ -320,7 +320,7 @@ void CXamine::EnterGate(CXamineGate& rGate)
 //     Mutator
 //
 void 
-CXamine::RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType) 
+CXamine::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType)
 {
 // Removes a specified gate from the spectrum.
 // The gate is defined by its spectrum, id, and type.
@@ -1131,12 +1131,12 @@ CXamine::MapFromGate_t(GateType_t type)
 }
 ////////////////////////////////////////////////////////////
 //
-void CXamine::Restart()
+void CXamine::restart()
 {
   Xamine_Closepipes();
   Xamine_DetachSharedMemory();
   assert(Xamine_CreateSharedMemory(m_nBytes, (volatile Xamine_shared**)&m_pDisplay));  
-  Start();
+  start();
   m_fManaged = kfFALSE;		// Memory not yet managed.
 }
 /*!
@@ -1188,7 +1188,7 @@ CXamine::setInfo(string info, UInt_t slot)
 
 
   */
-UInt_t CXamine::BindToDisplay(CSpectrum &rSpectrum, CHistogrammer &rSorter) {
+UInt_t CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter) {
 
   // From the spectrum we must construct an Xamine spectrum which desribes
   // what we're trying to create.  There are two variables to worry about
@@ -1281,12 +1281,12 @@ UInt_t CXamine::BindToDisplay(CSpectrum &rSpectrum, CHistogrammer &rSorter) {
     // and enter them as well:
     //
 
-    vector<CGateContainer> DisplayGates = GatesToDisplay(rSpectrum.getName(), rSorter);
+    vector<CGateContainer> DisplayGates = getAssociatedGates(rSpectrum.getName(), rSorter);
 
     UInt_t Size = DisplayGates.size();
     for(UInt_t i = 0; i < DisplayGates.size(); i++) {
         CXamineGate* pXgate = GateToXamineGate(rSpectrum, DisplayGates[i]);
-        if(pXgate) EnterGate(*pXgate);
+        if(pXgate) addGate(*pXgate);
         delete pXgate;
     }
     // same for the fitlines:
@@ -1313,7 +1313,7 @@ UInt_t CXamine::BindToDisplay(CSpectrum &rSpectrum, CHistogrammer &rSorter) {
 //  Operation Type:
 //     mutator
 //
-void CXamine::UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum) {
+void CXamine::removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum) {
   // Unbinds the spectrum which is
   // attached to the specified Displayer spectrum number.
   //
@@ -1341,7 +1341,7 @@ void CXamine::UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum) {
     while(pGateIterator != pGates->end()) {
       UInt_t   nGateId   = pGateIterator->getId();
       GateType_t eGateType = pGateIterator->getGateType();
-      RemoveGate(nSpec, nGateId, eGateType);
+      removeGate(nSpec, nGateId, eGateType);
       pGateIterator++;
     }
 
@@ -1634,7 +1634,7 @@ CXamineGate* CXamine::GateToXamineGate(CSpectrum& rSpectrum,
 //    Protected utility.
 //
 std::vector<CGateContainer>
-CXamine::GatesToDisplay(const std::string& spectrumName, CHistogrammer &rSorter)
+CXamine::getAssociatedGates(const std::string& spectrumName, CHistogrammer &rSorter)
 {
   // Returns a vector of gates which can be displayed on the spectrum.
   // Gates are considered displayable on a spectrum iff the gate parameter set
@@ -1685,7 +1685,7 @@ DisplayBindings CXamine::getDisplayBindings() const
 // Operation type:
 //      Selector.
 //
-CSpectrum* CXamine::DisplayBinding(UInt_t xid) {
+CSpectrum* CXamine::getSpectrum(UInt_t xid) {
   // Returns  a pointer to a spectrum which is bound on a particular
   // xid.
   // Formal Parameters:

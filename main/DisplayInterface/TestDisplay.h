@@ -25,25 +25,25 @@ public:
 
     virtual CTestDisplay* clone() const;
 
-    virtual void Start();
-    virtual void Stop();
+    virtual void start();
+    virtual void stop();
     virtual Bool_t isAlive();
-    virtual void Restart();
+    virtual void restart();
 
     DisplayBindings  getDisplayBindings() const;
 
-    virtual UInt_t BindToDisplay(CSpectrum& rSpectrum, CHistogrammer& rSorter);
-    virtual void   UnBindFromDisplay(UInt_t nSpec, CSpectrum& rSpectrum);
+    virtual UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
+    virtual void   removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum);
 
     virtual void addFit(CSpectrumFit& fit);
     virtual void deleteFit(CSpectrumFit& fit);
 
     virtual void updateStatistics();
 
-    virtual std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum,
+    virtual std::vector<CGateContainer> getAssociatedGates(const std::string& rSpectrum,
                                                        CHistogrammer& rSorter);
 
-    virtual CSpectrum* DisplayBinding(UInt_t xid);
+    virtual CSpectrum* getSpectrum(UInt_t xid);
     DisplayBindingsIterator DisplayBindingsBegin();
     DisplayBindingsIterator DisplayBindingsEnd();
     UInt_t DisplayBindingsSize() const;
@@ -54,8 +54,8 @@ public:
     virtual void setTitle(std::string name, UInt_t slot);
     virtual UInt_t getTitleSize() const;
 
-    virtual void EnterGate(CSpectrum& rSpectrum, CGateContainer& rGate);
-    virtual void RemoveGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType);
+    virtual void addGate(CSpectrum& rSpectrum, CGateContainer& rGate);
+    virtual void removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType);
 
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y);
     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y);

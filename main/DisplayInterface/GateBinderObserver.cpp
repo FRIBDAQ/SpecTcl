@@ -25,7 +25,7 @@ void CGateBinderObserver::onAdd(std::string name, CGateContainer &rGate)
             assert(pSpec != (CSpectrum*)kpNULL); // Bound spectra must exist!!.
             CGateMediator DisplayableGate(rGate, pSpec);
             if(DisplayableGate()) {
-                pDisp->EnterGate(*pSpec, rGate);
+                pDisp->addGate(*pSpec, rGate);
             }
         }
     }
@@ -72,7 +72,7 @@ void CGateBinderObserver::onRemove(std::string name, CGateContainer &rGate)
     for(UInt_t nId = 0; nId < nBindings; nId++) {
       if(bindings.at(nId) != "") {
         try {
-              pDisp->RemoveGate(nId, nGateId, eType);
+              pDisp->removeGate(nId, nGateId, eType);
         }
         catch(...) {		// Ignore exceptions.
         }

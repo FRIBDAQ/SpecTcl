@@ -526,7 +526,7 @@ void CTclGrammerApp::SelectDisplayer()
 
     CDisplay* pDisplay = m_pDisplayInterface->getCurrentDisplay();
     if (pDisplay) {
-        pDisplay->Start();
+        pDisplay->start();
     } else {
         std::string error("User specified display type does not exist.");
         throw std::runtime_error(error);

@@ -153,12 +153,12 @@ public:
 
   // CDisplay interface methods
   Bool_t isAlive ()  ;
-  void Start ()  ;
-  void Stop ()  ;
-  void Restart();
+  void start ()  ;
+  void stop ()  ;
+  void restart();
 
-  UInt_t BindToDisplay(CSpectrum& rSpectrum, CHistogrammer& rSorter);
-  void   UnBindFromDisplay(UInt_t nSpec, CSpectrum &rSpectrum);
+  UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
+  void   removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum);
 
   void addFit(CSpectrumFit& fit);
   void deleteFit(CSpectrumFit& fit);
@@ -168,10 +168,10 @@ public:
 //  void AddGateToBoundSpectra(CGateContainer& rGate);
 //  void RemoveGateFromBoundSpectra(CGateContainer& rGate);
 
-  std::vector<CGateContainer> GatesToDisplay(const std::string& spectrumName,
+  std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
                                              CHistogrammer& rSorter);
 
-  CSpectrum* DisplayBinding(UInt_t xid);
+  CSpectrum* getSpectrum(UInt_t xid);
   DisplayBindingsIterator DisplayBindingsBegin();
   DisplayBindingsIterator DisplayBindingsEnd();
   UInt_t DisplayBindingsSize() const;
@@ -193,9 +193,9 @@ public:
 
  // end CDisplay interface
 
-  void EnterGate (CSpectrum& rSpectrum, CGateContainer& rGate)  ;
-  void EnterGate (CXamineGate& rGate)  ;
-  void RemoveGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType);
+  void addGate (CSpectrum& rSpectrum, CGateContainer& rGate)  ;
+  void addGate (CXamineGate& rGate)  ;
+  void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType);
   void EnterPeakMarker (UInt_t nSpectrum, 
                         UInt_t nId,
                         const std::string& rsName,
