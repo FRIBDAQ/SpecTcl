@@ -831,4 +831,5 @@ AC_OUTPUT(Makefile daq/Makefile daq/daqdefs.h daq/daqdefs.tcl \
 	 ccusb/Makefile ccusb/MakefileSkel \
 	 vmusb/Makefile vmusb/MakefileSkel \
 	 tkcon/Makefile compress/Makefile \
-   SorterTests/Makefile  )
+	 SorterTests/Makefile
+	 Spectra/Makefile)

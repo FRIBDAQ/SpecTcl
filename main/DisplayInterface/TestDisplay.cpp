@@ -42,7 +42,7 @@ void CTestDisplay::start() { m_alive = true;}
 void CTestDisplay::stop() { m_alive = false; }
 
 // By definition, Test displays are alive. They never turn off.
-Bool_t CTestDisplay::isAlive() { return m_alive;}
+bool CTestDisplay::isAlive() { return m_alive;}
 void CTestDisplay::restart() { m_alive = true; }
 
 UInt_t CTestDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer&)

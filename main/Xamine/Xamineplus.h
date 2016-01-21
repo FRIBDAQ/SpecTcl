@@ -38,26 +38,12 @@
 
 #include "Display.h"
 
-#ifndef __XAMINE_XAMINE_H
 #include <Xamine.h>
-#define __XAMINE_XAMINE_H
-#endif
 
-
-#ifndef __STL_STRING
 #include <string>
-#ifndef __STL_STRING
-#define __STL_STRING
-#endif
-#endif
 
-#ifndef __HISTOTYPES_H
 #include <histotypes.h>
-#endif
-
-#ifndef __XAMINESPECTRUMITERATOR_H
 #include "XamineSpectrumIterator.h"
-#endif
 
 #include "DisplayFactory.h"
 
@@ -69,19 +55,21 @@ class CXamineGates;		// Forward reference.
 class CXamineEvent;
 class CXamineSpectrum;
 class CXamineButton;
+class CXamineSharedMemory;
 class CSpectrum;
 
 class CXamine : public CDisplay
 {
-   volatile Xamine_shared* m_pDisplay;  //  Pointer to Xamine shared memory region.
-   Bool_t         m_fManaged;  //  Set TRUE if memory management started. 
+//   volatile Xamine_shared* m_pMemory;  //  Pointer to Xamine shared memory region.
+//   Bool_t         m_fManaged;  //  Set TRUE if memory management started.
    UInt_t         m_nBytes;    //  Size of shared memory region.
   
-   DisplayBindings         m_DisplayBindings;     // Display id to spectrum name map.
-   std::vector<CSpectrum*> m_boundSpectra;        // Spectrum if bound.
-   FitlineBindings         m_FitlineBindings;     // Fitlines bound to displayer.
+//   DisplayBindings         m_DisplayBindings;     // Display id to spectrum name map.
+//   std::vector<CSpectrum*> m_boundSpectra;        // Spectrum if bound.
+//   FitlineBindings         m_FitlineBindings;     // Fitlines bound to displayer.
 
-   static int              m_nextFitlineId;       // Next Xamine fitline id.
+//   static int              m_nextFitlineId;       // Next Xamine fitline id.
+    CXamineSharedMemory*  m_pMemory;
 
 public:
   // Constructors:
@@ -94,9 +82,9 @@ public:
 				// Copy Constructor.
 
   CXamine (const CXamine& aCXamine ) :
-    m_pDisplay(aCXamine.m_pDisplay),
+    m_pMemory(aCXamine.m_pMemory)/*,
     m_fManaged(aCXamine.m_fManaged),
-    m_nBytes(aCXamine.m_nBytes)
+    m_nBytes(aCXamine.m_nBytes)*/
   {   
                 
   }                                     
@@ -108,9 +96,9 @@ public:
   CXamine& operator= (const CXamine& aCXamine)
   { 
     if (this == &aCXamine) return *this;          
-    m_pDisplay = aCXamine.m_pDisplay;
-    m_fManaged = aCXamine.m_fManaged;
-    m_nBytes   = aCXamine.m_nBytes;
+    m_pMemory = aCXamine.m_pMemory;
+//    m_fManaged = aCXamine.m_fManaged;
+//    m_nBytes   = aCXamine.m_nBytes;
         
     return *this;
   }                                     
@@ -120,7 +108,7 @@ public:
   int operator== (const CXamine& aCXamine)
   { 
     return (
-	    (m_pDisplay == aCXamine.m_pDisplay) 
+        (m_pMemory == aCXamine.m_pMemory)
 	    );
   }
 
@@ -130,19 +118,10 @@ public:
 
   // Selectors:
 
-public:
-  volatile Xamine_shared* getXamineMemory() const
-  {
-    return m_pDisplay;
-  }
-                       
+public:                       
   // Mutator (for derivec classes):
 
 protected:
-  void setXamineMemory (Xamine_shared* am_pDisplay)
-  { 
-    m_pDisplay = am_pDisplay;
-  }
   //
   //  Bindings to the Xamine API
   //
@@ -152,7 +131,7 @@ public:
                  UInt_t nBytes=knDefaultSpectrumSize)  ;
 
   // CDisplay interface methods
-  Bool_t isAlive ()  ;
+  bool isAlive ()  ;
   void start ()  ;
   void stop ()  ;
   void restart();
@@ -165,9 +144,6 @@ public:
   void deleteFit(CSpectrumFit& fit);
 
   void updateStatistics();
-
-//  void AddGateToBoundSpectra(CGateContainer& rGate);
-//  void RemoveGateFromBoundSpectra(CGateContainer& rGate);
 
   std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
                                              CHistogrammer& rSorter);
@@ -183,7 +159,9 @@ public:
   DisplayBindings  getDisplayBindings() const;
   SpectrumContainer getBoundSpectra() const;
 
-  std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer &rSorter);
+  std::string createTitle(CSpectrum& rSpectrum,
+                          UInt_t maxLength,
+                          CHistogrammer &rSorter);
   UInt_t getTitleSize()  const;
   void setTitle(CSpectrum& rSpectrum, std::string name);
   void setTitle(std::string name, UInt_t slot);
@@ -196,22 +174,22 @@ public:
   void setUnderflows(unsigned slot, unsigned x, unsigned y);
   void clearStatistics(unsigned slot);
 
- // end CDisplay interface
-
   void addGate (CSpectrum& rSpectrum, CGateContainer& rGate)  ;
   void addGate (CXamineGate& rGate)  ;
   void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate);
   void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType);
+  CXamineGates* GetGates (UInt_t nSpectrum)  ;
 
   void EnterPeakMarker (UInt_t nSpectrum, 
                         UInt_t nId,
                         const std::string& rsName,
                         Float_t fCentroid, Float_t fWidth)  ;
-  CXamineGates* GetGates (UInt_t nSpectrum)  ;
   UInt_t GetEventFd ()  ;
   Bool_t PollEvent (Int_t nTimeout, CXamineEvent& rEvent)  ;
   Address_t DefineSpectrum (CXamineSpectrum& rSpectrum)  ;
   void FreeSpectrum (UInt_t nSpectrum)  ;
+
+
   void DefineButtonBox (UInt_t nColumns=8, UInt_t NRows=3)  ;
   void DefineButton (UInt_t nColumn, UInt_t nRow, 
                         const CXamineButton& rButton)  ;
@@ -231,7 +209,7 @@ public:
 
 protected:
   void ThrowGateStatus(Int_t nStatus, const CXamineGate& rGate,
-			      const std::string& doing);
+                  const std::string& doing);
   void ThrowButtonStatus(Int_t nStatus, const CXamineButton& rButton,
 				const std::string& doing);
   DialogSpectrumType_t MaptoSpec_t(ButtonDialogSpectrumType t);

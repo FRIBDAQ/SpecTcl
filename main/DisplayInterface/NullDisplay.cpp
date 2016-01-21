@@ -35,7 +35,7 @@ void CNullDisplay::start() {}
 void CNullDisplay::stop() {}
 
 // By definition, null displays are alive. They never turn off.
-Bool_t CNullDisplay::isAlive() { return true;}
+bool CNullDisplay::isAlive() { return true;}
 void CNullDisplay::restart() {}
 
 UInt_t CNullDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)

@@ -88,7 +88,7 @@ public:
      * \retval 0 - display is not running
      * \retval 1 - display is running
      */
-    virtual Bool_t isAlive() = 0;
+    virtual bool isAlive() = 0;
 
     /*!
      * \brief restart

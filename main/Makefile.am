@@ -17,6 +17,7 @@ SUBDIRS =  daq \
 	Fits \
 	DisplayInterface \
 	Xamine \
+	Spectra \
 	SpecTcl \
 	FitsTests \
 	SorterTests \

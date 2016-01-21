@@ -27,7 +27,7 @@ public:
 
     virtual void start();
     virtual void stop();
-    virtual Bool_t isAlive();
+    virtual bool isAlive();
     virtual void restart();
 
     SpectrumContainer getBoundSpectra() const;
