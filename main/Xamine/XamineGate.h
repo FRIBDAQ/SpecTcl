@@ -179,6 +179,7 @@ public:
   // Adaptors to the Xamine C-API:
 
   void FormatMessageBlock(msg_object& rMsg) const;
+
 };
 
 //

@@ -73,6 +73,12 @@ CXamineSharedMemory::CXamineSharedMemory(size_t nBytes) :
 
 }
 
+CXamineSharedMemory::~CXamineSharedMemory()
+{
+    Xamine_DetachSharedMemory();
+    m_pMemory = NULL;
+}
+
 //
 //////////////////////////////////////////////////////////////////////////
 //

@@ -42,13 +42,14 @@ private:
 
     std::vector<CSpectrum*>       m_boundSpectra;
     DisplayBindings               m_DisplayBindings;
-    FitlineBindings         m_FitlineBindings;     // Fitlines bound to displayer.
+    FitlineBindings               m_FitlineBindings;     // Fitlines bound to displayer.
 
     static int              m_nextFitlineId;       // Next Xamine fitline id.
 
 public:
     CXamineSharedMemory();
     CXamineSharedMemory(size_t nBytes);
+    ~CXamineSharedMemory();
 
 public:
   volatile Xamine_shared* getXamineMemory() const
