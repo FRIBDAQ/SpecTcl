@@ -202,8 +202,8 @@ UInt_t CXamineSharedMemory::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSo
           Address_t pStorage           = DefineSpectrum(*pXSpectrum);
           nSpectrum                    = pXSpectrum->getSlot();
 
-          setInfo(createTitle(rSpectrum, getTitleSize(), rSorter),
-                  nSpectrum);
+//          setInfo(createTitle(rSpectrum, getTitleSize(), rSorter),
+//                  nSpectrum);
           rSpectrum.ReplaceStorage(pStorage, kfFALSE);
           while(m_DisplayBindings.size() <= nSpectrum) {
               m_DisplayBindings.push_back("");
@@ -218,31 +218,31 @@ UInt_t CXamineSharedMemory::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSo
           delete pXSpectrum;
           throw;
       }
-      // We must locate all of the gates which are relevant to this spectrum
-      // and enter them as well:
-      //
+//      // We must locate all of the gates which are relevant to this spectrum
+//      // and enter them as well:
+//      //
 
-      vector<CGateContainer> DisplayGates = getAssociatedGates(rSpectrum.getName(), rSorter);
+//      vector<CGateContainer> DisplayGates = getAssociatedGates(rSpectrum.getName(), rSorter);
 
-      UInt_t Size = DisplayGates.size();
-      for(UInt_t i = 0; i < DisplayGates.size(); i++) {
-          CXamineGate* pXgate = GateToXamineGate(rSpectrum, DisplayGates[i]);
-          if(pXgate) addGate(*pXgate);
-          delete pXgate;
-      }
-      // same for the fitlines:
-      //
+//      UInt_t Size = DisplayGates.size();
+//      for(UInt_t i = 0; i < DisplayGates.size(); i++) {
+//          CXamineGate* pXgate = GateToXamineGate(rSpectrum, DisplayGates[i]);
+//          if(pXgate) addGate(*pXgate);
+//          delete pXgate;
+//      }
+//      // same for the fitlines:
+//      //
 
-      CFitDictionary& dict(CFitDictionary::getInstance());
-      CFitDictionary::iterator pf = dict.begin();
+//      CFitDictionary& dict(CFitDictionary::getInstance());
+//      CFitDictionary::iterator pf = dict.begin();
 
-      while (pf != dict.end()) {
-          CSpectrumFit* pFit = pf->second;
-          if (pFit->getName() == rSpectrum.getName()) {
-              addFit(*pFit);		// not very efficient, but doesn't need to be
-          }
-          pf++;
-      }
+//      while (pf != dict.end()) {
+//          CSpectrumFit* pFit = pf->second;
+//          if (pFit->getName() == rSpectrum.getName()) {
+//              addFit(*pFit);		// not very efficient, but doesn't need to be
+//          }
+//          pf++;
+//      }
 
       return nSpectrum;
 }

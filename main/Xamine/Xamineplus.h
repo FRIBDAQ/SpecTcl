@@ -60,16 +60,8 @@ class CSpectrum;
 
 class CXamine : public CDisplay
 {
-//   volatile Xamine_shared* m_pMemory;  //  Pointer to Xamine shared memory region.
-//   Bool_t         m_fManaged;  //  Set TRUE if memory management started.
-   UInt_t         m_nBytes;    //  Size of shared memory region.
-  
-//   DisplayBindings         m_DisplayBindings;     // Display id to spectrum name map.
-//   std::vector<CSpectrum*> m_boundSpectra;        // Spectrum if bound.
-//   FitlineBindings         m_FitlineBindings;     // Fitlines bound to displayer.
-
-//   static int              m_nextFitlineId;       // Next Xamine fitline id.
-    CXamineSharedMemory*  m_pMemory;
+   UInt_t                m_nBytes;    //  Size of shared memory region.
+   CXamineSharedMemory*  m_pMemory;
 
 public:
   // Constructors:
@@ -82,9 +74,7 @@ public:
 				// Copy Constructor.
 
   CXamine (const CXamine& aCXamine ) :
-    m_pMemory(aCXamine.m_pMemory)/*,
-    m_fManaged(aCXamine.m_fManaged),
-    m_nBytes(aCXamine.m_nBytes)*/
+    m_pMemory(aCXamine.m_pMemory)
   {   
                 
   }                                     
@@ -97,8 +87,7 @@ public:
   { 
     if (this == &aCXamine) return *this;          
     m_pMemory = aCXamine.m_pMemory;
-//    m_fManaged = aCXamine.m_fManaged;
-//    m_nBytes   = aCXamine.m_nBytes;
+    m_nBytes   = aCXamine.m_nBytes;
         
     return *this;
   }                                     
@@ -107,9 +96,8 @@ public:
 
   int operator== (const CXamine& aCXamine)
   { 
-    return (
-        (m_pMemory == aCXamine.m_pMemory)
-	    );
+      return ((m_pMemory == aCXamine.m_pMemory)
+              && (m_nBytes == aCXamine.m_nBytes));
   }
 
   int operator==(const CDisplay& rhs) {
