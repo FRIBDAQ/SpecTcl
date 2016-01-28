@@ -535,12 +535,14 @@ CXamineEventHandler::FindDisplayBinding(const std::string& rName)
 			       rName);
   }
 
-  for(UInt_t i = 0; i < m_pDisplay->DisplayBindingsSize(); i++) {
-    CSpectrum* pBoundSpec = m_pDisplay->getSpectrum(i);
-    if(pBoundSpec) {
-      if(rName == pBoundSpec->getName()) 
-	return i;
-    }
+  SpectrumContainer spectra =m_pDisplay->getBoundSpectra();
+  size_t nSpectra = spectra.size();
+  for(size_t i = 0; i < nSpectra; i++) {
+      CSpectrum* pBoundSpec = spectra[i];
+      if(pBoundSpec) {
+          if(rName == pBoundSpec->getName())
+              return i;
+      }
   }
   throw CDictionaryException(CDictionaryException::knNoSuchKey,
 			     "Spectrum with this name is not bound",

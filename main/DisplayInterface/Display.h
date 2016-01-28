@@ -220,12 +220,6 @@ public:
 
 
     /*!
-     * \brief DisplayBindingsSize
-     * \return the number of display bindings that have been created for all time
-     */
-    virtual UInt_t DisplayBindingsSize() const = 0;
-
-    /*!
      * \brief createTitle
      *
      * This creates a title for a certain spectrum. The display has responsibility for

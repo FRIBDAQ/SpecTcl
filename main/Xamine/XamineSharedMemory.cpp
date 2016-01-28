@@ -1,5 +1,6 @@
 #include "XamineSharedMemory.h"
 
+#include "dispshare.h"
 #include "XamineGate.h"
 #include "XamineGates.h"
 #include "XamineGateException.h"
@@ -66,17 +67,27 @@ CXamineSharedMemory::CXamineSharedMemory(size_t nBytes) :
   m_fManaged(kfFALSE),
   m_nBytes(nBytes)
 {
-  if(!Xamine_CreateSharedMemory(m_nBytes,
-                   (volatile Xamine_shared**)&m_pMemory)) {
-    throw CErrnoException("Failed to create Xamine shared memory!!");
-  }
-
+    attach();
 }
 
 CXamineSharedMemory::~CXamineSharedMemory()
 {
-    Xamine_DetachSharedMemory();
+    detach();
     m_pMemory = NULL;
+}
+
+void CXamineSharedMemory::attach()
+{
+    if(!Xamine_CreateSharedMemory(m_nBytes,
+                                 (volatile Xamine_shared**)&m_pMemory)) {
+      throw CErrnoException("Failed to create Xamine shared memory!!");
+    }
+    m_fManaged = kfFALSE;
+}
+
+void CXamineSharedMemory::detach()
+{
+    Xamine_DetachSharedMemory();
 }
 
 //
@@ -124,7 +135,6 @@ CXamineSharedMemory::MapMemory(const std::string& rsName, UInt_t nBytes)
 //           Number of bytes of spectrum memory
 //           must match value in shared memory or
 //           map fails.
-
 
   m_nBytes = nBytes;
 
@@ -208,58 +218,22 @@ UInt_t CXamineSharedMemory::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSo
           Address_t pStorage           = DefineSpectrum(*pXSpectrum);
           nSpectrum                    = pXSpectrum->getSlot();
 
-//          setInfo(createTitle(rSpectrum, getTitleSize(), rSorter),
-//                  nSpectrum);
           rSpectrum.ReplaceStorage(pStorage, kfFALSE);
           while(m_DisplayBindings.size() <= nSpectrum) {
               m_DisplayBindings.push_back("");
-              m_boundSpectra.push_back(0);
           }
 
           m_DisplayBindings[nSpectrum] = rSpectrum.getName();
-          m_boundSpectra[nSpectrum]    = &rSpectrum;
           delete pXSpectrum;		// Destroy the XamineSpectrum.
       }
       catch (...) {		// In case of throw after CXamine2D created.
           delete pXSpectrum;
           throw;
       }
-//      // We must locate all of the gates which are relevant to this spectrum
-//      // and enter them as well:
-//      //
-
-//      vector<CGateContainer> DisplayGates = getAssociatedGates(rSpectrum.getName(), rSorter);
-
-//      UInt_t Size = DisplayGates.size();
-//      for(UInt_t i = 0; i < DisplayGates.size(); i++) {
-//          CXamineGate* pXgate = GateToXamineGate(rSpectrum, DisplayGates[i]);
-//          if(pXgate) addGate(*pXgate);
-//          delete pXgate;
-//      }
-//      // same for the fitlines:
-//      //
-
-//      CFitDictionary& dict(CFitDictionary::getInstance());
-//      CFitDictionary::iterator pf = dict.begin();
-
-//      while (pf != dict.end()) {
-//          CSpectrumFit* pFit = pf->second;
-//          if (pFit->getName() == rSpectrum.getName()) {
-//              addFit(*pFit);		// not very efficient, but doesn't need to be
-//          }
-//          pf++;
-//      }
 
       return nSpectrum;
 }
 
-void CXamineSharedMemory::removeSpectrum(CSpectrum &rSpectrum)
-{
-    Int_t slot = FindDisplayBinding(rSpectrum);
-    if (slot >=0) {
-        removeSpectrum(slot, rSpectrum);
-    }
-}
 
 void CXamineSharedMemory::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
 {
@@ -299,30 +273,13 @@ void CXamineSharedMemory::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
       // Deal with the spectrum:
 
       pSpectrum->ReplaceStorage(new char[pSpectrum->StorageNeeded()],
-                    kfTRUE);
+                                kfTRUE);
       m_DisplayBindings[nSpec] = "";
-      m_boundSpectra[nSpec]    = 0;
       FreeSpectrum(nSpec);
 
     }
 }
 
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    void EnterGate (CSpectrum& rSpectrum, CGateContainer& rGate )
-//  Operation Type:
-//     mutator
-//
-void
-CXamineSharedMemory::addGate(CSpectrum &rSpectrum, CGateContainer &rGate)
-{
-    CXamineGate* pDisplayed = GateToXamineGate(rSpectrum, rGate);
-    if(pDisplayed)
-        addGate(*pDisplayed);
-    delete pDisplayed;
-}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -479,165 +436,6 @@ CXamineSharedMemory::GetGates(UInt_t nSpectrum)
 //
   return new CXamineGates(nSpectrum+1);
 
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// :Function:
-//    CXamineGate* GateToXamineGate(UInt_t nBindingId, CGateContainer& rGate)
-//  Operation Type:
-//    Protected Utility
-//
-/*!
-  Takes a gate container and turns it into a gate suitable for
-  entry in the Xamine display program.
-
-  Formal Parameters:
-  \param <TT> rSpectrum (CSpectrum& [in]): </TT>
-  The spectrum that is associated with the gate
-  \param <TT> rGate (CGateContainer& [in]): </TT>
-  The container which holds the gate to convert.  Note that
-  gate containers can be treated as if they were pointers to
-  gates.
-
-  \retval    CXamineGate*  kpNULL -- if the gate is not convertable,
-  e.g. it is not a gate directly suported
-  by Xamine.
-  other  -- Pointer to the gate which was created.
-  \note
-  The gate is dynamically allocated and therefore must be deleted by
-  the client.
-
-*/
-CXamineGate* CXamineSharedMemory::GateToXamineGate(CSpectrum& rSpectrum,
-                                       CGateContainer& rGate)
-{
-    CXamineGate* pXGate;
-    UInt_t nBindingId = FindDisplayBinding(rSpectrum.getName());
-    assert(nBindingId != -1); // make sure the thing was found
-
-    CSpectrum* pSpectrum = &rSpectrum;
-
-    // Summary spectra don't have gates displayed.
-
-    if(pSpectrum->getSpectrumType() == keSummary) { // Summary spectrum.
-        return (CXamineGate*)(kpNULL);
-    }
-
-    if((rGate->Type() == std::string("s")) ||
-            (rGate->Type() == std::string("gs"))) {	// Slice gate
-        CDisplayCut* pCut = new CDisplayCut(nBindingId,
-                                            rGate.getNumber(),
-                                            rGate.getName());
-        // There are two points, , (low,0), (high,0)
-
-        CCut& rCut = (CCut&)(*rGate);
-
-        switch(pSpectrum->getSpectrumType()) {
-        case ke1D:
-        case keG1D:
-        {
-            // Produce the nearest channel to the gate points.
-            // then add them to the display gate.
-            //
-            int x1 = (int)(pSpectrum->ParameterToAxis(0, rCut.getLow()));
-            int x2 = (int)(pSpectrum->ParameterToAxis(0, rCut.getHigh()));
-            pCut->AddPoint(x1,
-                           0);
-            // The weirdness below is all about dealing with a special boundary
-            // case when we try to get the right side of the cut to land
-            // on the right side of the channel on which it's set.
-            // ..all this in the presence of gates accepted on fractional parameters.
-            //(consider a fine spectrum (e.g. 400-401 with 100 bins and a coarse
-            // spectrum, of the same parameter (e.g. 0-1023 1024 bins)..with
-            // the gate set on 400.5, 400.51 and you'll see the thing I'm trying
-            // to deal with here.
-            //
-            pCut->AddPoint(x1 == x2 ? x2 : x2 - 1,
-                           0);
-            return pCut;
-            break;
-        }
-
-        }
-    }
-    else if ((rGate->Type() == std::string("b")) ||
-             (rGate->Type() == std::string("gb"))) { // Band gate.
-        pXGate = new CDisplayBand(nBindingId,
-                                  rGate.getNumber(),
-                                  rGate.getName());
-    }
-    else if ((rGate->Type() == std::string("c")) ||
-             (rGate->Type() == std::string("gc"))) { // Contour gate
-        pXGate = new CDisplayContour(nBindingId,
-                                     rGate.getNumber(),
-                                     rGate.getName());
-    }
-    else {			// Other.
-        return (CXamineGate*)kpNULL;
-    }
-    // Control falls through here if 2-d and we just need
-    // to insert the points.  We know this is a point list gate:
-
-    assert((rGate->Type() == "b") || (rGate->Type() == "c") ||
-           (rGate->Type() == "gb") || (rGate->Type() == "gc"));
-
-    // If the spectrum is not 2-d the gate can't be displayed:
-    //
-
-    if((pSpectrum->getSpectrumType() == ke2D)   ||
-            (pSpectrum->getSpectrumType() == keG2D)  ||
-            (pSpectrum->getSpectrumType() == ke2Dm)  ||
-            (pSpectrum->getSpectrumType() == keG2DD)) {
-
-
-        CPointListGate& rSpecTclGate = (CPointListGate&)rGate.operator*();
-        vector<FPoint> pts = rSpecTclGate.getPoints();
-        //    vector<UInt_t> Params;
-        //    pSpectrum->GetParameterIds(Params);
-
-        // If necessary flip the x/y coordinates of the gate.
-        // note that gamma gates never need flipping.
-        //
-
-        //    if((rSpecTclGate.getxId() != Params[0]) &&
-        //   ((rSpecTclGate.Type())[0] != 'g')) {
-
-        if ((rSpecTclGate.Type()[0] != 'g') &&
-                flip2dGatePoints(pSpectrum, rSpecTclGate.getxId())) {
-            for(UInt_t i = 0; i < pts.size(); i++) {	// Flip pts to match spectrum.
-                Float_t x = pts[i].X();
-                Float_t y = pts[i].Y();
-                pts[i] = FPoint(y,x);
-            }
-        }
-        // The index of the X axis transform is easy.. it's 0, but the
-        // y axis transform index depends on spectrum type sincd gammas
-        // have all x transforms first then y and so on:
-        //
-        int nYIndex;
-        if((pSpectrum->getSpectrumType() == ke2D)   ||
-                (pSpectrum->getSpectrumType() == keG2DD) ||
-                (pSpectrum->getSpectrumType() == ke2Dm)) {
-            nYIndex = 1;
-        }
-        else {
-            CGamma2DW* pGSpectrum = (CGamma2DW*)pSpectrum;
-            nYIndex               = pGSpectrum->getnParams();
-        }
-
-        for(UInt_t i = 0; i < pts.size(); i++) {
-
-            CPoint pt((int)pSpectrum->ParameterToAxis(0, pts[i].X()),
-                      (int)pSpectrum->ParameterToAxis(nYIndex, pts[i].Y()));
-            pXGate->AddPoint(pt);
-
-        }
-    } else {
-        return (CXamineGate*)kpNULL;
-    }
-
-    return pXGate;
 }
 
 
@@ -859,22 +657,6 @@ CXamineSharedMemory::getTitleSize() const
    necessary
 */
 void
-CXamineSharedMemory::setTitle(CSpectrum& rSpectrum, string name)
-{
-  Int_t slot = FindDisplayBinding(rSpectrum);
-  if (slot >= 0) {
-      setTitle(name, slot);
-  } else {
-      throw std::runtime_error("CXamine::setTitle() Cannot set title on unbound spectrum.");
-  }
-}
-
-/*!
-   Set the title of a specific slot in Xamine memory.
-   The title will be truncated to the size of the spec_title if
-   necessary
-*/
-void
 CXamineSharedMemory::setTitle(string name, UInt_t slot)
 {
   memset((void*)m_pMemory->dsp_titles[slot], 0, getTitleSize());
@@ -950,38 +732,9 @@ CXamineSharedMemory::getAssociatedGates(const std::string& spectrumName, CHistog
   return vGates;
 }
 
-SpectrumContainer CXamineSharedMemory::getBoundSpectra() const
-{
-    return m_boundSpectra;
-}
-
 DisplayBindings CXamineSharedMemory::getDisplayBindings() const
 {
    return m_DisplayBindings;
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Function:
-//      CSpectrum*  DisplayBinding(UInt_t xid)
-// Operation type:
-//      Selector.
-//
-CSpectrum* CXamineSharedMemory::getSpectrum(UInt_t xid) {
-  // Returns  a pointer to a spectrum which is bound on a particular
-  // xid.
-  // Formal Parameters:
-  //    UInt_t xid:
-  //       The xid.
-  // Returns:
-  //     POinter to the spectrum or kpNULL Iff:
-  //     xid is out of range.
-  //     xid does not map to a spectrum.
-  //
-  if(xid >= DisplayBindingsSize())
-    return (CSpectrum*)kpNULL;
-
-  return m_boundSpectra[xid];
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1010,14 +763,6 @@ DisplayBindingsIterator CXamineSharedMemory::DisplayBindingsEnd() {
   return m_DisplayBindings.end();
 }
 
-
-/*!
- *
- */
-bool CXamineSharedMemory::spectrumBound(CSpectrum &rSpectrum)
-{
-    return (FindDisplayBinding(rSpectrum) >= 0);
-}
 
 /*!
     Find the bindings for a spectrum by name.
@@ -1067,86 +812,86 @@ UInt_t CXamineSharedMemory::DisplayBindingsSize() const {
 Address_t
 CXamineSharedMemory::DefineSpectrum(CXamineSpectrum& rSpectrum)
 {
-// Allocates a spectrum slot and storage for a
-// spectrum.
-//
-// Formal Parameters:
-//    CXamineSpectrum& rSpectrum:
-//        Reference to a description of the spectrum.
-//        The slot number and pointer are ignored on input
-//        and filled in to correctly reflect the defined spectrum
-//        if it  is defined.
-// Returns:
-//   Address_t pointer to the spectrum storage,  or kpNULL if
-//   the spectrum could not be defined.
-// NOTE:  If m_fManaged is not true, then the spectrum area will
-//        be turned into one managed by the Xamine memory manager.
-//        this will destroy existing definitions in the Xamine memory at
-//        this implementation.
-// NOTE:  rSpectrum is modified to reflect the spectrum slot number and
-//        location.
-//        Xamine Eout of memory or slots results in an ENOMEM CErrnoException.
-  Address_t pData;
-  UInt_t    nSpectrum;
+    // Allocates a spectrum slot and storage for a
+    // spectrum.
+    //
+    // Formal Parameters:
+    //    CXamineSpectrum& rSpectrum:
+    //        Reference to a description of the spectrum.
+    //        The slot number and pointer are ignored on input
+    //        and filled in to correctly reflect the defined spectrum
+    //        if it  is defined.
+    // Returns:
+    //   Address_t pointer to the spectrum storage,  or kpNULL if
+    //   the spectrum could not be defined.
+    // NOTE:  If m_fManaged is not true, then the spectrum area will
+    //        be turned into one managed by the Xamine memory manager.
+    //        this will destroy existing definitions in the Xamine memory at
+    //        this implementation.
+    // NOTE:  rSpectrum is modified to reflect the spectrum slot number and
+    //        location.
+    //        Xamine Eout of memory or slots results in an ENOMEM CErrnoException.
+    Address_t pData;
+    UInt_t    nSpectrum;
 
-  if(!m_fManaged) {
-    Xamine_ManageMemory();
-    m_fManaged = kfTRUE;
-  }
-  CXamine1D* p1d = rSpectrum.Oned();
-  CXamine2D* p2d = rSpectrum.Twod();
-  assert( (p1d != kpNULL) || (p2d != kpNULL));
+    if(!m_fManaged) {
+        Xamine_ManageMemory();
+        m_fManaged = kfTRUE;
+    }
+    CXamine1D* p1d = rSpectrum.Oned();
+    CXamine2D* p2d = rSpectrum.Twod();
+    assert( (p1d != kpNULL) || (p2d != kpNULL));
 
-  if(p1d) {			// 1d spectrum
-    pData = Xamine_Allocate1d((Int_t*)&nSpectrum,
-                   p1d->getChannels(),
-                   (char*)(p1d->getTitle().c_str()),
-                   p1d->getWord());
-    if(pData) {
-      // Apply the mapping transformation if it exists
-      CXamineMap1D Xmap = p1d->getXamineMap();
-      if(Xmap.getLow() != Xmap.getHigh()) {
-    Xamine_SetMap1d(nSpectrum, Xmap.getLow(), Xmap.getHigh(),
-            const_cast<char*>(Xmap.getUnits().c_str()));
-      }
-      else {
-    Xamine_SetMap1d(nSpectrum, 0.0, 0.0, const_cast<char*>(""));
-      }
-      CXamine1D result(m_pMemory, nSpectrum-1);
-      *p1d  = result;
+    if(p1d) {			// 1d spectrum
+        pData = Xamine_Allocate1d((Int_t*)&nSpectrum,
+                                  p1d->getChannels(),
+                                  (char*)(p1d->getTitle().c_str()),
+                                  p1d->getWord());
+        if(pData) {
+            // Apply the mapping transformation if it exists
+            CXamineMap1D Xmap = p1d->getXamineMap();
+            if(Xmap.getLow() != Xmap.getHigh()) {
+                Xamine_SetMap1d(nSpectrum, Xmap.getLow(), Xmap.getHigh(),
+                                const_cast<char*>(Xmap.getUnits().c_str()));
+            }
+            else {
+                Xamine_SetMap1d(nSpectrum, 0.0, 0.0, const_cast<char*>(""));
+            }
+            CXamine1D result(m_pMemory, nSpectrum-1);
+            *p1d  = result;
+        }
+        else {			// Failure.
+            errno = ENOMEM;
+            throw CErrnoException("CXamine::DefineSpectrum - Defining 1d spectrum");
+        }
     }
-    else {			// Failure.
-      errno = ENOMEM;
-      throw CErrnoException("CXamine::DefineSpectrum - Defining 1d spectrum");
-    }
-  }
-  else if (p2d) {		// 2d spectrum
-    pData = Xamine_Allocate2d((Int_t*)&nSpectrum,
-                   p2d->getXchannels(),
-                   p2d->getYchannels(),
-                   (char*)(p2d->getTitle().c_str()),
-                   p2d->getType());
-    if(pData) {			// Success
+    else if (p2d) {		// 2d spectrum
+        pData = Xamine_Allocate2d((Int_t*)&nSpectrum,
+                                  p2d->getXchannels(),
+                                  p2d->getYchannels(),
+                                  (char*)(p2d->getTitle().c_str()),
+                                  p2d->getType());
+        if(pData) {			// Success
 
-      // Apply the mapping transformation if it exists
-      CXamineMap2D Xmap = p2d->getXamineMap();
-      if(Xmap.getXLow() != Xmap.getXHigh()) {
-    Xamine_SetMap2d(nSpectrum,
-            Xmap.getXLow(), Xmap.getXHigh(),
-            const_cast<char*>(Xmap.getXUnits().c_str()),
-            Xmap.getYLow(), Xmap.getYHigh(),
-            const_cast<char*>(Xmap.getYUnits().c_str()));
-      }
-      CXamine2D result(m_pMemory, nSpectrum-1);
-      *p2d = result;
-    }
-    else {			// Failure
-      errno = ENOMEM;
-      throw CErrnoException("CXamime::DefineSpectrum - Defining 2d spectrum");
-    }
+            // Apply the mapping transformation if it exists
+            CXamineMap2D Xmap = p2d->getXamineMap();
+            if(Xmap.getXLow() != Xmap.getXHigh()) {
+                Xamine_SetMap2d(nSpectrum,
+                                Xmap.getXLow(), Xmap.getXHigh(),
+                                const_cast<char*>(Xmap.getXUnits().c_str()),
+                                Xmap.getYLow(), Xmap.getYHigh(),
+                                const_cast<char*>(Xmap.getYUnits().c_str()));
+            }
+            CXamine2D result(m_pMemory, nSpectrum-1);
+            *p2d = result;
+        }
+        else {			// Failure
+            errno = ENOMEM;
+            throw CErrnoException("CXamime::DefineSpectrum - Defining 2d spectrum");
+        }
 
-  }
-  return pData;
+    }
+    return pData;
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -1158,7 +903,7 @@ CXamineSharedMemory::DefineSpectrum(CXamineSpectrum& rSpectrum)
 void
 CXamineSharedMemory::FreeSpectrum(UInt_t nSpectrum)
 {
-// Frees a spectrum slot and the associated storage
+    // Frees a spectrum slot and the associated storage
 // in the Xamine shared region.
 //
 // Formal Parameters:
@@ -1226,34 +971,4 @@ CXamineSharedMemory::ThrowGateStatus(Int_t nStatus, const CXamineGate& rGate,
 
   assert(nStatus >= 0);		// In case status allocations change.
 
-}
-
-/**
- * flip2dGatePoints
- *   Determine if the gate point coordinates must be flipped.  This happens
- *   for e.g. a gate on p1, p2 displayed on a spectrum with axes p2, p1
- *
- *  There's an implicit assumption that the gate is displayable on this spectrum
- *  because all we do is see if the X parameter is a match for a spectrum x parameter
- *  and, if not, flip.
- *
- * @param pSpectrum - pointer to the target spectrum.
- * @param gXparam   - Id of the x parameter of the spectrum.
- *
- * @return bool - true if it's necessary to flip axes.
- *
- */
-bool
-CXamineSharedMemory::flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam)
-{
-  std::vector<UInt_t> params;
-  pSpectrum->GetParameterIds(params);
-  if (pSpectrum->getSpectrumType() == ke2Dm) {
-    for (int i = 0; i < params.size(); i += 2) {
-      if (gXparam == params[i]) return false;
-    }
-    return true;
-  } else {
-    return gXparam != params[0];
-  }
 }

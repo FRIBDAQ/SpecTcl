@@ -62,6 +62,7 @@ class CXamine : public CDisplay
 {
    UInt_t                m_nBytes;    //  Size of shared memory region.
    CXamineSharedMemory*  m_pMemory;
+   std::vector<CSpectrum*>       m_boundSpectra;
 
 public:
   // Constructors:
@@ -114,10 +115,6 @@ protected:
   //  Bindings to the Xamine API
   //
 public:                       
-  std::string GetMemoryName ()  ;  
-  void MapMemory (const std::string& rsName, 
-                 UInt_t nBytes=knDefaultSpectrumSize)  ;
-
   // CDisplay interface methods
   bool isAlive ()  ;
   void start ()  ;
@@ -127,6 +124,7 @@ public:
   UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
   void   removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum);
   void   removeSpectrum(CSpectrum &rSpectrum);
+  SpectrumContainer getBoundSpectra() const;
 
   void addFit(CSpectrumFit& fit);
   void deleteFit(CSpectrumFit& fit);
@@ -134,18 +132,12 @@ public:
   void updateStatistics();
 
   std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
-                                             CHistogrammer& rSorter);
-
+                                                CHistogrammer& rSorter);
   CSpectrum* getSpectrum(UInt_t xid);
-  DisplayBindingsIterator DisplayBindingsBegin();
-  DisplayBindingsIterator DisplayBindingsEnd();
-  UInt_t DisplayBindingsSize() const;
-  Int_t FindDisplayBinding(std::string name);
-  Int_t FindDisplayBinding(CSpectrum& rSpectrum);
+
   bool spectrumBound(CSpectrum &rSpectrum);
 
   DisplayBindings  getDisplayBindings() const;
-  SpectrumContainer getBoundSpectra() const;
 
   std::string createTitle(CSpectrum& rSpectrum,
                           UInt_t maxLength,
@@ -163,7 +155,6 @@ public:
   void clearStatistics(unsigned slot);
 
   void addGate (CSpectrum& rSpectrum, CGateContainer& rGate)  ;
-  void addGate (CXamineGate& rGate)  ;
   void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate);
   void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType);
   CXamineGates* GetGates (UInt_t nSpectrum)  ;
@@ -202,25 +193,6 @@ protected:
 				const std::string& doing);
   DialogSpectrumType_t MaptoSpec_t(ButtonDialogSpectrumType t);
   Xamine_gatetype      MapFromGate_t(GateType_t type);
-
-  CXamineGate* GateToXamineGate(CSpectrum& rSpectrum, CGateContainer& rGate);
-
-  /**
-   * flip2dGatePoints
-   *   Determine if the gate point coordinates must be flipped.  This happens
-   *   for e.g. a gate on p1, p2 displayed on a spectrum with axes p2, p1
-   *
-   *  There's an implicit assumption that the gate is displayable on this spectrum
-   *  because all we do is see if the X parameter is a match for a spectrum x parameter
-   *  and, if not, flip.
-   *
-   * @param pSpectrum - pointer to the target spectrum.
-   * @param gXparam   - Id of the x parameter of the spectrum.
-   *
-   * @return bool - true if it's necessary to flip axes.
-   *
-   */
-  bool flip2dGatePoints(CSpectrum* pSpectrum, UInt_t gXparam);
 
 
   std::string

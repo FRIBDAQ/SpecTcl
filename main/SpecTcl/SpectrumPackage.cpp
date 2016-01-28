@@ -1849,12 +1849,14 @@ CSpectrumPackage::FindDisplayBinding(const string& rName)
   }
 
   CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
-  for(UInt_t i = 0; i < pDisplay->DisplayBindingsSize(); i++) {
-    CSpectrum* pBoundSpec = pDisplay->getSpectrum(i);
-    if(pBoundSpec) {
-      if(rName == pBoundSpec->getName()) 
-	return i;
-    }
+  SpectrumContainer spectra = pDisplay->getBoundSpectra();
+  size_t nSpectra = spectra.size();
+  for(size_t i = 0; i < nSpectra; i++) {
+      CSpectrum* pBoundSpec = spectra[i];
+      if(pBoundSpec) {
+          if(rName == pBoundSpec->getName())
+              return i;
+      }
   }
   throw CDictionaryException(CDictionaryException::knNoSuchKey,
 			     "Spectrum with this name is not bound",

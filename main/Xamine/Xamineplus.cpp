@@ -158,63 +158,6 @@ CXamine::CXamine(UInt_t nBytes) :
     }
 
 }
-//
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    std::string GetMemoryName (  )
-//  Operation Type:
-//     Selector
-//
-std::string 
-CXamine::GetMemoryName() 
-{
-//// Returns the name of the shared memory
-//// segment created for communication with
-//// Xamine.
-////
-//  char name[33];
-//  std::string sName;
-
-//  Xamine_GetMemoryName(name);
-//  sName = name;
-//  return sName;
-
-    return m_pMemory->GetMemoryName();
-}
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    void MapMemory ( const std::string& rsName, 
-//                     UInt_t nBytes=knDefaultSpectrumSize )
-//  Operation Type:
-//     mutator.
-//
-void 
-CXamine::MapMemory(const std::string& rsName, UInt_t nBytes) 
-{
-// Maps to a pre-existing shared memory region which communicates
-// with Xamine.
-//  
-// Formal Parameters:
-//     const std::string&   rsName:
-//           Name of the shared memory region
-//     UInt_t nBytes:
-//           Number of bytes of spectrum memory
-//           must match value in shared memory or
-//           map fails.
-
-
-//  m_nBytes = nBytes;
-  
-//  if(!Xamine_MapMemory((char*)(rsName.c_str()), nBytes,
-//               (volatile Xamine_shared**)&m_pMemory)) {
-//    perror("Failed to map Xamine shared memory!");
-//    exit(errno);
-//  }
-
-    m_pMemory->MapMemory(rsName, nBytes);
-}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -271,14 +214,13 @@ CXamine::stop()
 void CXamine::restart()
 {
   Xamine_Closepipes();
+  m_pMemory->detach();
 //  Xamine_DetachSharedMemory();
 //  assert(Xamine_CreateSharedMemory(m_nBytes, (volatile Xamine_shared**)&m_pMemory));
 //
-  delete m_pMemory;
-  m_pMemory = new CXamineSharedMemory(m_nBytes);
+  m_pMemory->attach();
 
   start();
-  m_pMemory->setManaged(false);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -291,54 +233,11 @@ void CXamine::restart()
 void 
 CXamine::addGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 {
-//    CXamineGate* pDisplayed = GateToXamineGate(rSpectrum, rGate);
-//    if(pDisplayed)
-//        addGate(*pDisplayed);
-//    delete pDisplayed;
-
-    m_pMemory->addGate(rSpectrum, rGate);
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    void EnterGate (CDisplayGate& rGate )
-//  Operation Type:
-//     mutator
-//
-void CXamine::addGate(CXamineGate& rGate)
-{
-// Adds a gate graphical object to the
-// display subsystem.
-//
-//  Formal Parameters:
-//     const DisplayGate&  rGate:
-//        Refers to the gate to enter.
-//
-
-//  // We need to first create a points array for the Xamine_EnterGate
-//  // function:
-
-//  if(rGate.size() > GROBJ_MAXPTS) {
-//    throw CRangeError(0, GROBJ_MAXPTS, rGate.size(),
-//		      "CXamine::EnterGate - Creating points array");
-//  }
- 
-//  Xamine_point  points[GROBJ_MAXPTS];
-//  Xamine_point* pPoints = points;
-//  for(PointIterator p = rGate.begin(); p != rGate.end(); p++, pPoints++) {
-//    pPoints->x = p->X();
-//    pPoints->y = p->Y();
-//  }
-  
-//  int nStatus = Xamine_EnterGate(rGate.getSpectrum()+1,
-//				 rGate.getId(),
-//				 MapFromGate_t(rGate.getGateType()),
-//				 (char*)(rGate.getName().c_str()),
-//				 (int)rGate.size(), points);
-//  ThrowGateStatus(nStatus, rGate,
-//		  "Xamine::EnterGate -- Failed to enter gate");
-    m_pMemory->addGate(rGate);
+    CXamineGateFactory factory(m_pMemory);
+    CXamineGate* pDisplayed = factory.fromSpecTclGate(rSpectrum, rGate);
+    if (pDisplayed)
+        m_pMemory->addGate(*pDisplayed);
+    delete pDisplayed;
 }
 
 void
@@ -1045,13 +944,12 @@ CXamine::getTitleSize() const
 void
 CXamine::setTitle(CSpectrum& rSpectrum, string name)
 {
-//  Int_t slot = FindDisplayBinding(rSpectrum);
-//  if (slot >= 0) {
-//      setTitle(name, slot);
-//  } else {
-//      throw std::runtime_error("CXamine::setTitle() Cannot set title on unbound spectrum.");
-//  }
-    m_pMemory->setTitle(rSpectrum, name);
+    Int_t slot = m_pMemory->FindDisplayBinding(rSpectrum);
+    if (slot == -1) {
+        m_pMemory->setTitle(name, slot);
+    } else {
+        throw std::runtime_error("CXamine::SetTitle() Cannot set title for unbound spectrum.");
+    }
 }
 
 /*!
@@ -1115,6 +1013,10 @@ UInt_t CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
     // allocate the shared memory slot and swap out the storage for the spectrum
     UInt_t slot = m_pMemory->addSpectrum(rSpectrum, rSorter);
+    if (m_boundSpectra.size() <= slot) {
+        m_boundSpectra.resize(slot+1);
+    }
+    m_boundSpectra.at(slot) = &rSpectrum;
 
     // set the title
     string title = createTitle(rSpectrum, m_pMemory->getTitleSize(), rSorter);
@@ -1151,11 +1053,11 @@ UInt_t CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 
 void CXamine::removeSpectrum(CSpectrum &rSpectrum)
 {
-//    Int_t slot = FindDisplayBinding(rSpectrum);
-//    if (slot >=0) {
-//        removeSpectrum(slot, rSpectrum);
-//    }
-    m_pMemory->removeSpectrum(rSpectrum);
+    Int_t slot = m_pMemory->FindDisplayBinding(rSpectrum);
+    if (slot >=0) {
+        m_pMemory->removeSpectrum(slot, rSpectrum);
+        m_boundSpectra.at(slot) = NULL;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1309,7 +1211,7 @@ CXamine::deleteFit(CSpectrumFit& fit)
 void
 CXamine::updateStatistics()
 {
-    SpectrumContainer spectra = m_pMemory->getBoundSpectra();
+    SpectrumContainer spectra = getBoundSpectra();
     for (int i =0; i < spectra.size(); i++) {
         CSpectrum* pSpec = spectra[i];
         if (pSpec) {
@@ -1371,8 +1273,7 @@ CXamine::getAssociatedGates(const std::string& spectrumName, CHistogrammer &rSor
 
 SpectrumContainer CXamine::getBoundSpectra() const
 {
-//    return m_boundSpectra;
-    return m_pMemory->getBoundSpectra();
+    return m_boundSpectra;
 }
 
 DisplayBindings CXamine::getDisplayBindings() const
@@ -1399,39 +1300,10 @@ CSpectrum* CXamine::getSpectrum(UInt_t xid) {
   //     xid is out of range.
   //     xid does not map to a spectrum.
   //
-//  if(xid >= DisplayBindingsSize())
-//    return (CSpectrum*)kpNULL;
+  if(xid >= m_pMemory->DisplayBindingsSize())
+    return (CSpectrum*)kpNULL;
 
-//  return m_boundSpectra[xid];
-    return m_pMemory->getSpectrum(xid);
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    DisplayBindingsIterator DisplayBindingsBegin()
-//  Operation Type:
-//     Selector
-//
-DisplayBindingsIterator CXamine::DisplayBindingsBegin() {
-  // Returns a begining iterator to support iterating through the set of
-  // display bindings.
-//  return m_DisplayBindings.begin();
-    return m_pMemory->DisplayBindingsBegin();
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    DisplayBindingsIterator DisplayBindingsEnd (  )
-//  Operation Type:
-//
-//
-DisplayBindingsIterator CXamine::DisplayBindingsEnd() {
-  // Returns an iterator which can be used to determin
-  // if the end of the display bindings set has been iterated through.
-  //return m_DisplayBindings.end();
-  return m_pMemory->DisplayBindingsEnd();
+  return m_boundSpectra[xid];
 }
 
 
@@ -1440,50 +1312,8 @@ DisplayBindingsIterator CXamine::DisplayBindingsEnd() {
  */
 bool CXamine::spectrumBound(CSpectrum &rSpectrum)
 {
-    //return (FindDisplayBinding(rSpectrum) >= 0);
-    return m_pMemory->spectrumBound(rSpectrum);
+    return (m_pMemory->FindDisplayBinding(rSpectrum.getName()) >= 0);
 }
-
-/*!
-    Find the bindings for a spectrum by name.
-   \param name  : string
-       Name of the spectrum
-   \return
-   \retval -1   - Spectrum has no binding.
-   \retval >= 0 - The binding index (xamine slot).
-
-*/
-Int_t
-CXamine::FindDisplayBinding(string name)
-{
-//  for (int i = 0; i < DisplayBindingsSize(); i++) {
-//    if (name == m_DisplayBindings[i]) {
-//      return i;
-//    }
-//  }
-//  return -1;
-    return m_pMemory->FindDisplayBinding(name);
-}
-
-Int_t
-CXamine::FindDisplayBinding(CSpectrum& rSpectrum)
-{
-    return m_pMemory->FindDisplayBinding(rSpectrum);
-//    return FindDisplayBinding(rSpectrum.getName());
-}
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    UInt_t DisplayBindingsSize (  )
-//  Operation Type:
-//
-//
-UInt_t CXamine::DisplayBindingsSize() const {
-  // Returns the number of spectra bound to the display.
-//  return m_DisplayBindings.size();
-    return m_pMemory->DisplayBindingsSize();
-}
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
