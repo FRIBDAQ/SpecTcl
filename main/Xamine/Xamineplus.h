@@ -121,9 +121,9 @@ public:
   void stop ()  ;
   void restart();
 
-  UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
-  void   removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum);
-  void   removeSpectrum(CSpectrum &rSpectrum);
+  void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
+  void removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum);
+  void removeSpectrum(CSpectrum &rSpectrum);
   SpectrumContainer getBoundSpectra() const;
 
   void addFit(CSpectrumFit& fit);
@@ -135,7 +135,7 @@ public:
                                                 CHistogrammer& rSorter);
   CSpectrum* getSpectrum(UInt_t xid);
 
-  bool spectrumBound(CSpectrum &rSpectrum);
+  bool spectrumBound(CSpectrum *pSpectrum);
 
   DisplayBindings  getDisplayBindings() const;
 

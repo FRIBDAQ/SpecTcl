@@ -332,8 +332,8 @@ struct SwitchTableEntry {
 
 static const SwitchTableEntry SwitchTable[] = {
   { "-id",   CUnbindCommand::keId },
-  { "-all",  CUnbindCommand::keAll},
-  { "-xid",  CUnbindCommand::keXid}
+  { "-all",  CUnbindCommand::keAll}//,
+//  { "-xid",  CUnbindCommand::keXid}
 };
 static const UInt_t SwitchTableSize =
                sizeof(SwitchTable)/sizeof(SwitchTableEntry);
@@ -399,14 +399,14 @@ CUnbindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
     rPack.UnbindAll();
     return TCL_OK;
 
-  case keXid:			// -xid switch.
-    nArgs--;
-    pArgs++;
-    if(nArgs <= 0) {		// Must supply at least one xid.
-      Usage(rResult);
-      return TCL_ERROR;
-    }
-    return UnbindByXid(rInterp, rResult, nArgs, pArgs);
+//  case keXid:			// -xid switch.
+//    nArgs--;
+//    pArgs++;
+//    if(nArgs <= 0) {		// Must supply at least one xid.
+//      Usage(rResult);
+//      return TCL_ERROR;
+//    }
+//    return UnbindByXid(rInterp, rResult, nArgs, pArgs);
 
   case keNotSwitch:		// Must be a spectrum name..
     return UnbindByName(rInterp, rResult, nArgs, pArgs);
@@ -488,45 +488,45 @@ CUnbindCommand::UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult,
 
   return rPack.UnbindList(rResult, vIds);
 }
-/////////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//   Int_t UnbindByXid(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-//		       int nArgs, char* pArgs[])
-// Operation Type:
-//   Utility.
-//
-Int_t
-CUnbindCommand::UnbindByXid(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-			    int nArgs, char* pArgs[])
-{
-  //  Unbind a set of spectra from the display given their display slot ids.
-  //
-  // Formal Paramters:
-  //    CTCLInterpreter&  rInterp:
-  //        References the interpreter on which the command runs.
-  //     CTCLResult&  rResult:
-  //        References the resutl associated with rInterp.
-  //      int nArgs:
-  //        Number of command line parameters.
-  //     char* pArgs[]:
-  //        Array of pointers to command line parameters.
-  //        Must be an array of display slot ids.
-  // Returns:
-  //     TCL_OK         - All spectra were unbound.
-  //     TCL_ERROR - Some or all spectra could not be unbound.
-  //
-  std::vector<UInt_t> vIds;
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
+///////////////////////////////////////////////////////////////////////////////
+////
+//// Function:
+////   Int_t UnbindByXid(CTCLInterpreter& rInterp, CTCLResult& rResult,
+////		       int nArgs, char* pArgs[])
+//// Operation Type:
+////   Utility.
+////
+//Int_t
+//CUnbindCommand::UnbindByXid(CTCLInterpreter& rInterp, CTCLResult& rResult,
+//			    int nArgs, char* pArgs[])
+//{
+//  //  Unbind a set of spectra from the display given their display slot ids.
+//  //
+//  // Formal Paramters:
+//  //    CTCLInterpreter&  rInterp:
+//  //        References the interpreter on which the command runs.
+//  //     CTCLResult&  rResult:
+//  //        References the resutl associated with rInterp.
+//  //      int nArgs:
+//  //        Number of command line parameters.
+//  //     char* pArgs[]:
+//  //        Array of pointers to command line parameters.
+//  //        Must be an array of display slot ids.
+//  // Returns:
+//  //     TCL_OK         - All spectra were unbound.
+//  //     TCL_ERROR - Some or all spectra could not be unbound.
+//  //
+//  std::vector<UInt_t> vIds;
+//  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
 
-  if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) {
-    return TCL_ERROR;
-  }
+//  if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) {
+//    return TCL_ERROR;
+//  }
 
 
-  return  rPack.UnbindXidList(rResult, vIds);
+//  return  rPack.UnbindXidList(rResult, vIds);
 
-}
+//}
 ///////////////////////////////////////////////////////////////////////////
 //
 //  Function:

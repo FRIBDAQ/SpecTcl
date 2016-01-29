@@ -307,7 +307,7 @@ public:
   enum Switch {
     keId,
     keAll,
-    keXid,
+//    keXid,
     keNotSwitch
   };
 public:
@@ -338,8 +338,8 @@ public:
 		     int nArgs, char* pArgs[]);
   Int_t UnbindById(CTCLInterpreter& rInterp, CTCLResult& rResult, 
 		   int nArgs, char* pArgs[])  ;
-  Int_t UnbindByXid(CTCLInterpreter& rInterp, CTCLResult& rResult, 
-		    int nArgs, char* pArgs[])  ;
+//  Int_t UnbindByXid(CTCLInterpreter& rInterp, CTCLResult& rResult,
+//		    int nArgs, char* pArgs[])  ;
 protected:
   static void   Usage(CTCLResult& rResult);
   static Switch MatchSwitch(const char* pSwitch);

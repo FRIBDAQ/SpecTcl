@@ -706,9 +706,8 @@ CSpectrumPackage::BindList(CTCLResult& rResult,
           if (pSpec) {
               pDisplay->addSpectrum(*pSpec, *(api.GetHistogrammer()));
           } else {
-              std::ostringstream errmsg;
-              errmsg << *p << " cannot be bound because it doesn't exist.";
-              throw CException(errmsg.str());
+              throw CDictionaryException(CDictionaryException::knNoSuchKey,
+                                         "binding spectrum by name", *p);
           }
       }
     catch (CException& rExcept) {
@@ -758,36 +757,35 @@ CSpectrumPackage::BindList(CTCLResult& rResult, std::vector<UInt_t>& rIds)
 //                              reason is the reason it could not be bound.
 //
 
-  Bool_t                        Failed = kfFALSE;
-  CTCLString                    Result;
+  Bool_t      Failed = kfFALSE;
+  CTCLString  Result;
+
   CDisplay*    pDisplay = m_pDisplay->getCurrentDisplay();
-  SpecTcl& api = *(SpecTcl::getInstance());
+  SpecTcl& api          = *(SpecTcl::getInstance());
 
-  std::vector<UInt_t>::iterator p = rIds.begin();
-
-  for(; p != rIds.end(); p++) {
-    try {
-      CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
-      if(pSpec) {
-          pDisplay->addSpectrum(*pSpec, *(api.GetHistogrammer()));
+  for(auto p=rIds.begin(), end=rIds.end(); p != end; p++) {
+      try {
+          CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
+          if(pSpec) {
+              pDisplay->addSpectrum(*pSpec, *(api.GetHistogrammer()));
+          }
+          else {
+              char TextId[100];
+              sprintf(TextId, "id=%d", *p);
+              throw CDictionaryException(CDictionaryException::knNoSuchId,
+                                         "Looking up spectrum to bind",
+                                         TextId);
+          }
       }
-      else {
-	char TextId[100];
-	sprintf(TextId, "id=%d", *p);
-	throw CDictionaryException(CDictionaryException::knNoSuchId,
-				   "Looking up spectrum to bind",
-				   TextId);
+      catch (CException& rExcept) {
+          char TextId[100];
+          sprintf(TextId, "%d", *p);
+          Result.StartSublist();
+          Result.AppendElement(TextId);
+          Result.AppendElement(rExcept.ReasonText());
+          Result.EndSublist();
+          Failed = kfTRUE;
       }
-    }
-    catch (CException& rExcept) {
-      char TextId[100];
-      sprintf(TextId, "%d", *p);
-      Result.StartSublist();
-      Result.AppendElement(TextId);
-      Result.AppendElement(rExcept.ReasonText());
-      Result.EndSublist();
-      Failed = kfTRUE;
-    }
   }
 
   rResult = (const char*)(Result);
@@ -822,40 +820,41 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult,
 //                                    the structure of the result string.
 //
 //
-
-  // Strategy is to create a list of xid bindings and then rely
-  // on the UnbindList for that.  We do this because that's
-  // the form of the unbind call to the histogrammer.
-  // 
   
   Bool_t                             Failed = kfFALSE;
   CTCLString                         MyResults;
   std::vector<UInt_t>                vXids;
-  std::vector<std::string>::iterator p = rvNames.begin();
 
-  for(; p != rvNames.end(); p++) {
+  SpecTcl* pApi                     = SpecTcl::getInstance();
+  CHistogrammer* pSorter            = pApi->GetHistogrammer();
+  CDisplayInterface* pDispInterface = pApi->GetDisplayInterface();
+  CDisplay* pDisplay                = pDispInterface->getCurrentDisplay();
+
+  for(auto p=rvNames.begin(), end=rvNames.end(); p != end; p++) {
     try {
-      UInt_t xid = FindDisplayBinding(*p);
-      vXids.push_back(xid);
-    }
-    catch (CException& rException) {
-      Failed = kfTRUE;
-      MyResults.StartSublist();
-      MyResults.AppendElement(*p);
-      MyResults.AppendElement(rException.ReasonText());
-      MyResults.EndSublist();
-    }
+        CSpectrum* pSpectrum = pSorter->FindSpectrum(*p);
+        if (pSpectrum) {
+            pDisplay->removeSpectrum(*pSpectrum);
+        } else {
+            throw CDictionaryException(CDictionaryException::knNoSuchKey,
+                                       "unbinding spectrum by name", *p);
+        }
+      }
+      catch (CException& rException) {
+          Failed = kfTRUE;
+          MyResults.StartSublist();
+          MyResults.AppendElement(*p);
+          MyResults.AppendElement(rException.ReasonText());
+          MyResults.EndSublist();
+      }
   }
-  // At this point, vXids has the set of bindings Ids...
- 
-  Int_t val = UnbindXidList(rResult, vXids);
-  if(val != TCL_OK) Failed = kfTRUE;
-
   // Append our results to the reason text, and return the right value
   // depending on Failed.
 
-  rResult += " ";
-  rResult += (const char*)(MyResults);
+  if (Failed) {
+      rResult += " ";
+      rResult += (const char*)(MyResults);
+  }
 
   return (Failed ? TCL_ERROR : TCL_OK);
 
@@ -896,12 +895,19 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
   std::vector<UInt_t>           vXids;
   std::vector<UInt_t>::iterator p = rvIds.begin();
 
+  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+
   // Build the xid list.. Any failures go into the MyResults string.
   //
-  for(; p != rvIds.end(); p++) {
+  for(auto p=rvIds.begin(), end=rvIds.end(); p != end; p++) {
     try {
-      UInt_t Xid = FindDisplayBinding(*p);
-      vXids.push_back(Xid);
+          CSpectrum* pSpectrum = m_pHistogrammer->FindSpectrum(*p);
+          if (pSpectrum) {
+              pDisplay->removeSpectrum(*pSpectrum);
+          } else {
+              throw CDictionaryException(CDictionaryException::knNoSuchId,
+                                         "unbinding spectrum by id", *p);
+          }
     }
     catch (CException& rExcept) {
       char TextId[100];
@@ -914,60 +920,54 @@ CSpectrumPackage::UnbindList(CTCLResult& rResult, std::vector<UInt_t>& rvIds)
       MyResults.EndSublist();
     }
   }
-  // At thist time, vXids contains the set of bindings ids which could be
-  // produced.  All spectra which were either not bound in the first place
-  // or didn't even exist have entries in the MyResults string.
-  //
 
-  Int_t r = UnbindXidList(rResult, vXids);
-  if(r != TCL_OK) Failed = kfTRUE;
+  if (Failed) {
+      rResult += " ";
+      rResult += (const char*)(MyResults);
+  }
 
-  // Graft the two result strings together, and return, depending on the
-  // state of Failed.
-
-  rResult += " ";
-  rResult += (const char*)MyResults;
   return (Failed ? TCL_ERROR : TCL_OK);
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    Int_t UnbindXidList ( CTCLResult& rResult, std::vector<UInt_t>& rvXids )
-//  Operation Type:
-//     Interface
-//
-Int_t 
-CSpectrumPackage::UnbindXidList(CTCLResult& rResult, 
-				std::vector<UInt_t>& rvXids) 
-{
-// Unbinds a set of spectra given their
-// bindings id.
-//
-// Formal Parameters:
-//     CTCLResult&    rResult:
-//            Result string of the command.
-//     std::vector<UInt_t>   rvXids
-//             Ident of the spectrum in the displayer.
-//  Returns:
-//        TCL_OK           - All unbinds were done.
-//        TCL_ERROR   - Some unbinds failed.
-//                                   see the BindList functions
-//                                   for the form of the result.
+////////////////////////////////////////////////////////////////////////////
+////
+////  Function:
+////    Int_t UnbindXidList ( CTCLResult& rResult, std::vector<UInt_t>& rvXids )
+////  Operation Type:
+////     Interface
+////
+//Int_t
+//CSpectrumPackage::UnbindXidList(CTCLResult& rResult,
+//				std::vector<UInt_t>& rvXids)
+//{
+//// Unbinds a set of spectra given their
+//// bindings id.
+////
+//// Formal Parameters:
+////     CTCLResult&    rResult:
+////            Result string of the command.
+////     std::vector<UInt_t>   rvXids
+////             Ident of the spectrum in the displayer.
+////  Returns:
+////        TCL_OK           - All unbinds were done.
+////        TCL_ERROR   - Some unbinds failed.
+////                                   see the BindList functions
+////                                   for the form of the result.
 
-  // Actually, since unbinding a bad Xid is just an no-op this must work:
+//  // Actually, since unbinding a bad Xid is just an no-op this must work:
 
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+//  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
-  std::vector<UInt_t>::iterator p = rvXids.begin();
-  for(; p != rvXids.end(); p++) {
-    CSpectrum* pSpectrum = pDisplay->getSpectrum(*p);
-    if (pSpectrum) {
-        pDisplay->removeSpectrum(*p, *pSpectrum);
-    }
-  }
-  return TCL_OK;
+//  std::vector<UInt_t>::iterator p = rvXids.begin();
+//  for(; p != rvXids.end(); p++) {
+//    CSpectrum* pSpectrum = pDisplay->getSpectrum(*p);
+//    if (pSpectrum) {
+//        pDisplay->removeSpectrum(*p, *pSpectrum);
+//    }
+//  }
+//  return TCL_OK;
 
-}
+//}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -980,16 +980,14 @@ CSpectrumPackage::UnbindAll()
 {
 // Unbinds all spectra from the display
 //
-  SpectrumDictionaryIterator p = m_pHistogrammer->SpectrumBegin();
   CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
-  for(; p != m_pHistogrammer->SpectrumEnd(); p++) {
-    try {
-      CSpectrum *pSpec = (*p).second;
-      UInt_t Xid = FindDisplayBinding(pSpec->getName());
-      pDisplay->removeSpectrum(Xid, *pSpec);
-    }
-    catch(CException& rException) { } // Some spectra will not be bound.
+  for(auto p = m_pHistogrammer->SpectrumBegin();
+           p != m_pHistogrammer->SpectrumEnd(); p++) {
+      try {
+          pDisplay->removeSpectrum(*(p->second));
+      }
+      catch(CException& rException) { } // Some spectra will not be bound.
   }
 
 }
@@ -1037,7 +1035,7 @@ CSpectrumPackage::DeleteList(CTCLResult& rResult,
 
 
   std::vector<std::string>::iterator p = rvNames.begin();
-  for(; p != rvNames.end(); p++) {
+  for(auto p = rvNames.begin(), end = rvNames.end(); p != end; p++) {
     CSpectrum* pSpec = api.RemoveSpectrum(*p);
     if(pSpec) {			// Spectrum existed..
       delete pSpec;		// Destroy it.
@@ -1086,7 +1084,7 @@ CSpectrumPackage::DeleteList(CTCLResult& rResult, std::vector<UInt_t>& rvnIds)
   // and call the DeleteList which operates on names.
 
   std::vector<UInt_t>::iterator p = rvnIds.begin();
-  for(; p != rvnIds.end(); p++) {
+  for(auto p=rvnIds.begin(), end=rvnIds.end(); p != end; p++) {
     CSpectrum* pSpec = m_pHistogrammer->FindSpectrum(*p);
     if(pSpec) {			// Spectrum exists..
       vNameList.push_back(pSpec->getName());
@@ -1139,17 +1137,17 @@ CSpectrumPackage::DeleteAll()
 
   SpectrumDictionaryIterator p;
   while(m_pHistogrammer->SpectrumCount()) {
-    p = m_pHistogrammer->SpectrumBegin();
-    CSpectrum* pSpec = (*p).second;
-    try {
-      UInt_t xid = FindDisplayBinding(pSpec->getName());
-      pDisplay->removeSpectrum(xid, *pSpec);
-      
-    }
-    catch (CException& rExcept) { // Exceptions in the find are ignored.
-    }
-    CSpectrum* pSpectrum = api.RemoveSpectrum(pSpec->getName());
-    delete pSpectrum;		// Destroy spectrum storage.
+      p = m_pHistogrammer->SpectrumBegin();
+      CSpectrum* pSpec = (*p).second;
+      try {
+          if ( pDisplay->spectrumBound(pSpec) ) {
+              pDisplay->removeSpectrum(*pSpec);
+          }
+      }
+      catch (CException& rExcept) { // Exceptions in the find are ignored.
+      }
+      CSpectrum* pSpectrum = api.RemoveSpectrum(pSpec->getName());
+      delete pSpectrum;		// Destroy spectrum storage.
   }
 
 }
@@ -1297,50 +1295,50 @@ CSpectrumPackage::ListBindings(CTCLResult& rResult,
 //  Operation Type:
 //     Interface
 //
-Int_t 
-CSpectrumPackage::ListXidBindings(CTCLResult& rResult, 
-				  std::vector<UInt_t>& rvXIds) 
-{
-// Lists display bindings given a set of binding
-// ids.
-//    Formal Parameters:
-//       CTCLResult&  rResult:
-//              Result string for the TCL command.
-//        std::vector<UInt_t>&  rvXids:
-//                set of binding ids.
-// Returns:
-//     See the ListBindings members.
+//Int_t
+//CSpectrumPackage::ListXidBindings(CTCLResult& rResult,
+//				  std::vector<UInt_t>& rvXIds)
+//{
+//// Lists display bindings given a set of binding
+//// ids.
+////    Formal Parameters:
+////       CTCLResult&  rResult:
+////              Result string for the TCL command.
+////        std::vector<UInt_t>&  rvXids:
+////                set of binding ids.
+//// Returns:
+////     See the ListBindings members.
 
-  CTCLString                    GoodList;
-  CTCLString                    BadList;
-  Bool_t                        fFailed = kfFALSE;
-  std::vector<UInt_t>::iterator p       = rvXIds.begin();
-  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
+//  CTCLString                    GoodList;
+//  CTCLString                    BadList;
+//  Bool_t                        fFailed = kfFALSE;
+//  std::vector<UInt_t>::iterator p       = rvXIds.begin();
+//  CDisplay* pDisplay = m_pDisplay->getCurrentDisplay();
 
-  for(; p != rvXIds.end(); p++) {
-    CSpectrum* pSpec = pDisplay->getSpectrum(*p);
-    if(pSpec) {
-      FormatBinding(GoodList, *p, pSpec);
-    }
-    else {
-      char txtid[100];
-      sprintf(txtid,"%d", *p);
-      BadList.StartSublist();
-      BadList.AppendElement(txtid);
-      BadList.AppendElement("Binding is not associated with a spectrum");
-      BadList.EndSublist();
-      fFailed = kfFALSE;
-    }
-  }
-  if(fFailed) {
-    rResult = (const char*)BadList;
-    return  TCL_ERROR;
-  }
-  else {
-    rResult = (const char*)GoodList;
-    return TCL_ERROR;
-  }
-}
+//  for(; p != rvXIds.end(); p++) {
+//    CSpectrum* pSpec = pDisplay->getSpectrum(*p);
+//    if(pSpec) {
+//      FormatBinding(GoodList, *p, pSpec);
+//    }
+//    else {
+//      char txtid[100];
+//      sprintf(txtid,"%d", *p);
+//      BadList.StartSublist();
+//      BadList.AppendElement(txtid);
+//      BadList.AppendElement("Binding is not associated with a spectrum");
+//      BadList.EndSublist();
+//      fFailed = kfFALSE;
+//    }
+//  }
+//  if(fFailed) {
+//    rResult = (const char*)BadList;
+//    return  TCL_ERROR;
+//  }
+//  else {
+//    rResult = (const char*)GoodList;
+//    return TCL_ERROR;
+//  }
+//}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -1618,7 +1616,7 @@ CSpectrumPackage::Read(string& rResult, istream& rIn,
         //
         try {
             UInt_t xid = FindDisplayBinding(pSpectrum->getName());
-            pDisplay->removeSpectrum(xid, *pSpectrum);
+            pDisplay->removeSpectrum(*pSpectrum);
         }
         catch (...) {
         }

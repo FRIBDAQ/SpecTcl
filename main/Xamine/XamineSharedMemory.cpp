@@ -99,7 +99,7 @@ void CXamineSharedMemory::detach()
 //     Selector
 //
 std::string
-CXamineSharedMemory::GetMemoryName()
+CXamineSharedMemory::getMemoryName()
 {
 // Returns the name of the shared memory
 // segment created for communication with
@@ -123,7 +123,7 @@ CXamineSharedMemory::GetMemoryName()
 //     mutator.
 //
 void
-CXamineSharedMemory::MapMemory(const std::string& rsName, UInt_t nBytes)
+CXamineSharedMemory::mapMemory(const std::string& rsName, UInt_t nBytes)
 {
 // Maps to a pre-existing shared memory region which communicates
 // with Xamine.
@@ -215,7 +215,7 @@ UInt_t CXamineSharedMemory::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSo
           //   Enter the slot/name correspondence in the m_DisplayBindings table.
           //
 
-          Address_t pStorage           = DefineSpectrum(*pXSpectrum);
+          Address_t pStorage           = defineSpectrum(*pXSpectrum);
           nSpectrum                    = pXSpectrum->getSlot();
 
           rSpectrum.ReplaceStorage(pStorage, kfFALSE);
@@ -275,7 +275,7 @@ void CXamineSharedMemory::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
       pSpectrum->ReplaceStorage(new char[pSpectrum->StorageNeeded()],
                                 kfTRUE);
       m_DisplayBindings[nSpec] = "";
-      FreeSpectrum(nSpec);
+      freeSpectrum(nSpec);
 
     }
 }
@@ -456,7 +456,7 @@ CXamineSharedMemory::addFit(CSpectrumFit& fit)
 
   string fitName      = fit.fitName();
   string spectrumName = fit.getName();
-  Int_t  xSpectrumId  = FindDisplayBinding(spectrumName);
+  Int_t  xSpectrumId  = findDisplayBinding(spectrumName);
   if (xSpectrumId < 0) {
     // Display is not bound to Xamine.
 
@@ -501,7 +501,7 @@ CXamineSharedMemory::deleteFit(CSpectrumFit& fit)
 {
   string spectrumName =  fit.getName();
   string fitName      = fit.fitName();
-  int    xSpectrumId  = FindDisplayBinding(spectrumName);
+  int    xSpectrumId  = findDisplayBinding(spectrumName);
   if (xSpectrumId >= 0 && ( xSpectrumId <  m_FitlineBindings.size())) {
 
     // xSpectrumId < 0 means spectrum not bound.
@@ -666,7 +666,7 @@ CXamineSharedMemory::setTitle(string name, UInt_t slot)
 void
 CXamineSharedMemory::setInfo(CSpectrum &rSpectrum, std::string name)
 {
-    Int_t slot = FindDisplayBinding(rSpectrum);
+    Int_t slot = findDisplayBinding(rSpectrum);
     if (slot >= 0) {
         setInfo(name, slot);
     } else {
@@ -744,7 +744,7 @@ DisplayBindings CXamineSharedMemory::getDisplayBindings() const
 //  Operation Type:
 //     Selector
 //
-DisplayBindingsIterator CXamineSharedMemory::DisplayBindingsBegin() {
+DisplayBindingsIterator CXamineSharedMemory::displayBindingsBegin() {
   // Returns a begining iterator to support iterating through the set of
   // display bindings.
   return m_DisplayBindings.begin();
@@ -757,7 +757,7 @@ DisplayBindingsIterator CXamineSharedMemory::DisplayBindingsBegin() {
 //  Operation Type:
 //
 //
-DisplayBindingsIterator CXamineSharedMemory::DisplayBindingsEnd() {
+DisplayBindingsIterator CXamineSharedMemory::displayBindingsEnd() {
   // Returns an iterator which can be used to determin
   // if the end of the display bindings set has been iterated through.
   return m_DisplayBindings.end();
@@ -774,9 +774,9 @@ DisplayBindingsIterator CXamineSharedMemory::DisplayBindingsEnd() {
 
 */
 Int_t
-CXamineSharedMemory::FindDisplayBinding(string name)
+CXamineSharedMemory::findDisplayBinding(string name)
 {
-  for (int i = 0; i < DisplayBindingsSize(); i++) {
+  for (int i = 0; i < displayBindingsSize(); i++) {
     if (name == m_DisplayBindings[i]) {
       return i;
     }
@@ -785,9 +785,9 @@ CXamineSharedMemory::FindDisplayBinding(string name)
 }
 
 Int_t
-CXamineSharedMemory::FindDisplayBinding(CSpectrum& rSpectrum)
+CXamineSharedMemory::findDisplayBinding(CSpectrum& rSpectrum)
 {
-    return FindDisplayBinding(rSpectrum.getName());
+    return findDisplayBinding(rSpectrum.getName());
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -796,7 +796,7 @@ CXamineSharedMemory::FindDisplayBinding(CSpectrum& rSpectrum)
 //  Operation Type:
 //
 //
-UInt_t CXamineSharedMemory::DisplayBindingsSize() const {
+UInt_t CXamineSharedMemory::displayBindingsSize() const {
   // Returns the number of spectra bound to the display.
   return m_DisplayBindings.size();
 }
@@ -810,7 +810,7 @@ UInt_t CXamineSharedMemory::DisplayBindingsSize() const {
 //     Allocator
 //
 Address_t
-CXamineSharedMemory::DefineSpectrum(CXamineSpectrum& rSpectrum)
+CXamineSharedMemory::defineSpectrum(CXamineSpectrum& rSpectrum)
 {
     // Allocates a spectrum slot and storage for a
     // spectrum.
@@ -901,7 +901,7 @@ CXamineSharedMemory::DefineSpectrum(CXamineSpectrum& rSpectrum)
 //     Deallocator.
 //
 void
-CXamineSharedMemory::FreeSpectrum(UInt_t nSpectrum)
+CXamineSharedMemory::freeSpectrum(UInt_t nSpectrum)
 {
     // Frees a spectrum slot and the associated storage
 // in the Xamine shared region.

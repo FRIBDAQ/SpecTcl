@@ -38,8 +38,8 @@ void CNullDisplay::stop() {}
 bool CNullDisplay::isAlive() { return true;}
 void CNullDisplay::restart() {}
 
-UInt_t CNullDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
-{ return 0;}
+void CNullDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
+{}
 
 void CNullDisplay::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum) {}
 void CNullDisplay::removeSpectrum(CSpectrum &rSpectrum) {}
@@ -60,7 +60,7 @@ SpectrumContainer CNullDisplay::getBoundSpectra() const
 }
 
 CSpectrum* CNullDisplay::getSpectrum(UInt_t xid) { return static_cast<CSpectrum*>(kpNULL); }
-bool CNullDisplay::spectrumBound(CSpectrum& rSpec) { return false;}
+bool CNullDisplay::spectrumBound(CSpectrum* pSpectrum) { return false;}
 UInt_t CNullDisplay::DisplayBindingsSize() const { return 0; }
 
 std::string CNullDisplay::createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer &rSorter) { return "null";}

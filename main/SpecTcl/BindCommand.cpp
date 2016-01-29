@@ -26,8 +26,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //        bind namelist
 //                 binds the named spectra to the display.  Spectra
 //                 already bound are not effected.
-//        bind -id idlist
-//                  binds the set of spectra specified by id to the display.
 //        bind -all
 //                  binds all spectra to the display.  Already bound spectra
 //                  are not affected.
@@ -35,11 +33,6 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 //                   List all bindings.
 //        bind -list namelist
 //                   List bindings for named spectra.
-//        bind -list -id idlist
-//                   List bindings for id'd spectra.
-//        bind -list -xid  idlist
-//                   List bindings for spectra given their
-//                   display bindings.
 //
 //   Author:
 //      Ron Fox
@@ -80,8 +73,8 @@ static const SwitchTableEntry Switches[] = {
   { "-new",  CBindCommand::keNew },
   { "-id",   CBindCommand::keId },
   { "-all",  CBindCommand::keAll },
-  { "-list", CBindCommand::keList },
-  { "-xid",  CBindCommand::keXid }
+    { "-list", CBindCommand::keList }//,
+//  { "-xid",  CBindCommand::keXid }
 };
 
 static const UInt_t nSwitches = sizeof(Switches)/sizeof(SwitchTableEntry);
@@ -143,15 +136,6 @@ CBindCommand::operator()(CTCLInterpreter& rInterp, CTCLResult& rResult,
       return TCL_ERROR;
     }
     return BindAll(rInterp, rResult);
-
-  case keId:			// New by ident.
-    nArgs--;
-    pArgs++;			// Skip the -id keyword.
-    if(nArgs <= 0) {
-      Usage(rResult);
-      return TCL_ERROR;
-    }
-    return BindByIdent(rInterp, rResult, nArgs, pArgs);
     
   case keNew:			// New by name (explicit).
     nArgs--;			// Skip over the -new switch
@@ -185,45 +169,6 @@ CBindCommand::BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult)
 }
 
 
-
-//////////////////////////////////////////////////////////////////////////
-//
-// Function
-//    Int_t BindByIdent(CTCLInterpreter& rInterp, CTCLResult& rResult,
-//                      Int_t nArgs, char* pArgs[])
-//  Operation Type:
-//      Utility:
-//
-Int_t
-CBindCommand::BindByIdent(CTCLInterpreter& rInterp, CTCLResult& rResult,
-                          Int_t nArgs, char* pArgs[])
-{
-  //
-  // Binds a list of spectra to Displayer slots given the ids of the spectra.
-  //
-  // Formal Parameters:
-  //     CTCLInterpreter& rInterp:
-  //        TCL Interpreter executing the command.
-  //     CTCLResult& rResult:
-  //        Result string associated with this interpreter.
-  //     int nArgs, char* p Args[]:
-  //        Command line parameters.  Note that the parameters must be
-  //        unsigned integer values or else the usage message will be printed
-  //
-  // Returns:
-  //    TCL_OK      if bound.
-  //    TCL_ERROR   if some could not be bound.
-
-  vector<UInt_t>  vIdents;
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-  if(rPack.GetNumberList(rResult, vIdents, nArgs, pArgs)) {
-    return TCL_ERROR;
-  }
-
-
-  return rPack.BindList(rResult, vIdents);
-
-}
 
 Int_t
 CBindCommand::BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
@@ -281,23 +226,6 @@ CBindCommand::ListBindings(CTCLInterpreter& rInterp, CTCLResult& rResult, int nA
     //  The next parameter determines what the lookup list is:
     //
     switch(MatchSwitch(pArgs[0])) {
-    case keId:			// List given idents.
-      nArgs--;
-      pArgs++;			// Skip over the -id switch.
-      if(nArgs <= 0) {		// Ensure they actually provided > 0 ids.
-	Usage(rResult);
-	return TCL_ERROR;
-      }
-      return ListById(rInterp, rResult, nArgs, pArgs);
-
-    case keXid:			// List given Xid list.
-      nArgs--;
-      pArgs++;			// Skip over -xid switch.
-      if(nArgs <= 0) {		// Ensure at least 1 xid is provided.
-	Usage(rResult);
-	return TCL_ERROR;
-      }
-      return ListByXid(rInterp, rResult, nArgs, pArgs);
 
     case keNotSwitch:		// List given names.
       //return ListByName(rInterp, rResult, nArgs, pArgs);
@@ -368,81 +296,6 @@ CBindCommand::ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 }
 ////////////////////////////////////////////////////////////////////////////
 //
-//  Function:
-//     Int_t ListById(CTCLInterpreter& rInterp, CTCLResult& rResult,
-//		      int nArgs, char* pArgs[])
-//  Operation Type:
-//     Utility:
-//
-Int_t
-CBindCommand::ListById(CTCLInterpreter& rInterp, CTCLResult& rResult,
-		       int nArgs, char* pArgs[])
-{
-  // Lists the bindings of a set of spectra given their ids.
-  //
-  // Formal Parameters:
-  //    CTCLInterpreter& rInterp:
-  //       TCL Interpreter running the command.
-  //    CTCLResult& rResult:
-  //       Result string.
-  //    int nArgs, char* pArgs[]:
-  //       Number of parameters and the parameter string pointers.
-  //       In this case, all of the parameters must be unsigned integers.
-  //
-  // Returns:
-  //   TCL_ERROR - if error.
-  //   TCL_OK    - if all spectrum bindings fetched.
-  //
-  vector<UInt_t> vIds;
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-
-  if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) { 
-                                                    // Failed to parse uints.
-    return TCL_ERROR;
-  }
-
-  return rPack.ListBindings(rResult, vIds);
-  
-}
-////////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//   Int_t ListByXid(CTCLInterpreter& rInterp, CTCLResult& rResult,
-//		     int nArgs, char* pArgs[]);
-// Operation Type:
-//   Utility 
-//
-Int_t
-CBindCommand::ListByXid(CTCLInterpreter& rInterp, CTCLResult& rResult,
-			int nArgs, char* pArgs[])
-{
-  // List the bindings of a set of spectra given the bindings slot numbers.
-  //
-  // Formal Parameters:
-  //    CTCLInterpreter& rInterp:
-  //       TCL Interpreter running the command.
-  //    CTCLResult& rResult:
-  //       Result string.
-  //    int nArgs, char* pArgs[]:
-  //       Number of parameters and the parameter string pointers.
-  //       In this case, all of the parameters must be unsigned integers.
-  //
-  // Returns:
-  //   TCL_ERROR - if error.
-  //   TCL_OK    - if all spectrum bindings fetched.
-  //
- 
-  vector<UInt_t> vIds;
-  CSpectrumPackage& rPack = (CSpectrumPackage&)getMyPackage();
-
-  if(rPack.GetNumberList(rResult, vIds, nArgs, pArgs)) {
-    return TCL_ERROR;		// Not all args parsed as UInt_t
-  }
-  return rPack.ListXidBindings(rResult, vIds);
-}
-
-////////////////////////////////////////////////////////////////////////////
-//
 // Function:
 //    static eSwitches MatchSwitch(const char* pSwitch)
 // Operation type:
@@ -473,14 +326,12 @@ CBindCommand::Usage(CTCLResult& rResult)
 
   rResult  = "Usage: \n";
   rResult += "   sbind [-new] name1 [name2...]\n";
-  rResult += "   sbind -id id1 [id2...]\n"; 
   rResult += "   sbind -all\n";
   rResult += "   sbind -list\n";
   rResult += "   sbind -list name1 [name2 ...]\n";
-  rResult += "   sbind -list -id  id1 [id2...]\n";
-  rResult += "   sbind -list -xid slot1 [slot2...]\n";
-  rResult += "\n sbind allocates a display slot for a spectrum or lists\n";
-  rResult += " the correspondence between display slots and spectra.\n";
+  rResult += "\n sbind adds a spectrum or a list of spectra \n";
+  rResult += " to the display. It also can be used to list bound\n";
+  rResult += " spectra by name.";
   rResult += "NOTE: The bind command is a Tk command that binds gui events\n";
   rResult += "      to tcl procedures\n";
 }

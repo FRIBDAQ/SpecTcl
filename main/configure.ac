@@ -11,6 +11,8 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_EXEEXT
 AC_OBJEXT
 
+AX_CXX_COMPILE_STDCXX_11([noext])
+
 # we use libtool, thus we need to include it
 LT_INIT
 
@@ -19,7 +21,7 @@ LT_INIT
 #  define the version information in shared
 #  images.
 
-SOVERSION="3:4"
+SOVERSION="4:0"
 #
 
 # Checks for programs.

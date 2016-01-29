@@ -30,6 +30,10 @@ class SpectrumPackageTests : public CppUnit::TestFixture
     CPPUNIT_TEST(bindList_1);
     CPPUNIT_TEST(unBindList_0);
     CPPUNIT_TEST(unBindList_1);
+    CPPUNIT_TEST(deleteAll_0);
+    CPPUNIT_TEST(deleteAll_1);
+    CPPUNIT_TEST(deleteList_0);
+
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -118,9 +122,9 @@ public:
         CDisplay* pDisplay = m_pDM->getCurrentDisplay();
 
         EQMSG("Bind all should succeed for first spectrum",
-              true, pDisplay->spectrumBound(*m_pSpec1));
+              true, pDisplay->spectrumBound(m_pSpec1));
         EQMSG("Bind all should succeed for second spectrum",
-              true, pDisplay->spectrumBound(*m_pSpec2));
+              true, pDisplay->spectrumBound(m_pSpec2));
 
     }
 
@@ -129,16 +133,16 @@ public:
 
         CTCLResult result(m_pInterp);
 
-        std::vector<string> names(2);
+        std::vector<string> names(1);
         names[0] = "test1";
         m_pPkg->BindList(result, names);
 
         CDisplay* pDisplay = m_pDM->getCurrentDisplay();
 
         EQMSG("BindList(name) should bind spectra listed",
-              true, pDisplay->spectrumBound(*m_pSpec1));
+              true, pDisplay->spectrumBound(m_pSpec1));
         EQMSG("BindList(name) should not bind spectra that are not listed",
-              false, pDisplay->spectrumBound(*m_pSpec2));
+              false, pDisplay->spectrumBound(m_pSpec2));
 
     }
 
@@ -146,22 +150,35 @@ public:
 
         CTCLResult result(m_pInterp);
 
-        CSpectrum* pSpec1 = m_pSorter->FindSpectrum("test1");
-        if (pSpec1 == NULL) {
-            CPPUNIT_FAIL("Unable to find test1 spectrum");
-        }
-        std::vector<UInt_t> ids(1);
-        ids[0] = pSpec1->getNumber();
-        m_pPkg->BindList(result, ids);
+        std::vector<string> names(1);
+        names[0] = "spectrumDoesNotExist";
+        auto status = m_pPkg->BindList(result, names);
 
-        CDisplay* pDisplay = m_pDM->getCurrentDisplay();
-
-        EQMSG("BindList(id) should bind spectra listed",
-              true, pDisplay->spectrumBound(*m_pSpec1));
-        EQMSG("BindList(id) should not bind spectra that are not listed",
-              false, pDisplay->spectrumBound(*m_pSpec2));
+        EQMSG("BindList(name) should return TCL_ERROR when spectrum doesn't exist",
+              TCL_ERROR, status);
 
     }
+
+//    void bindList_1 () {
+
+//        CTCLResult result(m_pInterp);
+
+//        CSpectrum* pSpec1 = m_pSorter->FindSpectrum("test1");
+//        if (pSpec1 == NULL) {
+//            CPPUNIT_FAIL("Unable to find test1 spectrum");
+//        }
+//        std::vector<UInt_t> ids(1);
+//        ids[0] = pSpec1->getNumber();
+//        m_pPkg->BindList(result, ids);
+
+//        CDisplay* pDisplay = m_pDM->getCurrentDisplay();
+
+//        EQMSG("BindList(id) should bind spectra listed",
+//              true, pDisplay->spectrumBound(*m_pSpec1));
+//        EQMSG("BindList(id) should not bind spectra that are not listed",
+//              false, pDisplay->spectrumBound(*m_pSpec2));
+
+//    }
 
     void unBindList_0 () {
         CTCLResult result(m_pInterp);
@@ -176,9 +193,9 @@ public:
         CDisplay* pDisplay = m_pDM->getCurrentDisplay();
 
         EQMSG("unBindList(name) should unbind spectra listed",
-              false, pDisplay->spectrumBound(*m_pSpec1));
+              false, pDisplay->spectrumBound(m_pSpec1));
         EQMSG("unBindList(name) should not unbind spectra that are not listed",
-              true, pDisplay->spectrumBound(*m_pSpec2));
+              true, pDisplay->spectrumBound(m_pSpec2));
     }
 
     void unBindList_1 () {
@@ -186,20 +203,99 @@ public:
 
         m_pPkg->BindAll(result);
 
-        CSpectrum* pSpec1 = m_pSorter->FindSpectrum("test1");
-        std::vector<UInt_t> ids(1);
-        ids[0] = pSpec1->getNumber();
+        std::vector<string> names(1);
+        names[0] = "doesn't exist";
 
-        m_pPkg->UnbindList(result, ids);
+        auto status = m_pPkg->UnbindList(result, names);
+
+        EQMSG("unBindList(name) should not return TCL_ERROR if spectrum doesn't exist",
+              TCL_ERROR, status);
+    }
+
+//    void unBindList_1 () {
+//        CTCLResult result(m_pInterp);
+
+//        m_pPkg->BindAll(result);
+
+//        CSpectrum* pSpec1 = m_pSorter->FindSpectrum("test1");
+//        std::vector<UInt_t> ids(1);
+//        ids[0] = pSpec1->getNumber();
+
+//        m_pPkg->UnbindList(result, ids);
+
+//        CDisplay* pDisplay = m_pDM->getCurrentDisplay();
+
+//        EQMSG("unBindList(id) should unbind spectra listed",
+//              false, pDisplay->spectrumBound(*m_pSpec1));
+//        EQMSG("unBindList(id) should not unbind spectra that are not listed",
+//              true, pDisplay->spectrumBound(*m_pSpec2));
+
+//    }
+
+    void deleteAll_0 () {
+
+        CTCLResult result(m_pInterp);
+
+        m_pPkg->BindAll(result);
+
+        m_pPkg->DeleteAll();
 
         CDisplay* pDisplay = m_pDM->getCurrentDisplay();
 
-        EQMSG("unBindList(id) should unbind spectra listed",
-              false, pDisplay->spectrumBound(*m_pSpec1));
-        EQMSG("unBindList(id) should not unbind spectra that are not listed",
-              true, pDisplay->spectrumBound(*m_pSpec2));
+        EQMSG("Deleting all should result in removal of first spectrum from display",
+              false, pDisplay->spectrumBound(m_pSpec1));
+        EQMSG("Deleting all should result in removal of second spectrum from display",
+              false, pDisplay->spectrumBound(m_pSpec2));
 
+        m_pSpec1 = nullptr;
+        m_pSpec2 = nullptr;
     }
+
+
+
+    void deleteAll_1 () {
+
+        CTCLResult result(m_pInterp);
+
+        m_pPkg->BindAll(result);
+
+        m_pPkg->DeleteAll();
+
+        CDisplay* pDisplay = m_pDM->getCurrentDisplay();
+
+        EQMSG("Delete all should remove first spectrum from dictionary",
+              (CSpectrum*)0, m_pSorter->FindSpectrum("test1"));
+        EQMSG("Delete all should remove second spectrum from dictionary",
+              (CSpectrum*)0, m_pSorter->FindSpectrum("test2"));
+
+        // so that the tearDown method does not double free
+        m_pSpec1 = nullptr;
+        m_pSpec2 = nullptr;
+    }
+
+    void deleteList_0 () {
+
+        CTCLResult result(m_pInterp);
+
+        m_pPkg->BindAll(result);
+
+        std::vector<string> names(1);
+        names[0] = "test1";
+
+        m_pPkg->DeleteList(result, names);
+
+        CDisplay* pDisplay = m_pDM->getCurrentDisplay();
+
+        EQMSG("DeleteList(name) should unbind spectra listed",
+              false, pDisplay->spectrumBound(m_pSpec1));
+        EQMSG("DeleteList(name) should remove the ",
+             (CSpectrum*)0, m_pSorter->FindSpectrum("test1"));
+
+        // to prevent tearDown() from double freeing
+        m_pSpec1 = nullptr;
+    }
+
+
 
 };
 

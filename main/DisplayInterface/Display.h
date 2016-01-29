@@ -114,13 +114,13 @@ public:
      *
      *  Adds a spectrum to the list of graphical entities managed by the display.
      *  Binding the spectrum may involve processing the display to create a displayable
-     *  version of the spectrum.
+     *  version of the spectrum. This is should succeed or else throw an exception.
      *
      * \param rSpectrum - the spectrum to bind
      * \param rSorter   - the histogrammer to gain access to parameter, gate, spectrum dicts
-     * \return integer - display binding
+     *
      */
-    virtual UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter) = 0;
+    virtual void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter) = 0;
 
     /*!
      * \brief removeSpectrum
@@ -129,41 +129,24 @@ public:
      * list of display binding. THe spectrum is required because in  the Xamine display,
      * the memory associated with bin contents is swapped out.
      *
-     * \param nSpec     - display binding of the spectrum to remove
      * \param rSpectrum - SpecTcl spectrum being unbound
      *
      * \todo Get rid of any need for the first version of this.
      */
-    virtual void removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum) = 0;
     virtual void removeSpectrum(CSpectrum& rSpectrum) = 0;
-
-    /*!
-     * \brief getSpectrum
-     *
-     * Retrieve the spectrum by means of the display binding.
-     *
-     * \param xid
-     *
-     * \return CSpectrum*
-     * \retval pointer to the spectrum
-     * \retval NULL if xid out of range or does not map to spectrum
-     *
-     * \todo Get rid of any need for this.
-     */
-    virtual CSpectrum* getSpectrum(UInt_t xid) = 0;
 
     /*!
      * \brief spectrumExists
      *
      * Look up the display binding by the spectrum name
      *
-     * \param name - name of spectrum
+     * \param pSpectrum - address of a spectrum
      *
      * \return display binding
      * \retval >=0 if binding exists
      * \retval -1  binding does not exist
      */
-    virtual bool spectrumBound(CSpectrum& rSpectrum) = 0;
+    virtual bool spectrumBound(CSpectrum* pSpectrum) = 0;
 
     /*!
      * \brief addFit
@@ -268,32 +251,6 @@ public:
      * Causes the statistics for the display to be updated.
      */
     virtual void updateStatistics() = 0;
-
-    /*!
-     * \brief setOverflows
-     *
-     * Updates the values of the overflows in the display
-     *
-     * \param slot - identifies the spectrum
-     * \param x    - overflow for the x axis
-     * \param y    - overflow for the y axis
-     *
-     *
-     */
-    virtual void setOverflows(unsigned slot, unsigned x, unsigned y) = 0;
-
-    /*!
-     * \brief setUnderflows
-     *
-     * Updates the values of the underflows in the display
-     *
-     * \param slot - identifies the spectrum
-     * \param x    - underflow for the x axis
-     * \param y    - underflow for the y axis
-     *
-     *
-     */
-     virtual void setUnderflows(unsigned slot, unsigned x, unsigned y) = 0;
 };
 
 #endif // DISPLAY_H

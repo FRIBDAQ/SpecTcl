@@ -297,12 +297,10 @@ DAMAGES.
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __BINDCOMMAND_H  //Required for current class
-#define __BINDCOMMAND_H
+#ifndef BINDCOMMAND_H  //Required for current class
+#define BINDCOMMAND_H
                                //Required for base classes
-#ifndef __TCLPACKAGEDCOMMAND_H
 #include "TCLPackagedCommand.h"
-#endif                               
 
 
 // Forward class definitions:
@@ -318,7 +316,7 @@ public:			// Internal class definitions:
     keId,
     keAll,
     keList,
-    keXid,
+//    keXid,
     keNotSwitch
   };
 
@@ -351,8 +349,6 @@ public:
   Int_t BindAll(CTCLInterpreter& rInterp, CTCLResult& rResult);
   Int_t BindByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 		   int nArgs, char* pArgs[]);
-  Int_t BindByIdent(CTCLInterpreter& rInterp, CTCLResult& rResult,
-		    int nArgs, char* pArgs[]);
   Int_t ListBindings (CTCLInterpreter& rInterp, CTCLResult& rResult, 
 			int nArgs, char* pArgs[])  ;
 
@@ -360,10 +356,6 @@ public:
 		const char* pattern);
   Int_t ListByName(CTCLInterpreter& rInterp, CTCLResult& rResult,
 		   int nArgs, char* pArgs[]);
-  Int_t ListById(CTCLInterpreter& rInterp, CTCLResult& rResult,
-		 int nArgs, char* pArgs[]);
-  Int_t ListByXid(CTCLInterpreter& rInterp, CTCLResult& rResult,
-		  int nArgs, char* pArgs[]);
   // Protected member functions:
 
 protected:

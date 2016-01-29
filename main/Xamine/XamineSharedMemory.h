@@ -71,9 +71,9 @@ public:
   void attach();
   void detach();
 
-    std::string GetMemoryName();
+    std::string getMemoryName();
 
-    void MapMemory (const std::string& rsName,
+    void mapMemory (const std::string& rsName,
                    UInt_t nBytes=knDefaultSpectrumSize)  ;
 
     UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
@@ -85,11 +85,11 @@ public:
     CXamineSpectrumIterator begin();
     CXamineSpectrumIterator end();
 
-    DisplayBindingsIterator DisplayBindingsBegin();
-    DisplayBindingsIterator DisplayBindingsEnd();
-    UInt_t DisplayBindingsSize() const;
-    Int_t FindDisplayBinding(std::string name);
-    Int_t FindDisplayBinding(CSpectrum& rSpectrum);
+    DisplayBindingsIterator displayBindingsBegin();
+    DisplayBindingsIterator displayBindingsEnd();
+    UInt_t displayBindingsSize() const;
+    Int_t findDisplayBinding(std::string name);
+    Int_t findDisplayBinding(CSpectrum& rSpectrum);
     bool spectrumBound(CSpectrum &rSpectrum);
 
     void addFit(CSpectrumFit& fit);
@@ -117,8 +117,8 @@ public:
     void clearStatistics(unsigned slot);
 
 private:
-    Address_t DefineSpectrum (CXamineSpectrum& rSpectrum)  ;
-    void FreeSpectrum (UInt_t nSpectrum)  ;
+    Address_t defineSpectrum (CXamineSpectrum& rSpectrum)  ;
+    void freeSpectrum (UInt_t nSpectrum)  ;
 
     Xamine_gatetype      MapFromGate_t(GateType_t type);
 

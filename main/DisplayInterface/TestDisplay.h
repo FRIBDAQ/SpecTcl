@@ -3,18 +3,15 @@
 
 #include "Display.h"
 #include "DisplayFactory.h"
+#include <set>
 
 class CSpectrum;
 
 class CTestDisplay : public CDisplay
 {
-    bool                    m_alive;
-    DisplayBindings         m_DisplayBindings;
-    std::vector<CSpectrum*> m_boundSpectra;        // Spectrum if bound.
-    FitlineBindings         m_FitlineBindings;     // Fitlines bound to displayer.
-
-    static int              m_nextFitlineId;       // Next Xamine fitline id.
-
+    bool                     m_alive;
+    std::set<CSpectrum*>     m_boundSpectra;        // Spectrum if bound.
+    std::set<CSpectrumFit*>  m_fits;
 
 public:
     CTestDisplay();
@@ -32,9 +29,8 @@ public:
 
     SpectrumContainer getBoundSpectra() const;
 
-    virtual UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
-    virtual void   removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum);
-    virtual void   removeSpectrum(CSpectrum& rSpectrum);
+    virtual void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
+    virtual void removeSpectrum(CSpectrum& rSpectrum);
 
     virtual void addFit(CSpectrumFit& fit);
     virtual void deleteFit(CSpectrumFit& fit);
@@ -44,12 +40,7 @@ public:
     virtual std::vector<CGateContainer> getAssociatedGates(const std::string& rSpectrum,
                                                        CHistogrammer& rSorter);
 
-    virtual CSpectrum* getSpectrum(UInt_t xid);
-    DisplayBindingsIterator DisplayBindingsBegin();
-    DisplayBindingsIterator DisplayBindingsEnd();
-    UInt_t DisplayBindingsSize() const;
-    virtual bool spectrumBound(CSpectrum& rSpectrum);
-    Int_t FindDisplayBinding(const std::string& spectrumName);
+    virtual bool spectrumBound(CSpectrum *pSpectrum);
 
     virtual std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer &);
     virtual void setInfo(CSpectrum& rSpectrum, std::string name);
@@ -59,17 +50,16 @@ public:
     virtual void addGate(CSpectrum& rSpectrum, CGateContainer& rGate);
     virtual void removeGate(CSpectrum &rSpectrum, CGateContainer &rGate);
 
-    virtual void setOverflows(unsigned slot, unsigned x, unsigned y);
-    virtual void setUnderflows(unsigned slot, unsigned x, unsigned y);
-
 };
 
 
 
 class CTestDisplayCreator : public CDisplayCreator
 {
+
 public:
     CTestDisplay* create();
+
 };
 
 #endif // TESTDISPLAY_H

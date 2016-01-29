@@ -36,6 +36,7 @@ using namespace std;
 #endif
 
 #include <iostream>		// For debugging.
+#include <stdexcept>
 
 /*!
 
@@ -252,7 +253,13 @@ CFitButton::spectrumName(CButtonEvent& event)
     int            bindId        = event.getPromptedSpectrum();
     SpecTcl*       pApi          = SpecTcl::getInstance();
     CDisplayInterface* pDispManager  = pApi->GetDisplayInterface();
-    CSpectrum*     pSpectrum     = pDispManager->getCurrentDisplay()->getSpectrum(bindId-1);
+    CDisplay*      pGenericDisplay = pDispManager->getCurrentDisplay();
+    CXamine* pXamine = dynamic_cast<CXamine*>(pGenericDisplay);
+    if (pXamine == nullptr) {
+        throw std::runtime_error("CFitButton::spectrumName(CButtonEvent&) requires Xamine display");
+    }
+
+    CSpectrum*     pSpectrum     = pXamine->getSpectrum(bindId-1);
     string spectrumName;
     if (pSpectrum) {
       spectrumName  = pSpectrum->getName();

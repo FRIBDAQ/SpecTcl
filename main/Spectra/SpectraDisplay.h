@@ -23,14 +23,14 @@ public:
     virtual void restart();
 
     virtual SpectrumContainer getBoundSpectra() const;
-    virtual UInt_t addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter);
+    virtual void addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter);
 
     virtual void removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum);
     virtual void removeSpectrum(CSpectrum& rSpectrum);
 
     virtual CSpectrum* getSpectrum(UInt_t xid);
 
-    virtual bool spectrumBound(CSpectrum &rSpectrum);
+    virtual bool spectrumBound(CSpectrum *pSpectrum);
 
     virtual void addFit(CSpectrumFit &fit);
     virtual void deleteFit(CSpectrumFit &fit);

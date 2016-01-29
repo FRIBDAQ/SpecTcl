@@ -20,7 +20,7 @@ CXamineGateFactory::CXamineGateFactory(CXamineSharedMemory *pSharedMem)
 CXamineGate* CXamineGateFactory::fromSpecTclGate(CSpectrum& rSpectrum, CGateContainer &rGate)
 {
     CXamineGate* pXGate;
-    UInt_t nBindingId = m_pMemory->FindDisplayBinding(rSpectrum.getName());
+    UInt_t nBindingId = m_pMemory->findDisplayBinding(rSpectrum.getName());
     assert(nBindingId != -1); // make sure the thing was found
 
     CSpectrum* pSpectrum = &rSpectrum;

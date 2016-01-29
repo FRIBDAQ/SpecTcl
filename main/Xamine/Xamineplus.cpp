@@ -944,7 +944,7 @@ CXamine::getTitleSize() const
 void
 CXamine::setTitle(CSpectrum& rSpectrum, string name)
 {
-    Int_t slot = m_pMemory->FindDisplayBinding(rSpectrum);
+    Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
     if (slot == -1) {
         m_pMemory->setTitle(name, slot);
     } else {
@@ -999,17 +999,14 @@ CXamine::setInfo(string info, UInt_t slot)
 
 
     \param sName : const std::string
-             Name of the spectrum to bind.
-
-    \return   UInt_t  - Actual spectrum number chosen.
-
+             Name of the spectrum to bind
 
    \throw   CDictionaryException - if spectrum of given name does not exist.
    \throw  CErrnoException      - may be thrown by routines we call.
 
 
   */
-UInt_t CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
+void CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
     // allocate the shared memory slot and swap out the storage for the spectrum
     UInt_t slot = m_pMemory->addSpectrum(rSpectrum, rSorter);
@@ -1048,12 +1045,11 @@ UInt_t CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
         pf++;
     }
 
-    return slot;
 }
 
 void CXamine::removeSpectrum(CSpectrum &rSpectrum)
 {
-    Int_t slot = m_pMemory->FindDisplayBinding(rSpectrum);
+    Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
     if (slot >=0) {
         m_pMemory->removeSpectrum(slot, rSpectrum);
         m_boundSpectra.at(slot) = NULL;
@@ -1300,7 +1296,7 @@ CSpectrum* CXamine::getSpectrum(UInt_t xid) {
   //     xid is out of range.
   //     xid does not map to a spectrum.
   //
-  if(xid >= m_pMemory->DisplayBindingsSize())
+  if(xid >= m_pMemory->displayBindingsSize())
     return (CSpectrum*)kpNULL;
 
   return m_boundSpectra[xid];
@@ -1310,9 +1306,9 @@ CSpectrum* CXamine::getSpectrum(UInt_t xid) {
 /*!
  *
  */
-bool CXamine::spectrumBound(CSpectrum &rSpectrum)
+bool CXamine::spectrumBound(CSpectrum* pSpectrum)
 {
-    return (m_pMemory->FindDisplayBinding(rSpectrum.getName()) >= 0);
+    return (m_pMemory->findDisplayBinding(pSpectrum->getName()) >= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////

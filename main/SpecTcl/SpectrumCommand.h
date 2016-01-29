@@ -29,8 +29,8 @@
 //
 /////////////////////////////////////////////////////////////
 
-#ifndef __SPECTRUMCOMMAND_H  //Required for current class
-#define __SPECTRUMCOMMAND_H
+#ifndef SPECTRUMCOMMAND_H  //Required for current class
+#define SPECTRUMCOMMAND_H
                                //Required for base classes
 #ifndef __TCLPACKAGEDCOMMAND_H
 #include "TCLPackagedCommand.h"

@@ -21,7 +21,7 @@ void CGatingDisplayObserver::onApply(const CGateContainer &rGate,
 
     CDisplay* pDisplay = m_pInterface->getCurrentDisplay();
 
-    if(pDisplay->spectrumBound(rSpectrum)) {
+    if(pDisplay->spectrumBound(&rSpectrum)) {
 
         //Int_t b =  pDisplay->FindDisplayBinding(rSpectrum.getName());
 

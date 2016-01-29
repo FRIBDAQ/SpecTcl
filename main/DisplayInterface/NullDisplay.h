@@ -21,7 +21,7 @@ public:
     virtual bool isAlive();
     virtual void restart();
 
-    virtual UInt_t addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
+    virtual void addSpectrum(CSpectrum& rSpectrum, CHistogrammer& rSorter);
     virtual void   removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum);
     virtual void   removeSpectrum(CSpectrum& rSpectrum);
 
@@ -35,7 +35,7 @@ public:
 
     SpectrumContainer getBoundSpectra() const;
     virtual CSpectrum* getSpectrum(UInt_t xid);
-    virtual bool spectrumBound(CSpectrum& rSpectrum);
+    virtual bool spectrumBound(CSpectrum* pSpectrum);
     virtual UInt_t DisplayBindingsSize() const;
 
     virtual std::string createTitle(CSpectrum& rSpectrum, UInt_t maxLength, CHistogrammer& rSorter);

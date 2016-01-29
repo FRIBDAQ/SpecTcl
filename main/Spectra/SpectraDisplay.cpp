@@ -44,7 +44,7 @@ SpectrumContainer CSpectraDisplay::getBoundSpectra() const
 {
 }
 
-UInt_t CSpectraDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
+void CSpectraDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
 }
 
@@ -61,7 +61,7 @@ CSpectrum* CSpectraDisplay::getSpectrum(UInt_t xid)
     return NULL;
 }
 
-bool CSpectraDisplay::spectrumBound(CSpectrum &rSpectrum)
+bool CSpectraDisplay::spectrumBound(CSpectrum* pSpectrum)
 {
     return false;
 }

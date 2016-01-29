@@ -197,7 +197,7 @@ public:
 
   Int_t UnbindList (CTCLResult& rResult, std::vector<std::string>& rvNames)  ;
   Int_t UnbindList (CTCLResult& rResult, std::vector<UInt_t>& rvIds)  ;
-  Int_t UnbindXidList (CTCLResult& rResult, std::vector<UInt_t>& rvXids)  ;
+//  Int_t UnbindXidList (CTCLResult& rResult, std::vector<UInt_t>& rvXids)  ;
   void UnbindAll ()  ;
 
   // Spectrum deletion:
@@ -212,7 +212,7 @@ public:
   Int_t ListBindings (CTCLResult& rResult, 
 		      std::vector<std::string>& rvNames)  ;
   Int_t ListBindings (CTCLResult& rResult, std::vector<UInt_t>& rvIds)  ;
-  Int_t ListXidBindings (CTCLResult& rResult, std::vector<UInt_t>& rvXIds)  ;
+//  Int_t ListXidBindings (CTCLResult& rResult, std::vector<UInt_t>& rvXIds)  ;
   void ListAllBindings (CTCLResult& rResult, const char* pattern)  ;
   Bool_t GetChannel (CTCLResult& rResult, const std::string& rName, 
 		     const std::vector<UInt_t>& pIndices)    ;
