@@ -1,5 +1,8 @@
 #include "SpectraDisplay.h"
 
+namespace Spectra
+{
+
 CSpectraDisplay::CSpectraDisplay()
 {
 }
@@ -25,6 +28,9 @@ CSpectraDisplay* CSpectraDisplay::clone() const
 
 void CSpectraDisplay::start()
 {
+//    startRESTServer();
+
+
 }
 
 void CSpectraDisplay::stop()
@@ -48,17 +54,8 @@ void CSpectraDisplay::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
 }
 
-void CSpectraDisplay::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
-{
-}
-
 void CSpectraDisplay::removeSpectrum(CSpectrum& rSpectrum)
 {
-}
-
-CSpectrum* CSpectraDisplay::getSpectrum(UInt_t xid)
-{
-    return NULL;
 }
 
 bool CSpectraDisplay::spectrumBound(CSpectrum* pSpectrum)
@@ -83,15 +80,12 @@ void CSpectraDisplay::removeGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 }
 
 std::vector<CGateContainer> CSpectraDisplay::getAssociatedGates(const std::string &spectrumName,
-                                                       CHistogrammer &rSorter)
+                                                                CHistogrammer &rSorter)
 {
 }
 
-UInt_t CSpectraDisplay::DisplayBindingsSize() const
-{
-}
-
-std::string CSpectraDisplay::createTitle(CSpectrum &rSpectrum, UInt_t maxLength, CHistogrammer &rSorter)
+std::string CSpectraDisplay::createTitle(CSpectrum &rSpectrum, UInt_t maxLength,
+                                         CHistogrammer &rSorter)
 {
 }
 
@@ -112,12 +106,5 @@ void CSpectraDisplay::updateStatistics()
 {
 }
 
-void CSpectraDisplay::setOverflows(unsigned slot, unsigned x, unsigned y)
-{
-}
 
-void CSpectraDisplay::setUnderflows(unsigned slot, unsigned x, unsigned y)
-{
-}
-
-
+} // end namespace Spectra

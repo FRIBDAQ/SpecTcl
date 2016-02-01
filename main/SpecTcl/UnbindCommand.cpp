@@ -540,7 +540,6 @@ CUnbindCommand::Usage(CTCLResult& rResult)
   rResult += "Usage: \n";
   rResult += "   unbind name1 [name2...]\n";
   rResult += "   unbind -id id1 [id2...]\n";
-  rResult += "   unbind -xid slot1 [slot2...]\n";
   rResult += "   unbind -all\n";
   rResult += "\n unbind removes an association between a spectrum and a \n";
   rResult += " displayer slot.";

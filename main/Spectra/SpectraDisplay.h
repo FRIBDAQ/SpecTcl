@@ -3,10 +3,16 @@
 
 #include <Display.h>
 
+class CXamineSharedMemory;
+
+namespace Spectra
+{
+
 class CSpectraDisplay : public CDisplay
 {
+
 private:
-    SpectrumContainer m_boundSpectra;
+    CXamineSharedMemory *m_pMemory;
 
 public:
     CSpectraDisplay();
@@ -25,10 +31,8 @@ public:
     virtual SpectrumContainer getBoundSpectra() const;
     virtual void addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter);
 
-    virtual void removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum);
     virtual void removeSpectrum(CSpectrum& rSpectrum);
 
-    virtual CSpectrum* getSpectrum(UInt_t xid);
 
     virtual bool spectrumBound(CSpectrum *pSpectrum);
 
@@ -39,18 +43,15 @@ public:
     virtual std::vector<CGateContainer> getAssociatedGates(const std::string &spectrumName,
                                                            CHistogrammer &rSorter);
 
-    virtual UInt_t DisplayBindingsSize() const;
-
     virtual std::string createTitle(CSpectrum &rSpectrum, UInt_t maxLength, CHistogrammer &rSorter);
     virtual void setTitle(CSpectrum &rSpectrum, std::string name);
     virtual void setInfo(CSpectrum &rSpectrum, std::string name);
     virtual UInt_t getTitleSize() const;
 
     virtual void updateStatistics();
-    virtual void setOverflows(unsigned slot, unsigned x, unsigned y);
-    virtual void setUnderflows(unsigned slot, unsigned x, unsigned y);
 
 
 };
 
+}
 #endif // SPECTRADISPLAY_H

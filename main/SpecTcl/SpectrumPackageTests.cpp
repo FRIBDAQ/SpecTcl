@@ -33,7 +33,8 @@ class SpectrumPackageTests : public CppUnit::TestFixture
     CPPUNIT_TEST(deleteAll_0);
     CPPUNIT_TEST(deleteAll_1);
     CPPUNIT_TEST(deleteList_0);
-
+    CPPUNIT_TEST(getChannel_0);
+    CPPUNIT_TEST(setChannel_0);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -75,6 +76,8 @@ public:
 
         m_pSpec1 = pApi->Create1D("test1", keLong,
                                   *pParam, nbins, low, high);
+        UInt_t bin[1] = {0};
+        m_pSpec1->set(bin, 23);
         m_pSpec2 = pApi->Create1D("test2", keLong,
                                   *pParam, nbins, low, high);
         pApi->AddSpectrum(*m_pSpec1);
@@ -295,6 +298,29 @@ public:
         m_pSpec1 = nullptr;
     }
 
+    void getChannel_0() {
+
+        CTCLResult result(m_pInterp);
+
+        vector<UInt_t> indices = {0};
+        m_pPkg->GetChannel(result, "test1", indices);
+
+        EQMSG("GetChannel returns the correct value for a bin",
+              int(23), int(result));
+
+    }
+
+    void setChannel_0() {
+        CTCLResult result(m_pInterp);
+
+        vector<UInt_t> indices = {0};
+        Bool_t success = m_pPkg->SetChannel(result, "test1", indices, 25);
+
+        EQMSG("SetChannel must succeed for valid input", kfTRUE, success);
+        EQMSG("SetChannel sets the correct value for specified bin",
+              UInt_t(25), (*m_pSpec1)[indices.data()]);
+
+    }
 
 
 };

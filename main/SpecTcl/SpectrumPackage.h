@@ -209,11 +209,10 @@ public:
   // Inquire about spectrum bindings.
   //
 
-  Int_t ListBindings (CTCLResult& rResult, 
-		      std::vector<std::string>& rvNames)  ;
+  Int_t ListBindings (CTCLResult& rResult, std::vector<std::string>& rvNames);
   Int_t ListBindings (CTCLResult& rResult, std::vector<UInt_t>& rvIds)  ;
-//  Int_t ListXidBindings (CTCLResult& rResult, std::vector<UInt_t>& rvXIds)  ;
   void ListAllBindings (CTCLResult& rResult, const char* pattern)  ;
+
   Bool_t GetChannel (CTCLResult& rResult, const std::string& rName, 
 		     const std::vector<UInt_t>& pIndices)    ;
   Bool_t SetChannel (CTCLResult& rResult, const std::string& rName, 
