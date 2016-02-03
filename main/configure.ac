@@ -818,6 +818,7 @@ AC_OUTPUT(Makefile
           factories/Makefile
           DisplayInterface/Makefile 
           Display/Makefile 
+          Tape/Makefile
           Core/Makefile 
           contrib/Makefile
           contrib/scriptable/Makefile

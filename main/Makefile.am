@@ -37,6 +37,7 @@ SUBDIRS = daq \
 					Utility \
 					factories \
 					Display \
+					Tape \
 					Core \
 					FitsTests \
 					SorterTests \

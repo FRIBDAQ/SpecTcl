@@ -259,7 +259,8 @@ CFitButton::spectrumName(CButtonEvent& event)
         throw std::runtime_error("CFitButton::spectrumName(CButtonEvent&) requires Xamine display");
     }
 
-    CSpectrum*     pSpectrum     = pXamine->getSpectrum(bindId-1);
+    auto spectra = pXamine->getBoundSpectra();
+    CSpectrum*     pSpectrum     = spectra.at(bindId-1);
     string spectrumName;
     if (pSpectrum) {
       spectrumName  = pSpectrum->getName();

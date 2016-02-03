@@ -46,43 +46,18 @@ CV977Unpacker.h \
 MySpecTclApp.h
 
 
-AM_CPPFLAGS =  -I. -I@top_srcdir@  \
-	-I@top_srcdir@/Events \
-	-I@top_srcdir@/Utility \
-	-I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/EventSource \
-	-I@top_srcdir@/Gates \
-	-I@top_srcdir@/SpectrumIO \
-	-I@top_srcdir@/Xamine \
-	-I@top_srcdir@/SpecTcl \
-	-I@top_srcdir@/Analysis \
+VMUSBSpecTcl_CPPFLAGS = -I@top_srcdir@/Utility \
+	-I@top_srcdir@/Core  \
 	-I@top_srcdir@/Display \
-	-I@top_srcdir@/DisplayInterface \
 	-I@top_srcdir@/Tape \
-	-I@top_srcdir@/Filter \
-	-I@top_srcdir@/TreeParam \
-	-I@top_srcdir@/Fits \
 	-I@top_srcdir@/factories    \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@
 
-VMUSBSpecTcl_LDADD = @top_builddir@/SpecTcl/libTclGrammerCommands.la \
-		    @top_builddir@/Events/libAnalysis.la \
-		    @top_builddir@/Fits/libFits.la \
-		    @top_builddir@/Analysis/libBufferAnalysis.la \
-		    @top_builddir@/EventSource/libEventSource.la \
+VMUSBSpecTcl_LDADD =@top_builddir@/Core/libSpecTcl.la \
 		    @top_builddir@/Tape/libtape.la \
-		    @top_builddir@/Gates/libGates.la \
-		    @top_builddir@/Replace/libreplace.la \
-		    @top_builddir@/Xamine/libXplus.la \
 		    @top_builddir@/calibratedparams/libCalibrations.la \
-		    @top_builddir@/Sorter/libSorting.la \
-		    @top_builddir@/Filter/libFilter.la \
-		    @top_builddir@/SpectrumIO/libSpecio.la \
-		    @top_builddir@/TreeParam/libTreeParam.la \
-		    @top_builddir@/DecoderRing/libDecoderRing.la \
-		    @top_builddir@/Display/libXamine.la          \
-		    @top_builddir@/DisplayInterface/libDisplayInterface.la
+		    @top_builddir@/Display/libXamine.la
 
 VMUSBSpecTcl_LDFLAGS = 	\
 	@LIBTCLPLUS_LDFLAGS@	\

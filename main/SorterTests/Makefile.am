@@ -1,16 +1,3 @@
-AM_CPPFLAGS = -I@srcdir@ \
-	-I@top_srcdir@/Sorter \
-	-I@top_srcdir@/Utility \
-	-I@top_srcdir@/Xamine \
-	-I@top_srcdir@/Gates \
-	-I@top_srcdir@/Events \
-	-I@top_srcdir@/Filter \
-	-I@top_srcdir@/Display \
-	-I@top_srcdir@/DisplayInterface \
-	-I@top_srcdir@/SpecTcl \
-	-I@top_srcdir@/Fits \
-	@TCL_CPPFLAGS@ \
-	@LIBTCLPLUS_CFLAGS@
 
 
 if CPPUNIT
@@ -18,15 +5,20 @@ noinst_PROGRAMS=TestRunner
 
 TestRunner_SOURCES=TestRunner.cpp TestHistogrammer.cpp
 
+TestRunner_CPPFLAGS =	-I@top_srcdir@/Utility \
+			-I@top_srcdir@/Core \
+			@TCL_CPPFLAGS@ \
+			@LIBTCLPLUS_CFLAGS@
+
 TestRunner_CXXFLAGS=@CPPUNIT_CFLAGS@
 
 TestRunner_LDADD = @CPPUNIT_LIBS@ \
-		    @top_builddir@/Fits/libFits.la \
-		    @top_builddir@/Sorter/libSorting.la \
+		    @top_builddir@/Core/libSpecTcl.la \
 		    @top_builddir@/Tape/libtape.la \
-		    @top_builddir@/Gates/libGates.la
+		    @LIBTCLPLUS_LDFLAGS@ \
+		    @TCL_LIBS@ \
+		    -lgsl -lgslcblas
 
-noinst_HEADERS = Asserts.h
 
 check-TESTS:
 	./TestRunner

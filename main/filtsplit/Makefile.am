@@ -10,7 +10,7 @@ filtsplit_SOURCES=cmdline.c filtsplit.cpp
 
 noinst_HEADERS=cmdline.h
 
-AM_CPPFLAGS =-I@top_srcdir@/Filter
+filtsplit_CPPFLAGS =-I@top_srcdir@/Core
 
 
 cmdline.c cmdline.h: filtsplit.ggo
@@ -19,7 +19,10 @@ cmdline.c cmdline.h: filtsplit.ggo
 EXTRA_DIST=filtsplit.ggo  filtsplit.xml
 
 
-filtsplit_LDADD = @top_srcdir@/Filter/CXdrInputStream.lo \
-		@top_srcdir@/Filter/CXdrOutputStream.lo
+filtsplit_LDADD = @top_builddir@/Core/libSpecTcl.la \
+		  @LIBTCLPLUS_LDFLAGS@ \
+		  @TCL_LIBS@ \
+		  -lgsl -lgslcblas
+
 
 man_MANS = filtsplit.1
