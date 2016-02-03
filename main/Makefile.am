@@ -1,37 +1,55 @@
-SUBDIRS =  daq \
-	Replace \
-	Scripts \
-	Utility \
-	factories \
-	Display \
-	Tape \
-	EventSource \
-	Events \
-	Gates \
-	Sorter \
-	SpectrumIO \
-	Filter \
-	Analysis\
-	DecoderRing \
-	TreeParam \
-	Fits \
-	DisplayInterface \
-	Xamine \
-	Spectra \
-	SpecTcl \
-	FitsTests \
-	SorterTests \
-	contrib \
-	TestFiles \
-	Gui \
-	splash \
-	filtsplit \
-	calibratedparams \
-	treegui \
-	ccusb \
-	vmusb \
-	tkcon \
-	compress
+#SUBDIRS =  daq \
+#	Replace \
+#	Scripts \
+#	Utility \
+#	factories \
+#	Display \
+#	Tape \
+#	EventSource \
+#	Events \
+#	Gates \
+#	Sorter \
+#	SpectrumIO \
+#	Filter \
+#	Analysis\
+#	DecoderRing \
+#	TreeParam \
+#	Fits \
+#	DisplayInterface \
+#	Xamine \
+#	Spectra \
+#	SpecTcl \
+#	FitsTests \
+#	SorterTests \
+#	contrib \
+#	TestFiles \
+#	Gui \
+#	splash \
+#	filtsplit \
+#	calibratedparams \
+#	treegui \
+#	ccusb \
+#	vmusb \
+#	tkcon \
+#	compress
+SUBDIRS = daq \
+					Scripts \
+					Utility \
+					factories \
+					Display \
+					Core \
+					FitsTests \
+					SorterTests \
+					contrib \
+					TestFiles \
+					Gui \
+					splash \
+					filtsplit \
+					calibratedparams \
+					treegui \
+					vmusb \
+					tkcon \
+					compress
 
 ACLOCAL_AMFLAGS=-I m4
 
