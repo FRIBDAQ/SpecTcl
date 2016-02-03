@@ -1,27 +1,32 @@
-#ifndef SPECTRADISPLAY_H
-#define SPECTRADISPLAY_H
+#ifndef SPECTRALOCALDISPLAY_H
+#define SPECTRALOCALDISPLAY_H
 
 #include <Display.h>
+#include <memory>
 
 class CXamineSharedMemory;
 
 namespace Spectra
 {
 
-class CSpectraDisplay : public CDisplay
+class CSpectraProcess;
+
+class CSpectraLocalDisplay : public CDisplay
 {
 
 private:
-    CXamineSharedMemory *m_pMemory;
+
+    std::unique_ptr<CSpectraProcess>     m_pProcess;
+    std::unique_ptr<CXamineSharedMemory> m_pMemory;
 
 public:
-    CSpectraDisplay();
-    CSpectraDisplay(const CSpectraDisplay& rhs);
+    CSpectraLocalDisplay(size_t nBytes);
+    CSpectraLocalDisplay(const CSpectraLocalDisplay& rhs);
 
-    virtual ~CSpectraDisplay();
+    virtual ~CSpectraLocalDisplay();
     virtual int operator==(const CDisplay& rhs);
 
-    virtual CSpectraDisplay* clone() const;
+    virtual CSpectraLocalDisplay* clone() const;
 
     virtual void start();
     virtual void stop();
@@ -32,7 +37,6 @@ public:
     virtual void addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter);
 
     virtual void removeSpectrum(CSpectrum& rSpectrum);
-
 
     virtual bool spectrumBound(CSpectrum *pSpectrum);
 
@@ -49,6 +53,11 @@ public:
     virtual UInt_t getTitleSize() const;
 
     virtual void updateStatistics();
+
+    void startRESTServer();
+    void stopRESTServer();
+
+
 
 
 };
