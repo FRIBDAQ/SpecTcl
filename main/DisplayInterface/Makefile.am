@@ -41,7 +41,8 @@ include_HEADERS = Display.h \
 		    TestDisplay.h \
 		    CHistogrammerFitObserver.h \
 		    GateBinderObserver.h \
-		    GatingDisplayObserver.h
+		    GatingDisplayObserver.h \
+		    Subprocess.h
 
 
 noinst_PROGRAMS=TestRunner

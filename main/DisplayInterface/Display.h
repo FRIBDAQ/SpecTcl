@@ -54,7 +54,7 @@ public:
 public:
     virtual ~CDisplay();
 
-    virtual int operator==(const CDisplay&) = 0;
+//    virtual int operator==(const CDisplay&) = 0;
 
     /*!
      * \brief clone
