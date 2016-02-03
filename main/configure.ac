@@ -810,6 +810,7 @@ AC_SUBST(MANDOCBOOK)
 # create output files.
 
 AC_OUTPUT(Makefile 
+          Analysis/Makefile
           daq/Makefile 
           daq/daqdefs.h 
           daq/daqdefs.tcl 
@@ -820,6 +821,7 @@ AC_OUTPUT(Makefile
           Display/Makefile 
           Tape/Makefile
           Core/Makefile 
+          SpecTcl/Makefile
           contrib/Makefile
           contrib/scriptable/Makefile
           FitsTests/Makefile 

@@ -33,12 +33,14 @@
 #	tkcon \
 #	compress
 SUBDIRS = daq \
+				  Analysis \
 					Scripts \
 					Utility \
 					factories \
 					Display \
 					Tape \
 					Core \
+					SpecTcl \
 					FitsTests \
 					SorterTests \
 					contrib \

@@ -1,23 +1,32 @@
 DEFS = @WCHAR_T_DEF@
 
-AM_CPPFLAGS = -I@top_srcdir@/Events \
-	-I@top_srcdir@/Utility \
-	-I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/EventSource \
-	-I@top_srcdir@/Gates \
-	-I@top_srcdir@/SpectrumIO \
-	-I@top_srcdir@/Xamine \
-	-I@top_srcdir@/Display \
-	-I@top_srcdir@/DisplayInterface \
-	-I@top_srcdir@/Tape \
-	-I@top_srcdir@/Filter \
-	-I@top_srcdir@/Analysis \
-	-I@top_srcdir@/TreeParam \
-	-I@top_srcdir@/Fits \
-	-I@top_srcdir@/factories \
-	-I@top_srcdir@/DecoderRing \
-	@TCL_CPPFLAGS@ -DINSTALLED_IN='"$(prefix)"' @XINCLUDES@ \
-	@LIBTCLPLUS_CFLAGS@ -DVERSION='"@VERSION@"'
+
+bin_PROGRAMS = SpecTcl
+
+SpecTcl_SOURCES = MySpecTclApp.cpp 
+
+SpecTcl_CXXFLAGS = -I@srcdir@ \
+									 -I@top_srcdir@/Utility \
+									 @LIBTCLPLUS_CFLAGS@ \
+									 @TCL_CPPFLAGS@
+
+SpecTcl_CPPFLAGS = -g
+
+SpecTcl_LDADD = @top_builddir@/Core/libSpecTcl.la \
+								@top_builddir@/Display/libXamine.la \
+								@top_builddir@/Tape/libtape.la \
+								-lXt -lX11 -lgsl -lgslcblas
+
+SpecTcl_LDFLAGS = $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
+	@LIBTCLPLUS_LDFLAGS@	\
+	-Wl,"-rpath=$(libdir)" @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
+
+man_MANS = spectclapi.3
+
+
+EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
+	 mapped.tcl paramtest.tcl  \
+	SpecTcl_Makefile.include $(man_MANS)
 
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/etc
@@ -31,113 +40,6 @@ install-exec-local:
 	echo INSTDIR=$(prefix) >Makefile.user
 	cat Makefile.skel >> Makefile.user
 	$(INSTALL_PROGRAM) $(srcdir)/Makefile.user $(prefix)/Skel/Makefile
-
-
-lib_LTLIBRARIES = libTclGrammerCommands.la
-
-libTclGrammerCommands_la_LDFLAGS = -version-info $(SOVERSION):0 \
-	-Wl,"-rpath-link=$(libdir)"
-
-libTclGrammerCommands_la_LIBADD = \
-	@top_builddir@/Xamine/libXplus.la \
-	@top_builddir@/Gates/libGates.la \
-	@top_builddir@/Events/libAnalysis.la \
-	@top_builddir@/Filter/libFilter.la \
-	@top_builddir@/Analysis/libBufferAnalysis.la \
-	@top_builddir@/EventSource/libEventSource.la \
-	@top_builddir@/SpectrumIO/libSpecio.la  \
-	@top_builddir@/TreeParam/libTreeParam.la \
-	@top_builddir@/Display/libXamine.la \
-	@top_builddir@/Tape/libtape.la \
-	@top_builddir@/Fits/libFits.la \
-	@top_builddir@/Sorter/libSorting.la		\
-	@top_builddir@/DecoderRing/libDecoderRing.la
-
-libTclGrammerCommands_la_SOURCES = StopRun.cpp StartRun.cpp \
-	RunControlPackage.cpp ParameterPackage.cpp ParameterCommand.cpp \
-	SpectrumPackage.cpp ClearCommand.cpp BindCommand.cpp \
-	UnbindCommand.cpp SpectrumCommand.cpp DataSourcePackage.cpp \
-	AttachCommand.cpp TapeCommand.cpp GateCommand.cpp ApplyCommand.cpp \
-	UngateCommand.cpp GatePackage.cpp GateFactory.cpp \
-	GateFactoryException.cpp TCLHistogrammer.cpp \
-	PseudoCommand.cpp PseudoScript.cpp ChanCommand.cpp WriteCommand.cpp \
-	ReadCommand.cpp TCLAnalyzer.cpp EventProcessor.cpp TclGrammerApp.cpp \
-	Globals.cpp FilterCommand.cpp \
-	ScalerProcessor.cpp ScalerProcessorCallbacks.cpp \
-	DocumentationException.cpp DocumentationCallback.cpp \
-	SpecTcl.cpp CFoldCommand.cpp CProjectionCommand.cpp CFitCommand.cpp \
-	IntegrateCommand.cpp RingFormatCommand.cpp VersionCommand.cpp \
-	SContentsCommand.cpp CSpectrumStatsCommand.cpp SpecTclDisplayManager.cpp \
-	XamineEventHandler.cpp
-
-
-include_HEADERS = AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
-	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
-	GateCommand.h GateFactory.h GateFactoryException.h GatePackage.h \
-	Globals.h MySpecTclApp.h ParameterCommand.h ParameterPackage.h \
-	PseudoCommand.h PseudoScript.h ReadCommand.h RunControlPackage.h \
-	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
-	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h \
-	UnbindCommand.h UngateCommand.h WriteCommand.h \
-	FilterCommand.h \
-	ScalerProcessor.h ScalerProcessorCallbacks.h \
-	DocumentationException.h DocumentationCallback.h \
-	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
-	IntegrateCommand.h VersionCommand.h SContentsCommand.h \
-	CSpectrumStatsCommand.h SpecTclDisplayManager.h \
-	XamineEventHandler.h
-
-
-
-
-bin_PROGRAMS = SpecTcl
-
-SpecTcl_DEPENDENCIES =  libTclGrammerCommands.la Globals.o
-
-SpecTcl_SOURCES = MySpecTclApp.cpp \
-	AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h \
-	ChanCommand.h ClearCommand.h DataSourcePackage.h EventProcessor.h \
-	GateCommand.h GateFactory.h GateFactoryException.h GatePackage.h \
-	Globals.h MySpecTclApp.h ParameterCommand.h ParameterPackage.h \
-	PseudoCommand.h PseudoScript.h ReadCommand.h RunControlPackage.h \
-	SpectrumCommand.h SpectrumPackage.h StartRun.h StopRun.h \
-	TCLAnalyzer.h TCLHistogrammer.h TapeCommand.h TclGrammerApp.h \
-	UnbindCommand.h UngateCommand.h WriteCommand.h \
-	CFoldCommand.h
-
-
-
-AM_CXXFLAGS = -g
-
-SpecTcl_LDADD = @top_builddir@/SpecTcl/libTclGrammerCommands.la \
-	@top_builddir@/Xamine/libXplus.la \
-	@top_builddir@/Gates/libGates.la \
-	@top_builddir@/Events/libAnalysis.la \
-	@top_builddir@/Filter/libFilter.la \
-	@top_builddir@/Analysis/libBufferAnalysis.la \
-	@top_builddir@/EventSource/libEventSource.la \
-	@top_builddir@/SpectrumIO/libSpecio.la  \
-	@top_builddir@/TreeParam/libTreeParam.la \
-	@top_builddir@/Display/libXamine.la \
-	@top_builddir@/Tape/libtape.la \
-	@top_builddir@/Fits/libFits.la \
-	@top_builddir@/Sorter/libSorting.la		\
-	@top_builddir@/DecoderRing/libDecoderRing.la	\
-	-lXt -lX11 -lgsl -lgslcblas
-
-SpecTcl_LDFLAGS = $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
-	@LIBTCLPLUS_LDFLAGS@	\
-	-Wl,"-rpath=$(libdir)" @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
-
-
-man_MANS = spectclapi.3
-
-
-EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
-	 mapped.tcl paramtest.tcl  \
-	SpecTcl_Makefile.include $(man_MANS)
-
-
 
 
 # Unit tests.
