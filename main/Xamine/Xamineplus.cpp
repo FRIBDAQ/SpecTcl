@@ -34,6 +34,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 //
 #include <config.h>
 #include "Xamineplus.h"                               
+#include "XamineShMemDisplayImpl.h"
+
 #include "XamineGates.h"
 #include "ErrnoException.h"
 #include "RangeError.h"
@@ -116,29 +118,30 @@ extern   int            Xamine_newgates;  // fd for events.
  }
 
 
-// Functions for class CXamine
-//////////////////////////////////////////////////////////////////////////
-//
-// Function:
-//   CXamine()
-// Operation Type:
-//   Default constructor... binds to an already existing 
-//   instance of Xamine.  By now the memory must be mapped else undefined
-//   results occur.
-//
-CXamine::CXamine() :
-    m_pMemory(),
-    m_nBytes(0)
-{
-    try {
-        m_pMemory = new CXamineSharedMemory(m_nBytes);
-    } catch (CErrnoException& exc) {
-        cerr << "Caught errno exception: " << exc.ReasonText()
-             << " while: " << exc.WasDoing() << endl;
-        exit(errno);
-    }
-}
-/////////////////////////////////////////////////////////////////////////
+//// Functions for class CXamine
+////////////////////////////////////////////////////////////////////////////
+////
+//// Function:
+////   CXamine()
+//// Operation Type:
+////   Default constructor... binds to an already existing
+////   instance of Xamine.  By now the memory must be mapped else undefined
+////   results occur.
+////
+//CXamine::CXamine() :
+//    m_pMemory(),
+//    m_nBytes(0)
+//{
+//    try {
+//        m_pMemory = new CXamineSharedMemory(m_nBytes);
+//    } catch (CErrnoException& exc) {
+//        cerr << "Caught errno exception: " << exc.ReasonText()
+//             << " while: " << exc.WasDoing() << endl;
+//        exit(errno);
+//    }
+//}
+
+ /////////////////////////////////////////////////////////////////////////
 //
 // Function:
 //    CXamine::CXamine(UInt_t nBytes)
@@ -146,18 +149,25 @@ CXamine::CXamine() :
 //    Parameterized Constructor.
 //
 CXamine::CXamine(UInt_t nBytes) :
-    m_pMemory(0),
-    m_nBytes(nBytes)
+//    m_pMemory(0),
+//    m_nBytes(nBytes)
+    m_pImpl(new CXamineShMemDisplayImpl(nBytes))
 {
-    try {
-        m_pMemory = new CXamineSharedMemory(m_nBytes);
-    } catch (CErrnoException& exc) {
-        cerr << "Caught errno exception: " << exc.ReasonText()
-             << " while: " << exc.WasDoing() << endl;
-        exit(errno);
-    }
-
 }
+
+CXamine::CXamine (const CXamine& aCXamine ) :
+   m_pImpl()
+{
+    auto nBytes = aCXamine.getSharedMemory()->getSize();
+    m_pImpl.reset(new CXamineShMemDisplayImpl(nBytes));
+}
+
+CXamine* CXamine::clone() const { return new CXamine(*this); }
+
+
+CXamine::~CXamine() {
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -214,13 +224,17 @@ CXamine::stop()
 void CXamine::restart()
 {
   Xamine_Closepipes();
-  m_pMemory->detach();
-//  Xamine_DetachSharedMemory();
-//  assert(Xamine_CreateSharedMemory(m_nBytes, (volatile Xamine_shared**)&m_pMemory));
-//
-  m_pMemory->attach();
-
+//  m_pMemory->detach();
+//  m_pMemory->attach();
+  m_pImpl->detach();
+  m_pImpl->attach();
   start();
+}
+
+
+const CXamineSharedMemory* CXamine::getSharedMemory() const
+{
+    return m_pImpl->getSharedMemory();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -233,11 +247,12 @@ void CXamine::restart()
 void 
 CXamine::addGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 {
-    CXamineGateFactory factory(m_pMemory);
-    CXamineGate* pDisplayed = factory.fromSpecTclGate(rSpectrum, rGate);
-    if (pDisplayed)
-        m_pMemory->addGate(*pDisplayed);
-    delete pDisplayed;
+//    CXamineGateFactory factory(m_pMemory);
+//    CXamineGate* pDisplayed = factory.fromSpecTclGate(rSpectrum, rGate);
+//    if (pDisplayed)
+//        m_pMemory->addGate(*pDisplayed);
+//    delete pDisplayed;
+    m_pImpl->addGate(rSpectrum, rGate);
 }
 
 void
@@ -266,66 +281,9 @@ CXamine::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
 //    else {
 //      return;			// Non -primitive gates won't be displayed.
 //    }
-    m_pMemory->removeGate(rSpectrum, rGate);
+    m_pImpl->removeGate(rSpectrum, rGate);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    void RemoveGate ( UInt_t nSpectrum, UInt_t nId, GateType_t eType )
-//  Operation Type:
-//     Mutator
-//
-void 
-CXamine::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType)
-{
-// Removes a specified gate from the spectrum.
-// The gate is defined by its spectrum, id, and type.
-//
-// Formal Parameters:
-//      UInt_t nSpectrum:
-//           Number of spectrum from which to remove gate.
-//      UInt_t nId:
-//            Identification of the spectrum.
-//      GateType_t eType:
-//            Type of the gate to remove (See EnterGate for
-//             details).
-//
-
-//  // Map GateType_t to Xamine gate types;
- 
-//  Xamine_gatetype GateType;
-//  switch(eType) {
-//  case kgCut1d:
-//    GateType = Xamine_cut1d;
-//    break;
-//  case kgContour2d:
-//    GateType = Xamine_contour2d;
-//    break;
-//  case kgBand2d:
-//    GateType = Xamine_band;
-//    break;
-//  case kgFitline:
-//    GateType = fitline;
-//    break;
-//  default:			// range error from kgCut1d ... kgBand2d
-//    throw CRangeError(kgCut1d, kgBand2d, eType,
-//		      "Xamine::RemoveGate -- Mapping gate types");
-//  }
-
-// int nStatus = Xamine_RemoveGate(nSpectrum+1, nId, GateType);
- 
-// msg_object msg;
-// msg.spectrum = nSpectrum;
-// msg.id       = nId;
-// msg.type     = GateType;
-// msg.hasname  = kfFALSE;
-// msg.npts     = 0;
-// ThrowGateStatus(nStatus, CXamineGate(msg),
-//		 "Xamine::RemoveGate - Removing the gate");
-   m_pMemory->removeGate(nSpectrum, nId, eType);
-
-}
 //////////////////////////////////////////////////////////////////////////
 //
 //  Function:   
@@ -379,34 +337,6 @@ CXamine::EnterPeakMarker(UInt_t nSpectrum,
 		    "CXamine::EnterPeakMarker - Entering the marker");
   }
 
-}
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    CXamineGates GetGates ( UInt_t nSpectrum )
-//  Operation Type:
-//     Selector
-//
-CXamineGates*
-CXamine::GetGates(UInt_t nSpectrum) 
-{
-// Retrieves a set of gates from Xamine.
-// Copies of the gates described are retrieved into
-//  an XamineGates object.  From there, iterators
-// can be created to step through the gates,
-// or the gate set can be directly indexed as desired
-// (the XamineGates object looks a lot like a 
-// readonly STL vector of gate description objects.
-//
-// Formal Parameters:
-//     UInt_t nSpectrum:
-//            The spectrum for which
-//            to retrieve the gate.
-// Returns:
-//    CXamineGates* - gate object ptr to dynamically allocated gate list.
-//
-//  return new CXamineGates(nSpectrum+1);
-    return m_pMemory->GetGates(nSpectrum);
 }
 //////////////////////////////////////////////////////////////////////////
 //
@@ -478,42 +408,6 @@ CXamine::PollEvent(Int_t nTimeout, CXamineEvent& rEvent)
     }
   }
   assert(kfFALSE);		// Should never land here.
-}
-
-/**
- * setOverflows
- *    Set overflow statistics for a spectrum.
- * @param slot - Which slot in Xamine.
- * @param x    - X overflow counts.
- * @param y    - Y overflow couts.
- */
-void
-CXamine::setOverflows(unsigned slot, unsigned x, unsigned y)
-{
-//    Xamine_setOverflow(slot+1, 0, x);
-//    Xamine_setOverflow(slot+1, 1, y);
-    m_pMemory->setOverflows(slot, x, y);
-}
-/**
- * setUnderflows
- *    Same as above but the underflow counters get set.
- */
-void
-CXamine::setUnderflows(unsigned slot, unsigned x, unsigned y)
-{
-//    Xamine_setUnderflow(slot+1, 0, x);
-//    Xamine_setUnderflow(slot+1, 1, y);
-    m_pMemory->setUnderflows(slot, x, y);
-}
-/**
- * clearStatistics
- *    Clear the over/underflow statistics associated witha bound spectrum.
- */
-void
-CXamine::clearStatistics(unsigned slot)
-{
-//    Xamine_clearStatistics(slot+1);
-    m_pMemory->clearStatistics(slot);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -810,79 +704,6 @@ CXamine::InquireButton(UInt_t nColumn, UInt_t nRow)
   delete pPrompt;
   return pButton;
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    XamineSpectrum& operator[] ( UInt_t n )
-//  Operation Type:
-//     Selector
-//
-CXamineSpectrum& 
-CXamine::operator[](UInt_t n) 
-{
-// Returns a copy of the n'th spectrum description.  The spectrum
-// description is considered a constant object from Xamine's point
-// of view.  This object can be modified, but such modification has
-// no effect on Xamine's operation.  The object must be deleted
-// when done.
-//
-// Formal Parameters:
-//    UInt_t n
-//        Slot of the spectrum who's description we want.
-// Exceptions:
-//    Throws a range error if n is too large.
-//
-
-//  if(n >= XAMINE_MAXSPEC) {
-//    throw CRangeError(0, XAMINE_MAXSPEC-1, n,
-//		      "CXamine::operator[] indexing spectrum definitions");
-//  }
-//  CXamineSpectrum spec(m_pMemory, n);
-//  return ((spec.is1d() == kfTRUE) ? (CXamineSpectrum&)*(new CXamine1D(m_pMemory, n)) :
-//                (CXamineSpectrum&)*(new CXamine2D(m_pMemory, n)));
-    return m_pMemory->operator[](n);
-}
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    CXamineSpectrumIterator begin (  )
-//  Operation Type:
-//     selector.
-//
-CXamineSpectrumIterator 
-CXamine::begin() 
-{
-// Returns an iterator representing the first used spectrum slot.
-// Dereferencing this pointer like object produces a reference to
-// the CXamineSpectrum object which describes the spectrum.
-// Increments step the iterator to the next used slot, while 
-// until equal to or greater than end() which produces an iterator
-// whose dererference is undefined but which compares to 
-// other iterators to indicate the end of a traversal.
-//
-
-//  return CXamineSpectrumIterator((Xamine_shared*)m_pMemory);
-    return m_pMemory->begin();
-}
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:   
-//    CXamineSpectrumIterator end (  )
-//  Operation Type:
-//     selector.
-//
-CXamineSpectrumIterator 
-CXamine::end() 
-{
-// Returns a spectrum iterator which indicates the end of 
-// the set of spectrum slots maintained by Xamine.
-
-//  CXamineSpectrumIterator last((Xamine_shared*)m_pMemory, XAMINE_MAXSPEC-1);
-//  last++;
-//  return last;
-  return m_pMemory->end();
-
-}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -932,8 +753,7 @@ CXamine::MaptoSpec_t(ButtonDialogSpectrumType t)
 UInt_t
 CXamine::getTitleSize() const
 {
-//  return sizeof(spec_title);
-    m_pMemory->getTitleSize();
+    return m_pImpl->getTitleSize();
 }
 
 /*!
@@ -944,50 +764,15 @@ CXamine::getTitleSize() const
 void
 CXamine::setTitle(CSpectrum& rSpectrum, string name)
 {
-    Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
-    if (slot == -1) {
-        m_pMemory->setTitle(name, slot);
-    } else {
-        throw std::runtime_error("CXamine::SetTitle() Cannot set title for unbound spectrum.");
-    }
+    m_pImpl->setTitle(rSpectrum, name);
 }
 
-/*!
-   Set the title of a specific slot in Xamine memory.
-   The title will be truncated to the size of the spec_title if
-   necessary
-*/
-void 
-CXamine::setTitle(string name, UInt_t slot)
-{
-//  memset((void*)m_pMemory->dsp_titles[slot], 0, getTitleSize());
-//  strncpy((char*)m_pMemory->dsp_titles[slot], name.c_str(), getTitleSize() -1);
-  m_pMemory->setTitle(name, slot);
 
-}
 
 void
 CXamine::setInfo(CSpectrum &rSpectrum, std::string name)
 {
-//    Int_t slot = FindDisplayBinding(rSpectrum);
-//    if (slot >= 0) {
-//        setInfo(name, slot);
-//    } else {
-//        throw std::runtime_error("CXamine::setInfo() Cannot set info on unbound spectrum.");
-//    }
-    m_pMemory->setInfo(rSpectrum, name);
-}
-
-/*!
-  Set the info string of a specific slot in xamine memory.
-  the info string will be truncated to spec_title size if needed.
-*/
-void
-CXamine::setInfo(string info, UInt_t slot)
-{
-//  memset((void*)m_pMemory->dsp_info[slot], 0, getTitleSize());
-//  strncpy((char*)m_pMemory->dsp_info[slot], info.c_str(), getTitleSize() - 1);
-    m_pMemory->setInfo(info, slot);
+    m_pImpl->setInfo(rSpectrum, name);
 }
 
 /*!
@@ -1008,105 +793,12 @@ CXamine::setInfo(string info, UInt_t slot)
   */
 void CXamine::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
-    // allocate the shared memory slot and swap out the storage for the spectrum
-    UInt_t slot = m_pMemory->addSpectrum(rSpectrum, rSorter);
-    if (m_boundSpectra.size() <= slot) {
-        m_boundSpectra.resize(slot+1);
-    }
-    m_boundSpectra.at(slot) = &rSpectrum;
-
-    // set the title
-    string title = createTitle(rSpectrum, m_pMemory->getTitleSize(), rSorter);
-    m_pMemory->setInfo(title, slot);
-
-    // We must locate all of the gates which are relevant to this spectrum
-    // and enter them as well:
-    //
-    vector<CGateContainer> DisplayGates = getAssociatedGates(rSpectrum.getName(), rSorter);
-
-    UInt_t Size = DisplayGates.size();
-    for(UInt_t i = 0; i < DisplayGates.size(); i++) {
-        CXamineGateFactory factory(m_pMemory);
-        CXamineGate* pXgate = factory.fromSpecTclGate(rSpectrum, DisplayGates[i]);
-        if(pXgate) m_pMemory->addGate(*pXgate);
-        delete pXgate;
-    }
-
-    // same for the fitlines:
-    //
-    CFitDictionary& dict(CFitDictionary::getInstance());
-    CFitDictionary::iterator pf = dict.begin();
-
-    while (pf != dict.end()) {
-        CSpectrumFit* pFit = pf->second;
-        if (pFit->getName() == rSpectrum.getName()) {
-            m_pMemory->addFit(*pFit);		// not very efficient, but doesn't need to be
-        }
-        pf++;
-    }
-
+    m_pImpl->addSpectrum(rSpectrum, rSorter);
 }
 
 void CXamine::removeSpectrum(CSpectrum &rSpectrum)
 {
-    Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
-    if (slot >=0) {
-        m_pMemory->removeSpectrum(slot, rSpectrum);
-        m_boundSpectra.at(slot) = NULL;
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    void UnBindFromDisplay ( UInt_t nSpec )
-//  Operation Type:
-//     mutator
-//
-void CXamine::removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum) {
-  // Unbinds the spectrum which is
-  // attached to the specified Displayer spectrum number.
-  //
-  // Formal Parameters:
-  //    UInt_t nSpec:
-  //       Display spectrum id to unbind.
-
-//  CXamineSpectrum  Spec(getXamineMemory(), nSpec);
-//  if(Spec.getSpectrumType() != undefined) { // No-op if spectrum not defined
-
-
-//    CSpectrum*       pSpectrum = &rSpectrum;
-//    //
-//    //  What we need to do is:
-//    //    0. Remove the gates which are being displayed.
-//    //    1. Provide local storage for the spectrum data.
-//    //    2. Remove the spectrum from the bindings table.
-//    //    3. Tell Xamine to free the slot and spectrum.
-//    //
-
-//    // Deal with the gates:
-
-//    CXamineGates* pGates = GetGates(nSpec);
-//    CDisplayGateVectorIterator pGateIterator = pGates->begin();
-//    while(pGateIterator != pGates->end()) {
-//      UInt_t   nGateId   = pGateIterator->getId();
-//      GateType_t eGateType = pGateIterator->getGateType();
-//      removeGate(nSpec, nGateId, eGateType);
-//      pGateIterator++;
-//    }
-
-//    delete pGates;
-
-//    // Deal with the spectrum:
-
-//    pSpectrum->ReplaceStorage(new char[pSpectrum->StorageNeeded()],
-//                  kfTRUE);
-//    m_DisplayBindings[nSpec] = "";
-//    m_boundSpectra[nSpec]    = 0;
-//    FreeSpectrum(nSpec);
-
-//  }
-    m_pMemory->removeSpectrum(nSpec, rSpectrum);
+    m_pImpl->removeSpectrum(rSpectrum);
 }
 
 /*!
@@ -1121,40 +813,9 @@ void CXamine::removeSpectrum(UInt_t nSpec, CSpectrum& rSpectrum) {
 void
 CXamine::addFit(CSpectrumFit& fit)
 {
-//  // get the fit name and spectrum name... both of which we'll need to
-//  //   ensure we can add/bind the fit.
-
-//  string fitName      = fit.fitName();
-//  string spectrumName = fit.getName();
-//  Int_t  xSpectrumId  = FindDisplayBinding(spectrumName);
-//  if (xSpectrumId < 0) {
-//    // Display is not bound to Xamine.
-
-//    return;
-//  }
-//  // The display is bound... ensure that our fitlines binding array is large
-//  // enough.
-
-//  while (m_FitlineBindings.size() <=  xSpectrumId) {
-//    FitlineList empty;
-//    m_FitlineBindings.push_back(empty);
-//  }
-
-//  // Now we must:
-//  //  1. Allocate a fitline id.
-//  //  2. Enter the fit line in Xamine.
-//  //  3. Add the fitline name/id to our m_FitlineBindings
-
-//  int fitId = m_nextFitlineId++;
-//  Xamine_EnterFitline(xSpectrumId+1, fitId,
-//              const_cast<char*>(fitName.c_str()),
-//              fit.low(), fit.high(),
-//              const_cast<char*>(fit.makeTclFitScript().c_str()));
-//  pair <int, string> fitInfo(fitId, fitName);
-//  m_FitlineBindings[xSpectrumId].push_back(fitInfo);
-    m_pMemory->addFit(fit);
-
+    m_pImpl->addFit(fit);
 }
+
 /*!
   Remove a fit.  It is  a no-op to delete a fit that does not exist or is
   on an unbound spectrum. The rough cut of what we will do is
@@ -1168,36 +829,8 @@ CXamine::addFit(CSpectrumFit& fit)
 */
 void
 CXamine::deleteFit(CSpectrumFit& fit)
-{/*
-  string spectrumName =  fit.getName();
-  string fitName      = fit.fitName();
-  int    xSpectrumId  = FindDisplayBinding(spectrumName);
-  if (xSpectrumId >= 0 && ( xSpectrumId <  m_FitlineBindings.size())) {
-
-    // xSpectrumId < 0 means spectrum not bound.
-    // xSpectrumId >= size of the bindings vector means no fitlines on spectrum.
-
-    FitlineList::iterator i = m_FitlineBindings[xSpectrumId].begin();
-    FitlineList::iterator e = m_FitlineBindings[xSpectrumId].end();
-    while (i != e) {
-      if (fitName == i->second) {
-    // found it.. delete this one and return... don't delete all
-    // occurences as
-    // a. there's only supposed to be one occurence.
-    // b. Depending on the underlying representation of a FitlineList,
-    //    deletion may invalidate i.
-
-    Xamine_RemoveGate(xSpectrumId+1, i->first,
-              fitline);
-    m_FitlineBindings[xSpectrumId].erase(i);
-    return;
-      }
-      i++;
-    }
-    // Falling through here means no matching fit lines...which is a no-op.
-
-  }*/
-    m_pMemory->deleteFit(fit);
+{
+    m_pImpl->deleteFit(fit);
 }
 
 /**
@@ -1207,16 +840,7 @@ CXamine::deleteFit(CSpectrumFit& fit)
 void
 CXamine::updateStatistics()
 {
-    SpectrumContainer spectra = getBoundSpectra();
-    for (int i =0; i < spectra.size(); i++) {
-        CSpectrum* pSpec = spectra[i];
-        if (pSpec) {
-            std::vector<unsigned> stats = pSpec->getUnderflows();
-            m_pMemory->setUnderflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
-            stats = pSpec->getOverflows();
-            m_pMemory->setOverflows(i, stats[0], (stats.size() == 2 ? stats[1] : 0));
-        }
-    }
+    m_pImpl->updateStatistics();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1229,77 +853,12 @@ CXamine::updateStatistics()
 std::vector<CGateContainer>
 CXamine::getAssociatedGates(const std::string& spectrumName, CHistogrammer &rSorter)
 {
-  // Returns a vector of gates which can be displayed on the spectrum.
-  // Gates are considered displayable on a spectrum iff the gate parameter set
-  // is the same as the spectrum parameter set. If the spectrum is a gamma
-  // spectrum, then the gate is only displayed on one spectrum. Note that
-  // displayable gates at present are one of the following types only:
-  //   Contour (type = 'c')
-  //   Band    (type = 'b')
-  //   Cut     (type = 's')
-  //   Sum2d   {type = 'm2'}
-  //   GammaContour   (type = 'gc')
-  //   GammaBand      (type = 'gb')
-  //   GammaCut       (type = 'gs')
-  // All other gates are not displayable.
-  //
-
-//  std::vector<CGateContainer> vGates;
-//  CSpectrum *pSpec = rSorter.FindSpectrum(spectrumName);
-//  if(!pSpec) {
-//    throw CDictionaryException(CDictionaryException::knNoSuchKey,
-//                   "No such spectrum CXamine::GatesToDisplay",
-//                   spectrumName);
-//  }
-//  //
-//  // The mediator tells us whether the spectrum can display the gate:
-//  //
-//  CGateDictionaryIterator pGate = rSorter.GateBegin();
-//  while(pGate != rSorter.GateEnd()) {
-//    CGateMediator DisplayableGate(((*pGate).second), pSpec);
-//    if(DisplayableGate()) {
-//      vGates.push_back((*pGate).second);
-//    }
-//    pGate++;
-//  }
-
-//  return vGates;
-    return m_pMemory->getAssociatedGates(spectrumName, rSorter);
+    return m_pImpl->getAssociatedGates(spectrumName, rSorter);
 }
 
 SpectrumContainer CXamine::getBoundSpectra() const
 {
-    return m_boundSpectra;
-}
-
-DisplayBindings CXamine::getDisplayBindings() const
-{
-//   return m_DisplayBindings;
-    return m_pMemory->getDisplayBindings();
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Function:
-//      CSpectrum*  DisplayBinding(UInt_t xid)
-// Operation type:
-//      Selector.
-//
-CSpectrum* CXamine::getSpectrum(UInt_t xid) {
-  // Returns  a pointer to a spectrum which is bound on a particular
-  // xid.
-  // Formal Parameters:
-  //    UInt_t xid:
-  //       The xid.
-  // Returns:
-  //     POinter to the spectrum or kpNULL Iff:
-  //     xid is out of range.
-  //     xid does not map to a spectrum.
-  //
-  if(xid >= m_pMemory->displayBindingsSize())
-    return (CSpectrum*)kpNULL;
-
-  return m_boundSpectra[xid];
+    return m_pImpl->getBoundSpectra();
 }
 
 
@@ -1308,7 +867,7 @@ CSpectrum* CXamine::getSpectrum(UInt_t xid) {
  */
 bool CXamine::spectrumBound(CSpectrum* pSpectrum)
 {
-    return (m_pMemory->findDisplayBinding(pSpectrum->getName()) >= 0);
+    return m_pImpl->spectrumBound(pSpectrum);
 }
 
 //////////////////////////////////////////////////////////////////////////////

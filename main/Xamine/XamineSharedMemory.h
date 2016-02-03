@@ -50,15 +50,6 @@ public:
     CXamineSharedMemory(size_t nBytes);
     ~CXamineSharedMemory();
 
-  volatile Xamine_shared* getXamineMemory() const
-  {
-    return m_pMemory;
-  }
-
-  void setXamineMemory (Xamine_shared* pSharedMem)
-  {
-    m_pMemory = pSharedMem;
-  }
 
   void setManaged(bool value) {
       m_fManaged = value;
@@ -72,6 +63,10 @@ public:
   void detach();
 
     std::string getMemoryName();
+
+    UInt_t getSize() const {
+        return m_nBytes;
+    }
 
     void mapMemory (const std::string& rsName,
                    UInt_t nBytes=knDefaultSpectrumSize)  ;
@@ -125,6 +120,16 @@ private:
     void ThrowGateStatus(Int_t nStatus, const CXamineGate& rGate,
                          const std::string& doing);
 
+protected:
+  volatile Xamine_shared* getXamineMemory() const
+  {
+    return m_pMemory;
+  }
+
+  void setXamineMemory (Xamine_shared* pSharedMem)
+  {
+    m_pMemory = pSharedMem;
+  }
 
 };
 
