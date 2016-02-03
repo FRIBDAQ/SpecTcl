@@ -224,10 +224,15 @@ void CXamineEventHandler::OnGate(CXamineGate &rXamineGate)
   // pull the points out of the Xamine gate into a local array and
   // map the Xamine gate type into a SpecTcl Gate type..
 
-  UInt_t nSpec       = rXamineGate.getSpectrum() - 1; // Numbering is Xamine's.
-  string strSpecName = (m_pDisplay->getDisplayBindings())[nSpec];
-  string strGateName = rXamineGate.getName();
-  CSpectrum* pSpec   = m_pSorter->FindSpectrum(strSpecName);
+  UInt_t nSpec         = rXamineGate.getSpectrum() - 1; // Numbering is Xamine's.
+  string strGateName   = rXamineGate.getName();
+  auto spectra = m_pDisplay->getBoundSpectra();
+  if (nSpec >= spectra.size()) {
+      cerr << "Spectrum in Xamine not defined in SpecTcl. ignoring gate\n";
+      return;
+  }
+
+  CSpectrum* pSpec = spectra[nSpec];
   if(!pSpec) {
     cerr << "Spectrum in Xamine not defined in SpecTcl, ignoring gate\n";
     return;
