@@ -26,8 +26,7 @@ using namespace std;
 
 // Global variables some of the libs expect:
 
-void* gpAnalyzer;
-void* gpTCLApplication;
+
 
 
 
@@ -39,20 +38,8 @@ void* gpTCLApplication;
 
 class CParameter;
 
-SpecTcl* SpecTcl::m_pInstance(0);
+
 static int paramId(0);
-
-SpecTcl::SpecTcl() {}
-SpecTcl::~SpecTcl() {}
-
-
-SpecTcl*
-SpecTcl::getInstance() {
-  if(!m_pInstance) {
-    m_pInstance = new SpecTcl;
-  }
-  return m_pInstance;
-}
 // Assign a parameter id.
 
 UInt_t

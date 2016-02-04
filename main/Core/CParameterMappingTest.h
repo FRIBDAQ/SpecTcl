@@ -29,5 +29,6 @@ public:
   void testSlideTransform();
 };
 
+CPPUNIT_TEST_SUITE_REGISTRATION(CParameterMappingTest);
 
 #endif
