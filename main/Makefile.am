@@ -41,6 +41,7 @@ SUBDIRS = daq \
 					Tape \
 					Core \
 					SpecTcl \
+					TreeParam \
 					FitsTests \
 					SorterTests \
 					contrib \
