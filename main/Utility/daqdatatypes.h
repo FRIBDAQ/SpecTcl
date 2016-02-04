@@ -64,8 +64,8 @@ typedef uint32_t UInt_t;
 typedef int16_t  Short_t;
 typedef uint16_t UShort_t;
 
-typedef int32_t  Long_t;
-typedef uint32_t ULong_t;
+typedef long  Long_t;
+typedef unsigned long ULong_t;
 
 typedef float Float_t;
 typedef double DFloat_t;

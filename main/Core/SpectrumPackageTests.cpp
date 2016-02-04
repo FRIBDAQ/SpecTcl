@@ -314,11 +314,12 @@ public:
         CTCLResult result(m_pInterp);
 
         vector<UInt_t> indices = {0};
-        Bool_t success = m_pPkg->SetChannel(result, "test1", indices, 25);
+        ULong_t value = 25;
+        Bool_t success = m_pPkg->SetChannel(result, "test1", indices, value);
 
         EQMSG("SetChannel must succeed for valid input", kfTRUE, success);
         EQMSG("SetChannel sets the correct value for specified bin",
-              UInt_t(25), (*m_pSpec1)[indices.data()]);
+              value, (*m_pSpec1)[indices.data()]);
 
     }
 

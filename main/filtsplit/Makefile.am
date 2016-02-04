@@ -6,12 +6,19 @@ SUFFIXES = .xml .1
 
 bin_PROGRAMS=filtsplit
 
-filtsplit_SOURCES=cmdline.c filtsplit.cpp
+BUILT_SOURCES = cmdline.h cmdline.c
+filtsplit_SOURCES = cmdline.c filtsplit.cpp
 
 noinst_HEADERS=cmdline.h
 
 filtsplit_CPPFLAGS =-I@top_srcdir@/Core
+filtsplit_CFLAGS =-I@top_srcdir@/Core
+filtsplit_CXXFLAGS =-I@top_srcdir@/Core
 
+filtsplit_LDADD = @top_builddir@/Core/libSpecTcl.la \
+		  @LIBTCLPLUS_LDFLAGS@ \
+		  @TCL_LIBS@ \
+		  -lgsl -lgslcblas
 
 cmdline.c cmdline.h: filtsplit.ggo
 	@GENGETOPT@ --unamed-opts <filtsplit.ggo
@@ -19,10 +26,6 @@ cmdline.c cmdline.h: filtsplit.ggo
 EXTRA_DIST=filtsplit.ggo  filtsplit.xml
 
 
-filtsplit_LDADD = @top_builddir@/Core/libSpecTcl.la \
-		  @LIBTCLPLUS_LDFLAGS@ \
-		  @TCL_LIBS@ \
-		  -lgsl -lgslcblas
 
 
 man_MANS = filtsplit.1

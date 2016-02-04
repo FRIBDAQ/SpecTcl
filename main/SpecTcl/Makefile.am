@@ -5,7 +5,7 @@ bin_PROGRAMS = SpecTcl
 
 SpecTcl_SOURCES = MySpecTclApp.cpp 
 
-SpecTcl_CXXFLAGS = -I@srcdir@ \
+SpecTcl_CXXFLAGS = -I@top_srcdir@/Core \
 									 -I@top_srcdir@/Utility \
 									 @LIBTCLPLUS_CFLAGS@ \
 									 @TCL_CPPFLAGS@
@@ -45,61 +45,7 @@ install-exec-local:
 # Unit tests.
 #
 #  Need to figure out why these don't link right
+
 #if CPPUNITDONOTBUILD
-
-
-noinst_PROGRAMS =  scalertests docbuftests unittests
-
-scalertests_CXXFLAGS=@CPPUNIT_CFLAGS@
-docbuftests_CXXFLAGS=@CPPUNIT_CFLAGS@
-
-# TODO: Could probably add quite a few more headers above to this.
-#       maybe *Command.h and *Package.h(?)
-
-
-noinst_HEADERS = Asserts.h RingFormatCommand.h
-
-scalertests_SOURCES = TestRunner.cpp \
-	scalercallbacktests.cpp 	\
-	controlcallbacktests.cpp
-
-scalertests_DEPENDENCIES = ScalerProcessorCallbacks.o
-
-docbuftests_SOURCES = TestRunner.cpp \
-	docexceptiontests.cpp \
-	callbacktests.cpp 
-
-docbuftests_DEPENDENCIES = DocumentationException.o  \
-	DocumentationCallback.o
-
-unittests_SOURCES = TestRunner.cpp SpectrumPackageTests.cpp
-
-commonTestLdFlags= @top_builddir@/Events/libAnalysis.la \
-	@top_builddir@/Analysis/libBufferAnalysis.la \
-	@top_builddir@/SpecTcl/libTclGrammerCommands.la \
-	@top_builddir@/Filter/libFilter.la	\
-	@top_builddir@/Sorter/libSorting.la \
-	@top_builddir@/TreeParam/libTreeParam.la \
-	@top_builddir@/Fits/libFits.la \
-	@top_builddir@/DecoderRing/libDecoderRing.la \
-	@top_builddir@/Tape/libtape.la \
-	@top_builddir@/SpectrumIO/libSpecio.la \
-	@top_builddir@/Xamine/libXplus.la \
-	@top_builddir@/DisplayInterface/libDisplayInterface.la \
-	@LIBTCLPLUS_LDFLAGS@ \
-	@CPPUNIT_LIBS@ \
-	@TK_LIBS@ \
-	@TCL_LIBS@
-
-scalertests_LDFLAGS= ScalerProcessorCallbacks.o $(commonTestLdFlags)
-
-docbuftests_LDFLAGS = DocumentationException.o DocumentationCallback.o \
-	$(commonTestLdFlags)
-
-unittests_LDADD = $(commonTestLdFlags)
-
-check-TESTS:
-	./unittests
-#	./scalertests ./docbuftests ./unittests
 
 #endif
