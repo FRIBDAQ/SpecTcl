@@ -29,7 +29,6 @@
 #libBufferAnalysis_la_LDFLAGS = -version-info $(SOVERSION):0 @LIBTCLPLUS_LDFLAGS@
 
 
-
 install-exec-local: docs_built
 	$(mkinstalldirs) @prefix@/share @prefix@/share/analysis
 	$(mkinstalldirs) @prefix@/share/images

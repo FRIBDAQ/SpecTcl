@@ -839,7 +839,8 @@ AC_OUTPUT(Makefile
           vmusb/MakefileSkel
           tkcon/Makefile
           compress/Makefile
-          SorterTests/Makefile)
+          SorterTests/Makefile
+          TestFiles/Makefile)
           
 
 

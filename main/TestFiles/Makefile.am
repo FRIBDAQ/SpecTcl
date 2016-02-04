@@ -1,27 +1,21 @@
-AM_CPPFLAGS= -I. -I../EventSource \
-	@LIBTCLPLUS_CFLAGS@	\
-	-I../Utility @TCL_CPPFLAGS@ -I../Tape
+commonCPPFLAGS= -I@top_srcdir@/Core \
+				-I@top_srcdir@/Utility \
+				-I@top_srcdir@/Tape \
+				@LIBTCLPLUS_CFLAGS@	\
+				@TCL_CPPFLAGS@
 
-LDADD = -lEventSource  -ltape \
-	 -L. -L../Events -L../EventSource  \
-	-L../Tape \
-	-L../Filter -L../SpecTcl \
-	@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@
-
-
-
-#AM_LDFLAGS = -L. -L../Events -L../EventSource -L../TCL -L../NSCLException \
-#	-L../Tape \
-#	-L../Filter -L../SpecTcl -Wl,"-rpath=$(libdir)"
+commonLDADD = @top_builddir@/Core/libSpecTcl.la \
+		@top_builddir@/Tape/libtape.la \
+		@LIBTCLPLUS_LDFLAGS@ \
+		@TCL_LIBS@
 
 
-bin_PROGRAMS = testfile ltwrite
+noinst_PROGRAMS = testfile ltwrite
 
 testfile_SOURCES = testfile.cpp
-
-
+testfile_CPPFLAGS = $(commonCPPFLAGS)
+testfile_LDADD= $(commonLDADD)
 
 ltwrite_SOURCES = ltwrite.cpp
-
-testfile_LDFLAGS= @LIBTCLPLUS_LDFLAGS@ -Wl,"-rpath=$(libdir)"
-ltwrite_LDFLAGS = @LIBTCLPLUS_LDFLAGS@ -Wl,"-rpath=$(libdir)"
+ltwrite_CPPFLAGS = $(commonCPPFLAGS)
+ltwrite_LDADD = $(commonLDADD)

@@ -18,7 +18,7 @@
 #include "CParameterMappingTest.h"
 #include <string>
 #include <stdlib.h>
-#include <isotream>
+#include <iostream>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
