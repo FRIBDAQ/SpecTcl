@@ -1,7 +1,9 @@
 lib_LTLIBRARIES=libCompress.la
 
-libCompress_la_SOURCES=deflate.cpp deflate.h inflate.cpp inflate.h \
+libCompress_la_SOURCES=deflate.cpp inflate.cpp \
 	compressPackage.cpp
+
+noinst_HEADERS = deflate.h inflate.h 
 
 libCompress_la_CXXFLAGS=@LIBTCLPLUS_CFLAGS@ @TCL_CPPFLAGS@
 libCompress_la_LIBADD=@LIBTCLPLUS_LDFLAGS@ @TCL_LIBS@ -lz
