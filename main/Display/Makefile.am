@@ -27,7 +27,7 @@ install-exec-local:
 	$(mkinstalldirs) $(prefix)/etc
 	$(INSTALL_PROGRAM) $(srcdir)/*.ctbl $(prefix)/etc
 	$(INSTALL_PROGRAM) $(srcdir)/*.ico  $(prefix)/etc
-	$(INSTALL_PROGRAM) $(srcdir)/Xamine $(prefix)/bin/Xamine2_0
+	$(INSTALL_PROGRAM) $(builddir)/Xamine $(prefix)/bin/Xamine2_0
 
 $(LEXOUT):
 	rm *_lex.{h,cc}

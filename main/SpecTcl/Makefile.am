@@ -28,15 +28,14 @@ EXTRA_DIST = Makefile.skel SpecTclInit.tcl SpecTclRC.tcl \
 	SpecTcl_Makefile.include $(man_MANS)
 
 install-exec-local:
-	$(mkinstalldirs) $(prefix)/etc
-	$(mkinstalldirs) $(prefix)/Skel
-	$(INSTALL_PROGRAM) $(srcdir)/SpecTclInit.tcl $(prefix)/etc
-	$(INSTALL_PROGRAM) $(srcdir)/MySpecTclApp.cpp $(prefix)/Skel
-	$(INSTALL_PROGRAM) $(srcdir)/MySpecTclApp.h $(prefix)/Skel
-	$(INSTALL_PROGRAM) $(srcdir)/SpecTclRC.tcl $(prefix)/Skel
-	$(INSTALL_DATA)    $(srcdir)/Globals.o $(prefix)/lib
-	$(INSTALL_DATA)   SpecTcl_Makefile.include $(sysconfdir)
-	echo INSTDIR=$(prefix) >Makefile.user
-	cat Makefile.skel >> Makefile.user
-	$(INSTALL_PROGRAM) $(srcdir)/Makefile.user $(prefix)/Skel/Makefile
+	$(mkinstalldirs) @prefix@/etc
+	$(mkinstalldirs) @prefix@/Skel
+	$(INSTALL_PROGRAM) @srcdir@/SpecTclInit.tcl @prefix@/etc
+	$(INSTALL_PROGRAM) @srcdir@/MySpecTclApp.cpp @prefix@/Skel
+	$(INSTALL_PROGRAM) @srcdir@/MySpecTclApp.h @prefix@/Skel
+	$(INSTALL_PROGRAM) @srcdir@/SpecTclRC.tcl @prefix@/Skel
+	$(INSTALL_DATA)   @srcdir@/SpecTcl_Makefile.include $(sysconfdir)
+	echo INSTDIR=@prefix@ >Makefile.user
+	cat @srcdir@/Makefile.skel >> Makefile.user
+	$(INSTALL_PROGRAM) @srcdir@/Makefile.user @prefix@/Skel/Makefile
 

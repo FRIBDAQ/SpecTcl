@@ -18,5 +18,5 @@ EXTRA_DIST = GateGenerator.tcl \
 SCRIPTDEST = $(prefix)/Script
 install-exec-local:
 	$(mkinstalldirs) $(SCRIPTDEST)
-	$(INSTALL_PROGRAM) *.tcl $(SCRIPTDEST)
+	$(INSTALL_PROGRAM) @srcdir@/*.tcl $(SCRIPTDEST)
 
