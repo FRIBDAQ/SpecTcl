@@ -226,6 +226,10 @@ SpecTcl_SRC =  MySpecTclApp.cpp \
 	UnbindCommand.h UngateCommand.h WriteCommand.h \
 	CFoldCommand.h
 
+Spectra_SRC = SpectraLocalDisplay.cpp SpectraProcess.cpp
+
+Spectra_INCLUDES = SpectraLocalDisplay.h SpectraProcess.h
+
 
 SpectrumIO_SRC =  SpectrumFormatter.cpp \
 	SpectrumFormatterFactory.cpp \
@@ -309,6 +313,7 @@ libTclGrammerApp_la_SOURCES = $(Analysis_SRC) \
 												$(Gates_SRC) \
 												$(Sorter_SRC) \
 												$(TclGrammerApp_SRC) \
+												$(Spectra_SRC) \
 												$(SpectrumIO_SRC) \
 												$(TreeParam_SRC) \
 												$(Xamine_SRC)
@@ -337,6 +342,7 @@ include_HEADERS = $(Analysis_INCLUDES) \
 												$(Fits_INCLUDES) \
 												$(Gates_INCLUDES) \
 												$(Sorter_INCLUDES) \
+												$(Spectra_INCLUDES) \
 												$(TclGrammerApp_INCLUDES) \
 												$(SpectrumIO_INCLUDES) \
 												$(TreeParam_INCLUDES) \
