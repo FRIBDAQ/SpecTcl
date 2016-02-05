@@ -15,7 +15,7 @@ filtsplit_CPPFLAGS =-I@top_srcdir@/Core
 filtsplit_CFLAGS =-I@top_srcdir@/Core
 filtsplit_CXXFLAGS =-I@top_srcdir@/Core
 
-filtsplit_LDADD = @top_builddir@/Core/libSpecTcl.la \
+filtsplit_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
 		  @LIBTCLPLUS_LDFLAGS@ \
 		  @TCL_LIBS@ \
 		  -lgsl -lgslcblas

@@ -13,7 +13,7 @@ TestRunner_CPPFLAGS =	-I@top_srcdir@/Utility \
 TestRunner_CXXFLAGS=@CPPUNIT_CFLAGS@
 
 TestRunner_LDADD = @CPPUNIT_LIBS@ \
-		    @top_builddir@/Core/libSpecTcl.la \
+			@top_builddir@/Core/libTclGrammerApp.la \
 		    @top_builddir@/Tape/libtape.la \
 		    @LIBTCLPLUS_LDFLAGS@ \
 		    @TCL_LIBS@ \

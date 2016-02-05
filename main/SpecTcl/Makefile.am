@@ -12,7 +12,7 @@ SpecTcl_CXXFLAGS = -I@top_srcdir@/Core \
 
 SpecTcl_CPPFLAGS = -g
 
-SpecTcl_LDADD = @top_builddir@/Core/libSpecTcl.la \
+SpecTcl_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
 								@top_builddir@/Display/libXamine.la \
 								@top_builddir@/Tape/libtape.la \
 								-lXt -lX11 -lgsl -lgslcblas

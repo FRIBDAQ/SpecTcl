@@ -4,7 +4,7 @@ commonCPPFLAGS= -I@top_srcdir@/Core \
 				@LIBTCLPLUS_CFLAGS@	\
 				@TCL_CPPFLAGS@
 
-commonLDADD = @top_builddir@/Core/libSpecTcl.la \
+commonLDADD = @top_builddir@/Core/libTclGrammerApp.la \
 		@top_builddir@/Tape/libtape.la \
 		@LIBTCLPLUS_LDFLAGS@ \
 		@TCL_LIBS@

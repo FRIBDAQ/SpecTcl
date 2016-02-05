@@ -4,7 +4,6 @@ SUBDIRS = Replace \
 					factories \
 					Display \
 					Tape \
-					Analysis \
 					Core \
 					SpecTcl \
 					TreeParam \

@@ -19,6 +19,7 @@
 #include <string>
 #include <stdlib.h>
 #include <iostream>
+#include <Asserts.h>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -101,8 +102,10 @@ void CParameterMappingTest::testSlideTransform()
   for(int i = 0; i < 100; i++ ) {
     float f = (float)((float)rand()*4095.0/(float)RAND_MAX);
 
-    CPPUNIT_ASSERT((float)(f+1.0) == m_Displaced.RawToMapped(f));
-    CPPUNIT_ASSERT((float)(f-1.0) == m_Displaced.MappedToRaw(f));
+    EQMSG("RawToMapped should adjust +1",
+          (float)(f+1.0), m_Displaced.RawToMapped(f));
+    EQMSG("MappedToRaw should adjust -1",
+          (float)(f-1.0), m_Displaced.MappedToRaw(f));
   }
 }
 

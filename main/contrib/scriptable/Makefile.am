@@ -83,7 +83,7 @@ noinst_HEADERS =  CBoolConfigParam.h \
 ScriptedSpecTcl_DEPENDENCIES = libScripted.la
 
 ScriptedSpecTcl_LDFLAGS =   @top_builddir@/contrib/scriptable/libScripted.la \
-	@top_builddir@/Core/libSpecTcl.la \
+	@top_builddir@/Core/libTclGrammerApp.la \
 	@top_builddir@/Display/libXamine.la  \
 	@top_builddir@/Tape/libtape.la \
 	-lXt -lX11 $(X11EXTRA_LDFLAGS)  \
@@ -168,7 +168,7 @@ unittest_CXXFLAGS= -I@top_srcdir@/Core \
 unittest_DEPENDENCIES = @builddir@/libScripted.la
 
 unittest_LDADD =   @builddir@/libScripted.la \
-		    @top_builddir@/Core/libSpecTcl.la \
+		    @top_builddir@/Core/libTclGrammerApp.la \
 		    @top_builddir@/Display/libXamine.la \
 		    @top_builddir@/Tape/libtape.la
 

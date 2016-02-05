@@ -812,9 +812,7 @@ AC_SUBST(MANDOCBOOK)
 # create output files.
 
 AC_OUTPUT(Makefile 
-          Analysis/Makefile
           calibratedparams/Makefile 
-          ClassBreakdown/Makefile
           contrib/Makefile
           contrib/scriptable/Makefile
           compress/Makefile

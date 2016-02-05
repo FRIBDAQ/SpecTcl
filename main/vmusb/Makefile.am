@@ -54,7 +54,7 @@ VMUSBSpecTcl_CPPFLAGS = -I@top_srcdir@/Utility \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@
 
-VMUSBSpecTcl_LDADD =@top_builddir@/Core/libSpecTcl.la \
+VMUSBSpecTcl_LDADD =@top_builddir@/Core/libTclGrammerApp.la \
 		    @top_builddir@/Tape/libtape.la \
 		    @top_builddir@/calibratedparams/libCalibrations.la \
 		    @top_builddir@/Display/libXamine.la
