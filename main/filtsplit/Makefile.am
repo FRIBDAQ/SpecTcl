@@ -20,8 +20,8 @@ filtsplit_LDADD = @top_builddir@/Core/libTclGrammerApp.la \
 		  @TCL_LIBS@ \
 		  -lgsl -lgslcblas
 
-cmdline.c cmdline.h: filtsplit.ggo
-	@GENGETOPT@ --unamed-opts <filtsplit.ggo
+cmdline.c cmdline.h: @srcdir@/filtsplit.ggo
+	@GENGETOPT@ --unamed-opts <@srcdir@/filtsplit.ggo
 
 EXTRA_DIST=filtsplit.ggo  filtsplit.xml
 
