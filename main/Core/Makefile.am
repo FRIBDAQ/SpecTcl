@@ -351,7 +351,7 @@ EXTRA_DIST =  Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
 
 
 noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
-					displayInterfaceTests parameterMappingTests \
+					displayInterfaceTests \
 					sorterTests treeParamTests fitTests
 
 commonCXXFLAGS = -I@top_srcdir@/Core \
@@ -393,18 +393,13 @@ displayInterfaceTests_SOURCES = TestRunner.cpp \
 								DisplayFactoryTests.cpp \
 								DisplayInterfaceTests.cpp
 
-parameterMappingTests_CXXFLAGS = $(commonCXXFLAGS)
-parameterMappingTests_LDADD    = $(commonTestLdFlags)
-parameterMappingTests_SOURCES  = TestRunner.cpp CParameterMappingTest.cpp CAxisTests.cpp
-
-
 sorterTests_CXXFLAGS = $(commonCXXFLAGS)
 sorterTests_LDADD = $(commonTestLdFlags)
 sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 					  Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
 					  TestGammaSummary.cpp TestG2dDeluxe.cpp TestGamma1.cpp   \
-					  TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp
-
+					  TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
+						CParameterMappingTest.cpp CAxisTests.cpp 
 treeParamTests_CXXFLAGS  = $(commonCXXFLAGS)
 treeParamTests_LDADD     = $(commonTestLdFlags)
 treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
@@ -420,8 +415,6 @@ fitTests_LDADD = $(commonTestLdFlags)
 fitTests_SOURCES = TestRunner.cpp SpectrumDictionaryFitObserverTests.cpp
 
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
-		parameterMappingTests sorterTests treeParamTests fitTests
+		sorterTests treeParamTests fitTests
 
 
-EXTRA_DIST = eventsource.WC eventsource.omt \
-						 events.WC events.omt

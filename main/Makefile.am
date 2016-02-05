@@ -1,49 +1,13 @@
-#SUBDIRS =  daq \
-#	Replace \
-#	Scripts \
-#	Utility \
-#	factories \
-#	Display \
-#	Tape \
-#	EventSource \
-#	Events \
-#	Gates \
-#	Sorter \
-#	SpectrumIO \
-#	Filter \
-#	Analysis\
-#	DecoderRing \
-#	TreeParam \
-#	Fits \
-#	DisplayInterface \
-#	Xamine \
-#	Spectra \
-#	SpecTcl \
-#	FitsTests \
-#	SorterTests \
-#	contrib \
-#	TestFiles \
-#	Gui \
-#	splash \
-#	filtsplit \
-#	calibratedparams \
-#	treegui \
-#	ccusb \
-#	vmusb \
-#	tkcon \
-#	compress
-SUBDIRS = daq \
-				  Analysis \
+SUBDIRS = Replace \
 					Scripts \
 					Utility \
 					factories \
 					Display \
 					Tape \
+					Analysis \
 					Core \
 					SpecTcl \
 					TreeParam \
-					FitsTests \
-					SorterTests \
 					contrib \
 					TestFiles \
 					Gui \
@@ -121,5 +85,5 @@ install-exec-local:
 	$(INSTALL_DATA) CHANGELOG $(prefix)
 	$(MANDB) $(prefix)/man
 
-check-TESTS:
-	- for d in $(SUBDIRS); do (cd $$d; make check-TESTS); done
+#check-TESTS:
+#	- for d in $(SUBDIRS); do (cd $$d; make check-TESTS); done
