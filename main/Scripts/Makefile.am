@@ -14,10 +14,9 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(SCRIPTDIR)/CopyGates.tcl  $(SCRIPTDEST)
 
 EXTRA_DIST = dtree.tcl fileall.tcl gui.tcl handle.tcl listall.tcl tkcon.tcl tree.tcl \
-	CopyGates.tcl save.head all.tcl  \
-	dependsondeleted.test formatgatetest.test gateparamcount.test generalgatetype.test \
+	CopyGates.tcl save.head all.tcl dependsondeleted.test formatgatetest.test \
+	gateparamcount.test generalgatetype.test \
 	getdependencies.test listify.test markwritable.test setstatus.test validparams.test \
 	wrap.test
 
-tests: 
-	 ./fileall_test
+TESTS = fileall_test
