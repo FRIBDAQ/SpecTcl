@@ -21,10 +21,9 @@ SpecTcl_LDFLAGS = $(X11EXTRA_LDFLAGS)  $(LD_EXTRA_FLAGS) \
 	@LIBTCLPLUS_LDFLAGS@	\
 	-Wl,"-rpath=$(libdir)" @TK_LIBS@ @TCL_LIBS@ @XLIBSW@
 
-man_MANS = spectclapi.3
 
 
-EXTRA_DIST = Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
+EXTRA_DIST = Makefile.skel SpecTclInit.tcl SpecTclRC.tcl \
 	 mapped.tcl paramtest.tcl  \
 	SpecTcl_Makefile.include $(man_MANS)
 
@@ -41,11 +40,3 @@ install-exec-local:
 	cat Makefile.skel >> Makefile.user
 	$(INSTALL_PROGRAM) $(srcdir)/Makefile.user $(prefix)/Skel/Makefile
 
-
-# Unit tests.
-#
-#  Need to figure out why these don't link right
-
-#if CPPUNITDONOTBUILD
-
-#endif
