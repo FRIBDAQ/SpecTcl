@@ -17,7 +17,8 @@ SUBDIRS = Replace \
 					treegui \
 					vmusb \
 					tkcon \
-					compress
+					compress \
+					docs
 
 ACLOCAL_AMFLAGS=-I m4
 

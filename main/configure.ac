@@ -813,59 +813,35 @@ AC_SUBST(MANDOCBOOK)
 
 AC_OUTPUT(Makefile 
           Analysis/Makefile
-          daq/Makefile 
-          daq/daqdefs.h 
-          daq/daqdefs.tcl 
-          Scripts/Makefile 
-          Utility/Makefile
-          factories/Makefile
-          DisplayInterface/Makefile 
-          Display/Makefile 
-          Tape/Makefile
-          Core/Makefile 
-          SpecTcl/Makefile
+          calibratedparams/Makefile 
+          ClassBreakdown/Makefile
           contrib/Makefile
           contrib/scriptable/Makefile
-          FitsTests/Makefile 
-          Gui/Makefile
-          splash/Makefile
-          treegui/Makefile
-          filtsplit/Makefile
-          doc/Makefile
-          calibratedparams/Makefile 
+          compress/Makefile
+          Core/Makefile 
           ccusb/Makefile
           ccusb/MakefileSkel
-          vmusb/Makefile
-          vmusb/MakefileSkel
+          DisplayInterface/Makefile 
+          Display/Makefile 
+          docs/Makefile
+          docs/webpage/Makefile
+          docs/diagrams/Makefile
+          docs/docbook/Makefile
+          docs/man/Makefile
+          factories/Makefile
+          filtsplit/Makefile
+          Gui/Makefile
+          Scripts/Makefile 
+          SpecTcl/Makefile
+          splash/Makefile
+          Tape/Makefile
           tkcon/Makefile
-          compress/Makefile
-          SorterTests/Makefile
-          TestFiles/Makefile)
+          TestFiles/Makefile
+          treegui/Makefile
+          TreeParam/Makefile 
+          Utility/Makefile
+          Utility/daqdefs.h 
+          Utility/daqdefs.tcl 
+          vmusb/Makefile
+          vmusb/MakefileSkel )
           
-
-
-#AC_OUTPUT(Makefile daq/Makefile daq/daqdefs.h daq/daqdefs.tcl \
-#        Replace/Makefile Scripts/Makefile Utility/Makefile \
-#        factories/Makefile
-#        DisplayInterface/Makefile \
-#	Display/Makefile 
-#	Xamine/Makefile Tape/Makefile \
-#	EventSource/Makefile Events/Makefile Gates/Makefile \
-#	Sorter/Makefile SpectrumIO/Makefile Filter/Makefile \
-#	Analysis/Makefile \
-#	DecoderRing/Makefile \
-#	TreeParam/Makefile \
-#	Fits/Makefile	   \
-#	FitsTests/Makefile \
-#	 SpecTcl/Makefile \
-#	 contrib/Makefile contrib/scriptable/Makefile \
-#	 TestFiles/Makefile \
-#	 Gui/Makefile splash/Makefile \
-#	 treegui/Makefile \
-#	 filtsplit/Makefile doc/Makefile \
-#	 calibratedparams/Makefile \
-#	 ccusb/Makefile ccusb/MakefileSkel \
-#	 vmusb/Makefile vmusb/MakefileSkel \
-#	 tkcon/Makefile compress/Makefile \
-#	 SorterTests/Makefile
-#	 Spectra/Makefile)
