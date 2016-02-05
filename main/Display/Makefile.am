@@ -2,11 +2,11 @@ bin_PROGRAMS = Xamine colorset
 
 HOMEDEF = -DHOME='"$(prefix)"'
 GRIFLAGS = -DGRI_DIR='"@gri_dir@"' -DGRI_CMD_DIR='"@gri_dir@"'
-LEXOUT = lex.yy.c
+LEXOUT = @builddir@/lex.yy.c
 MOTIF_SOURCES = XMCallback.cc XMMenus.cc XMDialogs.cc XMWidget.cc \
 	XMPushbutton.cc XMManagers.cc XMText.cc
 
-AM_CPPFLAGS = -I.. @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
+AM_CPPFLAGS = -I@top_srcdir@ @XINCLUDES@ @MOTIF_INCLUDES@ $(HOMEDEF) $(GRIFLAGS) \
 	-I@top_srcdir@/Utility $(GDINCLUDES)
 # AM_LDFLAGS = -g $(GDLDSW) @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ 
 
@@ -18,7 +18,7 @@ Xamine_LDADD=  $(PARSEOBJECTS)  @XLIBSW@ @MOTIF_LIBSW@ @XTLIBSW@ @GDLDSW@  \
 
 #  @LD_EXTRA_FLAGS@
 
-XCCFLAGS =   -g -c -w -I. -I.. $(INCLUDES) -DXTFUNCPROTO -DXAMINE 
+XCCFLAGS =   -g -c -w -I@top_builddir@ -I@srcdir@ -I@top_srcdir@ $(INCLUDES) -DXTFUNCPROTO -DXAMINE 
 
 AM_CXXFLAGS = -g -pedantic @TCL_CPPFLAGS@
 AM_CFLAGS   = -g -pedantic @TCL_CPPFLAGS@
@@ -31,63 +31,70 @@ install-exec-local:
 
 $(LEXOUT):
 	rm *_lex.{h,cc}
-	$(LEX) windfile.l
+	$(LEX) @builddir@/windfile.l
 
 windfile_lex.cc: $(LEXOUT)
 	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
 	cp windfile_lex.h windlex.h
 
-windfile_parse.cc: windfile.y windio.h dispwind.h dispshare.h printer.h
-	$(YACC) -p windfile -b windfile windfile.y
+BUILT_SOURCES = windfile_parse.cc defaultfile_parse.cc windfile_lex.h grobfile_parse.cc grobfile_lex.h
+
+windfile_FILES =@srcdir@/windfile.y \
+			 @srcdir@/windio.h \
+			 @srcdir@/dispwind.h \
+			 @srcdir@/dispshare.h \
+			 @srcdir@/printer.h
+windfile_parse.cc: $(windfile_FILES) 
+	$(YACC) -p windfile -b windfile @srcdir@/windfile.y
 	mv windfile.tab.c windfile_parse.cc
 
-windfile_parse.o: windfile_parse.cc windfile.y  dispwind.h superpos.h dispshare.h windio.h
-	$(CC) $(XCCFLAGS) windfile_parse.cc
+windfile_parse.o: @builddir@/windfile_parse.cc @srcdir@/windfile.y  @srcdir@/dispwind.h @srcdir@/superpos.h @srcdir@/dispshare.h @srcdir@/windio.h
+	$(CC) $(XCCFLAGS) @builddir@/windfile_parse.cc
 
-defaultfile_parse.cc: defaultfile.y dispwind.h windio.h dispshare.h dfltmgr.h grobjdisplay.h panemgr.h printer.h
-	$(YACC) -p defaultfile -b defaultfile defaultfile.y
+defaultfile_parse.cc: @srcdir@/defaultfile.y @srcdir@/dispwind.h @srcdir@/windio.h @srcdir@/dispshare.h @srcdir@/dfltmgr.h @srcdir@/grobjdisplay.h @srcdir@/panemgr.h @srcdir@/printer.h
+	$(YACC) -p defaultfile -b defaultfile @srcdir@/defaultfile.y
 	mv defaultfile.tab.c defaultfile_parse.cc
 
 defaultfile_parse.o: defaultfile_parse.cc defaultfile.y dispwind.h superpos.h dispshare.h dfltmgr.h windio.h
 	$(CC) $(XCCFLAGS) defaultfile_parse.cc
 
-windfile_lex.h: windfile.y windio.h
-	$(YACC) -p windfile -b windfile -dl  windfile.y
+windfile_lex.h: @srcdir@/windfile.y @srcdir@/windio.h
+	$(YACC) -p windfile -b windfile -dl  @srcdir@/windfile.y
 	mv windfile.tab.h windfile_lex.h
 
-windfile_lex.o: windfile.l dispwind.h superpos.h windfile_lex.h windio.h
-	$(LEX) windfile.l
+windfile_lex.o: @srcdir@/windfile.l @srcdir@/dispwind.h @srcdir@/superpos.h @builddir@/windfile_lex.h @srcdir@/windio.h
+	$(LEX) @srcdir@/windfile.l
 	sed s/yy/windfile/g $(LEXOUT) >windfile_lex.cc
 	cp windfile_lex.h windlex.h
-	$(CC) $(XCCFLAGS) windfile_lex.cc
+	$(CC) $(XCCFLAGS) @builddir@/windfile_lex.cc
 
-grobfile_lex.o: grobfile.l dispgrob.h grobjio.h grobfile_lex.h 
-	$(LEX) grobfile.l
+grobfile_lex.o: @srcdir@/grobfile.l @srcdir@/dispgrob.h @srcdir@/grobjio.h @builddir@/grobfile_lex.h 
+	$(LEX) @srcdir@/grobfile.l
 	sed s/yy/grobjfile/g $(LEXOUT) >grobfile_lex.cc
 	$(CC) $(XCCFLAGS) grobfile_lex.cc
 
-grobfile_parse.cc: grobfile.y dispgrob.h grobjio.h
-	$(YACC) -p grobjfile -b grobfile grobfile.y
+grobfile_parse.cc: @srcdir@/grobfile.y @srcdir@/dispgrob.h @srcdir@/grobjio.h
+	$(YACC) -p grobjfile -b grobfile @srcdir@/grobfile.y
 	mv grobfile.tab.c grobfile_parse.cc
 
-grobfile_parse.o: grobfile_parse.cc
-	$(CC) $(XCCFLAGS) grobfile_parse.cc
+grobfile_parse.o: @builddir@/grobfile_parse.cc
+	$(CC) $(XCCFLAGS) @builddir@/grobfile_parse.cc
 
-grobfile_lex.h: grobfile.y grobjio.h grobfile_parse.cc
-	$(YACC) -p grobjfile -d grobfile.y
+grobfile_lex.h: @srcdir@/grobfile.y @srcdir@/grobjio.h @builddir@/grobfile_parse.cc
+	$(YACC) -p grobjfile -d @srcdir@/grobfile.y
 	mv y.tab.h grobfile_lex.h
 	rm -f y.tab.c
 
 
 
-defaultfile_lex.h: defaultfile.y windio.h
-	$(YACC) -p defaultfile -b defaultfile -dl defaultfile.y
+defaultfile_lex.h: @srcdir@/defaultfile.y @srcdir@/windio.h
+	$(YACC) -p defaultfile -b defaultfile -dl @srcdir@/defaultfile.y
 	mv defaultfile.tab.h defaultfile_lex.h
 
-defaultfile_lex.o: windfile.l defaultfile.l dispwind.h superpos.h \
-	defaultfile_lex.h windio.h
-	$(LEX) windfile.l
-	$(LEX) defaultfile.l
+defaultfile_lex.o: @srcdir@/windfile.l @srcdir@/defaultfile.l @srcdir@/dispwind.h @srcdir@/superpos.h \
+	@builddir@/defaultfile_lex.h @srcdir@/windio.h
+	$(LEX) @srcdir@/windfile.l
+	$(LEX) @srcdir@/defaultfile.l
 	sed s/yy/defaultfile/g $(LEXOUT) >defaultfile_lex.cc
 	cp defaultfile_lex.h windlex.h
 	$(CC) $(XCCFLAGS)  defaultfile_lex.cc
