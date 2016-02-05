@@ -63,7 +63,7 @@ VMUSBSpecTcl_LDFLAGS = 	\
 	@LIBTCLPLUS_LDFLAGS@	\
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\
-	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ \
 	 -g -Wl,"-rpath=@libdir@"
 
 
