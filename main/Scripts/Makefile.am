@@ -19,4 +19,6 @@ EXTRA_DIST = dtree.tcl fileall.tcl gui.tcl handle.tcl listall.tcl tkcon.tcl tree
 	getdependencies.test listify.test markwritable.test setstatus.test validparams.test \
 	wrap.test
 
-TESTS = fileall_test
+AM_TESTS_ENVIRONMENT = TCLLIBPATH='@srcdir@'; export TCLLIBPATH
+TESTS = all.tcl
+TCL_LOG_COMPILER = $(TCLSH)

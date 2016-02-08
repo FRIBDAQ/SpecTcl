@@ -63,27 +63,27 @@ install-exec-local:
 	ln -s $(prefix)/lib $(prefix)/Lib
 	ln -s $(prefix)/include $(prefix)/Include
 	ln -s $(prefix)/etc     $(prefix)/Etc
-	tar czf - doc |(cd $(prefix); tar xzf -)
+	tar czf - @srcdir@/docs |(cd $(prefix); tar xzf -)
 	echo  TCLINCLUDES=$(TCL_CPPFLAGS)          > Directories.temp
 	echo  TCLLIBS    =@TK_LIBS@ @TCL_LIBS@ -lm -ldl  >> Directories.temp 
 	echo  X11INCLUDES=$(X11INCLUDES)       >> Directories.temp
 	echo  X11LIBS    =$(XLIBSW) $(MOTIF_LIBSW) -lXm -lXt -lX11 >> Directories.temp
-	cat   Directories.include              >> Directories.temp
-	sed  -e 's/-lieee//g'  Directories.temp >Directories.edited
-	$(INSTALL_DATA) Directories.edited $(sysconfdir)/Directories.include
-	$(INSTALL_DATA) LICENSE    $(prefix)
+	cat   @srcdir@/Directories.include              >> Directories.temp
+	sed  -e 's/-lieee//g'  @builddir@/Directories.temp >Directories.edited
+	$(INSTALL_DATA) @builddir@/Directories.edited $(sysconfdir)/Directories.include
+	$(INSTALL_DATA) @srcdir@/LICENSE    $(prefix)
 	echo CXX=$(CXX)                       > CompilationRules.temp
 	echo CC=$(CC)                        >> CompilationRules.temp
 	echo CXXLD=$(CXX)                  >> CompilationRules.temp
 	echo CCLD=$(CC)                    >> CompilationRules.temp
 	echo LIBTCLPLUS_CLFLAGS=@LIBTCLPLUS_CFLAGS@ >> CompilationRules.temp
 	echo LIBTCLPLUS_LDFLAGS=@LIBTCLPLUS_LDFLAGS@ >> CompilationRules.temp
-	cat  CompilationRules.include        >> CompilationRules.temp
-	$(INSTALL_DATA) CompilationRules.temp $(sysconfdir)/CompilationRules.include
+	cat  @srcdir@/CompilationRules.include        >> CompilationRules.temp
+	$(INSTALL_DATA) @builddir@/CompilationRules.temp $(sysconfdir)/CompilationRules.include
 	echo "Version: " SpecTcl-$(VERSION) build on `hostname` `date` >VERSION
-	$(INSTALL_DATA) VERSION $(prefix)/VERSION
-	$(INSTALL_DATA) CHANGELOG $(prefix)
-	$(MANDB) $(prefix)/man
+	$(INSTALL_DATA) @builddir@/VERSION $(prefix)/VERSION
+	$(INSTALL_DATA) @srcdir@/CHANGELOG $(prefix)
+	$(MANDB) $(prefix)/docs/man
 
 #check-TESTS:
 #	- for d in $(SUBDIRS); do (cd $$d; make check-TESTS); done

@@ -32,7 +32,7 @@ variableTabActions.tcl
 
 install-exec-local:
 	$(mkinstalldirs) $(PKGDEST)
-	$(INSTALL_PROGRAM) $(srcdir)/$(PKGScripts) $(PKGDEST)
+	for script in $(PKGScripts) ; do $(INSTALL_PROGRAM) @srcdir@/$${script} $(PKGDEST) ; done
 	$(INSTALL_DATA)    $(srcdir)/*.gif $(PKGDEST)
 	$(INSTALL_PROGRAM) $(srcdir)/treeGui.tcl  $(SCRIPTDEST)
 	(cd $(PKGDEST); echo 	pkg_mkIndex . *.tcl  |tclsh)

@@ -69,14 +69,15 @@ VMUSBSpecTcl_LDFLAGS = 	\
 
 install-exec-local: docs_built
 	$(mkinstalldirs) @prefix@/VMUSBSkel @prefix@/share/vmusb
-	$(INSTALL_DATA) *.cpp *.h        @prefix@/VMUSBSkel
+	for f in @srcdir@/*.cpp ; do $(INSTALL_DATA) $$f @prefix@/VMUSBSkel ; done
+	for f in @srcdir@/*.h ; do $(INSTALL_DATA) $$f @prefix@/VMUSBSkel ; done
 	$(INSTALL_DATA) MakefileSkel     @prefix@/VMUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/vmusb
-	$(INSTALL_DATA) spectclSetup.tcl configFile.tcl constants.tcl  @prefix@/TclLibs/vmusb
+	$(INSTALL_DATA) @srcdir@/spectclSetup.tcl @srcdir@/configFile.tcl @srcdir@/constants.tcl  @prefix@/TclLibs/vmusb
 	echo pkg_mkIndex -verbose @prefix@/TclLibs/vmusb "*.tcl" | @TCLSH@
 	$(mkinstalldirs) @prefix@/share/vmusb
-	$(INSTALL_DATA)  *.html @prefix@/share/vmusb
-	$(INSTALL_DATA)  *.pdf  @prefix@/share/vmusb
+	for f in @builddir@/*.html ; do $(INSTALL_DATA) $$f @prefix@/share/vmusb ; done
+	for f in @builddir@/*.pdf ; do $(INSTALL_DATA)  $$f  @prefix@/share/vmusb ; done
 	-for s in {1..8} ; do		\
 		$(mkinstalldirs) @prefix@/share/man/man$$s; \
 		for f in *.$$s*; do  \

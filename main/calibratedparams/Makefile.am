@@ -47,8 +47,8 @@ EXTRA_DIST = 	CalibIOGUI.tcl Dialogs.tcl gui.tcl TkPrompt.tcl	\
 install-exec-local:
 	$(mkinstalldirs) $(prefix)/TclLibs
 	$(mkinstalldirs) $(prefix)/TclLibs/calibration
-	$(INSTALL_SCRIPT) *.tcl $(prefix)/TclLibs/calibration
-	$(INSTALL_PROGRAM) .libs/libCalibrations.* $(prefix)/TclLibs/calibration
-	@TCLSH@  packages.tcl $(prefix)/TclLibs/calibration
+	$(INSTALL_SCRIPT) @srcdir@/*.tcl $(prefix)/TclLibs/calibration
+	$(INSTALL_PROGRAM) @builddir@/.libs/libCalibrations.* $(prefix)/TclLibs/calibration
+	@TCLSH@  @srcdir@/packages.tcl $(prefix)/TclLibs/calibration
 	echo "package ifneeded Calibrations 1.0 [list load [file join \$$dir libCalibrations.so]]" >> 				\
 	$(prefix)/TclLibs/calibration/pkgIndex.tcl

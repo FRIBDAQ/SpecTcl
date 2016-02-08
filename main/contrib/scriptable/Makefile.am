@@ -132,16 +132,16 @@ install-exec-local:
 	$(mkinstalldirs) $(prefix)/contrib/scripted/src
 	$(mkinstalldirs) $(prefix)/contrib/scripted/include
 	$(mkinstalldirs) $(prefix)/contrib/scripted/skel
-	$(INSTALL_DATA) *.cpp $(prefix)/contrib/scripted/src
-	$(INSTALL_DATA) *.h   $(prefix)/contrib/scripted/include
-	$(INSTALL_DATA) MySpecTclApp.cpp MySpecTclApp.h \
+	$(INSTALL_DATA) @srcdir@/*.cpp $(prefix)/contrib/scripted/src
+	$(INSTALL_DATA) @srcdir@/*.h   $(prefix)/contrib/scripted/include
+	$(INSTALL_DATA) @srcdir@/MySpecTclApp.cpp @srcdir@/MySpecTclApp.h \
 			      $(prefix)/contrib/scripted/skel
 	echo "#-------- Begin auto generated stuff " \
 	                                  > Makefile.user
 	echo INSTDIR=$(prefix)           >> Makefile.user
-	cat Makefile.skel                >> Makefile.user
-	$(INSTALL_DATA) Makefile.user $(prefix)/contrib/scripted/skel/Makefile
-	$(INSTALL_DATA) scriptable_Makefile.include $(sysconfdir)
+	cat @srcdir@/Makefile.skel                >> Makefile.user
+	$(INSTALL_DATA) @builddir@/Makefile.user $(prefix)/contrib/scripted/skel/Makefile
+	$(INSTALL_DATA) @srcdir@/scriptable_Makefile.include $(sysconfdir)
 
 
 EXTRA_DIST=Makefile.skel scriptable_Makefile.include 
