@@ -17,36 +17,23 @@ noinst_HEADERS=CC1205Unpacker.h \
 	ParamMapCommand.h
 
 
-AM_CPPFLAGS =  -I. -I@top_srcdir@  -I@top_srcdir@/Events \
-	-I@top_srcdir@/Utility -I@top_srcdir@/Sorter  \
-	-I@top_srcdir@/EventSource -I@top_srcdir@/Gates \
-	-I@top_srcdir@/SpectrumIO -I@top_srcdir@/Xamine -I@top_srcdir@/SpecTcl \
-	-I@top_srcdir@/Analysis \
-	-I@top_srcdir@/Display -I@top_srcdir@/Tape -I@top_srcdir@/Filter \
-	-I@top_srcdir@/TreeParam \
+AM_CPPFLAGS = \ 
+	-I@top_srcdir@/Utility \
+	-I@top_srcdir@/Core \
+	-I@top_srcdir@/Display \
+	-I@top_srcdir@/Tape \
 	@TCL_CPPFLAGS@ -DINSTALLED_IN='"@prefix@"' @XINCLUDES@ \
 	@LIBTCLPLUS_CFLAGS@
 
-CCUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
-	 ../Events/libAnalysis.la \
-	../Fits/libFits.la \
-	../Analysis/libBufferAnalysis.la \
-	../EventSource/libEventSource.la \
-	../Tape/libtape.la \
-	../Gates/libGates.la \
-	../Replace/libreplace.la \
-	../Xamine/libXplus.la \
-	../calibratedparams/libCalibrations.la \
-	../Sorter/libSorting.la \
-	../Filter/libFilter.la \
-	../SpectrumIO/libSpecio.la \
-	../TreeParam/libTreeParam.la \
-	../DecoderRing/libDecoderRing.la \
-	../Display/libXamine.la          \
+CCUSBSpecTcl_LDFLAGS = 	@top_builddir@/Core/libTclGrammerApp.la \
+	@top_builddir@/Tape/libtape.la \
+	@top_builddir@/Replace/libreplace.la \
+	@top_builddir@/calibratedparams/libCalibrations.la \
+	@top_builddir@/Display/libXamine.la          \
 	@LIBTCLPLUS_LDFLAGS@	\
 	-lXt -lX11 @X11EXTRA_LDFLAGS@  @LD_EXTRA_FLAGS@ \
 	-lgsl -lgslcblas	\
-	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ -L@top_srcdir@/SpectrumIO \
+	 @TK_LIBS@ @TCL_LIBS@ @XLIBSW@ \
 	 -g -Wl,"-rpath=@libdir@"
 
 
@@ -57,17 +44,17 @@ CCUSBSpecTcl_LDFLAGS = 	../SpecTcl/libTclGrammerCommands.la \
 #  other scripts where they can be found in TclLibs.
 #
 install-exec-local:	docs_built
-	$(mkinstalldirs) @prefix@/CCUSBSkel @prefis@/share/ccusb 
-	$(INSTALL_DATA) *.cpp @prefix@/CCUSBSkel
-	$(INSTALL_DATA) *.h   @prefix@/CCUSBSkel
-	$(INSTALL_DATA) SpecTclRC.tcl @prefix@/CCUSBSkel
-	$(INSTALL_DATA) MakefileSkel @prefix@/CCUSBSkel/Makefile
+	$(mkinstalldirs) @prefix@/CCUSBSkel @prefix@/share/ccusb 
+	$(INSTALL_DATA) @srcdir@/*.cpp @prefix@/CCUSBSkel
+	$(INSTALL_DATA) @srcdir@/*.h   @prefix@/CCUSBSkel
+	$(INSTALL_DATA) @srcdir@/SpecTclRC.tcl @prefix@/CCUSBSkel
+	$(INSTALL_DATA) @srcdir@/MakefileSkel @prefix@/CCUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/ccusb
-	$(INSTALL_DATA)  spectclconfig.tcl @prefix@/TclLibs/ccusb
-	echo pkg_mkIndex @prefix@/TclLibs/ccusb *.tcl | @TCLSH@
+	$(INSTALL_DATA)  @srcdir@/spectclconfig.tcl @prefix@/TclLibs/ccusb
+	echo pkg_mkIndex @prefix@/TclLibs/ccusb @srcdir@/*.tcl | @TCLSH@
 	$(mkinstalldirs) @prefix@/share/ccusb
-	$(INSTALL_DATA)  *.html @prefix@/share/ccusb
-	$(INSTALL_DATA)  *.pdf  @prefix@/share/ccusb
+	$(INSTALL_DATA)  @builddir@/*.html @prefix@/share/ccusb
+	$(INSTALL_DATA)  @builddir@/*.pdf  @prefix@/share/ccusb
 	-for s in {1..8} ; do		\
 		$(mkinstalldirs) @prefix@/share/man/man$$s; \
 		for f in *.$$s*; do  \
@@ -80,11 +67,11 @@ EXTRA_DIST=MakefileSkel.in \
 	spectclconfig.tcl  \
 	SpecTclRC.tcl ccusbSpecTcl.xml
 
-docs_built: ccusbSpecTcl.xml
+docs_built: @srcdir@/ccusbSpecTcl.xml
 	-@MANDOCBOOK@ man $< 2>/dev/null
 	@HTMLDOCBOOK@ $<
 	@HCDOCBOOK@ $<
-	dvipdf       ccusbSpecTcl.dvi
+	dvipdf       @builddir@/ccusbSpecTcl.dvi
 	touch docs_built
 
 

@@ -1,4 +1,4 @@
-INSTDIR=/scratch/spectcl/4.0-dev
+INSTDIR=/scratch/spectcl/soup
 # Skeleton makefile for 3.1
 
 include $(INSTDIR)/etc/SpecTcl_Makefile.include

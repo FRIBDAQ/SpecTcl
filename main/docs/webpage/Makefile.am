@@ -1,5 +1,5 @@
 DOCDIR = $(srcdir)
-DOCDEST = $(prefix)/doc
+DOCDEST = $(prefix)/share/html
 
 install-exec-local:
 	$(mkinstalldirs) $(DOCDEST)
@@ -23,9 +23,12 @@ install-exec-local:
 	$(mkinstalldirs) $(DOCDEST)/tailoring/images
 	$(mkinstalldirs) $(DOCDEST)/tailoring/images/_vti_cnf
 	$(mkinstalldirs) $(DOCDEST)/tailoring/samplecode
+	$(mkinstalldirs) $(DOCDEST)/treeparam
+	$(mkinstalldirs) $(DOCDEST)/treeparam/TreeParameter_files
 	$(mkinstalldirs) $(DOCDEST)/Programming
 	$(mkinstalldirs) $(DOCDEST)/Plugins
 	$(INSTALL_PROGRAM) $(DOCDIR)/*.* $(DOCDEST)
+	$(INSTALL_PROGRAM) $(DOCDIR)/Makefile $(DOCDEST)
 	$(INSTALL_PROGRAM) $(DOCDIR)/Programming/*.* $(DOCDEST)/Programming
 	$(INSTALL_PROGRAM) $(DOCDIR)/Commands/*.* $(DOCDEST)/Commands
 	$(INSTALL_PROGRAM) $(DOCDIR)/Commands/_vti_cnf/*.* $(DOCDEST)/Commands/_vti_cnf
@@ -41,10 +44,14 @@ install-exec-local:
 	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/*.* $(DOCDEST)/tailoring
 	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/_vti_cnf/*.* $(DOCDEST)/tailoring/_vti_cnf
 	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/examples/*.* $(DOCDEST)/tailoring/examples
-	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/examples/_vti_cnf/*.* $(DOCDEST)/tailoring/examples/_vti_cnf
+	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/examples/makefile $(DOCDEST)/tailoring/examples
+	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/examples/_vti_cnf/*.*  $(DOCDEST)/tailoring/examples/_vti_cnf
+	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/examples/_vti_cnf/makefile  $(DOCDEST)/tailoring/examples/_vti_cnf
 	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/images/*.* $(DOCDEST)/tailoring/images
 	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/images/_vti_cnf/*.* $(DOCDEST)/tailoring/images/_vti_cnf
 	$(INSTALL_PROGRAM) $(DOCDIR)/tailoring/samplecode/*.* $(DOCDEST)/tailoring/samplecode
+	$(INSTALL_PROGRAM) $(DOCDIR)/treeparam/*.* $(DOCDEST)/treeparam
+	$(INSTALL_PROGRAM) $(DOCDIR)/treeparam/TreeParameter_files/*.* $(DOCDEST)/treeparam/TreeParameter_files
 	$(INSTALL_PROGRAM) $(DOCDIR)/Plugins/*.* $(DOCDEST)/Plugins
 
 EXTRA_DIST = parameters.htm HH00706_.jpg programmers_guide.htm gates.htm \

@@ -14,6 +14,7 @@ SUBDIRS = Replace \
 					filtsplit \
 					calibratedparams \
 					treegui \
+					ccusb \
 					vmusb \
 					tkcon \
 					compress \
@@ -63,7 +64,6 @@ install-exec-local:
 	ln -s $(prefix)/lib $(prefix)/Lib
 	ln -s $(prefix)/include $(prefix)/Include
 	ln -s $(prefix)/etc     $(prefix)/Etc
-	tar czf - @srcdir@/docs |(cd $(prefix); tar xzf -)
 	echo  TCLINCLUDES=$(TCL_CPPFLAGS)          > Directories.temp
 	echo  TCLLIBS    =@TK_LIBS@ @TCL_LIBS@ -lm -ldl  >> Directories.temp 
 	echo  X11INCLUDES=$(X11INCLUDES)       >> Directories.temp
