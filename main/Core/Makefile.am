@@ -350,11 +350,6 @@ include_HEADERS = $(Analysis_INCLUDES) \
 
 
 
-EXTRA_DIST =  Makefile.skel SPECTCL.WC SpecTclInit.tcl SpecTclRC.tcl \
-	 mapped.tcl paramtest.tcl SpecTcl_Makefile.include \
-	permission.txt
-
-
 
 noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					displayInterfaceTests \
