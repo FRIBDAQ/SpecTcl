@@ -420,7 +420,8 @@ fitTests_SOURCES = TestRunner.cpp SpectrumDictionaryFitObserverTests.cpp
 
 xamineTests_CXXFLAGS = $(commonCXXFLAGS)
 xamineTests_LDADD = $(commonTestLdFlags)
-xamineTests_SOURCES = TestRunner.cpp XamineShMemDisplayImplTests.cpp
+xamineTests_SOURCES = TestRunner.cpp TestXamineShMem.cpp TestXamineShMem.h \
+												XamineShMemDisplayImplTests.cpp
 
 
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
