@@ -1,7 +1,7 @@
-#ifndef XAMINESHAREDMEMORY_H
-#define XAMINESHAREDMEMORY_H
+#ifndef PRODUCTIONXAMINESHMEM_H
+#define PRODUCTIONXAMINESHMEM_H
 
-#include <histotypes.h>
+#include "XamineSharedMemory.h"
 #include <Xamine.h>
 #include "XamineSpectrumIterator.h"
 
@@ -23,11 +23,8 @@ class CSpectrum;
 class CSpectrumFit;
 class CGateContainer;
 
-typedef std::vector<std::string>  DisplayBindings;
-typedef DisplayBindings::iterator DisplayBindingsIterator;
-typedef std::vector<CSpectrum*>   SpectrumContainer;
 
-class CProductionXamineShMem
+class CProductionXamineShMem : public CXamineSharedMemory
 {
 public:
     typedef std::pair<int, std::string> BoundFitline;
@@ -83,7 +80,6 @@ public:
     UInt_t displayBindingsSize() const;
     Int_t findDisplayBinding(std::string name);
     Int_t findDisplayBinding(CSpectrum& rSpectrum);
-    bool spectrumBound(CSpectrum &rSpectrum);
 
     void addFit(CSpectrumFit& fit);
     void deleteFit(CSpectrumFit& fit);
