@@ -829,6 +829,9 @@ AC_OUTPUT(Makefile
           calibratedparams/Makefile 
           contrib/Makefile
           contrib/scriptable/Makefile
+          contrib/Grace/Makefile
+          contrib/multiread/Makefile
+          contrib/treeparam/Makefile
           compress/Makefile
           Core/Makefile 
           ccusb/Makefile
@@ -836,6 +839,9 @@ AC_OUTPUT(Makefile
           Display/Makefile 
           docs/Makefile
           docs/webpage/Makefile
+          docs/webpage/Commands/Makefile
+          docs/webpage/Commands/_vti_cnf/Makefile
+          docs/webpage/Programming/Makefile
           docs/diagrams/Makefile
           docs/docbook/Makefile
           docs/man/Makefile

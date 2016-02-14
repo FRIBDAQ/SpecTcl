@@ -56,7 +56,7 @@ class CXamineGates;		// Forward reference.
 class CXamineEvent;
 class CXamineSpectrum;
 class CXamineButton;
-class CXamineSharedMemory;
+class CProductionXamineShMem;
 class CXamineShMemDisplayImpl;
 class CSpectrum;
 
@@ -85,7 +85,7 @@ public:
 
 public:                       
 
-  const CXamineSharedMemory* getSharedMemory() const;
+  const CProductionXamineShMem* getSharedMemory() const;
 
   // Mutator (for derivec classes):
 

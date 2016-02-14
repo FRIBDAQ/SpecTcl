@@ -16,7 +16,7 @@
 #include "XamineTextPrompt.h"
 #include "XamineSpectrumPrompt.h"
 #include <XamineGate.h>
-#include "XamineSharedMemory.h"
+#include "ProductionXamineShMem.h"
 #include "XamineGateFactory.h"
 
 #include <Display.h>
@@ -38,18 +38,15 @@
 #include <assert.h>
 using namespace std;
 
-
 CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(UInt_t nBytes)
-    : m_pMemory()
+    : m_pMemory( new CProductionXamineShMem(nBytes) )
 {
-    try {
-        m_pMemory = new CXamineSharedMemory(nBytes);
-    } catch (CErrnoException& exc) {
-        cerr << "Caught errno exception: " << exc.ReasonText()
-             << " while: " << exc.WasDoing() << endl;
-        exit(errno);
-    }
 }
+
+//CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(std::unique_ptr<CProductionXamineShMem> pMemory)
+//    : m_pMemory( move(pMemory) )
+//{
+//}
 
 CXamineShMemDisplayImpl::~CXamineShMemDisplayImpl()
 {
@@ -77,6 +74,7 @@ void
 CXamineShMemDisplayImpl::addGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 {
     CXamineGateFactory factory(m_pMemory);
+//    CXamineGateFactory factory(m_pMemory.get());
     CXamineGate* pDisplayed = factory.fromSpecTclGate(rSpectrum, rGate);
     if (pDisplayed)
         m_pMemory->addGate(*pDisplayed);
@@ -270,6 +268,7 @@ void CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &r
     UInt_t Size = DisplayGates.size();
     for(UInt_t i = 0; i < DisplayGates.size(); i++) {
         CXamineGateFactory factory(m_pMemory);
+//        CXamineGateFactory factory(m_pMemory.get());
         CXamineGate* pXgate = factory.fromSpecTclGate(rSpectrum, DisplayGates[i]);
         if(pXgate) m_pMemory->addGate(*pXgate);
         delete pXgate;

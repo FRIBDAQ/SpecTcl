@@ -1,6 +1,6 @@
-bin_PROGRAMS=CCUSBSpecTcl
+bin_PROGRAMS = CCUSBSpecTcl
 
-CCUSBSpecTcl_SOURCES=CC1205Unpacker.cpp \
+CCUSBSpecTcl_SOURCES = CC1205Unpacker.cpp \
 	CCCUSBPacket.cpp \
 	CCUSBUnpacker.cpp \
 	CFixedSizedUnpacker.cpp \
@@ -8,7 +8,7 @@ CCUSBSpecTcl_SOURCES=CC1205Unpacker.cpp \
 	MySpecTclApp.cpp \
 	ParamMapCommand.cpp 
 
-noinst_HEADERS=CC1205Unpacker.h \
+noinst_HEADERS = CC1205Unpacker.h \
 	CCCUSBPacket.h \
 	CCUSBUnpacker.h \
 	CFixedSizedUnpacker.h \
@@ -17,8 +17,7 @@ noinst_HEADERS=CC1205Unpacker.h \
 	ParamMapCommand.h
 
 
-AM_CPPFLAGS = \ 
-	-I@top_srcdir@/Utility \
+AM_CPPFLAGS = -I@top_srcdir@/Utility \
 	-I@top_srcdir@/Core \
 	-I@top_srcdir@/Display \
 	-I@top_srcdir@/Tape \
@@ -48,7 +47,7 @@ install-exec-local:	docs_built
 	$(INSTALL_DATA) @srcdir@/*.cpp @prefix@/CCUSBSkel
 	$(INSTALL_DATA) @srcdir@/*.h   @prefix@/CCUSBSkel
 	$(INSTALL_DATA) @srcdir@/SpecTclRC.tcl @prefix@/CCUSBSkel
-	$(INSTALL_DATA) @srcdir@/MakefileSkel @prefix@/CCUSBSkel/Makefile
+	$(INSTALL_DATA) @builddir@/MakefileSkel @prefix@/CCUSBSkel/Makefile
 	$(mkinstalldirs) @prefix@/TclLibs/ccusb
 	$(INSTALL_DATA)  @srcdir@/spectclconfig.tcl @prefix@/TclLibs/ccusb
 	echo pkg_mkIndex @prefix@/TclLibs/ccusb @srcdir@/*.tcl | @TCLSH@

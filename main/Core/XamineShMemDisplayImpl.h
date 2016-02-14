@@ -5,32 +5,34 @@
 
 #include <Xamine.h>
 
-#include <string>
 
 #include <histotypes.h>
 #include "XamineSpectrumIterator.h"
-
 #include "DisplayFactory.h"
+
+#include <string>
+#include <memory>
 
 class CXamineGate;
 class CXamineGates;		// Forward reference.
 class CXamineEvent;
 class CXamineSpectrum;
 class CXamineButton;
-class CXamineSharedMemory;
+class CProductionXamineShMem;
 class CSpectrum;
 
 class CXamineShMemDisplayImpl
 {
-    CXamineSharedMemory*          m_pMemory;
+    CProductionXamineShMem* m_pMemory;
     std::vector<CSpectrum*>       m_boundSpectra;
 
 public:
+    //CXamineShMemDisplayImpl(std::unique_ptr<CProductionXamineShMem> pMemory);
     CXamineShMemDisplayImpl(UInt_t nBytes);
     ~CXamineShMemDisplayImpl();
 
-    CXamineSharedMemory* getSharedMemory() { return m_pMemory; }
-    const CXamineSharedMemory* getSharedMemory() const { return m_pMemory; }
+    CProductionXamineShMem* getSharedMemory() { return m_pMemory; }
+    const CProductionXamineShMem* getSharedMemory() const { return m_pMemory; }
 
     void detach();
     void attach();

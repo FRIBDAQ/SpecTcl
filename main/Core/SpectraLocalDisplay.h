@@ -4,7 +4,7 @@
 #include <Display.h>
 #include <memory>
 
-class CXamineSharedMemory;
+class CProductionXamineShMem;
 
 namespace Spectra
 {
@@ -17,7 +17,7 @@ class CSpectraLocalDisplay : public CDisplay
 private:
 
     std::unique_ptr<CSpectraProcess>     m_pProcess;
-    std::unique_ptr<CXamineSharedMemory> m_pMemory;
+    std::unique_ptr<CProductionXamineShMem> m_pMemory;
 
 public:
     CSpectraLocalDisplay(size_t nBytes);

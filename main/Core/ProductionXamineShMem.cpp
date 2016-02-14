@@ -1,4 +1,4 @@
-#include "XamineSharedMemory.h"
+#include "ProductionXamineShMem.h"
 
 #include "dispshare.h"
 #include "XamineGate.h"
@@ -45,9 +45,9 @@ extern "C" {
 extern   int            Xamine_newgates;  // fd for events.
 
 
-int CXamineSharedMemory::m_nextFitlineId(1); // Next fitline id assigned.
+int CProductionXamineShMem::m_nextFitlineId(1); // Next fitline id assigned.
 
-CXamineSharedMemory::CXamineSharedMemory()
+CProductionXamineShMem::CProductionXamineShMem()
     :
      m_pMemory(0),
      m_fManaged(kfFALSE),
@@ -63,20 +63,20 @@ CXamineSharedMemory::CXamineSharedMemory()
 // Operation Type:
 //    Parameterized Constructor.
 //
-CXamineSharedMemory::CXamineSharedMemory(size_t nBytes) :
+CProductionXamineShMem::CProductionXamineShMem(size_t nBytes) :
   m_fManaged(kfFALSE),
   m_nBytes(nBytes)
 {
     attach();
 }
 
-CXamineSharedMemory::~CXamineSharedMemory()
+CProductionXamineShMem::~CProductionXamineShMem()
 {
     detach();
     m_pMemory = NULL;
 }
 
-void CXamineSharedMemory::attach()
+void CProductionXamineShMem::attach()
 {
     if(!Xamine_CreateSharedMemory(m_nBytes,
                                  (volatile Xamine_shared**)&m_pMemory)) {
@@ -85,7 +85,7 @@ void CXamineSharedMemory::attach()
     m_fManaged = kfFALSE;
 }
 
-void CXamineSharedMemory::detach()
+void CProductionXamineShMem::detach()
 {
     Xamine_DetachSharedMemory();
 }
@@ -99,7 +99,7 @@ void CXamineSharedMemory::detach()
 //     Selector
 //
 std::string
-CXamineSharedMemory::getMemoryName()
+CProductionXamineShMem::getMemoryName() const
 {
 // Returns the name of the shared memory
 // segment created for communication with
@@ -123,7 +123,7 @@ CXamineSharedMemory::getMemoryName()
 //     mutator.
 //
 void
-CXamineSharedMemory::mapMemory(const std::string& rsName, UInt_t nBytes)
+CProductionXamineShMem::mapMemory(const std::string& rsName, UInt_t nBytes)
 {
 // Maps to a pre-existing shared memory region which communicates
 // with Xamine.
@@ -146,7 +146,7 @@ CXamineSharedMemory::mapMemory(const std::string& rsName, UInt_t nBytes)
 }
 
 
-UInt_t CXamineSharedMemory::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
+UInt_t CProductionXamineShMem::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSorter)
 {
 
     // From the spectrum we must construct an Xamine spectrum which desribes
@@ -235,7 +235,7 @@ UInt_t CXamineSharedMemory::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &rSo
 }
 
 
-void CXamineSharedMemory::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
+void CProductionXamineShMem::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
 {
     // Unbinds the spectrum which is
     // attached to the specified Displayer spectrum number.
@@ -288,7 +288,7 @@ void CXamineSharedMemory::removeSpectrum(UInt_t nSpec, CSpectrum &rSpectrum)
 //  Operation Type:
 //     mutator
 //
-void CXamineSharedMemory::addGate(CXamineGate& rGate)
+void CProductionXamineShMem::addGate(CXamineGate& rGate)
 {
 // Adds a gate graphical object to the
 // display subsystem.
@@ -323,7 +323,7 @@ void CXamineSharedMemory::addGate(CXamineGate& rGate)
 }
 
 void
-CXamineSharedMemory::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
+CProductionXamineShMem::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
 {
     // Removes a gate that is just about to be destroyed from
     // the appropriate set of Xamine bound spectra.
@@ -359,7 +359,7 @@ CXamineSharedMemory::removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)
 //     Mutator
 //
 void
-CXamineSharedMemory::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType)
+CProductionXamineShMem::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType)
 {
 // Removes a specified gate from the spectrum.
 // The gate is defined by its spectrum, id, and type.
@@ -417,7 +417,7 @@ CXamineSharedMemory::removeGate(UInt_t nSpectrum, UInt_t nId, GateType_t eType)
 //     Selector
 //
 CXamineGates*
-CXamineSharedMemory::GetGates(UInt_t nSpectrum)
+CProductionXamineShMem::GetGates(UInt_t nSpectrum)
 {
 // Retrieves a set of gates from Xamine.
 // Copies of the gates described are retrieved into
@@ -449,7 +449,7 @@ CXamineSharedMemory::GetGates(UInt_t nSpectrum)
      Reference to the fit to add.
 */
 void
-CXamineSharedMemory::addFit(CSpectrumFit& fit)
+CProductionXamineShMem::addFit(CSpectrumFit& fit)
 {
   // get the fit name and spectrum name... both of which we'll need to
   //   ensure we can add/bind the fit.
@@ -497,7 +497,7 @@ CXamineSharedMemory::addFit(CSpectrumFit& fit)
      referenced to the fit to remove.
 */
 void
-CXamineSharedMemory::deleteFit(CSpectrumFit& fit)
+CProductionXamineShMem::deleteFit(CSpectrumFit& fit)
 {
   string spectrumName =  fit.getName();
   string fitName      = fit.fitName();
@@ -538,7 +538,7 @@ CXamineSharedMemory::deleteFit(CSpectrumFit& fit)
  * @param y    - Y overflow couts.
  */
 void
-CXamineSharedMemory::setOverflows(unsigned slot, unsigned x, unsigned y)
+CProductionXamineShMem::setOverflows(unsigned slot, unsigned x, unsigned y)
 {
     Xamine_setOverflow(slot+1, 0, x);
     Xamine_setOverflow(slot+1, 1, y);
@@ -548,7 +548,7 @@ CXamineSharedMemory::setOverflows(unsigned slot, unsigned x, unsigned y)
  *    Same as above but the underflow counters get set.
  */
 void
-CXamineSharedMemory::setUnderflows(unsigned slot, unsigned x, unsigned y)
+CProductionXamineShMem::setUnderflows(unsigned slot, unsigned x, unsigned y)
 {
     Xamine_setUnderflow(slot+1, 0, x);
     Xamine_setUnderflow(slot+1, 1, y);
@@ -558,7 +558,7 @@ CXamineSharedMemory::setUnderflows(unsigned slot, unsigned x, unsigned y)
  *    Clear the over/underflow statistics associated witha bound spectrum.
  */
 void
-CXamineSharedMemory::clearStatistics(unsigned slot)
+CProductionXamineShMem::clearStatistics(unsigned slot)
 {
     Xamine_clearStatistics(slot+1);
 }
@@ -572,7 +572,7 @@ CXamineSharedMemory::clearStatistics(unsigned slot)
 //     Selector
 //
 CXamineSpectrum&
-CXamineSharedMemory::operator[](UInt_t n)
+CProductionXamineShMem::operator[](UInt_t n)
 {
 // Returns a copy of the n'th spectrum description.  The spectrum
 // description is considered a constant object from Xamine's point
@@ -604,7 +604,7 @@ CXamineSharedMemory::operator[](UInt_t n)
 //     selector.
 //
 CXamineSpectrumIterator
-CXamineSharedMemory::begin()
+CProductionXamineShMem::begin()
 {
 // Returns an iterator representing the first used spectrum slot.
 // Dereferencing this pointer like object produces a reference to
@@ -626,7 +626,7 @@ CXamineSharedMemory::begin()
 //     selector.
 //
 CXamineSpectrumIterator
-CXamineSharedMemory::end()
+CProductionXamineShMem::end()
 {
 // Returns a spectrum iterator which indicates the end of
 // the set of spectrum slots maintained by Xamine.
@@ -637,7 +637,7 @@ CXamineSharedMemory::end()
 
 }
 
-string CXamineSharedMemory::createTitle(CSpectrum &rSpectrum, UInt_t maxLength, CHistogrammer &rSorter)
+string CProductionXamineShMem::createTitle(CSpectrum &rSpectrum, UInt_t maxLength, CHistogrammer &rSorter)
 {
     return rSpectrum.getName();
 }
@@ -646,7 +646,7 @@ string CXamineSharedMemory::createTitle(CSpectrum &rSpectrum, UInt_t maxLength, 
     Return the size of the spectrum title string.
 */
 UInt_t
-CXamineSharedMemory::getTitleSize() const
+CProductionXamineShMem::getTitleSize() const
 {
   return sizeof(spec_title);
 }
@@ -657,14 +657,14 @@ CXamineSharedMemory::getTitleSize() const
    necessary
 */
 void
-CXamineSharedMemory::setTitle(string name, UInt_t slot)
+CProductionXamineShMem::setTitle(string name, UInt_t slot)
 {
   memset((void*)m_pMemory->dsp_titles[slot], 0, getTitleSize());
   strncpy((char*)m_pMemory->dsp_titles[slot], name.c_str(), getTitleSize() -1);
 }
 
 void
-CXamineSharedMemory::setInfo(CSpectrum &rSpectrum, std::string name)
+CProductionXamineShMem::setInfo(CSpectrum &rSpectrum, std::string name)
 {
     Int_t slot = findDisplayBinding(rSpectrum);
     if (slot >= 0) {
@@ -679,7 +679,7 @@ CXamineSharedMemory::setInfo(CSpectrum &rSpectrum, std::string name)
   the info string will be truncated to spec_title size if needed.
 */
 void
-CXamineSharedMemory::setInfo(string info, UInt_t slot)
+CProductionXamineShMem::setInfo(string info, UInt_t slot)
 {
   memset((void*)m_pMemory->dsp_info[slot], 0, getTitleSize());
   strncpy((char*)m_pMemory->dsp_info[slot], info.c_str(), getTitleSize() - 1);
@@ -693,7 +693,7 @@ CXamineSharedMemory::setInfo(string info, UInt_t slot)
 //    Protected utility.
 //
 std::vector<CGateContainer>
-CXamineSharedMemory::getAssociatedGates(const std::string& spectrumName, CHistogrammer &rSorter)
+CProductionXamineShMem::getAssociatedGates(const std::string& spectrumName, CHistogrammer &rSorter)
 {
   // Returns a vector of gates which can be displayed on the spectrum.
   // Gates are considered displayable on a spectrum iff the gate parameter set
@@ -732,7 +732,7 @@ CXamineSharedMemory::getAssociatedGates(const std::string& spectrumName, CHistog
   return vGates;
 }
 
-DisplayBindings CXamineSharedMemory::getDisplayBindings() const
+DisplayBindings CProductionXamineShMem::getDisplayBindings() const
 {
    return m_DisplayBindings;
 }
@@ -744,7 +744,7 @@ DisplayBindings CXamineSharedMemory::getDisplayBindings() const
 //  Operation Type:
 //     Selector
 //
-DisplayBindingsIterator CXamineSharedMemory::displayBindingsBegin() {
+DisplayBindingsIterator CProductionXamineShMem::displayBindingsBegin() {
   // Returns a begining iterator to support iterating through the set of
   // display bindings.
   return m_DisplayBindings.begin();
@@ -757,7 +757,7 @@ DisplayBindingsIterator CXamineSharedMemory::displayBindingsBegin() {
 //  Operation Type:
 //
 //
-DisplayBindingsIterator CXamineSharedMemory::displayBindingsEnd() {
+DisplayBindingsIterator CProductionXamineShMem::displayBindingsEnd() {
   // Returns an iterator which can be used to determin
   // if the end of the display bindings set has been iterated through.
   return m_DisplayBindings.end();
@@ -774,7 +774,7 @@ DisplayBindingsIterator CXamineSharedMemory::displayBindingsEnd() {
 
 */
 Int_t
-CXamineSharedMemory::findDisplayBinding(string name)
+CProductionXamineShMem::findDisplayBinding(string name)
 {
   for (int i = 0; i < displayBindingsSize(); i++) {
     if (name == m_DisplayBindings[i]) {
@@ -785,7 +785,7 @@ CXamineSharedMemory::findDisplayBinding(string name)
 }
 
 Int_t
-CXamineSharedMemory::findDisplayBinding(CSpectrum& rSpectrum)
+CProductionXamineShMem::findDisplayBinding(CSpectrum& rSpectrum)
 {
     return findDisplayBinding(rSpectrum.getName());
 }
@@ -796,7 +796,7 @@ CXamineSharedMemory::findDisplayBinding(CSpectrum& rSpectrum)
 //  Operation Type:
 //
 //
-UInt_t CXamineSharedMemory::displayBindingsSize() const {
+UInt_t CProductionXamineShMem::displayBindingsSize() const {
   // Returns the number of spectra bound to the display.
   return m_DisplayBindings.size();
 }
@@ -810,7 +810,7 @@ UInt_t CXamineSharedMemory::displayBindingsSize() const {
 //     Allocator
 //
 Address_t
-CXamineSharedMemory::defineSpectrum(CXamineSpectrum& rSpectrum)
+CProductionXamineShMem::defineSpectrum(CXamineSpectrum& rSpectrum)
 {
     // Allocates a spectrum slot and storage for a
     // spectrum.
@@ -901,7 +901,7 @@ CXamineSharedMemory::defineSpectrum(CXamineSpectrum& rSpectrum)
 //     Deallocator.
 //
 void
-CXamineSharedMemory::freeSpectrum(UInt_t nSpectrum)
+CProductionXamineShMem::freeSpectrum(UInt_t nSpectrum)
 {
     // Frees a spectrum slot and the associated storage
 // in the Xamine shared region.
@@ -924,7 +924,7 @@ CXamineSharedMemory::freeSpectrum(UInt_t nSpectrum)
 //   Utility function
 //
 Xamine_gatetype
-CXamineSharedMemory::MapFromGate_t(GateType_t type)
+CProductionXamineShMem::MapFromGate_t(GateType_t type)
 {
   switch(type) {
   case kgCut1d:
@@ -948,7 +948,7 @@ CXamineSharedMemory::MapFromGate_t(GateType_t type)
 //    Protected utility.
 //
 void
-CXamineSharedMemory::ThrowGateStatus(Int_t nStatus, const CXamineGate& rGate,
+CProductionXamineShMem::ThrowGateStatus(Int_t nStatus, const CXamineGate& rGate,
              const std::string& doing)
 {
   // Maps Xamine gate maniplation status into either the appropriate

@@ -289,7 +289,7 @@ Xamine_SRC =  XamineGate.cpp Xamine1D.cpp Xamine2D.cpp \
 	XamineSpectrumPrompt.cpp  XaminePushButton.cpp \
 	XamineSpectrum.cpp XamineSpectrumIterator.cpp \
 	XamineTextPrompt.cpp XamineToggleButton.cpp Xamineplus.cpp \
-	XamineSharedMemory.cpp XamineGateFactory.cpp \
+	ProductionXamineShMem.cpp XamineGateFactory.cpp \
 	XamineShMemDisplayImpl.cpp
 
 Xamine_INCLUDES = ButtonEvent.h XamineGate.h Point.h Xamine1D.h Xamine2D.h \
@@ -299,7 +299,7 @@ Xamine_INCLUDES = ButtonEvent.h XamineGate.h Point.h Xamine1D.h Xamine2D.h \
 	XamineNoPrompt.h XaminePointsPrompt.h XaminePushButton.h \
 	XamineSpectrum.h XamineSpectrumIterator.h XamineSpectrumPrompt.h \
 	XamineTextPrompt.h XamineToggleButton.h Xamineplus.h \
-	XamineSharedMemory.h XamineGateFactory.h \
+	XamineSharedMemory.h ProductionXamineShMem.h XamineGateFactory.h \
 	XamineShMemDisplayImpl.h
 
 
@@ -353,11 +353,13 @@ include_HEADERS = $(Analysis_INCLUDES) \
 
 noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					displayInterfaceTests \
-					sorterTests treeParamTests fitTests
+					sorterTests treeParamTests fitTests \
+					xamineTests
 
 commonCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
 				  -I@top_srcdir@/factories \
+				  -I@top_srcdir@/Display \
 									@LIBTCLPLUS_CFLAGS@ \
 									@TCL_CPPFLAGS@ \
 									@CPPUNIT_CFLAGS@
@@ -415,7 +417,12 @@ fitTests_CXXFLAGS = $(commonCXXFLAGS)
 fitTests_LDADD = $(commonTestLdFlags)
 fitTests_SOURCES = TestRunner.cpp SpectrumDictionaryFitObserverTests.cpp
 
+xamineTests_CXXFLAGS = $(commonCXXFLAGS)
+xamineTests_LDADD = $(commonTestLdFlags)
+xamineTests_SOURCES = TestRunner.cpp XamineShMemDisplayImplTests.cpp
+
+
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
-		sorterTests treeParamTests fitTests
+		sorterTests treeParamTests fitTests xamineTests
 
 

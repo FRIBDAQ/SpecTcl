@@ -53,7 +53,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include "XamineTextPrompt.h"
 #include "XamineSpectrumPrompt.h"
 #include <XamineGate.h>
-#include "XamineSharedMemory.h"
+#include "ProductionXamineShMem.h"
 #include "XamineGateFactory.h"
 
 #include <Display.h>
@@ -232,7 +232,7 @@ void CXamine::restart()
 }
 
 
-const CXamineSharedMemory* CXamine::getSharedMemory() const
+const CProductionXamineShMem* CXamine::getSharedMemory() const
 {
     return m_pImpl->getSharedMemory();
 }

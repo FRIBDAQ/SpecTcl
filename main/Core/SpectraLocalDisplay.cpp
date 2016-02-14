@@ -1,7 +1,7 @@
 #include "SpectraLocalDisplay.h"
 #include "SpectraProcess.h"
 
-#include "XamineSharedMemory.h"
+#include "ProductionXamineShMem.h"
 #include "Spectrum.h"
 
 namespace Spectra
@@ -9,7 +9,7 @@ namespace Spectra
 
 CSpectraLocalDisplay::CSpectraLocalDisplay(size_t nBytes)
     : m_pProcess(new CSpectraProcess),
-      m_pMemory(new CXamineSharedMemory(nBytes))
+      m_pMemory(new CProductionXamineShMem(nBytes))
 {
 }
 
