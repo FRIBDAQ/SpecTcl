@@ -38,19 +38,18 @@
 #include <assert.h>
 using namespace std;
 
-CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(UInt_t nBytes)
-    : m_pMemory( new CProductionXamineShMem(nBytes) )
-{
-}
-
-//CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(std::unique_ptr<CProductionXamineShMem> pMemory)
-//    : m_pMemory( move(pMemory) )
+//CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(UInt_t nBytes)
+//    : m_pMemory( new CProductionXamineShMem(nBytes) )
 //{
 //}
 
+CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(std::unique_ptr<CProductionXamineShMem> pMemory)
+    : m_pMemory( move(pMemory) )
+{
+}
+
 CXamineShMemDisplayImpl::~CXamineShMemDisplayImpl()
 {
-    delete m_pMemory;
 }
 
 void CXamineShMemDisplayImpl::attach()
@@ -73,8 +72,7 @@ void CXamineShMemDisplayImpl::detach()
 void
 CXamineShMemDisplayImpl::addGate(CSpectrum &rSpectrum, CGateContainer &rGate)
 {
-    CXamineGateFactory factory(m_pMemory);
-//    CXamineGateFactory factory(m_pMemory.get());
+    CXamineGateFactory factory(m_pMemory.get());
     CXamineGate* pDisplayed = factory.fromSpecTclGate(rSpectrum, rGate);
     if (pDisplayed)
         m_pMemory->addGate(*pDisplayed);
@@ -267,8 +265,7 @@ void CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &r
 
     UInt_t Size = DisplayGates.size();
     for(UInt_t i = 0; i < DisplayGates.size(); i++) {
-        CXamineGateFactory factory(m_pMemory);
-//        CXamineGateFactory factory(m_pMemory.get());
+        CXamineGateFactory factory(m_pMemory.get());
         CXamineGate* pXgate = factory.fromSpecTclGate(rSpectrum, DisplayGates[i]);
         if(pXgate) m_pMemory->addGate(*pXgate);
         delete pXgate;

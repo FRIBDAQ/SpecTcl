@@ -23,16 +23,15 @@ class CSpectrum;
 
 class CXamineShMemDisplayImpl
 {
-    CProductionXamineShMem* m_pMemory;
+    shared_ptr<CProductionXamineShMem> m_pMemory;
     std::vector<CSpectrum*>       m_boundSpectra;
 
 public:
-    //CXamineShMemDisplayImpl(std::unique_ptr<CProductionXamineShMem> pMemory);
-    CXamineShMemDisplayImpl(UInt_t nBytes);
+    CXamineShMemDisplayImpl(std::shared_ptr<CProductionXamineShMem> pMemory);
+    //CXamineShMemDisplayImpl(UInt_t nBytes);
     ~CXamineShMemDisplayImpl();
 
-    CProductionXamineShMem* getSharedMemory() { return m_pMemory; }
-    const CProductionXamineShMem* getSharedMemory() const { return m_pMemory; }
+    std::weak_ptr<CProductionXamineShMem> getSharedMemory() const { return m_pMemory; }
 
     void detach();
     void attach();
