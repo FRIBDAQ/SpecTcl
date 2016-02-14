@@ -211,7 +211,7 @@ TclGrammerApp_INCLUDES =  AppInit.h ApplyCommand.h AttachCommand.h BindCommand.h
 	ScalerProcessor.h ScalerProcessorCallbacks.h \
 	DocumentationException.h DocumentationCallback.h \
 	SpecTcl.h CFoldCommand.h CProjectionCommand.h CFitCommand.h \
-	IntegrateCommand.h VersionCommand.h SContentsCommand.h \
+	IntegrateCommand.h RingFormatCommand.h VersionCommand.h SContentsCommand.h \
 	CSpectrumStatsCommand.h SpecTclDisplayManager.h \
 	XamineEventHandler.h
 
@@ -348,7 +348,7 @@ include_HEADERS = $(Analysis_INCLUDES) \
 												$(TreeParam_INCLUDES) \
 												$(Xamine_INCLUDES)
 
-
+noinst_HEADERS = $(DecoderRing_noinst_INCLUDES)
 
 
 noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
@@ -402,7 +402,8 @@ sorterTests_SOURCES = TestRunner.cpp TestDictObservers.cpp \
 					  Test1d.cpp  Test2d.cpp TestSummary.cpp TestBitSpec.cpp  \
 					  TestGammaSummary.cpp TestG2dDeluxe.cpp TestGamma1.cpp   \
 					  TestGamma2.cpp TestGammaDeluxe.cpp TestHistogrammer.cpp \
-						CParameterMappingTest.cpp CAxisTests.cpp 
+						CParameterMappingTest.cpp CAxisTests.cpp \
+						CParameterMappingTest.h CAxisTests.h
 treeParamTests_CXXFLAGS  = $(commonCXXFLAGS)
 treeParamTests_LDADD     = $(commonTestLdFlags)
 treeParamTests_SOURCES   = ListTest.cpp       SetWidthTest.cpp          TreeParameterTest.cpp \
