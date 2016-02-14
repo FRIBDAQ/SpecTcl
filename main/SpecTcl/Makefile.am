@@ -3,7 +3,7 @@ DEFS = @WCHAR_T_DEF@
 
 bin_PROGRAMS = SpecTcl
 
-SpecTcl_SOURCES = MySpecTclApp.cpp 
+SpecTcl_SOURCES = MySpecTclApp.cpp  MySpecTclApp.h
 
 SpecTcl_CXXFLAGS = -I@top_srcdir@/Core \
 									 -I@top_srcdir@/Utility \
