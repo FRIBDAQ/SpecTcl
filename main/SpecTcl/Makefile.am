@@ -37,5 +37,5 @@ install-exec-local:
 	$(INSTALL_DATA)   @srcdir@/SpecTcl_Makefile.include $(sysconfdir)
 	echo INSTDIR=@prefix@ >Makefile.user
 	cat @srcdir@/Makefile.skel >> Makefile.user
-	$(INSTALL_PROGRAM) @srcdir@/Makefile.user @prefix@/Skel/Makefile
+	$(INSTALL_PROGRAM) @builddir@/Makefile.user @prefix@/Skel/Makefile
 
