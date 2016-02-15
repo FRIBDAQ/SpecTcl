@@ -109,4 +109,4 @@ EXTRA_DIST =  Internals/chistogrammer.htm \
 	treeparam/TreeParameter_files/image013.jpg \
 	treeparam/TreeParameter_files/image015.jpg \
 	treeparam/TreeParameter_files/image017.png \
-	Plugins/writing.htm
+	Plugins/writing.htm $(html_DATA)
