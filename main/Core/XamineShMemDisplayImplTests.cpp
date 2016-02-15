@@ -39,6 +39,9 @@ class XamineShMemDisplayImplTests : public CppUnit::TestFixture
     CPPUNIT_TEST(addSpectrum_1);
     CPPUNIT_TEST(removeSpectrum_0);
     CPPUNIT_TEST(updateStatistics_0);
+    CPPUNIT_TEST(setTitle_0);
+    CPPUNIT_TEST(setTitle_1);
+
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -149,6 +152,40 @@ public:
 
         EQMSG("Underflows should be updated updateStatistics is called",
           vector<unsigned>({2}), it->second.s_overflows);
+
+    }
+
+    void setTitle_0 () {
+        CHistogrammer sorter;
+
+        auto pSpec = setUpSpectrum(sorter);
+
+        m_pImpl->addSpectrum(*pSpec, sorter);
+        m_pImpl->setTitle("whatup", 0);
+
+        auto spectra = m_pShMem->boundSpectra();
+        auto it = spectra.find(pSpec.get());
+
+        EQMSG("Set title for slot sets the info for correct slot",
+              string("whatup"), it->second.s_info);
+
+    }
+
+    void setTitle_1 () {
+        CHistogrammer sorter;
+
+        auto pSpec = setUpSpectrum(sorter);
+
+        m_pImpl->addSpectrum(*pSpec, sorter);
+        m_pImpl->setTitle(*pSpec, "yeah");
+
+        auto spectra = m_pShMem->boundSpectra();
+        auto it = spectra.find(pSpec.get());
+
+        EQMSG("Set title sets the info for correct slot",
+              string("yeah"), it->second.s_info);
+        EQMSG("Set title sets the info for correct slot",
+              0, it->second.s_slot);
 
     }
 

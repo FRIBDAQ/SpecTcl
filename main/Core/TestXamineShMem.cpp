@@ -40,26 +40,64 @@ UInt_t CTestXamineShMem::addSpectrum(CSpectrum& spec, CHistogrammer& sorter) {
 
 void CTestXamineShMem::removeSpectrum(UInt_t slot, CSpectrum& ) {}
 
-DisplayBindings CTestXamineShMem::getDisplayBindings() const {}
+DisplayBindings CTestXamineShMem::getDisplayBindings() const {
+
+    DisplayBindings bindings;
+    for (auto& entry : m_map) {
+        int slot = entry.second.s_slot;
+        if (bindings.size() <= slot) {
+            bindings.resize(slot+1);
+        }
+        bindings.at(slot) = entry.first->getName();
+    }
+
+    return bindings;
+}
 
 CXamineSpectrum& CTestXamineShMem::operator[](UInt_t n) {}
-DisplayBindingsIterator CTestXamineShMem::displayBindingsBegin() {}
+DisplayBindingsIterator CTestXamineShMem::displayBindingsBegin()
+{
+
+}
 DisplayBindingsIterator CTestXamineShMem::displayBindingsEnd() {}
 
 UInt_t CTestXamineShMem::displayBindingsSize() const { return 0;}
-Int_t CTestXamineShMem::findDisplayBinding(std::string name) {return 0; }
+Int_t CTestXamineShMem::findDisplayBinding(std::string name) {
+
+}
 Int_t CTestXamineShMem::findDisplayBinding(CSpectrum& rSpectrum) { return 0;}
 
 void CTestXamineShMem::addFit(CSpectrumFit& fit) {}
 void CTestXamineShMem::deleteFit(CSpectrumFit& fit) {}
 
 std::string CTestXamineShMem::createTitle(CSpectrum& rSpectrum,
-                        UInt_t maxLength,
-                                          CHistogrammer &rSorter) { return std::string(); }
+                                          UInt_t maxLength,
+                                          CHistogrammer &rSorter) {
+    auto title = rSpectrum.getName();
+    return std::string(title.begin(),
+                  title.begin() + std::min(size_t(maxLength), title.size()) );
+}
+
 UInt_t CTestXamineShMem::getTitleSize()  const { return 128;}
-void CTestXamineShMem::setTitle(std::string name, UInt_t slot) {}
-void CTestXamineShMem::setInfo(CSpectrum& rSpectrum, std::string name) {}
-void CTestXamineShMem::setInfo(std::string  name, UInt_t slot) {}
+
+void CTestXamineShMem::setTitle(std::string name, UInt_t slot) {
+    auto it = findBySlot(m_map, slot);
+    if (it != m_map.end()) {
+        it->second.s_info = name;
+    }
+}
+void CTestXamineShMem::setInfo(CSpectrum& rSpectrum, std::string name) {
+    auto it = m_map.find(&rSpectrum);
+    if (it != m_map.end()) {
+        it->second.s_info = name;
+    }
+}
+void CTestXamineShMem::setInfo(std::string  name, UInt_t slot) {
+    auto it = findBySlot(m_map, slot);
+    if (it != m_map.end()) {
+        it->second.s_info = name;
+    }
+}
 
 
 void CTestXamineShMem::addGate (CXamineGate& rGate) {
@@ -130,4 +168,14 @@ findBySlot(std::map<CSpectrum*, BoundSpectrum> &map, int slot)
                    [&slot](std::map<CSpectrum*, BoundSpectrum>::const_reference value) -> bool {
                         return (value.second.s_slot == slot);
                     });
+}
+
+std::map<CSpectrum*, BoundSpectrum>::iterator
+findByName(std::map<CSpectrum*, BoundSpectrum> &map, std::string name)
+{
+    return find_if(map.begin(),
+                   map.end(),
+                   [&name](std::map<CSpectrum*, BoundSpectrum>::const_reference value) -> bool {
+                        return (value.first->getName() == name);
+                   });
 }

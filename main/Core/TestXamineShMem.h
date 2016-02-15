@@ -80,4 +80,8 @@ extern
 std::map<CSpectrum*, BoundSpectrum>::iterator
 findBySlot(std::map<CSpectrum*, BoundSpectrum>& map, int slot);
 
+extern
+std::map<CSpectrum*, BoundSpectrum>::iterator
+findByName(std::map<CSpectrum*, BoundSpectrum>& map, std::string name);
+
 #endif // TESTXAMINESHMEM_H

@@ -170,7 +170,7 @@ CXamineShMemDisplayImpl::createTitle(CSpectrum& rSpectrum,
                         UInt_t maxLength,
                         CHistogrammer &rSorter)
 {
-return std::string();
+  return rSpectrum.getName();
 }
 
 /*!
@@ -191,7 +191,7 @@ void
 CXamineShMemDisplayImpl::setTitle(CSpectrum& rSpectrum, string name)
 {
     Int_t slot = m_pMemory->findDisplayBinding(rSpectrum);
-    if (slot == -1) {
+    if (slot != -1) {
         m_pMemory->setTitle(name, slot);
     } else {
         throw std::runtime_error("CXamineShMemDisplayImpl::SetTitle() Cannot set title for unbound spectrum.");
@@ -419,31 +419,6 @@ DisplayBindings CXamineShMemDisplayImpl::getDisplayBindings() const
 {
     return m_pMemory->getDisplayBindings();
 }
-
-//////////////////////////////////////////////////////////////////////
-//
-// Function:
-//      CSpectrum*  DisplayBinding(UInt_t xid)
-// Operation type:
-//      Selector.
-//
-CSpectrum* CXamineShMemDisplayImpl::getSpectrum(UInt_t xid) {
-  // Returns  a pointer to a spectrum which is bound on a particular
-  // xid.
-  // Formal Parameters:
-  //    UInt_t xid:
-  //       The xid.
-  // Returns:
-  //     POinter to the spectrum or kpNULL Iff:
-  //     xid is out of range.
-  //     xid does not map to a spectrum.
-  //
-  if(xid >= m_pMemory->displayBindingsSize())
-    return (CSpectrum*)kpNULL;
-
-  return m_boundSpectra[xid];
-}
-
 
 /*!
  *

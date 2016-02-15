@@ -48,8 +48,6 @@ public:
 
     std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
                                                   CHistogrammer& rSorter);
-    CSpectrum* getSpectrum(UInt_t xid);
-
     bool spectrumBound(CSpectrum *pSpectrum);
 
     DisplayBindings  getDisplayBindings() const;
