@@ -92,10 +92,6 @@ public:
     void setInfo(CSpectrum& rSpectrum, std::string name);
     void setInfo(std::string  name, UInt_t slot);
 
-
-    std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
-                                               CHistogrammer& rSorter);
-
     void addGate (CXamineGate& rGate)  ;
     void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate);
     void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType);

@@ -25,4 +25,4 @@ treeparam_HEADERS = TreeVariable.h \
 #EXTRA_DIST = $(HEADERS) \
 #						 install.htm \
 #						 $(TCL_FILES)
-EXTRA_DIST = install.htm
+EXTRA_DIST = install.htm $(treeparam_SCRIPTS) $(treeparam_HEADERS)

@@ -685,53 +685,6 @@ CProductionXamineShMem::setInfo(string info, UInt_t slot)
   strncpy((char*)m_pMemory->dsp_info[slot], info.c_str(), getTitleSize() - 1);
 }
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    std::vector<CGateContainer> GatesToDisplay(const std::string& rSpectrum)
-// Operation Type:
-//    Protected utility.
-//
-std::vector<CGateContainer>
-CProductionXamineShMem::getAssociatedGates(const std::string& spectrumName, CHistogrammer &rSorter)
-{
-  // Returns a vector of gates which can be displayed on the spectrum.
-  // Gates are considered displayable on a spectrum iff the gate parameter set
-  // is the same as the spectrum parameter set. If the spectrum is a gamma
-  // spectrum, then the gate is only displayed on one spectrum. Note that
-  // displayable gates at present are one of the following types only:
-  //   Contour (type = 'c')
-  //   Band    (type = 'b')
-  //   Cut     (type = 's')
-  //   Sum2d   {type = 'm2'}
-  //   GammaContour   (type = 'gc')
-  //   GammaBand      (type = 'gb')
-  //   GammaCut       (type = 'gs')
-  // All other gates are not displayable.
-  //
-
-  std::vector<CGateContainer> vGates;
-  CSpectrum *pSpec = rSorter.FindSpectrum(spectrumName);
-  if(!pSpec) {
-    throw CDictionaryException(CDictionaryException::knNoSuchKey,
-                   "No such spectrum CXamine::GatesToDisplay",
-                   spectrumName);
-  }
-  //
-  // The mediator tells us whether the spectrum can display the gate:
-  //
-  CGateDictionaryIterator pGate = rSorter.GateBegin();
-  while(pGate != rSorter.GateEnd()) {
-    CGateMediator DisplayableGate(((*pGate).second), pSpec);
-    if(DisplayableGate()) {
-      vGates.push_back((*pGate).second);
-    }
-    pGate++;
-  }
-
-  return vGates;
-}
-
 DisplayBindings CProductionXamineShMem::getDisplayBindings() const
 {
    return m_DisplayBindings;

@@ -57,10 +57,6 @@ public:
     virtual void setInfo(CSpectrum& rSpectrum, std::string name) = 0;
     virtual void setInfo(std::string  name, UInt_t slot) = 0;
 
-
-    virtual std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
-                                               CHistogrammer& rSorter) = 0;
-
     virtual void addGate (CXamineGate& rGate) = 0;
     virtual void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate)  = 0;
     virtual void removeGate (UInt_t nSpectrum, UInt_t nId, GateType_t eType)  = 0;

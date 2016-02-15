@@ -257,12 +257,13 @@ void CXamineShMemDisplayImpl::addSpectrum(CSpectrum &rSpectrum, CHistogrammer &r
     // We must locate all of the gates which are relevant to this spectrum
     // and enter them as well:
     //
-    vector<CGateContainer> DisplayGates = getAssociatedGates(rSpectrum.getName(), rSorter);
+    ;
 
-    UInt_t Size = DisplayGates.size();
-    for(UInt_t i = 0; i < DisplayGates.size(); i++) {
-        CXamineGateFactory factory(m_pMemory.get());
-        CXamineGate* pXgate = factory.fromSpecTclGate(rSpectrum, DisplayGates[i]);
+    CXamineGateFactory factory(m_pMemory.get());
+
+    for( auto& gate : getAssociatedGates(rSpectrum.getName(), rSorter) ) {
+
+        CXamineGate* pXgate = factory.fromSpecTclGate(rSpectrum, gate);
         if(pXgate) m_pMemory->addGate(*pXgate);
         delete pXgate;
     }
@@ -387,8 +388,26 @@ CXamineShMemDisplayImpl::getAssociatedGates(const std::string& spectrumName, CHi
   //   GammaCut       (type = 'gs')
   // All other gates are not displayable.
   //
+    std::vector<CGateContainer> vGates;
+    CSpectrum *pSpec = rSorter.FindSpectrum(spectrumName);
+    if(!pSpec) {
+      throw CDictionaryException(CDictionaryException::knNoSuchKey,
+                     "No such spectrum CXamine::GatesToDisplay",
+                     spectrumName);
+    }
+    //
+    // The mediator tells us whether the spectrum can display the gate:
+    //
+    CGateDictionaryIterator pGate = rSorter.GateBegin();
+    while(pGate != rSorter.GateEnd()) {
+      CGateMediator DisplayableGate(((*pGate).second), pSpec);
+      if(DisplayableGate()) {
+        vGates.push_back((*pGate).second);
+      }
+      pGate++;
+    }
 
-    return m_pMemory->getAssociatedGates(spectrumName, rSorter);
+    return vGates;
 }
 
 SpectrumContainer CXamineShMemDisplayImpl::getBoundSpectra() const

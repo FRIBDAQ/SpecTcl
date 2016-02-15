@@ -1,15 +1,35 @@
 #ifndef TESTXAMINESHMEM_H
 #define TESTXAMINESHMEM_H
 
+
 #include "XamineSharedMemory.h"
+#include "XamineGate.h"
+
+#include <string>
+#include <map>
+
+class CSpectrum;
+
+
+struct BoundSpectrum {
+    std::string s_info;
+    int         s_slot;
+};
+
 
 class CTestXamineShMem : public CXamineSharedMemory
 {
 private:
+    int m_slotIndex;
 
+    std::map<CSpectrum*, BoundSpectrum>    m_map;
+    std::map<int, CXamineGate>             m_gateMap;
 
 public:
     CTestXamineShMem();
+
+    const std::map<CSpectrum*, BoundSpectrum>& boundSpectra() const;
+    const std::map<int, CXamineGate>& getGates() const;
 
     virtual void setManaged(bool value);
 
@@ -43,10 +63,6 @@ public:
     virtual void setTitle(std::string name, UInt_t slot);
     virtual void setInfo(CSpectrum& rSpectrum, std::string name);
     virtual void setInfo(std::string  name, UInt_t slot);
-
-
-    virtual std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
-                                               CHistogrammer& rSorter);
 
     virtual void addGate (CXamineGate& rGate);
     virtual void removeGate(CSpectrum& rSpectrum, CGateContainer& rGate) ;
