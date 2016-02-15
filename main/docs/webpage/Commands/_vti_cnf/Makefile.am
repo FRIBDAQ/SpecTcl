@@ -15,4 +15,4 @@ vti_cnf_DATA =  aplist.htm apply.htm \
 	tape.htm unbind.htm \
 	ungate.htm
 
-
+EXTRA_DIST = $(vti_cnf_DATA)

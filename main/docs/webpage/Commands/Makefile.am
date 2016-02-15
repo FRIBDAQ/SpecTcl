@@ -18,3 +18,5 @@ htmlcommands_DATA = aplist.htm apply.htm fold.htm \
 	tape.htm unbind.htm ungate.htm \
 	fit.htm \
 	integrate.htm
+
+EXTRA_DIST = $(htmlcommands_DATA)

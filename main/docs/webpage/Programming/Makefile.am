@@ -8,3 +8,6 @@ html_DATA =	BufferAnalysis.htm CBufferCallback.htm \
 	scalerinfo.htm manindex.htm \
 	spectclapi.htm varrecovery.htm \
 	fits.htm xaminebuttons.htm 
+
+
+EXTRA_DIST = $(html_DATA)
