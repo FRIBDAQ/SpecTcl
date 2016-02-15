@@ -42,6 +42,7 @@ class XamineShMemDisplayImplTests : public CppUnit::TestFixture
     CPPUNIT_TEST(setTitle_0);
     CPPUNIT_TEST(setTitle_1);
     CPPUNIT_TEST(getAssociatedGates_0);
+    CPPUNIT_TEST(getAssociatedGates_1);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -69,9 +70,9 @@ public:
         return pSpec;
     }
 
-    void setUpGate(CHistogrammer& sorter, std::string name) {
-        CCut cut(0, 1, 0);
-        sorter.AddGate(name, 0, cut);
+    void setUpGate(CHistogrammer& sorter, std::string name, int index) {
+        CCut cut(0, 1, index);
+        sorter.AddGate(name, index, cut);
     }
 
 
@@ -102,7 +103,7 @@ public:
         // set up the hstigrammer and spectrum
         CHistogrammer sorter;
         auto pSpec = setUpSpectrum(sorter);
-        setUpGate(sorter, "testgate");
+        setUpGate(sorter, "testgate", 0);
 
         m_pImpl->addSpectrum(*pSpec, sorter);
 
@@ -195,7 +196,7 @@ public:
         CHistogrammer sorter;
 
         auto pSpec = setUpSpectrum(sorter);
-        setUpGate(sorter, "testgate");
+        setUpGate(sorter, "testgate", 0);
 
         CGateContainer* pGate = sorter.FindGate("testgate");
 
@@ -203,6 +204,21 @@ public:
 
         ASSERTMSG("Associated gates works in a simple fashion",
               vector<CGateContainer>({*pGate}) == m_pImpl->getAssociatedGates("testing123", sorter));
+    }
+
+    void getAssociatedGates_1 () {
+        CHistogrammer sorter;
+
+        auto pSpec = setUpSpectrum(sorter);
+        setUpGate(sorter, "testing1", 1); // doesn't apply to testing123
+        setUpGate(sorter, "testing2", 2); // doesn't apply to testing123
+
+        CGateContainer* pGate = sorter.FindGate("testgate");
+
+        m_pImpl->addSpectrum(*pSpec, sorter);
+
+        EQMSG("Associated gates returns empty if no gates are associated",
+              size_t(0), m_pImpl->getAssociatedGates("testing123", sorter).size());
     }
 
 };
