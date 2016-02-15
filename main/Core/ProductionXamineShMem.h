@@ -62,7 +62,7 @@ public:
    std::string getMemoryName() const;
    void mapMemory(const std::string& rsName, UInt_t nBytes);
 
-    UInt_t getSize() const {
+   size_t getSize() const {
         return m_nBytes;
     }
 

@@ -53,6 +53,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2005, Al
 #include "XamineTextPrompt.h"
 #include "XamineSpectrumPrompt.h"
 #include <XamineGate.h>
+#include "XamineSharedMemory.h"
 #include "ProductionXamineShMem.h"
 #include "XamineGateFactory.h"
 
@@ -82,6 +83,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdexcept>
+#include <memory>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -148,18 +150,18 @@ extern   int            Xamine_newgates;  // fd for events.
 // Operation Type:
 //    Parameterized Constructor.
 //
-CXamine::CXamine(UInt_t nBytes) :
-//    m_pMemory(0),
-//    m_nBytes(nBytes)
-    m_pImpl(new CXamineShMemDisplayImpl(nBytes))
+CXamine::CXamine(UInt_t nBytes)
 {
+    std::shared_ptr<CXamineSharedMemory> pMem(new CProductionXamineShMem(nBytes));
+    m_pImpl.reset(new CXamineShMemDisplayImpl(pMem));
 }
 
 CXamine::CXamine (const CXamine& aCXamine ) :
    m_pImpl()
 {
-    auto nBytes = aCXamine.getSharedMemory()->getSize();
-    m_pImpl.reset(new CXamineShMemDisplayImpl(nBytes));
+    // get the weak_ptr
+    auto pShMem = aCXamine.getSharedMemory();
+    m_pImpl.reset(new CXamineShMemDisplayImpl(pShMem.lock()));
 }
 
 CXamine* CXamine::clone() const { return new CXamine(*this); }
@@ -232,7 +234,7 @@ void CXamine::restart()
 }
 
 
-const CProductionXamineShMem* CXamine::getSharedMemory() const
+std::weak_ptr<CXamineSharedMemory> CXamine::getSharedMemory() const
 {
     return m_pImpl->getSharedMemory();
 }

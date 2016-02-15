@@ -4,7 +4,7 @@
 
 #include "daqdatatypes.h"
 
-class CProductionXamineShMem;
+class CXamineSharedMemory;
 class CXamineGate;
 class CSpectrum;
 class CGateContainer;
@@ -12,10 +12,10 @@ class CGateContainer;
 class CXamineGateFactory
 {
 private:
-    CProductionXamineShMem* m_pMemory;
+    CXamineSharedMemory* m_pMemory;
 
 public:
-    CXamineGateFactory(CProductionXamineShMem* pSharedMem);
+    CXamineGateFactory(CXamineSharedMemory* pSharedMem);
 
     CXamineGate* fromSpecTclGate(CSpectrum &rSpectrum, CGateContainer& rGate);
 

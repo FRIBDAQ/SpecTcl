@@ -1,6 +1,6 @@
 #include "XamineGateFactory.h"
 #include "XamineGate.h"
-#include "ProductionXamineShMem.h"
+#include "XamineSharedMemory.h"
 #include "Spectrum.h"
 #include "GateContainer.h"
 #include "Cut.h"
@@ -12,7 +12,7 @@
 
 using namespace std;
 
-CXamineGateFactory::CXamineGateFactory(CProductionXamineShMem *pSharedMem)
+CXamineGateFactory::CXamineGateFactory(CXamineSharedMemory *pSharedMem)
     : m_pMemory(pSharedMem)
 {
 }

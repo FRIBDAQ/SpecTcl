@@ -18,20 +18,20 @@ class CXamineGates;		// Forward reference.
 class CXamineEvent;
 class CXamineSpectrum;
 class CXamineButton;
-class CProductionXamineShMem;
+class CXamineSharedMemory;
 class CSpectrum;
 
 class CXamineShMemDisplayImpl
 {
-    shared_ptr<CProductionXamineShMem> m_pMemory;
-    std::vector<CSpectrum*>       m_boundSpectra;
+    std::shared_ptr<CXamineSharedMemory> m_pMemory;
+    std::vector<CSpectrum*>            m_boundSpectra;
 
 public:
-    CXamineShMemDisplayImpl(std::shared_ptr<CProductionXamineShMem> pMemory);
+    CXamineShMemDisplayImpl(std::shared_ptr<CXamineSharedMemory> pMemory);
     //CXamineShMemDisplayImpl(UInt_t nBytes);
     ~CXamineShMemDisplayImpl();
 
-    std::weak_ptr<CProductionXamineShMem> getSharedMemory() const { return m_pMemory; }
+    std::weak_ptr<CXamineSharedMemory> getSharedMemory() const { return m_pMemory; }
 
     void detach();
     void attach();

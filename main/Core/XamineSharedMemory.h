@@ -20,10 +20,10 @@ using DisplayBindings         = std::vector<std::string>;
 using DisplayBindingsIterator = DisplayBindings::iterator;
 using SpectrumContainer       = std::vector<CSpectrum*>;
 
-
 class CXamineSharedMemory
 {
 
+public:
     virtual void setManaged(bool value) = 0;
 
     virtual bool isManaged() const = 0;

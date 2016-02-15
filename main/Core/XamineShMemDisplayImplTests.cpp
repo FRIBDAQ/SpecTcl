@@ -10,6 +10,8 @@
 #include <memory>
 #include <exception>
 
+using namespace std;
+
 class XamineShMemDisplayImplTests : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(XamineShMemDisplayImplTests);
@@ -23,7 +25,7 @@ private:
 public:
     void setUp() {
         shared_ptr<CXamineSharedMemory> pShMem(new CTestXamineShMem);
-        m_pCol.reset(new CXamineShMemDisplayImpl( pShMem );
+        m_pCol.reset(new CXamineShMemDisplayImpl( pShMem ) );
     }
 
     void tearDown() {

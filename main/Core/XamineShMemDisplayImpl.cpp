@@ -38,13 +38,9 @@
 #include <assert.h>
 using namespace std;
 
-//CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(UInt_t nBytes)
-//    : m_pMemory( new CProductionXamineShMem(nBytes) )
-//{
-//}
 
-CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(std::unique_ptr<CProductionXamineShMem> pMemory)
-    : m_pMemory( move(pMemory) )
+CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(std::shared_ptr<CXamineSharedMemory> pMemory)
+    : m_pMemory( pMemory )
 {
 }
 
