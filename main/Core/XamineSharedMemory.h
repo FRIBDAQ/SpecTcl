@@ -39,10 +39,7 @@ public:
     virtual DisplayBindings getDisplayBindings() const = 0;
 
     virtual CXamineSpectrum& operator[](UInt_t n) = 0;
-    virtual DisplayBindingsIterator displayBindingsBegin() = 0;
-    virtual DisplayBindingsIterator displayBindingsEnd() = 0;
 
-    virtual UInt_t displayBindingsSize() const = 0;
     virtual Int_t findDisplayBinding(std::string name) = 0;
     virtual Int_t findDisplayBinding(CSpectrum& rSpectrum) = 0;
 

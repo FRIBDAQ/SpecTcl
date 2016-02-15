@@ -75,9 +75,6 @@ public:
     CXamineSpectrumIterator begin();
     CXamineSpectrumIterator end();
 
-    DisplayBindingsIterator displayBindingsBegin();
-    DisplayBindingsIterator displayBindingsEnd();
-    UInt_t displayBindingsSize() const;
     Int_t findDisplayBinding(std::string name);
     Int_t findDisplayBinding(CSpectrum& rSpectrum);
 

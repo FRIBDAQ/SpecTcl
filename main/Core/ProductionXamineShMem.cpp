@@ -690,33 +690,6 @@ DisplayBindings CProductionXamineShMem::getDisplayBindings() const
    return m_DisplayBindings;
 }
 
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    DisplayBindingsIterator DisplayBindingsBegin()
-//  Operation Type:
-//     Selector
-//
-DisplayBindingsIterator CProductionXamineShMem::displayBindingsBegin() {
-  // Returns a begining iterator to support iterating through the set of
-  // display bindings.
-  return m_DisplayBindings.begin();
-}
-
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    DisplayBindingsIterator DisplayBindingsEnd (  )
-//  Operation Type:
-//
-//
-DisplayBindingsIterator CProductionXamineShMem::displayBindingsEnd() {
-  // Returns an iterator which can be used to determin
-  // if the end of the display bindings set has been iterated through.
-  return m_DisplayBindings.end();
-}
-
-
 /*!
     Find the bindings for a spectrum by name.
    \param name  : string
@@ -729,7 +702,7 @@ DisplayBindingsIterator CProductionXamineShMem::displayBindingsEnd() {
 Int_t
 CProductionXamineShMem::findDisplayBinding(string name)
 {
-  for (int i = 0; i < displayBindingsSize(); i++) {
+  for (int i = 0; i < m_DisplayBindings.size(); i++) {
     if (name == m_DisplayBindings[i]) {
       return i;
     }
@@ -742,18 +715,6 @@ CProductionXamineShMem::findDisplayBinding(CSpectrum& rSpectrum)
 {
     return findDisplayBinding(rSpectrum.getName());
 }
-//////////////////////////////////////////////////////////////////////////
-//
-//  Function:
-//    UInt_t DisplayBindingsSize (  )
-//  Operation Type:
-//
-//
-UInt_t CProductionXamineShMem::displayBindingsSize() const {
-  // Returns the number of spectra bound to the display.
-  return m_DisplayBindings.size();
-}
-
 
 //////////////////////////////////////////////////////////////////////////
 //

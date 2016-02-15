@@ -55,13 +55,7 @@ DisplayBindings CTestXamineShMem::getDisplayBindings() const {
 }
 
 CXamineSpectrum& CTestXamineShMem::operator[](UInt_t n) {}
-DisplayBindingsIterator CTestXamineShMem::displayBindingsBegin()
-{
 
-}
-DisplayBindingsIterator CTestXamineShMem::displayBindingsEnd() {}
-
-UInt_t CTestXamineShMem::displayBindingsSize() const { return 0;}
 Int_t CTestXamineShMem::findDisplayBinding(std::string name) {
 
 }

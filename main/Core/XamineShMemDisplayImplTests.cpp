@@ -41,6 +41,7 @@ class XamineShMemDisplayImplTests : public CppUnit::TestFixture
     CPPUNIT_TEST(updateStatistics_0);
     CPPUNIT_TEST(setTitle_0);
     CPPUNIT_TEST(setTitle_1);
+    CPPUNIT_TEST(getAssociatedGates_0);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -68,9 +69,9 @@ public:
         return pSpec;
     }
 
-    void setUpGate(CHistogrammer& sorter) {
+    void setUpGate(CHistogrammer& sorter, std::string name) {
         CCut cut(0, 1, 0);
-        sorter.AddGate("testgate", 0, cut);
+        sorter.AddGate(name, 0, cut);
     }
 
 
@@ -101,7 +102,7 @@ public:
         // set up the hstigrammer and spectrum
         CHistogrammer sorter;
         auto pSpec = setUpSpectrum(sorter);
-        setUpGate(sorter);
+        setUpGate(sorter, "testgate");
 
         m_pImpl->addSpectrum(*pSpec, sorter);
 
@@ -187,6 +188,21 @@ public:
         EQMSG("Set title sets the info for correct slot",
               0, it->second.s_slot);
 
+    }
+
+
+    void getAssociatedGates_0 () {
+        CHistogrammer sorter;
+
+        auto pSpec = setUpSpectrum(sorter);
+        setUpGate(sorter, "testgate");
+
+        CGateContainer* pGate = sorter.FindGate("testgate");
+
+        m_pImpl->addSpectrum(*pSpec, sorter);
+
+        ASSERTMSG("Associated gates works in a simple fashion",
+              vector<CGateContainer>({*pGate}) == m_pImpl->getAssociatedGates("testing123", sorter));
     }
 
 };
