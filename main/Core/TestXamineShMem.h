@@ -12,8 +12,10 @@ class CSpectrum;
 
 
 struct BoundSpectrum {
-    std::string s_info;
-    int         s_slot;
+    int                   s_slot;
+    std::string           s_info;
+    std::vector<unsigned> s_underflows;
+    std::vector<unsigned> s_overflows;
 };
 
 
@@ -73,5 +75,9 @@ public:
     virtual void setOverflows(unsigned slot, unsigned x, unsigned y);
     virtual void clearStatistics(unsigned slot);
 };
+
+extern
+std::map<CSpectrum*, BoundSpectrum>::iterator
+findBySlot(std::map<CSpectrum*, BoundSpectrum>& map, int slot);
 
 #endif // TESTXAMINESHMEM_H

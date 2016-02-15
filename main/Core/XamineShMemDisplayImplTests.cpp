@@ -13,8 +13,24 @@
 #include "GateContainer.h"
 #include <memory>
 #include <exception>
+#include <ostream>
+#include <iterator>
+#include <algorithm>
 
 using namespace std;
+
+template<class T>
+ostream& operator<<(ostream& str, const vector<T>& vec) {
+
+    str << "{";
+    copy(vec.begin(), vec.end()-1, ostream_iterator<T>(str, ","));
+    if (vec.begin() != vec.end()) {
+        str << vec.back();
+    }
+    str << "}";
+
+    return str;
+}
 
 class XamineShMemDisplayImplTests : public CppUnit::TestFixture
 {
@@ -22,6 +38,7 @@ class XamineShMemDisplayImplTests : public CppUnit::TestFixture
     CPPUNIT_TEST(addSpectrum_0);
     CPPUNIT_TEST(addSpectrum_1);
     CPPUNIT_TEST(removeSpectrum_0);
+    CPPUNIT_TEST(updateStatistics_0);
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -39,12 +56,13 @@ public:
 
     }
 
-    void setUpSpectrum(CHistogrammer& sorter) {
+    shared_ptr<CSpectrum> setUpSpectrum(CHistogrammer& sorter) {
         CParameter* pParam = sorter.AddParameter("param", 0, 1., 0, 256, "arb");
 
-        CSpectrum1DL spec("testing123", 0, *pParam, 256); // id = 0
-        sorter.AddSpectrum(spec);
+        std::shared_ptr<CSpectrum> pSpec(new CSpectrum1DL("testing123", 0, *pParam, 256)); // id = 0
+        sorter.AddSpectrum(*pSpec);
 
+        return pSpec;
     }
 
     void setUpGate(CHistogrammer& sorter) {
@@ -57,12 +75,12 @@ public:
 
         // set up the hstigrammer and spectrum
         CHistogrammer sorter;
-        setUpSpectrum(sorter);
+        auto pSpec = setUpSpectrum(sorter);
 
-        m_pImpl->addSpectrum(spec, sorter);
+        m_pImpl->addSpectrum(*pSpec, sorter);
 
         const auto& boundSpectra = m_pShMem->boundSpectra();
-        auto it = boundSpectra.find(&spec);
+        auto it = boundSpectra.find(pSpec.get());
         ASSERTMSG("Check that adding a spectrum to the shared memory does work",
                   boundSpectra.end() != it );
         EQMSG("Slot starts at 0", 0, it->second.s_slot);
@@ -73,18 +91,19 @@ public:
         EQMSG("No gates are added for a spectrum that has no applied gates",
               size_t(0), m_pShMem->getGates().size());
 
+
     }
 
     void addSpectrum_1() {
         // set up the hstigrammer and spectrum
         CHistogrammer sorter;
-        setUpSpectrum(sorter);
+        auto pSpec = setUpSpectrum(sorter);
         setUpGate(sorter);
 
-        m_pImpl->addSpectrum(spec, sorter);
+        m_pImpl->addSpectrum(*pSpec, sorter);
 
         const auto& boundSpectra = m_pShMem->boundSpectra();
-        auto it = boundSpectra.find(&spec);
+        auto it = boundSpectra.find(pSpec.get());
 
         ASSERTMSG("Check that adding a spectrum to the shared memory does work",
                   boundSpectra.end() != it );
@@ -98,6 +117,38 @@ public:
     }
 
     void removeSpectrum_0() {
+        // this is a straight delegation to the memory... no need to test
+    }
+
+    void addFit_0 () {
+        // straight delegation... no logic to test
+    }
+
+    void deleteFit_0() {
+        // straight delegation... no logic to test
+    }
+
+    void updateStatistics_0() {
+        CHistogrammer sorter;
+        auto pSpec = setUpSpectrum(sorter);
+
+        m_pImpl->addSpectrum(*pSpec, sorter);
+
+        pSpec->logUnderflow(0);
+
+        pSpec->logOverflow(0);
+        pSpec->logOverflow(0);
+
+        m_pImpl->updateStatistics();
+
+        auto spectra = m_pShMem->boundSpectra();
+        auto it = spectra.find(pSpec.get());
+
+        EQMSG("Underflows should be updated updateStatistics is called",
+              vector<unsigned>({1}), it->second.s_underflows);
+
+        EQMSG("Underflows should be updated updateStatistics is called",
+          vector<unsigned>({2}), it->second.s_overflows);
 
     }
 

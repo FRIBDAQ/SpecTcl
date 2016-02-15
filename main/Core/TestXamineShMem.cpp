@@ -2,7 +2,7 @@
 #include "Spectrum.h"
 #include "GateContainer.h"
 
-
+#include <algorithm>
 
 CTestXamineShMem::CTestXamineShMem()
     : m_slotIndex(0)
@@ -85,6 +85,49 @@ CXamineGates* CTestXamineShMem::GetGates (UInt_t nSpectrum)  {
 
 }
 
-void CTestXamineShMem::setUnderflows(unsigned slot, unsigned x, unsigned y) {}
-void CTestXamineShMem::setOverflows(unsigned slot, unsigned x, unsigned y) {}
-void CTestXamineShMem::clearStatistics(unsigned slot) {}
+void CTestXamineShMem::setUnderflows(unsigned slot, unsigned x, unsigned y)
+{
+    auto it = findBySlot(m_map, slot);
+    if (it != m_map.end()) {
+        BoundSpectrum& info = it->second;
+        if (y != 0) {
+            info.s_underflows = {x, y};
+        } else {
+            info.s_underflows = {x};
+        }
+    }
+}
+
+void CTestXamineShMem::setOverflows(unsigned slot, unsigned x, unsigned y)
+{
+    auto it = findBySlot(m_map, slot);
+    if (it != m_map.end()) {
+        BoundSpectrum& info = it->second;
+        if (y != 0) {
+            info.s_overflows = {x, y};
+        } else {
+            info.s_overflows = {x};
+        }
+    }
+}
+
+void CTestXamineShMem::clearStatistics(unsigned slot) {
+    auto it = findBySlot(m_map, slot);
+    if (it != m_map.end()) {
+        BoundSpectrum& info = it->second;
+        info.s_underflows.clear();
+        info.s_overflows.clear();
+    }
+}
+
+
+
+std::map<CSpectrum*, BoundSpectrum>::iterator
+findBySlot(std::map<CSpectrum*, BoundSpectrum> &map, int slot)
+{
+    return find_if(map.begin(),
+                   map.end(),
+                   [&slot](std::map<CSpectrum*, BoundSpectrum>::const_reference value) -> bool {
+                        return (value.second.s_slot == slot);
+                    });
+}
