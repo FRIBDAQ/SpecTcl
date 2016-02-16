@@ -19,7 +19,7 @@
 #include <string>
 #include <stdlib.h>
 #include <iostream>
-#include <Asserts.h>
+#include "Asserts.h"
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -28,7 +28,7 @@ using namespace std;
 CParameterMappingTest::CParameterMappingTest() :
   m_UnMapped(),			// Not mapped.
   m_UnitInterval(12, 0.0, 1.0),	// Mapped to unit interval.
-  m_Displaced(12, 1.0, 4096.0, string("Units"))	// Map 0-4095 -> 1-4096.
+  m_Displaced(12, 1.0, 4097.0, string("Units"))	// Map 0-4096 -> 1-4097.
 {}
 
 //
@@ -37,7 +37,6 @@ CParameterMappingTest::CParameterMappingTest() :
 void 
 CParameterMappingTest::testConstructors() 
 {
-  std::cerr << "Testing CParameterMapping constructors\n";
 
   CPPUNIT_ASSERT(!m_UnMapped.isMapped()); // Unmapped is unmapped.
   CPPUNIT_ASSERT(m_UnitInterval.isMapped()); // And the mapped ones are mapped
@@ -59,7 +58,6 @@ CParameterMappingTest::testConstructors()
 void
 CParameterMappingTest::testIdentityTransform()
 {
-  std::cerr << "Testing identity transform\n";
 
   for(int i = 0; i < 100; i++) {
     float f = (float)rand();
@@ -75,18 +73,18 @@ CParameterMappingTest::testIdentityTransform()
 void
 CParameterMappingTest::testUnitInterval()
 {
-  std::cerr << "Testing [0,4095] -> [0.0, 1.0] transform\n";
-
   for(int i =0; i < 100; i++) {
     float f = (float)rand();
     f = (f/(float)RAND_MAX)*4095.0;
     // Check forward transform is correct:
     float mapped = m_UnitInterval.RawToMapped(f);
-    CPPUNIT_ASSERT((float)(f/4095.0) == mapped);
+    EQMSG("Forward transform is correct",
+          (float)(f/4096.0), mapped);
 
     // Check transform is reversible:
 
-    CPPUNIT_ASSERT(f = m_UnitInterval.MappedToRaw(mapped));
+    EQMSG("Check transform is reversible",
+          f, m_UnitInterval.MappedToRaw(mapped));
   }
 
 }
@@ -97,8 +95,6 @@ void CParameterMappingTest::testSlideTransform()
   // by +1 and the mapped value back by -1.
   // We'll test this with 100 random values as well
   
-  cerr << "Checking +/-1 slide mapping\n";
-
   for(int i = 0; i < 100; i++ ) {
     float f = (float)((float)rand()*4095.0/(float)RAND_MAX);
 

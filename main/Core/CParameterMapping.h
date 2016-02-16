@@ -149,7 +149,7 @@ public:
 
   Float_t RawToMapped (Float_t fRaw) {
     if(!m_fMapped) return fRaw;	// Unmapped parameters don't change
-    Float_t RawMax = (Float_t)((1 << m_nBits) - 1);
+    Float_t RawMax = (Float_t)((1 << m_nBits));
     return m_fLow + (m_fHigh - m_fLow)*fRaw/RawMax; 
     
   } 
