@@ -17,6 +17,7 @@
 #include <buffer.h>
 
 #include <vector>
+#include <cstdint>
 
 #ifdef HAVE_STD_NAMESPACE
 using namespace std;
@@ -108,10 +109,10 @@ CStandardScalerCallback::operator()(unsigned int nBufferType, const void* pBuffe
   // Now we get to the scaler buffer body:
 
   p += 16;			// Pointing to end time.
-  TranslatorPointer<unsigned long> pend(p);
+  TranslatorPointer<uint32_t> pend(p);
   unsigned long endTime = *pend++;
   p += 5;			// Pointing to start time:
-  TranslatorPointer<unsigned long> pstart(p);
+  TranslatorPointer<uint32_t> pstart(p);
   unsigned long startTime = *pstart++;
 
 
@@ -120,7 +121,7 @@ CStandardScalerCallback::operator()(unsigned int nBufferType, const void* pBuffe
 
   p += 5;			// Pointing to the scalers:
 
-  TranslatorPointer<unsigned long> pScalers(p);
+  TranslatorPointer<uint32_t> pScalers(p);
 
   for(int i =0; i < numScalers; i++) {
     unsigned long increment = *pScalers++;
