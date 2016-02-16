@@ -4,7 +4,7 @@ scripts_SCRIPTS = dtree.tcl fileall.tcl gui.tcl handle.tcl \
 									listall.tcl save.head tkcon.tcl \
 									tree.tcl CopyGates.tcl
 
-testScripts = all.tcl dependsondeleted.test formatgatetest.test \
+testScripts = fileall_test all.tcl dependsondeleted.test formatgatetest.test \
 							gateparamcount.test generalgatetype.test \
 							getdependencies.test listify.test \
 							markwritable.test setstatus.test \
