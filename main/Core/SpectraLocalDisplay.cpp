@@ -88,10 +88,7 @@ void CSpectraLocalDisplay::startRESTServer()
     std::string prefix(INSTALLED_IN);
     std::string cmd ("lappend auto_path ");
     cmd += prefix + "/TclLibs";
-
-
-
-    auto resultStr = pInterp->GlobalEval("lappend auto_path [file join /home tompkins Code spectcl code 4.0-dev plugins rest]");
+    auto resultStr = pInterp->GlobalEval(cmd.c_str());
     resultStr = pInterp->GlobalEval("puts $auto_path");
     std::cout << resultStr << std::endl;
     resultStr = pInterp->GlobalEval("package require SpecTclHttpdServer");
