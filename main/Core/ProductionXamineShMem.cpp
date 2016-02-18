@@ -49,9 +49,11 @@ int CProductionXamineShMem::m_nextFitlineId(1); // Next fitline id assigned.
 
 CProductionXamineShMem::CProductionXamineShMem()
     :
-     m_pMemory(0),
+     m_pMemory(nullptr),
      m_fManaged(kfFALSE),
-     m_nBytes(0)
+     m_nBytes(0),
+     m_DisplayBindings(),
+     m_FitlineBindings()
 {
     m_pMemory = Xamine_memory;
 }
@@ -64,8 +66,11 @@ CProductionXamineShMem::CProductionXamineShMem()
 //    Parameterized Constructor.
 //
 CProductionXamineShMem::CProductionXamineShMem(size_t nBytes) :
-  m_fManaged(kfFALSE),
-  m_nBytes(nBytes)
+    m_pMemory(nullptr),
+    m_fManaged(kfFALSE),
+    m_nBytes(nBytes),
+    m_DisplayBindings(),
+    m_FitlineBindings()
 {
     attach();
 }
@@ -73,7 +78,7 @@ CProductionXamineShMem::CProductionXamineShMem(size_t nBytes) :
 CProductionXamineShMem::~CProductionXamineShMem()
 {
     detach();
-    m_pMemory = NULL;
+    m_pMemory = nullptr;
 }
 
 void CProductionXamineShMem::attach()

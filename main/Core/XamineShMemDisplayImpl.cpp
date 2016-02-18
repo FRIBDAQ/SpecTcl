@@ -40,9 +40,15 @@ using namespace std;
 
 
 CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(std::shared_ptr<CXamineSharedMemory> pMemory)
-    : m_pMemory( pMemory )
+    : m_pMemory( pMemory ),
+      m_boundSpectra()
 {
 }
+
+CXamineShMemDisplayImpl::CXamineShMemDisplayImpl(const CXamineShMemDisplayImpl &rhs)
+    : m_pMemory( rhs.m_pMemory ),
+      m_boundSpectra( rhs.m_boundSpectra )
+{}
 
 CXamineShMemDisplayImpl::~CXamineShMemDisplayImpl()
 {

@@ -40,13 +40,14 @@
 
 #include <Xamine.h>
 
-#include <string>
-#include <memory>
-
 #include <histotypes.h>
 #include "XamineSpectrumIterator.h"
 
 #include "DisplayFactory.h"
+
+#include <string>
+#include <memory>
+
 
 //
 //  forward references to classes:
@@ -71,7 +72,7 @@ public:
   // Constructors:
 
 //  CXamine();			// Bind to existing Xamine
-  CXamine (UInt_t nBytes);	
+  CXamine (std::shared_ptr<CXamineSharedMemory> pSharedMem);
 				// New Xamine region nbytes of spectrum space
   virtual ~CXamine ();       //Destructor
 
@@ -170,15 +171,15 @@ protected:
 class CXamineCreator : public CDisplayCreator
 {
 private:
-    UInt_t m_nDisplayBytes;
+    std::shared_ptr<CXamineSharedMemory> m_pSharedMem;
 
 public:
-    CXamineCreator(UInt_t nDisplayBytes);
+    CXamineCreator();
 
     CXamine* create();
 
-    void setDisplayBytes(UInt_t nBytes) { m_nDisplayBytes = nBytes; }
-    UInt_t getDisplayBytes() const { return m_nDisplayBytes; }
+    void setSharedMemory(std::shared_ptr<CXamineSharedMemory> pShMem) { m_pSharedMem = pShMem; }
+    std::weak_ptr<CXamineSharedMemory> getDisplayBytes() const { return m_pSharedMem; }
 };
 
 

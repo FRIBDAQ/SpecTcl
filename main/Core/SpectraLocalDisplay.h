@@ -2,9 +2,12 @@
 #define SPECTRALOCALDISPLAY_H
 
 #include <Display.h>
+#include <DisplayFactory.h>
 #include <memory>
 
-class CProductionXamineShMem;
+class SpecTcl;
+class CXamineShMemDisplayImpl;
+class CXamineSharedMemory;
 
 namespace Spectra
 {
@@ -16,11 +19,12 @@ class CSpectraLocalDisplay : public CDisplay
 
 private:
 
-    std::unique_ptr<CSpectraProcess>     m_pProcess;
-    std::unique_ptr<CProductionXamineShMem> m_pMemory;
+    std::unique_ptr<CSpectraProcess>         m_pProcess;
+    std::unique_ptr<CXamineShMemDisplayImpl> m_pMemory;
+    SpecTcl&                                 m_rSpecTcl;
 
 public:
-    CSpectraLocalDisplay(size_t nBytes);
+    CSpectraLocalDisplay(std::shared_ptr<CXamineSharedMemory> pSharedMem, SpecTcl& pSpecTcl);
     CSpectraLocalDisplay(const CSpectraLocalDisplay& rhs);
 
     virtual ~CSpectraLocalDisplay();
@@ -57,9 +61,19 @@ public:
     void startRESTServer();
     void stopRESTServer();
 
+};
 
+class CSpectraLocalDisplayCreator : public CDisplayCreator
+{
+private:
+    std::shared_ptr<CXamineSharedMemory> m_pSharedMem;
 
+public:
+    CSpectraLocalDisplayCreator();
 
+    void setSharedMemory(std::shared_ptr<CXamineSharedMemory> pShMem) { m_pSharedMem = pShMem; }
+
+    CSpectraLocalDisplay* create();
 };
 
 }

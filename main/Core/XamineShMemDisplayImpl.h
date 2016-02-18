@@ -24,11 +24,11 @@ class CSpectrum;
 class CXamineShMemDisplayImpl
 {
     std::shared_ptr<CXamineSharedMemory> m_pMemory;
-    std::vector<CSpectrum*>            m_boundSpectra;
+    std::vector<CSpectrum*>              m_boundSpectra;
 
 public:
     CXamineShMemDisplayImpl(std::shared_ptr<CXamineSharedMemory> pMemory);
-    //CXamineShMemDisplayImpl(UInt_t nBytes);
+    CXamineShMemDisplayImpl( const CXamineShMemDisplayImpl& rhs );
     ~CXamineShMemDisplayImpl();
 
     std::weak_ptr<CXamineSharedMemory> getSharedMemory() const { return m_pMemory; }
@@ -47,7 +47,7 @@ public:
     void updateStatistics();
 
     std::vector<CGateContainer> getAssociatedGates(const std::string& spectrumName,
-                                                  CHistogrammer& rSorter);
+                                                   CHistogrammer& rSorter);
     bool spectrumBound(CSpectrum *pSpectrum);
 
     DisplayBindings  getDisplayBindings() const;

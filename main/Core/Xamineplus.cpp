@@ -110,13 +110,13 @@ extern   int            Xamine_newgates;  // fd for events.
  // Functions for CXamineCreator
  ////////////////////////////////////////////////////////////////////////
 
- CXamineCreator::CXamineCreator(UInt_t nDisplayBytes)
-     :  m_nDisplayBytes(nDisplayBytes)
+ CXamineCreator::CXamineCreator()
+     :  m_pSharedMem()
  {}
 
  CXamine* CXamineCreator::create()
  {
-     return new CXamine(m_nDisplayBytes);
+     return new CXamine(m_pSharedMem);
  }
 
 
@@ -150,10 +150,9 @@ extern   int            Xamine_newgates;  // fd for events.
 // Operation Type:
 //    Parameterized Constructor.
 //
-CXamine::CXamine(UInt_t nBytes)
+CXamine::CXamine(std::shared_ptr<CXamineSharedMemory> pSharedMem)
 {
-    std::shared_ptr<CXamineSharedMemory> pMem(new CProductionXamineShMem(nBytes));
-    m_pImpl.reset(new CXamineShMemDisplayImpl(pMem));
+    m_pImpl.reset(new CXamineShMemDisplayImpl(pSharedMem));
 }
 
 CXamine::CXamine (const CXamine& aCXamine ) :

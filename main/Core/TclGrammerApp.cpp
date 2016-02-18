@@ -51,6 +51,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "TCLAnalyzer.h"
 
 #include "SpecTclDisplayManager.h"
+#include "SpectraLocalDisplay.h"
 #include "XamineEventHandler.h"
 
 #include "SpecTcl.h"
@@ -70,6 +71,8 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include "VersionCommand.h"
 #include "SContentsCommand.h"
 
+#include "ProductionXamineShMem.h"
+
 #include <histotypes.h>
 #include <buftypes.h>
 #include <string>
@@ -86,6 +89,7 @@ static const char* Copyright = "(C) Copyright Michigan State University 2008, Al
 #include <string.h>
 #include <errno.h>
 #include <stdexcept>
+#include <memory>
 
 #if defined(Darwin)
 #include <sys/syslimits.h>
@@ -496,18 +500,31 @@ void CTclGrammerApp::CreateDisplays()
     m_pDisplayInterface = new CSpecTclDisplayInterface;
     api.SetDisplayInterface(*m_pDisplayInterface);
 
+    std::shared_ptr<CXamineSharedMemory> pShMem(new CProductionXamineShMem(m_nDisplaySize*1024*1024));
+
     // Set up the Xamine display to use the appropriate display size
     CDisplayCreator* pCreator = gpDisplayInterface->getFactory().getCreator("xamine");
     CXamineCreator* pXCreator = dynamic_cast<CXamineCreator*>(pCreator);
     if (pXCreator != NULL) {
-        pXCreator->setDisplayBytes(m_nDisplaySize*1024*1024);
+        pXCreator->setSharedMemory(pShMem);
     } else {
         throw std::runtime_error("Failed to cast to a CXamineCreator");
     }
 
+    // Set up the Xamine display to use the appropriate display size
+    pCreator = gpDisplayInterface->getFactory().getCreator("spectra");
+    Spectra::CSpectraLocalDisplayCreator* pSpectraCreator
+            = dynamic_cast<Spectra::CSpectraLocalDisplayCreator*>(pCreator);
+    if (pSpectraCreator != NULL) {
+        pSpectraCreator->setSharedMemory(pShMem);
+    } else {
+        throw std::runtime_error("Failed to cast to a CSpectraLocalDisplayCreator");
+    }
+
     // Create the displays so they can chosen.
-    m_pDisplayInterface->createDisplay("xamine", "xamine");
-    m_pDisplayInterface->createDisplay("batch", "null");
+    m_pDisplayInterface->createDisplay("xamine",  "xamine");
+    m_pDisplayInterface->createDisplay("batch",   "null");
+    m_pDisplayInterface->createDisplay("spectra", "spectra");
 }
 
 /*! \brief CTclGrammerApp::SelectDisplayer()
