@@ -84,10 +84,21 @@ void CSpectraLocalDisplay::startRESTServer()
 {
     CTCLInterpreter* pInterp = m_rSpecTcl.getInterpreter();
 
-    auto resultStr = pInterp->GlobalEval("package require SpecTclHttpdServer");
-    cout << resultStr << endl;
-    resultStr = pInterp->GlobalEval("startSpecTclHttpdServer [findFreePort 8080]");
-    cout << resultStr << endl;
+    // preproc macro INSTALLED_IN defined in Makefile at compile time
+    std::string prefix(INSTALLED_IN);
+    std::string cmd ("lappend auto_path ");
+    cmd += prefix + "/TclLibs";
+
+
+
+    auto resultStr = pInterp->GlobalEval("lappend auto_path [file join /home tompkins Code spectcl code 4.0-dev plugins rest]");
+    resultStr = pInterp->GlobalEval("puts $auto_path");
+    std::cout << resultStr << std::endl;
+    resultStr = pInterp->GlobalEval("package require SpecTclHttpdServer");
+    std::cout << resultStr << std::endl;
+    resultStr = pInterp->GlobalEval("startSpecTclHttpdServer [::SpecTcl::findFreePort 8080]");
+    std::cout << resultStr << std::endl;
+
 }
 
 void CSpectraLocalDisplay::stopRESTServer()
@@ -95,7 +106,6 @@ void CSpectraLocalDisplay::stopRESTServer()
     CTCLInterpreter* pInterp = m_rSpecTcl.getInterpreter();
 
     auto resultStr = pInterp->GlobalEval("Httpd_ServerShutdown");
-    cout << resultStr << endl;
 
 }
 
@@ -143,6 +153,7 @@ std::vector<CGateContainer> CSpectraLocalDisplay::getAssociatedGates(const std::
                                                                 CHistogrammer &rSorter)
 {
     // no op b/c we don't use it
+    return std::vector<CGateContainer>();
 }
 
 std::string CSpectraLocalDisplay::createTitle(CSpectrum &rSpectrum, UInt_t maxLength,

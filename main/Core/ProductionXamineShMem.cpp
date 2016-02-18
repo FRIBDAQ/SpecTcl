@@ -83,6 +83,9 @@ CProductionXamineShMem::~CProductionXamineShMem()
 
 void CProductionXamineShMem::attach()
 {
+    // abort if we are already attached
+    if (m_pMemory) return;
+
     if(!Xamine_CreateSharedMemory(m_nBytes,
                                  (volatile Xamine_shared**)&m_pMemory)) {
       throw CErrnoException("Failed to create Xamine shared memory!!");

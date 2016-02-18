@@ -1,10 +1,12 @@
 #ifndef CSPECTRAPROCESS_H
 #define CSPECTRAPROCESS_H
 
+#include "Subprocess.h"
+
 namespace Spectra
 {
 
-class CSpectraProcess
+class CSpectraProcess : public Subprocess
 {
 private:
     int m_pid;
@@ -18,6 +20,8 @@ public:
 
     int getPid() const;
     bool isRunning() const;
+
+    std::string generatePath() const;
 
 };
 

@@ -685,7 +685,6 @@ AM_CONDITIONAL([CPPUNIT], [test -n "${CPPUNIT_LIBS}"] )
 AM_CONDITIONAL([CPPUNITDONOTBUILD], [test -n ""])
 AM_CONDITIONAL([THIS_IS_NOT_DEFINED], [test -n ""])
 
-
 # We use mandb to index the man pages if it exists... not sure what the 
 # alternatives are on other systems so transform mandb -> echo if
 # we can't find it:

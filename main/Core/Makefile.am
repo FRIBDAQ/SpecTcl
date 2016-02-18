@@ -354,7 +354,7 @@ noinst_HEADERS = $(DecoderRing_noinst_INCLUDES)
 noinst_PROGRAMS =  scalertests docbuftests spectrumPkgTests \
 					displayInterfaceTests \
 					sorterTests treeParamTests fitTests \
-					xamineTests
+					xamineTests spectraDisplayTests
 
 commonCXXFLAGS = -I@top_srcdir@/Core \
 				  -I@top_srcdir@/Utility \
@@ -425,7 +425,13 @@ xamineTests_SOURCES = TestRunner.cpp TestXamineShMem.cpp TestXamineShMem.h \
 												XamineShMemDisplayImplTests.cpp
 
 
+spectraDisplayTests_CXXFLAGS = $(commonCXXFLAGS)
+spectraDisplayTests_LDADD = $(commonTestLdFlags)
+spectraDisplayTests_SOURCES = TestRunner.cpp \
+								TestXamineShMem.cpp TestXamineShMem.h \
+								SpectraLocalDisplayTests.cpp SpectraProcessTests.cpp
+
 TESTS = scalertests docbuftests spectrumPkgTests displayInterfaceTests \
-		sorterTests treeParamTests fitTests xamineTests
+		sorterTests treeParamTests fitTests xamineTests spectraDisplayTests
 
 

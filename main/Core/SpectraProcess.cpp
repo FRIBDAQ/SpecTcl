@@ -5,6 +5,7 @@
 
 #include <string>
 #include <cstdlib>
+#include <iostream>
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -14,7 +15,7 @@
 namespace Spectra
 {
 
-CSpectraProcess::CSpectraProcess()
+CSpectraProcess::CSpectraProcess() : m_pid(0)
 {
 }
 
@@ -42,12 +43,7 @@ void CSpectraProcess::exec()
         m_pid = fork();
         if (m_pid == 0) {
             // child process
-#ifdef SPECTRA_FILENAME
-            std::string spectraPath = SPECTRA_FILENAME;
-#else
-            std::string spectraPath = getenv("SPECTRA_ENV_FILENAME");
-#endif
-            execv(spectraPath.c_str(), nullptr);
+            execv(generatePath().c_str(), nullptr);
             return;
         } else {
             fcntl(0, F_SETFD, inflg);
@@ -55,6 +51,21 @@ void CSpectraProcess::exec()
             fcntl(2, F_SETFD, errflg);
         }
     }
+}
+
+std::string CSpectraProcess::generatePath() const {
+
+    // Makefile rule sets INSTALLED_IN to @prefix@
+    std::string defaultSpectraPath(INSTALLED_IN);
+
+    defaultSpectraPath += "/bin/spectra";
+
+    // environment variable overrides
+    std::string spectraPath = std::getenv("SPECTRA_EXECUTABLE_PATH");
+    if ( spectraPath.empty() )
+        spectraPath = defaultSpectraPath;
+
+    return spectraPath;
 }
 
 void CSpectraProcess::kill()
