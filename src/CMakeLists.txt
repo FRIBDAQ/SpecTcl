@@ -38,8 +38,7 @@ set(spectra_SOURCES
   SpectrumView.cpp
   MultiSpectrumView.cpp
   ConnectionTester.cpp
-  TabbedMultiSpectrumView.cpp
-  Benchmarker.cpp)
+  TabbedMultiSpectrumView.cpp)
 
 set(spectra_HEADERS
   QRootCanvas.h 
@@ -82,8 +81,7 @@ set(spectra_HEADERS
   SpectrumView.h
   MultiSpectrumView.h
   ConnectionTester.h
-  TabbedMultiSpectrumView.h
-  Benchmarker.h)
+  TabbedMultiSpectrumView.h)
 
 set(spectra_FORMS
   mainwindow.ui 
@@ -120,68 +118,16 @@ qt4_wrap_ui(spectra_FORMS_HEADERS ${spectra_FORMS})
 qt4_add_resources(spectra_RESOURCES ${spectra_RESOURCES})
 
 
-## ----   SPECTCLJSON ------------------------------------------------- 
-
-if(DEFINED SpecTclJsonPrefix)
-    set(SPECTCLJSON_INCLUDE_DIRS ${SpecTclJsonPrefix}/include)
-    set(SPECTCLJSON_LIBRARY_DIRS ${SpecTclJsonPrefix}/lib)
-
-else()
-    # add the SpecTclJson to this
-    include(ExternalProject)
-    set(USE_PROJECT_CMAKE_MODULE_PATH "-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
-    ExternalProject_ADD(SpecTclJson
-    GIT_REPOSITORY  http://github.com/jrtomps/SpecTclJson.git
-    GIT_TAG master
-    TEST_COMMAND ""
-    CMAKE_ARGS
-	-DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}
-	-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-	-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-	-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-	${USE_PROJECT_CMAKE_MODULE_PATH}
-    )
-
-    set(SPECTCLJSON_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include)
-    set(SPECTCLJSON_LIBRARY_DIRS ${CMAKE_BINARY_DIR}/lib)
-
-
-endif()
-
-message("SPECTCLJSON_INCLUDE_DIR",${SPECTCLJSON_INCLUDE_DIRS})
-message("SPECTCLJSON_LIBRARY_DIR",${SPECTCLJSON_LIBRARY_DIRS})
-
-add_library(libSpecTclJson UNKNOWN IMPORTED)
-set_property(TARGET libSpecTclJson
-	     PROPERTY IMPORTED_LOCATION ${SPECTCLJSON_LIBRARY_DIRS}/libLibSpecTclJson.a)
-
-
-
-#### ----- ROOT -------------------------------------------------------- 
-
-set(ROOTCONFIGPATH $ENV{ROOTSYS}/bin/root-config)
-execute_process(COMMAND ${ROOTCONFIGPATH} --cflags OUTPUT_VARIABLE _rootCFlags)
-execute_process(COMMAND ${ROOTCONFIGPATH} --glibs OUTPUT_VARIABLE _rootLdFlags RESULT_VARIABLE _res)
-
-# get rid of trailing and leading whitespace
-string(STRIP ${_rootCFlags} ROOT_CXXFLAGS)
-string(STRIP ${_rootLdFlags} ROOT_LDFLAGS)
-
-# add the include paths
-add_definitions(${ROOT_CXXFLAGS})
-
-
 ## ------- JSONCPP -----------------------------------------------------
+pkg_search_module(JSONCPP jsoncpp)
 
-
-pkg_search_module(LibSpecTclJson jsoncpp)
-
-
-
+add_definitions(${ROOT_CXXFLAGS})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}
-                     ${SPECTCLJSON_INCLUDE_DIRS})
+                    ${JSONCPP_INCLUDE_DIRS}
+                    ${SPECTCLJSON_INCLUDE_DIRS}
+                    ${ROOT_INCLUDE_DIRS})
 
 ########################################################################
 
@@ -197,13 +143,13 @@ add_dependencies(Spectra SpecTclJson)
 # we depend on some external libraries
 target_link_libraries(Spectra
   ${QT_LIBRARIES}
-  libSpecTclJson
-  jsoncpp
+  LibSpecTclJson
+  ${JSONCPP_LIBRARIES}
   ${ROOT_LDFLAGS} -lQtGSI)
 
 
 add_executable(spectra main.cpp)
-target_link_libraries(spectra Spectra)
+target_link_libraries(spectra Spectra ROOT)
 
 
 #### TESTLIB .... sample

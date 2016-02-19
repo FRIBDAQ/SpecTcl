@@ -33,8 +33,40 @@ IF("${isSystemDir}" STREQUAL "-1")
    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
+#### ----- ROOT -------------------------------------------------------- 
+
+if(NOT DEFINED ENV{ROOTSYS} ) 
+  set(ROOTSYSENV $ENV{ROOTSYS})
+endif()
+
+if((NOT DEFINED ROOTSYS)) 
+  if (NOT DEFINED ROOTSYSENV)
+    message(FATAL_ERROR "ROOTSYS variable is required.")
+  else(DEFINED ROOTSYSENV)
+    set(ROOTSYS $ROOTSYSENV)
+  endif()
+endif()
+
+set(ROOTCONFIGPATH ${ROOTSYS}/bin/root-config)
+execute_process(COMMAND ${ROOTCONFIGPATH} --auxcflags OUTPUT_VARIABLE ROOT_CXXFLAGS)
+execute_process(COMMAND ${ROOTCONFIGPATH} --incdir OUTPUT_VARIABLE ROOT_INCLUDE_DIRS)
+execute_process(COMMAND ${ROOTCONFIGPATH} --glibs OUTPUT_VARIABLE ROOT_LDFLAGS RESULT_VARIABLE _res)
+execute_process(COMMAND ${ROOTCONFIGPATH} --libdir OUTPUT_VARIABLE ROOT_LIBRARY_DIRS)
+
+# get rid of trailing and leading whitespace
+string(STRIP ${ROOT_CXXFLAGS} ROOT_CXXFLAGS)
+string(STRIP ${ROOT_INCLUDE_DIRS} ROOT_INCLUDE_DIRS)
+string(STRIP ${ROOT_LDFLAGS} ROOT_LDFLAGS)
+string(STRIP ${ROOT_LIBRARY_DIRS} ROOT_LIBRARY_DIRS)
+add_library(ROOT SHARED IMPORTED)
+set_target_properties(ROOT PROPERTIES IMPORTED_LOCATION ${ROOT_LIBRARY_DIRS}/libCore.so)
+
+message(STATUS ${ROOT_CXXFLAGS})
+message(STATUS ${ROOT_LDFLAGS})
+
 enable_testing()
 
+add_subdirectory(spectcljson)
 add_subdirectory(src)
 add_subdirectory(test)
 

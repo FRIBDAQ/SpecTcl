@@ -1,3 +1,3 @@
-SUBDIRS = src test
+SUBDIRS = spectcljson src test
 
 ACLOCAL_AMFLAGS = -I m4

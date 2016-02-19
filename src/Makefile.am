@@ -42,8 +42,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   SpectrumView.h \
   MultiSpectrumView.h \
   ConnectionTester.h \
-  TabbedMultiSpectrumView.h \
-  Benchmarker.h
+  TabbedMultiSpectrumView.h 
 
 spectra_SOURCES = \
   QRootCanvas.cpp \
@@ -83,49 +82,13 @@ spectra_SOURCES = \
   MultiSpectrumView.cpp \
   ConnectionTester.cpp \
   TabbedMultiSpectrumView.cpp \
-  Benchmarker.cpp \
-	moc_QRootCanvas.cpp  \
-  moc_QRootDialog.cpp  \
-  moc_QRootApplication.cpp  \
-  moc_QRootWindow.cpp  \
-  moc_mainwindow.cpp  \
-  moc_ConnectServer.cpp  \
-  moc_SpectrumViewer.cpp  \
-  moc_Singleton.cpp   \
-  moc_HistogramList.cpp  \
-  moc_GlobalSettings.cpp  \
-  moc_ContentRequestHandler.cpp  \
-  moc_HistogramView.cpp  \
-  moc_ListRequestHandler.cpp  \
-  moc_TGo4CreateNewHistogram.cpp  \
-  moc_Compression.cpp  \
-  moc_GlobalEnum.cpp  \
-  moc_DockableGateManager.cpp  \
-  moc_GateBuilderDialog.cpp  \
-  moc_HistogramBundle.cpp  \
-  moc_GateList.cpp  \
-  moc_GateBuilder1DDialog.cpp  \
-  moc_SliceTableItem.cpp  \
-  moc_GateListItem.cpp \
   moc_GSlice.cpp \
   moc_GGate.cpp \
   moc_SpecTclInterface.cpp  \
-  moc_SpecTclRESTInterface.cpp  \
-  moc_GateEditComHandler.cpp  \
-  moc_GateEditRequest.cpp \
-  moc_GateDeleteRequest.cpp \
   moc_CommonResponseHandler.cpp \
   moc_GateListRequestHandler.cpp \
-  moc_Utility.cpp \
   moc_QTLine.cpp \
-  moc_QHistInfo.cpp \
-  moc_ControlPanel.cpp \
-  moc_GeometrySelector.cpp \
-  moc_SpectrumView.cpp \
-  moc_MultiSpectrumView.cpp \
   moc_ConnectionTester.cpp \
-  moc_TabbedMultiSpectrumView.cpp \
-  moc_Benchmarker.cpp \
 	qrc_resources.cpp
 
 spectraFORMS =  mainwindow.ui  \
@@ -154,13 +117,16 @@ BUILT_SOURCES = ui_mainwindow.h \
 								ui_GateBuilder1DDialog.h \
 								ui_ControlPanel.h \
 								ui_GeometrySelector.h \
-								TabbedMultiSpectrumView.h
+								ui_TabbedMultiSpectrumView.h
 
-spectra_CXXFLAGS = @ROOT_CFLAGS@
-spectra_LDADD = @ROOT_LDFLAGS@
+spectra_CXXFLAGS = @ROOT_CFLAGS@ \
+									 -I@top_srcdir@/spectra/spectcljson
+
+spectra_LDADD = @ROOT_LDFLAGS@ \
+								@top_builddir@/spectra/spectcljson/libSpecTclJson.la
 
 moc_%.cpp : %.h
-		@MOC -i -o $@ $<
+		@MOC@ -o$@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(MOC_CPPFLAGS) $<
 
 ui_%.h : %.ui
 	@UIC@ -o $@ $<
