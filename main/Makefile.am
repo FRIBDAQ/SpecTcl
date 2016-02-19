@@ -18,7 +18,8 @@ SUBDIRS = Replace \
 					vmusb \
 					tkcon \
 					compress \
-					docs
+					docs \
+					spectra
 
 ACLOCAL_AMFLAGS=-I m4
 
