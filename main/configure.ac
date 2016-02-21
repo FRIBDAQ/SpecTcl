@@ -924,6 +924,9 @@ AC_OUTPUT(Makefile
           vmusb/MakefileSkel 
           spectra/Makefile
           spectra/src/Makefile
-          spectra/test/Makefile
-          spectra/spectcljson/Makefile)
+          spectra/spectcljson/Makefile
+          spectra/jsoncpp/Makefile
+          spectra/jsoncpp/include/Makefile
+          spectra/jsoncpp/src/Makefile
+          spectra/jsoncpp/src/lib_json/Makefile )
           
