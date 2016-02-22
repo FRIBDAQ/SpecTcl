@@ -1,4 +1,5 @@
 
+lib_LTLIBRARIES = libSpectra.la
 
 bin_PROGRAMS = spectra
 
@@ -44,7 +45,7 @@ noinst_HEADERS =  QRootCanvas.h  \
   ConnectionTester.h \
   TabbedMultiSpectrumView.h 
 
-spectra_SOURCES = \
+libSpectra_la_SOURCES = \
   QRootCanvas.cpp \
   QRootDialog.cpp \
   QRootApplication.cpp \
@@ -82,13 +83,35 @@ spectra_SOURCES = \
   MultiSpectrumView.cpp \
   ConnectionTester.cpp \
   TabbedMultiSpectrumView.cpp \
+	moc_QRootCanvas.cpp \
+	moc_QRootDialog.cpp \
+	moc_QRootWindow.cpp \
+	moc_QRootApplication.cpp \
+	moc_mainwindow.cpp \
+	moc_ConnectServer.cpp \
+	moc_SpectrumViewer.cpp \
+  moc_HistogramList.cpp \
+	moc_HistogramView.cpp \
+	moc_ContentRequestHandler.cpp \
+	moc_ListRequestHandler.cpp \
+	moc_TGo4CreateNewHistogram.cpp \
+	moc_DockableGateManager.cpp \
+	moc_GateBuilderDialog.cpp \
+	moc_GateBuilder1DDialog.cpp \
   moc_GSlice.cpp \
   moc_GGate.cpp \
   moc_SpecTclInterface.cpp  \
+  moc_SpecTclRESTInterface.cpp  \
+  moc_GateEditComHandler.cpp \
+	moc_GateEditRequest.cpp \
   moc_CommonResponseHandler.cpp \
   moc_GateListRequestHandler.cpp \
   moc_QTLine.cpp \
+  moc_ControlPanel.cpp \
+	moc_GeometrySelector.cpp \
+	moc_MultiSpectrumView.cpp \
   moc_ConnectionTester.cpp \
+	moc_TabbedMultiSpectrumView.cpp \
 	qrc_resources.cpp
 
 spectraFORMS =  mainwindow.ui  \
@@ -119,11 +142,14 @@ BUILT_SOURCES = ui_mainwindow.h \
 								ui_GeometrySelector.h \
 								ui_TabbedMultiSpectrumView.h
 
-spectra_CXXFLAGS = @ROOT_CFLAGS@ \
-									 -I@top_srcdir@/spectra/spectcljson
+libSpectra_la_CXXFLAGS = @ROOT_CFLAGS@ \
+									 -I@top_srcdir@/spectra/spectcljson \
+									 -I@top_srcdir@/spectra/jsoncpp/include
 
-spectra_LDADD = @ROOT_LDFLAGS@ \
-								@top_builddir@/spectra/spectcljson/libSpecTclJson.la
+libSpectra_la_LIBADD = @ROOT_LDFLAGS@ -lQtGSI \
+								@top_builddir@/spectra/spectcljson/libSpecTclJson.la \
+								@top_builddir@/spectra/jsoncpp/src/lib_json/libjsoncpp.la \
+								-lz -lX11
 
 moc_%.cpp : %.h
 		@MOC@ -o$@ $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(MOC_CPPFLAGS) $<
@@ -132,5 +158,18 @@ ui_%.h : %.ui
 	@UIC@ -o $@ $<
 
 qrc_%.cpp : %.qrc
-	@RCC@ -o $@ $<
+	@RCC@ -name $(basename $<) -o $@ $<
+
+
+spectra_SOURCES = main.cpp
+
+spectra_LDADD = @top_builddir@/spectra/src/libSpectra.la \
+								@ROOT_LDFLAGS@ -lQtGSI \
+								@top_builddir@/spectra/spectcljson/libSpecTclJson.la \
+								@top_builddir@/spectra/jsoncpp/src/lib_json/libjsoncpp.la \
+								-lz -lX11
+spectra_CXXFLAGS =  @ROOT_CFLAGS@ \
+									 -I@top_srcdir@/spectra/spectcljson \
+									 -I@top_srcdir@/spectra/jsoncpp/include
+
 

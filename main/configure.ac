@@ -927,6 +927,7 @@ AC_OUTPUT(Makefile
           spectra/spectcljson/Makefile
           spectra/jsoncpp/Makefile
           spectra/jsoncpp/include/Makefile
+          spectra/jsoncpp/include/json/Makefile
           spectra/jsoncpp/src/Makefile
           spectra/jsoncpp/src/lib_json/Makefile )
           
